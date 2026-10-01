@@ -1474,3 +1474,19 @@ CREATE TABLE IF NOT EXISTS `vm_process_operation` (
  UNIQUE KEY `vm_process_active` (`active_vm_id`),
  KEY `vm_process_vm` (`vm_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- VM-scoped approved process restart profiles (C8).
+CREATE TABLE IF NOT EXISTS `cloud`.`vm_process_profile` (
+ `vm_id` BIGINT UNSIGNED NOT NULL,
+ `profile_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+ `version` INT UNSIGNED NOT NULL,
+ `definition_hash` CHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+ `metadata_json` TEXT NOT NULL,
+ `state` VARCHAR(16) NOT NULL,
+ `registered_by` BIGINT UNSIGNED NOT NULL,
+ `approved_by` BIGINT UNSIGNED DEFAULT NULL,
+ `retired_by` BIGINT UNSIGNED DEFAULT NULL,
+ `created` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+ `updated` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+ PRIMARY KEY (`vm_id`,`profile_id`,`version`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

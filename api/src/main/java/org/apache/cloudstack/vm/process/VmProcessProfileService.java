@@ -15,23 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 package org.apache.cloudstack.vm.process;
-
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Map;
 import org.apache.cloudstack.api.response.VmProcessActionResponse;
-
-public interface VmProcessActionService {
-    VmProcessActionResponse execute(
-            long vmId,
-            String requestId,
-            String snapshotId,
-            long pid,
-            String action,
-            String service);
-
-    VmProcessActionResponse restartProfile(long vmId,String requestId,String snapshotId,long pid,String profileId,int profileVersion);
-
-    VmProcessActionResponse get(long vmId, String operationId, String requestId);
-
-    default VmProcessActionResponse get(long vmId, String operationId) {
-        return get(vmId, operationId, null);
-    }
+public interface VmProcessProfileService {
+    VmProcessActionResponse list(long vmId);
+    VmProcessActionResponse manage(long vmId,String id,int version,String operation);
+    Map<String,Object> approved(long vmId,String id,int version);
+    void fence(Connection connection,long vmId,Map<String,Object> reference) throws SQLException;
 }

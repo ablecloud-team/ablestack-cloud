@@ -38,6 +38,8 @@ import com.google.gson.Gson;
 /** Uses the qemu-owned approved bundle catalog and vm_exec. Never changes a guest process or file. */
 public class VmProcessAdapterProbe {
     private static final Map<String, List<String>> PROFILES = Map.of(
+            "linux-profile", List.of("process_action_linux.py", "process-action-launcher", "process_profile_linux.py"),
+            "windows-profile", List.of("ProcessAction.ps1", "AbleProcessAction.dll", "AbleProcessIdentity.dll", "ProcessProfile.ps1", "Start-ProcessProfile.ps1"),
             "windows-read", List.of("ProcessList.ps1", "AbleProcessIdentity.dll"),
             "windows-action", List.of("ProcessAction.ps1", "AbleProcessAction.dll", "AbleProcessIdentity.dll"),
             "rocky-read", List.of("process_list_linux.py", "process-read-launcher"),
@@ -101,6 +103,49 @@ public class VmProcessAdapterProbe {
         return KvmVmOperationGuard.probe(7000, argv.toArray(new String[0]));
     }
 
+    private Map<String, Object> executeProof(String uuid, boolean windows, String program) throws IOException, InterruptedException {
+        Map<String, Object> transport = VmProcessAction.parse(execute(uuid, windows, program));
+        if (!"SUCCEEDED".equals(transport.get("state")) || !"0".equals(String.valueOf(transport.get("exit_code")))
+                || !Boolean.FALSE.equals(transport.get("encoding_loss")) || !Boolean.FALSE.equals(transport.get("out_truncated"))
+                || !Boolean.FALSE.equals(transport.get("err_truncated")) || !(transport.get("stdout_raw") instanceof String))
+            throw new IOException("Guest readiness execution unavailable");
+        return VmProcessAction.parse((String) transport.get("stdout_raw"));
+    }
+
+    private List<Map<String, Object>> windowsBundles(GetVmProcessCapabilitiesCommand command,
+            List<Map<String, Object>> candidates) throws IOException, InterruptedException {
+        String program;
+        try (java.io.InputStream input = getClass().getResourceAsStream("/vm-process-readiness-hashes.ps1")) {
+            if (input == null) throw new IOException("Readiness hash program missing");
+            program = new String(input.readAllBytes(), StandardCharsets.UTF_8)
+                    .replace("__REQUEST_JSON__", new Gson().toJson(command.getRequestId()).replace("'", "''"));
+        }
+        Map<String, Object> proof = executeProof(command.getVmUuid(), true, program);
+        Set<String> names = Set.of("ProcessList.ps1", "AbleProcessIdentity.dll", "ProcessAction.ps1", "AbleProcessAction.dll");
+        if (!proof.keySet().equals(Set.of("requestId", "sha256", "normalizedList"))
+                || !command.getRequestId().equals(proof.get("requestId"))) throw new IOException("Hash observation identity mismatch");
+        Map<String, Object> hashes = com.cloud.agent.api.VmProcessSnapshot.map(proof.get("sha256"));
+        if (!hashes.keySet().equals(names)) throw new IOException("Invalid hash observation files");
+        for (Object hash : hashes.values()) if (hash != null && (!(hash instanceof String) || !((String) hash).matches("[a-f0-9]{64}")))
+            throw new IOException("Invalid observed hash");
+        Object normalized = proof.get("normalizedList");
+        if (normalized != null && (!(normalized instanceof String) || !((String) normalized).matches("[a-f0-9]{64}")))
+            throw new IOException("Invalid normalized hash");
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (String profile : List.of("windows-read", "windows-action")) {
+            for (Map<String, Object> bundle : candidates) {
+                if (!profile.equals(bundle.get("profile"))) continue;
+                Map<String, Object> approved = com.cloud.agent.api.VmProcessSnapshot.map(bundle.get("sha256"));
+                boolean wholeBundle = approved.entrySet().stream().allMatch(file -> file.getValue().equals(hashes.get(file.getKey()))
+                        || ("windows-read".equals(profile) && "ProcessList.ps1".equals(file.getKey()) && file.getValue().equals(normalized)));
+                if (wholeBundle) { result.add(bundle); break; }
+            }
+        }
+        // The second fixed program rechecks the selected complete bundles before loading any DLL.
+        // Historical approvals stay on the host, outside Windows' command-line size limit.
+        return result;
+    }
+
     public Map<String, Object> observe(GetVmProcessCapabilitiesCommand command, Map<String, String> os) throws IOException, InterruptedException {
         boolean windows = "windows".equals(os.get("family"));
         String read = windows ? "windows-read" : Set.of("rocky", "rhel").contains(os.get("id")) ? "rocky-read" : "ubuntu-read";
@@ -110,6 +155,10 @@ public class VmProcessAdapterProbe {
         catch (IOException | RuntimeException e) { return Map.of("readiness", "HOST_TOOL_MISSING"); }
         List<Map<String, Object>> selected = entries.stream().filter(b -> Set.of(read, action).contains(b.get("profile"))).collect(java.util.stream.Collectors.toList());
         if (selected.stream().noneMatch(b -> read.equals(b.get("profile")))) return Map.of("readiness", "HOST_TOOL_MISSING");
+        if (windows) {
+            selected = windowsBundles(command, selected);
+            if (selected.stream().noneMatch(b -> read.equals(b.get("profile")))) return Map.of("readiness", "TOOLS_REQUIRED");
+        }
         Map<String, Object> config = Map.of("requestId", command.getRequestId(), "readProfile", read, "actionProfile", action, "bundles", selected);
         String json = new Gson().toJson(config);
         String program;
@@ -130,12 +179,7 @@ public class VmProcessAdapterProbe {
                 program = program.replace("__CONFIG_BASE64__", Base64.getEncoder().encodeToString(compressed.toByteArray()));
             }
         }
-        Map<String, Object> transport = VmProcessAction.parse(execute(command.getVmUuid(), windows, program));
-        if (!"SUCCEEDED".equals(transport.get("state")) || !"0".equals(String.valueOf(transport.get("exit_code")))
-                || !Boolean.FALSE.equals(transport.get("encoding_loss")) || !Boolean.FALSE.equals(transport.get("out_truncated"))
-                || !Boolean.FALSE.equals(transport.get("err_truncated")) || !(transport.get("stdout_raw") instanceof String))
-            throw new IOException("Guest readiness execution unavailable");
-        Map<String, Object> proof = VmProcessAction.parse((String) transport.get("stdout_raw"));
+        Map<String, Object> proof = executeProof(command.getVmUuid(), windows, program);
         if (!proof.keySet().equals(Set.of("requestId", "readBundle", "actionBundle", "readRuntime", "actionRuntime", "code"))
                 || !command.getRequestId().equals(proof.get("requestId")) || !(proof.get("readRuntime") instanceof Boolean)
                 || !(proof.get("actionRuntime") instanceof Boolean)) throw new IOException("Guest readiness identity mismatch");

@@ -1,0 +1,892 @@
+{
+  "matrix": [
+    {
+      "name": "Rocky10-Process",
+      "os": {
+        "arch": "x86_64",
+        "productType": "none",
+        "family": "linux",
+        "id": "rocky",
+        "version": "10.2"
+      },
+      "readiness": "READY",
+      "snapshotStatus": "OK",
+      "processCount": 150,
+      "cpuMeasured": 150,
+      "oldPid": 17534,
+      "newPid": 17558,
+      "identityChanged": true,
+      "oldProcess": "EXITED",
+      "newProcess": "RUNNING",
+      "state": "SUCCEEDED",
+      "postcondition": "PROFILE_RESTART_VERIFIED",
+      "account": 0,
+      "cwd": "/var/lib/able-profile-fixture",
+      "environmentReferenceApplied": true,
+      "duplicateRequestReturnedOriginalOperation": true
+    },
+    {
+      "name": "Rocky9-Process",
+      "os": {
+        "version": "9.8",
+        "arch": "x86_64",
+        "productType": "none",
+        "family": "linux",
+        "id": "rocky"
+      },
+      "readiness": "READY",
+      "snapshotStatus": "OK",
+      "processCount": 127,
+      "cpuMeasured": 127,
+      "oldPid": 6537,
+      "newPid": 6774,
+      "identityChanged": true,
+      "oldProcess": "EXITED",
+      "newProcess": "RUNNING",
+      "state": "SUCCEEDED",
+      "postcondition": "PROFILE_RESTART_VERIFIED",
+      "account": 0,
+      "cwd": "/var/lib/able-profile-fixture",
+      "environmentReferenceApplied": true,
+      "duplicateRequestReturnedOriginalOperation": true
+    },
+    {
+      "name": "Rocky8-Process",
+      "os": {
+        "productType": "none",
+        "family": "linux",
+        "id": "rocky",
+        "version": "8.10",
+        "arch": "x86_64"
+      },
+      "readiness": "READY",
+      "snapshotStatus": "OK",
+      "processCount": 121,
+      "cpuMeasured": 121,
+      "oldPid": 89124,
+      "newPid": 95209,
+      "identityChanged": true,
+      "oldProcess": "EXITED",
+      "newProcess": "RUNNING",
+      "state": "SUCCEEDED",
+      "postcondition": "PROFILE_RESTART_VERIFIED",
+      "account": 0,
+      "cwd": "/var/lib/able-profile-fixture",
+      "environmentReferenceApplied": true,
+      "duplicateRequestReturnedOriginalOperation": true
+    },
+    {
+      "name": "Ubuntu26-Process",
+      "os": {
+        "productType": "none",
+        "family": "linux",
+        "id": "ubuntu",
+        "version": "26.04",
+        "arch": "x86_64"
+      },
+      "readiness": "READY",
+      "snapshotStatus": "OK",
+      "processCount": 128,
+      "cpuMeasured": 128,
+      "oldPid": 5552,
+      "newPid": 5860,
+      "identityChanged": true,
+      "oldProcess": "EXITED",
+      "newProcess": "RUNNING",
+      "state": "SUCCEEDED",
+      "postcondition": "PROFILE_RESTART_VERIFIED",
+      "account": 0,
+      "cwd": "/var/lib/able-profile-fixture",
+      "environmentReferenceApplied": true,
+      "duplicateRequestReturnedOriginalOperation": true
+    },
+    {
+      "name": "Ubuntu24-Process",
+      "os": {
+        "arch": "x86_64",
+        "productType": "none",
+        "family": "linux",
+        "id": "ubuntu",
+        "version": "24.04"
+      },
+      "readiness": "READY",
+      "snapshotStatus": "OK",
+      "processCount": 120,
+      "cpuMeasured": 120,
+      "oldPid": 5224,
+      "newPid": 5554,
+      "identityChanged": true,
+      "oldProcess": "EXITED",
+      "newProcess": "RUNNING",
+      "state": "SUCCEEDED",
+      "postcondition": "PROFILE_RESTART_VERIFIED",
+      "account": 0,
+      "cwd": "/var/lib/able-profile-fixture",
+      "environmentReferenceApplied": true,
+      "duplicateRequestReturnedOriginalOperation": true
+    },
+    {
+      "name": "Ubuntu22-Process",
+      "os": {
+        "productType": "none",
+        "family": "linux",
+        "id": "ubuntu",
+        "version": "22.04",
+        "arch": "x86_64"
+      },
+      "readiness": "READY",
+      "snapshotStatus": "OK",
+      "processCount": 120,
+      "cpuMeasured": 120,
+      "oldPid": 4812,
+      "newPid": 6185,
+      "identityChanged": true,
+      "oldProcess": "EXITED",
+      "newProcess": "RUNNING",
+      "state": "SUCCEEDED",
+      "postcondition": "PROFILE_RESTART_VERIFIED",
+      "account": 0,
+      "cwd": "/var/lib/able-profile-fixture",
+      "environmentReferenceApplied": true,
+      "duplicateRequestReturnedOriginalOperation": true
+    },
+    {
+      "name": "Debian12-Process",
+      "os": {
+        "arch": "x86_64",
+        "productType": "none",
+        "family": "linux",
+        "id": "debian",
+        "version": "12"
+      },
+      "readiness": "READY",
+      "snapshotStatus": "OK",
+      "processCount": 163,
+      "cpuMeasured": 163,
+      "oldPid": 4186,
+      "newPid": 4338,
+      "identityChanged": true,
+      "oldProcess": "EXITED",
+      "newProcess": "RUNNING",
+      "state": "SUCCEEDED",
+      "postcondition": "PROFILE_RESTART_VERIFIED",
+      "account": 0,
+      "cwd": "/var/lib/able-profile-fixture",
+      "environmentReferenceApplied": true,
+      "duplicateRequestReturnedOriginalOperation": true
+    },
+    {
+      "name": "Debian13-Process",
+      "os": {
+        "arch": "x86_64",
+        "productType": "none",
+        "family": "linux",
+        "id": "debian",
+        "version": "13"
+      },
+      "readiness": "READY",
+      "snapshotStatus": "OK",
+      "processCount": 168,
+      "cpuMeasured": 168,
+      "oldPid": 5719,
+      "newPid": 5856,
+      "identityChanged": true,
+      "oldProcess": "EXITED",
+      "newProcess": "RUNNING",
+      "state": "SUCCEEDED",
+      "postcondition": "PROFILE_RESTART_VERIFIED",
+      "account": 0,
+      "cwd": "/var/lib/able-profile-fixture",
+      "environmentReferenceApplied": true,
+      "duplicateRequestReturnedOriginalOperation": true
+    },
+    {
+      "name": "Windows25-Process",
+      "os": {
+        "version": "2025",
+        "arch": "x86_64",
+        "productType": "server",
+        "family": "windows",
+        "id": "mswindows"
+      },
+      "readiness": "READY",
+      "snapshotStatus": "OK",
+      "processCount": 85,
+      "cpuMeasured": 85,
+      "oldPid": 3896,
+      "newPid": 2268,
+      "identityChanged": true,
+      "oldProcess": "EXITED",
+      "newProcess": "RUNNING",
+      "state": "SUCCEEDED",
+      "postcondition": "PROFILE_RESTART_VERIFIED",
+      "account": "S-1-5-18",
+      "cwd": "C:\\ProgramData\\ABLESTACK-ProfileFixture",
+      "environmentReferenceApplied": true,
+      "duplicateRequestReturnedOriginalOperation": true
+    },
+    {
+      "name": "Windows22-Process",
+      "os": {
+        "productType": "server",
+        "family": "windows",
+        "id": "mswindows",
+        "version": "2022",
+        "arch": "x86_64"
+      },
+      "readiness": "READY",
+      "snapshotStatus": "OK",
+      "processCount": 72,
+      "cpuMeasured": 72,
+      "oldPid": 3228,
+      "newPid": 2792,
+      "identityChanged": true,
+      "oldProcess": "EXITED",
+      "newProcess": "RUNNING",
+      "state": "SUCCEEDED",
+      "postcondition": "PROFILE_RESTART_VERIFIED",
+      "account": "S-1-5-18",
+      "cwd": "C:\\ProgramData\\ABLESTACK-ProfileFixture",
+      "environmentReferenceApplied": true,
+      "duplicateRequestReturnedOriginalOperation": true
+    },
+    {
+      "name": "Windows19-Process",
+      "os": {
+        "version": "2019",
+        "arch": "x86_64",
+        "productType": "server",
+        "family": "windows",
+        "id": "mswindows"
+      },
+      "readiness": "READY",
+      "snapshotStatus": "OK",
+      "processCount": 89,
+      "cpuMeasured": 89,
+      "oldPid": 5328,
+      "newPid": 5892,
+      "identityChanged": true,
+      "oldProcess": "EXITED",
+      "newProcess": "RUNNING",
+      "state": "SUCCEEDED",
+      "postcondition": "PROFILE_RESTART_VERIFIED",
+      "account": "S-1-5-18",
+      "cwd": "C:\\ProgramData\\ABLESTACK-ProfileFixture",
+      "environmentReferenceApplied": true,
+      "duplicateRequestReturnedOriginalOperation": true
+    },
+    {
+      "name": "Windows11-Process",
+      "os": {
+        "arch": "x86_64",
+        "productType": "client",
+        "family": "windows",
+        "id": "mswindows",
+        "version": "11"
+      },
+      "readiness": "READY",
+      "snapshotStatus": "OK",
+      "processCount": 87,
+      "cpuMeasured": 87,
+      "oldPid": 2944,
+      "newPid": 160,
+      "identityChanged": true,
+      "oldProcess": "EXITED",
+      "newProcess": "RUNNING",
+      "state": "SUCCEEDED",
+      "postcondition": "PROFILE_RESTART_VERIFIED",
+      "account": "S-1-5-18",
+      "cwd": "C:\\ProgramData\\ABLESTACK-ProfileFixture",
+      "environmentReferenceApplied": true,
+      "duplicateRequestReturnedOriginalOperation": true
+    }
+  ],
+  "ui": {
+    "firstLoadNoFalseRpcWarning": true,
+    "tabOrder": [
+      "상세",
+      "IP 구성",
+      "메트릭",
+      "프로세스"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ],
+    "existingTemplatesCompared": [
+      "VM 스냅샷",
+      "볼륨",
+      "IP 구성"
+    ],
+    "primaryBlueAction": "프로세스 재시작",
+    "actionPlacement": [
+      "top toolbar",
+      "process row",
+      "standard dialog"
+    ],
+    "tableBackendNodeBefore": 48158,
+    "tableBackendNodeDuring": 48158,
+    "tableBackendNodeAfter": 48158,
+    "tableRetained": true,
+    "uiSuccessNewPid": 5556,
+    "uiPartialOldPid": 3132,
+    "partialNoAutomaticRetry": true,
+    "finalUnitTests": 9
+  },
+  "windowsUiSuccess": {
+    "state": "SUCCEEDED",
+    "effect": "VERIFIED",
+    "oldPid": 2268,
+    "progress": {
+      "oldProcess": "EXITED",
+      "newProcess": "RUNNING"
+    },
+    "newPid": 5556,
+    "postcondition": "PROFILE_RESTART_VERIFIED"
+  },
+  "windowsUiPartial": {
+    "state": "PARTIAL",
+    "effect": "PARTIAL",
+    "oldPid": 3132,
+    "progress": {
+      "oldProcess": "EXITED",
+      "newProcess": "NOT_RUNNING"
+    },
+    "newPid": null,
+    "postcondition": "OLD_EXITED_NEW_NOT_STARTED"
+  },
+  "uiGuestJournalMatchesCloud": true,
+  "linuxResponseLoss": {
+    "before": {
+      "state": "UNKNOWN",
+      "effect": "MAY_HAVE_RUN",
+      "oldPid": 5793,
+      "progress": {
+        "oldProcess": "NOT_CHECKED",
+        "newProcess": "UNKNOWN"
+      },
+      "newPid": null,
+      "postcondition": "NOT_CHECKED"
+    },
+    "after": {
+      "state": "SUCCEEDED",
+      "effect": "VERIFIED",
+      "oldPid": 5793,
+      "progress": {
+        "newProcess": "RUNNING",
+        "oldProcess": "EXITED"
+      },
+      "newPid": 6009,
+      "postcondition": "PROFILE_RESTART_VERIFIED"
+    },
+    "duplicateExecution": false
+  },
+  "migration": {
+    "beforeHost": "ablecube31-3",
+    "afterHost": "ablecube31-2",
+    "identityPreservedAcrossMigration": true,
+    "operation": {
+      "state": "SUCCEEDED",
+      "effect": "VERIFIED",
+      "oldPid": 5554,
+      "progress": {
+        "newProcess": "RUNNING",
+        "oldProcess": "EXITED"
+      },
+      "newPid": 5670,
+      "postcondition": "PROFILE_RESTART_VERIFIED"
+    }
+  },
+  "security": {
+    "globalProfileCommandsBlocked": [
+      {
+        "command": "listVirtualMachineProcessProfiles",
+        "errorcode": 431,
+        "message": "VM process management is disabled"
+      },
+      {
+        "command": "manageVirtualMachineProcessProfile",
+        "errorcode": 431,
+        "message": "VM process management is disabled"
+      },
+      {
+        "command": "restartVirtualMachineProcess",
+        "errorcode": 431,
+        "message": "VM process management is disabled"
+      }
+    ],
+    "globalRestored": "true",
+    "crossTenantDenied": {
+      "errorcode": 531
+    },
+    "defaultUserMutationDenied": [
+      {
+        "command": "listVirtualMachineProcessProfiles",
+        "errorcode": 432,
+        "denied": true
+      },
+      {
+        "command": "manageVirtualMachineProcessProfile",
+        "errorcode": 432,
+        "denied": true
+      },
+      {
+        "command": "restartVirtualMachineProcess",
+        "errorcode": 432,
+        "denied": true
+      }
+    ]
+  },
+  "readOnlyAutomaticRecovery": {
+    "initialReadFailure": "CHECK_FAILED",
+    "unknownGuestExecPid": 3524,
+    "requestId": "6182a82e-75d7-4680-ab41-2dc3296befec",
+    "readinessAfter": "READY",
+    "remainingMarkers": 0,
+    "automaticReconciliationLogged": true,
+    "guestCommandReplayed": false,
+    "mutationUnknownRecordsRetainedByRegression": true,
+    "fixture": "real fixed Windows process.list request with 1500ms budget"
+  },
+  "previousDiagnosticConsumedReply": {
+    "proofRetained": true,
+    "operatorReconciledExactReadMarker": true,
+    "mutationMarkersTouched": false
+  },
+  "coldBoot": {
+    "stopJobSucceeded": true,
+    "startJobSucceeded": true,
+    "readinessObservations": [
+      "QGA_UNREACHABLE",
+      "QGA_UNREACHABLE",
+      "READY"
+    ],
+    "snapshotStatus": "OK",
+    "processCount": 72
+  },
+  "stoppedVmHistory": {
+    "reapprovalDenied": 431,
+    "guestStatus": "VM_STOPPED",
+    "historyRetained": true,
+    "retireAllowedWithoutGuest": true,
+    "vmRestored": "Running"
+  },
+  "cleanup": [
+    {
+      "name": "Rocky10-Process",
+      "retiredVersions": 1,
+      "profilesRemoved": 1,
+      "extraSeedProcessesStopped": 0,
+      "fixtureProcessesRemaining": 0
+    },
+    {
+      "name": "Rocky9-Process",
+      "retiredVersions": 1,
+      "profilesRemoved": 1,
+      "extraSeedProcessesStopped": 0,
+      "fixtureProcessesRemaining": 0
+    },
+    {
+      "name": "Rocky8-Process",
+      "retiredVersions": 1,
+      "profilesRemoved": 1,
+      "extraSeedProcessesStopped": 0,
+      "fixtureProcessesRemaining": 0
+    },
+    {
+      "name": "Ubuntu26-Process",
+      "retiredVersions": 1,
+      "profilesRemoved": 1,
+      "extraSeedProcessesStopped": 0,
+      "fixtureProcessesRemaining": 0
+    },
+    {
+      "name": "Ubuntu24-Process",
+      "retiredVersions": 1,
+      "profilesRemoved": 1,
+      "extraSeedProcessesStopped": 0,
+      "fixtureProcessesRemaining": 0
+    },
+    {
+      "name": "Ubuntu22-Process",
+      "retiredVersions": 2,
+      "profilesRemoved": 3,
+      "extraSeedProcessesStopped": 0,
+      "fixtureProcessesRemaining": 0
+    },
+    {
+      "name": "Debian12-Process",
+      "retiredVersions": 1,
+      "profilesRemoved": 1,
+      "extraSeedProcessesStopped": 0,
+      "fixtureProcessesRemaining": 0
+    },
+    {
+      "name": "Debian13-Process",
+      "retiredVersions": 1,
+      "profilesRemoved": 1,
+      "extraSeedProcessesStopped": 0,
+      "fixtureProcessesRemaining": 0
+    },
+    {
+      "name": "Windows25-Process",
+      "retiredVersions": 1,
+      "fixtureProcessesRemaining": 0,
+      "profilesRemoved": 2,
+      "extraSeedProcessesStopped": 0
+    },
+    {
+      "name": "Windows22-Process",
+      "retiredVersions": 1,
+      "fixtureProcessesRemaining": 0,
+      "profilesRemoved": 1,
+      "extraSeedProcessesStopped": 1
+    },
+    {
+      "name": "Windows19-Process",
+      "retiredVersions": 1,
+      "fixtureProcessesRemaining": 0,
+      "profilesRemoved": 1,
+      "extraSeedProcessesStopped": 1
+    },
+    {
+      "name": "Windows11-Process",
+      "retiredVersions": 0,
+      "fixtureProcessesRemaining": 0,
+      "profilesRemoved": 0,
+      "extraSeedProcessesStopped": 0
+    }
+  ],
+  "finalHealth": {
+    "vms": [
+      {
+        "name": "Rocky10-Process",
+        "state": "Running",
+        "readiness": "READY",
+        "snapshotStatus": "OK",
+        "cpuMeasured": true,
+        "toolsIsoFamily": "rocky",
+        "toolsIsoMatched": true,
+        "retiredHistoryRetained": true,
+        "activeTestProfiles": 0,
+        "loadedCdroms": 1
+      },
+      {
+        "name": "Rocky9-Process",
+        "state": "Running",
+        "readiness": "READY",
+        "snapshotStatus": "PARTIAL",
+        "cpuMeasured": true,
+        "toolsIsoFamily": "rocky",
+        "toolsIsoMatched": true,
+        "retiredHistoryRetained": true,
+        "activeTestProfiles": 0,
+        "loadedCdroms": 1
+      },
+      {
+        "name": "Rocky8-Process",
+        "state": "Running",
+        "readiness": "READY",
+        "snapshotStatus": "OK",
+        "cpuMeasured": true,
+        "toolsIsoFamily": "rocky",
+        "toolsIsoMatched": true,
+        "retiredHistoryRetained": true,
+        "activeTestProfiles": 0,
+        "loadedCdroms": 2
+      },
+      {
+        "name": "Ubuntu26-Process",
+        "state": "Running",
+        "readiness": "READY",
+        "snapshotStatus": "OK",
+        "cpuMeasured": true,
+        "toolsIsoFamily": "ubuntu",
+        "toolsIsoMatched": true,
+        "retiredHistoryRetained": true,
+        "activeTestProfiles": 0,
+        "loadedCdroms": 1
+      },
+      {
+        "name": "Ubuntu24-Process",
+        "state": "Running",
+        "readiness": "READY",
+        "snapshotStatus": "OK",
+        "cpuMeasured": true,
+        "toolsIsoFamily": "ubuntu",
+        "toolsIsoMatched": true,
+        "retiredHistoryRetained": true,
+        "activeTestProfiles": 0,
+        "loadedCdroms": 1
+      },
+      {
+        "name": "Ubuntu22-Process",
+        "state": "Running",
+        "readiness": "READY",
+        "snapshotStatus": "OK",
+        "cpuMeasured": true,
+        "toolsIsoFamily": "ubuntu",
+        "toolsIsoMatched": true,
+        "retiredHistoryRetained": true,
+        "activeTestProfiles": 0,
+        "loadedCdroms": 1
+      },
+      {
+        "name": "Debian12-Process",
+        "state": "Running",
+        "readiness": "READY",
+        "snapshotStatus": "OK",
+        "cpuMeasured": true,
+        "toolsIsoFamily": "debian",
+        "toolsIsoMatched": true,
+        "retiredHistoryRetained": true,
+        "activeTestProfiles": 0,
+        "loadedCdroms": 1
+      },
+      {
+        "name": "Debian13-Process",
+        "state": "Running",
+        "readiness": "READY",
+        "snapshotStatus": "OK",
+        "cpuMeasured": true,
+        "toolsIsoFamily": "debian",
+        "toolsIsoMatched": true,
+        "retiredHistoryRetained": true,
+        "activeTestProfiles": 0,
+        "loadedCdroms": 1
+      },
+      {
+        "name": "Windows25-Process",
+        "state": "Running",
+        "readiness": "READY",
+        "snapshotStatus": "OK",
+        "cpuMeasured": true,
+        "toolsIsoFamily": "windows",
+        "toolsIsoMatched": true,
+        "retiredHistoryRetained": true,
+        "activeTestProfiles": 0,
+        "loadedCdroms": 0
+      },
+      {
+        "name": "Windows22-Process",
+        "state": "Running",
+        "readiness": "READY",
+        "snapshotStatus": "OK",
+        "cpuMeasured": true,
+        "toolsIsoFamily": "windows",
+        "toolsIsoMatched": true,
+        "retiredHistoryRetained": true,
+        "activeTestProfiles": 0,
+        "loadedCdroms": 0
+      },
+      {
+        "name": "Windows19-Process",
+        "state": "Running",
+        "readiness": "READY",
+        "snapshotStatus": "OK",
+        "cpuMeasured": true,
+        "toolsIsoFamily": "windows",
+        "toolsIsoMatched": true,
+        "retiredHistoryRetained": true,
+        "activeTestProfiles": 0,
+        "loadedCdroms": 0
+      },
+      {
+        "name": "Windows11-Process",
+        "state": "Running",
+        "readiness": "READY",
+        "snapshotStatus": "OK",
+        "cpuMeasured": true,
+        "toolsIsoFamily": "windows",
+        "toolsIsoMatched": true,
+        "retiredHistoryRetained": true,
+        "activeTestProfiles": 0,
+        "loadedCdroms": 0
+      }
+    ],
+    "hosts": [
+      {
+        "host": "10.10.31.1",
+        "agent": "active",
+        "agentEnabled": "enabled",
+        "pendingTestVmMarkers": 0,
+        "ftTimer": "inactive",
+        "hangTimer": "active"
+      },
+      {
+        "host": "10.10.31.2",
+        "agent": "active",
+        "agentEnabled": "enabled",
+        "pendingTestVmMarkers": 0,
+        "ftTimer": "inactive",
+        "hangTimer": "active"
+      },
+      {
+        "host": "10.10.31.3",
+        "agent": "active",
+        "agentEnabled": "enabled",
+        "pendingTestVmMarkers": 0,
+        "ftTimer": "inactive",
+        "hangTimer": "active"
+      }
+    ],
+    "windowsCdroms": [
+      {
+        "name": "Windows22-Sparse",
+        "loadedCdroms": 0
+      },
+      {
+        "name": "Windows19-Sparse",
+        "loadedCdroms": 0
+      },
+      {
+        "name": "Windows11-Sparse",
+        "loadedCdroms": 0
+      },
+      {
+        "name": "Windows25-Process",
+        "loadedCdroms": 0
+      },
+      {
+        "name": "Windows22-Process",
+        "loadedCdroms": 0
+      },
+      {
+        "name": "Windows19-Process",
+        "loadedCdroms": 0
+      },
+      {
+        "name": "Windows11-Process",
+        "loadedCdroms": 0
+      }
+    ],
+    "s12Complete": true,
+    "noActiveTemporaryUsers": true,
+    "managementActive": true,
+    "webinfPreserved": true,
+    "httpStatus": 200
+  },
+  "isos": [
+    {
+      "family": "rocky",
+      "filename": "ABLESTACK-Tools-rocky-process-22-fb4078b.iso",
+      "sha256": "89e4f8c74e57f6b850026cdd2d823272982dec45021ca7fbbe454706eadf435c"
+    },
+    {
+      "family": "ubuntu",
+      "filename": "ABLESTACK-Tools-ubuntu-process-22-fb4078b.iso",
+      "sha256": "1ccd43aa084ce9c97258fbc630bd1aa69d3a4395768f98145cbb06d53a288cea"
+    },
+    {
+      "family": "debian",
+      "filename": "ABLESTACK-Tools-debian-process-22-fb4078b.iso",
+      "sha256": "4b5c105c01071b89404dbeac89b00b07f8ca49d516d30b7585a95b229cac7f52"
+    },
+    {
+      "family": "windows",
+      "filename": "ABLESTACK-Tools-windows-process-22-fb4078b.iso",
+      "sha256": "e24aaa39ff04a497d01c9e92a4fcc1bc5ef74e0ab9de8160f23ba008893fd14a"
+    }
+  ],
+  "cloudModuleHashes": {
+    "api/org/apache/cloudstack/api/command/user/vm/BaseVmProcessActionCmd.class": "c28853e6d8c5eecd00006be9977cd8eb4a8ec7652dc86d256c001662f8b44ef7",
+    "api/org/apache/cloudstack/api/command/user/vm/RestartVirtualMachineProcessCmd.class": "c33acf3142c793a10a4bed564cb3873d483e3a7cc494a1135e730d5ab105d10a",
+    "api/org/apache/cloudstack/api/command/user/vm/ListVirtualMachineProcessProfilesCmd.class": "dc8f22775d2868f8f02c267ce0616d0bf64cec2459ec88e61802e7a148ca5d90",
+    "api/org/apache/cloudstack/api/command/user/vm/ManageVirtualMachineProcessProfileCmd.class": "908a2a673dd97d348d1e3f4af505bd51921140dde72183f794fbc3967fc88323",
+    "api/org/apache/cloudstack/vm/process/VmProcessActionService.class": "b35b09d08e53bbd31cfa8cb93c8d168414ceb62e1d48ba0724a99020e112bcae",
+    "api/org/apache/cloudstack/vm/process/VmProcessProfileService.class": "9a1b0ef23a90caf259a6d2f668b07c62d7dc4307bae076623d249e3a364977b3",
+    "core/com/cloud/agent/api/VmProcessAction.class": "7acf6c5ff1a2f1f1dbf5f7256c5ccf64c93fdb61f86c6904d38650b3274a6c74",
+    "core/com/cloud/agent/api/VmProcessProfile.class": "6a7ca606fcb66fdcf7ee1eb0534b37a4088eb2dac14bd05bd209b43b84827238",
+    "server/com/cloud/vm/process/VmProcessActionServiceImpl.class": "1d7b6d566b72349e80f67350820b27e2cba2190aad894e79b719ddad1b9b252a",
+    "server/com/cloud/vm/process/VmProcessProfileServiceImpl.class": "63ba7971eff83fe45655df73bba26d9fb968d29fcb1ced39b1e264b82665b096",
+    "engine/schema/com/cloud/upgrade/DatabaseUpgradeChecker.class": "b8939816c07fde0674d0dbd3bd2bfd3b779c9c7b50216a527baaab8f680e0fbd",
+    "engine/schema/com/cloud/upgrade/DatabaseUpgradeChecker$NoopDbUpgrade.class": "77bc264329009c81b8653fb73008073e1405b03c360e79436bf49cf38c5cac10",
+    "engine/schema/com/cloud/upgrade/DatabaseUpgradeChecker$1.class": "f17843dc90023e35b3b4afefd88c91cd80e8b0c47066c913a2fdc3ca4c5730ed",
+    "engine/schema/com/cloud/upgrade/dao/EuropaVmProcessProfileUpgrade.class": "984f5d82a69dcd642470f6dff9c13069d25782f1142321d85651b5475c0fbbed",
+    "plugins/hypervisors/kvm/com/cloud/hypervisor/kvm/resource/KvmVmOperationGuard.class": "c442eec2659fab614f95173e19d68dd1c2693093e2f9123573cf180b5ec8d72f",
+    "plugins/hypervisors/kvm/com/cloud/hypervisor/kvm/resource/VmProcessAdapterProbe.class": "f86af31ca9e96bf022782f37110b17ed7216b236201a293b77ceda85762b7ded",
+    "engine/schema/META-INF/db/schema-europa-4.23-s12-process-profile.sql": "fe34968ce8ef779b2ceca19bf5e78bf8f9bcbc3b6d23290fe1bb855e1eb93db8",
+    "engine/schema/com/cloud/upgrade/dao/EuropaVmProcessConfigUpgrade.class": "297a2b0e00c8ecbd7bdff9dae97b7a11232b45f0260cdf706e644b875cf89e55",
+    "plugins/hypervisors/kvm/vm-process-readiness-hashes.ps1": "aae6a381770ef7dbce5bb5eaa2d68c559e05fb3b6b9e294c31c8b2d402ed390c",
+    "core/com/cloud/agent/api/VmProcessSnapshot.class": "d5f14dde20de6e2a276589492da5c443459b47413ea62323f3228c9370688d97"
+  },
+  "cloudFocusedTests": [
+    {
+      "name": "com.cloud.agent.api.VmProcessProfileTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.cloud.agent.api.VmProcessActionTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.cloud.vm.process.VmProcessToolsIsoCatalogTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.cloud.vm.process.VmProcessActionServiceImplTest",
+      "tests": 16,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.cloud.vm.process.VmProcessSnapshotServiceImplTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.cloud.vm.process.VmProcessCapabilityServiceImplTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.cloud.vm.process.VmProcessProfileServiceImplTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.cloud.hypervisor.kvm.resource.VmProcessAdapterProbeTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.cloud.hypervisor.kvm.resource.KvmVmOperationGuardTest",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.cloud.hypervisor.kvm.resource.VmProcessCapabilityProbeTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "qemuBuild": {
+    "source": "fb4078bdbdbb01ca95c467755a5fb4925f6bf574",
+    "run": "https://github.com/dhslove/ablestack-qemu-exec-tools/actions/runs/36834382355",
+    "jobs": 6,
+    "conclusion": "success"
+  },
+  "windowsPhysicalResponseLossTested": false
+}

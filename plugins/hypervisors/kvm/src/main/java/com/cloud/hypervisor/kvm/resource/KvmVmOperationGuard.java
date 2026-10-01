@@ -107,6 +107,13 @@ public final class KvmVmOperationGuard implements AutoCloseable {
             String ready = new BufferedReader(new InputStreamReader(lock.getInputStream())).readLine();
             if (!"READY".equals(ready)) throw new IOException("VM operation lock busy");
             Path vmDir = root.resolve(uuid); directory(vmDir);
+            reconcileCompletedReads(vmDir, uuid, pid -> {
+                try {
+                    String command = new Gson().toJson(Map.of("execute", "guest-exec-status", "arguments", Map.of("pid", pid)));
+                    return probe(2000, "virsh", "-c", "qemu:///system", "qemu-agent-command", uuid, "--timeout", "2", command);
+                } catch (IOException e) { throw new java.io.UncheckedIOException(e); }
+                catch (InterruptedException e) { Thread.currentThread().interrupt(); throw new IllegalStateException(e); }
+            });
             try (DirectoryStream<Path> entries = Files.newDirectoryStream(vmDir)) {
                 if (entries.iterator().hasNext()) throw new IOException("Unreconciled operation lease; observation unknown");
             }
@@ -131,6 +138,60 @@ public final class KvmVmOperationGuard implements AutoCloseable {
             releaseProcess(lock);
             throw new IOException("Cannot protect VM " + uuid + ": " + e.getMessage(), e);
         }
+    }
+
+    /** Called only under the VM flock. Never expire or replay any mutation lease. */
+    static void reconcileCompletedReads(Path vmDir, String uuid, java.util.function.Function<Long, String> status) throws IOException {
+        try (DirectoryStream<Path> entries = Files.newDirectoryStream(vmDir)) {
+            int count = 0;
+            for (Path marker : entries) {
+                if (++count > 8) throw new IOException("Operation marker bound");
+                try {
+                    if (Files.isSymbolicLink(marker) || !Files.isRegularFile(marker, LinkOption.NOFOLLOW_LINKS)
+                            || Files.size(marker) > 4096 || !Files.getOwner(marker).equals(Files.getOwner(Paths.get("/proc/self")))
+                            || !Files.getPosixFilePermissions(marker).equals(PosixFilePermissions.fromString("rw-------"))
+                            || !Integer.valueOf(1).equals(Files.getAttribute(marker, "unix:nlink", LinkOption.NOFOLLOW_LINKS))) continue;
+                    Object inode = Files.readAttributes(marker, java.nio.file.attribute.BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS).fileKey();
+                    byte[] original = Files.readAllBytes(marker);
+                    Map<String, Object> read = com.cloud.agent.api.VmProcessAction.parse(new String(original, java.nio.charset.StandardCharsets.UTF_8));
+                    if (!"q4-read-lease".equals(read.get("kind")) || !"UNKNOWN".equals(read.get("stage")) || !uuid.equals(read.get("vmUuid"))) continue;
+                    String requestId = (String) read.get("requestId");
+                    if (!UUID.fromString(requestId).toString().equals(requestId)
+                            || !marker.getFileName().toString().equals("q4-read-" + requestId + ".json")
+                            || !Files.readString(Paths.get("/proc/sys/kernel/random/boot_id")).trim().equals(read.get("hostBootId"))) continue;
+                    long owner = new java.math.BigDecimal(read.get("ownerPid").toString()).longValueExact();
+                    String ticks = (String) read.get("ownerStartTicks");
+                    if (owner <= 0 || ticks == null || !ticks.matches("[0-9]{1,20}")) continue;
+                    Path ownerStat = Paths.get("/proc", Long.toString(owner), "stat");
+                    if (!Files.notExists(ownerStat, LinkOption.NOFOLLOW_LINKS)) {
+                        String stat = Files.readString(ownerStat);
+                        if (ticks.equals(stat.substring(stat.lastIndexOf(')') + 2).split(" ")[19])) continue;
+                    }
+                    long pid = new java.math.BigDecimal(read.get("guestExecPid").toString()).longValueExact();
+                    if (pid < 1 || pid > Integer.MAX_VALUE || !completedRead(read, status.apply(pid))) continue;
+                    Object current = Files.readAttributes(marker, java.nio.file.attribute.BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS).fileKey();
+                    if (inode == null || !inode.equals(current) || !java.util.Arrays.equals(original, Files.readAllBytes(marker))) continue;
+                    Files.delete(marker);
+                    LOG.info("Completed read lease reconciled vmUuid={} requestId={}", uuid, requestId);
+                } catch (IOException | RuntimeException e) {
+                    // Missing, still running, malformed or unprovable responses keep protection.
+                    LOG.debug("Read completion proof unavailable vmUuid={}", uuid);
+                }
+            }
+        }
+    }
+
+    static boolean completedRead(Map<String, Object> lease, String response) throws IOException {
+        Map<String, Object> result = com.cloud.agent.api.VmProcessSnapshot.map(com.cloud.agent.api.VmProcessSnapshot.parse(response).get("return"));
+        if (!Boolean.TRUE.equals(result.get("exited")) || !Boolean.FALSE.equals(result.get("out-truncated"))
+                || !(result.get("exitcode") instanceof Number) || new java.math.BigDecimal(result.get("exitcode").toString()).signum() != 0) return false;
+        byte[] output = java.util.Base64.getDecoder().decode((String) result.get("out-data"));
+        String text = java.nio.charset.StandardCharsets.UTF_8.newDecoder().onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
+                .decode(java.nio.ByteBuffer.wrap(output)).toString();
+        Map<String, Object> proof = com.cloud.agent.api.VmProcessSnapshot.parse(text);
+        return "1.0".equals(proof.get("schemaVersion")) && Set.of("snapshot", "failure").contains(proof.get("kind"))
+                && lease.get("requestId").equals(proof.get("requestId"))
+                && lease.get("vmUuid").equals(com.cloud.agent.api.VmProcessSnapshot.map(proof.get("authority")).get("vmUuid"));
     }
 
     private synchronized void writeLease() throws IOException {
@@ -278,9 +339,11 @@ public final class KvmVmOperationGuard implements AutoCloseable {
             if(Files.isSymbolicLink(lockFile) || !Files.isRegularFile(lockFile,LinkOption.NOFOLLOW_LINKS) || !Files.getOwner(lockFile).equals(Files.getOwner(Paths.get("/proc/self"))))throw new IOException("Unsafe lock");
             input=Files.createTempFile(root,"process-action-",".json",PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rw-------")));
             Files.writeString(input,requestJson);
+            String protocol=(String)request.get("schemaVersion");
+            if(!Set.of("1.0","1.1").contains(protocol))throw new IOException("Unsupported process protocol");
             long budget=query?12000:90000;
             ProcessBuilder builder;
-            if(query)builder=new ProcessBuilder("/usr/bin/vm_exec","--process-protocol","1.0","--request-json",input.toString());
+            if(query)builder=new ProcessBuilder("/usr/bin/vm_exec","--process-protocol",protocol,"--request-json",input.toString());
             else {
                 Map<String,Object> reservation=new LinkedHashMap<>();
                 for(String k:java.util.List.of("schemaVersion","authority","requestId","operationId"))reservation.put(k,request.get(k));
@@ -291,8 +354,8 @@ public final class KvmVmOperationGuard implements AutoCloseable {
                 context=Files.createTempFile(root,"process-reservation-",".json",PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rw-------")));
                 Files.writeString(context,new com.google.gson.GsonBuilder().serializeNulls().create().toJson(reservation));
                 builder=new ProcessBuilder("/bin/sh","-c",
-                    "exec 9<>\"$1\"; flock -n 9 || { printf '%s' \"$CLOUD_PROCESS_REJECTED\"; exit 0; }; exec /usr/bin/vm_exec --process-protocol 1.0 --request-json \"$2\" --cloud-action-context \"$3\" --cloud-action-guard-fd 9",
-                    "process-action",lockFile.toString(),input.toString(),context.toString());
+                    "exec 9<>\"$1\"; flock -n 9 || { printf '%s' \"$CLOUD_PROCESS_REJECTED\"; exit 0; }; exec /usr/bin/vm_exec --process-protocol \"$4\" --request-json \"$2\" --cloud-action-context \"$3\" --cloud-action-guard-fd 9",
+                    "process-action",lockFile.toString(),input.toString(),context.toString(),protocol);
                 // This response is emitted only before exec: no guest mutation has started.
                 // A helper error, timeout or lost response still remains UNKNOWN.
                 Map<String,Object> rejected=new LinkedHashMap<>();

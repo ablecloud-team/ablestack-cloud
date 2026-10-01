@@ -284,6 +284,7 @@
 
     <bean id="statsCollector" class="com.cloud.server.StatsCollector" />
 
+    <bean id="vmProcessProfileServiceImpl" class="com.cloud.vm.process.VmProcessProfileServiceImpl" />
     <bean id="vmProcessActionServiceImpl" class="com.cloud.vm.process.VmProcessActionServiceImpl" />
     <bean id="vmProcessSnapshotServiceImpl" class="com.cloud.vm.process.VmProcessSnapshotServiceImpl" />
     <bean id="vmProcessCapabilityServiceImpl" class="com.cloud.vm.process.VmProcessCapabilityServiceImpl" />

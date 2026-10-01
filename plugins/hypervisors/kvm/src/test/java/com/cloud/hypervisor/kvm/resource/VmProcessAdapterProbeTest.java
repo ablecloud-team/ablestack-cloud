@@ -37,6 +37,8 @@ public class VmProcessAdapterProbeTest {
     }
     private String catalog() {
         return gson.toJson(Map.of("schemaVersion", 1, "protocolVersion", "1.0", "bundles", List.of(
+                bundle("linux-profile", "linux-profile", Map.of("process_action_linux.py", hash, "process-action-launcher", hash, "process_profile_linux.py", hash)),
+                bundle("windows-profile", "windows-profile", Map.of("ProcessAction.ps1", hash, "AbleProcessAction.dll", hash, "AbleProcessIdentity.dll", hash, "ProcessProfile.ps1", hash, "Start-ProcessProfile.ps1", hash)),
                 bundle("old-read", "ubuntu-read", Map.of("process_list_linux.py", hash)),
                 bundle("new-read", "ubuntu-read", Map.of("process_list_linux.py", "b".repeat(64))),
                 bundle("action", "linux-action", Map.of("process_action_linux.py", hash, "process-action-launcher", hash)),
@@ -54,6 +56,7 @@ public class VmProcessAdapterProbeTest {
             @Override protected String catalog() { return VmProcessAdapterProbeTest.this.catalog(); }
             @Override protected String execute(String uuid, boolean windows, String program) {
                 assertEquals(command.getVmUuid(), uuid);
+                if (program.contains("$hashProof")) return hashTransport(command.getRequestId());
                 assertTrue(program.contains("matched") || program.contains("Matched"));
                 return gson.toJson(Map.of("state", "SUCCEEDED", "exit_code", 0, "encoding_loss", false,
                         "out_truncated", false, "err_truncated", false, "stdout_raw", gson.toJson(proof)));
@@ -67,9 +70,11 @@ public class VmProcessAdapterProbeTest {
             @Override protected String catalog() { return VmProcessAdapterProbeTest.this.catalog(); }
             @Override protected String execute(String uuid, boolean windows, String program) {
                 assertTrue(windows);
+                assertTrue(program.contains("$ProgressPreference='SilentlyContinue'"));
                 org.junit.Assert.assertFalse(program.contains("GZipStream"));
                 org.junit.Assert.assertFalse(program.contains("FromBase64String"));
                 assertTrue(program.contains("request\\u0027quoted"));
+                if (program.contains("$hashProof")) return hashTransport(quoted.getRequestId());
                 assertTrue(program.contains("windows-read"));
                 assertTrue(program.contains("windows-action"));
                 assertTrue(program.contains("Get-FileHash"));
@@ -82,6 +87,37 @@ public class VmProcessAdapterProbeTest {
         };
         assertEquals("READY", probe.observe(quoted, Map.of("family", "windows", "id", "mswindows")).get("readiness"));
     }
+    private String hashTransport(String request) {
+        return gson.toJson(Map.of("state", "SUCCEEDED", "exit_code", 0, "encoding_loss", false,
+                "out_truncated", false, "err_truncated", false, "stdout_raw", gson.toJson(Map.of("requestId", request,
+                "sha256", Map.of("ProcessList.ps1", hash, "AbleProcessIdentity.dll", hash, "ProcessAction.ps1", hash, "AbleProcessAction.dll", hash),
+                "normalizedList", hash))));
+    }
+    @Test public void maximumCatalogKeepsAllApprovalsAndBoundedWindowsArguments() throws Exception {
+        List<Map<String, Object>> entries = new java.util.ArrayList<>();
+        for (int i = 0; i < 128; i++) {
+            String value = i < 2 ? hash : String.format("%064x", i);
+            entries.add(bundle("legacy-" + i, i % 2 == 0 ? "windows-read" : "windows-action", i % 2 == 0
+                    ? Map.of("ProcessList.ps1", value, "AbleProcessIdentity.dll", value)
+                    : Map.of("ProcessAction.ps1", value, "AbleProcessAction.dll", value, "AbleProcessIdentity.dll", value)));
+        }
+        int[] calls = {0};
+        VmProcessAdapterProbe bounded = new VmProcessAdapterProbe() {
+            @Override protected String catalog() { return gson.toJson(Map.of("schemaVersion", 1, "protocolVersion", "1.0", "bundles", entries)); }
+            @Override protected String execute(String uuid, boolean windows, String program) {
+                calls[0]++;
+                assertTrue(java.util.Base64.getEncoder().encodeToString(program.getBytes(java.nio.charset.StandardCharsets.UTF_16LE)).length() < 31000);
+                if (program.contains("$hashProof")) return hashTransport(command.getRequestId());
+                assertTrue(program.contains("legacy-0")); assertTrue(program.contains("legacy-1"));
+                org.junit.Assert.assertFalse(program.contains("legacy-127"));
+                return gson.toJson(Map.of("state", "SUCCEEDED", "exit_code", 0, "encoding_loss", false,
+                        "out_truncated", false, "err_truncated", false, "stdout_raw", gson.toJson(proof("legacy-0", "legacy-1", true))));
+            }
+        };
+        assertEquals("READY", bounded.observe(command, Map.of("family", "windows", "id", "mswindows")).get("readiness"));
+        assertEquals(2, calls[0]); assertEquals(128, entries.size());
+    }
+
     @Test public void legacyApprovedBundleSurvivesHostUpgradeAndMigration() throws Exception {
         Map<String, Object> result = probe(proof("old-read", "action", true)).observe(command, Map.of("family", "linux", "id", "ubuntu"));
         assertEquals("READY", result.get("readiness"));

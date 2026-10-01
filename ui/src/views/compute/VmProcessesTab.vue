@@ -20,13 +20,14 @@ under the License.
   <div class="vm-processes">
     <div class="process-toolbar">
       <a-button v-if="canAdminAction" type="primary" :disabled="!primaryAction" @click="openPrimaryAction">
-        {{ primaryAction === 'service.restart' || !selected ? $t('label.vmprocess.restart') : $t('label.vmprocess.kill') }}
+        {{ primaryAction === 'process.restart' ? $t('label.vmprocess.profile.restart') : primaryAction === 'service.restart' || !selected ? $t('label.vmprocess.restart') : $t('label.vmprocess.kill') }}
       </a-button>
       <a-button v-if="canAdminAction && isLinux" :disabled="!actionAvailable('process.terminate', selected)" @click="openAction('process.terminate', selected)">{{ $t('label.vmprocess.terminate') }}</a-button>
-      <a-button :disabled="disabled || actionBusy" @click="refreshAll"><template #icon><reload-outlined /></template>{{ $t('label.refresh') }}</a-button>
-      <a-button :disabled="actionBusy" @click="checkCapability(true)">{{ $t('label.vmprocess.readiness') }}</a-button>
+      <a-button :loading="refreshing" :disabled="disabled || actionBusy || initializing" @click="refreshAll"><template #icon><reload-outlined /></template>{{ $t('label.refresh') }}</a-button>
+      <a-button :disabled="actionBusy || refreshing || profilesLoading || initializing" @click="checkCapability(true)">{{ $t('label.vmprocess.readiness') }}</a-button>
       <a-button v-if="diagnostic?.install" @click="openToolsDialog">{{ $t('label.vmprocess.tools.title') }}</a-button>
       <a-button v-if="operation && ['UNKNOWN', 'PENDING'].includes(operation.state)" :loading="operationChecking" @click="checkOperation">{{ $t('label.vmprocess.check.result') }}</a-button>
+      <a-button v-if="canManageProfiles" :disabled="actionBusy" @click="profilesDialog = true">{{ $t('label.vmprocess.profiles') }}</a-button>
       <a-input-search v-model:value="search" :placeholder="$t('label.vmprocess.search')" :aria-label="$t('label.vmprocess.search')" :disabled="!snapshotId" @search="searchRows" />
     </div>
 
@@ -45,6 +46,7 @@ under the License.
     <a-alert v-if="operation" class="process-alert" :type="operation.state === 'FAILED' ? 'error' : operation.state === 'SUCCEEDED' ? 'success' : 'warning'" show-icon>
       <template #message>{{ $t('label.vmprocess.operation') }}: {{ actionLabel(operation.action) }} · {{ operation.name }} · {{ operation.state }}</template>
       <template #description>
+        <span v-if="operation.progress">{{ $t('label.vmprocess.profile.old') }}: {{ $t('label.vmprocess.profile.process.' + operation.progress.oldProcess) }} · {{ $t('label.vmprocess.profile.new') }}: {{ $t('label.vmprocess.profile.process.' + operation.progress.newProcess) }}<br></span>
         <span>{{ operation.state === 'UNKNOWN' ? $t('message.vmprocess.unknown') : operation.message }}</span>
       </template>
     </a-alert>
@@ -64,14 +66,16 @@ size="small"
         <template v-else-if="column.key === 'cpuPercent'">{{ cpuText(record.cpuPercent) }}</template>
         <template v-else-if="column.key === 'memoryBytes'">{{ memoryText(record.memoryBytes) }}</template>
         <template v-else-if="column.key === 'services'">
+          <a-tag v-for="profile in rowProfiles(record)" :key="profile.id" color="blue">{{ profile.displayName }} · v{{ profile.version }}</a-tag>
           <a-tag v-for="service in record.services || []" :key="service.name">{{ service.name }}</a-tag>
-          <span v-if="!record.services?.length">—</span>
+          <span v-if="!record.services?.length && !rowProfiles(record).length">—</span>
         </template>
         <template v-else-if="column.key === 'actions'">
           <a-dropdown v-if="canAdminAction" :trigger="['click']" placement="bottomRight">
             <a-button size="small" :disabled="actionBusy" :aria-label="$t('label.actions')"><template #icon><down-outlined /></template></a-button>
             <template #overlay><a-menu>
               <a-menu-item v-for="service in record.services || []" :key="'service:' + service.name" :disabled="!actionAvailable('service.restart', record, service)" @click="openAction('service.restart', record, service)">{{ $t('label.vmprocess.restart') }} · {{ service.name }}</a-menu-item>
+              <a-menu-item v-for="profile in rowProfiles(record)" :key="'profile:' + profile.id" :disabled="!actionAvailable('process.restart', record, profile)" @click="openAction('process.restart', record, profile)">{{ $t('label.vmprocess.profile.restart') }} · {{ profile.displayName }}</a-menu-item>
               <a-menu-item v-if="isLinux" key="terminate" :disabled="!actionAvailable('process.terminate', record)" @click="openAction('process.terminate', record)">{{ $t('label.vmprocess.terminate') }}</a-menu-item>
               <a-menu-item key="kill" danger :disabled="!actionAvailable('process.kill', record)" @click="openAction('process.kill', record)">{{ $t('label.vmprocess.kill') }}</a-menu-item>
             </a-menu></template>
@@ -98,9 +102,9 @@ v-if="confirm"
         <a-descriptions-item :label="$t('label.vmprocess.name')">{{ confirm.row.name }} · PID {{ confirm.row.identity.pid }}</a-descriptions-item>
         <a-descriptions-item :label="$t('label.vmprocess.owner')">{{ confirm.row.owner || '—' }}</a-descriptions-item>
         <a-descriptions-item :label="$t('label.vmprocess.identity')"><span class="process-mono">{{ confirm.row.identity.bootId }} / {{ confirm.row.identity.startTicks }}</span></a-descriptions-item>
-        <a-descriptions-item :label="$t('label.vmprocess.service')">{{ confirm.service?.name || '—' }}</a-descriptions-item>
+        <a-descriptions-item :label="$t(confirm.action === 'process.restart' ? 'label.vmprocess.profile' : 'label.vmprocess.service')">{{ confirm.action === 'process.restart' ? confirm.service?.displayName + ' · v' + confirm.service?.version : confirm.service?.name || '—' }}</a-descriptions-item>
       </a-descriptions>
-      <a-alert v-if="confirm" class="process-alert" :type="confirm.action === 'process.kill' ? 'error' : 'warning'" show-icon :message="$t(confirm.action === 'service.restart' ? 'message.vmprocess.restart.impact' : confirm.action === 'process.kill' ? 'message.vmprocess.kill.impact' : 'message.vmprocess.terminate.impact')" />
+      <a-alert v-if="confirm" class="process-alert" :type="confirm.action === 'process.kill' ? 'error' : 'warning'" show-icon :message="$t(confirm.action === 'process.restart' ? 'message.vmprocess.profile.restart.impact' : confirm.action === 'service.restart' ? 'message.vmprocess.restart.impact' : confirm.action === 'process.kill' ? 'message.vmprocess.kill.impact' : 'message.vmprocess.terminate.impact')" />
       <p>{{ $t('message.vmprocess.revalidate') }}</p>
       <a-checkbox v-if="confirm?.action === 'process.kill'" v-model:checked="ack">{{ $t('message.vmprocess.kill.ack') }}</a-checkbox>
       <template #footer>
@@ -108,6 +112,7 @@ v-if="confirm"
         <a-button :type="confirm?.action === 'process.kill' ? 'default' : 'primary'" :danger="confirm?.action === 'process.kill'" :loading="submitting" :disabled="!confirm || !actionAvailable(confirm.action, confirm.row, confirm.service) || (confirm.action === 'process.kill' && !ack)" @click="submitAction">{{ actionLabel(confirm?.action) }}</a-button>
       </template>
     </a-modal>
+    <VmProcessProfilesDialog :visible="profilesDialog" :resource="resource" :platform="capability?.os?.family" @close="profilesDialog = false" @updated="profilesUpdated" />
     <VmProcessToolsDialog :visible="toolsDialog" :resource="resource" :catalog="toolsDialogCatalog" :capability="toolsDialogCapability" @close="toolsDialog = false" @verified="refreshAll" />
   </div>
 </template>
@@ -115,9 +120,10 @@ v-if="confirm"
 <script>
 import { getAPI, postAPI } from '@/api'
 import { requiredRpcs, processOsLabel, processDiagnostic } from './vmProcessDisplay'
+import VmProcessProfilesDialog from './VmProcessProfilesDialog.vue'
 import VmProcessToolsDialog from './VmProcessToolsDialog.vue'
 
-const actionApis = { 'process.terminate': 'terminateVirtualMachineProcess', 'process.kill': 'killVirtualMachineProcess', 'service.restart': 'restartVirtualMachineService' }
+const actionApis = { 'process.restart': 'restartVirtualMachineProcess', 'process.terminate': 'terminateVirtualMachineProcess', 'process.kill': 'killVirtualMachineProcess', 'service.restart': 'restartVirtualMachineService' }
 const result = (json, command) => json?.[command.toLowerCase() + 'response']
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms))
 function uuid () {
@@ -136,16 +142,17 @@ function errorMessage (error) {
 
 export default {
   name: 'VmProcessesTab',
-  components: { VmProcessToolsDialog },
+  components: { VmProcessToolsDialog, VmProcessProfilesDialog },
   props: { resource: { type: Object, required: true }, active: { type: Boolean, default: false } },
   emits: ['open-iso'],
   data () {
-    return { capability: null, toolsIso: null, toolsDialog: false, toolsDialogCatalog: null, toolsDialogCapability: null, capabilityLoading: false, initializing: this.active, disabled: false, rows: [], snapshotId: null, collectionStatus: null, observedAt: null, receivedAt: 0, ageSeconds: 0, total: 0, page: 1, pageSize: 10, search: '', keyword: '', sortBy: 'pid', descending: false, loading: false, errorText: '', snapshotFailure: null, selected: null, confirm: null, ack: false, submitting: false, operation: null, operationChecking: false, generation: 0, disposed: false }
+    return { profiles: [], profilesDialog: false, profilesAvailable: false, capability: null, toolsIso: null, toolsDialog: false, toolsDialogCatalog: null, toolsDialogCapability: null, capabilityLoading: false, refreshing: false, profilesLoading: false, initializing: this.active, disabled: false, rows: [], snapshotId: null, collectionStatus: null, observedAt: null, receivedAt: 0, ageSeconds: 0, total: 0, page: 1, pageSize: 10, search: '', keyword: '', sortBy: 'pid', descending: false, loading: false, errorText: '', snapshotFailure: null, selected: null, confirm: null, ack: false, submitting: false, operation: null, operationChecking: false, generation: 0, disposed: false }
   },
   computed: {
     scopeKey () { return JSON.stringify([this.resource.id, this.$store.getters.userInfo?.id, this.$store.getters.project?.id, this.$store.state?.user?.token]) },
     apiSet () { return this.$store.getters.apis || {} },
     canAdminAction () { return this.$store.getters.userInfo?.roletype === 'Admin' && Object.values(actionApis).some(api => api in this.apiSet) },
+    canManageProfiles () { return this.$store.getters.userInfo?.roletype === 'Admin' && 'manageVirtualMachineProcessProfile' in this.apiSet },
     isLinux () { return this.capability?.os?.family === 'linux' },
     osLabel () { return processOsLabel(this.capability?.os) },
     diagnostic () { return this.initializing ? null : processDiagnostic(this.capability, this.snapshotId, this.snapshotFailure) },
@@ -155,6 +162,8 @@ export default {
     actionBusy () { return this.submitting || ['PENDING', 'UNKNOWN'].includes(this.operation?.state) },
     primaryAction () {
       if (!this.selected) return null
+      const profile = this.rowProfiles(this.selected)[0]
+      if (profile && this.actionAvailable('process.restart', this.selected, profile)) return 'process.restart'
       const service = this.selected.services?.[0]
       if (service && this.actionAvailable('service.restart', this.selected, service)) return 'service.restart'
       return this.actionAvailable('process.kill', this.selected) ? 'process.kill' : null
@@ -171,10 +180,22 @@ export default {
   mounted () { if (this.active) this.activate() },
   beforeUnmount () { this.disposed = true; this.deactivate() },
   methods: {
+    profilesUpdated (profiles) { this.profiles = profiles; this.profilesAvailable = true },
+    rowProfiles (row) { return this.profiles.filter(p => p.registrationState === 'APPROVED' && p.identity?.vmUuid === this.resource.id && p.identity?.pid === row?.identity?.pid && p.identity?.bootId === row?.identity?.bootId && p.identity?.startTicks === row?.identity?.startTicks) },
+    async fetchProfiles (token = this.generation) {
+      if (!this.current(token) || this.profilesLoading || !('listVirtualMachineProcessProfiles' in this.apiSet) || !this.rpcsReady) return
+      this.profilesLoading = true
+      try {
+        const state = result(await getAPI('listVirtualMachineProcessProfiles', { virtualmachineid: this.resource.id }), 'listVirtualMachineProcessProfiles')?.processprofiles?.processstate
+        if (!this.current(token)) return
+        if (!Array.isArray(state?.profiles)) throw new Error('unavailable')
+        this.profilesUpdated(state.profiles)
+      } catch (_) { if (this.current(token)) this.profilesAvailable = false } finally { if (this.current(token)) this.profilesLoading = false }
+    },
     rowKey (row) { return row?.identity ? `${row.identity.pid}:${row.identity.startTicks}` : '' },
     cpuText (value) { return value === null || value === undefined ? '—' : `${Number(value).toFixed(1)}%` },
     memoryText (value) { return value === null || value === undefined ? '—' : `${(Number(value) / 1048576).toFixed(1)} MB` },
-    actionLabel (action) { return this.$t(action === 'service.restart' ? 'label.vmprocess.restart' : action === 'process.terminate' ? 'label.vmprocess.terminate' : 'label.vmprocess.kill') },
+    actionLabel (action) { return this.$t(action === 'process.restart' ? 'label.vmprocess.profile.restart' : action === 'service.restart' ? 'label.vmprocess.restart' : action === 'process.terminate' ? 'label.vmprocess.terminate' : 'label.vmprocess.kill') },
     storageKey () { return `vm-process-operation:${this.scopeKey}` },
     saveOperation () { try { if (this.operation && ['PENDING', 'UNKNOWN'].includes(this.operation.state)) sessionStorage.setItem(this.storageKey(), JSON.stringify(this.operation)); else sessionStorage.removeItem(this.storageKey()) } catch (_) {} },
     openToolsDialog () {
@@ -182,21 +203,22 @@ export default {
       this.toolsDialogCapability = this.capability ? { ...this.capability } : null
       this.toolsDialog = true
     },
-    reset () { this.capability = null; this.toolsIso = null; this.toolsDialog = false; this.initializing = false; this.disabled = false; this.rows = []; this.snapshotId = null; this.collectionStatus = null; this.observedAt = null; this.receivedAt = 0; this.ageSeconds = 0; this.total = 0; this.selected = null; this.confirm = null; this.operation = null; this.errorText = ''; this.snapshotFailure = null; this.page = 1; this.keyword = ''; this.search = '' },
-    deactivate () { this.toolsDialog = false; this.generation++; clearInterval(this.tickTimer); clearInterval(this.refreshTimer); this.tickTimer = null; this.refreshTimer = null; this.confirm = null; this.loading = false; this.initializing = false; this.capabilityLoading = false; this.operationChecking = false; this.submitting = false },
+    reset () { this.profiles = []; this.profilesAvailable = false; this.profilesDialog = false; this.capability = null; this.toolsIso = null; this.toolsDialog = false; this.initializing = false; this.disabled = false; this.rows = []; this.snapshotId = null; this.collectionStatus = null; this.observedAt = null; this.receivedAt = 0; this.ageSeconds = 0; this.total = 0; this.selected = null; this.confirm = null; this.operation = null; this.errorText = ''; this.snapshotFailure = null; this.page = 1; this.keyword = ''; this.search = '' },
+    deactivate () { this.profilesDialog = false; this.toolsDialog = false; this.generation++; clearInterval(this.tickTimer); clearInterval(this.refreshTimer); this.tickTimer = null; this.refreshTimer = null; this.confirm = null; this.loading = false; this.initializing = false; this.capabilityLoading = false; this.refreshing = false; this.profilesLoading = false; this.operationChecking = false; this.submitting = false },
     async activate () {
       if (this.disposed || !this.active) return
       const token = ++this.generation
       this.initializing = !this.snapshotId
+      this.refreshing = true
       try {
         try { this.operation = JSON.parse(sessionStorage.getItem(this.storageKey()) || 'null') } catch (_) { this.operation = null }
         this.ageSeconds = this.receivedAt ? Math.floor((Date.now() - this.receivedAt) / 1000) : 0
         this.tickTimer = setInterval(() => { this.ageSeconds = this.receivedAt ? Math.floor((Date.now() - this.receivedAt) / 1000) : 0 }, 1000)
-        this.refreshTimer = setInterval(() => { if (this.active && !this.actionBusy && !this.loading && !this.confirm && !this.toolsDialog) this.refreshAll() }, 9000)
+        this.refreshTimer = setInterval(() => { if (this.active && !this.actionBusy && !this.loading && !this.confirm && !this.toolsDialog && !this.profilesDialog) this.refreshAll() }, 9000)
         await this.checkCapability(false, token)
         if (this.current(token) && this.operation) await this.checkOperation()
-        if (this.current(token) && !this.disabled && this.rpcsReady && !this.actionBusy) await this.refreshSnapshot(token)
-      } finally { if (this.current(token)) this.initializing = false }
+        if (this.current(token) && !this.disabled && this.rpcsReady && !this.actionBusy) { await this.refreshSnapshot(token); await this.fetchProfiles(token) }
+      } finally { if (this.current(token)) { this.initializing = false; this.refreshing = false } }
     },
     current (token) { return !this.disposed && this.active && token === this.generation },
     async checkCapability (refresh = false, token = this.generation) {
@@ -217,14 +239,18 @@ export default {
         this.disabled = /disabled/i.test(message)
         this.errorText = this.disabled ? '' : message
         this.capability = null; this.toolsIso = null
-        this.rows = []; this.snapshotId = null; this.collectionStatus = null; this.snapshotFailure = null; this.total = 0; this.selected = null
+        const denied = [401, 403, 432, 531].includes(Number(error?.response?.data?.errorresponse?.errorcode || error?.response?.status))
+        if (this.disabled || denied) { this.rows = []; this.snapshotId = null; this.collectionStatus = null; this.snapshotFailure = null; this.total = 0; this.selected = null }
       } finally { if (this.current(token)) this.capabilityLoading = false }
     },
     async refreshAll () {
       const token = this.generation
-      if (!this.current(token) || this.loading || this.actionBusy || this.disabled) return
-      await this.checkCapability(false, token)
-      if (this.current(token) && !this.disabled && this.rpcsReady) await this.refreshSnapshot(token)
+      if (!this.current(token) || this.refreshing || this.initializing || this.profilesLoading || this.capabilityLoading || this.loading || this.actionBusy || this.disabled) return
+      this.refreshing = true
+      try {
+        await this.checkCapability(false, token)
+        if (this.current(token) && !this.disabled && this.rpcsReady) { await this.refreshSnapshot(token); await this.fetchProfiles(token) }
+      } finally { if (this.current(token)) this.refreshing = false }
     },
     async refreshSnapshot (token = this.generation, forAction = false) {
       if (!this.current(token) || this.loading || (!forAction && this.actionBusy) || this.disabled || !this.rpcsReady) return false
@@ -287,14 +313,16 @@ export default {
     actionAvailable (action, row, service = null) {
       if (!row || !this.canAdminAction || !(actionApis[action] in this.apiSet) || this.actionBusy || this.disabled || !this.rpcsReady || this.resource.state !== 'Running') return false
       if (row.identity?.pid <= 1 || row.identity?.vmUuid !== this.resource.id) return false
+      if (action === 'process.restart') return this.capability?.allowedActions?.some(item => ['process.kill', 'service.restart'].includes(item)) && this.profilesAvailable && !!service && this.rowProfiles(row).some(item => item.id === service.id && item.version === service.version && item.definitionHash === service.definitionHash)
       if (!this.capability?.allowedActions?.includes(action)) return false
       if (action === 'process.terminate' && !this.isLinux) return false
       // SCM service processes are protected from process.kill by the guest adapter.
       if (action === 'process.kill' && !this.isLinux && (row.identity.pid <= 4 || (row.services || []).some(item => item.manager === 'scm'))) return false
+      if (action === 'service.restart' && /^ableprofile-[a-f0-9-]{36}\.service$/.test(service?.name || '')) return false
       if (action === 'service.restart' && (!service || !(row.services || []).some(item => item.name === service.name))) return false
       return true
     },
-    openPrimaryAction () { this.openAction(this.primaryAction, this.selected, this.primaryAction === 'service.restart' ? this.selected?.services?.[0] : null) },
+    openPrimaryAction () { this.openAction(this.primaryAction, this.selected, this.primaryAction === 'process.restart' ? this.rowProfiles(this.selected)[0] : this.primaryAction === 'service.restart' ? this.selected?.services?.[0] : null) },
     openAction (action, row, service = null) { if (!this.actionAvailable(action, row, service)) return; this.selected = row; this.confirm = { action, row, service }; this.ack = false },
     closeConfirm () { if (!this.submitting) this.confirm = null },
     async submitAction () {
@@ -304,15 +332,18 @@ export default {
       this.submitting = true
       try {
         const saved = choice.row.identity
-        for (let attempt = 0; this.loading && attempt < 150 && this.current(token); attempt++) await pause(100)
-        const refreshed = await this.refreshSnapshot(token, true)
-        if (!refreshed || !this.current(token) || !this.rows.some(row => row.identity?.pid === saved.pid && row.identity?.bootId === saved.bootId && row.identity?.startTicks === saved.startTicks)) throw new Error(this.$t('message.vmprocess.stale'))
+        for (let attempt = 0; (this.refreshing || this.capabilityLoading || this.profilesLoading || this.loading) && attempt < 150 && this.current(token); attempt++) await pause(100)
+        let refreshed = await this.refreshSnapshot(token, true)
+        if (!refreshed && this.current(token) && !this.disabled && this.rpcsReady) refreshed = await this.refreshSnapshot(token, true)
+        if (!this.current(token)) return
+        if (!refreshed) throw new Error(this.errorText || this.$t('message.vmprocess.snapshot.refresh.failed'))
+        if (!this.rows.some(row => row.identity?.pid === saved.pid && row.identity?.bootId === saved.bootId && row.identity?.startTicks === saved.startTicks)) throw new Error(this.$t('message.vmprocess.stale'))
         const requestId = uuid()
         const pending = { requestId, action: choice.action, name: choice.row.name, pid: saved.pid, state: 'PENDING', message: '' }
         this.operation = pending; this.saveOperation(); this.confirm = null
         const api = actionApis[choice.action]
         const args = { virtualmachineid: this.resource.id, requestid: requestId, snapshotid: this.snapshotId, pid: saved.pid }
-        if (choice.service) args.servicename = choice.service.name
+        if (choice.action === 'process.restart') { args.profileid = choice.service.id; args.profileversion = choice.service.version } else if (choice.service) args.servicename = choice.service.name
         const response = result(await postAPI(api, args), api)
         if (!this.current(token)) return
         if (!response?.jobid) throw new Error(this.$t('message.vmprocess.result.missing'))
@@ -324,8 +355,8 @@ export default {
         }
         if (!this.current(token)) return
         if (job?.jobstatus === 1 && job.jobresult?.processoperation?.processstate?.state === 'SUCCEEDED') {
-          this.operation = { ...pending, state: 'SUCCEEDED', message: this.$t('message.vmprocess.succeeded') }
-          this.saveOperation(); this.submitting = false; await this.refreshSnapshot(token)
+          this.operation = { ...pending, state: 'SUCCEEDED', progress: job.jobresult.processoperation.processstate.progress, message: this.$t('message.vmprocess.succeeded') }
+          this.saveOperation(); this.submitting = false; await this.refreshSnapshot(token); await this.fetchProfiles(token)
         } else {
           this.operation = { ...pending, state: 'UNKNOWN', jobCompleted: job?.jobstatus === 2, message: '' }; this.saveOperation()
           await this.checkOperation()
@@ -342,11 +373,11 @@ export default {
       try {
         const state = result(await getAPI('getVirtualMachineProcessOperation', { virtualmachineid: this.resource.id, requestid: pending.requestId }), 'getVirtualMachineProcessOperation')?.processoperation?.processstate
         if (!this.current(token) || this.operation?.requestId !== pending.requestId) return
-        if (state?.state === 'SUCCEEDED' || state?.state === 'FAILED') {
-          this.operation = { ...pending, state: state.state, message: state.error?.code === 'PROTECTED_TARGET' ? this.$t('message.vmprocess.protected') : state.error?.message || this.$t('message.vmprocess.succeeded'), operationId: state.operationId }
+        if (['SUCCEEDED', 'FAILED', 'PARTIAL'].includes(state?.state)) {
+          this.operation = { ...pending, state: state.state, progress: state.progress, message: state.state === 'PARTIAL' ? this.$t('message.vmprocess.profile.partial') : pending.action === 'process.restart' && state.state === 'FAILED' ? this.$t('message.vmprocess.profile.rejected') : state.error?.code === 'PROTECTED_TARGET' ? this.$t('message.vmprocess.protected') : state.error?.message || this.$t('message.vmprocess.succeeded'), operationId: state.operationId }
           this.saveOperation()
-          if (state.state === 'SUCCEEDED') await this.refreshSnapshot(token)
-        } else { this.operation = { ...pending, state: 'UNKNOWN', operationId: state?.operationId }; this.saveOperation() }
+          if (['SUCCEEDED', 'PARTIAL'].includes(state.state)) { await this.refreshSnapshot(token); await this.fetchProfiles(token) }
+        } else { this.operation = { ...pending, state: 'UNKNOWN', progress: state?.progress, operationId: state?.operationId }; this.saveOperation() }
       } catch (error) {
         if (this.current(token)) {
           const message = errorMessage(error)

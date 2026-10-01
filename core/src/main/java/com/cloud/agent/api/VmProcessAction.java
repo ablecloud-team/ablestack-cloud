@@ -56,6 +56,12 @@ public final class VmProcessAction {
                         "action",
                         "identity",
                         "service")) r.put(k, request.get(k));
+        if ("1.1".equals(request.get("schemaVersion"))) {
+            r.put("profile", request.get("profile"));
+            Map<String,Object> progress=new LinkedHashMap<>();
+            progress.put("oldProcess","NOT_CHECKED");progress.put("newProcess","UNKNOWN");progress.put("newIdentity",null);
+            r.put("progress",progress);
+        }
         r.put("kind", "actionResult");
         r.put("state", "UNKNOWN");
         r.put("effect", "MAY_HAVE_RUN");
@@ -80,6 +86,9 @@ public final class VmProcessAction {
         Map<String, Object> r = unknown(request);
         r.put("state", "FAILED");
         r.put("effect", "NOT_STARTED");
+        if ("1.1".equals(request.get("schemaVersion"))) {
+            Map<String,Object> progress=new LinkedHashMap<>();progress.put("oldProcess","NOT_CHECKED");progress.put("newProcess","NOT_ATTEMPTED");progress.put("newIdentity",null);r.put("progress",progress);
+        }
         r.put("completedAt", Instant.now().toString());
         r.put(
                 "error",
@@ -96,6 +105,7 @@ public final class VmProcessAction {
     public static Map<String, Object> decode(String json, Map<String, Object> request)
             throws IOException {
         Map<String, Object> r = parse(json);
+        if ("1.1".equals(request.get("schemaVersion"))) return VmProcessProfile.decode(r,request);
         try {
             if (!"1.0".equals(r.get("schemaVersion"))) throw new IllegalArgumentException();
             if ("failure".equals(r.get("kind"))
