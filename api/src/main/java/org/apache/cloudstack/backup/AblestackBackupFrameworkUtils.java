@@ -39,7 +39,7 @@ public final class AblestackBackupFrameworkUtils {
     public static final String BACKUP_COMPLETE_MARKER = ".backup.complete";
     public static final String STAGING_IN_PROGRESS_MARKER = ".staging.inprogress";
     public static final String STAGING_COMPLETE_MARKER = ".staging.complete";
-    public static final String ASYNC_BACKUP_JOB_ROOT = "/var/lib/cloudstack/ablestack-backup/jobs";
+    public static final String ASYNC_BACKUP_JOB_ROOT = "/var/lib/ablestack/backup/jobs";
     public static final String TRACE_MARKER = "[ABLESTACK_BACKUP_TRACE]";
     public static final String OPERATION_BACKUP = "BACKUP";
     public static final String OPERATION_RESTORE = "RESTORE";
