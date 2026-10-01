@@ -41,6 +41,7 @@ public final class EuropaSchemaUpgrade {
     public static final String S7 = "europa-4.23-s7-v1";
     public static final String S8 = "europa-4.23-s8-v1";
     public static final String S9 = "europa-4.23-s9-v1";
+    public static final String S11 = "europa-4.23-s11-vm-process-config-v1";
 
     private EuropaSchemaUpgrade() {
     }

@@ -57,7 +57,7 @@
         </template>
         <a-switch v-model:checked="form.startvm" />
       </a-form-item>
-      <a-form-item :label="$t('label.deploy.vm.number')" name="vmNumber" ref="vmNumber">
+      <a-form-item :label="$t('label.deploy.vm.number')" name="count" ref="vmNumber">
         <a-input-number :min=1 :max=50 :maxlength="2" v-model:value="form.count" />
       </a-form-item>
 
@@ -95,6 +95,13 @@ export default {
       return hasExtraConfigDisk(this.resource)
     }
   },
+  watch: {
+    'form.count' () {
+      if (this.form.name && this.formRef.value) {
+        this.formRef.value.validateFields(['name']).catch(() => {})
+      }
+    }
+  },
   beforeCreate () {
     this.apiParams = this.$getApiParams('cloneVirtualMachine')
   },
@@ -110,8 +117,23 @@ export default {
         count: 1
       })
       this.rules = reactive({
-        name: [{ required: true, message: `${this.$t('label.required')}` }]
+        name: [
+          { required: true, message: this.$t('label.required') },
+          { validator: this.validateCloneName }
+        ],
+        count: [{ required: true, type: 'integer', min: 1, max: 50, message: this.$t('message.clone.count.invalid') }]
       })
+    },
+    async validateCloneName (rule, value) {
+      if (!value) return
+      if (!/^[a-zA-Z]/.test(value) || /[^a-zA-Z0-9-]/.test(value) || value.endsWith('-')) {
+        throw new Error(this.$t('message.clone.name.invalid'))
+      }
+      const count = this.form.count
+      const suffix = Number.isInteger(count) && count > 1 ? `-${count}` : ''
+      if (value.length + suffix.length > 63) {
+        throw new Error(this.$t('message.clone.name.length', { max: 63 - suffix.length }))
+      }
     },
     handleSubmit (e) {
       if (e) e.preventDefault()

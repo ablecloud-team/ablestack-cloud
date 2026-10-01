@@ -16,67 +16,73 @@
 // under the License.
 
 <template>
-  <a-spin :spinning="loading">
-    <a-form
-      class="form"
-      layout="vertical"
-      :ref="formRef"
-      :model="form"
-      :rules="rules"
-      @finish="handleSubmit"
-      v-ctrl-enter="handleSubmit"
-     >
-      <div style="margin-bottom: 10px">
-        <a-alert type="warning">
-          <template #message>
-            <div v-html="$t('message.confirm.attach.disk')"></div>
-          </template>
-        </a-alert>
+  <div class="volume-attach-dialog">
+    <a-spin :spinning="loading">
+      <div class="volume-attach-content">
+        <a-alert v-if="virtualmachines.some(vm => volumeBackupReason(vm))" type="warning" show-icon :message="$t('message.vmvolume.backup.blocked')" style="margin-bottom: 16px" />
+        <a-form
+          class="form"
+          layout="vertical"
+          :ref="formRef"
+          :model="form"
+          :rules="rules"
+          @finish="handleSubmit"
+          v-ctrl-enter="handleSubmit"
+         >
+          <div style="margin-bottom: 10px">
+            <a-alert type="warning">
+              <template #message>
+                <div v-html="$t('message.confirm.attach.disk')"></div>
+              </template>
+            </a-alert>
+          </div>
+          <a-form-item :label="$t('label.virtualmachinename')" name="virtualmachineid" ref="virtualmachineid">
+            <a-select
+              v-focus="true"
+              v-model:value="form.virtualmachineid"
+              :placeholder="$t('label.virtualmachinename')"
+              showSearch
+              optionFilterProp="label"
+              :filterOption="(input, option) => {
+                return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }" >
+              <a-select-option v-for="vm in virtualmachines" :key="vm.id" :label="vm.name || vm.displayname" :disabled="!!volumeBackupReason(vm)" :title="(vm.name || vm.displayname) + (volumeBackupReason(vm) ? ' — ' + $t(volumeBackupReason(vm)) : '')">
+                {{ vm.name || vm.displayname }}<span v-if="volumeBackupReason(vm)"> — {{ $t(volumeBackupReason(vm)) }}</span>
+              </a-select-option>
+            </a-select>
+          </a-form-item >
+          <a-form-item :label="$t('label.deviceid')">
+            <div style="margin-bottom: 10px">
+              <a-collapse>
+                <a-collapse-panel header="More information about deviceID">
+                  <a-alert type="warning">
+                    <template #message>
+                      <span v-html="apiParams.deviceid.description" />
+                    </template>
+                  </a-alert>
+                </a-collapse-panel>
+              </a-collapse>
+            </div>
+            <a-input-number
+              v-model:value="form.deviceid"
+              style="width: 100%;"
+              :min="0"
+              :placeholder="$t('label.deviceid')"
+            />
+          </a-form-item>
+        </a-form>
       </div>
-      <a-form-item :label="$t('label.virtualmachinename')" name="virtualmachineid" ref="virtualmachineid">
-        <a-select
-          v-focus="true"
-          v-model:value="form.virtualmachineid"
-          :placeholder="$t('label.virtualmachinename')"
-          showSearch
-          optionFilterProp="label"
-          :filterOption="(input, option) => {
-            return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-          }" >
-          <a-select-option v-for="vm in virtualmachines" :key="vm.id" :label="vm.name || vm.displayname">
-            {{ vm.name || vm.displayname }}
-          </a-select-option>
-        </a-select>
-      </a-form-item >
-      <a-form-item :label="$t('label.deviceid')">
-        <div style="margin-bottom: 10px">
-          <a-collapse>
-            <a-collapse-panel header="More information about deviceID">
-              <a-alert type="warning">
-                <template #message>
-                  <span v-html="apiParams.deviceid.description" />
-                </template>
-              </a-alert>
-            </a-collapse-panel>
-          </a-collapse>
-        </div>
-        <a-input-number
-          v-model:value="form.deviceid"
-          style="width: 100%;"
-          :min="0"
-          :placeholder="$t('label.deviceid')"
-        />
-      </a-form-item>
-    </a-form>
-    <div class="actions">
-      <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
-      <a-button type="primary" ref="submit" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
-    </div>
-  </a-spin>
+      <div class="actions">
+        <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
+        <a-button type="primary" ref="submit" :disabled="loading || !form.virtualmachineid" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
+      </div>
+    </a-spin>
+  </div>
 </template>
 <script>
 import { ref, reactive, toRaw } from 'vue'
 import { getAPI, postAPI } from '@/api'
+import { volumeBackupReason } from '@/utils/vmVolumeActions'
 
 export default {
   name: 'AttachVolume',
@@ -100,6 +106,7 @@ export default {
     this.fetchData()
   },
   methods: {
+    volumeBackupReason,
     initForm () {
       this.formRef = ref()
       this.form = reactive({})
@@ -142,10 +149,15 @@ export default {
     handleSubmit (e) {
       e.preventDefault()
       if (this.loading) return
-      this.formRef.value.validate().then(() => {
+      this.formRef.value.validate().then(async () => {
         const values = toRaw(this.form)
 
         this.loading = true
+        try {
+          const response = await getAPI('listVirtualMachines', { id: values.virtualmachineid })
+          const reason = volumeBackupReason(response.listvirtualmachinesresponse?.virtualmachine?.find(vm => vm.id === values.virtualmachineid))
+          if (reason) throw new Error(this.$t(reason))
+        } catch (error) { this.$notifyError(error); this.loading = false; return }
         postAPI('attachVolume', {
           id: this.resource.id,
           virtualmachineid: values.virtualmachineid,
@@ -174,20 +186,46 @@ export default {
 </script>
 <style lang="scss" scoped>
 .form {
-  width: 80vw;
-
-  @media (min-width: 500px) {
-    width: 400px;
-  }
+  width: 100%;
+}
+.volume-attach-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 .actions {
   display: flex;
+  flex-shrink: 0;
   justify-content: flex-end;
-  margin-top: 20px;
-  button {
-    &:not(:last-child) {
-      margin-right: 10px;
-    }
+  gap: 8px;
+  padding-top: 16px;
+}
+</style>
+<style lang="scss">
+.ant-modal-wrap:has(.volume-attach-dialog) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  .ant-modal {
+    top: 0 !important;
+    width: 560px !important;
+    max-width: calc(100vw - 32px);
+    margin: 0;
+    padding-bottom: 0;
+  }
+  .ant-modal-body {
+    max-height: calc(100dvh - 130px);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .volume-attach-dialog,
+  .volume-attach-dialog > .ant-spin-nested-loading,
+  .volume-attach-dialog .ant-spin-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    max-height: calc(100dvh - 178px);
   }
 }
 </style>

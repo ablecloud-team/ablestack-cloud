@@ -33,6 +33,13 @@ import com.google.gson.annotations.SerializedName;
 @EntityReference(value = Volume.class)
 @SuppressWarnings("unused")
 public class VolumeResponse extends BaseResponseWithTagInformation implements ControlledViewEntityResponse {
+    @SerializedName("volumemutationblockedreason")
+    @Param(description = "Reason why attached volume topology changes are blocked by backup protection")
+    private String volumeMutationBlockedReason = "";
+
+    public String getVolumeMutationBlockedReason() { return volumeMutationBlockedReason; }
+    public void setVolumeMutationBlockedReason(String reason) { volumeMutationBlockedReason = reason == null ? "" : reason; }
+
     @SerializedName(ApiConstants.ID)
     @Param(description = "ID of the disk volume")
     private String id;

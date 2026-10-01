@@ -35,6 +35,7 @@ DROP TABLE IF EXISTS `cloud`.`dr_site_pair`;
 DROP TABLE IF EXISTS `cloud`.`dr_site_health_check`;
 DROP TABLE IF EXISTS `cloud`.`dr_site_credential`;
 DROP TABLE IF EXISTS `cloud`.`dr_site`;
+DROP TABLE IF EXISTS `cloud`.`vm_process_operation`;
 DROP TABLE IF EXISTS `cloud`.`ftctl_protection_volume`;
 DROP TABLE IF EXISTS `cloud`.`ftctl_protection`;
 DROP TABLE IF EXISTS `cloud`.`configuration`;
@@ -3409,3 +3410,23 @@ CREATE TABLE IF NOT EXISTS `dr_cleanup_export_resume` (
   `drained` TINYINT(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`cleanup_run_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `cloud`.`vm_process_operation` (
+ `operation_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+ `request_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+ `account_id` BIGINT UNSIGNED NOT NULL,
+ `vm_id` BIGINT UNSIGNED NOT NULL,
+ `active_vm_id` BIGINT UNSIGNED DEFAULT NULL,
+ `host_id` BIGINT UNSIGNED NOT NULL,
+ `generation` BIGINT NOT NULL,
+ `fingerprint` CHAR(64) CHARACTER SET ascii NOT NULL,
+ `request_json` MEDIUMTEXT NOT NULL,
+ `result_json` MEDIUMTEXT NOT NULL,
+ `state` VARCHAR(16) NOT NULL,
+ `created` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+ `updated` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+ PRIMARY KEY (`operation_id`),
+ UNIQUE KEY `vm_process_request` (`account_id`,`request_id`),
+ UNIQUE KEY `vm_process_active` (`active_vm_id`),
+ KEY `vm_process_vm` (`vm_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

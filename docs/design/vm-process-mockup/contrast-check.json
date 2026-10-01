@@ -1,0 +1,242 @@
+[
+  {
+    "theme": "light",
+    "element": "text-primary/bg-surface",
+    "foreground": "#1f2937",
+    "background": "#ffffff",
+    "contrast": 14.68,
+    "pass45": true
+  },
+  {
+    "theme": "light",
+    "element": "text-primary/bg-elevated",
+    "foreground": "#1f2937",
+    "background": "#ffffff",
+    "contrast": 14.68,
+    "pass45": true
+  },
+  {
+    "theme": "light",
+    "element": "text-secondary/bg-surface",
+    "foreground": "#4b5563",
+    "background": "#ffffff",
+    "contrast": 7.56,
+    "pass45": true
+  },
+  {
+    "theme": "light",
+    "element": "text-secondary/bg-elevated",
+    "foreground": "#4b5563",
+    "background": "#ffffff",
+    "contrast": 7.56,
+    "pass45": true
+  },
+  {
+    "theme": "light",
+    "element": "text-muted/bg-surface",
+    "foreground": "#667085",
+    "background": "#ffffff",
+    "contrast": 4.97,
+    "pass45": true
+  },
+  {
+    "theme": "light",
+    "element": "text-muted/bg-elevated",
+    "foreground": "#667085",
+    "background": "#ffffff",
+    "contrast": 4.97,
+    "pass45": true
+  },
+  {
+    "theme": "light",
+    "element": "link/bg-surface",
+    "foreground": "#0969da",
+    "background": "#ffffff",
+    "contrast": 5.19,
+    "pass45": true
+  },
+  {
+    "theme": "light",
+    "element": "link/bg-elevated",
+    "foreground": "#0969da",
+    "background": "#ffffff",
+    "contrast": 5.19,
+    "pass45": true
+  },
+  {
+    "theme": "light",
+    "element": "disabled reason",
+    "foreground": "#4b5563",
+    "background": "#f2f4f7",
+    "contrast": 6.86,
+    "pass45": true
+  },
+  {
+    "theme": "light",
+    "element": "info notice",
+    "foreground": "#0b3b66",
+    "background": "#eaf4ff",
+    "contrast": 10.31,
+    "pass45": true
+  },
+  {
+    "theme": "light",
+    "element": "warning notice",
+    "foreground": "#5c3b00",
+    "background": "#fff8e6",
+    "contrast": 9.53,
+    "pass45": true
+  },
+  {
+    "theme": "light",
+    "element": "error notice",
+    "foreground": "#701b1b",
+    "background": "#fff1f0",
+    "contrast": 10.26,
+    "pass45": true
+  },
+  {
+    "theme": "light",
+    "element": "success notice",
+    "foreground": "#1f4d1d",
+    "background": "#f0f9eb",
+    "contrast": 9.1,
+    "pass45": true
+  },
+  {
+    "theme": "light",
+    "element": "primary action",
+    "foreground": "#ffffff",
+    "background": "#0969da",
+    "contrast": 5.19,
+    "pass45": true
+  },
+  {
+    "theme": "light",
+    "element": "danger action",
+    "foreground": "#ffffff",
+    "background": "#c62836",
+    "contrast": 5.59,
+    "pass45": true
+  },
+  {
+    "theme": "dark",
+    "element": "text-primary/bg-surface",
+    "foreground": "#f0f3f6",
+    "background": "#22282f",
+    "contrast": 13.35,
+    "pass45": true
+  },
+  {
+    "theme": "dark",
+    "element": "text-primary/bg-elevated",
+    "foreground": "#f0f3f6",
+    "background": "#272e36",
+    "contrast": 12.32,
+    "pass45": true
+  },
+  {
+    "theme": "dark",
+    "element": "text-secondary/bg-surface",
+    "foreground": "#c5ccd4",
+    "background": "#22282f",
+    "contrast": 9.18,
+    "pass45": true
+  },
+  {
+    "theme": "dark",
+    "element": "text-secondary/bg-elevated",
+    "foreground": "#c5ccd4",
+    "background": "#272e36",
+    "contrast": 8.47,
+    "pass45": true
+  },
+  {
+    "theme": "dark",
+    "element": "text-muted/bg-surface",
+    "foreground": "#9aa4af",
+    "background": "#22282f",
+    "contrast": 5.88,
+    "pass45": true
+  },
+  {
+    "theme": "dark",
+    "element": "text-muted/bg-elevated",
+    "foreground": "#9aa4af",
+    "background": "#272e36",
+    "contrast": 5.43,
+    "pass45": true
+  },
+  {
+    "theme": "dark",
+    "element": "link/bg-surface",
+    "foreground": "#69b1ff",
+    "background": "#22282f",
+    "contrast": 6.61,
+    "pass45": true
+  },
+  {
+    "theme": "dark",
+    "element": "link/bg-elevated",
+    "foreground": "#69b1ff",
+    "background": "#272e36",
+    "contrast": 6.1,
+    "pass45": true
+  },
+  {
+    "theme": "dark",
+    "element": "disabled reason",
+    "foreground": "#c5ccd4",
+    "background": "#30363d",
+    "contrast": 7.53,
+    "pass45": true
+  },
+  {
+    "theme": "dark",
+    "element": "info notice",
+    "foreground": "#d6ebff",
+    "background": "#172b3d",
+    "contrast": 11.86,
+    "pass45": true
+  },
+  {
+    "theme": "dark",
+    "element": "warning notice",
+    "foreground": "#ffe7a3",
+    "background": "#332a16",
+    "contrast": 11.6,
+    "pass45": true
+  },
+  {
+    "theme": "dark",
+    "element": "error notice",
+    "foreground": "#ffd2d2",
+    "background": "#352025",
+    "contrast": 11.12,
+    "pass45": true
+  },
+  {
+    "theme": "dark",
+    "element": "success notice",
+    "foreground": "#d3f4dc",
+    "background": "#1b3024",
+    "contrast": 11.87,
+    "pass45": true
+  },
+  {
+    "theme": "dark",
+    "element": "primary action",
+    "foreground": "#ffffff",
+    "background": "#245fc1",
+    "contrast": 6.03,
+    "pass45": true
+  },
+  {
+    "theme": "dark",
+    "element": "danger action",
+    "foreground": "#ffffff",
+    "background": "#a62738",
+    "contrast": 7.07,
+    "pass45": true
+  }
+]

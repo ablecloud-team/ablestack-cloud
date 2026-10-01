@@ -40,6 +40,7 @@ export function snapshotBusy (vmId) {
 export function snapshotActionReason (api, snapshot, vm, busy = false) {
   if (busy) return 'message.vmsnapshot.busy'
   if (vm && snapshot.virtualmachineid !== vm.id) return 'message.vmsnapshot.wrong.vm'
+  if (api === 'revertToVMSnapshot' && vm?.vmsnapshotblockedreason) return 'message.backup.snapshot.snapshot.blocked'
   if (api === 'deleteVMSnapshot') return ['Ready', 'Expunging', 'Error'].includes(snapshot.state) ? '' : 'message.vmsnapshot.not.ready'
   if (snapshot.state !== 'Ready') return 'message.vmsnapshot.not.ready'
   if (api === 'createSnapshotFromVMSnapshot') return snapshot.hypervisor === 'KVM' ? '' : 'message.vmsnapshot.kvm.only'

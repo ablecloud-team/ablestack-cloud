@@ -382,7 +382,7 @@ public class KVMStoragePoolManager {
 
     public KVMPhysicalDisk getPhysicalDisk(StoragePoolType type, String poolUuid, String volName) {
         int cnt = 0;
-        int retries = 100;
+        int retries = 10;
         KVMPhysicalDisk vol = null;
         //harden get volume, try cnt times to get volume, in case volume is created on other host
         //Poll more frequently and return immediately once disk is found

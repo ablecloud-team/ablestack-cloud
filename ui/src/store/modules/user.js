@@ -19,15 +19,15 @@ import { discoverOptional } from '@/utils/optionalDiscovery'
 import Cookies from 'js-cookie'
 import message from 'ant-design-vue/es/message'
 import notification from 'ant-design-vue/es/notification'
-import semver from 'semver'
+// import semver from 'semver'
 
 import { vueProps } from '@/vue-app'
 import router from '@/router'
 import store from '@/store'
 import { oauthlogin, login, logout, getAPI } from '@/api'
 import { i18n } from '@/locales'
-import { axios } from '../../utils/request'
-import { getParsedVersion } from '@/utils/util'
+// import { axios } from '../../utils/request'
+// import { getParsedVersion } from '@/utils/util'
 
 import {
   ACCESS_TOKEN,
@@ -655,7 +655,10 @@ const user = {
     SetDomainStore ({ commit }, domainStore) {
       commit('SET_DOMAIN_STORE', domainStore)
     },
-    SetCsLatestVersion ({ commit }, rolename) {
+    SetCsLatestVersion (/* { commit }, rolename */) {
+      // 폐쇄망 및 외부 네트워크 차단 환경에서 GitHub API 호출 실패 시
+      // request.js 인터셉터에 의해 강제 로그아웃(세션 종료)되는 문제를 방지하기 위해 주석 처리
+      /*
       if (!vueProps.$config.notifyLatestCSVersion) {
         return
       }
@@ -680,6 +683,7 @@ const user = {
           }
         }).catch(ignored => {})
       }
+      */
     },
     SetDarkMode ({ commit }, darkMode) {
       commit('SET_DARK_MODE', darkMode)

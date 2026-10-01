@@ -18,6 +18,7 @@
 <template>
   <div class="form-layout" v-ctrl-enter="handleSubmit">
     <a-spin :spinning="loading">
+      <a-alert v-if="resource.backupblockedreason" type="warning" show-icon :message="$t('message.backup.snapshot.backup.blocked')" style="margin-bottom: 16px" />
       <a-form
         :ref="formRef"
         :model="form"
@@ -55,7 +56,7 @@
       </a-form>
       <div :span="24" class="action-button">
         <a-button @click="closeModal">{{ $t('label.cancel') }}</a-button>
-        <a-button :loading="loading" type="primary" @click="handleSubmit" ref="submit">{{ $t('label.ok') }}</a-button>
+        <a-button :loading="loading" type="primary" @click="handleSubmit" ref="submit" :disabled="!!resource.backupblockedreason">{{ $t('label.ok') }}</a-button>
       </div>
     </a-spin>
   </div>
@@ -114,6 +115,7 @@ export default {
       this.$emit('close-action')
     },
     handleSubmit (e) {
+      if (this.resource.backupblockedreason) return
       e.preventDefault()
       if (this.loading) return
       this.formRef.value.validate().then(async () => {

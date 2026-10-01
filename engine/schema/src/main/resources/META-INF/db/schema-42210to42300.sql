@@ -1453,3 +1453,24 @@ WHERE NOT EXISTS (SELECT 1 FROM `cloud`.`configuration` WHERE `name` = 'kvm.cpu.
 -- Schedule table changes are applied by the retry-safe Europa S5A named phase.
 -- Storage/backup changes are applied by the retry-safe Europa S5B named phase.
 -- Network/DNS changes are applied by the retry-safe Europa S6 named phase.
+
+-- Durable process action reservations and non-replaying results (C5).
+CREATE TABLE IF NOT EXISTS `vm_process_operation` (
+ `operation_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+ `request_id` CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+ `account_id` BIGINT UNSIGNED NOT NULL,
+ `vm_id` BIGINT UNSIGNED NOT NULL,
+ `active_vm_id` BIGINT UNSIGNED DEFAULT NULL,
+ `host_id` BIGINT UNSIGNED NOT NULL,
+ `generation` BIGINT NOT NULL,
+ `fingerprint` CHAR(64) CHARACTER SET ascii NOT NULL,
+ `request_json` MEDIUMTEXT NOT NULL,
+ `result_json` MEDIUMTEXT NOT NULL,
+ `state` VARCHAR(16) NOT NULL,
+ `created` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+ `updated` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+ PRIMARY KEY (`operation_id`),
+ UNIQUE KEY `vm_process_request` (`account_id`,`request_id`),
+ UNIQUE KEY `vm_process_active` (`active_vm_id`),
+ KEY `vm_process_vm` (`vm_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

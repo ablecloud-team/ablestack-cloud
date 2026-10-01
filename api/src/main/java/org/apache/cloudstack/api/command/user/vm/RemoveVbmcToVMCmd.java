@@ -36,7 +36,7 @@ import com.cloud.user.Account;
 import com.cloud.uservm.UserVm;
 import com.cloud.vm.VirtualMachine;
 
-@APICommand(name = "removeVbmcToVM", description = "Adds VM to specified network by creating a NIC", responseObject = UserVmResponse.class, responseView = ResponseView.Restricted, entityType = {VirtualMachine.class},
+@APICommand(name = "removeVbmcToVM", description = "Removes the Virtual BMC endpoint and releases its port after confirmed cleanup", responseObject = UserVmResponse.class, responseView = ResponseView.Restricted, entityType = {VirtualMachine.class},
         requestHasSensitiveInfo = false, responseHasSensitiveInfo = true)
 public class RemoveVbmcToVMCmd extends BaseAsyncCmd implements UserCmd {
 
@@ -66,7 +66,7 @@ public class RemoveVbmcToVMCmd extends BaseAsyncCmd implements UserCmd {
 
     @Override
     public String getEventType() {
-        return EventTypes.EVENT_VM_VBMC_ALLOCATE;
+        return EventTypes.EVENT_VM_VBMC_REMOVE;
     }
 
     @Override
@@ -103,7 +103,7 @@ public class RemoveVbmcToVMCmd extends BaseAsyncCmd implements UserCmd {
             response.setResponseName(getCommandName());
             setResponseObject(response);
         } else {
-            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Failed to restore vm " + getVmId());
+            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Failed to remove Virtual BMC for VM " + getVmId());
         }
     }
 }

@@ -331,8 +331,8 @@ export default {
               (['Stopped'].includes(record.state) && (!['KVM', 'LXC'].includes(record.hypervisor) ||
               (record.hypervisor === 'KVM' && ['PowerFlex', 'Filesystem', 'NetworkFilesystem', 'SharedMountPoint'].includes(record.pooltype))))) && record.vmtype !== 'sharedfsvm')
           },
-          disabled: (record, store, selectedItems) => { return snapshotBusy(record.id) || (record.hostcontrolstate === 'Offline' && record.hypervisor === 'KVM') || disableDuringFastCloneFlatten(record, store, selectedItems) },
-          tooltip: (record, store, selectedItems) => getFastCloneOperationTooltip(record, store, selectedItems, 'label.action.vmsnapshot.create'),
+          disabled: (record, store, selectedItems) => { return !!record.vmsnapshotblockedreason || snapshotBusy(record.id) || (record.hostcontrolstate === 'Offline' && record.hypervisor === 'KVM') || disableDuringFastCloneFlatten(record, store, selectedItems) },
+          tooltip: (record, store, selectedItems) => record.vmsnapshotblockedreason ? 'message.backup.snapshot.snapshot.blocked' : getFastCloneOperationTooltip(record, store, selectedItems, 'label.action.vmsnapshot.create'),
           mapping: {
             virtualmachineid: {
               value: (record, params) => { return record.id }
@@ -362,6 +362,8 @@ export default {
           message: 'label.backup.offering.assign',
           docHelp: 'adminguide/virtual_machines.html#backup-offerings',
           dataView: true,
+          tooltip: record => record.backupblockedreason ? 'message.backup.snapshot.backup.blocked' : '',
+          disabled: record => !!record.backupblockedreason,
           args: ['virtualmachineid', 'backupofferingid'],
           show: (record) => { return ['Running', 'Stopped', 'Shutdown'].includes(record.state) && record.hypervisor !== 'External' && !record.backupofferingid },
           mapping: {
@@ -385,8 +387,8 @@ export default {
             const provider = (record.backupprovider || '').toLowerCase()
             return record.backupofferingid && !['ablestack-netbackup', 'ablestack-veeam'].includes(provider)
           },
-          disabled: (record, store, selectedItems) => { return record.hostcontrolstate === 'Offline' || disableDuringFastCloneFlatten(record, store, selectedItems) },
-          tooltip: (record, store, selectedItems) => getFastCloneOperationTooltip(record, store, selectedItems, 'label.create.backup'),
+          disabled: (record, store, selectedItems) => { return !!record.backupblockedreason || record.hostcontrolstate === 'Offline' || disableDuringFastCloneFlatten(record, store, selectedItems) },
+          tooltip: (record, store, selectedItems) => record.backupblockedreason ? 'message.backup.snapshot.backup.blocked' : getFastCloneOperationTooltip(record, store, selectedItems, 'label.create.backup'),
           popup: true,
           component: shallowRef(defineAsyncComponent(() => import('@/views/compute/StartBackup.vue')))
         },
@@ -396,6 +398,7 @@ export default {
           label: 'label.backup.configure.schedule',
           docHelp: 'adminguide/virtual_machines.html#creating-vm-backups',
           dataView: true,
+          tooltip: record => record.backupblockedreason ? 'message.backup.snapshot.backup.blocked' : '',
           popup: true,
           show: (record) => { return record.backupofferingid },
           disabled: (record) => { return record.hostcontrolstate === 'Offline' },
@@ -449,7 +452,8 @@ export default {
           popup: true,
           show: (record) => isoActionAvailable(record) && attachedIsoCount(record) < isoMaxCount(record),
           disabled: (record) => { return record.hostcontrolstate === 'Offline' || record.hostcontrolstate === 'Maintenance' },
-          component: shallowRef(defineAsyncComponent(() => import('@/views/compute/AttachIso.vue')))
+          selfManagedDialog: true,
+          component: shallowRef(defineAsyncComponent(() => import('@/views/compute/VmIsoManager.vue')))
         },
         {
           api: 'detachIso',
@@ -459,7 +463,8 @@ export default {
           popup: true,
           show: (record) => isoActionAvailable(record) && attachedIsoCount(record) > 0,
           disabled: (record) => { return record.hostcontrolstate === 'Offline' || record.hostcontrolstate === 'Maintenance' },
-          component: shallowRef(defineAsyncComponent(() => import('@/views/compute/DetachIso.vue')))
+          selfManagedDialog: true,
+          component: shallowRef(defineAsyncComponent(() => import('@/views/compute/VmIsoManager.vue')))
         },
         {
           api: 'updateVMAffinityGroup',
@@ -619,34 +624,14 @@ export default {
           show: (record, store) => { return ['Destroyed', 'Expunging'].includes(record.state) && store.features.allowuserexpungerecovervm && record.vmtype !== 'sharedfsvm' }
         },
         {
-          api: 'allocateVbmcToVM',
+          api: 'listVirtualMachines',
           icon: 'heart-filled',
-          label: 'label.vbmcport.allocate',
-          message: 'message.action.vbmcport.allocate.instance',
+          label: 'label.vbmc.manage',
           dataView: true,
           popup: true,
-          args: ['virtualmachineid'],
-          show: (record) => { return ['Running', 'Stopped'].includes(record.state) && record.vbmcport === 'None' && record.vmtype !== 'sharedfsvm' },
-          mapping: {
-            virtualmachineid: {
-              value: (record, params) => { return record.id }
-            }
-          }
-        },
-        {
-          api: 'removeVbmcToVM',
-          icon: 'heart-filled',
-          label: 'label.vbmcport.remove',
-          message: 'message.action.vbmcport.remove.instance',
-          dataView: true,
-          popup: true,
-          args: ['virtualmachineid'],
-          show: (record) => { return record.vbmcport !== 'None' && record.vmtype !== 'sharedfsvm' },
-          mapping: {
-            virtualmachineid: {
-              value: (record, params) => { return record.id }
-            }
-          }
+          selfManagedDialog: true,
+          show: record => record.vmtype !== 'sharedfsvm',
+          component: shallowRef(defineAsyncComponent(() => import('@/views/compute/VmVbmcManager.vue')))
         },
         {
           api: 'destroyVirtualMachine',

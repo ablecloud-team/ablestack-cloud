@@ -63,6 +63,8 @@ import com.cloud.vm.dao.VmIsoMapDao;
 @RunWith(MockitoJUnitRunner.class)
 public class UserVmJoinDaoImplTest extends GenericDaoBaseWithTagInformationBaseTest<UserVmJoinVO, UserVmResponse> {
 
+    @Mock
+    private org.apache.cloudstack.backup.BackupSnapshotGuard backupSnapshotGuard;
     @InjectMocks
     private UserVmJoinDaoImpl _userVmJoinDaoImpl;
 
@@ -97,6 +99,9 @@ public class UserVmJoinDaoImplTest extends GenericDaoBaseWithTagInformationBaseT
     private VbmcDao vbmcDao;
     @Mock
     private BackupDao backupDao;
+
+    @Mock
+    private org.apache.cloudstack.backup.BackupVolumeGuard backupVolumeGuard;
 
     @Mock
     private VmIsoMapDao vmIsoMapDao;

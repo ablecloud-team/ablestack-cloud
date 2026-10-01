@@ -133,6 +133,7 @@ public class EventTypes {
     public static final String EVENT_VM_CLONE = "VM.CLONE";
     public static final String EVENT_VM_VBMC_ALLOCATE = "VM.VBMC.PORT.ALLOCATE";
     public static final String EVENT_VM_VBMC_REMOVE = "VM.VBMC.PORT.REMOVE";
+    public static final String EVENT_VM_VBMC_CHECK = "VM.VBMC.CHECK";
 
     // VM Schedule action-execution events (fired when a scheduled action runs).
     public static final String EVENT_VM_SCHEDULE_START = "VM.SCHEDULE.START";

@@ -230,6 +230,13 @@ public class UserVmResponse extends BaseResponseWithTagInformation implements Co
     @Param(description = "The ID of the backup offering of the Instance", since = "4.14")
     private String backupOfferingId;
 
+    @SerializedName("volumemutationblockedreason")
+    @Param(description = "Reason why disk topology changes are blocked by backup protection")
+    private String volumeMutationBlockedReason = "";
+
+    public String getVolumeMutationBlockedReason() { return volumeMutationBlockedReason; }
+    public void setVolumeMutationBlockedReason(String reason) { volumeMutationBlockedReason = reason == null ? "" : reason; }
+
     @SerializedName(ApiConstants.BACKUP_OFFERING_NAME)
     @Param(description = "The name of the backup offering of the Instance", since = "4.14")
     private String backupOfferingName;
@@ -402,6 +409,17 @@ public class UserVmResponse extends BaseResponseWithTagInformation implements Co
     @SerializedName("clonefastflattendeviceid")
     @Param(description = "device ID of the volume currently being flattened by SharedMountPoint fast clone.")
     private Long cloneFastFlattenDeviceId;
+
+    @SerializedName("vmsnapshotblockedreason")
+    @Param(description = "Reason VM snapshot creation and restore are blocked")
+    private String vmSnapshotBlockedReason;
+    @SerializedName("backupblockedreason")
+    @Param(description = "Reason backup creation and scheduling are blocked")
+    private String backupBlockedReason;
+    public void setVmSnapshotBlockedReason(String value) { vmSnapshotBlockedReason = value; }
+    public void setBackupBlockedReason(String value) { backupBlockedReason = value; }
+    public String getVmSnapshotBlockedReason() { return vmSnapshotBlockedReason; }
+    public String getBackupBlockedReason() { return backupBlockedReason; }
 
     @SerializedName("activebackupstatus")
     @Param(description = "Active backup status of the virtual machine.")
@@ -1513,6 +1531,30 @@ public class UserVmResponse extends BaseResponseWithTagInformation implements Co
         }
         this.vnfDetails.put(key,value);
     }
+
+    @SerializedName("vbmcstatus")
+    @Param(description = "Virtual BMC Status")
+    private String vbmcStatus;
+
+    public void setVbmcStatus(String value) { vbmcStatus = value; }
+
+    @SerializedName("vbmcaddress")
+    @Param(description = "Virtual BMC Address")
+    private String vbmcAddress;
+
+    public void setVbmcAddress(String value) { vbmcAddress = value; }
+
+    @SerializedName("vbmcallowedcidr")
+    @Param(description = "Virtual BMC AllowedCidr")
+    private String vbmcAllowedCidr;
+
+    public void setVbmcAllowedCidr(String value) { vbmcAllowedCidr = value; }
+
+    @SerializedName("vbmclasterror")
+    @Param(description = "Virtual BMC LastError")
+    private String vbmcLastError;
+
+    public void setVbmcLastError(String value) { vbmcLastError = value; }
 
     public void setVbmcPort(String vbmcPort) {
         this.vbmcPort = vbmcPort;

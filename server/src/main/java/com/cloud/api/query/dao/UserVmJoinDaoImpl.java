@@ -16,6 +16,7 @@
 // under the License.
 package com.cloud.api.query.dao;
 
+import org.apache.cloudstack.backup.BackupSnapshotGuard;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -127,6 +128,9 @@ public class UserVmJoinDaoImpl extends GenericDaoBaseWithTagInformation<UserVmJo
     private static final String FAST_CLONE_FLATTEN_PROGRESS = "clone.fast.flatten.progress";
 
     @Inject
+    private BackupSnapshotGuard backupSnapshotGuard;
+
+    @Inject
     private ConfigurationDao _configDao;
     @Inject
     public AccountManager _accountMgr;
@@ -174,6 +178,9 @@ public class UserVmJoinDaoImpl extends GenericDaoBaseWithTagInformation<UserVmJo
     ExtensionHelper extensionHelper;
     @Inject
     BackupDao backupDao;
+
+    @Inject
+    private org.apache.cloudstack.backup.BackupVolumeGuard backupVolumeGuard;
     @Inject
     private BackupOfferingDao backupOfferingDao;
 
@@ -234,6 +241,7 @@ public class UserVmJoinDaoImpl extends GenericDaoBaseWithTagInformation<UserVmJo
     public UserVmResponse newUserVmResponse(ResponseView view, String objectName, UserVmJoinVO userVm, Set<VMDetails> details, Boolean accumulateStats, Boolean showUserData,
             Account caller) {
         UserVmResponse userVmResponse = new UserVmResponse();
+        userVmResponse.setVolumeMutationBlockedReason(backupVolumeGuard.reason(userVm.getId()));
 
         if (userVm.getHypervisorType() != null) {
             userVmResponse.setHypervisor(userVm.getHypervisorType().getHypervisorDisplayName());
@@ -284,6 +292,8 @@ public class UserVmJoinDaoImpl extends GenericDaoBaseWithTagInformation<UserVmJo
             setFastCloneFlattenVolume(userVmResponse, userVm.getId());
         }
         setActiveBackupStatus(userVmResponse, userVm.getId());
+        userVmResponse.setVmSnapshotBlockedReason(backupSnapshotGuard.snapshotReason(userVm.getId()));
+        userVmResponse.setBackupBlockedReason(backupSnapshotGuard.backupReason(userVm.getId()));
 
         User user = _userDao.getUser(userVm.getUserId());
         if (user != null) {
@@ -627,8 +637,14 @@ public class UserVmJoinDaoImpl extends GenericDaoBaseWithTagInformation<UserVmJo
         List<VbmcVO> vbmcPortVo = vbmcDao.listByVmId(userVm.getId());
         if(vbmcPortVo.size() > 0) {
             userVmResponse.setVbmcPort(Integer.toString(vbmcPortVo.get(0).getPort()));
+            VbmcVO endpoint = vbmcPortVo.get(0);
+            userVmResponse.setVbmcStatus(endpoint.getStatus());
+            userVmResponse.setVbmcAddress(endpoint.getAddress());
+            userVmResponse.setVbmcAllowedCidr(endpoint.getAllowedCidr());
+            userVmResponse.setVbmcLastError(endpoint.getLastError());
         } else {
             userVmResponse.setVbmcPort("None");
+            userVmResponse.setVbmcStatus("Unallocated");
         }
         if (userVm.getUserDataId() != null) {
             userVmResponse.setUserDataId(userVm.getUserDataUuid());

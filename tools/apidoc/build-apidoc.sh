@@ -49,6 +49,11 @@ fi
 
 CP=$PATHSEP/
 
+# Removed or renamed APIs must not survive from a previous documentation build.
+if [ -d "$DISTDIR/xmldoc" ]; then
+    rm -rf -- "$DISTDIR/xmldoc" || exit 1
+fi
+
 java -cp $CP$PATHSEP$TARGETJARDIR$PATHSEP$DEPSDIR com.cloud.api.doc.ApiXmlDocWriter -d "$DISTDIR" $*
 
 if [ $? -ne 0 ]

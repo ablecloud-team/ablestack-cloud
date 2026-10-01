@@ -57,7 +57,10 @@
           <a-tooltip v-if="['volume', 'snapshot', 'template', 'iso'].includes($route.meta.name) && item === 'usedfsbytes'"><template #title>{{ $t('message.usedfsbytes') }}</template><QuestionCircleOutlined style="margin-left: 8px;"/></a-tooltip>
           <a-tooltip v-if="['volume', 'snapshot', 'template', 'iso'].includes($route.meta.name) && item === 'savingrate'"><template #title>{{ $t('message.savingrate') }}</template><QuestionCircleOutlined style="margin-left: 8px;"/></a-tooltip>
           <br/>
-          <div v-if="Array.isArray(dataResource[item]) && item === 'service'">
+          <div v-if="$route.meta.name === 'vm' && item === 'vbmcport'">
+            <span>{{ dataResource[item] === 'None' ? $t('label.vbmc.Unallocated') : dataResource[item] }}</span>
+          </div>
+          <div v-else-if="Array.isArray(dataResource[item]) && item === 'service'">
             <div v-for="(service, idx) in dataResource[item]" :key="idx">
               {{ service.name }} : {{ service.provider.map(p => p.name).join(', ') }}
             </div>

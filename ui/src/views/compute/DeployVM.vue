@@ -1634,6 +1634,11 @@ export default {
     }
   },
   watch: {
+    'form.vmNumber' () {
+      if (this.form.name && this.formRef.value) {
+        this.formRef.value.validateFields(['name']).catch(() => {})
+      }
+    },
     '$route' (to, from) {
       if (to.name === 'deployVirtualMachine') {
         this.resetData()
@@ -1877,14 +1882,7 @@ export default {
       this.rules = reactive({
         zoneid: [{ required: true, message: `${this.$t('message.error.select')}` }],
         hypervisor: [{ required: true, message: `${this.$t('message.error.select')}` }],
-        name: [{
-          validator: async (rule, value) => {
-            if (value && value.includes('_')) {
-              return Promise.reject(this.$t('message.vm.name.no.underscore') || '가상머신 이름에는 언더스코어(_)를 사용할 수 없습니다.')
-            }
-            return Promise.resolve()
-          }
-        }]
+        name: [{ validator: this.validateVmName }]
       })
 
       if (this.zoneSelected) {
@@ -1914,6 +1912,17 @@ export default {
             }
           }]
         }
+      }
+    },
+    async validateVmName (rule, value) {
+      if (!value) return
+      if (!/^[a-zA-Z]/.test(value) || /[^a-zA-Z0-9-]/.test(value) || value.endsWith('-')) {
+        throw new Error(this.$t('message.vm.name.invalid'))
+      }
+      const count = Number(this.form.vmNumber)
+      const suffix = Number.isInteger(count) && count > 1 ? `-${count}` : ''
+      if (value.length + suffix.length > 63) {
+        throw new Error(this.$t('message.vm.name.length', { max: 63 - suffix.length }))
       }
     },
     getImageFilters (params, forReset) {

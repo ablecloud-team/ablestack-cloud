@@ -17,6 +17,7 @@
 
 <template>
   <div class="vm-snapshots">
+    <a-alert v-if="resource.vmsnapshotblockedreason" type="warning" show-icon :message="$t('message.backup.snapshot.snapshot.blocked')" class="snapshot-alert" />
     <div class="snapshot-toolbar">
       <a-button v-if="canCreate" type="primary" :disabled="createDisabled" @click="createSnapshot">
         <template #icon><plus-outlined /></template>{{ $t('label.action.vmsnapshot.create') }}

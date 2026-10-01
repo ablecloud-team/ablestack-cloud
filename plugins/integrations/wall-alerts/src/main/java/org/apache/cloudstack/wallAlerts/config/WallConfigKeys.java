@@ -30,6 +30,12 @@ public final class WallConfigKeys {
             new ConfigKey<>("Advanced", String.class, "wall.base.url", "https://ccvm:8081",
                     "Base URL of Wall.", false, WALL_ALERT_ENABLED.key());
 
+    public static final ConfigKey<Boolean> WALL_TLS_VERIFY =
+            new ConfigKey<>("Advanced", Boolean.class, "wall.tls.verify", "false",
+                    "Verify Wall HTTPS certificate chain and hostname. Defaults to false for private Wall endpoints "
+                    + "with self-signed or address-mismatched certificates. Set true to enforce server identity verification. Applies to Wall only.",
+                    true, WALL_ALERT_ENABLED.key());
+
     public static final ConfigKey<String> WALL_API_TOKEN =
             new ConfigKey<>("Advanced", String.class, "wall.api.token", "",
                     "Service account token for Wall.", true, WALL_ALERT_ENABLED.key());

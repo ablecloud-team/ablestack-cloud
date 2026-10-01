@@ -25,6 +25,12 @@
     >
       <div class="banner-list" ref="listRef">
         <a-alert
+          v-if="wallState !== 'Ready'"
+          type="info"
+          show-icon
+          :message="$t('message.wall.availability.unavailable') + ' ' + $t('label.wall.availability.' + wallState)" />
+        <a-alert
+          v-if="wallState === 'Ready'"
           class="alert-summary"
           :type="'error'"
           :show-icon="false"
@@ -675,6 +681,7 @@ import { message } from 'ant-design-vue'
 import { getAPI as requestAPI } from '@/api'
 import store from '@/store'
 import { hasDiscoveryApi } from '@/utils/optionalDiscovery'
+import { createWallGate } from '@/utils/wallAvailability'
 import MarkdownIt from 'markdown-it'
 import DOMPurify from 'dompurify'
 
@@ -856,9 +863,21 @@ export default {
     const generation = store.state.user.discoveryGeneration
     const current = () => !disposed && generation === store.state.user.discoveryGeneration
     const allowed = name => current() && hasDiscoveryApi(store.getters.apis, name)
+    const wallState = ref('Unknown')
+    const wallGate = createWallGate((name) => {
+      if (!allowed(name)) return Promise.resolve({})
+      return requestAPI(name, {}, { optionalDiscovery: true })
+    }, current)
     const getAPI = async (name, params) => {
       if (!allowed(name)) return {}
-      const response = await requestAPI(name, params, { optionalDiscovery: true })
+      if (/Wall/.test(name) && !await wallGate.check()) throw new Error('Wall unavailable')
+      let response
+      try {
+        response = await requestAPI(name, params, { optionalDiscovery: true })
+      } catch (e) {
+        if (/Wall/.test(name) && current()) { wallGate.fail(); wallState.value = 'Unavailable' }
+        throw e
+      }
       if (!current()) throw new Error('Alert discovery session expired')
       return response
     }
@@ -968,7 +987,7 @@ export default {
     let pollBusy = false
 
     function scheduleNextPoll () {
-      if (!allowed('listWallAlertRules')) return
+      if (!allowed('getWallAlertAvailability')) return
       if (pollHandle) {
         clearTimeout(pollHandle)
         pollHandle = null
@@ -996,7 +1015,7 @@ export default {
     }
 
     function startPoll () {
-      if (!allowed('listWallAlertRules')) return
+      if (!allowed('getWallAlertAvailability')) return
       stopPoll()
       let delay = POLL_MS - (Date.now() % POLL_MS)
       if (delay < MIN_DELAY_MS) {
@@ -2559,6 +2578,7 @@ export default {
     })
 
     const showBanner = computed(() => {
+      if (wallState.value !== 'Ready') return wallState.value !== 'Unknown'
       const hasList = Array.isArray(visibleAlerts.value) && visibleAlerts.value.length > 0
       return (keepShowing.value || remoteSilencedLoaded.value) && hasList
     })
@@ -2595,7 +2615,7 @@ export default {
 
     // ===== 데이터 갱신 =====
     const refresh = async () => {
-      if (!allowed('listWallAlertRules')) { rules.value = []; return }
+      if (!allowed('getWallAlertAvailability')) return
       if (refreshInFlight.value) { return }
       refreshInFlight.value = true
 
@@ -2608,9 +2628,13 @@ export default {
       }
 
       try {
-        const params = { includeStatus: true, includestatus: true, listAll: true, listall: true, state: '', kind: '', name: '', page: 1, pageSize: 200, pagesize: 200 }
+        const ready = await wallGate.check()
+        if (!current()) return
+        wallState.value = wallGate.state
+        if (!ready) return
+        const params = { includestatus: true, page: 1, pagesize: 200 }
         const resp = await getAPI('listWallAlertRules', params)
-        if (!allowed('listWallAlertRules')) return
+        if (!allowed('getWallAlertAvailability')) return
         rules.value = extractRules(resp)
 
         await Promise.all([ensureHostIndex(), ensureVmIndex()])
@@ -2624,7 +2648,7 @@ export default {
         cleanupLocalSilences()
         pruneClosed()
       } catch (_) {
-        if (current()) rules.value = []
+        if (current()) wallState.value = 'Unavailable'
       } finally {
         refreshInFlight.value = false
         if (current()) {
@@ -2934,6 +2958,7 @@ export default {
 
     // ===== 노출 =====
     return {
+      wallState,
       drawerVisible,
       drawerListRef,
       listRef,

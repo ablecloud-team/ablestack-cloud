@@ -150,6 +150,8 @@ public class VMSnapshotManagerTest {
     @Mock
     BackupDao backupDao;
     @Mock
+    org.apache.cloudstack.backup.BackupSnapshotGuard backupSnapshotGuard;
+    @Mock
     DiskOfferingDao _diskOfferingDao;
     @Mock
     DiskOfferingVO diskOffering;
@@ -218,6 +220,7 @@ public class VMSnapshotManagerTest {
         _vmSnapshotMgr._userVmManager = _userVmManager;
         _vmSnapshotMgr._diskOfferingDao = _diskOfferingDao;
         ReflectionTestUtils.setField(_vmSnapshotMgr, "backupDao", backupDao);
+        ReflectionTestUtils.setField(_vmSnapshotMgr, "backupSnapshotGuard", backupSnapshotGuard);
 
         when(_userVMDao.findById(anyLong())).thenReturn(vmMock);
         when(_vmSnapshotDao.findByName(anyLong(), anyString())).thenReturn(null);

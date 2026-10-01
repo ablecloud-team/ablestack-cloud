@@ -60,6 +60,9 @@ import com.cloud.vm.VirtualMachine;
 
 @Component
 public class VolumeJoinDaoImpl extends GenericDaoBaseWithTagInformation<VolumeJoinVO, VolumeResponse> implements VolumeJoinDao {
+    @Inject
+    private org.apache.cloudstack.backup.BackupVolumeGuard backupVolumeGuard;
+
     private static final String FAST_CLONE_FLATTEN_STATUS = "clone.fast.flatten.status";
 
     @Inject
@@ -99,6 +102,7 @@ public class VolumeJoinDaoImpl extends GenericDaoBaseWithTagInformation<VolumeJo
     @Override
     public VolumeResponse newVolumeResponse(ResponseView view, VolumeJoinVO volume) {
         VolumeResponse volResponse = new VolumeResponse();
+        if (volume.getVmId() > 0) volResponse.setVolumeMutationBlockedReason(backupVolumeGuard.reason(volume.getVmId()));
         volResponse.setId(volume.getUuid());
 
         if (volume.getName() != null) {

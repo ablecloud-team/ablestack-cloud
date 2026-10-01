@@ -19,7 +19,11 @@ package com.cloud.hypervisor.kvm.storage;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.apache.cloudstack.utils.reflectiontostringbuilderutils.ReflectionToStringBuilderUtils;
@@ -27,8 +31,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joda.time.Duration;
 import org.libvirt.StoragePool;
+import org.libvirt.LibvirtException;
 
+import org.apache.cloudstack.utils.qemu.QemuImg;
 import org.apache.cloudstack.utils.qemu.QemuImg.PhysicalDiskFormat;
+import org.apache.cloudstack.utils.qemu.QemuImgException;
+import org.apache.cloudstack.utils.qemu.QemuImgFile;
 
 import com.cloud.agent.api.to.HostTO;
 import com.cloud.hypervisor.kvm.resource.KVMHABase.HAStoragePool;
@@ -152,6 +160,9 @@ public class LibvirtStoragePool implements KVMStoragePool {
 
     @Override
     public KVMPhysicalDisk getPhysicalDisk(String volumeUid) {
+        if (getStoragePoolType() == StoragePoolType.SharedMountPoint && volumeUid.contains("/")) {
+            return getSharedMountPointDiskByPath(volumeUid);
+        }
         KVMPhysicalDisk disk = null;
         String volumeUuid = volumeUid;
         if ( volumeUid.contains("/") ) {
@@ -183,6 +194,36 @@ public class LibvirtStoragePool implements KVMStoragePool {
         disk.setVirtualSize(f.length());
         logger.debug("find volume bypass libvirt disk " + disk.toString());
         return disk;
+    }
+
+    private KVMPhysicalDisk getSharedMountPointDiskByPath(String volumeUid) {
+        // Clone overlays live below the pool root and are not libvirt volume names.
+        // Never strip their directory or fall back to an unrelated file with the same name.
+        try {
+            Path poolPath = Paths.get(getLocalPath()).toAbsolutePath().normalize();
+            Path diskPath = poolPath.resolve(volumeUid).normalize();
+            if (!diskPath.startsWith(poolPath) || !diskPath.toRealPath().startsWith(poolPath.toRealPath())) {
+                throw new CloudRuntimeException("SharedMountPoint volume path is outside the storage pool: " + volumeUid);
+            }
+            if (!Files.isRegularFile(diskPath) || !Files.isReadable(diskPath)) {
+                throw new CloudRuntimeException("SharedMountPoint volume is not a readable file: " + diskPath);
+            }
+
+            QemuImg qemu = new QemuImg(0);
+            Map<String, String> info = qemu.info(new QemuImgFile(diskPath.toString()));
+            String format = info.get(QemuImg.FILE_FORMAT);
+            String virtualSize = info.get(QemuImg.VIRTUAL_SIZE);
+            if (format == null || virtualSize == null) {
+                throw new CloudRuntimeException("Incomplete SharedMountPoint volume information: " + diskPath);
+            }
+            KVMPhysicalDisk disk = new KVMPhysicalDisk(diskPath.toString(), volumeUid, this);
+            disk.setFormat(PhysicalDiskFormat.valueOf(format.toUpperCase(Locale.ROOT)));
+            disk.setSize(Files.size(diskPath));
+            disk.setVirtualSize(Long.parseLong(virtualSize));
+            return disk;
+        } catch (IOException | LibvirtException | QemuImgException | IllegalArgumentException e) {
+            throw new CloudRuntimeException("Failed to inspect SharedMountPoint volume " + volumeUid + " in pool " + getUuid(), e);
+        }
     }
 
     @Override

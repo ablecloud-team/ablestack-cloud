@@ -111,6 +111,8 @@ public class ListWallAlertRulesCmd extends BaseListCmd {
             final ListResponse<WallAlertRuleResponse> response = wallAlertsService.listWallAlertRules(this);
             response.setResponseName(getCommandName());
             setResponseObject(response);
+        } catch (ServerApiException e) {
+            throw e;
         } catch (IllegalArgumentException iae) {
             throw new ServerApiException(ApiErrorCode.PARAM_ERROR, iae.getMessage());
         } catch (RuntimeException re) {

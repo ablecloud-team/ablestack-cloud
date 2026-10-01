@@ -376,6 +376,9 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
     protected StoragePoolDetailsDao storagePoolDetailsDao;
     @Inject
     private BackupDao backupDao;
+
+    @Inject
+    private org.apache.cloudstack.backup.BackupVolumeGuard backupVolumeGuard;
     @Inject
     private BackupOfferingDao backupOfferingDao;
     @Inject
@@ -793,6 +796,12 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
     @DB
     @ActionEvent(eventType = EventTypes.EVENT_VOLUME_CREATE, eventDescription = "creating volume", create = true)
     public VolumeVO allocVolume(CreateVolumeCmd cmd) throws ResourceAllocationException {
+        if (cmd.getVirtualMachineId() != null) {
+            UserVmVO vm = _userVmDao.findById(cmd.getVirtualMachineId());
+            if (vm == null) throw new InvalidParameterValueException("Unable to find VM");
+            _accountMgr.checkAccess(CallContext.current().getCallingAccount(), null, true, vm);
+            backupVolumeGuard.check(vm.getId());
+        }
         return allocVolume(cmd.getEntityOwnerId(), cmd.getZoneId(), cmd.getDiskOfferingId(), cmd.getVirtualMachineId(),
                 cmd.getSnapshotId(), getVolumeNameFromCommand(cmd.getVolumeName()), cmd.getSize(),
                 cmd.getDisplayVolume(), cmd.getMinIops(), cmd.getMaxIops(), cmd.getCustomId(), cmd.getKmsKeyId());
@@ -2795,72 +2804,76 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
     }
 
     private Volume orchestrateAttachVolumeToVM(Long vmId, Long volumeId, Long deviceId) {
-        VolumeInfo volumeToAttach = volFactory.getVolume(volumeId);
+        try (org.apache.cloudstack.backup.BackupVolumeGuard.Lease guard = backupVolumeGuard.acquire(vmId)) {
+            backupVolumeGuard.checkWorker(vmId);
+            VolumeInfo volumeToAttach = volFactory.getVolume(volumeId);
 
-        if (volumeToAttach.isAttachedVM()) {
-            throw new CloudRuntimeException("This volume is already attached to a VM.");
-        }
-
-        UserVmVO vm = _userVmDao.findById(vmId);
-        VolumeVO existingVolumeOfVm = getVmExistingVolumeForVolumeAttach(vm, volumeToAttach);
-        VolumeInfo newVolumeOnPrimaryStorage = createVolumeOnPrimaryForAttachIfNeeded(volumeToAttach, vm, existingVolumeOfVm);
-
-        // reload the volume from db
-        newVolumeOnPrimaryStorage = volFactory.getVolume(newVolumeOnPrimaryStorage.getId());
-        boolean moveVolumeNeeded = needMoveVolume(existingVolumeOfVm, newVolumeOnPrimaryStorage);
-        if (logger.isTraceEnabled()) {
-            logger.trace(String.format("is this a new volume: %s == %s ?", volumeToAttach, newVolumeOnPrimaryStorage));
-            logger.trace(String.format("is it needed to move the volume: %b?", moveVolumeNeeded));
-        }
-
-        // Check if CLVM lock transfer is needed (even if moveVolumeNeeded is false)
-        // This handles the case where the volume is already on the correct storage pool
-        // but the VM is running on a different host, requiring only a lock transfer
-        boolean isClvmLockTransferNeeded = !moveVolumeNeeded &&
-                isClvmLockTransferRequired(newVolumeOnPrimaryStorage, existingVolumeOfVm, vm);
-
-        if (isClvmLockTransferNeeded) {
-            // CLVM lock transfer - no data copy, no pool change needed
-            newVolumeOnPrimaryStorage = executeLightweightLockMigration(
-                    newVolumeOnPrimaryStorage, vm, existingVolumeOfVm,
-                    "CLVM lock transfer", "same pool to different host");
-        } else if (moveVolumeNeeded) {
-            PrimaryDataStoreInfo primaryStore = (PrimaryDataStoreInfo)newVolumeOnPrimaryStorage.getDataStore();
-            if (primaryStore.isLocal()) {
-                throw new CloudRuntimeException(
-                        "Failed to attach local data volume " + volumeToAttach.getName() + " to VM " + vm.getDisplayName() + " as migration of local data volume is not allowed");
+            if (volumeToAttach.isAttachedVM()) {
+                throw new CloudRuntimeException("This volume is already attached to a VM.");
             }
 
-            boolean isClvmLightweightMigration = isClvmLightweightMigrationNeeded(
-                    newVolumeOnPrimaryStorage, existingVolumeOfVm);
+            UserVmVO vm = _userVmDao.findById(vmId);
+            VolumeVO existingVolumeOfVm = getVmExistingVolumeForVolumeAttach(vm, volumeToAttach);
+            VolumeInfo newVolumeOnPrimaryStorage = createVolumeOnPrimaryForAttachIfNeeded(volumeToAttach, vm, existingVolumeOfVm);
 
-            if (isClvmLightweightMigration) {
+            // reload the volume from db
+            newVolumeOnPrimaryStorage = volFactory.getVolume(newVolumeOnPrimaryStorage.getId());
+            boolean moveVolumeNeeded = needMoveVolume(existingVolumeOfVm, newVolumeOnPrimaryStorage);
+            if (logger.isTraceEnabled()) {
+                logger.trace(String.format("is this a new volume: %s == %s ?", volumeToAttach, newVolumeOnPrimaryStorage));
+                logger.trace(String.format("is it needed to move the volume: %b?", moveVolumeNeeded));
+            }
+
+            // Check if CLVM lock transfer is needed (even if moveVolumeNeeded is false)
+            // This handles the case where the volume is already on the correct storage pool
+            // but the VM is running on a different host, requiring only a lock transfer
+            boolean isClvmLockTransferNeeded = !moveVolumeNeeded &&
+                    isClvmLockTransferRequired(newVolumeOnPrimaryStorage, existingVolumeOfVm, vm);
+
+            if (isClvmLockTransferNeeded) {
+                // CLVM lock transfer - no data copy, no pool change needed
                 newVolumeOnPrimaryStorage = executeLightweightLockMigration(
                         newVolumeOnPrimaryStorage, vm, existingVolumeOfVm,
-                        "CLVM lightweight migration", "different pools, same VG");
-            } else {
-                StoragePoolVO vmRootVolumePool = _storagePoolDao.findById(existingVolumeOfVm.getPoolId());
+                        "CLVM lock transfer", "same pool to different host");
+            } else if (moveVolumeNeeded) {
+                PrimaryDataStoreInfo primaryStore = (PrimaryDataStoreInfo)newVolumeOnPrimaryStorage.getDataStore();
+                if (primaryStore.isLocal()) {
+                    throw new CloudRuntimeException(
+                            "Failed to attach local data volume " + volumeToAttach.getName() + " to VM " + vm.getDisplayName() + " as migration of local data volume is not allowed");
+                }
 
-                try {
-                    HypervisorType volumeToAttachHyperType = _volsDao.getHypervisorType(volumeToAttach.getId());
-                    newVolumeOnPrimaryStorage = _volumeMgr.moveVolume(newVolumeOnPrimaryStorage, vmRootVolumePool.getDataCenterId(), vmRootVolumePool.getPodId(), vmRootVolumePool.getClusterId(),
-                            volumeToAttachHyperType);
-                } catch (ConcurrentOperationException | StorageUnavailableException e) {
-                    logger.debug("move volume failed", e);
-                    throw new CloudRuntimeException("move volume failed", e);
+                boolean isClvmLightweightMigration = isClvmLightweightMigrationNeeded(
+                        newVolumeOnPrimaryStorage, existingVolumeOfVm);
+
+                if (isClvmLightweightMigration) {
+                    newVolumeOnPrimaryStorage = executeLightweightLockMigration(
+                            newVolumeOnPrimaryStorage, vm, existingVolumeOfVm,
+                            "CLVM lightweight migration", "different pools, same VG");
+                } else {
+                    StoragePoolVO vmRootVolumePool = _storagePoolDao.findById(existingVolumeOfVm.getPoolId());
+
+                    try {
+                        HypervisorType volumeToAttachHyperType = _volsDao.getHypervisorType(volumeToAttach.getId());
+                        newVolumeOnPrimaryStorage = _volumeMgr.moveVolume(newVolumeOnPrimaryStorage, vmRootVolumePool.getDataCenterId(), vmRootVolumePool.getPodId(), vmRootVolumePool.getClusterId(),
+                                volumeToAttachHyperType);
+                    } catch (ConcurrentOperationException | StorageUnavailableException e) {
+                        logger.debug("move volume failed", e);
+                        throw new CloudRuntimeException("move volume failed", e);
+                    }
                 }
             }
-        }
-        VolumeVO newVol = _volsDao.findById(newVolumeOnPrimaryStorage.getId());
-        // Getting the fresh vm object in case of volume migration to check the current state of VM
-        if (moveVolumeNeeded) {
-            vm = _userVmDao.findById(vmId);
-            if (vm == null) {
-                throw new InvalidParameterValueException("VM not found.");
+            VolumeVO newVol = _volsDao.findById(newVolumeOnPrimaryStorage.getId());
+            // Getting the fresh vm object in case of volume migration to check the current state of VM
+            if (moveVolumeNeeded) {
+                vm = _userVmDao.findById(vmId);
+                if (vm == null) {
+                    throw new InvalidParameterValueException("VM not found.");
+                }
             }
+            newVol = sendAttachVolumeCommand(vm, newVol, deviceId);
+            return newVol;
+
         }
-        newVol = sendAttachVolumeCommand(vm, newVol, deviceId);
-        return newVol;
     }
 
     /**
@@ -3284,6 +3297,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
     }
 
     protected boolean validateIfVmHasBackups(UserVmVO vm, boolean attach) {
+        backupVolumeGuard.check(vm.getId());
         if (!doesVmHaveBackupOfferingAndVolumes(vm) && CollectionUtils.isEmpty(backupDao.listByVmId(vm.getDataCenterId(), vm.getId()))) {
             return false;
         } else if (BooleanUtils.isTrue(BackupManager.BackupEnableAttachDetachVolumes.value())) {
@@ -3626,113 +3640,117 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
     }
 
     private Volume orchestrateDetachVolumeFromVM(long vmId, long volumeId) {
-        Volume volume = _volsDao.findById(volumeId);
-        VMInstanceVO vm = _vmInstanceDao.findById(vmId);
+        try (org.apache.cloudstack.backup.BackupVolumeGuard.Lease guard = backupVolumeGuard.acquire(vmId)) {
+            backupVolumeGuard.checkWorker(vmId);
+            Volume volume = _volsDao.findById(volumeId);
+            VMInstanceVO vm = _vmInstanceDao.findById(vmId);
 
-        String errorMsg = "Failed to detach volume " + volume.getName() + " from VM " + vm.getHostName();
-        boolean sendCommand = vm.getState() == State.Running;
+            String errorMsg = "Failed to detach volume " + volume.getName() + " from VM " + vm.getHostName();
+            boolean sendCommand = vm.getState() == State.Running;
 
-        StoragePoolVO volumePool = _storagePoolDao.findByIdIncludingRemoved(volume.getPoolId());
-        HostVO host = getHostForVmVolumeAttachDetach(vm, volumePool);
-        Long hostId = host != null ? host.getId() : null;
-        sendCommand = sendCommand || isSendCommandForVmVolumeAttachDetach(host, volumePool);
+            StoragePoolVO volumePool = _storagePoolDao.findByIdIncludingRemoved(volume.getPoolId());
+            HostVO host = getHostForVmVolumeAttachDetach(vm, volumePool);
+            Long hostId = host != null ? host.getId() : null;
+            sendCommand = sendCommand || isSendCommandForVmVolumeAttachDetach(host, volumePool);
 
-        Answer answer = null;
+            Answer answer = null;
 
-        if (sendCommand) {
-            // collect vm disk statistics before detach a volume
-            UserVmVO userVm = _userVmDao.findById(vmId);
-            if (userVm != null && userVm.getType() == VirtualMachine.Type.User) {
-                _userVmService.collectVmDiskStatistics(userVm);
-            }
-
-            DataTO volTO = volFactory.getVolume(volume.getId()).getTO();
-            ((VolumeObjectTO) volTO).setCheckpointPaths(_volumeMgr.getVolumeCheckpointPathsAndImageStoreUrls(volumeId, vm.getHypervisorType()).first());
-            DiskTO disk = new DiskTO(volTO, volume.getDeviceId(), volume.getPath(), volume.getVolumeType());
-            Map<String, String> details = new HashMap<String, String>();
-            disk.setDetails(details);
-            if (volume.getPoolId() != null) {
-                StoragePoolVO poolVO = _storagePoolDao.findById(volume.getPoolId());
-                if (poolVO.getParent() != 0L) {
-                    details.put(DiskTO.PROTOCOL_TYPE, Storage.StoragePoolType.DatastoreCluster.toString());
+            if (sendCommand) {
+                // collect vm disk statistics before detach a volume
+                UserVmVO userVm = _userVmDao.findById(vmId);
+                if (userVm != null && userVm.getType() == VirtualMachine.Type.User) {
+                    _userVmService.collectVmDiskStatistics(userVm);
                 }
-            }
 
-            DettachCommand cmd = new DettachCommand(disk, vm.getInstanceName());
-
-            cmd.setManaged(volumePool.isManaged());
-
-            cmd.setStorageHost(volumePool.getHostAddress());
-            cmd.setStoragePort(volumePool.getPort());
-
-            cmd.set_iScsiName(volume.get_iScsiName());
-            cmd.setWaitDetachDevice(WaitDetachDevice.value());
-
-            try {
-                answer = _agentMgr.send(hostId, cmd);
-            } catch (AgentUnavailableException e) {
-                  throw new CloudRuntimeException(String.format("%s. Please contact your system administrator.", errorMsg));
-            } catch (Exception e) {
-                throw new CloudRuntimeException(errorMsg + " due to: " + e.getMessage());
-            }
-        }
-
-        if (!sendCommand || (answer != null && answer.getResult())) {
-            // Mark the volume as detached
-            _volsDao.detachVolume(volume.getId());
-
-            if (answer != null) {
-                String datastoreName = answer.getContextParam("datastoreName");
-                if (datastoreName != null) {
-                    StoragePoolVO storagePoolVO = _storagePoolDao.findByUuid(datastoreName);
-                    if (storagePoolVO != null) {
-                        VolumeVO volumeVO = _volsDao.findById(volumeId);
-                        volumeVO.setPoolId(storagePoolVO.getId());
-                        volumeVO.setPoolType(storagePoolVO.getPoolType());
-                        _volsDao.update(volumeVO.getId(), volumeVO);
-                    } else {
-                        logger.warn("Unable to find datastore {} while updating the new datastore of the volume {}", datastoreName, volume);
+                DataTO volTO = volFactory.getVolume(volume.getId()).getTO();
+                ((VolumeObjectTO) volTO).setCheckpointPaths(_volumeMgr.getVolumeCheckpointPathsAndImageStoreUrls(volumeId, vm.getHypervisorType()).first());
+                DiskTO disk = new DiskTO(volTO, volume.getDeviceId(), volume.getPath(), volume.getVolumeType());
+                Map<String, String> details = new HashMap<String, String>();
+                disk.setDetails(details);
+                if (volume.getPoolId() != null) {
+                    StoragePoolVO poolVO = _storagePoolDao.findById(volume.getPoolId());
+                    if (poolVO.getParent() != 0L) {
+                        details.put(DiskTO.PROTOCOL_TYPE, Storage.StoragePoolType.DatastoreCluster.toString());
                     }
                 }
 
-                String volumePath = answer.getContextParam("volumePath");
-                if (volumePath != null) {
-                    VolumeVO volumeVO = _volsDao.findById(volumeId);
-                    volumeVO.setPath(volumePath);
-                    _volsDao.update(volumeVO.getId(), volumeVO);
-                }
+                DettachCommand cmd = new DettachCommand(disk, vm.getInstanceName());
 
-                String chainInfo = answer.getContextParam("chainInfo");
-                if (chainInfo != null) {
-                    VolumeVO volumeVO = _volsDao.findById(volumeId);
-                    volumeVO.setChainInfo(chainInfo);
-                    _volsDao.update(volumeVO.getId(), volumeVO);
-                }
-            }
+                cmd.setManaged(volumePool.isManaged());
 
-            // volume.getPoolId() should be null if the VM we are detaching the disk from has never been started before
-            if (volume.getPoolId() != null) {
-                DataStore dataStore = dataStoreMgr.getDataStore(volume.getPoolId(), DataStoreRole.Primary);
-                volService.revokeAccess(volFactory.getVolume(volume.getId()), host, dataStore);
-                provideVMInfo(dataStore, vmId, volumeId);
-            }
-            if (volumePool != null && hostId != null) {
-                handleTargetsForVMware(hostId, volumePool.getHostAddress(), volumePool.getPort(), volume.get_iScsiName());
-            }
+                cmd.setStorageHost(volumePool.getHostAddress());
+                cmd.setStoragePort(volumePool.getPort());
 
-            UsageEventUtils.publishUsageEvent(EventTypes.EVENT_VOLUME_DETACH, volume.getAccountId(), volume.getDataCenterId(), volume.getId(), volume.getName(),
-                    volume.getDiskOfferingId(), null, volume.getSize(), Volume.class.getName(), volume.getUuid(), null, volume.isDisplay());
-            return _volsDao.findById(volumeId);
-        } else {
+                cmd.set_iScsiName(volume.get_iScsiName());
+                cmd.setWaitDetachDevice(WaitDetachDevice.value());
 
-            if (answer != null) {
-                String details = answer.getDetails();
-                if (details != null && !details.isEmpty()) {
-                    errorMsg += "; " + details;
+                try {
+                    answer = _agentMgr.send(hostId, cmd);
+                } catch (AgentUnavailableException e) {
+                      throw new CloudRuntimeException(String.format("%s. Please contact your system administrator.", errorMsg));
+                } catch (Exception e) {
+                    throw new CloudRuntimeException(errorMsg + " due to: " + e.getMessage());
                 }
             }
 
-            throw new CloudRuntimeException(errorMsg);
+            if (!sendCommand || (answer != null && answer.getResult())) {
+                // Mark the volume as detached
+                _volsDao.detachVolume(volume.getId());
+
+                if (answer != null) {
+                    String datastoreName = answer.getContextParam("datastoreName");
+                    if (datastoreName != null) {
+                        StoragePoolVO storagePoolVO = _storagePoolDao.findByUuid(datastoreName);
+                        if (storagePoolVO != null) {
+                            VolumeVO volumeVO = _volsDao.findById(volumeId);
+                            volumeVO.setPoolId(storagePoolVO.getId());
+                            volumeVO.setPoolType(storagePoolVO.getPoolType());
+                            _volsDao.update(volumeVO.getId(), volumeVO);
+                        } else {
+                            logger.warn("Unable to find datastore {} while updating the new datastore of the volume {}", datastoreName, volume);
+                        }
+                    }
+
+                    String volumePath = answer.getContextParam("volumePath");
+                    if (volumePath != null) {
+                        VolumeVO volumeVO = _volsDao.findById(volumeId);
+                        volumeVO.setPath(volumePath);
+                        _volsDao.update(volumeVO.getId(), volumeVO);
+                    }
+
+                    String chainInfo = answer.getContextParam("chainInfo");
+                    if (chainInfo != null) {
+                        VolumeVO volumeVO = _volsDao.findById(volumeId);
+                        volumeVO.setChainInfo(chainInfo);
+                        _volsDao.update(volumeVO.getId(), volumeVO);
+                    }
+                }
+
+                // volume.getPoolId() should be null if the VM we are detaching the disk from has never been started before
+                if (volume.getPoolId() != null) {
+                    DataStore dataStore = dataStoreMgr.getDataStore(volume.getPoolId(), DataStoreRole.Primary);
+                    volService.revokeAccess(volFactory.getVolume(volume.getId()), host, dataStore);
+                    provideVMInfo(dataStore, vmId, volumeId);
+                }
+                if (volumePool != null && hostId != null) {
+                    handleTargetsForVMware(hostId, volumePool.getHostAddress(), volumePool.getPort(), volume.get_iScsiName());
+                }
+
+                UsageEventUtils.publishUsageEvent(EventTypes.EVENT_VOLUME_DETACH, volume.getAccountId(), volume.getDataCenterId(), volume.getId(), volume.getName(),
+                        volume.getDiskOfferingId(), null, volume.getSize(), Volume.class.getName(), volume.getUuid(), null, volume.isDisplay());
+                return _volsDao.findById(volumeId);
+            } else {
+
+                if (answer != null) {
+                    String details = answer.getDetails();
+                    if (details != null && !details.isEmpty()) {
+                        errorMsg += "; " + details;
+                    }
+                }
+
+                throw new CloudRuntimeException(errorMsg);
+            }
+
         }
     }
 

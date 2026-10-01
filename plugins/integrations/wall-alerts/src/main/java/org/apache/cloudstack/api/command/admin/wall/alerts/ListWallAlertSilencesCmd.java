@@ -85,6 +85,8 @@ public class ListWallAlertSilencesCmd extends BaseListCmd {
             setResponseObject(response);
         } catch (IllegalArgumentException iae) {
             throw new ServerApiException(ApiErrorCode.PARAM_ERROR, iae.getMessage());
+        } catch (ServerApiException api) {
+            throw api;
         } catch (RuntimeException re) {
             throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, re.getMessage());
         }

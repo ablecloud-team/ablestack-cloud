@@ -37,6 +37,55 @@ public class VbmcVO {
     @Column(name = "port", updatable = false, nullable = false)
     private int port;
 
+    @Column(name = "status")
+    private String status;
+
+    public String getStatus() { return status; }
+    public void setStatus(String value) { status = value; }
+
+    @Column(name = "host_id")
+    private Long hostId;
+
+    public Long getHostId() { return hostId; }
+    public void setHostId(Long value) { hostId = value; }
+
+    @Column(name = "instance_name")
+    private String instanceName;
+
+    public String getInstanceName() { return instanceName; }
+    public void setInstanceName(String value) { instanceName = value; }
+
+    @Column(name = "owner_token")
+    private String token;
+
+    public String getToken() { return token; }
+    public void setToken(String value) { token = value; }
+
+    @Column(name = "address")
+    private String address;
+
+    public String getAddress() { return address; }
+    public void setAddress(String value) { address = value; }
+
+    @Column(name = "allowed_cidr")
+    private String allowedCidr;
+
+    public String getAllowedCidr() { return allowedCidr; }
+    public void setAllowedCidr(String value) { allowedCidr = value; }
+
+    @Column(name = "last_error")
+    private String lastError;
+
+    public String getLastError() { return lastError; }
+    public void setLastError(String value) { lastError = value; }
+
+    @javax.persistence.Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    @Column(name = "last_checked")
+    private java.util.Date lastChecked;
+
+    public java.util.Date getLastChecked() { return lastChecked; }
+    public void setLastChecked(java.util.Date value) { lastChecked = value; }
+
     public VbmcVO() {
     }
 

@@ -284,6 +284,9 @@
 
     <bean id="statsCollector" class="com.cloud.server.StatsCollector" />
 
+    <bean id="vmProcessActionServiceImpl" class="com.cloud.vm.process.VmProcessActionServiceImpl" />
+    <bean id="vmProcessSnapshotServiceImpl" class="com.cloud.vm.process.VmProcessSnapshotServiceImpl" />
+    <bean id="vmProcessCapabilityServiceImpl" class="com.cloud.vm.process.VmProcessCapabilityServiceImpl" />
     <bean id="vmGuestNetworkApiServiceImpl" class="com.cloud.vm.guestnetwork.VmGuestNetworkApiServiceImpl" />
 
     <bean id="vmGuestNetworkStateServiceImpl" class="com.cloud.vm.guestnetwork.VmGuestNetworkStateServiceImpl" />
@@ -359,11 +362,14 @@
 
     <bean id="DiagnosticsService" class="org.apache.cloudstack.diagnostics.DiagnosticsServiceImpl" />
 
+    <bean id="backupVolumeGuard" class="org.apache.cloudstack.backup.BackupVolumeGuard" />
+
     <bean id="backupManager" class="org.apache.cloudstack.backup.BackupManagerImpl">
         <property name="backupProviders" value="#{backupProvidersRegistry.registered}" />
         <property name="asyncJobDispatcher" ref="ApiAsyncJobDispatcher" />
     </bean>
 
+    <bean id="backupSnapshotGuard" class="org.apache.cloudstack.backup.BackupSnapshotGuard" />
     <bean id="netBackupRestoreCoordinator" class="org.apache.cloudstack.backup.NetBackupRestoreCoordinator" />
 
     <bean id="backupRepositoryService" class="org.apache.cloudstack.backup.BackupRepositoryServiceImpl" />

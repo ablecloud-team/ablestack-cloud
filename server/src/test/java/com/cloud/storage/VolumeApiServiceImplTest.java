@@ -170,6 +170,9 @@ public class VolumeApiServiceImplTest {
     private VolumeDetailsDao _volsDetailsDao;
     @Mock
     private BackupDao backupDaoMock;
+
+    @Mock
+    private org.apache.cloudstack.backup.BackupVolumeGuard backupVolumeGuard;
     @Mock
     private AccountManager accountManagerMock;
     @Mock

@@ -201,7 +201,7 @@ export default {
     }
   },
   computed: {
-    canDiscoverWallAlerts () { return hasDiscoveryApi(this.$store.getters.apis, 'listWallAlertRules') },
+    canDiscoverWallAlerts () { return hasDiscoveryApi(this.$store.getters.apis, 'getWallAlertAvailability') },
     ...mapState({
       mainMenu: state => state.permission.addRouters
     }),
