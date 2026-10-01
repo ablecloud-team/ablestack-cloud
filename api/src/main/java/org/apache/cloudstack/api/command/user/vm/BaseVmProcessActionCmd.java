@@ -98,11 +98,15 @@ public abstract class BaseVmProcessActionCmd extends BaseAsyncCmd {
         return vm == null ? Account.ACCOUNT_ID_SYSTEM : vm.getAccountId();
     }
 
+    protected String profileId() { return null; }
+    protected Integer profileVersion() { return null; }
+
     @Override
     public void execute() {
         VmProcessActionResponse r =
-                service.execute(
-                        virtualMachineId, requestId, snapshotId, pid, action(), serviceName());
+                "process.restart".equals(action())
+                    ? service.restartProfile(virtualMachineId,requestId,snapshotId,pid,profileId(),profileVersion())
+                    : service.execute(virtualMachineId, requestId, snapshotId, pid, action(), serviceName());
         if (!"SUCCEEDED".equals(r.getProcessState().get("state")))
             throw new ServerApiException(
                     ApiErrorCode.INTERNAL_ERROR,

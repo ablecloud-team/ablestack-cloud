@@ -27,6 +27,8 @@ public interface VmProcessActionService {
             String action,
             String service);
 
+    VmProcessActionResponse restartProfile(long vmId,String requestId,String snapshotId,long pid,String profileId,int profileVersion);
+
     VmProcessActionResponse get(long vmId, String operationId, String requestId);
 
     default VmProcessActionResponse get(long vmId, String operationId) {

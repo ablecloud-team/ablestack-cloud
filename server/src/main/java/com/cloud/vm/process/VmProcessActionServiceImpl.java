@@ -57,6 +57,7 @@ public class VmProcessActionServiceImpl extends com.cloud.utils.component.Manage
     @Inject private AccountManager accountManager;
     @Inject private AgentManager agentManager;
     @Inject private VmProcessSnapshotService snapshots;
+    @Inject private org.apache.cloudstack.vm.process.VmProcessProfileService profiles;
     private VmProcessOperationStore store = new VmProcessOperationStore();
     private static final Gson JSON =
             new GsonBuilder().serializeNulls().disableHtmlEscaping().create();
@@ -64,6 +65,7 @@ public class VmProcessActionServiceImpl extends com.cloud.utils.component.Manage
     @Override
     public List<Class<?>> getCommands() {
         return List.of(
+                org.apache.cloudstack.api.command.user.vm.RestartVirtualMachineProcessCmd.class,
                 org.apache.cloudstack.api.command.user.vm.TerminateVirtualMachineProcessCmd.class,
                 org.apache.cloudstack.api.command.user.vm.KillVirtualMachineProcessCmd.class,
                 org.apache.cloudstack.api.command.user.vm.RestartVirtualMachineServiceCmd.class,
@@ -130,18 +132,27 @@ public class VmProcessActionServiceImpl extends com.cloud.utils.component.Manage
             long pid,
             String action,
             String service) {
+        return executeFixed(vmId,requestId,snapshotId,pid,action,service,null,0);
+    }
+
+    @Override public VmProcessActionResponse restartProfile(long vmId,String requestId,String snapshotId,long pid,String profileId,int profileVersion) {
+        uuid(profileId);if(profileVersion<1)throw new InvalidParameterValueException("Profile version required");
+        return executeFixed(vmId,requestId,snapshotId,pid,"process.restart",null,profileId,profileVersion);
+    }
+
+    private VmProcessActionResponse executeFixed(long vmId,String requestId,String snapshotId,long pid,String action,String service,String profileId,int profileVersion) {
         uuid(requestId);
         uuid(snapshotId);
         if (pid < 1
                 || pid > 4294967295L
-                || !Set.of("process.terminate", "process.kill", "service.restart").contains(action)
+                || !Set.of("process.terminate", "process.kill", "service.restart", "process.restart").contains(action)
                 || ("service.restart".equals(action)
                         ? service == null || !service.matches("[A-Za-z0-9_@.:-]{1,256}")
                         : service != null))
             throw new InvalidParameterValueException("Invalid fixed action target");
         UserVmVO vm = authorized(vmId, true);
         long caller = CallContext.current().getCallingAccountId();
-        String digest = fingerprint(vmId, snapshotId, pid, action, service);
+        String digest = fingerprint(vmId, snapshotId, pid, action, profileId==null?service:profileId+"@"+profileVersion);
         VmProcessOperationStore.Record record;
         try {
             record = store.find(caller, requestId);
@@ -151,6 +162,7 @@ public class VmProcessActionServiceImpl extends com.cloud.utils.component.Manage
                 return audited(vmId, VmProcessAction.parse(record.result), "REPLAY");
             }
             Map<String, Object> target = snapshots.actionTarget(vmId, snapshotId, pid, service);
+            Map<String,Object> profile=profileId==null?null:profiles.approved(vmId,profileId,profileVersion);
             record = new VmProcessOperationStore.Record();
             record.operation = UUID.randomUUID().toString();
             record.request = requestId;
@@ -160,13 +172,14 @@ public class VmProcessActionServiceImpl extends com.cloud.utils.component.Manage
             record.generation = vm.getUpdated();
             record.fingerprint = digest;
             Map<String, Object> request = new LinkedHashMap<>(target);
-            request.put("schemaVersion", "1.0");
+            request.put("schemaVersion", profile==null?"1.0":"1.1");
+            if(profile!=null)request.put("profile",profile);
             request.put("kind", "actionRequest");
             request.put("requestId", requestId);
             request.put("operationId", record.operation);
             request.put("snapshotId", snapshotId);
             request.put("action", action);
-            request.put("budgetMs", "service.restart".equals(action) ? 85000 : 14000);
+            request.put("budgetMs", ("service.restart".equals(action) || "process.restart".equals(action)) ? 85000 : 14000);
             record.json = JSON.toJson(request);
             request = VmProcessAction.parse(record.json);
             record.result = JSON.toJson(VmProcessAction.unknown(request));
@@ -207,6 +220,7 @@ public class VmProcessActionServiceImpl extends com.cloud.utils.component.Manage
                     if (!valid) result = VmProcessAction.rejected(request, "STALE_AUTHORITY");
                     else {
                         snapshots.actionTarget(vmId, snapshotId, pid, service);
+                        if(profile!=null)profiles.fence(tx,vmId,profile);
                         dispatched = true;
                         Answer answer =
                                 agentManager.send(

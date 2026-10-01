@@ -18,8 +18,40 @@
 <template>
 
   <div class="account-center-team" v-if="annotationType && 'listAnnotations' in $store.getters.apis">
+    <div class="detail-tab-toolbar">
+      <a-button
+        v-if="'addAnnotation' in $store.getters.apis"
+        @click="saveNote"
+        type="primary"
+        :disabled="!annotation.trim() || loadingAnnotations"
+        ref="submit">
+        {{ $t('label.submit') }}
+      </a-button>
+      <a-button :loading="loadingAnnotations || listRefreshing > 0" @click="getAnnotations">
+        <template #icon><reload-outlined /></template>{{ $t('label.refresh') }}
+      </a-button>
+    </div>
     <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
     <a-spin :spinning="loadingAnnotations">
+      <a-comment v-if="'addAnnotation' in $store.getters.apis">
+        <template #avatar>
+          <a-avatar @click="showNotesInput = true">
+            <template #icon><edit-outlined /></template>
+          </a-avatar>
+        </template>
+        <template #content>
+          <div v-ctrl-enter="saveNote">
+            <a-textarea
+              :rows="4"
+              @change="handleNoteChange"
+              v-model:value="annotation"
+              :placeholder="$t('label.add.note')" />
+            <a-checkbox @change="toggleNoteVisibility" v-if="['Admin'].includes($store.getters.userInfo.roletype)" style="margin-top: 10px">
+              {{ $t('label.adminsonly') }}
+            </a-checkbox>
+          </div>
+        </template>
+      </a-comment>
       <div class="title">
         {{ $t('label.comments') }} ({{ itemCount }})
       </div>
@@ -77,7 +109,7 @@
         </template>
       </a-list>
       <a-pagination
-        class="row-element"
+        class="detail-tab-pagination"
         size="small"
         :current="page"
         :pageSize="pageSize"
@@ -92,34 +124,6 @@
           <span>{{ props.value }} / {{ $t('label.page') }}</span>
         </template>
       </a-pagination>
-
-      <a-divider :dashed="true" />
-      <a-comment v-if="'addAnnotation' in $store.getters.apis">
-        <template #avatar>
-          <a-avatar @click="showNotesInput = true">
-            <template #icon><edit-outlined /></template>
-          </a-avatar>
-        </template>
-        <template #content>
-          <div v-ctrl-enter="saveNote">
-            <a-textarea
-              :rows="4"
-              @change="handleNoteChange"
-              v-model:value="annotation"
-              :placeholder="$t('label.add.note')" />
-            <a-checkbox @change="toggleNoteVisibility" v-if="['Admin'].includes($store.getters.userInfo.roletype)" style="margin-top: 10px">
-              {{ $t('label.adminsonly') }}
-            </a-checkbox>
-            <a-button
-              style="margin-top: 10px; float: right"
-              @click="saveNote"
-              type="primary"
-              ref="submit">
-              {{ $t('label.submit') }}
-            </a-button>
-          </div>
-        </template>
-      </a-comment>
     </a-spin>
   </div>
 </template>
@@ -218,7 +222,7 @@ export default {
     },
     changePage (page, pageSize) {
       this.page = page
-      this.pagesize = pageSize
+      this.pageSize = pageSize
       this.getAnnotations()
     },
     getAnnotations () {
@@ -229,11 +233,8 @@ export default {
       this.loadingAnnotations = !listRequest.loaded
       return getAPI('listAnnotations', { entityid: this.resource.id, entitytype: this.annotationType, annotationfilter: 'all', page: this.page, pagesize: this.pageSize }).then(json => {
         if (!this.isListRequestCurrent('getAnnotations', listRequest)) return
-        this.notes = []
-        if (json.listannotationsresponse && json.listannotationsresponse.annotation) {
-          this.notes = json.listannotationsresponse.annotation
-          this.itemCount = json.listannotationsresponse.count
-        }
+        this.notes = json.listannotationsresponse?.annotation || []
+        this.itemCount = json.listannotationsresponse?.count || 0
       }).finally(() => {
         if (!this.isListRequestCurrent('getAnnotations', listRequest)) return
 
@@ -303,6 +304,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '@/style/components/view/DetailTab.scss';
 
 .account-center-team {
   .members {

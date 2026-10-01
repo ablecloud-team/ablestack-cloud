@@ -19,7 +19,7 @@
   <div class="vm-backups">
     <div class="backup-toolbar">
       <a-button v-if="allowed('createBackup')" type="primary" :disabled="!visible('createBackup') || disabled('createBackup')" @click="openAction('createBackup')"><template #icon><plus-outlined /></template>{{ $t('label.create.backup') }}</a-button>
-      <a-button @click="fetchData"><template #icon><reload-outlined /></template>{{ $t('label.vmsnapshot.refresh') }}</a-button>
+      <a-button @click="fetchData"><template #icon><reload-outlined /></template>{{ $t('label.refresh') }}</a-button>
       <a-dropdown v-if="settings.length" :trigger="['click']"><a-button>{{ $t('label.vmbackup.settings') }} <down-outlined /></a-button><template #overlay><a-menu>
         <a-menu-item v-for="action in settings" :key="action.api" :danger="action.api === 'removeVirtualMachineFromBackupOffering'" :disabled="disabled(action.api)" @click="openAction(action.api)">{{ $t(action.label) }}</a-menu-item>
       </a-menu></template></a-dropdown>

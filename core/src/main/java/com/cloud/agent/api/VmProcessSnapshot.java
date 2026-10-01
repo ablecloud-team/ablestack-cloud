@@ -51,12 +51,18 @@ public final class VmProcessSnapshot {
         return r;
     }
     public static Map<String, Object> decode(String text, GetVmProcessSnapshotCommand c) throws IOException {
-        if (text.getBytes(StandardCharsets.UTF_8).length > 1048576) throw new IOException("Output limit");
+        Map<String, Object> result = parse(text);
+        try { validate(result, c); return result; }
+        catch (RuntimeException e) { throw new IOException("Invalid snapshot", e); }
+    }
+    /** Strict bounded JSON for read completion proofs as well as snapshots. */
+    public static Map<String, Object> parse(String text) throws IOException {
+        if (text == null || text.getBytes(StandardCharsets.UTF_8).length > 1048576) throw new IOException("Output limit");
         try (JsonReader reader = new JsonReader(new StringReader(text))) {
             reader.setLenient(false);
             Map<String, Object> result = map(read(reader, 0));
             if (reader.peek() != JsonToken.END_DOCUMENT) throw new IOException("Trailing JSON");
-            validate(result, c); return result;
+            return result;
         } catch (RuntimeException e) { throw new IOException("Invalid snapshot", e); }
     }
     static Object read(JsonReader r, int depth) throws IOException {

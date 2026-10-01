@@ -20,7 +20,7 @@
     <div class="volume-toolbar">
       <a-tooltip :title="reason('createVolume') ? $t(reason('createVolume')) : ''"><span v-if="allowed('createVolume') && allowed('attachVolume')"><a-button type="primary" :disabled="busy || opening || !!reason('createVolume')" @click="openCreate"><template #icon><plus-outlined /></template>{{ $t('label.vmvolume.create') }}</a-button></span></a-tooltip>
       <a-tooltip :title="reason('createVolume') ? $t(reason('createVolume')) : ''"><span v-if="allowed('attachVolume')"><a-button :disabled="busy || opening || !!reason('createVolume')" @click="openAttach">{{ $t('label.vmvolume.attach') }}</a-button></span></a-tooltip>
-      <a-button @click="fetchData"><template #icon><reload-outlined /></template>{{ $t('label.vmsnapshot.refresh') }}</a-button>
+      <a-button @click="fetchData"><template #icon><reload-outlined /></template>{{ $t('label.refresh') }}</a-button>
       <a-input-search v-model:value="search" :placeholder="$t('label.search')" />
     </div>
     <a-alert v-if="backupReason" type="warning" show-icon :message="$t(backupReason)" class="volume-alert" />

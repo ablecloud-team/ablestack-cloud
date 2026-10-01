@@ -56,3 +56,57 @@
 .chart-type-select {
   min-width: 130px;
 }
+
+@import './DetailTab.scss';
+
+.stats-period-controls,
+.stats-refresh-controls,
+.stats-chart-title,
+.stats-chart-options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.stats-toolbar .ant-select,
+.stats-chart-heading .ant-select {
+  margin-left: 0;
+}
+
+.stats-custom-period {
+  flex-basis: 100%;
+}
+
+.stats-chart-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.stats-chart-options {
+  margin-left: auto;
+}
+
+.stats-tab-container .chart-row {
+  margin-bottom: 24px;
+}
+
+.stats-tab-container .chart-row > .ant-col {
+  width: 100%;
+  min-width: 0;
+}
+
+.stats-refresh-notice {
+  margin-bottom: 16px;
+}
+
+@media (max-width: 576px) {
+  .stats-refresh-controls,
+  .stats-chart-options {
+    flex-basis: 100%;
+    margin-left: 0;
+  }
+}

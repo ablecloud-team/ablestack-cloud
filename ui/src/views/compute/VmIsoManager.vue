@@ -20,7 +20,7 @@
     <div class="iso-toolbar">
       <a-tooltip :title="reason(true)"><span><a-button v-if="allowed('attachIso')" type="primary" :disabled="busy || loading || !!reason(true)" @click="openAttach"><template #icon><plus-outlined /></template>{{ $t('label.vmiso.attach') }}</a-button></span></a-tooltip>
       <a-tooltip :title="reason(false)"><span><a-button v-if="allowed('detachIso')" :disabled="busy || !selected.length || !!reason(false)" @click="openDetach(rows.filter(row => selected.includes(row.id)))">{{ $t('label.vmiso.detach.selected') }}</a-button></span></a-tooltip>
-      <a-button :loading="loading" @click="fetchData">{{ $t('label.refresh') }}</a-button>
+      <a-button :loading="loading" @click="fetchData"><template #icon><reload-outlined /></template>{{ $t('label.refresh') }}</a-button>
       <a-input-search v-model:value="search" :placeholder="$t('label.search')" :aria-label="$t('label.search')" />
     </div>
     <a-alert v-if="listRefreshFailed" class="iso-spacing" type="error" show-icon :message="$t('message.list.refresh.stale')" />

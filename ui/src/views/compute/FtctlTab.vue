@@ -32,7 +32,7 @@
               {{ $t('label.ftctl.protection.configure') }}
             </a-button>
             <a-button @click="fetchAll" :loading="loadingState">
-              <template #icon><SyncOutlined /></template>
+              <template #icon><reload-outlined /></template>
               {{ $t('label.refresh') }}
             </a-button>
           </a-space>

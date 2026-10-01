@@ -44,7 +44,8 @@ test('initial load completes and snapshot API uses the existing singular command
   const wrapper = mount(); await flush()
   expect(wrapper.vm.loading).toBe(false)
   expect(wrapper.vm.rows).toHaveLength(1)
-  expect(wrapper.vm.rows[0].linkstate).toBe(true)
+  // listNics is authoritative; listVirtualMachines can contain an older NIC state.
+  expect(wrapper.vm.rows[0].linkstate).toBe(false)
   expect(wrapper.vm.listLastUpdated).not.toBeNull()
   expect(wrapper.vm.reason('addNicToVirtualMachine')).toBe('')
   expect(getAPI).toHaveBeenCalledWith('listVMSnapshot', expect.objectContaining({ virtualmachineid: 'vm' }))

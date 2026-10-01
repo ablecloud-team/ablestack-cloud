@@ -22,7 +22,7 @@
       <a-button v-if="canCreate" type="primary" :disabled="createDisabled" @click="createSnapshot">
         <template #icon><plus-outlined /></template>{{ $t('label.action.vmsnapshot.create') }}
       </a-button>
-      <a-button @click="fetchData"><template #icon><reload-outlined /></template>{{ $t('label.vmsnapshot.refresh') }}</a-button>
+      <a-button @click="fetchData"><template #icon><reload-outlined /></template>{{ $t('label.refresh') }}</a-button>
       <a-input-search v-model:value="search" :placeholder="$t('label.search')" @search="searchSnapshots" />
     </div>
     <a-alert v-if="listRefreshFailed" type="warning" show-icon :message="$t('message.list.refresh.stale')" class="snapshot-alert" />

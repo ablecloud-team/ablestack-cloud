@@ -16,7 +16,25 @@
 // under the License.
 
 <template>
-  <div>
+  <div class="events-tab">
+    <div class="detail-tab-toolbar">
+      <a-button :loading="tabLoading || listRefreshing > 0" @click="fetchData">
+        <template #icon><reload-outlined /></template>{{ $t('label.refresh') }}
+      </a-button>
+      <a-dropdown :trigger="['click']">
+        <a-button class="detail-tab-toolbar-right">
+          <template #icon><setting-outlined /></template>{{ $t('label.select.columns') }}
+        </a-button>
+        <template #overlay>
+          <a-menu>
+            <a-menu-item v-for="key in columnKeys" :key="key" @click="updateSelectedColumns(key)">
+              <a-checkbox :checked="selectedColumnKeys.includes(key)" />
+              {{ $t('label.' + key) }}
+            </a-menu-item>
+          </a-menu>
+        </template>
+      </a-dropdown>
+    </div>
     <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
     <list-view
       :loading="tabLoading"
@@ -29,8 +47,7 @@
       @update-selected-columns="updateSelectedColumns"
       @refresh="this.fetchData"/>
       <a-pagination
-        class="row-element"
-        style="margin-top: 10px"
+        class="detail-tab-pagination"
         size="small"
         :current="page"
         :pageSize="pageSize"
@@ -146,7 +163,6 @@ export default {
       this.tabLoading = !listRequest.loaded
       return getAPI('listEvents', params).then(json => {
         if (!this.isListRequestCurrent('fetchEvents', listRequest)) return
-        this.events = []
         this.totalCount = json?.listeventsresponse?.count || 0
         this.events = json?.listeventsresponse?.event || []
         this.tabLoading = false
@@ -185,10 +201,11 @@ export default {
           sorter: (a, b) => { return genericCompare(a[columnKey] || '', b[columnKey] || '') }
         })
       }
-      if (this.columns.length > 0) {
-        this.columns[this.columns.length - 1].customFilterDropdown = true
-      }
     }
   }
 }
 </script>
+
+<style scoped lang="scss">
+@import '@/style/components/view/DetailTab.scss';
+</style>

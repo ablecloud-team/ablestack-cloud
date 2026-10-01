@@ -19,28 +19,24 @@
   <a-spin :spinning="loading">
     <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
     <div class="guest-network-tab">
-    <div class="guest-network-header">
-      <a-alert
-        type="info"
-        show-icon
-        :message="$t('message.guest.network.persisted.snapshot')" />
-      <a-space>
-        <a-button
-          class="refresh-button"
-          :loading="loading"
-          @click="fetchData">
-          <template #icon><reload-outlined /></template>
-          {{ $t('label.refresh') }}
-        </a-button>
-        <a-button
-          type="primary"
-          :loading="recollecting"
-          :disabled="resource.state !== 'Running'"
-          @click="requestRecollection">
-          {{ $t('label.guest.network.recollect.now') }}
-        </a-button>
-      </a-space>
+    <div class="guest-network-toolbar">
+      <a-button
+        type="primary"
+        :loading="recollecting"
+        :disabled="resource.state !== 'Running'"
+        @click="requestRecollection">
+        {{ $t('label.guest.network.recollect.now') }}
+      </a-button>
+      <a-button :loading="loading || listRefreshing > 0" @click="fetchData">
+        <template #icon><reload-outlined /></template>
+        {{ $t('label.refresh') }}
+      </a-button>
     </div>
+    <a-alert
+      class="guest-network-notice"
+      type="info"
+      show-icon
+      :message="$t('message.guest.network.persisted.snapshot')" />
 
     <a-alert
       v-if="showStatusAlert"
@@ -656,19 +652,16 @@ export default {
 </script>
 
 <style scoped lang="less">
-.guest-network-header {
+.guest-network-toolbar {
   display: flex;
-  align-items: flex-start;
-  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.guest-network-notice {
   margin-bottom: 16px;
-}
-
-.guest-network-header :deep(.ant-alert) {
-  flex: 1;
-}
-
-.refresh-button {
-  flex: none;
 }
 
 .status-alert {

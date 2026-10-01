@@ -35,58 +35,63 @@
       :footer="null">
       <resource-stats-info :resourceType="resourceTypeToShowInfo" :key="resourceTypeToShowInfo"/>
     </a-modal>
-    <div class="chart-row">
-      <a-space direction="vertical">
-        <div>
-          <a-radio-group
-            v-model:value="durationSelectorValue"
-            buttonStyle="solid"
-            @change="updateVirtualMachineStats">
-            <a-radio-button value="">
-              {{ $t('label.duration.1hour') }}
-            </a-radio-button>
-            <a-radio-button value="6hours" v-if="statsRetentionTime >= 60">
-              {{ $t('label.duration.6hours') }}
-            </a-radio-button>
-            <a-radio-button value="12hours" v-if="statsRetentionTime >= 6 * 60">
-              {{ $t('label.duration.12hours') }}
-            </a-radio-button>
-            <a-radio-button value="day" v-if="statsRetentionTime >= 12 * 60">
-              {{ $t('label.duration.24hours') }}
-            </a-radio-button>
-            <a-radio-button value="week" v-if="statsRetentionTime >= 24 * 60">
-              {{ $t('label.duration.7days') }}
-            </a-radio-button>
-            <a-radio-button value="custom">
-              {{ $t('label.duration.custom') }}
-            </a-radio-button>
-          </a-radio-group>
-          <InfoCircleOutlined class="info-icon" :title="$t('label.see.more.info.shown.charts')" @click="onClickShowResourceInfoModal('CHART')"/>
-          <span>{{$t('label.auto.refresh.statistics')}}</span>
-          <a-select
-            v-model:value="refreshTime"
-            style="width: 100px">
-            <a-select-option value="0">{{$t('label.auto.refresh.statistics.none')}}</a-select-option>
-            <a-select-option value="5000">5s</a-select-option>
-            <a-select-option value="30000">30s</a-select-option>
-            <a-select-option value="60000">1min</a-select-option>
-            <a-select-option value="300000">5min</a-select-option>
-          </a-select>
-        </div>
-        <div class="ant-tag" v-if="durationSelectorValue==='custom'">
-          <a-button @click="openFilter()">
-            <FilterOutlined/>
-          </a-button>
-          <span v-html="formatedPeriod"></span>
-        </div>
-      </a-space>
+    <div class="detail-tab-toolbar stats-toolbar">
+      <div class="stats-period-controls">
+        <a-radio-group
+          v-model:value="durationSelectorValue"
+          buttonStyle="solid"
+          @change="updateVirtualMachineStats">
+          <a-radio-button value="">
+            {{ $t('label.duration.1hour') }}
+          </a-radio-button>
+          <a-radio-button value="6hours" v-if="statsRetentionTime >= 60">
+            {{ $t('label.duration.6hours') }}
+          </a-radio-button>
+          <a-radio-button value="12hours" v-if="statsRetentionTime >= 6 * 60">
+            {{ $t('label.duration.12hours') }}
+          </a-radio-button>
+          <a-radio-button value="day" v-if="statsRetentionTime >= 12 * 60">
+            {{ $t('label.duration.24hours') }}
+          </a-radio-button>
+          <a-radio-button value="week" v-if="statsRetentionTime >= 24 * 60">
+            {{ $t('label.duration.7days') }}
+          </a-radio-button>
+          <a-radio-button value="custom">
+            {{ $t('label.duration.custom') }}
+          </a-radio-button>
+        </a-radio-group>
+        <InfoCircleOutlined class="info-icon" :title="$t('label.see.more.info.shown.charts')" @click="onClickShowResourceInfoModal('CHART')"/>
+      </div>
+      <div class="detail-tab-toolbar-right stats-refresh-controls">
+        <span>{{$t('label.auto.refresh.statistics')}}</span>
+        <a-select
+          v-model:value="refreshTime"
+          style="width: 100px">
+          <a-select-option value="0">{{$t('label.auto.refresh.statistics.none')}}</a-select-option>
+          <a-select-option value="5000">5s</a-select-option>
+          <a-select-option value="30000">30s</a-select-option>
+          <a-select-option value="60000">1min</a-select-option>
+          <a-select-option value="300000">5min</a-select-option>
+        </a-select>
+      </div>
+      <div class="stats-custom-period" v-if="durationSelectorValue==='custom'">
+        <a-button @click="openFilter()">
+          <FilterOutlined/>
+        </a-button>
+        <span v-html="formatedPeriod"></span>
+      </div>
     </div>
+    <a-alert v-if="statsRefreshFailed" type="warning" show-icon :message="$t('message.list.refresh.stale')" class="stats-refresh-notice" />
     <div v-if="loaded">
       <div v-if="chartLabels.length > 0">
         <a-row class="chart-row" v-if="resourceIsVirtualMachine">
           <a-col>
-            <strong>CPU</strong>
-            <InfoCircleOutlined class="info-icon" :title="$t('label.see.more.info.cpu.usage')" @click="onClickShowResourceInfoModal('CPU')"/>
+            <div class="stats-chart-heading">
+              <div class="stats-chart-title">
+                <strong>CPU</strong>
+                <InfoCircleOutlined class="info-icon" :title="$t('label.see.more.info.cpu.usage')" @click="onClickShowResourceInfoModal('CPU')"/>
+              </div>
+            </div>
             <resource-stats-line-chart
               :chartLabels="chartLabels"
               :chartData="resourceUsageHistory.cpu"
@@ -98,23 +103,29 @@
         </a-row>
         <a-row class="chart-row" v-if="resourceIsVirtualMachine">
           <a-col>
-            <strong>{{ $t('label.memory') }}</strong>
-            <InfoCircleOutlined class="info-icon" :title="$t('label.see.more.info.memory.usage')" @click="onClickShowResourceInfoModal('MEM')"/>
-            <a-select class="chart-type-select" v-model:value="selectedMemoryChartType">
-              <a-select-option v-for="(type, typeIndex) in memoryChartTypes" :key="typeIndex">
-                {{ type }}
-              </a-select-option>
-            </a-select>
-            <a-select v-model:value="selectedMemoryUsageType">
-              <a-select-option v-for="(type, typeIndex) in memoryUsageTypes" :key="typeIndex">
-                {{ type }}
-              </a-select-option>
-            </a-select>
-            <a-select v-model:value="selectedMemoryUnitOfMeasurement" v-if="selectedMemoryChartType === 0">
-              <a-select-option v-for="unit in memoryUnitsOfMeasurement" :key="unit">
-                {{ unit }}
-              </a-select-option>
-            </a-select>
+            <div class="stats-chart-heading">
+              <div class="stats-chart-title">
+                <strong>{{ $t('label.memory') }}</strong>
+                <InfoCircleOutlined class="info-icon" :title="$t('label.see.more.info.memory.usage')" @click="onClickShowResourceInfoModal('MEM')"/>
+              </div>
+              <div class="stats-chart-options">
+                <a-select class="chart-type-select" v-model:value="selectedMemoryChartType">
+                  <a-select-option v-for="(type, typeIndex) in memoryChartTypes" :key="typeIndex">
+                    {{ type }}
+                  </a-select-option>
+                </a-select>
+                <a-select v-model:value="selectedMemoryUsageType">
+                  <a-select-option v-for="(type, typeIndex) in memoryUsageTypes" :key="typeIndex">
+                    {{ type }}
+                  </a-select-option>
+                </a-select>
+                <a-select v-model:value="selectedMemoryUnitOfMeasurement" v-if="selectedMemoryChartType === 0">
+                  <a-select-option v-for="unit in memoryUnitsOfMeasurement" :key="unit">
+                    {{ unit }}
+                  </a-select-option>
+                </a-select>
+              </div>
+            </div>
             <resource-stats-line-chart
               v-if="selectedMemoryChartType === 0 && selectedMemoryUsageType === 0 && selectedMemoryUnitOfMeasurement === 'MB'"
               :chartLabels="chartLabels"
@@ -167,8 +178,12 @@
         </a-row>
         <a-row class="chart-row" v-if="diskStatsAvailable">
           <a-col>
-            <strong>{{ $t('label.disk') }}</strong>
-            <InfoCircleOutlined class="info-icon" :title="$t('label.see.more.info.disk.usage')" @click="onClickShowResourceInfoModal('DISK')"/>
+            <div class="stats-chart-heading">
+              <div class="stats-chart-title">
+                <strong>{{ $t('label.disk') }}</strong>
+                <InfoCircleOutlined class="info-icon" :title="$t('label.see.more.info.disk.usage')" @click="onClickShowResourceInfoModal('DISK')"/>
+              </div>
+            </div>
             <div class="chart-row-inner">
               {{ $t('label.iops') }}
             </div>
@@ -217,13 +232,19 @@
         </a-row>
         <a-row class="chart-row" v-if="resourceIsVirtualMachine">
           <a-col>
-            <strong>{{ $t('label.network') }}</strong>
-            <InfoCircleOutlined class="info-icon" :title="$t('label.see.more.info.network.usage')" @click="onClickShowResourceInfoModal('NET')"/>
-            <a-select v-model:value="selectedNetworkUnitOfMeasurement">
-              <a-select-option v-for="unit in networkUnitsOfMeasurement" :key="unit">
-                {{ unit }}
-              </a-select-option>
-            </a-select>
+            <div class="stats-chart-heading">
+              <div class="stats-chart-title">
+                <strong>{{ $t('label.network') }}</strong>
+                <InfoCircleOutlined class="info-icon" :title="$t('label.see.more.info.network.usage')" @click="onClickShowResourceInfoModal('NET')"/>
+              </div>
+              <div class="stats-chart-options">
+                <a-select v-model:value="selectedNetworkUnitOfMeasurement">
+                  <a-select-option v-for="unit in networkUnitsOfMeasurement" :key="unit">
+                    {{ unit }}
+                  </a-select-option>
+                </a-select>
+              </div>
+            </div>
             <resource-stats-line-chart
               v-if="selectedNetworkUnitOfMeasurement === 'KiB'"
               :chartLabels="chartLabels"
@@ -294,6 +315,9 @@ export default {
       showResourceInfoModal: false,
       resourceInfoModalTitle: null,
       loaded: false,
+      statsRequestId: 0,
+      statsResourceId: null,
+      statsRefreshFailed: false,
       showCpuInfo: false,
       showFilterStatsModal: false,
       endDate: this.getEndDate(),
@@ -353,6 +377,7 @@ export default {
   },
   unmounted () {
     window.clearInterval(this.refreshIntervalId)
+    this.statsRequestId++
   },
   computed: {
     statsRetentionTime () {
@@ -428,6 +453,7 @@ export default {
       this.showResourceInfoModal = true
     },
     updateVirtualMachineStats () {
+      if (this.durationSelectorValue === 'custom') return this.fetchData()
       const start = this.getStartDate()
       const end = this.getEndDate()
       this.handleSubmit({ startDate: start, endDate: end })
@@ -468,8 +494,13 @@ export default {
       return new Date()
     },
     fetchData () {
-      this.loaded = false
-      this.showResourceInfoModal = false
+      const requestId = ++this.statsRequestId
+      if (this.statsResourceId !== this.resource.id) {
+        this.loaded = false
+        this.resetData()
+        this.statsRefreshFailed = false
+        this.statsResourceId = this.resource.id
+      }
       this.formatPeriod()
       var params = { id: this.resource.id }
       if (this.startDate) {
@@ -478,10 +509,15 @@ export default {
       if (this.endDate) {
         params.endDate = moment(this.endDate).format()
       }
-      getAPI(this.resourceStatsApi, params).then(response => {
+      return getAPI(this.resourceStatsApi, params).then(response => {
+        if (requestId !== this.statsRequestId) return
         this.handleStatsResponse(response)
+        this.statsRefreshFailed = false
       }).catch(error => {
-        this.$notifyError(error)
+        if (requestId !== this.statsRequestId) return
+        this.statsRefreshFailed = true
+        if (!this.loaded) this.$notifyError(error)
+        this.loaded = true
       })
     },
     formatPeriod () {
@@ -505,7 +541,11 @@ export default {
     },
     handleStatsResponse (responseData) {
       this.resetData()
-      const vm = responseData[this.resourceStatsApi.toLowerCase() + 'response'][this.resourceStatsApiResponseObject]
+      const vm = responseData[this.resourceStatsApi.toLowerCase() + 'response']?.[this.resourceStatsApiResponseObject]
+      if (!vm?.[0]?.stats?.length) {
+        this.loaded = true
+        return
+      }
 
       const chartPointRadius = this.getChartPointRadius(vm[0].stats.length)
 

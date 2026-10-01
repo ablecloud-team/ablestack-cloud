@@ -22,7 +22,7 @@
     <a-alert v-if="protectionLookupFailed" type="warning" show-icon class="protection-tab-notice">
       <template #message>{{ $t('message.vm.protection.lookup.failed') }}</template>
       <template #action>
-        <a-button size="small" :loading="protectionLookupPending" @click="refreshProtectionTabs">{{ $t('label.refresh') }}</a-button>
+        <a-button size="small" :loading="protectionLookupPending" @click="refreshProtectionTabs"><template #icon><reload-outlined /></template>{{ $t('label.refresh') }}</a-button>
       </template>
     </a-alert>
     <a-alert
@@ -70,13 +70,14 @@
         <NicsTab :resource="vm"/>
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.securitygroups')" key="securitygroups" v-if="(dataResource.securitygroup && dataResource.securitygroup.length > 0) || ($store.getters.showSecurityGroups && securityGroupNetworkProviderUseThisVM)">
-        <a-button
-          type="primary"
-          style="width: 100%; margin-bottom: 10px"
-          @click="showUpdateSGModal"
-          :loading="loading">
-          <template #icon><edit-outlined /></template> {{ $t('label.action.update.security.groups') }}
-        </a-button>
+        <div class="security-group-toolbar">
+          <a-button
+            type="primary"
+            @click="showUpdateSGModal"
+            :loading="loading">
+            <template #icon><edit-outlined /></template> {{ $t('label.action.update.security.groups') }}
+          </a-button>
+        </div>
         <ListResourceTable
           apiName="listSecurityGroups"
           :params="{virtualmachineid: dataResource.id}"
@@ -479,6 +480,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.security-group-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
   .protection-tab-notice {
     margin-bottom: 12px;
   }

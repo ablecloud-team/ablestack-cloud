@@ -19,7 +19,7 @@ under the License.
     <div class="nic-toolbar">
       <a-tooltip :title="reason('createNetwork')"><span v-if="allowed('createNetwork') && allowed('addNicToVirtualMachine')"><a-button type="primary" :disabled="busy || !!reason('createNetwork')" @click="openCreate"><template #icon><plus-outlined /></template>{{ $t('label.vmnic.create') }}</a-button></span></a-tooltip>
       <a-tooltip :title="reason('addNicToVirtualMachine')"><span v-if="allowed('addNicToVirtualMachine')"><a-button :disabled="busy || !!reason('addNicToVirtualMachine')" @click="openAttach">{{ $t('label.vmnic.attach') }}</a-button></span></a-tooltip>
-      <a-button @click="fetchData"><template #icon><reload-outlined /></template>{{ $t('label.vmsnapshot.refresh') }}</a-button>
+      <a-button @click="fetchData"><template #icon><reload-outlined /></template>{{ $t('label.refresh') }}</a-button>
       <a-input-search v-model:value="search" :placeholder="$t('label.search')" :aria-label="$t('label.search')" />
     </div>
     <a-alert v-if="listRefreshFailed" class="nic-alert" type="warning" show-icon :message="$t('message.list.refresh.stale')" />
