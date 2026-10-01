@@ -1,0 +1,12 @@
+{
+  "before": {
+    "height": 82,
+    "rows": 1,
+    "text": "\t\nPID\n\t\n프로세스 이름\n\t사용자\t상태\t\nCPU 사용량\n\t\n메모리\n\t연결 서비스\t작업\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n\n\t11292\tc7-ui-fixture\troot\tS\t0.0%\t9.0 MB\tprocess-c7-ui.service\t"
+  },
+  "during": {
+    "height": 82,
+    "rows": 1,
+    "text": "\t\nPID\n\t\n프로세스 이름\n\t사용자\t상태\t\nCPU 사용량\n\t\n메모리\n\t연결 서비스\t작업\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n\n\t11292\tc7-ui-fixture\troot\tS\t0.0%\t9.0 MB\tprocess-c7-ui.service\t"
+  }
+}

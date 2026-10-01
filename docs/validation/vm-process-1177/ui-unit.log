@@ -1,0 +1,347 @@
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+PASS tests/unit/views/compute/VmProcessesTab.spec.js
+  ● Console
+
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed setting prop "prefix" on <a-input-search-stub>: value undefined is invalid. TypeError: Cannot set property prefix of [object Element] which has only a getter
+          at patchDOMProp (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-dom/dist/runtime-dom.cjs.js:280:17)
+          at patchProp (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-dom/dist/runtime-dom.cjs.js:412:9)
+          at mountElement (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5082:25)
+          at processElement (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5055:13)
+          at patch (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:4975:21)
+          at ReactiveEffect.componentUpdateFn [as fn] (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5515:21)
+          at ReactiveEffect.run (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/reactivity/dist/reactivity.cjs.js:189:25)
+          at instance.update (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5622:56)
+          at setupRenderEffect (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5636:9)
+          at mountComponent (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5418:9)
+          at processComponent (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5376:17)
+          at patch (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:4978:21)
+          at mountChildren (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5163:13)
+          at mountElement (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5073:17)
+          at processElement (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5055:13)
+          at patch (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:4975:21)
+          at mountChildren (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5163:13)
+          at mountElement (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5073:17)
+          at processElement (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5055:13)
+          at patch (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:4975:21)
+          at ReactiveEffect.componentUpdateFn [as fn] (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5515:21)
+          at ReactiveEffect.run (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/reactivity/dist/reactivity.cjs.js:189:25)
+          at instance.update (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5622:56)
+          at setupRenderEffect (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5636:9)
+          at mountComponent (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5418:9)
+          at processComponent (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5376:17)
+          at patch (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:4978:21)
+          at ReactiveEffect.componentUpdateFn [as fn] (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5515:21)
+          at ReactiveEffect.run (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/reactivity/dist/reactivity.cjs.js:189:25)
+          at instance.update (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5622:56)
+          at setupRenderEffect (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5636:9)
+          at mountComponent (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5418:9)
+          at processComponent (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5376:17)
+          at patch (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:4978:21)
+          at render (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:6136:13)
+          at mount (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:4377:25)
+          at Object.app.mount (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-dom/dist/runtime-dom.cjs.js:1554:23)
+          at mount (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/test-utils/dist/vue-test-utils.cjs.js:8236:18)
+          at shallowMount (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/test-utils/dist/vue-test-utils.cjs.js:8252:12)
+          at mount (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/tests/unit/views/compute/VmProcessesTab.spec.js:35:10)
+          at Object.<anonymous> (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/tests/unit/views/compute/VmProcessesTab.spec.js:62:19)
+          at Object.asyncJestTest (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/jest-jasmine2/build/jasmineAsyncInstall.js:102:37)
+          at /home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/jest-jasmine2/build/queueRunner.js:43:12
+          at new Promise (<anonymous>)
+          at mapper (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/jest-jasmine2/build/queueRunner.js:26:19)
+          at /home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/jest-jasmine2/build/queueRunner.js:73:41
+        at <AInputSearch value="" onUpdate:value=fn placeholder="label.vmprocess.search"  ... >
+        at <VmProcessesTab resource= {
+        id: '04125c04-cfa5-4f43-be41-39e3c7d536d3',
+        name: 'Ubuntu 24',
+        state: 'Running'
+      } active=true ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed setting prop "prefix" on <a-input-search-stub>: value undefined is invalid. TypeError: Cannot set property prefix of [object Element] which has only a getter
+          at patchDOMProp (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-dom/dist/runtime-dom.cjs.js:280:17)
+          at patchProp (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-dom/dist/runtime-dom.cjs.js:412:9)
+          at mountElement (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5082:25)
+          at processElement (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5055:13)
+          at patch (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:4975:21)
+          at ReactiveEffect.componentUpdateFn [as fn] (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5515:21)
+          at ReactiveEffect.run (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/reactivity/dist/reactivity.cjs.js:189:25)
+          at instance.update (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5622:56)
+          at setupRenderEffect (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5636:9)
+          at mountComponent (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5418:9)
+          at processComponent (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5376:17)
+          at patch (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:4978:21)
+          at mountChildren (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5163:13)
+          at mountElement (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5073:17)
+          at processElement (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5055:13)
+          at patch (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:4975:21)
+          at mountChildren (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5163:13)
+          at mountElement (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5073:17)
+          at processElement (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5055:13)
+          at patch (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:4975:21)
+          at ReactiveEffect.componentUpdateFn [as fn] (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5515:21)
+          at ReactiveEffect.run (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/reactivity/dist/reactivity.cjs.js:189:25)
+          at instance.update (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5622:56)
+          at setupRenderEffect (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5636:9)
+          at mountComponent (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5418:9)
+          at processComponent (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5376:17)
+          at patch (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:4978:21)
+          at ReactiveEffect.componentUpdateFn [as fn] (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5515:21)
+          at ReactiveEffect.run (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/reactivity/dist/reactivity.cjs.js:189:25)
+          at instance.update (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5622:56)
+          at setupRenderEffect (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5636:9)
+          at mountComponent (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5418:9)
+          at processComponent (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5376:17)
+          at patch (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:4978:21)
+          at render (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:6136:13)
+          at mount (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:4377:25)
+          at Object.app.mount (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-dom/dist/runtime-dom.cjs.js:1554:23)
+          at mount (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/test-utils/dist/vue-test-utils.cjs.js:8236:18)
+          at shallowMount (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/test-utils/dist/vue-test-utils.cjs.js:8252:12)
+          at mount (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/tests/unit/views/compute/VmProcessesTab.spec.js:35:10)
+          at Object.<anonymous> (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/tests/unit/views/compute/VmProcessesTab.spec.js:83:19)
+          at Object.asyncJestTest (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/jest-jasmine2/build/jasmineAsyncInstall.js:102:37)
+          at /home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/jest-jasmine2/build/queueRunner.js:43:12
+          at new Promise (<anonymous>)
+          at mapper (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/jest-jasmine2/build/queueRunner.js:26:19)
+          at /home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/jest-jasmine2/build/queueRunner.js:73:41
+        at <AInputSearch value="" onUpdate:value=fn placeholder="label.vmprocess.search"  ... >
+        at <VmProcessesTab resource= {
+        id: '04125c04-cfa5-4f43-be41-39e3c7d536d3',
+        name: 'Ubuntu 24',
+        state: 'Running'
+      } active=true ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed setting prop "prefix" on <a-input-search-stub>: value undefined is invalid. TypeError: Cannot set property prefix of [object Element] which has only a getter
+          at patchDOMProp (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-dom/dist/runtime-dom.cjs.js:280:17)
+          at patchProp (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-dom/dist/runtime-dom.cjs.js:412:9)
+          at mountElement (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5082:25)
+          at processElement (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5055:13)
+          at patch (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:4975:21)
+          at ReactiveEffect.componentUpdateFn [as fn] (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5515:21)
+          at ReactiveEffect.run (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/reactivity/dist/reactivity.cjs.js:189:25)
+          at instance.update (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5622:56)
+          at setupRenderEffect (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5636:9)
+          at mountComponent (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5418:9)
+          at processComponent (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5376:17)
+          at patch (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:4978:21)
+          at mountChildren (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5163:13)
+          at mountElement (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5073:17)
+          at processElement (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5055:13)
+          at patch (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:4975:21)
+          at mountChildren (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5163:13)
+          at mountElement (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5073:17)
+          at processElement (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5055:13)
+          at patch (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:4975:21)
+          at ReactiveEffect.componentUpdateFn [as fn] (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5515:21)
+          at ReactiveEffect.run (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/reactivity/dist/reactivity.cjs.js:189:25)
+          at instance.update (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5622:56)
+          at setupRenderEffect (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5636:9)
+          at mountComponent (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5418:9)
+          at processComponent (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5376:17)
+          at patch (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:4978:21)
+          at ReactiveEffect.componentUpdateFn [as fn] (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5515:21)
+          at ReactiveEffect.run (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/reactivity/dist/reactivity.cjs.js:189:25)
+          at instance.update (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5622:56)
+          at setupRenderEffect (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5636:9)
+          at mountComponent (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5418:9)
+          at processComponent (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5376:17)
+          at patch (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:4978:21)
+          at render (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:6136:13)
+          at mount (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:4377:25)
+          at Object.app.mount (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-dom/dist/runtime-dom.cjs.js:1554:23)
+          at mount (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/test-utils/dist/vue-test-utils.cjs.js:8236:18)
+          at shallowMount (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/test-utils/dist/vue-test-utils.cjs.js:8252:12)
+          at mount (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/tests/unit/views/compute/VmProcessesTab.spec.js:35:10)
+          at Object.<anonymous> (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/tests/unit/views/compute/VmProcessesTab.spec.js:100:19)
+          at Object.asyncJestTest (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/jest-jasmine2/build/jasmineAsyncInstall.js:102:37)
+          at /home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/jest-jasmine2/build/queueRunner.js:43:12
+          at new Promise (<anonymous>)
+          at mapper (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/jest-jasmine2/build/queueRunner.js:26:19)
+          at /home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/jest-jasmine2/build/queueRunner.js:73:41
+        at <AInputSearch value="" onUpdate:value=fn placeholder="label.vmprocess.search"  ... >
+        at <VmProcessesTab resource= {
+        id: '04125c04-cfa5-4f43-be41-39e3c7d536d3',
+        name: 'Ubuntu 24',
+        state: 'Running'
+      } active=true ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed setting prop "prefix" on <a-input-search-stub>: value undefined is invalid. TypeError: Cannot set property prefix of [object Element] which has only a getter
+          at patchDOMProp (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-dom/dist/runtime-dom.cjs.js:280:17)
+          at patchProp (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-dom/dist/runtime-dom.cjs.js:412:9)
+          at mountElement (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5082:25)
+          at processElement (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5055:13)
+          at patch (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:4975:21)
+          at ReactiveEffect.componentUpdateFn [as fn] (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5515:21)
+          at ReactiveEffect.run (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/reactivity/dist/reactivity.cjs.js:189:25)
+          at instance.update (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5622:56)
+          at setupRenderEffect (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5636:9)
+          at mountComponent (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5418:9)
+          at processComponent (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5376:17)
+          at patch (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:4978:21)
+          at mountChildren (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5163:13)
+          at mountElement (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5073:17)
+          at processElement (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5055:13)
+          at patch (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:4975:21)
+          at mountChildren (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5163:13)
+          at mountElement (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5073:17)
+          at processElement (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5055:13)
+          at patch (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:4975:21)
+          at ReactiveEffect.componentUpdateFn [as fn] (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5515:21)
+          at ReactiveEffect.run (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/reactivity/dist/reactivity.cjs.js:189:25)
+          at instance.update (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5622:56)
+          at setupRenderEffect (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5636:9)
+          at mountComponent (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5418:9)
+          at processComponent (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5376:17)
+          at patch (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:4978:21)
+          at ReactiveEffect.componentUpdateFn [as fn] (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5515:21)
+          at ReactiveEffect.run (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/reactivity/dist/reactivity.cjs.js:189:25)
+          at instance.update (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5622:56)
+          at setupRenderEffect (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5636:9)
+          at mountComponent (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5418:9)
+          at processComponent (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5376:17)
+          at patch (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:4978:21)
+          at render (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:6136:13)
+          at mount (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:4377:25)
+          at Object.app.mount (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/runtime-dom/dist/runtime-dom.cjs.js:1554:23)
+          at mount (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/test-utils/dist/vue-test-utils.cjs.js:8236:18)
+          at shallowMount (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/@vue/test-utils/dist/vue-test-utils.cjs.js:8252:12)
+          at mount (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/tests/unit/views/compute/VmProcessesTab.spec.js:35:10)
+          at Object.<anonymous> (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/tests/unit/views/compute/VmProcessesTab.spec.js:125:19)
+          at Object.asyncJestTest (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/jest-jasmine2/build/jasmineAsyncInstall.js:102:37)
+          at /home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/jest-jasmine2/build/queueRunner.js:43:12
+          at new Promise (<anonymous>)
+          at mapper (/home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/jest-jasmine2/build/queueRunner.js:26:19)
+          at /home/ablecloud/work/dhslove/ablestack-cloud-issue1194/ui/node_modules/jest-jasmine2/build/queueRunner.js:73:41
+        at <AInputSearch value="" onUpdate:value=fn placeholder="label.vmprocess.search"  ... >
+        at <VmProcessesTab resource= {
+        id: '04125c04-cfa5-4f43-be41-39e3c7d536d3',
+        name: 'Ubuntu 24',
+        state: 'Running'
+      } active=true ref="VTU_COMPONENT" >
+        at <VTUROOT>
+
+PASS tests/unit/views/compute/VmProcessToolsDialog.spec.js
+  ● Console
+
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+
+PASS tests/unit/views/compute/vmProcessDisplay.spec.js
+PASS tests/unit/views/compute/vmProcessToolsChecksum.spec.js
+
+Test Suites: 4 passed, 4 total
+Tests:       35 passed, 35 total
+Snapshots:   0 total
+Time:        11.434s
+Ran all test suites matching /tests\/unit\/views\/compute\/VmProcessesTab.spec.js|tests\/unit\/views\/compute\/VmProcessToolsDialog.spec.js|tests\/unit\/views\/compute\/vmProcessDisplay.spec.js|tests\/unit\/views\/compute\/vmProcessToolsChecksum.spec.js/i.

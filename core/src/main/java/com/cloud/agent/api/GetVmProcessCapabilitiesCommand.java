@@ -26,7 +26,7 @@ public class GetVmProcessCapabilitiesCommand extends Command {
             String generation, String requestId) {
         this.vmName = vmName; this.vmUuid = vmUuid; this.hostUuid = hostUuid;
         this.generation = generation; this.requestId = requestId;
-        setWait(10);
+        setWait(15);
     }
     public String getVmName() { return vmName; }
     public String getVmUuid() { return vmUuid; }

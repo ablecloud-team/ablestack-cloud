@@ -1,0 +1,27 @@
+{
+  "globalDisabled": {
+    "errorcode": 431,
+    "message": "VM process capability rollout is disabled"
+  },
+  "globalRestored": "true",
+  "crossTenantDenied": {
+    "errorcode": 531,
+    "message": "Caller does not have permission to operate with provided resource."
+  },
+  "temporaryAccount": {
+    "id": "0184381f-40de-4596-8c53-d969169dff84",
+    "userIds": [
+      "40baa9a6-b534-422b-8425-a6086fe738c6"
+    ],
+    "name": "codex-c2-20260930114448"
+  },
+  "cleanupError": "{'errorcode': 530, 'errortext': 'Failed to delete user account and all corresponding users'}",
+  "activeTestAccounts": 0,
+  "cleanupFinal": {
+    "activeAccounts": 0,
+    "activeUsers": 0,
+    "ownedVms": 0,
+    "ownedVolumes": 0,
+    "method": "Test UUID scoped soft removal after external account deletion failure"
+  }
+}

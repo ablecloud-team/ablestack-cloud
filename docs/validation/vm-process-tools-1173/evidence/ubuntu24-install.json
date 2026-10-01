@@ -1,0 +1,5 @@
+{
+  "exitCode": 0,
+  "stdout": "INSTALLED; action journal preserved\n{\"schemaVersion\": 1, \"profile\": \"process-management\", \"status\": \"POLICY_CONFIGURED_PENDING_HOST_VERIFY\", \"changed\": false, \"restartPerformed\": false, \"hostVerificationRequired\": true, \"featureReady\": false, \"backupId\": null, \"effectivePolicyHash\": \"475d945ec496e0abe82b01f73060ff812cdada3c3518ee7cfa45cdbd61288ca4\", \"configuredMissingRpcs\": []}\nactive\n",
+  "stderr": "[sudo] password for ablecloud: "
+}

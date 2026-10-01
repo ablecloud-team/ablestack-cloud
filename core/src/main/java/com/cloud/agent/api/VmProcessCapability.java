@@ -50,4 +50,35 @@ public final class VmProcessCapability {
         result.put("error", Map.of("code", code, "message", message, "retryMode", "READ_ONLY"));
         return result;
     }
+    /** An Agent success flag alone cannot certify readiness. Check the complete current authority and invariants. */
+    public static boolean valid(Map<String, Object> result, GetVmProcessCapabilitiesCommand command) {
+        try {
+            if (!"1.0".equals(result.get("schemaVersion")) || !"capability".equals(result.get("kind"))
+                    || !command.getRequestId().equals(result.get("requestId"))
+                    || !empty(command).get("authority").equals(result.get("authority"))) return false;
+            Map<String, Object> os = VmProcessSnapshot.map(result.get("os"));
+            for (String field : List.of("family", "id", "version", "arch")) if (!text(os.get(field))) return false;
+            String state = String.valueOf(result.get("readiness"));
+            if (!List.of("READY", "RPC_DISABLED", "RPC_UNSUPPORTED", "QGA_UNREACHABLE", "TOOLS_REQUIRED", "HOST_TOOL_MISSING",
+                    "UNSUPPORTED_OS", "UNSUPPORTED_HYPERVISOR", "VM_NOT_RUNNING", "CHECK_FAILED").contains(state)) return false;
+            Map<String, Object> rpcs = VmProcessSnapshot.map(result.get("rpcs"));
+            if (!rpcs.keySet().equals(new java.util.HashSet<>(RPCS))
+                    || rpcs.values().stream().anyMatch(v -> !List.of("ENABLED", "DISABLED", "UNSUPPORTED", "UNKNOWN").contains(v))) return false;
+            if (!(result.get("allowedActions") instanceof List) || !(result.get("supportedSchemaVersions") instanceof List)) return false;
+            List<?> actions = (List<?>) result.get("allowedActions"); List<?> versions = (List<?>) result.get("supportedSchemaVersions");
+            if (actions.size() > 4 || actions.size() != new java.util.HashSet<>(actions).size()
+                    || actions.stream().anyMatch(a -> !List.of("process.list", "process.terminate", "process.kill", "service.restart").contains(a))
+                    || versions.size() > 16 || versions.size() != new java.util.HashSet<>(versions).size()
+                    || versions.stream().anyMatch(v -> !(v instanceof String) || !((String) v).matches("[0-9]+\\.[0-9]+"))) return false;
+            if ("READY".equals(state)) return rpcs.values().stream().allMatch("ENABLED"::equals)
+                    && versions.contains("1.0") && actions.contains("process.list") && text(result.get("qgaVersion"))
+                    && text(result.get("hostToolsVersion")) && text(result.get("guestAdapterVersion")) && result.get("error") == null
+                    && List.of("linux", "windows").contains(os.get("family")) && "x86_64".equals(os.get("arch"))
+                    && (!"windows".equals(os.get("family")) || !actions.contains("process.terminate"));
+            return actions.isEmpty() && state.equals(VmProcessSnapshot.map(result.get("error")).get("code"));
+        } catch (RuntimeException e) { return false; }
+    }
+    private static boolean text(Object value) {
+        return value instanceof String && !((String) value).isEmpty() && ((String) value).length() <= 256;
+    }
 }

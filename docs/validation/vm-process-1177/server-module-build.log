@@ -1,0 +1,80 @@
+[INFO] Scanning for projects...
+[WARNING]
+[WARNING] Some problems were encountered while building the effective model for org.apache.cloudstack:cloud-plugin-hypervisor-kvm:jar:4.23.0.0
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: org.json:json:jar -> duplicate declaration of version (?) @ line 130, column 21
+[WARNING]
+[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[WARNING]
+[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[WARNING]
+[INFO]
+[INFO] -----------------< org.apache.cloudstack:cloud-server >-----------------
+[INFO] Building Apache CloudStack Server 4.23.0.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- checkstyle:3.6.0:check (cloudstack-checkstyle) @ cloud-server ---
+[INFO]
+[INFO] --- remote-resources:1.3:process (default) @ cloud-server ---
+[INFO]
+[INFO] --- antrun:1.8:run (generate-resource) @ cloud-server ---
+[INFO] Executing tasks
+
+main:
+     [copy] Copying 4 files to /home/ablecloud/work/dhslove/ablestack-cloud-issue1194/server/target/conf
+[INFO] Executed tasks
+[INFO]
+[INFO] --- resources:2.5:resources (default-resources) @ cloud-server ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 30 resources
+[INFO] Copying 3 resources
+[INFO]
+[INFO] --- compiler:3.8.1:compile (default-compile) @ cloud-server ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 586 source files to /home/ablecloud/work/dhslove/ablestack-cloud-issue1194/server/target/classes
+[INFO]
+[INFO] --- resources:2.5:testResources (default-testResources) @ cloud-server ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 32 resources
+[INFO] Copying 3 resources
+[INFO]
+[INFO] --- compiler:3.8.1:testCompile (default-testCompile) @ cloud-server ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 253 source files to /home/ablecloud/work/dhslove/ablestack-cloud-issue1194/server/target/test-classes
+[INFO]
+[INFO] --- surefire:2.22.2:test (default-test) @ cloud-server ---
+[INFO]
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.cloud.vm.process.VmProcessSnapshotServiceImplTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.602 s - in com.cloud.vm.process.VmProcessSnapshotServiceImplTest
+[INFO] Running com.cloud.vm.process.VmProcessActionServiceImplTest
+[INFO] Tests run: 16, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.199 s - in com.cloud.vm.process.VmProcessActionServiceImplTest
+[INFO] Running com.cloud.vm.process.VmProcessToolsIsoCatalogTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.026 s - in com.cloud.vm.process.VmProcessToolsIsoCatalogTest
+[INFO] Running com.cloud.vm.process.VmProcessCapabilityServiceImplTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.086 s - in com.cloud.vm.process.VmProcessCapabilityServiceImplTest
+[INFO]
+[INFO] Results:
+[INFO]
+[INFO] Tests run: 41, Failures: 0, Errors: 0, Skipped: 0
+[INFO]
+[INFO]
+[INFO] --- jar:3.2.0:jar (default-jar) @ cloud-server ---
+[INFO] Building jar: /home/ablecloud/work/dhslove/ablestack-cloud-issue1194/server/target/cloud-server-4.23.0.0.jar
+[INFO]
+[INFO] --- site:3.21.0:attach-descriptor (attach-descriptor) @ cloud-server ---
+[INFO] Skipping because packaging 'jar' is not pom.
+[INFO]
+[INFO] --- install:2.3.1:install (default-install) @ cloud-server ---
+[INFO] Installing /home/ablecloud/work/dhslove/ablestack-cloud-issue1194/server/target/cloud-server-4.23.0.0.jar to /home/ablecloud/.m2/repository/org/apache/cloudstack/cloud-server/4.23.0.0/cloud-server-4.23.0.0.jar
+[INFO] Installing /home/ablecloud/work/dhslove/ablestack-cloud-issue1194/server/pom.xml to /home/ablecloud/.m2/repository/org/apache/cloudstack/cloud-server/4.23.0.0/cloud-server-4.23.0.0.pom
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  55.095 s
+[INFO] Finished at: 2026-10-01T12:11:55+09:00
+[INFO] ------------------------------------------------------------------------

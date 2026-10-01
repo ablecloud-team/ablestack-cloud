@@ -119,6 +119,28 @@ public final class VmProcessToolsIsoCatalog {
         return artifact.matches() ? artifact.group(1) : null;
     }
 
+    /** Installation hint only: never changes the observed capability or grants process actions. */
+    public static Map<String, String> resolveForInstallation(String raw, String zoneId, Map<?, ?> os,
+            String registeredOsName, String templateArch, String readiness, Function<String, IsoMetadata> isoLookup) {
+        Map<String, String> observed = resolve(raw, zoneId, os, registeredOsName, isoLookup);
+        if (!"OS_UNKNOWN".equals(observed.get("status")) || !"QGA_UNREACHABLE".equals(readiness)
+                || registeredOsName == null || !"x86_64".equals(templateArch)) return observed;
+        Matcher registered = REGISTERED_OS.matcher(registeredOsName);
+        if (!registered.find()) return observed;
+        String label = registered.group(1).toLowerCase(Locale.ROOT);
+        String id = label.startsWith("rocky") ? "rocky" : label.startsWith("red hat") ? "rhel"
+                : label.startsWith("ubuntu") ? "ubuntu" : label.startsWith("debian") ? "debian" : "mswindows";
+        Map<String, String> declared = Map.of("id", id, "version", registered.group(2), "arch", templateArch,
+                "family", "mswindows".equals(id) ? "windows" : "linux",
+                "productType", "mswindows".equals(id) ? label.contains("server") ? "server" : "client" : "none");
+        Map<String, String> selected = new HashMap<>(resolve(raw, zoneId, declared, registeredOsName, isoLookup));
+        if ("MATCHED".equals(selected.get("status"))) {
+            selected.put("selectionSource", "REGISTERED_OS");
+            selected.put("registeredOsName", registeredOsName);
+        }
+        return Map.copyOf(selected);
+    }
+
     public static Map<String, String> resolve(String raw, String zoneId, Map<?, ?> os, String registeredOsName,
             Function<String, IsoMetadata> isoLookup) {
         if (raw == null || raw.isBlank() || "[]".equals(raw.trim())) return Map.of("status", "NOT_CONFIGURED");

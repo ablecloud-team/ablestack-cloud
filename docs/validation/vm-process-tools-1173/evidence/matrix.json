@@ -1,0 +1,407 @@
+[
+  {
+    "vmUuid": "2f35ea9a-7ff2-494f-a857-6527e0fb1976",
+    "name": "R10-Sparse",
+    "state": "Running",
+    "host": "ablecube31-1",
+    "readiness": "READY",
+    "rpcs": {
+      "guest-exec": "ENABLED",
+      "guest-exec-status": "ENABLED",
+      "guest-file-open": "ENABLED",
+      "guest-file-close": "ENABLED",
+      "guest-file-read": "ENABLED",
+      "guest-file-write": "ENABLED",
+      "guest-file-seek": "ENABLED",
+      "guest-file-flush": "ENABLED"
+    },
+    "toolsIso": {
+      "checksum": "{SHA-512}31b21ab35075ba298391f4da07d8aa480362f3855ad1d7c0e0c8b86303e10a019d31f8e0faa20afd97c0328cdf5ce80ed0742f93c6c273d7c4c02dae7ff87679",
+      "zoneId": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "isoId": "77f985d1-1f61-4594-aa1d-be4a4c61c654",
+      "status": "MATCHED",
+      "arch": "x86_64",
+      "name": "ABLESTACK-Tools-Process-rocky-89806b1",
+      "isoFamily": "rocky"
+    },
+    "jobId": "ade77161-741e-4e65-bbad-e3e3848a5fd6",
+    "snapshotId": "c7cc707d-a59f-4f1f-9d5c-848dc1617f56",
+    "bootId": "linux:359f43fb-e026-4b37-94ee-b817f99803f7",
+    "status": "OK",
+    "count": 233,
+    "observedAt": "2026-09-30T04:53:05.980043178Z",
+    "expiresAt": "2026-09-30T04:53:15.980043178Z",
+    "cpuMeasured": 10,
+    "attachedIsos": []
+  },
+  {
+    "vmUuid": "c5ac0d8b-c004-4040-8334-d57586eee4c7",
+    "name": "Rocky9-Sparse",
+    "state": "Running",
+    "host": "ablecube31-3",
+    "readiness": "READY",
+    "rpcs": {
+      "guest-exec": "ENABLED",
+      "guest-exec-status": "ENABLED",
+      "guest-file-open": "ENABLED",
+      "guest-file-close": "ENABLED",
+      "guest-file-read": "ENABLED",
+      "guest-file-write": "ENABLED",
+      "guest-file-seek": "ENABLED",
+      "guest-file-flush": "ENABLED"
+    },
+    "toolsIso": {
+      "status": "OS_MISMATCH"
+    },
+    "jobId": "e34845bb-44e3-482f-b4ef-26c00f59ba9b",
+    "snapshotId": "4e79fee5-fc23-4ee7-9984-0a7a2be7db7e",
+    "bootId": "linux:19d8648d-0372-4d1c-98f8-40ac2ff58d1d",
+    "status": "OK",
+    "count": 128,
+    "observedAt": "2026-09-30T04:53:07.500319249Z",
+    "expiresAt": "2026-09-30T04:53:17.500319249Z",
+    "cpuMeasured": 10,
+    "attachedIsos": []
+  },
+  {
+    "vmUuid": "2785322f-54d0-4a5d-bf42-59bef03635d4",
+    "name": "Rocky8-Sparse",
+    "state": "Running",
+    "readiness": "RPC_DISABLED",
+    "rpcs": {
+      "guest-exec": "DISABLED",
+      "guest-exec-status": "DISABLED",
+      "guest-file-open": "DISABLED",
+      "guest-file-close": "DISABLED",
+      "guest-file-read": "DISABLED",
+      "guest-file-write": "DISABLED",
+      "guest-file-seek": "DISABLED",
+      "guest-file-flush": "DISABLED"
+    },
+    "toolsIso": {
+      "checksum": "{SHA-512}31b21ab35075ba298391f4da07d8aa480362f3855ad1d7c0e0c8b86303e10a019d31f8e0faa20afd97c0328cdf5ce80ed0742f93c6c273d7c4c02dae7ff87679",
+      "zoneId": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "isoId": "77f985d1-1f61-4594-aa1d-be4a4c61c654",
+      "status": "MATCHED",
+      "arch": "x86_64",
+      "name": "ABLESTACK-Tools-Process-rocky-89806b1",
+      "isoFamily": "rocky"
+    },
+    "attachedIsos": [
+      {
+        "id": "f6218264-03c0-400f-8e33-bdf9fb12e91a",
+        "name": "Rocky Linux 8.10 x86_64 DVD",
+        "displaytext": "Rocky Linux 8.10 x86_64 DVD",
+        "deviceseq": 3,
+        "bootable": true
+      },
+      {
+        "id": "77f985d1-1f61-4594-aa1d-be4a4c61c654",
+        "name": "ABLESTACK-Tools-Process-rocky-89806b1",
+        "displaytext": "ABLESTACK-Tools-Process-rocky-89806b1",
+        "deviceseq": 4,
+        "bootable": false
+      }
+    ],
+    "blocker": "Qemu #65: legacy BLACKLIST_RPC handling"
+  },
+  {
+    "vmUuid": "4cb71960-fc75-43e1-9830-8f4ee198def7",
+    "name": "U26-Sparse",
+    "state": "Running",
+    "host": "ablecube31-1",
+    "readiness": "READY",
+    "rpcs": {
+      "guest-exec": "ENABLED",
+      "guest-exec-status": "ENABLED",
+      "guest-file-open": "ENABLED",
+      "guest-file-close": "ENABLED",
+      "guest-file-read": "ENABLED",
+      "guest-file-write": "ENABLED",
+      "guest-file-seek": "ENABLED",
+      "guest-file-flush": "ENABLED"
+    },
+    "toolsIso": {
+      "status": "OS_MISMATCH"
+    },
+    "jobId": "9ce38db0-77b3-4279-bbe5-b8ede3d65e50",
+    "snapshotId": "391fff6b-be1b-4e0d-b8a5-c05969f9843e",
+    "bootId": "linux:b7043df7-74aa-477d-92e5-2f791054da09",
+    "status": "OK",
+    "count": 130,
+    "observedAt": "2026-09-30T04:53:10.170055640Z",
+    "expiresAt": "2026-09-30T04:53:20.170055640Z",
+    "cpuMeasured": 10,
+    "attachedIsos": []
+  },
+  {
+    "vmUuid": "04125c04-cfa5-4f43-be41-39e3c7d536d3",
+    "name": "Ubuntu24-Sparse",
+    "state": "Running",
+    "host": "ablecube31-3",
+    "readiness": "READY",
+    "rpcs": {
+      "guest-exec": "ENABLED",
+      "guest-exec-status": "ENABLED",
+      "guest-file-open": "ENABLED",
+      "guest-file-close": "ENABLED",
+      "guest-file-read": "ENABLED",
+      "guest-file-write": "ENABLED",
+      "guest-file-seek": "ENABLED",
+      "guest-file-flush": "ENABLED"
+    },
+    "toolsIso": {
+      "checksum": "{SHA-512}c846a630904dc4024a6b1a5f23c58c41d93152efa630442aa589717959fc579d81b300b61166857f10417575ed79d27dae3b41e33478fddc3f97ba80313a536e",
+      "zoneId": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "isoId": "76f457be-c401-44a5-b43d-778a465732de",
+      "status": "MATCHED",
+      "arch": "x86_64",
+      "name": "ABLESTACK-Tools-Process-ubuntu-89806b1",
+      "isoFamily": "ubuntu"
+    },
+    "jobId": "44f149da-5b63-4857-9329-2e7feba71bf5",
+    "snapshotId": "0b1852e4-51b7-4720-9036-f4ca241b9117",
+    "bootId": "linux:f2f33906-3094-4b0f-b719-35d595d8f27d",
+    "status": "OK",
+    "count": 114,
+    "observedAt": "2026-09-30T04:53:11.651222090Z",
+    "expiresAt": "2026-09-30T04:53:21.651222090Z",
+    "cpuMeasured": 10,
+    "attachedIsos": [
+      {
+        "id": "76f457be-c401-44a5-b43d-778a465732de",
+        "name": "ABLESTACK-Tools-Process-ubuntu-89806b1",
+        "displaytext": "ABLESTACK-Tools-Process-ubuntu-89806b1",
+        "deviceseq": 3,
+        "bootable": false
+      }
+    ]
+  },
+  {
+    "vmUuid": "d3cd2c68-78e3-42dd-a944-7c5ce731e658",
+    "name": "Ubuntu22-Sparse",
+    "state": "Running",
+    "host": "ablecube31-2",
+    "readiness": "READY",
+    "rpcs": {
+      "guest-exec": "ENABLED",
+      "guest-exec-status": "ENABLED",
+      "guest-file-open": "ENABLED",
+      "guest-file-close": "ENABLED",
+      "guest-file-read": "ENABLED",
+      "guest-file-write": "ENABLED",
+      "guest-file-seek": "ENABLED",
+      "guest-file-flush": "ENABLED"
+    },
+    "toolsIso": {
+      "checksum": "{SHA-512}c846a630904dc4024a6b1a5f23c58c41d93152efa630442aa589717959fc579d81b300b61166857f10417575ed79d27dae3b41e33478fddc3f97ba80313a536e",
+      "zoneId": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "isoId": "76f457be-c401-44a5-b43d-778a465732de",
+      "status": "MATCHED",
+      "arch": "x86_64",
+      "name": "ABLESTACK-Tools-Process-ubuntu-89806b1",
+      "isoFamily": "ubuntu"
+    },
+    "jobId": "66fd14e3-56f1-4df0-88f1-6e8f8a4726cb",
+    "snapshotId": "b6fa78b3-b347-448a-b1aa-4febe122e91c",
+    "bootId": "linux:6f23e98c-1326-4717-a6c9-d4575a833bfa",
+    "status": "OK",
+    "count": 121,
+    "observedAt": "2026-09-30T04:53:13.142450170Z",
+    "expiresAt": "2026-09-30T04:53:23.142450170Z",
+    "cpuMeasured": 10,
+    "attachedIsos": []
+  },
+  {
+    "vmUuid": "b51c954a-45fc-4fdd-a395-e1b3b5b5d367",
+    "name": "Debian13-Sparse",
+    "state": "Running",
+    "readiness": "READY",
+    "toolsIso": {
+      "status": "OS_MISMATCH"
+    },
+    "readFailure": {
+      "code": "TOOLS_REQUIRED",
+      "message": "Process snapshot unavailable",
+      "retryMode": "READ_ONLY"
+    },
+    "blocker": "Qemu #65: Debian absent from host read/action OS selector"
+  },
+  {
+    "vmUuid": "40f046e8-7433-4cc8-a0f0-1bc60513d222",
+    "name": "Debian12-Sparse",
+    "state": "Running",
+    "readiness": "READY",
+    "toolsIso": {
+      "checksum": "{SHA-512}eba568438756dfb3a1a4a19f3610d8889ff03c47bfde792536db606f57df1b037acdb12fcfd5c4d894fa097cc1b44ed2c6672c51efdf0c69371eb2778316d301",
+      "zoneId": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "isoId": "715788e2-88b4-4c29-b09e-6ceeb70f61e8",
+      "status": "MATCHED",
+      "arch": "x86_64",
+      "name": "ABLESTACK-Tools-Process-debian-89806b1",
+      "isoFamily": "debian"
+    },
+    "readFailure": {
+      "code": "TOOLS_REQUIRED",
+      "message": "Process snapshot unavailable",
+      "retryMode": "READ_ONLY"
+    },
+    "blocker": "Qemu #65: Debian absent from host read/action OS selector"
+  },
+  {
+    "vmUuid": "f4be8cb2-f649-47ef-bcd2-7b59b71d5471",
+    "name": "W2025-Sparse-Clone1",
+    "state": "Running",
+    "host": "ablecube31-2",
+    "readiness": "READY",
+    "rpcs": {
+      "guest-exec": "ENABLED",
+      "guest-exec-status": "ENABLED",
+      "guest-file-open": "ENABLED",
+      "guest-file-close": "ENABLED",
+      "guest-file-read": "ENABLED",
+      "guest-file-write": "ENABLED",
+      "guest-file-seek": "ENABLED",
+      "guest-file-flush": "ENABLED"
+    },
+    "toolsIso": {
+      "checksum": "{SHA-256}a242f8bdb8f12e947f2b6079b4546257082c16738c76e2677a2df2c63e346831",
+      "zoneId": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "isoId": "6770d9e6-34e3-43a0-997d-fd41be3a65a8",
+      "status": "MATCHED",
+      "arch": "x86_64",
+      "name": "ABLESTACK-Tools-Process-windows-56b6236",
+      "isoFamily": "windows"
+    },
+    "jobId": "0efda784-a938-45c3-921a-437d440b9fb7",
+    "snapshotId": "fbe37673-8868-4f81-b759-d42798b6f32c",
+    "bootId": "windows:134347107475000000",
+    "status": "OK",
+    "count": 135,
+    "observedAt": "2026-09-30T04:53:21.410507632Z",
+    "expiresAt": "2026-09-30T04:53:31.410507632Z",
+    "cpuMeasured": 10,
+    "attachedIsos": []
+  },
+  {
+    "vmUuid": "675696ba-a228-44c4-94c3-3c788808ce3d",
+    "name": "Windows22-Sparse",
+    "state": "Running",
+    "host": "ablecube31-2",
+    "readiness": "READY",
+    "rpcs": {
+      "guest-exec": "ENABLED",
+      "guest-exec-status": "ENABLED",
+      "guest-file-open": "ENABLED",
+      "guest-file-close": "ENABLED",
+      "guest-file-read": "ENABLED",
+      "guest-file-write": "ENABLED",
+      "guest-file-seek": "ENABLED",
+      "guest-file-flush": "ENABLED"
+    },
+    "toolsIso": {
+      "checksum": "{SHA-256}a242f8bdb8f12e947f2b6079b4546257082c16738c76e2677a2df2c63e346831",
+      "zoneId": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "isoId": "6770d9e6-34e3-43a0-997d-fd41be3a65a8",
+      "status": "MATCHED",
+      "arch": "x86_64",
+      "name": "ABLESTACK-Tools-Process-windows-56b6236",
+      "isoFamily": "windows"
+    },
+    "jobId": "02c102a0-93ce-4782-aef4-4d1a6d776a72",
+    "snapshotId": "b7008f70-fa05-4c4d-91e3-26a5aa8c3568",
+    "bootId": "windows:134351649845000000",
+    "status": "OK",
+    "count": 96,
+    "observedAt": "2026-09-30T04:53:24.898788306Z",
+    "expiresAt": "2026-09-30T04:53:34.898788306Z",
+    "cpuMeasured": 10,
+    "attachedIsos": [
+      {
+        "id": "6770d9e6-34e3-43a0-997d-fd41be3a65a8",
+        "name": "ABLESTACK-Tools-Process-windows-56b6236",
+        "displaytext": "ABLESTACK Tools Windows 11 Server 2019 2022 2025 multi-OS",
+        "deviceseq": 3,
+        "bootable": false
+      }
+    ]
+  },
+  {
+    "vmUuid": "3ff1be7c-689c-4633-bcaa-060ccead098d",
+    "name": "Windows19-Sparse",
+    "state": "Running",
+    "host": "ablecube31-2",
+    "readiness": "READY",
+    "rpcs": {
+      "guest-exec": "ENABLED",
+      "guest-exec-status": "ENABLED",
+      "guest-file-open": "ENABLED",
+      "guest-file-close": "ENABLED",
+      "guest-file-read": "ENABLED",
+      "guest-file-write": "ENABLED",
+      "guest-file-seek": "ENABLED",
+      "guest-file-flush": "ENABLED"
+    },
+    "toolsIso": {
+      "checksum": "{SHA-256}a242f8bdb8f12e947f2b6079b4546257082c16738c76e2677a2df2c63e346831",
+      "zoneId": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "isoId": "6770d9e6-34e3-43a0-997d-fd41be3a65a8",
+      "status": "MATCHED",
+      "arch": "x86_64",
+      "name": "ABLESTACK-Tools-Process-windows-56b6236",
+      "isoFamily": "windows"
+    },
+    "jobId": "e88188e1-5408-48a6-8809-c1adbfa7299b",
+    "snapshotId": "c8a88cf0-74d7-4d4c-9a90-d9792a8d689f",
+    "bootId": "windows:134351700844585070",
+    "status": "OK",
+    "count": 89,
+    "observedAt": "2026-09-30T04:53:30.018757061Z",
+    "expiresAt": "2026-09-30T04:53:40.018757061Z",
+    "cpuMeasured": 10,
+    "attachedIsos": [
+      {
+        "id": "6770d9e6-34e3-43a0-997d-fd41be3a65a8",
+        "name": "ABLESTACK-Tools-Process-windows-56b6236",
+        "displaytext": "ABLESTACK Tools Windows 11 Server 2019 2022 2025 multi-OS",
+        "deviceseq": 3,
+        "bootable": false
+      }
+    ]
+  },
+  {
+    "vmUuid": "c51bcc9c-e045-40d7-b215-e319b36c1d45",
+    "name": "Windows11-Sparse",
+    "state": "Running",
+    "host": "ablecube31-1",
+    "readiness": "READY",
+    "rpcs": {
+      "guest-exec": "ENABLED",
+      "guest-exec-status": "ENABLED",
+      "guest-file-open": "ENABLED",
+      "guest-file-close": "ENABLED",
+      "guest-file-read": "ENABLED",
+      "guest-file-write": "ENABLED",
+      "guest-file-seek": "ENABLED",
+      "guest-file-flush": "ENABLED"
+    },
+    "toolsIso": {
+      "checksum": "{SHA-256}a242f8bdb8f12e947f2b6079b4546257082c16738c76e2677a2df2c63e346831",
+      "zoneId": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "isoId": "6770d9e6-34e3-43a0-997d-fd41be3a65a8",
+      "status": "MATCHED",
+      "arch": "x86_64",
+      "name": "ABLESTACK-Tools-Process-windows-56b6236",
+      "isoFamily": "windows"
+    },
+    "jobId": "0635fc4e-5ef3-452b-84f8-2b36a2508ae9",
+    "snapshotId": "e852cffc-b9e7-4c2b-889c-44a0ed43f259",
+    "bootId": "windows:134351730765000000",
+    "status": "OK",
+    "count": 85,
+    "observedAt": "2026-09-30T04:53:36.202236054Z",
+    "expiresAt": "2026-09-30T04:53:46.202236054Z",
+    "cpuMeasured": 10,
+    "attachedIsos": []
+  }
+]

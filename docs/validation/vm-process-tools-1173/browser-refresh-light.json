@@ -1,0 +1,17 @@
+{
+  "refreshBefore": {
+    "rows": 11,
+    "status": "서비스 재시작\n업데이트\nQGA 권한 다시 확인\n목록 조회 완료\nWindows Server 2022\n관측 시각: 2026. 9. 30. 오후 1:58:27\n목록 경과: 0s / 10s\n전체: 94\n\t\nPID\n\t\n프로세스 이름\n\t사용자\t상태\t\nCPU 사용량\n\t\n메모리\n\t연",
+    "tableRect": "{\"bottom\":838,\"height\":469,\"left\":893.25,\"right\":1863,\"top\":369,\"width\":969.75,\"x\":893.25,\"y\":369}"
+  },
+  "refreshDuring": {
+    "rows": 11,
+    "status": "서비스 재시작\n업데이트\nQGA 권한 다시 확인\n목록 조회 완료\nWindows Server 2022\n관측 시각: 2026. 9. 30. 오후 1:58:27\n목록 경과: 0s / 10s\n전체: 94\n\t\nPID\n\t\n프로세스 이름\n\t사용자\t상태\t\nCPU 사용량\n\t\n메모리\n\t연",
+    "tableRect": "{\"bottom\":838,\"height\":469,\"left\":893.25,\"right\":1863,\"top\":369,\"width\":969.75,\"x\":893.25,\"y\":369}"
+  },
+  "refreshAfter": {
+    "rows": 11,
+    "status": "서비스 재시작\n업데이트\nQGA 권한 다시 확인\n목록 조회 완료\nWindows Server 2022\n관측 시각: 2026. 9. 30. 오후 1:58:36\n목록 경과: 0s / 10s\n전체: 93\n\t\nPID\n\t\n프로세스 이름\n\t사용자\t상태\t\nCPU 사용량\n\t\n메모리\n\t연",
+    "tableRect": "{\"bottom\":838,\"height\":469,\"left\":893.25,\"right\":1863,\"top\":369,\"width\":969.75,\"x\":893.25,\"y\":369}"
+  }
+}

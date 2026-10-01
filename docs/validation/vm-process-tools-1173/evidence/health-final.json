@@ -1,0 +1,98 @@
+{
+  "management": "active\n200",
+  "10.10.31.1": "active",
+  "10.10.31.2": "active",
+  "10.10.31.3": "active",
+  "windows22": {
+    "exitCode": 0,
+    "result": {
+      "adapterPresent": true,
+      "qga": "Running"
+    }
+  },
+  "ubuntu24Qga": {
+    "exitCode": 0,
+    "stdout": "active\n",
+    "stderr": "[sudo] password for ablecloud: "
+  },
+  "vms": [
+    {
+      "vmUuid": "2f35ea9a-7ff2-494f-a857-6527e0fb1976",
+      "name": "R10-Sparse",
+      "state": "Running"
+    },
+    {
+      "vmUuid": "c5ac0d8b-c004-4040-8334-d57586eee4c7",
+      "name": "Rocky9-Sparse",
+      "state": "Running"
+    },
+    {
+      "vmUuid": "2785322f-54d0-4a5d-bf42-59bef03635d4",
+      "name": "Rocky8-Sparse",
+      "state": "Running"
+    },
+    {
+      "vmUuid": "4cb71960-fc75-43e1-9830-8f4ee198def7",
+      "name": "U26-Sparse",
+      "state": "Running"
+    },
+    {
+      "vmUuid": "04125c04-cfa5-4f43-be41-39e3c7d536d3",
+      "name": "Ubuntu24-Sparse",
+      "state": "Running"
+    },
+    {
+      "vmUuid": "d3cd2c68-78e3-42dd-a944-7c5ce731e658",
+      "name": "Ubuntu22-Sparse",
+      "state": "Running"
+    },
+    {
+      "vmUuid": "b51c954a-45fc-4fdd-a395-e1b3b5b5d367",
+      "name": "Debian13-Sparse",
+      "state": "Running"
+    },
+    {
+      "vmUuid": "40f046e8-7433-4cc8-a0f0-1bc60513d222",
+      "name": "Debian12-Sparse",
+      "state": "Running"
+    },
+    {
+      "vmUuid": "f4be8cb2-f649-47ef-bcd2-7b59b71d5471",
+      "name": "W2025-Sparse-Clone1",
+      "state": "Running"
+    },
+    {
+      "vmUuid": "675696ba-a228-44c4-94c3-3c788808ce3d",
+      "name": "Windows22-Sparse",
+      "state": "Running"
+    },
+    {
+      "vmUuid": "3ff1be7c-689c-4633-bcaa-060ccead098d",
+      "name": "Windows19-Sparse",
+      "state": "Running"
+    },
+    {
+      "vmUuid": "c51bcc9c-e045-40d7-b215-e319b36c1d45",
+      "name": "Windows11-Sparse",
+      "state": "Running"
+    }
+  ],
+  "process_list_host.py": [
+    "linux=(family=='rocky' and version in ('9.6','9.7','9.8','10.2')) or (family=='ubuntu' and version in ('22.04','24.04','26.04'))",
+    "profile='rocky-read' if family=='rocky' else 'ubuntu-read'",
+    "if family=='rocky':"
+  ],
+  "process_action_host.py": [
+    "linux=(family=='rocky' and version in ('9.6','9.7','9.8','10.2')) or (family=='ubuntu' and version in ('22.04','24.04','26.04'))"
+  ],
+  "rocky8RequiredRpcs": {
+    "guest-exec": false,
+    "guest-exec-status": false,
+    "guest-file-flush": false,
+    "guest-file-seek": false,
+    "guest-file-write": false,
+    "guest-file-read": false,
+    "guest-file-close": false,
+    "guest-file-open": false
+  }
+}

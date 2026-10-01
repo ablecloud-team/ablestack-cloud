@@ -1,0 +1,314 @@
+{
+  "menu": [
+    {
+      "disabled": "false",
+      "text": "대시보드"
+    },
+    {
+      "disabled": "false",
+      "text": "가상머신"
+    },
+    {
+      "disabled": "false",
+      "text": "VM 스냅샷"
+    },
+    {
+      "disabled": "false",
+      "text": "쿠버네티스"
+    },
+    {
+      "disabled": "false",
+      "text": "오토스케일 VM 그룹"
+    },
+    {
+      "disabled": "false",
+      "text": "가상머신 그룹"
+    },
+    {
+      "disabled": "false",
+      "text": "SSH 키 쌍"
+    },
+    {
+      "disabled": "false",
+      "text": "사용자 데이터 라이브러리"
+    },
+    {
+      "disabled": "false",
+      "text": "CNI 구성"
+    },
+    {
+      "disabled": "false",
+      "text": "Affinity 그룹"
+    },
+    {
+      "disabled": "false",
+      "text": "볼륨"
+    },
+    {
+      "disabled": "false",
+      "text": "스냅샷"
+    },
+    {
+      "disabled": "false",
+      "text": "스냅샷 정책"
+    },
+    {
+      "disabled": "false",
+      "text": "버킷"
+    },
+    {
+      "disabled": "false",
+      "text": "공유 파일 시스템"
+    },
+    {
+      "disabled": "false",
+      "text": "가상머신용 네트워크"
+    },
+    {
+      "disabled": "false",
+      "text": "VPC"
+    },
+    {
+      "disabled": "false",
+      "text": "VNF 기기"
+    },
+    {
+      "disabled": "false",
+      "text": "Public IP 주소"
+    },
+    {
+      "disabled": "false",
+      "text": "AS Numbers"
+    },
+    {
+      "disabled": "false",
+      "text": "사이트간 사설네트워크(VPN)"
+    },
+    {
+      "disabled": "false",
+      "text": "사이트 간 VPN 연결"
+    },
+    {
+      "disabled": "false",
+      "text": "네트워크 ACL"
+    },
+    {
+      "disabled": "false",
+      "text": "VPN 사용자"
+    },
+    {
+      "disabled": "false",
+      "text": "VPN 고객 게이트웨이"
+    },
+    {
+      "disabled": "false",
+      "text": "게스트 VLAN"
+    },
+    {
+      "disabled": "false",
+      "text": "IPv4 서브넷"
+    },
+    {
+      "disabled": "false",
+      "text": "DNS 영역"
+    },
+    {
+      "disabled": "false",
+      "text": "DNS 서버"
+    },
+    {
+      "disabled": "false",
+      "text": "템플릿"
+    },
+    {
+      "disabled": "false",
+      "text": "ISO"
+    },
+    {
+      "disabled": "false",
+      "text": "쿠버네티스 ISO"
+    },
+    {
+      "disabled": "false",
+      "text": "KMS 키"
+    },
+    {
+      "disabled": "false",
+      "text": "HSM 프로파일"
+    },
+    {
+      "disabled": "false",
+      "text": "이벤트"
+    },
+    {
+      "disabled": "false",
+      "text": "프로젝트"
+    },
+    {
+      "disabled": "false",
+      "text": "역할"
+    },
+    {
+      "disabled": "false",
+      "text": "계정"
+    },
+    {
+      "disabled": "false",
+      "text": "도메인"
+    },
+    {
+      "disabled": "false",
+      "text": "요약"
+    },
+    {
+      "disabled": "false",
+      "text": "Zone"
+    },
+    {
+      "disabled": "false",
+      "text": "Pod"
+    },
+    {
+      "disabled": "false",
+      "text": "클러스터"
+    },
+    {
+      "disabled": "false",
+      "text": "호스트"
+    },
+    {
+      "disabled": "false",
+      "text": "기본 스토리지"
+    },
+    {
+      "disabled": "false",
+      "text": "2차 스토리지"
+    },
+    {
+      "disabled": "false",
+      "text": "Object 스토리지"
+    },
+    {
+      "disabled": "false",
+      "text": "시스템 VM"
+    },
+    {
+      "disabled": "false",
+      "text": "가상 라우터"
+    },
+    {
+      "disabled": "false",
+      "text": "내부 LB"
+    },
+    {
+      "disabled": "false",
+      "text": "관리 서버"
+    },
+    {
+      "disabled": "false",
+      "text": "CPU 소켓"
+    },
+    {
+      "disabled": "false",
+      "text": "DB/Usage 서버"
+    },
+    {
+      "disabled": "false",
+      "text": "경보"
+    },
+    {
+      "disabled": "false",
+      "text": "경보 규칙"
+    },
+    {
+      "disabled": "false",
+      "text": "컴퓨트 오퍼링"
+    },
+    {
+      "disabled": "false",
+      "text": "시스템 오퍼링"
+    },
+    {
+      "disabled": "false",
+      "text": "디스크 오퍼링"
+    },
+    {
+      "disabled": "false",
+      "text": "네트워크 오퍼링"
+    },
+    {
+      "disabled": "false",
+      "text": "VPC 오퍼링"
+    },
+    {
+      "disabled": "false",
+      "text": "글로벌 설정"
+    },
+    {
+      "disabled": "false",
+      "text": "LDAP 구성"
+    },
+    {
+      "disabled": "false",
+      "text": "OAuth 구성"
+    },
+    {
+      "disabled": "false",
+      "text": "하이퍼바이저 기능"
+    },
+    {
+      "disabled": "false",
+      "text": "게스트 OS 카테고리들"
+    },
+    {
+      "disabled": "false",
+      "text": "게스트 OS"
+    },
+    {
+      "disabled": "false",
+      "text": "게스트 OS 매핑"
+    },
+    {
+      "disabled": "false",
+      "text": "GPU 카드 유형"
+    },
+    {
+      "disabled": "false",
+      "text": "확장"
+    },
+    {
+      "disabled": "false",
+      "text": "코멘트"
+    },
+    {
+      "disabled": "false",
+      "text": "사용량"
+    },
+    {
+      "disabled": "false",
+      "text": "인스턴스 가져오기-내보내기"
+    },
+    {
+      "disabled": "false",
+      "text": "데이터 볼륨 가져오기"
+    },
+    {
+      "disabled": "false",
+      "text": "Webhooks"
+    },
+    {
+      "disabled": "false",
+      "text": "API 문서"
+    },
+    {
+      "disabled": "false",
+      "text": "서비스 재시작 · AbleC7Ui"
+    },
+    {
+      "disabled": "true",
+      "text": "강제 종료"
+    }
+  ],
+  "classContainsDark": false,
+  "themeEvidence": "Paired screenshot shows dark mode; the original predicate queried class dark instead of dark-mode."
+}

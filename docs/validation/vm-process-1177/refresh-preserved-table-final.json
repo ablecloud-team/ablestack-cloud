@@ -1,0 +1,12 @@
+{
+  "before": {
+    "dark": true,
+    "height": 469,
+    "rows": 10
+  },
+  "during": {
+    "height": 469,
+    "rows": 10
+  },
+  "capture": "Immediately after refresh click; toolbar does not expose a loading spinner. Bounded DOM observation, not continuous frame capture."
+}

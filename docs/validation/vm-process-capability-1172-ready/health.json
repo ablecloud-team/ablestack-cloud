@@ -1,0 +1,28 @@
+[
+  {
+    "service": "mold-agent",
+    "state": "active",
+    "linkageErrorsAfterFinalDeploy": 0,
+    "host": "10.10.31.1"
+  },
+  {
+    "service": "mold-agent",
+    "state": "active",
+    "linkageErrorsAfterFinalDeploy": 0,
+    "host": "10.10.31.2"
+  },
+  {
+    "service": "mold-agent",
+    "state": "active",
+    "linkageErrorsAfterFinalDeploy": 0,
+    "host": "10.10.31.3"
+  },
+  {
+    "service": "mold",
+    "state": "active",
+    "webInf": true,
+    "clientStatus": 200,
+    "linkageErrorsAfterFinalDeploy": 0,
+    "host": "10.10.31.10"
+  }
+]

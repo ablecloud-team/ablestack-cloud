@@ -1,0 +1,5 @@
+{
+  "text": "서비스 재시작\n종료\n업데이트\nQGA 권한 다시 확인\n일부 목록 조회\nRocky Linux 8.10\n관측 시각: 2026. 10. 1. 오후 1:10:59\n목록 경과: 12s / 10s\n조회된 항목: 759\n프로세스 목록을 가져오지 못했습니다.\n잠시 후 다시 시도하세요. 계속 실패하면 호스트 및 게스트 에이전트 로그를 확인하세요.\n일부 프로세스만 조회되었습니다. 업데이트하여 목록을 다시 확인하세요.\n\t\nPID\n\t\n프로세스 이름\n\t사용자\t상태\t\nCPU 사용량\n\t\n메모리\n\t연결 서비스\t작업\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n\n\t1\tsystemd\troot\tS\t0.0%\t15.8 MB\t—\t\n\n\n\t2\tkthreadd\troot\tS\t0.0%\t0.0 MB\t—\t\n\n\n\t3\trcu_gp\troot\tI\t0.0%\t0.0 MB\t—\t\n\n\n\t4\trcu_par_gp\troot\tI\t0.0%\t0.0 MB\t—\t\n\n\n\t5\tslub_flushwq\troot\tI\t0.0%\t0.0 MB\t—\t\n\n\n\t7\tkworker/0:0H-kblockd\troot\tI\t0.0%\t0.0 MB\t—\t\n\n\n\t10\tmm_percpu_wq\troot\tI\t0.0%\t0.0 MB\t—\t\n\n\n\t11\trcu_tasks_rude_\troot\tS\t0.0%\t0.0 MB\t—\t\n\n\n\t12\trcu_tasks_trace\troot\tS\t0.0%\t0.0 MB\t—\t\n\n\n\t13\tksoftirqd/0\troot\tS\t0.0%\t0.0 MB\t—\t\n1\n2\n3\n4\n5\n•••\n76\n10 / 쪽\n\nCPU는 한 코어 100% 기준입니다. —는 미측정이며 0.0%와 다릅니다. 일반 프로세스 재시작은 지원하지 않으며 연결된 서비스만 재시작할 수 있습니다.",
+  "classContainsDark": false,
+  "themeEvidence": "Paired screenshot shows dark mode; the original predicate queried class dark instead of dark-mode."
+}

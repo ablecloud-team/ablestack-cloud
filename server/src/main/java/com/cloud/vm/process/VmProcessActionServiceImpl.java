@@ -90,8 +90,12 @@ public class VmProcessActionServiceImpl extends com.cloud.utils.component.Manage
     }
 
     static void uuid(String s) {
-        if (s == null || !UUID.fromString(s).toString().equals(s))
-            throw new InvalidParameterValueException("Canonical UUID required");
+        try {
+            if (s != null && UUID.fromString(s).toString().equals(s)) return;
+        } catch (IllegalArgumentException e) {
+            // Invalid input must remain a parameter error, before any journal access.
+        }
+        throw new InvalidParameterValueException("Canonical UUID required");
     }
 
     static String fingerprint(long vm, String snapshot, long pid, String action, String service) {

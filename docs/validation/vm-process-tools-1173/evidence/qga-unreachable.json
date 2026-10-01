@@ -1,0 +1,50 @@
+{
+  "processstate": {
+    "schemaVersion": "1.0",
+    "kind": "capability",
+    "requestId": "fdc8baa3-7a65-4c20-a31f-95ef2cd42c87",
+    "authority": {
+      "vmUuid": "04125c04-cfa5-4f43-be41-39e3c7d536d3"
+    },
+    "observedAt": "2026-09-30T04:22:23.975283357Z",
+    "os": {
+      "id": "unknown",
+      "version": "unknown",
+      "arch": "unsupported",
+      "family": "unknown"
+    },
+    "hostToolsVersion": "0.10.0",
+    "supportedSchemaVersions": [],
+    "rpcs": {
+      "guest-exec": "UNKNOWN",
+      "guest-exec-status": "UNKNOWN",
+      "guest-file-open": "UNKNOWN",
+      "guest-file-close": "UNKNOWN",
+      "guest-file-read": "UNKNOWN",
+      "guest-file-write": "UNKNOWN",
+      "guest-file-seek": "UNKNOWN",
+      "guest-file-flush": "UNKNOWN"
+    },
+    "allowedActions": [],
+    "readiness": "QGA_UNREACHABLE",
+    "error": {
+      "retryMode": "READ_ONLY",
+      "message": "QGA observation transport unavailable",
+      "code": "QGA_UNREACHABLE"
+    },
+    "qgaVersion": null,
+    "guestAdapterVersion": null
+  },
+  "toolsiso": {
+    "registeredOsName": "Ubuntu 24.04 LTS",
+    "selectionSource": "REGISTERED_OS",
+    "isoFamily": "ubuntu",
+    "checksum": "{SHA-512}c846a630904dc4024a6b1a5f23c58c41d93152efa630442aa589717959fc579d81b300b61166857f10417575ed79d27dae3b41e33478fddc3f97ba80313a536e",
+    "isoId": "76f457be-c401-44a5-b43d-778a465732de",
+    "status": "MATCHED",
+    "arch": "x86_64",
+    "zoneId": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+    "name": "ABLESTACK-Tools-Process-ubuntu-89806b1"
+  },
+  "ttlseconds": 30
+}

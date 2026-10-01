@@ -1,0 +1,1849 @@
+{
+  "reusable-probe-final": [
+    {
+      "vmUuid": "77e627f0-c30c-41a1-9e4c-766eb13226de",
+      "name": "Rocky10-Process",
+      "readiness": "READY",
+      "snapshotId": "ec46450a-0617-46fb-abf8-50cf6b0acf03",
+      "processCount": 149,
+      "numericCpuRows": 149,
+      "rpcCount": 8
+    },
+    {
+      "vmUuid": "81bd5ca1-63a4-4d24-ba76-4b117cb10e5c",
+      "name": "Rocky9-Process",
+      "readiness": "READY",
+      "snapshotId": "04a9a0a7-e3c1-428a-9748-2ffe36985622",
+      "processCount": 129,
+      "numericCpuRows": 129,
+      "rpcCount": 8
+    },
+    {
+      "vmUuid": "b2f056be-8072-4067-b84a-da4180ccfe64",
+      "name": "Rocky8-Process",
+      "readiness": "READY",
+      "snapshotId": "48c14e1a-bbda-462a-b57d-c6f2b474fcac",
+      "processCount": 121,
+      "numericCpuRows": 121,
+      "rpcCount": 8
+    },
+    {
+      "vmUuid": "785fcdf7-2d4e-4e76-97c9-e1ccea9900fe",
+      "name": "Ubuntu26-Process",
+      "readiness": "READY",
+      "snapshotId": "5f2546b4-90a3-4ccf-a022-2395fea256a9",
+      "processCount": 126,
+      "numericCpuRows": 126,
+      "rpcCount": 8
+    },
+    {
+      "vmUuid": "90af4c7f-298f-4b43-afc3-8192f8ee13e0",
+      "name": "Ubuntu24-Process",
+      "readiness": "READY",
+      "snapshotId": "86bfc29e-ea0d-4f8f-ae24-c62fa9112c3a",
+      "processCount": 120,
+      "numericCpuRows": 120,
+      "rpcCount": 8
+    },
+    {
+      "vmUuid": "e338decb-58bf-4ade-875b-e6e937c67f3c",
+      "name": "Ubuntu22-Process",
+      "readiness": "READY",
+      "snapshotId": "76e6eee2-958d-4a0c-bbf8-6a9c3663d277",
+      "processCount": 115,
+      "numericCpuRows": 115,
+      "rpcCount": 8
+    },
+    {
+      "vmUuid": "dd0714e4-2110-48e9-b964-f63a58580ea3",
+      "name": "Debian12-Process",
+      "readiness": "READY",
+      "snapshotId": "94778d5f-51b4-4e0c-a1cd-3707d06e673e",
+      "processCount": 162,
+      "numericCpuRows": 162,
+      "rpcCount": 8
+    },
+    {
+      "vmUuid": "c35058bd-a596-477d-83f3-3dae6dbc53aa",
+      "name": "Debian13-Process",
+      "readiness": "READY",
+      "snapshotId": "76de5c09-9d72-4db9-8771-c3444592d8b1",
+      "processCount": 168,
+      "numericCpuRows": 168,
+      "rpcCount": 8
+    },
+    {
+      "vmUuid": "b5dfd5dc-ea95-409b-a80c-f670f0aca538",
+      "name": "Windows25-Process",
+      "readiness": "READY",
+      "snapshotId": "c6c00266-4684-4cb6-b1d5-5ed8bf7f1981",
+      "processCount": 86,
+      "numericCpuRows": 86,
+      "rpcCount": 8
+    },
+    {
+      "vmUuid": "413bffe3-9831-4bfd-81f5-4e34d6cf9d11",
+      "name": "Windows22-Process",
+      "readiness": "READY",
+      "snapshotId": "f69b68a1-7780-4b21-994c-65798d53ecc0",
+      "processCount": 95,
+      "numericCpuRows": 95,
+      "rpcCount": 8
+    },
+    {
+      "vmUuid": "4a84687b-475f-42cb-8f39-58f09d469d19",
+      "name": "Windows19-Process",
+      "readiness": "READY",
+      "snapshotId": "b6ee1f98-a88b-4734-8d4e-d68b75576b09",
+      "processCount": 87,
+      "numericCpuRows": 87,
+      "rpcCount": 8
+    },
+    {
+      "vmUuid": "26d02494-0fc2-4356-8eb3-414cc78adbe5",
+      "name": "Windows11-Process",
+      "readiness": "READY",
+      "snapshotId": "792fac9a-f992-4414-83ba-f92b972cc53b",
+      "processCount": 84,
+      "numericCpuRows": 84,
+      "rpcCount": 8
+    }
+  ],
+  "rpc-execution-matrix": [
+    {
+      "vmUuid": "77e627f0-c30c-41a1-9e4c-766eb13226de",
+      "name": "Rocky10-Process",
+      "rpcsExecuted": [
+        "guest-file-open",
+        "guest-file-write",
+        "guest-file-flush",
+        "guest-file-seek",
+        "guest-file-read",
+        "guest-file-close",
+        "guest-exec",
+        "guest-exec-status"
+      ],
+      "roundTripPayloadVerified": true
+    },
+    {
+      "vmUuid": "81bd5ca1-63a4-4d24-ba76-4b117cb10e5c",
+      "name": "Rocky9-Process",
+      "rpcsExecuted": [
+        "guest-file-open",
+        "guest-file-write",
+        "guest-file-flush",
+        "guest-file-seek",
+        "guest-file-read",
+        "guest-file-close",
+        "guest-exec",
+        "guest-exec-status"
+      ],
+      "roundTripPayloadVerified": true
+    },
+    {
+      "vmUuid": "b2f056be-8072-4067-b84a-da4180ccfe64",
+      "name": "Rocky8-Process",
+      "rpcsExecuted": [
+        "guest-file-open",
+        "guest-file-write",
+        "guest-file-flush",
+        "guest-file-seek",
+        "guest-file-read",
+        "guest-file-close",
+        "guest-exec",
+        "guest-exec-status"
+      ],
+      "roundTripPayloadVerified": true
+    },
+    {
+      "vmUuid": "785fcdf7-2d4e-4e76-97c9-e1ccea9900fe",
+      "name": "Ubuntu26-Process",
+      "rpcsExecuted": [
+        "guest-file-open",
+        "guest-file-write",
+        "guest-file-flush",
+        "guest-file-seek",
+        "guest-file-read",
+        "guest-file-close",
+        "guest-exec",
+        "guest-exec-status"
+      ],
+      "roundTripPayloadVerified": true
+    },
+    {
+      "vmUuid": "90af4c7f-298f-4b43-afc3-8192f8ee13e0",
+      "name": "Ubuntu24-Process",
+      "rpcsExecuted": [
+        "guest-file-open",
+        "guest-file-write",
+        "guest-file-flush",
+        "guest-file-seek",
+        "guest-file-read",
+        "guest-file-close",
+        "guest-exec",
+        "guest-exec-status"
+      ],
+      "roundTripPayloadVerified": true
+    },
+    {
+      "vmUuid": "e338decb-58bf-4ade-875b-e6e937c67f3c",
+      "name": "Ubuntu22-Process",
+      "rpcsExecuted": [
+        "guest-file-open",
+        "guest-file-write",
+        "guest-file-flush",
+        "guest-file-seek",
+        "guest-file-read",
+        "guest-file-close",
+        "guest-exec",
+        "guest-exec-status"
+      ],
+      "roundTripPayloadVerified": true
+    },
+    {
+      "vmUuid": "dd0714e4-2110-48e9-b964-f63a58580ea3",
+      "name": "Debian12-Process",
+      "rpcsExecuted": [
+        "guest-file-open",
+        "guest-file-write",
+        "guest-file-flush",
+        "guest-file-seek",
+        "guest-file-read",
+        "guest-file-close",
+        "guest-exec",
+        "guest-exec-status"
+      ],
+      "roundTripPayloadVerified": true
+    },
+    {
+      "vmUuid": "c35058bd-a596-477d-83f3-3dae6dbc53aa",
+      "name": "Debian13-Process",
+      "rpcsExecuted": [
+        "guest-file-open",
+        "guest-file-write",
+        "guest-file-flush",
+        "guest-file-seek",
+        "guest-file-read",
+        "guest-file-close",
+        "guest-exec",
+        "guest-exec-status"
+      ],
+      "roundTripPayloadVerified": true
+    },
+    {
+      "vmUuid": "b5dfd5dc-ea95-409b-a80c-f670f0aca538",
+      "name": "Windows25-Process",
+      "rpcsExecuted": [
+        "guest-file-open",
+        "guest-file-write",
+        "guest-file-flush",
+        "guest-file-seek",
+        "guest-file-read",
+        "guest-file-close",
+        "guest-exec",
+        "guest-exec-status"
+      ],
+      "roundTripPayloadVerified": true
+    },
+    {
+      "vmUuid": "413bffe3-9831-4bfd-81f5-4e34d6cf9d11",
+      "name": "Windows22-Process",
+      "rpcsExecuted": [
+        "guest-file-open",
+        "guest-file-write",
+        "guest-file-flush",
+        "guest-file-seek",
+        "guest-file-read",
+        "guest-file-close",
+        "guest-exec",
+        "guest-exec-status"
+      ],
+      "roundTripPayloadVerified": true
+    },
+    {
+      "vmUuid": "4a84687b-475f-42cb-8f39-58f09d469d19",
+      "name": "Windows19-Process",
+      "rpcsExecuted": [
+        "guest-file-open",
+        "guest-file-write",
+        "guest-file-flush",
+        "guest-file-seek",
+        "guest-file-read",
+        "guest-file-close",
+        "guest-exec",
+        "guest-exec-status"
+      ],
+      "roundTripPayloadVerified": true
+    },
+    {
+      "vmUuid": "26d02494-0fc2-4356-8eb3-414cc78adbe5",
+      "name": "Windows11-Process",
+      "rpcsExecuted": [
+        "guest-file-open",
+        "guest-file-write",
+        "guest-file-flush",
+        "guest-file-seek",
+        "guest-file-read",
+        "guest-file-close",
+        "guest-exec",
+        "guest-exec-status"
+      ],
+      "roundTripPayloadVerified": true
+    }
+  ],
+  "advanced-safety": {
+    "discardedFirstResponse": {
+      "vmUuid": "81bd5ca1-63a4-4d24-ba76-4b117cb10e5c",
+      "requestId": "f26bb1d6-42d3-46c9-a1fe-6b99beb6b1e4",
+      "mutationSubmissions": 1,
+      "result": {
+        "action": "process.kill",
+        "authority": {
+          "vmUuid": "81bd5ca1-63a4-4d24-ba76-4b117cb10e5c"
+        },
+        "completedAt": "2026-10-01T03:41:24.364Z",
+        "effect": "VERIFIED",
+        "error": null,
+        "guestExecPid": null,
+        "guestExitCode": 0,
+        "identity": {
+          "bootId": "linux:4bc97502-225a-4030-9644-f64867dc16ec",
+          "pid": 8294,
+          "startTicks": "3910829",
+          "vmUuid": "81bd5ca1-63a4-4d24-ba76-4b117cb10e5c"
+        },
+        "kind": "actionResult",
+        "operationId": "3529b354-4e05-4c02-a2a1-d6f2a661ee2a",
+        "postcondition": "TARGET_EXITED",
+        "requestId": "f26bb1d6-42d3-46c9-a1fe-6b99beb6b1e4",
+        "schemaVersion": "1.0",
+        "service": null,
+        "state": "SUCCEEDED",
+        "submittedAt": "2026-10-01T03:41:24.357Z"
+      },
+      "guestExited": true,
+      "sameOperationOnRepeatedQuery": true
+    },
+    "exitedIdentityJob": {
+      "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "domainpath": "ROOT",
+      "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+      "cmd": "org.apache.cloudstack.api.command.user.vm.KillVirtualMachineProcessCmd",
+      "jobprocstatus": 0,
+      "jobresultcode": 530,
+      "jobresulttype": "object",
+      "jobresult": {
+        "errorcode": 530,
+        "errortext": "Process action not verified; operationId=a3ad167b-147c-4340-89a5-ff0b19c85bf7 state=FAILED"
+      },
+      "jobinstancetype": "VirtualMachine",
+      "jobinstanceid": "81bd5ca1-63a4-4d24-ba76-4b117cb10e5c",
+      "created": "2026-10-01T12:41:50+0900",
+      "completed": "2026-10-01T12:41:50+0900",
+      "jobid": "1f6f5e05-aefd-444b-b85a-42d2ff471d4a",
+      "jobstatus": 2
+    },
+    "exitedIdentityDenied": {
+      "action": "process.kill",
+      "authority": {
+        "vmUuid": "81bd5ca1-63a4-4d24-ba76-4b117cb10e5c"
+      },
+      "completedAt": "2026-10-01T03:41:50.626Z",
+      "effect": "NOT_STARTED",
+      "error": {
+        "code": "STALE_IDENTITY",
+        "retryMode": "NONE",
+        "message": "Process action could not be verified"
+      },
+      "guestExecPid": null,
+      "guestExitCode": null,
+      "identity": {
+        "bootId": "linux:4bc97502-225a-4030-9644-f64867dc16ec",
+        "pid": 8525,
+        "startTicks": "3913533",
+        "vmUuid": "81bd5ca1-63a4-4d24-ba76-4b117cb10e5c"
+      },
+      "kind": "actionResult",
+      "operationId": "a3ad167b-147c-4340-89a5-ff0b19c85bf7",
+      "postcondition": "NOT_CHECKED",
+      "requestId": "b3084b8a-37f4-4c0f-9a0b-5a3b1d482df0",
+      "schemaVersion": "1.0",
+      "service": null,
+      "state": "FAILED",
+      "submittedAt": "2026-10-01T03:41:50.625Z"
+    },
+    "partialCollection": {
+      "vmUuid": "b2f056be-8072-4067-b84a-da4180ccfe64",
+      "snapshotId": "342bfe37-9f19-4592-8192-fdf616092983",
+      "processCount": 1034,
+      "addedFixtures": 1000,
+      "pages": 6,
+      "elapsedMs": 4144,
+      "status": "PARTIAL"
+    },
+    "largeSnapshot": {
+      "vmUuid": "b2f056be-8072-4067-b84a-da4180ccfe64",
+      "snapshotId": "9045fccc-9b44-4951-99eb-6d9f735a288a",
+      "processCount": 473,
+      "addedFixtures": 350,
+      "pages": 3,
+      "elapsedMs": 379,
+      "status": "OK"
+    }
+  },
+  "migration-roundtrip": [
+    {
+      "vmUuid": "e338decb-58bf-4ade-875b-e6e937c67f3c",
+      "destinationHost": "159baf9a-89ad-4a94-91dc-e7395a670bf4",
+      "originalSnapshot": "27e346c2-6f08-4f2a-99ad-ff95e4eb6b19",
+      "originalSnapshotRejected": true,
+      "bootId": "linux:220ae5fc-bea0-4412-bbcc-917ecfbd98b1",
+      "sameBoot": true,
+      "ready": true,
+      "processCount": 115,
+      "elapsedMs": 12828
+    },
+    {
+      "vmUuid": "e338decb-58bf-4ade-875b-e6e937c67f3c",
+      "destinationHost": "384871b9-7c75-4717-a673-e96a76abeb71",
+      "originalSnapshot": "b69753be-ce58-4fd5-b22e-bbd5eb92db5c",
+      "originalSnapshotRejected": true,
+      "bootId": "linux:220ae5fc-bea0-4412-bbcc-917ecfbd98b1",
+      "sameBoot": true,
+      "ready": true,
+      "processCount": 115,
+      "elapsedMs": 6146
+    },
+    {
+      "vmUuid": "413bffe3-9831-4bfd-81f5-4e34d6cf9d11",
+      "destinationHost": "159baf9a-89ad-4a94-91dc-e7395a670bf4",
+      "originalSnapshot": "5bd853d8-2e1b-493c-9a80-e6ae182b0499",
+      "originalSnapshotRejected": true,
+      "bootId": "windows:134352927041062150",
+      "sameBoot": true,
+      "ready": true,
+      "processCount": 97,
+      "elapsedMs": 13381
+    },
+    {
+      "vmUuid": "413bffe3-9831-4bfd-81f5-4e34d6cf9d11",
+      "destinationHost": "384871b9-7c75-4717-a673-e96a76abeb71",
+      "originalSnapshot": "64574c4f-06c1-49f7-ab4e-01a866fed49d",
+      "originalSnapshotRejected": true,
+      "bootId": "windows:134352927041062150",
+      "sameBoot": true,
+      "ready": true,
+      "processCount": 97,
+      "elapsedMs": 13866
+    }
+  ],
+  "reboot-identity": {
+    "vmUuid": "81bd5ca1-63a4-4d24-ba76-4b117cb10e5c",
+    "jobId": "b14f01ab-7e00-47ee-9335-c07c178d6806",
+    "beforeBoot": "linux:4bc97502-225a-4030-9644-f64867dc16ec",
+    "afterBoot": "linux:3703d4ed-8471-439b-b1e7-fc352234b135",
+    "oldSnapshotRejected": true,
+    "ready": true,
+    "processCount": 155
+  },
+  "restart-during-operation": {
+    "vmUuid": "81bd5ca1-63a4-4d24-ba76-4b117cb10e5c",
+    "requestId": "623f9624-6da3-48e4-8503-c83f67665545",
+    "jobId": "d74f6a8a-f437-432a-b153-a9a71683b483",
+    "guestBefore": "MainPID=8786\nInvocationID=e270f970fbd44afd88ebd38e0607c612\n",
+    "mutationSubmissions": 1,
+    "guestObservedDeactivatingBeforeManagementRestart": true,
+    "result": {
+      "action": "service.restart",
+      "authority": {
+        "vmUuid": "81bd5ca1-63a4-4d24-ba76-4b117cb10e5c"
+      },
+      "completedAt": "2026-10-01T03:46:49.237Z",
+      "effect": "VERIFIED",
+      "error": null,
+      "guestExecPid": null,
+      "guestExitCode": 0,
+      "identity": {
+        "bootId": "linux:4bc97502-225a-4030-9644-f64867dc16ec",
+        "pid": 8786,
+        "startTicks": "3942485",
+        "vmUuid": "81bd5ca1-63a4-4d24-ba76-4b117cb10e5c"
+      },
+      "kind": "actionResult",
+      "operationId": "3948ae2e-d63a-4f7b-9024-f02552063566",
+      "postcondition": "SERVICE_RESTART_VERIFIED",
+      "requestId": "623f9624-6da3-48e4-8503-c83f67665545",
+      "schemaVersion": "1.0",
+      "service": {
+        "configurationHash": "dac9ac26db5993019fe610dffef672aad5870e0976980097c2680ee982ec8853",
+        "manager": "systemd",
+        "name": "process-c7-recovery.service"
+      },
+      "state": "SUCCEEDED",
+      "submittedAt": "2026-10-01T03:46:41.131Z"
+    },
+    "guestAfter": "MainPID=9051\nActiveState=active\nInvocationID=d5d4caf388dd41ad9f142ac9b1f23067\n",
+    "managementRestarted": true
+  },
+  "rollback-reapply": {
+    "host": "10.10.31.2",
+    "rollback": "ROLLBACK_BYTES_MATCH\nROLLBACK_CLASS 0b1658f49b7e1fcf749673e841085b6e33c385a7dc190b52f1b82485a3b77eea\nactive\n",
+    "rollbackReadiness": "READY",
+    "rollforward": "ROLLFORWARD_BYTES_MATCH\n",
+    "vmInventoryUnchanged": true
+  },
+  "security": {
+    "globalDisabled": {
+      "errorcode": 431,
+      "message": "VM process capability rollout is disabled"
+    },
+    "globalRestored": "true",
+    "crossTenantDenied": {
+      "errorcode": 531
+    },
+    "defaultUserMutationDenied": [
+      {
+        "command": "terminateVirtualMachineProcess",
+        "errorcode": 432,
+        "denied": true
+      },
+      {
+        "command": "killVirtualMachineProcess",
+        "errorcode": 432,
+        "denied": true
+      },
+      {
+        "command": "restartVirtualMachineService",
+        "errorcode": 432,
+        "denied": true
+      }
+    ],
+    "temporaryAccount": {
+      "id": "e024d415-82d0-41e7-822d-55274c90bdc5",
+      "userIds": [
+        "0e13bef9-d9f2-4c7d-a03b-541de9f9d0d6"
+      ],
+      "name": "codex-c7-20261001122550"
+    },
+    "cleanupError": "{'errorcode': 530, 'errortext': 'Failed to delete user account and all corresponding users'}",
+    "activeTestAccounts": 0
+  },
+  "final-vm-health": [
+    {
+      "vmUuid": "77e627f0-c30c-41a1-9e4c-766eb13226de",
+      "name": "Rocky10-Process",
+      "state": "Running",
+      "ipv4": [
+        "10.10.254.74"
+      ],
+      "network": {
+        "managementPing": true,
+        "fixtureUnits": [],
+        "largeFixturePidFile": false,
+        "proofChannel": "guest SSH"
+      },
+      "isoIds": [
+        "dcdeb196-47f8-4c69-8ce5-3fac121b65e8"
+      ],
+      "snapshotId": "94e6e5fa-d592-4225-82c8-2cdea60740d3",
+      "snapshotReady": true,
+      "snapshotMemoryPreserved": true
+    },
+    {
+      "vmUuid": "81bd5ca1-63a4-4d24-ba76-4b117cb10e5c",
+      "name": "Rocky9-Process",
+      "state": "Running",
+      "ipv4": [
+        "10.10.254.78"
+      ],
+      "network": {
+        "managementPing": true,
+        "fixtureUnits": [],
+        "largeFixturePidFile": false,
+        "proofChannel": "guest SSH"
+      },
+      "isoIds": [
+        "dcdeb196-47f8-4c69-8ce5-3fac121b65e8"
+      ],
+      "snapshotId": "5b0b6ef9-18ec-4f51-83b1-526fd97bfa00",
+      "snapshotReady": true,
+      "snapshotMemoryPreserved": true
+    },
+    {
+      "vmUuid": "b2f056be-8072-4067-b84a-da4180ccfe64",
+      "name": "Rocky8-Process",
+      "state": "Running",
+      "ipv4": [
+        "10.10.254.80"
+      ],
+      "network": {
+        "managementPing": true,
+        "fixtureUnits": [],
+        "largeFixturePidFile": false,
+        "proofChannel": "guest SSH"
+      },
+      "isoIds": [
+        "f6218264-03c0-400f-8e33-bdf9fb12e91a",
+        "dcdeb196-47f8-4c69-8ce5-3fac121b65e8"
+      ],
+      "snapshotId": "9b0beb38-fcbf-4673-9b8e-9fbcb63b2a7b",
+      "snapshotReady": true,
+      "snapshotMemoryPreserved": true
+    },
+    {
+      "vmUuid": "785fcdf7-2d4e-4e76-97c9-e1ccea9900fe",
+      "name": "Ubuntu26-Process",
+      "state": "Running",
+      "ipv4": [
+        "10.10.254.168"
+      ],
+      "network": {
+        "managementPing": true,
+        "fixtureUnits": [],
+        "largeFixturePidFile": false,
+        "proofChannel": "QGA guest-exec"
+      },
+      "isoIds": [
+        "1c0e894a-f880-4b9f-8a55-48f9c472861c"
+      ],
+      "snapshotId": "08da29dc-9c22-4396-8f91-501593b60127",
+      "snapshotReady": true,
+      "snapshotMemoryPreserved": true
+    },
+    {
+      "vmUuid": "90af4c7f-298f-4b43-afc3-8192f8ee13e0",
+      "name": "Ubuntu24-Process",
+      "state": "Running",
+      "ipv4": [
+        "10.10.254.169"
+      ],
+      "network": {
+        "managementPing": true,
+        "fixtureUnits": [],
+        "largeFixturePidFile": false,
+        "proofChannel": "QGA guest-exec"
+      },
+      "isoIds": [
+        "1c0e894a-f880-4b9f-8a55-48f9c472861c"
+      ],
+      "snapshotId": "717c271a-86e7-4e08-a4ce-ee84bed115dd",
+      "snapshotReady": true,
+      "snapshotMemoryPreserved": true
+    },
+    {
+      "vmUuid": "e338decb-58bf-4ade-875b-e6e937c67f3c",
+      "name": "Ubuntu22-Process",
+      "state": "Running",
+      "ipv4": [
+        "10.10.254.170"
+      ],
+      "network": {
+        "managementPing": true,
+        "fixtureUnits": [],
+        "largeFixturePidFile": false,
+        "proofChannel": "QGA guest-exec"
+      },
+      "isoIds": [
+        "1c0e894a-f880-4b9f-8a55-48f9c472861c"
+      ],
+      "snapshotId": "bb2f3a80-4852-443a-94fa-f2a407bd6c99",
+      "snapshotReady": true,
+      "snapshotMemoryPreserved": true
+    },
+    {
+      "vmUuid": "dd0714e4-2110-48e9-b964-f63a58580ea3",
+      "name": "Debian12-Process",
+      "state": "Running",
+      "ipv4": [
+        "10.10.254.177"
+      ],
+      "network": {
+        "managementPing": true,
+        "fixtureUnits": [],
+        "largeFixturePidFile": false,
+        "proofChannel": "QGA guest-exec"
+      },
+      "isoIds": [
+        "0369f6c4-9eac-48d6-8f4d-0f2e18d69355"
+      ],
+      "snapshotId": "14ebcad0-7e89-42bc-b1b1-bbcfd226bf46",
+      "snapshotReady": true,
+      "snapshotMemoryPreserved": true
+    },
+    {
+      "vmUuid": "c35058bd-a596-477d-83f3-3dae6dbc53aa",
+      "name": "Debian13-Process",
+      "state": "Running",
+      "ipv4": [
+        "10.10.254.176"
+      ],
+      "network": {
+        "managementPing": true,
+        "fixtureUnits": [],
+        "largeFixturePidFile": false,
+        "proofChannel": "QGA guest-exec"
+      },
+      "isoIds": [
+        "0369f6c4-9eac-48d6-8f4d-0f2e18d69355"
+      ],
+      "snapshotId": "58ea64f0-eb82-4b7c-b60d-77e1dd571f3d",
+      "snapshotReady": true,
+      "snapshotMemoryPreserved": true
+    },
+    {
+      "vmUuid": "b5dfd5dc-ea95-409b-a80c-f670f0aca538",
+      "name": "Windows25-Process",
+      "state": "Running",
+      "ipv4": [
+        "10.10.254.154"
+      ],
+      "network": {
+        "fixtureProcesses": 0,
+        "managementPing": true,
+        "fixtureServices": 0,
+        "upAdapters": 1
+      },
+      "isoIds": [],
+      "snapshotId": "6039958b-0083-4239-9a72-e374922a9c58",
+      "snapshotReady": true,
+      "snapshotMemoryPreserved": true
+    },
+    {
+      "vmUuid": "413bffe3-9831-4bfd-81f5-4e34d6cf9d11",
+      "name": "Windows22-Process",
+      "state": "Running",
+      "ipv4": [
+        "10.10.254.156"
+      ],
+      "network": {
+        "fixtureProcesses": 0,
+        "managementPing": true,
+        "fixtureServices": 0,
+        "upAdapters": 1
+      },
+      "isoIds": [],
+      "snapshotId": "83c4bf24-0880-43c8-bc22-8ca522e4652d",
+      "snapshotReady": true,
+      "snapshotMemoryPreserved": true
+    },
+    {
+      "vmUuid": "4a84687b-475f-42cb-8f39-58f09d469d19",
+      "name": "Windows19-Process",
+      "state": "Running",
+      "ipv4": [
+        "10.10.254.173"
+      ],
+      "network": {
+        "fixtureProcesses": 0,
+        "managementPing": true,
+        "fixtureServices": 0,
+        "upAdapters": 1
+      },
+      "isoIds": [],
+      "snapshotId": "4d66ca95-65e0-412d-84fd-483c0d5d8eb7",
+      "snapshotReady": true,
+      "snapshotMemoryPreserved": true
+    },
+    {
+      "vmUuid": "26d02494-0fc2-4356-8eb3-414cc78adbe5",
+      "name": "Windows11-Process",
+      "state": "Running",
+      "ipv4": [
+        "10.10.254.178"
+      ],
+      "network": {
+        "fixtureProcesses": 0,
+        "managementPing": true,
+        "fixtureServices": 0,
+        "upAdapters": 1
+      },
+      "isoIds": [],
+      "snapshotId": "005e5162-fe00-41b5-8a58-7bc073baab55",
+      "snapshotReady": true,
+      "snapshotMemoryPreserved": true
+    }
+  ],
+  "final-host-health": [
+    {
+      "states": {
+        "mold-agent": "active",
+        "ablestack-vm-ftctl.timer": "inactive",
+        "ablestack-vm-hangctl.timer": "active"
+      },
+      "kvmPayload": {
+        "com/cloud/hypervisor/kvm/resource/VmProcessAdapterProbe.class": "66fcefb6d8b1cfb9cf4806f568bdd624abc7591a7a457b599cda47c5c32123a7",
+        "vm-process-readiness.ps1": "9ec1ae1a77dcde6f47634df21670f92270d1a153365234dc3335f12bbd86028e"
+      },
+      "ftctlScriptHashes": {
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/blockcopy.sh": "6db4aad920ab9dd3dfd219e3cb4a6770d9854e6c92a3c4c043b513d276f69dc4",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/cluster.sh": "e8ed0fafce70df7dace5aca8e7edf95f19974dffbc430f8ca94344d77cdc92c2",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/common.sh": "7c5af3e5a7cc999d8fa7eb062d4918961571fa88388345dacaf25789b83855e7",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/config.sh": "9762df23d1be7cb694cd797293f6b61cbf9bd5ffcc2da0745744efca471fb71c",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/failover.sh": "f1cd39dd6f7daada548fa33faa46a84cbf1dfc564d8925e311274efa5ca56b91",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/fencing.sh": "780b2df2c8e7d3050815de70bc64c3dd76e0f6451ca42f3e5728301e50d000da",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/inventory.sh": "6cd46aeb39f2c724102312ec599b7bf1d32fdac3f0c9419cd7915fb6da4cdd53",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/libvirt_wrap.sh": "365017ed3a082f965d731be0955bccd0e923a3402cb613c1e65d1002777f3ae6",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/logging.sh": "c32dffaa66f9657c19159a3d21c035a70680a97f688332f1b9a784f3188e109a",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/orchestrator.sh": "a2d6a3fa72eb746a72b655e35b87e7bf8480c8a8151ad5511df740420a7be72c",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/profile.sh": "6ff07b640dcb082064501103f7f8118d9a5e67937d2b74aadfac0acc7c0fc9d1",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/standby.sh": "8a98bf2d25058385348ac6fe65f1dbe8ea419618229b5d792c96fd7b6d11c34a",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/state.sh": "4d6f2f73a5f398e76ae5f9cf675bcb36656a59fe95835195b1bda7f3136e9e00",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/verify.sh": "ef2ce79a5820a5283b8aaf5be11085be17d5593647f107a2b2d00f93efc079d2",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/xcolo.sh": "d4db533c3a309c2d19f5863ca37f389568f779605f1c5eb98ce0e87a6f6e7608",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/systemd/ablestack-vm-ftctl.service": "91f065aabb0e9e4a4b5f4bf3a54aa6aaaa2dde0fb0f8e3535364d0db8eda8d85",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/systemd/ablestack-vm-ftctl.timer": "70da2be20b2217f0c917b02279511854c45f6c0dce5dbaca1859eb56d48b53fb",
+        "/usr/local/lib/ablestack-qemu-exec-tools/hangctl/actions.sh": "f7fffb6d68e668a163b5a970ab4050fe7746ae81a38f3aaef5b47f41ca5d379f",
+        "/usr/local/lib/ablestack-qemu-exec-tools/hangctl/cluster_guard.sh": "87c3a7515df33a06b7d69517a6b05e6bd0adabd6e9dd271c50ba008467355b4d",
+        "/usr/local/lib/ablestack-qemu-exec-tools/hangctl/common.sh": "7d0c69eee534c58e16a3c2e0021ac61fe1b21ec0b74562349e46b080c3df3daa",
+        "/usr/local/lib/ablestack-qemu-exec-tools/hangctl/config.sh": "cdf7df4174ad1f0eb87ab54f4eee34ced3fefcdaf716e5792b18e7a550d713b8",
+        "/usr/local/lib/ablestack-qemu-exec-tools/hangctl/detect.sh": "597e88e9b1de48ad1f4b919149b79a746fa04eae17b9f689c31946b2900a1acd",
+        "/usr/local/lib/ablestack-qemu-exec-tools/hangctl/evidence.sh": "92fad314f15e910dfa60e351d9343cf05fae910d5259ffd84d6d10a157f34fd5",
+        "/usr/local/lib/ablestack-qemu-exec-tools/hangctl/libvirt_wrap.sh": "0771beb8337f5523819bd3ca63c920b0ebfe8c6de5b37fbe3c0b587ea8e514ee",
+        "/usr/local/lib/ablestack-qemu-exec-tools/hangctl/logging.sh": "0a1d817f11bbefdd5ed06eb85fc784dcc8124ce8a7230b2aaabdc25bea56bfa3",
+        "/usr/local/lib/ablestack-qemu-exec-tools/hangctl/state_cache.sh": "29b0e8924347b3004eaac35131582f332419dea64456525fc2bb489e03a59b2d",
+        "/usr/local/lib/ablestack-qemu-exec-tools/hangctl/storage_guard.sh": "082a3219f23354c8047af5d0dce38f42977831082ff6905ff93a4c19dc5054c9",
+        "/usr/local/lib/ablestack-qemu-exec-tools/hangctl/systemd/ablestack-vm-hangctl.service": "a7967541f90a817f4b62e06e8843adf2effd225086deaf1827321f60ee95dbc0",
+        "/usr/local/lib/ablestack-qemu-exec-tools/hangctl/systemd/ablestack-vm-hangctl.timer": "2ab43758abac5a149378f3d032aa8f4e6c291f007104cabc3bc26c7863e7bb0d"
+      },
+      "runningVmUuids": [
+        "2d0f7b34-3006-40ee-bd6b-feeac7f80c00",
+        "2f35ea9a-7ff2-494f-a857-6527e0fb1976",
+        "3f135c5e-a3cf-4eec-9e90-51f3148c406d",
+        "c475abf7-2346-4015-9cef-001a78472c25",
+        "4cb71960-fc75-43e1-9830-8f4ee198def7",
+        "708d87cd-1d8a-4911-b22a-4211cdf1634f",
+        "c51bcc9c-e045-40d7-b215-e319b36c1d45",
+        "40f046e8-7433-4cc8-a0f0-1bc60513d222",
+        "81bd5ca1-63a4-4d24-ba76-4b117cb10e5c",
+        "4f4ed3f6-a07c-49ee-9d44-4057167bd4d5",
+        "a673e1d4-51d3-4dd9-9753-0632100d2dc0",
+        "b5dfd5dc-ea95-409b-a80c-f670f0aca538",
+        "4a84687b-475f-42cb-8f39-58f09d469d19",
+        "7884567b-8d11-407c-b8e3-3caaccbfc285",
+        "f4e21827-953a-44d8-8706-0c17250cfe5d",
+        ""
+      ],
+      "host": "10.10.31.1",
+      "ftctlTimerMatchesBaseline": true,
+      "ftctlHangctlFileHashesUnchanged": true
+    },
+    {
+      "states": {
+        "mold-agent": "active",
+        "ablestack-vm-ftctl.timer": "inactive",
+        "ablestack-vm-hangctl.timer": "active"
+      },
+      "kvmPayload": {
+        "com/cloud/hypervisor/kvm/resource/VmProcessAdapterProbe.class": "66fcefb6d8b1cfb9cf4806f568bdd624abc7591a7a457b599cda47c5c32123a7",
+        "vm-process-readiness.ps1": "9ec1ae1a77dcde6f47634df21670f92270d1a153365234dc3335f12bbd86028e"
+      },
+      "ftctlScriptHashes": {
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/blockcopy.sh": "6db4aad920ab9dd3dfd219e3cb4a6770d9854e6c92a3c4c043b513d276f69dc4",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/cluster.sh": "e8ed0fafce70df7dace5aca8e7edf95f19974dffbc430f8ca94344d77cdc92c2",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/common.sh": "7c5af3e5a7cc999d8fa7eb062d4918961571fa88388345dacaf25789b83855e7",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/config.sh": "9762df23d1be7cb694cd797293f6b61cbf9bd5ffcc2da0745744efca471fb71c",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/failover.sh": "f1cd39dd6f7daada548fa33faa46a84cbf1dfc564d8925e311274efa5ca56b91",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/fencing.sh": "780b2df2c8e7d3050815de70bc64c3dd76e0f6451ca42f3e5728301e50d000da",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/inventory.sh": "6cd46aeb39f2c724102312ec599b7bf1d32fdac3f0c9419cd7915fb6da4cdd53",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/libvirt_wrap.sh": "365017ed3a082f965d731be0955bccd0e923a3402cb613c1e65d1002777f3ae6",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/logging.sh": "c32dffaa66f9657c19159a3d21c035a70680a97f688332f1b9a784f3188e109a",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/orchestrator.sh": "a2d6a3fa72eb746a72b655e35b87e7bf8480c8a8151ad5511df740420a7be72c",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/profile.sh": "6ff07b640dcb082064501103f7f8118d9a5e67937d2b74aadfac0acc7c0fc9d1",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/standby.sh": "8a98bf2d25058385348ac6fe65f1dbe8ea419618229b5d792c96fd7b6d11c34a",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/state.sh": "4d6f2f73a5f398e76ae5f9cf675bcb36656a59fe95835195b1bda7f3136e9e00",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/verify.sh": "ef2ce79a5820a5283b8aaf5be11085be17d5593647f107a2b2d00f93efc079d2",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/xcolo.sh": "d4db533c3a309c2d19f5863ca37f389568f779605f1c5eb98ce0e87a6f6e7608",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/systemd/ablestack-vm-ftctl.service": "91f065aabb0e9e4a4b5f4bf3a54aa6aaaa2dde0fb0f8e3535364d0db8eda8d85",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/systemd/ablestack-vm-ftctl.timer": "70da2be20b2217f0c917b02279511854c45f6c0dce5dbaca1859eb56d48b53fb",
+        "/usr/local/lib/ablestack-qemu-exec-tools/hangctl/actions.sh": "f7fffb6d68e668a163b5a970ab4050fe7746ae81a38f3aaef5b47f41ca5d379f",
+        "/usr/local/lib/ablestack-qemu-exec-tools/hangctl/cluster_guard.sh": "87c3a7515df33a06b7d69517a6b05e6bd0adabd6e9dd271c50ba008467355b4d",
+        "/usr/local/lib/ablestack-qemu-exec-tools/hangctl/common.sh": "7d0c69eee534c58e16a3c2e0021ac61fe1b21ec0b74562349e46b080c3df3daa",
+        "/usr/local/lib/ablestack-qemu-exec-tools/hangctl/config.sh": "cdf7df4174ad1f0eb87ab54f4eee34ced3fefcdaf716e5792b18e7a550d713b8",
+        "/usr/local/lib/ablestack-qemu-exec-tools/hangctl/detect.sh": "597e88e9b1de48ad1f4b919149b79a746fa04eae17b9f689c31946b2900a1acd",
+        "/usr/local/lib/ablestack-qemu-exec-tools/hangctl/evidence.sh": "92fad314f15e910dfa60e351d9343cf05fae910d5259ffd84d6d10a157f34fd5",
+        "/usr/local/lib/ablestack-qemu-exec-tools/hangctl/libvirt_wrap.sh": "0771beb8337f5523819bd3ca63c920b0ebfe8c6de5b37fbe3c0b587ea8e514ee",
+        "/usr/local/lib/ablestack-qemu-exec-tools/hangctl/logging.sh": "0a1d817f11bbefdd5ed06eb85fc784dcc8124ce8a7230b2aaabdc25bea56bfa3",
+        "/usr/local/lib/ablestack-qemu-exec-tools/hangctl/state_cache.sh": "29b0e8924347b3004eaac35131582f332419dea64456525fc2bb489e03a59b2d",
+        "/usr/local/lib/ablestack-qemu-exec-tools/hangctl/storage_guard.sh": "082a3219f23354c8047af5d0dce38f42977831082ff6905ff93a4c19dc5054c9",
+        "/usr/local/lib/ablestack-qemu-exec-tools/hangctl/systemd/ablestack-vm-hangctl.service": "a7967541f90a817f4b62e06e8843adf2effd225086deaf1827321f60ee95dbc0",
+        "/usr/local/lib/ablestack-qemu-exec-tools/hangctl/systemd/ablestack-vm-hangctl.timer": "2ab43758abac5a149378f3d032aa8f4e6c291f007104cabc3bc26c7863e7bb0d"
+      },
+      "runningVmUuids": [
+        "73d8c359-6027-423b-b68f-a7cfd6864e7a",
+        "feb8ebca-c11b-4f0f-bf6c-eddf44577c65",
+        "97279d4d-929f-4ebb-bb03-6e9cba376653",
+        "dbdefe41-64a0-4ab1-a596-5d5f5131517c",
+        "630888e1-bcef-4b40-9952-b3409a664bae",
+        "06c6d7a7-f4da-4c2f-9a9b-c43cd015f6d9",
+        "f4be8cb2-f649-47ef-bcd2-7b59b71d5471",
+        "d3cd2c68-78e3-42dd-a944-7c5ce731e658",
+        "3ff1be7c-689c-4633-bcaa-060ccead098d",
+        "675696ba-a228-44c4-94c3-3c788808ce3d",
+        "77e627f0-c30c-41a1-9e4c-766eb13226de",
+        "f8c6597a-93d2-4b19-b694-5c0a6fe2c461",
+        "dd0714e4-2110-48e9-b964-f63a58580ea3",
+        "c35058bd-a596-477d-83f3-3dae6dbc53aa",
+        "26d02494-0fc2-4356-8eb3-414cc78adbe5",
+        ""
+      ],
+      "host": "10.10.31.2",
+      "ftctlTimerMatchesBaseline": true,
+      "ftctlHangctlFileHashesUnchanged": true
+    },
+    {
+      "states": {
+        "mold-agent": "active",
+        "ablestack-vm-ftctl.timer": "inactive",
+        "ablestack-vm-hangctl.timer": "active"
+      },
+      "kvmPayload": {
+        "com/cloud/hypervisor/kvm/resource/VmProcessAdapterProbe.class": "66fcefb6d8b1cfb9cf4806f568bdd624abc7591a7a457b599cda47c5c32123a7",
+        "vm-process-readiness.ps1": "9ec1ae1a77dcde6f47634df21670f92270d1a153365234dc3335f12bbd86028e"
+      },
+      "ftctlScriptHashes": {
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/blockcopy.sh": "6db4aad920ab9dd3dfd219e3cb4a6770d9854e6c92a3c4c043b513d276f69dc4",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/cluster.sh": "e8ed0fafce70df7dace5aca8e7edf95f19974dffbc430f8ca94344d77cdc92c2",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/common.sh": "7c5af3e5a7cc999d8fa7eb062d4918961571fa88388345dacaf25789b83855e7",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/config.sh": "9762df23d1be7cb694cd797293f6b61cbf9bd5ffcc2da0745744efca471fb71c",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/failover.sh": "f1cd39dd6f7daada548fa33faa46a84cbf1dfc564d8925e311274efa5ca56b91",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/fencing.sh": "780b2df2c8e7d3050815de70bc64c3dd76e0f6451ca42f3e5728301e50d000da",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/inventory.sh": "6cd46aeb39f2c724102312ec599b7bf1d32fdac3f0c9419cd7915fb6da4cdd53",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/libvirt_wrap.sh": "365017ed3a082f965d731be0955bccd0e923a3402cb613c1e65d1002777f3ae6",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/logging.sh": "c32dffaa66f9657c19159a3d21c035a70680a97f688332f1b9a784f3188e109a",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/orchestrator.sh": "a2d6a3fa72eb746a72b655e35b87e7bf8480c8a8151ad5511df740420a7be72c",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/profile.sh": "6ff07b640dcb082064501103f7f8118d9a5e67937d2b74aadfac0acc7c0fc9d1",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/standby.sh": "8a98bf2d25058385348ac6fe65f1dbe8ea419618229b5d792c96fd7b6d11c34a",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/state.sh": "4d6f2f73a5f398e76ae5f9cf675bcb36656a59fe95835195b1bda7f3136e9e00",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/verify.sh": "ef2ce79a5820a5283b8aaf5be11085be17d5593647f107a2b2d00f93efc079d2",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/xcolo.sh": "d4db533c3a309c2d19f5863ca37f389568f779605f1c5eb98ce0e87a6f6e7608",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/systemd/ablestack-vm-ftctl.service": "91f065aabb0e9e4a4b5f4bf3a54aa6aaaa2dde0fb0f8e3535364d0db8eda8d85",
+        "/usr/local/lib/ablestack-qemu-exec-tools/ftctl/systemd/ablestack-vm-ftctl.timer": "70da2be20b2217f0c917b02279511854c45f6c0dce5dbaca1859eb56d48b53fb",
+        "/usr/local/lib/ablestack-qemu-exec-tools/hangctl/actions.sh": "f7fffb6d68e668a163b5a970ab4050fe7746ae81a38f3aaef5b47f41ca5d379f",
+        "/usr/local/lib/ablestack-qemu-exec-tools/hangctl/cluster_guard.sh": "87c3a7515df33a06b7d69517a6b05e6bd0adabd6e9dd271c50ba008467355b4d",
+        "/usr/local/lib/ablestack-qemu-exec-tools/hangctl/common.sh": "7d0c69eee534c58e16a3c2e0021ac61fe1b21ec0b74562349e46b080c3df3daa",
+        "/usr/local/lib/ablestack-qemu-exec-tools/hangctl/config.sh": "cdf7df4174ad1f0eb87ab54f4eee34ced3fefcdaf716e5792b18e7a550d713b8",
+        "/usr/local/lib/ablestack-qemu-exec-tools/hangctl/detect.sh": "597e88e9b1de48ad1f4b919149b79a746fa04eae17b9f689c31946b2900a1acd",
+        "/usr/local/lib/ablestack-qemu-exec-tools/hangctl/evidence.sh": "92fad314f15e910dfa60e351d9343cf05fae910d5259ffd84d6d10a157f34fd5",
+        "/usr/local/lib/ablestack-qemu-exec-tools/hangctl/libvirt_wrap.sh": "0771beb8337f5523819bd3ca63c920b0ebfe8c6de5b37fbe3c0b587ea8e514ee",
+        "/usr/local/lib/ablestack-qemu-exec-tools/hangctl/logging.sh": "0a1d817f11bbefdd5ed06eb85fc784dcc8124ce8a7230b2aaabdc25bea56bfa3",
+        "/usr/local/lib/ablestack-qemu-exec-tools/hangctl/state_cache.sh": "29b0e8924347b3004eaac35131582f332419dea64456525fc2bb489e03a59b2d",
+        "/usr/local/lib/ablestack-qemu-exec-tools/hangctl/storage_guard.sh": "082a3219f23354c8047af5d0dce38f42977831082ff6905ff93a4c19dc5054c9",
+        "/usr/local/lib/ablestack-qemu-exec-tools/hangctl/systemd/ablestack-vm-hangctl.service": "a7967541f90a817f4b62e06e8843adf2effd225086deaf1827321f60ee95dbc0",
+        "/usr/local/lib/ablestack-qemu-exec-tools/hangctl/systemd/ablestack-vm-hangctl.timer": "2ab43758abac5a149378f3d032aa8f4e6c291f007104cabc3bc26c7863e7bb0d"
+      },
+      "runningVmUuids": [
+        "05f940bb-5ca7-4f58-8e41-ed8440758f0b",
+        "36d5333d-670a-4644-8c68-1f1dc154ba3a",
+        "1fdd690d-b0ca-45bf-9088-8534e409b866",
+        "9a2a9ac1-088e-40d5-b753-197a559b06e3",
+        "e7f843af-f39f-4a3e-b5fc-bcc458d40fe9",
+        "d035498e-5183-4364-9a69-aec8acdd87f5",
+        "3c6b30d4-2a3d-4336-b1cd-b2be6ec21204",
+        "dfdf8816-9099-4f4e-b351-1544a32db8e1",
+        "b51c954a-45fc-4fdd-a395-e1b3b5b5d367",
+        "c5ac0d8b-c004-4040-8334-d57586eee4c7",
+        "2785322f-54d0-4a5d-bf42-59bef03635d4",
+        "04125c04-cfa5-4f43-be41-39e3c7d536d3",
+        "b2f056be-8072-4067-b84a-da4180ccfe64",
+        "785fcdf7-2d4e-4e76-97c9-e1ccea9900fe",
+        "e0940f20-822d-4803-bf23-d82d0cac5240",
+        "1203c136-d6dd-4574-8294-b58729c3e73c",
+        "4c30b5a2-1795-4e5f-aa57-7bf640e47283",
+        "e338decb-58bf-4ade-875b-e6e937c67f3c",
+        "413bffe3-9831-4bfd-81f5-4e34d6cf9d11",
+        "2af1c5fb-31b8-4722-9a3a-1ad0094f5bea",
+        "355ca4c6-6005-4d1f-9c12-3e1204dc50af",
+        "90af4c7f-298f-4b43-afc3-8192f8ee13e0",
+        "c70dd098-6687-4607-a7b3-d7efdb7292c1",
+        "7008b496-0e99-40f4-ad60-28883b0c90d3",
+        "e5162e60-e0f5-4c53-8991-b6b0f9111713",
+        "1c7eba3b-b819-46eb-b3b8-81a92b792f0a",
+        ""
+      ],
+      "host": "10.10.31.3",
+      "ftctlTimerMatchesBaseline": true,
+      "ftctlHangctlFileHashesUnchanged": true
+    }
+  ],
+  "final-operation-health": {
+    "activeProcessOperations": 0,
+    "targetVmCount": 12,
+    "hostMarkers": [
+      {
+        "host": "10.10.31.1",
+        "remainingMarkers": []
+      },
+      {
+        "host": "10.10.31.2",
+        "remainingMarkers": []
+      },
+      {
+        "host": "10.10.31.3",
+        "remainingMarkers": []
+      }
+    ],
+    "globalFlag": "true"
+  },
+  "kvm-deployment": [
+    {
+      "host": "10.10.31.1",
+      "manifest": {
+        "com/cloud/hypervisor/kvm/resource/VmProcessAdapterProbe.class": "66fcefb6d8b1cfb9cf4806f568bdd624abc7591a7a457b599cda47c5c32123a7",
+        "vm-process-readiness.ps1": "9ec1ae1a77dcde6f47634df21670f92270d1a153365234dc3335f12bbd86028e"
+      },
+      "deploy": "BACKUP /root/cloud1177-kvm-20261001-123851\nPREPARED cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202609222315.jar 2 04e0e58b594683b4ee47e4c82ff3b656c09b32141971a392f38b0f202d88615d\nINSTALLED_BYTES_MATCH cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202609222315.jar 2\nSERVICE_ACTIVE mold-agent\n",
+      "vmInventoryAndTimersUnchanged": true
+    },
+    {
+      "host": "10.10.31.2",
+      "manifest": {
+        "com/cloud/hypervisor/kvm/resource/VmProcessAdapterProbe.class": "66fcefb6d8b1cfb9cf4806f568bdd624abc7591a7a457b599cda47c5c32123a7",
+        "vm-process-readiness.ps1": "9ec1ae1a77dcde6f47634df21670f92270d1a153365234dc3335f12bbd86028e"
+      },
+      "deploy": "BACKUP /root/cloud1177-kvm-20261001-123855\nPREPARED cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202609222315.jar 2 89d5a3ef12df3768d77d780e4fa0598b900bf2758a108b05be6b502063e75974\nINSTALLED_BYTES_MATCH cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202609222315.jar 2\nSERVICE_ACTIVE mold-agent\n",
+      "vmInventoryAndTimersUnchanged": true
+    },
+    {
+      "host": "10.10.31.3",
+      "manifest": {
+        "com/cloud/hypervisor/kvm/resource/VmProcessAdapterProbe.class": "66fcefb6d8b1cfb9cf4806f568bdd624abc7591a7a457b599cda47c5c32123a7",
+        "vm-process-readiness.ps1": "9ec1ae1a77dcde6f47634df21670f92270d1a153365234dc3335f12bbd86028e"
+      },
+      "deploy": "BACKUP /root/cloud1177-kvm-20261001-123858\nPREPARED cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202609222315.jar 2 9171b71f1fa120bc6b935dbb90be09624e0877dcc69374e8fc5fbb16e2ae0faa\nINSTALLED_BYTES_MATCH cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202609222315.jar 2\nSERVICE_ACTIVE mold-agent\n",
+      "vmInventoryAndTimersUnchanged": true
+    }
+  ],
+  "server-deployment-health": {
+    "classSha256": "8bbd033943fae42c89b6ddeaf869c6f883552d88d8e4ea5a81807daebf5e6031",
+    "service": "active",
+    "webInf": true,
+    "http": "200",
+    "backups": [
+      "/root/cloud1177-server-20261001-121639"
+    ]
+  },
+  "ui-deployment": {
+    "backup": "/root/cloud1177-ui-20261001-133658",
+    "files": 832,
+    "webinf": true,
+    "metaInfPreserved": true,
+    "configPreserved": true,
+    "pidPreserved": true,
+    "httpStatus": 200
+  },
+  "read-lease-reconciliation": {
+    "statusProof": {
+      "exitCode": 0,
+      "error": "",
+      "exited": true,
+      "rpcError": null,
+      "outputBytes": 280731
+    },
+    "result": {
+      "vmUuid": "b2f056be-8072-4067-b84a-da4180ccfe64",
+      "requestId": "9a7c0dd3-27d1-406b-8aee-2fd33c7d488b",
+      "guestExecPid": 59622,
+      "guestCompletionVerified": true,
+      "removed": true,
+      "proofSource": "original guest-exec-status observed exited=true"
+    }
+  },
+  "read-lease-tool-integration": {
+    "created": {
+      "requestId": "82b5697c-07c0-4287-8c88-3f46b9d2476f",
+      "guestExecPid": 81114
+    },
+    "result": {
+      "vmUuid": "b2f056be-8072-4067-b84a-da4180ccfe64",
+      "requestId": "82b5697c-07c0-4287-8c88-3f46b9d2476f",
+      "guestExecPid": 81114,
+      "removed": true,
+      "guestCompletionVerified": true
+    },
+    "fixtureReadOnly": true
+  },
+  "windows-ui-plain-postcondition": {
+    "exists": false,
+    "pid": 4532
+  },
+  "actionMatrix": [
+    {
+      "vmUuid": "77e627f0-c30c-41a1-9e4c-766eb13226de",
+      "name": "Rocky10-Process",
+      "command": "terminateVirtualMachineProcess",
+      "requestId": "243f1f97-267e-42cf-a44b-45f7d222af64",
+      "operationId": "9f785a73-0a84-40d4-b0f8-9d5ca14767d8",
+      "state": "SUCCEEDED",
+      "effect": "VERIFIED",
+      "identity": {
+        "bootId": "linux:83819543-9a1b-494c-80d5-5afc0f650878",
+        "pid": 9502.0,
+        "startTicks": "4072846",
+        "vmUuid": "77e627f0-c30c-41a1-9e4c-766eb13226de"
+      },
+      "postcondition": "TARGET_EXITED",
+      "guestPostconditionVerified": true,
+      "guestBefore": null,
+      "guestAfter": null
+    },
+    {
+      "vmUuid": "77e627f0-c30c-41a1-9e4c-766eb13226de",
+      "name": "Rocky10-Process",
+      "command": "killVirtualMachineProcess",
+      "requestId": "a532324b-3a6a-49d8-a469-e97f0ba89240",
+      "operationId": "8274bd10-8f08-4413-9796-34e222cc174c",
+      "state": "SUCCEEDED",
+      "effect": "VERIFIED",
+      "identity": {
+        "bootId": "linux:83819543-9a1b-494c-80d5-5afc0f650878",
+        "pid": 9624.0,
+        "startTicks": "4073159",
+        "vmUuid": "77e627f0-c30c-41a1-9e4c-766eb13226de"
+      },
+      "postcondition": "TARGET_EXITED",
+      "guestPostconditionVerified": true,
+      "guestBefore": null,
+      "guestAfter": null
+    },
+    {
+      "vmUuid": "77e627f0-c30c-41a1-9e4c-766eb13226de",
+      "name": "Rocky10-Process",
+      "command": "restartVirtualMachineService",
+      "requestId": "e25ed379-b9cd-4ff9-9ab6-5af7e5b71da9",
+      "operationId": "c1d69767-4684-442a-93ef-17d6a927d42d",
+      "state": "SUCCEEDED",
+      "effect": "VERIFIED",
+      "identity": {
+        "bootId": "linux:83819543-9a1b-494c-80d5-5afc0f650878",
+        "pid": 9792.0,
+        "startTicks": "4073697",
+        "vmUuid": "77e627f0-c30c-41a1-9e4c-766eb13226de"
+      },
+      "postcondition": "SERVICE_RESTART_VERIFIED",
+      "guestPostconditionVerified": true,
+      "guestBefore": "MainPID=9792\nInvocationID=27aac4c6fa9e4f3784e7af61e9cf52b9\n",
+      "guestAfter": "MainPID=9857\nActiveState=active\nInvocationID=626c849bf4354e77a034d1d7fbb67cd8\n"
+    },
+    {
+      "vmUuid": "81bd5ca1-63a4-4d24-ba76-4b117cb10e5c",
+      "name": "Rocky9-Process",
+      "command": "terminateVirtualMachineProcess",
+      "requestId": "e3b963fa-ec11-4e71-ab97-b34c5c4f61cf",
+      "operationId": "e7dd9f1d-6918-4d07-b1a4-4431b0578e07",
+      "state": "SUCCEEDED",
+      "effect": "VERIFIED",
+      "identity": {
+        "bootId": "linux:4bc97502-225a-4030-9644-f64867dc16ec",
+        "pid": 7546.0,
+        "startTicks": "3812638",
+        "vmUuid": "81bd5ca1-63a4-4d24-ba76-4b117cb10e5c"
+      },
+      "postcondition": "TARGET_EXITED",
+      "guestPostconditionVerified": true,
+      "guestBefore": null,
+      "guestAfter": null
+    },
+    {
+      "vmUuid": "81bd5ca1-63a4-4d24-ba76-4b117cb10e5c",
+      "name": "Rocky9-Process",
+      "command": "killVirtualMachineProcess",
+      "requestId": "5eab6cae-cd5c-4b76-9725-a511091f23b8",
+      "operationId": "f19d3edd-40c4-4def-9509-70419bdb93f3",
+      "state": "SUCCEEDED",
+      "effect": "VERIFIED",
+      "identity": {
+        "bootId": "linux:4bc97502-225a-4030-9644-f64867dc16ec",
+        "pid": 7649.0,
+        "startTicks": "3812836",
+        "vmUuid": "81bd5ca1-63a4-4d24-ba76-4b117cb10e5c"
+      },
+      "postcondition": "TARGET_EXITED",
+      "guestPostconditionVerified": true,
+      "guestBefore": null,
+      "guestAfter": null
+    },
+    {
+      "vmUuid": "81bd5ca1-63a4-4d24-ba76-4b117cb10e5c",
+      "name": "Rocky9-Process",
+      "command": "restartVirtualMachineService",
+      "requestId": "b0ef95f2-25ec-4266-91bb-f41b025b23ea",
+      "operationId": "267c7819-1f97-444b-b9ff-4894aa9483ed",
+      "state": "SUCCEEDED",
+      "effect": "VERIFIED",
+      "identity": {
+        "bootId": "linux:4bc97502-225a-4030-9644-f64867dc16ec",
+        "pid": 7786.0,
+        "startTicks": "3813464",
+        "vmUuid": "81bd5ca1-63a4-4d24-ba76-4b117cb10e5c"
+      },
+      "postcondition": "SERVICE_RESTART_VERIFIED",
+      "guestPostconditionVerified": true,
+      "guestBefore": "MainPID=7786\nInvocationID=c84df64fd4c94380886ff305a8f9f7fa\n",
+      "guestAfter": "MainPID=7846\nActiveState=active\nInvocationID=0eca72f005f7454e87886461f46d2d86\n"
+    },
+    {
+      "vmUuid": "b2f056be-8072-4067-b84a-da4180ccfe64",
+      "name": "Rocky8-Process",
+      "command": "terminateVirtualMachineProcess",
+      "requestId": "d523de29-539e-4152-8462-f828ca7766c7",
+      "operationId": "6e7539e5-1206-4d61-9493-264372fc5193",
+      "state": "SUCCEEDED",
+      "effect": "VERIFIED",
+      "identity": {
+        "bootId": "linux:b09a3532-6871-443e-90ef-78ead3198a1f",
+        "pid": 34829.0,
+        "startTicks": "3796457",
+        "vmUuid": "b2f056be-8072-4067-b84a-da4180ccfe64"
+      },
+      "postcondition": "TARGET_EXITED",
+      "guestPostconditionVerified": true,
+      "guestBefore": null,
+      "guestAfter": null
+    },
+    {
+      "vmUuid": "b2f056be-8072-4067-b84a-da4180ccfe64",
+      "name": "Rocky8-Process",
+      "command": "killVirtualMachineProcess",
+      "requestId": "e5a89a31-4d8a-40cc-9fda-22749a85e1c9",
+      "operationId": "92bf3349-88d5-46c5-9cf8-d0cb6d66db5d",
+      "state": "SUCCEEDED",
+      "effect": "VERIFIED",
+      "identity": {
+        "bootId": "linux:b09a3532-6871-443e-90ef-78ead3198a1f",
+        "pid": 34915.0,
+        "startTicks": "3796686",
+        "vmUuid": "b2f056be-8072-4067-b84a-da4180ccfe64"
+      },
+      "postcondition": "TARGET_EXITED",
+      "guestPostconditionVerified": true,
+      "guestBefore": null,
+      "guestAfter": null
+    },
+    {
+      "vmUuid": "b2f056be-8072-4067-b84a-da4180ccfe64",
+      "name": "Rocky8-Process",
+      "command": "restartVirtualMachineService",
+      "requestId": "f52f46aa-96c2-45a5-8cd6-ae76ecaa38d9",
+      "operationId": "21f96b8f-8102-48b1-9db4-14adf3de48b5",
+      "state": "SUCCEEDED",
+      "effect": "VERIFIED",
+      "identity": {
+        "bootId": "linux:b09a3532-6871-443e-90ef-78ead3198a1f",
+        "pid": 35552.0,
+        "startTicks": "3797304",
+        "vmUuid": "b2f056be-8072-4067-b84a-da4180ccfe64"
+      },
+      "postcondition": "SERVICE_RESTART_VERIFIED",
+      "guestPostconditionVerified": true,
+      "guestBefore": "MainPID=35552\nInvocationID=3d2db324c1674ca0a288f492bb4a6547\n",
+      "guestAfter": "MainPID=36142\nActiveState=active\nInvocationID=d17a438623504b6fbe98fc3fb12a33f4\n"
+    },
+    {
+      "vmUuid": "785fcdf7-2d4e-4e76-97c9-e1ccea9900fe",
+      "name": "Ubuntu26-Process",
+      "command": "terminateVirtualMachineProcess",
+      "requestId": "836632e9-4f68-439e-a457-b4acb0e52fe0",
+      "operationId": "456396f6-6727-4a0a-9e39-ffa653534f28",
+      "state": "SUCCEEDED",
+      "effect": "VERIFIED",
+      "identity": {
+        "bootId": "linux:1c40cadd-34c3-4ccc-8b61-ce79f1e05a0b",
+        "pid": 2302.0,
+        "startTicks": "799888",
+        "vmUuid": "785fcdf7-2d4e-4e76-97c9-e1ccea9900fe"
+      },
+      "postcondition": "TARGET_EXITED",
+      "guestPostconditionVerified": true,
+      "guestBefore": null,
+      "guestAfter": null
+    },
+    {
+      "vmUuid": "785fcdf7-2d4e-4e76-97c9-e1ccea9900fe",
+      "name": "Ubuntu26-Process",
+      "command": "killVirtualMachineProcess",
+      "requestId": "5820b42c-fcbe-4b2a-a0ce-cae12f3c2d2b",
+      "operationId": "58102a45-5d54-4005-a957-e5f076f48a97",
+      "state": "SUCCEEDED",
+      "effect": "VERIFIED",
+      "identity": {
+        "bootId": "linux:1c40cadd-34c3-4ccc-8b61-ce79f1e05a0b",
+        "pid": 2314.0,
+        "startTicks": "800274",
+        "vmUuid": "785fcdf7-2d4e-4e76-97c9-e1ccea9900fe"
+      },
+      "postcondition": "TARGET_EXITED",
+      "guestPostconditionVerified": true,
+      "guestBefore": null,
+      "guestAfter": null
+    },
+    {
+      "vmUuid": "785fcdf7-2d4e-4e76-97c9-e1ccea9900fe",
+      "name": "Ubuntu26-Process",
+      "command": "restartVirtualMachineService",
+      "requestId": "5d0d674b-ecd4-4e50-869b-00dcc574a2d5",
+      "operationId": "bfbd6338-f92c-468f-834b-4570d4328240",
+      "state": "SUCCEEDED",
+      "effect": "VERIFIED",
+      "identity": {
+        "bootId": "linux:1c40cadd-34c3-4ccc-8b61-ce79f1e05a0b",
+        "pid": 2380.0,
+        "startTicks": "800884",
+        "vmUuid": "785fcdf7-2d4e-4e76-97c9-e1ccea9900fe"
+      },
+      "postcondition": "SERVICE_RESTART_VERIFIED",
+      "guestPostconditionVerified": true,
+      "guestBefore": "InvocationID=97170f6fa1d24239928a87ff1277e2b0\nMainPID=2380\n",
+      "guestAfter": "ActiveState=active\nInvocationID=86835501a4dc4c0dae6289b86df8cb9f\nMainPID=2395\n"
+    },
+    {
+      "vmUuid": "90af4c7f-298f-4b43-afc3-8192f8ee13e0",
+      "name": "Ubuntu24-Process",
+      "command": "terminateVirtualMachineProcess",
+      "requestId": "9fff2bae-f107-42c6-8f79-c611a91f390e",
+      "operationId": "c4bac985-9ab3-4f94-8d21-215c5e8bd106",
+      "state": "SUCCEEDED",
+      "effect": "VERIFIED",
+      "identity": {
+        "bootId": "linux:90e8513d-e72f-4f1a-8555-97a3a683d98f",
+        "pid": 2263.0,
+        "startTicks": "806109",
+        "vmUuid": "90af4c7f-298f-4b43-afc3-8192f8ee13e0"
+      },
+      "postcondition": "TARGET_EXITED",
+      "guestPostconditionVerified": true,
+      "guestBefore": null,
+      "guestAfter": null
+    },
+    {
+      "vmUuid": "90af4c7f-298f-4b43-afc3-8192f8ee13e0",
+      "name": "Ubuntu24-Process",
+      "command": "killVirtualMachineProcess",
+      "requestId": "f4bb8fd9-3240-4b89-b729-970a363e00cd",
+      "operationId": "02a22a82-c08f-448d-9a07-23ce174f7fb7",
+      "state": "SUCCEEDED",
+      "effect": "VERIFIED",
+      "identity": {
+        "bootId": "linux:90e8513d-e72f-4f1a-8555-97a3a683d98f",
+        "pid": 2275.0,
+        "startTicks": "806393",
+        "vmUuid": "90af4c7f-298f-4b43-afc3-8192f8ee13e0"
+      },
+      "postcondition": "TARGET_EXITED",
+      "guestPostconditionVerified": true,
+      "guestBefore": null,
+      "guestAfter": null
+    },
+    {
+      "vmUuid": "90af4c7f-298f-4b43-afc3-8192f8ee13e0",
+      "name": "Ubuntu24-Process",
+      "command": "restartVirtualMachineService",
+      "requestId": "c427c445-2aae-436d-89b7-bc197c19e6dc",
+      "operationId": "df6d3fbf-f198-4d82-ad24-f8af6662d028",
+      "state": "SUCCEEDED",
+      "effect": "VERIFIED",
+      "identity": {
+        "bootId": "linux:90e8513d-e72f-4f1a-8555-97a3a683d98f",
+        "pid": 2332.0,
+        "startTicks": "807102",
+        "vmUuid": "90af4c7f-298f-4b43-afc3-8192f8ee13e0"
+      },
+      "postcondition": "SERVICE_RESTART_VERIFIED",
+      "guestPostconditionVerified": true,
+      "guestBefore": "MainPID=2332\nInvocationID=b05c69c39c3f4b85a40a904931648500\n",
+      "guestAfter": "MainPID=2355\nActiveState=active\nInvocationID=0fecc9e358a2456bbb78565a7de0d477\n"
+    },
+    {
+      "vmUuid": "e338decb-58bf-4ade-875b-e6e937c67f3c",
+      "name": "Ubuntu22-Process",
+      "command": "terminateVirtualMachineProcess",
+      "requestId": "39b4f715-0f5f-472e-b6c9-ab7b3953d1b9",
+      "operationId": "50f4735c-d55e-4854-99ef-524df9dcd0a0",
+      "state": "SUCCEEDED",
+      "effect": "VERIFIED",
+      "identity": {
+        "bootId": "linux:220ae5fc-bea0-4412-bbcc-917ecfbd98b1",
+        "pid": 2442.0,
+        "startTicks": "767891",
+        "vmUuid": "e338decb-58bf-4ade-875b-e6e937c67f3c"
+      },
+      "postcondition": "TARGET_EXITED",
+      "guestPostconditionVerified": true,
+      "guestBefore": null,
+      "guestAfter": null
+    },
+    {
+      "vmUuid": "e338decb-58bf-4ade-875b-e6e937c67f3c",
+      "name": "Ubuntu22-Process",
+      "command": "killVirtualMachineProcess",
+      "requestId": "8206efd0-86bd-40d5-95d6-90303fbc4470",
+      "operationId": "2ffb30b4-5809-4ca3-a76b-d5590db3a571",
+      "state": "SUCCEEDED",
+      "effect": "VERIFIED",
+      "identity": {
+        "bootId": "linux:220ae5fc-bea0-4412-bbcc-917ecfbd98b1",
+        "pid": 2454.0,
+        "startTicks": "768173",
+        "vmUuid": "e338decb-58bf-4ade-875b-e6e937c67f3c"
+      },
+      "postcondition": "TARGET_EXITED",
+      "guestPostconditionVerified": true,
+      "guestBefore": null,
+      "guestAfter": null
+    },
+    {
+      "vmUuid": "e338decb-58bf-4ade-875b-e6e937c67f3c",
+      "name": "Ubuntu22-Process",
+      "command": "restartVirtualMachineService",
+      "requestId": "23be57a5-0d58-4296-a044-5206377ef371",
+      "operationId": "dae31eac-6dbc-4a57-a42b-e76296115156",
+      "state": "SUCCEEDED",
+      "effect": "VERIFIED",
+      "identity": {
+        "bootId": "linux:220ae5fc-bea0-4412-bbcc-917ecfbd98b1",
+        "pid": 2501.0,
+        "startTicks": "768890",
+        "vmUuid": "e338decb-58bf-4ade-875b-e6e937c67f3c"
+      },
+      "postcondition": "SERVICE_RESTART_VERIFIED",
+      "guestPostconditionVerified": true,
+      "guestBefore": "MainPID=2501\nInvocationID=a7cb79720ec941ba98d08f4b2fc37d8e\n",
+      "guestAfter": "MainPID=2549\nActiveState=active\nInvocationID=35f56b9b54ee4bdcad1d3d23a0b6dcec\n"
+    },
+    {
+      "vmUuid": "dd0714e4-2110-48e9-b964-f63a58580ea3",
+      "name": "Debian12-Process",
+      "command": "terminateVirtualMachineProcess",
+      "requestId": "d159ffb3-2929-47ec-9208-1196065a4402",
+      "operationId": "ced5a771-6710-4607-b0d7-65a5a0f66299",
+      "state": "SUCCEEDED",
+      "effect": "VERIFIED",
+      "identity": {
+        "bootId": "linux:9f736b04-2fca-487e-846f-a4557765e8ec",
+        "pid": 1996.0,
+        "startTicks": "687814",
+        "vmUuid": "dd0714e4-2110-48e9-b964-f63a58580ea3"
+      },
+      "postcondition": "TARGET_EXITED",
+      "guestPostconditionVerified": true,
+      "guestBefore": null,
+      "guestAfter": null
+    },
+    {
+      "vmUuid": "dd0714e4-2110-48e9-b964-f63a58580ea3",
+      "name": "Debian12-Process",
+      "command": "killVirtualMachineProcess",
+      "requestId": "93337e94-3ada-4581-acd9-c42e8b7532c3",
+      "operationId": "3a126b06-0b10-4f31-924e-13ce1422abc2",
+      "state": "SUCCEEDED",
+      "effect": "VERIFIED",
+      "identity": {
+        "bootId": "linux:9f736b04-2fca-487e-846f-a4557765e8ec",
+        "pid": 2008.0,
+        "startTicks": "688089",
+        "vmUuid": "dd0714e4-2110-48e9-b964-f63a58580ea3"
+      },
+      "postcondition": "TARGET_EXITED",
+      "guestPostconditionVerified": true,
+      "guestBefore": null,
+      "guestAfter": null
+    },
+    {
+      "vmUuid": "dd0714e4-2110-48e9-b964-f63a58580ea3",
+      "name": "Debian12-Process",
+      "command": "restartVirtualMachineService",
+      "requestId": "2ec2419f-afbd-4604-bf9c-3d42d8b04bb1",
+      "operationId": "7db17fcb-c22d-491d-b49a-a9e2c03a8f7c",
+      "state": "SUCCEEDED",
+      "effect": "VERIFIED",
+      "identity": {
+        "bootId": "linux:9f736b04-2fca-487e-846f-a4557765e8ec",
+        "pid": 2035.0,
+        "startTicks": "688787",
+        "vmUuid": "dd0714e4-2110-48e9-b964-f63a58580ea3"
+      },
+      "postcondition": "SERVICE_RESTART_VERIFIED",
+      "guestPostconditionVerified": true,
+      "guestBefore": "MainPID=2035\nInvocationID=60379faab1ec4a068d8255571c3abb4a\n",
+      "guestAfter": "MainPID=2049\nActiveState=active\nInvocationID=144d170dbb8840a8b08cccb4cdcaa75e\n"
+    },
+    {
+      "vmUuid": "c35058bd-a596-477d-83f3-3dae6dbc53aa",
+      "name": "Debian13-Process",
+      "command": "terminateVirtualMachineProcess",
+      "requestId": "725dfb5a-5794-47cc-9804-865f14dd225c",
+      "operationId": "3930f3b2-034a-43dc-8ffa-4688fe03faa5",
+      "state": "SUCCEEDED",
+      "effect": "VERIFIED",
+      "identity": {
+        "bootId": "linux:ad031eaa-2a6f-45cf-9f39-c8979dc16b08",
+        "pid": 3821.0,
+        "startTicks": "693704",
+        "vmUuid": "c35058bd-a596-477d-83f3-3dae6dbc53aa"
+      },
+      "postcondition": "TARGET_EXITED",
+      "guestPostconditionVerified": true,
+      "guestBefore": null,
+      "guestAfter": null
+    },
+    {
+      "vmUuid": "c35058bd-a596-477d-83f3-3dae6dbc53aa",
+      "name": "Debian13-Process",
+      "command": "killVirtualMachineProcess",
+      "requestId": "ef5b39f3-111a-4a7b-80bd-2498a99cbd2d",
+      "operationId": "4c9853d9-6e49-4f5e-a00a-7817adf085d8",
+      "state": "SUCCEEDED",
+      "effect": "VERIFIED",
+      "identity": {
+        "bootId": "linux:ad031eaa-2a6f-45cf-9f39-c8979dc16b08",
+        "pid": 3833.0,
+        "startTicks": "693981",
+        "vmUuid": "c35058bd-a596-477d-83f3-3dae6dbc53aa"
+      },
+      "postcondition": "TARGET_EXITED",
+      "guestPostconditionVerified": true,
+      "guestBefore": null,
+      "guestAfter": null
+    },
+    {
+      "vmUuid": "c35058bd-a596-477d-83f3-3dae6dbc53aa",
+      "name": "Debian13-Process",
+      "command": "restartVirtualMachineService",
+      "requestId": "29141915-f4dc-4de0-badc-31e591bbd38b",
+      "operationId": "c6deac8a-3552-4e2d-80e5-337c6585783c",
+      "state": "SUCCEEDED",
+      "effect": "VERIFIED",
+      "identity": {
+        "bootId": "linux:ad031eaa-2a6f-45cf-9f39-c8979dc16b08",
+        "pid": 3919.0,
+        "startTicks": "694685",
+        "vmUuid": "c35058bd-a596-477d-83f3-3dae6dbc53aa"
+      },
+      "postcondition": "SERVICE_RESTART_VERIFIED",
+      "guestPostconditionVerified": true,
+      "guestBefore": "MainPID=3919\nInvocationID=60c4cb75bd554b6bbbd93bb67c47c1bd\n",
+      "guestAfter": "MainPID=3934\nActiveState=active\nInvocationID=6a4b8130292f48d0a013764eb3a1dd54\n"
+    },
+    {
+      "vmUuid": "b5dfd5dc-ea95-409b-a80c-f670f0aca538",
+      "name": "Windows25-Process",
+      "command": "killVirtualMachineProcess",
+      "requestId": "e52ce8d7-e6a6-4fa3-b0d0-045031447837",
+      "operationId": "560399cc-a6de-4592-9bf0-6a6405f0a9b2",
+      "state": "SUCCEEDED",
+      "effect": "VERIFIED",
+      "identity": {
+        "vmUuid": "b5dfd5dc-ea95-409b-a80c-f670f0aca538",
+        "bootId": "windows:134352983355525150",
+        "pid": 5680.0,
+        "startTicks": "134352995798867118"
+      },
+      "postcondition": "TARGET_EXITED",
+      "guestPostconditionVerified": true,
+      "guestBefore": null,
+      "guestAfter": null
+    },
+    {
+      "vmUuid": "b5dfd5dc-ea95-409b-a80c-f670f0aca538",
+      "name": "Windows25-Process",
+      "command": "restartVirtualMachineService",
+      "requestId": "ce93c5b7-b1a6-4471-b399-cfbc35a241ef",
+      "operationId": "42d09780-8f44-42ee-a46c-ba47f82a2399",
+      "state": "SUCCEEDED",
+      "effect": "VERIFIED",
+      "identity": {
+        "vmUuid": "b5dfd5dc-ea95-409b-a80c-f670f0aca538",
+        "bootId": "windows:134352983355525150",
+        "pid": 1272.0,
+        "startTicks": "134352995873915021"
+      },
+      "postcondition": "SERVICE_RESTART_VERIFIED",
+      "guestPostconditionVerified": true,
+      "guestBefore": null,
+      "guestAfter": {
+        "state": "Running",
+        "pid": 5524
+      }
+    },
+    {
+      "vmUuid": "413bffe3-9831-4bfd-81f5-4e34d6cf9d11",
+      "name": "Windows22-Process",
+      "command": "killVirtualMachineProcess",
+      "requestId": "55749573-150c-4a72-94f0-4c7ff18f0093",
+      "operationId": "70c15f1d-d48b-4e02-8b36-78f8268ecbfb",
+      "state": "SUCCEEDED",
+      "effect": "VERIFIED",
+      "identity": {
+        "vmUuid": "413bffe3-9831-4bfd-81f5-4e34d6cf9d11",
+        "bootId": "windows:134352927041062150",
+        "pid": 6512.0,
+        "startTicks": "134352996033120213"
+      },
+      "postcondition": "TARGET_EXITED",
+      "guestPostconditionVerified": true,
+      "guestBefore": null,
+      "guestAfter": null
+    },
+    {
+      "vmUuid": "413bffe3-9831-4bfd-81f5-4e34d6cf9d11",
+      "name": "Windows22-Process",
+      "command": "restartVirtualMachineService",
+      "requestId": "c42d976d-a6b3-4849-ac55-473de04e210e",
+      "operationId": "e3b48266-db65-40e7-b524-a81ac2c8cef9",
+      "state": "SUCCEEDED",
+      "effect": "VERIFIED",
+      "identity": {
+        "vmUuid": "413bffe3-9831-4bfd-81f5-4e34d6cf9d11",
+        "bootId": "windows:134352927041062150",
+        "pid": 4620.0,
+        "startTicks": "134352996127753463"
+      },
+      "postcondition": "SERVICE_RESTART_VERIFIED",
+      "guestPostconditionVerified": true,
+      "guestBefore": null,
+      "guestAfter": {
+        "state": "Running",
+        "pid": 3752
+      }
+    },
+    {
+      "vmUuid": "4a84687b-475f-42cb-8f39-58f09d469d19",
+      "name": "Windows19-Process",
+      "command": "killVirtualMachineProcess",
+      "requestId": "0a8791ea-531f-47ea-834e-c727405a743b",
+      "operationId": "782a2b8c-693e-411d-968a-71cc4b64b3b0",
+      "state": "SUCCEEDED",
+      "effect": "VERIFIED",
+      "identity": {
+        "vmUuid": "4a84687b-475f-42cb-8f39-58f09d469d19",
+        "bootId": "windows:134352928361509000",
+        "pid": 6076.0,
+        "startTicks": "134352996298793629"
+      },
+      "postcondition": "TARGET_EXITED",
+      "guestPostconditionVerified": true,
+      "guestBefore": null,
+      "guestAfter": null
+    },
+    {
+      "vmUuid": "4a84687b-475f-42cb-8f39-58f09d469d19",
+      "name": "Windows19-Process",
+      "command": "restartVirtualMachineService",
+      "requestId": "18ca27eb-b150-439f-8811-1d96ebcb8f4f",
+      "operationId": "29be1910-74b3-403e-ab54-21714aeb931c",
+      "state": "SUCCEEDED",
+      "effect": "VERIFIED",
+      "identity": {
+        "vmUuid": "4a84687b-475f-42cb-8f39-58f09d469d19",
+        "bootId": "windows:134352928361509000",
+        "pid": 5264.0,
+        "startTicks": "134352996404110315"
+      },
+      "postcondition": "SERVICE_RESTART_VERIFIED",
+      "guestPostconditionVerified": true,
+      "guestBefore": null,
+      "guestAfter": {
+        "state": "Running",
+        "pid": 4116
+      }
+    },
+    {
+      "vmUuid": "26d02494-0fc2-4356-8eb3-414cc78adbe5",
+      "name": "Windows11-Process",
+      "command": "killVirtualMachineProcess",
+      "requestId": "fb932d36-a0f7-4555-8921-1ce0a5f68dd9",
+      "operationId": "ee5253cc-d847-4d41-8555-a8eb3ef80e17",
+      "state": "SUCCEEDED",
+      "effect": "VERIFIED",
+      "identity": {
+        "vmUuid": "26d02494-0fc2-4356-8eb3-414cc78adbe5",
+        "bootId": "windows:134352988955000000",
+        "pid": 464.0,
+        "startTicks": "134352996542751865"
+      },
+      "postcondition": "TARGET_EXITED",
+      "guestPostconditionVerified": true,
+      "guestBefore": null,
+      "guestAfter": null
+    },
+    {
+      "vmUuid": "26d02494-0fc2-4356-8eb3-414cc78adbe5",
+      "name": "Windows11-Process",
+      "command": "restartVirtualMachineService",
+      "requestId": "d02ec7b8-3634-4bbb-a699-e860df449600",
+      "operationId": "2ea193ec-169a-406a-b1c8-fb65e09c0f0f",
+      "state": "SUCCEEDED",
+      "effect": "VERIFIED",
+      "identity": {
+        "vmUuid": "26d02494-0fc2-4356-8eb3-414cc78adbe5",
+        "bootId": "windows:134352988955000000",
+        "pid": 4300.0,
+        "startTicks": "134352996610570052"
+      },
+      "postcondition": "SERVICE_RESTART_VERIFIED",
+      "guestPostconditionVerified": true,
+      "guestBefore": null,
+      "guestAfter": {
+        "state": "Running",
+        "pid": 4000
+      }
+    }
+  ],
+  "sourceInputs": {
+    "server/src/main/java/com/cloud/vm/process/VmProcessActionServiceImpl.java": "412a59baf91dcc63d64cc268940833d156efa91e37ccdf6e3c6b3d75562e4304",
+    "plugins/hypervisors/kvm/src/main/java/com/cloud/hypervisor/kvm/resource/VmProcessAdapterProbe.java": "32316e455d9aa147ab2bab05507fa475aafafe696667dd6126e65088cd394798",
+    "plugins/hypervisors/kvm/src/main/resources/vm-process-readiness.ps1": "9ec1ae1a77dcde6f47634df21670f92270d1a153365234dc3335f12bbd86028e",
+    "ui/src/views/compute/VmProcessesTab.vue": "9f66e29282af8c70b93afc2b273b6ce4d4c6af54d43ab4b0142ff50a1aded7b9"
+  },
+  "validationScope": {
+    "date": "2026-10-01",
+    "baselineCloudHead": "88a7f5896a120cdfb58da41abbace8419fdcca60",
+    "qemuActionsRun": "https://github.com/dhslove/ablestack-qemu-exec-tools/actions/runs/36688611885",
+    "osVmCount": 12,
+    "actionMatrixCount": 32,
+    "fullCloudBuildRun": false,
+    "fullFtHaDrFailureChainRun": false,
+    "realRhelGuestRun": false,
+    "literalKernelPidReuseObserved": false,
+    "managementUiRollbackExecuted": false,
+    "representativeKvmRollbackExecuted": true
+  },
+  "all-windows-cdrom-final": [
+    {
+      "vmUuid": "36d5333d-670a-4644-8c68-1f1dc154ba3a",
+      "name": "W2025-GFS2-Sparse",
+      "state": "Running",
+      "detached": [],
+      "cloudAttachedIsoCount": 0,
+      "libvirtMediaSourceCount": 0
+    },
+    {
+      "vmUuid": "f4be8cb2-f649-47ef-bcd2-7b59b71d5471",
+      "name": "W2025-Sparse-Clone1",
+      "state": "Running",
+      "detached": [
+        {
+          "isoId": "786839a0-9924-4ffa-b721-a6c8e085dbcd",
+          "jobId": "410e1a5b-e569-4f63-9fb4-942d7705776d"
+        }
+      ],
+      "cloudAttachedIsoCount": 0,
+      "libvirtMediaSourceCount": 0
+    },
+    {
+      "vmUuid": "06c6d7a7-f4da-4c2f-9a9b-c43cd015f6d9",
+      "name": "W2025-Sparse-Clone2",
+      "state": "Running",
+      "detached": [],
+      "cloudAttachedIsoCount": 0,
+      "libvirtMediaSourceCount": 0
+    },
+    {
+      "vmUuid": "9a2a9ac1-088e-40d5-b753-197a559b06e3",
+      "name": "W2025-Sparse-Clone3",
+      "state": "Running",
+      "detached": [],
+      "cloudAttachedIsoCount": 0,
+      "libvirtMediaSourceCount": 0
+    },
+    {
+      "vmUuid": "675696ba-a228-44c4-94c3-3c788808ce3d",
+      "name": "Windows22-Sparse",
+      "state": "Running",
+      "detached": [
+        {
+          "isoId": "786839a0-9924-4ffa-b721-a6c8e085dbcd",
+          "jobId": "6f1e1c6c-ed83-476d-8675-051a6f318bd8"
+        }
+      ],
+      "cloudAttachedIsoCount": 0,
+      "libvirtMediaSourceCount": 0
+    },
+    {
+      "vmUuid": "3ff1be7c-689c-4633-bcaa-060ccead098d",
+      "name": "Windows19-Sparse",
+      "state": "Running",
+      "detached": [
+        {
+          "isoId": "786839a0-9924-4ffa-b721-a6c8e085dbcd",
+          "jobId": "e9de4473-5d23-4c86-a9f4-911f07f11990"
+        }
+      ],
+      "cloudAttachedIsoCount": 0,
+      "libvirtMediaSourceCount": 0
+    },
+    {
+      "vmUuid": "c51bcc9c-e045-40d7-b215-e319b36c1d45",
+      "name": "Windows11-Sparse",
+      "state": "Running",
+      "detached": [],
+      "cloudAttachedIsoCount": 0,
+      "libvirtMediaSourceCount": 0
+    },
+    {
+      "vmUuid": "b5dfd5dc-ea95-409b-a80c-f670f0aca538",
+      "name": "Windows25-Process",
+      "state": "Running",
+      "detached": [],
+      "cloudAttachedIsoCount": 0,
+      "libvirtMediaSourceCount": 0
+    },
+    {
+      "vmUuid": "413bffe3-9831-4bfd-81f5-4e34d6cf9d11",
+      "name": "Windows22-Process",
+      "state": "Running",
+      "detached": [],
+      "cloudAttachedIsoCount": 0,
+      "libvirtMediaSourceCount": 0
+    },
+    {
+      "vmUuid": "4a84687b-475f-42cb-8f39-58f09d469d19",
+      "name": "Windows19-Process",
+      "state": "Running",
+      "detached": [],
+      "cloudAttachedIsoCount": 0,
+      "libvirtMediaSourceCount": 0
+    },
+    {
+      "vmUuid": "26d02494-0fc2-4356-8eb3-414cc78adbe5",
+      "name": "Windows11-Process",
+      "state": "Running",
+      "detached": [],
+      "cloudAttachedIsoCount": 0,
+      "libvirtMediaSourceCount": 0
+    }
+  ],
+  "windows-media-final": [
+    {
+      "vmUuid": "b5dfd5dc-ea95-409b-a80c-f670f0aca538",
+      "name": "Windows25-Process",
+      "cloudAttachedIsoCount": 0,
+      "libvirtCdromDeviceCount": 2,
+      "libvirtMediaSourceCount": 0
+    },
+    {
+      "vmUuid": "413bffe3-9831-4bfd-81f5-4e34d6cf9d11",
+      "name": "Windows22-Process",
+      "cloudAttachedIsoCount": 0,
+      "libvirtCdromDeviceCount": 2,
+      "libvirtMediaSourceCount": 0
+    },
+    {
+      "vmUuid": "4a84687b-475f-42cb-8f39-58f09d469d19",
+      "name": "Windows19-Process",
+      "cloudAttachedIsoCount": 0,
+      "libvirtCdromDeviceCount": 2,
+      "libvirtMediaSourceCount": 0
+    },
+    {
+      "vmUuid": "26d02494-0fc2-4356-8eb3-414cc78adbe5",
+      "name": "Windows11-Process",
+      "cloudAttachedIsoCount": 0,
+      "libvirtCdromDeviceCount": 2,
+      "libvirtMediaSourceCount": 0
+    }
+  ],
+  "uiArchiveSha256": "4c124fd71bc761240f05568cd48a204d7b85d15f4fb907cdfa9a31ace9a1c47a",
+  "uiStaticManifestCount": 832
+}

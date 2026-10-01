@@ -1,0 +1,23 @@
+test_boolean_success_without_postcondition_fails (test_probe.ProbeTest) ... ok
+test_duplicate_identity_across_pages_fails (test_probe.ProbeTest) ... ok
+test_expired_page_is_not_mixed_with_a_snapshot (test_probe.ProbeTest) ... ok
+test_lost_mutation_response_only_queries_the_saved_request (test_probe.ProbeTest) ... ok
+test_non_fixture_service_is_rejected_before_mutation (test_probe.ProbeTest) ... ok
+test_partial_collection_cannot_be_reported_complete (test_probe.ProbeTest) ... ok
+test_refuses_an_unlisted_production_vm (test_probe.ProbeTest) ... ok
+test_confirmed_exit_removes_only_original_marker (test_reconcile_read_lease.ReconcileTest) ... ok
+test_existing_readable_lock_uses_same_guard_contract (test_reconcile_read_lease.ReconcileTest) ... ok
+test_inspection_does_not_consume_status_or_remove_marker (test_reconcile_read_lease.ReconcileTest) ... ok
+test_live_original_reader_refused_before_status_query (test_reconcile_read_lease.ReconcileTest) ... ok
+test_malformed_status_keeps_the_original_marker (test_reconcile_read_lease.ReconcileTest) ... ok
+test_reaped_execution_id_is_not_completion_evidence (test_reconcile_read_lease.ReconcileTest) ... ok
+test_replacement_marker_survives (test_reconcile_read_lease.ReconcileTest) ... ok
+test_running_guest_execution_keeps_marker (test_reconcile_read_lease.ReconcileTest) ... ok
+test_symlink_is_refused (test_reconcile_read_lease.ReconcileTest) ... ok
+test_unknown_dispatch_without_pid_never_cleans (test_reconcile_read_lease.ReconcileTest) ... ok
+test_writable_lock_is_refused (test_reconcile_read_lease.ReconcileTest) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 0.033s
+
+OK

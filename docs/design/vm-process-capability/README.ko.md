@@ -43,28 +43,47 @@ placementGeneration은 Agent 응답 확인에만 사용한다. nullable 버전 �
 네트워크 수집기나 네트워크 helper를 호출하지 않는다. 현재 배치 호스트의 Agent로 독립 명령을 보내며
 KvmVmOperationGuard의 VM flock/잔여 lease/domain job/block job 확인 및 관측 budget을 사용한다.
 보호 경로에는 도메인 이름을 전달하고, lock 안에서 이름이 가리키는 UUID를 요청 VM UUID와 대조한다.
-QGA 조회 자체는 UUID로 수행한다. guest-info와 guest-get-osinfo만 사용하며 guest-exec/file/설치는 실행하지 않는다.
+QGA 조회 자체는 UUID로 수행한다. guest-info/guest-get-osinfo 후 `vm_exec`의 guest-exec/status 경로로
+고정된 읽기 전용 검증 프로그램을 실행한다. 게스트 파일·서비스·프로세스·작업 journal은 변경하지 않는다.
 
 필수 RPC 8개의 상태는 ENABLED / DISABLED / UNSUPPORTED / UNKNOWN으로 각각 반환한다.
 QGA transport 장애는 QGA_UNREACHABLE, 잘못된 응답이나 보호 경로의 busy/unknown은 CHECK_FAILED다.
 호스트 실행 파일 누락은 HOST_TOOL_MISSING이며 RPC 미지원/비활성 및 지원 대상 밖 OS를 별도로 표시한다.
 호스트 버전은 aspkg/dpkg-query의 패키지 진단 값으로, source overlay와 프로토콜 호환을 증명하지 않는다.
 
-**현재 C2는 READY를 광고하지 않는다.** Q1 도구가 존재하고 8개 RPC가 활성화되어도
-Q4/Q5의 어댑터 탐지와 Q6의 호환·무해 실행/file probe가 완료되기 전에는 TOOLS_REQUIRED다.
-`guestAdapterVersion=null`, `supportedSchemaVersions=[]`, `allowedActions=[]`를 유지한다.
-이는 Q1의 fail-closed 동작과 일치한다. C2 응답을 근거로 프로세스 변경 작업을 허용하면 안 된다.
+**2026-09-30 보완부터 실제 검증 성공 시 READY를 반환한다.** RPC 8개 활성과 지원 OS 확인 후
+호스트의 qemu 패키지가 관리하는 `process/guest_adapter_compat.json`을 읽는다. 카탈로그와 부모 경로는
+root 소유이며 쓰기 권한·symlink·파일 크기·중복 키·protocol·완전한 파일 집합을 검사한다.
+RPM의 `/usr/libexec`와 DEB/make의 `/usr/local/lib` 설치 경로를 지원한다.
+
+게스트 파일 SHA-256은 파일별 독립 허용 목록이 아닌 승인된 **전체 묶음**과 비교한다.
+Windows read script의 CRLF/LF 허용 규칙도 qemu 실행 경로와 동일하다. 미승인 파일은 로드하지 않는다.
+검증 프로그램은 Linux read 모듈로 자신의 `/proc` identity를 읽고, action 모듈 로딩과 자신의 pidfd
+열기/닫기를 확인한다. Windows는 승인된 read/action script의 구문을 검사하고 native DLL을 로드하여
+자신의 process identity 및 JSON parser를 확인한다. 신호 전송·서비스 제어·action journal 호출은 하지 않는다.
+
+`guestAdapterVersion`은 검증된 read/action 묶음 ID이며, `supportedSchemaVersions=["1.0"]`이다.
+호스트 업그레이드나 마이그레이션 후에도 승인 카탈로그에 남아 있는 이전 묶음은 허용한다.
+읽기 검증만 성공하면 `allowedActions=["process.list"]`, action 런타임도 성공하면 Linux는 정상 종료·강제 종료·
+서비스 재시작, Windows는 강제 종료·서비스 재시작을 추가한다. action 지원 목록은 대상별 권한·보호 정책·
+identity 검증을 대체하지 않으며 실제 변경 명령은 기존 C5/Q5 경로에서 다시 검증한다.
+
+호스트 카탈로그가 없거나 안전하게 읽을 수 없으면 HOST_TOOL_MISSING, read 어댑터가 없거나 승인된
+해시 묶음과 불일치하면 TOOLS_REQUIRED, 런타임/통신/응답 검증 실패는 CHECK_FAILED다.
+게스트 파일 RPC 6개의 실제 쓰기·flush·cleanup 검증과 설치/복구 전체 매트릭스는 Q2/Q6에서 추적한다.
+이 API는 쓰기 probe를 수행하지 않는다. Management는 READY/RPC/버전/허용 작업의 불변조건을 다시 검사한다.
 
 ## 시간·동시성·stale 방지
 
 캐시 없이 요청마다 새 관측을 수행한다. 응답 ttlseconds=30은 공개 관측의 최대 유효 시간이며
 변경 작업은 반드시 다시 확인해야 한다. 관리 서버에서 호스트 ID, VM UUID, update_count 세대를
 요청 전후 대조하고 Running 상태·제거 여부를 재검사한다. 응답 requestId/authority 불일치나
-10초 초과 응답은 폐기한다. 관측 시각은 관리 서버 시각으로 부여한다.
+15초 초과 응답은 폐기한다. 관측 시각은 관리 서버 시각으로 부여한다.
 
 Management 8개, Agent 8개 동시 관측 상한을 적용하며 대기열을 만들지 않는다.
-Agent의 기존 guard는 기본 5초 전체 관측 budget과 제한된 자식 프로세스 admission/회수를 제공한다.
-개별 QGA probe 대기는 1.5초이며 wire timeout은 2초다. Agent command wait는 10초다.
+일반 모니터링 guard의 기본 5초 budget은 유지하고, C2에만 최대 10초 관측 budget을 적용한다.
+개별 QGA 조회 대기는 1.5초, vm_exec 검증 대기는 6초, Agent command wait는 15초다.
+Windows 명령행 길이 제한을 지키도록 승인 목록을 gzip/base64로 전달하고 encoded argument를 30,000자로 제한한다.
 실패·재부팅·마이그레이션을 READY로 추정하지 않으며 오래된 snapshot을 재사용하지 않는다.
 
 ## 검증 방법
@@ -85,6 +104,9 @@ null 직렬화와 guard에 전달하는 domain name/UUID 경계를 검증한다.
 실제 VM을 중지하거나 QGA 정책을 변경하지 않는 오류 fixture 검증과 실제 게스트 검증을 구분한다.
 
 ## 실제 환경 검증 기록
+
+아래 2026-09-25 기록은 초기 C2 구현 당시 결과이다. 현재 READY 보완 검증은
+`../../validation/vm-process-capability-1172-ready/README.ko.md`를 따른다.
 
 - Management: 10.10.31.10.
 - Linux: 10.10.31.1 / i-2-15-VM / UUID 708d87cd-1d8a-4911-b22a-4211cdf1634f.

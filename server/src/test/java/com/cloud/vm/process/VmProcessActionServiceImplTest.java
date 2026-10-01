@@ -19,6 +19,7 @@ package com.cloud.vm.process;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -31,6 +32,12 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.cloud.agent.AgentManager;
+import com.cloud.agent.api.VmProcessAction;
+import com.cloud.agent.api.VmProcessActionAnswer;
+import com.cloud.agent.api.VmProcessActionCommand;
+import com.cloud.hypervisor.Hypervisor.HypervisorType;
+import com.google.gson.GsonBuilder;
+import org.mockito.ArgumentCaptor;
 
 import com.cloud.exception.InvalidParameterValueException;
 import com.cloud.exception.PermissionDeniedException;
@@ -191,6 +198,155 @@ public class VmProcessActionServiceImplTest {
                     .checkAccess(any(), any(), eq(true), eq(vm));
             assertThrows(PermissionDeniedException.class, () -> service.get(1, id));
             verifyNoInteractions(agents);
+        }
+    }
+
+    private VmProcessOperationStore.Record pending() throws Exception {
+        VmProcessOperationStore.Record r = new VmProcessOperationStore.Record();
+        r.vm = 1;
+        r.host = 4;
+        r.generation = 7;
+        r.operation = id;
+        r.request = snapshot;
+        r.state = "UNKNOWN";
+        Map<String, Object> request = new java.util.LinkedHashMap<>();
+        request.put("schemaVersion", "1.0");
+        request.put("requestId", snapshot);
+        request.put("operationId", id);
+        request.put("authority", Map.of("vmUuid", id, "bootId", "boot-1"));
+        request.put("identity", Map.of("pid", "3", "startTicks", "100"));
+        request.put("action", "process.kill");
+        request.put("service", null);
+        r.json = json(request);
+        r.result = json(VmProcessAction.unknown(request));
+        when(store.get(1, id)).thenReturn(r);
+        when(vm.getUuid()).thenReturn(id);
+        when(vm.getState()).thenReturn(VirtualMachine.State.Running);
+        when(vm.getHypervisorType()).thenReturn(HypervisorType.KVM);
+        when(vm.getHostId()).thenReturn(4L);
+        when(vm.getUpdated()).thenReturn(7L);
+        return r;
+    }
+
+    private String json(Object value) {
+        return new GsonBuilder().serializeNulls().create().toJson(value);
+    }
+
+    private Map<String, Object> completed(VmProcessOperationStore.Record r) throws Exception {
+        Map<String, Object> result = VmProcessAction.parse(r.result);
+        result.put("state", "SUCCEEDED");
+        result.put("effect", "VERIFIED");
+        result.put("postcondition", "TARGET_EXITED");
+        result.put("completedAt", java.time.Instant.now().toString());
+        result.put("error", null);
+        return result;
+    }
+
+    @Test
+    public void invalidUuidIsAParameterErrorBeforeJournalAccess() {
+        try (MockedStatic<CallContext> c = context()) {
+            for (String invalid : new String[] {null, "bad", "1-1-1-1-1", " " + id}) {
+                assertThrows(InvalidParameterValueException.class, () -> service.get(1, invalid));
+            }
+            verifyNoInteractions(store, agents);
+        }
+    }
+
+    @Test
+    public void durableUnknownAfterRestartOnlyQueriesAndReconciles() throws Exception {
+        try (MockedStatic<CallContext> c = context()) {
+            VmProcessOperationStore.Record r = pending();
+            when(agents.send(eq(4L), any(VmProcessActionCommand.class)))
+                    .thenReturn(new VmProcessActionAnswer(null, json(completed(r))));
+            assertEquals("SUCCEEDED", service.get(1, id).getProcessState().get("state"));
+            ArgumentCaptor<VmProcessActionCommand> command =
+                    ArgumentCaptor.forClass(VmProcessActionCommand.class);
+            verify(agents).send(eq(4L), command.capture());
+            assertTrue(command.getValue().isQuery());
+            assertEquals("operation.get", VmProcessAction.parse(command.getValue().getRequestJson()).get("operation"));
+            verify(store).finish(eq(r), eq("SUCCEEDED"), any());
+            verify(store, never()).reserve(any());
+        }
+    }
+
+    @Test
+    public void lostQueryResponseKeepsUnknownWithoutNewDispatch() throws Exception {
+        try (MockedStatic<CallContext> c = context()) {
+            pending();
+            when(agents.send(eq(4L), any(VmProcessActionCommand.class)))
+                    .thenThrow(new RuntimeException("connection lost"));
+            assertEquals("UNKNOWN", service.get(1, id).getProcessState().get("state"));
+            verify(store, never()).finish(any(), any(), any());
+            verify(store, never()).reserve(any());
+        }
+    }
+
+    @Test
+    public void migrationDoesNotQueryOldHostJournal() throws Exception {
+        try (MockedStatic<CallContext> c = context()) {
+            pending();
+            when(vm.getHostId()).thenReturn(5L);
+            assertEquals("UNKNOWN", service.get(1, id).getProcessState().get("state"));
+            verifyNoInteractions(agents);
+        }
+    }
+
+    @Test
+    public void rebootGenerationDoesNotQueryOldJournal() throws Exception {
+        try (MockedStatic<CallContext> c = context()) {
+            pending();
+            when(vm.getUpdated()).thenReturn(8L);
+            assertEquals("UNKNOWN", service.get(1, id).getProcessState().get("state"));
+            verifyNoInteractions(agents);
+        }
+    }
+
+    @Test
+    public void placementChangeDuringQueryCannotReleaseReservation() throws Exception {
+        try (MockedStatic<CallContext> c = context()) {
+            VmProcessOperationStore.Record r = pending();
+            when(agents.send(eq(4L), any(VmProcessActionCommand.class))).thenAnswer(invocation -> {
+                when(vm.getHostId()).thenReturn(5L);
+                return new VmProcessActionAnswer(null, json(completed(r)));
+            });
+            assertEquals("UNKNOWN", service.get(1, id).getProcessState().get("state"));
+            verify(store, never()).finish(any(), any(), any());
+        }
+    }
+
+    @Test
+    public void mismatchedGuestIdentityCannotReleaseReservation() throws Exception {
+        try (MockedStatic<CallContext> c = context()) {
+            VmProcessOperationStore.Record r = pending();
+            Map<String, Object> result = completed(r);
+            result.put("identity", Map.of("pid", "3", "startTicks", "101"));
+            when(agents.send(eq(4L), any(VmProcessActionCommand.class)))
+                    .thenReturn(new VmProcessActionAnswer(null, json(result)));
+            assertEquals("UNKNOWN", service.get(1, id).getProcessState().get("state"));
+            verify(store, never()).finish(any(), any(), any());
+        }
+    }
+
+    @Test
+    public void revokedAccessDuringQueryCannotReturnOrFinish() throws Exception {
+        try (MockedStatic<CallContext> c = context()) {
+            VmProcessOperationStore.Record r = pending();
+            when(agents.send(eq(4L), any(VmProcessActionCommand.class))).thenAnswer(invocation -> {
+                doThrow(new PermissionDeniedException("revoked")).when(accounts)
+                        .checkAccess(any(), any(), eq(true), eq(vm));
+                return new VmProcessActionAnswer(null, json(completed(r)));
+            });
+            assertThrows(PermissionDeniedException.class, () -> service.get(1, id));
+            verify(store, never()).finish(any(), any(), any());
+        }
+    }
+
+    @Test
+    public void globalDisablePreventsReadingPendingOperation() throws Exception {
+        try (MockedStatic<CallContext> c = context()) {
+            enabled = false;
+            assertThrows(InvalidParameterValueException.class, () -> service.get(1, id));
+            verifyNoInteractions(store, agents);
         }
     }
 }

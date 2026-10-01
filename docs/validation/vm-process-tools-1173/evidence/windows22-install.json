@@ -1,0 +1,24 @@
+{
+  "guestExecExitCode": 0,
+  "finished": true,
+  "installerExitCode": 0,
+  "qga": "Running",
+  "log": [
+    "Installation log: C:\\ProgramData\\ABLESTACK-Tools\\install.log",
+    "[OK] Windows compatibility and ISO payload verified",
+    "[SKIP] VirtIO MSI registered; checking device bindings",
+    "[OK] NetKVM device driver is active",
+    "[OK] vioserial device driver is active",
+    "[OK] Balloon device driver is active",
+    "[SKIP] QEMU Guest Agent already installed",
+    "[INSTALL] ABLESTACK Process Tools",
+    "[OK] ABLESTACK Process Tools installed",
+    "[OK] QEMU Guest Agent service running",
+    "[CONFIGURE] QGA process execution policy",
+    "{\"schemaVersion\":1,\"profile\":\"process-management\",\"status\":\"POLICY_CONFIGURED_PENDING_HOST_VERIFY\",\"featureReady\":false,\"hostVerificationRequired\":true,\"changed\":false,\"restartPerformed\":false,\"rebootRequired\":false,\"backupId\":null,\"serviceName\":\"QEMU-GA\",\"qgaFileVersion\":\"110.2.3\"}",
+    "{\"schemaVersion\":1,\"profile\":\"process-management\",\"status\":\"POLICY_CONFIGURED_PENDING_HOST_VERIFY\",\"featureReady\":false,\"hostVerificationRequired\":true,\"rebootRequired\":false}",
+    "[COMPLETE] Present VirtIO devices, QGA service, and process policy verified; host-side QGA verification remains",
+    "[OK] ABLESTACK Tools installation completed.",
+    "Installation log: C:\\ProgramData\\ABLESTACK-Tools\\install.log"
+  ]
+}

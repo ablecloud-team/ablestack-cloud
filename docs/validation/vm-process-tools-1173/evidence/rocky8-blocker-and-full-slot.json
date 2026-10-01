@@ -1,0 +1,35 @@
+{
+  "failure": {
+    "errorcode": 431,
+    "errortext": "Instance has reached the maximum of 2 attached CD-ROM(s); detach one before attaching another."
+  },
+  "preservedIsos": [
+    {
+      "id": "f6218264-03c0-400f-8e33-bdf9fb12e91a",
+      "name": "Rocky Linux 8.10 x86_64 DVD",
+      "displaytext": "Rocky Linux 8.10 x86_64 DVD",
+      "deviceseq": 3,
+      "bootable": true
+    },
+    {
+      "id": "77f985d1-1f61-4594-aa1d-be4a4c61c654",
+      "name": "ABLESTACK-Tools-Process-rocky-89806b1",
+      "displaytext": "ABLESTACK-Tools-Process-rocky-89806b1",
+      "deviceseq": 4,
+      "bootable": false
+    }
+  ],
+  "state": "Running",
+  "readiness": "RPC_DISABLED",
+  "rpcs": {
+    "guest-exec": "DISABLED",
+    "guest-exec-status": "DISABLED",
+    "guest-file-open": "DISABLED",
+    "guest-file-close": "DISABLED",
+    "guest-file-read": "DISABLED",
+    "guest-file-write": "DISABLED",
+    "guest-file-seek": "DISABLED",
+    "guest-file-flush": "DISABLED"
+  },
+  "qgaVersion": "6.2.0"
+}

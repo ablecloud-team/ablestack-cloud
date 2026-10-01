@@ -89,6 +89,31 @@ public class VmProcessToolsIsoCatalogTest {
                 "Windows 11", media::get).get("status"));
     }
 
+    @Test public void unreachableQgaCanOfferExplicitRegisteredOsInstallationHint() {
+        Map<String, VmProcessToolsIsoCatalog.IsoMetadata> media = media();
+        Map<String, String> selected = VmProcessToolsIsoCatalog.resolveForInstallation(ALL, ZONE, Map.of(),
+                "Windows Server 2022", "x86_64", "QGA_UNREACHABLE", media::get);
+        assertEquals(WINDOWS, selected.get("isoId"));
+        assertEquals("REGISTERED_OS", selected.get("selectionSource"));
+        assertEquals("Windows Server 2022", selected.get("registeredOsName"));
+        assertEquals(UBUNTU, VmProcessToolsIsoCatalog.resolveForInstallation(ALL, ZONE, null,
+                "Ubuntu 24.04", "x86_64", "QGA_UNREACHABLE", media::get).get("isoId"));
+    }
+
+    @Test public void installationHintNeverMasksObservedMismatchOrHostFailure() {
+        Map<String, VmProcessToolsIsoCatalog.IsoMetadata> media = media();
+        assertEquals("OS_MISMATCH", VmProcessToolsIsoCatalog.resolveForInstallation(ALL, ZONE,
+                os("ubuntu", "22.04", "none"), "Ubuntu 24.04", "x86_64", "QGA_UNREACHABLE", media::get).get("status"));
+        assertEquals("OS_UNKNOWN", VmProcessToolsIsoCatalog.resolveForInstallation(ALL, ZONE, null,
+                "Ubuntu 24.04", "x86_64", "CHECK_FAILED", media::get).get("status"));
+        assertEquals("OS_UNKNOWN", VmProcessToolsIsoCatalog.resolveForInstallation(ALL, ZONE, null,
+                "Ubuntu 24.04", "aarch64", "QGA_UNREACHABLE", media::get).get("status"));
+        assertEquals("UNSUPPORTED_OS", VmProcessToolsIsoCatalog.resolveForInstallation(ALL, ZONE, null,
+                "Debian 11", "x86_64", "QGA_UNREACHABLE", media::get).get("status"));
+        assertEquals("OS_UNKNOWN", VmProcessToolsIsoCatalog.resolveForInstallation(ALL, ZONE, null,
+                "Other Linux", "x86_64", "QGA_UNREACHABLE", media::get).get("status"));
+    }
+
     @Test public void onlyIsosInTheVmZoneCanMatch() {
         Map<String, VmProcessToolsIsoCatalog.IsoMetadata> media = media();
         media.put(ROCKY, iso("ABLESTACK-Tools-Process-rocky-89806b1", false));

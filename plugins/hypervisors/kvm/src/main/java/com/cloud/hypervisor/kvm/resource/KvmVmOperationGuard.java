@@ -85,16 +85,21 @@ public final class KvmVmOperationGuard implements AutoCloseable {
     }
 
     KvmVmOperationGuard(Path root, String uuid, String kind, boolean monitoring) throws IOException {
+        this(root, uuid, kind, monitoring, 0);
+    }
+
+    KvmVmOperationGuard(Path root, String uuid, String kind, boolean monitoring, long monitorWaitMs) throws IOException {
+        if (monitorWaitMs < 0 || monitorWaitMs > 1000) throw new IOException("Invalid monitoring lock budget");
         if (!UUID.fromString(uuid).toString().equals(uuid)) throw new IOException("Non-canonical VM UUID");
         directory(root);
         Path locks = root.resolve("locks"); directory(locks);
         Path lockFile = locks.resolve(uuid + ".lock");
         if (Files.isSymbolicLink(lockFile)) throw new IOException("Symlink lock refused");
         // flock, not java.nio FileLock (POSIX record locks are a different lock namespace).
-        lock = new ProcessBuilder("flock", "-x", "-w", monitoring ? "0" : "5", lockFile.toString(),
+        lock = new ProcessBuilder("flock", "-x", "-w", monitoring ? Double.toString(monitorWaitMs / 1000.0) : "5", lockFile.toString(),
                 "sh", "-c", "printf 'READY\n'; cat >/dev/null").redirectError(ProcessBuilder.Redirect.DISCARD).start();
         try {
-            long readyDeadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(monitoring ? 1 : 6);
+            long readyDeadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(monitoring ? monitorWaitMs + 1000 : 6000);
             while (lock.isAlive() && lock.getInputStream().available() == 0 && System.nanoTime() < readyDeadline) {
                 Thread.sleep(10);
             }
@@ -259,15 +264,19 @@ public final class KvmVmOperationGuard implements AutoCloseable {
 
     /** C5 row fence is held by management; inherit a host flock and live Agent channel. */
     public static String processAction(String uuid,String requestJson,boolean query) throws IOException,InterruptedException {
+        return processAction(ROOT, uuid, requestJson, query);
+    }
+
+    static String processAction(Path root,String uuid,String requestJson,boolean query) throws IOException,InterruptedException {
         Map<String,Object> request=com.cloud.agent.api.VmProcessAction.parse(requestJson);
         if(!UUID.fromString(uuid).toString().equals(uuid) || !uuid.equals(com.cloud.agent.api.VmProcessSnapshot.map(request.get("authority")).get("vmUuid")))throw new IOException("Action authority");
         if(!admitProbe())throw new IOException("Process capacity exhausted");
         Process child=null;Path input=null,context=null;
         try {
-            directory(ROOT);Path locks=ROOT.resolve("locks");directory(locks);Path lockFile=locks.resolve(uuid+".lock");
+            directory(root);Path locks=root.resolve("locks");directory(locks);Path lockFile=locks.resolve(uuid+".lock");
             try {Files.createFile(lockFile,PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rw-------")));}catch(FileAlreadyExistsException ignored){}
             if(Files.isSymbolicLink(lockFile) || !Files.isRegularFile(lockFile,LinkOption.NOFOLLOW_LINKS) || !Files.getOwner(lockFile).equals(Files.getOwner(Paths.get("/proc/self"))))throw new IOException("Unsafe lock");
-            input=Files.createTempFile(ROOT,"process-action-",".json",PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rw-------")));
+            input=Files.createTempFile(root,"process-action-",".json",PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rw-------")));
             Files.writeString(input,requestJson);
             long budget=query?12000:90000;
             ProcessBuilder builder;
@@ -279,11 +288,18 @@ public final class KvmVmOperationGuard implements AutoCloseable {
                 String stat=Files.readString(Paths.get("/proc/self/stat"));reservation.put("ownerStartTicks",stat.substring(stat.lastIndexOf(')')+2).split(" ")[19]);
                 reservation.put("hostBootId",Files.readString(Paths.get("/proc/sys/kernel/random/boot_id")).trim());
                 reservation.put("expiresMonotonicNs",Long.toString(System.nanoTime()+TimeUnit.MILLISECONDS.toNanos(budget)));
-                context=Files.createTempFile(ROOT,"process-reservation-",".json",PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rw-------")));
+                context=Files.createTempFile(root,"process-reservation-",".json",PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rw-------")));
                 Files.writeString(context,new com.google.gson.GsonBuilder().serializeNulls().create().toJson(reservation));
                 builder=new ProcessBuilder("/bin/sh","-c",
-                    "exec 9<>\"$1\"; flock -n 9 || exit 3; exec /usr/bin/vm_exec --process-protocol 1.0 --request-json \"$2\" --cloud-action-context \"$3\" --cloud-action-guard-fd 9",
+                    "exec 9<>\"$1\"; flock -n 9 || { printf '%s' \"$CLOUD_PROCESS_REJECTED\"; exit 0; }; exec /usr/bin/vm_exec --process-protocol 1.0 --request-json \"$2\" --cloud-action-context \"$3\" --cloud-action-guard-fd 9",
                     "process-action",lockFile.toString(),input.toString(),context.toString());
+                // This response is emitted only before exec: no guest mutation has started.
+                // A helper error, timeout or lost response still remains UNKNOWN.
+                Map<String,Object> rejected=new LinkedHashMap<>();
+                for(String k:java.util.List.of("schemaVersion","requestId","authority"))rejected.put(k,request.get(k));
+                rejected.put("kind","failure");
+                rejected.put("error",Map.of("code","BUSY","message","Host VM operation lock unavailable before dispatch","retryMode","NONE"));
+                builder.environment().put("CLOUD_PROCESS_REJECTED",new com.google.gson.GsonBuilder().serializeNulls().create().toJson(rejected));
             }
             builder.redirectError(ProcessBuilder.Redirect.DISCARD);builder.environment().put("LC_ALL","C");child=builder.start();
             long deadline=System.nanoTime()+TimeUnit.MILLISECONDS.toNanos(budget+1000);java.io.ByteArrayOutputStream output=new java.io.ByteArrayOutputStream();
@@ -294,7 +310,7 @@ public final class KvmVmOperationGuard implements AutoCloseable {
                 if(available>0){int count=stream.read(buffer,0,Math.min(buffer.length,available));if(count>0){if(output.size()+count>65536)throw new IOException("Action output limit");output.write(buffer,0,count);}}
                 else Thread.sleep(5);
             }
-            if(child.exitValue()!=0)throw new IOException("Action helper unavailable");
+            if(child.exitValue()!=0)throw new IOException("Action helper unavailable: exit="+child.exitValue());
             return java.nio.charset.StandardCharsets.UTF_8.newDecoder().onMalformedInput(java.nio.charset.CodingErrorAction.REPORT).decode(java.nio.ByteBuffer.wrap(output.toByteArray())).toString();
         } finally {
             if(child!=null && child.isAlive())terminate(child);
@@ -311,10 +327,20 @@ public final class KvmVmOperationGuard implements AutoCloseable {
     }
 
     public static <T> T collect(Connect conn, String name, Callable<T> task) {
+        return collect(conn, name, task, Long.getLong("cloud.vm.monitor.budget.ms", 5000L));
+    }
+
+    /** Readiness also loads Windows native adapters; retain a bounded budget without changing ordinary monitoring. */
+    public static <T> T collect(Connect conn, String name, Callable<T> task, long budgetMs) {
+        return collect(conn, name, task, budgetMs, 0);
+    }
+
+    static <T> T collect(Connect conn, String name, Callable<T> task, long budgetMs, long monitorWaitMs) {
         try {
-            DEADLINE.set(System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(Long.getLong("cloud.vm.monitor.budget.ms", 5000L)));
+            if (budgetMs < 1) return null;
+            DEADLINE.set(System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(budgetMs));
                 String safeUuid = probe(1000, "virsh", "-c", "qemu:///system", "domuuid", name).trim();
-                try (KvmVmOperationGuard guard = new KvmVmOperationGuard(ROOT, safeUuid, "monitoring", true)) {
+                try (KvmVmOperationGuard guard = new KvmVmOperationGuard(ROOT, safeUuid, "monitoring", true, Math.min(monitorWaitMs, budgetMs))) {
                     // External virsh jobs do not have Cloud leases. Failure is UNKNOWN, never IDLE.
                     String job = probe(1000, "virsh", "-c", "qemu:///system", "domjobinfo", safeUuid);
                     if (job == null || !job.trim().matches("Job type:\\s+None")) {

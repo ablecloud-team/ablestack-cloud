@@ -1,0 +1,15 @@
+{
+  "darkRefreshBefore": {
+    "rect": "{\"bottom\":856,\"height\":487,\"left\":893.25,\"right\":1863,\"top\":369,\"width\":969.75,\"x\":893.25,\"y\":369}",
+    "rows": 11
+  },
+  "darkRefreshDuring": {
+    "rect": "{\"bottom\":856,\"height\":487,\"left\":893.25,\"right\":1863,\"top\":369,\"width\":969.75,\"x\":893.25,\"y\":369}",
+    "rows": 11
+  },
+  "darkRefreshAfter": {
+    "rect": "{\"bottom\":856,\"height\":487,\"left\":893.25,\"right\":1863,\"top\":369,\"width\":969.75,\"x\":893.25,\"y\":369}",
+    "rows": 11,
+    "status": "서비스 재시작\n종료\n업데이트\nQGA 권한 다시 확인\n목록 조회 완료\nUbuntu 24.04\n관측 시각: 2026. 9. 30. 오후 2:04:42\n목록 경과: 2s / 10s\n전체: 118\n\t\nPID\n\t\n프로세스 이름\n\t사용자\t상태\t\nCPU 사용량\n\t\n메모리\n\t연결 서비스\t작업\n\n \n\t"
+  }
+}

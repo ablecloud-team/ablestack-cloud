@@ -29,7 +29,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-/** Read-only readiness. No guest-exec, network collector, or installer is invoked. */
+/** Read-only readiness. Fixed vm_exec smoke verifies approved adapter bundles without guest changes. */
 public class VmProcessCapabilityProbe {
     private static final Semaphore ADMISSION = new Semaphore(8);
     public Map<String, Object> collect(GetVmProcessCapabilitiesCommand command) {
@@ -40,12 +40,12 @@ public class VmProcessCapabilityProbe {
                 if (!command.getVmUuid().equals(KvmVmOperationGuard.probe(1000, "virsh", "-c", "qemu:///system", "domuuid", command.getVmName()).trim()))
                     return VmProcessCapability.fail(unknown, "CHECK_FAILED", "VM domain identity changed");
                 return observe(command);
-            });
+            }, 10000L, 1000L);
             return result == null ? VmProcessCapability.fail(unknown, "CHECK_FAILED", "VM operation active, state unknown, or observation budget exceeded") : result;
         } finally { ADMISSION.release(); }
     }
     protected boolean hostToolPresent() {
-        return Files.isExecutable(Path.of("/usr/bin/vm_exec")) || Files.isExecutable(Path.of("/usr/local/bin/vm_exec"));
+        return Files.isExecutable(Path.of("/usr/bin/vm_exec"));
     }
     protected String hostToolsVersion() {
         // Diagnostic only. Package metadata must never imply protocol compatibility.
@@ -61,6 +61,9 @@ public class VmProcessCapabilityProbe {
     protected String guest(String uuid, String operation) throws Exception {
         return KvmVmOperationGuard.probe(1500, "virsh", "-c", "qemu:///system", "qemu-agent-command",
                 uuid, "--timeout", "2", "{\"execute\":\"" + operation + "\"}");
+    }
+    protected Map<String, Object> adapters(GetVmProcessCapabilitiesCommand command, Map<String, String> os) throws Exception {
+        return new VmProcessAdapterProbe().observe(command, os);
     }
     public Map<String, Object> observe(GetVmProcessCapabilitiesCommand command) {
         Map<String, Object> result = VmProcessCapability.empty(command);
@@ -82,8 +85,17 @@ public class VmProcessCapabilityProbe {
             if (rpcState != null) return VmProcessCapability.fail(result, rpcState, "Required guest RPCs are not enabled");
             @SuppressWarnings("unchecked") Map<String, String> os = (Map<String, String>) result.get("os");
             if (!supportedOs(os)) return VmProcessCapability.fail(result, "UNSUPPORTED_OS", "Guest OS is outside the C1 support matrix");
-            // Q4/Q5/Q6 own adapter discovery and harmless execution/file probes.
-            return VmProcessCapability.fail(result, "TOOLS_REQUIRED", "Process adapter compatibility and probes have not been verified");
+            try {
+                Map<String, Object> proof = adapters(command, os);
+                String state = (String) proof.get("readiness");
+                if (!"READY".equals(state)) return VmProcessCapability.fail(result, state, "Guest process adapter is missing or cannot be verified");
+                if (result.get("hostToolsVersion") == null) return VmProcessCapability.fail(result, "CHECK_FAILED", "Host tools version observation unavailable");
+                result.putAll(proof);
+                return result;
+            } catch (Exception e) {
+                if (e instanceof InterruptedException) Thread.currentThread().interrupt();
+                return VmProcessCapability.fail(result, "CHECK_FAILED", "Process adapter runtime observation unavailable");
+            }
         } catch (RuntimeException e) {
             return VmProcessCapability.fail(result, present ? "CHECK_FAILED" : "HOST_TOOL_MISSING", "Invalid guest-info response");
         }

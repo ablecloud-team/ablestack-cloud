@@ -1,0 +1,758 @@
+[
+  {
+    "vm": "2f35ea9a-7ff2-494f-a857-6527e0fb1976",
+    "name": "R10-Sparse",
+    "instance": "i-2-14-VM",
+    "host": "10.10.31.1",
+    "state": "Running",
+    "readiness": "READY",
+    "os": {
+      "version": "10.2",
+      "id": "rocky",
+      "family": "linux",
+      "productType": "none",
+      "arch": "x86_64"
+    },
+    "actions": [
+      "process.list",
+      "process.terminate",
+      "process.kill",
+      "service.restart"
+    ],
+    "error": null,
+    "guestAdapterVersion": "issue79-40d4807-rocky-rocky-read/issue79-40d4807-rocky-linux-action",
+    "publicState": {
+      "schemaVersion": "1.0",
+      "kind": "capability",
+      "requestId": "2a94c72e-d503-4963-b99f-fb6eb7a809e5",
+      "authority": {
+        "vmUuid": "2f35ea9a-7ff2-494f-a857-6527e0fb1976"
+      },
+      "observedAt": "2026-09-30T02:57:54.153111340Z",
+      "os": {
+        "version": "10.2",
+        "id": "rocky",
+        "family": "linux",
+        "productType": "none",
+        "arch": "x86_64"
+      },
+      "qgaVersion": "10.1.0",
+      "hostToolsVersion": "0.10.0",
+      "guestAdapterVersion": "issue79-40d4807-rocky-rocky-read/issue79-40d4807-rocky-linux-action",
+      "supportedSchemaVersions": [
+        "1.0"
+      ],
+      "rpcs": {
+        "guest-exec": "ENABLED",
+        "guest-exec-status": "ENABLED",
+        "guest-file-open": "ENABLED",
+        "guest-file-close": "ENABLED",
+        "guest-file-read": "ENABLED",
+        "guest-file-write": "ENABLED",
+        "guest-file-seek": "ENABLED",
+        "guest-file-flush": "ENABLED"
+      },
+      "allowedActions": [
+        "process.list",
+        "process.terminate",
+        "process.kill",
+        "service.restart"
+      ],
+      "readiness": "READY",
+      "error": null
+    },
+    "publicContractValidated": true
+  },
+  {
+    "vm": "c5ac0d8b-c004-4040-8334-d57586eee4c7",
+    "name": "Rocky9-Sparse",
+    "instance": "i-2-69-VM",
+    "host": "10.10.31.3",
+    "state": "Running",
+    "readiness": "READY",
+    "os": {
+      "version": "9.8",
+      "arch": "x86_64",
+      "productType": "none",
+      "family": "linux",
+      "id": "rocky"
+    },
+    "actions": [
+      "process.list",
+      "process.terminate",
+      "process.kill",
+      "service.restart"
+    ],
+    "error": null,
+    "guestAdapterVersion": "issue79-40d4807-rocky-rocky-read/issue79-40d4807-rocky-linux-action",
+    "publicState": {
+      "schemaVersion": "1.0",
+      "kind": "capability",
+      "requestId": "d0b8e19e-21a2-466f-93ce-0c2806328c31",
+      "authority": {
+        "vmUuid": "c5ac0d8b-c004-4040-8334-d57586eee4c7"
+      },
+      "observedAt": "2026-09-30T02:57:54.589176114Z",
+      "os": {
+        "version": "9.8",
+        "arch": "x86_64",
+        "productType": "none",
+        "family": "linux",
+        "id": "rocky"
+      },
+      "qgaVersion": "10.1.0",
+      "hostToolsVersion": "0.10.0",
+      "guestAdapterVersion": "issue79-40d4807-rocky-rocky-read/issue79-40d4807-rocky-linux-action",
+      "supportedSchemaVersions": [
+        "1.0"
+      ],
+      "rpcs": {
+        "guest-exec": "ENABLED",
+        "guest-exec-status": "ENABLED",
+        "guest-file-open": "ENABLED",
+        "guest-file-close": "ENABLED",
+        "guest-file-read": "ENABLED",
+        "guest-file-write": "ENABLED",
+        "guest-file-seek": "ENABLED",
+        "guest-file-flush": "ENABLED"
+      },
+      "allowedActions": [
+        "process.list",
+        "process.terminate",
+        "process.kill",
+        "service.restart"
+      ],
+      "readiness": "READY",
+      "error": null
+    },
+    "publicContractValidated": true
+  },
+  {
+    "vm": "2785322f-54d0-4a5d-bf42-59bef03635d4",
+    "name": "Rocky8-Sparse",
+    "instance": "i-2-70-VM",
+    "host": "10.10.31.3",
+    "state": "Running",
+    "readiness": "RPC_DISABLED",
+    "os": {
+      "version": "8.10",
+      "arch": "x86_64",
+      "productType": "none",
+      "family": "linux",
+      "id": "rocky"
+    },
+    "actions": [],
+    "error": {
+      "retryMode": "READ_ONLY",
+      "message": "Required guest RPCs are not enabled",
+      "code": "RPC_DISABLED"
+    },
+    "guestAdapterVersion": null,
+    "publicState": {
+      "schemaVersion": "1.0",
+      "kind": "capability",
+      "requestId": "cace756c-b225-4063-9371-0b8b162e305a",
+      "authority": {
+        "vmUuid": "2785322f-54d0-4a5d-bf42-59bef03635d4"
+      },
+      "observedAt": "2026-09-30T02:57:54.747829210Z",
+      "os": {
+        "version": "8.10",
+        "arch": "x86_64",
+        "productType": "none",
+        "family": "linux",
+        "id": "rocky"
+      },
+      "qgaVersion": "6.2.0",
+      "hostToolsVersion": "0.10.0",
+      "supportedSchemaVersions": [],
+      "rpcs": {
+        "guest-exec": "DISABLED",
+        "guest-exec-status": "DISABLED",
+        "guest-file-open": "DISABLED",
+        "guest-file-close": "DISABLED",
+        "guest-file-read": "DISABLED",
+        "guest-file-write": "DISABLED",
+        "guest-file-seek": "DISABLED",
+        "guest-file-flush": "DISABLED"
+      },
+      "allowedActions": [],
+      "readiness": "RPC_DISABLED",
+      "error": {
+        "retryMode": "READ_ONLY",
+        "message": "Required guest RPCs are not enabled",
+        "code": "RPC_DISABLED"
+      },
+      "guestAdapterVersion": null
+    },
+    "publicContractValidated": true
+  },
+  {
+    "vm": "4cb71960-fc75-43e1-9830-8f4ee198def7",
+    "name": "U26-Sparse",
+    "instance": "i-2-28-VM",
+    "host": "10.10.31.1",
+    "state": "Running",
+    "readiness": "READY",
+    "os": {
+      "version": "26.04",
+      "id": "ubuntu",
+      "family": "linux",
+      "productType": "none",
+      "arch": "x86_64"
+    },
+    "actions": [
+      "process.list",
+      "process.terminate",
+      "process.kill",
+      "service.restart"
+    ],
+    "error": null,
+    "guestAdapterVersion": "issue79-40d4807-ubuntu-ubuntu-read/issue79-40d4807-rocky-linux-action",
+    "publicState": {
+      "schemaVersion": "1.0",
+      "kind": "capability",
+      "requestId": "15027911-c27c-4ff4-8a6b-c71635a742c7",
+      "authority": {
+        "vmUuid": "4cb71960-fc75-43e1-9830-8f4ee198def7"
+      },
+      "observedAt": "2026-09-30T02:57:55.178010236Z",
+      "os": {
+        "version": "26.04",
+        "id": "ubuntu",
+        "family": "linux",
+        "productType": "none",
+        "arch": "x86_64"
+      },
+      "qgaVersion": "10.2.1",
+      "hostToolsVersion": "0.10.0",
+      "guestAdapterVersion": "issue79-40d4807-ubuntu-ubuntu-read/issue79-40d4807-rocky-linux-action",
+      "supportedSchemaVersions": [
+        "1.0"
+      ],
+      "rpcs": {
+        "guest-exec": "ENABLED",
+        "guest-exec-status": "ENABLED",
+        "guest-file-open": "ENABLED",
+        "guest-file-close": "ENABLED",
+        "guest-file-read": "ENABLED",
+        "guest-file-write": "ENABLED",
+        "guest-file-seek": "ENABLED",
+        "guest-file-flush": "ENABLED"
+      },
+      "allowedActions": [
+        "process.list",
+        "process.terminate",
+        "process.kill",
+        "service.restart"
+      ],
+      "readiness": "READY",
+      "error": null
+    },
+    "publicContractValidated": true
+  },
+  {
+    "vm": "04125c04-cfa5-4f43-be41-39e3c7d536d3",
+    "name": "Ubuntu24-Sparse",
+    "instance": "i-2-56-VM",
+    "host": "10.10.31.3",
+    "state": "Running",
+    "readiness": "READY",
+    "os": {
+      "version": "24.04",
+      "arch": "x86_64",
+      "productType": "none",
+      "family": "linux",
+      "id": "ubuntu"
+    },
+    "actions": [
+      "process.list",
+      "process.terminate",
+      "process.kill",
+      "service.restart"
+    ],
+    "error": null,
+    "guestAdapterVersion": "issue79-40d4807-ubuntu-ubuntu-read/issue79-40d4807-rocky-linux-action",
+    "publicState": {
+      "schemaVersion": "1.0",
+      "kind": "capability",
+      "requestId": "aa5bfd9b-2a6d-4fa6-a092-c5028512cb50",
+      "authority": {
+        "vmUuid": "04125c04-cfa5-4f43-be41-39e3c7d536d3"
+      },
+      "observedAt": "2026-09-30T02:57:55.607132921Z",
+      "os": {
+        "version": "24.04",
+        "arch": "x86_64",
+        "productType": "none",
+        "family": "linux",
+        "id": "ubuntu"
+      },
+      "qgaVersion": "8.2.2",
+      "hostToolsVersion": "0.10.0",
+      "guestAdapterVersion": "issue79-40d4807-ubuntu-ubuntu-read/issue79-40d4807-rocky-linux-action",
+      "supportedSchemaVersions": [
+        "1.0"
+      ],
+      "rpcs": {
+        "guest-exec": "ENABLED",
+        "guest-exec-status": "ENABLED",
+        "guest-file-open": "ENABLED",
+        "guest-file-close": "ENABLED",
+        "guest-file-read": "ENABLED",
+        "guest-file-write": "ENABLED",
+        "guest-file-seek": "ENABLED",
+        "guest-file-flush": "ENABLED"
+      },
+      "allowedActions": [
+        "process.list",
+        "process.terminate",
+        "process.kill",
+        "service.restart"
+      ],
+      "readiness": "READY",
+      "error": null
+    },
+    "publicContractValidated": true
+  },
+  {
+    "vm": "d3cd2c68-78e3-42dd-a944-7c5ce731e658",
+    "name": "Ubuntu22-Sparse",
+    "instance": "i-2-52-VM",
+    "host": "10.10.31.2",
+    "state": "Running",
+    "readiness": "READY",
+    "os": {
+      "arch": "x86_64",
+      "productType": "none",
+      "family": "linux",
+      "id": "ubuntu",
+      "version": "22.04"
+    },
+    "actions": [
+      "process.list",
+      "process.terminate",
+      "process.kill",
+      "service.restart"
+    ],
+    "error": null,
+    "guestAdapterVersion": "issue79-40d4807-ubuntu-ubuntu-read/issue79-40d4807-rocky-linux-action",
+    "publicState": {
+      "schemaVersion": "1.0",
+      "kind": "capability",
+      "requestId": "c3f0b204-4d63-4e3f-9dbd-0aa8b2fa8c69",
+      "authority": {
+        "vmUuid": "d3cd2c68-78e3-42dd-a944-7c5ce731e658"
+      },
+      "observedAt": "2026-09-30T02:57:56.052188856Z",
+      "os": {
+        "arch": "x86_64",
+        "productType": "none",
+        "family": "linux",
+        "id": "ubuntu",
+        "version": "22.04"
+      },
+      "qgaVersion": "6.2.0",
+      "hostToolsVersion": "0.10.0",
+      "guestAdapterVersion": "issue79-40d4807-ubuntu-ubuntu-read/issue79-40d4807-rocky-linux-action",
+      "supportedSchemaVersions": [
+        "1.0"
+      ],
+      "rpcs": {
+        "guest-exec": "ENABLED",
+        "guest-exec-status": "ENABLED",
+        "guest-file-open": "ENABLED",
+        "guest-file-close": "ENABLED",
+        "guest-file-read": "ENABLED",
+        "guest-file-write": "ENABLED",
+        "guest-file-seek": "ENABLED",
+        "guest-file-flush": "ENABLED"
+      },
+      "allowedActions": [
+        "process.list",
+        "process.terminate",
+        "process.kill",
+        "service.restart"
+      ],
+      "readiness": "READY",
+      "error": null
+    },
+    "publicContractValidated": true
+  },
+  {
+    "vm": "b51c954a-45fc-4fdd-a395-e1b3b5b5d367",
+    "name": "Debian13-Sparse",
+    "instance": "i-2-62-VM",
+    "host": "10.10.31.3",
+    "state": "Running",
+    "readiness": "READY",
+    "os": {
+      "version": "13",
+      "arch": "x86_64",
+      "productType": "none",
+      "family": "linux",
+      "id": "debian"
+    },
+    "actions": [
+      "process.list",
+      "process.terminate",
+      "process.kill",
+      "service.restart"
+    ],
+    "error": null,
+    "guestAdapterVersion": "issue79-40d4807-ubuntu-ubuntu-read/issue79-40d4807-rocky-linux-action",
+    "publicState": {
+      "schemaVersion": "1.0",
+      "kind": "capability",
+      "requestId": "5d1e65d2-e761-4a1e-ba7e-8c5aa9812ed8",
+      "authority": {
+        "vmUuid": "b51c954a-45fc-4fdd-a395-e1b3b5b5d367"
+      },
+      "observedAt": "2026-09-30T02:57:56.486634265Z",
+      "os": {
+        "version": "13",
+        "arch": "x86_64",
+        "productType": "none",
+        "family": "linux",
+        "id": "debian"
+      },
+      "qgaVersion": "10.0.13",
+      "hostToolsVersion": "0.10.0",
+      "guestAdapterVersion": "issue79-40d4807-ubuntu-ubuntu-read/issue79-40d4807-rocky-linux-action",
+      "supportedSchemaVersions": [
+        "1.0"
+      ],
+      "rpcs": {
+        "guest-exec": "ENABLED",
+        "guest-exec-status": "ENABLED",
+        "guest-file-open": "ENABLED",
+        "guest-file-close": "ENABLED",
+        "guest-file-read": "ENABLED",
+        "guest-file-write": "ENABLED",
+        "guest-file-seek": "ENABLED",
+        "guest-file-flush": "ENABLED"
+      },
+      "allowedActions": [
+        "process.list",
+        "process.terminate",
+        "process.kill",
+        "service.restart"
+      ],
+      "readiness": "READY",
+      "error": null
+    },
+    "publicContractValidated": true
+  },
+  {
+    "vm": "40f046e8-7433-4cc8-a0f0-1bc60513d222",
+    "name": "Debian12-Sparse",
+    "instance": "i-2-61-VM",
+    "host": "10.10.31.1",
+    "state": "Running",
+    "readiness": "READY",
+    "os": {
+      "version": "12",
+      "id": "debian",
+      "family": "linux",
+      "productType": "none",
+      "arch": "x86_64"
+    },
+    "actions": [
+      "process.list",
+      "process.terminate",
+      "process.kill",
+      "service.restart"
+    ],
+    "error": null,
+    "guestAdapterVersion": "issue79-40d4807-ubuntu-ubuntu-read/issue79-40d4807-rocky-linux-action",
+    "publicState": {
+      "schemaVersion": "1.0",
+      "kind": "capability",
+      "requestId": "1bde2281-9124-4470-91b3-80d4ce8315d6",
+      "authority": {
+        "vmUuid": "40f046e8-7433-4cc8-a0f0-1bc60513d222"
+      },
+      "observedAt": "2026-09-30T02:57:56.957393328Z",
+      "os": {
+        "version": "12",
+        "id": "debian",
+        "family": "linux",
+        "productType": "none",
+        "arch": "x86_64"
+      },
+      "qgaVersion": "7.2.22",
+      "hostToolsVersion": "0.10.0",
+      "guestAdapterVersion": "issue79-40d4807-ubuntu-ubuntu-read/issue79-40d4807-rocky-linux-action",
+      "supportedSchemaVersions": [
+        "1.0"
+      ],
+      "rpcs": {
+        "guest-exec": "ENABLED",
+        "guest-exec-status": "ENABLED",
+        "guest-file-open": "ENABLED",
+        "guest-file-close": "ENABLED",
+        "guest-file-read": "ENABLED",
+        "guest-file-write": "ENABLED",
+        "guest-file-seek": "ENABLED",
+        "guest-file-flush": "ENABLED"
+      },
+      "allowedActions": [
+        "process.list",
+        "process.terminate",
+        "process.kill",
+        "service.restart"
+      ],
+      "readiness": "READY",
+      "error": null
+    },
+    "publicContractValidated": true
+  },
+  {
+    "vm": "f4be8cb2-f649-47ef-bcd2-7b59b71d5471",
+    "name": "W2025-Sparse-Clone1",
+    "instance": "i-2-25-VM",
+    "host": "10.10.31.2",
+    "state": "Running",
+    "readiness": "READY",
+    "os": {
+      "arch": "x86_64",
+      "productType": "server",
+      "family": "windows",
+      "id": "mswindows",
+      "version": "2025"
+    },
+    "actions": [
+      "process.list",
+      "process.kill",
+      "service.restart"
+    ],
+    "error": null,
+    "guestAdapterVersion": "windows-multi-os-license-56b6236-windows-read/windows-multi-os-license-56b6236-windows-action",
+    "publicState": {
+      "schemaVersion": "1.0",
+      "kind": "capability",
+      "requestId": "4225d331-c2dd-49b5-aa5c-6dd2d2d77aea",
+      "authority": {
+        "vmUuid": "f4be8cb2-f649-47ef-bcd2-7b59b71d5471"
+      },
+      "observedAt": "2026-09-30T02:58:00.075459660Z",
+      "os": {
+        "arch": "x86_64",
+        "productType": "server",
+        "family": "windows",
+        "id": "mswindows",
+        "version": "2025"
+      },
+      "qgaVersion": "110.2.3",
+      "hostToolsVersion": "0.10.0",
+      "guestAdapterVersion": "windows-multi-os-license-56b6236-windows-read/windows-multi-os-license-56b6236-windows-action",
+      "supportedSchemaVersions": [
+        "1.0"
+      ],
+      "rpcs": {
+        "guest-exec": "ENABLED",
+        "guest-exec-status": "ENABLED",
+        "guest-file-open": "ENABLED",
+        "guest-file-close": "ENABLED",
+        "guest-file-read": "ENABLED",
+        "guest-file-write": "ENABLED",
+        "guest-file-seek": "ENABLED",
+        "guest-file-flush": "ENABLED"
+      },
+      "allowedActions": [
+        "process.list",
+        "process.kill",
+        "service.restart"
+      ],
+      "readiness": "READY",
+      "error": null
+    },
+    "publicContractValidated": true
+  },
+  {
+    "vm": "675696ba-a228-44c4-94c3-3c788808ce3d",
+    "name": "Windows22-Sparse",
+    "instance": "i-2-71-VM",
+    "host": "10.10.31.2",
+    "state": "Running",
+    "readiness": "READY",
+    "os": {
+      "arch": "x86_64",
+      "productType": "server",
+      "family": "windows",
+      "id": "mswindows",
+      "version": "2022"
+    },
+    "actions": [
+      "process.list",
+      "process.kill",
+      "service.restart"
+    ],
+    "error": null,
+    "guestAdapterVersion": "windows-multi-os-license-56b6236-windows-read/windows-multi-os-license-56b6236-windows-action",
+    "publicState": {
+      "schemaVersion": "1.0",
+      "kind": "capability",
+      "requestId": "a0a2ff4f-e6b8-4847-a19c-1c8fb86ae182",
+      "authority": {
+        "vmUuid": "675696ba-a228-44c4-94c3-3c788808ce3d"
+      },
+      "observedAt": "2026-09-30T02:58:01.087740764Z",
+      "os": {
+        "arch": "x86_64",
+        "productType": "server",
+        "family": "windows",
+        "id": "mswindows",
+        "version": "2022"
+      },
+      "qgaVersion": "110.2.3",
+      "hostToolsVersion": "0.10.0",
+      "guestAdapterVersion": "windows-multi-os-license-56b6236-windows-read/windows-multi-os-license-56b6236-windows-action",
+      "supportedSchemaVersions": [
+        "1.0"
+      ],
+      "rpcs": {
+        "guest-exec": "ENABLED",
+        "guest-exec-status": "ENABLED",
+        "guest-file-open": "ENABLED",
+        "guest-file-close": "ENABLED",
+        "guest-file-read": "ENABLED",
+        "guest-file-write": "ENABLED",
+        "guest-file-seek": "ENABLED",
+        "guest-file-flush": "ENABLED"
+      },
+      "allowedActions": [
+        "process.list",
+        "process.kill",
+        "service.restart"
+      ],
+      "readiness": "READY",
+      "error": null
+    },
+    "publicContractValidated": true
+  },
+  {
+    "vm": "3ff1be7c-689c-4633-bcaa-060ccead098d",
+    "name": "Windows19-Sparse",
+    "instance": "i-2-72-VM",
+    "host": "10.10.31.2",
+    "state": "Running",
+    "readiness": "READY",
+    "os": {
+      "arch": "x86_64",
+      "productType": "server",
+      "family": "windows",
+      "id": "mswindows",
+      "version": "2019"
+    },
+    "actions": [
+      "process.list",
+      "process.kill",
+      "service.restart"
+    ],
+    "error": null,
+    "guestAdapterVersion": "windows-multi-os-license-56b6236-windows-read/windows-multi-os-license-56b6236-windows-action",
+    "publicState": {
+      "schemaVersion": "1.0",
+      "kind": "capability",
+      "requestId": "ed869d62-acb6-44e6-87e6-39032fb347e1",
+      "authority": {
+        "vmUuid": "3ff1be7c-689c-4633-bcaa-060ccead098d"
+      },
+      "observedAt": "2026-09-30T02:58:03.117170333Z",
+      "os": {
+        "arch": "x86_64",
+        "productType": "server",
+        "family": "windows",
+        "id": "mswindows",
+        "version": "2019"
+      },
+      "qgaVersion": "110.2.3",
+      "hostToolsVersion": "0.10.0",
+      "guestAdapterVersion": "windows-multi-os-license-56b6236-windows-read/windows-multi-os-license-56b6236-windows-action",
+      "supportedSchemaVersions": [
+        "1.0"
+      ],
+      "rpcs": {
+        "guest-exec": "ENABLED",
+        "guest-exec-status": "ENABLED",
+        "guest-file-open": "ENABLED",
+        "guest-file-close": "ENABLED",
+        "guest-file-read": "ENABLED",
+        "guest-file-write": "ENABLED",
+        "guest-file-seek": "ENABLED",
+        "guest-file-flush": "ENABLED"
+      },
+      "allowedActions": [
+        "process.list",
+        "process.kill",
+        "service.restart"
+      ],
+      "readiness": "READY",
+      "error": null
+    },
+    "publicContractValidated": true
+  },
+  {
+    "vm": "c51bcc9c-e045-40d7-b215-e319b36c1d45",
+    "name": "Windows11-Sparse",
+    "instance": "i-2-73-VM",
+    "host": "10.10.31.1",
+    "state": "Running",
+    "readiness": "READY",
+    "os": {
+      "version": "11",
+      "id": "mswindows",
+      "family": "windows",
+      "productType": "client",
+      "arch": "x86_64"
+    },
+    "actions": [
+      "process.list",
+      "process.kill",
+      "service.restart"
+    ],
+    "error": null,
+    "guestAdapterVersion": "windows-multi-os-license-56b6236-windows-read/windows-multi-os-license-56b6236-windows-action",
+    "publicState": {
+      "schemaVersion": "1.0",
+      "kind": "capability",
+      "requestId": "76d660c4-2ec4-4062-8131-bed132f0bf1b",
+      "authority": {
+        "vmUuid": "c51bcc9c-e045-40d7-b215-e319b36c1d45"
+      },
+      "observedAt": "2026-09-30T02:58:07.201121190Z",
+      "os": {
+        "version": "11",
+        "id": "mswindows",
+        "family": "windows",
+        "productType": "client",
+        "arch": "x86_64"
+      },
+      "qgaVersion": "110.2.3",
+      "hostToolsVersion": "0.10.0",
+      "guestAdapterVersion": "windows-multi-os-license-56b6236-windows-read/windows-multi-os-license-56b6236-windows-action",
+      "supportedSchemaVersions": [
+        "1.0"
+      ],
+      "rpcs": {
+        "guest-exec": "ENABLED",
+        "guest-exec-status": "ENABLED",
+        "guest-file-open": "ENABLED",
+        "guest-file-close": "ENABLED",
+        "guest-file-read": "ENABLED",
+        "guest-file-write": "ENABLED",
+        "guest-file-seek": "ENABLED",
+        "guest-file-flush": "ENABLED"
+      },
+      "allowedActions": [
+        "process.list",
+        "process.kill",
+        "service.restart"
+      ],
+      "readiness": "READY",
+      "error": null
+    },
+    "publicContractValidated": true
+  }
+]

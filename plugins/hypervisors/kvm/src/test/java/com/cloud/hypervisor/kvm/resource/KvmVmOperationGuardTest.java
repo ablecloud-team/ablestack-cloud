@@ -76,6 +76,47 @@ public class KvmVmOperationGuardTest {
         try (java.util.stream.Stream<Path> entries = Files.list(path)) { return entries.count(); }
     }
 
+    @Test public void actionLockContentionIsRejectedBeforeGuestDispatch() throws Exception {
+        Path root = Files.createTempDirectory("vm-process-action-guard");
+        String uuid = UUID.randomUUID().toString();
+        java.util.Map<String, Object> request = new java.util.LinkedHashMap<>();
+        request.put("schemaVersion", "1.0");
+        request.put("requestId", UUID.randomUUID().toString());
+        request.put("operationId", UUID.randomUUID().toString());
+        request.put("authority", java.util.Map.of("vmUuid", uuid));
+        request.put("action", "process.kill");
+        request.put("identity", java.util.Map.of("pid", 123));
+        request.put("service", null);
+        String json = new com.google.gson.GsonBuilder().serializeNulls().create().toJson(request);
+        try (KvmVmOperationGuard held = new KvmVmOperationGuard(root, uuid, "snapshot", false)) {
+            java.util.Map<String, Object> result = com.cloud.agent.api.VmProcessAction.decode(
+                    KvmVmOperationGuard.processAction(root, uuid, json, false), request);
+            assertEquals("FAILED", result.get("state"));
+            assertEquals("NOT_STARTED", result.get("effect"));
+            assertEquals("BUSY", ((java.util.Map<?, ?>) result.get("error")).get("code"));
+            assertEquals(1, entryCount(root.resolve(uuid)));
+            try (java.util.stream.Stream<Path> files = Files.list(root)) {
+                assertEquals(0, files.filter(p -> p.getFileName().toString().startsWith("process-")).count());
+            }
+        }
+        assertEquals(0, entryCount(root.resolve(uuid)));
+    }
+
+    @Test public void readinessWaitsForShortReadContentionWithinItsBudget() throws Exception {
+        Path root = Files.createTempDirectory("vm-process-readiness-guard");
+        String uuid = UUID.randomUUID().toString();
+        try (KvmVmOperationGuard first = new KvmVmOperationGuard(root, uuid, "monitoring", true)) {
+            java.util.concurrent.CompletableFuture<Void> releasing = java.util.concurrent.CompletableFuture.runAsync(() -> {
+                try { Thread.sleep(150); first.close(); }
+                catch (InterruptedException e) { Thread.currentThread().interrupt(); throw new RuntimeException(e); }
+            });
+            try (KvmVmOperationGuard second = new KvmVmOperationGuard(root, uuid, "monitoring", true, 1000)) {
+                assertEquals(0, entryCount(root.resolve(uuid)));
+            }
+            releasing.get();
+        }
+    }
+
     @Test public void renewalAdvancesAndCloseCancelsScheduledJob() throws Exception {
         Path root = Files.createTempDirectory("vm-guard"); String uuid = UUID.randomUUID().toString();
         java.lang.reflect.Field field = KvmVmOperationGuard.class.getDeclaredField("RENEWER");

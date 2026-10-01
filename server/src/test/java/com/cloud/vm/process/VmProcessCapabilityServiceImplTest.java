@@ -106,12 +106,59 @@ public class VmProcessCapabilityServiceImplTest {
             assertEquals("CHECK_FAILED", service.getCapabilities(15L).getProcessState().get("readiness"));
         }
     }
+    @Test public void hostMigrationDiscardsEvenSuccessfulAgentReadiness() throws Exception {
+        setup();
+        when(agents.send(eq(1L), any(GetVmProcessCapabilitiesCommand.class))).thenAnswer(call -> {
+            when(vm.getHostId()).thenReturn(2L);
+            GetVmProcessCapabilitiesCommand command = call.getArgument(1);
+            return new GetVmProcessCapabilitiesAnswer(command, VmProcessCapability.empty(command));
+        });
+        try (MockedStatic<CallContext> mock = mockStatic(CallContext.class)) {
+            mock.when(CallContext::current).thenReturn(context);
+            assertEquals("CHECK_FAILED", service.getCapabilities(15L).getProcessState().get("readiness"));
+        }
+    }
+    @Test public void inconsistentAgentReadyIsNotPublished() throws Exception {
+        setup();
+        when(agents.send(eq(1L), any(GetVmProcessCapabilitiesCommand.class))).thenAnswer(call -> {
+            GetVmProcessCapabilitiesCommand command = call.getArgument(1);
+            Map<String, Object> invalid = VmProcessCapability.empty(command);
+            invalid.put("readiness", "READY"); invalid.put("error", null);
+            return new GetVmProcessCapabilitiesAnswer(command, invalid);
+        });
+        try (MockedStatic<CallContext> mock = mockStatic(CallContext.class)) {
+            mock.when(CallContext::current).thenReturn(context);
+            assertEquals("CHECK_FAILED", service.getCapabilities(15L).getProcessState().get("readiness"));
+        }
+    }
     @Test public void deniedTenantNeverContactsAgent() throws Exception {
         setup(); doThrow(new PermissionDeniedException("denied")).when(accounts).checkAccess(any(), any(), eq(true), eq(vm));
         try (MockedStatic<CallContext> mock = mockStatic(CallContext.class)) {
             mock.when(CallContext::current).thenReturn(context);
             assertThrows(PermissionDeniedException.class, () -> service.getCapabilities(15L));
             verifyNoInteractions(agents);
+        }
+    }
+    @Test public void readyAgentWireNullIsRestoredForPublicContract() throws Exception {
+        setup();
+        when(agents.send(eq(1L), any(GetVmProcessCapabilitiesCommand.class))).thenAnswer(call -> {
+            GetVmProcessCapabilitiesCommand command = call.getArgument(1);
+            Map<String, Object> ready = VmProcessCapability.empty(command);
+            ready.put("readiness", "READY"); ready.remove("error");
+            ready.put("os", Map.of("family", "linux", "id", "ubuntu", "version", "24.04", "arch", "x86_64"));
+            Map<String, String> rpcs = new java.util.LinkedHashMap<>();
+            VmProcessCapability.RPCS.forEach(rpc -> rpcs.put(rpc, "ENABLED")); ready.put("rpcs", rpcs);
+            ready.put("qgaVersion", "9.1"); ready.put("hostToolsVersion", "0.10.0"); ready.put("guestAdapterVersion", "approved-read-bundle");
+            ready.put("supportedSchemaVersions", java.util.List.of("1.0")); ready.put("allowedActions", java.util.List.of("process.list"));
+            return new GetVmProcessCapabilitiesAnswer(command, ready);
+        });
+        try (MockedStatic<CallContext> mock = mockStatic(CallContext.class)) {
+            mock.when(CallContext::current).thenReturn(context);
+            org.apache.cloudstack.api.response.VmProcessCapabilityResponse result = service.getCapabilities(15L);
+            assertEquals("READY", result.getProcessState().get("readiness"));
+            String json = com.cloud.api.ApiResponseGsonHelper.getBuilder().create().toJson(result);
+            org.junit.Assert.assertTrue(json.contains("\"error\":null"));
+            org.junit.Assert.assertFalse(json.contains("hostUuid"));
         }
     }
     @Test public void stoppedAndNonKvmNeverContactAgent() throws Exception {

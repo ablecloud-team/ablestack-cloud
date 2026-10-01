@@ -1,0 +1,15 @@
+{
+  "background": "rgb(245, 247, 250)",
+  "bodyClass": "",
+  "panelBackground": "rgb(255, 255, 255)",
+  "scripts": [
+    "http://10.10.31.10:8080/client/js/chunk-6ccd2280.e52905f4.js",
+    "http://10.10.31.10:8080/client/js/chunk-b4331b1c.3cb25ff1.js",
+    "http://10.10.31.10:8080/client/js/chunk-2557609d.a79ecfc1.js",
+    "http://10.10.31.10:8080/client/js/chunk-08781768.69c26f3a.js",
+    "http://10.10.31.10:8080/client/js/less.min.js",
+    "http://10.10.31.10:8080/client/js/vendors.6633e6c6.js",
+    "http://10.10.31.10:8080/client/js/app.8f1a6f38.js"
+  ],
+  "text": "서비스 재시작\n종료\n업데이트\nQGA 권한 다시 확인\n목록 조회 완료\nUbuntu 24.04\n관측 시각: 2026. 10. 1. 오후 1:42:55\n목록 경과: 7s / 10s\n전체: 119\n\t\nPID\n\t\n프로세스 이름\n\t사용자\t상태\t\nCPU 사용량\n\t\n메모리\n\t연결 서비스\t작업\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n\n\t1\tsystemd\troot\tS\t0.0%\t13.4 MB\t—\t\n\n\n\t2\tkthreadd\troot\tS\t0.0%\t0.0 MB\t—\t\n\n\n\t3\tpool_workqueue_release\troot\tS\t0.0%\t0.0 MB\t—\t\n\n\n\t4\tkworker/R-rcu_g\troot\tI\t0.0%\t0.0 MB\t—\t\n\n\n\t5\tkworker/R-rcu_p\troot\tI\t0.0%\t0.0 MB\t—\t\n\n\n\t6\tkworker/R-slub_\troot\tI\t0.0%\t0.0 MB\t—\t\n\n\n\t7\tkworker/R-netns\troot\tI\t0.0%\t0.0 MB\t—\t\n\n\n\t9\tkworker/0:0H-kblockd\troot\tI\t0.0%\t0.0 MB\t—\t\n\n\n\t12\tkworker/R-mm_pe\troot\tI\t0.0%\t0.0 MB\t—\t\n\n\n\t13\trcu_tasks_kthread\troot\tI\t0.0%\t0.0 MB\t—\t\n1\n2\n3\n4\n5\n•••\n12\n10 / 쪽\n\nCPU는 한 코어 100% 기준입니다. —는 미측정이며 0.0%와 다릅니다. 일반 프로세스 재시작은 지원하지 않으며 연결된 서비스만 재시작할 수 있습니다."
+}

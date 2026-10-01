@@ -1,0 +1,36 @@
+[
+  {
+    "step": "before",
+    "vm": "04125c04-cfa5-4f43-be41-39e3c7d536d3",
+    "host": "ablecube31-3",
+    "readiness": "READY",
+    "bundle": "issue79-40d4807-ubuntu-ubuntu-read/issue79-40d4807-rocky-linux-action",
+    "bootId": "linux:c43acf13-fd12-4e96-8e24-2a4d7ce1a832",
+    "count": 118
+  },
+  {
+    "step": "migration-in-flight",
+    "state": "Running",
+    "readiness": "CHECK_FAILED"
+  },
+  {
+    "step": "migration-passed",
+    "host": "ablecube31-1",
+    "readiness": "READY",
+    "bundle": "issue79-40d4807-ubuntu-ubuntu-read/issue79-40d4807-rocky-linux-action",
+    "bootId": "linux:c43acf13-fd12-4e96-8e24-2a4d7ce1a832",
+    "count": 118
+  },
+  {
+    "step": "migration-restored",
+    "host": "ablecube31-3",
+    "readiness": "READY"
+  },
+  {
+    "step": "reboot-passed",
+    "host": "ablecube31-3",
+    "readiness": "READY",
+    "bootId": "linux:f2f33906-3094-4b0f-b719-35d595d8f27d",
+    "count": 145
+  }
+]

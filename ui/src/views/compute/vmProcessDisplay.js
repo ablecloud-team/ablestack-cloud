@@ -39,7 +39,7 @@ export function processDiagnostic (capability, snapshotId, snapshotFailure) {
   if (!snapshotId) {
     const readiness = capability?.readiness
     if (readiness === 'CHECK_FAILED') return { kind: 'host' }
-    if (readiness === 'QGA_UNREACHABLE') return { kind: 'qga' }
+    if (readiness === 'QGA_UNREACHABLE') return { kind: 'qga', install: true }
     if (readiness === 'HOST_TOOL_MISSING') return { kind: 'hostTool' }
     if (readiness === 'UNSUPPORTED_OS') return { kind: 'unsupportedOs' }
     if (readiness === 'RPC_UNSUPPORTED' || readiness === 'RPC_DISABLED') return { kind: 'rpc', missing: [], install: true }

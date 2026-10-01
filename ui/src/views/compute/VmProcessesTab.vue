@@ -31,15 +31,16 @@ under the License.
     </div>
 
     <div v-if="capability || snapshotId" class="process-status">
-      <a-tag v-if="snapshotId" :color="!stale || loading ? 'green' : 'orange'">{{ !stale || loading ? $t('label.vmprocess.snapshot.ready') : $t('label.vmprocess.snapshot.stale') }}</a-tag>
+      <a-tag v-if="snapshotId" :color="partialSnapshot || (stale && !loading) ? 'orange' : 'green'">{{ partialSnapshot ? $t('label.vmprocess.snapshot.partial') : !stale || loading ? $t('label.vmprocess.snapshot.ready') : $t('label.vmprocess.snapshot.stale') }}</a-tag>
       <span v-if="osLabel">{{ osLabel }}</span>
       <span v-if="observedAt">{{ $t('label.vmprocess.observed') }}: {{ $toLocaleDate(observedAt) }}</span>
       <span v-if="snapshotId">{{ $t('label.vmprocess.age') }}: {{ ageSeconds }}s / 10s</span>
-      <span v-if="total">{{ $t('label.vmprocess.total') }}: {{ total }}</span>
+      <span v-if="total">{{ $t(partialSnapshot ? 'label.vmprocess.collected' : 'label.vmprocess.total') }}: {{ total }}</span>
     </div>
 
     <a-alert v-if="disabled && !initializing" class="process-alert" type="warning" show-icon :message="$t('message.vmprocess.disabled')" :description="$t('message.vmprocess.disabled.detail')" />
     <a-alert v-else-if="diagnostic" class="process-alert" type="warning" show-icon :message="$t('message.vmprocess.status.' + diagnostic.kind)" :description="diagnostic.missing?.length ? diagnostic.missing.join(', ') + ' · ' + $t('message.vmprocess.status.' + diagnostic.kind + '.detail') : $t('message.vmprocess.status.' + diagnostic.kind + '.detail')" />
+    <a-alert v-if="partialSnapshot" class="process-alert" type="warning" show-icon :message="$t('message.vmprocess.snapshot.partial')" />
     <a-alert v-if="errorText && !initializing" class="process-alert" type="error" show-icon :message="errorText" />
     <a-alert v-if="operation" class="process-alert" :type="operation.state === 'FAILED' ? 'error' : operation.state === 'SUCCEEDED' ? 'success' : 'warning'" show-icon>
       <template #message>{{ $t('label.vmprocess.operation') }}: {{ actionLabel(operation.action) }} · {{ operation.name }} · {{ operation.state }}</template>
@@ -139,7 +140,7 @@ export default {
   props: { resource: { type: Object, required: true }, active: { type: Boolean, default: false } },
   emits: ['open-iso'],
   data () {
-    return { capability: null, toolsIso: null, toolsDialog: false, toolsDialogCatalog: null, toolsDialogCapability: null, capabilityLoading: false, initializing: this.active, disabled: false, rows: [], snapshotId: null, observedAt: null, receivedAt: 0, ageSeconds: 0, total: 0, page: 1, pageSize: 10, search: '', keyword: '', sortBy: 'pid', descending: false, loading: false, errorText: '', snapshotFailure: null, selected: null, confirm: null, ack: false, submitting: false, operation: null, operationChecking: false, generation: 0, disposed: false }
+    return { capability: null, toolsIso: null, toolsDialog: false, toolsDialogCatalog: null, toolsDialogCapability: null, capabilityLoading: false, initializing: this.active, disabled: false, rows: [], snapshotId: null, collectionStatus: null, observedAt: null, receivedAt: 0, ageSeconds: 0, total: 0, page: 1, pageSize: 10, search: '', keyword: '', sortBy: 'pid', descending: false, loading: false, errorText: '', snapshotFailure: null, selected: null, confirm: null, ack: false, submitting: false, operation: null, operationChecking: false, generation: 0, disposed: false }
   },
   computed: {
     scopeKey () { return JSON.stringify([this.resource.id, this.$store.getters.userInfo?.id, this.$store.getters.project?.id, this.$store.state?.user?.token]) },
@@ -149,6 +150,7 @@ export default {
     osLabel () { return processOsLabel(this.capability?.os) },
     diagnostic () { return this.initializing ? null : processDiagnostic(this.capability, this.snapshotId, this.snapshotFailure) },
     rpcsReady () { return this.capability?.rpcs && requiredRpcs.every(rpc => this.capability.rpcs[rpc] === 'ENABLED') },
+    partialSnapshot () { return this.collectionStatus === 'PARTIAL' },
     stale () { return !this.snapshotId || this.ageSeconds >= 10 || this.resource.state !== 'Running' },
     actionBusy () { return this.submitting || ['PENDING', 'UNKNOWN'].includes(this.operation?.state) },
     primaryAction () {
@@ -180,7 +182,7 @@ export default {
       this.toolsDialogCapability = this.capability ? { ...this.capability } : null
       this.toolsDialog = true
     },
-    reset () { this.capability = null; this.toolsIso = null; this.toolsDialog = false; this.initializing = false; this.disabled = false; this.rows = []; this.snapshotId = null; this.observedAt = null; this.receivedAt = 0; this.ageSeconds = 0; this.total = 0; this.selected = null; this.confirm = null; this.operation = null; this.errorText = ''; this.snapshotFailure = null; this.page = 1; this.keyword = ''; this.search = '' },
+    reset () { this.capability = null; this.toolsIso = null; this.toolsDialog = false; this.initializing = false; this.disabled = false; this.rows = []; this.snapshotId = null; this.collectionStatus = null; this.observedAt = null; this.receivedAt = 0; this.ageSeconds = 0; this.total = 0; this.selected = null; this.confirm = null; this.operation = null; this.errorText = ''; this.snapshotFailure = null; this.page = 1; this.keyword = ''; this.search = '' },
     deactivate () { this.toolsDialog = false; this.generation++; clearInterval(this.tickTimer); clearInterval(this.refreshTimer); this.tickTimer = null; this.refreshTimer = null; this.confirm = null; this.loading = false; this.initializing = false; this.capabilityLoading = false; this.operationChecking = false; this.submitting = false },
     async activate () {
       if (this.disposed || !this.active) return
@@ -215,7 +217,7 @@ export default {
         this.disabled = /disabled/i.test(message)
         this.errorText = this.disabled ? '' : message
         this.capability = null; this.toolsIso = null
-        this.rows = []; this.snapshotId = null; this.snapshotFailure = null; this.total = 0; this.selected = null
+        this.rows = []; this.snapshotId = null; this.collectionStatus = null; this.snapshotFailure = null; this.total = 0; this.selected = null
       } finally { if (this.current(token)) this.capabilityLoading = false }
     },
     async refreshAll () {
@@ -272,6 +274,7 @@ export default {
         if (!this.current(token) || this.pageRequest !== key) return
         if (state?.stale || state?.processstate?.kind !== 'snapshot') { this.ageSeconds = 10; throw new Error(this.$t('message.vmprocess.stale')) }
         if (state.processstate.authority?.vmUuid !== this.resource.id || state.processstate.snapshotId !== this.snapshotId) throw new Error(this.$t('message.vmprocess.result.missing'))
+        this.collectionStatus = state.processstate.status
         this.rows = state.processstate.processes || []
         this.total = state.count || 0
         return true
@@ -284,7 +287,10 @@ export default {
     actionAvailable (action, row, service = null) {
       if (!row || !this.canAdminAction || !(actionApis[action] in this.apiSet) || this.actionBusy || this.disabled || !this.rpcsReady || this.resource.state !== 'Running') return false
       if (row.identity?.pid <= 1 || row.identity?.vmUuid !== this.resource.id) return false
+      if (!this.capability?.allowedActions?.includes(action)) return false
       if (action === 'process.terminate' && !this.isLinux) return false
+      // SCM service processes are protected from process.kill by the guest adapter.
+      if (action === 'process.kill' && !this.isLinux && (row.identity.pid <= 4 || (row.services || []).some(item => item.manager === 'scm'))) return false
       if (action === 'service.restart' && (!service || !(row.services || []).some(item => item.name === service.name))) return false
       return true
     },
@@ -337,7 +343,7 @@ export default {
         const state = result(await getAPI('getVirtualMachineProcessOperation', { virtualmachineid: this.resource.id, requestid: pending.requestId }), 'getVirtualMachineProcessOperation')?.processoperation?.processstate
         if (!this.current(token) || this.operation?.requestId !== pending.requestId) return
         if (state?.state === 'SUCCEEDED' || state?.state === 'FAILED') {
-          this.operation = { ...pending, state: state.state, message: state.error?.message || this.$t('message.vmprocess.succeeded'), operationId: state.operationId }
+          this.operation = { ...pending, state: state.state, message: state.error?.code === 'PROTECTED_TARGET' ? this.$t('message.vmprocess.protected') : state.error?.message || this.$t('message.vmprocess.succeeded'), operationId: state.operationId }
           this.saveOperation()
           if (state.state === 'SUCCEEDED') await this.refreshSnapshot(token)
         } else { this.operation = { ...pending, state: 'UNKNOWN', operationId: state?.operationId }; this.saveOperation() }

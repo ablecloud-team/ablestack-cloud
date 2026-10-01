@@ -42,6 +42,9 @@ public class VmProcessCapabilityProbeTest {
         return new VmProcessCapabilityProbe() {
             @Override protected boolean hostToolPresent() { return present; }
             @Override protected String hostToolsVersion() { return "test"; }
+            @Override protected Map<String, Object> adapters(GetVmProcessCapabilitiesCommand value, Map<String, String> os) {
+                return Map.of("readiness", "TOOLS_REQUIRED");
+            }
             @Override protected String guest(String uuid, String operation) throws Exception {
                 assertEquals(command.getVmUuid(), uuid);
                 assertTrue(List.of("guest-info", "guest-get-osinfo").contains(operation));
@@ -95,8 +98,27 @@ public class VmProcessCapabilityProbeTest {
         try (org.mockito.MockedStatic<KvmVmOperationGuard> guard = org.mockito.Mockito.mockStatic(KvmVmOperationGuard.class)) {
             new VmProcessCapabilityProbe().collect(command);
             guard.verify(() -> KvmVmOperationGuard.collect(org.mockito.ArgumentMatchers.isNull(),
-                    org.mockito.ArgumentMatchers.eq(command.getVmName()), org.mockito.ArgumentMatchers.any()));
+                    org.mockito.ArgumentMatchers.eq(command.getVmName()), org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.eq(10000L), org.mockito.ArgumentMatchers.eq(1000L)));
         }
+    }
+    @Test public void readyRequiresRuntimeProofAndKeepsOsSpecificActions() {
+        Map<String, Object> ready = new VmProcessCapabilityProbe() {
+            @Override protected boolean hostToolPresent() { return true; }
+            @Override protected String hostToolsVersion() { return "0.10.0"; }
+            @Override protected String guest(String uuid, String operation) {
+                return operation.equals("guest-info") ? info("", "") : os("ubuntu", "24.04");
+            }
+            @Override protected Map<String, Object> adapters(GetVmProcessCapabilitiesCommand value, Map<String, String> os) {
+                Map<String, Object> proof = new java.util.LinkedHashMap<>();
+                proof.put("readiness", "READY"); proof.put("error", null); proof.put("guestAdapterVersion", "approved-legacy-read/approved-action");
+                proof.put("supportedSchemaVersions", List.of("1.0")); proof.put("allowedActions", List.of("process.list", "process.terminate", "process.kill", "service.restart"));
+                return proof;
+            }
+        }.observe(command);
+        assertEquals("READY", ready.get("readiness"));
+        assertEquals(List.of("1.0"), ready.get("supportedSchemaVersions"));
+        assertNull(ready.get("error"));
+        assertEquals(4, ((List<?>) ready.get("allowedActions")).size());
     }
 
 }
