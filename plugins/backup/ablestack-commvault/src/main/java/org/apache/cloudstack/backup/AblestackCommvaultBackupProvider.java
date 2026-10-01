@@ -2955,6 +2955,11 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
                             return false;
                         }
                         LOG.info("Completed Commvault backup agent install job [{}] for host [{}].", jobId, host.getPrivateIpAddress());
+                        ActionEventUtils.onCompletedActionEvent(User.UID_SYSTEM, Account.ACCOUNT_ID_SYSTEM, EventVO.LEVEL_INFO,
+                                EventTypes.EVENT_BACKUP_AGENT_INSTALL,
+                                String.format("Completed installation of the Commvault backup agent on host: %s (job ID: %s)",
+                                        host.getPrivateIpAddress(), jobId),
+                                host.getId(), ApiCommandResourceType.Host.toString(), 0);
                     } else {
                         LOG.error("installing agent on the Commvault Backup Provider failed to create install job on host [{}]", host.getPrivateIpAddress());
                         publishBackupAgentInstallFailureEventIfNeeded(host);
@@ -3042,7 +3047,8 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
     }
 
     private boolean hasBackupAgentInstallFailureEvent(long hostId) {
-        return eventDao.existsByTypeAndResource(EventTypes.EVENT_BACKUP_AGENT_INSTALL, hostId, ApiCommandResourceType.Host.toString());
+        return eventDao.existsByTypeAndResourceAndLevel(EventTypes.EVENT_BACKUP_AGENT_INSTALL, hostId,
+                ApiCommandResourceType.Host.toString(), EventVO.LEVEL_ERROR);
     }
 
     @Override
