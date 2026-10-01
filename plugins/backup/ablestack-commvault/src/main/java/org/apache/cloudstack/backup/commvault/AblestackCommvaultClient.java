@@ -35,6 +35,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
@@ -72,7 +73,8 @@ public class AblestackCommvaultClient {
     private final String apiName;
     private final String apiPassword;
     private final HttpClient httpClient;
-    private String accessToken = null;
+    private final Object authenticationLock = new Object();
+    private volatile String accessToken = null;
     private String cvtServerIp;
     private String cvtServerUsername;
     private String cvtServerPassword;
@@ -122,6 +124,20 @@ public class AblestackCommvaultClient {
 
     private HttpJsonResponse executeJsonRequest(final String method, final String path, final JsonNode requestBody,
                                                 final boolean authenticated) throws IOException {
+        final String token = accessToken;
+        HttpJsonResponse response = executeJsonRequestOnce(method, path, requestBody, authenticated ? token : null);
+        if (authenticated && response.statusCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
+            reauthenticateIfTokenUnchanged(token);
+            response = executeJsonRequestOnce(method, path, requestBody, accessToken);
+            if (response.statusCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
+                throw unauthorizedException();
+            }
+        }
+        return response;
+    }
+
+    private HttpJsonResponse executeJsonRequestOnce(final String method, final String path, final JsonNode requestBody,
+                                                    final String token) throws IOException {
         HttpURLConnection connection = null;
         final String requestUrl = apiURI.toString() + path;
         try {
@@ -132,8 +148,8 @@ public class AblestackCommvaultClient {
             connection.setConnectTimeout(HTTP_CONNECT_TIMEOUT_MS);
             connection.setReadTimeout(HTTP_READ_TIMEOUT_MS);
 
-            if (authenticated && StringUtils.isNotBlank(accessToken)) {
-                connection.setRequestProperty("Authtoken", accessToken);
+            if (StringUtils.isNotBlank(token)) {
+                connection.setRequestProperty("Authtoken", token);
             }
 
             if (requestBody != null) {
@@ -146,7 +162,7 @@ public class AblestackCommvaultClient {
 
             final int responseCode = connection.getResponseCode();
             final String responseBody = readConnectionBody(connection, responseCode);
-            LOG.debug("Response received in {} request. statusCode=[{}], URL=[{}].", method, responseCode, requestUrl);
+            LOG.trace("Response received in {} request. statusCode=[{}], URL=[{}].", method, responseCode, requestUrl);
             return new HttpJsonResponse(responseCode, responseBody);
         } finally {
             if (connection != null) {
@@ -212,10 +228,17 @@ public class AblestackCommvaultClient {
         }
     }
 
-    private void checkAuthFailure(final HttpResponse response) {
-        if (response != null && response.getStatusLine().getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
-            throw new ServerApiException(ApiErrorCode.UNAUTHORIZED, "Commvault API call unauthorized. Check username/password or contact your backup administrator.");
+    private void reauthenticateIfTokenUnchanged(final String failedToken) {
+        synchronized (authenticationLock) {
+            if (StringUtils.equals(failedToken, accessToken)) {
+                authenticate(apiName, apiPassword);
+            }
         }
+    }
+
+    private ServerApiException unauthorizedException() {
+        return new ServerApiException(ApiErrorCode.UNAUTHORIZED,
+                "Commvault API call unauthorized after re-authentication. Check username/password or contact your backup administrator.");
     }
 
     private void checkResponseOK(final HttpResponse response) {
@@ -254,27 +277,36 @@ public class AblestackCommvaultClient {
     }
 
     private HttpResponse get(final String path) throws IOException {
-        String url = apiURI.toString() + path;
-        final HttpGet request = new HttpGet(url);
-        request.setHeader("Authtoken", accessToken);
-        request.setHeader(HttpHeaders.ACCEPT, "application/json");
-        final HttpResponse response = httpClient.execute(request);
-        checkAuthFailure(response);
-
-        LOG.debug("Response received in GET request. statusCode=[{}], URL=[{}].", response.getStatusLine().getStatusCode(), url);
-        return response;
+        return executeAuthenticatedRequest("GET", path);
     }
 
     private HttpResponse delete(final String path) throws IOException {
-        String url = apiURI.toString() + path;
-        final HttpDelete request = new HttpDelete(url);
-        request.setHeader("Authtoken", accessToken);
-        request.setHeader(HttpHeaders.ACCEPT, "application/json");
-        final HttpResponse response = httpClient.execute(request);
-        checkAuthFailure(response);
+        return executeAuthenticatedRequest("DELETE", path);
+    }
 
-        LOG.debug("Response received in DELETE request. statusCode=[{}], URL=[{}].", response.getStatusLine().getStatusCode(), url);
-        return response;
+    private HttpResponse executeAuthenticatedRequest(final String method, final String path) throws IOException {
+        final String url = apiURI.toString() + path;
+        for (int attempt = 0; attempt < 2; attempt++) {
+            final String token = accessToken;
+            final HttpRequestBase request = "GET".equals(method) ? new HttpGet(url) : new HttpDelete(url);
+            if (StringUtils.isNotBlank(token)) {
+                request.setHeader("Authtoken", token);
+            }
+            request.setHeader(HttpHeaders.ACCEPT, "application/json");
+            final HttpResponse response = httpClient.execute(request);
+            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
+                EntityUtils.consumeQuietly(response.getEntity());
+                if (attempt == 0) {
+                    reauthenticateIfTokenUnchanged(token);
+                    continue;
+                }
+                throw unauthorizedException();
+            }
+            LOG.trace("Response received in {} request. statusCode=[{}], URL=[{}].",
+                    method, response.getStatusLine().getStatusCode(), url);
+            return response;
+        }
+        throw unauthorizedException();
     }
 
     // GET https://<commserveIp>/commandcenter/api/Client
@@ -1044,97 +1076,76 @@ public class AblestackCommvaultClient {
         return false;
     }
 
-    // GET https://<commserveIp>/commandcenter/api/Job/<jobId>/AdvancedDetails?infoType=1
-    // Job의 retention 정보에 포함된 Copy들을 확인하여 일반 Primary Storage Policy Copy ID를 찾음
-    public String getPrimaryStoragePolicyCopyId(String jobId, String storagePolicyId) {
-        if (StringUtils.isAnyBlank(jobId, storagePolicyId)) {
-            return null;
+    public static final class JobRetentionInfo {
+        private final String storagePolicyId;
+        private final String storagePolicyCopyId;
+        private final String retainedUntil;
+
+        public JobRetentionInfo(String storagePolicyId, String storagePolicyCopyId, String retainedUntil) {
+            this.storagePolicyId = storagePolicyId;
+            this.storagePolicyCopyId = storagePolicyCopyId;
+            this.retainedUntil = retainedUntil;
         }
 
-        try {
-            final HttpResponse response = get("/Job/" + jobId + "/AdvancedDetails?infoType=1");
-            checkResponseOK(response);
-            if (response.getEntity() == null) {
-                return null;
-            }
-            final String jsonString = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-            final JsonNode root = OBJECT_MAPPER.readTree(jsonString);
-            final JsonNode policyList = root.path("jobRetention").path("storagePolicyRetentionInfoList");
-            if (!policyList.isArray() || policyList.isEmpty()) {
-                return null;
-            }
-
-            for (JsonNode policy : policyList) {
-                final String jobStoragePolicyId = policy.path("storagePolicyId").asText(null);
-                if (!StringUtils.equals(storagePolicyId, jobStoragePolicyId)) {
-                    continue;
-                }
-                final JsonNode copyList = policy.path("copyRetentionInfoList");
-                if (!copyList.isArray()) {
-                    continue;
-                }
-                for (JsonNode copy : copyList) {
-                    final String copyId = copy.path("storagePolicyCopyId").asText(null);
-                    if (StringUtils.isBlank(copyId)) {
-                        continue;
-                    }
-                    if (isPrimaryStoragePolicyCopy(storagePolicyId, copyId)) {
-                        return copyId;
-                    }
-                }
-            }
-        } catch (final IOException e) {
-            LOG.error("Failed to request Commvault job retention information while resolving Primary Copy. jobId=[{}], storagePolicyId=[{}]: ", jobId, storagePolicyId, e);
-            checkResponseTimeOut(e);
+        public String getStoragePolicyId() {
+            return storagePolicyId;
         }
-        return null;
+
+        public String getStoragePolicyCopyId() {
+            return storagePolicyCopyId;
+        }
+
+        public String getRetainedUntil() {
+            return retainedUntil;
+        }
     }
 
-    /// GET https://<commserveIp>/commandcenter/api/Job/<jobId>/AdvancedDetails?infoType=1
-    // Job의 일반 Primary Storage Policy Copy 기준 실제 retention 만료 시간을 조회
-    public String getJobRetainedUntil(String jobId, String storagePolicyId, String primaryStoragePolicyCopyId) {
-        if (StringUtils.isAnyBlank(jobId, storagePolicyId, primaryStoragePolicyCopyId)) {
-            return null;
+    // GET https://<commserveIp>/commandcenter/api/Job/<jobId>/AdvancedDetails?infoType=1
+    // Job의 모든 Storage Policy Copy와 실제 retention 만료 시각(epoch seconds)을 한 번에 조회
+    public List<JobRetentionInfo> getJobRetentionInfo(String jobId) {
+        if (StringUtils.isBlank(jobId)) {
+            return new ArrayList<>();
         }
         try {
             final HttpResponse response = get("/Job/" + jobId + "/AdvancedDetails?infoType=1");
             checkResponseOK(response);
             if (response.getEntity() == null) {
-                return null;
+                return new ArrayList<>();
             }
-            final String jsonString = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-            final JsonNode root = OBJECT_MAPPER.readTree(jsonString);
-            final JsonNode policyList = root.path("jobRetention").path("storagePolicyRetentionInfoList");
-            if (!policyList.isArray() || policyList.isEmpty()) {
-                return null;
-            }
-            for (JsonNode policy : policyList) {
-                final String jobStoragePolicyId = policy.path("storagePolicyId").asText(null);
-                if (!StringUtils.equals(storagePolicyId, jobStoragePolicyId)) {
-                    continue;
-                }
-                final JsonNode copyList = policy.path("copyRetentionInfoList");
-                if (!copyList.isArray()) {
-                    continue;
-                }
-                for (JsonNode copy : copyList) {
-                    final String copyId = copy.path("storagePolicyCopyId").asText(null);
-                    if (!StringUtils.equals(primaryStoragePolicyCopyId, copyId)) {
-                        continue;
-                    }
-
-                    final long retainedUntil = copy.path("retentionDays").asLong(0L);
-                    if (retainedUntil <= 0L) {
-                        return null;
-                    }
-                    return String.valueOf(retainedUntil);
-                }
-            }
+            return parseJobRetentionInfo(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
         } catch (final IOException e) {
-            LOG.error("Failed to request Commvault job retention information. " + "jobId=[{}]: ", jobId, e);
+            LOG.error("Failed to request Commvault job retention information. jobId=[{}]: ", jobId, e);
             checkResponseTimeOut(e);
         }
-        return null;
+        return new ArrayList<>();
+    }
+
+    static List<JobRetentionInfo> parseJobRetentionInfo(String responseBody) throws IOException {
+        final List<JobRetentionInfo> retentionInfo = new ArrayList<>();
+        if (StringUtils.isBlank(responseBody)) {
+            return retentionInfo;
+        }
+        final JsonNode policyList = OBJECT_MAPPER.readTree(responseBody).path("jobRetention").path("storagePolicyRetentionInfoList");
+        if (!policyList.isArray()) {
+            return retentionInfo;
+        }
+        for (JsonNode policy : policyList) {
+            final String storagePolicyId = policy.path("storagePolicyId").asText(null);
+            if (StringUtils.isBlank(storagePolicyId)) {
+                continue;
+            }
+            final JsonNode copyList = policy.path("copyRetentionInfoList");
+            if (!copyList.isArray()) {
+                continue;
+            }
+            for (JsonNode copy : copyList) {
+                final String copyId = copy.path("storagePolicyCopyId").asText(null);
+                if (StringUtils.isNotBlank(copyId)) {
+                    retentionInfo.add(new JobRetentionInfo(storagePolicyId, copyId, copy.path("retentionDays").asText(null)));
+                }
+            }
+        }
+        return retentionInfo;
     }
 
     // POST https://<commserveIp>/commandcenter/api/subclient/<subclientId>/action/backup 테스트 시 Incremental 백업으로 반환되어 사용 x

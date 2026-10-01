@@ -1766,6 +1766,9 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         if (offering == null) {
             throw new CloudRuntimeException(String.format("Backup offering with ID [%s] does not exist.", backup.getBackupOfferingId()));
         }
+        if (isCommvaultJobSubmitted(backup, offering)) {
+            throw new CloudRuntimeException("Commvault backup cannot be canceled after host staging has completed");
+        }
         final BackupProvider backupProvider = getBackupProvider(offering.getProvider());
         if (backupProvider == null) {
             throw new CloudRuntimeException(String.format("Backup provider [%s] is not available.", offering.getProvider()));
@@ -5069,6 +5072,11 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         }
         accountManager.checkAccess(CallContext.current().getCallingAccount(), null, true, vm);
 
+        final BackupOffering offering = backupOfferingDao.findById(backup.getBackupOfferingId());
+        if (isCommvaultJobSubmitted(backup, offering)) {
+            throw new CloudRuntimeException("Commvault backup bandwidth cannot be changed after host staging has completed");
+        }
+
         final HostVO host = findBackupJobHost(backup, vm);
         if (host == null) {
             throw new CloudRuntimeException("Unable to find host for running backup " + backup.getUuid());
@@ -5112,6 +5120,16 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             return response;
         }
 
+        final BackupOffering offering = backupOfferingDao.findById(backup.getBackupOfferingId());
+        if (isCommvaultJobSubmitted(backup, offering)) {
+            // The host export is complete once Commvault has accepted a job and its ID is saved.
+            // Commvault completion is reconciled separately; host progress is no longer applicable.
+            response.setState("RUNNING");
+            response.setStep("COMMVAULT_TRANSFER");
+            response.setCapabilities("");
+            return response;
+        }
+
         if (vm == null) {
             throw new CloudRuntimeException("Instance " + backup.getVmId() + " does not exist");
         }
@@ -5127,7 +5145,10 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             }
             final BackupAnswer backupAnswer = (BackupAnswer) answer;
             response.setState(StringUtils.defaultIfBlank(backupAnswer.getState(), backup.getStatus().toString()));
-            response.setStep(backupAnswer.getStep());
+            final String step = backupAnswer.getStep();
+            response.setStep(StringUtils.equalsIgnoreCase("QCOW2", getBackupEngineDetail(backup))
+                    && StringUtils.equalsIgnoreCase("RUNNING", backupAnswer.getState())
+                    && StringUtils.equalsIgnoreCase("RUNNING", step) ? "QCOW2_BACKUP" : step);
             response.setProgress(backupAnswer.getProgress());
             response.setEventsOffset(backupAnswer.getEventsOffset());
             response.setEvents(backupAnswer.getEventsJson());
@@ -5146,6 +5167,11 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             throw new CloudRuntimeException(String.format("Failed to query backup job status for backup [%s] on host [%s]: %s",
                     backup.getUuid(), host.getName(), e.getMessage()), e);
         }
+    }
+
+    private boolean isCommvaultJobSubmitted(final BackupVO backup, final BackupOffering offering) {
+        return offering != null && BackupProviderNameUtils.isCommvaultFamily(offering.getProvider())
+                && StringUtils.isNotBlank(StringUtils.substringAfterLast(backup.getExternalId(), ","));
     }
 
     private HostVO findBackupJobHost(final BackupVO backup, final VMInstanceVO vm) {

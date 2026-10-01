@@ -37,11 +37,11 @@ public class BackupJobStatusResponse extends BaseResponse {
     private Backup.Status status;
 
     @SerializedName(ApiConstants.BACKUP_JOB_STATE)
-    @Param(description = "Current host-side backup job state")
+    @Param(description = "Current backup operation state")
     private String state;
 
     @SerializedName(ApiConstants.BACKUP_JOB_STEP)
-    @Param(description = "Current host-side backup job step")
+    @Param(description = "Current backup operation step")
     private String step;
 
     @SerializedName(ApiConstants.DETAILS)

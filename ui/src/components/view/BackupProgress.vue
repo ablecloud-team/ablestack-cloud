@@ -142,12 +142,11 @@ export default {
       return this.progress !== null
     },
     showProgress () {
-      return this.hasProgress && this.isActive && !this.isRestoring
+      return this.hasProgress && this.isActive && !this.isRestoring && String(this.step || '').toUpperCase() !== 'COMMVAULT_TRANSFER'
     },
     isAwaitingBackupFinalization () {
       return String(this.localStatus || this.record?.status || '').toLowerCase() === 'backingup' &&
-        this.isTerminalJobState(this.jobState) &&
-        this.normalizeProgress(this.progress) === 100
+        String(this.jobState || '').toUpperCase() === 'COMPLETED'
     },
     isAwaitingRestoreFinalization () {
       return this.isRestoring &&
@@ -155,27 +154,13 @@ export default {
         this.normalizeProgress(this.progress) === 100
     },
     displayStep () {
-      if (this.isAwaitingRestoreFinalization) {
-        return this.$t('label.restore.finalizing')
+      if (String(this.step || '').toUpperCase() === 'COMMVAULT_TRANSFER') {
+        return this.step
       }
-      if (this.isAwaitingBackupFinalization) {
-        return this.$t('label.backup.finalizing')
+      if (this.isAwaitingRestoreFinalization || this.isAwaitingBackupFinalization) {
+        return 'FINALIZING'
       }
-      const restoreStepLabels = {
-        REQUESTED: 'label.restore.requested',
-        QUEUED: 'label.restore.queued',
-        PREPARE_SOURCE: 'label.restore.prepare.source',
-        VALIDATE_CHAIN: 'label.restore.validate.chain',
-        RESTORE_DATA: 'label.restore.data',
-        ATTACH_VOLUME: 'label.restore.attach.volume',
-        CLEANUP_SOURCE: 'label.restore.cleanup.source',
-        FINALIZING: 'label.restore.finalizing',
-        FINALIZATION_FAILED: 'label.restore.finalization.failed',
-        COMPLETED: 'label.completed',
-        FAILED: 'label.failed'
-      }
-      const translationKey = restoreStepLabels[String(this.step || '').toUpperCase()]
-      return translationKey ? this.$t(translationKey) : this.step
+      return this.step
     },
     bandwidthStatusLabel () {
       if (!this.bandwidthStatus) {

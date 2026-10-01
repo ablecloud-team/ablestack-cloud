@@ -78,6 +78,7 @@ import org.apache.cloudstack.framework.config.Configurable;
 import org.apache.cloudstack.framework.config.dao.ConfigurationDao;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.xml.utils.URI;
@@ -108,6 +109,7 @@ import java.util.Comparator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.inject.Inject;
 
 import static org.apache.cloudstack.backup.BackupManager.KvmBackupChainSize;
@@ -119,6 +121,8 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
 
     private static final Logger LOG = LogManager.getLogger(AblestackCommvaultBackupProvider.class);
     private final ThreadLocal<Boolean> detachedRestoreStart = ThreadLocal.withInitial(() -> false);
+    private final Map<String, String> primaryCopyIdsByStoragePolicy = new ConcurrentHashMap<>();
+    private final Map<Long, CachedClient> clientsByZone = new ConcurrentHashMap<>();
     private static final String BACKUP_TYPE_FULL = "FULL";
     private static final String BACKUP_TYPE_INCREMENTAL = "INCREMENTAL";
     private static final String BACKUP_ENGINE_QCOW2 = "QCOW2";
@@ -1466,6 +1470,8 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
         // 복원된 호스트 정의
         final HostVO restoreHost = hostDao.findByName(clientName);
         final HostVO restoreHostVO = hostDao.findById(restoreHost.getId());
+        updateBackupDetail(backup, AblestackBackupFrameworkUtils.RESTORE_JOB_STATE_DETAIL, "RUNNING");
+        updateBackupDetail(backup, AblestackBackupFrameworkUtils.RESTORE_JOB_STEP_DETAIL, "COMMVAULT_RESTORE");
         final LinkedHashMap<String, List<String>> additionalSourceHostPaths = restoreBackupSourcesOnAdditionalHosts(client, backup, clientName);
         final List<String> restoreSourcePaths = getRestoreSourcePathsForStageHost(backup, clientName);
         LOG.info(String.format("Restoring vm %s from backup %s on the Commvault Backup Provider", vm, backup));
@@ -2232,7 +2238,6 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
             return;
         }
         final AblestackCommvaultClient client = getClient(vm.getDataCenterId());
-        final Map<String, String> primaryCopyIdsByStoragePolicy = new HashMap<>();
         for (final Backup backup : backupDao.listByVmId(vm.getDataCenterId(), vm.getId())) {
             if (!isBackupManagedByThisProvider(backup)) {
                 continue;
@@ -2258,48 +2263,46 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
                 continue;
             }
 
+            final List<AblestackCommvaultClient.JobRetentionInfo> retentionInfo = client.getJobRetentionInfo(jobId);
+            if (retentionInfo.isEmpty()) {
+                LOG.warn("Unable to get Commvault job retention information. jobId=[{}], backup=[{}].", jobId, backup.getUuid());
+                continue;
+            }
+            final String storagePolicyId = retentionInfo.get(0).getStoragePolicyId();
+            if (retentionInfo.stream().anyMatch(info -> !StringUtils.equals(storagePolicyId, info.getStoragePolicyId()))) {
+                LOG.warn("Multiple Storage Policies found in Commvault job retention information. jobId=[{}], backup=[{}]. Skipping expiration cleanup.",
+                        jobId, backup.getUuid());
+                continue;
+            }
+            final String primaryStoragePolicyCopyId = resolvePrimaryStoragePolicyCopyId(
+                    vm.getDataCenterId(), storagePolicyId, retentionInfo, client);
+            if (StringUtils.isBlank(primaryStoragePolicyCopyId)) {
+                LOG.warn("Unable to determine Primary Storage Policy Copy. storagePolicyId=[{}], jobId=[{}], backup=[{}]. Skipping retention expiration check.",
+                        storagePolicyId, jobId, backup.getUuid());
+                continue;
+            }
+            final String retainedUntil = retentionInfo.stream()
+                    .filter(info -> StringUtils.equals(primaryStoragePolicyCopyId, info.getStoragePolicyCopyId()))
+                    .findFirst()
+                    .map(AblestackCommvaultClient.JobRetentionInfo::getRetainedUntil)
+                    .orElse(null);
+            if (NumberUtils.toLong(retainedUntil, 0L) <= 0L) {
+                LOG.warn("Unable to determine retention expiration for Commvault job [{}], backup [{}]. Skipping expiration cleanup.",
+                        jobId, backup.getUuid());
+                continue;
+            }
+            if (!isRetentionExpired(retainedUntil)) {
+                continue;
+            }
+
             final String jobDetails = client.getJobDetails(jobId);
             if (StringUtils.isBlank(jobDetails)) {
-                LOG.warn("Unable to get Commvault JobDetails. jobId=[{}], backup=[{}].", jobId,backup.getUuid());
+                LOG.warn("Unable to get Commvault JobDetails for expired backup. jobId=[{}], backup=[{}].", jobId, backup.getUuid());
                 continue;
             }
             try {
                 final JSONObject jsonObject = new JSONObject(jobDetails);
                 final JSONObject generalInfo = jsonObject.getJSONObject("job").getJSONObject("jobDetail").getJSONObject("generalInfo");
-                final JSONObject storagePolicy = generalInfo.optJSONObject("storagePolicy");
-                if (storagePolicy == null) {
-                    LOG.warn("Storage Policy information not found in Commvault JobDetails. jobId=[{}], backup=[{}].", jobId, backup.getUuid());
-                    continue;
-                }
-                final long storagePolicyIdValue = storagePolicy.optLong("storagePolicyId", 0L);
-                if (storagePolicyIdValue <= 0L) {
-                    LOG.warn("Invalid Storage Policy ID in Commvault JobDetails. jobId=[{}], backup=[{}].", jobId, backup.getUuid());
-                    continue;
-                }
-
-                final String storagePolicyId = String.valueOf(storagePolicyIdValue);
-                String primaryStoragePolicyCopyId = primaryCopyIdsByStoragePolicy.get(storagePolicyId);
-                if (StringUtils.isBlank(primaryStoragePolicyCopyId)) {
-                    primaryStoragePolicyCopyId = client.getPrimaryStoragePolicyCopyId(jobId, storagePolicyId);
-                    if (StringUtils.isBlank(primaryStoragePolicyCopyId)) {
-                        LOG.warn("Unable to determine Primary Storage Policy Copy. " + "storagePolicyId=[{}], " + "jobId=[{}], backup=[{}]. "
-                                + "Skipping retention expiration check.", storagePolicyId, jobId, backup.getUuid());
-                        continue;
-                    }
-                    primaryCopyIdsByStoragePolicy.put(storagePolicyId, primaryStoragePolicyCopyId);
-                    LOG.debug("Cached Commvault Primary Storage Policy Copy. " + "storagePolicyId=[{}], copyId=[{}].", storagePolicyId, primaryStoragePolicyCopyId);
-                }
-
-                final String retainedUntil = client.getJobRetainedUntil(jobId, storagePolicyId, primaryStoragePolicyCopyId);
-                if (StringUtils.isBlank(retainedUntil)) {
-                    LOG.warn("Unable to determine retention expiration for " + "Commvault job [{}], backup [{}]. " + "Skipping expiration cleanup.",
-                            jobId, backup.getUuid());
-                    continue;
-                }
-                if (!isRetentionExpired(retainedUntil)) {
-                    continue;
-                }
-
                 final JSONObject subclient = generalInfo.getJSONObject("subclient");
                 final String subclientId =String.valueOf(subclient.get("subclientId"));
                 final String applicationId =String.valueOf(subclient.get("applicationId"));
@@ -2324,6 +2327,31 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
                         backup.getUuid(), jobId, e.getMessage());
             }
         }
+    }
+
+    String resolvePrimaryStoragePolicyCopyId(Long zoneId, String storagePolicyId,
+            List<AblestackCommvaultClient.JobRetentionInfo> retentionInfo, AblestackCommvaultClient client) {
+        final String cacheKey = zoneId + ":" + storagePolicyId;
+        return primaryCopyIdsByStoragePolicy.compute(cacheKey, (key, cachedCopyId) -> {
+            if (cachedCopyId != null && retentionInfo.stream()
+                    .anyMatch(info -> StringUtils.equals(cachedCopyId, info.getStoragePolicyCopyId()))) {
+                LOG.trace("Using cached Commvault Primary Storage Policy Copy. zoneId=[{}], storagePolicyId=[{}], copyId=[{}].",
+                        zoneId, storagePolicyId, cachedCopyId);
+                return cachedCopyId;
+            }
+            if (cachedCopyId != null) {
+                LOG.trace("Invalidated Commvault Primary Storage Policy Copy missing from job. zoneId=[{}], storagePolicyId=[{}], copyId=[{}].",
+                        zoneId, storagePolicyId, cachedCopyId);
+            }
+            for (AblestackCommvaultClient.JobRetentionInfo info : retentionInfo) {
+                if (client.isPrimaryStoragePolicyCopy(storagePolicyId, info.getStoragePolicyCopyId())) {
+                    LOG.trace("Cached Commvault Primary Storage Policy Copy. zoneId=[{}], storagePolicyId=[{}], copyId=[{}].",
+                            zoneId, storagePolicyId, info.getStoragePolicyCopyId());
+                    return info.getStoragePolicyCopyId();
+                }
+            }
+            return null;
+        });
     }
 
     @Override
@@ -3126,15 +3154,68 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
     }
 
     private AblestackCommvaultClient getClient(final Long zoneId) {
+        final ClientSettings settings = new ClientSettings(CommvaultUrl.valueIn(zoneId), CommvaultUsername.valueIn(zoneId),
+                CommvaultPassword.valueIn(zoneId), Boolean.TRUE.equals(CommvaultValidateSSLSecurity.valueIn(zoneId)),
+                CommvaultApiRequestTimeout.valueIn(zoneId));
+        return getOrCreateClient(zoneId, settings);
+    }
+
+    AblestackCommvaultClient getOrCreateClient(final Long zoneId, final ClientSettings settings) {
+        return clientsByZone.compute(zoneId, (key, cached) -> {
+            if (cached != null && cached.settings.matches(settings)) {
+                return cached;
+            }
+            final AblestackCommvaultClient client = createClient(settings);
+            if (cached != null) {
+                final String zoneCachePrefix = zoneId + ":";
+                primaryCopyIdsByStoragePolicy.keySet().removeIf(cacheKey -> cacheKey.startsWith(zoneCachePrefix));
+            }
+            return new CachedClient(settings, client);
+        }).client;
+    }
+
+    AblestackCommvaultClient createClient(final ClientSettings settings) {
         try {
-            return new AblestackCommvaultClient(CommvaultUrl.valueIn(zoneId), CommvaultUsername.valueIn(zoneId), CommvaultPassword.valueIn(zoneId),
-                    CommvaultValidateSSLSecurity.valueIn(zoneId), CommvaultApiRequestTimeout.valueIn(zoneId));
+            return new AblestackCommvaultClient(settings.url, settings.username, settings.password,
+                    settings.validateCertificate, settings.timeout);
         } catch (URISyntaxException e) {
             throw new CloudRuntimeException("Failed to parse Commvault API URL: " + e.getMessage());
         } catch (NoSuchAlgorithmException | KeyManagementException e) {
             LOG.error("Failed to build Commvault API client due to: ", e);
         }
         throw new CloudRuntimeException("Failed to build Commvault API client");
+    }
+
+    static final class ClientSettings {
+        private final String url;
+        private final String username;
+        private final String password;
+        private final boolean validateCertificate;
+        private final int timeout;
+
+        ClientSettings(String url, String username, String password, boolean validateCertificate, int timeout) {
+            this.url = url;
+            this.username = username;
+            this.password = password;
+            this.validateCertificate = validateCertificate;
+            this.timeout = timeout;
+        }
+
+        boolean matches(ClientSettings other) {
+            return other != null && Objects.equals(url, other.url) && Objects.equals(username, other.username)
+                    && Objects.equals(password, other.password) && validateCertificate == other.validateCertificate
+                    && timeout == other.timeout;
+        }
+    }
+
+    private static final class CachedClient {
+        private final ClientSettings settings;
+        private final AblestackCommvaultClient client;
+
+        private CachedClient(ClientSettings settings, AblestackCommvaultClient client) {
+            this.settings = settings;
+            this.client = client;
+        }
     }
 
     protected Ternary<String, String, String> getKVMHyperisorCredentials(HostVO host) {

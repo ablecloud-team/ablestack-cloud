@@ -46,6 +46,13 @@ const isLiveBandwidthBackup = (record) => {
   return hasBackupCapability(record, 'live-bandwidth')
 }
 
+const hasSubmittedCommvaultJob = (record) => {
+  if (String(record?.provider || '').toLowerCase() !== 'ablestack-commvault') return false
+  const externalId = String(record?.externalid || '')
+  const separator = externalId.lastIndexOf(',')
+  return separator >= 0 && !!externalId.substring(separator + 1).trim()
+}
+
 const isBackupOperationInProgress = (record) => {
   const restoreState = String(record?.restorejobstate || '').toLowerCase()
   const restoreFinished = ['completed', 'failed', 'canceled', 'cancelled', 'interrupted'].includes(restoreState)
@@ -640,7 +647,7 @@ export default {
           label: 'label.action.update.backup.bandwidth',
           dataView: true,
           popup: true,
-          show: (record) => { return record.status === 'BackingUp' && isLiveBandwidthBackup(record) },
+          show: (record) => { return record.status === 'BackingUp' && isLiveBandwidthBackup(record) && !hasSubmittedCommvaultJob(record) },
           suppressErrorNotification: true,
           args: ['id', 'bandwidthlimitmbps'],
           mapping: {
@@ -655,7 +662,10 @@ export default {
           label: 'label.cancel',
           message: 'message.confirm.cancel.backup',
           dataView: true,
-          show: (record) => { return record.status === 'BackingUp' },
+          show: (record) => {
+            if (record.status !== 'BackingUp') return false
+            return !hasSubmittedCommvaultJob(record)
+          },
           args: ['id'],
           mapping: {
             id: {

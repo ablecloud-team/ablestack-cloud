@@ -2184,6 +2184,7 @@ export default {
       })
     },
     pollActionCompletion (jobId, action, resourceName, resource, showLoading = true, selectedItems = this.selectedItems) {
+      const commvaultRestore = action?.api === 'restoreBackup' && String(this.resource?.provider || '').toLowerCase() === 'ablestack-commvault'
       if (this.shouldNavigateBack(action)) {
         action.isFetchData = false
       }
@@ -2250,7 +2251,8 @@ export default {
           },
           loadingMessage: `${this.$t(action.label)} - ${resourceName}`,
           successMessage: action.api === 'restoreBackup' ? this.$t(action.successMessage) : undefined,
-          showLoading: showLoading,
+          showLoading: showLoading && !commvaultRestore,
+          showSuccessMessage: !commvaultRestore,
           catchMessage: this.$t('error.fetching.async.job.result'),
           catchMethod: () => {
             if (action.api === 'restoreBackup') {
@@ -2419,6 +2421,9 @@ export default {
         if (jobId) {
           if (action.api === 'restoreBackup') {
             this.markBackupRestoreStarted(this.resource)
+            if (String(this.resource?.provider || '').toLowerCase() === 'ablestack-commvault') {
+              this.$message.info({ content: this.$t('label.backup.restore.requested'), duration: 2 })
+            }
           }
           if (selectedItems === this.selectedItems) {
             eventBus.emit('update-resource-state', { selectedItems, resource, state: 'InProgress', jobid: jobId })
@@ -2435,8 +2440,7 @@ export default {
       const trackedBackup = this.items.find(item => item.id === backup.id) || backup
       trackedBackup.restoreoperationpending = true
       trackedBackup.restorejobstate = 'STARTING'
-      trackedBackup.backupjobprogress = 0
-      trackedBackup.backupjobstep = 'QUEUED'
+      trackedBackup.restorejobstep = 'REQUESTED'
     },
     execSubmit (e) {
       e.preventDefault()
