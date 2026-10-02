@@ -19,9 +19,14 @@
 
 package com.cloud.hypervisor.kvm.resource.wrapper;
 
-import com.cloud.agent.api.*;
-import com.cloud.hypervisor.kvm.resource.*;
-import com.cloud.resource.*;
+import com.cloud.agent.api.Answer;
+import com.cloud.agent.api.VmProcessAction;
+import com.cloud.agent.api.VmProcessActionAnswer;
+import com.cloud.agent.api.VmProcessActionCommand;
+import com.cloud.hypervisor.kvm.resource.KvmVmOperationGuard;
+import com.cloud.hypervisor.kvm.resource.LibvirtComputingResource;
+import com.cloud.resource.CommandWrapper;
+import com.cloud.resource.ResourceWrapper;
 
 @ResourceWrapper(handles = VmProcessActionCommand.class)
 public final class LibvirtVmProcessActionCommandWrapper
