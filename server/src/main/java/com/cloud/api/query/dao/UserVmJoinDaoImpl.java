@@ -84,6 +84,9 @@ import com.cloud.utils.db.SearchCriteria.Op;
 import com.cloud.utils.net.Dhcp;
 import com.cloud.vm.UserVmDetailVO;
 import com.cloud.vm.UserVmManager;
+import com.cloud.vm.VmDetailConstants;
+import com.cloud.service.ServiceOfferingVO;
+import com.cloud.service.dao.ServiceOfferingDao;
 import com.cloud.vm.VirtualMachine;
 import com.cloud.vm.VirtualMachine.State;
 import com.cloud.vm.VbmcVO;
@@ -129,6 +132,10 @@ public class UserVmJoinDaoImpl extends GenericDaoBaseWithTagInformation<UserVmJo
     VolumeDetailsDao volumeDetailsDao;
     @Inject
     DiskOfferingDao _diskOfferingDao;
+    @Inject
+    private ServiceOfferingDao serviceOfferingDao;
+    @Inject
+    private UserVmManager userVmManager;
 
     private final SearchBuilder<UserVmJoinVO> VmDetailSearch;
     private final SearchBuilder<UserVmJoinVO> activeVmByIsoSearch;
@@ -184,6 +191,29 @@ public class UserVmJoinDaoImpl extends GenericDaoBaseWithTagInformation<UserVmJo
         UserVmDetailVO fastCloneStatus = _userVmDetailsDao.findDetail(userVm.getId(), FAST_CLONE_STATUS);
         if (fastCloneStatus != null) {
             userVmResponse.setCloneFastStatus(fastCloneStatus.getValue());
+        }
+        UserVmDetailVO sourcePhase = _userVmDetailsDao.findDetail(userVm.getId(), VmDetailConstants.FAST_CLONE_SOURCE_PHASE);
+        boolean sourcePowerAllowed = false;
+        if (sourcePhase != null && VmDetailConstants.FAST_CLONE_SOURCE_PHASE_READY.equals(sourcePhase.getValue())) {
+            ServiceOfferingVO offering = serviceOfferingDao.findById(userVm.getId(), userVm.getServiceOfferingId());
+            sourcePowerAllowed = offering != null && !offering.isVolatileVm();
+        }
+        userVmResponse.setCloneFastSourcePowerAllowed(sourcePowerAllowed);
+        UserVmDetailVO clonePhase = _userVmDetailsDao.findDetail(userVm.getId(), VmDetailConstants.FAST_CLONE_CLONE_PHASE);
+        userVmResponse.setCloneFastPhase(sourcePhase != null ? "source_" + sourcePhase.getValue()
+                : clonePhase != null ? "clone_" + clonePhase.getValue() : null);
+        userVmResponse.setCloneFastPowerAllowed(sourcePowerAllowed
+                || (sourcePhase == null && clonePhase != null && userVmManager.isSharedMountPointClonePowerAllowed(userVm.getId())));
+        if (sourcePhase == null && clonePhase != null) {
+            UserVmDetailVO bandwidth = _userVmDetailsDao.findDetail(userVm.getId(), VmDetailConstants.FAST_CLONE_BANDWIDTH);
+            UserVmDetailVO bandwidthStatus = _userVmDetailsDao.findDetail(userVm.getId(), VmDetailConstants.FAST_CLONE_BANDWIDTH_STATUS);
+            try {
+                userVmResponse.setCloneFastFlattenBandwidth(bandwidth == null ? UserVmManager.FlattenSharedMountPointBandwidth.value()
+                        : Integer.valueOf(bandwidth.getValue()));
+                userVmResponse.setCloneFastFlattenBandwidthStatus(bandwidthStatus == null ? null : bandwidthStatus.getValue());
+            } catch (NumberFormatException e) {
+                userVmResponse.setCloneFastFlattenBandwidthStatus("failed");
+            }
         }
         UserVmDetailVO fastCloneFlattenProgress = _userVmDetailsDao.findDetail(userVm.getId(), FAST_CLONE_FLATTEN_PROGRESS);
         if (fastCloneFlattenProgress != null) {

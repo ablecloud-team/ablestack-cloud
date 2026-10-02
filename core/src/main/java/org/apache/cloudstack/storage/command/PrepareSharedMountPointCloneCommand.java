@@ -17,13 +17,15 @@
 
 package org.apache.cloudstack.storage.command;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.cloudstack.storage.to.PrimaryDataStoreTO;
 
 public class PrepareSharedMountPointCloneCommand extends StorageSubSystemCommand {
-    public static class VolumeCloneSpec {
+    public static class VolumeCloneSpec implements Serializable {
+        private static final long serialVersionUID = 1L;
         private long sourceVolumeId;
         private String sourceVolumePath;
         private String sourceOverlayPath;

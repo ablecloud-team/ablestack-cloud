@@ -219,6 +219,8 @@ public class VirtualMachineManagerImplTest {
     @Mock
     private UserVmDetailsDao userVmDetailsDao;
     @Mock
+    private UserVmManager userVmManager;
+    @Mock
     private ItWorkDao _workDao;
     @Mock
     protected StateMachine2<State, VirtualMachine.Event, VirtualMachine> _stateMachine;
@@ -1110,6 +1112,8 @@ public class VirtualMachineManagerImplTest {
         }
 
         assertEquals(vmInstance.getPodIdToDeployIn(), (Long) destPod.getId());
+        Mockito.verify(userVmManager).prepareSharedMountPointClonePower(vmInstance.getId(), "start");
+        Mockito.verify(userVmManager).completeSharedMountPointClonePower(vmInstance.getId(), null, "start", false);
     }
 
     @Test
