@@ -76,7 +76,7 @@
         :disabled="isActionDisabled(action)"
         :type="dataView ? 'text' : (primaryIconList.includes(action.icon) ? 'primary' : 'default')"
         :danger="dangerIconList.includes(action.icon)"
-        :shape="dataView ? null : (['PlusOutlined', 'plus-outlined', 'UserAddOutlined', 'user-add-outlined'].includes(action.icon) ? 'round' : 'circle')"
+        :shape="dataView ? null : (action.toolbarLabel || ['PlusOutlined', 'plus-outlined', 'UserAddOutlined', 'user-add-outlined'].includes(action.icon) ? 'round' : 'circle')"
         :style="dataView ? {} : { marginLeft: '5px' }"
         :class="['action-button-item', { 'action-button-item--dataview': dataView }]"
         :size="size"
@@ -86,8 +86,8 @@
         <span v-if="dataView" class="action-button-item__label">
           {{ $t(action.label) }}
         </span>
-        <span v-else-if="['PlusOutlined', 'plus-outlined', 'UserAddOutlined', 'user-add-outlined'].includes(action.icon)">
-          {{ $t(action.label) }}
+        <span v-else-if="action.toolbarLabel || ['PlusOutlined', 'plus-outlined', 'UserAddOutlined', 'user-add-outlined'].includes(action.icon)">
+          {{ $t(action.toolbarLabel || action.label) }}
         </span>
       </a-button>
     </a-tooltip>

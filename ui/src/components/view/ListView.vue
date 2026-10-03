@@ -20,12 +20,15 @@
     <a-table
       size="middle"
       :loading="loading"
+      :locale="emptyText ? { emptyText } : undefined"
       :columns="isOrderUpdatable() ? columns : columns.filter(x => x.dataIndex !== 'order')"
       :dataSource="items"
       :rowKey="listRowKey"
       :pagination="false"
       :rowSelection="explicitlyAllowRowSelection || enableGroupAction() || $route.name === 'event' ? {selectedRowKeys: selectedRowKeys, onChange: onSelectChange, columnWidth: 30} : null"
       :rowClassName="getRowClassName"
+      :customRow="snapshotRowEvents"
+      @change="handleTableChange"
       @resizeColumn="handleResizeColumn"
       :style="{ 'overflow-y': this.$route.name === 'usage' ? 'hidden' : 'auto' }"
     >
@@ -236,7 +239,10 @@
       </template>
       <template v-if="column.key === 'type'">
         <span
-          v-if="['USER.LOGIN', 'USER.LOGOUT', 'ROUTER.HEALTH.CHECKS', 'FIREWALL.CLOSE', 'ALERT.SERVICE.DOMAINROUTER'].includes(text)"
+          v-if="$route.name === 'vmsnapshot'"
+        >{{ $t(text === 'DiskAndMemory' ? 'label.vmsnapshot.disk.memory' : text === 'Disk' ? 'label.vmsnapshot.disk' : text) }}</span>
+        <span
+          v-else-if="['USER.LOGIN', 'USER.LOGOUT', 'ROUTER.HEALTH.CHECKS', 'FIREWALL.CLOSE', 'ALERT.SERVICE.DOMAINROUTER'].includes(text)"
         >{{ translateEventType(text) }}</span>
         <span v-else>{{ translateEventType(text) }}</span>
       </template>
@@ -700,6 +706,7 @@
               {{ text }}
             </span>
           </span>
+          <a-tooltip v-if="$route.meta.name === 'storagepool' && name === 'disksizeallocatedgb'" :title="$t('message.storage.allocated.meaning')"><info-circle-outlined /></a-tooltip>
         </template>
       </template>
       <template v-if="column.key === 'level'">
@@ -861,7 +868,8 @@
         <status :text="record.autoscalingenabled ? 'Enabled' : 'Disabled'" displayText/>
       </template>
       <template v-if="column.key === 'current'">
-        <status :text="record.current ? record.current.toString() : 'false'" />
+        <span v-if="$route.name === 'vmsnapshot'">{{ $t(record.current ? 'label.vmsnapshot.current.yes' : 'label.vmsnapshot.current.no') }}</span>
+        <status v-else :text="record.current ? record.current.toString() : 'false'" />
       </template>
       <template v-if="column.key === 'enabled'">
         <status :text="record.enabled ? record.enabled.toString() : 'false'" />
@@ -1150,7 +1158,7 @@
     </template>
     <template #footer>
       <span v-if="hasSelected">
-        {{ `Selected ${selectedRowKeys.length} items` }}
+        {{ $t('label.items.selected.count', [selectedRowKeys.length]) }}
       </span>
     </template>
     </a-table>
@@ -1160,8 +1168,8 @@
     :actions="contextMenuActions"
     :resource="contextQuickViewRecord"
     :position="contextQuickViewPosition"
-    :selectedRowKeys="selectedRowKeys"
-    :selectedItems="selectedItems"
+    :selectedRowKeys="$route.name === 'vmsnapshot' ? [] : selectedRowKeys"
+    :selectedItems="$route.name === 'vmsnapshot' ? [] : selectedItems"
     :titleOverride="contextMenuTitle"
     @close="closeContextQuickView"
     @exec-action="handleContextAction" />
@@ -1217,6 +1225,10 @@ export default {
     items: {
       type: Array,
       required: true
+    },
+    emptyText: {
+      type: String,
+      default: ''
     },
     loading: {
       type: Boolean,
@@ -1340,7 +1352,7 @@ export default {
       if (!this.actions || this.actions.length === 0) {
         return []
       }
-      if (this.selectedRowKeys.length > 1) {
+      if (this.$route.name !== 'vmsnapshot' && this.selectedRowKeys.length > 1) {
         return this.actions.map(action => {
           if (!(action.api in this.$store.getters.apis)) {
             return null
@@ -1373,7 +1385,7 @@ export default {
       }).filter(Boolean)
     },
     contextMenuTitle () {
-      if (this.selectedRowKeys.length > 1) {
+      if (this.$route.name !== 'vmsnapshot' && this.selectedRowKeys.length > 1) {
         const first = this.getFirstSelectedItem()
         const suffix = this.$t('label.items.more', [this.selectedRowKeys.length - 1])
         const firstName = first?.displayname || first?.name || first?.displaytext || first?.displaytext || first?.hostname || first?.vmname || first?.annotation || first?.hypervisor || first?.type || first?.username || first?.ipaddress || first?.uuid || first?.id || ''
@@ -1383,6 +1395,19 @@ export default {
     }
   },
   methods: {
+    handleTableChange (pagination, filters, sorter) { this.$emit('table-change', pagination, filters, sorter) },
+    snapshotRowEvents (record) {
+      if (this.$route.name !== 'vmsnapshot') return {}
+      return {
+        tabindex: 0,
+        onKeydown: event => {
+          if (event.key === 'ContextMenu' || (event.shiftKey && event.key === 'F10')) {
+            const rect = event.currentTarget.getBoundingClientRect()
+            this.handleGlobalContextMenu({ target: event.currentTarget, clientX: rect.left + 24, clientY: rect.top + 24, preventDefault: () => event.preventDefault(), stopPropagation: () => event.stopPropagation() })
+          }
+        }
+      }
+    },
     listRowKey,
     translateEventType (type) {
       if (!type || typeof type !== 'string') {
@@ -1417,7 +1442,7 @@ export default {
       const rowElement = event.target.closest('tr.ant-table-row')
       // Allow context menu even when multiple items selected; fall back to first selected item
       const selectionCount = this.selectedRowKeys.length
-      const hasSelection = selectionCount > 0
+      const hasSelection = this.$route.name !== 'vmsnapshot' && selectionCount > 0
       if (!rowElement && !hasSelection) {
         this.closeContextQuickView()
         return
@@ -1426,7 +1451,7 @@ export default {
         return
       }
       let record = null
-      if (selectionCount > 0) {
+      if (hasSelection) {
         record = this.getFirstSelectedItem() || {}
       }
       if (!record && rowElement) {
@@ -1439,7 +1464,7 @@ export default {
       }
       event.preventDefault()
       event.stopPropagation()
-      this.contextQuickViewRecord = record
+      this.contextQuickViewRecord = this.$route.name === 'vmsnapshot' ? Object.freeze({ ...record }) : record
       this.contextQuickViewPosition = {
         x: event.clientX,
         y: event.clientY
@@ -1456,7 +1481,7 @@ export default {
     },
     handleContextAction (action) {
       this.closeContextQuickView()
-      this.$parent.execAction(action, action.groupAction && this.selectedRowKeys.length > 1)
+      this.$parent.execAction(action, this.$route.name !== 'vmsnapshot' && action.groupAction && this.selectedRowKeys.length > 1)
     },
     generateRowKeyValue (record) {
       return record.uid || (record.metadata && record.metadata.rule_uid) || record.id || record.name || record.usageType

@@ -749,14 +749,22 @@ public class VolumeDaoImpl extends GenericDaoBase<VolumeVO, Long> implements Vol
 
     @Override
     public long getVMSnapshotSizeByPool(long poolId) {
-        SearchCriteria<SumCount> sc = TotalVMSnapshotSizeByPoolSearch.create();
-        sc.setParameters("poolId", poolId);
-        sc.setParameters("state", State.Destroy);
-        List<SumCount> results = customSearch(sc, null);
-        if (results != null) {
-            return results.get(0).sum;
-        } else {
-            return 0;
+        // Legacy internal qcow2 counters represent repeated nominal disk sizes,
+        // not additional allocations. Exclude only the supported internal COW
+        // provider; retain all other strategies and managed storage semantics.
+        String sql = "SELECT COALESCE(SUM(CASE WHEN p.pool_type='SharedMountPoint' AND p.managed=0 "
+                + "AND vm.hypervisor_type='KVM' AND v.format='QCOW2' THEN 0 ELSE COALESCE(v.vm_snapshot_chain_size,0) END),0) "
+                + "FROM volumes v LEFT JOIN vm_instance vm ON vm.id=v.instance_id "
+                + "JOIN storage_pool p ON p.id=v.pool_id "
+                + "WHERE v.pool_id=? AND v.removed IS NULL AND v.state<>? AND v.instance_id IS NOT NULL";
+        try (PreparedStatement statement = TransactionLegacy.currentTxn().prepareAutoCloseStatement(sql)) {
+            statement.setLong(1, poolId);
+            statement.setString(2, State.Destroy.toString());
+            try (ResultSet result = statement.executeQuery()) {
+                return result.next() ? result.getLong(1) : 0;
+            }
+        } catch (SQLException e) {
+            throw new CloudRuntimeException("Unable to calculate VM snapshot allocated capacity for pool " + poolId, e);
         }
     }
 

@@ -49,6 +49,12 @@ const err = (error) => {
   }
 
   const response = error.response
+  // Snapshot read failures are handled by the view, preserving data and retry.
+  // A previous login cannot invalidate the current session; a current 401 can.
+  if (error.config?.preserveOnFailure &&
+      ((error.config.readScope && error.config.readScope !== jobScope()) || response?.status !== 401)) {
+    return Promise.reject(error)
+  }
   // Optional discovery must not log out a valid session on transport/service
   // failures. An actual authentication failure still follows the normal path.
   if (error.config?.optionalDiscovery && response?.status !== 401) {
@@ -205,6 +211,7 @@ service.interceptors.request.use(config => {
   source = sourceToken.getSource()
   config.cancelToken = source.token
   if (config.backgroundJob) config.jobScope = jobScope()
+  if (config.preserveOnFailure) config.readScope = jobScope()
 
   if (config.optionalDiscovery) {
     config.discoveryGeneration = store.state?.user?.discoveryGeneration

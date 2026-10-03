@@ -26,6 +26,11 @@ public interface VMSnapshotStrategy {
 
     boolean deleteVMSnapshot(VMSnapshot vmSnapshot);
 
+    default boolean deleteVMSnapshot(VMSnapshot vmSnapshot, boolean force) {
+        if (force) throw new com.cloud.utils.exception.CloudRuntimeException("Forced VM snapshot deletion is not supported by this provider");
+        return deleteVMSnapshot(vmSnapshot);
+    }
+
     boolean revertVMSnapshot(VMSnapshot vmSnapshot);
 
     StrategyPriority canHandle(VMSnapshot vmSnapshot);

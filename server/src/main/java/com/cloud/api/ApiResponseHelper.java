@@ -505,6 +505,7 @@ public class ApiResponseHelper implements ResponseGenerator, ResourceIdSupport {
     NetworkDetailsDao networkDetailsDao;
     @Inject
     private VMSnapshotDao vmSnapshotDao;
+    @Inject private com.cloud.vm.snapshot.VMSnapshotService vmSnapshotService;
     @Inject
     private BackupOfferingDao backupOfferingDao;
     @Inject
@@ -851,6 +852,8 @@ public class ApiResponseHelper implements ResponseGenerator, ResourceIdSupport {
         UserVm vm = ApiDBUtils.findUserVmById(vmSnapshot.getVmId());
         if (vm != null) {
             vmSnapshotResponse.setVirtualMachineId(vm.getUuid());
+            vmSnapshotResponse.setVirtualMachineState(vm.getState().toString());
+            vmSnapshotResponse.setVirtualMachineInstanceName(vm.getInstanceName());
             vmSnapshotResponse.setVirtualMachineName(StringUtils.isEmpty(vm.getDisplayName()) ? vm.getHostName() : vm.getDisplayName());
             vmSnapshotResponse.setHypervisor(vm.getHypervisorType().getHypervisorDisplayName());
             DataCenterVO datacenter = ApiDBUtils.findZoneById(vm.getDataCenterId());
@@ -861,9 +864,14 @@ public class ApiResponseHelper implements ResponseGenerator, ResourceIdSupport {
         }
         if (vmSnapshot.getParent() != null) {
             VMSnapshot vmSnapshotParent = ApiDBUtils.getVMSnapshotById(vmSnapshot.getParent());
-            if (vmSnapshotParent != null) {
+            if (vmSnapshotParent == null) {
+                vmSnapshotParent = vmSnapshotDao.findByIdIncludingRemoved(vmSnapshot.getParent());
+            }
+            if (vmSnapshotParent != null && vmSnapshotParent.getVmId().equals(vmSnapshot.getVmId())) {
                 vmSnapshotResponse.setParent(vmSnapshotParent.getUuid());
                 vmSnapshotResponse.setParentName(vmSnapshotParent.getDisplayName());
+            } else {
+                vmSnapshotResponse.setParentMissing(true);
             }
         }
         populateOwner(vmSnapshotResponse, vmSnapshot);
@@ -878,6 +886,7 @@ public class ApiResponseHelper implements ResponseGenerator, ResourceIdSupport {
         vmSnapshotResponse.setHasAnnotation(annotationDao.hasAnnotations(vmSnapshot.getUuid(), AnnotationService.EntityType.VM_SNAPSHOT.name(),
                 _accountMgr.isRootAdmin(CallContext.current().getCallingAccount().getId())));
 
+        vmSnapshotResponse.setForceDeletionAllowed(vmSnapshotService != null && vmSnapshotService.isForcedDeletionAllowed(vmSnapshot.getId()));
         vmSnapshotResponse.setCurrent(vmSnapshot.getCurrent());
         vmSnapshotResponse.setType(vmSnapshot.getType().toString());
         vmSnapshotResponse.setObjectName("vmsnapshot");

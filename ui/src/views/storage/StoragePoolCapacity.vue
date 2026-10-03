@@ -19,7 +19,8 @@
   <div class="volume-storage-capacity" :class="{ 'capacity-summary': summary }">
     <div class="capacity-metrics">
       <div v-for="metric in metrics" :key="metric.key" class="capacity-metric" :class="{ 'capacity-available': metric.key === 'available' }">
-        <span class="capacity-label">{{ $t(metric.label) }}</span>
+        <a-tooltip v-if="metric.key === 'allocated'" :title="$t('message.storage.allocated.meaning')"><span class="capacity-label">{{ $t(metric.label) }} <info-circle-outlined /></span></a-tooltip>
+        <span v-else class="capacity-label">{{ $t(metric.label) }}</span>
         <strong class="capacity-value">{{ format(capacities[metric.key]) }}</strong>
       </div>
     </div>

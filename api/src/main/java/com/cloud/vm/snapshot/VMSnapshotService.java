@@ -43,6 +43,13 @@ public interface VMSnapshotService {
 
     boolean deleteVMSnapshot(Long vmSnapshotId);
 
+    default boolean deleteVMSnapshot(Long vmSnapshotId, boolean force) {
+        if (force) throw new UnsupportedOperationException("Forced VM snapshot deletion is not supported");
+        return deleteVMSnapshot(vmSnapshotId);
+    }
+
+    default boolean isForcedDeletionAllowed(Long id) { return false; }
+
     UserVm revertToSnapshot(Long vmSnapshotId) throws InsufficientServerCapacityException, InsufficientCapacityException, ResourceUnavailableException,
         ConcurrentOperationException;
 

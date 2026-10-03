@@ -1,0 +1,410 @@
+[
+  {
+    "case": "A selected B restore",
+    "snapshot": "367d3879-fb6d-4335-9cd5-0df0eb9df919",
+    "job": "de2815c9-8d4a-4073-931e-f9bc68c6f94c",
+    "postCount": 1,
+    "outcome": "success"
+  },
+  {
+    "case": "A selected B middle delete",
+    "snapshot": "c1a3dbb4-ec76-41dd-9d32-956470fa44ec",
+    "job": "b0475e41-291f-4af8-a924-7f6b40de8ecf",
+    "postCount": 1,
+    "outcome": "success"
+  },
+  {
+    "case": "context keyboard",
+    "width": 272,
+    "itemHeight": 28,
+    "shiftF10": true,
+    "escapeFocus": "TR",
+    "outsideCloses": true
+  },
+  {
+    "case": "relation branch",
+    "count": 4,
+    "parent": "2bde481d-a340-4963-b35a-bfb656fa5c86",
+    "current": "2a99ee91-bb0e-49d2-986f-06a852088738"
+  },
+  {
+    "case": "search URL reload",
+    "keyword": "i-2-141-VM",
+    "count": 4
+  },
+  {
+    "case": "dark delete 1366x768",
+    "headerY": 24,
+    "footerY": 691,
+    "bodyScrollBefore": 23,
+    "bodyScrollAfter": 335,
+    "documentScroll": 0,
+    "centerY": 384,
+    "labelBg": "rgb(22, 27, 34)",
+    "labelFg": "rgba(255, 255, 255, 0.85)",
+    "enabledDangerBg": "rgb(140, 51, 50)",
+    "enabledDangerFg": "#fff"
+  },
+  {
+    "case": "dark delete mobile 390x640",
+    "modalY": 12,
+    "modalHeight": 616,
+    "headerY": 12,
+    "footerY": 575,
+    "bodyHeight": 508,
+    "bodyScrollHeight": 1463,
+    "documentScroll": 0,
+    "footerVisible": true
+  },
+  {
+    "case": "bulk 5 double click",
+    "postCount": 5,
+    "maxConcurrentVms": 2,
+    "success": 5,
+    "requests": [
+      {
+        "snapshot": "748d3069-2949-43b6-80bc-2d0ead6c987f",
+        "time": 927918.661092,
+        "job": "ccdf6e32-c5e9-40b0-b407-28aa2861c550"
+      },
+      {
+        "snapshot": "367d3879-fb6d-4335-9cd5-0df0eb9df919",
+        "time": 927918.661887,
+        "job": "9073af92-d341-4041-9b9a-33c606c82851"
+      },
+      {
+        "snapshot": "50eb110b-0209-48ac-8bbf-60d8760633ba",
+        "time": 927922.153037,
+        "job": "1d6b3b98-4f95-4f31-956d-282fe90eeec3"
+      },
+      {
+        "snapshot": "a7690522-54ee-40b4-be7b-ccf6ed5824ba",
+        "time": 927922.154913,
+        "job": "bbc148cd-4813-4ee8-81e0-085fa11b58db"
+      },
+      {
+        "snapshot": "67c5e3fc-e281-42c2-97a8-8e9c2801c078",
+        "time": 927925.388635,
+        "job": "3f5a6938-9491-4faa-9bc5-7e44da474085"
+      }
+    ]
+  },
+  {
+    "case": "fresh state race",
+    "openedState": "Running",
+    "submitState": "Stopped",
+    "snapshot": "2a99ee91-bb0e-49d2-986f-06a852088738",
+    "revertPosts": 0,
+    "blocked": true
+  },
+  {
+    "case": "tree-dark-fixed-six-row-summary",
+    "source": "38352ee9c27",
+    "arrows": [
+      {
+        "fg": "rgba(255, 255, 255, 0.85)",
+        "fill": "rgba(255, 255, 255, 0.85)"
+      },
+      {
+        "fg": "rgba(255, 255, 255, 0.85)",
+        "fill": "rgba(255, 255, 255, 0.85)"
+      },
+      {
+        "fg": "rgba(255, 255, 255, 0.85)",
+        "fill": "rgb(0, 0, 0)"
+      }
+    ],
+    "body": {
+      "client": 548,
+      "scroll": 548
+    },
+    "footer": {
+      "bottom": 712.0625,
+      "h": 53,
+      "right": 1058,
+      "w": 760,
+      "x": 298,
+      "y": 659.0625
+    },
+    "header": {
+      "bottom": 110.921875,
+      "h": 55,
+      "right": 1058,
+      "w": 760,
+      "x": 298,
+      "y": 55.921875
+    },
+    "nodes": [
+      {
+        "bg": "rgba(0, 0, 0, 0)",
+        "fg": "rgba(255, 255, 255, 0.85)",
+        "gap": "8px",
+        "label": {
+          "bottom": 328.0625,
+          "h": 24,
+          "right": 810.28125,
+          "w": 460.28125,
+          "x": 350,
+          "y": 304.0625
+        },
+        "tag": null
+      },
+      {
+        "bg": "rgba(0, 0, 0, 0)",
+        "fg": "rgba(255, 255, 255, 0.85)",
+        "gap": "8px",
+        "label": {
+          "bottom": 356.0625,
+          "h": 24,
+          "right": 841.828125,
+          "w": 467.828125,
+          "x": 374,
+          "y": 332.0625
+        },
+        "tag": null
+      },
+      {
+        "bg": "rgba(18, 52, 86, 0.18)",
+        "fg": "rgba(255, 255, 255, 0.85)",
+        "gap": "8px",
+        "label": {
+          "bottom": 384.0625,
+          "h": 24,
+          "right": 865.828125,
+          "w": 467.828125,
+          "x": 398,
+          "y": 360.0625
+        },
+        "tag": {
+          "bottom": 383.0625,
+          "h": 22,
+          "right": 948.328125,
+          "w": 74.5,
+          "x": 873.828125,
+          "y": 361.0625
+        }
+      }
+    ],
+    "rows": 6,
+    "summaryText": "VM 이름\tW2025-GFS2-Sparse\n스냅샷 이름\ti-2-13-VM_VS_20260919140930\n생성일\t2026. 9. 19. 오후 11:09:30\n유형\t디스크 + 메모리\n현재\t현재 기준점\n상위\ti-2-13-VM_VS_20260919132949",
+    "viewport": [
+      1366,
+      768
+    ]
+  },
+  {
+    "case": "tree-dark-mobile",
+    "bodyHeight": 508,
+    "bodyWidth": 364,
+    "footer": {
+      "bottom": 628,
+      "h": 53,
+      "right": 377,
+      "w": 374,
+      "x": 3,
+      "y": 575
+    },
+    "gap": "8px",
+    "header": {
+      "bottom": 67,
+      "h": 55,
+      "right": 377,
+      "w": 374,
+      "x": 3,
+      "y": 12
+    },
+    "label": {
+      "bottom": 505.28125,
+      "h": 72,
+      "right": 339,
+      "w": 236,
+      "x": 103,
+      "y": 433.28125
+    },
+    "scrollHeight": 815,
+    "scrollWidth": 364,
+    "tag": {
+      "bottom": 535.28125,
+      "h": 22,
+      "right": 177.5,
+      "w": 74.5,
+      "x": 103,
+      "y": 513.28125
+    },
+    "viewport": [
+      390,
+      640
+    ]
+  },
+  {
+    "case": "extract-dark-six-row-summary-gap",
+    "bodyHeight": 459,
+    "footer": 614.5,
+    "gap": 24,
+    "header": 100.5,
+    "labelBg": "rgb(22, 27, 34)",
+    "labelFg": "rgba(255, 255, 255, 0.85)",
+    "rows": 6,
+    "scrollHeight": 459,
+    "summary": "VM 이름\tepic1216-c\n스냅샷 이름\tepic1216-ui-c-memory\n생성일\t2026. 10. 3. 오후 9:38:33\n유형\t디스크 + 메모리\n현재\t현재 기준점\n상위\t—",
+    "summaryMarginBottom": "24px"
+  },
+  {
+    "case": "read-error-preserves-data-selection-scope",
+    "keyword": "epic1216-ui-c-memory",
+    "loggedIn": true,
+    "mainText": "/VM 스냅샷업데이트\nself\n프로젝트\nVM 스냅샷 생성선택 삭제\t\n\t\n목록을 갱신하지 못했습니다. 마지막 정상 데이터를 표시하며 자동으로 다시 시도합니다.\n\t\n표시 이름\n\t\n상태\n\tVM 이름\t\n유형\n\t\n현재\n\t상위\t\n생성일\n\t계정\t도메인\t\n\n\n\tepic1216-ui-c-memory\t\n사용 가능\n\tepic1216-c\t디스크 + 메모리\t현재 기준점\t\t2026. 10. 3. 오후 9:38:33\tadmin\tROOT\t\n1개 선택\n전체 1 개 항목 중 1-1 표시\n1\n20 / 쪽",
+    "rows": [
+      "1badd54f-295f-4e6d-89c8-920f92620c6e"
+    ],
+    "selected": true,
+    "url": "#/vmsnapshot?page=1&pagesize=20&keyword=epic1216-ui-c-memory&q=epic1216-ui-c-memory"
+  },
+  {
+    "case": "read-retry-recovered",
+    "errorShown": false,
+    "selected": true,
+    "url": "#/vmsnapshot?page=1&pagesize=20&keyword=epic1216-ui-c-memory&q=epic1216-ui-c-memory"
+  },
+  {
+    "case": "context-menu-right-edge-clamp",
+    "bottom": 627,
+    "height": 289,
+    "right": 1358,
+    "viewport": [
+      1366,
+      768
+    ],
+    "width": 272,
+    "x": 1086,
+    "y": 338
+  },
+  {
+    "case": "storage-list-detail",
+    "allocationGiB": 4636.77,
+    "otherPoolsGiB": 214.65,
+    "detail": "\n  - link \"home\":\n    - /url: \"#/\"\n    - img \"home\":\n  - text: /\n  - link \"기본 스토리지\":\n    - /url: \"#/storagepool\"\n  - text: /\n  - generic: Primary\n  - link \"question-circle\":\n    - /url: http://docs.ablecloud.io/latest/adminguide/storage.html#primary-storage\n    - img \"question-circle\":\n  - button \"reload 업데이트\":\n    - img \"reload\":\n    - generic: 업데이트\n  - button \"down 작업\":\n    - img \"down\":\n    - generic: 작업\n  - img \"hdd\":\n  - heading \"Primary\" [level=4]\n  - generic: SharedMountPoint\n  - generic: KVM\n  - generic: CLUSTER\n  - separator\n  - generic: 상태\n  - generic: 실행 중\n  - generic: 아이디\n  - button \"barcode\":\n    - img \"barcode\":\n  - link \"1842fb9f-02e0-4da9-b082-422c5a184de0\":\n    - /url: javascript:;\n  - generic: IP\n  - img \"environment\":\n  - link \"localhost\":\n    - /url: javascript:;\n  - generic: 디스크 크기(GB 단위)\n  - img \"database\":\n  - text: 7450.08 GiB (x1.0)\n  - generic \"9.89% 사용된\"\n  - generic \"62.24% 할당된\"\n  - generic: 클러스터\n  - img \"cluster\":\n  - link \"Cluster\":\n    - /url: \"#/cluster/0d3d50e7-3cb5-4adf-8507-955bc81cc4a5\"\n  - generic: Pod\n  - img \"appstore\":\n  - link \"Pod\":\n    - /url: \"#/pod/2a9760c6-795d-48fc-bca1-77037c541279\"\n  - generic: Zone\n  - img \"global\":\n  - link \"Zone\":\n    - /url: \"#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c\"\n  - generic: 생성일\n  - img \"calendar\":\n  - text: 2026. 9. 17. 오후 2:00:59\n  - separator\n  - link \"hdd 볼륨 보기\":\n    - /url: \"#/volume?storageid=1842fb9f-02e0-4da9-b082-422c5a184de0\"\n    - button \"hdd 볼륨 보기\":\n      - img \"hdd\":\n      - generic: 볼륨 보기\n  - link \"save 템플릿 보기\":\n    - /url: \"#/template?templatefilter=self&filter=self&storageid=1842fb9f-02e0-4da9-b082-422c5a184de0\"\n    - button \"save 템플릿 보기\":\n      - img \"save\":\n      - generic: 템플릿 보기\n  - link \"usb ISO 보기\":\n    - /url: \"#/iso?isofilter=self&filter=self&storageid=1842fb9f-02e0-4da9-b082-422c5a184de0\"\n    - button \"usb ISO 보기\":\n      - img \"usb\":\n      - generic: ISO 보기\n  - tablist:\n    - tab \"상세\" [selected]\n    - tab \"설정\"\n    - tab \"브라우저\"\n    - tab \"이벤트\"\n    - tab \"코멘트\"\n  - tabpanel \"상세\":\n    - list:\n      - strong: 이름\n      - generic: Primary\n      - strong: 아이디\n      - generic: 1842fb9f-02e0-4da9-b082-422c5a184de0\n      - strong: IP 주소\n      - generic: localhost\n      - strong: 유형\n      - generic: SharedMountPoint\n      - strong: 범위\n      - generic: CLUSTER\n      - strong: 태그\n      - generic: glue-gfs\n      - strong: 경로\n      - generic: /mnt/glue-gfs\n      - strong: 하이퍼바이저\n      - generic: KVM\n      - strong: 오버 프로비저닝 요인\n      - generic: \"1.0\"\n      - strong: 전체 디스크 크기\n      - generic: \"7999462260736\"\n      - strong: 할당된 디스크 크기\n      - img \"info-circle\":\n      - generic: \"4978689969440\"\n      - strong: 사용된 디스크 크기\n      - generic: \"791158636544\"\n      - strong: 클러스터\n      - generic: Cluster\n      - strong: Pod 이름\n      - generic: Pod\n      - strong: Zone\n      - generic: Zone\n      - strong: 생성일\n      - generic: 2026. 9. 17. 오후 2:00:59\n- alert:\n  - img \"exclamation-circle\":\n  - generic: 조치가 필요한 경보\n  - generic: (1건)\n  - generic: \"-\"\n  - generic: 주요 시스템에서 리소스 임계치 초과 또는 상태 변경이 감지되어 확인이 필요합니다.\n  - button \"세부 경보 내용 확인\":\n    - generic: 세부 경보 내용 확인\n  - button \"경보 규칙으로 이동\":\n    - generic: 경보 규칙으로 이동\n  - button \"닫기\":\n    - img \"close\":\n- img \"close-circle\":\n- generic: 요청 실패\n- img \"close\":"
+  },
+  {
+    "case": "volume-list-regression",
+    "lastText": "\n실행 중\n\t0\t0\t0\t6.71 GiB\t6.7%\tPrimary\tepic1216-user-a\tZone\t\t\n비활성화\n\n\n\tROOT-145\t\n사용 가능\n\t100.00 GiB\tROOT\tepic1216-acl-user-b\t\n실행 중\n\t0\t0\t0\t6.82 GiB\t6.8%\tPrimary\tepic1216-user-b\tZone\t\t\n비활성화\n전체 59 개 항목 중 1-20 표시\n1\n2\n3\n20 / 쪽\n이동하기",
+    "rows": 20,
+    "url": "#/volume"
+  },
+  {
+    "case": "search-no-result",
+    "text": "g \"caret-up\":\n          - img \"caret-down\":\n        - columnheader \"VM 이름\"\n        - columnheader \"유형 caret-up caret-down\":\n          - generic: 유형\n          - img \"caret-up\":\n          - img \"caret-down\":\n        - columnheader \"현재 caret-up caret-down\":\n          - generic: 현재\n          - img \"caret-up\":\n          - img \"caret-down\":\n        - columnheader \"상위\"\n        - columnheader \"생성일 caret-up caret-down\":\n          - generic: 생성일\n          - img \"caret-up\":\n          - img \"caret-down\":\n        - columnheader \"계정\"\n        - columnheader \"도메인\"\n    - rowgroup:\n      - row \"검색 또는 필터 조건에 맞는 VM 스냅샷이 없습니다.\":\n        - cell \"검색 또는 필터 조건에 맞는 VM 스냅샷이 없습니다.\"\n  - list:\n    - listitem: 전체 0 개 항목 중 0-0 표시\n    - listitem \"이전 페이지\":\n      - button \"left\" [disabled]:\n        - img \"left\":\n    - listitem \"1\":\n      - generic: \"1\"\n    - listitem \"다음 페이지\":\n      - button \"right\" [disabled]:\n        - img \"right\":\n    - combobox\n    - generic: 20 / 쪽\n- alert:\n  - img \"exclamation-circle\":\n  - generic: 조치가 필요한 경보\n  - generic: (1건)\n  - generic: \"-\"\n  - generic: 주요 시스템에서 리소스 임계치 초과 또는 상태 변경이 감지되어 확인이 필요합니다.\n  - button \"세부 경보 내용 확인\":\n    - generic: 세부 경보 내용 확인\n  - button \"경보 규칙으로 이동\":\n    - generic: 경보 규칙으로 이동\n  - button \"닫기\":\n    - img \"close\":\n- img \"close-circle\":\n- generic: 요청 실패\n- img \"close\":"
+  },
+  {
+    "case": "project-scope-ui",
+    "countText": "전체 1 개 항목 중 1-1 표시",
+    "rows": [
+      {
+        "id": "f077ccf1-892b-4f58-b7b8-f7a62d7953ef",
+        "text": "\tepic1216-acl-project-a\t\n사용 가능\n\tepic1216-acl-project-a\t디스크 + 메모리\t현재 기준점\t\t2026. 10. 3. 오후 8:42:31\t\tepic1216-domain-a"
+      }
+    ],
+    "url": "#/vmsnapshot"
+  },
+  {
+    "case": "context-menu-resize-close",
+    "menuOpen": false,
+    "viewport": [
+      1280,
+      720
+    ]
+  },
+  {
+    "case": "context-menu-list-scroll-close",
+    "menuOpen": false,
+    "scrolls": [
+      {
+        "class": "ant-layout-content layout-content is-header-fixed",
+        "height": 617,
+        "left": 0,
+        "scrollHeight": 1601,
+        "top": 517
+      },
+      {
+        "class": "list-view-table-wrapper",
+        "height": 1451,
+        "left": 0,
+        "scrollHeight": 1451,
+        "top": 0
+      },
+      {
+        "class": "ant-table-content",
+        "height": 1427,
+        "left": 0,
+        "scrollHeight": 1427,
+        "top": 0
+      }
+    ]
+  },
+  {
+    "case": "final-context-menu-no-details",
+    "source": "fac80416b51",
+    "detailModal": 0,
+    "height": 235,
+    "items": [
+      "VM 스냅샷 생성",
+      "VM 스냅샷 관계",
+      "VM 스냅샷에서 스냅샷 생성",
+      "VM 스냅샷 복원",
+      "VM 스냅샷 삭제"
+    ],
+    "width": 272
+  },
+  {
+    "case": "snapshot-name-link-existing-detail-page",
+    "heading": "epic1216-ui-c-memory",
+    "modalCount": 0,
+    "url": "#/vmsnapshot/1badd54f-295f-4e6d-89c8-920f92620c6e"
+  },
+  {
+    "case": "final-dark-dialog-contrast",
+    "source": "fac80416b51",
+    "currentTag": 5.28,
+    "gap": "8px",
+    "labels": [
+      12.7,
+      12.7,
+      12.7,
+      12.7,
+      12.7,
+      12.7
+    ],
+    "selectedText": 10.89,
+    "summaryRows": 6,
+    "title": 7.13,
+    "treeIcons": [
+      11.12,
+      11.12
+    ],
+    "values": [
+      11.12,
+      11.12,
+      11.12,
+      11.12,
+      11.12,
+      11.12
+    ]
+  },
+  {
+    "case": "final-vm-detail-snapshot-tab",
+    "localizedReady": true,
+    "source": "fac80416b51"
+  },
+  {
+    "case": "final-light-six-row-dialog",
+    "localeSource": "036da8b71eb",
+    "acknowledgement": "선택한 가상머신과 스냅샷을 확인했고 작업 영향을 이해했습니다.",
+    "bodyHeight": 419,
+    "centerY": 384,
+    "labelBg": "rgb(250, 250, 250)",
+    "labelFg": "rgb(75, 85, 99)",
+    "scrollHeight": 419,
+    "summaryRows": 6,
+    "viewportHeight": 768
+  }
+]

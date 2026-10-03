@@ -223,9 +223,12 @@ public class UserVmJoinDaoImplTest extends GenericDaoBaseWithTagInformationBaseT
         Mockito.when(userVm.getHostId()).thenReturn(7L);
         Mockito.when(userVm.getClusterId()).thenReturn(5L);
         com.cloud.host.DetailVO detail = Mockito.mock(com.cloud.host.DetailVO.class);
-        Mockito.when(detail.getValue()).thenReturn("2");
+        int configuredCap = Integer.parseInt(com.cloud.template.TemplateManager.VmIsoMaxCount.defaultValue());
+        Mockito.when(detail.getValue()).thenReturn(Integer.toString(configuredCap + 1));
         Mockito.when(hostDetailsDao.findDetail(7L, com.cloud.host.Host.HOST_CDROM_MAX_COUNT)).thenReturn(detail);
-        // Configured cap defaults to 1 (no cluster override mocked); host advertises 2; clamps to 1.
+        // Use the current upstream default, then exercise a stricter host limit.
+        Assert.assertEquals(configuredCap, _userVmJoinDaoImpl.effectiveCdromMaxCount(userVm));
+        Mockito.when(detail.getValue()).thenReturn("1");
         Assert.assertEquals(1, _userVmJoinDaoImpl.effectiveCdromMaxCount(userVm));
     }
 }

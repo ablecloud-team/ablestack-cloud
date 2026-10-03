@@ -22,12 +22,20 @@ public class VmWorkDeleteVMSnapshot extends VmWork {
     private static final long serialVersionUID = 7168101866614517508L;
 
     private Long vmSnapshotId;
+    private boolean force;
 
     public VmWorkDeleteVMSnapshot(long userId, long accountId, long vmId, String handlerName, Long vmSnapshotId) {
         super(userId, accountId, vmId, handlerName);
 
         this.vmSnapshotId = vmSnapshotId;
     }
+
+    public VmWorkDeleteVMSnapshot(long userId, long accountId, long vmId, String handlerName, Long vmSnapshotId, boolean force) {
+        this(userId, accountId, vmId, handlerName, vmSnapshotId);
+        this.force = force;
+    }
+
+    public boolean isForce() { return force; }
 
     public Long getVmSnapshotId() {
         return vmSnapshotId;

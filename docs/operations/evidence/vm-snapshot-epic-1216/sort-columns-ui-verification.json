@@ -1,0 +1,172 @@
+{
+  "cases": [
+    {
+      "sortkey": "displayname",
+      "sortorder": "desc",
+      "page": "1",
+      "pagesize": "20",
+      "count": 25,
+      "rows": 20,
+      "idsMatchResponse": true,
+      "rawSortTags": false,
+      "error": null
+    },
+    {
+      "sortkey": "state",
+      "sortorder": "asc",
+      "page": "1",
+      "pagesize": "20",
+      "count": 25,
+      "rows": 20,
+      "idsMatchResponse": true,
+      "rawSortTags": false,
+      "error": null
+    },
+    {
+      "sortkey": "state",
+      "sortorder": "desc",
+      "page": "1",
+      "pagesize": "20",
+      "count": 25,
+      "rows": 20,
+      "idsMatchResponse": true,
+      "rawSortTags": false,
+      "error": null
+    },
+    {
+      "sortkey": "type",
+      "sortorder": "asc",
+      "page": "1",
+      "pagesize": "20",
+      "count": 25,
+      "rows": 20,
+      "idsMatchResponse": true,
+      "rawSortTags": false,
+      "error": null
+    },
+    {
+      "sortkey": "type",
+      "sortorder": "desc",
+      "page": "1",
+      "pagesize": "20",
+      "count": 25,
+      "rows": 20,
+      "idsMatchResponse": true,
+      "rawSortTags": false,
+      "error": null
+    },
+    {
+      "sortkey": "current",
+      "sortorder": "asc",
+      "page": "1",
+      "pagesize": "20",
+      "count": 25,
+      "rows": 20,
+      "idsMatchResponse": true,
+      "rawSortTags": false,
+      "error": null
+    },
+    {
+      "sortkey": "current",
+      "sortorder": "desc",
+      "page": "1",
+      "pagesize": "20",
+      "count": 25,
+      "rows": 20,
+      "idsMatchResponse": true,
+      "rawSortTags": false,
+      "error": null
+    },
+    {
+      "sortkey": "created",
+      "sortorder": "asc",
+      "page": "1",
+      "pagesize": "20",
+      "count": 25,
+      "rows": 20,
+      "idsMatchResponse": true,
+      "rawSortTags": false,
+      "error": null
+    },
+    {
+      "sortkey": "created",
+      "sortorder": "desc",
+      "page": "1",
+      "pagesize": "20",
+      "count": 25,
+      "rows": 20,
+      "idsMatchResponse": true,
+      "rawSortTags": false,
+      "error": null
+    },
+    {
+      "sortkey": "displayname",
+      "sortorder": "asc",
+      "page": "1",
+      "pagesize": "20",
+      "count": 25,
+      "rows": 20,
+      "idsMatchResponse": true,
+      "rawSortTags": false,
+      "error": null
+    },
+    {
+      "sortkey": "displayname",
+      "sortorder": "asc",
+      "page": "2",
+      "pagesize": "20",
+      "count": 25,
+      "rows": 5,
+      "idsMatchResponse": true,
+      "rawSortTags": false,
+      "error": null
+    },
+    {
+      "sortkey": "displayname",
+      "sortorder": "asc",
+      "page": "1",
+      "pagesize": "50",
+      "count": 25,
+      "rows": 25,
+      "idsMatchResponse": true,
+      "rawSortTags": false,
+      "error": null
+    },
+    {
+      "sortkey": "displayname",
+      "sortorder": "asc",
+      "page": "1",
+      "pagesize": "50",
+      "count": 25,
+      "rows": 25,
+      "idsMatchResponse": true,
+      "rawSortTags": false,
+      "error": null
+    },
+    {
+      "sortkey": "displayname",
+      "sortorder": "desc",
+      "page": "1",
+      "pagesize": "50",
+      "count": 25,
+      "rows": 25,
+      "idsMatchResponse": true,
+      "rawSortTags": false,
+      "error": null
+    },
+    {
+      "sortkey": "displayname",
+      "sortorder": "desc",
+      "page": "1",
+      "pagesize": "20",
+      "count": 25,
+      "rows": 20,
+      "idsMatchResponse": true,
+      "rawSortTags": false,
+      "error": null
+    }
+  ],
+  "stateTag": "상태 : 사용 가능",
+  "restoredPageSize": 20,
+  "darkTheme": true
+}

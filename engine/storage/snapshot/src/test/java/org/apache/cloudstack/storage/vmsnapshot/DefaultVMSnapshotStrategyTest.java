@@ -53,6 +53,45 @@ public class DefaultVMSnapshotStrategyTest {
     PrimaryDataStoreDao primaryDataStoreDao;
     @Mock
     UserVmDao userVmDao;
+    @Mock
+    com.cloud.storage.dao.VolumeDetailsDao volumeDetailsDao;
+
+    @Mock
+    com.cloud.agent.AgentManager agentMgr;
+    @Mock
+    org.apache.cloudstack.framework.config.dao.ConfigurationDao configurationDao;
+    @Mock
+    com.cloud.service.dao.ServiceOfferingDao serviceOfferingDao;
+
+    @Test
+    public void internalCounterTransitionPreservesProvenanceAndDoesNotGrowOnReplayOrResize() {
+        setupVolumeDaoPersistMock();
+        VolumeVO volume = Mockito.spy(createVolume(20L, 1L));
+        Mockito.when(volume.getId()).thenReturn(10L);
+        volume.setInstanceId(20L);
+        volume.setPoolId(1L);
+        volume.setFormat(Storage.ImageFormat.QCOW2);
+        volume.setSize(100L);
+        volume.setVmSnapshotChainSize(300L);
+        Mockito.when(volumeDao.findById(10L)).thenReturn(volume);
+        StoragePoolVO pool = createStoragePool("shared", Storage.StoragePoolType.SharedMountPoint);
+        Mockito.when(primaryDataStoreDao.findById(1L)).thenReturn(pool);
+        UserVmVO vm = Mockito.mock(UserVmVO.class);
+        Mockito.when(vm.getHypervisorType()).thenReturn(com.cloud.hypervisor.Hypervisor.HypervisorType.KVM);
+        Mockito.when(userVmDao.findById(20L)).thenReturn(vm);
+        VolumeObjectTO to = new VolumeObjectTO();
+        to.setId(10L); to.setPath("same-qcow-path");
+        defaultVMSnapshotStrategy.updateVolumePath(List.of(to), "finalizeCreate");
+        Assert.assertEquals(Long.valueOf(0), volume.getVmSnapshotChainSize());
+        Mockito.verify(volumeDetailsDao).addDetail(10L, com.cloud.storage.InternalVmSnapshotAccounting.LEGACY_KEY, "300", false);
+        Mockito.when(volumeDetailsDao.findDetail(10L, com.cloud.storage.InternalVmSnapshotAccounting.VERSION_KEY)).thenReturn(new com.cloud.storage.VolumeDetailVO());
+        volume.setSize(200L);
+        for (String action : List.of("finalizeCreate", "finalizeCreate", "finalizeRevert", "finalizeDelete", "finalizeDelete")) {
+            defaultVMSnapshotStrategy.updateVolumePath(List.of(to), action);
+            Assert.assertEquals(Long.valueOf(0), volume.getVmSnapshotChainSize());
+        }
+        Mockito.verify(volumeDetailsDao, Mockito.times(1)).addDetail(10L, com.cloud.storage.InternalVmSnapshotAccounting.LEGACY_KEY, "300", false);
+    }
 
     @Spy
     @InjectMocks
@@ -200,6 +239,71 @@ public class DefaultVMSnapshotStrategyTest {
 
         Assert.assertEquals("Should return CANT_HANDLE if any volume is on CLVM storage for running VM",
                 StrategyPriority.CANT_HANDLE, result);
+    }
+
+    private List<VolumeObjectTO> setupPhysicalGuard() throws Exception {
+        UserVmVO vm = Mockito.mock(UserVmVO.class);
+        Mockito.when(vm.getHypervisorType()).thenReturn(com.cloud.hypervisor.Hypervisor.HypervisorType.KVM);
+        Mockito.when(userVmDao.findById(20L)).thenReturn(vm);
+        com.cloud.service.ServiceOfferingVO offering = Mockito.mock(com.cloud.service.ServiceOfferingVO.class);
+        Mockito.when(offering.getRamSize()).thenReturn(2048);
+        Mockito.when(serviceOfferingDao.findById(vm.getId(), vm.getServiceOfferingId())).thenReturn(offering);
+        Mockito.doReturn(0.9d).when(defaultVMSnapshotStrategy).internalSnapshotPhysicalThreshold(Mockito.any(com.cloud.storage.StoragePool.class));
+        List<VolumeObjectTO> tos = new ArrayList<>();
+        for (long id : List.of(2L, 1L)) {
+            VolumeVO volume = createVolume(20L, id);
+            volume.setFormat(Storage.ImageFormat.QCOW2);
+            if (id == 2) volume.setVolumeType(Volume.Type.DATADISK);
+            Mockito.when(volumeDao.findById(id)).thenReturn(volume);
+            StoragePoolVO pool = createStoragePool("shared" + id, Storage.StoragePoolType.SharedMountPoint);
+            Mockito.when(pool.getId()).thenReturn(id);
+            Mockito.when(primaryDataStoreDao.findById(id)).thenReturn(pool);
+            com.cloud.utils.db.GlobalLock lock = Mockito.mock(com.cloud.utils.db.GlobalLock.class);
+            Mockito.lenient().when(lock.lock(120)).thenReturn(true);
+            Mockito.lenient().doReturn(lock).when(defaultVMSnapshotStrategy).internalSnapshotPoolLock(id);
+            VolumeObjectTO to = new VolumeObjectTO(); to.setId(id); tos.add(to);
+        }
+        return tos;
+    }
+
+    @Test
+    public void physicalGuardLocksAllRootAndDataPoolsInStableOrderAndUsesFreshStats() throws Exception {
+        List<VolumeObjectTO> tos = setupPhysicalGuard();
+        Mockito.when(agentMgr.send(Mockito.eq(3L), Mockito.any(com.cloud.agent.api.GetStorageStatsCommand.class)))
+            .thenAnswer(invocation -> new com.cloud.agent.api.GetStorageStatsAnswer(invocation.getArgument(1), 100L << 30, 70L << 30));
+        List<com.cloud.utils.db.GlobalLock> locks = new ArrayList<>();
+        defaultVMSnapshotStrategy.checkInternalSnapshotPhysicalSpace(userVmDao.findById(20L), tos, 3L, locks);
+        Assert.assertEquals(2, locks.size());
+        org.mockito.InOrder order = Mockito.inOrder(defaultVMSnapshotStrategy);
+        order.verify(defaultVMSnapshotStrategy).internalSnapshotPoolLock(1L);
+        order.verify(defaultVMSnapshotStrategy).internalSnapshotPoolLock(2L);
+        Mockito.verify(agentMgr, Mockito.times(2)).send(Mockito.eq(3L), Mockito.any(com.cloud.agent.api.GetStorageStatsCommand.class));
+    }
+
+    @Test(expected = com.cloud.utils.exception.CloudRuntimeException.class)
+    public void physicalShortageRejectsEvenWhenLogicalCapacityIsAvailable() throws Exception {
+        List<VolumeObjectTO> tos = setupPhysicalGuard();
+        Mockito.when(agentMgr.send(Mockito.eq(3L), Mockito.any(com.cloud.agent.api.GetStorageStatsCommand.class)))
+            .thenAnswer(invocation -> new com.cloud.agent.api.GetStorageStatsAnswer(invocation.getArgument(1), 100L << 30, 89L << 30));
+        defaultVMSnapshotStrategy.checkInternalSnapshotPhysicalSpace(userVmDao.findById(20L), tos, 3L, new ArrayList<>());
+    }
+
+    @Test(expected = com.cloud.utils.exception.CloudRuntimeException.class)
+    public void dataPoolPhysicalThresholdIsRespectedIndependentlyOfRootPool() throws Exception {
+        List<VolumeObjectTO> tos = setupPhysicalGuard();
+        com.cloud.storage.StoragePool dataPool = primaryDataStoreDao.findById(2L);
+        Mockito.doReturn(0.65d).when(defaultVMSnapshotStrategy).internalSnapshotPhysicalThreshold(dataPool);
+        Mockito.when(agentMgr.send(Mockito.eq(3L), Mockito.any(com.cloud.agent.api.GetStorageStatsCommand.class)))
+            .thenAnswer(invocation -> new com.cloud.agent.api.GetStorageStatsAnswer(invocation.getArgument(1), 100L << 30, 70L << 30));
+        defaultVMSnapshotStrategy.checkInternalSnapshotPhysicalSpace(userVmDao.findById(20L), tos, 3L, new ArrayList<>());
+    }
+
+    @Test(expected = com.cloud.utils.exception.CloudRuntimeException.class)
+    public void unavailableFreshStatsRejectWithoutStaleDatabaseFallback() throws Exception {
+        List<VolumeObjectTO> tos = setupPhysicalGuard();
+        Mockito.when(agentMgr.send(Mockito.eq(3L), Mockito.any(com.cloud.agent.api.GetStorageStatsCommand.class)))
+            .thenAnswer(invocation -> new com.cloud.agent.api.GetStorageStatsAnswer(invocation.getArgument(1), "unavailable"));
+        defaultVMSnapshotStrategy.checkInternalSnapshotPhysicalSpace(userVmDao.findById(20L), tos, 3L, new ArrayList<>());
     }
 
     private VolumeVO createVolume(Long vmId, Long poolId) {

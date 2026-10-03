@@ -62,11 +62,13 @@
                     showSearch
                     :dropdownMatchSelectWidth="false"
                     optionFilterProp="label"
-                    :filterOption="(input, option) => {
+                    :filterOption="field.name === 'virtualmachineid' && $route.name === 'vmsnapshot' ? false : (input, option) => {
                       return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
                     }"
+                    @search="searchVmOptions($event, field)"
+                    @popupScroll="moreVmOptions($event, field)"
                     :loading="field.loading"
-                    @input="onchange($event, field.name)"
+                    @input="field.name === 'virtualmachineid' && $route.name === 'vmsnapshot' ? null : onchange($event, field.name)"
                     @change="onSelectFieldChange(field.name)">
                     <a-select-option
                       v-for="(opt, idx) in field.opts"
@@ -204,7 +206,11 @@ export default {
       inputValue: null,
       fieldValues: {},
       isFiltered: false,
-      alertTypes: []
+      alertTypes: [],
+      vmOptionPage: 1,
+      vmOptionTotal: 0,
+      vmOptionKeyword: '',
+      vmOptionVersion: 0
     }
   },
   created () {
@@ -250,6 +256,26 @@ export default {
     }
   },
   methods: {
+    async searchVmOptions (keyword, field) {
+      if (field.name !== 'virtualmachineid' || this.$route.name !== 'vmsnapshot') return
+      this.vmOptionKeyword = keyword; this.vmOptionPage = 1
+      const version = ++this.vmOptionVersion
+      field.loading = true
+      try {
+        const response = await this.fetchVirtualMachines(keyword, 1)
+        if (version === this.vmOptionVersion) field.opts = response.data || []
+      } catch (error) { this.$notifyError(error) } finally { if (version === this.vmOptionVersion) field.loading = false }
+    },
+    async moreVmOptions (event, field) {
+      if (field.name !== 'virtualmachineid' || this.$route.name !== 'vmsnapshot' || field.loading || field.opts.length >= this.vmOptionTotal) return
+      if (event.target.scrollHeight - event.target.scrollTop - event.target.clientHeight > 24) return
+      const version = this.vmOptionVersion
+      field.loading = true
+      try {
+        const response = await this.fetchVirtualMachines(this.vmOptionKeyword, this.vmOptionPage + 1)
+        if (version === this.vmOptionVersion) { this.vmOptionPage++; field.opts = [...new Map([...field.opts, ...(response.data || [])].map(row => [row.id, row])).values()] }
+      } catch (error) { this.$notifyError(error) } finally { if (version === this.vmOptionVersion) field.loading = false }
+    },
     onchange: async function (event, fieldname) {
       this.fetchDynamicFieldData(fieldname, event.target.value)
     },
@@ -337,7 +363,7 @@ export default {
           'type', 'scope', 'managementserverid', 'serviceofferingid',
           'diskofferingid', 'networkid', 'usagetype', 'restartrequired', 'gpuenabled',
           'displaynetwork', 'guestiptype', 'usersource', 'arch', 'oscategoryid', 'templatetype', 'gpucardid', 'vgpuprofileid',
-          'extensionid', 'backupoffering', 'volumeid', 'virtualmachineid', 'hsmprofileid', 'kmskeyid'].includes(item) || (item === 'status' && this.apiName === 'listBackups')
+          'extensionid', 'backupoffering', 'volumeid', 'virtualmachineid', 'hsmprofileid', 'kmskeyid', 'current'].includes(item) || (item === 'status' && this.apiName === 'listBackups')
         ) {
           type = 'list'
         } else if (item === 'tags') {
@@ -359,6 +385,12 @@ export default {
       return arrayField
     },
     fetchStaticFieldData (arrayField) {
+      if (this.$route.name === 'vmsnapshot') {
+        const type = this.fields.find(field => field.name === 'type')
+        if (type) type.opts = [{ id: 'Disk', name: 'label.vmsnapshot.disk' }, { id: 'DiskAndMemory', name: 'label.vmsnapshot.disk.memory' }]
+        const current = this.fields.find(field => field.name === 'current')
+        if (current) current.opts = [{ id: 'true', name: 'label.vmsnapshot.current.yes' }, { id: 'false', name: 'label.vmsnapshot.current.filter.no' }]
+      }
       if (arrayField.includes('displaynetwork')) {
         const typeIndex = this.fields.findIndex(item => item.name === 'displaynetwork')
         this.fields[typeIndex].loading = true
@@ -1209,10 +1241,15 @@ export default {
         })
       })
     },
-    fetchVirtualMachines (searchKeyword) {
+    fetchVirtualMachines (searchKeyword, page = 1) {
       return new Promise((resolve, reject) => {
-        getAPI('listVirtualMachines', { listAll: true, keyword: searchKeyword }).then(json => {
-          const virtualMachines = json.listvirtualmachinesresponse.virtualmachine
+        const snapshotList = this.$route.name === 'vmsnapshot'
+        getAPI('listVirtualMachines', { listAll: true, keyword: searchKeyword, ...(snapshotList ? { page, pagesize: 50 } : {}) }).then(json => {
+          let virtualMachines = json.listvirtualmachinesresponse.virtualmachine
+          if (snapshotList) {
+            this.vmOptionTotal = json.listvirtualmachinesresponse.count || 0
+            virtualMachines = (virtualMachines || []).map(vm => ({ ...vm, name: `${vm.displayname || vm.name} · ${vm.account || ''} · ${vm.id}` }))
+          }
           resolve({
             type: 'virtualmachineid',
             data: virtualMachines
@@ -1402,7 +1439,9 @@ export default {
     },
     fetchState () {
       var state = []
-      if (this.apiName.includes('listVolumes')) {
+      if (this.apiName === 'listVMSnapshot') {
+        state = ['Allocated', 'Creating', 'Ready', 'Reverting', 'Expunging', 'Error'].map(id => ({ id, name: 'state.' + id.toLowerCase() }))
+      } else if (this.apiName.includes('listVolumes')) {
         state = [
           {
             id: 'Allocated',

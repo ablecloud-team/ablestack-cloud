@@ -84,6 +84,8 @@ import com.cloud.storage.dao.GuestOSDao;
 import com.cloud.storage.dao.GuestOSHypervisorDao;
 import com.cloud.storage.dao.SnapshotDao;
 import com.cloud.storage.dao.VolumeDao;
+import com.cloud.storage.dao.VolumeDetailsDao;
+import com.cloud.service.dao.ServiceOfferingDao;
 import com.cloud.storage.snapshot.SnapshotApiService;
 import com.cloud.user.AccountService;
 import com.cloud.utils.component.ComponentContext;
@@ -362,6 +364,16 @@ public class VMSnapshotStrategyKVMTest extends TestCase{
         @Bean
         public VolumeDao volumeDao() {
             return Mockito.mock(VolumeDao.class);
+        }
+
+        @Bean
+        public VolumeDetailsDao volumeDetailsDao() {
+            return Mockito.mock(VolumeDetailsDao.class);
+        }
+
+        @Bean
+        public ServiceOfferingDao serviceOfferingDao() {
+            return Mockito.mock(ServiceOfferingDao.class);
         }
 
         @Bean

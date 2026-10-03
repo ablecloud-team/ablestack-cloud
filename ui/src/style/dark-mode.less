@@ -690,6 +690,15 @@
       color: @dark-text-color-3;
     }
   }
+  .ant-descriptions {
+    color: @dark-text-color-4;
+    &-title, &-item-label, &-item-content { color: @dark-text-color-4; }
+  }
+  .ant-descriptions-bordered {
+    .ant-descriptions-view, .ant-descriptions-row,
+    .ant-descriptions-item-label, .ant-descriptions-item-content { border-color: @dark-border-color; }
+    .ant-descriptions-item-label { background-color: @dark-bgColor; }
+  }
   .ant-picker-input > input {
     color: @dark-text-color-3;
   }
@@ -1046,39 +1055,34 @@
   }
 
   .ant-tree {
+    color: @dark-text-color-4;
     background: transparent;
   }
 
-  .ant-tree-show-line .ant-tree-switcher {
+  .ant-tree .ant-tree-switcher {
     background-color: transparent;
-    color: @dark-text-color-3;
+    color: @dark-text-color-4;
   }
 
-  .ant-tree .ant-tree-node-content-wrapper {
-    color: @dark-text-color-3;
+  .ant-tree .ant-tree-node-content-wrapper,
+  .ant-tree-icon__customize {
+    color: @dark-text-color-4;
   }
 
   .ant-tree-icon__customize {
-    color: @dark-text-color-3;
     background-color: transparent;
   }
 
   .ant-tree .ant-tree-node-content-wrapper.ant-tree-node-selected {
-    .ant-tree-icon__customize {
-      color: #000;
-    }
-
-    color: #000;
+    background-color: fade(@primary-color, 18%);
+    color: @dark-text-color-4;
+    .ant-tree-icon__customize, .ant-tree-title { color: inherit; }
   }
 
   .ant-tree .ant-tree-node-content-wrapper:hover {
-    .ant-tree-icon__customize {
-      color: #000;
-    }
-
-    .ant-tree-title {
-      color: #000;
-    }
+    background-color: @dropdown-hover-bgColor;
+    color: @dark-text-color-4;
+    .ant-tree-icon__customize, .ant-tree-title { color: inherit; }
   }
 
   .form-content, .zone-support {

@@ -45,7 +45,7 @@ function hasSessionKey () {
   return !!getSessionKey()
 }
 
-export function getAPI (command, args = {}, { optionalDiscovery = false, timeout, backgroundJob = false } = {}) {
+export function getAPI (command, args = {}, { optionalDiscovery = false, timeout, backgroundJob = false, preserveOnFailure = false } = {}) {
   args.command = command
   args.response = 'json'
 
@@ -62,7 +62,8 @@ export function getAPI (command, args = {}, { optionalDiscovery = false, timeout
     method: 'GET',
     ...(optionalDiscovery ? { optionalDiscovery: true, timeout: 15000 } : {}),
     ...(timeout ? { timeout } : {}),
-    ...(backgroundJob ? { backgroundJob: true } : {})
+    ...(backgroundJob ? { backgroundJob: true } : {}),
+    ...(preserveOnFailure || command === 'listVMSnapshot' ? { preserveOnFailure: true } : {})
   })
 }
 
@@ -88,6 +89,7 @@ export function postAPI (command, data = {}) {
   return axios({
     url: '/',
     method: 'POST',
+    ...(['createVMSnapshot', 'revertToVMSnapshot', 'deleteVMSnapshot', 'createSnapshotFromVMSnapshot'].includes(command) ? { preserveOnFailure: true } : {}),
     data: params
   })
 }

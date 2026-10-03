@@ -19,7 +19,15 @@
 package com.cloud.storage;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import javax.inject.Inject;
 
 import org.apache.cloudstack.api.command.admin.storage.ListDeploymentStoragePoolsCmd;
@@ -55,7 +63,14 @@ import com.cloud.storage.dao.VMTemplateDao;
 import com.cloud.user.Account;
 import com.cloud.user.AccountManager;
 import com.cloud.utils.component.ManagerBase;
-import com.cloud.vm.*;
+import com.cloud.vm.DiskProfile;
+import com.cloud.vm.UserVmManager;
+import com.cloud.vm.UserVmVO;
+import com.cloud.vm.VirtualMachine;
+import com.cloud.vm.VirtualMachineProfile;
+import com.cloud.vm.VirtualMachineProfileImpl;
+import com.cloud.vm.VmDetailConstants;
+import com.cloud.vm.VmDiskInfo;
 import com.cloud.uservm.UserVm;
 import com.cloud.template.VirtualMachineTemplate;
 import com.cloud.storage.Storage.ImageFormat;

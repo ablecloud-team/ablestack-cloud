@@ -1,0 +1,55 @@
+{
+  "issue": 1225,
+  "epic": 1216,
+  "pullRequest": 1224,
+  "cluster": 31,
+  "javaSource": "caf3b7d6cbc18ed02deff77d45457e9ee46315c0",
+  "uiSource": "ae22a04b497ac26fb0831f0050c83e42cefbfa73",
+  "modules": {
+    "tests": 6328,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 9
+  },
+  "ui": {
+    "build": "passed",
+    "sameBaselineFailures": 6,
+    "focusedSuites": 12,
+    "lint": "passed",
+    "fullFailed": 6,
+    "focusedTests": 234,
+    "fullTests": 885
+  },
+  "recoveryJobs": [
+    "4aadcd0f-644d-4d07-b5d6-0be85b821411",
+    "b5a60aa8-dcd6-4a69-9a17-5aace4ac038d",
+    "0fd6fd59-504d-46a8-9ed6-7012534d0281"
+  ],
+  "controlledDbFailureJob": "76763585-c751-49f2-8093-64ee47e53e56",
+  "normalDeleteJob": "cfcc1eb3-5b2d-407d-a260-cc344863a3bb",
+  "invariants": {
+    "currentSnapshotId": 20,
+    "primaryAllocatedBytes": 4978689969440,
+    "guestPayloadUnchanged": true,
+    "faultTriggerRemoved": true,
+    "runningDomainsPreserved": 19,
+    "rootNvramTablesPreserved": true,
+    "rootSnapshotCounter": 0,
+    "remainingReady": 3,
+    "failedCreationDeleteUsageEvents": 0
+  },
+  "deployment": {
+    "agentCoreSha256": "ec7c90a98ebf21c88613840171fa17e91c0f98509ab68b57c2a0f4f729c953e0",
+    "configPreserved": true,
+    "clientHttp": 200,
+    "managementSha256": "a90cd6f9f5e0264a0a9f4a51cffc3bb8f98300f249f99d2dfa949b34f98b0df2",
+    "webInfPreserved": true,
+    "agentKvmSha256": "ac2f29561de317cc5628ea66fd66dcb85f0db1b0ccf8f70246faa90675e9e036",
+    "staticFiles": 834
+  },
+  "limits": [
+    "File-based Disk recovery and multiple data disks were fault-tested automatically; real partial fixture used a root disk plus NVRAM VM.",
+    "No manually dispatched full Cloud build.",
+    "Baseline failures are not counted as passing full UI or CI."
+  ]
+}

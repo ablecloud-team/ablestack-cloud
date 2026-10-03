@@ -15,9 +15,12 @@
 // specific language governing permissions and limitations
 // under the License.
 package com.cloud.vm.process;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 public class VmProcessProfileServiceImplTest {
     private Map<String,Object> registered(int version,String state) {return new LinkedHashMap<>(Map.of("id","profile","version",version,"definitionHash","hash"+version,"registrationState",state));}
     @Test public void missingGuestDefinitionKeepsApprovalVisibleWithoutIdentity() {

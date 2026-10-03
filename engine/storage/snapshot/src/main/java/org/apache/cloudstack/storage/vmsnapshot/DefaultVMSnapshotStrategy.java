@@ -21,6 +21,8 @@ package org.apache.cloudstack.storage.vmsnapshot;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
+import java.util.Comparator;
 
 import javax.inject.Inject;
 import javax.naming.ConfigurationException;
@@ -44,6 +46,7 @@ import org.apache.cloudstack.storage.to.VolumeObjectTO;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import com.cloud.capacity.CapacityManager;
 import com.cloud.agent.AgentManager;
 import com.cloud.agent.api.Answer;
 import com.cloud.agent.api.CreateVMSnapshotAnswer;
@@ -66,6 +69,12 @@ import com.cloud.storage.GuestOSVO;
 import com.cloud.storage.Storage.ImageFormat;
 import com.cloud.storage.StoragePool;
 import com.cloud.storage.VolumeVO;
+import com.cloud.storage.InternalVmSnapshotAccounting;
+import com.cloud.storage.dao.VolumeDetailsDao;
+import com.cloud.service.dao.ServiceOfferingDao;
+import com.cloud.agent.api.GetStorageStatsCommand;
+import com.cloud.agent.api.GetStorageStatsAnswer;
+import com.cloud.utils.db.GlobalLock;
 import com.cloud.storage.dao.DiskOfferingDao;
 import com.cloud.storage.dao.GuestOSDao;
 import com.cloud.storage.dao.GuestOSHypervisorDao;
@@ -112,6 +121,11 @@ public class DefaultVMSnapshotStrategy extends ManagerBase implements VMSnapshot
     PrimaryDataStoreDao primaryDataStoreDao;
 
     @Inject
+    VolumeDetailsDao volumeDetailsDao;
+    @Inject
+    ServiceOfferingDao serviceOfferingDao;
+
+    @Inject
     private VMSnapshotDetailsDao vmSnapshotDetailsDao;
 
     @Inject
@@ -147,17 +161,28 @@ public class DefaultVMSnapshotStrategy extends ManagerBase implements VMSnapshot
 
         CreateVMSnapshotAnswer answer = null;
         boolean result = false;
+        List<GlobalLock> physicalLocks = new ArrayList<>();
         try {
             GuestOSVO guestOS = guestOSDao.findById(userVm.getGuestOSId());
 
             List<VolumeObjectTO> volumeTOs = vmSnapshotHelper.getVolumeTOList(userVm.getId());
+            captureCreationVolumes(vmSnapshot, volumeTOs);
+            if (vmSnapshot.getType() == VMSnapshot.Type.DiskAndMemory) {
+                checkInternalSnapshotPhysicalSpace(userVm, volumeTOs, hostId, physicalLocks);
+            }
 
             long prev_chain_size = 0;
             long virtual_size=0;
             for (VolumeObjectTO volume : volumeTOs) {
                 virtual_size += volume.getSize();
                 VolumeVO volumeVO = volumeDao.findById(volume.getId());
-                prev_chain_size += volumeVO.getVmSnapshotChainSize() == null ? 0 : volumeVO.getVmSnapshotChainSize();
+                StoragePool pool = volumeVO.getPoolId() == null ? null : primaryDataStoreDao.findById(volumeVO.getPoolId());
+                // Usage events retain their existing per-snapshot nominal size.
+                // A legacy duplicate-allocation counter must not become a
+                // negative usage delta during the accounting transition.
+                if (!InternalVmSnapshotAccounting.applies(pool, userVm.getHypervisorType(), volumeVO.getFormat())) {
+                    prev_chain_size += volumeVO.getVmSnapshotChainSize() == null ? 0 : volumeVO.getVmSnapshotChainSize();
+                }
             }
 
             VMSnapshotTO current = null;
@@ -212,6 +237,11 @@ public class DefaultVMSnapshotStrategy extends ManagerBase implements VMSnapshot
             logger.debug("Creating Instance Snapshot: " + vmSnapshot.getName() + " failed", e);
             throw new CloudRuntimeException("Creating Instance Snapshot: " + vmSnapshot.getName() + " failed: " + e.toString());
         } finally {
+            for (int i = physicalLocks.size() - 1; i >= 0; i--) {
+                GlobalLock lock = physicalLocks.get(i);
+                lock.unlock();
+                lock.releaseRef();
+            }
             if (!result) {
                 try {
                     vmSnapshotHelper.vmSnapshotStateTransitTo(vmSnapshot, VMSnapshot.Event.OperationFailed);
@@ -219,6 +249,125 @@ public class DefaultVMSnapshotStrategy extends ManagerBase implements VMSnapshot
                     logger.error("Cannot set Instance Snapshot state due to: " + e1.getMessage());
                 }
             }
+        }
+    }
+
+    protected void captureCreationVolumes(VMSnapshot snapshot, List<VolumeObjectTO> volumes) {
+        if (vmSnapshotDetailsDao.findDetail(snapshot.getId(), "snapshot.creation.volumes") != null) return;
+        List<String> identity = new ArrayList<>();
+        for (VolumeObjectTO to : volumes) {
+            VolumeVO volume = volumeDao.findById(to.getId());
+            identity.add(volume.getUuid() + ":" + volume.getPoolId() + ":" + volume.getPath() + ":" + volume.getSize());
+        }
+        java.util.Collections.sort(identity);
+        vmSnapshotDetailsDao.addDetail(snapshot.getId(), "snapshot.creation.volumes", inventoryDigest(new com.google.gson.Gson().toJson(identity)), false);
+    }
+
+    static String inventoryDigest(String inventory) {
+        // Resource detail values are VARCHAR(255); raw JSON is truncated for multi-volume VMs.
+        return "sha256:" + org.apache.commons.codec.digest.DigestUtils.sha256Hex(inventory);
+    }
+
+    static boolean matchesOriginalInventory(String stored, String inventory) {
+        return inventory.equals(stored) || inventoryDigest(inventory).equals(stored);
+    }
+
+    static boolean matchesRecoveryInventory(String stored, String inventory, String originalVolumes, String volumes) {
+        if (matchesOriginalInventory(stored, inventory)) return true;
+        // The first deployed recovery build stored raw JSON. A truncated value can be
+        // upgraded only when the entire missing suffix is the independently recorded,
+        // unchanged creation volume inventory. Never accept an arbitrary matching prefix.
+        int volumeOffset = inventory.indexOf("\"volumes\":");
+        return stored.length() == 255 && inventory.length() > 255 && volumeOffset >= 0 && volumeOffset < 255
+                && inventory.substring(0, 255).equals(stored) && originalVolumes != null
+                && matchesOriginalInventory(originalVolumes, volumes);
+    }
+
+    protected Map<Long, String> recoveryArtifacts(VMSnapshot snapshot) {
+        return java.util.Collections.emptyMap();
+    }
+
+    protected void finalizeRecoveryReferences(VMSnapshot snapshot) { }
+
+    @Override
+    public boolean deleteVMSnapshot(VMSnapshot snapshot, boolean force) {
+        if (!force) return deleteVMSnapshot(snapshot);
+        UserVmVO vm = userVmDao.findById(snapshot.getVmId());
+        List<VolumeObjectTO> volumes = vmSnapshotHelper.getVolumeTOList(snapshot.getVmId());
+        List<VMSnapshotVO> ready = vmSnapshotDao.listByInstanceId(snapshot.getVmId(), VMSnapshot.State.Ready);
+        List<String> names = new ArrayList<>();
+        String current = null;
+        for (VMSnapshotVO other : ready) {
+            if (other.getType() == VMSnapshot.Type.DiskAndMemory) {
+                names.add(other.getName());
+                if (Boolean.TRUE.equals(other.getCurrent())) current = other.getName();
+            }
+        }
+        java.util.Collections.sort(names);
+        Map<Long, String> artifacts = recoveryArtifacts(snapshot);
+        Map<String, Object> fingerprint = new java.util.TreeMap<>();
+        fingerprint.put("snapshot", snapshot.getUuid()); fingerprint.put("parent", snapshot.getParent());
+        fingerprint.put("current", current); fingerprint.put("known", names); fingerprint.put("artifacts", artifacts);
+        List<String> volumeIdentity = new ArrayList<>();
+        for (VolumeObjectTO volume : volumes) {
+            VolumeVO stored = volumeDao.findById(volume.getId());
+            StoragePool pool = primaryDataStoreDao.findById(stored.getPoolId());
+            if (!InternalVmSnapshotAccounting.applies(pool, vm.getHypervisorType(), stored.getFormat())) {
+                throw new CloudRuntimeException("Recovery requires unmanaged SharedMountPoint QCOW2 volumes");
+            }
+            volumeIdentity.add(stored.getUuid() + ":" + stored.getPoolId() + ":" + stored.getPath() + ":" + stored.getSize());
+        }
+        java.util.Collections.sort(volumeIdentity); fingerprint.put("volumes", volumeIdentity);
+        VMSnapshotDetailsVO original = vmSnapshotDetailsDao.findDetail(snapshot.getId(), "snapshot.creation.volumes");
+        String volumeInventory = new com.google.gson.Gson().toJson(volumeIdentity);
+        if (original != null && !matchesOriginalInventory(original.getValue(), volumeInventory)) {
+            throw new CloudRuntimeException("Original creation volume inventory changed; reconcile the disk provider first");
+        }
+        if (original == null && names.isEmpty() && snapshot.getType() == VMSnapshot.Type.DiskAndMemory) {
+            throw new CloudRuntimeException("Legacy snapshot recovery requires a verified Ready snapshot inventory");
+        }
+        String identity = new com.google.gson.Gson().toJson(fingerprint);
+        VMSnapshotDetailsVO previous = vmSnapshotDetailsDao.findDetail(snapshot.getId(), "force.delete.inventory");
+        if (previous != null && !matchesRecoveryInventory(previous.getValue(), identity, original == null ? null : original.getValue(), volumeInventory)) {
+            throw new CloudRuntimeException("Recovery inventory changed; reconcile the original recovery operation first");
+        }
+        if (previous == null || !inventoryDigest(identity).equals(previous.getValue())) {
+            vmSnapshotDetailsDao.addDetail(snapshot.getId(), "force.delete.inventory", inventoryDigest(identity), false);
+        }
+        if (vmSnapshotDetailsDao.findDetail(snapshot.getId(), "force.delete.target") == null) {
+            vmSnapshotDetailsDao.addDetail(snapshot.getId(), "force.delete.target", snapshot.getUuid(), false);
+        }
+        try {
+            vmSnapshotHelper.vmSnapshotStateTransitTo(snapshot, VMSnapshot.Event.ExpungeRequested);
+            Long host = vmSnapshotHelper.pickRunningHost(snapshot.getVmId());
+            VMSnapshotTO target = new VMSnapshotTO(snapshot.getId(), snapshot.getName(), snapshot.getType(), snapshot.getCreated().getTime(),
+                    snapshot.getDescription(), false, null, false);
+            DeleteVMSnapshotCommand command = new DeleteVMSnapshotCommand(vm.getInstanceName(), target, volumes, null);
+            command.setRecovery(vm.getUuid(), current, names, artifacts);
+            Answer answer = agentMgr.send(host, command);
+            if (!(answer instanceof DeleteVMSnapshotAnswer) || !answer.getResult()) {
+                vmSnapshotHelper.vmSnapshotStateTransitTo(snapshot, VMSnapshot.Event.OperationFailed);
+                throw new CloudRuntimeException(answer == null ? "Recovery result unknown: Agent response unavailable" : answer.getDetails());
+            }
+            Transaction.execute(new TransactionCallbackWithExceptionNoReturn<NoTransitionException>() {
+                @Override public void doInTransactionWithoutResult(TransactionStatus status) throws NoTransitionException {
+                    VMSnapshotVO fresh = vmSnapshotDao.findById(snapshot.getId());
+                    if (fresh == null || Boolean.TRUE.equals(fresh.getCurrent()) || !vmSnapshotDao.listByParent(fresh.getId()).isEmpty()) {
+                        throw new CloudRuntimeException("Recovery metadata changed before commit");
+                    }
+                    finalizeRecoveryReferences(fresh);
+                    fresh.setCurrent(false);
+                    vmSnapshotHelper.vmSnapshotStateTransitTo(fresh, VMSnapshot.Event.OperationSucceeded);
+                    vmSnapshotDetailsDao.addDetail(fresh.getId(), "force.delete.result", "Provider objects removed; failed snapshot metadata finalized", false);
+                    if (!vmSnapshotDao.remove(fresh.getId())) throw new CloudRuntimeException("Recovery metadata deletion did not commit");
+                }
+            });
+            logger.info("Forced VM snapshot deletion completed vm={} snapshot={} inventory={}", vm.getUuid(), snapshot.getUuid(), identity);
+            return true;
+        } catch (AgentUnavailableException | OperationTimedoutException e) {
+            throw new CloudRuntimeException("Recovery result unknown; retry the same target after Agent reconciliation: " + e.getMessage(), e);
+        } catch (NoTransitionException e) {
+            throw new CloudRuntimeException("Recovery state changed: " + e.getMessage(), e);
         }
     }
 
@@ -377,7 +526,18 @@ public class DefaultVMSnapshotStrategy extends ManagerBase implements VMSnapshot
             }
             long currentVmSnapshotChainSize = volumeVO.getVmSnapshotChainSize() == null ? 0 : volumeVO.getVmSnapshotChainSize();
             long volumeSize = volumeVO.getSize() == null ? 0 : volumeVO.getSize();
-            if (type == null) {
+            StoragePool accountingPool = volumeVO.getPoolId() == null ? null : primaryDataStoreDao.findById(volumeVO.getPoolId());
+            UserVmVO accountingVm = volumeVO.getInstanceId() == null ? null : userVmDao.findById(volumeVO.getInstanceId());
+            if (InternalVmSnapshotAccounting.applies(accountingPool, accountingVm == null ? null : accountingVm.getHypervisorType(), volumeVO.getFormat())) {
+                if (volumeDetailsDao.findDetail(volumeVO.getId(), InternalVmSnapshotAccounting.VERSION_KEY) == null) {
+                    if (volumeDetailsDao.findDetail(volumeVO.getId(), InternalVmSnapshotAccounting.LEGACY_KEY) == null) {
+                        volumeDetailsDao.addDetail(volumeVO.getId(), InternalVmSnapshotAccounting.LEGACY_KEY, Long.toString(currentVmSnapshotChainSize), false);
+                    }
+                    volumeDetailsDao.addDetail(volumeVO.getId(), InternalVmSnapshotAccounting.VERSION_KEY, InternalVmSnapshotAccounting.VERSION, false);
+                    logger.info("Transition internal VM snapshot logical accounting for volume {}: legacy chain bytes {}", volumeVO.getUuid(), currentVmSnapshotChainSize);
+                }
+                volumeVO.setVmSnapshotChainSize(0L);
+            } else if (type == null) {
                 volumeVO.setVmSnapshotChainSize(volume.getSize());
             } else if ("finalizeCreate".equals(type)) {
                 volumeVO.setVmSnapshotChainSize(currentVmSnapshotChainSize + volumeSize);
@@ -389,6 +549,50 @@ public class DefaultVMSnapshotStrategy extends ManagerBase implements VMSnapshot
             }
             volumeDao.persist(volumeVO);
         }
+    }
+
+    protected void checkInternalSnapshotPhysicalSpace(UserVm vm, List<VolumeObjectTO> volumes, Long hostId, List<GlobalLock> locks)
+            throws AgentUnavailableException, OperationTimedoutException {
+        Map<Long, StoragePool> pools = new HashMap<>();
+        Long rootPoolId = null;
+        for (VolumeObjectTO volume : volumes) {
+            VolumeVO vo = volumeDao.findById(volume.getId());
+            StoragePool pool = vo.getPoolId() == null ? null : primaryDataStoreDao.findById(vo.getPoolId());
+            if (InternalVmSnapshotAccounting.applies(pool, vm.getHypervisorType(), vo.getFormat())) {
+                pools.put(pool.getId(), pool);
+                if (vo.getVolumeType() == com.cloud.storage.Volume.Type.ROOT) rootPoolId = pool.getId();
+            }
+        }
+        if (pools.isEmpty()) return;
+        long memoryBytes = serviceOfferingDao.findById(vm.getId(), vm.getServiceOfferingId()).getRamSize().longValue() * 1024 * 1024;
+        List<StoragePool> ordered = new ArrayList<>(pools.values());
+        ordered.sort(Comparator.comparingLong(StoragePool::getId));
+        for (StoragePool pool : ordered) {
+            // Cross-management-server pool locking serializes memory snapshot
+            // reservations until the agent completes; no stale DB stats fallback.
+            GlobalLock lock = internalSnapshotPoolLock(pool.getId());
+            if (!lock.lock(120)) {
+                lock.releaseRef();
+                throw new CloudRuntimeException("Another internal snapshot is reserving physical space on pool " + pool.getUuid());
+            }
+            locks.add(lock);
+            Answer answer = agentMgr.send(hostId, new GetStorageStatsCommand(pool.getUuid(), pool.getPoolType(), pool.getPath()));
+            long required = InternalVmSnapshotAccounting.requiredFreeBytes(pool.getId() == (rootPoolId == null ? -1L : rootPoolId) ? memoryBytes : 0);
+            if (!(answer instanceof GetStorageStatsAnswer) || !answer.getResult()
+                    || !InternalVmSnapshotAccounting.hasPhysicalSpace(((GetStorageStatsAnswer) answer).getCapacityBytes(),
+                        ((GetStorageStatsAnswer) answer).getByteUsed(), required, internalSnapshotPhysicalThreshold(pool))) {
+                throw new CloudRuntimeException("Fresh physical storage statistics are unavailable or insufficient for internal memory snapshot on pool " + pool.getUuid());
+            }
+        }
+    }
+
+    protected double internalSnapshotPhysicalThreshold(StoragePool pool) {
+        // Match allocator policy, including storage-pool and zone overrides.
+        return CapacityManager.StorageCapacityDisableThreshold.valueIn(pool.getId());
+    }
+
+    protected GlobalLock internalSnapshotPoolLock(long poolId) {
+        return GlobalLock.getInternLock("internal-vmsnapshot-physical-" + poolId);
     }
 
     protected void publishUsageEvent(String type, VMSnapshot vmSnapshot, UserVm userVm, VolumeObjectTO volumeTo) {

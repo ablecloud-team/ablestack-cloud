@@ -18,6 +18,7 @@
 import { reactive } from 'vue'
 
 export const snapshotJobs = reactive({})
+export const snapshotSubmissions = reactive({})
 const snapshotApis = ['createVMSnapshot', 'revertToVMSnapshot', 'deleteVMSnapshot', 'createSnapshotFromVMSnapshot']
 export function trackSnapshotJob (options) {
   const action = options.action
@@ -26,6 +27,9 @@ export function trackSnapshotJob (options) {
   const vmId = action.api === 'createVMSnapshot' ? record.id : record.virtualmachineid
   if (vmId) snapshotJobs[options.jobId] = { vmId, snapshotId: record.id, unknown: false }
 }
+export function trackUnknownSnapshotSubmission (vmId, snapshotId) {
+  snapshotJobs['unconfirmed:' + vmId] = { vmId, snapshotId, unknown: true }
+}
 export function finishSnapshotJob (jobId, result) {
   if (!snapshotJobs[jobId]) return
   if ([1, 2].includes(result.jobstatus) || result.trackingStatus === 'cancelled') delete snapshotJobs[jobId]
@@ -33,11 +37,13 @@ export function finishSnapshotJob (jobId, result) {
 }
 export function clearSnapshotJobs () {
   Object.keys(snapshotJobs).forEach(id => delete snapshotJobs[id])
+  Object.keys(snapshotSubmissions).forEach(id => delete snapshotSubmissions[id])
 }
 export function snapshotBusy (vmId) {
-  return Object.values(snapshotJobs).some(job => job.vmId === vmId)
+  return !!snapshotSubmissions[vmId] || Object.values(snapshotJobs).some(job => job.vmId === vmId)
 }
 export function snapshotActionReason (api, snapshot, vm, busy = false) {
+  vm = vm || (snapshot.virtualmachinestate ? { id: snapshot.virtualmachineid, state: snapshot.virtualmachinestate } : null)
   if (busy) return 'message.vmsnapshot.busy'
   if (vm && snapshot.virtualmachineid !== vm.id) return 'message.vmsnapshot.wrong.vm'
   if (api === 'revertToVMSnapshot' && vm?.vmsnapshotblockedreason) return 'message.backup.snapshot.snapshot.blocked'

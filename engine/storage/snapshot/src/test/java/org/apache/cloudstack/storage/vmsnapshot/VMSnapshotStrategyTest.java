@@ -67,6 +67,8 @@ import com.cloud.storage.dao.DiskOfferingDao;
 import com.cloud.storage.dao.GuestOSDao;
 import com.cloud.storage.dao.GuestOSHypervisorDao;
 import com.cloud.storage.dao.VolumeDao;
+import com.cloud.storage.dao.VolumeDetailsDao;
+import com.cloud.service.dao.ServiceOfferingDao;
 import com.cloud.utils.component.ComponentContext;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.utils.net.NetUtils;
@@ -305,6 +307,16 @@ public class VMSnapshotStrategyTest extends TestCase {
         @Bean
         public VolumeDao volumeDao() {
             return Mockito.mock(VolumeDao.class);
+        }
+
+        @Bean
+        public VolumeDetailsDao volumeDetailsDao() {
+            return Mockito.mock(VolumeDetailsDao.class);
+        }
+
+        @Bean
+        public ServiceOfferingDao serviceOfferingDao() {
+            return Mockito.mock(ServiceOfferingDao.class);
         }
 
         @Bean

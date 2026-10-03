@@ -34,7 +34,7 @@
           <a-tag v-if="record.current" color="blue" class="current-tag">{{ $t('label.current') }}</a-tag>
           <small v-if="record.parentName" class="snapshot-parent">{{ $t('label.parentName') }}: {{ record.parentName }}</small>
         </template>
-        <template v-else-if="column.key === 'state'"><status :text="record.state" /> {{ record.state }}</template>
+        <template v-else-if="column.key === 'state'"><status :text="record.state" display-text /></template>
         <template v-else-if="column.key === 'type'">{{ typeLabel(record.type) }}</template>
         <template v-else-if="column.key === 'created'">{{ $toLocaleDate(record.created) }}</template>
         <template v-else-if="column.key === 'actions'">
@@ -46,7 +46,6 @@
             <a-dropdown :trigger="['click']" placement="bottomRight">
               <a-button size="small" :aria-label="$t('label.actions')"><template #icon><down-outlined /></template></a-button>
               <template #overlay><a-menu>
-                <a-menu-item key="details"><router-link :to="'/vmsnapshot/' + record.id">{{ $t('label.details') }}</router-link></a-menu-item>
                 <a-menu-item v-if="allowed('revertToVMSnapshot')" key="restore" class="mobile-restore" :disabled="!!reason('revertToVMSnapshot', record)" @click="openAction('revertToVMSnapshot', record)">{{ $t('label.action.vmsnapshot.revert') }}</a-menu-item>
                 <a-menu-item v-if="allowed('createSnapshotFromVMSnapshot') && record.hypervisor === 'KVM'" key="volume" :disabled="!!reason('createSnapshotFromVMSnapshot', record)" @click="volumeSnapshot = record">{{ $t('label.action.create.snapshot.from.vmsnapshot') }}</a-menu-item>
                 <a-menu-divider v-if="allowed('deleteVMSnapshot')" />
@@ -60,42 +59,42 @@
       <template #emptyText>{{ $t(listRefreshFailed ? 'message.vmsnapshot.load.failed' : 'message.vmsnapshot.empty') }}</template>
     </a-table>
     <a-pagination v-model:current="page" v-model:pageSize="pageSize" :total="total" :show-size-changer="true" class="snapshot-pagination" @change="fetchData" />
-    <a-modal :visible="!!selected" :title="$t(actionLabel)" :confirm-loading="submitting" :ok-text="$t(actionLabel)" :ok-button-props="{ danger: actionApi === 'deleteVMSnapshot', disabled: !!confirmationReason }" @ok="submitAction" @cancel="cancelAction">
+    <MoldDialog :visible="!!selected" :title="$t(actionLabel)" :closable="!submitting" @cancel="cancelAction">
       <template v-if="selected">
-        <a-descriptions class="snapshot-confirmation" :column="1" bordered size="small">
-          <a-descriptions-item :label="$t('label.vm')">{{ resource.displayname || resource.name }}</a-descriptions-item>
-          <a-descriptions-item :label="$t('label.vm.snapshot')">{{ selected.displayname || selected.name }}</a-descriptions-item>
-          <a-descriptions-item :label="$t('label.type')">{{ typeLabel(selected.type) }}</a-descriptions-item>
-          <a-descriptions-item :label="$t('label.created')">{{ $toLocaleDate(selected.created) }}</a-descriptions-item>
-        </a-descriptions>
-        <a-alert type="warning" show-icon :message="$t(actionApi === 'deleteVMSnapshot' ? 'message.vmsnapshot.delete.confirm' : 'message.vmsnapshot.restore.confirm')" class="snapshot-alert" />
-        <p v-if="actionApi === 'deleteVMSnapshot' && selected.hypervisor === 'KVM' && selected.type === 'DiskAndMemory'">{{ $t('message.vmsnapshot.delete.pause') }}</p>
+        <VmSnapshotSummary :snapshot="{ ...selected, virtualmachinename: resource.displayname || resource.name, virtualmachineinstancename: resource.instancename, virtualmachinestate: resource.state }" />
+        <a-alert type="warning" show-icon :message="$t(actionApi === 'deleteVMSnapshot' ? 'message.vmsnapshot.delete.confirm' : selected.type === 'DiskAndMemory' ? 'message.vmsnapshot.restore.memory.impact' : 'message.vmsnapshot.restore.disk.impact')" class="snapshot-alert" />
         <p v-if="confirmationReason" role="status">{{ $t(confirmationReason) }}</p>
+        <a-checkbox v-model:checked="acknowledged" :disabled="submitting || !!confirmationReason">{{ $t('message.vmsnapshot.acknowledge') }}</a-checkbox>
       </template>
-    </a-modal>
-    <a-modal :visible="!!volumeSnapshot" :title="$t('label.action.create.snapshot.from.vmsnapshot')" :footer="null" @cancel="volumeSnapshot = null">
-      <CreateSnapshotFromVMSnapshot v-if="volumeSnapshot" full-width :resource="volumeSnapshot" @close-action="volumeSnapshot = null" />
-    </a-modal>
+      <template #footer>
+        <a-button :disabled="submitting" @click="cancelAction">{{ $t('label.cancel') }}</a-button>
+        <a-button type="primary" :danger="actionApi === 'deleteVMSnapshot'" :loading="submitting" :disabled="!acknowledged || !!confirmationReason" @click="submitAction">{{ $t(actionApi === 'deleteVMSnapshot' ? actionLabel : 'label.vmsnapshot.restore.submit') }}</a-button>
+      </template>
+    </MoldDialog>
+    <CreateSnapshotFromVMSnapshot v-if="volumeSnapshot" full-width :resource="volumeSnapshot" @close-action="volumeSnapshot = null" />
   </div>
 </template>
 
 <script>
 import { getAPI, postAPI } from '@/api'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
-import { snapshotBusy, snapshotActionReason, snapshotJobs } from '@/utils/vmSnapshotActions'
+import { snapshotBusy, snapshotActionReason, snapshotJobs, snapshotSubmissions, trackUnknownSnapshotSubmission } from '@/utils/vmSnapshotActions'
 import compute from '@/config/section/compute'
 import eventBus from '@/config/eventBus'
 import Status from '@/components/widgets/Status'
+import MoldDialog from '@/components/view/MoldDialog'
+import VmSnapshotSummary from '@/components/view/VmSnapshotSummary'
+import { freshSnapshotContext } from '@/utils/vmSnapshotList'
 import CreateSnapshotFromVMSnapshot from '@/views/storage/CreateSnapshotFromVMSnapshot.vue'
 
 export default {
   name: 'VmSnapshotsTab',
-  components: { Status, CreateSnapshotFromVMSnapshot },
+  components: { Status, CreateSnapshotFromVMSnapshot, MoldDialog, VmSnapshotSummary },
   mixins: [listRefreshMixin(['fetchData'], { interval: 10000, active: vm => !!vm.resource.id })],
   inject: { parentFetchData: { default: null } },
   props: { resource: { type: Object, required: true } },
   data () {
-    return { rows: [], page: 1, pageSize: 10, total: 0, search: '', keyword: '', loading: false, selected: null, actionApi: '', submitting: false, volumeSnapshot: null }
+    return { rows: [], page: 1, pageSize: 10, total: 0, search: '', keyword: '', loading: false, selected: null, actionApi: '', acknowledged: false, submitting: false, volumeSnapshot: null }
   },
   computed: {
     busy () { return snapshotBusy(this.resource.id) || this.submitting || this.rows.some(row => ['Creating', 'Reverting', 'Expunging'].includes(row.state)) },
@@ -158,30 +157,34 @@ export default {
     },
     openAction (api, row) {
       if (this.reason(api, row)) return
-      this.actionApi = api; this.selected = { ...row }
+      this.actionApi = api; this.acknowledged = false; this.selected = { ...row }
     },
     cancelAction () { if (!this.submitting) this.selected = null },
     async submitAction () {
-      if (this.submitting || !this.selected || this.confirmationReason) return
+      if (this.submitting || !this.selected || !this.acknowledged || this.confirmationReason) return
       const scope = this.scopeKey
       const security = JSON.stringify([this.$store.getters.project?.id, this.$store.getters.userInfo?.id, this.$store.state?.user?.token])
       const originalPage = this.$route.path
       const snapshot = { ...this.selected }
       const api = this.actionApi
       this.submitting = true
+      const submission = Symbol(snapshot.virtualmachineid)
+      let postStarted = false
       try {
-        const [snapshotResponse, vmResponse] = await Promise.all([
-          getAPI('listVMSnapshot', { vmsnapshotid: snapshot.id, virtualmachineid: this.resource.id }),
-          getAPI('listVirtualMachines', { id: this.resource.id })
-        ])
-        if (scope !== this.scopeKey || this.listRefreshDisposed) return
-        const fresh = snapshotResponse.listvmsnapshotresponse.vmSnapshot?.find(row => row.id === snapshot.id)
-        const vm = vmResponse.listvirtualmachinesresponse.virtualmachine?.find(row => row.id === this.resource.id)
-        const reason = !fresh || !vm ? 'message.vmsnapshot.not.ready' : snapshotActionReason(api, fresh, vm, snapshotBusy(vm.id))
+        const [context] = await freshSnapshotContext(getAPI, [snapshot], this.allowed('listBackups'))
+        if (scope !== this.scopeKey || this.listRefreshDisposed || security !== JSON.stringify([this.$store.getters.project?.id, this.$store.getters.userInfo?.id, this.$store.state?.user?.token])) return
+        const fresh = context.snapshot
+        const vm = context.vm
+        const reason = !fresh || !vm ? 'message.vmsnapshot.not.ready' : snapshotActionReason(api, fresh, vm, snapshotBusy(vm.id) || context.busy)
         if (!this.allowed(api) || reason) throw new Error(this.$t(reason || 'message.vmsnapshot.permission'))
+        snapshotSubmissions[snapshot.virtualmachineid] = submission
+        postStarted = true
         const response = await postAPI(api, { vmsnapshotid: snapshot.id })
         const jobId = response[api.toLowerCase() + 'response']?.jobid
-        if (!jobId) throw new Error(this.$t('message.job.result.unknown'))
+        if (!jobId) {
+          trackUnknownSnapshotSubmission(snapshot.virtualmachineid, snapshot.id)
+          throw new Error(this.$t('message.vmsnapshot.submission.unknown'))
+        }
         if (security !== JSON.stringify([this.$store.getters.project?.id, this.$store.getters.userInfo?.id, this.$store.state?.user?.token])) return
         if (scope === this.scopeKey) this.selected = null
         const refresh = () => {
@@ -192,11 +195,16 @@ export default {
         }
         this.$pollJob({ jobId, originalPage, title: this.$t(api === 'deleteVMSnapshot' ? 'label.action.vmsnapshot.delete' : 'label.action.vmsnapshot.revert'), description: snapshot.displayname || snapshot.name, resourceId: snapshot.id, action: { api, resource: snapshot, isFetchData: false }, successMethod: refresh, errorMethod: refresh }).catch(() => {})
       } catch (error) {
+        const unconfirmed = postStarted && error.isAxiosError && !error.response
+        const reportedError = unconfirmed ? new Error(this.$t('message.vmsnapshot.submission.unknown')) : error
+        if (postStarted && error.isAxiosError && !error.response) {
+          trackUnknownSnapshotSubmission(snapshot.virtualmachineid, snapshot.id)
+        }
         if (scope === this.scopeKey && !this.listRefreshDisposed) {
-          this.$notifyError(error)
+          this.$notifyError(reportedError)
           this.fetchData()
         }
-      } finally { this.submitting = false }
+      } finally { if (snapshotSubmissions[snapshot.virtualmachineid] === submission) delete snapshotSubmissions[snapshot.virtualmachineid]; this.submitting = false }
     }
   }
 }
