@@ -111,7 +111,7 @@ final class LibvirtAblestackRbdRestoreHelper {
             return restoreIncrementalRbdBackupChain(tracePrefix, storagePool, volumePath, backupPaths, timeoutSeconds, createTargetVolume);
         }
 
-        final String backupPath = getRestorableFileBackupPath(backupPaths);
+        final String backupPath = LibvirtAblestackFileRestoreHelper.getRestorableFileBackupPath(backupPaths);
         if (getBackupFileFormat(backupPath) == QemuImg.PhysicalDiskFormat.RAW) {
             return importRawBackupToRbd(storagePool, volumePath, backupPath, timeoutSeconds, createTargetVolume);
         }
@@ -316,7 +316,7 @@ final class LibvirtAblestackRbdRestoreHelper {
 
     private static long estimateRequiredBytesForRbdRestore(final List<String> backupPaths) {
         final String sizeSource = backupPaths.stream().anyMatch(path -> path.endsWith(".rbdiff")) && backupPaths.get(0).endsWith(".raw")
-                ? backupPaths.get(0) : getRestorableFileBackupPath(backupPaths);
+                ? backupPaths.get(0) : LibvirtAblestackFileRestoreHelper.getRestorableFileBackupPath(backupPaths);
         try {
             final QemuImg qemu = new QemuImg(0);
             final Map<String, String> info = qemu.info(new QemuImgFile(sizeSource, getBackupFileFormat(sizeSource)));
@@ -368,16 +368,6 @@ final class LibvirtAblestackRbdRestoreHelper {
             LOGGER.warn("Failed to parse Ceph pool available bytes from output [{}]", result.output, e);
             return null;
         }
-    }
-
-    private static String getRestorableFileBackupPath(final List<String> backupPaths) {
-        for (int index = backupPaths.size() - 1; index >= 0; index--) {
-            final String backupPath = backupPaths.get(index);
-            if (StringUtils.isNotBlank(backupPath) && Files.exists(Paths.get(backupPath))) {
-                return backupPath;
-            }
-        }
-        return backupPaths.get(backupPaths.size() - 1);
     }
 
     private static QemuImg.PhysicalDiskFormat getBackupFileFormat(final String backupPath) {

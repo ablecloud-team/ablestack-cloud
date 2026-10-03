@@ -103,8 +103,8 @@ Other optional:
   --vm-exclude LIST       Extra libvirt names/globs to skip (auto-exclude still applies)
   --vm-name NAME          libvirt name (mold-backup.sh status 등)
   --vm-uuid UUID          Mold VM UUID
-  --max-chain N           Max incremental chain (default: 10; also sets Mold backup.chain.size)
-  --backup-chain-size N   Alias of --max-chain (Mold Global backup.chain.size)
+  --max-chain N           Max incremental chain (default: 10; also sets Mold kvm.backup.chain.size)
+  --backup-chain-size N   Alias of --max-chain (Mold Global kvm.backup.chain.size)
   --retention PERIOD      Backup offering retention (default: P7D)
   --backup-mode MODE      host|api|local|auto (default: host = NetBackup-style /tmp/mold/veeam)
   --host-backup-path PATH KVM stage root (default: /tmp/mold/veeam); also sets Mold backup.plugin.ablestack-veeam.stage.root.path
@@ -482,7 +482,6 @@ RESTORE_WATCH_TRIGGER_MOLD="${RESTORE_WATCH_TRIGGER_MOLD:-true}"
 VEEAM_UI_RESTORE_SOURCE="${VEEAM_UI_RESTORE_SOURCE:-mold-only}"
 RESTORE_LOCK_DIR="${RESTORE_LOCK_DIR:-}"
 VEEAM_RESTORE_WATCH_WINDOW_MIN="${VEEAM_RESTORE_WATCH_WINDOW_MIN:-10}"
-
 # Bidirectional (mode C): Mold backup completion -> start matching Veeam Agent job.
 VEEAM_TRIGGER_ENABLED="${VEEAM_TRIGGER_ENABLED:-$([[ "${BACKUP_MODE}" == guest ]] && echo true || echo false)}"
 VEEAM_TRIGGER_TTL="${VEEAM_TRIGGER_TTL:-1800}"
@@ -516,6 +515,7 @@ VM_NAME="${VM_NAME_CFG}"
 
 CLEANUP_STAGING_AFTER_BACKUP="false"
 CLEANUP_STAGING_ON_ERROR="true"
+CLEANUP_DURABLE_STAGE_FORCE="false"
 
 NAS_BACKUP_SCRIPT="/etc/ablestack/veeam/ablestack_veeam_nasbackup.sh"
 HOST_EXPORT_SCRIPT="/etc/ablestack/veeam/ablestack_veeam_host_export.sh"

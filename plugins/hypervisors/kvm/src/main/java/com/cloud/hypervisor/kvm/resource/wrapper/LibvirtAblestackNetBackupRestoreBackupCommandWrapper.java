@@ -48,10 +48,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -64,13 +62,18 @@ public class LibvirtAblestackNetBackupRestoreBackupCommandWrapper extends Comman
     private static final String COMMAND_EXIT_MARKER = "__CS_COMMAND_EXIT__=";
     private static final String ATTACH_QCOW2_DISK_COMMAND = " virsh attach-disk %s %s %s --driver qemu --subdriver qcow2 --cache none";
     private static final String ATTACH_RBD_DISK_XML_COMMAND = " virsh attach-device %s /dev/stdin <<EOF%sEOF";
-    private static final String CURRENT_DEVICE = "virsh domblklist --domain %s | tail -n 3 | head -n 1 | awk '{print $1}'";
+    private static final String CURRENT_DEVICE = "virsh domblklist --domain %s --details | awk '($3 ~ /^(vd|sd|hd)[a-z]+$/) {print $3} "
+            + "($4 ~ /^(vd|sd|hd)[a-z]+$/) {print $4}' | sort -V | tail -n 1";
     private static final String QEMU_IMG_HAS_BACKING_COMMAND = "qemu-img info --output=json %s 2>/dev/null | grep -q '\"backing-filename\"'";
-    private static final String RESTORE_TRACE = "[ABLESTACK_NETBACKUP_RESTORE_TRACE]";
+    private static final String RESTORE_TRACE = AblestackBackupFrameworkUtils.buildTracePrefix("netbackup", AblestackBackupFrameworkUtils.OPERATION_RESTORE);
     private static final long RESTORE_PRIMARY_SPACE_BUFFER_BYTES = 10L * 1024L * 1024L * 1024L;
 
     @Override
     public Answer execute(final AblestackNetBackupRestoreBackupCommand command, final LibvirtComputingResource serverResource) {
+        if (!command.isWaitForCompletion()) {
+            return LibvirtAblestackAsyncBackupRunner.startDetachedRestore(command, logger, RESTORE_TRACE, "netbackup",
+                    command.getRestoreJobId(), command.getVmName(), command.getBackupPath());
+        }
         final String backupPath = command.getBackupPath();
         final Boolean vmExists = command.isVmExists();
         final String diskType = command.getDiskType();
@@ -87,9 +90,17 @@ public class LibvirtAblestackNetBackupRestoreBackupCommandWrapper extends Comman
         final KVMStoragePoolManager storagePoolMgr = serverResource.getStoragePoolMgr();
         String newVolumeId = null;
 
-        logger.info("{} phase=[ENTER], vm=[{}], backupPath=[{}], vmExists=[{}], restorePlan=[{}], restoreVolumePaths=[{}], backupFiles=[{}], backupFileChains=[{}]",
-                RESTORE_TRACE, command.getVmName(), backupPath, vmExists, restorePlan, restoreVolumePaths, backupFiles, backupFileChains);
+        logger.info("{} phase=[ENTER], restoreJobId=[{}], jobLog=[{}], vm=[{}], backupPath=[{}], vmExists=[{}], "
+                        + "restorePlan=[{}], restoreVolumePaths=[{}], backupFiles=[{}], backupFileChains=[{}]",
+                RESTORE_TRACE, command.getRestoreJobId(), AblestackBackupFrameworkUtils.getAsyncRestoreJobLogPath(command.getRestoreJobId()),
+                command.getVmName(), backupPath, vmExists, restorePlan, restoreVolumePaths, backupFiles, backupFileChains);
+        LibvirtAblestackAsyncBackupRunner.markRestoreJobRunning(logger, "netbackup", command.getRestoreJobId(), command.getVmName(), backupPath,
+                "NetBackup restore command started");
         try {
+            LibvirtAblestackAsyncBackupRunner.markRestoreJobStep(logger, "netbackup", command.getRestoreJobId(), command.getVmName(), backupPath,
+                    "VALIDATE_CHAIN", "Validating restore chain");
+            LibvirtAblestackAsyncBackupRunner.markRestoreJobStep(logger, "netbackup", command.getRestoreJobId(), command.getVmName(), backupPath,
+                    "RESTORE_DATA", "Restoring backup data");
             if (Objects.isNull(vmExists)) {
                 final PrimaryDataStoreTO restoreVolumePool = restoreVolumePools.get(0);
                 final String restoreVolumePath = restoreVolumePaths.get(0);
@@ -105,11 +116,14 @@ public class LibvirtAblestackNetBackupRestoreBackupCommandWrapper extends Comman
             }
         } catch (final CloudRuntimeException e) {
             final String errorMessage = e.getMessage() != null ? e.getMessage() : "";
+            LibvirtAblestackAsyncBackupRunner.markRestoreJobFailed(logger, "netbackup", command.getRestoreJobId(), command.getVmName(), backupPath, errorMessage);
             return new BackupAnswer(command, false, errorMessage);
         }
 
-        logger.info("{} phase=[DONE], vm=[{}], backupPath=[{}], vmExists=[{}], newVolumeId=[{}]",
-                RESTORE_TRACE, command.getVmName(), backupPath, vmExists, newVolumeId);
+        logger.info("{} phase=[DONE], restoreJobId=[{}], vm=[{}], backupPath=[{}], vmExists=[{}], newVolumeId=[{}]",
+                RESTORE_TRACE, command.getRestoreJobId(), command.getVmName(), backupPath, vmExists, newVolumeId);
+        LibvirtAblestackAsyncBackupRunner.markRestoreJobCompleted(logger, "netbackup", command.getRestoreJobId(), command.getVmName(), backupPath,
+                StringUtils.defaultIfBlank(newVolumeId, "NetBackup restore command completed"));
         return new BackupAnswer(command, true, newVolumeId);
     }
 
@@ -298,51 +312,12 @@ public class LibvirtAblestackNetBackupRestoreBackupCommandWrapper extends Comman
     }
 
     private String getRestorableFileBackupPath(final List<String> backupPaths) {
-        for (int i = backupPaths.size() - 1; i >= 0; i--) {
-            final String backupPath = backupPaths.get(i);
-            if (StringUtils.isNotBlank(backupPath) && Files.exists(Paths.get(backupPath))) {
-                return backupPath;
-            }
-        }
-        return backupPaths.get(backupPaths.size() - 1);
+        return LibvirtAblestackFileRestoreHelper.getRestorableFileBackupPath(backupPaths);
     }
 
     private boolean replaceFileVolumeWithBackup(final String volumePath, final String backupPath, final int timeout) {
-        QemuImgFile srcBackupFile = null;
-        Path temporaryVolumePath = null;
-        Path movedAsideTarget = null;
-        try {
-            srcBackupFile = new QemuImgFile(backupPath, getBackupFileFormat(backupPath));
-            final QemuImg.PhysicalDiskFormat targetFormat = getFileVolumeFormat(volumePath);
-            validatePrimaryStorageSpaceForFileRestore(backupPath, volumePath);
-            movedAsideTarget = moveExistingFileVolumeAside(volumePath);
-            temporaryVolumePath = createTemporaryVolumePath(volumePath, "cs-netbackup-restore-volume-", targetFormat);
-            Files.deleteIfExists(temporaryVolumePath);
-            final QemuImgFile temporaryVolumeFile = new QemuImgFile(temporaryVolumePath.toString(), targetFormat);
-            logger.info("{} phase=[TEMP_TARGET_CREATED], source=[{}], target=[{}], temporaryTarget=[{}], sourceFormat=[{}], targetFormat=[{}]",
-                    RESTORE_TRACE, srcBackupFile.getFileName(), volumePath, temporaryVolumeFile.getFileName(), srcBackupFile.getFormat(), targetFormat);
-            restoreFileVolumeData(backupPath, temporaryVolumeFile.getFileName(), srcBackupFile.getFormat(), targetFormat, timeout);
-            Files.move(temporaryVolumePath, Paths.get(volumePath), StandardCopyOption.REPLACE_EXISTING);
-            logger.info("{} phase=[TEMP_TARGET_PROMOTED], target=[{}], temporaryTarget=[{}]",
-                    RESTORE_TRACE, volumePath, temporaryVolumePath);
-            deleteMovedAsideFileVolume(movedAsideTarget);
-            return true;
-        } catch (final QemuImgException | LibvirtException | IOException e) {
-            final String srcFilename = srcBackupFile != null ? srcBackupFile.getFileName() : null;
-            logger.error("{} phase=[FILE_RESTORE_FAILED], source=[{}], target=[{}], error=[{}]",
-                    RESTORE_TRACE, srcFilename, volumePath, e.getMessage());
-            restoreMovedAsideFileVolume(volumePath, movedAsideTarget);
-            return false;
-        } finally {
-            if (temporaryVolumePath != null) {
-                try {
-                    Files.deleteIfExists(temporaryVolumePath);
-                } catch (final IOException e) {
-                    logger.warn("{} phase=[TEMP_TARGET_DELETE_FAILED], temporaryTarget=[{}], error=[{}]",
-                            RESTORE_TRACE, temporaryVolumePath, e.getMessage());
-                }
-            }
-        }
+        return LibvirtAblestackFileRestoreHelper.replaceFileVolumeWithBackup(RESTORE_TRACE, logger, volumePath, backupPath, timeout,
+                "cs-netbackup-restore-volume-");
     }
 
     private Path createTemporaryVolumePath(final String volumePath, final String prefix, final QemuImg.PhysicalDiskFormat targetFormat) throws IOException {
@@ -353,59 +328,9 @@ public class LibvirtAblestackNetBackupRestoreBackupCommandWrapper extends Comman
     }
 
     private void validatePrimaryStorageSpaceForFileRestorePlan(final List<String> volumePaths, final List<List<String>> backupPathsByVolume,
-            final List<PrimaryDataStoreTO> restoreVolumePools) {
-        final Map<Path, Long> persistentGrowthBytesByDirectory = new HashMap<>();
-        final Map<Path, Long> peakRestoreBytesByDirectory = new HashMap<>();
-        final Map<Path, Integer> volumeCountByDirectory = new HashMap<>();
-        for (int idx = 0; idx < volumePaths.size(); idx++) {
-            final PrimaryDataStoreTO restoreVolumePool = restoreVolumePools.get(idx);
-            if (restoreVolumePool.getPoolType() == Storage.StoragePoolType.RBD) {
-                continue;
-            }
-            final String volumePath = volumePaths.get(idx);
-            final List<String> backupPaths = backupPathsByVolume.get(idx);
-            validateResolvedChainPaths(backupPaths, volumePath);
-            final Path targetDirectory = getTargetDirectory(volumePath);
-            try {
-                final long backupRequiredBytes = estimateRequiredBytesForFileRestore(getRestorableFileBackupPath(backupPaths));
-                final Path targetPath = Paths.get(volumePath);
-                final long persistentGrowthBeforeVolume = persistentGrowthBytesByDirectory.getOrDefault(targetDirectory, 0L);
-                peakRestoreBytesByDirectory.merge(targetDirectory, persistentGrowthBeforeVolume + backupRequiredBytes, Math::max);
-                volumeCountByDirectory.merge(targetDirectory, 1, Integer::sum);
-                if (Files.exists(targetPath)) {
-                    final long existingBytes = estimateRequiredBytesForFileRestore(volumePath);
-                    persistentGrowthBytesByDirectory.merge(targetDirectory, Math.max(backupRequiredBytes - existingBytes, 0L), Long::sum);
-                } else {
-                    persistentGrowthBytesByDirectory.merge(targetDirectory, backupRequiredBytes, Long::sum);
-                }
-            } catch (final QemuImgException | LibvirtException e) {
-                throw new CloudRuntimeException(String.format("Failed to estimate primary storage requirement for target [%s]: %s",
-                        volumePath, e.getMessage()), e);
-            }
-        }
-
-        for (final Map.Entry<Path, Long> entry : persistentGrowthBytesByDirectory.entrySet()) {
-            final Path targetDirectory = entry.getKey();
-            final long persistentGrowthBytes = entry.getValue();
-            final long peakRestoreBytes = peakRestoreBytesByDirectory.getOrDefault(targetDirectory, 0L);
-            final long requiredBytes = Math.max(persistentGrowthBytes, peakRestoreBytes);
-            final long bufferBytes = Math.max(RESTORE_PRIMARY_SPACE_BUFFER_BYTES, requiredBytes / 5L);
-            final long minimumAvailableBytes = requiredBytes + bufferBytes;
-            final long availableBytes;
-            try {
-                availableBytes = Files.getFileStore(targetDirectory).getUsableSpace();
-            } catch (final IOException e) {
-                throw new CloudRuntimeException(String.format("Failed to query primary storage space under [%s]: %s", targetDirectory, e.getMessage()), e);
-            }
-            logger.info("{} phase=[PRIMARY_SPACE_PLAN_CHECK], targetDirectory=[{}], persistentGrowthBytes=[{}], transientBytes=[{}], requiredBytes=[{}], bufferBytes=[{}], minimumAvailableBytes=[{}], availableBytes=[{}], volumeCount=[{}]",
-                    RESTORE_TRACE, targetDirectory, persistentGrowthBytes, peakRestoreBytes, requiredBytes, bufferBytes, minimumAvailableBytes, availableBytes,
-                    volumeCountByDirectory.getOrDefault(targetDirectory, 0));
-            if (availableBytes < minimumAvailableBytes) {
-                throw new CloudRuntimeException(String.format(
-                        "Insufficient primary storage space for NetBackup restore under [%s]. Required at least [%d] bytes including buffer for the restore plan, but only [%d] bytes are available.",
-                        targetDirectory, minimumAvailableBytes, availableBytes));
-            }
-        }
+                                                               final List<PrimaryDataStoreTO> restoreVolumePools) {
+        LibvirtAblestackFileRestoreHelper.validatePrimaryStorageSpaceForFileRestorePlan(RESTORE_TRACE, logger, "NetBackup",
+                volumePaths, backupPathsByVolume, restoreVolumePools);
     }
 
     private void validatePrimaryStorageSpaceForFileRestore(final String backupPath, final String volumePath) throws IOException, QemuImgException, LibvirtException {
@@ -430,33 +355,11 @@ public class LibvirtAblestackNetBackupRestoreBackupCommandWrapper extends Comman
     }
 
     private long estimateRequiredBytesForVolumeRestore(final String volumePath, final List<String> backupPaths) {
-        try {
-            if (Files.exists(Paths.get(volumePath))) {
-                return estimateRequiredBytesForFileRestore(volumePath);
-            }
-            return estimateRequiredBytesForFileRestore(getRestorableFileBackupPath(backupPaths));
-        } catch (final QemuImgException | LibvirtException e) {
-            throw new CloudRuntimeException(String.format("Failed to estimate primary storage requirement for target [%s]: %s",
-                    volumePath, e.getMessage()), e);
-        }
+        return LibvirtAblestackFileRestoreHelper.estimateRequiredBytesForVolumeRestore(volumePath, backupPaths);
     }
 
     private long estimateRequiredBytesForFileRestore(final String backupPath) throws QemuImgException, LibvirtException {
-        try {
-            final QemuImg qemu = new QemuImg(0);
-            final Map<String, String> info = qemu.info(new QemuImgFile(backupPath, getBackupFileFormat(backupPath)));
-            final String virtualSize = info.get(QemuImg.VIRTUAL_SIZE);
-            if (StringUtils.isNotBlank(virtualSize)) {
-                return Long.parseLong(virtualSize);
-            }
-        } catch (final NumberFormatException e) {
-            logger.warn("Failed to parse virtual size for backup [{}]. Falling back to file size.", backupPath, e);
-        }
-        try {
-            return Files.size(Paths.get(backupPath));
-        } catch (final IOException e) {
-            throw new QemuImgException(String.format("Failed to estimate restore size for backup [%s]: %s", backupPath, e.getMessage()));
-        }
+        return LibvirtAblestackFileRestoreHelper.estimateRequiredBytesForFileRestore(backupPath);
     }
 
     private Path moveExistingFileVolumeAside(final String volumePath) throws IOException {
@@ -544,17 +447,8 @@ public class LibvirtAblestackNetBackupRestoreBackupCommandWrapper extends Comman
     }
 
     private boolean replaceFileVolumeWithBackup(final String volumePath, final List<String> backupPaths, final int timeout) {
-        if (backupPaths == null || backupPaths.isEmpty()) {
-            return false;
-        }
-        if (backupPaths.size() == 1) {
-            return replaceFileVolumeWithBackup(volumePath, getRestorableFileBackupPath(backupPaths), timeout);
-        }
-
-        final String leafBackupPath = getRestorableFileBackupPath(backupPaths);
-        logger.info("{} phase=[QCOW2_CHAIN_LEAF_SELECTED], target=[{}], leaf=[{}], chainFiles=[{}]",
-                RESTORE_TRACE, volumePath, leafBackupPath, backupPaths);
-        return replaceFileVolumeWithBackup(volumePath, leafBackupPath, timeout);
+        return LibvirtAblestackFileRestoreHelper.replaceFileVolumeWithBackup(RESTORE_TRACE, logger, volumePath, backupPaths, timeout,
+                "cs-netbackup-restore-volume-");
     }
 
     private boolean convertTemporaryRbdToFileVolume(final String volumePath, final int timeout, final RbdImageSpec sourceImage, final String tempImage) {

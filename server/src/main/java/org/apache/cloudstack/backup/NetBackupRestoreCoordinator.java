@@ -29,6 +29,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -62,6 +63,10 @@ public class NetBackupRestoreCoordinator extends ManagerBase {
     private static final String DETAIL_NETBACKUP_RESTORE_UPDATED_AT = "netbackup.restore.updated.at";
     private static final String DETAIL_NETBACKUP_RESTORE_ROOT_JOB_ID = "netbackup.restore.root.job.id";
     private static final String DETAIL_NETBACKUP_RESTORE_CHAIN_JOB_ID = "netbackup.restore.chain.job.id";
+    private static final String DETAIL_NETBACKUP_RESTORE_HOST_NAME = "netbackup.restore.host.name";
+    private static final String DETAIL_NETBACKUP_RESTORE_RESOLVED_EXTERNAL_ID = "netbackup.restore.resolved.external.id";
+    private static final String DETAIL_NETBACKUP_RESTORE_FAILURE_REASON = "netbackup.restore.failure.reason";
+    private static final long STALE_RESTORE_STATE_THRESHOLD_MS = TimeUnit.DAYS.toMillis(1);
 
     private static final ConcurrentHashMap<Long, RestoreGuard> RESTORE_GUARDS = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<Long, RestoreSession> RESTORE_SESSIONS = new ConcurrentHashMap<>();
@@ -81,8 +86,13 @@ public class NetBackupRestoreCoordinator extends ManagerBase {
 
     public enum RestorePhase {
         CLAIMED,
+        PREPARED_PATH_VALIDATING,
         ROOT_RESTORE_IN_PROGRESS,
         CHAIN_RESTORE_IN_PROGRESS,
+        HOST_RESTORE_IN_PROGRESS,
+        IMPORT_IN_PROGRESS,
+        ATTACH_VOLUME_IN_PROGRESS,
+        CLEANUP_IN_PROGRESS,
         COMPLETED,
         FAILED
     }
@@ -159,7 +169,7 @@ public class NetBackupRestoreCoordinator extends ManagerBase {
         }
     }
 
-    public void updateBackupMetadata(final UpdateNetBackupCmd cmd, final VMInstanceVO vm) {
+    public BackupVO updateBackupMetadata(final UpdateNetBackupCmd cmd, final VMInstanceVO vm) {
         final BackupVO backup = backupDao.listByVmId(vm.getDataCenterId(), vm.getId()).stream()
                 .filter(BackupVO.class::isInstance)
                 .map(BackupVO.class::cast)
@@ -187,6 +197,7 @@ public class NetBackupRestoreCoordinator extends ManagerBase {
             upsertBackupDetail(backup.getId(), DETAIL_NETBACKUP_MEMBER_COUNT, String.valueOf(cmd.getMemberCount()));
         }
         backupDao.loadDetails(backup);
+        return backup;
     }
 
     public String acquireRestoreGuard(final VMInstanceVO vm, final String requestIdentifier) {
@@ -411,6 +422,28 @@ public class NetBackupRestoreCoordinator extends ManagerBase {
         }
     }
 
+    public void persistRestoreContext(final BackupVO backup, final VMInstanceVO vm, final String requestIdentifier,
+            final RestorePhase phase, final String restoreHostName, final String resolvedExternalId) {
+        persistRestoreState(backup, vm, requestIdentifier, phase);
+        if (backup == null) {
+            return;
+        }
+        if (StringUtils.isNotBlank(restoreHostName)) {
+            upsertBackupDetail(backup.getId(), DETAIL_NETBACKUP_RESTORE_HOST_NAME, restoreHostName);
+        }
+        if (StringUtils.isNotBlank(resolvedExternalId)) {
+            upsertBackupDetail(backup.getId(), DETAIL_NETBACKUP_RESTORE_RESOLVED_EXTERNAL_ID, resolvedExternalId);
+        }
+    }
+
+    public void persistRestoreFailure(final BackupVO backup, final VMInstanceVO vm, final String requestIdentifier,
+            final String reason) {
+        persistRestoreState(backup, vm, requestIdentifier, RestorePhase.FAILED);
+        if (backup != null && StringUtils.isNotBlank(reason)) {
+            upsertBackupDetail(backup.getId(), DETAIL_NETBACKUP_RESTORE_FAILURE_REASON, reason);
+        }
+    }
+
     public void clearRestoreState(final long backupId, final Long vmId) {
         upsertBackupDetail(backupId, DETAIL_NETBACKUP_RESTORE_VM_UUID, null);
         upsertBackupDetail(backupId, DETAIL_NETBACKUP_RESTORE_REQUEST_ID, null);
@@ -418,6 +451,9 @@ public class NetBackupRestoreCoordinator extends ManagerBase {
         upsertBackupDetail(backupId, DETAIL_NETBACKUP_RESTORE_UPDATED_AT, null);
         upsertBackupDetail(backupId, DETAIL_NETBACKUP_RESTORE_ROOT_JOB_ID, null);
         upsertBackupDetail(backupId, DETAIL_NETBACKUP_RESTORE_CHAIN_JOB_ID, null);
+        upsertBackupDetail(backupId, DETAIL_NETBACKUP_RESTORE_HOST_NAME, null);
+        upsertBackupDetail(backupId, DETAIL_NETBACKUP_RESTORE_RESOLVED_EXTERNAL_ID, null);
+        upsertBackupDetail(backupId, DETAIL_NETBACKUP_RESTORE_FAILURE_REASON, null);
         if (vmId != null) {
             RESTORE_SESSIONS.remove(vmId);
             RESTORE_GUARDS.remove(vmId);
@@ -503,6 +539,74 @@ public class NetBackupRestoreCoordinator extends ManagerBase {
 
     public String getRestoreChainJobId(final BackupVO backup) {
         return backup != null ? backup.getDetail(DETAIL_NETBACKUP_RESTORE_CHAIN_JOB_ID) : null;
+    }
+
+    public String getRestoreHostName(final BackupVO backup) {
+        return backup != null ? backup.getDetail(DETAIL_NETBACKUP_RESTORE_HOST_NAME) : null;
+    }
+
+    public String getRestoreFailureReason(final BackupVO backup) {
+        return backup != null ? backup.getDetail(DETAIL_NETBACKUP_RESTORE_FAILURE_REASON) : null;
+    }
+
+    public void reconcileActiveRestoreStates(final Long zoneId) {
+        final List<BackupVO> backups = backupDao.listByZone(zoneId);
+        if (CollectionUtils.isEmpty(backups)) {
+            return;
+        }
+        int activeRestoreCount = 0;
+        for (final BackupVO backup : backups) {
+            try {
+                final BackupOffering offering = backupOfferingDao.findByIdIncludingRemoved(backup.getBackupOfferingId());
+                if (offering == null || !BackupProviderNameUtils.isNetBackupFamily(offering.getProvider())) {
+                    continue;
+                }
+                backupDao.loadDetails(backup);
+                final String phase = getRestorePhase(backup);
+                if (!isActiveRestorePhase(phase)) {
+                    continue;
+                }
+                activeRestoreCount++;
+                final String updatedAt = backup.getDetail(DETAIL_NETBACKUP_RESTORE_UPDATED_AT);
+                final long updatedAtMs = parseLong(updatedAt, 0L);
+                final long ageMs = updatedAtMs > 0L ? System.currentTimeMillis() - updatedAtMs : Long.MAX_VALUE;
+                logger.info("Reconciling active NetBackup restore state. zoneId=[{}], backupUuid=[{}], vmId=[{}], "
+                                + "phase=[{}], requestId=[{}], restoreHost=[{}], resolvedExternalId=[{}], ageMs=[{}]",
+                        zoneId, backup.getUuid(), backup.getVmId(), phase, getRestoreRequestId(backup),
+                        getRestoreHostName(backup), backup.getDetail(DETAIL_NETBACKUP_RESTORE_RESOLVED_EXTERNAL_ID), ageMs);
+                if (ageMs >= STALE_RESTORE_STATE_THRESHOLD_MS) {
+                    markStaleRestoreFailed(backup, phase, ageMs);
+                }
+            } catch (Exception e) {
+                logger.warn("Failed to reconcile NetBackup restore state for backup [{}] in zone [{}]: {}",
+                        backup.getUuid(), zoneId, e.getMessage(), e);
+            }
+        }
+        if (activeRestoreCount > 0) {
+            logger.info("Checked [{}] active NetBackup restore states in zone [{}].", activeRestoreCount, zoneId);
+        }
+    }
+
+    private void markStaleRestoreFailed(final BackupVO backup, final String phase, final long ageMs) {
+        final VMInstanceVO markerVm = getRestoreMarkerVm(backup, null);
+        final String requestId = getRestoreRequestId(backup);
+        final String reason = String.format("NetBackup restore state remained active in phase [%s] for [%d] ms. "
+                + "The Mold async job may have been interrupted; manual verification is required before retry.", phase, ageMs);
+        persistRestoreFailure(backup, markerVm, requestId, reason);
+        failSession(markerVm != null ? markerVm.getId() : null, requestId, reason);
+        logger.warn("Marked stale NetBackup restore state as FAILED. backupUuid=[{}], vmId=[{}], phase=[{}], requestId=[{}], ageMs=[{}], reason=[{}]",
+                backup.getUuid(), backup.getVmId(), phase, requestId, ageMs, reason);
+    }
+
+    private long parseLong(final String value, final long defaultValue) {
+        if (StringUtils.isBlank(value)) {
+            return defaultValue;
+        }
+        try {
+            return Long.parseLong(value);
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
     }
 
     public String getMoldRestoreRequestIdentifier(final Backup backup) {

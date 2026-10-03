@@ -55,8 +55,7 @@ SECRET_KEY_FILE = Path(os.environ.get("SECRET_KEY_FILE", "/root/.ssh/ablestack.k
 NETBACKUP_BP_CONF_PATH = Path(os.environ.get("NETBACKUP_BP_CONF_PATH", "/usr/openv/netbackup/bp.conf"))
 NETBACKUP_SERVICE_NAME = os.environ.get("NETBACKUP_SERVICE_NAME", "netbackup")
 MOLD_API_RESPONSE_FORMAT = "json"
-NETBACKUP_PROVIDER_DISPLAY_NAME = "netbackup"
-NETBACKUP_PROVIDER_CANONICAL_NAME = "ablestack-netbackup"
+NETBACKUP_PROVIDER_NAME = "ablestack-netbackup"
 NETBACKUP_OFFERING_NAME = "NetBackup"
 NETBACKUP_OFFERING_DESCRIPTION = "Ablestack NetBackup backup offering"
 NETBACKUP_OFFERING_EXTERNAL_ID = "netbackup"
@@ -300,12 +299,12 @@ def ensure_backup_framework_configuration(zone_id: str, cluster_id: str, args: a
 
     if args.backup_chain_size is not None:
         desired_chain_size = str(args.backup_chain_size)
-        log_info("Checking global configuration: backup.chain.size")
-        current = get_configuration_value("backup.chain.size", args.mold_url, args.admin_apikey, args.admin_secretkey)
+        log_info("Checking global configuration: kvm.backup.chain.size")
+        current = get_configuration_value("kvm.backup.chain.size", args.mold_url, args.admin_apikey, args.admin_secretkey)
         if current != desired_chain_size:
-            log_info(f"Updating global configuration: backup.chain.size={desired_chain_size}")
-            update_configuration_value("backup.chain.size", desired_chain_size, args.mold_url, args.admin_apikey, args.admin_secretkey)
-            print(f"Updated global configuration: backup.chain.size={desired_chain_size}")
+            log_info(f"Updating global configuration: kvm.backup.chain.size={desired_chain_size}")
+            update_configuration_value("kvm.backup.chain.size", desired_chain_size, args.mold_url, args.admin_apikey, args.admin_secretkey)
+            print(f"Updated global configuration: kvm.backup.chain.size={desired_chain_size}")
 
     desired_stage_root = str(BACKUP_STAGING_ROOT)
     log_info(f"Checking global configuration: {NETBACKUP_STAGE_ROOT_CONFIG_NAME}")
@@ -317,7 +316,7 @@ def ensure_backup_framework_configuration(zone_id: str, cluster_id: str, args: a
 
     log_info("Checking zone configuration: backup.framework.provider.plugin")
     current = get_configuration_value("backup.framework.provider.plugin", args.mold_url, args.admin_apikey, args.admin_secretkey, zone_id)
-    updated = append_provider_if_missing(current, NETBACKUP_PROVIDER_DISPLAY_NAME)
+    updated = append_provider_if_missing(current, NETBACKUP_PROVIDER_NAME)
     if updated != current:
         log_info(f"Updating zone configuration: backup.framework.provider.plugin={updated}")
         update_configuration_value("backup.framework.provider.plugin", updated, args.mold_url, args.admin_apikey, args.admin_secretkey, zone_id)
@@ -354,7 +353,7 @@ def ensure_netbackup_offering(zone_id: str, args: argparse.Namespace) -> None:
     for offering in offerings:
         provider = str(offering.get("provider", "")).lower()
         offering_zone = str(offering.get("zoneid", "") or offering.get("zoneId", ""))
-        if provider in {NETBACKUP_PROVIDER_DISPLAY_NAME, NETBACKUP_PROVIDER_CANONICAL_NAME} and offering_zone == zone_id:
+        if provider == NETBACKUP_PROVIDER_NAME and offering_zone == zone_id:
             print(f"NetBackup backup offering already exists for zoneid={zone_id}")
             return
 
@@ -362,7 +361,7 @@ def ensure_netbackup_offering(zone_id: str, args: argparse.Namespace) -> None:
     data = invoke_mold_api("POST", "importBackupOffering", {
         "name": NETBACKUP_OFFERING_NAME,
         "description": NETBACKUP_OFFERING_DESCRIPTION,
-        "provider": NETBACKUP_PROVIDER_DISPLAY_NAME,
+        "provider": NETBACKUP_PROVIDER_NAME,
         "externalid": NETBACKUP_OFFERING_EXTERNAL_ID,
         "allowuserdrivenbackups": "false",
         "zoneid": zone_id,
@@ -388,7 +387,7 @@ def ensure_netbackup_offering(zone_id: str, args: argparse.Namespace) -> None:
     for offering in offerings:
         provider = str(offering.get("provider", "")).lower()
         offering_zone = str(offering.get("zoneid", "") or offering.get("zoneId", ""))
-        if provider in {NETBACKUP_PROVIDER_DISPLAY_NAME, NETBACKUP_PROVIDER_CANONICAL_NAME} and offering_zone == zone_id:
+        if provider == NETBACKUP_PROVIDER_NAME and offering_zone == zone_id:
             print(f"Imported NetBackup backup offering for zoneid={zone_id}")
             return
     fail(f"importBackupOffering async job completed but NetBackup backup offering was not found for zoneid={zone_id}")
@@ -538,6 +537,7 @@ def write_watcher_config(path: Path, args: argparse.Namespace) -> None:
         f'MOLD_CONFIG_FILE="{RESTORE_CONFIG_PATH}"',
         f'LOG_FILE="{WATCHER_LOG_PATH}"',
         'STATE_FILE="/var/lib/ablestack/netbackup/restore-watcher-state.json"',
+        'LOCK_FILE="/var/lib/ablestack/netbackup/restore-watcher.lock"',
         'POLL_INTERVAL_SECONDS="60"',
         'NETBACKUP_CLIENT_NAME=""',
         'NETBACKUP_BP_CONF_PATH="/usr/openv/netbackup/bp.conf"',
@@ -670,9 +670,12 @@ def apply_netbackup_bp_conf() -> bool:
         print(f"NetBackup bp.conf not found: {NETBACKUP_BP_CONF_PATH}")
         return False
     copy_existing_file_backup(NETBACKUP_BP_CONF_PATH)
-    set_bp_conf_value(NETBACKUP_BP_CONF_PATH, "BPSTART_TIMEOUT", "21600")
-    set_bp_conf_value(NETBACKUP_BP_CONF_PATH, "BPEND_TIMEOUT", "21600")
-    set_bp_conf_value(NETBACKUP_BP_CONF_PATH, "CLIENT_READ_TIMEOUT", "21600")
+    # NetBackup's outer hook timeout must exceed Mold's default 12-hour
+    # backup.data.operation.timeout plus staging completion grace. CLIENT_READ_TIMEOUT must not be lower than the
+    # bpstart/bpend notify timeouts.
+    set_bp_conf_value(NETBACKUP_BP_CONF_PATH, "BPSTART_TIMEOUT", "86400")
+    set_bp_conf_value(NETBACKUP_BP_CONF_PATH, "BPEND_TIMEOUT", "86400")
+    set_bp_conf_value(NETBACKUP_BP_CONF_PATH, "CLIENT_READ_TIMEOUT", "86400")
     set_bp_conf_value(NETBACKUP_BP_CONF_PATH, "CLIENT_CONNECT_TIMEOUT", "1800")
     set_bp_conf_value(NETBACKUP_BP_CONF_PATH, "SERVER_CONNECT_TIMEOUT", "1800")
     print(f"Updated NetBackup config: {NETBACKUP_BP_CONF_PATH}")
@@ -798,7 +801,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--vm-include")
     parser.add_argument("--vm-exclude", default="")
     parser.add_argument("--backup-chain-size", type=int,
-                        help="Update global backup.chain.size.")
+                        help="Update global kvm.backup.chain.size.")
     parser.add_argument("--backup-staging-root", default=str(BACKUP_STAGING_ROOT),
                         help="Local NetBackup staging directory used by host hooks and Mold backup.plugin.netbackup.stage.root.path.")
     parser.add_argument("--mold-url", required=True)

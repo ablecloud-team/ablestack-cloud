@@ -35,6 +35,17 @@ public class BackupAnswer extends Answer {
     // Set when an incremental was requested but the agent had to fall back to a full
     // (e.g. VM was stopped). Provider should record this backup as type=full.
     private Boolean incrementalFallback;
+    private String state;
+    private String step;
+    private Integer progress;
+    private Long eventsOffset;
+    private String eventsJson;
+    private String logPath;
+    private Integer exitCode;
+    private String operation;
+    private String capabilities;
+    private Integer bandwidthLimitMbps;
+    private String bandwidthStatus;
 
     public BackupAnswer(final Command command, final boolean success, final String details) {
         super(command, success, details);
@@ -91,4 +102,91 @@ public class BackupAnswer extends Answer {
         this.incrementalFallback = incrementalFallback;
     }
 
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public String getStep() {
+        return step;
+    }
+
+    public void setStep(String step) {
+        this.step = step;
+    }
+
+    public Integer getProgress() {
+        return progress;
+    }
+
+    public void setProgress(Integer progress) {
+        this.progress = progress;
+    }
+
+    public Long getEventsOffset() {
+        return eventsOffset;
+    }
+
+    public void setEventsOffset(Long eventsOffset) {
+        this.eventsOffset = eventsOffset;
+    }
+
+    public String getEventsJson() {
+        return eventsJson;
+    }
+
+    public void setEventsJson(String eventsJson) {
+        this.eventsJson = eventsJson;
+    }
+
+    public String getLogPath() {
+        return logPath;
+    }
+
+    public void setLogPath(String logPath) {
+        this.logPath = logPath;
+    }
+
+    public Integer getExitCode() {
+        return exitCode;
+    }
+
+    public void setExitCode(Integer exitCode) {
+        this.exitCode = exitCode;
+    }
+
+    public String getOperation() {
+        return operation;
+    }
+
+    public void setOperation(String operation) {
+        this.operation = operation;
+    }
+
+    public String getCapabilities() {
+        return capabilities;
+    }
+
+    public void setCapabilities(String capabilities) {
+        this.capabilities = capabilities;
+    }
+
+    public Integer getBandwidthLimitMbps() {
+        return bandwidthLimitMbps;
+    }
+
+    public void setBandwidthLimitMbps(Integer bandwidthLimitMbps) {
+        this.bandwidthLimitMbps = bandwidthLimitMbps;
+    }
+
+    public String getBandwidthStatus() {
+        return bandwidthStatus;
+    }
+
+    public void setBandwidthStatus(String bandwidthStatus) {
+        this.bandwidthStatus = bandwidthStatus;
+    }
 }

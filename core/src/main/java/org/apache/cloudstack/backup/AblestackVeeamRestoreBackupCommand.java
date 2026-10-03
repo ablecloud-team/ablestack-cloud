@@ -42,6 +42,8 @@ public class AblestackVeeamRestoreBackupCommand extends Command {
     private Integer timeout;
     private String cacheMode;
     private String checkpointName;
+    private String restoreJobId;
+    private boolean waitForCompletion = true;
 
     public AblestackVeeamRestoreBackupCommand() {
         super();
@@ -174,6 +176,22 @@ public class AblestackVeeamRestoreBackupCommand extends Command {
 
     public void setCheckpointName(final String checkpointName) {
         this.checkpointName = checkpointName;
+    }
+
+    public String getRestoreJobId() {
+        return restoreJobId;
+    }
+
+    public void setRestoreJobId(final String restoreJobId) {
+        this.restoreJobId = restoreJobId;
+    }
+
+    public boolean isWaitForCompletion() {
+        return waitForCompletion;
+    }
+
+    public void setWaitForCompletion(final boolean waitForCompletion) {
+        this.waitForCompletion = waitForCompletion;
     }
 
     @Override

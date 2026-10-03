@@ -34,7 +34,7 @@
     <a-table :columns="columns" :data-source="rows" row-key="id" :loading="loading" :pagination="false" :scroll="{ x: 900 }" size="small">
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'name'"><router-link :to="'/backup/' + record.id">{{ record.name || record.id }}</router-link><small v-if="provider(record) === 'kboss'" class="backup-secondary">{{ $t('label.compressionstatus') }}: {{ record.compressionstatus || '—' }} · {{ $t('label.validationstatus') }}: {{ record.validationstatus || '—' }}</small></template>
-        <template v-else-if="column.key === 'status'"><status :text="record.status" /> {{ record.status }}</template>
+        <template v-else-if="column.key === 'status'"><backup-progress :record="record" :statusText="record.status" @restore-finished="record.restoreoperationpending = false; record.restorejobstate = $event" /></template>
         <template v-else-if="column.key === 'size'">{{ bytes(record.size) }} / {{ bytes(record.virtualsize) }}</template>
         <template v-else-if="column.key === 'type'">{{ record.type || '—' }} / {{ record.intervaltype || '—' }}</template>
         <template v-else-if="column.key === 'created'">{{ $toLocaleDate(record.created) }}</template>
@@ -82,14 +82,14 @@ import { listRefreshMixin } from '@/utils/listRefreshMixin'
 import compute from '@/config/section/compute'
 import storage from '@/config/section/storage'
 import eventBus from '@/config/eventBus'
-import Status from '@/components/widgets/Status'
+import BackupProgress from '@/components/view/BackupProgress'
 
 const vmApis = ['createBackup', 'assignVirtualMachineToBackupOffering', 'removeVirtualMachineFromBackupOffering', 'createBackupSchedule', 'finishBackupChain']
 const rowApis = ['restoreVolumeFromBackupAndAttachToVM', 'createVMFromBackup', 'deleteBackup']
 const activeStates = ['Allocated', 'Queued', 'BackingUp', 'ReadyForImageTransfer', 'FinalizingImageTransfer', 'Restoring']
 export default {
   name: 'VmBackupsTab',
-  components: { Status },
+  components: { BackupProgress },
   mixins: [listRefreshMixin(['fetchData'], { active: vm => !!vm.resource.id })],
   inject: { parentFetchData: { default: null } },
   props: { resource: { type: Object, required: true } },
@@ -113,7 +113,11 @@ export default {
     definition (api) { return (vmApis.includes(api) ? compute.children.find(item => item.name === 'vm') : storage.children.find(item => item.name === 'backup'))?.actions.find(action => action.api === api) },
     provider (row) { return (row?.provider || this.resource.backupprovider || '').toLowerCase() },
     context (row = this.resource) { return row === this.resource ? row : { ...row, provider: this.provider(row) } },
-    visible (api, row = this.resource) { const action = this.definition(api); return !!action && this.allowed(api) && (!action.show || !!action.show(this.context(row), this.$store.getters)) },
+    visible (api, row = this.resource) {
+      if (api === 'deleteBackup' && ['veeam', 'ablestack-veeam', 'netbackup', 'ablestack-netbackup'].includes(this.provider(row))) return false
+      const action = this.definition(api)
+      return !!action && this.allowed(api) && (!action.show || !!action.show(this.context(row), this.$store.getters))
+    },
     disabled (api, row = this.resource) {
       const action = this.definition(api)
       return !this.visible(api, row) || this.opening || this.submitting || this.pending || this.unknown || this.rows.some(item => activeStates.includes(item.status)) || this.resource.hostcontrolstate === 'Offline' || !!action?.disabled?.(this.context(row), this.$store.getters, [])
@@ -180,9 +184,19 @@ export default {
         if (scope !== this.scopeKey || this.listRefreshDisposed) return
         const jobId = result[api.toLowerCase() + 'response']?.jobid
         if (!jobId) { this.unknown = true; throw new Error(this.$t('message.job.result.unknown')) }
+        const commvaultRestore = api === 'restoreBackup' && String(fresh.provider || '').toLowerCase() === 'ablestack-commvault'
+        if (commvaultRestore) {
+          const trackedBackup = this.rows.find(item => item.id === selected.id)
+          if (trackedBackup) {
+            trackedBackup.restoreoperationpending = true
+            trackedBackup.restorejobstate = 'STARTING'
+            trackedBackup.restorejobstep = 'REQUESTED'
+          }
+          this.$message.info({ content: this.$t('label.backup.restore.requested'), duration: 2 })
+        }
         this.selected = null; this.pending = true
         const refresh = () => { if (scope === this.scopeKey && !this.listRefreshDisposed) { this.pending = false; this.unknown = false; this.refresh() } }
-        this.$pollJob({ jobId, originalPage: this.$route.path, title: this.$t(this.definition(api).label), description: selected.name || selected.id, resourceId: selected.id, action: { api, resource: selected, isFetchData: false }, successMethod: refresh, errorMethod: refresh, catchMethod: () => { if (scope === this.scopeKey && !this.listRefreshDisposed) { this.pending = false; this.unknown = true } } }).catch(() => { if (scope === this.scopeKey && !this.listRefreshDisposed && this.pending) { this.pending = false; this.unknown = true } })
+        this.$pollJob({ jobId, originalPage: this.$route.path, title: this.$t(this.definition(api).label), description: selected.name || selected.id, resourceId: selected.id, action: { api, resource: selected, isFetchData: false }, showLoading: !commvaultRestore, showSuccessMessage: !commvaultRestore, successMethod: refresh, errorMethod: refresh, catchMethod: () => { if (scope === this.scopeKey && !this.listRefreshDisposed) { this.pending = false; this.unknown = true } } }).catch(() => { if (scope === this.scopeKey && !this.listRefreshDisposed && this.pending) { this.pending = false; this.unknown = true } })
       } catch (error) { if (scope === this.scopeKey && !this.listRefreshDisposed) { if (sent && !error.response) this.unknown = true; this.$notifyError(error) } } finally { if (scope === this.scopeKey) this.submitting = false }
     }
   }

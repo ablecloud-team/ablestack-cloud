@@ -27,7 +27,7 @@ const vm = { id: 'vm', name: 'VM', state: 'Running', zoneid: 'zone', backupoffer
 const row = { id: 'backup', name: 'daily', virtualmachineid: 'vm', status: 'BackedUp', provider: 'kboss' }
 const response = rows => ({ listbackupsresponse: { backup: rows, count: rows.length } })
 const flush = async () => { for (let i = 0; i < 30; i++) await Promise.resolve() }
-const apis = Object.fromEntries(['listBackups', 'listVirtualMachines', 'restoreBackup', 'deleteBackup', 'createBackup', 'assignVirtualMachineToBackupOffering', 'createBackupSchedule', 'removeVirtualMachineFromBackupOffering', 'createVMFromBackup', 'restoreVolumeFromBackupAndAttachToVM'].map(api => [api, {}]))
+const apis = Object.fromEntries(['listBackups', 'listVirtualMachines', 'restoreBackup', 'deleteBackup', 'cancelBackup', 'updateBackupJobBandwidth', 'createBackup', 'assignVirtualMachineToBackupOffering', 'createBackupSchedule', 'removeVirtualMachineFromBackupOffering', 'createVMFromBackup', 'restoreVolumeFromBackupAndAttachToVM'].map(api => [api, {}]))
 function mount (overrides = {}) {
   return shallowMount(VmBackupsTab, {
     props: { resource: { ...vm } },
@@ -81,6 +81,37 @@ test('actual provider rules prohibit Veeam and NetBackup deletion but allow supp
   expect(w.vm.visible('deleteBackup', row)).toBe(true)
   expect(w.vm.disabled('restoreBackup', { ...row, status: 'Failed' })).toBe(true)
   delete w.vm.$store.getters.apis.deleteBackup; expect(w.vm.visible('deleteBackup', row)).toBe(false); w.unmount()
+})
+test('Commvault cancel action disappears after the host export submits a Commvault job', async () => {
+  const w = mount(); await flush()
+  const active = { ...row, status: 'BackingUp', provider: 'ablestack-commvault' }
+  expect(w.vm.visible('cancelBackup', { ...active, externalid: '/stage/backup-1' })).toBe(true)
+  expect(w.vm.visible('cancelBackup', { ...active, externalid: '/stage/backup-1,12345' })).toBe(false)
+  expect(w.vm.visible('cancelBackup', { ...active, status: 'BackedUp' })).toBe(false)
+  w.unmount()
+})
+test('Commvault live bandwidth action is available only during host backup', async () => {
+  const w = mount(); await flush()
+  const active = { ...row, status: 'BackingUp', provider: 'ablestack-commvault', capabilities: 'live-bandwidth' }
+  expect(w.vm.visible('updateBackupJobBandwidth', { ...active, externalid: '/stage/backup-1' })).toBe(true)
+  expect(w.vm.visible('updateBackupJobBandwidth', { ...active, externalid: '/stage/backup-1,12345' })).toBe(false)
+  expect(w.vm.visible('updateBackupJobBandwidth', { ...active, status: 'BackedUp' })).toBe(false)
+  expect(w.vm.visible('updateBackupJobBandwidth', { ...active, capabilities: '' })).toBe(false)
+  w.unmount()
+})
+test('Commvault restore shows the requested phase without a long lived loading message', async () => {
+  const backup = { ...row, provider: 'ablestack-commvault' }
+  const info = jest.fn()
+  getAPI.mockImplementation(api => Promise.resolve(api === 'listVirtualMachines' ? { listvirtualmachinesresponse: { virtualmachine: [{ ...vm }] } } : response([backup])))
+  const w = mount({ $message: { info } }); await flush()
+  w.vm.selected = backup; w.vm.actionApi = 'restoreBackup'
+
+  await w.vm.submitAction()
+
+  expect(w.vm.$pollJob).toHaveBeenCalledWith(expect.objectContaining({ showLoading: false, showSuccessMessage: false }))
+  expect(info).toHaveBeenCalledWith(expect.objectContaining({ content: 'label.backup.restore.requested' }))
+  expect(w.vm.rows[0].restorejobstep).toBe('REQUESTED')
+  w.unmount()
 })
 test('defaults to non-forced deletion and rechecks lost permissions before submission', async () => {
   const w = mount(); await flush(); await w.vm.openAction('deleteBackup', row)

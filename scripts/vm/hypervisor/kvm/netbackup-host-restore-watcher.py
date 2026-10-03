@@ -16,6 +16,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
+import fcntl
 import json
 import os
 import shlex
@@ -35,6 +36,7 @@ from urllib.request import Request, urlopen
 CONFIG_FILE = Path(os.environ.get("NETBACKUP_WATCHER_CONFIG", "/etc/ablestack/netbackup/restore-watcher.conf"))
 DEFAULT_STATE_FILE = Path("/var/lib/ablestack/netbackup/restore-watcher-state.json")
 DEFAULT_LOG_FILE = Path("/var/log/netbackup-mold-restore-watcher.log")
+DEFAULT_LOCK_FILE = Path("/var/lib/ablestack/netbackup/restore-watcher.lock")
 NETBACKUP_ACCEPT = "application/vnd.netbackup+json;version=12.0"
 
 
@@ -390,7 +392,7 @@ def should_process_single_restore_path(external_ids: list[str], job_id_value: st
     return False
 
 
-def invoke_restore_notify(external_id: str, job_id_value: str) -> bool:
+def invoke_restore_notify(external_id: str, job_id_value: str) -> Optional[str]:
     notify_script = require_config("RESTORE_NOTIFY_SCRIPT")
     env = os.environ.copy()
     if CONFIG.get("MOLD_CONFIG_FILE"):
@@ -407,15 +409,17 @@ def invoke_restore_notify(external_id: str, job_id_value: str) -> bool:
     )
     if proc.returncode != 0:
         log(f"FAILED notify jobId=[{job_id_value}] externalId=[{external_id}] rc=[{proc.returncode}] stderr=[{proc.stderr.strip()}]")
-        return False
+        return None
     notify_output = proc.stdout.strip()
     if notify_output.startswith("SUBMITTED"):
         log(f"Submitted Mold restore from NetBackup watcher jobId=[{job_id_value}] externalId=[{external_id}] result=[{notify_output}]")
+        return "submitted"
     elif notify_output.startswith("SKIPPED"):
         log(f"Skipped Mold restore from NetBackup watcher jobId=[{job_id_value}] externalId=[{external_id}] result=[{notify_output}]")
+        return "skipped"
     else:
         log(f"Handled NetBackup restore watcher notification jobId=[{job_id_value}] externalId=[{external_id}] stdout=[{notify_output}]")
-    return True
+        return "handled"
 
 
 def fetch_restore_jobs() -> list[dict[str, Any]]:
@@ -494,16 +498,34 @@ def poll_once(state: dict[str, Any]) -> None:
         if not local_identifiers:
             continue
         restore_identifier = local_identifiers[0]
-        if invoke_restore_notify(restore_identifier, current_job_id):
+        notification_status = invoke_restore_notify(restore_identifier, current_job_id)
+        if notification_status:
             processed[current_job_id] = {
                 "externalId": restore_identifier,
+                "status": notification_status,
                 "timestamp": int(time.time()),
             }
+
+
+def acquire_process_lock() -> Optional[Any]:
+    lock_file = Path(CONFIG.get("LOCK_FILE", str(DEFAULT_LOCK_FILE)))
+    lock_file.parent.mkdir(parents=True, exist_ok=True)
+    handle = lock_file.open("a+", encoding="utf-8")
+    try:
+        fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        handle.close()
+        log(f"Skipping NetBackup restore watcher because another process owns lock=[{lock_file}]")
+        return None
+    return handle
 
 
 def main() -> None:
     interval = int(CONFIG.get("POLL_INTERVAL_SECONDS", "60"))
     once = "--once" in sys.argv
+    lock_handle = acquire_process_lock()
+    if lock_handle is None:
+        return
     log(f"Starting NetBackup restore watcher config=[{CONFIG_FILE}] once=[{once}] sslVerify=[{CONFIG.get('NETBACKUP_SSL_VERIFY', 'false')}] caFile=[{CONFIG.get('NETBACKUP_CA_FILE', '')}]")
     state = load_state()
     try:

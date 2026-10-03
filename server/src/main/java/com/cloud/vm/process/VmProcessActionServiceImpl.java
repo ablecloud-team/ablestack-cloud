@@ -102,8 +102,7 @@ public class VmProcessActionServiceImpl extends com.cloud.utils.component.Manage
 
     static String fingerprint(long vm, String snapshot, long pid, String action, String service) {
         try {
-            return java.util.HexFormat.of()
-                    .formatHex(
+            return org.apache.commons.codec.binary.Hex.encodeHexString(
                             java.security.MessageDigest.getInstance("SHA-256")
                                     .digest(
                                             JSON.toJson(

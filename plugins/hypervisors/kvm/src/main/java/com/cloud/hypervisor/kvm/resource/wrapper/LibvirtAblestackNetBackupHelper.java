@@ -21,12 +21,10 @@ package com.cloud.hypervisor.kvm.resource.wrapper;
 
 import com.cloud.hypervisor.kvm.resource.LibvirtConnection;
 import com.cloud.hypervisor.kvm.resource.LibvirtComputingResource;
-import com.cloud.hypervisor.kvm.storage.KVMPhysicalDisk;
-import com.cloud.hypervisor.kvm.storage.KVMStoragePool;
-import com.cloud.hypervisor.kvm.storage.KVMStoragePoolManager;
 import com.cloud.storage.Storage;
 import com.cloud.utils.Pair;
 import com.cloud.utils.script.Script;
+import org.apache.cloudstack.backup.AblestackBackupFrameworkUtils;
 import org.apache.cloudstack.backup.AblestackNetBackupTakeBackupCommand;
 import org.apache.cloudstack.storage.to.PrimaryDataStoreTO;
 import org.apache.cloudstack.utils.security.ParserUtils;
@@ -60,14 +58,15 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import static org.apache.cloudstack.backup.AblestackBackupFrameworkUtils.STAGING_COMPLETE_MARKER;
+import static org.apache.cloudstack.backup.AblestackBackupFrameworkUtils.STAGING_IN_PROGRESS_MARKER;
+
 class LibvirtAblestackNetBackupHelper {
     protected Logger LOGGER = LogManager.getLogger(LibvirtAblestackNetBackupHelper.class);
     static final Integer EXIT_CLEANUP_FAILED = 20;
     private static final int BACKUP_JOB_POLL_INTERVAL_MS = 10000;
     private static final DateTimeFormatter SCRIPT_LOG_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss>");
-    private static final String STAGING_IN_PROGRESS_MARKER = ".staging.inprogress";
-    private static final String STAGING_COMPLETE_MARKER = ".staging.complete";
-    private static final String BACKUP_TRACE = "[ABLESTACK_NETBACKUP_BACKUP_TRACE]";
+    private static final String BACKUP_TRACE = AblestackBackupFrameworkUtils.buildTracePrefix("netbackup", AblestackBackupFrameworkUtils.OPERATION_BACKUP);
 
     enum BackupExecutionMode {
         RUNNING("backup-running"),
@@ -128,6 +127,17 @@ class LibvirtAblestackNetBackupHelper {
         }
     }
 
+    String[] buildDetachedBackupScriptCommand(AblestackNetBackupTakeBackupCommand command) {
+        List<String> diskPaths = resolveDiskPaths(command.getVolumePools(), command.getVolumePaths());
+        BackupExecutionMode executionMode = determineExecutionMode(command.getVmName(), command.getVolumePools());
+        if (BackupExecutionMode.STOPPED.equals(executionMode)) {
+            LOGGER.info("NetBackup detached staging is skipped for stopped VM [{}]. Java helper execution is required.", command.getVmName());
+            return null;
+        }
+        ensureParentCheckpointMaterialized(command);
+        return buildBackupScriptCommand(command, diskPaths, executionMode);
+    }
+
     long calculateBackupSize(AblestackNetBackupTakeBackupCommand command) {
         final Path backupPath = Path.of(command.getBackupPath());
         final List<String> backupFiles = command.getBackupFiles();
@@ -166,24 +176,7 @@ class LibvirtAblestackNetBackupHelper {
     }
 
     List<String> resolveDiskPaths(List<PrimaryDataStoreTO> volumePools, List<String> volumePaths) {
-        List<String> diskPaths = new ArrayList<>();
-        if (volumePaths == null) {
-            return diskPaths;
-        }
-
-        KVMStoragePoolManager storagePoolMgr = resource.getStoragePoolMgr();
-        for (int idx = 0; idx < volumePaths.size(); idx++) {
-            PrimaryDataStoreTO volumePool = volumePools.get(idx);
-            String volumePath = volumePaths.get(idx);
-            if (volumePool.getPoolType() != Storage.StoragePoolType.RBD) {
-                diskPaths.add(volumePath);
-                continue;
-            }
-
-            KVMStoragePool volumeStoragePool = storagePoolMgr.getStoragePool(volumePool.getPoolType(), volumePool.getUuid());
-            diskPaths.add(KVMPhysicalDisk.RBDStringBuilder(volumeStoragePool, volumePath));
-        }
-        return diskPaths;
+        return LibvirtAblestackTakeBackupCommandHelper.resolveDiskPaths(resource, volumePools, volumePaths);
     }
 
     private String[] buildBackupScriptCommand(AblestackNetBackupTakeBackupCommand command, List<String> diskPaths, BackupExecutionMode executionMode) {
@@ -200,6 +193,7 @@ class LibvirtAblestackNetBackupHelper {
                 "-f", command.getBackupFiles() == null || command.getBackupFiles().isEmpty() ? "" : String.join(",", command.getBackupFiles()),
                 "-q", command.getQuiesce() != null && command.getQuiesce() ? "true" : "false",
                 "-d", diskPaths.isEmpty() ? "" : String.join(",", diskPaths),
+                "--data-operation-timeout-seconds", String.valueOf(command.getWait()),
                 "--bandwidth-limit-mbps", String.valueOf(command.getBandwidthLimitMbps())
         };
     }

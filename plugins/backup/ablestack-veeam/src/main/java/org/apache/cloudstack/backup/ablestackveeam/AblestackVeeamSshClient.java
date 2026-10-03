@@ -214,6 +214,47 @@ public class AblestackVeeamSshClient {
         return restorePoints;
     }
 
+    /**
+     * NetBackup-style existence check: true if this restore-point GUID is still in Veeam.
+     * Checks Get-VBRRestorePoint and Get-VBRObjectRestorePoint (Agent OibId).
+     */
+    public boolean restorePointExists(final String restorePointId) {
+        if (StringUtils.isBlank(restorePointId)) {
+            return false;
+        }
+        final String escapedId = restorePointId.replace("'", "''").trim().replace("{", "").replace("}", "");
+        final List<String> cmds = Arrays.asList(
+                "$want = '" + escapedId + "'.ToLower()",
+                "function Rp-Match($rp) {",
+                "  if ($null -eq $rp) { return $false }",
+                "  $id = $rp.Id; if ($id -is [guid]) { $id = $id.Guid }",
+                "  return ([string]$id).Trim('{}').ToLower() -eq $want",
+                "}",
+                "$hit = $false",
+                "foreach ($b in @(Get-VBRBackup -ErrorAction SilentlyContinue)) {",
+                "  foreach ($cand in @($b | Get-VBRRestorePoint -ErrorAction SilentlyContinue)) {",
+                "    if (Rp-Match $cand) { $hit = $true; break }",
+                "  }",
+                "  if ($hit) { break }",
+                "}",
+                "if (-not $hit) {",
+                "  $hit = [bool](Get-VBRRestorePoint -ErrorAction SilentlyContinue | Where-Object { Rp-Match $_ } | Select-Object -First 1)",
+                "}",
+                "if (-not $hit) {",
+                "  $hit = [bool](Get-VBRObjectRestorePoint -ErrorAction SilentlyContinue | Where-Object { Rp-Match $_ } | Select-Object -First 1)",
+                "}",
+                "if ($hit) { Write-Output 'EXISTS' } else { Write-Output 'MISSING' }"
+        );
+        final Pair<Boolean, String> response = executePowerShellCommands(cmds);
+        if (response == null || !response.first()) {
+            // Probe failure must not delete (NetBackup would also keep on API error).
+            throw new CloudRuntimeException(String.format(
+                    "Failed to probe Veeam restore point [%s] over SSH", restorePointId));
+        }
+        final String payload = StringUtils.trimToEmpty(response.second());
+        return payload.contains("EXISTS");
+    }
+
     private Pair<Boolean, String> executePowerShellCommands(final List<String> cmds) {
         final String command = transformPowerShellCommandList(cmds);
         try {
