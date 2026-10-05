@@ -1,19 +1,22 @@
 <!--
-Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements. See the NOTICE file
-distributed with this work for additional information
-regarding copyright ownership. The ASF licenses this file
-to you under the Apache License, Version 2.0 (the
-"License"); you may not use this file except in compliance
-with the License. You may obtain a copy of the License at
-http://www.apache.org/licenses/LICENSE-2.0
-Unless required by applicable law or agreed to in writing,
-software distributed under the License is distributed on an
-"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-KIND, either express or implied. See the License for the
-specific language governing permissions and limitations
-under the License.
--->
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+ -->
+
 
 # Europa Kubernetes ISO 소비 계약과 전용 저장소 인계
 
@@ -31,7 +34,7 @@ Cloud 최종 PR base는 `ablestack-europa`입니다. Cloud는 새 전용 저장�
 
 노드 설치/확장/업그레이드 시 ISO checksum을 검사하고 `docker/images.list`의 tag/digest를 격리 image import 방식과 같은 계약으로 보존합니다. Provider/AutoScaler는 검증된 ISO 내부 manifest만 적용하고 외부 stock SHA1 fallback을 제거합니다. Secret 적용은 갱신을 지원하고 autoscaling 입력을 검증합니다. Headlamp/legacy dashboard 계약과 새 kubeadm v1beta4/CRI endpoint를 반영합니다.
 
-최신 Provider에 필요한 `updateLoadBalancerRule.cidrlist`를 API/schema/backend에 반영하며 규칙 적용 실패 시 이전 CIDR로 rollback합니다. 기존 custom backend SSL 변경을 보존합니다. WSL ext4에서 변경 api/schema/server/kubernetes-service 모듈을 빌드했고 LB 회귀 18개가 통과했습니다. 전체 Cloud 빌드·JAR/UI 배포 및 전체 생명주기 runtime 시험은 수행하지 않았습니다.
+최신 Provider에 필요한 `updateLoadBalancerRule.cidrlist`를 API/schema/backend에 반영하며 규칙 적용 실패 시 이전 CIDR로 rollback합니다. 기존 custom backend SSL 변경을 보존합니다. WSL ext4에서 변경 api/schema/server/kubernetes-service 모듈을 빌드했고 LB 회귀 18개가 통과했습니다. 전체 Cloud 빌드 완료 결과는 없습니다. PR에서 자동 기동되는 Build는 취소하며, JAR/UI 배포 및 전체 생명주기 runtime 시험은 수행하지 않았습니다.
 
 ## URL 등록 주의사항
 
