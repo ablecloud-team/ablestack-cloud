@@ -29,24 +29,6 @@
       "version": "0.40.1"
     },
     {
-      "path": "provenance/provider.json",
-      "url": "https://github.com/dhslove/ablestack-kubernetes-provider/releases/download/mold-test-34c7bdf4b17c/provenance.json",
-      "sha256": "66590a01a45eb6ca8398f0ab58df7a37d2b5257124ae28d47986ccaa02ee92da",
-      "version": null
-    },
-    {
-      "path": "provenance/provider-go-modules.txt",
-      "url": "https://github.com/dhslove/ablestack-kubernetes-provider/releases/download/mold-test-34c7bdf4b17c/go-modules.txt",
-      "sha256": "3cd1462fd38bec9730dd30ace509495f3a6fff37fc9fc3332a0b94b2e31392d0",
-      "version": null
-    },
-    {
-      "path": "provider.yaml",
-      "url": "https://raw.githubusercontent.com/dhslove/ablestack-kubernetes-provider/34c7bdf4b17c56d49cdf8762ec26a2b7c185d30b/deployment.yaml",
-      "sha256": "9bd7bb792e02cd3313ddba90346db9855ba45dc22255d3d63335dcb366a1f5a4",
-      "version": null
-    },
-    {
       "path": "k8s/kubeadm",
       "url": "https://dl.k8s.io/release/v1.34.2/bin/linux/amd64/kubeadm",
       "sha256": "6a2346006132f6e1ed0b5248e518098cf5abbce25bf11b8926fb1073091b83f4",
@@ -101,28 +83,46 @@
       "version": "1.34.2"
     },
     {
+      "path": "network.yaml",
+      "url": "https://raw.githubusercontent.com/projectcalico/calico/db255c554b929afd73552fd3ac81d691107a1607/manifests/calico.yaml",
+      "sha256": "a8c828a06a87c629a282ebbc424895b77f3a030251993e41ea400a743675bb02",
+      "version": "3.32.2"
+    },
+    {
+      "path": "provenance/provider.json",
+      "url": "https://github.com/dhslove/ablestack-kubernetes-provider/releases/download/mold-test-34fe8294cd8c/provenance.json",
+      "sha256": "d317b06fecefc10df43773343cd55caa2715bb8743e5d8b5c944349934d369e5",
+      "version": null
+    },
+    {
+      "path": "provenance/provider-go-modules.txt",
+      "url": "https://github.com/dhslove/ablestack-kubernetes-provider/releases/download/mold-test-34fe8294cd8c/go-modules.txt",
+      "sha256": "a97f1bf76552d1537b0e194d64d4538a50a90c1ee16fb8222d5bac889e343423",
+      "version": null
+    },
+    {
+      "path": "provider.yaml",
+      "url": "https://raw.githubusercontent.com/dhslove/ablestack-kubernetes-provider/34fe8294cd8c2337fbf6934eb75e4684cf3a9d85/deployment.yaml",
+      "sha256": "9bd7bb792e02cd3313ddba90346db9855ba45dc22255d3d63335dcb366a1f5a4",
+      "version": null
+    },
+    {
       "path": "autoscaler.yaml",
-      "url": "https://raw.githubusercontent.com/dhslove/autoscaler/b2bac18721662d0aaf48861cd5f174452d416b96/cluster-autoscaler/cloudprovider/cloudstack/examples/cluster-autoscaler-standard.yaml",
+      "url": "https://raw.githubusercontent.com/dhslove/autoscaler/b297d2ed89f67ea66da4dcde67abeade971fea01/cluster-autoscaler/cloudprovider/cloudstack/examples/cluster-autoscaler-standard.yaml",
       "sha256": "21bb3d911db59e0b9ee720524a897de2df0b95fe479445055c8b4816faf3bbb1",
       "version": null
     },
     {
       "path": "provenance/autoscaler.json",
-      "url": "https://github.com/dhslove/autoscaler/releases/download/mold-test-b2bac1872166-k8s1.34/provenance.json",
-      "sha256": "e0ce060b2bb00e156ca922ce29b7e0e3c58d8e56641651beffa0dfd6f1f506ce",
+      "url": "https://github.com/dhslove/autoscaler/releases/download/mold-test-b297d2ed89f6-k8s1.34/provenance.json",
+      "sha256": "49f06d1d1df314d3cf2cfd6c5bfc49e305468e928c70f7ac29c4f39dd966b1ce",
       "version": null
     },
     {
       "path": "provenance/autoscaler-go-modules.txt",
-      "url": "https://github.com/dhslove/autoscaler/releases/download/mold-test-b2bac1872166-k8s1.34/go-modules.txt",
-      "sha256": "26473ed8f781e30b78bb0512848c510c6771162e1345ba0d0715865f9ee7b81a",
+      "url": "https://github.com/dhslove/autoscaler/releases/download/mold-test-b297d2ed89f6-k8s1.34/go-modules.txt",
+      "sha256": "df1168b8a295ac19fc3ae64099a1dacc83cb86c678f87571c940cdaeda09558c",
       "version": null
-    },
-    {
-      "path": "network.yaml",
-      "url": "https://raw.githubusercontent.com/projectcalico/calico/db255c554b929afd73552fd3ac81d691107a1607/manifests/calico.yaml",
-      "sha256": "a8c828a06a87c629a282ebbc424895b77f3a030251993e41ea400a743675bb02",
-      "version": "3.32.2"
     }
   ],
   "images": [
@@ -131,12 +131,6 @@
       "resolved_from": "ghcr.io/headlamp-k8s/headlamp:v0.40.1",
       "reference": "ghcr.io/headlamp-k8s/headlamp@sha256:41004fa1df8dd591ce8dbe955ba5b52558ddaee92cf6225129bc2b96413b9561",
       "import_alias": "ghcr.io/headlamp-k8s/headlamp:v0.40.1"
-    },
-    {
-      "original": "ghcr.io/ablecloud-team/ablestack-kubernetes-provider:1.2.1-mold.1",
-      "resolved_from": "ghcr.io/dhslove/ablestack-kubernetes-provider:sha-34c7bdf4b17c56d49cdf8762ec26a2b7c185d30b",
-      "reference": "ghcr.io/dhslove/ablestack-kubernetes-provider@sha256:7756eb720d6158350649d2e0c52d0388f53e58d532d0a35bf5ff34690446c8b9",
-      "import_alias": "ghcr.io/dhslove/ablestack-kubernetes-provider:sha-34c7bdf4b17c56d49cdf8762ec26a2b7c185d30b"
     },
     {
       "original": "registry.k8s.io/kube-apiserver:v1.34.2",
@@ -181,12 +175,6 @@
       "import_alias": "registry.k8s.io/etcd:3.6.5-0"
     },
     {
-      "original": "ghcr.io/ablecloud-team/autoscaler:1.34.5-mold.1",
-      "resolved_from": "ghcr.io/dhslove/autoscaler:sha-b2bac18721662d0aaf48861cd5f174452d416b96-k8s1.34",
-      "reference": "ghcr.io/dhslove/autoscaler@sha256:c16339651ef4417ec59d1f934f574d650492272b11621755094d9e6e9f8979e1",
-      "import_alias": "ghcr.io/dhslove/autoscaler:sha-b2bac18721662d0aaf48861cd5f174452d416b96-k8s1.34"
-    },
-    {
       "original": "quay.io/calico/cni:v3.32.2",
       "resolved_from": "quay.io/calico/cni:v3.32.2",
       "reference": "quay.io/calico/cni@sha256:8de23af2a36514e5027cf3f8577be61c577ae21664d19bd726bb9ccedb9e0d5a",
@@ -203,6 +191,18 @@
       "resolved_from": "quay.io/calico/node:v3.32.2",
       "reference": "quay.io/calico/node@sha256:d7a9b58573b165caa8128d2735a19b788434547064b2b4af2abf68cea24f7ec3",
       "import_alias": "quay.io/calico/node:v3.32.2"
+    },
+    {
+      "original": "ghcr.io/ablecloud-team/ablestack-kubernetes-provider:1.2.1-mold.1",
+      "resolved_from": "ghcr.io/dhslove/ablestack-kubernetes-provider:sha-34fe8294cd8c2337fbf6934eb75e4684cf3a9d85",
+      "reference": "ghcr.io/dhslove/ablestack-kubernetes-provider@sha256:b7195d0c597db7b17e6e506b974ba3c61a28741ea8e3be0cc916e7fa55b84e0c",
+      "import_alias": "ghcr.io/dhslove/ablestack-kubernetes-provider:sha-34fe8294cd8c2337fbf6934eb75e4684cf3a9d85"
+    },
+    {
+      "original": "ghcr.io/ablecloud-team/autoscaler:1.34.5-mold.1",
+      "resolved_from": "ghcr.io/dhslove/autoscaler:sha-b297d2ed89f67ea66da4dcde67abeade971fea01-k8s1.34",
+      "reference": "ghcr.io/dhslove/autoscaler@sha256:17e88c82bd7c14a436deb240a69332313ee0ed3373a5158bfd0fc059aa7e7852",
+      "import_alias": "ghcr.io/dhslove/autoscaler:sha-b297d2ed89f67ea66da4dcde67abeade971fea01-k8s1.34"
     }
   ],
   "core_images": [
@@ -217,14 +217,14 @@
   "components": {
     "provider": {
       "source_repository": "dhslove/ablestack-kubernetes-provider",
-      "source_sha": "34c7bdf4b17c56d49cdf8762ec26a2b7c185d30b",
-      "build_run": "https://github.com/dhslove/ablestack-kubernetes-provider/actions/runs/37321063498",
+      "source_sha": "34fe8294cd8c2337fbf6934eb75e4684cf3a9d85",
+      "build_run": "https://github.com/dhslove/ablestack-kubernetes-provider/actions/runs/37329464966",
       "original_baseline": "Apache Provider main 2a46b8e43382bbd1564db7a9bfa56f9caa872d13",
       "architecture": "amd64",
       "api_signature": "HMAC-SHA256",
-      "image": "ghcr.io/dhslove/ablestack-kubernetes-provider@sha256:7756eb720d6158350649d2e0c52d0388f53e58d532d0a35bf5ff34690446c8b9",
+      "image": "ghcr.io/dhslove/ablestack-kubernetes-provider@sha256:b7195d0c597db7b17e6e506b974ba3c61a28741ea8e3be0cc916e7fa55b84e0c",
       "binary": "cloudstack-ccm",
-      "manifest_sha": "34c7bdf4b17c56d49cdf8762ec26a2b7c185d30b",
+      "manifest_sha": "34fe8294cd8c2337fbf6934eb75e4684cf3a9d85",
       "manifest_path": "deployment.yaml",
       "sdk": {
         "module": "github.com/ablecloud-team/ablestack-mold-go/v2",
@@ -236,8 +236,8 @@
     },
     "autoscaler": {
       "source_repository": "dhslove/autoscaler",
-      "source_sha": "b2bac18721662d0aaf48861cd5f174452d416b96",
-      "build_run": "https://github.com/dhslove/autoscaler/actions/runs/37325033526",
+      "source_sha": "b297d2ed89f67ea66da4dcde67abeade971fea01",
+      "build_run": "https://github.com/dhslove/autoscaler/actions/runs/37329451678",
       "original_baseline": "cluster-autoscaler-1.34.5",
       "binary_source_sha": "cb2123ed13148c38fbdb1ede42d8e99761ee2909",
       "baseline_status": "stable",
@@ -246,12 +246,12 @@
       "api_signature": "HMAC-SHA256",
       "customization_files": {
         "client.go": "87b2843cafee1707cd84a62d232c1b28fae7448ebb987506ee2811f6050e163a",
-        "mold_signing_test.go": "e532ff0a42c5f3f6072e1bf5716d2bba64ce945f7ecfa3854d203beb253e655d",
+        "mold_signing_test.go": "9415df730560eb25906a1e005ced77874264b6e3a5007381421df8bd1b5f2036",
         "testdata/mold-signing.json": "622bd67d3ded3acc3151586d8c960b3f406a95515c23984c6ff03a9df99f97aa"
       },
-      "image": "ghcr.io/dhslove/autoscaler@sha256:c16339651ef4417ec59d1f934f574d650492272b11621755094d9e6e9f8979e1",
+      "image": "ghcr.io/dhslove/autoscaler@sha256:17e88c82bd7c14a436deb240a69332313ee0ed3373a5158bfd0fc059aa7e7852",
       "binary": "cluster-autoscaler",
-      "manifest_sha": "b2bac18721662d0aaf48861cd5f174452d416b96",
+      "manifest_sha": "b297d2ed89f67ea66da4dcde67abeade971fea01",
       "manifest_path": "cluster-autoscaler/cloudprovider/cloudstack/examples/cluster-autoscaler-standard.yaml"
     }
   },
@@ -265,6 +265,11 @@
       "amd64"
     ],
     "runtime_validation": "cluster lifecycle and CNI runtime compatibility are separate gates",
-    "node_kernel_minimum": "5.10; verify target node template before cluster deployment"
+    "node_kernel_minimum": "5.10; verify target node template before cluster deployment",
+    "runtime_qualification": {
+      "status": "pending",
+      "scope": "Provider LoadBalancer and minor-matched AutoScaler/node lifecycle runtime gates",
+      "evidence_urls": []
+    }
   }
 }

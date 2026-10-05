@@ -201,7 +201,7 @@ def main():
         (payload / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
         bom = {'bomFormat':'CycloneDX', 'specVersion':'1.6', 'version':1, 'components':[]}
         for file in recipe['files']:
-            bom['components'].append({'type':'file', 'name':file['path'], 'version':file.get('version', version), 'hashes':[{'alg':'SHA-256','content':files[file['path']]}], 'externalReferences':[{'type':'distribution','url':file['url']}]})
+            bom['components'].append({'type':'file', 'name':file['path'], **({'version':file['version']} if file.get('version') else {}), 'hashes':[{'alg':'SHA-256','content':files[file['path']]}], 'externalReferences':[{'type':'distribution','url':file['url']}]})
         for image in images:
             bom['components'].append({'type':'container', 'name':image['original'], 'version':image['reference'].split('@')[1], 'hashes':[{'alg':'SHA-256','content':image['reference'].split(':')[-1]}]})
         (payload / 'sbom.cdx.json').write_text(json.dumps(bom, indent=2) + '\n')
@@ -220,6 +220,10 @@ def main():
         shutil.copyfile(payload / 'sbom.cdx.json', args.output / (name + '.sbom.cdx.json'))
     # A separate reader extracts the completed ISO and does not use the staging directory.
     run(['python3', HERE / 'validate.py', '--iso', iso, '--recipe', args.recipe, '--report', args.output / (name + '.validation.json')])
+    report_path=args.output / (name + '.validation.json')
+    report=json.loads(report_path.read_text())
+    report['build_run']='https://github.com/'+os.environ['GITHUB_REPOSITORY']+'/actions/runs/'+os.environ['GITHUB_RUN_ID'] if os.environ.get('GITHUB_RUN_ID') else 'local'
+    report_path.write_text(json.dumps(report,indent=2)+'\n')
     digest = sha256(iso)
     (args.output / (name + '.sha256')).write_text(digest + '  ' + iso.name + '\n')
     (args.output / (name + '.registration.json')).write_text(json.dumps({'name':name, 'kubernetesversion':version, 'arch':'x86_64', 'checksum':'{SHA-256}' + digest, 'filename':iso.name, 'mincpunumber':2, 'minmemory':2048, 'minimum_resources_basis':'Mold supported-version API minimum; cluster node offerings require separate sizing', 'download_url':None, 'source_sha':source, 'release_eligible':not args.development}, indent=2)+'\n')

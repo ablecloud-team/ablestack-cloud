@@ -1,3 +1,22 @@
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+ -->
+
 # Europa Kubernetes ISO
 
 이 workflow는 Cloud 전체 Maven 빌드와 독립적으로 ISO를 생성합니다. 검증 profile은 `mold-cks` / `amd64`입니다. 아래 여섯 patch를 별도의 고정 recipe로 빌드합니다. arm64는 별도 검증 대상입니다.
@@ -39,7 +58,7 @@ Origin의 작업 브랜치 push는 여섯 버전 ISO를 빌드·검증하고 공
 
 Mold 등록의 checksum은 파일 SHA256의 hex에 `{SHA-256}` prefix를 붙입니다. manifest의 API `HMAC-SHA256`은 API 요청 인증 규칙이며 ISO 파일 checksum과 다른 항목입니다.
 
-공식 Release는 Europa에 포함된 commit의 전용 tag에서만 실행합니다. Origin 후보 컴포넌트를 공식 Release로 재명명하지 않습니다. SDK·Provider·AutoScaler Upstream PR을 병합·릴리즈한 뒤 동일한 검증 절차로 공식 source/image digest를 recipe에 반영해야 합니다. 이번 PR은 이 의존성을 가진 검증 후보입니다.
+공식 Release는 Europa에 포함된 commit의 전용 tag에서만 실행합니다. Origin 후보 컴포넌트를 공식 Release로 재명명하지 않습니다. SDK·Provider·AutoScaler Upstream PR을 병합·릴리즈한 뒤 동일한 검증 절차로 공식 source/image digest를 recipe에 반영해야 합니다. Provider/AutoScaler·노드 생명주기 실환경 검증을 완료하고 recipe의 `runtime_qualification`에 PASS와 증거 URL을 기록해야 공식 게시가 가능합니다. 이번 PR은 이 의존성을 가진 검증 후보입니다.
 
 ## 소비자 계약과 검증 범위
 

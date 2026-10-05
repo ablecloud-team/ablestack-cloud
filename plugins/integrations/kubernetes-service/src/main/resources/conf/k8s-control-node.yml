@@ -271,7 +271,7 @@ write_files:
         - token: "{{ k8s_control_node.cluster.token }}"
           ttl: "0"
       nodeRegistration:
-        criSocket: /run/containerd/containerd.sock
+        criSocket: unix:///run/containerd/containerd.sock
       localAPIEndpoint:
         advertiseAddress: {{ k8s_control.server_ip }}
         bindPort: {{ k8s.api_server_port }}
@@ -295,6 +295,16 @@ write_files:
 
       EXTERNAL_ETCD_NODES={{ etcd.unstacked_etcd }}
       EXTERNAL_CNI_PLUGIN={{ k8s.external.cni.plugin }}
+      if [[ ${EXTERNAL_ETCD_NODES} == true ]]; then
+        kubeadm_version=$(kubeadm version -o short)
+        kubeadm_minor=$(echo "$kubeadm_version" | cut -d. -f2)
+        if [ "$kubeadm_minor" -ge 31 ]; then
+          sed -i 's#kubeadm.k8s.io/v1beta3#kubeadm.k8s.io/v1beta4#g' /etc/kubernetes/kubeadm-config.yaml
+        fi
+        sed -i '/^kubernetesVersion:/d' /etc/kubernetes/kubeadm-config.yaml
+        sed -i "/^kind: ClusterConfiguration$/a kubernetesVersion: $kubeadm_version" /etc/kubernetes/kubeadm-config.yaml
+        kubeadm config validate --config /etc/kubernetes/kubeadm-config.yaml
+      fi
       MAX_SETUP_CRUCIAL_CMD_ATTEMPTS=3
       crucial_cmd_attempts=1
       while true; do

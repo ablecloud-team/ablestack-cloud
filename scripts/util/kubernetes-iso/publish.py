@@ -45,6 +45,8 @@ def main():
  tag=name.replace('kubernetes-','k8s-',1)
  if args.mode=='official':
   manifest=json.loads((args.directory/(name+'.manifest.json')).read_text())
+  qualification=manifest['features'].get('runtime_qualification',{})
+  if qualification.get('status')!='PASS' or not qualification.get('evidence_urls'):raise ValueError('official Release requires documented Provider/AutoScaler and node lifecycle runtime qualification')
   if manifest['components']['autoscaler'].get('baseline_status') != 'stable':raise ValueError('official Release requires a stable minor-matched AutoScaler baseline')
   for component in manifest['components'].values():
    if not component['source_repository'].startswith('ablecloud-team/') or 'candidate_module' in component.get('sdk',{}):raise ValueError('official Release requires promoted Upstream component sources and SDK')

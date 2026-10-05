@@ -17,24 +17,6 @@
       "version": "0.40.1"
     },
     {
-      "path": "provenance/provider.json",
-      "url": "https://github.com/dhslove/ablestack-kubernetes-provider/releases/download/mold-test-34c7bdf4b17c/provenance.json",
-      "sha256": "66590a01a45eb6ca8398f0ab58df7a37d2b5257124ae28d47986ccaa02ee92da",
-      "version": null
-    },
-    {
-      "path": "provenance/provider-go-modules.txt",
-      "url": "https://github.com/dhslove/ablestack-kubernetes-provider/releases/download/mold-test-34c7bdf4b17c/go-modules.txt",
-      "sha256": "3cd1462fd38bec9730dd30ace509495f3a6fff37fc9fc3332a0b94b2e31392d0",
-      "version": null
-    },
-    {
-      "path": "provider.yaml",
-      "url": "https://raw.githubusercontent.com/dhslove/ablestack-kubernetes-provider/34c7bdf4b17c56d49cdf8762ec26a2b7c185d30b/deployment.yaml",
-      "sha256": "9bd7bb792e02cd3313ddba90346db9855ba45dc22255d3d63335dcb366a1f5a4",
-      "version": null
-    },
-    {
       "path": "k8s/kubeadm",
       "url": "https://dl.k8s.io/release/v1.35.9/bin/linux/amd64/kubeadm",
       "sha256": "b77649f3f9d4fc9cff73f9d2cc70c39ad2ca3ffddf5b43d33b2f3493a77aab9a",
@@ -101,28 +83,46 @@
       "version": "3.6.6"
     },
     {
+      "path": "network.yaml",
+      "url": "https://raw.githubusercontent.com/projectcalico/calico/fbaa371111636a37ecc82625fce8453064a7fff2/manifests/calico.yaml",
+      "sha256": "2de8f47595fb9c41b3f47d7b767a1f8e72ecf84057af834738ff12689a234da5",
+      "version": "3.33.0"
+    },
+    {
+      "path": "provenance/provider.json",
+      "url": "https://github.com/dhslove/ablestack-kubernetes-provider/releases/download/mold-test-34fe8294cd8c/provenance.json",
+      "sha256": "d317b06fecefc10df43773343cd55caa2715bb8743e5d8b5c944349934d369e5",
+      "version": null
+    },
+    {
+      "path": "provenance/provider-go-modules.txt",
+      "url": "https://github.com/dhslove/ablestack-kubernetes-provider/releases/download/mold-test-34fe8294cd8c/go-modules.txt",
+      "sha256": "a97f1bf76552d1537b0e194d64d4538a50a90c1ee16fb8222d5bac889e343423",
+      "version": null
+    },
+    {
+      "path": "provider.yaml",
+      "url": "https://raw.githubusercontent.com/dhslove/ablestack-kubernetes-provider/34fe8294cd8c2337fbf6934eb75e4684cf3a9d85/deployment.yaml",
+      "sha256": "9bd7bb792e02cd3313ddba90346db9855ba45dc22255d3d63335dcb366a1f5a4",
+      "version": null
+    },
+    {
       "path": "autoscaler.yaml",
-      "url": "https://raw.githubusercontent.com/dhslove/autoscaler/b2bac18721662d0aaf48861cd5f174452d416b96/cluster-autoscaler/cloudprovider/cloudstack/examples/cluster-autoscaler-standard.yaml",
+      "url": "https://raw.githubusercontent.com/dhslove/autoscaler/b297d2ed89f67ea66da4dcde67abeade971fea01/cluster-autoscaler/cloudprovider/cloudstack/examples/cluster-autoscaler-standard.yaml",
       "sha256": "21bb3d911db59e0b9ee720524a897de2df0b95fe479445055c8b4816faf3bbb1",
       "version": null
     },
     {
       "path": "provenance/autoscaler.json",
-      "url": "https://github.com/dhslove/autoscaler/releases/download/mold-test-b2bac1872166-k8s1.35/provenance.json",
-      "sha256": "d7fe2025cb114cec9312264c9b2fa39a2b41d4756ef769f04cc0658466abc92a",
+      "url": "https://github.com/dhslove/autoscaler/releases/download/mold-test-b297d2ed89f6-k8s1.35/provenance.json",
+      "sha256": "ecd6803a9aad21f250a1613328ed7bcc5ef2ea9bab2aaa172a4c7a0fb5cb3f0e",
       "version": null
     },
     {
       "path": "provenance/autoscaler-go-modules.txt",
-      "url": "https://github.com/dhslove/autoscaler/releases/download/mold-test-b2bac1872166-k8s1.35/go-modules.txt",
-      "sha256": "635484459c90559117a32ffc001f07c9fb853c72a884a6e4163fb46f323079a0",
+      "url": "https://github.com/dhslove/autoscaler/releases/download/mold-test-b297d2ed89f6-k8s1.35/go-modules.txt",
+      "sha256": "858be14b6afd15ff8f1ecbe90017d8199ff596a9135300eaa4ea919c30c82e58",
       "version": null
-    },
-    {
-      "path": "network.yaml",
-      "url": "https://raw.githubusercontent.com/projectcalico/calico/fbaa371111636a37ecc82625fce8453064a7fff2/manifests/calico.yaml",
-      "sha256": "2de8f47595fb9c41b3f47d7b767a1f8e72ecf84057af834738ff12689a234da5",
-      "version": "3.33.0"
     }
   ],
   "images": [
@@ -175,18 +175,6 @@
       "import_alias": "ghcr.io/headlamp-k8s/headlamp:v0.40.1"
     },
     {
-      "original": "ghcr.io/ablecloud-team/ablestack-kubernetes-provider:1.2.1-mold.1",
-      "resolved_from": "ghcr.io/dhslove/ablestack-kubernetes-provider:sha-34c7bdf4b17c56d49cdf8762ec26a2b7c185d30b",
-      "reference": "ghcr.io/dhslove/ablestack-kubernetes-provider@sha256:7756eb720d6158350649d2e0c52d0388f53e58d532d0a35bf5ff34690446c8b9",
-      "import_alias": "ghcr.io/dhslove/ablestack-kubernetes-provider:sha-34c7bdf4b17c56d49cdf8762ec26a2b7c185d30b"
-    },
-    {
-      "original": "ghcr.io/ablecloud-team/autoscaler:1.34.5-mold.1",
-      "resolved_from": "ghcr.io/dhslove/autoscaler:sha-b2bac18721662d0aaf48861cd5f174452d416b96-k8s1.35",
-      "reference": "ghcr.io/dhslove/autoscaler@sha256:2210ac9a1aff3021642d32a62f0103da20d4db05d5db494f6ee159fcb93f7599",
-      "import_alias": "ghcr.io/dhslove/autoscaler:sha-b2bac18721662d0aaf48861cd5f174452d416b96-k8s1.35"
-    },
-    {
       "original": "quay.io/calico/calico:v3.33.0",
       "resolved_from": "quay.io/calico/calico:v3.33.0",
       "reference": "quay.io/calico/calico@sha256:3eba6eb95b51b337bf255ecaf5c669b4b2ba04f9f813aa89785aa6853ecf9817",
@@ -203,6 +191,18 @@
       "resolved_from": "quay.io/calico/third-party-cni-plugins:v3.33.0",
       "reference": "quay.io/calico/third-party-cni-plugins@sha256:ae6464c7d8ffae03f2f26ed411a5b69e91baf31d8d538923645459f4f301a917",
       "import_alias": "quay.io/calico/third-party-cni-plugins:v3.33.0"
+    },
+    {
+      "original": "ghcr.io/ablecloud-team/ablestack-kubernetes-provider:1.2.1-mold.1",
+      "resolved_from": "ghcr.io/dhslove/ablestack-kubernetes-provider:sha-34fe8294cd8c2337fbf6934eb75e4684cf3a9d85",
+      "reference": "ghcr.io/dhslove/ablestack-kubernetes-provider@sha256:b7195d0c597db7b17e6e506b974ba3c61a28741ea8e3be0cc916e7fa55b84e0c",
+      "import_alias": "ghcr.io/dhslove/ablestack-kubernetes-provider:sha-34fe8294cd8c2337fbf6934eb75e4684cf3a9d85"
+    },
+    {
+      "original": "ghcr.io/ablecloud-team/autoscaler:1.34.5-mold.1",
+      "resolved_from": "ghcr.io/dhslove/autoscaler:sha-b297d2ed89f67ea66da4dcde67abeade971fea01-k8s1.35",
+      "reference": "ghcr.io/dhslove/autoscaler@sha256:0962f8a20697d6d9bdcd03a896c54fff4524d44fe8eb2ca962d289576d6bf1d5",
+      "import_alias": "ghcr.io/dhslove/autoscaler:sha-b297d2ed89f67ea66da4dcde67abeade971fea01-k8s1.35"
     }
   ],
   "core_images": [
@@ -217,14 +217,14 @@
   "components": {
     "provider": {
       "source_repository": "dhslove/ablestack-kubernetes-provider",
-      "source_sha": "34c7bdf4b17c56d49cdf8762ec26a2b7c185d30b",
-      "build_run": "https://github.com/dhslove/ablestack-kubernetes-provider/actions/runs/37321063498",
+      "source_sha": "34fe8294cd8c2337fbf6934eb75e4684cf3a9d85",
+      "build_run": "https://github.com/dhslove/ablestack-kubernetes-provider/actions/runs/37329464966",
       "original_baseline": "Apache Provider main 2a46b8e43382bbd1564db7a9bfa56f9caa872d13",
       "architecture": "amd64",
       "api_signature": "HMAC-SHA256",
-      "image": "ghcr.io/dhslove/ablestack-kubernetes-provider@sha256:7756eb720d6158350649d2e0c52d0388f53e58d532d0a35bf5ff34690446c8b9",
+      "image": "ghcr.io/dhslove/ablestack-kubernetes-provider@sha256:b7195d0c597db7b17e6e506b974ba3c61a28741ea8e3be0cc916e7fa55b84e0c",
       "binary": "cloudstack-ccm",
-      "manifest_sha": "34c7bdf4b17c56d49cdf8762ec26a2b7c185d30b",
+      "manifest_sha": "34fe8294cd8c2337fbf6934eb75e4684cf3a9d85",
       "manifest_path": "deployment.yaml",
       "sdk": {
         "module": "github.com/ablecloud-team/ablestack-mold-go/v2",
@@ -236,8 +236,8 @@
     },
     "autoscaler": {
       "source_repository": "dhslove/autoscaler",
-      "source_sha": "b2bac18721662d0aaf48861cd5f174452d416b96",
-      "build_run": "https://github.com/dhslove/autoscaler/actions/runs/37325033526",
+      "source_sha": "b297d2ed89f67ea66da4dcde67abeade971fea01",
+      "build_run": "https://github.com/dhslove/autoscaler/actions/runs/37329451678",
       "original_baseline": "cluster-autoscaler-1.35.2",
       "binary_source_sha": "2d42588803c71fe9b35dcd9e3669ac6bb550ca22",
       "baseline_status": "stable",
@@ -246,12 +246,12 @@
       "api_signature": "HMAC-SHA256",
       "customization_files": {
         "client.go": "87b2843cafee1707cd84a62d232c1b28fae7448ebb987506ee2811f6050e163a",
-        "mold_signing_test.go": "e532ff0a42c5f3f6072e1bf5716d2bba64ce945f7ecfa3854d203beb253e655d",
+        "mold_signing_test.go": "9415df730560eb25906a1e005ced77874264b6e3a5007381421df8bd1b5f2036",
         "testdata/mold-signing.json": "622bd67d3ded3acc3151586d8c960b3f406a95515c23984c6ff03a9df99f97aa"
       },
-      "image": "ghcr.io/dhslove/autoscaler@sha256:2210ac9a1aff3021642d32a62f0103da20d4db05d5db494f6ee159fcb93f7599",
+      "image": "ghcr.io/dhslove/autoscaler@sha256:0962f8a20697d6d9bdcd03a896c54fff4524d44fe8eb2ca962d289576d6bf1d5",
       "binary": "cluster-autoscaler",
-      "manifest_sha": "b2bac18721662d0aaf48861cd5f174452d416b96",
+      "manifest_sha": "b297d2ed89f67ea66da4dcde67abeade971fea01",
       "manifest_path": "cluster-autoscaler/cloudprovider/cloudstack/examples/cluster-autoscaler-standard.yaml"
     }
   },
@@ -265,6 +265,11 @@
     ],
     "autoscaler": "payload mandatory; activation optional; Kubernetes 1.35; stable",
     "runtime_validation": "cluster lifecycle and CNI runtime compatibility are separate gates",
-    "node_kernel_minimum": "5.10; verify target node template before cluster deployment"
+    "node_kernel_minimum": "5.10; verify target node template before cluster deployment",
+    "runtime_qualification": {
+      "status": "pending",
+      "scope": "Provider LoadBalancer and minor-matched AutoScaler/node lifecycle runtime gates",
+      "evidence_urls": []
+    }
   }
 }

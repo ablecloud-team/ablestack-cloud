@@ -83,6 +83,8 @@ def validate_payload(root, recipe, recipe_hash):
     for file in recipe['files']:
         if not file['path'].endswith('.yaml'):
             require(listed[file['path']] == file['sha256'], 'locked source checksum mismatch: '+file['path'])
+    required = {x['path'] for x in recipe['files']} | {'kubelet.service','10-kubeadm.conf','manifest.json','sbom.cdx.json','SHA256SUMS','docker/images.list'}
+    require(required.issubset(actual_files) and all((root/x).stat().st_size>0 for x in required),'mandatory consumer payload missing or empty')
     version='v'+recipe['kubernetes_version']
     versions={}
     for name,args in [('kubeadm',['version','-o','short']),('kubelet',['--version']),('kubectl',['version','--client=true','-o','json'])]:
@@ -153,6 +155,8 @@ def validate_payload(root, recipe, recipe_hash):
                         name=component['binary']
                         if name in names: binary_data=layer_tar.extractfile(names[name]).read()
             if component:
+                labels=config.get('config',{}).get('Labels',{})
+                require(labels.get('org.opencontainers.image.revision')==component['source_sha'] and labels.get('io.ablestack.api-signature')=='HMAC-SHA256','component image source/signature label mismatch')
                 require(binary_data is not None, 'Mold component binary missing')
                 elf_amd64(binary_data[:64],component['binary'])
                 if 'customization_files' in component:
