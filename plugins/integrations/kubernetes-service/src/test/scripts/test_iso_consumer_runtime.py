@@ -16,6 +16,7 @@
 # under the License.
 
 """Execute consumer shell snippets against containerd 1.x/2.x fixtures."""
+import json
 import os
 from pathlib import Path
 import subprocess
@@ -47,6 +48,16 @@ def pause_snippet(source):
     start = source.index('PAUSE_IMAGE=""')
     end = source.index('echo "Configured ISO pause image: $PAUSE_IMAGE"', start)
     return textwrap.dedent(source[start:end] + source[end:].splitlines()[0])
+
+
+def import_snippet(source):
+    start = source.index('CTR_IMPORT_OPTIONS=()')
+    if 'setup_complete=true' in source[start:]:
+        success = source.index('setup_complete=true', start)
+        end = source.index('fi', success) + 2
+    else:
+        end = source.index('if [ -e "${BINARIES_DIR}/provider.yaml" ]', start)
+    return textwrap.dedent(source[start:end])
 
 
 class IsoConsumerRuntimeTest(unittest.TestCase):
@@ -101,6 +112,46 @@ class IsoConsumerRuntimeTest(unittest.TestCase):
                 self.assertEqual(result.returncode, 0, result.stderr)
                 self.assertIn('registry.k8s.io/pause:3.10.1', updated)
 
+    def test_import_preserves_digests_with_version_supported_options(self):
+        for resource in CONSUMERS:
+            for local_supported in (False, True):
+                with self.subTest(resource=resource.name, local_supported=local_supported), \
+                        tempfile.TemporaryDirectory(prefix='iso consumer ') as directory:
+                    root = Path(directory)
+                    (root / 'docker').mkdir()
+                    archive = root / 'docker' / (DIGEST + '.tar')
+                    archive.write_bytes(b'archive fixture')
+                    (root / 'docker/images.list').write_text(DIGEST + '.tar registry.k8s.io/pause\n')
+                    (root / 'docker/README').write_text('not an archive')
+                    (root / 'ctr').write_text(textwrap.dedent(r"""
+                        #!/usr/bin/env python3
+                        import json, os, sys
+                        args = sys.argv[1:]
+                        supported = os.environ['LOCAL_SUPPORTED'] == 'true'
+                        if '--help' in args:
+                            print('--digests --base-name' + (' --local' if supported else ''))
+                            sys.exit(0)
+                        with open(os.environ['IMPORT_ARGS'], 'a') as output:
+                            output.write(json.dumps(args) + '\n')
+                        sys.exit(0 if ('--local' in args) == supported else 1)
+                        """).lstrip())
+                    (root / 'ctr').chmod(0o755)
+                    code = import_snippet(resource.read_text()) + '\necho IMPORT_COMPLETE\n'
+                    result = subprocess.run(['bash', '-e', '-c', code], env={**os.environ,
+                        'PATH': str(root) + ':' + os.environ['PATH'], 'BINARIES_DIR': str(root),
+                        'MAX_SETUP_CRUCIAL_CMD_ATTEMPTS': '3',
+                        'LOCAL_SUPPORTED': str(local_supported).lower(),
+                        'IMPORT_ARGS': str(root / 'imports')}, capture_output=True, text=True)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    self.assertIn('IMPORT_COMPLETE', result.stdout)
+                    imports = (root / 'imports').read_text().splitlines()
+                    self.assertEqual(len(imports), 1)
+                    expected = ['-n', 'k8s.io', 'image', 'import']
+                    if local_supported:
+                        expected.append('--local')
+                    expected += ['--digests', '--base-name', 'registry.k8s.io/pause', str(archive)]
+                    self.assertEqual(json.loads(imports[0]), expected)
+
     def test_repeated_image_import_failure_aborts_install(self):
         for resource in CONSUMERS[:3]:
             with self.subTest(resource=resource.name), tempfile.TemporaryDirectory() as directory:
@@ -108,10 +159,10 @@ class IsoConsumerRuntimeTest(unittest.TestCase):
                 (root / 'docker').mkdir()
                 (root / 'docker' / (DIGEST + '.tar')).write_bytes(b'broken archive')
                 (root / 'docker/images.list').write_text(DIGEST + '.tar registry.k8s.io/pause\n')
-                (root / 'ctr').write_text('#!/bin/sh\necho attempt >> "$ATTEMPTS"\nexit 1\n')
+                (root / 'ctr').write_text('#!/bin/sh\ncase " $* " in *" --help "*) echo "--digests --base-name"; exit 0;; esac\necho attempt >> "$ATTEMPTS"\nexit 1\n')
                 (root / 'ctr').chmod(0o755)
                 source = resource.read_text()
-                start = source.index('output=$(find "${BINARIES_DIR}/docker"')
+                start = source.index('CTR_IMPORT_OPTIONS=()')
                 success = source.index('setup_complete=true', start)
                 end = source.index('fi', success) + 2
                 code = textwrap.dedent(source[start:end]) + '\necho SHOULD_NOT_SUCCEED\n'

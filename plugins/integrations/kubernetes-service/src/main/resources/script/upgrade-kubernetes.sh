@@ -99,6 +99,11 @@ if [ -d "$BINARIES_DIR" ]; then
   fi
   cp ${BINARIES_DIR}/k8s/kubeadm /opt/bin
   chmod +x kubeadm
+  # Preserve archive digests; containerd 2.x defaults to transfer import.
+  CTR_IMPORT_OPTIONS=()
+  if ctr -n k8s.io image import --help 2>/dev/null | grep -q -- "--local"; then
+    CTR_IMPORT_OPTIONS=(--local)
+  fi
   output=$(find "${BINARIES_DIR}/docker" -maxdepth 1 -type f -name "*.tar" -printf "%f\n")
   if [ "$output" != "" ]; then
     while read -r line; do
@@ -107,7 +112,7 @@ if [ -d "$BINARIES_DIR" ]; then
           image_repository=$(awk -v archive="$line" '$1 == archive {print $2}' "${BINARIES_DIR}/docker/images.list")
           [ -n "$image_repository" ] || { echo "ERROR: image import repository missing" >&2; exit 1; }
         fi
-        ctr -n k8s.io image import --digests --base-name "$image_repository" "${BINARIES_DIR}/docker/$line"
+        ctr -n k8s.io image import "${CTR_IMPORT_OPTIONS[@]}" --digests --base-name "$image_repository" "${BINARIES_DIR}/docker/$line"
     done <<< "$output"
   fi
   if [ -e "${BINARIES_DIR}/provider.yaml" ]; then
