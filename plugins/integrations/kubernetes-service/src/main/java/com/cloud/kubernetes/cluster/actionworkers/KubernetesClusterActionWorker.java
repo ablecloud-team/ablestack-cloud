@@ -17,6 +17,7 @@
 package com.cloud.kubernetes.cluster.actionworkers;
 
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -35,6 +36,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPOutputStream;
 
 import javax.inject.Inject;
 
@@ -281,6 +283,29 @@ public class KubernetesClusterActionWorker {
         this.workerNodeTemplate = templateDao.findById(this.kubernetesCluster.getWorkerNodeTemplateId());
         this.etcdTemplate = templateDao.findById(this.kubernetesCluster.getEtcdNodeTemplateId());
         this.sshKeyFile = getManagementServerSshPublicKeyFile();
+    }
+
+    protected String prepareKubernetesUserData(String encodedUserData) {
+        return compressUserDataIfNeeded(encodedUserData, UserDataManager.VM_USERDATA_MAX_LENGTH.value());
+    }
+
+    protected static String compressUserDataIfNeeded(String encodedUserData, int maxLength) {
+        if (encodedUserData.length() <= maxLength) {
+            return encodedUserData;
+        }
+        // cloud-init accepts gzip user data, including a completed MIME multipart document.
+        // Compress after CNI concatenation and preserve the global user-data size limit.
+        final ByteArrayOutputStream compressed = new ByteArrayOutputStream();
+        try (GZIPOutputStream gzip = new GZIPOutputStream(compressed)) {
+            gzip.write(Base64.decodeBase64(encodedUserData));
+        } catch (IOException e) {
+            throw new CloudRuntimeException("Failed to compress Kubernetes node user data", e);
+        }
+        String result = Base64.encodeBase64String(compressed.toByteArray());
+        if (result.length() > maxLength) {
+            throw new CloudRuntimeException("Kubernetes node user data exceeds the configured limit even after gzip compression");
+        }
+        return result;
     }
 
     protected String readResourceFile(String resource) throws IOException {

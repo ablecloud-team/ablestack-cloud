@@ -264,6 +264,7 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
             cniConfig = Base64.encodeBase64String(cniConfig.getBytes(com.cloud.utils.StringUtils.getPreferredCharset()));
             base64UserData = userDataManager.concatenateUserData(base64UserData, cniConfig, null);
         }
+        base64UserData = prepareKubernetesUserData(base64UserData);
 
         List<String> keypairs = new ArrayList<String>();
         if (StringUtils.isNotBlank(kubernetesCluster.getKeyPair())) {
@@ -434,6 +435,7 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
         }
 
         String base64UserData = Base64.encodeBase64String(k8sControlNodeConfig.getBytes(com.cloud.utils.StringUtils.getPreferredCharset()));
+        base64UserData = prepareKubernetesUserData(base64UserData);
         List<String> keypairs = new ArrayList<String>();
         if (StringUtils.isNotBlank(kubernetesCluster.getKeyPair())) {
             keypairs.add(kubernetesCluster.getKeyPair());
@@ -479,6 +481,7 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
         }
 
         String base64UserData = Base64.encodeBase64String(k8sControlNodeConfig.getBytes(com.cloud.utils.StringUtils.getPreferredCharset()));
+        base64UserData = prepareKubernetesUserData(base64UserData);
         List<String> keypairs = new ArrayList<String>();
         if (StringUtils.isNotBlank(kubernetesCluster.getKeyPair())) {
             keypairs.add(kubernetesCluster.getKeyPair());

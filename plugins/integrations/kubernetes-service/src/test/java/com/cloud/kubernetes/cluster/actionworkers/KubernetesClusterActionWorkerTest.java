@@ -16,6 +16,12 @@
 // under the License.
 package com.cloud.kubernetes.cluster.actionworkers;
 
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.zip.GZIPInputStream;
+import org.apache.commons.codec.binary.Base64;
+import com.cloud.utils.exception.CloudRuntimeException;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -229,4 +235,39 @@ public class KubernetesClusterActionWorkerTest {
         Assert.assertTrue(result.contains(99L));
         Assert.assertTrue(result.contains(2L));
     }
+    @Test
+    public void testUserDataWithinLimitIsUnchanged() {
+        String encoded = Base64.encodeBase64String("#cloud-config\nusers: []\n".getBytes(StandardCharsets.UTF_8));
+        Assert.assertEquals(encoded, KubernetesClusterActionWorker.compressUserDataIfNeeded(encoded, encoded.length()));
+    }
+
+    @Test
+    public void testLargeUserDataGzipRoundTrip() throws Exception {
+        String content = "#cloud-config\n# Unicode: 쿠버네티스\n" + "write_files: []\n".repeat(3000);
+        byte[] original = content.getBytes(StandardCharsets.UTF_8);
+        String compressed = KubernetesClusterActionWorker.compressUserDataIfNeeded(Base64.encodeBase64String(original), 32768);
+        Assert.assertTrue(compressed.length() <= 32768);
+        try (GZIPInputStream gzip = new GZIPInputStream(new ByteArrayInputStream(Base64.decodeBase64(compressed)))) {
+            Assert.assertArrayEquals(original, gzip.readAllBytes());
+        }
+    }
+
+    @Test
+    public void testCompletedCniMultipartGzipRoundTrip() throws Exception {
+        String content = "MIME-Version: 1.0\nContent-Type: multipart/mixed; boundary=boundary\n\n"
+                + "--boundary\nContent-Type: text/cloud-config\n\n#cloud-config\n"
+                + "# certificate fixture\n".repeat(1500)
+                + "--boundary\nContent-Type: text/x-shellscript\n\n#!/bin/sh\necho cni\n--boundary--\n";
+        byte[] original = content.getBytes(StandardCharsets.UTF_8);
+        String compressed = KubernetesClusterActionWorker.compressUserDataIfNeeded(Base64.encodeBase64String(original), 32768);
+        try (GZIPInputStream gzip = new GZIPInputStream(new ByteArrayInputStream(Base64.decodeBase64(compressed)))) {
+            Assert.assertArrayEquals(original, gzip.readAllBytes());
+        }
+    }
+
+    @Test(expected = CloudRuntimeException.class)
+    public void testCompressedUserDataStillExceedingLimitIsRejected() {
+        KubernetesClusterActionWorker.compressUserDataIfNeeded(Base64.encodeBase64String(new byte[2048]), 4);
+    }
+
 }
