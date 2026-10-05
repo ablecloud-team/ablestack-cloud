@@ -94,13 +94,20 @@ if [ -d "$BINARIES_DIR" ]; then
 
   cd /opt/bin
 
+  if [ -f "${BINARIES_DIR}/manifest.json" ]; then
+    (cd "${BINARIES_DIR}" && sha256sum -c SHA256SUMS) || exit 1
+  fi
   cp ${BINARIES_DIR}/k8s/kubeadm /opt/bin
   chmod +x kubeadm
-
-  output=`ls ${BINARIES_DIR}/docker/`
+  output=$(find "${BINARIES_DIR}/docker" -maxdepth 1 -type f -name "*.tar" -printf "%f\n")
   if [ "$output" != "" ]; then
     while read -r line; do
-        ctr -n k8s.io image import "${BINARIES_DIR}/docker/$line"
+        image_repository=""
+        if [ -s "${BINARIES_DIR}/docker/images.list" ]; then
+          image_repository=$(awk -v archive="$line" '$1 == archive {print $2}' "${BINARIES_DIR}/docker/images.list")
+          [ -n "$image_repository" ] || { echo "ERROR: image import repository missing" >&2; exit 1; }
+        fi
+        ctr -n k8s.io image import --digests --base-name "$image_repository" "${BINARIES_DIR}/docker/$line"
     done <<< "$output"
   fi
   if [ -e "${BINARIES_DIR}/provider.yaml" ]; then
@@ -151,7 +158,16 @@ if [ -d "$BINARIES_DIR" ]; then
     if [[ ${EXTERNAL_CNI} == true ]]; then
       /opt/bin/kubectl apply -f ${BINARIES_DIR}/network.yaml
     fi
-    /opt/bin/kubectl apply -f ${BINARIES_DIR}/dashboard.yaml
+    if [ -f "${BINARIES_DIR}/headlamp.yaml" ]; then
+      /opt/bin/kubectl apply -f "${BINARIES_DIR}/headlamp.yaml"
+    elif [ -f "${BINARIES_DIR}/dashboard.yaml" ]; then
+      /opt/bin/kubectl apply -f "${BINARIES_DIR}/dashboard.yaml"
+    else
+      echo "ERROR: dashboard payload is missing" >&2
+      exit 1
+    fi
+    [ -s /opt/provider/provider.yaml ] || { echo "ERROR: Mold Provider payload is missing" >&2; exit 1; }
+    /opt/bin/kubectl apply -f /opt/provider/provider.yaml
   fi
 
   umount "${ISO_MOUNT_DIR}" && rmdir "${ISO_MOUNT_DIR}"

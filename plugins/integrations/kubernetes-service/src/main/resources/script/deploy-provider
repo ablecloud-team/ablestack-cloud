@@ -16,21 +16,6 @@
 # specific language governing permissions and limitations
 # under the License.
 
-(/opt/bin/kubectl get pods -A | grep cloud-controller-manager) && exit 0
-
-if [ -e /opt/provider/provider.yaml ]; then
-    /opt/bin/kubectl apply -f /opt/provider/provider.yaml
-    exit 0
-else
-    mkdir -p /opt/provider
-    PROVIDER_URL="https://raw.githubusercontent.com/apache/cloudstack-kubernetes-provider/main/deployment.yaml"
-    provider_conf_file="/opt/provider/provider.yaml"
-    curl -sSL ${PROVIDER_URL} -o ${provider_conf_file}
-    if [ $? -ne 0 ]; then
-        echo "Unable to connect to the internet to download the provider deployment and image"
-        exit 1
-    else
-        /opt/bin/kubectl apply -f /opt/provider/provider.yaml
-        exit 0
-    fi
-fi
+# Only the validated Mold payload shipped with the ISO may be deployed.
+[ -s /opt/provider/provider.yaml ] || { echo "ERROR: validated Mold Provider payload is missing" >&2; exit 1; }
+/opt/bin/kubectl apply -f /opt/provider/provider.yaml

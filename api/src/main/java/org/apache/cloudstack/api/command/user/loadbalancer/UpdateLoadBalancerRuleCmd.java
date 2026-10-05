@@ -16,6 +16,8 @@
 // under the License.
 package org.apache.cloudstack.api.command.user.loadbalancer;
 
+import java.util.List;
+
 import org.apache.cloudstack.acl.RoleType;
 import org.apache.cloudstack.api.APICommand;
 import org.apache.cloudstack.api.ApiConstants;
@@ -68,6 +70,10 @@ public class UpdateLoadBalancerRuleCmd extends BaseAsyncCustomIdCmd {
             description = "use SSL when connecting from the load balancer to backend instances; valid only when protocol is ssl")
     private Boolean backendSsl;
 
+    @Parameter(name = ApiConstants.CIDR_LIST, type = CommandType.LIST, collectionType = CommandType.STRING,
+            description = "the CIDR list to forward traffic from to the load balancer", since = "4.22.0.0")
+    private List<String> cidrList;
+
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
     /////////////////////////////////////////////////////
@@ -94,6 +100,10 @@ public class UpdateLoadBalancerRuleCmd extends BaseAsyncCustomIdCmd {
 
     public String getLbProtocol() {
        return lbProtocol;
+    }
+
+    public List<String> getCidrList() {
+        return cidrList;
     }
 
     public Boolean getBackendSsl() {
