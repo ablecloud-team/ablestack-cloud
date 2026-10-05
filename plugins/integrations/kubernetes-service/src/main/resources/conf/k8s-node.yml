@@ -317,12 +317,15 @@ write_files:
       [Unit]
       Requires=containerd.service
       After=containerd.service
+      StartLimitIntervalSec=0
 
       [Service]
-      Type=simple
-      StartLimitInterval=0
+      Type=oneshot
+      RemainAfterExit=yes
+      TimeoutStartSec=900
       Restart=on-failure
-      ExecStartPre=/usr/bin/curl -k https://{{ k8s_control_node.join_ip }}:6443/version
+      RestartSec=10
+      ExecStartPre=/usr/bin/timeout 600 /bin/bash -c 'until /usr/bin/curl -kfsS --connect-timeout 5 --max-time 5 https://{{ k8s_control_node.join_ip }}:6443/version >/dev/null; do sleep 5; done'
       ExecStart=/opt/bin/deploy-kube-system
 
 runcmd:
