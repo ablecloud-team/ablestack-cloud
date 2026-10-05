@@ -121,11 +121,34 @@ if [ -d "$BINARIES_DIR" ]; then
     cp "${BINARIES_DIR}/autoscaler.yaml" /opt/autoscaler/autoscaler_tmpl.yaml
   fi
 
-  PAUSE_IMAGE=`ctr -n k8s.io images ls -q | grep "pause" | sort | tail -n 1`
-  echo $PAUSE_IMAGE
-  if [ -n "$PAUSE_IMAGE" ]; then
-    sed -i "s|sandbox_image = .*|sandbox_image = \"$PAUSE_IMAGE\"|g" /etc/containerd/config.toml
+  PAUSE_IMAGE=""
+  if [ -s "${BINARIES_DIR}/docker/images.list" ]; then
+    PAUSE_IMAGE=$(awk '$2 ~ /\/pause(:[^@]+)?$/ {digest=$1; sub(/\.tar$/, "", digest); repository=$2; sub(/:[^/]+$/, "", repository); print repository "@sha256:" digest}' "${BINARIES_DIR}/docker/images.list")
+  else
+    PAUSE_IMAGE=$(ctr -n k8s.io images ls -q | grep -E '/pause(:|@)' | sort | tail -n 1)
   fi
+  if [ -z "$PAUSE_IMAGE" ] || ! ctr -n k8s.io images ls -q | grep -Fxq "$PAUSE_IMAGE"; then
+    echo "ERROR: ISO pause image is not imported" >&2
+    exit 1
+  fi
+  if grep -qE '^[[:space:]]*sandbox_image[[:space:]]*=' /etc/containerd/config.toml; then
+    sed -i -E "s|^([[:space:]]*)sandbox_image[[:space:]]*=.*|\1sandbox_image = \"$PAUSE_IMAGE\"|" /etc/containerd/config.toml
+  else
+    # containerd 2.x uses config version 3 and a separate pinned_images table.
+    if ! awk -v image="$PAUSE_IMAGE" '
+      /^[[:space:]]*\[/ {pinned = ($0 ~ /cri\.v1\.images.*\.pinned_images\]/)}
+      pinned && /^[[:space:]]*sandbox[[:space:]]*=/ {$0 = "      sandbox = \"" image "\""; changed = 1}
+      {print}
+      END {if (!changed) exit 1}
+    ' /etc/containerd/config.toml > /etc/containerd/config.toml.pause.tmp; then
+      rm -f /etc/containerd/config.toml.pause.tmp
+      echo "ERROR: unsupported containerd sandbox image configuration" >&2
+      exit 1
+    fi
+    cat /etc/containerd/config.toml.pause.tmp > /etc/containerd/config.toml
+    rm -f /etc/containerd/config.toml.pause.tmp
+  fi
+  echo "Configured ISO pause image: $PAUSE_IMAGE"
 
   tar -f "${BINARIES_DIR}/cni/cni-plugins-"*64.tgz -C /opt/cni/bin -xz
   tar -f "${BINARIES_DIR}/cri-tools/crictl-linux-"*64.tar.gz -C /opt/bin -xz
