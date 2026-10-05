@@ -74,7 +74,8 @@
                 <strong>Step 1:</strong> Run port-forward command:<br>
                 <code><b>kubectl --kubeconfig /custom/path/kube.conf port-forward -n kube-system service/headlamp 8080:80</b></code><br><br>
                 <strong>Step 2:</strong> Open in your browser:<br>
-                <a href="http://localhost:8080"><code>http://localhost:8080</code></a>
+                <a :href="headlampDashboardUrl"><code>{{ headlampDashboardUrl }}</code></a>
+                <br>{{ $t('label.kubernetes.headlamp.locale') }}
               </p>
             </a-timeline-item>
             <a-timeline-item>
@@ -111,7 +112,7 @@
               <p>
                 <strong>Important Notes:</strong><br>
                 • <strong>Port-forwarding is recommended for Headlamp</strong> - simpler and more reliable than kubectl proxy<br>
-                • Token is only needed if accessing Headlamp via NodePort or LoadBalancer with external access<br>
+                • {{ $t('label.kubernetes.headlamp.token.required') }}<br>
                 • For Kubernetes 1.24+, service account tokens are no longer auto-generated - use the Secret resource shown above or <code>kubectl create token</code> command<br>
                 • <strong>Cluster-admin role grants full control</strong> - use with caution and only for trusted administrators<br>
                 • Keep the port-forward command running while using the dashboard (press Ctrl+C to stop)
@@ -332,6 +333,11 @@ export default {
     }
   },
   computed: {
+    headlampDashboardUrl () {
+      const locale = String(this.$i18n.locale || 'en').replace('_', '-').split('-')[0].toLowerCase()
+      const supportedLocales = ['en', 'es', 'fr', 'pt', 'de', 'it', 'zh', 'ko', 'ja', 'hi', 'ta']
+      return `http://localhost:8080/?lng=${supportedLocales.includes(locale) ? locale : 'en'}`
+    },
     kubernetesManagementPorts () {
       const sshPorts = this.virtualmachines
         .map((vm, index) => this.cksSshStartingPort + index)
