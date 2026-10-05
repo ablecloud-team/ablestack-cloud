@@ -51,7 +51,9 @@ def main():
   for component in manifest['components'].values():
    if not component['source_repository'].startswith('ablecloud-team/') or 'candidate_module' in component.get('sdk',{}):raise ValueError('official Release requires promoted Upstream component sources and SDK')
   if run(['git','describe','--exact-match','--tags',source])!=tag:raise ValueError('official immutable tag mismatch')
-  subprocess.run(['git','fetch','upstream','ablestack-europa'],check=True)
+  fetch=['git','fetch','upstream','ablestack-europa']
+  if run(['git','rev-parse','--is-shallow-repository'])=='true':fetch.insert(2,'--unshallow')
+  subprocess.run(fetch,check=True)
   subprocess.run(['git','merge-base','--is-ancestor',source,'upstream/ablestack-europa'],check=True)
  if subprocess.run(['gh','release','view',tag,'--repo',args.repository],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode==0:raise ValueError('immutable Release already exists')
  url='https://github.com/'+args.repository+'/releases/download/'+tag+'/'+iso.name

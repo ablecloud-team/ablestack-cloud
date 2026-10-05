@@ -24,6 +24,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+import time
 import urllib.parse
 
 import yaml
@@ -34,6 +35,16 @@ MAX_ISO_BYTES = 2 * 1024**3
 
 def run(args, **kwargs):
     return subprocess.check_output([str(x) for x in args], text=True, **kwargs).strip()
+
+
+def registry(args):
+    for attempt in range(4):
+        try:
+            return subprocess.check_output(args)
+        except subprocess.CalledProcessError:
+            if attempt == 3:
+                raise
+            time.sleep(2 ** attempt)
 
 
 def sha256(path):
@@ -94,7 +105,7 @@ def download(file, target, cache):
     if not cached.exists():
         partial = cache / (digest + '.part-' + str(os.getpid()))
         try:
-            run(['curl', '--fail', '--location', '--retry', '3', '--silent', '--show-error', '--proto', '=https', '--proto-redir', '=https', file['url'], '--output', partial])
+            run(['curl', '--fail', '--location', '--retry', '3', '--retry-all-errors', '--http1.1', '--connect-timeout', '30', '--max-time', '300', '--silent', '--show-error', '--proto', '=https', '--proto-redir', '=https', file['url'], '--output', partial])
             if sha256(partial) != digest:
                 raise ValueError('download checksum mismatch: ' + file['path'])
             partial.replace(cached)
@@ -173,10 +184,10 @@ def main():
             reference = image['reference']
             digest = reference.split('@sha256:')[1]
             print('Including ' + reference, flush=True)
-            raw = subprocess.check_output(['skopeo', 'inspect', '--retry-times', '3', '--raw', 'docker://' + reference])
+            raw = registry(['skopeo', 'inspect', '--retry-times', '3', '--raw', 'docker://' + reference])
             if hashlib.sha256(raw).hexdigest() != digest:
                 raise ValueError('registry manifest digest mismatch')
-            info = json.loads(run(['skopeo', 'inspect', '--no-tags', '--retry-times', '3', 'docker://' + reference]))
+            info = json.loads(registry(['skopeo', 'inspect', '--no-tags', '--retry-times', '3', 'docker://' + reference]))
             if info['Architecture'] != 'amd64' or info['Os'] != 'linux':
                 raise ValueError('wrong image architecture: ' + reference)
             component = next((c for c in recipe['components'].values() if c.get('image') == reference), None)
@@ -187,7 +198,7 @@ def main():
             if not cached.exists():
                 partial = args.cache / (digest + '.oci.part-' + str(os.getpid()))
                 try:
-                    run(['skopeo', 'copy', '--preserve-digests', 'docker://' + reference, 'oci-archive:' + str(partial) + ':' + image.get('import_alias', image['original'])])
+                    registry(['skopeo', 'copy', '--preserve-digests', 'docker://' + reference, 'oci-archive:' + str(partial) + ':' + image.get('import_alias', image['original'])])
                     partial.replace(cached)
                 finally:
                     partial.unlink(missing_ok=True)
