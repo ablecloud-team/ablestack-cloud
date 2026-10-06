@@ -9290,5 +9290,8 @@
   "label.storage.service.nfs.idmapping.desired": "Desired owner mapping",
   "label.storage.service.nfs.idmapping": "NFSv4 owner mapping",
   "label.storage.service.nfs.idmapping.numeric": "Numeric UID/GID",
-  "message.storage.service.nfs.idmapping.service.scope": "This policy applies to every NFS listener. Export ownership and squash policy remain separate."
+  "message.storage.service.nfs.idmapping.service.scope": "This policy applies to every NFS listener. Export ownership and squash policy remain separate.",
+  "message.storage.service.nested.path.help": "Relative to the selected volume root. Child data is also visible through its parent share; each share has independent access rules and shares the same volume capacity.",
+  "message.storage.service.nested.path.invalid": "Absolute, empty, dot and parent paths are not allowed.",
+  "label.storage.service.volume.relative.path": "Backing volume relative path"
 }
