@@ -139,9 +139,9 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
             final long pid = executeGuestCommand(domain, command);
             return waitForGuestCommand(command, domain, pid);
         } catch (final RuntimeException e) {
-            return new StorageServiceHostAnswer(command, false, e.getMessage(), null);
+            return new StorageServiceHostAnswer(command, false, commandExceptionDetails(command,e.getMessage()), null);
         } catch (final LibvirtException e) {
-            return new StorageServiceHostAnswer(command, false, "Failed to execute Storage Service QGA command: " + e.getMessage(), null);
+            return new StorageServiceHostAnswer(command, false, commandExceptionDetails(command,"Failed to execute Storage Service QGA command: " + e.getMessage()), null);
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             return new StorageServiceHostAnswer(command, false, "Interrupted while waiting for Storage Service QGA command", null);
@@ -182,12 +182,33 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
                 final String stdout = decodeGuestData(response, "out-data");
                 final String stderr = decodeGuestData(response, "err-data");
                 final String details = exitCode == 0 ? "Storage Service command completed" :
-                        String.format("Storage Service command failed with exit code %s: %s", exitCode, stderr);
+                        commandFailureDetails(command, exitCode, stdout, stderr);
                 return new StorageServiceHostAnswer(command, exitCode == 0, details, stdout);
             }
             Thread.sleep(QGA_POLL_INTERVAL_MILLIS);
         }
         return new StorageServiceHostAnswer(command, false, "Timed out waiting for Storage Service QGA command", null);
+    }
+
+    protected String commandExceptionDetails(StorageServiceHostCommand command,String diagnostic) {
+        if (command.getMaskedFields() != null && !command.getMaskedFields().isEmpty()) return "Sensitive Storage Service host command failed; secret-bearing diagnostic omitted";
+        return diagnostic;
+    }
+
+    protected String commandFailureDetails(StorageServiceHostCommand command, int exitCode, String stdout, String stderr) {
+        if (command.getMaskedFields() != null && !command.getMaskedFields().isEmpty()) {
+            return "Sensitive Storage Service command failed with exit code " + exitCode + "; secret-bearing output omitted";
+        }
+        String diagnostic=stderr;
+        if (diagnostic == null || diagnostic.trim().isEmpty()) {
+            try {
+                JsonObject result=new JsonParser().parse(stdout).getAsJsonObject();
+                if (result.has("message") && result.get("message").isJsonPrimitive()) diagnostic=result.get("message").getAsString();
+                if (result.has("errorCode") && result.get("errorCode").isJsonPrimitive()) diagnostic=result.get("errorCode").getAsString()+": "+diagnostic;
+            } catch (RuntimeException unavailable) { diagnostic="No structured guest diagnostic"; }
+        }
+        if (diagnostic == null || diagnostic.trim().isEmpty()) diagnostic="No guest diagnostic";
+        return "Storage Service command failed with exit code " + exitCode + ": " + diagnostic.substring(0,Math.min(diagnostic.length(),2048));
     }
 
     protected String buildGuestExecCommand(final StorageServiceHostCommand command) {
