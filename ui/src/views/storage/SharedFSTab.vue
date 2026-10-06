@@ -2312,17 +2312,6 @@ const ProtocolHeader = {
     }
   },
   computed: {
-    nfsDesiredIdMode () {
-      const protocol = (this.storageService.protocols || []).find(item => item.protocol === 'NFS' && item.enabled)
-      return protocol?.idmappingmode || 'NAME_DOMAIN'
-    },
-    nfsRuntimeIdMode () {
-      return this.parsedHealth?.nfsGanesha?.idMappingMode || 'UNKNOWN'
-    },
-    nfsIdModeDrift () {
-      return this.nfsRuntimeIdMode === 'UNKNOWN' ? 'UNKNOWN' : this.nfsRuntimeIdMode === this.nfsDesiredIdMode ? 'CONSISTENT' : 'DRIFT'
-    },
-
     protocolLabel () {
       return this.protocol === 'NVME_OF' ? 'NVMe-oF' : this.protocol
     }
@@ -2812,6 +2801,17 @@ export default {
     }
   },
   computed: {
+    nfsDesiredIdMode () {
+      const protocol = (this.storageService.protocols || []).find(item => item.protocol === 'NFS' && item.enabled)
+      return protocol?.idmappingmode || 'NAME_DOMAIN'
+    },
+    nfsRuntimeIdMode () {
+      return this.parsedHealth?.nfsGanesha?.idMappingMode || 'UNKNOWN'
+    },
+    nfsIdModeDrift () {
+      return this.nfsRuntimeIdMode === 'UNKNOWN' ? 'UNKNOWN' : this.nfsRuntimeIdMode === this.nfsDesiredIdMode ? 'CONSISTENT' : 'DRIFT'
+    },
+
     storageReadErrors () {
       return Array.from(new Set([...(this.storageService.readErrors || []), ...this.referenceReadErrors]))
     },
@@ -4446,6 +4446,7 @@ export default {
       return {
         danger: ['deleteConfirm', 'deleteEndpoint', 'detachBackingVolume', 'adLeave'].includes(this.actionModal.type),
         disabled: (this.actionModal.type === 'deleteConfirm' && !this.deleteConfirmationMatched) ||
+          (this.actionModal.type === 'nfsServiceSettings' && !['NAME_DOMAIN', 'NUMERIC'].includes(this.forms.nfsServiceSettings.idmappingmode)) ||
           deleteEndpointBlocked ||
           (this.actionModal.type === 'detachBackingVolume' && !this.forms.detachBackingVolume.confirmation) ||
           resizeBackingVolumeBlocked ||
