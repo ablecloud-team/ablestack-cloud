@@ -748,7 +748,7 @@ export default {
       permission: ['listSharedFileSystems'],
       resourceType: 'SharedFS',
       columns: () => {
-        const fields = ['name', 'state', 'sizegb']
+        const fields = ['name', 'state', 'totalprovisionedbytes', 'backingvolumecount']
         const metricsFields = ['diskkbsread', 'diskkbswrite', 'utilization', 'physicalsize']
 
         if (store.getters.metrics) {
