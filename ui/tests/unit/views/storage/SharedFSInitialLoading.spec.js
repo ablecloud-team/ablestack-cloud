@@ -145,5 +145,4 @@ describe('SharedFS initial runtime loading ownership', () => {
     expect(wrapper.vm.storageService.loading).toBe(false)
     jest.useRealTimers()
   })
-
 })

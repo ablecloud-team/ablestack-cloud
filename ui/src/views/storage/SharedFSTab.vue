@@ -19,7 +19,12 @@
 
 <template>
   <a-spin :spinning="storageService.initialLoading">
-    <a-alert v-if="storageService.readErrors && storageService.readErrors.length" type="warning" show-icon role="status" class="storage-service__alert"
+    <a-alert
+v-if="storageService.readErrors && storageService.readErrors.length"
+type="warning"
+show-icon
+role="status"
+class="storage-service__alert"
       :message="$t('message.storage.service.read.partial')">
       <template #description>
         <ul><li v-for="section in storageService.readErrors" :key="section">{{ section }}</li></ul>
@@ -4879,10 +4884,17 @@ export default {
           return
         }
         const previous = this.storageService
-        const { health = previous.health, protocols = previous.protocols, domains = previous.domains,
+        const {
+          health = previous.health, protocols = previous.protocols, domains = previous.domains,
           nfsExports = previous.nfsExports, smbShares = previous.smbShares, iscsiTargets = previous.iscsiTargets,
-          nvmeSnapshot = { inventory: previous.inventory, sessions: previous.sessions, nvmeSubsystems: previous.nvmeSubsystems,
-            nvmeNamespaces: previous.nvmeNamespaces, nvmeHostAcls: previous.nvmeHostAcls } } = sections.values
+          nvmeSnapshot = {
+            inventory: previous.inventory,
+            sessions: previous.sessions,
+            nvmeSubsystems: previous.nvmeSubsystems,
+            nvmeNamespaces: previous.nvmeNamespaces,
+            nvmeHostAcls: previous.nvmeHostAcls
+          }
+        } = sections.values
         const related = await readStorageSections({
           accessRules: () => this.loadAccessRules(instance.id, nfsExports, smbShares, iscsiTargets, nvmeSnapshot.nvmeSubsystems, nvmeSnapshot.nvmeHostAcls),
           backingVolumes: () => this.loadBackingVolumes({ instance, nfsExports, smbShares, iscsiTargets, nvmeNamespaces: nvmeSnapshot.nvmeNamespaces })
