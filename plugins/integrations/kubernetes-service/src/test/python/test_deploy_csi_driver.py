@@ -40,6 +40,7 @@ class InstallerTests(unittest.TestCase):
         self.profile()
         self.mock = self.root / "kubectl"
         self.mock.write_text("#!/bin/bash\necho \"$*\" >> \"$CALLS\"\ncase \"$*\" in *\"${FAIL_STAGE:-NEVER_MATCH}\"*) exit 17;; esac\nexit 0\n")
+        self.mock.write_text(self.mock.read_text().replace("exit 0\n", "case \"$*\" in *\"get secret cloudstack-secret\"*) echo '{\"data\":{\"cloud-config\":\"Zml4dHVyZQ==\"}}';; esac\nexit 0\n"))
         self.mock.chmod(0o700)
         self.env = {**os.environ, "MOLD_CSI_DIR": str(self.root), "MOLD_KUBECTL": str(self.mock), "CALLS": str(self.root / "calls")}
 
@@ -66,6 +67,16 @@ class InstallerTests(unittest.TestCase):
         self.assertIn("rollout status deployment/cloudstack-csi-controller", calls)
         self.assertIn("rollout status daemonset/cloudstack-csi-node", calls)
         self.assertIn("MOLD_CSI_DRIVER_READY", result.stdout)
+
+    def test_initial_and_repeated_deployments_seed_identical_configuration_digest(self):
+        self.assertEqual(self.run_installer().returncode, 0)
+        first = [line for line in (self.root / "calls").read_text().splitlines() if " patch " in line]
+        self.assertEqual(len(first), 2)
+        digest = hashlib.sha256(b"fixture").hexdigest()
+        self.assertTrue(all(digest in line and "cloud-config-sha256" in line for line in first))
+        self.assertEqual(self.run_installer().returncode, 0)
+        all_patches = [line for line in (self.root / "calls").read_text().splitlines() if " patch " in line]
+        self.assertEqual(all_patches[2:], first)
 
     def test_partial_or_changed_bundle_fails_before_any_api_mutation(self):
         for name in ["profile.json", "manifest.yaml", "snapshot-crds.yaml"]:

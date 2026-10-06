@@ -21,4 +21,9 @@ set -euo pipefail
 [ -s /opt/provider/provider.yaml ] || { echo "ERROR: validated Mold Provider payload is missing" >&2; exit 1; }
 KUBECTL="${MOLD_KUBECTL:-/opt/bin/kubectl}"
 "$KUBECTL" apply -f /opt/provider/provider.yaml
+# Seed the same content annotation used by Secret reconciliation, including
+# workloads created for the first time after the Secret already existed.
+config_digest=$("$KUBECTL" -n kube-system get secret cloudstack-secret -o json | python3 -c 'import base64, hashlib, json, sys; print(hashlib.sha256(base64.b64decode(json.load(sys.stdin)["data"]["cloud-config"], validate=True)).hexdigest())')
+config_patch="{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"mold.ablecloud.io/cloud-config-sha256\":\"$config_digest\"}}}}}"
+"$KUBECTL" -n kube-system patch deployment cloud-controller-manager --type=merge -p "$config_patch"
 "$KUBECTL" -n kube-system rollout status deployment/cloud-controller-manager --timeout=120s

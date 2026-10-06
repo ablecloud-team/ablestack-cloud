@@ -65,6 +65,12 @@ for resource in volumesnapshotclasses volumesnapshotcontents volumesnapshots; do
     "$KUBECTL" wait --for=condition=Established "crd/$resource.snapshot.storage.k8s.io" --timeout=60s
 done
 "$KUBECTL" apply -f "$TARGET_DIR/manifest.yaml"
+# Seed the same content annotation used by Secret reconciliation, including
+# workloads created for the first time after the Secret already existed.
+config_digest=$("$KUBECTL" -n kube-system get secret cloudstack-secret -o json | python3 -c 'import base64, hashlib, json, sys; print(hashlib.sha256(base64.b64decode(json.load(sys.stdin)["data"]["cloud-config"], validate=True)).hexdigest())')
+config_patch="{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"mold.ablecloud.io/cloud-config-sha256\":\"$config_digest\"}}}}}"
+"$KUBECTL" -n kube-system patch deployment cloudstack-csi-controller --type=merge -p "$config_patch"
+"$KUBECTL" -n kube-system patch daemonset cloudstack-csi-node --type=merge -p "$config_patch"
 "$KUBECTL" -n kube-system rollout status deployment/cloudstack-csi-controller --timeout=120s
 "$KUBECTL" -n kube-system rollout status daemonset/cloudstack-csi-node --timeout=120s
 echo MOLD_CSI_DRIVER_READY
