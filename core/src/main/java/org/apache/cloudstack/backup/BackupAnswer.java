@@ -38,6 +38,13 @@ public class BackupAnswer extends Answer {
     private String state;
     private String step;
     private Integer progress;
+    private Integer volumeIndex;
+    private Integer volumeCount;
+
+    public Integer getVolumeIndex() { return volumeIndex; }
+    public void setVolumeIndex(Integer value) { volumeIndex = value; }
+    public Integer getVolumeCount() { return volumeCount; }
+    public void setVolumeCount(Integer value) { volumeCount = value; }
     private Long eventsOffset;
     private String eventsJson;
     private String logPath;

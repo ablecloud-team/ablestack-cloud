@@ -52,6 +52,17 @@ public class BackupJobStatusResponse extends BaseResponse {
     @Param(description = "Current host-side backup job progress percentage")
     private Integer progress;
 
+    @SerializedName("volumeindex")
+    @Param(description = "Current volume index, starting at one")
+    private Integer volumeIndex;
+
+    @SerializedName("volumecount")
+    @Param(description = "Number of volumes in the logical backup or restore")
+    private Integer volumeCount;
+
+    public void setVolumeIndex(Integer value) { volumeIndex = value; }
+    public void setVolumeCount(Integer value) { volumeCount = value; }
+
     @SerializedName(ApiConstants.BACKUP_JOB_EVENTS_OFFSET)
     @Param(description = "Offset for the next backup job events query")
     private Long eventsOffset;

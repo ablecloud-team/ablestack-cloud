@@ -110,7 +110,7 @@ public class LibvirtAblestackNetBackupRestoreBackupCommandWrapper extends Comman
                         backupFiles, backupFileChains, volumeChainStates, command.getVmName(), command.getVmState(), timeout, cacheMode, restorePlan);
             } else if (Boolean.TRUE.equals(vmExists)) {
                 restoreVolumesOfExistingVM(storagePoolMgr, restoreVolumePools, restoreVolumePaths, backedVolumeUUIDs,
-                        backupPath, backupFiles, backupFileChains, volumeChainStates, timeout, restorePlan);
+                        backupPath, backupFiles, backupFileChains, volumeChainStates, timeout, restorePlan, command.getVmName());
             } else {
                 throw new CloudRuntimeException("NetBackup restore currently supports existing VM and single volume restore only");
             }
@@ -130,28 +130,21 @@ public class LibvirtAblestackNetBackupRestoreBackupCommandWrapper extends Comman
     private void restoreVolumesOfExistingVM(final KVMStoragePoolManager storagePoolMgr, final List<PrimaryDataStoreTO> restoreVolumePools,
             final List<String> restoreVolumePaths, final List<String> backedVolumesUUIDs, final String backupPath, final List<String> backupFiles,
             final List<String> backupFileChains, final List<BackupVolumeChainState> volumeChainStates, final int timeout,
-            final BackupRestorePlan restorePlan) {
-        String diskType = "root";
+            final BackupRestorePlan restorePlan, final String vmName) {
+        boolean restoreCompleted = false;
         try {
             validateChainStatePlan(volumeChainStates, restorePlan);
             final List<List<String>> localBackupPathsByVolume = getLocalBackupPathsForVolumes(backupPath, backupFiles, backupFileChains, volumeChainStates,
                     restoreVolumePaths, backedVolumesUUIDs);
-            validatePrimaryStorageSpaceForFileRestorePlan(restoreVolumePaths, localBackupPathsByVolume, restoreVolumePools);
-            for (int idx = 0; idx < restoreVolumePaths.size(); idx++) {
-                final PrimaryDataStoreTO restoreVolumePool = restoreVolumePools.get(idx);
-                final String restoreVolumePath = restoreVolumePaths.get(idx);
-                final String backupVolumeUuid = backedVolumesUUIDs.get(idx);
-                final List<String> localBackupPaths = localBackupPathsByVolume.get(idx);
-                logger.info("Resolved NetBackup local backup paths for existing VM volume [{}], target [{}]: {}",
-                        backupVolumeUuid, restoreVolumePath, localBackupPaths);
-                validateResolvedChainPaths(localBackupPaths, restoreVolumePath);
-                diskType = "datadisk";
-                if (!replaceVolumeWithBackup(storagePoolMgr, restoreVolumePool, restoreVolumePath, localBackupPaths, timeout, backupPath, idx)) {
-                    throw new CloudRuntimeException(String.format("Unable to restore contents from the backup volume [%s].", backupVolumeUuid));
-                }
-            }
+            LibvirtAblestackRestoreTransaction.restore(logger, RESTORE_TRACE, vmName, storagePoolMgr,
+                    restoreVolumePools, restoreVolumePaths, localBackupPathsByVolume, timeout,
+                    (index, temporaryTarget) -> prepareVmVolume(storagePoolMgr, restoreVolumePools.get(index),
+                            restoreVolumePaths.get(index), temporaryTarget, localBackupPathsByVolume.get(index), timeout, backupPath, index));
+            restoreCompleted = true;
         } finally {
-            cleanupBackupDirectory(backupPath, restorePlan);
+            if (restoreCompleted) {
+                cleanupBackupDirectory(backupPath, restorePlan);
+            }
         }
     }
 
@@ -274,6 +267,15 @@ public class LibvirtAblestackNetBackupRestoreBackupCommandWrapper extends Comman
     private boolean replaceVolumeWithBackup(final KVMStoragePoolManager storagePoolMgr, final PrimaryDataStoreTO volumePool,
             final String volumePath, final List<String> backupPaths, final int timeout, final String backupRootPath, final int backupIndex) {
         return replaceVolumeWithBackup(storagePoolMgr, volumePool, volumePath, backupPaths, timeout, backupRootPath, backupIndex, false);
+    }
+
+    private boolean prepareVmVolume(final KVMStoragePoolManager manager, final PrimaryDataStoreTO pool,
+            final String originalTarget, final String temporaryTarget, final List<String> chain,
+            final int timeout, final String backupRoot, final int index) {
+        if (pool.getPoolType() != Storage.StoragePoolType.RBD && chain.stream().noneMatch(path -> path.endsWith(".rbdiff"))) {
+            return LibvirtAblestackFileRestoreHelper.prepareFileVolume(RESTORE_TRACE, logger, originalTarget, temporaryTarget, chain, timeout);
+        }
+        return replaceVolumeWithBackup(manager, pool, temporaryTarget, chain, timeout, backupRoot, index, true);
     }
 
     private boolean replaceVolumeWithBackup(final KVMStoragePoolManager storagePoolMgr, final PrimaryDataStoreTO volumePool,
@@ -447,7 +449,7 @@ public class LibvirtAblestackNetBackupRestoreBackupCommandWrapper extends Comman
     }
 
     private boolean replaceFileVolumeWithBackup(final String volumePath, final List<String> backupPaths, final int timeout) {
-        return LibvirtAblestackFileRestoreHelper.replaceFileVolumeWithBackup(RESTORE_TRACE, logger, volumePath, backupPaths, timeout,
+        return LibvirtAblestackFileRestoreHelper.replaceFileVolumeChain(RESTORE_TRACE, logger, volumePath, backupPaths, timeout,
                 "cs-netbackup-restore-volume-");
     }
 

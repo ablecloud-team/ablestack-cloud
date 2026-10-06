@@ -375,6 +375,8 @@
     </bean>
 
     <bean id="backupSnapshotGuard" class="org.apache.cloudstack.backup.BackupSnapshotGuard" />
+    <bean id="thirdPartyBackupStagingService" class="org.apache.cloudstack.backup.ThirdPartyBackupStagingServiceImpl" />
+    <bean id="thirdPartyBackupVolumeService" class="org.apache.cloudstack.backup.ThirdPartyBackupVolumeServiceImpl" />
     <bean id="netBackupRestoreCoordinator" class="org.apache.cloudstack.backup.NetBackupRestoreCoordinator" />
 
     <bean id="backupRepositoryService" class="org.apache.cloudstack.backup.BackupRepositoryServiceImpl" />

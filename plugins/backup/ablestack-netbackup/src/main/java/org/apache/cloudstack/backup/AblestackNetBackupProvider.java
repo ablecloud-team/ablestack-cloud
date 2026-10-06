@@ -82,7 +82,6 @@ import javax.xml.xpath.XPathFactory;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
-import java.nio.file.Path;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
@@ -138,8 +137,6 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
     private static final String DETAIL_CHAIN_SEAL_REASON = "netbackup.chain.seal.reason";
     private static final String BACKUP_TRACE = AblestackBackupFrameworkUtils.buildTracePrefix("netbackup", AblestackBackupFrameworkUtils.OPERATION_BACKUP);
     private static final String RESTORE_TRACE = AblestackBackupFrameworkUtils.buildTracePrefix("netbackup", AblestackBackupFrameworkUtils.OPERATION_RESTORE);
-    private static final long STAGE_SPACE_BUFFER_BYTES = 10L * 1024L * 1024L * 1024L;
-    private static final int INCREMENTAL_BACKUP_CAPACITY_ESTIMATE_PERCENT = 10;
     private static final long NETBACKUP_SYNC_DELETE_GRACE_MS = 10L * 60L * 1000L;
     private static final String NETBACKUP_OFFERING_NAME = "netbackup";
     private static final String NETBACKUP_OFFERING_EXTERNAL_ID = "netbackup";
@@ -167,13 +164,11 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
             "backup.plugin.netbackup.recovery.job.timeout", "0",
             "Timeout in seconds to wait for NetBackup recovery jobs to complete. Set to 0 to wait indefinitely.", true, ConfigKey.Scope.Zone);
 
-    private ConfigKey<String> NetBackupStageRootPath = new ConfigKey<>("Advanced", String.class,
-            "backup.plugin.netbackup.stage.root.path", "/tmp/mold/netbackup",
-            "Local KVM host directory used for ABLESTACK NetBackup backup staging and WebUI-prepared restore paths.",
-            true, ConfigKey.Scope.Global);
-
     @Inject
     private BackupDao backupDao;
+
+    @Inject
+    private ThirdPartyBackupStagingService thirdPartyBackupStagingService;
     @Inject
     private BackupDetailsDao backupDetailsDao;
     @Inject
@@ -212,6 +207,7 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
 
     @Override
     public Pair<Boolean, Backup> takeBackup(final VirtualMachine vm, final Boolean quiesceVM, boolean isolated, final Long backupScheduleId) {
+        thirdPartyBackupStagingService.requireEnabled();
         final Host host = getVMHypervisorHostForBackup(vm);
         validateVmSnapshotCoexistenceForBackup(vm);
 
@@ -250,6 +246,7 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
 
     @Override
     public Pair<Boolean, Backup> takeNetBackup(final VirtualMachine vm, final String policyName, final Long backupScheduleId) {
+        thirdPartyBackupStagingService.requireEnabled();
         final Host host = getVMHypervisorHostForBackup(vm);
         validateVmSnapshotCoexistenceForBackup(vm);
 
@@ -667,17 +664,14 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
     }
 
     private String getBackupStageRootPath() {
-        return Path.of(StringUtils.defaultIfBlank(NetBackupStageRootPath.value(), "/tmp/mold/netbackup"))
-                .toAbsolutePath()
-                .normalize()
-                .toString();
+        return thirdPartyBackupStagingService.getStageRootPath(getName());
     }
 
     private void validateBackupStageCapacity(final Host stageHost, final String stageRootPath, final List<VolumeVO> vmVolumes,
             final String vmName, final String backupType, final String backupEngine) {
-        final long requiredBytes = estimateRequiredStageBytesForBackup(vmVolumes, backupType);
-        final long bufferBytes = Math.max(STAGE_SPACE_BUFFER_BYTES, requiredBytes / 5L);
-        final long minimumAvailableBytes = requiredBytes + bufferBytes;
+        final long requiredBytes = estimateRequiredStageBytesForBackup(vmVolumes);
+        final long bufferBytes = thirdPartyBackupStagingService.getCapacityBufferBytes(requiredBytes);
+        final long minimumAvailableBytes = Math.addExact(requiredBytes, bufferBytes);
         final long availableBytes = getAvailableBytesOnHostPath(stageHost, stageRootPath);
         LOG.info("{} phase=[STAGE_SPACE_CHECK], vm=[{}], host=[{}], backupType=[{}], backupEngine=[{}], stageRoot=[{}], requiredBytes=[{}], bufferBytes=[{}], minimumAvailableBytes=[{}], availableBytes=[{}]",
                 BACKUP_TRACE, vmName, stageHost != null ? stageHost.getName() : null, backupType, backupEngine, stageRootPath,
@@ -696,14 +690,6 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
         return estimateReadyVolumeBytes(vmVolumes);
     }
 
-    private long estimateRequiredStageBytesForBackup(final List<VolumeVO> vmVolumes, final String backupType) {
-        final long readyVolumeBytes = estimateRequiredStageBytesForBackup(vmVolumes);
-        if (BACKUP_TYPE_INCREMENTAL.equalsIgnoreCase(backupType)) {
-            return Math.max(1L, readyVolumeBytes * INCREMENTAL_BACKUP_CAPACITY_ESTIMATE_PERCENT / 100L);
-        }
-        return readyVolumeBytes;
-    }
-
     private long estimateReadyVolumeBytes(final List<VolumeVO> vmVolumes) {
         if (CollectionUtils.isEmpty(vmVolumes)) {
             return 0L;
@@ -715,25 +701,7 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
     }
 
     private long getAvailableBytesOnHostPath(final Host host, final String path) {
-        if (host == null || StringUtils.isBlank(path)) {
-            throw new CloudRuntimeException("Host and path are required to query available NetBackup stage space");
-        }
-        try {
-            final Answer answer = agentManager.send(host.getId(), new AblestackNetBackupGetAvailableBytesCommand(path));
-            if (answer == null || !answer.getResult()) {
-                throw new CloudRuntimeException(String.format("Failed to query available stage space on host %s due to: %s",
-                        host.getName(), answer != null ? answer.getDetails() : "no answer received"));
-            }
-            return Long.parseLong(answer.getDetails());
-        } catch (NumberFormatException e) {
-            throw new CloudRuntimeException(String.format("Failed to parse available stage space on host %s for path %s", host.getName(), path), e);
-        } catch (AgentUnavailableException e) {
-            throw new CloudRuntimeException(String.format("Unable to contact host %s to query available stage space", host.getName()), e);
-        } catch (OperationTimedoutException e) {
-            throw new CloudRuntimeException(String.format("Timed out querying available stage space on host %s", host.getName()), e);
-        } catch (RuntimeException e) {
-            throw new CloudRuntimeException(String.format("Failed to query available stage space on host %s due to: %s", host.getName(), e.getMessage()), e);
-        }
+        return thirdPartyBackupStagingService.getAvailableBytes(host, path);
     }
 
     private void ensureStageHostHasCapacityForRestore(final Host stageHost, final List<Backup> restoreChain,
@@ -743,8 +711,8 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
         }
         final String stageRootPath = getBackupStageRootPath();
         final long requiredBytes = estimateRequiredStageBytesForRestore(restoreChain, requiredVolumeUuids);
-        final long bufferBytes = Math.max(STAGE_SPACE_BUFFER_BYTES, requiredBytes / 5L);
-        final long minimumAvailableBytes = requiredBytes + bufferBytes;
+        final long bufferBytes = thirdPartyBackupStagingService.getCapacityBufferBytes(requiredBytes);
+        final long minimumAvailableBytes = Math.addExact(requiredBytes, bufferBytes);
         final long availableBytes = getAvailableBytesOnHostPath(stageHost, stageRootPath);
         LOG.info("{} phase=[STAGE_SPACE_CHECK], vm=[{}], backupUuid=[{}], volumeUuid=[{}], host=[{}], stageRoot=[{}], requiredBytes=[{}], bufferBytes=[{}], minimumAvailableBytes=[{}], availableBytes=[{}], restoreChain=[{}]",
                 RESTORE_TRACE, vmName, backupUuid, volumeUuid, stageHost.getName(), stageRootPath, requiredBytes,
@@ -758,6 +726,7 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
     }
 
     private long estimateRequiredStageBytesForRestore(final List<Backup> restoreChain, final Set<String> requiredVolumeUuids) {
+        // The current engine still prepares the complete VM/restore chain; retain its aggregate capacity check.
         long totalBytes = 0L;
         for (final Backup restoreBackup : restoreChain) {
             if (restoreBackup == null) {
@@ -1217,11 +1186,13 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
 
     private Pair<Boolean, String> restoreVirtualMachine(final VirtualMachine vm, final Backup backup, final String restoreHostIp,
             final boolean restoreSourcesAlreadyPrepared) {
+        thirdPartyBackupStagingService.requireEnabled();
         loadBackupDetailsIfNeeded(backup);
         validateRestoreChainIntegrity(backup);
         validateNetBackupRestoreSnapshotCompatibility(vm);
         final Host host = resolveRestoreHost(vm, backup, restoreHostIp);
         final List<Backup> restoreChain = getRestoreChainForBackup(backup);
+        validateRestoreStagingPaths(host, restoreChain);
         final List<Backup> stagedRestoreChain = getStagedRestoreChainForBackup(backup);
         final boolean incrementalRestore = StringUtils.equalsIgnoreCase(BACKUP_TYPE_INCREMENTAL, backup.getType());
         LOG.info("{} phase=[PROVIDER_ENTER], vmId=[{}], vmName=[{}], backupId=[{}], backupUuid=[{}], backupType=[{}], restoreHost=[{}], preparedSourcesAlreadyPrepared=[{}], incrementalRestore=[{}], restoreChain=[{}]",
@@ -1360,6 +1331,7 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
     @Override
     public Pair<Boolean, String> restoreBackedUpVolume(final Backup backup, final Backup.VolumeInfo backupVolumeInfo, final String hostIp,
             final String dataStoreUuid, final Pair<String, VirtualMachine.State> vmNameAndState, VirtualMachine targetVm, boolean quickRestore) {
+        thirdPartyBackupStagingService.requireEnabled();
         loadBackupDetailsIfNeeded(backup);
         validateRestoreChainIntegrity(backup);
 
@@ -1399,6 +1371,7 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
         final List<Backup> restoreChain = getRestoreChainForBackup(backup);
         final List<Backup> stagedRestoreChain = getStagedRestoreChainForBackup(backup);
         final List<Backup> restoreSourcesToPrepare = StringUtils.equalsIgnoreCase(BACKUP_TYPE_INCREMENTAL, backup.getType()) ? restoreChain : stagedRestoreChain;
+        validateRestoreStagingPaths(restoreHost, restoreChain);
         try {
             LOG.info("{} phase=[PROVIDER_ENTER], vmName=[{}], backupId=[{}], backupUuid=[{}], backupType=[{}], backupVolumeUuid=[{}], restoreHost=[{}], dataStoreUuid=[{}], restoreChain=[{}]",
                     RESTORE_TRACE, vmNameAndState.first(), backup.getId(), backup.getUuid(), backup.getType(), backupVolumeInfo.getUuid(),
@@ -1697,8 +1670,7 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
             NetBackupUrl,
             NetBackupApiKey,
             NetBackupApiRequestTimeout,
-            NetBackupRecoveryJobTimeout,
-            NetBackupStageRootPath
+            NetBackupRecoveryJobTimeout
         };
     }
 
@@ -1797,6 +1769,13 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
             return Collections.emptyList();
         }
         return new ArrayList<>(restoreChain.subList(0, restoreChain.size() - 1));
+    }
+
+    private void validateRestoreStagingPaths(final Host host, final List<Backup> restoreChain) {
+        getAvailableBytesOnHostPath(host, getBackupStageRootPath());
+        for (final Backup source : restoreChain) {
+            getAvailableBytesOnHostPath(host, source.getExternalId());
+        }
     }
 
     private void prepareRestoreSourcesOnStageHosts(final Long zoneId, final String destinationHostName, final List<Backup> restoreChain) {

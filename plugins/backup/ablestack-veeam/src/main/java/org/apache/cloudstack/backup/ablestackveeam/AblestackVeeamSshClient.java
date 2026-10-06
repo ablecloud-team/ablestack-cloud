@@ -29,6 +29,8 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import org.apache.cloudstack.backup.Backup;
+import org.apache.cloudstack.backup.ThirdPartyBackupManifest;
+import org.json.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -253,6 +255,79 @@ public class AblestackVeeamSshClient {
         }
         final String payload = StringUtils.trimToEmpty(response.second());
         return payload.contains("EXISTS");
+    }
+
+    public boolean volumeSourceReady(String templateName) {
+        JSONObject result = volumeResult(Arrays.asList(
+                "$ErrorActionPreference='Stop'",
+                "$jobs=@(Get-VBRComputerBackupJob -Name " + ps(templateName) + ")",
+                "if ($jobs.Count -ne 1) { throw 'Volume staging requires one existing Linux Agent template job' }",
+                "$busy=@(Get-VBRComputerBackupJobSession -Name " + ps(templateName) + " | Where-Object { [string]$_.State -ne 'Stopped' })",
+                "Write-Output ('ABLESTACK_JSON:' + (@{ready=($busy.Count -eq 0)} | ConvertTo-Json -Compress))"));
+        return result.getBoolean("ready");
+    }
+
+    /** One deterministic child job protects precisely one image (or the final metadata directory). */
+    public ThirdPartyBackupManifest.Artifact backupVolumeArtifact(String templateName, String sourceIp,
+            ThirdPartyBackupManifest.Artifact artifact, boolean metadata) {
+        String name = "ABLESTACK-" + artifact.backupUuid + "-" + (metadata ? "metadata" :
+                java.util.UUID.nameUUIDFromBytes(artifact.path.getBytes(StandardCharsets.UTF_8)).toString());
+        List<String> commands = new ArrayList<>();
+        commands.add("$ErrorActionPreference='Stop'");
+        commands.add("$name=" + ps(name));
+        if (StringUtils.isBlank(artifact.jobId)) {
+            commands.add("$job=Get-VBRComputerBackupJob -Name $name -ErrorAction SilentlyContinue");
+            commands.add("if (-not $job) {");
+            commands.add("  $template=Get-VBRComputerBackupJob -Name " + ps(templateName));
+            commands.add("  if (@($template).Count -ne 1) { throw 'Linux Agent template job is ambiguous or missing' }");
+            commands.add("  $computer=@(Get-VBRDiscoveredComputer | Where-Object { $_.IPAddress -contains " + ps(sourceIp) + " })");
+            commands.add("  if ($computer.Count -ne 1) { throw 'Source Host must resolve to one discovered Linux Agent computer' }");
+            commands.add("  Copy-VBRComputerBackupJob -Job $template -Name $name -Description " + ps("Mold logical backup " + artifact.backupUuid) + " | Out-Null");
+            commands.add("  $job=Get-VBRComputerBackupJob -Name $name");
+            commands.add("  $files=New-VBRSelectedFilesBackupOptions -OSPlatform Linux -BackupSelectedFiles -SelectedFiles @(" + ps(artifact.path) + ")");
+            commands.add("  $scripts=New-VBRJobScriptOptions");
+            commands.add("  Set-VBRComputerBackupJob -Job $job -BackupObject $computer -BackupType SelectedFiles -SelectedFilesOptions $files -ScriptOptions $scripts -EnableSchedule:$false | Out-Null");
+            commands.add("}");
+            commands.add("$sessions=@(Get-VBRComputerBackupJobSession -Name $name)");
+            commands.add("if ($sessions.Count -eq 0) { $sessions=@(Start-VBRComputerBackupJob -Job $job -FullBackup -RunAsync) }");
+            commands.add("if ($sessions.Count -ne 1) { throw 'Child job must have exactly one session; automatic resubmission is unsafe' }");
+            commands.add("$session=$sessions[0]");
+        } else {
+            commands.add("$session=Get-VBRComputerBackupJobSession -Id " + ps(artifact.jobId));
+            commands.add("if (-not $session) { throw 'Saved child session is missing' }");
+        }
+        commands.add("$out=@{jobId=[string]$session.Id;completed=$false}");
+        commands.add("if ([string]$session.State -eq 'Stopped') {");
+        commands.add("  if ([string]$session.Result -ne 'Success') { throw ('Child backup failed: '+[string]$session.Result) }");
+        commands.add("  $backup=Get-VBRBackup -Name $name");
+        commands.add("  $points=@(Get-VBRRestorePoint -Backup $backup)");
+        commands.add("  if ($points.Count -eq 1) { $out.completed=$true; $out.externalId=[string]$points[0].Id; $out.backupTime=$points[0].CreationTime.ToUniversalTime().ToString('o') }");
+        commands.add("  elseif ($points.Count -gt 1) { throw 'Child restore point is ambiguous' }");
+        commands.add("}");
+        commands.add("Write-Output ('ABLESTACK_JSON:' + ($out | ConvertTo-Json -Compress))");
+        JSONObject result = volumeResult(commands);
+        artifact.jobId = result.getString("jobId");
+        artifact.completed = result.getBoolean("completed");
+        artifact.externalId = result.optString("externalId", null);
+        artifact.backupTime = result.optString("backupTime", null);
+        return artifact;
+    }
+
+    private JSONObject volumeResult(List<String> commands) {
+        Pair<Boolean, String> response = executePowerShellCommands(commands);
+        if (response == null || !response.first()) {
+            throw new CloudRuntimeException("Veeam volume operation failed: " + (response == null ? "no response" : response.second()));
+        }
+        return Arrays.stream(response.second().split("\\r?\\n")).filter(line -> line.startsWith("ABLESTACK_JSON:"))
+                .map(line -> new JSONObject(line.substring("ABLESTACK_JSON:".length()))).findFirst()
+                .orElseThrow(() -> new CloudRuntimeException("Veeam volume operation did not return a job reference"));
+    }
+
+    private static String ps(String value) {
+        if (value == null || value.indexOf('\n') >= 0 || value.indexOf('\r') >= 0) {
+            throw new CloudRuntimeException("Invalid Veeam volume operation argument");
+        }
+        return "'" + value.replace("'", "''") + "'";
     }
 
     private Pair<Boolean, String> executePowerShellCommands(final List<String> cmds) {

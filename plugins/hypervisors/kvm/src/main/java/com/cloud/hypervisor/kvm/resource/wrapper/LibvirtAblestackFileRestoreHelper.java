@@ -48,17 +48,90 @@ final class LibvirtAblestackFileRestoreHelper {
     private LibvirtAblestackFileRestoreHelper() {
     }
 
+    /** Accumulate a single volume's full/diff chain on primary storage without changing the current volume. */
+    static boolean prepareFileVolume(final String trace, final Logger logger, final String originalTarget,
+            final String preparedTarget, final List<String> chain, final int timeout) {
+        Path overlay = null;
+        try {
+            if (chain == null || chain.isEmpty() || Files.exists(Path.of(preparedTarget))) {
+                throw new CloudRuntimeException("Invalid or occupied prepared volume destination: " + preparedTarget);
+            }
+            final QemuImg.PhysicalDiskFormat targetFormat = getFileVolumeFormat(logger, originalTarget);
+            final String base = chain.get(0);
+            convertFileVolumeWithQemuImg(trace, logger, base, preparedTarget, getBackupFileFormat(base), targetFormat, timeout);
+            for (int index = 1; index < chain.size(); index++) {
+                final String diff = chain.get(index);
+                if (!diff.endsWith(".qcow2") || !Files.isRegularFile(Path.of(diff))) {
+                    throw new CloudRuntimeException("Missing or unsupported QCOW2 restore diff: " + diff);
+                }
+                // Work on a private overlay on primary storage; never rewrite the catalogued source artifact.
+                overlay = Files.createTempFile(Path.of(preparedTarget).getParent(), "csrestore-overlay-", ".qcow2");
+                Files.copy(Path.of(diff), overlay, StandardCopyOption.REPLACE_EXISTING);
+                final String connect = String.format("qemu-img rebase -u -f qcow2 -F %s -b %s %s",
+                        targetFormat.toString().toLowerCase(Locale.ROOT), quote(preparedTarget), quote(overlay.toString()));
+                final Pair<Integer, String> connectResult = runCommandWithOutput(connect, timeout * 1000);
+                if (connectResult.first() != 0) {
+                    throw new IOException("Unable to connect QCOW2 restore diff: " + connectResult.second());
+                }
+                final Pair<Integer, String> commitResult = runCommandWithOutput(
+                        "qemu-img commit -f qcow2 " + quote(overlay.toString()), timeout * 1000);
+                if (commitResult.first() != 0) {
+                    throw new IOException("Unable to apply QCOW2 restore diff: " + commitResult.second());
+                }
+                Files.delete(overlay);
+                overlay = null;
+                logger.info("{} phase=[VOLUME_DIFF_APPLIED], target=[{}], source=[{}]", trace, preparedTarget, diff);
+            }
+            try (java.nio.channels.FileChannel channel = java.nio.channels.FileChannel.open(Path.of(preparedTarget), java.nio.file.StandardOpenOption.WRITE)) {
+                channel.force(true);
+            }
+            return true;
+        } catch (IOException | QemuImgException e) {
+            throw new CloudRuntimeException("Unable to prepare file restore volume " + preparedTarget, e);
+        } finally {
+            if (overlay != null) {
+                try {
+                    Files.deleteIfExists(overlay);
+                } catch (IOException e) {
+                    logger.warn("Unable to remove private restore overlay [{}]", overlay, e);
+                }
+            }
+        }
+    }
+
+    static boolean replaceFileVolumeChain(final String trace, final Logger logger, final String volumePath,
+            final List<String> backupPaths, final int timeout, final String temporaryFilePrefix) {
+        if (backupPaths == null || backupPaths.isEmpty()) {
+            return false;
+        }
+        if (backupPaths.size() == 1) {
+            return replaceFileVolumeWithBackup(trace, logger, volumePath, backupPaths.get(0), timeout, temporaryFilePrefix);
+        }
+        Path prepared = null;
+        Path original = null;
+        try {
+            prepared = createTemporaryVolumePath(volumePath, temporaryFilePrefix, getFileVolumeFormat(logger, volumePath));
+            Files.delete(prepared);
+            prepareFileVolume(trace, logger, volumePath, prepared.toString(), backupPaths, timeout);
+            original = moveExistingFileVolumeAside(trace, logger, volumePath);
+            Files.move(prepared, Path.of(volumePath));
+            deleteMovedAsideFileVolume(trace, logger, original);
+            return true;
+        } catch (IOException | CloudRuntimeException e) {
+            restoreMovedAsideFileVolume(trace, logger, volumePath, original);
+            logger.error("Failed to restore QCOW2 chain into [{}]", volumePath, e);
+            return false;
+        } finally {
+            deleteTemporaryVolume(trace, logger, prepared);
+        }
+    }
+
     static boolean replaceFileVolumeWithBackup(final String trace, final Logger logger, final String volumePath,
             final List<String> backupPaths, final int timeout, final String temporaryFilePrefix) {
         if (backupPaths == null || backupPaths.isEmpty()) {
             return false;
         }
-        final String leafBackupPath = getRestorableFileBackupPath(backupPaths);
-        if (backupPaths.size() > 1) {
-            logger.info("{} phase=[QCOW2_CHAIN_LEAF_SELECTED], target=[{}], leaf=[{}], chainFiles=[{}]",
-                    trace, volumePath, leafBackupPath, backupPaths);
-        }
-        return replaceFileVolumeWithBackup(trace, logger, volumePath, leafBackupPath, timeout, temporaryFilePrefix);
+        return replaceFileVolumeWithBackup(trace, logger, volumePath, getRestorableFileBackupPath(backupPaths), timeout, temporaryFilePrefix);
     }
 
     static boolean replaceFileVolumeWithBackup(final String trace, final Logger logger, final String volumePath,

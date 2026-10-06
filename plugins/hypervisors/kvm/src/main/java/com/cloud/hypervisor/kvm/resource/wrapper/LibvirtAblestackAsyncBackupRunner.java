@@ -20,6 +20,7 @@ package com.cloud.hypervisor.kvm.resource.wrapper;
 import com.cloud.agent.api.Answer;
 import com.cloud.agent.api.Command;
 import com.cloud.utils.Pair;
+import com.cloud.utils.exception.CloudRuntimeException;
 import com.google.gson.Gson;
 
 import org.apache.cloudstack.backup.AblestackBackupFrameworkUtils;
@@ -201,6 +202,8 @@ final class LibvirtAblestackAsyncBackupRunner {
         final BackupAnswer answer = new BackupAnswer(command, true, details);
         answer.setState(state);
         answer.setStep(properties != null ? properties.getProperty("step", state) : state);
+        answer.setVolumeIndex(parseNullableInteger(properties != null ? properties.getProperty("volumeIndex") : null));
+        answer.setVolumeCount(parseNullableInteger(properties != null ? properties.getProperty("volumeCount") : null));
         answer.setProgress(properties != null && Boolean.parseBoolean(properties.getProperty("progressUnavailable")) ? null : resolveProgress(state, properties));
         answer.setOperation(properties != null ? properties.getProperty("operation") : null);
         answer.setCapabilities(properties != null ? properties.getProperty("capabilities") : null);
@@ -214,6 +217,29 @@ final class LibvirtAblestackAsyncBackupRunner {
         }
         answer.setExitCode(readExitCode(jobId, logger));
         return answer;
+    }
+
+    static void recoverFailedRestoreTransaction(final String jobId,
+            final com.cloud.hypervisor.kvm.storage.KVMStoragePoolManager manager, final Logger logger) {
+        final String state = getJobState(jobId, logger);
+        final Properties properties = readJob(jobId, logger);
+        if (properties == null || !AblestackBackupFrameworkUtils.OPERATION_RESTORE.equals(properties.getProperty("operation"))
+                || !(STATE_FAILED.equals(state) || STATE_INTERRUPTED.equals(state))) {
+            return;
+        }
+        final String vmName = properties.getProperty("vmName");
+        String details = properties.getProperty("details", state);
+        try {
+            LibvirtAblestackRestoreTransaction.recoverForVm(logger, manager, vmName, 300);
+            if (details.contains(AblestackBackupFrameworkUtils.RESTORE_ROLLBACK_REQUIRED)) {
+                details = "Restore orchestration failed; volume transaction recovery is complete. Review the restore log for the committed or rolled-back outcome";
+                writeJobState(logger, jobId, properties.getProperty("provider"), vmName,
+                        properties.getProperty("backupPath"), "RESTORE", STATE_FAILED, details);
+            }
+        } catch (CloudRuntimeException e) {
+            writeJobState(logger, jobId, properties.getProperty("provider"), vmName,
+                    properties.getProperty("backupPath"), "RESTORE", STATE_FAILED, e.getMessage());
+        }
     }
 
     static void markRestoreJobRunning(final Logger logger, final String provider, final String jobId,
@@ -622,7 +648,7 @@ final class LibvirtAblestackAsyncBackupRunner {
         if (properties == null || !STATE_RUNNING.equals(state)) {
             return properties;
         }
-        if (refreshRbdProgress(jobId, properties, logger)) {
+        if (refreshVolumeProgress(jobId, properties, logger) || refreshRbdProgress(jobId, properties, logger)) {
             return properties;
         }
         final String vmName = properties.getProperty("vmName");
@@ -649,6 +675,32 @@ final class LibvirtAblestackAsyncBackupRunner {
         return properties;
     }
 
+    private static boolean refreshVolumeProgress(final String jobId, final Properties properties, final Logger logger) {
+        final Path path = getJobDirectory(jobId).resolve("volume-progress.properties");
+        if (!Files.isRegularFile(path)) {
+            return false;
+        }
+        try (InputStream input = Files.newInputStream(path)) {
+            final Properties progress = new Properties();
+            progress.load(input);
+            final String step = progress.getProperty("step", "PREPARING");
+            properties.setProperty("step", step);
+            properties.setProperty("volumeIndex", progress.getProperty("volumeIndex", "1"));
+            properties.setProperty("volumeCount", progress.getProperty("volumeCount", "1"));
+            properties.setProperty("progress", String.valueOf(Math.max(parseInteger(properties.getProperty("progress"), 0),
+                    Math.min(99, parseInteger(progress.getProperty("progress"), 0)))));
+            properties.remove("progressUnavailable");
+            properties.setProperty("volumePipeline", "true");
+            properties.setProperty("liveBandwidthActive", String.valueOf("QCOW2_BACKUP".equals(step)));
+            properties.setProperty("capabilities", resolveCapabilities(properties));
+            storeJobProperties(logger, jobId, properties);
+            return true;
+        } catch (IOException e) {
+            logger.debug("Unable to read volume progress for backup [{}]", jobId, e);
+            return false;
+        }
+    }
+
     private static boolean refreshRbdProgress(final String jobId, final Properties properties, final Logger logger) {
         final Path rbdProgressPath = getJobDirectory(jobId).resolve(RBD_PROGRESS_FILE);
         if (!Files.exists(rbdProgressPath)) {
@@ -665,6 +717,8 @@ final class LibvirtAblestackAsyncBackupRunner {
             final String step = rbdProgress.getProperty("step", "RBD_EXPORT");
             final int currentProgress = parseInteger(properties.getProperty("progress"), resolveProgress(STATE_RUNNING));
             properties.setProperty("step", step);
+            properties.setProperty("volumeIndex", String.valueOf(diskIndex));
+            properties.setProperty("volumeCount", String.valueOf(diskCount));
             if (totalBytes <= 0L) {
                 properties.setProperty("progressUnavailable", Boolean.TRUE.toString());
                 properties.setProperty("liveProgressUpdated", String.valueOf(System.currentTimeMillis()));

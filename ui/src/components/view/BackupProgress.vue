@@ -35,6 +35,10 @@
               <span>{{ $t('label.step') }} :</span>
               <span>{{ displayStep }}</span>
             </div>
+            <div v-if="volumeIndex && volumeCount" class="backup-progress-tooltip-row">
+              <span>Volume :</span>
+              <span>{{ volumeIndex }}/{{ volumeCount }}</span>
+            </div>
             <div v-if="bandwidthLimitMbps !== null" class="backup-progress-tooltip-row">
               <span>{{ $t('label.bandwidth') }} :</span>
               <span>{{ bandwidthLimitMbps === 0 ? $t('label.unlimited') : bandwidthLimitMbps + ' Mbps' }}</span>
@@ -108,6 +112,8 @@ export default {
       progress: this.normalizeProgress(this.record?.backupjobprogress ?? this.record?.progress),
       jobState: this.record?.restorejobstate || this.record?.backupjobstate || '',
       step: this.record?.restorejobstep || this.record?.backupjobstep || '',
+      volumeIndex: null,
+      volumeCount: null,
       logPath: this.record?.backupjoblogpath || this.record?.restorejoblogpath || '',
       bandwidthLimitMbps: this.normalizeBandwidth(this.record?.bandwidthlimitmbps),
       bandwidthStatus: this.record?.bandwidthstatus || '',
@@ -142,7 +148,8 @@ export default {
       return this.progress !== null
     },
     showProgress () {
-      return this.hasProgress && this.isActive && !this.isRestoring && String(this.step || '').toUpperCase() !== 'COMMVAULT_TRANSFER'
+      return this.hasProgress && this.isActive && !this.isRestoring &&
+        (this.volumeCount !== null || String(this.step || '').toUpperCase() !== 'COMMVAULT_TRANSFER')
     },
     isAwaitingBackupFinalization () {
       return String(this.localStatus || this.record?.status || '').toLowerCase() === 'backingup' &&
@@ -286,6 +293,8 @@ export default {
       }
       this.jobState = response.state || this.jobState
       this.step = response.step || this.step
+      this.volumeIndex = response.volumeindex || null
+      this.volumeCount = response.volumecount || null
       this.logPath = response.logpath || this.logPath
       if (Object.prototype.hasOwnProperty.call(response, 'progress')) {
         this.progress = this.normalizeProgress(response.progress)

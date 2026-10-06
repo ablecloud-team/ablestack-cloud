@@ -229,6 +229,9 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     @Inject
     private BackupSnapshotGuard backupSnapshotGuard;
 
+    @Inject
+    private ThirdPartyBackupStagingService thirdPartyBackupStagingService;
+
     private static final String BACKUP_ENGINE_DETAIL_SUFFIX = ".backup.engine";
 
     @Inject
@@ -405,6 +408,10 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         }
         // Persist / use the actually loaded plugin name (veeam vs ablestack-veeam).
         providerName = matchedProvider.getName();
+
+        if (ThirdPartyBackupStagingService.isStagingProvider(providerName)) {
+            thirdPartyBackupStagingService.requireEnabled();
+        }
 
         final BackupOffering existingOffering = backupOfferingDao.findByExternalId(cmd.getExternalId(), cmd.getZoneId());
         if (existingOffering != null) {
@@ -2438,8 +2445,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             }
         } catch (Exception e) {
             logger.error("Failed to start detached restore for backup [{}]: {}", backupDetailsInMessage, e.getMessage(), e);
-            updateVolumeState(vm, Volume.Event.RestoreFailed, Volume.State.Ready);
-            updateVmState(vm, VirtualMachine.Event.RestoringFailed, VirtualMachine.State.Stopped);
+            handleRestoreFailureStates(vm, backup, offering, e);
             throw e instanceof CloudRuntimeException ? (CloudRuntimeException) e
                     : new CloudRuntimeException(String.format("Error restoring Instance from Backup [%s].", backupDetailsInMessage));
         }
@@ -2805,12 +2811,11 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         // ensure that no provider-side exception is missed. Therefore, we have a proper handling of exceptions, and rollbacks if needed.
         } catch (Exception e) {
             logger.error(String.format("Failed to restore backup [%s] due to: [%s].", backupDetailsInMessage, e.getMessage()), e);
-            updateVolumeState(vm, Volume.Event.RestoreFailed, Volume.State.Ready);
-            updateVmState(vm, VirtualMachine.Event.RestoringFailed, VirtualMachine.State.Stopped);
+            handleRestoreFailureStates(vm, backup, offering, e);
             if (e instanceof BackupProviderException) {
                 throw e;
             }
-            throw new CloudRuntimeException(String.format("Error restoring Instance from Backup [%s].", backupDetailsInMessage));
+            throw new CloudRuntimeException(String.format("Error restoring Instance from Backup [%s]: %s", backupDetailsInMessage, e.getMessage()), e);
         }
     }
 
@@ -2840,11 +2845,28 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             logger.error(String.format(
                     "Failed to restore prepared NetBackup backup [%s] due to: [%s].",
                     backupDetailsInMessage, e.getMessage()), e);
-            updateVolumeState(vm, Volume.Event.RestoreFailed, Volume.State.Ready);
-            updateVmState(vm, VirtualMachine.Event.RestoringFailed, VirtualMachine.State.Stopped);
+            handleRestoreFailureStates(vm, backup, offering, e);
             throw new CloudRuntimeException(String.format(
-                    "Error restoring prepared NetBackup backup [%s].", backupDetailsInMessage));
+                    "Error restoring prepared NetBackup backup [%s]: %s", backupDetailsInMessage, e.getMessage()), e);
         }
+    }
+
+    private void handleRestoreFailureStates(final VMInstanceVO vm, final Backup backup,
+            final BackupOffering offering, final Exception failure) {
+        boolean awaitingHostFinalization = false;
+        if (Arrays.asList("ablestack-commvault", "ablestack-netbackup", "ablestack-veeam").contains(offering.getProvider())) {
+            final BackupVO tracked = backupDao.findById(backup.getId());
+            if (tracked != null) {
+                backupDao.loadDetails(tracked);
+                awaitingHostFinalization = StringUtils.isNotBlank(tracked.getDetail(AblestackBackupFrameworkUtils.RESTORE_JOB_ID_DETAIL));
+            }
+        }
+        if (awaitingHostFinalization || StringUtils.contains(failure.getMessage(), AblestackBackupFrameworkUtils.RESTORE_ROLLBACK_REQUIRED)) {
+            logger.warn("Keeping VM [{}] in Restoring while the host confirms volume commit or rollback", vm.getInstanceName());
+            return;
+        }
+        updateVolumeState(vm, Volume.Event.RestoreFailed, Volume.State.Ready);
+        updateVmState(vm, VirtualMachine.Event.RestoringFailed, VirtualMachine.State.Stopped);
     }
 
     private boolean invokePreparedNetBackupRestore(final BackupProvider backupProvider, final VMInstanceVO vm,
@@ -3047,10 +3069,10 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         return ipToNetworkMap;
     }
 
-    private void processRestoreBackupToVMFailure(VMInstanceVO vm, Backup backup, Long eventId, boolean restoreStateRequested) {
+    private void processRestoreBackupToVMFailure(VMInstanceVO vm, Backup backup, Long eventId, boolean restoreStateRequested,
+            BackupOffering offering, Exception failure) {
         if (restoreStateRequested) {
-            updateVolumeState(vm, Volume.Event.RestoreFailed, Volume.State.Ready);
-            updateVmState(vm, VirtualMachine.Event.RestoringFailed, VirtualMachine.State.Stopped);
+            handleRestoreFailureStates(vm, backup, offering, failure);
         }
         if (eventId != null) {
             ActionEventUtils.onCompletedActionEvent(User.UID_SYSTEM, vm.getAccountId(), EventVO.LEVEL_ERROR, EventTypes.EVENT_VM_CREATE_FROM_BACKUP,
@@ -3194,7 +3216,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                 netBackupRestoreCoordinator.persistRestoreFailure(backup, netBackupRestoreMarkerVm, netBackupRestoreRequestIdentifier, e.getMessage());
             }
             logger.error(String.format("Failed to create Instance [%s] from backup [%s] due to: [%s]", vm.getInstanceName(), backupDetailsInMessage, e.getMessage()), e);
-            processRestoreBackupToVMFailure(vm, backup, eventId, restoreStateRequested);
+            processRestoreBackupToVMFailure(vm, backup, eventId, restoreStateRequested, offering, e);
             throw new CloudRuntimeException(String.format("Error while creating Instance [%s] from backup [%s].", vm.getUuid(), backupDetailsInMessage));
         }
 
@@ -3205,7 +3227,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             }
             String error_msg = String.format("Failed to create Instance [%s] from backup [%s] due to: %s.", vm.getInstanceName(), backupDetailsInMessage, result.second());
             logger.error(error_msg);
-            processRestoreBackupToVMFailure(vm, backup, eventId, restoreStateRequested);
+            processRestoreBackupToVMFailure(vm, backup, eventId, restoreStateRequested, offering, new CloudRuntimeException(error_msg));
             throw new CloudRuntimeException(error_msg);
         }
 
@@ -3871,6 +3893,14 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                 BackupActiveJobSyncPollingInterval,
                 BackupDataOperationTimeout,
                 BackupQosBandwidthLimitMbps,
+                ThirdPartyStagingEnable,
+                ThirdPartyStagingStorageType,
+                ThirdPartyStagingRootPath,
+                ThirdPartyStagingMountPath,
+                ThirdPartyStagingNfsSource,
+                ThirdPartyStagingMountOptions,
+                ThirdPartyStagingMountTimeout,
+                ThirdPartyStagingCapacityBufferPercent,
                 BackupEnableAttachDetachVolumes,
                 KvmIncrementalBackup,
                 KvmBackupChainSize,
@@ -4417,6 +4447,12 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                 logger.info("Reconciled completed restore job [{}] for backup [{}], VM [{}].",
                         restoreJobId, backup.getUuid(), vm.getInstanceName());
             } else if (isTerminalRestoreFailureState(restoreState)) {
+                if (StringUtils.contains(restoreAnswer.getDetails(), AblestackBackupFrameworkUtils.RESTORE_ROLLBACK_REQUIRED)) {
+                    persistRestoreOperationPhase(backup.getId(), "RUNNING", "ROLLBACK_REQUIRED", null);
+                    persistBackupDetail(backup.getId(), AblestackBackupFrameworkUtils.RESTORE_JOB_FAILURE_REASON_DETAIL, restoreAnswer.getDetails());
+                    logger.warn("Keeping VM [{}] in Restoring until original-volume rollback succeeds: {}", vm.getInstanceName(), restoreAnswer.getDetails());
+                    return;
+                }
                 persistRestoreOperationPhase(backup.getId(), "FAILED", "FAILED", null);
                 if (!volumeAttach) {
                     failInterruptedRestoreStates(vm);
@@ -5150,6 +5186,8 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                     && StringUtils.equalsIgnoreCase("RUNNING", backupAnswer.getState())
                     && StringUtils.equalsIgnoreCase("RUNNING", step) ? "QCOW2_BACKUP" : step);
             response.setProgress(backupAnswer.getProgress());
+            response.setVolumeIndex(backupAnswer.getVolumeIndex());
+            response.setVolumeCount(backupAnswer.getVolumeCount());
             response.setEventsOffset(backupAnswer.getEventsOffset());
             response.setEvents(backupAnswer.getEventsJson());
             response.setLogPath(backupAnswer.getLogPath());
@@ -5670,6 +5708,8 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             response.setState(restoreAnswer.getState());
             response.setStep(StringUtils.defaultIfBlank(restoreAnswer.getStep(), restoreAnswer.getState()));
             response.setProgress(restoreAnswer.getProgress());
+            response.setVolumeIndex(restoreAnswer.getVolumeIndex());
+            response.setVolumeCount(restoreAnswer.getVolumeCount());
             response.setEventsOffset(restoreAnswer.getEventsOffset());
             response.setEvents(restoreAnswer.getEventsJson());
             response.setLogPath(restoreAnswer.getLogPath());

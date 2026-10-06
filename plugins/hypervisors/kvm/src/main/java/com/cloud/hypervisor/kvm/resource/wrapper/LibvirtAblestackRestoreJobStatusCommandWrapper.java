@@ -32,6 +32,7 @@ public class LibvirtAblestackRestoreJobStatusCommandWrapper
 
     @Override
     public Answer execute(final AblestackRestoreJobStatusCommand command, final LibvirtComputingResource resource) {
+        LibvirtAblestackAsyncBackupRunner.recoverFailedRestoreTransaction(command.getRestoreJobId(), resource.getStoragePoolMgr(), logger);
         BackupAnswer answer = LibvirtAblestackAsyncBackupRunner.getJobStatus(command, command.getRestoreJobId(),
                 command.getEventsOffset(), command.getEventsLimit(), logger);
         logger.debug("ABLESTACK restore job status command completed. restoreJobId=[{}], state=[{}], jobLog=[{}]",

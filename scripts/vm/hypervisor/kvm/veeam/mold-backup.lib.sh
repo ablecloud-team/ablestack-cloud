@@ -276,6 +276,7 @@ mold_backup_load_config() {
   else
     VEEAM_TRIGGER_METHOD="${VEEAM_TRIGGER_METHOD:-auto}"
   fi
+  mold_backup_load_common_staging || return 1
   return 0
 }
 
@@ -1464,6 +1465,25 @@ except Exception:
   echo "$val"
 }
 
+mold_backup_load_common_staging() {
+  [[ "${VEEAM_PROVIDER_NAME:-ablestack-veeam}" == "ablestack-veeam" ]] || return 0
+  local enabled root
+  enabled="$(mold_backup_api_list_config_value "backup.thirdparty.staging.enable")" || return 1
+  if [[ "$enabled" != "true" ]]; then
+    mold_backup_notify_log err "Configure common staging and enable backup.thirdparty.staging.enable in Mold first."
+    return 1
+  fi
+  root="$(mold_backup_api_list_config_value "backup.thirdparty.staging.root.path")" || return 1
+  if [[ "$root" != /* || "$root" == / ]]; then
+    mold_backup_notify_log err "backup.thirdparty.staging.root.path must specify an absolute staging directory."
+    return 1
+  fi
+  root="$(realpath -m -- "$root")" || return 1
+  VEEAM_HOST_BACKUP_PATH="${root%/}/ablestack-veeam"
+  STAGING_PATH="$VEEAM_HOST_BACKUP_PATH"
+  export VEEAM_HOST_BACKUP_PATH STAGING_PATH
+}
+
 mold_backup_api_external_stage_timeout() {
   local operation_timeout
   operation_timeout="$(mold_backup_api_data_operation_timeout)"
@@ -1567,7 +1587,6 @@ except Exception:
 
 mold_backup_api_ensure_global_settings() {
   local chain_size
-  local stage_root
   mold_backup_api_update_config_if_needed "backup.framework.enabled" "true"
   mold_backup_api_update_config_if_needed "backup.enable.attach.detach.of.volumes" "true"
   # Append ablestack-veeam; do not wipe existing providers (dummy,nas,netbackup,...).
@@ -1575,10 +1594,6 @@ mold_backup_api_ensure_global_settings() {
   [[ -n "${VEEAM_URL:-}" ]] && mold_backup_api_update_config_if_needed "backup.plugin.ablestack-veeam.url" "${VEEAM_URL}"
   [[ -n "${VEEAM_USERNAME:-}" ]] && mold_backup_api_update_config_if_needed "backup.plugin.ablestack-veeam.username" "${VEEAM_USERNAME}"
   [[ -n "${VEEAM_PASSWORD:-}" ]] && mold_backup_api_update_config_if_needed "backup.plugin.ablestack-veeam.password" "${VEEAM_PASSWORD}"
-  stage_root="${VEEAM_HOST_BACKUP_PATH:-${STAGING_PATH:-/tmp/mold/veeam}}"
-  if [[ -n "$stage_root" ]]; then
-    mold_backup_api_update_config_if_needed "backup.plugin.ablestack-veeam.stage.root.path" "$stage_root"
-  fi
   # Align Mold FULL↔incremental switch with host hook VEEAM_MAX_CHAIN when set.
   chain_size="${BACKUP_CHAIN_SIZE:-${VEEAM_MAX_CHAIN:-}}"
   if [[ -n "$chain_size" && "$chain_size" =~ ^[0-9]+$ && "$chain_size" -gt 0 ]]; then
@@ -2101,27 +2116,23 @@ mold_backup_api_find_offering_id() {
   local offering_name="${2:-$(mold_backup_offering_name)}"
   local json
   json=$(mold_backup_api_list_backup_offerings) || return 1
-  # Do NOT alias ablestack-veeam ↔ veeam: provider=veeam is the NAS-hybrid bean
-  # and fails seed import with "No valid backup repository found for the VM".
+  # Match the actual plugin name; stock and Ablestack providers are distinct.
   echo "$json" | python3 -c "
 import json, sys
 provider = (sys.argv[1] or '').lower()
 name = sys.argv[2] if len(sys.argv) > 2 else ''
-aliases = {provider}
-if provider == 'ablestack-nas':
-    aliases.update(['ablestack-nas', 'nas'])
 try:
     d = json.load(sys.stdin)
     offs = d.get('listbackupofferingsresponse', {}).get('backupoffering', [])
     if isinstance(offs, dict): offs = [offs]
     if name:
         for o in offs:
-            if o.get('name') == name and (o.get('provider') or '').lower() in aliases:
+            if o.get('name') == name and (o.get('provider') or '').lower() == provider:
                 print(o.get('id', ''))
                 sys.exit(0)
     for o in offs:
         p = (o.get('provider') or '').lower()
-        if p in aliases:
+        if p == provider:
             print(o.get('id', ''))
             break
 except Exception:
@@ -6082,7 +6093,11 @@ mold_backup_pre_notify() {
   export MOLD_BACKUP_HOOK="pre-notify"
   export VEEAM_SCHEDULE_NAME="$schedule"
   SCHEDULE="$schedule"
-  mkdir -p "$(mold_backup_state_dir)" "${VEEAM_HOST_BACKUP_PATH}" "${VEEAM_AGENT_PAYLOAD_PATH}"
+  # Mold prepares the actual staging mount before creating its backup directories.
+  mkdir -p "$(mold_backup_state_dir)" "${VEEAM_AGENT_PAYLOAD_PATH}"
+  if [[ "${VEEAM_PROVIDER_NAME:-ablestack-veeam}" != "ablestack-veeam" ]]; then
+    mkdir -p "${VEEAM_HOST_BACKUP_PATH}"
+  fi
 
   local offering_id="" vm_name
   local success=0 fail=0 skip=0

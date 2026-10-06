@@ -123,6 +123,11 @@ class LibvirtAblestackCommvaultBackupHelper {
     }
 
     String[] buildDetachedBackupScriptCommand(AblestackCommvaultTakeBackupCommand command) {
+        if (command.getVolumeStagingManifest() != null) {
+            return LibvirtAblestackVolumeBackupHelper.buildCommand(resource, command.getVolumeStagingManifest(), command.getBackupPath(),
+                    command.getVolumePools(), command.getVolumePaths(), command.getCheckpointName(), command.getParentCheckpointName(),
+                    command.getParentCheckpointXmlChain(), command.getQuiesce(), command.getWait(), command.getStagingBufferPercent());
+        }
         List<String> diskPaths = resolveDiskPaths(command.getVolumePools(), command.getVolumePaths());
         BackupExecutionMode executionMode = determineExecutionMode(command.getVmName(), command.getVolumePools());
         if (BackupExecutionMode.STOPPED.equals(executionMode)) {

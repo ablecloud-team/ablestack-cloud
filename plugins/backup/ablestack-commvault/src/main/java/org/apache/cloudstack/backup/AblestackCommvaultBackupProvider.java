@@ -155,8 +155,6 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
     private static final int BASE_FR = 44;
     private static final int BASE_MT = 20;
     private static final Pattern VERSION_PATTERN = Pattern.compile("^(\\d+)\\s*SP\\s*(\\d+)\\.(\\d+)$", Pattern.CASE_INSENSITIVE);
-    private static final long STAGE_SPACE_BUFFER_BYTES = 10L * 1024L * 1024L * 1024L;
-    private static final int INCREMENTAL_BACKUP_CAPACITY_ESTIMATE_PERCENT = 10;
     private static final long BACKING_UP_SYNC_GRACE_PERIOD_MS = 24L * 60L * 60L * 1000L;
 
     public ConfigKey<String> CommvaultUrl = new ConfigKey<>("Advanced", String.class,
@@ -179,12 +177,11 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
             "backup.plugin.commvault.request.timeout", "300",
             "Commvault Command Center API request timeout in seconds.", true, ConfigKey.Scope.Zone);
 
-    private ConfigKey<String> CommvaultStageRootPath = new ConfigKey<>("Advanced", String.class,
-            "backup.plugin.commvault.stage.root.path", "/tmp/mold/backup",
-            "Local KVM host directory used for ABLESTACK Commvault backup staging.", true, ConfigKey.Scope.Global);
-
     @Inject
     private BackupDao backupDao;
+
+    @Inject
+    private ThirdPartyBackupStagingService thirdPartyBackupStagingService;
 
     @Inject
     private BackupDetailsDao backupDetailsDao;
@@ -327,6 +324,7 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
 
     @Override
     public Pair<Boolean, Backup> takeBackup(VirtualMachine vm, Boolean quiesceVM, boolean isolated, Long backupScheduleId) {
+        thirdPartyBackupStagingService.requireEnabled();
         final Host vmHost = getVMHypervisorHostForBackup(vm);
         final HostVO vmHostVO = hostDao.findById(vmHost.getId());
         validateNoKvmFileBasedVmSnapshots(vm);
@@ -888,10 +886,7 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
     }
 
     private String getBackupStageRootPath() {
-        return Path.of(StringUtils.defaultIfBlank(CommvaultStageRootPath.value(), "/tmp/mold/backup"))
-                .toAbsolutePath()
-                .normalize()
-                .toString();
+        return thirdPartyBackupStagingService.getStageRootPath(getName());
     }
 
     private void validateVolumePoolTypes(List<PrimaryDataStoreTO> volumePools) {
@@ -1430,6 +1425,7 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
     }
 
     private Pair<Boolean, String> restoreVMBackup(VirtualMachine vm, Backup backup) {
+        thirdPartyBackupStagingService.requireEnabled();
         validateCommvaultRestoreSnapshotCompatibility(vm);
         validateRestoreChainIntegrity(backup);
         loadBackupDetailsIfNeeded(backup);
@@ -1596,6 +1592,7 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
     // 백업 볼륨 복원 및 연결
     @Override
     public Pair<Boolean, String> restoreBackedUpVolume(Backup backup, Backup.VolumeInfo backupVolumeInfo, String hostIp, String dataStoreUuid, Pair<String, VirtualMachine.State> vmNameAndState, VirtualMachine targetVm, boolean quickRestore) {
+        thirdPartyBackupStagingService.requireEnabled();
         validateRestoreChainIntegrity(backup);
         loadBackupDetailsIfNeeded(backup);
         try {
@@ -1842,10 +1839,13 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
             throw new CloudRuntimeException(String.format("Unable to find stage host [%s] for Commvault restore capacity check", clientName));
         }
         long requiredBytes = estimateRequiredStageBytesForRestore(backup, restoreSourcePaths);
-        long bufferBytes = Math.max(STAGE_SPACE_BUFFER_BYTES, requiredBytes / 5L);
-        long minimumAvailableBytes = requiredBytes + bufferBytes;
+        long bufferBytes = thirdPartyBackupStagingService.getCapacityBufferBytes(requiredBytes);
+        long minimumAvailableBytes = Math.addExact(requiredBytes, bufferBytes);
         String stageRootPath = getBackupStageRootPath();
         long availableBytes = getAvailableBytesOnHostPath(stageHost, stageRootPath);
+        for (String sourcePath : restoreSourcePaths) {
+            getAvailableBytesOnHostPath(stageHost, sourcePath);
+        }
         LOG.info("Checking Commvault restore stage capacity on host [{}]: required={} bytes, buffer={} bytes, minimumAvailable={} bytes, available={} bytes, sourcePaths={}",
                 stageHost.getName(), requiredBytes, bufferBytes, minimumAvailableBytes, availableBytes, restoreSourcePaths);
         if (availableBytes < minimumAvailableBytes) {
@@ -1856,9 +1856,9 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
     }
 
     private void validateBackupStageCapacity(HostVO stageHost, String stageRootPath, List<VolumeVO> vmVolumes, String vmName, String backupType, String backupEngine) {
-        long requiredBytes = estimateRequiredStageBytesForBackup(vmVolumes, backupType);
-        long bufferBytes = Math.max(STAGE_SPACE_BUFFER_BYTES, requiredBytes / 5L);
-        long minimumAvailableBytes = requiredBytes + bufferBytes;
+        long requiredBytes = estimateRequiredStageBytesForBackup(vmVolumes);
+        long bufferBytes = thirdPartyBackupStagingService.getCapacityBufferBytes(requiredBytes);
+        long minimumAvailableBytes = Math.addExact(requiredBytes, bufferBytes);
         long availableBytes = getAvailableBytesOnHostPath(stageHost, stageRootPath);
         LOG.info("{} phase=[STAGE_SPACE_CHECK], vm=[{}], host=[{}], backupType=[{}], backupEngine=[{}], stageRoot=[{}], requiredBytes=[{}], bufferBytes=[{}], minimumAvailableBytes=[{}], availableBytes=[{}]",
                 BACKUP_TRACE, vmName, stageHost != null ? stageHost.getName() : null, backupType, backupEngine, stageRootPath,
@@ -1875,14 +1875,6 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
             return 0L;
         }
         return estimateReadyVolumeBytes(vmVolumes);
-    }
-
-    private long estimateRequiredStageBytesForBackup(List<VolumeVO> vmVolumes, String backupType) {
-        long readyVolumeBytes = estimateRequiredStageBytesForBackup(vmVolumes);
-        if (BACKUP_TYPE_INCREMENTAL.equalsIgnoreCase(backupType)) {
-            return Math.max(1L, readyVolumeBytes * INCREMENTAL_BACKUP_CAPACITY_ESTIMATE_PERCENT / 100L);
-        }
-        return readyVolumeBytes;
     }
 
     private long estimateReadyVolumeBytes(List<VolumeVO> vmVolumes) {
@@ -1917,26 +1909,7 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
     }
 
     private long getAvailableBytesOnHostPath(HostVO host, String path) {
-        if (host == null || StringUtils.isBlank(path)) {
-            throw new CloudRuntimeException("Host and path are required to query available Commvault stage space");
-        }
-        try {
-            final Answer answer = agentManager.send(host.getId(), new AblestackCommvaultGetAvailableBytesCommand(path));
-            if (answer == null || !answer.getResult()) {
-                throw new CloudRuntimeException(String.format("Failed to query available stage space on host %s due to: %s",
-                        host.getName(), answer != null ? answer.getDetails() : "no answer received"));
-            }
-            String output = StringUtils.trimToEmpty(answer.getDetails());
-            return Long.parseLong(output);
-        } catch (NumberFormatException e) {
-            throw new CloudRuntimeException(String.format("Failed to parse available stage space on host %s for path %s", host.getName(), path), e);
-        } catch (AgentUnavailableException e) {
-            throw new CloudRuntimeException(String.format("Unable to contact host %s to query available stage space", host.getName()), e);
-        } catch (OperationTimedoutException e) {
-            throw new CloudRuntimeException(String.format("Timed out querying available stage space on host %s", host.getName()), e);
-        } catch (Exception e) {
-            throw new CloudRuntimeException(String.format("Failed to query available stage space on host %s due to: %s", host.getName(), e.getMessage()), e);
-        }
+        return thirdPartyBackupStagingService.getAvailableBytes(host, path);
     }
 
     private String readFileContentsOnHost(HostVO host, String path) {
@@ -2210,8 +2183,7 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
                 CommvaultUsername,
                 CommvaultPassword,
                 CommvaultValidateSSLSecurity,
-                CommvaultApiRequestTimeout,
-                CommvaultStageRootPath
+                CommvaultApiRequestTimeout
         };
     }
 

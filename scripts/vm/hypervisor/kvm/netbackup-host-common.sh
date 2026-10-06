@@ -26,7 +26,7 @@ CONFIG_ROOT_DEFAULT="/etc/ablestack/netbackup"
 SECRET_HELPER_DEFAULT="/usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/netbackup-host-secret-helper.sh"
 SECRET_SUBDIR_DEFAULT="secrets"
 BACKUP_STAGING_ROOT_DEFAULT="/tmp/mold/netbackup"
-NETBACKUP_STAGE_ROOT_CONFIG_NAME="backup.plugin.netbackup.stage.root.path"
+NETBACKUP_STAGE_ROOT_CONFIG_NAME="backup.thirdparty.staging.root.path"
 BACKUP_DATA_OPERATION_TIMEOUT_CONFIG_NAME="backup.data.operation.timeout"
 
 CONFIG_ROOT="${CONFIG_ROOT:-$CONFIG_ROOT_DEFAULT}"
@@ -505,6 +505,11 @@ load_backup_staging_root_from_mold() {
   local response
   local configured_root
 
+  response="$(invoke_mold_api "${MOLD_LIST_VMS_API_METHOD}" "${MOLD_LIST_VMS_API_URL}" \
+    "listConfigurations" "name" "backup.thirdparty.staging.enable")" || fail "Failed to query common staging activation."
+  [[ "$(extract_json_value_by_key "${response}" "value" || true)" == "true" ]] || \
+    fail "Enable backup.thirdparty.staging.enable in Mold after preparing the common staging storage."
+
   response="$(invoke_mold_api \
     "${MOLD_LIST_VMS_API_METHOD}" \
     "${MOLD_LIST_VMS_API_URL}" \
@@ -513,16 +518,12 @@ load_backup_staging_root_from_mold() {
     fail "Failed to query Mold global configuration ${NETBACKUP_STAGE_ROOT_CONFIG_NAME}"
 
   configured_root="$(extract_json_value_by_key "${response}" "value" || true)"
-  if [[ -z "${configured_root}" ]]; then
-    log -ne "Mold global configuration ${NETBACKUP_STAGE_ROOT_CONFIG_NAME} is blank; using default ${BACKUP_STAGING_ROOT_DEFAULT}"
-    BACKUP_STAGING_ROOT="${BACKUP_STAGING_ROOT_DEFAULT}"
-    return 0
-  fi
-  if [[ "${configured_root}" != /* ]]; then
+  if [[ "${configured_root}" != /* || "${configured_root}" == / ]]; then
     fail "Invalid ${NETBACKUP_STAGE_ROOT_CONFIG_NAME}=${configured_root}. It must be an absolute path."
   fi
 
-  BACKUP_STAGING_ROOT="${configured_root}"
+  configured_root="$(realpath -m -- "${configured_root}")" || fail "Unable to resolve the common staging root."
+  BACKUP_STAGING_ROOT="${configured_root%/}/ablestack-netbackup"
   log -ne "Loaded ${NETBACKUP_STAGE_ROOT_CONFIG_NAME}=${BACKUP_STAGING_ROOT}"
 }
 

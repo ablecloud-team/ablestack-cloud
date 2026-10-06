@@ -39,7 +39,8 @@ HOOK_OUTPUT_DIR = Path(os.environ.get("HOOK_OUTPUT_DIR", "/usr/openv/netbackup/b
 CONFIG_OUTPUT_DIR = Path(os.environ.get("CONFIG_OUTPUT_DIR", "/etc/ablestack/netbackup"))
 SECRET_OUTPUT_DIR = Path(os.environ.get("SECRET_OUTPUT_DIR", "/etc/ablestack/netbackup/secrets"))
 BACKUP_STAGING_ROOT = Path(os.environ.get("BACKUP_STAGING_ROOT", "/tmp/mold/netbackup"))
-NETBACKUP_STAGE_ROOT_CONFIG_NAME = "backup.plugin.netbackup.stage.root.path"
+NETBACKUP_STAGE_ROOT_CONFIG_NAME = "backup.thirdparty.staging.root.path"
+STAGING_MOUNT_PATH = None
 WATCHER_OUTPUT_PATH = Path(os.environ.get("WATCHER_OUTPUT_PATH", "/usr/local/sbin/netbackup-host-restore-watcher"))
 RESTORE_NOTIFY_OUTPUT_PATH = Path(os.environ.get("RESTORE_NOTIFY_OUTPUT_PATH", "/usr/local/sbin/netbackup-host-restore-notify"))
 WATCHER_SERVICE_PATH = Path(os.environ.get("WATCHER_SERVICE_PATH", "/etc/systemd/system/netbackup-host-restore-watcher.service"))
@@ -306,14 +307,6 @@ def ensure_backup_framework_configuration(zone_id: str, cluster_id: str, args: a
             update_configuration_value("kvm.backup.chain.size", desired_chain_size, args.mold_url, args.admin_apikey, args.admin_secretkey)
             print(f"Updated global configuration: kvm.backup.chain.size={desired_chain_size}")
 
-    desired_stage_root = str(BACKUP_STAGING_ROOT)
-    log_info(f"Checking global configuration: {NETBACKUP_STAGE_ROOT_CONFIG_NAME}")
-    current = get_configuration_value(NETBACKUP_STAGE_ROOT_CONFIG_NAME, args.mold_url, args.admin_apikey, args.admin_secretkey)
-    if current != desired_stage_root:
-        log_info(f"Updating global configuration: {NETBACKUP_STAGE_ROOT_CONFIG_NAME}={desired_stage_root}")
-        update_configuration_value(NETBACKUP_STAGE_ROOT_CONFIG_NAME, desired_stage_root, args.mold_url, args.admin_apikey, args.admin_secretkey)
-        print(f"Updated global configuration: {NETBACKUP_STAGE_ROOT_CONFIG_NAME}={desired_stage_root}")
-
     log_info("Checking zone configuration: backup.framework.provider.plugin")
     current = get_configuration_value("backup.framework.provider.plugin", args.mold_url, args.admin_apikey, args.admin_secretkey, zone_id)
     updated = append_provider_if_missing(current, NETBACKUP_PROVIDER_NAME)
@@ -337,6 +330,22 @@ def ensure_backup_framework_configuration(zone_id: str, cluster_id: str, args: a
         print(f"Updated zone configuration: backup.plugin.netbackup.apikey=<hidden> (zoneid={zone_id})")
 
     return restart_required
+
+
+def load_common_staging(args: argparse.Namespace) -> None:
+    global BACKUP_STAGING_ROOT, STAGING_MOUNT_PATH
+    enabled = get_configuration_value("backup.thirdparty.staging.enable", args.mold_url, args.admin_apikey, args.admin_secretkey)
+    if enabled.lower() != "true":
+        fail("Configure common staging and enable backup.thirdparty.staging.enable in Mold, then run this script again.")
+    root = get_configuration_value(NETBACKUP_STAGE_ROOT_CONFIG_NAME, args.mold_url, args.admin_apikey, args.admin_secretkey)
+    mount = get_configuration_value("backup.thirdparty.staging.mount.path", args.mold_url, args.admin_apikey, args.admin_secretkey)
+    if not root or not mount or not Path(root).is_absolute() or not Path(mount).is_absolute() or mount == "/":
+        fail("Common staging root.path and mount.path must specify absolute paths on a separate mounted filesystem.")
+    STAGING_MOUNT_PATH = Path(mount).resolve(strict=False)
+    BACKUP_STAGING_ROOT = Path(root).resolve(strict=False) / NETBACKUP_PROVIDER_NAME
+    if STAGING_MOUNT_PATH not in BACKUP_STAGING_ROOT.parents:
+        fail("Common staging root.path must be inside mount.path.")
+    log_info(f"Using common staging: {BACKUP_STAGING_ROOT}")
 
 
 def ensure_netbackup_offering(zone_id: str, args: argparse.Namespace) -> None:
@@ -683,6 +692,10 @@ def apply_netbackup_bp_conf() -> bool:
 
 
 def ensure_backup_staging_root() -> None:
+    mounted = subprocess.run(["findmnt", "-rn", "--mountpoint", str(STAGING_MOUNT_PATH)],
+                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=30)
+    if mounted.returncode != 0:
+        fail("The common staging filesystem is not mounted on this host. Revalidate staging activation in Mold first.")
     BACKUP_STAGING_ROOT.mkdir(parents=True, exist_ok=True)
     try:
         BACKUP_STAGING_ROOT.chmod(0o755)
@@ -791,7 +804,7 @@ def generate_host_outputs(zone_id: str, args: argparse.Namespace) -> None:
     print(f"  Service    : {WATCHER_SERVICE_PATH}")
     print(f"  Logrotate  : {LOGROTATE_CONFIG_PATH}")
     print(f"  Staging dir: {BACKUP_STAGING_ROOT}")
-    print(f"  Mold config: {NETBACKUP_STAGE_ROOT_CONFIG_NAME}={BACKUP_STAGING_ROOT}")
+    print(f"  Mold config: {NETBACKUP_STAGE_ROOT_CONFIG_NAME} (provider directory: {NETBACKUP_PROVIDER_NAME})")
     print(f"  Zone ID    : {zone_id}")
 
 
@@ -803,7 +816,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--backup-chain-size", type=int,
                         help="Update global kvm.backup.chain.size.")
     parser.add_argument("--backup-staging-root", default=str(BACKUP_STAGING_ROOT),
-                        help="Local NetBackup staging directory used by host hooks and Mold backup.plugin.netbackup.stage.root.path.")
+                        help="Legacy bootstrap option. Jobs use Mold backup.thirdparty.staging.root.path/ablestack-netbackup.")
     parser.add_argument("--mold-url", required=True)
     parser.add_argument("--admin-apikey", required=True)
     parser.add_argument("--admin-secretkey", required=True)
@@ -844,6 +857,7 @@ def main() -> None:
     restart_required = ensure_backup_framework_configuration(zone_id, cluster_id, args)
     if restart_required:
         fail("Updated non-dynamic backup configuration. Restart the Mold management server, then run this script again to import the NetBackup offering.")
+    load_common_staging(args)
     ensure_netbackup_offering(zone_id, args)
     log_ok("Completed Mold API configuration for NetBackup host")
     generate_host_outputs(zone_id, args)

@@ -28,6 +28,13 @@ import java.util.Map;
 
 public class AblestackCommvaultTakeBackupCommand extends Command {
     private String vmName;
+    private String volumeStagingManifest;
+    private Integer stagingBufferPercent;
+
+    public String getVolumeStagingManifest() { return volumeStagingManifest; }
+    public void setVolumeStagingManifest(String value) { volumeStagingManifest = value; }
+    public Integer getStagingBufferPercent() { return stagingBufferPercent; }
+    public void setStagingBufferPercent(Integer value) { stagingBufferPercent = value; }
     private String backupJobId;
     private String backupPath;
     private List<PrimaryDataStoreTO> volumePools;

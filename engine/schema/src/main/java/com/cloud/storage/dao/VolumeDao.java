@@ -44,6 +44,9 @@ public interface VolumeDao extends GenericDao<VolumeVO, Long>, StateDao<Volume.S
 
     List<VolumeVO> findByInstance(long id);
 
+    /** Largest provisioned individual volume attached to an existing user VM, across all zones. */
+    long findLargestUserVmVolumeSize();
+
     List<VolumeVO> findByInstanceAndType(long id, Volume.Type vType);
 
     List<VolumeVO> findByInstanceAndNotStates(long id, Volume.State...states);

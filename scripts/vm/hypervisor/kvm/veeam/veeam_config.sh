@@ -106,8 +106,8 @@ Other optional:
   --max-chain N           Max incremental chain (default: 10; also sets Mold kvm.backup.chain.size)
   --backup-chain-size N   Alias of --max-chain (Mold Global kvm.backup.chain.size)
   --retention PERIOD      Backup offering retention (default: P7D)
-  --backup-mode MODE      host|api|local|auto (default: host = NetBackup-style /tmp/mold/veeam)
-  --host-backup-path PATH KVM stage root (default: /tmp/mold/veeam); also sets Mold backup.plugin.ablestack-veeam.stage.root.path
+  --backup-mode MODE      host|api|local|auto (default: host = Mold-managed common staging)
+  --host-backup-path PATH Legacy bootstrap path; jobs use Mold backup.thirdparty.staging.root.path/ablestack-veeam
   --stage-root-path PATH  Alias of --host-backup-path
   --backup-target MODE    host only (guest mode removed)
   --veeam-url URL         Mold zone setting backup.plugin.ablestack-veeam.url

@@ -70,12 +70,12 @@ public class ListBackupProvidersCmd extends BaseCmd {
         final ListResponse<BackupProviderResponse> response = new ListResponse<>();
         final List<BackupProviderResponse> responses = new ArrayList<>();
         for (final BackupProvider provider : providers) {
-            final String displayName = provider == null ? null : provider.getName();
-            if (provider == null || (getName() != null && !displayName.equalsIgnoreCase(getName()))) {
+            final String providerName = provider == null ? null : provider.getName();
+            if (provider == null || (getName() != null && !providerName.equalsIgnoreCase(getName()))) {
                 continue;
             }
             final BackupProviderResponse backupProviderResponse = new BackupProviderResponse();
-            backupProviderResponse.setName(displayName);
+            backupProviderResponse.setName(providerName);
             backupProviderResponse.setDescription(provider.getDescription());
             backupProviderResponse.setObjectName("providers");
             responses.add(backupProviderResponse);

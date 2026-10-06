@@ -396,6 +396,28 @@ public class BackupManagerTest {
     }
 
     @Test
+    public void testThirdPartyStagingConfigKeysAreRegistered() {
+        List<String> registeredKeys = new ArrayList<>();
+        for (ConfigKey<?> configKey : backupManager.getConfigKeys()) {
+            registeredKeys.add(configKey.key());
+        }
+
+        String[] stagingKeys = {
+                "backup.thirdparty.staging.enable",
+                "backup.thirdparty.staging.storage.type",
+                "backup.thirdparty.staging.root.path",
+                "backup.thirdparty.staging.mount.path",
+                "backup.thirdparty.staging.nfs.source",
+                "backup.thirdparty.staging.mount.options",
+                "backup.thirdparty.staging.mount.timeout",
+                "backup.thirdparty.staging.capacity.buffer.percent"
+        };
+        for (String stagingKey : stagingKeys) {
+            assertTrue("Missing registered configuration key: " + stagingKey, registeredKeys.contains(stagingKey));
+        }
+    }
+
+    @Test
     public void testExceptionWhenUpdateWithNullId() {
         try {
             Long id = null;
@@ -1236,6 +1258,113 @@ public class BackupManagerTest {
         assertEquals("root-disk-offering-uuid", VmDiskInfo.getDiskOffering().getUuid());
         assertEquals(Long.valueOf(5), VmDiskInfo.getSize());
         assertNull(VmDiskInfo.getDeviceId());
+    }
+
+    private BackupProvider nasProvider(final String name) {
+        BackupProvider provider = mock(BackupProvider.class);
+        when(provider.getName()).thenReturn(name);
+        return provider;
+    }
+
+    @Test
+    public void testListBackupProvidersKeepsBothNasPlugins() {
+        BackupProvider nas = nasProvider("nas");
+        BackupProvider ablestackNas = nasProvider("ablestack-nas");
+        backupManager.setBackupProviders(List.of(nas, ablestackNas, nas));
+
+        assertEquals(List.of(nas, ablestackNas), backupManager.listBackupProviders());
+    }
+
+    @Test
+    public void testZoneProviderListKeepsBothNasPlugins() {
+        overrideBackupFrameworkConfigValue();
+        ConfigDepotImpl depot = (ConfigDepotImpl) ReflectionTestUtils.getField(BackupManager.BackupProviderPlugin, "s_depot");
+        when(depot.getConfigStringValue(BackupManager.BackupProviderPlugin.key(), ConfigKey.Scope.Zone, 1L))
+                .thenReturn("nas, ablestack-nas, nas");
+        BackupProvider nas = nasProvider("nas");
+        BackupProvider ablestackNas = nasProvider("ablestack-nas");
+        ReflectionTestUtils.setField(backupManager, "backupProvidersMap", Map.of("nas", nas, "ablestack-nas", ablestackNas));
+
+        assertEquals(List.of(nas, ablestackNas), backupManager.getBackupProvidersForZone(1L));
+    }
+
+    @Test
+    public void testNasProviderLookupDoesNotFallBackToOtherPlugin() {
+        for (String registered : List.of("nas", "ablestack-nas")) {
+            BackupProvider provider = nasProvider(registered);
+            ReflectionTestUtils.setField(backupManager, "backupProvidersMap", Map.of(registered, provider));
+            assertEquals(provider, backupManager.getBackupProvider(registered));
+            String missing = "nas".equals(registered) ? "ablestack-nas" : "nas";
+            try {
+                backupManager.getBackupProvider(missing);
+                fail("A different NAS plugin must not be used as a fallback");
+            } catch (CloudRuntimeException e) {
+                assertTrue(e.getMessage().contains(missing));
+            }
+        }
+    }
+
+    @Test
+    public void testExternalNasOfferingsOnlyUseRequestedPlugin() {
+        doNothing().when(backupManager).validateBackupForZone(1L);
+        Account caller = CallContext.current().getCallingAccount();
+        when(accountServiceMock.isRootAdmin(caller.getId())).thenReturn(true);
+        BackupProvider nas = nasProvider("nas");
+        BackupProvider ablestackNas = nasProvider("ablestack-nas");
+        BackupOffering nasOffering = mock(BackupOffering.class);
+        BackupOffering ablestackOffering = mock(BackupOffering.class);
+        doReturn(List.of(nas, ablestackNas)).when(backupManager).getBackupProvidersForZone(1L);
+        when(nas.listBackupOfferings(1L)).thenReturn(List.of(nasOffering));
+        when(ablestackNas.listBackupOfferings(1L)).thenReturn(List.of(ablestackOffering));
+
+        assertEquals(List.of(nasOffering), backupManager.listBackupProviderOfferings(1L, "nas"));
+        assertEquals(List.of(ablestackOffering), backupManager.listBackupProviderOfferings(1L, "ablestack-nas"));
+        verify(nas, times(1)).listBackupOfferings(1L);
+        verify(ablestackNas, times(1)).listBackupOfferings(1L);
+    }
+
+    @Test
+    public void testImportNasOfferingRejectsOtherEnabledPlugin() {
+        doNothing().when(backupManager).validateBackupForZone(1L);
+        for (String enabled : List.of("nas", "ablestack-nas")) {
+            BackupProvider provider = nasProvider(enabled);
+            doReturn(List.of(provider)).when(backupManager).getBackupProvidersForZone(1L);
+            ImportBackupOfferingCmd cmd = mock(ImportBackupOfferingCmd.class);
+            when(cmd.getZoneId()).thenReturn(1L);
+            when(cmd.getProvider()).thenReturn("nas".equals(enabled) ? "ablestack-nas" : "nas");
+            try {
+                backupManager.importBackupOffering(cmd);
+                fail("An offering must use the requested plugin");
+            } catch (CloudRuntimeException e) {
+                assertTrue(e.getMessage().contains("is not enabled for zone"));
+            }
+        }
+        verify(backupOfferingDao, never()).persist(any(BackupOfferingVO.class));
+    }
+
+    @Test
+    public void testImportNasOfferingPersistsActualPluginName() {
+        doNothing().when(backupManager).validateBackupForZone(1L);
+        BackupProvider nas = nasProvider("nas");
+        BackupProvider ablestackNas = nasProvider("ablestack-nas");
+        doReturn(List.of(nas, ablestackNas)).when(backupManager).getBackupProvidersForZone(1L);
+        when(backupOfferingDao.persist(any(BackupOfferingVO.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        for (BackupProvider provider : List.of(nas, ablestackNas)) {
+            String providerName = provider.getName();
+            ImportBackupOfferingCmd cmd = mock(ImportBackupOfferingCmd.class);
+            when(cmd.getZoneId()).thenReturn(1L);
+            when(cmd.getProvider()).thenReturn(providerName);
+            when(cmd.getExternalId()).thenReturn("external-" + providerName);
+            when(cmd.getName()).thenReturn("offering-" + providerName);
+            when(provider.isValidProviderOffering(1L, cmd.getExternalId())).thenReturn(true);
+            when(provider.checkBackupAgent(1L)).thenReturn(true);
+            when(provider.importBackupPlan(1L, null, cmd.getExternalId())).thenReturn(true);
+
+            BackupOffering offering = backupManager.importBackupOffering(cmd);
+
+            assertEquals(provider.getName(), offering.getProvider());
+            verify(provider).isValidProviderOffering(1L, cmd.getExternalId());
+        }
     }
 
     @Test

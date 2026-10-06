@@ -134,6 +134,27 @@ public class VolumeDaoImpl extends GenericDaoBase<VolumeVO, Long> implements Vol
     }
 
     @Override
+    public long findLargestUserVmVolumeSize() {
+        String sql = "SELECT COALESCE(MAX(v.size), 0) FROM volumes v "
+                + "INNER JOIN vm_instance vm ON v.instance_id = vm.id "
+                + "WHERE v.removed IS NULL AND vm.removed IS NULL AND vm.type = ? "
+                + "AND v.state NOT IN (?, ?)";
+        try (PreparedStatement statement = TransactionLegacy.currentTxn().prepareAutoCloseStatement(sql)) {
+            statement.setString(1, com.cloud.vm.VirtualMachine.Type.User.toString());
+            statement.setString(2, Volume.State.Destroy.toString());
+            statement.setString(3, Volume.State.Expunged.toString());
+            try (ResultSet result = statement.executeQuery()) {
+                if (!result.next()) {
+                    throw new CloudRuntimeException("Unable to determine the largest VM volume for staging capacity.");
+                }
+                return result.getLong(1);
+            }
+        } catch (SQLException e) {
+            throw new CloudRuntimeException("Unable to determine the largest VM volume for staging capacity.", e);
+        }
+    }
+
+    @Override
     public List<VolumeVO> findByInstanceAndDeviceId(long instanceId, long deviceId) {
         SearchCriteria<VolumeVO> sc = AllFieldsSearch.create();
         sc.setParameters("instanceId", instanceId);

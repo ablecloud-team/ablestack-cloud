@@ -60,6 +60,7 @@ import org.apache.cloudstack.agent.lb.IndirectAgentLB;
 import org.apache.cloudstack.agent.lb.IndirectAgentLBServiceImpl;
 import org.apache.cloudstack.annotation.AnnotationService;
 import org.apache.cloudstack.annotation.dao.AnnotationDao;
+import org.apache.cloudstack.backup.ThirdPartyBackupStagingService;
 import org.apache.cloudstack.api.ApiCommandResourceType;
 import org.apache.cloudstack.api.ApiConstants;
 import org.apache.cloudstack.api.command.admin.config.ResetCfgCmd;
@@ -357,6 +358,8 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
     ConfigurationSubGroupDao _configSubGroupDao;
     @Inject
     ConfigDepot _configDepot;
+    @Inject
+    private ThirdPartyBackupStagingService thirdPartyBackupStagingService;
     @Inject
     HostPodDao _podDao;
     @Inject
@@ -785,6 +788,19 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
     @Override
     @DB
     public String updateConfiguration(final long userId, final String name, final String category, String value, ConfigKey.Scope scope, final Long resourceId) {
+        if (name.startsWith(ThirdPartyBackupStagingService.CONFIG_PREFIX)) {
+            if (scope != null && scope != ConfigKey.Scope.Global) {
+                throw new InvalidParameterValueException("Third-party staging settings support Global scope only.");
+            }
+            final String stagingValue = StringUtils.trimToEmpty(value);
+            return thirdPartyBackupStagingService.updateConfiguration(name, stagingValue,
+                    () -> updateConfigurationInternal(userId, name, category, stagingValue, scope, resourceId));
+        }
+        return updateConfigurationInternal(userId, name, category, value, scope, resourceId);
+    }
+
+    protected String updateConfigurationInternal(final long userId, final String name, final String category,
+            String value, ConfigKey.Scope scope, final Long resourceId) {
         if (Boolean.class == getConfigurationTypeWrapperClass(name)) {
             value = value.toLowerCase();
         }
@@ -1218,6 +1234,18 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_CONFIGURATION_VALUE_EDIT, eventDescription = "resetting configuration")
     public Pair<Configuration, String> resetConfiguration(final ResetCfgCmd cmd) throws InvalidParameterValueException {
+        if (cmd.getCfgName().startsWith(ThirdPartyBackupStagingService.CONFIG_PREFIX)) {
+            ConfigKey<?> key = _configDepot.get(cmd.getCfgName());
+            if (key == null) {
+                throw new InvalidParameterValueException("Unknown staging configuration: " + cmd.getCfgName());
+            }
+            return thirdPartyBackupStagingService.updateConfiguration(cmd.getCfgName(), key.defaultValue(),
+                    () -> resetConfigurationInternal(cmd));
+        }
+        return resetConfigurationInternal(cmd);
+    }
+
+    protected Pair<Configuration, String> resetConfigurationInternal(final ResetCfgCmd cmd) {
         final Long userId = CallContext.current().getCallingUserId();
         final String name = cmd.getCfgName();
         final Long zoneId = cmd.getZoneId();

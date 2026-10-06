@@ -58,17 +58,15 @@ final class LibvirtAblestackRbdRestoreHelper {
         validateRbdStorageSpace(tracePrefix, storagePool, backupPaths, timeoutSeconds);
 
         final String temporaryVolumePath = buildTemporaryRbdImageName(volumePath);
-        boolean temporaryImageCreated = false;
         try {
             if (!restoreRbdBackupToImage(tracePrefix, storagePool, temporaryVolumePath, backupPaths, timeoutSeconds, true)) {
                 LOGGER.error("{} phase=[RBD_TEMP_RESTORE_FAILED], targetVolume=[{}], temporaryVolume=[{}]",
                         tracePrefix, volumePath, temporaryVolumePath);
                 return false;
             }
-            temporaryImageCreated = true;
             return promoteTemporaryRbdImage(tracePrefix, storagePool, volumePath, temporaryVolumePath, timeoutSeconds, createTargetVolume);
         } finally {
-            if (temporaryImageCreated && rbdImageExists(storagePool, temporaryVolumePath, timeoutSeconds)) {
+            if (rbdImageExists(storagePool, temporaryVolumePath, timeoutSeconds)) {
                 LOGGER.warn("{} phase=[RBD_TEMP_CLEANUP], temporaryVolume=[{}]", tracePrefix, temporaryVolumePath);
                 deleteRbdImageIfPresent(tracePrefix, storagePool, temporaryVolumePath, timeoutSeconds);
             }
@@ -334,7 +332,7 @@ final class LibvirtAblestackRbdRestoreHelper {
         }
     }
 
-    private static Long getCephPoolAvailableBytes(final KVMStoragePool storagePool, final int timeoutSeconds) {
+    static Long getCephPoolAvailableBytes(final KVMStoragePool storagePool, final int timeoutSeconds) {
         return getCephPoolAvailableBytes(buildCephCommand(storagePool, "df", "detail", "--format", "json"),
                 storagePool.getSourceDir(), timeoutSeconds);
     }
@@ -423,16 +421,16 @@ final class LibvirtAblestackRbdRestoreHelper {
         }
     }
 
-    private static boolean renameRbdImage(final KVMStoragePool storagePool, final String sourceImage, final String targetImage,
+    static boolean renameRbdImage(final KVMStoragePool storagePool, final String sourceImage, final String targetImage,
             final int timeoutSeconds) {
         return executeBashCommandWithResult(buildRbdCommand(storagePool, "rename", sourceImage, targetImage), timeoutSeconds, "Rename RBD image").exitCode == 0;
     }
 
-    private static boolean rbdImageExists(final KVMStoragePool storagePool, final String volumePath, final int timeoutSeconds) {
+    static boolean rbdImageExists(final KVMStoragePool storagePool, final String volumePath, final int timeoutSeconds) {
         return Script.runSimpleBashScriptForExitValue(buildRbdCommand(storagePool, "info", volumePath), timeoutSeconds * 1000, false) == 0;
     }
 
-    private static boolean deleteRbdImageIfPresent(final KVMStoragePool storagePool, final String volumePath, final int timeoutSeconds) {
+    static boolean deleteRbdImageIfPresent(final KVMStoragePool storagePool, final String volumePath, final int timeoutSeconds) {
         return deleteRbdImageIfPresent(null, storagePool, volumePath, timeoutSeconds);
     }
 

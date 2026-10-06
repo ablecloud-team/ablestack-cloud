@@ -28,11 +28,11 @@ import com.google.gson.annotations.SerializedName;
 @EntityReference(BackupProvider.class)
 public class BackupProviderResponse extends BaseResponse {
     @SerializedName(ApiConstants.NAME)
-    @Param(description = "The CA service provider name")
+    @Param(description = "The backup provider plugin name")
     private String name;
 
     @SerializedName(ApiConstants.DESCRIPTION)
-    @Param(description = "The description of the CA service provider")
+    @Param(description = "The description of the backup provider")
     private String description;
 
     public String getName() {

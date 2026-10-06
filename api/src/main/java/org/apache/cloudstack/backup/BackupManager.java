@@ -104,6 +104,77 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
             true,
             BackupFrameworkEnabled.key());
 
+    ConfigKey<Boolean> ThirdPartyStagingEnable = new ConfigKey<>("Advanced", Boolean.class,
+            "backup.thirdparty.staging.enable",
+            "false",
+            "Enable shared staging for ABLESTACK Commvault, NetBackup, and Veeam. " +
+                    "Activation prepares and validates the staging mount, write access, and capacity on all eligible KVM hosts " +
+                    "in zones using these providers. The value is saved only after validation succeeds.",
+            true,
+            ConfigKey.Scope.Global,
+            BackupFrameworkEnabled.key());
+
+    ConfigKey<String> ThirdPartyStagingStorageType = new ConfigKey<>("Advanced", String.class,
+            "backup.thirdparty.staging.storage.type",
+            "",
+            "Storage type used for ABLESTACK Commvault, NetBackup, and Veeam backup and restore staging. " +
+                    "Supported values: GFS2, NFS, LOCAL.",
+            true,
+            ConfigKey.Scope.Global,
+            BackupFrameworkEnabled.key());
+
+    ConfigKey<String> ThirdPartyStagingRootPath = new ConfigKey<>("Advanced", String.class,
+            "backup.thirdparty.staging.root.path",
+            "",
+            "Absolute KVM host path under which ABLESTACK third-party backup and restore staging job directories are created. " +
+                    "Size the staging storage based on the largest provisioned individual volume among all existing VMs, " +
+                    "plus capacity.buffer.percent for activation validation. Job checks also account for all artifacts staged by the execution engine.",
+            true,
+            ConfigKey.Scope.Global,
+            BackupFrameworkEnabled.key());
+
+    ConfigKey<String> ThirdPartyStagingMountPath = new ConfigKey<>("Advanced", String.class,
+            "backup.thirdparty.staging.mount.path",
+            "",
+            "Absolute KVM host mount point for ABLESTACK third-party staging storage. The staging root path must be this path or one of its subdirectories.",
+            true,
+            ConfigKey.Scope.Global,
+            BackupFrameworkEnabled.key());
+
+    ConfigKey<String> ThirdPartyStagingNfsSource = new ConfigKey<>("Advanced", String.class,
+            "backup.thirdparty.staging.nfs.source",
+            "",
+            "NFS source used for ABLESTACK third-party staging, in server:/export format. Use a service VIP when the NFS service is highly available.",
+            true,
+            ConfigKey.Scope.Global,
+            BackupFrameworkEnabled.key());
+
+    ConfigKey<String> ThirdPartyStagingMountOptions = new ConfigKey<>("Advanced", String.class,
+            "backup.thirdparty.staging.mount.options",
+            "",
+            "Comma-separated mount options used when mounting ABLESTACK third-party staging storage.",
+            true,
+            ConfigKey.Scope.Global,
+            BackupFrameworkEnabled.key());
+
+    ConfigKey<Integer> ThirdPartyStagingMountTimeout = new ConfigKey<>("Advanced", Integer.class,
+            "backup.thirdparty.staging.mount.timeout",
+            "300",
+            "Maximum time in seconds to wait for an ABLESTACK third-party staging storage mount operation.",
+            true,
+            ConfigKey.Scope.Global,
+            BackupFrameworkEnabled.key());
+
+    ConfigKey<Integer> ThirdPartyStagingCapacityBufferPercent = new ConfigKey<>("Advanced", Integer.class,
+            "backup.thirdparty.staging.capacity.buffer.percent",
+            "20",
+            "Percentage of additional staging capacity above the largest provisioned volume size among all existing VMs. " +
+                    "Required staging capacity = largest volume size * (1 + percentage / 100). " +
+                    "This is the activation requirement; job checks apply the same percentage to the data staged by the execution engine.",
+            true,
+            ConfigKey.Scope.Global,
+            BackupFrameworkEnabled.key());
+
     ConfigKey<Boolean> BackupEnableAttachDetachVolumes = new ConfigKey<>("Advanced", Boolean.class,
             "backup.enable.attach.detach.of.volumes",
             "false",

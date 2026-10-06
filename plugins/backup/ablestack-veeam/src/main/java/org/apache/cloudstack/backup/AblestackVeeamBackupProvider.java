@@ -114,7 +114,6 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
     private static final Logger LOG = LogManager.getLogger(AblestackVeeamBackupProvider.class);
     private final ThreadLocal<Boolean> detachedRestoreStart = ThreadLocal.withInitial(() -> false);
 
-    private static final String DEFAULT_STAGE_ROOT_PATH = "/tmp/mold/veeam";
     private static final String BACKUP_TYPE_FULL = "FULL";
     private static final String BACKUP_TYPE_INCREMENTAL = "INCREMENTAL";
     private static final String BACKUP_ENGINE_QCOW2 = "QCOW2";
@@ -123,7 +122,6 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
     private static final String DETAIL_CHAIN_SEAL_REASON = "veeam.chain.seal.reason";
     private static final String BACKUP_TRACE = "[ABLESTACK_VEEAM_BACKUP_TRACE]";
     private static final String RESTORE_TRACE = "[ABLESTACK_VEEAM_RESTORE_TRACE]";
-    private static final long STAGE_SPACE_BUFFER_BYTES = 10L * 1024L * 1024L * 1024L;
     private static final String DETAIL_CHECKPOINT_NAME = "ablestack.veeam.checkpoint.name";
     private static final String DETAIL_CHECKPOINT_PATH = "ablestack.veeam.checkpoint.path";
     private static final String DETAIL_CHECKPOINT_XML = "ablestack.veeam.checkpoint.xml";
@@ -136,7 +134,7 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
     private static final String DETAIL_BACKUP_ID = "ablestack.veeam.backup.id";
     private static final String DETAIL_MEMBER_COUNT = "ablestack.veeam.backup.member.count";
     private static final String DETAIL_POLICY_NAME = "ablestack.veeam.policy.name";
-    /** KVM host that wrote the local staging backup files under /tmp/mold/veeam/... */
+    /** KVM host that wrote the backup files to the configured common staging filesystem. */
     private static final String DETAIL_SOURCE_HOST = "ablestack.veeam.source.host";
     private static final String DETAIL_RESTORE_ROOT_JOB_ID = "ablestack.veeam.restore.root.job.id";
     private static final String DETAIL_RESTORE_CHAIN_JOB_ID = "ablestack.veeam.restore.chain.job.id";
@@ -193,13 +191,9 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
 
     public ConfigKey<String> AblestackVeeamStagingPath = new ConfigKey<>("Advanced", String.class,
             "backup.plugin.ablestack-veeam.staging.path", "/var/ablestack-veeam-staging",
-            "Shared staging directory on the Veeam server for disk export before seed import.",
+            "Veeam server directory used to export restore-point disks before seed import. " +
+                    "KVM host backup/restore staging uses backup.thirdparty.staging.root.path.",
             true, ConfigKey.Scope.Zone, BackupFrameworkEnabled.key());
-
-    private ConfigKey<String> AblestackVeeamStageRootPath = new ConfigKey<>("Advanced", String.class,
-            "backup.plugin.ablestack-veeam.stage.root.path", DEFAULT_STAGE_ROOT_PATH,
-            "Local KVM host directory used for ABLESTACK Veeam backup staging (host Agent job SelectedFiles root).",
-            true, ConfigKey.Scope.Global);
 
     public ConfigKey<Boolean> AblestackVeeamUseRestApi = new ConfigKey<>("Advanced", Boolean.class,
             "backup.plugin.ablestack-veeam.use.rest.api", "false",
@@ -218,6 +212,9 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
 
     @Inject
     private BackupDao backupDao;
+
+    @Inject
+    private ThirdPartyBackupStagingService thirdPartyBackupStagingService;
     @Inject
     private BackupDetailsDao backupDetailsDao;
     @Inject
@@ -265,6 +262,7 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
     @Override
     public Pair<Boolean, Backup> takeBackup(final VirtualMachine vm, final Boolean quiesceVM, final Long backupScheduleId,
             final String veeamJobName) {
+        thirdPartyBackupStagingService.requireEnabled();
         final Host host = getVMHypervisorHostForBackup(vm);
         validateVmSnapshotCoexistenceForBackup(vm);
 
@@ -748,17 +746,14 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
     }
 
     private String getBackupStageRootPath() {
-        return Path.of(StringUtils.defaultIfBlank(AblestackVeeamStageRootPath.value(), DEFAULT_STAGE_ROOT_PATH))
-                .toAbsolutePath()
-                .normalize()
-                .toString();
+        return thirdPartyBackupStagingService.getStageRootPath(getName());
     }
 
     private void validateBackupStageCapacity(final Host stageHost, final String stageRootPath, final List<VolumeVO> vmVolumes,
             final String vmName, final String backupType, final String backupEngine) {
         final long requiredBytes = estimateRequiredStageBytesForBackup(vmVolumes);
-        final long bufferBytes = Math.max(STAGE_SPACE_BUFFER_BYTES, requiredBytes / 5L);
-        final long minimumAvailableBytes = requiredBytes + bufferBytes;
+        final long bufferBytes = thirdPartyBackupStagingService.getCapacityBufferBytes(requiredBytes);
+        final long minimumAvailableBytes = Math.addExact(requiredBytes, bufferBytes);
         final long availableBytes = getAvailableBytesOnHostPath(stageHost, stageRootPath);
         LOG.info("{} phase=[STAGE_SPACE_CHECK], vm=[{}], host=[{}], backupType=[{}], backupEngine=[{}], stageRoot=[{}], requiredBytes=[{}], bufferBytes=[{}], minimumAvailableBytes=[{}], availableBytes=[{}]",
                 BACKUP_TRACE, vmName, stageHost != null ? stageHost.getName() : null, backupType, backupEngine, stageRootPath,
@@ -781,25 +776,7 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
     }
 
     private long getAvailableBytesOnHostPath(final Host host, final String path) {
-        if (host == null || StringUtils.isBlank(path)) {
-            throw new CloudRuntimeException("Host and path are required to query available Veeam stage space");
-        }
-        try {
-            final Answer answer = agentManager.send(host.getId(), new AblestackVeeamGetAvailableBytesCommand(path));
-            if (answer == null || !answer.getResult()) {
-                throw new CloudRuntimeException(String.format("Failed to query available stage space on host %s due to: %s",
-                        host.getName(), answer != null ? answer.getDetails() : "no answer received"));
-            }
-            return Long.parseLong(answer.getDetails());
-        } catch (NumberFormatException e) {
-            throw new CloudRuntimeException(String.format("Failed to parse available stage space on host %s for path %s", host.getName(), path), e);
-        } catch (AgentUnavailableException e) {
-            throw new CloudRuntimeException(String.format("Unable to contact host %s to query available stage space", host.getName()), e);
-        } catch (OperationTimedoutException e) {
-            throw new CloudRuntimeException(String.format("Timed out querying available stage space on host %s", host.getName()), e);
-        } catch (RuntimeException e) {
-            throw new CloudRuntimeException(String.format("Failed to query available stage space on host %s due to: %s", host.getName(), e.getMessage()), e);
-        }
+        return thirdPartyBackupStagingService.getAvailableBytes(host, path);
     }
 
     private void ensureStageHostHasCapacityForRestore(final Host stageHost, final List<Backup> restoreChain,
@@ -809,8 +786,8 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
         }
         final String stageRootPath = getBackupStageRootPath();
         final long requiredBytes = estimateRequiredStageBytesForRestore(restoreChain, requiredVolumeUuids);
-        final long bufferBytes = Math.max(STAGE_SPACE_BUFFER_BYTES, requiredBytes / 5L);
-        final long minimumAvailableBytes = requiredBytes + bufferBytes;
+        final long bufferBytes = thirdPartyBackupStagingService.getCapacityBufferBytes(requiredBytes);
+        final long minimumAvailableBytes = Math.addExact(requiredBytes, bufferBytes);
         final long availableBytes = getAvailableBytesOnHostPath(stageHost, stageRootPath);
         LOG.info("{} phase=[STAGE_SPACE_CHECK], vm=[{}], backupUuid=[{}], volumeUuid=[{}], host=[{}], stageRoot=[{}], requiredBytes=[{}], bufferBytes=[{}], minimumAvailableBytes=[{}], availableBytes=[{}], restoreChain=[{}]",
                 RESTORE_TRACE, vmName, backupUuid, volumeUuid, stageHost.getName(), stageRootPath, requiredBytes,
@@ -824,6 +801,7 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
     }
 
     private long estimateRequiredStageBytesForRestore(final List<Backup> restoreChain, final Set<String> requiredVolumeUuids) {
+        // The current engine still prepares the complete VM/restore chain; retain its aggregate capacity check.
         long totalBytes = 0L;
         for (final Backup restoreBackup : restoreChain) {
             if (restoreBackup == null) {
@@ -1387,11 +1365,13 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
 
     private Pair<Boolean, String> restoreVirtualMachine(final VirtualMachine vm, final Backup backup, final String restoreHostIp,
             final boolean restoreSourcesAlreadyPrepared) {
+        thirdPartyBackupStagingService.requireEnabled();
         loadBackupDetailsIfNeeded(backup);
         validateRestoreChainIntegrity(backup);
         validateVeeamRestoreSnapshotCompatibility(vm);
         final Host host = resolveRestoreHost(vm, backup, restoreHostIp);
         final List<Backup> restoreChain = getRestoreChainForBackup(backup);
+        validateRestoreStagingPaths(host, restoreChain);
         final List<Backup> stagedRestoreChain = getStagedRestoreChainForBackup(backup);
         final boolean incrementalRestore = StringUtils.equalsIgnoreCase(BACKUP_TYPE_INCREMENTAL, backup.getType());
         LOG.info("{} phase=[BEGIN], vm=[{}], backup=[{}], restoreHost=[{}], preparedSourcesAlreadyPrepared=[{}], incrementalRestore=[{}], restoreChain={}",
@@ -1541,6 +1521,7 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
     @Override
     public Pair<Boolean, String> restoreBackedUpVolume(final Backup backup, final Backup.VolumeInfo backupVolumeInfo, final String hostIp,
             final String dataStoreUuid, final Pair<String, VirtualMachine.State> vmNameAndState, final VirtualMachine targetVm, final boolean quickRestore) {
+        thirdPartyBackupStagingService.requireEnabled();
         loadBackupDetailsIfNeeded(backup);
         validateRestoreChainIntegrity(backup);
 
@@ -1580,6 +1561,7 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
         final List<Backup> restoreChain = getRestoreChainForBackup(backup);
         final List<Backup> stagedRestoreChain = getStagedRestoreChainForBackup(backup);
         final List<Backup> restoreSourcesToPrepare = StringUtils.equalsIgnoreCase(BACKUP_TYPE_INCREMENTAL, backup.getType()) ? restoreChain : stagedRestoreChain;
+        validateRestoreStagingPaths(restoreHost, restoreChain);
         try {
             ensureStageHostHasCapacityForRestore(restoreHost, restoreSourcesToPrepare, Collections.singleton(matchingVolume.getUuid()),
                     vmNameAndState.first(), backup.getUuid(), matchingVolume.getUuid());
@@ -1692,7 +1674,7 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
     }
 
     private void waitForPreparedRestorePathOnDestinationHost(final Host destinationHost, final String restorePath) {
-        // Local /tmp/mold/veeam paths are already present on the KVM host for standalone restores.
+        // Standalone restores use backup paths on the selected KVM host's staging filesystem.
         LOG.debug("Skipping prepared restore path wait for host [{}], path [{}]",
                 destinationHost != null ? destinationHost.getName() : null, restorePath);
     }
@@ -1862,7 +1844,6 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
                 AblestackVeeamTaskPollInterval,
                 AblestackVeeamTaskPollMaxRetry,
                 AblestackVeeamStagingPath,
-                AblestackVeeamStageRootPath,
                 AblestackVeeamUseRestApi,
                 AblestackVeeamRestUrl,
                 AblestackVeeamRestApiVersion
@@ -1899,7 +1880,7 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
     }
 
     private BackupRestorePlan createRestorePlan(final boolean attachRequired) {
-        // Local /tmp/mold/veeam paths are the durable backup store; never schedule CLEANUP_SOURCE.
+        // The current Veeam flow retains its staged backup chains; never schedule CLEANUP_SOURCE.
         return AblestackBackupFrameworkUtils.createRestorePlan(attachRequired, false);
     }
 
@@ -2002,13 +1983,20 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
         return new ArrayList<>(restoreChain.subList(0, restoreChain.size() - 1));
     }
 
+    private void validateRestoreStagingPaths(final Host host, final List<Backup> restoreChain) {
+        getAvailableBytesOnHostPath(host, getBackupStageRootPath());
+        for (final Backup source : restoreChain) {
+            getAvailableBytesOnHostPath(host, source.getExternalId());
+        }
+    }
+
     private void prepareRestoreSourcesOnStageHosts(final Long zoneId, final String destinationHostName, final List<Backup> restoreChain) {
         prepareRestoreSourcesOnStageHosts(zoneId, destinationHostName, restoreChain, null);
     }
 
     private void prepareRestoreSourcesOnStageHosts(final Long zoneId, final String destinationHostName, final List<Backup> restoreChain,
             final Set<String> requiredVolumeUuids) {
-        // Standalone Veeam keeps backup chains under /tmp/mold/veeam on the KVM host; no external catalog restore is required.
+        // Standalone Veeam currently keeps backup chains in common host staging; no external catalog restore is required.
         if (CollectionUtils.isNotEmpty(restoreChain)) {
             LOG.debug("Skipping external Veeam restore-source preparation for host [{}]; using local paths {}",
                     destinationHostName, restoreChain.stream().map(Backup::getExternalId).collect(Collectors.toList()));
@@ -2058,7 +2046,7 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
     }
 
     private void cleanupRestoreSourcesOnStageHosts(final Long zoneId, final String destinationHostName, final List<Backup> restoreChain) {
-        // Mold-only Veeam keeps durable QCOW2 chains under /tmp/mold/veeam on the KVM host.
+        // Mold-only Veeam currently keeps its QCOW2 chains in common host staging.
         // prepareRestoreSourcesOnStageHosts is a no-op for these local paths; cleanup must also be a no-op.
         // Deleting parent FULL/INCREMENTAL dirs after restore (success or failure) breaks later incremental restores.
         if (CollectionUtils.isNotEmpty(restoreChain)) {
@@ -3000,6 +2988,7 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
     @Override
     public Pair<Boolean, Backup> importAblestackVeeamBackupSeed(final VirtualMachine vm, final String veeamRestorePointId,
             final List<String> stagingDiskPaths, final String sourceFormat, final Boolean bootstrapCheckpoint) {
+        thirdPartyBackupStagingService.requireEnabled();
         List<String> staging = stagingDiskPaths;
         if (CollectionUtils.isEmpty(staging)) {
             if (StringUtils.isBlank(veeamRestorePointId)) {
@@ -3026,6 +3015,7 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
 
         final String backupPath = buildBackupPath(vm);
         final String backupEngine = areAllVolumesOnRbdPool(volumePoolsAndPaths.first()) ? BACKUP_ENGINE_RBD_DIFF : BACKUP_ENGINE_QCOW2;
+        validateBackupStageCapacity(host, getBackupStageRootPath(), vmVolumes, vm.getInstanceName(), BACKUP_TYPE_FULL, backupEngine);
         // QCOW2 host-export → import-seed: reuse staging dir timestamp as checkpoint so the next
         // INCREMENTAL parent matches the live dirty bitmap created during host export.
         // (A fresh buildBackupPath() timestamp would leave Mold pointing at a non-existent bitmap.)
