@@ -785,22 +785,25 @@ export default {
       } else {
         filters = ['self', 'featured', 'community']
       }
-      var ckstemplates = []
-      for (const filtername of filters) {
-        const params = {
-          templatefilter: filtername,
-          forcks: true,
-          isready: true
-        }
-        this.templateLoading = true
-        getAPI('listTemplates', params).then(json => {
-          var templates = json?.listtemplatesresponse?.template || []
-          ckstemplates.push(...templates)
-        }).finally(() => {
-          this.templateLoading = false
-        })
-      }
-      this.templates = ckstemplates
+      this.templateLoading = true
+      this.templates = []
+      return Promise.all(filters.map(templatefilter => getAPI('listTemplates', {
+        templatefilter,
+        forcks: true,
+        isready: true
+      }))).then(responses => {
+        const seen = new Set()
+        this.templates = responses.flatMap(json => json?.listtemplatesresponse?.template || [])
+          .filter(template => {
+            if (seen.has(template.id)) return false
+            seen.add(template.id)
+            return true
+          })
+      }).catch(() => {
+        this.templates = []
+      }).finally(() => {
+        this.templateLoading = false
+      })
     },
     fetchNetworkData () {
       const params = {}
