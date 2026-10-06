@@ -547,6 +547,17 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
         }
     }
 
+    protected void prepareNodeRemoval() {
+        KubernetesClusterDetailsVO prepared = kubernetesClusterDetailsDao.findDetail(kubernetesCluster.getId(), "cleanup.nodes.prepared");
+        if (prepared == null || !"v1".equals(prepared.getValue())) {
+            requireCleanupNetworkAccess();
+            recordVerifiedLegacyApiLoadBalancer();
+            prepareCsiCleanupBeforeNodeRemoval();
+            prepareServiceCleanupBeforeNodeRemoval();
+            kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "cleanup.nodes.prepared", "v1", false);
+        }
+    }
+
     public boolean destroy() throws CloudRuntimeException {
         init();
         validateClusterSate();
@@ -592,10 +603,7 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
         if (logger.isInfoEnabled()) {
             logger.info("Destroying Kubernetes cluster : {}", kubernetesCluster);
         }
-        requireCleanupNetworkAccess();
-        recordVerifiedLegacyApiLoadBalancer();
-        prepareCsiCleanupBeforeNodeRemoval();
-        prepareServiceCleanupBeforeNodeRemoval();
+        prepareNodeRemoval();
         stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.DestroyRequested);
         boolean vmsDestroyed = destroyClusterVMs();
         if (cleanupNetwork && hasUnclaimedNetworkResources()) {
@@ -638,6 +646,7 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
             updateKubernetesClusterEntryForGC();
             throw new CloudRuntimeException(msg);
         }
+        manager.removeClusterServiceKeys(kubernetesCluster);
         stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.OperationSucceeded);
         annotationDao.removeByEntityType(AnnotationService.EntityType.KUBERNETES_CLUSTER.name(), kubernetesCluster.getUuid());
         kubernetesClusterDetailsDao.removeDetails(kubernetesCluster.getId());

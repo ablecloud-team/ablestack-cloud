@@ -50,9 +50,11 @@ import javax.naming.ConfigurationException;
 import com.cloud.configuration.Resource;
 import com.cloud.user.ResourceLimitService;
 import org.apache.cloudstack.acl.ApiKeyPairVO;
+import org.apache.cloudstack.acl.apikeypair.ApiKeyPair;
 import org.apache.cloudstack.acl.ControlledEntity;
 import org.apache.cloudstack.acl.Role;
 import org.apache.cloudstack.acl.RolePermissionEntity;
+import org.apache.cloudstack.acl.RolePermission;
 import org.apache.cloudstack.acl.RoleService;
 import org.apache.cloudstack.acl.RoleType;
 import org.apache.cloudstack.acl.Rule;
@@ -68,6 +70,13 @@ import org.apache.cloudstack.api.ApiConstants;
 import org.apache.cloudstack.api.ApiConstants.VMDetails;
 import org.apache.cloudstack.api.ApiErrorCode;
 import org.apache.cloudstack.api.BaseCmd;
+import org.apache.cloudstack.api.command.user.firewall.ListPortForwardingRulesCmd;
+import org.apache.cloudstack.api.command.user.tag.DeleteTagsCmd;
+import org.apache.cloudstack.api.command.user.tag.CreateTagsCmd;
+import org.apache.cloudstack.api.command.user.tag.ListTagsCmd;
+import org.apache.cloudstack.api.command.user.offering.ListDiskOfferingsCmd;
+import org.apache.cloudstack.api.command.user.zone.ListZonesCmd;
+import org.apache.cloudstack.api.command.user.config.ListCapabilitiesCmd;
 import org.apache.cloudstack.api.ResponseObject.ResponseView;
 import org.apache.cloudstack.api.ServerApiException;
 import org.apache.cloudstack.api.command.user.address.AssociateIPAddrCmd;
@@ -267,6 +276,13 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
     private static final String DEFAULT_NETWORK_OFFERING_FOR_KUBERNETES_SERVICE_NAME = "DefaultNetworkOfferingforKubernetesService";
     private static final List<Class<?>> PROJECT_KUBERNETES_ACCOUNT_ROLE_ALLOWED_APIS = Arrays.asList(
             QueryAsyncJobResultCmd.class,
+            ListCapabilitiesCmd.class,
+            ListZonesCmd.class,
+            ListDiskOfferingsCmd.class,
+            ListTagsCmd.class,
+            CreateTagsCmd.class,
+            DeleteTagsCmd.class,
+            ListPortForwardingRulesCmd.class,
             ListVMsCmd.class,
             ListVolumesCmd.class,
             CreateVolumeCmd.class,
@@ -1993,10 +2009,9 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
         KubernetesClusterStartWorker startWorker =
             new KubernetesClusterStartWorker(kubernetesCluster, this);
         startWorker = ComponentContext.inject(startWorker);
+        startWorker.setKeys(getServiceUserKeys(kubernetesCluster));
         if (onCreate) {
             // Start for Kubernetes cluster in 'Created' state
-            String[] keys = getServiceUserKeys(kubernetesCluster);
-            startWorker.setKeys(keys);
             return startWorker.startKubernetesClusterOnCreate(domainId, accountId, asNumber);
         } else {
             // Start for Kubernetes cluster in 'Stopped' state. Resources are already provisioned, just need to be started
@@ -2036,6 +2051,70 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
         return keys;
     }
 
+    protected String[] getClusterServiceUserKeys(Account owner, KubernetesClusterVO cluster) {
+        String username = "mold-cks-" + cluster.getUuid();
+        UserAccount existing = accountService.getActiveUserAccount(username, owner.getDomainId());
+        long userId;
+        if (existing == null) {
+            User user = userDao.persist(new UserVO(owner.getAccountId(), username, UUID.randomUUID().toString(),
+                    owner.getAccountName(), KUBEADMIN_ACCOUNT_NAME, "kubeadmin", null, UUID.randomUUID().toString(), User.Source.UNKNOWN));
+            userId = user.getId();
+        } else {
+            if (existing.getAccountId() != owner.getAccountId()) {
+                throw new CloudRuntimeException("Kubernetes controller user belongs to another account");
+            }
+            userId = existing.getId();
+        }
+        KubernetesClusterDetailsVO detail = kubernetesClusterDetailsDao.findDetail(cluster.getId(), KubernetesRuntimeKeyProfile.KEY_DETAIL);
+        ApiKeyPair key;
+        if (detail == null) {
+            key = createClusterServiceKey(userId, cluster);
+            kubernetesClusterDetailsDao.addDetail(cluster.getId(), KubernetesRuntimeKeyProfile.KEY_DETAIL, String.valueOf(key.getId()), false);
+        } else {
+            key = accountService.getKeyPairById(Long.parseLong(detail.getValue()));
+        }
+        if (key == null) {
+            throw new CloudRuntimeException("Kubernetes controller key is unavailable; replace the cluster-scoped credential before retry");
+        }
+        KubernetesRuntimeKeyProfile.validateForUse(key, userId, owner.getAccountId(), owner.getDomainId(), cluster.getUuid(),
+                cluster.isCsiEnabled(), accountService.getAllExplicitKeyPairPermissions(key.getId()));
+        return new String[]{key.getApiKey(), key.getSecretKey()};
+    }
+
+    protected ApiKeyPair createClusterServiceKey(long userId, KubernetesClusterVO cluster) {
+        CallContext.register(User.UID_SYSTEM, Account.ACCOUNT_ID_SYSTEM);
+        try {
+            return accountService.createApiKeyAndSecretKey(KubernetesRuntimeKeyProfile.request(userId, cluster.getUuid(), cluster.isCsiEnabled()));
+        } finally {
+            CallContext.unregister();
+        }
+    }
+
+    public void removeClusterServiceKeys(KubernetesCluster cluster) {
+        KubernetesClusterDetailsVO detail = kubernetesClusterDetailsDao.findDetail(cluster.getId(), KubernetesRuntimeKeyProfile.KEY_DETAIL);
+        if (detail == null) {
+            return; // Legacy shared credentials are never revoked by deleting one cluster.
+        }
+        ApiKeyPair key = accountService.getKeyPairById(Long.parseLong(detail.getValue()));
+        if (key != null) {
+            Account owner = accountService.getAccount(cluster.getAccountId());
+            if (owner.getType() == Account.Type.PROJECT) {
+                owner = getProjectKubernetesAccount(owner, false);
+            }
+            if (owner == null) {
+                throw new CloudRuntimeException("Cannot verify Kubernetes project controller credential owner before cleanup");
+            }
+            UserAccount user = accountService.getActiveUserAccount("mold-cks-" + cluster.getUuid(), owner.getDomainId());
+            if (user == null || user.getAccountId() != owner.getAccountId()) {
+                throw new CloudRuntimeException("Cannot verify Kubernetes controller credential owner before cleanup");
+            }
+            KubernetesRuntimeKeyProfile.validateIdentity(key, user.getId(), owner.getAccountId(), owner.getDomainId(),
+                    cluster.getUuid(), cluster.isCsiEnabled());
+            accountService.deleteApiKey(key);
+        }
+        kubernetesClusterDetailsDao.removeDetail(cluster.getId(), KubernetesRuntimeKeyProfile.KEY_DETAIL);
+    }
+
     protected Role createProjectKubernetesAccountRole() {
         Role role = roleService.createRole(PROJECT_KUBEADMIN_ACCOUNT_ROLE_NAME, RoleType.User,
                 PROJECT_KUBEADMIN_ACCOUNT_ROLE_NAME, false);
@@ -2050,10 +2129,58 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
         return role;
     }
 
+    protected void reconcileDefaultProjectKubernetesRole(Role role) {
+        List<RolePermission> current = roleService.findAllPermissionsBy(role.getId());
+        if (CollectionUtils.isEmpty(current)) {
+            return; // An empty or customized role is not treated as an old managed default.
+        }
+        java.util.Set<String> expected = new java.util.HashSet<>(KubernetesRuntimeKeyProfile.commands(true));
+        List<RolePermission> ordered = new ArrayList<>(current);
+        ordered.sort(java.util.Comparator.comparingLong(RolePermission::getSortOrder));
+        RolePermission deny = ordered.get(ordered.size() - 1);
+        if (!"*".equals(deny.getRule().toString()) || deny.getPermission() != RolePermissionEntity.Permission.DENY
+                || !"Deny all".equals(deny.getDescription())) {
+            return;
+        }
+        java.util.Set<String> present = new java.util.HashSet<>();
+        for (RolePermission permission : ordered.subList(0, ordered.size() - 1)) {
+            String name = permission.getRule().toString();
+            if (permission.getPermission() != RolePermissionEntity.Permission.ALLOW || !expected.contains(name)
+                    || !("Allow " + name).equals(permission.getDescription()) || !present.add(name)) {
+                return; // Preserve operator customizations; owner-role checks remain fail-closed.
+            }
+        }
+        java.util.Set<String> previousDefault = new java.util.HashSet<>(expected);
+        previousDefault.removeAll(Arrays.asList("listCapabilities", "listZones", "listDiskOfferings", "listTags",
+                "createTags", "deleteTags", "listPortForwardingRules"));
+        if (!present.containsAll(previousDefault)) {
+            return; // Do not broaden an operator-restricted subset with default-looking descriptions.
+        }
+        if (present.equals(expected)) {
+            return;
+        }
+        ordered.remove(ordered.size() - 1);
+        Transaction.execute(new TransactionCallbackNoReturn() {
+            @Override
+            public void doInTransactionWithoutResult(TransactionStatus status) {
+                for (String name : KubernetesRuntimeKeyProfile.commands(true)) {
+                    if (!present.contains(name)) {
+                        ordered.add(roleService.createRolePermission(role, new Rule(name), RolePermissionEntity.Permission.ALLOW, "Allow " + name));
+                    }
+                }
+                ordered.add(deny);
+                if (!roleService.updateRolePermission(role, ordered)) {
+                    throw new CloudRuntimeException("Unable to reconcile the default Kubernetes project role permission order");
+                }
+            }
+        });
+    }
+
     public Role getProjectKubernetesAccountRole() {
         List<Role> roles = roleService.findRolesByName(PROJECT_KUBEADMIN_ACCOUNT_ROLE_NAME);
         if (CollectionUtils.isNotEmpty(roles)) {
             Role role = roles.get(0);
+            reconcileDefaultProjectKubernetesRole(role);
             logger.debug(String.format("Found default role for Kubernetes service account in projects: %s", role));
             return role;
         }
@@ -2103,7 +2230,7 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
         if (owner.getType() == Account.Type.PROJECT) {
             owner = getProjectKubernetesAccount(owner);
         }
-        return getServiceUserKeys(owner);
+        return getClusterServiceUserKeys(owner, kubernetesCluster);
     }
 
     @Override
@@ -2931,6 +3058,7 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
                             KubernetesClusterStartWorker startWorker =
                                     new KubernetesClusterStartWorker(kubernetesCluster, KubernetesClusterManagerImpl.this);
                             startWorker = ComponentContext.inject(startWorker);
+                            startWorker.setKeys(getServiceUserKeys(kubernetesCluster));
                             startWorker.reconcileAlertCluster();
                         } else if (isClusterVMsInDesiredState(kubernetesCluster, VirtualMachine.State.Stopped)) {
                             stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.StopRequested);

@@ -94,6 +94,42 @@ public class KubernetesCsiCleanupGateTest {
     }
 
     @Test
+    public void successfulPreparationPersistsBarrierBeforeNodeRemoval() {
+        KubernetesClusterDestroyWorker worker = worker(true);
+        Mockito.doReturn(null).when(worker).requireCleanupNetworkAccess();
+        Mockito.doNothing().when(worker).recordVerifiedLegacyApiLoadBalancer();
+        Mockito.doNothing().when(worker).prepareCsiCleanupBeforeNodeRemoval();
+        Mockito.doNothing().when(worker).prepareServiceCleanupBeforeNodeRemoval();
+        worker.prepareNodeRemoval();
+        org.mockito.InOrder order = Mockito.inOrder(worker, worker.kubernetesClusterDetailsDao);
+        order.verify(worker).prepareCsiCleanupBeforeNodeRemoval();
+        order.verify(worker).prepareServiceCleanupBeforeNodeRemoval();
+        order.verify(worker.kubernetesClusterDetailsDao).addDetail(7L, "cleanup.nodes.prepared", "v1", false);
+    }
+
+    @Test
+    public void credentialCleanupRetryDoesNotContactDestroyedNodes() {
+        KubernetesClusterDestroyWorker worker = worker(true);
+        Mockito.when(worker.kubernetesClusterDetailsDao.findDetail(7L, "cleanup.nodes.prepared"))
+                .thenReturn(new com.cloud.kubernetes.cluster.KubernetesClusterDetailsVO(7L, "cleanup.nodes.prepared", "v1", false));
+        worker.prepareNodeRemoval();
+        Mockito.verify(worker, Mockito.never()).prepareCsiCleanupBeforeNodeRemoval();
+        Mockito.verify(worker, Mockito.never()).prepareServiceCleanupBeforeNodeRemoval();
+    }
+
+    @Test
+    public void failedServiceCleanupNeverPersistsBarrier() {
+        KubernetesClusterDestroyWorker worker = worker(true);
+        Mockito.doReturn(null).when(worker).requireCleanupNetworkAccess();
+        Mockito.doNothing().when(worker).recordVerifiedLegacyApiLoadBalancer();
+        Mockito.doNothing().when(worker).prepareCsiCleanupBeforeNodeRemoval();
+        Mockito.doThrow(new CloudRuntimeException("fixture failure")).when(worker).prepareServiceCleanupBeforeNodeRemoval();
+        try {worker.prepareNodeRemoval();fail("Must block");} catch (CloudRuntimeException expected) {
+            Mockito.verify(worker.kubernetesClusterDetailsDao, Mockito.never()).addDetail(7L, "cleanup.nodes.prepared", "v1", false);
+        }
+    }
+
+    @Test
     public void missingReceiptFailsClosed() {
         assertFalse(worker(true).confirmDeletedCsiBackingVolumes("legacy script completed"));
     }

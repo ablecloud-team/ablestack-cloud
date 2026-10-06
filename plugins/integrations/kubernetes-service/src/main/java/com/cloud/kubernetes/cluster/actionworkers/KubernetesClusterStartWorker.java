@@ -901,6 +901,28 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
 
 
 
+    protected boolean reconcileRuntimeComponents() {
+        if (keys == null || keys.length != 2 || StringUtils.isEmpty(keys[0]) || StringUtils.isEmpty(keys[1])) {
+            return false;
+        }
+        try {
+            retrieveScriptFiles();
+            copyScripts(publicIpAddress, sshPort);
+            if (!createCloudStackSecret(keys) || !deployProvider()) {
+                return false;
+            }
+            return !kubernetesCluster.isCsiEnabled() || deployCsiDriver();
+        } catch (CloudRuntimeException error) {
+            logger.warn("Required Kubernetes runtime component recovery failed for cluster: {}", kubernetesCluster.getUuid());
+            return false;
+        }
+    }
+
+    protected boolean validateStartedNodes(long timeout) {
+        return KubernetesClusterUtil.validateKubernetesClusterReadyNodesCount(kubernetesCluster, publicIpAddress, sshPort,
+                getControlNodeLoginUser(), sshKeyFile, timeout, 15000);
+    }
+
     public boolean startStoppedKubernetesCluster(Long domainId, Long accountId) throws CloudRuntimeException {
         init();
         if (logger.isInfoEnabled()) {
@@ -922,6 +944,10 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
         }
         if (!KubernetesClusterUtil.isKubernetesClusterServerRunning(kubernetesCluster, publicIpAddress, CLUSTER_API_PORT, startTimeoutTime, 15000)) {
             logTransitStateAndThrow(Level.ERROR, String.format("Failed to start Kubernetes cluster : %s in usable state", kubernetesCluster.getName()), kubernetesCluster.getId(), KubernetesCluster.Event.OperationFailed);
+        }
+        if (!reconcileRuntimeComponents() || !validateStartedNodes(startTimeoutTime)) {
+            logTransitStateAndThrow(Level.ERROR, String.format("Failed to restore required Kubernetes controller components and Ready nodes for cluster : %s",
+                    kubernetesCluster.getName()), kubernetesCluster.getId(), KubernetesCluster.Event.OperationFailed);
         }
         if (!isKubernetesClusterKubeConfigAvailable(startTimeoutTime)) {
             logTransitStateAndThrow(Level.ERROR, String.format("Failed to start Kubernetes cluster : %s in usable state as unable to retrieve kube-config for the cluster", kubernetesCluster.getName()), kubernetesCluster.getId(), KubernetesCluster.Event.OperationFailed);
@@ -953,15 +979,6 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
         if (StringUtils.isEmpty(publicIpAddress)) {
             return false;
         }
-        long actualNodeCount = 0;
-        try {
-            actualNodeCount = KubernetesClusterUtil.getKubernetesClusterReadyNodesCount(kubernetesCluster, publicIpAddress, sshPort, getControlNodeLoginUser(), sshKeyFile);
-        } catch (Exception e) {
-            return false;
-        }
-        if (kubernetesCluster.getTotalNodeCount() != actualNodeCount) {
-            return false;
-        }
         if (StringUtils.isEmpty(sshIpPort.first())) {
             return false;
         }
@@ -977,6 +994,9 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
             return false;
         }
         if (!verifyHaDns()) {
+            return false;
+        }
+        if (!reconcileRuntimeComponents() || !validateStartedNodes(startTimeoutTime)) {
             return false;
         }
         // mark the cluster to be running

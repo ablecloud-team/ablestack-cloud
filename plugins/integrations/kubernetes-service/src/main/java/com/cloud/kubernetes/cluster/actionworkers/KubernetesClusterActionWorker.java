@@ -899,7 +899,7 @@ public class KubernetesClusterActionWorker {
         try {
             String command = String.format("sudo %s/%s", scriptPath, deployProviderScriptFilename);
             Pair<Boolean, String> result = SshHelper.sshExecute(publicIpAddress, sshPort, getControlNodeLoginUser(),
-                    pkFile, null, command, 10000, 10000, 60000);
+                    pkFile, null, command, 10000, 10000, 180000);
 
             // Maybe the file isn't present. Try and copy it
             if (!result.first()) {
@@ -914,7 +914,7 @@ public class KubernetesClusterActionWorker {
 
                 // If at first you don't succeed ...
                 result = SshHelper.sshExecute(publicIpAddress, sshPort, getControlNodeLoginUser(),
-                        pkFile, null, command, 10000, 10000, 60000);
+                        pkFile, null, command, 10000, 10000, 180000);
                 if (!result.first()) {
                     throw new CloudRuntimeException(result.second());
                 }
