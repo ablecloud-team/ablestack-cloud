@@ -331,7 +331,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
             update(upgrade, StorageServiceRuntimeUpgradeVO.State.RUNNING, "VERIFYING", 85);
             final StorageServiceGuestCommandResult health = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(
                     instance.getVmId(), "health", "", StorageServiceInstance.StorageServiceCommandTimeout.value(), Collections.emptySet()));
-            if (!health.isSuccess()) {
+            if (!runtimeHealthVerified(health)) {
                 final JsonObject rolledBack = invoke(instance, StorageServiceRuntimeOperation.ROLLBACK,
                         upgrade.getTransactionId(), request(upgrade, bundle));
                 upgrade.setRollbackResultJson(rolledBack.toString());
@@ -399,6 +399,14 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         return response;
     }
 
+    protected boolean runtimeHealthVerified(StorageServiceGuestCommandResult result) {
+        if(result == null || !result.isSuccess() || result.getResultJson() == null)return false;
+        try {
+            JsonObject health=new JsonParser().parse(result.getResultJson()).getAsJsonObject();
+            return health.has("success") && health.get("success").getAsBoolean() && health.has("status") && "ok".equalsIgnoreCase(health.get("status").getAsString());
+        } catch(RuntimeException invalid){return false;}
+    }
+
     protected void ensureBootstrap(final StorageServiceInstanceVO instance, final StorageServiceRuntimeBundleVO bundle,
             final String transactionId) {
         final StorageServiceRuntimeHostAnswer capability = runtimeDispatcher.dispatch(instance.getVmId(), new StorageServiceRuntimeHostCommand(
@@ -408,8 +416,10 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
                     resource("/storage-runtime/bootstrap/runtime_updater.py"), 0, 4, null);
             transfer(instance, transactionId, StorageServiceRuntimeFileType.UPDATER_ENTRY, null,
                     resource("/storage-runtime/bootstrap/ablestack-storage-runtime-updater"), 4, 8, null);
-            invoke(instance, StorageServiceRuntimeOperation.BOOTSTRAP, transactionId, null);
         }
+        // Existing updater binaries may still have unmanaged legacy entrypoints.
+        // Bootstrap is idempotent when a valid managed release already exists.
+        invoke(instance, StorageServiceRuntimeOperation.BOOTSTRAP, transactionId, null);
         transfer(instance, transactionId, StorageServiceRuntimeFileType.TRUSTED_KEY, bundle.getSigningKeyId(),
                 trustedKey(bundle.getSigningKeyId()), 8, 10, null);
     }
