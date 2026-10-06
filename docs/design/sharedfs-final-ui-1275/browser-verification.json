@@ -1,0 +1,284 @@
+{
+  "source": "rendered Vue3 + Ant Design Vue",
+  "desktop": {
+    "width": 1440,
+    "height": 960
+  },
+  "tabs": [
+    {
+      "tab": "details",
+      "theme": "light",
+      "dark": false,
+      "scrollWidth": 1430,
+      "tabs": 8,
+      "vertical": true,
+      "width": 1430,
+      "image": "images/details-light.jpg"
+    },
+    {
+      "tab": "nfs",
+      "theme": "light",
+      "dark": false,
+      "scrollWidth": 1430,
+      "tabs": 8,
+      "vertical": true,
+      "width": 1430,
+      "image": "images/nfs-light.jpg"
+    },
+    {
+      "tab": "smb",
+      "theme": "light",
+      "dark": false,
+      "scrollWidth": 1430,
+      "tabs": 8,
+      "vertical": true,
+      "width": 1430,
+      "image": "images/smb-light.jpg"
+    },
+    {
+      "tab": "iscsi",
+      "theme": "light",
+      "dark": false,
+      "scrollWidth": 1430,
+      "tabs": 8,
+      "vertical": true,
+      "width": 1430,
+      "image": "images/iscsi-light.jpg"
+    },
+    {
+      "tab": "nvmeof",
+      "theme": "light",
+      "dark": false,
+      "scrollWidth": 1430,
+      "tabs": 8,
+      "vertical": true,
+      "width": 1430,
+      "image": "images/nvmeof-light.jpg"
+    },
+    {
+      "tab": "network",
+      "theme": "light",
+      "dark": false,
+      "scrollWidth": 1430,
+      "tabs": 8,
+      "vertical": true,
+      "width": 1430,
+      "image": "images/network-light.jpg"
+    },
+    {
+      "tab": "metrics",
+      "theme": "light",
+      "dark": false,
+      "scrollWidth": 1430,
+      "tabs": 8,
+      "vertical": true,
+      "width": 1430,
+      "image": "images/metrics-light.jpg"
+    },
+    {
+      "tab": "events",
+      "theme": "light",
+      "dark": false,
+      "scrollWidth": 1430,
+      "tabs": 8,
+      "vertical": true,
+      "width": 1430,
+      "image": "images/events-light.jpg"
+    },
+    {
+      "tab": "details",
+      "theme": "dark",
+      "dark": true,
+      "scrollWidth": 1430,
+      "tabs": 8,
+      "vertical": true,
+      "width": 1430,
+      "image": "images/details-dark.jpg"
+    },
+    {
+      "tab": "nfs",
+      "theme": "dark",
+      "dark": true,
+      "scrollWidth": 1430,
+      "tabs": 8,
+      "vertical": true,
+      "width": 1430,
+      "image": "images/nfs-dark.jpg"
+    },
+    {
+      "tab": "smb",
+      "theme": "dark",
+      "dark": true,
+      "scrollWidth": 1430,
+      "tabs": 8,
+      "vertical": true,
+      "width": 1430,
+      "image": "images/smb-dark.jpg"
+    },
+    {
+      "tab": "iscsi",
+      "theme": "dark",
+      "dark": true,
+      "scrollWidth": 1430,
+      "tabs": 8,
+      "vertical": true,
+      "width": 1430,
+      "image": "images/iscsi-dark.jpg"
+    },
+    {
+      "tab": "nvmeof",
+      "theme": "dark",
+      "dark": true,
+      "scrollWidth": 1430,
+      "tabs": 8,
+      "vertical": true,
+      "width": 1430,
+      "image": "images/nvmeof-dark.jpg"
+    },
+    {
+      "tab": "network",
+      "theme": "dark",
+      "dark": true,
+      "scrollWidth": 1430,
+      "tabs": 8,
+      "vertical": true,
+      "width": 1430,
+      "image": "images/network-dark.jpg"
+    },
+    {
+      "tab": "metrics",
+      "theme": "dark",
+      "dark": true,
+      "scrollWidth": 1430,
+      "tabs": 8,
+      "vertical": true,
+      "width": 1430,
+      "image": "images/metrics-dark.jpg"
+    },
+    {
+      "tab": "events",
+      "theme": "dark",
+      "dark": true,
+      "scrollWidth": 1430,
+      "tabs": 8,
+      "vertical": true,
+      "width": 1430,
+      "image": "images/events-dark.jpg"
+    }
+  ],
+  "dialogs": [
+    {
+      "theme": "light",
+      "before": {
+        "body": {
+          "bottom": 883,
+          "height": 804,
+          "width": 760,
+          "x": 335,
+          "y": 79
+        },
+        "clientHeight": 804,
+        "footer": {
+          "bottom": 936,
+          "height": 53,
+          "width": 760,
+          "x": 335,
+          "y": 883
+        },
+        "header": {
+          "bottom": 79,
+          "height": 55,
+          "width": 760,
+          "x": 335,
+          "y": 24
+        },
+        "overflow": "auto",
+        "scrollHeight": 1174,
+        "scrollTop": 0,
+        "viewport": 960
+      },
+      "after": {
+        "footer": {
+          "bottom": 936,
+          "y": 883
+        },
+        "header": {
+          "bottom": 79,
+          "y": 24
+        },
+        "scrollTop": 370
+      },
+      "fixed": true,
+      "inside": true,
+      "bodyScrolls": true
+    },
+    {
+      "theme": "dark",
+      "before": {
+        "body": {
+          "bottom": 883,
+          "height": 804,
+          "width": 760,
+          "x": 335,
+          "y": 79
+        },
+        "clientHeight": 804,
+        "footer": {
+          "bottom": 936,
+          "height": 53,
+          "width": 760,
+          "x": 335,
+          "y": 883
+        },
+        "header": {
+          "bottom": 79,
+          "height": 55,
+          "width": 760,
+          "x": 335,
+          "y": 24
+        },
+        "overflow": "auto",
+        "scrollHeight": 1174,
+        "scrollTop": 0,
+        "viewport": 960
+      },
+      "after": {
+        "footer": {
+          "bottom": 936,
+          "y": 883
+        },
+        "header": {
+          "bottom": 79,
+          "y": 24
+        },
+        "scrollTop": 370
+      },
+      "fixed": true,
+      "inside": true,
+      "bodyScrolls": true
+    }
+  ],
+  "mobile": {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "before": {
+      "clientHeight": 712,
+      "footerBottom": 832,
+      "headerY": 12,
+      "overflow": "auto",
+      "pageScrollWidth": 380,
+      "scrollHeight": 1382,
+      "viewportHeight": 844,
+      "viewportWidth": 390,
+      "width": 374
+    },
+    "after": {
+      "footerBottom": 832,
+      "headerY": 12,
+      "scrollTop": 670
+    }
+  },
+  "browserErrors": []
+}

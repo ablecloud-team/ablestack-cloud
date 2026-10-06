@@ -1,0 +1,17 @@
+{
+  "vue": "3.2.37",
+  "compilerSfc": "3.2.37",
+  "antDesignVue": "3.2.20",
+  "uiSource": "73dbd8258f762e454f8b8fcb3b14436b5540117b",
+  "entry": "src/App.vue",
+  "shared": [
+    "layouts/ResourceLayout.vue",
+    "Status.vue",
+    "style/vars.less",
+    "style/dark-mode.less",
+    "style/theme/*.less",
+    "components/view/MoldDialog.vue",
+    "style/components/view/mold-dialog.less"
+  ],
+  "offline": true
+}
