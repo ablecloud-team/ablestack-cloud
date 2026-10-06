@@ -945,7 +945,7 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
         if (!KubernetesClusterUtil.isKubernetesClusterServerRunning(kubernetesCluster, publicIpAddress, CLUSTER_API_PORT, startTimeoutTime, 15000)) {
             logTransitStateAndThrow(Level.ERROR, String.format("Failed to start Kubernetes cluster : %s in usable state", kubernetesCluster.getName()), kubernetesCluster.getId(), KubernetesCluster.Event.OperationFailed);
         }
-        if (!reconcileRuntimeComponents() || !validateStartedNodes(startTimeoutTime)) {
+        if (!validateStartedNodes(startTimeoutTime) || !reconcileRuntimeComponents()) {
             logTransitStateAndThrow(Level.ERROR, String.format("Failed to restore required Kubernetes controller components and Ready nodes for cluster : %s",
                     kubernetesCluster.getName()), kubernetesCluster.getId(), KubernetesCluster.Event.OperationFailed);
         }
@@ -996,7 +996,7 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
         if (!verifyHaDns()) {
             return false;
         }
-        if (!reconcileRuntimeComponents() || !validateStartedNodes(startTimeoutTime)) {
+        if (!validateStartedNodes(startTimeoutTime) || !reconcileRuntimeComponents()) {
             return false;
         }
         // mark the cluster to be running

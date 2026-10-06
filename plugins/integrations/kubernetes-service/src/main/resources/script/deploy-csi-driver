@@ -73,4 +73,70 @@ config_patch="{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"mold.abl
 "$KUBECTL" -n kube-system patch daemonset cloudstack-csi-node --type=merge -p "$config_patch"
 "$KUBECTL" -n kube-system rollout status deployment/cloudstack-csi-controller --timeout=120s
 "$KUBECTL" -n kube-system rollout status daemonset/cloudstack-csi-node --timeout=120s
+# Existing rollout summaries can remain Ready briefly during a VM cold start.
+# Verify current Pod container status and execute the qualified driver binary.
+python3 - "$KUBECTL" "$TARGET_DIR/profile.json" <<'PYCODE'
+import concurrent.futures
+import json
+import os
+import pathlib
+import subprocess
+import sys
+import time
+
+kubectl, profile_path = sys.argv[1:]
+image = json.loads(pathlib.Path(profile_path).read_text())["driverImage"]
+timeout = int(os.environ.get("MOLD_CSI_READY_TIMEOUT_SECONDS", "120"))
+if not 1 <= timeout <= 120:
+    raise SystemExit("Invalid CSI runtime readiness timeout")
+deadline = time.monotonic() + timeout
+
+def command(*args):
+    remaining = deadline - time.monotonic()
+    if remaining <= 0:
+        raise TimeoutError()
+    return subprocess.check_output([kubectl, "--request-timeout=10s", "-n", "kube-system", *args],
+                                   stderr=subprocess.DEVNULL, timeout=min(10, remaining))
+
+def driver_live(pod):
+    name = pod["metadata"]["labels"]["app.kubernetes.io/name"]
+    command("exec", pod["metadata"]["name"], "-c", name, "--", "/cloudstack-csi-driver", "--version")
+    return True
+
+while time.monotonic() < deadline:
+    try:
+        controller = json.loads(command("get", "deployment", "cloudstack-csi-controller", "-o", "json"))
+        node = json.loads(command("get", "daemonset", "cloudstack-csi-node", "-o", "json"))
+        expected = {"cloudstack-csi-controller": controller["spec"].get("replicas", 1),
+                    "cloudstack-csi-node": node["status"].get("desiredNumberScheduled", 0)}
+        pods = json.loads(command("get", "pods", "-o", "json"))["items"]
+        live = [p for p in pods if p["metadata"].get("labels", {}).get("app.kubernetes.io/name") in expected
+                and not p["metadata"].get("deletionTimestamp")]
+        valid = all(value > 0 for value in expected.values())
+        for name, count in expected.items():
+            selected = [p for p in live if p["metadata"]["labels"]["app.kubernetes.io/name"] == name]
+            valid = valid and len(selected) == count
+            if name == "cloudstack-csi-node":
+                valid = valid and len({p["spec"].get("nodeName") for p in selected}) == count
+        for pod in live:
+            containers = pod["spec"]["containers"]
+            statuses = pod.get("status", {}).get("containerStatuses", [])
+            driver_name = pod["metadata"]["labels"]["app.kubernetes.io/name"]
+            valid = valid and pod.get("status", {}).get("phase") == "Running"
+            valid = valid and any(c["name"] == driver_name and c.get("image") == image for c in containers)
+            valid = valid and {s["name"] for s in statuses} == {c["name"] for c in containers}
+            valid = valid and all(s.get("ready") and "running" in s.get("state", {}) for s in statuses)
+            valid = valid and any(c.get("type") == "Ready" and c.get("status") == "True"
+                                  for c in pod.get("status", {}).get("conditions", []))
+        if valid:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=8) as pool:
+                if all(pool.map(driver_live, live)):
+                    print("MOLD_CSI_CURRENT_PODS_READY", len(live), flush=True)
+                    break
+    except (subprocess.SubprocessError, OSError, ValueError, KeyError, TimeoutError):
+        pass
+    time.sleep(min(1, max(0, deadline - time.monotonic())))
+else:
+    raise SystemExit("CSI runtime Pods did not become ready and executable")
+PYCODE
 echo MOLD_CSI_DRIVER_READY

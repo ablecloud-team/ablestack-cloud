@@ -39,10 +39,33 @@ class InstallerTests(unittest.TestCase):
         (self.root / "snapshot-crds.yaml").write_text("kind: CustomResourceDefinition\n")
         self.profile()
         self.mock = self.root / "kubectl"
-        self.mock.write_text("#!/bin/bash\necho \"$*\" >> \"$CALLS\"\ncase \"$*\" in *\"${FAIL_STAGE:-NEVER_MATCH}\"*) exit 17;; esac\nexit 0\n")
-        self.mock.write_text(self.mock.read_text().replace("exit 0\n", "case \"$*\" in *\"get secret cloudstack-secret\"*) echo '{\"data\":{\"cloud-config\":\"Zml4dHVyZQ==\"}}';; esac\nexit 0\n"))
+        pods = []
+        for name, pod_name in [("cloudstack-csi-controller", "controller"), ("cloudstack-csi-node", "node")]:
+            pods.append({"metadata": {"name": pod_name, "labels": {"app.kubernetes.io/name": name}},
+                         "spec": {"nodeName": pod_name, "containers": [{"name": name, "image": self.image}]},
+                         "status": {"phase": "Running", "conditions": [{"type": "Ready", "status": "True"}],
+                                    "containerStatuses": [{"name": name, "ready": True, "state": {"running": {}}}]}})
+        (self.root / "pods.json").write_text(json.dumps({"items": pods}))
+        self.mock.write_text("""#!/usr/bin/env python3
+import json, os, pathlib, sys
+args = " ".join(sys.argv[1:])
+with open(os.environ["CALLS"], "a") as output:
+    output.write(args + "\\n")
+if os.environ.get("FAIL_STAGE", "NEVER_MATCH") in args:
+    raise SystemExit(17)
+if "get secret cloudstack-secret" in args:
+    print(json.dumps({"data": {"cloud-config": "Zml4dHVyZQ=="}}))
+elif "get deployment cloudstack-csi-controller" in args:
+    print(json.dumps({"spec": {"replicas": 1}}))
+elif "get daemonset cloudstack-csi-node" in args:
+    print(json.dumps({"status": {"desiredNumberScheduled": 1}}))
+elif "get pods" in args:
+    print(pathlib.Path(os.environ["PODS"]).read_text())
+elif " exec " in args and os.environ.get("FAIL_EXEC") == "1":
+    raise SystemExit(17)
+""")
         self.mock.chmod(0o700)
-        self.env = {**os.environ, "MOLD_CSI_DIR": str(self.root), "MOLD_KUBECTL": str(self.mock), "CALLS": str(self.root / "calls")}
+        self.env = {**os.environ, "MOLD_CSI_DIR": str(self.root), "MOLD_KUBECTL": str(self.mock), "CALLS": str(self.root / "calls"), "PODS": str(self.root / "pods.json"), "MOLD_CSI_READY_TIMEOUT_SECONDS": "1"}
 
     def tearDown(self):
         self.temp.cleanup()
@@ -77,6 +100,36 @@ class InstallerTests(unittest.TestCase):
         self.assertEqual(self.run_installer().returncode, 0)
         all_patches = [line for line in (self.root / "calls").read_text().splitlines() if " patch " in line]
         self.assertEqual(all_patches[2:], first)
+
+    def test_stale_rollout_summary_does_not_hide_unready_current_pods(self):
+        pods = json.loads((self.root / "pods.json").read_text())
+        pods["items"][1]["status"]["containerStatuses"][0]["ready"] = False
+        (self.root / "pods.json").write_text(json.dumps(pods))
+        result = self.run_installer()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertNotIn("MOLD_CSI_DRIVER_READY", result.stdout)
+
+    def test_ready_summary_without_live_driver_process_is_rejected(self):
+        self.env["FAIL_EXEC"] = "1"
+        result = self.run_installer()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertNotIn("MOLD_CSI_DRIVER_READY", result.stdout)
+
+    def test_missing_duplicate_or_terminating_node_pods_are_rejected(self):
+        original = json.loads((self.root / "pods.json").read_text())
+        for mode in ("missing", "duplicate", "terminating"):
+            with self.subTest(mode=mode):
+                pods = json.loads(json.dumps(original))
+                if mode == "missing":
+                    pods["items"].pop()
+                elif mode == "duplicate":
+                    pods["items"].append(pods["items"][-1])
+                else:
+                    pods["items"][-1]["metadata"]["deletionTimestamp"] = "2026-10-06T00:00:00Z"
+                (self.root / "pods.json").write_text(json.dumps(pods))
+                result = self.run_installer()
+                self.assertNotEqual(result.returncode, 0)
+                self.assertNotIn("MOLD_CSI_DRIVER_READY", result.stdout)
 
     def test_partial_or_changed_bundle_fails_before_any_api_mutation(self):
         for name in ["profile.json", "manifest.yaml", "snapshot-crds.yaml"]:
