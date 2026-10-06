@@ -224,6 +224,7 @@ import { listRefreshMixin } from '@/utils/listRefreshMixin'
 
 import { reactive, ref, toRaw } from 'vue'
 import { getAPI, postAPI } from '@/api'
+import { clusterManagementPorts, listAllKubernetesPortRules, listKubernetesClustersForIp } from '@/utils/kubernetesPorts'
 import Status from '@/components/widgets/Status'
 import TooltipButton from '@/components/widgets/TooltipButton'
 import BulkActionView from '@/components/view/BulkActionView'
@@ -263,6 +264,8 @@ export default {
       addTagLoading: false,
       firewallRules: [],
       kubernetesManagementPorts: [],
+      kubernetesPortsRequest: 0,
+      kubernetesPortsUnavailable: false,
       newRule: {
         protocol: 'tcp',
         cidrlist: null,
@@ -333,31 +336,26 @@ export default {
     }
   },
   methods: {
-    fetchKubernetesManagementPorts () {
+    async fetchKubernetesManagementPorts () {
+      const ipId = this.resource?.id
+      const request = ++this.kubernetesPortsRequest
+      const current = () => request === this.kubernetesPortsRequest && ipId === this.resource?.id
       this.kubernetesManagementPorts = []
-      if (!('listKubernetesClusters' in this.$store.getters.apis) || !this.resource?.id) {
-        return
+      this.kubernetesPortsUnavailable = false
+      if (!this.$store.getters.apis.listKubernetesClusters || !ipId) return
+      let clusters = []
+      try {
+        clusters = await listKubernetesClustersForIp(getAPI, ipId)
+        if (!current() || !clusters.length) return
+        this.kubernetesPortsUnavailable = true
+        if (!this.$store.getters.apis.listPortForwardingRules) return
+        const rules = await listAllKubernetesPortRules(getAPI, ipId)
+        if (!current()) return
+        this.kubernetesManagementPorts = clusterManagementPorts(clusters, rules)
+        this.kubernetesPortsUnavailable = false
+      } catch (error) {
+        if (current()) this.kubernetesPortsUnavailable = clusters.length > 0
       }
-      getAPI('listKubernetesClusters', {
-        listAll: true
-      }).then(response => {
-        const clusters = response.listkubernetesclustersresponse?.kubernetescluster || []
-        const cluster = clusters.find(cluster => {
-          return cluster.ipaddressid === this.resource.id ||
-            cluster.networkid === this.resource.associatednetworkid
-        })
-        if (!cluster) {
-          return
-        }
-        const virtualMachines = cluster.virtualmachines || []
-        const nodeCount = virtualMachines.length || (Number(cluster.controlnodes || 1) + Number(cluster.size || 0))
-        const sshPorts = Array.from({ length: nodeCount }, (item, index) => {
-          return 2222 + index
-        }).filter(port => Number.isInteger(port))
-        this.kubernetesManagementPorts = [...new Set([6443, ...sshPorts])]
-      }).catch(() => {
-        this.kubernetesManagementPorts = []
-      })
     },
     initForm () {
       this.formRef = ref()
@@ -464,7 +462,7 @@ export default {
       if (!rule || String(rule.protocol || '').toLowerCase() !== 'tcp') {
         return false
       }
-      return this.rangeIncludesProtectedPort(rule.startport, rule.endport)
+      return this.kubernetesPortsUnavailable || this.rangeIncludesProtectedPort(rule.startport, rule.endport)
     },
     resetSelection () {
       this.setSelection([])

@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import { getAPI } from '@/api'
 import KubernetesServiceTab from '@/views/compute/KubernetesServiceTab.vue'
 
 jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
@@ -63,4 +64,46 @@ test.each([{}, { virtualmachines: null }, { virtualmachines: [] }])('missing ini
   const state = refresh(resource)
   expect(state.virtualmachines).toEqual([])
   expect(state.instanceLoading).toBe(false)
+})
+
+const portState = resource => ({
+  resource,
+  network: null,
+  nodePortRules: [],
+  nodePortRequest: 0,
+  networkLoading: false,
+  $store: { getters: { apis: { listPortForwardingRules: {} } } },
+  $notifyError: jest.fn()
+})
+
+test('late network response cannot replace a newly selected cluster or its port mappings', async () => {
+  let finishOld
+  getAPI.mockReset()
+  getAPI.mockImplementationOnce(() => new Promise(resolve => { finishOld = resolve }))
+  const state = portState({ id: 'old', networkid: 'old-network' })
+  const oldRequest = KubernetesServiceTab.methods.fetchPublicIpAddress.call(state)
+  state.resource = { id: 'new', networkid: 'new-network' }
+  getAPI.mockResolvedValueOnce({ listnetworksresponse: { network: [{ id: 'new-network', type: 'Shared' }] } })
+  await KubernetesServiceTab.methods.fetchPublicIpAddress.call(state)
+  finishOld({ listnetworksresponse: { network: [{ id: 'old-network', type: 'Isolated' }] } })
+  await oldRequest
+  expect(state.network.id).toBe('new-network')
+  expect(state.nodePortRules).toEqual([])
+  expect(state.networkLoading).toBe(false)
+  expect(getAPI).toHaveBeenCalledTimes(2)
+})
+
+test('failed rule read clears stale ports and loading; no index-based fallback is displayed', async () => {
+  getAPI.mockReset()
+  getAPI.mockResolvedValueOnce({ listnetworksresponse: { network: [{ type: 'Isolated' }] } })
+    .mockResolvedValueOnce({ listpublicipaddressesresponse: { publicipaddress: [{ id: 'ip', issourcenat: true }] } })
+    .mockRejectedValueOnce(new Error('Forbidden'))
+  const state = portState({ id: 'cluster', networkid: 'network' })
+  state.nodePortRules = [{ virtualmachineid: 'vm', protocol: 'tcp', publicport: 2222, privateport: 22 }]
+  await KubernetesServiceTab.methods.fetchPublicIpAddress.call(state)
+  expect(state.nodePortRules).toEqual([])
+  expect(state.networkLoading).toBe(false)
+  expect(state.$notifyError).toHaveBeenCalledTimes(1)
+  state.$t = key => key
+  expect(KubernetesServiceTab.methods.sshPortLabel.call(state, { id: 'vm' })).toBe('label.unknown')
 })

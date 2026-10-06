@@ -137,7 +137,7 @@
           :rowKey="item => item.id"
           :pagination="false"
         >
-          <template #bodyCell="{ column, text, record, index }">
+          <template #bodyCell="{ column, text, record }">
             <template v-if="column.key === 'name'" :name="text">
               <router-link :to="{ path: '/vm/' + record.id }">{{ record.name }}</router-link>
             </template>
@@ -145,15 +145,7 @@
               <status :text="text ? text : ''" displayText />
             </template>
             <template v-if="column.key === 'port'" :name="text" :record="record">
-              <div v-if="network.type === 'Shared' || network.ip4routing">
-                {{ cksSshPortSharedNetwork }}
-              </div>
-              <div v-else-if="record.isexternalnode || (!record.isexternalnode && !record.isetcdnode)">
-                {{ cksSshStartingPort + index }}
-              </div>
-              <div v-else>
-                {{ parseInt(etcdSshPort) + parseInt(getEtcdIndex(record.name)) - 1 }}
-              </div>
+              {{ sshPortLabel(record) }}
             </template>
             <template v-if="column.key === 'kubernetesnodeversion'">
               <span> {{ text ? text : '' }} </span>
@@ -213,6 +205,7 @@
 <script>
 import { getAPI, postAPI } from '@/api'
 import { isAdmin } from '@/role'
+import { nodeSshPorts, clusterManagementPorts, listAllKubernetesPortRules } from '@/utils/kubernetesPorts'
 import { mixinDevice } from '@/utils/mixin.js'
 import DetailsTab from '@/components/view/DetailsTab'
 import FirewallRules from '@/views/network/FirewallRules'
@@ -261,9 +254,8 @@ export default {
       network: null,
       publicIpAddress: null,
       currentTab: 'details',
-      cksSshStartingPort: 2222,
-      etcdSshPort: 50000,
-      cksSshPortSharedNetwork: 22,
+      nodePortRules: [],
+      nodePortRequest: 0,
       annotations: []
     }
   },
@@ -320,11 +312,6 @@ export default {
       handler (newData, oldData) {
         if (newData && newData !== oldData) {
           this.handleFetchData()
-          if (this.resource.ipaddress) {
-            this.vmColumns = this.vmColumns.filter(x => x.dataIndex !== 'ipaddress')
-          } else {
-            this.vmColumns = this.vmColumns.filter(x => x.dataIndex !== 'port')
-          }
         }
       }
     },
@@ -339,9 +326,7 @@ export default {
       return `http://localhost:8080/?lng=${supportedLocales.includes(locale) ? locale : 'en'}`
     },
     kubernetesManagementPorts () {
-      const sshPorts = this.virtualmachines
-        .map((vm, index) => this.cksSshStartingPort + index)
-      return [...new Set([6443, ...sshPorts])]
+      return clusterManagementPorts([{ virtualmachines: this.virtualmachines }], this.nodePortRules)
     }
   },
   mounted () {
@@ -352,7 +337,6 @@ export default {
         dataIndex: 'actions'
       })
     }
-    this.fetchEtcdSshPort()
     this.handleFetchData()
     this.setCurrentTab()
   },
@@ -466,64 +450,38 @@ export default {
       })
       this.instanceLoading = false
     },
-    fetchNetwork () {
-      this.networkLoading = true
-      return new Promise((resolve, reject) => {
-        getAPI('listNetworks', {
-          listAll: true,
-          id: this.resource.networkid
-        }).then(json => {
-          const networks = json.listnetworksresponse.network
-          if (this.arrayHasItems(networks)) {
-            this.network = networks[0]
-          }
-          resolve(this.network)
-        })
-        this.networkLoading = false
-      })
+    sshPortLabel (vm) {
+      const ports = nodeSshPorts(vm, this.network, this.nodePortRules)
+      return ports.length ? ports.join(', ') : this.$t('label.unknown')
     },
     async fetchPublicIpAddress () {
-      await this.fetchNetwork()
-      if (this.network && (this.network.type === 'Shared' || this.network.ip4routing)) {
-        this.publicIpAddress = null
-        return
-      }
+      const resource = { ...this.resource }
+      const request = ++this.nodePortRequest
+      const current = () => request === this.nodePortRequest && resource.id === this.resource.id
       this.networkLoading = true
-      var params = {
-        listAll: true,
-        forvirtualnetwork: true
+      this.network = null
+      this.publicIpAddress = null
+      this.nodePortRules = []
+      try {
+        if (!resource.networkid) return
+        const response = await getAPI('listNetworks', { listAll: true, id: resource.networkid })
+        if (!current()) return
+        this.network = response.listnetworksresponse?.network?.[0] || null
+        if (!this.network || this.network.type === 'Shared' || this.network.ip4routing) return
+        const params = { listAll: true, forvirtualnetwork: true, associatednetworkid: resource.networkid }
+        if (resource.projectid) params.projectid = resource.projectid
+        if (resource.ipaddressid) params.id = resource.ipaddressid
+        const ips = await getAPI('listPublicIpAddresses', params)
+        if (!current()) return
+        this.publicIpAddress = ips.listpublicipaddressesresponse?.publicipaddress?.find(ip => ip.issourcenat) || null
+        if (!this.publicIpAddress || !this.$store.getters.apis.listPortForwardingRules) return
+        const rules = await listAllKubernetesPortRules(getAPI, this.publicIpAddress.id)
+        if (current()) this.nodePortRules = rules
+      } catch (error) {
+        if (current()) this.$notifyError(error)
+      } finally {
+        if (current()) this.networkLoading = false
       }
-      if (!this.isObjectEmpty(this.resource)) {
-        if (this.isValidValueForKey(this.resource, 'projectid') &&
-          this.resource.projectid !== '') {
-          params.projectid = this.resource.projectid
-        }
-        if (this.isValidValueForKey(this.resource, 'networkid')) {
-          params.associatednetworkid = this.resource.networkid
-        }
-      }
-      if (this.resource.networkid !== undefined) {
-        getAPI('listPublicIpAddresses', params).then(json => {
-          let ips = json.listpublicipaddressesresponse.publicipaddress
-          if (this.arrayHasItems(ips)) {
-            ips = ips.filter(x => x.issourcenat)
-            this.publicIpAddress = ips.length > 0 ? ips[0] : null
-          }
-        }).catch(error => {
-          this.$notifyError(error)
-        }).finally(() => {
-          this.networkLoading = false
-        })
-      }
-    },
-    fetchEtcdSshPort () {
-      const params = {}
-      params.name = 'cloud.kubernetes.etcd.node.start.port'
-      var apiName = 'listConfigurations'
-      getAPI(apiName, params).then(json => {
-        const configResponse = json.listconfigurationsresponse.configuration
-        this.etcdSshPort = configResponse[0]?.value
-      })
     },
     downloadKubernetesClusterConfig () {
       var blob = new Blob([this.clusterConfig], { type: 'text/plain' })
@@ -567,14 +525,6 @@ export default {
       }).finally(() => {
         this.parentFetchData()
       })
-    },
-    getEtcdIndex (name) {
-      const lastIndex = name.lastIndexOf('-')
-      if (lastIndex > 0) {
-        return name.charAt(lastIndex - 1)
-      } else {
-        return null
-      }
     }
   }
 }
