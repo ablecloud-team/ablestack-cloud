@@ -8293,5 +8293,8 @@
   "label.kubernetes.cleanup.status": "Cluster cleanup status",
   "label.kubernetes.cleanup.phase": "Cleanup phase",
   "label.kubernetes.cleanup.remaining": "Remaining resources",
-  "message.kubernetes.cleanup.retry": "Cleanup is incomplete and cluster nodes are preserved. Check the API, components and remaining resources, then retry cluster deletion."
+  "message.kubernetes.cleanup.retry": "Cleanup is incomplete and cluster nodes are preserved. Check the API, components and remaining resources, then retry cluster deletion.",
+  "message.cks.events.order": "Default event order: newest first (creation time descending). Column headers change the order on the current page.",
+  "message.cks.events.record.created": "Event record created means the request was recorded. Check the completed event level and description together with cluster state for the actual outcome.",
+  "state.cks.eventrecord.created": "Event record created"
 }

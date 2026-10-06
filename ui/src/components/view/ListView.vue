@@ -495,7 +495,7 @@
       <template v-if="column.key === 'state'">
         <span class="list-state-with-flatten">
           <status v-if="$route.path.startsWith('/host')" :text="getHostState(record)" displayText />
-          <status v-else :text="text ? text : ''" displayText />
+          <status v-else :text="text ? text : ''" :displayLabel="column.stateLabel ? column.stateLabel(record) : ''" displayText />
           <clone-flatten-control :record="record" @refresh="$emit('refresh')" />
         </span>
       </template>

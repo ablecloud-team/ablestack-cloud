@@ -42,6 +42,10 @@ export default {
       type: String,
       required: true
     },
+    displayLabel: {
+      type: String,
+      default: ''
+    },
     displayText: {
       type: Boolean,
       default: false
@@ -61,6 +65,7 @@ export default {
   },
   methods: {
     getText () {
+      if (this.displayText && this.displayLabel) return this.displayLabel
       if (this.displayText && this.text) {
         var state = this.text
         switch (state.toLowerCase()) {
@@ -341,6 +346,7 @@ export default {
       }
     },
     getTooltip (state) {
+      if (this.displayText && this.displayLabel) return this.displayLabel
       if (!(state && this.displayText)) {
         return ''
       }

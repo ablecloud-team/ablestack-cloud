@@ -8258,5 +8258,8 @@
   "label.kubernetes.cleanup.status": "클러스터 정리 상태",
   "label.kubernetes.cleanup.phase": "정리 단계",
   "label.kubernetes.cleanup.remaining": "잔여 자원",
-  "message.kubernetes.cleanup.retry": "정리가 완료되지 않아 클러스터 노드를 보존했습니다. API·구성 요소와 잔여 자원을 확인한 뒤 클러스터 삭제를 다시 실행하세요."
+  "message.kubernetes.cleanup.retry": "정리가 완료되지 않아 클러스터 노드를 보존했습니다. API·구성 요소와 잔여 자원을 확인한 뒤 클러스터 삭제를 다시 실행하세요.",
+  "message.cks.events.order": "이벤트 기본 정렬: 최신순(생성일 내림차순). 열 머리글로 현재 페이지의 정렬을 바꿀 수 있습니다.",
+  "message.cks.events.record.created": "이벤트 기록 생성은 작업 요청 기록을 뜻합니다. 완료 이벤트의 레벨·설명과 클러스터 상태에서 실제 성공·실패를 확인하세요.",
+  "state.cks.eventrecord.created": "이벤트 기록 생성"
 }
