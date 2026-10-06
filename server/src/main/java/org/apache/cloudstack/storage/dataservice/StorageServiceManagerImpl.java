@@ -421,6 +421,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                             StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(
                                     instance.getVmId(), "operation verify", "", 60, Collections.emptySet()));
                             if (!result.isSuccess()) throw new CloudRuntimeException("Storage Service live verification failed: " + result.getDetails());
+                            final JsonObject health = parseJsonObject(result.getResultJson());
+                            if (!Boolean.TRUE.equals(getJsonBoolean(health, "success")) || !"ok".equalsIgnoreCase(getJsonString(health, "status"))) {
+                                throw new CloudRuntimeException("Storage Service live runtime reports degraded health; configuration is not promoted");
+                            }
                         }
                     }
                     public void applyPrevious() {
