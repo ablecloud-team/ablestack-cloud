@@ -276,36 +276,17 @@
         <span v-else>{{ text }}</span>
       </template>
       <template v-if="column.key === 'state'">
-        <status v-if="$route.path.startsWith('/host')" :text="getHostState(record)" displayText />
-        <status v-else-if="isFastCloneFlattenVisible(record)" :text="text ? text : ''" displayText :styles="{ 'min-width': '80px' }">
-          <template #tooltip>
-            <div class="clone-fast-flatten-list-tooltip">
-              <div class="clone-fast-flatten-list-tooltip-title">{{ getCloneFastListTooltipTitle(record) }}</div>
-              <div
-                v-for="item in getCloneFastFlattenTooltipItems(record)"
-                :key="item.label"
-                class="clone-fast-flatten-list-tooltip-row">
-                <span class="clone-fast-flatten-list-tooltip-label">{{ item.label }} :</span>
-                <span class="clone-fast-flatten-list-tooltip-value">{{ item.value }}</span>
-              </div>
-            </div>
-          </template>
-        </status>
-        <status v-else-if="isFastCloneSourceFlattenActive(record)" :text="text ? text : ''" displayText :styles="{ 'min-width': '80px' }">
-          <template #tooltip>
-            <div class="clone-fast-flatten-list-tooltip">
-              <div class="clone-fast-flatten-list-tooltip-title">{{ getCloneFastSourceTooltipTitle(record) }}</div>
-              <div class="clone-fast-flatten-list-tooltip-description">{{ getCloneFastSourceTooltipDescription(record) }}</div>
-            </div>
-          </template>
-        </status>
-        <status v-else :text="text ? text : ''" displayText :styles="{ 'min-width': '80px' }" />
+        <span class="list-state-with-flatten">
+          <status v-if="$route.path.startsWith('/host')" :text="getHostState(record)" displayText />
+          <status v-else :text="text ? text : ''" displayText :styles="{ 'min-width': '80px' }" />
+          <clone-flatten-control :record="record" @refresh="$emit('refresh')" />
+        </span>
       </template>
       <template v-if="column.key === 'status'">
         <status :text="text ? text : ''" displayText />
       </template>
       <template v-if="column.key === 'clonefaststatus'">
-        <a-tag v-if="isFastCloneFlattenVisible(record)" color="processing">
+        <a-tag v-if="isFastCloneFlattenActive(record)" :color="getFastClonePhaseColor(record)">
           {{ getCloneFastStatusLabel(record) }}
         </a-tag>
         <span v-else>-</span>
@@ -727,6 +708,8 @@ import CopyLabel from '@/components/widgets/CopyLabel'
 import OsLogo from '@/components/widgets/OsLogo'
 import ResourceLabel from '@/components/widgets/ResourceLabel'
 import Status from '@/components/widgets/Status'
+import CloneFlattenControl from '@/components/widgets/CloneFlattenControl'
+import { getFastClonePhase, getFastClonePhaseLabel, getFastClonePhaseColor } from '@/utils/fastClone'
 import TooltipButton from '@/components/widgets/TooltipButton'
 import { createPathBasedOnVmType } from '@/utils/plugins'
 import { validateLinks } from '@/utils/links'
@@ -739,6 +722,7 @@ export default {
   components: {
     OsLogo,
     Status,
+    CloneFlattenControl,
     ResourceContextMenu,
     CopyLabel,
     TooltipButton,
@@ -1287,23 +1271,14 @@ export default {
     getCloneFastStatus (record) {
       return String(record?.clonefaststatus || record?.details?.['clone.fast.status'] || '').toLowerCase()
     },
+    getFastClonePhase,
+    getFastClonePhaseColor,
     isFastCloneFlattenActive (record) {
-      return ['pending', 'running'].includes(this.getCloneFastStatus(record))
-    },
-    hasCloneFastFlattenVolumeInfo (record) {
-      return [
-        record?.clonefastflattenvolumetype,
-        record?.clonefastflattenvolumename,
-        record?.clonefastflattendeviceid
-      ].some(value => value !== undefined && value !== null && value !== '')
-    },
-    isFastCloneFlattenVisible (record) {
-      return this.isFastCloneFlattenActive(record) && this.hasCloneFastFlattenVolumeInfo(record)
-    },
-    isFastCloneSourceFlattenActive (record) {
-      return this.isFastCloneFlattenActive(record) && !this.hasCloneFastFlattenVolumeInfo(record)
+      return !!getFastClonePhase(record) || ['pending', 'running'].includes(this.getCloneFastStatus(record))
     },
     getCloneFastStatusLabel (record) {
+      const phaseLabel = getFastClonePhaseLabel(record)
+      if (phaseLabel) return this.$t(phaseLabel)
       const status = this.getCloneFastStatus(record)
       if (status === 'running') {
         return this.$t('label.sharedmountpoint.clone.flatten.running')
@@ -1312,54 +1287,6 @@ export default {
         return this.$t('label.sharedmountpoint.clone.flatten.pending')
       }
       return ''
-    },
-    getCloneFastSourceTooltipTitle (record) {
-      const status = this.getCloneFastStatus(record)
-      if (status === 'pending') {
-        return this.$t('message.sharedmountpoint.clone.source.flatten.pending.summary')
-      }
-      return this.$t('message.sharedmountpoint.clone.source.flatten.running.summary')
-    },
-    getCloneFastSourceTooltipDescription (record) {
-      const status = this.getCloneFastStatus(record)
-      if (status === 'pending') {
-        return this.$t('message.sharedmountpoint.clone.source.flatten.pending')
-      }
-      return this.$t('message.sharedmountpoint.clone.source.flatten.running')
-    },
-    getCloneFastListTooltipTitle (record) {
-      const status = this.getCloneFastStatus(record)
-      if (status === 'running') {
-        return this.$t('message.sharedmountpoint.clone.flatten.running.summary')
-      }
-      if (status === 'pending') {
-        return this.$t('message.sharedmountpoint.clone.flatten.pending.summary')
-      }
-      return this.$t('label.sharedmountpoint.clone.flatten.status')
-    },
-    getCloneFastFlattenVolumeTypeLabel (record) {
-      const volumeType = record?.clonefastflattenvolumetype
-      return volumeType ? volumeType + ' ' + this.$t('label.volume') : ''
-    },
-    getCloneFastFlattenProgress (record) {
-      const rawProgress = record?.clonefastflattenprogress ?? record?.details?.['clone.fast.flatten.progress']
-      const progress = Number.parseFloat(rawProgress)
-      if (!Number.isFinite(progress)) {
-        return null
-      }
-      return Math.min(Math.max(progress, 0), 100)
-    },
-    formatCloneFastFlattenProgress (record) {
-      const progress = this.getCloneFastFlattenProgress(record)
-      return progress === null ? '' : progress.toFixed(2) + '%'
-    },
-    getCloneFastFlattenTooltipItems (record) {
-      return [
-        { label: this.$t('label.type'), value: this.getCloneFastFlattenVolumeTypeLabel(record) },
-        { label: this.$t('label.name'), value: record?.clonefastflattenvolumename },
-        { label: this.$t('label.deviceid'), value: record?.clonefastflattendeviceid },
-        { label: this.$t('label.progress'), value: this.formatCloneFastFlattenProgress(record) }
-      ].filter(item => item.value !== undefined && item.value !== null && item.value !== '')
     },
     getColumnKey (name) {
       if (typeof name === 'object') {
@@ -1499,38 +1426,19 @@ export default {
   background-color: transparent;
 }
 
-.clone-fast-flatten-list-tooltip {
-  min-width: 220px;
-}
-
-.clone-fast-flatten-list-tooltip-title {
-  font-weight: 600;
-  margin-bottom: 6px;
-}
-
-.clone-fast-flatten-list-tooltip-description {
-  line-height: 20px;
-}
-
-.clone-fast-flatten-list-tooltip-row {
-  display: grid;
-  gap: 8px;
-  grid-template-columns: max-content minmax(0, 1fr);
-  line-height: 20px;
-}
-
-.clone-fast-flatten-list-tooltip-label {
-  color: rgba(255, 255, 255, 0.85);
-  white-space: nowrap;
-}
-
-.clone-fast-flatten-list-tooltip-value {
-  color: #fff;
-  overflow-wrap: anywhere;
-}
 </style>
 
 <style scoped lang="scss">
+.list-state-with-flatten {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+
+  :deep(.clone-flatten-control) {
+    margin-left: 0;
+  }
+}
+
   .shift-btns {
     display: flex;
   }

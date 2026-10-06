@@ -49,6 +49,7 @@ known_categories = {
     'Cisco' : 'External Device',
     'SystemVm': 'System VM',
     'VirtualMachine': 'Virtual Machine',
+    'updateVmCloneFlattenBandwidth': 'Virtual Machine',
     'VM': 'Virtual Machine',
     'VmDevice': 'Virtual Machine',
     'Vnf': 'Virtual Network Functions',
