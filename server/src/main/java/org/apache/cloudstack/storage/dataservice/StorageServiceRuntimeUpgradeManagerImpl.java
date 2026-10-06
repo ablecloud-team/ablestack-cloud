@@ -100,10 +100,17 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         validateArtifactUrl(cmd.getArtifactUrl());
         validateArtifactUrl(cmd.getManifestUrl());
         validateArtifactUrl(cmd.getSignatureUrl());
+        final String channel = cmd.getReleaseChannel() == null ? "stable" : cmd.getReleaseChannel().trim();
+        if (!channel.matches("[A-Za-z0-9][A-Za-z0-9._-]{0,63}")) throw new IllegalArgumentException("Invalid runtime release channel");
+        if (cmd.getReleaseNotes() != null && cmd.getReleaseNotes().length() > 4096) throw new IllegalArgumentException("Runtime release notes exceed 4096 characters");
         final StorageServiceRuntimeBundleVO existing = bundleDao.findByVersion(cmd.getVersion());
         if (existing != null) {
             if (!existing.getSha256().equalsIgnoreCase(cmd.getSha256()) ||
-                    !existing.getManifestSha256().equalsIgnoreCase(cmd.getManifestSha256())) {
+                    !existing.getManifestSha256().equalsIgnoreCase(cmd.getManifestSha256()) ||
+                    !existing.getSigningKeyId().equals(cmd.getSigningKeyId()) ||
+                    !existing.getRuntimeAbiVersion().equals(cmd.getRuntimeAbiVersion()) ||
+                    !existing.getDesiredStateSchemaVersion().equals(cmd.getDesiredStateSchemaVersion()) ||
+                    existing.getServiceImpact() != impact) {
                 throw new CloudRuntimeException("Runtime bundle version already exists with different hashes");
             }
             return bundleResponse(existing);
@@ -112,6 +119,12 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
                 cmd.getVersion(), cmd.getRuntimeAbiVersion(), cmd.getDesiredStateSchemaVersion(), impact,
                 cmd.getArtifactUrl(), cmd.getManifestUrl(), cmd.getSignatureUrl(), cmd.getArtifactSize(),
                 cmd.getSha256().toLowerCase(Locale.ROOT), cmd.getManifestSha256().toLowerCase(Locale.ROOT), cmd.getSigningKeyId()));
+        final JsonObject metadata = new JsonObject();
+        metadata.addProperty("channel", channel);
+        metadata.addProperty("releaseNotes", cmd.getReleaseNotes());
+        bundle.setCatalogJson(metadata.toString());
+        recordCatalogAudit(bundle, "REGISTERED", "Immutable runtime bundle registered");
+        bundleDao.update(bundle.getId(), bundle);
         CallContext.current().setEventResourceId(bundle.getId());
         return bundleResponse(bundle);
     }
