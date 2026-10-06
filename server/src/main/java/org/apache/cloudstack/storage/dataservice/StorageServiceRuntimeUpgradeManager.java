@@ -21,6 +21,8 @@ import org.apache.cloudstack.api.command.admin.storage.dataservice.ListStorageSe
 import org.apache.cloudstack.api.command.admin.storage.dataservice.ListStorageServiceRuntimeUpgradesCmd;
 import org.apache.cloudstack.api.command.admin.storage.dataservice.PreflightStorageServiceRuntimeUpgradeCmd;
 import org.apache.cloudstack.api.command.admin.storage.dataservice.RegisterStorageServiceRuntimeBundleCmd;
+import org.apache.cloudstack.api.command.admin.storage.dataservice.UpdateStorageServiceRuntimeBundleCmd;
+import org.apache.cloudstack.api.command.admin.storage.dataservice.DeleteStorageServiceRuntimeBundleCmd;
 import org.apache.cloudstack.api.command.admin.storage.dataservice.RollbackStorageServiceRuntimeUpgradeCmd;
 import org.apache.cloudstack.api.command.admin.storage.dataservice.UpgradeStorageServiceRuntimeCmd;
 import org.apache.cloudstack.api.response.ListResponse;
@@ -29,6 +31,8 @@ import org.apache.cloudstack.api.response.StorageServiceRuntimeCapabilityRespons
 import org.apache.cloudstack.api.response.StorageServiceRuntimeUpgradeResponse;
 
 public interface StorageServiceRuntimeUpgradeManager {
+    StorageServiceRuntimeBundleResponse updateBundle(UpdateStorageServiceRuntimeBundleCmd cmd);
+    boolean deleteBundle(DeleteStorageServiceRuntimeBundleCmd cmd);
     StorageServiceRuntimeBundleResponse register(RegisterStorageServiceRuntimeBundleCmd cmd);
     ListResponse<StorageServiceRuntimeBundleResponse> listBundles(ListStorageServiceRuntimeBundlesCmd cmd);
     StorageServiceRuntimeCapabilityResponse capabilities(GetStorageServiceRuntimeUpgradeCapabilitiesCmd cmd);

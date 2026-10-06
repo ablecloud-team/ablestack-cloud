@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
+import com.cloud.utils.db.GlobalLock;
+import com.google.gson.JsonArray;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -40,6 +42,8 @@ import org.apache.cloudstack.api.command.admin.storage.dataservice.ListStorageSe
 import org.apache.cloudstack.api.command.admin.storage.dataservice.ListStorageServiceRuntimeUpgradesCmd;
 import org.apache.cloudstack.api.command.admin.storage.dataservice.PreflightStorageServiceRuntimeUpgradeCmd;
 import org.apache.cloudstack.api.command.admin.storage.dataservice.RegisterStorageServiceRuntimeBundleCmd;
+import org.apache.cloudstack.api.command.admin.storage.dataservice.UpdateStorageServiceRuntimeBundleCmd;
+import org.apache.cloudstack.api.command.admin.storage.dataservice.DeleteStorageServiceRuntimeBundleCmd;
 import org.apache.cloudstack.api.command.admin.storage.dataservice.RollbackStorageServiceRuntimeUpgradeCmd;
 import org.apache.cloudstack.api.command.admin.storage.dataservice.UpgradeStorageServiceRuntimeCmd;
 import org.apache.cloudstack.api.response.ListResponse;
@@ -113,6 +117,97 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
     }
 
     @Override
+    public StorageServiceRuntimeBundleResponse updateBundle(final UpdateStorageServiceRuntimeBundleCmd cmd) {
+        if (cmd.getReason() == null || cmd.getReason().trim().isEmpty() || cmd.getReason().length() > 1024) {
+            throw new IllegalArgumentException("A lifecycle reason of 1 to 1024 characters is required");
+        }
+        final StorageServiceRuntimeBundleVO.State target = StorageServiceRuntimeBundleVO.State.valueOf(cmd.getState().toUpperCase(java.util.Locale.ROOT));
+        final GlobalLock lock = GlobalLock.getInternLock("StorageRuntimeCatalog-" + cmd.getId());
+        try {
+            if (!lock.lock(10)) throw new CloudRuntimeException("Runtime catalog entry is being changed");
+            try {
+                final StorageServiceRuntimeBundleVO bundle = bundleDao.findById(cmd.getId());
+                if (bundle == null || !bundle.getState().name().equalsIgnoreCase(cmd.getExpectedState())) {
+                    throw new CloudRuntimeException("Runtime catalog state changed; refresh before retrying");
+                }
+                if (!catalogTransitionAllowed(bundle.getState(), target)) {
+                    throw new IllegalArgumentException("Runtime catalog state transition is not allowed");
+                }
+                if (target == StorageServiceRuntimeBundleVO.State.VERIFIED || target == StorageServiceRuntimeBundleVO.State.AVAILABLE) {
+                    final byte[] archive = download(bundle.getArtifactUrl(), MAX_BUNDLE_BYTES);
+                    final byte[] manifest = download(bundle.getManifestUrl(), MAX_MANIFEST_BYTES);
+                    final byte[] signature = download(bundle.getSignatureUrl(), MAX_SIGNATURE_BYTES);
+                    final JsonObject verification = new StorageServiceRuntimeBundleVerifier().verify(bundle, archive, manifest, signature,
+                            trustedKey(bundle.getSigningKeyId()));
+                    final JsonObject metadata = catalogMetadata(bundle);
+                    metadata.add("verification", verification);
+                    metadata.addProperty("verifiedAt", new Date().getTime());
+                    if (target == StorageServiceRuntimeBundleVO.State.AVAILABLE) metadata.addProperty("publishedAt", new Date().getTime());
+                    bundle.setCatalogJson(metadata.toString());
+                }
+                bundle.setState(target);
+                recordCatalogAudit(bundle, target.name(), cmd.getReason());
+                bundleDao.update(bundle.getId(), bundle);
+                return bundleResponse(bundle);
+            } finally { lock.unlock(); }
+        } finally { lock.releaseRef(); }
+    }
+
+    protected boolean catalogTransitionAllowed(StorageServiceRuntimeBundleVO.State source, StorageServiceRuntimeBundleVO.State target) {
+        if (source == StorageServiceRuntimeBundleVO.State.REVOKED) return false;
+        if (source == target) return source != StorageServiceRuntimeBundleVO.State.REGISTERED;
+        switch (source) {
+            case REGISTERED: return target == StorageServiceRuntimeBundleVO.State.VERIFIED || target == StorageServiceRuntimeBundleVO.State.REVOKED;
+            case VERIFIED: return target == StorageServiceRuntimeBundleVO.State.AVAILABLE || target == StorageServiceRuntimeBundleVO.State.REVOKED;
+            case AVAILABLE: return target == StorageServiceRuntimeBundleVO.State.DISABLED || target == StorageServiceRuntimeBundleVO.State.DEPRECATED ||
+                    target == StorageServiceRuntimeBundleVO.State.REVOKED;
+            case DISABLED: return target == StorageServiceRuntimeBundleVO.State.AVAILABLE || target == StorageServiceRuntimeBundleVO.State.DEPRECATED ||
+                    target == StorageServiceRuntimeBundleVO.State.REVOKED;
+            case DEPRECATED: return target == StorageServiceRuntimeBundleVO.State.REVOKED;
+            default: return false;
+        }
+    }
+
+    @Override
+    public boolean deleteBundle(final DeleteStorageServiceRuntimeBundleCmd cmd) {
+        final GlobalLock lock = GlobalLock.getInternLock("StorageRuntimeCatalog-" + cmd.getId());
+        try {
+            if (!lock.lock(10)) throw new CloudRuntimeException("Runtime catalog entry is being changed");
+            try {
+                final StorageServiceRuntimeBundleVO bundle = bundleDao.findById(cmd.getId());
+                if (bundle == null) return true;
+                final boolean referenced = instanceDao.listAll().stream().anyMatch(instance ->
+                        java.util.Objects.equals(instance.getCurrentRuntimeBundleId(), bundle.getId()) ||
+                        java.util.Objects.equals(instance.getPreviousRuntimeBundleId(), bundle.getId())) ||
+                        upgradeDao.listAll().stream().anyMatch(upgrade -> upgrade.getBundleId() == bundle.getId());
+                if (referenced || bundle.getState() != StorageServiceRuntimeBundleVO.State.REGISTERED) {
+                    throw new CloudRuntimeException("Only unused REGISTERED bundles can be removed; lifecycle and rollback history must be retained");
+                }
+                recordCatalogAudit(bundle, "REMOVED", "Unused registered bundle removed");
+                bundleDao.update(bundle.getId(), bundle);
+                return bundleDao.remove(bundle.getId());
+            } finally { lock.unlock(); }
+        } finally { lock.releaseRef(); }
+    }
+
+    private JsonObject catalogMetadata(StorageServiceRuntimeBundleVO bundle) {
+        return bundle.getCatalogJson() == null ? new JsonObject() : new JsonParser().parse(bundle.getCatalogJson()).getAsJsonObject();
+    }
+
+    private void recordCatalogAudit(StorageServiceRuntimeBundleVO bundle, String action, String reason) {
+        final JsonObject metadata = catalogMetadata(bundle);
+        final JsonArray audit = metadata.has("audit") ? metadata.getAsJsonArray("audit") : new JsonArray();
+        final JsonObject entry = new JsonObject();
+        entry.addProperty("action", action);
+        entry.addProperty("reason", reason);
+        entry.addProperty("userId", CallContext.current().getCallingUserId());
+        entry.addProperty("at", new Date().getTime());
+        audit.add(entry);
+        metadata.add("audit", audit);
+        bundle.setCatalogJson(metadata.toString());
+    }
+
+    @Override
     public ListResponse<StorageServiceRuntimeBundleResponse> listBundles(final ListStorageServiceRuntimeBundlesCmd cmd) {
         final List<StorageServiceRuntimeBundleVO> bundles = new ArrayList<>();
         if (cmd.getId() != null) {
@@ -122,7 +217,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
             final StorageServiceRuntimeBundleVO bundle = bundleDao.findByVersion(cmd.getVersion());
             if (bundle != null) bundles.add(bundle);
         } else {
-            bundles.addAll(bundleDao.listAvailable());
+            bundles.addAll(cmd.isCatalog() ? bundleDao.listAll() : bundleDao.listAvailable());
         }
         final List<StorageServiceRuntimeBundleResponse> responses = new ArrayList<>();
         for (final StorageServiceRuntimeBundleVO bundle : bundles) responses.add(bundleResponse(bundle));
@@ -177,6 +272,8 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
             final byte[] signature = download(bundle.getSignatureUrl(), MAX_SIGNATURE_BYTES);
             verifyBytes(archive, bundle.getSha256(), "runtime bundle");
             verifyBytes(manifest, bundle.getManifestSha256(), "runtime manifest");
+            new StorageServiceRuntimeBundleVerifier().verify(bundle, archive, manifest, signature,
+                    trustedKey(bundle.getSigningKeyId()));
             if (bundle.getArtifactSize() != null && bundle.getArtifactSize() != archive.length) {
                 throw new CloudRuntimeException("Runtime bundle size differs from registered metadata");
             }
@@ -252,7 +349,11 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
     public StorageServiceRuntimeUpgradeResponse rollback(final RollbackStorageServiceRuntimeUpgradeCmd cmd) {
         final StorageServiceRuntimeUpgradeVO upgrade = requireUpgrade(cmd.getUpgradeId());
         final StorageServiceInstanceVO instance = instanceDao.findById(upgrade.getInstanceId());
-        final StorageServiceRuntimeBundleVO bundle = requireBundle(upgrade.getBundleId());
+        final StorageServiceRuntimeBundleVO bundle = bundleDao.findById(upgrade.getBundleId());
+        final StorageServiceRuntimeBundleVO previous = instance.getPreviousRuntimeBundleId() == null ? null : bundleDao.findById(instance.getPreviousRuntimeBundleId());
+        if (bundle == null || previous != null && previous.getState() == StorageServiceRuntimeBundleVO.State.REVOKED) {
+            throw new CloudRuntimeException("Rollback destination is revoked or unavailable");
+        }
         final JsonObject result = invoke(instance, StorageServiceRuntimeOperation.ROLLBACK,
                 upgrade.getTransactionId(), request(upgrade, bundle));
         final Long current = instance.getCurrentRuntimeBundleId();
@@ -297,7 +398,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
             invoke(instance, StorageServiceRuntimeOperation.BOOTSTRAP, transactionId, null);
         }
         transfer(instance, transactionId, StorageServiceRuntimeFileType.TRUSTED_KEY, bundle.getSigningKeyId(),
-                resource("/storage-runtime/trusted-keys/" + bundle.getSigningKeyId() + ".pem"), 8, 10, null);
+                trustedKey(bundle.getSigningKeyId()), 8, 10, null);
     }
 
     protected void transfer(final StorageServiceInstanceVO instance, final String transactionId,
@@ -355,6 +456,32 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         } catch (final IOException | IllegalArgumentException error) {
             throw new CloudRuntimeException("Unable to download Storage Service runtime artifact: " + error.getMessage(), error);
         }
+    }
+
+    protected java.nio.file.Path trustedKeyDirectory() {
+        return java.nio.file.Paths.get(StorageServiceInstance.StorageServiceRuntimeTrustedKeyDirectory.value());
+    }
+
+    protected byte[] trustedKey(final String keyId) {
+        requireIdentifier(keyId, "signingkeyid");
+        final java.nio.file.Path directory = trustedKeyDirectory().toAbsolutePath().normalize();
+        final java.nio.file.Path path = directory.resolve(keyId + ".pem").normalize();
+        if (!path.getParent().equals(directory)) throw new IllegalArgumentException("Invalid runtime signing key path");
+        if (java.nio.file.Files.exists(path, java.nio.file.LinkOption.NOFOLLOW_LINKS)) {
+            try {
+                if (java.nio.file.Files.isSymbolicLink(path) || java.nio.file.Files.size(path) > 16384) {
+                    throw new CloudRuntimeException("Runtime public key file is unsafe");
+                }
+                final byte[] value = java.nio.file.Files.readAllBytes(path);
+                if (!new String(value, java.nio.charset.StandardCharsets.US_ASCII).trim().startsWith("-----BEGIN PUBLIC KEY-----")) {
+                    throw new CloudRuntimeException("Only public verification keys are accepted");
+                }
+                return value;
+            } catch (IOException error) {
+                throw new CloudRuntimeException("Unable to read the approved runtime public verification key", error);
+            }
+        }
+        return resource("/storage-runtime/trusted-keys/" + keyId + ".pem");
     }
 
     protected byte[] resource(final String path) {
@@ -421,7 +548,9 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
 
     private void validateArtifactUrl(final String value) {
         try {
-            final String scheme = URI.create(value).getScheme();
+            final URI uri = URI.create(value);
+            if (uri.getHost() == null || uri.getUserInfo() != null || uri.getFragment() != null) throw new IllegalArgumentException();
+            final String scheme = uri.getScheme();
             if (!("http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme))) throw new IllegalArgumentException();
         } catch (final RuntimeException error) {
             throw new IllegalArgumentException("Runtime artifact URL must use HTTP or HTTPS", error);
@@ -465,6 +594,12 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         response.setDesiredStateSchemaVersion(bundle.getDesiredStateSchemaVersion()); response.setServiceImpact(bundle.getServiceImpact().name());
         response.setArtifactUrl(bundle.getArtifactUrl()); response.setArtifactSize(bundle.getArtifactSize()); response.setSha256(bundle.getSha256());
         response.setManifestSha256(bundle.getManifestSha256()); response.setSigningKeyId(bundle.getSigningKeyId()); response.setState(bundle.getState().name());
+        response.setCatalog(bundle.getCatalogJson());
+        final List<String> consumers = new ArrayList<>();
+        for (StorageServiceInstanceVO instance : instanceDao.listAll()) {
+            if (java.util.Objects.equals(instance.getCurrentRuntimeBundleId(), bundle.getId())) consumers.add(instance.getUuid());
+        }
+        response.setInstances(consumers);
         response.setCreated(bundle.getCreated()); response.setObjectName("storageserviceruntimebundle"); return response;
     }
 
