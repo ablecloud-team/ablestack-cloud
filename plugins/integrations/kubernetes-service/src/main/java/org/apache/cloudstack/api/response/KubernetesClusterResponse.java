@@ -88,12 +88,36 @@ public class KubernetesClusterResponse extends BaseResponseWithAnnotations imple
     private Long etcdNodes;
 
     @SerializedName(ApiConstants.TEMPLATE_ID)
-    @Param(description = "The ID of the Template of the Kubernetes cluster")
+    @Param(description = "The ID of the default Template of the Kubernetes cluster")
     private String templateId;
 
     @SerializedName(ApiConstants.TEMPLATE_NAME)
-    @Param(description = "the name of the template of the Kubernetes cluster")
+    @Param(description = "the name of the default template of the Kubernetes cluster")
     private String templateName;
+
+    @SerializedName("controltemplateid")
+    @Param(description = "The ID of the effective template for control nodes")
+    private String controlTemplateId;
+
+    @SerializedName("controltemplatename")
+    @Param(description = "The name of the effective template for control nodes")
+    private String controlTemplateName;
+
+    @SerializedName("workertemplateid")
+    @Param(description = "The ID of the effective template for worker nodes")
+    private String workerTemplateId;
+
+    @SerializedName("workertemplatename")
+    @Param(description = "The name of the effective template for worker nodes")
+    private String workerTemplateName;
+
+    @SerializedName("etcdtemplateid")
+    @Param(description = "The ID of the effective template for etcd nodes")
+    private String etcdTemplateId;
+
+    @SerializedName("etcdtemplatename")
+    @Param(description = "The name of the effective template for etcd nodes")
+    private String etcdTemplateName;
 
     @SerializedName(ApiConstants.NETWORK_ID)
     @Param(description = "The ID of the network of the Kubernetes cluster")
@@ -301,6 +325,54 @@ public class KubernetesClusterResponse extends BaseResponseWithAnnotations imple
 
     public void setTemplateName(String templateName) {
         this.templateName = templateName;
+    }
+
+    public String getControlTemplateId() {
+        return controlTemplateId;
+    }
+
+    public void setControlTemplateId(String value) {
+        this.controlTemplateId = value;
+    }
+
+    public String getControlTemplateName() {
+        return controlTemplateName;
+    }
+
+    public void setControlTemplateName(String value) {
+        this.controlTemplateName = value;
+    }
+
+    public String getWorkerTemplateId() {
+        return workerTemplateId;
+    }
+
+    public void setWorkerTemplateId(String value) {
+        this.workerTemplateId = value;
+    }
+
+    public String getWorkerTemplateName() {
+        return workerTemplateName;
+    }
+
+    public void setWorkerTemplateName(String value) {
+        this.workerTemplateName = value;
+    }
+
+    public String getEtcdTemplateId() {
+        return etcdTemplateId;
+    }
+
+    public void setEtcdTemplateId(String value) {
+        this.etcdTemplateId = value;
+    }
+
+    public String getEtcdTemplateName() {
+        return etcdTemplateName;
+    }
+
+    public void setEtcdTemplateName(String value) {
+        this.etcdTemplateName = value;
     }
 
     public String getNetworkId() {

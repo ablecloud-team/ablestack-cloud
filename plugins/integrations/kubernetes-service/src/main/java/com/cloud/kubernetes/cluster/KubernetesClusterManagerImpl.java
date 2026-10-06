@@ -820,6 +820,31 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
         }
     }
 
+    protected void setNodeTypeTemplateResponse(KubernetesClusterResponse response,
+                                               KubernetesClusterNodeType nodeType,
+                                               Long configuredTemplateId, Long defaultTemplateId) {
+        Long templateId = configuredTemplateId != null ? configuredTemplateId : defaultTemplateId;
+        if (templateId == null) {
+            return;
+        }
+        VMTemplateVO template = templateDao.findByIdIncludingRemoved(templateId);
+        // A removed template still identifies existing nodes. An unknown override
+        // must not be represented as the default image.
+        if (template == null) {
+            return;
+        }
+        if (CONTROL == nodeType) {
+            response.setControlTemplateId(template.getUuid());
+            response.setControlTemplateName(template.getName());
+        } else if (WORKER == nodeType) {
+            response.setWorkerTemplateId(template.getUuid());
+            response.setWorkerTemplateName(template.getName());
+        } else if (ETCD == nodeType) {
+            response.setEtcdTemplateId(template.getUuid());
+            response.setEtcdTemplateName(template.getName());
+        }
+    }
+
     @Override
     public KubernetesClusterResponse createKubernetesClusterResponse(long kubernetesClusterId) {
         KubernetesClusterVO kubernetesCluster = kubernetesClusterDao.findById(kubernetesClusterId);
@@ -851,6 +876,12 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
             response.setCniConfigId(cniConfig.getUuid());
             response.setCniConfigName(cniConfig.getName());
         }
+        setNodeTypeTemplateResponse(response, CONTROL, kubernetesCluster.getControlNodeTemplateId(), kubernetesCluster.getTemplateId());
+        setNodeTypeTemplateResponse(response, WORKER, kubernetesCluster.getWorkerNodeTemplateId(), kubernetesCluster.getTemplateId());
+        if (kubernetesCluster.getEtcdNodeCount() != null && kubernetesCluster.getEtcdNodeCount() > 0) {
+            setNodeTypeTemplateResponse(response, ETCD, kubernetesCluster.getEtcdNodeTemplateId(), kubernetesCluster.getTemplateId());
+        }
+
         setNodeTypeServiceOfferingResponse(response, WORKER, kubernetesCluster.getWorkerNodeServiceOfferingId());
         setNodeTypeServiceOfferingResponse(response, CONTROL, kubernetesCluster.getControlNodeServiceOfferingId());
         setNodeTypeServiceOfferingResponse(response, ETCD, kubernetesCluster.getEtcdNodeServiceOfferingId());

@@ -1,4 +1,5 @@
 {
+  "label.cks.cluster.default.template": "Default Template",
     "label.cks.cluster.autoscaling.enabled": "Enabled",
     "label.cks.cluster.autoscaling.disabled": "Disabled",
   "message.vmprocess.tools.os.confirm": "I confirmed that the actual OS in the console matches the registered OS.",
