@@ -24,6 +24,7 @@ import java.util.Set;
 public class StorageServiceHostCommand extends Command {
     private String vmName;
     private String operation;
+    @LogLevel(LogLevel.Log4jLevel.Off)
     private String payload;
     private int timeoutSeconds;
     private Set<String> maskedFields = new HashSet<>();
