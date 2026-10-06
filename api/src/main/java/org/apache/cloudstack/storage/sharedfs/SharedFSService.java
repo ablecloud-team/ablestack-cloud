@@ -37,6 +37,8 @@ import com.cloud.exception.VirtualMachineMigrationException;
 
 public interface SharedFSService {
 
+    ListResponse<org.apache.cloudstack.api.response.StorageServiceOfferingConstraintResponse> listOfferingConstraints(Long zoneId, List<Long> serviceOfferingIds);
+
     List<SharedFSProvider> getSharedFSProviders();
 
     boolean stateTransitTo(SharedFS sharedFS, SharedFS.Event event);

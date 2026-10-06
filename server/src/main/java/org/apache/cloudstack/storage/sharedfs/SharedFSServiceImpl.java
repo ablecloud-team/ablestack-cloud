@@ -263,6 +263,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
     public List<Class<?>> getCommands() {
         final List<Class<?>> cmdList = new ArrayList<>();
         if (SharedFSFeatureEnabled.value()) {
+            cmdList.add(org.apache.cloudstack.api.command.user.storage.dataservice.ListStorageServiceOfferingConstraintsCmd.class);
             cmdList.add(ListSharedFSProvidersCmd.class);
             cmdList.add(CreateSharedFSCmd.class);
             cmdList.add(ListSharedFSCmd.class);
@@ -277,6 +278,15 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
             cmdList.add(ExpungeSharedFSCmd.class);
         }
         return cmdList;
+    }
+
+    @Override
+    public ListResponse<org.apache.cloudstack.api.response.StorageServiceOfferingConstraintResponse> listOfferingConstraints(Long zoneId, List<Long> ids) {
+        if (ids == null || ids.isEmpty() || ids.size() > 500) throw new InvalidParameterValueException("Supply 1 to 500 compute offering IDs");
+        DataCenter zone=validateAndGetZone(zoneId);
+        ListResponse<org.apache.cloudstack.api.response.StorageServiceOfferingConstraintResponse> response=new ListResponse<>();
+        List<org.apache.cloudstack.api.response.StorageServiceOfferingConstraintResponse> entries=getSharedFSProvider("SHAREDFSVM").getSharedFSLifeCycle().evaluateOfferings(zone,ids);
+        response.setResponses(entries,entries.size());return response;
     }
 
     private DataCenter validateAndGetZone(Long zoneId) {

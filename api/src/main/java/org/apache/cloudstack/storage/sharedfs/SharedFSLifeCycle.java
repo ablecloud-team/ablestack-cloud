@@ -27,6 +27,8 @@ import com.cloud.exception.VirtualMachineMigrationException;
 import com.cloud.utils.Pair;
 
 public interface SharedFSLifeCycle {
+    java.util.List<org.apache.cloudstack.api.response.StorageServiceOfferingConstraintResponse> evaluateOfferings(DataCenter zone, java.util.List<Long> serviceOfferingIds);
+
     void checkPrerequisites(DataCenter zone, Long serviceOfferingId);
 
     Pair<Long, Long> deploySharedFS(SharedFS sharedFS, Long networkId, Long diskOfferingId, Long storageId, Long size, Long minIops, Long maxIops) throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException;

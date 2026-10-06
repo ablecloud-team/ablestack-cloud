@@ -8538,5 +8538,20 @@
   "label.storage.runtime.state.available": "Available",
   "label.storage.runtime.verification": "Verification and compatibility",
   "label.storage.runtime.signatureurl": "Signature URL",
-  "label.storage.runtime.action.available": "Publish / reverify"
+  "label.storage.runtime.action.available": "Publish / reverify",
+  "message.storage.service.offering.reason.minimum_cpu_required": "CPU below zone minimum",
+  "message.storage.service.offering.unavailable": "Offering requirements could not be checked. Update to retry before selecting an offering.",
+  "message.storage.service.offering.reason.scalable_systemvm_template_required": "Ready scalable SystemVM template required",
+  "message.storage.service.offering.reason.minimum_memory_required": "Memory below zone minimum",
+  "message.storage.service.offering.reason.zone_dynamic_scale_disabled": "Zone online scaling disabled",
+  "message.storage.service.offering.requirements": "Requirements: fixed CPU ≥ {cpu}, memory ≥ {memory} MiB, HA and online scaling; the zone and SystemVM template must also support online scaling.",
+  "message.storage.service.offering.reason.fixed_memory_required": "Fixed memory required",
+  "message.storage.service.offering.reason.online_resize_hypervisor_required": "Supported online resize hypervisor required",
+  "label.storage.service.offering.create.guide": "Open compute offerings",
+  "message.storage.service.offering.reason.offering_dynamic_scale_required": "Offering online scaling required",
+  "message.storage.service.offering.reason.constraints_unavailable": "Requirements unavailable",
+  "message.storage.service.offering.no.compatible": "No compatible offering is available. Check each option and the zone/template scaling settings.",
+  "message.storage.service.offering.reason.ha_required": "HA required",
+  "message.storage.service.offering.reason.fixed_cpu_required": "Fixed CPU required",
+  "message.storage.service.offering.reason.offering_not_found": "Offering not found"
 }

@@ -8503,5 +8503,20 @@
   "label.storage.runtime.state.available": "사용 가능",
   "label.storage.runtime.verification": "무결성·호환성",
   "label.storage.runtime.signatureurl": "서명 URL",
-  "label.storage.runtime.action.available": "게시 / 재검증"
+  "label.storage.runtime.action.available": "게시 / 재검증",
+  "message.storage.service.offering.reason.minimum_cpu_required": "Zone 최소 CPU 미달",
+  "message.storage.service.offering.unavailable": "오퍼링 요구조건을 확인하지 못했습니다. 업데이트한 뒤 오퍼링을 선택하세요.",
+  "message.storage.service.offering.reason.scalable_systemvm_template_required": "확장 가능한 준비된 SystemVM 템플릿 필요",
+  "message.storage.service.offering.reason.minimum_memory_required": "Zone 최소 메모리 미달",
+  "message.storage.service.offering.reason.zone_dynamic_scale_disabled": "Zone 온라인 확장 비활성",
+  "message.storage.service.offering.requirements": "요구조건: 고정 CPU {cpu}개 이상, 메모리 {memory} MiB 이상, HA·온라인 확장. Zone과 SystemVM 템플릿도 온라인 확장을 지원해야 합니다.",
+  "message.storage.service.offering.reason.fixed_memory_required": "고정 메모리 필요",
+  "message.storage.service.offering.reason.online_resize_hypervisor_required": "온라인 확장 지원 하이퍼바이저 필요",
+  "label.storage.service.offering.create.guide": "컴퓨트 오퍼링 설정 열기",
+  "message.storage.service.offering.reason.offering_dynamic_scale_required": "오퍼링 온라인 확장 필요",
+  "message.storage.service.offering.reason.constraints_unavailable": "요구조건 확인 필요",
+  "message.storage.service.offering.no.compatible": "적합한 오퍼링이 없습니다. 각 항목의 제외 사유와 Zone·템플릿의 확장 설정을 확인하세요.",
+  "message.storage.service.offering.reason.ha_required": "HA 필요",
+  "message.storage.service.offering.reason.fixed_cpu_required": "고정 CPU 필요",
+  "message.storage.service.offering.reason.offering_not_found": "오퍼링 없음"
 }
