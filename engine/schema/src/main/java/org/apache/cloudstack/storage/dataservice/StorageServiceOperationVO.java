@@ -42,15 +42,15 @@ public class StorageServiceOperationVO implements StorageServiceOperation {
     private long revision;
     @Column(name = "progress")
     private int progress;
-    @Column(name = "previous_snapshot_json")
+    @Column(name = "previous_snapshot_json", length = 16777215, columnDefinition = "LONGTEXT")
     private String previousSnapshotJson;
     public String getPreviousSnapshotJson() { return previousSnapshotJson; }
     public void setPreviousSnapshotJson(String value) { previousSnapshotJson = value; }
-    @Column(name = "snapshot_json")
+    @Column(name = "snapshot_json", length = 16777215, columnDefinition = "LONGTEXT")
     private String snapshotJson;
-    @Column(name = "result_json")
+    @Column(name = "result_json", length = 16777215, columnDefinition = "LONGTEXT")
     private String resultJson;
-    @Column(name = "diagnostic")
+    @Column(name = "diagnostic", length = 8192, columnDefinition = "TEXT")
     private String diagnostic;
     @Column(name = "created_by")
     private long createdBy;
