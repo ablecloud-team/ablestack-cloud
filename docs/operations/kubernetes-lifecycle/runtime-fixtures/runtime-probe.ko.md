@@ -1,18 +1,26 @@
-<!-- Licensed to the Apache Software Foundation (ASF) under one or more
-contributor license agreements. See the NOTICE file distributed with this
-work for additional information regarding copyright ownership. The ASF
-licenses this file to you under the Apache License, Version 2.0 (the
-"License"); you may not use this file except in compliance with the License.
-You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License. -->
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+ -->
 
 # 31번 Kubernetes 관찰 프로브
 
-#1230/#1277 시험용 도구입니다. 클론 또는 포크한 Europa 저장소의 WSL ext4 작업 트리에서 Python 3.9 이상으로 실행합니다. 네트워크·방화벽·클러스터 설정은 변경하지 않습니다.
+[생명주기 시험 #1230](https://github.com/ablecloud-team/ablestack-cloud/issues/1230)과
+[관찰 도구 개선 #1277](https://github.com/ablecloud-team/ablestack-cloud/issues/1277)의 시험용 도구입니다. 클론 또는 포크한 Europa 저장소의 WSL ext4 작업 트리에서 Python 3.9 이상으로 실행합니다. 네트워크·방화벽·클러스터 설정은 변경하지 않습니다.
 
 외부 LB의 source CIDR가 `10.10.31.10/32`이면 로컬 WSL에서 직접 HTTP를 보내는 것은 허용된 관찰이 아닙니다. `lb`는 입력 CIDR와 SSH 대상을 확인하고 관리 서버에서 HTTP를 보냅니다. 실제 LB/FW의 Active 상태와 CIDR은 먼저 조회하여 확인해야 합니다. `--allowed-source-cidr`는 프로브 입력을 검증하며 서버 설정을 바꾸지 않습니다.
 
