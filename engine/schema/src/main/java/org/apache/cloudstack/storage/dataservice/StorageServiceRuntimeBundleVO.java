@@ -71,7 +71,7 @@ public class StorageServiceRuntimeBundleVO implements StorageServiceRuntimeBundl
     @Column(name = "state")
     @Enumerated(EnumType.STRING)
     private State state = State.REGISTERED;
-    @Column(name = "catalog_json")
+    @Column(name = "catalog_json", length = 16777215, columnDefinition = "MEDIUMTEXT")
     private String catalogJson;
     @Column(name = GenericDao.CREATED_COLUMN)
     @Temporal(TemporalType.TIMESTAMP)
