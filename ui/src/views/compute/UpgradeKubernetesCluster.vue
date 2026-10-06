@@ -20,6 +20,10 @@
     <a-spin :spinning="loading">
       <a-alert type="warning">
         <template #message>{{ $t('message.kubernetes.cluster.upgrade') }}</template>
+        <template #description>
+          <p v-if="Number(resource.controlnodes) === 1">{{ $t('message.kubernetes.cluster.upgrade.single.control') }}</p>
+          <p>{{ $t('message.kubernetes.cluster.upgrade.workload.availability') }}</p>
+        </template>
       </a-alert>
       <br />
       <a-form

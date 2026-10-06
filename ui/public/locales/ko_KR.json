@@ -3578,6 +3578,8 @@
   "message.kubernetes.cluster.start": "클러스터를 시작할 것인지 확인하십시오.",
   "message.kubernetes.cluster.stop": "클러스터를 중지 할 것인지 확인하십시오.",
   "message.kubernetes.cluster.upgrade": "새 쿠버네티스 버전을 선택하십시오.",
+  "message.kubernetes.cluster.upgrade.single.control": "이 클러스터의 제어 노드는 1대입니다. 해당 노드를 업그레이드하는 동안 Kubernetes API 연결이 잠시 끊깁니다.",
+  "message.kubernetes.cluster.upgrade.workload.availability": "워커 업그레이드 중 Pod가 다른 노드로 재배치됩니다. 애플리케이션 Pod가 복제되어 있어도 데이터베이스나 StatefulSet이 단일 인스턴스라면 서비스가 중단될 수 있습니다. 의존 서비스의 복제 구성, PodDisruptionBudget과 백업을 확인하세요.",
   "message.kubernetes.management.rule.delete.disabled": "Kubernetes에서 생성한 관리 규칙은 삭제할 수 없습니다.",
   "message.kubernetes.version.delete": "이 쿠버네티스 버전을 삭제할 것인지 확인하십시오.",
   "message.l2.network.unsupported.for.nsx": "L2 네트워크는 NSX 지원 영역에서 지원되지 않습니다.",
