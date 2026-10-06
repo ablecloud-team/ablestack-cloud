@@ -55,3 +55,28 @@ liveness의 같은 UID·restart 0→1, 각 데이터 65/65 및 해당 150초 보
 1,452건 HTTP 200/오류 0을 확인했습니다. 이전 fixture의 150초 1,449건 중 파싱 오류
 1건은 별도 실패 기록입니다. 이 결과는 해당 시험 구간에 한하며, 6버전 전체 생명주기나
 2시간/24시간 qualification 또는 CSI 검증을 대신하지 않습니다.
+
+## Redis RDB-only 독립 복원
+
+[복원 절차 개선 #1272](https://github.com/ablecloud-team/ablestack-cloud/issues/1272)는
+전체 AOF 디렉터리 archive와 RDB-only archive를 구별합니다. Redis가 AOF를 사용하는
+원본에서 `SAVE`로 만든 RDB와 파일만 별도 경로에 복원한 경우, 원본의
+`--appendonly yes` command를 그대로 복사하면 RDB를 읽지 않고 빈 AOF로 시작할 수
+있습니다. Ready 상태만으로 복원 성공을 판정하지 않습니다.
+
+1. 원본 Redis의 SAVE 성공 후 RDB 및 파일을 archive로 만들고, 실제 다운로드한
+   bytes의 SHA256을 원본과 비교합니다. archive의 경로/파일 유형도 검증합니다.
+2. 별도 namespace와 빈 NFS 경로에 다운로드 archive를 다시 전달합니다.
+   RDB-only 복원 Redis는 `redis-server --appendonly no --dir /data`로 먼저 시작합니다.
+3. 기준 데이터를 쓰지 않고 원본 record/file checksum과 읽기 응답을 비교합니다.
+4. 복원 Redis에서 `redis-cli CONFIG SET appendonly yes`를 실행합니다.
+   `INFO persistence`의 `aof_enabled:1`, `aof_rewrite_in_progress:0`,
+   `aof_last_bgrewrite_status:ok`, `aof_last_write_status:ok`까지 확인합니다.
+5. 복원 StatefulSet의 command를 원본 AOF 설정으로 바꾸고 실제 재시작합니다.
+   재시작 후에도 같은 읽기 전용 checksum과 응답을 확인합니다.
+6. 복원 namespace 정리 후 PV의 Released/Retain과 원본 앱 보존을 확인합니다.
+
+31번 GFS2/1.34.12 r12에서는 최초 AOF 우선 시작의 DBSIZE0 실패를 보존했습니다.
+다운로드 archive의 RDB import, AOF 재활성화·재시작 뒤 각각100records/64files(4MiB),
+읽기 전용65/65 및 HTTP100 오류0을 확인했습니다. 이는 static NFS 시험이며 CSI
+snapshot/복원 검증을 대신하지 않습니다. 실제 Secret과 kubeconfig는 파일에 없습니다.
