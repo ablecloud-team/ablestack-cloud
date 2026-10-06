@@ -79,6 +79,14 @@ public class IPAddressResponse extends BaseResponseWithAnnotations implements Co
     @Param(description = "path of the domain to which the public IP address belongs", since = "4.19.2.0")
     private String domainPath;
 
+    @SerializedName("allocationgeneration")
+    @Param(description = "Identity of the current public IP allocation for conditional cleanup")
+    private String allocationGeneration;
+
+    public void setAllocationGeneration(String allocationGeneration) {
+        this.allocationGeneration = allocationGeneration;
+    }
+
     @SerializedName(ApiConstants.FOR_VIRTUAL_NETWORK)
     @Param(description = "The virtual Network for the IP address")
     private Boolean forVirtualNetwork;

@@ -23,6 +23,13 @@
       :animated="false"
       @change="handleChangeTab">
       <a-tab-pane :tab="$t('label.details')" key="details">
+        <a-alert v-if="resource.cleanupstatus" type="warning" show-icon :message="$t('label.kubernetes.cleanup.status') + ': ' + resource.cleanupstatus">
+          <template #description>
+            <p>{{ $t('message.kubernetes.cleanup.retry') }}</p>
+            <p>{{ $t('label.kubernetes.cleanup.phase') }}: {{ resource.cleanupphase }}</p>
+            <p v-if="resource.cleanupremaining">{{ $t('label.kubernetes.cleanup.remaining') }}: {{ resource.cleanupremaining }}</p>
+          </template>
+        </a-alert>
         <DetailsTab :resource="resource" :loading="loading" />
       </a-tab-pane>
       <a-tab-pane v-if="resource.clustertype === 'CloudManaged'" :tab="$t('label.access')" key="access">

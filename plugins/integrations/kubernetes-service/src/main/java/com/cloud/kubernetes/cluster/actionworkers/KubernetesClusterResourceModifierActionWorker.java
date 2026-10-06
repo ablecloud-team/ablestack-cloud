@@ -30,6 +30,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -81,6 +86,7 @@ import com.cloud.kubernetes.cluster.KubernetesCluster;
 import com.cloud.kubernetes.cluster.KubernetesClusterManagerImpl;
 import com.cloud.kubernetes.cluster.KubernetesClusterVO;
 import com.cloud.network.IpAddress;
+import com.cloud.server.ResourceTag.ResourceObjectType;
 import com.cloud.network.Network;
 import com.cloud.network.dao.FirewallRulesDao;
 import com.cloud.network.dao.LoadBalancerDao;
@@ -502,7 +508,8 @@ public class KubernetesClusterResourceModifierActionWorker extends KubernetesClu
 
         firewallRule.setSourceCidrList(sourceCidrList);
 
-        firewallService.createIngressFirewallRule(firewallRule);
+        FirewallRule created = firewallService.createIngressFirewallRule(firewallRule);
+        recordNativeNetworkResource(ResourceObjectType.FirewallRule, created.getId(), created.getUuid(), publicIp);
         firewallService.applyIngressFwRules(publicIp.getId(), account);
     }
 
@@ -524,6 +531,7 @@ public class KubernetesClusterResourceModifierActionWorker extends KubernetesClu
             newRule.setDisplay(true);
             newRule.setState(FirewallRule.State.Add);
             newRule = portForwardingRulesDao.persist(newRule);
+            recordNativeNetworkResource(ResourceObjectType.PortForwardingRule, newRule.getId(), newRule.getUuid(), publicIp);
             return newRule;
         });
         rulesService.applyPortForwardingRules(publicIp.getId(), account);
@@ -661,6 +669,8 @@ public class KubernetesClusterResourceModifierActionWorker extends KubernetesClu
         networkACLRule.setAction(NetworkACLItem.Action.Allow.toString());
 
         NetworkACLItem aclRule = networkACLService.createNetworkACLItem(networkACLRule);
+        kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "cleanup.native.acl." + aclRule.getUuid(),
+                aclRule.getId() + "|" + aclRule.getUuid() + "|" + network.getUuid(), false);
         networkACLService.moveRuleToTheTopInACLList(aclRule);
         networkACLService.applyNetworkACL(aclRule.getAclId());
     }
@@ -689,6 +699,7 @@ public class KubernetesClusterResourceModifierActionWorker extends KubernetesClu
                 port, port, port, port,
                 publicIp.getId(), NetUtils.TCP_PROTO, "roundrobin", network.getId(),
                 account.getId(), false, NetUtils.TCP_PROTO, true);
+        recordNativeNetworkResource(ResourceObjectType.LoadBalancer, lb.getId(), lb.getUuid(), publicIp);
 
         Map<Long, List<String>> vmIdIpMap = new HashMap<>();
         for (int i = 0; i < kubernetesCluster.getControlNodeCount(); ++i) {
@@ -998,40 +1009,81 @@ public class KubernetesClusterResourceModifierActionWorker extends KubernetesClu
         publicIpAddress = publicIpSshPort.first();
         sshPort = publicIpSshPort.second();
         try {
-            String command = String.format("sudo %s/%s", scriptPath, deletePvScriptFilename);
-            logMessage(Level.INFO, "Starting PV deletion script for cluster: " + kubernetesCluster.getName(), null);
-            Pair<Boolean, String> result = SshHelper.sshExecute(publicIpAddress, sshPort, getControlNodeLoginUser(),
-                    pkFile, null, command, 10000, 10000, 600000); // 10 minute timeout
-            if (Boolean.FALSE.equals(result.first())) {
-                logMessage(Level.INFO, "PV delete script missing. Adding it now", null);
-                retrieveScriptFiles();
-                if (deletePvScriptFile != null) {
-                    copyScriptFile(publicIpAddress, sshPort, deletePvScriptFile, deletePvScriptFilename);
-                    logMessage(Level.INFO, "Executing PV deletion script (this may take several minutes)...", null);
-                    result = SshHelper.sshExecute(publicIpAddress, sshPort, getControlNodeLoginUser(),
-                            pkFile, null, command, 10000, 10000, 600000); // 10 minute timeout
-                    if (Boolean.FALSE.equals(result.first())) {
-                        logMessage(Level.ERROR, "PV deletion script failed: " + result.second(), null);
-                        throw new CloudRuntimeException(result.second());
-                    }
-                    logMessage(Level.INFO, "PV deletion script completed successfully", null);
-                } else {
-                    logMessage(Level.WARN, "PV delete script file not found in resources, skipping PV deletion", null);
-                    return false;
-                }
-            } else {
-                logMessage(Level.INFO, "PV deletion script completed successfully", null);
+            File currentScript = retrieveScriptFile(deletePvScriptFilename);
+            if (currentScript == null) {
+                logMessage(Level.WARN, "PV cleanup script is missing; preserving cluster nodes", null);
+                return false;
             }
-
+            copyScriptFile(publicIpAddress, sshPort, currentScript, deletePvScriptFilename);
+            String command = String.format("sudo %s/%s", scriptPath, deletePvScriptFilename);
+            Pair<Boolean, String> plan = SshHelper.sshExecute(publicIpAddress, sshPort, getControlNodeLoginUser(),
+                    pkFile, null, command + " --plan-only", 10000, 10000, 600000);
+            if (!Boolean.TRUE.equals(plan.first()) || !recordCsiCleanupReceipt(plan.second(), false)) {
+                return false;
+            }
+            Pair<Boolean, String> result = SshHelper.sshExecute(publicIpAddress, sshPort, getControlNodeLoginUser(),
+                    pkFile, null, command, 10000, 10000, 600000);
+            if (!Boolean.TRUE.equals(result.first())) {
+                logMessage(Level.WARN, "PV cleanup failed; preserving cluster nodes: " + result.second(), null);
+                return false;
+            }
             if (result.second() != null && !result.second().trim().isEmpty()) {
                 logMessage(Level.INFO, "PV deletion script output: " + result.second(), null);
             }
 
-            return true;
+            return confirmDeletedCsiBackingVolumes(result.second());
         } catch (Exception e) {
             String msg = String.format("Failed to delete PVs with reclaimPolicy=Delete: %s : %s", kubernetesCluster.getName(), e.getMessage());
             logMessage(Level.WARN, msg, e);
             return false;
         }
     }
+
+    protected boolean confirmDeletedCsiBackingVolumes(String output) {
+        return recordCsiCleanupReceipt(output, true);
+    }
+
+    protected boolean recordCsiCleanupReceipt(String output, boolean requireDeleted) {
+        final String marker = "MOLD_PV_CLEANUP_RECEIPT ";
+        if (output == null) {
+            return false;
+        }
+        String receiptLine = null;
+        for (String line : output.split("\r?\n")) {
+            if (line.startsWith(marker)) {
+                receiptLine = line.substring(marker.length());
+            }
+        }
+        if (receiptLine == null) {
+            return false;
+        }
+        JsonObject receipt = JsonParser.parseString(receiptLine).getAsJsonObject();
+        if (requireDeleted && !receipt.get("completed").getAsBoolean()) {
+            return false;
+        }
+        JsonArray volumes = receipt.getAsJsonArray("volumes");
+        for (JsonElement element : volumes) {
+            JsonObject item = element.getAsJsonObject();
+            String uid = UUID.fromString(item.get("uid").getAsString()).toString();
+            String handle = UUID.fromString(item.get("handle").getAsString()).toString();
+            kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "cleanup.pv." + uid, handle, false);
+        }
+        if (!requireDeleted) {
+            return true;
+        }
+        for (Map.Entry<String, String> item : kubernetesClusterDetailsDao.listDetailsKeyPairs(kubernetesCluster.getId()).entrySet()) {
+            if (!item.getKey().startsWith("cleanup.pv.")) {
+                continue;
+            }
+            String handle = UUID.fromString(item.getValue()).toString();
+            VolumeVO volume = volumeDao.findByUuid(handle);
+            if (volume != null && volume.getState() != Volume.State.Expunged) {
+                kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "cleanup.remaining", handle, true);
+                logMessage(Level.WARN, "Mold CSI backing volume is not expunged: " + handle, null);
+                return false;
+            }
+        }
+        return true;
+    }
+
 }

@@ -19,6 +19,11 @@ package com.cloud.kubernetes.cluster.actionworkers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Comparator;
+import java.util.Set;
+import java.io.File;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -30,7 +35,6 @@ import com.cloud.dc.dao.ASNumberDao;
 import org.apache.cloudstack.annotation.AnnotationService;
 import org.apache.cloudstack.annotation.dao.AnnotationDao;
 import org.apache.cloudstack.api.ApiCommandResourceType;
-import org.apache.cloudstack.api.ApiConstants;
 import org.apache.cloudstack.context.CallContext;
 import org.apache.commons.collections.CollectionUtils;
 
@@ -47,6 +51,20 @@ import com.cloud.kubernetes.cluster.KubernetesClusterVmMap;
 import com.cloud.kubernetes.cluster.KubernetesClusterVmMapVO;
 import com.cloud.network.IpAddress;
 import com.cloud.network.Network;
+import com.cloud.network.dao.IPAddressVO;
+import com.cloud.network.dao.LoadBalancerVO;
+import com.cloud.network.dao.LoadBalancerVMMapDao;
+import com.cloud.network.dao.LoadBalancerVMMapVO;
+import com.cloud.network.rules.FirewallRuleVO;
+import com.cloud.network.vpc.NetworkACLItemVO;
+import com.cloud.server.ResourceTag;
+import com.cloud.server.ResourceTag.ResourceObjectType;
+import com.cloud.tags.ResourceTagVO;
+import com.cloud.tags.dao.ResourceTagDao;
+import com.cloud.utils.db.SearchBuilder;
+import com.cloud.utils.db.SearchCriteria;
+import com.cloud.utils.Pair;
+import com.cloud.utils.ssh.SshHelper;
 import com.cloud.network.dao.NetworkVO;
 import com.cloud.network.rules.FirewallRule;
 import com.cloud.user.Account;
@@ -71,6 +89,11 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
     private ASNumberDao asNumberDao;
     @Inject
     private BGPService bgpService;
+
+    @Inject
+    protected ResourceTagDao resourceTagDao;
+    @Inject
+    protected LoadBalancerVMMapDao loadBalancerVMMapDao;
 
     private List<KubernetesClusterVmMapVO> clusterVMs;
 
@@ -106,9 +129,6 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
                         ApiCommandResourceType.VirtualMachine);
                 vmContext.setEventResourceId(vmID);
                 try {
-                    if (clusterVM.isControlNode() && kubernetesCluster.isCsiEnabled()) {
-                        deletePVsWithReclaimPolicyDelete();
-                    }
                     UserVm vm = userVmService.destroyVm(vmID, true);
                     if (!userVmManager.expunge(userVM)) {
                         logger.warn("Unable to expunge VM {}, destroying Kubernetes cluster will probably fail", vm);
@@ -169,16 +189,12 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
         if (publicIp == null) {
             throw new ManagementServerException(String.format("No source NAT IP addresses found for network : %s", network.getName()));
         }
-        try {
-            removeLoadBalancingRule(publicIp, network, owner);
-        } catch (ResourceUnavailableException e) {
-            throw new ManagementServerException(String.format("Failed to KubernetesCluster load balancing rule for network : %s", network.getName()), e);
-        }
-        FirewallRule firewallRule = removeApiFirewallRule(publicIp);
+        // API LB rules are removed only from manager receipts validated before VM destruction.
+        FirewallRule firewallRule = null;
         if (firewallRule == null) {
             logMessage(Level.WARN, "Firewall rule for API access can't be removed", null);
         }
-        firewallRule = removeSshFirewallRule(publicIp, network.getId());
+        firewallRule = null;
         if (firewallRule == null) {
             logMessage(Level.WARN, "Firewall rule for SSH access can't be removed", null);
         }
@@ -194,7 +210,7 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
         if (publicIp == null) {
             return;
         }
-        removeVpcTierAclRules(network);
+        // Only manager-created ACL receipts are removed by cleanupNativeAclResources().
         try {
             removePortForwardingRules(publicIp, network, owner, removedVmIds);
         } catch (ResourceUnavailableException e) {
@@ -258,8 +274,277 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
         if (address == null) {
             return;
         }
-        networkService.releaseIpAddress(address.getId());
-        kubernetesClusterDetailsDao.removeDetail(kubernetesCluster.getId(), ApiConstants.PUBLIC_IP_ID);
+        kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "cleanup.retained." + address.getUuid(), "UnverifiedLegacyVpcIp", false);
+    }
+
+    protected boolean hasUnclaimedNetworkResources() {
+        for (IPAddressVO address : ipAddressDao.listByAssociatedNetwork(kubernetesCluster.getNetworkId(), null)) {
+            if (!address.isSourceNat() || !firewallRulesDao.listByIpAndNotRevoked(address.getId()).isEmpty()) {
+                return true;
+            }
+        }
+        NetworkVO network = networkDao.findById(kubernetesCluster.getNetworkId());
+        if (network != null && network.getNetworkACLId() != null && !networkACLItemDao.listByACL(network.getNetworkACLId()).isEmpty()) {
+            return true;
+        }
+        return false;
+    }
+
+    protected void recordVerifiedLegacyApiLoadBalancer() {
+        Network network = networkDao.findById(kubernetesCluster.getNetworkId());
+        if (network == null || manager.isDirectAccess(network)) {
+            return;
+        }
+        IpAddress address = network.getVpcId() == null ? getNetworkSourceNatIp(network) : getVpcTierKubernetesPublicIp(network);
+        if (address == null) {
+            return;
+        }
+        Set<Long> controls = clusterVMs.stream().filter(KubernetesClusterVmMapVO::isControlNode)
+                .map(KubernetesClusterVmMapVO::getVmId).collect(Collectors.toSet());
+        if (controls.isEmpty()) {
+            return;
+        }
+        for (LoadBalancerVO rule : loadBalancerDao.listByIpAddress(address.getId())) {
+            if (rule.getAccountId() != kubernetesCluster.getAccountId() || !Long.valueOf(network.getId()).equals(rule.getNetworkId())
+                    || rule.getSourcePortStart() != CLUSTER_API_PORT || rule.getSourcePortEnd() != CLUSTER_API_PORT
+                    || !"api-lb".equals(rule.getName()) || !resourceTagDao.listBy(rule.getId(), ResourceObjectType.LoadBalancer).isEmpty()) {
+                continue;
+            }
+            Set<Long> members = loadBalancerVMMapDao.listByLoadBalancerId(rule.getId(), false).stream()
+                    .map(LoadBalancerVMMapVO::getInstanceId).collect(Collectors.toSet());
+            if (members.equals(controls)) {
+                // Resource/account/network and exact native control membership prove the legacy association.
+                recordNativeNetworkResource(ResourceObjectType.LoadBalancer, rule.getId(), rule.getUuid(), address);
+            }
+        }
+    }
+
+    protected boolean ownershipCleanupEnabled() {
+        KubernetesClusterDetailsVO detail = kubernetesClusterDetailsDao.findDetail(kubernetesCluster.getId(), "provider.ownership.v1");
+        return detail != null && "true".equals(detail.getValue());
+    }
+
+    protected List<KubernetesOwnedResourceReceipt> recordOwnedNetworkResources(boolean includeNative) {
+        NetworkVO network = networkDao.findById(kubernetesCluster.getNetworkId());
+        if (network == null) {
+            throw new CloudRuntimeException("Cannot verify the Kubernetes cleanup network");
+        }
+        SearchBuilder<ResourceTagVO> builder = resourceTagDao.createSearchBuilder();
+        builder.and("key", builder.entity().getKey(), SearchCriteria.Op.EQ);
+        builder.and("value", builder.entity().getValue(), SearchCriteria.Op.EQ);
+        builder.and("account", builder.entity().getAccountId(), SearchCriteria.Op.EQ);
+        SearchCriteria<ResourceTagVO> criteria = builder.create();
+        criteria.setParameters("key", KubernetesOwnedResourceReceipt.CLUSTER);
+        criteria.setParameters("value", kubernetesCluster.getUuid());
+        criteria.setParameters("account", kubernetesCluster.getAccountId());
+        for (ResourceTagVO tag : resourceTagDao.search(criteria, null)) {
+            ResourceObjectType type = tag.getResourceType();
+            if (!(type == ResourceObjectType.LoadBalancer || type == ResourceObjectType.FirewallRule
+                    || type == ResourceObjectType.NetworkACL || type == ResourceObjectType.PublicIpAddress)) {
+                continue;
+            }
+            Map<String, String> tags = new HashMap<>();
+            for (ResourceTag item : resourceTagDao.listBy(tag.getResourceId(), type)) {
+                tags.put(item.getKey(), item.getValue());
+            }
+            KubernetesOwnedResourceReceipt receipt = KubernetesOwnedResourceReceipt.fromTags(type, tag.getResourceId(),
+                    tag.getResourceUuid(), tags, kubernetesCluster.getUuid(), network.getUuid());
+            validateOwnedResource(receipt, network);
+            kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), receipt.key(), receipt.encode(), false);
+        }
+        List<KubernetesOwnedResourceReceipt> receipts = new ArrayList<>();
+        for (Map.Entry<String, String> detail : kubernetesClusterDetailsDao.listDetailsKeyPairs(kubernetesCluster.getId()).entrySet()) {
+            if (detail.getKey().startsWith(KubernetesOwnedResourceReceipt.PREFIX)
+                    || (includeNative && detail.getKey().startsWith("cleanup.native.") && !detail.getKey().startsWith("cleanup.native.acl."))) {
+                KubernetesOwnedResourceReceipt receipt = KubernetesOwnedResourceReceipt.decode(detail.getValue());
+                if (!receipt.network.equals(network.getUuid())) {
+                    throw new CloudRuntimeException("Persisted cleanup network changed");
+                }
+                validateOwnedResource(receipt, network);
+                receipts.add(receipt);
+            }
+        }
+        receipts.sort(Comparator.comparingInt(r -> r.type == ResourceObjectType.PublicIpAddress ? 1 : 0));
+        return receipts;
+    }
+
+    protected void validateOwnedResource(KubernetesOwnedResourceReceipt receipt, NetworkVO network) {
+        IPAddressVO ip = ipAddressDao.findByUuid(receipt.ip);
+        if (ip != null && ip.getAllocatedTime() != null && (ip.getAccountId() != kubernetesCluster.getAccountId()
+                || !receipt.generation.equals(ip.getAllocationGeneration())
+                || (ip.getAssociatedWithNetworkId() != null && ip.getAssociatedWithNetworkId() != network.getId())
+                || (ip.getVpcId() != null && !ip.getVpcId().equals(network.getVpcId())))) {
+            throw new CloudRuntimeException("Public IP cleanup allocation changed: " + receipt.ip);
+        }
+        if (receipt.type == ResourceObjectType.LoadBalancer || receipt.type == ResourceObjectType.FirewallRule
+                || receipt.type == ResourceObjectType.PortForwardingRule) {
+            FirewallRuleVO rule = receipt.type == ResourceObjectType.LoadBalancer
+                    ? loadBalancerDao.findById(receipt.id) : receipt.type == ResourceObjectType.PortForwardingRule
+                    ? portForwardingRulesDao.findById(receipt.id) : firewallRulesDao.findById(receipt.id);
+            if (rule != null && (!receipt.resource.equals(rule.getUuid()) || rule.getAccountId() != kubernetesCluster.getAccountId()
+                    || !Long.valueOf(network.getId()).equals(rule.getNetworkId()) || ip == null
+                    || !Long.valueOf(ip.getId()).equals(rule.getSourceIpAddressId()))) {
+                throw new CloudRuntimeException("Network rule cleanup identity changed: " + receipt.resource);
+            }
+        } else if (receipt.type == ResourceObjectType.NetworkACL) {
+            NetworkACLItemVO rule = networkACLItemDao.findById(receipt.id);
+            if (rule != null && (!receipt.resource.equals(rule.getUuid()) || !Long.valueOf(rule.getAclId()).equals(network.getNetworkACLId()))) {
+                throw new CloudRuntimeException("ACL cleanup identity changed: " + receipt.resource);
+            }
+        } else if (ip != null && (!receipt.resource.equals(ip.getUuid()) || receipt.id != ip.getId())) {
+            throw new CloudRuntimeException("IP cleanup identity changed: " + receipt.resource);
+        }
+    }
+
+    protected NetworkVO requireCleanupNetworkAccess() {
+        NetworkVO network = networkDao.findById(kubernetesCluster.getNetworkId());
+        if (network == null) {
+            throw new CloudRuntimeException("Cannot verify the Kubernetes cleanup network");
+        }
+        accountManager.checkAccess(CallContext.current().getCallingAccount(), null, true, network);
+        return network;
+    }
+
+    protected void cleanupOwnedNetworkResources(boolean includeNative) throws ResourceUnavailableException, InsufficientAddressCapacityException {
+        NetworkVO network = requireCleanupNetworkAccess();
+        List<KubernetesOwnedResourceReceipt> receipts = recordOwnedNetworkResources(includeNative);
+        for (KubernetesOwnedResourceReceipt receipt : receipts) {
+            validateOwnedResource(receipt, network);
+            kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "cleanup.remaining", receipt.resource, true);
+            boolean done = true;
+            switch (receipt.type) {
+                case LoadBalancer:
+                    if (loadBalancerDao.findById(receipt.id) != null) {
+                        done = lbService.deleteLoadBalancerRule(receipt.id, true);
+                    }
+                    break;
+                case FirewallRule:
+                    if (firewallRulesDao.findById(receipt.id) != null) {
+                        done = firewallManager.revokeIngressFirewallRule(receipt.id, true);
+                    }
+                    break;
+                case PortForwardingRule:
+                    if (portForwardingRulesDao.findById(receipt.id) != null) {
+                        done = rulesService.revokePortForwardingRule(receipt.id, true);
+                    }
+                    break;
+                case NetworkACL:
+                    if (networkACLItemDao.findById(receipt.id) != null) {
+                        done = networkACLService.revokeNetworkACLItem(receipt.id);
+                    }
+                    break;
+                case PublicIpAddress:
+                    IPAddressVO ip = ipAddressDao.findById(receipt.id);
+                    if (ip != null && ip.getAllocatedTime() != null) {
+                        // Preserve shared/manual/source-NAT/static-NAT and their remaining rules.
+                        if (ip.isSourceNat() || ip.isOneToOneNat() || ip.isPortable()
+                                || !firewallRulesDao.listByIpAndNotRevoked(ip.getId()).isEmpty()) {
+                            kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "cleanup.retained." + receipt.resource, "SharedOrProtectedIp", false);
+                        } else {
+                            done = networkService.releaseIpAddress(ip.getId(), receipt.generation);
+                        }
+                    }
+                    break;
+                default:
+                    throw new CloudRuntimeException("Unsupported cleanup resource");
+            }
+            if (!done) {
+                throw new CloudRuntimeException("Cluster-owned resource cleanup failed: " + receipt.resource);
+            }
+        }
+        kubernetesClusterDetailsDao.removeDetail(kubernetesCluster.getId(), "cleanup.remaining");
+    }
+
+    protected void cleanupNativeAclResources() throws ResourceUnavailableException {
+        NetworkVO network = networkDao.findById(kubernetesCluster.getNetworkId());
+        for (Map.Entry<String, String> detail : kubernetesClusterDetailsDao.listDetailsKeyPairs(kubernetesCluster.getId()).entrySet()) {
+            if (!detail.getKey().startsWith("cleanup.native.acl.")) {
+                continue;
+            }
+            String[] receipt = detail.getValue().split("\\|", -1);
+            if (receipt.length != 3 || !network.getUuid().equals(receipt[2])) {
+                throw new CloudRuntimeException("Native ACL cleanup receipt changed");
+            }
+            NetworkACLItemVO acl = networkACLItemDao.findById(Long.parseLong(receipt[0]));
+            if (acl == null) {
+                continue;
+            }
+            if (!KubernetesOwnedResourceReceipt.canonical(receipt[1]).equals(acl.getUuid())
+                    || !Long.valueOf(acl.getAclId()).equals(network.getNetworkACLId())) {
+                throw new CloudRuntimeException("Native ACL cleanup identity changed");
+            }
+            if (!networkACLService.revokeNetworkACLItem(acl.getId())) {
+                throw new CloudRuntimeException("Native ACL cleanup failed: " + acl.getUuid());
+            }
+        }
+    }
+
+    protected boolean executeServiceCleanup(String action) {
+        try {
+            File script = retrieveScriptFile("cleanup-owned-services");
+            Pair<String, Integer> endpoint = getKubernetesClusterServerIpSshPort(null);
+            copyScriptFile(endpoint.first(), endpoint.second(), script, "cleanup-owned-services");
+            Pair<Boolean, String> result = SshHelper.sshExecute(endpoint.first(), endpoint.second(), getControlNodeLoginUser(),
+                    getManagementServerSshPublicKeyFile(), null, "sudo " + scriptPath + "/cleanup-owned-services --" + action,
+                    10000, 10000, 180000);
+            return Boolean.TRUE.equals(result.first());
+        } catch (Exception error) {
+            logMessage(Level.WARN, "Kubernetes Service cleanup unavailable; cluster-owned fallback is required", error);
+            return false;
+        }
+    }
+
+    protected void stopNodesForOfflineOwnedCleanup() throws ConcurrentOperationException {
+        for (KubernetesClusterVmMapVO map : clusterVMs) {
+            UserVmVO vm = userVmDao.findById(map.getVmId());
+            if (vm != null && !vm.isRemoved() && vm.getState() == VirtualMachine.State.Running) {
+                UserVm stopped = userVmService.stopVirtualMachine(vm.getId(), false);
+                if (stopped == null || stopped.getState() != VirtualMachine.State.Stopped) {
+                    throw new CloudRuntimeException("Cannot stop the cluster controller before offline cleanup");
+                }
+            }
+        }
+    }
+
+    protected void prepareServiceCleanupBeforeNodeRemoval() {
+        kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "cleanup.status", "InProgress", true);
+        kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "cleanup.phase", "ServiceLoadBalancers", true);
+        try {
+            requireCleanupNetworkAccess();
+            boolean online = executeServiceCleanup("request");
+            if (!online && !ownershipCleanupEnabled()) {
+                throw new CloudRuntimeException("Kubernetes API/CCM cleanup unavailable without durable ownership; preserve nodes and retry after recovery");
+            }
+            if (!ownershipCleanupEnabled() && !executeServiceCleanup("wait")) {
+                throw new CloudRuntimeException("CCM did not finalize its legacy Services; preserve nodes and retry after recovery");
+            }
+            if (ownershipCleanupEnabled()) {
+                // Persist all receipts before the first mutation, including while API is unavailable.
+                recordOwnedNetworkResources(false);
+                if (!online) {
+                    stopNodesForOfflineOwnedCleanup();
+                }
+                cleanupOwnedNetworkResources(false);
+                if (online && !executeServiceCleanup("finalize")) {
+                    throw new CloudRuntimeException("Owned Mold resources were cleaned but Service finalization failed; retry with nodes preserved");
+                }
+            }
+            cleanupNativeAclResources();
+            cleanupOwnedNetworkResources(true);
+            kubernetesClusterDetailsDao.removeDetail(kubernetesCluster.getId(), "cleanup.status");
+            kubernetesClusterDetailsDao.removeDetail(kubernetesCluster.getId(), "cleanup.phase");
+        } catch (Exception error) {
+            kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "cleanup.status", "Blocked", true);
+            throw new CloudRuntimeException("Kubernetes Service cleanup blocked; nodes and receipts are preserved for retry", error);
+        }
+    }
+
+    protected void prepareCsiCleanupBeforeNodeRemoval() {
+        if (kubernetesCluster.isCsiEnabled() && !deletePVsWithReclaimPolicyDelete()) {
+            kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "cleanup.status", "Blocked", true);
+            kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "cleanup.phase", "MoldCsiDeleteVolumes", true);
+            throw new CloudRuntimeException("Mold CSI Delete volume cleanup failed or timed out; cluster nodes are preserved. Retry after API/CSI recovery.");
+        }
     }
 
     public boolean destroy() throws CloudRuntimeException {
@@ -307,8 +592,16 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
         if (logger.isInfoEnabled()) {
             logger.info("Destroying Kubernetes cluster : {}", kubernetesCluster);
         }
+        requireCleanupNetworkAccess();
+        recordVerifiedLegacyApiLoadBalancer();
+        prepareCsiCleanupBeforeNodeRemoval();
+        prepareServiceCleanupBeforeNodeRemoval();
         stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.DestroyRequested);
         boolean vmsDestroyed = destroyClusterVMs();
+        if (cleanupNetwork && hasUnclaimedNetworkResources()) {
+            cleanupNetwork = false;
+            kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "cleanup.retained.network", "UnclaimedNetworkResources", false);
+        }
         // if there are VM's that were not expunged, we can not delete the network
         if (vmsDestroyed) {
             if (cleanupNetwork) {

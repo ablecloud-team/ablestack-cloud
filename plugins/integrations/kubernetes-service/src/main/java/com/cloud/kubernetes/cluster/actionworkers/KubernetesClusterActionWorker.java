@@ -105,6 +105,8 @@ import com.cloud.kubernetes.cluster.dao.KubernetesClusterVmMapDao;
 import com.cloud.kubernetes.version.KubernetesSupportedVersion;
 import com.cloud.kubernetes.version.dao.KubernetesSupportedVersionDao;
 import com.cloud.network.IpAddress;
+import com.cloud.network.dao.IPAddressVO;
+import com.cloud.server.ResourceTag.ResourceObjectType;
 import com.cloud.network.IpAddressManager;
 import com.cloud.network.Network;
 import com.cloud.network.NetworkModel;
@@ -547,6 +549,14 @@ public class KubernetesClusterActionWorker {
         return publicIp;
     }
 
+    protected void recordNativeNetworkResource(ResourceObjectType type, long id, String uuid, IpAddress address) {
+        Network network = networkDao.findById(kubernetesCluster.getNetworkId());
+        IPAddressVO current = ipAddressDao.findById(address.getId());
+        KubernetesOwnedResourceReceipt receipt = new KubernetesOwnedResourceReceipt(type, id, uuid, kubernetesCluster.getUuid(),
+                network.getUuid(), current.getUuid(), current.getAllocationGeneration());
+        kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "cleanup.native." + type + "." + uuid, receipt.encode(), false);
+    }
+
     protected IpAddress acquireVpcTierKubernetesPublicIp(Network network, boolean forEtcd) throws
             InsufficientAddressCapacityException, ResourceAllocationException, ResourceUnavailableException {
         IpAddress ip = networkService.allocateIP(owner, kubernetesCluster.getZoneId(), network.getId(), null, null);
@@ -555,6 +565,7 @@ public class KubernetesClusterActionWorker {
         }
         ip = vpcService.associateIPToVpc(ip.getId(), network.getVpcId());
         ip = ipAddressManager.associateIPToGuestNetwork(ip.getId(), network.getId(), false);
+        recordNativeNetworkResource(ResourceObjectType.PublicIpAddress, ip.getId(), ip.getUuid(), ip);
         if (!forEtcd) {
             kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), ApiConstants.PUBLIC_IP_ID, ip.getUuid(), false);
         }
@@ -568,6 +579,7 @@ public class KubernetesClusterActionWorker {
             return null;
         }
         ip = networkService.associateIPToNetwork(ip.getId(), network.getId());
+        recordNativeNetworkResource(ResourceObjectType.PublicIpAddress, ip.getId(), ip.getUuid(), ip);
         return ip;
     }
 
@@ -759,8 +771,14 @@ public class KubernetesClusterActionWorker {
         sshPort = publicIpSshPort.second();
 
         try {
+            File currentScript = retrieveScriptFile(deploySecretsScriptFilename);
+            if (currentScript == null) {
+                return false;
+            }
+            copyScriptFile(publicIpAddress, sshPort, currentScript, deploySecretsScriptFilename);
             String command = String.format("sudo %s/%s -u '%s' -k '%s' -s '%s'",
                 scriptPath, deploySecretsScriptFilename, ApiServiceConfiguration.getApiServletPathValue(), keys[0], keys[1]);
+            command += " -c '" + kubernetesCluster.getUuid() + "'";
             Account account = accountDao.findById(kubernetesCluster.getAccountId());
             if (account != null && account.getType() == Account.Type.PROJECT) {
                 String projectId = projectService.findByProjectAccountId(account.getId()).getUuid();
@@ -768,6 +786,11 @@ public class KubernetesClusterActionWorker {
             }
             Pair<Boolean, String> result = SshHelper.sshExecute(publicIpAddress, sshPort, getControlNodeLoginUser(),
                     pkFile, null, command, 10000, 10000, 60000);
+            if (Boolean.TRUE.equals(result.first()) && result.second() != null && result.second().contains("MOLD_PROVIDER_OWNERSHIP_V1_READY")) {
+                kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "provider.ownership.v1", "true", false);
+            } else if (Boolean.TRUE.equals(result.first())) {
+                kubernetesClusterDetailsDao.removeDetail(kubernetesCluster.getId(), "provider.ownership.v1");
+            }
             return result.first();
         } catch (Exception e) {
             String msg = String.format("Failed to add cloudstack-secret to Kubernetes cluster: %s", kubernetesCluster.getName());

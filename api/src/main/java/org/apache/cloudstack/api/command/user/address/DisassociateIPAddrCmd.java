@@ -52,6 +52,10 @@ public class DisassociateIPAddrCmd extends BaseAsyncCmd {
         +  " Mutually exclusive with the id parameter")
     private String ipAddress;
 
+    @Parameter(name = "expectedallocationgeneration", type = CommandType.STRING,
+            description = "Release only this allocation if it still exists and has no remaining rules")
+    private String expectedAllocationGeneration;
+
     // unexposed parameter needed for events logging
     @Parameter(name = ApiConstants.ACCOUNT_ID, type = CommandType.UUID, entityType = AccountResponse.class, expose = false)
     private Long ownerId;
@@ -84,9 +88,16 @@ public class DisassociateIPAddrCmd extends BaseAsyncCmd {
         Long ipAddressId = getIpAddressId();
         CallContext.current().setEventDetails("IP address ID: " + getResourceUuid(ApiConstants.ID));
         boolean result = false;
+        if (expectedAllocationGeneration != null && expectedAllocationGeneration.trim().isEmpty()) {
+            throw new InvalidParameterValueException("expectedallocationgeneration must not be blank");
+        }
         if (!isPortable()) {
-            result = _networkService.releaseIpAddress(ipAddressId);
+            result = expectedAllocationGeneration == null ? _networkService.releaseIpAddress(ipAddressId)
+                    : _networkService.releaseIpAddress(ipAddressId, expectedAllocationGeneration);
         } else {
+            if (expectedAllocationGeneration != null) {
+                throw new InvalidParameterValueException("Conditional allocation cleanup does not support portable IP addresses");
+            }
             result = _networkService.releasePortableIpAddress(ipAddressId);
         }
         if (result) {

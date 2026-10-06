@@ -17,7 +17,6 @@
 # under the License.
 
 
-"""Bounded, UID-conditional cleanup of Mold CSI Delete volumes."""
 import argparse
 import http.client
 import json
@@ -29,14 +28,6 @@ import tempfile
 import time
 from pathlib import Path
 from urllib.parse import quote, urlencode
-
-DRIVER = "csi.cloudstack.apache.org"
-WORKLOADS = (
-    ("apps/v1", "deployments"), ("apps/v1", "statefulsets"),
-    ("apps/v1", "daemonsets"), ("apps/v1", "replicasets"),
-    ("batch/v1", "jobs"), ("batch/v1", "cronjobs"), ("v1", "pods"),
-)
-
 
 class CleanupError(Exception):
     pass
@@ -50,43 +41,6 @@ def resource_path(version, resource, obj):
     meta = obj["metadata"]
     scope = "/namespaces/" + quote(meta["namespace"], safe="") if meta.get("namespace") else ""
     return base(version) + scope + "/" + resource + "/" + quote(meta["name"], safe="")
-
-
-def claim_names(resource, obj):
-    spec = obj.get("spec", {})
-    if resource == "cronjobs":
-        spec = spec.get("jobTemplate", {}).get("spec", {}).get("template", {}).get("spec", {})
-    elif resource != "pods":
-        spec = spec.get("template", {}).get("spec", {})
-    return {v["persistentVolumeClaim"]["claimName"] for v in spec.get("volumes", [])
-            if v.get("persistentVolumeClaim", {}).get("claimName")}
-
-
-def deletion_plan(pvs, pvcs, workloads):
-    claims = {(c["metadata"]["namespace"], c["metadata"]["name"]): c for c in pvcs}
-    volumes, target_claims = [], set()
-    for pv in pvs:
-        spec = pv.get("spec", {})
-        if (spec.get("csi", {}).get("driver") != DRIVER or spec.get("persistentVolumeReclaimPolicy") != "Delete"
-                or pv.get("metadata", {}).get("annotations", {}).get("pv.kubernetes.io/provisioned-by") != DRIVER):
-            continue
-        handle = spec["csi"].get("volumeHandle", "")
-        if not handle:
-            raise CleanupError("Mold CSI PV has no volume handle: " + pv["metadata"]["name"])
-        ref = spec.get("claimRef", {})
-        claim = claims.get((ref.get("namespace"), ref.get("name")))
-        if claim:
-            if ref.get("uid") != claim["metadata"]["uid"] or claim.get("spec", {}).get("volumeName") != pv["metadata"]["name"]:
-                raise CleanupError("PV claim identity changed: " + pv["metadata"]["name"])
-            target_claims.add((ref["namespace"], ref["name"]))
-        volumes.append({"pv": pv, "claim": claim, "handle": handle})
-    selected = []
-    for version, resource, objects in workloads:
-        for obj in objects:
-            ns = obj["metadata"].get("namespace", "")
-            if any((ns, name) in target_claims for name in claim_names(resource, obj)):
-                selected.append((version, resource, obj))
-    return volumes, selected
 
 
 class UnixConnection(http.client.HTTPConnection):
@@ -110,7 +64,7 @@ class API:
         conn = UnixConnection(self.path)
         try:
             data = json.dumps(body).encode() if body is not None else None
-            conn.request(method, path, body=data, headers={"Content-Type": "application/json"})
+            conn.request(method, path, body=data, headers={"Content-Type": "application/json-patch+json" if method == "PATCH" else "application/json"})
             response = conn.getresponse()
             result = response.read()
             if response.status == 404:
@@ -159,52 +113,66 @@ def save_receipt(path, receipt):
     os.replace(temporary, path)
 
 
-def cleanup(api, journal, plan_only=False):
-    pvs, pvcs = api.list("v1", "persistentvolumes"), api.list("v1", "persistentvolumeclaims")
-    workloads = [(v, r, api.list(v, r)) for v, r in WORKLOADS]
-    volumes, selected = deletion_plan(pvs, pvcs, workloads)
-    prior = json.loads(journal.read_text()) if journal.exists() else {"volumes": []}
-    receipts = {v["uid"]: v for v in prior["volumes"]}
-    for v in volumes:
-        meta = v["pv"]["metadata"]
-        receipts[meta["uid"]] = {"uid": meta["uid"], "name": meta["name"], "handle": v["handle"],
-            "claimUid": v["claim"]["metadata"]["uid"] if v["claim"] else ""}
-    receipt = {"volumes": list(receipts.values()), "completed": False}
-    # Persist identities before the first mutation. Retries retain deleted-PV handles.
+
+
+def services_receipt(services):
+    return [{"namespace": s["metadata"]["namespace"], "name": s["metadata"]["name"], "uid": s["metadata"]["uid"]}
+            for s in services if s.get("spec", {}).get("type") == "LoadBalancer"]
+
+
+def as_service(item):
+    return {"metadata": item}
+
+
+def request_deletion(api, journal):
+    previous = json.loads(journal.read_text()) if journal.exists() else {"services": []}
+    items = {s["uid"]: s for s in previous["services"]}
+    for item in services_receipt(api.list("v1", "services")):
+        items[item["uid"]] = item
+    receipt = {"services": list(items.values())}
     save_receipt(journal, receipt)
-    print("MOLD_PV_CLEANUP_RECEIPT " + json.dumps(receipt, separators=(",", ":")), flush=True)
-    if plan_only:
-        return
-    for version, resource, obj in selected:
-        api.delete(version, resource, obj)
-    for version, resource, obj in selected:
-        if resource == "pods":
-            api.wait_absent(version, resource, obj)
-    for v in volumes:
-        if v["claim"]:
-            api.delete("v1", "persistentvolumeclaims", v["claim"])
-            api.wait_absent("v1", "persistentvolumeclaims", v["claim"])
-        # Released/unbound Delete volumes need the same UID-guarded deletion.
-        api.delete("v1", "persistentvolumes", v["pv"])
-        api.wait_absent("v1", "persistentvolumes", v["pv"])
-    remaining, _ = deletion_plan(api.list("v1", "persistentvolumes"), api.list("v1", "persistentvolumeclaims"), [])
-    if remaining:
-        raise CleanupError("New or remaining Mold CSI Delete volumes; retry with controller nodes retained")
-    receipt["completed"] = True
-    save_receipt(journal, receipt)
-    print("MOLD_PV_CLEANUP_RECEIPT " + json.dumps(receipt, separators=(",", ":")))
+    for item in receipt["services"]:
+        api.delete("v1", "services", as_service(item))
+    print("MOLD_SERVICE_CLEANUP_RECEIPT " + json.dumps(receipt, separators=(",", ":")))
+
+
+def finish_deletion(api, journal, finalize):
+    if not journal.exists():
+        raise CleanupError("Missing Service cleanup receipt")
+    receipt = json.loads(journal.read_text())
+    for item in receipt["services"]:
+        path = resource_path("v1", "services", as_service(item))
+        current = api.request("GET", path)
+        if current is not None:
+            if current["metadata"]["uid"] != item["uid"]:
+                raise CleanupError("Service UID changed; replacement is preserved")
+            if not current["metadata"].get("deletionTimestamp"):
+                raise CleanupError("Service deletion was not requested")
+            finalizers = current["metadata"].get("finalizers", [])
+            owned = "service.kubernetes.io/load-balancer-cleanup"
+            if finalize and owned in finalizers:
+                # Called only after durable Mold ownership cleanup has succeeded.
+                # CAS preserves a concurrent update and every foreign finalizer.
+                api.request("PATCH", path, [
+                    {"op": "test", "path": "/metadata/uid", "value": item["uid"]},
+                    {"op": "test", "path": "/metadata/resourceVersion", "value": current["metadata"]["resourceVersion"]},
+                    {"op": "replace", "path": "/metadata/finalizers", "value": [f for f in finalizers if f != owned]},
+                ])
+            api.wait_absent("v1", "services", as_service(item))
+    if services_receipt(api.list("v1", "services")):
+        raise CleanupError("New LoadBalancer Service found; retry before node removal")
+    print("MOLD_SERVICE_CLEANUP_COMPLETE")
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--plan-only", action="store_true")
-    parser.add_argument("--timeout-seconds", type=int, default=480)
+    actions = parser.add_mutually_exclusive_group(required=True)
+    actions.add_argument("--request", action="store_true")
+    actions.add_argument("--wait", action="store_true")
+    actions.add_argument("--finalize", action="store_true")
     args = parser.parse_args()
-    if not 10 <= args.timeout_seconds <= 480:
-        raise CleanupError("Cleanup timeout must be between 10 and 480 seconds")
-    deadline = time.monotonic() + args.timeout_seconds
-    journal = Path("/var/lib/mold/kubernetes-pv-cleanup.json")
-    with tempfile.TemporaryDirectory(prefix="mold-pv-cleanup-") as temporary:
+    journal = Path("/var/lib/mold/kubernetes-service-cleanup.json")
+    with tempfile.TemporaryDirectory(prefix="mold-service-cleanup-") as temporary:
         path = temporary + "/proxy.sock"
         proxy = subprocess.Popen(["/opt/bin/kubectl", "--kubeconfig=/etc/kubernetes/admin.conf", "proxy", "--unix-socket=" + path],
                                  stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -213,11 +181,15 @@ def main():
                 if os.path.exists(path):
                     break
                 if proxy.poll() is not None:
-                    raise CleanupError("Cannot start Kubernetes cleanup proxy")
+                    raise CleanupError("Cannot start Kubernetes Service cleanup proxy")
                 time.sleep(0.1)
             if not os.path.exists(path):
-                raise CleanupError("Kubernetes cleanup proxy did not become ready")
-            cleanup(API(path, deadline), journal, args.plan_only)
+                raise CleanupError("Kubernetes Service cleanup proxy did not become ready")
+            api = API(path, time.monotonic() + 120)
+            if args.request:
+                request_deletion(api, journal)
+            else:
+                finish_deletion(api, journal, args.finalize)
         finally:
             proxy.terminate()
             try:
@@ -231,5 +203,5 @@ if __name__ == "__main__":
     try:
         main()
     except (CleanupError, OSError, ValueError) as error:
-        print("MOLD_PV_CLEANUP_FAILED " + str(error), file=sys.stderr)
+        print("MOLD_SERVICE_CLEANUP_FAILED " + str(error), file=sys.stderr)
         sys.exit(1)

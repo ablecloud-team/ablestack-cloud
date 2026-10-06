@@ -976,6 +976,10 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
         response.setMaxSize(kubernetesCluster.getMaxSize());
         response.setClusterType(kubernetesCluster.getClusterType());
         response.setCsiEnabled(kubernetesCluster.isCsiEnabled());
+        Map<String, String> cleanupDetails = kubernetesClusterDetailsDao.listDetailsKeyPairs(kubernetesCluster.getId());
+        response.setCleanupStatus(cleanupDetails.get("cleanup.status"));
+        response.setCleanupPhase(cleanupDetails.get("cleanup.phase"));
+        response.setCleanupRemaining(cleanupDetails.get("cleanup.remaining"));
         response.setCreated(kubernetesCluster.getCreated());
         setNodeTypeAffinityGroupResponse(response, kubernetesCluster.getId());
 

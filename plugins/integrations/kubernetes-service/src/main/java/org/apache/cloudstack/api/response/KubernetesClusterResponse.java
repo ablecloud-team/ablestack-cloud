@@ -31,6 +31,28 @@ import com.google.gson.annotations.SerializedName;
 @SuppressWarnings("unused")
 @EntityReference(value = {KubernetesCluster.class})
 public class KubernetesClusterResponse extends BaseResponseWithAnnotations implements ControlledViewEntityResponse {
+    @SerializedName("cleanupstatus")
+    @Param(description = "Cluster cleanup status; Blocked preserves nodes for retry")
+    private String cleanupStatus;
+
+    @SerializedName("cleanupphase")
+    @Param(description = "The failed or current cluster cleanup phase")
+    private String cleanupPhase;
+
+    @SerializedName("cleanupremaining")
+    @Param(description = "Identifiers of cluster-owned resources still awaiting cleanup")
+    private String cleanupRemaining;
+
+    public void setCleanupStatus(String value) {
+        cleanupStatus = value;
+    }
+    public void setCleanupPhase(String value) {
+        cleanupPhase = value;
+    }
+    public void setCleanupRemaining(String value) {
+        cleanupRemaining = value;
+    }
+
     @SerializedName(ApiConstants.ID)
     @Param(description = "The ID of the Kubernetes cluster")
     private String id;

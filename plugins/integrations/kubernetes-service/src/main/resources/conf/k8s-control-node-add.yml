@@ -174,6 +174,20 @@ write_files:
           cp "${BINARIES_DIR}/provider.yaml" /opt/provider/provider.yaml
         fi
 
+        if [ -s "${BINARIES_DIR}/provider-ownership-v1.json" ]; then
+          cp "${BINARIES_DIR}/provider-ownership-v1.json" /opt/mold-provider-ownership-v1
+        else
+          rm -f /opt/mold-provider-ownership-v1
+        fi
+        if [ -s "${BINARIES_DIR}/snapshot-crds.yaml" ]; then
+          mkdir -p /opt/csi
+          cp "${BINARIES_DIR}/snapshot-crds.yaml" /opt/csi/snapshot-crds.yaml
+          cp "${BINARIES_DIR}/manifest.yaml" /opt/csi/manifest.yaml
+          if [ -s "${BINARIES_DIR}/csi-profile.json" ]; then
+            cp "${BINARIES_DIR}/csi-profile.json" /opt/csi/profile.json
+          fi
+        fi
+
         PAUSE_IMAGE=""
         if [ -s "${BINARIES_DIR}/docker/images.list" ]; then
           PAUSE_IMAGE=$(awk '$2 ~ /\/pause(:[^@]+)?$/ {digest=$1; sub(/\.tar$/, "", digest); repository=$2; sub(/:[^/]+$/, "", repository); print repository "@sha256:" digest}' "${BINARIES_DIR}/docker/images.list")

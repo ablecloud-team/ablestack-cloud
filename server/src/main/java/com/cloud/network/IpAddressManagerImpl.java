@@ -801,6 +801,11 @@ public class IpAddressManagerImpl extends ManagerBase implements IpAddressManage
                     && !expectedAllocationGeneration.equals(ipToBeDisassociated.getAllocationGeneration())) {
                 throw new InvalidParameterValueException("Public IP allocation changed; preserving the current allocation");
             }
+            if (expectedAllocationGeneration != null
+                    && (ipToBeDisassociated.isSourceNat() || ipToBeDisassociated.isOneToOneNat()
+                    || !_firewallDao.listByIpAndNotRevoked(addrId).isEmpty())) {
+                throw new InvalidParameterValueException("Public IP is shared or has remaining rules; preserving the allocation");
+            }
             // Use the row re-read under the same allocation/release lock.
             ipAddress = ipToBeDisassociated;
 

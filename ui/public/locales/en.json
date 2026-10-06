@@ -8287,5 +8287,9 @@
   "message.vmsnapshot.force.delete.impact": "Clean up residual data and metadata of the failed snapshot. Active operations or unconfirmed disk state stop recovery.",
   "message.vmsnapshot.force.delete.unavailable": "Recovery permission or snapshot state changed. Refresh the snapshot.",
   "label.kubernetes.headlamp.locale": "Open Headlamp using the language selected in Mold. To change it, use Headlamp Settings → General → Language.",
-  "label.kubernetes.headlamp.token.required": "Headlamp requires token authentication even when accessed through port-forward."
+  "label.kubernetes.headlamp.token.required": "Headlamp requires token authentication even when accessed through port-forward.",
+  "label.kubernetes.cleanup.status": "Cluster cleanup status",
+  "label.kubernetes.cleanup.phase": "Cleanup phase",
+  "label.kubernetes.cleanup.remaining": "Remaining resources",
+  "message.kubernetes.cleanup.retry": "Cleanup is incomplete and cluster nodes are preserved. Check the API, components and remaining resources, then retry cluster deletion."
 }

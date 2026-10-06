@@ -19,6 +19,9 @@ package com.cloud.network;
 
 import com.cloud.exception.InvalidParameterValueException;
 import com.cloud.network.dao.IPAddressDao;
+import com.cloud.network.dao.FirewallRulesDao;
+import com.cloud.network.rules.FirewallRuleVO;
+import java.util.Collections;
 import com.cloud.network.dao.IPAddressVO;
 import com.cloud.user.Account;
 import org.junit.Assert;
@@ -30,6 +33,8 @@ public class IpAddressAllocationReceiptTest {
         IpAddressManagerImpl manager = Mockito.spy(new IpAddressManagerImpl());
         IPAddressDao dao = Mockito.mock(IPAddressDao.class);
         manager._ipAddressDao = dao;
+        manager._firewallDao = Mockito.mock(FirewallRulesDao.class);
+        Mockito.when(manager._firewallDao.listByIpAndNotRevoked(Mockito.anyLong())).thenReturn(Collections.emptyList());
         IPAddressVO previous = Mockito.mock(IPAddressVO.class);
         IPAddressVO current = Mockito.mock(IPAddressVO.class);
         Account caller = Mockito.mock(Account.class);
@@ -60,6 +65,8 @@ public class IpAddressAllocationReceiptTest {
         IpAddressManagerImpl manager = Mockito.spy(new IpAddressManagerImpl());
         IPAddressDao dao = Mockito.mock(IPAddressDao.class);
         manager._ipAddressDao = dao;
+        manager._firewallDao = Mockito.mock(FirewallRulesDao.class);
+        Mockito.when(manager._firewallDao.listByIpAndNotRevoked(Mockito.anyLong())).thenReturn(Collections.emptyList());
         IPAddressVO previous = Mockito.mock(IPAddressVO.class);
         IPAddressVO current = Mockito.mock(IPAddressVO.class);
         Account caller = Mockito.mock(Account.class);
@@ -75,5 +82,42 @@ public class IpAddressAllocationReceiptTest {
             Assert.assertSame(reachedCleanup, expected);
             Mockito.verify(dao).releaseFromLockTable(7L);
         }
+    }
+
+    private void protectedAllocationCannotBeReleased(boolean sourceNat, boolean staticNat, boolean foreignRule) {
+        IpAddressManagerImpl manager = Mockito.spy(new IpAddressManagerImpl());
+        IPAddressDao dao = Mockito.mock(IPAddressDao.class);
+        manager._ipAddressDao = dao;
+        manager._firewallDao = Mockito.mock(FirewallRulesDao.class);
+        IPAddressVO ip = Mockito.mock(IPAddressVO.class);
+        Mockito.when(ip.getId()).thenReturn(7L);
+        Mockito.when(ip.getAllocationGeneration()).thenReturn("same-allocation");
+        Mockito.when(ip.isSourceNat()).thenReturn(sourceNat);
+        Mockito.when(ip.isOneToOneNat()).thenReturn(staticNat);
+        Mockito.when(dao.acquireInLockTable(7L)).thenReturn(ip);
+        Mockito.when(manager._firewallDao.listByIpAndNotRevoked(7L)).thenReturn(foreignRule
+                ? Collections.singletonList(Mockito.mock(FirewallRuleVO.class)) : Collections.emptyList());
+        try {
+            manager.disassociatePublicIpAddress(ip, 1L, Mockito.mock(Account.class), "same-allocation");
+            Assert.fail("A shared or protected allocation must be preserved");
+        } catch (InvalidParameterValueException expected) {
+            Mockito.verify(manager, Mockito.never()).cleanupIpResources(Mockito.any(), Mockito.anyLong(), Mockito.any());
+            Mockito.verify(dao).releaseFromLockTable(7L);
+        }
+    }
+
+    @Test
+    public void concurrentForeignRulePreservesTheAllocation() {
+        protectedAllocationCannotBeReleased(false, false, true);
+    }
+
+    @Test
+    public void sourceNatReceiptDoesNotAuthorizeRelease() {
+        protectedAllocationCannotBeReleased(true, false, false);
+    }
+
+    @Test
+    public void staticNatReceiptDoesNotAuthorizeRelease() {
+        protectedAllocationCannotBeReleased(false, true, false);
     }
 }

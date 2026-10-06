@@ -8252,5 +8252,9 @@
   "message.vmsnapshot.force.delete.impact": "생성에 실패한 스냅샷의 남은 데이터와 기록을 정리합니다. 진행 중인 작업이나 확인할 수 없는 디스크 상태가 있으면 정리가 중단됩니다.",
   "message.vmsnapshot.force.delete.unavailable": "강제 삭제 권한 또는 스냅샷 상태가 변경되었습니다. 항목을 새로 조회해 주세요.",
   "label.kubernetes.headlamp.locale": "Mold에서 선택한 언어로 Headlamp를 엽니다. 언어를 변경하려면 Headlamp 설정 → 일반 → 언어에서 선택하세요.",
-  "label.kubernetes.headlamp.token.required": "Headlamp는 port-forward로 접속할 때도 토큰 로그인이 필요합니다."
+  "label.kubernetes.headlamp.token.required": "Headlamp는 port-forward로 접속할 때도 토큰 로그인이 필요합니다.",
+  "label.kubernetes.cleanup.status": "클러스터 정리 상태",
+  "label.kubernetes.cleanup.phase": "정리 단계",
+  "label.kubernetes.cleanup.remaining": "잔여 자원",
+  "message.kubernetes.cleanup.retry": "정리가 완료되지 않아 클러스터 노드를 보존했습니다. API·구성 요소와 잔여 자원을 확인한 뒤 클러스터 삭제를 다시 실행하세요."
 }
