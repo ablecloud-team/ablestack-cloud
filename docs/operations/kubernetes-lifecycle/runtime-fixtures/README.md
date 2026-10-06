@@ -76,6 +76,20 @@ liveness의 같은 UID·restart 0→1, 각 데이터 65/65 및 해당 150초 보
    재시작 후에도 같은 읽기 전용 checksum과 응답을 확인합니다.
 6. 복원 namespace 정리 후 PV의 Released/Retain과 원본 앱 보존을 확인합니다.
 
+`finalize-rdb-restore.sh`는 RDB를 `appendonly no`로 읽은 독립 복원 Redis에서
+레코드 수를 확인하고, AOF rewrite와 실제 StatefulSet 재생성 후 보존을 검증합니다.
+원본 앱 namespace를 거부하며 비어 있는 AOF 우선 시작을 정상 복원으로 처리하지 않습니다.
+RDB를 먼저 import한 뒤 다음처럼 실행하고, 별도 읽기 전용 probe로 모든 값과 파일 checksum도 비교합니다.
+
+```bash
+KUBECTL=/path/to/verified/kubectl KUBECONFIG=/path/to/kube.conf \
+  ./finalize-rdb-restore.sh rt1230-r13-restore 100
+```
+
+이미 AOF 우선 시작으로 실패한 복원 Pod가 있다면 해당 **독립 복원** StatefulSet만
+0으로 축소하고 Pod 종료를 확인합니다. 다운로드한 archive의 RDB를 복원 전용 경로에
+다시 복사한 뒤 `appendonly no`로 시작합니다. 원본 Redis·원본 PV·원본 NFS 경로는 변경하지 않습니다.
+
 31번 GFS2/1.34.12 r12에서는 최초 AOF 우선 시작의 DBSIZE0 실패를 보존했습니다.
 다운로드 archive의 RDB import, AOF 재활성화·재시작 뒤 각각100records/64files(4MiB),
 읽기 전용65/65 및 HTTP100 오류0을 확인했습니다. 이는 static NFS 시험이며 CSI
