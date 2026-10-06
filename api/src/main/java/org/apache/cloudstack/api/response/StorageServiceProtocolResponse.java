@@ -26,6 +26,15 @@ import com.cloud.serializer.Param;
 import com.google.gson.annotations.SerializedName;
 
 public class StorageServiceProtocolResponse extends BaseResponse {
+    @SerializedName("idmappingmode") @Param(description="Service-wide desired NFS owner mapping") private String idMappingMode;
+    public void setIdMappingMode(String value){idMappingMode=value;}
+    @SerializedName("runtimeidmappingmode") @Param(description="Observed service-wide NFS owner mapping") private String runtimeIdMappingMode;
+    @SerializedName("effectiveidmappingmode") @Param(description="Verified NFS owner mapping, or UNKNOWN") private String effectiveIdMappingMode;
+    @SerializedName("idmappingdrift") @Param(description="CONSISTENT, DRIFT, or UNKNOWN") private String idMappingDrift;
+    public void setRuntimeIdMappingMode(String value){runtimeIdMappingMode=value;}
+    public void setEffectiveIdMappingMode(String value){effectiveIdMappingMode=value;}
+    public void setIdMappingDrift(String value){idMappingDrift=value;}
+
     @SerializedName(ApiConstants.ID)
     @Param(description = "ID of the Storage Service protocol")
     private String id;
