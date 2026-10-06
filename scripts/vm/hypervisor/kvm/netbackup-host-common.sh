@@ -413,6 +413,10 @@ for entry in os.scandir(root):
     if not entry.is_dir(follow_symlinks=False):
         continue
     complete_marker = os.path.join(entry.path, ".staging.complete")
+    # A volume pipeline releases the parent UI job before generating its first large image.
+    bootstrap_marker = os.path.join(entry.path, ".volume-bootstrap")
+    if os.path.isfile(bootstrap_marker):
+        complete_marker = bootstrap_marker
     inprogress_marker = os.path.join(entry.path, ".staging.inprogress")
     if not os.path.isfile(complete_marker):
         continue

@@ -103,7 +103,7 @@ final class LibvirtAblestackRbdRestoreHelper {
         }
     }
 
-    private static boolean restoreRbdBackupToImage(final String tracePrefix, final KVMStoragePool storagePool, final String volumePath,
+    static boolean restoreRbdBackupToImage(final String tracePrefix, final KVMStoragePool storagePool, final String volumePath,
             final List<String> backupPaths, final int timeoutSeconds, final boolean createTargetVolume) {
         if (backupPaths.stream().anyMatch(path -> path.endsWith(".rbdiff"))) {
             return restoreIncrementalRbdBackupChain(tracePrefix, storagePool, volumePath, backupPaths, timeoutSeconds, createTargetVolume);
@@ -192,6 +192,35 @@ final class LibvirtAblestackRbdRestoreHelper {
             return true;
         } finally {
             cleanupRbdRestoreSnapshots(storagePool, volumePath, restoreSnapshots, timeoutSeconds);
+        }
+    }
+
+    /** Apply a single downloaded diff only to a transaction-owned prepared image. */
+    static void applyStagedDiff(KVMStoragePool pool, String image, String file, String parent, String checkpoint, int timeout) {
+        if (StringUtils.isBlank(parent) || StringUtils.isBlank(checkpoint) || !rbdSnapshotExists(pool, image, parent, timeout)) {
+            throw new CloudRuntimeException("RBD restore diff does not match the prepared parent checkpoint");
+        }
+        CommandExecutionResult result = executeBashCommandWithResult(buildRbdCommand(pool, "import-diff", file, image), timeout,
+                "Import staged RBD diff");
+        if (result.exitCode != 0 || !ensureRbdSnapshotExists(pool, image, checkpoint, timeout)) {
+            throw new CloudRuntimeException("Unable to apply staged RBD diff: " + result.output);
+        }
+        if (executeBashCommandWithResult(buildRbdCommand(pool, "snap", "rm", image + "@" + parent), timeout,
+                "Remove prepared parent checkpoint").exitCode != 0) {
+            throw new CloudRuntimeException("Unable to remove prepared RBD parent checkpoint");
+        }
+    }
+
+    static void createPreparedCheckpoint(KVMStoragePool pool, String image, String checkpoint, int timeout) {
+        if (StringUtils.isBlank(checkpoint) || !ensureRbdSnapshotExists(pool, image, checkpoint, timeout)) {
+            throw new CloudRuntimeException("Unable to create prepared RBD checkpoint");
+        }
+    }
+
+    static void removePreparedCheckpoint(KVMStoragePool pool, String image, String checkpoint, int timeout) {
+        if (executeBashCommandWithResult(buildRbdCommand(pool, "snap", "rm", image + "@" + checkpoint), timeout,
+                "Remove prepared RBD checkpoint").exitCode != 0) {
+            throw new CloudRuntimeException("Unable to remove prepared RBD checkpoint");
         }
     }
 

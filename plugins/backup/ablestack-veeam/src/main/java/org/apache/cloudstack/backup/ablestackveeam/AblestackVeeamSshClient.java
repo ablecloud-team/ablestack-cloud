@@ -260,6 +260,7 @@ public class AblestackVeeamSshClient {
     public boolean volumeSourceReady(String templateName) {
         JSONObject result = volumeResult(Arrays.asList(
                 "$ErrorActionPreference='Stop'",
+                "Get-Command Copy-VBRComputerBackupJob -ErrorAction Stop | Out-Null",
                 "$jobs=@(Get-VBRComputerBackupJob -Name " + ps(templateName) + ")",
                 "if ($jobs.Count -ne 1) { throw 'Volume staging requires one existing Linux Agent template job' }",
                 "$busy=@(Get-VBRComputerBackupJobSession -Name " + ps(templateName) + " | Where-Object { [string]$_.State -ne 'Stopped' })",
@@ -284,7 +285,11 @@ public class AblestackVeeamSshClient {
             commands.add("  if ($computer.Count -ne 1) { throw 'Source Host must resolve to one discovered Linux Agent computer' }");
             commands.add("  Copy-VBRComputerBackupJob -Job $template -Name $name -Description " + ps("Mold logical backup " + artifact.backupUuid) + " | Out-Null");
             commands.add("  $job=Get-VBRComputerBackupJob -Name $name");
-            commands.add("  $files=New-VBRSelectedFilesBackupOptions -OSPlatform Linux -BackupSelectedFiles -SelectedFiles @(" + ps(artifact.path) + ")");
+            // Linux Agent scope accepts directories; include exactly this payload file within its directory.
+            final java.nio.file.Path artifactPath = java.nio.file.Path.of(artifact.path);
+            commands.add("  $files=New-VBRSelectedFilesBackupOptions -OSPlatform Linux -BackupSelectedFiles -SelectedFiles @(" +
+                    ps(metadata ? artifact.path : artifactPath.getParent().toString()) + ")" +
+                    (metadata ? "" : " -IncludeMask @(" + ps(artifactPath.getFileName().toString()) + ")"));
             commands.add("  $scripts=New-VBRJobScriptOptions");
             commands.add("  Set-VBRComputerBackupJob -Job $job -BackupObject $computer -BackupType SelectedFiles -SelectedFilesOptions $files -ScriptOptions $scripts -EnableSchedule:$false | Out-Null");
             commands.add("}");
@@ -318,9 +323,41 @@ public class AblestackVeeamSshClient {
         if (response == null || !response.first()) {
             throw new CloudRuntimeException("Veeam volume operation failed: " + (response == null ? "no response" : response.second()));
         }
-        return Arrays.stream(response.second().split("\\r?\\n")).filter(line -> line.startsWith("ABLESTACK_JSON:"))
+        return Arrays.stream(response.second().split("\\r?\\n")).map(String::trim).filter(line -> line.startsWith("ABLESTACK_JSON:"))
                 .map(line -> new JSONObject(line.substring("ABLESTACK_JSON:".length()))).findFirst()
                 .orElseThrow(() -> new CloudRuntimeException("Veeam volume operation did not return a job reference"));
+    }
+
+    /** Agent file restore requires the FLR object to remain in the same PowerShell session. */
+    public org.apache.cloudstack.backup.ThirdPartyBackupRestore.Result restoreVolumeArtifact(
+            org.apache.cloudstack.backup.ThirdPartyBackupRestore.Request request, String destinationHost, String destinationIp) {
+        String parent = java.nio.file.Path.of(request.artifact.path).getParent().toString();
+        String name = java.nio.file.Path.of(request.artifact.path).getFileName().toString();
+        String destination = java.nio.file.Path.of(request.destination).getParent().toString();
+        JSONObject result = volumeResult(Arrays.asList(
+                "$ErrorActionPreference='Stop'",
+                "Get-Command Start-VBRLinuxGuestItemRestore -ErrorAction Stop | Out-Null",
+                "$points=@(Get-VBRBackup | Get-VBRRestorePoint | Where-Object { ([string]$_.Id).Trim('{}') -eq " + ps(request.artifact.externalId) + " })",
+                "if ($points.Count -ne 1) { throw 'Exact artifact restore point is missing or ambiguous' }",
+                "$targets=@(Get-VBRDiscoveredComputer | Where-Object { $_.Name -eq " + ps(destinationHost)
+                        + " -or @($_.IpAddresses) -contains " + ps(destinationIp) + " })",
+                "if ($targets.Count -ne 1) { throw 'Restore Worker Host must identify one Veeam Agent computer' }",
+                "$mounts=@(Get-VBRServer -Name " + ps(destinationHost) + ")",
+                "if ($mounts.Count -ne 1) { throw 'Restore Worker Host must be registered as a Linux FLR mount server' }",
+                "$flr=$null",
+                "try {",
+                "  $flr=Start-VBRLinuxFileRestore -RestorePoint $points[0] -MountServer $mounts[0]",
+                "  $items=@(Get-VBRLinuxGuestItem -LinuxFlrObject $flr -Path " + ps(parent)
+                        + " | Where-Object { $_.Name -eq " + ps(name) + " })",
+                "  if ($items.Count -ne 1) { throw 'Exact artifact file or metadata directory is missing or ambiguous' }",
+                "  $task=Start-VBRLinuxGuestItemRestore -LinuxFlrObject $flr -Item $items -TargetAgentMachine $targets[0] -TargetDirectory "
+                        + ps(destination) + " -Overwrite",
+                "  if ($null -eq $task) { throw 'Veeam file restore returned no task session' }",
+                "  $result=[string]$task.Result; if ([string]::IsNullOrEmpty($result)) { $result=[string]$task.Info.Result }",
+                "  if ($result -ne 'Success') { throw ('Veeam artifact restore did not confirm success: '+$result) }",
+                "  Write-Output ('ABLESTACK_JSON:' + (@{jobId=[string]$task.Id;completed=$true} | ConvertTo-Json -Compress))",
+                "} finally { if ($null -ne $flr) { Stop-VBRLinuxFileRestore -LinuxFlrObject $flr | Out-Null } }"));
+        return new org.apache.cloudstack.backup.ThirdPartyBackupRestore.Result(result.getString("jobId"), result.getBoolean("completed"));
     }
 
     private static String ps(String value) {

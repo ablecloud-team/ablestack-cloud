@@ -42,4 +42,6 @@ public interface ThirdPartyBackupStagingService {
     long getAvailableBytes(Host host, String path);
 
     long getCapacityBufferBytes(long requiredBytes);
+
+    int getCapacityBufferPercent();
 }

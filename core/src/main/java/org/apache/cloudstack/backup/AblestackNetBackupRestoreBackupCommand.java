@@ -42,6 +42,10 @@ public class AblestackNetBackupRestoreBackupCommand extends Command {
     private Integer timeout;
     private String cacheMode;
     private String restoreJobId;
+    private ThirdPartyBackupRestore.Plan volumeRestorePlan;
+
+    public ThirdPartyBackupRestore.Plan getVolumeRestorePlan() { return volumeRestorePlan; }
+    public void setVolumeRestorePlan(ThirdPartyBackupRestore.Plan plan) { volumeRestorePlan = plan; }
     private boolean waitForCompletion = true;
 
     protected AblestackNetBackupRestoreBackupCommand() {

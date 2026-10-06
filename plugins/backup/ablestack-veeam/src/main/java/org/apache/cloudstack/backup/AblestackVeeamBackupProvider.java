@@ -216,6 +216,8 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
     @Inject
     private ThirdPartyBackupStagingService thirdPartyBackupStagingService;
     @Inject
+    private ThirdPartyBackupVolumeService thirdPartyBackupVolumeService;
+    @Inject
     private BackupDetailsDao backupDetailsDao;
     @Inject
     private BackupOfferingDao backupOfferingDao;
@@ -272,7 +274,9 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
         validateVolumePoolTypes(volumePoolsAndPaths.first());
 
         final BackupVO latestBackup = getLatestBackedUpBackup(vm);
-        final boolean incrementalBackup = shouldUseIncrementalBackup(vm, latestBackup, backupScheduleId);
+        final boolean incrementalBackup = shouldUseIncrementalBackup(vm, latestBackup, backupScheduleId)
+                && ThirdPartyBackupManifest.canContinue(latestBackup, getName(), vm.getInstanceName(),
+                        areAllVolumesOnRbdPool(volumePoolsAndPaths.first()) ? BACKUP_ENGINE_RBD_DIFF : BACKUP_ENGINE_QCOW2, vmVolumes);
         final String resolvedJobName = resolveVeeamJobName(veeamJobName, latestBackup);
         BackupExecutionResult result = executeBackup(vm, quiesceVM, host, vmVolumes, volumePoolsAndPaths, latestBackup,
                 incrementalBackup, resolvedJobName);
@@ -305,6 +309,9 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
     private BackupExecutionResult executeBackup(final VirtualMachine vm, final Boolean quiesceVM, final Host vmHost,
             final List<VolumeVO> vmVolumes, final Pair<List<PrimaryDataStoreTO>, List<String>> volumePoolsAndPaths,
             final Backup latestBackup, final boolean incrementalBackup, final String policyName) {
+        if (StringUtils.isBlank(policyName)) {
+            throw new CloudRuntimeException("Volume backup requires a configured Veeam Linux Agent template job name");
+        }
         final String backupPath = buildBackupPath(vm);
         final String checkpointName = backupPath.substring(backupPath.lastIndexOf("/") + 1);
         final String backupEngine = areAllVolumesOnRbdPool(volumePoolsAndPaths.first()) ? BACKUP_ENGINE_RBD_DIFF : BACKUP_ENGINE_QCOW2;
@@ -320,34 +327,47 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
         }
 
         final BackupVO backupVO = createBackupObject(vm, vmHost.getId(), backupPath, requestedBackupType, backupDetails);
-        LOG.info("{} phase=[BEGIN], backupId=[{}], backupUuid=[{}], vmId=[{}], vmName=[{}], backupType=[{}], backupEngine=[{}], backupPath=[{}], host=[{}]",
-                BACKUP_TRACE, backupVO.getId(), backupVO.getUuid(), vm.getId(), vm.getInstanceName(), requestedBackupType, backupEngine,
-                backupPath, vmHost != null ? vmHost.getName() : null);
-        AblestackVeeamTakeBackupCommand command = new AblestackVeeamTakeBackupCommand(vm.getInstanceName(), backupPath);
-        command.setWait(BackupDataOperationTimeout.value());
-        command.setBackupJobId(backupVO.getUuid());
-        command.setQuiesce(quiesceVM);
-        command.setVolumePools(volumePoolsAndPaths.first());
-        command.setVolumePaths(volumePoolsAndPaths.second());
-        command.setBackupType(requestedBackupType);
-        command.setCheckpointName(checkpointName);
-        command.setBackupFiles(backupFiles);
-        command.setWaitForCompletion(false);
-        if (incrementalBackup && latestBackup != null) {
-            command.setParentBackupPath(getBackupDetail(latestBackup, DETAIL_PARENT_BACKUP_PATH,
-                    latestBackup.getExternalId()));
-            command.setParentCheckpointName(getBackupCheckpointName(latestBackup));
-            command.setParentCheckpointPath(getBackupDetail(latestBackup, DETAIL_CHECKPOINT_PATH));
-            final String parentCheckpointXml = getBackupDetail(latestBackup, DETAIL_CHECKPOINT_XML);
-            command.setParentCheckpointXml(BACKUP_TYPE_FULL.equalsIgnoreCase(latestBackup.getType())
-                    ? removeParentFromCheckpointXml(parentCheckpointXml)
-                    : parentCheckpointXml);
-            command.setParentCheckpointXmlChain(getParentCheckpointXmlChain(latestBackup));
-        }
-
         try {
+            backupVO.setBackedUpVolumes(createVolumeInfoFromVolumes(vmVolumes, backupFiles));
+            final ThirdPartyBackupManifest manifest = ThirdPartyBackupManifest.create(getName(), backupVO.getUuid(), vm.getInstanceName(),
+                    checkpointName, requestedBackupType, vmHost.getName(), backupPath, backupEngine, backupVO.getBackedUpVolumes(),
+                    incrementalBackup ? getBackupDetail(latestBackup, ThirdPartyBackupManifest.DETAIL_KEY) : null,
+                    incrementalBackup ? getBackupDetail(latestBackup, DETAIL_CHECKPOINT_NAME) : null);
+            backupVO.getDetails().put(ThirdPartyBackupManifest.MODE_KEY, ThirdPartyBackupManifest.VOLUME_MODE);
+            backupVO.getDetails().put(ThirdPartyBackupManifest.DETAIL_KEY, manifest.toJson());
+            if (!backupDao.update(backupVO.getId(), backupVO)) {
+                throw new CloudRuntimeException("Unable to persist the volume backup plan");
+            }
+            LOG.info("{} phase=[BEGIN], backupId=[{}], backupUuid=[{}], vmId=[{}], vmName=[{}], backupType=[{}], backupEngine=[{}], backupPath=[{}], host=[{}]",
+                    BACKUP_TRACE, backupVO.getId(), backupVO.getUuid(), vm.getId(), vm.getInstanceName(), requestedBackupType, backupEngine,
+                    backupPath, vmHost != null ? vmHost.getName() : null);
+            AblestackVeeamTakeBackupCommand command = new AblestackVeeamTakeBackupCommand(vm.getInstanceName(), backupPath);
+            command.setVolumeStagingManifest(manifest.toJson());
+            command.setStagingBufferPercent(thirdPartyBackupStagingService.getCapacityBufferPercent());
+            command.setWait(BackupDataOperationTimeout.value());
+            command.setBackupJobId(backupVO.getUuid());
+            command.setQuiesce(quiesceVM);
+            command.setVolumePools(volumePoolsAndPaths.first());
+            command.setVolumePaths(volumePoolsAndPaths.second());
+            command.setBackupType(requestedBackupType);
+            command.setCheckpointName(checkpointName);
+            command.setBackupFiles(backupFiles);
+            command.setWaitForCompletion(false);
+            if (incrementalBackup && latestBackup != null) {
+                command.setParentBackupPath(getBackupDetail(latestBackup, DETAIL_PARENT_BACKUP_PATH,
+                        latestBackup.getExternalId()));
+                command.setParentCheckpointName(getBackupCheckpointName(latestBackup));
+                command.setParentCheckpointPath(getBackupDetail(latestBackup, DETAIL_CHECKPOINT_PATH));
+                final String parentCheckpointXml = getBackupDetail(latestBackup, DETAIL_CHECKPOINT_XML);
+                command.setParentCheckpointXml(BACKUP_TYPE_FULL.equalsIgnoreCase(latestBackup.getType())
+                        ? removeParentFromCheckpointXml(parentCheckpointXml)
+                        : parentCheckpointXml);
+                command.setParentCheckpointXmlChain(getParentCheckpointXmlChain(latestBackup));
+            }
+
             final BackupAnswer answer = (BackupAnswer) agentManager.send(vmHost.getId(), command);
             if (answer != null && answer.getResult()) {
+                thirdPartyBackupVolumeService.track(backupVO, vmHost, volumeTransfer(vm, backupVO, vmHost));
                 LOG.info("{} phase=[STAGING_STARTED], backupId=[{}], backupUuid=[{}], vmId=[{}], vmName=[{}], backupType=[{}], "
                                 + "backupEngine=[{}], backupPath=[{}]",
                         BACKUP_TRACE, backupVO.getId(), backupVO.getUuid(), vm.getId(), vm.getInstanceName(), requestedBackupType,
@@ -394,6 +414,9 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
             return false;
         }
         loadBackupDetailsIfNeeded(latestBackup);
+        if (StringUtils.isBlank(getBackupDetail(latestBackup, ThirdPartyBackupManifest.DETAIL_KEY))) {
+            return false;
+        }
 
         if (Boolean.parseBoolean(getBackupDetail(latestBackup, DETAIL_CHAIN_SEALED))) {
             LOG.info("Veeam backup for VM [{}] will be FULL: backup chain [{}] is sealed ({})",
@@ -442,6 +465,9 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
             return false;
         }
         loadBackupDetailsIfNeeded(latestBackup);
+        if (StringUtils.isBlank(getBackupDetail(latestBackup, ThirdPartyBackupManifest.DETAIL_KEY))) {
+            return false;
+        }
 
         if (Boolean.parseBoolean(getBackupDetail(latestBackup, DETAIL_CHAIN_SEALED))) {
             return false;
@@ -770,9 +796,8 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
             return 0L;
         }
         return vmVolumes.stream()
-                .filter(volume -> Volume.State.Ready.equals(volume.getState()))
                 .mapToLong(VolumeVO::getSize)
-                .sum();
+                .max().orElse(0L);
     }
 
     private long getAvailableBytesOnHostPath(final Host host, final String path) {
@@ -2119,6 +2144,9 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
             return;
         }
         loadBackupDetailsIfNeeded(backup);
+        if (ThirdPartyBackupManifest.VOLUME_MODE.equals(getBackupDetail(backup, ThirdPartyBackupManifest.MODE_KEY))) {
+            throw new CloudRuntimeException("Restoring this volume-staged backup format is not supported yet");
+        }
         if (isLegacyBackup(backup)) {
             return;
         }
@@ -2264,6 +2292,16 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
     }
 
     private boolean completeStartedBackupIfHostJobFinished(final VirtualMachine vm, final Backup backup) {
+        loadBackupDetailsIfNeeded(backup);
+        if (ThirdPartyBackupManifest.VOLUME_MODE.equals(getBackupDetail(backup, ThirdPartyBackupManifest.MODE_KEY))) {
+            final Host host = findBackupJobHost(backup, vm);
+            if (host != null) {
+                final ThirdPartyBackupVolumeService.Transfer transfer = volumeTransfer(vm, backup, host);
+                thirdPartyBackupVolumeService.track(backup, host, transfer);
+                thirdPartyBackupVolumeService.reconcile(backup, host, transfer);
+            }
+            return true;
+        }
         if (!(backup instanceof BackupVO)) {
             return false;
         }
@@ -2367,6 +2405,37 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
         } catch (AgentUnavailableException | OperationTimedoutException e) {
             return defaultDetails;
         }
+    }
+
+    private ThirdPartyBackupVolumeService.Transfer volumeTransfer(final VirtualMachine vm, final Backup backup, final Host host) {
+        final String template = getBackupDetail(backup, DETAIL_VEEAM_JOB_NAME);
+        return new ThirdPartyBackupVolumeService.Transfer() {
+            @Override
+            public boolean ready() {
+                return getSshClient(vm.getDataCenterId()).volumeSourceReady(template);
+            }
+
+            @Override
+            public ThirdPartyBackupManifest.Artifact backup(final ThirdPartyBackupManifest.Artifact artifact, final boolean metadata) {
+                return getSshClient(vm.getDataCenterId()).backupVolumeArtifact(template, host.getPrivateIpAddress(), artifact, metadata);
+            }
+
+            @Override
+            public void completed(final Backup current) {
+                if (BACKUP_ENGINE_QCOW2.equals(getBackupDetail(current, DETAIL_BACKUP_ENGINE))) {
+                    final String xml = readFileContentsOnHost(host.getId(), getBackupDetail(current, DETAIL_CHECKPOINT_PATH));
+                    if (StringUtils.isBlank(xml)) {
+                        throw new CloudRuntimeException("Completed QCOW2 backup checkpoint metadata is missing");
+                    }
+                    current.getDetails().put(DETAIL_CHECKPOINT_XML, xml);
+                }
+            }
+
+            @Override
+            public void failed(final Backup current) {
+                sealParentBackupChainIfIncremental(current, "failed-volume-child");
+            }
+        };
     }
 
     private Host findBackupJobHost(final Backup backup, final VirtualMachine vm) {
@@ -2785,6 +2854,9 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
             }
             loadBackupDetailsIfNeeded(backup);
             // RBD_DIFF: never wipe from job-inventory gaps (Agent catalog probes are incomplete).
+            if (ThirdPartyBackupManifest.VOLUME_MODE.equals(getBackupDetail(backup, ThirdPartyBackupManifest.MODE_KEY))) {
+                continue; // The template job's removal does not remove its independent child restore points.
+            }
             // Explicit Veeam Remove-from-Disk for RBD is handled only when a stamped restorePointId
             // disappears from a trusted non-empty catalog (primary path below + host list-diff).
             if (BACKUP_ENGINE_RBD_DIFF.equalsIgnoreCase(getBackupEngine(backup))) {

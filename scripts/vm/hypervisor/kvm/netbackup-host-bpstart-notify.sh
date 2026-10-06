@@ -56,6 +56,10 @@ cleanup_failed_pre_run() {
 ensure_runtime_dirs
 cleanup_stale_transient_state
 resolve_context "${1:-}" "${2:-}" "${3:-}" "${4:-}"
+# Child policies protect already prepared artifacts. They must never recursively ask Mold for a backup.
+if [[ "${POLICY_NAME}" =~ ^ABLESTACK-[[:xdigit:]-]{36}-(metadata|[[:xdigit:]-]{36})$ ]]; then
+  exit 0
+fi
 cleanup_runtime_history
 load_policy_schedule_config
 acquire_lock

@@ -114,6 +114,17 @@ final class LibvirtAblestackRestoreTransaction {
         if (targets.isEmpty() || pools.size() != targets.size() || chains.size() != targets.size()) {
             throw new CloudRuntimeException("Invalid VM restore volume plan");
         }
+        restorePrepared(logger, trace, vmName, manager, pools, targets, timeout,
+                () -> validateCapacity(logger, trace, manager, pools, targets, chains, timeout), restorer);
+    }
+
+    /** Streaming restores check provisioned sizes before downloading any image. */
+    static void restorePrepared(final Logger logger, final String trace, final String vmName,
+            final KVMStoragePoolManager manager, final List<PrimaryDataStoreTO> pools,
+            final List<String> targets, final int timeout, final Runnable capacityCheck, final Restorer restorer) {
+        if (targets.isEmpty() || pools.size() != targets.size()) {
+            throw new CloudRuntimeException("Invalid VM restore volume plan");
+        }
         final Path directory = vmDirectory(vmName);
         try {
             Files.createDirectories(directory);
@@ -135,7 +146,7 @@ final class LibvirtAblestackRestoreTransaction {
                     backends.add(backend);
                 }
                 recoverInterruptedTransactions(logger, directory, pools, targets, backends);
-                validateCapacity(logger, trace, manager, pools, targets, chains, timeout);
+                capacityCheck.run();
                 final String id = UUID.randomUUID().toString();
                 final Path journal = directory.resolve(id + ".properties");
                 final Properties state = new Properties();

@@ -387,6 +387,27 @@ final class LibvirtAblestackAsyncBackupRunner {
             return new BackupAnswer(command, false, "Backup job is not running");
         }
 
+        refreshVolumeProgress(jobId, properties, logger);
+        if (Boolean.parseBoolean(properties.getProperty("volumePipeline"))) {
+            if (!Boolean.parseBoolean(properties.getProperty("liveBandwidthSupported"))
+                    || !"QCOW2_BACKUP".equals(properties.getProperty("step"))) {
+                return new BackupAnswer(command, false, "Live bandwidth changes are only available while exporting a Running QCOW2 VM volume");
+            }
+            try {
+                final Path target = getJobDirectory(jobId).resolve("volume-bandwidth-mbps");
+                final Path temporary = target.resolveSibling("volume-bandwidth-mbps.tmp");
+                Files.writeString(temporary, String.valueOf(effectiveLimitMbps));
+                Files.move(temporary, target, java.nio.file.StandardCopyOption.ATOMIC_MOVE, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                properties.setProperty("bandwidthLimitMbps", String.valueOf(effectiveLimitMbps));
+                properties.setProperty("bandwidthStatus", "applied");
+                properties.setProperty("bandwidthLimitUpdated", String.valueOf(System.currentTimeMillis()));
+                storeJobProperties(logger, jobId, properties);
+                return new BackupAnswer(command, true, "Updated volume export bandwidth limit to " + effectiveLimitMbps + " Mbps");
+            } catch (IOException e) {
+                return new BackupAnswer(command, false, "Unable to update volume export bandwidth limit: " + e.getMessage());
+            }
+        }
+
         if (isRbdBackup(properties)) {
             return new BackupAnswer(command, false, "RBD backup jobs do not support live bandwidth changes on this host");
         }
@@ -691,6 +712,8 @@ final class LibvirtAblestackAsyncBackupRunner {
                     Math.min(99, parseInteger(progress.getProperty("progress"), 0)))));
             properties.remove("progressUnavailable");
             properties.setProperty("volumePipeline", "true");
+            properties.setProperty("liveBandwidthSupported", progress.getProperty("liveBandwidthSupported", "false"));
+            properties.setProperty("bandwidthLimitMbps", progress.getProperty("bandwidthLimitMbps", "0"));
             properties.setProperty("liveBandwidthActive", String.valueOf("QCOW2_BACKUP".equals(step)));
             properties.setProperty("capabilities", resolveCapabilities(properties));
             storeJobProperties(logger, jobId, properties);
@@ -835,7 +858,10 @@ final class LibvirtAblestackAsyncBackupRunner {
 
     private static String resolveCapabilities(final Properties properties) {
         final List<String> capabilities = new ArrayList<>();
-        capabilities.add(AblestackBackupFrameworkUtils.CAPABILITY_CANCEL);
+        if (!Boolean.parseBoolean(properties.getProperty("volumePipeline"))
+                || java.util.Set.of("PREPARING", "QCOW2_BACKUP", "RBD_EXPORT", "RBD_EXPORT_DIFF").contains(properties.getProperty("step", ""))) {
+            capabilities.add(AblestackBackupFrameworkUtils.CAPABILITY_CANCEL);
+        }
         capabilities.add(AblestackBackupFrameworkUtils.CAPABILITY_EVENTS);
         capabilities.add(AblestackBackupFrameworkUtils.CAPABILITY_LOG);
         capabilities.add(AblestackBackupFrameworkUtils.CAPABILITY_PROGRESS);

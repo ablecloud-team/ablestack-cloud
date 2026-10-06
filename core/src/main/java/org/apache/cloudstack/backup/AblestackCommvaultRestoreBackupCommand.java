@@ -45,6 +45,10 @@ public class AblestackCommvaultRestoreBackupCommand extends Command  {
     private String hostName;
     private List<String> backupSourceHosts;
     private String restoreJobId;
+    private ThirdPartyBackupRestore.Plan volumeRestorePlan;
+
+    public ThirdPartyBackupRestore.Plan getVolumeRestorePlan() { return volumeRestorePlan; }
+    public void setVolumeRestorePlan(ThirdPartyBackupRestore.Plan plan) { volumeRestorePlan = plan; }
     private boolean waitForCompletion = true;
 
     protected AblestackCommvaultRestoreBackupCommand() {

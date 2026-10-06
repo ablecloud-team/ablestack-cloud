@@ -348,7 +348,7 @@ final class LibvirtAblestackFileRestoreHelper {
         return QemuImg.PhysicalDiskFormat.QCOW2;
     }
 
-    private static QemuImg.PhysicalDiskFormat getFileVolumeFormat(final Logger logger, final String volumePath) {
+    static QemuImg.PhysicalDiskFormat getFileVolumeFormat(final Logger logger, final String volumePath) {
         if (!Files.exists(Paths.get(volumePath))) {
             return QemuImg.PhysicalDiskFormat.QCOW2;
         }

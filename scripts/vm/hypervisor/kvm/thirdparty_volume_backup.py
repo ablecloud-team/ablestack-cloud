@@ -77,6 +77,9 @@ class Backup:
         self.socket = Path("/var/lib/libvirt/qemu") / ("backup-" + self.manifest["backupUuid"] + ".sock")
         self.reservation = None
         self.count = len(self.manifest["volumes"])
+        self.live_bandwidth = False
+        self.bandwidth_file = self.job / "volume-bandwidth-mbps"
+        atomic(self.bandwidth_file, str(max(0, self.plan.get("bandwidthLimitMbps", 0))))
 
     def progress(self, step, index, fraction=0):
         # Each volume receives equal export/transfer shares; metadata owns the final 5%.
@@ -87,7 +90,20 @@ class Backup:
             progress = 95 + int(4 * fraction)
         atomic(self.job / "volume-progress.properties",
                "step=%s\nvolumeIndex=%d\nvolumeCount=%d\nprogress=%d\n" %
-               (step, min(index + 1, self.count), self.count, min(progress, 99)))
+               (step, min(index + 1, self.count), self.count, min(progress, 99)) +
+               "liveBandwidthSupported=%s\nbandwidthLimitMbps=%s\n" %
+               (str(self.live_bandwidth).lower(), self.bandwidth_file.read_text().strip()))
+
+    def throttle(self, byte_count, started_at):
+        while True:
+            self.check_cancel()
+            limit = int(self.bandwidth_file.read_text().strip())
+            if limit <= 0:
+                return
+            remaining = byte_count / (limit * 1000000 / 8) - (time.monotonic() - started_at)
+            if remaining <= 0:
+                return
+            time.sleep(min(0.25, remaining))
 
     def check_cancel(self):
         if (self.job / "volume-cancel").exists():
@@ -103,7 +119,8 @@ class Backup:
         required += (required * self.plan["bufferPercent"] + 99) // 100
         with (directory / "capacity.lock").open("a") as lock:
             fcntl.flock(lock, fcntl.LOCK_EX)
-            reserved = sum(json.loads(p.read_text())["bytes"] for p in directory.glob("*.json"))
+            reservations = [json.loads(p.read_text()) for p in directory.glob("*.json")]
+            reserved = sum(record["bytes"] + record.get("primaryScratchBytes", 0) for record in reservations)
             stat = os.statvfs(stage_root)
             if required > stat.f_bavail * stat.f_frsize - reserved:
                 raise RuntimeError("Insufficient effective staging capacity including active reservations")
@@ -161,10 +178,11 @@ class Backup:
             if frozen:
                 run(["virsh", "-c", "qemu:///system", "qemu-agent-command", self.vm,
                      '{"execute":"guest-fsfreeze-thaw"}'], 30)
-        metadata = ("backup_engine=RBD_DIFF\nbackup_type=%s\ncheckpoint_name=%s\n"
-                    "parent_checkpoint_name=%s\ndisk_paths=%s\n" %
-                    (self.manifest["backupType"], checkpoint, parent or "",
-                     ",".join(self.plan["diskPaths"])))
+        metadata = ("vm_name=%s\nbackup_engine=RBD_DIFF\nbackup_type=%s\ncheckpoint_name=%s\n"
+                    "parent_checkpoint_name=%s\ndisk_paths=%s\nbackup_files=%s\nbackup_dir=%s\n" %
+                    (self.vm, self.manifest["backupType"], checkpoint, parent or "",
+                     ",".join(self.rbd_command(uri)[1] for uri in self.plan["diskPaths"]),
+                     ",".join(Path(volume["chain"][-1]["path"]).name for volume in self.manifest["volumes"]), self.root))
         # Match the existing rbd-backup.meta shape; never serialize controller credentials.
         atomic(self.root / "rbd-backup.meta", metadata)
         (self.root / "checkpoints").mkdir()
@@ -186,7 +204,21 @@ class Backup:
         for parent, amount in required.values():
             stat = os.statvfs(parent)
             overhead = max(10 * 1024**3, amount // 5)
-            if stat.f_bavail * stat.f_frsize < amount + overhead:
+            if parent.stat().st_dev == self.root.stat().st_dev:
+                # When staging uses primary GFS2, source scratch and staged images compete
+                # for the same free space. Reserve both under the shared admission lock.
+                directory = self.reservation.parent
+                with (directory / "capacity.lock").open("a") as lock:
+                    fcntl.flock(lock, fcntl.LOCK_EX)
+                    reservations = [json.loads(p.read_text()) for p in directory.glob("*.json")]
+                    reserved = sum(record["bytes"] + record.get("primaryScratchBytes", 0) for record in reservations)
+                    stat = os.statvfs(parent)
+                    if amount + overhead > stat.f_bavail * stat.f_frsize - reserved:
+                        raise RuntimeError("Insufficient shared primary/staging capacity including source scratch reservations")
+                    record = json.loads(self.reservation.read_text())
+                    record["primaryScratchBytes"] = amount + overhead
+                    atomic(self.reservation, record)
+            elif stat.f_bavail * stat.f_frsize < amount + overhead:
                 raise RuntimeError("Insufficient primary capacity for a consistent QCOW2 pull backup")
         try:
             domain_xml = ET.fromstring(run(["virsh", "-c", "qemu:///system", "dumpxml", self.vm]))
@@ -194,6 +226,7 @@ class Backup:
         except RuntimeError:
             domain_xml = ET.Element("domain", type="kvm")
             active = False
+        self.live_bandwidth = active and self.manifest["provider"] == "ablestack-commvault"
         if not active:
             self.domain = "DUMMY-VOLUME-" + self.manifest["backupUuid"]
             dummy = ET.Element("domain", type="kvm")
@@ -345,10 +378,12 @@ class Backup:
                     length = min(length, extents[0])
                     dirty = bool(extents[1] & 1)
                 if dirty:
+                    block_started = time.monotonic()
                     data = source.pread(length, offset)
                     # Changed zero blocks must be allocated in an incremental overlay.
                     if incremental or any(data):
                         destination.pwrite(data, offset)
+                    self.throttle(length, block_started)
                 offset += length
                 self.progress("QCOW2_BACKUP", index, offset / size)
             destination.flush()
@@ -415,6 +450,9 @@ class Backup:
             atomic(self.root / "domain-config.xml", xml)
         except RuntimeError:
             pass
+        for command in ("dominfo", "domiflist", "domblklist"):
+            with contextlib.suppress(RuntimeError):
+                atomic(self.root / (command + ".xml"), run(["virsh", "-c", "qemu:///system", command, self.vm]))
         if self.plan["rbd"]:
             self.begin_rbd()
         else:
@@ -437,27 +475,46 @@ class Backup:
             self.pull = False
         self.manifest["complete"] = True
         atomic(self.root / "backup-manifest.json", self.manifest)
+        # The final external metadata job must include the complete marker as well as XML/manifest.
+        # The Host job remains RUNNING until this metadata transfer is acknowledged.
+        atomic(self.root / ".staging.complete", "volume_pipeline=true\nbackup_uuid=%s\n" % self.manifest["backupUuid"])
+        (self.root / ".staging.inprogress").unlink(missing_ok=True)
         metadata = {"backupUuid": self.manifest["backupUuid"], "path": str(self.root),
                     "sourceHost": self.plan["sourceHost"], "completed": False}
         self.transfer(self.count, metadata, True)
         self.progress("FINALIZING", self.count, 1)
-        atomic(self.root / ".staging.complete", "volume_pipeline=true\nbackup_uuid=%s\n" % self.manifest["backupUuid"])
-        (self.root / ".staging.inprogress").unlink(missing_ok=True)
         self.success = True
 
     def close(self):
         if self.pull:
-            with contextlib.suppress(Exception):
+            try:
                 run(["virsh", "-c", "qemu:///system", "domjobabort", self.domain], 30)
+                self.pull = False
+            except Exception:
+                print("QCOW2 backup cleanup is pending; capacity reservation is retained", flush=True)
         if self.dummy:
-            with contextlib.suppress(Exception):
+            try:
                 run(["virsh", "-c", "qemu:///system", "destroy", self.domain], 30)
+                self.pull = False
+            except Exception:
+                print("Stopped VM backup domain cleanup is pending", flush=True)
         if not self.success:
             for args, image, checkpoint in reversed(self.created_snapshots):
                 with contextlib.suppress(Exception):
                     run(args + ["snap", "rm", image + "@" + checkpoint], 30)
-        if self.reservation:
-            self.reservation.unlink(missing_ok=True)
+        elif self.plan["rbd"] and self.plan.get("parentCheckpointName"):
+            # Keep the current checkpoint for the next export-diff; retire the previous snapshot
+            # only after all image jobs and the final metadata job have been confirmed.
+            for uri in self.plan["diskPaths"]:
+                args, image = self.rbd_command(uri)
+                try:
+                    run(args + ["snap", "rm", image + "@" + self.plan["parentCheckpointName"]], 30)
+                except Exception:
+                    print("Previous RBD backup snapshot cleanup is pending", flush=True)
+        if self.reservation and not self.pull:
+            with (self.reservation.parent / "capacity.lock").open("a") as lock:
+                fcntl.flock(lock, fcntl.LOCK_EX)
+                self.reservation.unlink(missing_ok=True)
 
 
 def main():

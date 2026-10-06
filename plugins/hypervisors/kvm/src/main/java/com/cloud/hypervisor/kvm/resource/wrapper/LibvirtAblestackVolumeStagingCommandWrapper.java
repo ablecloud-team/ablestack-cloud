@@ -46,6 +46,48 @@ public class LibvirtAblestackVolumeStagingCommandWrapper
             if (!Files.isDirectory(directory)) {
                 return new Answer(command, false, "Volume staging job does not exist");
             }
+            if (command.getAction().startsWith("RESTORE_")) {
+                Path restoreRequest = directory.resolve("volume-restore-request.json");
+                if ("RESTORE_STATUS".equals(command.getAction())) {
+                    return new Answer(command, true, Files.isRegularFile(restoreRequest) ? Files.readString(restoreRequest) : "");
+                }
+                if ("RESTORE_FAIL".equals(command.getAction())) {
+                    LibvirtAblestackVolumeRestoreHelper.atomic(directory.resolve("volume-restore-failure"), command.getManifest());
+                    return new Answer(command, true, "Restore transfer failure recorded");
+                }
+                if (!Files.isRegularFile(restoreRequest)) { return new Answer(command, false, "Restore request is not pending"); }
+                org.apache.cloudstack.backup.ThirdPartyBackupRestore.Request saved = new Gson().fromJson(Files.readString(restoreRequest),
+                        org.apache.cloudstack.backup.ThirdPartyBackupRestore.Request.class);
+                if ("RESTORE_NETBACKUP".equals(command.getAction()) && saved.sequence == command.getIndex()) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, String> options = new Gson().fromJson(command.getManifest(), Map.class);
+                    Path script = Path.of(resource.getAbleCvtBackupPath()).getParent().resolve("netbackup-volume-restore.py");
+                    if (!Files.isRegularFile(script)) { return new Answer(command, false, "NetBackup volume restore helper is not installed"); }
+                    Path planFile = directory.resolve("netbackup-restore-" + saved.sequence + ".json");
+                    Map<String, Object> plan = new java.util.LinkedHashMap<>();
+                    plan.put("request", saved);
+                    plan.put("server", options.get("server"));
+                    plan.put("destinationClient", options.get("destinationClient"));
+                    LibvirtAblestackVolumeRestoreHelper.atomic(planFile, new Gson().toJson(plan));
+                    String output = com.cloud.utils.script.Script.runSimpleBashScriptWithFullResult("python3 " + quote(script.toString())
+                            + " --plan-file " + quote(planFile.toString()), 120000);
+                    if (output != null) {
+                        for (String line : output.split("\\r?\\n")) {
+                            if (line.startsWith("ABLESTACK_JOB_ID=")) {
+                                return new Answer(command, true, line.substring("ABLESTACK_JOB_ID=".length()).trim());
+                            }
+                        }
+                    }
+                    return new Answer(command, false, "NetBackup restore submission did not return a job ID; inspect the Host job log");
+                }
+                if ("RESTORE_ACK".equals(command.getAction()) && saved.sequence == command.getIndex()
+                        && new Gson().toJson(saved).equals(command.getManifest())) {
+                    LibvirtAblestackVolumeRestoreHelper.atomic(directory.resolve("volume-restore-ack-" + saved.sequence + ".json"),
+                            command.getManifest());
+                    return new Answer(command, true, "Restore artifact acknowledged");
+                }
+                return new Answer(command, false, "Invalid restore transfer acknowledgment");
+            }
             Path request = directory.resolve("volume-request.json");
             if ("CANCEL".equals(command.getAction())) {
                 Files.writeString(directory.resolve("volume-cancel"), "cancel\n");
@@ -86,4 +128,6 @@ public class LibvirtAblestackVolumeStagingCommandWrapper
             return new Answer(command, false, e.getMessage());
         }
     }
+
+    private static String quote(String value) { return "'" + value.replace("'", "'\"'\"'") + "'"; }
 }

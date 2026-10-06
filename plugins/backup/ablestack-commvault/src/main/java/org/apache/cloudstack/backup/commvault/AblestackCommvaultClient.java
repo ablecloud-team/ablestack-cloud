@@ -27,6 +27,7 @@ import org.apache.cloudstack.api.ApiErrorCode;
 import org.apache.cloudstack.api.ServerApiException;
 import org.apache.cloudstack.utils.security.SSLUtils;
 import org.apache.cloudstack.backup.BackupOffering;
+import org.apache.cloudstack.backup.ThirdPartyBackupManifest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
@@ -1324,6 +1325,64 @@ public class AblestackCommvaultClient {
 
     // POST https://<commserveIp>/commandcenter/api/JobDetails
     // 작업의 상세 정보 조회하는 API
+    /** Submit precisely one staged artifact; polling must never wait for the external job. */
+    public ThirdPartyBackupManifest.Artifact backupVolumeArtifact(final String hostName, final String vmName,
+            final String planId, final ThirdPartyBackupManifest.Artifact artifact) {
+        if (StringUtils.isNotBlank(artifact.jobId)) {
+            final String response = getJobDetails(artifact.jobId);
+            if (StringUtils.isBlank(response)) {
+                return artifact;
+            }
+            try {
+                final JsonNode job = OBJECT_MAPPER.readTree(response).path("job").path("jobDetail");
+                final String state = job.path("progressInfo").path("state").asText();
+                if ("Completed".equalsIgnoreCase(state)) {
+                    artifact.externalId = artifact.jobId;
+                    artifact.completed = true;
+                    artifact.backupTime = job.path("detailInfo").path("endTime").asText(null);
+                } else if (Set.of("Failed", "Failed to Start", "Killed", "Completed w/ one or more errors",
+                        "Completed w/ one or more warnings", "Committed").contains(state)) {
+                    throw new CloudRuntimeException("Commvault artifact job did not complete successfully: " + artifact.jobId + " (" + state + ")");
+                }
+                return artifact;
+            } catch (IOException e) {
+                throw new CloudRuntimeException("Unable to read Commvault artifact job status", e);
+            }
+        }
+        final String clientId = getClientId(hostName);
+        final String subclient = getSubclient(clientId, vmName);
+        if (StringUtils.isBlank(subclient)) {
+            throw new CloudRuntimeException("Commvault artifact subclient is missing for " + vmName);
+        }
+        try {
+            final JsonNode entity = OBJECT_MAPPER.readTree(subclient);
+            if (!updateBackupSet(artifact.path, entity.path("subclientId").asText(), clientId,
+                    entity.path("applicationId").asText(), entity.path("backupsetId").asText(),
+                    entity.path("instanceId").asText(), entity.path("subclientName").asText(), entity.path("backupsetName").asText())) {
+                throw new CloudRuntimeException("Unable to select the Commvault volume artifact path");
+            }
+            final String planName = getPlanName(planId);
+            final String storagePolicy = planName == null ? null : getStoragePolicyId(planName);
+            if (storagePolicy == null) {
+                throw new CloudRuntimeException("Commvault artifact storage policy is missing");
+            }
+            artifact.jobId = createBackup(entity.path("subclientId").asText(), storagePolicy,
+                    entity.path("displayName").asText(), entity.path("commCellName").asText(), clientId,
+                    entity.path("entityInfo").path("companyId").asText(), entity.path("entityInfo").path("companyName").asText(),
+                    entity.path("instanceName").asText(), entity.path("appName").asText(), entity.path("applicationId").asText(),
+                    entity.path("clientName").asText(), entity.path("backupsetId").asText(), entity.path("instanceId").asText(),
+                    entity.path("subclientGUID").asText(), entity.path("subclientName").asText(), entity.path("csGUID").asText(),
+                    entity.path("backupsetName").asText(), "FULL");
+            // RBD/QCOW2 source deltas are already artifacts: protect each complete artifact with an external Full job.
+            if (StringUtils.isBlank(artifact.jobId) || !artifact.jobId.matches("[0-9]+")) {
+                throw new CloudRuntimeException("Commvault did not return one artifact job ID");
+            }
+            return artifact;
+        } catch (IOException e) {
+            throw new CloudRuntimeException("Unable to submit Commvault volume artifact", e);
+        }
+    }
+
     public String getJobDetails(String jobId) {
         try {
             final ObjectNode requestBody = OBJECT_MAPPER.createObjectNode();
@@ -1427,6 +1486,14 @@ public class AblestackCommvaultClient {
     // POST https://<commserveIp>/commandcenter/api/CreateTask
     // 복원 실행 API
     public String restoreFullVM(String subclientId, String displayName, String backupsetGUID, String clientId, String companyId, String companyName, String instanceName, String appName, String applicationId, String clientName, String backupsetId, String instanceId, String backupsetName, String commCellId, String endTime, String path) {
+        return restoreFiles(subclientId, displayName, backupsetGUID, clientId, companyId, companyName, instanceName, appName,
+                applicationId, clientName, backupsetId, instanceId, backupsetName, commCellId, endTime, path, null, null, null);
+    }
+
+    private String restoreFiles(String subclientId, String displayName, String backupsetGUID, String clientId, String companyId,
+            String companyName, String instanceName, String appName, String applicationId, String clientName, String backupsetId,
+            String instanceId, String backupsetName, String commCellId, String endTime, String path,
+            String destinationClientId, String destinationClientName, String destinationPath) {
         try {
             final ObjectNode requestBody = OBJECT_MAPPER.createObjectNode();
             final ObjectNode taskInfo = requestBody.putObject("taskInfo");
@@ -1468,10 +1535,11 @@ public class AblestackCommvaultClient {
 
             final ObjectNode destination = restoreOptions.putObject("destination");
             final ObjectNode destClient = destination.putObject("destClient");
-            destClient.put("clientId", Integer.parseInt(clientId));
-            destClient.put("clientName", clientName);
+            destClient.put("clientId", Integer.parseInt(destinationClientId == null ? clientId : destinationClientId));
+            destClient.put("clientName", destinationClientName == null ? clientName : destinationClientName);
             destination.put("destAppId", Integer.parseInt(applicationId));
-            destination.put("inPlace", true);
+            destination.put("inPlace", destinationPath == null);
+            if (destinationPath != null) { destination.putArray("destPath").add(destinationPath); }
             destination.putObject("destinationInstance").put("applicationId", 0);
             destination.put("noOfStreams", 10);
 
@@ -1490,6 +1558,10 @@ public class AblestackCommvaultClient {
             commonOptions.put("unconditionalOverwrite", true);
             commonOptions.put("stripLevelType", "PRESERVE_LEVEL");
             commonOptions.put("preserveLevel", 0);
+            if (destinationPath != null) {
+                commonOptions.put("stripLevelType", "STRIP_LEVEL");
+                commonOptions.put("stripLevel", java.nio.file.Path.of(path).getNameCount() - 1);
+            }
             commonOptions.put("isFromBrowseBackup", true);
 
             final HttpJsonResponse response = executeJsonRequest("POST", "/CreateTask", requestBody);
@@ -1499,6 +1571,39 @@ public class AblestackCommvaultClient {
             checkResponseTimeOut(e);
         }
         return null;
+    }
+
+    public org.apache.cloudstack.backup.ThirdPartyBackupRestore.Result restoreVolumeArtifact(
+            org.apache.cloudstack.backup.ThirdPartyBackupRestore.Request request, String destinationHost,
+            org.apache.cloudstack.backup.ThirdPartyBackupRestore.Result saved) {
+        try {
+            if (StringUtils.isNotBlank(saved.jobId)) {
+                String response = getJobDetails(saved.jobId);
+                if (StringUtils.isBlank(response)) { return saved; }
+                String state = OBJECT_MAPPER.readTree(response).path("job").path("jobDetail").path("progressInfo").path("state").asText();
+                if (Set.of("Failed", "Failed to Start", "Killed", "Completed w/ one or more errors",
+                        "Completed w/ one or more warnings", "Committed").contains(state)) {
+                    throw new CloudRuntimeException("Commvault volume restore failed: " + saved.jobId + " (" + state + ")");
+                }
+                return new org.apache.cloudstack.backup.ThirdPartyBackupRestore.Result(saved.jobId, "Completed".equalsIgnoreCase(state));
+            }
+            JsonNode detail = OBJECT_MAPPER.readTree(getJobDetails(request.artifact.jobId)).path("job").path("jobDetail");
+            JsonNode general = detail.path("generalInfo");
+            JsonNode subclient = general.path("subclient");
+            JsonNode company = general.path("company");
+            String clientName = subclient.path("clientName").asText();
+            String backupsetName = subclient.path("backupsetName").asText();
+            String destinationId = getClientId(destinationHost);
+            if (StringUtils.isBlank(destinationId)) { throw new CloudRuntimeException("Restore Worker Host has no Commvault client"); }
+            String id = restoreFiles(subclient.path("subclientId").asText(), subclient.path("displayName").asText(),
+                    getVmBackupSetGuid(clientName, backupsetName), subclient.path("clientId").asText(), company.path("companyId").asText(),
+                    company.path("companyName").asText(), subclient.path("instanceName").asText(), subclient.path("appName").asText(),
+                    subclient.path("applicationId").asText(), clientName, subclient.path("backupsetId").asText(), subclient.path("instanceId").asText(),
+                    backupsetName, general.path("commcell").path("commCellId").asText(), detail.path("detailInfo").path("endTime").asText(),
+                    request.artifact.path, destinationId, destinationHost, java.nio.file.Path.of(request.destination).getParent().toString());
+            if (StringUtils.isBlank(id) || !id.matches("[0-9]+")) { throw new CloudRuntimeException("Commvault restore returned no unique job ID"); }
+            return new org.apache.cloudstack.backup.ThirdPartyBackupRestore.Result(id, false);
+        } catch (IOException e) { throw new CloudRuntimeException("Unable to read Commvault volume restore status", e); }
     }
 
     public String restoreFullVM(String subclientId, String displayName, String backupsetGUID, String clientId, String companyId, String companyName, String instanceName,

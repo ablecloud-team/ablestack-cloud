@@ -2533,6 +2533,12 @@ mold_backup_api_wait_new_backup_for_vm() {
           return 0
         fi
         if [[ "$st" == "backingup" ]]; then
+          local volume_path
+          volume_path="$(mold_backup_api_backup_external_id "$vm_id" "$bid" 2>/dev/null || true)"
+          if [[ -n "$volume_path" && -f "${volume_path}/.volume-bootstrap" ]]; then
+            echo "${bid}|${btype}"
+            return 0
+          fi
           if [[ $((elapsed % 30)) -eq 0 ]]; then
             mold_backup_notify_log info "Waiting for new backup ${bid} (${btype}) BackingUp→BackedUp (elapsed=${elapsed}s)"
           fi
@@ -3113,6 +3119,29 @@ mold_backup_process_vm_pre_notify() {
   fi
   # Mark this VM as Veeam-driven so the Mold→Veeam hook does not start Veeam again.
   mold_backup_trigger_mark "veeam-active" "$vm_name"
+
+  if [[ "${VEEAM_PROVIDER_NAME:-ablestack-veeam}" == "ablestack-veeam" && "${VEEAM_BACKUP_MODE:-}" == "filelevel" ]]; then
+    # The template UI job only releases the bootstrap gate. Mold submits isolated volume jobs
+    # after this parent session stops; it remains responsible for the logical backup outcome.
+    backup_result="$(mold_backup_api_create_veeam_and_wait "$vm_id" "$vm_name" || true)"
+    [[ -n "$backup_result" ]] || return 1
+    backup_id="${backup_result%%|*}"
+    backup_type="${backup_result#*|}"
+    host_path="$(mold_backup_api_backup_external_id "$vm_id" "$backup_id" 2>/dev/null || true)"
+    local bootstrap_wait=0
+    until [[ -n "$host_path" && -f "${host_path}/.volume-bootstrap" ]]; do
+      [[ "$bootstrap_wait" -lt 60 ]] || return 1
+      sleep 1
+      bootstrap_wait=$((bootstrap_wait + 1))
+      host_path="$(mold_backup_api_backup_external_id "$vm_id" "$backup_id" 2>/dev/null || true)"
+    done
+    mkdir -p "${VEEAM_AGENT_PAYLOAD_PATH}/${vm_name}"
+    cp -- "${host_path}/.volume-bootstrap" "${VEEAM_AGENT_PAYLOAD_PATH}/${vm_name}/backup-bootstrap.txt"
+    mold_backup_state_write_line "$state_file" \
+      "vm=${vm_name} id=${vm_id} backup_id=${backup_id} type=${backup_type} path=${host_path} status=pipeline"
+    mold_backup_notify_log info "Volume backup accepted vm=${vm_name} backup_id=${backup_id}; Mold owns volume transfers and completion"
+    return 0
+  fi
 
   local chain_count staging_paths source_format
   chain_count="$(mold_backup_api_veeam_backup_count "$vm_id")"
@@ -6203,7 +6232,7 @@ mold_backup_post_notify() {
 
   export MOLD_BACKUP_HOOK="post-notify"
   mold_backup_notify_log info "=== post-notify (설계4: Post-script + 백업ID 저장) client=${client} job=${job} ==="
-  local state_file line vm_name backup_id status guest_handled=0 guest_fail=0 vm_id reason rc=0
+  local state_file line vm_name backup_id status guest_handled=0 guest_fail=0 vm_id reason rc=0 volume_pipeline=0
   local host_rp_id=""
   state_file="$(mold_backup_latest_state_file "$job" || true)"
 
@@ -6248,6 +6277,13 @@ mold_backup_post_notify() {
       status="$(mold_backup_state_parse_field "$line" "status")"
       vm_id="$(mold_backup_state_parse_field "$line" "id")"
       reason="$(mold_backup_state_parse_field "$line" "reason")"
+      if [[ "$status" == "pipeline" ]]; then
+        volume_pipeline=1
+        mold_backup_trigger_clear "veeam-active" "$vm_name"
+        mold_backup_trigger_mark "backup-cooldown" "$vm_name"
+        mold_backup_notify_log info "Parent UI session finished for volume backup ${backup_id}; child jobs own catalog completion"
+        continue
+      fi
       # Mold schedule/UI backup → Veeam trigger: Mold NAS backup already exists (HOURLY/MANUAL).
       if [[ "$status" == "success" && "$reason" == "mold-triggered" ]]; then
         mold_backup_notify_log info "guest post: skip for ${vm_name} (Mold backup already done; no duplicate import)"
@@ -6328,7 +6364,9 @@ mold_backup_post_notify() {
     mold_backup_notify_log warn "post-notify: no guest VM processed for job=${job} (re-run pre-notify before post, or check state dir)"
   fi
 
-  if [[ "${CLEANUP_STAGING_AFTER_BACKUP}" == "true" ]]; then
+  if [[ "$volume_pipeline" -eq 1 ]]; then
+    mold_backup_notify_log info "Skip parent staging cleanup; volume pipelines retain artifacts until child transfer confirmation"
+  elif [[ "${CLEANUP_STAGING_AFTER_BACKUP}" == "true" ]]; then
     mold_backup_cleanup_host_path
     mold_backup_cleanup_staging
   else

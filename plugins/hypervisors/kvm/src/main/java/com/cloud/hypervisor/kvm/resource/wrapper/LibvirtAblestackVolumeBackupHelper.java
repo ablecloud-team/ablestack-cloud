@@ -38,6 +38,13 @@ final class LibvirtAblestackVolumeBackupHelper {
     static String[] buildCommand(LibvirtComputingResource resource, String manifestJson, String backupPath,
             List<PrimaryDataStoreTO> pools, List<String> paths, String checkpoint, String parentCheckpoint,
             Map<String, String> parentXmlChain, Boolean quiesce, int timeout, Integer bufferPercent) {
+        return buildCommand(resource, manifestJson, backupPath, pools, paths, checkpoint, parentCheckpoint,
+                parentXmlChain, quiesce, timeout, bufferPercent, null);
+    }
+
+    static String[] buildCommand(LibvirtComputingResource resource, String manifestJson, String backupPath,
+            List<PrimaryDataStoreTO> pools, List<String> paths, String checkpoint, String parentCheckpoint,
+            Map<String, String> parentXmlChain, Boolean quiesce, int timeout, Integer bufferPercent, Integer bandwidthLimitMbps) {
         try {
             ThirdPartyBackupManifest manifest = ThirdPartyBackupManifest.fromJson(manifestJson);
             if (!manifest.getBackupUuid().matches("[A-Za-z0-9-]+") || pools.size() != paths.size()
@@ -63,6 +70,7 @@ final class LibvirtAblestackVolumeBackupHelper {
             plan.put("quiesce", Boolean.TRUE.equals(quiesce));
             plan.put("timeout", timeout);
             plan.put("bufferPercent", bufferPercent == null ? 0 : bufferPercent);
+            plan.put("bandwidthLimitMbps", bandwidthLimitMbps == null ? 0 : bandwidthLimitMbps);
             plan.put("providerStep", manifest.getProvider().substring("ablestack-".length()).toUpperCase(java.util.Locale.ROOT) + "_TRANSFER");
             Path directory = Path.of(AblestackBackupFrameworkUtils.ASYNC_BACKUP_JOB_ROOT, manifest.getBackupUuid());
             Files.createDirectories(directory, PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------")));

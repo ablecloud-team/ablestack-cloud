@@ -48,6 +48,7 @@ const isLiveBandwidthBackup = (record) => {
 
 const hasSubmittedCommvaultJob = (record) => {
   if (String(record?.provider || '').toLowerCase() !== 'ablestack-commvault') return false
+  if (record?.details?.['thirdparty.staging.mode'] === 'VOLUME') return false
   const externalId = String(record?.externalid || '')
   const separator = externalId.lastIndexOf(',')
   return separator >= 0 && !!externalId.substring(separator + 1).trim()
@@ -664,6 +665,7 @@ export default {
           dataView: true,
           show: (record) => {
             if (record.status !== 'BackingUp') return false
+            if (record?.details?.['thirdparty.staging.mode'] === 'VOLUME') return hasBackupCapability(record, 'cancel')
             return !hasSubmittedCommvaultJob(record)
           },
           args: ['id'],

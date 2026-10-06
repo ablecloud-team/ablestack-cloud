@@ -43,6 +43,10 @@ public class AblestackVeeamRestoreBackupCommand extends Command {
     private String cacheMode;
     private String checkpointName;
     private String restoreJobId;
+    private ThirdPartyBackupRestore.Plan volumeRestorePlan;
+
+    public ThirdPartyBackupRestore.Plan getVolumeRestorePlan() { return volumeRestorePlan; }
+    public void setVolumeRestorePlan(ThirdPartyBackupRestore.Plan plan) { volumeRestorePlan = plan; }
     private boolean waitForCompletion = true;
 
     public AblestackVeeamRestoreBackupCommand() {

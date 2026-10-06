@@ -56,6 +56,7 @@ public class ThirdPartyBackupManifest {
         public long size;
         public String sha256;
         public boolean completed;
+        public boolean submissionPending;
     }
 
     public static class Volume {
@@ -80,6 +81,25 @@ public class ThirdPartyBackupManifest {
         return new Gson().toJson(this);
     }
 
+    /** Added, removed, resized or replaced disks require a new Full chain. */
+    public static boolean canContinue(Backup parent, String provider, String vmName, String engine,
+            List<? extends com.cloud.storage.Volume> sourceVolumes) {
+        if (parent == null || blank(parent.getDetail(DETAIL_KEY))) {
+            return false;
+        }
+        try {
+            ThirdPartyBackupManifest manifest = fromJson(parent.getDetail(DETAIL_KEY));
+            manifest.validate(true);
+            return provider.equals(manifest.provider) && vmName.equals(manifest.vmName)
+                    && sourceVolumes.size() == manifest.volumes.size()
+                    && sourceVolumes.stream().allMatch(source -> manifest.volumes.stream().anyMatch(volume ->
+                            volume.uuid.equals(source.getUuid()) && volume.deviceId == source.getDeviceId()
+                                    && volume.provisionedBytes == source.getSize() && engine.equals(volume.engine)));
+        } catch (CloudRuntimeException e) {
+            return false;
+        }
+    }
+
     public static ThirdPartyBackupManifest create(String provider, String backupUuid, String vmName, String timestamp,
             String backupType, String sourceHost, String backupPath, String engine, List<Backup.VolumeInfo> volumeInfos,
             String parentJson, String parentCheckpoint) {
@@ -92,6 +112,10 @@ public class ThirdPartyBackupManifest {
         ThirdPartyBackupManifest parent = parentJson == null ? null : fromJson(parentJson);
         if (parent != null) {
             parent.validate(true);
+            if (!provider.equals(parent.provider) || !vmName.equals(parent.vmName)
+                    || parent.volumes.size() != volumeInfos.size()) {
+                throw new CloudRuntimeException("Incremental manifest does not match the VM volume plan");
+            }
             manifest.parentBackupUuid = parent.backupUuid;
         }
         for (Backup.VolumeInfo info : volumeInfos) {
@@ -103,6 +127,10 @@ public class ThirdPartyBackupManifest {
             if (parent != null) {
                 Volume previous = parent.volumes.stream().filter(v -> v.uuid.equals(info.getUuid())).findFirst()
                         .orElseThrow(() -> new CloudRuntimeException("Incremental volume has no parent artifact"));
+                if (previous.provisionedBytes != info.getSize() || previous.deviceId != info.getDeviceId()
+                        || !engine.equals(previous.engine)) {
+                    throw new CloudRuntimeException("Incremental source volume changed since its parent backup");
+                }
                 volume.chain.addAll(previous.chain);
             }
             Artifact artifact = new Artifact();
@@ -137,12 +165,14 @@ public class ThirdPartyBackupManifest {
                         || blank(artifact.backupUuid)) {
                     throw new CloudRuntimeException("Invalid volume artifact in backup manifest");
                 }
-                if (requireComplete && (!artifact.completed || blank(artifact.externalId) || blank(artifact.sourceHost))) {
+                if (requireComplete && (!artifact.completed || artifact.submissionPending || blank(artifact.jobId)
+                        || blank(artifact.externalId) || blank(artifact.sourceHost))) {
                     throw new CloudRuntimeException("A volume artifact has not been confirmed by the backup provider");
                 }
             }
         }
-        if (requireComplete && (!complete || metadata == null || !metadata.completed || blank(metadata.externalId))) {
+        if (requireComplete && (!complete || metadata == null || !metadata.completed || metadata.submissionPending
+                || blank(metadata.jobId) || blank(metadata.externalId))) {
             throw new CloudRuntimeException("The logical backup metadata job has not completed");
         }
     }

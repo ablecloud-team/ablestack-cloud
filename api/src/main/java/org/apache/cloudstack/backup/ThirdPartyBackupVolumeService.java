@@ -28,6 +28,12 @@ public interface ThirdPartyBackupVolumeService {
 
         /** An external UI backup's pre/post hooks must finish before its child jobs may start. */
         default boolean ready() { return true; }
+
+        /** Persist engine checkpoint metadata after the Host finishes the entire logical backup. */
+        default void completed(Backup backup) { }
+
+        /** A failed checkpoint must not be reused as a healthy incremental source. */
+        default void failed(Backup backup) { }
     }
 
     /** Returns true when this is a volume pipeline (including when it is waiting). */
@@ -35,4 +41,15 @@ public interface ThirdPartyBackupVolumeService {
 
     /** Drive accepted jobs independently of browser polling and resume them during provider sync. */
     void track(Backup backup, Host host, Transfer transfer);
+
+    @FunctionalInterface
+    interface RestoreTransfer {
+        /** Submit once when saved.jobId is empty; otherwise poll that exact external restore. */
+        ThirdPartyBackupRestore.Result restore(ThirdPartyBackupRestore.Request request, ThirdPartyBackupRestore.Result saved);
+    }
+
+    ThirdPartyBackupRestore.Plan prepareRestore(Backup backup, Host host, java.util.List<String> volumeUuids, int timeout);
+
+    /** Resume an accepted restore from persisted selections and external job IDs. */
+    void trackRestore(Backup backup, Host host, RestoreTransfer transfer);
 }

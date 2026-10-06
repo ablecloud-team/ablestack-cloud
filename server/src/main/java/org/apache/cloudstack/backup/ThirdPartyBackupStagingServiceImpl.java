@@ -162,7 +162,12 @@ public class ThirdPartyBackupStagingServiceImpl extends ManagerBase implements T
 
     @Override
     public long getCapacityBufferBytes(long requiredBytes) {
-        return capacityBuffer(requiredBytes, Integer.parseInt(readValue(BackupManager.ThirdPartyStagingCapacityBufferPercent)));
+        return capacityBuffer(requiredBytes, getCapacityBufferPercent());
+    }
+
+    @Override
+    public int getCapacityBufferPercent() {
+        return Integer.parseInt(readValue(BackupManager.ThirdPartyStagingCapacityBufferPercent));
     }
 
     private long capacityBuffer(long bytes, int percent) {

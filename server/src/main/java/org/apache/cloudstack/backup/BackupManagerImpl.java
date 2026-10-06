@@ -1756,6 +1756,27 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_VM_BACKUP_CANCEL, eventDescription = "cancelling VM backup", async = true)
     public boolean cancelBackup(final Long backupId) {
+        final BackupVO requested = backupDao.findById(backupId);
+        if (requested == null) {
+            throw new CloudRuntimeException("Backup " + backupId + " does not exist");
+        }
+        final GlobalLock lock = GlobalLock.getInternLock("backup.volume." + requested.getUuid());
+        boolean acquired = false;
+        try {
+            acquired = lock.lock(5);
+            if (!acquired) {
+                throw new CloudRuntimeException("Backup artifact submission is being reconciled; retry cancellation shortly");
+            }
+            return cancelBackupLocked(backupId);
+        } finally {
+            if (acquired) {
+                lock.unlock();
+            }
+            lock.releaseRef();
+        }
+    }
+
+    private boolean cancelBackupLocked(final Long backupId) {
         final BackupVO backup = backupDao.findById(backupId);
         if (backup == null) {
             throw new CloudRuntimeException("Backup " + backupId + " does not exist");
@@ -1769,6 +1790,18 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         }
         validateBackupForZone(backup.getZoneId());
         accountManager.checkAccess(CallContext.current().getCallingAccount(), null, true, vm);
+        backupDao.loadDetails(backup);
+        if (ThirdPartyBackupManifest.VOLUME_MODE.equals(backup.getDetail(ThirdPartyBackupManifest.MODE_KEY))) {
+            final ThirdPartyBackupManifest manifest = ThirdPartyBackupManifest.fromJson(backup.getDetail(ThirdPartyBackupManifest.DETAIL_KEY));
+            final List<ThirdPartyBackupManifest.Artifact> artifacts = new ArrayList<>(manifest.getCurrentArtifacts());
+            if (manifest.getMetadata() != null) {
+                artifacts.add(manifest.getMetadata());
+            }
+            if (artifacts.stream().anyMatch(artifact -> !artifact.completed
+                    && (artifact.submissionPending || StringUtils.isNotBlank(artifact.jobId)))) {
+                throw new CloudRuntimeException("Backup cannot be canceled while an external artifact transfer is active or unconfirmed");
+            }
+        }
         final BackupOffering offering = backupOfferingDao.findById(backup.getBackupOfferingId());
         if (offering == null) {
             throw new CloudRuntimeException(String.format("Backup offering with ID [%s] does not exist.", backup.getBackupOfferingId()));
@@ -5208,6 +5241,10 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     }
 
     private boolean isCommvaultJobSubmitted(final BackupVO backup, final BackupOffering offering) {
+        backupDao.loadDetails(backup);
+        if (ThirdPartyBackupManifest.VOLUME_MODE.equals(backup.getDetail(ThirdPartyBackupManifest.MODE_KEY))) {
+            return false; // The Host reports each volume export/transfer and the final metadata transfer.
+        }
         return offering != null && BackupProviderNameUtils.isCommvaultFamily(offering.getProvider())
                 && StringUtils.isNotBlank(StringUtils.substringAfterLast(backup.getExternalId(), ","));
     }

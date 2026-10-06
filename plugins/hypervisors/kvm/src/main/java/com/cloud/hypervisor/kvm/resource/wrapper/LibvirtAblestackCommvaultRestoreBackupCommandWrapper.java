@@ -77,6 +77,30 @@ public class LibvirtAblestackCommvaultRestoreBackupCommandWrapper extends Comman
             return LibvirtAblestackAsyncBackupRunner.startDetachedRestore(command, logger, RESTORE_TRACE, "commvault",
                     command.getRestoreJobId(), command.getVmName(), command.getBackupPath());
         }
+        if (command.getVolumeRestorePlan() != null) {
+            try {
+                LibvirtAblestackVolumeRestoreHelper.restore(serverResource, logger, command.getVolumeRestorePlan(), command.getVmName(),
+                        command.getRestoreVolumePools(), command.getRestoreVolumePaths());
+                String restoredVolumeId = null;
+                if (command.isVmExists() == null) {
+                    String target = command.getRestoreVolumePaths().get(0);
+                    restoredVolumeId = target.substring(target.lastIndexOf('/') + 1);
+                    if (AblestackBackupFrameworkUtils.hasRestoreStage(command.getRestorePlan(), BackupRestoreStage.ATTACH_VOLUME)
+                            && VirtualMachine.State.Running.equals(command.getVmState())
+                            && !attachVolumeToVm(serverResource.getStoragePoolMgr(), command.getVmName(), command.getRestoreVolumePools().get(0),
+                                    target, command.getCacheMode())) {
+                        throw new CloudRuntimeException("Unable to attach prepared restored volume");
+                    }
+                }
+                LibvirtAblestackAsyncBackupRunner.markRestoreJobCompleted(logger, "commvault", command.getRestoreJobId(), command.getVmName(),
+                        command.getBackupPath(), StringUtils.defaultIfBlank(restoredVolumeId, "Volume restore completed"));
+                return new BackupAnswer(command, true, restoredVolumeId);
+            } catch (Exception e) {
+                LibvirtAblestackAsyncBackupRunner.markRestoreJobFailed(logger, "commvault", command.getRestoreJobId(), command.getVmName(),
+                        command.getBackupPath(), e.getMessage());
+                return new BackupAnswer(command, false, e.getMessage());
+            }
+        }
         String vmName = command.getVmName();
         String backupPath = command.getBackupPath();
         Boolean vmExists = command.isVmExists();

@@ -182,6 +182,8 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
 
     @Inject
     private ThirdPartyBackupStagingService thirdPartyBackupStagingService;
+    @Inject
+    private ThirdPartyBackupVolumeService thirdPartyBackupVolumeService;
 
     @Inject
     private BackupDetailsDao backupDetailsDao;
@@ -362,7 +364,9 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
         Pair<List<PrimaryDataStoreTO>, List<String>> volumePoolsAndPaths = getVolumePoolsAndPaths(vmVolumes);
         validateVolumePoolTypes(volumePoolsAndPaths.first());
         final Backup latestBackup = getLatestBackedUpBackup(vm, backupScheduleId);
-        final boolean incrementalBackup = shouldUseIncrementalBackup(vm, latestBackup, vmHost, vmVolumes, backupScheduleId);
+        final boolean incrementalBackup = shouldUseIncrementalBackup(vm, latestBackup, vmHost, vmVolumes, backupScheduleId)
+                && ThirdPartyBackupManifest.canContinue(latestBackup, getName(), vm.getInstanceName(),
+                        areAllVolumesOnRbdPool(volumePoolsAndPaths.first()) ? BACKUP_ENGINE_RBD_DIFF : BACKUP_ENGINE_QCOW2, vmVolumes);
         BackupExecutionResult result = executeBackup(vm, quiesceVM, vmHost, vmHostVO, client, planId, backupPath, backupContentPath, vmVolumes, volumePoolsAndPaths,
                 latestBackup, incrementalBackup, incrementalBackup);
         if (!result.success && incrementalBackup) {
@@ -399,6 +403,10 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
             return false;
         }
         loadBackupDetailsIfNeeded(latestBackup);
+
+        if (StringUtils.isBlank(getBackupDetail(latestBackup, ThirdPartyBackupManifest.DETAIL_KEY))) {
+            return false; // Begin a new Full chain when migrating legacy VM-level backups.
+        }
 
         if (Boolean.parseBoolean(getBackupDetail(latestBackup, DETAIL_CHAIN_SEALED))) {
             LOG.info("Commvault backup for VM [{}] will be FULL: backup chain [{}] is sealed ({})",
@@ -727,32 +735,44 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
                 String.valueOf(Boolean.TRUE.equals(quiesceVM)));
 
         BackupVO backupVO = createBackupObject(vm, vmHost.getId(), backupPath, requestedBackupType, backupDetails);
-        AblestackCommvaultTakeBackupCommand command = new AblestackCommvaultTakeBackupCommand(vm.getInstanceName(), backupPath);
-        command.setWait(BackupDataOperationTimeout.value());
-        command.setBackupJobId(backupVO.getUuid());
-        command.setQuiesce(quiesceVM);
-        command.setVolumePools(volumePoolsAndPaths.first());
-        command.setVolumePaths(volumePoolsAndPaths.second());
-        command.setBackupType(requestedBackupType);
-        command.setCheckpointName(checkpointName);
-        command.setBackupFiles(backupFiles);
-        command.setWaitForCompletion(false);
-        command.setBandwidthLimitMbps(BackupQosBandwidthLimitMbps.value());
-        if (incrementalBackup && latestBackup != null) {
-            command.setParentBackupPath(getBackupPathFromExternalId(latestBackup));
-            command.setParentCheckpointName(getBackupDetail(latestBackup, DETAIL_CHECKPOINT_NAME));
-            command.setParentCheckpointPath(getBackupDetail(latestBackup, DETAIL_CHECKPOINT_PATH));
-            command.setParentCheckpointXml(getBackupDetail(latestBackup, DETAIL_CHECKPOINT_XML));
-            command.setParentCheckpointXmlChain(getParentCheckpointXmlChain(latestBackup));
-        }
-
         final long backupStartTime = System.currentTimeMillis();
-        LOG.info("{} phase=[START], backupId=[{}], backupUuid=[{}], vmId=[{}], vmName=[{}], backupType=[{}], backupEngine=[{}], parentBackupUuid=[{}], hostId=[{}], hostName=[{}], backupPath=[{}], timeoutSeconds=[{}]",
-                BACKUP_TRACE, backupVO.getId(), backupVO.getUuid(), vm.getId(), vm.getInstanceName(), requestedBackupType, backupEngine,
-                latestBackup != null ? latestBackup.getUuid() : null, vmHost.getId(), vmHost.getName(), backupPath, command.getWait());
-        LOG.info("Submitting Commvault backup staging command for VM [{}] on host [{}] with backup [{}], path [{}], state [{}], timeout [{}] seconds, volumes [{}]",
-                vm.getInstanceName(), vmHost.getName(), backupVO.getUuid(), backupPath, vm.getState(), command.getWait(), vmVolumes.size());
         try {
+            backupVO.setBackedUpVolumes(createVolumeInfoFromVolumes(vmVolumes, backupFiles));
+            final ThirdPartyBackupManifest manifest = ThirdPartyBackupManifest.create(getName(), backupVO.getUuid(), vm.getInstanceName(),
+                    checkpointName, requestedBackupType, vmHost.getName(), backupPath, backupEngine, backupVO.getBackedUpVolumes(),
+                    incrementalBackup ? getBackupDetail(latestBackup, ThirdPartyBackupManifest.DETAIL_KEY) : null,
+                    incrementalBackup ? getBackupDetail(latestBackup, DETAIL_CHECKPOINT_NAME) : null);
+            backupVO.getDetails().put(ThirdPartyBackupManifest.MODE_KEY, ThirdPartyBackupManifest.VOLUME_MODE);
+            backupVO.getDetails().put(ThirdPartyBackupManifest.DETAIL_KEY, manifest.toJson());
+            if (!backupDao.update(backupVO.getId(), backupVO)) {
+                throw new CloudRuntimeException("Unable to persist the volume backup plan");
+            }
+            AblestackCommvaultTakeBackupCommand command = new AblestackCommvaultTakeBackupCommand(vm.getInstanceName(), backupPath);
+            command.setVolumeStagingManifest(manifest.toJson());
+            command.setStagingBufferPercent(thirdPartyBackupStagingService.getCapacityBufferPercent());
+            command.setWait(BackupDataOperationTimeout.value());
+            command.setBackupJobId(backupVO.getUuid());
+            command.setQuiesce(quiesceVM);
+            command.setVolumePools(volumePoolsAndPaths.first());
+            command.setVolumePaths(volumePoolsAndPaths.second());
+            command.setBackupType(requestedBackupType);
+            command.setCheckpointName(checkpointName);
+            command.setBackupFiles(backupFiles);
+            command.setWaitForCompletion(false);
+            command.setBandwidthLimitMbps(BackupQosBandwidthLimitMbps.value());
+            if (incrementalBackup && latestBackup != null) {
+                command.setParentBackupPath(getBackupPathFromExternalId(latestBackup));
+                command.setParentCheckpointName(getBackupDetail(latestBackup, DETAIL_CHECKPOINT_NAME));
+                command.setParentCheckpointPath(getBackupDetail(latestBackup, DETAIL_CHECKPOINT_PATH));
+                command.setParentCheckpointXml(getBackupDetail(latestBackup, DETAIL_CHECKPOINT_XML));
+                command.setParentCheckpointXmlChain(getParentCheckpointXmlChain(latestBackup));
+            }
+
+            LOG.info("{} phase=[START], backupId=[{}], backupUuid=[{}], vmId=[{}], vmName=[{}], backupType=[{}], backupEngine=[{}], parentBackupUuid=[{}], hostId=[{}], hostName=[{}], backupPath=[{}], timeoutSeconds=[{}]",
+                    BACKUP_TRACE, backupVO.getId(), backupVO.getUuid(), vm.getId(), vm.getInstanceName(), requestedBackupType, backupEngine,
+                    latestBackup != null ? latestBackup.getUuid() : null, vmHost.getId(), vmHost.getName(), backupPath, command.getWait());
+            LOG.info("Submitting Commvault backup staging command for VM [{}] on host [{}] with backup [{}], path [{}], state [{}], timeout [{}] seconds, volumes [{}]",
+                    vm.getInstanceName(), vmHost.getName(), backupVO.getUuid(), backupPath, vm.getState(), command.getWait(), vmVolumes.size());
             BackupAnswer answer;
             try {
                 answer = (BackupAnswer) agentManager.send(vmHost.getId(), command);
@@ -777,6 +797,7 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
             }
 
             if (answer != null && answer.getResult()) {
+                thirdPartyBackupVolumeService.track(backupVO, vmHost, volumeTransfer(vm, backupVO, vmHost));
                 LOG.info("Commvault backup staging command started asynchronously for VM [{}], backup [{}], path [{}]",
                     vm.getInstanceName(), backupVO.getUuid(), backupPath);
                 LOG.info("{} phase=[STAGING_STARTED], backupId=[{}], backupUuid=[{}], vmId=[{}], vmName=[{}], backupType=[{}], backupEngine=[{}], backupPath=[{}], elapsedMs=[{}]",
@@ -1207,12 +1228,75 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
         return java.nio.file.Path.of(backupPath, filePath).toString();
     }
 
+
+    private Pair<Boolean, String> restoreStagedVm(VirtualMachine vm, Backup backup, Host host) {
+        ThirdPartyBackupManifest manifest = ThirdPartyBackupManifest.fromJson(getBackupDetail(backup, ThirdPartyBackupManifest.DETAIL_KEY));
+        manifest.validate(true);
+        List<VolumeVO> targets = volumeDao.findByInstance(vm.getId()).stream()
+                .sorted(Comparator.comparingLong(VolumeVO::getDeviceId)).collect(Collectors.toList());
+        List<ThirdPartyBackupManifest.Volume> sources = manifest.getVolumes().stream()
+                .sorted(Comparator.comparingLong(volume -> volume.deviceId)).collect(Collectors.toList());
+        if (targets.size() != sources.size()) { throw new CloudRuntimeException("VM volume count differs from the selected backup"); }
+        for (int i = 0; i < targets.size(); i++) {
+            if (targets.get(i).getDeviceId() != sources.get(i).deviceId || targets.get(i).getSize() < sources.get(i).provisionedBytes) {
+                throw new CloudRuntimeException("VM volume device or capacity differs from the selected backup");
+            }
+        }
+        return restoreStagedVolumes(vm, backup, host, targets, sources.stream().map(v -> v.uuid).collect(Collectors.toList()), false, null);
+    }
+
+    private Pair<Boolean, String> restoreStagedVolumes(VirtualMachine vm, Backup backup, Host host, List<VolumeVO> targets,
+            List<String> sourceUuids, boolean singleVolume, String cacheMode) {
+        ThirdPartyBackupRestore.Plan plan = thirdPartyBackupVolumeService.prepareRestore(backup, host, sourceUuids, BackupDataOperationTimeout.value());
+        Pair<List<PrimaryDataStoreTO>, List<String>> destinations = getVolumePoolsAndPaths(targets);
+        AblestackCommvaultRestoreBackupCommand command = new AblestackCommvaultRestoreBackupCommand();
+        command.setVolumeRestorePlan(plan);
+        command.setRestoreJobId(plan.jobId);
+        command.setBackupPath(plan.destination);
+        command.setVmName(vm.getInstanceName());
+        command.setRestoreVolumePools(destinations.first());
+        command.setRestoreVolumePaths(destinations.second());
+        command.setBackupVolumesUUIDs(sourceUuids);
+        command.setVmExists(singleVolume ? null : vm.getRemoved() == null);
+        command.setVmState(vm.getState());
+        command.setRestoreVolumeUUID(singleVolume ? sourceUuids.get(0) : null);
+        command.setRestorePlan(createRestorePlan(singleVolume && AblestackBackupFrameworkUtils.requiresRunningVmAttach(vm.getState())));
+        command.setCacheMode(cacheMode);
+        command.setTimeout(BackupDataOperationTimeout.value());
+        command.setWaitForCompletion(false);
+        trackRestoreJob(backup, plan.jobId, host);
+        thirdPartyBackupVolumeService.trackRestore(backup, host, volumeRestoreTransfer(backup, host));
+        try {
+            BackupAnswer answer = sendAndWaitForRestore(host.getId(), command, plan.jobId);
+            return new Pair<>(answer != null && answer.getResult(), answer == null ? "Restore Worker Host returned no response" : answer.getDetails());
+        } catch (AgentUnavailableException | OperationTimedoutException e) {
+            throw new CloudRuntimeException("Unable to start or await volume restore on the Worker Host", e);
+        }
+    }
+
+    private ThirdPartyBackupVolumeService.RestoreTransfer volumeRestoreTransfer(Backup backup, Host host) {
+        return (request, saved) -> getClient(backup.getZoneId()).restoreVolumeArtifact(request, host.getName(), saved);
+    }
+
+    private void resumeStagedRestore(Backup backup) {
+        loadBackupDetailsIfNeeded(backup);
+        String json = getBackupDetail(backup, ThirdPartyBackupRestore.PLAN_KEY);
+        if (StringUtils.isBlank(json)) { return; }
+        ThirdPartyBackupRestore.Plan plan = new Gson().fromJson(json, ThirdPartyBackupRestore.Plan.class);
+        Host host = hostDao.findById(plan.hostId);
+        if (host != null) { thirdPartyBackupVolumeService.trackRestore(backup, host, volumeRestoreTransfer(backup, host)); }
+    }
+
     private void validateRestoreChainIntegrity(Backup backup) {
         if (backup == null) {
             return;
         }
 
         loadBackupDetailsIfNeeded(backup);
+        if (ThirdPartyBackupManifest.VOLUME_MODE.equals(getBackupDetail(backup, ThirdPartyBackupManifest.MODE_KEY))) {
+            ThirdPartyBackupManifest.fromJson(getBackupDetail(backup, ThirdPartyBackupManifest.DETAIL_KEY)).validate(true);
+            return;
+        }
         if (isLegacyBackup(backup)) {
             return;
         }
@@ -1427,6 +1511,10 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
     private Pair<Boolean, String> restoreVMBackup(VirtualMachine vm, Backup backup) {
         thirdPartyBackupStagingService.requireEnabled();
         validateCommvaultRestoreSnapshotCompatibility(vm);
+        loadBackupDetailsIfNeeded(backup);
+        if (ThirdPartyBackupManifest.VOLUME_MODE.equals(getBackupDetail(backup, ThirdPartyBackupManifest.MODE_KEY))) {
+            return restoreStagedVm(vm, backup, getVMHypervisorHostForBackup(vm));
+        }
         validateRestoreChainIntegrity(backup);
         loadBackupDetailsIfNeeded(backup);
         try {
@@ -1874,7 +1962,7 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
         if (CollectionUtils.isEmpty(vmVolumes)) {
             return 0L;
         }
-        return estimateReadyVolumeBytes(vmVolumes);
+        return vmVolumes.stream().mapToLong(VolumeVO::getSize).max().orElse(0L);
     }
 
     private long estimateReadyVolumeBytes(List<VolumeVO> vmVolumes) {
@@ -2215,6 +2303,9 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
                 continue;
             }
             loadBackupDetailsIfNeeded(backup);
+            if (reconcileVolumeBackup(vm, backup)) {
+                continue;
+            }
             if (reconcileIncompleteBackup(vm, backup)) {
                 continue;
             }
@@ -2354,6 +2445,9 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
     }
 
     private boolean reconcileIncompleteBackup(VirtualMachine vm, Backup backup) {
+        if (reconcileVolumeBackup(vm, backup)) {
+            return true;
+        }
         if (!Backup.Status.BackingUp.equals(backup.getStatus())) {
             return false;
         }
@@ -2405,6 +2499,52 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
                     backup.getUuid(), vm.getInstanceName(), e);
         }
         return true;
+    }
+
+    private boolean reconcileVolumeBackup(final VirtualMachine vm, final Backup backup) {
+        loadBackupDetailsIfNeeded(backup);
+        if (!ThirdPartyBackupManifest.VOLUME_MODE.equals(getBackupDetail(backup, ThirdPartyBackupManifest.MODE_KEY))) {
+            return false;
+        }
+        if (!Backup.Status.BackingUp.equals(backup.getStatus())) {
+            return false;
+        }
+        final Host host = findBackupJobHost(backup, vm);
+        if (host != null) {
+            final ThirdPartyBackupVolumeService.Transfer transfer = volumeTransfer(vm, backup, host);
+            thirdPartyBackupVolumeService.track(backup, host, transfer);
+            thirdPartyBackupVolumeService.reconcile(backup, host, transfer);
+        }
+        return true;
+    }
+
+    private ThirdPartyBackupVolumeService.Transfer volumeTransfer(final VirtualMachine vm, final Backup backup, final Host host) {
+        return new ThirdPartyBackupVolumeService.Transfer() {
+            @Override
+            public ThirdPartyBackupManifest.Artifact backup(final ThirdPartyBackupManifest.Artifact artifact, final boolean metadata) {
+                final BackupOfferingVO offering = backupOfferingDao.findById(backup.getBackupOfferingId());
+                if (offering == null) {
+                    throw new CloudRuntimeException("Commvault backup offering is unavailable");
+                }
+                return getClient(vm.getDataCenterId()).backupVolumeArtifact(host.getName(), vm.getInstanceName(), offering.getExternalId(), artifact);
+            }
+
+            @Override
+            public void completed(final Backup current) {
+                if (BACKUP_ENGINE_QCOW2.equals(getBackupDetail(current, DETAIL_BACKUP_ENGINE))) {
+                    final String xml = readFileContentsOnHost((HostVO) host, getBackupDetail(current, DETAIL_CHECKPOINT_PATH));
+                    if (StringUtils.isBlank(xml)) {
+                        throw new CloudRuntimeException("Completed QCOW2 backup checkpoint metadata is missing");
+                    }
+                    current.getDetails().put(DETAIL_CHECKPOINT_XML, xml);
+                }
+            }
+
+            @Override
+            public void failed(final Backup current) {
+                sealParentBackupChainIfIncremental(current, "failed-volume-child");
+            }
+        };
     }
 
     private boolean submitCommvaultJobForCompletedStaging(VirtualMachine vm, Backup backup, String stageHostName, String backupPath) {
