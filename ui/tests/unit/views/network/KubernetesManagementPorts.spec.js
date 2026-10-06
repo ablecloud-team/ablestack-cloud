@@ -36,7 +36,7 @@ test.each(components)('$name protects actual etcd/SSH port beyond contiguous VM 
   getAPI.mockReset().mockResolvedValueOnce(clusters).mockResolvedValueOnce(ports)
   const vm = state()
   await component.methods.fetchKubernetesManagementPorts.call(vm)
-  expect(vm.kubernetesManagementPorts).toEqual([50007])
+  expect(vm.kubernetesManagementPorts).toEqual([6443, 50007])
   expect(vm.kubernetesPortsUnavailable).toBe(false)
 })
 

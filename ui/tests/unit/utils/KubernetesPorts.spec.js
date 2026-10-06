@@ -46,7 +46,7 @@ test('revoke, UDP, port ranges, non-SSH mappings and unrelated VM rules are excl
     rule('worker', 6444, 6443)
   ]
   expect(nodeSshPorts({ id: 'worker' }, {}, rejected)).toEqual([])
-  expect(clusterManagementPorts([{ virtualmachines: vms }], rejected)).toEqual([])
+  expect(clusterManagementPorts([{ virtualmachines: vms }], rejected)).toEqual([6443])
 })
 
 test('all PF pages are read so late etcd/worker mappings are retained', async () => {
@@ -68,4 +68,9 @@ test('network sharing does not claim unrelated public IP rules as cluster manage
     }
   })
   expect((await listKubernetesClustersForIp(api, 'source-ip')).map(cluster => cluster.id)).toEqual(['ours'])
+})
+
+test('separate API load-balancer protection survives absent SSH mappings', () => {
+  expect(clusterManagementPorts([{ virtualmachines: [] }], [])).toEqual([6443])
+  expect(clusterManagementPorts([], rules)).toEqual([])
 })

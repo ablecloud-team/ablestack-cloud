@@ -36,10 +36,12 @@ function managementPortsForVm (vm, rules, privatePort) {
 }
 
 export function clusterManagementPorts (clusters, rules) {
-  return [...new Set(clusters.flatMap(cluster => (cluster.virtualmachines || []).flatMap(vm => [
+  const nodePorts = clusters.flatMap(cluster => (cluster.virtualmachines || []).flatMap(vm => [
     ...managementPortsForVm(vm, rules, 22),
     ...(vm.iscontrolnode ? managementPortsForVm(vm, rules, 6443) : [])
-  ])))].sort((a, b) => a - b)
+  ]))
+  // The cluster API uses a separate LB rule on 6443, rather than an SSH PF rule.
+  return [...new Set([...(clusters.length ? [6443] : []), ...nodePorts])].sort((a, b) => a - b)
 }
 
 export async function listAllKubernetesPortRules (getAPI, ipaddressid) {
