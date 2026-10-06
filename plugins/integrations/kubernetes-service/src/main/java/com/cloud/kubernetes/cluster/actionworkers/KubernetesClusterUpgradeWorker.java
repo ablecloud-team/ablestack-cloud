@@ -17,6 +17,12 @@
 
 package com.cloud.kubernetes.cluster.actionworkers;
 
+import com.google.gson.Gson;
+
+import org.apache.commons.codec.binary.Base64;
+
+import java.nio.charset.StandardCharsets;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -142,14 +148,13 @@ public class KubernetesClusterUpgradeWorker extends KubernetesClusterActionWorke
             if (!KubernetesClusterUtil.uncordonKubernetesClusterNode(kubernetesCluster, publicIpAddress, sshPort, getControlNodeLoginUser(), getManagementServerSshPublicKeyFile(), vm, upgradeTimeoutTime, 15000)) {
                 logTransitStateDetachIsoAndThrow(Level.ERROR, String.format("Failed to upgrade Kubernetes cluster : %s, unable to uncordon Kubernetes node on VM : %s", kubernetesCluster.getName(), vm.getDisplayName()), kubernetesCluster, clusterVMs, KubernetesCluster.Event.OperationFailed, null);
             }
-            if (i == 0) { // Wait for control node to get in Ready state
-                if (!KubernetesClusterUtil.isKubernetesClusterNodeReady(kubernetesCluster, publicIpAddress, sshPort, getControlNodeLoginUser(), getManagementServerSshPublicKeyFile(), hostName, upgradeTimeoutTime, 15000)) {
-                    logTransitStateDetachIsoAndThrow(Level.ERROR, String.format("Failed to upgrade Kubernetes cluster : %s, unable to get control Kubernetes node on VM : %s in ready state", kubernetesCluster.getName(), vm.getDisplayName()), kubernetesCluster, clusterVMs, KubernetesCluster.Event.OperationFailed, null);
-                }
+            if (!KubernetesClusterUtil.isKubernetesClusterNodeReady(kubernetesCluster, publicIpAddress, sshPort, getControlNodeLoginUser(), getManagementServerSshPublicKeyFile(), hostName, upgradeTimeoutTime, 15000)) {
+                logTransitStateDetachIsoAndThrow(Level.ERROR, String.format("Failed to upgrade Kubernetes cluster : %s, unable to get Kubernetes node on VM : %s in ready state", kubernetesCluster.getName(), vm.getDisplayName()), kubernetesCluster, clusterVMs, KubernetesCluster.Event.OperationFailed, null);
             }
             if (!KubernetesClusterUtil.clusterNodeVersionMatches(upgradeVersion.getSemanticVersion(), publicIpAddress, sshPort, getControlNodeLoginUser(), getManagementServerSshPublicKeyFile(), hostName, upgradeTimeoutTime, 15000, vm.getId(), kubernetesClusterVmMapDao)) {
                 logTransitStateDetachIsoAndThrow(Level.ERROR, String.format("Failed to upgrade Kubernetes cluster : %s, unable to get Kubernetes node on VM : %s upgraded to version %s", kubernetesCluster.getName(), vm.getDisplayName(), upgradeVersion.getSemanticVersion()), kubernetesCluster, clusterVMs, KubernetesCluster.Event.OperationFailed, null);
             }
+            ensureUpgradeWorkloadsReady(false);
             if (logger.isInfoEnabled()) {
                 logger.info("Successfully upgraded node on VM {} in Kubernetes cluster {} with Kubernetes version {}", vm, kubernetesCluster, upgradeVersion);
             }
@@ -195,6 +200,46 @@ public class KubernetesClusterUpgradeWorker extends KubernetesClusterActionWorke
                 kubernetesCluster, clusterVMs, KubernetesCluster.Event.OperationFailed, null);
     }
 
+    protected String getWorkloadGateCommand(boolean capture) throws Exception {
+        String uuid = kubernetesCluster.getUuid();
+        if (StringUtils.isBlank(uuid) || !uuid.matches("[a-fA-F0-9-]{36}")) {
+            throw new CloudRuntimeException("Invalid cluster UUID for upgrade readiness receipt");
+        }
+        String script = readResourceFile("/script/upgrade-workload-gate.py");
+        String encoded = Base64.encodeBase64String(script.getBytes(StandardCharsets.UTF_8));
+        String command = "sudo python3 -c 'import base64;exec(base64.b64decode(\"" + encoded + "\"))'"
+                + " --baseline /var/lib/mold/kubernetes/upgrades/" + uuid + "/workload-baseline.json --timeout 120";
+        if (capture) {
+            List<String> names = clusterVMs.stream().map(UserVm::getHostName).collect(Collectors.toList());
+            if (names.stream().anyMatch(StringUtils::isBlank)) {
+                throw new CloudRuntimeException("Missing upgrade node hostname");
+            }
+            command += " --capture --nodes-base64 " + Base64.encodeBase64String(new Gson().toJson(names).getBytes(StandardCharsets.UTF_8));
+        }
+        return command;
+    }
+
+    protected Pair<Boolean, String> executeWorkloadGateCommand(String command) throws Exception {
+        return SshHelper.sshExecute(publicIpAddress, sshPort, getControlNodeLoginUser(), sshKeyFile, null,
+                command, 10000, 10000, 180000);
+    }
+
+    protected void ensureUpgradeWorkloadsReady(boolean capture) {
+        try {
+            Pair<Boolean, String> result = executeWorkloadGateCommand(getWorkloadGateCommand(capture));
+            String marker = capture ? "UPGRADE_WORKLOAD_BASELINE_READY" : "UPGRADE_WORKLOADS_AND_ENDPOINTS_READY";
+            if (Boolean.TRUE.equals(result.first()) && result.second().contains(marker)) {
+                return;
+            }
+        } catch (Exception e) {
+            logger.warn("Kubernetes upgrade workload readiness gate failed for cluster {}", kubernetesCluster.getUuid());
+        }
+        logTransitStateDetachIsoAndThrow(Level.ERROR,
+                capture ? "Kubernetes upgrade preflight failed; check PDB and workload readiness"
+                        : "Kubernetes upgrade paused; workloads or Service endpoints did not recover before the next node",
+                kubernetesCluster, clusterVMs, KubernetesCluster.Event.OperationFailed, null);
+    }
+
     public boolean upgradeCluster() throws CloudRuntimeException {
         init();
         if (logger.isInfoEnabled()) {
@@ -214,9 +259,19 @@ public class KubernetesClusterUpgradeWorker extends KubernetesClusterActionWorke
         filterOutManualUpgradeNodesFromClusterUpgrade();
         retrieveScriptFiles();
         stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.UpgradeRequested);
+        if (!rebalanceHaDns()) {
+            logTransitStateDetachIsoAndThrow(Level.ERROR, "HA DNS readiness preflight failed before Kubernetes upgrade",
+                    kubernetesCluster, clusterVMs, KubernetesCluster.Event.OperationFailed, null);
+        }
+        ensureUpgradeWorkloadsReady(true);
         attachIsoKubernetesVMs(clusterVMs, upgradeVersion);
         upgradeKubernetesClusterNodes();
         upgradeKubernetesControllers();
+        if (!rebalanceHaDns()) {
+            logTransitStateDetachIsoAndThrow(Level.ERROR, "HA DNS did not recover after Kubernetes upgrade",
+                    kubernetesCluster, clusterVMs, KubernetesCluster.Event.OperationFailed, null);
+        }
+        ensureUpgradeWorkloadsReady(false);
         detachIsoKubernetesVMs(clusterVMs);
         KubernetesClusterVO kubernetesClusterVO = kubernetesClusterDao.findById(kubernetesCluster.getId());
         kubernetesClusterVO.setKubernetesVersionId(upgradeVersion.getId());

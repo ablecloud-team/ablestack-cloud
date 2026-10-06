@@ -22,7 +22,6 @@ import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -78,7 +77,6 @@ import com.cloud.uservm.UserVm;
 import com.cloud.utils.Pair;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.utils.net.Ip;
-import com.cloud.utils.ssh.SshHelper;
 import com.cloud.vm.ReservationContext;
 import com.cloud.vm.ReservationContextImpl;
 import com.cloud.vm.UserVmManager;
@@ -96,41 +94,6 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
 
     public KubernetesClusterStartWorker(final KubernetesCluster kubernetesCluster, final KubernetesClusterManagerImpl clusterManager) {
         super(kubernetesCluster, clusterManager);
-    }
-
-    protected boolean rebalanceHaDns() {
-        if (kubernetesCluster.getControlNodeCount() <= 1) {
-            return true;
-        }
-        return executeDnsRebalance();
-    }
-
-    protected boolean executeDnsRebalance() {
-        return executeDnsRebalance(false);
-    }
-
-    protected boolean verifyHaDns() {
-        return kubernetesCluster.getControlNodeCount() <= 1 || executeDnsRebalance(true);
-    }
-
-    protected boolean executeDnsRebalance(boolean checkOnly) {
-        try {
-            String script = readResourceFile("/script/rebalance-ha-coredns.py");
-            String encoded = Base64.encodeBase64String(script.getBytes(StandardCharsets.UTF_8));
-            String command = "sudo python3 -c 'import base64;exec(base64.b64decode(\"" + encoded + "\"))'";
-            if (checkOnly) {
-                command += " --check-only";
-            }
-            if (kubernetesCluster.getNodeCount() >= 2) {
-                command += " --prefer-workers";
-            }
-            Pair<Boolean, String> result = SshHelper.sshExecute(publicIpAddress, sshPort, getControlNodeLoginUser(),
-                    sshKeyFile, null, command, 10000, 10000, 180000);
-            return result.first() && result.second().contains("HA_COREDNS_READY_ON_DISTINCT_NODES");
-        } catch (Exception e) {
-            logger.warn("Unable to verify CoreDNS distribution for HA Kubernetes cluster {}", kubernetesCluster.getName());
-            return false;
-        }
     }
 
     public KubernetesSupportedVersion getKubernetesClusterVersion() {

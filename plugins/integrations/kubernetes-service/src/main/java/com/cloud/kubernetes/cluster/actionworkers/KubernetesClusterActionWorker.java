@@ -16,6 +16,8 @@
 // under the License.
 package com.cloud.kubernetes.cluster.actionworkers;
 
+import java.nio.charset.StandardCharsets;
+
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -255,6 +257,41 @@ public class KubernetesClusterActionWorker {
     protected File deploySecretsScriptFile;
     protected File deployProviderScriptFile;
     protected File deployCsiDriverScriptFile;
+    protected boolean rebalanceHaDns() {
+        if (kubernetesCluster.getControlNodeCount() <= 1) {
+            return true;
+        }
+        return executeDnsRebalance();
+    }
+
+    protected boolean executeDnsRebalance() {
+        return executeDnsRebalance(false);
+    }
+
+    protected boolean verifyHaDns() {
+        return kubernetesCluster.getControlNodeCount() <= 1 || executeDnsRebalance(true);
+    }
+
+    protected boolean executeDnsRebalance(boolean checkOnly) {
+        try {
+            String script = readResourceFile("/script/rebalance-ha-coredns.py");
+            String encoded = Base64.encodeBase64String(script.getBytes(StandardCharsets.UTF_8));
+            String command = "sudo python3 -c 'import base64;exec(base64.b64decode(\"" + encoded + "\"))'";
+            if (checkOnly) {
+                command += " --check-only";
+            }
+            if (kubernetesCluster.getNodeCount() >= 2) {
+                command += " --prefer-workers";
+            }
+            Pair<Boolean, String> result = SshHelper.sshExecute(publicIpAddress, sshPort, getControlNodeLoginUser(),
+                    sshKeyFile, null, command, 10000, 10000, 180000);
+            return result.first() && result.second().contains("HA_COREDNS_READY_ON_DISTINCT_NODES");
+        } catch (Exception e) {
+            logger.warn("Unable to verify CoreDNS distribution for HA Kubernetes cluster {}", kubernetesCluster.getName());
+            return false;
+        }
+    }
+
     protected File autoscaleScriptFile;
     protected File deletePvScriptFile;
     protected KubernetesClusterManagerImpl manager;
