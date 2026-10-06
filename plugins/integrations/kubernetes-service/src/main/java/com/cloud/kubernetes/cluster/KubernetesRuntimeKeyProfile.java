@@ -103,6 +103,10 @@ public final class KubernetesRuntimeKeyProfile {
                 || key.getApiKey() == null || key.getApiKey().isEmpty() || key.getSecretKey() == null || key.getSecretKey().isEmpty()) {
             throw new CloudRuntimeException("Kubernetes controller key is unavailable; replace the cluster-scoped credential before retry");
         }
+        validatePermissions(csi, permissions);
+    }
+
+    public static void validatePermissions(boolean csi, List<? extends RolePermissionEntity> permissions) {
         Set<String> expected = new HashSet<>(commands(csi));
         if (permissions == null || permissions.size() != expected.size() + 1) {
             throw new CloudRuntimeException("Kubernetes controller key permissions do not match its feature profile");

@@ -1940,18 +1940,33 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
         if (id == null || id < 1L) {
             throw new InvalidParameterValueException("Invalid Kubernetes cluster ID provided");
         }
-        final KubernetesClusterVO kubernetesCluster = kubernetesClusterDao.findById(id);
-        if (kubernetesCluster == null) {
-            throw new InvalidParameterValueException("Given Kubernetes cluster was not found");
-        }
-        if (!isCommandSupported(kubernetesCluster, cmd.getActualCommandName())) {
-            throw new InvalidParameterValueException(String.format("Start kubernetes cluster is not supported for " +
-                    "an externally managed cluster (%s)", kubernetesCluster.getName()));
-        }
-        Account account = accountService.getAccount(kubernetesCluster.getAccountId());
-        if (!startKubernetesCluster(kubernetesCluster.getId(), kubernetesCluster.getDomainId(), account.getAccountName(), null, false)) {
-            throw new CloudRuntimeException(String.format("Failed to start Kubernetes cluster: %s",
-                    kubernetesCluster.getName()));
+        GlobalLock startLock = GlobalLock.getInternLock("KubernetesCluster.Start." + id);
+        try {
+            if (!startLock.lock(1)) {
+                throw new CloudRuntimeException("Another start or controller credential rotation is already in progress for this cluster");
+            }
+            try {
+                final KubernetesClusterVO kubernetesCluster = kubernetesClusterDao.findById(id);
+                if (kubernetesCluster == null) {
+                    throw new InvalidParameterValueException("Given Kubernetes cluster was not found");
+                }
+                if (!isCommandSupported(kubernetesCluster, cmd.getActualCommandName())) {
+                    throw new InvalidParameterValueException(String.format("Start kubernetes cluster is not supported for " +
+                            "an externally managed cluster (%s)", kubernetesCluster.getName()));
+                }
+                if (cmd.isRotateControllerCredentials()) {
+                    rotateStoppedClusterControllerKey(kubernetesCluster);
+                }
+                Account account = accountService.getAccount(kubernetesCluster.getAccountId());
+                if (!startKubernetesCluster(kubernetesCluster.getId(), kubernetesCluster.getDomainId(), account.getAccountName(), null, false)) {
+                    throw new CloudRuntimeException(String.format("Failed to start Kubernetes cluster: %s",
+                            kubernetesCluster.getName()));
+                }
+            } finally {
+                startLock.unlock();
+            }
+        } finally {
+            startLock.releaseRef();
         }
     }
 
@@ -2079,6 +2094,43 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
         KubernetesRuntimeKeyProfile.validateForUse(key, userId, owner.getAccountId(), owner.getDomainId(), cluster.getUuid(),
                 cluster.isCsiEnabled(), accountService.getAllExplicitKeyPairPermissions(key.getId()));
         return new String[]{key.getApiKey(), key.getSecretKey()};
+    }
+
+    protected void rotateStoppedClusterControllerKey(KubernetesClusterVO cluster) {
+        accountManager.checkAccess(CallContext.current().getCallingAccount(), SecurityChecker.AccessType.OperateEntry, false, cluster);
+        if (cluster.getRemoved() != null || cluster.getClusterType() != KubernetesCluster.ClusterType.CloudManaged
+                || cluster.getState() != KubernetesCluster.State.Stopped) {
+            throw new CloudRuntimeException("Controller credential rotation requires a stopped CloudManaged cluster");
+        }
+        List<KubernetesClusterVmMapVO> maps = kubernetesClusterVmMapDao.listByClusterId(cluster.getId());
+        if (CollectionUtils.isEmpty(maps) || maps.stream().anyMatch(map -> {
+            VMInstanceVO vm = vmInstanceDao.findById(map.getVmId());
+            return vm == null || vm.isRemoved() || vm.getState() != VirtualMachine.State.Stopped;
+        })) {
+            throw new CloudRuntimeException("All cluster virtual machines must be stopped before credential rotation");
+        }
+        Account owner = accountService.getAccount(cluster.getAccountId());
+        if (owner != null && owner.getType() == Account.Type.PROJECT) {
+            owner = getProjectKubernetesAccount(owner, false);
+        }
+        if (owner == null) {
+            throw new CloudRuntimeException("Cannot verify the controller credential owner");
+        }
+        UserAccount user = accountService.getActiveUserAccount("mold-cks-" + cluster.getUuid(), owner.getDomainId());
+        KubernetesClusterDetailsVO detail = kubernetesClusterDetailsDao.findDetail(cluster.getId(), KubernetesRuntimeKeyProfile.KEY_DETAIL);
+        if (user == null || user.getAccountId() != owner.getAccountId() || detail == null) {
+            throw new CloudRuntimeException("Controller credential rotation requires a dedicated cluster key");
+        }
+        ApiKeyPair oldKey = accountService.getKeyPairById(Long.parseLong(detail.getValue()));
+        KubernetesRuntimeKeyProfile.validateIdentity(oldKey, user.getId(), owner.getAccountId(), owner.getDomainId(),
+                cluster.getUuid(), cluster.isCsiEnabled());
+        KubernetesRuntimeKeyProfile.validatePermissions(cluster.isCsiEnabled(), accountService.getAllExplicitKeyPairPermissions(oldKey.getId()));
+        Transaction.execute((TransactionCallback<ApiKeyPair>) status -> {
+            ApiKeyPair replacement = createClusterServiceKey(user.getId(), cluster);
+            kubernetesClusterDetailsDao.addDetail(cluster.getId(), KubernetesRuntimeKeyProfile.KEY_DETAIL, String.valueOf(replacement.getId()), false);
+            accountService.deleteApiKey(oldKey);
+            return replacement;
+        });
     }
 
     protected ApiKeyPair createClusterServiceKey(long userId, KubernetesClusterVO cluster) {
