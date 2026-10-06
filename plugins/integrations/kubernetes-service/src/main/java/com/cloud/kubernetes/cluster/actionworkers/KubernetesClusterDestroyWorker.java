@@ -368,31 +368,44 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
         return receipts;
     }
 
+    protected FirewallRuleVO findLiveCleanupRule(KubernetesOwnedResourceReceipt receipt) {
+        FirewallRuleVO rule = receipt.type == ResourceObjectType.LoadBalancer
+                ? loadBalancerDao.findById(receipt.id) : receipt.type == ResourceObjectType.PortForwardingRule
+                ? portForwardingRulesDao.findById(receipt.id) : firewallRulesDao.findById(receipt.id);
+        return rule == null || rule.getRemoved() != null ? null : rule;
+    }
+
     protected void validateOwnedResource(KubernetesOwnedResourceReceipt receipt, NetworkVO network) {
         IPAddressVO ip = ipAddressDao.findByUuid(receipt.ip);
+        if (receipt.type == ResourceObjectType.LoadBalancer || receipt.type == ResourceObjectType.FirewallRule
+                || receipt.type == ResourceObjectType.PortForwardingRule) {
+            FirewallRuleVO rule = findLiveCleanupRule(receipt);
+            // Resource tags and durable receipts can outlive a normal rule deletion.
+            // A historical rule must never claim or block a subsequently allocated IP.
+            if (rule == null) {
+                return;
+            }
+            if (!receipt.resource.equals(rule.getUuid()) || rule.getAccountId() != kubernetesCluster.getAccountId()
+                    || !Long.valueOf(network.getId()).equals(rule.getNetworkId()) || ip == null
+                    || !Long.valueOf(ip.getId()).equals(rule.getSourceIpAddressId())) {
+                throw new CloudRuntimeException("Network rule cleanup identity changed: " + receipt.resource);
+            }
+        } else if (receipt.type == ResourceObjectType.NetworkACL) {
+            NetworkACLItemVO rule = networkACLItemDao.findById(receipt.id);
+            if (rule == null) {
+                return;
+            }
+            if (!receipt.resource.equals(rule.getUuid()) || !Long.valueOf(rule.getAclId()).equals(network.getNetworkACLId())) {
+                throw new CloudRuntimeException("ACL cleanup identity changed: " + receipt.resource);
+            }
+        } else if (ip != null && (!receipt.resource.equals(ip.getUuid()) || receipt.id != ip.getId())) {
+            throw new CloudRuntimeException("IP cleanup identity changed: " + receipt.resource);
+        }
         if (ip != null && ip.getAllocatedTime() != null && (ip.getAccountId() != kubernetesCluster.getAccountId()
                 || !receipt.generation.equals(ip.getAllocationGeneration())
                 || (ip.getAssociatedWithNetworkId() != null && ip.getAssociatedWithNetworkId() != network.getId())
                 || (ip.getVpcId() != null && !ip.getVpcId().equals(network.getVpcId())))) {
             throw new CloudRuntimeException("Public IP cleanup allocation changed: " + receipt.ip);
-        }
-        if (receipt.type == ResourceObjectType.LoadBalancer || receipt.type == ResourceObjectType.FirewallRule
-                || receipt.type == ResourceObjectType.PortForwardingRule) {
-            FirewallRuleVO rule = receipt.type == ResourceObjectType.LoadBalancer
-                    ? loadBalancerDao.findById(receipt.id) : receipt.type == ResourceObjectType.PortForwardingRule
-                    ? portForwardingRulesDao.findById(receipt.id) : firewallRulesDao.findById(receipt.id);
-            if (rule != null && (!receipt.resource.equals(rule.getUuid()) || rule.getAccountId() != kubernetesCluster.getAccountId()
-                    || !Long.valueOf(network.getId()).equals(rule.getNetworkId()) || ip == null
-                    || !Long.valueOf(ip.getId()).equals(rule.getSourceIpAddressId()))) {
-                throw new CloudRuntimeException("Network rule cleanup identity changed: " + receipt.resource);
-            }
-        } else if (receipt.type == ResourceObjectType.NetworkACL) {
-            NetworkACLItemVO rule = networkACLItemDao.findById(receipt.id);
-            if (rule != null && (!receipt.resource.equals(rule.getUuid()) || !Long.valueOf(rule.getAclId()).equals(network.getNetworkACLId()))) {
-                throw new CloudRuntimeException("ACL cleanup identity changed: " + receipt.resource);
-            }
-        } else if (ip != null && (!receipt.resource.equals(ip.getUuid()) || receipt.id != ip.getId())) {
-            throw new CloudRuntimeException("IP cleanup identity changed: " + receipt.resource);
         }
     }
 
@@ -414,17 +427,17 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
             boolean done = true;
             switch (receipt.type) {
                 case LoadBalancer:
-                    if (loadBalancerDao.findById(receipt.id) != null) {
+                    if (findLiveCleanupRule(receipt) != null) {
                         done = lbService.deleteLoadBalancerRule(receipt.id, true);
                     }
                     break;
                 case FirewallRule:
-                    if (firewallRulesDao.findById(receipt.id) != null) {
+                    if (findLiveCleanupRule(receipt) != null) {
                         done = firewallManager.revokeIngressFirewallRule(receipt.id, true);
                     }
                     break;
                 case PortForwardingRule:
-                    if (portForwardingRulesDao.findById(receipt.id) != null) {
+                    if (findLiveCleanupRule(receipt) != null) {
                         done = rulesService.revokePortForwardingRule(receipt.id, true);
                     }
                     break;
