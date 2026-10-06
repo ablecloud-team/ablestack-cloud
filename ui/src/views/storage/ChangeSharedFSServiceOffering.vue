@@ -49,14 +49,20 @@
               v-for="(serviceoffering, index) in serviceofferings"
               :value="serviceoffering.id"
               :key="index"
+              :disabled="!serviceoffering.compatibility?.compatible || serviceoffering.id === resource.serviceofferingid"
+              :title="offeringReason(serviceoffering)"
               :label="serviceoffering.name || serviceoffering.displaytext">
+              <span v-if="!serviceoffering.compatibility?.compatible" class="field-hint">{{ offeringReason(serviceoffering) }} · </span>
               {{ serviceoffering.name || serviceoffering.displaytext }}
             </a-select-option>
           </a-select>
+          <div class="field-hint">{{ $t('message.storage.service.offering.requirements', { cpu: offeringRequirements?.minimumcpu || minCpu, memory: offeringRequirements?.minimummemory || minMemory }) }}</div>
+          <a-alert v-if="serviceOfferingReadError" type="warning" show-icon :message="$t('message.storage.service.offering.unavailable')" />
+          <a-alert v-else-if="!serviceofferingLoading && !serviceofferings.some(item => item.compatibility?.compatible && item.id !== resource.serviceofferingid)" type="warning" show-icon :message="$t('message.storage.service.offering.no.compatible')" />
         </a-form-item>
         <div :span="24" class="action-button">
           <a-button @click="closeModal">{{ $t('label.cancel') }}</a-button>
-          <a-button type="primary" ref="submit" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
+          <a-button type="primary" ref="submit" :disabled="serviceofferingLoading || !selectedOffering?.compatibility?.compatible" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
         </div>
       </a-form>
     </a-spin>
@@ -72,7 +78,7 @@ import TooltipLabel from '@/components/widgets/TooltipLabel'
 import store from '@/store'
 
 export default {
-  name: 'CreateSharedFS',
+  name: 'ChangeSharedFSServiceOffering',
   mixins: [mixinForm],
   props: {
     resource: {
@@ -95,7 +101,12 @@ export default {
       loading: false,
       configLoading: false,
       serviceofferings: [],
-      serviceofferingLoding: false
+      serviceofferingLoading: false,
+      serviceOfferingRequestToken: 0,
+      serviceOfferingReadError: false,
+      offeringRequirements: null,
+      minCpu: store.getters.features?.sharedfsvmmincpucount || 2,
+      minMemory: store.getters.features?.sharedfsvmminramsize || 1024
     }
   },
   beforeCreate () {
@@ -105,6 +116,10 @@ export default {
     this.initForm()
     this.fetchData()
   },
+  computed: {
+    selectedOffering () { return this.serviceofferings.find(item => item.id === this.form.serviceofferingid) }
+  },
+  beforeUnmount () { this.serviceOfferingRequestToken++ },
   methods: {
     initForm () {
       this.formRef = ref()
@@ -120,39 +135,40 @@ export default {
     fetchData () {
       this.fetchServiceOfferings()
     },
-    fetchCapabilities (id) {
-      getAPI('listCapabilities').then(json => {
-        this.capability = json.listcapabilitiesresponse.capability || []
-        this.minCpu = this.capability.sharedfsvmmincpucount
-        this.minMemory = this.capability.sharedfsvmminramsize
-      })
+    offeringReason (offering) {
+      return (offering.compatibility?.reasons || ['CONSTRAINTS_UNAVAILABLE'])
+        .map(code => this.$t('message.storage.service.offering.reason.' + code.toLowerCase())).join(', ')
     },
-    fetchServiceOfferings () {
-      this.fetchCapabilities()
+    async fetchServiceOfferings () {
+      const request = ++this.serviceOfferingRequestToken
+      const zoneId = this.resource.zoneid
       this.serviceofferingLoading = true
-      var params = {
-        zoneid: this.resource.zoneid,
-        listall: true,
-        domainid: this.owner.domainid
+      this.serviceOfferingReadError = false
+      this.serviceofferings = []
+      this.form.serviceofferingid = ''
+      const params = { zoneid: zoneId, listall: true, domainid: this.owner.domainid }
+      if (this.owner.projectid) params.projectid = this.owner.projectid
+      else params.account = this.owner.account
+      try {
+        const json = await getAPI('listServiceOfferings', params, { preserveOnFailure: true, timeout: 15000 })
+        if (request !== this.serviceOfferingRequestToken) return
+        const items = json.listserviceofferingsresponse.serviceoffering || []
+        this.serviceofferings = items.map(item => ({ ...item, compatibility: null }))
+        if (!items.length) return
+        const response = await getAPI('listStorageServiceOfferingConstraints', {
+          zoneid: zoneId, serviceofferingids: items.map(item => item.id).join(',')
+        }, { preserveOnFailure: true, timeout: 15000 })
+        if (request !== this.serviceOfferingRequestToken) return
+        const entries = response.liststorageserviceofferingconstraintsresponse.storageserviceofferingconstraint || []
+        const byId = Object.fromEntries(entries.map(item => [item.id, item]))
+        this.offeringRequirements = entries[0] || null
+        this.serviceofferings = items.map(item => ({ ...item, compatibility: byId[item.id] || null }))
+        this.form.serviceofferingid = this.serviceofferings.find(item => item.compatibility?.compatible && item.id !== this.resource.serviceofferingid)?.id || ''
+      } catch (error) {
+        if (request === this.serviceOfferingRequestToken) this.serviceOfferingReadError = true
+      } finally {
+        if (request === this.serviceOfferingRequestToken) this.serviceofferingLoading = false
       }
-      if (this.owner.projectid) {
-        params.projectid = this.owner.projectid
-      } else {
-        params.account = this.owner.account
-      }
-      getAPI('listServiceOfferings', params).then(json => {
-        var items = json.listserviceofferingsresponse.serviceoffering || []
-        if (items != null) {
-          for (var i = 0; i < items.length; i++) {
-            if (items[i].iscustomized === false && items[i].offerha === true &&
-                items[i].cpunumber >= this.minCpu && items[i].memory >= this.minMemory) {
-              this.serviceofferings.push(items[i])
-            }
-          }
-        }
-        this.form.serviceofferingid = this.serviceofferings[0].id || ''
-      })
-      this.serviceofferingLoading = false
     },
     closeModal () {
       this.$emit('close-action')
