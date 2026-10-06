@@ -508,6 +508,13 @@
               </div>
               <div class="field-hint">{{ $t('message.storage.service.nfs.quota.help') }}</div>
             </a-form-item>
+            <a-form-item name="nfsidmappingmode" :label="$t('label.storage.service.nfs.idmapping')">
+              <a-select v-model:value="form.nfsidmappingmode">
+                <a-select-option value="NAME_DOMAIN">{{ $t('label.storage.service.nfs.idmapping.name') }}</a-select-option>
+                <a-select-option value="NUMERIC">{{ $t('label.storage.service.nfs.idmapping.numeric') }}</a-select-option>
+              </a-select>
+              <a-alert v-if="form.nfsidmappingmode === 'NUMERIC'" type="warning" show-icon :message="$t('message.storage.service.nfs.numeric.requirements')" />
+            </a-form-item>
             <a-form-item name="nfsprotocolmode">
               <template #label>
                 <tooltip-label :title="$t('label.storage.service.nfs.protocol.mode')" :tooltip="$t('message.storage.service.nfs.protocol.mode.help')" />
@@ -1317,6 +1324,7 @@ export default {
         nfsname: '',
         nfspath: '',
         nfsprotocolmode: 'V4_ONLY',
+        nfsidmappingmode: 'NAME_DOMAIN',
         nfsport: 2049,
         nfsprincipal: '',
         nfspermission: 'READ_WRITE',
@@ -2098,7 +2106,8 @@ export default {
           protocol: service,
           listenip: listenIp,
           port: this.defaultProtocolPort(service, setup),
-          protocolmode: service === 'NFS' ? (setup.nfsprotocolmode || 'V4_ONLY') : undefined
+          protocolmode: service === 'NFS' ? (setup.nfsprotocolmode || 'V4_ONLY') : undefined,
+          idmappingmode: service === 'NFS' && setup.nfsidmappingmode === 'NUMERIC' ? 'NUMERIC' : undefined
         })
       }
     },

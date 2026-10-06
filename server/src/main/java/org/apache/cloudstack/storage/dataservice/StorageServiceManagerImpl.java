@@ -176,6 +176,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         private String runtimePrimaryIp;
         private String identityStatus = "UNKNOWN";
         private String identityWarning;
+        private String nfsRuntimeIdMappingMode="UNKNOWN";
         private final List<String> serviceIps = new ArrayList<>();
         private final Set<String> aliasIps = new HashSet<>();
         private final Map<StorageServiceInstance.Protocol, Map<Integer, Integer>> linkedResourceCounts = new HashMap<>();
@@ -248,6 +249,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         commands.add(EnableStorageServiceProtocolCmd.class);
         commands.add(DeleteStorageServiceProtocolCmd.class);
         commands.add(CreateStorageNfsExportCmd.class);
+        commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageNfsServiceSettingsCmd.class);
+        commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageNfsServiceSettingsCmd.class);
         commands.add(UpdateStorageNfsExportCmd.class);
         commands.add(DeleteStorageNfsExportCmd.class);
         commands.add(ListStorageNfsExportsCmd.class);
@@ -559,6 +562,76 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         return response;
     }
 
+    protected String normalizeNfsIdMappingMode(String value) {
+        String mode=StringUtils.isBlank(value) ? "NAME_DOMAIN" : value.trim().toUpperCase(Locale.ROOT);
+        if (!"NAME_DOMAIN".equals(mode) && !"NUMERIC".equals(mode)) throw new InvalidParameterValueException("Unsupported NFS owner mapping mode");
+        return mode;
+    }
+
+    protected String resolveNfsIdMappingMode(StorageServiceInstanceVO instance) {
+        StorageServiceProtocolVO protocol=selectNfsModeProtocol(storageServiceProtocolDao.listByInstanceIdAndProtocol(instance.getId(),StorageServiceInstance.Protocol.NFS));
+        return normalizeNfsIdMappingMode(protocol == null ? null : getJsonString(parseJsonObject(protocol.getConfigJson()),"idMappingMode"));
+    }
+
+    private void preflightNfsIdMapping(StorageServiceInstanceVO instance,String mode) {
+        if ("NUMERIC".equals(mode)) for(StorageFileShareVO share:storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(),StorageServiceInstance.Protocol.NFS)) {
+            JsonObject config=parseJsonObject(share.getConfigJson());
+            String security=getJsonString(config,"securityType");if(StringUtils.isBlank(security))security=getJsonString(config,"secType");
+            if(StringUtils.isNotBlank(security) && !"sys".equalsIgnoreCase(security)) throw new InvalidParameterValueException("NUMERIC NFS owner mapping requires AUTH_SYS");
+        }
+        if(instance.getVmId() != null) {
+            JsonObject payload=new JsonObject();payload.addProperty("idMappingMode",mode);
+            StorageServiceGuestCommandResult result=guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),"nfs idmapping preflight",payload.toString(),30,Collections.emptySet()));
+            if(!result.isSuccess())throw new CloudRuntimeException("NFS owner mapping preflight failed: "+result.getDetails());
+        }
+    }
+
+    private void persistNfsIdMapping(StorageServiceInstanceVO instance,String mode) {
+        for(StorageServiceProtocolVO protocol:storageServiceProtocolDao.listByInstanceIdAndProtocol(instance.getId(),StorageServiceInstance.Protocol.NFS)) {
+            JsonObject config=parseJsonObject(protocol.getConfigJson());config.addProperty("idMappingMode",mode);
+            protocol.setConfigJson(config.toString());storageServiceProtocolDao.update(protocol.getId(),protocol);
+        }
+    }
+
+    @Override public org.apache.cloudstack.api.response.StorageNfsServiceSettingsResponse getStorageNfsServiceSettings(
+            org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageNfsServiceSettingsCmd cmd) {
+        return nfsServiceSettings(requireInstance(cmd.getInstanceId()),false);
+    }
+
+    @Override public org.apache.cloudstack.api.response.StorageNfsServiceSettingsResponse updateStorageNfsServiceSettings(
+            org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageNfsServiceSettingsCmd cmd) {
+        return executeDesiredChange(cmd,org.apache.cloudstack.api.response.StorageNfsServiceSettingsResponse.class,()->{
+            StorageServiceInstanceVO instance=requireInstance(cmd.getInstanceId());String mode=normalizeNfsIdMappingMode(cmd.getIdMappingMode());
+            preflightNfsIdMapping(instance,mode);
+            if(storageServiceProtocolDao.listByInstanceIdAndProtocol(instance.getId(),StorageServiceInstance.Protocol.NFS).isEmpty()) throw new InvalidParameterValueException("Enable an NFS listener before changing owner mapping");
+            persistNfsIdMapping(instance,mode);applyNfsDesiredState(instance);
+            org.apache.cloudstack.api.response.StorageNfsServiceSettingsResponse response=nfsServiceSettings(instance,true);
+            if(instance.getVmId() != null && !storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(),StorageServiceInstance.Protocol.NFS).isEmpty() && !mode.equals(response.getRuntime())) throw new CloudRuntimeException("Not every NFS listener reports the requested owner mapping mode");
+            return response;
+        });
+    }
+
+    protected String observeNfsIdMapping(StorageServiceInstanceVO instance,boolean uncached) {
+        if(instance.getVmId() == null)return "UNKNOWN";
+        try {
+            StorageServiceGuestCommandResult result=guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),uncached ? "operation verify" : "health","",30,Collections.emptySet()));
+            if(!result.isSuccess())return "UNKNOWN";
+            JsonObject health=parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));
+            JsonObject ganesha=getJsonObject(health,"nfsGanesha");
+            return StringUtils.defaultIfBlank(getJsonString(ganesha,"idMappingMode"),"UNKNOWN");
+        } catch(RuntimeException unavailable){return "UNKNOWN";}
+    }
+
+    private org.apache.cloudstack.api.response.StorageNfsServiceSettingsResponse nfsServiceSettings(StorageServiceInstanceVO instance,boolean uncached) {
+        String desired=resolveNfsIdMappingMode(instance);String runtime=observeNfsIdMapping(instance,uncached);
+        org.apache.cloudstack.api.response.StorageNfsServiceSettingsResponse response=new org.apache.cloudstack.api.response.StorageNfsServiceSettingsResponse();
+        response.setInstanceId(instance.getUuid());response.setDesired(desired);response.setRuntime(runtime);
+        response.setEffective("NUMERIC".equals(runtime) || "NAME_DOMAIN".equals(runtime) ? runtime : "UNKNOWN");
+        response.setDrift("UNKNOWN".equals(runtime) ? "UNKNOWN" : desired.equals(runtime) ? "CONSISTENT" : "DRIFT");
+        response.setEndpoints((int)storageServiceProtocolDao.listByInstanceIdAndProtocol(instance.getId(),StorageServiceInstance.Protocol.NFS).stream().filter(StorageServiceProtocolVO::isEnabled).count());
+        response.setObjectName("storagenfsservicesettings");return response;
+    }
+
     @Override
     public StorageServiceProtocolResponse enableStorageServiceProtocol(final EnableStorageServiceProtocolCmd cmd) {
         return executeDesiredChange(cmd, StorageServiceProtocolResponse.class, () -> doEnableStorageServiceProtocol(cmd));
@@ -574,6 +647,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         final StorageServiceProtocolVO modeProtocol = protocol == StorageServiceInstance.Protocol.NFS ?
                 selectNfsModeProtocol(storageServiceProtocolDao.listByInstanceIdAndProtocol(instance.getId(), protocol)) : protocolVO;
         final String protocolMode = resolveProtocolModeForEnable(protocol, modeProtocol, cmd.getProtocolMode());
+        final String idMappingMode=protocol == StorageServiceInstance.Protocol.NFS ? normalizeNfsIdMappingMode(
+                cmd.getIdMappingMode() == null ? resolveNfsIdMappingMode(instance) : cmd.getIdMappingMode()) : null;
+        if(cmd.getIdMappingMode() != null && protocol != StorageServiceInstance.Protocol.NFS) throw new InvalidParameterValueException("idmappingmode is an NFS service setting");
+        if(cmd.getIdMappingMode() != null)preflightNfsIdMapping(instance,idMappingMode);
         validateProtocolModeEndpointPolicy(protocol, modeProtocol, protocolMode, cmd.getListenIp(), port);
         validateBlockProtocolListenerConflict(instance, protocol, cmd.getListenIp(), port, protocolVO);
         NicVO listenNic = resolveProtocolListenAddress(instance, cmd.getListenIp());
@@ -612,6 +689,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             storageServiceProtocolDao.update(protocolVO.getId(), protocolVO);
         }
 
+        if(protocol == StorageServiceInstance.Protocol.NFS) {
+            JsonObject currentConfig=parseJsonObject(protocolVO.getConfigJson());currentConfig.addProperty("idMappingMode",idMappingMode);
+            protocolVO.setConfigJson(currentConfig.toString());storageServiceProtocolDao.update(protocolVO.getId(),protocolVO);
+            persistNfsIdMapping(instance,idMappingMode);
+        }
         boolean registeredListenAddress = false;
         try {
             registeredListenAddress = registerProtocolListenAddress(instance, cmd.getListenIp(), listenNic);
@@ -702,10 +784,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             }
         } else if (StringUtils.isNotBlank(cmd.getProtocol())) {
             final StorageServiceInstance.Protocol protocol = parseProtocol(cmd.getProtocol());
-            storageServiceInstanceDao.listAll().forEach(instance ->
+            storageServiceInstanceDao.listAll().stream().filter(this::canReadStorageInstance).forEach(instance ->
                     protocols.addAll(storageServiceProtocolDao.listByInstanceIdAndProtocol(instance.getId(), protocol)));
         } else {
-            storageServiceInstanceDao.listAll().forEach(instance ->
+            storageServiceInstanceDao.listAll().stream().filter(this::canReadStorageInstance).forEach(instance ->
                     protocols.addAll(storageServiceProtocolDao.listByInstanceId(instance.getId())));
         }
 
@@ -2326,6 +2408,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         payload.addProperty("enabled", nfsProtocols.isEmpty() || nfsProtocols.stream().anyMatch(StorageServiceProtocolVO::isEnabled));
         final String serviceProtocolMode = resolveNfsServiceProtocolMode(instance);
         payload.addProperty("protocolMode", serviceProtocolMode);
+        payload.addProperty("idMappingMode",resolveNfsIdMappingMode(instance));
         final Integer defaultNfsListenerPort = protocol == null || protocol.getPort() == null ? 2049 : protocol.getPort();
         final JsonArray listeners = new JsonArray();
         for (final StorageServiceProtocolVO listenerProtocol : nfsProtocols) {
@@ -5973,6 +6056,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         response.setLinkedResourceCount(linkedCounts == null ? 0 : linkedCounts.getOrDefault(listenerPort, 0));
         if (protocol.getProtocol() == StorageServiceInstance.Protocol.NFS) {
             response.setProtocolMode(nfsProtocolModeAsString(parseJsonObject(protocol.getConfigJson()), protocol.getConfigJson()));
+            final String desiredIdMode=normalizeNfsIdMappingMode(getJsonString(parseJsonObject(protocol.getConfigJson()),"idMappingMode"));
+            final String runtimeIdMode=context == null ? "UNKNOWN" : context.nfsRuntimeIdMappingMode;
+            response.setIdMappingMode(desiredIdMode);response.setRuntimeIdMappingMode(runtimeIdMode);
+            response.setEffectiveIdMappingMode("NUMERIC".equals(runtimeIdMode) || "NAME_DOMAIN".equals(runtimeIdMode) ? runtimeIdMode : "UNKNOWN");
+            response.setIdMappingDrift("UNKNOWN".equals(runtimeIdMode) ? "UNKNOWN" : desiredIdMode.equals(runtimeIdMode) ? "CONSISTENT" : "DRIFT");
         }
         response.setObjectName("storageserviceprotocol");
         return response;
@@ -5998,7 +6086,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                     }
                 }
             }
-            context.runtimePrimaryIp = observeRuntimePrimaryIp(instance);
+            context.runtimePrimaryIp = observeRuntimePrimaryIp(instance,context);
             addUniqueServiceIp(context.serviceIps, context.runtimePrimaryIp);
             if (StringUtils.isBlank(context.runtimePrimaryIp)) {
                 context.identityStatus = "UNKNOWN";
@@ -6021,6 +6109,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     protected String observeRuntimePrimaryIp(final StorageServiceInstanceVO instance) {
+        return observeRuntimePrimaryIp(instance,null);
+    }
+
+    protected String observeRuntimePrimaryIp(final StorageServiceInstanceVO instance,final ProtocolResponseContext context) {
         if (instance == null || instance.getVmId() == null) {
             return null;
         }
@@ -6031,6 +6123,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 return null;
             }
             final JsonElement root = new JsonParser().parse(normalizeRuntimeResultJson(result.getResultJson()));
+            if(context != null && root.isJsonObject()) {
+                context.nfsRuntimeIdMappingMode=StringUtils.defaultIfBlank(getJsonString(getJsonObject(root.getAsJsonObject(),"nfsGanesha"),"idMappingMode"),"UNKNOWN");
+            }
             final List<String> candidates = new ArrayList<>();
             collectRuntimePrimaryIps(root, candidates);
             return candidates.stream().filter(StringUtils::isNotBlank).distinct().count() == 1

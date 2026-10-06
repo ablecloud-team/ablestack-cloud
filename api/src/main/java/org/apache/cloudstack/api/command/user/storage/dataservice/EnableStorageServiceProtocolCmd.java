@@ -54,6 +54,9 @@ public class EnableStorageServiceProtocolCmd extends BaseStorageServiceAsyncCmd 
 
     @Parameter(name = "protocolmode", type = CommandType.STRING, description = "NFS protocol mode. Supported values are V4_ONLY and V3V4_DUAL")
     private String protocolMode;
+    @Parameter(name="idmappingmode",type=CommandType.STRING,description="Service-wide NFSv4 owner mapping: NAME_DOMAIN or NUMERIC")
+    private String idMappingMode;
+    public String getIdMappingMode(){return idMappingMode;}
 
     public Long getInstanceId() {
         return instanceId;
