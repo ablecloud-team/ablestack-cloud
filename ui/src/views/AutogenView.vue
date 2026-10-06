@@ -821,6 +821,13 @@
             </template>
           </a-alert>
         </a-spin>
+        <a-alert
+          v-if="listRefreshError && $route.name === 'sharedfs'"
+          type="warning"
+          show-icon
+          :message="$t(listLoadedScope ? 'message.list.refresh.stale' : 'error.fetching.data')">
+          <template #action><a-button @click="fetchData">{{ $t('label.refresh') }}</a-button></template>
+        </a-alert>
         <slot
           name="resource"
           v-if="$route.path.startsWith('/publicip')"
@@ -1898,7 +1905,11 @@ export default {
       if (['listVirtualMachines', 'listVirtualMachinesMetrics'].includes(requestApi)) {
         params = sshKeyPairVmParams(params, this.$route.query)
       }
-      const response = vmGroups || sshDetail ? getAPI(requestApi, params, { preserveOnFailure: true, timeout: 20000 }) : callAPI(requestApi, params)
+      const response = vmGroups || sshDetail
+        ? getAPI(requestApi, params, { preserveOnFailure: true, timeout: 20000 })
+        : this.routeName === 'sharedfs'
+          ? callAPI(requestApi, params, { preserveOnFailure: true, timeout: 15000 })
+          : callAPI(requestApi, params)
       const request = response.then(async json => {
         if (version !== this.listRequestVersion || scope !== this.listScope()) return
         const groupResult = vmGroups ? vmGroupQueryRows(json) : null
@@ -2027,7 +2038,7 @@ export default {
           if (isAutoScheduled) throw error
           return
         }
-        if (sameList || this.$route.name === 'vmsnapshot') {
+        if (sameList || ['vmsnapshot', 'sharedfs'].includes(this.$route.name)) {
           this.listRefreshError = true
           if (isAutoScheduled) throw error
           this.$notifyError(error)

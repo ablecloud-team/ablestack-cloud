@@ -20,15 +20,15 @@
 <template>
   <a-spin :spinning="storageService.initialLoading">
     <a-alert
-v-if="storageService.readErrors && storageService.readErrors.length"
+v-if="storageReadErrors.length"
 type="warning"
 show-icon
 role="status"
 class="storage-service__alert"
       :message="$t('message.storage.service.read.partial')">
       <template #description>
-        <ul><li v-for="section in storageService.readErrors" :key="section">{{ section }}</li></ul>
-        <a-button :loading="storageService.refreshing" @click="fetchStorageServiceData">
+        <ul><li v-for="section in storageReadErrors" :key="section">{{ section }}</li></ul>
+        <a-button :loading="storageService.refreshing" @click="fetchData">
           <template #icon><ReloadOutlined /></template>{{ $t('label.refresh') }}
         </a-button>
       </template>
@@ -2246,6 +2246,7 @@ wrapClassName="storage-service-action-modal"
 <script>
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 import { readStorageSections, storageReadDeadline } from '@/utils/storageRead'
+import { createScopedStorageReads } from '@/utils/scopedStorageReads'
 
 import { h, resolveComponent } from 'vue'
 import { getAPI, postAPI } from '@/api'
@@ -2503,6 +2504,9 @@ export default {
   data () {
     return {
       vm: {},
+      referenceReadErrors: [],
+      referenceReadLoading: {},
+      instanceLoading: false,
       volume: {},
       volumes: [],
       availableVolumes: [],
@@ -2764,6 +2768,9 @@ export default {
     }
   },
   computed: {
+    storageReadErrors () {
+      return Array.from(new Set([...(this.storageService.readErrors || []), ...this.referenceReadErrors]))
+    },
     hasStorageServiceApi () {
       return 'listStorageServiceInstances' in this.$store.getters.apis
     },
@@ -4491,6 +4498,18 @@ export default {
       deep: true,
       handler (newData, oldData) {
         if (newData !== oldData) {
+          if (newData.id !== oldData?.id || newData.virtualmachineid !== oldData?.virtualmachineid) {
+            this.vm = {}
+            this.virtualmachines = []
+          }
+          if (newData.id !== oldData?.id || newData.volumeid !== oldData?.volumeid) {
+            this.volume = {}
+            this.volumes = []
+          }
+          if (newData.id !== oldData?.id) {
+            this.availableVolumes = []
+            this.referenceReadErrors = []
+          }
           this.dataResource = newData
           this.initStorageDefaults()
           this.fetchData()
@@ -4698,39 +4717,46 @@ export default {
       }
       this.$router.replace({ path: this.$route.path, query }).catch(() => {})
     },
+    referenceRead (key, command, params, apply) {
+      if (!this.referenceReader) {
+        this.referenceReader = createScopedStorageReads({
+          scope: () => JSON.stringify([this.resource.id, this.resource.zoneid, this.resource.virtualmachineid, this.resource.volumeid, this.$store.getters.project?.id, this.$store.getters.userInfo?.id]),
+          active: () => !this.listRefreshDisposed,
+          onState: (key, state) => {
+            this.referenceReadLoading[key] = state.pending
+            if (state.failed === true) this.referenceReadErrors = Array.from(new Set([...this.referenceReadErrors, key]))
+            else if (state.failed === false) this.referenceReadErrors = this.referenceReadErrors.filter(item => item !== key)
+            this.instanceLoading = !!this.referenceReadLoading.vm
+            this.volumeLoading = !!(this.referenceReadLoading.volume || this.referenceReadLoading.availableVolumes)
+            this.diskOfferingLoading = !!this.referenceReadLoading.diskOfferings
+            this.storagePoolLoading = !!this.referenceReadLoading.storagePools
+          }
+        })
+      }
+      return this.referenceReader.run(key,
+        () => getAPI(command, params(), { preserveOnFailure: true, timeout: 15000 }), apply)
+    },
     fetchInstances () {
-      if (!this.resource.virtualmachineid) {
-        return
-      }
-      this.instanceLoading = true
-      var params = {
+      if (!this.resource.virtualmachineid) return
+      return this.referenceRead('vm', 'listVirtualMachines', () => ({
         id: this.resource.virtualmachineid,
-        listall: true
-      }
-      if (this.$store.getters.listAllProjects) {
-        params.projectid = '-1'
-      }
-      getAPI('listVirtualMachines', params).then(json => {
+        listall: true,
+        ...(this.$store.getters.listAllProjects ? { projectid: '-1' } : {})
+      }), json => {
         this.virtualmachines = json.listvirtualmachinesresponse.virtualmachine || []
         this.vm = this.virtualmachines[0] || {}
       })
-      this.instanceLoading = false
     },
     fetchVolumes () {
-      if (!this.resource.volumeid) {
-        return
-      }
-      this.volumeLoading = true
-      var params = {
+      if (!this.resource.volumeid) return
+      return this.referenceRead('volume', 'listVolumes', () => ({
         id: this.resource.volumeid,
         listsystemvms: 'true',
         listall: true
-      }
-      getAPI('listVolumes', params).then(json => {
+      }), json => {
         this.volumes = json.listvolumesresponse.volume || []
         this.volume = this.volumes[0] || {}
       })
-      this.volumeLoading = false
     },
     fetchData () {
       this.fetchInstances()
@@ -4743,70 +4769,39 @@ export default {
       }
     },
     fetchDiskOfferings () {
-      if (!('listDiskOfferings' in this.$store.getters.apis)) {
-        this.diskOfferings = []
-        return
-      }
-      this.diskOfferingLoading = true
-      const params = {
-        listall: true
-      }
-      if (this.resource.zoneid) {
-        params.zoneid = this.resource.zoneid
-      }
-      getAPI('listDiskOfferings', params).then(json => {
+      if (!('listDiskOfferings' in this.$store.getters.apis)) return
+      return this.referenceRead('diskOfferings', 'listDiskOfferings', () => ({
+        listall: true,
+        ...(this.resource.zoneid ? { zoneid: this.resource.zoneid } : {})
+      }), json => {
         this.diskOfferings = json.listdiskofferingsresponse.diskoffering || []
         this.reconcileNfsNewVolumeStorage()
         this.reconcileSmbNewVolumeStorage()
-      }).finally(() => {
-        this.diskOfferingLoading = false
       })
     },
     fetchStoragePools () {
-      if (!('listStoragePools' in this.$store.getters.apis) || !this.resource.zoneid) {
-        this.storagePools = []
-        return
-      }
-      this.storagePoolLoading = true
-      getAPI('listStoragePools', {
+      if (!('listStoragePools' in this.$store.getters.apis) || !this.resource.zoneid) return
+      return this.referenceRead('storagePools', 'listStoragePools', () => ({
         zoneid: this.resource.zoneid,
         listall: true,
         showicon: true
-      }).then(json => {
-        const pools = json.liststoragepoolsresponse.storagepool || []
-        this.storagePools = pools.filter(pool => pool.state === 'Up')
-        if (!this.forms.nfsExport.storageid) {
-          this.forms.nfsExport.storageid = this.defaultNewVolumeStorageId()
-        }
+      }), json => {
+        this.storagePools = (json.liststoragepoolsresponse.storagepool || []).filter(pool => pool.state === 'Up')
+        if (!this.forms.nfsExport.storageid) this.forms.nfsExport.storageid = this.defaultNewVolumeStorageId()
         this.reconcileNfsNewVolumeStorage()
-        if (!this.forms.smbShare.storageid) {
-          this.forms.smbShare.storageid = this.defaultSmbNewVolumeStorageId()
-        }
+        if (!this.forms.smbShare.storageid) this.forms.smbShare.storageid = this.defaultSmbNewVolumeStorageId()
         this.reconcileSmbNewVolumeStorage()
-      }).finally(() => {
-        this.storagePoolLoading = false
       })
     },
     fetchAvailableVolumes () {
-      if (!('listVolumes' in this.$store.getters.apis) || !this.resource.zoneid) {
-        this.availableVolumes = []
-        return
-      }
-      this.volumeLoading = true
-      getAPI('listVolumes', {
+      if (!('listVolumes' in this.$store.getters.apis) || !this.resource.zoneid) return
+      return this.referenceRead('availableVolumes', 'listVolumes', () => ({
         zoneid: this.resource.zoneid,
         listall: true,
         type: 'DATADISK'
-      }).then(json => {
-        const volumes = json.listvolumesresponse.volume || []
-        this.availableVolumes = volumes.filter(volume => {
-          return volume.type === 'DATADISK' &&
-            volume.state === 'Ready' &&
-            !volume.virtualmachineid &&
-            !volume.vmname
-        })
-      }).finally(() => {
-        this.volumeLoading = false
+      }), json => {
+        this.availableVolumes = (json.listvolumesresponse.volume || []).filter(volume =>
+          volume.type === 'DATADISK' && volume.state === 'Ready' && !volume.virtualmachineid && !volume.vmname)
       })
     },
     initStorageDefaults () {
