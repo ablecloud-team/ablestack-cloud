@@ -19,7 +19,15 @@
 
 <template>
   <a-spin :spinning="storageService.initialLoading">
-    <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
+    <a-alert v-if="storageService.readErrors && storageService.readErrors.length" type="warning" show-icon role="status" class="storage-service__alert"
+      :message="$t('message.storage.service.read.partial')">
+      <template #description>
+        <ul><li v-for="section in storageService.readErrors" :key="section">{{ section }}</li></ul>
+        <a-button :loading="storageService.refreshing" @click="fetchStorageServiceData">
+          <template #icon><ReloadOutlined /></template>{{ $t('label.refresh') }}
+        </a-button>
+      </template>
+    </a-alert>
     <a-tabs
       :tabPosition="resourceTabPosition"
       class="storage-service-tabs"
@@ -2232,6 +2240,7 @@ wrapClassName="storage-service-action-modal"
 </template>
 <script>
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
+import { readStorageSections, storageReadDeadline } from '@/utils/storageRead'
 
 import { h, resolveComponent } from 'vue'
 import { getAPI, postAPI } from '@/api'
@@ -2504,6 +2513,8 @@ export default {
         initialLoading: false,
         refreshing: false,
         loaded: false,
+        readErrors: [],
+        resourceId: null,
         instance: null,
         health: [],
         inventory: [],
@@ -4807,11 +4818,19 @@ export default {
       }
       return ports[protocol] || null
     },
-    async fetchStorageServiceData () {
+    async fetchStorageServiceData (scopeRetries = 0) {
+      scopeRetries = Number.isInteger(scopeRetries) ? scopeRetries : 0
       if (!this.hasStorageServiceApi) {
         return
       }
       const request = this.listRequestToken('fetchStorageServiceData')
+      if (this.storageService.resourceId && this.storageService.resourceId !== this.resource.id) {
+        this.clearStorageServiceRuntime()
+        this.storageService.instance = null
+        this.storageService.loaded = false
+      }
+      this.storageService.resourceId = this.resource.id
+      this.storageService.readErrors = []
       const initialLoad = !this.storageService.loaded
       this.storageService.loading = true
       this.storageService.initialLoading = initialLoad
@@ -4822,7 +4841,7 @@ export default {
           zoneid: this.resource.zoneid,
           listall: true
         }
-        const instances = await this.listApi('listStorageServiceInstances', params, 'storageserviceinstance')
+        const instances = await storageReadDeadline(this.listApi('listStorageServiceInstances', params, 'storageserviceinstance'))
         if (!this.isListRequestCurrent('fetchStorageServiceData', request)) return
         const instance = instances.find(item => item.virtualmachineid === this.resource.virtualmachineid) || null
         if (!instance) {
@@ -4847,27 +4866,29 @@ export default {
           })
           return
         }
-        const results = await Promise.all([
-          this.listApi('listStorageServiceHealth', { instanceid: instance.id }, 'storageserviceruntime'),
-          this.listApi('listStorageServiceProtocols', { instanceid: instance.id }, 'storageserviceprotocol'),
-          this.listApi('listStorageServiceDomainStatus', { instanceid: instance.id }, 'storageidentitydomain'),
-          this.listApi('listStorageNfsExports', { instanceid: instance.id }, 'storagenfsexport'),
-          this.listApi('listStorageSmbShares', { instanceid: instance.id }, 'storagesmbshare'),
-          this.listApi('listStorageIscsiTargets', { instanceid: instance.id }, 'storageiscsitarget'),
-          this.fetchNvmeStorageSnapshot(instance.id)
-        ])
+        const sections = await readStorageSections({
+          health: () => this.listApi('listStorageServiceHealth', { instanceid: instance.id }, 'storageserviceruntime'),
+          protocols: () => this.listApi('listStorageServiceProtocols', { instanceid: instance.id }, 'storageserviceprotocol'),
+          domains: () => this.listApi('listStorageServiceDomainStatus', { instanceid: instance.id }, 'storageidentitydomain'),
+          nfsExports: () => this.listApi('listStorageNfsExports', { instanceid: instance.id }, 'storagenfsexport'),
+          smbShares: () => this.listApi('listStorageSmbShares', { instanceid: instance.id }, 'storagesmbshare'),
+          iscsiTargets: () => this.listApi('listStorageIscsiTargets', { instanceid: instance.id }, 'storageiscsitarget'),
+          nvmeSnapshot: () => this.fetchNvmeStorageSnapshot(instance.id)
+        })
         if (refreshGeneration !== this.storageRefreshGeneration || !this.isListRequestCurrent('fetchStorageServiceData', request)) {
           return
         }
-        const [health, protocols, domains, nfsExports, smbShares, iscsiTargets, nvmeSnapshot] = results
-        const accessRules = await this.loadAccessRules(instance.id, nfsExports, smbShares, iscsiTargets, nvmeSnapshot.nvmeSubsystems, nvmeSnapshot.nvmeHostAcls)
-        const backingVolumes = await this.loadBackingVolumes({
-          instance,
-          nfsExports,
-          smbShares,
-          iscsiTargets,
-          nvmeNamespaces: nvmeSnapshot.nvmeNamespaces
+        const previous = this.storageService
+        const { health = previous.health, protocols = previous.protocols, domains = previous.domains,
+          nfsExports = previous.nfsExports, smbShares = previous.smbShares, iscsiTargets = previous.iscsiTargets,
+          nvmeSnapshot = { inventory: previous.inventory, sessions: previous.sessions, nvmeSubsystems: previous.nvmeSubsystems,
+            nvmeNamespaces: previous.nvmeNamespaces, nvmeHostAcls: previous.nvmeHostAcls } } = sections.values
+        const related = await readStorageSections({
+          accessRules: () => this.loadAccessRules(instance.id, nfsExports, smbShares, iscsiTargets, nvmeSnapshot.nvmeSubsystems, nvmeSnapshot.nvmeHostAcls),
+          backingVolumes: () => this.loadBackingVolumes({ instance, nfsExports, smbShares, iscsiTargets, nvmeNamespaces: nvmeSnapshot.nvmeNamespaces })
         })
+        const accessRules = related.values.accessRules || {}
+        const backingVolumes = related.values.backingVolumes || previous.backingVolumes
         if (refreshGeneration !== this.storageRefreshGeneration || !this.isListRequestCurrent('fetchStorageServiceData', request)) {
           return
         }
@@ -4885,12 +4906,18 @@ export default {
           nvmeNamespaces: nvmeSnapshot.nvmeNamespaces,
           ...accessRules,
           backingVolumes,
+          readErrors: [...sections.errors, ...related.errors],
           loaded: true
         })
+        if (this.storageService.readErrors.length) {
+          request.failed = true
+          this.listRefreshFailed = true
+        }
       } catch (error) {
         if (!this.isListRequestCurrent('fetchStorageServiceData', request)) return
         request.failed = true
         this.listRefreshFailed = true
+        this.storageService.readErrors = ['listStorageServiceInstances']
         if (initialLoad) this.$notifyError(error)
       } finally {
         if (!this.listRefreshDisposed && refreshGeneration === this.storageRefreshGeneration) {
@@ -4898,7 +4925,11 @@ export default {
           this.storageService.loading = false
           this.storageService.initialLoading = false
           this.storageService.refreshing = false
-          if (retryCurrentScope) this.fetchStorageServiceData()
+          if (retryCurrentScope && scopeRetries < 2) this.fetchStorageServiceData(scopeRetries + 1)
+          else if (retryCurrentScope) {
+            this.storageService.readErrors = ['scopeChanged']
+            this.listRefreshFailed = true
+          }
         }
       }
     },

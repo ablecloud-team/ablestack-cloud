@@ -8464,5 +8464,6 @@
   "label.creation.source.import": "파일을 볼륨으로 등록",
   "message.creation.source.import": "스토리지 파일을 검사하여 DATADISK 볼륨으로 등록합니다. 파일 내용은 변경하지 않습니다. 등록 후 VM 생성 화면에서 ROOT로 사용할 수 있으며, OS 부팅은 관리자가 확인해야 합니다.",
   "message.creation.source.import.path": "스토리지의 디스크 파일 경로 또는 RBD 이미지 이름",
-  "message.creation.source.upload.quota": "계정 또는 도메인의 볼륨·스토리지 할당량을 초과했습니다. 관리자가 제한과 사용량을 확인한 뒤 다시 시도하세요."
+  "message.creation.source.upload.quota": "계정 또는 도메인의 볼륨·스토리지 할당량을 초과했습니다. 관리자가 제한과 사용량을 확인한 뒤 다시 시도하세요.",
+  "message.storage.service.read.partial": "일부 상세 정보를 조회하지 못했습니다. 이전 조회값을 유지합니다. 업데이트 버튼으로 다시 조회할 수 있습니다."
 }
