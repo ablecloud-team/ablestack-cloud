@@ -991,6 +991,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 continue;
             }
             final StorageServiceInstanceVO instance = storageServiceInstanceDao.findById(share.getInstanceId());
+            if (!canReadStorageInstance(instance)) continue;
             final RuntimeObservationSnapshot observations = runtimeByInstance.computeIfAbsent(share.getInstanceId(), ignored ->
                     loadFileShareVolumeRuntimeObservations(instance));
             responses.add(createExportResponse(share, instance, fileShareVolumeRuntimeObservation(share, observations)));
@@ -1128,7 +1129,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 continue;
             }
             final StorageFileShareVO share = storageFileShareDao.findById(rule.getResourceId());
-            if (share == null || share.getProtocol() != StorageServiceInstance.Protocol.NFS) {
+            if (share == null || share.getProtocol() != StorageServiceInstance.Protocol.NFS
+                    || !canReadStorageInstance(storageServiceInstanceDao.findById(share.getInstanceId()))) {
                 continue;
             }
             responses.add(createAclResponse(rule));
@@ -1301,6 +1303,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 continue;
             }
             final StorageServiceInstanceVO instance = storageServiceInstanceDao.findById(share.getInstanceId());
+            if (!canReadStorageInstance(instance)) continue;
             final RuntimeObservationSnapshot observations = runtimeByInstance.computeIfAbsent(share.getInstanceId(), ignored ->
                     loadFileShareVolumeRuntimeObservations(instance));
             responses.add(createSmbShareResponse(share, instance, fileShareVolumeRuntimeObservation(share, observations)));
@@ -1404,7 +1407,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 continue;
             }
             final StorageFileShareVO share = storageFileShareDao.findById(rule.getResourceId());
-            if (share == null || share.getProtocol() != StorageServiceInstance.Protocol.SMB) {
+            if (share == null || share.getProtocol() != StorageServiceInstance.Protocol.SMB
+                    || !canReadStorageInstance(storageServiceInstanceDao.findById(share.getInstanceId()))) {
                 continue;
             }
             responses.add(createAclResponse(rule));
@@ -2178,9 +2182,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 responses.add(createBlockTargetResponse(target, "storagenvmeofsubsystem"));
                 continue;
             }
-            final StorageBlockTargetVO existing = subsystemByNqn.get(target.getTargetName());
+            final StorageBlockTargetVO existing = subsystemByNqn.get(target.getInstanceId() + ":" + target.getTargetName());
             if (existing == null || !isActiveStorageServiceResource(existing.getState()) && isActiveStorageServiceResource(target.getState())) {
-                subsystemByNqn.put(target.getTargetName(), target);
+                subsystemByNqn.put(target.getInstanceId() + ":" + target.getTargetName(), target);
             }
         }
         for (final StorageBlockTargetVO subsystem : subsystemByNqn.values()) {
@@ -3620,14 +3624,14 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             final SharedFSVO sharedFS = sharedFSDao.findById(sharedFileSystemId);
             if (sharedFS != null && sharedFS.getVmId() != null) {
                 final StorageServiceInstanceVO instance = storageServiceInstanceDao.findByVmId(sharedFS.getVmId());
-                if (instance != null && isRuntimeInstanceActive(instance)) {
+                if (instance != null && isRuntimeInstanceActive(instance) && canReadStorageInstance(instance)) {
                     instances.add(instance);
                 }
             }
             return instances;
         }
         storageServiceInstanceDao.listAll().forEach(instance -> {
-            if (isRuntimeInstanceActive(instance)) {
+            if (isRuntimeInstanceActive(instance) && canReadStorageInstance(instance)) {
                 instances.add(instance);
             }
         });
@@ -3858,6 +3862,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         } else {
             targets.addAll(storageBlockTargetDao.listByProtocol(protocol));
         }
+        targets.removeIf(target -> !canReadStorageInstance(storageServiceInstanceDao.findById(target.getInstanceId())));
         return targets;
     }
 
@@ -3887,7 +3892,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 continue;
             }
             final StorageBlockTargetVO target = storageBlockTargetDao.findById(rule.getResourceId());
-            if (target == null || target.getProtocol() != protocol) {
+            if (target == null || target.getProtocol() != protocol
+                    || !canReadStorageInstance(storageServiceInstanceDao.findById(target.getInstanceId()))) {
                 continue;
             }
             responses.add(createAclResponse(rule));
