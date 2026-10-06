@@ -455,11 +455,15 @@ export default {
     },
     fetchInstances () {
       this.instanceLoading = true
-      var defaultNodes = this.resource.virtualmachines.filter(x => !x.isexternalnode && !x.isetcdnode)
-      var externalNodes = this.resource.virtualmachines.filter(x => x.isexternalnode)
-      var etcdNodes = this.resource.virtualmachines.filter(x => x.isetcdnode)
-      this.virtualmachines = defaultNodes.concat(externalNodes).concat(etcdNodes)
-      this.virtualmachines.map(x => { x.ipaddress = x.nic[0].ipaddress })
+      const nodes = Array.isArray(this.resource.virtualmachines) ? this.resource.virtualmachines : []
+      const defaultNodes = nodes.filter(x => !x.isexternalnode && !x.isetcdnode)
+      const externalNodes = nodes.filter(x => x.isexternalnode)
+      const etcdNodes = nodes.filter(x => x.isetcdnode)
+      this.virtualmachines = defaultNodes.concat(externalNodes).concat(etcdNodes).map(node => {
+        const nics = Array.isArray(node.nic) ? node.nic : []
+        const nic = nics.find(nic => nic && nic.isdefault) || nics[0]
+        return { ...node, ipaddress: nic?.ipaddress || '' }
+      })
       this.instanceLoading = false
     },
     fetchNetwork () {
