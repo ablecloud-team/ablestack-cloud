@@ -62,6 +62,7 @@
 import { ref, reactive, toRaw } from 'vue'
 import { getAPI, postAPI } from '@/api'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
+import { isKubernetesUpgradeTarget } from '@/utils/kubernetesUpgrade'
 
 export default {
   name: 'UpgradeKubernetesCluster',
@@ -112,12 +113,13 @@ export default {
     },
     fetchKubernetesVersionData () {
       this.kubernetesVersions = []
+      this.form.kubernetesversionid = undefined
       const params = {}
       if (!this.isObjectEmpty(this.resource)) {
         params.minimumkubernetesversionid = this.resource.kubernetesversionid
       }
       this.kubernetesVersionLoading = true
-      getAPI('listKubernetesSupportedVersions', params).then(json => {
+      return getAPI('listKubernetesSupportedVersions', params).then(json => {
         const versionObjs = json.listkubernetessupportedversionsresponse.kubernetessupportedversion
         if (this.arrayHasItems(versionObjs)) {
           var clusterVersion = null
@@ -129,7 +131,8 @@ export default {
           }
           for (var i = 0; i < versionObjs.length; i++) {
             if (versionObjs[i].id !== this.resource.kubernetesversionid &&
-              (clusterVersion == null || (clusterVersion != null && versionObjs[i].semanticversion !== clusterVersion.semanticversion)) &&
+              clusterVersion != null &&
+              isKubernetesUpgradeTarget(clusterVersion.semanticversion, versionObjs[i].semanticversion) &&
               versionObjs[i].state === 'Enabled' && versionObjs[i].isostate === 'Ready') {
               this.kubernetesVersions.push({
                 id: versionObjs[i].id,
@@ -138,6 +141,8 @@ export default {
             }
           }
         }
+      }).catch(error => {
+        this.$notifyError(error)
       }).finally(() => {
         this.kubernetesVersionLoading = false
         if (this.arrayHasItems(this.kubernetesVersions)) {
