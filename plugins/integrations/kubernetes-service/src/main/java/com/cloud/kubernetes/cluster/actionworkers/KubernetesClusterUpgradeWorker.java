@@ -156,6 +156,45 @@ public class KubernetesClusterUpgradeWorker extends KubernetesClusterActionWorke
         }
     }
 
+    protected String getControllerUpgradeCommand() {
+        String command = "sudo /opt/bin/kubectl -n kube-system "
+                + "rollout status deployment/cloud-controller-manager --timeout=120s";
+        if (kubernetesCluster.getAutoscalingEnabled()) {
+            Long minSize = kubernetesCluster.getMinSize();
+            Long maxSize = kubernetesCluster.getMaxSize();
+            String clusterUuid = kubernetesCluster.getUuid();
+            if (StringUtils.isEmpty(clusterUuid) || !clusterUuid.matches("[A-Za-z0-9-]+")
+                    || minSize == null || maxSize == null || minSize < 1 || maxSize < minSize) {
+                throw new CloudRuntimeException("Invalid autoscaling configuration during Kubernetes upgrade");
+            }
+            command += String.format(" && sudo /opt/bin/autoscale-kube-cluster -i %s -e -M %d -m %d",
+                    clusterUuid, maxSize, minSize);
+            command += " && sudo /opt/bin/kubectl -n kube-system "
+                    + "rollout status deployment/cluster-autoscaler --timeout=120s";
+        }
+        return command;
+    }
+
+    protected Pair<Boolean, String> executeControllerUpgradeCommand(String command) throws Exception {
+        return SshHelper.sshExecute(publicIpAddress, sshPort, getControlNodeLoginUser(), sshKeyFile, null,
+                command, 10000, 10000, 5 * 60 * 1000);
+    }
+
+    protected void upgradeKubernetesControllers() {
+        try {
+            Pair<Boolean, String> result = executeControllerUpgradeCommand(getControllerUpgradeCommand());
+            if (Boolean.TRUE.equals(result.first())) {
+                return;
+            }
+        } catch (Exception e) {
+            // The remote output may contain configuration data; do not log it.
+            logger.warn("Kubernetes controller upgrade did not complete for cluster {}", kubernetesCluster.getUuid());
+        }
+        logTransitStateDetachIsoAndThrow(Level.ERROR,
+                String.format("Failed to upgrade controllers for Kubernetes cluster: %s", kubernetesCluster.getName()),
+                kubernetesCluster, clusterVMs, KubernetesCluster.Event.OperationFailed, null);
+    }
+
     public boolean upgradeCluster() throws CloudRuntimeException {
         init();
         if (logger.isInfoEnabled()) {
@@ -177,6 +216,7 @@ public class KubernetesClusterUpgradeWorker extends KubernetesClusterActionWorke
         stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.UpgradeRequested);
         attachIsoKubernetesVMs(clusterVMs, upgradeVersion);
         upgradeKubernetesClusterNodes();
+        upgradeKubernetesControllers();
         detachIsoKubernetesVMs(clusterVMs);
         KubernetesClusterVO kubernetesClusterVO = kubernetesClusterDao.findById(kubernetesCluster.getId());
         kubernetesClusterVO.setKubernetesVersionId(upgradeVersion.getId());
