@@ -79,6 +79,24 @@ class NfsReadinessTest(unittest.TestCase):
             self.assertLessEqual(ns["subprocess"].run.call_args_list[1].kwargs["timeout"], 15)
             self.assertEqual([], list(Path(tmp).iterdir()))
 
+    def test_cleanup_timeout_preserves_original_probe_result(self):
+        ns = probe_namespace()
+        with tempfile.TemporaryDirectory() as tmp:
+            ns["nfs_probe_root"] = tmp
+            ns["subprocess"].run.side_effect = [
+                subprocess.CompletedProcess(["ip"], 0, "2: eth0 inet 10.1.1.9/24 scope global eth0", ""),
+                subprocess.TimeoutExpired(["mount"], 15),
+                subprocess.TimeoutExpired(["umount"], 10),
+            ]
+            endpoint = {"listenIp": "0.0.0.0", "port": 2049, "listening": True}
+            export = {"uuid": "export", "pseudo": "/export", "clients": [{"clients": "*"}]}
+            failures = ns["probe_nfs_export_visibility"]([endpoint], {("0.0.0.0", 2049): [export]})
+            self.assertEqual([], failures)
+            result = endpoint["probeResults"][0]
+            self.assertEqual("PROBE_PENDING", result["status"])
+            self.assertTrue(result["cleanupPending"])
+            self.assertTrue(endpoint["listening"])
+
 
 if __name__ == "__main__":
     unittest.main()
