@@ -79,6 +79,13 @@ public class SharedFSJoinDaoImpl extends GenericDaoBase<SharedFSJoinVO, Long> im
 
     @Override
     public SharedFSResponse newSharedFSResponse(ResponseObject.ResponseView view, SharedFSJoinVO sharedFS) {
+        SharedFSResponse response=newSharedFSResponseBase(view,sharedFS);
+        SharedFSCapacityProjection.Capacity capacity=SharedFS.SharedFSFeatureEnabled.value()
+                ? SharedFSCapacityProjection.load(new Long[] {sharedFS.getId()}).get(sharedFS.getId()) : null;
+        applyCapacity(response,capacity);return response;
+    }
+
+    protected SharedFSResponse newSharedFSResponseBase(ResponseObject.ResponseView view, SharedFSJoinVO sharedFS) {
         SharedFSResponse response = new SharedFSResponse();
         response.setId(sharedFS.getUuid());
         response.setName(sharedFS.getName());
@@ -195,18 +202,18 @@ public class SharedFSJoinDaoImpl extends GenericDaoBase<SharedFSJoinVO, Long> im
         final java.util.Map<Long, SharedFSCapacityProjection.Capacity> capacities = SharedFS.SharedFSFeatureEnabled.value()
                 ? SharedFSCapacityProjection.load(ids) : java.util.Collections.emptyMap();
         for (SharedFSJoinVO sharedFS : sharedFSs) {
-            final SharedFSResponse response = newSharedFSResponse(view, sharedFS);
+            final SharedFSResponse response = newSharedFSResponseBase(view, sharedFS);
             final SharedFSCapacityProjection.Capacity capacity = capacities.get(sharedFS.getId());
-            if (capacity != null) {
-                response.setTotalProvisionedBytes(capacity.getTotal());
-                response.setBackingVolumeCount(capacity.getCount());
-                response.setCapacityState(capacity.getState());
-            } else {
-                response.setCapacityState("UNAVAILABLE");
-            }
+            applyCapacity(response,capacity);
             sharedFSRespons.add(response);
         }
         return sharedFSRespons;
+    }
+
+    protected void applyCapacity(SharedFSResponse response, SharedFSCapacityProjection.Capacity capacity) {
+        if (capacity==null) { response.setCapacityState("UNAVAILABLE");return; }
+        response.setTotalProvisionedBytes(capacity.getTotal());response.setBackingVolumeCount(capacity.getCount());
+        response.setCapacityState(capacity.getState());response.setUsedBytes(capacity.getUsed());response.setCapacityObservedAt(capacity.getObservedAt());
     }
 
     @Override
