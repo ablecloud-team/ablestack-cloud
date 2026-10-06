@@ -2024,7 +2024,12 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
         KubernetesClusterStartWorker startWorker =
             new KubernetesClusterStartWorker(kubernetesCluster, this);
         startWorker = ComponentContext.inject(startWorker);
-        startWorker.setKeys(getServiceUserKeys(kubernetesCluster));
+        try {
+            startWorker.setKeys(getServiceUserKeys(kubernetesCluster));
+        } catch (CloudRuntimeException exception) {
+            throw new CloudRuntimeException("Unable to prepare cluster-scoped Kubernetes controller credentials before node startup; "
+                    + "verify the service account and key profile", exception);
+        }
         if (onCreate) {
             // Start for Kubernetes cluster in 'Created' state
             return startWorker.startKubernetesClusterOnCreate(domainId, accountId, asNumber);
@@ -2246,7 +2251,8 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
             UserAccount userAccount = accountService.createUserAccount(accountName,
                     UUID.randomUUID().toString(), PROJECT_KUBERNETES_ACCOUNT_FIRST_NAME,
                     PROJECT_KUBERNETES_ACCOUNT_LAST_NAME, null, null, accountName, Account.Type.NORMAL, role.getId(),
-                    project.getDomainId(), null, null, null, null, User.Source.NATIVE, true);
+                    // This is a local machine identity, not an external Keycloak/Glue/Wall user.
+                    project.getDomainId(), null, null, null, null, User.Source.NATIVE, false);
             projectManager.assignAccountToProject(project, userAccount.getAccountId(), ProjectAccount.Role.Regular,
                     userAccount.getId(), null);
             Account account = accountService.getAccount(userAccount.getAccountId());
