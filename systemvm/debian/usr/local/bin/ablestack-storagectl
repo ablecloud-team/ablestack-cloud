@@ -3507,6 +3507,7 @@ import tempfile
 import time
 import socket
 import zlib
+import hashlib
 
 payload_path = sys.argv[1]
 with open(payload_path, "r", encoding="utf-8") as payload_fp:
@@ -3938,6 +3939,12 @@ def stop_ganesha_endpoints(active_keys=None):
         except Exception:
             pass
 
+def nested_export_filesystem_id(export_uuid):
+    # Distinct NFSv4 inode/open-owner identities for overlapping exports.
+    # Do not depend on the assigned 16-bit Export_Id or listener ordering.
+    digest = hashlib.sha256(str(export_uuid).encode("utf-8")).digest()
+    return f"{int.from_bytes(digest[:8], 'big')}.{int.from_bytes(digest[8:16], 'big')}"
+
 def render_ganesha_export(rendered):
     protocol_mode = str(rendered.get('protocolMode') or 'V4_ONLY').strip().upper()
     anonymous_uid = rendered.get("anonUid")
@@ -3956,6 +3963,8 @@ def render_ganesha_export(rendered):
         "        Name = VFS;",
         "    }",
     ]
+    if rendered.get("filesystemId"):
+        lines.append(f"    Filesystem_Id = {rendered['filesystemId']};")
     if anonymous_uid is not None:
         lines.append(f"    Anonymous_uid = {int(anonymous_uid)};")
     if anonymous_gid is not None:
@@ -4660,6 +4669,7 @@ for export in payload.get("exports", []):
             "name": export.get("name"),
             "path": exposed_path,
             "pseudo": f"/{root_name}",
+            "filesystemId": nested_export_filesystem_id(uuid) if export_config.get("relativeSharePath") else None,
             "protocolMode": service_protocol_mode,
             "anonUid": int_config(export_config, "anonUid"),
             "anonGid": int_config(export_config, "anonGid"),
