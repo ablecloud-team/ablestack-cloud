@@ -448,6 +448,20 @@ public class SharedFSServiceImplTest {
     }
 
     @Test
+    public void testStaticNetworkRejectsNonRouterGateways() {
+        for (String gateway : new String[] {"10.10.1.201", "10.10.1.0", "10.10.1.255", "0.0.0.0", "127.0.0.1", "169.254.1.1", "224.0.0.1"}) {
+            CreateSharedFSCmd cmd = getMockCreateSharedFSCmd();
+            when(cmd.getNetworkMode()).thenReturn(SharedFS.NetworkMode.STATIC);
+            when(cmd.getIpCidr()).thenReturn("10.10.1.201/24");
+            when(cmd.getGateway()).thenReturn(gateway);
+            NetworkVO network = mock(NetworkVO.class);
+            when(network.getGuestType()).thenReturn(Network.GuestType.L2);
+            Assert.assertThrows(InvalidParameterValueException.class,
+                    () -> sharedFSServiceImpl.validateStaticNetworkConfiguration(cmd, network));
+        }
+    }
+
+    @Test
     public void testStaticNetworkNormalizesHostPrefixToNetworkCidr() {
         SharedFSServiceImpl.StaticNetworkConfiguration configuration = sharedFSServiceImpl.parseStaticIpCidr("10.10.15.211/16");
 

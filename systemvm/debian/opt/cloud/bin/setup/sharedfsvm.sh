@@ -46,7 +46,11 @@ setup_sharedfsvm() {
     enable_irqbalance 0
     setup_ntp
     mkdir -p /var/lib/dhcp
-    dhclient -4 -v -pf /run/dhclient.eth0.pid -lf /var/lib/dhcp/dhclient.eth0.leases eth0 || true
+    if [[ -s /etc/ablestack-storage/sharedfs-network.json ]]; then
+      /usr/local/sbin/ablestack-sharedfs-network /etc/ablestack-storage/sharedfs-network.json
+    else
+      dhclient -4 -v -pf /run/dhclient.eth0.pid -lf /var/lib/dhcp/dhclient.eth0.leases eth0 || true
+    fi
 
     rm -f /etc/logrotate.d/cloud
     mkdir -p /etc/ablestack-storage

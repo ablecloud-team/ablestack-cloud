@@ -362,6 +362,14 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         if (prefix <= 30 && (address == networkAddress || address == broadcastAddress)) {
             throw new InvalidParameterValueException("Static SharedFS IP address cannot be the network or broadcast address");
         }
+        if (StringUtils.isNotBlank(cmd.getGateway())) {
+            final long gateway = NetUtils.ip2Long(cmd.getGateway());
+            if (gateway == address || gateway == networkAddress || gateway == broadcastAddress ||
+                    gateway == 0 || (gateway >>> 24) == 127 || (gateway >>> 16) == 0xa9fe ||
+                    (gateway >>> 28) >= 14) {
+                throw new InvalidParameterValueException("Static SharedFS gateway must be a unicast router address in the selected CIDR");
+            }
+        }
         NicVO existingNic = nicDao.findByIp4AddressAndNetworkId(configuration.ipAddress, network.getId());
         if (existingNic != null) {
             throw new InvalidParameterValueException("Static SharedFS IP address is already allocated on the selected network");

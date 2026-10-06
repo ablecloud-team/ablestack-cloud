@@ -310,6 +310,7 @@ jobs:
     uses: ./.github/workflows/systemvm-kvm.yml
     secrets: inherit
     with:
+      require_stable_runtime_signing_key: true
       ref: ${{ needs.prepare-source-release.outputs.source_commit_sha }}
       version: ${{ needs.metadata.outputs.package_version }}
       build_number: ${{ github.run_number }}

@@ -33,6 +33,8 @@ public class ListStorageServiceRuntimeBundlesCmd extends BaseListCmd implements 
     @Inject private StorageService storageService;
     @Parameter(name = "id", type = CommandType.UUID, entityType = StorageServiceRuntimeBundleResponse.class) private Long id;
     @Parameter(name = "version", type = CommandType.STRING) private String version;
+    @Parameter(name = "catalog", type = CommandType.BOOLEAN) private Boolean catalog;
+    public boolean isCatalog() { return Boolean.TRUE.equals(catalog); }
     public Long getId() { return id; }
     public String getVersion() { return version; }
     public void execute() { final ListResponse<StorageServiceRuntimeBundleResponse> response = storageService.listStorageServiceRuntimeBundles(this); response.setResponseName(getCommandName()); setResponseObject(response); }
