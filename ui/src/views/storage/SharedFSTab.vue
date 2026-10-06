@@ -5115,7 +5115,7 @@ export default {
       if (!(api in apiMap) && !storageReadApi) {
         return []
       }
-      const json = await getAPI(api, params)
+      const json = await getAPI(api, params, { preserveOnFailure: true, timeout: 15000 })
       const response = json[api.toLowerCase() + 'response'] || {}
       const items = response[objectName] || Object.values(response).find(value => Array.isArray(value)) || []
       return Array.isArray(items) ? items : [items]
