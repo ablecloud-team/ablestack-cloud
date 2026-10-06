@@ -71,6 +71,12 @@ public interface SharedFSService {
 
     void deleteSharedFS(Long sharedFSId);
 
+    void deleteSharedFS(Long sharedFSId, String policy, String confirmation, String expectedPlanHash);
+
+    org.apache.cloudstack.api.response.StorageServiceDeletionPlanResponse previewSharedFSDeletion(Long sharedFSId, String policy);
+
+    org.apache.cloudstack.api.response.ListResponse<org.apache.cloudstack.api.response.SharedFSDeletionAuditResponse> listSharedFSDeletionAudits(String uuid);
+
     SharedFS getSharedFSByUuid(String uuid);
 
     SharedFS getSharedFSForVmId(long vmId);

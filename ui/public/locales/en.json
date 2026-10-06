@@ -8573,5 +8573,14 @@
   "label.usedbytes": "Used capacity",
   "label.totalprovisionedbytes": "Total provisioned capacity",
   "label.initialvolumebytes": "Initial volume capacity",
-  "label.storage.service.capacity.unobserved": "Unobserved"
+  "label.storage.service.capacity.unobserved": "Unobserved",
+  "message.storage.service.removal.confirm.loss": "I acknowledge deletion of every data volume listed above.",
+  "message.storage.service.removal.downtime": "The service stops and client connections are interrupted. Review every affected data volume.",
+  "label.storage.service.removal.confirm.name": "Confirm service name",
+  "message.storage.service.removal.preview.failed": "The removal preview is unavailable. Update and review it again.",
+  "label.storage.service.removal.delete": "Delete data volumes",
+  "message.storage.service.removal.finalization": "Without immediate expunge, the service enters a recoverable destroyed state. The volume policy runs during final expunge.",
+  "label.storage.service.removal.preserve": "Preserve data volumes",
+  "label.storage.service.removal.policy": "Data volume policy",
+  "message.storage.service.removal.data.loss": "Data volume deletion is selected. Confirm the service name and acknowledgement after reviewing the affected data."
 }

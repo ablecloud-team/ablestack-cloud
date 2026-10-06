@@ -75,6 +75,11 @@ public interface SharedFS extends ControlledEntity, Identity, InternalIdentity, 
         NFS
     }
 
+    enum DataVolumePolicy { PRESERVE_VOLUMES, DELETE_VOLUMES }
+
+    default DataVolumePolicy getDataVolumePolicy() { return DataVolumePolicy.PRESERVE_VOLUMES; }
+    default String getDeletionPlanJson() { return null; }
+
     enum NetworkMode {
         DHCP, STATIC
     }

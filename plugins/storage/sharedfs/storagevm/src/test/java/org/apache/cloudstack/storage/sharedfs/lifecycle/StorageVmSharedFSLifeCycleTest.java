@@ -159,8 +159,6 @@ public class StorageVmSharedFSLifeCycleTest {
         callContextMocked = mockStatic(CallContext.class);
         CallContext callContextMock = mock(CallContext.class);
         callContextMocked.when(CallContext::current).thenReturn(callContextMock);
-        Account owner = mock(Account.class);
-        when(callContextMock.getCallingAccount()).thenReturn(owner);
         CallContext vmContext = mock(CallContext.class);
         when(callContextMock.register(CallContext.current(), ApiCommandResourceType.VirtualMachine)).thenReturn(vmContext);
 
@@ -348,16 +346,18 @@ public class StorageVmSharedFSLifeCycleTest {
 
         UserVmVO vm = mock(UserVmVO.class);
         when(vm.getId()).thenReturn(s_vmId);
+        when(vm.getState()).thenReturn(com.cloud.vm.VirtualMachine.State.Stopped);
         when(userVmDao.findById(s_vmId)).thenReturn(vm);
         when(userVmService.destroyVm(s_vmId, true)).thenReturn(vm);
         when(userVmManager.expunge(vm)).thenReturn(true);
 
         VolumeVO volume = mock(VolumeVO.class);
         when(volumeDao.findById(s_volumeId)).thenReturn(volume);
-        when(volume.getId()).thenReturn(s_volumeId);
-        when(volume.getState()).thenReturn(Volume.State.Allocated);
+        when(volume.getVolumeType()).thenReturn(Volume.Type.DATADISK);
+        when(volume.getInstanceId()).thenReturn(null);
 
         Assert.assertEquals(lifeCycle.deleteSharedFS(sharedFS), true);
+        org.mockito.Mockito.verify(volumeApiService, org.mockito.Mockito.never()).destroyVolume(anyLong(), any(), anyBoolean(), anyBoolean(), any());
     }
 
     @Test

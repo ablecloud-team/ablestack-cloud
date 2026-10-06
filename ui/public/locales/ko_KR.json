@@ -8538,5 +8538,14 @@
   "label.usedbytes": "사용 용량",
   "label.totalprovisionedbytes": "총 프로비저닝 용량",
   "label.initialvolumebytes": "초기 볼륨 용량",
-  "label.storage.service.capacity.unobserved": "미관측"
+  "label.storage.service.capacity.unobserved": "미관측",
+  "message.storage.service.removal.confirm.loss": "목록의 모든 데이터 볼륨을 삭제한다는 점을 확인했습니다.",
+  "message.storage.service.removal.downtime": "서비스가 정지되며 클라이언트 연결이 중단됩니다. 모든 대상 데이터 볼륨의 영향 목록을 확인하세요.",
+  "label.storage.service.removal.confirm.name": "서비스 이름 확인",
+  "message.storage.service.removal.preview.failed": "삭제 영향 목록을 읽지 못했습니다. 업데이트 후 다시 확인하세요.",
+  "label.storage.service.removal.delete": "데이터 볼륨 삭제",
+  "message.storage.service.removal.finalization": "즉시 폐기하지 않으면 복구 가능한 파기 상태로 전환하며, 볼륨 정책은 최종 폐기 시 실행됩니다.",
+  "label.storage.service.removal.preserve": "데이터 볼륨 보존",
+  "label.storage.service.removal.policy": "데이터 볼륨 처리",
+  "message.storage.service.removal.data.loss": "데이터 볼륨 삭제를 선택했습니다. 대상 볼륨의 데이터에 영향을 주므로 이름과 삭제 동의를 다시 확인하세요."
 }

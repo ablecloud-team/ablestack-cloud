@@ -669,6 +669,7 @@ public class SharedFSServiceImplTest {
 
     @Test
     public void testDestroySharedFS() throws NoTransitionException {
+        configureRemovalCollaborators();
         DestroySharedFSCmd cmd = mock(DestroySharedFSCmd.class);
         when(cmd.getId()).thenReturn(s_sharedFSId);
         when(cmd.isExpunge()).thenReturn(false);
@@ -684,6 +685,7 @@ public class SharedFSServiceImplTest {
 
     @Test(expected = InvalidParameterValueException.class)
     public void testDestroySharedFSInvalidState() {
+        configureRemovalCollaborators();
         DestroySharedFSCmd cmd = mock(DestroySharedFSCmd.class);
         when(cmd.getId()).thenReturn(s_sharedFSId);
         when(cmd.isExpunge()).thenReturn(false);
@@ -715,16 +717,18 @@ public class SharedFSServiceImplTest {
 
     @Test
     public void testDeleteSharedFS() throws NoTransitionException {
+        configureRemovalCollaborators();
         SharedFSVO sharedFS = getMockSharedFS();
         when(sharedFSDao.findById(s_sharedFSId)).thenReturn(sharedFS);
         ReflectionTestUtils.setField(sharedFS, "state", SharedFS.State.Destroyed);
         sharedFSServiceImpl.deleteSharedFS(s_sharedFSId);
-        verify(lifeCycle, Mockito.times(1)).deleteSharedFS(any());
+        verify(lifeCycle, Mockito.times(1)).deleteSharedFS(any(), Mockito.eq(SharedFS.DataVolumePolicy.PRESERVE_VOLUMES), Mockito.anySet());
         verify(_stateMachine, times(1)).transitTo(sharedFS, SharedFS.Event.ExpungeOperation, null, sharedFSDao);
     }
 
     @Test (expected = CloudRuntimeException.class)
     public void testDeleteSharedFSTransitionException() throws NoTransitionException {
+        configureRemovalCollaborators();
         SharedFSVO sharedFS = getMockSharedFS();
         when(sharedFSDao.findById(s_sharedFSId)).thenReturn(sharedFS);
         ReflectionTestUtils.setField(sharedFS, "state", SharedFS.State.Destroyed);
@@ -734,10 +738,20 @@ public class SharedFSServiceImplTest {
 
     @Test(expected = InvalidParameterValueException.class)
     public void testDeleteSharedFSInvalidState() {
+        configureRemovalCollaborators();
         SharedFSVO sharedFS = getMockSharedFS();
         when(sharedFSDao.findById(s_sharedFSId)).thenReturn(sharedFS);
         ReflectionTestUtils.setField(sharedFS, "state", SharedFS.State.Stopped);
         sharedFSServiceImpl.deleteSharedFS(s_sharedFSId);
+    }
+
+    private void configureRemovalCollaborators() {
+        Mockito.lenient().doAnswer(call -> ((java.util.function.Supplier<?>) call.getArgument(1)).get())
+                .when(sharedFSServiceImpl).withSharedFSDeletionLock(Mockito.any(), Mockito.any());
+        Mockito.lenient().doNothing().when(sharedFSServiceImpl).auditSharedFSDeletion(Mockito.any(), Mockito.anyString());
+        Mockito.lenient().when(lifeCycle.deleteSharedFS(Mockito.any(), Mockito.any(), Mockito.anySet())).thenReturn(true);
+        ReflectionTestUtils.setField(sharedFSServiceImpl, "storageServiceInstanceDao",
+                Mockito.mock(org.apache.cloudstack.storage.dataservice.dao.StorageServiceInstanceDao.class));
     }
 
     private ListSharedFSCmd getMockListSharedFSCmd() {

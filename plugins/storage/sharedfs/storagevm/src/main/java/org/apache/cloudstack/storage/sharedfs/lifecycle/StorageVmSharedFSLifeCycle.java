@@ -318,23 +318,60 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
 
     @Override
     public boolean deleteSharedFS(SharedFS sharedFS) {
-        Long vmId = sharedFS.getVmId();
-        Long volumeId = sharedFS.getVolumeId();
-        if (vmId != null) {
-            expungeVm(vmId);
-        }
+        java.util.Set<Long> ids = new java.util.LinkedHashSet<>();
+        if (sharedFS.getVolumeId() != null) ids.add(sharedFS.getVolumeId());
+        if (sharedFS.getVmId() != null) for (VolumeVO volume : volumeDao.findByInstanceAndType(sharedFS.getVmId(), Volume.Type.DATADISK)) ids.add(volume.getId());
+        return deleteSharedFS(sharedFS, SharedFS.DataVolumePolicy.PRESERVE_VOLUMES, ids);
+    }
 
-        if (volumeId == null) {
-            return true;
+    @Override
+    public boolean deleteSharedFS(SharedFS sharedFS, SharedFS.DataVolumePolicy policy, java.util.Set<Long> volumeIds) {
+        final Long vmId = sharedFS.getVmId();
+        if (policy == null) policy = SharedFS.DataVolumePolicy.PRESERVE_VOLUMES;
+        if (vmId != null) {
+            final UserVmVO vm = userVmDao.findById(vmId);
+            if (vm != null && vm.getState() != com.cloud.vm.VirtualMachine.State.Stopped && vm.getState() != com.cloud.vm.VirtualMachine.State.Destroyed) {
+                throw new CloudRuntimeException("Stop the Storage Service VM cleanly before data-volume retention");
+            }
+            for (VolumeVO volume : volumeDao.findByInstanceAndType(vmId, Volume.Type.DATADISK)) {
+                if (!volumeIds.contains(volume.getId())) throw new CloudRuntimeException("Backing volume inventory changed; deletion plan must be refreshed");
+            }
         }
-        VolumeVO volume = volumeDao.findById(volumeId);
-        Boolean expunge = false;
-        Boolean forceExpunge = false;
-        if (volume.getState() == Volume.State.Allocated) {
-            expunge = true;
-            forceExpunge = true;
+        // Validate the entire plan before the first detach or VM removal.
+        for (Long id : volumeIds) {
+            VolumeVO volume = volumeDao.findById(id);
+            if (volume == null) continue;
+            if (volume.getVolumeType() != Volume.Type.DATADISK || volume.getAccountId() != sharedFS.getAccountId()) {
+                throw new CloudRuntimeException("Deletion plan contains a non-data volume or a foreign account volume");
+            }
+            if (volume.getInstanceId() != null && !volume.getInstanceId().equals(vmId)) {
+                throw new CloudRuntimeException("A planned data volume is attached to another VM");
+            }
         }
-        volumeApiService.destroyVolume(volume.getId(), CallContext.current().getCallingAccount(), expunge, forceExpunge, null);
+        for (Long id : volumeIds) {
+            VolumeVO volume = volumeDao.findById(id);
+            if (volume != null && vmId != null && vmId.equals(volume.getInstanceId())) {
+                volumeApiService.detachVolumeViaDestroyVM(vmId, id);
+                VolumeVO observed = volumeDao.findById(id);
+                if (observed == null || observed.getInstanceId() != null) {
+                    throw new CloudRuntimeException("Data volume detach was not verified; VM removal is blocked");
+                }
+            }
+        }
+        if (vmId != null) expungeVm(vmId);
+        if (policy == SharedFS.DataVolumePolicy.DELETE_VOLUMES) {
+            for (Long id : volumeIds) {
+                VolumeVO volume = volumeDao.findById(id);
+                if (volume == null || volume.getState() == Volume.State.Destroy || volume.getState() == Volume.State.Expunging || volume.getState() == Volume.State.Expunged) continue;
+                boolean allocated = volume.getState() == Volume.State.Allocated;
+                Volume removed = volumeApiService.destroyVolume(id, CallContext.current().getCallingAccount(), allocated, allocated, null);
+                VolumeVO remaining = volumeDao.findById(id);
+                if (removed == null || (remaining != null && remaining.getState() != Volume.State.Destroy
+                        && remaining.getState() != Volume.State.Expunging && remaining.getState() != Volume.State.Expunged)) {
+                    throw new CloudRuntimeException("A planned data volume could not be deleted; the removal plan remains retryable");
+                }
+            }
+        }
         return true;
     }
 

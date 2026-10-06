@@ -195,6 +195,25 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
     @Inject
     StorageServiceGuestCommandDispatcher guestCommandDispatcher;
 
+    @Inject
+    org.apache.cloudstack.storage.dataservice.dao.StorageBlockTargetDao storageBlockTargetDao;
+
+    @Inject
+    org.apache.cloudstack.storage.dataservice.dao.StorageServiceRuntimeUpgradeDao storageRuntimeUpgradeDao;
+
+    protected <T> T withSharedFSDeletionLock(SharedFS sharedFS, java.util.function.Supplier<T> action) {
+        StorageServiceInstanceVO instance=sharedFS.getVmId()==null ? null : storageServiceInstanceDao.findByVmId(sharedFS.getVmId());
+        String key=instance==null ? "SharedFSRemoval-"+sharedFS.getId() : "StorageServiceWriter-"+instance.getId();
+        com.cloud.utils.db.GlobalLock lock=com.cloud.utils.db.GlobalLock.getInternLock(key);
+        boolean held=false;
+        try {
+            held=lock.lock(30);
+            if (!held) throw new CloudRuntimeException("Another Storage Service operation is active");
+            if (instance!=null && storageRuntimeUpgradeDao.findActiveByInstanceId(instance.getId())!=null) throw new CloudRuntimeException("A runtime upgrade is active; service removal is blocked");
+            return action.get();
+        } finally { if (held) lock.unlock(); lock.releaseRef(); }
+    }
+
     protected List<SharedFSProvider> sharedFSProviders;
 
     private Map<String, SharedFSProvider> sharedFSProviderMap = new HashMap<>();
@@ -276,6 +295,8 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
             cmdList.add(ChangeSharedFSServiceOfferingCmd.class);
             cmdList.add(RecoverSharedFSCmd.class);
             cmdList.add(ExpungeSharedFSCmd.class);
+            cmdList.add(org.apache.cloudstack.api.command.user.storage.dataservice.GetSharedFileSystemDeletionPlanCmd.class);
+            cmdList.add(org.apache.cloudstack.api.command.user.storage.dataservice.ListSharedFileSystemDeletionAuditsCmd.class);
         }
         return cmdList;
     }
@@ -826,6 +847,12 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_SHAREDFS_DESTROY, eventDescription = "Destroy Shared FileSystem")
     public Boolean destroySharedFS(DestroySharedFSCmd cmd) {
+        SharedFSVO sharedFS=sharedFSDao.findById(cmd.getId());
+        if (sharedFS==null) throw new InvalidParameterValueException("Shared filesystem is unavailable");
+        return withSharedFSDeletionLock(sharedFS, () -> destroySharedFSInternal(cmd));
+    }
+
+    protected Boolean destroySharedFSInternal(DestroySharedFSCmd cmd) {
         Long sharedFSId = cmd.getId();
         Boolean expunge = cmd.isExpunge();
         SharedFSVO sharedFS = sharedFSDao.findById(sharedFSId);
@@ -834,6 +861,9 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         accountMgr.checkAccess(caller, null, false, sharedFS);
 
         if (sharedFS.getState().equals(State.Ready) && cmd.isForced()) {
+            // Reject a stale/destructive confirmation before introducing downtime.
+            SharedFS.DataVolumePolicy requested=deletionPolicy(cmd.getDataVolumePolicy());
+            validateDeletionConfirmation(sharedFS,requested,cmd.getConfirmDataLoss(),cmd.getExpectedPlanHash(),createDeletionPlan(sharedFS,requested));
             stopSharedFS(sharedFS.getId(), false);
         }
 
@@ -843,10 +873,11 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
             throw new InvalidParameterValueException("Shared FileSystem can be destroyed only if it is in the " + validStates.toString() + " states");
         }
 
+        prepareSharedFSDeletion(sharedFS, cmd.getDataVolumePolicy(), cmd.getConfirmDataLoss(), cmd.getExpectedPlanHash());
         stateTransitTo(sharedFS, Event.DestroyRequested);
         syncSharedFSToStorageService(sharedFSDao.findById(sharedFSId));
         if (expunge || sharedFS.getState().equals(State.Error)) {
-            deleteSharedFS(sharedFSId);
+            deleteSharedFSInternal(sharedFSId);
         }
         return true;
     }
@@ -860,6 +891,9 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         if (!State.Destroyed.equals(sharedFS.getState())) {
             throw new InvalidParameterValueException("The Shared FileSystem should be in the Destroyed state to be recovered");
         }
+        sharedFS.setDataVolumePolicy(SharedFS.DataVolumePolicy.PRESERVE_VOLUMES);
+        sharedFS.setDeletionPlanJson(null);
+        sharedFSDao.update(sharedFS.getId(), sharedFS);
         stateTransitTo(sharedFS, Event.RecoveryRequested);
         sharedFS = sharedFSDao.findById(sharedFSId);
         syncSharedFSToStorageService(sharedFS);
@@ -867,8 +901,136 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
     }
 
     @Override
+    public void deleteSharedFS(Long id, String policy, String confirmation, String expectedPlanHash) {
+        SharedFSVO sharedFS = sharedFSDao.findById(id);
+        if (sharedFS == null) throw new InvalidParameterValueException("Shared filesystem is unavailable");
+        accountMgr.checkAccess(CallContext.current().getCallingAccount(), null, false, sharedFS);
+        withSharedFSDeletionLock(sharedFS, () -> {
+            prepareSharedFSDeletion(sharedFS, policy, confirmation, expectedPlanHash);
+            deleteSharedFSInternal(id);return null;
+        });
+    }
+
+    @Override
+    public org.apache.cloudstack.api.response.StorageServiceDeletionPlanResponse previewSharedFSDeletion(Long id, String requestedPolicy) {
+        SharedFSVO sharedFS = sharedFSDao.findById(id);
+        if (sharedFS == null) throw new InvalidParameterValueException("Shared filesystem is unavailable");
+        accountMgr.checkAccess(CallContext.current().getCallingAccount(), null, false, sharedFS);
+        SharedFS.DataVolumePolicy policy = deletionPolicy(requestedPolicy);
+        com.google.gson.JsonObject plan = createDeletionPlan(sharedFS, policy);
+        org.apache.cloudstack.api.response.StorageServiceDeletionPlanResponse response = new org.apache.cloudstack.api.response.StorageServiceDeletionPlanResponse();
+        response.setId(sharedFS.getUuid()); response.setPolicy(policy.name()); response.setPlanHash(plan.get("planHash").getAsString());
+        response.setPlan(plan.toString()); response.setObjectName("sharedfilesystemdeletionplan");return response;
+    }
+
+    @Override
+    public ListResponse<org.apache.cloudstack.api.response.SharedFSDeletionAuditResponse> listSharedFSDeletionAudits(String uuid) {
+        Account caller=CallContext.current().getCallingAccount();
+        boolean root=accountMgr.isRootAdmin(caller.getId());
+        String query="SELECT id,sharedfs_uuid,phase,policy,plan_json,created FROM cloud.storage_service_deletion_audit WHERE 1=1";
+        if (!root) query+=" AND account_id=?";
+        if (uuid!=null) query+=" AND sharedfs_uuid=?";
+        query+=" ORDER BY id DESC LIMIT 100";
+        List<org.apache.cloudstack.api.response.SharedFSDeletionAuditResponse> entries=new ArrayList<>();
+        try (java.sql.PreparedStatement statement=com.cloud.utils.db.TransactionLegacy.currentTxn().prepareAutoCloseStatement(query)) {
+            int parameter=1;if (!root) statement.setLong(parameter++,caller.getId());if (uuid!=null) statement.setString(parameter,uuid);
+            try (java.sql.ResultSet rows=statement.executeQuery()) {
+                while (rows.next()) {
+                    org.apache.cloudstack.api.response.SharedFSDeletionAuditResponse entry=new org.apache.cloudstack.api.response.SharedFSDeletionAuditResponse();
+                    entry.setId(rows.getLong(1));entry.setUuid(rows.getString(2));entry.setPhase(rows.getString(3));entry.setPolicy(rows.getString(4));entry.setPlan(rows.getString(5));entry.setCreated(rows.getTimestamp(6));
+                    entry.setObjectName("sharedfilesystemdeletionaudit");entries.add(entry);
+                }
+            }
+        } catch (java.sql.SQLException e) { throw new CloudRuntimeException("Unable to read removal audit entries",e); }
+        ListResponse<org.apache.cloudstack.api.response.SharedFSDeletionAuditResponse> response=new ListResponse<>();response.setResponses(entries,entries.size());return response;
+    }
+
+    protected SharedFS.DataVolumePolicy deletionPolicy(String value) {
+        try { return value == null ? SharedFS.DataVolumePolicy.PRESERVE_VOLUMES : SharedFS.DataVolumePolicy.valueOf(value.trim().toUpperCase(java.util.Locale.ROOT)); }
+        catch (IllegalArgumentException e) { throw new InvalidParameterValueException("Data volume policy must be PRESERVE_VOLUMES or DELETE_VOLUMES"); }
+    }
+
+    protected java.util.Set<Long> deletionVolumeIds(SharedFS sharedFS) {
+        java.util.Set<Long> ids = new java.util.TreeSet<>();
+        if (sharedFS.getVolumeId()!=null) ids.add(sharedFS.getVolumeId());
+        if (sharedFS.getVmId()!=null) {
+            for (VolumeVO volume : volumeDao.findByInstanceAndType(sharedFS.getVmId(), com.cloud.storage.Volume.Type.DATADISK)) ids.add(volume.getId());
+            StorageServiceInstanceVO instance=storageServiceInstanceDao.findByVmId(sharedFS.getVmId());
+            if (instance!=null) {
+                for (StorageServiceInstance.Protocol protocol : List.of(StorageServiceInstance.Protocol.NFS,StorageServiceInstance.Protocol.SMB)) {
+                    for (StorageFileShareVO share : storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(),protocol)) if (share.getVolumeId()!=null) ids.add(share.getVolumeId());
+                }
+                for (StorageServiceInstance.Protocol protocol : List.of(StorageServiceInstance.Protocol.ISCSI,StorageServiceInstance.Protocol.NVME_OF)) {
+                    for (org.apache.cloudstack.storage.dataservice.StorageBlockTargetVO target : storageBlockTargetDao.listByInstanceIdAndProtocol(instance.getId(),protocol)) if (target.getVolumeId()!=null) ids.add(target.getVolumeId());
+                }
+            }
+        }
+        return ids;
+    }
+
+    protected com.google.gson.JsonObject createDeletionPlan(SharedFS sharedFS, SharedFS.DataVolumePolicy policy) {
+        com.google.gson.JsonObject plan=new com.google.gson.JsonObject();
+        plan.addProperty("schemaVersion",1);plan.addProperty("sharedfsId",sharedFS.getId());plan.addProperty("sharedfsUuid",sharedFS.getUuid());
+        plan.addProperty("vmId",sharedFS.getVmId());plan.addProperty("policy",policy.name());
+        com.google.gson.JsonArray volumes=new com.google.gson.JsonArray();
+        StringBuilder canonical=new StringBuilder(sharedFS.getUuid()).append('|').append(sharedFS.getVmId()).append('|').append(policy);
+        for (Long id : deletionVolumeIds(sharedFS)) {
+            VolumeVO volume=volumeDao.findById(id);
+            if (volume==null) continue;
+            if (volume.getVolumeType()!=com.cloud.storage.Volume.Type.DATADISK || volume.getAccountId()!=sharedFS.getAccountId()) throw new InvalidParameterValueException("Deletion inventory contains a non-data or foreign-account volume");
+            if (volume.getInstanceId()!=null && !volume.getInstanceId().equals(sharedFS.getVmId())) throw new InvalidParameterValueException("Planned volume is attached to another VM");
+            com.google.gson.JsonObject item=new com.google.gson.JsonObject();
+            item.addProperty("id",id);item.addProperty("uuid",volume.getUuid());item.addProperty("name",volume.getName());item.addProperty("sizeBytes",volume.getSize());
+            item.addProperty("accountId",volume.getAccountId());item.addProperty("domainId",volume.getDomainId());item.addProperty("zoneId",volume.getDataCenterId());
+            item.addProperty("attachedVmId",volume.getInstanceId());item.addProperty("state",volume.getState()==null ? null : volume.getState().name());
+            item.addProperty("action",policy==SharedFS.DataVolumePolicy.PRESERVE_VOLUMES ? "DETACH_AND_PRESERVE" : "DETACH_AND_DELETE");volumes.add(item);
+            canonical.append('|').append(id).append(':').append(volume.getUuid()).append(':').append(volume.getAccountId()).append(':').append(volume.getSize());
+        }
+        plan.add("volumes",volumes);
+        try { plan.addProperty("planHash",java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(canonical.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8)))); }
+        catch (java.security.NoSuchAlgorithmException e) { throw new CloudRuntimeException("SHA-256 unavailable",e); }
+        return plan;
+    }
+
+    protected void validateDeletionConfirmation(SharedFS sharedFS, SharedFS.DataVolumePolicy policy, String confirmation,
+            String expectedHash, com.google.gson.JsonObject plan) {
+        if (policy==SharedFS.DataVolumePolicy.DELETE_VOLUMES && (!sharedFS.getName().equals(confirmation) || expectedHash==null || !expectedHash.equals(plan.get("planHash").getAsString()))) {
+            throw new InvalidParameterValueException("Deleting data volumes requires the exact service name and current preview plan hash");
+        }
+    }
+
+    protected void prepareSharedFSDeletion(SharedFSVO sharedFS, String requestedPolicy, String confirmation, String expectedHash) {
+        SharedFS.DataVolumePolicy policy=deletionPolicy(requestedPolicy);
+        com.google.gson.JsonObject plan=createDeletionPlan(sharedFS,policy);
+        validateDeletionConfirmation(sharedFS,policy,confirmation,expectedHash,plan);
+        sharedFS.setDataVolumePolicy(policy);sharedFS.setDeletionPlanJson(plan.toString());sharedFSDao.update(sharedFS.getId(),sharedFS);
+        auditSharedFSDeletion(sharedFS,"PLANNED");
+    }
+
+    protected java.util.Set<Long> storedDeletionVolumeIds(SharedFS sharedFS) {
+        if (sharedFS.getDeletionPlanJson()==null) return deletionVolumeIds(sharedFS);
+        com.google.gson.JsonObject plan=new com.google.gson.JsonParser().parse(sharedFS.getDeletionPlanJson()).getAsJsonObject();
+        if (plan.get("schemaVersion").getAsInt()!=1 || plan.get("sharedfsId").getAsLong()!=sharedFS.getId() || !sharedFS.getUuid().equals(plan.get("sharedfsUuid").getAsString())) throw new CloudRuntimeException("Stored deletion inventory does not belong to this service");
+        java.util.Set<Long> ids=new java.util.TreeSet<>();for (com.google.gson.JsonElement value : plan.getAsJsonArray("volumes")) ids.add(value.getAsJsonObject().get("id").getAsLong());return ids;
+    }
+
+    protected void auditSharedFSDeletion(SharedFS sharedFS,String phase) {
+        try (java.sql.PreparedStatement statement=com.cloud.utils.db.TransactionLegacy.currentTxn().prepareAutoCloseStatement("INSERT INTO cloud.storage_service_deletion_audit(sharedfs_id,sharedfs_uuid,account_id,actor_id,policy,phase,plan_json,created) VALUES(?,?,?,?,?,?,?,NOW())")) {
+            statement.setLong(1,sharedFS.getId());statement.setString(2,sharedFS.getUuid());statement.setLong(3,sharedFS.getAccountId());
+            statement.setLong(4,CallContext.current().getCallingUserId());statement.setString(5,sharedFS.getDataVolumePolicy().name());statement.setString(6,phase);
+            statement.setString(7,sharedFS.getDeletionPlanJson()==null ? createDeletionPlan(sharedFS,sharedFS.getDataVolumePolicy()).toString() : sharedFS.getDeletionPlanJson());statement.executeUpdate();
+        } catch (java.sql.SQLException e) { throw new CloudRuntimeException("Unable to persist the data-volume retention audit",e); }
+    }
+
+    @Override
     @ActionEvent(eventType = EventTypes.EVENT_SHAREDFS_EXPUNGE, eventDescription = "Expunge Shared FileSystem")
     public void deleteSharedFS(Long sharedFSId) {
+        SharedFSVO sharedFS=sharedFSDao.findById(sharedFSId);
+        if (sharedFS==null) throw new InvalidParameterValueException("Shared filesystem is unavailable");
+        withSharedFSDeletionLock(sharedFS, () -> { deleteSharedFSInternal(sharedFSId);return null; });
+    }
+
+    protected void deleteSharedFSInternal(Long sharedFSId) {
         SharedFSVO sharedFS = sharedFSDao.findById(sharedFSId);
         Account caller = CallContext.current().getCallingAccount();
         accountMgr.checkAccess(caller, null, false, sharedFS);
@@ -880,7 +1042,18 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         SharedFSProvider provider = getSharedFSProvider(sharedFS.getFsProviderName());
         SharedFSLifeCycle lifeCycle = provider.getSharedFSLifeCycle();
         stateTransitTo(sharedFS, Event.ExpungeOperation);
-        lifeCycle.deleteSharedFS(sharedFS);
+        if (sharedFS.getDeletionPlanJson()==null) {
+            sharedFS.setDeletionPlanJson(createDeletionPlan(sharedFS,sharedFS.getDataVolumePolicy()).toString());
+            sharedFSDao.update(sharedFS.getId(),sharedFS);
+        }
+        auditSharedFSDeletion(sharedFS,"STARTED");
+        try {
+            if (!lifeCycle.deleteSharedFS(sharedFS,sharedFS.getDataVolumePolicy(),storedDeletionVolumeIds(sharedFS))) throw new CloudRuntimeException("Provider did not complete service removal");
+        } catch (RuntimeException failure) {
+            try { auditSharedFSDeletion(sharedFS,"FAILED_RETRYABLE"); } catch (RuntimeException auditFailure) { failure.addSuppressed(auditFailure); }
+            throw failure;
+        }
+        auditSharedFSDeletion(sharedFS,"COMPLETE");
         deleteStorageServiceCompatibility(sharedFS);
         stateTransitTo(sharedFS, Event.OperationSucceeded);
         sharedFSDao.remove(sharedFS.getId());
@@ -970,27 +1143,25 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
     }
 
     protected void deleteStorageServiceCompatibility(SharedFS sharedFS) {
-        if (sharedFS == null || !SharedFSFeatureEnabled.value() || sharedFS.getVmId() == null) {
-            return;
-        }
-        try {
-            StorageServiceInstanceVO instance = storageServiceInstanceDao.findByVmId(sharedFS.getVmId());
-            if (instance == null) {
-                return;
-            }
-            for (StorageFileShareVO share : storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(), StorageServiceInstance.Protocol.NFS)) {
-                for (StorageAccessRuleVO rule : storageAccessRuleDao.listByResource(StorageServiceInstance.AccessResourceType.FILE_SHARE, share.getId())) {
-                    storageAccessRuleDao.remove(rule.getId());
-                }
+        if (sharedFS == null || sharedFS.getVmId() == null || !SharedFSFeatureEnabled.value()) return;
+        StorageServiceInstanceVO instance=storageServiceInstanceDao.findByVmId(sharedFS.getVmId());
+        if (instance == null) return;
+        for (StorageServiceInstance.Protocol protocol : List.of(StorageServiceInstance.Protocol.NFS,StorageServiceInstance.Protocol.SMB)) {
+            for (StorageFileShareVO share : storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(),protocol)) {
+                for (StorageAccessRuleVO rule : storageAccessRuleDao.listByResource(StorageServiceInstance.AccessResourceType.FILE_SHARE,share.getId())) storageAccessRuleDao.remove(rule.getId());
                 storageFileShareDao.remove(share.getId());
             }
-            for (StorageServiceProtocolVO protocol : storageServiceProtocolDao.listByInstanceIdAndProtocol(instance.getId(), StorageServiceInstance.Protocol.NFS)) {
-                storageServiceProtocolDao.remove(protocol.getId());
-            }
-            storageServiceInstanceDao.remove(instance.getId());
-        } catch (RuntimeException e) {
-            logger.warn("Unable to remove Storage Service compatibility model for SharedFS [{}]", sharedFS, e);
         }
+        for (StorageServiceInstance.Protocol protocol : List.of(StorageServiceInstance.Protocol.ISCSI,StorageServiceInstance.Protocol.NVME_OF)) {
+            for (org.apache.cloudstack.storage.dataservice.StorageBlockTargetVO target : storageBlockTargetDao.listByInstanceIdAndProtocol(instance.getId(),protocol)) {
+                for (StorageAccessRuleVO rule : storageAccessRuleDao.listByResource(StorageServiceInstance.AccessResourceType.BLOCK_TARGET,target.getId())) storageAccessRuleDao.remove(rule.getId());
+                storageBlockTargetDao.remove(target.getId());
+            }
+        }
+        for (StorageServiceInstance.Protocol protocol : StorageServiceInstance.Protocol.values()) {
+            for (StorageServiceProtocolVO listener : storageServiceProtocolDao.listByInstanceIdAndProtocol(instance.getId(),protocol)) storageServiceProtocolDao.remove(listener.getId());
+        }
+        storageServiceInstanceDao.remove(instance.getId());
     }
 
     protected StorageServiceInstance.State toStorageServiceState(State sharedFSState) {
