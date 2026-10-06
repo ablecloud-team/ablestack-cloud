@@ -81,3 +81,9 @@ drain이 실패하면 Node/VM/map/count 삭제 경로로 진행하지 않고 bes
 - 시험 PDB/guard만 제거한 후 Mold UI 정상 3→2 job `a339143a-4e7b-4731-83bf-f06985d2e7d3`가 14초에 status 1로 완료됐습니다. Node 3개 Ready(control 1/worker 2), VM 169 Expunging/removed, volume 209 Expunged, VM map 3개, SSH rule 2225 제거 및 Provider LB backend 2개가 일치했습니다.
 - 원본 앱과 별도 clean restore 앱에서 각각 65/65 검사, HTTP 100회 오류 0, DB 100건·파일 64개/4 MiB의 원본 checksum 일치를 확인했습니다. 이 결과는 대표 1.34.12의 RT08 범위이며 AutoScaler/다른 버전/업그레이드/장시간/삭제 전체 PASS는 아닙니다.
 - 수정 전 hang 작업은 management restart 후 stale Scaling을 남겨 #1237에 기록하고, terminal job/VM/map/count 확인 후 state만 조건부 수동 복구했습니다. 이 복구를 제품 동작 PASS로 계산하지 않았습니다.
+
+## RT09 노드 역할 API 계약 (#1245)
+
+Mold listKubernetesClusters의 virtualmachines 항목에 iscontrolnode를 추가한다. isetcdnode/isexternalnode와 독립적으로 반환하여 내부 워커와 제어/etcd/외부 노드를 구분한다. AS는 역할 메타데이터가 없으면 관리 대상에서 제외하고, 실제 Node 이름·VM UUID·SystemUUID를 현재 클러스터의 내부 워커로만 해석한다. 명시된 providerID가 다른 VM/Provider이면 이름으로 우회하지 않는다.
+
+변경 api 모듈의 KubernetesUserVmResponseTest 1개 및 Kubernetes 모듈의 Worker 시험 22개가 통과했다. 전체 Cloud 빌드를 실행하지 않았다. 31 관리 서버는 변경 응답 클래스와 KubernetesClusterManagerImpl 및 생성된 내부 클래스만 기존 적용본에 반영하여 시험한다. 새로운 AS 이미지의 실제 그룹 카운트와 확장·축소 재검증은 진행 중이다.
