@@ -18,6 +18,11 @@
 # under the License.
 
 import os
+import ast
+import hashlib
+import json
+import ipaddress
+import re
 import subprocess
 import tempfile
 import unittest
@@ -60,6 +65,26 @@ class NestedPathTest(unittest.TestCase):
                 self.assertFalse(Path(root, "parent/child").exists())
             finally:
                 namespace["run"] = original
+
+class NestedExportIdentityTest(unittest.TestCase):
+    def functions(self):
+        start = text.index("import json", text.index("apply_nfs_exports()"))
+        end = text.index("\nPY\n", start)
+        tree = ast.parse(text[start:end])
+        functions = ast.Module(body=[node for node in tree.body if isinstance(node, ast.FunctionDef)], type_ignores=[])
+        context = {"hashlib": hashlib, "json": json, "ipaddress": ipaddress, "re": re}
+        exec(compile(functions, str(SOURCE), "exec"), context)
+        return context
+
+    def test_stable_uuid_based_identity_and_legacy_export_preservation(self):
+        functions = self.functions()
+        identity = functions["nested_export_filesystem_id"]
+        self.assertEqual(identity("72b2a015-d89e-470d-9efb-80109ff08211"), identity("72b2a015-d89e-470d-9efb-80109ff08211"))
+        self.assertNotEqual(identity("parent"), identity("child"))
+        rendered = {"id": 1001, "path": "/export/child", "pseudo": "/child", "protocolMode": "V4_ONLY", "clients": []}
+        self.assertNotIn("Filesystem_Id", functions["render_ganesha_export"](rendered))
+        rendered["filesystemId"] = identity("child")
+        self.assertIn("Filesystem_Id = " + identity("child") + ";", functions["render_ganesha_export"](rendered))
 
 if __name__ == "__main__":
     unittest.main()
