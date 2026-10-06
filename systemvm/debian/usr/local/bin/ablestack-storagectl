@@ -2857,7 +2857,7 @@ requested_filesystem = str(payload.get("filesystem") or existing_filesystem or "
 filesystem = existing_filesystem or requested_filesystem
 supported_filesystems = {"xfs", "ext4"}
 mount_path = config.get("volumeMountPath") or payload.get("mountPath") or f"/srv/ablestack-storage/volumes/{payload.get('volumeUuid') or payload.get('shareUuid')}"
-relative_share_path = str(config.get("relativeSharePath") or payload.get("path") or "").strip().strip("/")
+relative_share_path = str(config.get("relativeSharePath") or str(payload.get("path") or "").strip("/")).strip()
 create_directory = bool(config.get("createDirectory", True))
 share_uuid = str(payload.get("shareUuid") or payload.get("shareId") or payload.get("volumeUuid") or "unknown")
 managed_marker = f"ablestack-storage:{share_uuid}:backing"
@@ -3001,23 +3001,33 @@ else:
 def resolve_backing_path(volume_mount_path, relative_path, create_missing):
     if not relative_path:
         return volume_mount_path
-    cleaned = relative_path.strip().strip("/")
-    if not cleaned or cleaned == "." or cleaned.startswith("..") or "/../" in f"/{cleaned}/":
+    cleaned = relative_path.strip()
+    if cleaned.startswith("/") or "\\" in cleaned or any(part in ("", ".", "..") for part in cleaned.split("/")):
         raise SystemExit(f"Invalid backing volume relative share path: {relative_path}")
     if cleaned == "export":
         raise SystemExit("The legacy /export root cannot be used as a share backing directory")
-    if cleaned.startswith("export/") and cleaned.count("/") != 1:
-        raise SystemExit(f"Storage Service share path must be a direct child of /export: /{cleaned}")
     root = os.path.realpath(volume_mount_path)
-    target = os.path.realpath(os.path.join(volume_mount_path, cleaned))
-    if target != root and not target.startswith(root + os.sep):
+    target = os.path.realpath(os.path.join(root, cleaned))
+    if not target.startswith(root + os.sep):
         raise SystemExit(f"Backing volume relative share path escapes the mounted volume: {relative_path}")
-    if os.path.exists(target) and not os.path.isdir(target):
-        raise SystemExit(f"Backing volume relative share path exists and is not a directory: {relative_path}")
-    if not os.path.exists(target):
-        if not create_missing:
-            raise SystemExit(f"Backing volume relative share path does not exist: {relative_path}")
-        os.makedirs(target, exist_ok=True)
+    root_device = os.stat(root).st_dev
+    root_mount = run(["findmnt", "-n", "-o", "TARGET", "-T", root])
+    if root_mount.returncode != 0:
+        raise SystemExit("Cannot verify backing volume mount boundary")
+    current = root
+    for segment in cleaned.split("/"):
+        current = os.path.join(current, segment)
+        if os.path.lexists(current):
+            if os.path.islink(current) or not os.path.isdir(current):
+                raise SystemExit(f"Backing share path contains a symlink or non-directory: {current}")
+            observed_mount = run(["findmnt", "-n", "-o", "TARGET", "-T", current])
+            if (os.stat(current).st_dev != root_device or observed_mount.returncode != 0
+                    or observed_mount.stdout.strip() != root_mount.stdout.strip()):
+                raise SystemExit(f"Backing share path crosses a filesystem or mount boundary: {current}")
+        else:
+            if not create_missing:
+                raise SystemExit(f"Backing volume relative share path does not exist: {relative_path}")
+            os.mkdir(current)
     return target
 
 backing_path = resolve_backing_path(mount_path, relative_share_path, create_directory)
@@ -4453,6 +4463,26 @@ def is_path_on_mount(path, mount_path):
     mount_real = os.path.realpath(mount_path)
     return path_real == mount_real or path_real.startswith(mount_real.rstrip("/") + "/")
 
+def verify_share_mount_boundary(path, root):
+    if not root or not os.path.isdir(root):
+        raise RuntimeError("Backing volume root is unavailable")
+    canonical_root = os.path.realpath(root).rstrip("/")
+    relative = os.path.relpath(path, canonical_root)
+    if relative == "." or relative.startswith("../") or os.path.isabs(relative):
+        raise RuntimeError("Share backing path must be below the selected volume root")
+    mount = run(["findmnt", "-n", "-o", "TARGET", "-T", canonical_root])
+    if mount.returncode != 0:
+        raise RuntimeError("Cannot verify share backing mount")
+    device = os.stat(canonical_root).st_dev
+    current = canonical_root
+    for part in relative.split(os.sep):
+        current = os.path.join(current, part)
+        if os.path.islink(current) or not os.path.isdir(current):
+            raise RuntimeError("Share backing path contains a symlink or unavailable directory")
+        observed = run(["findmnt", "-n", "-o", "TARGET", "-T", current])
+        if os.stat(current).st_dev != device or observed.returncode != 0 or observed.stdout.strip() != mount.stdout.strip():
+            raise RuntimeError("Share backing path crosses a filesystem or mount boundary")
+
 def ensure_export_alias(export):
     export_config = effective_nfs_export_config(export.get("config") or {})
     backing_path = str(export_config.get("backingPath") or "").strip().rstrip("/")
@@ -4482,6 +4512,7 @@ def ensure_export_alias(export):
         os.makedirs(backing_path, exist_ok=True)
     if not os.path.isdir(backing_path):
         raise ValueError(f"NFS export {uuid} backingPath is not a directory: {backing_path}")
+    verify_share_mount_boundary(backing_path, volume_mount_path)
     if os.path.exists(exposed_path) and not os.path.isdir(exposed_path):
         raise ValueError(f"NFS export alias path exists and is not a directory: {exposed_path}")
     os.makedirs(exposed_path, exist_ok=True)
@@ -4997,6 +5028,26 @@ else:
         "   security = user",
     ])
 
+def verify_share_mount_boundary(path, root):
+    if not root or not os.path.isdir(root):
+        raise RuntimeError("Backing volume root is unavailable")
+    canonical_root = os.path.realpath(root).rstrip("/")
+    relative = os.path.relpath(path, canonical_root)
+    if relative == "." or relative.startswith("../") or os.path.isabs(relative):
+        raise RuntimeError("Share backing path must be below the selected volume root")
+    mount = run(["findmnt", "-n", "-o", "TARGET", "-T", canonical_root])
+    if mount.returncode != 0:
+        raise RuntimeError("Cannot verify share backing mount")
+    device = os.stat(canonical_root).st_dev
+    current = canonical_root
+    for part in relative.split(os.sep):
+        current = os.path.join(current, part)
+        if os.path.islink(current) or not os.path.isdir(current):
+            raise RuntimeError("Share backing path contains a symlink or unavailable directory")
+        observed = run(["findmnt", "-n", "-o", "TARGET", "-T", current])
+        if os.stat(current).st_dev != device or observed.returncode != 0 or observed.stdout.strip() != mount.stdout.strip():
+            raise RuntimeError("Share backing path crosses a filesystem or mount boundary")
+
 quota_state = {}
 access_state = {}
 enabled = bool(payload.get("enabled", True))
@@ -5018,6 +5069,8 @@ for share in payload.get("shares", []):
         if not create_directory:
             raise FileNotFoundError(f"SMB share backing directory does not exist: {path}")
         os.makedirs(path, exist_ok=True)
+    if config.get("relativeSharePath"):
+        verify_share_mount_boundary(path, config.get("volumeMountPath"))
     directory_mode = apply_directory_policy(path, config, cross_protocol)
     valid_users = []
     write_list = []

@@ -331,3 +331,28 @@ describe('SharedFS service-wide NFS owner mapping', () => {
     expect(SharedFSTab.computed.nfsIdModeDrift.call({ nfsRuntimeIdMode: 'NUMERIC', nfsDesiredIdMode: 'NUMERIC' })).toBe('CONSISTENT')
   })
 })
+
+describe('SharedFS nested backing paths', () => {
+  it('allows explicit nested paths while rejecting traversal and absolute input', () => {
+    const context = { $message: { error: jest.fn() }, $t: key => key }
+    expect(SharedFSTab.methods.validateNestedSharePath.call(context, 'share/project-a')).toBe(true)
+    for (const path of ['/share', '../share', 'share/../other', 'share/./other', 'share//other', '']) {
+      expect(SharedFSTab.methods.validateNestedSharePath.call(context, path)).toBe(false)
+    }
+    expect(context.$message.error).toHaveBeenCalledTimes(6)
+  })
+
+  it('preserves the legacy name rule and permits independent names with explicit backing paths', () => {
+    const context = {
+      forms: { nfsExport: { name: 'project-a', path: '/export/share/project-a', relativepath: 'share/project-a' } },
+      isValidNfsExportName: SharedFSTab.methods.isValidNfsExportName,
+      validateNestedSharePath: SharedFSTab.methods.validateNestedSharePath,
+      $message: { error: jest.fn() }, $t: key => key
+    }
+    expect(SharedFSTab.methods.validateNfsExportNameAndPath.call(context)).toBe(true)
+    context.forms.nfsExport.relativepath = ''
+    expect(SharedFSTab.methods.validateNfsExportNameAndPath.call(context)).toBe(false)
+    context.forms.nfsExport.path = '/export/project-a'
+    expect(SharedFSTab.methods.validateNfsExportNameAndPath.call(context)).toBe(true)
+  })
+})

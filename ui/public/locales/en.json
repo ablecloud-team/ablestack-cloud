@@ -1,4 +1,7 @@
 {
+  "message.storage.service.nested.path.invalid": "Absolute, empty, dot and parent paths are not allowed.",
+  "message.storage.service.nested.path.help": "Relative to the selected volume root. Child data is also visible through its parent share; each share has independent access rules and shares the same volume capacity.",
+  "label.storage.service.volume.relative.path": "Backing volume relative path",
   "message.storage.service.nfs.numeric.requirements": "Use identical UID/GID values on all clients and enable Linux nfs4_disable_idmapping=Y. AUTH_SYS numeric IDs do not provide strong user authentication. This service setting does not modify clients.",
   "message.storage.service.nfs.numeric.persistence": "Persistent client configuration: add options nfs nfs4_disable_idmapping=1 to /etc/modprobe.d/ablestack-nfs-idmap.conf. If needed, rebuild initramfs with update-initramfs -u on Debian/Ubuntu or dracut -f on Rocky/RHEL.",
   "message.storage.service.nfs.idmapping.service.scope": "This policy applies to every NFS listener. Export ownership and squash policy remain separate.",

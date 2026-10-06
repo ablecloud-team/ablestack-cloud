@@ -26,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -858,14 +859,16 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         validateStorageServiceBackingVolume(instance, cmd.getVolumeId(), "NFS export");
         final VolumeVO requestedVolume = cmd.getVolumeId() == null ? null : requireVolume(cmd.getVolumeId());
         validateFileShareFilesystem(cmd.getFilesystem(), cmd.getImportMode());
-        final String path = resolveNfsExportPath(cmd.getPath(), cmd.getName());
+        final String path = resolveNestedSharePath(cmd.getPath(), cmd.getName(), cmd.getRelativePath(), cmd.getVolumeId(), true);
         validateNfsExportName(cmd.getName());
-        validateNfsExportPath(path, cmd.getName());
+        validateVisibleShareName(instance, cmd.getName(), null, StorageServiceInstance.Protocol.NFS);
+        validateSharePathForRelativeInput(path, cmd.getName(), cmd.getRelativePath(), true);
         validateFileSharePathAvailable(instance, path, null, cmd.getVolumeId(), "NFS export");
         String configJson = buildNfsConfigJson(null, cmd.getReadOnly(), cmd.getRootSquash(), cmd.getAllSquash(), cmd.getAnonUid(), cmd.getAnonGid(),
                 cmd.getOwnerUid(), cmd.getOwnerGid(), cmd.getMode(), cmd.getRecursivePermission(), cmd.getSync(), cmd.getSecure(),
                 cmd.getEndpointMode(), cmd.getListenIps(), cmd.getListenerPorts(), protocolMode, true);
         configJson = buildFileShareDirectoryConfigJson(configJson, requestedVolume, cmd.getImportMode(), cmd.getCreateDirectory());
+        configJson = storeRelativeSharePath(configJson, cmd.getRelativePath());
         validateJsonObjectConfigOrThrow(configJson, "NFS export " + cmd.getName());
         StorageFileShareVO share = new StorageFileShareVO(instance.getId(), StorageServiceInstance.Protocol.NFS, cmd.getName(), path,
                 cmd.getVolumeId(), cmd.getFilesystem(), cmd.getQuotaBytes(), StorageServiceInstance.ResourceState.Creating,
@@ -903,12 +906,14 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         validateNfsListenerPortsExist(instance, protocolMode, cmd.getListenerPorts());
         if (cmd.getName() != null) {
             validateNfsExportName(cmd.getName());
+            validateVisibleShareName(instance, cmd.getName(), share.getId(), StorageServiceInstance.Protocol.NFS);
             share.setName(cmd.getName());
         }
         if (cmd.getName() != null || cmd.getPath() != null || cmd.getRelativePath() != null || cmd.getVolumeId() != null) {
             final Long effectiveVolumeId = cmd.getVolumeId() == null ? share.getVolumeId() : cmd.getVolumeId();
-            final String path = resolveNfsExportPath(cmd.getPath(), share.getName());
-            validateNfsExportPath(path, share.getName());
+            final String effectiveRelativePath = cmd.getRelativePath() == null ? getJsonString(parseJsonObject(share.getConfigJson()), "relativeSharePath") : cmd.getRelativePath();
+            final String path = resolveNestedSharePath(cmd.getPath(), share.getName(), effectiveRelativePath, effectiveVolumeId, true);
+            validateSharePathForRelativeInput(path, share.getName(), effectiveRelativePath, true);
             validateFileSharePathAvailable(instance, path, share.getId(), effectiveVolumeId, "NFS export");
             share.setPath(path);
         }
@@ -928,6 +933,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 cmd.getEndpointMode(), cmd.getListenIps(), cmd.getListenerPorts(), protocolMode, true));
         share.setConfigJson(buildFileShareDirectoryConfigJson(share.getConfigJson(), cmd.getVolumeId() == null ? null : requireVolume(cmd.getVolumeId()),
                 cmd.getImportMode(), cmd.getCreateDirectory()));
+        share.setConfigJson(storeRelativeSharePath(share.getConfigJson(), cmd.getRelativePath()));
         validateJsonObjectConfigOrThrow(share.getConfigJson(), "NFS export " + share.getUuid());
         share.setState(StorageServiceInstance.ResourceState.Updating);
         storageFileShareDao.update(share.getId(), share);
@@ -952,6 +958,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     private boolean doDeleteStorageNfsExport(final DeleteStorageNfsExportCmd cmd) {
         final StorageFileShareVO share = requireNfsExport(cmd.getId());
         final StorageServiceInstanceVO instance = requireInstance(share.getInstanceId());
+        validateNoChildShares(instance, share);
         for (final StorageAccessRuleVO rule : storageAccessRuleDao.listByResource(StorageServiceInstance.AccessResourceType.FILE_SHARE, share.getId())) {
             storageAccessRuleDao.remove(rule.getId());
         }
@@ -1154,8 +1161,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     private StorageSmbShareResponse doCreateStorageSmbShare(final CreateStorageSmbShareCmd cmd) {
         final StorageServiceInstanceVO instance = requireInstance(cmd.getInstanceId());
         validateSmbShareName(cmd.getName());
-        final String path = resolveSmbSharePath(cmd.getPath(), cmd.getName());
-        validateSmbSharePath(path, cmd.getName());
+        validateVisibleShareName(instance, cmd.getName(), null, StorageServiceInstance.Protocol.SMB);
+        final String path = resolveNestedSharePath(cmd.getPath(), cmd.getName(), cmd.getRelativePath(), cmd.getVolumeId(), false);
+        validateSharePathForRelativeInput(path, cmd.getName(), cmd.getRelativePath(), false);
         validateStorageServiceBackingVolume(instance, cmd.getVolumeId(), "SMB share");
         validateFileSharePathAvailable(instance, path, null, cmd.getVolumeId(), "SMB share", Boolean.TRUE.equals(cmd.getCrossProtocol()));
         validateFileShareFilesystem(cmd.getFilesystem(), cmd.getImportMode());
@@ -1164,6 +1172,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         String configJson = buildSmbConfigJson(null, cmd.getReadOnly(), cmd.getBrowseable(), cmd.getGuestOk(),
                 cmd.getCreateDirectory(), cmd.getCrossProtocol(), cmd.getDirectoryMode());
         configJson = buildFileShareDirectoryConfigJson(configJson, backingVolume, importMode, cmd.getCreateDirectory());
+        configJson = storeRelativeSharePath(configJson, cmd.getRelativePath());
         validateJsonObjectConfigOrThrow(configJson, "SMB share " + cmd.getName());
         StorageFileShareVO share = new StorageFileShareVO(instance.getId(), StorageServiceInstance.Protocol.SMB, cmd.getName(), path,
                 cmd.getVolumeId(), cmd.getFilesystem(), cmd.getQuotaBytes(), StorageServiceInstance.ResourceState.Creating,
@@ -1206,11 +1215,13 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         final StorageServiceInstanceVO instance = requireInstance(share.getInstanceId());
         if (cmd.getName() != null) {
             validateSmbShareName(cmd.getName());
+            validateVisibleShareName(instance, cmd.getName(), share.getId(), StorageServiceInstance.Protocol.SMB);
             share.setName(cmd.getName());
         }
-        if (cmd.getPath() != null) {
-            final String path = resolveSmbSharePath(cmd.getPath(), StringUtils.defaultIfBlank(share.getName(), cmd.getName()));
-            validateSmbSharePath(path, StringUtils.defaultIfBlank(share.getName(), cmd.getName()));
+        if (cmd.getPath() != null || cmd.getRelativePath() != null) {
+            final String path = resolveNestedSharePath(cmd.getPath(), share.getName(), cmd.getRelativePath(),
+                    cmd.getVolumeId() == null ? share.getVolumeId() : cmd.getVolumeId(), false);
+            validateSharePathForRelativeInput(path, share.getName(), cmd.getRelativePath(), false);
             validateFileSharePathAvailable(instance, path, share.getId(), cmd.getVolumeId() == null ? share.getVolumeId() : cmd.getVolumeId(),
                     "SMB share", Boolean.TRUE.equals(cmd.getCrossProtocol()));
             share.setPath(path);
@@ -1231,6 +1242,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         String configJson = buildSmbConfigJson(share.getConfigJson(), cmd.getReadOnly(), cmd.getBrowseable(), cmd.getGuestOk(),
                 cmd.getCreateDirectory(), cmd.getCrossProtocol(), cmd.getDirectoryMode());
         configJson = buildFileShareDirectoryConfigJson(configJson, backingVolume, importMode, cmd.getCreateDirectory());
+        configJson = storeRelativeSharePath(configJson, cmd.getRelativePath());
         validateJsonObjectConfigOrThrow(configJson, "SMB share " + share.getUuid());
         share.setConfigJson(configJson);
         share.setState(StorageServiceInstance.ResourceState.Updating);
@@ -1256,6 +1268,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     private boolean doDeleteStorageSmbShare(final DeleteStorageSmbShareCmd cmd) {
         final StorageFileShareVO share = requireSmbShare(cmd.getId());
         final StorageServiceInstanceVO instance = requireInstance(share.getInstanceId());
+        validateNoChildShares(instance, share);
         for (final StorageAccessRuleVO rule : storageAccessRuleDao.listByResource(StorageServiceInstance.AccessResourceType.FILE_SHARE, share.getId())) {
             storageAccessRuleDao.remove(rule.getId());
         }
@@ -2458,7 +2471,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             export.addProperty("id", share.getId());
             export.addProperty("uuid", share.getUuid());
             export.addProperty("name", share.getName());
-            export.addProperty("path", share.getPath());
+            export.addProperty("path", getJsonString(shareConfig, "relativeSharePath") == null
+                    ? share.getPath() : SharedFS.SharedFSPath + "/" + share.getName());
             if (share.getVolumeId() != null) {
                 export.addProperty("volumeId", share.getVolumeId());
             }
@@ -2647,7 +2661,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         final String volumeMountPath = getJsonString(config, "volumeMountPath");
         final String root = StringUtils.isNotBlank(volumeMountPath) ? volumeMountPath : findKnownFileShareVolumeMountRoot(instance, share.getVolumeId());
         if (StringUtils.isNotBlank(root)) {
-            final String relative = normalizeRelativeSharePath(share.getPath());
+            final String relative = normalizeRelativeSharePath(StringUtils.defaultIfBlank(getJsonString(config, "relativeSharePath"),
+                    StringUtils.removeStart(share.getPath(), "/")));
             return root.replaceAll("/+$", "") + "/" + relative;
         }
         return share.getPath();
@@ -4078,12 +4093,77 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     protected String normalizeRelativeSharePath(final String relativePath) {
-        final String normalized = StringUtils.defaultString(relativePath).trim().replace('\\', '/').replaceAll("/+", "/")
-                .replaceAll("^/+", "").replaceAll("/+$", "");
-        if (StringUtils.isBlank(normalized) || ".".equals(normalized) || normalized.contains("../") || normalized.endsWith("/..") || normalized.startsWith("..")) {
-            throw new InvalidParameterValueException("File share relative path must be a non-empty relative path without traversal segments");
+        final String value = StringUtils.defaultString(relativePath).trim();
+        if (value.isEmpty() || value.startsWith("/") || value.contains("\\") || value.contains("\u0000")) {
+            throw new InvalidParameterValueException("File share relative path must be a non-empty relative path");
+        }
+        final String normalized = StringUtils.removeEnd(value.replaceAll("/+", "/"), "/");
+        for (final String segment : normalized.split("/")) {
+            if (segment.isEmpty() || ".".equals(segment) || "..".equals(segment) || !segment.matches("[A-Za-z0-9._-]+")) {
+                throw new InvalidParameterValueException("File share relative path contains an invalid or traversal segment");
+            }
         }
         return normalized;
+    }
+
+    protected String resolveNestedSharePath(final String path, final String name, final String relativePath,
+            final Long volumeId, final boolean nfs) {
+        if (relativePath == null) {
+            return nfs ? resolveNfsExportPath(path, name) : resolveSmbSharePath(path, name);
+        }
+        if (volumeId == null) {
+            throw new InvalidParameterValueException("An explicit backing volume is required for a relative share path");
+        }
+        final String computed = SharedFS.SharedFSPath + "/" + normalizeRelativeSharePath(relativePath);
+        if (StringUtils.isNotBlank(path) && !computed.equals(normalizeFileSharePath(path))) {
+            throw new InvalidParameterValueException("Share path conflicts with the selected volume-relative path");
+        }
+        return computed;
+    }
+
+    protected void validateSharePathForRelativeInput(final String path, final String name, final String relativePath, final boolean nfs) {
+        if (relativePath != null) {
+            validateFileSharePath(path, "File share");
+            return;
+        }
+        if (nfs) {
+            validateNfsExportPath(path, name);
+        } else {
+            validateSmbSharePath(path, name);
+        }
+    }
+
+    protected String storeRelativeSharePath(final String configJson, final String relativePath) {
+        if (relativePath == null) {
+            return configJson;
+        }
+        final JsonObject config = parseJsonObject(configJson);
+        config.addProperty("relativeSharePath", normalizeRelativeSharePath(relativePath));
+        // Old observations refer to the previous path and must not override the new desired path.
+        config.remove("backingPath");
+        config.remove("lastInspection");
+        return GSON.toJson(config);
+    }
+
+    protected void validateVisibleShareName(final StorageServiceInstanceVO instance, final String name, final Long currentId,
+            final StorageServiceInstance.Protocol protocol) {
+        for (final StorageFileShareVO share : storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(), protocol)) {
+            if (!Objects.equals(currentId, share.getId()) && StringUtils.equalsIgnoreCase(StringUtils.trim(name), share.getName())) {
+                throw new InvalidParameterValueException("Share name is already exposed by this protocol: " + name);
+            }
+        }
+    }
+
+    protected void validateNoChildShares(final StorageServiceInstanceVO instance, final StorageFileShareVO parent) {
+        final List<StorageFileShareVO> shares = new ArrayList<>();
+        shares.addAll(storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(), StorageServiceInstance.Protocol.NFS));
+        shares.addAll(storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(), StorageServiceInstance.Protocol.SMB));
+        for (final StorageFileShareVO child : shares) {
+            if (!Objects.equals(parent.getId(), child.getId()) && Objects.equals(parent.getVolumeId(), child.getVolumeId())
+                    && isSubPath(normalizeFileSharePath(child.getPath()), normalizeFileSharePath(parent.getPath()))) {
+                throw new InvalidParameterValueException("Remove child shares before deleting this parent share: " + child.getUuid());
+            }
+        }
     }
 
     protected void validateFileShareFilesystem(final String filesystem, final String importMode) {
@@ -5111,7 +5191,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         config.addProperty("attachedVolumeUuid", volume.getUuid());
         config.addProperty("attachedVolumeName", volume.getName());
         config.addProperty("volumeMountPath", volumeMountPath);
-        final String relativeSharePath = normalizeRelativeSharePath(sharePath);
+        final String relativeSharePath = getJsonString(config, "relativeSharePath") == null
+                ? normalizeRelativeSharePath(StringUtils.removeStart(sharePath, "/")) : normalizeRelativeSharePath(getJsonString(config, "relativeSharePath"));
         if (StringUtils.isNotBlank(relativeSharePath)) {
             config.addProperty("backingPath", volumeMountPath.replaceAll("/+$", "") + "/" + relativeSharePath.replaceAll("^/+", ""));
         }
@@ -5124,7 +5205,6 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if (volume != null && StringUtils.isNotBlank(importMode)) {
             config.addProperty("volumeMountPath", "/srv/ablestack-storage/volumes/" + volume.getUuid());
         }
-        config.remove("relativeSharePath");
         config.remove("relativesharepath");
         if (createDirectory != null || !config.has("createDirectory")) {
             config.addProperty("createDirectory", createDirectory == null || Boolean.TRUE.equals(createDirectory));
