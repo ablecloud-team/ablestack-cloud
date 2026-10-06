@@ -66,14 +66,15 @@ public class KubernetesCreatedFailureCleanupTest {
         Mockito.when(failed.getId()).thenReturn(5L);
         Mockito.when(failed.getUuid()).thenReturn("failed-create-job");
         Mockito.when(failed.getStatus()).thenReturn(AsyncJob.Status.FAILED);
-        Mockito.when(worker.asyncJobDao.search(Mockito.any(), Mockito.isNull())).thenReturn(Collections.singletonList(failed));
+        Mockito.when(worker.asyncJobDao.searchIncludingRemoved(Mockito.any(), Mockito.isNull(), Mockito.isNull(), Mockito.eq(false))).thenReturn(Collections.singletonList(failed));
         Mockito.doReturn(true).when(worker).stateTransitTo(Mockito.eq(3L), Mockito.any());
     }
-    @Test public void failedCreationWithNoNodesReconcilesUsingRealJobReceipt() {
+    @Test public void softRemovedFailedCreationWithNoNodesReconcilesUsingRealJobReceipt() {
         KubernetesClusterVO reconciled = Mockito.mock(KubernetesClusterVO.class);
         Mockito.when(reconciled.getState()).thenReturn(KubernetesCluster.State.Error);
         Mockito.when(worker.kubernetesClusterDao.findById(3L)).thenReturn(reconciled);
         assertTrue(worker.reconcileFailedCreationBeforeDelete());
+        Mockito.verify(worker.asyncJobDao).searchIncludingRemoved(Mockito.any(), Mockito.isNull(), Mockito.isNull(), Mockito.eq(false));
         Mockito.verify(details).addDetail(3L, "lifecycle.creation.failed.job", "failed-create-job", false);
         Mockito.verify(details).addDetail(3L, "lifecycle.provisioning.phase", "Preflight", false);
         Mockito.verify(worker).stateTransitTo(3L, KubernetesCluster.Event.StartRequested);
@@ -90,11 +91,11 @@ public class KubernetesCreatedFailureCleanupTest {
         AsyncJobVO pending = Mockito.mock(AsyncJobVO.class);
         Mockito.when(pending.getId()).thenReturn(4L);
         Mockito.when(pending.getStatus()).thenReturn(AsyncJob.Status.IN_PROGRESS);
-        Mockito.when(worker.asyncJobDao.search(Mockito.any(), Mockito.isNull())).thenReturn(Arrays.asList(failed, pending));
+        Mockito.when(worker.asyncJobDao.searchIncludingRemoved(Mockito.any(), Mockito.isNull(), Mockito.isNull(), Mockito.eq(false))).thenReturn(Arrays.asList(failed, pending));
         rejectsWithoutCleanupMarker();
     }
     @Test public void noCreationEvidenceIsPreserved() {
-        Mockito.when(worker.asyncJobDao.search(Mockito.any(), Mockito.isNull())).thenReturn(Collections.emptyList());
+        Mockito.when(worker.asyncJobDao.searchIncludingRemoved(Mockito.any(), Mockito.isNull(), Mockito.isNull(), Mockito.eq(false))).thenReturn(Collections.emptyList());
         rejectsWithoutCleanupMarker();
     }
     @Test public void successfulCreationIsNotReclassifiedAsFailed() {

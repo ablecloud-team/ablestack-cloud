@@ -120,7 +120,8 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
         criteria.setParameters("cluster", kubernetesCluster.getId());
         criteria.setParameters("kind", "KubernetesCluster");
         criteria.setParameters("command", CreateKubernetesClusterCmd.class.getName());
-        List<AsyncJobVO> jobs = asyncJobDao.search(criteria, null);
+        // Completed async jobs are soft removed; their failure receipts remain authoritative.
+        List<AsyncJobVO> jobs = asyncJobDao.searchIncludingRemoved(criteria, null, null, false);
         AsyncJobVO last = jobs.stream().max(java.util.Comparator.comparingLong(AsyncJobVO::getId)).orElse(null);
         if (last == null || last.getStatus() != AsyncJob.Status.FAILED
                 || jobs.stream().anyMatch(job -> job.getStatus() == AsyncJob.Status.IN_PROGRESS)) {
