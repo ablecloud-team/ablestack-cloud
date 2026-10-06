@@ -865,7 +865,7 @@
         <span> {{ record.loadbalancerrule }} </span>
       </template>
       <template v-if="column.key === 'autoscalingenabled'">
-        <status :text="record.autoscalingenabled ? 'Enabled' : 'Disabled'" displayText/>
+        <a-tag :color="record.autoscalingenabled ? 'blue' : undefined">{{ $t(record.autoscalingenabled ? 'label.cks.cluster.autoscaling.enabled' : 'label.cks.cluster.autoscaling.disabled') }}</a-tag>
       </template>
       <template v-if="column.key === 'current'">
         <span v-if="$route.name === 'vmsnapshot'">{{ $t(record.current ? 'label.vmsnapshot.current.yes' : 'label.vmsnapshot.current.no') }}</span>

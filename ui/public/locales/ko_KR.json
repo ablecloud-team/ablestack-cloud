@@ -1,4 +1,6 @@
 {
+    "label.cks.cluster.autoscaling.enabled": "사용",
+    "label.cks.cluster.autoscaling.disabled": "미사용",
   "message.vmprocess.tools.os.confirm": "콘솔에서 확인한 실제 운영체제가 등록된 운영체제와 일치합니다.",
   "label.vmprocess.tools.connecting": "ISO 연결 중",
   "message.vmprocess.tools.adapter": "QGA RPC는 활성화되었지만 ABLESTACK Tools 실행 검증을 통과하지 못했습니다. 게스트의 Tools 설치 결과와 호스트의 Mold Agent 상태를 확인하세요.",

@@ -1,4 +1,6 @@
 {
+    "label.cks.cluster.autoscaling.enabled": "Enabled",
+    "label.cks.cluster.autoscaling.disabled": "Disabled",
   "message.vmprocess.tools.os.confirm": "I confirmed that the actual OS in the console matches the registered OS.",
   "label.vmprocess.tools.connecting": "Connecting ISO",
   "message.vmprocess.tools.adapter": "QGA RPCs are enabled, but the ABLESTACK Tools execution check did not pass. Check the guest installation and host Mold Agent.",
