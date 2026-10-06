@@ -2570,6 +2570,7 @@ export default {
           params.ipaddress || params.virtualmachinename || this.resource.name || this.resource.ipaddress || this.resource.id
 
         var hasJobId = false
+        const actionScope = this.listScope()
         this.actionLoading = true
         this.postSnapshotAwareAction(action, params).then(json => {
           var response = this.handleResponse(json, resourceName, this.getDataIdentifier(params), action)
@@ -2580,6 +2581,7 @@ export default {
           }
           response.then(jobId => {
             hasJobId = jobId
+            if (actionScope !== this.listScope()) return
             if (this.shouldNavigateBack(action)) {
               this.$router.go(-1)
             } else {

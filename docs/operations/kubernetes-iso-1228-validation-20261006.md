@@ -136,3 +136,18 @@ RT06에서는 Ready Pod와 같은 RDB SHA만으로 복원 완료를 판단할 �
 실제 재검증은 RDB-only 로드 후65/65 및 HTTP100/오류0, AOF 활성 재시작 후에도65/65 및 HTTP100/오류0이었습니다. 백업 형식(RDB-only 또는 AOF 포함)을 기록하고 readiness/파일 hash와 실제 데이터 복원 결과를 구분합니다. [Redis 공식 persistence 문서](https://redis.io/docs/latest/operate/oss_and_stack/management/persistence/)를 참조합니다. 이 절차 수정은 시험/운영 복원 계약이며 Kubernetes Provider나 GFS2 runtime 오류로 취급하지 않습니다.
 
 전체 CI UI 실패(#1249), AS generic CI 실패(#1250), 노드 템플릿 machine-id 중복(#1251)은 별도 미완료 gate입니다. 현재 실행 중인 노드에서 cloud-init clean을 수행하지 않습니다.
+
+## 클러스터 전용 컨트롤러 인증키 교체
+
+Provider/AutoScaler와 CSI는 클러스터별 전용 서비스 사용자와 명명된 API 키를 사용한다. 기본 profile은 Provider/AutoScaler API만 허용하고, CSI 활성화 profile은 볼륨·스냅샷 API를 추가한다. 마지막 규칙은 deny-all이다. API 요청 서명은 Mold의 SHA256을 사용한다.
+
+1. 대상 CloudManaged 클러스터를 정지하고 모든 소속 VM이 실제 Stopped인지 확인한다.
+2. 클러스터의 **작업 → 쿠버네티스 클러스터 시작**에서 **컨트롤러 인증 키 회전**을 선택한다. 기본값은 꺼짐이다.
+3. 시작을 실행하면 동일한 owner/클러스터/기능 profile의 새 키를 만들고 포인터 변경과 기존 키 폐기를 같은 DB transaction에서 수행한다. 같은 클러스터의 시작·교체 요청은 직렬화한다.
+4. 시작 완료 후 노드 Ready, Provider/CSI rollout 및 기존 데이터 보존을 확인한다. 기존 키는 인증에 실패해야 하고, 새 키는 현재 기능의 허용 API만 사용할 수 있어야 한다.
+
+API에서는 `startKubernetesCluster`의 `rotatecontrollercredentials=true` 옵션을 사용한다. 응답·로그에 새 키 원문을 반환하지 않는다. 일반 시작은 현재 전용 키를 재사용하고 Secret/config가 같을 때 불필요한 컨트롤러 교체를 하지 않는다.
+
+전용 키의 owner·명명·권한 계약을 검증할 수 없거나 legacy 공용 키만 남아 있는 경우 교체는 실패한다. 이미 수동으로 줄인 권한을 다시 넓히거나 다른 클러스터의 키를 가져오는 복구는 하지 않는다. 메타데이터가 유실된 경우 운영자가 해당 클러스터의 소유권과 키 이력을 먼저 확인해야 한다.
+
+31번 별도 r25의 실제 시험에서는 기존 키 HTTP 200→401, 새 키 HTTP 200, 새 CSI 볼륨 쓰기/읽기, 기존 데이터·노드/PV UID 보존 및 일반 시작 재호출의 Secret/Pod UID 보존을 확인했다. 장기 시험 r10~r15의 키와 Secret은 교체하지 않았다.
