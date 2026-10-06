@@ -1,14 +1,14 @@
 [Unit]
 Description=ABLESTACK Storage Service boot reconcile
-After=local-fs.target ablestack-storage-runtime-bootstrap.service cloud-dhclient@eth0.service network-online.target qemu-guest-agent.service rtslib-fb-targetctl.service
+After=local-fs.target ablestack-storage-runtime-bootstrap.service ablestack-sharedfs-network.service network-online.target qemu-guest-agent.service rtslib-fb-targetctl.service
 Requires=ablestack-storage-runtime-bootstrap.service
-Wants=cloud-dhclient@eth0.service network-online.target
+Wants=ablestack-sharedfs-network.service network-online.target
 Before=ablestack-storage-monitor.service
 
 [Service]
 Type=oneshot
 ExecStart=/usr/local/bin/ablestack-storage-boot-reconcile
-TimeoutStartSec=120
+TimeoutStartSec=1800
 
 [Install]
 WantedBy=multi-user.target

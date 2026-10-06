@@ -22,8 +22,11 @@ import org.apache.cloudstack.api.command.admin.storage.dataservice.ListStorageSe
 import org.apache.cloudstack.api.command.admin.storage.dataservice.ListStorageServiceRuntimeUpgradesCmd;
 import org.apache.cloudstack.api.command.admin.storage.dataservice.PreflightStorageServiceRuntimeUpgradeCmd;
 import org.apache.cloudstack.api.command.admin.storage.dataservice.RegisterStorageServiceRuntimeBundleCmd;
+import org.apache.cloudstack.api.command.admin.storage.dataservice.UpdateStorageServiceRuntimeBundleCmd;
+import org.apache.cloudstack.api.command.admin.storage.dataservice.DeleteStorageServiceRuntimeBundleCmd;
 import org.apache.cloudstack.api.command.admin.storage.dataservice.RollbackStorageServiceRuntimeUpgradeCmd;
 import org.apache.cloudstack.api.command.admin.storage.dataservice.UpgradeStorageServiceRuntimeCmd;
+import org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageServiceVolumePreparationCmd;
 import org.apache.cloudstack.api.command.user.storage.dataservice.AttachStorageVolumeToFileShareCmd;
 import org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageNfsAclCmd;
 import org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageNfsExportCmd;
@@ -93,6 +96,10 @@ import org.apache.cloudstack.api.response.StorageServiceRuntimeUpgradeResponse;
 import org.apache.cloudstack.api.response.StorageSmbShareResponse;
 
 public interface StorageService {
+    org.apache.cloudstack.api.response.ListResponse<org.apache.cloudstack.api.response.StorageServiceOperationResponse> listStorageServiceOperations(
+            org.apache.cloudstack.api.command.user.storage.dataservice.ListStorageServiceOperationsCmd cmd);
+    Long getStorageServiceSyncId(org.apache.cloudstack.api.BaseCmd cmd);
+
     StorageServiceInstanceResponse createStorageServiceInstance(CreateStorageServiceInstanceCmd cmd);
 
     ListResponse<StorageServiceInstanceResponse> listStorageServiceInstances(ListStorageServiceInstancesCmd cmd);
@@ -151,6 +158,8 @@ public interface StorageService {
 
     StorageFileShareResponse attachStorageVolumeToFileShare(AttachStorageVolumeToFileShareCmd cmd);
 
+    StorageServiceRuntimeResponse getStorageServiceVolumePreparation(GetStorageServiceVolumePreparationCmd cmd);
+
     StorageServiceRuntimeResponse detachStorageServiceBackingVolume(DetachStorageServiceBackingVolumeCmd cmd);
 
     StorageFileShareResponse resizeStorageFileShare(ResizeStorageFileShareCmd cmd);
@@ -200,6 +209,9 @@ public interface StorageService {
     boolean deleteStorageNvmeOfHostAcl(DeleteStorageNvmeOfHostAclCmd cmd);
 
     ListResponse<StorageAccessRuleResponse> listStorageNvmeOfHostAcls(ListStorageNvmeOfHostAclsCmd cmd);
+
+    StorageServiceRuntimeBundleResponse updateStorageServiceRuntimeBundle(UpdateStorageServiceRuntimeBundleCmd cmd);
+    boolean deleteStorageServiceRuntimeBundle(DeleteStorageServiceRuntimeBundleCmd cmd);
 
     StorageServiceRuntimeBundleResponse registerStorageServiceRuntimeBundle(RegisterStorageServiceRuntimeBundleCmd cmd);
 

@@ -36,7 +36,7 @@ import com.cloud.utils.db.GenericDao;
 @Entity
 @Table(name = "storage_service_runtime_bundle")
 public class StorageServiceRuntimeBundleVO implements StorageServiceRuntimeBundle {
-    public enum State { AVAILABLE, DISABLED }
+    public enum State { REGISTERED, VERIFIED, AVAILABLE, DISABLED, DEPRECATED, REVOKED }
     public enum ServiceImpact { NONE, PROTOCOL_RESTART, VM_REBOOT }
 
     @Id
@@ -70,7 +70,9 @@ public class StorageServiceRuntimeBundleVO implements StorageServiceRuntimeBundl
     private String signingKeyId;
     @Column(name = "state")
     @Enumerated(EnumType.STRING)
-    private State state = State.AVAILABLE;
+    private State state = State.REGISTERED;
+    @Column(name = "catalog_json")
+    private String catalogJson;
     @Column(name = GenericDao.CREATED_COLUMN)
     @Temporal(TemporalType.TIMESTAMP)
     private Date created = new Date();
@@ -96,6 +98,9 @@ public class StorageServiceRuntimeBundleVO implements StorageServiceRuntimeBundl
         this.manifestSha256 = manifestSha256;
         this.signingKeyId = signingKeyId;
     }
+
+    public String getCatalogJson() { return catalogJson; }
+    public void setCatalogJson(String value) { catalogJson = value; }
 
     public long getId() { return id; }
     public String getUuid() { return uuid; }

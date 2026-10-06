@@ -36,6 +36,18 @@ public interface StorageServiceInstance extends ControlledEntity, Identity, Inte
     String StorageServiceVmType = "storageservicevm";
     String StorageServiceProviderName = "STORAGESERVICEVM";
 
+    ConfigKey<Integer> StorageServiceFormatMinimumTimeout = new ConfigKey<Integer>("Advanced", Integer.class,
+            "storage.service.format.timeout.minimum", "300", "Minimum new backing-volume format deadline in seconds.", true);
+    ConfigKey<Integer> StorageServiceFormatSecondsPerTiB = new ConfigKey<Integer>("Advanced", Integer.class,
+            "storage.service.format.timeout.seconds.per.tib", "120", "Additional format deadline per provisioned TiB.", true);
+    ConfigKey<Integer> StorageServiceFormatMaximumTimeout = new ConfigKey<Integer>("Advanced", Integer.class,
+            "storage.service.format.timeout.maximum", "7200", "Maximum new backing-volume format deadline in seconds.", true);
+
+    ConfigKey<String> StorageServiceRuntimeTrustedKeyDirectory = new ConfigKey<String>("Advanced", String.class,
+            "storage.service.runtime.trusted.keys.directory", "/etc/cloudstack/management/storage-runtime/trusted-keys",
+            "Operator-managed public verification keys for Storage Service runtime bundles; private keys are never accepted.", true,
+            SharedFS.SharedFSFeatureEnabled.key());
+
     enum State {
         Allocated,
         Starting,

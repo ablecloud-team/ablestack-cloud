@@ -22,7 +22,6 @@ import javax.inject.Inject;
 import org.apache.cloudstack.acl.RoleType;
 import org.apache.cloudstack.api.APICommand;
 import org.apache.cloudstack.api.ApiConstants;
-import org.apache.cloudstack.api.BaseAsyncCmd;
 import org.apache.cloudstack.api.Parameter;
 import org.apache.cloudstack.api.command.user.UserCmd;
 import org.apache.cloudstack.api.response.StorageAccessRuleResponse;
@@ -36,7 +35,7 @@ import org.apache.cloudstack.storage.dataservice.StorageService;
         responseHasSensitiveInfo = false,
         since = "4.21.0",
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
-public class DeleteStorageSmbAclCmd extends BaseAsyncCmd implements UserCmd {
+public class DeleteStorageSmbAclCmd extends BaseStorageServiceAsyncCmd implements UserCmd {
     @Inject
     StorageService storageService;
 

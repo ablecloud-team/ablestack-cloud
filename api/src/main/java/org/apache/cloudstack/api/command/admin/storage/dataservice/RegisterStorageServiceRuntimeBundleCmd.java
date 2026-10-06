@@ -41,6 +41,10 @@ public class RegisterStorageServiceRuntimeBundleCmd extends BaseCmd implements A
     @Parameter(name = "sha256", type = CommandType.STRING, required = true) private String sha256;
     @Parameter(name = "manifestsha256", type = CommandType.STRING, required = true) private String manifestSha256;
     @Parameter(name = "signingkeyid", type = CommandType.STRING, required = true) private String signingKeyId;
+    @Parameter(name = "releasechannel", type = CommandType.STRING) private String releaseChannel;
+    @Parameter(name = "releasenotes", type = CommandType.STRING) private String releaseNotes;
+    public String getReleaseChannel() { return releaseChannel; }
+    public String getReleaseNotes() { return releaseNotes; }
     public String getVersion() { return version; }
     public String getRuntimeAbiVersion() { return runtimeAbiVersion; }
     public String getDesiredStateSchemaVersion() { return desiredStateSchemaVersion; }

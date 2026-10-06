@@ -572,6 +572,8 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
                 runEuropaPhase(conn, "europa-4.23-s10-vbmc-v1", () -> com.cloud.upgrade.dao.EuropaVbmcSchemaUpgrade.migrate(conn));
                 runEuropaPhase(conn, EuropaSchemaUpgrade.S11, () -> com.cloud.upgrade.dao.EuropaVmProcessConfigUpgrade.migrate(conn));
                 runEuropaPhase(conn, "europa-4.23-s12-process-profile-v1", () -> com.cloud.upgrade.dao.EuropaVmProcessProfileUpgrade.migrate(conn));
+                runEuropaPhase(conn, "europa-4.23-sharedfs-catalog-v1", () -> com.cloud.upgrade.dao.EuropaSharedFSCatalogUpgrade.migrate(conn));
+                runEuropaPhase(conn, "europa-4.23-sharedfs-operation-v1", () -> com.cloud.upgrade.dao.EuropaSharedFSOperationUpgrade.migrate(conn));
                 // Completed phase markers do not guarantee views match the running binary.
                 try {
                     EuropaVolumeViewReconciler.reconcile(conn);

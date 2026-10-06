@@ -36,6 +36,11 @@ on:
         description: GitHub Actions artifact name
         required: true
         type: string
+      require_stable_runtime_signing_key:
+        description: Reject ephemeral signing for published runtime releases
+        required: false
+        default: false
+        type: boolean
       release_display_version:
         description: ABLESTACK display version recorded in the build manifest
         required: false
@@ -75,6 +80,7 @@ jobs:
       - name: Prepare Storage Service runtime signing key
         env:
           STORAGE_RUNTIME_SIGNING_PRIVATE_KEY: ${{ secrets.storage_runtime_signing_private_key }}
+          REQUIRE_STABLE_RUNTIME_SIGNING_KEY: ${{ inputs.require_stable_runtime_signing_key }}
         run: |
           key_dir="$RUNNER_TEMP/storage-runtime-signing"
           mkdir -p "$key_dir" systemvm/debian/etc/ablestack-storage/runtime-trusted-keys
@@ -82,6 +88,10 @@ jobs:
           if [ -n "$STORAGE_RUNTIME_SIGNING_PRIVATE_KEY" ]; then
             printf '%s' "$STORAGE_RUNTIME_SIGNING_PRIVATE_KEY" > "$private_key"
           else
+            if [ "$REQUIRE_STABLE_RUNTIME_SIGNING_KEY" = "true" ]; then
+              echo "::error::Published runtime bundles require the stable storage_runtime_signing_private_key secret"
+              exit 1
+            fi
             openssl genpkey -algorithm ED25519 -out "$private_key"
             echo "::warning::Using an ephemeral CI key; configure storage_runtime_signing_private_key for release publication"
           fi

@@ -2665,6 +2665,10 @@ volume_attach_inspect() {
 
   python3 - "$payload_file" <<'PY'
 import json
+import fcntl
+import re
+import time
+from pathlib import Path
 import os
 import shutil
 import subprocess
@@ -2679,8 +2683,50 @@ payload_path = sys.argv[1]
 with open(payload_path, "r", encoding="utf-8") as payload_fp:
     payload = json.load(payload_fp)
 
+PROBE_TIMEOUT_SECONDS = 20
+format_deadline = max(1, min(7200, int(payload.get("formatDeadlineSeconds") or 300)))
+volume_key = str(payload.get("volumeUuid") or "")
+if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,127}", volume_key):
+    raise SystemExit("A stable volume UUID is required for backing-volume preparation")
+operation_root = Path(os.environ.get("ABLESTACK_STORAGE_VOLUME_OPERATIONS", "/var/lib/ablestack-storage/volume-operations"))
+operation_root.mkdir(parents=True, exist_ok=True, mode=0o700)
+operation_path = operation_root / (volume_key + ".json")
+operation_lock = open(operation_root / (volume_key + ".lock"), "a+")
+try:
+    fcntl.flock(operation_lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+except BlockingIOError:
+    print(json.dumps({"success": False, "errorCode": "OPERATION_BUSY", "operationId": "volume-" + volume_key}))
+    raise SystemExit(1)
+try:
+    operation = json.loads(operation_path.read_text()) if operation_path.exists() else {}
+except (ValueError, OSError):
+    raise SystemExit("RECOVERY_REQUIRED: volume operation journal is unreadable")
+
+def phase(name, **diagnostic):
+    operation.update(diagnostic)
+    operation.update({"operationId": "volume-" + volume_key, "volumeUuid": volume_key,
+                      "phase": name, "heartbeat": time.time(), "formatDeadlineSeconds": format_deadline})
+    fd, tmp = tempfile.mkstemp(prefix=".operation.", dir=str(operation_root))
+    try:
+        os.fchmod(fd, 0o600)
+        with os.fdopen(fd, "w") as output:
+            json.dump(operation, output, sort_keys=True)
+            output.flush()
+            os.fsync(output.fileno())
+        os.replace(tmp, operation_path)
+        directory = os.open(str(operation_root), os.O_RDONLY)
+        try: os.fsync(directory)
+        finally: os.close(directory)
+    finally:
+        if os.path.exists(tmp): os.unlink(tmp)
+
+def recovery(code, message):
+    phase(code, errorCode=code, diagnostic=message)
+    print(json.dumps({"success": False, "errorCode": code, "operation": operation}, sort_keys=True))
+    raise SystemExit(1)
+
 def run(args):
-    return subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=20)
+    return subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=PROBE_TIMEOUT_SECONDS)
 
 def lsblk():
     result = run(["lsblk", "-b", "-J", "-o", "NAME,PATH,TYPE,FSTYPE,UUID,SERIAL,SIZE,MOUNTPOINT"])
@@ -2859,19 +2905,55 @@ def persist_backing_mount(device, target_path, fs):
 
 def format_empty_device():
     fs = str(requested_filesystem or "xfs").lower()
-    allowed = {"xfs", "ext4"}
-    if fs not in allowed:
+    if fs not in {"xfs", "ext4"}:
         raise SystemExit(f"Unsupported filesystem for empty backing volume format: {fs}")
+    if operation.get("formatStarted"):
+        recovery("RECOVERY_REQUIRED", "An earlier format was started; a blank probe cannot authorize automatic reformat")
     tool = f"mkfs.{fs}"
     if not shutil.which(tool):
         raise SystemExit(f"Missing filesystem formatter: {tool}")
-    result = run([tool, "-f", device] if fs == "xfs" else [tool, "-F", device])
-    if result.returncode != 0:
-        raise SystemExit(result.stderr.strip() or f"failed to format {device} as {fs}")
+    signatures = run(["wipefs", "--no-act", "--json", device])
+    if signatures.returncode != 0:
+        recovery("RECOVERY_REQUIRED", "Unable to prove the device has no existing signatures")
+    if json.loads(signatures.stdout).get("signatures"):
+        recovery("RECOVERY_REQUIRED", "Existing device signatures prohibit automatic formatting")
+    command = [tool, "-f", device] if fs == "xfs" else [tool, "-F", device]
+    phase("FORMATTING", formatStarted=True, filesystem=fs, devicePath=device,
+          started=time.time(), volumeSizeBytes=expected_size, formatter=tool, formatterOptions=command[1:-1])
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    phase("FORMATTING", formatterPid=process.pid)
+    deadline = time.monotonic() + format_deadline
+    while True:
+        try:
+            stdout, stderr = process.communicate(timeout=max(0.1, min(5, deadline - time.monotonic())))
+            break
+        except subprocess.TimeoutExpired:
+            phase("FORMATTING", elapsedSeconds=time.time() - operation["started"])
+            if time.monotonic() >= deadline:
+                process.terminate()
+                try: process.communicate(timeout=5)
+                except subprocess.TimeoutExpired:
+                    process.kill()
+                    process.communicate()
+                recovery("TIMED_OUT_PENDING_RECONCILE", "Format deadline exceeded; re-observe filesystem identity before resuming")
+    if process.returncode != 0:
+        recovery("RECOVERY_REQUIRED", (stderr.strip() or "Filesystem formatter failed")[:1024])
+    phase("VERIFYING_FILESYSTEM", filesystemUuid=blkid_value(device, "UUID"))
+    if blkid_value(device, "TYPE") != fs or not operation.get("filesystemUuid"):
+        recovery("RECOVERY_REQUIRED", "Formatted filesystem identity cannot be verified")
     return fs
 
+resume_format = bool(operation.get("formatStarted"))
+if resume_format:
+    observed_uuid = blkid_value(device, "UUID")
+    if operation.get("volumeUuid") != volume_key or operation.get("filesystem") != existing_filesystem or not observed_uuid:
+        recovery("RECOVERY_REQUIRED", "Interrupted format has no verified matching filesystem; automatic reformat is prohibited")
+    if operation.get("filesystemUuid") and operation["filesystemUuid"] != observed_uuid:
+        recovery("RECOVERY_REQUIRED", "Filesystem UUID changed since volume preparation")
+    phase("VERIFYING_FILESYSTEM", filesystemUuid=observed_uuid)
+
 if import_mode != "INSPECT_ONLY":
-    if existing_filesystem and import_mode == "FORMAT_EMPTY":
+    if existing_filesystem and import_mode == "FORMAT_EMPTY" and not resume_format:
         raise SystemExit(f"Refusing to format {device}: filesystem {existing_filesystem} already exists")
     if existing_filesystem and existing_filesystem not in supported_filesystems:
         raise SystemExit(f"Unsupported filesystem for existing Storage Service backing volume: {existing_filesystem}. Supported filesystems: xfs, ext4")
@@ -2881,6 +2963,7 @@ if import_mode != "INSPECT_ONLY":
         raise SystemExit(f"No filesystem was detected on {device}; format workflows are not part of existing-volume import")
     if filesystem and filesystem not in supported_filesystems:
         raise SystemExit(f"Unsupported filesystem for Storage Service backing volume: {filesystem}. Supported filesystems: xfs, ext4")
+    phase("MOUNTING", devicePath=device, filesystem=filesystem)
     os.makedirs(mount_path, exist_ok=True)
     target = run(["findmnt", "-n", "-o", "SOURCE", "--mountpoint", mount_path])
     if target.returncode == 0 and target.stdout.strip():
@@ -2897,6 +2980,15 @@ if import_mode != "INSPECT_ONLY":
         if mount_result.returncode != 0:
             raise SystemExit(mount_result.stderr.strip() or f"failed to mount {device}")
         mount_path = desired_mount_path
+    if operation.get("formatStarted"):
+        probe_fd, probe_path = tempfile.mkstemp(prefix=".ablestack-volume-verify.", dir=mount_path)
+        try:
+            os.write(probe_fd, b"ABLESTACK volume preparation verification\n")
+            os.fsync(probe_fd)
+        finally:
+            os.close(probe_fd)
+            os.unlink(probe_path)
+    phase("PERSISTING_MOUNT", filesystemUuid=blkid_value(device, "UUID"))
     fs_uuid = persist_backing_mount(device, mount_path, filesystem)
 else:
     if existing_filesystem and existing_filesystem not in supported_filesystems:
@@ -2927,9 +3019,13 @@ def resolve_backing_path(volume_mount_path, relative_path, create_missing):
 
 backing_path = resolve_backing_path(mount_path, relative_share_path, create_directory)
 
+if import_mode != "INSPECT_ONLY":
+    phase("COMPLETE", filesystemUuid=fs_uuid, mountPath=mount_path, elapsedSeconds=time.time() - operation.get("started", time.time()))
+
 print(json.dumps({
     "success": True,
     "status": "ok",
+    "operation": operation,
     "schemaVersion": 2,
     "volumeUuid": payload.get("volumeUuid"),
     "devicePath": device,
@@ -2950,6 +3046,46 @@ print(json.dumps({
     "importMode": import_mode,
 }, sort_keys=True))
 PY
+}
+
+volume_operation_status() {
+  local payload_file="$1"
+  python3 - "$payload_file" <<'PYVOLUME'
+import json
+import os
+from pathlib import Path
+import re
+import subprocess
+import sys
+
+with open(sys.argv[1], encoding="utf-8") as source:
+    payload = json.load(source)
+volume = str(payload.get("volumeUuid") or "")
+if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,127}", volume):
+    raise SystemExit("A stable volume UUID is required")
+root = Path(os.environ.get("ABLESTACK_STORAGE_VOLUME_OPERATIONS", "/var/lib/ablestack-storage/volume-operations"))
+path = root / (volume + ".json")
+if not path.exists():
+    print(json.dumps({"success": True, "status": "NOT_STARTED", "operationId": "volume-" + volume}))
+    raise SystemExit(0)
+operation = json.loads(path.read_text())
+if operation.get("volumeUuid") != volume:
+    raise SystemExit("Volume operation identity mismatch")
+observed = operation.get("phase") or "RECOVERY_REQUIRED"
+pid = operation.get("formatterPid")
+active = False
+if pid:
+    try:
+        args = Path("/proc/" + str(int(pid)) + "/cmdline").read_bytes().split(bytes([0]))
+        active = bool(args and Path(os.fsdecode(args[0])).name in ("mkfs.xfs", "mkfs.ext4")
+                      and str(operation.get("devicePath") or "").encode() in args)
+    except (OSError, ValueError):
+        pass
+if observed in ("FORMATTING", "TIMED_OUT_PENDING_RECONCILE") and not active:
+    observed = "RECONCILE_REQUIRED"
+print(json.dumps({"success": True, "status": observed, "formatterActive": active,
+                  "operationId": "volume-" + volume, "operation": operation}, sort_keys=True))
+PYVOLUME
 }
 
 volume_detach_prepare() {
@@ -3927,8 +4063,8 @@ def start_ganesha_endpoints(configs):
                 pid_fp.write(str(proc.pid))
             started.append((key, conf_path, ip, int(port), mode, proc.pid, log_path))
     runtime = []
-    deadline = time.time() + 15
     for key, conf_path, ip, port, mode, pid, log_path in started:
+        deadline = time.time() + 15
         item = {
             "key": key,
             "listenIp": ip,
@@ -4079,6 +4215,7 @@ def probe_nfs_export_visibility(runtime, endpoint_exports):
         return None, f"no local IPv4 address is allowed by export clients: {clients}"
 
     failures = []
+    probe_deadline = time.monotonic() + max(1, min(120, int(payload.get("probeDeadlineSeconds") or 30)))
     local_addresses = local_global_ipv4_addresses()
     for endpoint in runtime:
         listen_ip = str(endpoint.get("listenIp") or "").strip()
@@ -4127,20 +4264,19 @@ def probe_nfs_export_visibility(runtime, endpoint_exports):
                 "probes": [],
             }
             if host_error:
-                export_result["success"] = False
+                export_result["success"] = None
+                export_result["status"] = "SKIPPED_ACL"
                 export_result["error"] = host_error
-                export_result["probes"].append({
-                    "mode": "host-selection",
-                    "mountType": "nfs",
-                    "target": export.get("pseudo") or export.get("path"),
-                    "options": "",
-                    "success": False,
-                    "error": host_error,
-                })
                 endpoint["probeResults"].append(export_result)
-                endpoint_success = False
-                break
+                endpoint["exportsVisible"] = None
+                continue
             for spec in probe_specs:
+                remaining = probe_deadline - time.monotonic()
+                if remaining <= 0:
+                    export_result["success"] = None
+                    export_result["status"] = "PROBE_PENDING"
+                    endpoint["exportsVisible"] = None
+                    break
                 probe_dir = tempfile.mkdtemp(prefix=f"nfs-probe-{endpoint_key(listen_ip, port)}-", dir=nfs_probe_root)
                 try:
                     cmd = [
@@ -4152,7 +4288,7 @@ def probe_nfs_export_visibility(runtime, endpoint_exports):
                         spec["target"],
                         probe_dir,
                     ]
-                    proc = subprocess.run(cmd, check=False, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=15)
+                    proc = subprocess.run(cmd, check=False, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=min(15, remaining))
                     success = proc.returncode == 0
                     error = None
                     if success:
@@ -4177,16 +4313,28 @@ def probe_nfs_export_visibility(runtime, endpoint_exports):
                         export_result["error"] = error or "mount probe failed"
                         endpoint_success = False
                         break
+                except subprocess.TimeoutExpired:
+                    export_result["success"] = None
+                    export_result["status"] = "PROBE_PENDING"
+                    export_result["error"] = "mount probe deadline exceeded"
+                    endpoint["exportsVisible"] = None
+                    break
                 finally:
-                    shutil.rmtree(probe_dir, ignore_errors=True)
+                    # Never recurse into a potentially still-mounted client filesystem.
+                    subprocess.run(["umount", probe_dir], check=False, stdout=subprocess.DEVNULL,
+                                   stderr=subprocess.DEVNULL, timeout=10)
+                    try:
+                        os.rmdir(probe_dir)
+                    except OSError:
+                        pass
 
             endpoint["probeResults"].append(export_result)
-            if not export_result["success"]:
+            if export_result["success"] is False:
                 endpoint_success = False
-                break
 
         endpoint["probeSuccess"] = endpoint_success
-        endpoint["exportsVisible"] = endpoint_success
+        if endpoint.get("exportsVisible") is not None:
+            endpoint["exportsVisible"] = endpoint_success
         if not endpoint_success:
             failures.append(endpoint)
     return failures
@@ -4518,7 +4666,6 @@ needs_rpcbind = any(mode == "V3V4_DUAL" for _, _, _, _, mode in configs)
 runtime_endpoints = start_ganesha_endpoints(configs if enabled else [])
 runtime_probe_failures = probe_nfs_export_visibility(runtime_endpoints, endpoint_exports if enabled else {})
 if runtime_probe_failures:
-    stop_ganesha_endpoints()
     details = []
     for endpoint in runtime_probe_failures:
         listen_ip = endpoint.get("listenIp") or "unknown"
@@ -4538,8 +4685,15 @@ print(json.dumps({
     "quotas": len(quota_state),
     "runtimeReady": runtime_ready,
     "runtimeEndpoints": runtime_endpoints,
-    "runtimeProbeSuccess": True,
-    "runtimeProbeFailures": [],
+    "runtimeProbeSuccess": all(
+        export.get("success") is True
+        for endpoint in runtime_endpoints for export in endpoint.get("probeResults", [])
+    ),
+    "runtimeProbeFailures": runtime_probe_failures,
+    "runtimeProbePending": [
+        export for endpoint in runtime_endpoints for export in endpoint.get("probeResults", [])
+        if export.get("success") is None
+    ],
     "rpcbindRequired": needs_rpcbind,
     "rpcbindActive": rpcbind_active(),
     "listenPorts": {str(item.get("listenIp")): int(item.get("port") or default_port) for item in runtime_endpoints},
@@ -4939,11 +5093,18 @@ print(json.dumps({"success": True, "shares": len(payload.get("shares", [])), "qu
 PY
 
   if command -v systemctl >/dev/null 2>&1; then
-    systemctl enable --now smbd >/dev/null 2>&1 || true
-    systemctl enable --now nmbd >/dev/null 2>&1 || true
-    systemctl restart smbd >/dev/null 2>&1 || true
-    systemctl restart nmbd >/dev/null 2>&1 || true
-    systemctl restart winbind >/dev/null 2>&1 || true
+    for unit in smbd nmbd; do
+      if ! systemctl is-active --quiet "$unit"; then
+        systemctl enable --now "$unit" >/dev/null 2>&1 || {
+          emit_error "Failed to start SMB service $unit"
+          return 1
+        }
+      fi
+    done
+    if ! command -v smbcontrol >/dev/null 2>&1 || ! smbcontrol all reload-config >/dev/null 2>&1; then
+      emit_error "SMB configuration reload failed; active sessions were not restarted"
+      return 1
+    fi
   fi
   while read -r smb_port; do
     [[ -n "$smb_port" ]] && open_tcp_firewall_port "$smb_port"
@@ -6476,6 +6637,32 @@ case "$command" in
     log_command "$command" "$payload"
     emit_success "Storage Service apply skeleton accepted the payload."
     ;;
+  operation)
+    if [[ "$subcommand" == "preflight" ]]; then
+      python3 - <<'PYOP'
+import json
+import os
+import shutil
+memory = {}
+with open("/proc/meminfo") as source:
+    for line in source:
+        key, value = line.split(":", 1)
+        memory[key] = int(value.strip().split()[0]) * 1024
+root = "/var/lib/ablestack-storage" if os.path.isdir("/var/lib/ablestack-storage") else "/var/lib"
+free = shutil.disk_usage(root).free
+available = memory.get("MemAvailable", memory.get("MemFree", 0))
+ok = available >= 256 * 1024 * 1024 and free >= 100 * 1024 * 1024
+print(json.dumps({"success": ok, "status": "READY" if ok else "RESOURCE_PRESSURE",
+                  "memoryAvailableBytes": available, "stagingFreeBytes": free}))
+raise SystemExit(0 if ok else 1)
+PYOP
+    elif [[ "$subcommand" == "verify" ]]; then
+      ABLESTACK_STORAGECTL_CACHE=0 runtime_health
+    else
+      emit_error "Unsupported Storage Service operation probe."
+      exit 2
+    fi
+    ;;
   health)
     log_command "$command" ""
     runtime_health
@@ -6526,6 +6713,12 @@ case "$command" in
       fi
       log_command "$command $subcommand $action" "$payload"
       volume_attach_inspect "$payload"
+    elif [[ "$subcommand" == "operation" && "$action" == "status" ]]; then
+      if [[ -z "$payload" || ! -r "$payload" ]]; then
+        emit_error "A readable payload file is required for volume operation status."
+        exit 2
+      fi
+      volume_operation_status "$payload"
     elif [[ "$subcommand" == "detach" && "$action" == "prepare" ]]; then
       if [[ -z "$payload" || ! -r "$payload" ]]; then
         emit_error "A readable payload file is required for volume detach prepare."
