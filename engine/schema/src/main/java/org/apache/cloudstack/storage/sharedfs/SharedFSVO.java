@@ -87,6 +87,18 @@ public class SharedFSVO implements SharedFS {
     @Column(name = "service_offering_id")
     private Long serviceOfferingId;
 
+    @Column(name = "data_volume_policy")
+    @Enumerated(value = EnumType.STRING)
+    private DataVolumePolicy dataVolumePolicy;
+
+    @Column(name = "deletion_plan_json", length = 16777215)
+    private String deletionPlanJson;
+
+    @Override public DataVolumePolicy getDataVolumePolicy() { return dataVolumePolicy == null ? DataVolumePolicy.PRESERVE_VOLUMES : dataVolumePolicy; }
+    public void setDataVolumePolicy(DataVolumePolicy value) { dataVolumePolicy = value; }
+    @Override public String getDeletionPlanJson() { return deletionPlanJson; }
+    public void setDeletionPlanJson(String value) { deletionPlanJson = value; }
+
     @Column(name = "network_mode")
     @Enumerated(value = EnumType.STRING)
     private NetworkMode networkMode = NetworkMode.DHCP;

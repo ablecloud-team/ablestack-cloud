@@ -39,6 +39,10 @@ public interface SharedFSLifeCycle {
 
     boolean deleteSharedFS(SharedFS sharedFS);
 
+    default boolean deleteSharedFS(SharedFS sharedFS, SharedFS.DataVolumePolicy policy, java.util.Set<Long> volumeIds) {
+        throw new UnsupportedOperationException("Provider does not support explicit data-volume retention");
+    }
+
     boolean reDeploySharedFS(SharedFS sharedFS) throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException;
 
     boolean changeSharedFSServiceOffering(SharedFS sharedFS, Long serviceOfferingId) throws ManagementServerException, ResourceUnavailableException, VirtualMachineMigrationException;
