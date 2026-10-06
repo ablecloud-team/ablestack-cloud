@@ -8532,5 +8532,6 @@
   "label.storage.service.nfs.idmapping": "NFSv4 소유자 ID 매핑",
   "message.storage.service.nested.path.help": "선택한 볼륨 루트 아래의 상대 경로입니다. 부모 공유에서도 자식 데이터가 보이며, 접근 허용 정책은 각 공유에 독립 적용됩니다. 같은 볼륨 용량을 공유합니다.",
   "message.storage.service.nested.path.invalid": "절대 경로, 빈 경로, 점 또는 상위 경로는 사용할 수 없습니다.",
-  "label.storage.service.volume.relative.path": "백킹 볼륨 상대 경로"
+  "label.storage.service.volume.relative.path": "백킹 볼륨 상대 경로",
+  "label.storage.service.existing.paths": "같은 볼륨의 기존 경로"
 }

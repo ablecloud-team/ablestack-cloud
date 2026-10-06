@@ -1453,6 +1453,10 @@ wrapClassName="storage-service-action-modal"
           </a-form-item>
           <a-form-item :label="$t('label.storage.service.volume.relative.path')">
             <a-input v-model:value="forms.nfsExport.relativepath" placeholder="share/project-a" />
+            <div v-if="forms.nfsExport.relativepath" class="storage-nested-path-preview">
+              {{ $t('label.storage.service.internal.path') }}: {{ nestedBackingPathPreview(forms.nfsExport) }}
+            </div>
+            <a-select :value="undefined" :options="nestedBackingPathOptions(forms.nfsExport)" :placeholder="$t('label.storage.service.existing.paths')" @select="value => { forms.nfsExport.relativepath = value }" />
             <a-alert type="info" show-icon :message="$t('message.storage.service.nested.path.help')" />
           </a-form-item>
           <section class="storage-action-section">
@@ -1761,6 +1765,10 @@ wrapClassName="storage-service-action-modal"
           </a-form-item>
           <a-form-item :label="$t('label.storage.service.volume.relative.path')">
             <a-input v-model:value="forms.smbShare.relativepath" placeholder="share/project-a" />
+            <div v-if="forms.smbShare.relativepath" class="storage-nested-path-preview">
+              {{ $t('label.storage.service.internal.path') }}: {{ nestedBackingPathPreview(forms.smbShare) }}
+            </div>
+            <a-select :value="undefined" :options="nestedBackingPathOptions(forms.smbShare)" :placeholder="$t('label.storage.service.existing.paths')" @select="value => { forms.smbShare.relativepath = value }" />
             <a-alert type="info" show-icon :message="$t('message.storage.service.nested.path.help')" />
           </a-form-item>
           <section class="storage-action-section">
@@ -6675,6 +6683,27 @@ export default {
     isValidNfsExportName (name) {
       const value = String(name || '').trim()
       return !!value && value !== '.' && value !== '..' && /^[A-Za-z0-9._-]+$/.test(value)
+    },
+    nestedBackingPathOptions (form) {
+      const volumeId = String(form.volumeid || (form.volumemode === 'CURRENT' ? this.defaultCurrentBackingVolumeId() : '') || '')
+      if (!volumeId) return []
+      const shares = [...this.storageService.nfsExports, ...this.storageService.smbShares]
+      const options = new Map()
+      for (const item of shares) {
+        const share = item.raw || item
+        if (String(share.volumeid || share.volumeId || '') !== volumeId) continue
+        const config = this.parseStorageConfig(share.config || share.configjson || share.configJson)
+        const root = String(share.volumemountpath || config.volumeMountPath || '').replace(/\/+$/g, '')
+        const backing = String(share.backingpath || config.backingPath || '')
+        const relative = share.volumerelativepath || config.relativeSharePath || (root && backing.startsWith(root + '/') ? backing.slice(root.length + 1) : '')
+        if (relative) options.set(relative, { value: relative, label: relative + ' (' + (share.name || item.name || '') + ')' })
+      }
+      return Array.from(options.values()).sort((a, b) => a.value.localeCompare(b.value))
+    },
+    nestedBackingPathPreview (form) {
+      const volumeId = form.volumeid || (form.volumemode === 'CURRENT' ? this.defaultCurrentBackingVolumeId() : '')
+      const volume = this.currentBackingVolumes.find(item => String(item.id) === String(volumeId))
+      return volumeId ? '/srv/ablestack-storage/volumes/' + (volume?.uuid || volumeId) + '/' + String(form.relativepath || '').trim() : '-'
     },
     validateNestedSharePath (path) {
       const value = String(path || '').trim()

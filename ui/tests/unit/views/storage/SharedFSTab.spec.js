@@ -356,3 +356,19 @@ describe('SharedFS nested backing paths', () => {
     expect(SharedFSTab.methods.validateNfsExportNameAndPath.call(context)).toBe(true)
   })
 })
+
+describe('SharedFS nested path choices', () => {
+  it('limits suggestions to the selected volume and retains physical legacy paths', () => {
+    const context = {
+      storageService: {
+        nfsExports: [{ volumeid: 'v1', name: 'parent', config: JSON.stringify({ volumeMountPath: '/srv/v1', backingPath: '/srv/v1/export/parent' }) }],
+        smbShares: [{ volumeid: 'v1', name: 'child', volumerelativepath: 'export/parent/child' }, { volumeid: 'v2', name: 'unrelated', volumerelativepath: 'private' }]
+      },
+      parseStorageConfig: value => value ? JSON.parse(value) : {},
+      defaultCurrentBackingVolumeId: () => 'v1'
+    }
+    const options = SharedFSTab.methods.nestedBackingPathOptions.call(context, { volumemode: 'CURRENT' })
+    expect(options.map(option => option.value)).toEqual(['export/parent', 'export/parent/child'])
+    expect(SharedFSTab.methods.nestedBackingPathOptions.call(context, { volumemode: 'EXISTING', volumeid: '' })).toEqual([])
+  })
+})
