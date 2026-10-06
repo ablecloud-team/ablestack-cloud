@@ -849,6 +849,12 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
         }
         sshPort = publicIpSshPort.second();
         updateKubernetesClusterEntryEndpoint();
+        // External kubelets remain uninitialized until the CCM sets provider IDs.
+        // Deploy it before waiting for Node and Dashboard workload readiness.
+        if (!deployProvider()) {
+            logTransitStateAndThrow(Level.ERROR, String.format("Failed to initialize Kubernetes provider for cluster : %s",
+                    kubernetesCluster.getName()), kubernetesCluster.getId(), KubernetesCluster.Event.CreateFailed);
+        }
         boolean readyNodesCountValid = KubernetesClusterUtil.validateKubernetesClusterReadyNodesCount(kubernetesCluster, publicIpAddress, sshPort,
                 getControlNodeLoginUser(), sshKeyFile, startTimeoutTime, 15000);
         detachIsoKubernetesVMs(clusterVMs);
@@ -862,7 +868,6 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
             logTransitStateAndThrow(Level.ERROR, String.format("Failed to setup Kubernetes cluster : %s in usable state as unable to get Dashboard service running for the cluster", kubernetesCluster.getName()), kubernetesCluster.getId(),KubernetesCluster.Event.OperationFailed);
         }
         taintControlNodes();
-        deployProvider();
         if (kubernetesCluster.isCsiEnabled()) {
             deployCsiDriver();
         }

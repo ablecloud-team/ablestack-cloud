@@ -95,3 +95,19 @@ Mold listKubernetesClusters의 virtualmachines 항목에 iscontrolnode를 추가
 신규/추가 제어 노드와 워커는 provider.yaml이 존재하는 Mold payload에서만 kubelet --cloud-provider=external을 사용한다. 기존 payload 경로는 해당 옵션을 추가하지 않는다. 업그레이드에서는 기존 kubelet 옵션을 보존하고 다른 cloud-provider가 있으면 실패한다. 메인 제어 노드가 새 CCM을 적용한 뒤 providerID가 비어 있는 기존 Node만 NoSchedule 초기화 taint로 CCM 조회를 요청한다. 실행 중 Pod를 퇴거시키지 않으며 CCM이 ID를 채우고 taint를 제거한다. ID 초기화 대기는 120초로 제한한다.
 
 새 runtime shell 시험은 3개 그룹에서 세 node template의 payload 유무/빈 파일, upgrade 옵션 보존·quoted 값·멱등성·다른 Provider 거부를 실제 Bash로 검증했다. 기존 ISO 소비 shell 시험 6개 그룹 및 Kubernetes 모듈 22개 JUnit도 통과했다. 31번의 기존 4 Node를 native CCM으로 초기화하여 canonical ID와 Ready 및 초기화 taint 제거를 확인했다. 이 수동 migration은 clean 신규 bootstrap PASS를 대신하지 않는다. AS source 254f91edf의 4 minor build/test는 성공했고 신규 ISO source 48830e74는 검증 중이다.
+
+### RT09 canonical ID·집계 및 자동 2→3→2 완료 범위
+
+Cloud f8dca4fb86 / AS254f91ed / ISO48830e74에서 Local 및 Origin 새 ISO 6개를 빌드·독립 검사하고, 비로그인 전체 GET와 secondary 실제 파일 SHA256·크기 일치를 확인했다. 기존 15개 등록을 보존해 새 6개 모두 Ready, 총 21개이며 redirect 설정을 false로 복원했다. [상세 결과](https://github.com/ablecloud-team/ablestack-cloud/issues/1230#issuecomment-6007860800).
+
+기존 r4 대표 클러스터에서 실제 Pending Pod로 GFS2 worker172/root212 생성→Ready→배치를 확인했다. 기본 unneeded 10분을 유지한 자동 축소 job8201은 11:02:41→11:02:55 성공했다. worker registered/ready/target 2→3→2, 미등록0, UUID identity 경고0 및 min2/max3을 확인했다. 삭제 VM/map/root/SSH/LB backend 정리가 일치하고 원본·clean restore 앱 각각 65/65 검사 및 HTTP100 오류0, 축소 중 연속 HTTP1200 오류0·checksum 보존을 확인했다. 이것은 기존 r4 개선 재검증이며 새 ISO의 모든 clean install/HA/minor PASS가 아니다.
+
+### 신규 설치의 Provider 초기화 순서 (#1247)
+
+새 ISO48830e74의 1.34.12 r5에서 Node Ready·cloud-final 성공 후에도 providerID가 비어 있고 모든 Node에 external initialization taint가 남았다. CCM을 배포하기 전에 Dashboard를 기다려 CoreDNS·Headlamp·Calico controller가 Pending인 순환 대기가 실제로 발생했다. 현재 원인 검증은 실제 CCM 수동 배포로 ID 초기화/taint 제거와 Pod Ready를 확인하는 진단 복구로 기록하며, clean PASS에 포함하지 않는다.
+
+StartWorker는 API 준비 후 CCM을 먼저 배포하고 그 뒤 Node/dashboard 준비를 확인하도록 수정했다. Provider 실패를 CreateFailed로 처리한다. 변경 Kubernetes Maven 모듈의 22개 JUnit·package/checkstyle를 통과했다. 수정 후보 배포 후 새로운 clean run으로 재검증하며 Shared/L2 등 기존 Provider 생략 경로의 호환성은 남은 범위로 추적한다.
+
+### Kubernetes 생성 소유자 검색 (#1246)
+
+실제 계정 검색에서 option.label 누락에 의한 toLowerCase TypeError를 확인했다. OwnershipSelection의 계정 옵션에 account.name label을 추가한다. 해당 UI 파일 ESLint와 Node20/WSL ext4 production UI build가 통과했다. static UI 적용은 WEB-INF/config.json/management PID를 보존하고 브라우저의 정상·무결과·검색 해제·선택을 재검증한다.

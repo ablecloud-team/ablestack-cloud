@@ -80,7 +80,7 @@
             }
           "
         >
-          <a-select-option v-for="account in accounts" :key="account.name" :value="account.name">
+          <a-select-option v-for="account in accounts" :key="account.name" :value="account.name" :label="account.name">
             <span>
               <resource-icon
                 v-if="account && account.icon"
