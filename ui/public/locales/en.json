@@ -9225,5 +9225,6 @@
   "message.affinity.policy.non.strict.anti": "Prefer separate hosts. The same host may be used when the preference cannot be met.",
   "message.affinity.policy.strict.anti": "Place group VMs on separate hosts. Placement fails when the requirement cannot be met.",
   "label.affinitygroupid": "Affinity group",
-  "message.affinity.value.unavailable": "This information is unavailable for the current permissions or resource state."
+  "message.affinity.value.unavailable": "This information is unavailable for the current permissions or resource state.",
+  "message.storage.service.read.partial": "Some details could not be refreshed. Previously loaded values remain visible. Retry the failed reads."
 }

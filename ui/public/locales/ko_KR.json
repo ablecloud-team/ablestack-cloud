@@ -9190,5 +9190,6 @@
   "message.affinity.policy.non.strict.anti": "가능하면 서로 다른 호스트에 분산합니다. 조건을 만족하지 못하면 같은 호스트에도 배치할 수 있습니다.",
   "message.affinity.policy.strict.anti": "같은 그룹의 VM을 서로 다른 호스트에 분산합니다. 조건을 만족하지 못하면 배치가 실패합니다.",
   "label.affinitygroupid": "Affinity 그룹",
-  "message.affinity.value.unavailable": "현재 권한이나 자원 상태에서 제공되지 않은 정보입니다."
+  "message.affinity.value.unavailable": "현재 권한이나 자원 상태에서 제공되지 않은 정보입니다.",
+  "message.storage.service.read.partial": "일부 상세 정보를 조회하지 못했습니다. 이전 조회값을 유지합니다. 업데이트 버튼으로 다시 조회할 수 있습니다."
 }
