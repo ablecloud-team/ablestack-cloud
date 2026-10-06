@@ -73,7 +73,7 @@ public class KubernetesClusterUpgradeWorker extends KubernetesClusterActionWorke
     @Inject protected LoadBalancerVMMapDao loadBalancerVMMapDao;
     @Inject protected LoadBalancingRulesService lbService;
     @Inject protected ResourceTagDao resourceTagDao;
-    private LoadBalancerVO upgradeApiLoadBalancer;
+    protected LoadBalancerVO upgradeApiLoadBalancer;
 
     public KubernetesClusterUpgradeWorker(final KubernetesCluster kubernetesCluster,
                                           final KubernetesSupportedVersion upgradeVersion,
@@ -159,6 +159,14 @@ public class KubernetesClusterUpgradeWorker extends KubernetesClusterActionWorke
         Nic nic = networkModel.getNicInNetwork(vm.getId(), kubernetesCluster.getNetworkId());
         if (nic == null || StringUtils.isBlank(nic.getIPv4Address())) {
             throw new CloudRuntimeException("Cannot verify the HA upgrade control node address");
+        }
+        List<LoadBalancerVMMapVO> members = loadBalancerVMMapDao.listByLoadBalancerId(upgradeApiLoadBalancer.getId(), false).stream()
+                .filter(member -> member.getInstanceId() == vm.getId()).collect(Collectors.toList());
+        if (members.size() > 1 || members.size() == 1 && !Objects.equals(members.get(0).getInstanceIp(), nic.getIPv4Address())) {
+            throw new CloudRuntimeException("HA API maintenance member address changed during upgrade");
+        }
+        if (include == !members.isEmpty()) {
+            return; // Reconciliation does not reassign an already registered backend.
         }
         Map<Long, List<String>> addresses = new HashMap<>();
         addresses.put(vm.getId(), Collections.singletonList(nic.getIPv4Address()));

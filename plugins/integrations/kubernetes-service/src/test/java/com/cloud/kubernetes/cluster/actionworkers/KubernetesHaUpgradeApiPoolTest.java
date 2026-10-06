@@ -25,6 +25,8 @@ import com.cloud.kubernetes.cluster.KubernetesClusterManagerImpl;
 import com.cloud.kubernetes.cluster.KubernetesClusterVmMapVO;
 import com.cloud.kubernetes.cluster.dao.KubernetesClusterVmMapDao;
 import com.cloud.network.Network;
+import com.cloud.network.lb.LoadBalancingRulesService;
+import com.cloud.uservm.UserVm;
 import com.cloud.network.NetworkModel;
 import com.cloud.vm.Nic;
 import com.cloud.tags.dao.ResourceTagDao;
@@ -99,5 +101,22 @@ public class KubernetesHaUpgradeApiPoolTest {
     @Test public void ambiguousApiRulesRejected() { Mockito.when(worker.loadBalancerDao.listByIpAddress(6L)).thenReturn(Arrays.asList(rule, rule)); rejects(); }
     @Test public void repeatedBackendForOneVmRejected() { members(1, 2, 3, 3); rejects(); }
     @Test public void differentBackendIpRejected() { Nic nic = Mockito.mock(Nic.class); Mockito.when(nic.getIPv4Address()).thenReturn("10.0.0.99"); Mockito.when(worker.networkModel.getNicInNetwork(1L, 5L)).thenReturn(nic); rejects(); }
+    @Test public void existingBackendIsNotAssignedAgain() {
+        worker.upgradeApiLoadBalancer = rule;
+        worker.lbService = Mockito.mock(LoadBalancingRulesService.class);
+        UserVm vm = Mockito.mock(UserVm.class);
+        Mockito.when(vm.getId()).thenReturn(1L);
+        worker.setUpgradeApiMember(vm, true);
+        Mockito.verifyNoInteractions(worker.lbService);
+    }
+    @Test public void absentBackendIsNotWithdrawnAgain() {
+        worker.upgradeApiLoadBalancer = rule;
+        worker.lbService = Mockito.mock(LoadBalancingRulesService.class);
+        members(2, 3);
+        UserVm vm = Mockito.mock(UserVm.class);
+        Mockito.when(vm.getId()).thenReturn(1L);
+        worker.setUpgradeApiMember(vm, false);
+        Mockito.verifyNoInteractions(worker.lbService);
+    }
     @Test public void singletonDoesNotChangeApiPool() { Mockito.when(cluster.getControlNodeCount()).thenReturn(1L); assertNull(worker.findHaUpgradeApiLoadBalancer()); Mockito.verifyNoInteractions(worker.loadBalancerDao); }
 }
