@@ -1,169 +1,505 @@
 {
-  "source": "rendered Vue3 + Ant Design Vue",
-  "desktop": {
-    "width": 1440,
-    "height": 960
-  },
+  "revision": "toolbar-left-group-end",
   "tabs": [
     {
       "tab": "details",
       "theme": "light",
-      "dark": false,
-      "scrollWidth": 1430,
-      "tabs": 8,
+      "buttons": [],
+      "first": null,
+      "headings": 0,
+      "height": 960,
+      "paneWidth": 678.578125,
+      "toolbarLeft": null,
+      "updateIcons": true,
       "vertical": true,
-      "width": 1430,
-      "image": "images/details-light.jpg"
+      "wide": null,
+      "width": 1430
     },
     {
       "tab": "nfs",
       "theme": "light",
-      "dark": false,
-      "scrollWidth": 1430,
-      "tabs": 8,
+      "buttons": [
+        "NFS 내보내기 생성",
+        "프로토콜 활성화",
+        "업데이트",
+        "넓게 보기"
+      ],
+      "first": {
+        "background": "rgb(24, 144, 255)",
+        "primary": true,
+        "text": "NFS 내보내기 생성",
+        "x": 734.40625
+      },
+      "headings": 0,
+      "height": 960,
+      "paneWidth": 678.578125,
+      "toolbarLeft": 734.40625,
+      "updateIcons": true,
       "vertical": true,
-      "width": 1430,
-      "image": "images/nfs-light.jpg"
+      "wide": {
+        "gap": 8,
+        "insideLeftGroup": true,
+        "last": true,
+        "previous": "업데이트"
+      },
+      "width": 1430
     },
     {
       "tab": "smb",
       "theme": "light",
-      "dark": false,
-      "scrollWidth": 1430,
-      "tabs": 8,
+      "buttons": [
+        "SMB 공유 생성",
+        "프로토콜 활성화",
+        "업데이트",
+        "넓게 보기"
+      ],
+      "first": {
+        "background": "rgb(24, 144, 255)",
+        "primary": true,
+        "text": "SMB 공유 생성",
+        "x": 734.40625
+      },
+      "headings": 0,
+      "height": 960,
+      "paneWidth": 678.578125,
+      "toolbarLeft": 734.40625,
+      "updateIcons": true,
       "vertical": true,
-      "width": 1430,
-      "image": "images/smb-light.jpg"
+      "wide": {
+        "gap": 8,
+        "insideLeftGroup": true,
+        "last": true,
+        "previous": "업데이트"
+      },
+      "width": 1430
     },
     {
       "tab": "iscsi",
       "theme": "light",
-      "dark": false,
-      "scrollWidth": 1430,
-      "tabs": 8,
+      "buttons": [
+        "iSCSI 대상 생성",
+        "프로토콜 활성화",
+        "업데이트",
+        "넓게 보기"
+      ],
+      "first": {
+        "background": "rgb(24, 144, 255)",
+        "primary": true,
+        "text": "iSCSI 대상 생성",
+        "x": 734.40625
+      },
+      "headings": 0,
+      "height": 960,
+      "paneWidth": 678.578125,
+      "toolbarLeft": 734.40625,
+      "updateIcons": true,
       "vertical": true,
-      "width": 1430,
-      "image": "images/iscsi-light.jpg"
+      "wide": {
+        "gap": 8,
+        "insideLeftGroup": true,
+        "last": true,
+        "previous": "업데이트"
+      },
+      "width": 1430
     },
     {
       "tab": "nvmeof",
       "theme": "light",
-      "dark": false,
-      "scrollWidth": 1430,
-      "tabs": 8,
+      "buttons": [
+        "서브시스템 생성",
+        "프로토콜 활성화",
+        "업데이트",
+        "넓게 보기"
+      ],
+      "first": {
+        "background": "rgb(24, 144, 255)",
+        "primary": true,
+        "text": "서브시스템 생성",
+        "x": 734.40625
+      },
+      "headings": 0,
+      "height": 960,
+      "paneWidth": 678.578125,
+      "toolbarLeft": 734.40625,
+      "updateIcons": true,
       "vertical": true,
-      "width": 1430,
-      "image": "images/nvmeof-light.jpg"
+      "wide": {
+        "gap": 8,
+        "insideLeftGroup": true,
+        "last": true,
+        "previous": "업데이트"
+      },
+      "width": 1430
     },
     {
       "tab": "network",
       "theme": "light",
-      "dark": false,
-      "scrollWidth": 1430,
-      "tabs": 8,
+      "buttons": [
+        "업데이트"
+      ],
+      "first": {
+        "background": "rgb(24, 144, 255)",
+        "primary": true,
+        "text": "업데이트",
+        "x": 734.40625
+      },
+      "headings": 0,
+      "height": 960,
+      "paneWidth": 678.578125,
+      "toolbarLeft": 734.40625,
+      "updateIcons": true,
       "vertical": true,
-      "width": 1430,
-      "image": "images/network-light.jpg"
+      "wide": null,
+      "width": 1430
     },
     {
       "tab": "metrics",
       "theme": "light",
-      "dark": false,
-      "scrollWidth": 1430,
-      "tabs": 8,
+      "buttons": [
+        "업데이트"
+      ],
+      "first": {
+        "background": "rgb(24, 144, 255)",
+        "primary": true,
+        "text": "업데이트",
+        "x": 734.40625
+      },
+      "headings": 0,
+      "height": 960,
+      "paneWidth": 678.578125,
+      "toolbarLeft": 734.40625,
+      "updateIcons": true,
       "vertical": true,
-      "width": 1430,
-      "image": "images/metrics-light.jpg"
+      "wide": null,
+      "width": 1430
     },
     {
       "tab": "events",
       "theme": "light",
-      "dark": false,
-      "scrollWidth": 1430,
-      "tabs": 8,
+      "buttons": [
+        "업데이트"
+      ],
+      "first": {
+        "background": "rgb(24, 144, 255)",
+        "primary": true,
+        "text": "업데이트",
+        "x": 734.40625
+      },
+      "headings": 0,
+      "height": 960,
+      "paneWidth": 678.578125,
+      "toolbarLeft": 734.40625,
+      "updateIcons": true,
       "vertical": true,
-      "width": 1430,
-      "image": "images/events-light.jpg"
+      "wide": null,
+      "width": 1430
     },
     {
       "tab": "details",
       "theme": "dark",
-      "dark": true,
-      "scrollWidth": 1430,
-      "tabs": 8,
+      "buttons": [],
+      "first": null,
+      "headings": 0,
+      "height": 960,
+      "paneWidth": 678.578125,
+      "toolbarLeft": null,
+      "updateIcons": true,
       "vertical": true,
-      "width": 1430,
-      "image": "images/details-dark.jpg"
+      "wide": null,
+      "width": 1430
     },
     {
       "tab": "nfs",
       "theme": "dark",
-      "dark": true,
-      "scrollWidth": 1430,
-      "tabs": 8,
+      "buttons": [
+        "NFS 내보내기 생성",
+        "프로토콜 활성화",
+        "업데이트",
+        "넓게 보기"
+      ],
+      "first": {
+        "background": "rgb(24, 144, 255)",
+        "primary": true,
+        "text": "NFS 내보내기 생성",
+        "x": 734.40625
+      },
+      "headings": 0,
+      "height": 960,
+      "paneWidth": 678.578125,
+      "toolbarLeft": 734.40625,
+      "updateIcons": true,
       "vertical": true,
-      "width": 1430,
-      "image": "images/nfs-dark.jpg"
+      "wide": {
+        "gap": 8,
+        "insideLeftGroup": true,
+        "last": true,
+        "previous": "업데이트"
+      },
+      "width": 1430
     },
     {
       "tab": "smb",
       "theme": "dark",
-      "dark": true,
-      "scrollWidth": 1430,
-      "tabs": 8,
+      "buttons": [
+        "SMB 공유 생성",
+        "프로토콜 활성화",
+        "업데이트",
+        "넓게 보기"
+      ],
+      "first": {
+        "background": "rgb(24, 144, 255)",
+        "primary": true,
+        "text": "SMB 공유 생성",
+        "x": 734.40625
+      },
+      "headings": 0,
+      "height": 960,
+      "paneWidth": 678.578125,
+      "toolbarLeft": 734.40625,
+      "updateIcons": true,
       "vertical": true,
-      "width": 1430,
-      "image": "images/smb-dark.jpg"
+      "wide": {
+        "gap": 8,
+        "insideLeftGroup": true,
+        "last": true,
+        "previous": "업데이트"
+      },
+      "width": 1430
     },
     {
       "tab": "iscsi",
       "theme": "dark",
-      "dark": true,
-      "scrollWidth": 1430,
-      "tabs": 8,
+      "buttons": [
+        "iSCSI 대상 생성",
+        "프로토콜 활성화",
+        "업데이트",
+        "넓게 보기"
+      ],
+      "first": {
+        "background": "rgb(24, 144, 255)",
+        "primary": true,
+        "text": "iSCSI 대상 생성",
+        "x": 734.40625
+      },
+      "headings": 0,
+      "height": 960,
+      "paneWidth": 678.578125,
+      "toolbarLeft": 734.40625,
+      "updateIcons": true,
       "vertical": true,
-      "width": 1430,
-      "image": "images/iscsi-dark.jpg"
+      "wide": {
+        "gap": 8,
+        "insideLeftGroup": true,
+        "last": true,
+        "previous": "업데이트"
+      },
+      "width": 1430
     },
     {
       "tab": "nvmeof",
       "theme": "dark",
-      "dark": true,
-      "scrollWidth": 1430,
-      "tabs": 8,
+      "buttons": [
+        "서브시스템 생성",
+        "프로토콜 활성화",
+        "업데이트",
+        "넓게 보기"
+      ],
+      "first": {
+        "background": "rgb(24, 144, 255)",
+        "primary": true,
+        "text": "서브시스템 생성",
+        "x": 734.40625
+      },
+      "headings": 0,
+      "height": 960,
+      "paneWidth": 678.578125,
+      "toolbarLeft": 734.40625,
+      "updateIcons": true,
       "vertical": true,
-      "width": 1430,
-      "image": "images/nvmeof-dark.jpg"
+      "wide": {
+        "gap": 8,
+        "insideLeftGroup": true,
+        "last": true,
+        "previous": "업데이트"
+      },
+      "width": 1430
     },
     {
       "tab": "network",
       "theme": "dark",
-      "dark": true,
-      "scrollWidth": 1430,
-      "tabs": 8,
+      "buttons": [
+        "업데이트"
+      ],
+      "first": {
+        "background": "rgb(24, 144, 255)",
+        "primary": true,
+        "text": "업데이트",
+        "x": 734.40625
+      },
+      "headings": 0,
+      "height": 960,
+      "paneWidth": 678.578125,
+      "toolbarLeft": 734.40625,
+      "updateIcons": true,
       "vertical": true,
-      "width": 1430,
-      "image": "images/network-dark.jpg"
+      "wide": null,
+      "width": 1430
     },
     {
       "tab": "metrics",
       "theme": "dark",
-      "dark": true,
-      "scrollWidth": 1430,
-      "tabs": 8,
+      "buttons": [
+        "업데이트"
+      ],
+      "first": {
+        "background": "rgb(24, 144, 255)",
+        "primary": true,
+        "text": "업데이트",
+        "x": 734.40625
+      },
+      "headings": 0,
+      "height": 960,
+      "paneWidth": 678.578125,
+      "toolbarLeft": 734.40625,
+      "updateIcons": true,
       "vertical": true,
-      "width": 1430,
-      "image": "images/metrics-dark.jpg"
+      "wide": null,
+      "width": 1430
     },
     {
       "tab": "events",
       "theme": "dark",
-      "dark": true,
-      "scrollWidth": 1430,
-      "tabs": 8,
+      "buttons": [
+        "업데이트"
+      ],
+      "first": {
+        "background": "rgb(24, 144, 255)",
+        "primary": true,
+        "text": "업데이트",
+        "x": 734.40625
+      },
+      "headings": 0,
+      "height": 960,
+      "paneWidth": 678.578125,
+      "toolbarLeft": 734.40625,
+      "updateIcons": true,
       "vertical": true,
-      "width": 1430,
-      "image": "images/events-dark.jpg"
+      "wide": null,
+      "width": 1430
+    }
+  ],
+  "wideModes": [
+    {
+      "tab": "nfs",
+      "theme": "light",
+      "normalWidth": 678.578125,
+      "expanded": {
+        "label": "기본 보기",
+        "paneWidth": 1028,
+        "summaryVisible": false
+      },
+      "restored": {
+        "label": "넓게 보기",
+        "summaryVisible": true
+      }
+    },
+    {
+      "tab": "smb",
+      "theme": "light",
+      "normalWidth": 678.578125,
+      "expanded": {
+        "label": "기본 보기",
+        "paneWidth": 1028,
+        "summaryVisible": false
+      },
+      "restored": {
+        "label": "넓게 보기",
+        "summaryVisible": true
+      }
+    },
+    {
+      "tab": "iscsi",
+      "theme": "light",
+      "normalWidth": 678.578125,
+      "expanded": {
+        "label": "기본 보기",
+        "paneWidth": 1028,
+        "summaryVisible": false
+      },
+      "restored": {
+        "label": "넓게 보기",
+        "summaryVisible": true
+      }
+    },
+    {
+      "tab": "nvmeof",
+      "theme": "light",
+      "normalWidth": 678.578125,
+      "expanded": {
+        "label": "기본 보기",
+        "paneWidth": 1028,
+        "summaryVisible": false
+      },
+      "restored": {
+        "label": "넓게 보기",
+        "summaryVisible": true
+      }
+    },
+    {
+      "tab": "nfs",
+      "theme": "dark",
+      "normalWidth": 678.578125,
+      "expanded": {
+        "label": "기본 보기",
+        "paneWidth": 1028,
+        "summaryVisible": false
+      },
+      "restored": {
+        "label": "넓게 보기",
+        "summaryVisible": true
+      }
+    },
+    {
+      "tab": "smb",
+      "theme": "dark",
+      "normalWidth": 678.578125,
+      "expanded": {
+        "label": "기본 보기",
+        "paneWidth": 1028,
+        "summaryVisible": false
+      },
+      "restored": {
+        "label": "넓게 보기",
+        "summaryVisible": true
+      }
+    },
+    {
+      "tab": "iscsi",
+      "theme": "dark",
+      "normalWidth": 678.578125,
+      "expanded": {
+        "label": "기본 보기",
+        "paneWidth": 1028,
+        "summaryVisible": false
+      },
+      "restored": {
+        "label": "넓게 보기",
+        "summaryVisible": true
+      }
+    },
+    {
+      "tab": "nvmeof",
+      "theme": "dark",
+      "normalWidth": 678.578125,
+      "expanded": {
+        "label": "기본 보기",
+        "paneWidth": 1028,
+        "summaryVisible": false
+      },
+      "restored": {
+        "label": "넓게 보기",
+        "summaryVisible": true
+      }
     }
   ],
   "dialogs": [
@@ -173,44 +509,25 @@
         "body": {
           "bottom": 883,
           "height": 804,
+          "left": 335,
+          "right": 1095,
+          "top": 79,
           "width": 760,
           "x": 335,
           "y": 79
         },
-        "clientHeight": 804,
-        "footer": {
-          "bottom": 936,
-          "height": 53,
-          "width": 760,
-          "x": 335,
-          "y": 883
-        },
-        "header": {
-          "bottom": 79,
-          "height": 55,
-          "width": 760,
-          "x": 335,
-          "y": 24
-        },
-        "overflow": "auto",
-        "scrollHeight": 1174,
-        "scrollTop": 0,
-        "viewport": 960
+        "footerBottom": 936,
+        "footerY": 883,
+        "headerY": 24,
+        "height": 960,
+        "scrollTop": 0
       },
       "after": {
-        "footer": {
-          "bottom": 936,
-          "y": 883
-        },
-        "header": {
-          "bottom": 79,
-          "y": 24
-        },
+        "footerY": 883,
+        "headerY": 24,
         "scrollTop": 370
       },
-      "fixed": true,
-      "inside": true,
-      "bodyScrolls": true
+      "fixed": true
     },
     {
       "theme": "dark",
@@ -218,61 +535,43 @@
         "body": {
           "bottom": 883,
           "height": 804,
+          "left": 335,
+          "right": 1095,
+          "top": 79,
           "width": 760,
           "x": 335,
           "y": 79
         },
-        "clientHeight": 804,
-        "footer": {
-          "bottom": 936,
-          "height": 53,
-          "width": 760,
-          "x": 335,
-          "y": 883
-        },
-        "header": {
-          "bottom": 79,
-          "height": 55,
-          "width": 760,
-          "x": 335,
-          "y": 24
-        },
-        "overflow": "auto",
-        "scrollHeight": 1174,
-        "scrollTop": 0,
-        "viewport": 960
+        "footerBottom": 936,
+        "footerY": 883,
+        "headerY": 24,
+        "height": 960,
+        "scrollTop": 0
       },
       "after": {
-        "footer": {
-          "bottom": 936,
-          "y": 883
-        },
-        "header": {
-          "bottom": 79,
-          "y": 24
-        },
+        "footerY": 883,
+        "headerY": 24,
         "scrollTop": 370
       },
-      "fixed": true,
-      "inside": true,
-      "bodyScrolls": true
+      "fixed": true
     }
   ],
   "mobile": {
-    "viewport": {
-      "width": 390,
-      "height": 844
-    },
     "before": {
-      "clientHeight": 712,
+      "body": {
+        "bottom": 779,
+        "height": 712,
+        "left": 3,
+        "right": 377,
+        "top": 67,
+        "width": 374,
+        "x": 3,
+        "y": 67
+      },
       "footerBottom": 832,
       "headerY": 12,
-      "overflow": "auto",
-      "pageScrollWidth": 380,
-      "scrollHeight": 1382,
-      "viewportHeight": 844,
-      "viewportWidth": 390,
-      "width": 374
+      "height": 844,
+      "width": 390
     },
     "after": {
       "footerBottom": 832,
