@@ -547,9 +547,23 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
         }
     }
 
+    protected boolean isUnprovisionedFailure() {
+        if (!KubernetesCluster.State.Error.equals(kubernetesCluster.getState())
+                && !KubernetesCluster.State.Destroying.equals(kubernetesCluster.getState())) {
+            return false;
+        }
+        KubernetesClusterDetailsVO phase = kubernetesClusterDetailsDao.findDetail(kubernetesCluster.getId(), "lifecycle.provisioning.phase");
+        return phase != null && "Preflight".equals(phase.getValue())
+                && CollectionUtils.isEmpty(kubernetesClusterVmMapDao.listByClusterId(kubernetesCluster.getId()));
+    }
+
     protected void prepareNodeRemoval() {
         KubernetesClusterDetailsVO prepared = kubernetesClusterDetailsDao.findDetail(kubernetesCluster.getId(), "cleanup.nodes.prepared");
         if (prepared == null || !"v1".equals(prepared.getValue())) {
+            if (isUnprovisionedFailure()) {
+                kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "cleanup.nodes.prepared", "v1", false);
+                return;
+            }
             requireCleanupNetworkAccess();
             recordVerifiedLegacyApiLoadBalancer();
             prepareCsiCleanupBeforeNodeRemoval();
@@ -562,6 +576,7 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
         init();
         validateClusterSate();
         this.clusterVMs = kubernetesClusterVmMapDao.listByClusterId(kubernetesCluster.getId());
+        final boolean unprovisionedFailure = isUnprovisionedFailure();
         List<VMInstanceVO> vms = this.clusterVMs.stream().map(vmMap -> vmInstanceDao.findById(vmMap.getVmId())).collect(Collectors.toList());
         if (KubernetesClusterManagerImpl.checkIfVmsAssociatedWithBackupOffering(vms)) {
             throw new CloudRuntimeException("Unable to delete Kubernetes cluster, as node(s) are associated to a backup offering");
@@ -624,7 +639,9 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
                 }
             } else {
                 try {
-                    checkForRulesToDelete();
+                    if (!unprovisionedFailure) {
+                        checkForRulesToDelete();
+                    }
                 } catch (ManagementServerException e) {
                     String msg = String.format("Failed to remove network rules of Kubernetes cluster: %s", kubernetesCluster);
                     logger.warn(msg, e);

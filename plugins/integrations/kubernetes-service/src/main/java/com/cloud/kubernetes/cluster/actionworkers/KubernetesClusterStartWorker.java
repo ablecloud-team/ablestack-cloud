@@ -606,7 +606,7 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
         return guestIps;
     }
 
-    private Network startKubernetesClusterNetwork(final DeployDestination destination) throws ManagementServerException {
+    protected Network startKubernetesClusterNetwork(final DeployDestination destination) throws ManagementServerException {
         final ReservationContext context = new ReservationContextImpl(null, null, null, owner);
         Network network = networkDao.findById(kubernetesCluster.getNetworkId());
         if (network == null) {
@@ -616,7 +616,9 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
             throw new ManagementServerException(msg);
         }
         try {
-            networkMgr.startNetwork(network.getId(), destination, context);
+            if (!networkMgr.startNetwork(network.getId(), destination, context)) {
+                throw new ManagementServerException("Kubernetes network implementation did not complete; check network resources and account limits");
+            }
             if (logger.isInfoEnabled()) {
                 logger.info("Network: {} is started for the Kubernetes cluster: {}", network, kubernetesCluster);
             }
@@ -766,6 +768,12 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
             logger.info("Starting Kubernetes cluster: {}", kubernetesCluster);
         }
         final long startTimeoutTime = System.currentTimeMillis() + KubernetesClusterService.KubernetesClusterStartTimeout.value() * 1000;
+        // Only a new, unprovisioned creation may claim the Preflight cleanup path.
+        if (!KubernetesCluster.State.Created.equals(kubernetesCluster.getState())
+                || !CollectionUtils.isEmpty(kubernetesClusterVmMapDao.listByClusterId(kubernetesCluster.getId()))) {
+            throw new CloudRuntimeException("Cluster creation preflight requires a new cluster without provisioned nodes");
+        }
+        kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "lifecycle.provisioning.phase", "Preflight", false);
         stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.StartRequested);
         DeployDestination dest = null;
         try {
@@ -798,6 +806,7 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
             launchPermissionDao.persist(launchPermission);
         }
 
+        kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "lifecycle.provisioning.phase", "Nodes", false);
         List<UserVm> etcdVms = new ArrayList<>();
         List<Network.IpAddresses> etcdGuestNodeIps = new ArrayList<>();
         if (kubernetesCluster.getEtcdNodeCount() > 0) {
