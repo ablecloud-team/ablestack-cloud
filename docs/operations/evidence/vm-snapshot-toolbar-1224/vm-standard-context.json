@@ -1,0 +1,42 @@
+{
+  "menu": {
+    "background": "rgb(39, 46, 54)",
+    "color": "rgb(240, 243, 246)",
+    "items": [
+      {
+        "disabled": "false",
+        "text": "정지"
+      },
+      {
+        "disabled": "false",
+        "text": "재시작"
+      },
+      {
+        "disabled": "false",
+        "text": "가상머신 삭제"
+      }
+    ],
+    "rect": {
+      "height": 179,
+      "width": 272,
+      "x": 1078,
+      "y": 409
+    },
+    "text": "CLVM-TEST-VM 외 1개 항목\n컴퓨트\n정지\n재시작\n삭제\n가상머신 삭제"
+  },
+  "selected": [
+    {
+      "id": "97279d4d-929f-4ebb-bb03-6e9cba376653",
+      "name": "CLVM-TEST-VM"
+    },
+    {
+      "id": "2d0f7b34-3006-40ee-bd6b-feeac7f80c00",
+      "name": "CLVM-NG-TEST-VM"
+    }
+  ],
+  "url": "http://10.10.31.10:8080/client/#/vm",
+  "viewport": {
+    "height": 855,
+    "width": 1920
+  }
+}

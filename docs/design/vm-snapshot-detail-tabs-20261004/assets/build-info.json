@@ -1,0 +1,15 @@
+{
+  "vue": "3.2.37",
+  "compilerSfc": "3.2.37",
+  "antDesignVue": "3.2.20",
+  "uiSource": "9f71736fd827badfe9440feb4697cfff4b39ab2c",
+  "entry": "src/App.vue",
+  "shared": [
+    "layouts/ResourceLayout.vue",
+    "Status.vue",
+    "style/vars.less",
+    "style/dark-mode.less",
+    "style/theme/*.less"
+  ],
+  "offline": true
+}

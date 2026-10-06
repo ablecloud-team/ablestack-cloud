@@ -56,6 +56,7 @@
            $t(getDetailTitle(item)) }}</strong>
           <a-tooltip v-if="['volume', 'snapshot', 'template', 'iso'].includes($route.meta.name) && item === 'usedfsbytes'"><template #title>{{ $t('message.usedfsbytes') }}</template><QuestionCircleOutlined style="margin-left: 8px;"/></a-tooltip>
           <a-tooltip v-if="['volume', 'snapshot', 'template', 'iso'].includes($route.meta.name) && item === 'savingrate'"><template #title>{{ $t('message.savingrate') }}</template><QuestionCircleOutlined style="margin-left: 8px;"/></a-tooltip>
+          <a-tooltip v-if="$route.meta.name === 'storagepool' && item === 'disksizeallocated'" :title="$t('message.storage.allocated.meaning')"><info-circle-outlined style="margin-left: 8px" /></a-tooltip>
           <br/>
           <div v-if="$route.meta.name === 'vm' && item === 'vbmcport'">
             <span>{{ dataResource[item] === 'None' ? $t('label.vbmc.Unallocated') : dataResource[item] }}</span>
@@ -109,6 +110,9 @@
             <div>
               {{ dataResource.rootdisksize }} GB
             </div>
+          </div>
+          <div v-else-if="$route.meta.name === 'computeoffering' && item === 'diskofferingcomputeonly'">
+            {{ dataResource.diskofferingcomputeonly ? $t('label.compute.offering.dedicated.auto.created') : $t('label.general.disk.offering.link') }}
           </div>
           <div v-else-if="$route.meta.name === 'buckets' && item === 'size'">
             <div>
@@ -766,7 +770,7 @@ export default {
         // 1) uid로 조회 (routeKey에 ':' 없으면 uid로 간주)
         if (!routeKey.includes(':')) {
           const r1 = await getAPI('listWallAlertRules', {
-            listall: true, page: 1, pagesize: 1, uid: routeKey
+            page: 1, pagesize: 1, uid: routeKey
           })
           found = takeFirst(r1)
         }
@@ -774,7 +778,7 @@ export default {
         // 2) id로 조회 (콜론 포함 키 or 1단계 실패시)
         if (!found) {
           const r2 = await getAPI('listWallAlertRules', {
-            listall: true, page: 1, pagesize: 1, id: routeKey
+            page: 1, pagesize: 1, id: routeKey
           })
           found = takeFirst(r2)
         }
@@ -782,7 +786,7 @@ export default {
         // 3) 최종 폴백: 전체 받아서 프론트에서 uid/id/name 매칭
         if (!found) {
           const r3 = await getAPI('listWallAlertRules', {
-            listall: true, page: 1, pagesize: 2000
+            page: 1, pagesize: 2000
           })
           const all =
             r3?.listwallalertrulesresponse?.wallalertrule ||

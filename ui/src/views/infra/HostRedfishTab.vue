@@ -19,8 +19,8 @@
   <a-spin :spinning="spinning" :tip="$t('message.redfishdata.loading')">
     <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
   <a-tabs
+    :tabPosition="resourceTabPosition"
     :activeKey="category"
-    :tabPosition="device === 'mobile' ? 'top' : 'left'"
     :animated="true"
     @change="onTabChange">
     <a-tab-pane :tab="$t('label.details')" key="summary">
@@ -370,12 +370,13 @@
   </a-spin>
 </template>
 <script>
+import { mixinDevice } from '@/utils/mixin.js'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 
 import { getAPI } from '@/api'
 import Status from '@/components/widgets/Status'
 export default {
-  mixins: [listRefreshMixin(['fetchData'])],
+  mixins: [mixinDevice, listRefreshMixin(['fetchData'])],
   name: 'HostRedfishTab',
   components: {
     Status

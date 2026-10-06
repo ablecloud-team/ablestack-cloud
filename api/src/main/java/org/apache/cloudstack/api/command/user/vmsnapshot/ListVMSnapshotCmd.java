@@ -48,8 +48,36 @@ public class ListVMSnapshotCmd extends BaseListTaggedResourcesCmd {
     @Parameter(name = ApiConstants.VIRTUAL_MACHINE_ID, type = CommandType.UUID, entityType = UserVmResponse.class, description = "The ID of the Instance")
     private Long vmId;
 
+    @Parameter(name = "virtualmachineids", type = CommandType.LIST, collectionType = CommandType.UUID,
+            entityType = UserVmResponse.class, description = "Filter snapshots belonging to these VM IDs")
+    private List<Long> vmIds;
+
+    public List<Long> getVmIds() { return vmIds; }
+
+    @Parameter(name = "includehidden", type = CommandType.BOOLEAN, description = "Include hidden relationship nodes; requires virtualmachineid")
+    private Boolean includeHidden;
+
+    public boolean isIncludeHidden() { return Boolean.TRUE.equals(includeHidden); }
+
     @Parameter(name = ApiConstants.NAME, type = CommandType.STRING, description = "Lists Snapshot by Snapshot name or display name")
     private String vmSnapshotName;
+
+    @Parameter(name = ApiConstants.TYPE, type = CommandType.STRING, description = "Snapshot type: Disk or DiskAndMemory")
+    private String type;
+
+    @Parameter(name = "current", type = CommandType.BOOLEAN, description = "Filter by the current VM snapshot reference")
+    private Boolean current;
+
+    @Parameter(name = "sortkey", type = CommandType.STRING, description = "Sort by created, displayname, name, state, type or current; defaults to created")
+    private String sortKey;
+
+    @Parameter(name = "sortorder", type = CommandType.STRING, description = "Sort direction: asc or desc; defaults to desc")
+    private String sortOrder;
+
+    public String getSnapshotType() { return type; }
+    public Boolean getCurrent() { return current; }
+    public String getSortKey() { return sortKey; }
+    public String getSortOrder() { return sortOrder; }
 
     public String getState() {
         return state;

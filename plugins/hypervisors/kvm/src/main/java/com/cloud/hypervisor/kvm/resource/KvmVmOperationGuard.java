@@ -89,6 +89,10 @@ public final class KvmVmOperationGuard implements AutoCloseable {
     }
 
     KvmVmOperationGuard(Path root, String uuid, String kind, boolean monitoring, long monitorWaitMs) throws IOException {
+        this(root, uuid, kind, monitoring, monitorWaitMs, null);
+    }
+
+    KvmVmOperationGuard(Path root, String uuid, String kind, boolean monitoring, long monitorWaitMs, Callable<String> recovery) throws IOException {
         if (monitorWaitMs < 0 || monitorWaitMs > 1000) throw new IOException("Invalid monitoring lock budget");
         if (!UUID.fromString(uuid).toString().equals(uuid)) throw new IOException("Non-canonical VM UUID");
         directory(root);
@@ -114,6 +118,7 @@ public final class KvmVmOperationGuard implements AutoCloseable {
                 } catch (IOException e) { throw new java.io.UncheckedIOException(e); }
                 catch (InterruptedException e) { Thread.currentThread().interrupt(); throw new IllegalStateException(e); }
             });
+            if (recovery != null) reconcileSnapshotLeases(root, vmDir, uuid, recovery);
             try (DirectoryStream<Path> entries = Files.newDirectoryStream(vmDir)) {
                 if (entries.iterator().hasNext()) throw new IOException("Unreconciled operation lease; observation unknown");
             }
@@ -138,6 +143,67 @@ public final class KvmVmOperationGuard implements AutoCloseable {
             releaseProcess(lock);
             throw new IOException("Cannot protect VM " + uuid + ": " + e.getMessage(), e);
         }
+    }
+
+    /** Recovery is explicit and limited to completed snapshot mutations under the same flock. */
+    static void reconcileSnapshotLeases(Path root, Path vmDir, String uuid, Callable<String> observer) throws Exception {
+        Map<Path, byte[]> originals = new LinkedHashMap<>();
+        try (DirectoryStream<Path> entries = Files.newDirectoryStream(vmDir)) {
+            for (Path marker : entries) {
+                if (originals.size() >= 16 || Files.isSymbolicLink(marker) || !Files.isRegularFile(marker, LinkOption.NOFOLLOW_LINKS)
+                        || Files.size(marker) > 65536) throw new IOException("Snapshot recovery lease identity is unknown");
+                byte[] bytes = Files.readAllBytes(marker);
+                Map<String, Object> value = com.cloud.agent.api.VmProcessAction.parse(new String(bytes, java.nio.charset.StandardCharsets.UTF_8));
+                String operation = (String) value.get("operationId");
+                if (!uuid.equals(value.get("vmUuid")) || operation == null || !UUID.fromString(operation).toString().equals(operation)
+                        || !marker.getFileName().toString().equals(operation + ".json")
+                        || !Set.of("create-vm-snapshot", "restore-vm-snapshot", "delete-vm-snapshot", "recover-vm-snapshot").contains(value.get("operationKind"))) {
+                    throw new IOException("Only identified snapshot mutation leases can be recovered");
+                }
+                java.time.Instant.parse((String) value.get("ownerStartTime"));
+                UUID.fromString((String) value.get("bootId")); UUID.fromString((String) value.get("generation"));
+                long pid = new java.math.BigDecimal(value.get("ownerPid").toString()).longValueExact();
+                if (pid <= 0 || !(value.get("ownerStartTime") instanceof String) || "unknown".equals(value.get("ownerStartTime"))) {
+                    throw new IOException("Snapshot recovery owner identity is unknown");
+                }
+                java.util.Optional<ProcessHandle> owner = ProcessHandle.of(pid).filter(ProcessHandle::isAlive);
+                if (owner.isPresent() && owner.get().info().startInstant().isEmpty()) throw new IOException("Snapshot recovery owner observation is unknown");
+                boolean alive = owner.flatMap(process -> process.info().startInstant())
+                        .map(time -> time.toString().equals(value.get("ownerStartTime"))).orElse(false);
+                if (alive && !Boolean.TRUE.equals(value.get("nativeCallCompleted"))) {
+                    throw new IOException("Snapshot recovery blocked: original operation owner is still active");
+                }
+                originals.put(marker, bytes);
+            }
+        }
+        String first = observer.call();
+        String second = observer.call();
+        if (first == null || first.isEmpty() || !first.equals(second)) throw new IOException("Snapshot recovery observations are incomplete or changed");
+        Path audit = root.resolve("reconciled"); directory(audit);
+        Path auditVm = audit.resolve(uuid); directory(auditVm);
+        for (Map.Entry<Path, byte[]> item : originals.entrySet()) {
+            Path marker = item.getKey();
+            if (Files.isSymbolicLink(marker) || !java.util.Arrays.equals(item.getValue(), Files.readAllBytes(marker))) {
+                throw new IOException("Snapshot recovery lease changed during observation");
+            }
+            Path archived = auditVm.resolve(marker.getFileName());
+            if (Files.exists(archived, LinkOption.NOFOLLOW_LINKS)) throw new IOException("Snapshot recovery audit already exists");
+            Path proof = auditVm.resolve(marker.getFileName() + ".proof");
+            if (Files.exists(proof, LinkOption.NOFOLLOW_LINKS)) {
+                if (Files.isSymbolicLink(proof) || !Files.isRegularFile(proof, LinkOption.NOFOLLOW_LINKS)
+                        || !Files.readString(proof).equals(second)) {
+                    throw new IOException("Snapshot recovery audit proof changed");
+                }
+            } else {
+                Files.writeString(proof, second, StandardOpenOption.CREATE_NEW);
+            }
+            Files.move(marker, archived, StandardCopyOption.ATOMIC_MOVE);
+            LOG.info("Snapshot mutation reconciled vmUuid={} operation={} evidence={}", uuid, marker.getFileName(), second);
+        }
+    }
+
+    public static KvmVmOperationGuard beginSnapshotRecovery(String uuid, Callable<String> evidence) throws IOException {
+        return new KvmVmOperationGuard(ROOT, uuid, "recover-vm-snapshot", false, 0, evidence);
     }
 
     /** Called only under the VM flock. Never expire or replay any mutation lease. */
@@ -211,13 +277,14 @@ public final class KvmVmOperationGuard implements AutoCloseable {
     public void uncertain() { uncertain = true; }
 
     @Override public synchronized void close() {
-        closed = true;
         if (renewal != null) renewal.cancel(false);
         try {
+            if (uncertain && lease != null) { record.put("nativeCallCompleted", true); writeLease(); }
+            closed = true;
             if (lease != null && !uncertain) Files.deleteIfExists(lease);
             if (lease != null) LOG.info("VM operation release vmUuid={} kind={} uncertain={}", record.get("vmUuid"), record.get("operationKind"), uncertain);
         } catch (IOException e) { LOG.error("Operation lease cleanup failed; protection retained", e); }
-        finally { releaseProcess(lock); }
+        finally { closed = true; releaseProcess(lock); }
     }
 
     private static void releaseProcess(Process process) {

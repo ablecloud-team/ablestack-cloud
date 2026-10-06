@@ -672,7 +672,7 @@ export default {
       name: 'vmsnapshot',
       title: 'label.vm.snapshots',
       icon: 'camera-outlined',
-      docHelp: 'adminguide/storage.html#working-with-volume-snapshots',
+      docHelp: 'adminguide/virtual_machines.html#virtual-machine-snapshots',
       permission: ['listVMSnapshot'],
       resourceType: 'VMSnapshot',
       columns: () => {
@@ -682,14 +682,25 @@ export default {
           if (store.getters.listAllProjects) {
             fields.push('project')
           }
-          fields.push('domain')
         } else if (store.getters.listAllProjects) {
           fields.push('project')
         }
+        fields.push('zonename')
         return fields
       },
       details: ['name', 'id', 'displayname', 'description', 'type', 'current', 'parentName', 'virtualmachineid', 'virtualmachinename', 'account', 'domain', 'created'],
-      searchFilters: ['name', 'domainid', 'account', 'tags'],
+      searchFilters: ['virtualmachineid', 'type', 'current', 'name', 'domainid', 'account', 'tags'],
+      defaultFilter: 'all',
+      filters: () => ['all', 'ready', 'creating', 'allocated', 'reverting', 'expunging', 'error'],
+      filterLabels: {
+        all: 'label.all',
+        ready: 'state.ready',
+        creating: 'state.creating',
+        allocated: 'state.allocated',
+        reverting: 'state.reverting',
+        expunging: 'state.expunging',
+        error: 'state.error'
+      },
       tabs: [
         {
           name: 'details',
@@ -708,7 +719,29 @@ export default {
       ],
       actions: [
         {
+          api: 'createVMSnapshot',
+          icon: 'plus-outlined',
+          label: 'label.action.vmsnapshot.create',
+          listView: true,
+          popup: true,
+          snapshotMode: 'create',
+          selfManagedDialog: true,
+          component: shallowRef(defineAsyncComponent(() => import('@/views/compute/VmSnapshotDialog.vue')))
+        },
+        {
+          api: 'listVMSnapshot',
+          icon: 'branches-outlined',
+          label: 'label.vmsnapshot.relations',
+          dataView: true,
+          popup: true,
+          snapshotMode: 'relation',
+          selfManagedDialog: true,
+          menuGroup: 'STORAGE',
+          component: shallowRef(defineAsyncComponent(() => import('@/views/compute/VmSnapshotDialog.vue')))
+        },
+        {
           api: 'createSnapshotFromVMSnapshot',
+          selfManagedDialog: true,
           disabled: record => !!snapshotActionReason('createSnapshotFromVMSnapshot', record, null, snapshotBusy(record.virtualmachineid)),
           tooltip: record => snapshotActionReason('createSnapshotFromVMSnapshot', record, null, snapshotBusy(record.virtualmachineid)),
           icon: 'camera-outlined',
@@ -721,6 +754,10 @@ export default {
         },
         {
           api: 'revertToVMSnapshot',
+          snapshotMode: 'restore',
+          selfManagedDialog: true,
+          popup: true,
+          component: shallowRef(defineAsyncComponent(() => import('@/views/compute/VmSnapshotDialog.vue'))),
           disabled: record => !!snapshotActionReason('revertToVMSnapshot', record, null, snapshotBusy(record.virtualmachineid)),
           tooltip: record => snapshotActionReason('revertToVMSnapshot', record, null, snapshotBusy(record.virtualmachineid)),
           icon: 'sync-outlined',
@@ -737,7 +774,10 @@ export default {
         },
         {
           api: 'deleteVMSnapshot',
-          disabled: record => !!snapshotActionReason('deleteVMSnapshot', record, null, snapshotBusy(record.virtualmachineid)),
+          snapshotMode: 'delete',
+          selfManagedDialog: true,
+          component: shallowRef(defineAsyncComponent(() => import('@/views/compute/VmSnapshotDialog.vue'))),
+          disabled: (record, store, selectedItems) => selectedItems?.length ? false : !!snapshotActionReason('deleteVMSnapshot', record, null, snapshotBusy(record.virtualmachineid)),
           tooltip: record => snapshotActionReason('deleteVMSnapshot', record, null, snapshotBusy(record.virtualmachineid)),
           icon: 'delete-outlined',
           label: 'label.action.vmsnapshot.delete',
@@ -756,6 +796,7 @@ export default {
             }
           },
           groupAction: true,
+          groupShow: selection => selection.length > 1,
           popup: true,
           groupMap: (selection) => { return selection.map(x => { return { vmsnapshotid: x } }) }
         }
@@ -769,7 +810,7 @@ export default {
       searchFilters: ['name', 'domainid', 'account', 'state'],
       permission: ['listKubernetesClusters'],
       columns: (store) => {
-        var fields = ['name', 'state', 'clustertype', 'size', 'cpunumber', 'memory', 'kubernetesversionname']
+        var fields = ['name', 'state', 'clustertype', { field: 'size', customTitle: 'cks.cluster.size' }, { field: 'cpunumber', customTitle: 'cks.cluster.total.allocated.cpu' }, { field: 'memory', customTitle: 'cks.cluster.total.allocated.memory' }, 'kubernetesversionname']
         if (['Admin', 'DomainAdmin'].includes(store.userInfo.roletype)) {
           fields.push('account')
         }
@@ -786,7 +827,7 @@ export default {
         const filters = ['cloud.managed', 'external.managed']
         return filters
       },
-      details: ['name', 'description', 'zonename', 'kubernetesversionname', 'autoscalingenabled', 'csienabled', 'minsize', 'maxsize', 'size', 'controlnodes', 'controlaffinitygroupnames', 'etcdnodes', 'etcdaffinitygroupnames', 'workeraffinitygroupnames', 'cpunumber', 'memory', 'keypair', 'cniconfigname', 'associatednetworkname', 'account', 'domain', 'zonename', 'clustertype', 'created'],
+      details: ['name', 'description', 'zonename', 'kubernetesversionname', 'autoscalingenabled', 'csienabled', { field: 'minsize', customTitle: 'cks.cluster.minsize' }, { field: 'maxsize', customTitle: 'cks.cluster.maxsize' }, { field: 'size', customTitle: 'cks.cluster.size' }, 'controlnodes', 'controlaffinitygroupnames', 'etcdnodes', 'etcdaffinitygroupnames', 'workeraffinitygroupnames', { field: 'cpunumber', customTitle: 'cks.cluster.total.allocated.cpu' }, { field: 'memory', customTitle: 'cks.cluster.total.allocated.memory' }, 'keypair', 'cniconfigname', 'associatednetworkname', 'account', 'domain', 'zonename', 'clustertype', 'created'],
       tabs: [
         {
           name: 'k8s',

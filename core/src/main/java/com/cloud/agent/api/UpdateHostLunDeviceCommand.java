@@ -24,6 +24,12 @@ public class UpdateHostLunDeviceCommand extends Command {
     private String vmName;
     private String xmlConfig;
     private boolean isAttach;
+    private boolean acknowledgePartitionRisk;
+
+    public boolean isPartitionRiskAcknowledged() { return acknowledgePartitionRisk; }
+
+    public void setAcknowledgePartitionRisk(boolean acknowledged) { this.acknowledgePartitionRisk = acknowledged; }
+
     private String hostDeviceName;
 
     public UpdateHostLunDeviceCommand() {

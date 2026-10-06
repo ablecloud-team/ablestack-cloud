@@ -157,7 +157,7 @@ public class KubernetesClusterResponse extends BaseResponseWithAnnotations imple
     private Long controlNodes;
 
     @SerializedName(ApiConstants.SIZE)
-    @Param(description = "The size (worker nodes count) of the Kubernetes cluster")
+    @Param(description = "The number of worker nodes in the Kubernetes cluster")
     private Long clusterSize;
 
     @SerializedName(ApiConstants.STATE)
@@ -201,11 +201,11 @@ public class KubernetesClusterResponse extends BaseResponseWithAnnotations imple
     private boolean isAutoscalingEnabled;
 
     @SerializedName(ApiConstants.MIN_SIZE)
-    @Param(description = "Minimum size of the cluster")
+    @Param(description = "The minimum number of worker nodes in the Kubernetes cluster")
     private Long minSize;
 
     @SerializedName(ApiConstants.MAX_SIZE)
-    @Param(description = "Maximum size of the cluster")
+    @Param(description = "The maximum number of worker nodes in the Kubernetes cluster")
     private Long maxSize;
 
     @SerializedName(ApiConstants.CSI_ENABLED)

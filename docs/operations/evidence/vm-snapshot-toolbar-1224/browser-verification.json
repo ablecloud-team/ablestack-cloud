@@ -1,0 +1,686 @@
+[
+  {
+    "label": "dark-1920-selected-two-right-click-unselected",
+    "menu": {
+      "background": "rgb(39, 46, 54)",
+      "color": "rgb(240, 243, 246)",
+      "items": [
+        {
+          "disabled": "false",
+          "text": "VM 스냅샷 삭제"
+        }
+      ],
+      "rect": {
+        "height": 97,
+        "width": 272,
+        "x": 1078,
+        "y": 407
+      },
+      "text": "epic1216-concurrent-memory 외 1개 항목\n삭제\nVM 스냅샷 삭제"
+    },
+    "selected": [
+      {
+        "id": "db0ad0fe-cc87-46a5-a748-aad4231bb098",
+        "name": "epic1216-concurrent-memory"
+      },
+      {
+        "id": "f24fd0f5-60a1-4ef5-a0f7-7c839754bad5",
+        "name": "epic1216-concurrent-memory"
+      }
+    ],
+    "url": "http://10.10.31.10:8080/client/#/vmsnapshot",
+    "viewport": {
+      "height": 855,
+      "width": 1920
+    }
+  },
+  {
+    "label": "dark-1920-bulk-dialog-two-eligible-targets",
+    "dialog": {
+      "body": {
+        "clientHeight": 620,
+        "height": 620,
+        "overflowY": "auto",
+        "scrollHeight": 620,
+        "width": 760,
+        "x": 575,
+        "y": 118.5
+      },
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "VM 스냅샷 삭제"
+        }
+      ],
+      "checkboxes": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "colors": {
+        "background": "rgb(34, 40, 47)",
+        "text": "rgb(197, 204, 212)"
+      },
+      "footer": {
+        "height": 53,
+        "width": 760,
+        "x": 575,
+        "y": 738.5
+      },
+      "header": {
+        "height": 55,
+        "width": 760,
+        "x": 575,
+        "y": 63.5
+      },
+      "rect": {
+        "height": 728,
+        "width": 760,
+        "x": 575,
+        "y": 63.5
+      },
+      "text": "VM 스냅샷 삭제\nVM 이름\tepic1216-acl-user-a\n스냅샷 이름\tepic1216-concurrent-memory\n생성일\t2026. 10. 3. 오후 9:59:07\n유형\t디스크 + 메모리\n현재\t현재 기준점\n상위\tepic1216-acl-user-a\n선택한 VM 스냅샷을 삭제하면 해당 복원 지점을 사용할 수 없습니다. KVM의 디스크 + 메모리 스냅샷을 삭제할 때 VM은 잠시 일시정지되고 다시 실행됩니다. 실제 회수 용량은 다른 스냅샷의 참조와 변경 데이터에 따라 달라집니다.\n표시 이름\tVM 이름\t아이디\t가능 여부\n\n \n\t\n \n\t\n \n\t\n \n\nepic1216-concurrent-memory\tepic1216-acl-user-a\tdb0ad0fe-cc87-46a5-a748-aad4231bb098\t실행 가능\nepic1216-concurrent-memory\tepic1216-acl-user-b\tf24fd0f5-60a1-4ef5-a0f7-7c839754bad5\t실행 가능\n\n제출 직전 VM·스냅샷·권한·진행 작업을 다시 확인합니다. 같은 VM의 삭제는 순서대로 실행하며 실패하거나 결과를 확인할 수 없으면 후속 삭제를 중단합니다.\n\n선택한 가상머신과 스냅샷을 확인했고 작업 영향을 이해했습니다.\n취소VM 스냅샷 삭제"
+    }
+  },
+  {
+    "label": "dark-1920-acknowledgement-enables-submit",
+    "dialog": {
+      "body": {
+        "clientHeight": 620,
+        "height": 620,
+        "overflowY": "auto",
+        "scrollHeight": 620,
+        "width": 760,
+        "x": 575,
+        "y": 118.5
+      },
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "VM 스냅샷 삭제"
+        }
+      ],
+      "checkboxes": [
+        {
+          "checked": true,
+          "disabled": false
+        }
+      ],
+      "colors": {
+        "background": "rgb(34, 40, 47)",
+        "text": "rgb(197, 204, 212)"
+      },
+      "footer": {
+        "height": 53,
+        "width": 760,
+        "x": 575,
+        "y": 738.5
+      },
+      "header": {
+        "height": 55,
+        "width": 760,
+        "x": 575,
+        "y": 63.5
+      },
+      "rect": {
+        "height": 728,
+        "width": 760,
+        "x": 575,
+        "y": 63.5
+      },
+      "text": "VM 스냅샷 삭제\nVM 이름\tepic1216-acl-user-a\n스냅샷 이름\tepic1216-concurrent-memory\n생성일\t2026. 10. 3. 오후 9:59:07\n유형\t디스크 + 메모리\n현재\t현재 기준점\n상위\tepic1216-acl-user-a\n선택한 VM 스냅샷을 삭제하면 해당 복원 지점을 사용할 수 없습니다. KVM의 디스크 + 메모리 스냅샷을 삭제할 때 VM은 잠시 일시정지되고 다시 실행됩니다. 실제 회수 용량은 다른 스냅샷의 참조와 변경 데이터에 따라 달라집니다.\n표시 이름\tVM 이름\t아이디\t가능 여부\n\n \n\t\n \n\t\n \n\t\n \n\nepic1216-concurrent-memory\tepic1216-acl-user-a\tdb0ad0fe-cc87-46a5-a748-aad4231bb098\t실행 가능\nepic1216-concurrent-memory\tepic1216-acl-user-b\tf24fd0f5-60a1-4ef5-a0f7-7c839754bad5\t실행 가능\n\n제출 직전 VM·스냅샷·권한·진행 작업을 다시 확인합니다. 같은 VM의 삭제는 순서대로 실행하며 실패하거나 결과를 확인할 수 없으면 후속 삭제를 중단합니다.\n\n선택한 가상머신과 스냅샷을 확인했고 작업 영향을 이해했습니다.\n취소VM 스냅샷 삭제"
+    }
+  },
+  {
+    "label": "one-selected-A-right-click-C-is-single-C",
+    "menu": {
+      "background": "rgb(39, 46, 54)",
+      "color": "rgb(240, 243, 246)",
+      "items": [
+        {
+          "disabled": "false",
+          "text": "VM 스냅샷 생성"
+        },
+        {
+          "disabled": "false",
+          "text": "VM 스냅샷 관계"
+        },
+        {
+          "disabled": "false",
+          "text": "VM 스냅샷에서 스냅샷 생성"
+        },
+        {
+          "disabled": "false",
+          "text": "VM 스냅샷 복원"
+        },
+        {
+          "disabled": "false",
+          "text": "VM 스냅샷 삭제"
+        }
+      ],
+      "rect": {
+        "height": 235,
+        "width": 272,
+        "x": 1078,
+        "y": 407
+      },
+      "text": "epic1216-ui-c-memory\n스토리지\nVM 스냅샷 생성\nVM 스냅샷 관계\nVM 스냅샷에서 스냅샷 생성\nVM 스냅샷 복원\n삭제\nVM 스냅샷 삭제"
+    },
+    "selected": [
+      {
+        "id": "db0ad0fe-cc87-46a5-a748-aad4231bb098",
+        "name": "epic1216-concurrent-memory"
+      }
+    ],
+    "url": "http://10.10.31.10:8080/client/#/vmsnapshot",
+    "viewport": {
+      "height": 855,
+      "width": 1920
+    }
+  },
+  {
+    "label": "single-C-dialog-with-other-A-checked",
+    "dialog": {
+      "body": {
+        "clientHeight": 487,
+        "height": 487,
+        "overflowY": "auto",
+        "scrollHeight": 487,
+        "width": 760,
+        "x": 575,
+        "y": 185
+      },
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "VM 스냅샷 삭제"
+        }
+      ],
+      "checkboxes": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "colors": {
+        "background": "rgb(34, 40, 47)",
+        "text": "rgb(197, 204, 212)"
+      },
+      "footer": {
+        "height": 53,
+        "width": 760,
+        "x": 575,
+        "y": 672
+      },
+      "header": {
+        "height": 55,
+        "width": 760,
+        "x": 575,
+        "y": 130
+      },
+      "rect": {
+        "height": 595,
+        "width": 760,
+        "x": 575,
+        "y": 130
+      },
+      "text": "VM 스냅샷 삭제\nVM 이름\tepic1216-c\n스냅샷 이름\tepic1216-ui-c-memory\n생성일\t2026. 10. 3. 오후 9:38:33\n유형\t디스크 + 메모리\n현재\t현재 기준점\n상위\t—\n선택한 VM 스냅샷을 삭제하면 해당 복원 지점을 사용할 수 없습니다. KVM의 디스크 + 메모리 스냅샷을 삭제할 때 VM은 잠시 일시정지되고 다시 실행됩니다. 실제 회수 용량은 다른 스냅샷의 참조와 변경 데이터에 따라 달라집니다.\n\n제출 직전 VM·스냅샷·권한·진행 작업을 다시 확인합니다. 같은 VM의 삭제는 순서대로 실행하며 실패하거나 결과를 확인할 수 없으면 후속 삭제를 중단합니다.\n\n선택한 가상머신과 스냅샷을 확인했고 작업 영향을 이해했습니다.\n취소VM 스냅샷 삭제"
+    }
+  },
+  {
+    "label": "dark-1920-repeat-menu",
+    "menu": {
+      "background": "rgb(39, 46, 54)",
+      "color": "rgb(240, 243, 246)",
+      "items": [
+        {
+          "disabled": "false",
+          "text": "VM 스냅샷 삭제"
+        }
+      ],
+      "rect": {
+        "height": 97,
+        "width": 272,
+        "x": 1078,
+        "y": 407
+      },
+      "text": "epic1216-concurrent-memory 외 1개 항목\n삭제\nVM 스냅샷 삭제"
+    },
+    "selected": [
+      {
+        "id": "db0ad0fe-cc87-46a5-a748-aad4231bb098",
+        "name": "epic1216-concurrent-memory"
+      },
+      {
+        "id": "f24fd0f5-60a1-4ef5-a0f7-7c839754bad5",
+        "name": "epic1216-concurrent-memory"
+      }
+    ],
+    "url": "http://10.10.31.10:8080/client/#/vmsnapshot",
+    "viewport": {
+      "height": 855,
+      "width": 1920
+    }
+  },
+  {
+    "label": "dark-1366-bulk-dialog-body-scroll",
+    "dialog": {
+      "body": {
+        "clientHeight": 612,
+        "height": 612,
+        "overflowY": "auto",
+        "scrollHeight": 620,
+        "width": 760,
+        "x": 298,
+        "y": 79
+      },
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "VM 스냅샷 삭제"
+        }
+      ],
+      "checkboxes": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "colors": {
+        "background": "rgb(34, 40, 47)",
+        "text": "rgb(197, 204, 212)"
+      },
+      "footer": {
+        "height": 53,
+        "width": 760,
+        "x": 298,
+        "y": 691
+      },
+      "header": {
+        "height": 55,
+        "width": 760,
+        "x": 298,
+        "y": 24
+      },
+      "rect": {
+        "height": 720,
+        "width": 760,
+        "x": 298,
+        "y": 24
+      },
+      "text": "VM 스냅샷 삭제\nVM 이름\tepic1216-acl-user-a\n스냅샷 이름\tepic1216-concurrent-memory\n생성일\t2026. 10. 3. 오후 9:59:07\n유형\t디스크 + 메모리\n현재\t현재 기준점\n상위\tepic1216-acl-user-a\n선택한 VM 스냅샷을 삭제하면 해당 복원 지점을 사용할 수 없습니다. KVM의 디스크 + 메모리 스냅샷을 삭제할 때 VM은 잠시 일시정지되고 다시 실행됩니다. 실제 회수 용량은 다른 스냅샷의 참조와 변경 데이터에 따라 달라집니다.\n표시 이름\tVM 이름\t아이디\t가능 여부\n\n \n\t\n \n\t\n \n\t\n \n\nepic1216-concurrent-memory\tepic1216-acl-user-a\tdb0ad0fe-cc87-46a5-a748-aad4231bb098\t실행 가능\nepic1216-concurrent-memory\tepic1216-acl-user-b\tf24fd0f5-60a1-4ef5-a0f7-7c839754bad5\t실행 가능\n\n제출 직전 VM·스냅샷·권한·진행 작업을 다시 확인합니다. 같은 VM의 삭제는 순서대로 실행하며 실패하거나 결과를 확인할 수 없으면 후속 삭제를 중단합니다.\n\n선택한 가상머신과 스냅샷을 확인했고 작업 영향을 이해했습니다.\n취소VM 스냅샷 삭제"
+    }
+  },
+  {
+    "label": "dark-1366-common-group-menu",
+    "menu": {
+      "background": "rgb(39, 46, 54)",
+      "color": "rgb(240, 243, 246)",
+      "items": [
+        {
+          "disabled": "false",
+          "text": "VM 스냅샷 삭제"
+        }
+      ],
+      "rect": {
+        "height": 97,
+        "width": 272,
+        "x": 801,
+        "y": 446
+      },
+      "text": "epic1216-concurrent-memory 외 1개 항목\n삭제\nVM 스냅샷 삭제"
+    },
+    "selected": [
+      {
+        "id": "db0ad0fe-cc87-46a5-a748-aad4231bb098",
+        "name": "epic1216-concurrent-memory"
+      },
+      {
+        "id": "f24fd0f5-60a1-4ef5-a0f7-7c839754bad5",
+        "name": "epic1216-concurrent-memory"
+      }
+    ],
+    "url": "http://10.10.31.10:8080/client/#/vmsnapshot",
+    "viewport": {
+      "height": 768,
+      "width": 1366
+    }
+  },
+  {
+    "label": "light-1366-common-group-menu",
+    "menu": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(31, 41, 55)",
+      "items": [
+        {
+          "disabled": "false",
+          "text": "VM 스냅샷 삭제"
+        }
+      ],
+      "rect": {
+        "height": 97,
+        "width": 272,
+        "x": 801,
+        "y": 446
+      },
+      "text": "epic1216-concurrent-memory 외 1개 항목\n삭제\nVM 스냅샷 삭제"
+    },
+    "selected": [
+      {
+        "id": "db0ad0fe-cc87-46a5-a748-aad4231bb098",
+        "name": "epic1216-concurrent-memory"
+      },
+      {
+        "id": "f24fd0f5-60a1-4ef5-a0f7-7c839754bad5",
+        "name": "epic1216-concurrent-memory"
+      }
+    ],
+    "url": "http://10.10.31.10:8080/client/#/vmsnapshot",
+    "viewport": {
+      "height": 768,
+      "width": 1366
+    }
+  },
+  {
+    "label": "light-1366-bulk-dialog",
+    "dialog": {
+      "body": {
+        "clientHeight": 612,
+        "height": 612,
+        "overflowY": "auto",
+        "scrollHeight": 620,
+        "width": 760,
+        "x": 298,
+        "y": 79
+      },
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "VM 스냅샷 삭제"
+        }
+      ],
+      "checkboxes": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "colors": {
+        "background": "rgb(255, 255, 255)",
+        "text": "rgb(75, 85, 99)"
+      },
+      "footer": {
+        "height": 53,
+        "width": 760,
+        "x": 298,
+        "y": 691
+      },
+      "header": {
+        "height": 55,
+        "width": 760,
+        "x": 298,
+        "y": 24
+      },
+      "rect": {
+        "height": 720,
+        "width": 760,
+        "x": 298,
+        "y": 24
+      },
+      "text": "VM 스냅샷 삭제\nVM 이름\tepic1216-acl-user-a\n스냅샷 이름\tepic1216-concurrent-memory\n생성일\t2026. 10. 3. 오후 9:59:07\n유형\t디스크 + 메모리\n현재\t현재 기준점\n상위\tepic1216-acl-user-a\n선택한 VM 스냅샷을 삭제하면 해당 복원 지점을 사용할 수 없습니다. KVM의 디스크 + 메모리 스냅샷을 삭제할 때 VM은 잠시 일시정지되고 다시 실행됩니다. 실제 회수 용량은 다른 스냅샷의 참조와 변경 데이터에 따라 달라집니다.\n표시 이름\tVM 이름\t아이디\t가능 여부\n\n \n\t\n \n\t\n \n\t\n \n\nepic1216-concurrent-memory\tepic1216-acl-user-a\tdb0ad0fe-cc87-46a5-a748-aad4231bb098\t실행 가능\nepic1216-concurrent-memory\tepic1216-acl-user-b\tf24fd0f5-60a1-4ef5-a0f7-7c839754bad5\t실행 가능\n\n제출 직전 VM·스냅샷·권한·진행 작업을 다시 확인합니다. 같은 VM의 삭제는 순서대로 실행하며 실패하거나 결과를 확인할 수 없으면 후속 삭제를 중단합니다.\n\n선택한 가상머신과 스냅샷을 확인했고 작업 영향을 이해했습니다.\n취소VM 스냅샷 삭제"
+    }
+  },
+  {
+    "label": "light-390-bulk-dialog-fixed-header-footer",
+    "dialog": {
+      "body": {
+        "clientHeight": 508,
+        "height": 508,
+        "overflowY": "auto",
+        "scrollHeight": 828,
+        "width": 374,
+        "x": 3,
+        "y": 67
+      },
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "VM 스냅샷 삭제"
+        }
+      ],
+      "checkboxes": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "colors": {
+        "background": "rgb(255, 255, 255)",
+        "text": "rgb(75, 85, 99)"
+      },
+      "footer": {
+        "height": 53,
+        "width": 374,
+        "x": 3,
+        "y": 575
+      },
+      "header": {
+        "height": 55,
+        "width": 374,
+        "x": 3,
+        "y": 12
+      },
+      "rect": {
+        "height": 616,
+        "width": 374,
+        "x": 3,
+        "y": 12
+      },
+      "text": "VM 스냅샷 삭제\nVM 이름\tepic1216-acl-user-a\n스냅샷 이름\tepic1216-concurrent-memory\n생성일\t2026. 10. 3. 오후 9:59:07\n유형\t디스크 + 메모리\n현재\t현재 기준점\n상위\tepic1216-acl-user-a\n선택한 VM 스냅샷을 삭제하면 해당 복원 지점을 사용할 수 없습니다. KVM의 디스크 + 메모리 스냅샷을 삭제할 때 VM은 잠시 일시정지되고 다시 실행됩니다. 실제 회수 용량은 다른 스냅샷의 참조와 변경 데이터에 따라 달라집니다.\n표시 이름\tVM 이름\t아이디\t가능 여부\n\n \n\t\n \n\t\n \n\t\n \n\nepic1216-concurrent-memory\tepic1216-acl-user-a\tdb0ad0fe-cc87-46a5-a748-aad4231bb098\t실행 가능\nepic1216-concurrent-memory\tepic1216-acl-user-b\tf24fd0f5-60a1-4ef5-a0f7-7c839754bad5\t실행 가능\n\n제출 직전 VM·스냅샷·권한·진행 작업을 다시 확인합니다. 같은 VM의 삭제는 순서대로 실행하며 실패하거나 결과를 확인할 수 없으면 후속 삭제를 중단합니다.\n\n선택한 가상머신과 스냅샷을 확인했고 작업 영향을 이해했습니다.\n취소VM 스냅샷 삭제"
+    }
+  },
+  {
+    "label": "light-1366-keyboard-group-menu",
+    "menu": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(31, 41, 55)",
+      "items": [
+        {
+          "disabled": "false",
+          "text": "VM 스냅샷 삭제"
+        }
+      ],
+      "rect": {
+        "height": 97,
+        "width": 272,
+        "x": 292,
+        "y": 436
+      },
+      "text": "epic1216-concurrent-memory 외 1개 항목\n삭제\nVM 스냅샷 삭제"
+    },
+    "selected": [
+      {
+        "id": "db0ad0fe-cc87-46a5-a748-aad4231bb098",
+        "name": "epic1216-concurrent-memory"
+      },
+      {
+        "id": "f24fd0f5-60a1-4ef5-a0f7-7c839754bad5",
+        "name": "epic1216-concurrent-memory"
+      }
+    ],
+    "url": "http://10.10.31.10:8080/client/#/vmsnapshot",
+    "viewport": {
+      "height": 768,
+      "width": 1366
+    }
+  },
+  {
+    "label": "dark-mobile-only-body-scroll",
+    "before": {
+      "footerY": 575,
+      "headerY": 12,
+      "scrollTop": 0
+    },
+    "after": {
+      "footerY": 575,
+      "headerY": 12,
+      "scrollTop": 320
+    }
+  },
+  {
+    "label": "dark-390-bulk-dialog-scrolled",
+    "dialog": {
+      "body": {
+        "clientHeight": 508,
+        "height": 508,
+        "overflowY": "auto",
+        "scrollHeight": 828,
+        "width": 374,
+        "x": 3,
+        "y": 67
+      },
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "VM 스냅샷 삭제"
+        }
+      ],
+      "checkboxes": [
+        {
+          "checked": true,
+          "disabled": false
+        }
+      ],
+      "colors": {
+        "background": "rgb(34, 40, 47)",
+        "text": "rgb(197, 204, 212)"
+      },
+      "footer": {
+        "height": 53,
+        "width": 374,
+        "x": 3,
+        "y": 575
+      },
+      "header": {
+        "height": 55,
+        "width": 374,
+        "x": 3,
+        "y": 12
+      },
+      "rect": {
+        "height": 616,
+        "width": 374,
+        "x": 3,
+        "y": 12
+      },
+      "text": "VM 스냅샷 삭제\nVM 이름\tepic1216-acl-user-a\n스냅샷 이름\tepic1216-concurrent-memory\n생성일\t2026. 10. 3. 오후 9:59:07\n유형\t디스크 + 메모리\n현재\t현재 기준점\n상위\tepic1216-acl-user-a\n선택한 VM 스냅샷을 삭제하면 해당 복원 지점을 사용할 수 없습니다. KVM의 디스크 + 메모리 스냅샷을 삭제할 때 VM은 잠시 일시정지되고 다시 실행됩니다. 실제 회수 용량은 다른 스냅샷의 참조와 변경 데이터에 따라 달라집니다.\n표시 이름\tVM 이름\t아이디\t가능 여부\n\n \n\t\n \n\t\n \n\t\n \n\nepic1216-concurrent-memory\tepic1216-acl-user-a\tdb0ad0fe-cc87-46a5-a748-aad4231bb098\t실행 가능\nepic1216-concurrent-memory\tepic1216-acl-user-b\tf24fd0f5-60a1-4ef5-a0f7-7c839754bad5\t실행 가능\n\n제출 직전 VM·스냅샷·권한·진행 작업을 다시 확인합니다. 같은 VM의 삭제는 순서대로 실행하며 실패하거나 결과를 확인할 수 없으면 후속 삭제를 중단합니다.\n\n선택한 가상머신과 스냅샷을 확인했고 작업 영향을 이해했습니다.\n취소VM 스냅샷 삭제"
+    }
+  },
+  {
+    "label": "final-VM-standard-group-menu-unchanged",
+    "menu": {
+      "background": "rgb(39, 46, 54)",
+      "color": "rgb(240, 243, 246)",
+      "items": [
+        {
+          "disabled": "false",
+          "text": "정지"
+        },
+        {
+          "disabled": "false",
+          "text": "재시작"
+        },
+        {
+          "disabled": "false",
+          "text": "가상머신 삭제"
+        }
+      ],
+      "rect": {
+        "height": 179,
+        "width": 272,
+        "x": 958,
+        "y": 479
+      },
+      "text": "CLVM-TEST-VM 외 1개 항목\n컴퓨트\n정지\n재시작\n삭제\n가상머신 삭제"
+    },
+    "selected": [
+      {
+        "id": "97279d4d-929f-4ebb-bb03-6e9cba376653",
+        "name": "CLVM-TEST-VM"
+      },
+      {
+        "id": "2d0f7b34-3006-40ee-bd6b-feeac7f80c00",
+        "name": "CLVM-NG-TEST-VM"
+      }
+    ],
+    "url": "http://10.10.31.10:8080/client/#/vm",
+    "viewport": {
+      "height": 825,
+      "width": 1680
+    }
+  },
+  {
+    "label": "final-dark-default-viewport-menu",
+    "menu": {
+      "background": "rgb(39, 46, 54)",
+      "color": "rgb(240, 243, 246)",
+      "items": [
+        {
+          "disabled": "false",
+          "text": "VM 스냅샷 삭제"
+        }
+      ],
+      "rect": {
+        "height": 97,
+        "width": 272,
+        "x": 1078,
+        "y": 403
+      },
+      "text": "epic1216-concurrent-memory 외 1개 항목\n삭제\nVM 스냅샷 삭제"
+    },
+    "selected": [
+      {
+        "id": "db0ad0fe-cc87-46a5-a748-aad4231bb098",
+        "name": "epic1216-concurrent-memory"
+      },
+      {
+        "id": "f24fd0f5-60a1-4ef5-a0f7-7c839754bad5",
+        "name": "epic1216-concurrent-memory"
+      }
+    ],
+    "url": "http://10.10.31.10:8080/client/#/vmsnapshot",
+    "viewport": {
+      "height": 855,
+      "width": 1920
+    }
+  }
+]

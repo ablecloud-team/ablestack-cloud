@@ -26,6 +26,10 @@ public class UpdateHostVhbaDeviceAnswer extends Answer {
     private boolean isAttach;
     private boolean success;
 
+    public UpdateHostVhbaDeviceAnswer(boolean success, String details) {
+        super(null, success, details);
+    }
+
     public UpdateHostVhbaDeviceAnswer() {
         super();
     }

@@ -1,0 +1,96 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements. See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership. The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied. See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>#1211 볼륨 생성 및 연결 · 스토리지 용량 표시 목업</title>
+<style>
+:root { --bg:#f0f2f5;--panel:#fff;--text:#303b44;--muted:#6d7783;--line:#d9d9d9;--softline:#e8eaee;--subtle:#fafafa;--selection:#e6f7ff;--blue:#1890ff;--mask:rgba(0,0,0,.40);--pill:#e6f7ff;--borderblue:#91d5ff;--good:#167d59;--shadow:0 6px 20px rgba(0,0,0,.18) }
+body.dark { --bg:#171c22;--panel:#222930;--text:#e7edf3;--muted:#afb9c3;--line:#424a52;--softline:#353e48;--subtle:#29313a;--selection:#1b3e55;--blue:#40a9ff;--pill:#142c3e;--borderblue:#255d83;--good:#73d4aa;--mask:rgba(0,0,0,.52) }
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 "Malgun Gothic","Noto Sans KR",Arial,sans-serif}
+button,input{font:inherit;color:inherit}button{cursor:pointer}input,button{outline-offset:3px}input:focus-visible,button:focus-visible{outline:2px solid var(--blue)}
+svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.5;flex-shrink:0;vertical-align:middle}
+.app{display:grid;grid-template-columns:230px 1fr;min-height:100vh}.nav{background:var(--panel);border-right:1px solid var(--softline);padding:12px}.logo{width:202px;height:48px;object-fit:contain}
+.navitem{padding:12px 18px;color:var(--muted)}.navitem.active{background:var(--selection);color:var(--blue)}.navitem.sub{padding-left:40px}
+.appheader{background:var(--panel);height:64px;padding:0 24px;display:flex;align-items:center;gap:24px;border-bottom:1px solid var(--softline)}.grow{flex:1}.view{width:340px;border:1px solid var(--line);padding:4px 12px}.avatar{background:#1890ff;color:#fff;border-radius:50%;padding:5px;font-size:11px}
+.content{padding:17px}.crumb{color:var(--muted);margin-bottom:18px}.card{background:var(--panel);border:1px solid var(--softline);border-radius:3px;padding:22px}h1{font-size:22px;margin:0 0 18px}.vmmeta{display:flex;gap:48px;margin-bottom:22px}.vmmeta small{display:block;color:var(--muted);font-size:12px}.tabs{display:flex;gap:22px;border-top:1px solid var(--softline);border-bottom:1px solid var(--softline);padding:16px 0}.tabs .active{color:var(--blue);position:relative}.tabs .active:after{content:"";height:2px;background:var(--blue);position:absolute;bottom:-17px;left:0;right:0}.toolbar{display:flex;gap:10px;margin:17px 0}
+.button{border:1px solid var(--line);border-radius:3px;background:var(--panel);padding:4px 14px;min-height:32px}.button.primary{background:#1890ff;color:#fff;border-color:#1890ff}.table{width:100%;border-collapse:collapse}.table th{background:var(--subtle);font-weight:500}.table th,.table td{text-align:left;padding:14px;border-bottom:1px solid var(--softline)}
+.mask{position:fixed;inset:0;background:var(--mask);z-index:2}.modal-frame{position:fixed;inset:0;overflow:auto;z-index:3;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px 12px}.modal{max-height:calc(100vh - 40px);display:flex;flex-direction:column;width:520px;max-width:100%;background:var(--panel);border-radius:3px;box-shadow:var(--shadow)}
+.modalhead{flex-shrink:0;height:56px;display:flex;align-items:center;padding:0 22px;border-bottom:1px solid var(--line);font-size:16px;font-weight:600}.close{margin-left:auto;border:0;background:none;color:var(--muted);padding:6px;font-size:23px;font-weight:300}
+.form{overflow-y:auto;min-height:0;padding:18px 22px 16px}.field{margin-bottom:8px}.fieldlabel{display:block;margin-bottom:4px;line-height:20px;color:var(--muted);font-size:14px}.required:before{content:"*";color:#ff4d4f;margin-right:4px}.infomark{font-size:13px;margin-left:3px;color:var(--muted)}
+.control{width:100%;height:32px;padding:4px 11px;background:var(--panel);border:1px solid var(--line);border-radius:3px}.control::placeholder{color:var(--muted)}.offering{display:flex;align-items:center;justify-content:space-between;gap:10px}.caret{display:inline-block;width:8px;height:8px;border-right:1px solid var(--muted);border-bottom:1px solid var(--muted);transform:rotate(45deg);margin-right:3px;margin-top:-4px}
+.switch{height:22px;width:44px;border:0;border-radius:12px;background:#1890ff;position:relative}.switch:before{content:"";background:var(--panel);position:absolute;right:3px;top:3px;height:16px;width:16px;border-radius:50%}
+.storage-section{position:relative}.storage-toggle{display:flex;align-items:center;text-align:left;gap:9px;background:var(--panel);cursor:pointer}.storage-toggle .name{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.storage-toggle[aria-expanded=true]{border-color:var(--blue);box-shadow:0 0 0 2px var(--pill)}
+.capacity-summary{border:1px solid var(--softline);border-radius:3px;background:var(--subtle);padding:10px 12px;margin-top:9px}.metricgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;font-variant-numeric:tabular-nums}.metric span{display:block;color:var(--muted);font-size:12px;margin-bottom:2px}.metric strong{font-size:14px;font-weight:600;white-space:nowrap}.metric.available strong{color:var(--good)}
+.caption{font-size:12px;color:var(--muted);margin-top:8px}.hint{color:var(--muted);font-size:12px;margin:7px 0 0;line-height:1.65}.devicehint{font-size:13px;line-height:1.65;margin-top:8px;color:var(--muted)}
+.choices{max-height:300px;overflow-y:auto;position:fixed;z-index:6;padding:5px;background:var(--panel);border:1px solid var(--line);border-radius:3px;box-shadow:var(--shadow)}.choices[hidden]{display:none}.choice{display:block;width:100%;border:0;padding:10px 11px;background:var(--panel);text-align:left;border-radius:3px;margin-bottom:3px}.choice:last-child{margin-bottom:0}.choice.selected{background:var(--selection)}.choice:hover{background:var(--subtle)}.choice.selected:hover{background:var(--selection)}.choicetitle{display:flex;align-items:center;gap:8px;margin-bottom:7px}.choicetitle strong{font-weight:600;min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.checkmark{color:var(--blue);font-weight:600}.kind{font-size:12px;color:var(--muted);font-weight:400}.choice .metric span{font-size:11px}.choice .metric strong{font-size:13px}
+.modalfooter{flex-shrink:0;padding:10px 22px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--line);height:54px}.unknown{color:var(--muted)}.error-message{background:var(--subtle);padding:12px;color:var(--muted)}
+.design-note{position:fixed;z-index:4;left:24px;bottom:21px;max-width:310px;background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:12px 15px;font-size:12px;color:var(--muted)}.design-note strong{display:block;color:var(--text);font-size:14px;margin-bottom:4px}
+@media(max-width:800px){.app{grid-template-columns:180px 1fr}.nav{padding:6px}.logo{width:155px}.design-note{display:none}}@media(max-width:480px){.modal-frame{padding:12px 8px}.form{padding:16px}.modalhead{padding:0 16px}.metricgrid{gap:7px}.metric strong{font-size:13px}.choices{top:60px}}
+</style>
+</head>
+<body>
+<div class="app" aria-hidden="true">
+<aside class="nav"><img class="logo" src="logo-ablestack.png" alt="ABLESTACK"><div class="navitem">◈　대시보드</div><div class="navitem">☁　컴퓨트</div><div class="navitem sub active">가상머신</div><div class="navitem sub">VM 스냅샷</div><div class="navitem">▤　스토리지</div><div class="navitem">⌁　네트워크</div><div class="navitem">▧　이미지</div><div class="navitem">◷　이벤트</div></aside>
+<div><div class="appheader">☰ <div class="view">기본 보기 <span style="float:right">⌄</span></div><span class="grow"></span><button class="button primary">생성 ⌄</button><span class="avatar">AC</span><span>admin cloud</span></div><main class="content"><div class="crumb">⌂　/　가상머신　/　Ubuntu24-Process</div><section class="card"><h1>Ubuntu24-Process</h1><div class="vmmeta"><span><small>상태</small>실행 중</span><span><small>CPU</small>2 CPU</span><span><small>메모리</small>4096 MB</span><span><small>하이퍼바이저</small>KVM</span><span><small>스토리지</small>Primary</span></div><nav class="tabs"><span>상세</span><span>IP 구성</span><span>메트릭</span><span>프로세스</span><span>스케줄</span><span>ISO</span><span class="active">볼륨</span><span>NIC</span><span>설정</span><span>호스트 장치</span><span>VM 스냅샷</span></nav><div class="toolbar"><button class="button primary">＋ 생성 및 연결</button><button class="button">기존 볼륨 연결</button><button class="button">⟳ 업데이트</button><span class="grow"></span><input class="control" style="width:180px" placeholder="검색"></div><table class="table"><tr><th>이름</th><th>상태</th><th>유형</th><th>볼륨 번호 (Device ID)</th><th>크기</th><th>스토리지</th></tr><tr><td>ROOT-93sparse</td><td>Ready</td><td>ROOT</td><td>0</td><td>100.00 GB</td><td>Primary</td></tr></table></section></main></div></div>
+<div class="mask"></div>
+<div class="modal-frame">
+<section class="modal" role="dialog" aria-labelledby="dialog-title">
+<div class="modalhead"><span id="dialog-title">생성 및 연결</span><button class="close" aria-label="닫기">×</button></div>
+<div class="form">
+<div class="field"><label class="fieldlabel required" for="name">이름<span class="infomark">ⓘ</span></label><input class="control" id="name" value="Data-01"></div>
+<div class="field"><label class="fieldlabel required" for="offering">디스크 오퍼링<span class="infomark">ⓘ</span></label><div id="offering" class="control offering">Custom-GFS-Sparse<span class="caret"></span></div></div>
+<div class="field"><label class="fieldlabel required" for="size">크기<span class="infomark">ⓘ</span></label><input id="size" class="control" value="100" aria-label="크기"></div>
+<div class="field"><label class="fieldlabel" for="miniops">최소 IOPS<span class="infomark">ⓘ</span></label><input class="control" id="miniops" placeholder="Min IOPS"></div>
+<div class="field"><label class="fieldlabel" for="maxiops">최대 IOPS<span class="infomark">ⓘ</span></label><input class="control" id="maxiops" placeholder="Max IOPS"></div>
+<div class="field"><label class="fieldlabel">스토리지에 생성<span class="infomark">ⓘ</span></label><button class="switch" role="switch" aria-checked="true" aria-label="스토리지에 생성"></button></div>
+<div class="field storage-section"><label class="fieldlabel" id="storage-label">기본 스토리지</label>
+<button class="control storage-toggle" id="storage-toggle" role="combobox" aria-labelledby="storage-label" aria-controls="pool-options" aria-expanded="false"><svg viewBox="0 0 16 16"><rect x="3" y="1" width="10" height="14" rx="1"/><path d="M3 5h10M3 10h10M5 3h2M5 8h2M5 13h2"/></svg><span class="name" id="selected-name">Primary</span><span class="caret"></span></button>
+<div class="choices" id="pool-options" role="listbox" aria-label="기본 스토리지 목록" hidden></div>
+<div class="capacity-summary" id="selected-summary"><div class="metricgrid" id="selected-metrics"></div><div class="caption" title="조회 시점의 물리 여유입니다. 실제 생성 가능 용량은 배치 정책에 따라 달라질 수 있습니다.">할당: 예약 포함 · 남은 용량: 물리 여유</div></div>
+
+</div>
+<div class="field" style="margin-bottom:0"><label class="fieldlabel" for="device">볼륨 번호 (Device ID)</label><input class="control" id="device" placeholder="자동 배정"><div class="devicehint">비워두면 자동 배정합니다. 0은 ROOT, 3은 예약 번호입니다. 허용 범위와 게스트 디스크 매핑은 하이퍼바이저 정책에 따릅니다.</div></div>
+</div>
+<div class="modalfooter"><button class="button">취소</button><button class="button primary">확인</button></div>
+</section>
+</div>
+<aside class="design-note"><strong>#1211 추가 개선 · 검토 목업</strong>기존 대화상자·선택 방식 유지<br>스토리지별 용량 비교와 선택 후 요약<br>스토리지 이름·용량은 예시 값입니다.</aside>
+<script>
+const params = new URLSearchParams(location.search);
+const dark = params.get('theme') === 'dark';
+document.body.classList.toggle('dark', dark);
+if (dark) document.querySelector('.logo').src = 'white-logo-ablestack.png';
+const gib=1024**3,tib=1024**4;
+const pools=[{id:'primary',name:'Primary',total:8*tib,allocated:3.25*tib,used:2.4*tib},{id:'clvm',name:'CLVM',total:1.5*tib,allocated:820*gib,used:972.6*gib},{id:'archive',name:'Archive-Primary-Storage-With-a-Very-Long-Display-Name-For-Capacity-Comparison',total:4*tib,allocated:null,used:null}];
+let selected=params.get('state')==='selected'?pools[1]:pools[0];
+if(params.get('state')==='unknown') selected=pools[2];
+function bytes(v){if(v==null || !Number.isFinite(v) || v<0)return '—';const unit=v>=tib?'TiB':'GiB';const divisor=unit==='TiB'?tib:gib;return (v/divisor).toLocaleString('en-US',{maximumFractionDigits:2})+' '+unit}
+function metrics(p){const available=p.total!=null&&p.used!=null?Math.max(0,p.total-p.used):null;return '<div class="metric"><span>총 용량</span><strong>'+bytes(p.total)+'</strong></div><div class="metric"><span>할당 용량</span><strong>'+bytes(p.allocated)+'</strong></div><div class="metric available"><span>남은 용량</span><strong>'+bytes(available)+'</strong></div>'}
+const trigger=document.getElementById('storage-toggle'),list=document.getElementById('pool-options');
+function render(){document.getElementById('selected-name').textContent=selected.name;document.getElementById('selected-name').title=selected.name;document.getElementById('selected-metrics').innerHTML=metrics(selected);list.innerHTML=pools.map(p=>'<button type="button" role="option" aria-selected="'+(p.id===selected.id)+'" data-id="'+p.id+'" class="choice '+(p.id===selected.id?'selected':'')+'"><div class="choicetitle"><svg viewBox="0 0 16 16"><rect x="3" y="1" width="10" height="14" rx="1"/><path d="M3 5h10M3 10h10M5 3h2M5 8h2M5 13h2"/></svg><strong title="'+p.name+'">'+p.name+'</strong>'+(p.id===selected.id?'<span class="checkmark">✓</span>':'')+'</div><div class="metricgrid">'+metrics(p)+'</div></button>').join('');}
+function expanded(value){trigger.setAttribute('aria-expanded',String(value));list.hidden=!value;if(value){const r=trigger.getBoundingClientRect();list.style.width=r.width+'px';list.style.left=r.left+'px';const h=list.getBoundingClientRect().height;list.style.top=(innerHeight-r.bottom-8>=h?r.bottom+4:Math.max(8,r.top-h-4))+'px';}}
+trigger.addEventListener('click',()=>expanded(list.hidden));
+trigger.addEventListener('keydown',e=>{if(e.key==='ArrowDown'){e.preventDefault();expanded(true);list.querySelector('button').focus();}});
+list.addEventListener('click',e=>{const choice=e.target.closest('[data-id]');if(!choice)return;selected=pools.find(p=>p.id===choice.dataset.id);render();expanded(false);trigger.focus();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){expanded(false);trigger.focus();}});
+render();expanded(params.get('state')==='open');
+</script>
+</body></html>

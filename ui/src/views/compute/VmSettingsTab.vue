@@ -22,8 +22,8 @@
       <a-button :loading="loading" :disabled="submitting" @click="refresh"><template #icon><reload-outlined /></template>{{ $t('label.refresh') }}</a-button>
       <a-input-search v-model:value="search" :placeholder="s('search')" @change="page = 1" />
     </div>
-    <a-alert v-if="error || blockReason" show-icon :type="error ? 'warning' : 'info'" :message="error || blockReason" />
-    <a-table :columns="columns" :data-source="visibleRows" row-key="name" :loading="loading" :pagination="false" :scroll="{ x: 700 }" size="small">
+    <a-alert v-if="error || policyError || blockReason" show-icon :type="error || policyError ? 'warning' : 'info'" :message="error || policyError || blockReason" />
+    <a-table :columns="columns" :data-source="visibleRows" row-key="name" :loading="loading && !loaded" :pagination="false" :scroll="{ x: 700 }" size="small">
       <template #emptyText>{{ s(error ? 'loadFailed' : search ? 'noResults' : 'empty') }}</template>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'name' || column.key === 'value'"><a-tooltip :title="record[column.key]"><span class="setting-value">{{ record[column.key] }}</span></a-tooltip></template>
@@ -80,13 +80,13 @@ import { settingRestriction, settingRows, settingsFingerprint, settingsParams } 
 export default {
   name: 'VmSettingsTab',
   props: { resource: { type: Object, required: true }, active: Boolean },
-  data () { return { vm: {}, template: null, options: {}, loaded: false, loading: false, error: '', search: '', page: 1, pageSize: 10, dialog: '', selected: null, draftName: '', draftValue: '', videoCount: 1, baseline: '', submitting: false, dialogError: '', revision: 0 } },
+  data () { return { vm: {}, template: null, options: {}, loaded: false, loading: false, error: '', policyError: '', search: '', page: 1, pageSize: 10, dialog: '', selected: null, draftName: '', draftValue: '', videoCount: 1, baseline: '', submitting: false, dialogError: '', revision: 0 } },
   computed: {
     canEdit () {
       const user = this.$store.getters.userInfo || {}
       return 'updateVirtualMachine' in this.$store.getters.apis && (user.roletype === 'Admin' || (this.vm.domainid === user.domainid && this.vm.account === user.account) || (this.vm.projectid && this.vm.projectid === this.$store.getters.project?.id))
     },
-    blockReason () { return !this.loaded || this.loading || this.error ? this.s('verify') : !this.canEdit ? this.s('permission') : this.vm.state !== 'Stopped' ? this.s('stopped') : '' },
+    blockReason () { return !this.loaded || this.loading || this.error ? this.s('verify') : this.policyError || (!this.canEdit ? this.s('permission') : this.vm.state !== 'Stopped' ? this.s('stopped') : '') },
     columns () { return [{ key: 'name', title: this.s('name'), width: 220 }, { key: 'value', title: this.$t('label.value') }, { key: 'access', title: this.s('access'), width: 140 }, { key: 'actions', title: this.$t('label.actions'), width: 140 }] },
     rows () { const query = this.search.toLowerCase(); return settingRows(this.vm).filter(r => [r.name, r.value].some(v => v.toLowerCase().includes(query))) },
     visibleRows () { return this.rows.slice((this.page - 1) * this.pageSize, this.page * this.pageSize) },
@@ -97,7 +97,7 @@ export default {
   },
   watch: {
     active: { immediate: true, handler (active) { if (active) this.refresh() } },
-    'resource.id' () { this.revision++; this.dialog = ''; this.vm = {}; this.loaded = false; this.search = ''; this.page = 1; if (this.active) this.refresh() },
+    'resource.id' () { this.revision++; this.dialog = ''; this.vm = {}; this.template = null; this.options = {}; this.loaded = false; this.error = ''; this.policyError = ''; this.search = ''; this.page = 1; if (this.active) this.refresh() },
     'resource.state' () { if (this.active && !this.submitting) this.refresh() },
     pageSize () { this.page = 1 }
   },
@@ -110,11 +110,23 @@ export default {
       const response = await getAPI('listVirtualMachines', { id, details: 'all' })
       const vm = response.listvirtualmachinesresponse?.virtualmachine?.[0]
       if (!vm || vm.id !== id) throw new Error('loadFailed')
-      const [optionResponse, templateResponse] = await Promise.all([getAPI('listDetailOptions', { resourcetype: 'UserVm', resourceid: id }), vm.templateid && vm.templateformat !== 'ISO' ? getAPI('listTemplates', { templatefilter: 'all', id: vm.templateid }) : Promise.resolve(null)])
-      const options = optionResponse.listdetailoptionsresponse?.detailoptions?.details
-      const template = templateResponse?.listtemplatesresponse?.template?.[0] || null
-      if (!options || (templateResponse && !template)) throw new Error('loadFailed')
-      return { vm, options, template }
+      const needsTemplate = !!vm.templateid && vm.templateformat !== 'ISO'
+      const templatefilter = this.$store.getters.userInfo?.roletype === 'Admin' ? 'all' : 'executable'
+      // Keep transport/metadata failures local; optional discovery still sends
+      // current-session authentication errors through the normal logout path.
+      const [optionResult, templateResult] = await Promise.allSettled([
+        getAPI('listDetailOptions', { resourcetype: 'UserVm', resourceid: id }, { optionalDiscovery: true }),
+        needsTemplate ? getAPI('listTemplates', { templatefilter, id: vm.templateid, showremoved: true }, { optionalDiscovery: true }) : Promise.resolve(null)
+      ])
+      const options = optionResult.value?.listdetailoptionsresponse?.detailoptions?.details
+      const templates = templateResult.value?.listtemplatesresponse?.template
+      const template = Array.isArray(templates) ? templates.find(template => template.id === vm.templateid) || null : null
+      const optionsReady = !!options && typeof options === 'object' && !Array.isArray(options)
+      const templateReady = !needsTemplate || typeof template?.deployasis === 'boolean'
+      // Readable VM details do not depend on supplementary metadata. Missing
+      // restrictions must still block every change, including submission rechecks.
+      const policyError = [!optionsReady && this.s('optionsUnavailable'), !templateReady && this.s('templateUnavailable')].filter(Boolean).join(' ')
+      return { vm, options: optionsReady ? options : {}, template, policyError }
     },
     async refresh () {
       const revision = ++this.revision

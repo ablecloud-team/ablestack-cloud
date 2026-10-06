@@ -94,6 +94,8 @@ import com.cloud.storage.Storage;
 import com.cloud.storage.Volume;
 import com.cloud.storage.Volume.Type;
 import com.cloud.storage.VolumeVO;
+import com.cloud.storage.StoragePool;
+import com.cloud.exception.PermissionDeniedException;
 import com.cloud.storage.snapshot.SnapshotManager;
 import com.cloud.storage.dao.GuestOSDao;
 import com.cloud.storage.dao.SnapshotDao;
@@ -238,6 +240,9 @@ public class VMSnapshotManagerImpl extends MutualExclusiveIdsManagerBase impleme
         boolean listAll = cmd.listAll();
         Long id = cmd.getId();
         Long vmId = cmd.getVmId();
+        if (cmd.isIncludeHidden() && vmId == null) {
+            throw new InvalidParameterValueException("includehidden requires virtualmachineid");
+        }
 
         String state = cmd.getState();
         String keyword = cmd.getKeyword();
@@ -255,11 +260,12 @@ public class VMSnapshotManagerImpl extends MutualExclusiveIdsManagerBase impleme
         Boolean isRecursive = domainIdRecursiveListProject.second();
         ListProjectResourcesCriteria listProjectResourcesCriteria = domainIdRecursiveListProject.third();
 
-        Filter searchFilter = new Filter(VMSnapshotVO.class, "created", false, cmd.getStartIndex(), cmd.getPageSizeVal());
+        Filter searchFilter = snapshotListFilter(cmd);
         SearchBuilder<VMSnapshotVO> sb = _vmSnapshotDao.createSearchBuilder();
         _accountMgr.buildACLSearchBuilder(sb, domainId, isRecursive, permittedAccounts, listProjectResourcesCriteria);
 
         sb.and("vm_id", sb.entity().getVmId(), SearchCriteria.Op.EQ);
+        sb.and("vm_ids", sb.entity().getVmId(), SearchCriteria.Op.IN);
         sb.and("domain_id", sb.entity().getDomainId(), SearchCriteria.Op.EQ);
         sb.and("status", sb.entity().getState(), SearchCriteria.Op.IN);
         sb.and("state", sb.entity().getState(), SearchCriteria.Op.EQ);
@@ -267,6 +273,8 @@ public class VMSnapshotManagerImpl extends MutualExclusiveIdsManagerBase impleme
         sb.and("idIN", sb.entity().getId(), SearchCriteria.Op.IN);
         sb.and("display_name", sb.entity().getDisplayName(), SearchCriteria.Op.EQ);
         sb.and("account_id", sb.entity().getAccountId(), SearchCriteria.Op.EQ);
+        sb.and("type", sb.entity().getType(), SearchCriteria.Op.EQ);
+        sb.and("current", sb.entity().getCurrent(), SearchCriteria.Op.EQ);
 
         if (MapUtils.isNotEmpty(tags)) {
             SearchBuilder<ResourceTagVO> tagSearch = _resourceTagDao.createSearchBuilder();
@@ -301,6 +309,9 @@ public class VMSnapshotManagerImpl extends MutualExclusiveIdsManagerBase impleme
         if (vmId != null) {
             sc.setParameters("vm_id", vmId);
         }
+        if (cmd.getVmIds() != null && !cmd.getVmIds().isEmpty()) {
+            sc.setParameters("vm_ids", cmd.getVmIds().toArray());
+        }
 
         setIdsListToSearchCriteria(sc, ids);
 
@@ -308,17 +319,28 @@ public class VMSnapshotManagerImpl extends MutualExclusiveIdsManagerBase impleme
             sc.setParameters("domain_id", domainId);
         }
 
-        if (state == null) {
+        if (state == null && !cmd.isIncludeHidden()) {
             VMSnapshot.State[] status =
             {VMSnapshot.State.Ready, VMSnapshot.State.Creating, VMSnapshot.State.Allocated, VMSnapshot.State.Error, VMSnapshot.State.Expunging,
                 VMSnapshot.State.Reverting};
             sc.setParameters("status", (Object[])status);
-        } else {
+        } else if (state != null) {
             sc.setParameters("state", state);
         }
 
         if (name != null) {
             sc.setParameters("display_name", name);
+        }
+
+        if (cmd.getSnapshotType() != null) {
+            try {
+                sc.setParameters("type", VMSnapshot.Type.valueOf(cmd.getSnapshotType()));
+            } catch (IllegalArgumentException e) {
+                throw new InvalidParameterValueException("type must be Disk or DiskAndMemory");
+            }
+        }
+        if (cmd.getCurrent() != null) {
+            sc.setParameters("current", cmd.getCurrent());
         }
 
         if (keyword != null) {
@@ -327,6 +349,19 @@ public class VMSnapshotManagerImpl extends MutualExclusiveIdsManagerBase impleme
             ssc.addOr("displayName", SearchCriteria.Op.LIKE, "%" + keyword + "%");
             ssc.addOr("description", SearchCriteria.Op.LIKE, "%" + keyword + "%");
             ssc.addOr("uuid", SearchCriteria.Op.LIKE, "%" + keyword + "%");
+            // One projected VM query, shared by rows and count. The outer snapshot ACL
+            // remains authoritative, including project and recursive domain scope.
+            com.cloud.utils.db.GenericSearchBuilder<UserVmVO, Long> vmSearch = _userVMDao.createSearchBuilder(Long.class);
+            vmSearch.select(null, SearchCriteria.Func.DISTINCT, vmSearch.entity().getId());
+            vmSearch.or("displayName", vmSearch.entity().getDisplayName(), SearchCriteria.Op.LIKE);
+            vmSearch.or("instanceName", vmSearch.entity().getInstanceName(), SearchCriteria.Op.LIKE);
+            vmSearch.or("hostName", vmSearch.entity().getHostName(), SearchCriteria.Op.LIKE);
+            SearchCriteria<Long> vmCriteria = vmSearch.create();
+            for (String field : List.of("displayName", "instanceName", "hostName")) {
+                vmCriteria.setParameters(field, "%" + keyword + "%");
+            }
+            List<Long> matchingVms = _userVMDao.customSearch(vmCriteria, null);
+            ssc.addOr("vmId", SearchCriteria.Op.IN, matchingVms.isEmpty() ? new Object[] { -1L } : matchingVms.toArray());
             sc.addAnd("name", SearchCriteria.Op.SC, ssc);
         }
 
@@ -341,6 +376,20 @@ public class VMSnapshotManagerImpl extends MutualExclusiveIdsManagerBase impleme
 
     protected Account getCaller() {
         return CallContext.current().getCallingAccount();
+    }
+
+    static Filter snapshotListFilter(ListVMSnapshotCmd cmd) {
+        Map<String, String> fields = Map.of("created", "created", "displayname", "displayName", "name", "name",
+                "state", "state", "type", "type", "current", "current");
+        String key = cmd.getSortKey() == null ? "created" : cmd.getSortKey().toLowerCase(java.util.Locale.ROOT);
+        String order = cmd.getSortOrder() == null ? "desc" : cmd.getSortOrder().toLowerCase(java.util.Locale.ROOT);
+        if (!fields.containsKey(key) || !("asc".equals(order) || "desc".equals(order))) {
+            throw new InvalidParameterValueException("Unsupported VM snapshot sortkey or sortorder");
+        }
+        boolean ascending = "asc".equals(order);
+        Filter filter = new Filter(VMSnapshotVO.class, fields.get(key), ascending, cmd.getStartIndex(), cmd.getPageSizeVal());
+        filter.addOrderBy(VMSnapshotVO.class, "id", ascending);
+        return filter;
     }
 
     @Override
@@ -729,6 +778,12 @@ public class VMSnapshotManagerImpl extends MutualExclusiveIdsManagerBase impleme
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_VM_SNAPSHOT_DELETE, eventDescription = "Delete Instance Snapshots", async = true)
     public boolean deleteVMSnapshot(Long vmSnapshotId) {
+        return deleteVMSnapshot(vmSnapshotId, false);
+    }
+
+    @Override
+    @ActionEvent(eventType = EventTypes.EVENT_VM_SNAPSHOT_DELETE, eventDescription = "Recover and delete Instance Snapshot", async = true)
+    public boolean deleteVMSnapshot(Long vmSnapshotId, boolean force) {
         Account caller = getCaller();
 
         VMSnapshotVO vmSnapshot = _vmSnapshotDao.findById(vmSnapshotId);
@@ -737,6 +792,7 @@ public class VMSnapshotManagerImpl extends MutualExclusiveIdsManagerBase impleme
         }
 
         _accountMgr.checkAccess(caller, null, true, vmSnapshot);
+        if (force) validateForcedSnapshotDeletion(caller, vmSnapshot);
 
         // check VM snapshot states, only allow to delete vm snapshots in created and error state
         if (VMSnapshot.State.Ready != vmSnapshot.getState() && VMSnapshot.State.Expunging != vmSnapshot.getState() && VMSnapshot.State.Error != vmSnapshot.getState()) {
@@ -761,12 +817,12 @@ public class VMSnapshotManagerImpl extends MutualExclusiveIdsManagerBase impleme
             VmWorkJobVO placeHolder = null;
             placeHolder = createPlaceHolderWork(vmSnapshot.getVmId());
             try {
-                return orchestrateDeleteVMSnapshot(vmSnapshotId);
+                return orchestrateDeleteVMSnapshot(vmSnapshotId, force);
             } finally {
                 _workJobDao.expunge(placeHolder.getId());
             }
         } else {
-            Outcome<VMSnapshot> outcome = deleteVMSnapshotThroughJobQueue(vmSnapshot.getVmId(), vmSnapshotId);
+            Outcome<VMSnapshot> outcome = deleteVMSnapshotThroughJobQueue(vmSnapshot.getVmId(), vmSnapshotId, force);
 
             VMSnapshot result = null;
             try {
@@ -794,7 +850,47 @@ public class VMSnapshotManagerImpl extends MutualExclusiveIdsManagerBase impleme
         }
     }
 
-    private boolean orchestrateDeleteVMSnapshot(Long vmSnapshotId) {
+    @Override
+    public boolean isForcedDeletionAllowed(Long id) {
+        VMSnapshotVO snapshot = _vmSnapshotDao.findById(id);
+        if (snapshot == null) return false;
+        try { validateForcedSnapshotDeletion(getCaller(), snapshot); return true; }
+        catch (RuntimeException e) { return false; }
+    }
+
+    protected void validateForcedSnapshotDeletion(Account caller, VMSnapshotVO snapshot) {
+        if (!_accountMgr.isRootAdmin(caller.getId())) {
+            throw new PermissionDeniedException("Forced VM snapshot deletion requires a root administrator");
+        }
+        VMSnapshotDetailsVO recovery = _vmSnapshotDetailsDao.findDetail(snapshot.getId(), "force.delete.target");
+        boolean retry = snapshot.getState() == VMSnapshot.State.Expunging && recovery != null
+                && snapshot.getUuid().equals(recovery.getValue());
+        if (snapshot.getState() != VMSnapshot.State.Error && !retry) {
+            throw new InvalidParameterValueException("Forced VM snapshot deletion requires Error state");
+        }
+        if (snapshot.getCurrent() != null) {
+            throw new InvalidParameterValueException("Forced deletion is limited to snapshots whose creation did not complete");
+        }
+        if (Boolean.TRUE.equals(snapshot.getCurrent()) || !_vmSnapshotDao.listByParent(snapshot.getId()).isEmpty()) {
+            throw new InvalidParameterValueException("Recovery cannot delete a current snapshot or a snapshot with dependent children");
+        }
+        UserVmVO vm = _userVMDao.findById(snapshot.getVmId());
+        if (vm == null || vm.getHypervisorType() != HypervisorType.KVM) {
+            throw new InvalidParameterValueException("Forced VM snapshot deletion is supported on KVM only");
+        }
+        List<VolumeVO> volumes = _volumeDao.findByInstance(snapshot.getVmId());
+        if (volumes.isEmpty() || !Arrays.asList(VMSnapshot.Type.Disk, VMSnapshot.Type.DiskAndMemory).contains(snapshot.getType())) {
+            throw new InvalidParameterValueException("Recovery snapshot type or volume inventory is incomplete");
+        }
+        for (VolumeVO volume : volumes) {
+            StoragePool pool = _storagePoolDao.findById(volume.getPoolId());
+            if (!com.cloud.storage.InternalVmSnapshotAccounting.applies(pool, vm.getHypervisorType(), volume.getFormat())) {
+                throw new InvalidParameterValueException("Recovery requires unmanaged SharedMountPoint QCOW2 volumes");
+            }
+        }
+    }
+
+    private boolean orchestrateDeleteVMSnapshot(Long vmSnapshotId, boolean force) {
         Account caller = getCaller();
 
         VMSnapshotVO vmSnapshot = _vmSnapshotDao.findById(vmSnapshotId);
@@ -803,6 +899,7 @@ public class VMSnapshotManagerImpl extends MutualExclusiveIdsManagerBase impleme
         }
 
         _accountMgr.checkAccess(caller, null, true, vmSnapshot);
+        if (force) validateForcedSnapshotDeletion(caller, vmSnapshot);
 
         List<VMSnapshot.State> validStates = Arrays.asList(VMSnapshot.State.Ready, VMSnapshot.State.Expunging, VMSnapshot.State.Error, VMSnapshot.State.Allocated);
         // check VM snapshot states, only allow to delete vm snapshots in ready, expunging, allocated and error state
@@ -821,16 +918,20 @@ public class VMSnapshotManagerImpl extends MutualExclusiveIdsManagerBase impleme
 
         validateNoBackupActivityOrHistoryForVMSnapshot(vmSnapshot.getVmId(), "delete");
 
-        annotationDao.removeByEntityType(AnnotationService.EntityType.VM_SNAPSHOT.name(), vmSnapshot.getUuid());
+
         if (vmSnapshot.getState() == VMSnapshot.State.Allocated) {
-            return _vmSnapshotDao.remove(vmSnapshot.getId());
+            boolean deleted = _vmSnapshotDao.remove(vmSnapshot.getId());
+            if (deleted) annotationDao.removeByEntityType(AnnotationService.EntityType.VM_SNAPSHOT.name(), vmSnapshot.getUuid());
+            return deleted;
         } else {
             try {
                 VMSnapshotStrategy strategy = findVMSnapshotStrategy(vmSnapshot);
-                return strategy.deleteVMSnapshot(vmSnapshot);
+                boolean deleted = strategy.deleteVMSnapshot(vmSnapshot, force);
+                if (deleted) annotationDao.removeByEntityType(AnnotationService.EntityType.VM_SNAPSHOT.name(), vmSnapshot.getUuid());
+                return deleted;
             } catch (Exception e) {
                 logger.debug("Failed to delete Instance Snapshot: {}", vmSnapshot, e);
-                return false;
+                throw new CloudRuntimeException("VM snapshot deletion failed: " + e.getMessage(), e);
             }
         }
     }
@@ -1349,6 +1450,10 @@ public class VMSnapshotManagerImpl extends MutualExclusiveIdsManagerBase impleme
     }
 
     public Outcome<VMSnapshot> deleteVMSnapshotThroughJobQueue(final Long vmId, final Long vmSnapshotId) {
+        return deleteVMSnapshotThroughJobQueue(vmId, vmSnapshotId, false);
+    }
+
+    public Outcome<VMSnapshot> deleteVMSnapshotThroughJobQueue(final Long vmId, final Long vmSnapshotId, final boolean force) {
 
         final CallContext context = CallContext.current();
         final User callingUser = context.getCallingUser();
@@ -1370,7 +1475,7 @@ public class VMSnapshotManagerImpl extends MutualExclusiveIdsManagerBase impleme
 
         // save work context info (there are some duplications)
         VmWorkDeleteVMSnapshot workInfo = new VmWorkDeleteVMSnapshot(callingUser.getId(), callingAccount.getId(), vm.getId(),
-                VMSnapshotManagerImpl.VM_WORK_JOB_HANDLER, vmSnapshotId);
+                VMSnapshotManagerImpl.VM_WORK_JOB_HANDLER, vmSnapshotId, force);
         workJob.updateCmdInfoWithEncryptionIfNeeded(VmWorkSerializer.serialize(workInfo));
 
         _jobMgr.submitAsyncJob(workJob, VmWorkConstants.VM_WORK_QUEUE, vm.getId());
@@ -1453,7 +1558,7 @@ public class VMSnapshotManagerImpl extends MutualExclusiveIdsManagerBase impleme
 
     @ReflectionUse
     public Pair<JobInfo.Status, String> orchestrateDeleteVMSnapshot(VmWorkDeleteVMSnapshot work) {
-        boolean result = orchestrateDeleteVMSnapshot(work.getVmSnapshotId());
+        boolean result = orchestrateDeleteVMSnapshot(work.getVmSnapshotId(), work.isForce());
         return new Pair<JobInfo.Status, String>(JobInfo.Status.SUCCEEDED,
                 _jobMgr.marshallResultObject(result));
     }

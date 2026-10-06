@@ -24,7 +24,7 @@
       v-for="filter in this.searchFilters"
       :key="filter.key + filter.value"
     >
-      <a-col v-if="!['page', 'pagesize', 'q', 'keyword', 'tags', 'projectid'].includes(filter.key)">
+      <a-col v-if="!['page', 'pagesize', 'q', 'keyword', 'tags', 'projectid', 'sortkey', 'sortorder'].includes(filter.key)">
         <a-tag
           v-if="!filter.isTag"
           closable
@@ -477,7 +477,10 @@ export default {
       }
     },
     getState (state) {
-      if (this.apiName.includes('listVolumes')) {
+      if (this.apiName === 'listVMSnapshot') {
+        const value = String(state).toLowerCase()
+        return ['ready', 'creating', 'allocated', 'reverting', 'expunging', 'error'].includes(value) ? this.$t('state.' + value) : state
+      } else if (this.apiName.includes('listVolumes')) {
         switch (state.toLowerCase()) {
           case 'allocated':
             return this.$t('label.allocated')

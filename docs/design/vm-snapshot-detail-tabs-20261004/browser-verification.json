@@ -1,0 +1,413 @@
+{
+  "cases": [
+    {
+      "case": "desktop-dark-comments-url-reload",
+      "draft": "",
+      "layout": "ant-tabs ant-tabs-left",
+      "pageOverflow": false,
+      "tabs": [
+        {
+          "color": "rgb(197, 204, 212)",
+          "selected": "false",
+          "text": "상세",
+          "x": 779.90625,
+          "y": 219
+        },
+        {
+          "color": "rgb(197, 204, 212)",
+          "selected": "false",
+          "text": "이벤트",
+          "x": 779.90625,
+          "y": 273
+        },
+        {
+          "color": "rgb(24, 144, 255)",
+          "selected": "true",
+          "text": "코멘트",
+          "x": 779.90625,
+          "y": 327
+        }
+      ],
+      "theme": "dark-mode",
+      "viewport": {
+        "height": 855,
+        "width": 1920
+      }
+    },
+    {
+      "case": "desktop-dark-details-final",
+      "draft": "",
+      "layout": "ant-tabs ant-tabs-left",
+      "pageOverflow": false,
+      "tabs": [
+        {
+          "color": "rgb(24, 144, 255)",
+          "selected": "true",
+          "text": "상세",
+          "x": 779.90625,
+          "y": 219
+        },
+        {
+          "color": "rgb(197, 204, 212)",
+          "selected": "false",
+          "text": "이벤트",
+          "x": 779.90625,
+          "y": 273
+        },
+        {
+          "color": "rgb(197, 204, 212)",
+          "selected": "false",
+          "text": "코멘트",
+          "x": 779.90625,
+          "y": 327
+        }
+      ],
+      "theme": "dark-mode",
+      "viewport": {
+        "height": 855,
+        "width": 1920
+      }
+    },
+    {
+      "case": "keyboard-tab-enter-events",
+      "draft": "",
+      "layout": "ant-tabs ant-tabs-left",
+      "pageOverflow": false,
+      "tabs": [
+        {
+          "color": "rgb(41, 155, 255)",
+          "selected": "false",
+          "text": "상세",
+          "x": 779.90625,
+          "y": 219
+        },
+        {
+          "color": "rgb(111, 172, 231)",
+          "selected": "true",
+          "text": "이벤트",
+          "x": 779.90625,
+          "y": 273
+        },
+        {
+          "color": "rgb(197, 204, 212)",
+          "selected": "false",
+          "text": "코멘트",
+          "x": 779.90625,
+          "y": 327
+        }
+      ],
+      "theme": "dark-mode",
+      "viewport": {
+        "height": 855,
+        "width": 1920
+      }
+    },
+    {
+      "case": "comment-draft-preserved",
+      "draft": "탭 전환 후 유지 확인",
+      "layout": "ant-tabs ant-tabs-left",
+      "pageOverflow": false,
+      "tabs": [
+        {
+          "color": "rgb(197, 204, 212)",
+          "selected": "false",
+          "text": "상세",
+          "x": 779.90625,
+          "y": 219
+        },
+        {
+          "color": "rgb(24, 144, 255)",
+          "selected": "false",
+          "text": "이벤트",
+          "x": 779.90625,
+          "y": 273
+        },
+        {
+          "color": "rgb(197, 204, 212)",
+          "selected": "true",
+          "text": "코멘트",
+          "x": 779.90625,
+          "y": 327
+        }
+      ],
+      "theme": "dark-mode",
+      "viewport": {
+        "height": 855,
+        "width": 1920
+      }
+    },
+    {
+      "case": "desktop-light-details",
+      "draft": "탭 전환 후 유지 확인",
+      "layout": "ant-tabs ant-tabs-left",
+      "pageOverflow": false,
+      "tabs": [
+        {
+          "color": "rgb(75, 85, 99)",
+          "selected": "true",
+          "text": "상세",
+          "x": 779.90625,
+          "y": 219
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "selected": "false",
+          "text": "이벤트",
+          "x": 779.90625,
+          "y": 273
+        },
+        {
+          "color": "rgb(24, 144, 255)",
+          "selected": "false",
+          "text": "코멘트",
+          "x": 779.90625,
+          "y": 327
+        }
+      ],
+      "theme": "",
+      "viewport": {
+        "height": 855,
+        "width": 1920
+      }
+    },
+    {
+      "case": "hide-selected-event-fallback",
+      "draft": "탭 전환 후 유지 확인",
+      "layout": "ant-tabs ant-tabs-left",
+      "pageOverflow": false,
+      "tabs": [
+        {
+          "color": "rgb(46, 119, 189)",
+          "selected": "true",
+          "text": "상세",
+          "x": 779.90625,
+          "y": 27
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "selected": "false",
+          "text": "코멘트",
+          "x": 779.90625,
+          "y": 81
+        }
+      ],
+      "theme": "",
+      "viewport": {
+        "height": 855,
+        "width": 1920
+      }
+    },
+    {
+      "case": "horizontal-comparison",
+      "draft": "탭 전환 후 유지 확인",
+      "layout": "ant-tabs ant-tabs-top",
+      "pageOverflow": false,
+      "tabs": [
+        {
+          "color": "rgb(24, 144, 255)",
+          "selected": "true",
+          "text": "상세",
+          "x": 771.90625,
+          "y": -22
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "selected": "false",
+          "text": "이벤트",
+          "x": 829.671875,
+          "y": -22
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "selected": "false",
+          "text": "코멘트",
+          "x": 900.3125,
+          "y": -22
+        }
+      ],
+      "theme": "",
+      "viewport": {
+        "height": 855,
+        "width": 1920
+      }
+    },
+    {
+      "case": "desktop-1366-vertical",
+      "draft": "탭 전환 후 유지 확인",
+      "layout": "ant-tabs ant-tabs-left",
+      "pageOverflow": false,
+      "tabs": [
+        {
+          "color": "rgb(24, 144, 255)",
+          "selected": "true",
+          "text": "상세",
+          "x": 618.328125,
+          "y": -26
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "selected": "false",
+          "text": "이벤트",
+          "x": 618.328125,
+          "y": 28
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "selected": "false",
+          "text": "코멘트",
+          "x": 618.328125,
+          "y": 82
+        }
+      ],
+      "theme": "",
+      "viewport": {
+        "height": 768,
+        "width": 1366
+      }
+    },
+    {
+      "case": "mobile-390-light-details",
+      "draft": "탭 전환 후 유지 확인",
+      "layout": "ant-tabs ant-tabs-top",
+      "pageOverflow": false,
+      "tabs": [
+        {
+          "color": "rgb(24, 144, 255)",
+          "selected": "true",
+          "text": "상세",
+          "x": 33,
+          "y": 1002
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "selected": "false",
+          "text": "이벤트",
+          "x": 90.765625,
+          "y": 1002
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "selected": "false",
+          "text": "코멘트",
+          "x": 161.40625,
+          "y": 1002
+        }
+      ],
+      "theme": "",
+      "viewport": {
+        "height": 640,
+        "width": 390
+      }
+    },
+    {
+      "case": "mobile-390-light-events",
+      "draft": "탭 전환 후 유지 확인",
+      "layout": "ant-tabs ant-tabs-top",
+      "pageOverflow": false,
+      "tabs": [
+        {
+          "color": "rgb(24, 144, 255)",
+          "selected": "false",
+          "text": "상세",
+          "x": 33,
+          "y": 309
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "selected": "true",
+          "text": "이벤트",
+          "x": 90.765625,
+          "y": 309
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "selected": "false",
+          "text": "코멘트",
+          "x": 161.40625,
+          "y": 309
+        }
+      ],
+      "theme": "",
+      "viewport": {
+        "height": 640,
+        "width": 390
+      }
+    },
+    {
+      "case": "mobile-boundary-765",
+      "draft": "탭 전환 후 유지 확인",
+      "layout": "ant-tabs ant-tabs-top",
+      "pageOverflow": false,
+      "tabs": [
+        {
+          "color": "rgb(24, 144, 255)",
+          "selected": "true",
+          "text": "상세",
+          "x": 381.421875,
+          "y": -125
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "selected": "false",
+          "text": "이벤트",
+          "x": 439.1875,
+          "y": -125
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "selected": "false",
+          "text": "코멘트",
+          "x": 509.828125,
+          "y": -125
+        }
+      ],
+      "theme": "",
+      "viewport": {
+        "height": 768,
+        "width": 765
+      }
+    },
+    {
+      "case": "tablet-boundary-766",
+      "draft": "탭 전환 후 유지 확인",
+      "layout": "ant-tabs ant-tabs-left",
+      "pageOverflow": false,
+      "tabs": [
+        {
+          "color": "rgb(24, 144, 255)",
+          "selected": "true",
+          "text": "상세",
+          "x": 125,
+          "y": 678
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "selected": "false",
+          "text": "이벤트",
+          "x": 125,
+          "y": 732
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "selected": "false",
+          "text": "코멘트",
+          "x": 125,
+          "y": 786
+        }
+      ],
+      "theme": "",
+      "viewport": {
+        "height": 768,
+        "width": 766
+      }
+    }
+  ],
+  "designOnly": true,
+  "productDeployment": false,
+  "framework": "Vue 3.2.37 + Ant Design Vue 3.2.20",
+  "source": "9f71736fd827badfe9440feb4697cfff4b39ab2c",
+  "finalConsole": {
+    "light": [],
+    "dark": []
+  }
+}

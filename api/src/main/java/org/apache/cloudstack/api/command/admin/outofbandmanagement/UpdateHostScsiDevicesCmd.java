@@ -38,6 +38,12 @@ public class UpdateHostScsiDevicesCmd extends BaseListCmd {
     //////////////// API parameters /////////////////////
     /////////////////////////////////////////////////////
 
+    @Parameter(name = "acknowledgepartitionrisk", type = CommandType.BOOLEAN,
+            description = "Explicitly acknowledge the existing partition/data risk for attachment; defaults to false")
+    private Boolean acknowledgePartitionRisk;
+
+    public boolean isPartitionRiskAcknowledged() { return Boolean.TRUE.equals(acknowledgePartitionRisk); }
+
     @Parameter(name = ApiConstants.HOST_ID, type = BaseCmd.CommandType.UUID, entityType = UpdateHostScsiDevicesResponse.class, description = "host ID", required = true, validations = {
             ApiArgValidator.PositiveNumber })
     private Long hostId;

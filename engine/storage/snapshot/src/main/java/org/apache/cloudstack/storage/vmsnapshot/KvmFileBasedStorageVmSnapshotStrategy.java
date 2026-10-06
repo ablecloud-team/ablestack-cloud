@@ -133,13 +133,73 @@ public class KvmFileBasedStorageVmSnapshotStrategy extends StorageVMSnapshotStra
     }
 
     @Override
+    protected Map<Long, String> recoveryArtifacts(VMSnapshot snapshot) {
+        List<SnapshotDataStoreVO> refs = originalRecoveryReferences(snapshot);
+        Map<Long, String> artifacts = new HashMap<>();
+        for (SnapshotDataStoreVO ref : refs) {
+            SnapshotVO volumeSnapshot = snapshotDao.findById(ref.getSnapshotId());
+            if (volumeSnapshot == null || !List.of(Snapshot.State.Error, Snapshot.State.Allocated, Snapshot.State.Creating).contains(volumeSnapshot.getState())) {
+                throw new CloudRuntimeException("Disk snapshot creation did not fail or its original reference is unknown");
+            }
+            com.cloud.utils.db.SearchBuilder<SnapshotDataStoreVO> dependencies = snapshotDataStoreDao.createSearchBuilder();
+            dependencies.and("parent", dependencies.entity().getParentSnapshotId(), com.cloud.utils.db.SearchCriteria.Op.EQ);
+            com.cloud.utils.db.SearchCriteria<SnapshotDataStoreVO> criteria = dependencies.create();
+            criteria.setParameters("parent", ref.getSnapshotId());
+            if (!snapshotDataStoreDao.search(criteria, null).isEmpty()) throw new CloudRuntimeException("Disk snapshot has dependent storage references");
+            if (ref.getInstallPath() == null || !ref.getInstallPath().matches("[0-9a-fA-F-]{36}")
+                    || artifacts.put(ref.getVolumeId(), ref.getInstallPath()) != null) {
+                throw new CloudRuntimeException("Disk snapshot recovery reference is incomplete");
+            }
+            for (VolumeVO volume : volumeDao.findNonDestroyedVolumesByPoolId(ref.getDataStoreId())) {
+                if (ref.getInstallPath().equals(volume.getPath()) || (volume.getChainInfo() != null && volume.getChainInfo().contains(ref.getInstallPath()))) {
+                    throw new CloudRuntimeException("Disk snapshot artifact is referenced by a volume or backing chain");
+                }
+            }
+            for (SnapshotDataStoreVO other : snapshotDataStoreDao.listByStoreId(ref.getDataStoreId(), DataStoreRole.Primary)) {
+                if (other.getId() != ref.getId() && ref.getInstallPath().equals(other.getInstallPath())) {
+                    throw new CloudRuntimeException("Disk snapshot artifact has another storage reference");
+                }
+            }
+        }
+        if (refs.isEmpty()) throw new CloudRuntimeException("Disk snapshot recovery requires the original artifact references");
+        return artifacts;
+    }
+
+    protected List<SnapshotDataStoreVO> originalRecoveryReferences(VMSnapshot snapshot) {
+        List<SnapshotDataStoreVO> refs = new ArrayList<>(vmSnapshotHelper.getVolumeSnapshotsAssociatedWithKvmDiskOnlyVmSnapshot(snapshot.getId()));
+        if (!refs.isEmpty()) return refs;
+        for (VMSnapshotDetailsVO detail : vmSnapshotDetailsDao.listDetails(snapshot.getId())) {
+            if (!detail.getName().startsWith("snapshot.creation.artifact.")) continue;
+            SnapshotDataStoreVO ref = snapshotDataStoreDao.findOneBySnapshotAndDatastoreRole(Long.parseLong(detail.getValue()), DataStoreRole.Primary);
+            if (ref == null || !detail.getName().equals("snapshot.creation.artifact." + ref.getVolumeId())) {
+                throw new CloudRuntimeException("Original disk snapshot artifact reference is missing or changed");
+            }
+            refs.add(ref);
+        }
+        return refs;
+    }
+
+    @Override
+    protected void finalizeRecoveryReferences(VMSnapshot snapshot) {
+        for (SnapshotDataStoreVO ref : originalRecoveryReferences(snapshot)) {
+            SnapshotVO volumeSnapshot = snapshotDao.findById(ref.getSnapshotId());
+            if (volumeSnapshot != null) {
+                volumeSnapshot.setState(Snapshot.State.Destroyed);
+                volumeSnapshot.setRemoved(DateUtil.now());
+                snapshotDao.update(volumeSnapshot.getId(), volumeSnapshot);
+            }
+            snapshotDataStoreDao.remove(ref.getId());
+        }
+    }
+
+    @Override
     public boolean deleteVMSnapshot(VMSnapshot vmSnapshot) {
         logger.info("Starting VM snapshot delete process for snapshot [{}].", vmSnapshot.getUuid());
         UserVmVO userVm = userVmDao.findById(vmSnapshot.getVmId());
         VMSnapshotVO vmSnapshotBeingDeleted = (VMSnapshotVO) vmSnapshot;
         Long hostId = vmSnapshotHelper.pickRunningHost(vmSnapshotBeingDeleted.getVmId());
         long virtualSize = 0;
-        boolean isCurrent = vmSnapshotBeingDeleted.getCurrent();
+        boolean isCurrent = Boolean.TRUE.equals(vmSnapshotBeingDeleted.getCurrent());
 
         transitStateWithoutThrow(vmSnapshotBeingDeleted, VMSnapshot.Event.ExpungeRequested);
 
@@ -524,6 +584,7 @@ public class KvmFileBasedStorageVmSnapshotStrategy extends StorageVMSnapshotStra
         Long hostId = vmSnapshotHelper.pickRunningHost(vmSnapshot.getVmId());
         VMSnapshotVO vmSnapshotVO = (VMSnapshotVO) vmSnapshot;
         List<VolumeObjectTO> volumeTOs = vmSnapshotHelper.getVolumeTOList(userVm.getId());
+        captureCreationVolumes(vmSnapshot, volumeTOs);
 
         transitStateWithoutThrow(vmSnapshot, VMSnapshot.Event.CreateRequested);
 
@@ -636,6 +697,8 @@ public class KvmFileBasedStorageVmSnapshotStrategy extends StorageVMSnapshotStra
             SnapshotDataStoreVO snapshotDataStoreVO = snapshotDataStoreDao.findBySnapshotId(snapshot.getId()).get(0);
             snapshotDataStoreVO.setInstallPath(volumeToAndPath.second());
             snapshotDataStoreDao.update(snapshotDataStoreVO.getId(), snapshotDataStoreVO);
+
+            vmSnapshotDetailsDao.addDetail(vmSnapshot.getId(), "snapshot.creation.artifact." + volumeInfo.getId(), String.valueOf(snapshot.getId()), false);
 
             volumeInfoToSnapshotObjectMap.put(volumeInfo, snapshotOnPrimary);
         }

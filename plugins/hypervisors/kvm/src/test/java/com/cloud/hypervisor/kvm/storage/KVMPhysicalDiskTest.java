@@ -34,6 +34,13 @@ public class KVMPhysicalDiskTest {
 
     private final String authSecret = "supersecret";
 
+    private void assertRbdConnection(String legacyExpected, String actual) {
+        // The native client chooses its supported option; both require CephX.
+        String modernExpected = legacyExpected.replace(":auth_supported=cephx", ":auth_client_required=cephx");
+        Assert.assertTrue("Unexpected RBD connection string: " + actual,
+                legacyExpected.equals(actual) || modernExpected.equals(actual));
+    }
+
     @Test
     public void testRBDStringBuilder() {
         String monHosts = "ceph-monitor";
@@ -47,7 +54,7 @@ public class KVMPhysicalDiskTest {
         String expected = "rbd:volume1:mon_host=ceph-monitor\\:8000:auth_supported=cephx:id=admin:key=supersecret:rbd_default_format=2:client_mount_timeout=30";
         String result = KVMPhysicalDisk.RBDStringBuilder(kvmStoragePoolMock, "volume1");
 
-        Assert.assertEquals(expected, result);
+        assertRbdConnection(expected, result);
     }
 
     @Test
@@ -65,7 +72,7 @@ public class KVMPhysicalDiskTest {
                 "auth_supported=cephx:id=admin:key=supersecret:rbd_default_format=2:client_mount_timeout=30";
         String actualResult = KVMPhysicalDisk.RBDStringBuilder(kvmStoragePoolMock, "volume1");
 
-        Assert.assertEquals(expected, actualResult);
+        assertRbdConnection(expected, actualResult);
     }
 
     @Test
@@ -83,7 +90,7 @@ public class KVMPhysicalDiskTest {
                 "auth_supported=cephx:id=admin:key=supersecret:rbd_default_format=2:client_mount_timeout=30";
         String actualResult = KVMPhysicalDisk.RBDStringBuilder(kvmStoragePoolMock, "volume1");
 
-        Assert.assertEquals(expected, actualResult);
+        assertRbdConnection(expected, actualResult);
     }
 
     @Test

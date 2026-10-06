@@ -624,4 +624,25 @@ public class DeployVMCmdTest {
     public void testIsBlankInstance() {
         assertFalse(cmd.isBlankInstance());
     }
+
+    @Test
+    public void dataDisksResolveEachSelectedStorageUuid() {
+        EntityManager entities = mock(EntityManager.class);
+        ReflectionTestUtils.setField(cmd, "_entityMgr", entities);
+        DiskOffering offering = mock(DiskOffering.class);
+        when(offering.getDiskSize()).thenReturn(17L * 1024 * 1024 * 1024);
+        when(entities.findByUuid(DiskOffering.class, "offering")).thenReturn(offering);
+        com.cloud.storage.StoragePool pool = mock(com.cloud.storage.StoragePool.class);
+        when(pool.getId()).thenReturn(9L);
+        when(entities.findByUuid(com.cloud.storage.StoragePool.class, "pool")).thenReturn(pool);
+        HashMap<String, String> entry = new HashMap<>();
+        entry.put("diskofferingid", "offering");
+        entry.put("deviceid", "4");
+        entry.put("storageid", "pool");
+        Map<String, HashMap<String, String>> entries = new HashMap<>();
+        entries.put("0", entry);
+        ReflectionTestUtils.setField(cmd, "dataDisksDetails", entries);
+        assertEquals(Long.valueOf(9), cmd.getDataDiskInfoList().get(0).getStoragePoolId());
+        assertEquals(Long.valueOf(4), cmd.getDataDiskInfoList().get(0).getDeviceId());
+    }
 }

@@ -322,8 +322,8 @@
             </a-tooltip>
           </div>
         </div>
-        <div class="resource-detail-item" v-if="('cpunumber' in resource && 'cpuspeed' in resource) || resource.cputotal">
-          <div class="resource-detail-item__label">{{ $t('label.cpu') }}</div>
+        <div class="resource-detail-item" v-if="('cpunumber' in resource && 'cpuspeed' in resource) || resource.cputotal || ($route.meta.name === 'kubernetes' && 'cpunumber' in resource)">
+          <div class="resource-detail-item__label">{{ $t($route.meta.name === 'kubernetes' ? 'label.cpunumber' : 'label.cpu') }}</div>
           <div class="resource-detail-item__details">
             <font-awesome-icon
               :icon="['fa-solid', 'fa-microchip']"
@@ -337,6 +337,7 @@
                 <QuestionCircleOutlined />
               </a-tooltip>
             </span>
+            <span v-else-if="$route.meta.name === 'kubernetes'">{{ resource.cpunumber }}</span>
             <span v-else>{{ resource.cputotal }}</span>
             <a-tag v-if="resource.arch" style="margin-left: 10px">
               {{ resource.arch }}

@@ -1,0 +1,29 @@
+{
+  "managementPid": "1798760",
+  "pidUnchanged": true,
+  "serverFiles": {
+    "count": 1,
+    "sha256": "0e94f3439bcc06af8724f667cd7ad8df4e4749c1abb87777fc225874af93ca71"
+  },
+  "serverFilesPreserved": true,
+  "backup": "/root/epic1224-context/ui-backup-20261004-151746",
+  "source": "a9b53c45c00153ed0c25981f348e8db17907b4e4",
+  "uiBuildSource": "a9b53c45c00153ed0c25981f348e8db17907b4e4",
+  "staticFileCount": 834,
+  "staticHashesMatch": true,
+  "configSha256": "b54d18abc5a143c64e2dec3441af0a45619ec20f110647119e6b8d2e199ff453",
+  "WEB-INF": true,
+  "META-INF": false,
+  "META-INF-preserved": true,
+  "clientHttp": 200,
+  "servedIndexMatches": true,
+  "markers": {
+    "resourceTabPosition": true,
+    "snapshotTargets": true,
+    "includehidden": true,
+    "mold-dialog": true,
+    "blockingLoadingState": true,
+    "fetchSyncProgress": true,
+    "extractJobId": true
+  }
+}

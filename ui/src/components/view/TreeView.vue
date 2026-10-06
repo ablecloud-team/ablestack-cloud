@@ -58,6 +58,7 @@
           :bordered="true"
           style="width:100%">
           <a-tabs
+            :tabPosition="resourceTabPosition"
             style="width: 100%"
             :animated="false"
             :defaultActiveKey="tabs[0].name"
@@ -101,6 +102,7 @@
 </template>
 
 <script>
+import { mixinDevice } from '@/utils/mixin.js'
 import store from '@/store'
 import { callAPI } from '@/api'
 import DetailsTab from '@/components/view/DetailsTab'
@@ -110,6 +112,7 @@ import eventBus from '@/config/eventBus'
 import ResourceContextMenu from '@/components/view/ResourceContextMenu'
 
 export default {
+  mixins: [mixinDevice],
   name: 'TreeView',
   components: {
     ResourceLayout,

@@ -31,12 +31,23 @@ export function deviceCandidates (response, type) {
     name,
     text: group.devicedetails?.[name] || asArray(group.hostdevicestext)[i] || '',
     allocation: group.vmallocations?.[name],
-    usage: ['lun', 'scsi'].includes(type) ? (group.haspartitions?.[name] ? 'partitioned' : group.deviceusagestatus?.[name] || 'unknown') : 'available',
+    usage: ['lun', 'scsi'].includes(type) ? group.deviceusagestatus?.[name] || 'unknown' : 'available',
+    safety: group.devicesafetydetails?.[name],
+    hasPartitions: group.devicesafetydetails?.[name]?.haspartitions === true,
     parent: asArray(group.parenthbanames)[i] || group.parenthbaname,
     wwnn: asArray(group.wwnns)[i],
     type
   }))).filter(device => type !== 'vhba' || /^scsi_host\d+$/.test(device.parent || ''))
     .map(device => ({ ...device, protected: type === 'usb' && /hub|idrac|integrated.*(nic|keyboard|mouse)/i.test(device.text) }))
+}
+export function deviceSafetyKey (device) {
+  const ordered = value => Array.isArray(value) ? value.map(ordered).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b))) : value && typeof value === 'object' ? Object.fromEntries(Object.keys(value).sort().map(key => [key, ordered(value[key])])) : value
+  return JSON.stringify(ordered({ name: device?.name, usage: device?.usage, allocation: device?.allocation, safety: device?.safety }))
+}
+export function deviceBlocked (device) {
+  if (!device || device.allocation || device.protected) return true
+  if (['lun', 'scsi'].includes(device.type) && (device.safety?.verified !== true || device.safety.status !== device.usage)) return true
+  return device.usage !== 'available' && !(device.usage === 'partitioned' && device.hasPartitions)
 }
 const escape = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' }[c]))
 export function deviceXml (device) {

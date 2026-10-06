@@ -202,6 +202,7 @@ public class ServiceOfferingJoinDaoImpl extends GenericDaoBase<ServiceOfferingJo
             offeringResponse.setDiskOfferingId(offering.getDiskOfferingUuid());
             offeringResponse.setDiskOfferingName(offering.getDiskOfferingName());
             offeringResponse.setDiskOfferingDisplayText(offering.getDiskOfferingDisplayText());
+            offeringResponse.setDiskOfferingComputeOnly(diskOfferingVO.isComputeOnly());
         }
 
         offeringResponse.setHasAnnotation(annotationDao.hasAnnotations(offering.getUuid(), AnnotationService.EntityType.SERVICE_OFFERING.name(),

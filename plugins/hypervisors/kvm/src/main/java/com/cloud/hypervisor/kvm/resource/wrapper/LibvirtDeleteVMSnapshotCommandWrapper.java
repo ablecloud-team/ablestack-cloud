@@ -50,6 +50,25 @@ public final class LibvirtDeleteVMSnapshotCommandWrapper extends CommandWrapper<
 
     @Override
     public Answer execute(final DeleteVMSnapshotCommand cmd, final LibvirtComputingResource libvirtComputingResource) {
+        if (cmd.isForce()) {
+            try {
+                java.util.Map<Long, String> disks = new java.util.LinkedHashMap<>();
+                java.util.Map<Long, String> artifacts = new java.util.LinkedHashMap<>();
+                for (VolumeObjectTO volume : cmd.getVolumeTOs()) {
+                    PrimaryDataStoreTO store = (PrimaryDataStoreTO) volume.getDataStore();
+                    KVMStoragePoolManager manager = libvirtComputingResource.getStoragePoolMgr();
+                    disks.put(volume.getId(), manager.getPhysicalDisk(store.getPoolType(), store.getUuid(), volume.getPath()).getPath());
+                    if (cmd.getExternalSnapshotPaths() != null && cmd.getExternalSnapshotPaths().containsKey(volume.getId())) {
+                        String path = cmd.getExternalSnapshotPaths().get(volume.getId());
+                        if (!path.matches("[0-9a-fA-F-]{36}")) throw new java.io.IOException("Snapshot artifact path is not an owned UUID");
+                        artifacts.put(volume.getId(), manager.getStoragePool(store.getPoolType(), store.getUuid()).getLocalPathFor(path));
+                    }
+                }
+                return com.cloud.hypervisor.kvm.resource.KvmSnapshotRecovery.execute(cmd, disks, artifacts);
+            } catch (Exception e) {
+                return new DeleteVMSnapshotAnswer(cmd, false, "Snapshot recovery inventory unavailable: " + e.getMessage());
+            }
+        }
         String vmName = cmd.getVmName();
 
         final KVMStoragePoolManager storagePoolMgr = libvirtComputingResource.getStoragePoolMgr();

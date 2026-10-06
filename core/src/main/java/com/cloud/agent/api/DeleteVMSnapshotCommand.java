@@ -24,6 +24,21 @@ import java.util.List;
 import org.apache.cloudstack.storage.to.VolumeObjectTO;
 
 public class DeleteVMSnapshotCommand extends VMSnapshotBaseCommand {
+    private boolean force;
+    private String vmUuid;
+    private String expectedCurrent;
+    private List<String> knownSnapshotNames;
+    private java.util.Map<Long, String> externalSnapshotPaths;
+
+    public boolean isForce() { return force; }
+    public String getVmUuid() { return vmUuid; }
+    public String getExpectedCurrent() { return expectedCurrent; }
+    public List<String> getKnownSnapshotNames() { return knownSnapshotNames; }
+    public java.util.Map<Long, String> getExternalSnapshotPaths() { return externalSnapshotPaths; }
+    public void setRecovery(String uuid, String current, List<String> names, java.util.Map<Long, String> paths) {
+        force = true; vmUuid = uuid; expectedCurrent = current; knownSnapshotNames = names; externalSnapshotPaths = paths;
+    }
+
     public DeleteVMSnapshotCommand(String vmName, VMSnapshotTO snapshot, List<VolumeObjectTO> volumeTOs, String guestOSType) {
         super(vmName, snapshot, volumeTOs, guestOSType);
     }

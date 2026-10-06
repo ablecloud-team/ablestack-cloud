@@ -25,6 +25,10 @@ public class UpdateHostHbaDeviceAnswer extends Answer {
     private String xmlConfig;
     private boolean isAttach;
 
+    public UpdateHostHbaDeviceAnswer(boolean success, String details) {
+        super(null, success, details);
+    }
+
     public UpdateHostHbaDeviceAnswer() {
         super();
     }

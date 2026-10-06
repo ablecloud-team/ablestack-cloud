@@ -19,7 +19,7 @@
   <div>
     <a-spin :spinning="fetchLoading">
       <a-tabs
-        :tabPosition="device === 'mobile' ? 'top' : 'left'"
+        :tabPosition="resourceTabPosition"
         :animated="false"
         @change="onTabChange">
         <!-- Hardcoded NSP tabs -->

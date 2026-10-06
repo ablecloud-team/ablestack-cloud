@@ -131,6 +131,17 @@ public abstract class BaseDeployVMCmd extends BaseAsyncCreateCustomIdCmd impleme
             since = "4.4")
     private Long rootdisksize;
 
+    @Parameter(name = "rootstorageid", type = CommandType.UUID,
+            entityType = org.apache.cloudstack.api.response.StoragePoolResponse.class,
+            authorized = {org.apache.cloudstack.acl.RoleType.Admin},
+            description = "Required primary storage pool for the root volume's first deployment")
+    private Long rootStorageId;
+
+    public Long getRootStorageId() {
+        return rootStorageId;
+    }
+
+
     @ACL
     @Parameter(name = ApiConstants.ROOT_DISK_KMS_KEY_ID,
             type = CommandType.UUID,
@@ -651,6 +662,14 @@ public abstract class BaseDeployVMCmd extends BaseAsyncCreateCustomIdCmd impleme
             }
 
             VmDiskInfo vmDiskInfo = new VmDiskInfo(diskOffering, size, minIops, maxIops, deviceId, kmsKeyId);
+            String storageUuid = dataDisk.get("storageid");
+            if (storageUuid != null) {
+                com.cloud.storage.StoragePool pool = _entityMgr.findByUuid(com.cloud.storage.StoragePool.class, storageUuid);
+                if (pool == null) {
+                    throw new InvalidParameterValueException("Unable to find storage pool " + storageUuid);
+                }
+                vmDiskInfo.setStoragePoolId(pool.getId());
+            }
             vmDiskInfoList.add(vmDiskInfo);
         }
         this.dataDiskInfoList = vmDiskInfoList;

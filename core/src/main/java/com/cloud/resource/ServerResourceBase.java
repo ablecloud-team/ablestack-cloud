@@ -88,6 +88,8 @@ import com.cloud.agent.api.ListVhbaDevicesCommand;
 import com.cloud.agent.api.UpdateHostHbaDeviceAnswer;
 import com.cloud.agent.api.UpdateHostLunDeviceAnswer;
 import com.cloud.agent.api.UpdateHostLunDeviceCommand;
+import com.cloud.agent.api.UpdateHostVhbaDeviceCommand;
+import com.cloud.agent.api.UpdateHostHbaDeviceCommand;
 import com.cloud.agent.api.UpdateHostScsiDeviceAnswer;
 import com.cloud.agent.api.UpdateHostScsiDeviceCommand;
 import com.cloud.agent.api.UpdateHostUsbDeviceAnswer;
@@ -296,7 +298,9 @@ public abstract class ServerResourceBase implements ServerResource {
         try {
             ListHostLunDeviceAnswer fast = listHostLunDevicesFast(lunPathMode);
             if (fast != null && fast.getResult()) {
-                fast.setDeviceUsageStatus(new HostBlockDeviceSafety().inspect().statuses(fast.getHostDevicesNames()));
+                HostBlockDeviceSafety safety = new HostBlockDeviceSafety().inspect();
+                fast.setDeviceUsageStatus(safety.statuses(fast.getHostDevicesNames()));
+                fast.setDeviceSafetyDetails(safety.details(fast.getHostDevicesNames()));
                 return fast;
             }
 
@@ -336,7 +340,9 @@ public abstract class ServerResourceBase implements ServerResource {
             }
 
             ListHostLunDeviceAnswer resultAnswer = new ListHostLunDeviceAnswer(true, hostDevicesNames, hostDevicesText, hasPartitions, scsiAddresses);
-            resultAnswer.setDeviceUsageStatus(new HostBlockDeviceSafety().inspect().statuses(resultAnswer.getHostDevicesNames()));
+            HostBlockDeviceSafety safety = new HostBlockDeviceSafety().inspect();
+            resultAnswer.setDeviceUsageStatus(safety.statuses(resultAnswer.getHostDevicesNames()));
+            resultAnswer.setDeviceSafetyDetails(safety.details(resultAnswer.getHostDevicesNames()));
             return resultAnswer;
 
         } catch (Exception e) {
@@ -2359,7 +2365,9 @@ public abstract class ServerResourceBase implements ServerResource {
         try {
             ListHostScsiDeviceAnswer fast = listHostScsiDevicesFast();
             if (fast != null && fast.getResult()) {
-                fast.setDeviceUsageStatus(new HostBlockDeviceSafety().inspect().statuses(fast.getHostDevicesNames()));
+                HostBlockDeviceSafety safety = new HostBlockDeviceSafety().inspect();
+                fast.setDeviceUsageStatus(safety.statuses(fast.getHostDevicesNames()));
+                fast.setDeviceSafetyDetails(safety.details(fast.getHostDevicesNames()));
                 return fast;
             }
             Map<Path, String> realToById = buildByIdReverseMap();
@@ -2404,7 +2412,9 @@ public abstract class ServerResourceBase implements ServerResource {
             }
 
             ListHostScsiDeviceAnswer resultAnswer = new ListHostScsiDeviceAnswer(true, hostDevicesNames, hostDevicesText, hasPartitions);
-            resultAnswer.setDeviceUsageStatus(new HostBlockDeviceSafety().inspect().statuses(resultAnswer.getHostDevicesNames()));
+            HostBlockDeviceSafety safety = new HostBlockDeviceSafety().inspect();
+            resultAnswer.setDeviceUsageStatus(safety.statuses(resultAnswer.getHostDevicesNames()));
+            resultAnswer.setDeviceSafetyDetails(safety.details(resultAnswer.getHostDevicesNames()));
             return resultAnswer;
         } catch (Exception e) {
             return new ListHostScsiDeviceAnswer(false, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
@@ -3795,16 +3805,22 @@ public abstract class ServerResourceBase implements ServerResource {
                 mappedScsiDevice = mapping.getScsiDevicePath();
             }
 
-            xmlConfig = ensureUniqueLunTargetDev(vmName, xmlConfig);
+            if (isAttach) {
+                xmlConfig = ensureUniqueLunTargetDev(vmName, xmlConfig);
+            } else {
+                xmlConfig = findCurrentLunXml(vmName, xmlConfig);
+                if (xmlConfig == null) { return new UpdateHostLunDeviceAnswer(true, vmName, "", false); }
+            }
 
             try (PrintWriter writer = new PrintWriter(lunXmlPath)) {
                 writer.write(xmlConfig);
             }
 
             if (isAttach) {
-                String usage = new HostBlockDeviceSafety().inspect().attachmentStatus(xmlConfig, false);
-                if (!"available".equals(usage)) {
-                    return new UpdateHostLunDeviceAnswer(false, "Block device allocation denied: " + usage);
+                String denial = new HostBlockDeviceSafety().inspect().attachmentDenial(xmlConfig, false,
+                        ((UpdateHostLunDeviceCommand) command).isPartitionRiskAcknowledged());
+                if (denial != null) {
+                    return new UpdateHostLunDeviceAnswer(false, denial);
                 }
             }
 
@@ -3812,9 +3828,6 @@ public abstract class ServerResourceBase implements ServerResource {
             if (isAttach) {
                 virshCmd.add("attach-device", vmName, lunXmlPath);
             } else {
-                if (!isLunDeviceActuallyAttachedToVm(vmName, xmlConfig)) {
-                    return new UpdateHostLunDeviceAnswer(true, vmName, xmlConfig, isAttach);
-                }
                 virshCmd.add("detach-device", vmName, lunXmlPath);
             }
 
@@ -3877,9 +3890,10 @@ public abstract class ServerResourceBase implements ServerResource {
             }
 
             if (isAttach) {
-                String usage = new HostBlockDeviceSafety().inspect().attachmentStatus(xmlConfig, true);
-                if (!"available".equals(usage)) {
-                    return new UpdateHostHbaDeviceAnswer(false, vmName, xmlConfig, isAttach);
+                String denial = new HostBlockDeviceSafety().inspect().attachmentDenial(xmlConfig, true,
+                        ((UpdateHostHbaDeviceCommand) command).isPartitionRiskAcknowledged());
+                if (denial != null) {
+                    return new UpdateHostHbaDeviceAnswer(false, denial);
                 }
             }
 
@@ -3924,9 +3938,10 @@ public abstract class ServerResourceBase implements ServerResource {
             }
 
             if (isAttach) {
-                String usage = new HostBlockDeviceSafety().inspect().attachmentStatus(xmlConfig, true);
-                if (!"available".equals(usage)) {
-                    return new UpdateHostVhbaDeviceAnswer(false, vhbaDeviceName, vmName, xmlConfig, isAttach);
+                String denial = new HostBlockDeviceSafety().inspect().attachmentDenial(xmlConfig, true,
+                        ((UpdateHostVhbaDeviceCommand) command).isPartitionRiskAcknowledged());
+                if (denial != null) {
+                    return new UpdateHostVhbaDeviceAnswer(false, denial);
                 }
             }
 
@@ -3983,9 +3998,10 @@ public abstract class ServerResourceBase implements ServerResource {
             }
 
             if (isAttach) {
-                String usage = new HostBlockDeviceSafety().inspect().attachmentStatus(xmlConfig, true);
-                if (!"available".equals(usage)) {
-                    return new UpdateHostScsiDeviceAnswer(false, "Block device allocation denied: " + usage);
+                String denial = new HostBlockDeviceSafety().inspect().attachmentDenial(xmlConfig, true,
+                        ((UpdateHostScsiDeviceCommand) command).isPartitionRiskAcknowledged());
+                if (denial != null) {
+                    return new UpdateHostScsiDeviceAnswer(false, denial);
                 }
             }
 
@@ -4182,10 +4198,6 @@ public abstract class ServerResourceBase implements ServerResource {
 
             if (isDeviceUsedAsSwap(devicePath)) {
                 return "디바이스가 스왑으로 사용 중이어 할당할 수 없습니다: " + devicePath;
-            }
-
-            if (hasPartitionTable(devicePath)) {
-                return "디스크에 파티션 테이블이 있어 할당할 수 없습니다. 파티션을 삭제한 후 시도해주세요: " + devicePath;
             }
 
             if (isDeviceReadOnly(devicePath)) {
@@ -4385,50 +4397,18 @@ public abstract class ServerResourceBase implements ServerResource {
         }
     }
 
-    private boolean isLunDeviceActuallyAttachedToVm(String vmName, String xmlConfig) {
-        try {
-            String lunDeviceName = extractDeviceNameFromLunXml(xmlConfig);
-            if (lunDeviceName == null) {
-                lunDeviceName = "unknown";
-            }
-            String lunXmlPath = String.format("/tmp/lun_device_%s_%s.xml", vmName, lunDeviceName);
-
-            File xmlFile = new File(lunXmlPath);
-            if (!xmlFile.exists()) {
-                logger.warn("XML file does not exist for device check: {}", lunXmlPath);
-                return false;
-            }
-
-            Script dumpCommand = new Script("virsh");
-            dumpCommand.add("dumpxml", vmName);
-            OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
-            String result = dumpCommand.execute(parser);
-
-            if (result != null) {
-                logger.warn("Failed to get VM XML for device check: {}", result);
-                return false;
-            }
-
-            String vmXml = parser.getLines();
-            if (vmXml == null || vmXml.isEmpty()) {
-                logger.warn("Empty VM XML for device check");
-                return false;
-            }
-
-            String sourceDev = extractDeviceNameFromLunXml(xmlConfig);
-            if (sourceDev == null) {
-                logger.warn("Could not extract source dev from XML config");
-                return false;
-            }
-
-            boolean deviceFound = vmXml.contains("dev='" + sourceDev + "'") ||
-                                vmXml.contains("dev=\"" + sourceDev + "\"");
-            return deviceFound;
-
-        } catch (Exception e) {
-            logger.error("Error checking LUN device attachment for VM: {}", vmName, e);
-            return false;
+    private String findCurrentLunXml(String vmName, String requestedXml) throws Exception {
+        Script dump = new Script("virsh", 10000);
+        dump.add("dumpxml", vmName);
+        OutputInterpreter.AllLinesParser parser = new OutputInterpreter.AllLinesParser();
+        if (dump.execute(parser) != null || parser.getLines() == null) {
+            throw new IllegalStateException("Cannot verify current LUN attachment");
         }
+        return HostBlockDeviceXml.findLun(parser.getLines(), requestedXml, (a, b) -> {
+            if (a.equals(b)) { return true; }
+            try { return Files.isSameFile(Path.of(a), Path.of(b)); }
+            catch (Exception e) { return false; }
+        });
     }
 
     private String extractDeviceNameFromScsiXml(String xmlConfig) {

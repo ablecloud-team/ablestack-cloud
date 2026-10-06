@@ -1,0 +1,13 @@
+{
+  "source": "2d4d8eb42d1cf71b46b491be3d99df329896de32",
+  "relatedTests": {
+    "suites": 11,
+    "passed": 252,
+    "failed": 0
+  },
+  "lintPassed": true,
+  "productionBuildPassed": true,
+  "environment": "WSL ext4, Node 14.21.3",
+  "fullUiTestsRerun": false,
+  "fullCloudWorkflowManuallyDispatched": false
+}

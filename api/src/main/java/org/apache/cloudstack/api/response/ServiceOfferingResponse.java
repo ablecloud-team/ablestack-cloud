@@ -230,6 +230,10 @@ public class ServiceOfferingResponse extends BaseResponseWithAnnotations {
     @Param(description = "The display text of the disk offering", since = "4.17")
     private String diskOfferingDisplayText;
 
+    @SerializedName("diskofferingcomputeonly")
+    @Param(description = "True if the linked disk offering is an internal compute-only disk offering", since = "4.22")
+    private Boolean diskOfferingComputeOnly;
+
     @SerializedName(ApiConstants.ENCRYPT_ROOT)
     @Param(description = "True if Instance root disk will be encrypted on storage", since = "4.18")
     private Boolean encryptRoot;
@@ -636,6 +640,14 @@ public class ServiceOfferingResponse extends BaseResponseWithAnnotations {
 
     public String getDiskOfferingDisplayText() {
         return diskOfferingDisplayText;
+    }
+
+    public Boolean getDiskOfferingComputeOnly() {
+        return diskOfferingComputeOnly;
+    }
+
+    public void setDiskOfferingComputeOnly(Boolean diskOfferingComputeOnly) {
+        this.diskOfferingComputeOnly = diskOfferingComputeOnly;
     }
 
     public void setEncryptRoot(Boolean encrypt) { this.encryptRoot = encrypt; }

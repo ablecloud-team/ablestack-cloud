@@ -1,0 +1,1098 @@
+{
+  "source": "2d4d8eb42d1cf71b46b491be3d99df329896de32",
+  "observations": [
+    {
+      "label": "two-vms-three-snapshots-dark",
+      "body": {
+        "height": 505.03521728515625,
+        "overflowY": "auto",
+        "scrollHeight": 513,
+        "scrollTop": 0,
+        "width": 748.2002563476562,
+        "x": 580.8998413085938,
+        "y": 175.9668426513672
+      },
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "VM 스냅샷 삭제"
+        }
+      ],
+      "colors": {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(255, 255, 255, 0.85)"
+      },
+      "descriptions": [
+        {
+          "label": "VM 수",
+          "value": "2"
+        },
+        {
+          "label": "선택한 VM 스냅샷 수",
+          "value": "3"
+        }
+      ],
+      "footer": {
+        "height": 52.1771240234375,
+        "width": 748.2002563476562,
+        "x": 580.8998413085938,
+        "y": 681.0020751953125
+      },
+      "header": {
+        "height": 54.14607238769531,
+        "width": 748.2002563476562,
+        "x": 580.8998413085938,
+        "y": 121.82077026367188
+      },
+      "modal": null,
+      "rows": [
+        {
+          "cells": [
+            "epic1216-b",
+            "epic1216-ui-b-success",
+            "2026. 10. 3. 오후 9:36:12",
+            "디스크",
+            "현재 기준점",
+            "—",
+            "실행 가능"
+          ],
+          "id": "69c8c078-8a63-4b5f-861b-97a17b941339"
+        },
+        {
+          "cells": [
+            "epic1216-a",
+            "epic1216-a-branch",
+            "2026. 10. 3. 오후 8:29:52",
+            "디스크 + 메모리",
+            "현재 기준점",
+            "epic1216-a-first",
+            "실행 가능"
+          ],
+          "id": "2a99ee91-bb0e-49d2-986f-06a852088738"
+        },
+        {
+          "cells": [
+            "epic1216-a",
+            "epic1216-duplicate",
+            "2026. 10. 3. 오후 8:29:41",
+            "디스크 + 메모리",
+            "—",
+            "epic1216-a-first",
+            "실행 가능"
+          ],
+          "id": "679793de-854c-4d0b-ad01-24d031989a62"
+        }
+      ],
+      "theme": "dark-mode ant-scrolling-effect",
+      "viewport": {
+        "height": 855,
+        "width": 1920
+      }
+    },
+    {
+      "label": "two-vms-three-snapshots-dark-stable",
+      "body": {
+        "height": 513,
+        "overflowY": "auto",
+        "scrollHeight": 513,
+        "scrollTop": 0,
+        "width": 760,
+        "x": 575,
+        "y": 172
+      },
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "VM 스냅샷 삭제"
+        }
+      ],
+      "colors": {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(255, 255, 255, 0.85)"
+      },
+      "descriptions": [
+        {
+          "label": "VM 수",
+          "value": "2"
+        },
+        {
+          "label": "선택한 VM 스냅샷 수",
+          "value": "3"
+        }
+      ],
+      "footer": {
+        "height": 53,
+        "width": 760,
+        "x": 575,
+        "y": 685
+      },
+      "header": {
+        "height": 55,
+        "width": 760,
+        "x": 575,
+        "y": 117
+      },
+      "modal": null,
+      "rows": [
+        {
+          "cells": [
+            "epic1216-b",
+            "epic1216-ui-b-success",
+            "2026. 10. 3. 오후 9:36:12",
+            "디스크",
+            "현재 기준점",
+            "—",
+            "실행 가능"
+          ],
+          "id": "69c8c078-8a63-4b5f-861b-97a17b941339"
+        },
+        {
+          "cells": [
+            "epic1216-a",
+            "epic1216-a-branch",
+            "2026. 10. 3. 오후 8:29:52",
+            "디스크 + 메모리",
+            "현재 기준점",
+            "epic1216-a-first",
+            "실행 가능"
+          ],
+          "id": "2a99ee91-bb0e-49d2-986f-06a852088738"
+        },
+        {
+          "cells": [
+            "epic1216-a",
+            "epic1216-duplicate",
+            "2026. 10. 3. 오후 8:29:41",
+            "디스크 + 메모리",
+            "—",
+            "epic1216-a-first",
+            "실행 가능"
+          ],
+          "id": "679793de-854c-4d0b-ad01-24d031989a62"
+        }
+      ],
+      "theme": "dark-mode ant-scrolling-effect",
+      "viewport": {
+        "height": 855,
+        "width": 1920
+      }
+    },
+    {
+      "label": "two-vms-acknowledged",
+      "body": {
+        "height": 513,
+        "overflowY": "auto",
+        "scrollHeight": 513,
+        "scrollTop": 0,
+        "width": 760,
+        "x": 575,
+        "y": 172
+      },
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "VM 스냅샷 삭제"
+        }
+      ],
+      "colors": {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(255, 255, 255, 0.85)"
+      },
+      "descriptions": [
+        {
+          "label": "VM 수",
+          "value": "2"
+        },
+        {
+          "label": "선택한 VM 스냅샷 수",
+          "value": "3"
+        }
+      ],
+      "footer": {
+        "height": 53,
+        "width": 760,
+        "x": 575,
+        "y": 685
+      },
+      "header": {
+        "height": 55,
+        "width": 760,
+        "x": 575,
+        "y": 117
+      },
+      "modal": null,
+      "rows": [
+        {
+          "cells": [
+            "epic1216-b",
+            "epic1216-ui-b-success",
+            "2026. 10. 3. 오후 9:36:12",
+            "디스크",
+            "현재 기준점",
+            "—",
+            "실행 가능"
+          ],
+          "id": "69c8c078-8a63-4b5f-861b-97a17b941339"
+        },
+        {
+          "cells": [
+            "epic1216-a",
+            "epic1216-a-branch",
+            "2026. 10. 3. 오후 8:29:52",
+            "디스크 + 메모리",
+            "현재 기준점",
+            "epic1216-a-first",
+            "실행 가능"
+          ],
+          "id": "2a99ee91-bb0e-49d2-986f-06a852088738"
+        },
+        {
+          "cells": [
+            "epic1216-a",
+            "epic1216-duplicate",
+            "2026. 10. 3. 오후 8:29:41",
+            "디스크 + 메모리",
+            "—",
+            "epic1216-a-first",
+            "실행 가능"
+          ],
+          "id": "679793de-854c-4d0b-ad01-24d031989a62"
+        }
+      ],
+      "theme": "dark-mode ant-scrolling-effect",
+      "viewport": {
+        "height": 855,
+        "width": 1920
+      }
+    },
+    {
+      "label": "two-vms-three-snapshots-light-1366",
+      "body": {
+        "height": 505.0216979980469,
+        "overflowY": "auto",
+        "scrollHeight": 513,
+        "scrollTop": 0,
+        "width": 748.1802368164062,
+        "x": 307.93792724609375,
+        "y": 135.08639526367188
+      },
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "VM 스냅샷 삭제"
+        }
+      ],
+      "colors": {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(75, 85, 99)"
+      },
+      "descriptions": [
+        {
+          "label": "VM 수",
+          "value": "2"
+        },
+        {
+          "label": "선택한 VM 스냅샷 수",
+          "value": "3"
+        }
+      ],
+      "footer": {
+        "height": 52.17572021484375,
+        "width": 748.1802368164062,
+        "x": 307.93792724609375,
+        "y": 640.1080932617188
+      },
+      "header": {
+        "height": 54.144622802734375,
+        "width": 748.1802368164062,
+        "x": 307.93792724609375,
+        "y": 80.9417724609375
+      },
+      "modal": null,
+      "rows": [
+        {
+          "cells": [
+            "epic1216-b",
+            "epic1216-ui-b-success",
+            "2026. 10. 3. 오후 9:36:12",
+            "디스크",
+            "현재 기준점",
+            "—",
+            "실행 가능"
+          ],
+          "id": "69c8c078-8a63-4b5f-861b-97a17b941339"
+        },
+        {
+          "cells": [
+            "epic1216-a",
+            "epic1216-a-branch",
+            "2026. 10. 3. 오후 8:29:52",
+            "디스크 + 메모리",
+            "현재 기준점",
+            "epic1216-a-first",
+            "실행 가능"
+          ],
+          "id": "2a99ee91-bb0e-49d2-986f-06a852088738"
+        },
+        {
+          "cells": [
+            "epic1216-a",
+            "epic1216-duplicate",
+            "2026. 10. 3. 오후 8:29:41",
+            "디스크 + 메모리",
+            "—",
+            "epic1216-a-first",
+            "실행 가능"
+          ],
+          "id": "679793de-854c-4d0b-ad01-24d031989a62"
+        }
+      ],
+      "theme": "ant-scrolling-effect",
+      "viewport": {
+        "height": 768,
+        "width": 1366
+      }
+    },
+    {
+      "label": "light-1366-stable",
+      "body": {
+        "height": 513,
+        "overflowY": "auto",
+        "scrollHeight": 513,
+        "scrollTop": 0,
+        "width": 760,
+        "x": 298,
+        "y": 128.5
+      },
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "VM 스냅샷 삭제"
+        }
+      ],
+      "colors": {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(75, 85, 99)"
+      },
+      "descriptions": [
+        {
+          "label": "VM 수",
+          "value": "2"
+        },
+        {
+          "label": "선택한 VM 스냅샷 수",
+          "value": "3"
+        }
+      ],
+      "footer": {
+        "height": 53,
+        "width": 760,
+        "x": 298,
+        "y": 641.5
+      },
+      "header": {
+        "height": 55,
+        "width": 760,
+        "x": 298,
+        "y": 73.5
+      },
+      "modal": null,
+      "rows": [
+        {
+          "cells": [
+            "epic1216-b",
+            "epic1216-ui-b-success",
+            "2026. 10. 3. 오후 9:36:12",
+            "디스크",
+            "현재 기준점",
+            "—",
+            "실행 가능"
+          ],
+          "id": "69c8c078-8a63-4b5f-861b-97a17b941339"
+        },
+        {
+          "cells": [
+            "epic1216-a",
+            "epic1216-a-branch",
+            "2026. 10. 3. 오후 8:29:52",
+            "디스크 + 메모리",
+            "현재 기준점",
+            "epic1216-a-first",
+            "실행 가능"
+          ],
+          "id": "2a99ee91-bb0e-49d2-986f-06a852088738"
+        },
+        {
+          "cells": [
+            "epic1216-a",
+            "epic1216-duplicate",
+            "2026. 10. 3. 오후 8:29:41",
+            "디스크 + 메모리",
+            "—",
+            "epic1216-a-first",
+            "실행 가능"
+          ],
+          "id": "679793de-854c-4d0b-ad01-24d031989a62"
+        }
+      ],
+      "theme": "ant-scrolling-effect",
+      "viewport": {
+        "height": 768,
+        "width": 1366
+      }
+    },
+    {
+      "label": "light-horizontal-scroll",
+      "tables": [
+        {
+          "scrollLeft": 248,
+          "scrollWidth": 960,
+          "width": 712
+        }
+      ]
+    },
+    {
+      "label": "light-mobile-before-scroll",
+      "body": {
+        "height": 508,
+        "overflowY": "auto",
+        "scrollHeight": 623,
+        "scrollTop": 0,
+        "width": 374,
+        "x": 3,
+        "y": 67
+      },
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "VM 스냅샷 삭제"
+        }
+      ],
+      "colors": {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(75, 85, 99)"
+      },
+      "descriptions": [
+        {
+          "label": "VM 수",
+          "value": "2"
+        },
+        {
+          "label": "선택한 VM 스냅샷 수",
+          "value": "3"
+        }
+      ],
+      "footer": {
+        "height": 53,
+        "width": 374,
+        "x": 3,
+        "y": 575
+      },
+      "header": {
+        "height": 55,
+        "width": 374,
+        "x": 3,
+        "y": 12
+      },
+      "modal": null,
+      "rows": [
+        {
+          "cells": [
+            "epic1216-b",
+            "epic1216-ui-b-success",
+            "2026. 10. 3. 오후 9:36:12",
+            "디스크",
+            "현재 기준점",
+            "—",
+            "실행 가능"
+          ],
+          "id": "69c8c078-8a63-4b5f-861b-97a17b941339"
+        },
+        {
+          "cells": [
+            "epic1216-a",
+            "epic1216-a-branch",
+            "2026. 10. 3. 오후 8:29:52",
+            "디스크 + 메모리",
+            "현재 기준점",
+            "epic1216-a-first",
+            "실행 가능"
+          ],
+          "id": "2a99ee91-bb0e-49d2-986f-06a852088738"
+        },
+        {
+          "cells": [
+            "epic1216-a",
+            "epic1216-duplicate",
+            "2026. 10. 3. 오후 8:29:41",
+            "디스크 + 메모리",
+            "—",
+            "epic1216-a-first",
+            "실행 가능"
+          ],
+          "id": "679793de-854c-4d0b-ad01-24d031989a62"
+        }
+      ],
+      "theme": "ant-scrolling-effect",
+      "viewport": {
+        "height": 640,
+        "width": 390
+      }
+    },
+    {
+      "label": "light-mobile-after-scroll",
+      "body": {
+        "height": 508,
+        "overflowY": "auto",
+        "scrollHeight": 623,
+        "scrollTop": 115,
+        "width": 374,
+        "x": 3,
+        "y": 67
+      },
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "VM 스냅샷 삭제"
+        }
+      ],
+      "colors": {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(75, 85, 99)"
+      },
+      "descriptions": [
+        {
+          "label": "VM 수",
+          "value": "2"
+        },
+        {
+          "label": "선택한 VM 스냅샷 수",
+          "value": "3"
+        }
+      ],
+      "footer": {
+        "height": 53,
+        "width": 374,
+        "x": 3,
+        "y": 575
+      },
+      "header": {
+        "height": 55,
+        "width": 374,
+        "x": 3,
+        "y": 12
+      },
+      "modal": null,
+      "rows": [
+        {
+          "cells": [
+            "epic1216-b",
+            "epic1216-ui-b-success",
+            "2026. 10. 3. 오후 9:36:12",
+            "디스크",
+            "현재 기준점",
+            "—",
+            "실행 가능"
+          ],
+          "id": "69c8c078-8a63-4b5f-861b-97a17b941339"
+        },
+        {
+          "cells": [
+            "epic1216-a",
+            "epic1216-a-branch",
+            "2026. 10. 3. 오후 8:29:52",
+            "디스크 + 메모리",
+            "현재 기준점",
+            "epic1216-a-first",
+            "실행 가능"
+          ],
+          "id": "2a99ee91-bb0e-49d2-986f-06a852088738"
+        },
+        {
+          "cells": [
+            "epic1216-a",
+            "epic1216-duplicate",
+            "2026. 10. 3. 오후 8:29:41",
+            "디스크 + 메모리",
+            "—",
+            "epic1216-a-first",
+            "실행 가능"
+          ],
+          "id": "679793de-854c-4d0b-ad01-24d031989a62"
+        }
+      ],
+      "theme": "ant-scrolling-effect",
+      "viewport": {
+        "height": 640,
+        "width": 390
+      }
+    },
+    {
+      "label": "single-delete-keeps-six-row-summary",
+      "body": {
+        "height": 378.6467590332031,
+        "overflowY": "auto",
+        "scrollHeight": 487,
+        "scrollTop": 0,
+        "width": 590.9066162109375,
+        "x": 717.171875,
+        "y": 308.2601623535156
+      },
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "VM 스냅샷 삭제"
+        }
+      ],
+      "colors": {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(75, 85, 99)"
+      },
+      "descriptions": [
+        {
+          "label": "VM 이름",
+          "value": "epic1216-b"
+        },
+        {
+          "label": "스냅샷 이름",
+          "value": "epic1216-ui-b-success"
+        },
+        {
+          "label": "생성일",
+          "value": "2026. 10. 3. 오후 9:36:12"
+        },
+        {
+          "label": "유형",
+          "value": "디스크"
+        },
+        {
+          "label": "현재",
+          "value": "현재 기준점"
+        },
+        {
+          "label": "상위",
+          "value": "—"
+        }
+      ],
+      "footer": {
+        "height": 41.20794677734375,
+        "width": 590.9066162109375,
+        "x": 717.171875,
+        "y": 686.9069213867188
+      },
+      "header": {
+        "height": 42.762969970703125,
+        "width": 590.9066162109375,
+        "x": 717.171875,
+        "y": 265.4971923828125
+      },
+      "modal": null,
+      "rows": [],
+      "theme": "ant-scrolling-effect",
+      "viewport": {
+        "height": 855,
+        "width": 1920
+      }
+    },
+    {
+      "label": "three-vms-three-snapshots-dark",
+      "body": {
+        "height": 505.021728515625,
+        "overflowY": "auto",
+        "scrollHeight": 513,
+        "scrollTop": 0,
+        "width": 748.1802368164062,
+        "x": 584.9379272460938,
+        "y": 178.3453369140625
+      },
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "VM 스냅샷 삭제"
+        }
+      ],
+      "colors": {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(255, 255, 255, 0.85)"
+      },
+      "descriptions": [
+        {
+          "label": "VM 수",
+          "value": "3"
+        },
+        {
+          "label": "선택한 VM 스냅샷 수",
+          "value": "3"
+        }
+      ],
+      "footer": {
+        "height": 52.1756591796875,
+        "width": 748.1802368164062,
+        "x": 584.9379272460938,
+        "y": 683.3670654296875
+      },
+      "header": {
+        "height": 54.144622802734375,
+        "width": 748.1802368164062,
+        "x": 584.9379272460938,
+        "y": 124.20071411132812
+      },
+      "modal": null,
+      "rows": [
+        {
+          "cells": [
+            "epic1216-acl-user-a",
+            "epic1216-concurrent-memory",
+            "2026. 10. 3. 오후 9:59:07",
+            "디스크 + 메모리",
+            "현재 기준점",
+            "epic1216-acl-user-a",
+            "실행 가능"
+          ],
+          "id": "db0ad0fe-cc87-46a5-a748-aad4231bb098"
+        },
+        {
+          "cells": [
+            "epic1216-acl-user-b",
+            "epic1216-concurrent-memory",
+            "2026. 10. 3. 오후 9:59:07",
+            "디스크 + 메모리",
+            "현재 기준점",
+            "epic1216-acl-user-b",
+            "실행 가능"
+          ],
+          "id": "f24fd0f5-60a1-4ef5-a0f7-7c839754bad5"
+        },
+        {
+          "cells": [
+            "epic1216-c",
+            "epic1216-ui-c-memory",
+            "2026. 10. 3. 오후 9:38:33",
+            "디스크 + 메모리",
+            "현재 기준점",
+            "—",
+            "실행 가능"
+          ],
+          "id": "1badd54f-295f-4e6d-89c8-920f92620c6e"
+        }
+      ],
+      "theme": "dark-mode ant-scrolling-effect",
+      "viewport": {
+        "height": 855,
+        "width": 1920
+      }
+    },
+    {
+      "label": "three-vms-dark-mobile-before-scroll",
+      "body": {
+        "height": 508,
+        "overflowY": "auto",
+        "scrollHeight": 623,
+        "scrollTop": 0,
+        "width": 374,
+        "x": 3,
+        "y": 67
+      },
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "VM 스냅샷 삭제"
+        }
+      ],
+      "colors": {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(255, 255, 255, 0.85)"
+      },
+      "descriptions": [
+        {
+          "label": "VM 수",
+          "value": "3"
+        },
+        {
+          "label": "선택한 VM 스냅샷 수",
+          "value": "3"
+        }
+      ],
+      "footer": {
+        "height": 53,
+        "width": 374,
+        "x": 3,
+        "y": 575
+      },
+      "header": {
+        "height": 55,
+        "width": 374,
+        "x": 3,
+        "y": 12
+      },
+      "modal": null,
+      "rows": [
+        {
+          "cells": [
+            "epic1216-acl-user-a",
+            "epic1216-concurrent-memory",
+            "2026. 10. 3. 오후 9:59:07",
+            "디스크 + 메모리",
+            "현재 기준점",
+            "epic1216-acl-user-a",
+            "실행 가능"
+          ],
+          "id": "db0ad0fe-cc87-46a5-a748-aad4231bb098"
+        },
+        {
+          "cells": [
+            "epic1216-acl-user-b",
+            "epic1216-concurrent-memory",
+            "2026. 10. 3. 오후 9:59:07",
+            "디스크 + 메모리",
+            "현재 기준점",
+            "epic1216-acl-user-b",
+            "실행 가능"
+          ],
+          "id": "f24fd0f5-60a1-4ef5-a0f7-7c839754bad5"
+        },
+        {
+          "cells": [
+            "epic1216-c",
+            "epic1216-ui-c-memory",
+            "2026. 10. 3. 오후 9:38:33",
+            "디스크 + 메모리",
+            "현재 기준점",
+            "—",
+            "실행 가능"
+          ],
+          "id": "1badd54f-295f-4e6d-89c8-920f92620c6e"
+        }
+      ],
+      "theme": "dark-mode ant-scrolling-effect",
+      "viewport": {
+        "height": 640,
+        "width": 390
+      }
+    },
+    {
+      "label": "three-vms-dark-mobile-after-scroll",
+      "body": {
+        "height": 508,
+        "overflowY": "auto",
+        "scrollHeight": 623,
+        "scrollTop": 115,
+        "width": 374,
+        "x": 3,
+        "y": 67
+      },
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "VM 스냅샷 삭제"
+        }
+      ],
+      "colors": {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(255, 255, 255, 0.85)"
+      },
+      "descriptions": [
+        {
+          "label": "VM 수",
+          "value": "3"
+        },
+        {
+          "label": "선택한 VM 스냅샷 수",
+          "value": "3"
+        }
+      ],
+      "footer": {
+        "height": 53,
+        "width": 374,
+        "x": 3,
+        "y": 575
+      },
+      "header": {
+        "height": 55,
+        "width": 374,
+        "x": 3,
+        "y": 12
+      },
+      "modal": null,
+      "rows": [
+        {
+          "cells": [
+            "epic1216-acl-user-a",
+            "epic1216-concurrent-memory",
+            "2026. 10. 3. 오후 9:59:07",
+            "디스크 + 메모리",
+            "현재 기준점",
+            "epic1216-acl-user-a",
+            "실행 가능"
+          ],
+          "id": "db0ad0fe-cc87-46a5-a748-aad4231bb098"
+        },
+        {
+          "cells": [
+            "epic1216-acl-user-b",
+            "epic1216-concurrent-memory",
+            "2026. 10. 3. 오후 9:59:07",
+            "디스크 + 메모리",
+            "현재 기준점",
+            "epic1216-acl-user-b",
+            "실행 가능"
+          ],
+          "id": "f24fd0f5-60a1-4ef5-a0f7-7c839754bad5"
+        },
+        {
+          "cells": [
+            "epic1216-c",
+            "epic1216-ui-c-memory",
+            "2026. 10. 3. 오후 9:38:33",
+            "디스크 + 메모리",
+            "현재 기준점",
+            "—",
+            "실행 가능"
+          ],
+          "id": "1badd54f-295f-4e6d-89c8-920f92620c6e"
+        }
+      ],
+      "theme": "dark-mode ant-scrolling-effect",
+      "viewport": {
+        "height": 640,
+        "width": 390
+      }
+    },
+    {
+      "label": "final-user-case-dark",
+      "body": {
+        "height": 513,
+        "overflowY": "auto",
+        "scrollHeight": 513,
+        "scrollTop": 0,
+        "width": 760,
+        "x": 575,
+        "y": 172
+      },
+      "buttons": [
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "VM 스냅샷 삭제"
+        }
+      ],
+      "colors": {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(255, 255, 255, 0.85)"
+      },
+      "descriptions": [
+        {
+          "label": "VM 수",
+          "value": "2"
+        },
+        {
+          "label": "선택한 VM 스냅샷 수",
+          "value": "3"
+        }
+      ],
+      "footer": {
+        "height": 53,
+        "width": 760,
+        "x": 575,
+        "y": 685
+      },
+      "header": {
+        "height": 55,
+        "width": 760,
+        "x": 575,
+        "y": 117
+      },
+      "modal": null,
+      "rows": [
+        {
+          "cells": [
+            "epic1216-b",
+            "epic1216-ui-b-success",
+            "2026. 10. 3. 오후 9:36:12",
+            "디스크",
+            "현재 기준점",
+            "—",
+            "실행 가능"
+          ],
+          "id": "69c8c078-8a63-4b5f-861b-97a17b941339"
+        },
+        {
+          "cells": [
+            "epic1216-a",
+            "epic1216-a-branch",
+            "2026. 10. 3. 오후 8:29:52",
+            "디스크 + 메모리",
+            "현재 기준점",
+            "epic1216-a-first",
+            "실행 가능"
+          ],
+          "id": "2a99ee91-bb0e-49d2-986f-06a852088738"
+        },
+        {
+          "cells": [
+            "epic1216-a",
+            "epic1216-duplicate",
+            "2026. 10. 3. 오후 8:29:41",
+            "디스크 + 메모리",
+            "—",
+            "epic1216-a-first",
+            "실행 가능"
+          ],
+          "id": "679793de-854c-4d0b-ad01-24d031989a62"
+        }
+      ],
+      "theme": "dark-mode ant-scrolling-effect",
+      "viewport": {
+        "height": 855,
+        "width": 1920
+      }
+    }
+  ]
+}

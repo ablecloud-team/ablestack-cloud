@@ -47,6 +47,13 @@ public class DeleteVMSnapshotCmd extends BaseAsyncCmd {
                description = "The ID of the Instance Snapshot")
     private Long id;
 
+    @Parameter(name = ApiConstants.FORCE, type = CommandType.BOOLEAN, description = "Recover and delete an Error VM snapshot; root administrator only. Defaults to false.")
+    private Boolean force;
+
+    public boolean isForce() {
+        return Boolean.TRUE.equals(force);
+    }
+
     public Long getId() {
         return id;
     }
@@ -63,7 +70,7 @@ public class DeleteVMSnapshotCmd extends BaseAsyncCmd {
     @Override
     public void execute() {
         CallContext.current().setEventDetails("Instance Snapshot ID: " + getResourceUuid(ApiConstants.VM_SNAPSHOT_ID));
-        boolean result = _vmSnapshotService.deleteVMSnapshot(getId());
+        boolean result = _vmSnapshotService.deleteVMSnapshot(getId(), isForce());
         if (result) {
             SuccessResponse response = new SuccessResponse(getCommandName());
             setResponseObject(response);

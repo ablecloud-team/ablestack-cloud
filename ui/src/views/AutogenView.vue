@@ -69,9 +69,9 @@
                     <a-select-option
                       v-for="filter in filters"
                       :key="filter"
-                      :label="$t('label.' + (['comment'].includes($route.name) ? 'filter.annotations.' : '') + filter)"
+                      :label="getFilterLabel(filter)"
                     >
-                      {{ $t('label.' + (['comment'].includes($route.name) ? 'filter.annotations.' : '') + filter) }}
+                      {{ getFilterLabel(filter) }}
                       <clock-circle-outlined
                         v-if="['comment'].includes($route.name) && !['Admin'].includes($store.getters.userInfo.roletype) && filter === 'all'"
                       />
@@ -176,15 +176,15 @@
       />
       <keep-alive v-else-if="currentAction.component && (!currentAction.invokedAsGroupAction || currentAction.api === 'destroyVirtualMachine')">
         <a-modal
+          class="mold-dialog"
+          centered
           :visible="showAction"
           :closable="true"
           :maskClosable="false"
           :cancelText="$t('label.cancel')"
-          style="top: 20px;"
           @cancel="cancelAction"
           :confirmLoading="actionLoading"
           :footer="null"
-          centered
           width="auto"
         >
           <template #title>
@@ -218,7 +218,8 @@
         </a-modal>
       </keep-alive>
       <a-modal
-        v-else-if="currentAction.label === 'label.download.events'"
+          class="mold-dialog"
+          v-else-if="currentAction.label === 'label.download.events'"
         :visible="showAction"
         :closable="true"
         :maskClosable="false"
@@ -448,13 +449,12 @@
         <br />
       </a-modal>
       <a-modal
-        v-else
+          class="mold-dialog"
+          v-else
         :visible="showAction"
         :closable="true"
         :maskClosable="false"
-        :footer="null"
-        style="top: 20px;"
-        :width="currentAction.invokedAsGroupAction ? modalWidth : '30vw'"
+        :width="currentAction.invokedAsGroupAction ? modalWidth : 760"
         :ok-button-props="getOkProps()"
         ok-text="111"
         :cancel-button-props="getCancelProps()"
@@ -477,6 +477,7 @@
           :spinning="actionLoading"
           v-ctrl-enter="handleSubmit"
         >
+          <VmSnapshotSummary v-if="currentAction.api === 'createVMSnapshot'" vm-only :snapshot="{ virtualmachineid: currentAction.resource.id, virtualmachinename: currentAction.resource.displayname || currentAction.resource.name, virtualmachineinstancename: currentAction.resource.instancename, virtualmachinestate: currentAction.resource.state }" />
           <span v-if="currentAction.message">
             <div v-if="selectedRowKeys.length > 0 && currentAction.invokedAsGroupAction">
               <a-alert
@@ -787,21 +788,12 @@
               </a-form-item>
             </div>
 
-            <div
-              :span="24"
-              class="action-button"
-            >
-              <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
-              <a-button
-                type="primary"
-                @click="handleSubmit"
-                :disabled="isSubmitDisabled"
-                ref="submit"
-              >{{ $t('label.ok') }}</a-button>
-            </div>
           </a-form>
         </a-spin>
-        <br />
+        <template #footer>
+          <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
+          <a-button type="primary" @click="handleSubmit" :disabled="isSubmitDisabled" :loading="actionLoading" ref="submit">{{ $t('label.ok') }}</a-button>
+        </template>
       </a-modal>
     </div>
 
@@ -830,9 +822,13 @@
         <advisories-view
           v-if="$route.meta.advisories && !loading"
         />
-        <p v-if="listRefreshError" role="status">{{ $t('message.list.refresh.stale') }}</p>
+        <a-alert v-if="listRefreshError && $route.name === 'vmsnapshot'" type="error" show-icon :message="$t(listLoadedScope ? 'message.list.refresh.stale' : 'error.fetching.data')">
+          <template #action><a-button size="small" @click="fetchData">{{ $t('label.refresh') }}</a-button></template>
+        </a-alert>
+        <p v-else-if="listRefreshError" role="status">{{ $t('message.list.refresh.stale') }}</p>
         <list-view
           :loading="loading"
+          :emptyText="snapshotEmptyText"
           :columns="columns"
           :items="items"
           :actions="actions"
@@ -844,6 +840,7 @@
           @update-selected-columns="updateSelectedColumns"
           @selection-change="onRowSelectionChange"
           @refresh="fetchData"
+          @table-change="handleTableChange"
         />
         <a-pagination
           class="row-element"
@@ -882,6 +879,9 @@ import { createListRefresh, listRowKey, canRefreshList } from '@/utils/listRefre
 import { ref, reactive, toRaw, h } from 'vue'
 import { Button } from 'ant-design-vue'
 import { getAPI, postAPI, callAPI } from '@/api'
+import { freshSnapshotContext } from '@/utils/vmSnapshotList'
+import { snapshotBusy, snapshotSubmissions, trackUnknownSnapshotSubmission } from '@/utils/vmSnapshotActions'
+import VmSnapshotSummary from '@/components/view/VmSnapshotSummary'
 import { mixinDevice } from '@/utils/mixin.js'
 import { genericCompare } from '@/utils/sort.js'
 import { sourceToken } from '@/utils/request'
@@ -909,6 +909,7 @@ export default {
     ResourceView,
     ListView,
     ActionButton,
+    VmSnapshotSummary,
     SearchView,
     SearchFilter,
     BulkActionProgress,
@@ -1126,15 +1127,15 @@ export default {
     next()
   },
   watch: {
+    snapshotSecurityScope () {
+      if (['createVMSnapshot', 'revertToVMSnapshot', 'deleteVMSnapshot', 'createSnapshotFromVMSnapshot'].includes(this.currentAction.api)) this.closeAction()
+    },
     '$route' (to, from) {
       if (to.fullPath !== from.fullPath && !to.path.startsWith('/action/') && to?.query?.tab !== 'browser') {
         this.resetSelection()
-        if ('page' in to.query) {
-          this.page = Number(to.query.page)
-          this.pageSize = this.getValidPageSize(to.query.pagesize)
-        } else {
-          this.page = 1
-        }
+        const page = Number(to.query.page)
+        this.page = Number.isInteger(page) && page > 0 ? page : 1
+        if ('pagesize' in to.query) this.pageSize = this.getValidPageSize(to.query.pagesize)
         this.itemCount = 0
         this.clearAutoRefresh()
         this.fetchData()
@@ -1170,10 +1171,20 @@ export default {
     }
   },
   computed: {
+    snapshotEmptyText () {
+      if (this.$route.name !== 'vmsnapshot') return ''
+      const filtered = ['keyword', 'q', 'state', 'type', 'current', 'virtualmachineid', 'virtualmachineids', 'account', 'domainid'].some(key => this.$route.query[key] !== undefined && this.$route.query[key] !== '')
+      return this.$t(filtered ? 'message.vmsnapshot.list.no.results' : 'message.vmsnapshot.list.empty')
+    },
+    snapshotSecurityScope () { return JSON.stringify([this.$store.getters.userInfo?.id, this.$store.getters.project?.id, this.$store.state?.user?.token]) },
     activeFiltersList () {
       const queryParams = Object.assign({}, this.$route.query)
       const activeFilters = []
       for (const filter in queryParams) {
+        if (['sortkey', 'sortorder'].includes(filter)) continue
+        if (this.$route.name === 'vmsnapshot' && filter === 'filter') {
+          continue
+        }
         if (this.$route.name === 'host' && filter === 'type') {
           continue
         }
@@ -1214,6 +1225,10 @@ export default {
       }).map(String)
     },
     filterValue () {
+      if (this.$route.meta?.defaultFilter) {
+        const value = String(this.$route.query.filter || this.$route.query.state || this.$route.meta.defaultFilter).toLowerCase()
+        return this.filters.includes(value) ? value : this.$route.meta.defaultFilter
+      }
       if (this.$route.query.filter) {
         return this.$route.query.filter
       }
@@ -1259,8 +1274,10 @@ export default {
           return false
         }
         if (selectionCount > 0) {
-          // Hide group actions from toolbar; will be shown via context menu
-          return action.listView && !action.groupAction && ('show' in action ? action.show(this.resource, this.$store.getters) : true)
+          // Explicitly named bulk actions stay in the existing toolbar position.
+          const showExplicitGroup = action.groupAction && action.toolbarLabel &&
+            ('groupShow' in action ? action.groupShow(this.selectedItems, this.$store.getters) : true)
+          return showExplicitGroup || (action.listView && !action.groupAction && ('show' in action ? action.show(this.resource, this.$store.getters) : true))
         }
         const showOnList = action.listView && ('show' in action ? action.show(this.resource, this.$store.getters) : true)
         const showOnGroup = action.groupAction && selectionCount > 0 &&
@@ -1309,11 +1326,11 @@ export default {
     },
     getValidPageSize (value) {
       const pageSize = Number(value)
-      if (Number.isFinite(pageSize) && pageSize > 0) {
+      if (Number.isInteger(pageSize) && pageSize > 0) {
         return pageSize
       }
       const defaultPageSize = Number(this.$store.getters.defaultListViewPageSize)
-      return Number.isFinite(defaultPageSize) && defaultPageSize > 0 ? defaultPageSize : 20
+      return Number.isInteger(defaultPageSize) && defaultPageSize > 0 ? defaultPageSize : 20
     },
     onListEvent (name, handler) {
       this.listEventHandlers.push([name, handler])
@@ -1489,12 +1506,16 @@ export default {
       }
       if (Object.keys(this.$route.query).length > 0) {
         if ('page' in this.$route.query) {
-          this.page = Number(this.$route.query.page)
+          const page = Number(this.$route.query.page)
+          this.page = Number.isInteger(page) && page > 0 ? page : 1
         }
         if ('pagesize' in this.$route.query) {
           this.pageSize = this.getValidPageSize(this.$route.query.pagesize)
         }
         Object.assign(params, this.$route.query)
+      }
+      if (this.$route.name === 'vmsnapshot' && !rebuildSchema) {
+        this.columns.forEach(column => { column.sortOrder = (params.sortkey || 'created') === column.key ? (params.sortorder === 'asc' ? 'ascend' : 'descend') : null })
       }
       delete params.q
       delete params.filter
@@ -1599,7 +1620,8 @@ export default {
             key: key,
             title: this.$t('label.' + String(title).toLowerCase()),
             dataIndex: key,
-            sorter: sorter
+            sorter: this.$route.name === 'vmsnapshot' ? ['displayname', 'state', 'type', 'current', 'created'].includes(key) : sorter,
+            ...(this.$route.name === 'vmsnapshot' ? { sortOrder: (this.$route.query.sortkey || 'created') === key ? (this.$route.query.sortorder === 'asc' ? 'ascend' : 'descend') : null } : {})
           })
           this.selectedColumns.push(key)
         }
@@ -1611,6 +1633,10 @@ export default {
             this.$store.getters.customColumns[this.$store.getters.userInfo.id][this.$route.path] = this.selectedColumns
           } else {
             this.selectedColumns = this.$store.getters.customColumns[this.$store.getters.userInfo.id][this.$route.path] || this.selectedColumns
+            if (this.$route.name === 'vmsnapshot') {
+              // Replace the former default domain column in saved selections as well.
+              this.selectedColumns = [...new Set(this.selectedColumns.map(key => key === 'domain' ? 'zonename' : key))]
+            }
             if (this.$store.getters.listAllProjects && !this.projectView) {
               this.selectedColumns.push('project')
             }
@@ -1721,7 +1747,7 @@ export default {
         'listImageStores', 'listSystemVms', 'listManagementServers',
         'listConfigurations', 'listHypervisorCapabilities',
         'listAlerts', 'listNetworkOfferings', 'listVPCOfferings',
-        'listASNumbers'].includes(this.apiName)) {
+        'listASNumbers', 'listWallAlertRules'].includes(this.apiName)) {
         delete params.listall
       }
 
@@ -1825,7 +1851,7 @@ export default {
         }
       }).catch(error => {
         if (version !== this.listRequestVersion || scope !== this.listScope()) return
-        if (sameList) {
+        if (sameList || this.$route.name === 'vmsnapshot') {
           this.listRefreshError = true
           if (isAutoScheduled) throw error
           this.$notifyError(error)
@@ -1904,6 +1930,7 @@ export default {
         delete queryParams[`tags[${filter.tagIdx}].value`]
       } else {
         delete queryParams[filter.key]
+        if (this.$route.name === 'vmsnapshot' && filter.key === 'state') delete queryParams.filter
       }
       queryParams.page = '1'
       queryParams.pagesize = String(this.pageSize)
@@ -1931,6 +1958,13 @@ export default {
       this.execAction(action, false)
     },
     execAction (action, isGroupAction) {
+      if (action.api === 'createVMSnapshot') action = { ...action, resource: Object.freeze({ ...action.resource }) }
+      if (action.snapshotMode) {
+        this.currentAction = { ...action, invokedAsGroupAction: !!isGroupAction, snapshotTargets: Object.freeze((isGroupAction ? this.selectedItems : [action.resource]).filter(Boolean).map(row => Object.freeze({ ...row }))) }
+        this.resource = action.resource || {}
+        this.showAction = true
+        return
+      }
       this.listEventHandlers = []
       this.formRef = ref()
       this.form = reactive({})
@@ -2364,7 +2398,7 @@ export default {
           }
           if (selectedItems === this.selectedItems && selectedItems.length !== 0) {
             this.$notifyError(error)
-            eventBus.emit('update-resource-state', { selectedItems, resource: this.getDataIdentifier(params), state: 'failed' })
+            eventBus.emit('update-resource-state', { selectedItems, resource: this.getDataIdentifier(params), state: error.trackingStatus === 'unknown' ? 'unknown' : 'failed' })
           }
           resolve(false)
         })
@@ -2441,6 +2475,29 @@ export default {
       trackedBackup.restoreoperationpending = true
       trackedBackup.restorejobstate = 'STARTING'
       trackedBackup.restorejobstep = 'REQUESTED'
+    },
+    async postSnapshotAwareAction (action, params) {
+      if (action.api !== 'createVMSnapshot') return postAPI(action.api, params)
+      const security = JSON.stringify([this.$store.getters.userInfo?.id, this.$store.getters.project?.id, this.$store.state?.user?.token])
+      const id = action.resource.id
+      const [context] = await freshSnapshotContext(getAPI, [{ virtualmachineid: id }], 'listBackups' in this.$store.getters.apis)
+      const vm = context.vm
+      if (security !== JSON.stringify([this.$store.getters.userInfo?.id, this.$store.getters.project?.id, this.$store.state?.user?.token]) || !('createVMSnapshot' in this.$store.getters.apis)) throw new Error(this.$t('message.vmsnapshot.permission'))
+      if (!vm || !action.show(vm, this.$store.getters)) throw new Error(this.$t('message.vmsnapshot.vm.state'))
+      if (context.busy || snapshotBusy(id) || action.disabled(vm, this.$store.getters, [])) throw new Error(this.$t(vm.vmsnapshotblockedreason ? 'message.backup.snapshot.snapshot.blocked' : 'message.vmsnapshot.busy'))
+      const submission = Symbol(id)
+      snapshotSubmissions[id] = submission
+      try {
+        const response = await postAPI(action.api, { ...params, virtualmachineid: id })
+        if (!response.createvmsnapshotresponse?.jobid) throw Object.assign(new Error(this.$t('message.vmsnapshot.submission.unknown')), { trackingStatus: 'unknown' })
+        return response
+      } catch (error) {
+        if (error.trackingStatus === 'unknown' || (error.isAxiosError && !error.response)) {
+          trackUnknownSnapshotSubmission(id)
+          throw Object.assign(new Error(this.$t('message.vmsnapshot.submission.unknown')), { trackingStatus: 'unknown' })
+        }
+        throw error
+      } finally { if (snapshotSubmissions[id] === submission) delete snapshotSubmissions[id] }
     },
     execSubmit (e) {
       e.preventDefault()
@@ -2555,8 +2612,7 @@ export default {
 
         var hasJobId = false
         this.actionLoading = true
-        const args = [action.api, params]
-        postAPI(...args).then(json => {
+        this.postSnapshotAwareAction(action, params).then(json => {
           var response = this.handleResponse(json, resourceName, this.getDataIdentifier(params), action)
           if (!response) {
             this.fetchData()
@@ -2626,6 +2682,10 @@ export default {
       this.$store.getters.customColumns[this.$store.getters.userInfo.id][this.$route.path] = this.selectedColumns
       this.$store.dispatch('SetCustomColumns', this.$store.getters.customColumns)
     },
+    getFilterLabel (filter) {
+      const key = this.$route.meta?.filterLabels?.[filter] || ('label.' + (this.$route.name === 'comment' ? 'filter.annotations.' : '') + filter)
+      return this.$t(key)
+    },
     changeFilter (filter) {
       const query = Object.assign({}, this.$route.query)
       delete query.templatefilter
@@ -2633,7 +2693,7 @@ export default {
       delete query.state
       delete query.annotationfilter
       delete query.leased
-      if (!['publicip'].includes(this.$route.name)) {
+      if (!['publicip', 'vmsnapshot'].includes(this.$route.name)) {
         delete query.account
         delete query.domainid
       }
@@ -2695,6 +2755,8 @@ export default {
         } else if (filter === 'leased') {
           query.leased = true
         }
+      } else if (this.$route.name === 'vmsnapshot') {
+        if (filter !== 'all') query.state = filter[0].toUpperCase() + filter.slice(1)
       } else if (this.$route.name === 'comment') {
         query.annotationfilter = filter
       } else if (this.$route.name === 'guestvlans') {
@@ -2795,6 +2857,10 @@ export default {
       query.page = page
       query.pagesize = pageSize
       this.$router.push({ query })
+    },
+    handleTableChange (pagination, filters, sorter) {
+      if (this.$route.name !== 'vmsnapshot') return
+      this.$router.push({ query: { ...this.$route.query, page: '1', pagesize: String(this.pageSize), sortkey: sorter?.order ? sorter.field : 'created', sortorder: sorter?.order === 'ascend' ? 'asc' : 'desc' } })
     },
     changePageSize (currentPage, pageSize) {
       const query = Object.assign({}, this.$route.query)

@@ -2542,6 +2542,7 @@ public class ManagementServerImpl extends MutualExclusiveIdsManagerBase implemen
     private ListHostLunDevicesResponse createResponse(ListHostLunDeviceAnswer lunAnswer, Long hostId) {
         ListHostLunDevicesResponse response = new ListHostLunDevicesResponse();
         response.setDeviceUsageStatus(lunAnswer.getDeviceUsageStatus());
+        response.setDeviceSafetyDetails(lunAnswer.getDeviceSafetyDetails());
 
         List<String> deviceNames = lunAnswer.getHostDevicesNames();
         List<String> deviceDescriptions = lunAnswer.getHostDevicesTexts();
@@ -2654,6 +2655,7 @@ public class ManagementServerImpl extends MutualExclusiveIdsManagerBase implemen
     private ListHostScsiDevicesResponse createResponse(ListHostScsiDeviceAnswer scsiAnswer, Long hostId) {
         ListHostScsiDevicesResponse response = new ListHostScsiDevicesResponse();
         response.setDeviceUsageStatus(scsiAnswer.getDeviceUsageStatus());
+        response.setDeviceSafetyDetails(scsiAnswer.getDeviceSafetyDetails());
 
         List<String> deviceNames = scsiAnswer.getHostDevicesNames();
         List<String> deviceDescriptions = scsiAnswer.getHostDevicesTexts();
@@ -3826,6 +3828,7 @@ public class ManagementServerImpl extends MutualExclusiveIdsManagerBase implemen
             }
 
             UpdateHostLunDeviceCommand lunCmd = new UpdateHostLunDeviceCommand(vmInternalName, xmlConfig, isAttach, hostDeviceName);
+            lunCmd.setAcknowledgePartitionRisk(cmd.isPartitionRiskAcknowledged());
                 Answer answer;
                 try {
                     answer = _agentMgr.send(hostVO.getId(), lunCmd);
@@ -4060,6 +4063,7 @@ public class ManagementServerImpl extends MutualExclusiveIdsManagerBase implemen
             }
 
             UpdateHostScsiDeviceCommand scsiCmd = new UpdateHostScsiDeviceCommand(vmInternalName, xmlConfig, isAttach);
+            scsiCmd.setAcknowledgePartitionRisk(cmd.isPartitionRiskAcknowledged());
             Answer answer;
             try {
                 answer = _agentMgr.send(hostVO.getId(), scsiCmd);
@@ -4287,6 +4291,7 @@ public class ManagementServerImpl extends MutualExclusiveIdsManagerBase implemen
             String compactXml = xmlConfig != null ? xmlConfig.replaceAll("\\s+", " ") : "";
 
            UpdateHostHbaDeviceCommand hbaCmd = new UpdateHostHbaDeviceCommand(vmInternalName, xmlConfig, isAttach);
+            hbaCmd.setAcknowledgePartitionRisk(cmd.isPartitionRiskAcknowledged());
             Answer answer;
             try {
                 answer = _agentMgr.send(hostVO.getId(), hbaCmd);
@@ -4572,6 +4577,7 @@ public class ManagementServerImpl extends MutualExclusiveIdsManagerBase implemen
 
         // 호스트에 명령 전송
         UpdateHostVhbaDeviceCommand vhbaCmd = new UpdateHostVhbaDeviceCommand(hostId, hostDeviceName, vmInternalName, xmlConfig, isAttach);
+            vhbaCmd.setAcknowledgePartitionRisk(cmd.isPartitionRiskAcknowledged());
         Answer answer;
         try {
             answer = _agentMgr.send(hostVO.getId(), vhbaCmd);
@@ -6829,6 +6835,7 @@ public class ManagementServerImpl extends MutualExclusiveIdsManagerBase implemen
         cmdList.add(DeletePoolCmd.class);
         cmdList.add(ListSwiftsCmd.class);
         cmdList.add(ListStoragePoolsCmd.class);
+        cmdList.add(org.apache.cloudstack.api.command.admin.storage.ListDeploymentStoragePoolsCmd.class);
         cmdList.add(ListStorageTagsCmd.class);
         cmdList.add(ListStorageAccessGroupsCmd.class);
         cmdList.add(FindStoragePoolsForMigrationCmd.class);

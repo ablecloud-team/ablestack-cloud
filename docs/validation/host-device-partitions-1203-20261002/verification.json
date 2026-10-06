@@ -1,0 +1,287 @@
+{
+  "api-safety-denials-final": {
+    "Lun": {
+      "unacknowledgedDenied": true,
+      "unacknowledgedError": "{'uuidList': [], 'errorcode': 530, 'cserrorcode': 4250, 'errortext': 'Failed to update LUN device allocation: Failed to update LUN device. Details: 기존 파티션과 데이터에 미칠 영향을 확인한 후 할당하세요.'}",
+      "mountedDenied": true,
+      "mountedError": "{'uuidList': [], 'errorcode': 530, 'cserrorcode': 4250, 'errortext': 'Failed to update LUN device allocation: Failed to update LUN device. Details: 매체 또는 하위 파티션이 호스트에 마운트되어 있어 할당할 수 없습니다.'}"
+    },
+    "Scsi": {
+      "unacknowledgedDenied": true,
+      "unacknowledgedError": "{'uuidList': [], 'errorcode': 530, 'cserrorcode': 4250, 'errortext': 'Failed to update SCSI device allocation: Failed to update SCSI device. Details: 기존 파티션과 데이터에 미칠 영향을 확인한 후 할당하세요.'}",
+      "mountedDenied": true,
+      "mountedError": "{'uuidList': [], 'errorcode': 530, 'cserrorcode': 4250, 'errortext': 'Failed to update SCSI device allocation: Failed to update SCSI device. Details: 매체 또는 하위 파티션이 호스트에 마운트되어 있어 할당할 수 없습니다.'}"
+    },
+    "Hba": {
+      "unacknowledgedDenied": true,
+      "unacknowledgedError": "{'uuidList': [], 'errorcode': 530, 'cserrorcode': 4250, 'errortext': 'Failed to update HBA device allocation: Failed to update HBA device. Details: 기존 파티션과 데이터에 미칠 영향을 확인한 후 할당하세요.'}",
+      "mountedDenied": true,
+      "mountedError": "{'uuidList': [], 'errorcode': 530, 'cserrorcode': 4250, 'errortext': 'Failed to update HBA device allocation: Failed to update HBA device. Details: 매체 또는 하위 파티션이 호스트에 마운트되어 있어 할당할 수 없습니다.'}"
+    },
+    "Vhba": {
+      "unacknowledgedDenied": true,
+      "unacknowledgedError": "{'uuidList': [], 'errorcode': 530, 'cserrorcode': 4250, 'errortext': 'Failed to update vHBA device allocation: Failed to update vHBA device. Details: 기존 파티션과 데이터에 미칠 영향을 확인한 후 할당하세요.'}",
+      "mountedDenied": true,
+      "mountedError": "{'uuidList': [], 'errorcode': 530, 'cserrorcode': 4250, 'errortext': 'Failed to update vHBA device allocation: Failed to update vHBA device. Details: 매체 또는 하위 파티션이 호스트에 마운트되어 있어 할당할 수 없습니다.'}"
+    }
+  },
+  "positive-api-final": {
+    "Lun": {
+      "response": {
+        "count": 1,
+        "updatehostdevices": [
+          {
+            "hostdevicesname": "/dev/sdy",
+            "virtualmachineid": "28",
+            "allocated": true
+          }
+        ]
+      },
+      "guestFixture": [
+        {
+          "name": "sdb1",
+          "size": "240M",
+          "type": "part",
+          "fstype": "ext4",
+          "label": "Cloud1203Test",
+          "uuid": "4769d18f-9f87-486e-be47-a3f849951640",
+          "mountpoints": [],
+          "model": null,
+          "serial": null
+        }
+      ],
+      "fileSha256": "896e8c65806435d82e336efef603026c61fd8c1423cf5c9f3692bf8b920002f9",
+      "assignment": {
+        "count": 1,
+        "vmdeviceassignment": [
+          {
+            "devicetype": "lun",
+            "hostdevicesname": "/dev/sdy",
+            "hostdevicestext": "[17:0:0:0] Cloud1203Test",
+            "hostid": 1,
+            "hostname": "ablecube31-1",
+            "hostuuid": "159baf9a-89ad-4a94-91dc-e7395a670bf4"
+          }
+        ]
+      },
+      "hostSourceVerified": true,
+      "detachResponse": {
+        "count": 1,
+        "updatehostdevices": [
+          {
+            "hostdevicesname": "/dev/sdy",
+            "allocated": false
+          }
+        ]
+      },
+      "actualDetachVerified": true
+    },
+    "Hba": {
+      "response": {
+        "count": 1,
+        "updatehosthbadevices": [
+          {
+            "hostdevicesname": "scsi_host17",
+            "virtualmachineid": "28",
+            "allocated": true
+          }
+        ]
+      },
+      "guestFixture": [
+        {
+          "name": "sdb1",
+          "size": "240M",
+          "type": "part",
+          "fstype": "ext4",
+          "label": "Cloud1203Test",
+          "uuid": "4769d18f-9f87-486e-be47-a3f849951640",
+          "mountpoints": [],
+          "model": null,
+          "serial": null
+        }
+      ],
+      "fileSha256": "896e8c65806435d82e336efef603026c61fd8c1423cf5c9f3692bf8b920002f9",
+      "assignment": {
+        "count": 1,
+        "vmdeviceassignment": [
+          {
+            "devicetype": "vhba",
+            "hostdevicesname": "scsi_host17",
+            "hostdevicestext": "[17:0:0:0] Cloud1203Test /dev/sdy",
+            "hostid": 1,
+            "hostname": "ablecube31-1",
+            "hostuuid": "159baf9a-89ad-4a94-91dc-e7395a670bf4"
+          }
+        ]
+      },
+      "hostSourceVerified": true,
+      "detachResponse": {
+        "count": 1,
+        "updatehosthbadevices": [
+          {
+            "hostdevicesname": "scsi_host17",
+            "allocated": false
+          }
+        ]
+      },
+      "actualDetachVerified": true
+    },
+    "Vhba": {
+      "response": {
+        "count": 1,
+        "updatehostvhbadevices": [
+          {
+            "vhbaname": "scsi_host17",
+            "virtualmachineid": "28",
+            "isattached": true
+          }
+        ]
+      },
+      "guestFixture": [
+        {
+          "name": "sdb1",
+          "size": "240M",
+          "type": "part",
+          "fstype": "ext4",
+          "label": "Cloud1203Test",
+          "uuid": "4769d18f-9f87-486e-be47-a3f849951640",
+          "mountpoints": [],
+          "model": null,
+          "serial": null
+        }
+      ],
+      "fileSha256": "896e8c65806435d82e336efef603026c61fd8c1423cf5c9f3692bf8b920002f9",
+      "assignment": {
+        "count": 1,
+        "vmdeviceassignment": [
+          {
+            "devicetype": "vhba",
+            "hostdevicesname": "scsi_host17",
+            "hostdevicestext": "[17:0:0:0] Cloud1203Test /dev/sdy",
+            "hostid": 1,
+            "hostname": "ablecube31-1",
+            "hostuuid": "159baf9a-89ad-4a94-91dc-e7395a670bf4"
+          }
+        ]
+      },
+      "hostSourceVerified": true,
+      "detachResponse": {
+        "count": 1,
+        "updatehostvhbadevices": [
+          {
+            "vhbaname": "scsi_host17",
+            "isattached": false
+          }
+        ]
+      },
+      "actualDetachVerified": true
+    }
+  },
+  "ui-scsi-attachment-final": {
+    "assignment": [
+      {
+        "devicetype": "scsi",
+        "hostdevicesname": "/dev/sg24 (wwn-0x3333333000008ca0)",
+        "hostdevicestext": "SCSI_Address: [17:0:0:0] Type: disk SIZE: 0.25G Vendor: Linux Model: scsi_debug Revision: 0191 Device: /dev/sdy BY_ID: /dev/disk/by-id/wwn-0x3333333000008ca0",
+        "hostid": 1,
+        "hostname": "ablecube31-1",
+        "hostuuid": "159baf9a-89ad-4a94-91dc-e7395a670bf4"
+      }
+    ],
+    "guestPartition": [
+      {
+        "name": "sdb1",
+        "size": "240M",
+        "type": "part",
+        "fstype": "ext4",
+        "label": "Cloud1203Test",
+        "uuid": "4769d18f-9f87-486e-be47-a3f849951640",
+        "mountpoints": [],
+        "model": null,
+        "serial": null
+      }
+    ],
+    "fileSha256": "896e8c65806435d82e336efef603026c61fd8c1423cf5c9f3692bf8b920002f9",
+    "hostSourceVerified": true
+  },
+  "ui-mounted-preflight-proof": {
+    "assignmentAbsent": true,
+    "guestFixtureAbsent": true,
+    "hostSourceAbsent": true,
+    "fixtureMounted": true
+  },
+  "final-cleanup-data-proof": {
+    "actualUiDetach": true,
+    "allVmSourcesAbsent": true,
+    "partitionTableUnchanged": true,
+    "diskSha256": "2410cd8cd2c96d26c813bcb9b03613b5e90ef0cf42f95605aae130c4479e31b4",
+    "fileSha256": "896e8c65806435d82e336efef603026c61fd8c1423cf5c9f3692bf8b920002f9",
+    "fixtureMountAbsent": true,
+    "temporaryModuleRemoved": true
+  },
+  "final-health": {
+    "10.10.31.1": {
+      "service": "mold-agent",
+      "active": true,
+      "matchingClassEntries": 14,
+      "temporaryTestModuleAbsent": true
+    },
+    "10.10.31.2": {
+      "service": "mold-agent",
+      "active": true,
+      "matchingClassEntries": 14,
+      "temporaryTestModuleAbsent": true
+    },
+    "10.10.31.3": {
+      "service": "mold-agent",
+      "active": true,
+      "matchingClassEntries": 14,
+      "temporaryTestModuleAbsent": true
+    },
+    "10.10.31.10": {
+      "service": "mold",
+      "active": true,
+      "matchingClassEntries": 26,
+      "httpStatus": 200,
+      "staticFilesMatched": 833,
+      "webinf": true
+    },
+    "cloudHostStates": [
+      {
+        "name": "ablecube31-1",
+        "ipaddress": "10.10.31.1",
+        "state": "Up"
+      },
+      {
+        "name": "ablecube31-2",
+        "ipaddress": "10.10.31.2",
+        "state": "Up"
+      },
+      {
+        "name": "ablecube31-3",
+        "ipaddress": "10.10.31.3",
+        "state": "Up"
+      },
+      {
+        "name": "v-3-VM",
+        "ipaddress": "10.10.31.7",
+        "state": "Up"
+      },
+      {
+        "name": "s-91-VM",
+        "ipaddress": "10.10.31.8",
+        "state": "Up"
+      }
+    ],
+    "vmState": "Running"
+  },
+  "ui-deployment-final": {
+    "backup": "/root/cloud1203-ui-20261002-002427",
+    "files": 833,
+    "webinf": true,
+    "metaInfPreserved": true,
+    "configPreserved": true,
+    "pidPreserved": true,
+    "httpStatus": 200
+  }
+}

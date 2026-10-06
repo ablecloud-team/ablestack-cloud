@@ -134,7 +134,8 @@
             style="width: 100%"
             @contextmenu.stop.prevent="openSiteContextMenu($event, detailSite)">
             <a-tabs
-              style="width: 100%; margin-top: -12px"
+              :tabPosition="resourceTabPosition"
+              :style="{ width: '100%', marginTop: resourceTabPosition === 'top' ? '-12px' : '0' }"
               :activeKey="activeTab"
               :animated="false"
               @change="changeTab">

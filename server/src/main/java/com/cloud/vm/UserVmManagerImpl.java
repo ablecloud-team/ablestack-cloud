@@ -473,6 +473,9 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
     private final VmWorkJobHandlerProxy fastCloneJobHandler = new VmWorkJobHandlerProxy(this);
 
     @Inject
+    private com.cloud.storage.VmStorageSelectionService storageSelectionService;
+
+    @Inject
     AsyncJobManager fastCloneJobManager;
     @Inject
     VmWorkJobDao fastCloneWorkJobDao;
@@ -5639,6 +5642,11 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                         dataDiskTemplateToDiskOfferingMap, diskOfferingId, rootDiskOfferingId, rootDiskKmsKeyId, dataDiskInfoList, volume, snapshot);
             }
 
+            Object storageSelection = CallContext.current().getContextParameter(com.cloud.storage.VmStorageSelectionManager.Selection.class);
+            if (storageSelection instanceof com.cloud.storage.VmStorageSelectionManager.Selection) {
+                storageSelectionService.bind(_vmDao.findById(vm.getId()), ((com.cloud.storage.VmStorageSelectionManager.Selection) storageSelection).getPools());
+            }
+
             if (logger.isDebugEnabled()) {
                 logger.debug("Successfully allocated DB entry for " + vm);
             }
@@ -7216,7 +7224,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
 
         List<VmDiskInfo> dataDiskInfoList = cmd.getDataDiskInfoList();
         if (dataDiskInfoList != null && diskOfferingId != null) {
-            new InvalidParameterValueException("Cannot specify both disk offering id and data disk offering details");
+            throw new InvalidParameterValueException("Cannot specify both disk offering id and data disk offering details");
         }
 
         if (!zone.isLocalStorageEnabled()) {
@@ -7235,10 +7243,18 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             networkIds = new ArrayList<>(userVmNetworkMap.values());
         }
 
+        if (template.getFormat() == ImageFormat.ISO && Boolean.TRUE.equals(serviceOffering.getDiskOfferingStrictness())
+                && !serviceOffering.getDiskOfferingId().equals(cmd.getDiskOfferingId())) {
+            throw new InvalidParameterValueException("The compute offering requires its mapped ISO root disk offering");
+        }
         validateAdditionalDeployIsos(cmd, template, owner);
         // Request-scoped, validated data; never read ISO IDs from user VM details.
+        java.util.Map<Long, Long> selectedStorage = storageSelectionService.prepare(cmd, zone, owner, serviceOffering, template);
+        Object previousStorageSelection = CallContext.current().getContextParameter(com.cloud.storage.VmStorageSelectionManager.Selection.class);
         Object previousSelection = CallContext.current().getContextParameter(DeployIsoSelection.class);
         try {
+            CallContext.current().putContextParameter(com.cloud.storage.VmStorageSelectionManager.Selection.class,
+                    new com.cloud.storage.VmStorageSelectionManager.Selection(selectedStorage));
             if (!cmd.getAdditionalIsoIds().isEmpty()) {
                 CallContext.current().putContextParameter(DeployIsoSelection.class,
                         new DeployIsoSelection(template.getId(), cmd.getAdditionalIsoIds()));
@@ -7248,6 +7264,10 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             return createVirtualMachine(cmd, zone, owner, serviceOffering, template, cmd.getHypervisor(), diskOfferingId, cmd.getSize(), overrideDiskOfferingId, dataDiskInfoList,
                     networkIds, cmd.getIpToNetworkMap(), volume, snapshot);
         } finally {
+            CallContext.current().removeContextParameter(com.cloud.storage.VmStorageSelectionManager.Selection.class);
+            if (previousStorageSelection != null) {
+                CallContext.current().putContextParameter(com.cloud.storage.VmStorageSelectionManager.Selection.class, previousStorageSelection);
+            }
             CallContext.current().removeContextParameter(DeployIsoSelection.class);
             if (previousSelection != null) {
                 CallContext.current().putContextParameter(DeployIsoSelection.class, previousSelection);

@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { deviceCandidates, deviceSummary, deviceXml } from '@/utils/vmDevices'
+import { deviceCandidates, deviceSummary, deviceXml, deviceBlocked } from '@/utils/vmDevices'
 
 test('does not present physical FC ports as virtual HBAs even when API type is wrong', () => {
   const response = { listvhbadevicesresponse: { listvhbadevices: [{ hostdevicesname: ['scsi_host2', 'scsi_host9'], parenthbanames: ['pci_0000_a0_00_0', 'scsi_host2'], devicetypes: ['virtual', 'virtual'] }] } }
@@ -48,7 +48,7 @@ test('LUN and SCSI keep used and unknown devices visible with blocking usage', (
     const group = { hostdevicesname: ['free', 'partition', 'vm', 'unverified'], haspartitions: { partition: true }, deviceusagestatus: { free: 'available', partition: 'available', vm: 'vm-connected' } }
     const candidates = deviceCandidates({ [key + 'response']: { [key]: [group] } }, type)
     expect(candidates.map(d => d.name)).toEqual(group.hostdevicesname)
-    expect(candidates.map(d => d.usage)).toEqual(['available', 'partitioned', 'vm-connected', 'unknown'])
+    expect(candidates.map(d => d.usage)).toEqual(['available', 'available', 'vm-connected', 'unknown'])
   }
 })
 
@@ -60,4 +60,11 @@ test('disk display uses lsblk path, capacity and model without changing attachme
   expect(disk.name).toBe('/dev/sg1 (wwn-123)')
   expect(deviceSummary({ devicetype: 'lun', hostdevicesname: '/dev/mapper/mpatha (wwn-123)', hostdevicestext: 'TYPE: multipath SIZE: 7.3T' })).toBe('/dev/mapper/mpatha · 7.3T')
   expect(deviceSummary({ type: 'scsi', name: '/dev/sg1', text: 'Device: /dev/sdb' })).toBe('/dev/sdb')
+})
+
+test('partition metadata does not conceal mounted usage and missing safety never permits allocation', () => {
+  const group = { hostdevicesname: ['ready', 'mounted', 'old', 'unknown'], haspartitions: { mounted: true }, deviceusagestatus: { ready: 'partitioned', mounted: 'mounted', old: 'available' }, devicesafetydetails: { ready: { verified: true, status: 'partitioned', haspartitions: true }, mounted: { verified: true, status: 'mounted', haspartitions: true } } }
+  const candidates = deviceCandidates({ listhostscsidevicesresponse: { listhostscsidevices: [group] } }, 'scsi')
+  expect(candidates.map(d => d.usage)).toEqual(['partitioned', 'mounted', 'available', 'unknown'])
+  expect(candidates.map(deviceBlocked)).toEqual([false, true, true, true])
 })

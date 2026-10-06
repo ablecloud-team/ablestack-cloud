@@ -18,7 +18,7 @@
 import { shallowMount } from '@vue/test-utils'
 import VmSnapshotsTab from '@/views/compute/VmSnapshotsTab.vue'
 import { getAPI, postAPI } from '@/api'
-import { clearSnapshotJobs } from '@/utils/vmSnapshotActions'
+import { clearSnapshotJobs, snapshotBusy } from '@/utils/vmSnapshotActions'
 jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
 jest.mock('@/config/section/compute', () => ({ children: [{ name: 'vm', actions: [{ api: 'createVMSnapshot', show: () => true, disabled: () => false }] }] }))
 jest.mock('@/utils/listRefresh', () => ({ ...jest.requireActual('@/utils/listRefresh'), canRefreshList: () => true }))
@@ -72,6 +72,7 @@ test('read-only users cannot open or submit mutations', async () => {
 test('revalidates VM state before submitting and refuses changed eligibility', async () => {
   const wrapper = mount(); await flush()
   wrapper.vm.openAction('revertToVMSnapshot', row)
+  wrapper.vm.acknowledged = true
   getAPI.mockImplementation(api => Promise.resolve(api === 'listVirtualMachines' ? { listvirtualmachinesresponse: { virtualmachine: [{ id: 'v1', state: 'Running' }] } } : response([row])))
   await wrapper.vm.submitAction()
   expect(postAPI).not.toHaveBeenCalled()
@@ -81,6 +82,7 @@ test('revalidates VM state before submitting and refuses changed eligibility', a
 test('submits the snapshot ID once and tracks the job', async () => {
   const wrapper = mount(); await flush()
   wrapper.vm.openAction('deleteVMSnapshot', row)
+  wrapper.vm.acknowledged = true
   getAPI.mockImplementation(api => Promise.resolve(api === 'listVirtualMachines' ? { listvirtualmachinesresponse: { virtualmachine: [{ id: 'v1', state: 'Stopped' }] } } : response([row])))
   postAPI.mockResolvedValue({ deletevmsnapshotresponse: { jobid: 'job' } })
   const first = wrapper.vm.submitAction(); const second = wrapper.vm.submitAction()
@@ -90,4 +92,18 @@ test('submits the snapshot ID once and tracks the job', async () => {
   expect(wrapper.vm.$pollJob).toHaveBeenCalledWith(expect.objectContaining({ jobId: 'job' }))
   expect(wrapper.vm.selected).toBeNull()
   wrapper.unmount()
+})
+
+test.each(['lost response', 'missing job ID'])('VM detail unconfirmed %s keeps the VM locked', async kind => {
+  const w = mount(); await flush()
+  w.vm.openAction('deleteVMSnapshot', row); w.vm.acknowledged = true
+  getAPI.mockImplementation(api => Promise.resolve(api === 'listVirtualMachines' ? { listvirtualmachinesresponse: { virtualmachine: [{ id: 'v1', state: 'Stopped' }] } } : response([row])))
+  if (kind === 'lost response') postAPI.mockRejectedValue(Object.assign(new Error('network'), { isAxiosError: true }))
+  else postAPI.mockResolvedValue({ deletevmsnapshotresponse: {} })
+  await w.vm.submitAction()
+  expect(snapshotBusy('v1')).toBe(true)
+  expect(w.vm.$notifyError).toHaveBeenCalledWith(expect.objectContaining({ message: 'message.vmsnapshot.submission.unknown' }))
+  await w.vm.submitAction()
+  expect(postAPI).toHaveBeenCalledTimes(1)
+  w.unmount()
 })

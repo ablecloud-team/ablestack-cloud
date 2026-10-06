@@ -79,7 +79,7 @@ public class ScaleKubernetesClusterCmd extends BaseAsyncCmd {
     protected Map<String, Map<String, String>> serviceOfferingNodeTypeMap;
 
     @Parameter(name=ApiConstants.SIZE, type = CommandType.LONG,
-        description = "Number of Kubernetes cluster nodes")
+        description = "Number of Kubernetes cluster worker nodes")
     private Long clusterSize;
 
     @Parameter(name = ApiConstants.NODE_IDS,

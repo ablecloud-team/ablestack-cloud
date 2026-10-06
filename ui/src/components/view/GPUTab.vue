@@ -60,6 +60,7 @@
 
     <!-- For admins on VMs or all users on other resource types: Show tabs -->
     <a-tabs
+      :tabPosition="resourceTabPosition"
       v-else
       defaultActiveKey="summary"
       :tabBarStyle="{ marginBottom: '16px' }"
@@ -140,11 +141,13 @@
 </template>
 
 <script>
+import { mixinDevice } from '@/utils/mixin.js'
 import { getAPI, postAPI } from '@/api'
 import GPUSummaryTab from '@/components/view/GPUSummaryTab'
 import GPUDevicesTab from '@/components/view/GPUDevicesTab'
 
 export default {
+  mixins: [mixinDevice],
   name: 'GPUTab',
   components: {
     GPUSummaryTab,

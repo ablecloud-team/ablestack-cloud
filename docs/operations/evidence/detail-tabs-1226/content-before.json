@@ -1,0 +1,54 @@
+{
+  "details": "이름\n\ni-2-143-VM_VS_20261003123833\n아이디\n\n1badd54f-295f-4e6d-89c8-920f92620c6e\n표시 이름\n\nepic1216-ui-c-memory\n유형\n\nDiskAndMemory\n현재\n\ntrue\nVM ID\n\n3b6b4c34-1d7d-4765-87ef-769420088670\nVM 이름\n\nepic1216-c\n계정\n\nadmin\n도메인\n\nROOT\n생성일\n\n2026. 10. 3. 오후 9:38:33",
+  "url": "http://10.10.31.10:8080/client/#/vmsnapshot/1badd54f-295f-4e6d-89c8-920f92620c6e",
+  "layout": {
+    "className": "ant-tabs ant-tabs-top",
+    "tabs": [
+      {
+        "text": "상세",
+        "x": 769,
+        "y": 261
+      },
+      {
+        "text": "이벤트",
+        "x": 826.765625,
+        "y": 261
+      },
+      {
+        "text": "코멘트",
+        "x": 897.40625,
+        "y": 261
+      }
+    ]
+  },
+  "events": "업데이트\n열 선택\n레벨\n\t\n유형\n\t\n상태\n\t\n사용자 이름\n\t\n계정\n\t\n도메인\n\t\n생성일\n\n\n\n데이터 없음\n\n전체 0 개 항목 중 0-0 표시\n1\n10 / 쪽",
+  "comments": "보내기\n업데이트\n관리자만 표시\n코멘트 (0)\n전체 0 개 항목 중 0-0 표시\n1",
+  "account": {
+    "layout": [
+      "ant-tabs ant-tabs-top"
+    ],
+    "panel": "이름admin아이디a75c97c6-b253-11f1-a895-0024814c313f역할Root Admin역할 유형Admin도메인ROOTAPI 키 액세스INHERIT전체 IP 주소1VM 합계45볼륨58수신 바이트3290874740전송 바이트1488225396",
+    "tabs": [
+      "상세",
+      "제한",
+      "구성 제한",
+      "인증서",
+      "설정",
+      "이벤트"
+    ],
+    "url": "http://10.10.31.10:8080/client/#/account/a75c97c6-b253-11f1-a895-0024814c313f"
+  },
+  "historyDraft": {
+    "draft": "",
+    "layout": "ant-tabs ant-tabs-top",
+    "scripts": [
+      "http://10.10.31.10:8080/client/js/chunk-6ccd2280.11a9e205.js",
+      "http://10.10.31.10:8080/client/js/chunk-2b80087b.e4a8ac49.js",
+      "http://10.10.31.10:8080/client/js/chunk-2557609d.a89ce814.js",
+      "http://10.10.31.10:8080/client/js/chunk-4e3c3954.d7e6e54c.js",
+      "http://10.10.31.10:8080/client/js/less.min.js",
+      "http://10.10.31.10:8080/client/js/vendors.ff746140.js",
+      "http://10.10.31.10:8080/client/js/app.4c33579b.js"
+    ]
+  }
+}

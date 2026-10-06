@@ -1,0 +1,2303 @@
+{
+  "issue": 1226,
+  "cluster": 31,
+  "uiBuildSource": "8d73ddb8be44f894aae1a800fd1449baa83de93f",
+  "checks": [
+    {
+      "name": "snapshot-desktop-dark-details",
+      "height": 855,
+      "layout": "ant-tabs ant-tabs-left",
+      "links": [
+        {
+          "href": "#/",
+          "text": ""
+        },
+        {
+          "href": "#/vmsnapshot",
+          "text": "VM 스냅샷"
+        },
+        {
+          "href": "http://docs.ablecloud.io/latest/adminguide/virtual_machines.html#virtual-machine-snapshots",
+          "text": ""
+        },
+        {
+          "href": "javascript:;",
+          "text": "1badd54f-295f-4e6d-89c8-920f92620c6e "
+        },
+        {
+          "href": "#/vm/3b6b4c34-1d7d-4765-87ef-769420088670",
+          "text": "epic1216-c"
+        },
+        {
+          "href": "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "text": "Zone"
+        },
+        {
+          "href": "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "admin"
+        },
+        {
+          "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+          "text": "ROOT"
+        }
+      ],
+      "marginTop": "0px",
+      "overflow": false,
+      "scripts": [
+        "http://10.10.31.10:8080/client/js/less.min.js",
+        "http://10.10.31.10:8080/client/js/vendors.ff746140.js",
+        "http://10.10.31.10:8080/client/js/app.ab9928c6.js"
+      ],
+      "tabs": [
+        {
+          "color": "rgb(24, 144, 255)",
+          "padding": "8px 24px 8px 8px",
+          "selected": true,
+          "text": "상세",
+          "x": 777,
+          "y": 273
+        },
+        {
+          "color": "rgb(197, 204, 212)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "이벤트",
+          "x": 777,
+          "y": 327
+        },
+        {
+          "color": "rgb(197, 204, 212)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "코멘트",
+          "x": 777,
+          "y": 381
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/vmsnapshot/1badd54f-295f-4e6d-89c8-920f92620c6e",
+      "width": 1920,
+      "contentsMatchBaseline": true
+    },
+    {
+      "name": "snapshot-events",
+      "height": 855,
+      "layout": "ant-tabs ant-tabs-left",
+      "links": [
+        {
+          "href": "#/",
+          "text": ""
+        },
+        {
+          "href": "#/vmsnapshot",
+          "text": "VM 스냅샷"
+        },
+        {
+          "href": "http://docs.ablecloud.io/latest/adminguide/virtual_machines.html#virtual-machine-snapshots",
+          "text": ""
+        },
+        {
+          "href": "javascript:;",
+          "text": "1badd54f-295f-4e6d-89c8-920f92620c6e "
+        },
+        {
+          "href": "#/vm/3b6b4c34-1d7d-4765-87ef-769420088670",
+          "text": "epic1216-c"
+        },
+        {
+          "href": "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "text": "Zone"
+        },
+        {
+          "href": "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "admin"
+        },
+        {
+          "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+          "text": "ROOT"
+        }
+      ],
+      "marginTop": "0px",
+      "overflow": false,
+      "scripts": [
+        "http://10.10.31.10:8080/client/js/chunk-a34d459a.82b487b5.js",
+        "http://10.10.31.10:8080/client/js/less.min.js",
+        "http://10.10.31.10:8080/client/js/vendors.ff746140.js",
+        "http://10.10.31.10:8080/client/js/app.ab9928c6.js"
+      ],
+      "tabs": [
+        {
+          "color": "rgb(146, 186, 225)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "상세",
+          "x": 777,
+          "y": 273
+        },
+        {
+          "color": "rgb(75, 162, 242)",
+          "padding": "8px 24px 8px 8px",
+          "selected": true,
+          "text": "이벤트",
+          "x": 777,
+          "y": 327
+        },
+        {
+          "color": "rgb(197, 204, 212)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "코멘트",
+          "x": 777,
+          "y": 381
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/vmsnapshot/1badd54f-295f-4e6d-89c8-920f92620c6e?tab=events",
+      "width": 1920,
+      "contentsMatchBaseline": true
+    },
+    {
+      "name": "snapshot-events-reload",
+      "height": 855,
+      "layout": "ant-tabs ant-tabs-left",
+      "links": [
+        {
+          "href": "#/",
+          "text": ""
+        },
+        {
+          "href": "#/vmsnapshot",
+          "text": "VM 스냅샷"
+        },
+        {
+          "href": "http://docs.ablecloud.io/latest/adminguide/virtual_machines.html#virtual-machine-snapshots",
+          "text": ""
+        },
+        {
+          "href": "javascript:;",
+          "text": "1badd54f-295f-4e6d-89c8-920f92620c6e "
+        },
+        {
+          "href": "#/vm/3b6b4c34-1d7d-4765-87ef-769420088670",
+          "text": "epic1216-c"
+        },
+        {
+          "href": "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "text": "Zone"
+        },
+        {
+          "href": "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "admin"
+        },
+        {
+          "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+          "text": "ROOT"
+        }
+      ],
+      "marginTop": "0px",
+      "overflow": false,
+      "scripts": [
+        "http://10.10.31.10:8080/client/js/chunk-a34d459a.82b487b5.js",
+        "http://10.10.31.10:8080/client/js/less.min.js",
+        "http://10.10.31.10:8080/client/js/vendors.ff746140.js",
+        "http://10.10.31.10:8080/client/js/app.ab9928c6.js"
+      ],
+      "tabs": [
+        {
+          "color": "rgb(197, 204, 212)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "상세",
+          "x": 777,
+          "y": 273
+        },
+        {
+          "color": "rgb(24, 144, 255)",
+          "padding": "8px 24px 8px 8px",
+          "selected": true,
+          "text": "이벤트",
+          "x": 777,
+          "y": 327
+        },
+        {
+          "color": "rgb(197, 204, 212)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "코멘트",
+          "x": 777,
+          "y": 381
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/vmsnapshot/1badd54f-295f-4e6d-89c8-920f92620c6e?tab=events",
+      "width": 1920
+    },
+    {
+      "name": "snapshot-comments",
+      "height": 855,
+      "layout": "ant-tabs ant-tabs-left",
+      "links": [
+        {
+          "href": "#/",
+          "text": ""
+        },
+        {
+          "href": "#/vmsnapshot",
+          "text": "VM 스냅샷"
+        },
+        {
+          "href": "http://docs.ablecloud.io/latest/adminguide/virtual_machines.html#virtual-machine-snapshots",
+          "text": ""
+        },
+        {
+          "href": "javascript:;",
+          "text": "1badd54f-295f-4e6d-89c8-920f92620c6e "
+        },
+        {
+          "href": "#/vm/3b6b4c34-1d7d-4765-87ef-769420088670",
+          "text": "epic1216-c"
+        },
+        {
+          "href": "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "text": "Zone"
+        },
+        {
+          "href": "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "admin"
+        },
+        {
+          "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+          "text": "ROOT"
+        }
+      ],
+      "marginTop": "0px",
+      "overflow": false,
+      "scripts": [
+        "http://10.10.31.10:8080/client/js/chunk-a34d459a.82b487b5.js",
+        "http://10.10.31.10:8080/client/js/chunk-2d2bce6e.fbb5d902.js",
+        "http://10.10.31.10:8080/client/js/less.min.js",
+        "http://10.10.31.10:8080/client/js/vendors.ff746140.js",
+        "http://10.10.31.10:8080/client/js/app.ab9928c6.js"
+      ],
+      "tabs": [
+        {
+          "color": "rgb(197, 204, 212)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "상세",
+          "x": 777,
+          "y": 273
+        },
+        {
+          "color": "rgb(197, 204, 212)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "이벤트",
+          "x": 777,
+          "y": 327
+        },
+        {
+          "color": "rgb(24, 144, 255)",
+          "padding": "8px 24px 8px 8px",
+          "selected": true,
+          "text": "코멘트",
+          "x": 777,
+          "y": 381
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/vmsnapshot/1badd54f-295f-4e6d-89c8-920f92620c6e?tab=comments",
+      "width": 1920,
+      "contentsMatchBaseline": true
+    },
+    {
+      "name": "snapshot-draft-retained",
+      "height": 855,
+      "layout": "ant-tabs ant-tabs-left",
+      "links": [
+        {
+          "href": "#/",
+          "text": ""
+        },
+        {
+          "href": "#/vmsnapshot",
+          "text": "VM 스냅샷"
+        },
+        {
+          "href": "http://docs.ablecloud.io/latest/adminguide/virtual_machines.html#virtual-machine-snapshots",
+          "text": ""
+        },
+        {
+          "href": "javascript:;",
+          "text": "1badd54f-295f-4e6d-89c8-920f92620c6e "
+        },
+        {
+          "href": "#/vm/3b6b4c34-1d7d-4765-87ef-769420088670",
+          "text": "epic1216-c"
+        },
+        {
+          "href": "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "text": "Zone"
+        },
+        {
+          "href": "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "admin"
+        },
+        {
+          "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+          "text": "ROOT"
+        }
+      ],
+      "marginTop": "0px",
+      "overflow": false,
+      "scripts": [
+        "http://10.10.31.10:8080/client/js/chunk-a34d459a.82b487b5.js",
+        "http://10.10.31.10:8080/client/js/chunk-2d2bce6e.fbb5d902.js",
+        "http://10.10.31.10:8080/client/js/less.min.js",
+        "http://10.10.31.10:8080/client/js/vendors.ff746140.js",
+        "http://10.10.31.10:8080/client/js/app.ab9928c6.js"
+      ],
+      "tabs": [
+        {
+          "color": "rgb(197, 204, 212)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "상세",
+          "x": 777,
+          "y": 273
+        },
+        {
+          "color": "rgb(197, 204, 212)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "이벤트",
+          "x": 777,
+          "y": 327
+        },
+        {
+          "color": "rgb(24, 144, 255)",
+          "padding": "8px 24px 8px 8px",
+          "selected": true,
+          "text": "코멘트",
+          "x": 777,
+          "y": 381
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/vmsnapshot/1badd54f-295f-4e6d-89c8-920f92620c6e?tab=comments",
+      "width": 1920,
+      "draftRetained": true
+    },
+    {
+      "name": "snapshot-mobile-390-dark",
+      "height": 640,
+      "layout": "ant-tabs ant-tabs-top",
+      "links": [
+        {
+          "href": "#/",
+          "text": ""
+        },
+        {
+          "href": "#/vmsnapshot",
+          "text": "VM 스냅샷"
+        },
+        {
+          "href": "http://docs.ablecloud.io/latest/adminguide/virtual_machines.html#virtual-machine-snapshots",
+          "text": ""
+        },
+        {
+          "href": "javascript:;",
+          "text": "1badd54f-295f-4e6d-89c8-920f92620c6e "
+        },
+        {
+          "href": "#/vm/3b6b4c34-1d7d-4765-87ef-769420088670",
+          "text": "epic1216-c"
+        },
+        {
+          "href": "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "text": "Zone"
+        },
+        {
+          "href": "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "admin"
+        },
+        {
+          "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+          "text": "ROOT"
+        }
+      ],
+      "marginTop": "-12px",
+      "overflow": false,
+      "scripts": [
+        "http://10.10.31.10:8080/client/js/chunk-a34d459a.82b487b5.js",
+        "http://10.10.31.10:8080/client/js/chunk-2d2bce6e.fbb5d902.js",
+        "http://10.10.31.10:8080/client/js/less.min.js",
+        "http://10.10.31.10:8080/client/js/vendors.ff746140.js",
+        "http://10.10.31.10:8080/client/js/app.ab9928c6.js"
+      ],
+      "tabs": [
+        {
+          "color": "rgb(197, 204, 212)",
+          "padding": "12px 0px",
+          "selected": false,
+          "text": "상세",
+          "x": 37,
+          "y": 1089.5
+        },
+        {
+          "color": "rgb(197, 204, 212)",
+          "padding": "12px 0px",
+          "selected": false,
+          "text": "이벤트",
+          "x": 94.765625,
+          "y": 1089.5
+        },
+        {
+          "color": "rgb(24, 144, 255)",
+          "padding": "12px 0px",
+          "selected": true,
+          "text": "코멘트",
+          "x": 165.40625,
+          "y": 1089.5
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/vmsnapshot/1badd54f-295f-4e6d-89c8-920f92620c6e?tab=comments",
+      "width": 390,
+      "draftRetained": true
+    },
+    {
+      "name": "snapshot-mobile-events-390",
+      "height": 640,
+      "layout": "ant-tabs ant-tabs-top",
+      "links": [
+        {
+          "href": "#/",
+          "text": ""
+        },
+        {
+          "href": "#/vmsnapshot",
+          "text": "VM 스냅샷"
+        },
+        {
+          "href": "http://docs.ablecloud.io/latest/adminguide/virtual_machines.html#virtual-machine-snapshots",
+          "text": ""
+        },
+        {
+          "href": "javascript:;",
+          "text": "1badd54f-295f-4e6d-89c8-920f92620c6e "
+        },
+        {
+          "href": "#/vm/3b6b4c34-1d7d-4765-87ef-769420088670",
+          "text": "epic1216-c"
+        },
+        {
+          "href": "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "text": "Zone"
+        },
+        {
+          "href": "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "admin"
+        },
+        {
+          "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+          "text": "ROOT"
+        }
+      ],
+      "marginTop": "-12px",
+      "overflow": false,
+      "scripts": [
+        "http://10.10.31.10:8080/client/js/chunk-a34d459a.82b487b5.js",
+        "http://10.10.31.10:8080/client/js/chunk-2d2bce6e.fbb5d902.js",
+        "http://10.10.31.10:8080/client/js/less.min.js",
+        "http://10.10.31.10:8080/client/js/vendors.ff746140.js",
+        "http://10.10.31.10:8080/client/js/app.ab9928c6.js"
+      ],
+      "tabs": [
+        {
+          "color": "rgb(197, 204, 212)",
+          "padding": "12px 0px",
+          "selected": false,
+          "text": "상세",
+          "x": 37,
+          "y": 376.5
+        },
+        {
+          "color": "rgb(197, 204, 212)",
+          "padding": "12px 0px",
+          "selected": true,
+          "text": "이벤트",
+          "x": 94.765625,
+          "y": 376.5
+        },
+        {
+          "color": "rgb(24, 144, 255)",
+          "padding": "12px 0px",
+          "selected": false,
+          "text": "코멘트",
+          "x": 165.40625,
+          "y": 376.5
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/vmsnapshot/1badd54f-295f-4e6d-89c8-920f92620c6e?tab=events",
+      "width": 390
+    },
+    {
+      "name": "snapshot-mobile-765",
+      "height": 900,
+      "layout": "ant-tabs ant-tabs-top",
+      "links": [
+        {
+          "href": "#/",
+          "text": ""
+        },
+        {
+          "href": "#/vmsnapshot",
+          "text": "VM 스냅샷"
+        },
+        {
+          "href": "http://docs.ablecloud.io/latest/adminguide/virtual_machines.html#virtual-machine-snapshots",
+          "text": ""
+        },
+        {
+          "href": "javascript:;",
+          "text": "1badd54f-295f-4e6d-89c8-920f92620c6e "
+        },
+        {
+          "href": "#/vm/3b6b4c34-1d7d-4765-87ef-769420088670",
+          "text": "epic1216-c"
+        },
+        {
+          "href": "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "text": "Zone"
+        },
+        {
+          "href": "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "admin"
+        },
+        {
+          "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+          "text": "ROOT"
+        }
+      ],
+      "marginTop": "-12px",
+      "overflow": false,
+      "scripts": [
+        "http://10.10.31.10:8080/client/js/chunk-a34d459a.82b487b5.js",
+        "http://10.10.31.10:8080/client/js/chunk-2d2bce6e.fbb5d902.js",
+        "http://10.10.31.10:8080/client/js/less.min.js",
+        "http://10.10.31.10:8080/client/js/vendors.ff746140.js",
+        "http://10.10.31.10:8080/client/js/app.ab9928c6.js"
+      ],
+      "tabs": [
+        {
+          "color": "rgb(197, 204, 212)",
+          "padding": "12px 0px",
+          "selected": false,
+          "text": "상세",
+          "x": 37,
+          "y": 482.5
+        },
+        {
+          "color": "rgb(197, 204, 212)",
+          "padding": "12px 0px",
+          "selected": true,
+          "text": "이벤트",
+          "x": 94.765625,
+          "y": 482.5
+        },
+        {
+          "color": "rgb(24, 144, 255)",
+          "padding": "12px 0px",
+          "selected": false,
+          "text": "코멘트",
+          "x": 165.40625,
+          "y": 482.5
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/vmsnapshot/1badd54f-295f-4e6d-89c8-920f92620c6e?tab=events",
+      "width": 765
+    },
+    {
+      "name": "snapshot-tablet-766",
+      "height": 900,
+      "layout": "ant-tabs ant-tabs-left",
+      "links": [
+        {
+          "href": "#/",
+          "text": ""
+        },
+        {
+          "href": "#/vmsnapshot",
+          "text": "VM 스냅샷"
+        },
+        {
+          "href": "http://docs.ablecloud.io/latest/adminguide/virtual_machines.html#virtual-machine-snapshots",
+          "text": ""
+        },
+        {
+          "href": "javascript:;",
+          "text": "1badd54f-295f-4e6d-89c8-920f92620c6e "
+        },
+        {
+          "href": "#/vm/3b6b4c34-1d7d-4765-87ef-769420088670",
+          "text": "epic1216-c"
+        },
+        {
+          "href": "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "text": "Zone"
+        },
+        {
+          "href": "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "admin"
+        },
+        {
+          "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+          "text": "ROOT"
+        }
+      ],
+      "marginTop": "0px",
+      "overflow": false,
+      "scripts": [
+        "http://10.10.31.10:8080/client/js/chunk-a34d459a.82b487b5.js",
+        "http://10.10.31.10:8080/client/js/chunk-2d2bce6e.fbb5d902.js",
+        "http://10.10.31.10:8080/client/js/less.min.js",
+        "http://10.10.31.10:8080/client/js/vendors.ff746140.js",
+        "http://10.10.31.10:8080/client/js/app.ab9928c6.js"
+      ],
+      "tabs": [
+        {
+          "color": "rgb(197, 204, 212)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "상세",
+          "x": 125,
+          "y": 540.5
+        },
+        {
+          "color": "rgb(197, 204, 212)",
+          "padding": "8px 24px 8px 8px",
+          "selected": true,
+          "text": "이벤트",
+          "x": 125,
+          "y": 594.5
+        },
+        {
+          "color": "rgb(24, 144, 255)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "코멘트",
+          "x": 125,
+          "y": 648.5
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/vmsnapshot/1badd54f-295f-4e6d-89c8-920f92620c6e?tab=events",
+      "width": 766
+    },
+    {
+      "name": "snapshot-keyboard-1366",
+      "height": 768,
+      "layout": "ant-tabs ant-tabs-left",
+      "links": [
+        {
+          "href": "#/",
+          "text": ""
+        },
+        {
+          "href": "#/vmsnapshot",
+          "text": "VM 스냅샷"
+        },
+        {
+          "href": "http://docs.ablecloud.io/latest/adminguide/virtual_machines.html#virtual-machine-snapshots",
+          "text": ""
+        },
+        {
+          "href": "javascript:;",
+          "text": "1badd54f-295f-4e6d-89c8-920f92620c6e "
+        },
+        {
+          "href": "#/vm/3b6b4c34-1d7d-4765-87ef-769420088670",
+          "text": "epic1216-c"
+        },
+        {
+          "href": "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "text": "Zone"
+        },
+        {
+          "href": "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "admin"
+        },
+        {
+          "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+          "text": "ROOT"
+        }
+      ],
+      "marginTop": "0px",
+      "overflow": false,
+      "scripts": [
+        "http://10.10.31.10:8080/client/js/chunk-a34d459a.82b487b5.js",
+        "http://10.10.31.10:8080/client/js/chunk-2d2bce6e.fbb5d902.js",
+        "http://10.10.31.10:8080/client/js/less.min.js",
+        "http://10.10.31.10:8080/client/js/vendors.ff746140.js",
+        "http://10.10.31.10:8080/client/js/app.ab9928c6.js"
+      ],
+      "tabs": [
+        {
+          "color": "rgb(197, 204, 212)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "상세",
+          "x": 615.40625,
+          "y": 269
+        },
+        {
+          "color": "rgb(197, 204, 212)",
+          "padding": "8px 24px 8px 8px",
+          "selected": true,
+          "text": "이벤트",
+          "x": 615.40625,
+          "y": 323
+        },
+        {
+          "color": "rgb(24, 144, 255)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "코멘트",
+          "x": 615.40625,
+          "y": 377
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/vmsnapshot/1badd54f-295f-4e6d-89c8-920f92620c6e?tab=events",
+      "width": 1366,
+      "focusAfterTab": {
+        "role": "tab",
+        "text": "이벤트"
+      }
+    },
+    {
+      "name": "snapshot-history-back",
+      "height": 768,
+      "layout": "ant-tabs ant-tabs-left",
+      "links": [
+        {
+          "href": "#/",
+          "text": ""
+        },
+        {
+          "href": "#/vmsnapshot",
+          "text": "VM 스냅샷"
+        },
+        {
+          "href": "http://docs.ablecloud.io/latest/adminguide/virtual_machines.html#virtual-machine-snapshots",
+          "text": ""
+        },
+        {
+          "href": "javascript:;",
+          "text": "1badd54f-295f-4e6d-89c8-920f92620c6e "
+        },
+        {
+          "href": "#/vm/3b6b4c34-1d7d-4765-87ef-769420088670",
+          "text": "epic1216-c"
+        },
+        {
+          "href": "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "text": "Zone"
+        },
+        {
+          "href": "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "admin"
+        },
+        {
+          "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+          "text": "ROOT"
+        }
+      ],
+      "marginTop": "0px",
+      "overflow": false,
+      "scripts": [
+        "http://10.10.31.10:8080/client/js/chunk-a34d459a.82b487b5.js",
+        "http://10.10.31.10:8080/client/js/chunk-2d2bce6e.fbb5d902.js",
+        "http://10.10.31.10:8080/client/js/less.min.js",
+        "http://10.10.31.10:8080/client/js/vendors.ff746140.js",
+        "http://10.10.31.10:8080/client/js/app.ab9928c6.js"
+      ],
+      "tabs": [
+        {
+          "color": "rgb(24, 144, 255)",
+          "padding": "8px 24px 8px 8px",
+          "selected": true,
+          "text": "상세",
+          "x": 615.40625,
+          "y": 269
+        },
+        {
+          "color": "rgb(197, 204, 212)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "이벤트",
+          "x": 615.40625,
+          "y": 323
+        },
+        {
+          "color": "rgb(197, 204, 212)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "코멘트",
+          "x": 615.40625,
+          "y": 377
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/vmsnapshot/1badd54f-295f-4e6d-89c8-920f92620c6e?tab=details",
+      "width": 1366
+    },
+    {
+      "name": "snapshot-history-forward",
+      "height": 768,
+      "layout": "ant-tabs ant-tabs-left",
+      "links": [
+        {
+          "href": "#/",
+          "text": ""
+        },
+        {
+          "href": "#/vmsnapshot",
+          "text": "VM 스냅샷"
+        },
+        {
+          "href": "http://docs.ablecloud.io/latest/adminguide/virtual_machines.html#virtual-machine-snapshots",
+          "text": ""
+        },
+        {
+          "href": "javascript:;",
+          "text": "1badd54f-295f-4e6d-89c8-920f92620c6e "
+        },
+        {
+          "href": "#/vm/3b6b4c34-1d7d-4765-87ef-769420088670",
+          "text": "epic1216-c"
+        },
+        {
+          "href": "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "text": "Zone"
+        },
+        {
+          "href": "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "admin"
+        },
+        {
+          "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+          "text": "ROOT"
+        }
+      ],
+      "marginTop": "0px",
+      "overflow": false,
+      "scripts": [
+        "http://10.10.31.10:8080/client/js/chunk-a34d459a.82b487b5.js",
+        "http://10.10.31.10:8080/client/js/chunk-2d2bce6e.fbb5d902.js",
+        "http://10.10.31.10:8080/client/js/less.min.js",
+        "http://10.10.31.10:8080/client/js/vendors.ff746140.js",
+        "http://10.10.31.10:8080/client/js/app.ab9928c6.js"
+      ],
+      "tabs": [
+        {
+          "color": "rgb(197, 204, 212)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "상세",
+          "x": 615.40625,
+          "y": 269
+        },
+        {
+          "color": "rgb(197, 204, 212)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "이벤트",
+          "x": 615.40625,
+          "y": 323
+        },
+        {
+          "color": "rgb(24, 144, 255)",
+          "padding": "8px 24px 8px 8px",
+          "selected": true,
+          "text": "코멘트",
+          "x": 615.40625,
+          "y": 377
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/vmsnapshot/1badd54f-295f-4e6d-89c8-920f92620c6e?tab=comments",
+      "width": 1366,
+      "draftRetained": false,
+      "historyDraftMatchesExisting": true
+    },
+    {
+      "name": "snapshot-desktop-light",
+      "height": 855,
+      "layout": "ant-tabs ant-tabs-left",
+      "links": [
+        {
+          "href": "#/",
+          "text": ""
+        },
+        {
+          "href": "#/vmsnapshot",
+          "text": "VM 스냅샷"
+        },
+        {
+          "href": "http://docs.ablecloud.io/latest/adminguide/virtual_machines.html#virtual-machine-snapshots",
+          "text": ""
+        },
+        {
+          "href": "javascript:;",
+          "text": "1badd54f-295f-4e6d-89c8-920f92620c6e "
+        },
+        {
+          "href": "#/vm/3b6b4c34-1d7d-4765-87ef-769420088670",
+          "text": "epic1216-c"
+        },
+        {
+          "href": "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "text": "Zone"
+        },
+        {
+          "href": "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "admin"
+        },
+        {
+          "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+          "text": "ROOT"
+        }
+      ],
+      "marginTop": "0px",
+      "overflow": false,
+      "scripts": [
+        "http://10.10.31.10:8080/client/js/chunk-a34d459a.82b487b5.js",
+        "http://10.10.31.10:8080/client/js/chunk-2d2bce6e.fbb5d902.js",
+        "http://10.10.31.10:8080/client/js/less.min.js",
+        "http://10.10.31.10:8080/client/js/vendors.ff746140.js",
+        "http://10.10.31.10:8080/client/js/app.ab9928c6.js"
+      ],
+      "tabs": [
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": true,
+          "text": "상세",
+          "x": 777,
+          "y": 269
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "이벤트",
+          "x": 777,
+          "y": 323
+        },
+        {
+          "color": "rgb(24, 144, 255)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "코멘트",
+          "x": 777,
+          "y": 377
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/vmsnapshot/1badd54f-295f-4e6d-89c8-920f92620c6e?tab=details",
+      "width": 1920,
+      "theme": "light",
+      "contentMatchesBefore": true
+    },
+    {
+      "name": "snapshot-mobile-390-light",
+      "height": 844,
+      "layout": "ant-tabs ant-tabs-top",
+      "links": [
+        {
+          "href": "#/",
+          "text": ""
+        },
+        {
+          "href": "#/vmsnapshot",
+          "text": "VM 스냅샷"
+        },
+        {
+          "href": "http://docs.ablecloud.io/latest/adminguide/virtual_machines.html#virtual-machine-snapshots",
+          "text": ""
+        },
+        {
+          "href": "javascript:;",
+          "text": "1badd54f-295f-4e6d-89c8-920f92620c6e "
+        },
+        {
+          "href": "#/vm/3b6b4c34-1d7d-4765-87ef-769420088670",
+          "text": "epic1216-c"
+        },
+        {
+          "href": "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "text": "Zone"
+        },
+        {
+          "href": "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "admin"
+        },
+        {
+          "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+          "text": "ROOT"
+        }
+      ],
+      "marginTop": "-12px",
+      "overflow": false,
+      "scripts": [
+        "http://10.10.31.10:8080/client/js/chunk-a34d459a.82b487b5.js",
+        "http://10.10.31.10:8080/client/js/chunk-2d2bce6e.fbb5d902.js",
+        "http://10.10.31.10:8080/client/js/less.min.js",
+        "http://10.10.31.10:8080/client/js/vendors.ff746140.js",
+        "http://10.10.31.10:8080/client/js/app.ab9928c6.js"
+      ],
+      "tabs": [
+        {
+          "color": "rgb(24, 144, 255)",
+          "padding": "12px 0px",
+          "selected": true,
+          "text": "상세",
+          "x": 37,
+          "y": 1109.5
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "12px 0px",
+          "selected": false,
+          "text": "이벤트",
+          "x": 94.765625,
+          "y": 1109.5
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "12px 0px",
+          "selected": false,
+          "text": "코멘트",
+          "x": 165.40625,
+          "y": 1109.5
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/vmsnapshot/1badd54f-295f-4e6d-89c8-920f92620c6e?tab=details",
+      "width": 390,
+      "theme": "light"
+    },
+    {
+      "name": "account-light-six-tabs",
+      "height": 855,
+      "layout": "ant-tabs ant-tabs-left",
+      "links": [
+        {
+          "href": "#/",
+          "text": ""
+        },
+        {
+          "href": "#/account",
+          "text": "계정"
+        },
+        {
+          "href": "http://docs.ablecloud.io/latest/adminguide/accounts.html",
+          "text": ""
+        },
+        {
+          "href": "javascript:;",
+          "text": "a75c97c6-b253-11f1-a895-0024814c313f "
+        },
+        {
+          "href": "#/role/92709d09-b253-11f1-a895-0024814c313f",
+          "text": "Root Admin"
+        },
+        {
+          "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+          "text": "ROOT"
+        },
+        {
+          "href": "#/accountuser?account=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "사용자 보기"
+        },
+        {
+          "href": "#/vm?account=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "VM 보기"
+        },
+        {
+          "href": "#/volume?account=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "볼륨 보기"
+        },
+        {
+          "href": "#/guestnetwork?account=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "네트워크 보기"
+        },
+        {
+          "href": "#/ssh?account=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "SSH 키 쌍 보기"
+        },
+        {
+          "href": "#/userdata?account=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "사용자 데이터 보기"
+        },
+        {
+          "href": "#/template?templatefilter=self&filter=self&account=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "템플릿 보기"
+        },
+        {
+          "href": "#/iso?isofilter=self&filter=self&account=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "ISO 보기"
+        }
+      ],
+      "marginTop": "0px",
+      "overflow": false,
+      "scripts": [
+        "http://10.10.31.10:8080/client/js/chunk-a34d459a.82b487b5.js",
+        "http://10.10.31.10:8080/client/js/chunk-2d2bce6e.fbb5d902.js",
+        "http://10.10.31.10:8080/client/js/less.min.js",
+        "http://10.10.31.10:8080/client/js/vendors.ff746140.js",
+        "http://10.10.31.10:8080/client/js/app.ab9928c6.js"
+      ],
+      "tabs": [
+        {
+          "color": "rgb(24, 144, 255)",
+          "padding": "8px 24px 8px 8px",
+          "selected": true,
+          "text": "상세",
+          "x": 777,
+          "y": 269
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "제한",
+          "x": 777,
+          "y": 323
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "구성 제한",
+          "x": 777,
+          "y": 377
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "인증서",
+          "x": 777,
+          "y": 431
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "설정",
+          "x": 777,
+          "y": 485
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "이벤트",
+          "x": 777,
+          "y": 539
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/account/a75c97c6-b253-11f1-a895-0024814c313f",
+      "width": 1920,
+      "theme": "light",
+      "labelsMatchBefore": true
+    },
+    {
+      "name": "account-limits",
+      "height": 855,
+      "layout": "ant-tabs ant-tabs-left",
+      "links": [
+        {
+          "href": "#/",
+          "text": ""
+        },
+        {
+          "href": "#/account",
+          "text": "계정"
+        },
+        {
+          "href": "http://docs.ablecloud.io/latest/adminguide/accounts.html",
+          "text": ""
+        },
+        {
+          "href": "javascript:;",
+          "text": "a75c97c6-b253-11f1-a895-0024814c313f "
+        },
+        {
+          "href": "#/role/92709d09-b253-11f1-a895-0024814c313f",
+          "text": "Root Admin"
+        },
+        {
+          "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+          "text": "ROOT"
+        },
+        {
+          "href": "#/accountuser?account=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "사용자 보기"
+        },
+        {
+          "href": "#/vm?account=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "VM 보기"
+        },
+        {
+          "href": "#/volume?account=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "볼륨 보기"
+        },
+        {
+          "href": "#/guestnetwork?account=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "네트워크 보기"
+        },
+        {
+          "href": "#/ssh?account=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "SSH 키 쌍 보기"
+        },
+        {
+          "href": "#/userdata?account=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "사용자 데이터 보기"
+        },
+        {
+          "href": "#/template?templatefilter=self&filter=self&account=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "템플릿 보기"
+        },
+        {
+          "href": "#/iso?isofilter=self&filter=self&account=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "ISO 보기"
+        }
+      ],
+      "marginTop": "0px",
+      "overflow": false,
+      "scripts": [
+        "http://10.10.31.10:8080/client/js/chunk-a34d459a.82b487b5.js",
+        "http://10.10.31.10:8080/client/js/chunk-2d2bce6e.fbb5d902.js",
+        "http://10.10.31.10:8080/client/js/chunk-ab295ac4.d1be86f1.js",
+        "http://10.10.31.10:8080/client/js/less.min.js",
+        "http://10.10.31.10:8080/client/js/vendors.ff746140.js",
+        "http://10.10.31.10:8080/client/js/app.ab9928c6.js"
+      ],
+      "tabs": [
+        {
+          "color": "rgb(40, 125, 206)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "상세",
+          "x": 777,
+          "y": 269
+        },
+        {
+          "color": "rgb(59, 104, 148)",
+          "padding": "8px 24px 8px 8px",
+          "selected": true,
+          "text": "제한",
+          "x": 777,
+          "y": 323
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "구성 제한",
+          "x": 777,
+          "y": 377
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "인증서",
+          "x": 777,
+          "y": 431
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "설정",
+          "x": 777,
+          "y": 485
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "이벤트",
+          "x": 777,
+          "y": 539
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/account/a75c97c6-b253-11f1-a895-0024814c313f?tab=limits",
+      "width": 1920
+    },
+    {
+      "name": "vm-standard-light",
+      "height": 855,
+      "layout": "ant-tabs ant-tabs-left",
+      "links": [
+        {
+          "href": "#/",
+          "text": ""
+        },
+        {
+          "href": "#/vm",
+          "text": "가상머신"
+        },
+        {
+          "href": "http://docs.ablecloud.io/latest/adminguide/virtual_machines.html",
+          "text": ""
+        },
+        {
+          "href": "javascript:;",
+          "text": "3b6b4c34-1d7d-4765-87ef-769420088670 "
+        },
+        {
+          "href": "javascript:;",
+          "text": "10.1.1.166 "
+        },
+        {
+          "href": "javascript:;",
+          "text": "10.1.1.166 "
+        },
+        {
+          "href": "#/guestnetwork/a037eecd-629e-446b-b0c4-f56674d99e0c",
+          "text": "Admin-Isoloated-Net"
+        },
+        {
+          "href": "#/template/c86d655a-e460-4c24-9589-f435934d71c4",
+          "text": "Ubuntu 26.04 Server Base Install (without QGA)"
+        },
+        {
+          "href": "#/computeoffering/cd928fb0-6e2b-4ec8-b02b-023aed55b2b1",
+          "text": "2Core 2GB"
+        },
+        {
+          "href": "#/host/3fb147f3-aea4-4f65-b8c6-e7192ea26138",
+          "text": "ablecube31-2"
+        },
+        {
+          "href": "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "text": "Zone"
+        },
+        {
+          "href": "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "admin"
+        },
+        {
+          "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+          "text": "ROOT"
+        }
+      ],
+      "marginTop": "0px",
+      "overflow": false,
+      "scripts": [
+        "http://10.10.31.10:8080/client/js/chunk-a34d459a.82b487b5.js",
+        "http://10.10.31.10:8080/client/js/chunk-2d2bce6e.fbb5d902.js",
+        "http://10.10.31.10:8080/client/js/chunk-ab295ac4.d1be86f1.js",
+        "http://10.10.31.10:8080/client/js/chunk-6ccd2280.11a9e205.js",
+        "http://10.10.31.10:8080/client/js/chunk-2b80087b.e4a8ac49.js",
+        "http://10.10.31.10:8080/client/js/chunk-20c069d6.39a86c63.js",
+        "http://10.10.31.10:8080/client/js/chunk-90a199dc.3e86697c.js",
+        "http://10.10.31.10:8080/client/js/less.min.js",
+        "http://10.10.31.10:8080/client/js/vendors.ff746140.js",
+        "http://10.10.31.10:8080/client/js/app.ab9928c6.js"
+      ],
+      "tabs": [
+        {
+          "color": "rgb(24, 144, 255)",
+          "padding": "8px 24px 8px 8px",
+          "selected": true,
+          "text": "상세",
+          "x": 777,
+          "y": 291
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "IP 구성",
+          "x": 777,
+          "y": 345
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "메트릭",
+          "x": 777,
+          "y": 399
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "프로세스",
+          "x": 777,
+          "y": 453
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "스케줄",
+          "x": 777,
+          "y": 507
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "ISO",
+          "x": 777,
+          "y": 561
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "볼륨",
+          "x": 777,
+          "y": 615
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "NIC",
+          "x": 777,
+          "y": 669
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "설정",
+          "x": 777,
+          "y": 723
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "호스트 장치",
+          "x": 777,
+          "y": 777
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "VM 스냅샷",
+          "x": 777,
+          "y": 831
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "이벤트",
+          "x": 777,
+          "y": 885
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "코멘트",
+          "x": 777,
+          "y": 939
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/vm/3b6b4c34-1d7d-4765-87ef-769420088670",
+      "width": 1920
+    },
+    {
+      "name": "volume-light",
+      "height": 855,
+      "layout": "ant-tabs ant-tabs-left",
+      "links": [
+        {
+          "href": "#/",
+          "text": ""
+        },
+        {
+          "href": "#/volume",
+          "text": "볼륨"
+        },
+        {
+          "href": "http://docs.ablecloud.io/latest/adminguide/storage.html#working-with-volumes",
+          "text": ""
+        },
+        {
+          "href": "javascript:;",
+          "text": "bfd1919a-8589-4c67-bb8a-1b5b428280b5 "
+        },
+        {
+          "href": "#/vm/3b6b4c34-1d7d-4765-87ef-769420088670",
+          "text": "epic1216-c"
+        },
+        {
+          "href": "#/template/c86d655a-e460-4c24-9589-f435934d71c4",
+          "text": "Ubuntu 26.04 Server Base Install (without QGA)"
+        },
+        {
+          "href": "#/computeoffering/19",
+          "text": "2Core 2GB"
+        },
+        {
+          "href": "#/storagepool/1842fb9f-02e0-4da9-b082-422c5a184de0",
+          "text": "Primary"
+        },
+        {
+          "href": "#/cluster/0d3d50e7-3cb5-4adf-8507-955bc81cc4a5",
+          "text": "Cluster"
+        },
+        {
+          "href": "#/pod/2a9760c6-795d-48fc-bca1-77037c541279",
+          "text": "Pod"
+        },
+        {
+          "href": "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "text": "Zone"
+        },
+        {
+          "href": "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "admin"
+        },
+        {
+          "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+          "text": "ROOT"
+        },
+        {
+          "href": "#/snapshot?volumeid=bfd1919a-8589-4c67-bb8a-1b5b428280b5",
+          "text": "스냅샷 보기"
+        }
+      ],
+      "marginTop": "0px",
+      "overflow": false,
+      "scripts": [
+        "http://10.10.31.10:8080/client/js/chunk-a34d459a.82b487b5.js",
+        "http://10.10.31.10:8080/client/js/chunk-2d2bce6e.fbb5d902.js",
+        "http://10.10.31.10:8080/client/js/chunk-ab295ac4.d1be86f1.js",
+        "http://10.10.31.10:8080/client/js/chunk-6ccd2280.11a9e205.js",
+        "http://10.10.31.10:8080/client/js/chunk-2b80087b.e4a8ac49.js",
+        "http://10.10.31.10:8080/client/js/chunk-20c069d6.39a86c63.js",
+        "http://10.10.31.10:8080/client/js/chunk-90a199dc.3e86697c.js",
+        "http://10.10.31.10:8080/client/js/less.min.js",
+        "http://10.10.31.10:8080/client/js/vendors.ff746140.js",
+        "http://10.10.31.10:8080/client/js/app.ab9928c6.js"
+      ],
+      "tabs": [
+        {
+          "color": "rgb(24, 144, 255)",
+          "padding": "8px 24px 8px 8px",
+          "selected": true,
+          "text": "상세",
+          "x": 777,
+          "y": 269
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "이벤트",
+          "x": 777,
+          "y": 323
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "코멘트",
+          "x": 777,
+          "y": 377
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/volume/bfd1919a-8589-4c67-bb8a-1b5b428280b5",
+      "width": 1920
+    },
+    {
+      "name": "primary-storage-light",
+      "height": 855,
+      "layout": "ant-tabs ant-tabs-left",
+      "links": [
+        {
+          "href": "#/",
+          "text": ""
+        },
+        {
+          "href": "#/storagepool",
+          "text": "기본 스토리지"
+        },
+        {
+          "href": "http://docs.ablecloud.io/latest/adminguide/storage.html#primary-storage",
+          "text": ""
+        },
+        {
+          "href": "javascript:;",
+          "text": "1842fb9f-02e0-4da9-b082-422c5a184de0 "
+        },
+        {
+          "href": "javascript:;",
+          "text": "localhost "
+        },
+        {
+          "href": "#/cluster/0d3d50e7-3cb5-4adf-8507-955bc81cc4a5",
+          "text": "Cluster"
+        },
+        {
+          "href": "#/pod/2a9760c6-795d-48fc-bca1-77037c541279",
+          "text": "Pod"
+        },
+        {
+          "href": "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "text": "Zone"
+        },
+        {
+          "href": "#/volume?storageid=1842fb9f-02e0-4da9-b082-422c5a184de0",
+          "text": "볼륨 보기"
+        },
+        {
+          "href": "#/template?templatefilter=self&filter=self&storageid=1842fb9f-02e0-4da9-b082-422c5a184de0",
+          "text": "템플릿 보기"
+        },
+        {
+          "href": "#/iso?isofilter=self&filter=self&storageid=1842fb9f-02e0-4da9-b082-422c5a184de0",
+          "text": "ISO 보기"
+        }
+      ],
+      "marginTop": "0px",
+      "overflow": false,
+      "scripts": [
+        "http://10.10.31.10:8080/client/js/chunk-a34d459a.82b487b5.js",
+        "http://10.10.31.10:8080/client/js/chunk-2d2bce6e.fbb5d902.js",
+        "http://10.10.31.10:8080/client/js/chunk-ab295ac4.d1be86f1.js",
+        "http://10.10.31.10:8080/client/js/chunk-6ccd2280.11a9e205.js",
+        "http://10.10.31.10:8080/client/js/chunk-2b80087b.e4a8ac49.js",
+        "http://10.10.31.10:8080/client/js/chunk-20c069d6.39a86c63.js",
+        "http://10.10.31.10:8080/client/js/chunk-90a199dc.3e86697c.js",
+        "http://10.10.31.10:8080/client/js/less.min.js",
+        "http://10.10.31.10:8080/client/js/vendors.ff746140.js",
+        "http://10.10.31.10:8080/client/js/app.ab9928c6.js"
+      ],
+      "tabs": [
+        {
+          "color": "rgb(24, 144, 255)",
+          "padding": "8px 24px 8px 8px",
+          "selected": true,
+          "text": "상세",
+          "x": 777,
+          "y": 269
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "설정",
+          "x": 777,
+          "y": 323
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "브라우저",
+          "x": 777,
+          "y": 377
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "이벤트",
+          "x": 777,
+          "y": 431
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "코멘트",
+          "x": 777,
+          "y": 485
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/storagepool/1842fb9f-02e0-4da9-b082-422c5a184de0",
+      "width": 1920
+    },
+    {
+      "name": "zone-light",
+      "height": 855,
+      "layout": "ant-tabs ant-tabs-left",
+      "links": [
+        {
+          "href": "#/",
+          "text": ""
+        },
+        {
+          "href": "#/zone",
+          "text": "Zone"
+        },
+        {
+          "href": "http://docs.ablecloud.io/latest/conceptsandterminology/concepts.html#about-zones",
+          "text": ""
+        },
+        {
+          "href": "javascript:;",
+          "text": "7013f5a1-de59-4cea-a596-f4f58815f31c "
+        },
+        {
+          "href": "#/pod?zoneid=7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "text": "Pod 보기"
+        },
+        {
+          "href": "#/cluster?zoneid=7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "text": "클러스터 보기"
+        },
+        {
+          "href": "#/host?zoneid=7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "text": "호스트 보기"
+        },
+        {
+          "href": "#/storagepool?zoneid=7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "text": "기본 스토리지 보기"
+        },
+        {
+          "href": "#/imagestore?zoneid=7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "text": "2차 스토리지 보기"
+        }
+      ],
+      "marginTop": "0px",
+      "overflow": false,
+      "scripts": [
+        "http://10.10.31.10:8080/client/js/chunk-a34d459a.82b487b5.js",
+        "http://10.10.31.10:8080/client/js/chunk-2d2bce6e.fbb5d902.js",
+        "http://10.10.31.10:8080/client/js/chunk-ab295ac4.d1be86f1.js",
+        "http://10.10.31.10:8080/client/js/chunk-6ccd2280.11a9e205.js",
+        "http://10.10.31.10:8080/client/js/chunk-2b80087b.e4a8ac49.js",
+        "http://10.10.31.10:8080/client/js/chunk-20c069d6.39a86c63.js",
+        "http://10.10.31.10:8080/client/js/chunk-90a199dc.3e86697c.js",
+        "http://10.10.31.10:8080/client/js/less.min.js",
+        "http://10.10.31.10:8080/client/js/vendors.ff746140.js",
+        "http://10.10.31.10:8080/client/js/app.ab9928c6.js"
+      ],
+      "tabs": [
+        {
+          "color": "rgb(24, 144, 255)",
+          "padding": "8px 24px 8px 8px",
+          "selected": true,
+          "text": "상세",
+          "x": 777,
+          "y": 269
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "물리 네트워크",
+          "x": 777,
+          "y": 323
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "IPv4 서브넷",
+          "x": 777,
+          "y": 377
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "AS Number",
+          "x": 777,
+          "y": 431
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "BGP 피어",
+          "x": 777,
+          "y": 485
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "시스템 VM",
+          "x": 777,
+          "y": 539
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "리소스",
+          "x": 777,
+          "y": 593
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "설정",
+          "x": 777,
+          "y": 647
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "이벤트",
+          "x": 777,
+          "y": 701
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "코멘트",
+          "x": 777,
+          "y": 755
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "width": 1920
+    },
+    {
+      "name": "domain-tree-light",
+      "height": 855,
+      "layout": "ant-tabs ant-tabs-left",
+      "links": [
+        {
+          "href": "#/",
+          "text": ""
+        },
+        {
+          "href": "#/domain",
+          "text": "도메인"
+        },
+        {
+          "href": "http://docs.ablecloud.io/latest/adminguide/accounts.html#domains",
+          "text": ""
+        },
+        {
+          "href": "javascript:;",
+          "text": "7ef6b29a-b253-11f1-a895-0024814c313f "
+        },
+        {
+          "href": "#/account?domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "계정 보기"
+        },
+        {
+          "href": "#/vm?domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "VM 보기"
+        },
+        {
+          "href": "#/volume?domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "볼륨 보기"
+        },
+        {
+          "href": "#/guestnetwork?domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "네트워크 보기"
+        },
+        {
+          "href": "#/template?templatefilter=self&filter=self&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "템플릿 보기"
+        },
+        {
+          "href": "#/iso?isofilter=self&filter=self&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "ISO 보기"
+        }
+      ],
+      "marginTop": "0px",
+      "overflow": false,
+      "scripts": [
+        "http://10.10.31.10:8080/client/js/chunk-a34d459a.82b487b5.js",
+        "http://10.10.31.10:8080/client/js/chunk-2d2bce6e.fbb5d902.js",
+        "http://10.10.31.10:8080/client/js/chunk-ab295ac4.d1be86f1.js",
+        "http://10.10.31.10:8080/client/js/chunk-6ccd2280.11a9e205.js",
+        "http://10.10.31.10:8080/client/js/chunk-2b80087b.e4a8ac49.js",
+        "http://10.10.31.10:8080/client/js/chunk-20c069d6.39a86c63.js",
+        "http://10.10.31.10:8080/client/js/chunk-90a199dc.3e86697c.js",
+        "http://10.10.31.10:8080/client/js/chunk-58f5c864.0510dc4b.js",
+        "http://10.10.31.10:8080/client/js/less.min.js",
+        "http://10.10.31.10:8080/client/js/vendors.ff746140.js",
+        "http://10.10.31.10:8080/client/js/app.ab9928c6.js"
+      ],
+      "tabs": [
+        {
+          "color": "rgb(24, 144, 255)",
+          "padding": "8px 24px 8px 8px",
+          "selected": true,
+          "text": "상세",
+          "x": 777,
+          "y": 262
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "제한",
+          "x": 777,
+          "y": 316
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "구성 제한",
+          "x": 777,
+          "y": 370
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "설정",
+          "x": 777,
+          "y": 424
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "이벤트",
+          "x": 777,
+          "y": 478
+        },
+        {
+          "color": "rgb(75, 85, 99)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "코멘트",
+          "x": 777,
+          "y": 532
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+      "width": 1920
+    },
+    {
+      "name": "primary-storage-dark",
+      "height": 855,
+      "layout": "ant-tabs ant-tabs-left",
+      "links": [
+        {
+          "href": "#/",
+          "text": ""
+        },
+        {
+          "href": "#/storagepool",
+          "text": "기본 스토리지"
+        },
+        {
+          "href": "http://docs.ablecloud.io/latest/adminguide/storage.html#primary-storage",
+          "text": ""
+        },
+        {
+          "href": "javascript:;",
+          "text": "1842fb9f-02e0-4da9-b082-422c5a184de0 "
+        },
+        {
+          "href": "javascript:;",
+          "text": "localhost "
+        },
+        {
+          "href": "#/cluster/0d3d50e7-3cb5-4adf-8507-955bc81cc4a5",
+          "text": "Cluster"
+        },
+        {
+          "href": "#/pod/2a9760c6-795d-48fc-bca1-77037c541279",
+          "text": "Pod"
+        },
+        {
+          "href": "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "text": "Zone"
+        },
+        {
+          "href": "#/volume?storageid=1842fb9f-02e0-4da9-b082-422c5a184de0",
+          "text": "볼륨 보기"
+        },
+        {
+          "href": "#/template?templatefilter=self&filter=self&storageid=1842fb9f-02e0-4da9-b082-422c5a184de0",
+          "text": "템플릿 보기"
+        },
+        {
+          "href": "#/iso?isofilter=self&filter=self&storageid=1842fb9f-02e0-4da9-b082-422c5a184de0",
+          "text": "ISO 보기"
+        }
+      ],
+      "marginTop": "0px",
+      "overflow": false,
+      "scripts": [
+        "http://10.10.31.10:8080/client/js/chunk-a34d459a.82b487b5.js",
+        "http://10.10.31.10:8080/client/js/chunk-2d2bce6e.fbb5d902.js",
+        "http://10.10.31.10:8080/client/js/chunk-ab295ac4.d1be86f1.js",
+        "http://10.10.31.10:8080/client/js/chunk-6ccd2280.11a9e205.js",
+        "http://10.10.31.10:8080/client/js/chunk-2b80087b.e4a8ac49.js",
+        "http://10.10.31.10:8080/client/js/chunk-20c069d6.39a86c63.js",
+        "http://10.10.31.10:8080/client/js/chunk-90a199dc.3e86697c.js",
+        "http://10.10.31.10:8080/client/js/chunk-58f5c864.0510dc4b.js",
+        "http://10.10.31.10:8080/client/js/less.min.js",
+        "http://10.10.31.10:8080/client/js/vendors.ff746140.js",
+        "http://10.10.31.10:8080/client/js/app.ab9928c6.js"
+      ],
+      "tabs": [
+        {
+          "color": "rgb(24, 144, 255)",
+          "padding": "8px 24px 8px 8px",
+          "selected": true,
+          "text": "상세",
+          "x": 777,
+          "y": 269
+        },
+        {
+          "color": "rgb(197, 204, 212)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "설정",
+          "x": 777,
+          "y": 323
+        },
+        {
+          "color": "rgb(197, 204, 212)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "브라우저",
+          "x": 777,
+          "y": 377
+        },
+        {
+          "color": "rgb(197, 204, 212)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "이벤트",
+          "x": 777,
+          "y": 431
+        },
+        {
+          "color": "rgb(197, 204, 212)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "코멘트",
+          "x": 777,
+          "y": 485
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/storagepool/1842fb9f-02e0-4da9-b082-422c5a184de0",
+      "width": 1920,
+      "theme": "dark"
+    },
+    {
+      "name": "volume-dark",
+      "height": 855,
+      "layout": "ant-tabs ant-tabs-left",
+      "links": [
+        {
+          "href": "#/",
+          "text": ""
+        },
+        {
+          "href": "#/volume",
+          "text": "볼륨"
+        },
+        {
+          "href": "http://docs.ablecloud.io/latest/adminguide/storage.html#working-with-volumes",
+          "text": ""
+        },
+        {
+          "href": "javascript:;",
+          "text": "bfd1919a-8589-4c67-bb8a-1b5b428280b5 "
+        },
+        {
+          "href": "#/vm/3b6b4c34-1d7d-4765-87ef-769420088670",
+          "text": "epic1216-c"
+        },
+        {
+          "href": "#/template/c86d655a-e460-4c24-9589-f435934d71c4",
+          "text": "Ubuntu 26.04 Server Base Install (without QGA)"
+        },
+        {
+          "href": "#/computeoffering/19",
+          "text": "2Core 2GB"
+        },
+        {
+          "href": "#/storagepool/1842fb9f-02e0-4da9-b082-422c5a184de0",
+          "text": "Primary"
+        },
+        {
+          "href": "#/cluster/0d3d50e7-3cb5-4adf-8507-955bc81cc4a5",
+          "text": "Cluster"
+        },
+        {
+          "href": "#/pod/2a9760c6-795d-48fc-bca1-77037c541279",
+          "text": "Pod"
+        },
+        {
+          "href": "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "text": "Zone"
+        },
+        {
+          "href": "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "admin"
+        },
+        {
+          "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+          "text": "ROOT"
+        },
+        {
+          "href": "#/snapshot?volumeid=bfd1919a-8589-4c67-bb8a-1b5b428280b5",
+          "text": "스냅샷 보기"
+        }
+      ],
+      "marginTop": "0px",
+      "overflow": false,
+      "scripts": [
+        "http://10.10.31.10:8080/client/js/chunk-a34d459a.82b487b5.js",
+        "http://10.10.31.10:8080/client/js/chunk-2d2bce6e.fbb5d902.js",
+        "http://10.10.31.10:8080/client/js/chunk-ab295ac4.d1be86f1.js",
+        "http://10.10.31.10:8080/client/js/chunk-6ccd2280.11a9e205.js",
+        "http://10.10.31.10:8080/client/js/chunk-2b80087b.e4a8ac49.js",
+        "http://10.10.31.10:8080/client/js/chunk-20c069d6.39a86c63.js",
+        "http://10.10.31.10:8080/client/js/chunk-90a199dc.3e86697c.js",
+        "http://10.10.31.10:8080/client/js/chunk-58f5c864.0510dc4b.js",
+        "http://10.10.31.10:8080/client/js/less.min.js",
+        "http://10.10.31.10:8080/client/js/vendors.ff746140.js",
+        "http://10.10.31.10:8080/client/js/app.ab9928c6.js"
+      ],
+      "tabs": [
+        {
+          "color": "rgb(24, 144, 255)",
+          "padding": "8px 24px 8px 8px",
+          "selected": true,
+          "text": "상세",
+          "x": 777,
+          "y": 269
+        },
+        {
+          "color": "rgb(197, 204, 212)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "이벤트",
+          "x": 777,
+          "y": 323
+        },
+        {
+          "color": "rgb(197, 204, 212)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "코멘트",
+          "x": 777,
+          "y": 377
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/volume/bfd1919a-8589-4c67-bb8a-1b5b428280b5",
+      "width": 1920,
+      "theme": "dark"
+    },
+    {
+      "name": "snapshot-desktop-1366-dark",
+      "height": 900,
+      "layout": "ant-tabs ant-tabs-left",
+      "links": [
+        {
+          "href": "#/",
+          "text": ""
+        },
+        {
+          "href": "#/vmsnapshot",
+          "text": "VM 스냅샷"
+        },
+        {
+          "href": "http://docs.ablecloud.io/latest/adminguide/virtual_machines.html#virtual-machine-snapshots",
+          "text": ""
+        },
+        {
+          "href": "javascript:;",
+          "text": "1badd54f-295f-4e6d-89c8-920f92620c6e "
+        },
+        {
+          "href": "#/vm/3b6b4c34-1d7d-4765-87ef-769420088670",
+          "text": "epic1216-c"
+        },
+        {
+          "href": "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "text": "Zone"
+        },
+        {
+          "href": "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+          "text": "admin"
+        },
+        {
+          "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+          "text": "ROOT"
+        }
+      ],
+      "marginTop": "0px",
+      "overflow": false,
+      "scripts": [
+        "http://10.10.31.10:8080/client/js/chunk-a34d459a.82b487b5.js",
+        "http://10.10.31.10:8080/client/js/chunk-2d2bce6e.fbb5d902.js",
+        "http://10.10.31.10:8080/client/js/chunk-ab295ac4.d1be86f1.js",
+        "http://10.10.31.10:8080/client/js/chunk-6ccd2280.11a9e205.js",
+        "http://10.10.31.10:8080/client/js/chunk-2b80087b.e4a8ac49.js",
+        "http://10.10.31.10:8080/client/js/chunk-20c069d6.39a86c63.js",
+        "http://10.10.31.10:8080/client/js/chunk-90a199dc.3e86697c.js",
+        "http://10.10.31.10:8080/client/js/chunk-58f5c864.0510dc4b.js",
+        "http://10.10.31.10:8080/client/js/less.min.js",
+        "http://10.10.31.10:8080/client/js/vendors.ff746140.js",
+        "http://10.10.31.10:8080/client/js/app.ab9928c6.js"
+      ],
+      "tabs": [
+        {
+          "color": "rgb(24, 144, 255)",
+          "padding": "8px 24px 8px 8px",
+          "selected": true,
+          "text": "상세",
+          "x": 615.40625,
+          "y": 269
+        },
+        {
+          "color": "rgb(197, 204, 212)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "이벤트",
+          "x": 615.40625,
+          "y": 323
+        },
+        {
+          "color": "rgb(197, 204, 212)",
+          "padding": "8px 24px 8px 8px",
+          "selected": false,
+          "text": "코멘트",
+          "x": 615.40625,
+          "y": 377
+        }
+      ],
+      "url": "http://10.10.31.10:8080/client/#/vmsnapshot/1badd54f-295f-4e6d-89c8-920f92620c6e",
+      "width": 1366,
+      "theme": "dark"
+    }
+  ],
+  "console": [],
+  "baselineHistory": {
+    "draft": "",
+    "layout": "ant-tabs ant-tabs-top",
+    "scripts": [
+      "http://10.10.31.10:8080/client/js/chunk-6ccd2280.11a9e205.js",
+      "http://10.10.31.10:8080/client/js/chunk-2b80087b.e4a8ac49.js",
+      "http://10.10.31.10:8080/client/js/chunk-2557609d.a89ce814.js",
+      "http://10.10.31.10:8080/client/js/chunk-4e3c3954.d7e6e54c.js",
+      "http://10.10.31.10:8080/client/js/less.min.js",
+      "http://10.10.31.10:8080/client/js/vendors.ff746140.js",
+      "http://10.10.31.10:8080/client/js/app.4c33579b.js"
+    ]
+  },
+  "notes": [
+    "Existing Ant Design Vue Tabs and VM detail styles reused",
+    "No note submission, VM or snapshot mutation performed",
+    "Unsaved comment reset on browser history reproduced with old bundle; existing behavior retained",
+    "Original dark theme and default viewport restored"
+  ]
+}

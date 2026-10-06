@@ -37,3 +37,10 @@ test('ordinary API requests retain their existing request configuration', async 
   expect(config.optionalDiscovery).toBeUndefined()
   expect(config.timeout).toBeUndefined()
 })
+
+test('snapshot reads preserve the session on transient failure without sending the flag', async () => {
+  await getAPI('listVMSnapshot', { page: 1 })
+  const config = axios.mock.calls[0][0]
+  expect(config.preserveOnFailure).toBe(true)
+  expect(config.params.preserveOnFailure).toBeUndefined()
+})

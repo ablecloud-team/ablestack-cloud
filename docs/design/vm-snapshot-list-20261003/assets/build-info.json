@@ -1,0 +1,17 @@
+{
+  "vue": "3.5.41",
+  "compilerSfc": "3.5.41",
+  "antDesignVue": "3.2.20",
+  "uiSource": "b31026f919856a1b61c1f86dca450e16ac0673e1",
+  "entry": "src/App.vue",
+  "shared": [
+    "Status.vue",
+    "TooltipButton.vue",
+    "ResourceActionMenu.vue",
+    "utils/actionMenu.js",
+    "style/components/view/resource-context-menu.less",
+    "style/dark-mode.less",
+    "style/theme/*.less"
+  ],
+  "offline": true
+}

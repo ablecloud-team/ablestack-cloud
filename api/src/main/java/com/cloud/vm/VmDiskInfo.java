@@ -23,6 +23,7 @@ import com.cloud.offering.DiskOfferingInfo;
 
 public class VmDiskInfo extends DiskOfferingInfo {
     private Long _deviceId;
+    private Long storagePoolId;
 
     public VmDiskInfo(DiskOffering diskOffering, Long size, Long minIops, Long maxIops) {
         super(diskOffering, size, minIops, maxIops);
@@ -36,6 +37,14 @@ public class VmDiskInfo extends DiskOfferingInfo {
     public VmDiskInfo(DiskOffering diskOffering, Long size, Long minIops, Long maxIops, Long deviceId, Long kmsKeyId) {
         super(diskOffering, size, minIops, maxIops, kmsKeyId);
         _deviceId = deviceId;
+    }
+
+    public Long getStoragePoolId() {
+        return storagePoolId;
+    }
+
+    public void setStoragePoolId(Long storagePoolId) {
+        this.storagePoolId = storagePoolId;
     }
 
     public Long getDeviceId() {

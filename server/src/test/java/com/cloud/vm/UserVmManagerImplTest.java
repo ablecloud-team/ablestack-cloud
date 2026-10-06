@@ -217,6 +217,8 @@ import com.cloud.vm.snapshot.dao.VMSnapshotDao;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UserVmManagerImplTest {
+    @Mock
+    private com.cloud.storage.VmStorageSelectionService storageSelectionService;
 
     @Spy
     @InjectMocks

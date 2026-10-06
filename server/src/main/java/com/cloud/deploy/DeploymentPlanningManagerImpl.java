@@ -156,6 +156,9 @@ public class DeploymentPlanningManagerImpl extends ManagerBase implements Deploy
 StateListener<State, VirtualMachine.Event, VirtualMachine>, Configurable {
 
     @Inject
+    private com.cloud.storage.VmStorageSelectionService storageSelectionService;
+
+    @Inject
     AgentManager _agentMgr;
     @Inject
     private AccountDao accountDao;
@@ -1805,6 +1808,11 @@ StateListener<State, VirtualMachine.Event, VirtualMachine>, Configurable {
             // volume is ready and the pool should be reused.
             // In this case, also check if rest of the volumes are ready and can
             // be reused.
+            Long requiredPool = storageSelectionService.requiredPool(toBeCreated, vmProfile.getVirtualMachine());
+            if (requiredPool != null && toBeCreated.getState() == Volume.State.Ready &&
+                    !requiredPool.equals(toBeCreated.getPoolId())) {
+                throw new com.cloud.exception.InvalidParameterValueException("First-deployment volume was moved away from its selected storage");
+            }
             if ((plan.getPoolId() != null || (toBeCreated.getVolumeType() == Volume.Type.DATADISK && toBeCreated.getPoolId() != null && toBeCreated.getState() == Volume.State.Ready)) &&
                     checkIfPoolCanBeReused(vmProfile, plan, avoid, suitableVolumeStoragePools, readyAndReusedVolumes, toBeCreated)) {
                 continue;
@@ -1877,7 +1885,12 @@ StateListener<State, VirtualMachine.Event, VirtualMachine>, Configurable {
             logger.debug("Trying to find suitable pools to allocate volume [{}] necessary to deploy VM [{}], using StoragePoolAllocator: [{}].",
                     toBeCreated, vmProfile, allocator.getClass().getSimpleName());
 
-            final List<StoragePool> suitablePools = allocator.allocateToPool(diskProfile, vmProfile, plan, avoid, returnUpTo);
+            List<StoragePool> suitablePools = allocator.allocateToPool(diskProfile, vmProfile, plan, avoid, returnUpTo);
+            Long requiredPool = storageSelectionService.requiredPool(toBeCreated, vmProfile.getVirtualMachine());
+            if (requiredPool != null && suitablePools != null) {
+                suitablePools = suitablePools.stream().filter(pool -> requiredPool.equals(pool.getId()))
+                        .collect(java.util.stream.Collectors.toList());
+            }
             if (suitablePools != null && !suitablePools.isEmpty()) {
                 logger.debug("StoragePoolAllocator [{}] found {} suitable pools to allocate volume [{}] necessary to deploy VM [{}].",
                         allocator.getClass().getSimpleName(), suitablePools.size(), toBeCreated, vmProfile);

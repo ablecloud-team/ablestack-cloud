@@ -1,0 +1,66 @@
+{
+  "actions": {
+    "display": "table-cell",
+    "parent": {
+      "height": 64,
+      "width": 809,
+      "x": 1078,
+      "y": 166
+    },
+    "rect": {
+      "height": 64,
+      "width": 154.34375,
+      "x": 1078,
+      "y": 166
+    }
+  },
+  "buttons": [
+    {
+      "height": 32,
+      "text": "VM 스냅샷 생성",
+      "width": 149.34375,
+      "x": 1083,
+      "y": 166
+    },
+    {
+      "height": 32,
+      "text": "선택 삭제",
+      "width": 111.359375,
+      "x": 1083,
+      "y": 198
+    }
+  ],
+  "height": 855,
+  "overflow": false,
+  "scripts": [
+    "http://10.10.31.10:8080/client/js/chunk-a34d459a.82b487b5.js",
+    "http://10.10.31.10:8080/client/js/chunk-2d2bce6e.fbb5d902.js",
+    "http://10.10.31.10:8080/client/js/chunk-ab295ac4.d1be86f1.js",
+    "http://10.10.31.10:8080/client/js/chunk-6ccd2280.11a9e205.js",
+    "http://10.10.31.10:8080/client/js/chunk-2b80087b.e4a8ac49.js",
+    "http://10.10.31.10:8080/client/js/chunk-20c069d6.39a86c63.js",
+    "http://10.10.31.10:8080/client/js/chunk-90a199dc.3e86697c.js",
+    "http://10.10.31.10:8080/client/js/chunk-58f5c864.0510dc4b.js",
+    "http://10.10.31.10:8080/client/js/less.min.js",
+    "http://10.10.31.10:8080/client/js/vendors.ff746140.js",
+    "http://10.10.31.10:8080/client/js/app.ab9928c6.js"
+  ],
+  "search": {
+    "height": 32,
+    "width": 654.65625,
+    "x": 1242.34375,
+    "y": 166
+  },
+  "selected": [
+    {
+      "href": "#/vmsnapshot/db0ad0fe-cc87-46a5-a748-aad4231bb098",
+      "name": "epic1216-concurrent-memory"
+    },
+    {
+      "href": "#/vmsnapshot/f24fd0f5-60a1-4ef5-a0f7-7c839754bad5",
+      "name": "epic1216-concurrent-memory"
+    }
+  ],
+  "url": "http://10.10.31.10:8080/client/#/vmsnapshot",
+  "width": 1920
+}

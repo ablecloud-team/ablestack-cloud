@@ -32,8 +32,8 @@
       class="protection-tab-notice"
       :message="$t('message.vm.protection.lookup.pending')" />
     <a-tabs
+      :tabPosition="resourceTabPosition"
       :activeKey="visibleCurrentTab"
-      :tabPosition="device === 'mobile' ? 'top' : 'left'"
       :animated="false"
       @change="handleChangeTab">
       <a-tab-pane :tab="$t('label.details')" key="details">

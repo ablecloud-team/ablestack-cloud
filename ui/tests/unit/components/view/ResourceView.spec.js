@@ -18,13 +18,13 @@
 import fs from 'fs'
 import path from 'path'
 import { mount, flushPromises } from '@vue/test-utils'
-import { defineAsyncComponent, h, markRaw } from 'vue'
+import { defineAsyncComponent, h, markRaw, reactive } from 'vue'
+import { mixinDevice } from '@/utils/mixin'
 import ResourceView from '@/components/view/ResourceView'
 import AutogenView from '@/views/AutogenView'
 
 jest.mock('@/components/view/InfoCard', () => ({ render: () => null }))
 jest.mock('@/api', () => ({ getAPI: jest.fn() }))
-jest.mock('@/utils/mixin.js', () => ({ mixinDevice: {} }))
 
 function context (query = {}, tabs = [{ name: 'details' }, { name: 'events' }]) {
   return { tabs, $route: { query }, historyTab: '', showTab: tab => !tab.hidden }
@@ -104,7 +104,7 @@ describe('ResourceView resource navigation', () => {
       render () { return h(ResourceView, { key: this.routePath, resource: this.resource, tabs: this.tabs }) }
     }, {
       global: {
-        mocks: { $route: { query: {} }, $t: key => key, $store: { getters: { userInfo: {} } } },
+        mocks: { $route: { query: {} }, $t: key => key, $store: { state: { app: { device: 'desktop' } }, getters: { userInfo: {} } } },
         stubs: { ResourceLayout: layout, ACard: slot, ATabs: slot, ATabPane: slot },
         config: { errorHandler: error => errors.push(error) }
       }
@@ -122,5 +122,65 @@ describe('ResourceView resource navigation', () => {
     wrapper.unmount()
     expect(unmounted).toHaveBeenCalled()
     expect(errors).toEqual([])
+  })
+})
+
+describe('ResourceView standard tab layout', () => {
+  const slot = { render () { return h('div', this.$slots.default()) } }
+  const layout = { render () { return h('div', this.$slots.right()) } }
+  const details = markRaw({ props: ['resource'], render () { return h('span', `snapshot:${this.resource.id}`) } })
+  const comments = markRaw({
+    data: () => ({ draft: '' }),
+    render () { return h('input', { value: this.draft, onInput: event => { this.draft = event.target.value } }) }
+  })
+  const tabs = [{ name: 'details', component: details }, { name: 'comments', component: comments }]
+  function mountLayout (device = 'desktop', extra = {}) {
+    return mount(ResourceView, {
+      props: { resource: { id: 'snapshot-1' }, tabs, ...extra },
+      global: {
+        mocks: { $route: { path: '/vmsnapshot/snapshot-1', query: {} }, $t: key => key, $store: reactive({ state: { app: { device } }, getters: { userInfo: {} } }) },
+        stubs: { ResourceLayout: layout, ACard: slot }
+      }
+    })
+  }
+
+  it('uses shared vertical layout by default and preserves single-tab content without a tab bar', async () => {
+    const wrapper = mountLayout()
+    expect(wrapper.find('.ant-tabs-left').exists()).toBe(true)
+    expect(wrapper.get('.ant-tabs').element.style.marginTop).toBe('0px')
+    await wrapper.setProps({ tabs: [tabs[0]] })
+    expect(wrapper.find('.ant-tabs').exists()).toBe(false)
+    expect(wrapper.text()).toContain('snapshot:snapshot-1')
+    wrapper.unmount()
+  })
+
+  it('uses VM-standard left tabs on desktop/tablet and top tabs on mobile without losing the selected tab or input', async () => {
+    const wrapper = mountLayout()
+    expect(wrapper.find('.ant-tabs-left').exists()).toBe(true)
+    expect(wrapper.get('.ant-tabs').element.style.marginTop).toBe('0px')
+    await wrapper.findAll('[role="tab"]').find(tab => tab.text() === 'label.comments').trigger('click')
+    await wrapper.get('input').setValue('draft survives layout changes')
+    for (const device of ['tablet', 'mobile', 'desktop']) {
+      wrapper.vm.$store.state.app.device = device
+      await flushPromises()
+      expect(wrapper.find(device === 'mobile' ? '.ant-tabs-top' : '.ant-tabs-left').exists()).toBe(true)
+      expect(wrapper.get('[role="tab"][aria-selected="true"]').text()).toBe('label.comments')
+      expect(wrapper.get('input').element.value).toBe('draft survives layout changes')
+    }
+    await wrapper.findAll('[role="tab"]').find(tab => tab.text() === 'label.details').trigger('click')
+    await wrapper.findAll('[role="tab"]').find(tab => tab.text() === 'label.comments').trigger('click')
+    expect(wrapper.get('input').element.value).toBe('draft survives layout changes')
+    expect(wrapper.emitted('onTabChange').map(event => event[0])).toEqual(['comments', 'details', 'comments'])
+    wrapper.unmount()
+  })
+
+  it('keeps permission-hidden tabs out of the vertical navigation', () => {
+    const wrapper = mountLayout('desktop', { tabs: [...tabs, { name: 'events', component: details, show: () => false }] })
+    expect(wrapper.findAll('[role="tab"]').map(tab => tab.text())).toEqual(['label.details', 'label.comments'])
+    wrapper.unmount()
+  })
+
+  it.each(['desktop', 'tablet', 'mobile'])('shares the existing VM tab position policy for %s', device => {
+    expect(mixinDevice.computed.resourceTabPosition.call({ device })).toBe(device === 'mobile' ? 'top' : 'left')
   })
 })

@@ -1,0 +1,164 @@
+{
+  "base": "271962838978be6c0aadd517cd7cf731aa58e5d7",
+  "containers": [
+    {
+      "file": "ui/src/components/view/GPUTab.vue",
+      "tabPaneCount": 2,
+      "contentsIdentical": true,
+      "sha256": "da92b28ee1f4f4d4a1c7fc65f6bc820cf2047e141f6623d5e7367b2ed4ca03da",
+      "usesExistingAntdTabs": true
+    },
+    {
+      "file": "ui/src/components/view/ResourceView.vue",
+      "tabPaneCount": 1,
+      "contentsIdentical": true,
+      "sha256": "9840e54439e8b75be520bd804ff3b98255eccdf5d107e4b32944195bd3049d2f",
+      "usesExistingAntdTabs": true
+    },
+    {
+      "file": "ui/src/components/view/TreeView.vue",
+      "tabPaneCount": 1,
+      "contentsIdentical": true,
+      "sha256": "ed65b95aae3bb45432c9698b151994ee793034bbb533e08d3ccbf436737488d6",
+      "usesExistingAntdTabs": true
+    },
+    {
+      "file": "ui/src/views/automation/AutomationControllerTab.vue",
+      "tabPaneCount": 4,
+      "contentsIdentical": true,
+      "sha256": "e1105eaa7f5c9e1d0db2abe54185bd02754268e710d938a32f15a22f3fe6e3fd",
+      "usesExistingAntdTabs": true
+    },
+    {
+      "file": "ui/src/views/automation/DeployedResourceTab.vue",
+      "tabPaneCount": 3,
+      "contentsIdentical": true,
+      "sha256": "55b6c543230ae08ae8c80048109bb6f0a9ec0fbd8f446d0785df1146575ce740",
+      "usesExistingAntdTabs": true
+    },
+    {
+      "file": "ui/src/views/compute/InstanceTab.vue",
+      "tabPaneCount": 18,
+      "contentsIdentical": true,
+      "sha256": "6ffd65fdb5cfac483fe7b5b6226c083539a2dc402311a634a0072518ddc20985",
+      "usesExistingAntdTabs": true
+    },
+    {
+      "file": "ui/src/views/compute/KubernetesServiceTab.vue",
+      "tabPaneCount": 8,
+      "contentsIdentical": true,
+      "sha256": "1de73a69571f5e6d6efeb7d746fe6599c54e0606e3bdab4a73af783c3984c2d3",
+      "usesExistingAntdTabs": true
+    },
+    {
+      "file": "ui/src/views/desktop/DesktopTab.vue",
+      "tabPaneCount": 5,
+      "contentsIdentical": true,
+      "sha256": "e52962a090d41e569f718a47656ce8209b075aabc1e95dd488bfa94b12f549e8",
+      "usesExistingAntdTabs": true
+    },
+    {
+      "file": "ui/src/views/infra/HostRedfishTab.vue",
+      "tabPaneCount": 10,
+      "contentsIdentical": true,
+      "sha256": "82b41eb3c9d35a5bfa1a0936d2d0ecad54130efcc6d6c3c8f63bb6a8ab32d476",
+      "usesExistingAntdTabs": true
+    },
+    {
+      "file": "ui/src/views/infra/ListHostDevicesTab.vue",
+      "tabPaneCount": 5,
+      "contentsIdentical": true,
+      "sha256": "65f93592d53229d28049ff5a105afbcc746aea66d57bcf246a28b5d5c3da00e7",
+      "usesExistingAntdTabs": true
+    },
+    {
+      "file": "ui/src/views/infra/dr/DrPlanList.vue",
+      "tabPaneCount": 4,
+      "contentsIdentical": true,
+      "sha256": "cfa567bc3747344ef475886ac77b343a470adefe78e927947e790781bc9f94db",
+      "usesExistingAntdTabs": true
+    },
+    {
+      "file": "ui/src/views/infra/dr/DrSiteList.vue",
+      "tabPaneCount": 3,
+      "contentsIdentical": true,
+      "sha256": "4ec316a943129133af068c7dd40710d15c43d8ea95b7dd75c5bf67d449861d36",
+      "usesExistingAntdTabs": true
+    },
+    {
+      "file": "ui/src/views/infra/network/ServiceProvidersTab.vue",
+      "tabPaneCount": 2,
+      "contentsIdentical": true,
+      "sha256": "e5f94efc7034e03cf14cd90ee5b283880bddefbfedb4480d7092eefd767385a4",
+      "usesExistingAntdTabs": true
+    },
+    {
+      "file": "ui/src/views/infra/network/TrafficTypesTab.vue",
+      "tabPaneCount": 1,
+      "contentsIdentical": true,
+      "sha256": "a5a6ed66ca64b12e733eb379cffc8dfc3e6d04934bcae163780c60109f239f3d",
+      "usesExistingAntdTabs": true
+    },
+    {
+      "file": "ui/src/views/network/VpcTab.vue",
+      "tabPaneCount": 14,
+      "contentsIdentical": true,
+      "sha256": "59908bccaec86ab2b28f74bd4533df6fb980dd032301553b27558377a0b34647",
+      "usesExistingAntdTabs": true
+    },
+    {
+      "file": "ui/src/views/storage/SharedFSTab.vue",
+      "tabPaneCount": 9,
+      "contentsIdentical": true,
+      "sha256": "6880ae988c0fa8eb0a663a78d8d4322d1832232672197ea0d25f4f9e50769444",
+      "usesExistingAntdTabs": true
+    }
+  ],
+  "protectedFiles": [
+    {
+      "file": "ui/src/components/view/DetailsTab.vue",
+      "sha256": "e015399fc80147cb91c6015068e8c4eb1e5b2cec5546097336906a2237d73041",
+      "identical": true
+    },
+    {
+      "file": "ui/src/components/view/EventsTab.vue",
+      "sha256": "d5678a82f1f6ebefa60410a861aecdc72d3afd1ffe80b4838ddce6bdda6f40d9",
+      "identical": true
+    },
+    {
+      "file": "ui/src/components/view/AnnotationsTab.vue",
+      "sha256": "ed91a5291c5d810d7e90baec8bbd1812c7af251109c53025744282ecb07a457d",
+      "identical": true
+    },
+    {
+      "file": "ui/src/components/view/InfoCard.vue",
+      "sha256": "e998894e42985d18c2035462bb946b7affef63fe88c73199038196ace2084f98",
+      "identical": true
+    },
+    {
+      "file": "ui/src/config/section/compute.js",
+      "sha256": "2ff410edfc0a6e08b1e0799d56f2719b8ea4b42d77814ebc0bd1be074ceb16ea",
+      "identical": true
+    },
+    {
+      "file": "ui/src/config/router.js",
+      "sha256": "363b21ea73ba88b405f0e90e9fb390f9a2f9b7b12d6815aebeeff95e26dcb9fd",
+      "identical": true
+    },
+    {
+      "file": "ui/src/views/AutogenView.vue",
+      "sha256": "0097ac404aed5629651f22c08c17c2105a74f547ad72d29db3a9c005f315f331",
+      "identical": true
+    },
+    {
+      "file": "ui/src/style/vars.less",
+      "sha256": "2ff8aa800bd0a1c9be1ba43f6e879ef47e96a8ccaa28016dfc44d9622bbbf657",
+      "identical": true
+    },
+    {
+      "file": "ui/src/style/dark-mode.less",
+      "sha256": "603cb0a114310a4546709d7a20e405f22860e6689035f955b663389075acd8e7",
+      "identical": true
+    }
+  ]
+}

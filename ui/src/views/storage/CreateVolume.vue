@@ -157,24 +157,36 @@
           </template>
           <a-select
             v-model:value="form.storageid"
-            :loading="loading"
+            :loading="storageLoading"
+            :options="storagePoolOptions"
+            :virtual="false"
+            dropdown-class-name="volume-storage-pool-dropdown"
+            option-label-prop="label"
             showSearch
             optionFilterProp="label"
-            :filterOption="(input, option) => {
-              return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }" >
-            <a-select-option
-              v-for="(pool, index) in storagePools"
-              :value="pool.id"
-              :key="index"
-              :label="pool.name">
-              <span>
-                <resource-icon v-if="pool.icon" :image="pool.icon.base64image" size="1x" style="margin-right: 5px"/>
-                <hdd-outlined v-else style="margin-right: 5px"/>
-                {{ pool.name }}
+            :not-found-content="$t(storageLoading ? 'message.volume.storage.loading' : storageFetchError ? 'message.volume.storage.failed' : 'message.volume.storage.empty')"
+            :filterOption="(input, option) => option.label.toLowerCase().includes(input.toLowerCase())">
+            <template #option="{ pool }">
+              <div class="volume-storage-option">
+                <span class="volume-storage-name" :title="pool.name">
+                  <resource-icon v-if="pool.icon" :image="pool.icon.base64image" size="1x" />
+                  <hdd-outlined v-else />
+                  <span>{{ pool.name }}</span>
+                </span>
+                <storage-pool-capacity :pool="pool" />
+              </div>
+            </template>
+            <template #optionLabel="{ pool, label }">
+              <span v-if="pool" class="volume-storage-name" :title="pool.name">
+                <resource-icon v-if="pool.icon" :image="pool.icon.base64image" size="1x" />
+                <hdd-outlined v-else />
+                <span>{{ pool.name }}</span>
               </span>
-            </a-select-option>
+              <span v-else>{{ label }}</span>
+            </template>
           </a-select>
+          <storage-pool-capacity v-if="selectedStoragePool" :pool="selectedStoragePool" summary />
+          <p v-if="storageFetchError" class="volume-storage-error">{{ $t('message.volume.storage.failed') }}</p>
         </a-form-item>
       </span>
       <a-form-item name="attachVolume" ref="attachVolume" v-if="!createVolumeFromVM">
@@ -239,6 +251,7 @@ import { isAdmin } from '@/role'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import OwnershipSelection from '@/views/compute/wizard/OwnershipSelection.vue'
+import StoragePoolCapacity from '@/views/storage/StoragePoolCapacity.vue'
 import store from '@/store'
 
 export default {
@@ -247,7 +260,8 @@ export default {
   components: {
     OwnershipSelection,
     ResourceIcon,
-    TooltipLabel
+    TooltipLabel,
+    StoragePoolCapacity
   },
   props: {
     hideActions: { type: Boolean, default: false },
@@ -273,6 +287,9 @@ export default {
       virtualmachines: [],
       createOnStorage: false,
       storagePools: [],
+      storageLoading: false,
+      storageFetchError: false,
+      storageRequestId: 0,
       attachVolume: false,
       vmidtoattach: null,
       kmsKeys: [],
@@ -281,6 +298,12 @@ export default {
     }
   },
   computed: {
+    storagePoolOptions () {
+      return this.storagePools.map(pool => ({ value: pool.id, label: pool.name, title: pool.name, pool }))
+    },
+    selectedStoragePool () {
+      return this.storagePools.find(pool => pool.id === this.form.storageid)
+    },
     selectedDiskOffering () {
       if (!this.form.diskofferingid || !this.offerings.length) return null
       return this.offerings.find(o => o.id === this.form.diskofferingid) || null
@@ -309,6 +332,7 @@ export default {
     this.initForm()
     this.fetchData()
   },
+  beforeUnmount () { this.storageRequestId++ },
   methods: {
     validateDeviceId (rule, value) {
       const reason = volumeDeviceIdReason(value)
@@ -458,22 +482,31 @@ export default {
       })
     },
     fetchStoragePools (zoneId) {
+      const sequence = ++this.storageRequestId
+      this.storageFetchError = false
       if (!zoneId) {
+        this.storageLoading = false
         this.storagePools = []
-        return
+        this.form.storageid = undefined
+        return Promise.resolve()
       }
-      this.loading = true
-      getAPI('listStoragePools', {
+      this.storageLoading = true
+      return getAPI('listStoragePools', {
         zoneid: zoneId,
         showicon: true
       }).then(json => {
+        if (sequence !== this.storageRequestId) return
         const pools = json.liststoragepoolsresponse.storagepool || []
         this.storagePools = pools.filter(p => p.state === 'Up')
+        if (this.form.storageid && !this.storagePools.some(pool => pool.id === this.form.storageid)) {
+          this.form.storageid = undefined
+        }
       }).catch(error => {
+        if (sequence !== this.storageRequestId) return
+        this.storageFetchError = true
         this.$notifyError(error)
-        this.storagePools = []
       }).finally(() => {
-        this.loading = false
+        if (sequence === this.storageRequestId) this.storageLoading = false
       })
     },
     fetchVirtualMachines (zoneId) {
@@ -634,6 +667,9 @@ export default {
         this.form.storageid = this.storagePools[0]?.id || undefined
       } else {
         this.form.storageid = undefined
+        this.storageRequestId++
+        this.storageLoading = false
+        this.storageFetchError = false
       }
     }
   }
@@ -641,6 +677,34 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.volume-storage-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  max-width: 100%;
+  min-width: 0;
+  vertical-align: middle;
+}
+.volume-storage-name > span:last-child {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.volume-storage-name > .anticon { flex-shrink: 0; }
+.volume-storage-option .volume-storage-name { margin-bottom: 7px; }
+.volume-storage-error {
+  margin: 8px 0 0;
+  color: var(--ui-warning-text);
+  font-size: 12px;
+}
+:global(.volume-storage-pool-dropdown .ant-select-item-option-content) {
+  white-space: normal;
+}
+:global(.volume-storage-pool-dropdown .ant-select-item-option) {
+  align-items: flex-start;
+  padding: 9px 12px;
+}
+
 .volume-device-hint :deep(.ant-form-item-extra) {
   margin-top: 8px;
   color: var(--ui-text-secondary);

@@ -145,6 +145,9 @@ import static org.mockito.Mockito.verify;
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class)
 public class DeploymentPlanningManagerImplTest {
 
+    @Mock
+    private com.cloud.storage.VmStorageSelectionService storageSelectionService;
+
     @Spy
     @InjectMocks
     DeploymentPlanningManagerImpl _dpm;
@@ -1004,6 +1007,12 @@ public class DeploymentPlanningManagerImplTest {
             return Mockito.mock(DataStoreManager.class);
         }
 
+        @Bean
+        public com.cloud.storage.VmStorageSelectionService storageSelectionService() {
+            com.cloud.storage.VmStorageSelectionService service = Mockito.mock(com.cloud.storage.VmStorageSelectionService.class);
+            Mockito.when(service.requiredPool(Mockito.any(), Mockito.any())).thenReturn(null);
+            return service;
+        }
         @Bean
         public StorageManager storageManager() {
             return Mockito.mock(StorageManager.class);

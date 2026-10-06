@@ -1,0 +1,32 @@
+{
+  "buildSource": "a9b53c45c00153ed0c25981f348e8db17907b4e4",
+  "related": {
+    "summary": [
+      "Test Suites: 11 passed, 11 total",
+      "Tests:       248 passed, 248 total",
+      "Time:        39.009s"
+    ],
+    "failedSuites": []
+  },
+  "full": {
+    "summary": [
+      "Test Suites: 4 failed, 86 passed, 90 total",
+      "Tests:       6 failed, 892 passed, 898 total",
+      "Time:        87.357s"
+    ],
+    "failedSuites": [
+      "FAIL tests/unit/utils/vmNicActions.spec.js",
+      "FAIL tests/unit/autoAlertDiscovery.spec.js",
+      "FAIL tests/unit/utils/vmDiskDeployment.spec.js",
+      "FAIL tests/unit/components/GuestNetworkSummary.spec.js"
+    ]
+  },
+  "lint": "No lint errors found!",
+  "productFiles": [
+    "ui/src/components/view/ListView.vue",
+    "ui/src/config/section/compute.js"
+  ],
+  "sharedMenuAndStylesUnchanged": true,
+  "fullSuiteLimit": "Same four failing suites and six tests as the previously recorded baseline; this run is not a full UI pass.",
+  "productionBuild": "DONE Build complete"
+}

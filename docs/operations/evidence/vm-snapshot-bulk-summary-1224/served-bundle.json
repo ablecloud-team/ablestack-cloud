@@ -1,0 +1,15 @@
+{
+  "app": {
+    "path": "js/app.eb396625.js",
+    "sha256": "5895a4af742e2593d6e93c33cb6d17ede5d05c4af2edf93964a657f05bfe7dcf",
+    "httpMatchesBuild": true
+  },
+  "bulkSummaryChunks": [
+    {
+      "path": "js/chunk-72b4e179.4acaff89.js",
+      "sha256": "fa06d4e1015f8a79ea986aac7eadb1ec5a9658041c51c768123c7aff17f7915d",
+      "httpMatchesBuild": true
+    }
+  ],
+  "servedKoreanLabel": true
+}

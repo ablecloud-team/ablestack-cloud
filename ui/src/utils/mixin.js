@@ -52,7 +52,10 @@ const mixinDevice = {
   computed: {
     ...mapState({
       device: state => state.app.device
-    })
+    }),
+    resourceTabPosition () {
+      return this.device === DEVICE_TYPE.MOBILE ? 'top' : 'left'
+    }
   },
   methods: {
     isMobile () {

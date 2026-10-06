@@ -18,13 +18,13 @@
 <template>
   <div class="vm-devices">
     <div class="device-toolbar">
-      <a-tooltip :title="blockReason"><span v-if="canManage"><a-button type="primary" :disabled="!!blockReason" @click="openAllocate"><template #icon><plus-outlined /></template>{{ d('allocate') }}</a-button></span></a-tooltip>
+      <a-tooltip :title="blockReason"><span v-if="canManage"><a-button type="primary" :disabled="!!blockReason || loading || busy" @click="openAllocate"><template #icon><plus-outlined /></template>{{ d('allocate') }}</a-button></span></a-tooltip>
       <a-button :loading="loading" @click="refresh"><template #icon><reload-outlined /></template>{{ $t('label.refresh') }}</a-button>
       <a-select v-model:value="filter" :aria-label="d('type')" @change="page = 1"><a-select-option value="">{{ d('all') }}</a-select-option><a-select-option v-for="type in types" :key="type" :value="type">{{ typeLabel(type) }}</a-select-option></a-select>
       <a-input-search v-model:value="search" :placeholder="$t('label.search')" @change="page = 1" />
     </div>
     <a-alert v-if="error" type="warning" show-icon :message="error" />
-    <a-alert v-if="blockReason && canManage" type="info" show-icon :message="blockReason" />
+    <a-alert v-if="blockReason && canManage && snapshots !== null" type="info" show-icon :message="blockReason" />
     <a-table :columns="columns" :data-source="visibleRows" :row-key="rowKey" :loading="loading" :pagination="false" :scroll="{ x: 760 }" size="small">
       <template #emptyText>{{ d('empty') }}</template>
       <template #bodyCell="{ column, record }">
@@ -33,7 +33,7 @@
         <template v-if="column.key === 'state'">{{ d('record') }}<small>{{ d('unverified') }}</small></template>
         <template v-if="column.key === 'actions'">
           <div class="device-actions">
-            <a-tooltip v-if="allowed(record.devicetype)" :title="reason(record.devicetype, record)"><span><a-button type="link" size="small" :disabled="!!reason(record.devicetype, record)" @click="openRecord('release', record)">{{ d(record.devicetype === 'pci' ? 'releasePci' : 'release') }}</a-button></span></a-tooltip>
+            <a-tooltip v-if="allowed(record.devicetype)" :title="reason(record.devicetype, record)"><span><a-button type="link" size="small" :disabled="!!reason(record.devicetype, record) || loading || busy" @click="openRecord('release', record)">{{ d(record.devicetype === 'pci' ? 'releasePci' : 'release') }}</a-button></span></a-tooltip>
             <a-dropdown :trigger="['click']" placement="bottomRight"><a-button size="small" :aria-label="$t('label.actions')"><down-outlined /></a-button><template #overlay><a-menu @click="({ key }) => openRecord(key, record)"><a-menu-item key="inspect">{{ d('inspect') }}</a-menu-item><a-menu-item v-if="record.hostuuid" key="host">{{ d('viewHost') }}</a-menu-item><a-menu-divider /><a-menu-item key="details">{{ $t('label.details') }}</a-menu-item></a-menu></template></a-dropdown>
           </div>
         </template>
@@ -60,12 +60,23 @@ wrap-class-name="vm-device-dialog"
           <a-form-item v-if="mode === 'existing'" :label="d('type')"><a-select v-model:value="type" :disabled="submitting" @change="fetchCandidates"><a-select-option v-for="t in types.filter(allowed)" :key="t" :value="t">{{ typeLabel(t) }}</a-select-option></a-select></a-form-item>
           <a-form-item v-if="type === 'lun' && mode === 'existing'" :label="d('pathMode')"><a-select v-model:value="pathMode" :disabled="submitting" @change="fetchCandidates"><a-select-option value="single">{{ d('single') }}</a-select-option><a-select-option value="multipath">{{ d('multipath') }}</a-select-option></a-select></a-form-item>
           <a-alert v-if="operationReason" type="warning" show-icon :message="operationReason" />
-          <a-form-item :label="mode === 'create' ? d('parentHba') : d('device')"><a-select v-model:value="choice" :loading="candidateLoading" :disabled="busy || !hostId" show-search option-filter-prop="label" option-label-prop="label"><a-select-option v-for="item in candidates" :key="item.name" :value="item.name" :label="['scsi', 'lun'].includes(item.type) ? deviceSummary(item) + ' · ' + item.name : item.name + ' — ' + item.text" :disabled="!!item.allocation || item.protected || item.usage !== 'available'"><a-tooltip :title="candidateLabel(item)" placement="topLeft" overlay-class-name="vm-device-option-tooltip"><span><span class="vm-device-option-label">{{ ['scsi', 'lun'].includes(item.type) ? deviceSummary(item) : item.name + ' — ' + item.text }}</span><small v-if="['scsi', 'lun'].includes(item.type) || candidateReason(item)" class="vm-device-option-meta">{{ ['scsi', 'lun'].includes(item.type) ? item.name : '' }}<span v-if="candidateReason(item)"> · {{ candidateReason(item) }}</span></small></span></a-tooltip></a-select-option></a-select><p class="device-help">{{ d(type === 'scsi' ? 'diskHelp' : type === 'lun' ? 'lunHelp' : 'candidateHelp') }}</p></a-form-item>
+          <a-form-item :label="mode === 'create' ? d('parentHba') : d('device')"><a-select v-model:value="choice" :loading="candidateLoading" :disabled="busy || !hostId" show-search option-filter-prop="label" option-label-prop="label"><a-select-option v-for="item in candidates" :key="item.name" :value="item.name" :label="['scsi', 'lun'].includes(item.type) ? deviceSummary(item) + ' · ' + item.name : item.name + ' — ' + item.text" :disabled="deviceBlocked(item)"><a-tooltip :title="candidateLabel(item)" placement="topLeft" overlay-class-name="vm-device-option-tooltip"><span><span class="vm-device-option-label">{{ ['scsi', 'lun'].includes(item.type) ? deviceSummary(item) : item.name + ' — ' + item.text }}</span><small v-if="['scsi', 'lun'].includes(item.type) || candidateReason(item)" class="vm-device-option-meta">{{ ['scsi', 'lun'].includes(item.type) ? item.name : '' }}<span v-if="candidateReason(item)"> · {{ candidateReason(item) }}</span></small></span></a-tooltip></a-select-option></a-select><p class="device-help">{{ d(type === 'scsi' ? 'diskHelp' : type === 'lun' ? 'lunHelp' : 'candidateHelp') }}</p></a-form-item>
           <a-button v-if="mode === 'existing' && type === 'vhba' && choice && api('deleteVhbaDevice')" :disabled="submitting" @click="openDeleteCandidate">{{ d('deleteVhba') }}</a-button>
           <a-form-item v-if="mode === 'create'" :label="d('vhbaName')"><a-input v-model:value="vhbaName" :maxlength="80" :disabled="submitting" /><p class="device-help">{{ d('vhbaHelp') }}</p></a-form-item>
           <a-form-item v-if="['hba', 'vhba'].includes(type) && mode === 'existing'" :label="d('scsiAddress')"><a-select v-model:value="address" :disabled="submitting" :options="scsiChoices" /><p class="device-help">{{ d('scsiHelp') }}</p></a-form-item>
-          <a-alert v-if="['lun', 'scsi', 'hba', 'vhba'].includes(type)" type="warning" show-icon :message="d('storageWarning')" />
-          <a-checkbox v-model:checked="ack" :disabled="submitting">{{ d('ack') }}</a-checkbox>
+          <template v-if="selectedMedium?.safety?.verified">
+            <a-descriptions class="device-medium-details" :column="1" size="small" bordered>
+              <a-descriptions-item :label="d('mediumPath')">{{ selectedMedium.safety.path }}</a-descriptions-item>
+              <a-descriptions-item :label="d('mediumIdentity')">{{ selectedMedium.safety.wwn || selectedMedium.safety.serial || selectedMedium.name }}</a-descriptions-item>
+              <a-descriptions-item :label="d('mediumSizeModel')">{{ [selectedMedium.safety.size, selectedMedium.safety.model].filter(Boolean).join(' · ') }}</a-descriptions-item>
+              <a-descriptions-item v-if="address || mediumAddress" :label="d('scsiAddress')">{{ address || mediumAddress }}</a-descriptions-item>
+              <a-descriptions-item :label="d('mediumPartitions')"><div v-for="part in selectedMedium.safety.partitions" :key="part.path">{{ part.path }} · {{ part.size }} · {{ part.filesystem || d('noFilesystem') }} · {{ part.mountpoints?.join(', ') || d('unmounted') }}</div><span v-if="!selectedMedium.safety.partitions?.length">{{ selectedMedium.safety.pttype || d('noPartitions') }}</span></a-descriptions-item>
+              <a-descriptions-item :label="d('mountpoints')">{{ selectedMedium.safety.mountpoints?.join(', ') || d('unmounted') }}</a-descriptions-item>
+            </a-descriptions>
+          </template>
+          <a-alert v-if="partitionRisk" type="warning" show-icon :message="d('partitionWarningTitle')" :description="d('partitionWarning')" />
+          <a-alert v-else-if="['lun', 'scsi', 'hba', 'vhba'].includes(type)" type="warning" show-icon :message="d('storageWarning')" />
+          <a-checkbox v-model:checked="ack" :disabled="submitting || (mode === 'existing' && !!selectedMedium && deviceBlocked(selectedMedium))">{{ d(partitionRisk ? 'partitionAck' : 'ack') }}</a-checkbox>
         </a-form>
       </template>
       <template v-else-if="selected">
@@ -91,7 +102,7 @@ wrap-class-name="vm-device-dialog"
 
 <script>
 import { getAPI, postAPI } from '@/api'
-import { deviceTypes, asArray, deviceCandidates, deviceSummary, deviceXml, vhbaXml } from '@/utils/vmDevices'
+import { deviceTypes, asArray, deviceCandidates, deviceSummary, deviceXml, vhbaXml, deviceBlocked, deviceSafetyKey } from '@/utils/vmDevices'
 export default {
   name: 'VmDevicesTab',
   props: { resource: { type: Object, required: true }, active: Boolean },
@@ -102,7 +113,7 @@ export default {
     types () { return Object.keys(deviceTypes) },
     canManage () { return this.types.some(this.allowed) },
     blockReason () {
-      if (this.loading || this.busy || this.snapshots === null || this.error) return this.d('verifyFirst')
+      if (this.snapshots === null || this.error) return this.d('verifyFirst')
       if (this.snapshots) return this.d('snapshotBlocked')
       if (this.vm.hypervisor !== 'KVM' || !['Running', 'Stopped'].includes(this.vm.state)) return this.d('stateBlocked')
       return ''
@@ -112,11 +123,22 @@ export default {
     filteredRows () { const q = this.search.toLowerCase(); return this.rows.filter(r => (!this.filter || r.devicetype === this.filter) && [r.hostdevicesname, r.hostdevicestext, r.hostname].join(' ').toLowerCase().includes(q)) },
     visibleRows () { return this.filteredRows.slice((this.page - 1) * this.pageSize, this.page * this.pageSize) },
     dialogTitle () { return this.dialog === 'details' ? this.d('details') : this.d({ allocate: this.mode === 'create' ? 'createVhba' : 'allocate', release: this.selected?.devicetype === 'pci' ? 'releasePci' : 'release', inspect: 'inspect', result: 'result', deleteVhba: 'deleteVhba' }[this.dialog] || 'device') },
-    submitDisabled () { return this.submitting || this.busy || !this.ack || (this.dialog === 'allocate' && (!!this.operationReason || this.candidateLoading || !this.choice || !this.hostId || (this.mode === 'create' && !/^[\w-]{1,80}$/.test(this.vhbaName)))) || (this.dialog === 'release' && !!this.reason(this.selected?.devicetype, this.selected)) },
-    scsiChoices () { return this.scsiDevices.filter(d => (d.text || '').includes('[' + (this.choice || '').replace('scsi_host', '') + ':')).map(d => ({ value: (d.text.match(/\[(\d+:\d+:\d+:\d+)\]/) || [])[1], label: this.candidateLabel(d), disabled: !!d.allocation || d.usage !== 'available' })).filter(d => d.value) }
+    submitDisabled () { return this.loading || this.submitting || this.busy || !this.ack || (this.dialog === 'allocate' && (!!this.operationReason || this.candidateLoading || !this.choice || !this.hostId || (this.mode === 'existing' && (deviceBlocked(this.selectedMedium) || (['hba', 'vhba'].includes(this.type) && !this.address))) || (this.mode === 'create' && !/^[\w-]{1,80}$/.test(this.vhbaName)))) || (this.dialog === 'release' && !!this.reason(this.selected?.devicetype, this.selected)) },
+    selectedMedium () { return ['hba', 'vhba'].includes(this.type) && this.mode === 'existing' ? this.scsiDevices.find(d => d.text.includes('[' + this.address + ']') && d.text.includes('[' + (this.choice || '').replace('scsi_host', '') + ':')) : this.candidates.find(d => d.name === this.choice) },
+    partitionRisk () { return this.mode === 'existing' && this.selectedMedium?.hasPartitions === true },
+    mediumAddress () { return (this.selectedMedium?.text?.match(/\[(\d+:\d+:\d+:\d+)\]/) || [])[1] },
+    selectedSafetyKey () { return deviceSafetyKey(this.selectedMedium) },
+    scsiChoices () { return this.scsiDevices.filter(d => (d.text || '').includes('[' + (this.choice || '').replace('scsi_host', '') + ':')).map(d => ({ value: (d.text.match(/\[(\d+:\d+:\d+:\d+)\]/) || [])[1], label: this.candidateLabel(d), disabled: deviceBlocked(d) })).filter(d => d.value) }
   },
   watch: {
     active: { immediate: true, handler (value) { if (value) this.refresh() } },
+    choice () { this.ack = false; this.address = undefined },
+    address () { this.ack = false },
+    type () { this.ack = false },
+    hostId () { this.ack = false },
+    pathMode () { this.ack = false },
+    mode () { this.ack = false },
+    selectedSafetyKey () { this.ack = false },
     'resource.state' () { if (this.active) this.refresh() },
     'resource.hostid' () { if (this.active) this.refresh() },
     'resource.id' () { this.revision++; this.candidateRevision++; this.dialog = ''; this.rows = []; this.snapshots = null; if (this.active) this.refresh() }
@@ -127,8 +149,9 @@ export default {
     api (name) { return name in this.$store.getters.apis },
     allowed (type) { return !!deviceTypes[type] && this.api(deviceTypes[type][1]) },
     deviceSummary,
+    deviceBlocked,
     typeLabel (type) { return ['scsi', 'lun'].includes(type) ? this.d('type.' + type) : (type || '').toUpperCase() },
-    candidateReason (item) { return item.protected ? this.d('protected') : item.allocation ? this.d('occupied') : item.usage !== 'available' ? this.d('usage.' + item.usage) : '' },
+    candidateReason (item) { return item.protected ? this.d('protected') : item.allocation ? this.d('occupied') : !['available', 'partitioned'].includes(item.usage) ? this.d('usage.' + item.usage) : deviceBlocked(item) ? this.d('usage.unknown') : item.hasPartitions ? this.d('partitionCandidate') : '' },
     candidateLabel (item) { return [deviceSummary(item), item.name, item.text, this.candidateReason(item)].filter(Boolean).join(' — ') },
     rowKey (r) { return [r.hostid, r.devicetype, r.hostdevicesname].join(':') },
     reason (type, row) {
@@ -176,7 +199,7 @@ export default {
     },
     async fetchCandidates () {
       const revision = ++this.candidateRevision
-      this.choice = undefined; this.address = undefined; this.candidates = []; this.scsiDevices = []; this.dialogError = ''
+      this.ack = false; this.choice = undefined; this.address = undefined; this.candidates = []; this.scsiDevices = []; this.dialogError = ''
       if (!this.hostId) return
       this.candidateLoading = true
       try {
@@ -193,6 +216,7 @@ export default {
       const action = this.dialog
       const vmId = this.resource.id
       const hostId = this.hostId
+      const acknowledgedMedium = this.selectedSafetyKey
       this.dialogError = ''
       await this.refresh()
       if (this.resource.id !== vmId || this.dialog !== action) { this.submitting = false; return }
@@ -227,25 +251,32 @@ export default {
           this.steps.push(this.d('created') + ': ' + this.createdDevice)
           const candidates = await this.loadCandidates('vhba', this.hostId)
           const device = candidates.find(c => c.name === this.createdDevice)
-          if (!device || device.allocation || device.protected || device.usage !== 'available') throw new Error(this.d('verifyFirst'))
+          if (deviceBlocked(device)) throw new Error(this.d('verifyFirst'))
           const children = (await this.loadCandidates('scsi', hostId)).filter(c => c.text.includes('[' + device.name.replace('scsi_host', '') + ':'))
-          if (children.length !== 1 || children[0].allocation || children[0].usage !== 'available') throw new Error('device-address-unverified')
+          if (children.length !== 1 || deviceBlocked(children[0]) || children[0].hasPartitions) throw new Error('device-address-unverified')
           const detail = children[0].text + ' ' + device.text
           await postAPI(deviceTypes.vhba[1], { hostid: hostId, virtualmachineid: vmId, hostdevicesname: device.name, hostdevicestext: detail, xmlconfig: deviceXml({ ...device, text: detail }) })
           this.steps.push(this.d('allocated')); this.createdDevice = ''; this.dialog = 'result'
         } else {
           const candidates = await this.loadCandidates(this.type, this.hostId)
           const device = candidates.find(c => c.name === this.choice)
-          if (!device || device.allocation || device.protected || device.usage !== 'available') throw new Error(this.d('occupied'))
+          if (deviceBlocked(device)) { this.candidates = candidates; this.ack = false; throw new Error(device ? this.candidateReason(device) || this.d('occupied') : this.d('verifyFirst')) }
+          let medium = device
+          let children = []
           if (['hba', 'vhba'].includes(this.type)) {
-            const children = await this.loadCandidates('scsi', hostId)
-            const child = children.find(c => c.text.includes('[' + this.address + ']'))
-            if (!child || child.allocation || child.usage !== 'available') throw new Error(this.d('occupied'))
+            children = await this.loadCandidates('scsi', hostId)
+            medium = children.find(c => c.text.includes('[' + this.address + ']') && c.text.includes('[' + device.name.replace('scsi_host', '') + ':'))
+            if (deviceBlocked(medium)) { this.scsiDevices = children; this.ack = false; throw new Error(medium ? this.candidateReason(medium) || this.d('occupied') : this.d('verifyFirst')) }
           }
+          if (deviceSafetyKey(medium) !== acknowledgedMedium) {
+            this.candidates = candidates; this.scsiDevices = children; this.ack = false
+            throw new Error(this.d('mediumChanged'))
+          }
+          if (this.vm.hostid && this.vm.hostid !== hostId) throw new Error(this.d('hostBlocked'))
           const xml = deviceXml({ ...device, address: this.address })
           const detail = ['hba', 'vhba'].includes(this.type) ? `SCSI_Address: [${this.address}] ${device.text}` : device.text
           if (this.resource.id !== vmId) throw new Error(this.d('verifyFirst'))
-          await postAPI(deviceTypes[this.type][1], { hostid: hostId, hostdevicesname: device.name, hostdevicestext: detail, virtualmachineid: vmId, xmlconfig: xml })
+          await postAPI(deviceTypes[this.type][1], { hostid: hostId, hostdevicesname: device.name, hostdevicestext: detail, virtualmachineid: vmId, xmlconfig: xml, ...(['lun', 'scsi', 'hba', 'vhba'].includes(this.type) ? { acknowledgepartitionrisk: medium.hasPartitions === true && this.ack } : {}) })
           this.dialog = ''; this.$message.success(this.d('complete'))
         }
       } catch (e) {

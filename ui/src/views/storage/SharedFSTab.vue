@@ -21,9 +21,9 @@
   <a-spin :spinning="storageService.initialLoading">
     <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
     <a-tabs
+      :tabPosition="resourceTabPosition"
       class="storage-service-tabs"
       :activeKey="currentTab"
-      tabPosition="top"
       :animated="false"
       @change="handleChangeTab">
       <a-tab-pane :tab="$t('label.details')" key="details">

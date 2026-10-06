@@ -24,6 +24,12 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class ListHostLunDeviceAnswer extends Answer {
+    private java.util.Map<String, java.util.Map<String, Object>> deviceSafetyDetails;
+
+    public java.util.Map<String, java.util.Map<String, Object>> getDeviceSafetyDetails() { return deviceSafetyDetails; }
+
+    public void setDeviceSafetyDetails(java.util.Map<String, java.util.Map<String, Object>> details) { this.deviceSafetyDetails = details; }
+
     private java.util.Map<String, String> deviceUsageStatus;
 
     public java.util.Map<String, String> getDeviceUsageStatus() { return deviceUsageStatus; }

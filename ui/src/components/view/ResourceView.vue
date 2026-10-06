@@ -43,7 +43,8 @@
         </keep-alive>
         <a-tabs
           v-else
-          style="width: 100%; margin-top: -12px"
+          :style="{ width: '100%', marginTop: resourceTabPosition === 'top' ? '-12px' : '0' }"
+          :tabPosition="resourceTabPosition"
           :animated="false"
           :activeKey="activeTab"
           @change="onTabChange" >

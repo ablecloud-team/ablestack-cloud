@@ -30,6 +30,7 @@
       ref="submit"
       @click="handleDeployBtn"
       :loading="loading"
+      :disabled="disabled"
       class="equal-size-button">
       <rocket-outlined />
       {{ deployButtonText }}
@@ -48,6 +49,7 @@
       class="equal-size-button"
       type="primary"
       :loading="loading"
+      :disabled="disabled"
       @click="handleDeployBtn">
       {{ deployButtonText }}
     </a-button>
@@ -60,6 +62,7 @@ export default {
   components: {
   },
   props: {
+    disabled: { type: Boolean, default: false },
     loading: {
       type: Boolean,
       default: false
@@ -83,9 +86,11 @@ export default {
       this.$emit('handle-cancel')
     },
     handleDeployBtn (e) {
+      if (this.disabled || this.loading) return
       this.$emit('handle-deploy', e)
     },
     handleMenu (e) {
+      if (this.disabled || this.loading) return
       this.$emit('handle-deploy-menu', e.key - 1, e)
     }
   }

@@ -157,6 +157,12 @@ export default {
           case 'destroyed':
             state = this.$t('state.destroyed')
             break
+          case 'creating':
+            state = this.$t('state.creating')
+            break
+          case 'reverting':
+            state = this.$t('state.reverting')
+            break
           case 'snapshotting':
             state = this.$t('state.snapshotting')
             break
@@ -294,6 +300,8 @@ export default {
         case 'inprogress':
         case 'connecting':
         case 'prepareformaintenance':
+        case 'creating':
+        case 'reverting':
         case 'snapshotting':
         case 'backingup':
         case 'destroying':

@@ -24,6 +24,8 @@ import org.apache.cloudstack.api.BaseCmd;
 import org.apache.cloudstack.api.Parameter;
 import org.apache.cloudstack.api.response.ListResponse;
 import org.apache.cloudstack.api.response.UpdateHostVhbaDevicesResponse;
+import org.apache.cloudstack.api.response.HostResponse;
+import org.apache.cloudstack.api.response.UserVmResponse;
 import org.apache.cloudstack.context.CallContext;
 
 @APICommand(name = "updateHostVhbaDevices", description = "Update vHBA device allocation", since = "4.20.0.0",
@@ -37,7 +39,13 @@ public class UpdateHostVhbaDevicesCmd extends BaseCmd {
     //////////////// API parameters /////////////////////
     /////////////////////////////////////////////////////
 
-    @Parameter(name = ApiConstants.HOST_ID, type = BaseCmd.CommandType.UUID, entityType = UpdateHostVhbaDevicesResponse.class,
+    @Parameter(name = "acknowledgepartitionrisk", type = CommandType.BOOLEAN,
+            description = "Explicitly acknowledge the existing partition/data risk for attachment; defaults to false")
+    private Boolean acknowledgePartitionRisk;
+
+    public boolean isPartitionRiskAcknowledged() { return Boolean.TRUE.equals(acknowledgePartitionRisk); }
+
+    @Parameter(name = ApiConstants.HOST_ID, type = BaseCmd.CommandType.UUID, entityType = HostResponse.class,
                description = "host ID", required = true, validations = { ApiArgValidator.PositiveNumber })
     private Long hostId;
 
@@ -45,7 +53,7 @@ public class UpdateHostVhbaDevicesCmd extends BaseCmd {
             description = "Device name to allocate")
     private String hostDeviceName;
 
-    @Parameter(name = ApiConstants.VIRTUAL_MACHINE_ID, type = CommandType.UUID, entityType = UpdateHostVhbaDevicesResponse.class,
+    @Parameter(name = ApiConstants.VIRTUAL_MACHINE_ID, type = CommandType.UUID, entityType = UserVmResponse.class,
                description = "Virtual machine ID to allocate the vHBA device to. If null, the device will be deallocated.")
     private Long vmId;
 

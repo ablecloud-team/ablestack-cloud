@@ -17,7 +17,7 @@
 
 <template>
   <div>
-    <a-tabs v-model:activeKey="activeKey" tab-position="top" @change="handleTabChange">
+    <a-tabs :tabPosition="resourceTabPosition" v-model:activeKey="activeKey" @change="handleTabChange">
       <a-tab-pane key="1" :tab="$t('label.other.devices')">
         <a-input-search
           v-model:value="otherSearchQuery"
@@ -554,6 +554,7 @@
 </template>
 
 <script>
+import { mixinDevice } from '@/utils/mixin.js'
 import { getAPI } from '@/api'
 import eventBus from '@/config/eventBus'
 import { IdcardOutlined, PlusOutlined, DeleteOutlined, FormOutlined, MinusOutlined } from '@ant-design/icons-vue'
@@ -565,6 +566,7 @@ import HostScsiDevicesTransfer from '@/views/storage/HostScsiDevicesTransfer'
 import HostVhbaDevicesTransfer from '@/views/storage/HostVhbaDevicesTransfer'
 
 export default {
+  mixins: [mixinDevice],
   name: 'ListHostDevicesTab',
   components: {
     IdcardOutlined,

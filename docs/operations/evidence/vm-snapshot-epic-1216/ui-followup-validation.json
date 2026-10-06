@@ -1,0 +1,97 @@
+{
+  "cluster": 31,
+  "uiBuildSource": "743b2ce8b7c6704c785c1353e1f4164344b5a3d4",
+  "statusOptions": [
+    "모두",
+    "사용 가능",
+    "생성 중",
+    "할당 됨",
+    "복원 중",
+    "제거 중",
+    "오류"
+  ],
+  "ready": {
+    "pagination": "전체 25 개 항목 중 1-20 표시",
+    "selection": "사용 가능",
+    "states": [
+      "사용 가능"
+    ],
+    "tags": [
+      "상태 : 사용 가능"
+    ]
+  },
+  "error": {
+    "pagination": "전체 2 개 항목 중 1-2 표시",
+    "selection": "오류",
+    "states": [
+      "오류",
+      "오류"
+    ],
+    "tags": [
+      "상태 : 오류"
+    ]
+  },
+  "stateTagRemoval": {
+    "pagination": "전체 27 개 항목 중 1-20 표시",
+    "selection": "모두",
+    "tags": []
+  },
+  "all": {
+    "background": "rgb(22, 27, 34)",
+    "currentCells": [
+      {
+        "html": "<!----><span data-v-4820af7a=\"\">현재 기준점</span><!---->",
+        "text": "현재 기준점",
+        "title": null
+      },
+      {
+        "html": "<!----><span data-v-4820af7a=\"\">현재 기준점</span><!---->",
+        "text": "현재 기준점",
+        "title": null
+      },
+      {
+        "html": "<!----><span data-v-4820af7a=\"\">현재 기준점</span><!---->",
+        "text": "현재 기준점",
+        "title": null
+      },
+      {
+        "html": "<!----><span data-v-4820af7a=\"\">현재 기준점</span><!---->",
+        "text": "현재 기준점",
+        "title": null
+      },
+      {
+        "html": "<!----><span data-v-4820af7a=\"\">—</span><!---->",
+        "text": "—",
+        "title": null
+      },
+      {
+        "html": "<!----><span data-v-4820af7a=\"\">—</span><!---->",
+        "text": "—",
+        "title": null
+      },
+      {
+        "html": "<!----><span data-v-4820af7a=\"\">—</span><!---->",
+        "text": "—",
+        "title": null
+      }
+    ],
+    "headers": [
+      "표시 이름",
+      "상태",
+      "VM 이름",
+      "유형",
+      "현재",
+      "상위",
+      "생성일",
+      "계정",
+      "Zone"
+    ],
+    "pagination": "전체 27 개 항목 중 1-20 표시",
+    "selection": "모두",
+    "tags": []
+  },
+  "currentHoverTooltipTexts": [],
+  "nonCurrentHoverTooltipTexts": [],
+  "uiTestSuites": 18,
+  "uiTestsPassed": 287
+}

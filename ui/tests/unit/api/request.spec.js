@@ -134,3 +134,26 @@ describe('optional discovery login generation boundary', () => {
     expect(router.push).not.toHaveBeenCalled()
   })
 })
+
+describe('snapshot read failure isolation', () => {
+  beforeEach(() => jest.clearAllMocks())
+  it.each([undefined, 503, 404, 403])('preserves session for retry after read failure %s', async status => {
+    const error = new axios.AxiosError('Read failed', 'ERR_NETWORK', { preserveOnFailure: true })
+    if (status) error.response = { status, data: {} }
+    await expect(rejectResponse(error)).rejects.toBe(error)
+    expect(store.dispatch).not.toHaveBeenCalled()
+    expect(router.push).not.toHaveBeenCalled()
+  })
+  it('still handles a current authentication failure', async () => {
+    const error = new axios.AxiosError('Expired', 'ERR_BAD_REQUEST', { preserveOnFailure: true })
+    error.response = { status: 401, data: { errorresponse: { errortext: 'Session expired' } } }
+    await expect(rejectResponse(error)).rejects.toBe(error)
+    expect(store.dispatch).toHaveBeenCalledWith('Logout')
+  })
+  it('ignores an old read response after login changes', async () => {
+    const error = new axios.AxiosError('Expired', 'ERR_BAD_REQUEST', { preserveOnFailure: true, readScope: 'previous-login' })
+    error.response = { status: 401, data: { errorresponse: { errortext: 'Session expired' } } }
+    await expect(rejectResponse(error)).rejects.toBe(error)
+    expect(store.dispatch).not.toHaveBeenCalled()
+  })
+})
