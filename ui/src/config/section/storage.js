@@ -857,7 +857,9 @@ export default {
           message: 'message.action.destroy.sharedfs',
           dataView: true,
           popup: true,
-          groupAction: true,
+          selfManagedDialog: true,
+          component: shallowRef(defineAsyncComponent(() => import('@/views/storage/SharedFSRemoval.vue'))),
+          groupAction: false,
           groupMap: (selection, values) => { return selection.map(x => { return { id: x, expunge: values.expunge, forced: values.forced } }) },
           args: ['expunge', 'forced'],
           show: (record) => { return !['Destroyed', 'Expunging', 'Error'].includes(record.state) }
@@ -879,6 +881,8 @@ export default {
           message: 'message.action.expunge.sharedfs',
           dataView: true,
           popup: true,
+          selfManagedDialog: true,
+          component: shallowRef(defineAsyncComponent(() => import('@/views/storage/SharedFSRemoval.vue'))),
           show: (record) => { return ['Destroyed', 'Expunging', 'Error'].includes(record.state) }
         }
       ]

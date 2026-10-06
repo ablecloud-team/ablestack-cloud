@@ -339,8 +339,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if (sharedFileSystemId != null) {
             final SharedFSVO sharedFS = sharedFSDao.findById(sharedFileSystemId);
             if (sharedFS == null) throw new InvalidParameterValueException("Shared file system is unavailable");
-            final StorageServiceInstanceVO instance = storageServiceInstanceDao.findByVmId(sharedFS.getVmId());
-            if (instance == null) throw new InvalidParameterValueException("Storage Service instance is unavailable");
+            storageAccountManager.checkAccess(org.apache.cloudstack.context.CallContext.current().getCallingAccount(),
+                    org.apache.cloudstack.acl.SecurityChecker.AccessType.OperateEntry, false, sharedFS);
+            final StorageServiceInstanceVO instance = sharedFS.getVmId() == null ? null : storageServiceInstanceDao.findByVmId(sharedFS.getVmId());
+            if (instance == null) return Math.addExact(4_000_000_000_000_000_000L, sharedFS.getId());
             return writableStorageInstanceId(instance.getId());
         }
         final Long upgradeId = storageCommandId(cmd, "getUpgradeId");

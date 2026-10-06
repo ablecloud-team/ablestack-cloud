@@ -62,7 +62,7 @@ public final class SharedFSCapacityProjection {
                 + "JOIN storage_service_instance si ON si.vm_id=sf3.vm_id JOIN storage_block_target bt ON bt.instance_id=si.id "
                 + "WHERE bt.state<>'Destroyed' AND sf3.id IN (" + slots + ")) refs ON refs.sharedfs_id=sf.id "
                 + "JOIN volumes v ON v.id=refs.volume_id AND v.instance_id=sf.vm_id "
-                + "WHERE v.removed IS NULL AND v.state NOT IN ('Destroyed','Expunging','Expunged')";
+                + "WHERE v.removed IS NULL AND v.state NOT IN ('Destroy','Destroying','Expunging','Expunged')";
         try (PreparedStatement statement = TransactionLegacy.currentTxn().prepareAutoCloseStatement(query)) {
             for (int group=0; group<3; group++) {
                 for (int i=0; i<ids.length; i++) statement.setLong(group*ids.length+i+1, ids[i]);
