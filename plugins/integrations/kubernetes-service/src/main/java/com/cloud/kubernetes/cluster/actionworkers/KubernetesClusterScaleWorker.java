@@ -27,6 +27,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.concurrent.TimeUnit;
+
+import javax.inject.Inject;
 
 import com.cloud.kubernetes.cluster.KubernetesServiceHelper.KubernetesClusterNodeType;
 import com.cloud.service.ServiceOfferingVO;
@@ -52,6 +55,10 @@ import com.cloud.kubernetes.cluster.KubernetesClusterVmMapVO;
 import com.cloud.kubernetes.cluster.utils.KubernetesClusterUtil;
 import com.cloud.network.IpAddress;
 import com.cloud.network.Network;
+import com.cloud.network.dao.LoadBalancerDao;
+import com.cloud.network.dao.LoadBalancerVMMapDao;
+import com.cloud.network.dao.LoadBalancerVO;
+import com.cloud.network.dao.LoadBalancerVMMapVO;
 import com.cloud.network.rules.FirewallRule;
 import com.cloud.offering.ServiceOffering;
 import com.cloud.storage.LaunchPermissionVO;
@@ -78,6 +85,11 @@ public class KubernetesClusterScaleWorker extends KubernetesClusterResourceModif
     private Long maxSize;
     private Boolean isAutoscalingEnabled;
     private long scaleTimeoutTime;
+
+    @Inject
+    protected LoadBalancerDao loadBalancerDao;
+    @Inject
+    protected LoadBalancerVMMapDao loadBalancerVMMapDao;
 
     protected KubernetesClusterScaleWorker(final KubernetesCluster kubernetesCluster, final KubernetesClusterManagerImpl clusterManager) {
         super(kubernetesCluster, clusterManager);
@@ -334,6 +346,105 @@ public class KubernetesClusterScaleWorker extends KubernetesClusterResourceModif
         return false;
     }
 
+    protected boolean hasNativeServiceLoadBalancerBackends(long vmId, Set<String> rulePrefixes) {
+        // Include revoke=true rows: they are removed only after applyLoadBalancerConfig succeeds.
+        List<LoadBalancerVMMapVO> mappings = loadBalancerVMMapDao.listByInstanceId(vmId);
+        if (mappings == null) {
+            throw new CloudRuntimeException("Unable to read worker load balancer associations");
+        }
+        for (LoadBalancerVMMapVO mapping : mappings) {
+            LoadBalancerVO rule = loadBalancerDao.findById(mapping.getLoadBalancerId());
+            if (rule == null) {
+                throw new CloudRuntimeException("Unable to determine ownership of worker load balancer association");
+            }
+            if (Objects.equals(rule.getNetworkId(), kubernetesCluster.getNetworkId())
+                    && KubernetesNodeLoadBalancerDrain.ownsRule(rule.getName(), rulePrefixes)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected long nodeLoadBalancerDrainTimeoutMillis() {
+        // The native Service controller also has a 100-second node sync period.
+        return 150000L;
+    }
+
+    protected boolean waitForNodeLoadBalancerExclusion(long vmId, Set<String> rulePrefixes) throws InterruptedException {
+        long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(nodeLoadBalancerDrainTimeoutMillis());
+        do {
+            if (!hasNativeServiceLoadBalancerBackends(vmId, rulePrefixes)) {
+                return true;
+            }
+            if (System.nanoTime() >= deadline) {
+                break;
+            }
+            Thread.sleep(1000L);
+        } while (System.nanoTime() < deadline);
+        return false;
+    }
+
+    protected boolean removeKubernetesClusterWorkerNode(String ipAddress, int port, UserVm userVm, int retries, int waitDuration) {
+        String nodeName = userVm.getHostName();
+        if (StringUtils.isEmpty(nodeName)) {
+            return false;
+        }
+        nodeName = nodeName.toLowerCase(java.util.Locale.ROOT);
+        File pkFile = getManagementServerSshPublicKeyFile();
+        KubernetesNodeLoadBalancerDrain.Snapshot snapshot = null;
+        boolean labelAttempted = false;
+        boolean removed = false;
+        try {
+            Pair<Boolean, String> node = executeNodeRemovalCommand(ipAddress, port, pkFile,
+                    KubernetesNodeLoadBalancerDrain.nodeReadCommand(nodeName), 30000);
+            Pair<Boolean, String> services = executeNodeRemovalCommand(ipAddress, port, pkFile,
+                    KubernetesNodeLoadBalancerDrain.serviceReadCommand(), 30000);
+            if (!node.first() || !services.first()) {
+                logger.warn("Cannot establish native Service ownership before removing Kubernetes worker {}", nodeName);
+                return false;
+            }
+            snapshot = KubernetesNodeLoadBalancerDrain.parseSnapshot(nodeName, node.second(), services.second());
+            if (snapshot.serviceRulePrefixes.isEmpty()) {
+                return removeKubernetesClusterNode(ipAddress, port, userVm, retries, waitDuration);
+            }
+            labelAttempted = true;
+            Pair<Boolean, String> excluded = executeNodeRemovalCommand(ipAddress, port, pkFile,
+                    KubernetesNodeLoadBalancerDrain.labelPatchCommand(nodeName, snapshot, true), 30000);
+            if (!excluded.first() || !waitForNodeLoadBalancerExclusion(userVm.getId(), snapshot.serviceRulePrefixes)) {
+                logger.warn("Native Service LB backend exclusion did not complete for worker {}; preserving Node and VM", nodeName);
+                return false;
+            }
+            Pair<Boolean, String> currentNode = executeNodeRemovalCommand(ipAddress, port, pkFile,
+                    KubernetesNodeLoadBalancerDrain.nodeReadCommand(nodeName), 30000);
+            if (!currentNode.first() || !KubernetesNodeLoadBalancerDrain.stillOwnsExclusion(nodeName, snapshot, currentNode.second())) {
+                logger.warn("Native node identity or LB exclusion owner changed for worker {}; refusing removal", nodeName);
+                return false;
+            }
+            // Keep Node/CNI and VM running until the provider has applied backend removal.
+            removed = removeKubernetesClusterNode(ipAddress, port, userVm, retries, waitDuration);
+            return removed;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            logger.warn("Interrupted while excluding Kubernetes worker {} from native Service load balancers", nodeName);
+            return false;
+        } catch (Exception e) {
+            logger.warn("Failed to exclude Kubernetes worker {} from native Service load balancers; preserving Node and VM", nodeName, e);
+            return false;
+        } finally {
+            if (!removed && labelAttempted && snapshot != null) {
+                try {
+                    Pair<Boolean, String> restored = executeNodeRemovalCommand(ipAddress, port, pkFile,
+                            KubernetesNodeLoadBalancerDrain.labelPatchCommand(nodeName, snapshot, false), 30000);
+                    if (!restored.first()) {
+                        logger.warn("Could not restore LB exclusion label for Kubernetes worker {}; operator review required", nodeName);
+                    }
+                } catch (Exception e) {
+                    logger.warn("Could not restore LB exclusion label for Kubernetes worker {}; operator review required", nodeName, e);
+                }
+            }
+        }
+    }
+
     private void validateKubernetesClusterScaleOfferingParameters() throws CloudRuntimeException {
         if (KubernetesCluster.State.Created.equals(originalState)) {
             return;
@@ -412,7 +523,10 @@ public class KubernetesClusterScaleWorker extends KubernetesClusterResourceModif
         for (KubernetesClusterVmMapVO vmMapVO : vmMaps) {
             UserVmVO userVM = userVmDao.findById(vmMapVO.getVmId());
             logger.info("Removing vm {} from cluster {}", userVM, kubernetesCluster);
-            if (!removeKubernetesClusterNode(publicIpAddress, sshPort, userVM, 3, 30000)) {
+            boolean removed = vmMapVO.isControlNode() || vmMapVO.isEtcdNode()
+                    ? removeKubernetesClusterNode(publicIpAddress, sshPort, userVM, 3, 30000)
+                    : removeKubernetesClusterWorkerNode(publicIpAddress, sshPort, userVM, 3, 30000);
+            if (!removed) {
                 logTransitStateAndThrow(Level.ERROR, String.format("Scaling failed for Kubernetes" +
                         " cluster %s, failed to remove Kubernetes node: %s running on VM : %s",
                         kubernetesCluster, userVM.getHostName(), userVM), kubernetesCluster.getId(), KubernetesCluster.Event.OperationFailed);

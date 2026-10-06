@@ -21,6 +21,10 @@ import com.cloud.kubernetes.cluster.KubernetesClusterVmMapVO;
 import com.cloud.kubernetes.cluster.KubernetesClusterManagerImpl;
 import com.cloud.kubernetes.cluster.dao.KubernetesClusterVmMapDao;
 import com.cloud.offering.ServiceOffering;
+import com.cloud.network.dao.LoadBalancerDao;
+import com.cloud.network.dao.LoadBalancerVMMapDao;
+import com.cloud.network.dao.LoadBalancerVMMapVO;
+import com.cloud.network.dao.LoadBalancerVO;
 import com.cloud.service.ServiceOfferingVO;
 import com.cloud.service.dao.ServiceOfferingDao;
 import com.cloud.utils.Pair;
@@ -38,6 +42,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import static com.cloud.kubernetes.cluster.KubernetesServiceHelper.KubernetesClusterNodeType.CONTROL;
 import static com.cloud.kubernetes.cluster.KubernetesServiceHelper.KubernetesClusterNodeType.DEFAULT;
@@ -56,6 +61,11 @@ public class KubernetesClusterScaleWorkerTest {
     @Mock
     private UserVmDao userVmDao;
 
+    @Mock
+    private LoadBalancerDao loadBalancerDao;
+    @Mock
+    private LoadBalancerVMMapDao loadBalancerVMMapDao;
+
     private KubernetesClusterScaleWorker worker;
 
     private static final Long defaultOfferingId = 1L;
@@ -66,6 +76,8 @@ public class KubernetesClusterScaleWorkerTest {
         worker.serviceOfferingDao = serviceOfferingDao;
         worker.kubernetesClusterVmMapDao = kubernetesClusterVmMapDao;
         worker.userVmDao = userVmDao;
+        worker.loadBalancerDao = loadBalancerDao;
+        worker.loadBalancerVMMapDao = loadBalancerVMMapDao;
     }
 
     @Test
@@ -238,6 +250,161 @@ public class KubernetesClusterScaleWorkerTest {
                 Mockito.eq(KubernetesClusterScaleWorker.buildNodeDeleteCommand("worker-3")), Mockito.anyInt());
         Mockito.verify(spy).executeNodeRemovalCommand(Mockito.eq("endpoint"), Mockito.eq(2222), Mockito.any(File.class),
                 Mockito.eq(KubernetesClusterScaleWorker.buildNodeUncordonCommand("worker-3")), Mockito.eq(30000));
+    }
+
+    private KubernetesNodeLoadBalancerDrain.Snapshot prepareNativeLbRemoval(KubernetesClusterScaleWorker spy, String previous) throws Exception {
+        String before = KubernetesNodeLoadBalancerDrainTest.node(KubernetesNodeLoadBalancerDrainTest.NODE_UID, previous);
+        String current = KubernetesNodeLoadBalancerDrainTest.node(KubernetesNodeLoadBalancerDrainTest.NODE_UID,
+                KubernetesNodeLoadBalancerDrain.EXCLUSION_MARKER);
+        KubernetesNodeLoadBalancerDrain.Snapshot snapshot = KubernetesNodeLoadBalancerDrain.parseSnapshot("worker-3", before,
+                KubernetesNodeLoadBalancerDrainTest.services());
+        Mockito.doReturn(new Pair<>(true, before), new Pair<>(true, current)).when(spy).executeNodeRemovalCommand(
+                Mockito.eq("endpoint"), Mockito.eq(2222), Mockito.any(File.class),
+                Mockito.eq(KubernetesNodeLoadBalancerDrain.nodeReadCommand("worker-3")), Mockito.eq(30000));
+        Mockito.doReturn(new Pair<>(true, KubernetesNodeLoadBalancerDrainTest.services())).when(spy).executeNodeRemovalCommand(
+                Mockito.eq("endpoint"), Mockito.eq(2222), Mockito.any(File.class),
+                Mockito.eq(KubernetesNodeLoadBalancerDrain.serviceReadCommand()), Mockito.eq(30000));
+        Mockito.doReturn(new Pair<>(true, "patched")).when(spy).executeNodeRemovalCommand(
+                Mockito.eq("endpoint"), Mockito.eq(2222), Mockito.any(File.class),
+                Mockito.eq(KubernetesNodeLoadBalancerDrain.labelPatchCommand("worker-3", snapshot, true)), Mockito.eq(30000));
+        return snapshot;
+    }
+
+    private UserVmVO workerVm() {
+        UserVmVO vm = Mockito.mock(UserVmVO.class);
+        Mockito.when(vm.getHostName()).thenReturn("worker-3");
+        return vm;
+    }
+
+    private void stubRestore(KubernetesClusterScaleWorker spy, KubernetesNodeLoadBalancerDrain.Snapshot snapshot) throws Exception {
+        Mockito.doReturn(new Pair<>(true, "restored")).when(spy).executeNodeRemovalCommand(
+                Mockito.eq("endpoint"), Mockito.eq(2222), Mockito.any(File.class),
+                Mockito.eq(KubernetesNodeLoadBalancerDrain.labelPatchCommand("worker-3", snapshot, false)), Mockito.eq(30000));
+    }
+
+    @Test
+    public void testNativeLbExclusionPrecedesDrainAndNodeDeletion() throws Exception {
+        KubernetesClusterScaleWorker spy = removalWorker();
+        UserVmVO vm = workerVm();
+        KubernetesNodeLoadBalancerDrain.Snapshot snapshot = prepareNativeLbRemoval(spy, null);
+        Mockito.doReturn(true).when(spy).waitForNodeLoadBalancerExclusion(Mockito.anyLong(), Mockito.eq(snapshot.serviceRulePrefixes));
+        Mockito.doReturn(true).when(spy).removeKubernetesClusterNode("endpoint", 2222, vm, 1, 0);
+        Assert.assertTrue(spy.removeKubernetesClusterWorkerNode("endpoint", 2222, vm, 1, 0));
+        org.mockito.InOrder order = Mockito.inOrder(spy);
+        order.verify(spy).executeNodeRemovalCommand(Mockito.eq("endpoint"), Mockito.eq(2222), Mockito.any(File.class),
+                Mockito.eq(KubernetesNodeLoadBalancerDrain.labelPatchCommand("worker-3", snapshot, true)), Mockito.eq(30000));
+        order.verify(spy).waitForNodeLoadBalancerExclusion(Mockito.anyLong(), Mockito.eq(snapshot.serviceRulePrefixes));
+        order.verify(spy).removeKubernetesClusterNode("endpoint", 2222, vm, 1, 0);
+        Mockito.verify(spy, Mockito.never()).executeNodeRemovalCommand(Mockito.anyString(), Mockito.anyInt(), Mockito.any(File.class),
+                Mockito.eq(KubernetesNodeLoadBalancerDrain.labelPatchCommand("worker-3", snapshot, false)), Mockito.anyInt());
+    }
+
+    @Test
+    public void testBackendExclusionTimeoutRestoresLabelWithoutDraining() throws Exception {
+        KubernetesClusterScaleWorker spy = removalWorker();
+        UserVmVO vm = workerVm();
+        KubernetesNodeLoadBalancerDrain.Snapshot snapshot = prepareNativeLbRemoval(spy, "");
+        Mockito.doReturn(false).when(spy).waitForNodeLoadBalancerExclusion(Mockito.anyLong(), Mockito.anySet());
+        stubRestore(spy, snapshot);
+        Assert.assertFalse(spy.removeKubernetesClusterWorkerNode("endpoint", 2222, vm, 1, 0));
+        Mockito.verify(spy, Mockito.never()).removeKubernetesClusterNode(Mockito.anyString(), Mockito.anyInt(), Mockito.any(), Mockito.anyInt(), Mockito.anyInt());
+        Mockito.verify(spy).executeNodeRemovalCommand(Mockito.eq("endpoint"), Mockito.eq(2222), Mockito.any(File.class),
+                Mockito.eq(KubernetesNodeLoadBalancerDrain.labelPatchCommand("worker-3", snapshot, false)), Mockito.eq(30000));
+    }
+
+    @Test
+    public void testPdbDrainRejectionRestoresTheOriginalExclusionLabel() throws Exception {
+        KubernetesClusterScaleWorker spy = removalWorker();
+        UserVmVO vm = workerVm();
+        KubernetesNodeLoadBalancerDrain.Snapshot snapshot = prepareNativeLbRemoval(spy, "previous-owner");
+        Mockito.doReturn(true).when(spy).waitForNodeLoadBalancerExclusion(Mockito.anyLong(), Mockito.anySet());
+        Mockito.doReturn(false).when(spy).removeKubernetesClusterNode("endpoint", 2222, vm, 1, 0);
+        stubRestore(spy, snapshot);
+        Assert.assertFalse(spy.removeKubernetesClusterWorkerNode("endpoint", 2222, vm, 1, 0));
+        Mockito.verify(spy).executeNodeRemovalCommand(Mockito.eq("endpoint"), Mockito.eq(2222), Mockito.any(File.class),
+                Mockito.eq(KubernetesNodeLoadBalancerDrain.labelPatchCommand("worker-3", snapshot, false)), Mockito.eq(30000));
+    }
+
+    @Test
+    public void testNativeOwnershipReadFailureCannotStartRemoval() throws Exception {
+        KubernetesClusterScaleWorker spy = removalWorker();
+        UserVmVO vm = workerVm();
+        Mockito.doReturn(new Pair<>(false, "unavailable")).when(spy).executeNodeRemovalCommand(
+                Mockito.anyString(), Mockito.anyInt(), Mockito.any(File.class), Mockito.anyString(), Mockito.anyInt());
+        Assert.assertFalse(spy.removeKubernetesClusterWorkerNode("endpoint", 2222, vm, 1, 0));
+        Mockito.verify(spy, Mockito.never()).removeKubernetesClusterNode(Mockito.anyString(), Mockito.anyInt(), Mockito.any(), Mockito.anyInt(), Mockito.anyInt());
+    }
+
+    @Test
+    public void testReplacementNodeAfterExclusionDoesNotGetDrained() throws Exception {
+        KubernetesClusterScaleWorker spy = removalWorker();
+        UserVmVO vm = workerVm();
+        KubernetesNodeLoadBalancerDrain.Snapshot snapshot = prepareNativeLbRemoval(spy, null);
+        Mockito.doReturn(new Pair<>(true, KubernetesNodeLoadBalancerDrainTest.node(KubernetesNodeLoadBalancerDrainTest.NODE_UID, null)),
+                new Pair<>(true, KubernetesNodeLoadBalancerDrainTest.node(KubernetesNodeLoadBalancerDrainTest.SERVICE_UID,
+                        KubernetesNodeLoadBalancerDrain.EXCLUSION_MARKER)))
+                .when(spy).executeNodeRemovalCommand(Mockito.eq("endpoint"), Mockito.eq(2222), Mockito.any(File.class),
+                        Mockito.eq(KubernetesNodeLoadBalancerDrain.nodeReadCommand("worker-3")), Mockito.eq(30000));
+        Mockito.doReturn(true).when(spy).waitForNodeLoadBalancerExclusion(Mockito.anyLong(), Mockito.anySet());
+        stubRestore(spy, snapshot);
+        Assert.assertFalse(spy.removeKubernetesClusterWorkerNode("endpoint", 2222, vm, 1, 0));
+        Mockito.verify(spy, Mockito.never()).removeKubernetesClusterNode(Mockito.anyString(), Mockito.anyInt(), Mockito.any(), Mockito.anyInt(), Mockito.anyInt());
+    }
+
+    @Test
+    public void testBackendPollingHasADeadline() throws Exception {
+        KubernetesClusterScaleWorker spy = Mockito.spy(worker);
+        Mockito.doReturn(0L).when(spy).nodeLoadBalancerDrainTimeoutMillis();
+        Mockito.doReturn(true).when(spy).hasNativeServiceLoadBalancerBackends(3L, Set.of("native-service"));
+        Assert.assertFalse(spy.waitForNodeLoadBalancerExclusion(3L, Set.of("native-service")));
+        Mockito.verify(spy).hasNativeServiceLoadBalancerBackends(3L, Set.of("native-service"));
+    }
+
+    @Test
+    public void testReconciliationCanRemoveBackendBeforeTheDeadline() throws Exception {
+        KubernetesClusterScaleWorker spy = Mockito.spy(worker);
+        Mockito.doReturn(true, false).when(spy).hasNativeServiceLoadBalancerBackends(3L, Set.of("native-service"));
+        Assert.assertTrue(spy.waitForNodeLoadBalancerExclusion(3L, Set.of("native-service")));
+        Mockito.verify(spy, Mockito.times(2)).hasNativeServiceLoadBalancerBackends(3L, Set.of("native-service"));
+    }
+
+    @Test
+    public void testOnlyNativeServiceRulesOnTheClusterNetworkBlockRemoval() {
+        LoadBalancerVMMapVO mapping = Mockito.mock(LoadBalancerVMMapVO.class);
+        Mockito.when(mapping.getLoadBalancerId()).thenReturn(42L);
+        Mockito.when(loadBalancerVMMapDao.listByInstanceId(3L)).thenReturn(List.of(mapping));
+        LoadBalancerVO rule = Mockito.mock(LoadBalancerVO.class);
+        Mockito.when(loadBalancerDao.findById(42L)).thenReturn(rule);
+        Mockito.when(kubernetesCluster.getNetworkId()).thenReturn(100L);
+        Mockito.when(rule.getNetworkId()).thenReturn(100L);
+        Mockito.when(rule.getName()).thenReturn(KubernetesNodeLoadBalancerDrainTest.PREFIX + "-tcp-18087");
+        Assert.assertTrue(worker.hasNativeServiceLoadBalancerBackends(3L, Set.of(KubernetesNodeLoadBalancerDrainTest.PREFIX)));
+        Mockito.when(rule.getName()).thenReturn("unrelated-manual-rule");
+        Assert.assertFalse(worker.hasNativeServiceLoadBalancerBackends(3L, Set.of(KubernetesNodeLoadBalancerDrainTest.PREFIX)));
+        Mockito.when(rule.getNetworkId()).thenReturn(200L);
+        Assert.assertFalse(worker.hasNativeServiceLoadBalancerBackends(3L, Set.of(KubernetesNodeLoadBalancerDrainTest.PREFIX)));
+    }
+
+    @Test
+    public void testUnacknowledgedLabelPatchRestoresStateWithoutDraining() throws Exception {
+        KubernetesClusterScaleWorker spy = removalWorker();
+        UserVmVO vm = workerVm();
+        KubernetesNodeLoadBalancerDrain.Snapshot snapshot = prepareNativeLbRemoval(spy, null);
+        Mockito.doReturn(new Pair<>(false, "transport unavailable")).when(spy).executeNodeRemovalCommand(
+                Mockito.eq("endpoint"), Mockito.eq(2222), Mockito.any(File.class),
+                Mockito.eq(KubernetesNodeLoadBalancerDrain.labelPatchCommand("worker-3", snapshot, true)), Mockito.eq(30000));
+        stubRestore(spy, snapshot);
+        Assert.assertFalse(spy.removeKubernetesClusterWorkerNode("endpoint", 2222, vm, 1, 0));
+        Mockito.verify(spy, Mockito.never()).removeKubernetesClusterNode(Mockito.anyString(), Mockito.anyInt(), Mockito.any(), Mockito.anyInt(), Mockito.anyInt());
+        Mockito.verify(spy, Mockito.never()).waitForNodeLoadBalancerExclusion(Mockito.anyLong(), Mockito.anySet());
+    }
+
+    @Test(expected = com.cloud.utils.exception.CloudRuntimeException.class)
+    public void testUnknownLoadBalancerOwnershipDoesNotMeanNoBackends() {
+        LoadBalancerVMMapVO mapping = Mockito.mock(LoadBalancerVMMapVO.class);
+        Mockito.when(mapping.getLoadBalancerId()).thenReturn(42L);
+        Mockito.when(loadBalancerVMMapDao.listByInstanceId(3L)).thenReturn(List.of(mapping));
+        worker.hasNativeServiceLoadBalancerBackends(3L, Set.of(KubernetesNodeLoadBalancerDrainTest.PREFIX));
     }
 
 }
