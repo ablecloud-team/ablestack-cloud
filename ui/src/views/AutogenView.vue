@@ -800,6 +800,13 @@
       :style="this.$store.getters.maintenanceInitiated || this.$store.getters.shutdownTriggered ? 'margin-top: 24px; margin-bottom: 12px' : null"
     >
       <div v-if="dataView">
+        <a-alert
+          v-if="listRefreshError && $route.name === 'sharedfs'"
+          type="warning"
+          show-icon
+          :message="$t(listLoadedScope ? 'message.list.refresh.stale' : 'error.fetching.data')">
+          <template #action><a-button @click="fetchData">{{ $t('label.refresh') }}</a-button></template>
+        </a-alert>
         <slot
           name="resource"
           v-if="$route.path.startsWith('/publicip')"
@@ -1751,7 +1758,10 @@ export default {
       this.listRequestPending = true
       this.listRequestScope = scope
       const requestApi = this.apiName
-      const request = callAPI(requestApi, params).then(json => {
+      const responsePromise = this.routeName === 'sharedfs'
+        ? callAPI(requestApi, params, { preserveOnFailure: true, timeout: 15000 })
+        : callAPI(requestApi, params)
+      const request = responsePromise.then(json => {
         if (version !== this.listRequestVersion || scope !== this.listScope()) return
         this.listLastUpdated = Date.now()
         this.listLoadedScope = scope
@@ -1848,7 +1858,7 @@ export default {
         }
       }).catch(error => {
         if (version !== this.listRequestVersion || scope !== this.listScope()) return
-        if (sameList || this.$route.name === 'vmsnapshot') {
+        if (sameList || ['vmsnapshot', 'sharedfs'].includes(this.$route.name)) {
           this.listRefreshError = true
           if (isAutoScheduled) throw error
           this.$notifyError(error)

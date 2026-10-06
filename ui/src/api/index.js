@@ -96,10 +96,10 @@ export function postAPI (command, data = {}, { preserveOnFailure = false } = {})
   })
 }
 
-export function callAPI (command, args = {}) {
+export function callAPI (command, args = {}, options) {
   const isGetAPICommand = getAPICommandsRegex.test(command) || additionalGetAPICommandsList.includes(command.toLowerCase())
   const call = isGetAPICommand ? getAPI : postAPI
-  return call(command, args)
+  return isGetAPICommand && options ? getAPI(command, args, options) : call(command, args)
 }
 
 export function login (arg) {
