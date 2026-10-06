@@ -183,7 +183,13 @@ public class StorageVmSharedFSLifeCycleTest {
         when(serviceOfferingVO.getCpu()).thenReturn(4);
         when(serviceOfferingVO.getRamSize()).thenReturn(1024);
         when(serviceOfferingVO.isOfferHA()).thenReturn(true);
+        when(serviceOfferingVO.isDynamicScalingEnabled()).thenReturn(true);
         when(serviceOfferingDao.findById(s_serviceOfferingId)).thenReturn(serviceOfferingVO);
+        org.mockito.Mockito.doReturn(true).when(lifeCycle).zoneScalingEnabled(s_zoneId);
+        when(resourceMgr.getSupportedHypervisorTypes(s_zoneId,false,null)).thenReturn(List.of(Hypervisor.HypervisorType.KVM));
+        VMTemplateVO template=mock(VMTemplateVO.class);
+        when(template.isDynamicallyScalable()).thenReturn(true);
+        when(templateDao.findSystemVMReadyTemplate(s_zoneId,Hypervisor.HypervisorType.KVM,ResourceManager.SystemVmPreferredArchitecture.defaultValue())).thenReturn(template);
         lifeCycle.checkPrerequisites(zone, s_serviceOfferingId);
     }
 
@@ -195,7 +201,7 @@ public class StorageVmSharedFSLifeCycleTest {
         when(serviceOfferingDao.findById(s_serviceOfferingId)).thenReturn(serviceOfferingVO);
         when(serviceOfferingVO.getCpu()).thenReturn(1);
         InvalidParameterValueException exception = Assert.assertThrows(InvalidParameterValueException.class, () -> lifeCycle.checkPrerequisites(zone, s_serviceOfferingId));
-        Assert.assertEquals(exception.getMessage(), "Service offering's number of cpu should be greater than or equal to " + SHAREDFSVM_MIN_CPU_COUNT.key());
+        Assert.assertTrue(exception.getMessage().contains("MINIMUM_CPU_REQUIRED"));
     }
 
     @Test
@@ -206,7 +212,7 @@ public class StorageVmSharedFSLifeCycleTest {
         when(serviceOfferingVO.getCpu()).thenReturn(null);
 
         InvalidParameterValueException exception = Assert.assertThrows(InvalidParameterValueException.class, () -> lifeCycle.checkPrerequisites(zone, s_serviceOfferingId));
-        Assert.assertEquals("Service offering must have a fixed CPU count for SharedFS VM. Custom CPU offerings are not supported.", exception.getMessage());
+        Assert.assertTrue(exception.getMessage().contains("FIXED_CPU_REQUIRED"));
     }
 
     @Test
@@ -218,7 +224,7 @@ public class StorageVmSharedFSLifeCycleTest {
         when(serviceOfferingVO.getCpu()).thenReturn(4);
         when(serviceOfferingVO.getRamSize()).thenReturn(512);
         InvalidParameterValueException exception = Assert.assertThrows(InvalidParameterValueException.class, () -> lifeCycle.checkPrerequisites(zone, s_serviceOfferingId));
-        Assert.assertEquals(exception.getMessage(), "Service offering's ram size should be greater than or equal to " + SHAREDFSVM_MIN_RAM_SIZE.key());
+        Assert.assertTrue(exception.getMessage().contains("MINIMUM_MEMORY_REQUIRED"));
     }
 
     @Test
@@ -230,7 +236,7 @@ public class StorageVmSharedFSLifeCycleTest {
         when(serviceOfferingVO.getRamSize()).thenReturn(null);
 
         InvalidParameterValueException exception = Assert.assertThrows(InvalidParameterValueException.class, () -> lifeCycle.checkPrerequisites(zone, s_serviceOfferingId));
-        Assert.assertEquals("Service offering must have a fixed RAM size for SharedFS VM. Custom RAM offerings are not supported.", exception.getMessage());
+        Assert.assertTrue(exception.getMessage().contains("FIXED_MEMORY_REQUIRED"));
     }
 
     @Test
@@ -242,7 +248,7 @@ public class StorageVmSharedFSLifeCycleTest {
         when(serviceOfferingVO.getCpu()).thenReturn(4);
         when(serviceOfferingVO.getRamSize()).thenReturn(1024);
         InvalidParameterValueException exception = Assert.assertThrows(InvalidParameterValueException.class, () -> lifeCycle.checkPrerequisites(zone, s_serviceOfferingId));
-        Assert.assertEquals(exception.getMessage(), "Service offering's should be HA enabled");
+        Assert.assertTrue(exception.getMessage().contains("HA_REQUIRED"));
     }
 
     private SharedFS prepareDeploySharedFS() throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException {
@@ -264,6 +270,7 @@ public class StorageVmSharedFSLifeCycleTest {
         VMTemplateVO template = mock(VMTemplateVO.class);
         when(templateDao.findSystemVMReadyTemplate(s_zoneId, Hypervisor.HypervisorType.KVM, ResourceManager.SystemVmPreferredArchitecture.defaultValue())).thenReturn(template);
         when(template.getId()).thenReturn(s_templateId);
+        when(template.isDynamicallyScalable()).thenReturn(true);
 
         return sharedFS;
     }

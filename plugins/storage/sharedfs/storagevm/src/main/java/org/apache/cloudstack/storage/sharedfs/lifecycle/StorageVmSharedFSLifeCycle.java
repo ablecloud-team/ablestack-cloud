@@ -183,6 +183,8 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
                 throw new CloudRuntimeException(String.format("Unable to find the systemvm template for %s or it was not downloaded in %s.", hypervisor.toString(), zone.toString()));
             }
 
+            if (template == null || !template.isDynamicallyScalable() || hypervisor != Hypervisor.HypervisorType.KVM) continue;
+
             LaunchPermissionVO existingPermission = launchPermissionDao.findByTemplateAndAccount(template.getId(), owner.getId());
             if (existingPermission == null) {
                 LaunchPermissionVO launchPermission = new LaunchPermissionVO(template.getId(), owner.getId());
@@ -218,30 +220,40 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
             }
             return vm;
         }
-        return null;
+        throw new CloudRuntimeException("No compatible scalable KVM SystemVM template could be deployed in the selected zone");
+    }
+
+    protected boolean zoneScalingEnabled(long zoneId) {
+        return UserVmManager.EnableDynamicallyScaleVm.valueIn(zoneId);
+    }
+
+    @Override
+    public List<org.apache.cloudstack.api.response.StorageServiceOfferingConstraintResponse> evaluateOfferings(DataCenter zone, List<Long> ids) {
+        int cpu=SHAREDFSVM_MIN_CPU_COUNT.valueIn(zone.getId());
+        int memory=SHAREDFSVM_MIN_RAM_SIZE.valueIn(zone.getId());
+        boolean zoneScaling=zoneScalingEnabled(zone.getId());
+        boolean hypervisorReady=false;boolean templateReady=false;
+        List<Hypervisor.HypervisorType> hypervisors=resourceMgr.getSupportedHypervisorTypes(zone.getId(),false,null);
+        if (hypervisors != null) for (Hypervisor.HypervisorType hypervisor:hypervisors) {
+            if (hypervisor != Hypervisor.HypervisorType.KVM) continue;
+            hypervisorReady=true;
+            VMTemplateVO template=templateDao.findSystemVMReadyTemplate(zone.getId(),hypervisor,ResourceManager.SystemVmPreferredArchitecture.valueIn(zone.getId()));
+            if (template != null && template.isDynamicallyScalable()) templateReady=true;
+        }
+        List<org.apache.cloudstack.api.response.StorageServiceOfferingConstraintResponse> responses=new ArrayList<>();
+        for(Long id:ids) {
+            ServiceOffering offering=serviceOfferingDao.findById(id);
+            List<String> reasons=org.apache.cloudstack.storage.sharedfs.SharedFSOfferingValidator.reasons(offering,cpu,memory,zoneScaling,templateReady,hypervisorReady);
+            responses.add(new org.apache.cloudstack.api.response.StorageServiceOfferingConstraintResponse(
+                    offering == null ? null : offering.getUuid(),reasons,cpu,memory,zoneScaling,templateReady,hypervisorReady));
+        }
+        return responses;
     }
 
     @Override
     public void checkPrerequisites(DataCenter zone, Long serviceOfferingId) {
-        ServiceOffering serviceOffering = serviceOfferingDao.findById(serviceOfferingId);
-        if (serviceOffering == null) {
-            throw new InvalidParameterValueException("Unable to find service offering with id " + serviceOfferingId);
-        }
-        if (serviceOffering.getCpu() == null) {
-            throw new InvalidParameterValueException("Service offering must have a fixed CPU count for SharedFS VM. Custom CPU offerings are not supported.");
-        }
-        if (serviceOffering.getRamSize() == null) {
-            throw new InvalidParameterValueException("Service offering must have a fixed RAM size for SharedFS VM. Custom RAM offerings are not supported.");
-        }
-        if (serviceOffering.getCpu() < SHAREDFSVM_MIN_CPU_COUNT.valueIn(zone.getId())) {
-            throw new InvalidParameterValueException("Service offering's number of cpu should be greater than or equal to " + SHAREDFSVM_MIN_CPU_COUNT.key());
-        }
-        if (serviceOffering.getRamSize() < SHAREDFSVM_MIN_RAM_SIZE.valueIn(zone.getId())) {
-            throw new InvalidParameterValueException("Service offering's ram size should be greater than or equal to " + SHAREDFSVM_MIN_RAM_SIZE.key());
-        }
-        if (!serviceOffering.isOfferHA()) {
-            throw new InvalidParameterValueException("Service offering's should be HA enabled");
-        }
+        org.apache.cloudstack.api.response.StorageServiceOfferingConstraintResponse result=evaluateOfferings(zone,List.of(serviceOfferingId)).get(0);
+        if (!result.isCompatible()) throw new InvalidParameterValueException("SharedFS offering constraints: " + String.join(",",result.getReasons()));
     }
 
     @Override
