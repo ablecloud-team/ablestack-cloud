@@ -79,7 +79,7 @@ public class StorageServiceDesiredSnapshot {
             }
             snapshot.add("tables", tables);
             String json = snapshot.toString();
-            if (json.length() > MAX_SNAPSHOT_BYTES) throw new CloudRuntimeException("Desired-state snapshot exceeds the configured safety bound");
+            if (json.getBytes(java.nio.charset.StandardCharsets.UTF_8).length > MAX_SNAPSHOT_BYTES) throw new CloudRuntimeException("Desired-state snapshot exceeds the configured safety bound");
             return json;
         } catch (SQLException failure) {
             throw new CloudRuntimeException("Unable to capture Storage Service desired state", failure);
@@ -87,19 +87,11 @@ public class StorageServiceDesiredSnapshot {
     }
 
     public void restore(long instanceId, String json) {
-        final JsonObject snapshot = new JsonParser().parse(json).getAsJsonObject();
-        if (snapshot.get("schemaVersion").getAsInt() != 1 || snapshot.get("instanceId").getAsLong() != instanceId) {
-            throw new CloudRuntimeException("Desired-state snapshot identity does not match");
-        }
-        final Map<String, JsonObject> entries = new HashMap<>();
-        for (JsonElement element : snapshot.getAsJsonArray("tables")) {
-            JsonObject entry = element.getAsJsonObject();
-            String table = entry.get("table").getAsString();
-            if (!TABLES.contains(table) || entries.put(table, entry) != null) throw new CloudRuntimeException("Invalid desired-state snapshot table");
-        }
-        if (entries.size() != TABLES.size()) throw new CloudRuntimeException("Desired-state snapshot is incomplete");
+        final Map<String, JsonObject> entries = validateSnapshot(instanceId, json);
         Transaction.execute((com.cloud.utils.db.TransactionCallback<Boolean>) status -> {
             try {
+                validateLiveColumns(entries);
+                validateLiveIdentities(instanceId, entries);
                 List<String> reverse = new ArrayList<>(TABLES); Collections.reverse(reverse);
                 for (String table : reverse) {
                     JsonArray rows = entries.get(table).getAsJsonArray("rows");
@@ -140,6 +132,92 @@ public class StorageServiceDesiredSnapshot {
                 throw new CloudRuntimeException("Unable to restore Storage Service desired-state snapshot", failure);
             }
         });
+    }
+
+    /** Validate every row before opening the restore transaction or issuing any delete. */
+    static Map<String, JsonObject> validateSnapshot(long instanceId, String json) {
+        if (json == null || json.getBytes(java.nio.charset.StandardCharsets.UTF_8).length > MAX_SNAPSHOT_BYTES) {
+            throw new CloudRuntimeException("Invalid or oversized desired-state snapshot");
+        }
+        final JsonObject snapshot = new JsonParser().parse(json).getAsJsonObject();
+        if (snapshot.get("schemaVersion").getAsInt() != 1 || snapshot.get("instanceId").getAsLong() != instanceId) {
+            throw new CloudRuntimeException("Desired-state snapshot identity does not match");
+        }
+        final Map<String, JsonObject> entries = new HashMap<>();
+        final Map<String, Set<Long>> resources = new HashMap<>();
+        for (JsonElement element : snapshot.getAsJsonArray("tables")) {
+            JsonObject entry = element.getAsJsonObject();
+            String table = entry.get("table").getAsString();
+            if (!TABLES.contains(table) || entries.put(table, entry) != null) throw new CloudRuntimeException("Invalid desired-state snapshot table");
+            final Set<String> columns = new HashSet<>();
+            for (JsonElement field : entry.getAsJsonArray("columns")) {
+                String name = field.getAsJsonObject().get("name").getAsString();
+                if (!name.matches("[A-Za-z0-9_]+") || !columns.add(name)) throw new CloudRuntimeException("Invalid desired-state snapshot column");
+            }
+            if (!columns.contains("id") || !columns.contains("uuid")) throw new CloudRuntimeException("Snapshot omits resource identity");
+            Set<Long> identities = new HashSet<>(); Set<String> uuids = new HashSet<>();
+            for (JsonElement item : entry.getAsJsonArray("rows")) {
+                JsonObject row = item.getAsJsonObject();
+                if (!row.entrySet().stream().map(Map.Entry::getKey).collect(java.util.stream.Collectors.toSet()).equals(columns)) throw new CloudRuntimeException("Snapshot row does not match its declared columns");
+                for (Map.Entry<String, JsonElement> field : row.entrySet()) {
+                    if (!field.getValue().isJsonNull() && !field.getValue().isJsonPrimitive()) throw new CloudRuntimeException("Nested snapshot row value is not permitted");
+                }
+                long id = row.get("id").getAsLong();
+                String uuid = row.get("uuid").getAsString();
+                if (id <= 0 || !identities.add(id) || !uuid.matches("[A-Fa-f0-9-]{36}") || !uuids.add(uuid)) throw new CloudRuntimeException("Invalid or duplicate snapshot resource identity");
+                if (!"storage_access_rule".equals(table) && (!row.has("instance_id") || row.get("instance_id").getAsLong() != instanceId)) {
+                    throw new CloudRuntimeException("Snapshot contains a resource from another Storage Service instance");
+                }
+            }
+            resources.put(table, identities);
+        }
+        if (entries.size() != TABLES.size()) throw new CloudRuntimeException("Desired-state snapshot is incomplete");
+        for (JsonElement item : entries.get("storage_access_rule").getAsJsonArray("rows")) {
+            JsonObject row = item.getAsJsonObject();
+            String type = row.get("resource_type").getAsString();
+            Set<Long> parents = "FILE_SHARE".equals(type) ? resources.get("storage_file_share") :
+                    ("BLOCK_TARGET".equals(type) ? resources.get("storage_block_target") : Collections.emptySet());
+            if (!parents.contains(row.get("resource_id").getAsLong())) throw new CloudRuntimeException("Snapshot ACL references a resource outside the snapshot");
+        }
+        return entries;
+    }
+
+    private void validateLiveColumns(Map<String, JsonObject> entries) throws SQLException {
+        for (String table : TABLES) {
+            Map<String, Integer> live = new LinkedHashMap<>();
+            try (PreparedStatement query = TransactionLegacy.currentTxn().prepareAutoCloseStatement("SELECT * FROM cloud." + table + " WHERE 1=0");
+                    ResultSet result = query.executeQuery()) {
+                ResultSetMetaData metadata = result.getMetaData();
+                for (int index=1; index<=metadata.getColumnCount(); index++) live.put(metadata.getColumnName(index),metadata.getColumnType(index));
+            }
+            Map<String, Integer> declared = new LinkedHashMap<>();
+            for (JsonElement field : entries.get(table).getAsJsonArray("columns")) {
+                JsonObject column=field.getAsJsonObject(); declared.put(column.get("name").getAsString(),column.get("type").getAsInt());
+            }
+            if (!live.equals(declared)) throw new CloudRuntimeException("Snapshot columns do not match the live schema; explicit compatibility mapping is required");
+        }
+    }
+
+    private void validateLiveIdentities(long instanceId, Map<String, JsonObject> entries) throws SQLException {
+        for (String table : TABLES) {
+            for (JsonElement item : entries.get(table).getAsJsonArray("rows")) {
+                JsonObject row=item.getAsJsonObject();
+                long id=row.get("id").getAsLong(); String uuid=row.get("uuid").getAsString();
+                try (PreparedStatement query=TransactionLegacy.currentTxn().prepareAutoCloseStatement(
+                        "SELECT id,uuid,(" + predicate(table) + ") AS owned FROM cloud." + table + " WHERE id=? OR uuid=? FOR UPDATE")) {
+                    bindScope(query,table,instanceId);
+                    int offset="storage_access_rule".equals(table) ? 3 : 2;
+                    query.setLong(offset,id);query.setString(offset+1,uuid);
+                    try (ResultSet current=query.executeQuery()) {
+                        while(current.next()) {
+                            if (current.getLong("id") != id || !uuid.equalsIgnoreCase(current.getString("uuid")) || !current.getBoolean("owned")) {
+                                throw new CloudRuntimeException("Snapshot resource identity collides with a different live resource");
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private List<String> ids(JsonArray rows) {
