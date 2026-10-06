@@ -70,11 +70,26 @@ function cleanup_misc() {
   rm -fr /tmp/*
 }
 
+# Reset only the image being finalized. Never run this on an active VM.
+# An empty machine-id lets systemd persist a per-VM ID during the next boot.
+# Remove the D-Bus fallback too, otherwise systemd may import the baked ID again.
+function cleanup_machine_id() {
+  local image_root="${1:-/}"
+  test -d "$image_root/etc"
+  rm -f "$image_root/etc/machine-id"
+  install -m 0444 /dev/null "$image_root/etc/machine-id"
+  if test -d "$image_root/var/lib/dbus"; then
+    rm -f "$image_root/var/lib/dbus/machine-id"
+    ln -s /etc/machine-id "$image_root/var/lib/dbus/machine-id"
+  fi
+}
+
 function cleanup() {
   cleanup_apt
   cleanup_dhcp
   cleanup_dev
   cleanup_misc
+  cleanup_machine_id
 }
 
 return 2>/dev/null || cleanup
