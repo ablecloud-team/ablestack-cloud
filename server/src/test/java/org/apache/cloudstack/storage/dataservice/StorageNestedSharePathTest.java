@@ -47,4 +47,30 @@ public class StorageNestedSharePathTest {
         Assert.assertFalse(parsed.has("backingPath"));
         Assert.assertFalse(parsed.has("lastInspection"));
     }
+    @Test public void rejectsParentDeletionWhileSameVolumeCrossProtocolChildExists() {
+        org.apache.cloudstack.storage.dataservice.dao.StorageFileShareDao dao = org.mockito.Mockito.mock(org.apache.cloudstack.storage.dataservice.dao.StorageFileShareDao.class);
+        org.springframework.test.util.ReflectionTestUtils.setField(manager, "storageFileShareDao", dao);
+        StorageServiceInstanceVO instance = org.mockito.Mockito.mock(StorageServiceInstanceVO.class);
+        org.mockito.Mockito.when(instance.getId()).thenReturn(7L);
+        StorageFileShareVO parent = org.mockito.Mockito.mock(StorageFileShareVO.class);
+        StorageFileShareVO child = org.mockito.Mockito.mock(StorageFileShareVO.class);
+        org.mockito.Mockito.when(parent.getId()).thenReturn(1L);
+        org.mockito.Mockito.when(child.getId()).thenReturn(2L);
+        org.mockito.Mockito.when(parent.getVolumeId()).thenReturn(10L);
+        org.mockito.Mockito.when(child.getVolumeId()).thenReturn(10L);
+        org.mockito.Mockito.when(parent.getPath()).thenReturn("/export/parent");
+        org.mockito.Mockito.when(child.getPath()).thenReturn("/export/export/parent/child");
+        org.mockito.Mockito.when(child.getConfigJson()).thenReturn("{\"relativeSharePath\":\"export/parent/child\"}");
+        org.mockito.Mockito.when(dao.listByInstanceIdAndProtocol(7L, StorageServiceInstance.Protocol.NFS)).thenReturn(java.util.Collections.singletonList(parent));
+        org.mockito.Mockito.when(dao.listByInstanceIdAndProtocol(7L, StorageServiceInstance.Protocol.SMB)).thenReturn(java.util.Collections.singletonList(child));
+        Assert.assertThrows(InvalidParameterValueException.class, () -> manager.validateNoChildShares(instance, parent));
+        manager.validateNoChildShares(instance, child);
+        org.mockito.Mockito.verify(dao, org.mockito.Mockito.never()).remove(org.mockito.ArgumentMatchers.anyLong());
+    }
+
+    @Test public void exposesLegacyPhysicalRelativePathWithoutInventingRuntimeEvidence() {
+        Assert.assertEquals("export/legacy", manager.observedFileShareRelativePath(new JsonParser().parse("{\"volumeMountPath\":\"/srv/volume\",\"backingPath\":\"/srv/volume/export/legacy\"}").getAsJsonObject()));
+        Assert.assertNull(manager.observedFileShareRelativePath(new com.google.gson.JsonObject()));
+    }
+
 }
