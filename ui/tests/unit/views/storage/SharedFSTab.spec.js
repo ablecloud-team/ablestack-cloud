@@ -314,3 +314,20 @@ describe('SharedFSTab protocol-scoped presentation', () => {
       .toBe('label.storage.service.volume.mapping.unmapped')
   })
 })
+
+describe('SharedFS service-wide NFS owner mapping', () => {
+  it('reads desired policy from the root detail component and preserves the legacy default', () => {
+    expect(SharedFSTab.computed.nfsDesiredIdMode.call({
+      storageService: { protocols: [{ protocol: 'NFS', enabled: true, idmappingmode: 'NUMERIC' }] }
+    })).toBe('NUMERIC')
+    expect(SharedFSTab.computed.nfsDesiredIdMode.call({ storageService: { protocols: [] } })).toBe('NAME_DOMAIN')
+  })
+  it('does not assume a runtime mode without an observed endpoint', () => {
+    expect(SharedFSTab.computed.nfsRuntimeIdMode.call({ parsedHealth: {} })).toBe('UNKNOWN')
+    expect(SharedFSTab.computed.nfsIdModeDrift.call({ nfsRuntimeIdMode: 'UNKNOWN', nfsDesiredIdMode: 'NUMERIC' })).toBe('UNKNOWN')
+  })
+  it('reports a mode mismatch instead of treating desired policy as runtime evidence', () => {
+    expect(SharedFSTab.computed.nfsIdModeDrift.call({ nfsRuntimeIdMode: 'NAME_DOMAIN', nfsDesiredIdMode: 'NUMERIC' })).toBe('DRIFT')
+    expect(SharedFSTab.computed.nfsIdModeDrift.call({ nfsRuntimeIdMode: 'NUMERIC', nfsDesiredIdMode: 'NUMERIC' })).toBe('CONSISTENT')
+  })
+})
