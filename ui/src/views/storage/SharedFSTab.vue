@@ -1451,6 +1451,10 @@ wrapClassName="storage-service-action-modal"
             </template>
             <a-input v-model:value="forms.nfsExport.path" />
           </a-form-item>
+          <a-form-item :label="$t('label.storage.service.volume.relative.path')">
+            <a-input v-model:value="forms.nfsExport.relativepath" placeholder="share/project-a" />
+            <a-alert type="info" show-icon :message="$t('message.storage.service.nested.path.help')" />
+          </a-form-item>
           <section class="storage-action-section">
             <div class="storage-action-section__title">{{ $t('label.storage.service.backing.volume') }}</div>
             <a-form-item required>
@@ -1754,6 +1758,10 @@ wrapClassName="storage-service-action-modal"
           <a-form-item required>
             <template #label><tooltip-label :title="$t('label.storage.service.internal.path')" :tooltip="$t('message.storage.service.smb.internal.path.help')" /></template>
             <a-input v-model:value="forms.smbShare.path" placeholder="/export/smb01" />
+          </a-form-item>
+          <a-form-item :label="$t('label.storage.service.volume.relative.path')">
+            <a-input v-model:value="forms.smbShare.relativepath" placeholder="share/project-a" />
+            <a-alert type="info" show-icon :message="$t('message.storage.service.nested.path.help')" />
           </a-form-item>
           <section class="storage-action-section">
             <div class="storage-action-section__title">{{ $t('label.storage.service.backing.volume') }}</div>
@@ -2651,6 +2659,7 @@ export default {
           secure: false
         },
         smbShare: {
+          relativepath: '',
           name: '',
           path: '',
           volumeid: '',
@@ -6667,11 +6676,22 @@ export default {
       const value = String(name || '').trim()
       return !!value && value !== '.' && value !== '..' && /^[A-Za-z0-9._-]+$/.test(value)
     },
+    validateNestedSharePath (path) {
+      const value = String(path || '').trim()
+      if (!value || value.startsWith('/') || value.split('/').some(segment => !segment || segment === '.' || segment === '..' || !/^[A-Za-z0-9._-]+$/.test(segment))) {
+        this.$message.error(this.$t('message.storage.service.nested.path.invalid'))
+        return false
+      }
+      return true
+    },
     validateNfsExportNameAndPath () {
       const name = String(this.forms.nfsExport.name || '').trim()
       if (!this.isValidNfsExportName(name)) {
         this.$message.error(this.$t('message.storage.service.nfs.name.invalid'))
         return false
+      }
+      if (this.forms.nfsExport.relativepath) {
+        return this.validateNestedSharePath(this.forms.nfsExport.relativepath)
       }
       const expectedPath = `/export/${name}`
       const path = String(this.forms.nfsExport.path || '').trim().replace(/\/+$/g, '')
@@ -6984,6 +7004,7 @@ export default {
         volumeid: this.defaultCurrentBackingVolumeId(),
         volumemode: 'CURRENT',
         newvolumename: '',
+        relativepath: '',
         diskofferingid: '',
         storageid: this.defaultSmbNewVolumeStorageId(),
         newvolumesize: null,
@@ -7007,6 +7028,7 @@ export default {
       Object.assign(this.forms.smbShare, {
         name: this.clientVisibleName(share.name || share.sharename, ''),
         path: share.path || share.mountpath || share.backingpath || '',
+        relativepath: config.relativeSharePath || '',
         volumeid: volumeId,
         volumemode: currentVolume || !volumeId ? 'CURRENT' : 'EXISTING',
         newvolumename: '',
@@ -7064,7 +7086,7 @@ export default {
         diskofferingid: '',
         newvolumesize: null,
         filesystem: share.filesystem || share.fsType || 'xfs',
-        relativepath: '',
+        relativepath: config.relativeSharePath || '',
         createdirectory: config.createDirectory === undefined && config.createdirectory === undefined ? true : this.boolValue(config.createDirectory ?? config.createdirectory),
         quotaamount: quota.amount,
         quotaunit: quota.unit,
@@ -7420,7 +7442,8 @@ export default {
       return this.runStorageAction('nfsExport', 'createStorageNfsExport', {
         instanceid: this.storageService.instance.id,
         name: this.forms.nfsExport.name,
-        path: this.forms.nfsExport.path,
+        path: this.forms.nfsExport.relativepath ? undefined : this.forms.nfsExport.path,
+        relativepath: this.forms.nfsExport.relativepath || undefined,
         createdirectory: this.forms.nfsExport.createdirectory,
         volumeid: volumeId,
         filesystem: this.forms.nfsExport.filesystem,
@@ -7520,7 +7543,8 @@ export default {
       return this.runStorageAction('editNfsExport', 'updateStorageNfsExport', {
         id: context.id || this.actionModal.context?.id,
         name: this.forms.nfsExport.name,
-        path: this.forms.nfsExport.path,
+        path: this.forms.nfsExport.relativepath ? undefined : this.forms.nfsExport.path,
+        relativepath: this.forms.nfsExport.relativepath || undefined,
         createdirectory: this.forms.nfsExport.createdirectory,
         volumeid: this.forms.nfsExport.volumeid,
         filesystem: this.forms.nfsExport.filesystem,
@@ -7637,6 +7661,7 @@ export default {
       return id
     },
     async createSmbShare () {
+      if (this.forms.smbShare.relativepath && !this.validateNestedSharePath(this.forms.smbShare.relativepath)) return Promise.resolve()
       const volumeId = await this.prepareSmbShareVolume()
       if (volumeId === false) {
         return Promise.resolve()
@@ -7644,7 +7669,8 @@ export default {
       return this.runStorageAction('smbShare', 'createStorageSmbShare', {
         instanceid: this.storageService.instance.id,
         name: this.forms.smbShare.name,
-        path: this.forms.smbShare.path,
+        path: this.forms.smbShare.relativepath ? undefined : this.forms.smbShare.path,
+        relativepath: this.forms.smbShare.relativepath || undefined,
         volumeid: volumeId,
         filesystem: this.forms.smbShare.filesystem,
         importmode: this.smbShareImportMode(),
@@ -7659,11 +7685,13 @@ export default {
       }, this.$t('label.storage.service.create.smb.share'))
     },
     updateSmbShare () {
+      if (this.forms.smbShare.relativepath && !this.validateNestedSharePath(this.forms.smbShare.relativepath)) return Promise.resolve()
       const context = this.actionModal.context?.raw || this.actionModal.context || {}
       return this.runStorageAction('editSmbShare', 'updateStorageSmbShare', {
         id: context.id || this.actionModal.context?.id,
         name: this.forms.smbShare.name,
-        path: this.forms.smbShare.path,
+        path: this.forms.smbShare.relativepath ? undefined : this.forms.smbShare.path,
+        relativepath: this.forms.smbShare.relativepath || undefined,
         volumeid: this.forms.smbShare.volumeid,
         filesystem: this.forms.smbShare.filesystem,
         importmode: this.smbShareImportMode(),

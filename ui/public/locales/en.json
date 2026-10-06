@@ -8564,5 +8564,8 @@
   "label.storage.service.nfs.settings": "NFS service settings",
   "message.storage.service.nfs.numeric.persistence": "Persistent client configuration: add options nfs nfs4_disable_idmapping=1 to /etc/modprobe.d/ablestack-nfs-idmap.conf. If needed, rebuild initramfs with update-initramfs -u on Debian/Ubuntu or dracut -f on Rocky/RHEL.",
   "label.storage.service.nfs.idmapping.runtime": "Runtime owner mapping",
-  "label.storage.service.nfs.idmapping": "NFSv4 owner mapping"
+  "label.storage.service.nfs.idmapping": "NFSv4 owner mapping",
+  "message.storage.service.nested.path.help": "Relative to the selected volume root. Child data is also visible through its parent share; each share has independent access rules and shares the same volume capacity.",
+  "message.storage.service.nested.path.invalid": "Absolute, empty, dot and parent paths are not allowed.",
+  "label.storage.service.volume.relative.path": "Backing volume relative path"
 }

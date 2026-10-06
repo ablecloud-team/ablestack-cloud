@@ -50,6 +50,9 @@ public class UpdateStorageSmbShareCmd extends BaseStorageServiceAsyncCmd impleme
     @Parameter(name = ApiConstants.PATH, type = CommandType.STRING, description = "SMB share path")
     private String path;
 
+    @Parameter(name = "relativepath", type = CommandType.STRING, description = "directory relative to the selected backing volume root")
+    private String relativePath;
+
     @Parameter(name = ApiConstants.VOLUME_ID, type = CommandType.UUID, entityType = VolumeResponse.class, description = "backing volume ID")
     private Long volumeId;
 
@@ -86,6 +89,10 @@ public class UpdateStorageSmbShareCmd extends BaseStorageServiceAsyncCmd impleme
 
     public String getName() {
         return name;
+    }
+
+    public String getRelativePath() {
+        return relativePath;
     }
 
     public String getPath() {
