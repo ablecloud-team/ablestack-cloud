@@ -1,4 +1,5 @@
 {
+  "label.storage.service.existing.paths": "Existing paths on the same volume",
   "message.storage.service.nested.path.invalid": "Absolute, empty, dot and parent paths are not allowed.",
   "message.storage.service.nested.path.help": "Relative to the selected volume root. Child data is also visible through its parent share; each share has independent access rules and shares the same volume capacity.",
   "label.storage.service.volume.relative.path": "Backing volume relative path",
