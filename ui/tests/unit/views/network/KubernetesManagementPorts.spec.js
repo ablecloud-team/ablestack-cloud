@@ -67,3 +67,21 @@ test.each(components)('$name ignores stale PF responses after the public IP chan
   expect(vm.kubernetesManagementPorts).toEqual([])
   expect(vm.kubernetesPortsUnavailable).toBe(false)
 })
+
+test.each(components)('$name keeps deletion protected until cluster ownership lookup completes', async component => {
+  let finish
+  getAPI.mockReset().mockImplementationOnce(() => new Promise(resolve => { finish = resolve }))
+  const vm = state()
+  const request = component.methods.fetchKubernetesManagementPorts.call(vm)
+  expect(vm.kubernetesPortsUnavailable).toBe(true)
+  finish({ listkubernetesclustersresponse: {} })
+  await request
+  expect(vm.kubernetesPortsUnavailable).toBe(false)
+})
+
+test.each(components)('$name does not turn lookup errors into an unprotected management rule', async component => {
+  getAPI.mockReset().mockRejectedValueOnce(new Error('Network failure'))
+  const vm = state()
+  await component.methods.fetchKubernetesManagementPorts.call(vm)
+  expect(vm.kubernetesPortsUnavailable).toBe(true)
+})

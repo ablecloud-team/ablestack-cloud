@@ -524,12 +524,16 @@ export default {
       const request = ++this.kubernetesPortsRequest
       const current = () => request === this.kubernetesPortsRequest && ipId === this.resource?.id
       this.kubernetesManagementPorts = []
-      this.kubernetesPortsUnavailable = false
-      if (!this.$store.getters.apis.listKubernetesClusters || !ipId) return
+      this.kubernetesPortsUnavailable = Boolean(this.$store.getters.apis.listKubernetesClusters && ipId)
+      if (!this.kubernetesPortsUnavailable) return
       let clusters = []
       try {
         clusters = await listKubernetesClustersForIp(getAPI, ipId)
-        if (!current() || !clusters.length) return
+        if (!current()) return
+        if (!clusters.length) {
+          this.kubernetesPortsUnavailable = false
+          return
+        }
         this.kubernetesPortsUnavailable = true
         if (!this.$store.getters.apis.listPortForwardingRules) return
         const rules = await listAllKubernetesPortRules(getAPI, ipId)
@@ -537,7 +541,7 @@ export default {
         this.kubernetesManagementPorts = clusterManagementPorts(clusters, rules)
         this.kubernetesPortsUnavailable = false
       } catch (error) {
-        if (current()) this.kubernetesPortsUnavailable = clusters.length > 0
+        if (current()) this.kubernetesPortsUnavailable = true
       }
     },
     initForm () {
