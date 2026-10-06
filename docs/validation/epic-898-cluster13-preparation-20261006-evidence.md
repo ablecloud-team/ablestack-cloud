@@ -213,3 +213,24 @@ server Spring 등록 리소스도 설치 commit 대비 source delta에 포함된
 
 원본 build/test 로그, source delta, overlay manifest, 배포 전후 API/Guest/DB 및
 각 서버 배포 JSON은 `/root/work/epic898-preparation`에 보관했다. 인증값은 저장하지 않았다.
+
+## GitHub 전체 CI와 기준선 재현
+
+PR #1270의 로컬 집중 검증과 실제 13번 UI는 통과했지만 전체 CI는 green이 아니다.
+Build UI의 전체 Jest 결과는 87 suites/900 tests passed, 4 suites/6 tests failed이다.
+새 SharedFSInitialLoading, 기존 SharedFSTab 및 locale suite는 CI에서도 PASS로 확인했다.
+
+- 실패 suite: vmNicActions, vmDiskDeployment, GuestNetworkSummary, autoAlertDiscovery.
+- 원본 upstream과 소스가 동일한 Epic 준비 브랜치(문서만 추가)에서 같은 4개 suite를
+  Node 14로 실행하여 동일한 6 failed / 27 passed를 재현했다.
+- vmDiskDeployment는 Node 14의 Array.at 미지원, 나머지는 기존 기대값/비동기 mock 실패다.
+- 이 4개 실패 테스트 경로와 #1269 변경 파일의 교집합은 없다.
+- Build UI 로그: https://github.com/ablecloud-team/ablestack-cloud/actions/runs/37454776220
+- pre-commit은 기존 라이선스·깨진 symlink·EOF/line ending·오탈자·Markdown 문제로 실패했다.
+- SharedFSTab에도 기존 license/codespell 지적이 있다. 해당 라이선스 포함 prefix는 원본과 동일하고,
+  browseable 문자열은 원본/수정 모두 17개로 유지된다. 이번 6줄 로딩 변경에서 새로 도입한 항목이 아니다.
+- pre-commit 로그: https://github.com/ablecloud-team/ablestack-cloud/actions/runs/37454776317
+
+전체 CI 기준선 정비는 기존 독립 이슈 #926과 구분해 처리한다. 미완료 CI를 green으로 표시하거나
+실패를 우회해 PR을 강제 병합하지 않았다. #1270은 Ready for review/미병합,
+준비 문서 PR #1271은 Draft이며, #924 착수 전 리뷰·병합 및 local base 재동기화를 진행한다.
