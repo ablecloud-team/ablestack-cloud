@@ -27,6 +27,21 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Collections;
+import javax.inject.Inject;
+import com.cloud.network.IpAddress;
+import com.cloud.network.Network;
+import com.cloud.network.dao.LoadBalancerDao;
+import com.cloud.network.dao.LoadBalancerVO;
+import com.cloud.network.dao.LoadBalancerVMMapDao;
+import com.cloud.network.dao.LoadBalancerVMMapVO;
+import com.cloud.network.lb.LoadBalancingRulesService;
+import com.cloud.vm.Nic;
+import com.cloud.tags.dao.ResourceTagDao;
+import com.cloud.server.ResourceTag.ResourceObjectType;
 import java.util.stream.Collectors;
 
 import com.cloud.kubernetes.cluster.KubernetesClusterVmMapVO;
@@ -54,6 +69,11 @@ public class KubernetesClusterUpgradeWorker extends KubernetesClusterActionWorke
     private final String upgradeScriptFilename = "upgrade-kubernetes.sh";
     private File upgradeScriptFile;
     private long upgradeTimeoutTime;
+    @Inject protected LoadBalancerDao loadBalancerDao;
+    @Inject protected LoadBalancerVMMapDao loadBalancerVMMapDao;
+    @Inject protected LoadBalancingRulesService lbService;
+    @Inject protected ResourceTagDao resourceTagDao;
+    private LoadBalancerVO upgradeApiLoadBalancer;
 
     public KubernetesClusterUpgradeWorker(final KubernetesCluster kubernetesCluster,
                                           final KubernetesSupportedVersion upgradeVersion,
@@ -74,15 +94,114 @@ public class KubernetesClusterUpgradeWorker extends KubernetesClusterActionWorke
         String nodeAddress = (index > 0 && sshPort == 22) ? vm.getPrivateIpAddress() : publicIpAddress;
         SshHelper.scpTo(nodeAddress, nodeSshPort, getControlNodeLoginUser(), sshKeyFile, null,
                 "~/", upgradeScriptFile.getAbsolutePath(), "0755");
-        String cmdStr = String.format("sudo ./%s %s %s %s %s %s",
+        String cmdStr = String.format("sudo ./%s %s %s %s %s %s %s",
                 upgradeScriptFile.getName(),
                 upgradeVersion.getSemanticVersion(),
                 index == 0 ? "true" : "false",
                 KubernetesVersionManagerImpl.compareSemanticVersions(upgradeVersion.getSemanticVersion(), "1.15.0") < 0 ? "true" : "false",
-                Hypervisor.HypervisorType.VMware.equals(vm.getHypervisorType()), Objects.isNull(kubernetesCluster.getCniConfigId()));
+                Hypervisor.HypervisorType.VMware.equals(vm.getHypervisorType()), Objects.isNull(kubernetesCluster.getCniConfigId()), upgradeApiLoadBalancer != null);
         return SshHelper.sshExecute(nodeAddress, nodeSshPort, getControlNodeLoginUser(), sshKeyFile, null,
                 cmdStr,
                 10000, 10000, 10 * 60 * 1000);
+    }
+
+    protected Set<Long> controlVmIds() {
+        return kubernetesClusterVmMapDao.listByClusterId(kubernetesCluster.getId()).stream()
+                .filter(KubernetesClusterVmMapVO::isControlNode).map(KubernetesClusterVmMapVO::getVmId).collect(Collectors.toSet());
+    }
+
+    protected LoadBalancerVO findHaUpgradeApiLoadBalancer() {
+        if (kubernetesCluster.getControlNodeCount() < 3) {
+            return null;
+        }
+        Network network = networkDao.findById(kubernetesCluster.getNetworkId());
+        if (network == null) {
+            throw new CloudRuntimeException("Cannot verify the HA upgrade network");
+        }
+        if (manager.isDirectAccess(network)) {
+            return null; // An operator-managed endpoint is not changed by Mold.
+        }
+        IpAddress address = network.getVpcId() == null ? getNetworkSourceNatIp(network) : getVpcTierKubernetesPublicIp(network);
+        if (address == null || address.getAccountId() != kubernetesCluster.getAccountId()) {
+            throw new CloudRuntimeException("Cannot verify the HA upgrade API address owner");
+        }
+        List<LoadBalancerVO> rules = loadBalancerDao.listByIpAddress(address.getId()).stream()
+                .filter(rule -> rule.getRemoved() == null && rule.getAccountId() == kubernetesCluster.getAccountId()
+                        && Long.valueOf(network.getId()).equals(rule.getNetworkId()) && "api-lb".equals(rule.getName())
+                        && rule.getSourcePortStart() == CLUSTER_API_PORT && rule.getSourcePortEnd() == CLUSTER_API_PORT
+                        && rule.getDefaultPortStart() == CLUSTER_API_PORT && rule.getDefaultPortEnd() == CLUSTER_API_PORT
+                        && "tcp".equalsIgnoreCase(rule.getProtocol())
+                        && resourceTagDao.listBy(rule.getId(), ResourceObjectType.LoadBalancer).isEmpty())
+                .collect(Collectors.toList());
+        if (rules.size() != 1) {
+            throw new CloudRuntimeException("Cannot uniquely verify the HA upgrade API load balancer");
+        }
+        LoadBalancerVO rule = rules.get(0);
+        Set<Long> controls = controlVmIds();
+        List<LoadBalancerVMMapVO> mappings = loadBalancerVMMapDao.listByLoadBalancerId(rule.getId(), false);
+        Set<Long> members = mappings.stream().map(LoadBalancerVMMapVO::getInstanceId).collect(Collectors.toSet());
+        if (controls.size() != kubernetesCluster.getControlNodeCount() || members.size() < 2 || mappings.size() != members.size() || !controls.containsAll(members)) {
+            throw new CloudRuntimeException("HA upgrade API load balancer membership is not cluster-scoped");
+        }
+        for (LoadBalancerVMMapVO mapping : mappings) {
+            Nic nic = networkModel.getNicInNetwork(mapping.getInstanceId(), network.getId());
+            if (nic == null || !Objects.equals(nic.getIPv4Address(), mapping.getInstanceIp())) {
+                throw new CloudRuntimeException("HA upgrade API backend address does not match the cluster control NIC");
+            }
+        }
+        return rule;
+    }
+
+    protected void setUpgradeApiMember(UserVm vm, boolean include) {
+        if (upgradeApiLoadBalancer == null || !controlVmIds().contains(vm.getId())) {
+            return;
+        }
+        Nic nic = networkModel.getNicInNetwork(vm.getId(), kubernetesCluster.getNetworkId());
+        if (nic == null || StringUtils.isBlank(nic.getIPv4Address())) {
+            throw new CloudRuntimeException("Cannot verify the HA upgrade control node address");
+        }
+        Map<Long, List<String>> addresses = new HashMap<>();
+        addresses.put(vm.getId(), Collections.singletonList(nic.getIPv4Address()));
+        boolean changed = include ? lbService.assignToLoadBalancer(upgradeApiLoadBalancer.getId(), null, addresses, null, false)
+                : lbService.removeFromLoadBalancer(upgradeApiLoadBalancer.getId(), null, addresses, false);
+        if (!changed) {
+            logTransitStateDetachIsoAndThrow(Level.ERROR, "Failed to update HA API load balancer maintenance membership",
+                    kubernetesCluster, clusterVMs, KubernetesCluster.Event.OperationFailed, null);
+        }
+    }
+
+    protected String getControlPlaneGateCommand(String host) throws Exception {
+        if (!host.matches("[a-z0-9.-]+")) {
+            throw new CloudRuntimeException("Invalid HA control node hostname");
+        }
+        String encoded = Base64.encodeBase64String(readResourceFile("/script/upgrade-control-plane-gate.py").getBytes(StandardCharsets.UTF_8));
+        return "sudo python3 -c 'import base64;exec(base64.b64decode(\"" + encoded + "\"))' --host " + host
+                + " --control-count " + kubernetesCluster.getControlNodeCount() + " --timeout 120";
+    }
+
+    protected Pair<Boolean, String> executeControlPlaneGateCommand(UserVm vm, int index, String command) throws Exception {
+        int port = sshPort == 22 ? sshPort : sshPort + index;
+        String address = index > 0 && sshPort == 22 ? vm.getPrivateIpAddress() : publicIpAddress;
+        return SshHelper.sshExecute(address, port, getControlNodeLoginUser(), sshKeyFile, null, command, 10000, 10000, 180000);
+    }
+
+    protected void ensureControlPlaneReady(UserVm vm, int index, boolean preflight) {
+        if (kubernetesCluster.getControlNodeCount() < 3 || !controlVmIds().contains(vm.getId())) {
+            return;
+        }
+        try {
+            Pair<Boolean, String> result = executeControlPlaneGateCommand(vm, index, getControlPlaneGateCommand(vm.getHostName().toLowerCase()));
+            if (Boolean.TRUE.equals(result.first()) && result.second().contains("UPGRADE_CONTROL_PLANE_AND_ETCD_READY")) {
+                return;
+            }
+        } catch (Exception e) {
+            logger.warn("HA upgrade control-plane readiness failed for cluster {}", kubernetesCluster.getUuid());
+        }
+        if (preflight) {
+            logAndThrow(Level.ERROR, "HA upgrade control-plane or etcd preflight failed");
+        }
+        logTransitStateDetachIsoAndThrow(Level.ERROR, "HA upgrade paused; control-plane or etcd readiness did not recover",
+                kubernetesCluster, clusterVMs, KubernetesCluster.Event.OperationFailed, null);
     }
 
     private void upgradeKubernetesClusterNodes() {
@@ -121,6 +240,7 @@ public class KubernetesClusterUpgradeWorker extends KubernetesClusterActionWorke
             if (System.currentTimeMillis() > upgradeTimeoutTime) {
                 logTransitStateDetachIsoAndThrow(Level.ERROR, String.format("Failed to upgrade Kubernetes cluster : %s, upgrade action timed out", kubernetesCluster.getName()), kubernetesCluster, clusterVMs, KubernetesCluster.Event.OperationFailed, null);
             }
+            setUpgradeApiMember(vm, false);
             errorMessage = String.format("Failed to upgrade Kubernetes cluster : %s, unable to upgrade Kubernetes node on VM : %s", kubernetesCluster.getName(), vm.getDisplayName());
             for (int retry = KubernetesClusterService.KubernetesClusterUpgradeRetries.value(); retry >= 0; retry--) {
                 try {
@@ -154,6 +274,8 @@ public class KubernetesClusterUpgradeWorker extends KubernetesClusterActionWorke
             if (!KubernetesClusterUtil.clusterNodeVersionMatches(upgradeVersion.getSemanticVersion(), publicIpAddress, sshPort, getControlNodeLoginUser(), getManagementServerSshPublicKeyFile(), hostName, upgradeTimeoutTime, 15000, vm.getId(), kubernetesClusterVmMapDao)) {
                 logTransitStateDetachIsoAndThrow(Level.ERROR, String.format("Failed to upgrade Kubernetes cluster : %s, unable to get Kubernetes node on VM : %s upgraded to version %s", kubernetesCluster.getName(), vm.getDisplayName(), upgradeVersion.getSemanticVersion()), kubernetesCluster, clusterVMs, KubernetesCluster.Event.OperationFailed, null);
             }
+            ensureControlPlaneReady(vm, i, false);
+            setUpgradeApiMember(vm, true);
             ensureUpgradeWorkloadsReady(false);
             if (logger.isInfoEnabled()) {
                 logger.info("Successfully upgraded node on VM {} in Kubernetes cluster {} with Kubernetes version {}", vm, kubernetesCluster, upgradeVersion);
@@ -263,6 +385,13 @@ public class KubernetesClusterUpgradeWorker extends KubernetesClusterActionWorke
         retrieveScriptFiles();
         if (!rebalanceHaDns()) {
             logAndThrow(Level.ERROR, "HA DNS readiness preflight failed before Kubernetes upgrade");
+        }
+        upgradeApiLoadBalancer = findHaUpgradeApiLoadBalancer();
+        ensureControlPlaneReady(clusterVMs.get(0), 0, true);
+        if (upgradeApiLoadBalancer != null) {
+            for (UserVm vm : clusterVMs) {
+                setUpgradeApiMember(vm, true); // Restore a verified healthy member after a paused prior attempt.
+            }
         }
         ensureUpgradeWorkloadsReady(true);
         stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.UpgradeRequested);

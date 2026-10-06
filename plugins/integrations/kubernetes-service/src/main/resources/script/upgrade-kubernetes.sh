@@ -40,6 +40,11 @@ if [ $# -gt 4 ]; then
   EXTERNAL_CNI="${5}"
 fi
 
+HA_CONTROL_PLANE=false
+if [ $# -gt 5 ]; then
+  HA_CONTROL_PLANE="${6}"
+fi
+
 export PATH=$PATH:/opt/bin
 if [[ "$PATH" != *:/usr/sbin && "$PATH" != *:/usr/sbin:* ]]; then
   export PATH=$PATH:/usr/sbin
@@ -157,6 +162,14 @@ if [ -d "$BINARIES_DIR" ]; then
 
   tar -f "${BINARIES_DIR}/cni/cni-plugins-"*64.tgz -C /opt/cni/bin -xz
   tar -f "${BINARIES_DIR}/cri-tools/crictl-linux-"*64.tar.gz -C /opt/bin -xz
+
+  # An apiserver can keep TCP sessions open while its stacked etcd restarts.
+  # HA API LB membership is withdrawn by the manager before reaching this step.
+  # Gracefully close existing sessions so kubelets reconnect to surviving controls.
+  if [ "$HA_CONTROL_PLANE" = true ] && [ -s /etc/kubernetes/manifests/kube-apiserver.yaml ]; then
+    pkill -TERM -x kube-apiserver || [ "$?" -eq 1 ]
+    sleep 20
+  fi
 
   if [ "${IS_MAIN_CONTROL}" == 'true' ]; then
     set +e
