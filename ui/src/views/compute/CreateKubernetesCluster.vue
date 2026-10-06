@@ -76,10 +76,10 @@
             :placeholder="apiParams.hypervisor.description"
             showSearch
             optionFilterProp="label"
-            @change="val => { handleZoneHypervisorChange(val) }">
             :filterOption="(input, option) => {
               return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }" >
+            }"
+            @change="val => { handleZoneHypervisorChange(val) }">
             <a-select-option v-for="(opt, optIndex) in selectedZoneHypervisors" :key="optIndex" :label="opt.name || opt.description">
               {{ opt.name || opt.description }}
             </a-select-option>
@@ -146,7 +146,7 @@
             }"
             :loading="networkLoading"
             :placeholder="apiParams.networkid.description">
-            <a-select-option v-for="(opt, optIndex) in networks" :key="optIndex" :label="opt.name || opt.description">
+            <a-select-option v-for="(opt, optIndex) in networks" :key="optIndex" :label="opt.name || opt.description || ''">
               {{ opt.name || opt.description }}
             </a-select-option>
           </a-select>
@@ -195,7 +195,7 @@
             }"
             :loading="keyPairLoading"
             :placeholder="apiParams.keypair.description">
-            <a-select-option v-for="(opt, optIndex) in keyPairs" :key="optIndex" :label="opt.name || opt.description">
+            <a-select-option v-for="(opt, optIndex) in keyPairs" :key="optIndex" :label="opt.name || opt.description || ''">
               {{ opt.name || opt.description }}
             </a-select-option>
           </a-select>

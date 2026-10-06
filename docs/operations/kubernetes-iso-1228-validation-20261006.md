@@ -111,3 +111,12 @@ StartWorker는 API 준비 후 CCM을 먼저 배포하고 그 뒤 Node/dashboard 
 ### Kubernetes 생성 소유자 검색 (#1246)
 
 실제 계정 검색에서 option.label 누락에 의한 toLowerCase TypeError를 확인했다. OwnershipSelection의 계정 옵션에 account.name label을 추가한다. 해당 UI 파일 ESLint와 Node20/WSL ext4 production UI build가 통과했다. static UI 적용은 WEB-INF/config.json/management PID를 보존하고 브라우저의 정상·무결과·검색 해제·선택을 재검증한다.
+
+## 새 ISO clean r6 및 생성 폼 검색 회귀
+
+- ISO48830e74/Cloud795bfb65의 r6(2ea55ae0-7ea7-4145-ae0b-7945982c0ab2) UI 생성 job8222/b2ead0f9-ff72-4259-b7ad-f18fe4c2a8d0은 11:35:09→11:37:36 KST/147초 성공.
+- 실제 CCM이 제어/워커 세 native Provider ID를 생성하고 uninitialized taint를 해제했으며 Node3/시스템 Pod15 Ready·재시작0. 수동 CCM/Secret/taint/ID 보정 없이 검증했다.
+- VM179/180/181과 VR175의 root는 Primary pool1 GFS2, 세 노드 cloud-final ExecMainStatus0·bootstrap success·kubelet/containerd active·v1.34.12·ISO분리.
+- 서로 다른 worker의 Pod/DNS/ClusterIP/NodePort/NetworkPolicy 14검사 및 HTTP1000/오류0 통과. 전체 lifecycle/다른 minor PASS를 선언하지 않는다.
+- #1246 계정 검색 일치/무결과/검색 해제/선택 정상. 후속 네트워크 검색에서 빈 옵션 label의 undefined 접근이 재현되어 #1248을 추가했다.
+- #1248 네트워크/SSH 키 빈 옵션 label을 빈 문자열로 제공하고 태그 밖에 있던 hypervisor filterOption을 속성으로 복원했다. 변경 파일 ESLint·UI production build PASS. 실제 배포 후 필드별 검색 회귀 검증을 진행한다.
