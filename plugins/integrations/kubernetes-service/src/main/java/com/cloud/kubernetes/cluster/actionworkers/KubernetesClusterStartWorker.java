@@ -526,6 +526,13 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
         List<Long> affinityGroupIds = getMergedAffinityGroupIds(ETCD, domainId, accountId);
         String hostName = etcdNodeHostnames.get(etcdNodeIndex);
         Map<String, String> customParameterMap = new HashMap<String, String>();
+        long rootDiskSize = kubernetesCluster.getNodeRootDiskSize();
+        if (rootDiskSize > 0) {
+            customParameterMap.put("rootdisksize", String.valueOf(rootDiskSize));
+        }
+        if (Hypervisor.HypervisorType.VMware.equals(etcdTemplate.getHypervisorType())) {
+            customParameterMap.put(VmDetailConstants.ROOT_DISK_CONTROLLER, "scsi");
+        }
         if (zone.isSecurityGroupEnabled()) {
             List<Long> securityGroupIds = new ArrayList<>();
             securityGroupIds.add(kubernetesCluster.getSecurityGroupId());
@@ -596,7 +603,18 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
         return additionalControlVms;
     }
 
-    private Pair<List<UserVm>, List<Network.IpAddresses>> provisionEtcdCluster(final Network network, final Long domainId, final Long accountId)
+    protected Pair<List<UserVm>, List<Network.IpAddresses>> provisionEtcdClusterOnCreate(final Network network,
+            final Long domainId, final Long accountId) {
+        try {
+            return provisionEtcdCluster(network, domainId, accountId);
+        } catch (CloudRuntimeException | ManagementServerException | ResourceUnavailableException | InsufficientCapacityException e) {
+            logTransitStateAndThrow(Level.ERROR, String.format("Provisioning external etcd VMs failed in the Kubernetes cluster : %s",
+                    kubernetesCluster.getName()), kubernetesCluster.getId(), KubernetesCluster.Event.CreateFailed, e);
+            return null;
+        }
+    }
+
+    protected Pair<List<UserVm>, List<Network.IpAddresses>> provisionEtcdCluster(final Network network, final Long domainId, final Long accountId)
             throws InsufficientCapacityException, ResourceUnavailableException, ManagementServerException {
         List<UserVm> etcdNodeVms = new ArrayList<>();
         List<Network.IpAddresses>  etcdNodeGuestIps = getEtcdNodeGuestIps(network, kubernetesCluster.getEtcdNodeCount());
@@ -820,7 +838,7 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
         List<UserVm> etcdVms = new ArrayList<>();
         List<Network.IpAddresses> etcdGuestNodeIps = new ArrayList<>();
         if (kubernetesCluster.getEtcdNodeCount() > 0) {
-            Pair<List<UserVm>, List<Network.IpAddresses>> etcdNodesAndIps = provisionEtcdCluster(network, domainId, accountId);
+            Pair<List<UserVm>, List<Network.IpAddresses>> etcdNodesAndIps = provisionEtcdClusterOnCreate(network, domainId, accountId);
             etcdVms = etcdNodesAndIps.first();
             etcdGuestNodeIps = etcdNodesAndIps.second();
         }
