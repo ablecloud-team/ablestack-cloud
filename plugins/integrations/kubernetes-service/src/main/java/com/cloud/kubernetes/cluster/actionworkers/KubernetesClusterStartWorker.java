@@ -22,6 +22,7 @@ import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -77,6 +78,7 @@ import com.cloud.uservm.UserVm;
 import com.cloud.utils.Pair;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.utils.net.Ip;
+import com.cloud.utils.ssh.SshHelper;
 import com.cloud.vm.ReservationContext;
 import com.cloud.vm.ReservationContextImpl;
 import com.cloud.vm.UserVmManager;
@@ -94,6 +96,41 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
 
     public KubernetesClusterStartWorker(final KubernetesCluster kubernetesCluster, final KubernetesClusterManagerImpl clusterManager) {
         super(kubernetesCluster, clusterManager);
+    }
+
+    protected boolean rebalanceHaDns() {
+        if (kubernetesCluster.getControlNodeCount() <= 1) {
+            return true;
+        }
+        return executeDnsRebalance();
+    }
+
+    protected boolean executeDnsRebalance() {
+        return executeDnsRebalance(false);
+    }
+
+    protected boolean verifyHaDns() {
+        return kubernetesCluster.getControlNodeCount() <= 1 || executeDnsRebalance(true);
+    }
+
+    protected boolean executeDnsRebalance(boolean checkOnly) {
+        try {
+            String script = readResourceFile("/script/rebalance-ha-coredns.py");
+            String encoded = Base64.encodeBase64String(script.getBytes(StandardCharsets.UTF_8));
+            String command = "sudo python3 -c 'import base64;exec(base64.b64decode(\"" + encoded + "\"))'";
+            if (checkOnly) {
+                command += " --check-only";
+            }
+            if (kubernetesCluster.getNodeCount() >= 2) {
+                command += " --prefer-workers";
+            }
+            Pair<Boolean, String> result = SshHelper.sshExecute(publicIpAddress, sshPort, getControlNodeLoginUser(),
+                    sshKeyFile, null, command, 10000, 10000, 180000);
+            return result.first() && result.second().contains("HA_COREDNS_READY_ON_DISTINCT_NODES");
+        } catch (Exception e) {
+            logger.warn("Unable to verify CoreDNS distribution for HA Kubernetes cluster {}", kubernetesCluster.getName());
+            return false;
+        }
     }
 
     public KubernetesSupportedVersion getKubernetesClusterVersion() {
@@ -868,6 +905,10 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
             logTransitStateAndThrow(Level.ERROR, String.format("Failed to setup Kubernetes cluster : %s in usable state as unable to get Dashboard service running for the cluster", kubernetesCluster.getName()), kubernetesCluster.getId(),KubernetesCluster.Event.OperationFailed);
         }
         taintControlNodes();
+        if (!rebalanceHaDns()) {
+            logTransitStateAndThrow(Level.ERROR, String.format("Failed to setup HA Kubernetes cluster : %s as CoreDNS is not Ready on distinct nodes",
+                    kubernetesCluster.getName()), kubernetesCluster.getId(), KubernetesCluster.Event.CreateFailed);
+        }
         if (kubernetesCluster.isCsiEnabled()) {
             deployCsiDriver();
         }
@@ -905,6 +946,10 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
         }
         if (!isKubernetesClusterDashboardServiceRunning(false, startTimeoutTime)) {
             logTransitStateAndThrow(Level.ERROR, String.format("Failed to start Kubernetes cluster : %s in usable state as unable to get Dashboard service running for the cluster", kubernetesCluster.getName()), kubernetesCluster.getId(), KubernetesCluster.Event.OperationFailed);
+        }
+        if (!verifyHaDns()) {
+            logTransitStateAndThrow(Level.ERROR, String.format("Failed to start HA Kubernetes cluster : %s as CoreDNS is not Ready on distinct nodes",
+                    kubernetesCluster.getName()), kubernetesCluster.getId(), KubernetesCluster.Event.OperationFailed);
         }
         stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.OperationSucceeded);
         if (logger.isInfoEnabled()) {
@@ -947,6 +992,9 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
             return false;
         }
         if (!isKubernetesClusterDashboardServiceRunning(false, startTimeoutTime)) {
+            return false;
+        }
+        if (!verifyHaDns()) {
             return false;
         }
         // mark the cluster to be running
