@@ -91,6 +91,9 @@ public interface IpAddressManager {
      */
     boolean disassociatePublicIpAddress(IpAddress ipAddress, long userId, Account caller);
 
+    /** Revalidates an allocation receipt while holding the public IP lock. */
+    boolean disassociatePublicIpAddress(IpAddress ipAddress, long userId, Account caller, String expectedAllocationGeneration);
+
     boolean applyRules(List<? extends FirewallRule> rules, FirewallRule.Purpose purpose, NetworkRuleApplier applier, boolean continueOnError)
             throws ResourceUnavailableException;
 

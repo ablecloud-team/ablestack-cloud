@@ -1273,11 +1273,25 @@ public class NetworkServiceImpl extends ManagerBase implements NetworkService, C
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_NET_IP_RELEASE, eventDescription = "disassociating Ip", async = true)
     public boolean releaseIpAddress(long ipAddressId) throws InsufficientAddressCapacityException {
-        return releaseIpAddressInternal(ipAddressId);
+        return releaseIpAddressInternal(ipAddressId, null);
+    }
+
+    @Override
+    @ActionEvent(eventType = EventTypes.EVENT_NET_IP_RELEASE, eventDescription = "disassociating Ip with allocation receipt", async = true)
+    public boolean releaseIpAddress(long ipAddressId, String expectedAllocationGeneration) throws InsufficientAddressCapacityException {
+        if (org.apache.commons.lang3.StringUtils.isBlank(expectedAllocationGeneration)) {
+            throw new InvalidParameterValueException("A public IP allocation receipt is required");
+        }
+        return releaseIpAddressInternal(ipAddressId, expectedAllocationGeneration);
     }
 
     @DB
     private boolean releaseIpAddressInternal(long ipAddressId) throws InsufficientAddressCapacityException {
+        return releaseIpAddressInternal(ipAddressId, null);
+    }
+
+    @DB
+    private boolean releaseIpAddressInternal(long ipAddressId, String expectedAllocationGeneration) throws InsufficientAddressCapacityException {
         Long userId = CallContext.current().getCallingUserId();
         Account caller = CallContext.current().getCallingAccount();
 
@@ -1321,6 +1335,10 @@ public class NetworkServiceImpl extends ManagerBase implements NetworkService, C
         }
 
         if (State.Reserved.equals(ipVO.getState())) {
+            // Receipt-based Kubernetes cleanup is limited to active allocations.
+            if (expectedAllocationGeneration != null) {
+                throw new InvalidParameterValueException("Cannot release a reserved public IP with a Kubernetes allocation receipt");
+            }
             _ipAddressDao.unassignIpAddress(ipVO.getId());
             Long ipDedicatedAccountId = getIpDedicatedAccountId(ipVO.getVlanId());
             if (ipDedicatedAccountId == null) {
@@ -1329,7 +1347,9 @@ public class NetworkServiceImpl extends ManagerBase implements NetworkService, C
             return true;
         }
 
-        boolean success = _ipAddrMgr.disassociatePublicIpAddress(ipVO, userId, caller);
+        boolean success = expectedAllocationGeneration == null
+                ? _ipAddrMgr.disassociatePublicIpAddress(ipVO, userId, caller)
+                : _ipAddrMgr.disassociatePublicIpAddress(ipVO, userId, caller, expectedAllocationGeneration);
 
         if (success) {
             _resourceTagDao.removeByIdAndType(ipAddressId, ResourceObjectType.PublicIpAddress);

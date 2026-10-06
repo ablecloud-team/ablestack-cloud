@@ -1490,3 +1490,7 @@ CREATE TABLE IF NOT EXISTS `cloud`.`vm_process_profile` (
  `updated` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
  PRIMARY KEY (`vm_id`,`profile_id`,`version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Kubernetes Service cleanup receipts must distinguish pool IP allocation reuse.
+ALTER TABLE `cloud`.`user_ip_address` ADD COLUMN `allocation_generation` VARCHAR(36) DEFAULT NULL;
+UPDATE `cloud`.`user_ip_address` SET `allocation_generation` = UUID() WHERE `allocated` IS NOT NULL;

@@ -780,6 +780,12 @@ public class IpAddressManagerImpl extends ManagerBase implements IpAddressManage
     @Override
     @DB
     public boolean disassociatePublicIpAddress(IpAddress ipAddress, long userId, Account caller) {
+        return disassociatePublicIpAddress(ipAddress, userId, caller, null);
+    }
+
+    @Override
+    @DB
+    public boolean disassociatePublicIpAddress(IpAddress ipAddress, long userId, Account caller, String expectedAllocationGeneration) {
         boolean success = true;
         long addrId = ipAddress.getId();
 
@@ -790,6 +796,13 @@ public class IpAddressManagerImpl extends ManagerBase implements IpAddressManage
                 logger.error(String.format("Unable to acquire lock on public IP %s.", addrId));
                 throw new CloudRuntimeException("Unable to acquire lock on public IP.");
             }
+
+            if (expectedAllocationGeneration != null
+                    && !expectedAllocationGeneration.equals(ipToBeDisassociated.getAllocationGeneration())) {
+                throw new InvalidParameterValueException("Public IP allocation changed; preserving the current allocation");
+            }
+            // Use the row re-read under the same allocation/release lock.
+            ipAddress = ipToBeDisassociated;
 
             if (ipToBeDisassociated.isForRouter()) {
                 if (remoteAccessVpnDao.findByPublicIpAddress(ipToBeDisassociated.getId()) != null) {
