@@ -27,6 +27,12 @@ import java.io.File;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import org.apache.cloudstack.framework.jobs.AsyncJob;
+import org.apache.cloudstack.framework.jobs.dao.AsyncJobDao;
+import org.apache.cloudstack.framework.jobs.impl.AsyncJobVO;
+import org.apache.cloudstack.api.command.user.kubernetes.cluster.CreateKubernetesClusterCmd;
+import com.cloud.utils.db.SearchBuilder;
+import com.cloud.utils.db.SearchCriteria;
 
 import com.cloud.bgp.BGPService;
 import com.cloud.dc.ASNumberVO;
@@ -61,8 +67,6 @@ import com.cloud.server.ResourceTag;
 import com.cloud.server.ResourceTag.ResourceObjectType;
 import com.cloud.tags.ResourceTagVO;
 import com.cloud.tags.dao.ResourceTagDao;
-import com.cloud.utils.db.SearchBuilder;
-import com.cloud.utils.db.SearchCriteria;
 import com.cloud.utils.Pair;
 import com.cloud.utils.ssh.SshHelper;
 import com.cloud.network.dao.NetworkVO;
@@ -96,9 +100,40 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
     protected LoadBalancerVMMapDao loadBalancerVMMapDao;
 
     private List<KubernetesClusterVmMapVO> clusterVMs;
+    @Inject protected AsyncJobDao asyncJobDao;
 
     public KubernetesClusterDestroyWorker(final KubernetesCluster kubernetesCluster, final KubernetesClusterManagerImpl clusterManager) {
         super(kubernetesCluster, clusterManager);
+    }
+
+    protected boolean reconcileFailedCreationBeforeDelete() {
+        if (kubernetesCluster.getState() != KubernetesCluster.State.Created
+                || !CollectionUtils.isEmpty(kubernetesClusterVmMapDao.listByClusterId(kubernetesCluster.getId()))) {
+            return false;
+        }
+        SearchBuilder<AsyncJobVO> builder = asyncJobDao.createSearchBuilder();
+        builder.and("cluster", builder.entity().getInstanceId(), SearchCriteria.Op.EQ);
+        builder.and("kind", builder.entity().getInstanceType(), SearchCriteria.Op.EQ);
+        builder.and("command", builder.entity().getCmd(), SearchCriteria.Op.EQ);
+        builder.done();
+        SearchCriteria<AsyncJobVO> criteria = builder.create();
+        criteria.setParameters("cluster", kubernetesCluster.getId());
+        criteria.setParameters("kind", "KubernetesCluster");
+        criteria.setParameters("command", CreateKubernetesClusterCmd.class.getName());
+        List<AsyncJobVO> jobs = asyncJobDao.search(criteria, null);
+        AsyncJobVO last = jobs.stream().max(java.util.Comparator.comparingLong(AsyncJobVO::getId)).orElse(null);
+        if (last == null || last.getStatus() != AsyncJob.Status.FAILED
+                || jobs.stream().anyMatch(job -> job.getStatus() == AsyncJob.Status.IN_PROGRESS)) {
+            throw new CloudRuntimeException("Cannot delete a Created Kubernetes cluster without a verified failed creation job and no active creation");
+        }
+        kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "lifecycle.provisioning.phase", "Preflight", false);
+        kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "lifecycle.creation.failed.job", last.getUuid(), false);
+        if (!stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.StartRequested)
+                || !stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.CreateFailed)) {
+            throw new CloudRuntimeException("Cannot reconcile the failed unprovisioned Kubernetes creation state");
+        }
+        kubernetesCluster = kubernetesClusterDao.findById(kubernetesCluster.getId());
+        return true;
     }
 
     private void validateClusterSate() {
@@ -587,6 +622,7 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
 
     public boolean destroy() throws CloudRuntimeException {
         init();
+        reconcileFailedCreationBeforeDelete();
         validateClusterSate();
         this.clusterVMs = kubernetesClusterVmMapDao.listByClusterId(kubernetesCluster.getId());
         final boolean unprovisionedFailure = isUnprovisionedFailure();

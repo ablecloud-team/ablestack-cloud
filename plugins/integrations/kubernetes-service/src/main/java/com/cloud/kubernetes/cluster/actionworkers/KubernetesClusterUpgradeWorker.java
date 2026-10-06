@@ -57,6 +57,7 @@ import com.cloud.kubernetes.cluster.KubernetesClusterVO;
 import com.cloud.kubernetes.cluster.utils.KubernetesClusterUtil;
 import com.cloud.kubernetes.version.KubernetesSupportedVersion;
 import com.cloud.kubernetes.version.KubernetesVersionManagerImpl;
+import com.cloud.kubernetes.version.KubernetesVersionReferences;
 import com.cloud.uservm.UserVm;
 import com.cloud.utils.Pair;
 import com.cloud.utils.exception.CloudRuntimeException;
@@ -402,6 +403,11 @@ public class KubernetesClusterUpgradeWorker extends KubernetesClusterActionWorke
             }
         }
         ensureUpgradeWorkloadsReady(true);
+        KubernetesVersionReferences.withLock(upgradeVersion.getId(), () -> {
+            KubernetesVersionReferences.requireEnabled(kubernetesSupportedVersionDao.findById(upgradeVersion.getId()));
+            KubernetesVersionReferences.pin(kubernetesCluster, upgradeVersion.getId(), kubernetesClusterDetailsDao);
+            return null;
+        });
         stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.UpgradeRequested);
         attachIsoKubernetesVMs(clusterVMs, upgradeVersion);
         upgradeKubernetesClusterNodes();
@@ -419,6 +425,7 @@ public class KubernetesClusterUpgradeWorker extends KubernetesClusterActionWorke
             stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.OperationFailed);
         } else {
             stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.OperationSucceeded);
+            KubernetesVersionReferences.clear(kubernetesCluster.getId(), upgradeVersion.getId(), kubernetesClusterDetailsDao);
         }
         return updated;
     }

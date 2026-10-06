@@ -762,6 +762,17 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
         kubernetesClusterDao.update(kubernetesCluster.getId(), kubernetesClusterVO);
     }
 
+    public void recordCreationCredentialFailure() {
+        if (kubernetesCluster.getState() == KubernetesCluster.State.Created
+                && CollectionUtils.isEmpty(kubernetesClusterVmMapDao.listByClusterId(kubernetesCluster.getId()))) {
+            kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "lifecycle.provisioning.phase", "Preflight", false);
+            if (!stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.StartRequested)
+                    || !stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.CreateFailed)) {
+                throw new CloudRuntimeException("Cannot record Kubernetes controller credential preparation failure");
+            }
+        }
+    }
+
     public boolean startKubernetesClusterOnCreate(Long domainId, Long accountId, Long asNumber) throws ManagementServerException, ResourceUnavailableException, InsufficientCapacityException {
         init();
         if (logger.isInfoEnabled()) {

@@ -189,6 +189,7 @@ import com.cloud.kubernetes.cluster.dao.KubernetesClusterVmMapDao;
 import com.cloud.kubernetes.version.KubernetesSupportedVersion;
 import com.cloud.kubernetes.version.KubernetesSupportedVersionVO;
 import com.cloud.kubernetes.version.KubernetesVersionManagerImpl;
+import com.cloud.kubernetes.version.KubernetesVersionReferences;
 import com.cloud.kubernetes.version.dao.KubernetesSupportedVersionDao;
 import com.cloud.network.IpAddress;
 import com.cloud.network.Network;
@@ -1742,6 +1743,10 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
     @ActionEvent(eventType = KubernetesClusterEventTypes.EVENT_KUBERNETES_CLUSTER_CREATE,
             eventDescription = "creating Kubernetes cluster", create = true)
     public KubernetesCluster createManagedKubernetesCluster(CreateKubernetesClusterCmd cmd) throws CloudRuntimeException {
+        return KubernetesVersionReferences.withLock(cmd.getKubernetesVersionId(), () -> createManagedClusterWithVersionLock(cmd));
+    }
+
+    private KubernetesCluster createManagedClusterWithVersionLock(CreateKubernetesClusterCmd cmd) throws CloudRuntimeException {
         if (!KubernetesServiceEnabled.value()) {
             logAndThrow(Level.ERROR, "Kubernetes Service plugin is disabled");
         }
@@ -2027,6 +2032,9 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
         try {
             startWorker.setKeys(getServiceUserKeys(kubernetesCluster));
         } catch (CloudRuntimeException exception) {
+            if (onCreate) {
+                startWorker.recordCreationCredentialFailure();
+            }
             throw new CloudRuntimeException("Unable to prepare cluster-scoped Kubernetes controller credentials before node startup; "
                     + "verify the service account and key profile", exception);
         }

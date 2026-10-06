@@ -307,7 +307,7 @@ public class KubernetesVersionServiceTest {
         List<KubernetesClusterVO> clusters = new ArrayList<>();
         clusters.add(Mockito.mock(KubernetesClusterVO.class));
         when(kubernetesClusterDao.listAllByKubernetesVersion(Mockito.anyLong())).thenReturn(clusters);
-        kubernetesVersionService.deleteKubernetesSupportedVersion(cmd);
+        ((KubernetesVersionManagerImpl)kubernetesVersionService).deleteUnreferencedKubernetesVersion(cmd);
     }
 
     @Test
@@ -321,7 +321,7 @@ public class KubernetesVersionServiceTest {
         when(kubernetesClusterDao.listAllByKubernetesVersion(Mockito.anyLong())).thenReturn(clusters);
         try (MockedStatic<ComponentContext> mockedComponentContext = Mockito.mockStatic(ComponentContext.class)) {
             mockedComponentContext.when(() -> ComponentContext.inject(Mockito.any(DeleteIsoCmd.class))).thenReturn(new DeleteIsoCmd());
-            kubernetesVersionService.deleteKubernetesSupportedVersion(cmd);
+            ((KubernetesVersionManagerImpl)kubernetesVersionService).deleteUnreferencedKubernetesVersion(cmd);
             Mockito.verify(kubernetesSupportedVersionDao).remove(Mockito.anyLong());
         }
     }
@@ -338,7 +338,7 @@ public class KubernetesVersionServiceTest {
         when(version.getState()).thenReturn(KubernetesSupportedVersion.State.Disabled);
         when(version.getSemanticVersion()).thenReturn(KubernetesVersionService.MIN_KUBERNETES_VERSION);
         when(kubernetesSupportedVersionDao.findById(Mockito.anyLong())).thenReturn(version);
-        KubernetesSupportedVersionResponse response = kubernetesVersionService.updateKubernetesSupportedVersion(cmd);
+        KubernetesSupportedVersionResponse response = ((KubernetesVersionManagerImpl)kubernetesVersionService).updateVersionWithReferenceLock(cmd);
         Assert.assertNotNull(response);
         Assert.assertEquals(KubernetesSupportedVersion.State.Disabled.toString(), response.getState());
         Assert.assertEquals(KubernetesVersionService.MIN_KUBERNETES_VERSION, response.getSemanticVersion());
