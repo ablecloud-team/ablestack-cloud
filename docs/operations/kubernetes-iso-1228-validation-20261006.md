@@ -120,3 +120,19 @@ StartWorker는 API 준비 후 CCM을 먼저 배포하고 그 뒤 Node/dashboard 
 - 서로 다른 worker의 Pod/DNS/ClusterIP/NodePort/NetworkPolicy 14검사 및 HTTP1000/오류0 통과. 전체 lifecycle/다른 minor PASS를 선언하지 않는다.
 - #1246 계정 검색 일치/무결과/검색 해제/선택 정상. 후속 네트워크 검색에서 빈 옵션 label의 undefined 접근이 재현되어 #1248을 추가했다.
 - #1248 네트워크/SSH 키 빈 옵션 label을 빈 문자열로 제공하고 태그 밖에 있던 hypervisor filterOption을 속성으로 복원했다. 변경 파일 ESLint·UI production build PASS. 실제 배포 후 필드별 검색 회귀 검증을 진행한다.
+
+## 새 ISO r6 기본 AS 확장·축소 및 독립 복원 (2026-10-06)
+
+ISO `48830e74`, Cloud CCM 초기화 순서 `795bfb65`, AS `254f91ed`의 새 r6 클러스터는 수동 Secret/RBAC/taint/providerID 보정 없이 설치됐습니다. 기본 min2/max3 및 10분 unneeded 대기를 유지한 실제 Pending Pod 부하에서 자동 2→3→2가 통과했습니다. 부하 제거와 API rolling/rollback이 겹쳐 후보 시간이 11:57:20 KST으로 갱신됐고, 자동 축소 job `f8822a46-57c0-4c2a-aea3-75bce25bce4f`는 12:07:31~12:07:45 KST에 성공했습니다. worker registered/Ready/target2·unregistered0, 삭제 VM182/map0/root222 Expunged/SSH2225 제거/host domain 부재/LB backend3→2를 대조했습니다. 실제 축소 job 전체를 포함한 내부 HTTP2911/300초 및 외부 LB HTTP3000/304초 모두 오류0입니다. 이 검증은 1.34.12 대표 범위이며 다른 minor·HA/etcd·장시간·upgrade를 대신하지 않습니다.
+
+RT06에서는 Ready Pod와 같은 RDB SHA만으로 복원 완료를 판단할 수 없음을 확인했습니다(#1252). 원본 Redis7.4.11의 RDB100건을 빈 복원 PV에 복사한 뒤 `appendonly=yes`로 시작하면 새 빈 AOF가 생성되어 DB가 0건입니다. 원본 데이터와 실패 복원 경로를 보존하고 다음 절차로 수정했습니다.
+
+1. 복원 대상 Redis만 정지하고 원본·독립 백업 RDB checksum을 확인합니다. 원본 앱/PV는 변경하지 않습니다.
+2. 실패 대상은 별도 경로로 보존하고 새 복원 경로에 RDB를 배치합니다. UID/GID, NFS root_squash, PV/namespace/경로 소유권을 확인합니다.
+3. `appendonly=no`로 RDB를 먼저 로드합니다. 앱 HTTP로 실제100건과 파일64/4MiB의 내용/checksum을 확인합니다.
+4. `CONFIG SET appendonly yes`로 AOF를 재생성합니다. `aof_enabled:1`, rewrite 완료, 마지막 rewrite/write 성공 및 DB100건을 확인합니다.
+5. StatefulSet의 재시작 설정을 `appendonly=yes`로 변경하고 실제 Pod가 재생성되도록 합니다. AOF 로드 로그의100건과 앱 데이터/파일 검증을 다시 확인합니다.
+
+실제 재검증은 RDB-only 로드 후65/65 및 HTTP100/오류0, AOF 활성 재시작 후에도65/65 및 HTTP100/오류0이었습니다. 백업 형식(RDB-only 또는 AOF 포함)을 기록하고 readiness/파일 hash와 실제 데이터 복원 결과를 구분합니다. [Redis 공식 persistence 문서](https://redis.io/docs/latest/operate/oss_and_stack/management/persistence/)를 참조합니다. 이 절차 수정은 시험/운영 복원 계약이며 Kubernetes Provider나 GFS2 runtime 오류로 취급하지 않습니다.
+
+전체 CI UI 실패(#1249), AS generic CI 실패(#1250), 노드 템플릿 machine-id 중복(#1251)은 별도 미완료 gate입니다. 현재 실행 중인 노드에서 cloud-init clean을 수행하지 않습니다.
