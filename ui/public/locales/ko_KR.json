@@ -1,4 +1,5 @@
 {
+  "message.storage.service.read.partial": "일부 상세 정보를 조회하지 못했습니다. 이전 조회값을 유지합니다. 업데이트 버튼으로 다시 조회할 수 있습니다.",
   "label.register.userdata.action": "등록",
   "message.userdata.submitting": "등록 중입니다. 결과를 받을 때까지 이 창과 페이지를 유지해 주세요.",
   "message.userdata.validation.name": "앞뒤 공백을 제외한 1~255자의 이름을 입력하세요.",

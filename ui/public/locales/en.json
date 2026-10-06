@@ -1,4 +1,5 @@
 {
+  "message.storage.service.read.partial": "Some details could not be refreshed. Previously loaded values remain visible. Retry the failed reads.",
   "label.register.userdata.action": "Register",
   "message.userdata.submitting": "Registering. Wait for the result before closing or leaving this page.",
   "message.userdata.validation.name": "Enter a name of 1 to 255 characters after trimming whitespace.",

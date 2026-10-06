@@ -94,4 +94,56 @@ describe('SharedFS initial runtime loading ownership', () => {
     expect(instanceReads).toHaveLength(1)
     expect(vm.storageService.instance).toBeNull()
   })
+  it('coalesces duplicate reads in the same scope', async () => {
+    const first = wrapper.vm.fetchStorageServiceData()
+    const second = wrapper.vm.fetchStorageServiceData()
+    expect(first).toBe(second)
+    expect(instanceReads).toHaveLength(1)
+    instanceReads[0](instances)
+    await first
+    expect(wrapper.vm.storageService.loading).toBe(false)
+  })
+
+  it('ends loading on an instance read deadline and allows a manual retry', async () => {
+    jest.useFakeTimers()
+    const first = wrapper.vm.fetchStorageServiceData()
+    await jest.advanceTimersByTime(15001)
+    await first
+    expect(wrapper.vm.storageService.loading).toBe(false)
+    expect(wrapper.vm.storageService.readErrors).toEqual(['listStorageServiceInstances'])
+    const retry = wrapper.vm.fetchStorageServiceData()
+    instanceReads[1](instances)
+    await retry
+    expect(wrapper.vm.storageService.readErrors).toEqual([])
+    expect(wrapper.vm.storageService.loaded).toBe(true)
+    jest.useRealTimers()
+  })
+
+  it('retains a failed section while committing successful sections', async () => {
+    wrapper.vm.storageService.health = [{ previous: true }]
+    const original = wrapper.vm.listApi
+    wrapper.vm.listApi = command => command === 'listStorageServiceHealth'
+      ? Promise.reject(new Error('QGA unavailable'))
+      : original(command)
+    const read = wrapper.vm.fetchStorageServiceData()
+    instanceReads[0](instances)
+    await read
+    expect(wrapper.vm.storageService.health).toEqual([{ previous: true }])
+    expect(wrapper.vm.storageService.instance.id).toBe('instance')
+    expect(wrapper.vm.storageService.readErrors).toEqual(['health'])
+    expect(wrapper.vm.storageService.loading).toBe(false)
+  })
+
+  it('never commits a response that arrives after the read deadline', async () => {
+    jest.useFakeTimers()
+    const read = wrapper.vm.fetchStorageServiceData()
+    jest.advanceTimersByTime(15001)
+    await read
+    instanceReads[0](instances)
+    await flushPromises()
+    expect(wrapper.vm.storageService.instance).toBeNull()
+    expect(wrapper.vm.storageService.loading).toBe(false)
+    jest.useRealTimers()
+  })
+
 })
