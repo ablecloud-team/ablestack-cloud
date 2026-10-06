@@ -234,6 +234,9 @@ public class KubernetesClusterUpgradeWorker extends KubernetesClusterActionWorke
         } catch (Exception e) {
             logger.warn("Kubernetes upgrade workload readiness gate failed for cluster {}", kubernetesCluster.getUuid());
         }
+        if (capture) {
+            logAndThrow(Level.ERROR, "Kubernetes upgrade preflight failed; check PDB and workload readiness");
+        }
         logTransitStateDetachIsoAndThrow(Level.ERROR,
                 capture ? "Kubernetes upgrade preflight failed; check PDB and workload readiness"
                         : "Kubernetes upgrade paused; workloads or Service endpoints did not recover before the next node",
@@ -258,12 +261,11 @@ public class KubernetesClusterUpgradeWorker extends KubernetesClusterActionWorke
         }
         filterOutManualUpgradeNodesFromClusterUpgrade();
         retrieveScriptFiles();
-        stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.UpgradeRequested);
         if (!rebalanceHaDns()) {
-            logTransitStateDetachIsoAndThrow(Level.ERROR, "HA DNS readiness preflight failed before Kubernetes upgrade",
-                    kubernetesCluster, clusterVMs, KubernetesCluster.Event.OperationFailed, null);
+            logAndThrow(Level.ERROR, "HA DNS readiness preflight failed before Kubernetes upgrade");
         }
         ensureUpgradeWorkloadsReady(true);
+        stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.UpgradeRequested);
         attachIsoKubernetesVMs(clusterVMs, upgradeVersion);
         upgradeKubernetesClusterNodes();
         upgradeKubernetesControllers();

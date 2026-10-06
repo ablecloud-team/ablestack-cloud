@@ -30,6 +30,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -114,8 +115,16 @@ public class KubernetesUpgradeReadinessGateTest {
             worker.ensureUpgradeWorkloadsReady(true);
             fail("invalid receipt path must fail before SSH");
         } catch (CloudRuntimeException expected) {
-            assertEquals(KubernetesCluster.Event.OperationFailed, worker.failureEvent);
+            assertNull(worker.failureEvent);
         }
         assertEquals(0, worker.calls);
     }
+    @Test
+    public void pdbPreflightFailureDoesNotChangeStateOrDetachIsos() {
+        Worker worker = worker();
+        try { worker.ensureUpgradeWorkloadsReady(true); fail("PDB must block before mutation"); }
+        catch (CloudRuntimeException expected) { assertNull(worker.failureEvent); }
+        assertEquals(1, worker.calls);
+    }
+
 }
