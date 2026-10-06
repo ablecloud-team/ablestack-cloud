@@ -35,6 +35,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
@@ -187,4 +188,56 @@ public class KubernetesClusterScaleWorkerTest {
 
         Assert.assertTrue(toRemove.isEmpty());
     }
+    private KubernetesClusterScaleWorker removalWorker() {
+        KubernetesClusterScaleWorker spy = Mockito.spy(worker);
+        Mockito.doReturn(new File("unused-test-key")).when(spy).getManagementServerSshPublicKeyFile();
+        return spy;
+    }
+
+    @Test
+    public void testBlockedDrainDoesNotDeleteNodeAndUncordons() throws Exception {
+        KubernetesClusterScaleWorker spy = removalWorker();
+        UserVmVO vm = Mockito.mock(UserVmVO.class);
+        Mockito.when(vm.getHostName()).thenReturn("worker-3");
+        Mockito.doReturn(new Pair<>(false, "Cannot evict pod: PodDisruptionBudget would be violated"))
+                .when(spy).executeNodeRemovalCommand(Mockito.eq("endpoint"), Mockito.eq(2222), Mockito.any(File.class),
+                        Mockito.eq(KubernetesClusterScaleWorker.buildNodeDrainCommand("worker-3")), Mockito.eq(60000));
+        Mockito.doReturn(new Pair<>(true, "node uncordoned"))
+                .when(spy).executeNodeRemovalCommand(Mockito.eq("endpoint"), Mockito.eq(2222), Mockito.any(File.class),
+                        Mockito.eq(KubernetesClusterScaleWorker.buildNodeUncordonCommand("worker-3")), Mockito.eq(30000));
+        Assert.assertFalse(spy.removeKubernetesClusterNode("endpoint", 2222, vm, 1, 0));
+        Mockito.verify(spy, Mockito.never()).executeNodeRemovalCommand(Mockito.anyString(), Mockito.anyInt(), Mockito.any(File.class),
+                Mockito.eq(KubernetesClusterScaleWorker.buildNodeDeleteCommand("worker-3")), Mockito.anyInt());
+        Mockito.verify(spy).executeNodeRemovalCommand(Mockito.eq("endpoint"), Mockito.eq(2222), Mockito.any(File.class),
+                Mockito.eq(KubernetesClusterScaleWorker.buildNodeUncordonCommand("worker-3")), Mockito.eq(30000));
+    }
+
+    @Test
+    public void testSuccessfulDrainDeletesNodeWithoutUncordon() throws Exception {
+        KubernetesClusterScaleWorker spy = removalWorker();
+        UserVmVO vm = Mockito.mock(UserVmVO.class);
+        Mockito.when(vm.getHostName()).thenReturn("worker-3");
+        Mockito.doReturn(new Pair<>(true, "ok")).when(spy).executeNodeRemovalCommand(Mockito.anyString(), Mockito.anyInt(),
+                Mockito.any(File.class), Mockito.anyString(), Mockito.anyInt());
+        Assert.assertTrue(spy.removeKubernetesClusterNode("endpoint", 2222, vm, 1, 0));
+        Mockito.verify(spy).executeNodeRemovalCommand(Mockito.eq("endpoint"), Mockito.eq(2222), Mockito.any(File.class),
+                Mockito.eq(KubernetesClusterScaleWorker.buildNodeDeleteCommand("worker-3")), Mockito.eq(30000));
+        Mockito.verify(spy, Mockito.never()).executeNodeRemovalCommand(Mockito.anyString(), Mockito.anyInt(), Mockito.any(File.class),
+                Mockito.eq(KubernetesClusterScaleWorker.buildNodeUncordonCommand("worker-3")), Mockito.anyInt());
+    }
+
+    @Test
+    public void testTransportFailureAndUncordonFailurePreserveNode() throws Exception {
+        KubernetesClusterScaleWorker spy = removalWorker();
+        UserVmVO vm = Mockito.mock(UserVmVO.class);
+        Mockito.when(vm.getHostName()).thenReturn("worker-3");
+        Mockito.doThrow(new java.io.IOException("connection unavailable"))
+                .when(spy).executeNodeRemovalCommand(Mockito.anyString(), Mockito.anyInt(), Mockito.any(File.class), Mockito.anyString(), Mockito.anyInt());
+        Assert.assertFalse(spy.removeKubernetesClusterNode("endpoint", 2222, vm, 1, 0));
+        Mockito.verify(spy, Mockito.never()).executeNodeRemovalCommand(Mockito.anyString(), Mockito.anyInt(), Mockito.any(File.class),
+                Mockito.eq(KubernetesClusterScaleWorker.buildNodeDeleteCommand("worker-3")), Mockito.anyInt());
+        Mockito.verify(spy).executeNodeRemovalCommand(Mockito.eq("endpoint"), Mockito.eq(2222), Mockito.any(File.class),
+                Mockito.eq(KubernetesClusterScaleWorker.buildNodeUncordonCommand("worker-3")), Mockito.eq(30000));
+    }
+
 }

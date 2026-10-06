@@ -56,3 +56,28 @@ Headlamp는 Mold와 별도로 브라우저에서 언어를 감지합니다. Mold
 [Headlamp v0.40.1 언어 설정 소스](https://github.com/kubernetes-sigs/headlamp/blob/v0.40.1/frontend/src/i18n/config.ts)는 browser language detector와 한국어 지원을 사용합니다. [Headlamp 접근/번역 후속 이슈 #1239](https://github.com/ablecloud-team/ablestack-cloud/issues/1239)에서 최소 권한/단기 토큰 안내와 전체 번역 정리를 추적합니다. RT05 이후 앱/영속성, LB/AutoScaler, 확장·업그레이드·중지/시작·삭제, 다른 버전 및 장시간 관측은 후속 검증 대상입니다.
 
 RT06의 독립 NFS fixture로 `rt1230-gfs2-nfs-r4` (UUID `654fe7a4-ac32-47f6-8ba6-37c45720809c`, IP `10.123.4.3`)를 Ubuntu 24.04 사용자 template으로 생성했습니다. root volume 208은 Primary pool 1/GFS2입니다. fixture 100 GiB와 노드 2→3 확장을 수용하도록 전용 시험 계정 Primary quota만 200→400 GiB로 조정했습니다. 템플릿은 SSH 키 주입을 지원하지 않고 QGA가 연결되지 않았으며 제공된 root 시험 암호로 로그인할 수 없어, fixture 구성과 데이터 시험은 로그인 정보 확보까지 BLOCKED입니다. 기존 사용자 저장소 export 또는 controller root를 외부 영속 저장소 PASS로 대체하지 않습니다. 시험 종료 시 fixture 소유 자원과 quota 복원을 함께 확인합니다.
+
+## 2026-10-06 RT05~RT08 실행 추가
+
+- r4 1.34.12에서 GFS2 Primary 위 전용 Ubuntu NFS fixture의 SSH 키 접근을 확보하고 static Retain PV/PVC를 배포했다. 원본 템플릿과 기존 사용자 VM은 변경하지 않았다.
+- RT05: web 2 → API 2 → Redis StatefulSet 1, 기준선 HTTP 1,002회 오류 0, DB 100 records/64 files checksum 검증. rolling release/rollback, ConfigMap/Secret 변경 및 이전 token 거부를 확인했다. 변경 중 readiness 1,200회/123.78초 오류 0, 실제 HTTP 503 liveness fault 후 container restart 1/14.55초 Ready 복구 및 checksum 유지.
+- RT06: worker1→worker2 Pod 재배치, 별도 RDB/file archive 백업과 새 namespace/PV 복원 및 AOF Pod 재시작 후 checksum 유지. RDB-only 복원은 appendonly=no 초기 로드 후 AOF rewrite를 완료하는 절차로 검증했다. 첫 잘못된 AOF 초기 복원 시도는 PASS로 계산하지 않았다. CSI/동적 provisioning 검증은 아니다.
+- RT07: Provider가 별도 IP에 LB를 생성, HTTP 100회 성공, 동일 LB ID의 CIDR 변경 및 실제 허용/차단, firewall CIDR 재조정, ClientIP→source algorithm 반영을 확인했다. 클러스터 화면에서 별도 IP의 Service LB가 누락되는 UI 개선은 [#1241](https://github.com/ablecloud-team/ablestack-cloud/issues/1241).
+- RT08: UI worker 2→3 확장 job 성공, 새 worker GFS2/Ready/cloud-final exit 0, LB backend 추가를 확인했다. PDB 차단 시 기존 drain이 끝나지 않는 결함은 [#1243](https://github.com/ablecloud-team/ablestack-cloud/issues/1243).
+- RT10 부분: 실제 CCM Secret의 같은 자격증명으로 SHA256 서명 HTTP 200, SHA1 서명 HTTP 401을 확인했다. 자격증명 값은 증거/이슈에 포함하지 않았다. revoke/rotate/권한 범위와 AS runtime 전체 검증은 남아 있다.
+
+### PDB 차단 시 축소 대기 개선
+
+Kubernetes ScaleWorker의 원격 drain에 kubectl timeout 50초/request timeout 10초와 OS watchdog 55초/kill-after 5초를 적용한다. 원격 stdout/stderr를 합쳐 공용 SSH helper의 별도 출력 stream 읽기 대기를 피한다. Node 삭제/uncordon 명령도 실행 시간을 제한한다.
+
+drain이 실패하면 Node/VM/map/count 삭제 경로로 진행하지 않고 best-effort uncordon으로 스케줄링을 복구한다. 공용 SshHelper와 다른 Cloud 기능은 변경하지 않는다.
+
+검증: WSL ext4 clone에서 Kubernetes 변경 Maven 모듈의 ScaleWorker 테스트 7개(실패 0)와 package/checkstyle 성공. 31번 backend는 기존 시험 JAR에 ScaleWorker 클래스 1개만 겹쳐 배포하며 다른 204,441개 entry의 CRC/size를 비교한다. 이는 full Cloud package build 검증이 아니다. 실제 PDB 재시험과 정상 축소 결과는 #1243/#1230의 후속 실행 기록에서 판정한다.
+
+전체 버전/upgrade/전원/삭제/장시간 시험과 RT06의 모든 생명주기 데이터 보존은 아직 완료하지 않았다.
+### RT08 실제 PDB 차단 및 정상 축소 재검증
+
+- #1243 수정 후보로 같은 PDB minAvailable=1 / allowedDisruptions=0에서 Mold UI 3→2를 재요청했습니다. job `0a475d5d-7a1f-4136-8839-203319aea3fd`는 51초에 status 2/error 530으로 종료했습니다. 강제 eviction 없이 클러스터 Running/worker 3, 보호 Pod, VM 169 및 GFS2 volume 209를 유지했습니다. 자동 uncordon 및 원격 drain 종료도 확인했습니다.
+- 시험 PDB/guard만 제거한 후 Mold UI 정상 3→2 job `a339143a-4e7b-4731-83bf-f06985d2e7d3`가 14초에 status 1로 완료됐습니다. Node 3개 Ready(control 1/worker 2), VM 169 Expunging/removed, volume 209 Expunged, VM map 3개, SSH rule 2225 제거 및 Provider LB backend 2개가 일치했습니다.
+- 원본 앱과 별도 clean restore 앱에서 각각 65/65 검사, HTTP 100회 오류 0, DB 100건·파일 64개/4 MiB의 원본 checksum 일치를 확인했습니다. 이 결과는 대표 1.34.12의 RT08 범위이며 AutoScaler/다른 버전/업그레이드/장시간/삭제 전체 PASS는 아닙니다.
+- 수정 전 hang 작업은 management restart 후 stale Scaling을 남겨 #1237에 기록하고, terminal job/VM/map/count 확인 후 state만 조건부 수동 복구했습니다. 이 복구를 제품 동작 PASS로 계산하지 않았습니다.

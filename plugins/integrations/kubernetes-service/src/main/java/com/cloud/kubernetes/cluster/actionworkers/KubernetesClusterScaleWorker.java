@@ -261,25 +261,50 @@ public class KubernetesClusterScaleWorker extends KubernetesClusterResourceModif
         return new Pair<>(offering.getCpu() * nodeCount, offering.getRamSize() * nodeCount);
     }
 
-    private boolean removeKubernetesClusterNode(final String ipAddress, final int port, final UserVm userVm, final int retries, final int waitDuration) {
+    static String quoteNodeName(String hostName) {
+        return "'" + hostName.replace("'", "'\"'\"'") + "'";
+    }
+
+    static String buildNodeDrainCommand(String hostName) {
+        // SshHelper's output reads can block beyond its channel wait timeout. Bound the
+        // remote process itself, while preserving normal eviction and PDB checks.
+        return "sudo /usr/bin/timeout --signal=TERM --kill-after=5s 55s /opt/bin/kubectl drain " + quoteNodeName(hostName)
+                + " --ignore-daemonsets --delete-emptydir-data --timeout=50s --request-timeout=10s 2>&1";
+    }
+
+    static String buildNodeDeleteCommand(String hostName) {
+        return "sudo /usr/bin/timeout --kill-after=5s 25s /opt/bin/kubectl delete node " + quoteNodeName(hostName)
+                + " --request-timeout=10s 2>&1";
+    }
+
+    static String buildNodeUncordonCommand(String hostName) {
+        return "sudo /usr/bin/timeout --kill-after=5s 20s /opt/bin/kubectl uncordon " + quoteNodeName(hostName)
+                + " --request-timeout=10s 2>&1";
+    }
+
+    protected Pair<Boolean, String> executeNodeRemovalCommand(String ipAddress, int port, File pkFile, String command,
+                                                               int waitResultTimeout) throws Exception {
+        return SshHelper.sshExecute(ipAddress, port, getControlNodeLoginUser(), pkFile, null, command,
+                10000, 10000, waitResultTimeout);
+    }
+
+    protected boolean removeKubernetesClusterNode(final String ipAddress, final int port, final UserVm userVm, final int retries, final int waitDuration) {
         File pkFile = getManagementServerSshPublicKeyFile();
         int retryCounter = 0;
         String hostName = userVm.getHostName();
-        if (StringUtils.isNotEmpty(hostName)) {
-            hostName = hostName.toLowerCase();
+        if (StringUtils.isEmpty(hostName)) {
+            logger.warn("Cannot remove VM: {} from Kubernetes cluster: {} without its node name", userVm, kubernetesCluster);
+            return false;
         }
+        hostName = hostName.toLowerCase();
         while (retryCounter < retries) {
             retryCounter++;
             try {
-                Pair<Boolean, String> result = SshHelper.sshExecute(ipAddress, port, getControlNodeLoginUser(),
-                        pkFile, null, String.format("sudo /opt/bin/kubectl drain %s --ignore-daemonsets --delete-emptydir-data", hostName),
-                        10000, 10000, 60000);
+                Pair<Boolean, String> result = executeNodeRemovalCommand(ipAddress, port, pkFile, buildNodeDrainCommand(hostName), 60000);
                 if (!result.first()) {
-                    logger.warn("Draining node: {} on VM: {} in Kubernetes cluster: {} unsuccessful", hostName, userVm, kubernetesCluster);
+                    logger.warn("Draining node: {} on VM: {} in Kubernetes cluster: {} unsuccessful: {}", hostName, userVm, kubernetesCluster, result.second());
                 } else {
-                    result = SshHelper.sshExecute(ipAddress, port, getControlNodeLoginUser(),
-                            pkFile, null, String.format("sudo /opt/bin/kubectl delete node %s", hostName),
-                            10000, 10000, 30000);
+                    result = executeNodeRemovalCommand(ipAddress, port, pkFile, buildNodeDeleteCommand(hostName), 30000);
                     if (result.first()) {
                         return true;
                     } else {
@@ -297,6 +322,14 @@ public class KubernetesClusterScaleWorker extends KubernetesClusterResourceModif
                 logger.error("Error while waiting for Kubernetes cluster: {} node: {} on VM: {} removal", kubernetesCluster, hostName, userVm, ie);
             }
             retryCounter++;
+        }
+        try {
+            Pair<Boolean, String> result = executeNodeRemovalCommand(ipAddress, port, pkFile, buildNodeUncordonCommand(hostName), 30000);
+            if (!result.first()) {
+                logger.warn("Failed to uncordon node: {} after unsuccessful removal from Kubernetes cluster: {}: {}", hostName, kubernetesCluster, result.second());
+            }
+        } catch (Exception e) {
+            logger.warn("Failed to uncordon node: {} after unsuccessful removal from Kubernetes cluster: {}", hostName, kubernetesCluster, e);
         }
         return false;
     }
