@@ -914,4 +914,57 @@ public class KubernetesClusterManagerImplTest {
         Mockito.verify(kubernetesClusterAffinityGroupMapDao).listAffinityGroupIdsByClusterIdAndNodeType(1L, WORKER.name());
     }
 
+    @Test
+    public void testValidateUpgradeTargetRejectsCurrentArtifactBeforeVersionComparison() {
+        KubernetesSupportedVersion current = Mockito.mock(KubernetesSupportedVersion.class);
+        KubernetesSupportedVersion target = Mockito.mock(KubernetesSupportedVersion.class);
+        Mockito.when(current.getId()).thenReturn(41L);
+        Mockito.when(target.getId()).thenReturn(41L);
+        try {
+            kubernetesClusterManager.validateKubernetesUpgradeTarget(current, target);
+            Assert.fail("Selecting the current artifact must not start an upgrade");
+        } catch (InvalidParameterValueException e) {
+            Assert.assertTrue(e.getMessage().contains("already using"));
+        }
+        Mockito.verify(current, Mockito.never()).getSemanticVersion();
+        Mockito.verify(target, Mockito.never()).getSemanticVersion();
+    }
+
+    @Test
+    public void testValidateUpgradeTargetAllowsReplacementArtifactAtSameVersion() {
+        kubernetesClusterManager.validateKubernetesUpgradeTarget(
+                upgradeTargetVersion(41L, "1.34.2"), upgradeTargetVersion(42L, "1.34.2"));
+    }
+
+    @Test
+    public void testValidateUpgradeTargetAllowsPatchUpgrade() {
+        kubernetesClusterManager.validateKubernetesUpgradeTarget(
+                upgradeTargetVersion(41L, "1.34.2"), upgradeTargetVersion(42L, "1.34.9"));
+    }
+
+    @Test
+    public void testValidateUpgradeTargetAllowsNextMinorUpgrade() {
+        kubernetesClusterManager.validateKubernetesUpgradeTarget(
+                upgradeTargetVersion(41L, "1.34.12"), upgradeTargetVersion(42L, "1.35.9"));
+    }
+
+    @Test(expected = InvalidParameterValueException.class)
+    public void testValidateUpgradeTargetRejectsDowngrade() {
+        kubernetesClusterManager.validateKubernetesUpgradeTarget(
+                upgradeTargetVersion(41L, "1.34.9"), upgradeTargetVersion(42L, "1.34.2"));
+    }
+
+    @Test(expected = InvalidParameterValueException.class)
+    public void testValidateUpgradeTargetRejectsSkippedMinor() {
+        kubernetesClusterManager.validateKubernetesUpgradeTarget(
+                upgradeTargetVersion(41L, "1.34.2"), upgradeTargetVersion(42L, "1.36.5"));
+    }
+
+    private KubernetesSupportedVersion upgradeTargetVersion(long id, String semanticVersion) {
+        KubernetesSupportedVersion version = Mockito.mock(KubernetesSupportedVersion.class);
+        Mockito.when(version.getId()).thenReturn(id);
+        Mockito.when(version.getSemanticVersion()).thenReturn(semanticVersion);
+        return version;
+    }
+
 }

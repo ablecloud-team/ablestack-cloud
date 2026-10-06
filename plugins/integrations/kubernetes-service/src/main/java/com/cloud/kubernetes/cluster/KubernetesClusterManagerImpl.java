@@ -1599,12 +1599,7 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
             throw new InvalidParameterValueException(String.format("Kubernetes cluster : %s cannot be upgraded with Kubernetes version : %s which needs minimum %d MB RAM while associated service offering : %s offers only %d MB RAM",
                     kubernetesCluster.getName(), upgradeVersion.getName(), upgradeVersion.getMinimumRamSize(), serviceOffering.getName(), serviceOffering.getRamSize()));
         }
-        // Check upgradeVersion is either patch upgrade or immediate minor upgrade
-        try {
-            KubernetesVersionManagerImpl.canUpgradeKubernetesVersion(clusterVersion.getSemanticVersion(), upgradeVersion.getSemanticVersion());
-        } catch (IllegalArgumentException e) {
-            throw new InvalidParameterValueException(e.getMessage());
-        }
+        validateKubernetesUpgradeTarget(clusterVersion, upgradeVersion);
 
         VMTemplateVO iso = templateDao.findById(upgradeVersion.getIsoId());
         if (iso == null) {
@@ -1612,6 +1607,19 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
         }
         if (CollectionUtils.isEmpty(templateJoinDao.newTemplateView(iso, zone.getId(), true))) {
             throw new InvalidParameterValueException(String.format("ISO associated with version : %s is not in Ready state for datacenter : %s",  upgradeVersion.getName(), zone.getName()));
+        }
+    }
+
+    protected void validateKubernetesUpgradeTarget(KubernetesSupportedVersion currentVersion, KubernetesSupportedVersion upgradeVersion) {
+        // A different artifact at the same semantic version can refresh the ISO
+        // components, but selecting the current artifact must not drain nodes.
+        if (currentVersion.getId() == upgradeVersion.getId()) {
+            throw new InvalidParameterValueException("Kubernetes cluster is already using the requested Kubernetes version artifact");
+        }
+        try {
+            KubernetesVersionManagerImpl.canUpgradeKubernetesVersion(currentVersion.getSemanticVersion(), upgradeVersion.getSemanticVersion());
+        } catch (IllegalArgumentException e) {
+            throw new InvalidParameterValueException(e.getMessage());
         }
     }
 
