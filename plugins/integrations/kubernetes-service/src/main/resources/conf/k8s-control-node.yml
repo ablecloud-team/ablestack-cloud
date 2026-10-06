@@ -148,7 +148,11 @@ write_files:
         mkdir -p /etc/systemd/system/kubelet.service.d
         sed "s:/usr/bin:/opt/bin:g" ${BINARIES_DIR}/10-kubeadm.conf > /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
 
-        echo "KUBELET_EXTRA_ARGS=--cgroup-driver=systemd" > /etc/default/kubelet
+        KUBELET_EXTRA_ARGS="--cgroup-driver=systemd"
+        if [ -s "${BINARIES_DIR}/provider.yaml" ]; then
+          KUBELET_EXTRA_ARGS="$KUBELET_EXTRA_ARGS --cloud-provider=external"
+        fi
+        printf 'KUBELET_EXTRA_ARGS=%s\n' "$KUBELET_EXTRA_ARGS" > /etc/default/kubelet
 
         # Preserve archive digests; containerd 2.x defaults to transfer import.
         CTR_IMPORT_OPTIONS=()

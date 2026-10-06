@@ -87,3 +87,11 @@ drain이 실패하면 Node/VM/map/count 삭제 경로로 진행하지 않고 bes
 Mold listKubernetesClusters의 virtualmachines 항목에 iscontrolnode를 추가한다. isetcdnode/isexternalnode와 독립적으로 반환하여 내부 워커와 제어/etcd/외부 노드를 구분한다. AS는 역할 메타데이터가 없으면 관리 대상에서 제외하고, 실제 Node 이름·VM UUID·SystemUUID를 현재 클러스터의 내부 워커로만 해석한다. 명시된 providerID가 다른 VM/Provider이면 이름으로 우회하지 않는다.
 
 변경 api 모듈의 KubernetesUserVmResponseTest 1개 및 Kubernetes 모듈의 Worker 시험 22개가 통과했다. 전체 Cloud 빌드를 실행하지 않았다. 31 관리 서버는 변경 응답 클래스와 KubernetesClusterManagerImpl 및 생성된 내부 클래스만 기존 적용본에 반영하여 시험한다. 새로운 AS 이미지의 실제 그룹 카운트와 확장·축소 재검증은 진행 중이다.
+
+### Canonical Provider ID 초기화 보완
+
+실제 Node의 providerID가 비어 있으면 AS의 최신 core가 UUID 인스턴스를 미등록 노드로 중복 계산한다. 내부 Provider의 이름은 external-cloudstack이므로 canonical ID는 external-cloudstack://<VM UUID>이다. AS Nodes()도 같은 ID를 반환해야 한다.
+
+신규/추가 제어 노드와 워커는 provider.yaml이 존재하는 Mold payload에서만 kubelet --cloud-provider=external을 사용한다. 기존 payload 경로는 해당 옵션을 추가하지 않는다. 업그레이드에서는 기존 kubelet 옵션을 보존하고 다른 cloud-provider가 있으면 실패한다. 메인 제어 노드가 새 CCM을 적용한 뒤 providerID가 비어 있는 기존 Node만 NoSchedule 초기화 taint로 CCM 조회를 요청한다. 실행 중 Pod를 퇴거시키지 않으며 CCM이 ID를 채우고 taint를 제거한다. ID 초기화 대기는 120초로 제한한다.
+
+새 runtime shell 시험은 3개 그룹에서 세 node template의 payload 유무/빈 파일, upgrade 옵션 보존·quoted 값·멱등성·다른 Provider 거부를 실제 Bash로 검증했다. 기존 ISO 소비 shell 시험 6개 그룹 및 Kubernetes 모듈 22개 JUnit도 통과했다. 31번의 기존 4 Node를 native CCM으로 초기화하여 canonical ID와 Ready 및 초기화 taint 제거를 확인했다. 이 수동 migration은 clean 신규 bootstrap PASS를 대신하지 않는다. AS source 254f91edf의 4 minor build/test는 성공했고 신규 ISO source 48830e74는 검증 중이다.

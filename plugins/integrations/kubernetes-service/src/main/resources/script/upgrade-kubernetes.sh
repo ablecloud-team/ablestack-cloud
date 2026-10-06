@@ -178,6 +178,31 @@ if [ -d "$BINARIES_DIR" ]; then
   cp -a ${BINARIES_DIR}/k8s/{kubelet,kubectl} /opt/bin
   chmod +x /opt/bin/{kubelet,kubectl}
 
+  # New Mold payloads use the external CCM to initialize canonical provider IDs.
+  # Preserve unrelated kubelet flags when enabling an existing cluster.
+  if [ -s "${BINARIES_DIR}/provider.yaml" ]; then
+    if ! grep -q -- '--cloud-provider=external' /etc/default/kubelet; then
+      if grep -q -- '--cloud-provider=' /etc/default/kubelet; then
+        echo "ERROR: conflicting kubelet cloud provider" >&2
+        exit 1
+      fi
+      awk '
+        /^KUBELET_EXTRA_ARGS=/ {
+          value = substr($0, length("KUBELET_EXTRA_ARGS=") + 1)
+          quote = substr(value, 1, 1)
+          if ((quote == sprintf("%c", 34) || quote == sprintf("%c", 39)) && substr(value, length(value), 1) == quote) {
+            value = substr(value, 2, length(value) - 2)
+          }
+          $0 = "KUBELET_EXTRA_ARGS=" value " --cloud-provider=external"
+        }
+        {print}
+      ' /etc/default/kubelet > /etc/default/kubelet.provider.tmp
+      grep -q -- '--cloud-provider=external' /etc/default/kubelet.provider.tmp || exit 1
+      cat /etc/default/kubelet.provider.tmp > /etc/default/kubelet
+      rm -f /etc/default/kubelet.provider.tmp
+    fi
+  fi
+
   systemctl daemon-reload
   systemctl restart containerd
   systemctl restart kubelet
@@ -196,6 +221,17 @@ if [ -d "$BINARIES_DIR" ]; then
     fi
     [ -s /opt/provider/provider.yaml ] || { echo "ERROR: Mold Provider payload is missing" >&2; exit 1; }
     /opt/bin/kubectl apply -f /opt/provider/provider.yaml
+    # Already registered legacy nodes need CCM initialization as well. This
+    # NoSchedule taint does not evict workloads; CCM removes it after API lookup.
+    node_identities=$(mktemp)
+    /opt/bin/kubectl --request-timeout=10s get nodes -o jsonpath='{range .items[*]}{.metadata.name}{" "}{.spec.providerID}{"\n"}{end}' > "$node_identities"
+    while read -r node provider_id; do
+      if [ -z "$provider_id" ]; then
+        /opt/bin/kubectl --request-timeout=10s taint node "$node" node.cloudprovider.kubernetes.io/uninitialized=true:NoSchedule --overwrite
+      fi
+    done < "$node_identities"
+    rm -f "$node_identities"
+    /opt/bin/kubectl --request-timeout=10s wait --for=jsonpath='{.spec.providerID}' nodes --all --timeout=120s
   fi
 
   umount "${ISO_MOUNT_DIR}" && rmdir "${ISO_MOUNT_DIR}"
