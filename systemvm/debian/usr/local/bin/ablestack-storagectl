@@ -497,7 +497,7 @@ def collect_ganesha_runtime():
         "configured": len(endpoints),
         "active": len(active),
         "listening": bool(active),
-        "status": "ok" if (not endpoints or active) and (not needs_rpcbind or rpcbind_active()) else "degraded",
+        "status": "ok" if (not endpoints or len(active) == len(endpoints)) and (not needs_rpcbind or rpcbind_active()) else "degraded",
         "protocolMode": "V3V4_DUAL" if any(item.get("protocolMode") == "V3V4_DUAL" for item in endpoints) else "V4_ONLY",
         "rpcbindRequired": needs_rpcbind,
         "rpcbindActive": rpcbind_active(),
@@ -800,7 +800,7 @@ listen_ports = {
 status = "ok"
 if services["qemuGuestAgent"] not in ("active", "unknown"):
     status = "degraded"
-if ganesha_runtime["configured"] and not ganesha_runtime["listening"]:
+if ganesha_runtime["active"] < ganesha_runtime["configured"]:
     status = "degraded"
 if desired_state["iscsiTargets"] and not listen_ports["iscsi"]:
     status = "degraded"
@@ -4321,8 +4321,11 @@ def probe_nfs_export_visibility(runtime, endpoint_exports):
                     break
                 finally:
                     # Never recurse into a potentially still-mounted client filesystem.
-                    subprocess.run(["umount", probe_dir], check=False, stdout=subprocess.DEVNULL,
-                                   stderr=subprocess.DEVNULL, timeout=10)
+                    try:
+                        subprocess.run(["umount", probe_dir], check=False, stdout=subprocess.DEVNULL,
+                                       stderr=subprocess.DEVNULL, timeout=10)
+                    except subprocess.TimeoutExpired:
+                        export_result["cleanupPending"] = True
                     try:
                         os.rmdir(probe_dir)
                     except OSError:
@@ -6656,6 +6659,46 @@ print(json.dumps({"success": ok, "status": "READY" if ok else "RESOURCE_PRESSURE
                   "memoryAvailableBytes": available, "stagingFreeBytes": free}))
 raise SystemExit(0 if ok else 1)
 PYOP
+    elif [[ "$subcommand" == "resources" || "$subcommand" == "prepare-scale" ]]; then
+      python3 - "$action" "$subcommand" <<'PYRESOURCES'
+import json
+import os
+import sys
+from pathlib import Path
+
+def cpu_count(path):
+    text = Path(path).read_text().strip()
+    count = 0
+    for part in text.split(","):
+        bounds = [int(value) for value in part.split("-")]
+        count += bounds[-1] - bounds[0] + 1
+    return count
+
+request_path = sys.argv[1]
+request = json.loads(Path(request_path).read_text().strip() or "{}") if request_path and Path(request_path).is_file() else {}
+memory = {}
+for line in Path("/proc/meminfo").read_text().splitlines():
+    key, value = line.split(":", 1)
+    memory[key] = int(value.strip().split()[0]) * 1024
+online_path = Path("/sys/devices/system/memory/auto_online_blocks")
+online_cpus = cpu_count("/sys/devices/system/cpu/online")
+possible_cpus = cpu_count("/sys/devices/system/cpu/possible")
+target_cpus = int(request.get("targetCpuCount")) if request.get("targetCpuCount") is not None else online_cpus
+supported = 0 < target_cpus <= possible_cpus and online_path.is_file()
+if sys.argv[2] == "prepare-scale" and supported:
+    online_path.write_text("online")
+result = {
+    "success": supported if sys.argv[2] == "prepare-scale" else True,
+    "status": "READY" if supported else "ONLINE_RESOURCES_UNSUPPORTED",
+    "onlineCpuCount": online_cpus,
+    "possibleCpuCount": possible_cpus,
+    "memoryTotalBytes": memory.get("MemTotal", 0),
+    "memoryAvailableBytes": memory.get("MemAvailable", memory.get("MemFree", 0)),
+    "memoryAutoOnline": online_path.read_text().strip() if online_path.is_file() else None,
+}
+print(json.dumps(result, sort_keys=True))
+raise SystemExit(0 if result["success"] else 1)
+PYRESOURCES
     elif [[ "$subcommand" == "verify" ]]; then
       ABLESTACK_STORAGECTL_CACHE=0 runtime_health
     else
