@@ -8553,5 +8553,16 @@
   "message.storage.service.offering.no.compatible": "No compatible offering is available. Check each option and the zone/template scaling settings.",
   "message.storage.service.offering.reason.ha_required": "HA required",
   "message.storage.service.offering.reason.fixed_cpu_required": "Fixed CPU required",
-  "message.storage.service.offering.reason.offering_not_found": "Offering not found"
+  "message.storage.service.offering.reason.offering_not_found": "Offering not found",
+  "message.storage.service.nfs.idmapping.service.scope": "This policy applies to every NFS listener. Export ownership and squash policy remain separate.",
+  "label.storage.service.nfs.idmapping.name": "Name and domain (compatible default)",
+  "label.storage.service.nfs.idmapping.effective": "Effective service owner mapping (read only)",
+  "message.storage.service.nfs.numeric.requirements": "Use identical UID/GID values on all clients and enable Linux nfs4_disable_idmapping=Y. AUTH_SYS numeric IDs do not provide strong user authentication. This service setting does not modify clients.",
+  "label.storage.service.nfs.idmapping.numeric": "Numeric UID/GID",
+  "label.storage.service.nfs.idmapping.desired": "Desired owner mapping",
+  "label.storage.service.nfs.idmapping.unknown": "Unknown",
+  "label.storage.service.nfs.settings": "NFS service settings",
+  "message.storage.service.nfs.numeric.persistence": "Persistent client configuration: add options nfs nfs4_disable_idmapping=1 to /etc/modprobe.d/ablestack-nfs-idmap.conf. If needed, rebuild initramfs with update-initramfs -u on Debian/Ubuntu or dracut -f on Rocky/RHEL.",
+  "label.storage.service.nfs.idmapping.runtime": "Runtime owner mapping",
+  "label.storage.service.nfs.idmapping": "NFSv4 owner mapping"
 }

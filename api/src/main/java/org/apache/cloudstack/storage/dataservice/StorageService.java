@@ -96,6 +96,9 @@ import org.apache.cloudstack.api.response.StorageServiceRuntimeUpgradeResponse;
 import org.apache.cloudstack.api.response.StorageSmbShareResponse;
 
 public interface StorageService {
+    org.apache.cloudstack.api.response.StorageNfsServiceSettingsResponse getStorageNfsServiceSettings(org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageNfsServiceSettingsCmd cmd);
+    org.apache.cloudstack.api.response.StorageNfsServiceSettingsResponse updateStorageNfsServiceSettings(org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageNfsServiceSettingsCmd cmd);
+
     org.apache.cloudstack.api.response.ListResponse<org.apache.cloudstack.api.response.StorageServiceOperationResponse> listStorageServiceOperations(
             org.apache.cloudstack.api.command.user.storage.dataservice.ListStorageServiceOperationsCmd cmd);
     Long getStorageServiceSyncId(org.apache.cloudstack.api.BaseCmd cmd);

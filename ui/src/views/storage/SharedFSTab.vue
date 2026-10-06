@@ -79,6 +79,9 @@ class="storage-service__alert"
                 <template #icon><PoweroffOutlined /></template>
                 {{ $t('label.storage.service.enable.protocol') }}
               </a-button>
+              <a-button v-if="$store.getters.apis.updateStorageNfsServiceSettings" @click="openActionModal('nfsServiceSettings')">
+                <template #icon><SafetyCertificateOutlined /></template>{{ $t('label.storage.service.nfs.settings') }}
+              </a-button>
               <a-button danger @click="openActionModal('deleteEndpoint', { protocol: 'NFS' })">
                 <template #icon><DeleteOutlined /></template>
                 {{ $t('label.storage.service.delete.endpoint') }}
@@ -114,12 +117,19 @@ class="storage-service__alert"
                 <div v-for="command in nfsConnectionCommands" :key="command" class="command-line command-line--copyable">
                   {{ command }}
                 </div>
+                <a-alert v-if="nfsDesiredIdMode === 'NUMERIC'" type="warning" show-icon :message="$t('message.storage.service.nfs.numeric.requirements')" />
+                <div v-if="nfsDesiredIdMode === 'NUMERIC'" class="command-line">sudo modprobe nfs; echo Y | sudo tee /sys/module/nfs/parameters/nfs4_disable_idmapping</div>
+                <div v-if="nfsDesiredIdMode === 'NUMERIC'" class="storage-field-hint">{{ $t('message.storage.service.nfs.numeric.persistence') }}</div>
               </section>
               <section class="storage-panel storage-panel--status">
                 <div class="storage-panel__title">{{ $t('label.storage.service.status.summary') }}</div>
                 <dl class="storage-kv storage-kv--compact">
                   <dt>{{ $t('label.storage.service.endpoint') }}</dt>
                   <dd><ellipsis-text :value="serviceEndpointSummary || '-'" /></dd>
+                  <dt>{{ $t('label.storage.service.nfs.idmapping.desired') }}</dt>
+                  <dd>{{ nfsIdModeLabel(nfsDesiredIdMode) }}</dd>
+                  <dt>{{ $t('label.storage.service.nfs.idmapping.runtime') }}</dt>
+                  <dd>{{ nfsIdModeLabel(nfsRuntimeIdMode) }} <a-tag :color="nfsIdModeDrift === 'CONSISTENT' ? 'green' : 'orange'">{{ nfsIdModeDrift }}</a-tag></dd>
                   <dt>{{ $t('label.storage.service.monitor.cache') }}</dt>
                   <dd>
                     <a-tag :color="monitorCacheColor">{{ monitorCacheLabel }}</a-tag>
@@ -1335,6 +1345,18 @@ wrapClassName="storage-service-action-modal"
 @ok="submitActionModal"
 @cancel="closeActionModal">
       <div class="storage-modal-body"><a-form layout="vertical">
+        <div v-if="actionModal.type === 'nfsServiceSettings'" class="storage-action-form storage-action-form--vertical">
+          <a-form-item :label="$t('label.storage.service.nfs.idmapping')" required>
+            <a-select v-model:value="forms.nfsServiceSettings.idmappingmode">
+              <a-select-option value="NAME_DOMAIN">{{ $t('label.storage.service.nfs.idmapping.name') }}</a-select-option>
+              <a-select-option value="NUMERIC">{{ $t('label.storage.service.nfs.idmapping.numeric') }}</a-select-option>
+            </a-select>
+          </a-form-item>
+          <a-alert type="info" show-icon :message="$t('message.storage.service.nfs.idmapping.service.scope')" />
+          <a-alert v-if="forms.nfsServiceSettings.idmappingmode === 'NUMERIC'" type="warning" show-icon :message="$t('message.storage.service.nfs.numeric.requirements')" />
+          <div v-if="forms.nfsServiceSettings.idmappingmode === 'NUMERIC'" class="command-line">sudo modprobe nfs; echo Y | sudo tee /sys/module/nfs/parameters/nfs4_disable_idmapping</div>
+          <div v-if="forms.nfsServiceSettings.idmappingmode === 'NUMERIC'" class="storage-field-hint">{{ $t('message.storage.service.nfs.numeric.persistence') }}</div>
+        </div>
         <div v-if="actionModal.type === 'enableProtocol'" class="storage-action-form storage-action-form--vertical">
           <a-form-item required>
             <template #label>
@@ -1346,6 +1368,13 @@ wrapClassName="storage-service-action-modal"
               <a-select-option value="ISCSI">iSCSI</a-select-option>
               <a-select-option value="NVME_OF">NVMe-oF</a-select-option>
             </a-select>
+          </a-form-item>
+          <a-form-item v-if="forms.enableProtocol.protocol === 'NFS'" :label="$t('label.storage.service.nfs.idmapping')">
+            <a-select v-model:value="forms.enableProtocol.idmappingmode">
+              <a-select-option value="NAME_DOMAIN">{{ $t('label.storage.service.nfs.idmapping.name') }}</a-select-option>
+              <a-select-option value="NUMERIC">{{ $t('label.storage.service.nfs.idmapping.numeric') }}</a-select-option>
+            </a-select>
+            <a-alert v-if="forms.enableProtocol.idmappingmode === 'NUMERIC'" type="warning" show-icon :message="$t('message.storage.service.nfs.numeric.requirements')" />
           </a-form-item>
           <a-alert
             v-if="isEnableProtocolNfsDualMode"
@@ -1409,6 +1438,7 @@ wrapClassName="storage-service-action-modal"
           </a-form-item>
         </div>
         <div v-if="actionModal.type === 'nfsExport' || actionModal.type === 'editNfsExport'" class="storage-action-form storage-action-form--vertical">
+          <a-form-item :label="$t('label.storage.service.nfs.idmapping.effective')"><a-tag>{{ nfsIdModeLabel(nfsRuntimeIdMode) }}</a-tag></a-form-item>
           <a-form-item required>
             <template #label>
               <tooltip-label :title="$t('label.name')" :tooltip="$t('message.storage.service.nfs.export.name.help')" />
@@ -1595,6 +1625,7 @@ wrapClassName="storage-service-action-modal"
           </section>
         </div>
         <div v-if="actionModal.type === 'nfsAcl' || actionModal.type === 'editNfsAcl'" class="storage-action-form storage-action-form--vertical">
+          <a-form-item :label="$t('label.storage.service.nfs.idmapping.effective')"><a-tag>{{ nfsIdModeLabel(nfsRuntimeIdMode) }}</a-tag></a-form-item>
           <a-form-item required>
             <template #label>
               <tooltip-label :title="$t('label.storage.service.export.name')" :tooltip="$t('message.storage.service.export.name.help')" />
@@ -2281,6 +2312,17 @@ const ProtocolHeader = {
     }
   },
   computed: {
+    nfsDesiredIdMode () {
+      const protocol = (this.storageService.protocols || []).find(item => item.protocol === 'NFS' && item.enabled)
+      return protocol?.idmappingmode || 'NAME_DOMAIN'
+    },
+    nfsRuntimeIdMode () {
+      return this.parsedHealth?.nfsGanesha?.idMappingMode || 'UNKNOWN'
+    },
+    nfsIdModeDrift () {
+      return this.nfsRuntimeIdMode === 'UNKNOWN' ? 'UNKNOWN' : this.nfsRuntimeIdMode === this.nfsDesiredIdMode ? 'CONSISTENT' : 'DRIFT'
+    },
+
     protocolLabel () {
       return this.protocol === 'NVME_OF' ? 'NVMe-oF' : this.protocol
     }
@@ -2567,7 +2609,9 @@ export default {
         { value: 'TiB', label: 'TiB', multiplier: 1024 * 1024 * 1024 * 1024 }
       ],
       forms: {
+        nfsServiceSettings: { idmappingmode: 'NAME_DOMAIN' },
         enableProtocol: {
+          idmappingmode: 'NAME_DOMAIN',
           protocol: 'NFS',
           listenipmode: 'EXISTING',
           listenip: '',
@@ -4352,6 +4396,7 @@ export default {
     },
     actionModalTitle () {
       const titles = {
+        nfsServiceSettings: 'label.storage.service.nfs.settings',
         enableProtocol: 'label.storage.service.enable.protocol',
         nfsExport: 'label.storage.service.create.nfs.export',
         editNfsExport: 'label.storage.service.update.nfs.export',
@@ -7070,11 +7115,14 @@ export default {
         .filter(value => value && !seen.has(value) && seen.add(value))
     },
     openActionModal (type, context = null) {
+      if (type === 'nfsServiceSettings') this.forms.nfsServiceSettings.idmappingmode = this.nfsDesiredIdMode
+
       this.actionModal.type = type
       this.actionModal.context = context
       this.actionModal.visible = true
       if (type === 'enableProtocol' && context?.protocol) {
         this.forms.enableProtocol.protocol = context.protocol
+        this.forms.enableProtocol.idmappingmode = this.nfsDesiredIdMode
         this.forms.enableProtocol.protocolmode = String(context.protocol || '').toUpperCase() === 'NFS' ? this.nfsRuntimeProtocolMode() : 'V4_ONLY'
         this.forms.enableProtocol.port = String(context.protocol || '').toUpperCase() === 'NFS' ? this.nfsRuntimePort() : this.defaultProtocolPort(context.protocol)
         if (String(context.protocol || '').toUpperCase() === 'NFS' && this.forms.enableProtocol.protocolmode === 'V3V4_DUAL') {
@@ -7284,6 +7332,7 @@ export default {
     },
     async submitActionModal () {
       const actions = {
+        nfsServiceSettings: this.updateNfsServiceSettings,
         enableProtocol: this.enableProtocol,
         nfsExport: this.createNfsExport,
         editNfsExport: this.updateNfsExport,
@@ -7324,6 +7373,15 @@ export default {
       await action.call(this)
       this.closeActionModal()
     },
+    nfsIdModeLabel (mode) {
+      return this.$t('label.storage.service.nfs.idmapping.' + ({ NUMERIC: 'numeric', NAME_DOMAIN: 'name' }[mode] || 'unknown'))
+    },
+    updateNfsServiceSettings () {
+      return this.runStorageAction('nfsServiceSettings', 'updateStorageNfsServiceSettings', {
+        instanceid: this.storageService.instance.id,
+        idmappingmode: this.forms.nfsServiceSettings.idmappingmode
+      }, this.$t('label.storage.service.nfs.settings'))
+    },
     enableProtocol () {
       if (!this.validateListenIpSelection()) {
         return Promise.resolve()
@@ -7333,7 +7391,8 @@ export default {
         protocol: this.forms.enableProtocol.protocol,
         listenip: this.forms.enableProtocol.listenip,
         port: this.forms.enableProtocol.port,
-        protocolmode: this.forms.enableProtocol.protocol === 'NFS' ? this.forms.enableProtocol.protocolmode : undefined
+        protocolmode: this.forms.enableProtocol.protocol === 'NFS' ? this.forms.enableProtocol.protocolmode : undefined,
+        idmappingmode: this.forms.enableProtocol.protocol === 'NFS' && this.forms.enableProtocol.idmappingmode !== this.nfsDesiredIdMode ? this.forms.enableProtocol.idmappingmode : undefined
       }, this.$t('label.storage.service.enable.protocol'))
     },
     async createNfsExport () {
