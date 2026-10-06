@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -16,31 +16,55 @@
 # specific language governing permissions and limitations
 # under the License.
 
-(/opt/bin/kubectl get pods -A | grep cloudstack-csi-controller) && exit 0
+set -euo pipefail
+TARGET_DIR="${MOLD_CSI_DIR:-/opt/csi}"
+KUBECTL="${MOLD_KUBECTL:-/opt/bin/kubectl}"
 
-if [ -e /opt/csi/snapshot-crds.yaml ]; then
-    /opt/bin/kubectl apply -f /opt/csi/snapshot-crds.yaml
-    sleep 5
-    /opt/bin/kubectl apply -f /opt/csi/manifest.yaml
-    exit 0
-else
-    TARGET_DIR="/opt/csi"
-    mkdir -p "$TARGET_DIR"
-    CSI_URLS=(
-      "https://github.com/cloudstack/cloudstack-csi-driver/releases/download/v3.0.0/snapshot-crds.yaml"
-      "https://github.com/cloudstack/cloudstack-csi-driver/releases/download/v3.0.0/manifest.yaml"
-    )
-    for url in "${CSI_URLS[@]}"; do
-        filename=$(basename "$url")
+# Only qualified internal bundles can be installed. Do not fetch a stock SHA1 driver.
+python3 - "$TARGET_DIR" <<'PYCODE'
+import hashlib
+import json
+import pathlib
+import re
+import sys
+import yaml
 
-        curl -sSL ${url} -o ${TARGET_DIR}/${filename}
-        if [ $? -ne 0 ]; then
-          echo "Unable to connect to the internet to download the relevant files to install and setup CloudStack CSI driver"
-          exit 1
-        else
-          /opt/bin/kubectl apply -f /opt/csi/snapshot-crds.yaml
-          /opt/bin/kubectl apply -f /opt/csi/manifest.yaml
-          exit 0
-        fi
-    done
-fi
+root = pathlib.Path(sys.argv[1])
+profile = json.loads((root / "profile.json").read_text())
+if profile.get("schemaVersion") != 1 or profile.get("apiSignature") != "HmacSHA256":
+    raise SystemExit("Unsupported Mold CSI profile")
+image = profile.get("driverImage", "")
+if not re.fullmatch(r"ghcr\.io/[a-z0-9.-]+/ablestack-kubernetes-csi@sha256:[a-f0-9]{64}", image):
+    raise SystemExit("CSI requires a fixed internal driver image digest")
+for name in ("snapshot-crds.yaml", "manifest.yaml"):
+    path = root / name
+    if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != profile.get("files", {}).get(name):
+        raise SystemExit("CSI bundle file missing or checksum mismatch: " + name)
+workloads = [d for d in yaml.safe_load_all((root / "manifest.yaml").read_text())
+             if d and d.get("kind") in ("Deployment", "DaemonSet")]
+expected = {("Deployment", "cloudstack-csi-controller"), ("DaemonSet", "cloudstack-csi-node")}
+found = set()
+for workload in workloads:
+    identity = (workload["kind"], workload["metadata"]["name"])
+    if workload["metadata"].get("namespace") != "kube-system":
+        raise SystemExit("Unexpected CSI workload namespace")
+    found.add(identity)
+    containers = workload["spec"]["template"]["spec"]["containers"]
+    if not any(c["name"] in ("cloudstack-csi-controller", "cloudstack-csi-node") and c.get("image") == image for c in containers):
+        raise SystemExit("CSI workload does not use the qualified internal driver")
+    for container in containers:
+        if not re.fullmatch(r".+@sha256:[a-f0-9]{64}", container.get("image", "")):
+            raise SystemExit("CSI sidecar image digest is not fixed")
+if found != expected:
+    raise SystemExit("Required CSI workloads are missing")
+print("MOLD_CSI_BUNDLE_VALIDATED", flush=True)
+PYCODE
+
+"$KUBECTL" apply -f "$TARGET_DIR/snapshot-crds.yaml"
+for resource in volumesnapshotclasses volumesnapshotcontents volumesnapshots; do
+    "$KUBECTL" wait --for=condition=Established "crd/$resource.snapshot.storage.k8s.io" --timeout=60s
+done
+"$KUBECTL" apply -f "$TARGET_DIR/manifest.yaml"
+"$KUBECTL" -n kube-system rollout status deployment/cloudstack-csi-controller --timeout=120s
+"$KUBECTL" -n kube-system rollout status daemonset/cloudstack-csi-node --timeout=120s
+echo MOLD_CSI_DRIVER_READY

@@ -909,8 +909,9 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
             logTransitStateAndThrow(Level.ERROR, String.format("Failed to setup HA Kubernetes cluster : %s as CoreDNS is not Ready on distinct nodes",
                     kubernetesCluster.getName()), kubernetesCluster.getId(), KubernetesCluster.Event.CreateFailed);
         }
-        if (kubernetesCluster.isCsiEnabled()) {
-            deployCsiDriver();
+        if (kubernetesCluster.isCsiEnabled() && !deployCsiDriver()) {
+            logTransitStateAndThrow(Level.ERROR, String.format("Failed to initialize Kubernetes CSI driver for cluster : %s",
+                    kubernetesCluster.getName()), kubernetesCluster.getId(), KubernetesCluster.Event.CreateFailed);
         }
         updateLoginUserDetails(clusterVMs.stream().map(InternalIdentity::getId).collect(Collectors.toList()));
         stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.OperationSucceeded);
