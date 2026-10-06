@@ -4808,7 +4808,7 @@ export default {
       return ports[protocol] || null
     },
     async fetchStorageServiceData () {
-      if (!this.hasStorageServiceApi || this.storageService.loading) {
+      if (!this.hasStorageServiceApi) {
         return
       }
       const request = this.listRequestToken('fetchStorageServiceData')
@@ -4893,10 +4893,12 @@ export default {
         this.listRefreshFailed = true
         if (initialLoad) this.$notifyError(error)
       } finally {
-        if (this.isListRequestCurrent('fetchStorageServiceData', request)) {
+        if (!this.listRefreshDisposed && refreshGeneration === this.storageRefreshGeneration) {
+          const retryCurrentScope = !this.isListRequestCurrent('fetchStorageServiceData', request)
           this.storageService.loading = false
           this.storageService.initialLoading = false
           this.storageService.refreshing = false
+          if (retryCurrentScope) this.fetchStorageServiceData()
         }
       }
     },
