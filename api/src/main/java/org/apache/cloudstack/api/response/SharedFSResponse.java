@@ -325,6 +325,31 @@ public class SharedFSResponse extends BaseResponseWithTagInformation implements 
         this.nics.add(nic);
     }
 
+    @SerializedName("initialvolumebytes")
+    @Param(description = "capacity of the original backing volume")
+    private Long initialVolumeBytes;
+    @SerializedName("totalprovisionedbytes")
+    @Param(description = "total capacity of distinct currently attached backing volumes")
+    private Long totalProvisionedBytes;
+    @SerializedName("backingvolumecount")
+    @Param(description = "number of distinct currently attached backing volumes")
+    private Integer backingVolumeCount;
+    @SerializedName("capacitystate")
+    @Param(description = "capacity projection state; usage freshness is separate from provisioned capacity")
+    private String capacityState;
+    @SerializedName("usedbytes")
+    @Param(description = "observed filesystem usage; omitted when runtime usage is unavailable")
+    private Long usedBytes;
+    @SerializedName("capacityobservedat")
+    @Param(description = "time of the runtime usage observation; omitted when usage is unobserved")
+    private String capacityObservedAt;
+    public void setInitialVolumeBytes(final Long value) { initialVolumeBytes = value; }
+    public void setTotalProvisionedBytes(final Long value) { totalProvisionedBytes = value; }
+    public void setBackingVolumeCount(final Integer value) { backingVolumeCount = value; }
+    public void setCapacityState(final String value) { capacityState = value; }
+    public void setUsedBytes(final Long value) { usedBytes = value; }
+    public void setCapacityObservedAt(final String value) { capacityObservedAt = value; }
+
     public void setSize(Long size) {
         this.size = size;
     }
