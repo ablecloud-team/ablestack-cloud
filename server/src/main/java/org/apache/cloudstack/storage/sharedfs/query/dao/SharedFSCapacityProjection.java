@@ -37,15 +37,27 @@ public final class SharedFSCapacityProjection {
         private long total;
         private boolean unknown;
         private boolean transitioning;
+        private long observedUsed;
+        private long oldestObservation=Long.MAX_VALUE;
+        private int observedVolumes;
+        private boolean staleUsage;
         public void add(final long volumeId, final Long size, final String state) {
             if (!volumes.add(volumeId)) return;
             if (size == null || size < 0) unknown = true;
             else total = Math.addExact(total, size);
             if (!"Ready".equals(state)) transitioning = true;
         }
+        public void observe(final SharedFSCapacityCache.Usage usage, final long now) {
+            if (usage==null) return;
+            observedVolumes++;observedUsed=Math.addExact(observedUsed,usage.usedBytes);
+            oldestObservation=Math.min(oldestObservation,usage.observedEpoch);
+            if (!usage.fresh(now)) staleUsage=true;
+        }
+        public Long getUsed() { return observedVolumes==volumes.size() && observedVolumes>0 ? observedUsed : null; }
+        public String getObservedAt() { return oldestObservation==Long.MAX_VALUE ? null : SharedFSCapacityCache.observedAt(oldestObservation); }
         public Long getTotal() { return unknown ? null : total; }
         public int getCount() { return volumes.size(); }
-        public String getState() { return unknown ? "UNAVAILABLE" : transitioning ? "TRANSITIONING" : "PROVISIONED_USAGE_UNOBSERVED"; }
+        public String getState() { return unknown ? "UNAVAILABLE" : transitioning ? "TRANSITIONING" : staleUsage ? "USAGE_STALE" : observedVolumes==0 ? "PROVISIONED_USAGE_UNOBSERVED" : observedVolumes<volumes.size() ? "USAGE_PARTIAL" : "FRESH"; }
     }
 
     public static Map<Long, Capacity> load(final Long[] ids) {
@@ -53,7 +65,7 @@ public final class SharedFSCapacityProjection {
         if (ids.length == 0) return result;
         for (Long id : ids) result.put(id, new Capacity());
         final String slots = String.join(",", Collections.nCopies(ids.length, "?"));
-        final String query = "SELECT sf.id, v.id, v.size, v.state FROM shared_filesystem sf "
+        final String query = "SELECT sf.id, v.id, v.size, v.state, sf.vm_id, v.uuid FROM shared_filesystem sf "
                 + "JOIN (SELECT id AS sharedfs_id, volume_id FROM shared_filesystem WHERE id IN (" + slots + ") "
                 + "UNION SELECT sf2.id, fs.volume_id FROM shared_filesystem sf2 "
                 + "JOIN storage_service_instance si ON si.vm_id=sf2.vm_id JOIN storage_file_share fs ON fs.instance_id=si.id "
@@ -71,7 +83,9 @@ public final class SharedFSCapacityProjection {
                 while (rows.next()) {
                     long size = rows.getLong(3);
                     Long bytes = rows.wasNull() ? null : size;
-                    result.computeIfAbsent(rows.getLong(1), key -> new Capacity()).add(rows.getLong(2), bytes, rows.getString(4));
+                    Capacity capacity=result.computeIfAbsent(rows.getLong(1), key -> new Capacity());
+                    capacity.add(rows.getLong(2), bytes, rows.getString(4));
+                    capacity.observe(SharedFSCapacityCache.get(rows.getLong(5),rows.getString(6)),System.currentTimeMillis()/1000);
                 }
             }
         } catch (SQLException e) {

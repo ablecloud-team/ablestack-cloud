@@ -171,6 +171,11 @@ if generated <= 0 or time.time() - generated > stale_after:
     sys.exit(1)
 
 cached["cached"] = True
+if scope in ("health", "inventory"):
+    # Reuse the monitor's independent filesystem collector; never run df here.
+    capacity = load_payload(os.path.join(cache_dir, "capacity.json"))
+    if isinstance(capacity, dict) and capacity.get("success") is True:
+        cached["capacitySnapshot"] = capacity
 if scope == "sessions":
     payload = load_payload(payload_file)
     sessions = [session for session in cached.get("sessions", []) if matches(session, payload)]

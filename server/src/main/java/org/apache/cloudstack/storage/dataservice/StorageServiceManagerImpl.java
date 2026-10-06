@@ -3660,6 +3660,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             final StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
                     operation, payload == null ? "" : payload, StorageServiceInstance.StorageServiceCommandTimeout.value(), Collections.emptySet()));
             final String status = extractRuntimeStatus(result);
+            if (result.isSuccess() && ("health".equals(operation) || "inventory".equals(operation))) {
+                org.apache.cloudstack.storage.sharedfs.query.dao.SharedFSCapacityCache.record(instance.getVmId(),parseJsonObject(normalizeRuntimeResultJson(result.getResultJson())));
+            }
             return createRuntimeResponse(instance, operation, result.isSuccess(), status, result.getDetails(), result.getResultJson());
         } catch (final RuntimeException e) {
             logger.warn("Failed to query Storage Service runtime operation [{}] for instance [{}]", operation, instance.getUuid(), e);
@@ -6507,6 +6510,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 return snapshot;
             }
             final JsonObject inventory = parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));
+            org.apache.cloudstack.storage.sharedfs.query.dao.SharedFSCapacityCache.record(instance.getVmId(),inventory);
             if (!inventory.has("fileShareVolumes") || !inventory.get("fileShareVolumes").isJsonArray()) {
                 snapshot.error = "Runtime inventory does not contain fileShareVolumes";
                 return snapshot;
