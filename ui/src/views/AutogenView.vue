@@ -907,6 +907,7 @@ import { bulkColumns, updateBulkItem } from '@/utils/bulkAction'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import DetailsInput from '@/components/widgets/DetailsInput'
 import AdvisoriesView from '@/components/view/AdvisoriesView'
+import { migrateSharedFsCapacityColumns } from '@/utils/sharedfsCapacity'
 
 export default {
   name: 'Resource',
@@ -1636,6 +1637,9 @@ export default {
             this.selectedColumns = this.$store.getters.customColumns[this.$store.getters.userInfo.id][this.$route.path] || this.selectedColumns
             if (this.$route.name === 'kubernetes') {
               this.selectedColumns = [...new Set(this.selectedColumns.map(key => ['cpunumber', 'memory'].includes(key) ? 'resources' : key))]
+            }
+            if (this.$route.name === 'sharedfs' && this.selectedColumns.includes('sizegb')) {
+              this.selectedColumns = migrateSharedFsCapacityColumns(this.selectedColumns)
             }
             if (this.$route.name === 'vmsnapshot') {
               // Replace the former default domain column in saved selections as well.

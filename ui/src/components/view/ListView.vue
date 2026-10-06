@@ -438,7 +438,7 @@
         <a-tooltip>
           <template #title>
             {{ $t('label.initialvolumebytes') }}: {{ record.initialvolumebytes === undefined ? '-' : $bytesToHumanReadableSize(record.initialvolumebytes) }};
-            {{ $t('label.usedbytes') }}: {{ record.usedbytes === undefined ? $t('label.storage.service.capacity.unobserved') : $bytesToHumanReadableSize(record.usedbytes) }};
+            {{ $t('label.usedbytes') }}: {{ record.usedbytes === undefined || record.usedbytes === null ? $t('label.storage.service.capacity.unobserved') : $bytesToHumanReadableSize(record.usedbytes) }};
             {{ record.capacityobservedat || $t('label.storage.service.capacity.unobserved') }} · {{ record.capacitystate || 'UNAVAILABLE' }}
           </template>
           <span>{{ text === undefined || text === null ? '-' : $bytesToHumanReadableSize(text) }}</span>
