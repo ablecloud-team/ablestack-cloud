@@ -127,7 +127,9 @@ final class LibvirtAblestackRestoreTransaction {
                 final java.util.Set<String> destinations = new java.util.HashSet<>();
                 for (int i = 0; i < pools.size(); i++) {
                     final Backend backend = new Backend(manager, pools.get(i), timeout);
-                    if (!destinations.add(pools.get(i).getUuid() + ":" + backend.normalize(targets.get(i)))) {
+                    final String destination = (backend.pool == null ? "file:" : pools.get(i).getUuid() + ":")
+                            + backend.normalize(targets.get(i));
+                    if (!destinations.add(destination)) {
                         throw new CloudRuntimeException("Duplicate restore destination: " + targets.get(i));
                     }
                     backends.add(backend);
@@ -162,6 +164,9 @@ final class LibvirtAblestackRestoreTransaction {
                         save(journal, state);
                         logger.info("{} phase=[VOLUME_PREPARED], vm=[{}], volume=[{}]", trace, vmName, targets.get(i));
                     }
+                    // Recheck the entire plan before the first rename. Preparation must not change live destinations.
+                    validatePreparedVolumes(state, backends);
+                    logger.info("{} phase=[VM_VOLUMES_PREPARED], vm=[{}], volumeCount=[{}]", trace, vmName, targets.size());
                     state.setProperty("phase", "COMMITTING");
                     save(journal, state);
                     for (int i = 0; i < targets.size(); i++) {
@@ -177,10 +182,8 @@ final class LibvirtAblestackRestoreTransaction {
                         backend.move(state.getProperty(i + ".prepared"), target);
                         state.setProperty(i + ".switched", "true");
                         save(journal, state);
+                        logger.info("{} phase=[VOLUME_SWITCHED], vm=[{}], volume=[{}]", trace, vmName, targets.get(i));
                     }
-                    // Persist the commit decision before deleting any original; recovery must never roll this back.
-                    state.setProperty("phase", "COMMITTED");
-                    save(journal, state);
                 } catch (Exception failure) {
                     try {
                         rollback(journal, state, backends);
@@ -189,6 +192,15 @@ final class LibvirtAblestackRestoreTransaction {
                                 " VM [" + vmName + "] journal [" + journal + "]: " + rollbackFailure.getMessage(), failure);
                     }
                     throw new CloudRuntimeException("VM restore failed; original volumes were retained: " + failure.getMessage(), failure);
+                }
+                // A failed fsync may leave COMMITTED on disk. Never roll back using the in-memory state
+                // after attempting this decision: recovery must read the journal to choose the outcome.
+                state.setProperty("phase", "COMMITTED");
+                try {
+                    save(journal, state);
+                } catch (IOException e) {
+                    throw new CloudRuntimeException(AblestackBackupFrameworkUtils.RESTORE_ROLLBACK_REQUIRED +
+                            " VM [" + vmName + "] commit decision requires recovery: " + journal, e);
                 }
                 cleanupCommitted(logger, journal, state, backends);
                 logger.info("{} phase=[VM_VOLUMES_COMMITTED], vm=[{}], journal=[{}]", trace, vmName, journal);
@@ -205,14 +217,23 @@ final class LibvirtAblestackRestoreTransaction {
         if (!Files.isDirectory(directory)) {
             return;
         }
-        try (var files = Files.list(directory)) {
-            for (Path journal : files.filter(path -> path.toString().endsWith(".properties")).collect(java.util.stream.Collectors.toList())) {
-                final Properties state = read(journal);
-                if (!"COMMITTED".equals(state.getProperty("phase"))) {
-                    throw new CloudRuntimeException(AblestackBackupFrameworkUtils.RESTORE_ROLLBACK_REQUIRED +
-                            " VM [" + vmName + "] has an unfinished volume switch: " + journal);
+        try (FileChannel channel = FileChannel.open(directory.resolve("transaction.lock"),
+                StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+                FileLock lock = channel.tryLock()) {
+            if (lock == null) {
+                throw new CloudRuntimeException("A VM restore transaction is still active for " + vmName);
+            }
+            try (var files = Files.list(directory)) {
+                for (Path journal : files.filter(path -> path.toString().endsWith(".properties")).collect(java.util.stream.Collectors.toList())) {
+                    final Properties state = read(journal);
+                    if (!"COMMITTED".equals(state.getProperty("phase"))) {
+                        throw new CloudRuntimeException(AblestackBackupFrameworkUtils.RESTORE_ROLLBACK_REQUIRED +
+                                " VM [" + vmName + "] has an unfinished volume switch: " + journal);
+                    }
                 }
             }
+        } catch (java.nio.channels.OverlappingFileLockException e) {
+            throw new CloudRuntimeException("A VM restore transaction is still active for " + vmName, e);
         } catch (IOException e) {
             throw new CloudRuntimeException("Unable to check VM restore transaction for " + vmName, e);
         }
@@ -295,7 +316,25 @@ final class LibvirtAblestackRestoreTransaction {
         }
     }
 
+    private static void validatePreparedVolumes(final Properties state, final List<Backend> backends) throws IOException {
+        for (int i = 0; i < backends.size(); i++) {
+            final Backend backend = backends.get(i);
+            final String target = state.getProperty(i + ".target");
+            if (!Boolean.parseBoolean(state.getProperty(i + ".ready"))
+                    || !backend.exists(state.getProperty(i + ".prepared"))) {
+                throw new IOException("Prepared restore volume is missing: " + target);
+            }
+            if (backend.exists(target) != Boolean.parseBoolean(state.getProperty(i + ".hadOriginal"))
+                    || backend.exists(state.getProperty(i + ".original"))) {
+                throw new IOException("Restore destination changed during preparation: " + target);
+            }
+        }
+    }
+
     private static void rollback(final Path journal, final Properties state, final List<Backend> backends) throws IOException {
+        if ("COMMITTED".equals(state.getProperty("phase"))) {
+            throw new IOException("A committed VM restore cannot be rolled back: " + journal);
+        }
         state.setProperty("phase", "ROLLING_BACK");
         save(journal, state);
         for (int i = backends.size() - 1; i >= 0; i--) {
@@ -303,22 +342,41 @@ final class LibvirtAblestackRestoreTransaction {
             final String target = state.getProperty(i + ".target");
             final String original = state.getProperty(i + ".original");
             final String prepared = state.getProperty(i + ".prepared");
+            if (Boolean.parseBoolean(state.getProperty(i + ".rolledBack"))) {
+                if (backend.exists(target) != Boolean.parseBoolean(state.getProperty(i + ".hadOriginal"))
+                        || backend.exists(original)) {
+                    throw new IOException("Previously rolled-back destination changed: " + target);
+                }
+                backend.delete(prepared);
+                continue;
+            }
             if (backend.exists(original)) {
+                // Persist before restoring the original so recovery can recognize a completed rename
+                // even if the process exits before recording rolledBack below.
+                state.setProperty(i + ".reverting", "true");
+                save(journal, state);
                 if (backend.exists(target)) {
                     backend.move(target, prepared);
                 }
                 backend.move(original, target);
-            } else if (!Boolean.parseBoolean(state.getProperty(i + ".hadOriginal"))
-                    && Boolean.parseBoolean(state.getProperty(i + ".switching"))
-                    && !backend.exists(prepared) && backend.exists(target)) {
+            } else if (Boolean.parseBoolean(state.getProperty(i + ".hadOriginal"))) {
+                if (!Boolean.parseBoolean(state.getProperty(i + ".reverting"))
+                        && (Boolean.parseBoolean(state.getProperty(i + ".switched"))
+                            || (Boolean.parseBoolean(state.getProperty(i + ".switching")) && !backend.exists(prepared)))) {
+                    throw new IOException("Retained original volume is missing during rollback: " + original);
+                }
+            } else if (Boolean.parseBoolean(state.getProperty(i + ".switching")) && backend.exists(target)) {
+                // move refuses an ambiguous layout with both target and prepared present.
                 backend.move(target, prepared);
             }
             if (Boolean.parseBoolean(state.getProperty(i + ".hadOriginal")) && !backend.exists(target)) {
                 throw new IOException("Original volume is missing during rollback: " + target);
             }
+            state.setProperty(i + ".rolledBack", "true");
+            save(journal, state);
             backend.delete(prepared);
         }
-        Files.delete(journal);
+        deleteJournal(journal);
     }
 
     private static void cleanupCommitted(final Logger logger, final Path journal, final Properties state,
@@ -327,9 +385,16 @@ final class LibvirtAblestackRestoreTransaction {
             for (int i = 0; i < backends.size(); i++) {
                 backends.get(i).delete(state.getProperty(i + ".original"));
             }
-            Files.delete(journal);
+            deleteJournal(journal);
         } catch (Exception e) {
             logger.warn("VM restore committed; original-volume cleanup will be retried using journal [{}]: {}", journal, e.getMessage());
+        }
+    }
+
+    private static void deleteJournal(final Path journal) throws IOException {
+        Files.delete(journal);
+        try (FileChannel directory = FileChannel.open(journal.getParent(), StandardOpenOption.READ)) {
+            directory.force(true);
         }
     }
 
