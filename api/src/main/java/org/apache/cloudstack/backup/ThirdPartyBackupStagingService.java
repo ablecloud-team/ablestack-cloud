@@ -41,6 +41,9 @@ public interface ThirdPartyBackupStagingService {
     /** Ensure the configured mount and verify the actual filesystem before querying space. */
     long getAvailableBytes(Host host, String path);
 
+    /** Existing jobs may clean up after staging is disabled; still verify the configured filesystem. */
+    default void prepareCleanup(Host host, String path) { getAvailableBytes(host, path); }
+
     long getCapacityBufferBytes(long requiredBytes);
 
     int getCapacityBufferPercent();

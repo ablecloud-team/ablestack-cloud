@@ -41,8 +41,20 @@ public final class AblestackRestoreJobPoller {
 
     static BackupAnswer waitForCompletion(final String restoreJobId, final int timeoutSeconds, final long pollIntervalMs,
             final Callable<Answer> statusQuery) {
+        return waitForCompletion(restoreJobId, timeoutSeconds, pollIntervalMs, 0, statusQuery);
+    }
+
+    public static BackupAnswer waitForStagedCompletion(final String restoreJobId, final int timeoutSeconds,
+            final int queueTimeoutSeconds, final Callable<Answer> statusQuery) {
+        return waitForCompletion(restoreJobId, timeoutSeconds, POLL_INTERVAL_MS, queueTimeoutSeconds, statusQuery);
+    }
+
+    private static BackupAnswer waitForCompletion(final String restoreJobId, final int timeoutSeconds, final long pollIntervalMs,
+            final int queueTimeoutSeconds, final Callable<Answer> statusQuery) {
         final long effectiveTimeoutSeconds = Math.max(1, timeoutSeconds);
-        final long deadline = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(effectiveTimeoutSeconds);
+        long deadline = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(effectiveTimeoutSeconds);
+        final long queueDeadline = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(Math.max(0, queueTimeoutSeconds));
+        boolean waiting = false;
         Exception lastQueryFailure = null;
         BackupAnswer lastAnswer = null;
         while (System.currentTimeMillis() < deadline) {
@@ -60,6 +72,13 @@ public final class AblestackRestoreJobPoller {
                     if (isFailureState(state)) {
                         throw new CloudRuntimeException(String.format("Restore job [%s] failed in state [%s]: %s",
                                 restoreJobId, state, lastAnswer.getDetails()));
+                    }
+                    if (queueTimeoutSeconds > 0 && "WAITING".equals(lastAnswer.getStep())) {
+                        waiting = true;
+                        deadline = Math.max(deadline, queueDeadline + TimeUnit.SECONDS.toMillis(effectiveTimeoutSeconds));
+                    } else if (waiting) {
+                        waiting = false;
+                        deadline = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(effectiveTimeoutSeconds);
                     }
                 }
                 lastQueryFailure = null;

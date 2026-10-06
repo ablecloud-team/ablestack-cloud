@@ -170,6 +170,12 @@ final class LibvirtAblestackAsyncBackupRunner {
             return "UNKNOWN";
         }
         String state = properties.getProperty("state", "UNKNOWN");
+        if (STATE_FAILED.equals(state) && isStagingQueueCanceled(jobId)) {
+            writeJobState(logger, jobId, properties.getProperty("provider"), properties.getProperty("vmName"),
+                    properties.getProperty("backupPath"), properties.getProperty("backupType"), STATE_CANCELED,
+                    "Staging queue canceled by operator");
+            return STATE_CANCELED;
+        }
         if ((STATE_STARTED.equals(state) || STATE_RUNNING.equals(state)) && !ACTIVE_JOBS.contains(jobId)) {
             String detachedState = resolveDetachedState(jobId, properties, logger);
             if (!STATE_INTERRUPTED.equals(detachedState)) {
@@ -221,6 +227,12 @@ final class LibvirtAblestackAsyncBackupRunner {
 
     static void recoverFailedRestoreTransaction(final String jobId,
             final com.cloud.hypervisor.kvm.storage.KVMStoragePoolManager manager, final Logger logger) {
+        final Path directory = getJobDirectory(jobId);
+        if (Files.isRegularFile(directory.resolve("volume-restore-plan.json"))
+                && !Files.isRegularFile(directory.resolve("volume-restore-cleanup.json"))) {
+            // The common volume coordinator verifies external writers and orphaned converters first.
+            return;
+        }
         final String state = getJobState(jobId, logger);
         final Properties properties = readJob(jobId, logger);
         if (properties == null || !AblestackBackupFrameworkUtils.OPERATION_RESTORE.equals(properties.getProperty("operation"))
@@ -443,6 +455,10 @@ final class LibvirtAblestackAsyncBackupRunner {
         final Path jobDirectory = getJobDirectory(jobId);
         final Path jobProperties = getJobPath(jobId);
         try {
+            if (Files.isRegularFile(jobDirectory.resolve("volume-restore-plan.json"))
+                    && !Files.isRegularFile(jobDirectory.resolve("volume-restore-cleanup.json"))) {
+                return new Answer(command, false, "Volume restore writer, transaction and staging cleanup must finish before removing job records");
+            }
             if (Files.exists(jobDirectory)) {
                 try (Stream<Path> paths = Files.walk(jobDirectory)) {
                     paths.sorted(Comparator.reverseOrder()).forEach(path -> {
@@ -471,7 +487,8 @@ final class LibvirtAblestackAsyncBackupRunner {
         if (Files.exists(exitCodePath)) {
             try {
                 final String exitCode = Files.readString(exitCodePath).trim();
-                final String resolvedState = isCancelRequested(properties) ? STATE_CANCELED : "0".equals(exitCode) ? STATE_COMPLETED : STATE_FAILED;
+                final String resolvedState = isCancelRequested(properties) || isStagingQueueCanceled(jobId)
+                        ? STATE_CANCELED : "0".equals(exitCode) ? STATE_COMPLETED : STATE_FAILED;
                 final String exitDetails = resolveDetachedExitDetails(jobId, resolvedState, exitCode, logger);
                 writeJobState(logger, jobId, properties.getProperty("provider"), properties.getProperty("vmName"),
                         properties.getProperty("backupPath"), properties.getProperty("backupType"), resolvedState,
@@ -519,6 +536,12 @@ final class LibvirtAblestackAsyncBackupRunner {
 
     private static boolean isCancelRequested(final String jobId, final Logger logger) {
         return isCancelRequested(readJob(jobId, logger));
+    }
+
+    private static boolean isStagingQueueCanceled(String jobId) {
+        Path marker = getJobDirectory(jobId).resolve("staging-admission-cancel");
+        try { return Files.isRegularFile(marker) && Files.readString(marker).equals("Staging queue canceled by operator"); }
+        catch (IOException e) { return false; }
     }
 
     private static boolean isCancelRequested(final Properties properties) {

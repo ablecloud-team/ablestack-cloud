@@ -39,6 +39,11 @@
               <span>Volume :</span>
               <span>{{ volumeIndex }}/{{ volumeCount }}</span>
             </div>
+            <template v-if="stagingQueue && stagingQueue.state !== 'RELEASED'">
+              <div class="backup-progress-tooltip-row"><span>Staging :</span><span>{{ stagingQueue.state }}</span></div>
+              <div v-if="stagingQueue.reason" class="backup-progress-tooltip-row"><span>Waiting reason :</span><span>{{ stagingQueue.reason }}</span></div>
+              <div v-if="stagingQueue.state === 'WAITING' && stagingQueue.deadline" class="backup-progress-tooltip-row"><span>Queue deadline :</span><span>{{ $toLocaleDate(stagingQueue.deadline) }}</span></div>
+            </template>
             <div v-if="bandwidthLimitMbps !== null" class="backup-progress-tooltip-row">
               <span>{{ $t('label.bandwidth') }} :</span>
               <span>{{ bandwidthLimitMbps === 0 ? $t('label.unlimited') : bandwidthLimitMbps + ' Mbps' }}</span>
@@ -51,6 +56,41 @@
               <span>{{ $t('label.failure.reason') }} :</span>
               <span>{{ failureDetails }}</span>
             </div>
+            <div v-if="record.catalogstate" class="backup-progress-tooltip-row">
+              <span>Catalog :</span><span>{{ record.catalogstate }}</span>
+            </div>
+            <div v-if="record.catalogchecked" class="backup-progress-tooltip-row">
+              <span>Catalog checked :</span><span>{{ $toLocaleDate(record.catalogchecked) }}</span>
+            </div>
+            <div v-if="record.catalogdetails" class="backup-progress-tooltip-row backup-progress-tooltip-error">
+              <span>{{ record.catalogdetails }}</span>
+            </div>
+            <div v-if="record.cleanupstate && record.cleanupstate !== 'NONE'" class="backup-progress-tooltip-row">
+              <span>Cleanup :</span><span>{{ record.cleanupstate }}</span>
+            </div>
+            <div v-if="record.cleanupdetails" class="backup-progress-tooltip-row">
+              <span>{{ record.cleanupdetails }}</span>
+            </div>
+            <div v-if="record.sourcecleanupstate && record.sourcecleanupstate !== 'NONE'" class="backup-progress-tooltip-row">
+              <span>Previous RBD snapshot cleanup :</span><span>{{ record.sourcecleanupstate }}</span>
+            </div>
+            <div v-if="record.sourcecleanupdetails" class="backup-progress-tooltip-row">
+              <span>{{ record.sourcecleanupdetails }}</span>
+            </div>
+            <div v-if="record.restorecleanupstate && record.restorecleanupstate !== 'NONE'" class="backup-progress-tooltip-row">
+              <span>Restore cleanup :</span><span>{{ record.restorecleanupstate }}</span>
+            </div>
+            <div v-if="record.restorecleanupdetails" class="backup-progress-tooltip-row">
+              <span>{{ record.restorecleanupdetails }}</span>
+            </div>
+            <template v-if="vmRestore && (!vmRestore.stagingjobid || !restoreJobId || vmRestore.stagingjobid === restoreJobId)">
+              <div class="backup-progress-tooltip-row"><span>VM restore :</span><span>{{ vmRestore.outcome }} / {{ vmRestore.phase }}</span></div>
+              <div class="backup-progress-tooltip-row"><span>Primary cleanup :</span><span>{{ vmRestore.primarycleanupstate }}</span></div>
+              <div v-if="vmRestore.recoveryerror || vmRestore.queryerror" class="backup-progress-tooltip-row backup-progress-tooltip-error">
+                <span>{{ vmRestore.recoveryerror || vmRestore.queryerror }}</span>
+              </div>
+              <div v-if="vmRestore.failure" class="backup-progress-tooltip-row backup-progress-tooltip-error"><span>{{ vmRestore.failure }}</span></div>
+            </template>
           </div>
         </template>
       </status>
@@ -114,6 +154,8 @@ export default {
       step: this.record?.restorejobstep || this.record?.backupjobstep || '',
       volumeIndex: null,
       volumeCount: null,
+      stagingQueue: this.record?.stagingqueue || null,
+      vmRestore: this.record?.vmrestore || null,
       logPath: this.record?.backupjoblogpath || this.record?.restorejoblogpath || '',
       bandwidthLimitMbps: this.normalizeBandwidth(this.record?.bandwidthlimitmbps),
       bandwidthStatus: this.record?.bandwidthstatus || '',
@@ -176,7 +218,7 @@ export default {
       return this.$t('message.backup.bandwidth.' + this.bandwidthStatus)
     },
     showJobDetails () {
-      return !!this.failureDetails || (this.isActive && (this.showProgress || !!this.jobState || !!this.displayStep || !!this.logPath ||
+      return !!this.vmRestore || !!this.stagingQueue || !!this.record?.catalogstate || !!this.record?.cleanupdetails || !!this.record?.sourcecleanupdetails || !!this.record?.restorecleanupdetails || !!this.failureDetails || (this.isActive && (this.showProgress || !!this.jobState || !!this.displayStep || !!this.logPath ||
         this.bandwidthLimitMbps !== null || !!this.bandwidthStatus))
     },
     showRestoreFailure () {
@@ -218,6 +260,7 @@ export default {
       }
     },
     syncFromRecord () {
+      this.vmRestore = this.record?.vmrestore || null
       this.localStatus = String(this.record?.status || this.statusText || this.localStatus || '')
       if (Object.prototype.hasOwnProperty.call(this.record || {}, 'restorejobid')) {
         this.restoreJobId = this.record?.restorejobid || ''
@@ -233,6 +276,7 @@ export default {
         this.progress = progress
       }
       this.jobState = this.record?.restorejobstate || this.record?.backupjobstate || ''
+      this.stagingQueue = this.record?.stagingqueue || null
       this.step = this.record?.restorejobstep || this.record?.backupjobstep || this.step
       this.logPath = this.record?.restorejoblogpath || this.record?.backupjoblogpath || this.logPath
       const bandwidthLimitMbps = this.normalizeBandwidth(this.record?.bandwidthlimitmbps)
@@ -292,6 +336,8 @@ export default {
         this.localStatus = response.status
       }
       this.jobState = response.state || this.jobState
+      this.stagingQueue = response.stagingqueue || null
+      if (Object.prototype.hasOwnProperty.call(response, 'vmrestore')) this.vmRestore = response.vmrestore || null
       this.step = response.step || this.step
       this.volumeIndex = response.volumeindex || null
       this.volumeCount = response.volumecount || null

@@ -32,9 +32,26 @@ public class LibvirtAblestackRestoreJobStatusCommandWrapper
 
     @Override
     public Answer execute(final AblestackRestoreJobStatusCommand command, final LibvirtComputingResource resource) {
+        try {
+            String failure = LibvirtAblestackVolumeRestoreHelper.startFailure(command.getRestoreJobId());
+            if (failure != null) {
+                BackupAnswer failed = new BackupAnswer(command, true, failure);
+                failed.setState("FAILED");
+                failed.setStep("START_FAILED");
+                failed.setProgress(0);
+                failed.setOperation(AblestackBackupFrameworkUtils.OPERATION_RESTORE);
+                return failed;
+            }
+        } catch (Exception e) {
+            return new BackupAnswer(command, false, "Restore start proof cannot be read: " + e.getMessage());
+        }
         LibvirtAblestackAsyncBackupRunner.recoverFailedRestoreTransaction(command.getRestoreJobId(), resource.getStoragePoolMgr(), logger);
         BackupAnswer answer = LibvirtAblestackAsyncBackupRunner.getJobStatus(command, command.getRestoreJobId(),
                 command.getEventsOffset(), command.getEventsLimit(), logger);
+        try {
+            var result = LibvirtAblestackRestoreOutcome.read(command.getRestoreJobId());
+            if (result != null) { answer.setVmRestoreResult(new com.google.gson.Gson().toJson(result)); }
+        } catch (Exception e) { answer.setVmRestoreResultError("VM volume transaction result cannot be read: " + e.getMessage()); }
         logger.debug("ABLESTACK restore job status command completed. restoreJobId=[{}], state=[{}], jobLog=[{}]",
                 command.getRestoreJobId(), answer.getState(), AblestackBackupFrameworkUtils.getAsyncRestoreJobLogPath(command.getRestoreJobId()));
         return answer;

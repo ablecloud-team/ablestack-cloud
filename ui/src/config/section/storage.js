@@ -606,7 +606,7 @@ export default {
           isFetchData: false,
           dataView: true,
           show: (record) => { return ['BackingUp', 'BackedUp', 'Restoring'].includes(record.status) },
-          disabled: (record) => { return isBackupOperationInProgress(record) },
+          disabled: (record) => { return record.restoreavailable === false || isBackupOperationInProgress(record) },
           tooltip: (record) => getBackupOperationActionTooltip(record, 'label.backup.restore'),
           args: () => {
             const fields = []
@@ -624,7 +624,7 @@ export default {
           message: 'message.backup.attach.restore',
           dataView: true,
           show: (record) => { return ['BackingUp', 'BackedUp', 'Restoring'].includes(record.status) },
-          disabled: (record) => { return isBackupOperationInProgress(record) },
+          disabled: (record) => { return record.restoreavailable === false || isBackupOperationInProgress(record) },
           tooltip: (record) => getBackupOperationActionTooltip(record, 'label.backup.attach.restore'),
           popup: true,
           component: shallowRef(defineAsyncComponent(() => import('@/views/storage/RestoreAttachBackupVolume.vue')))
@@ -638,7 +638,7 @@ export default {
           dataView: true,
           popup: true,
           show: (record) => { return ['BackingUp', 'BackedUp', 'Restoring'].includes(record.status) },
-          disabled: (record) => { return isBackupOperationInProgress(record) },
+          disabled: (record) => { return record.restoreavailable === false || isBackupOperationInProgress(record) },
           tooltip: (record) => getBackupOperationActionTooltip(record, 'label.create.instance.from.backup'),
           component: shallowRef(defineAsyncComponent(() => import('@/views/storage/CreateVMFromBackup.vue')))
         },
@@ -658,6 +658,29 @@ export default {
           }
         },
         {
+          api: 'getBackupStagingInfo',
+          icon: 'tool-outlined',
+          label: 'Staging management',
+          dataView: true,
+          popup: true,
+          show: (record) => isAdmin() && ['ablestack-commvault', 'ablestack-netbackup', 'ablestack-veeam'].includes(String(record.provider || '').toLowerCase()) && (record?.details?.['thirdparty.staging.mode'] === 'VOLUME' || !!record.stagingqueue),
+          component: shallowRef(defineAsyncComponent(() => import('@/views/storage/BackupStagingManagement.vue')))
+        },
+        {
+          api: 'cancelBackupStagingJob',
+          icon: 'stop-outlined',
+          label: 'label.cancel',
+          message: 'message.confirm.cancel.backup',
+          dataView: true,
+          show: (record) => record?.stagingqueue?.state === 'WAITING',
+          args: ['id', 'operation', 'stagingjobid'],
+          mapping: {
+            id: { value: (record) => record.id },
+            operation: { value: (record) => record.stagingqueue.operation },
+            stagingjobid: { value: (record) => record.stagingqueue.stagingjobid }
+          }
+        },
+        {
           api: 'cancelBackup',
           icon: 'stop-outlined',
           label: 'label.cancel',
@@ -665,6 +688,7 @@ export default {
           dataView: true,
           show: (record) => {
             if (record.status !== 'BackingUp') return false
+            if (record?.stagingqueue?.state === 'WAITING') return false
             if (record?.details?.['thirdparty.staging.mode'] === 'VOLUME') return hasBackupCapability(record, 'cancel')
             return !hasSubmittedCommvaultJob(record)
           },

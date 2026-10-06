@@ -366,6 +366,29 @@ final class LibvirtAblestackRbdRestoreHelper {
                 storagePool.getSourceDir(), timeoutSeconds);
     }
 
+    static org.apache.cloudstack.backup.ThirdPartyBackupAdmission.PrimaryClaim getCephPoolCapacity(
+            final KVMStoragePool pool, final int timeoutSeconds) {
+        // Ceph FSID + numeric pool ID remains the same across CloudStack pool aliases.
+        final CommandExecutionResult fsid = executeBashCommandWithResult(buildCephCommand(pool, "fsid"), timeoutSeconds,
+                "Query Ceph cluster identity");
+        final CommandExecutionResult df = executeBashCommandWithResult(buildCephCommand(pool, "df", "detail", "--format", "json"),
+                timeoutSeconds, "Query Ceph restore capacity");
+        if (fsid.exitCode != 0 || df.exitCode != 0) { throw new CloudRuntimeException("Ceph primary capacity identity is unconfirmed"); }
+        String cluster = java.util.UUID.fromString(fsid.output.trim()).toString();
+        com.google.gson.JsonObject data = com.google.gson.JsonParser.parseString(df.output).getAsJsonObject();
+        for (com.google.gson.JsonElement item : data.getAsJsonArray("pools")) {
+            com.google.gson.JsonObject candidate = item.getAsJsonObject();
+            if (!pool.getSourceDir().equals(candidate.get("name").getAsString())) { continue; }
+            org.apache.cloudstack.backup.ThirdPartyBackupAdmission.PrimaryClaim result =
+                    new org.apache.cloudstack.backup.ThirdPartyBackupAdmission.PrimaryClaim();
+            result.storageKey = "rbd:" + cluster + ":" + candidate.get("id").getAsLong();
+            result.availableBytes = candidate.getAsJsonObject("stats").get("max_avail").getAsLong();
+            if (result.availableBytes < 0) { throw new CloudRuntimeException("Invalid Ceph primary capacity"); }
+            return result;
+        }
+        throw new CloudRuntimeException("Restore Ceph pool was not found in cluster capacity information");
+    }
+
     private static Long getCephPoolAvailableBytes(final RbdSourceImage sourceImage, final int timeoutSeconds) {
         return getCephPoolAvailableBytes(sourceImage.buildCephCommand("df", "detail", "--format", "json"),
                 sourceImage.getPoolName(), timeoutSeconds);

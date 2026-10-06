@@ -23,13 +23,14 @@ import json
 import os
 from pathlib import Path
 
-from thirdparty_volume_backup import atomic
+from thirdparty_volume_backup import atomic, staging_identity
+from thirdparty_primary_capacity import filesystem_capacity
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--plan-file", required=True)
-    parser.add_argument("--action", choices=("reserve", "release"), required=True)
+    parser.add_argument("--action", choices=("prepare", "reserve", "release", "cancel"), required=True)
     args = parser.parse_args()
     plan = json.loads(Path(args.plan_file).read_text())
     root = Path(plan["stageRoot"]).resolve(strict=True)
@@ -41,6 +42,10 @@ def main():
     reservation = directory / (plan["jobId"] + ".json")
     if reservation.parent != directory or reservation.name != plan["jobId"] + ".json":
         raise RuntimeError("Invalid restore job ID")
+    if args.action == "cancel":
+        from thirdparty_staging_admission import control
+        control(Path(args.plan_file).parent / "staging-admission-plan.json", "cancel", "Staging queue timeout expired")
+        return
     with (directory / "capacity.lock").open("a") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
         if args.action == "release":
@@ -48,17 +53,33 @@ def main():
             return
         if reservation.exists():
             raise RuntimeError("Restore staging reservation already exists")
+        plan["stageFilesystemId"] = staging_identity(directory)
+        atomic(Path(args.plan_file), plan)
         selected = [v for v in plan["manifest"]["volumes"] if v["uuid"] in plan["volumeUuids"]]
         largest = max(v["provisionedBytes"] for v in selected)
         required = largest + (largest * plan["bufferPercent"] + 99) // 100
         scratch = plan.get("primaryScratchBytes", 0)
+        record = {"jobId": plan["jobId"], "bytes": required,
+                  "primaryScratchBytes": scratch, "host": plan["hostName"], "operation": "RESTORE"}
+        if args.action == "prepare":
+            job = Path(args.plan_file).parent
+            storage_key = filesystem_capacity(root, True)["storageKey"]
+            if plan.get("primaryCapacityVersion") == 1 and storage_key != plan["stagingStorageKey"]:
+                raise RuntimeError("Staging capacity domain changed while preparing restore")
+            atomic(job / "staging-admission-plan.json", {
+                "jobId": plan["jobId"], "stageRoot": str(root), "stageFilesystemId": plan["stageFilesystemId"],
+                "admissionProtocolVersion": 1,
+                "reservation": record})
+            atomic(job / "staging-admission-request.json", {
+                "admission": True, "jobId": plan["jobId"], "operation": "RESTORE", "requiredBytes": required + scratch,
+                "capacityVersion": plan.get("primaryCapacityVersion", 0), "stagingStorageKey": storage_key})
+            return
         reserved = sum(r["bytes"] + r.get("primaryScratchBytes", 0)
                        for r in (json.loads(p.read_text()) for p in directory.glob("*.json")))
         stat = os.statvfs(root)
         if required + scratch > stat.f_bavail * stat.f_frsize - reserved:
             raise RuntimeError("Insufficient effective staging capacity including backup and restore reservations")
-        atomic(reservation, {"jobId": plan["jobId"], "bytes": required,
-                             "primaryScratchBytes": scratch, "host": plan["hostName"], "operation": "RESTORE"})
+        atomic(reservation, record)
 
 
 if __name__ == "__main__":

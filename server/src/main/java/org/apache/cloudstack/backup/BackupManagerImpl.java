@@ -66,6 +66,8 @@ import org.apache.cloudstack.api.command.admin.backup.UpdateNetBackupCmd;
 import org.apache.cloudstack.api.command.admin.vm.CreateVMFromBackupCmdByAdmin;
 import org.apache.cloudstack.api.command.user.backup.AssignVirtualMachineToBackupOfferingCmd;
 import org.apache.cloudstack.api.command.user.backup.CancelBackupCmd;
+import org.apache.cloudstack.api.command.user.backup.CancelBackupStagingJobCmd;
+import org.apache.cloudstack.api.response.BackupStagingQueueResponse;
 import org.apache.cloudstack.api.command.user.backup.CreateAblestackVeeamBackupCmd;
 import org.apache.cloudstack.api.command.user.backup.UpdateAblestackVeeamBackupCmd;
 import org.apache.cloudstack.api.command.user.backup.SyncAblestackVeeamBackupsCmd;
@@ -105,6 +107,7 @@ import org.apache.cloudstack.api.command.user.vm.CreateVMFromBxBackupCmd;
 import org.apache.cloudstack.api.response.BackupJobStatusResponse;
 import org.apache.cloudstack.api.response.BackupResponse;
 import org.apache.cloudstack.api.response.NetBackupBackupCandidateResponse;
+import org.apache.cloudstack.api.response.BackupStagingInfoResponse;
 import org.apache.cloudstack.backup.NetBackupRestoreCoordinator.RestorePhase;
 import org.apache.cloudstack.backup.NetBackupRestoreCoordinator.RestoreResolution;
 import org.apache.cloudstack.backup.NetBackupRestoreCoordinator.RestoreSession;
@@ -231,6 +234,9 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
 
     @Inject
     private ThirdPartyBackupStagingService thirdPartyBackupStagingService;
+
+    @Inject
+    private ThirdPartyBackupVolumeService thirdPartyBackupVolumeService;
 
     private static final String BACKUP_ENGINE_DETAIL_SUFFIX = ".backup.engine";
 
@@ -1791,6 +1797,10 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         validateBackupForZone(backup.getZoneId());
         accountManager.checkAccess(CallContext.current().getCallingAccount(), null, true, vm);
         backupDao.loadDetails(backup);
+        ThirdPartyBackupAdmission.Entry queued = getAdmissionEntry(backup, ThirdPartyBackupAdmission.BACKUP_KEY);
+        if (queued != null && "WAITING".equals(queued.state)) {
+            return thirdPartyBackupVolumeService.cancelWaiting(backup, "BACKUP", queued.jobId);
+        }
         if (ThirdPartyBackupManifest.VOLUME_MODE.equals(backup.getDetail(ThirdPartyBackupManifest.MODE_KEY))) {
             final ThirdPartyBackupManifest manifest = ThirdPartyBackupManifest.fromJson(backup.getDetail(ThirdPartyBackupManifest.DETAIL_KEY));
             final List<ThirdPartyBackupManifest.Artifact> artifacts = new ArrayList<>(manifest.getCurrentArtifacts());
@@ -1832,6 +1842,239 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         logger.info("Cancelled and cleaned BackingUp backup [{}] for VM [{}] using provider [{}].",
                 backup.getUuid(), vm.getInstanceName(), offering.getProvider());
         return true;
+    }
+
+    @Override
+    @ActionEvent(eventType = EventTypes.EVENT_VM_BACKUP_CANCEL, eventDescription = "canceling waiting staging job", async = true)
+    public boolean cancelBackupStagingJob(Long backupId, String operation, String jobId) {
+        if (!java.util.Set.of("BACKUP", "RESTORE").contains(StringUtils.defaultString(operation)) || StringUtils.isBlank(jobId)) {
+            throw new CloudRuntimeException("Specify BACKUP or RESTORE and the exact staging job ID");
+        }
+        BackupVO backup = backupDao.findById(backupId);
+        if (backup == null) { throw new CloudRuntimeException("Selected backup no longer exists"); }
+        backupDao.loadDetails(backup);
+        accountManager.checkAccess(CallContext.current().getCallingAccount(), null, true, backup);
+        if ("RESTORE".equals(operation)) {
+            VMInstanceVO target = findRestoreTargetVm(backup);
+            if (target != null) { accountManager.checkAccess(CallContext.current().getCallingAccount(), null, true, target); }
+        }
+        GlobalLock lock = GlobalLock.getInternLock("RESTORE".equals(operation)
+                ? "backup.volume.restore." + jobId : "backup.volume." + backup.getUuid());
+        boolean acquired = false;
+        try {
+            acquired = lock.lock(5);
+            if (!acquired) { throw new CloudRuntimeException("Staging job is being reconciled; retry shortly"); }
+            return thirdPartyBackupVolumeService.cancelWaiting(backup, operation, jobId);
+        } finally {
+            if (acquired) { lock.unlock(); }
+            lock.releaseRef();
+        }
+    }
+
+    private BackupVO adminStagingBackup(Long backupId, String operation) {
+        if (!accountService.isRootAdmin(CallContext.current().getCallingAccount().getId())) {
+            throw new PermissionDeniedException("Staging job management requires a Root Admin");
+        }
+        if (!java.util.Set.of("BACKUP", "RESTORE").contains(StringUtils.defaultString(operation))) {
+            throw new CloudRuntimeException("Specify BACKUP or RESTORE");
+        }
+        BackupVO backup = backupDao.findById(backupId);
+        if (backup == null) { throw new CloudRuntimeException("Selected backup no longer exists"); }
+        backupDao.loadDetails(backup);
+        accountManager.checkAccess(CallContext.current().getCallingAccount(), null, true, backup);
+        if ("RESTORE".equals(operation)) {
+            VMInstanceVO target = findRestoreTargetVm(backup);
+            if (target != null) { accountManager.checkAccess(CallContext.current().getCallingAccount(), null, true, target); }
+        }
+        return backup;
+    }
+
+    @Override
+    public BackupStagingInfoResponse getBackupStagingInfo(Long backupId, String operation, String stagingJobId) {
+        return thirdPartyBackupVolumeService.inspect(adminStagingBackup(backupId, operation), operation, stagingJobId);
+    }
+
+    @Override
+    public org.apache.cloudstack.api.response.BackupArtifactResolutionResponse resolveBackupArtifact(
+            String provider, String externalId, String jobId, Long vmId) {
+        if (!ThirdPartyBackupStagingService.isStagingProvider(provider)
+                || (StringUtils.isBlank(externalId) && StringUtils.isBlank(jobId))) {
+            throw new CloudRuntimeException("Specify an ABLESTACK provider and an exact artifact or restore Job ID");
+        }
+        if ("ablestack-veeam".equals(provider) && StringUtils.isNotBlank(jobId)) {
+            try { jobId = java.util.UUID.fromString(StringUtils.strip(jobId, "{}")).toString(); }
+            catch (IllegalArgumentException e) { return new org.apache.cloudstack.api.response.BackupArtifactResolutionResponse(); }
+        }
+        org.apache.cloudstack.api.response.BackupArtifactResolutionResponse match = null;
+        for (BackupDetailVO detail : backupDetailsDao.findDetails(ThirdPartyBackupManifest.MODE_KEY, ThirdPartyBackupManifest.VOLUME_MODE, false)) {
+            BackupVO backup = backupDao.findById(detail.getResourceId());
+            if (backup == null || (vmId != null && !vmId.equals(backup.getVmId()))) { continue; }
+            backupDao.loadDetails(backup);
+            ThirdPartyBackupManifest manifest = ThirdPartyBackupManifest.fromJson(backup.getDetail(ThirdPartyBackupManifest.DETAIL_KEY));
+            if (!provider.equals(manifest.getProvider())) { continue; }
+            ThirdPartyBackupManifest.Artifact found = null;
+            boolean tracked = false;
+            if (StringUtils.isNotBlank(jobId)) {
+                for (BackupDetailVO history : backupDetailsDao.listDetails(backup.getId())) {
+                    if (!history.getName().startsWith(ThirdPartyBackupRestore.HISTORY_PREFIX)
+                            || history.getName().endsWith(".operation")) { continue; }
+                    ThirdPartyBackupRestore.Record record = new Gson().fromJson(history.getValue(), ThirdPartyBackupRestore.Record.class);
+                    if (record == null || record.request == null || record.result == null
+                            || StringUtils.isBlank(record.result.jobId)) { continue; }
+                    if ((exactExternalId(provider, jobId, record.result.jobId)
+                            || (record.result.callbackJobIds != null && record.result.callbackJobIds.contains(jobId)))
+                            && (StringUtils.isBlank(externalId) || artifactReference(provider, externalId, record.request.artifact, record.request.metadata))) {
+                        found = record.request.artifact;
+                        tracked = true;
+                        break;
+                    }
+                }
+            }
+            if (!tracked && StringUtils.isNotBlank(externalId)) {
+                for (ThirdPartyBackupManifest.Artifact artifact : manifest.getOwnedArtifacts()) {
+                    if (artifactReference(provider, externalId, artifact, artifact == manifest.getMetadata())) {
+                        if (found != null && found != artifact) { throw new CloudRuntimeException("Artifact selection is ambiguous"); }
+                        found = artifact;
+                    }
+                }
+            }
+            if (found != null && StringUtils.isNotBlank(jobId)) {
+                String claimed = backup.getDetail(externalUiRestoreKey(provider, jobId));
+                if (StringUtils.isNotBlank(claimed)) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> receipt = new Gson().fromJson(claimed, Map.class);
+                    if (!provider.equals(receipt.get("provider")) || !jobId.equals(receipt.get("jobId"))
+                            || !backup.getUuid().equals(receipt.get("backupUuid"))) {
+                        throw new CloudRuntimeException("External UI restore receipt belongs to another request");
+                    }
+                    tracked = true;
+                }
+            }
+            if (found == null) { continue; }
+            accountManager.checkAccess(CallContext.current().getCallingAccount(), null, true, backup);
+            if (match != null && (!match.id.equals(backup.getUuid()) || match.tracked != tracked)) {
+                // A restore of an ancestor may match its owner and the target logical point.
+                // The recorded restore job is authoritative for loop prevention.
+                if (match.tracked && tracked && !match.id.equals(backup.getUuid())) {
+                    throw new CloudRuntimeException("External restore Job ID matches multiple logical backups");
+                }
+                if (match.tracked) { continue; }
+                if (!tracked) { throw new CloudRuntimeException("External artifact ID matches multiple logical backups; specify virtualmachineid"); }
+            }
+            match = new org.apache.cloudstack.api.response.BackupArtifactResolutionResponse();
+            match.matched = true;
+            match.id = backup.getUuid();
+            match.provider = provider;
+            match.vmname = manifest.getVmName();
+            match.timestamp = manifest.getTimestamp();
+            match.artifactpath = found.path;
+            match.metadatapath = manifest.getMetadata() == null ? null : manifest.getMetadata().path;
+            match.artifacttype = !tracked && found == manifest.getMetadata() ? "METADATA" : "VOLUME";
+            match.tracked = tracked;
+            VMInstanceVO vm = vmInstanceDao.findByIdIncludingRemoved(backup.getVmId());
+            match.virtualmachineid = vm == null ? null : vm.getUuid();
+            if (tracked) { match.reason = "External restore is already owned by Mold"; }
+            else if (!"METADATA".equals(match.artifacttype)) { match.reason = "Restore the logical backup's metadata Job in the external UI; Mold restores its volumes sequentially"; }
+            else if (manifest.getVolumes().stream().anyMatch(volume -> volume.engine.startsWith("RBD"))) { match.reason = "RBD volume backups must be restored from Mold UI"; }
+            else if (!Backup.Status.BackedUp.equals(backup.getStatus()) || !manifest.isComplete()
+                    || StringUtils.isNotBlank(backup.getDetail(ThirdPartyBackupManifest.CATALOG_FAILURE_KEY))
+                    || StringUtils.isNotBlank(backup.getDetail(ThirdPartyBackupManifest.DELETE_PROGRESS_KEY))) { match.reason = "The logical backup is incomplete, expired or being deleted"; }
+            else if (!ThirdPartyStagingEnable.value()) { match.reason = "Third-party staging is disabled"; }
+            else if (vm == null || vm.getRemoved() != null || vm.getState() != VirtualMachine.State.Stopped) { match.reason = "The original VM must be Stopped before restoring metadata in the external UI"; }
+            else { match.restoreallowed = true; }
+        }
+        return match == null ? new org.apache.cloudstack.api.response.BackupArtifactResolutionResponse() : match;
+    }
+
+    private String externalUiRestoreKey(String provider, String jobId) {
+        return "thirdparty.volume.ui.restore." + java.util.UUID.nameUUIDFromBytes(
+                (provider + ":" + jobId).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+    }
+
+    @Override
+    @ActionEvent(eventType = EventTypes.EVENT_VM_BACKUP_RESTORE, eventDescription = "restoring VM from external metadata job", async = true)
+    public boolean restoreBackupArtifact(String provider, String externalId, String jobId) {
+        if (!java.util.Set.of("ablestack-netbackup", "ablestack-veeam").contains(provider)
+                || StringUtils.isBlank(externalId) || StringUtils.isBlank(jobId)) {
+            throw new CloudRuntimeException("Specify NetBackup or Veeam and the exact metadata artifact and restore Job IDs");
+        }
+        if ("ablestack-netbackup".equals(provider) && !jobId.matches("[0-9]+")) {
+            throw new CloudRuntimeException("NetBackup restore requires a numeric Job ID");
+        }
+        if ("ablestack-veeam".equals(provider)) {
+            try { jobId = java.util.UUID.fromString(StringUtils.strip(jobId, "{}")).toString(); }
+            catch (IllegalArgumentException e) { throw new CloudRuntimeException("Veeam restore requires a session UUID", e); }
+        }
+        String key = externalUiRestoreKey(provider, jobId);
+        GlobalLock lock = GlobalLock.getInternLock(key);
+        boolean acquired = false;
+        BackupVO backup;
+        Map<String, Object> receipt = new java.util.LinkedHashMap<>();
+        try {
+            acquired = lock.lock(5);
+            if (!acquired) { throw new CloudRuntimeException("External restore callback is being claimed; retry shortly"); }
+            org.apache.cloudstack.api.response.BackupArtifactResolutionResponse resolved = resolveBackupArtifact(provider, externalId, jobId, null);
+            if (!resolved.matched) { throw new CloudRuntimeException("No exact volume pipeline artifact matches this external restore"); }
+            if (resolved.tracked) { return true; }
+            if (!resolved.restoreallowed) { throw new CloudRuntimeException(resolved.reason); }
+            backup = backupDao.findByUuid(resolved.id);
+            if (backup == null) { throw new CloudRuntimeException("Logical backup no longer exists"); }
+            receipt.put("provider", provider);
+            receipt.put("jobId", jobId);
+            receipt.put("externalId", externalId);
+            receipt.put("backupUuid", backup.getUuid());
+            receipt.put("state", "CLAIMED");
+            receipt.put("claimedAt", System.currentTimeMillis());
+            // Claim before dispatch. A lost response or server restart must never duplicate a VM restore.
+            backupDetailsDao.addDetail(backup.getId(), key, new Gson().toJson(receipt), false);
+        } finally {
+            if (acquired) { lock.unlock(); }
+            lock.releaseRef();
+        }
+        try {
+            boolean submitted = restoreBackup(backup.getId(), false, null);
+            receipt.put("state", submitted ? "SUBMITTED" : "FAILED");
+            backupDetailsDao.addDetail(backup.getId(), key, new Gson().toJson(receipt), false);
+            return submitted;
+        } catch (RuntimeException e) {
+            receipt.put("state", "FAILED");
+            receipt.put("reason", StringUtils.defaultString(e.getMessage()));
+            backupDetailsDao.addDetail(backup.getId(), key, new Gson().toJson(receipt), false);
+            throw e;
+        }
+    }
+
+    private boolean exactExternalId(String provider, String first, String second) {
+        if (StringUtils.isBlank(first) || StringUtils.isBlank(second)) { return false; }
+        return "ablestack-veeam".equals(provider) ? StringUtils.strip(first, "{}").equalsIgnoreCase(StringUtils.strip(second, "{}")) : first.equals(second);
+    }
+
+    private boolean artifactReference(String provider, String reference, ThirdPartyBackupManifest.Artifact artifact, boolean metadata) {
+        if (artifact == null) { return false; }
+        if (exactExternalId(provider, reference, artifact.externalId) || reference.equals(artifact.path)) { return true; }
+        if (!metadata || !reference.startsWith(artifact.path + "/")) { return false; }
+        String relative = reference.substring(artifact.path.length() + 1);
+        return java.util.Set.of("backup-manifest.json", "domain-config.xml", "rbd-backup.meta", ".staging.complete").contains(relative);
+    }
+
+    @Override
+    @ActionEvent(eventType = EventTypes.EVENT_VM_BACKUP_STAGING_RECONCILE, eventDescription = "reconciling staging job", async = true)
+    public BackupStagingInfoResponse reconcileBackupStagingJob(Long backupId, String operation,
+            String jobId, String action, Integer artifactIndex, String externalJobId) {
+        BackupVO backup = adminStagingBackup(backupId, operation);
+        if (StringUtils.isBlank(jobId)) { throw new CloudRuntimeException("Specify the exact staging job ID"); }
+        BackupOfferingVO offering = backupOfferingDao.findByIdIncludingRemoved(backup.getBackupOfferingId());
+        if (offering == null || !ThirdPartyBackupStagingService.isStagingProvider(offering.getProvider())) {
+            throw new CloudRuntimeException("Staging management supports only ABLESTACK Commvault, NetBackup and Veeam");
+        }
+        if (StringUtils.isNotBlank(externalJobId)) {
+            externalJobId = externalJobId.trim();
+            if ("ablestack-veeam".equalsIgnoreCase(offering.getProvider())) {
+                try { externalJobId = java.util.UUID.fromString(StringUtils.strip(externalJobId, "{}")).toString(); }
+                catch (IllegalArgumentException e) { throw new CloudRuntimeException("Veeam requires an external session UUID", e); }
+            }
+        }
+        return getBackupProvider(offering.getProvider()).reconcileStagingJob(backup, operation, jobId, action, artifactIndex, externalJobId);
     }
 
     private List<NetBackupBackupCandidateResponse> listNetBackupBackupCandidatesInternal(final ListNetBackupBackupCandidatesCmd cmd) {
@@ -3618,6 +3861,25 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                     checkAndGenerateUsageForLastBackupDeletedAfterOfferingRemove(vm, backup);
                     return true;
                 }
+                backupDao.loadDetails(backup);
+                if (ThirdPartyBackupManifest.VOLUME_MODE.equals(backup.getDetail(ThirdPartyBackupManifest.MODE_KEY))) {
+                    // Catalog sync may finish this same persisted deletion before the API finalizes it.
+                    boolean removed = Transaction.execute((TransactionCallback<Boolean>) status -> {
+                        BackupVO current = backupDao.lockRow(backup.getId(), true);
+                        if (current == null || current.getRemoved() != null) { return true; }
+                        backupDao.loadDetails(current);
+                        if (!backupDao.remove(current.getId())) { return false; }
+                        if (!Boolean.parseBoolean(current.getDetail(AblestackBackupFrameworkUtils.RESOURCE_COUNT_PENDING_DETAIL))) {
+                            resourceLimitMgr.decrementResourceCount(current.getAccountId(), Resource.ResourceType.backup);
+                            resourceLimitMgr.decrementResourceCount(current.getAccountId(), Resource.ResourceType.backup_storage,
+                                    current.getSize() == null ? 0L : current.getSize());
+                        }
+                        backupDetailsDao.removeDetails(current.getId());
+                        return true;
+                    });
+                    if (removed) { checkAndGenerateUsageForLastBackupDeletedAfterOfferingRemove(vm, backup); }
+                    return removed;
+                }
                 resourceLimitMgr.decrementResourceCount(backup.getAccountId(), Resource.ResourceType.backup);
                 resourceLimitMgr.decrementResourceCount(backup.getAccountId(), Resource.ResourceType.backup_storage, backupSize);
                 if (backupDao.remove(backup.getId())) {
@@ -3881,6 +4143,11 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         cmdList.add(CreateBackupCmd.class);
         cmdList.add(CreateNetBackupCmd.class);
         cmdList.add(CancelBackupCmd.class);
+        cmdList.add(CancelBackupStagingJobCmd.class);
+        cmdList.add(org.apache.cloudstack.api.command.admin.backup.GetBackupStagingInfoCmd.class);
+        cmdList.add(org.apache.cloudstack.api.command.admin.backup.ReconcileBackupStagingJobCmd.class);
+        cmdList.add(org.apache.cloudstack.api.command.admin.backup.ResolveBackupArtifactCmd.class);
+        cmdList.add(org.apache.cloudstack.api.command.admin.backup.RestoreBackupArtifactCmd.class);
         cmdList.add(GetBackupJobStatusCmd.class);
         cmdList.add(GetBackupRestoreJobStatusCmd.class);
         cmdList.add(UpdateBackupJobBandwidthCmd.class);
@@ -3934,6 +4201,10 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                 ThirdPartyStagingMountOptions,
                 ThirdPartyStagingMountTimeout,
                 ThirdPartyStagingCapacityBufferPercent,
+                ThirdPartyStagingConcurrentHost,
+                ThirdPartyStagingConcurrentCluster,
+                ThirdPartyStagingConcurrentTotal,
+                ThirdPartyStagingQueueTimeout,
                 BackupEnableAttachDetachVolumes,
                 KvmIncrementalBackup,
                 KvmBackupChainSize,
@@ -4406,6 +4677,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             if (StringUtils.isBlank(restoreJobId)) {
                 return;
             }
+            backupProvider.reconcileRestoreJob(backup);
             final String operationType = backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_OPERATION_TYPE_DETAIL);
             final long targetVmId = NumberUtils.toLong(
                     backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_TARGET_VM_ID_DETAIL), backup.getVmId());
@@ -4486,7 +4758,8 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                     logger.warn("Keeping VM [{}] in Restoring until original-volume rollback succeeds: {}", vm.getInstanceName(), restoreAnswer.getDetails());
                     return;
                 }
-                persistRestoreOperationPhase(backup.getId(), "FAILED", "FAILED", null);
+                String terminalState = "CANCELED".equalsIgnoreCase(restoreState) ? "CANCELED" : "FAILED";
+                persistRestoreOperationPhase(backup.getId(), terminalState, terminalState, null);
                 if (!volumeAttach) {
                     failInterruptedRestoreStates(vm);
                     cleanupFailedDetachedCreateInstance(backup, vm, operationType);
@@ -4616,6 +4889,13 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                 backupDao.loadDetails(backup);
                 final VMInstanceVO vm = findRestoreTargetVm(backup);
                 final HostVO host = findRestoreJobHost(backup, vm);
+                if (StringUtils.isNotBlank(backup.getDetail(ThirdPartyBackupRestore.PLAN_KEY))
+                        && !"COMPLETED".equals(backup.getDetail(ThirdPartyBackupRestore.CLEANUP_STATE_KEY))) {
+                    BackupOffering offering = backupOfferingDao.findByIdIncludingRemoved(backup.getBackupOfferingId());
+                    BackupProvider provider = offering == null ? null : getBackupProvider(offering.getProvider());
+                    if (provider != null) { provider.reconcileRestoreJob(backup); }
+                    continue;
+                }
                 if (host != null && cleanupBackupJobFiles(host.getId(), cleanupDetail.getValue(), "restore")) {
                     completeRestoreJobFileCleanup(backup);
                 }
@@ -4624,6 +4904,11 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
 
         protected boolean isMissingUnstartedRestoreJob(final BackupVO backup, final String restoreState) {
             if (!"UNKNOWN".equalsIgnoreCase(restoreState)) {
+                return false;
+            }
+            if (StringUtils.isNotBlank(backup.getDetail(ThirdPartyBackupRestore.PLAN_KEY))) {
+                // Missing job files do not prove that a delayed dispatch cannot start.
+                // The volume coordinator must confirm its durable Host start fence first.
                 return false;
             }
             final String storedState = backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_JOB_STATE_DETAIL);
@@ -4718,11 +5003,26 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         }
 
         protected void reconcileBackingUpBackups(final BackupProvider backupProvider, final DataCenter dataCenter) {
-            final List<BackupVO> backingUpBackups = backupDao.listByZoneAndStatus(dataCenter.getId(), Backup.Status.BackingUp);
-            if (backingUpBackups == null || backingUpBackups.isEmpty()) {
+            final List<BackupVO> backingUpBackups = new ArrayList<>();
+            final List<BackupVO> active = backupDao.listByZoneAndStatus(dataCenter.getId(), Backup.Status.BackingUp);
+            if (CollectionUtils.isNotEmpty(active)) { backingUpBackups.addAll(active); }
+            for (Backup.Status failedState : java.util.List.of(Backup.Status.Failed, Backup.Status.Error, Backup.Status.Canceled)) {
+                final List<BackupVO> failures = backupDao.listByZoneAndStatus(dataCenter.getId(), failedState);
+                if (CollectionUtils.isEmpty(failures)) { continue; }
+                for (BackupVO failed : failures) {
+                    backupDao.loadDetails(failed);
+                    if (ThirdPartyBackupManifest.VOLUME_MODE.equals(failed.getDetail(ThirdPartyBackupManifest.MODE_KEY))
+                            && StringUtils.isBlank(failed.getDetail(ThirdPartyBackupManifest.CATALOG_FAILURE_KEY))
+                            && StringUtils.isBlank(failed.getDetail(ThirdPartyBackupManifest.DELETE_PROGRESS_KEY))
+                            && !"COMPLETED".equals(failed.getDetail(ThirdPartyBackupManifest.CLEANUP_STATE_KEY))) {
+                        backingUpBackups.add(failed);
+                    }
+                }
+            }
+            if (backingUpBackups.isEmpty()) {
                 return;
             }
-            logger.trace("Checking [{}] BackingUp backup records for provider [{}] in zone [{}].",
+            logger.trace("Checking [{}] backup pipelines and pending cleanup records for provider [{}] in zone [{}].",
                     backingUpBackups.size(), backupProvider.getName(), dataCenter.getId());
 
             for (final BackupVO backup : backingUpBackups) {
@@ -4744,8 +5044,13 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                             backup.getExternalId(), backup.getDate());
                     if (backupProvider.reconcileBackingUpBackup(vm, backup)) {
                         incrementResourceCountsIfBackupFinalized(backup, vm);
-                        logger.info("Reconciled BackingUp backup [{}] for VM [{}] using backup provider [{}].",
-                                backup.getUuid(), vm.getInstanceName(), backupProvider.getName());
+                        if (Backup.Status.BackingUp.equals(backup.getStatus())) {
+                            logger.info("Reconciled BackingUp backup [{}] for VM [{}] using backup provider [{}].",
+                                    backup.getUuid(), vm.getInstanceName(), backupProvider.getName());
+                        } else {
+                            logger.trace("Reconciled pending cleanup [{}] for VM [{}] using backup provider [{}].",
+                                    backup.getUuid(), vm.getInstanceName(), backupProvider.getName());
+                        }
                     }
                 } catch (Exception e) {
                     logger.warn("Failed to reconcile BackingUp backup [{}] for provider [{}] in zone [{}]: {}",
@@ -5182,6 +5487,9 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
 
         final BackupJobStatusResponse response = createBackupJobStatusResponse(backup);
         response.setOperation(AblestackBackupFrameworkUtils.OPERATION_BACKUP);
+        backupDao.loadDetails(backup);
+        ThirdPartyBackupAdmission.Entry queue = getAdmissionEntry(backup, ThirdPartyBackupAdmission.BACKUP_KEY);
+        if (queue != null) { response.setStagingQueue(new BackupStagingQueueResponse(queue)); }
         if (!Backup.Status.BackingUp.equals(backup.getStatus())) {
             response.setState(backup.getStatus() != null ? backup.getStatus().toString() : null);
             response.setProgress(getTerminalBackupProgress(backup.getStatus()));
@@ -5300,6 +5608,8 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     private boolean cleanupTrackedRestoreJobFiles(final BackupVO backup, final VMInstanceVO vm, final String provider,
             final String backedUpVolumeUuid, final String restoredVolumeUuid) {
         backupDao.loadDetails(backup);
+        if (StringUtils.isNotBlank(backup.getDetail(ThirdPartyBackupRestore.PLAN_KEY))
+                && !"COMPLETED".equals(backup.getDetail(ThirdPartyBackupRestore.CLEANUP_STATE_KEY))) { return false; }
         final HostVO restoreHost = findRestoreJobHost(backup, vm);
         if (restoreHost == null) {
             logger.debug("Skipping {} restore job cleanup because restore host was not found [backup: {}]",
@@ -5395,6 +5705,10 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     }
 
     private void validateNoActiveRestoreOperation(final Long backupId) {
+        final BackupDetailVO volumeCleanup = backupDetailsDao.findDetail(backupId, ThirdPartyBackupRestore.CLEANUP_STATE_KEY);
+        if (volumeCleanup != null && java.util.Set.of("WAITING", "RUNNING").contains(volumeCleanup.getValue())) {
+            throw new CloudRuntimeException("Previous volume restore staging cleanup is still pending for backup " + backupId);
+        }
         final BackupDetailVO cleanupDetail = backupDetailsDao.findDetail(backupId,
                 AblestackBackupFrameworkUtils.RESTORE_JOB_CLEANUP_ID_DETAIL);
         if (cleanupDetail != null && StringUtils.isNotBlank(cleanupDetail.getValue())) {
@@ -5500,7 +5814,11 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     }
 
     private void stopTrackingActiveRestoreJob(final BackupVO backup) {
-        backupDetailsDao.removeDetail(backup.getId(), AblestackBackupFrameworkUtils.RESTORE_JOB_ID_DETAIL);
+        backupDao.loadDetails(backup);
+        if (StringUtils.isBlank(backup.getDetail(ThirdPartyBackupRestore.PLAN_KEY))
+                || "COMPLETED".equals(backup.getDetail(ThirdPartyBackupRestore.CLEANUP_STATE_KEY))) {
+            backupDetailsDao.removeDetail(backup.getId(), AblestackBackupFrameworkUtils.RESTORE_JOB_ID_DETAIL);
+        }
         backupDetailsDao.removeDetail(backup.getId(), AblestackBackupFrameworkUtils.RESTORE_ASYNC_JOB_ID_DETAIL);
         backupDao.loadDetails(backup);
     }
@@ -5514,6 +5832,12 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
 
     private void cleanupTerminalRestoreJobFiles(final BackupVO backup, final HostVO restoreHost,
             final String restoreJobId, final String provider) {
+        backupDao.loadDetails(backup);
+        if (StringUtils.isNotBlank(backup.getDetail(ThirdPartyBackupRestore.PLAN_KEY))
+                && !"COMPLETED".equals(backup.getDetail(ThirdPartyBackupRestore.CLEANUP_STATE_KEY))) {
+            persistBackupDetail(backup.getId(), AblestackBackupFrameworkUtils.RESTORE_JOB_CLEANUP_ID_DETAIL, restoreJobId);
+            return;
+        }
         if (cleanupBackupJobFiles(restoreHost.getId(), restoreJobId, provider + " restore")) {
             completeRestoreJobFileCleanup(backup);
         } else {
@@ -5705,6 +6029,9 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
 
         final BackupJobStatusResponse response = createBackupJobStatusResponse(backup);
         response.setOperation(AblestackBackupFrameworkUtils.OPERATION_RESTORE);
+        response.setVmRestore(vmRestoreInfo(backup, null, null));
+        ThirdPartyBackupAdmission.Entry queue = getAdmissionEntry(backup, ThirdPartyBackupAdmission.RESTORE_KEY);
+        if (queue != null) { response.setStagingQueue(new BackupStagingQueueResponse(queue)); }
         final String restoreJobId = backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_JOB_ID_DETAIL);
         if (StringUtils.isBlank(restoreJobId)) {
             if (applyStoredRestoreJobStatus(backup, findRestoreTargetVm(backup), response)) {
@@ -5741,6 +6068,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                 throw new CloudRuntimeException("Unexpected restore job status response from host " + host.getName());
             }
             final BackupAnswer restoreAnswer = (BackupAnswer) answer;
+            response.setVmRestore(vmRestoreInfo(backup, restoreAnswer.getVmRestoreResult(), restoreAnswer.getVmRestoreResultError()));
             persistRestoreJobStatusDetails(backup.getId(), restoreAnswer);
             response.setState(restoreAnswer.getState());
             response.setStep(StringUtils.defaultIfBlank(restoreAnswer.getStep(), restoreAnswer.getState()));
@@ -5889,6 +6217,9 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             response.setVmOfferingRemoved(true);
         }
         populateRestoreJobResponseFields(backup, response);
+        populateThirdPartyCatalogResponseFields(backup, response);
+        response.setDeleteAllowed(!externalProvider || ThirdPartyBackupManifest.VOLUME_MODE.equals(
+                backup.getDetail(ThirdPartyBackupManifest.MODE_KEY)));
         if (account != null) {
             response.setAccountId(account.getUuid());
             response.setAccount(account.getAccountName());
@@ -5923,6 +6254,83 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         return response;
     }
 
+    private void populateThirdPartyCatalogResponseFields(Backup backup, BackupResponse response) {
+        if (!ThirdPartyBackupManifest.VOLUME_MODE.equals(backup.getDetail(ThirdPartyBackupManifest.MODE_KEY))) { return; }
+        response.setRestoreAvailable(Backup.Status.BackedUp.equals(backup.getStatus())
+                && StringUtils.isBlank(backup.getDetail(ThirdPartyBackupManifest.CATALOG_FAILURE_KEY))
+                && StringUtils.isBlank(backup.getDetail(ThirdPartyBackupManifest.DELETE_PROGRESS_KEY))
+                && !java.util.Set.of("WAITING", "RUNNING").contains(StringUtils.defaultString(
+                        backup.getDetail(ThirdPartyBackupRestore.CLEANUP_STATE_KEY))));
+        String json = backup.getDetail(ThirdPartyBackupManifest.CATALOG_KEY);
+        try {
+            ThirdPartyBackupManifest.Catalog catalog = new Gson().fromJson(json, ThirdPartyBackupManifest.Catalog.class);
+            response.setCatalogState(catalog == null ? "PENDING" : StringUtils.isNotBlank(catalog.error) ? "UNKNOWN" : catalog.state);
+            if (catalog != null) {
+                if (catalog.checkedAt > 0) { response.setCatalogChecked(new Date(catalog.checkedAt)); }
+                response.setCatalogDetails(StringUtils.isNotBlank(catalog.error) ? catalog.error
+                        : backup.getDetail(ThirdPartyBackupManifest.CATALOG_FAILURE_KEY));
+            }
+        } catch (RuntimeException e) {
+            response.setCatalogState("UNKNOWN");
+            response.setCatalogDetails("Saved external artifact inventory could not be read");
+        }
+        response.setCleanupState(StringUtils.defaultIfBlank(backup.getDetail(ThirdPartyBackupManifest.CLEANUP_STATE_KEY), "NONE"));
+        response.setCleanupDetails(backup.getDetail(ThirdPartyBackupManifest.CLEANUP_DETAILS_KEY));
+        response.setSourceCleanupState(StringUtils.defaultIfBlank(backup.getDetail(ThirdPartyBackupManifest.SOURCE_CLEANUP_STATE_KEY), "NONE"));
+        response.setSourceCleanupDetails(backup.getDetail(ThirdPartyBackupManifest.SOURCE_CLEANUP_DETAILS_KEY));
+        response.setRestoreCleanupState(StringUtils.defaultIfBlank(backup.getDetail(ThirdPartyBackupRestore.CLEANUP_STATE_KEY), "NONE"));
+        response.setRestoreCleanupDetails(backup.getDetail(ThirdPartyBackupRestore.CLEANUP_DETAILS_KEY));
+        response.setVmRestore(vmRestoreInfo(backup, null, null));
+        ThirdPartyBackupAdmission.Entry queue = getAdmissionEntry(backup, ThirdPartyBackupAdmission.RESTORE_KEY);
+        if (queue == null || "RELEASED".equals(queue.state)) {
+            queue = getAdmissionEntry(backup, ThirdPartyBackupAdmission.BACKUP_KEY);
+        }
+        if (queue != null) { response.setStagingQueue(new BackupStagingQueueResponse(queue)); }
+    }
+
+    private ThirdPartyBackupAdmission.Entry getAdmissionEntry(Backup backup, String key) {
+        return new Gson().fromJson(backup.getDetail(key), ThirdPartyBackupAdmission.Entry.class);
+    }
+
+    private org.apache.cloudstack.api.response.BackupStagingInfoResponse.VmRestoreInfo vmRestoreInfo(Backup backup, String hostJson, String hostError) {
+        String planJson = backup.getDetail(ThirdPartyBackupRestore.PLAN_KEY);
+        if (StringUtils.isBlank(planJson)) { return null; }
+        ThirdPartyBackupRestore.VmResult result = null;
+        long checkedAt = 0;
+        String error = hostError;
+        try {
+            ThirdPartyBackupRestore.Plan plan = new Gson().fromJson(planJson, ThirdPartyBackupRestore.Plan.class);
+            ThirdPartyBackupRestore.Operation operation = new Gson().fromJson(backup.getDetail(ThirdPartyBackupRestore.operationKey(plan.jobId)),
+                    ThirdPartyBackupRestore.Operation.class);
+            if (operation != null) {
+                if (!new Gson().toJson(plan).equals(new Gson().toJson(operation.plan))) {
+                    throw new CloudRuntimeException("VM restore history belongs to another plan");
+                }
+                if (operation.vmResult != null) { operation.vmResult.validate(plan); }
+                result = operation.vmResult;
+                checkedAt = operation.vmResultCheckedAt;
+                if (StringUtils.isBlank(error)) { error = operation.vmResultError; }
+            }
+            if (StringUtils.isNotBlank(hostJson)) {
+                ThirdPartyBackupRestore.VmResult current = new Gson().fromJson(hostJson, ThirdPartyBackupRestore.VmResult.class);
+                current.validate(plan);
+                if (result != null && result.transactionId != null && !result.transactionId.equals(current.transactionId)) {
+                    throw new CloudRuntimeException("VM restore transaction identity changed");
+                }
+                if (result == null || current.revision >= result.revision) {
+                    if (result != null && ((current.revision == result.revision && !new Gson().toJson(result).equals(new Gson().toJson(current)))
+                            || (java.util.Set.of("COMMITTED", "ROLLED_BACK").contains(result.outcome) && !result.outcome.equals(current.outcome)))) {
+                        throw new CloudRuntimeException("VM restore result contradicts the confirmed receipt");
+                    }
+                    result = current;
+                }
+                checkedAt = System.currentTimeMillis();
+                error = hostError;
+            }
+        } catch (RuntimeException e) { error = "VM restore result is unconfirmed: " + e.getMessage(); }
+        return new org.apache.cloudstack.api.response.BackupStagingInfoResponse.VmRestoreInfo(result, checkedAt, error);
+    }
+
     private String getBackupEngineDetail(final Backup backup) {
         if (backup == null || backup.getDetails() == null || backup.getDetails().isEmpty()) {
             return null;
@@ -5945,6 +6353,9 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         }
         if (details == null || details.isEmpty()) {
             return null;
+        }
+        if (StringUtils.isNotBlank(details.get(ThirdPartyBackupManifest.CATALOG_FAILURE_KEY))) {
+            return details.get(ThirdPartyBackupManifest.CATALOG_FAILURE_KEY);
         }
         return details.entrySet().stream()
                 .filter(entry -> StringUtils.endsWith(entry.getKey(), ".failure.reason"))

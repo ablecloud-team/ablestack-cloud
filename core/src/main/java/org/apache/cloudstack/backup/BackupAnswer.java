@@ -53,6 +53,13 @@ public class BackupAnswer extends Answer {
     private String capabilities;
     private Integer bandwidthLimitMbps;
     private String bandwidthStatus;
+    private String vmRestoreResult;
+    private String vmRestoreResultError;
+
+    public String getVmRestoreResult() { return vmRestoreResult; }
+    public void setVmRestoreResult(String value) { vmRestoreResult = value; }
+    public String getVmRestoreResultError() { return vmRestoreResultError; }
+    public void setVmRestoreResultError(String value) { vmRestoreResultError = value; }
 
     public BackupAnswer(final Command command, final boolean success, final String details) {
         super(command, success, details);

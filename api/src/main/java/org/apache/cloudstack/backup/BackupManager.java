@@ -49,6 +49,7 @@ import org.apache.cloudstack.api.command.user.backup.CreateBackupOfferingCmd;
 import org.apache.cloudstack.api.response.BackupJobStatusResponse;
 import org.apache.cloudstack.api.response.BackupResponse;
 import org.apache.cloudstack.api.response.NetBackupBackupCandidateResponse;
+import org.apache.cloudstack.api.response.BackupStagingInfoResponse;
 import org.apache.cloudstack.framework.config.ConfigKey;
 import org.apache.cloudstack.framework.config.Configurable;
 
@@ -174,6 +175,26 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
             true,
             ConfigKey.Scope.Global,
             BackupFrameworkEnabled.key());
+
+    ConfigKey<Integer> ThirdPartyStagingConcurrentHost = new ConfigKey<>("Advanced", Integer.class,
+            "backup.thirdparty.staging.concurrent.jobs.per.host", "1",
+            "Maximum concurrent volume staging Backup and Restore jobs combined on one Host. Jobs wait before reserving capacity.",
+            true, ConfigKey.Scope.Global, BackupFrameworkEnabled.key());
+
+    ConfigKey<Integer> ThirdPartyStagingConcurrentCluster = new ConfigKey<>("Advanced", Integer.class,
+            "backup.thirdparty.staging.concurrent.jobs.per.cluster", "4",
+            "Maximum concurrent volume staging Backup and Restore jobs combined in one cluster.",
+            true, ConfigKey.Scope.Global, BackupFrameworkEnabled.key());
+
+    ConfigKey<Integer> ThirdPartyStagingConcurrentTotal = new ConfigKey<>("Advanced", Integer.class,
+            "backup.thirdparty.staging.concurrent.jobs.total", "4",
+            "Maximum concurrent Backup and Restore jobs combined across all Hosts and all three ABLESTACK third-party providers using common staging.",
+            true, ConfigKey.Scope.Global, BackupFrameworkEnabled.key());
+
+    ConfigKey<Integer> ThirdPartyStagingQueueTimeout = new ConfigKey<>("Advanced", Integer.class,
+            "backup.thirdparty.staging.queue.timeout", "3600",
+            "Maximum staging queue wait in seconds for new jobs, separate from the data operation timeout. Waiting jobs are canceled when this expires; active reservations never expire by age.",
+            true, ConfigKey.Scope.Global, BackupFrameworkEnabled.key());
 
     ConfigKey<Boolean> BackupEnableAttachDetachVolumes = new ConfigKey<>("Advanced", Boolean.class,
             "backup.enable.attach.detach.of.volumes",
@@ -338,6 +359,18 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
     List<NetBackupBackupCandidateResponse> listNetBackupBackupCandidates(ListNetBackupBackupCandidatesCmd cmd);
 
     boolean cancelBackup(Long backupId);
+
+    boolean cancelBackupStagingJob(Long backupId, String operation, String jobId);
+
+    BackupStagingInfoResponse getBackupStagingInfo(Long backupId, String operation, String stagingJobId);
+
+    org.apache.cloudstack.api.response.BackupArtifactResolutionResponse resolveBackupArtifact(String provider, String externalId, String jobId, Long vmId);
+
+    boolean restoreBackupArtifact(String provider, String externalId, String jobId);
+
+    BackupStagingInfoResponse reconcileBackupStagingJob(Long backupId, String operation,
+            String jobId, String action, Integer artifactIndex, String externalJobId);
+
 
     /**
      * Updates NetBackup-specific backup metadata for a VM backup row.

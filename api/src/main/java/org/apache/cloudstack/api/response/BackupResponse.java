@@ -107,6 +107,62 @@ public class BackupResponse extends BaseResponse {
     @Param(description = "Backup engine used by the provider")
     private String backupEngine;
 
+    @SerializedName("deleteallowed")
+    @Param(description = "Whether this backup format supports deletion through Mold", since = "4.23.0")
+    private Boolean deleteAllowed;
+
+    @SerializedName("restoreavailable")
+    @Param(description = "Whether the logical backup is complete and has no confirmed missing artifacts or pending deletion")
+    private Boolean restoreAvailable;
+
+    @SerializedName("catalogstate")
+    @Param(description = "External artifact inventory: AVAILABLE, PARTIAL, EXPIRED, UNKNOWN or PENDING")
+    private String catalogState;
+
+    @SerializedName("catalogchecked")
+    @Param(description = "Time of the last confirmed external artifact inventory")
+    private Date catalogChecked;
+
+    @SerializedName("catalogdetails")
+    @Param(description = "Missing artifact or unconfirmed catalog query details")
+    private String catalogDetails;
+
+    @SerializedName("cleanupstate")
+    @Param(description = "Artifact cleanup: NONE, RETAINED, RUNNING, WAITING or COMPLETED")
+    private String cleanupState;
+
+    @SerializedName("cleanupdetails")
+    @Param(description = "Reason artifact or job cleanup is retained or waiting")
+    private String cleanupDetails;
+
+    @SerializedName("sourcecleanupstate")
+    @Param(description = "Retirement of the previous RBD source snapshot: NONE, WAITING or COMPLETED")
+    private String sourceCleanupState;
+
+    @SerializedName("sourcecleanupdetails")
+    @Param(description = "Reason previous RBD snapshot cleanup is pending")
+    private String sourceCleanupDetails;
+
+    @SerializedName("restorecleanupstate")
+    @Param(description = "Restore staging cleanup: NONE, RUNNING, WAITING or COMPLETED")
+    private String restoreCleanupState;
+
+    @SerializedName("restorecleanupdetails")
+    @Param(description = "Reason restore staging or transaction cleanup is waiting")
+    private String restoreCleanupDetails;
+
+    @SerializedName("vmrestore")
+    @Param(description = "Latest confirmed VM primary volume outcome and per-volume results")
+    private BackupStagingInfoResponse.VmRestoreInfo vmRestore;
+
+    public void setVmRestore(BackupStagingInfoResponse.VmRestoreInfo value) { vmRestore = value; }
+
+    @SerializedName("stagingqueue")
+    @Param(description = "Persisted staging admission and waiting reason for the latest Backup or Restore attempt")
+    private BackupStagingQueueResponse stagingQueue;
+
+    public void setStagingQueue(BackupStagingQueueResponse value) { stagingQueue = value; }
+
     @SerializedName(ApiConstants.ACCOUNT_ID)
     @Param(description = "Account id")
     private String accountId;
@@ -333,6 +389,25 @@ public class BackupResponse extends BaseResponse {
     public void setBackupEngine(final String backupEngine) {
         this.backupEngine = backupEngine;
     }
+
+    public void setDeleteAllowed(Boolean deleteAllowed) {
+        this.deleteAllowed = deleteAllowed;
+    }
+
+    public Boolean getDeleteAllowed() {
+        return deleteAllowed;
+    }
+
+    public void setRestoreAvailable(Boolean value) { restoreAvailable = value; }
+    public void setCatalogState(String value) { catalogState = value; }
+    public void setCatalogChecked(Date value) { catalogChecked = value; }
+    public void setCatalogDetails(String value) { catalogDetails = value; }
+    public void setCleanupState(String value) { cleanupState = value; }
+    public void setCleanupDetails(String value) { cleanupDetails = value; }
+    public void setSourceCleanupState(String value) { sourceCleanupState = value; }
+    public void setSourceCleanupDetails(String value) { sourceCleanupDetails = value; }
+    public void setRestoreCleanupState(String value) { restoreCleanupState = value; }
+    public void setRestoreCleanupDetails(String value) { restoreCleanupDetails = value; }
 
     public String getAccountId() {
         return accountId;

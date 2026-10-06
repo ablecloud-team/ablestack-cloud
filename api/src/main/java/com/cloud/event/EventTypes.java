@@ -671,6 +671,7 @@ public class EventTypes {
     public static final String EVENT_VM_BACKUP_OFFERING_ASSIGN = "BACKUP.OFFERING.ASSIGN";
     public static final String EVENT_VM_BACKUP_OFFERING_REMOVE = "BACKUP.OFFERING.REMOVE";
     public static final String EVENT_VM_BACKUP_CREATE = "BACKUP.CREATE";
+    public static final String EVENT_VM_BACKUP_STAGING_RECONCILE = "BACKUP.STAGING.RECONCILE";
     public static final String EVENT_VM_BACKUP_CANCEL = "BACKUP.CANCEL";
     public static final String EVENT_VM_BACKUP_BANDWIDTH_UPDATE = "BACKUP.BANDWIDTH.UPDATE";
     public static final String EVENT_VM_BACKUP_RESTORE = "BACKUP.RESTORE";
@@ -1520,6 +1521,7 @@ public class EventTypes {
         // Backup
         entityEventDetails.put(EVENT_HOST_AGENT_INSTALL, Backup.class);
         entityEventDetails.put(EVENT_BACKUP_AGENT_INSTALL, Host.class);
+        entityEventDetails.put(EVENT_VM_BACKUP_STAGING_RECONCILE, Backup.class);
 
 
         // DNS Framework Events

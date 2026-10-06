@@ -73,7 +73,7 @@ public class ThirdPartyBackupStagingServiceImpl extends ManagerBase implements T
                 if (Boolean.parseBoolean(StringUtils.trimToEmpty(value))) {
                     validateActivation();
                 }
-            } else if (isEnabled() && !StringUtils.equals(readValue(name), value)) {
+            } else if (!isAdmissionSetting(name) && isEnabled() && !StringUtils.equals(readValue(name), value)) {
                 throw new InvalidParameterValueException(
                         "Disable backup.thirdparty.staging.enable before changing staging settings, then enable it again to validate the new configuration.");
             }
@@ -151,6 +151,15 @@ public class ThirdPartyBackupStagingServiceImpl extends ManagerBase implements T
     @Override
     public long getAvailableBytes(Host host, String path) {
         requireEnabled();
+        return preparePath(host, path);
+    }
+
+    @Override
+    public void prepareCleanup(Host host, String path) {
+        preparePath(host, path);
+    }
+
+    private long preparePath(Host host, String path) {
         StagingConfiguration configuration = loadConfiguration();
         Path requestedPath = absolutePath("staging operation path", path);
         if (!requestedPath.startsWith(Path.of(configuration.rootPath))) {
@@ -242,6 +251,13 @@ public class ThirdPartyBackupStagingServiceImpl extends ManagerBase implements T
         }
     }
 
+    private boolean isAdmissionSetting(String name) {
+        return BackupManager.ThirdPartyStagingConcurrentHost.key().equals(name)
+                || BackupManager.ThirdPartyStagingConcurrentCluster.key().equals(name)
+                || BackupManager.ThirdPartyStagingConcurrentTotal.key().equals(name)
+                || BackupManager.ThirdPartyStagingQueueTimeout.key().equals(name);
+    }
+
     private void validateSetting(String name, String value) {
         String normalized = StringUtils.trimToEmpty(value);
         try {
@@ -253,6 +269,10 @@ public class ThirdPartyBackupStagingServiceImpl extends ManagerBase implements T
                 if (!normalized.isEmpty() && !Arrays.asList("GFS2", "NFS", "LOCAL")
                         .contains(normalized.toUpperCase(Locale.ROOT))) {
                     throw new InvalidParameterValueException("Staging storage.type must be GFS2, NFS, or LOCAL.");
+                }
+            } else if (isAdmissionSetting(name)) {
+                if (Integer.parseInt(normalized) <= 0) {
+                    throw new InvalidParameterValueException("Staging concurrency limits and queue timeout must be positive integers.");
                 }
             } else if (BackupManager.ThirdPartyStagingCapacityBufferPercent.key().equals(name)) {
                 int percent = Integer.parseInt(normalized);

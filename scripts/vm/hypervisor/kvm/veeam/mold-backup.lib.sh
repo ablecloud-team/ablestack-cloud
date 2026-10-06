@@ -5308,7 +5308,45 @@ except Exception:
   [[ -n "$backup_id" ]] && echo "$backup_id"
 }
 
-# Handle one Veeam restore session: dedup, host check, flock, optional Mold restore API.
+# Returns 0 when handled, 1 for a legacy session, 2 when exact resolution needs retry.
+mold_backup_handle_volume_restore_session() {
+  local job="$1" sid="$2" rp_id="${3:-}" trigger_mold="${4:-false}"
+  local json matched tracked allowed reason vm async_id
+  local -a params=("provider=ablestack-veeam" "jobid=${sid%%#*}")
+  [[ -z "$rp_id" || "$rp_id" == "n/a" ]] || params+=("externalid=${rp_id}")
+  json="$(mold_backup_cmk_run resolveBackupArtifact "${params[@]}" 2>/dev/null)" || return 2
+  matched="$(mold_backup_api_json_field "$json" "resolvebackupartifactresponse.matched")"
+  [[ -n "$matched" ]] || return 2
+  if [[ "${matched,,}" != "true" ]]; then
+    if [[ "$job" == ABLESTACK-* || "$job" == *ABLESTACK-* ]]; then
+      mold_backup_notify_log warn "restore-watch: child session=${sid} rp=${rp_id:-unknown} has no exact Mold artifact; waiting, no timestamp fallback"
+      return 2
+    fi
+    return 1
+  fi
+  vm="$(mold_backup_api_json_field "$json" "resolvebackupartifactresponse.vmname")"
+  tracked="$(mold_backup_api_json_field "$json" "resolvebackupartifactresponse.tracked")"
+  allowed="$(mold_backup_api_json_field "$json" "resolvebackupartifactresponse.restoreallowed")"
+  reason="$(mold_backup_api_json_field "$json" "resolvebackupartifactresponse.reason")"
+  if [[ "${tracked,,}" == "true" || "${allowed,,}" != "true" ]]; then
+    mold_backup_emit_restore_event "mold.restore.skipped.volume-pipeline" "$vm" "session=${sid};rp=${rp_id};reason=${reason}"
+    mold_backup_restore_session_mark_seen "$sid"
+    return 0
+  fi
+  if [[ "$trigger_mold" != "true" ]]; then
+    mold_backup_notify_log info "restore-watch: metadata session=${sid} vm=${vm}; enable RESTORE_WATCH_TRIGGER_MOLD to restore its logical backup"
+    return 0
+  fi
+  [[ -n "$rp_id" && "$rp_id" != "n/a" ]] || return 2
+  json="$(mold_backup_cmk_run restoreBackupArtifact "provider=ablestack-veeam" "externalid=${rp_id}" "jobid=${sid%%#*}" 2>/dev/null)" || return 2
+  async_id="$(mold_backup_api_json_field "$json" "restorebackupartifactresponse.jobid")"
+  [[ -n "$async_id" ]] || return 2
+  mold_backup_restore_session_mark_seen "$sid"
+  mold_backup_emit_restore_event "mold.restore.submitted" "$vm" "session=${sid};rp=${rp_id};async_job_id=${async_id};source=metadata-ui"
+  return 0
+}
+
+# Handle one legacy Veeam restore session: dedup, host check, flock, optional Mold restore API.
 mold_backup_handle_veeam_restore_session() {
   local job="$1" vm="$2" sid="$3" detail="$4" trigger_mold="${5:-false}" rp_id="${6:-}"
   local ckpt=""
@@ -5322,6 +5360,10 @@ mold_backup_handle_veeam_restore_session() {
     rp_id="${rp_id// /}"
     [[ "$rp_id" == "n/a" ]] && rp_id=""
   fi
+  local pipeline_rc=0
+  mold_backup_handle_volume_restore_session "$job" "$sid" "$rp_id" "$trigger_mold" || pipeline_rc=$?
+  [[ "$pipeline_rc" == 0 ]] && return 0
+  [[ "$pipeline_rc" == 2 ]] && return 1
   local rp_epoch=""
   if [[ "$detail" == *"rp_epoch="* ]]; then
     rp_epoch="$(sed -n 's/.*rp_epoch=\([^;]*\).*/\1/p' <<<"$detail" | tail -1)"
@@ -5434,10 +5476,6 @@ mold_backup_watch_veeam_restores() {
       VM_TARGETS+="${VM_TARGETS:+,}${_vm}:${_ip:-${_vm}}"
     done
   fi
-  [[ -n "${VM_TARGETS:-}" ]] || {
-    mold_backup_notify_log warn "Veeam→Mold(restore): VM_TARGETS empty; set VM_INCLUDE or VM_TARGETS"
-    return 0
-  }
   [[ "${trigger_mold}" == "true" ]] && mold_backup_restore_preflight
   mold_backup_notify_log info "=== restore-watch job=${job} window=${since_min}min trigger_mold=${trigger_mold} host=$(mold_backup_local_kvm_name) ==="
   mold_backup_initialize_restore_watch_baseline "$since_min"
@@ -5468,6 +5506,21 @@ mold_backup_watch_veeam_restores() {
       mold_backup_notify_log info "restore-watch: skip session ${sid} bad end='${et}'"
       continue
     fi
+    if mold_backup_restore_session_seen "$sid"; then
+      continue
+    fi
+    # Child jobs identify one logical point by restore point UUID. They belong to
+    # a Host agent, so template-job/VM IP ownership filters cannot identify them.
+    local pipeline_rc=0
+    mold_backup_handle_volume_restore_session "${bn:-$nm}" "$sid" "$rp_id" "$trigger_mold" || pipeline_rc=$?
+    if [[ "$pipeline_rc" == 0 ]]; then
+      handled=$((handled+1))
+      continue
+    elif [[ "$pipeline_rc" == 2 ]]; then
+      mold_backup_notify_log warn "restore-watch: exact artifact resolution pending for session=${sid}"
+      continue
+    fi
+    [[ -n "${VM_TARGETS:-}" ]] || continue
     # Same KVM host can run Job 2 + Job 6 + ablecubeN. FLR sessions must only be
     # handled by the watch whose --job matches the session backup / FLR name.
     # Examples: bn=ablecube2, nm=FLR__ablecube2_, bn=Agent Backup Job 6

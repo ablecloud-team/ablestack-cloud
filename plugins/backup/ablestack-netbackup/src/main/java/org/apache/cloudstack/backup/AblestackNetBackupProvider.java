@@ -17,6 +17,7 @@
 package org.apache.cloudstack.backup;
 
 import com.cloud.agent.AgentManager;
+import com.google.gson.Gson;
 import com.cloud.agent.api.Answer;
 import com.cloud.agent.api.Command;
 import com.cloud.exception.AgentUnavailableException;
@@ -50,6 +51,7 @@ import com.cloud.vm.snapshot.VMSnapshotDetailsVO;
 import com.cloud.vm.snapshot.VMSnapshotVO;
 import com.cloud.vm.snapshot.dao.VMSnapshotDao;
 import com.cloud.vm.snapshot.dao.VMSnapshotDetailsDao;
+import org.apache.cloudstack.api.response.BackupStagingInfoResponse;
 import org.apache.cloudstack.backup.dao.BackupDao;
 import org.apache.cloudstack.backup.dao.BackupDetailsDao;
 import org.apache.cloudstack.backup.dao.BackupOfferingDao;
@@ -209,6 +211,12 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
 
     @Override
     public Pair<Boolean, Backup> takeBackup(final VirtualMachine vm, final Boolean quiesceVM, boolean isolated, final Long backupScheduleId) {
+        try (ThirdPartyBackupVolumeService.Lease lease = thirdPartyBackupVolumeService.acquireLifecycle(vm.getId())) {
+            return takeVolumeBackup(vm, quiesceVM, backupScheduleId);
+        }
+    }
+
+    private Pair<Boolean, Backup> takeVolumeBackup(final VirtualMachine vm, final Boolean quiesceVM, final Long backupScheduleId) {
         thirdPartyBackupStagingService.requireEnabled();
         final Host host = getVMHypervisorHostForBackup(vm);
         validateVmSnapshotCoexistenceForBackup(vm);
@@ -251,6 +259,12 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
 
     @Override
     public Pair<Boolean, Backup> takeNetBackup(final VirtualMachine vm, final String policyName, final Long backupScheduleId) {
+        try (ThirdPartyBackupVolumeService.Lease lease = thirdPartyBackupVolumeService.acquireLifecycle(vm.getId())) {
+            return takeVolumeNetBackup(vm, policyName, backupScheduleId);
+        }
+    }
+
+    private Pair<Boolean, Backup> takeVolumeNetBackup(final VirtualMachine vm, final String policyName, final Long backupScheduleId) {
         thirdPartyBackupStagingService.requireEnabled();
         final Host host = getVMHypervisorHostForBackup(vm);
         validateVmSnapshotCoexistenceForBackup(vm);
@@ -295,7 +309,7 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
         final String checkpointName = backupPath.substring(backupPath.lastIndexOf("/") + 1);
         final String backupEngine = areAllVolumesOnRbdPool(volumePoolsAndPaths.first()) ? BACKUP_ENGINE_RBD_DIFF : BACKUP_ENGINE_QCOW2;
         final String requestedBackupType = incrementalBackup ? BACKUP_TYPE_INCREMENTAL : BACKUP_TYPE_FULL;
-        validateBackupStageCapacity(vmHost, getBackupStageRootPath(), vmVolumes, vm.getInstanceName(), requestedBackupType, backupEngine);
+        validateBackupStageCapacity(vmHost, getBackupStageRootPath(), vmVolumes, vm.getInstanceName(), requestedBackupType, backupEngine, true);
         final List<String> backupFiles = buildBackupFileNames(vmVolumes, backupEngine, incrementalBackup);
         final Map<String, String> backupDetails = getBackupDetails(vm, backupPath, checkpointName, backupEngine, latestBackup,
                 incrementalBackup, policyName);
@@ -317,6 +331,7 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
             }
             AblestackNetBackupTakeBackupCommand command = new AblestackNetBackupTakeBackupCommand(vm.getInstanceName(), backupPath);
             command.setVolumeStagingManifest(manifest.toJson());
+            command.setStagingQueueTimeout(BackupManager.ThirdPartyStagingQueueTimeout.value());
             command.setStagingBufferPercent(thirdPartyBackupStagingService.getCapacityBufferPercent());
             command.setWait(BackupDataOperationTimeout.value());
             command.setBackupJobId(backupVO.getUuid());
@@ -697,7 +712,7 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
     }
 
     private void validateBackupStageCapacity(final Host stageHost, final String stageRootPath, final List<VolumeVO> vmVolumes,
-            final String vmName, final String backupType, final String backupEngine) {
+            final String vmName, final String backupType, final String backupEngine, boolean queueOnShortage) {
         final long requiredBytes = estimateRequiredStageBytesForBackup(vmVolumes);
         final long bufferBytes = thirdPartyBackupStagingService.getCapacityBufferBytes(requiredBytes);
         final long minimumAvailableBytes = Math.addExact(requiredBytes, bufferBytes);
@@ -705,7 +720,7 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
         LOG.info("{} phase=[STAGE_SPACE_CHECK], vm=[{}], host=[{}], backupType=[{}], backupEngine=[{}], stageRoot=[{}], requiredBytes=[{}], bufferBytes=[{}], minimumAvailableBytes=[{}], availableBytes=[{}]",
                 BACKUP_TRACE, vmName, stageHost != null ? stageHost.getName() : null, backupType, backupEngine, stageRootPath,
                 requiredBytes, bufferBytes, minimumAvailableBytes, availableBytes);
-        if (availableBytes < minimumAvailableBytes) {
+        if (!queueOnShortage && availableBytes < minimumAvailableBytes) {
             throw new CloudRuntimeException(String.format(
                     "Insufficient stage space on host [%s] for NetBackup backup. Required at least [%d] bytes including buffer, but only [%d] bytes are available under [%s].",
                     stageHost != null ? stageHost.getName() : null, minimumAvailableBytes, availableBytes, stageRootPath));
@@ -929,7 +944,8 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
         if (Boolean.TRUE.equals(detachedRestoreStart.get())) {
             return (BackupAnswer) startAnswer;
         }
-        return AblestackRestoreJobPoller.waitForCompletion(restoreJobId, BackupDataOperationTimeout.value(),
+        return AblestackRestoreJobPoller.waitForStagedCompletion(restoreJobId, BackupDataOperationTimeout.value(),
+                BackupManager.ThirdPartyStagingQueueTimeout.value(),
                 () -> agentManager.send(hostId, new AblestackRestoreJobStatusCommand(restoreJobId, null, 5)));
     }
 
@@ -952,7 +968,15 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
         backupDao.remove(backupId);
     }
 
-    private Host getVMHypervisorHostForBackup(final VirtualMachine vm) {
+   private Host getVMHypervisorHostForBackup(final VirtualMachine vm) {
+        if (VirtualMachine.State.Stopped.equals(vm.getState())) {
+            final List<VolumeVO> disks = volumeDao.findByInstance(vm.getId());
+            if (!disks.isEmpty() && areAllVolumesOnRbdPool(getVolumePoolsAndPaths(disks).first())) {
+                return thirdPartyBackupVolumeService.selectBackupHost(vm, getName(),
+                        disks.stream().map(VolumeVO::getPoolId).collect(java.util.stream.Collectors.toList()),
+                        disks.stream().mapToLong(VolumeVO::getSize).max().orElseThrow());
+            }
+        }
         Long hostId = vm.getHostId();
         if (hostId == null && VirtualMachine.State.Running.equals(vm.getState())) {
             throw new CloudRuntimeException(String.format("Unable to find the hypervisor host for %s. Make sure the virtual machine is running", vm.getName()));
@@ -1111,6 +1135,11 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
         if (backup == null) {
             return true;
         }
+        loadBackupDetailsIfNeeded(backup);
+        if (ThirdPartyBackupManifest.VOLUME_MODE.equals(getBackupDetail(backup, ThirdPartyBackupManifest.MODE_KEY))) {
+            return thirdPartyBackupVolumeService.delete(backup, (artifact, metadata, ticket, policyExpiration) ->
+                    getClient(backup.getZoneId()).deleteVolumeArtifact(artifact, metadata, ticket, policyExpiration));
+        }
         if (Backup.Status.Error.equals(backup.getStatus()) && !forced) {
             throw new CloudRuntimeException("NetBackup backup in Error state requires forced deletion after manual cleanup verification.");
         }
@@ -1221,7 +1250,7 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
         validateNetBackupRestoreSnapshotCompatibility(vm);
         loadBackupDetailsIfNeeded(backup);
         if (ThirdPartyBackupManifest.VOLUME_MODE.equals(getBackupDetail(backup, ThirdPartyBackupManifest.MODE_KEY))) {
-            return restoreStagedVm(vm, backup, StringUtils.isNotBlank(restoreHostIp) ? findAvailableKvmRestoreHost(restoreHostIp, "Volume restore") : getVMHypervisorHostForBackup(vm));
+            return restoreStagedVm(vm, backup, restoreHostIp);
         }
         final Host host = resolveRestoreHost(vm, backup, restoreHostIp);
         final List<Backup> restoreChain = getRestoreChainForBackup(backup);
@@ -1366,6 +1395,9 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
             final String dataStoreUuid, final Pair<String, VirtualMachine.State> vmNameAndState, VirtualMachine targetVm, boolean quickRestore) {
         thirdPartyBackupStagingService.requireEnabled();
         loadBackupDetailsIfNeeded(backup);
+        if (ThirdPartyBackupManifest.VOLUME_MODE.equals(getBackupDetail(backup, ThirdPartyBackupManifest.MODE_KEY))) {
+            return restoreStagedVolume(backup, backupVolumeInfo, hostIp, dataStoreUuid, targetVm);
+        }
         validateRestoreChainIntegrity(backup);
 
         final StoragePoolVO pool = primaryDataStoreDao.findByUuid(dataStoreUuid);
@@ -2043,7 +2075,59 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
     }
 
 
-    private Pair<Boolean, String> restoreStagedVm(VirtualMachine vm, Backup backup, Host host) {
+
+    private Pair<Boolean, String> restoreStagedVolume(Backup backup, Backup.VolumeInfo selection, String hostIdentifier,
+            String poolUuid, VirtualMachine targetVm) {
+        if (targetVm == null) { throw new CloudRuntimeException("A target VM is required for volume restore"); }
+        Backup.VolumeInfo source = backup.getBackedUpVolumes().stream().filter(v -> v.getUuid().equals(selection.getUuid()))
+                .findFirst().orElseThrow(() -> new CloudRuntimeException("Selected volume is absent from the backup"));
+        StoragePoolVO pool = primaryDataStoreDao.findByUuid(poolUuid);
+        if (pool == null || pool.getDataCenterId() != targetVm.getDataCenterId()) {
+            throw new CloudRuntimeException("Restore primary datastore is missing or belongs to another zone");
+        }
+        DiskOffering offering = diskOfferingDao.findByUuid(source.getDiskOfferingId());
+        if (offering == null) { throw new CloudRuntimeException("The backed up volume's disk offering is missing"); }
+        Host host = thirdPartyBackupVolumeService.selectRestoreHost(targetVm, getName(), Collections.singletonList(pool.getId()),
+                hostIdentifier, source.getSize());
+        if (host == null || !Status.Up.equals(host.getStatus()) || host.getDataCenterId() != targetVm.getDataCenterId()
+                || !Hypervisor.HypervisorType.KVM.equals(host.getHypervisorType())) {
+            throw new CloudRuntimeException("Restore Worker Host is unavailable or belongs to another zone");
+        }
+        if (VirtualMachine.State.Running.equals(targetVm.getState())
+                && !java.util.Objects.equals(targetVm.getHostId(), host.getId())) {
+            throw new CloudRuntimeException("A restored volume must be attached on the running VM's Host");
+        }
+        VolumeVO restored = new VolumeVO(Volume.Type.DATADISK, null, backup.getZoneId(), backup.getDomainId(),
+                backup.getAccountId(), 0, null, source.getSize(), null, null, null);
+        restored.setUuid(UUID.randomUUID().toString());
+        restored.setName("RestoredVol-" + source.getUuid());
+        restored.setProvisioningType(offering.getProvisioningType());
+        restored.setUpdated(new Date());
+        restored.setRemoved(null);
+        restored.setDisplayVolume(true);
+        restored.setPoolId(pool.getId());
+        restored.setPoolType(pool.getPoolType());
+        restored.setPath(restored.getUuid());
+        restored.setState(Volume.State.Copying);
+        restored.setSize(source.getSize());
+        restored.setDiskOfferingId(offering.getId());
+        restored.setFormat(pool.getPoolType() == Storage.StoragePoolType.RBD ? Storage.ImageFormat.RAW : Storage.ImageFormat.QCOW2);
+        String cacheMode = null;
+        List<VolumeVO> roots = volumeDao.findByInstanceAndType(targetVm.getId(), Volume.Type.ROOT);
+        if (!roots.isEmpty()) {
+            DiskOffering rootOffering = diskOfferingDao.findById(roots.get(0).getDiskOfferingId());
+            if (rootOffering != null && rootOffering.getCacheMode() != null) { cacheMode = rootOffering.getCacheMode().toString(); }
+        }
+        Pair<Boolean, String> result = restoreStagedVolumes(targetVm, backup, host, Collections.singletonList(restored),
+                Collections.singletonList(source.getUuid()), true, cacheMode);
+        if (Boolean.TRUE.equals(result.first())) {
+            volumeDao.persist(restored);
+            return new Pair<>(true, restored.getUuid());
+        }
+        return result;
+    }
+
+    private Pair<Boolean, String> restoreStagedVm(VirtualMachine vm, Backup backup, String hostIdentifier) {
         ThirdPartyBackupManifest manifest = ThirdPartyBackupManifest.fromJson(getBackupDetail(backup, ThirdPartyBackupManifest.DETAIL_KEY));
         manifest.validate(true);
         List<VolumeVO> targets = volumeDao.findByInstance(vm.getId()).stream()
@@ -2056,13 +2140,16 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
                 throw new CloudRuntimeException("VM volume device or capacity differs from the selected backup");
             }
         }
+        Host host = thirdPartyBackupVolumeService.selectRestoreHost(vm, getName(),
+                targets.stream().map(VolumeVO::getPoolId).collect(Collectors.toList()), hostIdentifier, manifest.getRequiredStagingBytes());
         return restoreStagedVolumes(vm, backup, host, targets, sources.stream().map(v -> v.uuid).collect(Collectors.toList()), false, null);
     }
 
     private Pair<Boolean, String> restoreStagedVolumes(VirtualMachine vm, Backup backup, Host host, List<VolumeVO> targets,
             List<String> sourceUuids, boolean singleVolume, String cacheMode) {
-        ThirdPartyBackupRestore.Plan plan = thirdPartyBackupVolumeService.prepareRestore(backup, host, sourceUuids, BackupDataOperationTimeout.value());
         Pair<List<PrimaryDataStoreTO>, List<String>> destinations = getVolumePoolsAndPaths(targets);
+        ThirdPartyBackupRestore.Plan plan = thirdPartyBackupVolumeService.prepareRestore(backup, host, sourceUuids,
+                targets.stream().map(VolumeVO::getSize).collect(Collectors.toList()), vm.getInstanceName(), BackupDataOperationTimeout.value());
         AblestackNetBackupRestoreBackupCommand command = new AblestackNetBackupRestoreBackupCommand();
         command.setVolumeRestorePlan(plan);
         command.setRestoreJobId(plan.jobId);
@@ -2081,7 +2168,11 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
         trackRestoreJob(backup, plan.jobId, host);
         thirdPartyBackupVolumeService.trackRestore(backup, host, volumeRestoreTransfer(backup, host));
         try {
+            thirdPartyBackupVolumeService.markRestoreDispatch(backup, plan);
             BackupAnswer answer = sendAndWaitForRestore(host.getId(), command, plan.jobId);
+            if (answer == null || !answer.getResult()) {
+                updateBackupDetail(backup, AblestackBackupFrameworkUtils.RESTORE_JOB_STATE_DETAIL, "FAILED");
+            }
             return new Pair<>(answer != null && answer.getResult(), answer == null ? "Restore Worker Host returned no response" : answer.getDetails());
         } catch (AgentUnavailableException | OperationTimedoutException e) {
             throw new CloudRuntimeException("Unable to start or await volume restore on the Worker Host", e);
@@ -2095,9 +2186,18 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
             final java.util.Map<String, String> options = new java.util.HashMap<>();
             options.put("server", client.getPrimaryServerName());
             options.put("destinationClient", host.getName());
+            options.put("request", new Gson().toJson(request));
             try {
-                final Answer answer = agentMgr.send(host.getId(), new AblestackVolumeStagingCommand(request.jobId,
-                        "RESTORE_NETBACKUP", request.sequence, new Gson().toJson(options)));
+                final Answer answer = agentManager.send(host.getId(), new AblestackVolumeStagingCommand(request.jobId,
+                        saved.recoveryOnly ? "RESTORE_NETBACKUP_RECOVER" : "RESTORE_NETBACKUP", request.sequence, new Gson().toJson(options)));
+                if (answer != null && !answer.getResult() && StringUtils.startsWith(answer.getDetails(), "ABLESTACK_NOT_SUBMITTED=")) {
+                    @SuppressWarnings("unchecked")
+                    java.util.Map<String, Object> rejected = new Gson().fromJson(
+                            answer.getDetails().substring("ABLESTACK_NOT_SUBMITTED=".length()), java.util.Map.class);
+                    if (Boolean.TRUE.equals(rejected.get("notSubmitted"))) {
+                        throw new org.apache.cloudstack.backup.ThirdPartyBackupSubmissionException(String.valueOf(rejected.get("failure")));
+                    }
+                }
                 if (answer == null || !answer.getResult() || StringUtils.isBlank(answer.getDetails())) {
                     throw new CloudRuntimeException("NetBackup artifact restore submission was not confirmed");
                 }
@@ -2106,6 +2206,11 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
                 throw new CloudRuntimeException("Unable to submit NetBackup restore on the Worker Host", e);
             }
         };
+    }
+
+    @Override
+    public void reconcileRestoreJob(Backup backup) {
+        resumeStagedRestore(backup);
     }
 
     private void resumeStagedRestore(Backup backup) {
@@ -2195,12 +2300,31 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
     @Override
     public void syncBackups(final VirtualMachine vm) {
         AblestackNetBackupClient client = null;
+        final Map<String, Boolean> volumeAvailability = new HashMap<>();
         final Set<Long> removedBackupIds = new HashSet<>();
         for (final Backup backup : backupDao.listByVmId(vm.getDataCenterId(), vm.getId())) {
             if (removedBackupIds.contains(backup.getId())) {
                 continue;
             }
+            resumeStagedRestore(backup);
             if (reconcileBackingUpBackup(vm, backup)) {
+                continue;
+            }
+
+            loadBackupDetailsIfNeeded(backup);
+            if (isNetBackupBackup(backup) && ThirdPartyBackupManifest.VOLUME_MODE.equals(
+                    getBackupDetail(backup, ThirdPartyBackupManifest.MODE_KEY))) {
+                if (StringUtils.isNotBlank(getBackupDetail(backup, ThirdPartyBackupManifest.DELETE_PROGRESS_KEY))
+                        || (backup.getDate() != null && backup.getDate().getTime() <= System.currentTimeMillis() - NETBACKUP_SYNC_DELETE_GRACE_MS)) {
+                    try {
+                        final AblestackNetBackupClient volumeClient = getClient(backup.getZoneId());
+                        thirdPartyBackupVolumeService.reconcileCatalog(backup,
+                                artifact -> volumeAvailability.computeIfAbsent(artifact.externalId, volumeClient::backupImageExists),
+                                volumeClient::deleteVolumeArtifact);
+                    } catch (RuntimeException e) {
+                        LOG.debug("NetBackup volume catalog sync is unavailable for backup [{}]: {}", backup.getUuid(), e.getMessage());
+                    }
+                }
                 continue;
             }
 
@@ -2239,16 +2363,17 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
     public boolean reconcileBackingUpBackup(final VirtualMachine vm, final Backup backup) {
         loadBackupDetailsIfNeeded(backup);
         if (ThirdPartyBackupManifest.VOLUME_MODE.equals(getBackupDetail(backup, ThirdPartyBackupManifest.MODE_KEY))) {
-            if (!Backup.Status.BackingUp.equals(backup.getStatus())) {
+            if (!Backup.Status.BackingUp.equals(backup.getStatus()) && !(java.util.Set.of(Backup.Status.Failed, Backup.Status.Error, Backup.Status.Canceled).contains(backup.getStatus())
+                    && StringUtils.isBlank(getBackupDetail(backup, ThirdPartyBackupManifest.CATALOG_FAILURE_KEY))
+                    && StringUtils.isBlank(getBackupDetail(backup, ThirdPartyBackupManifest.DELETE_PROGRESS_KEY))
+                    && !"COMPLETED".equals(getBackupDetail(backup, ThirdPartyBackupManifest.CLEANUP_STATE_KEY)))) {
                 return false;
             }
-            if (Backup.Status.BackingUp.equals(backup.getStatus())) {
-                final Host host = findBackupJobHost(backup, vm);
-                if (host != null) {
-                    final ThirdPartyBackupVolumeService.Transfer transfer = volumeTransfer(vm, backup, host);
-                    thirdPartyBackupVolumeService.track(backup, host, transfer);
-                    thirdPartyBackupVolumeService.reconcile(backup, host, transfer);
-                }
+            final Host host = findBackupJobHost(backup, vm);
+            if (host != null) {
+                final ThirdPartyBackupVolumeService.Transfer transfer = volumeTransfer(vm, backup, host);
+                thirdPartyBackupVolumeService.track(backup, host, transfer);
+                thirdPartyBackupVolumeService.reconcile(backup, host, transfer);
             }
             return true;
         }
@@ -2282,6 +2407,22 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
         return true;
     }
 
+    @Override
+    public BackupStagingInfoResponse reconcileStagingJob(Backup backup, String operation,
+            String jobId, String action, Integer artifactIndex, String externalJobId) {
+        loadBackupDetailsIfNeeded(backup);
+        ThirdPartyBackupManifest manifest = ThirdPartyBackupManifest.fromJson(getBackupDetail(backup, ThirdPartyBackupManifest.DETAIL_KEY));
+        VirtualMachine vm = vmInstanceDao.findByIdIncludingRemoved(backup.getVmId());
+        Host host = thirdPartyBackupVolumeService.getWorkerHost(backup, operation);
+        if (vm == null || (host == null && !"RECHECK".equals(action))) {
+            throw new CloudRuntimeException("Staging VM or Worker Host is unavailable");
+        }
+        return thirdPartyBackupVolumeService.manage(backup, host, operation, jobId, action, artifactIndex, externalJobId,
+                "BACKUP".equals(operation) ? volumeTransfer(vm, backup, host) : null,
+                "RESTORE".equals(operation) ? volumeRestoreTransfer(backup, host) : null,
+                artifact -> getClient(backup.getZoneId()).backupImageExists(artifact.externalId));
+    }
+
     private ThirdPartyBackupVolumeService.Transfer volumeTransfer(final VirtualMachine vm, final Backup backup, final Host host) {
         final String policy = getBackupDetail(backup, DETAIL_POLICY_NAME);
         return new ThirdPartyBackupVolumeService.Transfer() {
@@ -2293,6 +2434,16 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
             @Override
             public ThirdPartyBackupManifest.Artifact backup(final ThirdPartyBackupManifest.Artifact artifact, final boolean metadata) {
                 return getClient(vm.getDataCenterId()).backupVolumeArtifact(policy, host.getName(), host.getPrivateIpAddress(), artifact, metadata);
+            }
+
+            @Override
+            public ThirdPartyBackupManifest.Artifact recover(ThirdPartyBackupManifest.Artifact artifact, boolean metadata) {
+                return getClient(backup.getZoneId()).recoverVolumeArtifact(artifact, metadata);
+            }
+
+            @Override
+            public ThirdPartyBackupManifest.Artifact link(ThirdPartyBackupManifest.Artifact artifact, boolean metadata, String jobId) {
+                return getClient(backup.getZoneId()).linkVolumeArtifact(artifact, metadata, jobId, host.getName(), host.getPrivateIpAddress());
             }
 
             @Override
@@ -2567,6 +2718,10 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
                 .map(backupDao::findByIdIncludingRemoved)
                 .filter(Objects::nonNull)
                 .filter(this::isNetBackupBackup)
+                .filter(backup -> {
+                    loadBackupDetailsIfNeeded(backup);
+                    return !ThirdPartyBackupManifest.VOLUME_MODE.equals(getBackupDetail(backup, ThirdPartyBackupManifest.MODE_KEY));
+                })
                 .collect(Collectors.toList());
         cleanupExpiredBackupArtifacts(backupsToRemove, backupIdsToRemove);
         for (final Long backupIdToRemove : backupIdsToRemove) {
@@ -2578,6 +2733,8 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
             if (backupOffering == null || !StringUtils.equalsIgnoreCase(getName(), backupOffering.getProvider())) {
                 continue;
             }
+            loadBackupDetailsIfNeeded(backup);
+            if (ThirdPartyBackupManifest.VOLUME_MODE.equals(getBackupDetail(backup, ThirdPartyBackupManifest.MODE_KEY))) { continue; }
             removeBackupWithDetails(backupIdToRemove);
             removedIds.add(backupIdToRemove);
         }

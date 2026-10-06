@@ -45,6 +45,7 @@ import com.cloud.utils.exception.CloudRuntimeException;
 /** Prepare every disk before switching any disk; retain originals until the entire switch succeeds. */
 final class LibvirtAblestackRestoreTransaction {
     private static final Path ROOT = Path.of(AblestackBackupFrameworkUtils.ASYNC_BACKUP_JOB_ROOT, "restore-transactions");
+    private static final Logger AUDIT_LOGGER = org.apache.logging.log4j.LogManager.getLogger(LibvirtAblestackRestoreTransaction.class);
 
     @FunctionalInterface
     interface Restorer {
@@ -122,6 +123,13 @@ final class LibvirtAblestackRestoreTransaction {
     static void restorePrepared(final Logger logger, final String trace, final String vmName,
             final KVMStoragePoolManager manager, final List<PrimaryDataStoreTO> pools,
             final List<String> targets, final int timeout, final Runnable capacityCheck, final Restorer restorer) {
+        restorePrepared(logger, trace, vmName, manager, pools, targets, timeout, capacityCheck, restorer, null);
+    }
+
+    static void restorePrepared(final Logger logger, final String trace, final String vmName,
+            final KVMStoragePoolManager manager, final List<PrimaryDataStoreTO> pools,
+            final List<String> targets, final int timeout, final Runnable capacityCheck, final Restorer restorer,
+            final org.apache.cloudstack.backup.ThirdPartyBackupRestore.Plan plan) {
         if (targets.isEmpty() || pools.size() != targets.size()) {
             throw new CloudRuntimeException("Invalid VM restore volume plan");
         }
@@ -153,6 +161,7 @@ final class LibvirtAblestackRestoreTransaction {
                 state.setProperty("vm", vmName);
                 state.setProperty("count", String.valueOf(targets.size()));
                 state.setProperty("phase", "PREPARING");
+                LibvirtAblestackRestoreOutcome.attach(state, plan, id);
                 for (int i = 0; i < targets.size(); i++) {
                     final String target = backends.get(i).normalize(targets.get(i));
                     state.setProperty(i + ".pool", pools.get(i).getUuid());
@@ -165,6 +174,9 @@ final class LibvirtAblestackRestoreTransaction {
                 save(journal, state);
                 try {
                     for (int i = 0; i < targets.size(); i++) {
+                        state.setProperty("audit.activeIndex", String.valueOf(i));
+                        stamp(state, i + ".prepareStartedAt");
+                        save(journal, state);
                         if (!restorer.prepare(i, state.getProperty(i + ".prepared"))) {
                             throw new CloudRuntimeException("Unable to prepare restored volume " + targets.get(i));
                         }
@@ -172,18 +184,25 @@ final class LibvirtAblestackRestoreTransaction {
                             throw new CloudRuntimeException("Prepared restore volume is missing: " + targets.get(i));
                         }
                         state.setProperty(i + ".ready", "true");
+                        stamp(state, i + ".preparedAt");
                         save(journal, state);
                         logger.info("{} phase=[VOLUME_PREPARED], vm=[{}], volume=[{}]", trace, vmName, targets.get(i));
                     }
                     // Recheck the entire plan before the first rename. Preparation must not change live destinations.
                     validatePreparedVolumes(state, backends);
                     logger.info("{} phase=[VM_VOLUMES_PREPARED], vm=[{}], volumeCount=[{}]", trace, vmName, targets.size());
+                    state.setProperty("phase", "PREPARED");
+                    stamp(state, "audit.preparedAt");
+                    save(journal, state);
                     state.setProperty("phase", "COMMITTING");
+                    stamp(state, "audit.switchStartedAt");
                     save(journal, state);
                     for (int i = 0; i < targets.size(); i++) {
                         final Backend backend = backends.get(i);
                         final String target = state.getProperty(i + ".target");
+                        state.setProperty("audit.activeIndex", String.valueOf(i));
                         state.setProperty(i + ".switching", "true");
+                        stamp(state, i + ".switchStartedAt");
                         save(journal, state);
                         if (Boolean.parseBoolean(state.getProperty(i + ".hadOriginal"))) {
                             backend.move(target, state.getProperty(i + ".original"));
@@ -192,13 +211,20 @@ final class LibvirtAblestackRestoreTransaction {
                         }
                         backend.move(state.getProperty(i + ".prepared"), target);
                         state.setProperty(i + ".switched", "true");
+                        stamp(state, i + ".switchedAt");
                         save(journal, state);
                         logger.info("{} phase=[VOLUME_SWITCHED], vm=[{}], volume=[{}]", trace, vmName, targets.get(i));
                     }
                 } catch (Exception failure) {
+                    state.setProperty("audit.failure", message(failure));
+                    String index = state.getProperty("audit.activeIndex");
+                    if (index != null) {
+                        state.setProperty(index + ("COMMITTING".equals(state.getProperty("phase")) ? ".switchError" : ".prepareError"), message(failure));
+                    }
                     try {
                         rollback(journal, state, backends);
                     } catch (Exception rollbackFailure) {
+                        recoveryFailure(journal, state, rollbackFailure);
                         throw new CloudRuntimeException(AblestackBackupFrameworkUtils.RESTORE_ROLLBACK_REQUIRED +
                                 " VM [" + vmName + "] journal [" + journal + "]: " + rollbackFailure.getMessage(), failure);
                     }
@@ -207,9 +233,12 @@ final class LibvirtAblestackRestoreTransaction {
                 // A failed fsync may leave COMMITTED on disk. Never roll back using the in-memory state
                 // after attempting this decision: recovery must read the journal to choose the outcome.
                 state.setProperty("phase", "COMMITTED");
+                stamp(state, "audit.committedAt");
                 try {
                     save(journal, state);
                 } catch (IOException e) {
+                    try { LibvirtAblestackRestoreOutcome.commitUnconfirmed(state, message(e)); }
+                    catch (Exception auditFailure) { logger.warn("Restore commit outcome could not be archived for journal [{}]", journal, auditFailure); }
                     throw new CloudRuntimeException(AblestackBackupFrameworkUtils.RESTORE_ROLLBACK_REQUIRED +
                             " VM [" + vmName + "] commit decision requires recovery: " + journal, e);
                 }
@@ -221,6 +250,18 @@ final class LibvirtAblestackRestoreTransaction {
         } catch (IOException e) {
             throw new CloudRuntimeException("Unable to persist VM restore transaction for " + vmName, e);
         }
+    }
+
+    static boolean hasJournal(String jobId, String vmName) throws IOException {
+        Path directory = vmDirectory(vmName);
+        if (!Files.isDirectory(directory)) { return false; }
+        try (var files = Files.list(directory)) {
+            for (Path journal : files.filter(path -> path.toString().endsWith(".properties")).collect(java.util.stream.Collectors.toList())) {
+                String owner = read(journal).getProperty("audit.job");
+                if (owner == null || jobId.equals(owner)) { return true; }
+            }
+        }
+        return false;
     }
 
     static void assertStartAllowed(final String vmName) {
@@ -265,22 +306,28 @@ final class LibvirtAblestackRestoreTransaction {
             try (var files = Files.list(directory)) {
                 for (Path journal : files.filter(path -> path.toString().endsWith(".properties")).collect(java.util.stream.Collectors.toList())) {
                     final Properties state = read(journal);
-                    final List<Backend> backends = new ArrayList<>();
-                    final int count = Integer.parseInt(state.getProperty("count"));
-                    for (int i = 0; i < count; i++) {
-                        final boolean rbd = Boolean.parseBoolean(state.getProperty(i + ".rbd"));
-                        final KVMStoragePool pool = rbd
-                                ? manager.getStoragePool(Storage.StoragePoolType.RBD, state.getProperty(i + ".pool")) : null;
-                        if (rbd && pool == null) {
-                            throw new CloudRuntimeException("Cannot recover restore transaction: RBD pool is unavailable: "
-                                    + state.getProperty(i + ".pool"));
+                    try {
+                        final List<Backend> backends = new ArrayList<>();
+                        final int count = Integer.parseInt(state.getProperty("count"));
+                        for (int i = 0; i < count; i++) {
+                            final boolean rbd = Boolean.parseBoolean(state.getProperty(i + ".rbd"));
+                            final KVMStoragePool pool = rbd
+                                    ? manager.getStoragePool(Storage.StoragePoolType.RBD, state.getProperty(i + ".pool")) : null;
+                            if (rbd && pool == null) {
+                                throw new CloudRuntimeException("Cannot recover restore transaction: RBD pool is unavailable: "
+                                        + state.getProperty(i + ".pool"));
+                            }
+                            backends.add(new Backend(pool, timeout));
                         }
-                        backends.add(new Backend(pool, timeout));
-                    }
-                    if ("COMMITTED".equals(state.getProperty("phase"))) {
-                        cleanupCommitted(logger, journal, state, backends);
-                    } else {
-                        rollback(journal, state, backends);
+                        if ("COMMITTED".equals(state.getProperty("phase"))) {
+                            cleanupCommitted(logger, journal, state, backends);
+                            if (Files.exists(journal)) { throw new CloudRuntimeException("Committed original-volume cleanup is still pending: " + journal); }
+                        } else {
+                            rollback(journal, state, backends);
+                        }
+                    } catch (IOException | RuntimeException failure) {
+                        recoveryFailure(journal, state, failure);
+                        throw failure;
                     }
                 }
             }
@@ -320,6 +367,7 @@ final class LibvirtAblestackRestoreTransaction {
                     try {
                         rollback(journal, state, backends);
                     } catch (Exception e) {
+                        recoveryFailure(journal, state, e);
                         throw new CloudRuntimeException(AblestackBackupFrameworkUtils.RESTORE_ROLLBACK_REQUIRED + " " + journal, e);
                     }
                 }
@@ -329,6 +377,7 @@ final class LibvirtAblestackRestoreTransaction {
 
     private static void validatePreparedVolumes(final Properties state, final List<Backend> backends) throws IOException {
         for (int i = 0; i < backends.size(); i++) {
+            state.setProperty("audit.activeIndex", String.valueOf(i));
             final Backend backend = backends.get(i);
             final String target = state.getProperty(i + ".target");
             if (!Boolean.parseBoolean(state.getProperty(i + ".ready"))
@@ -347,18 +396,25 @@ final class LibvirtAblestackRestoreTransaction {
             throw new IOException("A committed VM restore cannot be rolled back: " + journal);
         }
         state.setProperty("phase", "ROLLING_BACK");
+        stamp(state, "audit.rollbackStartedAt");
+        state.setProperty("audit.cleanupState", "RUNNING");
+        state.remove("audit.recoveryError");
         save(journal, state);
         for (int i = backends.size() - 1; i >= 0; i--) {
             final Backend backend = backends.get(i);
             final String target = state.getProperty(i + ".target");
             final String original = state.getProperty(i + ".original");
             final String prepared = state.getProperty(i + ".prepared");
+            stamp(state, i + ".rollbackStartedAt");
+            save(journal, state);
             if (Boolean.parseBoolean(state.getProperty(i + ".rolledBack"))) {
                 if (backend.exists(target) != Boolean.parseBoolean(state.getProperty(i + ".hadOriginal"))
                         || backend.exists(original)) {
                     throw new IOException("Previously rolled-back destination changed: " + target);
                 }
                 backend.delete(prepared);
+                stamp(state, i + ".cleanedAt");
+                save(journal, state);
                 continue;
             }
             if (backend.exists(original)) {
@@ -384,25 +440,44 @@ final class LibvirtAblestackRestoreTransaction {
                 throw new IOException("Original volume is missing during rollback: " + target);
             }
             state.setProperty(i + ".rolledBack", "true");
+            stamp(state, i + ".rolledBackAt");
             save(journal, state);
             backend.delete(prepared);
+            stamp(state, i + ".cleanedAt");
+            save(journal, state);
         }
-        deleteJournal(journal);
+        state.setProperty("phase", "ROLLED_BACK");
+        stamp(state, "audit.rolledBackAt");
+        state.setProperty("audit.cleanupState", "COMPLETED");
+        stamp(state, "audit.cleanupCompletedAt");
+        save(journal, state);
+        deleteJournal(journal, state);
     }
 
     private static void cleanupCommitted(final Logger logger, final Path journal, final Properties state,
             final List<Backend> backends) {
         try {
+            state.setProperty("audit.cleanupState", "RUNNING");
+            state.remove("audit.recoveryError");
+            save(journal, state);
             for (int i = 0; i < backends.size(); i++) {
                 backends.get(i).delete(state.getProperty(i + ".original"));
+                stamp(state, i + ".cleanedAt");
+                save(journal, state);
             }
-            deleteJournal(journal);
+            state.setProperty("audit.cleanupState", "COMPLETED");
+            stamp(state, "audit.cleanupCompletedAt");
+            save(journal, state);
+            deleteJournal(journal, state);
         } catch (Exception e) {
+            recoveryFailure(journal, state, e);
             logger.warn("VM restore committed; original-volume cleanup will be retried using journal [{}]: {}", journal, e.getMessage());
         }
     }
 
-    private static void deleteJournal(final Path journal) throws IOException {
+    private static void deleteJournal(final Path journal, final Properties state) throws IOException {
+        // A crash or receipt write failure must leave the journal available to re-archive the outcome.
+        LibvirtAblestackRestoreOutcome.publish(state);
         Files.delete(journal);
         try (FileChannel directory = FileChannel.open(journal.getParent(), StandardOpenOption.READ)) {
             directory.force(true);
@@ -418,6 +493,15 @@ final class LibvirtAblestackRestoreTransaction {
     }
 
     private static void save(final Path path, final Properties state) throws IOException {
+        if (state.getProperty("audit.job") != null) {
+            long revision = Long.parseLong(state.getProperty("audit.revision", "0"));
+            try {
+                var receipt = LibvirtAblestackRestoreOutcome.read(state.getProperty("audit.job"));
+                if (receipt != null) { revision = Math.max(revision, receipt.revision); }
+            } catch (Exception e) { AUDIT_LOGGER.warn("Restore receipt revision is unavailable; journal remains authoritative [{}]", path, e); }
+            state.setProperty("audit.revision", String.valueOf(Math.addExact(revision, 1)));
+            state.setProperty("audit.updatedAt", String.valueOf(System.currentTimeMillis()));
+        }
         final Path temporary = path.resolveSibling(path.getFileName() + ".tmp");
         try (OutputStream output = Files.newOutputStream(temporary)) {
             state.store(output, "ABLESTACK VM restore transaction");
@@ -429,6 +513,21 @@ final class LibvirtAblestackRestoreTransaction {
         try (FileChannel directory = FileChannel.open(path.getParent(), StandardOpenOption.READ)) {
             directory.force(true);
         }
+        try { LibvirtAblestackRestoreOutcome.publish(state); }
+        catch (Exception e) { AUDIT_LOGGER.warn("Restore outcome publication is pending; retaining journal [{}]", path, e); }
+    }
+
+    private static void stamp(Properties state, String key) {
+        if (state.getProperty(key) == null) { state.setProperty(key, String.valueOf(System.currentTimeMillis())); }
+    }
+
+    private static String message(Exception error) { return error.getMessage() == null ? error.getClass().getSimpleName() : error.getMessage(); }
+
+    private static void recoveryFailure(Path journal, Properties state, Exception error) {
+        state.setProperty("audit.recoveryError", message(error));
+        state.setProperty("audit.cleanupState", "WAITING");
+        try { if (Files.exists(journal)) { save(journal, state); } }
+        catch (Exception saveFailure) { AUDIT_LOGGER.warn("Restore recovery error could not be saved [{}]", journal, saveFailure); }
     }
 
     private static final class Backend {

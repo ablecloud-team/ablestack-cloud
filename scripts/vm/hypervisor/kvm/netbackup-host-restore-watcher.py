@@ -19,6 +19,7 @@
 import fcntl
 import json
 import os
+import re
 import shlex
 import socket
 import ssl
@@ -338,14 +339,23 @@ def is_successful_restore_job(job: dict[str, Any]) -> bool:
 def extract_staging_paths_from_strings(values: list[str]) -> list[str]:
     staging_root = CONFIG.get("NETBACKUP_STAGING_ROOT", "/tmp/mold/netbackup").rstrip("/")
     paths = []
+    payloads = []
+    metadata_names = {"backup-manifest.json", "domain-config.xml", "rbd-backup.meta", ".staging.complete",
+                      "dominfo.xml", "domiflist.xml", "domblklist.xml", ".volume-bootstrap"}
     for value in values:
         normalized = value.rstrip("/")
         if normalized.startswith(staging_root + "/"):
             suffix = normalized[len(staging_root) + 1:]
             parts = [part for part in suffix.split("/") if part]
             if len(parts) >= 2:
-                paths.append(f"{staging_root}/{parts[0]}/{parts[1]}")
-    return sorted(set(paths), key=len, reverse=True)
+                root = f"{staging_root}/{parts[0]}/{parts[1]}"
+                if len(parts) == 3 and parts[2] not in metadata_names:
+                    # Do not collapse a volume child selection into its parent's
+                    # metadata directory and accidentally trigger a VM restore.
+                    payloads.append(normalized)
+                else:
+                    paths.append(root)
+    return sorted(set(payloads or paths), key=len, reverse=True)
 
 
 def fetch_restore_job_file_list(job_id_value: str) -> list[str]:
@@ -361,6 +371,16 @@ def fetch_restore_job_file_list(job_id_value: str) -> list[str]:
 
 
 def candidate_restore_identifiers(job: dict[str, Any], job_id_value: str) -> list[str]:
+    # Catalog image IDs identify individual Full child jobs even when the UI
+    # restores them to an alternate destination outside the original staging path.
+    for node in (job, job.get("attributes", {})):
+        if not isinstance(node, dict):
+            continue
+        value = node.get("restoreBackupIDs", node.get("restoreBackupIds"))
+        ids = value if isinstance(value, list) else str(value or "").splitlines()
+        ids = sorted(set(str(item).strip() for item in ids if str(item).strip()))
+        if ids and all(re.fullmatch(r"[^\s/\\]+_[0-9]+", item) for item in ids):
+            return ids
     file_list_paths = extract_staging_paths_from_strings(fetch_restore_job_file_list(job_id_value))
     if file_list_paths:
         return file_list_paths

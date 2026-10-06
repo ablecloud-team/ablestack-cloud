@@ -26,6 +26,7 @@ import os
 import re
 from pathlib import Path
 import signal
+import shutil
 import subprocess
 import time
 import uuid
@@ -55,10 +56,18 @@ def atomic(path, value):
 def run(args, timeout=300):
     # Never include Ceph keys or controller credentials in errors or the job log.
     result = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                            text=True, timeout=timeout, check=False)
+                            text=True, timeout=timeout, check=False, env=dict(os.environ, LC_ALL="C"))
     if result.returncode:
         raise RuntimeError("%s failed (exit %d)" % (args[0], result.returncode))
     return result.stdout
+
+
+def staging_identity(directory):
+    # Called under capacity.lock. This identity survives Host reboot and NFS remount.
+    file = directory / "filesystem.id"
+    if not file.exists():
+        atomic(file, str(uuid.uuid4()))
+    return str(uuid.UUID(file.read_text().strip()))
 
 
 class Backup:
@@ -76,6 +85,7 @@ class Backup:
         self.success = False
         self.socket = Path("/var/lib/libvirt/qemu") / ("backup-" + self.manifest["backupUuid"] + ".sock")
         self.reservation = None
+        self.engine = self.job / "volume-engine.json"
         self.count = len(self.manifest["volumes"])
         self.live_bandwidth = False
         self.bandwidth_file = self.job / "volume-bandwidth-mbps"
@@ -106,29 +116,61 @@ class Backup:
             time.sleep(min(0.25, remaining))
 
     def check_cancel(self):
+        queue_cancel = self.job / "staging-admission-cancel"
+        if queue_cancel.exists():
+            raise RuntimeError(queue_cancel.read_text())
         if (self.job / "volume-cancel").exists():
             raise RuntimeError("Volume pipeline was cancelled")
 
     def reserve(self):
+        from thirdparty_primary_capacity import filesystem_capacity, prepare_backup_capacity, backup_capacity
         stage_root = Path(self.plan["stageRoot"]).resolve(strict=True)
+        if self.engine.exists():
+            raise RuntimeError("Backup engine was already initialized; use job reconciliation instead of rerunning it")
+        atomic(self.engine, {"stageDevice": stage_root.stat().st_dev})
         if not self.root.is_absolute() or not self.root.resolve().is_relative_to(stage_root):
             raise RuntimeError("Backup path is outside configured third-party staging")
         directory = stage_root / ".volume-reservations"
         directory.mkdir(mode=0o700, exist_ok=True)
         required = max(v["provisionedBytes"] for v in self.manifest["volumes"])
         required += (required * self.plan["bufferPercent"] + 99) // 100
+        scratch = 0
+        staging_key = filesystem_capacity(stage_root, True)["storageKey"]
+        if not self.plan["rbd"]:
+            primary = prepare_backup_capacity(self.manifest["backupUuid"], stage_root, self.plan["diskPaths"],
+                                              [v["provisionedBytes"] for v in self.manifest["volumes"]])
+            atomic(self.job / "backup-primary-capacity.json", primary)
+            scratch = sum(claim["requiredBytes"] for claim in backup_capacity(primary)["primaryClaims"]
+                          if claim["storageKey"] == staging_key)
         with (directory / "capacity.lock").open("a") as lock:
             fcntl.flock(lock, fcntl.LOCK_EX)
-            reservations = [json.loads(p.read_text()) for p in directory.glob("*.json")]
-            reserved = sum(record["bytes"] + record.get("primaryScratchBytes", 0) for record in reservations)
-            stat = os.statvfs(stage_root)
-            if required > stat.f_bavail * stat.f_frsize - reserved:
-                raise RuntimeError("Insufficient effective staging capacity including active reservations")
+            identity = staging_identity(directory)
+            atomic(self.engine, {"stageDevice": stage_root.stat().st_dev, "stageFilesystemId": identity})
             self.reservation = directory / (self.manifest["backupUuid"] + ".json")
             if self.reservation.exists():
                 raise RuntimeError("Staging reservation already exists for this backup")
-            atomic(self.reservation, {"jobId": self.manifest["backupUuid"], "bytes": required,
-                                      "host": self.plan["sourceHost"], "operation": "BACKUP"})
+            atomic(self.job / "staging-admission-plan.json", {
+                "jobId": self.manifest["backupUuid"], "stageRoot": str(stage_root), "stageFilesystemId": identity,
+                "admissionProtocolVersion": 1,
+                "reservation": {"jobId": self.manifest["backupUuid"], "bytes": required,
+                                "primaryScratchBytes": scratch, "host": self.plan["sourceHost"], "operation": "BACKUP"}})
+        atomic(self.job / "staging-admission-request.json", {
+            "admission": True, "jobId": self.manifest["backupUuid"], "operation": "BACKUP",
+            "requiredBytes": required + scratch, "stagingStorageKey": staging_key,
+            "bufferPercent": self.plan["bufferPercent"],
+            "capacityVersion": 0 if self.plan["rbd"] else 1})
+        self.progress("WAITING", 0)
+        queue_deadline = time.monotonic() + max(1, self.plan.get("queueTimeout", 3600))
+        while not (self.job / "staging-admission-granted").is_file():
+            self.check_cancel()
+            if time.monotonic() >= queue_deadline:
+                from thirdparty_staging_admission import control
+                result = control(self.job / "staging-admission-plan.json", "cancel", "Staging queue timeout expired")
+                if result["state"] == "CANCELED":
+                    self.check_cancel()
+            time.sleep(1)
+        self.check_cancel()
+        (self.job / "staging-admission-request.json").unlink(missing_ok=True)
 
     @staticmethod
     def rbd_command(uri):
@@ -150,6 +192,24 @@ class Backup:
             args += [option, value]
         return args, image
 
+    def freeze_guest(self):
+        # Record ownership before freezing; a process crash must not leave the source VM frozen.
+        try:
+            state = json.loads(run(["virsh", "-c", "qemu:///system", "qemu-agent-command", self.vm,
+                                    '{"execute":"guest-fsfreeze-status"}'], 30))
+            if state.get("return") != "thawed":
+                return
+            engine = json.loads(self.engine.read_text())
+            engine["freezePending"] = True
+            atomic(self.engine, engine)
+            run(["virsh", "-c", "qemu:///system", "qemu-agent-command", self.vm,
+                 '{"execute":"guest-fsfreeze-freeze"}'], 30)
+        except RuntimeError:
+            pass
+
+    def thaw_guest(self):
+        thaw_owned_guest(self.engine, self.vm)
+
     def begin_rbd(self):
         checkpoint = self.plan["checkpointName"]
         parent = self.plan.get("parentCheckpointName")
@@ -161,23 +221,15 @@ class Backup:
                 snapshots = json.loads(run(args + ["snap", "ls", "--format", "json", image]))
                 if not any(s["name"] == parent for s in snapshots):
                     raise RuntimeError("Parent RBD snapshot is missing")
-        frozen = False
         try:
             if self.plan.get("quiesce"):
-                try:
-                    run(["virsh", "-c", "qemu:///system", "qemu-agent-command", self.vm,
-                         '{"execute":"guest-fsfreeze-freeze"}'], 30)
-                    frozen = True
-                except RuntimeError:
-                    pass
+                self.freeze_guest()
             for uri in self.plan["diskPaths"]:
                 args, image = self.rbd_command(uri)
                 run(args + ["snap", "create", image + "@" + checkpoint])
                 self.created_snapshots.append((args, image, checkpoint))
         finally:
-            if frozen:
-                run(["virsh", "-c", "qemu:///system", "qemu-agent-command", self.vm,
-                     '{"execute":"guest-fsfreeze-thaw"}'], 30)
+            self.thaw_guest()
         metadata = ("vm_name=%s\nbackup_engine=RBD_DIFF\nbackup_type=%s\ncheckpoint_name=%s\n"
                     "parent_checkpoint_name=%s\ndisk_paths=%s\nbackup_files=%s\nbackup_dir=%s\n" %
                     (self.vm, self.manifest["backupType"], checkpoint, parent or "",
@@ -195,30 +247,18 @@ class Backup:
             raise RuntimeError("Volume QCOW2 staging requires the host python3-libnbd package") from exc
         self.nbd = nbd
         # Pull-mode scratch belongs to primary storage, never to Host OS or staging.
-        required = {}
-        for path, volume in zip(self.plan["diskPaths"], self.manifest["volumes"]):
-            parent = Path(path).resolve(strict=True).parent
-            device = parent.stat().st_dev
-            entry = required.setdefault(device, [parent, 0])
-            entry[1] += volume["provisionedBytes"]
-        for parent, amount in required.values():
-            stat = os.statvfs(parent)
-            overhead = max(10 * 1024**3, amount // 5)
-            if parent.stat().st_dev == self.root.stat().st_dev:
-                # When staging uses primary GFS2, source scratch and staged images compete
-                # for the same free space. Reserve both under the shared admission lock.
+        from thirdparty_primary_capacity import backup_capacity
+        current = backup_capacity(json.loads((self.job / "backup-primary-capacity.json").read_text()))
+        for claim in current["primaryClaims"]:
+            if claim["storageKey"] == current["stagingStorageKey"]:
+                # Source scratch was reserved atomically with the staging admission.
                 directory = self.reservation.parent
                 with (directory / "capacity.lock").open("a") as lock:
                     fcntl.flock(lock, fcntl.LOCK_EX)
-                    reservations = [json.loads(p.read_text()) for p in directory.glob("*.json")]
-                    reserved = sum(record["bytes"] + record.get("primaryScratchBytes", 0) for record in reservations)
-                    stat = os.statvfs(parent)
-                    if amount + overhead > stat.f_bavail * stat.f_frsize - reserved:
-                        raise RuntimeError("Insufficient shared primary/staging capacity including source scratch reservations")
                     record = json.loads(self.reservation.read_text())
-                    record["primaryScratchBytes"] = amount + overhead
-                    atomic(self.reservation, record)
-            elif stat.f_bavail * stat.f_frsize < amount + overhead:
+                    if record.get("primaryScratchBytes", 0) < claim["requiredBytes"]:
+                        raise RuntimeError("Source scratch exceeds the admitted staging reservation")
+            elif claim["availableBytes"] < claim["requiredBytes"]:
                 raise RuntimeError("Insufficient primary capacity for a consistent QCOW2 pull backup")
         try:
             domain_xml = ET.fromstring(run(["virsh", "-c", "qemu:///system", "dumpxml", self.vm]))
@@ -285,22 +325,14 @@ class Backup:
         checkpoint_path = self.job / "checkpoint.xml"
         atomic(backup_path, ET.tostring(backup_xml, encoding="unicode"))
         atomic(checkpoint_path, ET.tostring(checkpoint_xml, encoding="unicode"))
-        frozen = False
         try:
             if self.plan.get("quiesce") and active:
-                try:
-                    run(["virsh", "-c", "qemu:///system", "qemu-agent-command", self.vm,
-                         '{"execute":"guest-fsfreeze-freeze"}'], 30)
-                    frozen = True
-                except RuntimeError:
-                    pass
+                self.freeze_guest()
             run(["virsh", "-c", "qemu:///system", "backup-begin", self.domain,
                  "--backupxml", str(backup_path), "--checkpointxml", str(checkpoint_path)])
             self.pull = True
         finally:
-            if frozen:
-                run(["virsh", "-c", "qemu:///system", "qemu-agent-command", self.vm,
-                     '{"execute":"guest-fsfreeze-thaw"}'], 30)
+            self.thaw_guest()
         (self.root / "checkpoints").mkdir()
         atomic(self.root / "checkpoints" / (self.plan["checkpointName"] + ".xml"),
                run(["virsh", "-c", "qemu:///system", "checkpoint-dumpxml", self.domain,
@@ -424,6 +456,9 @@ class Backup:
         confirmed = updated.get("metadata") if metadata else updated["volumes"][index]["chain"][-1]
         if not confirmed or not confirmed.get("completed") or not confirmed.get("externalId"):
             raise RuntimeError("External artifact transfer did not complete")
+        if (any(confirmed.get(key) != artifact.get(key) for key in ("path", "backupUuid"))
+                or (not metadata and confirmed.get("size") != artifact.get("size"))):
+            raise RuntimeError("External confirmation differs from the requested artifact")
         self.manifest = updated
         (self.job / "volume-request.json").unlink(missing_ok=True)
         if not metadata:
@@ -498,6 +533,7 @@ class Backup:
                 self.pull = False
             except Exception:
                 print("Stopped VM backup domain cleanup is pending", flush=True)
+                self.pull = True
         if not self.success:
             for args, image, checkpoint in reversed(self.created_snapshots):
                 with contextlib.suppress(Exception):
@@ -505,23 +541,160 @@ class Backup:
         elif self.plan["rbd"] and self.plan.get("parentCheckpointName"):
             # Keep the current checkpoint for the next export-diff; retire the previous snapshot
             # only after all image jobs and the final metadata job have been confirmed.
-            for uri in self.plan["diskPaths"]:
-                args, image = self.rbd_command(uri)
-                try:
-                    run(args + ["snap", "rm", image + "@" + self.plan["parentCheckpointName"]], 30)
-                except Exception:
-                    print("Previous RBD backup snapshot cleanup is pending", flush=True)
-        if self.reservation and not self.pull:
+            retire_parent_snapshots(self.plan, self.job)
+        if self.reservation and self.success and not self.pull:
             with (self.reservation.parent / "capacity.lock").open("a") as lock:
                 fcntl.flock(lock, fcntl.LOCK_EX)
                 self.reservation.unlink(missing_ok=True)
 
 
+def retire_parent_snapshots(plan, job):
+    """Retain the current checkpoint and durably retry only the recorded parent."""
+    receipt = job / "source-cleanup.json"
+    atomic(receipt, {"state": "WAITING", "backupUuid": plan["manifest"]["backupUuid"]})
+    errors = []
+    if plan["rbd"] and plan.get("parentCheckpointName"):
+        if plan["parentCheckpointName"] == plan["checkpointName"]:
+            raise RuntimeError("Refusing to retire the current RBD checkpoint")
+        for uri in plan["diskPaths"]:
+            args, image = Backup.rbd_command(uri)
+            try:
+                snapshots = json.loads(run(args + ["snap", "ls", "--format", "json", image], 30))
+                if any(item["name"] == plan["parentCheckpointName"] for item in snapshots):
+                    run(args + ["snap", "rm", image + "@" + plan["parentCheckpointName"]], 30)
+            except Exception as exc:
+                errors.append("%s@%s: %s" % (image, plan["parentCheckpointName"], exc))
+    atomic(receipt, {"state": "WAITING" if errors else "COMPLETED", "backupUuid": plan["manifest"]["backupUuid"],
+                     "errors": errors})
+    return not errors
+
+
+def thaw_owned_guest(receipt, vm):
+    if not receipt.exists():
+        return
+    engine = json.loads(receipt.read_text())
+    if engine.get("freezePending"):
+        state = json.loads(run(["virsh", "-c", "qemu:///system", "qemu-agent-command", vm,
+                                '{"execute":"guest-fsfreeze-status"}'], 30))
+        if state.get("return") != "thawed":
+            run(["virsh", "-c", "qemu:///system", "qemu-agent-command", vm,
+                 '{"execute":"guest-fsfreeze-thaw"}'], 30)
+        engine["freezePending"] = False
+        atomic(receipt, engine)
+
+
+def cleanup_failed(file):
+    """Called only after the controller confirms every external reader has stopped."""
+    plan = json.loads(file.read_text())
+    manifest = plan["manifest"]
+    job_id = manifest["backupUuid"]
+    job = file.parent
+    stage = Path(plan["stageRoot"]).resolve(strict=True)
+    root = Path(plan["backupPath"])
+    expected = stage / manifest["provider"] / manifest["vmName"] / manifest["timestamp"]
+    if root.resolve() != expected.resolve() or job.name != job_id or root.is_symlink():
+        raise RuntimeError("Invalid failed backup cleanup destination")
+    if root.exists() and (not (root / ".volume-bootstrap").is_file()
+                          or (root / ".volume-bootstrap").read_text().strip() != job_id):
+        raise RuntimeError("Backup directory ownership is unconfirmed; existing data is protected")
+    receipt = job / "volume-engine.json"
+    if receipt.exists():
+        engine = json.loads(receipt.read_text())
+        identity = stage / ".volume-reservations" / "filesystem.id"
+        if engine.get("stageFilesystemId"):
+            if not identity.is_file() or identity.read_text().strip() != engine["stageFilesystemId"]:
+                raise RuntimeError("Staging filesystem changed; mount the original filesystem before cleanup")
+        elif engine["stageDevice"] != stage.stat().st_dev:
+            raise RuntimeError("Staging filesystem changed; mount the original filesystem before cleanup")
+    thaw_owned_guest(receipt, plan["vmName"])
+    # No owner process may remain, including children orphaned by an engine crash.
+    payloads = {volume["chain"][-1]["path"] for volume in manifest["volumes"]}
+    for process in Path("/proc").iterdir():
+        if not process.name.isdigit():
+            continue
+        try:
+            args = process.joinpath("cmdline").read_bytes().decode().split("\0")
+        except (FileNotFoundError, ProcessLookupError):
+            continue
+        if args and Path(args[0]).name == "qemu-nbd" and "--socket" in args:
+            socket = Path(args[args.index("--socket") + 1])
+            if socket.parent == job and socket.name.startswith("target-"):
+                os.kill(int(process.name), signal.SIGTERM)
+                raise RuntimeError("Stopped an orphaned job NBD helper; waiting for it to exit")
+        if args and Path(args[0]).name in {"rbd", "qemu-img"} and payloads.intersection(args):
+            raise RuntimeError("A source export process still owns this backup payload")
+    domain = "DUMMY-VOLUME-" + job_id if (job / "dummy.xml").exists() else plan["vmName"]
+    state = subprocess.run(["virsh", "-c", "qemu:///system", "domstate", domain], capture_output=True, text=True,
+                           env=dict(os.environ, LC_ALL="C"))
+    if not plan["rbd"] and state.returncode == 0:
+        active = state.stdout.strip().lower() != "shut off"
+        if active:
+            info = run(["virsh", "-c", "qemu:///system", "domjobinfo", domain])
+            if not re.search(r"Job type:\s+None", info, re.IGNORECASE):
+                xml = ET.fromstring(run(["virsh", "-c", "qemu:///system", "backup-dumpxml", domain]))
+                server = xml.find("server")
+                if server is None or server.get("socket") != "/var/lib/libvirt/qemu/backup-%s.sock" % job_id:
+                    raise RuntimeError("A different libvirt job is active; original VM is protected")
+                run(["virsh", "-c", "qemu:///system", "domjobabort", domain])
+                if not re.search(r"Job type:\s+None", run(["virsh", "-c", "qemu:///system", "domjobinfo", domain]), re.IGNORECASE):
+                    raise RuntimeError("Source pull backup termination is unconfirmed")
+        if domain.startswith("DUMMY-VOLUME-"):
+            if active:
+                run(["virsh", "-c", "qemu:///system", "destroy", domain])
+        else:
+            names = run(["virsh", "-c", "qemu:///system", "checkpoint-list", domain, "--name"]).splitlines()
+            if plan["checkpointName"] in names:
+                run(["virsh", "-c", "qemu:///system", "checkpoint-delete", domain, plan["checkpointName"], "--metadata"])
+    elif not plan["rbd"]:
+        # A failed lookup is not proof that a domain vanished.
+        domains = run(["virsh", "-c", "qemu:///system", "list", "--all", "--name"]).splitlines()
+        if domain in domains:
+            raise RuntimeError("Source domain state could not be confirmed")
+    if plan["rbd"]:
+        for uri in plan["diskPaths"]:
+            args, image = Backup.rbd_command(uri)
+            snapshots = json.loads(run(args + ["snap", "ls", "--format", "json", image]))
+            if any(item["name"] == plan["checkpointName"] for item in snapshots):
+                run(args + ["snap", "rm", image + "@" + plan["checkpointName"]])
+    elif (job / "pull.xml").exists():
+        xml = ET.fromstring(job.joinpath("pull.xml").read_text())
+        parents = {Path(path).resolve().parent for path in plan["diskPaths"]}
+        for scratch in xml.findall("./disks/disk/scratch"):
+            path = Path(scratch.get("file", ""))
+            if path.parent.resolve() not in parents or not path.name.startswith(".backup-" + job_id + "-"):
+                raise RuntimeError("Scratch file ownership does not match the failed backup")
+            path.unlink(missing_ok=True)
+    if root.exists():
+        shutil.rmtree(root)
+    reservations = stage / ".volume-reservations"
+    if reservations.is_dir():
+        with (reservations / "capacity.lock").open("a") as lock:
+            fcntl.flock(lock, fcntl.LOCK_EX)
+            (reservations / (job_id + ".json")).unlink(missing_ok=True)
+    atomic(job / "volume-cleanup.json", {"state": "COMPLETED"})
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--plan-file", required=True)
+    parser.add_argument("--action", choices=["backup", "cleanup", "cleanup-completed"], default="backup")
     args = parser.parse_args()
-    worker = Backup(args.plan_file)
+    file = Path(args.plan_file)
+    with (file.parent / "volume-engine.lock").open("a") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        if args.action == "cleanup":
+            cleanup_failed(file)
+            return 0
+        if args.action == "cleanup-completed":
+            plan = json.loads(file.read_text())
+            if file.parent.name != plan["manifest"]["backupUuid"]:
+                raise RuntimeError("Completed source cleanup belongs to another backup")
+            return 0 if retire_parent_snapshots(plan, file.parent) else 1
+        return run_backup(args.plan_file)
+
+
+def run_backup(plan_file):
+    worker = Backup(plan_file)
     def interrupt(signum, frame):
         raise RuntimeError("Volume pipeline interrupted")
     signal.signal(signal.SIGTERM, interrupt)
@@ -533,6 +706,9 @@ def main():
         return 1
     finally:
         worker.close()
+    if worker.pull:
+        print("Source cleanup did not terminate its backup reader; reconciliation is required", flush=True)
+        return 1
     return 0
 
 

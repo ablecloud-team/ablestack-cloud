@@ -33,6 +33,23 @@ public class ThirdPartyBackupManifest {
     public static final String DETAIL_KEY = "thirdparty.volume.manifest";
     public static final String MODE_KEY = "thirdparty.staging.mode";
     public static final String VOLUME_MODE = "VOLUME";
+    public static final String DELETE_PROGRESS_KEY = "thirdparty.volume.delete.progress";
+    public static final String CATALOG_FAILURE_KEY = "thirdparty.volume.catalog.failure";
+    public static final String CATALOG_KEY = "thirdparty.volume.catalog";
+    public static final String CLEANUP_STATE_KEY = "thirdparty.volume.cleanup.state";
+    public static final String CLEANUP_DETAILS_KEY = "thirdparty.volume.cleanup.details";
+    public static final String SOURCE_CLEANUP_STATE_KEY = "thirdparty.volume.source.cleanup.state";
+    public static final String SOURCE_CLEANUP_DETAILS_KEY = "thirdparty.volume.source.cleanup.details";
+
+    /** A failed query keeps the last confirmed inventory; it is never evidence of expiration. */
+    public static class Catalog {
+        public String state;
+        public long checkedAt;
+        public long attemptedAt;
+        public long expiredSince;
+        public List<String> missing = new ArrayList<>();
+        public String error;
+    }
     private int version = VERSION;
     private String provider;
     private String backupUuid;
@@ -57,6 +74,9 @@ public class ThirdPartyBackupManifest {
         public String sha256;
         public boolean completed;
         public boolean submissionPending;
+        public boolean externalTerminal;
+        public String externalFailure;
+        public long submittedAt;
     }
 
     public static class Volume {
@@ -84,7 +104,8 @@ public class ThirdPartyBackupManifest {
     /** Added, removed, resized or replaced disks require a new Full chain. */
     public static boolean canContinue(Backup parent, String provider, String vmName, String engine,
             List<? extends com.cloud.storage.Volume> sourceVolumes) {
-        if (parent == null || blank(parent.getDetail(DETAIL_KEY))) {
+        if (parent == null || blank(parent.getDetail(DETAIL_KEY)) || !blank(parent.getDetail(DELETE_PROGRESS_KEY))
+                || !blank(parent.getDetail(CATALOG_FAILURE_KEY))) {
             return false;
         }
         try {
@@ -193,6 +214,29 @@ public class ThirdPartyBackupManifest {
             result.add(current);
         }
         return Collections.unmodifiableList(result);
+    }
+
+    /** Only these artifacts belong to this recovery point; ancestors remain owned by their original backup. */
+    public List<Artifact> getOwnedArtifacts() {
+        List<Artifact> result = new ArrayList<>(getCurrentArtifacts());
+        if (metadata != null) {
+            if (!backupUuid.equals(metadata.backupUuid)) {
+                throw new CloudRuntimeException("Metadata belongs to another logical backup");
+            }
+            result.add(metadata);
+        }
+        return Collections.unmodifiableList(result);
+    }
+
+    public List<Artifact> getRequiredArtifacts() {
+        List<Artifact> result = new ArrayList<>();
+        volumes.forEach(volume -> result.addAll(volume.chain));
+        if (metadata != null) { result.add(metadata); }
+        return Collections.unmodifiableList(result);
+    }
+
+    public boolean references(String uuid) {
+        return volumes.stream().flatMap(volume -> volume.chain.stream()).anyMatch(artifact -> uuid.equals(artifact.backupUuid));
     }
 
     private static boolean blank(String value) {

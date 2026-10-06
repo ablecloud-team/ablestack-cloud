@@ -48,6 +48,7 @@ public class LibvirtAblestackVeeamTakeBackupCommandWrapper extends CommandWrappe
         delegate.setBackupJobId(command.getBackupJobId());
         delegate.setVolumeStagingManifest(command.getVolumeStagingManifest());
         delegate.setStagingBufferPercent(command.getStagingBufferPercent());
+        delegate.setStagingQueueTimeout(command.getStagingQueueTimeout());
         delegate.setWaitForCompletion(command.isWaitForCompletion());
 
         final LibvirtAblestackVeeamHelper backupHelper = new LibvirtAblestackVeeamHelper(libvirtComputingResource);

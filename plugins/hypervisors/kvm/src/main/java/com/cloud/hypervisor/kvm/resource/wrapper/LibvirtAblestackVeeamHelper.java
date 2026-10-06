@@ -158,7 +158,7 @@ class LibvirtAblestackVeeamHelper {
         if (command.getVolumeStagingManifest() != null) {
             return LibvirtAblestackVolumeBackupHelper.buildCommand(resource, command.getVolumeStagingManifest(), command.getBackupPath(),
                     command.getVolumePools(), command.getVolumePaths(), command.getCheckpointName(), command.getParentCheckpointName(),
-                    command.getParentCheckpointXmlChain(), command.getQuiesce(), command.getWait(), command.getStagingBufferPercent());
+                    command.getParentCheckpointXmlChain(), command.getQuiesce(), command.getWait(), command.getStagingBufferPercent(), null, command.getStagingQueueTimeout());
         }
         List<String> diskPaths = resolveDiskPaths(command.getVolumePools(), command.getVolumePaths());
         BackupExecutionMode executionMode = determineExecutionMode(command.getVmName(), command.getVolumePools());

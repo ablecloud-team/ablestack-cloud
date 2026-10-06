@@ -47,6 +47,9 @@ public class LibvirtAblestackNetBackupTakeBackupCommandWrapper extends CommandWr
         delegate.setBackupFiles(command.getBackupFiles());
         delegate.setWaitForCompletion(command.isWaitForCompletion());
         delegate.setBackupJobId(command.getBackupJobId());
+        delegate.setVolumeStagingManifest(command.getVolumeStagingManifest());
+        delegate.setStagingBufferPercent(command.getStagingBufferPercent());
+        delegate.setStagingQueueTimeout(command.getStagingQueueTimeout());
         delegate.setBandwidthLimitMbps(command.getBandwidthLimitMbps());
 
         final LibvirtAblestackNetBackupHelper backupHelper = new LibvirtAblestackNetBackupHelper(libvirtComputingResource);

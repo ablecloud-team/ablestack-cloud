@@ -20,8 +20,16 @@ import java.util.List;
 
 import com.cloud.utils.Pair;
 import com.cloud.vm.VirtualMachine;
+import org.apache.cloudstack.api.response.BackupStagingInfoResponse;
 
 public interface BackupProvider {
+    default BackupStagingInfoResponse reconcileStagingJob(Backup backup, String operation,
+            String jobId, String action, Integer artifactIndex, String externalJobId) {
+        throw new UnsupportedOperationException("Staging reconciliation is not supported by provider " + getName());
+    }
+
+    /** Resume provider-side artifact transfers for an accepted detached restore. */
+    default void reconcileRestoreJob(Backup backup) { }
 
     Boolean crossZoneInstanceCreationEnabled(BackupOffering backupOffering);
 

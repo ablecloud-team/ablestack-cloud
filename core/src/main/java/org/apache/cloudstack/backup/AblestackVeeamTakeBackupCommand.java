@@ -30,6 +30,10 @@ public class AblestackVeeamTakeBackupCommand extends Command {
     private String vmName;
     private String volumeStagingManifest;
     private Integer stagingBufferPercent;
+    private Integer stagingQueueTimeout;
+
+    public Integer getStagingQueueTimeout() { return stagingQueueTimeout; }
+    public void setStagingQueueTimeout(Integer value) { stagingQueueTimeout = value; }
 
     public String getVolumeStagingManifest() { return volumeStagingManifest; }
     public void setVolumeStagingManifest(String value) { volumeStagingManifest = value; }

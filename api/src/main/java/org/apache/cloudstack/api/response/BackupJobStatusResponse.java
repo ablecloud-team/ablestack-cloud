@@ -60,6 +60,18 @@ public class BackupJobStatusResponse extends BaseResponse {
     @Param(description = "Number of volumes in the logical backup or restore")
     private Integer volumeCount;
 
+    @SerializedName("stagingqueue")
+    @Param(description = "Persisted staging admission and waiting reason for this operation")
+    private BackupStagingQueueResponse stagingQueue;
+
+    @SerializedName("vmrestore")
+    @Param(description = "VM primary volume transaction outcome, separate from external file restore jobs")
+    private BackupStagingInfoResponse.VmRestoreInfo vmRestore;
+
+    public void setVmRestore(BackupStagingInfoResponse.VmRestoreInfo value) { vmRestore = value; }
+
+    public void setStagingQueue(BackupStagingQueueResponse value) { stagingQueue = value; }
+
     public void setVolumeIndex(Integer value) { volumeIndex = value; }
     public void setVolumeCount(Integer value) { volumeCount = value; }
 
