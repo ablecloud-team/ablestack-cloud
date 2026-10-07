@@ -22,7 +22,44 @@ public final class EuropaSharedFSTemplateUpgrade {
     private EuropaSharedFSTemplateUpgrade() { }
     public static void migrate(Connection connection) {
         try (Statement statement=connection.createStatement()) {
-            statement.execute("CREATE TABLE IF NOT EXISTS cloud.storage_service_template_upgrade (\n  id bigint unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,\n  uuid varchar(40) NOT NULL,\n  instance_id bigint unsigned NOT NULL,\n  shared_filesystem_id bigint unsigned NOT NULL,\n  source_template_id bigint unsigned NOT NULL,\n  target_template_id bigint unsigned NOT NULL,\n  previous_root_volume_id bigint unsigned NOT NULL,\n  target_root_volume_id bigint unsigned DEFAULT NULL,\n  previous_guest_os_id bigint unsigned NOT NULL,\n  root_device_id bigint unsigned NOT NULL,\n  previous_vm_state varchar(32) NOT NULL,\n  state varchar(40) NOT NULL,\n  phase varchar(64) NOT NULL,\n  progress int NOT NULL DEFAULT 0,\n  revision bigint unsigned NOT NULL,\n  request_key varchar(191) NOT NULL,\n  operation_id bigint unsigned DEFAULT NULL,\n  snapshot_json LONGTEXT,\n  preflight_json MEDIUMTEXT,\n  verification_json MEDIUMTEXT,\n  rollback_result_json MEDIUMTEXT,\n  error_code varchar(128),\n  error_message TEXT,\n  created_by bigint unsigned NOT NULL,\n  started datetime DEFAULT NULL,\n  heartbeat datetime NOT NULL,\n  completed datetime DEFAULT NULL,\n  rollback_retain_until datetime DEFAULT NULL,\n  created datetime NOT NULL,\n  active_instance_id bigint unsigned GENERATED ALWAYS AS\n    (CASE WHEN state IN ('RUNNING','RECOVERY_REQUIRED') THEN instance_id ELSE NULL END) STORED,\n  UNIQUE KEY uk_storage_template_upgrade_uuid(uuid),\n  UNIQUE KEY uk_storage_template_upgrade_request(instance_id,request_key),\n  UNIQUE KEY uk_storage_template_upgrade_active(active_instance_id),\n  KEY idx_storage_template_upgrade_retention(rollback_retain_until),\n  KEY idx_storage_template_upgrade_scope(instance_id,created)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+            statement.execute("CREATE TABLE IF NOT EXISTS cloud.storage_service_template_upgrade ( "
+                    + "  id bigint unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY, "
+                    + "  uuid varchar(40) NOT NULL, "
+                    + "  instance_id bigint unsigned NOT NULL, "
+                    + "  shared_filesystem_id bigint unsigned NOT NULL, "
+                    + "  source_template_id bigint unsigned NOT NULL, "
+                    + "  target_template_id bigint unsigned NOT NULL, "
+                    + "  previous_root_volume_id bigint unsigned NOT NULL, "
+                    + "  target_root_volume_id bigint unsigned DEFAULT NULL, "
+                    + "  previous_guest_os_id bigint unsigned NOT NULL, "
+                    + "  root_device_id bigint unsigned NOT NULL, "
+                    + "  previous_vm_state varchar(32) NOT NULL, "
+                    + "  state varchar(40) NOT NULL, "
+                    + "  phase varchar(64) NOT NULL, "
+                    + "  progress int NOT NULL DEFAULT 0, "
+                    + "  revision bigint unsigned NOT NULL, "
+                    + "  request_key varchar(191) NOT NULL, "
+                    + "  operation_id bigint unsigned DEFAULT NULL, "
+                    + "  snapshot_json LONGTEXT, "
+                    + "  preflight_json MEDIUMTEXT, "
+                    + "  verification_json MEDIUMTEXT, "
+                    + "  rollback_result_json MEDIUMTEXT, "
+                    + "  error_code varchar(128), "
+                    + "  error_message TEXT, "
+                    + "  created_by bigint unsigned NOT NULL, "
+                    + "  started datetime DEFAULT NULL, "
+                    + "  heartbeat datetime NOT NULL, "
+                    + "  completed datetime DEFAULT NULL, "
+                    + "  rollback_retain_until datetime DEFAULT NULL, "
+                    + "  created datetime NOT NULL, "
+                    + "  active_instance_id bigint unsigned GENERATED ALWAYS AS "
+                    + "    (CASE WHEN state IN ('RUNNING','RECOVERY_REQUIRED') THEN instance_id ELSE NULL END) STORED, "
+                    + "  UNIQUE KEY uk_storage_template_upgrade_uuid(uuid), "
+                    + "  UNIQUE KEY uk_storage_template_upgrade_request(instance_id,request_key), "
+                    + "  UNIQUE KEY uk_storage_template_upgrade_active(active_instance_id), "
+                    + "  KEY idx_storage_template_upgrade_retention(rollback_retain_until), "
+                    + "  KEY idx_storage_template_upgrade_scope(instance_id,created) "
+                    + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ");
         } catch (java.sql.SQLException failure) {
             throw new CloudRuntimeException("Unable to apply SharedFS retained ROOT upgrade migration",failure);
         }
