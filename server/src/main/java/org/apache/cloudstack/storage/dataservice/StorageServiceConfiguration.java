@@ -434,13 +434,20 @@ public final class StorageServiceConfiguration {
         });
             // Native probe, exact desired/runtime verification and LKG promotion have all returned.
             metadata.addProperty("restoreState", "COMPLETE");metadata.addProperty("restoredAt", System.currentTimeMillis());
-            update(row, metadata, row.getState());return response(compactRow(row), row.getUuid());
+            updateRestoredArtifact(row, metadata);return response(compactRow(row), row.getUuid());
         } catch (RuntimeException failure) {
             metadata.addProperty("restoreState", "FAILED");
             metadata.addProperty("errorCode", "CONFIG_RESTORE_FAILED");
             update(row, metadata, row.getState());
             throw failure;
         }
+    }
+    void updateRestoredArtifact(StorageConfigArtifactVO stale, JsonObject metadata) {
+        StorageConfigArtifactVO current = artifacts.findById(stale.getId());
+        if (current == null || current.getInstanceId() != stale.getInstanceId()) throw new CloudRuntimeException("Restored artifact disappeared before completion");
+        // LKG promotion may have superseded the source point. Preserve its current lifecycle and expiry.
+        update(current, metadata, current.getState());
+        stale.setState(current.getState());stale.setExpires(current.getExpires());stale.setMetadataJson(current.getMetadataJson());
     }
     private StorageConfigRequest lastKnownGoodRequest(StorageServiceInstanceVO instance, StorageConfigRequest original) {
         StorageConfigArtifactVO point = artifacts.listByInstance(instance.getId()).stream()
