@@ -262,7 +262,9 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
                 cniConfig = substituteASNumber(cniConfig, asNumber);
             }
             cniConfig = Base64.encodeBase64String(cniConfig.getBytes(com.cloud.utils.StringUtils.getPreferredCharset()));
-            base64UserData = userDataManager.concatenateUserData(base64UserData, cniConfig, null);
+            String mergedCloudConfig = KubernetesCniUserData.mergeCloudConfig(base64UserData, cniConfig);
+            base64UserData = mergedCloudConfig != null ? mergedCloudConfig
+                    : userDataManager.concatenateUserData(base64UserData, cniConfig, null);
         }
         base64UserData = prepareKubernetesUserData(base64UserData);
 

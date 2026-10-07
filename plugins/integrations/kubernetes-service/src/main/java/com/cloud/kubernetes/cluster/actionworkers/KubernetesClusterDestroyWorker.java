@@ -473,9 +473,9 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
     }
 
     protected FirewallRuleVO findLiveCleanupRule(KubernetesOwnedResourceReceipt receipt) {
-        FirewallRuleVO rule = receipt.type == ResourceObjectType.LoadBalancer
-                ? loadBalancerDao.findById(receipt.id) : receipt.type == ResourceObjectType.PortForwardingRule
-                ? portForwardingRulesDao.findById(receipt.id) : firewallRulesDao.findById(receipt.id);
+        // The base firewall_rules row owns removal state. Joined LB/PF DAO rows
+        // can survive a normal deletion and must not claim a reused public IP.
+        FirewallRuleVO rule = firewallRulesDao.findById(receipt.id);
         return rule == null || rule.getRemoved() != null ? null : rule;
     }
 
@@ -626,8 +626,10 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
     protected void prepareServiceCleanupBeforeNodeRemoval() {
         kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "cleanup.status", "InProgress", true);
         kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "cleanup.phase", "ServiceLoadBalancers", true);
+        String failureStage = "NetworkAccess";
         try {
             requireCleanupNetworkAccess();
+            failureStage = "ServiceDeletionRequest";
             boolean online = executeServiceCleanup("request");
             if (!online && !ownershipCleanupEnabled()) {
                 throw new CloudRuntimeException("Kubernetes API/CCM cleanup unavailable without durable ownership; preserve nodes and retry after recovery");
@@ -637,22 +639,30 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
             }
             if (ownershipCleanupEnabled()) {
                 // Persist all receipts before the first mutation, including while API is unavailable.
+                failureStage = "OwnedResourceValidation";
                 recordOwnedNetworkResources(false);
                 if (!online) {
                     stopNodesForOfflineOwnedCleanup();
                 }
+                failureStage = "OwnedResourceCleanup";
                 cleanupOwnedNetworkResources(false);
+                failureStage = "ServiceFinalization";
                 if (online && !executeServiceCleanup("finalize")) {
                     throw new CloudRuntimeException("Owned Mold resources were cleaned but Service finalization failed; retry with nodes preserved");
                 }
             }
+            failureStage = "NativeAclCleanup";
             cleanupNativeAclResources();
+            failureStage = "NativeRuleCleanup";
             cleanupOwnedNetworkResources(true);
+            kubernetesClusterDetailsDao.removeDetail(kubernetesCluster.getId(), "cleanup.failure.stage");
             kubernetesClusterDetailsDao.removeDetail(kubernetesCluster.getId(), "cleanup.status");
             kubernetesClusterDetailsDao.removeDetail(kubernetesCluster.getId(), "cleanup.phase");
         } catch (Exception error) {
             kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "cleanup.status", "Blocked", true);
-            throw new CloudRuntimeException("Kubernetes Service cleanup blocked; nodes and receipts are preserved for retry", error);
+            kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "cleanup.failure.stage", failureStage, true);
+            throw new CloudRuntimeException("Kubernetes Service cleanup blocked at " + failureStage
+                    + "; nodes and receipts are preserved for retry", error);
         }
     }
 

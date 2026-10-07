@@ -26,6 +26,7 @@ import com.cloud.network.dao.LoadBalancerDao;
 import com.cloud.network.dao.LoadBalancerVO;
 import com.cloud.network.dao.NetworkVO;
 import com.cloud.network.rules.FirewallRuleVO;
+import com.cloud.network.dao.FirewallRulesDao;
 import com.cloud.server.ResourceTag.ResourceObjectType;
 import com.cloud.utils.exception.CloudRuntimeException;
 import org.junit.Test;
@@ -48,6 +49,7 @@ public class KubernetesDeletedRuleRetryTest {
         KubernetesClusterDestroyWorker w = new KubernetesClusterDestroyWorker(c, new KubernetesClusterManagerImpl());
         w.ipAddressDao = Mockito.mock(IPAddressDao.class);
         w.loadBalancerDao = Mockito.mock(LoadBalancerDao.class);
+        w.firewallRulesDao = Mockito.mock(FirewallRulesDao.class);
         IPAddressVO ip = Mockito.mock(IPAddressVO.class);
         Mockito.when(ip.getId()).thenReturn(8L);
         Mockito.when(ip.getUuid()).thenReturn(IP);
@@ -73,7 +75,7 @@ public class KubernetesDeletedRuleRetryTest {
         Mockito.when(rule.getAccountId()).thenReturn(13L);
         Mockito.when(rule.getNetworkId()).thenReturn(9L);
         Mockito.when(rule.getSourceIpAddressId()).thenReturn(8L);
-        Mockito.when(w.loadBalancerDao.findById(7L)).thenReturn(rule);
+        Mockito.when(w.firewallRulesDao.findById(7L)).thenReturn(rule);
         return rule;
     }
     @Test
@@ -89,6 +91,15 @@ public class KubernetesDeletedRuleRetryTest {
         Mockito.when(rule.getRemoved()).thenReturn(new Date());
         w.validateOwnedResource(receipt(OLD), network());
         assertNull(w.findLiveCleanupRule(receipt(OLD)));
+    }
+    @Test
+    public void leftoverJoinedLbRowCannotResurrectDeletedBaseRule() {
+        KubernetesClusterDestroyWorker w = worker();
+        LoadBalancerVO leftover = Mockito.mock(LoadBalancerVO.class);
+        Mockito.when(w.loadBalancerDao.findById(7L)).thenReturn(leftover);
+        w.validateOwnedResource(receipt(OLD), network());
+        assertNull(w.findLiveCleanupRule(receipt(OLD)));
+        Mockito.verifyNoInteractions(w.loadBalancerDao);
     }
     @Test
     public void liveOldGenerationRuleStillBlocksBeforeMutation() {
