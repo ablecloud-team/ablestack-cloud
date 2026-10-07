@@ -1034,6 +1034,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                             if (!result.isSuccess()) throw new CloudRuntimeException("Storage Service resource preflight failed: " + result.getDetails());
                         }
                     }
+                    public void prepareNativeCheckpoint(StorageServiceOperationVO operation) {
+                        if (StorageServiceInstance.StorageServiceVerifiedConfigurationEnabled.value() && instance.getVmId() != null
+                                && (protocol == StorageServiceInstance.Protocol.SMB || protocol == StorageServiceInstance.Protocol.ISCSI
+                                    || protocol == StorageServiceInstance.Protocol.NVME_OF)) checkpointConfigurationIdentity(instance);
+                    }
                     public void promoteVerifiedConfiguration(StorageServiceOperationVO operation) {
                         if (instance.getVmId() != null && StorageServiceInstance.StorageServiceVerifiedConfigurationEnabled.value()) new StorageServiceConfiguration(StorageServiceManagerImpl.this, storageConfigArtifactDao, storageOperationDao)
                                 .promoteVerified(instance, operation);
