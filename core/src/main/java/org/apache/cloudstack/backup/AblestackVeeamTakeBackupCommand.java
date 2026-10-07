@@ -29,6 +29,7 @@ import java.util.Map;
 public class AblestackVeeamTakeBackupCommand extends Command {
     private String vmName;
     private String volumeStagingManifest;
+    private String volumeBackupStartPlan;
     private Integer stagingBufferPercent;
     private Integer stagingQueueTimeout;
 
@@ -37,6 +38,8 @@ public class AblestackVeeamTakeBackupCommand extends Command {
 
     public String getVolumeStagingManifest() { return volumeStagingManifest; }
     public void setVolumeStagingManifest(String value) { volumeStagingManifest = value; }
+    public String getVolumeBackupStartPlan() { return volumeBackupStartPlan; }
+    public void setVolumeBackupStartPlan(String value) { volumeBackupStartPlan = value; }
     public Integer getStagingBufferPercent() { return stagingBufferPercent; }
     public void setStagingBufferPercent(Integer value) { stagingBufferPercent = value; }
     private String backupJobId;

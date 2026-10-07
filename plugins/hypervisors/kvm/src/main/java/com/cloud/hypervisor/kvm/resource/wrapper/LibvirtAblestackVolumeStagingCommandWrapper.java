@@ -43,6 +43,11 @@ public class LibvirtAblestackVolumeStagingCommandWrapper
                 return new Answer(command, false, "Invalid volume staging job ID");
             }
             Path directory = Path.of(AblestackBackupFrameworkUtils.ASYNC_BACKUP_JOB_ROOT, id);
+            if (java.util.Set.of("BACKUP_START_PREPARE", "BACKUP_START_STATUS", "BACKUP_START_ABORT").contains(command.getAction())) {
+                var plan = new Gson().fromJson(command.getManifest(), org.apache.cloudstack.backup.ThirdPartyBackupStart.Plan.class);
+                if (plan == null || !id.equals(plan.jobId)) { return new Answer(command, false, "Start control belongs to another backup"); }
+                return new Answer(command, true, new Gson().toJson(LibvirtAblestackBackupStartHelper.control(plan, command.getAction(), logger)));
+            }
             if ("RESTORE_RESULT".equals(command.getAction())) {
                 var result = LibvirtAblestackRestoreOutcome.read(id);
                 return new Answer(command, result != null, result == null ? "VM restore transaction result is not recorded" : new Gson().toJson(result));
@@ -94,26 +99,69 @@ public class LibvirtAblestackVolumeStagingCommandWrapper
                 var capacity = new Gson().fromJson(output, org.apache.cloudstack.backup.ThirdPartyBackupAdmission.PrimaryCapacity.class);
                 return new Answer(command, capacity != null && id.equals(capacity.jobId), output);
             }
+            if ("FINALIZE_BACKUP".equals(command.getAction())) {
+                String state = LibvirtAblestackAsyncBackupRunner.getJobState(id, logger);
+                if (!java.util.Set.of("COMPLETED", "FAILED", "INTERRUPTED", "CANCELED").contains(state)) {
+                    return new Answer(command, false, "Source backup engine is active or its termination is unconfirmed");
+                }
+                ThirdPartyBackupManifest manifest = ThirdPartyBackupManifest.fromJson(command.getManifest());
+                manifest.validate(true);
+                Path plan = directory.resolve("volume-plan.json");
+                Path script = Path.of(resource.getAbleCvtBackupPath()).getParent().resolve("thirdparty_volume_backup.py");
+                if (!id.equals(manifest.getBackupUuid()) || !Files.isRegularFile(plan) || !Files.isRegularFile(script)) {
+                    return new Answer(command, false, "Completed backup plan ownership or finalization helper is unconfirmed");
+                }
+                String attempt = java.util.UUID.randomUUID().toString();
+                Path completedManifest = directory.resolve("volume-finalization-manifest-" + attempt + ".json");
+                LibvirtAblestackVolumeRestoreHelper.atomic(completedManifest, manifest.toJson());
+                Path resultFile = directory.resolve("volume-finalization-result-" + attempt + ".json");
+                String output = com.cloud.utils.script.Script.runSimpleBashScriptWithFullResult("python3 " + quote(script.toString())
+                        + " --plan-file " + quote(plan.toString()) + " --action finalize --completed-manifest-file "
+                        + quote(completedManifest.toString()) + " --result-file " + quote(resultFile.toString()), 300000);
+                Files.deleteIfExists(completedManifest);
+                Files.writeString(directory.resolve("volume-finalization.log"), output == null ? "Finalization helper returned no output" : output);
+                if (Files.isRegularFile(resultFile)) {
+                    var result = new Gson().fromJson(Files.readString(resultFile), com.google.gson.JsonObject.class);
+                    Files.deleteIfExists(resultFile);
+                    if (result != null && result.has("version") && result.get("version").getAsInt() == 1
+                            && result.has("backupUuid") && id.equals(result.get("backupUuid").getAsString())
+                            && result.has("state") && "COMPLETED".equals(result.get("state").getAsString())) {
+                        LibvirtAblestackAsyncBackupRunner.markVolumeBackupFinalized(id, logger);
+                        return new Answer(command, true, "Host finalization completed; current source checkpoint is retained");
+                    }
+                }
+                String reason = output == null ? "Host finalization helper returned no output" : java.util.Arrays.stream(output.split("\\r?\\n"))
+                        .filter(line -> line.startsWith("RuntimeError:")).reduce((previous, current) -> current)
+                        .orElse("Host finalization is pending; inspect " + directory.resolve("volume-finalization.log"));
+                return new Answer(command, false, reason);
+            }
             if ("CLEANUP_COMPLETED".equals(command.getAction())) {
                 if (!"COMPLETED".equals(LibvirtAblestackAsyncBackupRunner.getJobState(id, logger))) {
                     return new Answer(command, false, "Source backup completion is unconfirmed");
                 }
                 ThirdPartyBackupManifest manifest = ThirdPartyBackupManifest.fromJson(command.getManifest());
                 Path plan = directory.resolve("volume-plan.json");
-                @SuppressWarnings("unchecked")
-                Map<String, Object> source = new Gson().fromJson(Files.readString(plan), Map.class);
-                if (!id.equals(manifest.getBackupUuid()) || !id.equals(((Map<?, ?>) source.get("manifest")).get("backupUuid"))) {
+                var source = new Gson().fromJson(Files.readString(plan), com.google.gson.JsonObject.class);
+                if (!id.equals(manifest.getBackupUuid()) || source == null || !source.has("manifest")
+                        || !source.get("manifest").isJsonObject() || !source.getAsJsonObject("manifest").has("backupUuid")
+                        || !id.equals(source.getAsJsonObject("manifest").get("backupUuid").getAsString())) {
                     return new Answer(command, false, "Source cleanup belongs to another backup");
                 }
                 Path script = Path.of(resource.getAbleCvtBackupPath()).getParent().resolve("thirdparty_volume_backup.py");
                 com.cloud.utils.script.Script.runSimpleBashScriptWithFullResult("python3 " + quote(script.toString())
                         + " --plan-file " + quote(plan.toString()) + " --action cleanup-completed", 300000);
                 String result = Files.readString(directory.resolve("source-cleanup.json"));
-                @SuppressWarnings("unchecked")
-                Map<String, Object> cleanup = new Gson().fromJson(result, Map.class);
-                return new Answer(command, "COMPLETED".equals(cleanup.get("state")) && id.equals(cleanup.get("backupUuid")), result);
+                return new Answer(command, LibvirtAblestackAsyncBackupRunner.sourceCleanupCompleted(directory, id, source), result);
             }
-            if ("CLEANUP_FAILED".equals(command.getAction())) {
+            if ("SOURCE_START_STATUS".equals(command.getAction())) {
+                String state = LibvirtAblestackAsyncBackupRunner.getJobState(id, logger);
+                if (!java.util.Set.of("COMPLETED", "FAILED", "INTERRUPTED", "CANCELED").contains(state)) {
+                    return new Answer(command, false, "Source engine termination is unconfirmed");
+                }
+                return new Answer(command, true, new Gson().toJson(Map.of(
+                        "version", 1, "backupUuid", id, "state", sourceStartState(directory, id))));
+            }
+            if (java.util.Set.of("CLEANUP_FAILED", "CLEANUP_UNSTARTED").contains(command.getAction())) {
                 String state = LibvirtAblestackAsyncBackupRunner.getJobState(id, logger);
                 if (!java.util.Set.of("COMPLETED", "FAILED", "INTERRUPTED", "CANCELED").contains(state)) {
                     return new Answer(command, false, "Backup engine is active or unconfirmed");
@@ -125,9 +173,15 @@ public class LibvirtAblestackVolumeStagingCommandWrapper
                 }
                 ThirdPartyBackupManifest manifest = ThirdPartyBackupManifest.fromJson(command.getManifest());
                 if (!id.equals(manifest.getBackupUuid())) { return new Answer(command, false, "Cleanup belongs to another backup"); }
+                boolean unstarted = "CLEANUP_UNSTARTED".equals(command.getAction());
+                if (unstarted && (!"NOT_STARTED".equals(sourceStartState(directory, id))
+                        || manifest.getOwnedArtifacts().stream().anyMatch(artifact -> artifact.submissionPending || artifact.completed
+                                || artifact.submittedAt > 0 || artifact.size > 0 || artifact.jobId != null || artifact.externalId != null))) {
+                    return new Answer(command, false, "Unstarted cleanup lacks proof or conflicts with an external transfer");
+                }
                 Files.deleteIfExists(directory.resolve("volume-cleanup.json"));
                 String output = com.cloud.utils.script.Script.runSimpleBashScriptWithFullResult("python3 " + quote(script.toString())
-                        + " --plan-file " + quote(plan.toString()) + " --action cleanup", 300000);
+                        + " --plan-file " + quote(plan.toString()) + " --action " + (unstarted ? "cleanup-unstarted" : "cleanup"), 300000);
                 Files.writeString(directory.resolve("volume-cleanup.log"), output == null ? "Cleanup helper returned no output" : output);
                 String reason = output == null ? "Cleanup helper returned no output" : java.util.Arrays.stream(output.split("\\r?\\n"))
                         .filter(line -> line.startsWith("RuntimeError:")).reduce((previous, current) -> current)
@@ -155,12 +209,27 @@ public class LibvirtAblestackVolumeStagingCommandWrapper
                 if (Files.exists(reservation)) {
                     return new Answer(command, false, "Backup engine cleanup retained its staging reservation; reconcile it before deleting artifacts");
                 }
+                if (!Files.isRegularFile(Path.of(AblestackBackupFrameworkUtils.STAGING_ADMISSION_CLOSED_ROOT, id + ".closed"))) {
+                    return new Answer(command, false, "Durable staging admission closure is unconfirmed; reconcile cleanup before deleting job records");
+                }
                 return new Answer(command, true, "Volume backup engine no longer reserves staging capacity");
             }
             if (!Files.isDirectory(directory)) {
                 return new Answer(command, false, "Volume staging job does not exist");
             }
             if (command.getAction().startsWith("RESTORE_")) {
+                if ("RESTORE_CANCEL".equals(command.getAction())) {
+                    org.apache.cloudstack.backup.ThirdPartyBackupRestore.Plan expected = new Gson().fromJson(command.getManifest(),
+                            org.apache.cloudstack.backup.ThirdPartyBackupRestore.Plan.class);
+                    Path saved = directory.resolve("volume-restore-plan.json");
+                    if (expected == null || !id.equals(expected.jobId) || !Files.isRegularFile(saved)
+                            || !new Gson().toJson(expected).equals(new Gson().toJson(new Gson().fromJson(Files.readString(saved),
+                                    org.apache.cloudstack.backup.ThirdPartyBackupRestore.Plan.class)))) {
+                        return new Answer(command, false, "Cancellation differs from the initialized restore plan");
+                    }
+                    LibvirtAblestackVolumeRestoreHelper.atomic(directory.resolve("volume-restore-cancel"), "Queued restore cancellation requested\n");
+                    return new Answer(command, true, "Restore cancellation recorded; termination and cleanup must still be confirmed");
+                }
                 if ("RESTORE_PRIMARY_CAPACITY".equals(command.getAction())) {
                     return new Answer(command, true, new Gson().toJson(LibvirtAblestackPrimaryRestoreCapacity.query(resource, directory)));
                 }
@@ -252,10 +321,18 @@ public class LibvirtAblestackVolumeStagingCommandWrapper
                 return new Answer(command, true, Files.isRegularFile(request) ? Files.readString(request) : "");
             }
             if ("START".equals(command.getAction())) {
-                if (!Files.isRegularFile(request) || !Boolean.TRUE.equals(new Gson().fromJson(Files.readString(request), Map.class).get("gate"))) {
+                if (!java.util.Set.of("STARTED", "STARTING", "RUNNING").contains(LibvirtAblestackAsyncBackupRunner.getJobState(id, logger))
+                        || Files.exists(directory.resolve("volume-cancel")) || Files.exists(directory.resolve("staging-admission-cancel"))
+                        || Files.exists(directory.resolve("staging-admission-closed"))
+                        || Files.exists(Path.of(AblestackBackupFrameworkUtils.STAGING_ADMISSION_CLOSED_ROOT, id + ".closed"))) {
+                    return new Answer(command, false, "Source engine is stopped or cancellation is pending");
+                }
+                @SuppressWarnings("unchecked")
+                Map<String, Object> gate = Files.isRegularFile(request) ? new Gson().fromJson(Files.readString(request), Map.class) : null;
+                if (gate == null || !Boolean.TRUE.equals(gate.get("gate")) || !id.equals(gate.get("backupUuid"))) {
                     return new Answer(command, false, "Source preparation is not pending");
                 }
-                Files.writeString(directory.resolve("volume-start"), "start\n");
+                LibvirtAblestackVolumeRestoreHelper.atomic(directory.resolve("volume-start"), "start\n");
                 return new Answer(command, true, "Source preparation acknowledged");
             }
             if (!"ACK".equals(command.getAction()) || command.getIndex() < 0 || !Files.isRegularFile(request)) {
@@ -322,6 +399,24 @@ public class LibvirtAblestackVolumeStagingCommandWrapper
             }
         }
         return new Answer(command, false, "NetBackup restore operation could not be confirmed; inspect its saved submission receipt");
+    }
+
+    private String sourceStartState(Path directory, String id) throws java.io.IOException {
+        Path receipt = directory.resolve("volume-source-start.json");
+        Path plan = directory.resolve("volume-plan.json");
+        if (!Files.isRegularFile(receipt) || !Files.isRegularFile(plan)) { return "UNKNOWN"; }
+        @SuppressWarnings("unchecked")
+        Map<String, Object> source = new Gson().fromJson(Files.readString(plan), Map.class);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> recorded = new Gson().fromJson(Files.readString(receipt), Map.class);
+        if (source == null || !(source.get("manifest") instanceof Map) || recorded == null
+                || !id.equals(((Map<?, ?>) source.get("manifest")).get("backupUuid"))
+                || !id.equals(recorded.get("backupUuid")) || !(recorded.get("version") instanceof Number)
+                || ((Number) recorded.get("version")).doubleValue() != 1
+                || !("NOT_STARTED".equals(recorded.get("state")) || "STARTED".equals(recorded.get("state")))) {
+            return "UNKNOWN";
+        }
+        return (String) recorded.get("state");
     }
 
     private static String quote(String value) { return "'" + value.replace("'", "'\"'\"'") + "'"; }

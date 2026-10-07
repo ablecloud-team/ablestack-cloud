@@ -25,13 +25,13 @@ import org.apache.cloudstack.backup.ThirdPartyBackupAdmission;
 public class BackupStagingQueueResponse {
     @SerializedName("stagingjobid") @Param(description = "Exact staging attempt ID") private String jobId;
     @SerializedName("operation") @Param(description = "BACKUP or RESTORE") private String operation;
-    @SerializedName("state") @Param(description = "WAITING, ADMITTING, ADMITTED, CANCEL_REQUESTED or RELEASED") private String state;
+    @SerializedName("state") @Param(description = "WAITING, ADMITTING, ADMITTED, CANCEL_PENDING, CANCEL_REQUESTED or RELEASED") private String state;
     @SerializedName("reason") @Param(description = "Capacity, concurrency, timeout or cancellation reason") private String reason;
     @SerializedName("queuedat") @Param(description = "Time of queue admission") private Date queuedAt;
     @SerializedName("deadline") @Param(description = "Deadline for waiting; never expires an active reservation") private Date deadline;
     @SerializedName("requiredbytes") @Param(description = "Staging bytes including buffer and shared primary scratch") private long requiredBytes;
     @SerializedName("effectiveavailablebytes") @Param(description = "Available staging bytes after active reservations at the last capacity check") private long effectiveAvailableBytes;
-    @SerializedName("primarystorage") @Param(description = "Primary restore storage claims, held while admission is ADMITTING or ADMITTED")
+    @SerializedName("primarystorage") @Param(description = "Primary storage claims, held while admission is ADMITTING, ADMITTED or CANCEL_PENDING")
     private java.util.List<PrimaryStorageResponse> primaryStorage;
 
     public static class PrimaryStorageResponse {

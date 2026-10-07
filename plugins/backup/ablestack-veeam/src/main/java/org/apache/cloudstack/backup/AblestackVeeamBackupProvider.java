@@ -336,6 +336,7 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
         }
 
         final BackupVO backupVO = createBackupObject(vm, vmHost.getId(), backupPath, requestedBackupType, backupDetails);
+        boolean planPersisted = false;
         try {
             backupVO.setBackedUpVolumes(createVolumeInfoFromVolumes(vmVolumes, backupFiles));
             final ThirdPartyBackupManifest manifest = ThirdPartyBackupManifest.create(getName(), backupVO.getUuid(), vm.getInstanceName(),
@@ -344,9 +345,8 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
                     incrementalBackup ? getBackupDetail(latestBackup, DETAIL_CHECKPOINT_NAME) : null);
             backupVO.getDetails().put(ThirdPartyBackupManifest.MODE_KEY, ThirdPartyBackupManifest.VOLUME_MODE);
             backupVO.getDetails().put(ThirdPartyBackupManifest.DETAIL_KEY, manifest.toJson());
-            if (!backupDao.update(backupVO.getId(), backupVO)) {
-                throw new CloudRuntimeException("Unable to persist the volume backup plan");
-            }
+            thirdPartyBackupVolumeService.persistBackupPlan(backupVO);
+            planPersisted = true;
             LOG.info("{} phase=[BEGIN], backupId=[{}], backupUuid=[{}], vmId=[{}], vmName=[{}], backupType=[{}], backupEngine=[{}], backupPath=[{}], host=[{}]",
                     BACKUP_TRACE, backupVO.getId(), backupVO.getUuid(), vm.getId(), vm.getInstanceName(), requestedBackupType, backupEngine,
                     backupPath, vmHost != null ? vmHost.getName() : null);
@@ -375,45 +375,28 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
                 command.setParentCheckpointXmlChain(getParentCheckpointXmlChain(latestBackup));
             }
 
-            final BackupAnswer answer = (BackupAnswer) agentManager.send(vmHost.getId(), command);
-            if (answer != null && answer.getResult()) {
-                thirdPartyBackupVolumeService.track(backupVO, vmHost, volumeTransfer(vm, backupVO, vmHost));
-                LOG.info("{} phase=[STAGING_STARTED], backupId=[{}], backupUuid=[{}], vmId=[{}], vmName=[{}], backupType=[{}], "
-                                + "backupEngine=[{}], backupPath=[{}]",
-                        BACKUP_TRACE, backupVO.getId(), backupVO.getUuid(), vm.getId(), vm.getInstanceName(), requestedBackupType,
-                        backupEngine, backupPath);
+            thirdPartyBackupVolumeService.dispatchBackup(backupVO, vmHost, command, volumeTransfer(vm, backupVO, vmHost));
+            LOG.info("Volume backup start submitted for reconciliation, backup [{}], VM [{}]", backupVO.getUuid(), vm.getInstanceName());
+            return BackupExecutionResult.success(backupVO);
+        } catch (RuntimeException e) {
+            if (planPersisted) {
+                // Persisted intent owns this attempt even when command construction or dispatch confirmation fails.
+                // Do not delete it, force cleanup or launch a Full retry while the Host outcome is unknown.
+                try {
+                    thirdPartyBackupVolumeService.recordBackupStartUnconfirmed(backupVO, e.getMessage());
+                    thirdPartyBackupVolumeService.track(backupVO, vmHost, volumeTransfer(vm, backupVO, vmHost));
+                } catch (RuntimeException trackingFailure) {
+                    LOG.warn("Backup start tracking will resume during provider reconciliation [{}]", backupVO.getUuid(), trackingFailure);
+                }
+                LOG.warn("Backup start is unconfirmed [{}]; the same attempt is retained", backupVO.getUuid(), e);
                 return BackupExecutionResult.success(backupVO);
             }
-
-            final String details = answer != null ? answer.getDetails() : "No answer received";
-            LOG.error("{} phase=[AGENT_FAILED], backupId=[{}], backupUuid=[{}], vmId=[{}], vmName=[{}], backupType=[{}], backupEngine=[{}], details=[{}]",
-                    BACKUP_TRACE, backupVO.getId(), backupVO.getUuid(), vm.getId(), vm.getInstanceName(), requestedBackupType, backupEngine, details);
-            markBackupFailure(backupVO, "agent-answer", details);
-            final boolean cleanupSuccessful = cleanupFailedBackupArtifacts(vmHost, backupVO);
-            backupVO.setStatus(cleanupSuccessful ? Backup.Status.Failed : Backup.Status.Error);
-            backupDao.update(backupVO.getId(), backupVO);
-            return BackupExecutionResult.failure(details, backupVO);
-        } catch (final AgentUnavailableException e) {
-            markBackupFailure(backupVO, "agent-send", "Unable to contact backend control plane to initiate Veeam backup");
+            // No Host command can be sent before the initial plan is durably persisted.
+            backupVO.getDetails().remove(ThirdPartyBackupManifest.MODE_KEY);
+            backupVO.getDetails().remove(ThirdPartyBackupManifest.DETAIL_KEY);
+            markBackupFailure(backupVO, "backup-plan", e.getMessage());
             backupVO.setStatus(Backup.Status.Failed);
             backupDao.update(backupVO.getId(), backupVO);
-            throw new CloudRuntimeException("Unable to contact backend control plane to initiate Veeam backup", e);
-        } catch (final OperationTimedoutException e) {
-            markBackupFailure(backupVO, "agent-send-timeout", "Operation to initiate Veeam backup timed out");
-            backupVO.setStatus(Backup.Status.Failed);
-            backupDao.update(backupVO.getId(), backupVO);
-            throw new CloudRuntimeException("Operation to initiate Veeam backup timed out, please try again", e);
-        } catch (final RuntimeException e) {
-            markBackupFailure(backupVO, "unexpected-runtime", e.getMessage());
-            try {
-                final Backup existingBackup = backupDao.findById(backupVO.getId());
-                if (existingBackup != null) {
-                    backupVO.setStatus(Backup.Status.Failed);
-                    backupDao.update(backupVO.getId(), backupVO);
-                }
-            } catch (final Exception cleanupException) {
-                LOG.warn("Failed to cleanup incomplete Veeam backup entry [{}]", backupVO.getUuid(), cleanupException);
-            }
             throw e;
         }
     }
@@ -2448,7 +2431,7 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
                 && java.util.Set.of(Backup.Status.Failed, Backup.Status.Error, Backup.Status.Canceled).contains(backup.getStatus())
                 && StringUtils.isBlank(getBackupDetail(backup, ThirdPartyBackupManifest.CATALOG_FAILURE_KEY))
                 && StringUtils.isBlank(getBackupDetail(backup, ThirdPartyBackupManifest.DELETE_PROGRESS_KEY))
-                && !"COMPLETED".equals(getBackupDetail(backup, ThirdPartyBackupManifest.CLEANUP_STATE_KEY));
+                && ThirdPartyBackupVolumeService.needsBackupCleanup(backup);
         if (!isVeeamBackup(backup) || (!Backup.Status.BackingUp.equals(backup.getStatus()) && !failedVolume)) {
             return false;
         }
@@ -2462,7 +2445,7 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
                     && java.util.Set.of(Backup.Status.Failed, Backup.Status.Error, Backup.Status.Canceled).contains(backup.getStatus())
                     && StringUtils.isBlank(getBackupDetail(backup, ThirdPartyBackupManifest.CATALOG_FAILURE_KEY))
                     && StringUtils.isBlank(getBackupDetail(backup, ThirdPartyBackupManifest.DELETE_PROGRESS_KEY))
-                    && !"COMPLETED".equals(getBackupDetail(backup, ThirdPartyBackupManifest.CLEANUP_STATE_KEY));
+                    && ThirdPartyBackupVolumeService.needsBackupCleanup(backup);
             if ((!Backup.Status.BackingUp.equals(backup.getStatus()) && !failedVolume) || !isVeeamBackup(backup)) {
                 continue;
             }
@@ -2644,6 +2627,12 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
     }
 
     private Host findBackupJobHost(final Backup backup, final VirtualMachine vm) {
+        if (backup != null) {
+            loadBackupDetailsIfNeeded(backup);
+            if (ThirdPartyBackupManifest.VOLUME_MODE.equals(getBackupDetail(backup, ThirdPartyBackupManifest.MODE_KEY))) {
+                return thirdPartyBackupVolumeService.getWorkerHost(backup, "BACKUP");
+            }
+        }
         final Long backupJobHostId = getBackupJobHostId(backup);
         if (backupJobHostId != null) {
             final HostVO host = hostDao.findById(backupJobHostId);
@@ -2713,7 +2702,9 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
         fullBackupVO.setName(failedBackup.getName());
         fullBackupVO.setDescription(failedBackup.getDescription());
         backupDao.update(fullBackupVO.getId(), fullBackupVO);
-        if (Boolean.parseBoolean(getBackupDetail(failedBackup, AblestackBackupFrameworkUtils.RESOURCE_COUNT_PENDING_DETAIL))) {
+        backupDao.loadDetails(fullBackupVO);
+        if (!ThirdPartyBackupManifest.VOLUME_MODE.equals(getBackupDetail(fullBackupVO, ThirdPartyBackupManifest.MODE_KEY))
+                && Boolean.parseBoolean(getBackupDetail(failedBackup, AblestackBackupFrameworkUtils.RESOURCE_COUNT_PENDING_DETAIL))) {
             updateBackupDetail(fullBackupVO, AblestackBackupFrameworkUtils.RESOURCE_COUNT_PENDING_DETAIL, Boolean.TRUE.toString());
         }
     }
@@ -2767,6 +2758,11 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
                 continue;
             }
             loadBackupDetailsIfNeeded(backup);
+            if (ThirdPartyBackupManifest.VOLUME_MODE.equals(getBackupDetail(backup, ThirdPartyBackupManifest.MODE_KEY))) {
+                // Volume jobs retain their plan, reservations and external references until the
+                // common coordinator confirms termination and cleanup, regardless of their age.
+                continue;
+            }
             LOG.warn("Removing stale Veeam backup [{}] for VM [{}] stuck in BackingUp for over one day. "
                             + "Veeam post notify may have failed before the backup was finalized. "
                             + "Check Veeam catalog and host staging before removal if recovery is required. "

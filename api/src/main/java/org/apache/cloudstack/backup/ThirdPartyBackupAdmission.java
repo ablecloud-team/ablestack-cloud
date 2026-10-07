@@ -17,7 +17,7 @@
 
 package org.apache.cloudstack.backup;
 
-/** Persisted queue entry; uncertain admission occupies a slot until Host reconciliation. */
+/** Persisted queue entry; uncertain admission or queued cancellation holds a slot until Host cleanup. */
 public final class ThirdPartyBackupAdmission {
     public static final String INSPECTION_BACKUP_KEY = "thirdparty.staging.manual.inspection.BACKUP";
     public static final String INSPECTION_RESTORE_KEY = "thirdparty.staging.manual.inspection.RESTORE";
@@ -44,7 +44,7 @@ public final class ThirdPartyBackupAdmission {
         public long capacityCheckedAt;
         public java.util.List<PrimaryClaim> primaryClaims = new java.util.ArrayList<>();
 
-        public boolean occupiesSlot() { return "ADMITTING".equals(state) || "ADMITTED".equals(state); }
+        public boolean occupiesSlot() { return "ADMITTING".equals(state) || "ADMITTED".equals(state) || "CANCEL_PENDING".equals(state); }
     }
 
     /** Physical storage identity, independent of CloudStack pool aliases and Host mount paths. */

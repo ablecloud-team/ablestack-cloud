@@ -40,6 +40,10 @@ public class ThirdPartyBackupManifest {
     public static final String CLEANUP_DETAILS_KEY = "thirdparty.volume.cleanup.details";
     public static final String SOURCE_CLEANUP_STATE_KEY = "thirdparty.volume.source.cleanup.state";
     public static final String SOURCE_CLEANUP_DETAILS_KEY = "thirdparty.volume.source.cleanup.details";
+    public static final String JOB_CLEANUP_STATE_KEY = "thirdparty.volume.job.cleanup.state";
+    public static final String JOB_CLEANUP_DETAILS_KEY = "thirdparty.volume.job.cleanup.details";
+    public static final String FINALIZATION_STATE_KEY = "thirdparty.volume.finalization.state";
+    public static final String FINALIZATION_DETAILS_KEY = "thirdparty.volume.finalization.details";
 
     /** A failed query keeps the last confirmed inventory; it is never evidence of expiration. */
     public static class Catalog {
@@ -99,6 +103,19 @@ public class ThirdPartyBackupManifest {
     public String toJson() {
         validate(false);
         return new Gson().toJson(this);
+    }
+
+    /** Durable exact catalog references prove transfer completion even without a Host response. */
+    public static boolean hasCompletedTransfers(Backup backup) {
+        if (backup == null || !VOLUME_MODE.equals(backup.getDetail(MODE_KEY))) { return false; }
+        try {
+            ThirdPartyBackupManifest manifest = fromJson(backup.getDetail(DETAIL_KEY));
+            manifest.validate(true);
+            return backup.getUuid().equals(manifest.backupUuid)
+                    && manifest.getOwnedArtifacts().stream().allMatch(artifact -> backup.getUuid().equals(artifact.backupUuid));
+        } catch (RuntimeException e) {
+            return false;
+        }
     }
 
     /** Added, removed, resized or replaced disks require a new Full chain. */

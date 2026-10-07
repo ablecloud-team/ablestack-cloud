@@ -21,8 +21,11 @@ import com.cloud.utils.db.SearchBuilder;
 import com.cloud.utils.db.SearchCriteria;
 import com.cloud.utils.db.Transaction;
 import com.cloud.utils.db.TransactionCallback;
+import org.apache.cloudstack.backup.AblestackBackupFrameworkUtils;
 import org.apache.cloudstack.backup.ThirdPartyBackupAdmission;
+import org.apache.cloudstack.backup.ThirdPartyBackupManifest;
 import org.apache.cloudstack.backup.ThirdPartyBackupRestore;
+import org.apache.cloudstack.backup.ThirdPartyBackupStart;
 import org.apache.cloudstack.backup.BackupDetailVO;
 import org.apache.cloudstack.resourcedetail.ResourceDetailsDaoBase;
 import org.springframework.stereotype.Component;
@@ -38,6 +41,17 @@ public class BackupDetailsDaoImpl extends ResourceDetailsDaoBase<BackupDetailVO>
     private static final String BACKUP_ID = "backup_id";
 
     private static final String KEY = "key";
+    private static final java.util.Set<String> COORDINATOR_DETAIL_KEYS = java.util.Set.of(
+            AblestackBackupFrameworkUtils.RESOURCE_COUNT_PENDING_DETAIL,
+            ThirdPartyBackupStart.DETAIL_KEY,
+            ThirdPartyBackupAdmission.BACKUP_KEY, ThirdPartyBackupAdmission.RESTORE_KEY,
+            ThirdPartyBackupAdmission.INSPECTION_BACKUP_KEY, ThirdPartyBackupAdmission.INSPECTION_RESTORE_KEY,
+            ThirdPartyBackupRestore.PLAN_KEY, ThirdPartyBackupRestore.TRANSFER_KEY,
+            ThirdPartyBackupRestore.CLEANUP_STATE_KEY, ThirdPartyBackupRestore.CLEANUP_DETAILS_KEY,
+            ThirdPartyBackupManifest.CLEANUP_STATE_KEY, ThirdPartyBackupManifest.CLEANUP_DETAILS_KEY,
+            ThirdPartyBackupManifest.SOURCE_CLEANUP_STATE_KEY, ThirdPartyBackupManifest.SOURCE_CLEANUP_DETAILS_KEY,
+            ThirdPartyBackupManifest.JOB_CLEANUP_STATE_KEY, ThirdPartyBackupManifest.JOB_CLEANUP_DETAILS_KEY,
+            ThirdPartyBackupManifest.FINALIZATION_STATE_KEY, ThirdPartyBackupManifest.FINALIZATION_DETAILS_KEY);
 
     @PostConstruct
     protected void init() {
@@ -68,26 +82,17 @@ public class BackupDetailsDaoImpl extends ResourceDetailsDaoBase<BackupDetailVO>
     @Override
     public void saveDetails(java.util.List<BackupDetailVO> details) {
         if (details.isEmpty()) { return; }
-        // Admission and restore records belong to their coordinators. A stale provider
-        // BackupVO must not overwrite reservations, requests or earlier transfer results.
+        // Resource accounting, admission, restore and source cleanup belong to their coordinators.
+        // A stale provider BackupVO must not overwrite reservations, requests,
+        // earlier transfer results or snapshot cleanup retries.
         Transaction.execute((TransactionCallback<Boolean>) status -> {
             SearchCriteria<BackupDetailVO> sc = ordinaryDetailsSearch.create();
             sc.setParameters(BACKUP_ID, details.get(0).getResourceId());
-            sc.setParameters(KEY, ThirdPartyBackupAdmission.BACKUP_KEY, ThirdPartyBackupAdmission.RESTORE_KEY,
-                    ThirdPartyBackupAdmission.INSPECTION_BACKUP_KEY, ThirdPartyBackupAdmission.INSPECTION_RESTORE_KEY,
-                    ThirdPartyBackupRestore.PLAN_KEY, ThirdPartyBackupRestore.TRANSFER_KEY,
-                    ThirdPartyBackupRestore.CLEANUP_STATE_KEY, ThirdPartyBackupRestore.CLEANUP_DETAILS_KEY);
+            sc.setParameters(KEY, COORDINATOR_DETAIL_KEYS.toArray());
             sc.setParameters("restoreHistory", ThirdPartyBackupRestore.HISTORY_PREFIX + "%");
             expunge(sc);
             for (BackupDetailVO detail : details) {
-                if (!ThirdPartyBackupAdmission.BACKUP_KEY.equals(detail.getName())
-                        && !ThirdPartyBackupAdmission.RESTORE_KEY.equals(detail.getName())
-                        && !ThirdPartyBackupAdmission.INSPECTION_BACKUP_KEY.equals(detail.getName())
-                        && !ThirdPartyBackupAdmission.INSPECTION_RESTORE_KEY.equals(detail.getName())
-                        && !ThirdPartyBackupRestore.PLAN_KEY.equals(detail.getName())
-                        && !ThirdPartyBackupRestore.TRANSFER_KEY.equals(detail.getName())
-                        && !ThirdPartyBackupRestore.CLEANUP_STATE_KEY.equals(detail.getName())
-                        && !ThirdPartyBackupRestore.CLEANUP_DETAILS_KEY.equals(detail.getName())
+                if (!COORDINATOR_DETAIL_KEYS.contains(detail.getName())
                         && !detail.getName().startsWith(ThirdPartyBackupRestore.HISTORY_PREFIX)) { persist(detail); }
             }
             return true;

@@ -23,7 +23,7 @@ import json
 import os
 from pathlib import Path
 
-from thirdparty_volume_backup import atomic, staging_identity
+from thirdparty_volume_backup import atomic, staging_identity, admission_closed_reason, close_admission, remove_reservation
 from thirdparty_primary_capacity import filesystem_capacity
 
 
@@ -32,7 +32,11 @@ def main():
     parser.add_argument("--plan-file", required=True)
     parser.add_argument("--action", choices=("prepare", "reserve", "release", "cancel"), required=True)
     args = parser.parse_args()
-    plan = json.loads(Path(args.plan_file).read_text())
+    file = Path(args.plan_file)
+    job = file.parent
+    plan = json.loads(file.read_text())
+    if job.name != plan["jobId"]:
+        raise RuntimeError("Restore capacity control belongs to another job")
     root = Path(plan["stageRoot"]).resolve(strict=True)
     destination = Path(plan["destination"])
     if not destination.is_absolute() or not destination.resolve().is_relative_to(root):
@@ -44,17 +48,22 @@ def main():
         raise RuntimeError("Invalid restore job ID")
     if args.action == "cancel":
         from thirdparty_staging_admission import control
-        control(Path(args.plan_file).parent / "staging-admission-plan.json", "cancel", "Staging queue timeout expired")
+        control(job / "staging-admission-plan.json", "cancel", "Staging queue timeout expired")
         return
     with (directory / "capacity.lock").open("a") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
         if args.action == "release":
-            reservation.unlink(missing_ok=True)
+            # Admission uses this same lock. Persist closure before removing the
+            # reservation so a delayed grant cannot recreate a completed job's claim.
+            close_admission(job, "Restore staging cleanup completed\n")
+            remove_reservation(reservation)
             return
+        if admission_closed_reason(job) is not None:
+            raise RuntimeError("Restore staging admission is closed; use a new restore job")
         if reservation.exists():
             raise RuntimeError("Restore staging reservation already exists")
         plan["stageFilesystemId"] = staging_identity(directory)
-        atomic(Path(args.plan_file), plan)
+        atomic(file, plan)
         selected = [v for v in plan["manifest"]["volumes"] if v["uuid"] in plan["volumeUuids"]]
         largest = max(v["provisionedBytes"] for v in selected)
         required = largest + (largest * plan["bufferPercent"] + 99) // 100
@@ -62,7 +71,6 @@ def main():
         record = {"jobId": plan["jobId"], "bytes": required,
                   "primaryScratchBytes": scratch, "host": plan["hostName"], "operation": "RESTORE"}
         if args.action == "prepare":
-            job = Path(args.plan_file).parent
             storage_key = filesystem_capacity(root, True)["storageKey"]
             if plan.get("primaryCapacityVersion") == 1 and storage_key != plan["stagingStorageKey"]:
                 raise RuntimeError("Staging capacity domain changed while preparing restore")

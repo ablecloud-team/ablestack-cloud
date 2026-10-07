@@ -1483,6 +1483,10 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                     backupDetailsDao.removeDetail(vmBackup.getId(), "ablestack.veeam.job.name");
                     backupDetailsDao.addDetail(vmBackup.getId(), "ablestack.veeam.job.name", veeamJobName.trim(), false);
                 }
+                backupDao.loadDetails(vmBackup);
+                if (ThirdPartyBackupManifest.VOLUME_MODE.equals(vmBackup.getDetail(ThirdPartyBackupManifest.MODE_KEY))) {
+                    return;
+                }
                 resourceLimitMgr.incrementResourceCount(vm.getAccountId(), Resource.ResourceType.backup);
                 resourceLimitMgr.incrementResourceCount(vm.getAccountId(), Resource.ResourceType.backup_storage, backup.getSize());
             }
@@ -1638,6 +1642,12 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                 }
                 vmBackup.setDescription(cmd.getDescription());
                 backupDao.update(vmBackup.getId(), vmBackup);
+                backupDao.loadDetails(vmBackup);
+                if (ThirdPartyBackupManifest.VOLUME_MODE.equals(vmBackup.getDetail(ThirdPartyBackupManifest.MODE_KEY))) {
+                    // The initial plan owns its pending accounting; completion or the background
+                    // sweep counts it once. A late API response must not count it or requeue it.
+                    return;
+                }
                 if (Backup.Status.BackingUp.equals(vmBackup.getStatus())) {
                     markResourceCountPending(vmBackup.getId());
                     logger.info("Backup [{}] for VM [{}] is still BackingUp after provider start. Resource counts will be updated when sync finalizes it.",
@@ -1798,10 +1808,14 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         accountManager.checkAccess(CallContext.current().getCallingAccount(), null, true, vm);
         backupDao.loadDetails(backup);
         ThirdPartyBackupAdmission.Entry queued = getAdmissionEntry(backup, ThirdPartyBackupAdmission.BACKUP_KEY);
-        if (queued != null && "WAITING".equals(queued.state)) {
+        if (queued != null && java.util.Set.of("WAITING", "CANCEL_PENDING").contains(StringUtils.defaultString(queued.state))) {
             return thirdPartyBackupVolumeService.cancelWaiting(backup, "BACKUP", queued.jobId);
         }
-        if (ThirdPartyBackupManifest.VOLUME_MODE.equals(backup.getDetail(ThirdPartyBackupManifest.MODE_KEY))) {
+        final boolean volumePipeline = ThirdPartyBackupManifest.VOLUME_MODE.equals(backup.getDetail(ThirdPartyBackupManifest.MODE_KEY));
+        if (volumePipeline) {
+            if (ThirdPartyBackupManifest.hasCompletedTransfers(backup)) {
+                throw new CloudRuntimeException("Backup transfers are complete; finalization cannot be canceled");
+            }
             final ThirdPartyBackupManifest manifest = ThirdPartyBackupManifest.fromJson(backup.getDetail(ThirdPartyBackupManifest.DETAIL_KEY));
             final List<ThirdPartyBackupManifest.Artifact> artifacts = new ArrayList<>(manifest.getCurrentArtifacts());
             if (manifest.getMetadata() != null) {
@@ -1826,6 +1840,29 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         final boolean cancelled = backupProvider.cancelBackup(vm, backup);
         if (!cancelled) {
             throw new CloudRuntimeException("Failed to cancel running VM backup");
+        }
+        if (volumePipeline) {
+            // Keep the Host plan and receipts until the common coordinator confirms
+            // source cleanup, external readers and both physical/DB reservation release.
+            Transaction.execute((TransactionCallback<Boolean>) status -> {
+                backup.setStatus(Backup.Status.Canceled);
+                if (!backupDao.update(backup.getId(), backup)) { throw new CloudRuntimeException("Unable to persist backup cancellation"); }
+                backupDetailsDao.addDetail(backup.getId(), ThirdPartyBackupManifest.CLEANUP_STATE_KEY, "WAITING", false);
+                backupDetailsDao.addDetail(backup.getId(), ThirdPartyBackupManifest.CLEANUP_DETAILS_KEY,
+                        "Backup canceled; common staging cleanup is pending", false);
+                backupDetailsDao.addDetail(backup.getId(), ThirdPartyBackupManifest.JOB_CLEANUP_STATE_KEY, "WAITING", false);
+                backupDetailsDao.addDetail(backup.getId(), AblestackBackupFrameworkUtils.BACKUP_CANCELLATION_DETAIL,
+                        "Backup canceled; staging and job record cleanup are pending", false);
+                // Keep the pending accounting proof: this canceled backup was never counted,
+                // so an eventual explicit or retention deletion must not decrement its counts.
+                return true;
+            });
+            backupDao.loadDetails(backup);
+            try { backupProvider.reconcileBackingUpBackup(vm, backup); }
+            catch (RuntimeException e) {
+                logger.warn("Canceled volume backup [{}] cleanup will resume during reconciliation: {}", backup.getUuid(), e.getMessage());
+            }
+            return true;
         }
         final boolean cleanupSuccessful = backupProvider.cleanupCanceledBackup(vm, backup);
         backup.setStatus(cleanupSuccessful ? Backup.Status.Canceled : Backup.Status.Error);
@@ -2179,7 +2216,8 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         validateBackupForZone(vm.getDataCenterId());
         accountManager.checkAccess(caller, null, true, vm);
         final BackupVO backup = netBackupRestoreCoordinator.updateBackupMetadata(cmd, vm);
-        if (backup != null && Backup.Status.BackedUp.equals(backup.getStatus())) {
+        if (backup != null && Backup.Status.BackedUp.equals(backup.getStatus())
+                && !ThirdPartyBackupManifest.VOLUME_MODE.equals(backup.getDetail(ThirdPartyBackupManifest.MODE_KEY))) {
             final HostVO backupJobHost = findBackupJobHost(backup, vm);
             cleanupBackupJobFiles(backupJobHost != null ? backupJobHost.getId() : null, backup.getUuid(), "NetBackup");
         }
@@ -2238,6 +2276,10 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                 }
                 vmBackup.setDescription(cmd.getDescription());
                 backupDao.update(vmBackup.getId(), vmBackup);
+                backupDao.loadDetails(vmBackup);
+                if (ThirdPartyBackupManifest.VOLUME_MODE.equals(vmBackup.getDetail(ThirdPartyBackupManifest.MODE_KEY))) {
+                    return;
+                }
                 if (Backup.Status.BackingUp.equals(vmBackup.getStatus())) {
                     markResourceCountPending(vmBackup.getId());
                     logger.info("NetBackup backup [{}] for VM [{}] is still BackingUp after provider start. Resource counts will be updated when sync finalizes it.",
@@ -4714,7 +4756,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
 
             final BackupAnswer restoreAnswer = (BackupAnswer) answer;
             persistRestoreJobStatusDetails(backup.getId(), restoreAnswer);
-            final String restoreState = StringUtils.defaultIfBlank(restoreAnswer.getState(), restoreAnswer.getDetails());
+            final String restoreState = StringUtils.defaultIfBlank(effectiveRestoreJobState(backup, restoreAnswer), restoreAnswer.getDetails());
             logger.trace("Reconciling restore job [{}] for backup [{}], VM [{}] using provider [{}]. state=[{}], step=[{}], progress=[{}]",
                     restoreJobId, backup.getUuid(), vm.getInstanceName(), backupProvider.getName(), restoreState,
                     restoreAnswer.getStep(), restoreAnswer.getProgress());
@@ -5003,6 +5045,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         }
 
         protected void reconcileBackingUpBackups(final BackupProvider backupProvider, final DataCenter dataCenter) {
+            reconcileCompletedVolumeBackupResourceCounts(backupProvider, dataCenter);
             final List<BackupVO> backingUpBackups = new ArrayList<>();
             final List<BackupVO> active = backupDao.listByZoneAndStatus(dataCenter.getId(), Backup.Status.BackingUp);
             if (CollectionUtils.isNotEmpty(active)) { backingUpBackups.addAll(active); }
@@ -5014,7 +5057,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                     if (ThirdPartyBackupManifest.VOLUME_MODE.equals(failed.getDetail(ThirdPartyBackupManifest.MODE_KEY))
                             && StringUtils.isBlank(failed.getDetail(ThirdPartyBackupManifest.CATALOG_FAILURE_KEY))
                             && StringUtils.isBlank(failed.getDetail(ThirdPartyBackupManifest.DELETE_PROGRESS_KEY))
-                            && !"COMPLETED".equals(failed.getDetail(ThirdPartyBackupManifest.CLEANUP_STATE_KEY))) {
+                            && ThirdPartyBackupVolumeService.needsBackupCleanup(failed)) {
                         backingUpBackups.add(failed);
                     }
                 }
@@ -5063,12 +5106,38 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             return StringUtils.equalsIgnoreCase(activeProviderName, offeringProviderName);
         }
 
+        protected void reconcileCompletedVolumeBackupResourceCounts(final BackupProvider backupProvider, final DataCenter dataCenter) {
+            // The volume tracker may finish before this task lists BackingUp rows, including
+            // immediately before a restart. Pending accounting does not require the VM or Host.
+            for (final BackupDetailVO detail : backupDetailsDao.findDetails(
+                    AblestackBackupFrameworkUtils.RESOURCE_COUNT_PENDING_DETAIL, Boolean.TRUE.toString(), false)) {
+                try {
+                    final BackupVO backup = backupDao.findById(detail.getResourceId());
+                    if (backup == null || backup.getZoneId() != dataCenter.getId() || backup.getStatus() != Backup.Status.BackedUp) {
+                        continue;
+                    }
+                    backupDao.loadDetails(backup);
+                    if (!ThirdPartyBackupManifest.VOLUME_MODE.equals(backup.getDetail(ThirdPartyBackupManifest.MODE_KEY))) { continue; }
+                    final BackupOfferingVO offering = backupOfferingDao.findByIdIncludingRemoved(backup.getBackupOfferingId());
+                    if (offering != null && isMatchingBackupProvider(backupProvider.getName(), offering.getProvider())) {
+                        thirdPartyBackupVolumeService.reconcileResourceCounts(backup);
+                    }
+                } catch (RuntimeException e) {
+                    logger.warn("Resource accounting is pending for completed volume backup [{}]: {}", detail.getResourceId(), e.getMessage(), e);
+                }
+            }
+        }
+
         protected void incrementResourceCountsIfBackupFinalized(final BackupVO originalBackup, final VirtualMachine vm) {
             final BackupVO updatedBackup = backupDao.findById(originalBackup.getId());
             if (updatedBackup == null || !Backup.Status.BackedUp.equals(updatedBackup.getStatus())) {
                 return;
             }
             backupDao.loadDetails(updatedBackup);
+            if (ThirdPartyBackupManifest.VOLUME_MODE.equals(updatedBackup.getDetail(ThirdPartyBackupManifest.MODE_KEY))) {
+                thirdPartyBackupVolumeService.reconcileResourceCounts(updatedBackup);
+                return;
+            }
             if (!Boolean.parseBoolean(updatedBackup.getDetail(AblestackBackupFrameworkUtils.RESOURCE_COUNT_PENDING_DETAIL))) {
                 return;
             }
@@ -5175,6 +5244,12 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                 logger.debug(String.format("Checking if Backup %s with external ID %s for VM %s is valid", backupsInDb, backupInDb.getName(), vm));
                 if (restorePoint.getId().equals(backupInDb.getExternalId())) {
                     logger.debug(String.format("Found Backup %s in both Database and Provider", backupInDb));
+                    backupDao.loadDetails((BackupVO) backupInDb);
+                    if (ThirdPartyBackupManifest.VOLUME_MODE.equals(backupInDb.getDetail(ThirdPartyBackupManifest.MODE_KEY))) {
+                        // The coordinator owns the logical size and counts it atomically. The
+                        // legacy restore-point mirror must not rewrite it from a stale DB view.
+                        return backupInDb;
+                    }
                     if (restorePoint.getDataSize() != null && restorePoint.getBackupSize() != null) {
                         logger.debug(String.format("Update backup [%s] from [size: %s, protected size: %s] to [size: %s, protected size: %s].",
                                 backupInDb, backupInDb.getSize(), backupInDb.getProtectedSize(), restorePoint.getBackupSize(), restorePoint.getDataSize()));
@@ -5446,6 +5521,14 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         }
         accountManager.checkAccess(CallContext.current().getCallingAccount(), null, true, vm);
 
+        backupDao.loadDetails(backup);
+        if (ThirdPartyBackupManifest.hasCompletedTransfers(backup)) {
+            throw new CloudRuntimeException("Backup transfers are complete; bandwidth cannot be changed during finalization");
+        }
+        if (isBackupCancellationPending(backup)) {
+            throw new CloudRuntimeException("Backup cancellation is pending; bandwidth cannot be changed");
+        }
+
         final BackupOffering offering = backupOfferingDao.findById(backup.getBackupOfferingId());
         if (isCommvaultJobSubmitted(backup, offering)) {
             throw new CloudRuntimeException("Commvault backup bandwidth cannot be changed after host staging has completed");
@@ -5497,6 +5580,41 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             return response;
         }
 
+        String startJson = backup.getDetail(ThirdPartyBackupStart.DETAIL_KEY);
+        if (StringUtils.isNotBlank(startJson)) {
+            ThirdPartyBackupStart.Operation start = new Gson().fromJson(startJson, ThirdPartyBackupStart.Operation.class);
+            boolean cancellationPending = start != null && start.cancelRequestedAt > 0
+                    && !ThirdPartyBackupManifest.hasCompletedTransfers(backup);
+            if (start != null && (cancellationPending || java.util.Set.of("PREPARING", "PREPARED", "SUBMISSION_PENDING")
+                    .contains(StringUtils.defaultString(start.state)))) {
+                response.setState("RUNNING");
+                response.setStep(cancellationPending ? "CANCEL_PENDING" : "START_CONFIRMATION");
+                response.setProgress(0);
+                response.setCapabilities("");
+                response.setLogPath(AblestackBackupFrameworkUtils.getAsyncBackupJobLogPath(backup.getUuid()));
+                response.setEventsOffset(eventsOffset != null && eventsOffset > 0 ? eventsOffset : 0L);
+                response.setEvents("[]");
+                response.setDetails(cancellationPending
+                        ? StringUtils.defaultIfBlank(start.cancelReason, "Backup cancellation requested; termination and cleanup confirmation is pending")
+                        : StringUtils.defaultIfBlank(start.reason, "Confirming the recorded Host backup start"));
+                return response;
+            }
+        }
+
+        if (ThirdPartyBackupManifest.hasCompletedTransfers(backup)) {
+            // Durable catalog confirmations remain meaningful when the Host is offline.
+            response.setState("RUNNING");
+            response.setStep("FINALIZING");
+            response.setProgress(99);
+            response.setCapabilities("");
+            response.setLogPath(AblestackBackupFrameworkUtils.getAsyncBackupJobLogPath(backup.getUuid()));
+            response.setEventsOffset(eventsOffset != null && eventsOffset > 0 ? eventsOffset : 0L);
+            response.setEvents("[]");
+            response.setDetails(StringUtils.defaultIfBlank(backup.getDetail(ThirdPartyBackupManifest.FINALIZATION_DETAILS_KEY),
+                    "Finalizing Host cleanup, logical backup metadata and capacity release"));
+            return response;
+        }
+
         final BackupOffering offering = backupOfferingDao.findById(backup.getBackupOfferingId());
         if (isCommvaultJobSubmitted(backup, offering)) {
             // The host export is complete once Commvault has accepted a job and its ID is saved.
@@ -5537,6 +5655,15 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             response.setCapabilities(backupAnswer.getCapabilities());
             response.setBandwidthLimitMbps(backupAnswer.getBandwidthLimitMbps());
             response.setBandwidthStatus(backupAnswer.getBandwidthStatus());
+            if (ThirdPartyBackupManifest.VOLUME_MODE.equals(backup.getDetail(ThirdPartyBackupManifest.MODE_KEY))
+                    && "COMPLETED".equals(backupAnswer.getState()) && backupAnswer.getResult()) {
+                response.setState("RUNNING");
+                response.setStep("FINALIZING");
+                response.setProgress(99);
+                response.setCapabilities("");
+                response.setDetails(StringUtils.defaultIfBlank(backup.getDetail(ThirdPartyBackupManifest.FINALIZATION_DETAILS_KEY),
+                        "Finalizing logical backup metadata and capacity release"));
+            }
             if (!backupAnswer.getResult()) {
                 response.setDetails(backupAnswer.getDetails());
                 response.setStep(StringUtils.defaultIfBlank(backupAnswer.getDetails(), response.getStep()));
@@ -5557,7 +5684,19 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                 && StringUtils.isNotBlank(StringUtils.substringAfterLast(backup.getExternalId(), ","));
     }
 
+    private boolean isBackupCancellationPending(final BackupVO backup) {
+        String json = backup.getDetail(ThirdPartyBackupStart.DETAIL_KEY);
+        ThirdPartyBackupStart.Operation start = StringUtils.isBlank(json) ? null
+                : new Gson().fromJson(json, ThirdPartyBackupStart.Operation.class);
+        return start != null && start.cancelRequestedAt > 0;
+    }
+
     private HostVO findBackupJobHost(final BackupVO backup, final VMInstanceVO vm) {
+        backupDao.loadDetails(backup);
+        if (ThirdPartyBackupManifest.VOLUME_MODE.equals(backup.getDetail(ThirdPartyBackupManifest.MODE_KEY))) {
+            Host recorded = thirdPartyBackupVolumeService.getWorkerHost(backup, "BACKUP");
+            return recorded == null ? null : hostDao.findById(recorded.getId());
+        }
         final Long backupJobHostId = getBackupJobHostId(backup);
         if (backupJobHostId != null) {
             final HostVO host = hostDao.findById(backupJobHostId);
@@ -5632,6 +5771,15 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     private List<String> getRestoreJobIdsForCleanup(final BackupVO backup, final VMInstanceVO vm, final String provider,
             final String backedUpVolumeUuid, final String restoredVolumeUuid) {
         final List<String> restoreJobIds = new ArrayList<>();
+        if (ThirdPartyBackupManifest.VOLUME_MODE.equals(backup.getDetail(ThirdPartyBackupManifest.MODE_KEY))) {
+            ThirdPartyBackupRestore.Plan plan = new Gson().fromJson(backup.getDetail(ThirdPartyBackupRestore.PLAN_KEY), ThirdPartyBackupRestore.Plan.class);
+            if (plan == null || StringUtils.isBlank(plan.jobId) || plan.manifest == null
+                    || !backup.getUuid().equals(plan.manifest.getBackupUuid())) {
+                throw new CloudRuntimeException("Restore job cleanup requires the recorded volume restore plan");
+            }
+            // The volume plan owns its random attempt UUID; VM-derived legacy IDs are not cleanup targets.
+            return java.util.List.of(plan.jobId);
+        }
         final String trackedRestoreJobId = backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_JOB_ID_DETAIL);
         if (StringUtils.isNotBlank(trackedRestoreJobId)) {
             restoreJobIds.add(trackedRestoreJobId);
@@ -5910,11 +6058,21 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         if (restoreAnswer == null) {
             return;
         }
-        final String state = restoreAnswer.getState();
+        BackupVO backup = backupDao.findById(backupId);
+        if (backup != null) { backupDao.loadDetails(backup); }
+        ThirdPartyBackupRestore.Operation cancellation = backup == null ? null : restoreCancellationOperation(backup);
+        final String state = backup == null ? restoreAnswer.getState() : effectiveRestoreJobState(backup, restoreAnswer);
+        if (cancellation != null && !java.util.Set.of("COMPLETED", "FAILED", "INTERRUPTED", "CANCELED")
+                .contains(StringUtils.defaultString(state))) {
+            persistBackupDetail(backupId, AblestackBackupFrameworkUtils.RESTORE_JOB_STATE_DETAIL, "RUNNING");
+            persistBackupDetail(backupId, AblestackBackupFrameworkUtils.RESTORE_JOB_STEP_DETAIL, "CANCEL_PENDING");
+            persistBackupDetail(backupId, AblestackBackupFrameworkUtils.RESTORE_JOB_PROGRESS_DETAIL, "0");
+            return;
+        }
         if (StringUtils.isNotBlank(state) && !"UNKNOWN".equalsIgnoreCase(state)) {
             persistBackupDetail(backupId, AblestackBackupFrameworkUtils.RESTORE_JOB_STATE_DETAIL, state);
         }
-        final String step = restoreAnswer.getStep();
+        final String step = cancellation != null && "CANCELED".equals(state) ? "CANCELED" : restoreAnswer.getStep();
         if (StringUtils.isNotBlank(step) && !"UNKNOWN".equalsIgnoreCase(step)) {
             persistBackupDetail(backupId, AblestackBackupFrameworkUtils.RESTORE_JOB_STEP_DETAIL, step);
         }
@@ -5931,6 +6089,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     }
 
     private boolean applyStoredRestoreJobStatus(final BackupVO backup, final VMInstanceVO vm, final BackupJobStatusResponse response) {
+        if (applyRestoreCancellationStatus(backup, response)) { return true; }
         final String state = backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_JOB_STATE_DETAIL);
         if (StringUtils.isBlank(state)) {
             return false;
@@ -6032,6 +6191,11 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         response.setVmRestore(vmRestoreInfo(backup, null, null));
         ThirdPartyBackupAdmission.Entry queue = getAdmissionEntry(backup, ThirdPartyBackupAdmission.RESTORE_KEY);
         if (queue != null) { response.setStagingQueue(new BackupStagingQueueResponse(queue)); }
+        if (applyRestoreCancellationStatus(backup, response)) {
+            response.setEventsOffset(eventsOffset != null && eventsOffset > 0 ? eventsOffset : 0L);
+            response.setEvents("[]");
+            return response;
+        }
         final String restoreJobId = backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_JOB_ID_DETAIL);
         if (StringUtils.isBlank(restoreJobId)) {
             if (applyStoredRestoreJobStatus(backup, findRestoreTargetVm(backup), response)) {
@@ -6070,8 +6234,9 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             final BackupAnswer restoreAnswer = (BackupAnswer) answer;
             response.setVmRestore(vmRestoreInfo(backup, restoreAnswer.getVmRestoreResult(), restoreAnswer.getVmRestoreResultError()));
             persistRestoreJobStatusDetails(backup.getId(), restoreAnswer);
-            response.setState(restoreAnswer.getState());
-            response.setStep(StringUtils.defaultIfBlank(restoreAnswer.getStep(), restoreAnswer.getState()));
+            response.setState(effectiveRestoreJobState(backup, restoreAnswer));
+            response.setStep("CANCELED".equals(response.getState()) && restoreCancellationOperation(backup) != null
+                    ? "CANCELED" : StringUtils.defaultIfBlank(restoreAnswer.getStep(), response.getState()));
             response.setProgress(restoreAnswer.getProgress());
             response.setVolumeIndex(restoreAnswer.getVolumeIndex());
             response.setVolumeCount(restoreAnswer.getVolumeCount());
@@ -6103,7 +6268,63 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         }
     }
 
+    private ThirdPartyBackupRestore.Operation restoreCancellationOperation(final BackupVO backup) {
+        String json = backup.getDetail(ThirdPartyBackupRestore.PLAN_KEY);
+        if (StringUtils.isBlank(json)) { return null; }
+        ThirdPartyBackupRestore.Plan plan = new Gson().fromJson(json, ThirdPartyBackupRestore.Plan.class);
+        if (plan == null || StringUtils.isBlank(plan.jobId)) { throw new CloudRuntimeException("Restore plan ownership is unconfirmed"); }
+        BackupDetailVO detail = backupDetailsDao.findDetail(backup.getId(), ThirdPartyBackupRestore.operationKey(plan.jobId));
+        if (detail == null) { return null; }
+        ThirdPartyBackupRestore.Operation operation = new Gson().fromJson(detail.getValue(), ThirdPartyBackupRestore.Operation.class);
+        if (operation == null || operation.plan == null || operation.plan.manifest == null
+                || operation.version != ThirdPartyBackupRestore.HISTORY_VERSION
+                || !backup.getUuid().equals(operation.plan.manifest.getBackupUuid())
+                || !new Gson().toJson(plan).equals(new Gson().toJson(operation.plan))
+                || operation.cancelRequestedAt < 0 || operation.cancelConfirmedAt < 0
+                || (operation.cancelConfirmedAt > 0 && operation.cancelRequestedAt == 0)) {
+            throw new CloudRuntimeException("Restore cancellation belongs to a different attempt");
+        }
+        return operation.cancelRequestedAt > 0 ? operation : null;
+    }
+
+    private String effectiveRestoreJobState(final BackupVO backup, final BackupAnswer answer) {
+        String state = answer.getState();
+        ThirdPartyBackupRestore.Operation operation = restoreCancellationOperation(backup);
+        if (operation != null
+                && java.util.Set.of("FAILED", "INTERRUPTED", "CANCELED").contains(StringUtils.defaultString(state))
+                && !StringUtils.contains(answer.getDetails(), AblestackBackupFrameworkUtils.RESTORE_ROLLBACK_REQUIRED)
+                && (operation.vmResult == null || !"RECOVERY_REQUIRED".equals(operation.vmResult.outcome))) {
+            return "CANCELED";
+        }
+        return state;
+    }
+
+    private boolean applyRestoreCancellationStatus(final BackupVO backup, final BackupJobStatusResponse response) {
+        ThirdPartyBackupRestore.Operation operation = restoreCancellationOperation(backup);
+        if (operation == null || "COMPLETED".equals(operation.hostState)
+                || StringUtils.contains(backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_JOB_FAILURE_REASON_DETAIL),
+                        AblestackBackupFrameworkUtils.RESTORE_ROLLBACK_REQUIRED)
+                || (operation.vmResult != null && "RECOVERY_REQUIRED".equals(operation.vmResult.outcome))) { return false; }
+        boolean terminal = "START_FAILED".equals(operation.startState)
+                || java.util.Set.of("FAILED", "INTERRUPTED", "CANCELED").contains(StringUtils.defaultString(operation.hostState))
+                || "CANCELED".equals(backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_JOB_STATE_DETAIL));
+        response.setState(terminal ? "CANCELED" : "RUNNING");
+        response.setStep(terminal ? "CANCELED" : "CANCEL_PENDING");
+        response.setProgress(0);
+        response.setCapabilities("");
+        response.setOperation(AblestackBackupFrameworkUtils.OPERATION_RESTORE);
+        response.setDetails(operation.cancelReason);
+        response.setLogPath(AblestackBackupFrameworkUtils.getAsyncRestoreJobLogPath(operation.plan.jobId));
+        return true;
+    }
+
     private HostVO findRestoreJobHost(final BackupVO backup, final VMInstanceVO vm) {
+        backupDao.loadDetails(backup);
+        if (ThirdPartyBackupManifest.VOLUME_MODE.equals(backup.getDetail(ThirdPartyBackupManifest.MODE_KEY))) {
+            if (StringUtils.isBlank(backup.getDetail(ThirdPartyBackupRestore.PLAN_KEY))) { return null; }
+            Host recorded = thirdPartyBackupVolumeService.getWorkerHost(backup, "RESTORE");
+            return recorded == null ? null : hostDao.findById(recorded.getId());
+        }
         final String restoreHostId = backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_HOST_ID_DETAIL);
         if (NumberUtils.isDigits(restoreHostId)) {
             final HostVO host = hostDao.findById(Long.parseLong(restoreHostId));

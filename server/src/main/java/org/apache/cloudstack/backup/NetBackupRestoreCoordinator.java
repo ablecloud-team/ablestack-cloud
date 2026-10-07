@@ -186,6 +186,11 @@ public class NetBackupRestoreCoordinator extends ManagerBase {
                         "Unable to find NetBackup backup row for VM [%s] and external ID [%s].",
                         vm.getInstanceName(), cmd.getExternalId())));
 
+        if (ThirdPartyBackupManifest.VOLUME_MODE.equals(backup.getDetail(ThirdPartyBackupManifest.MODE_KEY))) {
+            throw new CloudRuntimeException("updateNetBackup does not support volume-based backups. "
+                    + "Backup completion is confirmed after all volume and metadata jobs finish and staging cleanup completes. "
+                    + "Use the current ABLESTACK NetBackup Host hooks.");
+        }
         backup.setStatus(resolveStatus(cmd.getStatus()));
         backup.setDate(new Date());
         backupDao.update(backup.getId(), backup);

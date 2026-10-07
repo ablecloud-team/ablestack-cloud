@@ -22,12 +22,40 @@ import org.apache.cloudstack.api.response.BackupStagingInfoResponse;
 
 /** Management-side handoff between one host artifact and one external backup job. */
 public interface ThirdPartyBackupVolumeService {
+    /** Completed physical cleanup still needs reconciliation until its DB reservation is released. */
+    static boolean needsBackupCleanup(Backup backup) {
+        if (java.util.Set.of("WAITING", "RUNNING").contains(
+                org.apache.commons.lang3.StringUtils.defaultString(backup.getDetail(ThirdPartyBackupManifest.JOB_CLEANUP_STATE_KEY)))) { return true; }
+        if (!"COMPLETED".equals(backup.getDetail(ThirdPartyBackupManifest.CLEANUP_STATE_KEY))) { return true; }
+        String json = backup.getDetail(ThirdPartyBackupAdmission.BACKUP_KEY);
+        if (json == null || json.isBlank()) { return false; }
+        try {
+            ThirdPartyBackupAdmission.Entry entry = new com.google.gson.Gson().fromJson(json, ThirdPartyBackupAdmission.Entry.class);
+            return entry == null || !backup.getUuid().equals(entry.jobId) || !"RELEASED".equals(entry.state);
+        } catch (RuntimeException e) {
+            // Unreadable ownership must remain visible for reconciliation.
+            return true;
+        }
+    }
+
     interface Lease extends AutoCloseable {
         @Override void close();
     }
 
     /** Serialize parent selection with deletion of artifacts shared by an incremental chain. */
     Lease acquireLifecycle(long vmId);
+
+    /** Persist the initial volume plan and its pending resource accounting before Host dispatch. */
+    void persistBackupPlan(Backup backup);
+
+    /** Count a completed volume backup once, atomically with clearing its pending accounting. */
+    void reconcileResourceCounts(Backup backup);
+
+    /** Prepare and record Host dispatch once; unconfirmed responses keep the same backup tracked. */
+    void dispatchBackup(Backup backup, Host host, com.cloud.agent.api.Command command, Transfer transfer);
+
+    /** Preserve an already persisted plan when dispatch preparation or tracking throws. */
+    void recordBackupStartUnconfirmed(Backup backup, String reason);
 
     @FunctionalInterface
     interface ArtifactCleanup {

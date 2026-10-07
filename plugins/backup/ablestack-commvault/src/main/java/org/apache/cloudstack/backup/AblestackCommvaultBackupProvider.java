@@ -752,7 +752,7 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
                 String.valueOf(Boolean.TRUE.equals(quiesceVM)));
 
         BackupVO backupVO = createBackupObject(vm, vmHost.getId(), backupPath, requestedBackupType, backupDetails);
-        final long backupStartTime = System.currentTimeMillis();
+        boolean planPersisted = false;
         try {
             backupVO.setBackedUpVolumes(createVolumeInfoFromVolumes(vmVolumes, backupFiles));
             final ThirdPartyBackupManifest manifest = ThirdPartyBackupManifest.create(getName(), backupVO.getUuid(), vm.getInstanceName(),
@@ -761,9 +761,8 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
                     incrementalBackup ? getBackupDetail(latestBackup, DETAIL_CHECKPOINT_NAME) : null);
             backupVO.getDetails().put(ThirdPartyBackupManifest.MODE_KEY, ThirdPartyBackupManifest.VOLUME_MODE);
             backupVO.getDetails().put(ThirdPartyBackupManifest.DETAIL_KEY, manifest.toJson());
-            if (!backupDao.update(backupVO.getId(), backupVO)) {
-                throw new CloudRuntimeException("Unable to persist the volume backup plan");
-            }
+            thirdPartyBackupVolumeService.persistBackupPlan(backupVO);
+            planPersisted = true;
             AblestackCommvaultTakeBackupCommand command = new AblestackCommvaultTakeBackupCommand(vm.getInstanceName(), backupPath);
             command.setVolumeStagingManifest(manifest.toJson());
             command.setStagingQueueTimeout(BackupManager.ThirdPartyStagingQueueTimeout.value());
@@ -791,73 +790,28 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
                     latestBackup != null ? latestBackup.getUuid() : null, vmHost.getId(), vmHost.getName(), backupPath, command.getWait());
             LOG.info("Submitting Commvault backup staging command for VM [{}] on host [{}] with backup [{}], path [{}], state [{}], timeout [{}] seconds, volumes [{}]",
                     vm.getInstanceName(), vmHost.getName(), backupVO.getUuid(), backupPath, vm.getState(), command.getWait(), vmVolumes.size());
-            BackupAnswer answer;
-            try {
-                answer = (BackupAnswer) agentManager.send(vmHost.getId(), command);
-            } catch (AgentUnavailableException e) {
-                LOG.error("{} phase=[FAILED], backupId=[{}], backupUuid=[{}], vmId=[{}], vmName=[{}], backupType=[{}], backupEngine=[{}], backupPath=[{}], elapsedMs=[{}], reason=[{}]",
-                        BACKUP_TRACE, backupVO.getId(), backupVO.getUuid(), vm.getId(), vm.getInstanceName(), requestedBackupType, backupEngine,
-                        backupPath, System.currentTimeMillis() - backupStartTime, "Unable to contact backend control plane to initiate backup");
-                LOG.error("Unable to contact backend control plane to initiate backup for VM {}", vm.getInstanceName());
-                markBackupFailure(backupVO, "agent-send", "Unable to contact backend control plane to initiate backup");
-                backupVO.setStatus(Backup.Status.Failed);
-                removeBackupWithDetails(backupVO.getId());
-                throw new CloudRuntimeException("Unable to contact backend control plane to initiate backup");
-            } catch (OperationTimedoutException e) {
-                LOG.error("{} phase=[FAILED], backupId=[{}], backupUuid=[{}], vmId=[{}], vmName=[{}], backupType=[{}], backupEngine=[{}], backupPath=[{}], elapsedMs=[{}], reason=[{}]",
-                        BACKUP_TRACE, backupVO.getId(), backupVO.getUuid(), vm.getId(), vm.getInstanceName(), requestedBackupType, backupEngine,
-                        backupPath, System.currentTimeMillis() - backupStartTime, "Operation to initiate backup timed out");
-                LOG.error("Operation to initiate backup timed out for VM {}", vm.getInstanceName());
-                markBackupFailure(backupVO, "agent-send-timeout", "Operation to initiate backup timed out");
-                backupVO.setStatus(Backup.Status.Failed);
-                removeBackupWithDetails(backupVO.getId());
-                throw new CloudRuntimeException("Operation to initiate backup timed out, please try again");
-            }
-
-            if (answer != null && answer.getResult()) {
-                thirdPartyBackupVolumeService.track(backupVO, vmHost, volumeTransfer(vm, backupVO, vmHost));
-                LOG.info("Commvault backup staging command started asynchronously for VM [{}], backup [{}], path [{}]",
-                    vm.getInstanceName(), backupVO.getUuid(), backupPath);
-                LOG.info("{} phase=[STAGING_STARTED], backupId=[{}], backupUuid=[{}], vmId=[{}], vmName=[{}], backupType=[{}], backupEngine=[{}], backupPath=[{}], elapsedMs=[{}]",
-                        BACKUP_TRACE, backupVO.getId(), backupVO.getUuid(), vm.getId(), vm.getInstanceName(), requestedBackupType, backupEngine,
-                        backupPath, System.currentTimeMillis() - backupStartTime);
+            thirdPartyBackupVolumeService.dispatchBackup(backupVO, vmHost, command, volumeTransfer(vm, backupVO, vmHost));
+            LOG.info("Volume backup start submitted for reconciliation, backup [{}], VM [{}]", backupVO.getUuid(), vm.getInstanceName());
+            return BackupExecutionResult.success(backupVO);
+        } catch (RuntimeException e) {
+            if (planPersisted) {
+                // Persisted intent owns this attempt even when command construction or dispatch confirmation fails.
+                // Do not delete it, force cleanup or launch a Full retry while the Host outcome is unknown.
+                try {
+                    thirdPartyBackupVolumeService.recordBackupStartUnconfirmed(backupVO, e.getMessage());
+                    thirdPartyBackupVolumeService.track(backupVO, vmHost, volumeTransfer(vm, backupVO, vmHost));
+                } catch (RuntimeException trackingFailure) {
+                    LOG.warn("Backup start tracking will resume during provider reconciliation [{}]", backupVO.getUuid(), trackingFailure);
+                }
+                LOG.warn("Backup start is unconfirmed [{}]; the same attempt is retained", backupVO.getUuid(), e);
                 return BackupExecutionResult.success(backupVO);
             }
-
-            final String details = answer != null ? answer.getDetails() : "No answer received";
-            LOG.error("{} phase=[FAILED], backupId=[{}], backupUuid=[{}], vmId=[{}], vmName=[{}], backupType=[{}], backupEngine=[{}], backupPath=[{}], elapsedMs=[{}], reason=[{}]",
-                    BACKUP_TRACE, backupVO.getId(), backupVO.getUuid(), vm.getId(), vm.getInstanceName(), requestedBackupType, backupEngine,
-                    backupPath, System.currentTimeMillis() - backupStartTime, details);
-            LOG.error("Failed to take backup for VM {}: {}", vm.getInstanceName(), details);
-            markBackupFailure(backupVO, "agent-answer", details);
-            if (answer != null && answer.getNeedsCleanup()) {
-                LOG.error("Backup cleanup failed for VM {}. Leaving the backup in Error state.", vm.getInstanceName());
-                backupVO.setStatus(Backup.Status.Error);
-                backupDao.update(backupVO.getId(), backupVO);
-            } else if (retryAsFullOnFailure) {
-                backupVO.setStatus(Backup.Status.Failed);
-                backupDao.update(backupVO.getId(), backupVO);
-            } else {
-                backupVO.setStatus(Backup.Status.Failed);
-                removeBackupWithDetails(backupVO.getId());
-            }
-            return BackupExecutionResult.failure(details, backupVO);
-        } catch (RuntimeException e) {
-            LOG.error("{} phase=[FAILED], backupId=[{}], backupUuid=[{}], vmId=[{}], vmName=[{}], backupType=[{}], backupEngine=[{}], backupPath=[{}], elapsedMs=[{}], reason=[{}]",
-                    BACKUP_TRACE, backupVO.getId(), backupVO.getUuid(), vm.getId(), vm.getInstanceName(), requestedBackupType, backupEngine,
-                    backupPath, System.currentTimeMillis() - backupStartTime, e.getMessage());
-            LOG.error("Unexpected failure while executing Commvault backup for VM {}. Cleaning up incomplete backup entry [{}].",
-                    vm.getInstanceName(), backupVO.getUuid(), e);
-            markBackupFailure(backupVO, "unexpected-runtime", e.getMessage());
-            try {
-                Backup existingBackup = backupDao.findById(backupVO.getId());
-                if (existingBackup != null) {
-                    backupVO.setStatus(Backup.Status.Failed);
-                    removeBackupWithDetails(backupVO.getId());
-                }
-            } catch (Exception cleanupException) {
-                LOG.warn("Failed to cleanup incomplete Commvault backup entry [{}] after unexpected error", backupVO.getUuid(), cleanupException);
-            }
+            // No Host command can be sent before the initial plan is durably persisted.
+            backupVO.getDetails().remove(ThirdPartyBackupManifest.MODE_KEY);
+            backupVO.getDetails().remove(ThirdPartyBackupManifest.DETAIL_KEY);
+            markBackupFailure(backupVO, "backup-plan", e.getMessage());
+            backupVO.setStatus(Backup.Status.Failed);
+            backupDao.update(backupVO.getId(), backupVO);
             throw e;
         }
     }
@@ -2632,7 +2586,7 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
         if (!Backup.Status.BackingUp.equals(backup.getStatus()) && !(java.util.Set.of(Backup.Status.Failed, Backup.Status.Error, Backup.Status.Canceled).contains(backup.getStatus())
                 && StringUtils.isBlank(getBackupDetail(backup, ThirdPartyBackupManifest.CATALOG_FAILURE_KEY))
                 && StringUtils.isBlank(getBackupDetail(backup, ThirdPartyBackupManifest.DELETE_PROGRESS_KEY))
-                && !"COMPLETED".equals(getBackupDetail(backup, ThirdPartyBackupManifest.CLEANUP_STATE_KEY)))) {
+                && ThirdPartyBackupVolumeService.needsBackupCleanup(backup))) {
             return false;
         }
         final Host host = findBackupJobHost(backup, vm);
@@ -2913,7 +2867,9 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
         fullBackupVO.setName(failedBackup.getName());
         fullBackupVO.setDescription(failedBackup.getDescription());
         backupDao.update(fullBackupVO.getId(), fullBackupVO);
-        if (Boolean.parseBoolean(getBackupDetail(failedBackup, AblestackBackupFrameworkUtils.RESOURCE_COUNT_PENDING_DETAIL))) {
+        backupDao.loadDetails(fullBackupVO);
+        if (!ThirdPartyBackupManifest.VOLUME_MODE.equals(getBackupDetail(fullBackupVO, ThirdPartyBackupManifest.MODE_KEY))
+                && Boolean.parseBoolean(getBackupDetail(failedBackup, AblestackBackupFrameworkUtils.RESOURCE_COUNT_PENDING_DETAIL))) {
             updateBackupDetail(fullBackupVO, AblestackBackupFrameworkUtils.RESOURCE_COUNT_PENDING_DETAIL, Boolean.TRUE.toString());
         }
     }
@@ -2961,6 +2917,12 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
     }
 
     private Host findBackupJobHost(final Backup backup, final VirtualMachine vm) {
+        if (backup != null) {
+            loadBackupDetailsIfNeeded(backup);
+            if (ThirdPartyBackupManifest.VOLUME_MODE.equals(getBackupDetail(backup, ThirdPartyBackupManifest.MODE_KEY))) {
+                return thirdPartyBackupVolumeService.getWorkerHost(backup, "BACKUP");
+            }
+        }
         final Long backupJobHostId = getBackupJobHostId(backup);
         if (backupJobHostId != null) {
             final HostVO host = hostDao.findById(backupJobHostId);

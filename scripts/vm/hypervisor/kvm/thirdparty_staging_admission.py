@@ -28,7 +28,7 @@ import os
 import uuid
 from pathlib import Path
 
-from thirdparty_volume_backup import atomic, staging_identity
+from thirdparty_volume_backup import atomic, staging_identity, admission_closed_reason
 
 
 def control(plan_file, action, reason="", token=""):
@@ -63,6 +63,9 @@ def control(plan_file, action, reason="", token=""):
         identity = staging_identity(directory)
         if identity != plan["stageFilesystemId"]:
             raise RuntimeError("Staging filesystem changed while the job was waiting")
+        closed_reason = admission_closed_reason(job)
+        if closed_reason is not None:
+            return {"state": "CANCELED", "reason": closed_reason}
         if action == "cancel":
             if reservation.exists() or granted.exists():
                 return {"state": "ADMITTED", "reason": "The job has already acquired staging capacity"}

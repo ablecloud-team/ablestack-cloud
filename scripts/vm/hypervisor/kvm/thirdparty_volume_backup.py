@@ -62,6 +62,42 @@ def run(args, timeout=300):
     return result.stdout
 
 
+def admission_closed_path(job):
+    job = Path(job)
+    if job.name in ("", ".", "..") or any(c not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-" for c in job.name):
+        raise RuntimeError("Invalid staging admission job ID")
+    return job.parent.parent / "staging-admission-closed" / (job.name + ".closed")
+
+
+def admission_closed_reason(job):
+    # The stable receipt survives removal of the Host job directory.
+    for path in (admission_closed_path(job), Path(job) / "staging-admission-closed"):
+        if path.exists():
+            return path.read_text()
+    return None
+
+
+def close_admission(job, reason):
+    """Persist closure outside removable job records, under capacity.lock."""
+    path = admission_closed_path(job)
+    path.parent.mkdir(mode=0o700, exist_ok=True)
+    fd = os.open(path.parent.parent, os.O_RDONLY | os.O_DIRECTORY)
+    try:
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+    atomic(path, reason)
+
+
+def remove_reservation(path):
+    path.unlink(missing_ok=True)
+    fd = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY)
+    try:
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+
+
 def staging_identity(directory):
     # Called under capacity.lock. This identity survives Host reboot and NFS remount.
     file = directory / "filesystem.id"
@@ -81,11 +117,11 @@ class Backup:
         self.domain = self.vm
         self.dummy = False
         self.pull = False
-        self.created_snapshots = []
         self.success = False
         self.socket = Path("/var/lib/libvirt/qemu") / ("backup-" + self.manifest["backupUuid"] + ".sock")
         self.reservation = None
         self.engine = self.job / "volume-engine.json"
+        self.source_start = self.job / "volume-source-start.json"
         self.count = len(self.manifest["volumes"])
         self.live_bandwidth = False
         self.bandwidth_file = self.job / "volume-bandwidth-mbps"
@@ -144,6 +180,8 @@ class Backup:
                           if claim["storageKey"] == staging_key)
         with (directory / "capacity.lock").open("a") as lock:
             fcntl.flock(lock, fcntl.LOCK_EX)
+            if admission_closed_reason(self.job) is not None:
+                raise RuntimeError("Backup staging admission is closed")
             identity = staging_identity(directory)
             atomic(self.engine, {"stageDevice": stage_root.stat().st_dev, "stageFilesystemId": identity})
             self.reservation = directory / (self.manifest["backupUuid"] + ".json")
@@ -227,7 +265,6 @@ class Backup:
             for uri in self.plan["diskPaths"]:
                 args, image = self.rbd_command(uri)
                 run(args + ["snap", "create", image + "@" + checkpoint])
-                self.created_snapshots.append((args, image, checkpoint))
         finally:
             self.thaw_guest()
         metadata = ("vm_name=%s\nbackup_engine=RBD_DIFF\nbackup_type=%s\ncheckpoint_name=%s\n"
@@ -460,12 +497,24 @@ class Backup:
                 or (not metadata and confirmed.get("size") != artifact.get("size"))):
             raise RuntimeError("External confirmation differs from the requested artifact")
         self.manifest = updated
+        if metadata:
+            validate_completed_transfers(self.plan, updated)
+            # The external backup is already complete. A later local IO failure
+            # must never cause the current source checkpoint to be discarded.
+            self.success = True
+            record_completed_transfers(self.plan, self.job, updated)
         (self.job / "volume-request.json").unlink(missing_ok=True)
         if not metadata:
             Path(artifact["path"]).unlink()
         self.progress("METADATA_TRANSFER" if metadata else self.plan["providerStep"], index, 1)
 
     def execute(self):
+        if self.job.name != self.manifest["backupUuid"]:
+            raise RuntimeError("Source preparation belongs to another backup")
+        start = json.loads(self.source_start.read_text())
+        if (start != {"version": 1, "backupUuid": self.manifest["backupUuid"], "state": "NOT_STARTED"}
+                or self.engine.exists() or admission_closed_reason(self.job) is not None):
+            raise RuntimeError("Backup engine was already initialized; its source start record is protected")
         self.reserve()
         self.root.mkdir(parents=True, exist_ok=False)
         atomic(self.root / ".staging.inprogress", "volume_pipeline=true\n")
@@ -479,6 +528,10 @@ class Backup:
             if time.monotonic() >= deadline:
                 raise RuntimeError("External parent job did not release the source preparation gate")
             time.sleep(1)
+        self.check_cancel()
+        # Persist the intent before any libvirt/Ceph operation. Missing or ambiguous
+        # records cannot be treated as proof that the source was never touched.
+        atomic(self.source_start, {"version": 1, "backupUuid": self.manifest["backupUuid"], "state": "STARTED"})
         (self.job / "volume-request.json").unlink(missing_ok=True)
         try:
             xml = run(["virsh", "-c", "qemu:///system", "dumpxml", self.vm])
@@ -518,9 +571,12 @@ class Backup:
                     "sourceHost": self.plan["sourceHost"], "completed": False}
         self.transfer(self.count, metadata, True)
         self.progress("FINALIZING", self.count, 1)
-        self.success = True
 
     def close(self):
+        if self.success:
+            finalize_host(self.plan, self.job, self.manifest)
+            self.pull = False
+            return
         if self.pull:
             try:
                 run(["virsh", "-c", "qemu:///system", "domjobabort", self.domain], 30)
@@ -534,24 +590,99 @@ class Backup:
             except Exception:
                 print("Stopped VM backup domain cleanup is pending", flush=True)
                 self.pull = True
-        if not self.success:
-            for args, image, checkpoint in reversed(self.created_snapshots):
-                with contextlib.suppress(Exception):
-                    run(args + ["snap", "rm", image + "@" + checkpoint], 30)
-        elif self.plan["rbd"] and self.plan.get("parentCheckpointName"):
-            # Keep the current checkpoint for the next export-diff; retire the previous snapshot
-            # only after all image jobs and the final metadata job have been confirmed.
-            retire_parent_snapshots(self.plan, self.job)
-        if self.reservation and self.success and not self.pull:
-            with (self.reservation.parent / "capacity.lock").open("a") as lock:
-                fcntl.flock(lock, fcntl.LOCK_EX)
-                self.reservation.unlink(missing_ok=True)
+        # The final metadata acknowledgment may be delayed beyond engine exit.
+        # Only controller reconciliation may decide whether to remove checkpoints.
+
+
+def validate_completed_transfers(plan, manifest):
+    """Accept exact catalog confirmations for every artifact in the saved plan."""
+    expected = plan["manifest"]
+    if (manifest.get("version") != 1 or manifest.get("complete") is not True
+            or any(manifest.get(key) != expected.get(key)
+                   for key in ("backupUuid", "provider", "vmName", "timestamp", "backupType", "parentBackupUuid"))):
+        raise RuntimeError("Transfer completion differs from the saved backup plan")
+    volumes = manifest.get("volumes", [])
+    if len(volumes) != len(expected["volumes"]):
+        raise RuntimeError("Transfer completion has a different volume count")
+    owned = []
+    for volume, source in zip(volumes, expected["volumes"]):
+        if (any(volume.get(key) != source.get(key) for key in ("uuid", "deviceId", "provisionedBytes", "engine"))
+                or len(volume.get("chain", [])) != len(source["chain"])):
+            raise RuntimeError("Transfer completion has a different source volume")
+        for artifact, original in zip(volume["chain"], source["chain"]):
+            if any(artifact.get(key) != original.get(key)
+                   for key in ("path", "backupUuid", "checkpointName", "parentCheckpointName")):
+                raise RuntimeError("Transfer completion has a different artifact chain")
+            if (artifact.get("completed") is not True or artifact.get("submissionPending")
+                    or not all(artifact.get(key) for key in ("jobId", "externalId", "sourceHost"))):
+                raise RuntimeError("A volume transfer is not confirmed")
+        owned.append(volume["chain"][-1])
+    metadata = manifest.get("metadata")
+    if (not metadata or metadata.get("completed") is not True or metadata.get("submissionPending")
+            or metadata.get("path") != plan["backupPath"]
+            or not all(metadata.get(key) for key in ("jobId", "externalId", "sourceHost"))):
+        raise RuntimeError("The final metadata transfer is not confirmed")
+    for artifact in owned + [metadata]:
+        # Catalog clients may use the Host's IP instead of its Mold name.
+        # Host ownership comes from the immutable local plan and job directory.
+        if artifact.get("backupUuid") != expected["backupUuid"]:
+            raise RuntimeError("Transfer completion belongs to another backup")
+
+
+def record_completed_transfers(plan, job, manifest):
+    validate_completed_transfers(plan, manifest)
+    if job.name != manifest["backupUuid"]:
+        raise RuntimeError("Transfer completion belongs to another Host job")
+    receipt = job / "volume-transfer-complete.json"
+    if receipt.exists():
+        recorded = json.loads(receipt.read_text())
+        if recorded.get("version") != 1 or recorded.get("backupUuid") != job.name or recorded.get("state") != "COMPLETED":
+            raise RuntimeError("Existing transfer completion ownership is unconfirmed")
+        previous = recorded["manifest"]
+        validate_completed_transfers(plan, previous)
+        old = [v["chain"][-1] for v in previous["volumes"]] + [previous["metadata"]]
+        new = [v["chain"][-1] for v in manifest["volumes"]] + [manifest["metadata"]]
+        if any(any(a.get(key) != b.get(key) for key in ("jobId", "externalId", "path", "size", "sourceHost"))
+               for a, b in zip(old, new)):
+            raise RuntimeError("Confirmed external artifact references cannot be replaced")
+        return
+    atomic(receipt, {"version": 1, "backupUuid": job.name, "state": "COMPLETED", "manifest": manifest})
+
+
+def finalize_host(plan, job, manifest):
+    """Retry local cleanup without transferring data or deleting the current checkpoint."""
+    record_completed_transfers(plan, job, manifest)
+    finalization = job / "volume-finalization.json"
+    if finalization.exists():
+        recorded = json.loads(finalization.read_text())
+        if recorded.get("version") != 1 or recorded.get("backupUuid") != job.name:
+            raise RuntimeError("Existing Host finalization ownership is unconfirmed")
+        if recorded.get("state") == "COMPLETED":
+            return
+    atomic(finalization, {"version": 1, "backupUuid": job.name, "state": "WAITING"})
+    stage, root, engine = backup_cleanup_paths(plan, job)
+    if not engine.is_file():
+        raise RuntimeError("Source engine and original staging filesystem identity are unconfirmed")
+    cleanup_source(plan, job, engine, keep_checkpoint=True)
+    for volume in manifest["volumes"]:
+        artifact = Path(volume["chain"][-1]["path"])
+        if artifact.parent != root or artifact.is_symlink():
+            raise RuntimeError("Invalid completed artifact cleanup destination")
+        artifact.unlink(missing_ok=True)
+    reservations = stage / ".volume-reservations"
+    with (reservations / "capacity.lock").open("a") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        close_admission(job, "Backup staging completed\n")
+        remove_reservation(reservations / (job.name + ".json"))
+    atomic(finalization, {"version": 1, "backupUuid": job.name, "state": "COMPLETED"})
 
 
 def retire_parent_snapshots(plan, job):
     """Retain the current checkpoint and durably retry only the recorded parent."""
     receipt = job / "source-cleanup.json"
-    atomic(receipt, {"state": "WAITING", "backupUuid": plan["manifest"]["backupUuid"]})
+    result = {"version": 1, "state": "WAITING", "backupUuid": plan["manifest"]["backupUuid"],
+              "checkpointName": plan["checkpointName"], "parentCheckpointName": plan.get("parentCheckpointName")}
+    atomic(receipt, result)
     errors = []
     if plan["rbd"] and plan.get("parentCheckpointName"):
         if plan["parentCheckpointName"] == plan["checkpointName"]:
@@ -564,8 +695,8 @@ def retire_parent_snapshots(plan, job):
                     run(args + ["snap", "rm", image + "@" + plan["parentCheckpointName"]], 30)
             except Exception as exc:
                 errors.append("%s@%s: %s" % (image, plan["parentCheckpointName"], exc))
-    atomic(receipt, {"state": "WAITING" if errors else "COMPLETED", "backupUuid": plan["manifest"]["backupUuid"],
-                     "errors": errors})
+    result.update(state="WAITING" if errors else "COMPLETED", errors=errors)
+    atomic(receipt, result)
     return not errors
 
 
@@ -583,29 +714,10 @@ def thaw_owned_guest(receipt, vm):
         atomic(receipt, engine)
 
 
-def cleanup_failed(file):
-    """Called only after the controller confirms every external reader has stopped."""
-    plan = json.loads(file.read_text())
+def cleanup_source(plan, job, receipt, keep_checkpoint=False):
+    """Stop owned readers; preserve confirmed backups' current checkpoint."""
     manifest = plan["manifest"]
     job_id = manifest["backupUuid"]
-    job = file.parent
-    stage = Path(plan["stageRoot"]).resolve(strict=True)
-    root = Path(plan["backupPath"])
-    expected = stage / manifest["provider"] / manifest["vmName"] / manifest["timestamp"]
-    if root.resolve() != expected.resolve() or job.name != job_id or root.is_symlink():
-        raise RuntimeError("Invalid failed backup cleanup destination")
-    if root.exists() and (not (root / ".volume-bootstrap").is_file()
-                          or (root / ".volume-bootstrap").read_text().strip() != job_id):
-        raise RuntimeError("Backup directory ownership is unconfirmed; existing data is protected")
-    receipt = job / "volume-engine.json"
-    if receipt.exists():
-        engine = json.loads(receipt.read_text())
-        identity = stage / ".volume-reservations" / "filesystem.id"
-        if engine.get("stageFilesystemId"):
-            if not identity.is_file() or identity.read_text().strip() != engine["stageFilesystemId"]:
-                raise RuntimeError("Staging filesystem changed; mount the original filesystem before cleanup")
-        elif engine["stageDevice"] != stage.stat().st_dev:
-            raise RuntimeError("Staging filesystem changed; mount the original filesystem before cleanup")
     thaw_owned_guest(receipt, plan["vmName"])
     # No owner process may remain, including children orphaned by an engine crash.
     payloads = {volume["chain"][-1]["path"] for volume in manifest["volumes"]}
@@ -623,6 +735,14 @@ def cleanup_failed(file):
                 raise RuntimeError("Stopped an orphaned job NBD helper; waiting for it to exit")
         if args and Path(args[0]).name in {"rbd", "qemu-img"} and payloads.intersection(args):
             raise RuntimeError("A source export process still owns this backup payload")
+    if plan["rbd"]:
+        if not keep_checkpoint:
+            for uri in plan["diskPaths"]:
+                args, image = Backup.rbd_command(uri)
+                snapshots = json.loads(run(args + ["snap", "ls", "--format", "json", image]))
+                if any(item["name"] == plan["checkpointName"] for item in snapshots):
+                    run(args + ["snap", "rm", image + "@" + plan["checkpointName"]])
+        return
     domain = "DUMMY-VOLUME-" + job_id if (job / "dummy.xml").exists() else plan["vmName"]
     state = subprocess.run(["virsh", "-c", "qemu:///system", "domstate", domain], capture_output=True, text=True,
                            env=dict(os.environ, LC_ALL="C"))
@@ -641,7 +761,7 @@ def cleanup_failed(file):
         if domain.startswith("DUMMY-VOLUME-"):
             if active:
                 run(["virsh", "-c", "qemu:///system", "destroy", domain])
-        else:
+        elif not keep_checkpoint:
             names = run(["virsh", "-c", "qemu:///system", "checkpoint-list", domain, "--name"]).splitlines()
             if plan["checkpointName"] in names:
                 run(["virsh", "-c", "qemu:///system", "checkpoint-delete", domain, plan["checkpointName"], "--metadata"])
@@ -650,66 +770,150 @@ def cleanup_failed(file):
         domains = run(["virsh", "-c", "qemu:///system", "list", "--all", "--name"]).splitlines()
         if domain in domains:
             raise RuntimeError("Source domain state could not be confirmed")
-    if plan["rbd"]:
-        for uri in plan["diskPaths"]:
-            args, image = Backup.rbd_command(uri)
-            snapshots = json.loads(run(args + ["snap", "ls", "--format", "json", image]))
-            if any(item["name"] == plan["checkpointName"] for item in snapshots):
-                run(args + ["snap", "rm", image + "@" + plan["checkpointName"]])
-    elif (job / "pull.xml").exists():
+    if (job / "pull.xml").exists():
         xml = ET.fromstring(job.joinpath("pull.xml").read_text())
         parents = {Path(path).resolve().parent for path in plan["diskPaths"]}
         for scratch in xml.findall("./disks/disk/scratch"):
             path = Path(scratch.get("file", ""))
             if path.parent.resolve() not in parents or not path.name.startswith(".backup-" + job_id + "-"):
-                raise RuntimeError("Scratch file ownership does not match the failed backup")
+                raise RuntimeError("Scratch file ownership does not match this backup")
             path.unlink(missing_ok=True)
+
+
+def backup_cleanup_paths(plan, job):
+    manifest = plan["manifest"]
+    job_id = manifest["backupUuid"]
+    stage = Path(plan["stageRoot"]).resolve(strict=True)
+    root = Path(plan["backupPath"])
+    expected = stage / manifest["provider"] / manifest["vmName"] / manifest["timestamp"]
+    if root.resolve() != expected.resolve() or job.name != job_id or root.is_symlink():
+        raise RuntimeError("Invalid backup cleanup destination")
+    if root.exists() and (not (root / ".volume-bootstrap").is_file()
+                          or (root / ".volume-bootstrap").read_text().strip() != job_id):
+        raise RuntimeError("Backup directory ownership is unconfirmed; existing data is protected")
+    receipt = job / "volume-engine.json"
+    if receipt.exists():
+        engine = json.loads(receipt.read_text())
+        identity = stage / ".volume-reservations" / "filesystem.id"
+        if engine.get("stageFilesystemId"):
+            if not identity.is_file() or identity.read_text().strip() != engine["stageFilesystemId"]:
+                raise RuntimeError("Staging filesystem changed; mount the original filesystem before cleanup")
+        elif engine["stageDevice"] != stage.stat().st_dev:
+            raise RuntimeError("Staging filesystem changed; mount the original filesystem before cleanup")
+    return stage, root, receipt
+
+
+def cleanup_failed(file, source_not_started=False):
+    """Clean after writer termination, or durable proof that source IO never began."""
+    plan = json.loads(file.read_text())
+    manifest = plan["manifest"]
+    job_id = manifest["backupUuid"]
+    job = file.parent
+    if (job / "volume-transfer-complete.json").exists():
+        raise RuntimeError("Confirmed transfers require finalization instead of failed backup cleanup")
+    stage, root, receipt = backup_cleanup_paths(plan, job)
+    if source_not_started:
+        start_file = job / "volume-source-start.json"
+        start = json.loads(start_file.read_text())
+        if start != {"version": 1, "backupUuid": job_id, "state": "NOT_STARTED"}:
+            raise RuntimeError("Source preparation was started or its receipt is unconfirmed")
+        if ((job / "pull.xml").exists() or (job / "dummy.xml").exists()
+                or (receipt.exists() and json.loads(receipt.read_text()).get("freezePending"))
+                or any(Path(volume["chain"][-1]["path"]).exists() for volume in manifest["volumes"])):
+            raise RuntimeError("Source resources conflict with the NOT_STARTED receipt")
+    else:
+        cleanup_source(plan, job, receipt)
     if root.exists():
         shutil.rmtree(root)
     reservations = stage / ".volume-reservations"
-    if reservations.is_dir():
-        with (reservations / "capacity.lock").open("a") as lock:
-            fcntl.flock(lock, fcntl.LOCK_EX)
-            (reservations / (job_id + ".json")).unlink(missing_ok=True)
+    reservations.mkdir(mode=0o700, exist_ok=True)
+    with (reservations / "capacity.lock").open("a") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        # The receipt also survives subsequent Host job record cleanup.
+        close_admission(job, "Backup staging cleanup completed\n")
+        remove_reservation(reservations / (job_id + ".json"))
     atomic(job / "volume-cleanup.json", {"state": "COMPLETED"})
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--plan-file", required=True)
-    parser.add_argument("--action", choices=["backup", "cleanup", "cleanup-completed"], default="backup")
+    parser.add_argument("--action", choices=["backup", "cleanup", "cleanup-unstarted", "cleanup-completed", "finalize"], default="backup")
+    parser.add_argument("--completed-manifest-file")
+    parser.add_argument("--result-file")
     args = parser.parse_args()
     file = Path(args.plan_file)
     with (file.parent / "volume-engine.lock").open("a") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        if args.action == "cleanup":
-            cleanup_failed(file)
+        if args.action in ("cleanup", "cleanup-unstarted"):
+            cleanup_failed(file, args.action == "cleanup-unstarted")
             return 0
         if args.action == "cleanup-completed":
             plan = json.loads(file.read_text())
             if file.parent.name != plan["manifest"]["backupUuid"]:
                 raise RuntimeError("Completed source cleanup belongs to another backup")
             return 0 if retire_parent_snapshots(plan, file.parent) else 1
+        if args.action == "finalize":
+            plan = json.loads(file.read_text())
+            manifest = json.loads(Path(args.completed_manifest_file).read_text())
+            finalize_host(plan, file.parent, manifest)
+            if args.result_file:
+                atomic(Path(args.result_file), {"version": 1, "backupUuid": file.parent.name, "state": "COMPLETED"})
+            return 0
         return run_backup(args.plan_file)
 
 
+def claim_backup_start(plan_file):
+    """Use the Agent's POSIX record lock before any source or staging IO."""
+    file = Path(plan_file)
+    source = json.loads(file.read_text())
+    plan = source.get("backupStartPlan")
+    if plan is None:
+        return  # Existing jobs keep their original engine protocol.
+    job_id = file.parent.name
+    if (plan.get("version") != 1 or plan.get("jobId") != job_id
+            or plan.get("manifest") != source.get("manifest") or plan.get("backupPath") != source.get("backupPath")):
+        raise RuntimeError("Backup start plan differs from the source plan")
+    directory = Path("/var/lib/ablestack/backup/backup-start")
+    with (directory / (job_id + ".lock")).open("a") as lock:
+        fcntl.lockf(lock, fcntl.LOCK_EX)
+        receipt_file = directory / (job_id + ".json")
+        receipt = json.loads(receipt_file.read_text())
+        if receipt.get("version") != 1 or receipt.get("plan") != plan or receipt.get("state") != "DISPATCHED":
+            raise RuntimeError("Backup start is unprepared, already initialized or permanently blocked")
+        receipt["state"] = "STARTED"
+        receipt["checkedAt"] = int(time.time() * 1000)
+        atomic(receipt_file, receipt)
+
+
 def run_backup(plan_file):
+    claim_backup_start(plan_file)
+    file = Path(plan_file)
+    source = json.loads(file.read_text())
+    job = file.parent
+    if (job.name != source["manifest"]["backupUuid"] or (job / "volume-source-start.json").exists()
+            or (job / "volume-engine.json").exists()):
+        raise RuntimeError("Backup engine was already initialized; its source start record is protected")
+    # This proof also covers constructor/configuration failures before execute().
+    # Never reset it on a repeated or delayed engine invocation.
+    atomic(job / "volume-source-start.json", {"version": 1, "backupUuid": job.name, "state": "NOT_STARTED"})
     worker = Backup(plan_file)
     def interrupt(signum, frame):
         raise RuntimeError("Volume pipeline interrupted")
     signal.signal(signal.SIGTERM, interrupt)
     signal.signal(signal.SIGINT, interrupt)
+    finalized = False
     try:
         worker.execute()
     except Exception as exc:
-        print("Volume backup failed: %s" % exc, flush=True)
-        return 1
+        print("%s: %s" % ("Volume backup finalization is pending" if worker.success else "Volume backup failed", exc), flush=True)
     finally:
-        worker.close()
-    if worker.pull:
-        print("Source cleanup did not terminate its backup reader; reconciliation is required", flush=True)
-        return 1
-    return 0
+        try:
+            worker.close()
+            finalized = worker.success
+        except Exception as exc:
+            print("Host backup cleanup is pending: %s" % exc, flush=True)
+    return 0 if finalized else 1
 
 
 if __name__ == "__main__":

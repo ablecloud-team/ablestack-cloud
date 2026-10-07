@@ -38,7 +38,12 @@
         <a-descriptions-item label="Staging Job ID">{{ info.stagingjobid }}</a-descriptions-item>
         <a-descriptions-item :label="$t('label.vm')">{{ info.vmname }} · {{ info.timestamp }}</a-descriptions-item>
         <a-descriptions-item v-if="operation === 'RESTORE'" label="Restore target VM">{{ info.targetvmname || 'NOT_RECORDED' }}</a-descriptions-item>
-        <a-descriptions-item v-if="operation === 'RESTORE'" label="Restore start">{{ info.startstate || 'NOT_RECORDED' }} · {{ info.startreason || '—' }}<div v-if="info.startsubmittedat">Dispatch intent: {{ $toLocaleDate(info.startsubmittedat) }}</div><div v-if="info.startcheckedat">Confirmed: {{ $toLocaleDate(info.startcheckedat) }}</div></a-descriptions-item>
+        <a-descriptions-item v-if="info.startstate || operation === 'RESTORE'" :label="operation === 'RESTORE' ? 'Restore start' : 'Backup start'">{{ info.startstate || 'NOT_RECORDED' }} · {{ info.startreason || '—' }}<div v-if="info.startsubmittedat">Dispatch intent: {{ $toLocaleDate(info.startsubmittedat) }}</div><div v-if="info.startcheckedat">Confirmed: {{ $toLocaleDate(info.startcheckedat) }}</div></a-descriptions-item>
+        <a-descriptions-item v-if="info.cancelrequestedat" :label="operation === 'RESTORE' ? 'Restore cancellation' : 'Backup cancellation'">
+          {{ info.cancelreason || 'Cancellation requested; termination and cleanup must be confirmed' }}
+          <div>Requested: {{ $toLocaleDate(info.cancelrequestedat) }}</div>
+          <div v-if="info.cancelconfirmedat">Host acknowledged: {{ $toLocaleDate(info.cancelconfirmedat) }}</div>
+        </a-descriptions-item>
         <a-descriptions-item :label="$t('label.host')">{{ info.hostname || 'UNKNOWN' }}</a-descriptions-item>
         <a-descriptions-item label="Destination">{{ info.destination }}</a-descriptions-item>
         <a-descriptions-item label="Host state / step">{{ info.hoststate }} / {{ info.step || '—' }} <span v-if="info.progress != null">({{ info.progress }}%)</span></a-descriptions-item>
@@ -50,11 +55,13 @@
         <a-descriptions-item v-if="!info.historical && info.stagingqueue?.primarystorage?.length" label="Primary storage reservations">
           <div v-for="claim in info.stagingqueue.primarystorage" :key="claim.storagekey">
             {{ claim.storagekey }} · Required: {{ bytes(claim.requiredbytes) }} · Effective available: {{ bytes(claim.effectiveavailablebytes) }}
-            · {{ ['ADMITTING', 'ADMITTED'].includes(info.stagingqueue.state) ? 'HELD' : info.stagingqueue.state === 'RELEASED' ? 'RELEASED' : 'NOT_RESERVED' }}
+            · {{ ['ADMITTING', 'ADMITTED', 'CANCEL_PENDING'].includes(info.stagingqueue.state) ? 'HELD' : info.stagingqueue.state === 'RELEASED' ? 'RELEASED' : 'NOT_RESERVED' }}
           </div>
         </a-descriptions-item>
         <a-descriptions-item label="Cleanup">{{ info.cleanupstate || '—' }} · {{ info.cleanupreason || '—' }}</a-descriptions-item>
         <a-descriptions-item v-if="operation === 'BACKUP' && info.sourcecleanupstate" label="Previous RBD snapshot cleanup">{{ info.sourcecleanupstate }} · {{ info.sourcecleanupreason || '—' }}</a-descriptions-item>
+        <a-descriptions-item v-if="operation === 'BACKUP' && info.jobcleanupstate" label="Host job record cleanup">{{ info.jobcleanupstate }} · {{ info.jobcleanupreason || '—' }}</a-descriptions-item>
+        <a-descriptions-item v-if="operation === 'BACKUP' && info.finalizationstate" label="Backup finalization">{{ info.finalizationstate }} · {{ info.finalizationreason || '—' }}</a-descriptions-item>
         <a-descriptions-item v-if="operation === 'RESTORE'" label="VM restore outcome">{{ info.vmrestore?.outcome || 'NOT_RECORDED' }} · {{ info.vmrestore?.phase || 'NOT_RECORDED' }}</a-descriptions-item>
         <a-descriptions-item v-if="operation === 'RESTORE'" label="Primary volume cleanup">{{ info.vmrestore?.primarycleanupstate || 'NOT_RECORDED' }}</a-descriptions-item>
         <a-descriptions-item v-if="operation === 'RESTORE' && info.vmrestore?.transactionid" label="VM transaction">{{ info.vmrestore.transactionid }} · Revision {{ info.vmrestore.revision }}</a-descriptions-item>
@@ -136,7 +143,7 @@ export default {
     },
     canCleanup () {
       const terminal = ['COMPLETED', 'FAILED', 'INTERRUPTED', 'CANCELED'].includes(this.info?.hoststate)
-      const unstarted = this.operation === 'RESTORE' && this.info?.hoststate === 'UNKNOWN' && ['PREPARING', 'PREPARED', 'SUBMISSION_PENDING', 'START_FAILED'].includes(this.info?.startstate)
+      const unstarted = this.info?.hoststate === 'UNKNOWN' && ['PREPARING', 'PREPARED', 'SUBMISSION_PENDING', 'START_FAILED'].includes(this.info?.startstate)
       return !this.info?.historical && (terminal || unstarted) && this.info?.cleanupstate !== 'COMPLETED' &&
         (this.operation === 'RESTORE' || ['Failed', 'Canceled', 'Error'].includes(this.resource.status))
     },

@@ -48,6 +48,16 @@ final class LibvirtAblestackTakeBackupCommandHelper {
                 trace, context.vmName, context.backupPath, context.backupType);
 
         if (!context.waitForCompletion) {
+            String startPlan = command instanceof org.apache.cloudstack.backup.AblestackCommvaultTakeBackupCommand
+                    ? ((org.apache.cloudstack.backup.AblestackCommvaultTakeBackupCommand) command).getVolumeBackupStartPlan()
+                    : command instanceof org.apache.cloudstack.backup.AblestackNetBackupTakeBackupCommand
+                    ? ((org.apache.cloudstack.backup.AblestackNetBackupTakeBackupCommand) command).getVolumeBackupStartPlan()
+                    : command instanceof org.apache.cloudstack.backup.AblestackVeeamTakeBackupCommand
+                    ? ((org.apache.cloudstack.backup.AblestackVeeamTakeBackupCommand) command).getVolumeBackupStartPlan() : null;
+            if (startPlan != null) {
+                return LibvirtAblestackBackupStartHelper.launch(command, logger, trace, provider, context.jobId, context.vmName,
+                        context.backupPath, context.backupType, startPlan, detachedCommandSupplier);
+            }
             final String[] detachedCommand = detachedCommandSupplier.get();
             if (detachedCommand != null) {
                 final boolean liveBandwidthSupported = Arrays.asList(detachedCommand).contains("backup-running");

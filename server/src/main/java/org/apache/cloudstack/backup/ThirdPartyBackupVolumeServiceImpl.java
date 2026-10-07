@@ -56,6 +56,183 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
 
     private static final String MANUAL_INSPECTION_KEY = "thirdparty.staging.manual.inspection";
 
+    @Override
+    public void persistBackupPlan(Backup backup) {
+        if (!ThirdPartyBackupManifest.VOLUME_MODE.equals(backup.getDetail(ThirdPartyBackupManifest.MODE_KEY))) {
+            throw new CloudRuntimeException("The backup does not contain a volume staging plan");
+        }
+        ThirdPartyBackupManifest manifest = ThirdPartyBackupManifest.fromJson(backup.getDetail(ThirdPartyBackupManifest.DETAIL_KEY));
+        manifest.validate(false);
+        if (!backup.getUuid().equals(manifest.getBackupUuid())) {
+            throw new CloudRuntimeException("The volume staging plan belongs to a different backup");
+        }
+        com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<Boolean>) status -> {
+            BackupVO current = backupDao.lockRow(backup.getId(), true);
+            if (current == null || current.getRemoved() != null || current.getStatus() != Backup.Status.BackingUp
+                    || !current.getUuid().equals(backup.getUuid())) {
+                throw new CloudRuntimeException("The backup is no longer available for initial Host dispatch");
+            }
+            backupDao.loadDetails(current);
+            if (StringUtils.isNotBlank(current.getDetail(ThirdPartyBackupManifest.MODE_KEY))) {
+                throw new CloudRuntimeException("The initial volume backup plan is already persisted");
+            }
+            for (Backup other : backupDao.listByVmId(current.getZoneId(), current.getVmId())) {
+                if (other.getId() == current.getId()) { continue; }
+                backupDao.loadDetails((BackupVO) other);
+                if (ThirdPartyBackupManifest.VOLUME_MODE.equals(other.getDetail(ThirdPartyBackupManifest.MODE_KEY))
+                        && (other.getStatus() == Backup.Status.BackingUp
+                                || (isFailedPipeline(other) && ThirdPartyBackupVolumeService.needsBackupCleanup(other)))) {
+                    throw new CloudRuntimeException("The previous volume backup must confirm termination and staging cleanup before another attempt");
+                }
+            }
+            BackupVO update = backupDao.createForUpdate(current.getId());
+            update.setBackedUpVolumes(new Gson().toJson(backup.getBackedUpVolumes()));
+            update.setDetails(new java.util.HashMap<>(backup.getDetails()));
+            if (!backupDao.update(current.getId(), update)) {
+                throw new CloudRuntimeException("Unable to persist the volume backup plan");
+            }
+            backupDetailsDao.addDetail(current.getId(), AblestackBackupFrameworkUtils.RESOURCE_COUNT_PENDING_DETAIL,
+                    Boolean.TRUE.toString(), false);
+            ThirdPartyBackupStart.Operation start = new ThirdPartyBackupStart.Operation();
+            start.plan = new ThirdPartyBackupStart.Plan();
+            start.plan.jobId = current.getUuid();
+            if (current.getHostId() == null) { throw new CloudRuntimeException("Backup Worker Host is missing"); }
+            start.plan.hostId = current.getHostId();
+            start.plan.backupPath = current.getExternalId().split(",", 2)[0];
+            start.plan.manifest = new Gson().fromJson(manifest.toJson(), ThirdPartyBackupManifest.class);
+            start.state = "PREPARING";
+            start.createdAt = System.currentTimeMillis();
+            saveBackupStart(current.getId(), start);
+            return true;
+        });
+        backup.getDetails().put(AblestackBackupFrameworkUtils.RESOURCE_COUNT_PENDING_DETAIL, Boolean.TRUE.toString());
+    }
+
+    private ThirdPartyBackupStart.Operation readBackupStart(long id) {
+        BackupDetailVO detail = backupDetailsDao.findDetail(id, ThirdPartyBackupStart.DETAIL_KEY);
+        if (detail == null) { return null; }
+        ThirdPartyBackupStart.Operation start = new Gson().fromJson(detail.getValue(), ThirdPartyBackupStart.Operation.class);
+        if (start == null || start.plan == null || start.plan.version != ThirdPartyBackupStart.VERSION
+                || start.plan.manifest == null || StringUtils.isBlank(start.plan.jobId)
+                || !start.plan.jobId.equals(start.plan.manifest.getBackupUuid()) || start.plan.hostId <= 0
+                || StringUtils.isBlank(start.plan.backupPath) || start.createdAt <= 0
+                || start.cancelRequestedAt < 0 || start.cancelConfirmedAt < 0
+                || (start.cancelConfirmedAt > 0 && start.cancelRequestedAt == 0)
+                || !java.util.Set.of("PREPARING", "PREPARED", "SUBMISSION_PENDING", "STARTED", "START_FAILED")
+                        .contains(StringUtils.defaultString(start.state))) {
+            throw new CloudRuntimeException("Persisted backup start ownership is unconfirmed");
+        }
+        return start;
+    }
+
+    private void saveBackupStart(long id, ThirdPartyBackupStart.Operation start) {
+        backupDetailsDao.addDetail(id, ThirdPartyBackupStart.DETAIL_KEY, new Gson().toJson(start), false);
+    }
+
+    private void saveBackupStartReason(long id, String reason) {
+        ThirdPartyBackupStart.Operation start = readBackupStart(id);
+        if (start == null || "STARTED".equals(start.state) || "START_FAILED".equals(start.state)) { return; }
+        start.reason = StringUtils.defaultIfBlank(reason, "Backup start confirmation is pending");
+        saveBackupStart(id, start);
+    }
+
+    @Override
+    public void recordBackupStartUnconfirmed(Backup backup, String reason) {
+        GlobalLock lock = GlobalLock.getInternLock("backup.volume." + backup.getUuid());
+        boolean acquired = false;
+        try {
+            acquired = lock.lock(5);
+            if (!acquired) { throw new CloudRuntimeException("Backup start confirmation is being reconciled"); }
+            saveBackupStartReason(backup.getId(), reason);
+        } finally {
+            if (acquired) { lock.unlock(); }
+            lock.releaseRef();
+        }
+    }
+
+    private ThirdPartyBackupStart.Receipt backupStartControl(Host host, ThirdPartyBackupStart.Plan plan, String action)
+            throws com.cloud.exception.AgentUnavailableException, com.cloud.exception.OperationTimedoutException {
+        if (host == null || host.getId() != plan.hostId) { throw new CloudRuntimeException("Backup start Worker Host differs from the recorded attempt"); }
+        Answer answer = agentManager.send(host.getId(), new AblestackVolumeStagingCommand(plan.jobId, action, -1, new Gson().toJson(plan)));
+        if (answer == null || !answer.getResult() || StringUtils.isBlank(answer.getDetails())) {
+            throw new CloudRuntimeException(answer == null ? "Host did not confirm backup start control" : answer.getDetails());
+        }
+        ThirdPartyBackupStart.Receipt receipt = new Gson().fromJson(answer.getDetails(), ThirdPartyBackupStart.Receipt.class);
+        if (receipt == null || receipt.version != ThirdPartyBackupStart.VERSION || receipt.plan == null || receipt.checkedAt <= 0
+                || !new Gson().toJsonTree(plan).equals(new Gson().toJsonTree(receipt.plan))
+                || !java.util.Set.of("PREPARED", "DISPATCHED", "STARTED", "START_FAILED").contains(StringUtils.defaultString(receipt.state))) {
+            throw new CloudRuntimeException("Host backup start proof differs from the recorded dispatch");
+        }
+        return receipt;
+    }
+
+    @Override
+    public void dispatchBackup(Backup backup, Host host, com.cloud.agent.api.Command command, Transfer transfer) {
+        GlobalLock lock = GlobalLock.getInternLock("backup.volume." + backup.getUuid());
+        boolean acquired = false;
+        try {
+            acquired = lock.lock(5);
+            if (!acquired) { throw new CloudRuntimeException("Backup dispatch is being reconciled; no new command was sent"); }
+            ThirdPartyBackupStart.Operation start = readBackupStart(backup.getId());
+            if (start == null || !backup.getUuid().equals(start.plan.jobId) || !"PREPARING".equals(start.state)) {
+                throw new CloudRuntimeException("Backup dispatch is already recorded or permanently blocked");
+            }
+            if (start.cancelRequestedAt > 0) { throw new CloudRuntimeException("Backup cancellation is pending; no start command was sent"); }
+            requireBackupWorker(backup, host);
+            registerAdmission(backup.getId(), host, backup.getUuid(), "BACKUP");
+            ThirdPartyBackupStart.Receipt receipt = backupStartControl(host, start.plan, "BACKUP_START_PREPARE");
+            if (!"PREPARED".equals(receipt.state)) { throw new CloudRuntimeException("Backup start preparation was not accepted"); }
+            start.state = "PREPARED";
+            start.checkedAt = receipt.checkedAt;
+            saveBackupStart(backup.getId(), start);
+            String json = new Gson().toJson(start.plan);
+            if (command instanceof AblestackCommvaultTakeBackupCommand) { ((AblestackCommvaultTakeBackupCommand) command).setVolumeBackupStartPlan(json); }
+            else if (command instanceof AblestackNetBackupTakeBackupCommand) { ((AblestackNetBackupTakeBackupCommand) command).setVolumeBackupStartPlan(json); }
+            else if (command instanceof AblestackVeeamTakeBackupCommand) { ((AblestackVeeamTakeBackupCommand) command).setVolumeBackupStartPlan(json); }
+            else { throw new CloudRuntimeException("Unsupported volume backup dispatch command"); }
+            start.state = "SUBMISSION_PENDING";
+            start.submittedAt = System.currentTimeMillis();
+            start.reason = null;
+            // Persist the intent before sending anything that can initialize the Host engine.
+            saveBackupStart(backup.getId(), start);
+            Answer answer = agentManager.send(host.getId(), command);
+            if (answer == null || !answer.getResult()) {
+                saveBackupStartReason(backup.getId(), answer == null ? "Host start response was not received" : answer.getDetails());
+            }
+        } catch (Exception e) {
+            if (acquired) {
+                try { saveBackupStartReason(backup.getId(), e.getMessage()); }
+                catch (RuntimeException saveFailure) { logger.warn("Unable to persist backup start confirmation reason [{}]", backup.getUuid(), saveFailure); }
+            }
+            logger.warn("Backup start is unconfirmed [{}]; the same attempt will be reconciled: {}", backup.getUuid(), e.getMessage());
+        } finally {
+            if (acquired) { lock.unlock(); }
+            lock.releaseRef();
+        }
+        try { track(backup, host, transfer); }
+        catch (RuntimeException e) { logger.warn("Backup start tracking will resume during provider reconciliation [{}]", backup.getUuid(), e); }
+    }
+
+    @Override
+    public void reconcileResourceCounts(Backup backup) {
+        com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<Boolean>) status -> {
+            // Deletion and other Management Servers lock this same row before accounting.
+            BackupVO current = backupDao.lockRow(backup.getId(), true);
+            if (current == null || current.getRemoved() != null || current.getStatus() != Backup.Status.BackedUp) { return false; }
+            backupDao.loadDetails(current);
+            if (!ThirdPartyBackupManifest.VOLUME_MODE.equals(current.getDetail(ThirdPartyBackupManifest.MODE_KEY))
+                    || !Boolean.parseBoolean(current.getDetail(AblestackBackupFrameworkUtils.RESOURCE_COUNT_PENDING_DETAIL))) {
+                return false;
+            }
+            long size = current.getSize() == null ? 0L : current.getSize();
+            if (size < 0L) { throw new CloudRuntimeException("The completed backup has an invalid size"); }
+            resourceLimitService.incrementResourceCount(current.getAccountId(), com.cloud.configuration.Resource.ResourceType.backup);
+            resourceLimitService.incrementResourceCount(current.getAccountId(), com.cloud.configuration.Resource.ResourceType.backup_storage, size);
+            backupDetailsDao.removeDetail(current.getId(), AblestackBackupFrameworkUtils.RESOURCE_COUNT_PENDING_DETAIL);
+            return true;
+        });
+    }
+
     private BackupVO stagingBackup(long id) {
         BackupVO backup = backupDao.findById(id);
         if (backup == null) { throw new CloudRuntimeException("Selected backup no longer exists"); }
@@ -77,11 +254,59 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
     public Host getWorkerHost(Backup backup, String operation) {
         admissionKey(operation);
         BackupVO current = stagingBackup(backup.getId());
-        if ("RESTORE".equals(operation)) { return hostDao.findById(restorePlan(current).hostId); }
+        if ("RESTORE".equals(operation)) {
+            ThirdPartyBackupRestore.Plan plan = restorePlan(current);
+            ThirdPartyBackupAdmission.Entry entry = readAdmission(current.getId(), operation);
+            String recordedHost = current.getDetail(AblestackBackupFrameworkUtils.RESTORE_HOST_ID_DETAIL);
+            String recordedJob = current.getDetail(AblestackBackupFrameworkUtils.RESTORE_JOB_ID_DETAIL);
+            String cleanupJob = current.getDetail(AblestackBackupFrameworkUtils.RESTORE_JOB_CLEANUP_ID_DETAIL);
+            if (plan.hostId <= 0 || plan.manifest == null || !current.getUuid().equals(plan.manifest.getBackupUuid())
+                    || (StringUtils.isNotBlank(recordedHost) && !String.valueOf(plan.hostId).equals(recordedHost))
+                    || (StringUtils.isNotBlank(recordedJob) && !plan.jobId.equals(recordedJob))
+                    || (StringUtils.isNotBlank(cleanupJob) && !plan.jobId.equals(cleanupJob))
+                    || (entry != null && (!operation.equals(entry.operation)
+                            || (plan.jobId.equals(entry.jobId) ? entry.hostId != plan.hostId : !"RELEASED".equals(entry.state))))) {
+                throw new CloudRuntimeException("Restore plan, tracking and admission Worker Host or attempt disagree");
+            }
+            return hostDao.findById(plan.hostId);
+        }
+        ThirdPartyBackupStart.Operation start = readBackupStart(current.getId());
+        Long hostId = current.getHostId();
+        if (start != null) {
+            if (!current.getUuid().equals(start.plan.jobId) || (hostId != null && hostId.longValue() != start.plan.hostId)) {
+                throw new CloudRuntimeException("Backup start and recorded Worker Host disagree");
+            }
+            hostId = start.plan.hostId;
+        }
         ThirdPartyBackupAdmission.Entry entry = readAdmission(current.getId(), operation);
-        if (entry != null) { return hostDao.findById(entry.hostId); }
+        if (entry != null) {
+            if (!current.getUuid().equals(entry.jobId) || !"BACKUP".equals(entry.operation) || entry.hostId <= 0
+                    || (hostId != null && hostId.longValue() != entry.hostId)) {
+                throw new CloudRuntimeException("Backup admission and recorded Worker Host disagree");
+            }
+            hostId = entry.hostId;
+        }
+        if (hostId != null) { return hostDao.findById(hostId); }
+        // Legacy volume jobs may record only the original Host name/address. Never use the VM's current Host.
         ThirdPartyBackupManifest manifest = ThirdPartyBackupManifest.fromJson(current.getDetail(ThirdPartyBackupManifest.DETAIL_KEY));
-        return hostDao.findByName(manifest.getCurrentArtifacts().get(0).sourceHost);
+        String source = manifest.getCurrentArtifacts().get(0).sourceHost;
+        Host recorded = hostDao.findByName(source);
+        return recorded != null ? recorded : hostDao.findByIp(source);
+    }
+
+    private void requireBackupWorker(Backup backup, Host host) {
+        Host recorded = getWorkerHost(backup, "BACKUP");
+        if (recorded == null || host == null || recorded.getId() != host.getId()) {
+            throw new CloudRuntimeException("The recorded backup Worker Host is unavailable or differs from this request; reservations are retained");
+        }
+    }
+
+    private void requireRestoreWorker(Backup backup, Host host, ThirdPartyBackupRestore.Plan plan) {
+        Host recorded = getWorkerHost(backup, "RESTORE");
+        if (recorded == null || host == null || recorded.getId() != host.getId() || host.getId() != plan.hostId
+                || !new Gson().toJson(plan).equals(new Gson().toJson(restorePlan(stagingBackup(backup.getId()))))) {
+            throw new CloudRuntimeException("The recorded restore Worker Host or plan differs from this request; reservations are retained");
+        }
     }
 
     private String stagingAttempt(Backup backup, String operation) {
@@ -191,6 +416,20 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
             info.startreason = recorded.startFailureReason;
             info.startsubmittedat = historyDate(recorded.startSubmittedAt);
             info.startcheckedat = historyDate(recorded.startCheckedAt);
+            info.cancelrequestedat = historyDate(recorded.cancelRequestedAt);
+            info.cancelconfirmedat = historyDate(recorded.cancelConfirmedAt);
+            info.cancelreason = recorded.cancelReason;
+        } else if (plan == null) {
+            ThirdPartyBackupStart.Operation start = readBackupStart(backup.getId());
+            if (start != null) {
+                info.startstate = start.state;
+                info.startreason = start.reason;
+                info.startsubmittedat = historyDate(start.submittedAt);
+                info.startcheckedat = historyDate(start.checkedAt);
+                info.cancelrequestedat = historyDate(start.cancelRequestedAt);
+                info.cancelconfirmedat = historyDate(start.cancelConfirmedAt);
+                info.cancelreason = start.cancelReason;
+            }
         }
         if (plan != null) {
             info.vmrestore = new BackupStagingInfoResponse.VmRestoreInfo(recorded == null ? null : recorded.vmResult,
@@ -204,6 +443,10 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
         if (plan == null) {
             info.sourcecleanupstate = backup.getDetail(ThirdPartyBackupManifest.SOURCE_CLEANUP_STATE_KEY);
             info.sourcecleanupreason = backup.getDetail(ThirdPartyBackupManifest.SOURCE_CLEANUP_DETAILS_KEY);
+            info.jobcleanupstate = backup.getDetail(ThirdPartyBackupManifest.JOB_CLEANUP_STATE_KEY);
+            info.jobcleanupreason = backup.getDetail(ThirdPartyBackupManifest.JOB_CLEANUP_DETAILS_KEY);
+            info.finalizationstate = backup.getDetail(ThirdPartyBackupManifest.FINALIZATION_STATE_KEY);
+            info.finalizationreason = backup.getDetail(ThirdPartyBackupManifest.FINALIZATION_DETAILS_KEY);
         }
         ThirdPartyBackupAdmission.Entry entry = info.historical ? null : readAdmission(backup.getId(), operation);
         if (entry != null && info.stagingjobid.equals(entry.jobId)) {
@@ -374,8 +617,9 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
             try (Lease lease = acquireLifecycle(backup.getVmId())) {
                 BackupVO current = stagingBackup(backup.getId());
                 if (!jobId.equals(stagingAttempt(current, operation))) { throw new CloudRuntimeException("Stale staging attempt; refresh its details"); }
-                if ("RETRY_CLEANUP".equals(action) && "COMPLETED".equals(current.getDetail(
-                        "BACKUP".equals(operation) ? ThirdPartyBackupManifest.CLEANUP_STATE_KEY : ThirdPartyBackupRestore.CLEANUP_STATE_KEY))) {
+                if ("RETRY_CLEANUP".equals(action) && ("BACKUP".equals(operation)
+                        ? !ThirdPartyBackupVolumeService.needsBackupCleanup(current)
+                        : "COMPLETED".equals(current.getDetail(ThirdPartyBackupRestore.CLEANUP_STATE_KEY)))) {
                     return inspectLocked(current, operation);
                 }
                 if (StringUtils.isNotBlank(current.getDetail(ThirdPartyBackupManifest.DELETE_PROGRESS_KEY))) {
@@ -466,6 +710,10 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
 
     private void manageBackup(BackupVO backup, Host host, String action, Integer index, String jobId, Transfer transfer) throws Exception {
         ThirdPartyBackupManifest manifest = ThirdPartyBackupManifest.fromJson(backup.getDetail(ThirdPartyBackupManifest.DETAIL_KEY));
+        if (!"LINK_JOB".equals(action) && host != null
+                && (backup.getStatus() == Backup.Status.BackingUp || isFailedPipeline(backup))
+                && reconcileBackupStart(backup, host, manifest)) { return; }
+        if ("RECHECK".equals(action) && host != null && requestPendingBackupCancellation(backup, host)) { return; }
         java.util.List<ThirdPartyBackupManifest.Artifact> owned = manifest.getOwnedArtifacts();
         if ("LINK_JOB".equals(action)) {
             if (index < 0 || index >= owned.size()) { throw new CloudRuntimeException("Selected owned artifact is unavailable"); }
@@ -493,7 +741,8 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
             if (!errors.isEmpty()) { throw new CloudRuntimeException(String.join("; ", errors)); }
         } else {
             if (!isFailedPipeline(backup)) { throw new CloudRuntimeException("Only a failed or canceled source pipeline permits staging cleanup retry"); }
-            if (!hostTerminal(host, "BACKUP", backup.getUuid())) {
+            if (!"COMPLETED".equals(backup.getDetail(ThirdPartyBackupManifest.CLEANUP_STATE_KEY))
+                    && !hostTerminal(host, "BACKUP", backup.getUuid())) {
                 throw new CloudRuntimeException("Host engine termination is unconfirmed; staging reservation is retained");
             }
             reconcileFailedBackup(backup, host, manifest, transfer);
@@ -527,6 +776,7 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
     private void manageRestore(BackupVO backup, Host host, String action, Integer index, String jobId, RestoreTransfer transfer) throws Exception {
         ThirdPartyBackupRestore.Plan plan = restorePlan(backup);
         ensureRestoreOperation(backup, plan);
+        if (!"LINK_JOB".equals(action) && host != null && reconcilePendingRestoreCancellation(backup, host, plan, transfer)) { return; }
         if ("LINK_JOB".equals(action)) {
             ThirdPartyBackupRestore.Record record = index == null ? null : readRestoreRecord(backup, plan, index);
             if (record == null || !unresolvedRestore(record)) {
@@ -586,7 +836,12 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
 
     private ThirdPartyBackupAdmission.Entry createAdmission(long backupId, Host host, String jobId, String operation) {
         ThirdPartyBackupAdmission.Entry entry = readAdmission(backupId, operation);
-        if (entry != null && jobId.equals(entry.jobId)) { return entry; }
+        if (entry != null && jobId.equals(entry.jobId)) {
+            if (entry.hostId != host.getId() || !operation.equals(entry.operation)) {
+                throw new CloudRuntimeException("Staging registration differs from the recorded Worker Host or operation");
+            }
+            return entry;
+        }
         if (entry != null && !"RELEASED".equals(entry.state)) {
             throw new CloudRuntimeException("The previous staging attempt has not completed cleanup");
         }
@@ -677,7 +932,8 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
             if (!acquired) { return; }
             ThirdPartyBackupAdmission.Entry entry = createAdmission(backup.getId(), host, jobId, operation);
             if (entry.hostId != host.getId()) { throw new CloudRuntimeException("Staging Worker Host changed"); }
-            if ("ADMITTED".equals(entry.state) || "RELEASED".equals(entry.state) || "CANCEL_REQUESTED".equals(entry.state)) { return; }
+            if ("ADMITTED".equals(entry.state) || "RELEASED".equals(entry.state)
+                    || "CANCEL_REQUESTED".equals(entry.state) || "CANCEL_PENDING".equals(entry.state)) { return; }
             long requestedBytes = ((Number) request.get("requiredBytes")).longValue();
             if (entry.requiredBytes > 0 && entry.requiredBytes != requestedBytes) {
                 throw new CloudRuntimeException("Staging capacity requirement changed during admission");
@@ -954,6 +1210,67 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
             if (!acquired) { throw new CloudRuntimeException("Staging admission is in progress; retry cancellation shortly"); }
             ThirdPartyBackupAdmission.Entry entry = readAdmission(backup.getId(), operation);
             if (entry == null || !entry.jobId.equals(jobId)) { throw new CloudRuntimeException("Staging queue attempt changed; refresh before canceling"); }
+            ThirdPartyBackupStart.Operation start = "BACKUP".equals(operation) ? readBackupStart(backup.getId()) : null;
+            if ("RESTORE".equals(operation)) {
+                BackupVO current = stagingBackup(backup.getId());
+                ThirdPartyBackupRestore.Plan plan = restorePlan(current);
+                if (plan.startProtocolVersion == ThirdPartyBackupRestore.START_PROTOCOL_VERSION) {
+                    ThirdPartyBackupRestore.Operation restore = ensureRestoreOperation(current, plan);
+                    // Validate recorded ownership; saving intent still permits an absent Worker Host.
+                    getWorkerHost(current, operation);
+                    if (!jobId.equals(plan.jobId) || !operation.equals(entry.operation) || entry.hostId != plan.hostId) {
+                        throw new CloudRuntimeException("Cancellation differs from the recorded restore Worker Host or attempt");
+                    }
+                    if (restore.cancelRequestedAt > 0) { return true; }
+                    if (!"WAITING".equals(entry.state) || "COMPLETED".equals(restore.cleanupState)
+                            || !restoreRecords(current, plan).isEmpty()) {
+                        throw new CloudRuntimeException("Only waiting restore jobs with no external transfer requests can be canceled");
+                    }
+                    restore.cancelRequestedAt = System.currentTimeMillis();
+                    restore.cancelReason = "Restore cancellation requested; waiting for Host termination and staging cleanup";
+                    entry.state = "CANCEL_PENDING";
+                    entry.reason = restore.cancelReason;
+                    com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<Boolean>) status -> {
+                        writeRestoreOperation(current.getId(), restore);
+                        saveAdmission(current.getId(), entry);
+                        backupDetailsDao.addDetail(current.getId(), AblestackBackupFrameworkUtils.RESTORE_JOB_STATE_DETAIL, "RUNNING", false);
+                        backupDetailsDao.addDetail(current.getId(), AblestackBackupFrameworkUtils.RESTORE_JOB_STEP_DETAIL, "CANCEL_PENDING", false);
+                        backupDetailsDao.addDetail(current.getId(), AblestackBackupFrameworkUtils.RESTORE_JOB_PROGRESS_DETAIL, "0", false);
+                        return true;
+                    });
+                    return true;
+                }
+            }
+            if (start != null) {
+                BackupVO current = stagingBackup(backup.getId());
+                if (!current.getUuid().equals(jobId) || !jobId.equals(start.plan.jobId) || !"BACKUP".equals(entry.operation)
+                        || entry.hostId != start.plan.hostId
+                        || (current.getHostId() != null && current.getHostId().longValue() != start.plan.hostId)) {
+                    throw new CloudRuntimeException("Cancellation differs from the recorded backup Worker Host or attempt");
+                }
+                if (start.cancelRequestedAt > 0) { return true; }
+                if (current.getStatus() != Backup.Status.BackingUp || !"WAITING".equals(entry.state)) {
+                    throw new CloudRuntimeException("Only waiting staging jobs can be canceled");
+                }
+                ThirdPartyBackupManifest manifest = ThirdPartyBackupManifest.fromJson(current.getDetail(ThirdPartyBackupManifest.DETAIL_KEY));
+                if (hasOwnedTransferAttempt(manifest)) {
+                    throw new CloudRuntimeException("External artifact transfers have started; queued cancellation is unavailable");
+                }
+                start.cancelRequestedAt = System.currentTimeMillis();
+                start.cancelReason = "Backup cancellation requested; waiting for Host termination and staging cleanup";
+                entry.state = "CANCEL_PENDING";
+                entry.reason = start.cancelReason;
+                com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<Boolean>) status -> {
+                    saveBackupStart(current.getId(), start);
+                    saveAdmission(current.getId(), entry);
+                    backupDetailsDao.addDetail(current.getId(), AblestackBackupFrameworkUtils.BACKUP_CANCELLATION_DETAIL,
+                            start.cancelReason, false);
+                    return true;
+                });
+                // No Host call is needed to accept the intent. The same coordinator fences an
+                // unstarted dispatch or stops the initialized engine, retaining capacity until cleanup.
+                return true;
+            }
             if ("CANCEL_REQUESTED".equals(entry.state)) { return true; }
             if (!"WAITING".equals(entry.state)) { throw new CloudRuntimeException("Only waiting staging jobs can be canceled"); }
             if (!cancelAdmission(backup.getId(), entry, "Staging queue canceled by operator")) {
@@ -1023,6 +1340,26 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
         if (progress == null) { progress = new DeleteProgress(); }
         if (progress.complete) { return true; }
         validateDeletion(tracked, manifest);
+        ThirdPartyBackupStart.Operation start = readBackupStart(tracked.getId());
+        if (start != null && "START_FAILED".equals(start.state)) {
+            if (!confirmedUnstartedBackupCleanup(tracked, manifest, start) || !progress.pendingTickets.isEmpty()) {
+                throw new CloudRuntimeException("Unstarted backup cleanup and reservation release must finish before deleting its records");
+            }
+            // The acknowledged Host start fence proves this job never acquired staging/source
+            // resources. Its cleanup and accounting evidence survive Host removal/config changes.
+            for (ThirdPartyBackupManifest.Artifact artifact : manifest.getOwnedArtifacts()) {
+                progress.completed.add(artifact.path);
+            }
+            progress.complete = true;
+            progress.failure = null;
+            final DeleteProgress completed = progress;
+            com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<Boolean>) status -> {
+                saveDeleteProgress(tracked, completed);
+                saveCleanupState(tracked.getId(), "COMPLETED", null);
+                return true;
+            });
+            return true;
+        }
         if (progress.policyExpiration && inventory == null) {
             throw new CloudRuntimeException("Expiration cleanup must first reconfirm the external catalog during synchronization");
         }
@@ -1074,6 +1411,20 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
         backupDetailsDao.addDetail(backup.getId(), ThirdPartyBackupManifest.DELETE_PROGRESS_KEY, new Gson().toJson(progress), false);
     }
 
+    private boolean confirmedUnstartedBackupCleanup(BackupVO backup, ThirdPartyBackupManifest manifest, ThirdPartyBackupStart.Operation start) {
+        if (!java.util.Set.of(Backup.Status.Failed, Backup.Status.Error, Backup.Status.Canceled).contains(backup.getStatus())
+                || !backup.getUuid().equals(start.plan.jobId) || start.checkedAt <= 0
+                || (backup.getHostId() != null && backup.getHostId().longValue() != start.plan.hostId)
+                || !new Gson().toJsonTree(start.plan.manifest).equals(new Gson().toJsonTree(manifest))
+                || hasOwnedTransferAttempt(manifest)
+                || !"COMPLETED".equals(backup.getDetail(ThirdPartyBackupManifest.CLEANUP_STATE_KEY))
+                || !"COMPLETED".equals(backup.getDetail(ThirdPartyBackupManifest.JOB_CLEANUP_STATE_KEY))
+                || !Boolean.TRUE.toString().equals(backup.getDetail(AblestackBackupFrameworkUtils.RESOURCE_COUNT_PENDING_DETAIL))) { return false; }
+        ThirdPartyBackupAdmission.Entry entry = readAdmission(backup.getId(), "BACKUP");
+        return entry == null || (backup.getUuid().equals(entry.jobId) && "BACKUP".equals(entry.operation)
+                && entry.hostId == start.plan.hostId && "RELEASED".equals(entry.state));
+    }
+
     private void saveCleanupState(long backupId, String state, String details) {
         backupDetailsDao.addDetail(backupId, ThirdPartyBackupManifest.CLEANUP_STATE_KEY, state, false);
         if (StringUtils.isBlank(details)) {
@@ -1111,9 +1462,7 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
     }
 
     private void cleanupVolumeArtifacts(BackupVO backup, ThirdPartyBackupManifest manifest) {
-        String sourceHost = manifest.getCurrentArtifacts().get(0).sourceHost;
-        com.cloud.host.HostVO host = hostDao.findByName(sourceHost);
-        if (host == null) { host = hostDao.findByIp(sourceHost); }
+        Host host = getWorkerHost(backup, "BACKUP");
         if (host == null || !com.cloud.host.Status.Up.equals(host.getStatus())) {
             throw new CloudRuntimeException("Source Host is unavailable; checkpoint and staging cleanup remains pending");
         }
@@ -1384,6 +1733,7 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
     @Override
     public void track(Backup backup, Host host, Transfer transfer) {
         if (backup == null || host == null || executor == null) { return; }
+        requireBackupWorker(backup, host);
         registerAdmission(backup.getId(), host, backup.getUuid(), "BACKUP");
         pending.computeIfAbsent(backup.getId(), id -> executor.scheduleWithFixedDelay(() -> {
             try {
@@ -1392,8 +1742,8 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
                     finishBackupTracking(backup.getId());
                 } else {
                     backupDao.loadDetails(current);
-                    if (current.getStatus() != Backup.Status.BackingUp && (!isFailedPipeline(current)
-                            || "COMPLETED".equals(current.getDetail(ThirdPartyBackupManifest.CLEANUP_STATE_KEY)))) {
+                    boolean cleanupReleased = !ThirdPartyBackupVolumeService.needsBackupCleanup(current);
+                    if (current.getStatus() != Backup.Status.BackingUp && (!isFailedPipeline(current) || cleanupReleased)) {
                         finishBackupTracking(backup.getId());
                         return;
                     }
@@ -1584,6 +1934,8 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
             if (operation == null || !"PREPARING".equals(operation.startState)) {
                 throw new CloudRuntimeException("Restore preparation has already been completed or blocked");
             }
+            if (operation.cancelRequestedAt > 0) { throw new CloudRuntimeException("Restore cancellation is pending; no preparation command was sent"); }
+            requireRestoreWorker(backup, host, plan);
             try {
                 registerAdmission(backup.getId(), host, plan.jobId, "RESTORE");
                 ThirdPartyBackupRestore.StartReceipt receipt = restoreStartControl(host, plan, "RESTORE_START_PREPARE");
@@ -1616,6 +1968,7 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
             if (operation == null || !"PREPARED".equals(operation.startState)) {
                 throw new CloudRuntimeException("Restore start is unprepared, already dispatched or permanently blocked");
             }
+            if (operation.cancelRequestedAt > 0) { throw new CloudRuntimeException("Restore cancellation is pending; no dispatch is allowed"); }
             operation.startState = "SUBMISSION_PENDING";
             operation.startSubmittedAt = System.currentTimeMillis();
             writeRestoreOperation(current.getId(), operation);
@@ -1627,6 +1980,7 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
 
     private ThirdPartyBackupRestore.StartReceipt restoreStartControl(Host host, ThirdPartyBackupRestore.Plan plan, String action)
             throws com.cloud.exception.AgentUnavailableException, com.cloud.exception.OperationTimedoutException {
+        if (host == null || host.getId() != plan.hostId) { throw new CloudRuntimeException("Restore start Worker Host differs from the recorded attempt"); }
         Answer answer = agentManager.send(host.getId(), new AblestackVolumeStagingCommand(plan.jobId, action, -1, new Gson().toJson(plan)));
         if (answer == null || !answer.getResult() || StringUtils.isBlank(answer.getDetails())) {
             throw new CloudRuntimeException(answer == null ? "Host did not confirm restore start control" : answer.getDetails());
@@ -1668,7 +2022,11 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
         }
         operation.startState = "START_FAILED";
         operation.startFailureReason = receipt.reason;
-        operation.hostState = "FAILED";
+        operation.hostState = operation.cancelRequestedAt > 0 ? "CANCELED" : "FAILED";
+        if (operation.cancelRequestedAt > 0) {
+            operation.cancelConfirmedAt = receipt.checkedAt;
+            operation.cancelReason = "Restore canceled before Host engine initialization; no VM volumes were changed";
+        }
         operation.hostCheckedAt = receipt.checkedAt;
         operation.hostError = null;
         if (plan.vmResultVersion == 1) {
@@ -1701,11 +2059,12 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
         writeRestoreOperation(backup.getId(), operation);
         releaseAdmission(backup.getId(), "RESTORE", plan.jobId);
         com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<Boolean>) status -> {
-            backupDetailsDao.addDetail(backup.getId(), AblestackBackupFrameworkUtils.RESTORE_JOB_STATE_DETAIL, "FAILED", false);
-            backupDetailsDao.addDetail(backup.getId(), AblestackBackupFrameworkUtils.RESTORE_JOB_STEP_DETAIL, "START_FAILED", false);
+            backupDetailsDao.addDetail(backup.getId(), AblestackBackupFrameworkUtils.RESTORE_JOB_STATE_DETAIL, operation.hostState, false);
+            backupDetailsDao.addDetail(backup.getId(), AblestackBackupFrameworkUtils.RESTORE_JOB_STEP_DETAIL,
+                    operation.cancelRequestedAt > 0 ? "CANCELED" : "START_FAILED", false);
             backupDetailsDao.addDetail(backup.getId(), AblestackBackupFrameworkUtils.RESTORE_JOB_PROGRESS_DETAIL, "0", false);
             backupDetailsDao.addDetail(backup.getId(), AblestackBackupFrameworkUtils.RESTORE_JOB_FAILURE_REASON_DETAIL,
-                    StringUtils.defaultIfBlank(receipt.reason, "Restore engine did not start"), false);
+                    operation.cancelRequestedAt > 0 ? operation.cancelReason : StringUtils.defaultIfBlank(receipt.reason, "Restore engine did not start"), false);
             saveRestoreCleanup(backup.getId(), plan.jobId, "COMPLETED", null);
             return true;
         });
@@ -1734,7 +2093,7 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
         ThirdPartyBackupRestore.Plan plan = new Gson().fromJson(json, ThirdPartyBackupRestore.Plan.class);
         if (!matchesRestoreTracking(tracked, plan.jobId)) { return; }
         if ("COMPLETED".equals(tracked.getDetail(ThirdPartyBackupRestore.CLEANUP_STATE_KEY))) { return; }
-        if (plan.hostId != host.getId()) { throw new CloudRuntimeException("Restore Worker Host changed"); }
+        requireRestoreWorker(tracked, host, plan);
         restores.computeIfAbsent(plan.jobId, id -> restoreExecutor.scheduleWithFixedDelay(
                 () -> reconcileRestore(backup.getId(), host, plan, transfer), 1, 5, TimeUnit.SECONDS));
     }
@@ -1782,7 +2141,9 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
         ThirdPartyBackupRestore.Operation operation = new Gson().fromJson(detail.getValue(), ThirdPartyBackupRestore.Operation.class);
         if (operation == null || operation.version != ThirdPartyBackupRestore.HISTORY_VERSION || operation.plan == null || operation.plan.manifest == null
                 || !new Gson().toJson(plan).equals(new Gson().toJson(operation.plan))
-                || !backup.getUuid().equals(operation.plan.manifest.getBackupUuid())) {
+                || !backup.getUuid().equals(operation.plan.manifest.getBackupUuid())
+                || operation.cancelRequestedAt < 0 || operation.cancelConfirmedAt < 0
+                || (operation.cancelConfirmedAt > 0 && operation.cancelRequestedAt == 0)) {
             throw new CloudRuntimeException("Persisted restore history belongs to a different plan");
         }
         return operation;
@@ -2013,6 +2374,55 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
         operation.vmResult = result;
     }
 
+    /** A saved queued cancellation never submits or acknowledges another external restore request. */
+    private boolean reconcilePendingRestoreCancellation(BackupVO backup, Host host, ThirdPartyBackupRestore.Plan plan, RestoreTransfer transfer)
+            throws com.cloud.exception.AgentUnavailableException, com.cloud.exception.OperationTimedoutException {
+        ThirdPartyBackupRestore.Operation operation = ensureRestoreOperation(backup, plan);
+        if (operation.cancelRequestedAt <= 0) { return false; }
+        requireRestoreWorker(backup, host, plan);
+        if ("COMPLETED".equals(operation.cleanupState)) { return true; }
+        if (!restoreRecords(backup, plan).isEmpty()) {
+            throw new CloudRuntimeException("Queued restore cancellation conflicts with external transfer records; reservations are retained");
+        }
+        if (finishUnstartedRestore(backup, host, plan, true)) { return true; }
+        Answer answer = agentManager.send(host.getId(), new AblestackRestoreJobStatusCommand(plan.jobId, null, 0));
+        if (!(answer instanceof BackupAnswer) || !answer.getResult()) {
+            recordRestoreHost(backup, plan, null, "Queued restore cancellation is waiting for Host termination confirmation");
+            return true;
+        }
+        BackupAnswer status = (BackupAnswer) answer;
+        recordRestoreHost(backup, plan, status, null);
+        operation = ensureRestoreOperation(backup, plan);
+        if ("COMPLETED".equals(status.getState())
+                || StringUtils.contains(status.getDetails(), AblestackBackupFrameworkUtils.RESTORE_ROLLBACK_REQUIRED)
+                || (operation.vmResult != null && "RECOVERY_REQUIRED".equals(operation.vmResult.outcome))) {
+            throw new CloudRuntimeException("Host VM restore outcome conflicts with queued cancellation; termination and primary cleanup must be reconciled");
+        }
+        if (java.util.Set.of("FAILED", "INTERRUPTED", "CANCELED").contains(StringUtils.defaultString(status.getState()))) {
+            if (operation.cancelConfirmedAt == 0) { operation.cancelConfirmedAt = System.currentTimeMillis(); }
+            operation.hostState = "CANCELED";
+            operation.cancelReason = "Restore engine termination confirmed; staging cleanup and capacity release are pending";
+            final ThirdPartyBackupRestore.Operation canceled = operation;
+            com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<Boolean>) transaction -> {
+                writeRestoreOperation(backup.getId(), canceled);
+                backupDetailsDao.addDetail(backup.getId(), AblestackBackupFrameworkUtils.RESTORE_JOB_STATE_DETAIL, "CANCELED", false);
+                backupDetailsDao.addDetail(backup.getId(), AblestackBackupFrameworkUtils.RESTORE_JOB_STEP_DETAIL, "CANCELED", false);
+                backupDetailsDao.addDetail(backup.getId(), AblestackBackupFrameworkUtils.RESTORE_JOB_PROGRESS_DETAIL, "0", false);
+                backupDetailsDao.addDetail(backup.getId(), AblestackBackupFrameworkUtils.RESTORE_JOB_FAILURE_REASON_DETAIL, canceled.cancelReason, false);
+                return true;
+            });
+            cleanupRestore(backup, host, plan, transfer);
+            return true;
+        }
+        Answer cancel = agentManager.send(host.getId(), new AblestackVolumeStagingCommand(plan.jobId, "RESTORE_CANCEL", -1, new Gson().toJson(plan)));
+        if (cancel != null && cancel.getResult() && operation.cancelConfirmedAt == 0) {
+            operation.cancelConfirmedAt = System.currentTimeMillis();
+            writeRestoreOperation(backup.getId(), operation);
+        }
+        // A missing response is not completion. Replay this owned marker after reconnect/restart.
+        return true;
+    }
+
     private void reconcileRestore(long backupId, Host host, ThirdPartyBackupRestore.Plan plan, RestoreTransfer transfer) {
         GlobalLock lock = GlobalLock.getInternLock("backup.volume.restore." + plan.jobId);
         boolean acquired = false;
@@ -2027,7 +2437,9 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
                     || "COMPLETED".equals(tracked.getDetail(ThirdPartyBackupRestore.CLEANUP_STATE_KEY))) {
                 finishRestoreTracking(plan.jobId); return;
             }
+            requireRestoreWorker(tracked, host, savedPlan);
             ensureRestoreOperation(tracked, savedPlan);
+            if (reconcilePendingRestoreCancellation(tracked, host, savedPlan, transfer)) { return; }
             Answer statusAnswer = agentManager.send(host.getId(), new AblestackRestoreJobStatusCommand(plan.jobId, null, 0));
             if (!(statusAnswer instanceof BackupAnswer) || !statusAnswer.getResult()) {
                 recordRestoreHost(tracked, savedPlan, null, "Restore Worker Host did not confirm its engine state");
@@ -2134,6 +2546,7 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
 
     private void cleanupRestore(BackupVO backup, Host host, ThirdPartyBackupRestore.Plan plan, RestoreTransfer transfer)
             throws com.cloud.exception.AgentUnavailableException, com.cloud.exception.OperationTimedoutException {
+        requireRestoreWorker(backup, host, plan);
         ensureRestoreOperation(backup, plan);
         requireRestoreWritersTerminated(backup, plan);
         if (finishUnstartedRestore(backup, host, plan, true)) { return; }
@@ -2160,7 +2573,11 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
                     throw new CloudRuntimeException("Host did not confirm a terminal VM outcome and primary cleanup; reservations are retained");
                 }
             }
-            transfer.cleanup(plan);
+            // Every external request is recorded before its call. A canceled queue with no
+            // requests never created provider receipts and needs no external-service cleanup.
+            if (ensureRestoreOperation(backup, plan).cancelRequestedAt == 0 || !restoreRecords(backup, plan).isEmpty()) {
+                transfer.cleanup(plan);
+            }
             releaseAdmission(backup.getId(), "RESTORE", plan.jobId);
         }
         saveRestoreCleanup(backup.getId(), plan.jobId, done ? "COMPLETED" : "WAITING", done ? null
@@ -2175,7 +2592,13 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
         if (plan == null || !jobId.equals(plan.jobId)) { return; }
         BackupVO backup = stagingBackup(backupId);
         ThirdPartyBackupRestore.Operation operation = readRestoreOperation(backup, plan);
-        if (operation != null) { operation.cleanupState = state; operation.cleanupReason = details; }
+        if (operation != null) {
+            operation.cleanupState = state;
+            operation.cleanupReason = details;
+            if (operation.cancelRequestedAt > 0 && "COMPLETED".equals(state)) {
+                operation.cancelReason = "Restore canceled; staging and capacity reservations cleaned";
+            }
+        }
         com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<Boolean>) status -> {
             backupDetailsDao.addDetail(backupId, ThirdPartyBackupRestore.CLEANUP_STATE_KEY, state, false);
             if (StringUtils.isBlank(details)) { backupDetailsDao.removeDetail(backupId, ThirdPartyBackupRestore.CLEANUP_DETAILS_KEY); }
@@ -2214,6 +2637,97 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
         }
     }
 
+    /** Never replay the start command: only the stable Host receipt can settle dispatch uncertainty. */
+    private boolean reconcileBackupStart(BackupVO backup, Host host, ThirdPartyBackupManifest manifest)
+            throws com.cloud.exception.AgentUnavailableException, com.cloud.exception.OperationTimedoutException {
+        ThirdPartyBackupStart.Operation start = readBackupStart(backup.getId());
+        if (start == null) { return false; }
+        if (!backup.getUuid().equals(start.plan.jobId) || host.getId() != start.plan.hostId) {
+            throw new CloudRuntimeException("Backup start receipt belongs to a different Worker Host or job");
+        }
+        if ("STARTED".equals(start.state)) { return false; }
+        if ("START_FAILED".equals(start.state)
+                && "COMPLETED".equals(backup.getDetail(ThirdPartyBackupManifest.CLEANUP_STATE_KEY))) { return false; }
+        // A lost PREPARE response is safe to recover: it cannot launch an engine.
+        String action = java.util.Set.of("PREPARING", "PREPARED").contains(start.state)
+                ? "BACKUP_START_PREPARE" : "BACKUP_START_STATUS";
+        ThirdPartyBackupStart.Receipt receipt = backupStartControl(host, start.plan, action);
+        start.checkedAt = receipt.checkedAt;
+        if ("STARTED".equals(receipt.state)) {
+            if ("START_FAILED".equals(start.state)) { throw new CloudRuntimeException("Host engine conflicts with the recorded start fence"); }
+            start.state = "STARTED";
+            start.reason = null;
+            saveBackupStart(backup.getId(), start);
+            return false;
+        }
+        long submittedAt = start.submittedAt > 0 ? start.submittedAt : start.createdAt;
+        if (!"START_FAILED".equals(receipt.state) && start.cancelRequestedAt == 0
+                && !isFailedPipeline(backup) && StringUtils.isBlank(start.reason)
+                && System.currentTimeMillis() < submittedAt + TimeUnit.SECONDS.toMillis(60)) {
+            saveBackupStart(backup.getId(), start);
+            return true;
+        }
+        if (hasOwnedTransferAttempt(manifest)) {
+            throw new CloudRuntimeException("External transfers conflict with the unstarted backup receipt");
+        }
+        // Host lock also covers Python's first action. ABORT seals delayed Agent and Python starts
+        // before acknowledging that no staging/source IO occurred and admission is closed.
+        receipt = backupStartControl(host, start.plan, "BACKUP_START_ABORT");
+        start.checkedAt = receipt.checkedAt;
+        if ("STARTED".equals(receipt.state)) {
+            start.state = "STARTED";
+            start.reason = null;
+            saveBackupStart(backup.getId(), start);
+            return false;
+        }
+        if (!"START_FAILED".equals(receipt.state)) { throw new CloudRuntimeException("Host did not confirm the backup start fence"); }
+        start.state = "START_FAILED";
+        start.reason = StringUtils.defaultIfBlank(start.reason, receipt.reason);
+        if (start.cancelRequestedAt > 0) {
+            start.cancelConfirmedAt = receipt.checkedAt;
+            start.cancelReason = "Host start blocked; capacity release and Host job record cleanup are pending";
+        }
+        backup.setStatus(start.cancelRequestedAt > 0 || backup.getStatus() == Backup.Status.Canceled ? Backup.Status.Canceled : Backup.Status.Failed);
+        backup.getDetails().put("thirdparty.volume.failure", start.cancelRequestedAt > 0
+                ? "Backup canceled before Host engine initialization" : start.reason);
+        final ThirdPartyBackupStart.Operation failedStart = start;
+        com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<Boolean>) transaction -> {
+            if (!backupDao.update(backup.getId(), backup)) { throw new CloudRuntimeException("Unable to persist confirmed backup start failure"); }
+            saveBackupStart(backup.getId(), failedStart);
+            releaseAdmission(backup.getId(), "BACKUP", backup.getUuid());
+            saveCleanupState(backup.getId(), "COMPLETED", null);
+            backupDetailsDao.addDetail(backup.getId(), ThirdPartyBackupManifest.JOB_CLEANUP_STATE_KEY, "WAITING", false);
+            return true;
+        });
+        backupDao.loadDetails(backup);
+        cleanupTerminalBackupRecords(backup, host);
+        return true;
+    }
+
+    private boolean hasOwnedTransferAttempt(ThirdPartyBackupManifest manifest) {
+        return manifest.getOwnedArtifacts().stream().anyMatch(artifact -> artifact.submissionPending || artifact.completed
+                || artifact.submittedAt > 0 || artifact.size > 0
+                || StringUtils.isNotBlank(artifact.jobId) || StringUtils.isNotBlank(artifact.externalId));
+    }
+
+    /** A queued cancellation blocks grants and external submissions until the engine confirms termination. */
+    private boolean requestPendingBackupCancellation(BackupVO backup, Host host)
+            throws com.cloud.exception.AgentUnavailableException, com.cloud.exception.OperationTimedoutException {
+        ThirdPartyBackupStart.Operation start = readBackupStart(backup.getId());
+        if (start == null || start.cancelRequestedAt <= 0 || backup.getStatus() != Backup.Status.BackingUp) { return false; }
+        if (!"STARTED".equals(start.state) || hasOwnedTransferAttempt(
+                ThirdPartyBackupManifest.fromJson(backup.getDetail(ThirdPartyBackupManifest.DETAIL_KEY)))) {
+            throw new CloudRuntimeException("Queued cancellation has conflicting engine or external transfer records");
+        }
+        Answer answer = agentManager.send(host.getId(), new AblestackVolumeStagingCommand(backup.getUuid(), "CANCEL", -1, null));
+        if (answer != null && answer.getResult() && start.cancelConfirmedAt == 0) {
+            start.cancelConfirmedAt = System.currentTimeMillis();
+            saveBackupStart(backup.getId(), start);
+        }
+        // Retry the idempotent marker while the engine is active, including after response loss/restart.
+        return true;
+    }
+
     @Override
     public boolean reconcile(Backup backup, Host host, Transfer transfer) {
         BackupVO tracked = backupDao.findById(backup.getId());
@@ -2227,6 +2741,8 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
         if (host == null) {
             return true;
         }
+        // Check ownership before entering the failure handler: a wrong Host must never fail/cancel this pipeline.
+        requireBackupWorker(tracked, host);
         GlobalLock lock = GlobalLock.getInternLock("backup.volume." + tracked.getUuid());
         boolean acquired = false;
         try {
@@ -2240,6 +2756,8 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
             }
             backupDao.loadDetails(tracked);
             ThirdPartyBackupManifest manifest = ThirdPartyBackupManifest.fromJson(tracked.getDetail(ThirdPartyBackupManifest.DETAIL_KEY));
+            if ((tracked.getStatus() == Backup.Status.BackingUp || isFailedPipeline(tracked))
+                    && reconcileBackupStart(tracked, host, manifest)) { return true; }
             if (isFailedPipeline(tracked)) {
                 try (Lease lease = acquireLifecycle(tracked.getVmId())) {
                     reconcileFailedBackup(tracked, host, manifest, transfer);
@@ -2247,35 +2765,50 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
                 return true;
             }
             if (tracked.getStatus() != Backup.Status.BackingUp) { return true; }
+            if (ThirdPartyBackupManifest.hasCompletedTransfers(tracked)) {
+                saveFinalizationWaiting(tracked, StringUtils.defaultIfBlank(
+                        tracked.getDetail(ThirdPartyBackupManifest.FINALIZATION_DETAILS_KEY),
+                        "Waiting for Host finalization and logical backup completion"));
+            }
             BackupAnswer status = (BackupAnswer) agentManager.send(host.getId(), new AblestackBackupJobStatusCommand(tracked.getUuid()));
             if (status == null || !status.getResult()) {
                 return true;
             }
+            if (ThirdPartyBackupManifest.hasCompletedTransfers(tracked)
+                    && java.util.Set.of("COMPLETED", "FAILED", "INTERRUPTED", "CANCELED").contains(StringUtils.defaultString(status.getState()))) {
+                // Engine exit only proves termination. Exact persisted catalog references
+                // decide success; a cleanup IO error cannot invalidate completed transfers.
+                finalizeBackup(tracked, host, manifest, transfer);
+                return true;
+            }
             if ("FAILED".equals(status.getState()) || "INTERRUPTED".equals(status.getState()) || "CANCELED".equals(status.getState())) {
+                ThirdPartyBackupStart.Operation start = readBackupStart(tracked.getId());
+                boolean cancellationRequested = start != null && start.cancelRequestedAt > 0;
                 notifyFailure(transfer, tracked);
-                tracked.setStatus("CANCELED".equals(status.getState()) ? Backup.Status.Canceled : Backup.Status.Failed);
+                tracked.setStatus(cancellationRequested || "CANCELED".equals(status.getState()) ? Backup.Status.Canceled : Backup.Status.Failed);
                 tracked.getDetails().put("thirdparty.volume.failure", StringUtils.defaultString(status.getDetails()));
-                backupDao.update(tracked.getId(), tracked);
+                BackupVO terminalBackup = tracked;
+                com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<Boolean>) transaction -> {
+                    if (!backupDao.update(terminalBackup.getId(), terminalBackup)) { throw new CloudRuntimeException("Unable to persist terminal backup state"); }
+                    if (Backup.Status.Canceled.equals(terminalBackup.getStatus())) {
+                        // Queue cancellation also uses the common cleanup and record deletion sequence.
+                        backupDetailsDao.addDetail(terminalBackup.getId(), ThirdPartyBackupManifest.JOB_CLEANUP_STATE_KEY, "WAITING", false);
+                        if (cancellationRequested) {
+                            if (start.cancelConfirmedAt == 0) { start.cancelConfirmedAt = System.currentTimeMillis(); }
+                            start.cancelReason = "Host engine termination confirmed; staging cleanup and capacity release are pending";
+                            saveBackupStart(terminalBackup.getId(), start);
+                        }
+                    }
+                    return true;
+                });
                 return true;
             }
             if ("COMPLETED".equals(status.getState())) {
                 manifest.validate(true);
-                transfer.completed(tracked);
-                if (manifest.getVolumes().stream().anyMatch(volume -> volume.engine.startsWith("RBD")
-                        && StringUtils.isNotBlank(volume.chain.get(volume.chain.size() - 1).parentCheckpointName))
-                        && !"COMPLETED".equals(tracked.getDetail(ThirdPartyBackupManifest.SOURCE_CLEANUP_STATE_KEY))) {
-                    // Persist before finalizing the backup so a server restart cannot lose this retry.
-                    backupDetailsDao.addDetail(tracked.getId(), ThirdPartyBackupManifest.SOURCE_CLEANUP_STATE_KEY, "WAITING", false);
-                    trackSourceCleanup(tracked.getId());
-                }
-                releaseAdmission(tracked.getId(), "BACKUP", tracked.getUuid());
-                tracked.setStatus(Backup.Status.BackedUp);
-                tracked.setSize(manifest.getCurrentArtifacts().stream().mapToLong(artifact -> artifact.size).reduce(0L, Math::addExact));
-                if (!backupDao.update(tracked.getId(), tracked)) {
-                    throw new CloudRuntimeException("Unable to persist logical backup completion");
-                }
+                finalizeBackup(tracked, host, manifest, transfer);
                 return true;
             }
+            if (requestPendingBackupCancellation(tracked, host)) { return true; }
             Answer requestAnswer = agentManager.send(host.getId(), new AblestackVolumeStagingCommand(tracked.getUuid(), "STATUS", -1, null));
             if (requestAnswer == null || !requestAnswer.getResult() || StringUtils.isBlank(requestAnswer.getDetails())) {
                 return true;
@@ -2419,13 +2952,32 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
                     return true;
                 }
             }
+            if (metadata && artifact.completed) {
+                manifest.validate(true);
+                saveFinalizationWaiting(tracked, "Waiting for Host finalization and logical backup completion");
+            }
             Answer ack = agentManager.send(host.getId(), new AblestackVolumeStagingCommand(tracked.getUuid(), "ACK", index, manifest.toJson()));
             if (ack == null || !ack.getResult()) {
                 logger.warn("Artifact was persisted but Host acknowledgment is pending for backup [{}], volume [{}]", tracked.getUuid(), index);
             }
         } catch (com.cloud.exception.AgentUnavailableException | com.cloud.exception.OperationTimedoutException e) {
+            saveBackupStartReason(tracked.getId(), "Host is temporarily unavailable; backup start confirmation is pending");
+            if (ThirdPartyBackupManifest.hasCompletedTransfers(tracked)) {
+                saveFinalizationWaiting(tracked, "Host is temporarily unavailable; completed transfers are retained");
+            }
             logger.warn("Volume pipeline Host is temporarily unavailable for backup [{}]", backup.getUuid());
         } catch (RuntimeException e) {
+            ThirdPartyBackupStart.Operation start = readBackupStart(tracked.getId());
+            if (start != null && !"STARTED".equals(start.state)) {
+                saveBackupStartReason(tracked.getId(), e.getMessage());
+                logger.warn("Backup start confirmation remains pending [{}]: {}", tracked.getUuid(), e.getMessage());
+                return true;
+            }
+            if (ThirdPartyBackupManifest.hasCompletedTransfers(tracked)) {
+                saveFinalizationWaiting(tracked, e.getMessage());
+                logger.warn("Logical backup [{}] transfers are complete; finalization will be retried: {}", tracked.getUuid(), e.getMessage());
+                return true;
+            }
             // Preserve staged artifacts and confirmed child references; do not pretend a partial VM backup completed.
             notifyFailure(transfer, tracked);
             tracked.getDetails().put("thirdparty.volume.failure", StringUtils.defaultString(e.getMessage()));
@@ -2446,6 +2998,58 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
         return true;
     }
 
+    /** All transfers are confirmed; failures here retry finalization, never submit or delete artifacts. */
+    private void finalizeBackup(BackupVO backup, Host host, ThirdPartyBackupManifest manifest, Transfer transfer) {
+        try {
+            manifest.validate(true);
+            long size = manifest.getCurrentArtifacts().stream().mapToLong(artifact -> artifact.size).reduce(0L, Math::addExact);
+            validateCleanupMount(host, manifest);
+            Answer finalized = agentManager.send(host.getId(), new AblestackVolumeStagingCommand(backup.getUuid(), "FINALIZE_BACKUP", -1, manifest.toJson()));
+            if (finalized == null || !finalized.getResult()) {
+                throw new CloudRuntimeException(finalized == null ? "Host finalization returned no response" : finalized.getDetails());
+            }
+            transfer.completed(backup);
+            if (manifest.getVolumes().stream().anyMatch(volume -> volume.engine.startsWith("RBD")
+                    && StringUtils.isNotBlank(volume.chain.get(volume.chain.size() - 1).parentCheckpointName))
+                    && !"COMPLETED".equals(backup.getDetail(ThirdPartyBackupManifest.SOURCE_CLEANUP_STATE_KEY))) {
+                backupDetailsDao.addDetail(backup.getId(), ThirdPartyBackupManifest.SOURCE_CLEANUP_STATE_KEY, "WAITING", false);
+                trackSourceCleanup(backup.getId());
+            }
+            releaseAdmission(backup.getId(), "BACKUP", backup.getUuid());
+            com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<Boolean>) status -> {
+                backup.setStatus(Backup.Status.BackedUp);
+                backup.setSize(size);
+                if (!backupDao.update(backup.getId(), backup)) { throw new CloudRuntimeException("Unable to persist logical backup completion"); }
+                backupDetailsDao.addDetail(backup.getId(), ThirdPartyBackupManifest.FINALIZATION_STATE_KEY, "COMPLETED", false);
+                backupDetailsDao.removeDetail(backup.getId(), ThirdPartyBackupManifest.FINALIZATION_DETAILS_KEY);
+                reconcileResourceCounts(backup);
+                return true;
+            });
+        } catch (Exception e) {
+            // The persisted backup remains BackingUp, so restart/provider reconciliation
+            // retries Host cleanup and completion without replaying any child transfer.
+            saveFinalizationWaiting(backup, e.getMessage());
+            logger.warn("Logical backup [{}] transfers are complete; finalization will be retried: {}", backup.getUuid(), e.getMessage());
+        }
+    }
+
+    private void saveFinalizationWaiting(BackupVO backup, String reason) {
+        String details = StringUtils.defaultIfBlank(reason, "Logical backup finalization is pending");
+        if ("WAITING".equals(backup.getDetail(ThirdPartyBackupManifest.FINALIZATION_STATE_KEY))
+                && details.equals(backup.getDetail(ThirdPartyBackupManifest.FINALIZATION_DETAILS_KEY))) { return; }
+        try {
+            com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<Boolean>) status -> {
+                backupDetailsDao.addDetail(backup.getId(), ThirdPartyBackupManifest.FINALIZATION_STATE_KEY, "WAITING", false);
+                backupDetailsDao.addDetail(backup.getId(), ThirdPartyBackupManifest.FINALIZATION_DETAILS_KEY, details, false);
+                return true;
+            });
+            backup.getDetails().put(ThirdPartyBackupManifest.FINALIZATION_STATE_KEY, "WAITING");
+            backup.getDetails().put(ThirdPartyBackupManifest.FINALIZATION_DETAILS_KEY, details);
+        } catch (RuntimeException saveFailure) {
+            logger.warn("Unable to persist finalization retry for backup [{}]: {}", backup.getUuid(), saveFailure.getMessage());
+        }
+    }
+
     private boolean isFailedPipeline(Backup backup) {
         return java.util.Set.of(Backup.Status.Failed, Backup.Status.Error, Backup.Status.Canceled).contains(backup.getStatus())
                 && StringUtils.isBlank(backup.getDetail(ThirdPartyBackupManifest.CATALOG_FAILURE_KEY))
@@ -2453,9 +3057,41 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
     }
 
     private void reconcileFailedBackup(BackupVO backup, Host host, ThirdPartyBackupManifest manifest, Transfer transfer) {
-        if ("COMPLETED".equals(backup.getDetail(ThirdPartyBackupManifest.CLEANUP_STATE_KEY))) { return; }
+        boolean physicalCleanupCompleted = "COMPLETED".equals(backup.getDetail(ThirdPartyBackupManifest.CLEANUP_STATE_KEY));
         try {
-            if (!transfer.ready()) {
+            if (Backup.Status.Canceled.equals(backup.getStatus()) && StringUtils.isBlank(backup.getDetail("thirdparty.volume.failure"))) {
+                notifyFailure(transfer, backup);
+                backupDetailsDao.addDetail(backup.getId(), "thirdparty.volume.failure", "Backup canceled by operator", false);
+            }
+            if ("COMPLETED".equals(backup.getDetail(ThirdPartyBackupManifest.CLEANUP_STATE_KEY))) {
+                // Recover older completions interrupted between physical cleanup and DB release.
+                releaseAdmission(backup.getId(), "BACKUP", backup.getUuid());
+                cleanupTerminalBackupRecords(backup, host);
+                return;
+            }
+            Answer state = agentManager.send(host.getId(), new AblestackBackupJobStatusCommand(backup.getUuid()));
+            if (!(state instanceof BackupAnswer) || !state.getResult()
+                    || !java.util.Set.of("COMPLETED", "FAILED", "INTERRUPTED", "CANCELED").contains(StringUtils.defaultString(((BackupAnswer) state).getState()))) {
+                agentManager.send(host.getId(), new AblestackVolumeStagingCommand(backup.getUuid(), "CANCEL", -1, null));
+                saveCleanupState(backup.getId(), "WAITING", "Backup engine termination is not yet confirmed");
+                return;
+            }
+            boolean sourceNotStarted = false;
+            if (manifest.getOwnedArtifacts().stream().noneMatch(artifact -> artifact.submissionPending || artifact.completed
+                    || artifact.submittedAt > 0 || artifact.size > 0
+                    || StringUtils.isNotBlank(artifact.jobId) || StringUtils.isNotBlank(artifact.externalId))) {
+                Answer start = agentManager.send(host.getId(), new AblestackVolumeStagingCommand(backup.getUuid(), "SOURCE_START_STATUS", -1, null));
+                if (start != null && start.getResult()) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> receipt = new Gson().fromJson(start.getDetails(), Map.class);
+                    sourceNotStarted = receipt != null && receipt.get("version") instanceof Number
+                            && ((Number) receipt.get("version")).doubleValue() == 1
+                            && backup.getUuid().equals(receipt.get("backupUuid")) && "NOT_STARTED".equals(receipt.get("state"));
+                }
+            }
+            // A missing template/invalid settings must not prevent cleanup when
+            // the terminated Host engine proves no source IO or child transfer began.
+            if (!sourceNotStarted && !transfer.ready()) {
                 saveCleanupState(backup.getId(), "WAITING", "External parent backup and its hooks have not confirmed termination");
                 return;
             }
@@ -2482,24 +3118,70 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
                     return;
                 }
             }
-            Answer state = agentManager.send(host.getId(), new AblestackBackupJobStatusCommand(backup.getUuid()));
-            if (!(state instanceof BackupAnswer) || !state.getResult()
-                    || !java.util.Set.of("COMPLETED", "FAILED", "INTERRUPTED", "CANCELED").contains(StringUtils.defaultString(((BackupAnswer) state).getState()))) {
-                agentManager.send(host.getId(), new AblestackVolumeStagingCommand(backup.getUuid(), "CANCEL", -1, null));
-                saveCleanupState(backup.getId(), "WAITING", "Backup engine termination is not yet confirmed");
-                return;
-            }
             saveCleanupState(backup.getId(), "RUNNING", null);
             validateCleanupMount(host, manifest);
-            Answer cleanup = agentManager.send(host.getId(), new AblestackVolumeStagingCommand(backup.getUuid(), "CLEANUP_FAILED", -1, manifest.toJson()));
+            Answer cleanup = agentManager.send(host.getId(), new AblestackVolumeStagingCommand(backup.getUuid(),
+                    sourceNotStarted ? "CLEANUP_UNSTARTED" : "CLEANUP_FAILED", -1, manifest.toJson()));
             if (cleanup == null || !cleanup.getResult()) {
                 throw new CloudRuntimeException(cleanup == null ? "Host cleanup returned no response" : cleanup.getDetails());
             }
-            saveCleanupState(backup.getId(), "COMPLETED", null);
+            // Physical cleanup has proved that no reader/writer retains capacity.
+            // Persist release before completion so a restart still schedules a retry.
             releaseAdmission(backup.getId(), "BACKUP", backup.getUuid());
+            saveCleanupState(backup.getId(), "COMPLETED", null);
+            physicalCleanupCompleted = true;
+            cleanupTerminalBackupRecords(backup, host);
         } catch (Exception e) {
-            saveCleanupState(backup.getId(), "WAITING", StringUtils.defaultString(e.getMessage()));
+            if (physicalCleanupCompleted) {
+                // A temporary DB slot-release failure cannot invalidate already
+                // confirmed physical cleanup, especially after job records were removed.
+                backupDetailsDao.addDetail(backup.getId(), ThirdPartyBackupManifest.CLEANUP_DETAILS_KEY,
+                        StringUtils.defaultString(e.getMessage()), false);
+            } else {
+                saveCleanupState(backup.getId(), "WAITING", StringUtils.defaultString(e.getMessage()));
+            }
             logger.debug("Failed volume backup [{}] cleanup is pending: {}", backup.getUuid(), e.getMessage());
+        }
+    }
+
+    private void cleanupTerminalBackupRecords(BackupVO backup, Host host) {
+        if (!java.util.Set.of("WAITING", "RUNNING").contains(StringUtils.defaultString(
+                backup.getDetail(ThirdPartyBackupManifest.JOB_CLEANUP_STATE_KEY)))) { return; }
+        try {
+            ThirdPartyBackupAdmission.Entry admission = readAdmission(backup.getId(), "BACKUP");
+            if (admission != null && (!backup.getUuid().equals(admission.jobId) || !"RELEASED".equals(admission.state))) {
+                throw new CloudRuntimeException("Capacity reservation release must be confirmed before deleting Host job records");
+            }
+            backupDetailsDao.addDetail(backup.getId(), ThirdPartyBackupManifest.JOB_CLEANUP_STATE_KEY, "RUNNING", false);
+            Answer answer = agentManager.send(host.getId(), new AblestackBackupJobCleanupCommand(backup.getUuid()));
+            if (answer == null || !answer.getResult()) {
+                throw new CloudRuntimeException(answer == null ? "Host job record cleanup returned no response" : answer.getDetails());
+            }
+            com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<Boolean>) status -> {
+                backupDetailsDao.addDetail(backup.getId(), ThirdPartyBackupManifest.JOB_CLEANUP_STATE_KEY, "COMPLETED", false);
+                backupDetailsDao.removeDetail(backup.getId(), ThirdPartyBackupManifest.JOB_CLEANUP_DETAILS_KEY);
+                if (backup.getStatus() == Backup.Status.Canceled) {
+                    backupDetailsDao.addDetail(backup.getId(), AblestackBackupFrameworkUtils.BACKUP_CANCELLATION_DETAIL,
+                            "Backup canceled; staging, capacity reservations and Host job records cleaned", false);
+                    ThirdPartyBackupStart.Operation start = readBackupStart(backup.getId());
+                    if (start != null && start.cancelRequestedAt > 0) {
+                        start.cancelReason = "Backup canceled; staging, capacity reservations and Host job records cleaned";
+                        saveBackupStart(backup.getId(), start);
+                    }
+                }
+                return true;
+            });
+        } catch (Exception e) {
+            // Physical cleanup stays COMPLETED even if the response to record deletion
+            // was lost. The deletion is idempotent and retries independently.
+            try {
+                backupDetailsDao.addDetail(backup.getId(), ThirdPartyBackupManifest.JOB_CLEANUP_STATE_KEY, "WAITING", false);
+                backupDetailsDao.addDetail(backup.getId(), ThirdPartyBackupManifest.JOB_CLEANUP_DETAILS_KEY,
+                        StringUtils.defaultIfBlank(e.getMessage(), "Host job record cleanup is pending"), false);
+            } catch (RuntimeException saveFailure) {
+                logger.warn("Unable to persist terminal backup record cleanup retry [{}]: {}", backup.getUuid(), saveFailure.getMessage());
+            }
+            logger.debug("Terminal backup [{}] Host job record cleanup remains pending: {}", backup.getUuid(), e.getMessage());
         }
     }
 

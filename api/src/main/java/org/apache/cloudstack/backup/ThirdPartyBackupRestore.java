@@ -81,6 +81,9 @@ public final class ThirdPartyBackupRestore {
         public long startSubmittedAt;
         public long startCheckedAt;
         public String startFailureReason;
+        public long cancelRequestedAt;
+        public long cancelConfirmedAt;
+        public String cancelReason;
         public VmResult vmResult;
         public long vmResultCheckedAt;
         public String vmResultError;

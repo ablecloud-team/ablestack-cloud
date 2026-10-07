@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
+import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -170,6 +171,26 @@ final class LibvirtAblestackAsyncBackupRunner {
             return "UNKNOWN";
         }
         String state = properties.getProperty("state", "UNKNOWN");
+        if (STATE_FAILED.equals(state) && !ACTIVE_JOBS.contains(jobId)) {
+            try {
+                var start = LibvirtAblestackBackupStartHelper.recorded(jobId);
+                if (start != null && "STARTED".equals(start.state)) {
+                    // systemd may accept a launch whose response is an error. A live engine
+                    // takes precedence over the launcher's failure, without replaying start.
+                    String observed = resolveDetachedState(jobId, properties, logger);
+                    if (STATE_RUNNING.equals(observed)) {
+                        writeJobState(logger, jobId, properties.getProperty("provider"), properties.getProperty("vmName"),
+                                properties.getProperty("backupPath"), properties.getProperty("backupType"), STATE_RUNNING,
+                                "Previously unconfirmed backup start is running");
+                        return STATE_RUNNING;
+                    }
+                    if (!STATE_INTERRUPTED.equals(observed)) { return observed; }
+                }
+            } catch (IOException | RuntimeException e) {
+                logger.warn("Backup start state is unconfirmed for job [{}]: {}", jobId, e.getMessage());
+                return "UNKNOWN";
+            }
+        }
         if (STATE_FAILED.equals(state) && isStagingQueueCanceled(jobId)) {
             writeJobState(logger, jobId, properties.getProperty("provider"), properties.getProperty("vmName"),
                     properties.getProperty("backupPath"), properties.getProperty("backupType"), STATE_CANCELED,
@@ -299,6 +320,31 @@ final class LibvirtAblestackAsyncBackupRunner {
             return;
         }
         writeJobState(logger, jobId, provider, vmName, backupPath, "RESTORE", STATE_COMPLETED, details);
+        ACTIVE_JOBS.remove(jobId);
+    }
+
+    /** A durable start fence proves this attempt cannot perform any source or staging IO. */
+    static void markBackupStartFailed(final org.apache.cloudstack.backup.ThirdPartyBackupStart.Plan plan,
+            final String reason, final Logger logger) throws IOException {
+        writeJobState(logger, plan.jobId, plan.manifest.getProvider(), plan.manifest.getVmName(), plan.backupPath,
+                plan.manifest.getBackupType(), STATE_FAILED, reason);
+        Properties saved = readJob(plan.jobId, logger);
+        if (saved == null || !STATE_FAILED.equals(saved.getProperty("state"))) { throw new IOException("Unable to persist backup start failure"); }
+        try (FileChannel channel = FileChannel.open(getJobPath(plan.jobId), StandardOpenOption.WRITE)) { channel.force(true); }
+    }
+
+    /** Called only after durable Host finalization proves reader termination and reservation release. */
+    static void markVolumeBackupFinalized(final String jobId, final Logger logger) throws IOException {
+        final Properties properties = readJob(jobId, logger);
+        if (properties == null) { throw new IllegalStateException("Backup job state is unavailable"); }
+        writeJobState(logger, jobId, properties.getProperty("provider"), properties.getProperty("vmName"),
+                properties.getProperty("backupPath"), properties.getProperty("backupType"), STATE_COMPLETED,
+                "Volume transfers and Host finalization completed");
+        final Properties saved = readJob(jobId, logger);
+        if (saved == null || !STATE_COMPLETED.equals(saved.getProperty("state"))) {
+            throw new IOException("Host finalization completed but backup job state persistence is pending");
+        }
+        try (FileChannel channel = FileChannel.open(getJobPath(jobId), StandardOpenOption.WRITE)) { channel.force(true); }
         ACTIVE_JOBS.remove(jobId);
     }
 
@@ -455,9 +501,35 @@ final class LibvirtAblestackAsyncBackupRunner {
         final Path jobDirectory = getJobDirectory(jobId);
         final Path jobProperties = getJobPath(jobId);
         try {
+            Path volumePlan = jobDirectory.resolve("volume-plan.json");
+            if (Files.isRegularFile(volumePlan) && !LibvirtAblestackBackupStartHelper.unstartedFenced(jobId)) {
+                // An acknowledged pre-IO fence also covers a partially written launch plan.
+                String state = getJobState(jobId, logger);
+                if (!Set.of(STATE_COMPLETED, STATE_FAILED, STATE_INTERRUPTED, STATE_CANCELED).contains(state)
+                        || (!STATE_COMPLETED.equals(state) && !Files.isRegularFile(jobDirectory.resolve("volume-cleanup.json")))) {
+                    return new Answer(command, false, "Volume backup engine and common staging cleanup must finish before removing job records");
+                }
+                var plan = new Gson().fromJson(Files.readString(volumePlan), com.google.gson.JsonObject.class);
+                if (plan == null || !plan.has("manifest") || !plan.get("manifest").isJsonObject()
+                        || !plan.getAsJsonObject("manifest").has("backupUuid") || !plan.has("stageRoot")
+                        || !jobId.equals(plan.getAsJsonObject("manifest").get("backupUuid").getAsString())
+                        || Files.exists(Path.of(plan.get("stageRoot").getAsString(), ".volume-reservations", jobId + ".json"))) {
+                    return new Answer(command, false, "Volume backup staging reservation is still present or its ownership is unconfirmed");
+                }
+                if (STATE_COMPLETED.equals(state) && plan.has("rbd") && plan.get("rbd").getAsBoolean()
+                        && plan.has("parentCheckpointName") && !plan.get("parentCheckpointName").isJsonNull()
+                        && !plan.get("parentCheckpointName").getAsString().isBlank()
+                        && !sourceCleanupCompleted(jobDirectory, jobId, plan)) {
+                    return new Answer(command, false, "Previous RBD snapshot cleanup must complete before removing backup job records");
+                }
+            }
             if (Files.isRegularFile(jobDirectory.resolve("volume-restore-plan.json"))
                     && !Files.isRegularFile(jobDirectory.resolve("volume-restore-cleanup.json"))) {
                 return new Answer(command, false, "Volume restore writer, transaction and staging cleanup must finish before removing job records");
+            }
+            if ((Files.isRegularFile(volumePlan) || Files.isRegularFile(jobDirectory.resolve("staging-admission-plan.json")))
+                    && !Files.isRegularFile(Path.of(AblestackBackupFrameworkUtils.STAGING_ADMISSION_CLOSED_ROOT, jobId + ".closed"))) {
+                return new Answer(command, false, "Durable staging admission closure must be recorded before removing volume job files");
             }
             if (Files.exists(jobDirectory)) {
                 try (Stream<Path> paths = Files.walk(jobDirectory)) {
@@ -475,11 +547,33 @@ final class LibvirtAblestackAsyncBackupRunner {
             logger.info("Cleaned ABLESTACK backup job files. jobId=[{}], jobDir=[{}], properties=[{}]",
                     jobId, jobDirectory, jobProperties);
             return new Answer(command, true, "Backup job files cleaned");
-        } catch (IOException | UncheckedIOException e) {
+        } catch (IOException | RuntimeException e) {
             logger.warn("Failed to clean ABLESTACK backup job files. jobId=[{}], jobDir=[{}], properties=[{}]",
                     jobId, jobDirectory, jobProperties, e);
             return new Answer(command, false, "Failed to clean backup job files: " + e.getMessage());
         }
+    }
+
+    /** Older receipts have only UUID/state; new receipts also identify the exact retired checkpoint. */
+    static boolean sourceCleanupCompleted(final Path directory, final String jobId, final com.google.gson.JsonObject plan) throws IOException {
+        if (plan == null || !plan.has("manifest") || !plan.get("manifest").isJsonObject()
+                || !plan.getAsJsonObject("manifest").has("backupUuid")
+                || !jobId.equals(plan.getAsJsonObject("manifest").get("backupUuid").getAsString())) { return false; }
+        final Path receipt = directory.resolve("source-cleanup.json");
+        if (!Files.isRegularFile(receipt)) { return false; }
+        final var cleanup = new Gson().fromJson(Files.readString(receipt), com.google.gson.JsonObject.class);
+        if (cleanup == null || !cleanup.has("backupUuid") || !jobId.equals(cleanup.get("backupUuid").getAsString())
+                || !cleanup.has("state") || !STATE_COMPLETED.equals(cleanup.get("state").getAsString())) { return false; }
+        if (cleanup.has("version") && (!cleanup.get("version").isJsonPrimitive()
+                || !cleanup.getAsJsonPrimitive("version").isNumber() || cleanup.get("version").getAsDouble() != 1
+                || !cleanup.has("checkpointName") || !cleanup.has("parentCheckpointName") || !cleanup.has("errors"))) { return false; }
+        for (String key : Set.of("checkpointName", "parentCheckpointName")) {
+            if (!cleanup.has(key)) { continue; }
+            String recorded = cleanup.get(key).isJsonNull() ? null : cleanup.get(key).getAsString();
+            String expected = !plan.has(key) || plan.get(key).isJsonNull() ? null : plan.get(key).getAsString();
+            if (!java.util.Objects.equals(recorded, expected)) { return false; }
+        }
+        return !cleanup.has("errors") || (cleanup.get("errors").isJsonArray() && cleanup.getAsJsonArray("errors").size() == 0);
     }
 
     private static String resolveDetachedState(final String jobId, final Properties properties, final Logger logger) {

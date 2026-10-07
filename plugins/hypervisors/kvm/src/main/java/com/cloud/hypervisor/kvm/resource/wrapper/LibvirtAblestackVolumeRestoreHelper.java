@@ -48,6 +48,10 @@ import org.apache.logging.log4j.Logger;
 
 /** Download/apply/unlink one artifact at a time; use the same journalled VM switch as legacy restores. */
 final class LibvirtAblestackVolumeRestoreHelper {
+    private static final Object[] START_LOCKS = java.util.stream.IntStream.range(0, 256).mapToObj(index -> new Object()).toArray();
+
+    private static Object localStartLock(String jobId) { return START_LOCKS[Math.floorMod(jobId.hashCode(), START_LOCKS.length)]; }
+
     private final ThirdPartyBackupRestore.Plan plan;
     private final Path job;
     private final Logger logger;
@@ -109,44 +113,48 @@ final class LibvirtAblestackVolumeRestoreHelper {
     /** Both the initializer and start cancellation lock this stable file, outside removable job records. */
     static ThirdPartyBackupRestore.StartReceipt controlStart(ThirdPartyBackupRestore.Plan plan, boolean abort) throws IOException {
         validateStartPlan(plan);
-        Files.createDirectories(startDirectory());
-        try (FileChannel channel = FileChannel.open(startDirectory().resolve(plan.jobId + ".lock"),
-                StandardOpenOption.CREATE, StandardOpenOption.WRITE); java.nio.channels.FileLock lock = channel.tryLock()) {
-            if (lock == null) { throw new CloudRuntimeException("Restore initialization is being inspected; retry shortly"); }
-            ThirdPartyBackupRestore.StartReceipt receipt = readStart(plan);
-            Path job = Path.of(AblestackBackupFrameworkUtils.ASYNC_BACKUP_JOB_ROOT, plan.jobId);
-            Path hostPlan = job.resolve("volume-restore-plan.json");
-            if (Files.exists(hostPlan, LinkOption.NOFOLLOW_LINKS)) {
-                if (!new Gson().toJson(plan).equals(new Gson().toJson(new Gson().fromJson(Files.readString(hostPlan), ThirdPartyBackupRestore.Plan.class)))) {
-                    throw new CloudRuntimeException("Host restore plan differs from its start receipt");
+        // Closing another same-file descriptor in this JVM can release its POSIX record lock.
+        // Serialize local threads before either control or initialization opens the descriptor.
+        synchronized (localStartLock(plan.jobId)) {
+            Files.createDirectories(startDirectory());
+            try (FileChannel channel = FileChannel.open(startDirectory().resolve(plan.jobId + ".lock"),
+                    StandardOpenOption.CREATE, StandardOpenOption.WRITE); java.nio.channels.FileLock lock = channel.tryLock()) {
+                if (lock == null) { throw new CloudRuntimeException("Restore initialization is being inspected; retry shortly"); }
+                ThirdPartyBackupRestore.StartReceipt receipt = readStart(plan);
+                Path job = Path.of(AblestackBackupFrameworkUtils.ASYNC_BACKUP_JOB_ROOT, plan.jobId);
+                Path hostPlan = job.resolve("volume-restore-plan.json");
+                if (Files.exists(hostPlan, LinkOption.NOFOLLOW_LINKS)) {
+                    if (!new Gson().toJson(plan).equals(new Gson().toJson(new Gson().fromJson(Files.readString(hostPlan), ThirdPartyBackupRestore.Plan.class)))) {
+                        throw new CloudRuntimeException("Host restore plan differs from its start receipt");
+                    }
+                    if (receipt != null && "START_FAILED".equals(receipt.state)) {
+                        throw new CloudRuntimeException("Initialized Host restore conflicts with a start failure receipt");
+                    }
+                    if (receipt == null) { receipt = new ThirdPartyBackupRestore.StartReceipt(); receipt.plan = plan; }
+                    receipt.state = "INITIALIZED";
+                    writeStart(receipt);
+                    return receipt;
                 }
-                if (receipt != null && "START_FAILED".equals(receipt.state)) {
-                    throw new CloudRuntimeException("Initialized Host restore conflicts with a start failure receipt");
+                if (receipt == null) {
+                    if (abort) { throw new CloudRuntimeException("Host start preparation is unconfirmed; no absence-based release is allowed"); }
+                    receipt = new ThirdPartyBackupRestore.StartReceipt();
+                    receipt.plan = plan;
+                    receipt.state = "PREPARED";
+                    writeStart(receipt);
                 }
-                if (receipt == null) { receipt = new ThirdPartyBackupRestore.StartReceipt(); receipt.plan = plan; }
-                receipt.state = "INITIALIZED";
-                writeStart(receipt);
+                if (abort && "PREPARED".equals(receipt.state)) {
+                    if (Files.exists(job.resolve("restore-capacity-plan.json")) || Files.exists(job.resolve("volume-restore-request.json"))
+                            || Files.exists(job.resolve("staging-admission-plan.json"))
+                            || Files.exists(Path.of(plan.destination), LinkOption.NOFOLLOW_LINKS)
+                            || Files.exists(Path.of(plan.stageRoot, ".volume-reservations", plan.jobId + ".json"))) {
+                        throw new CloudRuntimeException("Restore has Host artifacts or capacity records; normal reconciliation is required");
+                    }
+                    receipt.state = "START_FAILED";
+                    receipt.reason = "Restore engine did not initialize; this attempt is permanently blocked from starting";
+                    writeStart(receipt);
+                }
                 return receipt;
             }
-            if (receipt == null) {
-                if (abort) { throw new CloudRuntimeException("Host start preparation is unconfirmed; no absence-based release is allowed"); }
-                receipt = new ThirdPartyBackupRestore.StartReceipt();
-                receipt.plan = plan;
-                receipt.state = "PREPARED";
-                writeStart(receipt);
-            }
-            if (abort && "PREPARED".equals(receipt.state)) {
-                if (Files.exists(job.resolve("restore-capacity-plan.json")) || Files.exists(job.resolve("volume-restore-request.json"))
-                        || Files.exists(job.resolve("staging-admission-plan.json"))
-                        || Files.exists(Path.of(plan.destination), LinkOption.NOFOLLOW_LINKS)
-                        || Files.exists(Path.of(plan.stageRoot, ".volume-reservations", plan.jobId + ".json"))) {
-                    throw new CloudRuntimeException("Restore has Host artifacts or capacity records; normal reconciliation is required");
-                }
-                receipt.state = "START_FAILED";
-                receipt.reason = "Restore engine did not initialize; this attempt is permanently blocked from starting";
-                writeStart(receipt);
-            }
-            return receipt;
         }
     }
 
@@ -182,18 +190,20 @@ final class LibvirtAblestackVolumeRestoreHelper {
                 plan.targetVmName = vmName;
                 if (plan.startProtocolVersion > 0) {
                     validateStartPlan(plan);
-                    Files.createDirectories(startDirectory());
-                    try (FileChannel start = FileChannel.open(startDirectory().resolve(plan.jobId + ".lock"),
-                            StandardOpenOption.CREATE, StandardOpenOption.WRITE); java.nio.channels.FileLock startLock = start.tryLock()) {
-                        if (startLock == null) { throw new CloudRuntimeException("Restore start control is active; dispatch will not be repeated"); }
-                        ThirdPartyBackupRestore.StartReceipt receipt = readStart(plan);
-                        if (receipt == null || !"PREPARED".equals(receipt.state)) {
-                            throw new CloudRuntimeException("Restore was not prepared or has already started or been blocked");
+                    synchronized (localStartLock(plan.jobId)) {
+                        Files.createDirectories(startDirectory());
+                        try (FileChannel start = FileChannel.open(startDirectory().resolve(plan.jobId + ".lock"),
+                                StandardOpenOption.CREATE, StandardOpenOption.WRITE); java.nio.channels.FileLock startLock = start.tryLock()) {
+                            if (startLock == null) { throw new CloudRuntimeException("Restore start control is active; dispatch will not be repeated"); }
+                            ThirdPartyBackupRestore.StartReceipt receipt = readStart(plan);
+                            if (receipt == null || !"PREPARED".equals(receipt.state)) {
+                                throw new CloudRuntimeException("Restore was not prepared or has already started or been blocked");
+                            }
+                            // No capacity reservation or data mutation precedes this durable initialization proof.
+                            atomic(helper.job.resolve("volume-restore-plan.json"), new Gson().toJson(plan));
+                            receipt.state = "INITIALIZED";
+                            writeStart(receipt);
                         }
-                        // No capacity reservation or data mutation precedes this durable initialization proof.
-                        atomic(helper.job.resolve("volume-restore-plan.json"), new Gson().toJson(plan));
-                        receipt.state = "INITIALIZED";
-                        writeStart(receipt);
                     }
                 } else {
                     atomic(helper.job.resolve("volume-restore-plan.json"), new Gson().toJson(plan));
@@ -286,6 +296,7 @@ final class LibvirtAblestackVolumeRestoreHelper {
     }
 
     private void execute(LibvirtComputingResource resource, String vmName, List<PrimaryDataStoreTO> pools, List<String> targets) {
+        checkCancellation();
         plan.manifest.validate(true);
         targetVmName = vmName;
         if (plan.jobId == null || !plan.jobId.matches("[A-Za-z0-9_.-]+") || plan.volumeUuids.isEmpty()
@@ -338,6 +349,7 @@ final class LibvirtAblestackVolumeRestoreHelper {
                 admission.put("primaryScratchBytes", validatePrimaryCapacity(resource.getStoragePoolMgr(), pools, targets, volumes, root));
             }
             atomic(capacityPlan, new Gson().toJson(admission));
+            checkCancellation();
             capacity(capacityScript, capacityPlan, "prepare");
             LibvirtAblestackAsyncBackupRunner.markRestoreJobRunning(logger, provider, plan.jobId, vmName, plan.destination,
                     "Waiting for staging admission");
@@ -345,14 +357,14 @@ final class LibvirtAblestackVolumeRestoreHelper {
             progress("WAITING", 0, 0);
             long queueDeadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(plan.queueTimeout <= 0 ? 3600 : plan.queueTimeout);
             while (!Files.isRegularFile(job.resolve("staging-admission-granted"))) {
-                Path canceled = job.resolve("staging-admission-cancel");
-                if (Files.isRegularFile(canceled)) { throw new CloudRuntimeException(Files.readString(canceled)); }
+                checkCancellation();
                 if (System.nanoTime() >= queueDeadline) {
                     capacity(capacityScript, capacityPlan, "cancel");
                 }
                 Thread.sleep(1000);
             }
             reserved = true;
+            checkCancellation();
             Files.deleteIfExists(job.resolve("staging-admission-request.json"));
             deadline = plan.timeout <= 0 ? Long.MAX_VALUE : System.nanoTime() + TimeUnit.SECONDS.toNanos(plan.timeout);
             Files.createDirectories(destination.resolve("payload"));
@@ -364,6 +376,7 @@ final class LibvirtAblestackVolumeRestoreHelper {
             LibvirtAblestackAsyncBackupRunner.markRestoreJobRunning(logger, provider, plan.jobId, vmName, plan.destination,
                     "Volume restore started");
             if (plan.primaryCapacityVersion == 1) { LibvirtAblestackPrimaryRestoreCapacity.query(resource, job); }
+            checkCancellation();
             LibvirtAblestackRestoreTransaction.restorePrepared(logger, trace, vmName, resource.getStoragePoolMgr(), pools, targets,
                     plan.timeout, () -> {
                         if (plan.primaryCapacityVersion == 1) { LibvirtAblestackPrimaryRestoreCapacity.validate(resource, job); }
@@ -379,6 +392,7 @@ final class LibvirtAblestackVolumeRestoreHelper {
                         }
                         prepareVolume(resource.getStoragePoolMgr(), volumes.get(index), pools.get(index), targets.get(index), prepared, index);
                         if (index == volumes.size() - 1) {
+                            checkCancellation();
                             step("SWITCH_VOLUMES", "Every restored volume is prepared; switching VM volumes");
                             try { progress("SWITCH_VOLUMES", volumes.size(), 85); }
                             catch (IOException e) { throw new CloudRuntimeException("Unable to save restore progress", e); }
@@ -519,6 +533,7 @@ final class LibvirtAblestackVolumeRestoreHelper {
     }
 
     private Path fetch(ThirdPartyBackupManifest.Artifact artifact, boolean metadata, int volume, int chain) throws IOException {
+        checkCancellation();
         ThirdPartyBackupRestore.Request request = new ThirdPartyBackupRestore.Request();
         request.jobId = plan.jobId;
         request.sequence = sequence++;
@@ -535,6 +550,7 @@ final class LibvirtAblestackVolumeRestoreHelper {
                 15 + 65 * request.sequence / artifactCount);
         atomic(job.resolve("volume-restore-request.json"), new Gson().toJson(request));
         while (!Files.isRegularFile(acknowledgment)) {
+            checkCancellation();
             Path failure = job.resolve("volume-restore-failure");
             if (Files.isRegularFile(failure)) {
                 Map<?, ?> result = new Gson().fromJson(Files.readString(failure), Map.class);
@@ -557,6 +573,16 @@ final class LibvirtAblestackVolumeRestoreHelper {
 
     private void step(String step, String detail) {
         LibvirtAblestackAsyncBackupRunner.markRestoreJobStep(logger, provider, plan.jobId, targetVmName, plan.destination, step, detail);
+    }
+
+    private void checkCancellation() {
+        for (String file : List.of("volume-restore-cancel", "staging-admission-cancel")) {
+            Path marker = job.resolve(file);
+            if (Files.isRegularFile(marker)) {
+                try { throw new CloudRuntimeException(Files.readString(marker)); }
+                catch (IOException e) { throw new CloudRuntimeException("Restore cancellation marker could not be read", e); }
+            }
+        }
     }
 
     private void progress(String step, int volume, int percent) throws IOException {
