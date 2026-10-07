@@ -201,14 +201,20 @@ public class KubernetesClusterScaleWorker extends KubernetesClusterResourceModif
         scaleKubernetesClusterIsolatedNetworkRules(clusterVMIds);
     }
 
-    private KubernetesClusterVO updateKubernetesClusterEntryForNodeType(final Long newWorkerSize, final KubernetesClusterNodeType nodeType,
+    protected KubernetesClusterVO updateKubernetesClusterEntryForNodeType(final Long newWorkerSize, final KubernetesClusterNodeType nodeType,
                                                                         final ServiceOffering newServiceOffering,
                                                                         final boolean updateNodeOffering, boolean updateClusterOffering) throws CloudRuntimeException {
-        final ServiceOffering serviceOffering = newServiceOffering == null ?
-                serviceOfferingDao.findById(kubernetesCluster.getServiceOfferingId()) : newServiceOffering;
+        final ServiceOffering serviceOffering = newServiceOffering != null ? newServiceOffering
+                : nodeType == DEFAULT ? serviceOfferingDao.findById(kubernetesCluster.getServiceOfferingId())
+                : getExistingServiceOfferingForNodeType(nodeType, kubernetesCluster);
         final Long serviceOfferingId = newServiceOffering == null ? null : serviceOffering.getId();
 
-        Pair<Long, Long> clusterCountAndCapacity = calculateNewClusterCountAndCapacity(newWorkerSize, nodeType, serviceOffering);
+        Pair<Long, Long> clusterCountAndCapacity = newWorkerSize != null && newServiceOffering == null && nodeType == WORKER
+                ? calculateActualMappedCapacity(newWorkerSize + kubernetesCluster.getControlNodeCount() + kubernetesCluster.getEtcdNodeCount())
+                : null;
+        if (clusterCountAndCapacity == null) {
+            clusterCountAndCapacity = calculateNewClusterCountAndCapacity(newWorkerSize, nodeType, serviceOffering);
+        }
         long cores = clusterCountAndCapacity.first();
         long memory = clusterCountAndCapacity.second();
 
@@ -219,6 +225,25 @@ public class KubernetesClusterScaleWorker extends KubernetesClusterResourceModif
                     kubernetesCluster.getName()), kubernetesCluster.getId(), KubernetesCluster.Event.OperationFailed);
         }
         return kubernetesClusterVO;
+    }
+
+    protected Pair<Long, Long> calculateActualMappedCapacity(long expectedNodeCount) {
+        List<KubernetesClusterVmMapVO> mappings = kubernetesClusterVmMapDao.listByClusterId(kubernetesCluster.getId());
+        if (CollectionUtils.isEmpty(mappings) || mappings.size() != expectedNodeCount) {
+            return null; // Created or pre-mutation state still requires the requested-size calculation.
+        }
+        long cores = 0;
+        long memory = 0;
+        for (KubernetesClusterVmMapVO mapping : mappings) {
+            UserVmVO vm = userVmDao.findById(mapping.getVmId());
+            ServiceOffering offering = vm == null ? null : serviceOfferingDao.findById(vm.getServiceOfferingId());
+            if (vm == null || vm.getRemoved() != null || offering == null) {
+                throw new CloudRuntimeException("Cannot calculate Kubernetes capacity: mapped node or service offering is unavailable");
+            }
+            cores += offering.getCpu();
+            memory += offering.getRamSize();
+        }
+        return new Pair<>(cores, memory);
     }
 
     protected Pair<Long, Long> calculateNewClusterCountAndCapacity(Long newWorkerSize, KubernetesClusterNodeType nodeType, ServiceOffering serviceOffering) {
@@ -823,15 +848,16 @@ public class KubernetesClusterScaleWorker extends KubernetesClusterResourceModif
     }
 
     protected Long getExistingOfferingIdForNodeType(KubernetesClusterNodeType nodeType, KubernetesCluster kubernetesCluster) {
+        Long configured = nodeType == CONTROL ? kubernetesCluster.getControlNodeServiceOfferingId()
+                : nodeType == ETCD ? kubernetesCluster.getEtcdNodeServiceOfferingId()
+                : nodeType == WORKER ? kubernetesCluster.getWorkerNodeServiceOfferingId() : null;
+        Long fallback = configured != null ? configured : kubernetesCluster.getServiceOfferingId();
         List<KubernetesClusterVmMapVO> clusterVms = kubernetesClusterVmMapDao.listByClusterIdAndVmType(kubernetesCluster.getId(), nodeType);
         if (CollectionUtils.isEmpty(clusterVms)) {
-            return kubernetesCluster.getServiceOfferingId();
+            return fallback;
         }
-        KubernetesClusterVmMapVO clusterVm = clusterVms.get(0);
-        UserVmVO clusterUserVm = userVmDao.findById(clusterVm.getVmId());
-        if (clusterUserVm == null) {
-            return kubernetesCluster.getServiceOfferingId();
-        }
-        return clusterUserVm.getServiceOfferingId();
+        UserVmVO clusterUserVm = userVmDao.findById(clusterVms.get(0).getVmId());
+        return clusterUserVm == null ? fallback : clusterUserVm.getServiceOfferingId();
     }
+
 }

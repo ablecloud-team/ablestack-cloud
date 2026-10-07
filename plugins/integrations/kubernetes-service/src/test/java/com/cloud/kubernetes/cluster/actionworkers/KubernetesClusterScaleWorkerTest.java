@@ -18,6 +18,7 @@ package com.cloud.kubernetes.cluster.actionworkers;
 
 import com.cloud.kubernetes.cluster.KubernetesCluster;
 import com.cloud.kubernetes.cluster.KubernetesClusterVmMapVO;
+import com.cloud.kubernetes.cluster.KubernetesClusterVO;
 import com.cloud.kubernetes.cluster.KubernetesClusterManagerImpl;
 import com.cloud.kubernetes.cluster.dao.KubernetesClusterVmMapDao;
 import com.cloud.offering.ServiceOffering;
@@ -127,6 +128,78 @@ public class KubernetesClusterScaleWorkerTest {
 
     @Test public void offeringFreeAutoscalerFailureIsReturnedToCaller() {
         verifyAutoscalingOnlyRequest(false, true, null, null, 2L, 3L, false);
+    }
+
+    private void actualSizedMappings(int... cpuValues) {
+        java.util.ArrayList<KubernetesClusterVmMapVO> mappings = new java.util.ArrayList<>();
+        for (int i = 0; i < cpuValues.length; i++) {
+            long id = 100L + i;
+            KubernetesClusterVmMapVO mapping = Mockito.mock(KubernetesClusterVmMapVO.class);
+            Mockito.when(mapping.getVmId()).thenReturn(id);
+            UserVmVO vm = Mockito.mock(UserVmVO.class);
+            Mockito.when(vm.getServiceOfferingId()).thenReturn(id);
+            Mockito.when(userVmDao.findById(id)).thenReturn(vm);
+            ServiceOfferingVO actualOffering = offering(cpuValues[i], cpuValues[i] * 2048);
+            Mockito.when(serviceOfferingDao.findById(id)).thenReturn(actualOffering);
+            mappings.add(mapping);
+        }
+        Mockito.when(kubernetesClusterVmMapDao.listByClusterId(0L)).thenReturn(mappings);
+    }
+
+    @Test public void sizeOnlyUpdateUsesActualVmTotalsWithoutChangingRoleOfferingIds() {
+        actualSizedMappings(4, 6, 6, 6);
+        Mockito.when(kubernetesCluster.getControlNodeCount()).thenReturn(1L);
+        Mockito.when(kubernetesCluster.getEtcdNodeCount()).thenReturn(0L);
+        Mockito.when(kubernetesCluster.getAutoscalingEnabled()).thenReturn(true);
+        Mockito.when(kubernetesCluster.getMinSize()).thenReturn(2L);
+        Mockito.when(kubernetesCluster.getMaxSize()).thenReturn(3L);
+        Mockito.when(kubernetesClusterVmMapDao.listByClusterIdAndVmType(0L, WORKER))
+                .thenReturn(List.of(new KubernetesClusterVmMapVO(0L, 101L, false)));
+        KubernetesClusterScaleWorker spy = Mockito.spy(worker);
+        KubernetesClusterVO updated = Mockito.mock(KubernetesClusterVO.class);
+        Mockito.doReturn(updated).when(spy).updateKubernetesClusterEntry(22L, 45056L, 3L, null,
+                true, 2L, 3L, WORKER, false, false);
+        Assert.assertSame(updated, spy.updateKubernetesClusterEntryForNodeType(3L, WORKER, null, false, false));
+        Mockito.verify(spy).updateKubernetesClusterEntry(22L, 45056L, 3L, null, true, 2L, 3L, WORKER, false, false);
+    }
+
+    @Test public void sizeOnlyExpansionRebuildsActualCapacityWithLargerWorkers() {
+        actualSizedMappings(4, 6, 6, 6);
+        Pair<Long, Long> totals = worker.calculateActualMappedCapacity(4L);
+        Assert.assertEquals(Long.valueOf(22), totals.first());
+        Assert.assertEquals(Long.valueOf(45056), totals.second());
+    }
+
+    @Test public void sizeOnlyReductionRebuildsCapacityWithHeterogeneousWorkers() {
+        actualSizedMappings(4, 6, 4);
+        Pair<Long, Long> totals = worker.calculateActualMappedCapacity(3L);
+        Assert.assertEquals(Long.valueOf(14), totals.first());
+        Assert.assertEquals(Long.valueOf(28672), totals.second());
+    }
+
+    @Test public void mappedCapacityDoesNotReplaceRequestedSizeBeforeMutation() {
+        KubernetesClusterVmMapVO mapping = Mockito.mock(KubernetesClusterVmMapVO.class);
+        Mockito.when(kubernetesClusterVmMapDao.listByClusterId(0L)).thenReturn(List.of(mapping));
+        Assert.assertNull(worker.calculateActualMappedCapacity(3L));
+        Mockito.verifyNoInteractions(userVmDao, serviceOfferingDao);
+    }
+
+    @Test(expected = com.cloud.utils.exception.CloudRuntimeException.class)
+    public void mappedCapacityRefusesMissingVmBeforeWritingTotals() {
+        KubernetesClusterVmMapVO mapping = Mockito.mock(KubernetesClusterVmMapVO.class);
+        Mockito.when(mapping.getVmId()).thenReturn(100L);
+        Mockito.when(kubernetesClusterVmMapDao.listByClusterId(0L)).thenReturn(List.of(mapping));
+        worker.calculateActualMappedCapacity(1L);
+    }
+
+    @Test public void unprovisionedClusterRetainsConfiguredRoleOfferingIds() {
+        Mockito.when(kubernetesCluster.getControlNodeServiceOfferingId()).thenReturn(4L);
+        Mockito.when(kubernetesCluster.getWorkerNodeServiceOfferingId()).thenReturn(6L);
+        Mockito.when(kubernetesCluster.getEtcdNodeServiceOfferingId()).thenReturn(8L);
+        Assert.assertEquals(Long.valueOf(4), worker.getExistingOfferingIdForNodeType(CONTROL, kubernetesCluster));
+        Assert.assertEquals(Long.valueOf(6), worker.getExistingOfferingIdForNodeType(WORKER, kubernetesCluster));
+        Assert.assertEquals(Long.valueOf(8), worker.getExistingOfferingIdForNodeType(com.cloud.kubernetes.cluster.KubernetesServiceHelper.KubernetesClusterNodeType.ETCD, kubernetesCluster));
+        Mockito.verifyNoInteractions(userVmDao, serviceOfferingDao);
     }
 
     private void actualRoleMappings() {
