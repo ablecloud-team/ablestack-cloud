@@ -149,13 +149,10 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
         if (!Long.valueOf(0L).equals(kubernetesCluster.getEtcdNodeCount()) || failed.getResult() == null) {
             return false;
         }
-        try {
-            java.util.Map<?, ?> result = new com.google.gson.Gson().fromJson(failed.getResult(), java.util.Map.class);
-            return result != null && ("Provisioning the control VM failed in the Kubernetes cluster : " + kubernetesCluster.getName())
-                    .equals(result.get("errortext"));
-        } catch (com.google.gson.JsonParseException e) {
-            return false;
-        }
+        Object result = org.apache.cloudstack.framework.jobs.impl.JobSerializerHelper.fromSerializedString(failed.getResult());
+        return result instanceof org.apache.cloudstack.api.response.ExceptionResponse
+                && ("Provisioning the control VM failed in the Kubernetes cluster : " + kubernetesCluster.getName())
+                .equals(((org.apache.cloudstack.api.response.ExceptionResponse) result).getErrorText());
     }
 
     private void validateClusterSate() {

@@ -113,16 +113,21 @@ public class KubernetesCreatedFailureCleanupTest {
         Mockito.verifyNoInteractions(worker.asyncJobDao);
         Mockito.verifyNoInteractions(details);
     }
+    private String serializedFailure(String message) {
+        org.apache.cloudstack.api.response.ExceptionResponse response = new org.apache.cloudstack.api.response.ExceptionResponse();
+        response.setErrorText(message);
+        return org.apache.cloudstack.framework.jobs.impl.JobSerializerHelper.toSerializedString(response);
+    }
     @Test public void legacyFirstControlFailureWithoutAnyNodesCanBeCleaned() {
         Mockito.when(cluster.getState()).thenReturn(KubernetesCluster.State.Error);
-        Mockito.when(failed.getResult()).thenReturn("{\"errortext\":\"Provisioning the control VM failed in the Kubernetes cluster : test-cluster\"}");
+        Mockito.when(failed.getResult()).thenReturn(serializedFailure("Provisioning the control VM failed in the Kubernetes cluster : test-cluster"));
         assertTrue(worker.reconcileFailedCreationBeforeDelete());
         Mockito.verify(worker, Mockito.never()).stateTransitTo(Mockito.anyLong(), Mockito.any());
         Mockito.verify(details).addDetail(3L, "lifecycle.creation.failed.job", "failed-create-job", false);
     }
     @Test public void laterFailureIsNotTreatedAsUnprovisioned() {
         Mockito.when(cluster.getState()).thenReturn(KubernetesCluster.State.Error);
-        Mockito.when(failed.getResult()).thenReturn("{\"errortext\":\"CSI deployment failed\"}");
+        Mockito.when(failed.getResult()).thenReturn(serializedFailure("CSI deployment failed"));
         assertFalse(worker.reconcileFailedCreationBeforeDelete());
         Mockito.verifyNoInteractions(details);
     }
