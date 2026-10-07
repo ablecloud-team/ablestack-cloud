@@ -720,7 +720,7 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
     protected boolean failedBeforeApiBootstrap() {
         KubernetesClusterDetailsVO phase = kubernetesClusterDetailsDao.findDetail(kubernetesCluster.getId(), "lifecycle.provisioning.phase");
         return (kubernetesCluster.getState() == KubernetesCluster.State.Error || kubernetesCluster.getState() == KubernetesCluster.State.Alert
-                || kubernetesCluster.getState() == KubernetesCluster.State.Destroying)
+                || kubernetesCluster.getState() == KubernetesCluster.State.Destroying || kubernetesCluster.getState() == KubernetesCluster.State.Stopped)
                 && kubernetesCluster.getClusterType() == KubernetesCluster.ClusterType.CloudManaged
                 && phase != null && "Bootstrap".equals(phase.getValue())
                 && StringUtils.isBlank(kubernetesCluster.getEndpoint()) && !ownershipCleanupEnabled();

@@ -139,4 +139,9 @@ public class KubernetesFailedBootstrapCleanupTest {
         assertEquals("RuntimeException", KubernetesClusterDestroyWorker.cleanupFailureReason(new RuntimeException("https://secret.invalid/?apikey=private")));
         assertEquals("Public IP cleanup allocation changed", KubernetesClusterDestroyWorker.cleanupFailureReason(new CloudRuntimeException("Public IP cleanup allocation changed: 11111111-1111-4111-8111-111111111111")));
     }
+    @Test public void scannerStoppedFailedBootstrapStillUsesVerifiedFailedJob() throws Exception {
+        Mockito.when(cluster.getState()).thenReturn(KubernetesCluster.State.Stopped);
+        assertTrue(worker.prepareFailedBootstrapCleanup());
+        Mockito.verify(worker.kubernetesClusterDetailsDao).addDetail(3L, "cleanup.bootstrap.failed.job", "failed-job", false);
+    }
 }
