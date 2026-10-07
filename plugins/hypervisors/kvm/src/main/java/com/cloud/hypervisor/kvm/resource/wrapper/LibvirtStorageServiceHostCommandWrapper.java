@@ -183,11 +183,22 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
                 final String stderr = decodeGuestData(response, "err-data");
                 final String details = exitCode == 0 ? "Storage Service command completed" :
                         commandFailureDetails(command, exitCode, stdout, stderr);
-                return new StorageServiceHostAnswer(command, exitCode == 0, details, stdout);
+                return new StorageServiceHostAnswer(command, exitCode == 0, details, identityTransportObservation(command, stdout));
             }
             Thread.sleep(QGA_POLL_INTERVAL_MILLIS);
         }
         return new StorageServiceHostAnswer(command, false, "Timed out waiting for Storage Service QGA command", null);
+    }
+
+    protected String identityTransportObservation(StorageServiceHostCommand command, String stdout) {
+        if (!"identity capsule capabilities".equals(command.getOperation())) return stdout;
+        try {
+            JsonObject capability = new JsonParser().parse(stdout).getAsJsonObject();
+            if (capability.has("success") && capability.get("success").getAsBoolean()) {
+                capability.addProperty("protectedStdinTransport", true);return capability.toString();
+            }
+        } catch (RuntimeException unavailable) { /* Do not advertise transport when the native probe failed. */ }
+        return stdout;
     }
 
     protected String commandExceptionDetails(StorageServiceHostCommand command,String diagnostic) {
@@ -220,6 +231,11 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
         args.add(new JsonPrimitive("-lc"));
         args.add(new JsonPrimitive(buildStorageCtlShell(command)));
         arguments.add("arg", args);
+        if (command.getOperation().startsWith("identity capsule ")) {
+            // QGA stdin keeps wrapping credentials out of the guest process argument list.
+            arguments.addProperty("input-data", Base64.getEncoder().encodeToString(
+                    (command.getPayload() == null ? "" : command.getPayload()).getBytes(StandardCharsets.UTF_8)));
+        }
         arguments.addProperty("capture-output", true);
         qgaCommand.add("arguments", arguments);
         return qgaCommand.toString();
@@ -232,7 +248,7 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
         final String payload = command.getPayload() == null ? "" : command.getPayload();
         final String encodedPayload = Base64.getEncoder().encodeToString(payload.getBytes(StandardCharsets.UTF_8));
         if (command.getOperation().startsWith("identity capsule ")) {
-            return "printf '%s' '" + encodedPayload + "' | base64 -d | /usr/local/bin/ablestack-storagectl " + command.getOperation() + " /dev/stdin";
+            return "/usr/local/bin/ablestack-storagectl " + command.getOperation() + " /dev/stdin";
         }
         return "payload=$(mktemp /tmp/ablestack-storage-XXXXXX.json); " +
                 "printf '%s' '" + encodedPayload + "' | base64 -d > \"$payload\"; " +
