@@ -19,6 +19,9 @@ package com.cloud.kubernetes.cluster;
 import com.cloud.projects.Project;
 import com.cloud.projects.ProjectAccount;
 import com.cloud.projects.ProjectManager;
+import com.cloud.projects.ProjectAccountVO;
+import com.cloud.projects.dao.ProjectAccountDao;
+import java.util.Collections;
 import com.cloud.user.Account;
 import com.cloud.user.AccountService;
 import com.cloud.user.User;
@@ -54,6 +57,7 @@ public class KubernetesProjectServiceAccountTest {
         manager = Mockito.spy(new KubernetesClusterManagerImpl());
         manager.accountService = Mockito.mock(AccountService.class);
         manager.projectManager = Mockito.mock(ProjectManager.class);
+        manager.projectAccountDao = Mockito.mock(ProjectAccountDao.class);
         project = Mockito.mock(Project.class);
         Mockito.when(project.getDomainId()).thenReturn(9L);
         Role role = Mockito.mock(Role.class);
@@ -71,7 +75,6 @@ public class KubernetesProjectServiceAccountTest {
     @Test public void localMachineAccountBindsOnlyToRequestedProject() {
         UserAccount user = Mockito.mock(UserAccount.class);
         Mockito.when(user.getAccountId()).thenReturn(11L);
-        Mockito.when(user.getId()).thenReturn(12L);
         Mockito.when(manager.accountService.createUserAccount(Mockito.eq(name), Mockito.anyString(),
                 Mockito.anyString(), Mockito.anyString(), Mockito.isNull(), Mockito.isNull(), Mockito.eq(name),
                 Mockito.eq(Account.Type.NORMAL), Mockito.eq(10L), Mockito.eq(9L), Mockito.isNull(), Mockito.isNull(),
@@ -79,9 +82,50 @@ public class KubernetesProjectServiceAccountTest {
         Account local = Mockito.mock(Account.class);
         Mockito.when(manager.accountService.getAccount(11L)).thenReturn(local);
         assertSame(local, manager.createProjectKubernetesAccount(project, name));
-        Mockito.verify(manager.projectManager).assignAccountToProject(project, 11L, ProjectAccount.Role.Regular, 12L, null);
+        Mockito.verify(manager.projectManager).assignAccountToProject(project, 11L, ProjectAccount.Role.Regular, null, null);
         Mockito.verifyNoMoreInteractions(manager.projectManager);
         assertSame(caller, CallContext.current());
+    }
+
+    private Account existingAccount(Long userId) {
+        Account account = Mockito.mock(Account.class);
+        Mockito.when(account.getId()).thenReturn(11L);
+        Mockito.when(account.getDomainId()).thenReturn(9L);
+        Mockito.when(account.getRoleId()).thenReturn(10L);
+        Mockito.when(account.getType()).thenReturn(Account.Type.NORMAL);
+        Mockito.when(project.getId()).thenReturn(7L);
+        ProjectAccountVO member = Mockito.mock(ProjectAccountVO.class);
+        Mockito.when(member.getAccountRole()).thenReturn(ProjectAccount.Role.Regular);
+        Mockito.when(member.getUserId()).thenReturn(userId);
+        Mockito.when(manager.projectAccountDao.listBy(7L, 11L, null)).thenReturn(Collections.singletonList(member));
+        return account;
+    }
+    @Test public void existingBootstrapUserMembershipAllowsDedicatedAccountRuntimeUsers() {
+        Account account = existingAccount(12L);
+        manager.ensureProjectKubernetesAccountMembership(project, account);
+        Mockito.verify(manager.projectManager).assignAccountToProject(project, 11L, ProjectAccount.Role.Regular, null, null);
+        Mockito.verifyNoInteractions(manager.accountService);
+        assertSame(caller, CallContext.current());
+    }
+    @Test public void existingAccountLevelMembershipIsIdempotent() {
+        Account account = existingAccount(null);
+        manager.ensureProjectKubernetesAccountMembership(project, account);
+        Mockito.verifyNoInteractions(manager.projectManager);
+        assertSame(caller, CallContext.current());
+    }
+    @Test public void sameNameWithoutVerifiedProjectMembershipCannotGainAccess() {
+        Account account = existingAccount(12L);
+        Mockito.when(manager.projectAccountDao.listBy(7L, 11L, null)).thenReturn(Collections.emptyList());
+        try { manager.ensureProjectKubernetesAccountMembership(project, account); fail("membership must be verified"); }
+        catch (CloudRuntimeException expected) { assertSame(caller, CallContext.current()); }
+        Mockito.verifyNoInteractions(manager.projectManager);
+    }
+    @Test public void wrongDomainCannotGainProjectMembership() {
+        Account account = existingAccount(12L);
+        Mockito.when(account.getDomainId()).thenReturn(8L);
+        try { manager.ensureProjectKubernetesAccountMembership(project, account); fail("domain must match"); }
+        catch (CloudRuntimeException expected) { assertSame(caller, CallContext.current()); }
+        Mockito.verifyNoInteractions(manager.projectManager);
     }
 
     @Test public void localAccountFailureRestoresCallerWithoutMembership() {

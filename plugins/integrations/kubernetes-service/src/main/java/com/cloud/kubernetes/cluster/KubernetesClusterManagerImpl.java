@@ -225,6 +225,8 @@ import com.cloud.offerings.dao.NetworkOfferingServiceMapDao;
 import com.cloud.org.Cluster;
 import com.cloud.org.Grouping;
 import com.cloud.projects.Project;
+import com.cloud.projects.ProjectAccountVO;
+import com.cloud.projects.dao.ProjectAccountDao;
 import com.cloud.projects.ProjectAccount;
 import com.cloud.projects.ProjectManager;
 import com.cloud.resource.ResourceManager;
@@ -424,6 +426,7 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
     private BGPService bgpService;
     @Inject
     public ProjectManager projectManager;
+    @Inject protected ProjectAccountDao projectAccountDao;
     @Inject
     RoleService roleService;
     @Inject
@@ -2263,10 +2266,32 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
                     // This is a local machine identity, not an external Keycloak/Glue/Wall user.
                     project.getDomainId(), null, null, null, null, User.Source.NATIVE, false);
             projectManager.assignAccountToProject(project, userAccount.getAccountId(), ProjectAccount.Role.Regular,
-                    userAccount.getId(), null);
+                    null, null);
             Account account = accountService.getAccount(userAccount.getAccountId());
             logger.debug(String.format("Created Kubernetes service account in project %s: %s", project, account));
             return account;
+        } finally {
+            CallContext.unregister();
+        }
+    }
+
+    protected void ensureProjectKubernetesAccountMembership(Project project, Account account) {
+        Role role = getProjectKubernetesAccountRole();
+        if (account.getType() != Account.Type.NORMAL || account.getDomainId() != project.getDomainId()
+                || !Long.valueOf(role.getId()).equals(account.getRoleId())) {
+            throw new CloudRuntimeException("Existing named Kubernetes project service account has an invalid owner or role");
+        }
+        List<ProjectAccountVO> memberships = projectAccountDao.listBy(project.getId(), account.getId(), null);
+        if (CollectionUtils.isEmpty(memberships) || memberships.stream().anyMatch(member -> member.getAccountRole() != ProjectAccount.Role.Regular)) {
+            throw new CloudRuntimeException("Existing Kubernetes project service account lacks verified Regular membership");
+        }
+        if (memberships.stream().anyMatch(member -> member.getUserId() == null)) {
+            return;
+        }
+        // Per-cluster controller users belong to this dedicated local account; bootstrap-user-only membership is insufficient.
+        CallContext.register(User.UID_SYSTEM, Account.ACCOUNT_ID_SYSTEM);
+        try {
+            projectManager.assignAccountToProject(project, account.getId(), ProjectAccount.Role.Regular, null, null);
         } finally {
             CallContext.unregister();
         }
@@ -2277,10 +2302,8 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
         final String accountName = String.format("%s-%s", KUBEADMIN_ACCOUNT_NAME, UuidUtils.first(project.getUuid()));
         List<AccountVO> accounts = accountDao.findAccountsByName(accountName);
         for (AccountVO account : accounts) {
-            if (projectManager.canAccessProjectAccount(account, project.getProjectAccountId())) {
-                logger.debug(String.format("Created Kubernetes service account in project %s: %s", project, account));
-                return account;
-            }
+            ensureProjectKubernetesAccountMembership(project, account);
+            return account;
         }
         return create ? createProjectKubernetesAccount(project, accountName) : null;
     }
