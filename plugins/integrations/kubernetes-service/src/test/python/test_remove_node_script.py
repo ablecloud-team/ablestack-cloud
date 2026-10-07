@@ -39,12 +39,14 @@ elif args[0]=='delete' and scenario=='delete-error':sys.exit(1)
 rows=[]
 with tempfile.TemporaryDirectory(prefix='rt1311-script-') as td:
  root=Path(td)
- for name in ['kubectl','kubeadm']:(root/name).write_text(fake);(root/name).chmod(0o700)
- for case,nodeType,op,expected in [('success','control','remove',0),('pdb','control','remove',1),('pdb-operator-cordon','control','remove',1),('unmanaged','control','remove',1),('emptydir','control','remove',1),('api-error','control','remove',1),('notfound','control','remove',0),('reset-error','worker','remove',1),('delete-error','control','delete',1),('delete-ok','control','delete',0)]:
+ for name in ['kubectl','kubeadm','rm']:(root/name).write_text(fake);(root/name).chmod(0o700)
+ for case,nodeType,op,expected in [('success','control','remove',0),('pdb','control','remove',1),('pdb-operator-cordon','control','remove',1),('unmanaged','control','remove',1),('emptydir','control','remove',1),('api-error','control','remove',1),('notfound','control','remove',0),('reset-error','worker','remove',1),('reset-ok','worker','remove',0),('delete-error','control','delete',1),('delete-ok','control','delete',0)]:
   trace=root/(case+'.jsonl');env=dict(os.environ,PATH=str(root)+':'+os.environ['PATH'],TRACE=str(trace),CASE=case)
   r=subprocess.run(['bash',str(source),'worker1',nodeType,op],env=env,capture_output=True,text=True,timeout=5);assert r.returncode==expected,(case,r.returncode,r.stderr)
   calls=[json.loads(x) for x in trace.read_text().splitlines()];uncordon=sum(x[0]=='uncordon' for x in calls)
   assert uncordon==(1 if case in ['pdb','unmanaged','emptydir'] else 0),(case,calls)
   if case in ['api-error','notfound']:assert not any(x[0] in ['drain','delete','reset'] for x in calls)
+  if case=='reset-error':assert not any(x==['-f','/home/cloud/success'] for x in calls),calls
+  if case=='reset-ok':assert calls[-1]==['-f','/home/cloud/success'],calls
   rows.append({'case':case,'exitCode':r.returncode,'uncordonCalls':uncordon,'commands':calls})
 print(json.dumps({'status':'PASS','cases':rows},indent=2))

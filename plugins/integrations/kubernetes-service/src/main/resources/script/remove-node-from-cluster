@@ -48,6 +48,8 @@ case "$operation:$node_type" in
     ;;
   remove:worker)
     kubeadm reset -f
+    # This CKS-owned marker must not suppress a later external-node bootstrap.
+    rm -f /home/cloud/success
     ;;
   delete:control)
     kubectl delete node "$node_name" --ignore-not-found --wait=true --timeout=60s --request-timeout=20s
