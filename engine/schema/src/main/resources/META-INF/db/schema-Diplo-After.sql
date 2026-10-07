@@ -287,3 +287,27 @@ SET @epic898_posix_reference_sql = IF(
 PREPARE epic898_posix_reference_stmt FROM @epic898_posix_reference_sql;
 EXECUTE epic898_posix_reference_stmt;
 DEALLOCATE PREPARE epic898_posix_reference_stmt;
+
+
+-- Epic #898 / #909: immutable configuration artifacts and quarantined imports; no data volume bytes or secrets.
+CREATE TABLE IF NOT EXISTS cloud.storage_service_config_artifact (
+  id bigint unsigned NOT NULL AUTO_INCREMENT,
+  uuid varchar(40) NOT NULL,
+  instance_id bigint unsigned NOT NULL,
+  kind varchar(32) NOT NULL,
+  state varchar(32) NOT NULL,
+  desired_revision bigint unsigned NOT NULL DEFAULT 0,
+  source_operation_id bigint unsigned DEFAULT NULL,
+  metadata_json mediumtext DEFAULT NULL,
+  sha256 char(64) CHARACTER SET ascii DEFAULT NULL,
+  size bigint unsigned NOT NULL DEFAULT 0,
+  created_by bigint unsigned NOT NULL,
+  created datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  expires datetime DEFAULT NULL,
+  removed datetime DEFAULT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_storage_service_config_artifact__uuid (uuid),
+  KEY idx_storage_service_config_artifact__scope (instance_id,kind,state),
+  KEY idx_storage_service_config_artifact__expires (expires)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
