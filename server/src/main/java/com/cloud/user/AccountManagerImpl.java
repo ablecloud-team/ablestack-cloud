@@ -971,10 +971,31 @@ public class AccountManagerImpl extends ManagerBase implements AccountManager, M
         return success;
     }
 
+    static final String EXTERNAL_IAM_ORIGIN = "mold.external-iam.provisioning";
+    static final String LOCAL_ONLY_ORIGIN = "local-only-v1";
+    static final String EXTERNAL_ORIGIN = "external-v1";
+
+    protected void validateCallerAccountDetails(Map<String, String> details) {
+        if (details != null && details.keySet().stream().anyMatch(key -> key != null && key.startsWith("mold.external-iam."))) {
+            throw new InvalidParameterValueException("External IAM provisioning details are managed by the server");
+        }
+    }
+
+    protected void recordExternalIamOrigin(long accountId, boolean enable) {
+        _accountDetailsDao.persist(new AccountDetailVO(accountId, EXTERNAL_IAM_ORIGIN, enable ? EXTERNAL_ORIGIN : LOCAL_ONLY_ORIGIN));
+    }
+
+    protected boolean requiresExternalIamCleanup(AccountVO account) {
+        if (account.getType() == Account.Type.PROJECT) { return false; }
+        AccountDetailVO detail = _accountDetailsDao.findDetail(account.getId(), EXTERNAL_IAM_ORIGIN);
+        // Unknown and legacy accounts retain external cleanup; caller details cannot grant a bypass.
+        return detail == null || !LOCAL_ONLY_ORIGIN.equals(detail.getValue());
+    }
+
     @Override
     public boolean deleteAccount(AccountVO account, long callerUserId, Account caller) {
         // A project's internal account has no externally provisioned IAM user.
-        return deleteAccount(account, callerUserId, caller, account.getType() != Account.Type.PROJECT);
+        return deleteAccount(account, callerUserId, caller, requiresExternalIamCleanup(account));
     }
 
     @Override
@@ -989,22 +1010,22 @@ public class AccountManagerImpl extends ManagerBase implements AccountManager, M
     protected boolean deleteAccount(AccountVO account, long callerUserId, Account caller, boolean deleteExternalUsers) {
         long accountId = account.getId();
 
-        // delete the account record
-        if (!_accountDao.remove(accountId)) {
-            logger.error("Unable to delete account {}", account);
-            return false;
-        }
-
-        // Normal user accounts retain the existing external IAM cleanup contract.
+        // Complete external cleanup before hiding the local account so an external failure remains retryable.
         if (deleteExternalUsers) {
             try {
                 deleteKeycloakUser(account);
                 deleteGlueUser(account.getAccountName());
                 deleteWallUser(account.getAccountName());
-            } catch (Exception e) {
-                logger.error(e.getMessage());
+            } catch (Exception error) {
+                logger.warn("External IAM cleanup failed for account {} ({}); local account remains available for retry",
+                        account.getUuid(), error.getClass().getSimpleName());
                 return false;
             }
+        }
+
+        if (!_accountDao.remove(accountId)) {
+            logger.error("Unable to delete account {}", account);
+            return false;
         }
 
         account.setState(State.REMOVED);
@@ -1583,6 +1604,8 @@ public class AccountManagerImpl extends ManagerBase implements AccountManager, M
                                          final String networkDomain, final Map<String, String> details,
                                          String accountUUID, final String userUUID, final User.Source source, final boolean enable) {
 
+        validateCallerAccountDetails(details);
+
         if (accountName == null) {
             accountName = userName;
         }
@@ -1649,6 +1672,7 @@ public class AccountManagerImpl extends ManagerBase implements AccountManager, M
             public Pair<Long, Account> doInTransaction(TransactionStatus status) {
                 AccountVO account = createAccount(accountNameFinal, accountType, roleId, domainIdFinal, networkDomain, details, resolvedAccountUUID);
                 long accountId = account.getId();
+                recordExternalIamOrigin(accountId, enable);
 
                 // create the first user for the account
                 UserVO user = createUser(accountId, userName, password, firstName, lastName, email, timezone, userUUID, source);
@@ -2886,6 +2910,8 @@ public class AccountManagerImpl extends ManagerBase implements AccountManager, M
         String networkDomain = cmd.getNetworkDomain();
         final Map<String, String> details = cmd.getDetails();
 
+        validateCallerAccountDetails(details);
+
         boolean success;
         Account account;
         if (accountId != null) {
@@ -2993,6 +3019,13 @@ public class AccountManagerImpl extends ManagerBase implements AccountManager, M
         User caller = CallContext.current().getCallingUser();
         UserVO user = getValidUserVO(id);
         Account account = _accountDao.findById(user.getAccountId());
+        if (account == null) {
+            // Older failed account deletion could hide the account before removing its users.
+            // Keep the same account/access checks when an administrator cleans up that remaining user.
+            account = _accountDao.findByIdIncludingRemoved(user.getAccountId());
+        }
+        if (account == null) { throw new InvalidParameterValueException("The user's account does not exist"); }
+
 
         if (caller.getId() == id) {
             Domain domain = _domainDao.findById(account.getDomainId());
@@ -3348,6 +3381,8 @@ public class AccountManagerImpl extends ManagerBase implements AccountManager, M
     @Override
     @DB
     public AccountVO createAccount(final String accountName, final Account.Type accountType, final Long roleId, final Long domainId, final String networkDomain, final Map<String, String> details, final String uuid) {
+        validateCallerAccountDetails(details);
+
         // Validate domain
         Domain domain = _domainMgr.getDomain(domainId);
         if (domain == null) {

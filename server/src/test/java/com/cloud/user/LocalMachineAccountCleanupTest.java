@@ -31,6 +31,8 @@ public class LocalMachineAccountCleanupTest {
         Field field = AccountManagerImpl.class.getDeclaredField("_accountDao");
         field.setAccessible(true); field.set(manager, dao);
         Mockito.when(dao.remove(account.getId())).thenReturn(true);
+        Field details = AccountManagerImpl.class.getDeclaredField("_accountDetailsDao");
+        details.setAccessible(true); details.set(manager, Mockito.mock(AccountDetailsDao.class));
         Mockito.doReturn(true).when(manager).cleanupAccount(account, User.UID_SYSTEM, caller);
         // External IAM is unavailable; local deletion must still perform normal internal cleanup.
         Mockito.doThrow(new IllegalStateException("External IAM unavailable")).when(manager).deleteKeycloakUser(account);
