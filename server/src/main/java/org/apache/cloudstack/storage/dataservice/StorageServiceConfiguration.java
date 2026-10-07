@@ -1,0 +1,288 @@
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
+package org.apache.cloudstack.storage.dataservice;
+
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.util.Base64;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import com.cloud.exception.InvalidParameterValueException;
+import com.cloud.utils.db.GlobalLock;
+import com.cloud.utils.exception.CloudRuntimeException;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import org.apache.cloudstack.context.CallContext;
+import org.apache.cloudstack.api.response.StorageServiceConfigArtifactResponse;
+import org.apache.cloudstack.storage.dataservice.dao.StorageConfigArtifactDao;
+import org.apache.cloudstack.storage.dataservice.dao.StorageServiceOperationDao;
+
+/** Artifact collection and validation are separate from the semantic restore execution boundary. */
+public final class StorageServiceConfiguration {
+    private static final Set<String> READ_ACTIONS = Set.of("BACKUPS", "IMPORTS", "POINTS", "LKG");
+    private final StorageServiceManagerImpl manager;
+    private final StorageConfigArtifactDao artifacts;
+    private final StorageServiceOperationDao operations;
+    private final StorageConfigArtifactStore store;
+    public StorageServiceConfiguration(StorageServiceManagerImpl manager, StorageConfigArtifactDao artifacts, StorageServiceOperationDao operations) {
+        this(manager, artifacts, operations, new StorageConfigArtifactStore(Path.of(System.getProperty("cloudstack.storage.config.path",
+                "/var/lib/cloudstack-management/storage-config-artifacts"))));
+    }
+    public StorageServiceConfiguration(StorageServiceManagerImpl manager, StorageConfigArtifactDao artifacts,
+            StorageServiceOperationDao operations, StorageConfigArtifactStore store) {
+        this.manager = manager;this.artifacts = artifacts;this.operations = operations;this.store = store;
+    }
+    public StorageServiceConfigArtifactResponse execute(StorageConfigRequest request) {
+        if (!READ_ACTIONS.contains(request.getConfigAction())) manager.requireConfigurationAdministrator();
+        StorageServiceInstanceVO instance = manager.requireInstance(request.getInstanceId());
+        if (READ_ACTIONS.contains(request.getConfigAction())) return response(list(instance, request.getConfigAction()), null);
+        GlobalLock lock = GlobalLock.getInternLock("StorageServiceWriter-" + instance.getId());
+        try {
+            if (!lock.lock(120)) throw new CloudRuntimeException("Storage Service writer is busy");
+            try {
+                switch (request.getConfigAction()) {
+                    case "BACKUP": return backup(instance, request);
+                    case "UPLOAD": return upload(instance, request);
+                    case "VALIDATE": return validate(instance, request);
+                    case "DOWNLOAD": return download(instance, request);
+                    case "DELETE_BACKUP": case "DELETE_IMPORT": return delete(instance, request);
+                    default: throw new InvalidParameterValueException("Configuration action is not registered for execution");
+                }
+            } finally { lock.unlock(); }
+        } finally { lock.releaseRef(); }
+    }
+    private long revision(long instanceId) {
+        return operations.listByInstance(instanceId).stream().filter(row -> "COMPLETE".equals(row.getState()))
+                .mapToLong(StorageServiceOperationVO::getRevision).max().orElse(0);
+    }
+    private StorageConfigArtifactVO row(StorageServiceInstanceVO instance, StorageConfigRequest request) {
+        if (request.getArtifactId() == null) throw new InvalidParameterValueException("Configuration artifact ID is required");
+        StorageConfigArtifactVO row = artifacts.findById(request.getArtifactId());
+        if (row == null || row.getInstanceId() != instance.getId()) throw new InvalidParameterValueException("Configuration artifact is outside the requested service");
+        if ("DELETED".equals(row.getState()) || (row.getExpires() != null && row.getExpires().before(new Date()))) {
+            throw new InvalidParameterValueException("Configuration artifact is deleted or expired");
+        }
+        return row;
+    }
+    private int retention(StorageConfigRequest request) {
+        int hours = request.getRetentionHours() == null ? 168 : request.getRetentionHours();
+        if (hours < 1 || hours > 2160) throw new InvalidParameterValueException("Configuration retention must be 1 through 2160 hours");
+        return hours;
+    }
+    private StorageConfigArtifactVO create(StorageServiceInstanceVO instance, StorageConfigRequest request, String kind) {
+        StorageConfigArtifactVO row = new StorageConfigArtifactVO();row.setInstanceId(instance.getId());row.setKind(kind);
+        row.setState("CREATING");row.setCreatedBy(CallContext.current().getCallingUserId());row.setDesiredRevision(revision(instance.getId()));
+        row.setExpires(new Date(System.currentTimeMillis() + retention(request) * 3600000L));
+        return artifacts.persist(row);
+    }
+    private JsonObject metadata(StorageConfigArtifactVO row) {
+        return row.getMetadataJson() == null ? new JsonObject() : new com.google.gson.JsonParser().parse(row.getMetadataJson()).getAsJsonObject();
+    }
+    private void update(StorageConfigArtifactVO row, JsonObject metadata, String state) {
+        row.setMetadataJson(metadata.toString());row.setState(state);row.setUpdated(new Date());artifacts.update(row.getId(), row);
+    }
+    private JsonObject publicRow(StorageConfigArtifactVO row) {
+        JsonObject result = new JsonObject();result.addProperty("id", row.getUuid());result.addProperty("kind", row.getKind());
+        result.addProperty("state", row.getState());result.addProperty("desiredRevision", row.getDesiredRevision());result.addProperty("size", row.getSize());
+        result.addProperty("sha256", row.getSha256());result.addProperty("created", row.getCreated().getTime());
+        if (row.getExpires() != null) result.addProperty("expires", row.getExpires().getTime());
+        JsonObject metadata = metadata(row);metadata.remove("downloadToken");metadata.remove("planToken");
+        result.add("metadata", metadata);return result;
+    }
+    private JsonObject list(StorageServiceInstanceVO instance, String action) {
+        JsonArray rows = new JsonArray();
+        for (StorageConfigArtifactVO row : artifacts.listByInstance(instance.getId())) {
+            if ("DELETED".equals(row.getState())) continue;
+            if ("BACKUPS".equals(action) && !"BACKUP".equals(row.getKind())) continue;
+            if ("IMPORTS".equals(action) && !"IMPORT".equals(row.getKind())) continue;
+            if (Set.of("LKG", "POINTS").contains(action) && !"RESTORE_POINT".equals(row.getKind())) continue;
+            if ("LKG".equals(action) && !"ACTIVE_LKG".equals(row.getState())) continue;
+            rows.add(publicRow(row));
+        }
+        JsonObject result = new JsonObject();result.add("artifacts", rows);result.addProperty("count", rows.size());return result;
+    }
+    private JsonArray requiredCredentials(Map<String, byte[]> entries) {
+        JsonArray required = new JsonArray();
+        byte[] access = entries.get("desired/access-rules.json");if (access == null) return required;
+        for (JsonElement value : StorageConfigArchive.json(access).getAsJsonArray()) {
+            JsonObject rule = value.getAsJsonObject();JsonObject config = rule.has("config") ? rule.getAsJsonObject("config") : new JsonObject();
+            boolean local = rule.has("principal_type") && "LOCAL_USER".equals(rule.get("principal_type").getAsString());
+            boolean chap = config.has("chapEnabled") && config.get("chapEnabled").getAsBoolean();
+            boolean mutual = config.has("mutualChapEnabled") && config.get("mutualChapEnabled").getAsBoolean();
+            boolean dhchap = config.has("dhChapEnabled") && config.get("dhChapEnabled").getAsBoolean();
+            boolean ctrl = config.has("dhChapCtrlEnabled") && config.get("dhChapCtrlEnabled").getAsBoolean();
+            if (local || chap || mutual || dhchap || ctrl) {
+                JsonObject item = new JsonObject();item.add("resourceUuid", rule.get("resourceUuid").deepCopy());item.add("ruleUuid", rule.get("uuid").deepCopy());
+                item.add("principal", rule.get("principal").deepCopy());item.addProperty("coverage", "REQUIRES_REENTRY");
+                item.addProperty("kind", local ? "SMB_LOCAL" : chap || mutual ? "ISCSI_CHAP" : "NVME_DHCHAP");required.add(item);
+            }
+        }
+        return required;
+    }
+    private StorageServiceConfigArtifactResponse backup(StorageServiceInstanceVO instance, StorageConfigRequest request) {
+        StorageConfigArtifactVO row = create(instance, request, "BACKUP");
+        JsonObject metadata = new JsonObject();metadata.addProperty("phase", "COLLECTING_DESIRED");
+        update(row, metadata, "CREATING");
+        try {
+            long before = revision(instance.getId());String snapshot = manager.captureConfigurationSnapshot(instance.getId());
+            JsonObject service = manager.configurationInstanceMetadata(instance);
+            Map<String, byte[]> entries = new LinkedHashMap<>(StorageConfigSemantic.export(snapshot, service, manager.configurationVolumeMetadata(snapshot)));
+            JsonArray required = requiredCredentials(entries);
+            metadata.addProperty("sourceInstanceUuid", instance.getUuid());metadata.addProperty("desiredRevision", before);
+            metadata.addProperty("createdAt", System.currentTimeMillis());metadata.addProperty("credentialCoverage", required.size() == 0 ? "FULL" : "REQUIRES_REENTRY");
+            metadata.add("requiredCredentials", required);boolean partial = false;
+            if (!Boolean.FALSE.equals(request.getIncludeRuntime())) {
+                for (String command : new String[] {"inventory", "health", "sessions"}) {
+                    metadata.addProperty("phase", "COLLECTING_" + command.toUpperCase(java.util.Locale.ROOT));update(row, metadata, "CREATING");
+                    JsonObject observed = manager.observeConfigurationRuntime(instance, command);
+                    if (!observed.has("success") || !observed.get("success").getAsBoolean()) partial = true;
+                    entries.put("runtime/" + command + ".json", observed.toString().getBytes(StandardCharsets.UTF_8));
+                }
+            } else partial = true;
+            if (before != revision(instance.getId()) || !snapshot.equals(manager.captureConfigurationSnapshot(instance.getId()))) {
+                throw new CloudRuntimeException("Configuration changed while collecting backup");
+            }
+            metadata.addProperty("runtimeStatus", partial ? "UNAVAILABLE_OR_PARTIAL" : "AVAILABLE");metadata.addProperty("phase", "COMPLETE");
+            byte[] archive = StorageConfigArchive.create(entries, metadata);
+            row.setSha256(StorageConfigArchive.sha256(archive));row.setSize(archive.length);row.setDesiredRevision(before);store.write(row.getUuid(), archive);
+            update(row, metadata, partial ? "PARTIAL" : "COMPLETE");return response(publicRow(row), row.getUuid());
+        } catch (RuntimeException failure) {
+            metadata.addProperty("phase", "EXPORT_FAILED");metadata.addProperty("errorCode", "CONFIG_EXPORT_FAILED");update(row, metadata, "FAILED");throw failure;
+        }
+    }
+    private StorageServiceConfigArtifactResponse upload(StorageServiceInstanceVO instance, StorageConfigRequest request) {
+        if (request.getData() == null || request.getSha256() == null || !request.getSha256().matches("[0-9a-f]{64}")) throw new InvalidParameterValueException("Configuration upload and SHA-256 are required");
+        int index = request.getChunkIndex() == null ? 0 : request.getChunkIndex();
+        int count = request.getChunkCount() == null ? 1 : request.getChunkCount();
+        if (count < 1 || count > 64 || index < 0 || index >= count) throw new InvalidParameterValueException("Configuration upload chunk sequence is invalid");
+        byte[] bytes;
+        try { bytes = Base64.getDecoder().decode(request.getData()); }
+        catch (IllegalArgumentException failure) { throw new InvalidParameterValueException("Invalid configuration upload encoding"); }
+        if (bytes.length == 0 || bytes.length > 192 * 1024) throw new InvalidParameterValueException("Configuration chunk size exceeds limit");
+        StorageConfigArtifactVO row;
+        JsonObject metadata;
+        if (request.getArtifactId() == null) {
+            if (index != 0) throw new InvalidParameterValueException("First configuration chunk must use index zero");
+            row = create(instance, request, "IMPORT");row.setSha256(request.getSha256());metadata = new JsonObject();
+            metadata.addProperty("chunkCount", count);metadata.add("chunks", new JsonObject());update(row, metadata, "UPLOADING");
+        } else {
+            row = row(instance, request);metadata = metadata(row);
+            if (!"IMPORT".equals(row.getKind()) || !Set.of("UPLOADING", "QUARANTINED").contains(row.getState())
+                    || !row.getSha256().equals(request.getSha256()) || metadata.get("chunkCount").getAsInt() != count) {
+                throw new InvalidParameterValueException("Configuration upload scope or manifest changed");
+            }
+        }
+        JsonObject chunks = metadata.getAsJsonObject("chunks");String key = String.valueOf(index);String plainSha = StorageConfigArchive.sha256(bytes);
+        if (chunks.has(key)) {
+            if (!plainSha.equals(chunks.getAsJsonObject(key).get("plainSha256").getAsString())) throw new InvalidParameterValueException("Configuration chunk retry changed its contents");
+        } else {
+            if (row.getSize() + bytes.length > StorageConfigArchive.MAX_ARCHIVE_BYTES) throw new InvalidParameterValueException("Configuration upload size exceeds limit");
+            String plain = Base64.getEncoder().encodeToString(bytes);
+            String encrypted = com.cloud.utils.crypt.DBEncryptionUtil.encrypt(plain);
+            if (encrypted.equals(plain) || !plain.equals(com.cloud.utils.crypt.DBEncryptionUtil.decrypt(encrypted))) {
+                throw new CloudRuntimeException("Protected configuration quarantine requires management encryption");
+            }
+            byte[] ciphertext = encrypted.getBytes(StandardCharsets.UTF_8);
+            store.write(StorageConfigArtifactStore.chunkIdentity(row.getUuid(), index), ciphertext);
+            JsonObject part = new JsonObject();part.addProperty("plainSha256", plainSha);part.addProperty("encryptedSha256", StorageConfigArchive.sha256(ciphertext));
+            part.addProperty("size", bytes.length);chunks.add(key, part);row.setSize(row.getSize() + bytes.length);
+            update(row, metadata, "UPLOADING");
+        }
+        if ("QUARANTINED".equals(row.getState())) return response(publicRow(row), row.getUuid());
+        if (chunks.size() == count) {
+            java.io.ByteArrayOutputStream combined = new java.io.ByteArrayOutputStream();
+            try {
+                for (int item = 0; item < count; item++) {
+                    JsonObject part = chunks.getAsJsonObject(String.valueOf(item));
+                    byte[] ciphertext = store.read(StorageConfigArtifactStore.chunkIdentity(row.getUuid(), item), part.get("encryptedSha256").getAsString());
+                    byte[] decoded = Base64.getDecoder().decode(com.cloud.utils.crypt.DBEncryptionUtil.decrypt(new String(ciphertext, StandardCharsets.UTF_8)));
+                    if (decoded.length != part.get("size").getAsInt() || !StorageConfigArchive.sha256(decoded).equals(part.get("plainSha256").getAsString())) {
+                        throw new CloudRuntimeException("Configuration quarantine chunk integrity changed");
+                    }
+                    if (combined.size() + decoded.length > StorageConfigArchive.MAX_ARCHIVE_BYTES) throw new CloudRuntimeException("Configuration upload size exceeds limit");
+                    combined.write(decoded, 0, decoded.length);
+                }
+                byte[] archive = combined.toByteArray();
+                if (!StorageConfigArchive.sha256(archive).equals(row.getSha256())) throw new InvalidParameterValueException("Configuration upload checksum does not match");
+                // Secret/path/size validation runs before writing the assembled plaintext archive.
+                StorageConfigArchive.validate(archive);store.write(row.getUuid(), archive);
+                metadata.addProperty("phase", "QUARANTINED");update(row, metadata, "QUARANTINED");
+            } catch (RuntimeException failure) {
+                metadata.addProperty("phase", "UPLOAD_REJECTED");metadata.addProperty("errorCode", "CONFIG_UPLOAD_INVALID");update(row, metadata, "REJECTED");throw failure;
+            } finally {
+                boolean pending = false;
+                for (int item = 0; item < count; item++) {
+                    try { store.remove(StorageConfigArtifactStore.chunkIdentity(row.getUuid(), item)); }
+                    catch (RuntimeException failure) { pending = true; }
+                }
+                metadata.addProperty("chunkCleanupPending", pending);update(row, metadata, row.getState());
+            }
+        }
+        return response(publicRow(row), row.getUuid());
+    }
+    private StorageServiceConfigArtifactResponse validate(StorageServiceInstanceVO instance, StorageConfigRequest request) {
+        StorageConfigArtifactVO row = row(instance, request);
+        if (!"IMPORT".equals(row.getKind())) throw new InvalidParameterValueException("Only quarantined configuration imports can be validated");
+        JsonObject metadata = metadata(row);
+        try {
+            Map<String, byte[]> entries = StorageConfigArchive.validate(store.read(row.getUuid(), row.getSha256()));
+            metadata.add("manifest", StorageConfigArchive.json(entries.get("manifest.json")));
+            metadata.add("requiredCredentials", requiredCredentials(entries));metadata.addProperty("phase", "ARCHIVE_VALIDATED");
+            update(row, metadata, "ARCHIVE_VALIDATED");
+        } catch (RuntimeException failure) {
+            metadata.addProperty("phase", "VALIDATION_FAILED");metadata.addProperty("errorCode", "CONFIG_IMPORT_INVALID");update(row, metadata, "REJECTED");throw failure;
+        }
+        return response(publicRow(row), row.getUuid());
+    }
+    private StorageServiceConfigArtifactResponse download(StorageServiceInstanceVO instance, StorageConfigRequest request) {
+        StorageConfigArtifactVO row = row(instance, request);
+        if (!"BACKUP".equals(row.getKind()) || !Set.of("COMPLETE", "PARTIAL").contains(row.getState())) throw new InvalidParameterValueException("Configuration backup is not downloadable");
+        JsonObject metadata = metadata(row);JsonObject result = publicRow(row);
+        if (request.getDownloadToken() == null) {
+            String token = UUID.randomUUID().toString() + UUID.randomUUID().toString();JsonObject issued = new JsonObject();
+            issued.addProperty("hash", StorageConfigArchive.sha256(token.getBytes(StandardCharsets.UTF_8)));issued.addProperty("user", CallContext.current().getCallingUserId());
+            issued.addProperty("expires", System.currentTimeMillis() + 60000);metadata.add("downloadToken", issued);update(row, metadata, row.getState());
+            result.addProperty("downloadToken", token);result.addProperty("downloadExpires", issued.get("expires").getAsLong());
+        } else {
+            JsonObject issued = metadata.has("downloadToken") ? metadata.getAsJsonObject("downloadToken") : null;
+            if (issued == null || issued.get("expires").getAsLong() < System.currentTimeMillis() || issued.get("user").getAsLong() != CallContext.current().getCallingUserId()
+                    || !issued.get("hash").getAsString().equals(StorageConfigArchive.sha256(request.getDownloadToken().getBytes(StandardCharsets.UTF_8)))) {
+                throw new InvalidParameterValueException("Configuration download token is invalid or expired");
+            }
+            byte[] bytes = store.read(row.getUuid(), row.getSha256());metadata.remove("downloadToken");update(row, metadata, row.getState());
+            result.addProperty("data", Base64.getEncoder().encodeToString(bytes));result.addProperty("filename", "storage-config-" + row.getUuid() + ".zip");
+        }
+        return response(result, row.getUuid());
+    }
+    private StorageServiceConfigArtifactResponse delete(StorageServiceInstanceVO instance, StorageConfigRequest request) {
+        StorageConfigArtifactVO row = row(instance, request);
+        String kind = "DELETE_BACKUP".equals(request.getConfigAction()) ? "BACKUP" : "IMPORT";
+        if (!kind.equals(row.getKind())) throw new InvalidParameterValueException("Configuration artifact type does not match");
+        // Retain the protected artifact until normal retention cleanup; metadata deletion cannot touch DATA.
+        JsonObject metadata = metadata(row);metadata.remove("downloadToken");metadata.remove("planToken");update(row, metadata, "DELETED");
+        return response(publicRow(row), row.getUuid());
+    }
+    private StorageServiceConfigArtifactResponse response(JsonObject result, String id) {
+        StorageServiceConfigArtifactResponse response = new StorageServiceConfigArtifactResponse();response.setResult(result.toString());response.setId(id);
+        response.setObjectName("storageserviceconfiguration");return response;
+    }
+}
