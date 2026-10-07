@@ -24,17 +24,23 @@ const context = state => {
   Object.defineProperty(vm, 'currentOffering', { get: () => Change.computed.currentOffering.call(vm) })
   return vm
 }
-const old = { id: 'old', cpu: 2, memory: 4096, cpuspeed: 2000 }
-const larger = { id: 'larger', cpu: 4, memory: 8192, cpuspeed: 2000 }
-const lower = { id: 'lower', cpu: 2, memory: 2048, cpuspeed: 2000 }
+const old = { id: 'old', cpunumber: 2, memory: 4096, cpuspeed: 2000 }
+const larger = { id: 'larger', cpunumber: 4, memory: 8192, cpuspeed: 2000 }
+const lower = { id: 'lower', cpunumber: 2, memory: 2048, cpuspeed: 2000 }
 function mockApi (ready = true) {
   getAPI.mockImplementation(cmd => Promise.resolve(cmd === 'listServiceOfferings'
     ? { listserviceofferingsresponse: { serviceoffering: [old, lower, larger] } }
     : cmd === 'listStorageServiceOfferingConstraints'
       ? { liststorageserviceofferingconstraintsresponse: { storageserviceofferingconstraint: [old, lower, larger].map(i => ({ id: i.id, compatible: true })) } }
-      : { getsharedfilesystemscalingreadinessresponse: { sharedfilesystemscalingreadiness: { resultjson: JSON.stringify({ ready, currentOffering: old, reasons: [] }) } } }))
+      : { getsharedfilesystemscalingreadinessresponse: { sharedfilesystemscalingreadiness: { resultjson: JSON.stringify({ ready, currentOffering: { cpu: old.cpunumber, memory: old.memory, cpuspeed: old.cpuspeed }, reasons: [] }) } } }))
 }
 describe('SharedFS effective online scaling', () => {
+  it('uses the real offering cpunumber field and rejects CPU-only reductions', () => {
+    const vm = context('Ready')
+    vm.scalingReadiness = { ready: true, currentOffering: { cpu: 2, memory: 4096, cpuspeed: 2000 } }
+    expect(vm.offeringSelectable({ id: 'cpu-up', cpu: 4, memory: 4096, cpuspeed: 2000, compatibility: { compatible: true } })).toBe(true)
+    expect(vm.offeringSelectable({ id: 'cpu-down', cpu: 1, memory: 8192, cpuspeed: 2000, compatibility: { compatible: true } })).toBe(false)
+  })
   beforeEach(() => getAPI.mockReset())
   it('selects only increased resources after authoritative readiness is available', async () => {
     mockApi(); const vm = context('Ready')
