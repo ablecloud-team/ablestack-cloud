@@ -29,7 +29,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -3305,6 +3304,8 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
      */
     static String interruptedOperationCommand(KubernetesCluster.State state) {
         switch (state) {
+            case Starting: return StartKubernetesClusterCmd.class.getName();
+            case Stopping: return StopKubernetesClusterCmd.class.getName();
             case Upgrading: return UpgradeKubernetesClusterCmd.class.getName();
             case Scaling:
             case ScalingStoppedCluster: return ScaleKubernetesClusterCmd.class.getName();
@@ -3330,12 +3331,14 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
         // Older upgrade/scale commands omitted getApiResourceId(). Match their persisted request
         // UUID exactly, including removed restart-cancelled jobs, and fail closed on an incomplete page.
         SearchBuilder<AsyncJobVO> sb = asyncJobDao.createSearchBuilder();
-        sb.and("command", sb.entity().getCmd(), SearchCriteria.Op.EQ);
+        sb.and("command", sb.entity().getCmd(), SearchCriteria.Op.IN);
         sb.and("type", sb.entity().getInstanceType(), SearchCriteria.Op.EQ);
         sb.and("unattached", sb.entity().getInstanceId(), SearchCriteria.Op.NULL);
         sb.and("created", sb.entity().getCreated(), SearchCriteria.Op.GTEQ);
         SearchCriteria<AsyncJobVO> sc = sb.create();
-        sc.setParameters("command", interruptedOperationCommand(cluster.getState()));
+        sc.setParameters("command", cluster.getState() == KubernetesCluster.State.Starting
+                ? new Object[]{StartKubernetesClusterCmd.class.getName(), CreateKubernetesClusterCmd.class.getName()}
+                : new Object[]{interruptedOperationCommand(cluster.getState())});
         sc.setParameters("type", ApiCommandResourceType.KubernetesCluster.toString());
         sc.setParameters("created", cluster.getCreated());
         List<AsyncJobVO> candidates = asyncJobDao.searchIncludingRemoved(sc, new Filter(AsyncJobVO.class, "created", false, 0L, 1000L), Boolean.FALSE, false);
@@ -3361,7 +3364,8 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
         return expected != null && job != null && job.getStatus() == JobInfo.Status.FAILED
                 && (Objects.equals(job.getInstanceId(), cluster.getId()) || matchesLegacyInterruptedCluster(cluster, job))
                 && ApiCommandResourceType.KubernetesCluster.toString().equals(job.getInstanceType())
-                && expected.equals(job.getCmd())
+                && (expected.equals(job.getCmd()) || cluster.getState() == KubernetesCluster.State.Starting
+                        && CreateKubernetesClusterCmd.class.getName().equals(job.getCmd()))
                 && "job cancelled because of management server restart or shutdown".equals(job.getResult());
     }
 
@@ -3412,7 +3416,8 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
 
         public void reallyRun() {
             try {
-                for (KubernetesCluster.State interrupted : List.of(KubernetesCluster.State.Upgrading, KubernetesCluster.State.Scaling,
+                for (KubernetesCluster.State interrupted : List.of(KubernetesCluster.State.Starting, KubernetesCluster.State.Stopping,
+                        KubernetesCluster.State.Upgrading, KubernetesCluster.State.Scaling,
                         KubernetesCluster.State.ScalingStoppedCluster, KubernetesCluster.State.Importing, KubernetesCluster.State.RemovingNodes)) {
                     for (KubernetesClusterVO cluster : kubernetesClusterDao.findManagedKubernetesClustersInState(interrupted)) {
                         try {
@@ -3476,25 +3481,8 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
 
 
                 if (firstRun) {
-                    // run through Kubernetes clusters in 'Starting' state and reconcile state as 'Alert' or 'Error' if the VM's are running
-                    List<KubernetesClusterVO> startingKubernetesClusters = kubernetesClusterDao.findManagedKubernetesClustersInState(KubernetesCluster.State.Starting);
-                    for (KubernetesCluster kubernetesCluster : startingKubernetesClusters) {
-                        if ((new Date()).getTime() - kubernetesCluster.getCreated().getTime() < 10*60*1000) {
-                            continue;
-                        }
-                        if (logger.isInfoEnabled()) {
-                            logger.info("Running Kubernetes cluster state scanner on Kubernetes cluster: {} for state: {}", kubernetesCluster, KubernetesCluster.State.Starting.toString());
-                        }
-                        try {
-                            if (isClusterVMsInDesiredState(kubernetesCluster, VirtualMachine.State.Running)) {
-                                stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.FaultsDetected);
-                            } else {
-                                stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.OperationFailed);
-                            }
-                        } catch (Exception e) {
-                            logger.warn("Failed to run Kubernetes cluster Starting state scanner on Kubernetes cluster: {} status scanner", kubernetesCluster, e);
-                        }
-                    }
+                    // Starting/Stopping use exact cancelled-job recovery above. A live start must not be
+                    // marked failed based on VM power alone, and Starting has no FaultsDetected transition.
                     List<KubernetesClusterVO> destroyingKubernetesClusters = kubernetesClusterDao.findManagedKubernetesClustersInState(KubernetesCluster.State.Destroying);
                     for (KubernetesCluster kubernetesCluster : destroyingKubernetesClusters) {
                         if (logger.isInfoEnabled()) {

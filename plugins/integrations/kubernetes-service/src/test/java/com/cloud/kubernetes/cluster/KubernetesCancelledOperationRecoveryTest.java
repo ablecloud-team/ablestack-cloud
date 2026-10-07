@@ -145,4 +145,28 @@ public class KubernetesCancelledOperationRecoveryTest {
         Mockito.verify(manager, Mockito.never()).stateTransitTo(Mockito.anyLong(), Mockito.any());
     }
 
+    @Test public void startingAndStoppingMatchOnlyTheirRestartCancelledOperation() {
+        Mockito.when(cluster.getState()).thenReturn(KubernetesCluster.State.Starting);
+        for (Class<?> command : new Class<?>[]{
+                org.apache.cloudstack.api.command.user.kubernetes.cluster.StartKubernetesClusterCmd.class,
+                org.apache.cloudstack.api.command.user.kubernetes.cluster.CreateKubernetesClusterCmd.class}) {
+            Mockito.when(job.getCmd()).thenReturn(command.getName());
+            Assert.assertTrue(KubernetesClusterManagerImpl.isRestartCancelledJob(cluster, job));
+            Mockito.when(job.getStatus()).thenReturn(JobInfo.Status.IN_PROGRESS);
+            Assert.assertFalse(KubernetesClusterManagerImpl.isRestartCancelledJob(cluster, job));
+            Mockito.when(job.getStatus()).thenReturn(JobInfo.Status.FAILED);
+        }
+        Mockito.when(job.getCmd()).thenReturn(UpgradeKubernetesClusterCmd.class.getName());
+        Assert.assertFalse(KubernetesClusterManagerImpl.isRestartCancelledJob(cluster, job));
+        Mockito.when(cluster.getState()).thenReturn(KubernetesCluster.State.Stopping);
+        Mockito.when(job.getCmd()).thenReturn(org.apache.cloudstack.api.command.user.kubernetes.cluster.StopKubernetesClusterCmd.class.getName());
+        Assert.assertTrue(KubernetesClusterManagerImpl.isRestartCancelledJob(cluster, job));
+    }
+
+    @Test public void cancelledStartRecoveryUsesOperationFailedAndPreservesNativeResources() {
+        Mockito.when(cluster.getState()).thenReturn(KubernetesCluster.State.Starting);
+        Mockito.when(job.getCmd()).thenReturn(org.apache.cloudstack.api.command.user.kubernetes.cluster.StartKubernetesClusterCmd.class.getName());
+        recoveryDoesNotClearArtifactPinsOrNativeMappings();
+    }
+
 }
