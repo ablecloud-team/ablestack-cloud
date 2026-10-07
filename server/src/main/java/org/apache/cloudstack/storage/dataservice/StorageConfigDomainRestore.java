@@ -88,6 +88,27 @@ public final class StorageConfigDomainRestore {
         }
         throw new InvalidParameterValueException("Unsupported configuration resource or deferred identity domain");
     }
+    public void validateBindings(JsonObject plan) {
+        Map<String, JsonObject> owners = new HashMap<>();
+        for (String action : new String[] {"keep", "update", "create"}) for (JsonElement item : plan.getAsJsonArray(action)) {
+            JsonObject change = item.getAsJsonObject();owners.put(text(change, "sourceUuid"), change.getAsJsonObject("desired"));
+        }
+        for (String action : new String[] {"update", "create"}) for (JsonElement item : plan.getAsJsonArray(action)) {
+            JsonObject change = item.getAsJsonObject();String kind = text(change, "kind");JsonObject desired = change.getAsJsonObject("desired");
+            if ("identity-domain".equals(kind)) continue;// AD is blocked by semantic validation; an empty identity observation is not an apply input.
+            Command command = command(kind, desired, "update".equals(action), owners);
+            JsonObject parameters = StorageConfigCommandBinding.parameters(desired, kind);
+            if ("access-rules".equals(kind)) {
+                String protocol = text(owners.get(text(desired, "resourceUuid")), "protocol");
+                if ("update".equals(action)) parameters.remove("principaltype");
+                if ("NFS".equals(protocol)) for (String key : new String[] {"readonly", "endpointmode", "listenerports", "mode", "owneruid", "ownergid", "recursivepermission"}) parameters.remove(key);
+                if ("SMB".equals(protocol) && Set.of("CIDR", "IP_ADDRESS").contains(text(desired, "principal_type"))) parameters.remove("permission");
+                if ("ISCSI".equals(protocol)) { parameters.add("initiatoriqn", parameters.remove("principal"));parameters.remove("principaltype"); }
+                if ("NVME_OF".equals(protocol)) { parameters.add("hostnqn", parameters.remove("principal"));parameters.remove("principaltype");parameters.remove("permission"); }
+            }
+            StorageConfigCommandBinding.bind(command.type, parameters);
+        }
+    }
     public void apply(StorageServiceInstanceVO instance, JsonObject plan, JsonObject credentials) {
         if (plan.getAsJsonArray("blockers").size() > 0 || !instance.getUuid().equals(text(plan, "targetInstanceUuid"))) {
             throw new InvalidParameterValueException("Configuration restore plan is blocked or changed scope");
@@ -126,6 +147,7 @@ public final class StorageConfigDomainRestore {
                 }));
                 for (JsonElement item : ordered) {
                     JsonObject change = item.getAsJsonObject();if (!kind.equals(text(change, "kind")) || "KEEP".equals(text(change, "action"))) continue;
+                    if ("identity-domain".equals(kind)) continue;
                     JsonObject desired = change.getAsJsonObject("desired");boolean update = "UPDATE".equals(text(change, "action"));
                     Command command = command(kind, desired, update, owners);JsonObject parameters = StorageConfigCommandBinding.parameters(desired, kind);
                     if (update) parameters.addProperty("id", mapped.get(text(change, "sourceUuid")));
