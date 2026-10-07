@@ -239,6 +239,7 @@ cd "$ROOT_DIR"
 
 verify_management_schema_resources() {
     local management_rpm
+    local network_runtime_rpm
     local extract_dir
     local packaged_jar
     local resource
@@ -256,6 +257,18 @@ verify_management_schema_resources() {
     (
         cd "$extract_dir"
         rpm2cpio "$ROOT_DIR/$management_rpm" | cpio -idm --quiet
+    )
+
+    # The management package requires the separately owned host-network runtime.
+    network_runtime_rpm=$(find dist/rpmbuild/RPMS -type f -name 'cloudstack-network-runtime-*.rpm' | sort | tail -1)
+    if [ -z "$network_runtime_rpm" ]; then
+        echo "Required cloudstack-network-runtime RPM was not generated" >&2
+        rm -rf "$extract_dir"
+        return 1
+    fi
+    (
+        cd "$extract_dir"
+        rpm2cpio "$ROOT_DIR/$network_runtime_rpm" | cpio -idm --quiet
     )
 
     if ! python3 "$ROOT_DIR/tools/build/verify_extensions_payload.py" "$ROOT_DIR" "$extract_dir"; then
