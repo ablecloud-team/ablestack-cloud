@@ -40,7 +40,7 @@ public class StorageTemplateCompatibilityTest {
         VMTemplateVO template=Mockito.mock(VMTemplateVO.class);
         Mockito.when(template.getTemplateType()).thenReturn(Storage.TemplateType.SYSTEM);
         Mockito.when(template.getHypervisorType()).thenReturn(Hypervisor.HypervisorType.KVM);
-        Mockito.when(template.getArch()).thenReturn(CPU.CPUArch.x86);
+        Mockito.when(template.getArch()).thenReturn(CPU.CPUArch.amd64);
         return template;
     }
     @Test public void explicitCompatibleSystemTemplateDoesNotRequireANewerNumericId() {
@@ -52,7 +52,7 @@ public class StorageTemplateCompatibilityTest {
         Assert.assertFalse(result.get("compatible").getAsBoolean());Assert.assertTrue(result.toString().contains("STORAGE_TEMPLATE_CAPABILITY_MISSING"));
     }
     @Test public void zoneDownloadAndArchitectureMustBothBeVerified() {
-        VMTemplateVO target=template();Mockito.when(target.getArch()).thenReturn(CPU.CPUArch.aarch64);
+        VMTemplateVO target=template();Mockito.when(target.getArch()).thenReturn(CPU.CPUArch.arm64);
         JsonObject result=StorageTemplateCompatibility.evaluate(target,template(),metadata(),false,"4.23.0","4.23.0",false);
         Assert.assertTrue(result.toString().contains("ARCHITECTURE_MISMATCH"));Assert.assertTrue(result.toString().contains("TARGET_NOT_DOWNLOADED_IN_ZONE"));
     }
