@@ -2859,6 +2859,9 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
                     throw new InvalidParameterValueException("Only an external worker belonging to this Kubernetes cluster can be removed");
                 }
             } else {
+                if (node.getState() != VirtualMachine.State.Running) {
+                    throw new InvalidParameterValueException("External worker addition requires a Running VM with a usable root volume");
+                }
                 if (kubernetesClusterVmMapDao.findByVmId(id) != null) {
                     throw new InvalidParameterValueException("The requested external VM already belongs to a Kubernetes cluster");
                 }

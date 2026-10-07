@@ -860,11 +860,22 @@ public class KubernetesClusterActionWorker {
             SshHelper.scpTo(nodeAddress, sshPort, getControlNodeLoginUser(), sshKeyFile, null,
                     "~/", file.getAbsolutePath(), "0755", 20000, 30 * 60 * 1000);
             // Ensure destination dir scriptPath exists and copy file to destination
-            String cmdStr = String.format("sudo mkdir -p %s ; sudo mv ~/%s %s/%s", scriptPath, file.getName(), scriptPath, destination);
-            SshHelper.sshExecute(nodeAddress, sshPort, getControlNodeLoginUser(), sshKeyFile, null,
-                    cmdStr, 10000, 10000, 10 * 60 * 1000);
+            String cmdStr = String.format("sudo mkdir -p %s && sudo mv ~/%s %s/%s", scriptPath, file.getName(), scriptPath, destination);
+            Pair<Boolean, String> installed = executeScriptInstallCommand(nodeAddress, sshPort, cmdStr);
+            requireScriptInstalled(installed);
         } catch (Exception e) {
             throw new CloudRuntimeException(e);
+        }
+    }
+
+    protected Pair<Boolean, String> executeScriptInstallCommand(String nodeAddress, int port, String command) throws Exception {
+        return SshHelper.sshExecute(nodeAddress, port, getControlNodeLoginUser(), sshKeyFile, null,
+                command, 10000, 10000, 10 * 60 * 1000);
+    }
+
+    protected void requireScriptInstalled(Pair<Boolean, String> installed) {
+        if (installed == null || !Boolean.TRUE.equals(installed.first())) {
+            throw new CloudRuntimeException("Kubernetes node script installation failed; verify node SSH access and passwordless sudo before retrying");
         }
     }
 

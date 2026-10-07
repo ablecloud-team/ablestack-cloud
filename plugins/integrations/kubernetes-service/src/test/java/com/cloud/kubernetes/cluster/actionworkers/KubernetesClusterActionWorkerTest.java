@@ -270,4 +270,14 @@ public class KubernetesClusterActionWorkerTest {
         KubernetesClusterActionWorker.compressUserDataIfNeeded(Base64.encodeBase64String(new byte[2048]), 4);
     }
 
+
+    @Test(expected = CloudRuntimeException.class)
+    public void failedPrivilegedScriptInstallFailsBeforeExecution() {
+        actionWorker.requireScriptInstalled(new com.cloud.utils.Pair<>(false, "private remote output"));
+    }
+
+    @Test
+    public void successfulPrivilegedScriptInstallIsAccepted() {
+        actionWorker.requireScriptInstalled(new com.cloud.utils.Pair<>(true, ""));
+    }
 }

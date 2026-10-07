@@ -45,6 +45,7 @@ import com.cloud.server.ResourceTag.ResourceObjectType;
 import java.util.stream.Collectors;
 
 import com.cloud.kubernetes.cluster.KubernetesClusterVmMapVO;
+import com.cloud.kubernetes.cluster.KubernetesClusterDetailsVO;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Level;
@@ -67,6 +68,7 @@ public class KubernetesClusterUpgradeWorker extends KubernetesClusterActionWorke
 
     protected List<UserVm> clusterVMs = new ArrayList<>();
     private KubernetesSupportedVersion upgradeVersion;
+    private final long sourceVersionId;
     private final String upgradeScriptFilename = "upgrade-kubernetes.sh";
     private File upgradeScriptFile;
     private long upgradeTimeoutTime;
@@ -82,6 +84,7 @@ public class KubernetesClusterUpgradeWorker extends KubernetesClusterActionWorke
                                           final String[] keys) {
         super(kubernetesCluster, clusterManager);
         this.upgradeVersion = upgradeVersion;
+        this.sourceVersionId = kubernetesCluster.getKubernetesVersionId();
         this.keys = keys;
     }
 
@@ -229,12 +232,82 @@ public class KubernetesClusterUpgradeWorker extends KubernetesClusterActionWorke
         return result;
     }
 
+    protected Pair<Boolean, String> executeUpgradeNodeCordonQuery(String hostName) throws Exception {
+        return SshHelper.sshExecute(publicIpAddress, sshPort, getControlNodeLoginUser(), sshKeyFile, null,
+                String.format("sudo /opt/bin/kubectl get node %s -o 'jsonpath={.spec.unschedulable}' --request-timeout=20s", hostName),
+                10000, 10000, 30000);
+    }
+
+    private String cordonReceiptPrefix(UserVm vm) {
+        return sourceVersionId + "|" + upgradeVersion.getId() + "|" + vm.getUuid() + "|";
+    }
+
+    protected boolean captureUpgradeNodeCordon(UserVm vm) {
+        String key = "upgrade.cordon." + vm.getUuid();
+        String prefix = cordonReceiptPrefix(vm);
+        KubernetesClusterDetailsVO saved = kubernetesClusterDetailsDao.findDetail(kubernetesCluster.getId(), key);
+        if (saved != null) {
+            if (!(prefix + "true").equals(saved.getValue()) && !(prefix + "false").equals(saved.getValue())) {
+                throw new CloudRuntimeException("Kubernetes upgrade cordon receipt does not match the same node and source/target artifacts");
+            }
+            return (prefix + "true").equals(saved.getValue());
+        }
+        String hostName = StringUtils.defaultString(vm.getHostName()).toLowerCase(java.util.Locale.ROOT);
+        if (!hostName.matches("[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?")) {
+            throw new CloudRuntimeException("Invalid Kubernetes node hostname for cordon ownership preflight");
+        }
+        try {
+            Pair<Boolean, String> result = executeUpgradeNodeCordonQuery(hostName);
+            String value = StringUtils.trimToEmpty(result.second());
+            if (!Boolean.TRUE.equals(result.first()) || !(value.isEmpty() || "false".equals(value) || "true".equals(value))) {
+                throw new CloudRuntimeException("Kubernetes node cordon ownership could not be read before drain");
+            }
+            boolean cordoned = "true".equals(value);
+            // A legacy retry with no receipt conservatively preserves any observed cordon.
+            kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), key, prefix + cordoned, false);
+            return cordoned;
+        } catch (Exception e) {
+            throw new CloudRuntimeException("Kubernetes node cordon ownership preflight failed before drain", e);
+        }
+    }
+
+    protected boolean uncordonUpgradeNode(UserVm vm) {
+        return KubernetesClusterUtil.uncordonKubernetesClusterNode(kubernetesCluster, publicIpAddress, sshPort,
+                getControlNodeLoginUser(), getManagementServerSshPublicKeyFile(), vm, upgradeTimeoutTime, 15000);
+    }
+
+    protected boolean restoreUpgradeNodeCordon(UserVm vm, boolean originallyCordoned) {
+        return originallyCordoned || uncordonUpgradeNode(vm);
+    }
+
+    protected void clearCompletedCordonReceipts() {
+        for (UserVm vm : clusterVMs) {
+            String key = "upgrade.cordon." + vm.getUuid();
+            KubernetesClusterDetailsVO saved = kubernetesClusterDetailsDao.findDetail(kubernetesCluster.getId(), key);
+            String prefix = cordonReceiptPrefix(vm);
+            if (saved == null || !((prefix + "true").equals(saved.getValue()) || (prefix + "false").equals(saved.getValue()))) {
+                throw new CloudRuntimeException("Kubernetes cordon ownership receipt changed before upgrade completion");
+            }
+        }
+        for (UserVm vm : clusterVMs) {
+            kubernetesClusterDetailsDao.removeDetail(kubernetesCluster.getId(), "upgrade.cordon." + vm.getUuid());
+        }
+    }
+
     private void upgradeKubernetesClusterNodes() {
         for (int i = 0; i < clusterVMs.size(); ++i) {
             UserVm vm = clusterVMs.get(i);
             String hostName = vm.getHostName();
             if (StringUtils.isNotEmpty(hostName)) {
                 hostName = hostName.toLowerCase();
+            }
+            boolean originallyCordoned;
+            try {
+                originallyCordoned = captureUpgradeNodeCordon(vm);
+            } catch (CloudRuntimeException e) {
+                logTransitStateDetachIsoAndThrow(Level.ERROR, "Kubernetes upgrade paused before drain because cordon ownership could not be verified",
+                        kubernetesCluster, clusterVMs, KubernetesCluster.Event.OperationFailed, e);
+                return;
             }
             Pair<Boolean, String> result;
             if (logger.isInfoEnabled()) {
@@ -295,7 +368,7 @@ public class KubernetesClusterUpgradeWorker extends KubernetesClusterActionWorke
             if (System.currentTimeMillis() > upgradeTimeoutTime) {
                 logTransitStateDetachIsoAndThrow(Level.ERROR, String.format("Failed to upgrade Kubernetes cluster : %s, upgrade action timed out", kubernetesCluster.getName()), kubernetesCluster, clusterVMs, KubernetesCluster.Event.OperationFailed, null);
             }
-            if (!KubernetesClusterUtil.uncordonKubernetesClusterNode(kubernetesCluster, publicIpAddress, sshPort, getControlNodeLoginUser(), getManagementServerSshPublicKeyFile(), vm, upgradeTimeoutTime, 15000)) {
+            if (!restoreUpgradeNodeCordon(vm, originallyCordoned)) {
                 logTransitStateDetachIsoAndThrow(Level.ERROR, String.format("Failed to upgrade Kubernetes cluster : %s, unable to uncordon Kubernetes node on VM : %s", kubernetesCluster.getName(), vm.getDisplayName()), kubernetesCluster, clusterVMs, KubernetesCluster.Event.OperationFailed, null);
             }
             if (!KubernetesClusterUtil.isKubernetesClusterNodeReady(kubernetesCluster, publicIpAddress, sshPort, getControlNodeLoginUser(), getManagementServerSshPublicKeyFile(), hostName, upgradeTimeoutTime, 15000)) {
@@ -429,7 +502,9 @@ public class KubernetesClusterUpgradeWorker extends KubernetesClusterActionWorke
             KubernetesVersionReferences.pin(kubernetesCluster, upgradeVersion.getId(), kubernetesClusterDetailsDao);
             return null;
         });
-        stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.UpgradeRequested);
+        if (!stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.UpgradeRequested)) {
+            throw new CloudRuntimeException("Another Kubernetes cluster operation prevents upgrade; artifact references remain protected");
+        }
         attachIsoKubernetesVMs(clusterVMs, upgradeVersion);
         upgradeKubernetesClusterNodes();
         upgradeKubernetesControllers();
@@ -445,6 +520,7 @@ public class KubernetesClusterUpgradeWorker extends KubernetesClusterActionWorke
         if (!updated) {
             stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.OperationFailed);
         } else {
+            clearCompletedCordonReceipts();
             stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.OperationSucceeded);
             KubernetesVersionReferences.clear(kubernetesCluster.getId(), upgradeVersion.getId(), kubernetesClusterDetailsDao);
         }

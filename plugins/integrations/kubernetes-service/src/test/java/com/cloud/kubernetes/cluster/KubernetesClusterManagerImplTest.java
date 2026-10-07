@@ -46,6 +46,7 @@ import com.cloud.user.User;
 import com.cloud.utils.Pair;
 import com.cloud.utils.net.NetUtils;
 import com.cloud.vm.VMInstanceVO;
+import com.cloud.vm.VirtualMachine;
 import com.cloud.vm.dao.VMInstanceDao;
 import com.cloud.host.HostVO;
 import com.cloud.host.dao.HostDao;
@@ -1042,8 +1043,20 @@ public class KubernetesClusterManagerImplTest {
     @Test(expected = InvalidParameterValueException.class) public void externalAdditionRejectsVmAlreadyMappedToAnotherCluster() {
         KubernetesClusterVO cluster = Mockito.mock(KubernetesClusterVO.class);
         Mockito.when(cluster.getState()).thenReturn(KubernetesCluster.State.Running);
-        Mockito.when(vmInstanceDao.findById(81L)).thenReturn(Mockito.mock(VMInstanceVO.class));
+        VMInstanceVO vm = Mockito.mock(VMInstanceVO.class);
+        Mockito.when(vm.getState()).thenReturn(VirtualMachine.State.Running);
+        Mockito.when(vmInstanceDao.findById(81L)).thenReturn(vm);
         Mockito.when(kubernetesClusterVmMapDao.findByVmId(81L)).thenReturn(Mockito.mock(KubernetesClusterVmMapVO.class));
         kubernetesClusterManager.validateNodes(List.of(81L), 4L, "network", cluster, false);
+    }
+
+    @Test(expected = InvalidParameterValueException.class) public void externalAdditionRejectsFailedOrStoppedVmBeforeNetworkMutation() {
+        KubernetesClusterVO cluster = Mockito.mock(KubernetesClusterVO.class);
+        Mockito.when(cluster.getState()).thenReturn(KubernetesCluster.State.Running);
+        VMInstanceVO vm = Mockito.mock(VMInstanceVO.class);
+        Mockito.when(vm.getState()).thenReturn(VirtualMachine.State.Error);
+        Mockito.when(vmInstanceDao.findById(81L)).thenReturn(vm);
+        try { kubernetesClusterManager.validateNodes(List.of(81L), 4L, "network", cluster, false); }
+        finally { Mockito.verify(kubernetesClusterVmMapDao, Mockito.never()).findByVmId(81L); }
     }
 }
