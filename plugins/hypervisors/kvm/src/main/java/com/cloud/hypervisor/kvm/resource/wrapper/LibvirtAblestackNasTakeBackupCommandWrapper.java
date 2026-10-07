@@ -30,13 +30,14 @@ import java.util.List;
 
 @ResourceWrapper(handles = AblestackNasTakeBackupCommand.class)
 public class LibvirtAblestackNasTakeBackupCommandWrapper extends CommandWrapper<AblestackNasTakeBackupCommand, Answer, LibvirtComputingResource> {
-    private static final String BACKUP_TRACE = AblestackBackupFrameworkUtils.buildTracePrefix("nas", AblestackBackupFrameworkUtils.OPERATION_BACKUP);
+    private static final String PROVIDER_NAME = "ablestack-nas";
+    private static final String BACKUP_TRACE = AblestackBackupFrameworkUtils.buildTracePrefix(PROVIDER_NAME, AblestackBackupFrameworkUtils.OPERATION_BACKUP);
 
     @Override
     public Answer execute(AblestackNasTakeBackupCommand command, LibvirtComputingResource libvirtComputingResource) {
         LibvirtAblestackNasBackupHelper backupHelper = new LibvirtAblestackNasBackupHelper(libvirtComputingResource);
         List<String> diskPaths = backupHelper.resolveDiskPaths(command.getVolumePools(), command.getVolumePaths());
-        return LibvirtAblestackTakeBackupCommandHelper.execute(command, logger, BACKUP_TRACE, "NAS",
+        return LibvirtAblestackTakeBackupCommandHelper.execute(command, logger, BACKUP_TRACE, PROVIDER_NAME,
                 new LibvirtAblestackTakeBackupCommandHelper.BackupCommandContext(command.getBackupJobId(), command.getVmName(),
                         command.getBackupPath(), command.getBackupType(), command.isWaitForCompletion()),
                 () -> backupHelper.buildDetachedBackupScriptCommand(command),

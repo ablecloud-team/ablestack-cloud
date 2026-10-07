@@ -68,7 +68,7 @@ class LibvirtAblestackNasBackupHelper {
     private static final int BACKUP_JOB_POLL_INTERVAL_MS = 10000;
     private static final int UNMOUNT_TIMEOUT_SECONDS = 60;
     private static final DateTimeFormatter SCRIPT_LOG_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss>");
-    private static final String BACKUP_TRACE = AblestackBackupFrameworkUtils.buildTracePrefix("nas", AblestackBackupFrameworkUtils.OPERATION_BACKUP);
+    private static final String BACKUP_TRACE = AblestackBackupFrameworkUtils.buildTracePrefix("ablestack-nas", AblestackBackupFrameworkUtils.OPERATION_BACKUP);
 
     enum BackupExecutionMode {
         RUNNING("backup-running"),

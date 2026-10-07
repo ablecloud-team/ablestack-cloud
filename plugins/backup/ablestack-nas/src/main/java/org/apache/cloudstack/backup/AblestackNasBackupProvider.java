@@ -95,6 +95,7 @@ import static org.apache.cloudstack.backup.BackupManager.KvmIncrementalBackup;
 
 public class AblestackNasBackupProvider extends AdapterBase implements BackupProvider, Configurable {
     private static final Logger LOG = LogManager.getLogger(AblestackNasBackupProvider.class);
+    private static final String PROVIDER_NAME = "ablestack-nas";
     private final ThreadLocal<Boolean> detachedRestoreStart = ThreadLocal.withInitial(() -> false);
     private static final String BACKUP_TYPE_FULL = "FULL";
     private static final String BACKUP_TYPE_INCREMENTAL = "INCREMENTAL";
@@ -113,8 +114,8 @@ public class AblestackNasBackupProvider extends AdapterBase implements BackupPro
     private static final String DETAIL_FALLBACK_VOLUME_UUIDS = "nas.fallback.volume.uuids";
     private static final String DETAIL_FAILURE_PHASE = "nas.failure.phase";
     private static final String DETAIL_FAILURE_REASON = "nas.failure.reason";
-    private static final String BACKUP_TRACE = AblestackBackupFrameworkUtils.buildTracePrefix("nas", AblestackBackupFrameworkUtils.OPERATION_BACKUP);
-    private static final String RESTORE_TRACE = AblestackBackupFrameworkUtils.buildTracePrefix("nas", AblestackBackupFrameworkUtils.OPERATION_RESTORE);
+    private static final String BACKUP_TRACE = AblestackBackupFrameworkUtils.buildTracePrefix(PROVIDER_NAME, AblestackBackupFrameworkUtils.OPERATION_BACKUP);
+    private static final String RESTORE_TRACE = AblestackBackupFrameworkUtils.buildTracePrefix(PROVIDER_NAME, AblestackBackupFrameworkUtils.OPERATION_RESTORE);
     private static final long BACKUP_REPOSITORY_SPACE_BUFFER_BYTES = 10L * 1024L * 1024L * 1024L;
     private static final int INCREMENTAL_BACKUP_CAPACITY_ESTIMATE_PERCENT = 10;
 
@@ -1591,7 +1592,7 @@ public class AblestackNasBackupProvider extends AdapterBase implements BackupPro
 
     @Override
     public String getName() {
-        return "ablestack-nas";
+        return PROVIDER_NAME;
     }
 
     @Override
