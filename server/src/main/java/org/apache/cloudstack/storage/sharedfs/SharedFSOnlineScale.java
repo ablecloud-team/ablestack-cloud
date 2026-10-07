@@ -45,6 +45,14 @@ public final class SharedFSOnlineScale {
             return memoryIncreaseBytes==0 || observedIncrease>=memoryIncreaseBytes-Math.min(64L*1024*1024,memoryIncreaseBytes/20);
         } catch (RuntimeException missingEvidence) { return false; }
     }
+    public static boolean originalResourcesMatch(JsonObject original,JsonObject observed) {
+        try {
+            long memory=original.get("memoryTotalBytes").getAsLong();
+            long tolerance=Math.max(64L*1024*1024,Math.min(256L*1024*1024,memory/50));
+            return observed.get("success").getAsBoolean() && observed.get("onlineCpuCount").getAsInt()==original.get("onlineCpuCount").getAsInt()
+                    && Math.abs(observed.get("memoryTotalBytes").getAsLong()-memory)<=tolerance;
+        } catch (RuntimeException incomplete) { return false; }
+    }
     public static JsonObject execute(Runtime runtime, int targetCpu, long memoryIncreaseBytes) {
         runtime.phase("PREFLIGHT");runtime.health();JsonObject before=runtime.resources();
         if (!before.has("scaleActivationSupported") || !before.get("scaleActivationSupported").getAsBoolean()) throw new InvalidParameterValueException("Upgrade the Storage Service runtime before online resource changes");
@@ -66,8 +74,7 @@ public final class SharedFSOnlineScale {
                     for (int attempt=0;attempt<30 && System.nanoTime()<deadline;attempt++) {
                         try {
                             runtime.health();JsonObject restored=runtime.resources();
-                            if (restored.get("onlineCpuCount").getAsInt()==before.get("onlineCpuCount").getAsInt()
-                                    && Math.abs(restored.get("memoryTotalBytes").getAsLong()-before.get("memoryTotalBytes").getAsLong())<=64L*1024*1024) { verified=true;break; }
+                            if (originalResourcesMatch(before,restored)) { verified=true;break; }
                             last=new CloudRuntimeException("Original guest resources were not restored");
                         } catch (RuntimeException booting) { last=booting; }
                         runtime.pause();

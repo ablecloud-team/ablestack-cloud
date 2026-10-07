@@ -156,8 +156,7 @@ public class CreateSharedFSCmd extends BaseAsyncCreateCmd implements UserCmd {
 
     @Parameter(name = ApiConstants.FILESYSTEM,
             type = CommandType.STRING,
-            required = true,
-            description = "the filesystem format (XFS / EXT4) which will be installed on the shared filesystem.")
+            description = "Filesystem for NEW volumes (XFS / EXT4). EXISTING volumes derive their filesystem from inspection.")
     private String fsFormat;
 
     @Parameter(name = ApiConstants.PROVIDER,

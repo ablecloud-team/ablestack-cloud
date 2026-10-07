@@ -37,6 +37,12 @@ public class SharedFSOnlineScaleTest {
         public void pause() { }
         public void phase(String value) { phases.add(value); }
     }
+    @Test public void coldBootKernelReservationDoesNotMasqueradeAsLostMemory() {
+        JsonObject original=resources(4,8386260992L);
+        Assert.assertTrue(SharedFSOnlineScale.originalResourcesMatch(original,resources(4,8312860672L)));
+        Assert.assertFalse(SharedFSOnlineScale.originalResourcesMatch(original,resources(4,6L<<30)));
+        Assert.assertFalse(SharedFSOnlineScale.originalResourcesMatch(original,resources(2,8312860672L)));
+    }
     @Test public void rejectsDownscaleAndNoOpWithoutHardwareChanges() {
         Assert.assertThrows(InvalidParameterValueException.class,()->SharedFSOnlineScale.validate(2,4096,1,8192));
         Assert.assertThrows(InvalidParameterValueException.class,()->SharedFSOnlineScale.validate(2,4096,4,2048));

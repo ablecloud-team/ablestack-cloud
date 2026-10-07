@@ -587,6 +587,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         }
 
         SharedFS.FileSystemType fsType;
+        if (!cmd.isExistingVolume() && StringUtils.isBlank(cmd.getFsFormat())) throw new InvalidParameterValueException("NEW mode requires an XFS or EXT4 filesystem");
         try {
             fsType = cmd.isExistingVolume() ? SharedFS.FileSystemType.XFS : SharedFS.FileSystemType.valueOf(cmd.getFsFormat().toUpperCase());
         } catch (IllegalArgumentException ex) {
@@ -990,8 +991,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
                     || offering==null || offering.getCpu()!=original.get("onlineCpuCount").getAsInt()
                     || (original.has("serviceOfferingId") && !sharedFS.getServiceOfferingId().equals(original.get("serviceOfferingId").getAsLong()))
                     || Math.abs(offering.getRamSize()*1024L*1024-original.get("memoryTotalBytes").getAsLong())>512L*1024*1024
-                    || observed.get("onlineCpuCount").getAsInt()!=original.get("onlineCpuCount").getAsInt()
-                    || Math.abs(observed.get("memoryTotalBytes").getAsLong()-original.get("memoryTotalBytes").getAsLong())>64L*1024*1024) throw new CloudRuntimeException("Previous online scaling recovery must be verified before another resize");
+                    || !SharedFSOnlineScale.originalResourcesMatch(original,observed)) throw new CloudRuntimeException("Previous online scaling recovery must be verified before another resize");
             previous.setState("ROLLED_BACK");previous.setPhase("ROLLED_BACK");previous.setCompleted(new java.util.Date());previous.setHeartbeat(new java.util.Date());
             previous.setResultJson(observed.toString());previous.setDiagnostic("Original resources and protocol health verified after guest boot completed");storageOperationDao.update(previous.getId(),previous);
         }
