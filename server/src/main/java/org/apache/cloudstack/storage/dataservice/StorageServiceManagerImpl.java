@@ -243,6 +243,62 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     @Inject
     private org.apache.cloudstack.storage.dataservice.dao.StoragePosixDirectoryPolicyDao storagePosixPolicyDao;
     private final ThreadLocal<StorageServiceOperationVO> storageWriterOperation = new ThreadLocal<>();
+    @Inject private org.apache.cloudstack.storage.dataservice.dao.StorageConfigArtifactDao storageConfigArtifactDao;
+
+    @Override
+    public org.apache.cloudstack.api.response.StorageServiceConfigArtifactResponse storageServiceConfiguration(final StorageConfigRequest cmd) {
+        return new StorageServiceConfiguration(this, storageConfigArtifactDao, storageOperationDao).execute(cmd);
+    }
+
+    protected void requireConfigurationAdministrator() {
+        if (!storageAccountManager.isRootAdmin(org.apache.cloudstack.context.CallContext.current().getCallingAccount().getId())) {
+            throw new com.cloud.exception.PermissionDeniedException("Only a root administrator may manage configuration artifacts");
+        }
+    }
+    protected String captureConfigurationSnapshot(long instanceId) { return new StorageServiceDesiredSnapshot().capture(instanceId); }
+    protected JsonObject observeConfigurationRuntime(StorageServiceInstanceVO instance, String command) {
+        if (!Set.of("health", "inventory", "sessions").contains(command)) throw new InvalidParameterValueException("Unsupported configuration collector");
+        final JsonObject unavailable = new JsonObject();unavailable.addProperty("status", "UNAVAILABLE");unavailable.addProperty("success", false);
+        if (instance.getVmId() == null) return unavailable;
+        VMInstanceVO vm = vmInstanceDao.findById(instance.getVmId());
+        if (vm == null || vm.getState() != com.cloud.vm.VirtualMachine.State.Running) return unavailable;
+        try {
+            StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(), command, "", 15, Collections.emptySet()));
+            if (!result.isSuccess()) return unavailable;
+            return StorageConfigSemantic.redact(parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()))).getAsJsonObject();
+        } catch (RuntimeException failure) { return unavailable; }
+    }
+    protected JsonObject configurationInstanceMetadata(StorageServiceInstanceVO instance) {
+        JsonObject metadata = new JsonObject();
+        metadata.addProperty("uuid", instance.getUuid());metadata.addProperty("name", instance.getName());
+        metadata.addProperty("provider", instance.getProvider());metadata.addProperty("state", instance.getState().name());
+        DataCenterVO zone = dataCenterDao.findById(instance.getDataCenterId());if (zone != null) metadata.addProperty("zoneUuid", zone.getUuid());
+        ServiceOfferingVO offering = instance.getServiceOfferingId() == null ? null : serviceOfferingDao.findById(instance.getServiceOfferingId());
+        if (offering != null) metadata.addProperty("serviceOfferingUuid", offering.getUuid());
+        VMInstanceVO vm = instance.getVmId() == null ? null : vmInstanceDao.findById(instance.getVmId());
+        if (vm != null) { metadata.addProperty("vmUuid", vm.getUuid());metadata.addProperty("vmState", vm.getState().name()); }
+        return metadata;
+    }
+    protected Map<Long, JsonObject> configurationVolumeMetadata(String snapshot) {
+        Map<Long, JsonObject> result = new LinkedHashMap<>();
+        for (JsonElement table : parseJsonObject(snapshot).getAsJsonArray("tables")) {
+            for (JsonElement value : table.getAsJsonObject().getAsJsonArray("rows")) {
+                JsonObject row = value.getAsJsonObject();
+                if (!row.has("volume_id") || row.get("volume_id").isJsonNull()) continue;
+                long id = row.get("volume_id").getAsLong();if (result.containsKey(id)) continue;
+                VolumeVO volume = requireVolume(id);JsonObject item = new JsonObject();
+                item.addProperty("uuid", volume.getUuid());item.addProperty("name", volume.getName());
+                item.addProperty("size", volume.getSize());item.addProperty("type", volume.getVolumeType().name());item.addProperty("state", volume.getState().name());
+                if (row.has("config_json") && !row.get("config_json").isJsonNull()) {
+                    JsonObject config = parseJsonObject(row.get("config_json").getAsString());
+                    String filesystem = getJsonString(config, "filesystemUuid");if (filesystem != null) item.addProperty("filesystemUuid", filesystem);
+                }
+                result.put(id, item);
+            }
+        }
+        return result;
+    }
+
 
     @Override
     public List<Class<?>> getCommands() {
