@@ -8663,5 +8663,20 @@
   "label.smb.ownership.parent": "Inherit parent owner",
   "label.smb.ownership.mode": "POSIX file-operation identity",
   "message.smb.ownership.forced.help": "Authentication and account ACLs still use the original session user. File operations then use the managed fixed UID/GID and must pass its POSIX permissions. Existing child owners remain unchanged; NFS sees the same numeric ownership. Guest, ADMIN and parent-owner inheritance combinations are unsupported. Shared paths must match the common owner policy.",
-  "label.smb.ownership.forced": "Fixed UID/GID for file operations"
+  "label.smb.ownership.forced": "Fixed UID/GID for file operations",
+  "message.storage.operation.reconcile.help": "A later verified revision is preserved. The server verifies current runtime and desired state, then records the previous failed operation as superseded without applying its older snapshot. Original diagnostics remain in the audit history.",
+  "label.storage.operation.state.RUNNING": "Applying",
+  "message.storage.operation.reconcile.running": "Verifying the current configuration. Progress appears in operation history.",
+  "label.storage.operation.history": "Configuration operation history",
+  "label.storage.operation.state.RECONCILED_SUPERSEDED": "Current configuration verified",
+  "label.storage.operation.phase": "Phase",
+  "label.storage.operation.diagnostic": "Diagnostic",
+  "label.storage.operation.state.RECOVERY_REQUIRED": "Recovery required",
+  "label.storage.operation.reconcile": "Verify recovery status",
+  "label.storage.operation.state.BLOCKED": "Blocked before apply",
+  "label.storage.operation.state.ROLLED_BACK": "Previous configuration restored",
+  "label.storage.operation.progress": "Progress",
+  "label.storage.operation.state.COMPLETE": "Complete",
+  "message.storage.operation.read.failed": "Operation history could not be refreshed. Last known rows remain visible.",
+  "label.storage.operation.action": "Operation"
 }

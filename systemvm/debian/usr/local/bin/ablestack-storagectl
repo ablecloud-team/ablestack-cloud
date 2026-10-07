@@ -1144,6 +1144,21 @@ for path in sorted(glob.glob("/etc/exports.d/ablestack-*.exports")):
         lines = []
     exports.append({"file": os.path.basename(path), "entries": lines})
 
+def config_value(block, key, default=None):
+    match = re.search(r"\b" + re.escape(key) + r"\s*=\s*([^;]+);", block, re.I)
+    return match.group(1).strip().strip('"') if match else default
+def nfs_rendered_clients(export_block):
+    clients = []
+    for client_block in re.findall(r"CLIENT\s*\{([^{}]*)\}", export_block, re.S):
+        clients.append({
+            "clients": config_value(client_block, "Clients", ""),
+            "access": config_value(client_block, "Access_Type"),
+            "squash": config_value(client_block, "Squash", config_value(export_block.split("CLIENT", 1)[0], "Squash")),
+            "anonUid": int(config_value(client_block, "Anonymous_uid", config_value(export_block.split("CLIENT", 1)[0], "Anonymous_uid", "65534"))),
+            "anonGid": int(config_value(client_block, "Anonymous_gid", config_value(export_block.split("CLIENT", 1)[0], "Anonymous_gid", "65534"))),
+        })
+    return clients
+
 ganesha_exports = []
 for path in sorted(glob.glob("/etc/ganesha/ablestack-storage/*.conf")):
     item = {"file": os.path.basename(path), "entries": []}
@@ -1173,10 +1188,12 @@ for path in sorted(glob.glob("/etc/ganesha/ablestack-storage/*.conf")):
             pseudo = re.search(r"Pseudo\s*=\s*\"?([^\";\n]+)\"?", export_block)
             export_path = re.search(r"Path\s*=\s*\"?([^\";\n]+)\"?", export_block)
             export_protocol_mode = nfs_protocol_mode_from_content(export_block)
+            clients = nfs_rendered_clients(export_block)
             item["entries"].append({
                 "pseudo": pseudo.group(1).strip() if pseudo else "",
                 "path": export_path.group(1).strip() if export_path else "",
                 "protocolMode": export_protocol_mode,
+                "clients": clients,
             })
         item["status"] = "active" if item.get("listening") else "inactive"
     except Exception as exc:
@@ -1207,7 +1224,9 @@ try:
                     smb_shares.append(current)
             elif current is not None and "=" in line:
                 key, value = [part.strip() for part in line.split("=", 1)]
-                if key in ("path", "read only", "browseable", "guest ok", "valid users", "write list", "admin users"):
+                if key in ("path", "read only", "browseable", "guest ok", "valid users", "write list", "admin users",
+                           "force user", "force group", "create mask", "force create mode", "directory mask",
+                           "force directory mode", "inherit permissions", "inherit owner", "hosts allow", "hosts deny"):
                     current[key.replace(" ", "_")] = value
 except Exception:
     pass
@@ -1367,6 +1386,13 @@ def enrich_nvmeof_subsystems(desired):
         }
         allowed_hosts_root = os.path.join(subsystem_root, "allowed_hosts")
         subsystem_runtime["allowedHosts"] = sorted(os.listdir(allowed_hosts_root)) if os.path.isdir(allowed_hosts_root) else []
+        subsystem_runtime["hostAuthentication"] = {}
+        for host in subsystem_runtime["allowedHosts"]:
+            host_root = os.path.join("/sys/kernel/config/nvmet/hosts", host)
+            subsystem_runtime["hostAuthentication"][host] = {
+                "dhChapConfigured": bool(read_runtime_text(os.path.join(host_root, "dhchap_key"))),
+                "dhChapCtrlConfigured": bool(read_runtime_text(os.path.join(host_root, "dhchap_ctrl_key"))),
+            }
         runtime_namespaces = []
         for namespace in subsystem.get("namespaces", []) or []:
             nsid = str(namespace.get("lunOrNamespace") or namespace.get("namespaceId") or "1")
@@ -1389,6 +1415,16 @@ def enrich_nvmeof_subsystems(desired):
                 "volumeName": namespace.get("volumeName") or config.get("volumeName"),
             }
             runtime.update(nvme_namespace_device_identity(backing_path))
+            runtime["mappingStatus"] = "UNOBSERVED"
+            if backing_path and runtime.get("volumeUuid"):
+                try:
+                    resolved = resolve_volume_device(storage_lsblk(), volume_uuid=runtime["volumeUuid"], allow_blank_size_fallback=False)
+                    if os.path.realpath(resolved["devicePath"]) != os.path.realpath(backing_path):
+                        raise VolumeIdentityError("Namespace uses a different backing device")
+                    runtime["mappingStatus"] = "EXACT"
+                    runtime["runtimeVolumeUuid"] = runtime["volumeUuid"]
+                except VolumeIdentityError as error:
+                    runtime["mappingStatus"] = "AMBIGUOUS" if "Ambiguous" in str(error) else "UNMAPPED"
             runtime = {key: value for key, value in runtime.items() if value not in (None, "")}
             namespace["runtime"] = runtime
             namespace.update({
@@ -1584,6 +1620,7 @@ print(json.dumps({
     "success": True,
     "status": "ok",
     "network": {"addresses": collect_network_addresses()},
+    "generatedEpoch": time.time(),
     "fileShareVolumes": file_share_volumes,
     "nfsExports": exports,
     "nfsGaneshaExports": ganesha_exports,

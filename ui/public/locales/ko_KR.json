@@ -8628,5 +8628,20 @@
   "label.smb.ownership.parent": "부모 디렉터리 소유자 상속",
   "label.smb.ownership.mode": "POSIX 파일 작업 identity",
   "message.smb.ownership.forced.help": "인증과 계정 ACL은 원래 세션 사용자로 판정한 뒤, 파일 작업은 관리된 고정 UID/GID의 POSIX 권한을 사용합니다. 기존 하위 항목 소유권은 유지하며 NFS에서도 같은 숫자 소유권을 표시합니다. 게스트·ADMIN·부모 소유권 상속 조합은 지원하지 않습니다. 공통 경로는 공통 소유권 정책과 일치해야 합니다.",
-  "label.smb.ownership.forced": "고정 UID/GID로 파일 작업"
+  "label.smb.ownership.forced": "고정 UID/GID로 파일 작업",
+  "message.storage.operation.reconcile.help": "이후 검증된 정상 revision을 유지합니다. 현재 runtime과 desired state를 검증한 뒤, 이전 실패 작업을 새 정상 구성으로 대체됐다고 기록하며 옛 snapshot을 적용하지 않습니다. 원래 진단은 감사 이력에 유지합니다.",
+  "label.storage.operation.state.RUNNING": "적용 중",
+  "message.storage.operation.reconcile.running": "현재 구성을 재검증하고 있습니다. 작업 이력에서 진행 상태를 확인할 수 있습니다.",
+  "label.storage.operation.history": "설정 변경 작업 이력",
+  "label.storage.operation.state.RECONCILED_SUPERSEDED": "현재 정상 구성 검증 완료",
+  "label.storage.operation.phase": "단계",
+  "label.storage.operation.diagnostic": "진단",
+  "label.storage.operation.state.RECOVERY_REQUIRED": "복구 필요",
+  "label.storage.operation.reconcile": "복구 상태 재검증",
+  "label.storage.operation.state.BLOCKED": "적용 전 차단",
+  "label.storage.operation.state.ROLLED_BACK": "이전 구성 복구 완료",
+  "label.storage.operation.progress": "진행률",
+  "label.storage.operation.state.COMPLETE": "완료",
+  "message.storage.operation.read.failed": "작업 이력 갱신에 실패했습니다. 마지막으로 확인한 목록을 유지합니다.",
+  "label.storage.operation.action": "작업"
 }

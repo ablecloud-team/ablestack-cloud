@@ -96,6 +96,9 @@ import org.apache.cloudstack.api.response.StorageServiceRuntimeUpgradeResponse;
 import org.apache.cloudstack.api.response.StorageSmbShareResponse;
 
 public interface StorageService {
+    org.apache.cloudstack.api.response.StorageServiceOperationResponse reconcileStorageServiceOperation(
+            org.apache.cloudstack.api.command.user.storage.dataservice.ReconcileStorageServiceOperationCmd cmd);
+
     org.apache.cloudstack.api.response.StoragePosixDirectoryPolicyResponse executeStoragePosixDirectoryPolicy(
             org.apache.cloudstack.api.command.user.storage.dataservice.BaseStoragePosixDirectoryPolicyCmd cmd);
     ListResponse<org.apache.cloudstack.api.response.StoragePosixDirectoryPolicyResponse> listStoragePosixDirectoryPolicies(

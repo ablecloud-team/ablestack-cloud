@@ -347,7 +347,8 @@ describe('SharedFS nested backing paths', () => {
       forms: { nfsExport: { name: 'project-a', path: '/export/share/project-a', relativepath: 'share/project-a' } },
       isValidNfsExportName: SharedFSTab.methods.isValidNfsExportName,
       validateNestedSharePath: SharedFSTab.methods.validateNestedSharePath,
-      $message: { error: jest.fn() }, $t: key => key
+      $message: { error: jest.fn() },
+      $t: key => key
     }
     expect(SharedFSTab.methods.validateNfsExportNameAndPath.call(context)).toBe(true)
     context.forms.nfsExport.relativepath = ''

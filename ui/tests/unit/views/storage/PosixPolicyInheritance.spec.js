@@ -31,9 +31,14 @@ describe('Protocol-neutral POSIX ownership inheritance', () => {
     expect(emitted).toHaveBeenCalledWith('patch', { posixpolicyid: 'policy', volumeid: 'volume', relativepath: 'shared', volumemode: 'CURRENT', directorymode: '2775', crossprotocol: true })
   })
   it('NFS listener choices never include SMB or block-protocol ports', () => {
-    const vm = { storageService: { protocols: [{ protocol: 'SMB', port: 445 }, { protocol: 'NFS', port: 2049 }, { protocol: 'NFS', port: 2050 }, { protocol: 'ISCSI', port: 3260 }], nfsExports: [] },
-      nfsRuntimeProtocolEntries: () => [], normalizeListenerPorts: value => value ? [Number(value)] : [], parseStorageConfig: () => ({}),
-      formatNfsListenerGroupEndpoints: ports => String(ports[0]), $t: value => value }
+    const vm = {
+      storageService: { protocols: [{ protocol: 'SMB', port: 445 }, { protocol: 'NFS', port: 2049 }, { protocol: 'NFS', port: 2050 }, { protocol: 'ISCSI', port: 3260 }], nfsExports: [] },
+      nfsRuntimeProtocolEntries: () => [],
+      normalizeListenerPorts: value => value ? [Number(value)] : [],
+      parseStorageConfig: () => ({}),
+      formatNfsListenerGroupEndpoints: ports => String(ports[0]),
+      $t: value => value
+    }
     expect(SharedFS.computed.nfsListenerGroupOptions.call(vm).map(row => row.value)).toEqual([2049, 2050])
   })
   it('clearing the selection removes its reference through a parent patch', () => {
