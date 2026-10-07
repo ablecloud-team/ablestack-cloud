@@ -350,6 +350,17 @@ public final class StorageServiceConfiguration {
         plan.addProperty("artifactSha256", row.getSha256());if (blueprint == null) plan.addProperty("targetName", target.getName());
         plan.add("requiredCredentials", requiredCredentials(archive));
         new StorageConfigDomainRestore(manager).validateBindings(plan);
+        if (blueprint != null) {
+            JsonArray directories = new JsonArray();
+            for (JsonElement item : plan.getAsJsonArray("create")) {
+                JsonObject change = item.getAsJsonObject();String kind = change.get("kind").getAsString();
+                if (!Set.of("file-shares", "posix-directory-policies").contains(kind)) continue;
+                JsonObject directory = new JsonObject();directory.add("sourceUuid", change.get("sourceUuid").deepCopy());
+                directory.addProperty("relativePath", StorageConfigDomainRestore.directoryRelativePath(kind, change.getAsJsonObject("desired")));
+                directory.addProperty("dataPolicy", "CREATE_MISSING_DIRECTORY_ONLY");directories.add(directory);
+            }
+            plan.add("directoryPreparation", directories);
+        }
         JsonObject metadata = metadata(row);metadata.add("plan", plan);
         String token = UUID.randomUUID().toString() + UUID.randomUUID().toString();JsonObject capability = new JsonObject();
         capability.addProperty("hash", StorageConfigArchive.sha256(token.getBytes(StandardCharsets.UTF_8)));

@@ -88,6 +88,14 @@ public final class StorageConfigDomainRestore {
         }
         throw new InvalidParameterValueException("Unsupported configuration resource or deferred identity domain");
     }
+    public static String directoryRelativePath(String kind, JsonObject desired) {
+        if ("posix-directory-policies".equals(kind)) return PosixDirectoryPolicy.relativePath(text(desired, "relative_path"));
+        String explicit = desired.has("config") ? text(desired.getAsJsonObject("config"), "relativeSharePath") : null;
+        if (explicit != null) return PosixDirectoryPolicy.relativePath(explicit);
+        String visible = text(desired, "path");
+        if (visible == null || !visible.startsWith("/export/")) throw new InvalidParameterValueException("Legacy share directory must be a verified export path");
+        return PosixDirectoryPolicy.relativePath(visible.substring(1));
+    }
     public void validateBindings(JsonObject plan) {
         Map<String, JsonObject> owners = new HashMap<>();
         for (String action : new String[] {"keep", "update", "create"}) for (JsonElement item : plan.getAsJsonArray(action)) {
@@ -132,8 +140,8 @@ public final class StorageConfigDomainRestore {
                     JsonObject change = item.getAsJsonObject();String kind = text(change, "kind");
                     if (!Set.of("file-shares", "posix-directory-policies").contains(kind)) continue;
                     JsonObject desired = change.getAsJsonObject("desired");String volume = text(desired, "volumeUuid");
-                    String relative = "posix-directory-policies".equals(kind) ? text(desired, "relative_path") : desired.has("config") ? text(desired.getAsJsonObject("config"), "relativeSharePath") : null;
-                    if (volume == null || relative == null) throw new InvalidParameterValueException("New-service directory requires explicit backing and relative path");
+                    String relative = directoryRelativePath(kind, desired);
+                    if (volume == null) throw new InvalidParameterValueException("New-service directory requires an explicit backing volume");
                     String mappedVolume = plan.getAsJsonObject("volumeMappings").get(volume).getAsString();
                     if (prepared.add(mappedVolume + ":" + relative)) manager.prepareConfigurationDirectory(instance, mappedVolume, relative);
                 }

@@ -1,4 +1,5 @@
 {
+  "label.storage.config.directory.prepare": "Create missing directory only",
   "label.storage.config.clone.volume.mode": "Initial data volume",
   "message.storage.config.delete.confirm": "Remove this configuration artifact from history? Data volumes are preserved.",
   "message.storage.config.clone.required": "Select the initial source volume and a verified runtime bundle.",
