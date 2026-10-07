@@ -810,7 +810,7 @@ if services["qemuGuestAgent"] not in ("active", "unknown"):
     status = "degraded"
 if ganesha_runtime["active"] < ganesha_runtime["configured"]:
     status = "degraded"
-if desired_state["iscsiTargets"] and not listen_ports["iscsi"]:
+if iscsi_targets_state.get("targets") and not listen_ports["iscsi"]:
     status = "degraded"
 if desired_state["nvmeofSubsystems"] and not nvmeof_runtime_ok(nvmeof_runtime):
     status = "degraded"
@@ -7979,6 +7979,8 @@ raise SystemExit(0 if result["success"] else 1)
 PYRESOURCES
     elif [[ "$subcommand" == "verify" ]]; then
       ABLESTACK_STORAGECTL_CACHE=0 runtime_health
+    elif [[ "$subcommand" == "observe" ]]; then
+      ABLESTACK_STORAGECTL_CACHE=0 runtime_inventory
     else
       emit_error "Unsupported Storage Service operation probe."
       exit 2
