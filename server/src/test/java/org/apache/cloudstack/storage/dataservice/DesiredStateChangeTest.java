@@ -122,6 +122,7 @@ public class DesiredStateChangeTest {
         order.verify(runtime).preflight();
         order.verify(snapshots).capture(7L);
         order.verify(runtime).verify();
+        order.verify(runtime).verifyNativeGeneration(any());
         order.verify(snapshots).capture(7L);
         order.verify(runtime).promoteVerifiedConfiguration(org.mockito.ArgumentMatchers.any());
     }
@@ -188,6 +189,34 @@ public class DesiredStateChangeTest {
         when(operations.listByInstance(7L)).thenReturn(java.util.List.of(recovery, committed));
         Assert.assertEquals("done", engine.execute(7L, "new", "later-verified", 5L, String.class, () -> "done", runtime));
         Assert.assertEquals(6, saved.get().getRevision());
+    }
+
+    @Test public void failedNativeGenerationCommitRestoresDesiredAndNativeBeforeCompletingRollback() {
+        doThrow(new CloudRuntimeException("native generation changed")).when(runtime).verifyNativeGeneration(any());
+        Assert.assertThrows(CloudRuntimeException.class, () -> engine.execute(7L, "smb", "generation", 0L, String.class, () -> "new", runtime));
+        Assert.assertEquals("ROLLED_BACK", saved.get().getState());
+        org.mockito.InOrder order = org.mockito.Mockito.inOrder(runtime, snapshots);
+        order.verify(runtime).verifyNativeGeneration(any());
+        order.verify(snapshots).restore(7L, "previous");
+        order.verify(runtime).applyPrevious();
+        order.verify(runtime).verify();
+        order.verify(runtime).rollbackNativeGeneration(any());
+        verify(runtime, never()).promoteVerifiedConfiguration(any());
+    }
+    @Test public void rejectedInputReleasesNativeCheckpointWithoutRestartingProtocols() {
+        when(snapshots.capture(7L)).thenReturn("previous");
+        Assert.assertThrows(CloudRuntimeException.class, () -> engine.execute(7L, "invalid", "checkpoint-abort", 0L, String.class,
+                () -> { throw new com.cloud.exception.InvalidParameterValueException("invalid"); }, runtime));
+        verify(runtime).abortNativeCheckpoint(any());
+        verify(runtime, never()).applyPrevious();
+        Assert.assertEquals("BLOCKED", saved.get().getState());
+    }
+    @Test public void uncertainNativeCheckpointAbortRetainsRecoveryRequiredInsteadOfAllowingAnotherWriter() {
+        doThrow(new CloudRuntimeException("native unreachable")).when(runtime).abortNativeCheckpoint(any());
+        doThrow(new CloudRuntimeException("prepare disconnected")).when(runtime).prepareNativeCheckpoint(any());
+        Assert.assertThrows(CloudRuntimeException.class, () -> engine.execute(7L, "prepare", "abort-failed", 0L, String.class,
+                () -> { throw new AssertionError("Unexpected mutation"); }, runtime));
+        Assert.assertEquals("RECOVERY_REQUIRED", saved.get().getState());
     }
 
 }

@@ -512,6 +512,12 @@ public final class StorageServiceConfiguration {
         JsonObject metadata = new JsonObject();metadata.addProperty("verification", "VERIFIED_SUCCESS");
         metadata.addProperty("sourceInstanceUuid", instance.getUuid());metadata.addProperty("operationUuid", operation.getUuid());
         metadata.addProperty("desiredRevision", operation.getRevision());metadata.addProperty("verifiedAt", System.currentTimeMillis());
+        JsonObject nativeGeneration = manager.nativeConfigurationGeneration(instance, null, "status");
+        if (!nativeGeneration.has("runtimeRevision") || nativeGeneration.get("runtimeRevision").getAsLong() != operation.getRevision()
+                || !nativeGeneration.has("generation") || !operation.getUuid().equals(nativeGeneration.getAsJsonObject("generation").get("operationUuid").getAsString())) {
+            throw new CloudRuntimeException("Native runtime generation differs from the desired revision");
+        }
+        metadata.addProperty("runtimeRevision", operation.getRevision());metadata.add("nativeGeneration", nativeGeneration.get("generation").deepCopy());
         metadata.addProperty("runtimeStatus", "AVAILABLE");JsonArray required = requiredCredentials(entries);
         metadata.add("requiredCredentials", required);metadata.addProperty("credentialCoverage", required.size() == 0 ? "FULL" : "REQUIRES_REENTRY");
         versionMetadata(metadata, instance);

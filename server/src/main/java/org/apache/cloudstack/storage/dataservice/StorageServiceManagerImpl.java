@@ -227,7 +227,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 }
                 restoreNativePosixOperation(null, instance, false);
             }
-            public void verify() { verifyRecoveredStorageWriter(instance); }
+            public void verify() {
+                verifyRecoveredStorageWriter(instance);
+                rollbackNativeConfigurationGeneration(instance, operation);
+            }
             public void verifyCurrent(StorageServiceOperationVO latest) {
                 String current = new StorageServiceDesiredSnapshot().capture(instance.getId());
                 if (latest.getSnapshotJson() == null || !parseJsonObject(current).equals(parseJsonObject(latest.getSnapshotJson()))) {
@@ -1199,7 +1202,14 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 instanceId, cmd.getCommandName(), idempotency, revision, responseClass, change, new DesiredStateChange.Runtime() {
                     public void started(StorageServiceOperationVO operation) { storageWriterOperation.set(operation); }
                     public void finished() {
-                        try { cleanupConfigurationIdentityCheckpoint(storageWriterOperation.get()); }
+                        try {
+                            StorageServiceOperationVO operation = storageWriterOperation.get();
+                            if (hasNativeConfigurationGeneration(operation) && "COMPLETE".equals(operation.getState())) {
+                                try { nativeConfigurationGeneration(instance, operation, "finish"); }
+                                catch (RuntimeException pending) { logger.warn("Native generation finalization remains pending for operation {}", operation.getUuid()); }
+                            }
+                            cleanupConfigurationIdentityCheckpoint(operation);
+                        }
                         finally { storageWriterOperation.remove();configurationNativeNvmeReplayed.remove(); }
                     }
                     public void preflight() {
@@ -1207,6 +1217,16 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                             throw new CloudRuntimeException("A Storage Service runtime upgrade is active");
                         }
                         if (instance.getVmId() != null) {
+                            if (StorageServiceInstance.StorageServiceVerifiedConfigurationEnabled.value()) {
+                                JsonObject generation = nativeConfigurationGeneration(instance, null, "status");
+                                String pending = getJsonString(generation, "pendingOperationUuid");
+                                if (pending != null) {
+                                    StorageServiceOperationVO completed = storageOperationDao.listByInstance(instanceId).stream()
+                                            .filter(row -> pending.equals(row.getUuid()) && "COMPLETE".equals(row.getState())).findFirst().orElse(null);
+                                    if (completed == null) throw new CloudRuntimeException("A native generation requires recovery");
+                                    nativeConfigurationGeneration(instance, completed, "finish");
+                                }
+                            }
                             StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(
                                     instance.getVmId(), "operation preflight", "", 30, Collections.emptySet()));
                             if (!result.isSuccess()) throw new CloudRuntimeException("Storage Service resource preflight failed: " + result.getDetails());
@@ -1216,6 +1236,27 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         if (StorageServiceInstance.StorageServiceVerifiedConfigurationEnabled.value() && instance.getVmId() != null
                                 && (protocol == StorageServiceInstance.Protocol.SMB || protocol == StorageServiceInstance.Protocol.ISCSI
                                     || protocol == StorageServiceInstance.Protocol.NVME_OF)) checkpointConfigurationIdentity(instance);
+                        if (StorageServiceInstance.StorageServiceVerifiedConfigurationEnabled.value() && instance.getVmId() != null) {
+                            JsonObject snapshot = parseJsonObject(operation.getPreviousSnapshotJson());
+                            // Persist the recovery scope before beginning native staging, including a crash during this RPC.
+                            snapshot.add("nativeGeneration", new JsonObject());operation.setPreviousSnapshotJson(snapshot.toString());
+                            if (!storageOperationDao.update(operation.getId(), operation)) throw new CloudRuntimeException("Unable to persist native generation scope");
+                            JsonObject nativeState = nativeConfigurationGeneration(instance, operation, "begin");
+                            snapshot.add("nativeGeneration", nativeState);operation.setPreviousSnapshotJson(snapshot.toString());
+                            if (!storageOperationDao.update(operation.getId(), operation)) throw new CloudRuntimeException("Unable to persist previous native generation");
+                        }
+                    }
+                    public void verifyNativeGeneration(StorageServiceOperationVO operation) {
+                        if (hasNativeConfigurationGeneration(operation)) {
+                            nativeConfigurationGeneration(instance, operation, "verify");
+                            nativeConfigurationGeneration(instance, operation, "commit");
+                        }
+                    }
+                    public void rollbackNativeGeneration(StorageServiceOperationVO operation) {
+                        rollbackNativeConfigurationGeneration(instance, operation);
+                    }
+                    public void abortNativeCheckpoint(StorageServiceOperationVO operation) {
+                        rollbackNativeConfigurationGeneration(instance, operation);
                     }
                     public void promoteVerifiedConfiguration(StorageServiceOperationVO operation) {
                         if (instance.getVmId() != null && StorageServiceInstance.StorageServiceVerifiedConfigurationEnabled.value()) new StorageServiceConfiguration(StorageServiceManagerImpl.this, storageConfigArtifactDao, storageOperationDao)
@@ -1246,6 +1287,35 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         restoreNativePosixOperation(cmd, instance, false);
                     }
                 });
+    }
+
+    protected JsonObject nativeConfigurationGeneration(StorageServiceInstanceVO instance, StorageServiceOperationVO operation, String action) {
+        JsonObject request = new JsonObject();
+        if (operation != null) {
+            request.addProperty("instanceUuid", instance.getUuid());request.addProperty("operationUuid", operation.getUuid());
+            request.addProperty("revision", operation.getRevision());
+        }
+        StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
+                "operation generation " + action, operation == null ? "" : request.toString(), 30, Collections.emptySet()));
+        JsonObject observed = parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));
+        if (!result.isSuccess() || !Boolean.TRUE.equals(getJsonBoolean(observed, "success"))
+                || !Boolean.TRUE.equals(getJsonBoolean(observed, "generationSupported"))) {
+            throw new CloudRuntimeException("Native configuration generation " + action + " failed");
+        }
+        return observed;
+    }
+    private void rollbackNativeConfigurationGeneration(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
+        if (!hasNativeConfigurationGeneration(operation)) return;
+        JsonObject observed = nativeConfigurationGeneration(instance, null, "status");
+        String pending = getJsonString(observed, "pendingOperationUuid");
+        if (pending == null) return;
+        if (!operation.getUuid().equals(pending)) throw new CloudRuntimeException("Another native generation is pending");
+        nativeConfigurationGeneration(instance, operation, "rollback");
+    }
+
+    private boolean hasNativeConfigurationGeneration(StorageServiceOperationVO operation) {
+        return operation != null && operation.getPreviousSnapshotJson() != null
+                && parseJsonObject(operation.getPreviousSnapshotJson()).has("nativeGeneration");
     }
 
     private StorageServiceInstance.Protocol operationProtocol(org.apache.cloudstack.api.BaseCmd cmd) {
