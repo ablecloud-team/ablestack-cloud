@@ -42,7 +42,7 @@
 | 1.34.12 | r12, 같은 배치; disposable CSI/프로젝트 별도 | 앱/독립 복원·AOF 실제 재시작·checksum | native AS; 프로젝트 역할/전체 quota 별도 | 대표 장기관측 종료 PASS(사용자 현재 시점 기준) |
 | 1.35.9 | r13 및 disposable CSI/VPC/CNI | 앱/복원; project VPC basic LB100, offline native DNS/Pod HTTP | native AS1.35, 사용자 CNI2→3→2 | 대표 장기관측 종료 PASS(사용자 현재 시점 기준) |
 | 1.36.5 | r14 및 최신 CSI fresh r32 | 앱/복원; CSI provision/resize/reattach/snapshot/Retain·Delete | native AS1.36; project role quotas | 대표 장기관측 종료 PASS(사용자 현재 시점 기준) |
-| 1.37.1 DEV | r15 및 CSI r25/r27/r32 | 앱/복원, CSI DATA·최종 물리 Delete | native AS1.37/실행 중 controller restart·UI 복구 | development candidate; stable 공식 지원·Release 승격 제외 |
+| 1.37.1 | r15 및 CSI r25/r27/r32 | 앱/복원, CSI DATA·최종 물리 Delete | native AS1.37/실행 중 controller restart·UI 복구 | Mold AutoScaler 프로덕션 판정/실환경 PASS; 고정 개발 commit 출처 보존 |
 
 장기 r10–r15는 총18개의 원래 VM/Node UID 및 Ready를 유지했습니다. 잔여 작업은 별도 클러스터를 사용하며 장기 대상의 삭제·키 회전·장애 주입으로 대신하지 않았습니다. 정상 구간과 계획 중단, 원래 실패와 수정 후 복구의 집계를 합치지 않습니다.
 
@@ -112,3 +112,8 @@ PR 준비 기준은 최신 HEAD 전체 License Check PASS/Conflict 없음입니�
 
 
 Retain volume UUID는 `90fbba30-99bf-4405-89e1-66980ae8d13d`, `f8a4f70a-40b2-4dcf-8bde-7f57ffff6fdf`, `bf4e0635-c63a-4cb4-9b10-81f3bca0f7f7`, `d1814d1b-a467-45de-b43e-5ef9ee335950`, `c95e29a6-1fd0-49df-b9c0-ae6e7f745fce`, `837700f0-bc46-47ed-858f-2c320ca39a9a`입니다. 외부 helper·Retain 데이터의 회수는 기존 checksum/인계 기록을 사용하고 임의 정리를 하지 않습니다.
+
+
+## 1.37.1 AutoScaler Mold 프로덕션 판정 — 2026-10-07
+
+사용자가 기존 실환경 검증에 근거해1.37.1 AutoScaler를 Mold 내 프로덕션 레벨로 판정했습니다. [판정과 정확한 source/image](https://github.com/ablecloud-team/ablestack-cloud/issues/1228#issuecomment-6038989411)를 ISO 두 프로파일의 production/PASS qualification에 반영합니다. 외부 원본 commit의 development-candidate provenance를 보존하되, 이를 Mold 내 개발 전용 또는 AutoScaler만의 공식 게시 금지 판정으로 사용하지 않습니다. 기록에 남은 DEV는 당시 ISO/클러스터 식별 이름과 역사적 시험 구분입니다. 전체 lifecycle/CSI qualification·공식 source/SDK 승격·immutable tag 검사는 각각 유지합니다. 실제 바이너리/커스터마이징과 장기 클러스터는 변경하지 않았습니다.

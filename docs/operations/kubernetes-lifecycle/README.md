@@ -61,7 +61,7 @@ manifest 적용은 명시적 admin kubeconfig와 요청 제한 시간을 사용�
 
 [지원·검증 행렬](qualification-20261007.md)에서 최초 clean 성공, 실패 후 복구, 제한 환경 및 미완료 관측을 구분합니다. 진행 단계는 담당 기존 이슈를 갱신하며 새 결함 등록 전 기존 이슈 범위를 대조합니다. 공통 구현의 반복 패치나 동일 시험 클러스터의 중복 생성을 하지 않습니다.
 
-PR 준비는 최신 HEAD 전체 License Check 통과 및 Conflict 없음입니다. 전체 Cloud build/통합 검사는 최종 Release build에서 수행합니다. PR 준비, Upstream 병합, 공식 ISO Release와 24시간 관측 완료를 서로 같은 판정으로 표시하지 않습니다. `1.37.1`의 이 작업 산출물은 DEV/development candidate이며 stable 공식 지원을 뜻하지 않습니다.
+PR 준비는 최신 HEAD 전체 License Check 통과 및 Conflict 없음입니다. 전체 Cloud build/통합 검사는 최종 Release build에서 수행합니다. PR 준비, Upstream 병합, 공식 ISO Release와 24시간 관측 완료를 서로 같은 판정으로 표시하지 않습니다. `1.37.1` AutoScaler는 [2026-10-07 사용자 판정](https://github.com/ablecloud-team/ablestack-cloud/issues/1228#issuecomment-6038989411)에 따라 Mold 내 프로덕션 레벨/실환경 PASS로 인정합니다. 외부 원본 고정 commit의 development-candidate 출처와 당시 DEV 리소스 이름은 보존합니다. ISO 게시 정책은 stable 원본 또는 정확한 빌드에 묶인 Mold 프로덕션 판정을 인정하며 나머지 공식 게시 조건은 각각 검사합니다.
 
 ## Service UID로 native 리소스 확인
 
