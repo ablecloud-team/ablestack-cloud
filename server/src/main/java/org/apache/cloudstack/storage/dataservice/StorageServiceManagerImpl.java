@@ -264,6 +264,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         commands.add(DeleteStorageSmbShareCmd.class);
         commands.add(ListStorageSmbSharesCmd.class);
         commands.add(CreateStorageSmbAclCmd.class);
+        commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageSmbNetworkAclCmd.class);
+        commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageSmbNetworkAclCmd.class);
+        commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.DeleteStorageSmbNetworkAclCmd.class);
+        commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.ListStorageSmbNetworkAclsCmd.class);
         commands.add(UpdateStorageSmbAclCmd.class);
         commands.add(DeleteStorageSmbAclCmd.class);
         commands.add(ListStorageSmbAclsCmd.class);
@@ -1178,10 +1182,16 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         configJson = buildFileShareDirectoryConfigJson(configJson, backingVolume, importMode, cmd.getCreateDirectory());
         configJson = storeRelativeSharePath(configJson, cmd.getRelativePath());
         validateJsonObjectConfigOrThrow(configJson, "SMB share " + cmd.getName());
+        List<SmbNetworkPolicy.Source> initialNetworkRules=StringUtils.isBlank(cmd.getNetworkPrincipals()) ? Collections.emptyList()
+                : SmbNetworkPolicy.normalize(null,cmd.getNetworkPrincipals(),smbNetworkIpv6Capability(instance));
         StorageFileShareVO share = new StorageFileShareVO(instance.getId(), StorageServiceInstance.Protocol.SMB, cmd.getName(), path,
                 cmd.getVolumeId(), cmd.getFilesystem(), cmd.getQuotaBytes(), StorageServiceInstance.ResourceState.Creating,
                 configJson);
         share = storageFileShareDao.persist(share);
+        for (SmbNetworkPolicy.Source source:initialNetworkRules) {
+            storageAccessRuleDao.persist(new StorageAccessRuleVO(StorageServiceInstance.AccessResourceType.FILE_SHARE,share.getId(),source.type,source.principal,
+                    StorageServiceInstance.Permission.CONNECT,instance.getVmId()==null ? StorageServiceInstance.ResourceState.Allocated : StorageServiceInstance.ResourceState.Ready,"{}"));
+        }
         StorageAccessRuleVO initialAcl = null;
         final String initialPrincipal = StringUtils.trimToNull(cmd.getAclPrincipal());
         if (initialPrincipal != null) {
@@ -1418,6 +1428,81 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         final ListResponse<StorageAccessRuleResponse> response = new ListResponse<>();
         response.setResponses(responses, responses.size());
         return response;
+    }
+
+    protected boolean isSmbNetworkRule(StorageAccessRuleVO rule) {
+        return rule.getResourceType()==StorageServiceInstance.AccessResourceType.FILE_SHARE && rule.getPermission()==StorageServiceInstance.Permission.CONNECT
+                && (rule.getPrincipalType()==StorageServiceInstance.PrincipalType.CIDR || rule.getPrincipalType()==StorageServiceInstance.PrincipalType.IP_ADDRESS);
+    }
+    protected StorageAccessRuleVO requireSmbNetworkRule(Long id) {
+        StorageAccessRuleVO rule=id==null ? null : storageAccessRuleDao.findById(id);
+        if (rule==null || !isSmbNetworkRule(rule)) throw new InvalidParameterValueException("SMB network allow rule is unavailable");
+        requireSmbShare(rule.getResourceId());return rule;
+    }
+    protected boolean smbNetworkIpv6Capability(StorageServiceInstanceVO instance) {
+        if (instance.getVmId()==null) return false;
+        StorageServiceGuestCommandResult result=guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),"operation verify","{}",30,Collections.emptySet()));
+        JsonObject health=parseJsonObject(result.getResultJson());JsonObject capabilities=getJsonObject(health,"capabilities");
+        if (!result.isSuccess() || capabilities==null || !capabilities.has("smbNetworkAccessSupported") || !capabilities.get("smbNetworkAccessSupported").getAsBoolean()) {
+            throw new InvalidParameterValueException("Upgrade the Storage Service runtime before SMB network-policy changes");
+        }
+        return capabilities.has("smbNetworkIpv6Supported") && capabilities.get("smbNetworkIpv6Supported").getAsBoolean();
+    }
+    @Override
+    public ListResponse<StorageAccessRuleResponse> createStorageSmbNetworkAcl(org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageSmbNetworkAclCmd cmd) {
+        return executeDesiredChange(cmd,ListResponse.class,()-> {
+            StorageFileShareVO share=requireSmbShare(cmd.getShareId());StorageServiceInstanceVO instance=requireInstance(share.getInstanceId());
+            if (StringUtils.isNotBlank(cmd.getPrincipal()) && StringUtils.isNotBlank(cmd.getPrincipals())) throw new InvalidParameterValueException("Use principal or principals, not both");
+            List<SmbNetworkPolicy.Source> sources=SmbNetworkPolicy.normalize(cmd.getPrincipalType(),StringUtils.defaultIfBlank(cmd.getPrincipals(),cmd.getPrincipal()),smbNetworkIpv6Capability(instance));
+            List<StorageAccessRuleResponse> responses=new ArrayList<>();
+            for (SmbNetworkPolicy.Source source:sources) {
+                StorageAccessRuleVO found=null;
+                for (StorageAccessRuleVO row:storageAccessRuleDao.listByResource(StorageServiceInstance.AccessResourceType.FILE_SHARE,share.getId())) {
+                    if (isSmbNetworkRule(row) && row.getPrincipalType()==source.type && source.principal.equals(row.getPrincipal())) { found=row;break; }
+                }
+                if (found==null) found=storageAccessRuleDao.persist(new StorageAccessRuleVO(StorageServiceInstance.AccessResourceType.FILE_SHARE,share.getId(),source.type,source.principal,
+                        StorageServiceInstance.Permission.CONNECT,instance.getVmId()==null ? StorageServiceInstance.ResourceState.Allocated : StorageServiceInstance.ResourceState.Ready,"{}"));
+                responses.add(createAclResponse(found));
+            }
+            applySmbDesiredState(instance);ListResponse<StorageAccessRuleResponse> response=new ListResponse<>();response.setResponses(responses,responses.size());return response;
+        });
+    }
+    @Override
+    public StorageAccessRuleResponse updateStorageSmbNetworkAcl(org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageSmbNetworkAclCmd cmd) {
+        return executeDesiredChange(cmd,StorageAccessRuleResponse.class,()-> {
+            StorageAccessRuleVO rule=requireSmbNetworkRule(cmd.getId());StorageServiceInstanceVO instance=requireInstance(requireSmbShare(rule.getResourceId()).getInstanceId());
+            String principal=StringUtils.defaultIfBlank(cmd.getPrincipal(),rule.getPrincipal());
+            List<SmbNetworkPolicy.Source> replacements=SmbNetworkPolicy.normalize(StringUtils.defaultIfBlank(cmd.getPrincipalType(),rule.getPrincipalType().name()),principal,smbNetworkIpv6Capability(instance));
+            if (replacements.size()!=1) throw new InvalidParameterValueException("Update one source rule at a time");
+            SmbNetworkPolicy.Source source=replacements.get(0);
+            for (StorageAccessRuleVO row:storageAccessRuleDao.listByResource(StorageServiceInstance.AccessResourceType.FILE_SHARE,rule.getResourceId())) {
+                if (row.getId()!=rule.getId() && isSmbNetworkRule(row) && row.getPrincipalType()==source.type && source.principal.equals(row.getPrincipal())) throw new InvalidParameterValueException("The share already has this network allow rule");
+            }
+            rule.setPrincipalType(source.type);rule.setPrincipal(source.principal);storageAccessRuleDao.update(rule.getId(),rule);applySmbDesiredState(instance);return createAclResponse(rule);
+        });
+    }
+    @Override
+    public boolean deleteStorageSmbNetworkAcl(org.apache.cloudstack.api.command.user.storage.dataservice.DeleteStorageSmbNetworkAclCmd cmd) {
+        return executeDesiredChange(cmd,Boolean.class,()-> {
+            StorageAccessRuleVO rule=requireSmbNetworkRule(cmd.getId());StorageServiceInstanceVO instance=requireInstance(requireSmbShare(rule.getResourceId()).getInstanceId());
+            smbNetworkIpv6Capability(instance);storageAccessRuleDao.remove(rule.getId());applySmbDesiredState(instance);return true;
+        });
+    }
+    @Override
+    public ListResponse<StorageAccessRuleResponse> listStorageSmbNetworkAcls(org.apache.cloudstack.api.command.user.storage.dataservice.ListStorageSmbNetworkAclsCmd cmd) {
+        List<StorageAccessRuleVO> candidates=new ArrayList<>();
+        if (cmd.getId()!=null) { StorageAccessRuleVO rule=storageAccessRuleDao.findById(cmd.getId());if (rule!=null) candidates.add(rule); }
+        else if (cmd.getShareId()!=null) candidates.addAll(storageAccessRuleDao.listByResource(StorageServiceInstance.AccessResourceType.FILE_SHARE,cmd.getShareId()));
+        else if (cmd.getInstanceId()!=null) {
+            StorageServiceInstanceVO instance=requireInstance(cmd.getInstanceId());
+            for (StorageFileShareVO share:storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(),StorageServiceInstance.Protocol.SMB)) candidates.addAll(storageAccessRuleDao.listByResource(StorageServiceInstance.AccessResourceType.FILE_SHARE,share.getId()));
+        } else candidates.addAll(storageAccessRuleDao.listAll());
+        List<StorageAccessRuleResponse> responses=new ArrayList<>();
+        for (StorageAccessRuleVO rule:candidates) {
+            StorageFileShareVO share=storageFileShareDao.findById(rule.getResourceId());
+            if (isSmbNetworkRule(rule) && share!=null && share.getProtocol()==StorageServiceInstance.Protocol.SMB && canReadStorageInstance(storageServiceInstanceDao.findById(share.getInstanceId()))) responses.add(createAclResponse(rule));
+        }
+        ListResponse<StorageAccessRuleResponse> response=new ListResponse<>();response.setResponses(responses,responses.size());return response;
     }
 
     @Override
@@ -2624,7 +2709,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             smbShare.add("config", parseJsonObject(share.getConfigJson()));
 
             final JsonArray acls = new JsonArray();
+            final JsonArray networkAcls = new JsonArray();
             for (final StorageAccessRuleVO rule : storageAccessRuleDao.listByResource(StorageServiceInstance.AccessResourceType.FILE_SHARE, share.getId())) {
+                if (isSmbNetworkRule(rule)) {
+                    JsonObject network=new JsonObject();network.addProperty("uuid",rule.getUuid());network.addProperty("principalType",rule.getPrincipalType().name());network.addProperty("principal",rule.getPrincipal());network.addProperty("permission","CONNECT");network.addProperty("state",rule.getState().name());networkAcls.add(network);continue;
+                }
                 if (!isSmbPrincipalType(rule.getPrincipalType())) {
                     continue;
                 }
@@ -2642,6 +2731,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 acls.add(acl);
             }
             smbShare.add("acls", acls);
+            smbShare.add("networkAcls", networkAcls);
             shares.add(smbShare);
         }
         payload.add("shares", shares);
@@ -4402,7 +4492,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
 
     protected StorageServiceInstance.Permission parseSmbPermission(final String permission) {
         try {
-            return StorageServiceInstance.Permission.valueOf(permission.toUpperCase());
+            StorageServiceInstance.Permission parsed=StorageServiceInstance.Permission.valueOf(permission.toUpperCase());
+            if (parsed==StorageServiceInstance.Permission.CONNECT) throw new InvalidParameterValueException("CONNECT is reserved for network allow rules");
+            return parsed;
         } catch (final IllegalArgumentException e) {
             throw new InvalidParameterValueException("Invalid SMB ACL permission: " + permission);
         }
@@ -4412,7 +4504,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         final String value = StringUtils.isBlank(permission) ? StorageServiceInstance.Permission.READ_WRITE.name() : permission.toUpperCase();
         try {
             final StorageServiceInstance.Permission parsed = StorageServiceInstance.Permission.valueOf(value);
-            if (parsed == StorageServiceInstance.Permission.ADMIN) {
+            if (parsed != StorageServiceInstance.Permission.READ_ONLY && parsed != StorageServiceInstance.Permission.READ_WRITE) {
                 throw new InvalidParameterValueException("Block ACL supports only READ_ONLY or READ_WRITE permissions");
             }
             return parsed;
@@ -6491,6 +6583,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         response.setState(share.getState().name());
         response.setConfig(share.getConfigJson());
         populateFileShareVolumeResponse(response, volume, parseJsonObject(share.getConfigJson()), runtimeObservation);
+        List<String> sources=new ArrayList<>();
+        for (StorageAccessRuleVO rule:storageAccessRuleDao.listByResource(StorageServiceInstance.AccessResourceType.FILE_SHARE,share.getId())) {
+            if (isSmbNetworkRule(rule) && rule.getState()!=StorageServiceInstance.ResourceState.Disabled && rule.getState()!=StorageServiceInstance.ResourceState.Destroyed && rule.getState()!=StorageServiceInstance.ResourceState.Error) sources.add(rule.getPrincipal());
+        }
+        response.setAllowedSources(sources);response.setNetworkAccessMode(sources.isEmpty() ? "ANY_SOURCE" : "ALLOW_LIST");
         response.setObjectName("storagesmbshare");
         return response;
     }

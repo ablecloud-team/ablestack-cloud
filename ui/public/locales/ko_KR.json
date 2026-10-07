@@ -8572,5 +8572,20 @@
   "message.sharedfs.scaling.reason.fixed_cpu_required": "고정 CPU 필요",
   "message.sharedfs.initial.filesystem.inspect": "연결 후 기존 XFS/EXT4 검사",
   "message.sharedfs.scaling.reason.runtime_scale_activation_required": "온라인 자원 활성화 지원 런타임으로 업데이트 필요",
-  "message.sharedfs.initial.existing.preserve": "기존 볼륨의 파일 시스템은 연결 후 검사하여 사용합니다. 초기 생성은 포맷 없이 마운트하므로 원본 데이터를 보존합니다."
+  "message.sharedfs.initial.existing.preserve": "기존 볼륨의 파일 시스템은 연결 후 검사하여 사용합니다. 초기 생성은 포맷 없이 마운트하므로 원본 데이터를 보존합니다.",
+  "label.smb.network.any": "모든 원본",
+  "message.smb.network.edit.one": "편집할 때는 IP/CIDR 하나만 입력하세요.",
+  "message.smb.network.access.help": "공유별 클라이언트 원본 IP를 제한합니다. NAT 환경에서는 변환 후 주소가 대상이며, 서버 연결·공유 탐색이 가능해도 해당 공유 접근은 거부될 수 있습니다.",
+  "label.smb.network.desired": "설정 허용 원본",
+  "message.smb.network.account.and.source": "원본 네트워크 허용과 계정/그룹 ACL을 모두 통과해야 합니다. 원본 허용은 인증과 파일 권한을 대체하지 않습니다.",
+  "message.smb.network.last.delete": "마지막 규칙을 삭제하면 모든 원본 네트워크에서 연결을 시도할 수 있습니다. 계정 ACL은 계속 적용됩니다.",
+  "message.smb.network.delete.confirm": "이 네트워크 허용 규칙을 삭제합니다.",
+  "label.smb.network.access": "네트워크 접근 허용 목록",
+  "label.smb.network.runtime": "실행 허용 원본",
+  "label.smb.network.sources": "허용 IP/CIDR",
+  "message.smb.network.read.failed": "네트워크 허용 목록을 확인하지 못했습니다. 업데이트로 다시 확인하세요.",
+  "label.smb.network.create": "네트워크 허용 규칙 생성",
+  "message.smb.network.sources.example": "10.1.1.0/24, 10.1.1.9 (쉼표 또는 Enter)",
+  "label.smb.network.edit": "네트워크 허용 규칙 편집",
+  "label.smb.network.delete": "네트워크 허용 규칙 삭제"
 }

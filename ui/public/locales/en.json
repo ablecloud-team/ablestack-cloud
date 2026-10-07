@@ -8607,5 +8607,20 @@
   "message.sharedfs.scaling.reason.fixed_cpu_required": "Fixed CPU required",
   "message.sharedfs.initial.filesystem.inspect": "Existing XFS/EXT4 inspected after attachment",
   "message.sharedfs.scaling.reason.runtime_scale_activation_required": "A runtime supporting online resource activation is required",
-  "message.sharedfs.initial.existing.preserve": "The existing filesystem is inspected after attachment. Initial creation mounts without formatting and preserves the original data."
+  "message.sharedfs.initial.existing.preserve": "The existing filesystem is inspected after attachment. Initial creation mounts without formatting and preserves the original data.",
+  "label.smb.network.any": "Any source",
+  "message.smb.network.edit.one": "Enter one IP/CIDR when editing.",
+  "message.smb.network.access.help": "Restrict client source addresses per share. NAT-translated addresses are matched; server discovery may succeed while share access is denied.",
+  "label.smb.network.desired": "Configured sources",
+  "message.smb.network.account.and.source": "Both the source rule and account/group ACL must allow access. Source rules do not replace authentication or file permissions.",
+  "message.smb.network.last.delete": "Deleting the final rule allows connection attempts from any source network. Account ACLs still apply.",
+  "message.smb.network.delete.confirm": "Delete this source allow rule.",
+  "label.smb.network.access": "Network source allow-list",
+  "label.smb.network.runtime": "Runtime sources",
+  "label.smb.network.sources": "Allowed IP/CIDR",
+  "message.smb.network.read.failed": "Source rules could not be loaded. Update to retry.",
+  "label.smb.network.create": "Create source allow rule",
+  "message.smb.network.sources.example": "10.1.1.0/24, 10.1.1.9 (comma or Enter)",
+  "label.smb.network.edit": "Edit source allow rule",
+  "label.smb.network.delete": "Delete source allow rule"
 }

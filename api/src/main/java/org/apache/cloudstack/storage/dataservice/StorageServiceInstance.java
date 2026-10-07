@@ -92,6 +92,7 @@ public interface StorageServiceInstance extends ControlledEntity, Identity, Inte
     }
 
     enum Permission {
+        CONNECT,
         READ_ONLY,
         READ_WRITE,
         ADMIN

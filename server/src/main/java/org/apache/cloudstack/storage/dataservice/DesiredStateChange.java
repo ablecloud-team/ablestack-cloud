@@ -97,6 +97,11 @@ public final class DesiredStateChange {
                     return response;
                 } catch (RuntimeException failure) {
                     operation.setDiagnostic(message(failure));
+                    if (mutated && failure instanceof com.cloud.exception.InvalidParameterValueException && operation.getPreviousSnapshotJson()!=null) {
+                        // A rejected input must not restart healthy protocols when no desired state changed.
+                        try { if (operation.getPreviousSnapshotJson().equals(snapshots.capture(instanceId))) mutated=false; }
+                        catch (RuntimeException uncertain) { failure.addSuppressed(uncertain); }
+                    }
                     if (mutated && operation.getPreviousSnapshotJson() != null) {
                         try {
                             phase(operation, "ROLLING_BACK", 85);

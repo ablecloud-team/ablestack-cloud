@@ -831,6 +831,8 @@ print(json.dumps({
     "nfsGanesha": ganesha_runtime,
     "capabilities": {
         "nvmeof": nvmeof_capabilities(),
+        "smbNetworkAccessSupported": bool(commands.get("smbd")),
+        "smbNetworkIpv6Supported": any(":" in str(address.get("ipaddress") or "") and not str(address.get("ipaddress") or "").lower().startswith("fe80:") for address in collect_network_addresses()),
     },
 }, sort_keys=True))
 PY
@@ -1553,6 +1555,7 @@ print(json.dumps({
     "nfsQuotas": load_json("/etc/ablestack-storage/nfs-quotas.json", {}),
     "smbShares": smb_shares,
     "smbQuotas": load_json("/etc/ablestack-storage/smb-quotas.json", {}),
+    "smbAccess": load_json("/etc/ablestack-storage/smb-access.json", {}),
     "smbDomain": load_json("/etc/ablestack-storage/smb-domain.json", {}),
     "smbDomainError": load_json("/etc/ablestack-storage/smb-domain-error.json", {}),
     "iscsiTargets": iscsi_targets,
@@ -4798,6 +4801,7 @@ apply_smb_shares() {
 
   python3 - "$payload_file" <<'PY'
 import json
+import ipaddress
 import grp
 import os
 import pwd
@@ -4825,6 +4829,38 @@ def run_optional(command, **kwargs):
 def truth(config, key, default):
     value = config.get(key, default) if isinstance(config, dict) else default
     return bool(value)
+
+def smb_network_policy(acls):
+    sources = []
+    configured = 0
+    for acl in acls:
+        if acl.get("state", "Ready") in ("Disabled", "Destroyed", "Error"):
+            continue
+        configured += 1
+        if acl.get("permission") != "CONNECT":
+            raise ValueError("SMB source rule requires CONNECT permission")
+        value = str(acl.get("principal") or "").strip()
+        kind = acl.get("principalType")
+        if kind == "CIDR":
+            if "/" not in value:
+                raise ValueError("CIDR source requires a prefix")
+            normalized = str(ipaddress.ip_network(value, strict=False))
+        elif kind == "IP_ADDRESS":
+            if "%" in value:
+                raise ValueError("Scoped IPv6 source tokens are unsupported")
+            normalized = str(ipaddress.ip_address(value))
+        else:
+            raise ValueError("Only literal IP/CIDR source rules are supported")
+        if normalized not in sources:
+            sources.append(normalized)
+    return {"networkAccessMode": "ALLOW_LIST" if sources else "ANY_SOURCE", "allowedSources": sources,
+            "configuredNetworkAclCount": configured, "effectiveNetworkAclCount": len(sources),
+            "networkAccessState": "restricted" if sources else "open"}
+
+def smb_hosts_allow_lines(policy):
+    if policy["networkAccessMode"] == "ANY_SOURCE":
+        return []
+    return ["   hosts allow = " + " ".join([*policy["allowedSources"], "127.0.0.1", "::1"])]
 
 def safe_share_name(value):
     value = str(value or "")
@@ -5114,10 +5150,12 @@ for share in payload.get("shares", []):
         if apply_posix_acl(path, principal_type, principal, permission):
             applied_acl_count += 1
 
+    network_policy = smb_network_policy(share.get("networkAcls", []))
     guest_ok = truth(config, 'guestOk', False)
     if guest_ok and not cross_protocol:
         os.chmod(path, 0o777 if not truth(config, 'readOnly', False) else 0o755)
     access_state[str(share.get("uuid") or name)] = {
+        **network_policy,
         "shareName": name,
         "path": path,
         "configuredAclCount": configured_acl_count,
@@ -5147,6 +5185,7 @@ for share in payload.get("shares", []):
         "   create mask = 0660",
         "   directory mask = 0770",
     ])
+    lines.extend(smb_hosts_allow_lines(network_policy))
     if valid_users:
         lines.append("   valid users = " + " ".join(valid_users))
     if write_list:

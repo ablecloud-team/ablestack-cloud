@@ -1234,7 +1234,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
     }
 
     protected void auditSharedFSDeletion(SharedFS sharedFS,String phase) {
-        try (java.sql.PreparedStatement statement=com.cloud.utils.db.TransactionLegacy.currentTxn().prepareAutoCloseStatement("INSERT INTO cloud.storage_service_deletion_audit(sharedfs_id,sharedfs_uuid,account_id,actor_id,policy,phase,plan_json,created) VALUES(?,?,?,?,?,?,?,NOW())")) {
+        try (java.sql.PreparedStatement statement=com.cloud.utils.db.TransactionLegacy.currentTxn().prepareAutoCloseStatement("INSERT INTO cloud.storage_service_deletion_audit(sharedfs_id,sharedfs_uuid,account_id,actor_id,policy,phase,plan_json,created) VALUES(?,?,?,?,?,?,?,UTC_TIMESTAMP())")) {
             statement.setLong(1,sharedFS.getId());statement.setString(2,sharedFS.getUuid());statement.setLong(3,sharedFS.getAccountId());
             statement.setLong(4,CallContext.current().getCallingUserId());statement.setString(5,sharedFS.getDataVolumePolicy().name());statement.setString(6,phase);
             statement.setString(7,sharedFS.getDeletionPlanJson()==null ? createDeletionPlan(sharedFS,sharedFS.getDataVolumePolicy()).toString() : sharedFS.getDeletionPlanJson());statement.executeUpdate();
