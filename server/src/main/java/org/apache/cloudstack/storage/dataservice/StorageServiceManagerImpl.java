@@ -570,7 +570,15 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         config.addProperty("createDirectory", true);config.addProperty("importMode", "MOUNT_EXISTING");
         StorageFileShareVO preparation = new StorageFileShareVO(instance.getId(), StorageServiceInstance.Protocol.NFS, "configuration-directory",
                 "/export/configuration-directory", volumeId, "XFS", null, StorageServiceInstance.ResourceState.Allocated, config.toString());
-        inspectAttachedFileShareVolume(instance, preparation, volume, "MOUNT_EXISTING");
+        JsonObject payload = createFileShareVolumePayload(instance, preparation, volume);
+        payload.addProperty("importMode", "MOUNT_EXISTING");
+        StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
+                "volume attach inspect", payload.toString(), StorageServiceInstance.StorageServiceCommandTimeout.value(), Collections.emptySet()));
+        if (!result.isSuccess()) throw new CloudRuntimeException("Configuration directory preparation failed: " + result.getDetails());
+        JsonObject observed = parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));
+        if (!Boolean.TRUE.equals(getJsonBoolean(observed, "success")) || !volume.getUuid().equals(getJsonString(observed, "volumeUuid"))) {
+            throw new CloudRuntimeException("Configuration directory backing identity was not verified");
+        }
     }
     protected String captureConfigurationSnapshot(long instanceId) { return new StorageServiceDesiredSnapshot().capture(instanceId); }
     protected JsonObject observeConfigurationRuntime(StorageServiceInstanceVO instance, String command) {
