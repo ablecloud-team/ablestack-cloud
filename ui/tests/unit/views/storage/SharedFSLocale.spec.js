@@ -24,13 +24,15 @@ const sourceFiles = [
   'src/views/storage/CreateSharedFS.vue',
   'src/views/storage/SmbCreationOptions.vue',
   'src/views/storage/PosixDirectoryPolicies.vue',
-  'src/views/storage/PosixPolicyInheritance.vue'
+  'src/views/storage/PosixPolicyInheritance.vue',
+  'src/views/storage/StorageServiceConfiguration.vue',
+  'src/views/storage/StorageOperationHistory.vue'
 ]
 const localeFiles = {
   en: 'public/locales/en.json',
   ko_KR: 'public/locales/ko_KR.json'
 }
-const storagePrefixes = ['label.storage.service.', 'message.storage.service.', 'label.posix.directory.', 'message.posix.directory.']
+const storagePrefixes = ['label.storage.service.', 'message.storage.service.', 'label.posix.directory.', 'message.posix.directory.', 'label.storage.config.', 'message.storage.config.', 'label.storage.operation.', 'message.storage.operation.']
 
 const readUiFile = relativePath => fs.readFileSync(path.join(uiRoot, relativePath), 'utf8')
 const isStorageKey = key => storagePrefixes.some(prefix => key.startsWith(prefix))

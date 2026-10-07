@@ -32,7 +32,7 @@ import org.apache.cloudstack.api.response.StorageServiceInstanceResponse;
         description = "Storage Service configuration plan with scoped artifacts and explicit resource mapping.", since = "4.23.0",
         requestHasSensitiveInfo = true, responseHasSensitiveInfo = true,
         authorized = {RoleType.Admin})
-public class PlanStorageServiceConfigRestoreCmd extends BaseStorageServiceAsyncCmd implements UserCmd, StorageConfigRequest {
+public class PlanStorageServiceConfigRestoreCmd extends BaseCmd implements UserCmd, StorageConfigRequest {
     @Inject private StorageService storageService;
     @Parameter(name = "instanceid", type = CommandType.UUID, entityType = StorageServiceInstanceResponse.class, required = true) private Long instanceId;
     public Long getInstanceId() { return instanceId; }
@@ -47,8 +47,6 @@ public class PlanStorageServiceConfigRestoreCmd extends BaseStorageServiceAsyncC
     public BaseCmd getBaseCmd() { return this; }
     public String getConfigAction() { return "PLAN"; }
     public long getEntityOwnerId() { return 0; }
-    public String getEventType() { return "STORAGE.CONFIG.PLAN"; }
-    public String getEventDescription() { return "Storage Service configuration plan"; }
     public void execute() {
         StorageServiceConfigArtifactResponse response = storageService.storageServiceConfiguration(this);
         response.setResponseName(getCommandName());response.setObjectName("storageserviceconfiguration");setResponseObject(response);

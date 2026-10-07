@@ -32,7 +32,7 @@ import org.apache.cloudstack.api.response.StorageServiceInstanceResponse;
         description = "Storage Service configuration validate with scoped artifacts and explicit resource mapping.", since = "4.23.0",
         requestHasSensitiveInfo = true, responseHasSensitiveInfo = true,
         authorized = {RoleType.Admin})
-public class ValidateStorageServiceConfigImportCmd extends BaseStorageServiceAsyncCmd implements UserCmd, StorageConfigRequest {
+public class ValidateStorageServiceConfigImportCmd extends BaseCmd implements UserCmd, StorageConfigRequest {
     @Inject private StorageService storageService;
     @Parameter(name = "instanceid", type = CommandType.UUID, entityType = StorageServiceInstanceResponse.class, required = true) private Long instanceId;
     public Long getInstanceId() { return instanceId; }
@@ -41,8 +41,6 @@ public class ValidateStorageServiceConfigImportCmd extends BaseStorageServiceAsy
     public BaseCmd getBaseCmd() { return this; }
     public String getConfigAction() { return "VALIDATE"; }
     public long getEntityOwnerId() { return 0; }
-    public String getEventType() { return "STORAGE.CONFIG.VALIDATE"; }
-    public String getEventDescription() { return "Storage Service configuration validate"; }
     public void execute() {
         StorageServiceConfigArtifactResponse response = storageService.storageServiceConfiguration(this);
         response.setResponseName(getCommandName());response.setObjectName("storageserviceconfiguration");setResponseObject(response);

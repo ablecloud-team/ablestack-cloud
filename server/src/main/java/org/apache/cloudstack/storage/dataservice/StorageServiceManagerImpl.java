@@ -244,6 +244,57 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     private org.apache.cloudstack.storage.dataservice.dao.StoragePosixDirectoryPolicyDao storagePosixPolicyDao;
     private final ThreadLocal<StorageServiceOperationVO> storageWriterOperation = new ThreadLocal<>();
     @Inject private org.apache.cloudstack.storage.dataservice.dao.StorageConfigArtifactDao storageConfigArtifactDao;
+    @Inject private org.apache.cloudstack.storage.sharedfs.SharedFSService configurationSharedFsService;
+    @Inject private com.cloud.storage.dao.DiskOfferingDao configurationDiskOfferingDao;
+    @Inject private org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao configurationStoragePoolDao;
+
+    protected static final class ConfigurationBatch {
+        final long instanceId;
+        final Map<Long, String> smbCredentials = new HashMap<>();
+        final Map<Long, JsonObject> iscsiCredentials = new HashMap<>();
+        final Map<Long, JsonObject> nvmeCredentials = new HashMap<>();
+        final Map<Long, StorageServiceInstance.ResourceState> nvmeHostStates = new HashMap<>();
+        ConfigurationBatch(long instanceId) { this.instanceId = instanceId; }
+    }
+    private final ThreadLocal<ConfigurationBatch> configurationBatch = new ThreadLocal<>();
+    protected void beginConfigurationBatch(long instanceId) {
+        if (configurationBatch.get() != null) throw new CloudRuntimeException("A configuration batch is already active");
+        requireConfigurationAdministrator();configurationBatch.set(new ConfigurationBatch(instanceId));
+    }
+    protected void finishConfigurationBatch(StorageServiceInstanceVO instance) {
+        ConfigurationBatch batch = configurationBatch.get();
+        if (batch == null || batch.instanceId != instance.getId()) throw new CloudRuntimeException("Configuration batch scope changed");
+        configurationBatch.remove();
+        for (StorageServiceInstance.Protocol protocol : StorageServiceInstance.Protocol.values()) {
+            if (storageServiceProtocolDao.listByInstanceIdAndProtocol(instance.getId(), protocol).stream().noneMatch(StorageServiceProtocolVO::isEnabled)) continue;
+            if (protocol == StorageServiceInstance.Protocol.NFS) applyNfsDesiredState(instance);
+            else if (protocol == StorageServiceInstance.Protocol.SMB) applySmbDesiredState(instance, batch.smbCredentials);
+            else if (protocol == StorageServiceInstance.Protocol.ISCSI) applyIscsiDesiredState(instance, batch.iscsiCredentials);
+            else applyNvmeOfDesiredState(instance, batch.nvmeCredentials, batch.nvmeHostStates);
+        }
+        verifyReconciledStorageDesiredState(instance);
+    }
+    protected void abortConfigurationBatch() { configurationBatch.remove(); }
+    protected Object invokeConfigurationDomainCommand(org.apache.cloudstack.api.BaseCmd cmd, String methodName) {
+        Set<String> allowed = Set.of("enableStorageServiceProtocol", "createStorageNfsExport", "updateStorageNfsExport", "createStorageSmbShare", "updateStorageSmbShare",
+                "createStorageNfsAcl", "updateStorageNfsAcl", "createStorageSmbAcl", "updateStorageSmbAcl",
+                "createStorageSmbNetworkAcl", "updateStorageSmbNetworkAcl", "createStorageIscsiTarget", "updateStorageIscsiTarget",
+                "createStorageIscsiAcl", "updateStorageIscsiAcl", "createStorageNvmeOfSubsystem", "updateStorageNvmeOfSubsystem",
+                "createStorageNvmeOfNamespace", "updateStorageNvmeOfNamespace", "createStorageNvmeOfHostAcl", "updateStorageNvmeOfHostAcl",
+                "executeStoragePosixDirectoryPolicy");
+        if (!allowed.contains(methodName) || configurationBatch.get() == null) throw new InvalidParameterValueException("Configuration command is outside the active domain batch");
+        try {
+            java.lang.reflect.Method method = java.util.Arrays.stream(getClass().getMethods())
+                    .filter(item -> item.getName().equals(methodName) && item.getParameterCount() == 1 && item.getParameterTypes()[0].isInstance(cmd))
+                    .findFirst().orElseThrow(() -> new NoSuchMethodException(methodName));
+            return method.invoke(this, cmd);
+        }
+        catch (java.lang.reflect.InvocationTargetException failure) {
+            if (failure.getCause() instanceof RuntimeException) throw (RuntimeException) failure.getCause();
+            throw new CloudRuntimeException("Configuration domain validation failed", failure.getCause());
+        } catch (ReflectiveOperationException failure) { throw new InvalidParameterValueException("Current configuration API method is unavailable"); }
+    }
+
 
     @Override
     public org.apache.cloudstack.api.response.StorageServiceConfigArtifactResponse storageServiceConfiguration(final StorageConfigRequest cmd) {
@@ -254,6 +305,123 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if (!storageAccountManager.isRootAdmin(org.apache.cloudstack.context.CallContext.current().getCallingAccount().getId())) {
             throw new com.cloud.exception.PermissionDeniedException("Only a root administrator may manage configuration artifacts");
         }
+    }
+    protected Map<String, Long> configurationResourceIds(long instanceId) {
+        Map<String, Long> result = new HashMap<>();
+        for (JsonElement table : parseJsonObject(captureConfigurationSnapshot(instanceId)).getAsJsonArray("tables")) {
+            for (JsonElement value : table.getAsJsonObject().getAsJsonArray("rows")) {
+                JsonObject row = value.getAsJsonObject();result.put(getJsonString(row, "uuid"), row.get("id").getAsLong());
+            }
+        }
+        return result;
+    }
+    protected Long configurationVolumeId(StorageServiceInstanceVO instance, String uuid) {
+        VolumeVO volume = volumeDao.findByUuid(uuid);
+        if (volume == null || instance.getVmId() == null || !instance.getVmId().equals(volume.getInstanceId())) {
+            throw new InvalidParameterValueException("Mapped configuration volume must already be attached to the selected service");
+        }
+        validateStorageServiceBackingVolume(instance, volume.getId(), "configuration restore");return volume.getId();
+    }
+    protected JsonObject exportConfigurationIdentity(StorageServiceInstanceVO instance, String operationUuid, java.security.KeyPair key) {
+        JsonArray names = new JsonArray();Set<String> unique = new HashSet<>();
+        for (StorageFileShareVO share : storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(), StorageServiceInstance.Protocol.SMB)) {
+            for (StorageAccessRuleVO rule : storageAccessRuleDao.listByResource(StorageServiceInstance.AccessResourceType.FILE_SHARE, share.getId())) {
+                if ((rule.getPrincipalType() == StorageServiceInstance.PrincipalType.LOCAL_USER || rule.getPrincipalType() == StorageServiceInstance.PrincipalType.LOCAL_GROUP)
+                        && unique.add(rule.getPrincipal())) names.add(rule.getPrincipal());
+            }
+            if ("FORCED_UID_GID".equals(getJsonString(parseJsonObject(share.getConfigJson()), "posixOwnershipMode"))) {
+                String suffix = share.getUuid().replace("-", "").substring(0, 20);
+                for (String name : new String[] {"sf_u_" + suffix, "sf_g_" + suffix}) if (unique.add(name)) names.add(name);
+            }
+        }
+        JsonObject request = StorageIdentityCapsule.exportRequest(instance.getUuid(), operationUuid, key, names);
+        StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
+                "identity capsule export", request.toString(), 60, Set.of("capsule")));
+        if (!result.isSuccess()) throw new CloudRuntimeException("Protected local identity snapshot is unavailable");
+        JsonObject observed = parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));
+        if (!Boolean.TRUE.equals(getJsonBoolean(observed, "success")) || !observed.has("capsule")) throw new CloudRuntimeException("Identity snapshot was not verified");
+        return observed.getAsJsonObject("capsule");
+    }
+    protected void importConfigurationIdentity(StorageServiceInstanceVO instance, String operationUuid, JsonObject capsule, byte[] protectedKey) {
+        JsonObject request = StorageIdentityCapsule.importRequest(instance.getUuid(), operationUuid, capsule, protectedKey);
+        StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
+                "identity capsule import", request.toString(), 60, Set.of("credentialPrivateKey", "capsule")));
+        if (!result.isSuccess()) throw new CloudRuntimeException("Protected local identity recovery failed");
+        JsonObject observed = parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));
+        if (!Boolean.TRUE.equals(getJsonBoolean(observed, "success"))) throw new CloudRuntimeException("Identity recovery was not verified");
+    }
+    protected void checkpointConfigurationIdentity(StorageServiceInstanceVO instance) {
+        StorageServiceOperationVO operation = storageWriterOperation.get();
+        if (operation == null || operation.getPreviousSnapshotJson() == null) throw new CloudRuntimeException("Configuration operation snapshot is unavailable");
+        java.security.KeyPair key = StorageIdentityCapsule.wrappingKey();
+        byte[] protectedKey = StorageIdentityCapsule.protectedPrivateKey(key);
+        JsonObject capsule = exportConfigurationIdentity(instance, operation.getUuid(), key);
+        String keyId = java.util.UUID.nameUUIDFromBytes(("identity-key:" + operation.getUuid()).getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString();
+        StorageConfigArtifactStore store = new StorageConfigArtifactStore(java.nio.file.Path.of(System.getProperty("cloudstack.storage.identity.path",
+                "/var/lib/cloudstack-management/storage-identity-capsules")));
+        byte[] data = capsule.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        store.write(keyId, protectedKey);
+        try { store.write(operation.getUuid(), data); }
+        catch (RuntimeException failure) { store.remove(keyId);throw failure; }
+        JsonObject reference = new JsonObject();reference.addProperty("operationUuid", operation.getUuid());reference.addProperty("keyId", keyId);
+        reference.addProperty("capsuleSha256", StorageConfigArchive.sha256(data));reference.addProperty("keySha256", StorageConfigArchive.sha256(protectedKey));
+        JsonObject snapshot = parseJsonObject(operation.getPreviousSnapshotJson());snapshot.add("nativeIdentityCapsule", reference);
+        operation.setPreviousSnapshotJson(snapshot.toString());storageOperationDao.update(operation.getId(), operation);
+    }
+    protected void restoreConfigurationIdentity(StorageServiceInstanceVO instance, JsonObject reference) {
+        String operationUuid = getJsonString(reference, "operationUuid");
+        StorageConfigArtifactStore store = new StorageConfigArtifactStore(java.nio.file.Path.of(System.getProperty("cloudstack.storage.identity.path",
+                "/var/lib/cloudstack-management/storage-identity-capsules")));
+        byte[] capsule = store.read(operationUuid, getJsonString(reference, "capsuleSha256"));
+        byte[] key = store.read(getJsonString(reference, "keyId"), getJsonString(reference, "keySha256"));
+        importConfigurationIdentity(instance, operationUuid, parseJsonObject(new String(capsule, java.nio.charset.StandardCharsets.UTF_8)), key);
+    }
+    protected void cleanupConfigurationIdentityCheckpoint(StorageServiceOperationVO operation) {
+        if (operation == null || "RECOVERY_REQUIRED".equals(operation.getState()) || operation.getPreviousSnapshotJson() == null) return;
+        JsonObject snapshot = parseJsonObject(operation.getPreviousSnapshotJson());
+        if (!snapshot.has("nativeIdentityCapsule")) return;
+        JsonObject reference = snapshot.getAsJsonObject("nativeIdentityCapsule");
+        try {
+            StorageConfigArtifactStore store = new StorageConfigArtifactStore(java.nio.file.Path.of(System.getProperty("cloudstack.storage.identity.path",
+                    "/var/lib/cloudstack-management/storage-identity-capsules")));
+            store.remove(getJsonString(reference, "operationUuid"));store.remove(getJsonString(reference, "keyId"));
+            reference.addProperty("cleanupState", "CLEANED");
+        } catch (RuntimeException retry) { reference.addProperty("cleanupState", "PENDING"); }
+        operation.setPreviousSnapshotJson(snapshot.toString());
+        try { storageOperationDao.update(operation.getId(), operation); }
+        catch (RuntimeException pending) { logger.warn("Identity capsule cleanup audit update is pending for operation {}", operation.getUuid()); }
+    }
+    protected org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd configurationCreateCommand(JsonObject blueprint) {
+        requireConfigurationAdministrator();JsonObject parameters = blueprint.deepCopy();
+        for (String key : new String[] {"zoneid", "networkid", "serviceofferingid", "diskofferingid", "storageid", "existingvolumeid"}) {
+            if (!parameters.has(key) || parameters.get(key).isJsonNull()) continue;
+            String uuid = parameters.get(key).getAsString();Long id = null;
+            if ("zoneid".equals(key)) { DataCenterVO row = dataCenterDao.findByUuid(uuid);if (row != null) id = row.getId(); }
+            else if ("networkid".equals(key)) { NetworkVO row = networkDao.findByUuid(uuid);if (row != null) id = row.getId(); }
+            else if ("serviceofferingid".equals(key)) { ServiceOfferingVO row = serviceOfferingDao.findByUuid(uuid);if (row != null) id = row.getId(); }
+            else if ("diskofferingid".equals(key)) { com.cloud.storage.DiskOfferingVO row = configurationDiskOfferingDao.findByUuid(uuid);if (row != null) id = row.getId(); }
+            else if ("storageid".equals(key)) { org.apache.cloudstack.storage.datastore.db.StoragePoolVO row = configurationStoragePoolDao.findByUuid(uuid);if (row != null) id = row.getId(); }
+            else { VolumeVO row = volumeDao.findByUuid(uuid);if (row != null) id = row.getId(); }
+            if (id == null) throw new InvalidParameterValueException("New-service blueprint resource is unavailable: " + key);
+            parameters.addProperty(key, id);
+        }
+        org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd cmd =
+                (org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd) StorageConfigCommandBinding.bind(
+                        org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd.class, parameters);
+        com.cloud.utils.component.ComponentContext.inject(cmd);return cmd;
+    }
+    protected void preflightConfigurationNewService(JsonObject blueprint) {
+        configurationSharedFsService.preflightSharedFS(configurationCreateCommand(blueprint));
+    }
+    protected StorageServiceInstanceVO createConfigurationNewService(JsonObject blueprint) {
+        org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd cmd = configurationCreateCommand(blueprint);
+        org.apache.cloudstack.storage.sharedfs.SharedFS shared = configurationSharedFsService.allocSharedFS(cmd);
+        cmd.setEntityId(shared.getId());cmd.setEntityUuid(shared.getUuid());
+        try { shared = configurationSharedFsService.deploySharedFS(cmd); }
+        catch (Exception failure) { throw new CloudRuntimeException("New configuration service deployment failed; preserved resources require recorded recovery", failure); }
+        org.apache.cloudstack.storage.sharedfs.SharedFSVO current = sharedFSDao.findById(shared.getId());
+        StorageServiceInstanceVO instance = current == null || current.getVmId() == null ? null : storageServiceInstanceDao.findByVmId(current.getVmId());
+        if (instance == null) throw new CloudRuntimeException("New service instance reconciliation did not complete");return instance;
     }
     protected String captureConfigurationSnapshot(long instanceId) { return new StorageServiceDesiredSnapshot().capture(instanceId); }
     protected JsonObject observeConfigurationRuntime(StorageServiceInstanceVO instance, String command) {
@@ -272,6 +440,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         JsonObject metadata = new JsonObject();
         metadata.addProperty("uuid", instance.getUuid());metadata.addProperty("name", instance.getName());
         metadata.addProperty("provider", instance.getProvider());metadata.addProperty("state", instance.getState().name());
+        String productVersion = com.cloud.server.ManagementServer.class.getPackage().getImplementationVersion();
+        metadata.addProperty("productVersion", productVersion == null ? "unknown" : productVersion);
         DataCenterVO zone = dataCenterDao.findById(instance.getDataCenterId());if (zone != null) metadata.addProperty("zoneUuid", zone.getUuid());
         ServiceOfferingVO offering = instance.getServiceOfferingId() == null ? null : serviceOfferingDao.findById(instance.getServiceOfferingId());
         if (offering != null) metadata.addProperty("serviceOfferingUuid", offering.getUuid());
@@ -718,6 +888,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     protected <T> T executeDesiredChange(org.apache.cloudstack.api.BaseCmd cmd, Class<T> responseClass, java.util.function.Supplier<T> change) {
         final long instanceId = getStorageServiceSyncId(cmd);
         final StorageServiceInstanceVO instance = requireInstance(instanceId);
+        final ConfigurationBatch batch = configurationBatch.get();
+        if (batch != null) {
+            if (batch.instanceId != instanceId) throw new InvalidParameterValueException("Configuration command targets a different service");
+            return change.get();
+        }
         String idempotency = null; Long revision = null;
         if (cmd instanceof org.apache.cloudstack.api.command.user.storage.dataservice.BaseStorageServiceAsyncCmd) {
             org.apache.cloudstack.api.command.user.storage.dataservice.BaseStorageServiceAsyncCmd scoped =
@@ -728,7 +903,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         return new DesiredStateChange(storageOperationDao, new StorageServiceDesiredSnapshot()).execute(
                 instanceId, cmd.getCommandName(), idempotency, revision, responseClass, change, new DesiredStateChange.Runtime() {
                     public void started(StorageServiceOperationVO operation) { storageWriterOperation.set(operation); }
-                    public void finished() { storageWriterOperation.remove(); }
+                    public void finished() {
+                        try { cleanupConfigurationIdentityCheckpoint(storageWriterOperation.get()); }
+                        finally { storageWriterOperation.remove(); }
+                    }
                     public void preflight() {
                         if (storageRuntimeUpgradeDao.findActiveByInstanceId(instanceId) != null) {
                             throw new CloudRuntimeException("A Storage Service runtime upgrade is active");
@@ -738,6 +916,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                                     instance.getVmId(), "operation preflight", "", 30, Collections.emptySet()));
                             if (!result.isSuccess()) throw new CloudRuntimeException("Storage Service resource preflight failed: " + result.getDetails());
                         }
+                    }
+                    public void promoteVerifiedConfiguration(StorageServiceOperationVO operation) {
+                        if (instance.getVmId() != null) new StorageServiceConfiguration(StorageServiceManagerImpl.this, storageConfigArtifactDao, storageOperationDao)
+                                .promoteVerified(instance, operation);
                     }
                     public void verify() {
                         if (instance.getVmId() != null) {
@@ -751,10 +933,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         }
                     }
                     public void applyPrevious() {
-                        restoreNativePosixOperation(cmd, instance);
+                        restoreNativePosixOperation(cmd, instance, true);
                         if (protocol != null) applyStorageServiceProtocolDesiredState(instance, protocol);
                         else for (StorageServiceInstance.Protocol item : StorageServiceInstance.Protocol.values()) applyStorageServiceProtocolDesiredState(instance, item);
-                        restoreNativePosixOperation(cmd, instance);
+                        restoreNativePosixOperation(cmd, instance, false);
                     }
                 });
     }
@@ -2820,6 +3002,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     protected void applyNfsDesiredState(final StorageServiceInstanceVO instance, final String removeListenIp, final boolean includeAllocatedResources) {
+        if (configurationBatch.get() != null) return;
         if (instance.getVmId() == null) {
             logger.debug("Storage Service instance [{}] has no System VM yet; NFS state is stored but not applied", instance.getUuid());
             return;
@@ -2962,6 +3145,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     protected void applySmbDesiredState(final StorageServiceInstanceVO instance, final Map<Long, String> rulePasswords) {
+        if (configurationBatch.get() != null) {
+            if (rulePasswords != null) configurationBatch.get().smbCredentials.putAll(rulePasswords);
+            return;
+        }
         if (instance.getVmId() == null) {
             logger.debug("Storage Service instance [{}] has no System VM yet; SMB state is stored but not applied", instance.getUuid());
             return;
@@ -3179,6 +3366,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     protected void applyIscsiDesiredState(final StorageServiceInstanceVO instance, final Map<Long, JsonObject> chapSecrets) {
+        if (configurationBatch.get() != null) {
+            if (chapSecrets != null) configurationBatch.get().iscsiCredentials.putAll(chapSecrets);
+            return;
+        }
         if (instance.getVmId() == null) {
             logger.debug("Storage Service instance [{}] has no System VM yet; iSCSI state is stored but not applied", instance.getUuid());
             return;
@@ -3211,6 +3402,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
 
     protected void applyNvmeOfDesiredState(final StorageServiceInstanceVO instance, final Map<Long, JsonObject> nvmeSecrets,
             final Map<Long, StorageServiceInstance.ResourceState> hostStateOverrides) {
+        if (configurationBatch.get() != null) {
+            if (nvmeSecrets != null) configurationBatch.get().nvmeCredentials.putAll(nvmeSecrets);
+            if (hostStateOverrides != null) configurationBatch.get().nvmeHostStates.putAll(hostStateOverrides);
+            return;
+        }
         if (instance.getVmId() == null) {
             logger.debug("Storage Service instance [{}] has no System VM yet; NVMe-oF state is stored but not applied", instance.getUuid());
             return;
@@ -5568,9 +5764,16 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     protected void restoreNativePosixOperation(final org.apache.cloudstack.api.BaseCmd cmd, final StorageServiceInstanceVO instance) {
+        restoreNativePosixOperation(cmd, instance, true);
+    }
+    protected void restoreNativePosixOperation(final org.apache.cloudstack.api.BaseCmd cmd, final StorageServiceInstanceVO instance, final boolean includeIdentity) {
         final StorageServiceOperationVO operation = storageWriterOperation.get();
-        if (operation != null && cmd instanceof org.apache.cloudstack.api.command.user.storage.dataservice.BaseStoragePosixDirectoryPolicyCmd) {
+        if (operation != null && operation.getPreviousSnapshotJson() != null) {
             final JsonObject snapshot = parseJsonObject(operation.getPreviousSnapshotJson());
+            if (includeIdentity && snapshot.has("nativeIdentityCapsule")) restoreConfigurationIdentity(instance, snapshot.getAsJsonObject("nativeIdentityCapsule"));
+            if (snapshot.has("nativePosixDirectories")) for (JsonElement item : snapshot.getAsJsonArray("nativePosixDirectories")) {
+                dispatchPosixDirectoryCommand(instance, "restore", item.getAsJsonObject());
+            }
             if (snapshot.has("nativePosixDirectory")) dispatchPosixDirectoryCommand(instance, "restore", snapshot.getAsJsonObject("nativePosixDirectory"));
         }
     }
@@ -5674,7 +5877,15 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if (Boolean.TRUE.equals(cmd.getPreview())) return createPosixPolicyResponse(instance, policy, before);
         final StorageServiceOperationVO operation = storageWriterOperation.get();
         if (operation != null) {
-            final JsonObject previous = parseJsonObject(operation.getPreviousSnapshotJson());previous.add("nativePosixDirectory", before);
+            final JsonObject previous = parseJsonObject(operation.getPreviousSnapshotJson());
+            if (configurationBatch.get() != null) {
+                final JsonArray directories = previous.has("nativePosixDirectories") ? previous.getAsJsonArray("nativePosixDirectories") : new JsonArray();
+                boolean captured = false;
+                for (JsonElement item : directories) {
+                    if (getJsonString(before, "canonicalPath").equals(getJsonString(item.getAsJsonObject(), "canonicalPath"))) captured = true;
+                }
+                if (!captured) directories.add(before);previous.add("nativePosixDirectories", directories);
+            } else previous.add("nativePosixDirectory", before);
             operation.setPreviousSnapshotJson(previous.toString());storageOperationDao.update(operation.getId(), operation);
         }
         if ("DELETE".equals(action)) {

@@ -50,4 +50,13 @@ public class LibvirtStorageServiceHostCommandWrapperTest {
         Assert.assertTrue(shell.contains("/usr/local/bin/ablestack-storagectl"));
         Assert.assertFalse(shell.contains("ablestack-sharedfs-network.service"));
     }
+    @Test public void identityImportUsesMemoryPipeAndNeverCreatesPayloadKeyFile() {
+        StorageServiceHostCommand command = new StorageServiceHostCommand("sharedfs-test",
+                "identity capsule import", "{'credentialPrivateKey':'synthetic'}", 60, Collections.singleton("credentialPrivateKey"));
+        String shell = wrapper.buildStorageCtlShell(command);
+        Assert.assertTrue(shell.contains("identity capsule import /dev/stdin"));
+        Assert.assertFalse(shell.contains("mktemp"));Assert.assertFalse(shell.contains(">"));
+        Assert.assertFalse(shell.contains("synthetic"));
+    }
+
 }

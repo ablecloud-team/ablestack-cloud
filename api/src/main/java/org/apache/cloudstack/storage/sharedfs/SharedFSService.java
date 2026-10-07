@@ -48,6 +48,7 @@ public interface SharedFSService {
     SharedFSProvider getSharedFSProvider(String sharedFSProviderName);
 
     SharedFS allocSharedFS(CreateSharedFSCmd cmd);
+    SharedFS preflightSharedFS(CreateSharedFSCmd cmd);
 
     SharedFS deploySharedFS(CreateSharedFSCmd cmd) throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException;
 

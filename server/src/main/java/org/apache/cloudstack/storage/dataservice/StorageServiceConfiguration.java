@@ -55,15 +55,20 @@ public final class StorageServiceConfiguration {
         if (!READ_ACTIONS.contains(request.getConfigAction())) manager.requireConfigurationAdministrator();
         StorageServiceInstanceVO instance = manager.requireInstance(request.getInstanceId());
         if (READ_ACTIONS.contains(request.getConfigAction())) return response(list(instance, request.getConfigAction()), null);
+        if ("APPLY".equals(request.getConfigAction())) return apply(instance, request);
+        if ("RESTORE_LKG".equals(request.getConfigAction())) return apply(instance, lastKnownGoodRequest(instance, request));
         GlobalLock lock = GlobalLock.getInternLock("StorageServiceWriter-" + instance.getId());
         try {
             if (!lock.lock(120)) throw new CloudRuntimeException("Storage Service writer is busy");
             try {
+                cleanupExpired(instance);
                 switch (request.getConfigAction()) {
                     case "BACKUP": return backup(instance, request);
                     case "UPLOAD": return upload(instance, request);
                     case "VALIDATE": return validate(instance, request);
                     case "DOWNLOAD": return download(instance, request);
+                    case "PLAN": return plan(instance, request);
+                    case "PLAN_LKG": return plan(instance, lastKnownGoodRequest(instance, request));
                     case "DELETE_BACKUP": case "DELETE_IMPORT": return delete(instance, request);
                     default: throw new InvalidParameterValueException("Configuration action is not registered for execution");
                 }
@@ -102,7 +107,7 @@ public final class StorageServiceConfiguration {
     }
     private JsonObject publicRow(StorageConfigArtifactVO row) {
         JsonObject result = new JsonObject();result.addProperty("id", row.getUuid());result.addProperty("kind", row.getKind());
-        result.addProperty("state", row.getState());result.addProperty("desiredRevision", row.getDesiredRevision());result.addProperty("size", row.getSize());
+        result.addProperty("state", row.getExpires() != null && row.getExpires().before(new Date()) && !"ACTIVE_LKG".equals(row.getState()) ? "EXPIRED" : row.getState());result.addProperty("desiredRevision", row.getDesiredRevision());result.addProperty("size", row.getSize());
         result.addProperty("sha256", row.getSha256());result.addProperty("created", row.getCreated().getTime());
         if (row.getExpires() != null) result.addProperty("expires", row.getExpires().getTime());
         JsonObject metadata = metadata(row);metadata.remove("downloadToken");metadata.remove("planToken");
@@ -133,7 +138,10 @@ public final class StorageServiceConfiguration {
             if (local || chap || mutual || dhchap || ctrl) {
                 JsonObject item = new JsonObject();item.add("resourceUuid", rule.get("resourceUuid").deepCopy());item.add("ruleUuid", rule.get("uuid").deepCopy());
                 item.add("principal", rule.get("principal").deepCopy());item.addProperty("coverage", "REQUIRES_REENTRY");
-                item.addProperty("kind", local ? "SMB_LOCAL" : chap || mutual ? "ISCSI_CHAP" : "NVME_DHCHAP");required.add(item);
+                item.addProperty("kind", local ? "SMB_LOCAL" : chap || mutual ? "ISCSI_CHAP" : "NVME_DHCHAP");
+                JsonArray fields = new JsonArray();if (local) fields.add("password");if (chap) fields.add("chapsecret");
+                if (mutual) fields.add("mutualchapsecret");if (dhchap) fields.add("dhchapkey");if (ctrl) fields.add("dhchapctrlkey");
+                item.add("fields", fields);required.add(item);
             }
         }
         return required;
@@ -164,7 +172,7 @@ public final class StorageServiceConfiguration {
             metadata.addProperty("runtimeStatus", partial ? "UNAVAILABLE_OR_PARTIAL" : "AVAILABLE");metadata.addProperty("phase", "COMPLETE");
             byte[] archive = StorageConfigArchive.create(entries, metadata);
             row.setSha256(StorageConfigArchive.sha256(archive));row.setSize(archive.length);row.setDesiredRevision(before);store.write(row.getUuid(), archive);
-            update(row, metadata, partial ? "PARTIAL" : "COMPLETE");return response(publicRow(row), row.getUuid());
+            update(row, metadata, partial ? "PARTIAL" : "COMPLETE");return response(compactRow(row), row.getUuid());
         } catch (RuntimeException failure) {
             metadata.addProperty("phase", "EXPORT_FAILED");metadata.addProperty("errorCode", "CONFIG_EXPORT_FAILED");update(row, metadata, "FAILED");throw failure;
         }
@@ -273,6 +281,152 @@ public final class StorageServiceConfiguration {
         }
         return response(result, row.getUuid());
     }
+    private StorageServiceConfigArtifactResponse plan(StorageServiceInstanceVO source, StorageConfigRequest request) {
+        StorageConfigArtifactVO row = row(source, request);
+        if (!Set.of("BACKUP", "IMPORT", "RESTORE_POINT").contains(row.getKind())
+                || !Set.of("COMPLETE", "PARTIAL", "ARCHIVE_VALIDATED", "PLANNED", "ACTIVE_LKG", "SUPERSEDED").contains(row.getState())) {
+            throw new InvalidParameterValueException("Configuration artifact has not passed validation");
+        }
+        Map<String, byte[]> archive = StorageConfigArchive.validate(store.read(row.getUuid(), row.getSha256()));
+        StorageServiceInstanceVO target = request.getTargetInstanceId() == null ? source : manager.requireInstance(request.getTargetInstanceId());
+        JsonObject mappings = request.getMapping() == null ? new JsonObject() : new com.google.gson.JsonParser().parse(request.getMapping()).getAsJsonObject();
+        String mode = request.getTargetMode() == null ? "RESTORE_EXISTING" : request.getTargetMode();
+        String snapshot = manager.captureConfigurationSnapshot(target.getId());
+        Map<String, byte[]> current = StorageConfigSemantic.export(snapshot, manager.configurationInstanceMetadata(target), manager.configurationVolumeMetadata(snapshot));
+        long revision = revision(target.getId());String targetUuid = target.getUuid();JsonObject blueprint = null;
+        if ("CREATE_NEW".equals(mode)) {
+            if (!mappings.has("createNew") || !mappings.get("createNew").isJsonObject()) throw new InvalidParameterValueException("New-service blueprint requires explicit zone/network/offering/storage mapping");
+            blueprint = mappings.getAsJsonObject("createNew");manager.preflightConfigurationNewService(blueprint);
+            targetUuid = UUID.randomUUID().toString();revision = 0;current = new LinkedHashMap<>();
+            for (String kind : StorageConfigRestorePlan.ROW_KEYS.keySet()) current.put("desired/" + kind + ".json", "[]".getBytes(StandardCharsets.UTF_8));
+            JsonArray volumes = new JsonArray();
+            JsonObject mappedVolumes = mappings.has("volumes") ? mappings.getAsJsonObject("volumes") : new JsonObject();
+            for (Map.Entry<String, JsonElement> mapping : mappedVolumes.entrySet()) {
+                if (!mapping.getValue().isJsonPrimitive() || !mapping.getValue().getAsJsonPrimitive().isString()) throw new InvalidParameterValueException("New-service volume mapping requires a planned or existing UUID");
+                JsonObject volume = new JsonObject();volume.add("uuid", mapping.getValue().deepCopy());volume.addProperty("planned", true);volumes.add(volume);
+            }
+            current.put("desired/volumes.json", volumes.toString().getBytes(StandardCharsets.UTF_8));
+        }
+        JsonObject plan = StorageConfigRestorePlan.build(archive, current, mappings, mode, targetUuid, revision);
+        if (blueprint != null) {
+            plan.add("createNew", blueprint.deepCopy());plan.addProperty("targetName", blueprint.get("name").getAsString());
+            plan.addProperty("plannedTargetIdentity", true);
+        }
+        plan.addProperty("artifactSha256", row.getSha256());if (blueprint == null) plan.addProperty("targetName", target.getName());
+        plan.add("requiredCredentials", requiredCredentials(archive));
+        JsonObject metadata = metadata(row);metadata.add("plan", plan);
+        String token = UUID.randomUUID().toString() + UUID.randomUUID().toString();JsonObject capability = new JsonObject();
+        capability.addProperty("hash", StorageConfigArchive.sha256(token.getBytes(StandardCharsets.UTF_8)));
+        capability.addProperty("user", CallContext.current().getCallingUserId());capability.addProperty("expires", System.currentTimeMillis() + 300000);
+        capability.addProperty("planSha256", StorageConfigArchive.sha256(plan.toString().getBytes(StandardCharsets.UTF_8)));
+        capability.addProperty("baselineSha256", StorageConfigArchive.sha256(snapshot.getBytes(StandardCharsets.UTF_8)));
+        metadata.add("planToken", capability);metadata.addProperty("phase", "DRY_RUN_REVIEW");
+        metadata.addProperty("planState", plan.getAsJsonArray("blockers").size() == 0 ? "PLANNED" : "PLAN_BLOCKED");
+        update(row, metadata, row.getState());
+        JsonObject result = publicRow(row);
+        if (plan.getAsJsonArray("blockers").size() == 0) result.addProperty("planToken", token);
+        return response(result, row.getUuid());
+    }
+    private StorageServiceConfigArtifactResponse apply(StorageServiceInstanceVO source, StorageConfigRequest request) {
+        StorageConfigArtifactVO row = row(source, request);JsonObject metadata = metadata(row);
+        if (!"PLANNED".equals(metadata.has("planState") ? metadata.get("planState").getAsString() : "")
+                || !metadata.has("plan") || !metadata.has("planToken")) throw new InvalidParameterValueException("A validated configuration plan is required");
+        JsonObject plan = metadata.getAsJsonObject("plan");JsonObject capability = metadata.getAsJsonObject("planToken");
+        if (!source.getUuid().equals(plan.get("targetInstanceUuid").getAsString()) || !"RESTORE_EXISTING".equals(plan.get("targetMode").getAsString())) {
+            throw new InvalidParameterValueException("A separate target lifecycle is required for cross-service or new-service restore");
+        }
+        if (request.getPlanToken() == null || !source.getName().equals(request.getConfirmation())
+                || capability.get("user").getAsLong() != CallContext.current().getCallingUserId()
+                || capability.get("expires").getAsLong() < System.currentTimeMillis()
+                || !capability.get("hash").getAsString().equals(StorageConfigArchive.sha256(request.getPlanToken().getBytes(StandardCharsets.UTF_8)))
+                || !capability.get("planSha256").getAsString().equals(StorageConfigArchive.sha256(plan.toString().getBytes(StandardCharsets.UTF_8)))
+                || !row.getSha256().equals(plan.get("artifactSha256").getAsString())) {
+            throw new InvalidParameterValueException("Configuration plan confirmation or capability changed");
+        }
+        JsonObject credentials = request.getCredentials() == null ? new JsonObject() : new com.google.gson.JsonParser().parse(request.getCredentials()).getAsJsonObject();
+        for (JsonElement value : plan.getAsJsonArray("requiredCredentials")) {
+            JsonObject required = value.getAsJsonObject();String id = required.get("ruleUuid").getAsString();
+            if (!credentials.has(id) || !credentials.get(id).isJsonObject()) throw new InvalidParameterValueException("Required configuration credentials must be re-entered");
+            JsonObject entry = credentials.getAsJsonObject(id);
+            for (JsonElement needed : required.getAsJsonArray("fields")) {
+                String field = needed.getAsString();
+                if (!entry.has(field) || entry.get(field).isJsonNull() || !entry.get(field).isJsonPrimitive()
+                        || !entry.get(field).getAsJsonPrimitive().isString() || entry.get(field).getAsString().isBlank()) {
+                    throw new InvalidParameterValueException("Required configuration credential is missing");
+                }
+            }
+        }
+        try {
+            return manager.executeDesiredChange(request.getBaseCmd(), StorageServiceConfigArtifactResponse.class, () -> {
+            String current = manager.captureConfigurationSnapshot(source.getId());
+            if (revision(source.getId()) != plan.get("expectedRevision").getAsLong()
+                    || !capability.get("baselineSha256").getAsString().equals(StorageConfigArchive.sha256(current.getBytes(StandardCharsets.UTF_8)))) {
+                throw new InvalidParameterValueException("Configuration changed after planning; a new dry-run is required");
+            }
+            manager.checkpointConfigurationIdentity(source);
+            metadata.remove("planToken");metadata.addProperty("restoreState", "APPLYING");update(row, metadata, row.getState());
+            new StorageConfigDomainRestore(manager).apply(source, plan, credentials);
+            metadata.addProperty("restoreState", "COMPLETE");metadata.addProperty("restoredAt", System.currentTimeMillis());update(row, metadata, row.getState());
+            return response(compactRow(row), row.getUuid());
+        });
+        } catch (RuntimeException failure) {
+            metadata.addProperty("restoreState", "FAILED");
+            metadata.addProperty("errorCode", "CONFIG_RESTORE_FAILED");
+            update(row, metadata, row.getState());
+            throw failure;
+        }
+    }
+    private StorageConfigRequest lastKnownGoodRequest(StorageServiceInstanceVO instance, StorageConfigRequest original) {
+        StorageConfigArtifactVO point = artifacts.listByInstance(instance.getId()).stream()
+                .filter(row -> "RESTORE_POINT".equals(row.getKind()) && "ACTIVE_LKG".equals(row.getState()))
+                .max(java.util.Comparator.comparingLong(StorageConfigArtifactVO::getDesiredRevision))
+                .orElseThrow(() -> new InvalidParameterValueException("No verified last-known-good configuration exists"));
+        if (original.getArtifactId() != null && !original.getArtifactId().equals(point.getId())) {
+            throw new InvalidParameterValueException("The active last-known-good configuration changed");
+        }
+        return new StorageConfigRequest() {
+            public org.apache.cloudstack.api.BaseCmd getBaseCmd() { return original.getBaseCmd(); }
+            public String getConfigAction() { return original.getConfigAction(); }
+            public Long getInstanceId() { return instance.getId(); }
+            public Long getArtifactId() { return point.getId(); }
+            public String getMapping() { return original.getMapping(); }
+            public String getTargetMode() { return "RESTORE_EXISTING"; }
+            public String getCredentials() { return original.getCredentials(); }
+            public String getConfirmation() { return original.getConfirmation(); }
+            public String getPlanToken() { return original.getPlanToken(); }
+        };
+    }
+    public void promoteVerified(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
+        manager.verifyReconciledStorageDesiredState(instance);
+        String snapshot = manager.captureConfigurationSnapshot(instance.getId());
+        if (!snapshot.equals(operation.getSnapshotJson())) throw new CloudRuntimeException("Verified configuration changed before restore-point promotion");
+        Map<String, byte[]> entries = StorageConfigSemantic.export(snapshot, manager.configurationInstanceMetadata(instance), manager.configurationVolumeMetadata(snapshot));
+        JsonObject metadata = new JsonObject();metadata.addProperty("verification", "VERIFIED_SUCCESS");
+        metadata.addProperty("sourceInstanceUuid", instance.getUuid());metadata.addProperty("operationUuid", operation.getUuid());
+        metadata.addProperty("desiredRevision", operation.getRevision());metadata.addProperty("verifiedAt", System.currentTimeMillis());
+        metadata.addProperty("runtimeStatus", "AVAILABLE");JsonArray required = requiredCredentials(entries);
+        metadata.add("requiredCredentials", required);metadata.addProperty("credentialCoverage", required.size() == 0 ? "FULL" : "REQUIRES_REENTRY");
+        byte[] archive = StorageConfigArchive.create(entries, metadata);
+        StorageConfigArtifactVO candidate = new StorageConfigArtifactVO();candidate.setInstanceId(instance.getId());candidate.setKind("RESTORE_POINT");
+        candidate.setState("CANDIDATE");candidate.setDesiredRevision(operation.getRevision());candidate.setSourceOperationId(operation.getId());
+        candidate.setCreatedBy(operation.getCreatedBy());candidate.setMetadataJson(metadata.toString());candidate.setSha256(StorageConfigArchive.sha256(archive));
+        candidate.setSize(archive.length);candidate = artifacts.persist(candidate);
+        final StorageConfigArtifactVO point = candidate;
+        try {
+            store.write(point.getUuid(), archive);
+            com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<Boolean>) status -> {
+                for (StorageConfigArtifactVO previous : artifacts.listByInstance(instance.getId())) {
+                    if ("RESTORE_POINT".equals(previous.getKind()) && "ACTIVE_LKG".equals(previous.getState())) {
+                        previous.setState("SUPERSEDED");previous.setUpdated(new Date());previous.setExpires(new Date(System.currentTimeMillis() + 168 * 3600000L));artifacts.update(previous.getId(), previous);
+                    }
+                }
+                point.setState("ACTIVE_LKG");point.setUpdated(new Date());artifacts.update(point.getId(), point);return true;
+            });
+        } catch (RuntimeException failure) {
+            try { store.remove(point.getUuid()); } catch (RuntimeException cleanup) { failure.addSuppressed(cleanup); }
+            point.setState("FAILED");artifacts.update(point.getId(), point);throw failure;
+        }
+    }
     private StorageServiceConfigArtifactResponse delete(StorageServiceInstanceVO instance, StorageConfigRequest request) {
         StorageConfigArtifactVO row = row(instance, request);
         String kind = "DELETE_BACKUP".equals(request.getConfigAction()) ? "BACKUP" : "IMPORT";
@@ -280,6 +434,28 @@ public final class StorageServiceConfiguration {
         // Retain the protected artifact until normal retention cleanup; metadata deletion cannot touch DATA.
         JsonObject metadata = metadata(row);metadata.remove("downloadToken");metadata.remove("planToken");update(row, metadata, "DELETED");
         return response(publicRow(row), row.getUuid());
+    }
+    private void cleanupExpired(StorageServiceInstanceVO instance) {
+        Date now = new Date();
+        for (StorageConfigArtifactVO row : artifacts.listByInstance(instance.getId())) {
+            if ("ACTIVE_LKG".equals(row.getState()) || row.getExpires() == null || !row.getExpires().before(now)) continue;
+            JsonObject metadata = metadata(row);boolean pending = false;
+            try { store.remove(row.getUuid()); } catch (RuntimeException cleanup) { pending = true; }
+            if (metadata.has("chunks")) for (String index : metadata.getAsJsonObject("chunks").keySet()) {
+                try { store.remove(StorageConfigArtifactStore.chunkIdentity(row.getUuid(), Integer.parseInt(index))); }
+                catch (RuntimeException cleanup) { pending = true; }
+            }
+            metadata.remove("downloadToken");metadata.remove("planToken");metadata.addProperty("cleanupState", pending ? "PENDING" : "CLEANED");
+            update(row, metadata, pending ? "EXPIRY_CLEANUP_PENDING" : "EXPIRED");
+        }
+    }
+    private JsonObject compactRow(StorageConfigArtifactVO row) {
+        JsonObject result = publicRow(row);result.remove("metadata");
+        JsonObject metadata = metadata(row);JsonObject summary = new JsonObject();
+        for (String key : new String[] {"phase", "runtimeStatus", "credentialCoverage", "restoreState", "errorCode", "verifiedAt"}) {
+            if (metadata.has(key)) summary.add(key, metadata.get(key).deepCopy());
+        }
+        result.add("metadata", summary);return result;
     }
     private StorageServiceConfigArtifactResponse response(JsonObject result, String id) {
         StorageServiceConfigArtifactResponse response = new StorageServiceConfigArtifactResponse();response.setResult(result.toString());response.setId(id);
