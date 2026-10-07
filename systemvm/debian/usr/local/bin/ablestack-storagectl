@@ -5290,6 +5290,10 @@ def smb_forced_identity_lines(policy):
         return []
     return ["   force user = " + policy["managedUser"], "   force group = " + policy["managedGroup"]]
 
+def smb_effective_read_only(config, account_acl_count, guest_ok):
+    # Account ACL permissions are enforced before the forced UNIX identity is used.
+    return truth(config, "readOnly", False) or (account_acl_count > 0 and not guest_ok)
+
 def smb_inheritance_policy(config, acls):
     mode = str(config.get("ownershipInheritance") or "AUTHENTICATED_USER").upper()
     if mode not in ("AUTHENTICATED_USER", "INHERIT_PARENT_OWNER"):
@@ -5676,7 +5680,7 @@ for share in payload.get("shares", []):
         smb_principal = samba_principal(principal_type, principal, workgroup, netbios_name)
         permission = acl.get("permission", "READ_ONLY")
         valid_users.append(smb_principal)
-        if permission in ("READ_WRITE", "ADMIN"):
+        if permission in ("READ_WRITE", "ADMIN") and not truth(config, "readOnly", False):
             write_list.append(smb_principal)
         if permission == "ADMIN":
             admin_users.append(smb_principal)
@@ -5726,7 +5730,7 @@ for share in payload.get("shares", []):
         "",
         f"[{name}]",
         f"   path = {path}",
-        f"   read only = {'yes' if truth(config, 'readOnly', False) else 'no'}",
+        f"   read only = {'yes' if smb_effective_read_only(config, configured_acl_count, guest_ok) else 'no'}",
         f"   browseable = {'yes' if truth(config, 'browseable', True) else 'no'}",
         f"   guest ok = {'yes' if guest_ok else 'no'}",
 

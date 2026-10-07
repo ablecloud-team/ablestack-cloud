@@ -30,7 +30,7 @@ SOURCE = Path(__file__).resolve().parents[2] / 'systemvm/debian/usr/local/bin/ab
 BLOCK = next(block for block in re.findall("<<'PY'\n(.*?)\nPY", SOURCE.read_text(), re.S) if 'def smb_network_policy(' in block)
 TREE = ast.parse(BLOCK)
 NS = {'ipaddress': ipaddress, 're': re, 'os': os, 'subprocess': subprocess, 'tempfile': tempfile}
-NODES = [node for node in TREE.body if isinstance(node, ast.FunctionDef) and node.name in ('smb_network_policy', 'smb_hosts_allow_lines', 'verify_share_mount_boundary', 'truth', 'smb_creation_policy', 'smb_creation_lines', 'install_validated_smb_config', 'apply_directory_policy', 'remove_stale_managed_smb_acls', 'smb_creation_acl_preflight', 'verify_common_posix_policy', 'smb_inheritance_policy', 'smb_inheritance_lines', 'smb_forced_identity', 'smb_forced_identity_lines', 'rollback_uncommitted_managed_identities')]
+NODES = [node for node in TREE.body if isinstance(node, ast.FunctionDef) and node.name in ('smb_network_policy', 'smb_hosts_allow_lines', 'verify_share_mount_boundary', 'truth', 'smb_creation_policy', 'smb_creation_lines', 'install_validated_smb_config', 'apply_directory_policy', 'remove_stale_managed_smb_acls', 'smb_creation_acl_preflight', 'verify_common_posix_policy', 'smb_inheritance_policy', 'smb_inheritance_lines', 'smb_forced_identity', 'smb_forced_identity_lines', 'rollback_uncommitted_managed_identities', 'smb_effective_read_only')]
 exec(compile(ast.Module(body=NODES, type_ignores=[]), str(SOURCE), 'exec'), NS)
 class SmbNetworkAclTest(unittest.TestCase):
     def policy(self, value): return NS['smb_network_policy'](value)
@@ -104,6 +104,11 @@ class SmbNetworkAclTest(unittest.TestCase):
             acl = acl.replace('other::---', 'other::r-x')
             self.assertEqual('0775', NS['smb_creation_acl_preflight'](root, policy)['defaultAclMode'])
             self.assertEqual('COMPATIBLE', NS['smb_creation_acl_preflight'](root, NS['smb_creation_policy']({}))['state'])
+
+    def test_readonly_account_acl_cannot_gain_write_from_share_or_forced_identity(self):
+        self.assertTrue(NS['smb_effective_read_only']({'readOnly': False, 'posixOwnershipMode': 'FORCED_UID_GID'}, 1, False))
+        self.assertTrue(NS['smb_effective_read_only']({'readOnly': True}, 1, False))
+        self.assertFalse(NS['smb_effective_read_only']({'readOnly': False}, 0, True))
 
     def test_failed_reload_restores_previous_config_bytes_and_modes(self):
         with tempfile.TemporaryDirectory() as folder:
