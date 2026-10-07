@@ -43,6 +43,7 @@ import org.apache.cloudstack.annotation.dao.AnnotationDao;
 import org.apache.cloudstack.api.ApiCommandResourceType;
 import org.apache.cloudstack.context.CallContext;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.cloud.exception.ConcurrentOperationException;
 import com.cloud.exception.InsufficientAddressCapacityException;
@@ -109,9 +110,10 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
     protected boolean reconcileFailedCreationBeforeDelete() {
         final boolean created = kubernetesCluster.getState() == KubernetesCluster.State.Created;
         final boolean error = kubernetesCluster.getState() == KubernetesCluster.State.Error;
-        if ((!created && !error)
-                || !CollectionUtils.isEmpty(kubernetesClusterVmMapDao.listByClusterId(kubernetesCluster.getId()))) {
-            return false;
+        if (!created && !error) { return false; }
+        List<KubernetesClusterVmMapVO> nodes = kubernetesClusterVmMapDao.listByClusterId(kubernetesCluster.getId());
+        if (!CollectionUtils.isEmpty(nodes)) {
+            return error && reconcileUninstalledNodeProvisioningFailure(nodes);
         }
         SearchBuilder<AsyncJobVO> builder = asyncJobDao.createSearchBuilder();
         builder.and("cluster", builder.entity().getInstanceId(), SearchCriteria.Op.EQ);
@@ -142,6 +144,48 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
             throw new CloudRuntimeException("Cannot reconcile the failed unprovisioned Kubernetes creation state");
         }
         kubernetesCluster = kubernetesClusterDao.findById(kubernetesCluster.getId());
+        return true;
+    }
+
+    protected boolean reconcileUninstalledNodeProvisioningFailure(List<KubernetesClusterVmMapVO> nodes) {
+        KubernetesClusterDetailsVO phase = kubernetesClusterDetailsDao.findDetail(kubernetesCluster.getId(), "lifecycle.provisioning.phase");
+        if (phase == null || !"Nodes".equals(phase.getValue())
+                || kubernetesClusterDetailsDao.findDetail(kubernetesCluster.getId(), "lifecycle.bootstrap.started") != null
+                || !Long.valueOf(0L).equals(kubernetesCluster.getEtcdNodeCount())) { return false; }
+        SearchBuilder<AsyncJobVO> builder = asyncJobDao.createSearchBuilder();
+        builder.and("cluster", builder.entity().getInstanceId(), SearchCriteria.Op.EQ);
+        builder.and("kind", builder.entity().getInstanceType(), SearchCriteria.Op.EQ);
+        builder.and("command", builder.entity().getCmd(), SearchCriteria.Op.EQ);
+        builder.done();
+        SearchCriteria<AsyncJobVO> criteria = builder.create();
+        criteria.setParameters("cluster", kubernetesCluster.getId());
+        criteria.setParameters("kind", "KubernetesCluster");
+        criteria.setParameters("command", CreateKubernetesClusterCmd.class.getName());
+        List<AsyncJobVO> jobs = asyncJobDao.searchIncludingRemoved(criteria, null, null, false);
+        AsyncJobVO last = jobs.stream().max(java.util.Comparator.comparingLong(AsyncJobVO::getId)).orElse(null);
+        if (last == null || last.getStatus() != AsyncJob.Status.FAILED
+                || jobs.stream().anyMatch(job -> job.getStatus() == AsyncJob.Status.IN_PROGRESS)
+                || last.getResult() == null) { return false; }
+        Object result = org.apache.cloudstack.framework.jobs.impl.JobSerializerHelper.fromSerializedString(last.getResult());
+        if (!(result instanceof org.apache.cloudstack.api.response.ExceptionResponse)) { return false; }
+        String message = ((org.apache.cloudstack.api.response.ExceptionResponse) result).getErrorText();
+        if (!("Provisioning node VM failed in the Kubernetes cluster : " + kubernetesCluster.getName()).equals(message)
+                && !("Provisioning additional control VM failed in the Kubernetes cluster : " + kubernetesCluster.getName()).equals(message)
+                && !("Provisioning the control VM failed in the Kubernetes cluster : " + kubernetesCluster.getName()).equals(message)) { return false; }
+        com.cloud.kubernetes.version.KubernetesSupportedVersion version = kubernetesSupportedVersionDao.findById(kubernetesCluster.getKubernetesVersionId());
+        if (version == null) { return false; }
+        java.util.Set<Long> ids = new java.util.HashSet<>();
+        for (KubernetesClusterVmMapVO node : nodes) {
+            com.cloud.vm.UserVmVO vm = userVmDao.findById(node.getVmId());
+            if (node.isExternalNode() || !ids.add(node.getVmId()) || vm == null || vm.getIsoId() != null
+                    || vm.getAccountId() != kubernetesCluster.getAccountId()
+                    || (StringUtils.isNotBlank(node.getNodeVersion()) && !version.getSemanticVersion().equals(node.getNodeVersion()))) { return false; }
+        }
+        List<VMInstanceVO> networkVms = vmInstanceDao.listNonRemovedVmsByTypeAndNetwork(kubernetesCluster.getNetworkId(), VirtualMachine.Type.User);
+        if (networkVms.size() != ids.size() || networkVms.stream().anyMatch(vm -> !ids.contains(vm.getId())
+                || vm.getAccountId() != kubernetesCluster.getAccountId())) { return false; }
+        kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "lifecycle.creation.failed.job", last.getUuid(), false);
+        kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "lifecycle.provisioning.phase", "NodeProvisioningFailed", false);
         return true;
     }
 
@@ -626,6 +670,11 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
             return false;
         }
         KubernetesClusterDetailsVO phase = kubernetesClusterDetailsDao.findDetail(kubernetesCluster.getId(), "lifecycle.provisioning.phase");
+        if (phase != null && "NodeProvisioningFailed".equals(phase.getValue())) {
+            KubernetesClusterDetailsVO receipt = kubernetesClusterDetailsDao.findDetail(kubernetesCluster.getId(), "lifecycle.creation.failed.job");
+            return receipt != null && StringUtils.isNotBlank(receipt.getValue())
+                    && kubernetesClusterDetailsDao.findDetail(kubernetesCluster.getId(), "lifecycle.bootstrap.started") == null;
+        }
         return phase != null && "Preflight".equals(phase.getValue())
                 && CollectionUtils.isEmpty(kubernetesClusterVmMapDao.listByClusterId(kubernetesCluster.getId()));
     }

@@ -1501,6 +1501,46 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
                 kubernetesCluster.getAccountId());
     }
 
+    protected void ensureResourceLimitsForCreate(Account owner, Map<String, Long> offerings,
+                                                 Map<String, Long> counts, Long defaultOfferingId, Long rootGiB) {
+        long vms = 0, cpu = 0, memoryMb = 0, rootBytes = 0;
+        try {
+            for (String role : CLUSTER_NODES_TYPES_LIST) {
+                long count = counts.getOrDefault(role, 0L);
+                if (count < 0) { throw new InvalidParameterValueException("Invalid Kubernetes node count"); }
+                if (count == 0) { continue; }
+                Long id = offerings.getOrDefault(role, defaultOfferingId);
+                ServiceOffering offering = id == null ? null : serviceOfferingDao.findById(id);
+                if (offering == null || offering.getCpu() == null || offering.getCpu() < 1
+                        || offering.getRamSize() == null || offering.getRamSize() < 1) {
+                    throw new InvalidParameterValueException("Invalid fixed service offering for Kubernetes node type " + role);
+                }
+                vms = Math.addExact(vms, count);
+                cpu = Math.addExact(cpu, Math.multiplyExact(count, offering.getCpu().longValue()));
+                memoryMb = Math.addExact(memoryMb, Math.multiplyExact(count, offering.getRamSize().longValue()));
+            }
+            if (rootGiB != null && rootGiB > 0) {
+                rootBytes = Math.multiplyExact(vms, Math.multiplyExact(rootGiB, 1L << 30));
+            }
+        } catch (ArithmeticException e) {
+            throw new InvalidParameterValueException("Kubernetes resource request exceeds supported numeric range");
+        }
+        try {
+            resourceLimitService.checkResourceLimit(owner, Resource.ResourceType.user_vm, vms);
+            resourceLimitService.checkResourceLimit(owner, Resource.ResourceType.cpu, cpu);
+            resourceLimitService.checkResourceLimit(owner, Resource.ResourceType.memory, memoryMb);
+            resourceLimitService.checkResourceLimit(owner, Resource.ResourceType.volume, vms);
+            // Template-derived default disk sizes remain checked by the VM allocation path.
+            if (rootBytes > 0) {
+                resourceLimitService.checkResourceLimit(owner, Resource.ResourceType.primary_storage, rootBytes);
+            }
+        } catch (Exception e) {
+            throw new CloudRuntimeException("Resource limits prevent creating the Kubernetes cluster: requested "
+                    + vms + " VMs, " + cpu + " CPUs, " + memoryMb + " MB memory, "
+                    + vms + " ROOT volumes; " + e.getMessage(), e);
+        }
+    }
+
     protected void ensureResourceLimitsForScale(final KubernetesClusterVO cluster,
                                                 final Map<String, Long> requestedServiceOfferingIds,
                                                 final Long targetNodeCounts,
@@ -1780,6 +1820,8 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
                 accountId = account.getId();
             }
         }
+        ensureResourceLimitsForCreate(owner, serviceOfferingNodeTypeMap, nodeTypeCount,
+                defaultServiceOfferingId, cmd.getNodeRootDiskSize());
         Hypervisor.HypervisorType hypervisorType = getHypervisorTypeAndValidateNodeDeployments(serviceOfferingNodeTypeMap, defaultServiceOfferingId, nodeTypeCount, zone, domainId, accountId, hypervisor);
 
         SecurityGroup securityGroup = null;

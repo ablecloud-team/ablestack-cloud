@@ -868,6 +868,8 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
         } catch (ManagementServerException e) {
             logTransitStateAndThrow(Level.ERROR, String.format("Failed to setup Kubernetes cluster : %s, unable to setup network rules for etcd nodes", kubernetesCluster.getName()), kubernetesCluster.getId(), KubernetesCluster.Event.CreateFailed, e);
         }
+        kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "lifecycle.bootstrap.started", "v1", false);
+        kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "lifecycle.provisioning.phase", "Bootstrap", false);
         attachIsoKubernetesVMs(etcdVms);
         attachIsoKubernetesVMs(clusterVMs);
         if (!KubernetesClusterUtil.isKubernetesClusterControlVmRunning(kubernetesCluster, publicIpAddress, publicIpSshPort.second(), startTimeoutTime)) {
@@ -915,6 +917,7 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
                     kubernetesCluster.getName()), kubernetesCluster.getId(), KubernetesCluster.Event.CreateFailed);
         }
         updateLoginUserDetails(clusterVMs.stream().map(InternalIdentity::getId).collect(Collectors.toList()));
+        kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "lifecycle.provisioning.phase", "Ready", false);
         stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.OperationSucceeded);
         return true;
     }

@@ -159,4 +159,66 @@ public class KubernetesCreatedFailureCleanupTest {
         Mockito.verify(start).stateTransitTo(3L, KubernetesCluster.Event.CreateFailed);
         Mockito.verify(maps, Mockito.never()).removeByClusterId(Mockito.anyLong());
     }
+    private java.util.List<KubernetesClusterVmMapVO> uninstalledNodes() {
+        Mockito.when(cluster.getState()).thenReturn(KubernetesCluster.State.Error);
+        Mockito.when(cluster.getAccountId()).thenReturn(22L);
+        Mockito.when(details.findDetail(3L, "lifecycle.provisioning.phase"))
+                .thenReturn(new com.cloud.kubernetes.cluster.KubernetesClusterDetailsVO(3L,"lifecycle.provisioning.phase","Nodes",false));
+        Mockito.when(failed.getResult()).thenReturn(serializedFailure("Provisioning node VM failed in the Kubernetes cluster : test-cluster"));
+        worker.userVmDao=Mockito.mock(com.cloud.vm.dao.UserVmDao.class);
+        worker.kubernetesSupportedVersionDao=Mockito.mock(com.cloud.kubernetes.version.dao.KubernetesSupportedVersionDao.class);
+        com.cloud.kubernetes.version.KubernetesSupportedVersionVO version=Mockito.mock(com.cloud.kubernetes.version.KubernetesSupportedVersionVO.class);
+        Mockito.when(version.getSemanticVersion()).thenReturn("1.34.12");
+        Mockito.when(worker.kubernetesSupportedVersionDao.findById(Mockito.anyLong())).thenReturn(version);
+        java.util.List<KubernetesClusterVmMapVO> nodes=new java.util.ArrayList<>();
+        java.util.List<VMInstanceVO> vms=new java.util.ArrayList<>();
+        for(long id:new long[]{11L,12L}){
+            KubernetesClusterVmMapVO node=Mockito.mock(KubernetesClusterVmMapVO.class);
+            Mockito.when(node.getVmId()).thenReturn(id);Mockito.when(node.getNodeVersion()).thenReturn("1.34.12");
+            nodes.add(node);
+            com.cloud.vm.UserVmVO vm=Mockito.mock(com.cloud.vm.UserVmVO.class);
+            Mockito.when(vm.getId()).thenReturn(id);Mockito.when(vm.getAccountId()).thenReturn(22L);
+            Mockito.when(vm.getIsoId()).thenReturn(null);
+            Mockito.when(worker.userVmDao.findById(id)).thenReturn(vm);vms.add(vm);
+        }
+        Mockito.when(maps.listByClusterId(3L)).thenReturn(nodes);
+        Mockito.when(worker.vmInstanceDao.listNonRemovedVmsByTypeAndNetwork(Mockito.eq(7L),Mockito.any())).thenReturn(vms);
+        return nodes;
+    }
+    @Test public void failedNodeProvisioningWithUnattachedIsoUsesVerifiedReceipt() {
+        uninstalledNodes();assertTrue(worker.reconcileFailedCreationBeforeDelete());
+        Mockito.verify(details).addDetail(3L,"lifecycle.creation.failed.job","failed-create-job",false);
+        Mockito.verify(details).addDetail(3L,"lifecycle.provisioning.phase","NodeProvisioningFailed",false);
+        Mockito.verify(worker,Mockito.never()).stateTransitTo(Mockito.anyLong(),Mockito.any());
+    }
+    @Test public void bootstrapReceiptRejectsPartialNodeShortcut() {
+        uninstalledNodes();
+        Mockito.when(details.findDetail(3L,"lifecycle.bootstrap.started")).thenReturn(new com.cloud.kubernetes.cluster.KubernetesClusterDetailsVO(3L,"lifecycle.bootstrap.started","v1",false));
+        assertFalse(worker.reconcileFailedCreationBeforeDelete());
+        Mockito.verifyNoInteractions(worker.asyncJobDao);
+    }
+    @Test public void attachedIsoRejectsPartialNodeShortcut() {
+        uninstalledNodes();Mockito.when(worker.userVmDao.findById(11L).getIsoId()).thenReturn(90L);
+        assertFalse(worker.reconcileFailedCreationBeforeDelete());
+        Mockito.verify(details,Mockito.never()).addDetail(Mockito.anyLong(),Mockito.anyString(),Mockito.anyString(),Mockito.anyBoolean());
+    }
+    @Test public void foreignNetworkVmRejectsPartialNodeShortcut() {
+        uninstalledNodes();VMInstanceVO extra=Mockito.mock(VMInstanceVO.class);Mockito.when(extra.getId()).thenReturn(99L);
+        Mockito.when(worker.vmInstanceDao.listNonRemovedVmsByTypeAndNetwork(Mockito.eq(7L),Mockito.any())).thenReturn(java.util.Arrays.asList(extra));
+        assertFalse(worker.reconcileFailedCreationBeforeDelete());
+    }
+    @Test public void differentOwnerOrVersionRejectsPartialNodeShortcut() {
+        java.util.List<KubernetesClusterVmMapVO> nodes=uninstalledNodes();
+        Mockito.when(nodes.get(0).getNodeVersion()).thenReturn("1.35.9");
+        assertFalse(worker.reconcileFailedCreationBeforeDelete());
+        Mockito.when(nodes.get(0).getNodeVersion()).thenReturn("1.34.12");
+        Mockito.when(worker.userVmDao.findById(11L).getAccountId()).thenReturn(23L);
+        assertFalse(worker.reconcileFailedCreationBeforeDelete());
+    }
+    @Test public void activeOrSuccessfulCreationRejectsPartialNodeShortcut() {
+        uninstalledNodes();Mockito.when(failed.getStatus()).thenReturn(AsyncJob.Status.IN_PROGRESS);
+        assertFalse(worker.reconcileFailedCreationBeforeDelete());
+        Mockito.when(failed.getStatus()).thenReturn(AsyncJob.Status.SUCCEEDED);
+        assertFalse(worker.reconcileFailedCreationBeforeDelete());
+    }
 }
