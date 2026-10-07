@@ -66,6 +66,7 @@ public final class StorageServiceRuntimeBundleVerifier {
             require(manifest, "runtimeAbiVersion", bundle.getRuntimeAbiVersion());
             require(manifest, "desiredStateSchemaVersion", bundle.getDesiredStateSchemaVersion());
             require(manifest, "serviceImpact", bundle.getServiceImpact().name());
+            StorageRuntimeFeatureCompatibility.advertised(manifest);
             final Map<String, String> files = new HashMap<>();
             final JsonArray declared = manifest.getAsJsonArray("files");
             if (declared == null || declared.size() != ENTRYPOINTS.size()) throw new IllegalArgumentException("Invalid runtime file count");
