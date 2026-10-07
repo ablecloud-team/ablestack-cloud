@@ -213,6 +213,22 @@ public class KubernetesClusterUpgradeWorker extends KubernetesClusterActionWorke
                 kubernetesCluster, clusterVMs, KubernetesCluster.Event.OperationFailed, null);
     }
 
+    protected static String safeUpgradeFailureStage(String output) {
+        java.util.regex.Matcher marker = java.util.regex.Pattern.compile(
+                "(?m)^MOLD_UPGRADE_FAILED stage=([A-Z_]{1,48}) exit=([0-9]{1,3})\\r?$").matcher(output == null ? "" : output);
+        String result = "";
+        Set<String> phases = Set.of("INITIALIZATION", "ISO_MOUNT", "ISO_VERIFICATION", "IMAGE_IMPORT", "RUNTIME_PAYLOAD",
+                "KUBEADM", "KUBELET_UPDATE", "RUNTIME_RESTART", "API_RECOVERY", "CNI_APPLY", "DASHBOARD_APPLY",
+                "PROVIDER_APPLY", "PROVIDER_IDENTITY", "ISO_UNMOUNT", "ISO_DIRECTORY_REMOVE", "ISO_EJECT");
+        while (marker.find()) {
+            int exit = Integer.parseInt(marker.group(2));
+            if (phases.contains(marker.group(1)) && exit > 0 && exit <= 255) {
+                result = " (stage " + marker.group(1) + ", exit " + exit + ")";
+            }
+        }
+        return result;
+    }
+
     private void upgradeKubernetesClusterNodes() {
         for (int i = 0; i < clusterVMs.size(); ++i) {
             UserVm vm = clusterVMs.get(i);
@@ -257,6 +273,11 @@ public class KubernetesClusterUpgradeWorker extends KubernetesClusterActionWorke
                     result = runInstallScriptOnVM(vm, i);
                     if (result.first()) {
                         break;
+                    }
+                    String failureStage = safeUpgradeFailureStage(result.second());
+                    if (!failureStage.isEmpty()) {
+                        errorMessage = String.format("Failed to upgrade Kubernetes cluster : %s, unable to upgrade Kubernetes node on VM : %s%s",
+                                kubernetesCluster.getName(), vm.getDisplayName(), failureStage);
                     }
                     if (retry > 0) {
                         logger.error(String.format("%s, retries left: %s", errorMessage, retry));

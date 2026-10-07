@@ -58,6 +58,22 @@ public class KubernetesClusterUpgradeWorkerTest {
         worker.kubernetesClusterVmMapDao = kubernetesClusterVmMapDao;
     }
 
+    @Test public void failureStageOnlyExtractsBoundedMarkers() {
+        Assert.assertEquals(" (stage API_RECOVERY, exit 1)", KubernetesClusterUpgradeWorker.safeUpgradeFailureStage(
+                "private command output\nMOLD_UPGRADE_FAILED stage=API_RECOVERY exit=1\n"));
+    }
+    @Test public void malformedFailureMarkerCannotExposeRawOutput() {
+        Assert.assertEquals("", KubernetesClusterUpgradeWorker.safeUpgradeFailureStage(
+                "MOLD_UPGRADE_FAILED stage=https://private/path?password=private exit=1\n"));
+        Assert.assertEquals("", KubernetesClusterUpgradeWorker.safeUpgradeFailureStage(null));
+        Assert.assertEquals("", KubernetesClusterUpgradeWorker.safeUpgradeFailureStage("MOLD_UPGRADE_FAILED stage=NOT_A_PHASE exit=1"));
+        Assert.assertEquals("", KubernetesClusterUpgradeWorker.safeUpgradeFailureStage("MOLD_UPGRADE_FAILED stage=API_RECOVERY exit=999"));
+    }
+    @Test public void finalFailureStageSupersedesEarlierRecoveredFailure() {
+        Assert.assertEquals(" (stage ISO_UNMOUNT, exit 32)", KubernetesClusterUpgradeWorker.safeUpgradeFailureStage(
+                "MOLD_UPGRADE_FAILED stage=KUBEADM exit=1\nMOLD_UPGRADE_FAILED stage=ISO_UNMOUNT exit=32\n"));
+    }
+
     @Test
     public void testFilterOutManualUpgradeNodesFromClusterUpgrade() {
         long controlNodeId = 1L;

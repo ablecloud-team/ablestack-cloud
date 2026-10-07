@@ -45,6 +45,45 @@ if [ $# -gt 5 ]; then
   HA_CONTROL_PLANE="${6}"
 fi
 
+# Receipts contain fixed phase names and exit status only; never command/config output.
+UPGRADE_STAGE=INITIALIZATION
+UPGRADE_STATUS_FILE=/var/log/mold-kubernetes-upgrade.status
+umask 077
+touch "$UPGRADE_STATUS_FILE"
+chmod 600 "$UPGRADE_STATUS_FILE"
+mark_upgrade_stage() {
+  UPGRADE_STAGE="$1"
+  printf '%s phase=%s status=STARTED\n' "$(date -u +%FT%TZ)" "$UPGRADE_STAGE" >> "$UPGRADE_STATUS_FILE"
+}
+on_upgrade_error() {
+  local exit_code="$1"
+  printf '%s phase=%s status=FAILED exit=%s\n' "$(date -u +%FT%TZ)" "$UPGRADE_STAGE" "$exit_code" >> "$UPGRADE_STATUS_FILE"
+  printf 'MOLD_UPGRADE_FAILED stage=%s exit=%s\n' "$UPGRADE_STAGE" "$exit_code" >&2
+}
+trap 'task_upgrade_exit_code=$?; if [ "$task_upgrade_exit_code" -ne 0 ]; then on_upgrade_error "$task_upgrade_exit_code"; fi' EXIT
+
+wait_for_upgrade_api() {
+  local timeout_seconds="$1" successful=0 output deadline command_timeout
+  [[ "$timeout_seconds" =~ ^[1-9][0-9]*$ ]] && (( timeout_seconds <= 120 )) || return 2
+  deadline=$((SECONDS + timeout_seconds))
+  while (( SECONDS < deadline )); do
+    command_timeout=$((deadline - SECONDS))
+    (( command_timeout > 12 )) && command_timeout=12
+    if output=$(timeout "$command_timeout" /opt/bin/kubectl --kubeconfig=/etc/kubernetes/admin.conf --request-timeout=10s get --raw=/readyz 2>/dev/null) && [ "$output" = ok ]; then
+      successful=$((successful + 1))
+      if (( successful >= 3 )); then
+        echo MOLD_UPGRADE_API_READY
+        return 0
+      fi
+    else
+      successful=0
+    fi
+    sleep 1
+  done
+  echo 'ERROR: Kubernetes API did not recover within the upgrade readiness deadline' >&2
+  return 1
+}
+
 export PATH=$PATH:/opt/bin
 if [[ "$PATH" != *:/usr/sbin && "$PATH" != *:/usr/sbin:* ]]; then
   export PATH=$PATH:/usr/sbin
@@ -57,6 +96,7 @@ OFFLINE_INSTALL_ATTEMPT_SLEEP=5
 MAX_OFFLINE_INSTALL_ATTEMPTS=10
 offline_attempts=1
 iso_drive_path=""
+mark_upgrade_stage ISO_MOUNT
 while true; do
   if (( "$offline_attempts" > "$MAX_OFFLINE_INSTALL_ATTEMPTS" )); then
     echo "Warning: Offline install timed out!"
@@ -99,11 +139,13 @@ if [ -d "$BINARIES_DIR" ]; then
 
   cd /opt/bin
 
+  mark_upgrade_stage ISO_VERIFICATION
   if [ -f "${BINARIES_DIR}/manifest.json" ]; then
     (cd "${BINARIES_DIR}" && sha256sum -c SHA256SUMS) || exit 1
   fi
   cp ${BINARIES_DIR}/k8s/kubeadm /opt/bin
   chmod +x kubeadm
+  mark_upgrade_stage IMAGE_IMPORT
   # Preserve archive digests; containerd 2.x defaults to transfer import.
   CTR_IMPORT_OPTIONS=()
   if ctr -n k8s.io image import --help 2>/dev/null | grep -q -- "--local"; then
@@ -131,6 +173,7 @@ if [ -d "$BINARIES_DIR" ]; then
     cp "${BINARIES_DIR}/autoscaler.yaml" /opt/autoscaler/autoscaler_tmpl.yaml
   fi
 
+  mark_upgrade_stage RUNTIME_PAYLOAD
   PAUSE_IMAGE=""
   if [ -s "${BINARIES_DIR}/docker/images.list" ]; then
     PAUSE_IMAGE=$(awk '$2 ~ /\/pause(:[^@]+)?$/ {digest=$1; sub(/\.tar$/, "", digest); repository=$2; sub(/:[^/]+$/, "", repository); print repository "@sha256:" digest}' "${BINARIES_DIR}/docker/images.list")
@@ -171,6 +214,7 @@ if [ -d "$BINARIES_DIR" ]; then
     sleep 20
   fi
 
+  mark_upgrade_stage KUBEADM
   if [ "${IS_MAIN_CONTROL}" == 'true' ]; then
     set +e
     kubeadm --v=5 upgrade apply ${UPGRADE_VERSION} -y
@@ -187,6 +231,7 @@ if [ -d "$BINARIES_DIR" ]; then
     fi
   fi
 
+  mark_upgrade_stage KUBELET_UPDATE
   systemctl stop kubelet
   cp -a ${BINARIES_DIR}/k8s/{kubelet,kubectl} /opt/bin
   chmod +x /opt/bin/{kubelet,kubectl}
@@ -216,14 +261,19 @@ if [ -d "$BINARIES_DIR" ]; then
     fi
   fi
 
+  mark_upgrade_stage RUNTIME_RESTART
   systemctl daemon-reload
   systemctl restart containerd
   systemctl restart kubelet
 
   if [ "${IS_MAIN_CONTROL}" == 'true' ]; then
+    mark_upgrade_stage API_RECOVERY
+    wait_for_upgrade_api 120
     if [[ ${EXTERNAL_CNI} == true ]]; then
+      mark_upgrade_stage CNI_APPLY
       /opt/bin/kubectl apply -f ${BINARIES_DIR}/network.yaml
     fi
+    mark_upgrade_stage DASHBOARD_APPLY
     if [ -f "${BINARIES_DIR}/headlamp.yaml" ]; then
       /opt/bin/kubectl apply -f "${BINARIES_DIR}/headlamp.yaml"
     elif [ -f "${BINARIES_DIR}/dashboard.yaml" ]; then
@@ -232,10 +282,12 @@ if [ -d "$BINARIES_DIR" ]; then
       echo "ERROR: dashboard payload is missing" >&2
       exit 1
     fi
+    mark_upgrade_stage PROVIDER_APPLY
     [ -s /opt/provider/provider.yaml ] || { echo "ERROR: Mold Provider payload is missing" >&2; exit 1; }
     /opt/bin/kubectl apply -f /opt/provider/provider.yaml
     # Already registered legacy nodes need CCM initialization as well. This
     # NoSchedule taint does not evict workloads; CCM removes it after API lookup.
+    mark_upgrade_stage PROVIDER_IDENTITY
     node_identities=$(mktemp)
     /opt/bin/kubectl --request-timeout=10s get nodes -o jsonpath='{range .items[*]}{.metadata.name}{" "}{.spec.providerID}{"\n"}{end}' > "$node_identities"
     while read -r node provider_id; do
@@ -247,11 +299,17 @@ if [ -d "$BINARIES_DIR" ]; then
     /opt/bin/kubectl --request-timeout=10s wait --for=jsonpath='{.spec.providerID}' nodes --all --timeout=120s
   fi
 
-  umount "${ISO_MOUNT_DIR}" && rmdir "${ISO_MOUNT_DIR}"
+  mark_upgrade_stage ISO_UNMOUNT
+  umount "${ISO_MOUNT_DIR}"
+  mark_upgrade_stage ISO_DIRECTORY_REMOVE
+  rmdir "${ISO_MOUNT_DIR}"
   if [ "$EJECT_ISO_FROM_OS" = true ] && [ "$iso_drive_path" != "" ]; then
+    mark_upgrade_stage ISO_EJECT
     eject "${iso_drive_path}"
   fi
 else
   echo "ERROR: Unable to access Binaries directory for upgrade version ${UPGRADE_VERSION}"
   exit 1
 fi
+mark_upgrade_stage COMPLETED
+printf '%s phase=COMPLETED status=SUCCEEDED\n' "$(date -u +%FT%TZ)" >> "$UPGRADE_STATUS_FILE"
