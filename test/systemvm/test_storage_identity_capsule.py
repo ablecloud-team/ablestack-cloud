@@ -223,6 +223,63 @@ class IdentityCapsuleTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             capsules.owned_account_records(envelope())
 
+    def test_nvme_auth_capture_only_accepts_literal_bounded_host_nqns(self):
+        for value in ("/etc/shadow", "nqn.test/../../secret", "nqn.test\nkey", "iqn.test", "nqn."+"a"*224):
+            with self.assertRaises(ValueError):
+                capsules.validate_host_nqn(value)
+        self.assertEqual("nqn.2014-08.org.nvmexpress:uuid:example", capsules.validate_host_nqn("nqn.2014-08.org.nvmexpress:uuid:example"))
+        with self.assertRaises(ValueError):
+            capsules.collect_nvme_hosts(["nqn.test:host"]*2)
+        with self.assertRaises(ValueError):
+            capsules.collect_nvme_hosts(["nqn.test:host"]*513)
+
+    def test_capsule_nvme_auth_fields_are_allowlisted_and_bounded(self):
+        payload = {"schemaVersion": 1, "files": {}, "accounts": {}, "nvmeHosts": {"nqn.test:host": {"dhchap_key": "DHHC-1:synthetic", "dhchap_ctrl_key": None}}}
+        capsules.validate_payload(payload)
+        for fields in ({"other": "key"}, {"dhchap_key": "wrong", "dhchap_ctrl_key": None}, {"dhchap_key": "DHHC-1:"+"x"*4096, "dhchap_ctrl_key": None}):
+            payload["nvmeHosts"]["nqn.test:host"] = fields
+            with self.assertRaises(ValueError):
+                capsules.validate_payload(payload)
+
+    def test_protected_nvme_replay_does_not_add_acl_hosts_or_mutate_original_payload(self):
+        desired = {"subsystems": [{"hosts": [{"principal": "nqn.test:allowed", "config": {"dhChapEnabled": True}}]}]}
+        credentials = {"nqn.test:allowed": {"dhchap_key": "DHHC-1:synthetic"}, "nqn.test:unlisted": {"dhchap_key": "DHHC-1:extra"}}
+        merged = capsules.merge_nvme_identity_payload(desired, credentials)
+        self.assertNotIn("secrets", desired["subsystems"][0]["hosts"][0])
+        self.assertEqual(1, len(merged["subsystems"][0]["hosts"]))
+        self.assertEqual("DHHC-1:synthetic", merged["subsystems"][0]["hosts"][0]["secrets"]["dhChapKey"])
+        with self.assertRaises(ValueError):
+            capsules.merge_nvme_identity_payload(desired, {})
+
+    def test_nvme_replay_uses_stdin_and_suppresses_child_secret_diagnostics(self):
+        from unittest.mock import patch
+        from types import SimpleNamespace
+        desired = {"subsystems": [{"hosts": [{"principal": "nqn.test:allowed", "config": {"dhChapEnabled": True}}]}]}
+        credentials = {"nqn.test:allowed": {"dhchap_key": "DHHC-1:synthetic"}}
+        with patch.object(capsules.subprocess, "run", return_value=SimpleNamespace(returncode=0, stdout='{"success":true}')) as run:
+            self.assertTrue(capsules.replay_nvme_identity_payload(desired, credentials)["nvmeRestored"])
+            self.assertEqual("/dev/stdin", run.call_args.args[0][-1])
+            self.assertNotIn("synthetic", str(run.call_args.args))
+            self.assertEqual(subprocess.DEVNULL, run.call_args.kwargs["stderr"])
+            self.assertIn("DHHC-1:synthetic", run.call_args.kwargs["input"])
+
+    def test_missing_protected_nvme_binding_is_blocked_before_identity_files(self):
+        from unittest.mock import patch
+        payload = {"schemaVersion": 1, "files": {}, "accounts": {}, "nvmeHosts": {"nqn.test:allowed": {"dhchap_key": "DHHC-1:synthetic", "dhchap_ctrl_key": None}}}
+        with patch.object(capsules, "restore") as restore:
+            with self.assertRaises(ValueError):
+                capsules.restore_protected(payload)
+            restore.assert_not_called()
+    def test_protected_replay_restores_accounts_then_only_the_reviewed_protocol_payload(self):
+        from unittest.mock import patch
+        payload = {"schemaVersion": 1, "files": {}, "accounts": {}, "nvmeHosts": {"nqn.test:allowed": {"dhchap_key": "DHHC-1:synthetic", "dhchap_ctrl_key": None}}}
+        desired = {"subsystems": [{"hosts": [{"principal": "nqn.test:allowed", "config": {"dhChapEnabled": True}}]}]}
+        sequence = []
+        with patch.object(capsules, "restore", side_effect=lambda value: sequence.append("identity") or {"success": True}), \
+             patch.object(capsules, "replay_nvme_identity_payload", side_effect=lambda value, hosts: sequence.append("protocol") or {"success": True}):
+            self.assertTrue(capsules.restore_protected(payload, desired)["nvmeRestored"])
+        self.assertEqual(["identity", "protocol"], sequence)
+
 
 if __name__ == "__main__":
     unittest.main()
