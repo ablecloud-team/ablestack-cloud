@@ -78,7 +78,7 @@ public final class StorageConfigSemantic {
                     String key = field.getKey();JsonElement data = field.getValue();
                     String lower = key.toLowerCase(java.util.Locale.ROOT);
                     if (lower.contains("secret") || lower.contains("password") || lower.contains("privatekey")) continue;
-                    if (Set.of("id", "instance_id", "volume_id", "resource_id", "posix_policy_id", "created", "last_applied", "effective_json", "path_key").contains(key)) continue;
+                    if (Set.of("id", "instance_id", "volume_id", "resource_id", "posix_policy_id", "created", "updated", "removed", "last_applied", "effective_json", "path_key").contains(key)) continue;
                     if ("config_json".equals(key)) {
                         JsonObject config = data.isJsonNull() ? new JsonObject() : new JsonParser().parse(data.getAsString()).getAsJsonObject();
                         config = redact(config).getAsJsonObject();for (String observation : OBSERVATIONS) config.remove(observation);
