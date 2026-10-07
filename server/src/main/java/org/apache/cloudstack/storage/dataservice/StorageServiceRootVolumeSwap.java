@@ -125,8 +125,12 @@ public final class StorageServiceRootVolumeSwap {
         if (staged.getInstanceId()!=null || !Objects.equals(staged.getTemplateId(),targetTemplateId)) {
             throw new CloudRuntimeException("Staged ROOT binding changed before preparation");
         }
-        if (staged.getState()==Volume.State.Ready) return staged;
-        if (staged.getState()!=Volume.State.Allocated) throw new CloudRuntimeException("Staged ROOT creation requires reconciliation");
+        Volume.State state=staged.getState();
+        if (state==Volume.State.Ready) {
+            if (!Objects.equals(staged.getPoolId(),previous.getPoolId())) throw new CloudRuntimeException("Staged ROOT primary storage changed");
+            return staged;
+        }
+        if (state!=Volume.State.Allocated) throw new CloudRuntimeException("Staged ROOT creation requires reconciliation");
         TemplateInfo template=templateFactory.getTemplate(targetTemplateId,DataStoreRole.Image,vm.getDataCenterId());
         if (template==null) throw new CloudRuntimeException("Target template is not available in this zone");
         VolumeInfo volume=volumeFactory.getVolume(stagedRootId);volume.setDestinationHostId(vm.getHostId());
