@@ -108,6 +108,12 @@ public class UpdateStorageSmbShareCmd extends BaseStorageServiceAsyncCmd impleme
     public Boolean getInheritPermissions() { return inheritPermissions; }
     public Boolean getConfirmFileExecute() { return confirmFileExecute; }
 
+    @Parameter(name = "posixpolicyid", type = CommandType.UUID, entityType = org.apache.cloudstack.api.response.StoragePosixDirectoryPolicyResponse.class,
+            description = "Common directory policy to inherit; protocol-local owner and mode must match it")
+    private Long posixPolicyId;
+
+    public Long getPosixPolicyId() { return posixPolicyId; }
+
     public Long getId() {
         return id;
     }

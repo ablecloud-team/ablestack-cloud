@@ -44,6 +44,27 @@ public class StorageServiceDesiredSnapshotValidationTest {
     private JsonObject table(JsonObject value,int index){return value.getAsJsonArray("tables").get(index).getAsJsonObject();}
     private JsonObject share(JsonObject value){return table(value,1).getAsJsonArray("rows").get(0).getAsJsonObject();}
     private void reject(JsonObject value){Assert.assertThrows(CloudRuntimeException.class,()->StorageServiceDesiredSnapshot.validateSnapshot(7,value.toString()));}
+    private JsonObject extendedSnapshot() {
+        final JsonObject value = snapshot();value.addProperty("schemaVersion", 2);
+        final JsonObject policy = new JsonObject();policy.addProperty("table", "storage_posix_directory_policy");
+        final JsonArray columns = new JsonArray();
+        for (String key : new String[] {"id", "uuid", "instance_id"}) {
+            final JsonObject column = new JsonObject();column.addProperty("name", key);column.addProperty("type", java.sql.Types.VARCHAR);columns.add(column);
+        }
+        policy.add("columns", columns);policy.add("rows", new JsonArray());value.getAsJsonArray("tables").add(policy);
+        final JsonObject reference = new JsonObject();reference.addProperty("name", "posix_policy_id");reference.addProperty("type", java.sql.Types.BIGINT);
+        table(value, 1).getAsJsonArray("columns").add(reference);share(value).add("posix_policy_id", com.google.gson.JsonNull.INSTANCE);
+        return value;
+    }
+    @Test public void acceptsExtendedSnapshotAndRejectsForeignPolicyReference() {
+        JsonObject value = extendedSnapshot();Assert.assertEquals(6, StorageServiceDesiredSnapshot.validateSnapshot(7, value.toString()).size());
+        share(value).addProperty("posix_policy_id", 99);reject(value);
+    }
+    @Test public void nativeDirectoryMetadataDoesNotExpandTheAllowedSqlTableSet() {
+        JsonObject value = extendedSnapshot();value.add("nativePosixDirectory", new JsonObject());
+        Assert.assertEquals(6, StorageServiceDesiredSnapshot.validateSnapshot(7, value.toString()).size());
+        table(value, 5).addProperty("table", "volumes");reject(value);
+    }
     @Test public void acceptsCompleteScopedSnapshot() {Assert.assertEquals(5,StorageServiceDesiredSnapshot.validateSnapshot(7,snapshot().toString()).size());}
     @Test public void rejectsCrossInstanceRowBeforeAnyDatabaseMutation() {JsonObject value=snapshot();share(value).addProperty("instance_id",8);reject(value);}
     @Test public void rejectsForeignAclReferenceBeforeAnyDatabaseMutation() {
