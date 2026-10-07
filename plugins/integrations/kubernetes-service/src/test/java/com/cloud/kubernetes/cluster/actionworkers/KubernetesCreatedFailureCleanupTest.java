@@ -29,6 +29,8 @@ import com.cloud.kubernetes.cluster.dao.KubernetesClusterVmMapDao;
 import com.cloud.utils.db.SearchBuilder;
 import com.cloud.utils.db.SearchCriteria;
 import com.cloud.utils.exception.CloudRuntimeException;
+import com.cloud.vm.dao.VMInstanceDao;
+import com.cloud.vm.VMInstanceVO;
 import org.apache.cloudstack.framework.jobs.AsyncJob;
 import org.apache.cloudstack.framework.jobs.dao.AsyncJobDao;
 import org.apache.cloudstack.framework.jobs.impl.AsyncJobVO;
@@ -50,6 +52,9 @@ public class KubernetesCreatedFailureCleanupTest {
         cluster = Mockito.mock(KubernetesCluster.class);
         Mockito.when(cluster.getId()).thenReturn(3L);
         Mockito.when(cluster.getState()).thenReturn(KubernetesCluster.State.Created);
+        Mockito.when(cluster.getName()).thenReturn("test-cluster");
+        Mockito.when(cluster.getNetworkId()).thenReturn(7L);
+        Mockito.when(cluster.getEtcdNodeCount()).thenReturn(0L);
         manager = Mockito.mock(KubernetesClusterManagerImpl.class);
         worker = Mockito.spy(new KubernetesClusterDestroyWorker(cluster, manager));
         maps = Mockito.mock(KubernetesClusterVmMapDao.class);
@@ -57,6 +62,7 @@ public class KubernetesCreatedFailureCleanupTest {
         worker.kubernetesClusterVmMapDao = maps;
         worker.kubernetesClusterDetailsDao = details;
         worker.kubernetesClusterDao = Mockito.mock(KubernetesClusterDao.class);
+        worker.vmInstanceDao = Mockito.mock(VMInstanceDao.class);
         worker.asyncJobDao = Mockito.mock(AsyncJobDao.class);
         SearchBuilder<AsyncJobVO> builder = Mockito.mock(SearchBuilder.class);
         Mockito.when(builder.entity()).thenReturn(Mockito.mock(AsyncJobVO.class));
@@ -106,6 +112,24 @@ public class KubernetesCreatedFailureCleanupTest {
         assertFalse(worker.reconcileFailedCreationBeforeDelete());
         Mockito.verifyNoInteractions(worker.asyncJobDao);
         Mockito.verifyNoInteractions(details);
+    }
+    @Test public void legacyFirstControlFailureWithoutAnyNodesCanBeCleaned() {
+        Mockito.when(cluster.getState()).thenReturn(KubernetesCluster.State.Error);
+        Mockito.when(failed.getResult()).thenReturn("{\"errortext\":\"Provisioning the control VM failed in the Kubernetes cluster : test-cluster\"}");
+        assertTrue(worker.reconcileFailedCreationBeforeDelete());
+        Mockito.verify(worker, Mockito.never()).stateTransitTo(Mockito.anyLong(), Mockito.any());
+        Mockito.verify(details).addDetail(3L, "lifecycle.creation.failed.job", "failed-create-job", false);
+    }
+    @Test public void laterFailureIsNotTreatedAsUnprovisioned() {
+        Mockito.when(cluster.getState()).thenReturn(KubernetesCluster.State.Error);
+        Mockito.when(failed.getResult()).thenReturn("{\"errortext\":\"CSI deployment failed\"}");
+        assertFalse(worker.reconcileFailedCreationBeforeDelete());
+        Mockito.verifyNoInteractions(details);
+    }
+    @Test public void untrackedExistingNodeVmBlocksUnprovisionedCleanup() {
+        Mockito.when(worker.vmInstanceDao.listNonRemovedVmsByTypeAndNetwork(Mockito.eq(7L), Mockito.any()))
+                .thenReturn(Collections.singletonList(Mockito.mock(VMInstanceVO.class)));
+        rejectsWithoutCleanupMarker();
     }
     @Test public void realCredentialPreparationFailureUsesNormalCreationFailureStates() {
         KubernetesClusterStartWorker start = Mockito.spy(new KubernetesClusterStartWorker(cluster, manager));

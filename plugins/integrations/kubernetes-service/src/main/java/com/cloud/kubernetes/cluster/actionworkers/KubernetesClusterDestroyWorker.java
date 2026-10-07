@@ -107,7 +107,9 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
     }
 
     protected boolean reconcileFailedCreationBeforeDelete() {
-        if (kubernetesCluster.getState() != KubernetesCluster.State.Created
+        final boolean created = kubernetesCluster.getState() == KubernetesCluster.State.Created;
+        final boolean error = kubernetesCluster.getState() == KubernetesCluster.State.Error;
+        if ((!created && !error)
                 || !CollectionUtils.isEmpty(kubernetesClusterVmMapDao.listByClusterId(kubernetesCluster.getId()))) {
             return false;
         }
@@ -127,14 +129,33 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
                 || jobs.stream().anyMatch(job -> job.getStatus() == AsyncJob.Status.IN_PROGRESS)) {
             throw new CloudRuntimeException("Cannot delete a Created Kubernetes cluster without a verified failed creation job and no active creation");
         }
+        if (error && !isVerifiedFirstControlProvisioningFailure(last)) {
+            return false;
+        }
+        if (!CollectionUtils.isEmpty(vmInstanceDao.listNonRemovedVmsByTypeAndNetwork(kubernetesCluster.getNetworkId(), VirtualMachine.Type.User))) {
+            throw new CloudRuntimeException("Unprovisioned creation cleanup requires a network without remaining node VMs");
+        }
         kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "lifecycle.provisioning.phase", "Preflight", false);
         kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "lifecycle.creation.failed.job", last.getUuid(), false);
-        if (!stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.StartRequested)
-                || !stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.CreateFailed)) {
+        if (created && (!stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.StartRequested)
+                || !stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.CreateFailed))) {
             throw new CloudRuntimeException("Cannot reconcile the failed unprovisioned Kubernetes creation state");
         }
         kubernetesCluster = kubernetesClusterDao.findById(kubernetesCluster.getId());
         return true;
+    }
+
+    protected boolean isVerifiedFirstControlProvisioningFailure(AsyncJobVO failed) {
+        if (!Long.valueOf(0L).equals(kubernetesCluster.getEtcdNodeCount()) || failed.getResult() == null) {
+            return false;
+        }
+        try {
+            java.util.Map<?, ?> result = new com.google.gson.Gson().fromJson(failed.getResult(), java.util.Map.class);
+            return result != null && ("Provisioning the control VM failed in the Kubernetes cluster : " + kubernetesCluster.getName())
+                    .equals(result.get("errortext"));
+        } catch (com.google.gson.JsonParseException e) {
+            return false;
+        }
     }
 
     private void validateClusterSate() {
