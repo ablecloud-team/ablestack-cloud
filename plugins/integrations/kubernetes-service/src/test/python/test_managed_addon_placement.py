@@ -97,4 +97,31 @@ class ManagedAddonPlacementTest(unittest.TestCase):
         with patch('sys.stderr'): self.assertEqual(placement.cli('/verified/headlamp.yaml','HEADLAMP'),1)
         self.assertEqual(run.call_count,1)
 
+    @patch.object(placement.subprocess, 'run')
+    def test_existing_uses_uid_and_resource_version_cas_for_tolerations_only(self, run):
+        d = self.manifest('CCM')['items'][0];d['metadata'].update(uid='managed-uid',resourceVersion='123')
+        run.side_effect = [subprocess.CompletedProcess([],0,json.dumps(d),''),subprocess.CompletedProcess([],0,'patched','')]
+        with patch('sys.stdout'): self.assertEqual(placement.cli('--existing','CCM'),0)
+        dry, applied = run.call_args_list;args = applied.args[0]
+        self.assertIn('--ignore-not-found', dry.args[0]);self.assertEqual(args[-3], '--type=json')
+        changes = json.loads(args[-1]);self.assertEqual([x['path'] for x in changes], ['/metadata/uid','/metadata/resourceVersion','/spec/template/spec/tolerations'])
+        self.assertEqual(changes[0]['value'],'managed-uid');self.assertEqual(changes[1]['value'],'123')
+        self.assertIsNone(applied.kwargs['input'])
+    @patch.object(placement.subprocess, 'run')
+    def test_existing_missing_or_legacy_component_keeps_legacy_recovery(self, run):
+        for output in ('', json.dumps({'spec': {'template': {'spec': {'containers': [{'image':'legacy/ccm:1'}]}}}})):
+            run.reset_mock();run.return_value = subprocess.CompletedProcess([],0,output,'')
+            with patch('sys.stdout'): self.assertEqual(placement.cli('--existing','CCM'),0)
+            self.assertEqual(run.call_count,1)
+    @patch.object(placement.subprocess, 'run')
+    def test_existing_current_identity_without_cas_is_rejected(self, run):
+        d = self.manifest()['items'][0];run.return_value = subprocess.CompletedProcess([],0,json.dumps(d),'')
+        with patch('sys.stderr'): self.assertEqual(placement.cli('--existing','HEADLAMP'),1)
+        self.assertEqual(run.call_count,1)
+    @patch.object(placement.subprocess, 'run')
+    def test_existing_already_normalized_is_read_only(self, run):
+        d = placement.normalize(self.manifest()['items'][0], 'HEADLAMP');run.return_value = subprocess.CompletedProcess([],0,json.dumps(d),'')
+        with patch('sys.stdout'): self.assertEqual(placement.cli('--existing','HEADLAMP'),0)
+        self.assertEqual(run.call_count,1)
+
 if __name__ == '__main__': unittest.main()

@@ -370,6 +370,20 @@ public class KubernetesClusterActionWorker {
         return data.replace(marker, encoded);
     }
 
+    protected boolean reconcileManagedAddonPlacement() {
+        try {
+            String encoded = Base64.encodeBase64String(readResourceFile("/script/managed-addon-placement.py").getBytes(StandardCharsets.UTF_8));
+            String helper = "sudo python3 -c 'import base64;exec(base64.b64decode(\"" + encoded + "\"))' --existing ";
+            String command = helper + "CCM && " + helper + "HEADLAMP && echo MOLD_MANAGED_ADDON_RECONCILED";
+            Pair<Boolean, String> result = SshHelper.sshExecute(publicIpAddress, sshPort, getControlNodeLoginUser(),
+                    getManagementServerSshPublicKeyFile(), null, command, 10000, 10000, 90000);
+            return Boolean.TRUE.equals(result.first()) && result.second().contains("MOLD_MANAGED_ADDON_RECONCILED");
+        } catch (Exception e) {
+            logger.warn("Managed Kubernetes add-on placement reconciliation failed for cluster {}", kubernetesCluster.getUuid());
+            return false;
+        }
+    }
+
     protected String getControlNodeLoginUser() {
         List<KubernetesClusterVmMapVO> vmMapVOList = getKubernetesClusterVMMaps();
         if (!vmMapVOList.isEmpty()) {

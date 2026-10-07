@@ -67,12 +67,43 @@ def cli(manifest, component):
                "--kubeconfig=/etc/kubernetes/admin.conf", "--request-timeout=20s"]
     try:
         # The immutable source file is not edited. Secret/config content stays in memory.
-        dry = subprocess.run(kubectl + ["create", "--dry-run=client", "-f", manifest, "-o", "json"],
+        existing = manifest == "--existing"
+        name = TARGETS[component][0]
+        command = (["get", "deployment", name, "-n", "kube-system", "--ignore-not-found", "-o", "json"] if existing
+                   else ["create", "--dry-run=client", "-f", manifest, "-o", "json"])
+        dry = subprocess.run(kubectl + command,
                              capture_output=True, text=True, timeout=30)
         if dry.returncode:
             raise subprocess.CalledProcessError(dry.returncode, kubectl, stderr=dry.stderr)
-        normalized = normalize(json.loads(dry.stdout), component)
-        applied = subprocess.run(kubectl + ["apply", "-f", "-"], input=json.dumps(normalized),
+        if existing and not dry.stdout.strip():
+            print("MOLD_MANAGED_ADDON_LEGACY_UNCHANGED component=" + component)
+            return 0
+        document = json.loads(dry.stdout)
+        if existing:
+            # Older non-Mold manifests retain their original recovery path.
+            images = [c.get("image", "") for c in document.get("spec", {}).get("template", {}).get("spec", {}).get("containers", [])]
+            if not any(image.startswith(prefix) for image in images for prefix in TARGETS[component][2]):
+                print("MOLD_MANAGED_ADDON_LEGACY_UNCHANGED component=" + component)
+                return 0
+        normalized = normalize(document, component)
+        if existing:
+            before = document["spec"]["template"]["spec"].get("tolerations")
+            after = normalized["spec"]["template"]["spec"]["tolerations"]
+            if before == after:
+                print("MOLD_MANAGED_ADDON_APPLIED component=" + component)
+                return 0
+            metadata = document["metadata"]
+            if not metadata.get("uid") or not metadata.get("resourceVersion"):
+                raise ValueError("missing identity preconditions")
+            patch = [{"op": "test", "path": "/metadata/uid", "value": metadata["uid"]},
+                     {"op": "test", "path": "/metadata/resourceVersion", "value": metadata["resourceVersion"]},
+                     {"op": "add" if before is None else "replace", "path": "/spec/template/spec/tolerations", "value": after}]
+            command = ["patch", "deployment", name, "-n", "kube-system", "--type=json", "-p", json.dumps(patch)]
+            payload = None
+        else:
+            command = ["apply", "-f", "-"]
+            payload = json.dumps(normalized)
+        applied = subprocess.run(kubectl + command, input=payload,
                                  capture_output=True, text=True, timeout=30)
         if applied.returncode:
             raise subprocess.CalledProcessError(applied.returncode, kubectl, stderr=applied.stderr)

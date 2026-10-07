@@ -1042,6 +1042,11 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
         if (!isKubernetesClusterKubeConfigAvailable(startTimeoutTime)) {
             return false;
         }
+        // A paused ISO upgrade can leave owned add-ons Pending under operator cordon.
+        // Repair only their validated placement before the dashboard recovery gate.
+        if (!reconcileManagedAddonPlacement()) {
+            return false;
+        }
         if (!isKubernetesClusterDashboardServiceRunning(false, startTimeoutTime)) {
             return false;
         }
