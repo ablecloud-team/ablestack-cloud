@@ -33,3 +33,9 @@
 기존 LKG revision 4를 유지했고 candidate는 FAILED로 기록했습니다. scoped DB audit로 nativeIdentityCapsule checkpoint가 실제 존재했으며 복구 완료 후 capsule와 wrapped key의 cleanup=CLEANED 및 보호 파일 제거를 확인했습니다. 비밀값·키 원문은 검사 출력에 포함하지 않았습니다. 변경 전후 데이터·inode·owner/mode·filesystem UUID·boot ID·Samba PID와 실제 SMB 인증·읽기 출력도 일치했습니다.
 
 이 시험의 실제 UI 검증과 추가 phase·네 프로토콜·native generation은 계속 진행합니다.
+
+실제 Chrome UI의 SMB 변경 작업 이력에서도 INTERRUPTED_WRITER_ROLLED_BACK, 이전 구성 복구 완료 및 원래 진단을 확인했습니다.
+
+![실제 SMB 변경의 재시작 자동 복구](20261008-smb-changed-crash-auto-recovered.png)
+
+전체 phase·네 프로토콜·native generation과 취소/배수 완료 게이트는 계속 진행합니다.
