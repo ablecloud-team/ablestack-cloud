@@ -8130,7 +8130,7 @@ class Generation:
         raise ValueError("Unsupported generation action")
 
 import sys
-request = json.loads(Path(sys.argv[2]).read_text()) if len(sys.argv) > 2 and sys.argv[2] else None
+request = json.loads(Path(sys.argv[2]).read_text()) if sys.argv[1] != "status" and len(sys.argv) > 2 and sys.argv[2] else None
 try:
     print(json.dumps(Generation().execute(sys.argv[1], request), sort_keys=True))
 except (ValueError, KeyError, OSError) as failure:
