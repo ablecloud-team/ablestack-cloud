@@ -97,12 +97,16 @@ public final class DesiredStateChange {
                     phase(operation, "VERIFYING", 80);
                     runtime.verify();
                     operation.setSnapshotJson(snapshots.capture(instanceId));
-                    runtime.promoteVerifiedConfiguration(operation);
                     operation.setResultJson(gson.toJson(response));
-                    operation.setState("COMPLETE"); operation.setCompleted(new Date());
-                    phase(operation, "COMPLETE", 100);
+                    runtime.promoteVerifiedConfiguration(operation);
+                    // The verified configuration path commits COMPLETE and its LKG pointer together.
+                    if (!"COMPLETE".equals(operation.getState())) {
+                        operation.setState("COMPLETE"); operation.setCompleted(new Date());
+                        phase(operation, "COMPLETE", 100);
+                    }
                     return response;
                 } catch (RuntimeException failure) {
+                    operation.setState("RUNNING");
                     operation.setDiagnostic(message(failure));
                     if (mutated && failure instanceof com.cloud.exception.InvalidParameterValueException && operation.getPreviousSnapshotJson()!=null) {
                         // A rejected input must not restart healthy protocols when no desired state changed.

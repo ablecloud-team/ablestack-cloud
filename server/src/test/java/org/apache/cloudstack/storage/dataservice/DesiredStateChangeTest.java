@@ -142,4 +142,28 @@ public class DesiredStateChangeTest {
         Assert.assertEquals(java.util.List.of("checkpoint", "mutation"), order);
     }
 
+    @Test public void operationResultIsAvailableAtTheAtomicPromotionBoundary() {
+        org.mockito.Mockito.doAnswer(call -> {
+            StorageServiceOperationVO operation = call.getArgument(0);
+            Assert.assertEquals("\"done\"", operation.getResultJson());
+            operation.setState("COMPLETE");operation.setPhase("COMPLETE");operation.setProgress(100);
+            return null;
+        }).when(runtime).promoteVerifiedConfiguration(any());
+        Assert.assertEquals("done", engine.execute(7L, "atomic", "commit", 0L, String.class, () -> "done", runtime));
+        Assert.assertEquals("COMPLETE", saved.get().getState());
+        Assert.assertEquals(100, saved.get().getProgress());
+    }
+
+    @Test public void failedAtomicCompletionNeverLeavesTheInMemoryOperationComplete() {
+        org.mockito.Mockito.doAnswer(call -> {
+            StorageServiceOperationVO operation = call.getArgument(0);
+            operation.setState("COMPLETE");
+            throw new CloudRuntimeException("operation commit failure");
+        }).when(runtime).promoteVerifiedConfiguration(any());
+        Assert.assertThrows(CloudRuntimeException.class, () -> engine.execute(7L, "atomic", "commit-failure", 0L, String.class, () -> "new", runtime));
+        Assert.assertEquals("ROLLED_BACK", saved.get().getState());
+        verify(snapshots).restore(7L, "previous");
+        verify(runtime).applyPrevious();
+    }
+
 }

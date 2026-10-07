@@ -44,7 +44,7 @@ public class StorageConfigArtifactDaoImpl extends GenericDaoBase<StorageConfigAr
         SearchCriteria<StorageConfigArtifactVO> criteria = scope.create();criteria.setParameters("instance", instanceId);return listBy(criteria);
     }
     @Override
-    public boolean promoteVerified(long instanceId, long candidateId, Long expectedActiveId, long expectedActiveRevision) {
+    public boolean promoteVerified(long instanceId, long candidateId, Long expectedActiveId, long expectedActiveRevision, Runnable completeOperation) {
         return com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<Boolean>) status -> {
             StorageConfigArtifactVO candidate = lockRow(candidateId, true);
             if (candidate == null || candidate.getInstanceId() != instanceId || !"RESTORE_POINT".equals(candidate.getKind())
@@ -65,6 +65,7 @@ public class StorageConfigArtifactDaoImpl extends GenericDaoBase<StorageConfigAr
                     }
                     candidate.setState("ACTIVE_LKG");candidate.setUpdated(new Date());candidate.setExpires(null);
                     if (!update(candidate.getId(), candidate)) throw new CloudRuntimeException("Unable to promote verified restore point");
+                    completeOperation.run();
                     return true;
                 }
             } catch (SQLException failure) {

@@ -17,3 +17,13 @@ cloud.storage_service_config_artifact.active_lkg_instance_id는 RESTORE_POINT/AC
 ![실제 LKG 승격 이력](20261008-active-lkg-cas-complete.png)
 
 이 검증은 DB 단일 활성 제약과 성공 복원 범위입니다. 관리 서버 재시작·프로토콜 장애 주입·전체 구성 복구 조건은 별도 검증합니다.
+
+UI에서 현재 구성 검증을 실행해 revision 3 승격과 이전 지점 보존을 확인했습니다.
+
+![UI에서 실행한 검증 후 정상 지점](20261008-active-lkg-ui-verified.png)
+
+잘못된 확인 이름, 토큰, 필수 자격증명 누락, superseded LKG 참조의 실제 비동기 작업 실패와 활성 LKG 보존을 확인했습니다. 정상 계획 생성 후 별도 검증으로 revision 3 → 4가 된 뒤 오래된 계획의 적용도 2adf450d-e8de-4585-b916-a378fb320da8에서 BLOCKED로 차단됐습니다. UI에 적용 전 차단과 새 dry-run이 필요하다는 진단을 표시하며 revision 4 지점을 유지합니다.
+
+![오래된 계획 적용 전 차단](20261008-stale-plan-blocked.png)
+
+추가 구현: 작업의 COMPLETE/result/phase와 LKG 승격을 같은 DB 트랜잭션에서 커밋합니다. candidate artifact 파일은 앞서 기록하며 트랜잭션 실패 시 제거하고 FAILED로 기록합니다. rollback 이후 in-memory operation도 COMPLETE로 남지 않습니다. 관련 모듈 회귀 18개가 통과했습니다. 실제 DB 임시 테이블에서 operation 완료 기록에 실패를 주입했을 때 LKG·operation을 함께 rollback하고 성공 시 함께 commit하는 것도 확인했습니다. 배포 후 실제 시험 서비스 실패 주입 검증은 별도 기록합니다.
