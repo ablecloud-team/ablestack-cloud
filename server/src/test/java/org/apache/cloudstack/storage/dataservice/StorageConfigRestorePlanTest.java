@@ -83,4 +83,25 @@ public class StorageConfigRestorePlanTest {
         Assert.assertEquals(1, plan.getAsJsonArray("update").size());Assert.assertEquals(0, plan.getAsJsonArray("delete").size());
         Assert.assertTrue(plan.getAsJsonArray("update").get(0).getAsJsonObject().has("current"));
     }
+    @Test public void mappedVolumeIdentityIsComparedAtTheTargetRatherThanTheSource() {
+        Map<String, byte[]> current = archive(true, false);JsonObject actual = share(SHARE);actual.addProperty("volumeUuid", INSTANCE);
+        JsonArray shares = new JsonArray();shares.add(actual);current.put("desired/file-shares.json", shares.toString().getBytes(StandardCharsets.UTF_8));
+        JsonArray volumes = new JsonArray();JsonObject volume = new JsonObject();volume.addProperty("uuid", INSTANCE);volumes.add(volume);
+        current.put("desired/volumes.json", volumes.toString().getBytes(StandardCharsets.UTF_8));
+        JsonObject mappings = mapping();mappings.getAsJsonObject("volumes").addProperty(VOLUME, INSTANCE);
+        JsonObject plan = StorageConfigRestorePlan.build(archive(true, false), current, mappings, "RESTORE_EXISTING", INSTANCE, 28);
+        Assert.assertEquals(1, plan.getAsJsonArray("keep").size());Assert.assertEquals(0, plan.getAsJsonArray("update").size());
+    }
+    @Test public void allRequiredSecretsAndOnlyReviewedSecretFieldsAreAcceptedBeforeMutation() {
+        JsonArray required = new JsonArray();JsonObject item = new JsonObject();item.addProperty("ruleUuid", SHARE);
+        JsonArray fields = new JsonArray();fields.add("chapsecret");fields.add("mutualchapsecret");item.add("fields", fields);required.add(item);
+        JsonObject supplied = new JsonObject();JsonObject entry = new JsonObject();entry.addProperty("chapsecret", "synthetic");supplied.add(SHARE, entry);
+        Assert.assertThrows(CloudRuntimeException.class, () -> StorageConfigRestorePlan.requireCredentials(required, supplied));
+        entry.addProperty("mutualchapsecret", "synthetic2");StorageConfigRestorePlan.requireCredentials(required, supplied);
+        entry.addProperty("password", "unexpected");
+        Assert.assertThrows(CloudRuntimeException.class, () -> StorageConfigRestorePlan.requireCredentials(required, supplied));
+        entry.remove("password");supplied.add(EXTRA, entry.deepCopy());
+        Assert.assertThrows(CloudRuntimeException.class, () -> StorageConfigRestorePlan.requireCredentials(required, supplied));
+    }
+
 }
