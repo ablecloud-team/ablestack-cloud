@@ -69,7 +69,11 @@ public class PosixDirectoryPolicyCrudTest {
         when(policies.listByInstance(anyLong())).thenAnswer(call -> new ArrayList<>(rows.values()));
         when(policies.persist(any())).thenAnswer(call -> {
             StoragePosixDirectoryPolicyVO row = call.getArgument(0);Assert.assertNotNull(row.getState());long id = rows.size() + 1;
-            ReflectionTestUtils.setField(row, "id", id);rows.put(id, row);return row;
+            StoragePosixDirectoryPolicyVO persisted = new StoragePosixDirectoryPolicyVO();
+            ReflectionTestUtils.setField(persisted, "id", id);ReflectionTestUtils.setField(persisted, "uuid", row.getUuid());
+            persisted.setInstanceId(row.getInstanceId());persisted.setVolumeId(row.getVolumeId());persisted.setRelativePath(row.getRelativePath());
+            persisted.setPathKey(row.getPathKey());persisted.setRevision(row.getRevision());persisted.setState(row.getState());persisted.setConfigJson(row.getConfigJson());
+            rows.put(id, persisted);return persisted;
         });
         when(shares.listByInstanceIdAndProtocol(anyLong(), any())).thenReturn(Collections.emptyList());
         ReflectionTestUtils.setField(manager, "storagePosixPolicyDao", policies);ReflectionTestUtils.setField(manager, "storageFileShareDao", shares);
