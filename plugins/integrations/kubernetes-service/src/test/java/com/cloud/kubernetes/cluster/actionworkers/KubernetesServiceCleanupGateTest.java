@@ -63,7 +63,7 @@ public class KubernetesServiceCleanupGateTest {
         Mockito.when(acl.getId()).thenReturn(10L);
         Mockito.when(acl.getUuid()).thenReturn(ACL);
         Mockito.when(acl.getAclId()).thenReturn(9L);
-        Mockito.when(w.networkACLItemDao.findById(10L)).thenReturn(acl);
+        Mockito.when(w.networkACLItemDao.findByUuid(ACL)).thenReturn(acl);
         Mockito.when(w.networkACLService.revokeNetworkACLItem(10L)).thenReturn(true);
         w.cleanupNativeAclResources();
         Mockito.verify(w.networkACLService).revokeNetworkACLItem(10L);

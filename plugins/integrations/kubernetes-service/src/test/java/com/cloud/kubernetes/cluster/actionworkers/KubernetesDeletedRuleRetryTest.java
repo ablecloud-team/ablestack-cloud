@@ -123,4 +123,24 @@ public class KubernetesDeletedRuleRetryTest {
         w.validateOwnedResource(receipt(CURRENT), network());
         assertSame(rule, w.findLiveCleanupRule(receipt(CURRENT)));
     }
+    @Test
+    public void deletedAclUuidLookupNeverCallsNullUnsafeIdLookup() {
+        KubernetesClusterDestroyWorker w = worker();
+        w.networkACLItemDao = Mockito.mock(com.cloud.network.vpc.NetworkACLItemDao.class);
+        Mockito.when(w.networkACLItemDao.findById(7L)).thenThrow(new NullPointerException("DAO loadCidrs on absent row"));
+        KubernetesOwnedResourceReceipt acl = new KubernetesOwnedResourceReceipt(ResourceObjectType.NetworkACL, 7L, RESOURCE, SERVICE, NETWORK, IP, OLD);
+        w.validateOwnedResource(acl, network());
+        assertNull(w.findLiveCleanupAcl(7L, RESOURCE));
+        Mockito.verify(w.networkACLItemDao, Mockito.never()).findById(Mockito.anyLong());
+    }
+    @Test
+    public void aclUuidFoundAtDifferentIdIsPreserved() {
+        KubernetesClusterDestroyWorker w = worker();
+        w.networkACLItemDao = Mockito.mock(com.cloud.network.vpc.NetworkACLItemDao.class);
+        com.cloud.network.vpc.NetworkACLItemVO acl = Mockito.mock(com.cloud.network.vpc.NetworkACLItemVO.class);
+        Mockito.when(acl.getId()).thenReturn(8L);
+        Mockito.when(w.networkACLItemDao.findByUuid(RESOURCE)).thenReturn(acl);
+        try { w.findLiveCleanupAcl(7L, RESOURCE); fail("receipt ID mismatch must block"); }
+        catch (CloudRuntimeException expected) { }
+    }
 }

@@ -479,6 +479,16 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
         return rule == null || rule.getRemoved() != null ? null : rule;
     }
 
+    protected NetworkACLItemVO findLiveCleanupAcl(long id, String uuid) {
+        // NetworkACLItemDao.findById loads CIDRs without a missing-row guard.
+        // UUID lookup is idempotent after deletion and cannot select a reused ID.
+        NetworkACLItemVO rule = networkACLItemDao.findByUuid(uuid);
+        if (rule != null && rule.getId() != id) {
+            throw new CloudRuntimeException("ACL cleanup identity changed: " + uuid);
+        }
+        return rule;
+    }
+
     protected void validateOwnedResource(KubernetesOwnedResourceReceipt receipt, NetworkVO network) {
         IPAddressVO ip = ipAddressDao.findByUuid(receipt.ip);
         if (receipt.type == ResourceObjectType.LoadBalancer || receipt.type == ResourceObjectType.FirewallRule
@@ -495,7 +505,7 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
                 throw new CloudRuntimeException("Network rule cleanup identity changed: " + receipt.resource);
             }
         } else if (receipt.type == ResourceObjectType.NetworkACL) {
-            NetworkACLItemVO rule = networkACLItemDao.findById(receipt.id);
+            NetworkACLItemVO rule = findLiveCleanupAcl(receipt.id, receipt.resource);
             if (rule == null) {
                 return;
             }
@@ -546,7 +556,7 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
                     }
                     break;
                 case NetworkACL:
-                    if (networkACLItemDao.findById(receipt.id) != null) {
+                    if (findLiveCleanupAcl(receipt.id, receipt.resource) != null) {
                         done = networkACLService.revokeNetworkACLItem(receipt.id);
                     }
                     break;
@@ -582,7 +592,7 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
             if (receipt.length != 3 || !network.getUuid().equals(receipt[2])) {
                 throw new CloudRuntimeException("Native ACL cleanup receipt changed");
             }
-            NetworkACLItemVO acl = networkACLItemDao.findById(Long.parseLong(receipt[0]));
+            NetworkACLItemVO acl = findLiveCleanupAcl(Long.parseLong(receipt[0]), KubernetesOwnedResourceReceipt.canonical(receipt[1]));
             if (acl == null) {
                 continue;
             }
@@ -631,6 +641,10 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
             if (message != null && (message.equals(reason) || message.startsWith(reason + ": "))) {
                 return reason;
             }
+        }
+        if (error instanceof NullPointerException && error.getStackTrace().length > 0) {
+            StackTraceElement frame = error.getStackTrace()[0];
+            return "NullPointerException at " + frame.getClassName() + "." + frame.getMethodName() + ":" + frame.getLineNumber();
         }
         return error.getClass().getSimpleName();
     }
