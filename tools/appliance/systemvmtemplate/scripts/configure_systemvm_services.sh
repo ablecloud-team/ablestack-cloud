@@ -158,6 +158,18 @@ function do_signature() {
   echo "Cloudstack Release $CLOUDSTACK_RELEASE $(date)" > /etc/cloudstack-release
 }
 
+function apply_security_patch() {
+  local security_patch_script=/opt/cloud/bin/setup/security_patch_systemvm.sh
+
+  if [ ! -f "${security_patch_script}" ]; then
+    echo "Missing SystemVM security patch script: ${security_patch_script}" >&2
+    return 1
+  fi
+
+  echo "Applying SystemVM security patch during template build"
+  SECURITY_PATCH_FORCE=true bash "${security_patch_script}"
+}
+
 function configure_services() {
   mkdir -p /var/www/html
   mkdir -p /opt/cloud/bin
@@ -233,6 +245,7 @@ EOF
   configure_strongswan
   configure_issue
   configure_cacerts
+  apply_security_patch
 }
 
 return 2>/dev/null || configure_services
