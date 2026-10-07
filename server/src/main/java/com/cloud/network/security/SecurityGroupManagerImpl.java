@@ -89,8 +89,10 @@ import com.cloud.projects.ProjectManager;
 import com.cloud.tags.dao.ResourceTagDao;
 import com.cloud.user.Account;
 import com.cloud.user.AccountManager;
+import com.cloud.user.AccountVO;
 import com.cloud.user.DomainManager;
 import com.cloud.user.dao.AccountDao;
+import com.cloud.user.dao.UserDao;
 import com.cloud.uservm.UserVm;
 import com.cloud.utils.NumbersUtil;
 import com.cloud.utils.Pair;
@@ -138,6 +140,8 @@ public class SecurityGroupManagerImpl extends ManagerBase implements SecurityGro
     UserVmDao _userVMDao;
     @Inject
     AccountDao _accountDao;
+    @Inject
+    UserDao _userDao;
     @Inject
     ConfigurationDao _configDao;
     @Inject
@@ -1216,6 +1220,16 @@ public class SecurityGroupManagerImpl extends ManagerBase implements SecurityGro
         });
     }
 
+    /** Allows an explicit root-admin retry for metadata left by a historical partial account deletion. */
+    protected boolean canDeleteRemovedAccountDefaultGroup(Account caller, SecurityGroupVO group) {
+        if (caller.getType() != Account.Type.ADMIN) {
+            return false;
+        }
+        AccountVO owner = _accountDao.findByIdIncludingRemoved(group.getAccountId());
+        return owner != null && owner.getRemoved() != null && !owner.isDefault()
+                && owner.getType() == Account.Type.NORMAL && _userDao.listByAccount(owner.getId()).isEmpty();
+    }
+
     @DB
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_SECURITY_GROUP_DELETE, eventDescription = "deleting security group")
@@ -1239,7 +1253,8 @@ public class SecurityGroupManagerImpl extends ManagerBase implements SecurityGro
                     throw new InvalidParameterValueException(String.format("Unable to get lock on security group %s", group));
                 }
 
-                if (groupLock.getName().equalsIgnoreCase(SecurityGroupManager.DEFAULT_GROUP_NAME)) {
+                if (groupLock.getName().equalsIgnoreCase(SecurityGroupManager.DEFAULT_GROUP_NAME)
+                        && !canDeleteRemovedAccountDefaultGroup(caller, groupLock)) {
                     throw new InvalidParameterValueException("The network group default is reserved");
                 }
 
