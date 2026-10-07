@@ -18,6 +18,7 @@
 package org.apache.cloudstack.storage.dataservice;
 
 import java.util.Map;
+import java.nio.charset.StandardCharsets;
 import org.junit.Assert;
 import org.junit.Test;
 import com.cloud.utils.exception.CloudRuntimeException;
@@ -44,6 +45,9 @@ public class StorageConfigSemanticTest {
         acl.addProperty("config_json", "{'localAccount':true,'passwordSupplied':true,'password':'synthetic'}".replace((char) 39, (char) 34));
         table(tables, "storage_service_protocol");table(tables, "storage_file_share", share);table(tables, "storage_block_target");
         table(tables, "storage_identity_domain");table(tables, "storage_access_rule", acl);table(tables, "storage_posix_directory_policy", policy);
+        for (com.google.gson.JsonElement table : tables) for (com.google.gson.JsonElement value : table.getAsJsonObject().getAsJsonArray("rows")) {
+            value.getAsJsonObject().addProperty("updated", 123456789L);value.getAsJsonObject().add("removed", com.google.gson.JsonNull.INSTANCE);
+        }
         JsonObject snapshot = new JsonObject();snapshot.addProperty("schemaVersion", 2);snapshot.addProperty("instanceId", 7);snapshot.add("tables", tables);return snapshot.toString();
     }
     private Map<Long, JsonObject> volumes() {
@@ -74,4 +78,12 @@ public class StorageConfigSemanticTest {
         Assert.assertEquals("client", publicValue.getAsJsonArray("nested").get(0).getAsJsonObject().get("user").getAsString());
         Assert.assertTrue(original.getAsJsonArray("nested").get(0).getAsJsonObject().has("dhChapKey"));
     }
+    @Test public void databaseLifecycleColumnsAreNotPortableDesiredConfiguration() {
+        Map<String, byte[]> entries = StorageConfigSemantic.export(snapshot(), new JsonObject(), volumes());
+        for (Map.Entry<String, byte[]> entry : entries.entrySet()) {
+            String json = new String(entry.getValue(), StandardCharsets.UTF_8);
+            Assert.assertFalse(json.contains("\"updated\""));Assert.assertFalse(json.contains("\"removed\""));
+        }
+    }
+
 }
