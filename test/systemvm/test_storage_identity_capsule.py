@@ -206,6 +206,23 @@ class IdentityCapsuleTest(unittest.TestCase):
             with self.assertRaises(ValueError):
                 capsules.validate_payload({"schemaVersion": 1, "files": {path: {"data": base64.b64encode(b"synthetic").decode(), "mode": mode, "uid": 0, "gid": 0}}, "accounts": {}})
 
+    def test_forced_account_cleanup_requires_controller_creation_provenance(self):
+        import base64
+        uuid = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
+        suffix = uuid.replace("-", "")[:20]
+        identity = {"managedUser": "sf_u_"+suffix, "managedGroup": "sf_g_"+suffix, "ownerUid": 1001001, "ownerGid": 1001001}
+        path = "/etc/ablestack-storage/smb-managed-identities.json"
+        envelope = lambda: {path: {"data": base64.b64encode(json.dumps({uuid:identity}).encode()).decode()}}
+        self.assertEqual({}, capsules.owned_account_records(envelope())["/etc/passwd"])
+        identity["createdByControllerUser"] = True
+        identity["createdByControllerGroup"] = True
+        records = capsules.owned_account_records(envelope())
+        self.assertIn("sf_u_"+suffix, records["/etc/passwd"])
+        self.assertIn("sf_g_"+suffix, records["/etc/group"])
+        identity["managedUser"] = "foreign"
+        with self.assertRaises(ValueError):
+            capsules.owned_account_records(envelope())
+
 
 if __name__ == "__main__":
     unittest.main()

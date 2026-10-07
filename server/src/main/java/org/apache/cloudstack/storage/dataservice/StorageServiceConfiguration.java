@@ -154,6 +154,17 @@ public final class StorageServiceConfiguration {
         }
         return required;
     }
+    private void versionMetadata(JsonObject metadata, StorageServiceInstanceVO instance) {
+        JsonObject identity = manager.configurationInstanceMetadata(instance);
+        if (identity.has("productVersion")) metadata.add("productVersion", identity.get("productVersion").deepCopy());
+        JsonObject compatibility = new JsonObject();compatibility.addProperty("minimumManagerVersion", "4.23.0");
+        compatibility.addProperty("maximumManagerVersionExclusive", "4.24.0");metadata.add("configurationCompatibility", compatibility);
+    }
+    private void validateSemanticArchive(Map<String, byte[]> entries, StorageServiceInstanceVO instance) {
+        StorageConfigSemanticValidation.validate(entries, manager);
+        StorageConfigSemanticValidation.compatibility(StorageConfigArchive.json(entries.get("manifest.json")).getAsJsonObject(),
+                manager.configurationInstanceMetadata(instance).get("productVersion").getAsString());
+    }
     private StorageServiceConfigArtifactResponse backup(StorageServiceInstanceVO instance, StorageConfigRequest request) {
         StorageConfigArtifactVO row = create(instance, request, "BACKUP");
         JsonObject metadata = new JsonObject();metadata.addProperty("phase", "COLLECTING_DESIRED");
@@ -178,6 +189,7 @@ public final class StorageServiceConfiguration {
                 throw new CloudRuntimeException("Configuration changed while collecting backup");
             }
             metadata.addProperty("runtimeStatus", partial ? "UNAVAILABLE_OR_PARTIAL" : "AVAILABLE");metadata.addProperty("phase", "COMPLETE");
+            versionMetadata(metadata, instance);
             byte[] archive = StorageConfigArchive.create(entries, metadata);
             row.setSha256(StorageConfigArchive.sha256(archive));row.setSize(archive.length);row.setDesiredRevision(before);store.write(row.getUuid(), archive);
             update(row, metadata, partial ? "PARTIAL" : "COMPLETE");return response(compactRow(row), row.getUuid());
@@ -261,6 +273,7 @@ public final class StorageServiceConfiguration {
         JsonObject metadata = metadata(row);
         try {
             Map<String, byte[]> entries = StorageConfigArchive.validate(store.read(row.getUuid(), row.getSha256()));
+            validateSemanticArchive(entries, instance);
             metadata.add("manifest", StorageConfigArchive.json(entries.get("manifest.json")));
             metadata.add("requiredCredentials", requiredCredentials(entries));metadata.addProperty("phase", "ARCHIVE_VALIDATED");
             update(row, metadata, "ARCHIVE_VALIDATED");
@@ -296,6 +309,7 @@ public final class StorageServiceConfiguration {
             throw new InvalidParameterValueException("Configuration artifact has not passed validation");
         }
         Map<String, byte[]> archive = StorageConfigArchive.validate(store.read(row.getUuid(), row.getSha256()));
+        validateSemanticArchive(archive, source);
         StorageServiceInstanceVO target = request.getTargetInstanceId() == null ? source : manager.requireInstance(request.getTargetInstanceId());
         JsonObject mappings = request.getMapping() == null ? new JsonObject() : new com.google.gson.JsonParser().parse(request.getMapping()).getAsJsonObject();
         String mode = request.getTargetMode() == null ? "RESTORE_EXISTING" : request.getTargetMode();
@@ -457,6 +471,7 @@ public final class StorageServiceConfiguration {
         metadata.addProperty("desiredRevision", operation.getRevision());metadata.addProperty("verifiedAt", System.currentTimeMillis());
         metadata.addProperty("runtimeStatus", "AVAILABLE");JsonArray required = requiredCredentials(entries);
         metadata.add("requiredCredentials", required);metadata.addProperty("credentialCoverage", required.size() == 0 ? "FULL" : "REQUIRES_REENTRY");
+        versionMetadata(metadata, instance);
         byte[] archive = StorageConfigArchive.create(entries, metadata);
         StorageConfigArtifactVO candidate = new StorageConfigArtifactVO();candidate.setInstanceId(instance.getId());candidate.setKind("RESTORE_POINT");
         candidate.setState("CANDIDATE");candidate.setDesiredRevision(operation.getRevision());candidate.setSourceOperationId(operation.getId());
