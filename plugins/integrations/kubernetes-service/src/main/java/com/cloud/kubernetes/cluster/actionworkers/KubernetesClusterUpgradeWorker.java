@@ -229,6 +229,14 @@ public class KubernetesClusterUpgradeWorker extends KubernetesClusterActionWorke
                 result = " (stage " + marker.group(1) + ", exit " + exit + ")";
             }
         }
+        java.util.regex.Matcher reason = java.util.regex.Pattern.compile(
+                "(?m)^MOLD_UPGRADE_APPLY_FAILURE reason=(API_TRANSIENT|API_AUTHORIZATION|API_VALIDATION|API_OTHER)\\r?$")
+                .matcher(output == null ? "" : output);
+        String category = "";
+        while (reason.find()) { category = reason.group(1); }
+        if (!result.isEmpty() && !category.isEmpty()) {
+            result = result.substring(0, result.length() - 1) + ", reason " + category + ")";
+        }
         return result;
     }
 

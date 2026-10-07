@@ -181,4 +181,11 @@ public class KubernetesClusterUpgradeWorkerTest {
         }
     }
 
+    @org.junit.Test public void manifestApplyErrorExposesOnlyWhitelistedCategory() {
+        Assert.assertEquals(" (stage CNI_APPLY, exit 1, reason API_TRANSIENT)", KubernetesClusterUpgradeWorker.safeUpgradeFailureStage(
+                "private-output\nMOLD_UPGRADE_APPLY_FAILURE reason=API_TRANSIENT\nMOLD_UPGRADE_FAILED stage=CNI_APPLY exit=1\n"));
+        Assert.assertEquals(" (stage CNI_APPLY, exit 1)", KubernetesClusterUpgradeWorker.safeUpgradeFailureStage(
+                "MOLD_UPGRADE_APPLY_FAILURE reason=raw-private-error\nMOLD_UPGRADE_FAILED stage=CNI_APPLY exit=1\n"));
+    }
+
 }

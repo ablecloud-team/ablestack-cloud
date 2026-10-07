@@ -84,6 +84,33 @@ wait_for_upgrade_api() {
   return 1
 }
 
+# Only fixed categories cross the SSH boundary; manifest or authentication errors stay private.
+apply_upgrade_manifest() {
+  local phase="$1" manifest="$2" output attempt=1
+  mark_upgrade_stage "$phase"
+  while (( attempt <= 3 )); do
+    if output=$(/opt/bin/kubectl --kubeconfig=/etc/kubernetes/admin.conf --request-timeout=20s apply -f "$manifest" 2>&1); then
+      UPGRADE_FAILURE_REASON=""
+      printf '%s\n' "$output"
+      return 0
+    fi
+    case "$output" in
+      *"Unable to connect to the server:"*|*"The connection to the server "*" was refused"*|*"(ServiceUnavailable)"*|*"(TooManyRequests)"*|*"context deadline exceeded"*|*"TLS handshake timeout"*|*"connection reset by peer"*|*"unexpected EOF"*|*": EOF"*)
+        UPGRADE_FAILURE_REASON=API_TRANSIENT ;;
+      *"(Forbidden)"*|*"(Unauthorized)"*|*"You must be logged in"*) UPGRADE_FAILURE_REASON=API_AUTHORIZATION ;;
+      *"(Invalid)"*|*"error validating"*|*"cannot be handled"*) UPGRADE_FAILURE_REASON=API_VALIDATION ;;
+      *) UPGRADE_FAILURE_REASON=API_OTHER ;;
+    esac
+    printf '%s phase=%s status=APPLY_FAILED reason=%s attempt=%s\n' "$(date -u +%FT%TZ)" "$phase" "$UPGRADE_FAILURE_REASON" "$attempt" >> "$UPGRADE_STATUS_FILE"
+    printf 'MOLD_UPGRADE_APPLY_FAILURE reason=%s\n' "$UPGRADE_FAILURE_REASON" >&2
+    if [ "$UPGRADE_FAILURE_REASON" != API_TRANSIENT ] || (( attempt == 3 )); then return 1; fi
+    wait_for_upgrade_api 20 || return 1
+    attempt=$((attempt + 1))
+    sleep 2
+  done
+  return 1
+}
+
 export PATH=$PATH:/opt/bin
 if [[ "$PATH" != *:/usr/sbin && "$PATH" != *:/usr/sbin:* ]]; then
   export PATH=$PATH:/usr/sbin
@@ -270,21 +297,20 @@ if [ -d "$BINARIES_DIR" ]; then
     mark_upgrade_stage API_RECOVERY
     wait_for_upgrade_api 120
     if [[ ${EXTERNAL_CNI} == true ]]; then
-      mark_upgrade_stage CNI_APPLY
-      /opt/bin/kubectl apply -f ${BINARIES_DIR}/network.yaml
+      apply_upgrade_manifest CNI_APPLY "${BINARIES_DIR}/network.yaml"
     fi
     mark_upgrade_stage DASHBOARD_APPLY
     if [ -f "${BINARIES_DIR}/headlamp.yaml" ]; then
-      /opt/bin/kubectl apply -f "${BINARIES_DIR}/headlamp.yaml"
+      apply_upgrade_manifest DASHBOARD_APPLY "${BINARIES_DIR}/headlamp.yaml"
     elif [ -f "${BINARIES_DIR}/dashboard.yaml" ]; then
-      /opt/bin/kubectl apply -f "${BINARIES_DIR}/dashboard.yaml"
+      apply_upgrade_manifest DASHBOARD_APPLY "${BINARIES_DIR}/dashboard.yaml"
     else
       echo "ERROR: dashboard payload is missing" >&2
       exit 1
     fi
     mark_upgrade_stage PROVIDER_APPLY
     [ -s /opt/provider/provider.yaml ] || { echo "ERROR: Mold Provider payload is missing" >&2; exit 1; }
-    /opt/bin/kubectl apply -f /opt/provider/provider.yaml
+    apply_upgrade_manifest PROVIDER_APPLY /opt/provider/provider.yaml
     # Already registered legacy nodes need CCM initialization as well. This
     # NoSchedule taint does not evict workloads; CCM removes it after API lookup.
     mark_upgrade_stage PROVIDER_IDENTITY
