@@ -25,6 +25,31 @@ DESIRED_STATE_DIR="${ABLESTACK_STORAGE_DESIRED_STATE_DIR:-/etc/ablestack-storage
 NFS_DESIRED_STATE_FILE="${ABLESTACK_STORAGE_NFS_DESIRED_STATE_FILE:-${DESIRED_STATE_DIR}/nfs-export-apply.json}"
 SMB_DESIRED_STATE_FILE="${ABLESTACK_STORAGE_SMB_DESIRED_STATE_FILE:-${DESIRED_STATE_DIR}/smb-share-apply.json}"
 
+materialize_stdin_payload_in_memory() {
+  python3 - "$0" "$@" 3<&0 <<'PYMEMFD'
+import os
+import sys
+import fcntl
+import subprocess
+with os.fdopen(3, "rb") as source:
+    payload = source.read(8 * 1024 * 1024 + 1)
+if not payload or len(payload) > 8 * 1024 * 1024:
+    raise SystemExit("Storage Service stdin payload is empty or exceeds its limit")
+fd = os.memfd_create("ablestack-storage-payload", os.MFD_CLOEXEC | os.MFD_ALLOW_SEALING)
+try:
+    os.fchmod(fd, 0o600)
+    os.write(fd, payload)
+    os.lseek(fd, 0, os.SEEK_SET)
+    fcntl.fcntl(fd, fcntl.F_ADD_SEALS, fcntl.F_SEAL_WRITE | fcntl.F_SEAL_GROW | fcntl.F_SEAL_SHRINK | fcntl.F_SEAL_SEAL)
+    arguments = [value if value != "/dev/stdin" else f"/proc/self/fd/{fd}" for value in sys.argv[2:]]
+    inherited = (9,) if os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD") == "9" else ()
+    result = subprocess.run([sys.argv[1], *arguments], pass_fds=(fd, *inherited))
+    raise SystemExit(result.returncode)
+finally:
+    os.close(fd)
+PYMEMFD
+}
+
 acquire_storage_writer_lock() {
   local lock_file="${ABLESTACK_STORAGE_WRITER_LOCK_FILE:-/run/ablestack-storage/desired-writer.lock}"
   local lock_dir
@@ -7942,6 +7967,13 @@ command="${1:-}"
 subcommand="${2:-}"
 action="${3:-}"
 payload="${4:-}"
+
+# Embedded Python programs use stdin for their script. A sealed memfd makes the separate
+# payload readable by all native stages without plaintext files or secret-bearing arguments.
+if [[ "$command" != "identity" && "${@: -1}" == "/dev/stdin" ]]; then
+  materialize_stdin_payload_in_memory "$@"
+  exit $?
+fi
 
 # Keep the descriptor open through native child work, even if the management writer disappears.
 case "$command:$subcommand:$action" in

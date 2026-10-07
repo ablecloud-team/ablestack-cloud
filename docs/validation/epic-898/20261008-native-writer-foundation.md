@@ -11,3 +11,7 @@ native 변경 명령은 보호된 파일의 flock을 획득하고 명령이 끝�
 - 미완료 checkpoint 보존과 rollback 후 지정된 두 파일만 정리하는 회귀 및 원자적 변경 회귀를 모듈 package로 검증.
 
 아직 native 런타임 배포·실제 경쟁 차단 검증과 관리 서버 재시작 후 작업 재개·generation·취소/배수 완료 게이트는 남아 있습니다.
+
+서명된 writer-lock runtime을 신규 시험 VM에 실제 적용했습니다. fa896cf9-b3c4-4ce2-aec7-8017e58ee821은 COMPLETE입니다. 게스트에서 실제 flock을 보유한 동안 operation preflight와 writer-idle이 exit 75/STORAGE_WRITER_BUSY로 차단됐고, 공개 NFS numeric preflight는 성공했습니다. Ganesha 설정 파일 3개의 SHA-256은 정확히 같았고 잠금 해제 후 idle probe가 성공했습니다.
+
+보호된 프로토콜 재적용의 /dev/stdin 입력은 내장 Python 스크립트 stdin과 충돌하고 여러 단계의 재읽기에 실패할 수 있어 추가 보강했습니다. 일반 stdin payload를 mode 0600의 sealed memfd로 전달하고 모든 단계가 descriptor 경로로 읽도록 했습니다. plaintext 파일이나 비밀값 인자를 만들지 않으며 상속 writer descriptor도 유지합니다. 실제 CLI stdin과 독립적인 여러 reader·변경 불가·임시 파일 미생성 회귀를 포함해 native 72개가 통과했습니다. 추가 runtime 배포 검증은 계속 진행합니다.
