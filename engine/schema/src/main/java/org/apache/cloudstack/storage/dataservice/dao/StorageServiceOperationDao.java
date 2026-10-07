@@ -24,4 +24,5 @@ import org.apache.cloudstack.storage.dataservice.StorageServiceOperationVO;
 public interface StorageServiceOperationDao extends GenericDao<StorageServiceOperationVO, Long> {
     StorageServiceOperationVO findByRequest(long instanceId, String requestKey);
     List<StorageServiceOperationVO> listByInstance(long instanceId);
+    List<StorageServiceOperationVO> listStaleRunning(java.util.Date before);
 }

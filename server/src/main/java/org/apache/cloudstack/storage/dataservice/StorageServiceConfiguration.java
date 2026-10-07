@@ -531,6 +531,18 @@ public final class StorageServiceConfiguration {
             point.setState("FAILED");point.setExpires(new Date(System.currentTimeMillis() + 168 * 3600000L));artifacts.update(point.getId(), point);throw failure;
         }
     }
+    public void failInterruptedCandidates(StorageServiceOperationVO operation) {
+        for (StorageConfigArtifactVO point : artifacts.listByInstance(operation.getInstanceId())) {
+            if (!"RESTORE_POINT".equals(point.getKind()) || !"CANDIDATE".equals(point.getState())
+                    || !java.util.Objects.equals(point.getSourceOperationId(), operation.getId())) continue;
+            JsonObject audit = metadata(point);
+            try { store.remove(point.getUuid());audit.addProperty("cleanupState", "CLEANED"); }
+            catch (RuntimeException pending) { audit.addProperty("cleanupState", "PENDING"); }
+            audit.addProperty("recoveryState", operation.getState());
+            point.setExpires(new Date(System.currentTimeMillis() + 168 * 3600000L));update(point, audit, "FAILED");
+        }
+    }
+
     private StorageServiceConfigArtifactResponse delete(StorageServiceInstanceVO instance, StorageConfigRequest request) {
         StorageConfigArtifactVO row = row(instance, request);
         String kind = "DELETE_BACKUP".equals(request.getConfigAction()) ? "BACKUP" : "IMPORT";

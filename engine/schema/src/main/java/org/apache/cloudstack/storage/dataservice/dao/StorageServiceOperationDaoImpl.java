@@ -29,6 +29,8 @@ public class StorageServiceOperationDaoImpl extends GenericDaoBase<StorageServic
         scope = createSearchBuilder();
         scope.and("instance", scope.entity().getInstanceId(), SearchCriteria.Op.EQ);
         scope.and("request", scope.entity().getRequestKey(), SearchCriteria.Op.EQ);
+        scope.and("state", scope.entity().getState(), SearchCriteria.Op.EQ);
+        scope.and("before", scope.entity().getHeartbeat(), SearchCriteria.Op.LTEQ);
         scope.done();
     }
     public StorageServiceOperationVO findByRequest(long instanceId, String requestKey) {
@@ -41,4 +43,10 @@ public class StorageServiceOperationDaoImpl extends GenericDaoBase<StorageServic
         criteria.setParameters("instance", instanceId);
         return listBy(criteria);
     }
+    public List<StorageServiceOperationVO> listStaleRunning(java.util.Date before) {
+        SearchCriteria<StorageServiceOperationVO> criteria = scope.create();
+        criteria.setParameters("state", "RUNNING");criteria.setParameters("before", before);
+        return listBy(criteria, new com.cloud.utils.db.Filter(StorageServiceOperationVO.class, "heartbeat", true, 0L, 20L));
+    }
+
 }

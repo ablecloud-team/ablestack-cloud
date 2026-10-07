@@ -76,8 +76,13 @@ public final class DesiredStateChange {
                     if ("COMPLETE".equals(previous.getState())) return gson.fromJson(previous.getResultJson(), responseClass);
                     throw new CloudRuntimeException("Storage Service operation already exists: " + previous.getUuid() + " " + previous.getState());
                 }
-                long committed = operations.listByInstance(instanceId).stream()
-                        .filter(op -> "COMPLETE".equals(op.getState())).mapToLong(StorageServiceOperationVO::getRevision).max().orElse(0);
+                java.util.List<StorageServiceOperationVO> history = operations.listByInstance(instanceId);
+                long committed = history.stream().filter(op -> "COMPLETE".equals(op.getState()))
+                        .mapToLong(StorageServiceOperationVO::getRevision).max().orElse(0);
+                if (history.stream().anyMatch(op -> "RUNNING".equals(op.getState())
+                        || ("RECOVERY_REQUIRED".equals(op.getState()) && op.getRevision() > committed))) {
+                    throw new CloudRuntimeException("An unresolved Storage Service writer requires recovery before a new change");
+                }
                 if (expectedRevision != null && expectedRevision != committed) throw new CloudRuntimeException("Storage Service configuration revision changed; refresh before retrying");
                 StorageServiceOperationVO operation = new StorageServiceOperationVO();
                 operation.setInstanceId(instanceId); operation.setAction(action); operation.setRequestKey(request);

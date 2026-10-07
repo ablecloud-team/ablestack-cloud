@@ -161,6 +161,101 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public class StorageServiceManagerImpl extends ManagerBase implements StorageService, PluggableService, Configurable {
+    private java.util.concurrent.ScheduledExecutorService interruptedWriterExecutor;
+
+    @Override
+    public boolean start() {
+        interruptedWriterExecutor = java.util.concurrent.Executors.newSingleThreadScheduledExecutor(task -> {
+            Thread thread = new Thread(task, "storage-service-interrupted-writer");thread.setDaemon(true);return thread;
+        });
+        interruptedWriterExecutor.scheduleWithFixedDelay(this::recoverStaleStorageWriters, 15, 30, java.util.concurrent.TimeUnit.SECONDS);
+        return true;
+    }
+
+    @Override
+    public boolean stop() {
+        if (interruptedWriterExecutor != null) interruptedWriterExecutor.shutdownNow();
+        return true;
+    }
+
+    protected void recoverStaleStorageWriters() {
+        if (!StorageServiceInstance.StorageServiceVerifiedConfigurationEnabled.value()) return;
+        try {
+            org.apache.cloudstack.context.CallContext.registerSystemCallContextOnceOnly();
+            for (StorageServiceOperationVO row : storageOperationDao.listStaleRunning(new java.util.Date(System.currentTimeMillis() - 120000))) {
+                com.cloud.utils.db.GlobalLock lock = com.cloud.utils.db.GlobalLock.getInternLock("StorageServiceWriter-" + row.getInstanceId());
+                try {
+                    if (!lock.lock(1)) continue;
+                    try {
+                        StorageServiceOperationVO current = storageOperationDao.findById(row.getId());
+                        StorageServiceInstanceVO instance = storageServiceInstanceDao.findById(row.getInstanceId());
+                        if (current != null && instance != null && InterruptedStateChange.stale(current, System.currentTimeMillis())) {
+                            recoverInterruptedStorageWriter(instance, current);
+                        }
+                    } finally { lock.unlock(); }
+                } catch (RuntimeException deferred) {
+                    logger.warn("Interrupted writer recovery remains pending for operation {}", row.getUuid());
+                } finally { lock.releaseRef(); }
+            }
+        } catch (RuntimeException unavailable) {
+            logger.warn("Interrupted writer recovery scan is temporarily unavailable");
+        } finally { org.apache.cloudstack.context.CallContext.unregister(); }
+    }
+
+    protected void recoverInterruptedStorageWriter(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
+        new InterruptedStateChange(storageOperationDao, new StorageServiceDesiredSnapshot()).recover(operation,
+                storageOperationDao.listByInstance(instance.getId()), new InterruptedStateChange.Runtime() {
+            public void idle() {
+                VMInstanceVO vm = instance.getVmId() == null ? null : vmInstanceDao.findById(instance.getVmId());
+                if (vm == null || vm.getState() != com.cloud.vm.VirtualMachine.State.Running) throw new CloudRuntimeException("Interrupted writer SystemVM is unavailable");
+                StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
+                        "operation writer-idle", "", 15, Collections.emptySet()));
+                JsonObject observed = parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));
+                if (!result.isSuccess() || !Boolean.TRUE.equals(getJsonBoolean(observed, "success"))
+                        || !Boolean.TRUE.equals(getJsonBoolean(observed, "writerLockSupported")) || !"WRITER_IDLE".equals(getJsonString(observed, "status"))) {
+                    throw new CloudRuntimeException("Native writer is active or its recovery lock capability is unavailable");
+                }
+                if (storageRuntimeUpgradeDao.findActiveByInstanceId(instance.getId()) != null) throw new CloudRuntimeException("Runtime upgrade is active");
+            }
+            public void started(StorageServiceOperationVO row) { storageWriterOperation.set(row); }
+            public void applyPrevious() {
+                restoreNativePosixOperation(null, instance, true);
+                for (StorageServiceInstance.Protocol protocol : StorageServiceInstance.Protocol.values()) {
+                    if (protocol != StorageServiceInstance.Protocol.NVME_OF || !Boolean.TRUE.equals(configurationNativeNvmeReplayed.get())) {
+                        applyStorageServiceProtocolDesiredState(instance, protocol);
+                    }
+                }
+                restoreNativePosixOperation(null, instance, false);
+            }
+            public void verify() { verifyRecoveredStorageWriter(instance); }
+            public void verifyCurrent(StorageServiceOperationVO latest) {
+                String current = new StorageServiceDesiredSnapshot().capture(instance.getId());
+                if (latest.getSnapshotJson() == null || !parseJsonObject(current).equals(parseJsonObject(latest.getSnapshotJson()))) {
+                    throw new CloudRuntimeException("Current desired state differs from the later verified revision");
+                }
+                verifyRecoveredStorageWriter(instance);
+            }
+            public void finished(StorageServiceOperationVO row) {
+                try {
+                    if (Set.of("ROLLED_BACK", "RECONCILED_SUPERSEDED", "BLOCKED").contains(row.getState())) {
+                        new StorageServiceConfiguration(StorageServiceManagerImpl.this, storageConfigArtifactDao, storageOperationDao).failInterruptedCandidates(row);
+                    }
+                    cleanupConfigurationIdentityCheckpoint(row);
+                } finally { storageWriterOperation.remove();configurationNativeNvmeReplayed.remove(); }
+            }
+        }, System.currentTimeMillis());
+    }
+
+    private void verifyRecoveredStorageWriter(StorageServiceInstanceVO instance) {
+        StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
+                "operation verify", "", 60, Collections.emptySet()));
+        JsonObject health = parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));
+        if (!result.isSuccess() || !Boolean.TRUE.equals(getJsonBoolean(health, "success")) || !"ok".equalsIgnoreCase(getJsonString(health, "status"))) {
+            throw new CloudRuntimeException("Recovered Storage Service runtime health is not verified");
+        }
+        verifyReconciledStorageDesiredState(instance);
+    }
+
     private static final Gson GSON = new Gson();
     private static final Gson RUNTIME_RESULT_GSON = new GsonBuilder().disableHtmlEscaping().create();
     private static final int NFS_ANONYMOUS_UID = 65534;
@@ -772,6 +867,16 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             try {
                 final StorageServiceOperationVO operation = storageOperationDao.findById(cmd.getOperationId());
                 if (operation == null || operation.getInstanceId() != instanceId) throw new InvalidParameterValueException("Operation scope changed");
+                if ("RUNNING".equals(operation.getState()) || ("RECOVERY_REQUIRED".equals(operation.getState())
+                        && !StorageOperationReconciliation.superseded(operation, storageOperationDao.listByInstance(instanceId)))) {
+                    recoverInterruptedStorageWriter(instance, operation);
+                    final org.apache.cloudstack.api.response.StorageServiceOperationResponse recovered = new org.apache.cloudstack.api.response.StorageServiceOperationResponse();
+                    recovered.setId(operation.getUuid());recovered.setInstanceid(instance.getUuid());recovered.setAction(operation.getAction());
+                    recovered.setState(operation.getState());recovered.setPhase(operation.getPhase());recovered.setRevision(operation.getRevision());
+                    recovered.setProgress(operation.getProgress());recovered.setCreated(operation.getCreated());recovered.setHeartbeat(operation.getHeartbeat());
+                    recovered.setCompleted(operation.getCompleted());recovered.setDiagnostic(operation.getDiagnostic());recovered.setObjectName("storageserviceoperation");
+                    return recovered;
+                }
                 final boolean superseded = StorageOperationReconciliation.superseded(operation, storageOperationDao.listByInstance(instanceId));
                 if (!superseded) throw new InvalidParameterValueException("No later verified revision exists; explicit rollback recovery is required");
                 final StorageServiceOperationVO latest = storageOperationDao.listByInstance(instanceId).stream()
