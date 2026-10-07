@@ -33,6 +33,7 @@ public final class DesiredStateChange {
         void applyPrevious();
         default void started(StorageServiceOperationVO operation) { }
         default void finished() { }
+        default void prepareNativeCheckpoint(StorageServiceOperationVO operation) { }
         default void promoteVerifiedConfiguration(StorageServiceOperationVO operation) { }
     }
     private final StorageServiceOperationDao operations;
@@ -89,6 +90,7 @@ public final class DesiredStateChange {
                     runtime.preflight();
                     operation.setPreviousSnapshotJson(snapshots.capture(instanceId));
                     phase(operation, "PREPARED", 15);
+                    runtime.prepareNativeCheckpoint(operation);
                     mutated = true;
                     phase(operation, "APPLYING", 30);
                     T response = change.get();

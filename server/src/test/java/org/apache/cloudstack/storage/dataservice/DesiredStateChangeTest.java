@@ -126,4 +126,20 @@ public class DesiredStateChangeTest {
         order.verify(runtime).promoteVerifiedConfiguration(org.mockito.ArgumentMatchers.any());
     }
 
+    @Test public void failedNativeCheckpointNeverMutatesOrRestartsHealthyServices() {
+        doThrow(new CloudRuntimeException("native identity checkpoint unavailable")).when(runtime).prepareNativeCheckpoint(any());
+        Assert.assertThrows(CloudRuntimeException.class, () -> engine.execute(7L, "smb", "checkpoint-failure", 0L, String.class,
+                () -> { throw new AssertionError("credential mutation was reached"); }, runtime));
+        Assert.assertEquals("BLOCKED", saved.get().getState());
+        Assert.assertEquals("previous", saved.get().getPreviousSnapshotJson());
+        verify(runtime, never()).applyPrevious();verify(runtime, never()).verify();verify(snapshots, never()).restore(anyLong(), anyString());
+    }
+    @Test public void checkpointIsProtectedAfterDesiredSnapshotAndBeforeAnyChange() {
+        java.util.List<String> order = new java.util.ArrayList<>();
+        org.mockito.Mockito.doAnswer(call -> { Assert.assertEquals("previous", saved.get().getPreviousSnapshotJson());order.add("checkpoint");return null; })
+                .when(runtime).prepareNativeCheckpoint(any());
+        engine.execute(7L, "smb", "checkpoint-order", 0L, String.class, () -> { order.add("mutation");return "done"; }, runtime);
+        Assert.assertEquals(java.util.List.of("checkpoint", "mutation"), order);
+    }
+
 }
