@@ -82,6 +82,11 @@ public class PosixDirectoryPolicyCrudTest {
         CreateStoragePosixDirectoryPolicyCmd cmd = new CreateStoragePosixDirectoryPolicyCmd();ReflectionTestUtils.setField(cmd, "instanceId", 3L);
         ReflectionTestUtils.setField(cmd, "volumeId", 45L);ReflectionTestUtils.setField(cmd, "relativePath", "shared");ReflectionTestUtils.setField(cmd, "preview", preview);return cmd;
     }
+    @Test public void policyEntityImplementsApiUuidAndInternalIdContracts() {
+        StoragePosixDirectoryPolicyVO policy = new StoragePosixDirectoryPolicyVO();
+        Assert.assertTrue(policy instanceof org.apache.cloudstack.api.Identity);
+        Assert.assertTrue(policy instanceof org.apache.cloudstack.api.InternalIdentity);
+    }
     @Test public void previewDoesNotPersistOrApplyPermissionsAndKeepsObservedMode() {
         manager.executeStoragePosixDirectoryPolicy(create(true));Assert.assertTrue(rows.isEmpty());Assert.assertEquals(0, manager.applies);
     }
