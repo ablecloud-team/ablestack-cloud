@@ -116,5 +116,18 @@ class GenerationTest(unittest.TestCase):
         self.assertEqual(0, result.returncode, result.stderr)
         self.assertEqual(self.request["operationUuid"], json.loads(result.stdout)["pendingOperationUuid"])
 
+    def test_status_accepts_the_empty_payload_file_used_by_the_host_agent(self):
+        cli = SOURCE.parents[2] / "bin/ablestack-storagectl"
+        empty = self.root / "agent-payload.json"
+        empty.write_text("")
+        env = dict(os.environ, ABLESTACK_STORAGE_GENERATION_DIR=str(self.root / "generations"),
+                   ABLESTACK_STORAGE_CONFIGURATION_ROOT=str(self.config),
+                   ABLESTACK_STORAGE_WRITER_LOCK_FILE=str(self.root / "writer.lock"))
+        result = subprocess.run(["bash", str(cli), "operation", "generation", "status", str(empty)],
+                                text=True, capture_output=True, env=env)
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertTrue(json.loads(result.stdout)["generationSupported"])
+        self.assertFalse((self.root / "writer.lock").exists())
+
 if __name__ == "__main__":
     unittest.main()
