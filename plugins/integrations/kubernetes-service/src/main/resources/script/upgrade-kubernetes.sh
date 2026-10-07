@@ -44,6 +44,10 @@ HA_CONTROL_PLANE=false
 if [ $# -gt 5 ]; then
   HA_CONTROL_PLANE="${6}"
 fi
+PRELOAD_IMAGES_ONLY=false
+if [ $# -gt 6 ]; then
+  PRELOAD_IMAGES_ONLY="${7}"
+fi
 
 # Receipts contain fixed phase names and exit status only; never command/config output.
 UPGRADE_STAGE=INITIALIZATION
@@ -170,8 +174,6 @@ if [ -d "$BINARIES_DIR" ]; then
   if [ -f "${BINARIES_DIR}/manifest.json" ]; then
     (cd "${BINARIES_DIR}" && sha256sum -c SHA256SUMS) || exit 1
   fi
-  cp ${BINARIES_DIR}/k8s/kubeadm /opt/bin
-  chmod +x kubeadm
   mark_upgrade_stage IMAGE_IMPORT
   # Preserve archive digests; containerd 2.x defaults to transfer import.
   CTR_IMPORT_OPTIONS=()
@@ -189,6 +191,17 @@ if [ -d "$BINARIES_DIR" ]; then
         ctr -n k8s.io image import "${CTR_IMPORT_OPTIONS[@]}" --digests --base-name "$image_repository" "${BINARIES_DIR}/docker/$line"
     done <<< "$output"
   fi
+  if [ "$PRELOAD_IMAGES_ONLY" = true ]; then
+    # No binary, runtime configuration, service or scheduling change in this phase.
+    mark_upgrade_stage ISO_UNMOUNT
+    umount "$ISO_MOUNT_DIR"
+    rmdir "$ISO_MOUNT_DIR"
+    echo MOLD_UPGRADE_IMAGES_PRELOADED
+    exit 0
+  fi
+  cp "${BINARIES_DIR}/k8s/kubeadm" /opt/bin
+  chmod +x kubeadm
+
   if [ -e "${BINARIES_DIR}/provider.yaml" ]; then
     mkdir -p /opt/provider
     cp "${BINARIES_DIR}/provider.yaml" /opt/provider/provider.yaml

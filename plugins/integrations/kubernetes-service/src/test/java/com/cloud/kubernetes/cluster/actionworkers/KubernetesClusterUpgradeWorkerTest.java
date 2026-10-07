@@ -188,4 +188,32 @@ public class KubernetesClusterUpgradeWorkerTest {
                 "MOLD_UPGRADE_APPLY_FAILURE reason=raw-private-error\nMOLD_UPGRADE_FAILED stage=CNI_APPLY exit=1\n"));
     }
 
+    @Test public void targetImagePreparationIncludesOriginalManualNodeOrderingWithoutDrain() throws Exception {
+        KubernetesClusterUpgradeWorker checked = Mockito.spy(worker);
+        checked.kubernetesClusterDetailsDao = Mockito.mock(com.cloud.kubernetes.cluster.dao.KubernetesClusterDetailsDao.class);
+        UserVm control = Mockito.mock(UserVm.class); UserVm manual = Mockito.mock(UserVm.class); UserVm workerNode = Mockito.mock(UserVm.class);
+        Mockito.when(control.getUuid()).thenReturn("control");Mockito.when(manual.getUuid()).thenReturn("manual");Mockito.when(workerNode.getUuid()).thenReturn("worker");
+        checked.imagePreparationNodes = Arrays.asList(control, manual, workerNode);
+        checked.clusterVMs = Arrays.asList(control, workerNode);
+        Mockito.doReturn(new Pair<>(true, "MOLD_UPGRADE_IMAGES_PRELOADED")).when(checked).runInstallScriptOnVM(Mockito.any(), Mockito.anyInt(), Mockito.eq(true));
+        checked.preloadUpgradeImages();
+        org.mockito.InOrder order = Mockito.inOrder(checked);
+        order.verify(checked).runInstallScriptOnVM(control, 0, true);
+        order.verify(checked).runInstallScriptOnVM(manual, 1, true);
+        order.verify(checked).runInstallScriptOnVM(workerNode, 2, true);
+        Mockito.verify(checked, Mockito.never()).captureUpgradeNodeCordon(Mockito.any());
+    }
+    @Test public void targetImagePreparationFailureStopsBeforeNextNodeAndDrain() throws Exception {
+        KubernetesClusterUpgradeWorker checked = Mockito.spy(worker);
+        UserVm first = Mockito.mock(UserVm.class);UserVm second = Mockito.mock(UserVm.class);
+        checked.imagePreparationNodes = Arrays.asList(first, second);
+        Mockito.doReturn(new Pair<>(false, "private failure")).when(checked).runInstallScriptOnVM(first, 0, true);
+        Mockito.doThrow(new CloudRuntimeException("expected image preparation failure" )).when(checked)
+                .logTransitStateDetachIsoAndThrow(Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.anyList(), Mockito.any(), Mockito.isNull());
+        try { checked.preloadUpgradeImages();Assert.fail("failed image preparation must stop upgrade"); }
+        catch (CloudRuntimeException expected) { }
+        Mockito.verify(checked, Mockito.never()).runInstallScriptOnVM(second, 1, true);
+        Mockito.verify(checked, Mockito.never()).captureUpgradeNodeCordon(Mockito.any());
+    }
+
 }

@@ -77,6 +77,7 @@ public class KubernetesClusterUpgradeWorker extends KubernetesClusterActionWorke
     @Inject protected LoadBalancingRulesService lbService;
     @Inject protected ResourceTagDao resourceTagDao;
     protected LoadBalancerVO upgradeApiLoadBalancer;
+    protected List<UserVm> imagePreparationNodes;
 
     public KubernetesClusterUpgradeWorker(final KubernetesCluster kubernetesCluster,
                                           final KubernetesSupportedVersion upgradeVersion,
@@ -94,19 +95,44 @@ public class KubernetesClusterUpgradeWorker extends KubernetesClusterActionWorke
     }
 
     private Pair<Boolean, String> runInstallScriptOnVM(final UserVm vm, final int index) throws Exception {
+        return runInstallScriptOnVM(vm, index, false);
+    }
+
+    protected Pair<Boolean, String> runInstallScriptOnVM(final UserVm vm, final int index, final boolean preloadOnly) throws Exception {
         int nodeSshPort = sshPort == 22 ? sshPort : sshPort + index;
         String nodeAddress = (index > 0 && sshPort == 22) ? vm.getPrivateIpAddress() : publicIpAddress;
         SshHelper.scpTo(nodeAddress, nodeSshPort, getControlNodeLoginUser(), sshKeyFile, null,
                 "~/", upgradeScriptFile.getAbsolutePath(), "0755");
-        String cmdStr = String.format("sudo ./%s %s %s %s %s %s %s",
+        String cmdStr = String.format("sudo ./%s %s %s %s %s %s %s %s",
                 upgradeScriptFile.getName(),
                 upgradeVersion.getSemanticVersion(),
                 index == 0 ? "true" : "false",
                 KubernetesVersionManagerImpl.compareSemanticVersions(upgradeVersion.getSemanticVersion(), "1.15.0") < 0 ? "true" : "false",
-                Hypervisor.HypervisorType.VMware.equals(vm.getHypervisorType()), Objects.isNull(kubernetesCluster.getCniConfigId()), upgradeApiLoadBalancer != null);
+                Hypervisor.HypervisorType.VMware.equals(vm.getHypervisorType()), Objects.isNull(kubernetesCluster.getCniConfigId()), upgradeApiLoadBalancer != null, preloadOnly);
         return SshHelper.sshExecute(nodeAddress, nodeSshPort, getControlNodeLoginUser(), sshKeyFile, null,
                 cmdStr,
                 10000, 10000, 10 * 60 * 1000);
+    }
+
+    protected void preloadUpgradeImages() {
+        for (int i = 0; i < imagePreparationNodes.size(); ++i) {
+            UserVm vm = imagePreparationNodes.get(i);
+            boolean prepared = false;
+            try {
+                Pair<Boolean, String> result = runInstallScriptOnVM(vm, i, true);
+                prepared = Boolean.TRUE.equals(result.first()) && result.second() != null
+                        && result.second().contains("MOLD_UPGRADE_IMAGES_PRELOADED");
+            } catch (Exception error) {
+                logger.warn("Kubernetes target image preparation did not complete for cluster {} node {}",
+                        kubernetesCluster.getUuid(), vm.getUuid());
+            }
+            if (!prepared) {
+                logTransitStateDetachIsoAndThrow(Level.ERROR, "Kubernetes target image preparation failed before drain; nodes and artifact references are preserved",
+                        kubernetesCluster, imagePreparationNodes, KubernetesCluster.Event.OperationFailed, null);
+                throw new CloudRuntimeException("Kubernetes target image preparation failed before drain");
+            }
+            kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "upgrade.images.prepared." + vm.getUuid(), upgradeVersion.getUuid(), false);
+        }
     }
 
     protected Set<Long> controlVmIds() {
@@ -492,6 +518,9 @@ public class KubernetesClusterUpgradeWorker extends KubernetesClusterActionWorke
         if (CollectionUtils.isEmpty(clusterVMs)) {
             logAndThrow(Level.ERROR, String.format("Upgrade failed for Kubernetes cluster: %s, unable to retrieve VMs for cluster", kubernetesCluster));
         }
+        // A kubeadm health-check pod may schedule on any existing node, including a
+        // manual-upgrade node. Cache-only preparation must retain the original SSH ordering.
+        imagePreparationNodes = new java.util.ArrayList<>(clusterVMs);
         filterOutManualUpgradeNodesFromClusterUpgrade();
         retrieveScriptFiles();
         if (!rebalanceHaDns()) {
@@ -513,6 +542,9 @@ public class KubernetesClusterUpgradeWorker extends KubernetesClusterActionWorke
         if (!stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.UpgradeRequested)) {
             throw new CloudRuntimeException("Another Kubernetes cluster operation prevents upgrade; artifact references remain protected");
         }
+        attachIsoKubernetesVMs(imagePreparationNodes, upgradeVersion);
+        preloadUpgradeImages();
+        detachIsoKubernetesVMs(imagePreparationNodes);
         attachIsoKubernetesVMs(clusterVMs, upgradeVersion);
         upgradeKubernetesClusterNodes();
         upgradeKubernetesControllers();
