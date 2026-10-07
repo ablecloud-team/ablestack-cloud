@@ -320,8 +320,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
     protected Long configurationVolumeId(StorageServiceInstanceVO instance, String uuid) {
         VolumeVO volume = volumeDao.findByUuid(uuid);
-        if (volume == null || instance.getVmId() == null || !instance.getVmId().equals(volume.getInstanceId())) {
-            throw new InvalidParameterValueException("Mapped configuration volume must already be attached to the selected service");
+        if (volume == null || volume.getVolumeType() != com.cloud.storage.Volume.Type.DATADISK
+                || volume.getState() != com.cloud.storage.Volume.State.Ready || volume.getAccountId() != instance.getAccountId()
+                || volume.getDataCenterId() != instance.getDataCenterId() || instance.getVmId() == null
+                || !instance.getVmId().equals(volume.getInstanceId())) {
+            throw new InvalidParameterValueException("Mapped configuration volume must be a Ready data volume attached to the selected service in the same owner and zone");
         }
         validateStorageServiceBackingVolume(instance, volume.getId(), "configuration restore");return volume.getId();
     }
