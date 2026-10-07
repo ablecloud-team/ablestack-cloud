@@ -1193,7 +1193,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         final String path = resolveNestedSharePath(cmd.getPath(), cmd.getName(), cmd.getRelativePath(), cmd.getVolumeId(), false);
         validateSharePathForRelativeInput(path, cmd.getName(), cmd.getRelativePath(), false);
         validateStorageServiceBackingVolume(instance, cmd.getVolumeId(), "SMB share");
-        validateFileSharePathAvailable(instance, path, null, cmd.getVolumeId(), "SMB share", Boolean.TRUE.equals(cmd.getCrossProtocol()), cmd.getRelativePath());
+        validateFileSharePathAvailable(instance, path, null, cmd.getVolumeId(), "SMB share", Boolean.TRUE.equals(cmd.getCrossProtocol()) || cmd.getPosixPolicyId() != null, cmd.getRelativePath());
         validateFileShareFilesystem(cmd.getFilesystem(), cmd.getImportMode());
         final String importMode = StringUtils.defaultIfBlank(cmd.getImportMode(), "MOUNT_EXISTING");
         final VolumeVO backingVolume = cmd.getVolumeId() == null ? null : requireVolume(cmd.getVolumeId());
@@ -1263,7 +1263,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                     cmd.getVolumeId() == null ? share.getVolumeId() : cmd.getVolumeId(), false);
             validateSharePathForRelativeInput(path, share.getName(), cmd.getRelativePath(), false);
             validateFileSharePathAvailable(instance, path, share.getId(), cmd.getVolumeId() == null ? share.getVolumeId() : cmd.getVolumeId(),
-                    "SMB share", Boolean.TRUE.equals(cmd.getCrossProtocol()), cmd.getRelativePath());
+                    "SMB share", Boolean.TRUE.equals(cmd.getCrossProtocol()) || cmd.getPosixPolicyId() != null || share.getPosixPolicyId() != null, cmd.getRelativePath());
             share.setPath(path);
         }
         if (cmd.getVolumeId() != null) {
