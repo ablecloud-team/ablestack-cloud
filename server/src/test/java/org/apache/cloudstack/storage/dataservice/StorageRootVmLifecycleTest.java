@@ -39,19 +39,20 @@ public class StorageRootVmLifecycleTest {
     }
     @Test public void failedStopCannotAuthorizeADataOrRootBindingChange() throws Exception {
         UserVmDao vms=Mockito.mock(UserVmDao.class);VirtualMachineManager manager=Mockito.mock(VirtualMachineManager.class);
-        Mockito.when(vms.findById(7L)).thenReturn(vm(VirtualMachine.State.Running,UserVmManager.SHAREDFSVM));
+        UserVmVO running=vm(VirtualMachine.State.Running,UserVmManager.SHAREDFSVM);Mockito.when(vms.findById(7L)).thenReturn(running);
         Assert.assertThrows(CloudRuntimeException.class,()->new StorageRootVmLifecycle(manager,vms,Mockito.mock(StorageServiceGuestCommandDispatcher.class)).stop(7));
         Mockito.verify(manager).stop("same-vm");
     }
     @Test public void ordinaryUserVmCannotEnterThisMaintenanceLifecycle() {
         UserVmDao vms=Mockito.mock(UserVmDao.class);VirtualMachineManager manager=Mockito.mock(VirtualMachineManager.class);
-        Mockito.when(vms.findById(7L)).thenReturn(vm(VirtualMachine.State.Running,"USER"));
+        UserVmVO ordinary=vm(VirtualMachine.State.Running,"USER");Mockito.when(vms.findById(7L)).thenReturn(ordinary);
         Assert.assertThrows(CloudRuntimeException.class,()->new StorageRootVmLifecycle(manager,vms,Mockito.mock(StorageServiceGuestCommandDispatcher.class)).stop(7));
         Mockito.verifyNoInteractions(manager);
     }
     @Test public void newRootBootUsesTheExistingVmAndRequiresProtectedIdentityTransport() {
         UserVmDao vms=Mockito.mock(UserVmDao.class);VirtualMachineManager manager=Mockito.mock(VirtualMachineManager.class);
-        Mockito.when(vms.findById(7L)).thenReturn(vm(VirtualMachine.State.Stopped,UserVmManager.SHAREDFSVM),vm(VirtualMachine.State.Running,UserVmManager.SHAREDFSVM));
+        UserVmVO stopped=vm(VirtualMachine.State.Stopped,UserVmManager.SHAREDFSVM),running=vm(VirtualMachine.State.Running,UserVmManager.SHAREDFSVM);
+        Mockito.when(vms.findById(7L)).thenReturn(stopped,running);
         StorageServiceGuestCommandDispatcher guest=Mockito.mock(StorageServiceGuestCommandDispatcher.class);
         Mockito.when(guest.dispatch(Mockito.any())).thenReturn(new StorageServiceGuestCommandResult(true,"ready","{\"success\":true,\"localIdentity\":true,\"protectedStdinTransport\":true}"));
         StorageServiceInstanceVO instance=Mockito.mock(StorageServiceInstanceVO.class);Mockito.when(instance.getVmId()).thenReturn(7L);Mockito.when(instance.getUuid()).thenReturn("instance");
