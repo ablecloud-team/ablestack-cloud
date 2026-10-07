@@ -1,4 +1,6 @@
 {
+  "message.storage.config.file.execute": "The reviewed SMB policy forces execute bits on new files. Confirm this setting before restoring it.",
+  "label.storage.config.file.execute.confirm": "Restore the reviewed forced file execute policy",
   "label.storage.config.directory.prepare": "Create missing directory only",
   "label.storage.config.clone.volume.mode": "Initial data volume",
   "message.storage.config.delete.confirm": "Remove this configuration artifact from history? Data volumes are preserved.",

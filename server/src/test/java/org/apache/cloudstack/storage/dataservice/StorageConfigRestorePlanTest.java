@@ -118,4 +118,16 @@ public class StorageConfigRestorePlanTest {
         Assert.assertThrows(CloudRuntimeException.class, () -> StorageConfigRestorePlan.validateCloneInitialVolume(source, mappings));
     }
 
+    @Test public void forcedExecuteRestoreNeedsLiteralConfirmationBeforePlanCapability() {
+        JsonObject plan=new JsonObject();JsonArray changes=new JsonArray();JsonObject change=new JsonObject();JsonObject desired=new JsonObject();
+        desired.addProperty("uuid",SHARE);desired.addProperty("protocol","SMB");JsonObject config=new JsonObject();config.addProperty("forceCreateMode","0775");desired.add("config",config);change.add("desired",desired);changes.add(change);
+        plan.add("create",changes);plan.add("update",new JsonArray());plan.add("blockers",new JsonArray());
+        StorageConfigRestorePlan.reviewForcedFileExecute(plan,new JsonObject());Assert.assertFalse(plan.get("forceFileExecuteConfirmation").getAsBoolean());Assert.assertEquals(1,plan.getAsJsonArray("blockers").size());
+        JsonObject mappings=new JsonObject();mappings.addProperty("confirmFileExecute","true");plan.add("blockers",new JsonArray());
+        StorageConfigRestorePlan.reviewForcedFileExecute(plan,mappings);Assert.assertFalse(plan.get("forceFileExecuteConfirmation").getAsBoolean());
+        mappings.addProperty("confirmFileExecute",true);plan.add("blockers",new JsonArray());
+        StorageConfigRestorePlan.reviewForcedFileExecute(plan,mappings);Assert.assertTrue(plan.get("forceFileExecuteConfirmation").getAsBoolean());Assert.assertEquals(0,plan.getAsJsonArray("blockers").size());
+        Assert.assertEquals("0775",plan.getAsJsonArray("forcedFileExecutePolicies").get(0).getAsJsonObject().get("forceCreateMode").getAsString());
+    }
+
 }
