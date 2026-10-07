@@ -8740,5 +8740,6 @@
   "label.storage.config.clone.new.volume": "Create a new empty data volume",
   "label.storage.config.clone.runtime": "Verified runtime bundle",
   "label.storage.config.size": "Bundle size (bytes)",
-  "label.storage.config.clone.volume.mode": "Initial data volume"
+  "label.storage.config.clone.volume.mode": "Initial data volume",
+  "label.storage.config.directory.prepare": "Create missing directory only"
 }

@@ -8705,5 +8705,6 @@
   "label.storage.config.clone.new.volume": "새 빈 데이터 볼륨 생성",
   "label.storage.config.clone.runtime": "검증된 런타임 번들",
   "label.storage.config.size": "번들 크기(bytes)",
-  "label.storage.config.clone.volume.mode": "초기 데이터 볼륨"
+  "label.storage.config.clone.volume.mode": "초기 데이터 볼륨",
+  "label.storage.config.directory.prepare": "없는 디렉터리만 준비"
 }

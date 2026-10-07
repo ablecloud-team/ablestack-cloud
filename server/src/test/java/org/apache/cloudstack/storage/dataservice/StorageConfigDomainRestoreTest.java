@@ -41,4 +41,16 @@ public class StorageConfigDomainRestoreTest {
         JsonObject config = new JsonObject();config.addProperty("guestOk", false);config.addProperty("relativeSharePath", "smb/reviewed");
         new StorageConfigDomainRestore(manager).validateBindings(plan(config));Mockito.verifyNoInteractions(manager);
     }
+    @Test public void legacyDirectoryBindingMatchesExistingRendererAndRejectsUntrustedRoots() {
+        JsonObject desired=new JsonObject();desired.addProperty("path","/export/legacy-share");desired.add("config",new JsonObject());
+        Assert.assertEquals("export/legacy-share",StorageConfigDomainRestore.directoryRelativePath("file-shares",desired));
+        desired.getAsJsonObject("config").addProperty("relativeSharePath","smb/current");
+        Assert.assertEquals("smb/current",StorageConfigDomainRestore.directoryRelativePath("file-shares",desired));
+        desired.getAsJsonObject("config").remove("relativeSharePath");
+        for(String path:new String[]{"/etc/shadow","/export/../outside","/export//ambiguous"}) {
+            desired.addProperty("path",path);
+            Assert.assertThrows(InvalidParameterValueException.class,()->StorageConfigDomainRestore.directoryRelativePath("file-shares",desired));
+        }
+    }
+
 }
