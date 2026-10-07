@@ -40,6 +40,8 @@ public class StorageConfigInitialVolumePreparationTest {
         Mockito.when(dispatcher.dispatch(Mockito.any())).thenAnswer(call -> {
             StorageServiceGuestCommand command = call.getArgument(0);
             Assert.assertEquals("volume attach inspect",command.getOperation());Assert.assertEquals(540,command.getTimeoutSeconds());
+            JsonObject payload=new JsonParser().parse(command.getPayload()).getAsJsonObject();
+            Assert.assertEquals("/srv/ablestack-storage/volumes/volume",payload.get("mountPath").getAsString());
             return new StorageServiceGuestCommandResult(true,"ok","{\"success\":true,\"volumeUuid\":\"volume\",\"filesystemUuid\":\"preserved-fs\"}");
         });
         JsonObject blueprint = new JsonObject();blueprint.addProperty("backingvolumemode","EXISTING");blueprint.addProperty("filesystem","XFS");
