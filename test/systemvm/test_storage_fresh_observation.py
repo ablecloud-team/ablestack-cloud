@@ -38,4 +38,12 @@ class FreshObservationTest(unittest.TestCase):
         exec(branch,scope);self.assertEqual("ok",scope["status"])
         scope["iscsi_targets_state"]["targets"]=[{"targetName":"required"}]
         exec(branch,scope);self.assertEqual("degraded",scope["status"])
+    def test_local_machine_identity_change_restarts_but_policy_reload_keeps_sessions(self):
+        source=SOURCE.read_text()
+        branch=re.search(r'    if previous_netbios_name and previous_netbios_name != netbios_name:\n(.*?)\nfd, managed_temporary',source,re.S).group(0).split("\nfd, managed_temporary")[0]
+        import textwrap
+        branch=textwrap.dedent(branch)
+        calls=[];scope={"previous_netbios_name":"OLD","netbios_name":"NEW","run":lambda command,**kwargs:calls.append(command),"subprocess":subprocess}
+        exec(branch,scope);self.assertEqual([["systemctl","restart","smbd","nmbd"]],calls)
+        calls.clear();scope["previous_netbios_name"]="NEW";exec(branch,scope);self.assertEqual([["smbcontrol","all","reload-config"]],calls)
 if __name__=="__main__":unittest.main()

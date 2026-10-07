@@ -5144,6 +5144,12 @@ with open(payload_path, "r", encoding="utf-8") as payload_fp:
 
 state_dir = "/etc/ablestack-storage"
 os.makedirs(state_dir, exist_ok=True)
+try:
+    previous_name_result = subprocess.run(["testparm", "-s", "--parameter-name=netbios name"],
+                                          stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True, timeout=10)
+    previous_netbios_name = previous_name_result.stdout.strip().upper() if previous_name_result.returncode == 0 else ""
+except (OSError, subprocess.TimeoutExpired):
+    previous_netbios_name = ""
 
 try:
     with open(os.path.join(state_dir, "smb-access.json"), "r", encoding="utf-8") as previous_fp:
@@ -5850,7 +5856,11 @@ if shutil.which("systemctl"):
             run(["systemctl", "enable", "--now", unit], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     if not shutil.which("smbcontrol"):
         raise RuntimeError("SMB reload command is unavailable")
-    run(["smbcontrol", "all", "reload-config"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    if previous_netbios_name and previous_netbios_name != netbios_name:
+        # Samba keeps the local machine identity in daemon state; ordinary policy edits only reload.
+        run(["systemctl", "restart", "smbd", "nmbd"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    else:
+        run(["smbcontrol", "all", "reload-config"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 fd, managed_temporary = tempfile.mkstemp(prefix=".smb-identities-", dir=state_dir)
 try:
     with os.fdopen(fd, "w", encoding="utf-8") as managed_fp:
