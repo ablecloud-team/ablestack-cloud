@@ -99,4 +99,12 @@ describe('Configuration backup and restore UI boundaries', () => {
     expect(JSON.parse(parameters.mapping)).toEqual({ volumes: { 'source-volume': 'NEW' }, createNew: { name: 'new-service', size: 20, backingvolumemode: 'NEW' }, initialVolumeSourceUuid: 'source-volume', runtimeBundleUuid: 'runtime' })
     expect(vm.planPhase).toBe('REVIEW')
   })
+  it('maps an existing initial clone disk without passing a new-disk offering or format size', async () => {
+    const vm = { instanceId: 'a', planTarget: { id: 'backup' }, targetMode: 'CREATE_NEW', volumeMapping: {}, initialVolumeSource: 'source-volume', cloneRuntime: 'runtime', clone: { name: 'new-service', backingvolumemode: 'EXISTING', existingvolumeid: 'selected-data', diskofferingid: 'not-needed', storageid: 'not-needed', size: 20 }, $t: key => key }
+    vm.mutation = jest.fn(async () => ({ metadata: { plan: { blockers: [], requiredCredentials: [] } }, planToken: 'synthetic' }))
+    await Widget.methods.preparePlan.call(vm)
+    const mappings = JSON.parse(vm.mutation.mock.calls[0][1].mapping)
+    expect(mappings.volumes['source-volume']).toBe('selected-data')
+    expect(mappings.createNew).toEqual({ name: 'new-service', backingvolumemode: 'EXISTING', existingvolumeid: 'selected-data' })
+  })
 })

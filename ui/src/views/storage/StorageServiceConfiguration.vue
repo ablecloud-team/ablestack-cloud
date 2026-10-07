@@ -88,12 +88,20 @@
           <a-form-item :label="$t('label.serviceofferingid')"><a-select v-model:value="clone.serviceofferingid" :options="cloneOptions.offerings" :disabled="planPhase==='REVIEW'" /></a-form-item>
           <a-form-item :label="$t('label.diskofferingid')"><a-select v-model:value="clone.diskofferingid" :options="cloneOptions.disks" :disabled="planPhase==='REVIEW'" /></a-form-item>
           <a-form-item :label="$t('label.storage.service.primary.storage')"><a-select v-model:value="clone.storageid" :options="cloneOptions.pools" :disabled="planPhase==='REVIEW'" /></a-form-item>
-          <a-form-item :label="$t('label.storage.config.clone.size')"><a-input-number v-model:value="clone.size" :min="1" :disabled="planPhase==='REVIEW'" /></a-form-item>
+          <a-form-item :label="$t('label.storage.config.clone.volume.mode')">
+            <a-radio-group v-model:value="clone.backingvolumemode" :disabled="planPhase==='REVIEW'">
+              <a-radio value="NEW">{{ $t('label.storage.config.clone.new.volume') }}</a-radio>
+              <a-radio value="EXISTING">{{ $t('label.storage.service.existing.volume.select') }}</a-radio>
+            </a-radio-group>
+          </a-form-item>
+          <a-form-item v-if="clone.backingvolumemode==='NEW'" :label="$t('label.storage.config.clone.size')"><a-input-number v-model:value="clone.size" :min="1" :disabled="planPhase==='REVIEW'" /></a-form-item>
+          <a-form-item v-else :label="$t('label.storage.service.existing.volume.select')"><a-select v-model:value="clone.existingvolumeid" :options="cloneOptions.volumes" :disabled="planPhase==='REVIEW'" /></a-form-item>
           <a-form-item :label="$t('label.storage.config.clone.initial')"><a-select v-model:value="initialVolumeSource" :options="sourceVolumes.map(value => ({value,label:value}))" :disabled="planPhase==='REVIEW'" /></a-form-item>
           <a-form-item :label="$t('label.storage.config.clone.runtime')"><a-select v-model:value="cloneRuntime" :options="cloneOptions.bundles" :disabled="planPhase==='REVIEW'" /></a-form-item>
         </template>
         <a-form-item v-for="volume in sourceVolumes" :key="volume" :label="$t('label.storage.config.volume.mapping') + ': ' + volume">
-          <a-input v-if="targetMode==='CREATE_NEW' && volume===initialVolumeSource" :value="$t('label.storage.config.clone.new.volume')" disabled />
+          <a-input v-if="targetMode==='CREATE_NEW' && volume===initialVolumeSource && clone.backingvolumemode==='NEW'" :value="$t('label.storage.config.clone.new.volume')" disabled />
+          <a-select v-else-if="targetMode==='CREATE_NEW' && volume===initialVolumeSource" :value="clone.existingvolumeid" :options="cloneOptions.volumes" disabled />
           <a-select v-else v-model:value="volumeMapping[volume]" :options="targetMode==='CREATE_NEW' ? cloneOptions.volumes : targetVolumes" :disabled="planPhase==='REVIEW'" />
         </a-form-item>
       </a-form>
@@ -128,7 +136,7 @@ export default {
   name: 'StorageServiceConfiguration',
   components: { CloudDownloadOutlined, UploadOutlined, DownloadOutlined, RollbackOutlined, ReloadOutlined },
   props: { instanceId: { type: String, required: true }, resource: { type: Object, required: true } },
-  data: () => ({ rows: [], loading: false, readFailed: false, generation: 0, busy: '', error: '', backupDialog: false, includeRuntime: true, retentionHours: 168, planTarget: null, plan: null, planPhase: 'MAPPING', planToken: '', lkgPlan: false, planning: false, volumeMapping: {}, targetVolumes: [], credentialValues: {}, confirmation: '', targetMode: 'RESTORE_EXISTING', clone: { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP' }, initialVolumeSource: '', plannedVolume: '', cloneRuntime: '', cloneOptions: { zones: [], networks: [], offerings: [], disks: [], pools: [], bundles: [], volumes: [] } }),
+  data: () => ({ rows: [], loading: false, readFailed: false, generation: 0, busy: '', error: '', backupDialog: false, includeRuntime: true, retentionHours: 168, planTarget: null, plan: null, planPhase: 'MAPPING', planToken: '', lkgPlan: false, planning: false, volumeMapping: {}, targetVolumes: [], credentialValues: {}, confirmation: '', targetMode: 'RESTORE_EXISTING', clone: { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP', backingvolumemode: 'NEW' }, initialVolumeSource: '', plannedVolume: '', cloneRuntime: '', cloneOptions: { zones: [], networks: [], offerings: [], disks: [], pools: [], bundles: [], volumes: [] } }),
   computed: {
     dialogBody () { return { maxHeight: '65vh', overflowY: 'auto' } },
     activePoint () { return this.rows.find(row => row.kind === 'RESTORE_POINT' && row.state === 'ACTIVE_LKG') },
@@ -287,8 +295,13 @@ export default {
         const mappings = { volumes: { ...this.volumeMapping } }
         if (this.targetMode === 'CREATE_NEW') {
           if (!this.initialVolumeSource || !this.cloneRuntime) throw new Error(this.$t('message.storage.config.clone.required'))
-          mappings.volumes[this.initialVolumeSource] = 'NEW'
-          mappings.createNew = { ...this.clone, backingvolumemode: 'NEW' }
+          const existing = this.clone.backingvolumemode === 'EXISTING'
+          if (existing && !this.clone.existingvolumeid) throw new Error(this.$t('message.storage.config.clone.required'))
+          mappings.volumes[this.initialVolumeSource] = existing ? this.clone.existingvolumeid : 'NEW'
+          mappings.createNew = { ...this.clone, backingvolumemode: existing ? 'EXISTING' : 'NEW' }
+          if (existing) {
+            delete mappings.createNew.diskofferingid; delete mappings.createNew.size; delete mappings.createNew.storageid
+          } else delete mappings.createNew.existingvolumeid
           mappings.initialVolumeSourceUuid = this.initialVolumeSource; mappings.runtimeBundleUuid = this.cloneRuntime
         }
         const result = await this.mutation(api, { artifactid: this.planTarget.id, targetmode: this.targetMode, mapping: JSON.stringify(mappings) })
@@ -305,7 +318,7 @@ export default {
       this.closePlan(); this.busy = 'RESTORE'; this.error = ''
       try { await this.mutation(api, parameters); await this.refresh() } catch (error) { this.error = error.message } finally { this.busy = '' }
     },
-    closePlan () { this.planTarget = null; this.plan = null; this.planToken = ''; this.planPhase = 'MAPPING'; this.volumeMapping = {}; this.credentialValues = {}; this.confirmation = ''; this.lkgPlan = false; this.planning = false; this.targetMode = 'RESTORE_EXISTING'; this.initialVolumeSource = ''; this.plannedVolume = ''; this.cloneRuntime = '' }
+    closePlan () { this.planTarget = null; this.plan = null; this.planToken = ''; this.planPhase = 'MAPPING'; this.volumeMapping = {}; this.credentialValues = {}; this.confirmation = ''; this.lkgPlan = false; this.planning = false; this.targetMode = 'RESTORE_EXISTING'; this.initialVolumeSource = ''; this.plannedVolume = ''; this.cloneRuntime = ''; this.clone = { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP', backingvolumemode: 'NEW' } }
   }
 }
 </script>
