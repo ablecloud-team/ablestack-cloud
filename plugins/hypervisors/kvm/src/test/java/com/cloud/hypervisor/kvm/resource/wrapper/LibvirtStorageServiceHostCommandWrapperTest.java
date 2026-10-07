@@ -59,4 +59,22 @@ public class LibvirtStorageServiceHostCommandWrapperTest {
         Assert.assertFalse(shell.contains("synthetic"));
     }
 
+    @Test public void identityWrappingCredentialUsesQgaStdinAndCannotAppearInGuestArguments() {
+        String payload = "{\"credentialPrivateKey\":\"synthetic-private-material\"}";
+        StorageServiceHostCommand command = new StorageServiceHostCommand("sharedfs-test", "identity capsule import", payload, 60, Collections.singleton("credentialPrivateKey"));
+        com.google.gson.JsonObject request = new com.google.gson.JsonParser().parse(wrapper.buildGuestExecCommand(command)).getAsJsonObject();
+        com.google.gson.JsonObject arguments = request.getAsJsonObject("arguments");
+        Assert.assertEquals(payload, new String(java.util.Base64.getDecoder().decode(arguments.get("input-data").getAsString()), java.nio.charset.StandardCharsets.UTF_8));
+        Assert.assertFalse(arguments.get("arg").toString().contains("synthetic"));
+        Assert.assertFalse(arguments.get("arg").toString().contains(java.util.Base64.getEncoder().encodeToString(payload.getBytes(java.nio.charset.StandardCharsets.UTF_8))));
+        Assert.assertFalse(wrapper.buildStorageCtlShell(command).contains("printf"));
+    }
+
+    @Test public void protectedTransportIsAdvertisedOnlyWithSuccessfulNativeCapabilityProbe() {
+        StorageServiceHostCommand command = new StorageServiceHostCommand("sharedfs-test", "identity capsule capabilities", "{}", 30, Collections.emptySet());
+        Assert.assertTrue(wrapper.identityTransportObservation(command, "{\"success\":true}").contains("protectedStdinTransport"));
+        Assert.assertFalse(wrapper.identityTransportObservation(command, "{\"success\":false}").contains("protectedStdinTransport"));
+        Assert.assertFalse(wrapper.identityTransportObservation(command, "unavailable").contains("protectedStdinTransport"));
+    }
+
 }

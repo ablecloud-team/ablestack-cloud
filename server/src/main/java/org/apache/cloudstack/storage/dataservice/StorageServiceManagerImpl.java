@@ -357,7 +357,17 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             configurationVolumeId(instance, volume.getUuid());
         }
     }
+    protected void requireProtectedIdentityTransport(StorageServiceInstanceVO instance, String operationUuid) {
+        JsonObject request = new JsonObject();request.addProperty("instanceUuid", instance.getUuid());request.addProperty("operationUuid", operationUuid);
+        StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
+                "identity capsule capabilities", request.toString(), 30, Collections.emptySet()));
+        JsonObject capability = result.isSuccess() ? parseJsonObject(normalizeRuntimeResultJson(result.getResultJson())) : new JsonObject();
+        if (!Boolean.TRUE.equals(getJsonBoolean(capability, "success")) || !Boolean.TRUE.equals(getJsonBoolean(capability, "protectedStdinTransport"))) {
+            throw new InvalidParameterValueException("The current host agent does not support protected identity stdin transport");
+        }
+    }
     protected JsonObject exportConfigurationIdentity(StorageServiceInstanceVO instance, String operationUuid, java.security.KeyPair key) {
+        requireProtectedIdentityTransport(instance, operationUuid);
         JsonArray names = new JsonArray();Set<String> unique = new HashSet<>();
         for (StorageFileShareVO share : storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(), StorageServiceInstance.Protocol.SMB)) {
             for (StorageAccessRuleVO rule : storageAccessRuleDao.listByResource(StorageServiceInstance.AccessResourceType.FILE_SHARE, share.getId())) {
@@ -388,6 +398,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         return observed.getAsJsonObject("capsule");
     }
     protected void importConfigurationIdentity(StorageServiceInstanceVO instance, String operationUuid, JsonObject capsule, byte[] protectedKey) {
+        requireProtectedIdentityTransport(instance, operationUuid);
         JsonObject request = StorageIdentityCapsule.importRequest(instance.getUuid(), operationUuid, capsule, protectedKey);
         if (storageServiceProtocolDao.listByInstanceIdAndProtocol(instance.getId(), StorageServiceInstance.Protocol.NVME_OF).stream().anyMatch(StorageServiceProtocolVO::isEnabled)
                 || !storageBlockTargetDao.listByInstanceIdAndProtocol(instance.getId(), StorageServiceInstance.Protocol.NVME_OF).isEmpty()) {
