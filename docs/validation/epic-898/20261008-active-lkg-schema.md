@@ -27,3 +27,14 @@ UI에서 현재 구성 검증을 실행해 revision 3 승격과 이전 지점 �
 ![오래된 계획 적용 전 차단](20261008-stale-plan-blocked.png)
 
 추가 구현: 작업의 COMPLETE/result/phase와 LKG 승격을 같은 DB 트랜잭션에서 커밋합니다. candidate artifact 파일은 앞서 기록하며 트랜잭션 실패 시 제거하고 FAILED로 기록합니다. rollback 이후 in-memory operation도 COMPLETE로 남지 않습니다. 관련 모듈 회귀 18개가 통과했습니다. 실제 DB 임시 테이블에서 operation 완료 기록에 실패를 주입했을 때 LKG·operation을 함께 rollback하고 성공 시 함께 commit하는 것도 확인했습니다. 배포 후 실제 시험 서비스 실패 주입 검증은 별도 기록합니다.
+
+실제 배포 후 DB 연결 실패 주입:
+- 신규 시험 서비스 instance 67673fb1-f83c-4da7-a395-14d3f5321fe7의 현재 LKG 행만 잠그고, 정확히 해당 서비스의 승격 SELECT FOR UPDATE에서 대기하는 DB 연결 한 개만 종료했습니다. 잠금은 finally에서 해제했고 기존 서비스와 전체 DB 정책을 변경하지 않았습니다.
+- 작업 6fbf2e7e-19ff-4673-b298-5a9e4a02ecba는 실패 응답 후 operation 56987795-70c6-4013-a8b7-3d9f6ab17a24를 ROLLED_BACK으로 기록했습니다.
+- 기존 ACTIVE_LKG 733566e1-74f4-445b-a7c7-326d16f5b01d revision 4를 유지했고 새 candidate 186fdc50-8cac-495b-8456-1a187ad53473은 FAILED로 기록했습니다. 실패 candidate ZIP은 제거됐고 정상 ZIP은 보존됐습니다.
+- 실패 전후 실제 SMB 인증·읽기와 파일 hash, inode, UID/GID, mode, filesystem UUID, VM boot ID, Samba PID가 정확히 일치했습니다.
+- 실제 UI에서 이전 구성 복구 완료, 원래 실패 진단, 실패 candidate와 기존 마지막 정상 구성의 보존을 확인했습니다.
+
+![실제 DB 실패 후 이전 구성 복구 완료](20261008-atomic-lkg-fault-rolled-back.png)
+
+이 시험은 승격 DB 연결 오류 경로입니다. 실제 desired 변경 이후의 네 프로토콜별 create/update/delete 실패와 관리 서버 phase별 중단은 별도 완료 게이트입니다.
