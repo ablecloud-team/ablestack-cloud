@@ -4808,6 +4808,7 @@ import pwd
 import re
 import shutil
 import subprocess
+import tempfile
 import sys
 
 payload_path = sys.argv[1]
@@ -4861,6 +4862,29 @@ def smb_hosts_allow_lines(policy):
     if policy["networkAccessMode"] == "ANY_SOURCE":
         return []
     return ["   hosts allow = " + " ".join([*policy["allowedSources"], "127.0.0.1", "::1"])]
+
+def smb_creation_policy(config):
+    result = {}
+    for key, default in (("createMask", "0660"), ("forceCreateMode", "0000"),
+                         ("directoryMask", "0770"), ("forceDirectoryMode", "0000")):
+        value = str(config.get(key, default))
+        if not re.fullmatch(r"0?[0-7]{3}", value):
+            raise ValueError(key + " must be octal 0000 through 0777")
+        result[key] = format(int(value, 8), "04o")
+    result["inheritPermissions"] = truth(config, "inheritPermissions", False)
+    for mask, forced in (("createMask", "forceCreateMode"), ("directoryMask", "forceDirectoryMode")):
+        if int(result[forced], 8) & ~int(result[mask], 8):
+            raise ValueError("Forced mode is outside its mask")
+    if result["inheritPermissions"] and (int(result["forceCreateMode"], 8) or int(result["forceDirectoryMode"], 8)):
+        raise ValueError("Parent permission inheritance conflicts with forced modes")
+    return result
+
+def smb_creation_lines(policy):
+    return ["   create mask = " + policy["createMask"],
+            "   force create mode = " + policy["forceCreateMode"],
+            "   directory mask = " + policy["directoryMask"],
+            "   force directory mode = " + policy["forceDirectoryMode"],
+            "   inherit permissions = " + ("yes" if policy["inheritPermissions"] else "no")]
 
 def safe_share_name(value):
     value = str(value or "")
@@ -5122,6 +5146,7 @@ for share in payload.get("shares", []):
         os.makedirs(path, exist_ok=True)
     if config.get("relativeSharePath"):
         verify_share_mount_boundary(path, config.get("volumeMountPath"))
+    creation_policy = smb_creation_policy(config)
     directory_mode = apply_directory_policy(path, config, cross_protocol)
     valid_users = []
     write_list = []
@@ -5156,6 +5181,8 @@ for share in payload.get("shares", []):
         os.chmod(path, 0o777 if not truth(config, 'readOnly', False) else 0o755)
     access_state[str(share.get("uuid") or name)] = {
         **network_policy,
+        "creationPolicy": creation_policy,
+        "creationPolicyState": "CONSISTENT",
         "shareName": name,
         "path": path,
         "configuredAclCount": configured_acl_count,
@@ -5182,9 +5209,9 @@ for share in payload.get("shares", []):
         f"   read only = {'yes' if truth(config, 'readOnly', False) else 'no'}",
         f"   browseable = {'yes' if truth(config, 'browseable', True) else 'no'}",
         f"   guest ok = {'yes' if guest_ok else 'no'}",
-        "   create mask = 0660",
-        "   directory mask = 0770",
+
     ])
+    lines.extend(smb_creation_lines(creation_policy))
     lines.extend(smb_hosts_allow_lines(network_policy))
     if valid_users:
         lines.append("   valid users = " + " ".join(valid_users))
@@ -5200,8 +5227,21 @@ for share in payload.get("shares", []):
             "filesystem": share.get("filesystem"),
         }
 
-with open("/etc/samba/smb.conf", "w", encoding="utf-8") as smb_fp:
-    smb_fp.write("\n".join(lines) + "\n")
+def install_validated_smb_config(lines, config_path):
+    fd, candidate = tempfile.mkstemp(prefix=".ablestack-smb-", dir=os.path.dirname(config_path))
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as smb_fp:
+            smb_fp.write("\n".join(lines) + "\n")
+            smb_fp.flush()
+            os.fsync(smb_fp.fileno())
+        run(["testparm", "-s", candidate], stdout=subprocess.DEVNULL)
+        os.chmod(candidate, 0o644)
+        os.replace(candidate, config_path)
+    finally:
+        if os.path.exists(candidate):
+            os.unlink(candidate)
+
+install_validated_smb_config(lines, "/etc/samba/smb.conf")
 
 with open(os.path.join(state_dir, "smb-quotas.json"), "w", encoding="utf-8") as quota_fp:
     json.dump(quota_state, quota_fp, sort_keys=True, indent=2)

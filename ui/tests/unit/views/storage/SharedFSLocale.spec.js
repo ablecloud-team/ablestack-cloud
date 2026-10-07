@@ -21,7 +21,8 @@ import path from 'path'
 const uiRoot = path.resolve(__dirname, '../../../..')
 const sourceFiles = [
   'src/views/storage/SharedFSTab.vue',
-  'src/views/storage/CreateSharedFS.vue'
+  'src/views/storage/CreateSharedFS.vue',
+  'src/views/storage/SmbCreationOptions.vue'
 ]
 const localeFiles = {
   en: 'public/locales/en.json',
@@ -33,7 +34,7 @@ const readUiFile = relativePath => fs.readFileSync(path.join(uiRoot, relativePat
 const isStorageKey = key => storagePrefixes.some(prefix => key.startsWith(prefix))
 
 const literalStorageKeys = () => {
-  const keyPattern = /\$t\(\s*['"]([^'"]+)['"]/g
+  const keyPattern = /\$t\(\s*['"]([^'"]+)['"]\s*[,)]/g
   const keys = new Set()
 
   sourceFiles.forEach(sourceFile => {
