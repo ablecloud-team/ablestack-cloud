@@ -9,4 +9,11 @@ cloud.storage_service_config_artifact.active_lkg_instance_id는 RESTORE_POINT/AC
 검증:
 - 모듈 package 성공, DAO revision 회귀 3개 및 읽기 범위·stale source·원자적 변경 회귀 13개 통과.
 - 13번 관리 서버 DB의 임시 테이블에서 중복 활성 UPDATE 거절, promotion rollback 후 기존 ID 유지, superseded source 재활성화 거절 확인.
-- 실제 서비스 DB 제약과 API·UI 승격 검증은 후속 기록에 추가합니다.
+- 실제 13번 DB 제약 적용 완료. 기존 3개 서비스의 활성 지점을 유지했습니다.
+- 실제 LKG 복원 9e3048d3-36f7-4f5e-a35e-7035bac27cca 성공, 활성 지점은 하나이며 59fe7b6b-1b36-4549-b55d-4d68bd071e45 revision 1은 SUPERSEDED, fb5f8b74-92d3-4c8d-b054-d0d3b070125c revision 2는 ACTIVE_LKG로 승격됐습니다.
+- 복원 전후 VM boot ID, Samba PID, DATA filesystem UUID, 파일 SHA-256·UID/GID·mode·inode의 출력이 정확히 일치했습니다.
+- 실제 UI의 설정 변경 이력 COMPLETE, 마지막 정상 구성 revision 2, 이전 정상 구성 revision 1 보존을 확인했습니다.
+
+![실제 LKG 승격 이력](20261008-active-lkg-cas-complete.png)
+
+이 검증은 DB 단일 활성 제약과 성공 복원 범위입니다. 관리 서버 재시작·프로토콜 장애 주입·전체 구성 복구 조건은 별도 검증합니다.
