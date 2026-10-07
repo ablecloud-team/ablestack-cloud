@@ -8587,5 +8587,16 @@
   "label.smb.network.create": "네트워크 허용 규칙 생성",
   "message.smb.network.sources.example": "10.1.1.0/24, 10.1.1.9 (쉼표 또는 Enter)",
   "label.smb.network.edit": "네트워크 허용 규칙 편집",
-  "label.smb.network.delete": "네트워크 허용 규칙 삭제"
+  "label.smb.network.delete": "네트워크 허용 규칙 삭제",
+  "label.storage.service.smb.inheritpermissions": "부모 디렉터리 권한 상속",
+  "label.storage.service.smb.createmask": "파일 허용 mode (create mask)",
+  "message.storage.service.smb.execute.warning": "강제 실행 비트는 새 일반 파일을 모두 실행 가능하게 만듭니다. 필요한 경우에만 명시적으로 선택하세요.",
+  "label.storage.service.unobserved": "미확인",
+  "label.storage.service.smb.directorymask": "디렉터리 허용 mode (directory mask)",
+  "label.storage.service.smb.forcecreatemode": "파일 강제 mode (force create mode)",
+  "message.storage.service.smb.creation.help": "새 객체에만 적용하며 기존 데이터·소유권·POSIX ACL은 유지합니다. 강제 비트는 허용 mask 안에 있어야 합니다. 부모 권한 상속과 강제 mode는 함께 사용할 수 없습니다.",
+  "message.storage.service.smb.execute.confirm": "새 일반 파일에 실행 권한을 강제 적용하는 것을 확인했습니다.",
+  "label.storage.service.smb.creation.policy": "새 파일/디렉터리 권한",
+  "label.storage.service.smb.forcedirectorymode": "디렉터리 강제 mode (force directory mode)",
+  "label.storage.service.smb.creation.preset": "생성 권한 프리셋"
 }

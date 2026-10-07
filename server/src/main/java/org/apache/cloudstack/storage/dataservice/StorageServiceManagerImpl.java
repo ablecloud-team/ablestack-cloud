@@ -189,6 +189,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         private String bootId;
         private String error;
         private final Map<String, JsonObject> observations = new LinkedHashMap<>();
+        private final Map<String, JsonObject> sharePolicies = new LinkedHashMap<>();
 
         protected JsonObject observation(final String key) {
             return StringUtils.isBlank(key) ? null : observations.get(key);
@@ -1179,6 +1180,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         final VolumeVO backingVolume = cmd.getVolumeId() == null ? null : requireVolume(cmd.getVolumeId());
         String configJson = buildSmbConfigJson(null, cmd.getReadOnly(), cmd.getBrowseable(), cmd.getGuestOk(),
                 cmd.getCreateDirectory(), cmd.getCrossProtocol(), cmd.getDirectoryMode());
+        configJson = GSON.toJson(SmbCreationPolicy.merge(parseJsonObject(configJson), cmd.getCreateMask(), cmd.getForceCreateMode(),
+                cmd.getDirectoryMask(), cmd.getForceDirectoryMode(), cmd.getInheritPermissions(), cmd.getConfirmFileExecute()));
         configJson = buildFileShareDirectoryConfigJson(configJson, backingVolume, importMode, cmd.getCreateDirectory());
         configJson = storeRelativeSharePath(configJson, cmd.getRelativePath());
         validateJsonObjectConfigOrThrow(configJson, "SMB share " + cmd.getName());
@@ -1255,6 +1258,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         final VolumeVO backingVolume = share.getVolumeId() == null ? null : requireVolume(share.getVolumeId());
         String configJson = buildSmbConfigJson(share.getConfigJson(), cmd.getReadOnly(), cmd.getBrowseable(), cmd.getGuestOk(),
                 cmd.getCreateDirectory(), cmd.getCrossProtocol(), cmd.getDirectoryMode());
+        configJson = GSON.toJson(SmbCreationPolicy.merge(parseJsonObject(configJson), cmd.getCreateMask(), cmd.getForceCreateMode(),
+                cmd.getDirectoryMask(), cmd.getForceDirectoryMode(), cmd.getInheritPermissions(), cmd.getConfirmFileExecute()));
         configJson = buildFileShareDirectoryConfigJson(configJson, backingVolume, importMode, cmd.getCreateDirectory());
         configJson = storeRelativeSharePath(configJson, cmd.getRelativePath());
         validateJsonObjectConfigOrThrow(configJson, "SMB share " + share.getUuid());
@@ -6588,6 +6593,21 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             if (isSmbNetworkRule(rule) && rule.getState()!=StorageServiceInstance.ResourceState.Disabled && rule.getState()!=StorageServiceInstance.ResourceState.Destroyed && rule.getState()!=StorageServiceInstance.ResourceState.Error) sources.add(rule.getPrincipal());
         }
         response.setAllowedSources(sources);response.setNetworkAccessMode(sources.isEmpty() ? "ANY_SOURCE" : "ALLOW_LIST");
+        final JsonObject normalized = SmbCreationPolicy.merge(parseJsonObject(share.getConfigJson()), null, null, null, null, null, null);
+        final JsonObject desiredCreation = new JsonObject();
+        for (String key : new String[] {"createMask", "forceCreateMode", "directoryMask", "forceDirectoryMode", "inheritPermissions"}) {
+            desiredCreation.add(key, normalized.get(key));
+        }
+        response.setCreationPolicy(GSON.toJson(desiredCreation));
+        response.setCreationPolicyDrift("UNOBSERVED");
+        if (runtimeObservation != null && runtimeObservation.has("smbAccess")) {
+            final JsonObject access = runtimeObservation.getAsJsonObject("smbAccess");
+            if (access.has("creationPolicy") && access.get("creationPolicy").isJsonObject()) {
+                final JsonObject effective = access.getAsJsonObject("creationPolicy");
+                response.setEffectiveCreationPolicy(GSON.toJson(effective));
+                response.setCreationPolicyDrift(desiredCreation.equals(effective) ? "CONSISTENT" : "DRIFT");
+            }
+        }
         response.setObjectName("storagesmbshare");
         return response;
     }
@@ -6613,6 +6633,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 return snapshot;
             }
             populateRuntimeObservationMetadata(snapshot, inventory, "fileShareVolumes");
+            if (inventory.has("smbAccess") && inventory.get("smbAccess").isJsonObject()) {
+                for (Map.Entry<String, JsonElement> entry : inventory.getAsJsonObject("smbAccess").entrySet()) {
+                    if (entry.getValue().isJsonObject()) snapshot.sharePolicies.put(entry.getKey(), entry.getValue().getAsJsonObject());
+                }
+            }
             snapshot.available = true;
             for (final JsonElement element : inventory.getAsJsonArray("fileShareVolumes")) {
                 if (!element.isJsonObject()) {
@@ -6639,7 +6664,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             return null;
         }
         final VolumeVO volume = volumeDao.findById(share.getVolumeId());
-        return volume == null ? null : snapshot.observation(normalizeVolumeIdentity(volume.getUuid()));
+        final JsonObject volumeObservation = volume == null ? null : snapshot.observation(normalizeVolumeIdentity(volume.getUuid()));
+        final JsonObject result = volumeObservation == null ? new JsonObject() : volumeObservation.deepCopy();
+        if (snapshot.sharePolicies.containsKey(share.getUuid())) result.add("smbAccess", snapshot.sharePolicies.get(share.getUuid()).deepCopy());
+        return result;
     }
 
     protected RuntimeObservationSnapshot loadIscsiTargetRuntimeObservations(final StorageServiceInstanceVO instance) {

@@ -29,8 +29,8 @@ from pathlib import Path
 SOURCE = Path(__file__).resolve().parents[2] / 'systemvm/debian/usr/local/bin/ablestack-storagectl'
 BLOCK = next(block for block in re.findall("<<'PY'\n(.*?)\nPY", SOURCE.read_text(), re.S) if 'def smb_network_policy(' in block)
 TREE = ast.parse(BLOCK)
-NS = {'ipaddress': ipaddress}
-NODES = [node for node in TREE.body if isinstance(node, ast.FunctionDef) and node.name in ('smb_network_policy', 'smb_hosts_allow_lines', 'verify_share_mount_boundary')]
+NS = {'ipaddress': ipaddress, 're': re}
+NODES = [node for node in TREE.body if isinstance(node, ast.FunctionDef) and node.name in ('smb_network_policy', 'smb_hosts_allow_lines', 'verify_share_mount_boundary', 'truth', 'smb_creation_policy', 'smb_creation_lines', 'install_validated_smb_config')]
 exec(compile(ast.Module(body=NODES, type_ignores=[]), str(SOURCE), 'exec'), NS)
 class SmbNetworkAclTest(unittest.TestCase):
     def policy(self, value): return NS['smb_network_policy'](value)
@@ -61,6 +61,30 @@ class SmbNetworkAclTest(unittest.TestCase):
             NS['verify_share_mount_boundary'](str(child), root)
             outside = Path(root) / 'smb' / 'link'; outside.symlink_to('/tmp')
             with self.assertRaises(RuntimeError): NS['verify_share_mount_boundary'](str(outside), root)
+
+    def test_failed_testparm_keeps_live_configuration_and_cleans_candidate(self):
+        with tempfile.TemporaryDirectory() as folder:
+            config = Path(folder) / 'smb.conf'; config.write_text('known-good')
+            def rejected(command, **kwargs):
+                self.assertNotEqual(str(config), command[-1])
+                raise subprocess.CalledProcessError(1, command)
+            NS.update({'os': os, 'subprocess': subprocess, 'tempfile': tempfile, 'run': rejected})
+            with self.assertRaises(subprocess.CalledProcessError):
+                NS['install_validated_smb_config'](['invalid candidate'], str(config))
+            self.assertEqual('known-good', config.read_text())
+            self.assertEqual(['smb.conf'], os.listdir(folder))
+
+    def test_creation_defaults_and_exact_forced_modes(self):
+        policy = NS['smb_creation_policy']({})
+        self.assertEqual('0660', policy['createMask'])
+        self.assertEqual('0770', policy['directoryMask'])
+        self.assertIn('   force create mode = 0000', NS['smb_creation_lines'](policy))
+        exact = NS['smb_creation_policy']({key: '0775' for key in ('createMask', 'forceCreateMode', 'directoryMask', 'forceDirectoryMode')})
+        self.assertIn('   force directory mode = 0775', NS['smb_creation_lines'](exact))
+    def test_creation_rejects_conflicts_and_injection(self):
+        for invalid in ({'createMask': '0600', 'forceCreateMode': '0060'}, {'createMask': '1777'},
+                        {'forceCreateMode': '0600', 'inheritPermissions': True}, {'directoryMask': '0770\nforce user=root'}):
+            with self.assertRaises(ValueError): NS['smb_creation_policy'](invalid)
 
     def test_disabled_rules_do_not_apply(self):
         rule = self.rule('10.1.1.9', 'IP_ADDRESS'); rule['state'] = 'Disabled'

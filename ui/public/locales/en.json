@@ -8622,5 +8622,16 @@
   "label.smb.network.create": "Create source allow rule",
   "message.smb.network.sources.example": "10.1.1.0/24, 10.1.1.9 (comma or Enter)",
   "label.smb.network.edit": "Edit source allow rule",
-  "label.smb.network.delete": "Delete source allow rule"
+  "label.smb.network.delete": "Delete source allow rule",
+  "label.storage.service.smb.inheritpermissions": "Inherit parent permissions",
+  "label.storage.service.smb.createmask": "Create mask",
+  "message.storage.service.smb.execute.warning": "Forced execute bits make every newly created regular file executable. Select this only when explicitly required.",
+  "label.storage.service.unobserved": "UNOBSERVED",
+  "label.storage.service.smb.directorymask": "Directory mask",
+  "label.storage.service.smb.forcecreatemode": "Force create mode",
+  "message.storage.service.smb.creation.help": "Changes apply only to newly created objects. Existing data, owners and POSIX ACLs remain unchanged. Forced bits must be contained by the mask. Parent inheritance cannot be combined with forced modes.",
+  "message.storage.service.smb.execute.confirm": "I confirm forcing execute permissions on new regular files.",
+  "label.storage.service.smb.creation.policy": "New file/directory permissions",
+  "label.storage.service.smb.forcedirectorymode": "Force directory mode",
+  "label.storage.service.smb.creation.preset": "Creation permission preset"
 }

@@ -38,6 +38,22 @@ public class StorageSmbShareResponse extends BaseResponse {
     public void setNetworkAccessMode(String value) { networkAccessMode=value; }
     public void setAllowedSources(java.util.List<String> value) { allowedSources=value; }
 
+    @SerializedName("creationpolicy")
+    @Param(description = "Desired SMB new file and directory permission policy")
+    private String creationPolicy;
+
+    @SerializedName("effectivecreationpolicy")
+    @Param(description = "Observed SMB creation permission policy; absent when unobserved")
+    private String effectiveCreationPolicy;
+
+    @SerializedName("creationpolicydrift")
+    @Param(description = "CONSISTENT, DRIFT or UNOBSERVED creation policy state")
+    private String creationPolicyDrift;
+
+    public void setCreationPolicy(String value) { creationPolicy = value; }
+    public void setEffectiveCreationPolicy(String value) { effectiveCreationPolicy = value; }
+    public void setCreationPolicyDrift(String value) { creationPolicyDrift = value; }
+
     @SerializedName(ApiConstants.ID)
     @Param(description = "ID of the SMB share")
     private String id;
