@@ -153,6 +153,7 @@ export default {
       if (!offering?.compatibility?.compatible || offering.id === this.resource.serviceofferingid) return false
       if (this.resource.state === 'Ready' && !this.scalingReadiness?.ready) return false
       const current = this.currentOffering
+      if (!Number.isFinite(offering.cpu) || !Number.isFinite(offering.memory) || !Number.isFinite(offering.cpuspeed)) return false
       if (!current || !Number.isFinite(current.cpu) || !Number.isFinite(current.memory) || !Number.isFinite(current.cpuspeed)) return false
       if (offering.cpu < current.cpu || offering.memory < current.memory || offering.cpuspeed < current.cpuspeed) return false
       return this.resource.state !== 'Ready' || offering.cpu > current.cpu || offering.memory > current.memory
@@ -176,7 +177,7 @@ export default {
       try {
         const json = await getAPI('listServiceOfferings', params, { preserveOnFailure: true, timeout: 15000 })
         if (request !== this.serviceOfferingRequestToken) return
-        const items = json.listserviceofferingsresponse.serviceoffering || []
+        const items = (json.listserviceofferingsresponse.serviceoffering || []).map(item => ({ ...item, cpu: item.cpunumber }))
         this.serviceofferings = items.map(item => ({ ...item, compatibility: null }))
         if (!items.length) return
         const response = await getAPI('listStorageServiceOfferingConstraints', {
