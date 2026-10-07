@@ -349,6 +349,7 @@ public final class StorageServiceConfiguration {
         }
         plan.addProperty("artifactSha256", row.getSha256());if (blueprint == null) plan.addProperty("targetName", target.getName());
         plan.add("requiredCredentials", requiredCredentials(archive));
+        StorageConfigRestorePlan.reviewForcedFileExecute(plan, mappings);
         new StorageConfigDomainRestore(manager).validateBindings(plan);
         if (blueprint != null) {
             JsonArray directories = new JsonArray();

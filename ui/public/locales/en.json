@@ -8741,5 +8741,7 @@
   "label.storage.config.clone.runtime": "Verified runtime bundle",
   "label.storage.config.size": "Bundle size (bytes)",
   "label.storage.config.clone.volume.mode": "Initial data volume",
-  "label.storage.config.directory.prepare": "Create missing directory only"
+  "label.storage.config.directory.prepare": "Create missing directory only",
+  "message.storage.config.file.execute": "The reviewed SMB policy forces execute bits on new files. Confirm this setting before restoring it.",
+  "label.storage.config.file.execute.confirm": "Restore the reviewed forced file execute policy"
 }

@@ -206,6 +206,14 @@ public final class StorageConfigDomainRestore {
                             if (desired.has("lun_or_namespace") && !desired.get("lun_or_namespace").isJsonNull()) parameters.add("namespaceid", desired.get("lun_or_namespace").deepCopy());
                         } else parameters.add("subsystemnqn", desired.get("target_name").deepCopy());
                     }
+                    if ("file-shares".equals(kind) && "SMB".equals(text(desired, "protocol")) && desired.has("config")
+                            && desired.getAsJsonObject("config").has("forceCreateMode")
+                            && (Integer.parseInt(text(desired.getAsJsonObject("config"), "forceCreateMode"), 8) & 0111) != 0) {
+                        if (!plan.has("forceFileExecuteConfirmation") || !plan.get("forceFileExecuteConfirmation").getAsBoolean()) {
+                            throw new InvalidParameterValueException("Restoring forced file execute bits requires reviewed plan confirmation");
+                        }
+                        parameters.addProperty("confirmfileexecute", true);
+                    }
                     BaseCmd cmd = StorageConfigCommandBinding.bind(command.type, parameters);
                     Object response = manager.invokeConfigurationDomainCommand(cmd, command.method);
                     Map<String, Long> after = manager.configurationResourceIds(instance.getId());

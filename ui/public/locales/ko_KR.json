@@ -8706,5 +8706,7 @@
   "label.storage.config.clone.runtime": "검증된 런타임 번들",
   "label.storage.config.size": "번들 크기(bytes)",
   "label.storage.config.clone.volume.mode": "초기 데이터 볼륨",
-  "label.storage.config.directory.prepare": "없는 디렉터리만 준비"
+  "label.storage.config.directory.prepare": "없는 디렉터리만 준비",
+  "message.storage.config.file.execute": "검토한 SMB 정책은 새 파일에 실행 비트를 강제로 적용합니다. 복원 전에 이 설정을 확인하세요.",
+  "label.storage.config.file.execute.confirm": "검토한 파일 실행 비트 정책 복원 확인"
 }

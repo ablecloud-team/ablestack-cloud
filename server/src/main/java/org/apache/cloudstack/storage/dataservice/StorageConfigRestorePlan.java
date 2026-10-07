@@ -111,6 +111,23 @@ public final class StorageConfigRestorePlan {
             if (!selected.add(value.getValue().getAsString())) throw new CloudRuntimeException("Different source volumes cannot share a target volume binding");
         }
     }
+    public static void reviewForcedFileExecute(JsonObject plan, JsonObject mappings) {
+        JsonArray executePolicies = new JsonArray();
+        for (String action : new String[] {"create", "update"}) for (JsonElement item : plan.getAsJsonArray(action)) {
+            JsonObject desired = item.getAsJsonObject().getAsJsonObject("desired");
+            if ("SMB".equals(desired.has("protocol") ? desired.get("protocol").getAsString() : null) && desired.has("config")
+                    && desired.getAsJsonObject("config").has("forceCreateMode")
+                    && (Integer.parseInt(desired.getAsJsonObject("config").get("forceCreateMode").getAsString(), 8) & 0111) != 0) {
+                JsonObject policy = new JsonObject();policy.add("sourceUuid", desired.get("uuid").deepCopy());
+                policy.add("forceCreateMode", desired.getAsJsonObject("config").get("forceCreateMode").deepCopy());executePolicies.add(policy);
+            }
+        }
+        plan.add("forcedFileExecutePolicies", executePolicies);
+        plan.addProperty("forceFileExecuteConfirmation", executePolicies.size() == 0 || mappings.has("confirmFileExecute")
+                && mappings.get("confirmFileExecute").isJsonPrimitive() && mappings.get("confirmFileExecute").getAsJsonPrimitive().isBoolean()
+                && mappings.get("confirmFileExecute").getAsBoolean());
+        if (!plan.get("forceFileExecuteConfirmation").getAsBoolean()) plan.getAsJsonArray("blockers").add("FORCED_FILE_EXECUTE_CONFIRMATION_REQUIRED");
+    }
     public static void requireCredentials(JsonArray required, JsonObject supplied) {
         Map<String, Set<String>> allowed = new LinkedHashMap<>();
         for (JsonElement value : required) {

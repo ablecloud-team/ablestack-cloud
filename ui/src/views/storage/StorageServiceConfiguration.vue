@@ -106,6 +106,10 @@
         </a-form-item>
       </a-form>
       <template v-if="plan">
+        <template v-if="(plan.forcedFileExecutePolicies || []).length">
+          <a-alert type="warning" show-icon :message="$t('message.storage.config.file.execute')" />
+          <a-checkbox v-model:checked="confirmFileExecute" :disabled="planPhase==='REVIEW'">{{ $t('label.storage.config.file.execute.confirm') }}</a-checkbox>
+        </template>
         <a-alert v-for="blocker in plan.blockers" :key="blocker" type="error" show-icon :message="blocker" />
         <a-descriptions :column="2" bordered size="small">
           <a-descriptions-item :label="$t('label.storage.config.create.resources')">{{ plan.create.length }}</a-descriptions-item>
@@ -137,7 +141,7 @@ export default {
   name: 'StorageServiceConfiguration',
   components: { CloudDownloadOutlined, UploadOutlined, DownloadOutlined, RollbackOutlined, ReloadOutlined },
   props: { instanceId: { type: String, required: true }, resource: { type: Object, required: true } },
-  data: () => ({ rows: [], loading: false, readFailed: false, generation: 0, busy: '', error: '', backupDialog: false, includeRuntime: true, retentionHours: 168, planTarget: null, plan: null, planPhase: 'MAPPING', planToken: '', lkgPlan: false, planning: false, volumeMapping: {}, targetVolumes: [], credentialValues: {}, confirmation: '', targetMode: 'RESTORE_EXISTING', clone: { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP', backingvolumemode: 'NEW' }, initialVolumeSource: '', plannedVolume: '', cloneRuntime: '', cloneOptions: { zones: [], networks: [], offerings: [], disks: [], pools: [], bundles: [], volumes: [] } }),
+  data: () => ({ rows: [], loading: false, readFailed: false, generation: 0, busy: '', error: '', backupDialog: false, includeRuntime: true, retentionHours: 168, planTarget: null, plan: null, planPhase: 'MAPPING', planToken: '', lkgPlan: false, planning: false, volumeMapping: {}, targetVolumes: [], credentialValues: {}, confirmation: '', confirmFileExecute: false, targetMode: 'RESTORE_EXISTING', clone: { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP', backingvolumemode: 'NEW' }, initialVolumeSource: '', plannedVolume: '', cloneRuntime: '', cloneOptions: { zones: [], networks: [], offerings: [], disks: [], pools: [], bundles: [], volumes: [] } }),
   computed: {
     dialogBody () { return { maxHeight: '65vh', overflowY: 'auto' } },
     activePoint () { return this.rows.find(row => row.kind === 'RESTORE_POINT' && row.state === 'ACTIVE_LKG') },
@@ -293,7 +297,7 @@ export default {
       this.planning = true; this.error = ''
       try {
         const api = this.lkgPlan ? 'planStorageServiceLastKnownGoodRestore' : 'planStorageServiceConfigRestore'
-        const mappings = { volumes: { ...this.volumeMapping } }
+        const mappings = { volumes: { ...this.volumeMapping }, confirmFileExecute: this.confirmFileExecute }
         if (this.targetMode === 'CREATE_NEW') {
           if (!this.initialVolumeSource || !this.cloneRuntime) throw new Error(this.$t('message.storage.config.clone.required'))
           const existing = this.clone.backingvolumemode === 'EXISTING'
@@ -319,7 +323,7 @@ export default {
       this.closePlan(); this.busy = 'RESTORE'; this.error = ''
       try { await this.mutation(api, parameters); await this.refresh() } catch (error) { this.error = error.message } finally { this.busy = '' }
     },
-    closePlan () { this.planTarget = null; this.plan = null; this.planToken = ''; this.planPhase = 'MAPPING'; this.volumeMapping = {}; this.credentialValues = {}; this.confirmation = ''; this.lkgPlan = false; this.planning = false; this.targetMode = 'RESTORE_EXISTING'; this.initialVolumeSource = ''; this.plannedVolume = ''; this.cloneRuntime = ''; this.clone = { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP', backingvolumemode: 'NEW' } }
+    closePlan () { this.planTarget = null; this.plan = null; this.planToken = ''; this.planPhase = 'MAPPING'; this.volumeMapping = {}; this.credentialValues = {}; this.confirmation = ''; this.lkgPlan = false; this.planning = false; this.confirmFileExecute = false; this.targetMode = 'RESTORE_EXISTING'; this.initialVolumeSource = ''; this.plannedVolume = ''; this.cloneRuntime = ''; this.clone = { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP', backingvolumemode: 'NEW' } }
   }
 }
 </script>
