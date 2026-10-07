@@ -20,7 +20,7 @@ set -euo pipefail
 # Only the validated Mold payload shipped with the ISO may be deployed.
 [ -s /opt/provider/provider.yaml ] || { echo "ERROR: validated Mold Provider payload is missing" >&2; exit 1; }
 KUBECTL="${MOLD_KUBECTL:-/opt/bin/kubectl}"
-"$KUBECTL" apply -f /opt/provider/provider.yaml
+MOLD_KUBECTL="$KUBECTL" python3 -c "$(printf '%s' '@@MOLD_MANAGED_ADDON_PLACEMENT@@' | base64 -d)" /opt/provider/provider.yaml CCM
 # Seed the same content annotation used by Secret reconciliation, including
 # workloads created for the first time after the Secret already existed.
 config_digest=$("$KUBECTL" -n kube-system get secret cloudstack-secret -o json | python3 -c 'import base64, hashlib, json, sys; print(hashlib.sha256(base64.b64decode(json.load(sys.stdin)["data"]["cloud-config"], validate=True)).hexdigest())')

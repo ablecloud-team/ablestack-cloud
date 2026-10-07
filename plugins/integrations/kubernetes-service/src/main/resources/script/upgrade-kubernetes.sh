@@ -90,10 +90,18 @@ wait_for_upgrade_api() {
 
 # Only fixed categories cross the SSH boundary; manifest or authentication errors stay private.
 apply_upgrade_manifest() {
-  local phase="$1" manifest="$2" output attempt=1
+  local phase="$1" manifest="$2" output attempt=1 manifest_applied
   mark_upgrade_stage "$phase"
   while (( attempt <= 3 )); do
-    if output=$(/opt/bin/kubectl --kubeconfig=/etc/kubernetes/admin.conf --request-timeout=20s apply -f "$manifest" 2>&1); then
+    local component=""
+    if [ "$phase" = PROVIDER_APPLY ]; then component=CCM; fi
+    if [ "$phase" = DASHBOARD_APPLY ] && [[ "$manifest" = */headlamp.yaml ]]; then component=HEADLAMP; fi
+    if [ -n "$component" ]; then
+      output=$(python3 -c "$(printf '%s' '@@MOLD_MANAGED_ADDON_PLACEMENT@@' | base64 -d)" "$manifest" "$component" 2>&1) && manifest_applied=true || manifest_applied=false
+    else
+      output=$(/opt/bin/kubectl --kubeconfig=/etc/kubernetes/admin.conf --request-timeout=20s apply -f "$manifest" 2>&1) && manifest_applied=true || manifest_applied=false
+    fi
+    if [ "$manifest_applied" = true ]; then
       UPGRADE_FAILURE_REASON=""
       printf '%s\n' "$output"
       return 0

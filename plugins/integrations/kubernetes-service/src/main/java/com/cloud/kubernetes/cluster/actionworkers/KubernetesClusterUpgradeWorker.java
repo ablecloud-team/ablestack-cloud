@@ -376,7 +376,6 @@ public class KubernetesClusterUpgradeWorker extends KubernetesClusterActionWorke
             errorMessage = String.format("Failed to upgrade Kubernetes cluster : %s, unable to upgrade Kubernetes node on VM : %s", kubernetesCluster.getName(), vm.getDisplayName());
             for (int retry = KubernetesClusterService.KubernetesClusterUpgradeRetries.value(); retry >= 0; retry--) {
                 try {
-                    deployProvider();
                     result = runInstallScriptOnVM(vm, i);
                     if (result.first()) {
                         break;
@@ -506,6 +505,15 @@ public class KubernetesClusterUpgradeWorker extends KubernetesClusterActionWorke
                 kubernetesCluster, clusterVMs, KubernetesCluster.Event.OperationFailed, null);
     }
 
+    protected void prepareUpgradeProvider() {
+        // Rollout must run before drain: an operator may have cordoned every worker.
+        // Refresh the script even when an older deployment left it on the control VM.
+        copyScriptFile(publicIpAddress, sshPort, deployProviderScriptFile, deployProviderScriptFilename);
+        if (!deployProvider()) {
+            logAndThrow(Level.ERROR, "Kubernetes Provider preparation failed before upgrade drain");
+        }
+    }
+
     public boolean upgradeCluster() throws CloudRuntimeException {
         init();
         if (logger.isInfoEnabled()) {
@@ -537,6 +545,7 @@ public class KubernetesClusterUpgradeWorker extends KubernetesClusterActionWorke
                 setUpgradeApiMember(vm, true); // Restore a verified healthy member after a paused prior attempt.
             }
         }
+        prepareUpgradeProvider();
         ensureUpgradeWorkloadsReady(true);
         KubernetesVersionReferences.withLock(upgradeVersion.getId(), () -> {
             KubernetesVersionReferences.requireEnabled(kubernetesSupportedVersionDao.findById(upgradeVersion.getId()));

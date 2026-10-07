@@ -404,7 +404,7 @@ write_files:
         fi
         if [ -f "${K8S_CONFIG_SCRIPTS_COPY_DIR}/headlamp.yaml" ]; then
           echo "Installing Headlamp dashboard from ISO"
-          /opt/bin/kubectl apply -f ${K8S_CONFIG_SCRIPTS_COPY_DIR}/headlamp.yaml
+          python3 -c "$(printf '%s' '@@MOLD_MANAGED_ADDON_PLACEMENT@@' | base64 -d)" "${K8S_CONFIG_SCRIPTS_COPY_DIR}/headlamp.yaml" HEADLAMP
         elif [ -f "${K8S_CONFIG_SCRIPTS_COPY_DIR}/dashboard.yaml" ]; then
           echo "Installing Kubernetes Dashboard from ISO"
           /opt/bin/kubectl apply -f ${K8S_CONFIG_SCRIPTS_COPY_DIR}/dashboard.yaml

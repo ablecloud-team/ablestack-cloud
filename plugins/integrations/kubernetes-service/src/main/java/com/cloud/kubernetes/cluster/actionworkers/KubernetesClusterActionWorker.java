@@ -358,7 +358,16 @@ public class KubernetesClusterActionWorker {
 
     protected String readK8sConfigFile(String resource) throws IOException {
         Path path = Paths.get(String.format("%s%s", CKS_CONFIG_PATH, resource));
-        return Files.readString(path);
+        return prepareManagedAddonPlacement(Files.readString(path));
+    }
+
+    protected String prepareManagedAddonPlacement(String data) throws IOException {
+        String marker = "@@MOLD_MANAGED_ADDON_PLACEMENT@@";
+        if (!data.contains(marker)) {
+            return data;
+        }
+        String encoded = Base64.encodeBase64String(readResourceFile("/script/managed-addon-placement.py").getBytes(StandardCharsets.UTF_8));
+        return data.replace(marker, encoded);
     }
 
     protected String getControlNodeLoginUser() {
@@ -904,7 +913,7 @@ public class KubernetesClusterActionWorker {
     protected File retrieveScriptFile(String filename) {
         File file = null;
         try {
-            String data = readResourceFile("/script/" + filename);
+            String data = prepareManagedAddonPlacement(readResourceFile("/script/" + filename));
             file = File.createTempFile(filename, ".sh");
             BufferedWriter writer = new BufferedWriter(new FileWriter(file));
             writer.write(data);
