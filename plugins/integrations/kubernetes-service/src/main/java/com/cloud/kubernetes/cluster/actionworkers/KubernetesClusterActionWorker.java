@@ -676,6 +676,16 @@ public class KubernetesClusterActionWorker {
         return new Pair<>(null, CLUSTER_NODES_DEFAULT_START_SSH_PORT);
     }
 
+    protected void attachKubernetesIsoToVm(UserVm vm, long isoId, boolean upgradeRetry) {
+        if (upgradeRetry && Objects.equals(vm.getIsoId(), isoId)) {
+            logger.info("Reusing already attached target binaries ISO for VM {} in Kubernetes cluster {}", vm.getUuid(), kubernetesCluster.getUuid());
+            return;
+        }
+        // Let the existing template API reject a different attached ISO. Never detach or
+        // replace operator media to make an interrupted upgrade retry appear successful.
+        templateService.attachIso(isoId, vm.getId(), true);
+    }
+
     protected void attachIsoKubernetesVMs(List<UserVm> clusterVMs, final KubernetesSupportedVersion kubernetesSupportedVersion) throws CloudRuntimeException {
         KubernetesSupportedVersion version = kubernetesSupportedVersion;
         if (kubernetesSupportedVersion == null) {
@@ -704,7 +714,7 @@ public class KubernetesClusterActionWorker {
             CallContext vmContext  = CallContext.register(CallContext.current(), ApiCommandResourceType.VirtualMachine);
             vmContext.putContextParameter(VirtualMachine.class, vm.getUuid());
             try {
-                templateService.attachIso(iso.getId(), vm.getId(), true);
+                attachKubernetesIsoToVm(vm, iso.getId(), kubernetesSupportedVersion != null);
                 if (logger.isInfoEnabled()) {
                     logger.info("Attached binaries ISO for VM: {} in cluster: {}", vm, kubernetesCluster);
                 }
