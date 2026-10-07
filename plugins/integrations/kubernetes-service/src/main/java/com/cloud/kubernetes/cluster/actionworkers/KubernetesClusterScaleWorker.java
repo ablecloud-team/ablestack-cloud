@@ -230,7 +230,30 @@ public class KubernetesClusterScaleWorker extends KubernetesClusterResourceModif
             cores = serviceOffering.getCpu() * totalClusterSize;
             memory = serviceOffering.getRamSize() * totalClusterSize;
         } else {
-            long nodeCount = getNodeCountForType(nodeType, kubernetesCluster);
+            long nodeCount = WORKER == nodeType && newWorkerSize != null ? newWorkerSize : getNodeCountForType(nodeType, kubernetesCluster);
+            List<KubernetesClusterVmMapVO> mappedVms = kubernetesClusterVmMapDao.listByClusterId(kubernetesCluster.getId());
+            if (CollectionUtils.isNotEmpty(mappedVms) && mappedVms.size() == kubernetesCluster.getTotalNodeCount()) {
+                // VM offering changes are already persisted here. Rebuild from the other
+                // actual roles instead of subtracting a newly changed offering from stale totals.
+                cores = serviceOffering.getCpu().longValue() * nodeCount;
+                memory = serviceOffering.getRamSize().longValue() * nodeCount;
+                for (KubernetesClusterVmMapVO map : mappedVms) {
+                    boolean targetRole = nodeType == CONTROL ? map.isControlNode()
+                            : nodeType == ETCD ? map.isEtcdNode() : !map.isControlNode() && !map.isEtcdNode();
+                    if (targetRole) {
+                        continue;
+                    }
+                    UserVmVO vm = userVmDao.findById(map.getVmId());
+                    ServiceOffering offering = vm == null ? null : serviceOfferingDao.findById(vm.getServiceOfferingId());
+                    if (vm == null || vm.getRemoved() != null || offering == null) {
+                        throw new CloudRuntimeException("Cannot calculate Kubernetes capacity: existing node or service offering is unavailable");
+                    }
+                    cores += offering.getCpu();
+                    memory += offering.getRamSize();
+                }
+                return new Pair<>(cores, memory);
+            }
+            nodeCount = getNodeCountForType(nodeType, kubernetesCluster);
             Long existingOfferingId = getExistingOfferingIdForNodeType(nodeType, kubernetesCluster);
             if (existingOfferingId == null) {
                 existingOfferingId = serviceOffering.getId();

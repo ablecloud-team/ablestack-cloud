@@ -46,6 +46,7 @@ import java.util.Set;
 
 import static com.cloud.kubernetes.cluster.KubernetesServiceHelper.KubernetesClusterNodeType.CONTROL;
 import static com.cloud.kubernetes.cluster.KubernetesServiceHelper.KubernetesClusterNodeType.DEFAULT;
+import static com.cloud.kubernetes.cluster.KubernetesServiceHelper.KubernetesClusterNodeType.WORKER;
 
 @RunWith(MockitoJUnitRunner.class)
 public class KubernetesClusterScaleWorkerTest {
@@ -78,6 +79,63 @@ public class KubernetesClusterScaleWorkerTest {
         worker.userVmDao = userVmDao;
         worker.loadBalancerDao = loadBalancerDao;
         worker.loadBalancerVMMapDao = loadBalancerVMMapDao;
+    }
+
+    private void actualRoleMappings() {
+        Mockito.when(kubernetesCluster.getId()).thenReturn(31L);
+        Mockito.when(kubernetesCluster.getTotalNodeCount()).thenReturn(3L);
+        KubernetesClusterVmMapVO control = Mockito.mock(KubernetesClusterVmMapVO.class);
+        Mockito.when(control.isControlNode()).thenReturn(true);
+        Mockito.lenient().when(control.getVmId()).thenReturn(11L);
+        KubernetesClusterVmMapVO worker1 = Mockito.mock(KubernetesClusterVmMapVO.class);
+        KubernetesClusterVmMapVO worker2 = Mockito.mock(KubernetesClusterVmMapVO.class);
+        Mockito.lenient().when(worker1.getVmId()).thenReturn(12L);
+        Mockito.lenient().when(worker2.getVmId()).thenReturn(13L);
+        Mockito.when(kubernetesClusterVmMapDao.listByClusterId(31L)).thenReturn(List.of(control, worker1, worker2));
+    }
+
+    private ServiceOfferingVO offering(int cpu, int memory) {
+        ServiceOfferingVO result = Mockito.mock(ServiceOfferingVO.class);
+        Mockito.when(result.getCpu()).thenReturn(cpu);
+        Mockito.when(result.getRamSize()).thenReturn(memory);
+        return result;
+    }
+
+    @Test public void roleOfferingTotalsRebuildAfterVmOfferingAlreadyChanged() {
+        actualRoleMappings();
+        Mockito.when(kubernetesCluster.getNodeCount()).thenReturn(2L);
+        UserVmVO controlVm = Mockito.mock(UserVmVO.class);
+        Mockito.when(controlVm.getServiceOfferingId()).thenReturn(1L);
+        Mockito.when(userVmDao.findById(11L)).thenReturn(controlVm);
+        ServiceOfferingVO control = offering(4, 8192);
+        Mockito.when(serviceOfferingDao.findById(1L)).thenReturn(control);
+        Pair<Long, Long> total = worker.calculateNewClusterCountAndCapacity(null, WORKER, offering(6, 12288));
+        Assert.assertEquals(16L, total.first().longValue());
+        Assert.assertEquals(32768L, total.second().longValue());
+        Mockito.verify(kubernetesCluster, Mockito.never()).getCores();
+        Mockito.verify(kubernetesCluster, Mockito.never()).getMemory();
+    }
+
+    @Test public void otherRoleActualVmOfferingsCanDiffer() {
+        actualRoleMappings();
+        Mockito.when(kubernetesCluster.getControlNodeCount()).thenReturn(1L);
+        for (long id : new long[]{12L, 13L}) {
+            UserVmVO vm = Mockito.mock(UserVmVO.class);
+            Mockito.when(vm.getServiceOfferingId()).thenReturn(id);
+            Mockito.when(userVmDao.findById(id)).thenReturn(vm);
+            ServiceOfferingVO so = offering(id == 12L ? 6 : 8, id == 12L ? 12288 : 16384);
+            Mockito.when(serviceOfferingDao.findById(id)).thenReturn(so);
+        }
+        Pair<Long, Long> total = worker.calculateNewClusterCountAndCapacity(null, CONTROL, offering(4, 8192));
+        Assert.assertEquals(18L, total.first().longValue());
+        Assert.assertEquals(36864L, total.second().longValue());
+    }
+
+    @Test(expected = com.cloud.utils.exception.CloudRuntimeException.class)
+    public void missingRemainingNodeCannotWriteAnIncorrectCapacity() {
+        actualRoleMappings();
+        Mockito.when(kubernetesCluster.getNodeCount()).thenReturn(2L);
+        worker.calculateNewClusterCountAndCapacity(null, WORKER, offering(6, 12288));
     }
 
     @Test
