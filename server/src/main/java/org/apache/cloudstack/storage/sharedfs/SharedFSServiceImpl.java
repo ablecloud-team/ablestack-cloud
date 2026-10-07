@@ -56,6 +56,7 @@ import com.cloud.org.Grouping;
 import com.cloud.projects.Project;
 import com.cloud.storage.DiskOfferingVO;
 import com.cloud.storage.VolumeApiService;
+import com.cloud.storage.Volume;
 import com.cloud.storage.VolumeVO;
 import com.cloud.storage.dao.DiskOfferingDao;
 import com.cloud.storage.dao.VolumeDao;
@@ -236,6 +237,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
                     com.google.gson.JsonObject observed=new com.google.gson.JsonParser().parse(resources.getResultJson()).getAsJsonObject();
                     result.add("guestResources",observed);
                     if (!observed.has("success") || !observed.get("success").getAsBoolean()) reasons.add("GUEST_RESOURCE_OBSERVATION_UNAVAILABLE");
+                    if (!observed.has("scaleActivationSupported") || !observed.get("scaleActivationSupported").getAsBoolean()) reasons.add("RUNTIME_SCALE_ACTIVATION_REQUIRED");
                     if (!observed.has("possibleCpuCount") || !observed.has("onlineCpuCount") || observed.get("possibleCpuCount").getAsInt()<=observed.get("onlineCpuCount").getAsInt()) reasons.add("CPU_HOTPLUG_HEADROOM_UNAVAILABLE");
                     if (!observed.has("memoryAutoOnline") || observed.get("memoryAutoOnline").isJsonNull()) reasons.add("GUEST_MEMORY_HOTPLUG_UNAVAILABLE");
                 }
@@ -520,6 +522,32 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_SHAREDFS_CREATE, eventDescription = "Allocating Shared FileSystem", create = true)
     public SharedFS allocSharedFS(CreateSharedFSCmd cmd) {
+        if (!cmd.isExistingVolume()) return allocSharedFSInternal(cmd);
+        if (cmd.getExistingVolumeId()==null) throw new InvalidParameterValueException("An existing volume is required for EXISTING mode");
+        com.cloud.utils.db.GlobalLock lock=com.cloud.utils.db.GlobalLock.getInternLock("SharedFSInitialVolume-"+cmd.getExistingVolumeId());
+        boolean held=false;
+        try { held=lock.lock(30);if (!held) throw new CloudRuntimeException("Another existing-volume allocation is active");return allocSharedFSInternal(cmd); }
+        finally { if (held) lock.unlock();lock.releaseRef(); }
+    }
+
+    protected VolumeVO validateExistingInitialVolume(Long id,long ownerId,long zoneId,long excludedSharedFsId) {
+        VolumeVO volume=id==null ? null : volumeDao.findById(id);
+        if (volume==null || volume.getVolumeType()!=Volume.Type.DATADISK || volume.getState()!=Volume.State.Ready || volume.getInstanceId()!=null
+                || volume.getAccountId()!=ownerId || volume.getDataCenterId()!=zoneId || volume.getPoolId()==null || volume.getSize()==null || volume.getSize()<=0) {
+            throw new InvalidParameterValueException("Existing backing volume must be a Ready unattached DATADISK in the same owner and zone");
+        }
+        StoragePoolVO pool=storagePoolDao.findById(volume.getPoolId());
+        if (pool==null || pool.getStatus()!=com.cloud.storage.StoragePoolStatus.Up) throw new InvalidParameterValueException("Existing volume primary storage is unavailable");
+        com.cloud.utils.db.SearchCriteria<SharedFSVO> reservations=sharedFSDao.createSearchCriteria();reservations.addAnd("volumeId",com.cloud.utils.db.SearchCriteria.Op.EQ,id);
+        for (SharedFSVO reserved:sharedFSDao.search(reservations,null)) if (reserved.getId()!=excludedSharedFsId) throw new InvalidParameterValueException("Existing volume is reserved by another SharedFS");
+        com.cloud.utils.db.SearchCriteria<StorageFileShareVO> shares=storageFileShareDao.createSearchCriteria();shares.addAnd("volumeId",com.cloud.utils.db.SearchCriteria.Op.EQ,id);
+        if (!storageFileShareDao.search(shares,null).isEmpty()) throw new InvalidParameterValueException("Existing volume is used by a file service");
+        com.cloud.utils.db.SearchCriteria<org.apache.cloudstack.storage.dataservice.StorageBlockTargetVO> targets=storageBlockTargetDao.createSearchCriteria();targets.addAnd("volumeId",com.cloud.utils.db.SearchCriteria.Op.EQ,id);
+        if (!storageBlockTargetDao.search(targets,null).isEmpty()) throw new InvalidParameterValueException("Existing volume is used by a block service");
+        return volume;
+    }
+
+    protected SharedFS allocSharedFSInternal(CreateSharedFSCmd cmd) {
         Account caller = CallContext.current().getCallingAccount();
 
         long ownerId = cmd.getEntityOwnerId();
@@ -531,8 +559,15 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         Long size = cmd.getSize();
         Long minIops = cmd.getMinIops();
         Long maxIops = cmd.getMaxIops();
-        validateDiskOffering(diskOfferingId, size, minIops, maxIops, zone);
-        validateInitialBackingStorage(diskOfferingId, cmd.getStorageId(), zone);
+        VolumeVO existing=null;
+        if (cmd.isExistingVolume()) {
+            if (diskOfferingId!=null || cmd.getStorageId()!=null || size!=null || minIops!=null || maxIops!=null) throw new InvalidParameterValueException("EXISTING mode derives offering, pool and size from the selected volume; new-volume fields must be omitted");
+            existing=validateExistingInitialVolume(cmd.getExistingVolumeId(),ownerId,zone.getId(),-1);
+        } else {
+            if (diskOfferingId==null || cmd.getStorageId()==null) throw new InvalidParameterValueException("NEW mode requires disk offering and primary storage");
+            validateDiskOffering(diskOfferingId, size, minIops, maxIops, zone);
+            validateInitialBackingStorage(diskOfferingId, cmd.getStorageId(), zone);
+        }
 
         SharedFSProvider provider = getSharedFSProvider(cmd.getSharedFSProviderName());
         SharedFSLifeCycle lifeCycle = provider.getSharedFSLifeCycle();
@@ -553,7 +588,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
 
         SharedFS.FileSystemType fsType;
         try {
-            fsType = SharedFS.FileSystemType.valueOf(cmd.getFsFormat().toUpperCase());
+            fsType = cmd.isExistingVolume() ? SharedFS.FileSystemType.XFS : SharedFS.FileSystemType.valueOf(cmd.getFsFormat().toUpperCase());
         } catch (IllegalArgumentException ex) {
             throw new InvalidParameterValueException("Invalid File system format specified. Supported formats are EXT4 and XFS");
         }
@@ -565,6 +600,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         SharedFSVO sharedFS = new SharedFSVO(cmd.getName(), cmd.getDescription(), owner.getDomainId(),
                 ownerId, cmd.getZoneId(), cmd.getSharedFSProviderName(), SharedFS.Protocol.NFS,
                 fsType, cmd.getServiceOfferingId());
+        if (existing!=null) { sharedFS.setVolumeId(existing.getId());sharedFS.setBackingVolumeMode(SharedFS.BackingVolumeMode.EXISTING);sharedFS.setInitialImportState("RESERVED"); }
         sharedFS.setNetworkMode(cmd.getNetworkMode());
         if (cmd.getNetworkMode() == SharedFS.NetworkMode.STATIC) {
             sharedFS.setIpAddress(staticNetwork.ipAddress);
@@ -589,18 +625,48 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         SharedFSLifeCycle lifeCycle = provider.getSharedFSLifeCycle();
         Pair<Long, Long> result;
         try {
-            result = lifeCycle.deploySharedFS(sharedFS, cmd.getNetworkId(), diskOfferingId, cmd.getStorageId(), size, minIops, maxIops);
+            if (cmd.isExistingVolume()) {
+                validateExistingInitialVolume(cmd.getExistingVolumeId(),sharedFS.getAccountId(),sharedFS.getDataCenterId(),sharedFS.getId());
+                result=lifeCycle.deployWithExistingVolume(sharedFS,cmd.getNetworkId(),cmd.getExistingVolumeId());
+            } else result = lifeCycle.deploySharedFS(sharedFS, cmd.getNetworkId(), diskOfferingId, cmd.getStorageId(), size, minIops, maxIops);
             sharedFS.setVolumeId(result.first());
             sharedFS.setVmId(result.second());
             sharedFSDao.update(sharedFS.getId(), sharedFS);
             configureStaticNetwork(sharedFSDao.findById(sharedFS.getId()));
+            if (cmd.isExistingVolume()) inspectExistingInitialVolume(sharedFS);
         } catch (Exception ex) {
-            stateTransitTo(sharedFS, Event.OperationFailed);
+            if (cmd.isExistingVolume()) cleanupFailedInitialVolume(sharedFS,lifeCycle,ex);
+            if (!cmd.isExistingVolume() || sharedFSDao.findById(sharedFS.getId())!=null) stateTransitTo(sharedFS, Event.OperationFailed);
             throw ex;
         }
         stateTransitTo(sharedFS, Event.OperationSucceeded);
         syncSharedFSToStorageService(sharedFSDao.findById(sharedFS.getId()));
         return sharedFS;
+    }
+
+    protected void inspectExistingInitialVolume(SharedFSVO sharedFS) {
+        VolumeVO volume=volumeDao.findById(sharedFS.getVolumeId());
+        if (volume==null || !sharedFS.getVmId().equals(volume.getInstanceId())) throw new CloudRuntimeException("Existing volume attachment changed before inspection");
+        com.google.gson.JsonObject payload=new com.google.gson.JsonObject();
+        payload.addProperty("shareUuid",sharedFS.getUuid());payload.addProperty("volumeUuid",volume.getUuid());payload.addProperty("volumeName",volume.getName());payload.addProperty("volumeSizeBytes",volume.getSize());payload.addProperty("importMode","MOUNT_EXISTING");
+        StorageServiceGuestCommandResult result=guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(sharedFS.getVmId(),"volume attach inspect",payload.toString(),120,Set.of()));
+        if (!result.isSuccess()) throw new CloudRuntimeException("Existing filesystem inspection failed; formatting was not permitted");
+        com.google.gson.JsonObject observed=new com.google.gson.JsonParser().parse(result.getResultJson()).getAsJsonObject();
+        if (!observed.has("success") || !observed.get("success").getAsBoolean() || !volume.getUuid().equals(observed.get("volumeUuid").getAsString())) throw new CloudRuntimeException("Existing filesystem identity was not verified");
+        String filesystem=observed.get("filesystem").getAsString().toUpperCase(java.util.Locale.ROOT);
+        sharedFS.setFsType(SharedFS.FileSystemType.valueOf(filesystem));sharedFS.setInitialImportState("MOUNTED_EXISTING");sharedFSDao.update(sharedFS.getId(),sharedFS);
+    }
+
+    protected void cleanupFailedInitialVolume(SharedFSVO sharedFS,SharedFSLifeCycle lifeCycle,Exception failure) {
+        sharedFS.setInitialImportState("RECOVERY_REQUIRED");sharedFSDao.update(sharedFS.getId(),sharedFS);
+        if (sharedFS.getVmId()==null) { sharedFSDao.remove(sharedFS.getId());return; }
+        try {
+            if (!lifeCycle.stopSharedFS(sharedFS,false)) throw new CloudRuntimeException("Initial VM could not be stopped for preserved-volume cleanup");
+            VolumeVO observed=volumeDao.findById(sharedFS.getVolumeId());
+            Set<Long> ownData=observed!=null && sharedFS.getVmId().equals(observed.getInstanceId()) ? Set.of(sharedFS.getVolumeId()) : Set.of();
+            if (!lifeCycle.deleteSharedFS(sharedFS,SharedFS.DataVolumePolicy.PRESERVE_VOLUMES,ownData)) throw new CloudRuntimeException("Initial VM cleanup did not complete");
+            sharedFSDao.remove(sharedFS.getId());
+        } catch (RuntimeException recovery) { failure.addSuppressed(recovery);logger.warn("Initial existing-volume deployment requires recovery for SharedFS {}",sharedFS.getUuid()); }
     }
 
     private SharedFS startSharedFS(SharedFS sharedFS) throws OperationTimedoutException, ResourceUnavailableException, InsufficientCapacityException {
@@ -650,7 +716,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         SharedFSLifeCycle lifeCycle = provider.getSharedFSLifeCycle();
         try {
             stateTransitTo(sharedFS, Event.StopRequested);
-            lifeCycle.stopSharedFS(sharedFS, forced);
+            if (!lifeCycle.stopSharedFS(sharedFS, forced)) throw new CloudRuntimeException("SharedFS VM stop was not confirmed");
         } catch (Exception e) {
             stateTransitTo(sharedFS, Event.OperationFailed);
             throw e;
@@ -912,6 +978,25 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         if (rejectNoOp) SharedFSOnlineScale.validate(before.getCpu(),before.getRamSize(),target.getCpu(),target.getRamSize());
     }
 
+    protected void reconcilePreviousScaleRecovery(SharedFSVO sharedFS,StorageServiceInstanceVO instance) {
+        for (org.apache.cloudstack.storage.dataservice.StorageServiceOperationVO previous:storageOperationDao.listByInstance(instance.getId())) {
+            if (!"SHAREDFS_ONLINE_SCALE".equals(previous.getAction()) || !"RECOVERY_REQUIRED".equals(previous.getState())) continue;
+            com.google.gson.JsonObject original=new com.google.gson.JsonParser().parse(previous.getPreviousSnapshotJson()).getAsJsonObject();
+            com.google.gson.JsonObject observed=scalingGuestCommand(sharedFS.getVmId(),"operation resources","{}");
+            com.google.gson.JsonObject health=scalingGuestCommand(sharedFS.getVmId(),"operation verify","{}");
+            com.cloud.vm.VMInstanceVO vm=vmInstanceDao.findById(sharedFS.getVmId());
+            com.cloud.service.ServiceOfferingVO offering=serviceOfferingDao.findById(sharedFS.getServiceOfferingId());
+            if (!"ok".equalsIgnoreCase(health.get("status").getAsString()) || vm==null || !sharedFS.getServiceOfferingId().equals(vm.getServiceOfferingId())
+                    || offering==null || offering.getCpu()!=original.get("onlineCpuCount").getAsInt()
+                    || (original.has("serviceOfferingId") && !sharedFS.getServiceOfferingId().equals(original.get("serviceOfferingId").getAsLong()))
+                    || Math.abs(offering.getRamSize()*1024L*1024-original.get("memoryTotalBytes").getAsLong())>512L*1024*1024
+                    || observed.get("onlineCpuCount").getAsInt()!=original.get("onlineCpuCount").getAsInt()
+                    || Math.abs(observed.get("memoryTotalBytes").getAsLong()-original.get("memoryTotalBytes").getAsLong())>64L*1024*1024) throw new CloudRuntimeException("Previous online scaling recovery must be verified before another resize");
+            previous.setState("ROLLED_BACK");previous.setPhase("ROLLED_BACK");previous.setCompleted(new java.util.Date());previous.setHeartbeat(new java.util.Date());
+            previous.setResultJson(observed.toString());previous.setDiagnostic("Original resources and protocol health verified after guest boot completed");storageOperationDao.update(previous.getId(),previous);
+        }
+    }
+
     protected SharedFS scaleSharedFSOnline(SharedFSVO sharedFS,Long targetId) {
         com.cloud.vm.VMInstanceVO vm=vmInstanceDao.findById(sharedFS.getVmId());
         if (vm==null || !vm.isDynamicallyScalable() || vm.getState()!=com.cloud.vm.VirtualMachine.State.Running) throw new InvalidParameterValueException("This legacy service VM requires controlled dynamic-scaling preparation before online changes");
@@ -922,6 +1007,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         life.checkPrerequisites(validateAndGetZone(sharedFS.getDataCenterId()),targetId);
         StorageServiceInstanceVO instance=storageServiceInstanceDao.findByVmId(sharedFS.getVmId());
         if (instance==null) throw new CloudRuntimeException("Storage Service operation scope is unavailable");
+        reconcilePreviousScaleRecovery(sharedFS,instance);
         org.apache.cloudstack.storage.dataservice.StorageServiceOperationVO operation=new org.apache.cloudstack.storage.dataservice.StorageServiceOperationVO();
         operation.setInstanceId(instance.getId());operation.setAction("SHAREDFS_ONLINE_SCALE");operation.setRequestKey(java.util.UUID.randomUUID().toString());
         operation.setRevision(storageOperationDao.listByInstance(instance.getId()).stream().filter(row->"COMPLETE".equals(row.getState())).mapToLong(org.apache.cloudstack.storage.dataservice.StorageServiceOperationVO::getRevision).max().orElse(0)+1);
@@ -931,9 +1017,15 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         try {
             com.google.gson.JsonObject verified=SharedFSOnlineScale.execute(new SharedFSOnlineScale.Runtime() {
                 public void health() { com.google.gson.JsonObject health=scalingGuestCommand(vm.getId(),"operation verify","{}");if (!"ok".equalsIgnoreCase(health.get("status").getAsString())) throw new CloudRuntimeException("Storage Service health checkpoint failed"); }
-                public com.google.gson.JsonObject resources() { return scalingGuestCommand(vm.getId(),"operation resources","{}"); }
+                public com.google.gson.JsonObject resources() {
+                    com.google.gson.JsonObject observed=scalingGuestCommand(vm.getId(),"operation resources","{}");
+                    journal.setResultJson(observed.toString());journal.setHeartbeat(new java.util.Date());storageOperationDao.update(journal.getId(),journal);return observed;
+                }
+                public void activate(int cpus) { scalingGuestCommand(vm.getId(),"operation activate-scale","{\"targetCpuCount\":"+cpus+"}"); }
                 public void prepare(int cpus) {
-                    com.google.gson.JsonObject resource=resources();journal.setPreviousSnapshotJson(resource.toString());storageOperationDao.update(journal.getId(),journal);
+                    com.google.gson.JsonObject resource=resources();
+                    resource.addProperty("serviceOfferingId",originalId);resource.addProperty("configuredMemoryMiB",before.getRamSize());resource.addProperty("configuredCpuCount",before.getCpu());resource.addProperty("cpuSpeed",before.getSpeed());
+                    journal.setPreviousSnapshotJson(resource.toString());storageOperationDao.update(journal.getId(),journal);
                     scalingGuestCommand(vm.getId(),"operation prepare-scale","{\"targetCpuCount\":"+cpus+"}");
                 }
                 public void resize() {
@@ -953,7 +1045,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
                         syncSharedFSToStorageService(sharedFSDao.findById(current.getId()));
                     } catch (Exception failure) { throw new CloudRuntimeException("Cold recovery of the original resources failed",failure); }
                 }
-                public void pause() { try { Thread.sleep(2000); } catch (InterruptedException interrupted) { Thread.currentThread().interrupt();throw new CloudRuntimeException("Scaling verification interrupted",interrupted); } }
+                public void pause() { journal.setHeartbeat(new java.util.Date());storageOperationDao.update(journal.getId(),journal);try { Thread.sleep(2000); } catch (InterruptedException interrupted) { Thread.currentThread().interrupt();throw new CloudRuntimeException("Scaling verification interrupted",interrupted); } }
                 public void phase(String value) {
                     journal.setPhase(value);journal.setHeartbeat(new java.util.Date());
                     if (List.of("COMPLETE","ROLLED_BACK","RECOVERY_REQUIRED").contains(value)) { journal.setState(value);journal.setProgress(100);journal.setCompleted(new java.util.Date()); }
@@ -965,7 +1057,9 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
             syncSharedFSToStorageService(sharedFS);return sharedFS;
         } catch (RuntimeException failure) {
             if ("RUNNING".equals(journal.getState())) { journal.setState("BLOCKED");journal.setPhase("BLOCKED");journal.setCompleted(new java.util.Date()); }
-            journal.setDiagnostic(failure.getMessage());storageOperationDao.update(journal.getId(),journal);throw failure;
+            String diagnostic=failure.getMessage();
+            if (failure.getSuppressed().length>0) diagnostic+="; recovery: "+failure.getSuppressed()[0].getMessage();
+            journal.setDiagnostic(diagnostic);storageOperationDao.update(journal.getId(),journal);throw failure;
         }
     }
 

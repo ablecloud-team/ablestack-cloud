@@ -1,4 +1,7 @@
 {
+  "message.sharedfs.scaling.reason.runtime_scale_activation_required": "A runtime supporting online resource activation is required",
+  "message.sharedfs.initial.filesystem.inspect": "Existing XFS/EXT4 inspected after attachment",
+  "message.sharedfs.initial.existing.preserve": "The existing filesystem is inspected after attachment. Initial creation mounts without formatting and preserves the original data.",
   "message.sharedfs.scaling.reason.zone_dynamic_scale_disabled": "Zone online scaling disabled",
   "message.sharedfs.scaling.reason.vm_unavailable": "VM unavailable",
   "message.sharedfs.scaling.reason.vm_not_running": "VM is not running",
