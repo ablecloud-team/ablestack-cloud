@@ -32,7 +32,7 @@ function mockApi (ready = true) {
     ? { listserviceofferingsresponse: { serviceoffering: [old, lower, larger] } }
     : cmd === 'listStorageServiceOfferingConstraints'
       ? { liststorageserviceofferingconstraintsresponse: { storageserviceofferingconstraint: [old, lower, larger].map(i => ({ id: i.id, compatible: true })) } }
-      : { getsharedfilesystemscalingreadinessresponse: { resultjson: JSON.stringify({ ready, currentOffering: old, reasons: [] }) } }))
+      : { getsharedfilesystemscalingreadinessresponse: { sharedfilesystemscalingreadiness: { resultjson: JSON.stringify({ ready, currentOffering: old, reasons: [] }) } } }))
 }
 describe('SharedFS effective online scaling', () => {
   beforeEach(() => getAPI.mockReset())
