@@ -775,6 +775,15 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
         }
     }
 
+    protected boolean initializeCreationComponent(String component, java.util.function.BooleanSupplier initialize) {
+        try {
+            return initialize.getAsBoolean();
+        } catch (RuntimeException error) {
+            stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.CreateFailed);
+            throw new CloudRuntimeException("Failed to initialize Kubernetes " + component + "; nodes and cleanup receipts are preserved", error);
+        }
+    }
+
     public boolean startKubernetesClusterOnCreate(Long domainId, Long accountId, Long asNumber) throws ManagementServerException, ResourceUnavailableException, InsufficientCapacityException {
         init();
         if (logger.isInfoEnabled()) {
@@ -893,7 +902,7 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
         updateKubernetesClusterEntryEndpoint();
         // External kubelets remain uninitialized until the CCM sets provider IDs.
         // Deploy it before waiting for Node and Dashboard workload readiness.
-        if (!deployProvider()) {
+        if (!initializeCreationComponent("Provider", this::deployProvider)) {
             logTransitStateAndThrow(Level.ERROR, String.format("Failed to initialize Kubernetes provider for cluster : %s",
                     kubernetesCluster.getName()), kubernetesCluster.getId(), KubernetesCluster.Event.CreateFailed);
         }
@@ -914,7 +923,7 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
             logTransitStateAndThrow(Level.ERROR, String.format("Failed to setup HA Kubernetes cluster : %s as CoreDNS is not Ready on distinct nodes",
                     kubernetesCluster.getName()), kubernetesCluster.getId(), KubernetesCluster.Event.CreateFailed);
         }
-        if (kubernetesCluster.isCsiEnabled() && !deployCsiDriver()) {
+        if (kubernetesCluster.isCsiEnabled() && !initializeCreationComponent("CSI", this::deployCsiDriver)) {
             logTransitStateAndThrow(Level.ERROR, String.format("Failed to initialize Kubernetes CSI driver for cluster : %s",
                     kubernetesCluster.getName()), kubernetesCluster.getId(), KubernetesCluster.Event.CreateFailed);
         }
