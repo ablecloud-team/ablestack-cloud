@@ -348,7 +348,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
                     upgrade.getTransactionId(), request(upgrade, bundle));
             update(upgrade, StorageServiceRuntimeUpgradeVO.State.RUNNING, "VERIFYING", 85);
             final StorageServiceGuestCommandResult health = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(
-                    instance.getVmId(), "health", "", StorageServiceInstance.StorageServiceCommandTimeout.value(), Collections.emptySet()));
+                    instance.getVmId(), "operation verify", "", StorageServiceInstance.StorageServiceCommandTimeout.value(), Collections.emptySet()));
             if (!runtimeHealthVerified(health)) {
                 final JsonObject rolledBack = invoke(instance, StorageServiceRuntimeOperation.ROLLBACK,
                         upgrade.getTransactionId(), request(upgrade, bundle));

@@ -600,7 +600,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         VMInstanceVO vm = vmInstanceDao.findById(instance.getVmId());
         if (vm == null || vm.getState() != com.cloud.vm.VirtualMachine.State.Running) return unavailable;
         try {
-            StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(), command, "", 15, Collections.emptySet()));
+            StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(), "inventory".equals(command) ? "operation observe" : "health".equals(command) ? "operation verify" : command, "", 15, Collections.emptySet()));
             if (!result.isSuccess()) return unavailable;
             return StorageConfigSemantic.redact(parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()))).getAsJsonObject();
         } catch (RuntimeException failure) { return unavailable; }
@@ -809,7 +809,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
 
     protected void verifyReconciledStorageDesiredState(final StorageServiceInstanceVO instance) {
         final StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
-                "inventory", "", 30, Collections.emptySet()));
+                "operation observe", "", 30, Collections.emptySet()));
         if (!result.isSuccess()) throw new CloudRuntimeException("Current desired-state observation is unavailable");
         final JsonObject inventory = parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));
         StorageRecoveryObservation.requireFresh(inventory, System.currentTimeMillis() / 1000.0);
