@@ -93,6 +93,10 @@ public final class StorageConfigCommandBinding {
             for (String mode : new String[] {"protocolMode", "idMappingMode"}) if (config.has(mode) && !config.get(mode).isJsonNull()) result.add(mode.toLowerCase(java.util.Locale.ROOT), config.get(mode).deepCopy());
         }
         if ("file-shares".equals(kind)) {
+            if (resource.has("posixPolicyUuid") && "NFS".equals(resource.has("protocol") ? resource.get("protocol").getAsString() : null)) {
+                // The referenced common POSIX policy owns these attributes; do not reapply legacy NFS ownership.
+                for (String key : new String[] {"owneruid", "ownergid", "mode", "recursivepermission"}) result.remove(key);
+            }
             result.addProperty("importmode", "MOUNT_EXISTING");result.addProperty("createdirectory", false);// Cleanup defaults remain false; backup restore never requests volume deletion.
         }
         return result;

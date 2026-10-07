@@ -48,4 +48,12 @@ public class StorageConfigCommandBindingTest {
         UpdateStorageNfsExportCmd cmd = (UpdateStorageNfsExportCmd) StorageConfigCommandBinding.bind(UpdateStorageNfsExportCmd.class, parameters);
         Assert.assertEquals(Long.valueOf(5000000000L), cmd.getId());Assert.assertEquals(Boolean.FALSE, cmd.getReadOnly());
     }
+    @Test public void commonPosixPolicyRemainsTheOnlyNfsDirectoryOwnerDuringRestore() {
+        JsonObject resource=new JsonObject();resource.addProperty("protocol","NFS");resource.addProperty("posixPolicyUuid","policy");
+        JsonObject config=new JsonObject();config.addProperty("ownerUid",1001001);config.addProperty("ownerGid",1001001);config.addProperty("mode","2775");resource.add("config",config);
+        JsonObject parameters=StorageConfigCommandBinding.parameters(resource,"file-shares");
+        Assert.assertFalse(parameters.has("owneruid"));Assert.assertFalse(parameters.has("ownergid"));Assert.assertFalse(parameters.has("mode"));
+        resource.remove("posixPolicyUuid");parameters=StorageConfigCommandBinding.parameters(resource,"file-shares");Assert.assertTrue(parameters.has("owneruid"));
+    }
+
 }
