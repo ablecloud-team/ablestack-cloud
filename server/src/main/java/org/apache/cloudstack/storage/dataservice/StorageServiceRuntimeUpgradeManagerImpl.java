@@ -82,6 +82,10 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
     @Inject private StorageServiceRuntimeHostDispatcher runtimeDispatcher;
     @Inject private StorageServiceGuestCommandDispatcher guestCommandDispatcher;
     @Inject private VMInstanceDao vmInstanceDao;
+    @Inject private org.apache.cloudstack.storage.dataservice.dao.StorageFileShareDao fileShareDao;
+    @Inject private org.apache.cloudstack.storage.dataservice.dao.StorageServiceProtocolDao protocolDao;
+    @Inject private org.apache.cloudstack.storage.dataservice.dao.StorageAccessRuleDao accessRuleDao;
+    @Inject private org.apache.cloudstack.storage.dataservice.dao.StoragePosixDirectoryPolicyDao posixPolicyDao;
 
     @Override
     public StorageServiceRuntimeBundleResponse register(final RegisterStorageServiceRuntimeBundleCmd cmd) {
@@ -285,8 +289,9 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
             final byte[] signature = download(bundle.getSignatureUrl(), MAX_SIGNATURE_BYTES);
             verifyBytes(archive, bundle.getSha256(), "runtime bundle");
             verifyBytes(manifest, bundle.getManifestSha256(), "runtime manifest");
-            new StorageServiceRuntimeBundleVerifier().verify(bundle, archive, manifest, signature,
+            final JsonObject verified = new StorageServiceRuntimeBundleVerifier().verify(bundle, archive, manifest, signature,
                     trustedKey(bundle.getSigningKeyId()));
+            StorageRuntimeFeatureCompatibility.require(verified.getAsJsonObject("manifest"), requiredRuntimeFeatures(instance));
             if (bundle.getArtifactSize() != null && bundle.getArtifactSize() != archive.length) {
                 throw new CloudRuntimeException("Runtime bundle size differs from registered metadata");
             }
@@ -367,6 +372,13 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         if (bundle == null || previous != null && previous.getState() == StorageServiceRuntimeBundleVO.State.REVOKED) {
             throw new CloudRuntimeException("Rollback destination is revoked or unavailable");
         }
+        if (previous == null) throw new CloudRuntimeException("No previous runtime bundle is available");
+        final byte[] previousArchive = download(previous.getArtifactUrl(), MAX_BUNDLE_BYTES);
+        final byte[] previousManifest = download(previous.getManifestUrl(), MAX_MANIFEST_BYTES);
+        final byte[] previousSignature = download(previous.getSignatureUrl(), MAX_SIGNATURE_BYTES);
+        final JsonObject previousVerified = new StorageServiceRuntimeBundleVerifier().verify(previous, previousArchive, previousManifest, previousSignature,
+                trustedKey(previous.getSigningKeyId()));
+        StorageRuntimeFeatureCompatibility.require(previousVerified.getAsJsonObject("manifest"), requiredRuntimeFeatures(instance));
         final JsonObject result = invoke(instance, StorageServiceRuntimeOperation.ROLLBACK,
                 upgrade.getTransactionId(), request(upgrade, bundle));
         final Long current = instance.getCurrentRuntimeBundleId();
@@ -397,6 +409,30 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         final ListResponse<StorageServiceRuntimeUpgradeResponse> response = new ListResponse<>();
         response.setResponses(responses, responses.size());
         return response;
+    }
+
+    protected java.util.Set<String> requiredRuntimeFeatures(final StorageServiceInstanceVO instance) {
+        final java.util.Set<String> features = new java.util.HashSet<>();
+        if (!posixPolicyDao.listByInstance(instance.getId()).isEmpty()) features.add("POSIX_DIRECTORY_POLICY");
+        for (StorageServiceInstance.Protocol protocol : new StorageServiceInstance.Protocol[] {StorageServiceInstance.Protocol.NFS, StorageServiceInstance.Protocol.SMB}) {
+            for (StorageFileShareVO share : fileShareDao.listByInstanceIdAndProtocol(instance.getId(), protocol)) {
+                JsonObject config = new JsonParser().parse(share.getConfigJson() == null ? "{}" : share.getConfigJson()).getAsJsonObject();
+                features.addAll(StorageRuntimeFeatureCompatibility.shareFeatures(config, protocol));
+                if (protocol == StorageServiceInstance.Protocol.SMB) {
+                    for (StorageAccessRuleVO rule : accessRuleDao.listByResource(StorageServiceInstance.AccessResourceType.FILE_SHARE, share.getId())) {
+                        if ((rule.getPrincipalType() == StorageServiceInstance.PrincipalType.CIDR || rule.getPrincipalType() == StorageServiceInstance.PrincipalType.IP_ADDRESS)
+                                && rule.getState() != StorageServiceInstance.ResourceState.Disabled && rule.getState() != StorageServiceInstance.ResourceState.Destroyed) {
+                            features.add("SMB_NETWORK_ACL");
+                        }
+                    }
+                }
+            }
+        }
+        for (StorageServiceProtocolVO protocol : protocolDao.listByInstanceIdAndProtocol(instance.getId(), StorageServiceInstance.Protocol.NFS)) {
+            JsonObject config = new JsonParser().parse(protocol.getConfigJson() == null ? "{}" : protocol.getConfigJson()).getAsJsonObject();
+            if (config.has("idMappingMode") && "NUMERIC".equals(config.get("idMappingMode").getAsString())) features.add("NFS_NUMERIC_IDENTITY");
+        }
+        return features;
     }
 
     protected boolean runtimeHealthVerified(StorageServiceGuestCommandResult result) {

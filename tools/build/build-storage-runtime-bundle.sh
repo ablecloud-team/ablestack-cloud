@@ -98,6 +98,7 @@ manifest = {
     "buildCommit": commit,
     "buildTime": build_time,
     "files": files,
+    "supportedFeatures": ["NESTED_FILE_SHARE", "NFS_NUMERIC_IDENTITY", "POSIX_DIRECTORY_POLICY", "SMB_NETWORK_ACL", "SMB_CREATION_MODE", "SMB_PARENT_OWNER"],
 }
 Path(output).write_text(json.dumps(manifest, sort_keys=True, separators=(",", ":")) + "\n", encoding="utf-8")
 PY
