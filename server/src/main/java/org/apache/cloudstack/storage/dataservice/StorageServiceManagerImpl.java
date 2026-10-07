@@ -243,6 +243,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     @Inject
     private org.apache.cloudstack.storage.dataservice.dao.StoragePosixDirectoryPolicyDao storagePosixPolicyDao;
     private final ThreadLocal<StorageServiceOperationVO> storageWriterOperation = new ThreadLocal<>();
+    private final ThreadLocal<Boolean> configurationNativeNvmeReplayed = new ThreadLocal<>();
     @Inject private org.apache.cloudstack.storage.dataservice.dao.StorageConfigArtifactDao storageConfigArtifactDao;
     @Inject private org.apache.cloudstack.storage.dataservice.dao.StorageServiceRuntimeBundleDao storageRuntimeBundleDao;
     @Inject private org.apache.cloudstack.storage.sharedfs.SharedFSService configurationSharedFsService;
@@ -369,6 +370,16 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             }
         }
         JsonObject request = StorageIdentityCapsule.exportRequest(instance.getUuid(), operationUuid, key, names);
+        JsonArray nvmeHosts = new JsonArray();Set<String> hostNames = new HashSet<>();
+        for (StorageBlockTargetVO target : storageBlockTargetDao.listByInstanceIdAndProtocol(instance.getId(), StorageServiceInstance.Protocol.NVME_OF)) {
+            if (!isNvmeOfSubsystem(target)) continue;
+            for (StorageAccessRuleVO rule : listNvmeOfHostAclRules(target)) {
+                JsonObject config = parseJsonObject(rule.getConfigJson());
+                if ((Boolean.TRUE.equals(getJsonBoolean(config, "dhChapEnabled")) || Boolean.TRUE.equals(getJsonBoolean(config, "dhChapCtrlEnabled")))
+                        && hostNames.add(rule.getPrincipal())) nvmeHosts.add(rule.getPrincipal());
+            }
+        }
+        request.add("nvmeHosts", nvmeHosts);
         StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
                 "identity capsule export", request.toString(), 60, Set.of("capsule")));
         if (!result.isSuccess()) throw new CloudRuntimeException("Protected local identity snapshot is unavailable");
@@ -378,11 +389,16 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
     protected void importConfigurationIdentity(StorageServiceInstanceVO instance, String operationUuid, JsonObject capsule, byte[] protectedKey) {
         JsonObject request = StorageIdentityCapsule.importRequest(instance.getUuid(), operationUuid, capsule, protectedKey);
+        if (storageServiceProtocolDao.listByInstanceIdAndProtocol(instance.getId(), StorageServiceInstance.Protocol.NVME_OF).stream().anyMatch(StorageServiceProtocolVO::isEnabled)
+                || !storageBlockTargetDao.listByInstanceIdAndProtocol(instance.getId(), StorageServiceInstance.Protocol.NVME_OF).isEmpty()) {
+            request.add("nvmeDesired", buildNvmeOfDesiredPayload(instance, Collections.emptyMap(), Collections.emptyMap()));
+        }
         StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
                 "identity capsule import", request.toString(), 60, Set.of("credentialPrivateKey", "capsule")));
         if (!result.isSuccess()) throw new CloudRuntimeException("Protected local identity recovery failed");
         JsonObject observed = parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));
         if (!Boolean.TRUE.equals(getJsonBoolean(observed, "success"))) throw new CloudRuntimeException("Identity recovery was not verified");
+        if (Boolean.TRUE.equals(getJsonBoolean(observed, "nvmeRestored"))) configurationNativeNvmeReplayed.set(true);
     }
     protected void checkpointConfigurationIdentity(StorageServiceInstanceVO instance) {
         StorageServiceOperationVO operation = storageWriterOperation.get();
@@ -1022,7 +1038,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                     public void started(StorageServiceOperationVO operation) { storageWriterOperation.set(operation); }
                     public void finished() {
                         try { cleanupConfigurationIdentityCheckpoint(storageWriterOperation.get()); }
-                        finally { storageWriterOperation.remove(); }
+                        finally { storageWriterOperation.remove();configurationNativeNvmeReplayed.remove(); }
                     }
                     public void preflight() {
                         if (storageRuntimeUpgradeDao.findActiveByInstanceId(instanceId) != null) {
@@ -1056,8 +1072,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                     }
                     public void applyPrevious() {
                         restoreNativePosixOperation(cmd, instance, true);
-                        if (protocol != null) applyStorageServiceProtocolDesiredState(instance, protocol);
-                        else for (StorageServiceInstance.Protocol item : StorageServiceInstance.Protocol.values()) applyStorageServiceProtocolDesiredState(instance, item);
+                        if (protocol != null) {
+                            if (protocol != StorageServiceInstance.Protocol.NVME_OF || !Boolean.TRUE.equals(configurationNativeNvmeReplayed.get())) applyStorageServiceProtocolDesiredState(instance, protocol);
+                        } else for (StorageServiceInstance.Protocol item : StorageServiceInstance.Protocol.values()) {
+                            if (item != StorageServiceInstance.Protocol.NVME_OF || !Boolean.TRUE.equals(configurationNativeNvmeReplayed.get())) applyStorageServiceProtocolDesiredState(instance, item);
+                        }
                         restoreNativePosixOperation(cmd, instance, false);
                     }
                 });
@@ -3534,6 +3553,53 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             return;
         }
 
+        final JsonObject payload = buildNvmeOfDesiredPayload(instance, nvmeSecrets, hostStateOverrides);
+
+        final StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
+                "nvmeof subsystem apply", GSON.toJson(payload), StorageServiceInstance.StorageServiceCommandTimeout.value(),
+                new HashSet<>(Arrays.asList("dhChapKey", "dhChapCtrlKey"))));
+        if (!result.isSuccess()) {
+            throw new CloudRuntimeException("Failed to apply NVMe-oF desired state on Storage Service System VM: " + result.getDetails());
+        }
+    }
+
+    protected StorageBlockTargetVO findNvmeOfSubsystemByNqn(final long instanceId, final String subsystemNqn) {
+        if (StringUtils.isBlank(subsystemNqn)) {
+            return null;
+        }
+        for (final StorageBlockTargetVO target : storageBlockTargetDao.listByInstanceIdAndProtocol(instanceId, StorageServiceInstance.Protocol.NVME_OF)) {
+            if (target != null && subsystemNqn.equals(target.getTargetName()) && isNvmeOfSubsystem(target)) {
+                if (isActiveStorageServiceResource(target.getState())) {
+                    return target;
+                }
+            }
+        }
+        return null;
+    }
+
+    protected StorageBlockTargetVO canonicalNvmeOfSubsystem(final StorageBlockTargetVO subsystem) {
+        if (subsystem == null || StringUtils.isBlank(subsystem.getTargetName())) {
+            return subsystem;
+        }
+        final StorageBlockTargetVO canonical = findNvmeOfSubsystemByNqn(subsystem.getInstanceId(), subsystem.getTargetName());
+        return canonical == null ? subsystem : canonical;
+    }
+
+    protected List<StorageBlockTargetVO> listNvmeOfSubsystemGroup(final StorageBlockTargetVO subsystem) {
+        if (subsystem == null || StringUtils.isBlank(subsystem.getTargetName())) {
+            return Collections.emptyList();
+        }
+        final List<StorageBlockTargetVO> group = new ArrayList<>();
+        for (final StorageBlockTargetVO candidate : storageBlockTargetDao.listByInstanceIdAndProtocol(subsystem.getInstanceId(), StorageServiceInstance.Protocol.NVME_OF)) {
+            if (candidate != null && subsystem.getTargetName().equals(candidate.getTargetName()) && isNvmeOfSubsystem(candidate)) {
+                group.add(candidate);
+            }
+        }
+        return group.isEmpty() ? Collections.singletonList(subsystem) : group;
+    }
+
+    protected JsonObject buildNvmeOfDesiredPayload(final StorageServiceInstanceVO instance, final Map<Long, JsonObject> nvmeSecrets,
+            final Map<Long, StorageServiceInstance.ResourceState> hostStateOverrides) {
         final JsonObject payload = buildBlockProtocolPayload(instance, StorageServiceInstance.Protocol.NVME_OF);
         final List<StorageBlockTargetVO> targets = storageBlockTargetDao.listByInstanceIdAndProtocol(instance.getId(), StorageServiceInstance.Protocol.NVME_OF);
         final JsonArray subsystems = new JsonArray();
@@ -3608,47 +3674,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
         payload.add("subsystems", subsystems);
 
-        final StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
-                "nvmeof subsystem apply", GSON.toJson(payload), StorageServiceInstance.StorageServiceCommandTimeout.value(),
-                new HashSet<>(Arrays.asList("dhChapKey", "dhChapCtrlKey"))));
-        if (!result.isSuccess()) {
-            throw new CloudRuntimeException("Failed to apply NVMe-oF desired state on Storage Service System VM: " + result.getDetails());
-        }
-    }
-
-    protected StorageBlockTargetVO findNvmeOfSubsystemByNqn(final long instanceId, final String subsystemNqn) {
-        if (StringUtils.isBlank(subsystemNqn)) {
-            return null;
-        }
-        for (final StorageBlockTargetVO target : storageBlockTargetDao.listByInstanceIdAndProtocol(instanceId, StorageServiceInstance.Protocol.NVME_OF)) {
-            if (target != null && subsystemNqn.equals(target.getTargetName()) && isNvmeOfSubsystem(target)) {
-                if (isActiveStorageServiceResource(target.getState())) {
-                    return target;
-                }
-            }
-        }
-        return null;
-    }
-
-    protected StorageBlockTargetVO canonicalNvmeOfSubsystem(final StorageBlockTargetVO subsystem) {
-        if (subsystem == null || StringUtils.isBlank(subsystem.getTargetName())) {
-            return subsystem;
-        }
-        final StorageBlockTargetVO canonical = findNvmeOfSubsystemByNqn(subsystem.getInstanceId(), subsystem.getTargetName());
-        return canonical == null ? subsystem : canonical;
-    }
-
-    protected List<StorageBlockTargetVO> listNvmeOfSubsystemGroup(final StorageBlockTargetVO subsystem) {
-        if (subsystem == null || StringUtils.isBlank(subsystem.getTargetName())) {
-            return Collections.emptyList();
-        }
-        final List<StorageBlockTargetVO> group = new ArrayList<>();
-        for (final StorageBlockTargetVO candidate : storageBlockTargetDao.listByInstanceIdAndProtocol(subsystem.getInstanceId(), StorageServiceInstance.Protocol.NVME_OF)) {
-            if (candidate != null && subsystem.getTargetName().equals(candidate.getTargetName()) && isNvmeOfSubsystem(candidate)) {
-                group.add(candidate);
-            }
-        }
-        return group.isEmpty() ? Collections.singletonList(subsystem) : group;
+        return payload;
     }
 
     protected List<StorageAccessRuleVO> listNvmeOfHostAclRules(final StorageBlockTargetVO subsystem) {
