@@ -269,7 +269,19 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         configurationBatch.remove();
         for (StorageServiceInstance.Protocol protocol : StorageServiceInstance.Protocol.values()) {
             if (storageServiceProtocolDao.listByInstanceIdAndProtocol(instance.getId(), protocol).stream().noneMatch(StorageServiceProtocolVO::isEnabled)) continue;
-            if (protocol == StorageServiceInstance.Protocol.NFS) applyNfsDesiredState(instance);
+            if (protocol == StorageServiceInstance.Protocol.NFS) {
+                applyNfsDesiredState(instance);
+                JsonObject observed = observeConfigurationRuntime(instance, "inventory");
+                JsonElement exports = observed.get("nfsGaneshaExports");
+                JsonArray pseudos = new JsonArray();
+                if (exports != null && exports.isJsonArray()) for (JsonElement listener : exports.getAsJsonArray()) {
+                    JsonObject endpoint = listener.getAsJsonObject();
+                    if (endpoint.has("entries")) for (JsonElement entry : endpoint.getAsJsonArray("entries")) {
+                        JsonObject resource = entry.getAsJsonObject();if (resource.has("pseudo")) pseudos.add(resource.get("pseudo"));
+                    }
+                }
+                logger.info("Configuration NFS post-apply pseudos for {}: {}", instance.getUuid(), pseudos);
+            }
             else if (protocol == StorageServiceInstance.Protocol.SMB) applySmbDesiredState(instance, batch.smbCredentials);
             else if (protocol == StorageServiceInstance.Protocol.ISCSI) applyIscsiDesiredState(instance, batch.iscsiCredentials);
             else applyNvmeOfDesiredState(instance, batch.nvmeCredentials, batch.nvmeHostStates);
