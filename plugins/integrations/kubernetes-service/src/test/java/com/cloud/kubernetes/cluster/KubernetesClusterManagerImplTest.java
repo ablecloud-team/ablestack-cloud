@@ -122,17 +122,35 @@ public class KubernetesClusterManagerImplTest {
     @InjectMocks
     KubernetesClusterManagerImpl kubernetesClusterManager;
 
-    @Test
-    public void testValidateVpcTierAllocated() {
+    @Test(expected = InvalidParameterValueException.class)
+    public void testValidateVpcTierAllocatedMissingAcl() {
         Network network = Mockito.mock(Network.class);
-        Mockito.when(network.getState()).thenReturn(Network.State.Allocated);
+        Mockito.when(network.getNetworkACLId()).thenReturn(null);
+        kubernetesClusterManager.validateVpcTier(network);
+    }
+
+    @Test(expected = InvalidParameterValueException.class)
+    public void testValidateVpcTierImplementedMissingAcl() {
+        Network network = Mockito.mock(Network.class);
+        Mockito.when(network.getNetworkACLId()).thenReturn(null);
+        kubernetesClusterManager.validateVpcTier(network);
+    }
+    @Test(expected = InvalidParameterValueException.class)
+    public void testValidateVpcTierAllocatedDefaultDeny() {
+        Network network = Mockito.mock(Network.class);
+        Mockito.when(network.getNetworkACLId()).thenReturn(NetworkACL.DEFAULT_DENY);
+        kubernetesClusterManager.validateVpcTier(network);
+    }
+    @Test
+    public void testValidateVpcTierAllocatedExplicitUserAcl() {
+        Network network = Mockito.mock(Network.class);
+        Mockito.when(network.getNetworkACLId()).thenReturn(42L);
         kubernetesClusterManager.validateVpcTier(network);
     }
 
     @Test(expected = InvalidParameterValueException.class)
     public void testValidateVpcTierDefaultDenyRule() {
         Network network = Mockito.mock(Network.class);
-        Mockito.when(network.getState()).thenReturn(Network.State.Implemented);
         Mockito.when(network.getNetworkACLId()).thenReturn(NetworkACL.DEFAULT_DENY);
         kubernetesClusterManager.validateVpcTier(network);
     }
@@ -140,7 +158,6 @@ public class KubernetesClusterManagerImplTest {
     @Test
     public void testValidateVpcTierValid() {
         Network network = Mockito.mock(Network.class);
-        Mockito.when(network.getState()).thenReturn(Network.State.Implemented);
         Mockito.when(network.getNetworkACLId()).thenReturn(NetworkACL.DEFAULT_ALLOW);
         kubernetesClusterManager.validateVpcTier(network);
     }
