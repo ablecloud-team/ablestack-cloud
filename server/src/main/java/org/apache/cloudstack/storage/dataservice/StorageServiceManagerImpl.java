@@ -528,6 +528,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         StorageServiceRuntimeBundleVO bundle = storageRuntimeBundleDao.findByUuid(bundleUuid);
         org.apache.cloudstack.storage.sharedfs.SharedFSVO shared = sharedFSDao.findByVm(instance.getVmId());
         if (bundle == null || shared == null) throw new InvalidParameterValueException("New service runtime bundle or SharedFS is unavailable");
+        if (Long.valueOf(bundle.getId()).equals(instance.getCurrentRuntimeBundleId())) {
+            requireProtectedIdentityTransport(instance, java.util.UUID.randomUUID().toString());
+            return;
+        }
         JsonObject parameters = new JsonObject();parameters.addProperty("sharedfilesystemid", shared.getId());parameters.addProperty("bundleid", bundle.getId());
         org.apache.cloudstack.api.command.admin.storage.dataservice.PreflightStorageServiceRuntimeUpgradeCmd preflight =
                 (org.apache.cloudstack.api.command.admin.storage.dataservice.PreflightStorageServiceRuntimeUpgradeCmd) StorageConfigCommandBinding.bind(
