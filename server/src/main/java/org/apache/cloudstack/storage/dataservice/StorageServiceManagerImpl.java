@@ -3311,6 +3311,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             throw new CloudRuntimeException("Failed to apply NFS desired state on Storage Service System VM: " + result.getDetails());
         }
         final JsonObject resultJson = parseJsonObject(result.getResultJson());
+        if (storageWriterOperation.get() != null) logger.info("Configuration NFS apply result for {}: requested={} exports={} endpoints={} ready={}",
+                instance.getUuid(), requestedExportCount, getJsonInt(resultJson, "exports", 0), getJsonInt(resultJson, "endpoints", 0), getJsonBoolean(resultJson, "runtimeReady"));
         if (resultJson.has("runtimeReady") && !resultJson.get("runtimeReady").getAsBoolean()) {
             throw new CloudRuntimeException("Failed to apply NFS desired state on Storage Service System VM: nfs-ganesha did not report a listening endpoint");
         }
