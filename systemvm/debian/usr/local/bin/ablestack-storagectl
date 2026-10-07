@@ -5086,7 +5086,7 @@ def verify_share_mount_boundary(path, root):
     relative = os.path.relpath(path, canonical_root)
     if relative == "." or relative.startswith("../") or os.path.isabs(relative):
         raise RuntimeError("Share backing path must be below the selected volume root")
-    mount = run(["findmnt", "-n", "-o", "TARGET", "-T", canonical_root])
+    mount = run(["findmnt", "-n", "-o", "TARGET", "-T", canonical_root], stdout=subprocess.PIPE, text=True)
     if mount.returncode != 0:
         raise RuntimeError("Cannot verify share backing mount")
     device = os.stat(canonical_root).st_dev
@@ -5095,7 +5095,7 @@ def verify_share_mount_boundary(path, root):
         current = os.path.join(current, part)
         if os.path.islink(current) or not os.path.isdir(current):
             raise RuntimeError("Share backing path contains a symlink or unavailable directory")
-        observed = run(["findmnt", "-n", "-o", "TARGET", "-T", current])
+        observed = run(["findmnt", "-n", "-o", "TARGET", "-T", current], stdout=subprocess.PIPE, text=True)
         if os.stat(current).st_dev != device or observed.returncode != 0 or observed.stdout.strip() != mount.stdout.strip():
             raise RuntimeError("Share backing path crosses a filesystem or mount boundary")
 
