@@ -2708,6 +2708,9 @@ export default {
           forcedirectorymode: '0000',
           inheritpermissions: false,
           confirmfileexecute: false,
+          posixownershipmode: 'AUTHENTICATED_USER',
+          owneruid: null,
+          ownergid: null,
           ownershipinheritance: 'AUTHENTICATED_USER',
           inheritgroup: false
         },
@@ -3927,7 +3930,7 @@ export default {
           clientPath: this.smbClientPathForShare(name),
           path: share.path || share.mountpath || share.backingpath || '-',
           endpoint: this.smbEndpointPairSummary || `${share.listenip || this.serviceEndpoint || '-'}:${share.port || 445}`,
-          ownership: `${share.effectiveownershipinheritance || share.ownershipinheritance || config.ownershipInheritance || 'AUTHENTICATED_USER'} · ${share.effectiveowneruid ?? '-'}:${share.effectiveownergid ?? '-'} · ${share.effectivedirectorymode || '-'}`,
+          ownership: `${share.effectiveposixownershipmode === 'FORCED_UID_GID' || config.posixOwnershipMode === 'FORCED_UID_GID' ? 'FORCED_UID_GID' : (share.effectiveownershipinheritance || share.ownershipinheritance || config.ownershipInheritance || 'AUTHENTICATED_USER')} · ${share.effectiveowneruid ?? '-'}:${share.effectiveownergid ?? '-'} · ${share.effectivedirectorymode || '-'}`,
           creationPolicy: this.smbCreationPolicySummary(share, config),
           browseable: this.booleanLabel(share.browseable ?? config.browseable),
           guestOk: this.booleanLabel(share.guestok ?? share.guestOk ?? config.guestOk),
@@ -7083,6 +7086,9 @@ export default {
         forcedirectorymode: '0000',
         inheritpermissions: false,
         confirmfileexecute: false,
+        posixownershipmode: 'AUTHENTICATED_USER',
+        owneruid: null,
+        ownergid: null,
         ownershipinheritance: 'AUTHENTICATED_USER',
         inheritgroup: false
       })
@@ -7119,6 +7125,9 @@ export default {
         forcedirectorymode: config.forceDirectoryMode || '0000',
         inheritpermissions: this.boolValue(config.inheritPermissions),
         confirmfileexecute: false,
+        posixownershipmode: config.posixOwnershipMode || 'AUTHENTICATED_USER',
+        owneruid: config.ownerUid ?? null,
+        ownergid: config.ownerGid ?? null,
         ownershipinheritance: config.ownershipInheritance || 'AUTHENTICATED_USER',
         inheritgroup: this.boolValue(config.inheritGroup)
       })
@@ -7773,6 +7782,9 @@ export default {
         forcecreatemode: this.forms.smbShare.forcecreatemode,
         directorymask: this.forms.smbShare.directorymask,
         forcedirectorymode: this.forms.smbShare.forcedirectorymode,
+        posixownershipmode: this.forms.smbShare.posixownershipmode,
+        owneruid: this.forms.smbShare.posixownershipmode === 'FORCED_UID_GID' ? this.forms.smbShare.owneruid : undefined,
+        ownergid: this.forms.smbShare.posixownershipmode === 'FORCED_UID_GID' ? this.forms.smbShare.ownergid : undefined,
         ownershipinheritance: this.forms.smbShare.ownershipinheritance,
         inheritgroup: this.forms.smbShare.inheritgroup,
         inheritpermissions: this.forms.smbShare.inheritpermissions,
@@ -7803,6 +7815,9 @@ export default {
         forcecreatemode: this.forms.smbShare.forcecreatemode,
         directorymask: this.forms.smbShare.directorymask,
         forcedirectorymode: this.forms.smbShare.forcedirectorymode,
+        posixownershipmode: this.forms.smbShare.posixownershipmode,
+        owneruid: this.forms.smbShare.posixownershipmode === 'FORCED_UID_GID' ? this.forms.smbShare.owneruid : undefined,
+        ownergid: this.forms.smbShare.posixownershipmode === 'FORCED_UID_GID' ? this.forms.smbShare.ownergid : undefined,
         ownershipinheritance: this.forms.smbShare.ownershipinheritance,
         inheritgroup: this.forms.smbShare.inheritgroup,
         inheritpermissions: this.forms.smbShare.inheritpermissions,

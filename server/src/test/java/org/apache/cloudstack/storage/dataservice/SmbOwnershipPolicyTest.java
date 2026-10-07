@@ -23,6 +23,16 @@ import com.cloud.exception.InvalidParameterValueException;
 import com.google.gson.JsonObject;
 
 public class SmbOwnershipPolicyTest {
+    @Test public void forcedModeNeedsNonProtectedUidGidAndRejectsInheritedGuestOwnership() {
+        JsonObject config = new JsonObject();config.addProperty("directoryMode", "0775");
+        JsonObject result = SmbOwnershipPolicy.forced(config, "FORCED_UID_GID", 1001001L, 1001001L);
+        Assert.assertEquals(1001001L, result.get("ownerUid").getAsLong());Assert.assertFalse(result.has("recursivePermission"));
+        for (long id : new long[] {0, 1002, 65534, 2147483648L}) {
+            Assert.assertThrows(InvalidParameterValueException.class, () -> SmbOwnershipPolicy.forced(config, "FORCED_UID_GID", id, 1001001L));
+        }
+        JsonObject parent = SmbOwnershipPolicy.inheritance(config, "INHERIT_PARENT_OWNER", true);
+        Assert.assertThrows(InvalidParameterValueException.class, () -> SmbOwnershipPolicy.forced(parent, "FORCED_UID_GID", 1001001L, 1001001L));
+    }
     @Test public void defaultsPreserveAuthenticatedIdentityAndDoNotChangeOwner() {
         JsonObject config = new JsonObject();config.addProperty("ownerUid", 1001001);config.addProperty("directoryMode", "0775");
         JsonObject result = SmbOwnershipPolicy.inheritance(config, null, null);

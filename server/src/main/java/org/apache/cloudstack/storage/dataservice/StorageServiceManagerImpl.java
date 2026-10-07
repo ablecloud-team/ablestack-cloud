@@ -1202,6 +1202,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         configJson = GSON.toJson(SmbCreationPolicy.merge(parseJsonObject(configJson), cmd.getCreateMask(), cmd.getForceCreateMode(),
                 cmd.getDirectoryMask(), cmd.getForceDirectoryMode(), cmd.getInheritPermissions(), cmd.getConfirmFileExecute()));
         configJson = GSON.toJson(SmbOwnershipPolicy.inheritance(parseJsonObject(configJson), cmd.getOwnershipInheritance(), cmd.getInheritGroup()));
+        configJson = GSON.toJson(SmbOwnershipPolicy.forced(parseJsonObject(configJson), cmd.getPosixOwnershipMode(), cmd.getOwnerUid(), cmd.getOwnerGid()));
         configJson = buildFileShareDirectoryConfigJson(configJson, backingVolume, importMode, cmd.getCreateDirectory());
         configJson = storeRelativeSharePath(configJson, cmd.getRelativePath());
         validateJsonObjectConfigOrThrow(configJson, "SMB share " + cmd.getName());
@@ -1213,6 +1214,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         inheritPosixDirectoryPolicy(instance, share, cmd.getPosixPolicyId(), null, null, cmd.getDirectoryMode());
         if (StringUtils.isNotBlank(cmd.getAclPrincipal())) validateSmbOwnershipAccountAcl(parseJsonObject(share.getConfigJson()),
                 parseSmbPermission(StringUtils.defaultIfBlank(cmd.getAclPermission(), "READ_WRITE")));
+        if ("FORCED_UID_GID".equals(getJsonString(parseJsonObject(share.getConfigJson()), "posixOwnershipMode")))
+            preflightSmbCreationPolicy(instance, share, parseJsonObject(share.getConfigJson()));
         share = storageFileShareDao.persist(share);
         for (SmbNetworkPolicy.Source source:initialNetworkRules) {
             storageAccessRuleDao.persist(new StorageAccessRuleVO(StorageServiceInstance.AccessResourceType.FILE_SHARE,share.getId(),source.type,source.principal,
@@ -1284,6 +1287,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         configJson = GSON.toJson(SmbCreationPolicy.merge(parseJsonObject(configJson), cmd.getCreateMask(), cmd.getForceCreateMode(),
                 cmd.getDirectoryMask(), cmd.getForceDirectoryMode(), cmd.getInheritPermissions(), cmd.getConfirmFileExecute()));
         configJson = GSON.toJson(SmbOwnershipPolicy.inheritance(parseJsonObject(configJson), cmd.getOwnershipInheritance(), cmd.getInheritGroup()));
+        configJson = GSON.toJson(SmbOwnershipPolicy.forced(parseJsonObject(configJson), cmd.getPosixOwnershipMode(), cmd.getOwnerUid(), cmd.getOwnerGid()));
         configJson = buildFileShareDirectoryConfigJson(configJson, backingVolume, importMode, cmd.getCreateDirectory());
         configJson = storeRelativeSharePath(configJson, cmd.getRelativePath());
         validateJsonObjectConfigOrThrow(configJson, "SMB share " + share.getUuid());
@@ -5248,13 +5252,14 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     protected void validateSmbOwnershipAccountAcl(final JsonObject config, final StorageServiceInstance.Permission permission) {
-        if (permission == StorageServiceInstance.Permission.ADMIN && "INHERIT_PARENT_OWNER".equals(getJsonString(config, "ownershipInheritance"))) {
-            throw new InvalidParameterValueException("ADMIN account ACL cannot override parent-owner inheritance");
+        if (permission == StorageServiceInstance.Permission.ADMIN && ("INHERIT_PARENT_OWNER".equals(getJsonString(config, "ownershipInheritance"))
+                || "FORCED_UID_GID".equals(getJsonString(config, "posixOwnershipMode")))) {
+            throw new InvalidParameterValueException("ADMIN account ACL cannot override managed POSIX ownership");
         }
     }
 
     protected void validateSmbOwnershipExistingAcls(final StorageFileShareVO share, final JsonObject config) {
-        if (!"INHERIT_PARENT_OWNER".equals(getJsonString(config, "ownershipInheritance"))) return;
+        if (!"INHERIT_PARENT_OWNER".equals(getJsonString(config, "ownershipInheritance")) && !"FORCED_UID_GID".equals(getJsonString(config, "posixOwnershipMode"))) return;
         for (StorageAccessRuleVO rule : storageAccessRuleDao.listByResource(StorageServiceInstance.AccessResourceType.FILE_SHARE, share.getId())) {
             if (isSmbPrincipalType(rule.getPrincipalType()) && rule.getState() != StorageServiceInstance.ResourceState.Disabled
                     && rule.getState() != StorageServiceInstance.ResourceState.Destroyed && rule.getState() != StorageServiceInstance.ResourceState.Error) {
@@ -5264,10 +5269,16 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     protected void preflightSmbCreationPolicy(final StorageServiceInstanceVO instance, final StorageFileShareVO share, final JsonObject config) {
-        if (instance.getVmId() == null || (Integer.parseInt(config.get("forceCreateMode").getAsString(), 8) == 0
+        if (instance.getVmId() == null || (!"FORCED_UID_GID".equals(getJsonString(config, "posixOwnershipMode"))
+                && Integer.parseInt(config.get("forceCreateMode").getAsString(), 8) == 0
                 && Integer.parseInt(config.get("forceDirectoryMode").getAsString(), 8) == 0)) return;
         final JsonObject payload = new JsonObject();final JsonArray shares = new JsonArray();final JsonObject item = new JsonObject();
-        item.addProperty("path", resolveSmbRuntimeBackingPath(instance, share));item.add("config", config);shares.add(item);payload.add("shares", shares);
+        item.addProperty("uuid", share.getUuid());item.addProperty("path", resolveSmbRuntimeBackingPath(instance, share));item.add("config", config);
+        final JsonArray acls = new JsonArray();
+        for (StorageAccessRuleVO rule : share.getId() == 0 ? Collections.<StorageAccessRuleVO>emptyList() : storageAccessRuleDao.listByResource(StorageServiceInstance.AccessResourceType.FILE_SHARE, share.getId())) {
+            JsonObject acl = new JsonObject();acl.addProperty("permission", rule.getPermission().name());acl.addProperty("state", rule.getState().name());acls.add(acl);
+        }
+        item.add("acls", acls);shares.add(item);payload.add("shares", shares);
         final StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
                 "smb share preflight", GSON.toJson(payload), 30, Collections.emptySet()));
         if (!result.isSuccess()) throw new InvalidParameterValueException("SMB creation permissions failed POSIX ACL preflight: " + result.getDetails());
@@ -5432,19 +5443,25 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
 
     protected void inheritPosixDirectoryPolicy(final StorageServiceInstanceVO instance, final StorageFileShareVO share,
             final Long requestedPolicyId, final Integer ownerUid, final Integer ownerGid, final String requestedMode) {
+        final boolean fixedIdentity = "FORCED_UID_GID".equals(getJsonString(parseJsonObject(share.getConfigJson()), "posixOwnershipMode"));
         if (share.getVolumeId() == null) {
-            if (requestedPolicyId != null) throw new InvalidParameterValueException("Common POSIX policy requires its selected backing volume");
+            if (requestedPolicyId != null || fixedIdentity) throw new InvalidParameterValueException("Common POSIX policy requires its selected backing volume");
             return;
         }
         final String relative = sharePosixRelativePath(instance, share);
         if (relative == null) {
-            if (requestedPolicyId != null) throw new InvalidParameterValueException("Common POSIX policy needs a known canonical backing directory");
+            if (requestedPolicyId != null || fixedIdentity) throw new InvalidParameterValueException("Common POSIX policy needs a known canonical backing directory");
             return;
         }
         final StoragePosixDirectoryPolicyVO policy = requestedPolicyId == null
                 ? storagePosixPolicyDao.findByPath(instance.getId(), PosixDirectoryPolicy.pathKey(requireVolume(share.getVolumeId()).getUuid(), relative))
                 : requirePosixDirectoryPolicy(requestedPolicyId);
-        if (policy == null) return;
+        if (policy == null) {
+            if ("FORCED_UID_GID".equals(getJsonString(parseJsonObject(share.getConfigJson()), "posixOwnershipMode"))) {
+                throw new InvalidParameterValueException("Create a common POSIX directory owner policy before enabling fixed SMB identity");
+            }
+            return;
+        }
         if (policy.getInstanceId() != instance.getId() || policy.getVolumeId() != share.getVolumeId() || !relative.equals(policy.getRelativePath())) {
             throw new InvalidParameterValueException("Protocol share does not match the selected common POSIX directory");
         }
@@ -5455,6 +5472,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             throw new InvalidParameterValueException("Enable setgid on the common directory policy before requesting parent group inheritance");
         }
         final JsonObject effective = parseJsonObjectStrict(policy.getEffectiveJson(), "Common POSIX directory observation");
+        if ("FORCED_UID_GID".equals(getJsonString(shareOptions, "posixOwnershipMode"))
+                && (shareOptions.get("ownerUid").getAsLong() != effective.get("effectiveUid").getAsLong()
+                    || shareOptions.get("ownerGid").getAsLong() != effective.get("effectiveGid").getAsLong())) {
+            throw new InvalidParameterValueException("Forced SMB identity must match the common POSIX directory owner UID/GID");
+        }
         if (ownerUid != null && ownerUid.longValue() != effective.get("effectiveUid").getAsLong()
                 || ownerGid != null && ownerGid.longValue() != effective.get("effectiveGid").getAsLong()
                 || requestedMode != null && !PosixDirectoryPolicy.directoryMode(requestedMode).equals(getJsonString(effective, "effectiveMode"))) {
@@ -6914,12 +6936,15 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             desiredCreation.add(key, normalized.get(key));
         }
         response.setCreationPolicy(GSON.toJson(desiredCreation));
+        response.setPosixOwnershipMode(StringUtils.defaultIfBlank(getJsonString(normalized, "posixOwnershipMode"), "AUTHENTICATED_USER"));
         response.setOwnershipInheritance(StringUtils.defaultIfBlank(getJsonString(normalized, "ownershipInheritance"), "AUTHENTICATED_USER"));
         response.setInheritGroup(Boolean.TRUE.equals(getJsonBoolean(normalized, "inheritGroup")));
         response.setCreationPolicyDrift("UNOBSERVED");
         if (runtimeObservation != null && runtimeObservation.has("smbAccess")) {
             final JsonObject access = runtimeObservation.getAsJsonObject("smbAccess");
             response.setEffectiveOwnershipInheritance(getJsonString(access, "ownershipInheritance"));
+            response.setEffectivePosixOwnershipMode(getJsonString(access, "posixOwnershipMode"));
+            response.setManagedPosixUser(getJsonString(access, "managedUser"));response.setManagedPosixGroup(getJsonString(access, "managedGroup"));
             if (access.has("effectiveUid")) response.setEffectiveOwnerUid(access.get("effectiveUid").getAsLong());
             if (access.has("effectiveGid")) response.setEffectiveOwnerGid(access.get("effectiveGid").getAsLong());
             response.setEffectiveDirectoryMode(getJsonString(access, "effectiveDirectoryMode"));

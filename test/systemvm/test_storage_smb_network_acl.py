@@ -30,7 +30,7 @@ SOURCE = Path(__file__).resolve().parents[2] / 'systemvm/debian/usr/local/bin/ab
 BLOCK = next(block for block in re.findall("<<'PY'\n(.*?)\nPY", SOURCE.read_text(), re.S) if 'def smb_network_policy(' in block)
 TREE = ast.parse(BLOCK)
 NS = {'ipaddress': ipaddress, 're': re, 'os': os, 'subprocess': subprocess, 'tempfile': tempfile}
-NODES = [node for node in TREE.body if isinstance(node, ast.FunctionDef) and node.name in ('smb_network_policy', 'smb_hosts_allow_lines', 'verify_share_mount_boundary', 'truth', 'smb_creation_policy', 'smb_creation_lines', 'install_validated_smb_config', 'apply_directory_policy', 'remove_stale_managed_smb_acls', 'smb_creation_acl_preflight', 'verify_common_posix_policy', 'smb_inheritance_policy', 'smb_inheritance_lines')]
+NODES = [node for node in TREE.body if isinstance(node, ast.FunctionDef) and node.name in ('smb_network_policy', 'smb_hosts_allow_lines', 'verify_share_mount_boundary', 'truth', 'smb_creation_policy', 'smb_creation_lines', 'install_validated_smb_config', 'apply_directory_policy', 'remove_stale_managed_smb_acls', 'smb_creation_acl_preflight', 'verify_common_posix_policy', 'smb_inheritance_policy', 'smb_inheritance_lines', 'smb_forced_identity', 'smb_forced_identity_lines', 'rollback_uncommitted_managed_identities')]
 exec(compile(ast.Module(body=NODES, type_ignores=[]), str(SOURCE), 'exec'), NS)
 class SmbNetworkAclTest(unittest.TestCase):
     def policy(self, value): return NS['smb_network_policy'](value)
@@ -104,6 +104,45 @@ class SmbNetworkAclTest(unittest.TestCase):
             acl = acl.replace('other::---', 'other::r-x')
             self.assertEqual('0775', NS['smb_creation_acl_preflight'](root, policy)['defaultAclMode'])
             self.assertEqual('COMPATIBLE', NS['smb_creation_acl_preflight'](root, NS['smb_creation_policy']({}))['state'])
+
+    def test_failed_reload_restores_previous_config_bytes_and_modes(self):
+        with tempfile.TemporaryDirectory() as folder:
+            target = Path(folder) / 'smb.conf'; target.write_bytes(b'new-config'); target.chmod(0o600)
+            calls = []
+            NS.update({'os': os, 'tempfile': tempfile, 'subprocess': subprocess, 'identity_apply_verified': False,
+                       'created_identity_users': ['sf_u_new'], 'created_identity_groups': ['sf_g_new'],
+                       'smb_previous_files': {str(target): b'known-good-config'}, 'smb_previous_modes': {str(target): 0o640},
+                       'shutil': SimpleNamespace(which=lambda value: 'smbcontrol'), 'run_optional': lambda argv, **kwargs: calls.append(argv)})
+            NS['rollback_uncommitted_managed_identities']()
+            self.assertEqual(b'known-good-config', target.read_bytes()); self.assertEqual(0o640, target.stat().st_mode & 0o777)
+            self.assertEqual(['smbcontrol', 'all', 'reload-config'], calls[0])
+            self.assertEqual([['userdel', 'sf_u_new'], ['groupdel', 'sf_g_new']], calls[1:])
+            self.assertEqual(['smb.conf'], os.listdir(folder))
+
+    def test_failed_render_cleans_only_new_managed_identities(self):
+        calls = []
+        NS.update({'identity_apply_verified': False, 'created_identity_users': ['sf_u_new'], 'created_identity_groups': ['sf_g_new'],
+                   'run_optional': lambda argv, **kwargs: calls.append(argv), 'smb_previous_files': {}, 'shutil': SimpleNamespace(which=lambda value: None)})
+        NS['rollback_uncommitted_managed_identities']()
+        self.assertEqual([['userdel', 'sf_u_new'], ['groupdel', 'sf_g_new']], calls)
+        calls.clear(); NS['identity_apply_verified'] = True; NS['rollback_uncommitted_managed_identities']()
+        self.assertEqual([], calls)
+
+    def test_forced_identity_preflight_rejects_existing_and_protected_ids_without_creating_accounts(self):
+        class Missing:
+            def getgrnam(self, value): raise KeyError(value)
+            def getgrgid(self, value): raise KeyError(value)
+            def getpwnam(self, value): raise KeyError(value)
+            def getpwuid(self, value): raise KeyError(value)
+        NS.update({'grp': Missing(), 'pwd': Missing(), 'run': lambda *args: self.fail('preflight must not create native accounts')})
+        config = {'posixOwnershipMode': 'FORCED_UID_GID', 'ownerUid': 1001001, 'ownerGid': 1001001}
+        policy = NS['smb_forced_identity'](config, 'a39c4d3e-aef8-4bcc-9858-7b86f628c38a', [], False)
+        self.assertEqual(1001001, policy['ownerUid']); self.assertTrue(policy['managedUser'].startswith('sf_u_'))
+        self.assertEqual(2, len(NS['smb_forced_identity_lines'](policy)))
+        for uid in (0, 1002, 65534, 2147483648):
+            with self.assertRaises(ValueError): NS['smb_forced_identity'](dict(config, ownerUid=uid), 'a39c4d3e-aef8-4bcc-9858-7b86f628c38a', [], False)
+        NS['pwd'] = SimpleNamespace(getpwnam=lambda value: (_ for _ in ()).throw(KeyError(value)), getpwuid=lambda value: SimpleNamespace(pw_name='foreign'))
+        with self.assertRaises(ValueError): NS['smb_forced_identity'](config, 'a39c4d3e-aef8-4bcc-9858-7b86f628c38a', [], False)
 
     def test_parent_owner_inheritance_does_not_bypass_account_authentication(self):
         policy = NS['smb_inheritance_policy']({'ownershipInheritance': 'INHERIT_PARENT_OWNER', 'inheritGroup': True}, [])

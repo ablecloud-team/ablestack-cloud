@@ -24,6 +24,30 @@ import com.google.gson.JsonObject;
 /** Creation ownership is independent of protocol authentication and existing files. */
 public final class SmbOwnershipPolicy {
     private SmbOwnershipPolicy() { }
+    public static JsonObject forced(final JsonObject current, final String requested, final Long ownerUid, final Long ownerGid) {
+        final JsonObject result = current.deepCopy();
+        final String mode = requested == null ? (result.has("posixOwnershipMode") ? result.get("posixOwnershipMode").getAsString() : "AUTHENTICATED_USER")
+                : requested.trim().toUpperCase(Locale.ROOT);
+        if (!"AUTHENTICATED_USER".equals(mode) && !"FORCED_UID_GID".equals(mode)) throw new InvalidParameterValueException("Unknown SMB POSIX ownership mode");
+        if (ownerUid != null) { protectedId(ownerUid);result.addProperty("ownerUid", ownerUid); }
+        if (ownerGid != null) { protectedId(ownerGid);result.addProperty("ownerGid", ownerGid); }
+        if ("FORCED_UID_GID".equals(mode)) {
+            if (!result.has("ownerUid") || !result.has("ownerGid")) throw new InvalidParameterValueException("Forced SMB ownership requires owneruid and ownergid");
+            protectedId(result.get("ownerUid").getAsLong());protectedId(result.get("ownerGid").getAsLong());
+            if (result.has("ownershipInheritance") && "INHERIT_PARENT_OWNER".equals(result.get("ownershipInheritance").getAsString())) {
+                throw new InvalidParameterValueException("Forced identity and parent-owner inheritance cannot be combined");
+            }
+            if (result.has("guestOk") && result.get("guestOk").getAsBoolean()) throw new InvalidParameterValueException("Forced identity with guest access is unsupported");
+        }
+        result.addProperty("posixOwnershipMode", mode);return result;
+    }
+
+    private static void protectedId(final Long value) {
+        if (value == null || value < 10000 || value == 65534 || value > Integer.MAX_VALUE) {
+            throw new InvalidParameterValueException("Forced identity UID/GID must be at least 10000 and must not use protected SystemVM IDs");
+        }
+    }
+
     public static JsonObject inheritance(final JsonObject current, final String requested, final Boolean inheritGroup) {
         final JsonObject result = current.deepCopy();
         final String mode = requested == null ? (result.has("ownershipInheritance") ? result.get("ownershipInheritance").getAsString() : "AUTHENTICATED_USER")
