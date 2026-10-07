@@ -43,3 +43,19 @@ Chrome의 작업 이력 업데이트로 revision 7 **이전 구성 복구 완료
 ## 완료 범위의 한계
 
 generation journal과 current 포인터의 원자 교체, revision 일치 승격, 보상 롤백의 이번 경로를 검증했다. 네 프로토콜 전체 rendered 설정의 원자 교체, 여러 중단 단계와 재부팅, 장기 작업 drain/cancel, 구성 복구 전체 수명주기와 최종 UI 정리 완료를 의미하지 않는다. Epic #898의 #892/#897/#909는 계속 진행한다. SMB AD만 사용자 요청으로 보류한다.
+
+## 지속 heartbeat 및 배포 UI 재검증
+
+- 장기 guest 호출/DB promotion 대기 중 heartbeat 컬럼만 instance/operation ID·UUID 범위로 갱신한다. phase/progress/diagnostic과 terminal state를 덮어쓰지 않는다. scheduler의 DB context는 갱신마다 닫는다.
+- Backend heartbeat 테스트 29개 및 모듈 빌드 통과.
+- 최초 실제 대기 시험에서는 SQL CURRENT_TIMESTAMP의 DB 지역 시간과 기존 GenericDao의 GMT 저장 규칙 차이로 API heartbeat가 9시간 미래에 표시됐다. 완료 전 단계의 시간 신선도 판정에 영향을 주므로 기록 방식을 기존 DAO와 동일한 GMT 문자열 바인딩으로 수정했다.
+- 수정 source 78022784e995d001ddc1f296d2e895ba86cd4a62, schema module build 성공. DAOImpl 클래스 한 개만 추가 교체했다.
+- 관리 서버 PID 1044962, JAR SHA-256 19a51aae598210fa58bf33aac93de7d02c3fc0752f9f4cae0238fd2625ef2553. 백업 /root/epic898-backup-20261008-035109.
+- 실제 재검증 job 8fb4b92f-3d55-443a-b624-c08adcc4ccb5, operation d98258d4-52c1-412e-a8e0-0c28705f7584. VERIFYING/80/RUNNING을 유지한 채 heartbeat 03:52:52 → 03:53:08 → 03:53:28 갱신을 관측했다. 각 polling에서 실제 heartbeat age -2~30초 범위를 검사했다. guard 해제 후 COMPLETE revision 8, ACTIVE_LKG 5ae2f3bc-5c9b-4fc4-826e-c824a694f3f4.
+- 생산 UI source 8eac92cd5af72c003f6430e09e2909089c79df76, 테스트 27개/lint/build 성공. 정적 파일 841개 배포 검증, 설정/WEB-INF/관리 서버 PID 유지. index SHA-256 edd41c140e3c8d9c0bac8fcaa52bce4bcf940972094c2dfa3ec1d50f09bc920b.
+- Chrome의 현재 구성 검증으로 revision 9 완료. 별도 이력 업데이트 클릭 없이 새 COMPLETE 행이 표시됐다. operation 25914662-9b03-4b34-a37c-03b64c244836과 native revision 9/IN_SYNC/pending null이 일치했다.
+- 마지막 정상 구성 확장 행에 검증된 runtime revision 9, operation UUID, 구성 SHA-256이 표시된다.
+- 기준 DATA hash/inode/UID/GID/mode, boot ID 및 Samba master PID가 유지된다.
+- 이 검증은 final UI #1275 및 모든 장기 operation 게이트의 완료를 의미하지 않는다.
+
+![Chrome 검증된 runtime generation 상세](20261008-verified-runtime-generation.png)
