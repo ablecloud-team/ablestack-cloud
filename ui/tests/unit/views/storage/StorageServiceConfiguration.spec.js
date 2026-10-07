@@ -22,6 +22,28 @@ jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
 
 describe('Configuration backup and restore UI boundaries', () => {
   beforeEach(() => { getAPI.mockReset(); postAPI.mockReset() })
+  it.each([1, 2])('notifies the matching history after a configuration job ends with status %s', async status => {
+    const vm = { instanceId: 'a', unwrap: Widget.methods.unwrap, $t: key => key, $emit: jest.fn() }
+    postAPI.mockResolvedValue({ verifystorageserviceconfigurationresponse: { jobid: 'job' } })
+    getAPI.mockResolvedValue({ queryasyncjobresultresponse: { jobstatus: status, jobresult: { result: '{}', errortext: 'failed' } } })
+    if (status === 1) await Widget.methods.mutation.call(vm, 'verifyStorageServiceConfiguration', {})
+    else await expect(Widget.methods.mutation.call(vm, 'verifyStorageServiceConfiguration', {})).rejects.toThrow('failed')
+    expect(vm.$emit).toHaveBeenCalledWith('operation-updated', 'a')
+  })
+  it('does not refresh a different service history after navigation', async () => {
+    let complete
+    const vm = { instanceId: 'a', unwrap: Widget.methods.unwrap, $t: key => key, $emit: jest.fn() }
+    postAPI.mockResolvedValue({ verifystorageserviceconfigurationresponse: { jobid: 'job' } })
+    let entered
+    const queryStarted = new Promise(resolve => { entered = resolve })
+    getAPI.mockImplementation(() => new Promise(resolve => { complete = resolve; entered() }))
+    const pending = Widget.methods.mutation.call(vm, 'verifyStorageServiceConfiguration', {})
+    await queryStarted
+    vm.instanceId = 'b'
+    complete({ queryasyncjobresultresponse: { jobstatus: 1, jobresult: { result: '{}' } } })
+    await expect(pending).rejects.toThrow('message.storage.config.scope.changed')
+    expect(vm.$emit).not.toHaveBeenCalled()
+  })
   it('preserves known backup rows if an independent refresh fails', async () => {
     const vm = { instanceId: 'a', generation: 0, rows: [{ id: 'known' }], can: () => true, unwrap: Widget.methods.unwrap }
     getAPI.mockRejectedValue(new Error('timeout')); await Widget.methods.refresh.call(vm)

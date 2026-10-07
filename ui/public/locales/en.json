@@ -1,4 +1,7 @@
 {
+  "label.storage.config.runtime.revision": "Verified runtime revision",
+  "label.storage.config.generation.operation": "Verified configuration operation",
+  "label.storage.config.generation.checksum": "Verified configuration SHA-256",
   "message.storage.config.download.integrity": "Downloaded configuration checksum differs from its backup. Please retry.",
   "label.storage.config.runtime.UNAVAILABLE_OR_PARTIAL": "Runtime unavailable or partially collected",
   "label.storage.config.runtime.UNAVAILABLE": "Runtime unavailable",
