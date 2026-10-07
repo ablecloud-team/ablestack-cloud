@@ -74,16 +74,28 @@ public final class StorageServiceTemplateUpgradeEngine {
                 phase(row,"BOOTING_PREVIOUS",90);runtime.bootPrevious();
                 phase(row,"RECONCILING_PREVIOUS",95);runtime.reconcilePrevious();runtime.verifyPrevious();
                 row.setState("ROLLED_BACK");row.setCompleted(new Date());phase(row,"ROLLED_BACK",100);
-                runtime.finished(false);
             } catch (RuntimeException rollback) {
                 row.setState("RECOVERY_REQUIRED");row.setErrorCode("TEMPLATE_UPGRADE_RECOVERY_REQUIRED");
                 row.setErrorMessage(safe(failed)+" | rollback: "+safe(rollback));phase(row,"RECOVERY_REQUIRED",100);
                 throw new CloudRuntimeException("Template upgrade and previous ROOT recovery require reconciliation",rollback);
             }
+            cleanup(row,runtime,false);
             throw new CloudRuntimeException("Template upgrade failed; previous ROOT recovered",failed);
         }
         // Cleanup cannot invalidate an already committed ROOT/verified configuration.
-        runtime.finished(true);
+        cleanup(row,runtime,true);
+    }
+    private void cleanup(StorageServiceTemplateUpgradeVO row,Runtime runtime,boolean success) {
+        try { runtime.finished(success); }
+        catch (RuntimeException pending) {
+            if (success) row.setErrorCode("TEMPLATE_UPGRADE_CLEANUP_PENDING");
+            row.setErrorMessage((row.getErrorMessage()==null?"":row.getErrorMessage()+" | ")+"cleanup pending: "+safe(pending));
+            try { upgrades.update(row.getId(),row); }
+            catch (RuntimeException auditPending) {
+                org.apache.logging.log4j.LogManager.getLogger(StorageServiceTemplateUpgradeEngine.class)
+                        .warn("Template upgrade cleanup audit is pending for {}",row.getUuid());
+            }
+        }
     }
     private void phase(StorageServiceTemplateUpgradeVO row,String phase,int progress) {
         row.setPhase(phase);row.setProgress(progress);row.setHeartbeat(new Date());
