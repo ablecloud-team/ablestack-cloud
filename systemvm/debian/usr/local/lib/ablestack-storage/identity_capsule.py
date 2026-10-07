@@ -31,6 +31,7 @@ FILES = {
     "/var/lib/samba/private/secrets.tdb",
     "/etc/ablestack-storage/secrets/iscsi-acl-secrets.json",
     "/etc/ablestack-storage/smb-managed-identities.json",
+    "/etc/ablestack-storage/smb-local-account-provenance.json",
 }
 ACCOUNT_FILES = {"/etc/passwd", "/etc/group", "/etc/shadow", "/etc/gshadow"}
 
@@ -189,12 +190,80 @@ def account_merge(current, records, kind):
     return "\n".join(result) + "\n"
 
 
+def owned_account_records(files):
+    """Read only non-secret provenance written when this controller created an identity."""
+    records = {path: {} for path in ACCOUNT_FILES}
+    local = files.get("/etc/ablestack-storage/smb-local-account-provenance.json", {})
+    if local and not local.get("absent"):
+        content = json.loads(base64.b64decode(local["data"], validate=True))
+        if content.get("schemaVersion") != 1:
+            raise ValueError("Local account provenance schema is invalid")
+        for path, lines in content.get("accounts", {}).items():
+            if path not in {"/etc/passwd", "/etc/group"} or not isinstance(lines, list):
+                raise ValueError("Local account provenance path is invalid")
+            account_merge("", lines, os.path.basename(path))
+            for line in lines:
+                records[path][line.split(":", 1)[0]] = line
+    managed = files.get("/etc/ablestack-storage/smb-managed-identities.json", {})
+    if managed and not managed.get("absent"):
+        content = json.loads(base64.b64decode(managed["data"], validate=True))
+        for uuid, identity in content.items():
+            suffix = str(uuid).replace("-", "")[:20]
+            user, group = identity.get("managedUser"), identity.get("managedGroup")
+            if user != "sf_u_" + suffix or group != "sf_g_" + suffix:
+                raise ValueError("Managed fixed identity provenance is invalid")
+            uid, gid = int(identity["ownerUid"]), int(identity["ownerGid"])
+            if identity.get("createdByControllerUser") is True:
+                line = f"{user}:x:{uid}:{gid}::/nonexistent:/usr/sbin/nologin"
+                account_merge("", [line], "passwd");records["/etc/passwd"][user] = line
+            if identity.get("createdByControllerGroup") is True:
+                line = f"{group}:x:{gid}:"
+                account_merge("", [line], "group");records["/etc/group"][group] = line
+    return records
+
+
+def rollback_account_merge(current, records, kind, owned):
+    """Remove post-snapshot identities only when their exact provenance still matches."""
+    incoming = {line.split(":", 1)[0] for line in records}
+    filtered = []
+    for line in current.splitlines():
+        name = line.split(":", 1)[0]
+        if name not in incoming and name in owned:
+            if line != owned[name]:
+                raise ValueError("Post-snapshot managed identity changed ownership")
+            continue
+        filtered.append(line)
+    return account_merge("\n".join(filtered), records, kind)
+
+
 def restore(payload):
     validate_payload(payload)
     staged = {}
+    current_files = {}
+    for provenance_path in ("/etc/ablestack-storage/smb-local-account-provenance.json",
+                            "/etc/ablestack-storage/smb-managed-identities.json"):
+        if os.path.lexists(provenance_path):
+            data, _ = regular_file(provenance_path)
+            current_files[provenance_path] = {"data": base64.b64encode(data).decode()}
+    owned = owned_account_records(current_files)
+    # Hash databases contain no stored provenance. Their names are authorized only
+    # after the public passwd/group records are checked exactly against provenance.
+    for identity_path, secret_path in (("/etc/passwd", "/etc/shadow"), ("/etc/group", "/etc/gshadow")):
+        current, _ = regular_file(identity_path)
+        observed = {line.split(":", 1)[0]: line for line in current.decode().splitlines()}
+        old_names = {line.split(":", 1)[0] for line in payload.get("accounts", {}).get(identity_path, [])}
+        created_names = set()
+        for name, record in owned[identity_path].items():
+            if name not in old_names and name in observed:
+                if observed[name] != record:
+                    raise ValueError("Post-snapshot identity provenance changed")
+                created_names.add(name)
+        secrets, _ = regular_file(secret_path)
+        owned[secret_path] = {line.split(":", 1)[0]: line for line in secrets.decode().splitlines()
+                              if line.split(":", 1)[0] in created_names}
     for path, records in payload.get("accounts", {}).items():
         current, info = regular_file(path)
-        merged = account_merge(current.decode(), records, os.path.basename(path))
+        merged = rollback_account_merge(current.decode(), records, os.path.basename(path), owned[path])
         staged[path] = (merged.encode(), stat.S_IMODE(info.st_mode), info.st_gid)
     absent = []
     for path, item in payload.get("files", {}).items():

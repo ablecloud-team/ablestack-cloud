@@ -105,6 +105,18 @@ public final class StorageConfigDomainRestore {
         }
         manager.beginConfigurationBatch(instance.getId());
         try {
+            if ("CREATE_NEW".equals(text(plan, "targetMode"))) {
+                Set<String> prepared = new java.util.HashSet<>();
+                for (JsonElement item : changes) {
+                    JsonObject change = item.getAsJsonObject();String kind = text(change, "kind");
+                    if (!Set.of("file-shares", "posix-directory-policies").contains(kind)) continue;
+                    JsonObject desired = change.getAsJsonObject("desired");String volume = text(desired, "volumeUuid");
+                    String relative = "posix-directory-policies".equals(kind) ? text(desired, "relative_path") : desired.has("config") ? text(desired.getAsJsonObject("config"), "relativeSharePath") : null;
+                    if (volume == null || relative == null) throw new InvalidParameterValueException("New-service directory requires explicit backing and relative path");
+                    String mappedVolume = plan.getAsJsonObject("volumeMappings").get(volume).getAsString();
+                    if (prepared.add(mappedVolume + ":" + relative)) manager.prepareConfigurationDirectory(instance, mappedVolume, relative);
+                }
+            }
             for (String kind : new String[] {"protocols", "posix-directory-policies", "file-shares", "block-targets", "access-rules"}) {
                 java.util.List<JsonElement> ordered = new java.util.ArrayList<>();
                 for (JsonElement item : changes) ordered.add(item);
@@ -165,11 +177,17 @@ public final class StorageConfigDomainRestore {
                         } else parameters.add("subsystemnqn", desired.get("target_name").deepCopy());
                     }
                     BaseCmd cmd = StorageConfigCommandBinding.bind(command.type, parameters);
-                    manager.invokeConfigurationDomainCommand(cmd, command.method);
+                    Object response = manager.invokeConfigurationDomainCommand(cmd, command.method);
                     Map<String, Long> after = manager.configurationResourceIds(instance.getId());
                     if (update) continue;
                     // Current API services allocate fresh UUIDs. Bind provenance to the one new scoped row.
                     Set<String> added = new java.util.HashSet<>(after.keySet());added.removeAll(currentIds.keySet());
+                    if (added.isEmpty() && "protocols".equals(kind)) {
+                        JsonObject observed = new com.google.gson.Gson().toJsonTree(response).getAsJsonObject();
+                        String uuid = text(observed, "id");
+                        if (uuid == null || !after.containsKey(uuid)) throw new InvalidParameterValueException("Existing protocol endpoint identity was not returned");
+                        mapped.put(text(change, "sourceUuid"), after.get(uuid));currentIds = after;continue;
+                    }
                     if (added.size() != 1) throw new InvalidParameterValueException("Configuration API did not allocate exactly one resource");
                     String newUuid = added.iterator().next();mapped.put(text(change, "sourceUuid"), after.get(newUuid));currentIds = after;
                 }
