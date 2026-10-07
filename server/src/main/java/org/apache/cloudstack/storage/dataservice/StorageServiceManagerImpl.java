@@ -553,12 +553,13 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         JsonObject payload = new JsonObject();payload.addProperty("shareUuid", instance.getUuid());
         payload.addProperty("volumeUuid", volume.getUuid());payload.addProperty("volumeName", volume.getName());
         payload.addProperty("volumeSizeBytes", volume.getSize());payload.addProperty("filesystem", getJsonString(blueprint, "filesystem"));
+        payload.addProperty("mountPath", "/srv/ablestack-storage/volumes/" + volume.getUuid());
         payload.addProperty("importMode", existing ? "MOUNT_EXISTING" : "FORMAT_IF_EMPTY");
         int deadline = backingVolumeFormatDeadline(volume.getSize());payload.addProperty("formatDeadlineSeconds", deadline);
         payload.addProperty("operationId", "volume-" + volume.getUuid());
         StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
                 "volume attach inspect", payload.toString(), Math.max(StorageServiceInstance.StorageServiceCommandTimeout.value(), deadline + 120), Collections.emptySet()));
-        if (!result.isSuccess()) throw new CloudRuntimeException("New configuration service initial volume preparation failed");
+        if (!result.isSuccess()) throw new CloudRuntimeException("New configuration service initial volume preparation failed: " + result.getDetails());
         JsonObject observed = parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));
         if (!Boolean.TRUE.equals(getJsonBoolean(observed, "success")) || !volume.getUuid().equals(getJsonString(observed, "volumeUuid"))
                 || StringUtils.isBlank(getJsonString(observed, "filesystemUuid"))) throw new CloudRuntimeException("New service initial filesystem identity was not verified");
