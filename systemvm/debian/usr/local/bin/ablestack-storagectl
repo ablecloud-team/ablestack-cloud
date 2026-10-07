@@ -7499,7 +7499,82 @@ def decrypt(capsule, private_key_pem, expected_scope):
     return json.loads(plain)
 
 
-def collect(names):
+def validate_host_nqn(value):
+    if not isinstance(value, str) or not value.startswith("nqn.") or len(value) > 223 or not re.fullmatch(r"[A-Za-z0-9_.:-]+", value):
+        raise ValueError("Invalid scoped NVMe host NQN")
+    return value
+
+
+def collect_nvme_hosts(hosts):
+    if not isinstance(hosts, list) or len(hosts) > 512 or len(set(hosts)) != len(hosts):
+        raise ValueError("Invalid scoped NVMe host collection")
+    result = {}
+    for host in hosts:
+        validate_host_nqn(host)
+        root = "/sys/kernel/config/nvmet/hosts/" + host
+        if not os.path.isdir(root) or os.path.islink(root):
+            raise ValueError("Scoped NVMe authentication host is unavailable")
+        entry = {}
+        for field in ("dhchap_key", "dhchap_ctrl_key"):
+            path = root + "/" + field
+            if not os.path.exists(path):
+                entry[field] = None
+                continue
+            descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
+            try:
+                data = os.read(descriptor, 4097)
+            finally:
+                os.close(descriptor)
+            if len(data) > 4096:
+                raise ValueError("NVMe authentication state exceeds its bound")
+            entry[field] = data.decode().strip()
+        result[host] = entry
+    return result
+
+
+def merge_nvme_identity_payload(desired, protected_hosts):
+    """Only existing desired ACLs receive heap-held credentials; no access is added."""
+    if not isinstance(desired, dict) or not isinstance(desired.get("subsystems"), list):
+        raise ValueError("Protected NVMe replay requires a structured desired payload")
+    result = json.loads(json.dumps(desired))
+    for subsystem in result["subsystems"]:
+        if not isinstance(subsystem, dict) or not isinstance(subsystem.get("hosts", []), list):
+            raise ValueError("Protected NVMe replay has invalid host bindings")
+        for host in subsystem.get("hosts", []):
+            principal = validate_host_nqn(host.get("principal"))
+            config = host.get("config") or {}
+            credentials = {}
+            for flag, field, parameter in (("dhChapEnabled", "dhchap_key", "dhChapKey"),
+                                            ("dhChapCtrlEnabled", "dhchap_ctrl_key", "dhChapCtrlKey")):
+                if config.get(flag):
+                    value = protected_hosts.get(principal, {}).get(field)
+                    if not value:
+                        raise ValueError("Required protected NVMe authentication state is missing")
+                    credentials[parameter] = value
+            if credentials:
+                host["secrets"] = credentials
+            else:
+                host.pop("secrets", None)
+    return result
+
+
+def replay_nvme_identity_payload(desired, protected_hosts):
+    merged = merge_nvme_identity_payload(desired, protected_hosts)
+    result = subprocess.run(["/usr/local/bin/ablestack-storagectl", "nvmeof", "subsystem", "apply", "/dev/stdin"],
+                            input=json.dumps(merged), text=True, stdout=subprocess.PIPE,
+                            stderr=subprocess.DEVNULL, timeout=300)
+    if result.returncode != 0:
+        raise ValueError("Protected NVMe protocol replay failed")
+    try:
+        observed = json.loads(result.stdout)
+    except (ValueError, TypeError):
+        raise ValueError("Protected NVMe protocol replay did not return a verified result")
+    if not isinstance(observed, dict) or observed.get("success") is not True:
+        raise ValueError("Protected NVMe protocol replay was not successful")
+    return {"success": True, "nvmeRestored": True}
+
+
+def collect(names, nvme_hosts=None):
     names = set(names)
     if any(not isinstance(name, str) or name in {"root", "nobody", "daemon", "cloud", "debian"} or not re.fullmatch(r"[A-Za-z0-9_][A-Za-z0-9_.-]{0,63}", name) for name in names):
         raise ValueError("Invalid managed account name")
@@ -7528,11 +7603,11 @@ def collect(names):
         accounts[path] = [line for line in data.decode().splitlines() if line.split(":", 1)[0] in names]
     for path, records in accounts.items():
         account_merge("", records, os.path.basename(path))
-    return {"schemaVersion": 1, "files": files, "accounts": accounts}
+    return {"schemaVersion": 1, "files": files, "accounts": accounts, "nvmeHosts": collect_nvme_hosts(nvme_hosts or [])}
 
 
 def validate_payload(payload):
-    if not isinstance(payload, dict) or set(payload) - {"schemaVersion", "files", "accounts"}:
+    if not isinstance(payload, dict) or set(payload) - {"schemaVersion", "files", "accounts", "nvmeHosts"}:
         raise ValueError("Identity capsule payload shape is invalid")
     if not isinstance(payload.get("files"), dict) or not isinstance(payload.get("accounts"), dict):
         raise ValueError("Identity capsule collections are invalid")
@@ -7553,6 +7628,17 @@ def validate_payload(payload):
     for path, lines in payload.get("accounts", {}).items():
         if not isinstance(lines, list) or len(lines) > 512 or any(not isinstance(line, str) or "\n" in line for line in lines):
             raise ValueError("Identity capsule account records are invalid")
+    hosts = payload.get("nvmeHosts", {})
+    if not isinstance(hosts, dict) or len(hosts) > 512:
+        raise ValueError("Identity capsule NVMe host scope is invalid")
+    for host, fields in hosts.items():
+        validate_host_nqn(host)
+        if not isinstance(fields, dict) or set(fields) != {"dhchap_key", "dhchap_ctrl_key"}:
+            raise ValueError("Identity capsule NVMe authentication fields are invalid")
+        for key in fields.values():
+            if key is not None and (not isinstance(key, str) or len(key) > 4096 or "\n" in key or "\r" in key
+                                    or key and not key.startswith("DHHC-1:")):
+                raise ValueError("Identity capsule NVMe authentication value is invalid")
     accounts = payload.get("accounts", {})
     users = {line.split(":", 1)[0] for line in accounts.get("/etc/passwd", [])}
     groups = {line.split(":", 1)[0] for line in accounts.get("/etc/group", [])}
@@ -7652,8 +7738,26 @@ def rollback_account_merge(current, records, kind, owned):
     return account_merge("\n".join(filtered), records, kind)
 
 
+def restore_protected(payload, nvme_desired=None):
+    validate_payload(payload)
+    hosts = payload.get("nvmeHosts", {})
+    if hosts and nvme_desired is None:
+        raise ValueError("Protected NVMe desired bindings are required before identity writes")
+    if nvme_desired is not None:
+        merge_nvme_identity_payload(nvme_desired, hosts)  # Prevalidate credentials before account writes.
+    file_payload = dict(payload)
+    file_payload.pop("nvmeHosts", None)
+    restored = restore(file_payload)
+    if nvme_desired is not None:
+        replay_nvme_identity_payload(nvme_desired, hosts)
+        restored["nvmeRestored"] = True
+    return restored
+
+
 def restore(payload):
     validate_payload(payload)
+    if payload.get("nvmeHosts"):
+        raise ValueError("NVMe authentication capsule requires the protected protocol replay path")
     staged = {}
     current_files = {}
     for provenance_path in ("/etc/ablestack-storage/smb-local-account-provenance.json",
@@ -7762,12 +7866,12 @@ elif action == "export":
     domain = json.loads(domain_path.read_text()) if domain_path.exists() else {}
     if str(domain.get("joinState") or domain.get("state") or "").upper() == "JOINED":
         raise ValueError("SMB AD identity transfer is deferred")
-    payload = collect(names)
+    payload = collect(names, request.get("nvmeHosts") or [])
     validate_payload(payload)
     print(json.dumps({"success": True, "capsule": encrypt(payload, request["publicKey"], scope)}, sort_keys=True))
 elif action == "import":
     payload = decrypt(request["capsule"], request["credentialPrivateKey"], scope)
-    print(json.dumps(restore(payload), sort_keys=True))
+    print(json.dumps(restore_protected(payload, request.get("nvmeDesired")), sort_keys=True))
 else:
     raise ValueError("Unsupported identity capsule action")
 PYIDENTITY
