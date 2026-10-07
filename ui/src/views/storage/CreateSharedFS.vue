@@ -359,7 +359,7 @@
                 <a-form-item :label="$t('label.diskofferingid')">
                   <a-input :value="selectedExistingVolume?.diskofferingname || '-'" disabled />
                 </a-form-item>
-                <a-form-item :label="$t('label.storage.service.backing.pool')">
+                <a-form-item :label="$t('label.primary.storage')">
                   <a-input :value="selectedExistingVolume?.storage || '-'" disabled />
                 </a-form-item>
                 <a-form-item :label="$t('label.storage.service.selected.volume.size')">
@@ -1387,7 +1387,7 @@ export default {
         existingvolumeid: '',
         miniops: null,
         maxiops: null,
-        importmode: 'INSPECT_ONLY',
+        importmode: 'MOUNT_EXISTING',
         resizeallowed: true
       })
       this.rules = reactive({
@@ -1719,6 +1719,7 @@ export default {
     },
     handleExistingVolumeToggle (enabled) {
       if (enabled) {
+        this.form.importmode = 'MOUNT_EXISTING'
         this.fetchAvailableVolumes()
       }
     },
