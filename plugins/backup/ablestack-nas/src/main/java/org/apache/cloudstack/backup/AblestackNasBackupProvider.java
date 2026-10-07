@@ -1485,10 +1485,20 @@ public class AblestackNasBackupProvider extends AdapterBase implements BackupPro
         final GetBackupStorageStatsCommand command = new GetBackupStorageStatsCommand(repository.getType(), repository.getAddress(), repository.getMountOptions());
         command.setMountTimeout(NASBackupRestoreMountTimeout.value());
         try {
-            final BackupStorageStatsAnswer answer = (BackupStorageStatsAnswer) agentManager.send(host.getId(), command);
-            if (answer == null || !answer.getResult()) {
+            final Answer response = agentManager.send(host.getId(), command);
+            if (response == null || !response.getResult()) {
                 throw new CloudRuntimeException(String.format("Failed to query NAS backup repository [%s] capacity due to: %s",
-                        repository.getName(), answer != null ? answer.getDetails() : "no answer received"));
+                        repository.getName(), response != null ? response.getDetails() : "no answer received"));
+            }
+            if (!(response instanceof BackupStorageStatsAnswer)) {
+                throw new CloudRuntimeException(String.format("Unexpected NAS backup repository capacity response [%s]: %s",
+                        response.getClass().getName(), response.getDetails()));
+            }
+            final BackupStorageStatsAnswer answer = (BackupStorageStatsAnswer) response;
+            if (answer.getTotalSize() == null || answer.getTotalSize() <= 0L || answer.getUsedSize() == null
+                    || answer.getUsedSize() < 0L || answer.getUsedSize() > answer.getTotalSize()) {
+                throw new CloudRuntimeException(String.format("Invalid NAS backup repository [%s] capacity: totalBytes=[%s], usedBytes=[%s]",
+                        repository.getName(), answer.getTotalSize(), answer.getUsedSize()));
             }
             backupRepositoryDao.updateCapacity(repository, answer.getTotalSize(), answer.getUsedSize());
             return answer;
@@ -1539,16 +1549,11 @@ public class AblestackNasBackupProvider extends AdapterBase implements BackupPro
             return;
         }
         for (final BackupRepository repository : repositories) {
-            GetBackupStorageStatsCommand command = new GetBackupStorageStatsCommand(repository.getType(), repository.getAddress(), repository.getMountOptions());
-            command.setMountTimeout(NASBackupRestoreMountTimeout.value());
-            BackupStorageStatsAnswer answer;
             try {
-                answer = (BackupStorageStatsAnswer) agentManager.send(host.getId(), command);
-                backupRepositoryDao.updateCapacity(repository, answer.getTotalSize(), answer.getUsedSize());
-            } catch (AgentUnavailableException e) {
-                logger.warn("Unable to contact backend control plane to get backup stats for repository: {}", repository.getName());
-            } catch (OperationTimedoutException e) {
-                logger.warn("Operation to get backup stats timed out for the repository: " + repository.getName());
+                getBackupRepositoryStats(host, repository);
+            } catch (CloudRuntimeException e) {
+                LOG.warn("Failed to refresh NAS backup repository [{}] capacity on host [{}]: {}",
+                        repository.getName(), host.getName(), e.getMessage());
             }
         }
     }
