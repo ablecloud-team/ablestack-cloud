@@ -282,7 +282,8 @@
                 <template #label>
                   <tooltip-label :title="$t('label.filesystem')" :tooltip="apiParams.filesystem.description"/>
                 </template>
-                <a-select v-model:value="form.filesystem" showSearch optionFilterProp="label" :filterOption="filterOption">
+                <a-input v-if="form.useexistingvolume" :value="$t('message.sharedfs.initial.filesystem.inspect')" disabled />
+                <a-select v-else v-model:value="form.filesystem" showSearch optionFilterProp="label" :filterOption="filterOption">
                   <a-select-option value="XFS" label="XFS">XFS</a-select-option>
                   <a-select-option value="EXT4" label="EXT4">EXT4</a-select-option>
                 </a-select>
@@ -355,6 +356,12 @@
                   </a-select>
                   <div class="field-hint">{{ $t('message.storage.service.existing.volume.only.unattached') }}</div>
                 </a-form-item>
+                <a-form-item :label="$t('label.diskofferingid')">
+                  <a-input :value="selectedExistingVolume?.diskofferingname || '-'" disabled />
+                </a-form-item>
+                <a-form-item :label="$t('label.storage.service.backing.pool')">
+                  <a-input :value="selectedExistingVolume?.storage || '-'" disabled />
+                </a-form-item>
                 <a-form-item :label="$t('label.storage.service.selected.volume.size')">
                   <a-input :value="selectedExistingVolumeSizeLabel" disabled />
                 </a-form-item>
@@ -362,11 +369,8 @@
                   <template #label>
                     <tooltip-label :title="$t('label.storage.service.import.mode')" :tooltip="$t('message.storage.service.import.mode.help')" />
                   </template>
-                  <a-select v-model:value="form.importmode">
-                    <a-select-option value="INSPECT_ONLY">{{ $t('label.storage.service.import.inspect') }}</a-select-option>
-                    <a-select-option value="MOUNT_EXISTING">{{ $t('label.storage.service.import.mount') }}</a-select-option>
-                    <a-select-option value="FORMAT_NEW">{{ $t('label.storage.service.import.format') }}</a-select-option>
-                  </a-select>
+                  <a-input :value="$t('label.storage.service.import.mount')" disabled />
+                  <div class="field-hint">{{ $t('message.sharedfs.initial.existing.preserve') }}</div>
                 </a-form-item>
                 <a-alert
                   v-if="form.importmode === 'FORMAT_NEW'"
@@ -1393,7 +1397,12 @@ export default {
         networkmode: [{ required: true, message: this.$t('label.required') }],
         ipcidr: [{ validator: this.validateStaticIpCidr }],
         serviceofferingid: [{ required: true, message: this.$t('label.required') }],
-        diskofferingid: [{ required: true, message: this.$t('label.required') }],
+        diskofferingid: [{
+          validator: async (rule, value) => {
+            if (!this.form.useexistingvolume && !value) return Promise.reject(this.$t('label.required'))
+            return Promise.resolve()
+          }
+        }],
         storageid: [{
           validator: async (rule, value) => {
             if (!this.form.useexistingvolume && !value) {
@@ -1402,7 +1411,12 @@ export default {
             return Promise.resolve()
           }
         }],
-        size: [{ required: true, message: this.$t('message.error.custom.disk.size') }],
+        size: [{
+          validator: async (rule, value) => {
+            if (!this.form.useexistingvolume && !value) return Promise.reject(this.$t('message.error.custom.disk.size'))
+            return Promise.resolve()
+          }
+        }],
         existingvolumeid: [{
           validator: async (rule, value) => {
             if (this.form.useexistingvolume && !value) {
@@ -1864,18 +1878,21 @@ export default {
       return Promise.resolve()
     },
     buildCreateSharedFsRequest (values) {
+      const existing = !!(values.useexistingvolume ?? this.form?.useexistingvolume)
       const data = {
+        backingvolumemode: existing ? 'EXISTING' : 'NEW',
+        existingvolumeid: existing ? values.existingvolumeid : undefined,
         name: values.name,
         description: values.description,
         zoneid: values.zoneid,
         serviceofferingid: values.serviceofferingid,
-        diskofferingid: values.diskofferingid,
+        diskofferingid: existing ? undefined : values.diskofferingid,
         networkid: values.networkid,
-        size: this.createSharedFsSize(values),
-        filesystem: values.filesystem,
+        size: existing ? undefined : this.createSharedFsSize(values),
+        filesystem: existing ? undefined : values.filesystem,
         domainid: this.owner.domainid
       }
-      if (this.isCustomizedDiskIOps && this.hasFormValue(values.miniops) && this.hasFormValue(values.maxiops)) {
+      if (!existing && this.isCustomizedDiskIOps && this.hasFormValue(values.miniops) && this.hasFormValue(values.maxiops)) {
         data.miniops = Number(values.miniops)
         data.maxiops = Number(values.maxiops)
       }
@@ -1884,7 +1901,7 @@ export default {
       } else {
         data.account = this.owner.account
       }
-      if (values.storageid) {
+      if (!existing && values.storageid) {
         data.storageid = values.storageid
       }
       data.networkmode = this.isStaticNetwork ? 'STATIC' : 'DHCP'
@@ -1972,6 +1989,7 @@ export default {
         this.assertStorageServiceSetupApis(setup)
         this.notifyStorageServiceSetup(notificationKey, 'info', 'message.storage.service.setup.resolve.running', setup.name, 0)
         const sharedfs = await this.resolveCreatedSharedFileSystem(result)
+        if (setup.useexistingvolume) setup = { ...setup, importmode: 'MOUNT_EXISTING', filesystem: sharedfs.filesystem || setup.filesystem }
         const instance = await this.findStorageServiceInstance(sharedfs, setup)
         if (!instance) {
           throw new Error(this.$t('message.storage.service.setup.instance.not.found'))
@@ -2123,7 +2141,7 @@ export default {
           path: nfsPath,
           volumeid: backingVolumeId,
           filesystem: (snapshot.filesystem || 'XFS').toLowerCase(),
-          importmode: 'FORMAT_IF_EMPTY',
+          importmode: snapshot.useexistingvolume ? 'MOUNT_EXISTING' : 'FORMAT_IF_EMPTY',
           createdirectory: true,
           quotabytes: this.toCapacityBytes(snapshot.nfsquotaamount, snapshot.nfsquotaunit),
           protocolmode: snapshot.nfsprotocolmode || 'V4_ONLY',
@@ -2156,9 +2174,6 @@ export default {
           })
           setup.nfsAclId = this.extractCreatedId(aclResponse, 'storageaccessrule')
         }
-        if (snapshot.useexistingvolume && snapshot.existingvolumeid) {
-          await this.attachInitialVolume(exportResponse, snapshot)
-        }
       }
       if (this.isSetupServiceSelected(snapshot, 'SMB')) {
         const initialSmbAcl = this.initialSmbAclParams(snapshot)
@@ -2188,9 +2203,6 @@ export default {
             organizationalunit: snapshot.smbadou,
             workgroup: snapshot.smbadworkgroup || this.deriveAdWorkgroup(snapshot.smbaddomain)
           })
-        }
-        if (snapshot.useexistingvolume && snapshot.existingvolumeid) {
-          await this.attachInitialVolume(shareResponse, snapshot)
         }
       }
       return setup
@@ -2515,8 +2527,7 @@ export default {
       if (!this.form.useexistingvolume) {
         return values.size
       }
-      const selectedSize = Number(this.selectedExistingVolume?.size || 0)
-      return selectedSize > 0 ? Math.ceil(selectedSize / (1024 * 1024 * 1024)) : values.size
+      return undefined
     },
     initialBackingVolumeId (sharedfs, snapshot = this.form) {
       if (snapshot.useexistingvolume && snapshot.existingvolumeid) {

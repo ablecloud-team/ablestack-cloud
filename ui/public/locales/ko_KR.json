@@ -9295,5 +9295,8 @@
   "message.sharedfs.scaling.read.unavailable": "확장 준비 상태를 확인하지 못했습니다. 다시 열어 확인하세요.",
   "message.sharedfs.scaling.preparation": "이 인스턴스는 온라인 확장 준비가 필요합니다. 변경을 차단했습니다. 준비된 템플릿으로 교체하거나 서비스를 중지한 뒤 호환 오퍼링으로 전환하세요.",
   "message.sharedfs.scaling.online": "서비스가 실행 중인 상태로 CPU·메모리를 확장합니다. 반영 실패 시 이전 자원으로 복구하며 서비스 재시작이 필요할 수 있습니다.",
-  "message.sharedfs.scaling.downscale.unsupported": "CPU·메모리·CPU 속도 축소는 지원하지 않습니다."
+  "message.sharedfs.scaling.downscale.unsupported": "CPU·메모리·CPU 속도 축소는 지원하지 않습니다.",
+  "message.sharedfs.scaling.reason.runtime_scale_activation_required": "온라인 자원 활성화 지원 런타임으로 업데이트 필요",
+  "message.sharedfs.initial.filesystem.inspect": "연결 후 기존 XFS/EXT4 검사",
+  "message.sharedfs.initial.existing.preserve": "기존 볼륨의 파일 시스템은 연결 후 검사하여 사용합니다. 초기 생성은 포맷 없이 마운트하므로 원본 데이터를 보존합니다."
 }

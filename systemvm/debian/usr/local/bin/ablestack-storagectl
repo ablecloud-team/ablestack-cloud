@@ -6788,6 +6788,7 @@ result = {
     "status": "READY" if supported else "ONLINE_RESOURCES_UNSUPPORTED",
     "onlineCpuCount": online_cpus,
     "possibleCpuCount": possible_cpus,
+    "scaleActivationSupported": True,
     "memoryTotalBytes": memory.get("MemTotal", 0),
     "memoryAvailableBytes": memory.get("MemAvailable", memory.get("MemFree", 0)),
     "memoryAutoOnline": online_path.read_text().strip() if online_path.is_file() else None,

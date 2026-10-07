@@ -38,6 +38,15 @@ const values = {
 }
 
 describe('CreateSharedFS request normalization', () => {
+  it('uses an existing volume without hidden offering, size, pool or formatting parameters', () => {
+    const context = baseContext(true)
+    const request = CreateSharedFS.methods.buildCreateSharedFsRequest.call(context, {
+      ...values, useexistingvolume: true, existingvolumeid: 'preserved-volume', size: 20, miniops: 1000, maxiops: 2000
+    })
+    expect(request.backingvolumemode).toBe('EXISTING')
+    expect(request.existingvolumeid).toBe('preserved-volume')
+    for (const field of ['diskofferingid', 'storageid', 'size', 'miniops', 'maxiops', 'filesystem']) expect(request[field]).toBeUndefined()
+  })
   it('omits IOPS for a non-customized IOPS offering', () => {
     const context = baseContext(false)
     const request = CreateSharedFS.methods.buildCreateSharedFsRequest.call(context, {

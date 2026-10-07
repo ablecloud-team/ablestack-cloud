@@ -9330,5 +9330,8 @@
   "message.sharedfs.scaling.read.unavailable": "Scaling readiness could not be verified. Reopen to retry.",
   "message.sharedfs.scaling.preparation": "Online scaling preparation is required. Use a prepared template or stop the service before transitioning to a compatible offering.",
   "message.sharedfs.scaling.online": "CPU and memory will be increased while running. Recovery may require a service restart if verification fails.",
-  "message.sharedfs.scaling.downscale.unsupported": "CPU, memory and CPU speed reductions are unsupported."
+  "message.sharedfs.scaling.downscale.unsupported": "CPU, memory and CPU speed reductions are unsupported.",
+  "message.sharedfs.scaling.reason.runtime_scale_activation_required": "A runtime supporting online resource activation is required",
+  "message.sharedfs.initial.filesystem.inspect": "Existing XFS/EXT4 inspected after attachment",
+  "message.sharedfs.initial.existing.preserve": "The existing filesystem is inspected after attachment. Initial creation mounts without formatting and preserves the original data."
 }

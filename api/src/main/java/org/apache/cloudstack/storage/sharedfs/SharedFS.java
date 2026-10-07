@@ -176,6 +176,10 @@ public interface SharedFS extends ControlledEntity, Identity, InternalIdentity, 
 
     Protocol getProtocol();
 
+    enum BackingVolumeMode { NEW, EXISTING }
+    BackingVolumeMode getBackingVolumeMode();
+    String getInitialImportState();
+
     Long getVolumeId();
 
     void setVolumeId(Long volumeId);
