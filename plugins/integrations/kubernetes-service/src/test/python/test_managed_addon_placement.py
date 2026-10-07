@@ -124,4 +124,17 @@ class ManagedAddonPlacementTest(unittest.TestCase):
         with patch('sys.stdout'): self.assertEqual(placement.cli('--existing','HEADLAMP'),0)
         self.assertEqual(run.call_count,1)
 
+    def test_consecutive_kubectl_json_documents_preserve_all_resources(self):
+        m = self.manifest('CCM');text = '\n'.join(json.dumps(x) for x in m['items'])
+        self.assertEqual(placement.parse_document_stream(text), m)
+        self.assertEqual(placement.parse_document_stream('  ' + json.dumps(m) + '\n'), m)
+    def test_malformed_empty_or_non_object_stream_is_rejected(self):
+        for text in (' ', '[]', '{} broken', '{} [1]'):
+            with self.assertRaises(ValueError): placement.parse_document_stream(text)
+    @patch.object(placement.subprocess, 'run')
+    def test_cli_multi_document_provider_dry_run_is_applied_as_list(self, run):
+        m = self.manifest('CCM');run.side_effect = [subprocess.CompletedProcess([],0,'\n'.join(json.dumps(x) for x in m['items']),''),subprocess.CompletedProcess([],0,'configured','')]
+        with patch('sys.stdout'): self.assertEqual(placement.cli('/verified/provider.yaml','CCM'),0)
+        self.assertEqual(json.loads(run.call_args_list[1].kwargs['input']), placement.normalize(m,'CCM'))
+
 if __name__ == '__main__': unittest.main()

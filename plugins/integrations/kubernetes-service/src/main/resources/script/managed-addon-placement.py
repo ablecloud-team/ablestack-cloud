@@ -62,6 +62,24 @@ def normalize(document, component):
     return result
 
 
+def parse_document_stream(text):
+    # kubectl create -o json prints consecutive objects for a multi-document YAML.
+    decoder = json.JSONDecoder()
+    offset = 0
+    documents = []
+    while offset < len(text):
+        if text[offset].isspace():
+            offset += 1
+            continue
+        value, offset = decoder.raw_decode(text, offset)
+        if not isinstance(value, dict):
+            raise ValueError("invalid manifest object")
+        documents.append(value)
+    if not documents:
+        raise ValueError("empty manifest stream")
+    return documents[0] if len(documents) == 1 else {"apiVersion": "v1", "kind": "List", "items": documents}
+
+
 def cli(manifest, component):
     kubectl = [os.environ.get("MOLD_KUBECTL", "/opt/bin/kubectl"),
                "--kubeconfig=/etc/kubernetes/admin.conf", "--request-timeout=20s"]
@@ -78,7 +96,7 @@ def cli(manifest, component):
         if existing and not dry.stdout.strip():
             print("MOLD_MANAGED_ADDON_LEGACY_UNCHANGED component=" + component)
             return 0
-        document = json.loads(dry.stdout)
+        document = json.loads(dry.stdout) if existing else parse_document_stream(dry.stdout)
         if existing:
             # Older non-Mold manifests retain their original recovery path.
             images = [c.get("image", "") for c in document.get("spec", {}).get("template", {}).get("spec", {}).get("containers", [])]
