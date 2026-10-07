@@ -42,7 +42,7 @@ public class ApplyStorageServiceConfigRestoreCmd extends BaseStorageServiceAsync
     public String getPlanToken() { return planToken; }
     @Parameter(name = "confirmation", type = CommandType.STRING, length = 255) private String confirmation;
     public String getConfirmation() { return confirmation; }
-    @Parameter(name = "credentials", type = CommandType.STRING, length = 262144) private String credentials;
+    @Parameter(name = "credentials", type = CommandType.STRING, length = 16384) private String credentials;
     public String getCredentials() { return credentials; }
     public BaseCmd getBaseCmd() { return this; }
     public String getConfigAction() { return "APPLY"; }
@@ -52,6 +52,9 @@ public class ApplyStorageServiceConfigRestoreCmd extends BaseStorageServiceAsync
     @Override
     public void validateSpecificParameters(final java.util.Map<String, String> params) {
         super.validateSpecificParameters(params);
+        if (params.get("credentials") != null && params.get("credentials").getBytes(java.nio.charset.StandardCharsets.UTF_8).length > 16384) {
+            throw new com.cloud.exception.InvalidParameterValueException("Configuration credential re-entry exceeds the protected async request bound");
+        }
         if (!com.cloud.utils.crypt.EncryptionSecretKeyChecker.useEncryption()) {
             throw new com.cloud.exception.InvalidParameterValueException("Protected configuration transfer requires management encryption before queueing");
         }

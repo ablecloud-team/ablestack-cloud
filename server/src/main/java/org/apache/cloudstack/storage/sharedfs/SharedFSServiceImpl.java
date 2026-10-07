@@ -548,6 +548,11 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
     }
 
     protected SharedFS allocSharedFSInternal(CreateSharedFSCmd cmd) {
+        return sharedFSDao.persist((SharedFSVO) preflightSharedFS(cmd));
+    }
+
+    @Override
+    public SharedFS preflightSharedFS(CreateSharedFSCmd cmd) {
         Account caller = CallContext.current().getCallingAccount();
 
         long ownerId = cmd.getEntityOwnerId();
@@ -611,7 +616,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
             sharedFS.setDns2(cmd.getDns2());
         }
 
-        return sharedFSDao.persist(sharedFS);
+        return sharedFS;
     }
 
     @Override

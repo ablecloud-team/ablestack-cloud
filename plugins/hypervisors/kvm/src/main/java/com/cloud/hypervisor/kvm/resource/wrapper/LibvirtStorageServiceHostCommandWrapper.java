@@ -231,6 +231,9 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
         }
         final String payload = command.getPayload() == null ? "" : command.getPayload();
         final String encodedPayload = Base64.getEncoder().encodeToString(payload.getBytes(StandardCharsets.UTF_8));
+        if (command.getOperation().startsWith("identity capsule ")) {
+            return "printf '%s' '" + encodedPayload + "' | base64 -d | /usr/local/bin/ablestack-storagectl " + command.getOperation() + " /dev/stdin";
+        }
         return "payload=$(mktemp /tmp/ablestack-storage-XXXXXX.json); " +
                 "printf '%s' '" + encodedPayload + "' | base64 -d > \"$payload\"; " +
                 "/usr/local/bin/ablestack-storagectl " + command.getOperation() + " \"$payload\"; " +

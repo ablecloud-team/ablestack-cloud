@@ -32,7 +32,7 @@ import org.apache.cloudstack.api.response.StorageServiceInstanceResponse;
         description = "Storage Service configuration plan_lkg with scoped artifacts and explicit resource mapping.", since = "4.23.0",
         requestHasSensitiveInfo = true, responseHasSensitiveInfo = true,
         authorized = {RoleType.Admin})
-public class PlanStorageServiceLastKnownGoodRestoreCmd extends BaseStorageServiceAsyncCmd implements UserCmd, StorageConfigRequest {
+public class PlanStorageServiceLastKnownGoodRestoreCmd extends BaseCmd implements UserCmd, StorageConfigRequest {
     @Inject private StorageService storageService;
     @Parameter(name = "instanceid", type = CommandType.UUID, entityType = StorageServiceInstanceResponse.class, required = true) private Long instanceId;
     public Long getInstanceId() { return instanceId; }
@@ -41,8 +41,6 @@ public class PlanStorageServiceLastKnownGoodRestoreCmd extends BaseStorageServic
     public BaseCmd getBaseCmd() { return this; }
     public String getConfigAction() { return "PLAN_LKG"; }
     public long getEntityOwnerId() { return 0; }
-    public String getEventType() { return "STORAGE.CONFIG.PLAN_LKG"; }
-    public String getEventDescription() { return "Storage Service configuration plan_lkg"; }
     public void execute() {
         StorageServiceConfigArtifactResponse response = storageService.storageServiceConfiguration(this);
         response.setResponseName(getCommandName());response.setObjectName("storageserviceconfiguration");setResponseObject(response);
