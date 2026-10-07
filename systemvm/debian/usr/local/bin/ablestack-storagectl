@@ -4818,6 +4818,13 @@ with open(payload_path, "r", encoding="utf-8") as payload_fp:
 state_dir = "/etc/ablestack-storage"
 os.makedirs(state_dir, exist_ok=True)
 
+try:
+    with open(os.path.join(state_dir, "smb-access.json"), "r", encoding="utf-8") as previous_fp:
+        previous_access = json.load(previous_fp)
+except FileNotFoundError:
+    previous_access = {}
+
+
 def run(command, **kwargs):
     return subprocess.run(command, check=True, **kwargs)
 
@@ -5029,8 +5036,8 @@ def apply_posix_acl(path, principal_type, principal, permission):
     if not kind or not account_id:
         return False
     bits = "r-x" if permission == "READ_ONLY" else "rwx"
-    run_optional(["setfacl", "-m", f"{kind}:{account_id}:{bits}", path])
-    run_optional(["setfacl", "-d", "-m", f"{kind}:{account_id}:{bits}", path])
+    run(["setfacl", "-m", f"{kind}:{account_id}:{bits}", path])
+    run(["setfacl", "-d", "-m", f"{kind}:{account_id}:{bits}", path])
     return True
 
 def reset_directory_acl(path):
@@ -5038,16 +5045,29 @@ def reset_directory_acl(path):
         run_optional(["setfacl", "-b", path])
         run_optional(["setfacl", "-k", path])
 
-def apply_directory_policy(path, config, cross_protocol):
+def apply_directory_policy(path, config, cross_protocol, previous=None):
     mode = str(config.get("directoryMode") or "0770")
-    try:
-        parsed_mode = int(mode, 8)
-    except ValueError:
-        parsed_mode = 0o770
-    if not cross_protocol:
-        reset_directory_acl(path)
+    if not re.fullmatch(r"0?[0-7]{3,4}", mode) or int(mode, 8) > 0o7777:
+        raise ValueError("Invalid share root directory mode")
+    parsed_mode = int(mode, 8)
+    previous = previous or {}
+    # Creation options must not reset named/default ACLs or touch an unchanged root mode.
+    if not cross_protocol and (previous.get("path") != path or int(previous.get("directoryMode", "-1"), 8) != parsed_mode):
         os.chmod(path, parsed_mode)
     return parsed_mode
+
+def remove_stale_managed_smb_acls(path, acls, previous):
+    desired = {(acl.get("principalType"), acl.get("principal")) for acl in acls
+               if acl.get("state", "Ready") not in ("Disabled", "Destroyed", "Error")}
+    for acl in previous.get("aclSummary", []):
+        key = (acl.get("principalType"), acl.get("principal"))
+        if key in desired:
+            continue
+        kind, account_id = resolve_account_id(*key)
+        if kind and account_id:
+            # Remove only a previously managed principal; preserve unrelated named and default ACLs.
+            run(["setfacl", "-x", f"{kind}:{account_id}", path])
+            run(["setfacl", "-d", "-x", f"{kind}:{account_id}", path])
 
 identity = payload.get("identityDomain") or {}
 identity_config = identity.get("config") or {}
@@ -5147,7 +5167,9 @@ for share in payload.get("shares", []):
     if config.get("relativeSharePath"):
         verify_share_mount_boundary(path, config.get("volumeMountPath"))
     creation_policy = smb_creation_policy(config)
-    directory_mode = apply_directory_policy(path, config, cross_protocol)
+    previous = previous_access.get(str(share.get("uuid") or name), {})
+    directory_mode = apply_directory_policy(path, config, cross_protocol, previous)
+    remove_stale_managed_smb_acls(path, share.get("acls", []), previous)
     valid_users = []
     write_list = []
     admin_users = []
@@ -5177,7 +5199,8 @@ for share in payload.get("shares", []):
 
     network_policy = smb_network_policy(share.get("networkAcls", []))
     guest_ok = truth(config, 'guestOk', False)
-    if guest_ok and not cross_protocol:
+    if guest_ok and not cross_protocol and (previous.get("path") != path or not previous.get("guestOk")
+            or bool(previous.get("readOnly", False)) != truth(config, "readOnly", False)):
         os.chmod(path, 0o777 if not truth(config, 'readOnly', False) else 0o755)
     access_state[str(share.get("uuid") or name)] = {
         **network_policy,
@@ -5188,6 +5211,7 @@ for share in payload.get("shares", []):
         "configuredAclCount": configured_acl_count,
         "appliedAclCount": applied_acl_count,
         "guestOk": guest_ok,
+        "readOnly": truth(config, "readOnly", False),
         "accessState": "open" if guest_ok else ("acl_applied" if applied_acl_count > 0 else "no_acl"),
         "directoryMode": oct(directory_mode),
         "aclSummary": [

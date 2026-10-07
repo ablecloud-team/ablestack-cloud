@@ -30,7 +30,7 @@ SOURCE = Path(__file__).resolve().parents[2] / 'systemvm/debian/usr/local/bin/ab
 BLOCK = next(block for block in re.findall("<<'PY'\n(.*?)\nPY", SOURCE.read_text(), re.S) if 'def smb_network_policy(' in block)
 TREE = ast.parse(BLOCK)
 NS = {'ipaddress': ipaddress, 're': re}
-NODES = [node for node in TREE.body if isinstance(node, ast.FunctionDef) and node.name in ('smb_network_policy', 'smb_hosts_allow_lines', 'verify_share_mount_boundary', 'truth', 'smb_creation_policy', 'smb_creation_lines', 'install_validated_smb_config')]
+NODES = [node for node in TREE.body if isinstance(node, ast.FunctionDef) and node.name in ('smb_network_policy', 'smb_hosts_allow_lines', 'verify_share_mount_boundary', 'truth', 'smb_creation_policy', 'smb_creation_lines', 'install_validated_smb_config', 'apply_directory_policy', 'remove_stale_managed_smb_acls')]
 exec(compile(ast.Module(body=NODES, type_ignores=[]), str(SOURCE), 'exec'), NS)
 class SmbNetworkAclTest(unittest.TestCase):
     def policy(self, value): return NS['smb_network_policy'](value)
@@ -73,6 +73,25 @@ class SmbNetworkAclTest(unittest.TestCase):
                 NS['install_validated_smb_config'](['invalid candidate'], str(config))
             self.assertEqual('known-good', config.read_text())
             self.assertEqual(['smb.conf'], os.listdir(folder))
+
+    def test_creation_policy_update_preserves_existing_root_mode_and_acl(self):
+        calls = []
+        NS['os'] = SimpleNamespace(chmod=lambda *args: calls.append(args))
+        previous = {'path': '/volume/share', 'directoryMode': '0o770'}
+        self.assertEqual(0o770, NS['apply_directory_policy']('/volume/share', {'directoryMode': '0770'}, False, previous))
+        self.assertEqual([], calls)
+        NS['apply_directory_policy']('/volume/share', {'directoryMode': '2775'}, False, previous)
+        self.assertEqual([('/volume/share', 0o2775)], calls)
+        calls.clear(); NS['apply_directory_policy']('/volume/share', {'directoryMode': '2775'}, True, previous)
+        self.assertEqual([], calls)
+    def test_deleting_account_acl_removes_only_previously_managed_principal(self):
+        calls = []
+        NS.update({'run': lambda argv: calls.append(argv), 'resolve_account_id': lambda kind, name: ('u', '1001')})
+        previous = {'aclSummary': [{'principalType': 'LOCAL_USER', 'principal': 'managed'}]}
+        NS['remove_stale_managed_smb_acls']('/volume/share', [], previous)
+        self.assertEqual([['setfacl', '-x', 'u:1001', '/volume/share'], ['setfacl', '-d', '-x', 'u:1001', '/volume/share']], calls)
+        calls.clear(); NS['remove_stale_managed_smb_acls']('/volume/share', previous['aclSummary'], previous)
+        self.assertEqual([], calls)
 
     def test_creation_defaults_and_exact_forced_modes(self):
         policy = NS['smb_creation_policy']({})
