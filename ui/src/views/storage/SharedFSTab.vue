@@ -356,6 +356,7 @@ class="storage-service__alert"
                 </template>
               </a-table>
             </section>
+            <posix-directory-policies v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis" :instance-id="storageService.instance.id" :volumes="currentBackingVolumes" @refresh="fetchStorageServiceData" />
           </template>
         </div>
       </a-tab-pane>
@@ -575,6 +576,7 @@ class="storage-service__alert"
               </a-table>
             </section>
 
+            <posix-directory-policies v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis" :instance-id="storageService.instance.id" :volumes="currentBackingVolumes" @refresh="fetchStorageServiceData" />
             <smb-network-access v-if="'listStorageSmbNetworkAcls' in $store.getters.apis" :instance-id="storageService.instance.id" :shares="storageService.smbShares" :runtime="parsedInventory.smbAccess || {}" @refresh="fetchStorageServiceData" />
 
             <section class="storage-table-section">
@@ -1440,6 +1442,7 @@ wrapClassName="storage-service-action-modal"
           </a-form-item>
         </div>
         <div v-if="actionModal.type === 'nfsExport' || actionModal.type === 'editNfsExport'" class="storage-action-form storage-action-form--vertical">
+          <posix-policy-inheritance v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis" :instance-id="storageService.instance.id" :form="forms.nfsExport" protocol="NFS" @patch="Object.assign(forms.nfsExport, $event)" />
           <a-form-item :label="$t('label.storage.service.nfs.idmapping.effective')"><a-tag>{{ nfsIdModeLabel(nfsRuntimeIdMode) }}</a-tag></a-form-item>
           <a-form-item required>
             <template #label>
@@ -1625,12 +1628,12 @@ wrapClassName="storage-service-action-modal"
           <section class="storage-action-section">
             <div class="storage-action-section__title">{{ $t('label.storage.service.posix.permission') }}</div>
             <a-row :gutter="12">
-              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.owner.uid')" :tooltip="$t('message.storage.service.owner.uid.help')" /></template><a-input-number v-model:value="forms.nfsExport.owneruid" class="storage-input-number" :min="0" :max="65535" /></a-form-item></a-col>
-              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.owner.gid')" :tooltip="$t('message.storage.service.owner.gid.help')" /></template><a-input-number v-model:value="forms.nfsExport.ownergid" class="storage-input-number" :min="0" :max="65535" /></a-form-item></a-col>
+              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.owner.uid')" :tooltip="$t('message.storage.service.owner.uid.help')" /></template><a-input-number :disabled="!!forms.nfsExport.posixpolicyid" v-model:value="forms.nfsExport.owneruid" class="storage-input-number" :min="0" :max="65535" /></a-form-item></a-col>
+              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.owner.gid')" :tooltip="$t('message.storage.service.owner.gid.help')" /></template><a-input-number :disabled="!!forms.nfsExport.posixpolicyid" v-model:value="forms.nfsExport.ownergid" class="storage-input-number" :min="0" :max="65535" /></a-form-item></a-col>
               <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.anon.uid')" :tooltip="$t('message.storage.service.anon.uid.help')" /></template><a-input-number v-model:value="forms.nfsExport.anonuid" class="storage-input-number" :min="0" :max="65535" /></a-form-item></a-col>
               <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.anon.gid')" :tooltip="$t('message.storage.service.anon.gid.help')" /></template><a-input-number v-model:value="forms.nfsExport.anongid" class="storage-input-number" :min="0" :max="65535" /></a-form-item></a-col>
-              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.directory.mode')" :tooltip="$t('message.storage.service.directory.mode.help')" /></template><a-input v-model:value="forms.nfsExport.mode" placeholder="0775" /></a-form-item></a-col>
-              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.recursive.permission')" :tooltip="$t('message.storage.service.recursive.permission.help')" /></template><a-switch v-model:checked="forms.nfsExport.recursivepermission" /></a-form-item></a-col>
+              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.directory.mode')" :tooltip="$t('message.storage.service.directory.mode.help')" /></template><a-input :disabled="!!forms.nfsExport.posixpolicyid" v-model:value="forms.nfsExport.mode" placeholder="0775" /></a-form-item></a-col>
+              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.recursive.permission')" :tooltip="$t('message.storage.service.recursive.permission.help')" /></template><a-switch :disabled="!!forms.nfsExport.posixpolicyid" v-model:checked="forms.nfsExport.recursivepermission" /></a-form-item></a-col>
             </a-row>
           </section>
         </div>
@@ -1757,6 +1760,7 @@ wrapClassName="storage-service-action-modal"
           </a-form-item>
         </div>
         <div v-if="actionModal.type === 'smbShare' || actionModal.type === 'editSmbShare'" class="storage-action-form storage-action-form--vertical">
+          <posix-policy-inheritance v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis" :instance-id="storageService.instance.id" :form="forms.smbShare" protocol="SMB" @patch="Object.assign(forms.smbShare, $event)" />
           <a-form-item>
             <template #label><tooltip-label :title="$t('label.name')" :tooltip="$t('message.storage.service.smb.name.autogenerated')" /></template>
             <a-input v-model:value="forms.smbShare.name" />
@@ -1878,7 +1882,7 @@ wrapClassName="storage-service-action-modal"
           </a-form-item>
           <a-form-item>
             <template #label><tooltip-label :title="$t('label.storage.service.directory.mode')" :tooltip="$t('message.storage.service.directory.mode.help')" /></template>
-            <a-input v-model:value="forms.smbShare.directorymode" placeholder="0770" />
+            <a-input :disabled="!!forms.smbShare.posixpolicyid" v-model:value="forms.smbShare.directorymode" placeholder="0770" />
           </a-form-item>
           <smb-creation-options :form="forms.smbShare" @patch="Object.assign(forms.smbShare, $event)" />
           <a-space wrap>
@@ -2310,6 +2314,8 @@ import TooltipButton from '@/components/widgets/TooltipButton'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import SmbNetworkAccess from '@/views/storage/SmbNetworkAccess'
 import SmbCreationOptions from '@/views/storage/SmbCreationOptions'
+import PosixDirectoryPolicies from '@/views/storage/PosixDirectoryPolicies'
+import PosixPolicyInheritance from '@/views/storage/PosixPolicyInheritance'
 import { Empty } from 'ant-design-vue'
 import {
   DeleteOutlined,
@@ -2525,6 +2531,8 @@ export default {
     TooltipLabel,
     SmbNetworkAccess,
     SmbCreationOptions,
+    PosixDirectoryPolicies,
+    PosixPolicyInheritance,
     Status,
     ProtocolHeader,
     EllipsisText,
@@ -2631,6 +2639,7 @@ export default {
           protocolmode: 'V4_ONLY'
         },
         nfsExport: {
+          posixpolicyid: undefined,
           name: '',
           path: '',
           volumeid: '',
@@ -2674,6 +2683,7 @@ export default {
           secure: false
         },
         smbShare: {
+          posixpolicyid: undefined,
           relativepath: '',
           name: '',
           path: '',
@@ -6981,6 +6991,7 @@ export default {
     },
     resetNfsExportForm () {
       Object.assign(this.forms.nfsExport, {
+        posixpolicyid: undefined,
         name: '',
         path: '',
         volumeid: this.defaultCurrentBackingVolumeId(),
@@ -7043,6 +7054,7 @@ export default {
     resetSmbShareForm () {
       const name = this.nextSmbShareName()
       Object.assign(this.forms.smbShare, {
+        posixpolicyid: undefined,
         name,
         path: this.defaultSmbSharePath(name),
         volumeid: this.defaultCurrentBackingVolumeId(),
@@ -7076,6 +7088,7 @@ export default {
       const volumeId = share.volumeid || share.volumeId || ''
       const currentVolume = this.currentBackingVolumes.find(volume => String(volume.id) === String(volumeId))
       Object.assign(this.forms.smbShare, {
+        posixpolicyid: share.posixpolicyid || undefined,
         name: this.clientVisibleName(share.name || share.sharename, ''),
         path: share.path || share.mountpath || share.backingpath || '',
         relativepath: config.relativeSharePath || '',
@@ -7141,6 +7154,7 @@ export default {
       const currentVolume = this.currentBackingVolumes.find(volume => String(volume.id) === String(volumeId))
       const protocolMode = this.nfsRuntimeProtocolMode()
       Object.assign(this.forms.nfsExport, {
+        posixpolicyid: share.posixpolicyid || undefined,
         name: this.clientVisibleName(share.name || share.exportname, ''),
         path: share.path || share.mountpath || share.backingpath || '',
         volumeid: volumeId,
@@ -7507,6 +7521,7 @@ export default {
         name: this.forms.nfsExport.name,
         path: this.forms.nfsExport.relativepath ? undefined : this.forms.nfsExport.path,
         relativepath: this.forms.nfsExport.relativepath || undefined,
+        posixpolicyid: this.forms.nfsExport.posixpolicyid || undefined,
         createdirectory: this.forms.nfsExport.createdirectory,
         volumeid: volumeId,
         filesystem: this.forms.nfsExport.filesystem,
@@ -7518,9 +7533,9 @@ export default {
         allsquash: this.forms.nfsExport.allsquash,
         anonuid: this.forms.nfsExport.anonuid,
         anongid: this.forms.nfsExport.anongid,
-        owneruid: this.forms.nfsExport.owneruid,
-        ownergid: this.forms.nfsExport.ownergid,
-        mode: this.forms.nfsExport.mode,
+        owneruid: this.forms.nfsExport.posixpolicyid ? undefined : this.forms.nfsExport.owneruid,
+        ownergid: this.forms.nfsExport.posixpolicyid ? undefined : this.forms.nfsExport.ownergid,
+        mode: this.forms.nfsExport.posixpolicyid ? undefined : this.forms.nfsExport.mode,
         recursivepermission: this.forms.nfsExport.recursivepermission,
         sync: this.forms.nfsExport.sync,
         secure: this.forms.nfsExport.secure,
@@ -7608,6 +7623,7 @@ export default {
         name: this.forms.nfsExport.name,
         path: this.forms.nfsExport.relativepath ? undefined : this.forms.nfsExport.path,
         relativepath: this.forms.nfsExport.relativepath || undefined,
+        posixpolicyid: this.forms.nfsExport.posixpolicyid || undefined,
         createdirectory: this.forms.nfsExport.createdirectory,
         volumeid: this.forms.nfsExport.volumeid,
         filesystem: this.forms.nfsExport.filesystem,
@@ -7619,9 +7635,9 @@ export default {
         allsquash: this.forms.nfsExport.allsquash,
         anonuid: this.forms.nfsExport.anonuid,
         anongid: this.forms.nfsExport.anongid,
-        owneruid: this.forms.nfsExport.owneruid,
-        ownergid: this.forms.nfsExport.ownergid,
-        mode: this.forms.nfsExport.mode,
+        owneruid: this.forms.nfsExport.posixpolicyid ? undefined : this.forms.nfsExport.owneruid,
+        ownergid: this.forms.nfsExport.posixpolicyid ? undefined : this.forms.nfsExport.ownergid,
+        mode: this.forms.nfsExport.posixpolicyid ? undefined : this.forms.nfsExport.mode,
         recursivepermission: this.forms.nfsExport.recursivepermission,
         sync: this.forms.nfsExport.sync,
         secure: this.forms.nfsExport.secure,
@@ -7734,6 +7750,7 @@ export default {
         name: this.forms.smbShare.name,
         path: this.forms.smbShare.relativepath ? undefined : this.forms.smbShare.path,
         relativepath: this.forms.smbShare.relativepath || undefined,
+        posixpolicyid: this.forms.smbShare.posixpolicyid || undefined,
         volumeid: volumeId,
         filesystem: this.forms.smbShare.filesystem,
         importmode: this.smbShareImportMode(),
@@ -7743,7 +7760,7 @@ export default {
         guestok: this.forms.smbShare.guestok,
         createdirectory: this.forms.smbShare.createdirectory,
         crossprotocol: this.forms.smbShare.crossprotocol,
-        directorymode: this.forms.smbShare.directorymode,
+        directorymode: this.forms.smbShare.posixpolicyid ? undefined : this.forms.smbShare.directorymode,
         createmask: this.forms.smbShare.createmask,
         forcecreatemode: this.forms.smbShare.forcecreatemode,
         directorymask: this.forms.smbShare.directorymask,
@@ -7761,6 +7778,7 @@ export default {
         name: this.forms.smbShare.name,
         path: this.forms.smbShare.relativepath ? undefined : this.forms.smbShare.path,
         relativepath: this.forms.smbShare.relativepath || undefined,
+        posixpolicyid: this.forms.smbShare.posixpolicyid || undefined,
         volumeid: this.forms.smbShare.volumeid,
         filesystem: this.forms.smbShare.filesystem,
         importmode: this.smbShareImportMode(),
@@ -7770,7 +7788,7 @@ export default {
         guestok: this.forms.smbShare.guestok,
         createdirectory: this.forms.smbShare.createdirectory,
         crossprotocol: this.forms.smbShare.crossprotocol,
-        directorymode: this.forms.smbShare.directorymode,
+        directorymode: this.forms.smbShare.posixpolicyid ? undefined : this.forms.smbShare.directorymode,
         createmask: this.forms.smbShare.createmask,
         forcecreatemode: this.forms.smbShare.forcecreatemode,
         directorymask: this.forms.smbShare.directorymask,
@@ -8276,7 +8294,7 @@ export default {
       return next
     },
     applyNfsWritableDefaults () {
-      if (this.forms.nfsExport.readonly || !this.forms.nfsExport.rootsquash) {
+      if (this.forms.nfsExport.posixpolicyid || this.forms.nfsExport.readonly || !this.forms.nfsExport.rootsquash) {
         return
       }
       if (this.forms.nfsExport.anonuid === null || this.forms.nfsExport.anonuid === undefined || this.forms.nfsExport.anonuid === '') {

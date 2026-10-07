@@ -125,6 +125,12 @@ public class CreateStorageNfsExportCmd extends BaseStorageServiceAsyncCmd implem
             description = "defer applying the NFS desired state until a later API call completes the initial export policy")
     private Boolean deferApply;
 
+    @Parameter(name = "posixpolicyid", type = CommandType.UUID, entityType = org.apache.cloudstack.api.response.StoragePosixDirectoryPolicyResponse.class,
+            description = "Common directory policy to inherit; protocol-local owner and mode must match it")
+    private Long posixPolicyId;
+
+    public Long getPosixPolicyId() { return posixPolicyId; }
+
     public Long getInstanceId() {
         return instanceId;
     }

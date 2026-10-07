@@ -54,6 +54,11 @@ public class StorageSmbShareResponse extends BaseResponse {
     public void setEffectiveCreationPolicy(String value) { effectiveCreationPolicy = value; }
     public void setCreationPolicyDrift(String value) { creationPolicyDrift = value; }
 
+    @SerializedName("posixpolicyid")
+    @Param(description = "Common protocol-neutral POSIX directory policy UUID")
+    private String posixPolicyId;
+    public void setPosixPolicyId(String value) { posixPolicyId = value; }
+
     @SerializedName(ApiConstants.ID)
     @Param(description = "ID of the SMB share")
     private String id;
