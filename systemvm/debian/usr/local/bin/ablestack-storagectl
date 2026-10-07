@@ -25,6 +25,41 @@ DESIRED_STATE_DIR="${ABLESTACK_STORAGE_DESIRED_STATE_DIR:-/etc/ablestack-storage
 NFS_DESIRED_STATE_FILE="${ABLESTACK_STORAGE_NFS_DESIRED_STATE_FILE:-${DESIRED_STATE_DIR}/nfs-export-apply.json}"
 SMB_DESIRED_STATE_FILE="${ABLESTACK_STORAGE_SMB_DESIRED_STATE_FILE:-${DESIRED_STATE_DIR}/smb-share-apply.json}"
 
+acquire_storage_writer_lock() {
+  local lock_file="${ABLESTACK_STORAGE_WRITER_LOCK_FILE:-/run/ablestack-storage/desired-writer.lock}"
+  local lock_dir
+  lock_dir="$(dirname -- "$lock_file")"
+  if [[ -L "$lock_dir" || -L "$lock_file" ]]; then
+    printf '%s\n' '{"success":false,"errorCode":"STORAGE_WRITER_LOCK_INVALID"}'
+    return 2
+  fi
+  mkdir -p -- "$lock_dir"
+  if [[ "$(stat -c %u -- "$lock_dir")" != "$(id -u)" ]] || (( (8#$(stat -c %a -- "$lock_dir") & 8#022) != 0 )); then
+    printf '%s\n' '{"success":false,"errorCode":"STORAGE_WRITER_LOCK_INVALID"}'
+    return 2
+  fi
+  if [[ ! -e "$lock_file" ]]; then
+    (umask 077; set -C; : > "$lock_file") 2>/dev/null || true
+  fi
+  if [[ ! -f "$lock_file" || -L "$lock_file" || "$(stat -c %u -- "$lock_file")" != "$(id -u)" || "$(stat -c %a -- "$lock_file")" != "600" ]]; then
+    printf '%s\n' '{"success":false,"errorCode":"STORAGE_WRITER_LOCK_INVALID"}'
+    return 2
+  fi
+  if [[ "${ABLESTACK_STORAGE_WRITER_LOCK_FD:-}" == "9" ]]; then
+    if [[ "$(readlink -f /proc/$$/fd/9 2>/dev/null || true)" != "$(readlink -f -- "$lock_file")" ]]; then
+      printf '%s\n' '{"success":false,"errorCode":"STORAGE_WRITER_LOCK_INVALID"}'
+      return 2
+    fi
+  else
+    exec 9>>"$lock_file"
+  fi
+  if ! flock -n 9; then
+    printf '%s\n' '{"success":false,"errorCode":"STORAGE_WRITER_BUSY"}'
+    return 75
+  fi
+  export ABLESTACK_STORAGE_WRITER_LOCK_FILE="$lock_file" ABLESTACK_STORAGE_WRITER_LOCK_FD=9
+}
+
 json_escape() {
   local value="${1:-}"
   value="${value//\\/\\\\}"
@@ -7442,6 +7477,7 @@ import os
 import re
 import stat
 import subprocess
+from pathlib import Path
 
 MAX_CAPSULE_BYTES = 8 * 1024 * 1024
 FILES = {
@@ -7568,11 +7604,26 @@ def merge_nvme_identity_payload(desired, protected_hosts):
     return result
 
 
+def writer_lock_fds():
+    if os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD") != "9":
+        return ()
+    expected = Path(os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FILE", "/run/ablestack-storage/desired-writer.lock"))
+    try:
+        if Path("/proc/self/fd/9").resolve(strict=True) != expected.resolve(strict=True):
+            raise ValueError("Protected native replay has an invalid inherited writer lock")
+        state = os.fstat(9)
+        if not stat.S_ISREG(state.st_mode) or state.st_uid != os.geteuid() or stat.S_IMODE(state.st_mode) != 0o600:
+            raise ValueError("Protected native replay has an invalid inherited writer lock")
+    except OSError as invalid:
+        raise ValueError("Protected native replay writer lock is unavailable") from invalid
+    return (9,)
+
+
 def replay_nvme_identity_payload(desired, protected_hosts):
     merged = merge_nvme_identity_payload(desired, protected_hosts)
     result = subprocess.run(["/usr/local/bin/ablestack-storagectl", "nvmeof", "subsystem", "apply", "/dev/stdin"],
                             input=json.dumps(merged), text=True, stdout=subprocess.PIPE,
-                            stderr=subprocess.DEVNULL, timeout=300)
+                            stderr=subprocess.DEVNULL, timeout=300, pass_fds=writer_lock_fds())
     if result.returncode != 0:
         raise ValueError("Protected NVMe protocol replay failed")
     try:
@@ -7892,6 +7943,15 @@ subcommand="${2:-}"
 action="${3:-}"
 payload="${4:-}"
 
+# Keep the descriptor open through native child work, even if the management writer disappears.
+case "$command:$subcommand:$action" in
+  health:*|inventory:*|sessions:*|operation:verify:*|operation:observe:*|operation:resources:*|volume:operation:status|nfs:idmapping:preflight|identity:capsule:capabilities)
+    ;;
+  *)
+    acquire_storage_writer_lock || exit $?
+    ;;
+esac
+
 case "$command" in
   identity)
     if [[ "$subcommand" != "capsule" || ! -r "$payload" ]]; then
@@ -7911,7 +7971,9 @@ case "$command" in
     emit_success "Storage Service apply skeleton accepted the payload."
     ;;
   operation)
-    if [[ "$subcommand" == "preflight" ]]; then
+    if [[ "$subcommand" == "writer-idle" ]]; then
+      printf '%s\n' '{"success":true,"status":"WRITER_IDLE","writerLockSupported":true}'
+    elif [[ "$subcommand" == "preflight" ]]; then
       python3 - <<'PYOP'
 import json
 import os
@@ -8117,6 +8179,7 @@ print(json.dumps({"success": bool(supported), "idMappingMode": mode, "ganeshaVer
                   "status": "READY" if supported else "ID_MAPPING_UNSUPPORTED"}))
 raise SystemExit(0 if supported else 1)
 PYIDMAP
+      exit 0
     elif [[ "$subcommand" != "export" || "$action" != "apply" ]]; then
       emit_error "Unsupported nfs operation: ${subcommand:-<empty>} ${action:-<empty>}"
       exit 2

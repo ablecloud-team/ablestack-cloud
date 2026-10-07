@@ -24,6 +24,7 @@ import os
 import re
 import stat
 import subprocess
+from pathlib import Path
 
 MAX_CAPSULE_BYTES = 8 * 1024 * 1024
 FILES = {
@@ -150,11 +151,26 @@ def merge_nvme_identity_payload(desired, protected_hosts):
     return result
 
 
+def writer_lock_fds():
+    if os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD") != "9":
+        return ()
+    expected = Path(os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FILE", "/run/ablestack-storage/desired-writer.lock"))
+    try:
+        if Path("/proc/self/fd/9").resolve(strict=True) != expected.resolve(strict=True):
+            raise ValueError("Protected native replay has an invalid inherited writer lock")
+        state = os.fstat(9)
+        if not stat.S_ISREG(state.st_mode) or state.st_uid != os.geteuid() or stat.S_IMODE(state.st_mode) != 0o600:
+            raise ValueError("Protected native replay has an invalid inherited writer lock")
+    except OSError as invalid:
+        raise ValueError("Protected native replay writer lock is unavailable") from invalid
+    return (9,)
+
+
 def replay_nvme_identity_payload(desired, protected_hosts):
     merged = merge_nvme_identity_payload(desired, protected_hosts)
     result = subprocess.run(["/usr/local/bin/ablestack-storagectl", "nvmeof", "subsystem", "apply", "/dev/stdin"],
                             input=json.dumps(merged), text=True, stdout=subprocess.PIPE,
-                            stderr=subprocess.DEVNULL, timeout=300)
+                            stderr=subprocess.DEVNULL, timeout=300, pass_fds=writer_lock_fds())
     if result.returncode != 0:
         raise ValueError("Protected NVMe protocol replay failed")
     try:
