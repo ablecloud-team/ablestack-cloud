@@ -1600,6 +1600,18 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
                     nodeTypeOfferingId = kubernetesCluster.getServiceOfferingId();
                 }
                 final ServiceOffering existingServiceOffering = serviceOfferingDao.findById(nodeTypeOfferingId);
+                if (existingServiceOffering == null) {
+                    throw new InvalidParameterValueException("Failed to find current service offering for Kubernetes node type " + key);
+                }
+                if (!Objects.equals(existingServiceOffering.getDiskOfferingStrictness(), serviceOffering.getDiskOfferingStrictness())) {
+                    throw new InvalidParameterValueException("Cannot change service offering for Kubernetes node type " + key
+                            + ": disk offering strictness must match the current service offering");
+                }
+                if (Boolean.TRUE.equals(existingServiceOffering.getDiskOfferingStrictness())
+                        && !Objects.equals(existingServiceOffering.getDiskOfferingId(), serviceOffering.getDiskOfferingId())) {
+                    throw new InvalidParameterValueException("Cannot change service offering for Kubernetes node type " + key
+                            + ": strict disk offering ID must match the current service offering");
+                }
                 if (KubernetesCluster.State.Running.equals(kubernetesCluster.getState()) && (serviceOffering.getRamSize() < existingServiceOffering.getRamSize() ||
                         serviceOffering.getCpu() * serviceOffering.getSpeed() < existingServiceOffering.getCpu() * existingServiceOffering.getSpeed())) {
                     logAndThrow(Level.WARN, String.format("Kubernetes cluster cannot be scaled down for service offering. Service offering : %s offers lesser resources as compared to service offering : %s of Kubernetes cluster : %s",
