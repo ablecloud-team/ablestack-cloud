@@ -9475,5 +9475,8 @@
   "label.storage.config.runtime.UNAVAILABLE": "Runtime unavailable",
   "label.storage.config.runtime.PARTIAL": "Partial runtime collection",
   "label.storage.config.runtime.NOT_REQUESTED": "Desired configuration only",
-  "label.storage.config.runtime.AVAILABLE": "Runtime collected"
+  "label.storage.config.runtime.AVAILABLE": "Runtime collected",
+  "label.storage.config.runtime.revision": "Verified runtime revision",
+  "label.storage.config.generation.operation": "Verified configuration operation",
+  "label.storage.config.generation.checksum": "Verified configuration SHA-256"
 }
