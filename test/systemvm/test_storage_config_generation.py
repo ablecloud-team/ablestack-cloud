@@ -129,5 +129,39 @@ class GenerationTest(unittest.TestCase):
         self.assertTrue(json.loads(result.stdout)["generationSupported"])
         self.assertFalse((self.root / "writer.lock").exists())
 
+    def test_new_root_adopts_only_the_same_fully_reconciled_verified_generation(self):
+        self.complete()
+        previous = module.read_json(self.generation.current)
+        target = module.Generation(self.root / "target-generation", self.config)
+        request = {**self.request, "operationUuid": str(uuid.uuid4()), "revision": 2, "previousGeneration": previous}
+        target.execute("adopt", request)
+        self.assertEqual(1, target.status()["runtimeRevision"])
+        self.assertEqual(previous, target.status()["generation"])
+        self.put({"shares": [{"name": "different"}]})
+        new_target = module.Generation(self.root / "unverified-generation", self.config)
+        with self.assertRaises(ValueError):
+            new_target.execute("adopt", request)
+        self.assertFalse(new_target.current.exists())
+
+    def test_retained_root_aligns_forward_only_after_current_configuration_replay(self):
+        self.complete()
+        original = module.read_json(self.generation.current)
+        next_request = {**self.request, "operationUuid": str(uuid.uuid4()), "revision": 2}
+        self.generation.execute("begin", next_request)
+        self.put({"shares": [{"name": "latest"}]})
+        for action in ("verify", "commit", "finish"):
+            self.generation.execute(action, next_request)
+        latest = module.read_json(self.generation.current)
+        retained = module.Generation(self.root / "retained-generation", self.config)
+        module.atomic_json(retained.current, original)
+        request = {**self.request, "operationUuid": str(uuid.uuid4()), "revision": 3,
+                   "previousGeneration": latest, "expectedPreviousGeneration": original}
+        with self.assertRaises(ValueError):
+            retained.execute("adopt", request)
+        retained.execute("align", request)
+        self.assertEqual(2, retained.status()["runtimeRevision"])
+        with self.assertRaises(ValueError):
+            retained.execute("align", {**request, "previousGeneration": original})
+
 if __name__ == "__main__":
     unittest.main()
