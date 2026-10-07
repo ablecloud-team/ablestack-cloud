@@ -112,10 +112,24 @@ public class CreateSharedFSCmd extends BaseAsyncCreateCmd implements UserCmd {
 
     @Parameter(name = ApiConstants.DISK_OFFERING_ID,
             type = CommandType.UUID,
-            required = true,
             entityType = DiskOfferingResponse.class,
             description = "the disk offering to use for the underlying storage. This will define the size and other specifications like encryption and qos for the shared filesystem.")
     private Long diskOfferingId;
+
+    @Parameter(name = "backingvolumemode", type = CommandType.STRING, description = "Initial data volume mode: NEW (default) or EXISTING. EXISTING never formats the selected volume.")
+    private String backingVolumeMode;
+
+    @Parameter(name = "existingvolumeid", type = CommandType.UUID, entityType = org.apache.cloudstack.api.response.VolumeResponse.class,
+            description = "Ready unattached DATADISK to preserve and mount when backingvolumemode is EXISTING")
+    private Long existingVolumeId;
+
+    public boolean isExistingVolume() {
+        String mode=backingVolumeMode == null ? "NEW" : backingVolumeMode.trim().toUpperCase(java.util.Locale.ROOT);
+        if (!java.util.List.of("NEW","EXISTING").contains(mode)) throw new com.cloud.exception.InvalidParameterValueException("Backing volume mode must be NEW or EXISTING");
+        if ("NEW".equals(mode) && existingVolumeId!=null) throw new com.cloud.exception.InvalidParameterValueException("Existing volume requires EXISTING mode");
+        return "EXISTING".equals(mode);
+    }
+    public Long getExistingVolumeId() { return existingVolumeId; }
 
     @Parameter(name = ApiConstants.STORAGE_ID,
             type = CommandType.UUID,

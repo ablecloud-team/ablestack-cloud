@@ -289,6 +289,22 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
     }
 
     @Override
+    public Pair<Long, Long> deployWithExistingVolume(SharedFS sharedFS, Long networkId, Long volumeId) throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
+        Account owner=accountMgr.getActiveAccountById(sharedFS.getAccountId());
+        UserVm vm=deploySharedFSVM(sharedFS.getDataCenterId(),owner,List.of(networkId),sharedFS.getName(),sharedFS.getServiceOfferingId(),null,
+                sharedFS.getFsType(),null,null,null,sharedFS.getNetworkMode(),sharedFS.getIpAddress());
+        sharedFS.setVmId(vm.getId());
+        try {
+            Volume attached=volumeApiService.attachVolumeToVM(vm.getId(),volumeId,null,true);
+            if (attached==null || attached.getInstanceId()==null || attached.getInstanceId()!=vm.getId()) throw new CloudRuntimeException("Initial existing volume attachment was not confirmed");
+            return new Pair<>(volumeId,vm.getId());
+        } catch (RuntimeException failure) {
+            // The service records the created VM and performs preservation-aware cleanup, including a partial attachment.
+            throw failure;
+        }
+    }
+
+    @Override
     public void startSharedFS(SharedFS sharedFS) throws OperationTimedoutException, ResourceUnavailableException, InsufficientCapacityException {
         UserVmVO vm = userVmDao.findById(sharedFS.getVmId());
         userVmService.startVirtualMachine(vm, null);
@@ -296,8 +312,8 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
 
     @Override
     public boolean stopSharedFS(SharedFS sharedFS, Boolean forced) {
-        userVmManager.stopVirtualMachine(sharedFS.getVmId(), Boolean.TRUE.equals(forced));
-        return true;
+        UserVm stopped=userVmManager.stopVirtualMachine(sharedFS.getVmId(),Boolean.TRUE.equals(forced));
+        return stopped!=null && stopped.getState()==com.cloud.vm.VirtualMachine.State.Stopped;
     }
 
     private void expungeVm(Long vmId) {

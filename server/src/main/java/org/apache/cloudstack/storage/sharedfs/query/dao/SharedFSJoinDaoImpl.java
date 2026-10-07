@@ -82,7 +82,9 @@ public class SharedFSJoinDaoImpl extends GenericDaoBase<SharedFSJoinVO, Long> im
         SharedFSResponse response=newSharedFSResponseBase(view,sharedFS);
         SharedFSCapacityProjection.Capacity capacity=SharedFS.SharedFSFeatureEnabled.value()
                 ? SharedFSCapacityProjection.load(new Long[] {sharedFS.getId()}).get(sharedFS.getId()) : null;
-        applyCapacity(response,capacity);return response;
+        applyCapacity(response,capacity);
+        if (SharedFS.SharedFSFeatureEnabled.value()) applyInitialVolume(response,SharedFSInitialVolumeProjection.load(new Long[] {sharedFS.getId()}).get(sharedFS.getId()));
+        return response;
     }
 
     protected SharedFSResponse newSharedFSResponseBase(ResponseObject.ResponseView view, SharedFSJoinVO sharedFS) {
@@ -201,13 +203,21 @@ public class SharedFSJoinDaoImpl extends GenericDaoBase<SharedFSJoinVO, Long> im
         final Long[] ids = java.util.Arrays.stream(sharedFSs).map(SharedFSJoinVO::getId).toArray(Long[]::new);
         final java.util.Map<Long, SharedFSCapacityProjection.Capacity> capacities = SharedFS.SharedFSFeatureEnabled.value()
                 ? SharedFSCapacityProjection.load(ids) : java.util.Collections.emptyMap();
+        final java.util.Map<Long,SharedFSInitialVolumeProjection.Metadata> metadata=SharedFS.SharedFSFeatureEnabled.value()
+                ? SharedFSInitialVolumeProjection.load(ids) : java.util.Collections.emptyMap();
         for (SharedFSJoinVO sharedFS : sharedFSs) {
             final SharedFSResponse response = newSharedFSResponseBase(view, sharedFS);
             final SharedFSCapacityProjection.Capacity capacity = capacities.get(sharedFS.getId());
             applyCapacity(response,capacity);
+            applyInitialVolume(response,metadata.get(sharedFS.getId()));
             sharedFSRespons.add(response);
         }
         return sharedFSRespons;
+    }
+
+    protected void applyInitialVolume(SharedFSResponse response,SharedFSInitialVolumeProjection.Metadata metadata) {
+        if (metadata==null) return;
+        response.setBackingVolumeMode(metadata.mode);response.setInitialImportState(metadata.state);
     }
 
     protected void applyCapacity(SharedFSResponse response, SharedFSCapacityProjection.Capacity capacity) {

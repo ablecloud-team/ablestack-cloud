@@ -25,13 +25,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SharedFSOnlineScaleTest {
-    private JsonObject resources(int cpu,long bytes) { JsonObject r=new JsonObject();r.addProperty("success",true);r.addProperty("onlineCpuCount",cpu);r.addProperty("memoryTotalBytes",bytes);return r; }
+    private JsonObject resources(int cpu,long bytes) { JsonObject r=new JsonObject();r.addProperty("success",true);r.addProperty("scaleActivationSupported",true);r.addProperty("onlineCpuCount",cpu);r.addProperty("memoryTotalBytes",bytes);return r; }
     private class Runtime implements SharedFSOnlineScale.Runtime {
-        boolean resized,restored,failResize,failHealth,failRestore;List<String> phases=new ArrayList<>();
-        public void health() { if (failHealth) throw new CloudRuntimeException("bad health"); }
-        public JsonObject resources() { return SharedFSOnlineScaleTest.this.resources(resized && !restored ? 4 : 2,resized && !restored ? 8L<<30 : 4L<<30); }
+        boolean resized,restored,activated,failResize,failHealth,failRestore;int bootProbeFailures;List<String> phases=new ArrayList<>();
+        public void health() { if (restored && bootProbeFailures-->0) throw new CloudRuntimeException("booting");if (failHealth) throw new CloudRuntimeException("bad health"); }
+        public JsonObject resources() { return SharedFSOnlineScaleTest.this.resources(resized && activated && !restored ? 4 : 2,resized && activated && !restored ? 8L<<30 : 4L<<30); }
         public void prepare(int count) { }
         public void resize() { resized=true;if (failResize) throw new CloudRuntimeException("partial memory change"); }
+        public void activate(int count) { activated=true; }
         public void restore() { if (failRestore) throw new CloudRuntimeException("restore failed");restored=true; }
         public void pause() { }
         public void phase(String value) { phases.add(value); }
@@ -45,11 +46,22 @@ public class SharedFSOnlineScaleTest {
         Runtime r=new Runtime();JsonObject after=SharedFSOnlineScale.execute(r,4,4L<<30);
         Assert.assertEquals(4,after.get("onlineCpuCount").getAsInt());Assert.assertFalse(r.restored);Assert.assertEquals("COMPLETE",r.phases.get(r.phases.size()-1));
     }
+    @Test public void oldRuntimeCannotMutateHardwareWithoutActivationSupport() {
+        Runtime runtime=new Runtime() {
+            @Override public JsonObject resources() { JsonObject legacy=super.resources();legacy.remove("scaleActivationSupported");return legacy; }
+        };
+        Assert.assertThrows(InvalidParameterValueException.class,()->SharedFSOnlineScale.execute(runtime,4,4L<<30));Assert.assertFalse(runtime.resized);
+    }
     @Test public void unhealthyServiceNeverStartsResize() {
         Runtime r=new Runtime();r.failHealth=true;Assert.assertThrows(CloudRuntimeException.class,()->SharedFSOnlineScale.execute(r,4,4L<<30));Assert.assertFalse(r.resized);
     }
     @Test public void partialResizeFailureRestoresAndVerifiesOriginalResources() {
         Runtime r=new Runtime();r.failResize=true;Assert.assertThrows(CloudRuntimeException.class,()->SharedFSOnlineScale.execute(r,4,4L<<30));Assert.assertTrue(r.restored);Assert.assertEquals("ROLLED_BACK",r.phases.get(r.phases.size()-1));
+    }
+    @Test public void recoveryWaitsForGuestBootAndProtocolHealth() {
+        Runtime r=new Runtime();r.failResize=true;r.bootProbeFailures=2;
+        Assert.assertThrows(CloudRuntimeException.class,()->SharedFSOnlineScale.execute(r,4,4L<<30));
+        Assert.assertTrue(r.restored);Assert.assertEquals("ROLLED_BACK",r.phases.get(r.phases.size()-1));
     }
     @Test public void failedRecoveryIsExplicitRatherThanSuccessfulRollback() {
         Runtime r=new Runtime();r.failResize=true;r.failRestore=true;Assert.assertThrows(CloudRuntimeException.class,()->SharedFSOnlineScale.execute(r,4,4L<<30));Assert.assertEquals("RECOVERY_REQUIRED",r.phases.get(r.phases.size()-1));

@@ -33,6 +33,10 @@ public interface SharedFSLifeCycle {
 
     Pair<Long, Long> deploySharedFS(SharedFS sharedFS, Long networkId, Long diskOfferingId, Long storageId, Long size, Long minIops, Long maxIops) throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException;
 
+    default Pair<Long, Long> deployWithExistingVolume(SharedFS sharedFS, Long networkId, Long volumeId) throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
+        throw new UnsupportedOperationException("Provider does not support preserved initial volumes");
+    }
+
     void startSharedFS(SharedFS sharedFS) throws OperationTimedoutException, ResourceUnavailableException, InsufficientCapacityException;
 
     boolean stopSharedFS(SharedFS sharedFS, Boolean forced);

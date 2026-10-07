@@ -29,6 +29,7 @@ public final class SharedFSOnlineScale {
         JsonObject resources();
         void prepare(int targetCpus);
         void resize();
+        default void activate(int targetCpus) { }
         void restore();
         void pause();
         void phase(String value);
@@ -45,10 +46,12 @@ public final class SharedFSOnlineScale {
         } catch (RuntimeException missingEvidence) { return false; }
     }
     public static JsonObject execute(Runtime runtime, int targetCpu, long memoryIncreaseBytes) {
-        runtime.phase("PREFLIGHT");runtime.health();JsonObject before=runtime.resources();runtime.prepare(targetCpu);
+        runtime.phase("PREFLIGHT");runtime.health();JsonObject before=runtime.resources();
+        if (!before.has("scaleActivationSupported") || !before.get("scaleActivationSupported").getAsBoolean()) throw new InvalidParameterValueException("Upgrade the Storage Service runtime before online resource changes");
+        runtime.prepare(targetCpu);
         boolean resizing=false;
         try {
-            runtime.phase("RESIZING");resizing=true;runtime.resize();runtime.phase("VERIFYING");
+            runtime.phase("RESIZING");resizing=true;runtime.resize();runtime.activate(targetCpu);runtime.phase("VERIFYING");
             for (int attempt=0;attempt<12;attempt++) {
                 JsonObject after=runtime.resources();
                 if (reflected(before,after,targetCpu,memoryIncreaseBytes)) { runtime.health();runtime.phase("COMPLETE");return after; }
@@ -58,12 +61,18 @@ public final class SharedFSOnlineScale {
         } catch (RuntimeException failure) {
             if (resizing) {
                 try {
-                    runtime.phase("ROLLING_BACK");runtime.restore();runtime.health();
-                    JsonObject restored=runtime.resources();
-                    if (restored.get("onlineCpuCount").getAsInt()!=before.get("onlineCpuCount").getAsInt()
-                            || Math.abs(restored.get("memoryTotalBytes").getAsLong()-before.get("memoryTotalBytes").getAsLong())>64L*1024*1024) {
-                        throw new CloudRuntimeException("Original guest resources were not restored");
+                    runtime.phase("ROLLING_BACK");runtime.restore();
+                    RuntimeException last=null;boolean verified=false;long deadline=System.nanoTime()+120L*1000*1000*1000;
+                    for (int attempt=0;attempt<30 && System.nanoTime()<deadline;attempt++) {
+                        try {
+                            runtime.health();JsonObject restored=runtime.resources();
+                            if (restored.get("onlineCpuCount").getAsInt()==before.get("onlineCpuCount").getAsInt()
+                                    && Math.abs(restored.get("memoryTotalBytes").getAsLong()-before.get("memoryTotalBytes").getAsLong())<=64L*1024*1024) { verified=true;break; }
+                            last=new CloudRuntimeException("Original guest resources were not restored");
+                        } catch (RuntimeException booting) { last=booting; }
+                        runtime.pause();
                     }
+                    if (!verified) throw last==null ? new CloudRuntimeException("Original guest recovery was not verified") : last;
                     runtime.phase("ROLLED_BACK");
                 }
                 catch (RuntimeException recovery) { runtime.phase("RECOVERY_REQUIRED");failure.addSuppressed(recovery); }

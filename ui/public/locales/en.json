@@ -8604,5 +8604,8 @@
   "message.sharedfs.scaling.reason.minimum_memory_required": "Memory below zone minimum",
   "message.sharedfs.scaling.reason.vm_not_running": "VM is not running",
   "message.sharedfs.scaling.reason.offering_dynamic_scale_required": "Offering online scaling required",
-  "message.sharedfs.scaling.reason.fixed_cpu_required": "Fixed CPU required"
+  "message.sharedfs.scaling.reason.fixed_cpu_required": "Fixed CPU required",
+  "message.sharedfs.initial.filesystem.inspect": "Existing XFS/EXT4 inspected after attachment",
+  "message.sharedfs.scaling.reason.runtime_scale_activation_required": "A runtime supporting online resource activation is required",
+  "message.sharedfs.initial.existing.preserve": "The existing filesystem is inspected after attachment. Initial creation mounts without formatting and preserves the original data."
 }

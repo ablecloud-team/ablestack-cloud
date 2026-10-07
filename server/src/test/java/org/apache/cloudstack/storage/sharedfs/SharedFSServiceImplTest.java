@@ -29,6 +29,7 @@ import static org.mockito.Mockito.when;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.Map;
 import java.util.Optional;
 
@@ -76,6 +77,7 @@ import com.cloud.network.dao.NetworkVO;
 import com.cloud.org.Grouping;
 import com.cloud.storage.DiskOfferingVO;
 import com.cloud.storage.VolumeApiService;
+import com.cloud.storage.Volume;
 import com.cloud.storage.VolumeVO;
 import com.cloud.storage.dao.DiskOfferingDao;
 import com.cloud.storage.dao.VolumeDao;
@@ -144,6 +146,11 @@ public class SharedFSServiceImplTest {
     @Mock
     private com.cloud.service.dao.ServiceOfferingDao serviceOfferingDao;
 
+    @Mock
+    private org.apache.cloudstack.storage.dataservice.dao.StorageFileShareDao storageFileShareDao;
+    @Mock
+    private org.apache.cloudstack.storage.dataservice.dao.StorageBlockTargetDao storageBlockTargetDao;
+
     @Spy
     @InjectMocks
     private SharedFSServiceImpl sharedFSServiceImpl;
@@ -189,6 +196,7 @@ public class SharedFSServiceImplTest {
         ReflectionTestUtils.setField(sharedFSServiceImpl, "sharedFSProviderMap", mockProviderMap);
         when(sharedFSServiceImpl.getSharedFSProvider(s_providerName)).thenReturn(provider);
         when(provider.getSharedFSLifeCycle()).thenReturn(lifeCycle);
+        when(lifeCycle.stopSharedFS(any(),any())).thenReturn(true);
         ReflectionTestUtils.setField(sharedFSServiceImpl, "sharedFSStateMachine", _stateMachine);
     }
 
@@ -219,6 +227,47 @@ public class SharedFSServiceImplTest {
         SharedFSVO sharedFS = new SharedFSVO(s_name, s_description, s_domainId, s_ownerId, s_zoneId,
                 s_providerName, SharedFS.Protocol.NFS, SharedFS.FileSystemType.valueOf(s_fsFormat), s_serviceOfferingId);
         return sharedFS;
+    }
+
+    @Test
+    public void testExistingInitialVolumeRejectsWrongOwnerZoneStateAndAttachment() throws Exception {
+        VolumeVO volume=mock(VolumeVO.class);
+        when(volumeDao.findById(6L)).thenReturn(volume);
+        when(volume.getVolumeType()).thenReturn(Volume.Type.DATADISK);when(volume.getState()).thenReturn(Volume.State.Ready);
+        when(volume.getAccountId()).thenReturn(1L);when(volume.getDataCenterId()).thenReturn(2L);when(volume.getPoolId()).thenReturn(11L);when(volume.getSize()).thenReturn(20L<<30);
+        when(volume.getInstanceId()).thenReturn(7L);
+        Assert.assertThrows(InvalidParameterValueException.class,()->sharedFSServiceImpl.validateExistingInitialVolume(6L,1L,2L,-1));
+        when(volume.getInstanceId()).thenReturn(null);when(volume.getAccountId()).thenReturn(9L);
+        Assert.assertThrows(InvalidParameterValueException.class,()->sharedFSServiceImpl.validateExistingInitialVolume(6L,1L,2L,-1));
+        when(volume.getAccountId()).thenReturn(1L);when(volume.getDataCenterId()).thenReturn(3L);
+        Assert.assertThrows(InvalidParameterValueException.class,()->sharedFSServiceImpl.validateExistingInitialVolume(6L,1L,2L,-1));
+        when(volume.getDataCenterId()).thenReturn(2L);when(volume.getState()).thenReturn(Volume.State.Allocated);
+        Assert.assertThrows(InvalidParameterValueException.class,()->sharedFSServiceImpl.validateExistingInitialVolume(6L,1L,2L,-1));
+        verify(lifeCycle,never()).deployWithExistingVolume(any(),any(),any());
+    }
+
+    @Test
+    public void testExistingFilesystemIsAuthoritativeAndNeverFormats() {
+        SharedFSVO fs=getMockSharedFS();fs.setVmId(7L);fs.setVolumeId(6L);
+        VolumeVO volume=mock(VolumeVO.class);when(volumeDao.findById(6L)).thenReturn(volume);
+        when(volume.getInstanceId()).thenReturn(7L);when(volume.getUuid()).thenReturn("volume-uuid");when(volume.getSize()).thenReturn(20L<<30);
+        org.apache.cloudstack.storage.dataservice.StorageServiceGuestCommandResult observed=mock(org.apache.cloudstack.storage.dataservice.StorageServiceGuestCommandResult.class);
+        when(observed.isSuccess()).thenReturn(true);when(observed.getResultJson()).thenReturn("{\"success\":true,\"volumeUuid\":\"volume-uuid\",\"filesystem\":\"ext4\"}");
+        when(guestCommandDispatcher.dispatch(any())).thenAnswer(invocation->{
+            org.apache.cloudstack.storage.dataservice.StorageServiceGuestCommand command=invocation.getArgument(0);
+            Assert.assertTrue(command.getPayload().contains("MOUNT_EXISTING"));Assert.assertFalse(command.getPayload().contains("FORMAT"));return observed;
+        });
+        sharedFSServiceImpl.inspectExistingInitialVolume(fs);
+        Assert.assertEquals(SharedFS.FileSystemType.EXT4,fs.getFsType());Assert.assertEquals("MOUNTED_EXISTING",fs.getInitialImportState());
+    }
+
+    @Test
+    public void testFailedInitialAttachmentCleanupPreservesData() {
+        SharedFSVO fs=getMockSharedFS();fs.setVmId(7L);fs.setVolumeId(6L);
+        VolumeVO volume=mock(VolumeVO.class);when(volumeDao.findById(6L)).thenReturn(volume);when(volume.getInstanceId()).thenReturn(7L);
+        when(lifeCycle.deleteSharedFS(fs,SharedFS.DataVolumePolicy.PRESERVE_VOLUMES,Set.of(6L))).thenReturn(true);
+        sharedFSServiceImpl.cleanupFailedInitialVolume(fs,lifeCycle,new CloudRuntimeException("inspection failed"));
+        verify(lifeCycle).deleteSharedFS(fs,SharedFS.DataVolumePolicy.PRESERVE_VOLUMES,Set.of(6L));verify(sharedFSDao).remove(fs.getId());
     }
 
     @Test

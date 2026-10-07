@@ -31,6 +31,17 @@ import java.util.List;
 
 @EntityReference(value = SharedFS.class)
 public class SharedFSResponse extends BaseResponseWithTagInformation implements ControlledViewEntityResponse {
+    @SerializedName("backingvolumemode")
+    @Param(description = "Initial volume mode, NEW or EXISTING")
+    private String backingVolumeMode;
+
+    @SerializedName("initialimportstate")
+    @Param(description = "Preserved initial-volume attachment and inspection state")
+    private String initialImportState;
+
+    public void setBackingVolumeMode(String value) { backingVolumeMode=value; }
+    public void setInitialImportState(String value) { initialImportState=value; }
+
 
     @SerializedName(ApiConstants.ID)
     @Param(description = "ID of the shared filesystem")

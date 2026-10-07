@@ -91,6 +91,18 @@ public class SharedFSVO implements SharedFS {
     @Enumerated(value = EnumType.STRING)
     private DataVolumePolicy dataVolumePolicy;
 
+    @Column(name = "backing_volume_mode")
+    @Enumerated(value = EnumType.STRING)
+    private BackingVolumeMode backingVolumeMode;
+
+    @Column(name = "initial_import_state")
+    private String initialImportState;
+
+    @Override public BackingVolumeMode getBackingVolumeMode() { return backingVolumeMode == null ? BackingVolumeMode.NEW : backingVolumeMode; }
+    public void setBackingVolumeMode(BackingVolumeMode value) { backingVolumeMode=value; }
+    @Override public String getInitialImportState() { return initialImportState; }
+    public void setInitialImportState(String value) { initialImportState=value; }
+
     @Column(name = "deletion_plan_json", length = 16777215)
     private String deletionPlanJson;
 
@@ -243,6 +255,8 @@ public class SharedFSVO implements SharedFS {
     public void setVmId(Long vmId) {
         this.vmId = vmId;
     }
+
+    public void setFsType(FileSystemType value) { fsType=value; }
 
     @Override
     public FileSystemType getFsType() {
