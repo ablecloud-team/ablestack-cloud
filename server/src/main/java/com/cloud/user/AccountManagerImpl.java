@@ -973,7 +973,8 @@ public class AccountManagerImpl extends ManagerBase implements AccountManager, M
 
     @Override
     public boolean deleteAccount(AccountVO account, long callerUserId, Account caller) {
-        return deleteAccount(account, callerUserId, caller, true);
+        // A project's internal account has no externally provisioned IAM user.
+        return deleteAccount(account, callerUserId, caller, account.getType() != Account.Type.PROJECT);
     }
 
     @Override

@@ -58,6 +58,18 @@ public class LocalMachineAccountCleanupTest {
         Mockito.verify(manager).deleteKeycloakUser(account);
         Mockito.verify(manager, Mockito.never()).cleanupAccount(Mockito.any(), Mockito.anyLong(), Mockito.any());
     }
+    @Test public void internalProjectAccountDeletionDoesNotRequireAnExternalIamUser() throws Exception {
+        AccountVO account = Mockito.mock(AccountVO.class);
+        Mockito.when(account.getId()).thenReturn(22L);
+        Mockito.when(account.getType()).thenReturn(Account.Type.PROJECT);
+        Account caller = Mockito.mock(Account.class);
+        AccountManagerImpl manager = manager(account, caller);
+        assertTrue(manager.deleteAccount(account, User.UID_SYSTEM, caller));
+        Mockito.verify(manager).cleanupAccount(account, User.UID_SYSTEM, caller);
+        Mockito.verify(manager, Mockito.never()).deleteKeycloakUser(Mockito.any());
+        Mockito.verify(manager, Mockito.never()).deleteGlueUser(Mockito.anyString());
+        Mockito.verify(manager, Mockito.never()).deleteWallUser(Mockito.anyString());
+    }
     @Test public void nonSystemCallerCannotSelectLocalCleanup() {
         AccountManagerImpl manager = new AccountManagerImpl();
         Account caller = Mockito.mock(Account.class);

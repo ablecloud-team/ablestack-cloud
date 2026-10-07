@@ -144,6 +144,26 @@ public class KubernetesProjectServiceAccountTest {
         assertSame(caller, CallContext.current());
     }
 
+    @Test public void emptyProjectDeletionStillCleansItsRetainedLocalMachineAccount() {
+        manager.kubernetesClusterDao = Mockito.mock(com.cloud.kubernetes.cluster.dao.KubernetesClusterDao.class);
+        Account owner = Mockito.mock(Account.class);
+        Mockito.when(owner.getId()).thenReturn(22L);
+        Mockito.when(owner.getType()).thenReturn(Account.Type.PROJECT);
+        Mockito.when(manager.kubernetesClusterDao.listForCleanupByAccount(22L)).thenReturn(Collections.emptyList());
+        Mockito.doNothing().when(manager).deleteProjectKubernetesAccount(owner);
+        manager.cleanupForAccount(owner);
+        Mockito.verify(manager).deleteProjectKubernetesAccount(owner);
+        assertSame(caller, CallContext.current());
+    }
+    @Test public void emptyOrdinaryAccountCleanupDoesNotTouchProjectMachineAccounts() {
+        manager.kubernetesClusterDao = Mockito.mock(com.cloud.kubernetes.cluster.dao.KubernetesClusterDao.class);
+        Account owner = Mockito.mock(Account.class);
+        Mockito.when(owner.getId()).thenReturn(21L);
+        Mockito.when(owner.getType()).thenReturn(Account.Type.NORMAL);
+        Mockito.when(manager.kubernetesClusterDao.listForCleanupByAccount(21L)).thenReturn(Collections.emptyList());
+        manager.cleanupForAccount(owner);
+        Mockito.verify(manager, Mockito.never()).deleteProjectKubernetesAccount(Mockito.any());
+    }
     @Test public void localAccountFailureRestoresCallerWithoutMembership() {
         Mockito.when(manager.accountService.createUserAccount(Mockito.startsWith("mold-cks-project-"), Mockito.anyString(),
                 Mockito.anyString(), Mockito.anyString(), Mockito.isNull(), Mockito.isNull(), Mockito.eq(name),

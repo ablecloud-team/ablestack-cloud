@@ -2989,6 +2989,9 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
     public void cleanupForAccount(Account account) {
         List<KubernetesClusterVO> clusters = kubernetesClusterDao.listForCleanupByAccount(account.getId());
         if (CollectionUtils.isEmpty(clusters)) {
+            if (Account.Type.PROJECT.equals(account.getType())) {
+                deleteProjectKubernetesAccount(account);
+            }
             return;
         }
         logger.debug(String.format("Cleaning up %d Kubernetes cluster for %s", clusters.size(), account));
