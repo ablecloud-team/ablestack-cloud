@@ -27,3 +27,9 @@
 ![자동 복구 완료 UI](20261008-management-crash-auto-recovered.png)
 
 이번 중단은 구성 검증 이후 승격 직전의 read-only 검증 작업입니다. 실제 desired 변경 이후의 중단·인증 checkpoint 복구·추가 phase·전체 프로토콜·native generation은 별도 게이트입니다.
+
+실제 SMB desired 변경 및 보호된 인증 checkpoint의 중단 복구도 검증했습니다. 공유 c0679c42-c4b3-4769-a5ae-1507241d3f93의 browseable을 true → false로 변경하고 DB·native 적용 및 VERIFYING/RUNNING/candidate를 확인한 뒤 관리 서버를 강제 종료했습니다. 작업 56e360d1-ee71-440a-b8fd-881685dc25c5의 operation 2ffd7e7d-b4ba-4f24-b440-750ff7608daa는 background worker가 자동 ROLLED_BACK/INTERRUPTED_WRITER_ROLLED_BACK으로 복구했고 browseable도 true로 돌아왔습니다.
+
+기존 LKG revision 4를 유지했고 candidate는 FAILED로 기록했습니다. scoped DB audit로 nativeIdentityCapsule checkpoint가 실제 존재했으며 복구 완료 후 capsule와 wrapped key의 cleanup=CLEANED 및 보호 파일 제거를 확인했습니다. 비밀값·키 원문은 검사 출력에 포함하지 않았습니다. 변경 전후 데이터·inode·owner/mode·filesystem UUID·boot ID·Samba PID와 실제 SMB 인증·읽기 출력도 일치했습니다.
+
+이 시험의 실제 UI 검증과 추가 phase·네 프로토콜·native generation은 계속 진행합니다.
