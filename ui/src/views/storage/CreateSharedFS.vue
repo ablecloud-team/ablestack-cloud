@@ -1882,7 +1882,7 @@ export default {
       const existing = !!(values.useexistingvolume ?? this.form?.useexistingvolume)
       const data = {
         backingvolumemode: existing ? 'EXISTING' : 'NEW',
-        existingvolumeid: existing ? values.existingvolumeid : undefined,
+        existingvolumeid: existing ? (values.existingvolumeid || this.form?.existingvolumeid) : undefined,
         name: values.name,
         description: values.description,
         zoneid: values.zoneid,
