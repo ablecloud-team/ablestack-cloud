@@ -53,8 +53,9 @@ public class StorageServiceOperationDaoImpl extends GenericDaoBase<StorageServic
         // Update only the lease column: phase/diagnostic changes and terminal commits must never be overwritten.
         try (com.cloud.utils.db.TransactionLegacy transaction = com.cloud.utils.db.TransactionLegacy.open("StorageServiceWriterHeartbeat");
                 java.sql.PreparedStatement statement = transaction.prepareAutoCloseStatement(
-                "UPDATE cloud.storage_service_operation SET heartbeat=CURRENT_TIMESTAMP WHERE id=? AND uuid=? AND instance_id=? AND state IN ('RUNNING','RECOVERY_REQUIRED')")) {
-            statement.setLong(1, id);statement.setString(2, operationUuid);statement.setLong(3, instanceId);
+                "UPDATE cloud.storage_service_operation SET heartbeat=? WHERE id=? AND uuid=? AND instance_id=? AND state IN ('RUNNING','RECOVERY_REQUIRED')")) {
+            statement.setString(1, com.cloud.utils.DateUtil.getDateDisplayString(java.util.TimeZone.getTimeZone("GMT"), new java.util.Date()));
+            statement.setLong(2, id);statement.setString(3, operationUuid);statement.setLong(4, instanceId);
             return statement.executeUpdate() == 1;
         } catch (java.sql.SQLException unavailable) {
             throw new com.cloud.utils.exception.CloudRuntimeException("Unable to renew Storage Service writer heartbeat", unavailable);
