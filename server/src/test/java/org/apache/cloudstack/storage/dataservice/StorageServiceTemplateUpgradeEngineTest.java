@@ -91,8 +91,9 @@ public class StorageServiceTemplateUpgradeEngineTest {
         StorageServiceTemplateUpgradeVO row=new StorageServiceTemplateUpgradeVO();
         StorageServiceTemplateUpgradeEngine.Runtime runtime=Mockito.mock(StorageServiceTemplateUpgradeEngine.Runtime.class);
         Mockito.doThrow(new CloudRuntimeException("cleanup pending")).when(runtime).finished(true);
-        Assert.assertThrows(CloudRuntimeException.class,()->engine().execute(row,runtime));
+        engine().execute(row,runtime);
         Assert.assertEquals("COMPLETE",row.getState());
+        Assert.assertEquals("TEMPLATE_UPGRADE_CLEANUP_PENDING",row.getErrorCode());
         Mockito.verify(runtime,Mockito.never()).restorePreviousRoot();
     }
 }
