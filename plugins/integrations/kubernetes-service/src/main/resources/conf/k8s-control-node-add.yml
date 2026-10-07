@@ -133,6 +133,19 @@ write_files:
         fi
         printf 'KUBELET_EXTRA_ARGS=%s\n' "$KUBELET_EXTRA_ARGS" > /etc/default/kubelet
 
+        # The guest image may start containerd concurrently with cloud-final.
+        # Never continue to kubeadm after an incomplete ISO image installation.
+        systemctl enable --now containerd
+        containerd_wait_attempts=0
+        until ctr --address /run/containerd/containerd.sock version >/dev/null 2>&1; do
+          if (( containerd_wait_attempts >= 30 )); then
+            echo "ERROR: containerd socket did not become ready for ISO image import" >&2
+            exit 1
+          fi
+          sleep 2
+          containerd_wait_attempts=$((containerd_wait_attempts + 1))
+        done
+
         # Preserve archive digests; containerd 2.x defaults to transfer import.
         CTR_IMPORT_OPTIONS=()
         if ctr -n k8s.io image import --help 2>/dev/null | grep -q -- "--local"; then
@@ -340,6 +353,6 @@ runcmd:
   - containerd config default > /etc/containerd/config.toml
   - sed -i 's/SystemdCgroup = false/SystemdCgroup = true/g' /etc/containerd/config.toml
   - until [ -f /opt/bin/setup-kube-system ]; do sleep 5; done
-  - /opt/bin/setup-kube-system
+  - /opt/bin/setup-kube-system || exit 1
   - until [ -f /etc/systemd/system/deploy-kube-system.service ]; do sleep 5; done
   - systemctl start deploy-kube-system

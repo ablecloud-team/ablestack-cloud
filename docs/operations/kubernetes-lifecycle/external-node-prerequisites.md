@@ -28,6 +28,7 @@
 - guest의 SSH가 TCP 22에 응답하고, 대상 클러스터가 사용하는 관리용 SSH 사용자가 Mold 관리 서버 공개키로 로그인할 수 있어야 합니다. 관리 서버 개인키를 guest에 복사하지 않습니다.
 - 해당 사용자에서 `sudo -n true`가 성공해야 합니다. script 설치, cloud-init 준비와 kubeadm 작업에는 비대화형 sudo가 필요합니다.
 - cloud-init이 활성화되어 있고 CloudStack metadata/user-data를 처리해야 합니다. 현재 배포한 guest에서 `cloud-init status --long`, unit 상태와 `/etc/cloud/cloud-init.disabled`를 확인합니다.
+- swap을 비활성화하고 재부팅 후에도 활성화되지 않는지 확인합니다. 기본 kubelet 정책은 활성 swap에서 시작하지 않습니다.
 - 노드 의존성 검사 `validate-cks-node`가 성공해야 합니다. Kubernetes 바이너리·이미지는 클러스터가 참조하는 고정 ISO를 사용합니다.
 
 SystemVM을 기반으로 만든 CKS 전용 template은 일반 VM으로 배포했을 때 위 조건을 자동으로 충족한다고 가정하면 안 됩니다. SSH host key 초기화, SSH 포트, cloud-init 활성화와 sudo 정책을 guest image 준비 단계에서 갖춘 뒤 새 기준선에서 시험합니다. API를 통한 VM Running만으로 guest 준비를 판단하지 않습니다. 재부팅 후 DHCP 주소와 기본 경로가 유지되는지도 확인합니다.

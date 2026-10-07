@@ -28,7 +28,6 @@ import com.cloud.kubernetes.cluster.KubernetesClusterEventTypes;
 import com.cloud.kubernetes.cluster.KubernetesClusterManagerImpl;
 import com.cloud.kubernetes.cluster.KubernetesClusterService;
 import com.cloud.kubernetes.cluster.KubernetesClusterVO;
-import com.cloud.kubernetes.cluster.utils.KubernetesClusterUtil;
 import com.cloud.network.IpAddress;
 import com.cloud.network.Network;
 import com.cloud.network.dao.FirewallRulesDao;
@@ -107,8 +106,9 @@ public class KubernetesClusterAddWorker extends KubernetesClusterActionWorker {
                 return false;
             }
             Pair<String, Integer> publicIpSshPort = getKubernetesClusterServerIpSshPort(null);
-            KubernetesClusterUtil.validateKubernetesClusterReadyNodesCount(kubernetesCluster, publicIpSshPort.first(), publicIpSshPort.second(),
-                    getControlNodeLoginUser(), sshKeyFile, addNodeTimeoutTime, 15000);
+            if (!waitForExternalNodesReady(nodeIds, publicIpSshPort)) {
+                throw new CloudRuntimeException("External Kubernetes nodes did not become Ready with their requested VM identities; mappings are retained for recovery");
+            }
             detachCksIsoFromNodesAddedToCluster(nodeIds, kubernetesCluster.getId(), mountCksIsoOnVr);
             stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.OperationSucceeded);
             String description = String.format("Successfully added %s nodes to Kubernetes Cluster %s", nodesAdded, kubernetesCluster.getUuid());
@@ -122,6 +122,35 @@ public class KubernetesClusterAddWorker extends KubernetesClusterActionWorker {
             }
             throw new CloudRuntimeException(e);
         }
+    }
+
+    protected Pair<Boolean, String> queryExternalNativeNodes(Pair<String, Integer> control) throws Exception {
+        return SshHelper.sshExecute(control.first(), control.second(), getControlNodeLoginUser(), sshKeyFile, null,
+                "sudo /opt/bin/kubectl get nodes -o json --request-timeout=20s", 10000, 10000, 30000);
+    }
+
+    protected boolean externalNodesReady(List<Long> nodeIds, Pair<Boolean, String> query) {
+        if (nodeIds == null || nodeIds.isEmpty() || !Boolean.TRUE.equals(query.first())) { return false; }
+        for (Long id : nodeIds) {
+            UserVmVO vm = userVmDao.findById(id);
+            if (vm == null) { return false; }
+            KubernetesExternalNodeIdentity.NativeNode node = KubernetesExternalNodeIdentity.find(query.second(), vm.getUuid());
+            if (node == null || !node.ready) { return false; }
+        }
+        return true;
+    }
+
+    protected boolean waitForExternalNodesReady(List<Long> nodeIds, Pair<String, Integer> control) {
+        while (System.currentTimeMillis() < addNodeTimeoutTime) {
+            try {
+                if (externalNodesReady(nodeIds, queryExternalNativeNodes(control))) { return true; }
+            } catch (Exception e) {
+                logger.debug("External Kubernetes native readiness query is incomplete; waiting within the operation deadline");
+            }
+            try { Thread.sleep(15000); }
+            catch (InterruptedException e) { Thread.currentThread().interrupt(); return false; }
+        }
+        return false;
     }
 
     private void detachCksIsoFromNodesAddedToCluster(List<Long> nodeIds, long kubernetesClusterId, boolean mountCksIsoOnVr) {
