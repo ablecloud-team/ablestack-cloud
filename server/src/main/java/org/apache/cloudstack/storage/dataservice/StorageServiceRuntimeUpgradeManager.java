@@ -31,6 +31,7 @@ import org.apache.cloudstack.api.response.StorageServiceRuntimeCapabilityRespons
 import org.apache.cloudstack.api.response.StorageServiceRuntimeUpgradeResponse;
 
 public interface StorageServiceRuntimeUpgradeManager {
+    com.google.gson.JsonObject verifyAvailableBundle(Long bundleId);
     StorageServiceRuntimeBundleResponse updateBundle(UpdateStorageServiceRuntimeBundleCmd cmd);
     boolean deleteBundle(DeleteStorageServiceRuntimeBundleCmd cmd);
     StorageServiceRuntimeBundleResponse register(RegisterStorageServiceRuntimeBundleCmd cmd);

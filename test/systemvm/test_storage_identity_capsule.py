@@ -125,6 +125,28 @@ class IdentityCapsuleTest(unittest.TestCase):
         self.assertEqual({"absent": True}, capsules.validate_payload(
             {"schemaVersion": 1, "files": {path: {"absent": True}}, "accounts": {}})["files"][path])
 
+    def test_rollback_removes_only_exact_post_snapshot_owned_accounts(self):
+        created = "synthetic:x:1002:1002::/nonexistent:/usr/sbin/nologin"
+        foreign = "foreign:x:1003:1003::/nonexistent:/usr/sbin/nologin"
+        current = "root:x:0:0::/root:/bin/bash\n" + created + "\n" + foreign + "\n"
+        merged = capsules.rollback_account_merge(current, [], "passwd", {"synthetic": created})
+        self.assertNotIn("synthetic", merged)
+        self.assertIn(foreign, merged)
+        self.assertIn("root:x:0:0", merged)
+        changed = current.replace("1002:1002", "1004:1004")
+        with self.assertRaises(ValueError):
+            capsules.rollback_account_merge(changed, [], "passwd", {"synthetic": created})
+
+    def test_provenance_rejects_hash_files_and_keeps_snapshot_accounts(self):
+        record = "synthetic:x:1002:1002::/nonexistent:/usr/sbin/nologin"
+        self.assertIn(record, capsules.rollback_account_merge(record, [record], "passwd", {"synthetic": record}))
+        import base64
+        data = {"schemaVersion": 1, "accounts": {"/etc/shadow": ["synthetic:hash:20000:0:99999:7:::"]}}
+        # Provenance is intentionally limited to non-secret public account records.
+        with self.assertRaises(ValueError):
+            capsules.owned_account_records({"/etc/ablestack-storage/smb-local-account-provenance.json":
+                                           {"data": base64.b64encode(json.dumps(data).encode()).decode()}})
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -244,6 +244,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     private org.apache.cloudstack.storage.dataservice.dao.StoragePosixDirectoryPolicyDao storagePosixPolicyDao;
     private final ThreadLocal<StorageServiceOperationVO> storageWriterOperation = new ThreadLocal<>();
     @Inject private org.apache.cloudstack.storage.dataservice.dao.StorageConfigArtifactDao storageConfigArtifactDao;
+    @Inject private org.apache.cloudstack.storage.dataservice.dao.StorageServiceRuntimeBundleDao storageRuntimeBundleDao;
     @Inject private org.apache.cloudstack.storage.sharedfs.SharedFSService configurationSharedFsService;
     @Inject private com.cloud.storage.dao.DiskOfferingDao configurationDiskOfferingDao;
     @Inject private org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao configurationStoragePoolDao;
@@ -422,6 +423,69 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         org.apache.cloudstack.storage.sharedfs.SharedFSVO current = sharedFSDao.findById(shared.getId());
         StorageServiceInstanceVO instance = current == null || current.getVmId() == null ? null : storageServiceInstanceDao.findByVmId(current.getVmId());
         if (instance == null) throw new CloudRuntimeException("New service instance reconciliation did not complete");return instance;
+    }
+    protected VolumeVO configurationInitialVolume(StorageServiceInstanceVO instance) {
+        org.apache.cloudstack.storage.sharedfs.SharedFSVO shared = sharedFSDao.findByVm(instance.getVmId());
+        if (shared == null || shared.getVolumeId() == null) throw new CloudRuntimeException("New service initial volume is unavailable");
+        return requireVolume(shared.getVolumeId());
+    }
+    protected StorageServiceInstanceVO configurationInstanceByUuid(String uuid) {
+        StorageServiceInstanceVO instance = storageServiceInstanceDao.findByUuid(uuid);
+        if (instance == null) throw new InvalidParameterValueException("Configuration target instance is unavailable");
+        return requireInstance(instance.getId());
+    }
+    public static final class ConfigurationTargetCommand extends org.apache.cloudstack.api.command.user.storage.dataservice.BaseStorageServiceAsyncCmd {
+        private final long instanceId;private final org.apache.cloudstack.api.BaseCmd original;
+        public ConfigurationTargetCommand(long instanceId, org.apache.cloudstack.api.BaseCmd original) { this.instanceId = instanceId;this.original = original; }
+        public Long getInstanceId() { return instanceId; }
+        public String getCommandName() { return original.getCommandName(); }
+        public String getEventType() { return "STORAGE.CONFIG.RESTORE"; }
+        public String getEventDescription() { return "Applying a reviewed service configuration"; }
+        public long getEntityOwnerId() { return original.getEntityOwnerId(); }
+        public void execute() { throw new UnsupportedOperationException("Internal configuration target command cannot execute as an API"); }
+        public String getIdempotencyKey() {
+            return original instanceof org.apache.cloudstack.api.command.user.storage.dataservice.BaseStorageServiceAsyncCmd
+                    ? ((org.apache.cloudstack.api.command.user.storage.dataservice.BaseStorageServiceAsyncCmd) original).getIdempotencyKey() : null;
+        }
+    }
+    protected org.apache.cloudstack.api.BaseCmd configurationTargetCommand(long instanceId, org.apache.cloudstack.api.BaseCmd original) {
+        return new ConfigurationTargetCommand(instanceId, original);
+    }
+    protected void preflightConfigurationRuntimeBundle(String bundleUuid) {
+        requireConfigurationAdministrator();
+        StorageServiceRuntimeBundleVO bundle = storageRuntimeBundleDao.findByUuid(bundleUuid);
+        if (bundle == null) throw new InvalidParameterValueException("New-service runtime bundle is unavailable");
+        JsonObject verified = runtimeUpgradeManager.verifyAvailableBundle(bundle.getId());
+        if (verified == null || !Boolean.TRUE.equals(getJsonBoolean(verified, "verified"))) {
+            throw new InvalidParameterValueException("New-service runtime bundle has not passed signature verification");
+        }
+    }
+    protected void upgradeConfigurationNewServiceRuntime(StorageServiceInstanceVO instance, String bundleUuid) {
+        requireConfigurationAdministrator();
+        StorageServiceRuntimeBundleVO bundle = storageRuntimeBundleDao.findByUuid(bundleUuid);
+        org.apache.cloudstack.storage.sharedfs.SharedFSVO shared = sharedFSDao.findByVm(instance.getVmId());
+        if (bundle == null || shared == null) throw new InvalidParameterValueException("New service runtime bundle or SharedFS is unavailable");
+        JsonObject parameters = new JsonObject();parameters.addProperty("sharedfilesystemid", shared.getId());parameters.addProperty("bundleid", bundle.getId());
+        org.apache.cloudstack.api.command.admin.storage.dataservice.PreflightStorageServiceRuntimeUpgradeCmd preflight =
+                (org.apache.cloudstack.api.command.admin.storage.dataservice.PreflightStorageServiceRuntimeUpgradeCmd) StorageConfigCommandBinding.bind(
+                        org.apache.cloudstack.api.command.admin.storage.dataservice.PreflightStorageServiceRuntimeUpgradeCmd.class, parameters);
+        JsonObject response = parseJsonObject(GSON.toJson(runtimeUpgradeManager.preflight(preflight)));
+        if (!"PREFLIGHT_READY".equals(getJsonString(response, "state"))) throw new CloudRuntimeException("New service runtime preflight did not pass");
+        StorageServiceRuntimeUpgradeVO upgrade = storageRuntimeUpgradeDao.findByUuid(getJsonString(response, "id"));
+        JsonObject execute = new JsonObject();execute.addProperty("upgradeid", upgrade.getId());
+        org.apache.cloudstack.api.command.admin.storage.dataservice.UpgradeStorageServiceRuntimeCmd cmd =
+                (org.apache.cloudstack.api.command.admin.storage.dataservice.UpgradeStorageServiceRuntimeCmd) StorageConfigCommandBinding.bind(
+                        org.apache.cloudstack.api.command.admin.storage.dataservice.UpgradeStorageServiceRuntimeCmd.class, execute);
+        JsonObject completed = parseJsonObject(GSON.toJson(runtimeUpgradeManager.upgrade(cmd)));
+        if (!"COMPLETE".equals(getJsonString(completed, "state"))) throw new CloudRuntimeException("New service runtime upgrade did not complete");
+    }
+    protected void prepareConfigurationDirectory(StorageServiceInstanceVO instance, String volumeUuid, String relative) {
+        Long volumeId = configurationVolumeId(instance, volumeUuid);VolumeVO volume = requireVolume(volumeId);
+        JsonObject config = new JsonObject();config.addProperty("relativeSharePath", PosixDirectoryPolicy.relativePath(relative));
+        config.addProperty("createDirectory", true);config.addProperty("importMode", "MOUNT_EXISTING");
+        StorageFileShareVO preparation = new StorageFileShareVO(instance.getId(), StorageServiceInstance.Protocol.NFS, "configuration-directory",
+                "/export/configuration-directory", volumeId, "XFS", null, StorageServiceInstance.ResourceState.Allocated, config.toString());
+        inspectAttachedFileShareVolume(instance, preparation, volume, "MOUNT_EXISTING");
     }
     protected String captureConfigurationSnapshot(long instanceId) { return new StorageServiceDesiredSnapshot().capture(instanceId); }
     protected JsonObject observeConfigurationRuntime(StorageServiceInstanceVO instance, String command) {

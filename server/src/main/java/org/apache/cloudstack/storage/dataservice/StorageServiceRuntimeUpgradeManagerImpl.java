@@ -267,6 +267,19 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
     }
 
     @Override
+    public JsonObject verifyAvailableBundle(final Long bundleId) {
+        final StorageServiceRuntimeBundleVO bundle = requireBundle(bundleId);
+        if (bundle.getServiceImpact() != StorageServiceRuntimeBundleVO.ServiceImpact.NONE) {
+            throw new CloudRuntimeException("New-service runtime requires template maintenance");
+        }
+        // Read-only validation: no upgrade row, SystemVM command or resource allocation.
+        return new StorageServiceRuntimeBundleVerifier().verify(bundle,
+                download(bundle.getArtifactUrl(), MAX_BUNDLE_BYTES),
+                download(bundle.getManifestUrl(), MAX_MANIFEST_BYTES),
+                download(bundle.getSignatureUrl(), MAX_SIGNATURE_BYTES), trustedKey(bundle.getSigningKeyId()));
+    }
+
+    @Override
     public StorageServiceRuntimeUpgradeResponse preflight(final PreflightStorageServiceRuntimeUpgradeCmd cmd) {
         final StorageServiceInstanceVO instance = requireInstance(cmd.getSharedFileSystemId());
         final StorageServiceRuntimeBundleVO bundle = requireBundle(cmd.getBundleId());

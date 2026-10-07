@@ -297,6 +297,10 @@ public final class StorageServiceConfiguration {
         if ("CREATE_NEW".equals(mode)) {
             if (!mappings.has("createNew") || !mappings.get("createNew").isJsonObject()) throw new InvalidParameterValueException("New-service blueprint requires explicit zone/network/offering/storage mapping");
             blueprint = mappings.getAsJsonObject("createNew");manager.preflightConfigurationNewService(blueprint);
+            if (!mappings.has("runtimeBundleUuid") || !mappings.has("initialVolumeSourceUuid")) {
+                throw new InvalidParameterValueException("New-service plan requires a compatible runtime bundle and explicit initial volume source mapping");
+            }
+            manager.preflightConfigurationRuntimeBundle(mappings.get("runtimeBundleUuid").getAsString());
             targetUuid = UUID.randomUUID().toString();revision = 0;current = new LinkedHashMap<>();
             for (String kind : StorageConfigRestorePlan.ROW_KEYS.keySet()) current.put("desired/" + kind + ".json", "[]".getBytes(StandardCharsets.UTF_8));
             JsonArray volumes = new JsonArray();
@@ -311,6 +315,8 @@ public final class StorageServiceConfiguration {
         if (blueprint != null) {
             plan.add("createNew", blueprint.deepCopy());plan.addProperty("targetName", blueprint.get("name").getAsString());
             plan.addProperty("plannedTargetIdentity", true);
+            plan.add("runtimeBundleUuid", mappings.get("runtimeBundleUuid").deepCopy());
+            plan.add("initialVolumeSourceUuid", mappings.get("initialVolumeSourceUuid").deepCopy());
         }
         plan.addProperty("artifactSha256", row.getSha256());if (blueprint == null) plan.addProperty("targetName", target.getName());
         plan.add("requiredCredentials", requiredCredentials(archive));
@@ -328,14 +334,22 @@ public final class StorageServiceConfiguration {
         return response(result, row.getUuid());
     }
     private StorageServiceConfigArtifactResponse apply(StorageServiceInstanceVO source, StorageConfigRequest request) {
+        if (request.getArtifactId() == null) throw new InvalidParameterValueException("Configuration artifact ID is required");
+        GlobalLock lock = GlobalLock.getInternLock("StorageConfigurationApply-" + request.getArtifactId());
+        try {
+            if (!lock.lock(120)) throw new CloudRuntimeException("Configuration restore is already being applied");
+            try { return applyLocked(source, request); }
+            finally { lock.unlock(); }
+        } finally { lock.releaseRef(); }
+    }
+    private StorageServiceConfigArtifactResponse applyLocked(StorageServiceInstanceVO source, StorageConfigRequest request) {
         StorageConfigArtifactVO row = row(source, request);JsonObject metadata = metadata(row);
         if (!"PLANNED".equals(metadata.has("planState") ? metadata.get("planState").getAsString() : "")
                 || !metadata.has("plan") || !metadata.has("planToken")) throw new InvalidParameterValueException("A validated configuration plan is required");
         JsonObject plan = metadata.getAsJsonObject("plan");JsonObject capability = metadata.getAsJsonObject("planToken");
-        if (!source.getUuid().equals(plan.get("targetInstanceUuid").getAsString()) || !"RESTORE_EXISTING".equals(plan.get("targetMode").getAsString())) {
-            throw new InvalidParameterValueException("A separate target lifecycle is required for cross-service or new-service restore");
-        }
-        if (request.getPlanToken() == null || !source.getName().equals(request.getConfirmation())
+        boolean createNew = "CREATE_NEW".equals(plan.get("targetMode").getAsString());
+        final StorageServiceInstanceVO existingTarget = createNew ? null : manager.configurationInstanceByUuid(plan.get("targetInstanceUuid").getAsString());
+        if (request.getPlanToken() == null || !plan.get("targetName").getAsString().equals(request.getConfirmation())
                 || capability.get("user").getAsLong() != CallContext.current().getCallingUserId()
                 || capability.get("expires").getAsLong() < System.currentTimeMillis()
                 || !capability.get("hash").getAsString().equals(StorageConfigArchive.sha256(request.getPlanToken().getBytes(StandardCharsets.UTF_8)))
@@ -344,28 +358,44 @@ public final class StorageServiceConfiguration {
             throw new InvalidParameterValueException("Configuration plan confirmation or capability changed");
         }
         JsonObject credentials = request.getCredentials() == null ? new JsonObject() : new com.google.gson.JsonParser().parse(request.getCredentials()).getAsJsonObject();
-        for (JsonElement value : plan.getAsJsonArray("requiredCredentials")) {
-            JsonObject required = value.getAsJsonObject();String id = required.get("ruleUuid").getAsString();
-            if (!credentials.has(id) || !credentials.get(id).isJsonObject()) throw new InvalidParameterValueException("Required configuration credentials must be re-entered");
-            JsonObject entry = credentials.getAsJsonObject(id);
-            for (JsonElement needed : required.getAsJsonArray("fields")) {
-                String field = needed.getAsString();
-                if (!entry.has(field) || entry.get(field).isJsonNull() || !entry.get(field).isJsonPrimitive()
-                        || !entry.get(field).getAsJsonPrimitive().isString() || entry.get(field).getAsString().isBlank()) {
-                    throw new InvalidParameterValueException("Required configuration credential is missing");
-                }
+        StorageConfigRestorePlan.requireCredentials(plan.getAsJsonArray("requiredCredentials"), credentials);
+        // Consume the capability under the artifact lock BEFORE allocating any Cloud resource.
+        // A failed preparation retains its explicit target provenance and requires a fresh review.
+        metadata.remove("planToken");metadata.addProperty("planState", "CONSUMED");
+        metadata.addProperty("restoreState", "PREPARING");update(row, metadata, row.getState());
+        StorageServiceInstanceVO selectedTarget = existingTarget;
+        JsonObject executionPlan = plan.deepCopy();
+        if (createNew) {
+            String baseline = manager.captureConfigurationSnapshot(source.getId());
+            if (!capability.get("baselineSha256").getAsString().equals(StorageConfigArchive.sha256(baseline.getBytes(StandardCharsets.UTF_8)))) {
+                throw new InvalidParameterValueException("Source configuration changed after clone planning");
             }
+            manager.preflightConfigurationRuntimeBundle(plan.get("runtimeBundleUuid").getAsString());
+            if (metadata.has("createdTargetInstanceUuid")) selectedTarget = manager.configurationInstanceByUuid(metadata.get("createdTargetInstanceUuid").getAsString());
+            else {
+                manager.preflightConfigurationNewService(plan.getAsJsonObject("createNew"));
+                selectedTarget = manager.createConfigurationNewService(plan.getAsJsonObject("createNew"));
+                metadata.addProperty("createdTargetInstanceUuid", selectedTarget.getUuid());metadata.addProperty("restoreState", "TARGET_CREATED");update(row, metadata, row.getState());
+            }
+            if (!"TARGET_PREPARED".equals(metadata.has("restoreState") ? metadata.get("restoreState").getAsString() : "")) {
+                manager.upgradeConfigurationNewServiceRuntime(selectedTarget, plan.get("runtimeBundleUuid").getAsString());
+            }
+            executionPlan.addProperty("targetInstanceUuid", selectedTarget.getUuid());executionPlan.addProperty("expectedRevision", 0);
+            String initial = plan.get("initialVolumeSourceUuid").getAsString();
+            executionPlan.getAsJsonObject("volumeMappings").addProperty(initial, manager.configurationInitialVolume(selectedTarget).getUuid());
+            metadata.addProperty("restoreState", "TARGET_PREPARED");update(row, metadata, row.getState());
         }
+        final StorageServiceInstanceVO target = selectedTarget;final JsonObject reviewed = executionPlan;
         try {
-            return manager.executeDesiredChange(request.getBaseCmd(), StorageServiceConfigArtifactResponse.class, () -> {
-            String current = manager.captureConfigurationSnapshot(source.getId());
-            if (revision(source.getId()) != plan.get("expectedRevision").getAsLong()
-                    || !capability.get("baselineSha256").getAsString().equals(StorageConfigArchive.sha256(current.getBytes(StandardCharsets.UTF_8)))) {
+            return manager.executeDesiredChange(manager.configurationTargetCommand(target.getId(), request.getBaseCmd()), StorageServiceConfigArtifactResponse.class, () -> {
+            String current = manager.captureConfigurationSnapshot(target.getId());
+            if (!createNew && (revision(target.getId()) != plan.get("expectedRevision").getAsLong()
+                    || !capability.get("baselineSha256").getAsString().equals(StorageConfigArchive.sha256(current.getBytes(StandardCharsets.UTF_8))))) {
                 throw new InvalidParameterValueException("Configuration changed after planning; a new dry-run is required");
             }
-            manager.checkpointConfigurationIdentity(source);
+            manager.checkpointConfigurationIdentity(target);
             metadata.remove("planToken");metadata.addProperty("restoreState", "APPLYING");update(row, metadata, row.getState());
-            new StorageConfigDomainRestore(manager).apply(source, plan, credentials);
+            new StorageConfigDomainRestore(manager).apply(target, reviewed, credentials);
             metadata.addProperty("restoreState", "COMPLETE");metadata.addProperty("restoredAt", System.currentTimeMillis());update(row, metadata, row.getState());
             return response(compactRow(row), row.getUuid());
         });

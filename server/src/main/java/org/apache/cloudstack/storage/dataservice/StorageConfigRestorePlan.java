@@ -78,6 +78,25 @@ public final class StorageConfigRestorePlan {
     private static Set<String> ids(JsonArray values) {
         Set<String> ids = new java.util.HashSet<>();for (JsonElement value : values) ids.add(text(value.getAsJsonObject(), "uuid"));return ids;
     }
+    public static void requireCredentials(JsonArray required, JsonObject supplied) {
+        Map<String, Set<String>> allowed = new LinkedHashMap<>();
+        for (JsonElement value : required) {
+            JsonObject item = value.getAsJsonObject();String id = text(item, "ruleUuid");
+            Set<String> fields = new java.util.HashSet<>();
+            for (JsonElement field : item.getAsJsonArray("fields")) fields.add(field.getAsString());
+            allowed.put(id, fields);
+            if (!supplied.has(id) || !supplied.get(id).isJsonObject()) throw new CloudRuntimeException("Required configuration credentials must be re-entered");
+            JsonObject entry = supplied.getAsJsonObject(id);
+            if (!entry.keySet().equals(fields)) throw new CloudRuntimeException("Unexpected or missing configuration credential field");
+            for (String field : fields) {
+                JsonElement secret = entry.get(field);
+                if (secret == null || !secret.isJsonPrimitive() || !secret.getAsJsonPrimitive().isString() || secret.getAsString().isBlank()) {
+                    throw new CloudRuntimeException("Required configuration credential is missing");
+                }
+            }
+        }
+        if (!allowed.keySet().containsAll(supplied.keySet())) throw new CloudRuntimeException("Unexpected configuration credential resource");
+    }
     public static JsonObject build(Map<String, byte[]> archive, Map<String, byte[]> current, JsonObject mappings,
             String targetMode, String targetInstanceUuid, long currentRevision) {
         if (!Set.of("RESTORE_EXISTING", "CREATE_NEW").contains(targetMode)) throw new CloudRuntimeException("Unsupported configuration restore mode");
@@ -107,6 +126,18 @@ public final class StorageConfigRestorePlan {
                     }
                     applied.addProperty(id, selected);change.addProperty("targetUuid", selected);consumed.add(selected);
                     JsonObject desired = row.deepCopy();JsonObject actual = existing.get(selected).deepCopy();
+                    // Compare effective target bindings, not the source backup UUIDs.
+                    if (desired.has("volumeUuid") && mappings.has("volumes")) {
+                        JsonObject volumes = mappings.getAsJsonObject("volumes");String sourceVolume = text(desired, "volumeUuid");
+                        if (volumes.has(sourceVolume)) desired.add("volumeUuid", volumes.get(sourceVolume).deepCopy());
+                    }
+                    for (String[] reference : new String[][] {{"posixPolicyUuid", "posix-directory-policies"},
+                            {"resourceUuid", "FILE_SHARE".equals(text(desired, "resource_type")) ? "file-shares" : "block-targets"}}) {
+                        if (desired.has(reference[0]) && mappings.has(reference[1])) {
+                            JsonObject selectedBindings = mappings.getAsJsonObject(reference[1]);String original = text(desired, reference[0]);
+                            if (selectedBindings.has(original)) desired.add(reference[0], selectedBindings.get(original).deepCopy());
+                        }
+                    }
                     desired.remove("uuid");actual.remove("uuid");desired.remove("state");actual.remove("state");desired.remove("revision");actual.remove("revision");
                     change.add("current", existing.get(selected).deepCopy());
                     if (desired.equals(actual)) { change.addProperty("action", "KEEP");keeps.add(change); }
