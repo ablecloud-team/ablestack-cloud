@@ -53,14 +53,21 @@ public final class StorageRecoveryObservation {
         return result;
     }
     public static void requireNfsClients(JsonArray expected, JsonObject observed) {
-        if (!observed.has("clients") || !values(expected).equals(values(observed.getAsJsonArray("clients")))) {
-            throw new CloudRuntimeException("NFS client ACL or squash policy differs from desired state");
+        if (!observed.has("clients")) throw new CloudRuntimeException("NFS client policy is unobserved");
+        final JsonArray actual = observed.getAsJsonArray("clients");
+        if (expected.size() != actual.size()) throw new CloudRuntimeException("NFS client policy count differs from desired state");
+        // Gson numeric primitives parsed from JSON have different hashes than typed integer primitives.
+        // Compare structural values directly so equal observed UID/GID values cannot become false drift.
+        for (JsonElement desired : expected) {
+            boolean matched = false;
+            for (JsonElement value : actual) if (desired.equals(value)) { matched = true;break; }
+            if (!matched) throw new CloudRuntimeException("NFS client ACL or squash policy differs from desired state");
         }
-    }
-    private static Set<JsonElement> values(JsonArray values) {
-        Set<JsonElement> result = new HashSet<>();
-        for (JsonElement value : values) result.add(value);
-        return result;
+        for (JsonElement value : actual) {
+            boolean matched = false;
+            for (JsonElement desired : expected) if (desired.equals(value)) { matched = true;break; }
+            if (!matched) throw new CloudRuntimeException("NFS contains an unexpected client policy");
+        }
     }
     public static Set<String> strings(JsonArray values) {
         Set<String> result = new HashSet<>();
