@@ -25,4 +25,5 @@ public interface StorageServiceOperationDao extends GenericDao<StorageServiceOpe
     StorageServiceOperationVO findByRequest(long instanceId, String requestKey);
     List<StorageServiceOperationVO> listByInstance(long instanceId);
     List<StorageServiceOperationVO> listStaleRunning(java.util.Date before);
+    boolean touchHeartbeat(long id, String operationUuid, long instanceId);
 }

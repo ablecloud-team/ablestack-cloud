@@ -162,9 +162,14 @@ import com.google.gson.JsonParser;
 
 public class StorageServiceManagerImpl extends ManagerBase implements StorageService, PluggableService, Configurable {
     private java.util.concurrent.ScheduledExecutorService interruptedWriterExecutor;
+    private java.util.concurrent.ScheduledExecutorService writerHeartbeatExecutor;
+    private final ThreadLocal<StorageWriterHeartbeat> storageWriterHeartbeat = new ThreadLocal<>();
 
     @Override
     public boolean start() {
+        writerHeartbeatExecutor = java.util.concurrent.Executors.newScheduledThreadPool(2, task -> {
+            Thread thread = new Thread(task, "storage-service-writer-heartbeat");thread.setDaemon(true);return thread;
+        });
         interruptedWriterExecutor = java.util.concurrent.Executors.newSingleThreadScheduledExecutor(task -> {
             Thread thread = new Thread(task, "storage-service-interrupted-writer");thread.setDaemon(true);return thread;
         });
@@ -175,6 +180,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     @Override
     public boolean stop() {
         if (interruptedWriterExecutor != null) interruptedWriterExecutor.shutdownNow();
+        if (writerHeartbeatExecutor != null) writerHeartbeatExecutor.shutdownNow();
         return true;
     }
 
@@ -217,7 +223,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 }
                 if (storageRuntimeUpgradeDao.findActiveByInstanceId(instance.getId()) != null) throw new CloudRuntimeException("Runtime upgrade is active");
             }
-            public void started(StorageServiceOperationVO row) { storageWriterOperation.set(row); }
+            public void started(StorageServiceOperationVO row) { beginStorageWriterHeartbeat(row); }
             public void applyPrevious() {
                 restoreNativePosixOperation(null, instance, true);
                 for (StorageServiceInstance.Protocol protocol : StorageServiceInstance.Protocol.values()) {
@@ -244,7 +250,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         new StorageServiceConfiguration(StorageServiceManagerImpl.this, storageConfigArtifactDao, storageOperationDao).failInterruptedCandidates(row);
                     }
                     cleanupConfigurationIdentityCheckpoint(row);
-                } finally { storageWriterOperation.remove();configurationNativeNvmeReplayed.remove(); }
+                } finally { endStorageWriterHeartbeat();configurationNativeNvmeReplayed.remove(); }
             }
         }, System.currentTimeMillis());
     }
@@ -1200,7 +1206,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         final StorageServiceInstance.Protocol protocol = operationProtocol(cmd);
         return new DesiredStateChange(storageOperationDao, new StorageServiceDesiredSnapshot()).execute(
                 instanceId, cmd.getCommandName(), idempotency, revision, responseClass, change, new DesiredStateChange.Runtime() {
-                    public void started(StorageServiceOperationVO operation) { storageWriterOperation.set(operation); }
+                    public void started(StorageServiceOperationVO operation) { beginStorageWriterHeartbeat(operation); }
                     public void finished() {
                         try {
                             StorageServiceOperationVO operation = storageWriterOperation.get();
@@ -1210,7 +1216,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                             }
                             cleanupConfigurationIdentityCheckpoint(operation);
                         }
-                        finally { storageWriterOperation.remove();configurationNativeNvmeReplayed.remove(); }
+                        finally { endStorageWriterHeartbeat();configurationNativeNvmeReplayed.remove(); }
                     }
                     public void preflight() {
                         if (storageRuntimeUpgradeDao.findActiveByInstanceId(instanceId) != null) {
@@ -1287,6 +1293,19 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         restoreNativePosixOperation(cmd, instance, false);
                     }
                 });
+    }
+
+    private void beginStorageWriterHeartbeat(StorageServiceOperationVO operation) {
+        storageWriterOperation.set(operation);
+        if (writerHeartbeatExecutor != null) {
+            storageWriterHeartbeat.set(new StorageWriterHeartbeat(operation, storageOperationDao, writerHeartbeatExecutor,
+                    failure -> logger.warn("Writer heartbeat renewal is temporarily unavailable for operation {}", operation.getUuid())));
+        }
+    }
+    private void endStorageWriterHeartbeat() {
+        StorageWriterHeartbeat heartbeat = storageWriterHeartbeat.get();
+        try { if (heartbeat != null) heartbeat.close(); }
+        finally { storageWriterHeartbeat.remove();storageWriterOperation.remove(); }
     }
 
     protected JsonObject nativeConfigurationGeneration(StorageServiceInstanceVO instance, StorageServiceOperationVO operation, String action) {
