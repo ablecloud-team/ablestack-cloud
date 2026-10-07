@@ -22,8 +22,12 @@
         <a-select-option value="BACKUP">BACKUP</a-select-option>
         <a-select-option value="RESTORE">RESTORE</a-select-option>
       </a-select>
-      <a-select v-if="operation === 'RESTORE' && info?.restoreattempt?.length" v-model:value="selectedRestoreJobId"
-        :disabled="busy || loading" style="min-width: 360px" @change="changeRestoreAttempt">
+      <a-select
+        v-if="operation === 'RESTORE' && info?.restoreattempt?.length"
+        v-model:value="selectedRestoreJobId"
+        :disabled="busy || loading"
+        style="min-width: 360px"
+        @change="changeRestoreAttempt">
         <a-select-option v-for="attempt in info.restoreattempt" :key="attempt.stagingjobid" :value="attempt.current ? '' : attempt.stagingjobid">
           {{ attempt.current ? 'CURRENT' : 'HISTORY' }} · {{ attempt.stagingjobid }} · {{ attempt.hostname || 'UNKNOWN' }} · {{ attempt.vmrestoreoutcome || 'NOT_RECORDED' }}
         </a-select-option>
@@ -76,10 +80,21 @@
           <div v-if="info.vmrestore.checkedat">Result checked: {{ $toLocaleDate(info.vmrestore.checkedat) }}</div>
         </a-descriptions-item>
       </a-descriptions>
-      <a-alert v-if="operation === 'RESTORE' && (info.vmrestore?.failure || info.vmrestore?.recoveryerror || info.vmrestore?.queryerror)"
-        type="warning" show-icon :message="[info.vmrestore.failure, info.vmrestore.recoveryerror, info.vmrestore.queryerror].filter(Boolean).join(' · ')" class="staging-alert" />
-      <a-table v-if="operation === 'RESTORE' && info.vmrestore?.volume?.length" :columns="vmColumns"
-        :data-source="info.vmrestore.volume" row-key="volumeid" :pagination="false" :scroll="{ x: 1500 }" size="small" class="staging-artifacts">
+      <a-alert
+        v-if="operation === 'RESTORE' && (info.vmrestore?.failure || info.vmrestore?.recoveryerror || info.vmrestore?.queryerror)"
+        type="warning"
+        show-icon
+        :message="[info.vmrestore.failure, info.vmrestore.recoveryerror, info.vmrestore.queryerror].filter(Boolean).join(' · ')"
+        class="staging-alert" />
+      <a-table
+        v-if="operation === 'RESTORE' && info.vmrestore?.volume?.length"
+        :columns="vmColumns"
+        :data-source="info.vmrestore.volume"
+        row-key="volumeid"
+        :pagination="false"
+        :scroll="{ x: 1500 }"
+        size="small"
+        class="staging-artifacts">
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'volume'"><div>{{ record.index }} · {{ record.volumeid }}</div><small>{{ record.destination || 'NOT_RECORDED' }}</small><small v-if="record.poolid">Pool: {{ record.poolid }}</small><small v-if="record.hadoriginal != null">Original existed: {{ record.hadoriginal }}</small></template>
           <template v-else-if="column.key === 'prepare'"><div>{{ record.preparestate }}</div><small v-if="record.preparestartedat">Started: {{ $toLocaleDate(record.preparestartedat) }}</small><small v-if="record.preparedat">Prepared: {{ $toLocaleDate(record.preparedat) }}</small></template>
@@ -88,10 +103,21 @@
           <template v-else-if="column.key === 'cleanup'"><div>{{ record.cleanupstate }}</div><small v-if="record.cleanedat">Cleaned: {{ $toLocaleDate(record.cleanedat) }}</small><small v-if="record.failure">Failure: {{ record.failure }}</small></template>
         </template>
       </a-table>
-      <a-alert v-if="info.hosterror || info.reservationerror || info.reconciliationerror" type="warning" show-icon
-        :message="[info.hosterror, info.reservationerror, info.reconciliationerror].filter(Boolean).join(' · ')" class="staging-alert" />
-      <a-table :columns="columns" :data-source="info.artifact || []" :row-key="row => row.path" :pagination="{ pageSize: 20, hideOnSinglePage: true }"
-        :row-selection="canMutate ? rowSelection : undefined" :scroll="{ x: operation === 'RESTORE' ? 1600 : 1100 }" size="small" class="staging-artifacts">
+      <a-alert
+        v-if="info.hosterror || info.reservationerror || info.reconciliationerror"
+        type="warning"
+        show-icon
+        :message="[info.hosterror, info.reservationerror, info.reconciliationerror].filter(Boolean).join(' · ')"
+        class="staging-alert" />
+      <a-table
+        :columns="columns"
+        :data-source="info.artifact || []"
+        :row-key="row => row.path"
+        :pagination="{ pageSize: 20, hideOnSinglePage: true }"
+        :row-selection="canMutate ? rowSelection : undefined"
+        :scroll="{ x: operation === 'RESTORE' ? 1600 : 1100 }"
+        size="small"
+        class="staging-artifacts">
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'volume'"><div>{{ record.metadata ? 'METADATA' : record.volumeid }}</div><small v-if="operation === 'RESTORE'">Sequence {{ record.index }}<span v-if="record.chainindex != null"> · Chain {{ record.chainindex }}</span></small><small>{{ record.path }}</small><small v-if="record.destination">Destination: {{ record.destination }}</small><small v-if="!record.owned">Inherited: {{ record.backupid }}</small></template>
           <template v-else-if="column.key === 'job'"><div>{{ record.externaljobid || (record.submissionpending ? 'UNCONFIRMED' : '—') }}</div><small>{{ record.externalid || '—' }}</small><small>{{ record.backuptime || '—' }}</small></template>
@@ -158,8 +184,12 @@ export default {
         { key: 'switch', title: 'Volume switch', width: 250 }, { key: 'rollback', title: 'Rollback', width: 250 }, { key: 'cleanup', title: 'Primary cleanup', width: 300 }]
     },
     rowSelection () {
-      return { type: 'radio', selectedRowKeys: this.selectedKeys, onChange: keys => { this.selectedKeys = keys },
-        getCheckboxProps: row => ({ disabled: this.busy || this.loading || row.index == null || row.completed || row.terminal || (!row.submissionpending && !row.externaljobid) || (this.operation === 'BACKUP' && !row.owned) || (this.operation === 'RESTORE' && !row.requestrecorded) }) }
+      return {
+        type: 'radio',
+        selectedRowKeys: this.selectedKeys,
+        onChange: keys => { this.selectedKeys = keys },
+        getCheckboxProps: row => ({ disabled: this.busy || this.loading || row.index == null || row.completed || row.terminal || (!row.submissionpending && !row.externaljobid) || (this.operation === 'BACKUP' && !row.owned) || (this.operation === 'RESTORE' && !row.requestrecorded) })
+      }
     }
   },
   watch: {
@@ -186,8 +216,13 @@ export default {
         if (this.operation === 'RESTORE' && this.selectedRestoreJobId) params.stagingjobid = this.selectedRestoreJobId
         const response = await getAPI('getBackupStagingInfo', params)
         if (this.current(token)) { this.info = response.getbackupstaginginforesponse; this.selectedKeys = [] }
-      } catch (error) { if (this.current(token)) { this.info = null; this.error = error.response?.data?.getbackupstaginginforesponse?.errortext || error.message || String(error) } }
-      finally { if (this.current(token)) this.loading = false }
+      } catch (error) {
+        if (this.current(token)) {
+          this.info = null; this.error = error.response?.data?.getbackupstaginginforesponse?.errortext || error.message || String(error)
+        }
+      } finally {
+        if (this.current(token)) this.loading = false
+      }
     },
     async run (action) {
       if (!this.canMutate || this.busy || this.loading) return
@@ -203,16 +238,28 @@ export default {
         const response = await postAPI('reconcileBackupStagingJob', params)
         const jobId = response.reconcilebackupstagingjobresponse?.jobid
         if (!jobId) throw new Error('Staging reconciliation acceptance is unconfirmed. Refresh before retrying.')
-        await this.$pollJob({ jobId, originalPage: this.$route.path, title: 'Staging management', description: params.stagingjobid,
-          resourceId: params.id, showLoading: false, showSuccessMessage: false,
+        await this.$pollJob({
+          jobId,
+          originalPage: this.$route.path,
+          title: 'Staging management',
+          description: params.stagingjobid,
+          resourceId: params.id,
+          showLoading: false,
+          showSuccessMessage: false,
           successMethod: result => {
             if (!this.current(token)) return
             this.busy = false; this.selectedKeys = []; this.externalJobId = ''
             const info = result.jobresult?.backupstaginginfo || result.jobresult
-            if (!info?.stagingjobid) { this.error = 'The result does not include staging details. Refresh to inspect the operation.' }
-            else { this.info = info }
+            if (!info?.stagingjobid) {
+              this.error = 'The result does not include staging details. Refresh to inspect the operation.'
+            } else {
+              this.info = info
+            }
             this.$emit('refresh')
-          }, errorMethod: failed, catchMethod: failed })
+          },
+          errorMethod: failed,
+          catchMethod: failed
+        })
       } catch (error) { failed(error); if (this.current(token)) this.$notifyError(error) }
     }
   }
