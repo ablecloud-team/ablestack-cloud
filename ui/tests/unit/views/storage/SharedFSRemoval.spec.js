@@ -24,8 +24,10 @@ function preview (policy = 'PRESERVE_VOLUMES', hash = 'current-plan') {
   return { getsharedfilesystemdeletionplanresponse: { sharedfilesystemdeletionplan: { plan: JSON.stringify({ policy, planHash: hash, volumes: [{ id: 1, uuid: 'volume-1', sizeBytes: 100 }] }) } } }
 }
 function mount () {
-  return shallowMount(SharedFSRemoval, { props: { resource: { id: 'service-1', name: 'fixture', state: 'Ready' }, currentAction: { api: 'destroySharedFileSystem', label: 'label.destroy.sharedfs' } },
-    global: { mocks: { $t: key => key, $bytesToHumanReadableSize: value => String(value), $notifyError: jest.fn(), $pollJob: jest.fn() } } })
+  return shallowMount(SharedFSRemoval, {
+    props: { resource: { id: 'service-1', name: 'fixture', state: 'Ready' }, currentAction: { api: 'destroySharedFileSystem', label: 'label.destroy.sharedfs' } },
+    global: { mocks: { $t: key => key, $bytesToHumanReadableSize: value => String(value), $notifyError: jest.fn(), $pollJob: jest.fn() } }
+  })
 }
 
 beforeEach(() => { jest.clearAllMocks(); getAPI.mockResolvedValue(preview()) })
