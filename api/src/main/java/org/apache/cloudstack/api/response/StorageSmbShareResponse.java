@@ -27,6 +27,17 @@ import com.google.gson.annotations.SerializedName;
 
 @EntityReference(value = StorageFileShare.class)
 public class StorageSmbShareResponse extends BaseResponse {
+    @SerializedName("networkaccessmode")
+    @Param(description="Source policy, ANY_SOURCE or ALLOW_LIST, independent of account ACLs")
+    private String networkAccessMode;
+
+    @SerializedName("allowedsources")
+    @Param(description="Canonical client source IP/CIDR allow-list")
+    private java.util.List<String> allowedSources;
+
+    public void setNetworkAccessMode(String value) { networkAccessMode=value; }
+    public void setAllowedSources(java.util.List<String> value) { allowedSources=value; }
+
     @SerializedName(ApiConstants.ID)
     @Param(description = "ID of the SMB share")
     private String id;

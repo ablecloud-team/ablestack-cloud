@@ -575,6 +575,8 @@ class="storage-service__alert"
               </a-table>
             </section>
 
+            <smb-network-access v-if="'listStorageSmbNetworkAcls' in $store.getters.apis" :instance-id="storageService.instance.id" :shares="storageService.smbShares" :runtime="parsedInventory.smbAccess || {}" @refresh="fetchStorageServiceData" />
+
             <section class="storage-table-section">
               <div class="storage-table-section__header">
                 <div>
@@ -2305,6 +2307,7 @@ import EventsTab from '@/components/view/EventsTab'
 import NicsTab from '@/views/network/NicsTab.vue'
 import TooltipButton from '@/components/widgets/TooltipButton'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
+import SmbNetworkAccess from '@/views/storage/SmbNetworkAccess'
 import { Empty } from 'ant-design-vue'
 import {
   DeleteOutlined,
@@ -2518,6 +2521,7 @@ export default {
     NicsTab,
     TooltipButton,
     TooltipLabel,
+    SmbNetworkAccess,
     Status,
     ProtocolHeader,
     EllipsisText,
