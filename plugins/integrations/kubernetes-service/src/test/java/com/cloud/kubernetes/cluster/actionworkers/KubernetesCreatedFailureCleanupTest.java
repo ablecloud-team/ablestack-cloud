@@ -20,6 +20,7 @@ package com.cloud.kubernetes.cluster.actionworkers;
 import java.util.Arrays;
 import java.util.Collections;
 import com.cloud.kubernetes.cluster.KubernetesCluster;
+import com.cloud.kubernetes.cluster.KubernetesClusterDetailsVO;
 import com.cloud.kubernetes.cluster.KubernetesClusterVO;
 import com.cloud.kubernetes.cluster.KubernetesClusterManagerImpl;
 import com.cloud.kubernetes.cluster.KubernetesClusterVmMapVO;
@@ -142,7 +143,7 @@ public class KubernetesCreatedFailureCleanupTest {
         Mockito.when(cluster.getState()).thenReturn(KubernetesCluster.State.Error);
         Mockito.when(failed.getResult()).thenReturn(serializedFailure("CSI deployment failed"));
         assertFalse(worker.reconcileFailedCreationBeforeDelete());
-        Mockito.verifyNoInteractions(details);
+        Mockito.verify(details, Mockito.never()).addDetail(Mockito.anyLong(), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean());
     }
     @Test public void untrackedExistingNodeVmBlocksUnprovisionedCleanup() {
         Mockito.when(worker.vmInstanceDao.listNonRemovedVmsByTypeAndNetwork(Mockito.eq(7L), Mockito.any()))
@@ -221,4 +222,53 @@ public class KubernetesCreatedFailureCleanupTest {
         Mockito.when(failed.getStatus()).thenReturn(AsyncJob.Status.SUCCEEDED);
         assertFalse(worker.reconcileFailedCreationBeforeDelete());
     }
+    @Test public void legacyStartingFailedCreateWithNodesChangesOnlyStateAndKeepsFullCleanup() {
+        Mockito.when(cluster.getState()).thenReturn(KubernetesCluster.State.Starting);
+        Mockito.when(maps.listByClusterId(3L)).thenReturn(Collections.singletonList(Mockito.mock(KubernetesClusterVmMapVO.class)));
+        assertTrue(worker.reconcileFailedCreationBeforeDelete());
+        Mockito.verify(worker).stateTransitTo(3L, KubernetesCluster.Event.CreateFailed);
+        Mockito.verifyNoInteractions(details, worker.vmInstanceDao);
+    }
+    @Test public void activeStartingCreateCannotBeReconciledForDeletion() {
+        Mockito.when(cluster.getState()).thenReturn(KubernetesCluster.State.Starting);
+        Mockito.when(maps.listByClusterId(3L)).thenReturn(Collections.singletonList(Mockito.mock(KubernetesClusterVmMapVO.class)));
+        Mockito.when(failed.getStatus()).thenReturn(AsyncJob.Status.IN_PROGRESS);
+        rejectsWithoutCleanupMarker();
+    }
+    private void legacyAlertPreflight() {
+        Mockito.when(cluster.getState()).thenReturn(KubernetesCluster.State.Alert);
+        Mockito.when(cluster.getClusterType()).thenReturn(KubernetesCluster.ClusterType.CloudManaged);
+        KubernetesClusterDetailsVO phase = Mockito.mock(KubernetesClusterDetailsVO.class);
+        Mockito.when(phase.getValue()).thenReturn("Preflight");
+        Mockito.when(details.findDetail(3L, "lifecycle.provisioning.phase")).thenReturn(phase);
+    }
+    @Test public void scannerAlertWithNoNodesAndFailedPreflightCanBeCleaned() {
+        legacyAlertPreflight();
+        assertTrue(worker.reconcileFailedCreationBeforeDelete());
+        Mockito.verify(details).addDetail(3L, "lifecycle.creation.failed.job", "failed-create-job", false);
+        Mockito.verify(worker, Mockito.never()).stateTransitTo(Mockito.anyLong(), Mockito.any());
+    }
+    @Test public void preflightWithInitializedApiCannotSkipNativeCleanup() {
+        legacyAlertPreflight();Mockito.when(cluster.getEndpoint()).thenReturn("https://192.0.2.1:6443/");
+        assertFalse(worker.reconcileFailedCreationBeforeDelete());
+        Mockito.verify(details, Mockito.never()).addDetail(Mockito.anyLong(), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean());
+    }
+    @Test public void preflightWithBootstrapMarkerCannotSkipNativeCleanup() {
+        legacyAlertPreflight();Mockito.when(details.findDetail(3L, "lifecycle.bootstrap.started")).thenReturn(Mockito.mock(KubernetesClusterDetailsVO.class));
+        assertFalse(worker.reconcileFailedCreationBeforeDelete());
+        Mockito.verify(details, Mockito.never()).addDetail(Mockito.anyLong(), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean());
+    }
+
+    @Test public void preflightWithProviderOwnershipCannotSkipNativeCleanup() {
+        legacyAlertPreflight();Mockito.doReturn(true).when(worker).ownershipCleanupEnabled();
+        assertFalse(worker.reconcileFailedCreationBeforeDelete());
+        Mockito.verify(details, Mockito.never()).addDetail(Mockito.anyLong(), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean());
+    }
+    @Test public void alertPreflightWithUntrackedNetworkVmIsPreserved() {
+        legacyAlertPreflight();
+        Mockito.when(worker.vmInstanceDao.listNonRemovedVmsByTypeAndNetwork(Mockito.eq(7L), Mockito.any()))
+                .thenReturn(Collections.singletonList(Mockito.mock(VMInstanceVO.class)));
+        rejectsWithoutCleanupMarker();
+    }
+
 }

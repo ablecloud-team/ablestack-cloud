@@ -110,9 +110,11 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
     protected boolean reconcileFailedCreationBeforeDelete() {
         final boolean created = kubernetesCluster.getState() == KubernetesCluster.State.Created;
         final boolean error = kubernetesCluster.getState() == KubernetesCluster.State.Error;
-        if (!created && !error) { return false; }
+        final boolean starting = kubernetesCluster.getState() == KubernetesCluster.State.Starting;
+        final boolean alert = kubernetesCluster.getState() == KubernetesCluster.State.Alert;
+        if (!created && !error && !starting && !alert) { return false; }
         List<KubernetesClusterVmMapVO> nodes = kubernetesClusterVmMapDao.listByClusterId(kubernetesCluster.getId());
-        if (!CollectionUtils.isEmpty(nodes)) {
+        if (!CollectionUtils.isEmpty(nodes) && !starting) {
             return error && reconcileUninstalledNodeProvisioningFailure(nodes);
         }
         SearchBuilder<AsyncJobVO> builder = asyncJobDao.createSearchBuilder();
@@ -131,7 +133,17 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
                 || jobs.stream().anyMatch(job -> job.getStatus() == AsyncJob.Status.IN_PROGRESS)) {
             throw new CloudRuntimeException("Cannot delete a Created Kubernetes cluster without a verified failed creation job and no active creation");
         }
-        if (error && !isVerifiedPreKubernetesProvisioningFailure(last)) {
+        if (starting && !CollectionUtils.isEmpty(nodes)) {
+            // A failed legacy create may have initialized the API. Change only its stale state;
+            // node, CSI and Service cleanup still use the complete normal validation path.
+            if (!stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.CreateFailed)) {
+                throw new CloudRuntimeException("Cannot reconcile the completed failed Kubernetes creation state");
+            }
+            kubernetesCluster = kubernetesClusterDao.findById(kubernetesCluster.getId());
+            return true;
+        }
+        if ((error || alert || starting) && !isVerifiedPreKubernetesProvisioningFailure(last)
+                && !isVerifiedPreflightWithoutBootstrap()) {
             return false;
         }
         if (!CollectionUtils.isEmpty(vmInstanceDao.listNonRemovedVmsByTypeAndNetwork(kubernetesCluster.getNetworkId(), VirtualMachine.Type.User))) {
@@ -143,8 +155,20 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
                 || !stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.CreateFailed))) {
             throw new CloudRuntimeException("Cannot reconcile the failed unprovisioned Kubernetes creation state");
         }
+        if (starting && !stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.CreateFailed)) {
+            throw new CloudRuntimeException("Cannot reconcile the completed failed Kubernetes creation state");
+        }
         kubernetesCluster = kubernetesClusterDao.findById(kubernetesCluster.getId());
         return true;
+    }
+
+    protected boolean isVerifiedPreflightWithoutBootstrap() {
+        KubernetesClusterDetailsVO phase = kubernetesClusterDetailsDao.findDetail(kubernetesCluster.getId(), "lifecycle.provisioning.phase");
+        return kubernetesCluster.getClusterType() == KubernetesCluster.ClusterType.CloudManaged
+                && phase != null && "Preflight".equals(phase.getValue())
+                && StringUtils.isBlank(kubernetesCluster.getEndpoint())
+                && kubernetesClusterDetailsDao.findDetail(kubernetesCluster.getId(), "lifecycle.bootstrap.started") == null
+                && !ownershipCleanupEnabled();
     }
 
     protected boolean reconcileUninstalledNodeProvisioningFailure(List<KubernetesClusterVmMapVO> nodes) {
@@ -704,7 +728,8 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
 
     protected boolean isUnprovisionedFailure() {
         if (!KubernetesCluster.State.Error.equals(kubernetesCluster.getState())
-                && !KubernetesCluster.State.Destroying.equals(kubernetesCluster.getState())) {
+                && !KubernetesCluster.State.Destroying.equals(kubernetesCluster.getState())
+                && !KubernetesCluster.State.Alert.equals(kubernetesCluster.getState())) {
             return false;
         }
         KubernetesClusterDetailsVO phase = kubernetesClusterDetailsDao.findDetail(kubernetesCluster.getId(), "lifecycle.provisioning.phase");
@@ -713,8 +738,14 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
             return receipt != null && StringUtils.isNotBlank(receipt.getValue())
                     && kubernetesClusterDetailsDao.findDetail(kubernetesCluster.getId(), "lifecycle.bootstrap.started") == null;
         }
-        return phase != null && "Preflight".equals(phase.getValue())
-                && CollectionUtils.isEmpty(kubernetesClusterVmMapDao.listByClusterId(kubernetesCluster.getId()));
+        if (phase == null || !"Preflight".equals(phase.getValue())
+                || !CollectionUtils.isEmpty(kubernetesClusterVmMapDao.listByClusterId(kubernetesCluster.getId()))
+                || StringUtils.isNotBlank(kubernetesCluster.getEndpoint())
+                || kubernetesClusterDetailsDao.findDetail(kubernetesCluster.getId(), "lifecycle.bootstrap.started") != null
+                || ownershipCleanupEnabled()) { return false; }
+        KubernetesClusterDetailsVO receipt = kubernetesClusterDetailsDao.findDetail(kubernetesCluster.getId(), "lifecycle.creation.failed.job");
+        return kubernetesCluster.getState() != KubernetesCluster.State.Alert
+                || (receipt != null && StringUtils.isNotBlank(receipt.getValue()));
     }
 
     protected boolean failedBeforeApiBootstrap() {
