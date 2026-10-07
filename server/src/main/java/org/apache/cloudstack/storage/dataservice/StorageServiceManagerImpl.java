@@ -453,7 +453,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         importConfigurationIdentity(instance, operationUuid, parseJsonObject(new String(capsule, java.nio.charset.StandardCharsets.UTF_8)), key);
     }
     protected void cleanupConfigurationIdentityCheckpoint(StorageServiceOperationVO operation) {
-        if (operation == null || "RECOVERY_REQUIRED".equals(operation.getState()) || operation.getPreviousSnapshotJson() == null) return;
+        if (operation == null || !Set.of("COMPLETE", "BLOCKED", "ROLLED_BACK", "RECONCILED_SUPERSEDED").contains(operation.getState())
+                || operation.getPreviousSnapshotJson() == null) return;
         JsonObject snapshot = parseJsonObject(operation.getPreviousSnapshotJson());
         if (!snapshot.has("nativeIdentityCapsule")) return;
         JsonObject reference = snapshot.getAsJsonObject("nativeIdentityCapsule");
