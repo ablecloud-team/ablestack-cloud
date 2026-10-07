@@ -170,7 +170,9 @@ public class KubernetesClusterRemoveWorker extends KubernetesClusterActionWorker
             receipts.add(receipt.encode());
             if (network.getVpcId() == null) {
                 for (FirewallRuleVO firewall : firewallRulesDao.listByIpPurposeProtocolAndNotRevoked(publicIp.getId(), FirewallRule.Purpose.Firewall, "tcp")) {
-                    if (firewall.getSourcePortStart() == rule.getSourcePortStart() && firewall.getSourcePortEnd() == rule.getSourcePortEnd()) {
+                    if (rule.getSourcePortStart() != null && rule.getSourcePortEnd() != null
+                            && Objects.equals(firewall.getSourcePortStart(), rule.getSourcePortStart())
+                            && Objects.equals(firewall.getSourcePortEnd(), rule.getSourcePortEnd())) {
                         KubernetesOwnedResourceReceipt firewallReceipt = findOwnedNativeRule(firewall, network, publicIp);
                         if (firewallReceipt != null && !receipts.contains(firewallReceipt.encode())) {
                             receipts.add(firewallReceipt.encode());

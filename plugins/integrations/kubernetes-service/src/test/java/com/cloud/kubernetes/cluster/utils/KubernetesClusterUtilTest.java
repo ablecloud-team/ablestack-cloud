@@ -25,6 +25,38 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class KubernetesClusterUtilTest {
 
+    @Test
+    public void nativeReadyUsesHealthConditionForOperatorCordonedNode() throws Exception {
+        try (org.mockito.MockedStatic<com.cloud.utils.ssh.SshHelper> ssh = org.mockito.Mockito.mockStatic(com.cloud.utils.ssh.SshHelper.class)) {
+            String command = String.format(KubernetesClusterUtil.CLUSTER_NODE_READY_COMMAND, "owned-control");
+            ssh.when(() -> com.cloud.utils.ssh.SshHelper.sshExecute("192.0.2.10", 2222, "cloud", null, null, command, 10000, 10000, 20000))
+                    .thenReturn(new Pair<>(true, "True\n"));
+            Assert.assertTrue(KubernetesClusterUtil.isKubernetesClusterNodeReady(null, "192.0.2.10", 2222, "cloud", null, "owned-control"));
+            Assert.assertTrue(command.contains("status.conditions"));
+            Assert.assertFalse(command.contains("awk"));
+        }
+    }
+
+    @Test
+    public void nativeNotReadyAndFailedQueryCannotPass() throws Exception {
+        try (org.mockito.MockedStatic<com.cloud.utils.ssh.SshHelper> ssh = org.mockito.Mockito.mockStatic(com.cloud.utils.ssh.SshHelper.class)) {
+            String command = String.format(KubernetesClusterUtil.CLUSTER_NODE_READY_COMMAND, "owned-control");
+            ssh.when(() -> com.cloud.utils.ssh.SshHelper.sshExecute("192.0.2.10", 2222, "cloud", null, null, command, 10000, 10000, 20000))
+                    .thenReturn(new Pair<>(true, "False"), new Pair<>(false, "True"), new Pair<>(true, "Unknown"), new Pair<>(true, null));
+            for (int i = 0; i < 4; i++) {
+                Assert.assertFalse(KubernetesClusterUtil.isKubernetesClusterNodeReady(null, "192.0.2.10", 2222, "cloud", null, "owned-control"));
+            }
+        }
+    }
+
+    @Test
+    public void invalidNodeNameCannotExecuteReadinessCommand() throws Exception {
+        try (org.mockito.MockedStatic<com.cloud.utils.ssh.SshHelper> ssh = org.mockito.Mockito.mockStatic(com.cloud.utils.ssh.SshHelper.class)) {
+            Assert.assertFalse(KubernetesClusterUtil.isKubernetesClusterNodeReady(null, "192.0.2.10", 2222, "cloud", null, "owned;command"));
+            ssh.verifyNoInteractions();
+        }
+    }
+
     private void executeThrowAndTestVersionMatch() {
         Pair<Boolean, String> resultPair = null;
         Pair<Boolean, String> result = KubernetesClusterUtil.clusterNodeVersionMatches(resultPair, "1.24.0");

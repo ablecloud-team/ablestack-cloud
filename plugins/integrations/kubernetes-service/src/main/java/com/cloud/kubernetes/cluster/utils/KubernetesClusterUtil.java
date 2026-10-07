@@ -48,20 +48,23 @@ public class KubernetesClusterUtil {
 
     protected static Logger LOGGER = LogManager.getLogger(KubernetesClusterUtil.class);
 
-    public static final String CLUSTER_NODE_READY_COMMAND = "sudo /opt/bin/kubectl get nodes | awk '{if ($1 == \"%s\" && $2 == \"Ready\") print $1}'";
+    public static final String CLUSTER_NODE_READY_COMMAND = "sudo /opt/bin/kubectl get node %s --request-timeout=20s -o 'jsonpath={.status.conditions[?(@.type==\"Ready\")].status}'";
     public static final String CLUSTER_NODE_VERSION_COMMAND = "sudo /opt/bin/kubectl get nodes | awk '{if ($1 == \"%s\") print $5}'";
 
     public static boolean isKubernetesClusterNodeReady(final KubernetesCluster kubernetesCluster, String ipAddress, int port,
                                                        String user, File sshKeyFile, String nodeName) throws Exception {
+        if (nodeName == null || !nodeName.matches("[a-zA-Z0-9](?:[a-zA-Z0-9.-]*[a-zA-Z0-9])?")) {
+            return false;
+        }
         Pair<Boolean, String> result = SshHelper.sshExecute(ipAddress, port,
                 user, sshKeyFile, null,
-                String.format(CLUSTER_NODE_READY_COMMAND, nodeName.toLowerCase()),
+                String.format(CLUSTER_NODE_READY_COMMAND, nodeName.toLowerCase(java.util.Locale.ROOT)),
                 10000, 10000, 20000);
-        if (result.first() && nodeName.equals(result.second().trim())) {
+        if (result != null && Boolean.TRUE.equals(result.first()) && "True".equals(org.apache.commons.lang3.StringUtils.trim(result.second()))) {
             return true;
         }
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(String.format("Failed to retrieve status for node: %s in Kubernetes cluster: %s. Output: %s", nodeName, kubernetesCluster, result.second()));
+            LOGGER.debug("Native Ready condition is unavailable for node {} in Kubernetes cluster {}", nodeName, kubernetesCluster);
         }
         return false;
     }
