@@ -236,6 +236,14 @@ import com.cloud.projects.ProjectManager;
 import com.cloud.resource.ResourceManager;
 import com.cloud.service.ServiceOfferingVO;
 import com.cloud.service.dao.ServiceOfferingDao;
+import com.cloud.storage.Volume;
+import com.cloud.storage.VolumeVO;
+import com.cloud.storage.dao.DiskOfferingDao;
+import com.cloud.storage.dao.VolumeDao;
+import com.cloud.storage.dao.StoragePoolTagsDao;
+import com.cloud.vm.dao.DomainRouterDao;
+import com.cloud.network.vpc.dao.VpcDao;
+import com.cloud.network.vpc.dao.VpcOfferingDao;
 import com.cloud.storage.VMTemplateVO;
 import com.cloud.storage.dao.VMTemplateDao;
 import com.cloud.template.TemplateApiService;
@@ -362,6 +370,18 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
     protected AffinityGroupDao affinityGroupDao;
     @Inject
     protected AffinityGroupVMMapDao affinityGroupVMMapDao;
+    @Inject
+    protected DiskOfferingDao kubernetesDiskOfferingDao;
+    @Inject
+    protected DomainRouterDao kubernetesRouterDao;
+    @Inject
+    protected VolumeDao kubernetesVolumeDao;
+    @Inject
+    protected StoragePoolTagsDao kubernetesStoragePoolTagsDao;
+    @Inject
+    protected VpcDao kubernetesVpcDao;
+    @Inject
+    protected VpcOfferingDao kubernetesVpcOfferingDao;
     @Inject
     protected ServiceOfferingDao serviceOfferingDao;
     @Inject
@@ -1228,6 +1248,7 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
         validateDockerRegistryParams(dockerRegistryUserName, dockerRegistryPassword, dockerRegistryUrl);
 
         Network network = validateAndGetNetworkForKubernetesCreateParameters(networkId);
+        validateKubernetesStoragePreflight(network, serviceOfferingNodeTypeMap, defaultServiceOfferingId, cmd.getEtcdNodes());
 
         if (StringUtils.isNotEmpty(externalLoadBalancerIpAddress)) {
             NsxProviderVO nsxProviderVO = nsxProviderDao.findByZoneId(zone.getId());
@@ -1248,6 +1269,64 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
         if (!KubernetesClusterExperimentalFeaturesEnabled.value() && !StringUtils.isAllEmpty(dockerRegistryUrl, dockerRegistryUserName, dockerRegistryPassword)) {
             throw new CloudRuntimeException(String.format("Private registry for the Kubernetes cluster is an experimental feature. Use %s configuration for enabling experimental features", KubernetesClusterExperimentalFeaturesEnabled.key()));
         }
+    }
+
+    protected Set<String> strictRootStorageTags(ServiceOffering offering) {
+        if (offering == null || !Boolean.TRUE.equals(offering.getDiskOfferingStrictness())) {
+            return Collections.emptySet();
+        }
+        com.cloud.offering.DiskOffering disk = offering.getDiskOfferingId() == null ? null
+                : kubernetesDiskOfferingDao.findById(offering.getDiskOfferingId());
+        if (disk == null) {
+            throw new InvalidParameterValueException("Kubernetes strict root disk offering is unavailable");
+        }
+        if (disk.isComputeOnly()) { return Collections.emptySet(); }
+        return Arrays.stream(StringUtils.defaultString(disk.getTags()).split(","))
+                .map(String::trim).filter(tag -> !tag.isEmpty()).collect(Collectors.toSet());
+    }
+
+    protected void requireRouterStorageTags(ServiceOffering offering, Set<String> required) {
+        if (!strictRootStorageTags(offering).containsAll(required)) {
+            throw new InvalidParameterValueException("Kubernetes node root storage constraints do not match the virtual router. "
+                    + "Select an existing dedicated network/router with a strict disk offering matching tags: " + String.join(",", required));
+        }
+    }
+
+    protected void validateKubernetesStoragePreflight(Network network, Map<String, Long> nodeOfferings, Long defaultOfferingId, Long etcdNodes) {
+        Set<String> required = new HashSet<>();
+        for (String type : CLUSTER_NODES_TYPES_LIST) {
+            if (ETCD.name().equalsIgnoreCase(type) && (etcdNodes == null || etcdNodes == 0)) { continue; }
+            Long id = nodeOfferings.getOrDefault(type, defaultOfferingId);
+            required.addAll(strictRootStorageTags(id == null ? null : serviceOfferingDao.findById(id)));
+        }
+        if (required.isEmpty() || (network != null && (network.getGuestType() == Network.GuestType.Shared || routedIpv4Manager.isRoutedNetwork(network)))) {
+            return;
+        }
+        List<com.cloud.vm.DomainRouterVO> routers = network == null ? Collections.emptyList()
+                : network.getVpcId() == null ? kubernetesRouterDao.findByNetwork(network.getId()) : kubernetesRouterDao.listByVpcId(network.getVpcId());
+        if (!routers.isEmpty()) {
+            for (com.cloud.vm.DomainRouterVO router : routers) {
+                requireRouterStorageTags(serviceOfferingDao.findById(router.getServiceOfferingId()), required);
+                for (VolumeVO root : kubernetesVolumeDao.findByInstanceAndType(router.getId(), Volume.Type.ROOT)) {
+                    if (root.getRemoved() == null && root.getState() != Volume.State.Destroy && root.getPoolId() != null
+                            && !kubernetesStoragePoolTagsDao.getStoragePoolTags(root.getPoolId()).containsAll(required)) {
+                        throw new InvalidParameterValueException("Existing Kubernetes network router root volume violates the selected storage tags");
+                    }
+                }
+            }
+            return;
+        }
+        Long routerOfferingId = null;
+        if (network != null && network.getVpcId() != null) {
+            com.cloud.network.vpc.Vpc vpc = kubernetesVpcDao.findById(network.getVpcId());
+            com.cloud.network.vpc.VpcOffering offering = vpc == null ? null : kubernetesVpcOfferingDao.findById(vpc.getVpcOfferingId());
+            routerOfferingId = offering == null ? null : offering.getServiceOfferingId();
+        } else {
+            NetworkOffering offering = network == null ? networkOfferingDao.findByUniqueName(KubernetesClusterNetworkOffering.value())
+                    : networkOfferingDao.findById(network.getNetworkOfferingId());
+            routerOfferingId = offering == null ? null : offering.getServiceOfferingId();
+        }
+        requireRouterStorageTags(routerOfferingId == null ? null : serviceOfferingDao.findById(routerOfferingId), required);
     }
 
     protected void validateServiceOfferingsForNodeTypes(Map<String, Long> map,

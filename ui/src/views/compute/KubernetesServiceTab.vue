@@ -73,62 +73,38 @@
           </a-timeline>
         </a-card>
         <a-card :title="$t('label.kubernetes.dashboard')">
-          <p><strong>Note:</strong> CloudStack Kubernetes clusters use <strong>Headlamp</strong> dashboard (deployed in <code>kube-system</code> namespace). For backward compatibility with older clusters using Kubernetes Dashboard, please check your cluster configuration.</p>
+          <p>{{ $t('message.kubernetes.headlamp.intro') }}</p>
           <a-timeline>
             <a-timeline-item>
-              <p>
-                <strong>Access Headlamp Dashboard (new clusters)</strong><br><br>
-                <strong>Step 1:</strong> Run port-forward command:<br>
-                <code><b>kubectl --kubeconfig /custom/path/kube.conf port-forward -n kube-system service/headlamp 8080:80</b></code><br><br>
-                <strong>Step 2:</strong> Open in your browser:<br>
-                <a :href="headlampDashboardUrl"><code>{{ headlampDashboardUrl }}</code></a>
-                <br>{{ $t('label.kubernetes.headlamp.locale') }}
-              </p>
+              <strong>{{ $t('label.kubernetes.headlamp.access') }}</strong>
+              <p>{{ $t('message.kubernetes.headlamp.forward') }}</p>
+              <code>kubectl --kubeconfig /custom/path/kube.conf port-forward -n kube-system service/headlamp 8080:80</code>
+              <p><a :href="headlampDashboardUrl">{{ headlampDashboardUrl }}</a></p>
+              <p>{{ $t('label.kubernetes.headlamp.locale') }}</p>
             </a-timeline-item>
             <a-timeline-item>
-              <p>
-                <strong>Access Kubernetes Dashboard (legacy clusters)</strong><br><br>
-                <strong>Step 1:</strong> {{ $t('label.run.proxy.locally') }}<br>
-                <code><b>kubectl --kubeconfig /custom/path/kube.conf proxy</b></code><br><br>
-                <strong>Step 2:</strong> {{ $t('label.open.url') }}<br>
-                <a href="http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/"><code>http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/</code></a>
-              </p>
+              <strong>{{ $t('label.kubernetes.headlamp.readonly') }}</strong>
+              <p>{{ $t('message.kubernetes.headlamp.permissions') }}</p>
+              <a-textarea :value="dashboardAccessCommands('kube-system', 'mold-headlamp-view')" :rows="5" readonly />
+              <p>{{ $t('message.kubernetes.headlamp.expiry') }}</p>
+              <p>{{ $t('label.kubernetes.headlamp.token.required') }}</p>
             </a-timeline-item>
             <a-timeline-item>
-              <p>
-                <strong>Create Access Token for Headlamp (new clusters)</strong>
-              </p>
-              <p v-html="$t('label.kubernetes.dashboard.create.token')"></p>
-              <p v-html="$t('label.kubernetes.dashboard.create.token.desc')"></p>
-              <a-textarea :value="'kubectl --kubeconfig /custom/path/kube.conf apply -f - <<EOF\napiVersion: v1\nkind: ServiceAccount\nmetadata:\n  name: headlamp-admin\n  namespace: kube-system\n---\napiVersion: rbac.authorization.k8s.io/v1\nkind: ClusterRoleBinding\nmetadata:\n  name: headlamp-admin\nroleRef:\n  apiGroup: rbac.authorization.k8s.io\n  kind: ClusterRole\n  name: cluster-admin\nsubjects:\n- kind: ServiceAccount\n  name: headlamp-admin\n  namespace: kube-system\n---\napiVersion: v1\nkind: Secret\ntype: kubernetes.io/service-account-token\nmetadata:\n  name: headlamp-admin-token\n  namespace: kube-system\n  annotations:\n    kubernetes.io/service-account.name: headlamp-admin\nEOF'" :rows="12" readonly />
-              <br><br>
-              <p>{{ $t('label.token.for.dashboard.login') }}:</p>
-              <code><b>kubectl --kubeconfig /custom/path/kube.conf describe secret headlamp-admin-token -n kube-system</b></code>
+              <strong>{{ $t('label.kubernetes.dashboard.legacy') }}</strong>
+              <p>{{ $t('message.kubernetes.dashboard.legacy') }}</p>
+              <code>kubectl --kubeconfig /custom/path/kube.conf proxy</code>
+              <p><a href="http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/">http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/</a></p>
+              <a-textarea :value="dashboardAccessCommands('kubernetes-dashboard', 'mold-dashboard-view')" :rows="5" readonly />
             </a-timeline-item>
             <a-timeline-item>
-              <p>
-                <strong>Create Access Token for Kubernetes Dashboard (legacy clusters)</strong>
-              </p>
-              <p v-html="$t('label.kubernetes.dashboard.create.token.desc')"></p>
-              <a-textarea :value="'kubectl --kubeconfig /custom/path/kube.conf apply -f - <<EOF\napiVersion: v1\nkind: ServiceAccount\nmetadata:\n  name: kubernetes-dashboard-admin-user\n  namespace: kubernetes-dashboard\n---\napiVersion: rbac.authorization.k8s.io/v1\nkind: ClusterRoleBinding\nmetadata:\n  name: kubernetes-dashboard-admin-user\nroleRef:\n  apiGroup: rbac.authorization.k8s.io\n  kind: ClusterRole\n  name: cluster-admin\nsubjects:\n- kind: ServiceAccount\n  name: kubernetes-dashboard-admin-user\n  namespace: kubernetes-dashboard\n---\napiVersion: v1\nkind: Secret\ntype: kubernetes.io/service-account-token\nmetadata:\n  name: kubernetes-dashboard-token\n  namespace: kubernetes-dashboard\n  annotations:\n    kubernetes.io/service-account.name: kubernetes-dashboard-admin-user\nEOF'" :rows="12" readonly />
-              <br><br>
-              <p>{{ $t('label.token.for.dashboard.login') }}:</p>
-              <code><b>kubectl --kubeconfig /custom/path/kube.conf describe secret kubernetes-dashboard-token -n kubernetes-dashboard</b></code>
-            </a-timeline-item>
-            <a-timeline-item>
-              <p>
-                <strong>Important Notes:</strong><br>
-                • <strong>Port-forwarding is recommended for Headlamp</strong> - simpler and more reliable than kubectl proxy<br>
-                • {{ $t('label.kubernetes.headlamp.token.required') }}<br>
-                • For Kubernetes 1.24+, service account tokens are no longer auto-generated - use the Secret resource shown above or <code>kubectl create token</code> command<br>
-                • <strong>Cluster-admin role grants full control</strong> - use with caution and only for trusted administrators<br>
-                • Keep the port-forward command running while using the dashboard (press Ctrl+C to stop)
-              </p>
+              <strong>{{ $t('label.kubernetes.headlamp.cleanup') }}</strong>
+              <p>{{ $t('message.kubernetes.headlamp.cleanup') }}</p>
+              <a-textarea :value="dashboardCleanupCommands" :rows="4" readonly />
             </a-timeline-item>
           </a-timeline>
           <p>{{ $t('label.more.access.dashboard.ui') }}:
-            <a href="https://headlamp.dev/docs/latest/">Headlamp Documentation</a> |
-            <a href="https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/#accessing-the-dashboard-ui">Kubernetes Dashboard (Legacy)</a>
+            <a href="https://headlamp.dev/docs/latest/">Headlamp</a> |
+            <a href="https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/">Kubernetes Dashboard</a>
           </p>
         </a-card>
         <a-card :title="$t('label.access.kubernetes.nodes')">
@@ -193,8 +169,8 @@
           :loading="networkLoading"
           :protected-management-ports="kubernetesManagementPorts" />
       </a-tab-pane>
-      <a-tab-pane :tab="$t('label.loadbalancing')" key="loadbalancing" v-if="publicIpAddress">
-        <LoadBalancing :resource="publicIpAddress" :loading="networkLoading" />
+      <a-tab-pane :tab="$t('label.loadbalancing')" key="loadbalancing" v-if="resource.networkid">
+        <KubernetesLoadBalancers :resource="resource" />
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.events')" key="events" v-if="'listEvents' in $store.getters.apis">
         <events-tab :resource="resource" resourceType="KubernetesCluster" :loading="loading" />
@@ -217,7 +193,8 @@ import { mixinDevice } from '@/utils/mixin.js'
 import DetailsTab from '@/components/view/DetailsTab'
 import FirewallRules from '@/views/network/FirewallRules'
 import PortForwarding from '@/views/network/PortForwarding'
-import LoadBalancing from '@/views/network/LoadBalancing'
+import KubernetesLoadBalancers from '@/views/compute/KubernetesLoadBalancers'
+import { clusterApiAddress } from '@/utils/kubernetesLoadBalancers'
 import Status from '@/components/widgets/Status'
 import AnnotationsTab from '@/components/view/AnnotationsTab'
 import EventsTab from '@/components/view/EventsTab'
@@ -228,7 +205,7 @@ export default {
     DetailsTab,
     FirewallRules,
     PortForwarding,
-    LoadBalancing,
+    KubernetesLoadBalancers,
     Status,
     AnnotationsTab,
     EventsTab
@@ -308,10 +285,11 @@ export default {
       this.vmColumns = this.vmColumns.filter(x => x.dataIndex !== 'port')
     }
     this.handleFetchData()
-    const self = this
-    window.addEventListener('popstate', function () {
-      self.setCurrentTab()
-    })
+    window.addEventListener('popstate', this.setCurrentTab)
+  },
+  beforeUnmount () {
+    this.nodePortRequest++
+    window.removeEventListener('popstate', this.setCurrentTab)
   },
   watch: {
     resource: {
@@ -327,6 +305,11 @@ export default {
     }
   },
   computed: {
+    dashboardCleanupCommands () {
+      return ['kubectl --kubeconfig /custom/path/kube.conf delete clusterrolebinding mold-headlamp-view mold-dashboard-view --ignore-not-found',
+        'kubectl --kubeconfig /custom/path/kube.conf delete serviceaccount mold-headlamp-view -n kube-system --ignore-not-found',
+        'kubectl --kubeconfig /custom/path/kube.conf delete serviceaccount mold-dashboard-view -n kubernetes-dashboard --ignore-not-found'].join('\n')
+    },
     headlampDashboardUrl () {
       const locale = String(this.$i18n.locale || 'en').replace('_', '-').split('-')[0].toLowerCase()
       const supportedLocales = ['en', 'es', 'fr', 'pt', 'de', 'it', 'zh', 'ko', 'ja', 'hi', 'ta']
@@ -348,6 +331,12 @@ export default {
     this.setCurrentTab()
   },
   methods: {
+    dashboardAccessCommands (namespace, name) {
+      const kubectl = 'kubectl --kubeconfig /custom/path/kube.conf'
+      return [`${kubectl} create serviceaccount ${name} -n ${namespace} --dry-run=client -o yaml | ${kubectl} apply -f -`,
+        `${kubectl} create clusterrolebinding ${name} --clusterrole=view --serviceaccount=${namespace}:${name} --dry-run=client -o yaml | ${kubectl} apply -f -`,
+        `${kubectl} create token ${name} -n ${namespace} --duration=15m`].join('\n')
+    },
     setCurrentTab () {
       this.currentTab = this.$route.query.tab ? this.$route.query.tab : 'details'
     },
@@ -483,7 +472,7 @@ export default {
         if (resource.ipaddressid) params.id = resource.ipaddressid
         const ips = await getAPI('listPublicIpAddresses', params)
         if (!current()) return
-        this.publicIpAddress = ips.listpublicipaddressesresponse?.publicipaddress?.find(ip => ip.issourcenat) || null
+        this.publicIpAddress = ips.listpublicipaddressesresponse?.publicipaddress?.find(ip => resource.ipaddressid ? ip.id === resource.ipaddressid : ip.ipaddress === clusterApiAddress(resource)) || ips.listpublicipaddressesresponse?.publicipaddress?.find(ip => ip.issourcenat) || null
         if (!this.publicIpAddress || !this.$store.getters.apis.listPortForwardingRules) return
         const rules = await listAllKubernetesPortRules(getAPI, this.publicIpAddress.id)
         if (current()) this.nodePortRules = rules

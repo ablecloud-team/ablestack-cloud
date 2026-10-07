@@ -919,8 +919,7 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
             logTransitStateAndThrow(Level.ERROR, String.format("Failed to initialize Kubernetes provider for cluster : %s",
                     kubernetesCluster.getName()), kubernetesCluster.getId(), KubernetesCluster.Event.CreateFailed);
         }
-        boolean readyNodesCountValid = KubernetesClusterUtil.validateKubernetesClusterReadyNodesCount(kubernetesCluster, publicIpAddress, sshPort,
-                getControlNodeLoginUser(), sshKeyFile, startTimeoutTime, 15000);
+        boolean readyNodesCountValid = validateStartedNodes(startTimeoutTime);
         detachIsoKubernetesVMs(clusterVMs);
         if (!readyNodesCountValid) {
             logTransitStateAndThrow(Level.ERROR, String.format("Failed to setup Kubernetes cluster : %s as it does not have desired number of nodes in ready state", kubernetesCluster.getName()), kubernetesCluster.getId(), KubernetesCluster.Event.CreateFailed);
@@ -966,8 +965,14 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
     }
 
     protected boolean validateStartedNodes(long timeout) {
-        return KubernetesClusterUtil.validateKubernetesClusterReadyNodesCount(kubernetesCluster, publicIpAddress, sshPort,
-                getControlNodeLoginUser(), sshKeyFile, timeout, 15000);
+        if (!KubernetesClusterUtil.validateKubernetesClusterReadyNodesCount(kubernetesCluster, publicIpAddress, sshPort,
+                getControlNodeLoginUser(), sshKeyFile, timeout, 15000)) { return false; }
+        for (KubernetesClusterVmMapVO map : getKubernetesClusterVMMaps()) {
+            if (map.isEtcdNode()) { continue; }
+            UserVm vm = userVmDao.findById(map.getVmId());
+            if (vm == null || !waitForNodeNetworkReady(vm, timeout)) { return false; }
+        }
+        return true;
     }
 
     public boolean startStoppedKubernetesCluster(Long domainId, Long accountId) throws CloudRuntimeException {

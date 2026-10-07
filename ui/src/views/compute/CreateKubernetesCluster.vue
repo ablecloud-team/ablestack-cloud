@@ -132,6 +132,10 @@
             v-model:value="form.noderootdisksize"
             :placeholder="apiParams.noderootdisksize.description"/>
         </a-form-item>
+        <KubernetesStoragePreflight
+          :offerings="storageNodeOfferings"
+          :network="networks[form.networkid] || null"
+          :defaultNetworkOffering="cksNetworkOffering" />
         <a-form-item name="networkid" ref="networkid">
           <template #label>
             <tooltip-label :title="$t('label.networkid')" :tooltip="apiParams.networkid.description"/>
@@ -494,11 +498,13 @@ import ResourceIcon from '@/components/view/ResourceIcon'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import UserDataSelection from '@views/compute/wizard/UserDataSelection'
 import OwnershipSelection from '@/views/compute/wizard/OwnershipSelection'
+import KubernetesStoragePreflight from '@/views/compute/KubernetesStoragePreflight'
 
 export default {
   name: 'CreateKubernetesCluster',
   mixins: [mixinForm],
   components: {
+    KubernetesStoragePreflight,
     TooltipLabel,
     ResourceIcon,
     UserDataSelection,
@@ -565,6 +571,15 @@ export default {
     this.keyPairs = [this.emptyEntry]
     this.initForm()
     this.fetchData()
+  },
+  computed: {
+    storageNodeOfferings () {
+      const base = this.serviceOfferings[this.form.serviceofferingid]
+      const roles = this.form.advancedmode
+        ? [['control', 'controlofferingid'], ['worker', 'workerofferingid'], ...(this.form.etcdnodes > 0 ? [['etcd', 'etcdofferingid']] : [])]
+        : [['control/worker', 'serviceofferingid']]
+      return roles.map(([role, field]) => ({ role, offering: this.serviceOfferings[this.form[field]] || base })).filter(item => item.offering)
+    }
   },
   methods: {
     initForm () {

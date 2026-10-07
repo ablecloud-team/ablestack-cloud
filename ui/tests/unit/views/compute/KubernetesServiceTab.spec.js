@@ -107,3 +107,13 @@ test('failed rule read clears stale ports and loading; no index-based fallback i
   state.$t = key => key
   expect(KubernetesServiceTab.methods.sshPortLabel.call(state, { id: 'vm' })).toBe('label.unknown')
 })
+
+test('Headlamp and legacy guidance use view role and bounded TokenRequest, without persistent admin secrets', () => {
+  for (const [namespace, name] of [['kube-system', 'mold-headlamp-view'], ['kubernetes-dashboard', 'mold-dashboard-view']]) {
+    const commands = KubernetesServiceTab.methods.dashboardAccessCommands(namespace, name)
+    expect(commands).toContain('--clusterrole=view')
+    expect(commands).toContain('--duration=15m')
+    expect(commands).toContain(`--serviceaccount=${namespace}:${name}`)
+    expect(commands).not.toMatch(/cluster-admin|describe secret|service-account-token/)
+  }
+})

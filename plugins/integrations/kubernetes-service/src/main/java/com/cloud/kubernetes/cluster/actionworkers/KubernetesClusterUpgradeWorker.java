@@ -402,6 +402,10 @@ public class KubernetesClusterUpgradeWorker extends KubernetesClusterActionWorke
             if (System.currentTimeMillis() > upgradeTimeoutTime) {
                 logTransitStateDetachIsoAndThrow(Level.ERROR, String.format("Failed to upgrade Kubernetes cluster : %s, upgrade action timed out", kubernetesCluster.getName()), kubernetesCluster, clusterVMs, KubernetesCluster.Event.OperationFailed, null);
             }
+            if (!waitForNodeNetworkReady(vm, upgradeTimeoutTime)) {
+                logTransitStateDetachIsoAndThrow(Level.ERROR, "Kubernetes current-boot CNI/kube-proxy readiness timed out; node remains cordoned",
+                        kubernetesCluster, clusterVMs, KubernetesCluster.Event.OperationFailed, null);
+            }
             if (!restoreUpgradeNodeCordon(vm, originallyCordoned)) {
                 logTransitStateDetachIsoAndThrow(Level.ERROR, String.format("Failed to upgrade Kubernetes cluster : %s, unable to uncordon Kubernetes node on VM : %s", kubernetesCluster.getName(), vm.getDisplayName()), kubernetesCluster, clusterVMs, KubernetesCluster.Event.OperationFailed, null);
             }

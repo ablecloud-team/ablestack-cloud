@@ -148,6 +148,9 @@ import static com.cloud.kubernetes.cluster.KubernetesServiceHelper.KubernetesClu
 import static com.cloud.kubernetes.cluster.KubernetesServiceHelper.KubernetesClusterNodeType.WORKER;
 
 
+import com.cloud.kubernetes.cluster.utils.KubernetesNetworkReadiness;
+import org.apache.cloudstack.network.RoutedIpv4Manager;
+
 public class KubernetesClusterActionWorker {
 
     public static final String CLUSTER_NODE_VM_USER = "cloud";
@@ -184,6 +187,8 @@ public class KubernetesClusterActionWorker {
     protected NetworkOrchestrationService networkMgr;
     @Inject
     protected NetworkDao networkDao;
+    @Inject
+    protected RoutedIpv4Manager routedIpv4Manager;
     @Inject
     protected NetworkModel networkModel;
     @Inject
@@ -750,6 +755,65 @@ public class KubernetesClusterActionWorker {
             }
             logger.warn("Failed to detach binaries ISO from VM: {} in the Kubernetes cluster: {} ", vm, kubernetesCluster);
         }
+    }
+
+    protected Pair<Boolean, String> executeNodeNetworkSnapshot() throws Exception {
+        return SshHelper.sshExecute(publicIpAddress, sshPort, getControlNodeLoginUser(), sshKeyFile, null,
+                KubernetesNetworkReadiness.SNAPSHOT_COMMAND, 10000, 10000, 30000);
+    }
+
+    protected Pair<Boolean, String> executeNodeBootQuery(UserVm vm) throws Exception {
+        Network network = networkDao.findById(kubernetesCluster.getNetworkId());
+        String address;
+        int port;
+        if (network != null && (network.getGuestType() == Network.GuestType.Shared || routedIpv4Manager.isRoutedNetwork(network))) {
+            address = vm.getPrivateIpAddress();
+            port = DEFAULT_SSH_PORT;
+        } else {
+            List<com.cloud.network.rules.PortForwardingRuleVO> rules = portForwardingRulesDao.listByVm(vm.getId()).stream()
+                    .filter(rule -> rule.getNetworkId() == kubernetesCluster.getNetworkId()
+                            && rule.getState() != com.cloud.network.rules.FirewallRule.State.Revoke
+                            && "tcp".equalsIgnoreCase(rule.getProtocol()) && rule.getDestinationPortStart() == DEFAULT_SSH_PORT
+                            && rule.getDestinationPortEnd() == DEFAULT_SSH_PORT
+                            && rule.getSourcePortStart().equals(rule.getSourcePortEnd()))
+                    .collect(java.util.stream.Collectors.toList());
+            if (rules.size() != 1) { return new Pair<>(false, ""); }
+            IpAddress ip = ipAddressDao.findById(rules.get(0).getSourceIpAddressId());
+            if (ip == null) { return new Pair<>(false, ""); }
+            address = ip.getAddress().addr();
+            port = rules.get(0).getSourcePortStart();
+        }
+        return SshHelper.sshExecute(address, port, getControlNodeLoginUser(), sshKeyFile, null,
+                KubernetesNetworkReadiness.BOOT_COMMAND, 10000, 10000, 20000);
+    }
+
+    protected boolean waitForNodeNetworkReady(UserVm vm, long timeoutTime) {
+        String name = StringUtils.defaultString(vm.getHostName()).toLowerCase(java.util.Locale.ROOT);
+        if (!name.matches("[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?")) { return false; }
+        String reason = "native readiness query failed";
+        while (System.currentTimeMillis() < timeoutTime) {
+            try {
+                Pair<Boolean, String> boot = executeNodeBootQuery(vm);
+                Pair<Boolean, String> snapshot = executeNodeNetworkSnapshot();
+                if (boot != null && snapshot != null && Boolean.TRUE.equals(boot.first()) && Boolean.TRUE.equals(snapshot.first())) {
+                    String[] fields = StringUtils.trimToEmpty(boot.second()).split("\\s+");
+                    if (fields.length == 2) {
+                        reason = KubernetesNetworkReadiness.failureReason(snapshot.second(), name, vm.getUuid(), fields[0],
+                                Long.parseLong(fields[1]), java.time.Instant.now().getEpochSecond());
+                        if (reason == null) { return true; }
+                    }
+                }
+            } catch (Exception error) {
+                reason = "native readiness query failed";
+            }
+            logger.debug("Kubernetes node {} readiness gate: {}", vm.getUuid(), reason);
+            try { Thread.sleep(15000); } catch (InterruptedException error) {
+                Thread.currentThread().interrupt();
+                return false;
+            }
+        }
+        logger.warn("Kubernetes node {} readiness timed out: {}. Cordon and runtime resources are preserved.", vm.getUuid(), reason);
+        return false;
     }
 
     protected List<KubernetesClusterVmMapVO> getKubernetesClusterVMMaps() {
