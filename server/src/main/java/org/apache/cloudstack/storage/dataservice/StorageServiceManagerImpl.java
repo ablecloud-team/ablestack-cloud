@@ -1263,6 +1263,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         configJson = buildFileShareDirectoryConfigJson(configJson, backingVolume, importMode, cmd.getCreateDirectory());
         configJson = storeRelativeSharePath(configJson, cmd.getRelativePath());
         validateJsonObjectConfigOrThrow(configJson, "SMB share " + share.getUuid());
+        preflightSmbCreationPolicy(instance, share, parseJsonObject(configJson));
         share.setConfigJson(configJson);
         share.setState(StorageServiceInstance.ResourceState.Updating);
         storageFileShareDao.update(share.getId(), share);
@@ -5215,6 +5216,16 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 return;
             }
         }
+    }
+
+    protected void preflightSmbCreationPolicy(final StorageServiceInstanceVO instance, final StorageFileShareVO share, final JsonObject config) {
+        if (instance.getVmId() == null || (Integer.parseInt(config.get("forceCreateMode").getAsString(), 8) == 0
+                && Integer.parseInt(config.get("forceDirectoryMode").getAsString(), 8) == 0)) return;
+        final JsonObject payload = new JsonObject();final JsonArray shares = new JsonArray();final JsonObject item = new JsonObject();
+        item.addProperty("path", resolveSmbRuntimeBackingPath(instance, share));item.add("config", config);shares.add(item);payload.add("shares", shares);
+        final StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
+                "smb share preflight", GSON.toJson(payload), 30, Collections.emptySet()));
+        if (!result.isSuccess()) throw new InvalidParameterValueException("SMB creation permissions failed POSIX ACL preflight: " + result.getDetails());
     }
 
     protected String buildSmbConfigJson(final String currentConfig, final Boolean readOnly, final Boolean browseable, final Boolean guestOk,

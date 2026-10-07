@@ -4798,8 +4798,9 @@ PY
 
 apply_smb_shares() {
   local payload_file="$1"
+  local mode="${2:-apply}"
 
-  python3 - "$payload_file" <<'PY'
+  python3 - "$payload_file" "$mode" <<'PY'
 import json
 import ipaddress
 import grp
@@ -4892,6 +4893,28 @@ def smb_creation_lines(policy):
             "   directory mask = " + policy["directoryMask"],
             "   force directory mode = " + policy["forceDirectoryMode"],
             "   inherit permissions = " + ("yes" if policy["inheritPermissions"] else "no")]
+
+def smb_creation_acl_preflight(path, policy):
+    if not int(policy["forceCreateMode"], 8) and not int(policy["forceDirectoryMode"], 8):
+        return {"state": "COMPATIBLE", "defaultAclMode": None}
+    if not os.path.isdir(path):
+        return {"state": "NEW_DIRECTORY", "defaultAclMode": None}
+    observed = run(["getfacl", "-cpn", path], stdout=subprocess.PIPE, text=True)
+    entries = {}
+    for line in observed.stdout.splitlines():
+        fields = line.split(":")
+        if len(fields) == 4 and fields[0] == "default" and not fields[2]:
+            entries[fields[1]] = fields[3].split()[0]
+    if not entries:
+        return {"state": "COMPATIBLE", "defaultAclMode": None}
+    def bits(value):
+        return (4 if "r" in value else 0) | (2 if "w" in value else 0) | (1 if "x" in value else 0)
+    allowed = (bits(entries.get("user", "---")) << 6) | (bits(entries.get("mask", entries.get("group", "---"))) << 3) | bits(entries.get("other", "---"))
+    for key in ("forceCreateMode", "forceDirectoryMode"):
+        if int(policy[key], 8) & ~allowed:
+            raise RuntimeError("SMB forced creation mode conflicts with existing default POSIX ACL at " + path
+                               + "; default ACL permits " + format(allowed, "04o") + ". Review the common directory policy before changing permissions.")
+    return {"state": "COMPATIBLE", "defaultAclMode": format(allowed, "04o")}
 
 def safe_share_name(value):
     value = str(value or "")
@@ -5143,6 +5166,19 @@ def verify_share_mount_boundary(path, root):
         if os.stat(current).st_dev != device or observed.returncode != 0 or observed.stdout.strip() != mount.stdout.strip():
             raise RuntimeError("Share backing path crosses a filesystem or mount boundary")
 
+if sys.argv[2] == "preflight":
+    observations = []
+    for share in payload.get("shares", []):
+        config = share.get("config") or {}
+        path = share.get("path") or config.get("backingPath")
+        if not path or str(path).startswith("/export/"):
+            raise ValueError("Creation preflight requires the canonical managed backing path")
+        if config.get("relativeSharePath") and os.path.isdir(path):
+            verify_share_mount_boundary(path, config.get("volumeMountPath"))
+        observations.append(smb_creation_acl_preflight(path, smb_creation_policy(config)))
+    print(json.dumps({"success": True, "creationPolicyPreflight": observations}))
+    raise SystemExit(0)
+
 quota_state = {}
 access_state = {}
 enabled = bool(payload.get("enabled", True))
@@ -5167,6 +5203,7 @@ for share in payload.get("shares", []):
     if config.get("relativeSharePath"):
         verify_share_mount_boundary(path, config.get("volumeMountPath"))
     creation_policy = smb_creation_policy(config)
+    smb_creation_acl_preflight(path, creation_policy)
     previous = previous_access.get(str(share.get("uuid") or name), {})
     directory_mode = apply_directory_policy(path, config, cross_protocol, previous)
     remove_stale_managed_smb_acls(path, share.get("acls", []), previous)
@@ -5276,6 +5313,8 @@ with open(os.path.join(state_dir, "smb-access.json"), "w", encoding="utf-8") as 
 run(["testparm", "-s"], stdout=subprocess.DEVNULL)
 print(json.dumps({"success": True, "shares": len(payload.get("shares", [])), "quotas": len(quota_state), "adJoined": ad_joined, "netbiosName": netbios_name, "access": access_state}))
 PY
+
+  if [[ "$mode" == "preflight" ]]; then return 0; fi
 
   if command -v systemctl >/dev/null 2>&1; then
     for unit in smbd nmbd; do
@@ -7037,6 +7076,9 @@ PYIDMAP
     fi
     log_command "$command $subcommand $action" "$payload"
     case "$subcommand $action" in
+      "share preflight")
+        apply_smb_shares "$payload" "preflight"
+        ;;
       "share apply")
         apply_smb_shares "$payload"
         ;;
