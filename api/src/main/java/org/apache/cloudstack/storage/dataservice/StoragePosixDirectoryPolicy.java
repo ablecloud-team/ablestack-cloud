@@ -17,7 +17,7 @@
 
 package org.apache.cloudstack.storage.dataservice;
 
-public interface StoragePosixDirectoryPolicy {
+public interface StoragePosixDirectoryPolicy extends org.apache.cloudstack.api.Identity, org.apache.cloudstack.api.InternalIdentity {
     long getId();
     String getUuid();
     long getInstanceId();
