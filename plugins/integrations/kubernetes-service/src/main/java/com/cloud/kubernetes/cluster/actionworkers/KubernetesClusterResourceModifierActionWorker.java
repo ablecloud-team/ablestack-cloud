@@ -592,8 +592,10 @@ public class KubernetesClusterResourceModifierActionWorker extends KubernetesClu
         List<FirewallRuleVO> firewallRules = firewallRulesDao.listByIpPurposeProtocolAndNotRevoked(publicIp.getId(), FirewallRule.Purpose.Firewall, NetUtils.TCP_PROTO);
         for (FirewallRuleVO firewallRule : firewallRules) {
             PortForwardingRuleVO pfRule = portForwardingRulesDao.findByNetworkAndPorts(networkId, firewallRule.getSourcePortStart(), firewallRule.getSourcePortEnd());
-            if (Objects.equals(firewallRule.getSourcePortStart(), CLUSTER_NODES_DEFAULT_START_SSH_PORT)
-                    || (Objects.nonNull(pfRule) && pfRule.getDestinationPortStart() == DEFAULT_SSH_PORT)) {
+            Network ruleNetwork = networkDao.findById(networkId);
+            if ((Objects.equals(firewallRule.getSourcePortStart(), CLUSTER_NODES_DEFAULT_START_SSH_PORT)
+                    || (Objects.nonNull(pfRule) && Objects.equals(pfRule.getDestinationPortStart(), DEFAULT_SSH_PORT)))
+                    && findOwnedNativeRule(firewallRule, ruleNetwork, publicIp) != null) {
                 rule = firewallRule;
                 firewallService.revokeIngressFwRule(firewallRule.getId(), true);
                 logger.debug("The SSH firewall rule {} with the id {} was revoked", firewallRule.getName(), firewallRule.getId());
@@ -604,37 +606,47 @@ public class KubernetesClusterResourceModifierActionWorker extends KubernetesClu
     }
 
     protected void removePortForwardingRules(final IpAddress publicIp, final Network network, final Account account, final List<Long> removedVMIds) throws ResourceUnavailableException {
-        if (!CollectionUtils.isEmpty(removedVMIds)) {
-            List<PortForwardingRuleVO> pfRules = new ArrayList<>();
-            List<PortForwardingRuleVO> revokedRules = new ArrayList<>();
-            for (Long vmId : removedVMIds) {
-                pfRules.addAll(portForwardingRulesDao.listByNetwork(network.getId()));
-                for (PortForwardingRuleVO pfRule : pfRules) {
-                    if (pfRule.getVirtualMachineId() == vmId) {
-                        portForwardingRulesDao.remove(pfRule.getId());
-                        logger.trace("Marking PF rule {} with Revoke state", pfRule);
-                        pfRule.setState(FirewallRule.State.Revoke);
-                        revokedRules.add(pfRule);
-                        logger.debug("The Port forwarding rule {} with the id {} was removed.", pfRule.getName(), pfRule.getId());
-                        break;
-                    }
-                }
-            }
-            firewallManager.applyRules(revokedRules, false, true);
+        if (CollectionUtils.isEmpty(removedVMIds)) {
+            return;
         }
+        List<PortForwardingRuleVO> selected = new ArrayList<>();
+        for (PortForwardingRuleVO rule : portForwardingRulesDao.listByNetwork(network.getId())) {
+            if (removedVMIds.contains(rule.getVirtualMachineId()) && findOwnedNativeRule(rule, network, publicIp) != null) {
+                selected.add(rule);
+            }
+        }
+        for (PortForwardingRuleVO rule : selected) {
+            portForwardingRulesDao.remove(rule.getId());
+            rule.setState(FirewallRule.State.Revoke);
+        }
+        if (!selected.isEmpty()) {
+            firewallManager.applyRules(selected, false, true);
+        }
+    }
+
+    protected List<PortForwardingRuleVO> planOwnedSshForwardingRules(IpAddress publicIp, Network network, int startPort, int endPort) {
+        List<PortForwardingRuleVO> selected = new ArrayList<>();
+        for (PortForwardingRuleVO rule : portForwardingRulesDao.listByNetwork(network.getId())) {
+            if (rule.getSourcePortStart() != null && startPort <= rule.getSourcePortStart() && rule.getSourcePortStart() <= endPort
+                    && Objects.equals(rule.getDestinationPortStart(), DEFAULT_SSH_PORT)
+                    && findOwnedNativeRule(rule, network, publicIp) != null) {
+                selected.add(rule);
+            }
+        }
+        return selected;
     }
 
     protected void removePortForwardingRules(final IpAddress publicIp, final Network network, final Account account, int startPort, int endPort)
             throws ResourceUnavailableException {
-        List<PortForwardingRuleVO> pfRules = portForwardingRulesDao.listByNetwork(network.getId());
-        for (PortForwardingRuleVO pfRule : pfRules) {
-            if (startPort <= pfRule.getSourcePortStart() && pfRule.getSourcePortStart() <= endPort) {
-                portForwardingRulesDao.remove(pfRule.getId());
-                logger.debug("The Port forwarding rule [{}] with the id [{}] was mark as revoked.", pfRule.getName(), pfRule.getId());
-                pfRule.setState(FirewallRule.State.Revoke);
-            }
+        // Validate the complete selected plan before mutating any rule. Keep manual rules even inside the port range.
+        List<PortForwardingRuleVO> rules = planOwnedSshForwardingRules(publicIp, network, startPort, endPort);
+        for (PortForwardingRuleVO rule : rules) {
+            portForwardingRulesDao.remove(rule.getId());
+            rule.setState(FirewallRule.State.Revoke);
         }
-        firewallManager.applyRules(pfRules, false, true);
+        if (!rules.isEmpty()) {
+            firewallManager.applyRules(rules, false, true);
+        }
     }
 
     protected void removeLoadBalancingRule(final IpAddress publicIp, final Network network,

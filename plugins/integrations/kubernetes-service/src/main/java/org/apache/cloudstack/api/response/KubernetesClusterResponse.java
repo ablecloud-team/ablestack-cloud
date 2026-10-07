@@ -31,6 +31,14 @@ import com.google.gson.annotations.SerializedName;
 @SuppressWarnings("unused")
 @EntityReference(value = {KubernetesCluster.class})
 public class KubernetesClusterResponse extends BaseResponseWithAnnotations implements ControlledViewEntityResponse {
+    @SerializedName("scalenetworkcleanuppending")
+    @Param(description = "Whether a scale operation still requires owned network rule cleanup")
+    private Boolean scaleNetworkCleanupPending;
+
+    public void setScaleNetworkCleanupPending(Boolean value) {
+        scaleNetworkCleanupPending = value;
+    }
+
     @SerializedName("cleanupstatus")
     @Param(description = "Cluster cleanup status; Blocked preserves nodes for retry")
     private String cleanupStatus;

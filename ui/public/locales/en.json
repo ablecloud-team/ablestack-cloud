@@ -1,4 +1,5 @@
 {
+  "message.kubernetes.scale.partial.recovery": "Recover the cluster using the {count} remaining workers and reconcile network rules. Review the previous failed job before continuing.",
   "message.kubernetes.cluster.start.credentials": "Start this cluster? Selecting credential rotation replaces its dedicated controller key with the same feature permissions and revokes the previous key before starting. Other cluster credentials are preserved.",
   "label.rotatecontrollercredentials": "Rotate controller credentials",
   "label.cks.cluster.default.template": "Default Template",

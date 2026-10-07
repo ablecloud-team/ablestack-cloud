@@ -87,6 +87,9 @@ import static com.cloud.kubernetes.cluster.KubernetesServiceHelper.KubernetesClu
 public class KubernetesClusterManagerImplTest {
 
     @Mock
+    com.cloud.kubernetes.cluster.dao.KubernetesClusterDetailsDao kubernetesClusterDetailsDao;
+
+    @Mock
     FirewallRulesDao firewallRulesDao;
 
     @Mock
@@ -1074,4 +1077,43 @@ public class KubernetesClusterManagerImplTest {
         try { kubernetesClusterManager.validateNodes(List.of(81L), 4L, "network", cluster, false); }
         finally { Mockito.verify(kubernetesClusterVmMapDao, Mockito.never()).findByVmId(81L); }
     }
+    @Test
+    public void partialScaleRecoveryRequiresSizeOnlyAndEveryMappedVmRunning() {
+        KubernetesClusterVO cluster = Mockito.mock(KubernetesClusterVO.class);
+        org.apache.cloudstack.api.command.user.kubernetes.cluster.ScaleKubernetesClusterCmd cmd =
+                Mockito.mock(org.apache.cloudstack.api.command.user.kubernetes.cluster.ScaleKubernetesClusterCmd.class);
+        Mockito.when(cluster.getId()).thenReturn(90L);
+        Mockito.when(cluster.getState()).thenReturn(KubernetesCluster.State.Alert);
+        Mockito.when(cluster.getControlNodeCount()).thenReturn(1L);
+        Mockito.when(cluster.getEtcdNodeCount()).thenReturn(0L);
+        Mockito.when(cluster.getNodeCount()).thenReturn(3L);
+        Mockito.when(cmd.getClusterSize()).thenReturn(2L);
+        Mockito.when(cmd.getNodeIds()).thenReturn(null);
+        Mockito.when(cmd.isAutoscalingEnabled()).thenReturn(null);
+        Mockito.when(cmd.getServiceOfferingId()).thenReturn(null);
+        Mockito.when(cmd.getMinSize()).thenReturn(null);
+        Mockito.when(cmd.getMaxSize()).thenReturn(null);
+        Mockito.when(kubernetesClusterVmMapDao.listByClusterId(90L)).thenReturn(List.of(
+                new KubernetesClusterVmMapVO(90L, 100L, true), new KubernetesClusterVmMapVO(90L, 101L, false),
+                new KubernetesClusterVmMapVO(90L, 102L, false)));
+        VMInstanceVO vm = Mockito.mock(VMInstanceVO.class);
+        Mockito.when(vm.getState()).thenReturn(VirtualMachine.State.Running);
+        Mockito.when(vmInstanceDao.findById(Mockito.anyLong())).thenReturn(vm);
+        Assert.assertTrue(kubernetesClusterManager.isSafePartialScaleRecovery(cluster, cmd));
+        Mockito.when(cmd.getClusterSize()).thenReturn(1L);
+        Assert.assertFalse(kubernetesClusterManager.isSafePartialScaleRecovery(cluster, cmd));
+        Mockito.when(cmd.getClusterSize()).thenReturn(2L);
+        Mockito.when(vm.getState()).thenReturn(VirtualMachine.State.Stopped);
+        Assert.assertFalse(kubernetesClusterManager.isSafePartialScaleRecovery(cluster, cmd));
+        Mockito.lenient().when(vm.getState()).thenReturn(VirtualMachine.State.Running);
+        Mockito.when(cmd.isAutoscalingEnabled()).thenReturn(true);
+        Assert.assertFalse(kubernetesClusterManager.isSafePartialScaleRecovery(cluster, cmd));
+        Mockito.lenient().when(cmd.isAutoscalingEnabled()).thenReturn(null);
+        Mockito.when(cmd.getServiceOfferingId()).thenReturn(5L);
+        Assert.assertFalse(kubernetesClusterManager.isSafePartialScaleRecovery(cluster, cmd));
+        Mockito.lenient().when(cmd.getServiceOfferingId()).thenReturn(null);
+        Mockito.when(cmd.getNodeIds()).thenReturn(List.of(101L));
+        Assert.assertFalse(kubernetesClusterManager.isSafePartialScaleRecovery(cluster, cmd));
+    }
+
 }

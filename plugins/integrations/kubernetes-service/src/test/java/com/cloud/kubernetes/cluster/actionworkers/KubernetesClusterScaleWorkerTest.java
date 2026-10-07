@@ -102,6 +102,7 @@ public class KubernetesClusterScaleWorkerTest {
         autoscaleWorker.serviceOfferingDao = serviceOfferingDao;
         autoscaleWorker.kubernetesClusterVmMapDao = kubernetesClusterVmMapDao;
         autoscaleWorker.userVmDao = userVmDao;
+        autoscaleWorker.kubernetesClusterDetailsDao = Mockito.mock(com.cloud.kubernetes.cluster.dao.KubernetesClusterDetailsDao.class);
         Mockito.doNothing().when(autoscaleWorker).init();
         Mockito.doReturn(success).when(autoscaleWorker).autoscaleCluster(enable, newMin, newMax);
         Mockito.doReturn(true).when(autoscaleWorker).stateTransitTo(Mockito.anyLong(), Mockito.any());
@@ -584,6 +585,36 @@ public class KubernetesClusterScaleWorkerTest {
         Mockito.when(mapping.getLoadBalancerId()).thenReturn(42L);
         Mockito.when(loadBalancerVMMapDao.listByInstanceId(3L)).thenReturn(List.of(mapping));
         worker.hasNativeServiceLoadBalancerBackends(3L, Set.of(KubernetesNodeLoadBalancerDrainTest.PREFIX));
+    }
+
+    @Test public void reconcilesRemainingMappingsBeforeNetworkCleanupCanFail() throws Exception {
+        Mockito.when(kubernetesCluster.getControlNodeCount()).thenReturn(1L);
+        Mockito.when(kubernetesCluster.getEtcdNodeCount()).thenReturn(0L);
+        Mockito.when(kubernetesClusterVmMapDao.listByClusterId(0L)).thenReturn(List.of(
+                new KubernetesClusterVmMapVO(0L, 100L, true), new KubernetesClusterVmMapVO(0L, 101L, false),
+                new KubernetesClusterVmMapVO(0L, 102L, false)));
+        KubernetesClusterScaleWorker spy = Mockito.spy(worker);
+        KubernetesClusterVO actual = Mockito.mock(KubernetesClusterVO.class);
+        Mockito.doReturn(actual).when(spy).updateKubernetesClusterEntryForNodeType(2L, WORKER, null, false, false);
+        spy.reconcileScaleMetadataFromMappings();
+        Mockito.verify(spy).updateKubernetesClusterEntryForNodeType(2L, WORKER, null, false, false);
+        Assert.assertSame(actual, spy.kubernetesCluster);
+        spy.kubernetesClusterDetailsDao = Mockito.mock(com.cloud.kubernetes.cluster.dao.KubernetesClusterDetailsDao.class);
+        Mockito.doThrow(new com.cloud.exception.ManagementServerException("network cleanup failed"))
+                .when(spy).scaleKubernetesClusterNetworkRules(Mockito.anyList());
+        Mockito.doThrow(new com.cloud.utils.exception.CloudRuntimeException("failed"))
+                .when(spy).logTransitStateAndThrow(Mockito.any(), Mockito.anyString(), Mockito.anyLong(), Mockito.any(), Mockito.any());
+        try { spy.refreshScaleNetworkRules(); Assert.fail("cleanup failure must propagate"); }
+        catch (com.cloud.utils.exception.CloudRuntimeException expected) { }
+        Mockito.verify(spy.kubernetesClusterDetailsDao).addDetail(0L, "operation.cleanup.network.pending", "scale", false);
+        Mockito.verify(spy.kubernetesClusterDetailsDao, Mockito.never()).removeDetail(Mockito.anyLong(), Mockito.anyString());
+    }
+
+    @Test(expected = com.cloud.utils.exception.CloudRuntimeException.class)
+    public void partialScaleReconciliationRejectsMissingControlMapping() {
+        Mockito.when(kubernetesCluster.getControlNodeCount()).thenReturn(1L);
+        Mockito.when(kubernetesClusterVmMapDao.listByClusterId(0L)).thenReturn(List.of(new KubernetesClusterVmMapVO(0L, 101L, false)));
+        worker.reconcileScaleMetadataFromMappings();
     }
 
 }

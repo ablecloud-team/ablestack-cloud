@@ -926,6 +926,7 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
         ApiResponseHelper.populateOwner(response, kubernetesCluster);
         response.setKeypair(kubernetesCluster.getKeyPair());
         response.setState(kubernetesCluster.getState().toString());
+        response.setScaleNetworkCleanupPending(kubernetesClusterDetailsDao.findDetail(kubernetesClusterId, "operation.cleanup.network.pending") != null);
         response.setCores(String.valueOf(kubernetesCluster.getCores()));
         response.setMemory(String.valueOf(kubernetesCluster.getMemory()));
         NetworkVO ntwk = networkDao.findByIdIncludingRemoved(kubernetesCluster.getNetworkId());
@@ -1405,6 +1406,31 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
         }
     }
 
+    protected boolean isSafePartialScaleRecovery(KubernetesClusterVO cluster, ScaleKubernetesClusterCmd cmd) {
+        if (cluster.getState() != KubernetesCluster.State.Alert || cmd.getClusterSize() == null || cmd.getNodeIds() != null
+                || cmd.getServiceOfferingId() != null || MapUtils.isNotEmpty(cmd.getServiceOfferingNodeTypeMap())
+                || cmd.isAutoscalingEnabled() != null || cmd.getMinSize() != null || cmd.getMaxSize() != null) {
+            return false;
+        }
+        List<KubernetesClusterVmMapVO> mappings = kubernetesClusterVmMapDao.listByClusterId(cluster.getId());
+        if (CollectionUtils.isEmpty(mappings)) {
+            return false;
+        }
+        long controls = 0, etcd = 0, workers = 0;
+        for (KubernetesClusterVmMapVO map : mappings) {
+            VirtualMachine vm = vmInstanceDao.findById(map.getVmId());
+            if (vm == null || vm.getRemoved() != null || vm.getState() != VirtualMachine.State.Running) {
+                return false;
+            }
+            if (map.isControlNode()) { controls++; }
+            else if (map.isEtcdNode()) { etcd++; }
+            else { workers++; }
+        }
+        return controls == cluster.getControlNodeCount() && etcd == cluster.getEtcdNodeCount()
+                && workers > 0 && workers == cmd.getClusterSize() && workers <= cluster.getNodeCount()
+                && (workers != cluster.getNodeCount() || kubernetesClusterDetailsDao.findDetail(cluster.getId(), "operation.cleanup.network.pending") != null);
+    }
+
     private void validateKubernetesClusterScaleParameters(ScaleKubernetesClusterCmd cmd) {
         final Long kubernetesClusterId = cmd.getId();
         final Long clusterSize = cmd.getClusterSize();
@@ -1445,7 +1471,7 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
             throw new CloudRuntimeException(String.format("Invalid Kubernetes version associated with Kubernetes cluster : %s", kubernetesCluster.getName()));
         }
         List<KubernetesCluster.State> validClusterStates = Arrays.asList(KubernetesCluster.State.Created, KubernetesCluster.State.Running, KubernetesCluster.State.Stopped);
-        if (!(validClusterStates.contains(kubernetesCluster.getState()))) {
+        if (!validClusterStates.contains(kubernetesCluster.getState()) && !isSafePartialScaleRecovery(kubernetesCluster, cmd)) {
             throw new PermissionDeniedException(String.format("Kubernetes cluster %s is in %s state and can not be scaled", kubernetesCluster.getName(), kubernetesCluster.getState().toString()));
         }
 

@@ -125,7 +125,7 @@ public class KubernetesClusterScaleWorker extends KubernetesClusterResourceModif
 
     private void logTransitStateToFailedIfNeededAndThrow(final Level logLevel, final String message, final Exception e) throws CloudRuntimeException {
         KubernetesCluster cluster = kubernetesClusterDao.findById(kubernetesCluster.getId());
-        if (cluster != null && KubernetesCluster.State.Scaling.equals(cluster.getState())) {
+        if (cluster != null && (KubernetesCluster.State.Scaling.equals(cluster.getState()) || KubernetesCluster.State.Recovering.equals(cluster.getState()))) {
             logTransitStateAndThrow(logLevel, message, kubernetesCluster.getId(), KubernetesCluster.Event.OperationFailed, e);
         } else {
             logAndThrow(logLevel, message, e);
@@ -187,7 +187,7 @@ public class KubernetesClusterScaleWorker extends KubernetesClusterResourceModif
      * @param clusterVMIds
      * @throws ManagementServerException
      */
-    private void scaleKubernetesClusterNetworkRules(final List<Long> clusterVMIds) throws ManagementServerException {
+    protected void scaleKubernetesClusterNetworkRules(final List<Long> clusterVMIds) throws ManagementServerException {
         if (manager.isDirectAccess(network)) {
             if (logger.isDebugEnabled())
                 logger.debug("Network: {} for Kubernetes cluster: {} is not an isolated network " +
@@ -595,23 +595,38 @@ public class KubernetesClusterScaleWorker extends KubernetesClusterResourceModif
                 CallContext.unregister();
             }
             kubernetesClusterVmMapDao.expunge(vmMapVO.getId());
+            kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "operation.cleanup.network.pending", "scale", false);
+            reconcileScaleMetadataFromMappings();
             if (System.currentTimeMillis() > scaleTimeoutTime) {
                 logTransitStateAndThrow(Level.WARN, String.format("Scaling Kubernetes cluster %s failed, scaling action timed out",
                         kubernetesCluster), kubernetesCluster.getId(), KubernetesCluster.Event.OperationFailed);
             }
         }
 
-        // Scale network rules to update firewall rule
+        refreshScaleNetworkRules();
+    }
+
+    protected void reconcileScaleMetadataFromMappings() {
+        List<KubernetesClusterVmMapVO> mappings = getKubernetesClusterVMMaps();
+        long controls = mappings.stream().filter(KubernetesClusterVmMapVO::isControlNode).count();
+        long etcd = mappings.stream().filter(KubernetesClusterVmMapVO::isEtcdNode).count();
+        if (controls != kubernetesCluster.getControlNodeCount() || etcd != kubernetesCluster.getEtcdNodeCount()) {
+            throw new CloudRuntimeException("Cannot reconcile scale metadata with missing control or etcd mappings");
+        }
+        long workers = mappings.stream().filter(m -> !m.isControlNode() && !m.isEtcdNode()).count();
+        kubernetesCluster = updateKubernetesClusterEntryForNodeType(workers, WORKER, null, false, false);
+    }
+
+    protected void refreshScaleNetworkRules() {
+        kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "operation.cleanup.network.pending", "scale", false);
         try {
-            List<Long> clusterVMIds = getKubernetesClusterVMMaps()
-                    .stream()
-                    .filter(x -> !x.isEtcdNode())
+            List<Long> ids = getKubernetesClusterVMMaps().stream().filter(m -> !m.isEtcdNode())
                     .map(KubernetesClusterVmMapVO::getVmId).collect(Collectors.toList());
-            scaleKubernetesClusterNetworkRules(clusterVMIds);
-        } catch (ManagementServerException e) {
-            logTransitStateAndThrow(Level.ERROR, String.format("Scaling failed for Kubernetes " +
-                    "cluster %s, unable to update network rules", kubernetesCluster),
-                    kubernetesCluster.getId(), KubernetesCluster.Event.OperationFailed, e);
+            scaleKubernetesClusterNetworkRules(ids);
+            kubernetesClusterDetailsDao.removeDetail(kubernetesCluster.getId(), "operation.cleanup.network.pending");
+        } catch (ManagementServerException failure) {
+            logTransitStateAndThrow(Level.ERROR, "Kubernetes scale network cleanup is incomplete; actual node totals are preserved",
+                    kubernetesCluster.getId(), KubernetesCluster.Event.OperationFailed, failure);
         }
     }
 
@@ -626,6 +641,8 @@ public class KubernetesClusterScaleWorker extends KubernetesClusterResourceModif
             vmList = getWorkerNodesToRemove();
             if (vmList.isEmpty()) {
                 logger.info("No nodes to remove from Kubernetes cluster: {}", kubernetesCluster);
+                reconcileScaleMetadataFromMappings();
+                refreshScaleNetworkRules();
                 return;
             }
         }
@@ -759,6 +776,17 @@ public class KubernetesClusterScaleWorker extends KubernetesClusterResourceModif
             logger.info("Scaling Kubernetes cluster {}", kubernetesCluster);
         }
         scaleTimeoutTime = System.currentTimeMillis() + KubernetesClusterService.KubernetesClusterScaleTimeout.value() * 1000;
+        boolean partialRecovery = originalState == KubernetesCluster.State.Alert;
+        if (partialRecovery) {
+            if (!stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.RecoveryRequested)) {
+                throw new CloudRuntimeException("Kubernetes partial scale recovery state changed; retry after inspection");
+            }
+            reconcileScaleMetadataFromMappings();
+            refreshScaleNetworkRules();
+        } else if (kubernetesClusterDetailsDao.findDetail(kubernetesCluster.getId(), "operation.cleanup.network.pending") != null) {
+            reconcileScaleMetadataFromMappings();
+            refreshScaleNetworkRules();
+        }
         final long originalClusterSize = kubernetesCluster.getNodeCount();
 
         // DEFAULT node type means only the global service offering has been set for the Kubernetes cluster
@@ -813,6 +841,13 @@ public class KubernetesClusterScaleWorker extends KubernetesClusterResourceModif
             }
         }
 
+        if (partialRecovery) {
+            Pair<String, Integer> endpoint = getKubernetesClusterServerIpSshPort(null);
+            if (!KubernetesClusterUtil.validateKubernetesClusterReadyNodesCount(kubernetesCluster, endpoint.first(), endpoint.second(),
+                    getControlNodeLoginUser(), sshKeyFile, scaleTimeoutTime, 15000)) {
+                logTransitStateToFailedIfNeededAndThrow(Level.ERROR, "Partial scale recovery did not reach the actual native Ready node count");
+            }
+        }
         stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.OperationSucceeded);
         return true;
     }
