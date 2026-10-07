@@ -235,7 +235,7 @@ public class KubernetesClusterUtil {
             return KubernetesNetworkReadiness.readyNodeCount(result.second()) + kubernetesCluster.getEtcdNodeCount().intValue();
         } else {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(String.format("Failed to retrieve ready nodes for Kubernetes cluster %s. Output: %s", kubernetesCluster, result.second()));
+                LOGGER.debug("Native node inventory is unavailable for Kubernetes cluster {}", kubernetesCluster.getUuid());
             }
         }
         return 0;
