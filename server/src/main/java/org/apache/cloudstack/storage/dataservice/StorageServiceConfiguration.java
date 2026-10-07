@@ -413,6 +413,7 @@ public final class StorageServiceConfiguration {
             if (!"TARGET_PREPARED".equals(metadata.has("restoreState") ? metadata.get("restoreState").getAsString() : "")) {
                 manager.upgradeConfigurationNewServiceRuntime(selectedTarget, plan.get("runtimeBundleUuid").getAsString());
             }
+            manager.prepareConfigurationInitialVolume(selectedTarget, plan.getAsJsonObject("createNew"));
             executionPlan.addProperty("targetInstanceUuid", selectedTarget.getUuid());executionPlan.addProperty("expectedRevision", 0);
             String initial = plan.get("initialVolumeSourceUuid").getAsString();
             executionPlan.getAsJsonObject("volumeMappings").addProperty(initial, manager.configurationInitialVolume(selectedTarget).getUuid());
