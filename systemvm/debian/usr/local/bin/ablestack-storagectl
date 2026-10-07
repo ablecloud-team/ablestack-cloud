@@ -8077,6 +8077,28 @@ class Generation:
             return self.status()
         protected_directory(self.root)
         request = self.request(request)
+        if action in ("adopt", "align"):
+            if read_json(self.pending) is not None:
+                raise ValueError("Pending generation must be recovered before ROOT transfer")
+            previous = request.get("previousGeneration")
+            if not isinstance(previous, dict) or previous.get("instanceUuid") != request["instanceUuid"]:
+                raise ValueError("ROOT generation source scope changed")
+            old_revision = previous.get("revision")
+            if isinstance(old_revision, bool) or not isinstance(old_revision, int) or not 0 < old_revision < request["revision"]:
+                raise ValueError("ROOT generation source revision is invalid")
+            str(uuid.UUID(previous["operationUuid"]))
+            if previous.get("configurationSha256") != self.digest():
+                raise ValueError("ROOT transfer desired configuration was not exactly reconciled")
+            current = read_json(self.current) or {}
+            if current:
+                if current == previous:
+                    return self.status()
+                if action != "align" or current.get("instanceUuid") != request["instanceUuid"] or current.get("revision", 0) >= old_revision:
+                    raise ValueError("ROOT generation alignment cannot replace an equal or later revision")
+                if current != request.get("expectedPreviousGeneration"):
+                    raise ValueError("Retained ROOT generation changed before alignment")
+            atomic_json(self.current, previous)
+            return self.status()
         if action == "begin":
             pending = read_json(self.pending)
             if pending:
