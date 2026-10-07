@@ -193,7 +193,8 @@ export default {
           try {
             const readiness = await getAPI('getSharedFileSystemScalingReadiness', { id: this.resource.id }, { preserveOnFailure: true, timeout: 15000 })
             if (request !== this.serviceOfferingRequestToken) return
-            this.scalingReadiness = JSON.parse(readiness.getsharedfilesystemscalingreadinessresponse.resultjson)
+            const result = readiness.getsharedfilesystemscalingreadinessresponse.sharedfilesystemscalingreadiness || readiness.getsharedfilesystemscalingreadinessresponse
+            this.scalingReadiness = JSON.parse(result.resultjson)
           } catch (error) {
             if (request === this.serviceOfferingRequestToken) this.scalingReadinessError = true
           }
