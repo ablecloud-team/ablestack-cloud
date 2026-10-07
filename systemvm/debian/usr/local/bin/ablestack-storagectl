@@ -5091,6 +5091,7 @@ apply_smb_shares() {
   python3 - "$payload_file" "$mode" <<'PY'
 import json
 import ipaddress
+import atexit
 import grp
 import os
 import pwd
@@ -5181,6 +5182,113 @@ def smb_creation_lines(policy):
             "   directory mask = " + policy["directoryMask"],
             "   force directory mode = " + policy["forceDirectoryMode"],
             "   inherit permissions = " + ("yes" if policy["inheritPermissions"] else "no")]
+
+smb_previous_files = {}
+smb_previous_modes = {}
+for previous_path in ("/etc/samba/smb.conf", os.path.join(state_dir, "smb-access.json"), os.path.join(state_dir, "smb-quotas.json"), os.path.join(state_dir, "smb-managed-identities.json")):
+    try:
+        with open(previous_path, "rb") as previous_fp:
+            smb_previous_files[previous_path] = previous_fp.read()
+            smb_previous_modes[previous_path] = os.stat(previous_path).st_mode & 0o777
+    except FileNotFoundError:
+        smb_previous_files[previous_path] = None
+
+managed_identity_path = os.path.join(state_dir, "smb-managed-identities.json")
+try:
+    with open(managed_identity_path, "r", encoding="utf-8") as managed_fp:
+        managed_identities = json.load(managed_fp)
+except FileNotFoundError:
+    managed_identities = {}
+active_managed_identities = {}
+
+created_identity_users = []
+created_identity_groups = []
+identity_apply_verified = False
+
+def rollback_uncommitted_managed_identities():
+    if identity_apply_verified:
+        return
+    for path, content in smb_previous_files.items():
+        if content is None:
+            try:
+                os.unlink(path)
+            except FileNotFoundError:
+                pass
+            continue
+        fd, temporary = tempfile.mkstemp(prefix=".smb-rollback-", dir=os.path.dirname(path))
+        try:
+            with os.fdopen(fd, "wb") as rollback_fp:
+                rollback_fp.write(content);rollback_fp.flush();os.fsync(rollback_fp.fileno())
+            os.chmod(temporary, smb_previous_modes.get(path, 0o600))
+            os.replace(temporary, path)
+        finally:
+            if os.path.exists(temporary):
+                os.unlink(temporary)
+    if shutil.which("smbcontrol"):
+        run_optional(["smbcontrol", "all", "reload-config"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    for name in reversed(created_identity_users):
+        run_optional(["userdel", name], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    for name in reversed(created_identity_groups):
+        run_optional(["groupdel", name], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+atexit.register(rollback_uncommitted_managed_identities)
+
+def smb_forced_identity(config, share_uuid, acls, create=False):
+    mode = str(config.get("posixOwnershipMode") or "AUTHENTICATED_USER").upper()
+    if mode == "AUTHENTICATED_USER":
+        return {"posixOwnershipMode": mode}
+    if mode != "FORCED_UID_GID":
+        raise ValueError("Unknown forced POSIX ownership mode")
+    uid, gid = config.get("ownerUid"), config.get("ownerGid")
+    if not isinstance(uid, int) or not isinstance(gid, int) or uid < 10000 or gid < 10000 or uid == 65534 or gid == 65534 or uid > 2147483647 or gid > 2147483647:
+        raise ValueError("Forced identity requires non-protected UID/GID")
+    if truth(config, "guestOk", False) or config.get("ownershipInheritance") == "INHERIT_PARENT_OWNER":
+        raise ValueError("Forced identity cannot be combined with guest or parent-owner inheritance")
+    if any(acl.get("permission") == "ADMIN" and acl.get("state", "Ready") not in ("Disabled", "Destroyed", "Error") for acl in acls):
+        raise ValueError("ADMIN account ACL cannot override forced identity")
+    token = re.sub(r"[^a-fA-F0-9]", "", str(share_uuid))[:20].lower()
+    if len(token) != 20:
+        raise ValueError("Managed identity needs a stable share UUID")
+    user, group = "sf_u_" + token, "sf_g_" + token
+    try:
+        observed_group = grp.getgrnam(group)
+        if observed_group.gr_gid != gid:
+            raise ValueError("Managed group maps to another GID")
+    except KeyError:
+        try:
+            grp.getgrgid(gid)
+            raise ValueError("Requested GID belongs to an existing group")
+        except KeyError:
+            if create:
+                run(["groupadd", "--gid", str(gid), group])
+                created_identity_groups.append(group)
+    try:
+        observed_user = pwd.getpwnam(user)
+        if observed_user.pw_uid != uid or observed_user.pw_gid != gid or observed_user.pw_shell not in ("/usr/sbin/nologin", "/sbin/nologin", "/bin/false"):
+            raise ValueError("Managed user identity differs from its requested UID/GID or login policy")
+    except KeyError:
+        try:
+            pwd.getpwuid(uid)
+            raise ValueError("Requested UID belongs to an existing user")
+        except KeyError:
+            if create:
+                run(["useradd", "--uid", str(uid), "--gid", str(gid), "--no-create-home", "--home-dir", "/nonexistent", "--shell", "/usr/sbin/nologin", user])
+                created_identity_users.append(user)
+    if create:
+        checked = pwd.getpwnam(user)
+        if checked.pw_uid != uid or checked.pw_gid != gid or checked.pw_dir != "/nonexistent" or checked.pw_shell != "/usr/sbin/nologin":
+            raise ValueError("Managed identity failed UID/GID/non-login verification")
+        if grp.getgrnam(group).gr_gid != gid:
+            raise ValueError("Managed group failed GID verification")
+    result = {"posixOwnershipMode": mode, "ownerUid": uid, "ownerGid": gid, "managedUser": user, "managedGroup": group}
+    if create:
+        active_managed_identities[str(share_uuid)] = result
+    return result
+
+def smb_forced_identity_lines(policy):
+    if policy["posixOwnershipMode"] != "FORCED_UID_GID":
+        return []
+    return ["   force user = " + policy["managedUser"], "   force group = " + policy["managedGroup"]]
 
 def smb_inheritance_policy(config, acls):
     mode = str(config.get("ownershipInheritance") or "AUTHENTICATED_USER").upper()
@@ -5497,6 +5605,7 @@ if sys.argv[2] == "preflight":
             raise ValueError("Creation preflight requires the canonical managed backing path")
         if config.get("relativeSharePath") and os.path.isdir(path):
             verify_share_mount_boundary(path, config.get("volumeMountPath"))
+        smb_forced_identity(config, share.get("uuid"), share.get("acls", []), create=False)
         observations.append(smb_creation_acl_preflight(path, smb_creation_policy(config)))
     print(json.dumps({"success": True, "creationPolicyPreflight": observations}))
     raise SystemExit(0)
@@ -5524,6 +5633,11 @@ for share in payload.get("shares", []):
         os.makedirs(path, exist_ok=True)
     if config.get("relativeSharePath"):
         verify_share_mount_boundary(path, config.get("volumeMountPath"))
+    forced_identity = smb_forced_identity(config, share.get("uuid"), share.get("acls", []), create=False)
+    if forced_identity["posixOwnershipMode"] == "FORCED_UID_GID":
+        if not verify_common_posix_policy(path, config) or (os.stat(path).st_uid, os.stat(path).st_gid) != (forced_identity["ownerUid"], forced_identity["ownerGid"]):
+            raise ValueError("Forced SMB identity must match the applied common directory owner")
+        forced_identity = smb_forced_identity(config, share.get("uuid"), share.get("acls", []), create=True)
     inheritance_policy = smb_inheritance_policy(config, share.get("acls", []))
     creation_policy = smb_creation_policy(config)
     if inheritance_policy["inheritGroup"]:
@@ -5534,6 +5648,12 @@ for share in payload.get("shares", []):
     smb_creation_acl_preflight(path, creation_policy)
     previous = previous_access.get(str(share.get("uuid") or name), {})
     directory_mode = apply_directory_policy(path, config, cross_protocol, previous)
+    if forced_identity["posixOwnershipMode"] == "FORCED_UID_GID":
+        if config.get("posixPolicyUuid"):
+            if (os.stat(path).st_uid, os.stat(path).st_gid) != (forced_identity["ownerUid"], forced_identity["ownerGid"]):
+                raise ValueError("Forced identity differs from the common directory owner")
+        else:
+            raise ValueError("Forced SMB identity requires a common managed POSIX owner policy")
     if not config.get("posixPolicyUuid"):
         remove_stale_managed_smb_acls(path, share.get("acls", []), previous)
     valid_users = []
@@ -5570,6 +5690,7 @@ for share in payload.get("shares", []):
         os.chmod(path, 0o777 if not truth(config, 'readOnly', False) else 0o755)
     access_state[str(share.get("uuid") or name)] = {
         **network_policy,
+        **forced_identity,
         **inheritance_policy,
         "effectiveUid": os.stat(path).st_uid,
         "effectiveGid": os.stat(path).st_gid,
@@ -5577,6 +5698,8 @@ for share in payload.get("shares", []):
         "posixPolicyUuid": config.get("posixPolicyUuid"),
         "posixPolicyRevision": config.get("posixPolicyRevision"),
         "accountAclCount": configured_acl_count,
+        "fileOperationIdentity": "forced" if forced_identity["posixOwnershipMode"] == "FORCED_UID_GID" else "authenticated",
+        "sessionIdentityPreserved": True,
         "creationPolicy": creation_policy,
         "creationPolicyState": "CONSISTENT",
         "shareName": name,
@@ -5610,6 +5733,7 @@ for share in payload.get("shares", []):
     ])
     lines.extend(smb_creation_lines(creation_policy))
     lines.extend(smb_inheritance_lines(inheritance_policy))
+    lines.extend(smb_forced_identity_lines(forced_identity))
     lines.extend(smb_hosts_allow_lines(network_policy))
     if valid_users:
         lines.append("   valid users = " + " ".join(valid_users))
@@ -5648,25 +5772,48 @@ with open(os.path.join(state_dir, "smb-access.json"), "w", encoding="utf-8") as 
     json.dump(access_state, access_fp, sort_keys=True, indent=2)
 
 run(["testparm", "-s"], stdout=subprocess.DEVNULL)
+if shutil.which("systemctl"):
+    for unit in ("smbd", "nmbd"):
+        if subprocess.run(["systemctl", "is-active", "--quiet", unit], check=False).returncode != 0:
+            run(["systemctl", "enable", "--now", unit], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    if not shutil.which("smbcontrol"):
+        raise RuntimeError("SMB reload command is unavailable")
+    run(["smbcontrol", "all", "reload-config"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+fd, managed_temporary = tempfile.mkstemp(prefix=".smb-identities-", dir=state_dir)
+try:
+    with os.fdopen(fd, "w", encoding="utf-8") as managed_fp:
+        json.dump({**managed_identities, **active_managed_identities}, managed_fp, sort_keys=True, indent=2);managed_fp.flush();os.fsync(managed_fp.fileno())
+    os.replace(managed_temporary, managed_identity_path)
+finally:
+    if os.path.exists(managed_temporary):
+        os.unlink(managed_temporary)
+identity_apply_verified = True
+# Remove only previously recorded controller identities after a verified reload.
+for share_uuid, old_identity in managed_identities.items():
+    if share_uuid in active_managed_identities:
+        continue
+    user, group = old_identity.get("managedUser"), old_identity.get("managedGroup")
+    token = re.sub(r"[^a-fA-F0-9]", "", str(share_uuid))[:20].lower()
+    if user != "sf_u_" + token or group != "sf_g_" + token:
+        continue
+    try:
+        observed = pwd.getpwnam(user)
+        if observed.pw_uid != old_identity.get("ownerUid") or observed.pw_gid != old_identity.get("ownerGid") or observed.pw_dir != "/nonexistent" or observed.pw_shell != "/usr/sbin/nologin":
+            continue
+        run(["userdel", user], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except (KeyError, subprocess.CalledProcessError):
+        pass
+    try:
+        if grp.getgrnam(group).gr_gid != old_identity.get("ownerGid"):
+            continue
+        run(["groupdel", group], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except (KeyError, subprocess.CalledProcessError):
+        pass
 print(json.dumps({"success": True, "shares": len(payload.get("shares", [])), "quotas": len(quota_state), "adJoined": ad_joined, "netbiosName": netbios_name, "access": access_state}))
 PY
 
   if [[ "$mode" == "preflight" ]]; then return 0; fi
 
-  if command -v systemctl >/dev/null 2>&1; then
-    for unit in smbd nmbd; do
-      if ! systemctl is-active --quiet "$unit"; then
-        systemctl enable --now "$unit" >/dev/null 2>&1 || {
-          emit_error "Failed to start SMB service $unit"
-          return 1
-        }
-      fi
-    done
-    if ! command -v smbcontrol >/dev/null 2>&1 || ! smbcontrol all reload-config >/dev/null 2>&1; then
-      emit_error "SMB configuration reload failed; active sessions were not restarted"
-      return 1
-    fi
-  fi
   while read -r smb_port; do
     [[ -n "$smb_port" ]] && open_tcp_firewall_port "$smb_port"
   done < <(python3 - "$payload_file" <<'PY'

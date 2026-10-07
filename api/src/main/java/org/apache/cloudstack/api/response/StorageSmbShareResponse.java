@@ -84,6 +84,23 @@ public class StorageSmbShareResponse extends BaseResponse {
     public void setEffectiveOwnerGid(Long value) { effectiveOwnerGid = value; }
     public void setEffectiveDirectoryMode(String value) { effectiveDirectoryMode = value; }
 
+    @SerializedName("posixownershipmode")
+    @Param(description = "Requested authenticated or forced POSIX file-operation identity")
+    private String posixOwnershipMode;
+    @SerializedName("effectiveposixownershipmode")
+    @Param(description = "Observed POSIX file-operation identity mode")
+    private String effectivePosixOwnershipMode;
+    @SerializedName("managedposixuser")
+    @Param(description = "Managed non-login UNIX identity; never a Samba authentication account")
+    private String managedPosixUser;
+    @SerializedName("managedposixgroup")
+    @Param(description = "Managed UNIX group for fixed file-operation identity")
+    private String managedPosixGroup;
+    public void setPosixOwnershipMode(String value) { posixOwnershipMode = value; }
+    public void setEffectivePosixOwnershipMode(String value) { effectivePosixOwnershipMode = value; }
+    public void setManagedPosixUser(String value) { managedPosixUser = value; }
+    public void setManagedPosixGroup(String value) { managedPosixGroup = value; }
+
     @SerializedName(ApiConstants.ID)
     @Param(description = "ID of the SMB share")
     private String id;
