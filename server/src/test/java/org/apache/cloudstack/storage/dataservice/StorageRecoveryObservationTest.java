@@ -69,4 +69,12 @@ public class StorageRecoveryObservationTest {
         Assert.assertThrows(CloudRuntimeException.class, () -> StorageRecoveryObservation.requireNvmeHost(desired, object("{'dhChapConfigured':true}")));
         StorageRecoveryObservation.requireNvmeHost(desired, object("{'dhChapConfigured':true,'dhChapCtrlConfigured':true}"));
     }
+    @Test public void parsedRuntimeNumbersMatchTypedDesiredUidAndGidWithoutHashBasedFalseDrift() {
+        JsonArray expected = new JsonArray();expected.add(StorageRecoveryObservation.nfsClient("10.1.1.9/32", true, new JsonObject(), new JsonObject()));
+        JsonObject observed = object("{'clients':[{'clients':'10.1.1.9/32','access':'RW','squash':'Root_Squash','anonUid':65534,'anonGid':65534}]}");
+        StorageRecoveryObservation.requireNfsClients(expected, observed);
+        observed.getAsJsonArray("clients").get(0).getAsJsonObject().addProperty("anonUid", 1002);
+        Assert.assertThrows(CloudRuntimeException.class, () -> StorageRecoveryObservation.requireNfsClients(expected, observed));
+    }
+
 }
