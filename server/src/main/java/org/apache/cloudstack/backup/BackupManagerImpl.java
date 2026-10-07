@@ -2718,7 +2718,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                     vm.getId(), null, null);
             final BackupProvider backupProvider = getBackupProvider(offering.getProvider());
             if (backupProvider.supportsDetachedRestoreOrchestration()) {
-                startDetachedVmRestore(backup, vm, backupProvider, backupDetailsInMessage, quickRestore, hostId);
+                startDetachedVmRestore(backup, vm, offering, backupProvider, backupDetailsInMessage, quickRestore, hostId);
                 persistRestoreOperationPhase(backup.getId(), "RUNNING", "QUEUED", 10);
                 return true;
             }
@@ -2749,7 +2749,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         }
     }
 
-    private void startDetachedVmRestore(final BackupVO backup, final VMInstanceVO vm,
+    private void startDetachedVmRestore(final BackupVO backup, final VMInstanceVO vm, final BackupOffering offering,
             final BackupProvider backupProvider, final String backupDetailsInMessage, final boolean quickRestore,
             final Long hostId) {
         try {
@@ -3179,7 +3179,9 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                 awaitingHostFinalization = StringUtils.isNotBlank(tracked.getDetail(AblestackBackupFrameworkUtils.RESTORE_JOB_ID_DETAIL));
             }
         }
-        if (awaitingHostFinalization || StringUtils.contains(failure.getMessage(), AblestackBackupFrameworkUtils.RESTORE_ROLLBACK_REQUIRED)) {
+        // Pending Host finalization and rollback markers belong to ABLESTACK restore orchestration.
+        if (isAblestackHostSideRestoreProvider(offering)
+                && (awaitingHostFinalization || StringUtils.contains(failure.getMessage(), AblestackBackupFrameworkUtils.RESTORE_ROLLBACK_REQUIRED))) {
             logger.warn("Keeping VM [{}] in Restoring while the host confirms volume commit or rollback", vm.getInstanceName());
             return;
         }
@@ -5045,20 +5047,25 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         }
 
         protected void reconcileBackingUpBackups(final BackupProvider backupProvider, final DataCenter dataCenter) {
-            reconcileCompletedVolumeBackupResourceCounts(backupProvider, dataCenter);
+            final boolean volumeStagingProvider = ThirdPartyBackupStagingService.isStagingProvider(backupProvider.getName());
+            if (volumeStagingProvider) {
+                reconcileCompletedVolumeBackupResourceCounts(backupProvider, dataCenter);
+            }
             final List<BackupVO> backingUpBackups = new ArrayList<>();
             final List<BackupVO> active = backupDao.listByZoneAndStatus(dataCenter.getId(), Backup.Status.BackingUp);
             if (CollectionUtils.isNotEmpty(active)) { backingUpBackups.addAll(active); }
-            for (Backup.Status failedState : java.util.List.of(Backup.Status.Failed, Backup.Status.Error, Backup.Status.Canceled)) {
-                final List<BackupVO> failures = backupDao.listByZoneAndStatus(dataCenter.getId(), failedState);
-                if (CollectionUtils.isEmpty(failures)) { continue; }
-                for (BackupVO failed : failures) {
-                    backupDao.loadDetails(failed);
-                    if (ThirdPartyBackupManifest.VOLUME_MODE.equals(failed.getDetail(ThirdPartyBackupManifest.MODE_KEY))
-                            && StringUtils.isBlank(failed.getDetail(ThirdPartyBackupManifest.CATALOG_FAILURE_KEY))
-                            && StringUtils.isBlank(failed.getDetail(ThirdPartyBackupManifest.DELETE_PROGRESS_KEY))
-                            && ThirdPartyBackupVolumeService.needsBackupCleanup(failed)) {
-                        backingUpBackups.add(failed);
+            if (volumeStagingProvider) {
+                for (Backup.Status failedState : java.util.List.of(Backup.Status.Failed, Backup.Status.Error, Backup.Status.Canceled)) {
+                    final List<BackupVO> failures = backupDao.listByZoneAndStatus(dataCenter.getId(), failedState);
+                    if (CollectionUtils.isEmpty(failures)) { continue; }
+                    for (BackupVO failed : failures) {
+                        backupDao.loadDetails(failed);
+                        if (ThirdPartyBackupManifest.VOLUME_MODE.equals(failed.getDetail(ThirdPartyBackupManifest.MODE_KEY))
+                                && StringUtils.isBlank(failed.getDetail(ThirdPartyBackupManifest.CATALOG_FAILURE_KEY))
+                                && StringUtils.isBlank(failed.getDetail(ThirdPartyBackupManifest.DELETE_PROGRESS_KEY))
+                                && ThirdPartyBackupVolumeService.needsBackupCleanup(failed)) {
+                            backingUpBackups.add(failed);
+                        }
                     }
                 }
             }
