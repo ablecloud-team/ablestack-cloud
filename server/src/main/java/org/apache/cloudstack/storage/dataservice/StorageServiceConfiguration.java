@@ -176,27 +176,40 @@ public final class StorageServiceConfiguration {
             JsonArray required = requiredCredentials(entries);
             metadata.addProperty("sourceInstanceUuid", instance.getUuid());metadata.addProperty("desiredRevision", before);
             metadata.addProperty("createdAt", System.currentTimeMillis());metadata.addProperty("credentialCoverage", required.size() == 0 ? "FULL" : "REQUIRES_REENTRY");
-            metadata.add("requiredCredentials", required);boolean partial = false;
-            if (!Boolean.FALSE.equals(request.getIncludeRuntime())) {
+            metadata.add("requiredCredentials", required);JsonObject collectors = new JsonObject();
+            boolean includeRuntime = !Boolean.FALSE.equals(request.getIncludeRuntime());
+            if (includeRuntime) {
                 for (String command : new String[] {"inventory", "health", "sessions"}) {
                     metadata.addProperty("phase", "COLLECTING_" + command.toUpperCase(java.util.Locale.ROOT));update(row, metadata, "CREATING");
                     JsonObject observed = manager.observeConfigurationRuntime(instance, command);
-                    if (!observed.has("success") || !observed.get("success").getAsBoolean()) partial = true;
+                    JsonObject collector = new JsonObject();
+                    collector.addProperty("success", observed.has("success") && observed.get("success").getAsBoolean());
+                    collector.addProperty("status", observed.has("status") ? observed.get("status").getAsString() : "UNKNOWN");
+                    collectors.add(command, collector);
                     entries.put("runtime/" + command + ".json", observed.toString().getBytes(StandardCharsets.UTF_8));
                 }
-            } else partial = true;
+            }
             if (before != revision(instance.getId()) || !snapshot.equals(manager.captureConfigurationSnapshot(instance.getId()))) {
                 throw new CloudRuntimeException("Configuration changed while collecting backup");
             }
-            metadata.addProperty("runtimeStatus", partial ? "UNAVAILABLE_OR_PARTIAL" : "AVAILABLE");metadata.addProperty("phase", "COMPLETE");
+            String runtimeStatus = runtimeCollectionStatus(includeRuntime, collectors);
+            metadata.addProperty("runtimeStatus", runtimeStatus);metadata.add("runtimeCollectors", collectors);metadata.addProperty("phase", "COMPLETE");
             versionMetadata(metadata, instance);
             byte[] archive = StorageConfigArchive.create(entries, metadata);
             row.setSha256(StorageConfigArchive.sha256(archive));row.setSize(archive.length);row.setDesiredRevision(before);store.write(row.getUuid(), archive);
-            update(row, metadata, partial ? "PARTIAL" : "COMPLETE");return response(compactRow(row), row.getUuid());
+            update(row, metadata, "AVAILABLE".equals(runtimeStatus) ? "COMPLETE" : "PARTIAL");return response(compactRow(row), row.getUuid());
         } catch (RuntimeException failure) {
             metadata.addProperty("phase", "EXPORT_FAILED");metadata.addProperty("errorCode", "CONFIG_EXPORT_FAILED");update(row, metadata, "FAILED");throw failure;
         }
     }
+    static String runtimeCollectionStatus(boolean requested, JsonObject collectors) {
+        if (!requested) return "NOT_REQUESTED";
+        long successful = collectors.entrySet().stream().filter(entry -> entry.getValue().getAsJsonObject().has("success")
+                && entry.getValue().getAsJsonObject().get("success").getAsBoolean()).count();
+        if (successful == 0) return "UNAVAILABLE";
+        return collectors.size() == 3 && successful == 3 ? "AVAILABLE" : "PARTIAL";
+    }
+
     private StorageServiceConfigArtifactResponse upload(StorageServiceInstanceVO instance, StorageConfigRequest request) {
         if (request.getData() == null || request.getSha256() == null || !request.getSha256().matches("[0-9a-f]{64}")) throw new InvalidParameterValueException("Configuration upload and SHA-256 are required");
         int index = request.getChunkIndex() == null ? 0 : request.getChunkIndex();
@@ -515,7 +528,7 @@ public final class StorageServiceConfiguration {
             }
         } catch (RuntimeException failure) {
             try { store.remove(point.getUuid()); } catch (RuntimeException cleanup) { failure.addSuppressed(cleanup); }
-            point.setState("FAILED");artifacts.update(point.getId(), point);throw failure;
+            point.setState("FAILED");point.setExpires(new Date(System.currentTimeMillis() + 168 * 3600000L));artifacts.update(point.getId(), point);throw failure;
         }
     }
     private StorageServiceConfigArtifactResponse delete(StorageServiceInstanceVO instance, StorageConfigRequest request) {

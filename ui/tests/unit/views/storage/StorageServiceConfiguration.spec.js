@@ -107,4 +107,48 @@ describe('Configuration backup and restore UI boundaries', () => {
     expect(mappings.volumes['source-volume']).toBe('selected-data')
     expect(mappings.createNew).toEqual({ name: 'new-service', backingvolumemode: 'EXISTING', existingvolumeid: 'selected-data' })
   })
+  it('distinguishes unavailable runtime and explicitly skipped observation in backup rows', () => {
+    const vm = { $t: key => key }
+    expect(Widget.methods.artifactStateLabel.call(vm, { state: 'PARTIAL', metadata: { runtimeStatus: 'UNAVAILABLE' } })).toBe('label.storage.config.runtime.UNAVAILABLE')
+    expect(Widget.methods.artifactStateLabel.call(vm, { state: 'PARTIAL', metadata: { runtimeStatus: 'NOT_REQUESTED' } })).toBe('label.storage.config.runtime.NOT_REQUESTED')
+    expect(Widget.methods.artifactStateLabel.call(vm, { state: 'PARTIAL', metadata: { runtimeStatus: 'PARTIAL' } })).toBe('label.storage.config.state.PARTIAL')
+    expect(Widget.methods.runtimeStateLabel.call(vm, 'UNAVAILABLE_OR_PARTIAL')).toBe('label.storage.config.runtime.UNAVAILABLE_OR_PARTIAL')
+  })
+  it('checks downloaded bytes and keeps the Blob available for asynchronous browser download handling', async () => {
+    jest.useFakeTimers()
+    const originalCreate = URL.createObjectURL
+    const originalRevoke = URL.revokeObjectURL
+    URL.createObjectURL = jest.fn(() => 'blob:configuration-test')
+    URL.revokeObjectURL = jest.fn()
+    const click = jest.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function () {
+      expect(document.body.contains(this)).toBe(true)
+      expect(this.download).toBe('storage-config-public.zip')
+    })
+    try {
+      const vm = { instanceId: 'a', unwrap: Widget.methods.unwrap, $t: key => key }
+      postAPI.mockResolvedValueOnce({ result: JSON.stringify({ downloadToken: 'synthetic' }) })
+        .mockResolvedValueOnce({ result: JSON.stringify({ data: 'YWJj', sha256: 'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad', filename: 'storage-config-public.zip' }) })
+      await Widget.methods.download.call(vm, { id: 'backup' })
+      expect(click).toHaveBeenCalledTimes(1)
+      expect(URL.revokeObjectURL).not.toHaveBeenCalled()
+      jest.advanceTimersByTime(60000)
+      expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:configuration-test')
+    } finally {
+      click.mockRestore()
+      URL.createObjectURL = originalCreate
+      URL.revokeObjectURL = originalRevoke
+      jest.useRealTimers()
+    }
+  })
+  it('rejects changed download bytes before creating a file', async () => {
+    const click = jest.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
+    try {
+      const vm = { instanceId: 'a', unwrap: Widget.methods.unwrap, $t: key => key }
+      postAPI.mockResolvedValueOnce({ result: JSON.stringify({ downloadToken: 'synthetic' }) })
+        .mockResolvedValueOnce({ result: JSON.stringify({ data: 'YWJj', sha256: 'changed', filename: 'storage-config-public.zip' }) })
+      await Widget.methods.download.call(vm, { id: 'backup' })
+      expect(click).not.toHaveBeenCalled()
+      expect(vm.error).toBe('message.storage.config.download.integrity')
+    } finally { click.mockRestore() }
+  })
 })

@@ -8708,5 +8708,11 @@
   "label.storage.config.clone.volume.mode": "초기 데이터 볼륨",
   "label.storage.config.directory.prepare": "없는 디렉터리만 준비",
   "message.storage.config.file.execute": "검토한 SMB 정책은 새 파일에 실행 비트를 강제로 적용합니다. 복원 전에 이 설정을 확인하세요.",
-  "label.storage.config.file.execute.confirm": "검토한 파일 실행 비트 정책 복원 확인"
+  "label.storage.config.file.execute.confirm": "검토한 파일 실행 비트 정책 복원 확인",
+  "label.storage.config.runtime.AVAILABLE": "런타임 수집 완료",
+  "label.storage.config.runtime.UNAVAILABLE": "런타임 수집 불가",
+  "label.storage.config.runtime.PARTIAL": "런타임 일부 수집",
+  "label.storage.config.runtime.NOT_REQUESTED": "설정만 보관",
+  "label.storage.config.runtime.UNAVAILABLE_OR_PARTIAL": "런타임 미수집 또는 부분 수집",
+  "message.storage.config.download.integrity": "다운로드한 구성의 체크섬이 백업과 다릅니다. 다시 시도해 주세요."
 }

@@ -30,7 +30,7 @@
     <a-alert v-if="readFailed" type="warning" show-icon :message="$t('message.storage.config.read.failed')" />
     <a-table size="small" row-key="id" :columns="columns" :data-source="rows" :pagination="{ pageSize: 5 }" :scroll="{ x: 1100 }">
       <template #bodyCell="{ column, record }">
-        <template v-if="column.key==='state'"><a-tag>{{ $t('label.storage.config.state.' + record.state) }}</a-tag></template>
+        <template v-if="column.key==='state'"><a-tag>{{ artifactStateLabel(record) }}</a-tag></template>
         <template v-else-if="column.key==='kind'">{{ $t('label.storage.config.kind.' + record.kind) }}</template>
         <template v-else-if="column.key==='created'">{{ new Date(record.created).toLocaleString() }}</template>
         <template v-else-if="column.key==='actions'">
@@ -47,7 +47,7 @@
       </template>
       <template #expandedRowRender="{ record }">
         <a-descriptions :column="2" bordered size="small">
-          <a-descriptions-item :label="$t('label.storage.config.runtime.status')">{{ record.metadata?.runtimeStatus || '—' }}</a-descriptions-item>
+          <a-descriptions-item :label="$t('label.storage.config.runtime.status')">{{ runtimeStateLabel(record.metadata?.runtimeStatus) }}</a-descriptions-item>
           <a-descriptions-item :label="$t('label.storage.config.secret.coverage')">{{ record.metadata?.credentialCoverage || '—' }}</a-descriptions-item>
           <a-descriptions-item :label="$t('label.storage.config.verification')">{{ record.metadata?.verification || '—' }}</a-descriptions-item>
           <a-descriptions-item :label="$t('label.storage.config.restore.status')">{{ record.metadata?.restoreState || '—' }}</a-descriptions-item>
@@ -201,6 +201,16 @@ export default {
       }
       throw new Error(this.$t('message.storage.config.timeout'))
     },
+    artifactStateLabel (record) {
+      const runtime = record.metadata?.runtimeStatus
+      return record.state === 'PARTIAL' && ['UNAVAILABLE', 'NOT_REQUESTED'].includes(runtime)
+        ? this.$t('label.storage.config.runtime.' + runtime)
+        : this.$t('label.storage.config.state.' + record.state)
+    },
+    runtimeStateLabel (status) {
+      return ['AVAILABLE', 'UNAVAILABLE', 'PARTIAL', 'NOT_REQUESTED', 'UNAVAILABLE_OR_PARTIAL'].includes(status)
+        ? this.$t('label.storage.config.runtime.' + status) : (status || '—')
+    },
     async verifyBaseline () {
       this.busy = 'VERIFY'; this.error = ''
       try { await this.mutation('verifyStorageServiceConfiguration', {}); await this.refresh() } catch (error) { this.error = error.message } finally { this.busy = '' }
@@ -218,8 +228,15 @@ export default {
         const value = this.unwrap(await postAPI('downloadStorageServiceConfigBackup', { instanceid: instance, artifactid: row.id, downloadtoken: issued.downloadToken }), 'downloadStorageServiceConfigBackup')
         if (instance !== this.instanceId) throw new Error(this.$t('message.storage.config.scope.changed'))
         const binary = Uint8Array.from(atob(value.data), value => value.charCodeAt(0))
+        if (!value.sha256 || new Sha256().update(binary).digest('hex') !== value.sha256) throw new Error(this.$t('message.storage.config.download.integrity'))
         const href = URL.createObjectURL(new Blob([binary], { type: 'application/zip' })); const link = document.createElement('a')
-        link.href = href; link.download = value.filename; link.click(); URL.revokeObjectURL(href)
+        link.href = href; link.download = value.filename; link.style.display = 'none'
+        document.body.appendChild(link)
+        try { link.click() } finally {
+          link.remove()
+          // Let asynchronous browser download handling acquire the Blob before releasing it.
+          setTimeout(() => URL.revokeObjectURL(href), 60000)
+        }
       } catch (error) { this.error = error.message } finally { this.busy = '' }
     },
     async importFile (file) {
