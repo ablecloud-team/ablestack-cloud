@@ -53,4 +53,30 @@ public class KubernetesCreationComponentFailureTest {
         assertFalse(w.initializeCreationComponent("CSI", () -> false));
         Mockito.verify(w, Mockito.never()).stateTransitTo(Mockito.anyLong(), Mockito.any());
     }
+    private void storedState(KubernetesClusterStartWorker w, KubernetesCluster.State state) {
+        w.kubernetesClusterDao = Mockito.mock(com.cloud.kubernetes.cluster.dao.KubernetesClusterDao.class);
+        com.cloud.kubernetes.cluster.KubernetesClusterVO current = Mockito.mock(com.cloud.kubernetes.cluster.KubernetesClusterVO.class);
+        Mockito.when(current.getState()).thenReturn(state);
+        Mockito.when(w.kubernetesClusterDao.findById(8L)).thenReturn(current);
+    }
+    @Test public void unexpectedAllocationFailureUsesPersistedStartingState() {
+        KubernetesClusterStartWorker w = worker(); storedState(w, KubernetesCluster.State.Starting);
+        w.recordCreationOperationFailure();
+        Mockito.verify(w).stateTransitTo(8L, KubernetesCluster.Event.CreateFailed);
+    }
+    @Test public void earlierFailureOrSuccessfulStateIsNeverOverwritten() {
+        KubernetesClusterStartWorker w = worker(); storedState(w, KubernetesCluster.State.Error);
+        w.recordCreationOperationFailure(); storedState(w, KubernetesCluster.State.Running);
+        w.recordCreationOperationFailure();
+        Mockito.verify(w, Mockito.never()).stateTransitTo(Mockito.anyLong(), Mockito.any());
+    }
+    @Test public void preInitFailureWithoutAnyNodesRecordsPreflightAndFailure() {
+        KubernetesClusterStartWorker w = worker(); storedState(w, KubernetesCluster.State.Created);
+        w.kubernetesClusterVmMapDao = Mockito.mock(com.cloud.kubernetes.cluster.dao.KubernetesClusterVmMapDao.class);
+        w.kubernetesClusterDetailsDao = Mockito.mock(com.cloud.kubernetes.cluster.dao.KubernetesClusterDetailsDao.class);
+        w.recordCreationOperationFailure();
+        Mockito.verify(w.kubernetesClusterDetailsDao).addDetail(8L, "lifecycle.provisioning.phase", "Preflight", false);
+        Mockito.verify(w).stateTransitTo(8L, KubernetesCluster.Event.StartRequested);
+        Mockito.verify(w).stateTransitTo(8L, KubernetesCluster.Event.CreateFailed);
+    }
 }

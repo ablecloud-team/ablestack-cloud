@@ -2132,7 +2132,12 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
         }
         if (onCreate) {
             // Start for Kubernetes cluster in 'Created' state
-            return startWorker.startKubernetesClusterOnCreate(domainId, accountId, asNumber);
+            try {
+                return startWorker.startKubernetesClusterOnCreate(domainId, accountId, asNumber);
+            } catch (ManagementServerException | ResourceUnavailableException | InsufficientCapacityException | RuntimeException error) {
+                startWorker.recordCreationOperationFailure();
+                throw error;
+            }
         } else {
             // Start for Kubernetes cluster in 'Stopped' state. Resources are already provisioned, just need to be started
             return startWorker.startStoppedKubernetesCluster(domainId, accountId);

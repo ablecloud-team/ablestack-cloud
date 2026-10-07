@@ -775,6 +775,19 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
         }
     }
 
+    public void recordCreationOperationFailure() {
+        KubernetesCluster current = kubernetesClusterDao.findById(kubernetesCluster.getId());
+        if (current == null) { return; }
+        if (current.getState() == KubernetesCluster.State.Created
+                && CollectionUtils.isEmpty(kubernetesClusterVmMapDao.listByClusterId(kubernetesCluster.getId()))) {
+            kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "lifecycle.provisioning.phase", "Preflight", false);
+            stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.StartRequested);
+            stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.CreateFailed);
+        } else if (current.getState() == KubernetesCluster.State.Starting) {
+            stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.CreateFailed);
+        }
+    }
+
     protected boolean initializeCreationComponent(String component, java.util.function.BooleanSupplier initialize) {
         try {
             return initialize.getAsBoolean();
