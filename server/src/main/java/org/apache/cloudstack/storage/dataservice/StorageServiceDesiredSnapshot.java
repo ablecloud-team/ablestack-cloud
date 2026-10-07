@@ -43,7 +43,7 @@ import com.google.gson.JsonParser;
 /** Snapshots only the reversible desired-state tables; never modifies VM or volume tables. */
 public class StorageServiceDesiredSnapshot {
     private static final List<String> TABLES = Arrays.asList(
-            "storage_service_protocol", "storage_file_share", "storage_block_target", "storage_identity_domain", "storage_access_rule");
+            "storage_service_protocol", "storage_file_share", "storage_block_target", "storage_identity_domain", "storage_access_rule", "storage_posix_directory_policy");
     private static final int MAX_SNAPSHOT_BYTES = 16 * 1024 * 1024;
 
     private String predicate(String table) {
@@ -61,7 +61,7 @@ public class StorageServiceDesiredSnapshot {
 
     public String capture(long instanceId) {
         final JsonObject snapshot = new JsonObject();
-        snapshot.addProperty("schemaVersion", 1); snapshot.addProperty("instanceId", instanceId);
+        snapshot.addProperty("schemaVersion", 2); snapshot.addProperty("instanceId", instanceId);
         final JsonArray tables = new JsonArray();
         try {
             for (String table : TABLES) {
@@ -111,6 +111,7 @@ public class StorageServiceDesiredSnapshot {
                 validateLiveIdentities(instanceId, entries);
                 List<String> reverse = new ArrayList<>(TABLES); Collections.reverse(reverse);
                 for (String table : reverse) {
+                    if (!entries.containsKey(table)) continue;
                     JsonArray rows = entries.get(table).getAsJsonArray("rows");
                     String ids = rows.size() == 0 ? "-1" : String.join(",", ids(rows));
                     try (PreparedStatement remove = TransactionLegacy.currentTxn().prepareAutoCloseStatement(
@@ -119,6 +120,7 @@ public class StorageServiceDesiredSnapshot {
                     }
                 }
                 for (String table : TABLES) {
+                    if (!entries.containsKey(table)) continue;
                     JsonObject entry = entries.get(table);
                     List<String> names = new ArrayList<>(); List<Integer> types = new ArrayList<>();
                     for (JsonElement element : entry.getAsJsonArray("columns")) {
@@ -157,7 +159,7 @@ public class StorageServiceDesiredSnapshot {
             throw new CloudRuntimeException("Invalid or oversized desired-state snapshot");
         }
         final JsonObject snapshot = new JsonParser().parse(json).getAsJsonObject();
-        if (snapshot.get("schemaVersion").getAsInt() != 1 || snapshot.get("instanceId").getAsLong() != instanceId) {
+        if ((snapshot.get("schemaVersion").getAsInt() != 1 && snapshot.get("schemaVersion").getAsInt() != 2) || snapshot.get("instanceId").getAsLong() != instanceId) {
             throw new CloudRuntimeException("Desired-state snapshot identity does not match");
         }
         final Map<String, JsonObject> entries = new HashMap<>();
@@ -188,7 +190,19 @@ public class StorageServiceDesiredSnapshot {
             }
             resources.put(table, identities);
         }
-        if (entries.size() != TABLES.size()) throw new CloudRuntimeException("Desired-state snapshot is incomplete");
+        final boolean legacy = snapshot.get("schemaVersion").getAsInt() == 1;
+        if (entries.size() != (legacy ? TABLES.size() - 1 : TABLES.size())
+                || !entries.keySet().containsAll(TABLES.subList(0, TABLES.size() - (legacy ? 1 : 0)))) {
+            throw new CloudRuntimeException("Desired-state snapshot is incomplete");
+        }
+        if (!legacy) {
+            for (JsonElement item : entries.get("storage_file_share").getAsJsonArray("rows")) {
+                final JsonObject row = item.getAsJsonObject();final JsonElement reference = row.get("posix_policy_id");
+                if (reference != null && !reference.isJsonNull() && !resources.get("storage_posix_directory_policy").contains(reference.getAsLong())) {
+                    throw new CloudRuntimeException("File share references a POSIX policy outside its scoped snapshot");
+                }
+            }
+        }
         for (JsonElement item : entries.get("storage_access_rule").getAsJsonArray("rows")) {
             JsonObject row = item.getAsJsonObject();
             String type = row.get("resource_type").getAsString();
@@ -201,6 +215,7 @@ public class StorageServiceDesiredSnapshot {
 
     private void validateLiveColumns(Map<String, JsonObject> entries) throws SQLException {
         for (String table : TABLES) {
+            if (!entries.containsKey(table)) continue;
             Map<String, Integer> live = new LinkedHashMap<>();
             try (PreparedStatement query = TransactionLegacy.currentTxn().prepareAutoCloseStatement("SELECT * FROM cloud." + table + " WHERE 1=0");
                     ResultSet result = query.executeQuery()) {
@@ -217,6 +232,7 @@ public class StorageServiceDesiredSnapshot {
 
     private void validateLiveIdentities(long instanceId, Map<String, JsonObject> entries) throws SQLException {
         for (String table : TABLES) {
+            if (!entries.containsKey(table)) continue;
             for (JsonElement item : entries.get(table).getAsJsonArray("rows")) {
                 JsonObject row=item.getAsJsonObject();
                 long id=row.get("id").getAsLong(); String uuid=row.get("uuid").getAsString();

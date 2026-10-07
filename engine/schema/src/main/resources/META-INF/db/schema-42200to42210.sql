@@ -1214,3 +1214,31 @@ SET @storage_service_config_json_ddl = IF(
 PREPARE stmt FROM @storage_service_config_json_ddl;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
+
+-- SharedFS Epic898 protocol-neutral directory ownership and ACL policy (#903/#916).
+CREATE TABLE IF NOT EXISTS `cloud`.`storage_posix_directory_policy` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `uuid` varchar(40) NOT NULL,
+  `instance_id` bigint unsigned NOT NULL,
+  `volume_id` bigint unsigned NOT NULL,
+  `relative_path` varchar(1024) NOT NULL,
+  `path_key` char(64) CHARACTER SET ascii NOT NULL,
+  `revision` bigint unsigned NOT NULL DEFAULT 1,
+  `state` varchar(32) NOT NULL DEFAULT 'Allocated',
+  `config_json` mediumtext NOT NULL,
+  `effective_json` mediumtext DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_applied` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_storage_posix_directory_policy__uuid` (`uuid`),
+  UNIQUE KEY `uk_storage_posix_directory_policy__path` (`instance_id`, `path_key`),
+  KEY `idx_storage_posix_directory_policy__volume_id` (`volume_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+SET @epic898_posix_reference_sql = IF(
+    (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='cloud' AND TABLE_NAME='storage_file_share' AND COLUMN_NAME='posix_policy_id') = 0,
+    'ALTER TABLE `cloud`.`storage_file_share` ADD COLUMN `posix_policy_id` bigint unsigned DEFAULT NULL, ADD KEY `idx_storage_file_share__posix_policy_id` (`posix_policy_id`)',
+    'SELECT 1');
+PREPARE epic898_posix_reference_stmt FROM @epic898_posix_reference_sql;
+EXECUTE epic898_posix_reference_stmt;
+DEALLOCATE PREPARE epic898_posix_reference_stmt;

@@ -1541,6 +1541,42 @@ iscsi_targets = enrich_iscsi_targets(load_json("/etc/ablestack-storage/iscsi-tar
 nvmeof_subsystems = redact_sensitive(enrich_nvmeof_subsystems(load_json("/etc/ablestack-storage/nvmeof-subsystems.json", {})))
 nvmeof_ports = desired_nvmeof_ports(nvmeof_subsystems)
 nvmeof_runtime = nvmeof_port_runtime(nvmeof_subsystems)
+def posix_directory_observations():
+    result = {}
+    started = time.monotonic()
+    for key, item in load_json("/etc/ablestack-storage/posix-directory-policies.json", {}).items():
+        request = item.get("request") or {}
+        config = request.get("config") or {}
+        observed = dict(item.get("effective") or {})
+        observed["driftStatus"] = "UNOBSERVED"
+        if time.monotonic() - started > 3:
+            result[key] = observed
+            continue
+        try:
+            root = str(request.get("volumeMountPath") or "").rstrip("/")
+            path = root + "/" + str(request.get("relativePath") or "")
+            if not root.startswith("/srv/ablestack-storage/volumes/") or os.path.realpath(path) != path or not path.startswith(root + "/"):
+                raise ValueError("Directory policy path identity changed")
+            current = os.stat(path)
+            mode = format(current.st_mode & 0o7777, "04o")
+            observed.update({"effectiveUid": current.st_uid, "effectiveGid": current.st_gid, "effectiveMode": mode})
+            same = mode == str(config.get("directoryMode")) and (not config.get("applyOwner") or
+                   (current.st_uid == config.get("ownerUid") and current.st_gid == config.get("ownerGid")))
+            acl = subprocess.run(["getfacl", "-cpn", path], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=1)
+            if acl.returncode != 0:
+                raise RuntimeError("Directory ACL observation failed")
+            actual = [line.split("#", 1)[0].strip() for line in acl.stdout.splitlines() if line.split("#", 1)[0].strip()]
+            expected = (item.get("effective") or {}).get("acl")
+            observed["acl"] = actual
+            if expected is not None:
+                same = same and sorted(expected) == sorted(actual)
+            observed["driftStatus"] = "CONSISTENT" if same else "DRIFT"
+            observed["observedAt"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+        except Exception as error:
+            observed["observationError"] = type(error).__name__
+        result[key] = observed
+    return result
+
 file_share_volume_snapshot = file_share_volume_runtime()
 file_share_volumes = file_share_volume_snapshot.get("observations", [])
 
@@ -1555,6 +1591,7 @@ print(json.dumps({
     "nfsQuotas": load_json("/etc/ablestack-storage/nfs-quotas.json", {}),
     "smbShares": smb_shares,
     "smbQuotas": load_json("/etc/ablestack-storage/smb-quotas.json", {}),
+    "posixDirectoryPolicies": posix_directory_observations(),
     "smbAccess": load_json("/etc/ablestack-storage/smb-access.json", {}),
     "smbDomain": load_json("/etc/ablestack-storage/smb-domain.json", {}),
     "smbDomainError": load_json("/etc/ablestack-storage/smb-domain-error.json", {}),
@@ -4557,7 +4594,26 @@ def ensure_export_alias(export):
     daemon_reload()
     return exposed_path
 
+def verify_common_posix_policy(path, config):
+    policy_uuid = config.get("posixPolicyUuid")
+    if not policy_uuid:
+        return False
+    with open("/etc/ablestack-storage/posix-directory-policies.json", "r", encoding="utf-8") as fp:
+        policies = json.load(fp)
+    stored = policies.get(str(policy_uuid))
+    if not isinstance(stored, dict):
+        raise RuntimeError("Referenced common POSIX policy is not applied")
+    request = stored.get("request") or {}
+    canonical = str(request.get("volumeMountPath") or "").rstrip("/") + "/" + str(request.get("relativePath") or "")
+    if os.path.realpath(path) != canonical or int(request.get("revision", -1)) != int(config.get("posixPolicyRevision", -2)):
+        raise RuntimeError("Protocol directory or revision differs from the common POSIX policy")
+    if os.path.islink(path):
+        raise RuntimeError("Common POSIX directory is a symlink")
+    return True
+
 def apply_posix_permissions(backing_path, export_config):
+    if verify_common_posix_policy(backing_path, export_config):
+        return
     owner_uid = int_config(export_config, "ownerUid")
     owner_gid = int_config(export_config, "ownerGid")
     mode = mode_config(export_config)
@@ -4794,6 +4850,238 @@ PY
     open_tcp_firewall_port "111"
     open_udp_firewall_port "111"
   fi
+}
+
+posix_directory_policy() {
+  local action="$1" payload_file="$2"
+  python3 - "$action" "$payload_file" <<'PYPOSIX'
+import grp
+import json
+import os
+import pwd
+import re
+import stat
+import subprocess
+import sys
+import tempfile
+import uuid
+
+operation = sys.argv[1]
+with open(sys.argv[2], encoding="utf-8") as fp:
+    request = json.load(fp)
+
+def run(args, **kwargs):
+    if "directory_fd" in globals():
+        kwargs["pass_fds"] = (directory_fd,)
+    return subprocess.run(args, check=True, timeout=15, **kwargs)
+
+def path_identity(payload):
+    volume = str(uuid.UUID(payload["volumeUuid"]))
+    root = str(payload["volumeMountPath"]).rstrip("/")
+    if root != "/srv/ablestack-storage/volumes/" + volume or os.path.islink(root) or not os.path.isdir(root):
+        raise ValueError("POSIX policy requires the selected managed volume mount root")
+    relative = str(payload["relativePath"])
+    if not relative or relative.startswith("/") or "\\" in relative or any(ord(ch) < 32 for ch in relative):
+        raise ValueError("Invalid volume-relative directory path")
+    components = relative.split("/")
+    if any(part in ("", ".", "..") for part in components):
+        raise ValueError("Directory path traversal is forbidden")
+    mounted = run(["findmnt", "-n", "-o", "TARGET,UUID", "-T", root], stdout=subprocess.PIPE, text=True).stdout.strip().split()
+    if len(mounted) != 2 or mounted[0] != root:
+        raise ValueError("Selected volume mount identity is unavailable")
+    descriptor = os.open(root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    device = os.fstat(descriptor).st_dev
+    path = root
+    try:
+        for part in components:
+            child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=descriptor)
+            os.close(descriptor)
+            descriptor = child
+            path = os.path.join(path, part)
+            if os.fstat(descriptor).st_dev != device:
+                raise ValueError("POSIX directory crosses a device boundary")
+            target = run(["findmnt", "-n", "-o", "TARGET", "-T", path], stdout=subprocess.PIPE, text=True).stdout.strip()
+            if target != root:
+                raise ValueError("POSIX directory crosses a mount boundary")
+        return path, mounted[1], descriptor
+    except Exception:
+        os.close(descriptor)
+        raise
+
+def acl_lines(path):
+    output = run(["getfacl", "-cpn", "/proc/self/fd/" + str(directory_fd)], stdout=subprocess.PIPE, text=True).stdout
+    result = []
+    for raw in output.splitlines():
+        line = raw.split("#", 1)[0].strip()
+        if not line:
+            continue
+        if not re.fullmatch(r"(?:default:)?(?:user|group|mask|other):[0-9]*:[r-][w-][x-]", line):
+            raise ValueError("Unsupported native ACL snapshot entry")
+        result.append(line)
+    return result
+
+def observe(payload):
+    if (payload["volumeUuid"], payload["volumeMountPath"], payload["relativePath"]) != (request["volumeUuid"], request["volumeMountPath"], request["relativePath"]):
+        raise ValueError("Directory snapshot path identity differs from its pinned scope")
+    path, filesystem = canonical_path, filesystem_uuid
+    value = os.fstat(directory_fd)
+    if os.path.islink(path) or os.lstat(path).st_ino != value.st_ino:
+        raise ValueError("Directory path was replaced after canonical preflight")
+    return {"success": True, "uuid": str(uuid.UUID(payload["uuid"])), "instanceUuid": str(uuid.UUID(payload["instanceUuid"])),
+            "volumeUuid": str(uuid.UUID(payload["volumeUuid"])), "volumeMountPath": payload["volumeMountPath"],
+            "relativePath": payload["relativePath"], "canonicalPath": path, "filesystemUuid": filesystem,
+            "effectiveUid": value.st_uid, "effectiveGid": value.st_gid, "effectiveMode": format(stat.S_IMODE(value.st_mode), "04o"),
+            "inode": value.st_ino, "acl": acl_lines(path), "revision": int(payload.get("revision", 0)), "driftStatus": "UNOBSERVED"}
+
+def restore(snapshot):
+    path, filesystem = canonical_path, filesystem_uuid
+    if filesystem != snapshot["filesystemUuid"] or os.fstat(directory_fd).st_ino != int(snapshot["inode"]):
+        raise ValueError("Refusing POSIX restore on a replaced filesystem or directory")
+    for line in snapshot["acl"]:
+        if not re.fullmatch(r"(?:default:)?(?:user|group|mask|other):[0-9]*:[r-][w-][x-]", line):
+            raise ValueError("Invalid structured native ACL snapshot")
+    os.chown(directory_fd, int(snapshot["effectiveUid"]), int(snapshot["effectiveGid"]))
+    pinned = "/proc/self/fd/" + str(directory_fd)
+    run(["setfacl", "-b", pinned]);run(["setfacl", "-k", pinned])
+    run(["setfacl", "--set-file=-", pinned], input="\n".join(snapshot["acl"]) + "\n", text=True)
+    os.chmod(directory_fd, int(snapshot["effectiveMode"], 8))
+    if "previousPolicy" in snapshot:
+        if snapshot["previousPolicy"] is None:
+            desired.pop(snapshot["uuid"], None)
+        else:
+            desired[snapshot["uuid"]] = snapshot["previousPolicy"]
+    return observe(snapshot)
+
+def resolved_entry(entry):
+    kind = entry.get("principalType")
+    principal = str(entry.get("principal") or "")
+    if kind in ("NUMERIC_UID", "NUMERIC_GID"):
+        if not re.fullmatch(r"[0-9]{1,10}", principal) or int(principal) > 2147483647:
+            raise ValueError("Invalid numeric POSIX principal")
+        key, numeric = ("u" if kind == "NUMERIC_UID" else "g"), int(principal)
+    elif kind in ("LOCAL_USER", "LOCAL_GROUP"):
+        if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_.-]{0,63}", principal):
+            raise ValueError("Invalid local POSIX principal")
+        key = "u" if kind == "LOCAL_USER" else "g"
+        numeric = pwd.getpwnam(principal).pw_uid if key == "u" else grp.getgrnam(principal).gr_gid
+    else:
+        raise ValueError("Only numeric/local POSIX principals are supported; AD is deferred")
+    permission = entry.get("permission")
+    if permission not in ("READ_ONLY", "READ_WRITE", "FULL_CONTROL"):
+        raise ValueError("Invalid POSIX permission")
+    return key, numeric, "r-x" if permission == "READ_ONLY" else "rwx"
+
+def bits(value):
+    return ("r" if value & 4 else "-") + ("w" if value & 2 else "-") + ("x" if value & 1 else "-")
+
+def validate_policy(config):
+    if config.get("recursive"):
+        raise ValueError("Recursive directory modification is unsupported")
+    mode = str(config.get("directoryMode") or "0770")
+    if not re.fullmatch(r"0?[0-7]{3,4}", mode) or int(mode, 8) > 0o7777:
+        raise ValueError("Invalid directory mode")
+    for field in ("accessEntries", "defaultEntries"):
+        entries = config.get(field) or []
+        if not isinstance(entries, list) or len(entries) > 128:
+            raise ValueError("Invalid structured POSIX ACL list")
+        values = [resolved_entry(entry) for entry in entries]
+        if len({(kind, numeric) for kind, numeric, permission in values}) != len(values):
+            raise ValueError("Duplicate resolved POSIX ACL principal")
+    if config.get("applyOwner"):
+        uid, gid = config.get("ownerUid"), config.get("ownerGid")
+        if not isinstance(uid, int) or not isinstance(gid, int) or not 0 <= uid <= 2147483647 or not 0 <= gid <= 2147483647:
+            raise ValueError("Owner change needs explicit valid numeric UID and GID")
+
+def apply_policy(payload, before, old_policy):
+    observe(payload)
+    config = payload.get("config") or {}
+    if config.get("recursive"):
+        raise ValueError("Recursive directory modification is unsupported")
+    mode = str(config.get("directoryMode") or "0770")
+    if not re.fullmatch(r"0?[0-7]{3,4}", mode) or int(mode, 8) > 0o7777:
+        raise ValueError("Invalid directory mode")
+    resolved = {}
+    for field in ("accessEntries", "defaultEntries"):
+        entries = config.get(field) or []
+        if not isinstance(entries, list) or len(entries) > 128:
+            raise ValueError("Invalid structured POSIX ACL list")
+        resolved[field] = [resolved_entry(entry) for entry in entries]
+        if len({(kind, numeric) for kind, numeric, permission in resolved[field]}) != len(resolved[field]):
+            raise ValueError("Duplicate POSIX ACL principal")
+    path = "/proc/self/fd/" + str(directory_fd)
+    if config.get("applyOwner"):
+        uid, gid = config.get("ownerUid"), config.get("ownerGid")
+        if not isinstance(uid, int) or not isinstance(gid, int) or not 0 <= uid <= 2147483647 or not 0 <= gid <= 2147483647:
+            raise ValueError("Owner change needs explicit valid numeric UID and GID")
+        if (uid, gid) != (before["effectiveUid"], before["effectiveGid"]):
+            os.chown(directory_fd, uid, gid)
+    os.chmod(directory_fd, int(mode, 8))
+    for field, default in (("accessEntries", False), ("defaultEntries", True)):
+        desired = {(kind, numeric) for kind, numeric, permission in resolved[field]}
+        for old in (old_policy.get("config") or {}).get(field, []):
+            kind, numeric, permission = resolved_entry(old)
+            if (kind, numeric) not in desired:
+                run(["setfacl", *( ["-d"] if default else [] ), "-x", f"{kind}:{numeric}", path])
+        for kind, numeric, permission in resolved[field]:
+            run(["setfacl", *( ["-d"] if default else [] ), "-m", f"{kind}:{numeric}:{permission}", path])
+    after = observe(payload)
+    if after["effectiveMode"] != format(int(mode, 8), "04o"):
+        raise RuntimeError("POSIX ACL mask conflicts with requested directory mode")
+    after["resolvedAccessEntries"] = [{"kind": kind, "numericId": numeric, "permission": permission} for kind, numeric, permission in resolved["accessEntries"]]
+    after["resolvedDefaultEntries"] = [{"kind": kind, "numericId": numeric, "permission": permission} for kind, numeric, permission in resolved["defaultEntries"]]
+    after["driftStatus"] = "CONSISTENT"
+    return after
+
+def apply_policy_atomic(payload, before, old_policy):
+    try:
+        return apply_policy(payload, before, old_policy)
+    except Exception:
+        restore(before)
+        raise
+
+canonical_path, filesystem_uuid, directory_fd = path_identity(request)
+state_path = "/etc/ablestack-storage/posix-directory-policies.json"
+try:
+    with open(state_path, encoding="utf-8") as fp:
+        desired = json.load(fp)
+except FileNotFoundError:
+    desired = {}
+
+if operation == "restore":
+    result = restore(request)
+    result["driftStatus"] = "RESTORED"
+elif operation == "inspect":
+    validate_policy(request.get("config") or {})
+    result = observe(request)
+    result["previousPolicy"] = desired.get(result["uuid"])
+elif operation == "forget":
+    result = observe(request)
+    desired.pop(str(uuid.UUID(request["uuid"])), None)
+elif operation == "apply":
+    before = observe(request)
+    before["previousPolicy"] = desired.get(before["uuid"])
+    old = before["previousPolicy"] or {}
+    result = apply_policy_atomic(request, before, old)
+    desired[before["uuid"]] = {"request": request, "config": request.get("config") or {}, "effective": result}
+else:
+    raise ValueError("Unsupported POSIX directory operation")
+
+if operation in ("apply", "forget", "restore"):
+    fd, temporary = tempfile.mkstemp(prefix=".posix-policy-", dir=os.path.dirname(state_path))
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fp:
+            json.dump(desired, fp, sort_keys=True, indent=2);fp.flush();os.fsync(fp.fileno())
+        os.replace(temporary, state_path)
+    except Exception:
+        if operation == "apply":
+            restore(before)
+        raise
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
+os.close(directory_fd)
+print(json.dumps(result, sort_keys=True))
+PYPOSIX
 }
 
 apply_smb_shares() {
@@ -5068,6 +5356,23 @@ def reset_directory_acl(path):
         run_optional(["setfacl", "-b", path])
         run_optional(["setfacl", "-k", path])
 
+def verify_common_posix_policy(path, config):
+    policy_uuid = config.get("posixPolicyUuid")
+    if not policy_uuid:
+        return False
+    with open("/etc/ablestack-storage/posix-directory-policies.json", "r", encoding="utf-8") as fp:
+        policies = json.load(fp)
+    stored = policies.get(str(policy_uuid))
+    if not isinstance(stored, dict):
+        raise RuntimeError("Referenced common POSIX policy is not applied")
+    request = stored.get("request") or {}
+    canonical = str(request.get("volumeMountPath") or "").rstrip("/") + "/" + str(request.get("relativePath") or "")
+    if os.path.realpath(path) != canonical or int(request.get("revision", -1)) != int(config.get("posixPolicyRevision", -2)):
+        raise RuntimeError("Protocol directory or revision differs from the common POSIX policy")
+    if os.path.islink(path):
+        raise RuntimeError("Common POSIX directory is a symlink")
+    return True
+
 def apply_directory_policy(path, config, cross_protocol, previous=None):
     mode = str(config.get("directoryMode") or "0770")
     if not re.fullmatch(r"0?[0-7]{3,4}", mode) or int(mode, 8) > 0o7777:
@@ -5075,7 +5380,7 @@ def apply_directory_policy(path, config, cross_protocol, previous=None):
     parsed_mode = int(mode, 8)
     previous = previous or {}
     # Creation options must not reset named/default ACLs or touch an unchanged root mode.
-    if not cross_protocol and (previous.get("path") != path or int(previous.get("directoryMode", "-1"), 8) != parsed_mode):
+    if not verify_common_posix_policy(path, config) and not cross_protocol and (previous.get("path") != path or int(previous.get("directoryMode", "-1"), 8) != parsed_mode):
         os.chmod(path, parsed_mode)
     return parsed_mode
 
@@ -5206,7 +5511,8 @@ for share in payload.get("shares", []):
     smb_creation_acl_preflight(path, creation_policy)
     previous = previous_access.get(str(share.get("uuid") or name), {})
     directory_mode = apply_directory_policy(path, config, cross_protocol, previous)
-    remove_stale_managed_smb_acls(path, share.get("acls", []), previous)
+    if not config.get("posixPolicyUuid"):
+        remove_stale_managed_smb_acls(path, share.get("acls", []), previous)
     valid_users = []
     write_list = []
     admin_users = []
@@ -5231,16 +5537,19 @@ for share in payload.get("shares", []):
             write_list.append(smb_principal)
         if permission == "ADMIN":
             admin_users.append(smb_principal)
-        if apply_posix_acl(path, principal_type, principal, permission):
+        if not config.get("posixPolicyUuid") and apply_posix_acl(path, principal_type, principal, permission):
             applied_acl_count += 1
 
     network_policy = smb_network_policy(share.get("networkAcls", []))
     guest_ok = truth(config, 'guestOk', False)
-    if guest_ok and not cross_protocol and (previous.get("path") != path or not previous.get("guestOk")
+    if guest_ok and not config.get("posixPolicyUuid") and not cross_protocol and (previous.get("path") != path or not previous.get("guestOk")
             or bool(previous.get("readOnly", False)) != truth(config, "readOnly", False)):
         os.chmod(path, 0o777 if not truth(config, 'readOnly', False) else 0o755)
     access_state[str(share.get("uuid") or name)] = {
         **network_policy,
+        "posixPolicyUuid": config.get("posixPolicyUuid"),
+        "posixPolicyRevision": config.get("posixPolicyRevision"),
+        "accountAclCount": configured_acl_count,
         "creationPolicy": creation_policy,
         "creationPolicyState": "CONSISTENT",
         "shareName": name,
@@ -5249,7 +5558,7 @@ for share in payload.get("shares", []):
         "appliedAclCount": applied_acl_count,
         "guestOk": guest_ok,
         "readOnly": truth(config, "readOnly", False),
-        "accessState": "open" if guest_ok else ("acl_applied" if applied_acl_count > 0 else "no_acl"),
+        "accessState": "open" if guest_ok else ("protocol_acl" if config.get("posixPolicyUuid") and configured_acl_count > 0 else ("acl_applied" if applied_acl_count > 0 else "no_acl")),
         "directoryMode": oct(directory_mode),
         "aclSummary": [
             {
@@ -7020,6 +7329,14 @@ PYRESOURCES
       emit_error "Unsupported volume operation: ${subcommand:-<empty>} ${action:-<empty>}"
       exit 2
     fi
+    ;;
+  posix)
+    if [[ "$subcommand" != "directory" || -z "$payload" || ! -r "$payload" ]]; then
+      emit_error "A readable managed POSIX directory policy payload is required."
+      exit 2
+    fi
+    log_command "$command $subcommand $action" "$payload"
+    posix_directory_policy "$action" "$payload"
     ;;
   filesystem)
     payload="${3:-}"

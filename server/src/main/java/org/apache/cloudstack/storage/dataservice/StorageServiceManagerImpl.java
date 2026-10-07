@@ -240,6 +240,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     @Inject
     private VolumeApiService volumeApiService;
 
+    @Inject
+    private org.apache.cloudstack.storage.dataservice.dao.StoragePosixDirectoryPolicyDao storagePosixPolicyDao;
+    private final ThreadLocal<StorageServiceOperationVO> storageWriterOperation = new ThreadLocal<>();
+
     @Override
     public List<Class<?>> getCommands() {
         final List<Class<?>> commands = new ArrayList<>();
@@ -251,6 +255,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         commands.add(EnableStorageServiceProtocolCmd.class);
         commands.add(DeleteStorageServiceProtocolCmd.class);
         commands.add(CreateStorageNfsExportCmd.class);
+        commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.CreateStoragePosixDirectoryPolicyCmd.class);
+        commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStoragePosixDirectoryPolicyCmd.class);
+        commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.DeleteStoragePosixDirectoryPolicyCmd.class);
+        commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.ApplyStoragePosixDirectoryPolicyCmd.class);
+        commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.ListStoragePosixDirectoryPoliciesCmd.class);
         commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageNfsServiceSettingsCmd.class);
         commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageNfsServiceSettingsCmd.class);
         commands.add(UpdateStorageNfsExportCmd.class);
@@ -372,6 +381,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
         final Long id = storageCommandId(cmd, "getId");
         final String type = cmd.getClass().getSimpleName();
+        if (id != null && type.contains("PosixDirectoryPolicy")) {
+            final StoragePosixDirectoryPolicyVO policy = requirePosixDirectoryPolicy(id);
+            return writableStorageInstanceId(policy.getInstanceId());
+        }
         if (id != null && type.contains("Acl")) {
             final StorageAccessRuleVO rule = requireAcl(id);
             if (rule.getResourceType() == StorageServiceInstance.AccessResourceType.FILE_SHARE) {
@@ -431,6 +444,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         final StorageServiceInstance.Protocol protocol = operationProtocol(cmd);
         return new DesiredStateChange(storageOperationDao, new StorageServiceDesiredSnapshot()).execute(
                 instanceId, cmd.getCommandName(), idempotency, revision, responseClass, change, new DesiredStateChange.Runtime() {
+                    public void started(StorageServiceOperationVO operation) { storageWriterOperation.set(operation); }
+                    public void finished() { storageWriterOperation.remove(); }
                     public void preflight() {
                         if (storageRuntimeUpgradeDao.findActiveByInstanceId(instanceId) != null) {
                             throw new CloudRuntimeException("A Storage Service runtime upgrade is active");
@@ -453,8 +468,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         }
                     }
                     public void applyPrevious() {
+                        restoreNativePosixOperation(cmd, instance);
                         if (protocol != null) applyStorageServiceProtocolDesiredState(instance, protocol);
                         else for (StorageServiceInstance.Protocol item : StorageServiceInstance.Protocol.values()) applyStorageServiceProtocolDesiredState(instance, item);
+                        restoreNativePosixOperation(cmd, instance);
                     }
                 });
     }
@@ -870,7 +887,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         validateNfsExportName(cmd.getName());
         validateVisibleShareName(instance, cmd.getName(), null, StorageServiceInstance.Protocol.NFS);
         validateSharePathForRelativeInput(path, cmd.getName(), cmd.getRelativePath(), true);
-        validateFileSharePathAvailable(instance, path, null, cmd.getVolumeId(), "NFS export", false, cmd.getRelativePath());
+        validateFileSharePathAvailable(instance, path, null, cmd.getVolumeId(), "NFS export", cmd.getPosixPolicyId() != null, cmd.getRelativePath());
         String configJson = buildNfsConfigJson(null, cmd.getReadOnly(), cmd.getRootSquash(), cmd.getAllSquash(), cmd.getAnonUid(), cmd.getAnonGid(),
                 cmd.getOwnerUid(), cmd.getOwnerGid(), cmd.getMode(), cmd.getRecursivePermission(), cmd.getSync(), cmd.getSecure(),
                 cmd.getEndpointMode(), cmd.getListenIps(), cmd.getListenerPorts(), protocolMode, true);
@@ -880,6 +897,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         StorageFileShareVO share = new StorageFileShareVO(instance.getId(), StorageServiceInstance.Protocol.NFS, cmd.getName(), path,
                 cmd.getVolumeId(), cmd.getFilesystem(), cmd.getQuotaBytes(), StorageServiceInstance.ResourceState.Creating,
                 configJson);
+        inheritPosixDirectoryPolicy(instance, share, cmd.getPosixPolicyId(), cmd.getOwnerUid(), cmd.getOwnerGid(), cmd.getMode());
         share = storageFileShareDao.persist(share);
         share.setState(StorageServiceInstance.ResourceState.Updating);
         storageFileShareDao.update(share.getId(), share);
@@ -921,7 +939,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             final String effectiveRelativePath = cmd.getRelativePath() == null ? getJsonString(parseJsonObject(share.getConfigJson()), "relativeSharePath") : cmd.getRelativePath();
             final String path = resolveNestedSharePath(cmd.getPath(), share.getName(), effectiveRelativePath, effectiveVolumeId, true);
             validateSharePathForRelativeInput(path, share.getName(), effectiveRelativePath, true);
-            validateFileSharePathAvailable(instance, path, share.getId(), effectiveVolumeId, "NFS export", false, effectiveRelativePath);
+            validateFileSharePathAvailable(instance, path, share.getId(), effectiveVolumeId, "NFS export", cmd.getPosixPolicyId() != null || share.getPosixPolicyId() != null, effectiveRelativePath);
             share.setPath(path);
         }
         if (cmd.getVolumeId() != null) {
@@ -942,6 +960,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 cmd.getImportMode(), cmd.getCreateDirectory()));
         share.setConfigJson(storeRelativeSharePath(share.getConfigJson(), cmd.getRelativePath()));
         validateJsonObjectConfigOrThrow(share.getConfigJson(), "NFS export " + share.getUuid());
+        inheritPosixDirectoryPolicy(instance, share, cmd.getPosixPolicyId(), cmd.getOwnerUid(), cmd.getOwnerGid(), cmd.getMode());
         share.setState(StorageServiceInstance.ResourceState.Updating);
         storageFileShareDao.update(share.getId(), share);
         try {
@@ -1190,6 +1209,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         StorageFileShareVO share = new StorageFileShareVO(instance.getId(), StorageServiceInstance.Protocol.SMB, cmd.getName(), path,
                 cmd.getVolumeId(), cmd.getFilesystem(), cmd.getQuotaBytes(), StorageServiceInstance.ResourceState.Creating,
                 configJson);
+        inheritPosixDirectoryPolicy(instance, share, cmd.getPosixPolicyId(), null, null, cmd.getDirectoryMode());
         share = storageFileShareDao.persist(share);
         for (SmbNetworkPolicy.Source source:initialNetworkRules) {
             storageAccessRuleDao.persist(new StorageAccessRuleVO(StorageServiceInstance.AccessResourceType.FILE_SHARE,share.getId(),source.type,source.principal,
@@ -1265,6 +1285,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         validateJsonObjectConfigOrThrow(configJson, "SMB share " + share.getUuid());
         preflightSmbCreationPolicy(instance, share, parseJsonObject(configJson));
         share.setConfigJson(configJson);
+        inheritPosixDirectoryPolicy(instance, share, cmd.getPosixPolicyId(), null, null, cmd.getDirectoryMode());
         share.setState(StorageServiceInstance.ResourceState.Updating);
         storageFileShareDao.update(share.getId(), share);
         try {
@@ -5228,6 +5249,259 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if (!result.isSuccess()) throw new InvalidParameterValueException("SMB creation permissions failed POSIX ACL preflight: " + result.getDetails());
     }
 
+    protected void restoreNativePosixOperation(final org.apache.cloudstack.api.BaseCmd cmd, final StorageServiceInstanceVO instance) {
+        final StorageServiceOperationVO operation = storageWriterOperation.get();
+        if (operation != null && cmd instanceof org.apache.cloudstack.api.command.user.storage.dataservice.BaseStoragePosixDirectoryPolicyCmd) {
+            final JsonObject snapshot = parseJsonObject(operation.getPreviousSnapshotJson());
+            if (snapshot.has("nativePosixDirectory")) dispatchPosixDirectoryCommand(instance, "restore", snapshot.getAsJsonObject("nativePosixDirectory"));
+        }
+    }
+
+    protected StoragePosixDirectoryPolicyVO requirePosixDirectoryPolicy(final Long id) {
+        final StoragePosixDirectoryPolicyVO policy = id == null ? null : storagePosixPolicyDao.findById(id);
+        if (policy == null) throw new InvalidParameterValueException("POSIX directory policy is unavailable");
+        requireInstance(policy.getInstanceId());
+        return policy;
+    }
+
+    @Override
+    public ListResponse<org.apache.cloudstack.api.response.StoragePosixDirectoryPolicyResponse> listStoragePosixDirectoryPolicies(
+            final org.apache.cloudstack.api.command.user.storage.dataservice.ListStoragePosixDirectoryPoliciesCmd cmd) {
+        final StorageServiceInstanceVO instance = requireInstance(cmd.getInstanceId());
+        if (!canReadStorageInstance(instance)) throw new com.cloud.exception.PermissionDeniedException("Directory policy access denied");
+        final List<org.apache.cloudstack.api.response.StoragePosixDirectoryPolicyResponse> responses = new ArrayList<>();
+        JsonObject observations = new JsonObject();
+        if (instance.getVmId() != null) {
+            try {
+                final StorageServiceGuestCommandResult runtime = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
+                        "inventory", "", 15, Collections.emptySet()));
+                final JsonObject inventory = parseJsonObject(normalizeRuntimeResultJson(runtime.getResultJson()));
+                if (runtime.isSuccess() && inventory.has("posixDirectoryPolicies")) observations = inventory.getAsJsonObject("posixDirectoryPolicies");
+            } catch (RuntimeException unavailable) { logger.debug("POSIX policy runtime observation unavailable for instance {}", instance.getUuid()); }
+        }
+        for (StoragePosixDirectoryPolicyVO policy : storagePosixPolicyDao.listByInstance(instance.getId())) {
+            final JsonObject effective = observations.has(policy.getUuid()) && observations.get(policy.getUuid()).isJsonObject()
+                    ? observations.getAsJsonObject(policy.getUuid()) : parseJsonObject(policy.getEffectiveJson());
+            if (!observations.has(policy.getUuid())) effective.addProperty("driftStatus", "UNOBSERVED");
+            responses.add(createPosixPolicyResponse(instance, policy, effective));
+        }
+        final ListResponse<org.apache.cloudstack.api.response.StoragePosixDirectoryPolicyResponse> result = new ListResponse<>();
+        result.setResponses(responses, responses.size());return result;
+    }
+
+    @Override
+    public org.apache.cloudstack.api.response.StoragePosixDirectoryPolicyResponse executeStoragePosixDirectoryPolicy(
+            final org.apache.cloudstack.api.command.user.storage.dataservice.BaseStoragePosixDirectoryPolicyCmd cmd) {
+        if (Boolean.TRUE.equals(cmd.getPreview())) return doExecuteStoragePosixDirectoryPolicy(cmd);
+        return executeDesiredChange(cmd, org.apache.cloudstack.api.response.StoragePosixDirectoryPolicyResponse.class,
+                () -> doExecuteStoragePosixDirectoryPolicy(cmd));
+    }
+
+    private org.apache.cloudstack.api.response.StoragePosixDirectoryPolicyResponse doExecuteStoragePosixDirectoryPolicy(
+            final org.apache.cloudstack.api.command.user.storage.dataservice.BaseStoragePosixDirectoryPolicyCmd cmd) {
+        final StorageServiceInstanceVO instance = requireInstance(getStorageServiceSyncId(cmd));
+        final StoragePosixDirectoryPolicyVO current = cmd.getId() == null ? null : requirePosixDirectoryPolicy(cmd.getId());
+        if (current != null && current.getInstanceId() != instance.getId()) throw new InvalidParameterValueException("Policy instance does not match the writer scope");
+        final String action = cmd.getPolicyAction();
+        if (!"CREATE".equals(action) && current == null) throw new InvalidParameterValueException("Directory policy ID is required");
+        if (Boolean.TRUE.equals(cmd.getRecursive())) throw new InvalidParameterValueException("Recursive POSIX changes are unsupported; existing child data is preserved");
+        if (current != null && cmd.getExpectedPolicyRevision() != null && cmd.getExpectedPolicyRevision() != current.getRevision()) {
+            throw new InvalidParameterValueException("The common directory policy revision changed; refresh its impact preview");
+        }
+        final Long volumeId = current == null ? cmd.getVolumeId() : current.getVolumeId();
+        if (volumeId == null) throw new InvalidParameterValueException("Backing volume is required");
+        validateStorageServiceBackingVolume(instance, volumeId, "POSIX directory policy");
+        final VolumeVO volume = requireVolume(volumeId);
+        final String relative = current == null ? PosixDirectoryPolicy.relativePath(cmd.getRelativePath()) : current.getRelativePath();
+        if (current != null && (cmd.getVolumeId() != null && !cmd.getVolumeId().equals(volumeId)
+                || cmd.getRelativePath() != null && !cmd.getRelativePath().equals(relative))) {
+            throw new InvalidParameterValueException("Directory policy path identity is immutable");
+        }
+        final JsonObject config = current == null ? new JsonObject() : parseJsonObjectStrict(current.getConfigJson(), "POSIX directory policy");
+        if (cmd.getOwnerUid() != null) { PosixDirectoryPolicy.numericId(cmd.getOwnerUid());config.addProperty("ownerUid", cmd.getOwnerUid()); }
+        if (cmd.getOwnerGid() != null) { PosixDirectoryPolicy.numericId(cmd.getOwnerGid());config.addProperty("ownerGid", cmd.getOwnerGid()); }
+        if (cmd.getApplyOwner() != null || !config.has("applyOwner")) config.addProperty("applyOwner", Boolean.TRUE.equals(cmd.getApplyOwner()));
+        if (Boolean.TRUE.equals(getJsonBoolean(config, "applyOwner")) && (!config.has("ownerUid") || !config.has("ownerGid"))) {
+            throw new InvalidParameterValueException("Explicit owner application requires both owneruid and ownergid");
+        }
+        config.addProperty("directoryMode", PosixDirectoryPolicy.directoryMode(cmd.getDirectoryMode() == null
+                ? StringUtils.defaultIfBlank(getJsonString(config, "directoryMode"), "0770") : cmd.getDirectoryMode()));
+        config.addProperty("recursive", false);
+        for (String key : new String[] {"accessEntries", "defaultEntries"}) {
+            final String input = "accessEntries".equals(key) ? cmd.getAccessEntries() : cmd.getDefaultEntries();
+            if (input != null) {
+                try { config.add(key, PosixDirectoryPolicy.aclEntries(new JsonParser().parse(input).getAsJsonArray())); }
+                catch (IllegalStateException | com.google.gson.JsonParseException invalid) { throw new InvalidParameterValueException("POSIX ACL entries must be a structured JSON array"); }
+            } else if (!config.has(key)) config.add(key, new JsonArray());
+        }
+        final StoragePosixDirectoryPolicyVO policy = current == null ? new StoragePosixDirectoryPolicyVO() : current;
+        if (current == null) {
+            policy.setInstanceId(instance.getId());policy.setVolumeId(volumeId);policy.setRelativePath(relative);
+            policy.setPathKey(PosixDirectoryPolicy.pathKey(volume.getUuid(), relative));policy.setRevision(1);policy.setState("Allocated");
+            if (storagePosixPolicyDao.findByPath(instance.getId(), policy.getPathKey()) != null) {
+                throw new InvalidParameterValueException("The canonical directory already has a common POSIX policy; edit that policy");
+            }
+        }
+        policy.setConfigJson(GSON.toJson(config));
+        final JsonObject request = posixPolicyPayload(instance, policy);
+        final JsonObject before = dispatchPosixDirectoryCommand(instance, "inspect", request);
+        if (current == null && cmd.getDirectoryMode() == null) {
+            config.add("directoryMode", before.get("effectiveMode"));policy.setConfigJson(GSON.toJson(config));
+        }
+        for (StorageFileShareVO affected : matchingPosixShares(instance, policy)) {
+            if (affected.getPosixPolicyId() != null && !Long.valueOf(policy.getId()).equals(affected.getPosixPolicyId())) {
+                throw new InvalidParameterValueException("The directory is referenced by another POSIX policy");
+            }
+        }
+        if (Boolean.TRUE.equals(cmd.getPreview())) return createPosixPolicyResponse(instance, policy, before);
+        final StorageServiceOperationVO operation = storageWriterOperation.get();
+        if (operation != null) {
+            final JsonObject previous = parseJsonObject(operation.getPreviousSnapshotJson());previous.add("nativePosixDirectory", before);
+            operation.setPreviousSnapshotJson(GSON.toJson(previous));storageOperationDao.update(operation.getId(), operation);
+        }
+        if ("DELETE".equals(action)) {
+            final List<StorageFileShareVO> shares = posixPolicyShares(instance, policy);
+            if (!shares.isEmpty()) throw new InvalidParameterValueException("Directory policy is still referenced by NFS/SMB shares; unlink or replace it first");
+            storagePosixPolicyDao.remove(policy.getId());
+            policy.setState("Deleted");
+            dispatchPosixDirectoryCommand(instance, "forget", request);
+            return createPosixPolicyResponse(instance, policy, before);
+        }
+        if (current == null) storagePosixPolicyDao.persist(policy);
+        else { policy.setRevision(policy.getRevision() + 1);storagePosixPolicyDao.update(policy.getId(), policy); }
+        policy.setState("Updating");storagePosixPolicyDao.update(policy.getId(), policy);
+        try {
+            final JsonObject effective = dispatchPosixDirectoryCommand(instance, "apply", posixPolicyPayload(instance, policy));
+            policy.setEffectiveJson(GSON.toJson(effective));policy.setLastApplied(new java.util.Date());policy.setState("Ready");
+            storagePosixPolicyDao.update(policy.getId(), policy);
+            bindMatchingPosixShares(instance, policy, effective);
+            return createPosixPolicyResponse(instance, policy, effective);
+        } catch (RuntimeException failure) {
+            try { dispatchPosixDirectoryCommand(instance, "restore", before); }
+            catch (RuntimeException rollbackFailure) { failure.addSuppressed(rollbackFailure); }
+            throw failure;
+        }
+    }
+
+
+    protected JsonObject posixPolicyPayload(final StorageServiceInstanceVO instance, final StoragePosixDirectoryPolicyVO policy) {
+        final VolumeVO volume = requireVolume(policy.getVolumeId());
+        final JsonObject payload = new JsonObject();payload.addProperty("instanceUuid", instance.getUuid());
+        payload.addProperty("uuid", policy.getUuid());payload.addProperty("volumeUuid", volume.getUuid());
+        payload.addProperty("volumeMountPath", resolveFileShareVolumeMountRoot(instance, volume, null));
+        payload.addProperty("relativePath", policy.getRelativePath());payload.addProperty("revision", policy.getRevision());
+        payload.add("config", parseJsonObjectStrict(policy.getConfigJson(), "POSIX directory policy"));return payload;
+    }
+
+    protected JsonObject dispatchPosixDirectoryCommand(final StorageServiceInstanceVO instance, final String action, final JsonObject payload) {
+        if (instance.getVmId() == null) throw new InvalidParameterValueException("Directory policy preview/application requires a running Storage Service VM");
+        final StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
+                "posix directory " + action, GSON.toJson(payload), 60, Collections.emptySet()));
+        if (!result.isSuccess()) {
+            if ("inspect".equals(action)) throw new InvalidParameterValueException("POSIX directory preflight failed: " + result.getDetails());
+            throw new CloudRuntimeException("POSIX directory " + action + " failed: " + result.getDetails());
+        }
+        final JsonObject observed = parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));
+        if (!Boolean.TRUE.equals(getJsonBoolean(observed, "success"))) throw new CloudRuntimeException("POSIX directory runtime did not confirm " + action);
+        return observed;
+    }
+
+    protected void inheritPosixDirectoryPolicy(final StorageServiceInstanceVO instance, final StorageFileShareVO share,
+            final Long requestedPolicyId, final Integer ownerUid, final Integer ownerGid, final String requestedMode) {
+        if (share.getVolumeId() == null) {
+            if (requestedPolicyId != null) throw new InvalidParameterValueException("Common POSIX policy requires its selected backing volume");
+            return;
+        }
+        final String relative = sharePosixRelativePath(instance, share);
+        if (relative == null) {
+            if (requestedPolicyId != null) throw new InvalidParameterValueException("Common POSIX policy needs a known canonical backing directory");
+            return;
+        }
+        final StoragePosixDirectoryPolicyVO policy = requestedPolicyId == null
+                ? storagePosixPolicyDao.findByPath(instance.getId(), PosixDirectoryPolicy.pathKey(requireVolume(share.getVolumeId()).getUuid(), relative))
+                : requirePosixDirectoryPolicy(requestedPolicyId);
+        if (policy == null) return;
+        if (policy.getInstanceId() != instance.getId() || policy.getVolumeId() != share.getVolumeId() || !relative.equals(policy.getRelativePath())) {
+            throw new InvalidParameterValueException("Protocol share does not match the selected common POSIX directory");
+        }
+        if (!"Ready".equals(policy.getState())) throw new InvalidParameterValueException("Common POSIX directory policy is not ready");
+        final JsonObject effective = parseJsonObjectStrict(policy.getEffectiveJson(), "Common POSIX directory observation");
+        if (ownerUid != null && ownerUid.longValue() != effective.get("effectiveUid").getAsLong()
+                || ownerGid != null && ownerGid.longValue() != effective.get("effectiveGid").getAsLong()
+                || requestedMode != null && !PosixDirectoryPolicy.directoryMode(requestedMode).equals(getJsonString(effective, "effectiveMode"))) {
+            throw new InvalidParameterValueException("Protocol-local owner/mode conflicts with the common POSIX directory policy; edit the common policy instead");
+        }
+        final JsonObject config = parseJsonObject(share.getConfigJson());
+        config.addProperty("posixPolicyUuid", policy.getUuid());config.addProperty("posixPolicyRevision", policy.getRevision());
+        config.addProperty("posixPolicyPath", getJsonString(effective, "canonicalPath"));
+        if (share.getProtocol() == StorageServiceInstance.Protocol.NFS) {
+            config.add("ownerUid", effective.get("effectiveUid"));config.add("ownerGid", effective.get("effectiveGid"));
+            config.add("mode", effective.get("effectiveMode"));config.addProperty("recursivePermission", false);
+        } else config.add("directoryMode", effective.get("effectiveMode"));
+        share.setPosixPolicyId(policy.getId());share.setConfigJson(GSON.toJson(config));
+    }
+
+    protected String sharePosixRelativePath(final StorageServiceInstanceVO instance, final StorageFileShareVO share) {
+        final JsonObject config = parseJsonObject(share.getConfigJson());
+        final String relative = getJsonString(config, "relativeSharePath");
+        if (StringUtils.isNotBlank(relative)) return PosixDirectoryPolicy.relativePath(relative);
+        final String backing = getJsonString(config, "backingPath");
+        if (share.getVolumeId() == null || StringUtils.isBlank(backing)) return null;
+        final String root = resolveFileShareVolumeMountRoot(instance, requireVolume(share.getVolumeId()), share.getPath());
+        return backing.startsWith(root + "/") ? PosixDirectoryPolicy.relativePath(backing.substring(root.length() + 1)) : null;
+    }
+
+    protected List<StorageFileShareVO> matchingPosixShares(final StorageServiceInstanceVO instance, final StoragePosixDirectoryPolicyVO policy) {
+        final List<StorageFileShareVO> resources = new ArrayList<>();
+        for (StorageServiceInstance.Protocol protocol : new StorageServiceInstance.Protocol[] {StorageServiceInstance.Protocol.NFS, StorageServiceInstance.Protocol.SMB}) {
+            for (StorageFileShareVO share : storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(), protocol)) {
+                if (Long.valueOf(policy.getVolumeId()).equals(share.getVolumeId()) && policy.getRelativePath().equals(sharePosixRelativePath(instance, share))) resources.add(share);
+            }
+        }
+        return resources;
+    }
+
+    protected void bindMatchingPosixShares(final StorageServiceInstanceVO instance, final StoragePosixDirectoryPolicyVO policy, final JsonObject effective) {
+        final Set<StorageServiceInstance.Protocol> changed = new HashSet<>();
+        for (StorageFileShareVO share : matchingPosixShares(instance, policy)) {
+            if (share.getPosixPolicyId() != null && !Long.valueOf(policy.getId()).equals(share.getPosixPolicyId())) {
+                throw new InvalidParameterValueException("The directory is referenced by another POSIX policy");
+            }
+            final JsonObject config = parseJsonObject(share.getConfigJson());
+            config.addProperty("posixPolicyUuid", policy.getUuid());config.addProperty("posixPolicyRevision", policy.getRevision());
+            config.addProperty("posixPolicyPath", getJsonString(effective, "canonicalPath"));
+            if (share.getProtocol() == StorageServiceInstance.Protocol.NFS) {
+                config.add("ownerUid", effective.get("effectiveUid"));config.add("ownerGid", effective.get("effectiveGid"));
+                config.add("mode", effective.get("effectiveMode"));config.addProperty("recursivePermission", false);
+            } else config.add("directoryMode", effective.get("effectiveMode"));
+            share.setPosixPolicyId(policy.getId());share.setConfigJson(GSON.toJson(config));storageFileShareDao.update(share.getId(), share);
+            changed.add(share.getProtocol());
+        }
+        for (StorageServiceInstance.Protocol protocol : changed) applyStorageServiceProtocolDesiredState(instance, protocol);
+    }
+
+    protected List<StorageFileShareVO> posixPolicyShares(final StorageServiceInstanceVO instance, final StoragePosixDirectoryPolicyVO policy) {
+        final List<StorageFileShareVO> resources = new ArrayList<>();
+        for (StorageServiceInstance.Protocol protocol : new StorageServiceInstance.Protocol[] {StorageServiceInstance.Protocol.NFS, StorageServiceInstance.Protocol.SMB}) {
+            for (StorageFileShareVO share : storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(), protocol)) {
+                if (Long.valueOf(policy.getId()).equals(share.getPosixPolicyId())) resources.add(share);
+            }
+        }
+        return resources;
+    }
+
+    protected org.apache.cloudstack.api.response.StoragePosixDirectoryPolicyResponse createPosixPolicyResponse(
+            final StorageServiceInstanceVO instance, final StoragePosixDirectoryPolicyVO policy, final JsonObject effective) {
+        final org.apache.cloudstack.api.response.StoragePosixDirectoryPolicyResponse response = new org.apache.cloudstack.api.response.StoragePosixDirectoryPolicyResponse();
+        response.setId(policy.getUuid());response.setInstanceId(instance.getUuid());response.setVolumeId(requireVolume(policy.getVolumeId()).getUuid());
+        response.setRelativePath(policy.getRelativePath());response.setRevision(policy.getRevision());response.setState(policy.getState());
+        response.setConfig(policy.getConfigJson());response.setCanonicalPath(getJsonString(effective, "canonicalPath"));response.setEffective(GSON.toJson(effective));
+        response.setDriftStatus(StringUtils.defaultIfBlank(getJsonString(effective, "driftStatus"), "UNOBSERVED"));
+        final List<String> affected = new ArrayList<>();
+        for (StorageFileShareVO share : matchingPosixShares(instance, policy)) affected.add(share.getProtocol().name() + ":" + share.getName());
+        response.setAffectedShares(affected);response.setObjectName("storageposixdirectorypolicy");return response;
+    }
+
     protected String buildSmbConfigJson(final String currentConfig, final Boolean readOnly, final Boolean browseable, final Boolean guestOk,
             final Boolean createDirectory, final Boolean crossProtocol, final String directoryMode) {
         final JsonObject config = parseJsonObject(currentConfig);
@@ -6548,6 +6822,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         response.setListenIps(nfsSelectedListenIpsAsString(config, share.getConfigJson()));
         response.setListenerPorts(nfsListenerPortsAsString(config));
         response.setProtocolMode(instance == null ? nfsProtocolModeAsString(config, share.getConfigJson()) : resolveNfsServiceProtocolMode(instance));
+        if (share.getPosixPolicyId() != null) response.setPosixPolicyId(requirePosixDirectoryPolicy(share.getPosixPolicyId()).getUuid());
         response.setObjectName("storagenfsexport");
         return response;
     }
@@ -6619,6 +6894,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 response.setCreationPolicyDrift(desiredCreation.equals(effective) ? "CONSISTENT" : "DRIFT");
             }
         }
+        if (share.getPosixPolicyId() != null) response.setPosixPolicyId(requirePosixDirectoryPolicy(share.getPosixPolicyId()).getUuid());
         response.setObjectName("storagesmbshare");
         return response;
     }

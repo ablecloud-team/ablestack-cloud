@@ -31,6 +31,8 @@ public final class DesiredStateChange {
         void preflight();
         void verify();
         void applyPrevious();
+        default void started(StorageServiceOperationVO operation) { }
+        default void finished() { }
     }
     private final StorageServiceOperationDao operations;
     private final StorageServiceDesiredSnapshot snapshots;
@@ -80,6 +82,7 @@ public final class DesiredStateChange {
                 operation.setRevision(committed + 1); operation.setCreatedBy(CallContext.current().getCallingUserId());
                 operation.setState("RUNNING"); operation.setPhase("PREFLIGHT");
                 operation = operations.persist(operation);
+                runtime.started(operation);
                 boolean mutated = false;
                 try {
                     runtime.preflight();
@@ -99,7 +102,7 @@ public final class DesiredStateChange {
                     operation.setDiagnostic(message(failure));
                     if (mutated && failure instanceof com.cloud.exception.InvalidParameterValueException && operation.getPreviousSnapshotJson()!=null) {
                         // A rejected input must not restart healthy protocols when no desired state changed.
-                        try { if (operation.getPreviousSnapshotJson().equals(snapshots.capture(instanceId))) mutated=false; }
+                        try { if (desiredOnly(operation.getPreviousSnapshotJson()).equals(desiredOnly(snapshots.capture(instanceId)))) mutated=false; }
                         catch (RuntimeException uncertain) { failure.addSuppressed(uncertain); }
                     }
                     if (mutated && operation.getPreviousSnapshotJson() != null) {
@@ -120,8 +123,18 @@ public final class DesiredStateChange {
                     }
                     throw new CloudRuntimeException("Storage Service operation " + operation.getUuid() + " " + operation.getState() + ": " + message(failure), failure);
                 }
-            } finally { lock.unlock(); }
+            } finally { try { runtime.finished(); } finally { lock.unlock(); } }
         } finally { lock.releaseRef(); }
+    }
+
+    private String desiredOnly(String json) {
+        try {
+            final com.google.gson.JsonElement value = new com.google.gson.JsonParser().parse(json);
+            if (value.isJsonObject() && value.getAsJsonObject().has("nativePosixDirectory")) {
+                final com.google.gson.JsonObject copy = value.getAsJsonObject().deepCopy();copy.remove("nativePosixDirectory");return copy.toString();
+            }
+        } catch (RuntimeException invalid) { /* Legacy non-JSON test/diagnostic snapshots remain exact comparisons. */ }
+        return json;
     }
 
     private void phase(StorageServiceOperationVO operation, String phase, int progress) {

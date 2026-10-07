@@ -116,6 +116,12 @@ public class UpdateStorageNfsExportCmd extends BaseStorageServiceAsyncCmd implem
     @Parameter(name = "protocolmode", type = CommandType.STRING, description = "NFS protocol mode: V4_ONLY or V3V4_DUAL")
     private String protocolMode;
 
+    @Parameter(name = "posixpolicyid", type = CommandType.UUID, entityType = org.apache.cloudstack.api.response.StoragePosixDirectoryPolicyResponse.class,
+            description = "Common directory policy to inherit; protocol-local owner and mode must match it")
+    private Long posixPolicyId;
+
+    public Long getPosixPolicyId() { return posixPolicyId; }
+
     public Long getId() {
         return id;
     }

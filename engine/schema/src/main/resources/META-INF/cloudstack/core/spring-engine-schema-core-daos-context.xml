@@ -328,6 +328,7 @@
   <bean id="StorageServiceInstanceDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageServiceInstanceDaoImpl" />
   <bean id="StorageServiceProtocolDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageServiceProtocolDaoImpl" />
   <bean id="StorageFileShareDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageFileShareDaoImpl" />
+  <bean id="StoragePosixDirectoryPolicyDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StoragePosixDirectoryPolicyDaoImpl" />
   <bean id="StorageBlockTargetDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageBlockTargetDaoImpl" />
   <bean id="StorageAccessRuleDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageAccessRuleDaoImpl" />
   <bean id="StorageIdentityDomainDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageIdentityDomainDaoImpl" />

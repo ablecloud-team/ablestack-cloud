@@ -58,6 +58,12 @@ public class StorageFileShareVO implements StorageFileShare {
     @Column(name = "path")
     private String path;
 
+    @Column(name = "posix_policy_id")
+    private Long posixPolicyId;
+
+    public Long getPosixPolicyId() { return posixPolicyId; }
+    public void setPosixPolicyId(Long value) { posixPolicyId = value; }
+
     @Column(name = "volume_id")
     private Long volumeId;
 
