@@ -38,6 +38,13 @@ const values = {
 }
 
 describe('CreateSharedFS request normalization', () => {
+  it('retains the selected volume when the generic form filter omits an unreferenced field', () => {
+    const context = { ...baseContext(false), form: { useexistingvolume: true, existingvolumeid: 'retained-volume' } }
+    const request = CreateSharedFS.methods.buildCreateSharedFsRequest.call(context, values)
+    expect(request.backingvolumemode).toBe('EXISTING')
+    expect(request.existingvolumeid).toBe('retained-volume')
+    expect(request.diskofferingid).toBeUndefined()
+  })
   it('uses an existing volume without hidden offering, size, pool or formatting parameters', () => {
     const context = baseContext(true)
     const request = CreateSharedFS.methods.buildCreateSharedFsRequest.call(context, {
