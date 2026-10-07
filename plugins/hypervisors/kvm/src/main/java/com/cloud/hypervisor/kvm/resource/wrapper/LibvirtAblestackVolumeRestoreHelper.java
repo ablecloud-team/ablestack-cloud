@@ -276,10 +276,11 @@ final class LibvirtAblestackVolumeRestoreHelper {
             if (Files.exists(destination, LinkOption.NOFOLLOW_LINKS)) {
                 if (!destination.toRealPath().startsWith(root.toRealPath())) { throw new CloudRuntimeException("Restore cleanup resolves outside staging"); }
                 Path owner = destination.resolve(".restore-owner");
-                if (!Files.isRegularFile(owner) || !Files.readString(owner).trim().equals(plan.jobId)) {
+                if (!Files.isRegularFile(owner, LinkOption.NOFOLLOW_LINKS) || !Files.readString(owner).trim().equals(plan.jobId)) {
                     throw new CloudRuntimeException("Restore staging directory ownership is unconfirmed; existing data is protected");
                 }
-                org.apache.commons.io.FileUtils.deleteDirectory(destination.toFile());
+                LibvirtAblestackStagingCleanup.delete(plan.manifest.getProvider(), destination,
+                        root.resolve(plan.manifest.getProvider()));
             }
             if (Files.exists(capacityPlan)) {
                 Path script = Path.of(resource.getAbleCvtBackupPath()).getParent().resolve("thirdparty_restore_capacity.py");
@@ -408,7 +409,14 @@ final class LibvirtAblestackVolumeRestoreHelper {
             // An external timeout can leave a writer active. Keep its directory and reservation for reconciliation.
             if (reserved && !transferUncertain) {
                 try {
-                    org.apache.commons.io.FileUtils.deleteDirectory(destination.toFile());
+                    if (Files.exists(destination, LinkOption.NOFOLLOW_LINKS)) {
+                        Path owner = destination.resolve(".restore-owner");
+                        if (!Files.isRegularFile(owner, LinkOption.NOFOLLOW_LINKS) || !Files.readString(owner).trim().equals(plan.jobId)) {
+                            throw new IOException("Restore staging directory ownership is unconfirmed; cleanup is retained");
+                        }
+                    }
+                    LibvirtAblestackStagingCleanup.delete(plan.manifest.getProvider(), destination,
+                            root.resolve(plan.manifest.getProvider()));
                     capacity(capacityScript, capacityPlan, "release");
                 } catch (Exception e) { logger.warn("Restore staging cleanup is pending for job [{}]", plan.jobId, e); }
             }

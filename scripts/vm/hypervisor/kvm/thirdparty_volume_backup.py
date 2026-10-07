@@ -32,6 +32,8 @@ import time
 import uuid
 import xml.etree.ElementTree as ET
 
+from thirdparty_staging_cleanup import validate_job_directory
+
 BLOCK = 4 * 1024 * 1024
 
 
@@ -786,9 +788,10 @@ def backup_cleanup_paths(plan, job):
     stage = Path(plan["stageRoot"]).resolve(strict=True)
     root = Path(plan["backupPath"])
     expected = stage / manifest["provider"] / manifest["vmName"] / manifest["timestamp"]
+    validate_job_directory(manifest["provider"], root, stage / manifest["provider"])
     if root.resolve() != expected.resolve() or job.name != job_id or root.is_symlink():
         raise RuntimeError("Invalid backup cleanup destination")
-    if root.exists() and (not (root / ".volume-bootstrap").is_file()
+    if root.exists() and ((root / ".volume-bootstrap").is_symlink() or not (root / ".volume-bootstrap").is_file()
                           or (root / ".volume-bootstrap").read_text().strip() != job_id):
         raise RuntimeError("Backup directory ownership is unconfirmed; existing data is protected")
     receipt = job / "volume-engine.json"
@@ -824,6 +827,7 @@ def cleanup_failed(file, source_not_started=False):
     else:
         cleanup_source(plan, job, receipt)
     if root.exists():
+        validate_job_directory(manifest["provider"], root, stage / manifest["provider"])
         shutil.rmtree(root)
     reservations = stage / ".volume-reservations"
     reservations.mkdir(mode=0o700, exist_ok=True)

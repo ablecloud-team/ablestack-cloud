@@ -22,6 +22,23 @@ under the License.
 대상 Provider는 `ablestack-commvault`, `ablestack-netbackup`, `ablestack-veeam`이다.
 Staging은 글로벌 설정의 GFS2/NFS/LOCAL 파일시스템을 사용한다.
 
+## 기본스토리지를 Staging으로 사용할 때의 경로와 Cleanup
+
+GFS2 기본스토리지의 마운트 지점이 `/mnt/glue-gfs`이면 `mount.path`와 `root.path`를
+모두 `/mnt/glue-gfs`로 지정할 수 있다. 실제 작업은 provider 하위에서 수행한다.
+
+- 백업: `/mnt/glue-gfs/ablestack-commvault/<VM명>/<타임스탬프>`
+- 복원: `/mnt/glue-gfs/ablestack-commvault/restore/<restore-job-id>`
+- NetBackup/Veeam도 각각 `ablestack-netbackup`, `ablestack-veeam` 하위 경로를 사용한다.
+- 용량 예약 정보는 `root.path/.volume-reservations`에서 관리하며 개별 Job 예약만 해제한다.
+
+Cleanup은 개별 백업 시점 또는 복원 Job 디렉터리만 삭제한다.
+기본스토리지 마운트 지점, Staging root, provider 디렉터리와 VM 상위 디렉터리는 삭제하지 않는다.
+삭제 대상과 그 상위 경로의 심볼릭 링크, 삭제 대상 내부의 추가 마운트와 bind mount를 검사하여
+운영 데이터 경로로 이어지는 경우 정리를 중단한다. 볼륨별 작업의 소유 marker와
+기존 파일시스템 확인도 유지하며, 정리가 확인되지 않으면 용량 예약을 유지한다.
+이 검사는 KVM Agent와 공통 scripts에 함께 배포한다.
+
 ## 용량과 실행
 
 - 활성화 시 기준: 현재 VM 목록에서 가장 큰 볼륨의 provisioned size에

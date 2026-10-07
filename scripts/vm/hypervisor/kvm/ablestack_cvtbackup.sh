@@ -206,6 +206,7 @@ run_rbd_export_with_progress() {
 
 cleanup() {
   local status=0
+  validate_cleanup_path || exit $EXIT_CLEANUP_FAILED
   rm -rf "$dest" || { echo "Failed to delete $dest"; status=1; }
   if [[ -e "$dest" ]]; then
     echo "Backup directory still exists after cleanup: $dest"
@@ -823,7 +824,12 @@ mark_staging_complete() {
   sync "$dest/$STAGING_COMPLETE_MARKER" 2>/dev/null || true
 }
 
+validate_cleanup_path() {
+  python3 "$(dirname -- "$0")/thirdparty_staging_cleanup.py" --provider "ablestack-commvault" --path "$dest"
+}
+
 delete_backup() {
+  validate_cleanup_path || exit $EXIT_CLEANUP_FAILED
   if [[ -f "$dest/rbd-backup.meta" ]]; then
     source "$dest/rbd-backup.meta"
 
@@ -844,6 +850,7 @@ delete_backup() {
   fi
 
   cleanup_unreferenced_qcow2_bitmaps
+  validate_cleanup_path || exit $EXIT_CLEANUP_FAILED
   rm -frv "$dest"
   sync
 }

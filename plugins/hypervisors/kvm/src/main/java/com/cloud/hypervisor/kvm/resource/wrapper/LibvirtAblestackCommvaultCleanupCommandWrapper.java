@@ -26,12 +26,9 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @ResourceWrapper(handles = AblestackCommvaultCleanupCommand.class)
 public class LibvirtAblestackCommvaultCleanupCommandWrapper
@@ -59,32 +56,15 @@ public class LibvirtAblestackCommvaultCleanupCommandWrapper
         if (StringUtils.isBlank(backupPath)) {
             return null;
         }
-        final Path path = Path.of(backupPath).toAbsolutePath().normalize();
-        if (!isSafeCleanupPath(command, path)) {
-            return String.format("Skipping unsafe Commvault cleanup path [%s]", path);
-        }
-        if (!Files.exists(path)) {
-            return null;
-        }
-        try (Stream<Path> stream = Files.walk(path)) {
-            final List<Path> paths = stream.sorted(Comparator.reverseOrder()).collect(Collectors.toList());
-            for (final Path item : paths) {
-                Files.deleteIfExists(item);
-            }
+        final Path path = Path.of(backupPath);
+        final Path configuredRoot = StringUtils.isNotBlank(command.getBackupRootPath())
+                ? Path.of(command.getBackupRootPath()) : LEGACY_BACKUP_ROOT;
+        try {
+            LibvirtAblestackStagingCleanup.delete("ablestack-commvault", path, configuredRoot);
             return null;
         } catch (final IOException e) {
             return String.format("Failed to cleanup Commvault path [%s]: %s", path, e.getMessage());
         }
     }
 
-    private boolean isSafeCleanupPath(final AblestackCommvaultCleanupCommand command, final Path path) {
-        final Path configuredRoot = StringUtils.isNotBlank(command.getBackupRootPath())
-                ? Path.of(command.getBackupRootPath()).toAbsolutePath().normalize()
-                : LEGACY_BACKUP_ROOT;
-        return isChildPath(path, configuredRoot) || isChildPath(path, LEGACY_BACKUP_ROOT);
-    }
-
-    private boolean isChildPath(final Path path, final Path root) {
-        return path.startsWith(root) && !path.equals(root);
-    }
 }

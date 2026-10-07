@@ -328,11 +328,8 @@ class LibvirtAblestackNetBackupHelper {
         if (dest == null || !Files.exists(dest)) {
             return true;
         }
-        try (var stream = Files.walk(dest)) {
-            List<Path> paths = stream.sorted(Comparator.reverseOrder()).collect(Collectors.toList());
-            for (Path path : paths) {
-                Files.deleteIfExists(path);
-            }
+        try {
+            LibvirtAblestackStagingCleanup.delete("ablestack-netbackup", dest, null);
             return true;
         } catch (IOException e) {
             LOGGER.warn("Failed to cleanup stopped VM NetBackup backup path [{}]: {}", dest, e.getMessage(), e);
@@ -378,6 +375,15 @@ class LibvirtAblestackNetBackupHelper {
 
     private void cleanupParentCheckpointWorkspace(Path workspace) {
         if (workspace == null || !Files.exists(workspace)) {
+            return;
+        }
+        try {
+            LibvirtAblestackStagingCleanup.validate("ablestack-netbackup", workspace.getParent().getParent(), null);
+            if (Files.isSymbolicLink(workspace) || Files.isSymbolicLink(workspace.getParent())) {
+                throw new IOException("Parent checkpoint workspace must not traverse symbolic links");
+            }
+        } catch (IOException e) {
+            LOGGER.warn("Unsafe parent checkpoint workspace cleanup [{}]", workspace, e);
             return;
         }
         try (var walk = Files.walk(workspace)) {

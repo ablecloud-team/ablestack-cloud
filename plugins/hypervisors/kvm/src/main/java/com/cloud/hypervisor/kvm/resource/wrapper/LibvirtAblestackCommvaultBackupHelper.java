@@ -46,7 +46,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -284,11 +283,8 @@ class LibvirtAblestackCommvaultBackupHelper {
         if (dest == null || !Files.exists(dest)) {
             return true;
         }
-        try (var stream = Files.walk(dest)) {
-            List<Path> paths = stream.sorted(Comparator.reverseOrder()).collect(Collectors.toList());
-            for (Path path : paths) {
-                Files.deleteIfExists(path);
-            }
+        try {
+            LibvirtAblestackStagingCleanup.delete("ablestack-commvault", dest, null);
             return true;
         } catch (IOException e) {
             LOGGER.warn("Failed to cleanup stopped VM Commvault backup path [{}]: {}", dest, e.getMessage(), e);

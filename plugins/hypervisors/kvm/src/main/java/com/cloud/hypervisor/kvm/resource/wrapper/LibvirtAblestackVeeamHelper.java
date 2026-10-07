@@ -381,6 +381,15 @@ class LibvirtAblestackVeeamHelper {
         if (workspace == null || !Files.exists(workspace)) {
             return;
         }
+        try {
+            LibvirtAblestackStagingCleanup.validate("ablestack-veeam", workspace.getParent().getParent(), null);
+            if (Files.isSymbolicLink(workspace) || Files.isSymbolicLink(workspace.getParent())) {
+                throw new IOException("Parent checkpoint workspace must not traverse symbolic links");
+            }
+        } catch (IOException e) {
+            LOGGER.warn("Unsafe parent checkpoint workspace cleanup [{}]", workspace, e);
+            return;
+        }
         try (var walk = Files.walk(workspace)) {
             walk.sorted(Comparator.reverseOrder()).forEach(path -> {
                 try {

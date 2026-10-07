@@ -40,11 +40,9 @@ import org.apache.cloudstack.storage.to.PrimaryDataStoreTO;
 import org.apache.cloudstack.utils.qemu.QemuImg;
 import org.apache.cloudstack.utils.qemu.QemuImgException;
 import org.apache.cloudstack.utils.qemu.QemuImgFile;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.libvirt.LibvirtException;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -271,7 +269,7 @@ public class LibvirtAblestackCommvaultRestoreBackupCommandWrapper extends Comman
 
     private void deleteBackupDirectory(String backupDirectory) {
         try {
-            FileUtils.deleteDirectory(new File(backupDirectory));
+            LibvirtAblestackStagingCleanup.delete("ablestack-commvault", Path.of(backupDirectory), null);
         } catch (IOException e) {
             logger.error(String.format("Failed to delete backup directory: %s", backupDirectory), e);
             throw new CloudRuntimeException("Failed to delete the backup directory");
