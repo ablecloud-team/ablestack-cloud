@@ -483,6 +483,11 @@ public final class StorageServiceConfiguration {
         };
     }
     public void promoteVerified(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
+        StorageConfigArtifactVO previous = artifacts.listByInstance(instance.getId()).stream()
+                .filter(row -> "RESTORE_POINT".equals(row.getKind()) && "ACTIVE_LKG".equals(row.getState()))
+                .findFirst().orElse(null);
+        Long expectedActiveId = previous == null ? null : previous.getId();
+        long expectedActiveRevision = previous == null ? 0 : previous.getDesiredRevision();
         manager.verifyReconciledStorageDesiredState(instance);
         String snapshot = manager.captureConfigurationSnapshot(instance.getId());
         if (!snapshot.equals(operation.getSnapshotJson())) throw new CloudRuntimeException("Verified configuration changed before restore-point promotion");
@@ -501,14 +506,9 @@ public final class StorageServiceConfiguration {
         final StorageConfigArtifactVO point = candidate;
         try {
             store.write(point.getUuid(), archive);
-            com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<Boolean>) status -> {
-                for (StorageConfigArtifactVO previous : artifacts.listByInstance(instance.getId())) {
-                    if ("RESTORE_POINT".equals(previous.getKind()) && "ACTIVE_LKG".equals(previous.getState())) {
-                        previous.setState("SUPERSEDED");previous.setUpdated(new Date());previous.setExpires(new Date(System.currentTimeMillis() + 168 * 3600000L));artifacts.update(previous.getId(), previous);
-                    }
-                }
-                point.setState("ACTIVE_LKG");point.setUpdated(new Date());artifacts.update(point.getId(), point);return true;
-            });
+            if (!artifacts.promoteVerified(instance.getId(), point.getId(), expectedActiveId, expectedActiveRevision)) {
+                throw new CloudRuntimeException("Active verified configuration changed before restore-point promotion");
+            }
         } catch (RuntimeException failure) {
             try { store.remove(point.getUuid()); } catch (RuntimeException cleanup) { failure.addSuppressed(cleanup); }
             point.setState("FAILED");artifacts.update(point.getId(), point);throw failure;

@@ -1261,8 +1261,29 @@ CREATE TABLE IF NOT EXISTS cloud.storage_service_config_artifact (
   updated datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   expires datetime DEFAULT NULL,
   removed datetime DEFAULT NULL,
+  active_lkg_instance_id bigint unsigned GENERATED ALWAYS AS
+    (CASE WHEN kind='RESTORE_POINT' AND state='ACTIVE_LKG' AND removed IS NULL THEN instance_id ELSE NULL END) STORED,
   PRIMARY KEY (id),
+  UNIQUE KEY uk_storage_service_config_artifact__active_lkg (active_lkg_instance_id),
   UNIQUE KEY uk_storage_service_config_artifact__uuid (uuid),
   KEY idx_storage_service_config_artifact__scope (instance_id,kind,state),
   KEY idx_storage_service_config_artifact__expires (expires)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+
+-- Existing Epic #909 artifact tables: fail rather than silently discard duplicate active points.
+DROP PROCEDURE IF EXISTS cloud.ensure_storage_config_active_lkg;
+DELIMITER //
+CREATE PROCEDURE cloud.ensure_storage_config_active_lkg()
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='cloud'
+      AND TABLE_NAME='storage_service_config_artifact' AND COLUMN_NAME='active_lkg_instance_id') THEN
+    ALTER TABLE cloud.storage_service_config_artifact
+      ADD COLUMN active_lkg_instance_id bigint unsigned GENERATED ALWAYS AS
+        (CASE WHEN kind='RESTORE_POINT' AND state='ACTIVE_LKG' AND removed IS NULL THEN instance_id ELSE NULL END) STORED,
+      ADD UNIQUE KEY uk_storage_service_config_artifact__active_lkg (active_lkg_instance_id);
+  END IF;
+END //
+DELIMITER ;
+CALL cloud.ensure_storage_config_active_lkg();
+DROP PROCEDURE cloud.ensure_storage_config_active_lkg;
