@@ -139,6 +139,16 @@ public class CreateStorageSmbShareCmd extends BaseStorageServiceAsyncCmd impleme
     public String getOwnershipInheritance() { return ownershipInheritance; }
     public Boolean getInheritGroup() { return inheritGroup; }
 
+    @Parameter(name = "posixownershipmode", type = CommandType.STRING, description = "AUTHENTICATED_USER or FORCED_UID_GID after authentication")
+    private String posixOwnershipMode;
+    @Parameter(name = "owneruid", type = CommandType.LONG, description = "non-protected forced POSIX UID for new SMB objects")
+    private Long ownerUid;
+    @Parameter(name = "ownergid", type = CommandType.LONG, description = "non-protected forced POSIX GID for new SMB objects")
+    private Long ownerGid;
+    public String getPosixOwnershipMode() { return posixOwnershipMode; }
+    public Long getOwnerUid() { return ownerUid; }
+    public Long getOwnerGid() { return ownerGid; }
+
     public Long getPosixPolicyId() { return posixPolicyId; }
 
     public Long getInstanceId() {

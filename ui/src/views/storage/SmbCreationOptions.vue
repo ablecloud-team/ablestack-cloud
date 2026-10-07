@@ -18,7 +18,18 @@
 <template>
   <section class="smb-creation-options">
     <h4>{{ $t('label.storage.service.smb.creation.policy') }}</h4>
-    <a-form-item :label="$t('label.smb.ownership.inheritance')">
+    <a-form-item :label="$t('label.smb.ownership.mode')">
+      <a-select :value="form.posixownershipmode" @change="patch({ posixownershipmode: $event, ownershipinheritance: 'AUTHENTICATED_USER', inheritgroup: false })">
+        <a-select-option value="AUTHENTICATED_USER">{{ $t('label.smb.ownership.authenticated') }}</a-select-option>
+        <a-select-option value="FORCED_UID_GID">{{ $t('label.smb.ownership.forced') }}</a-select-option>
+      </a-select>
+    </a-form-item>
+    <template v-if="form.posixownershipmode === 'FORCED_UID_GID'">
+      <a-form-item label="UID"><a-input-number :value="form.owneruid" :min="10000" :max="2147483647" @update:value="patch({ owneruid: $event })" /></a-form-item>
+      <a-form-item label="GID"><a-input-number :value="form.ownergid" :min="10000" :max="2147483647" @update:value="patch({ ownergid: $event })" /></a-form-item>
+      <a-alert type="warning" show-icon :message="$t('message.smb.ownership.forced.help')" />
+    </template>
+    <a-form-item v-if="form.posixownershipmode !== 'FORCED_UID_GID'" :label="$t('label.smb.ownership.inheritance')">
       <a-select :value="form.ownershipinheritance" @change="patch({ ownershipinheritance: $event, inheritgroup: false })">
         <a-select-option value="AUTHENTICATED_USER">{{ $t('label.smb.ownership.authenticated') }}</a-select-option>
         <a-select-option value="INHERIT_PARENT_OWNER">{{ $t('label.smb.ownership.parent') }}</a-select-option>

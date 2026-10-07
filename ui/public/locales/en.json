@@ -8660,5 +8660,8 @@
   "label.smb.ownership.authenticated": "Authenticated user ownership",
   "message.smb.ownership.parent.help": "Only new files and directories inherit their parent UID; setgid inherits the parent GID. Existing child owners, inodes and data remain unchanged. Account ACLs still apply. Guest, ADMIN ACL and forced UID/GID combinations are unsupported. Shared directories require setgid in their common POSIX policy.",
   "label.smb.ownership.inheritance": "New object POSIX ownership",
-  "label.smb.ownership.parent": "Inherit parent owner"
+  "label.smb.ownership.parent": "Inherit parent owner",
+  "label.smb.ownership.mode": "POSIX file-operation identity",
+  "message.smb.ownership.forced.help": "Authentication and account ACLs still use the original session user. File operations then use the managed fixed UID/GID and must pass its POSIX permissions. Existing child owners remain unchanged; NFS sees the same numeric ownership. Guest, ADMIN and parent-owner inheritance combinations are unsupported. Shared paths must match the common owner policy.",
+  "label.smb.ownership.forced": "Fixed UID/GID for file operations"
 }

@@ -8625,5 +8625,8 @@
   "label.smb.ownership.authenticated": "인증 사용자 소유권 사용",
   "message.smb.ownership.parent.help": "새 파일과 디렉터리만 부모 UID를 상속하며 setgid는 부모 GID를 상속합니다. 기존 하위 항목의 소유권·inode·데이터는 유지합니다. 계정 ACL도 계속 적용합니다. 게스트·ADMIN ACL·고정 UID/GID 조합은 지원하지 않습니다. 공통 경로는 공통 POSIX 정책에 setgid가 있어야 합니다.",
   "label.smb.ownership.inheritance": "새 객체 POSIX 소유권",
-  "label.smb.ownership.parent": "부모 디렉터리 소유자 상속"
+  "label.smb.ownership.parent": "부모 디렉터리 소유자 상속",
+  "label.smb.ownership.mode": "POSIX 파일 작업 identity",
+  "message.smb.ownership.forced.help": "인증과 계정 ACL은 원래 세션 사용자로 판정한 뒤, 파일 작업은 관리된 고정 UID/GID의 POSIX 권한을 사용합니다. 기존 하위 항목 소유권은 유지하며 NFS에서도 같은 숫자 소유권을 표시합니다. 게스트·ADMIN·부모 소유권 상속 조합은 지원하지 않습니다. 공통 경로는 공통 소유권 정책과 일치해야 합니다.",
+  "label.smb.ownership.forced": "고정 UID/GID로 파일 작업"
 }
