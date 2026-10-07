@@ -73,4 +73,20 @@ public class StorageConfigReadScopeTest {
             Assert.assertThrows(PermissionDeniedException.class, () -> service.execute(request));Mockito.verifyNoInteractions(artifacts);
         } finally { Files.delete(root); }
     }
+    @Test public void restoreCompletionCannotReactivateTheSupersededSourcePoint() throws Exception {
+        Path root = root();
+        try {
+            StorageConfigArtifactDao dao = Mockito.mock(StorageConfigArtifactDao.class);
+            StorageConfigArtifactVO stale = Mockito.mock(StorageConfigArtifactVO.class);
+            Mockito.when(stale.getId()).thenReturn(8L);Mockito.when(stale.getInstanceId()).thenReturn(7L);Mockito.when(stale.getState()).thenReturn("ACTIVE_LKG");
+            StorageConfigArtifactVO current = new StorageConfigArtifactVO();current.setInstanceId(7);current.setKind("RESTORE_POINT");current.setState("SUPERSEDED");
+            java.util.Date expires = new java.util.Date(123456789L);current.setExpires(expires);Mockito.when(dao.findById(8L)).thenReturn(current);
+            StorageServiceConfiguration service = new StorageServiceConfiguration(Mockito.mock(StorageServiceManagerImpl.class), dao, Mockito.mock(StorageServiceOperationDao.class), new StorageConfigArtifactStore(root));
+            com.google.gson.JsonObject metadata = new com.google.gson.JsonObject();metadata.addProperty("restoreState", "COMPLETE");
+            service.updateRestoredArtifact(stale, metadata);
+            Assert.assertEquals("SUPERSEDED", current.getState());Assert.assertEquals(expires, current.getExpires());
+            Mockito.verify(stale).setState("SUPERSEDED");Mockito.verify(stale).setExpires(expires);
+        } finally { Files.delete(root); }
+    }
+
 }
