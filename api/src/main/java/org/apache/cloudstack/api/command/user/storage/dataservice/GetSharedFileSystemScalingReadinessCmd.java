@@ -16,29 +16,24 @@
 // under the License.
 
 package org.apache.cloudstack.api.command.user.storage.dataservice;
-import java.util.List;
 import javax.inject.Inject;
 import org.apache.cloudstack.acl.RoleType;
 import org.apache.cloudstack.api.APICommand;
-import org.apache.cloudstack.api.BaseListCmd;
+import org.apache.cloudstack.api.BaseCmd;
 import org.apache.cloudstack.api.Parameter;
 import org.apache.cloudstack.api.command.user.UserCmd;
-import org.apache.cloudstack.api.response.ListResponse;
-import org.apache.cloudstack.api.response.ServiceOfferingResponse;
-import org.apache.cloudstack.api.response.StorageServiceOfferingConstraintResponse;
-import org.apache.cloudstack.api.response.ZoneResponse;
+import org.apache.cloudstack.api.response.SharedFSResponse;
+import org.apache.cloudstack.api.response.StorageServiceRuntimeResponse;
 import org.apache.cloudstack.storage.sharedfs.SharedFSService;
-@APICommand(name="listStorageServiceOfferingConstraints",responseObject=StorageServiceOfferingConstraintResponse.class,
-        description="Returns the same effective compute-offering requirements used by SharedFS creation.",
-        since="4.23.0",requestHasSensitiveInfo=false,responseHasSensitiveInfo=false,
+@APICommand(name="getSharedFileSystemScalingReadiness",responseObject=StorageServiceRuntimeResponse.class,
+        description="Audits effective SharedFS online scaling readiness and the running guest resource state.",since="4.23.0",
         authorized={RoleType.Admin,RoleType.ResourceAdmin,RoleType.DomainAdmin,RoleType.User})
-public class ListStorageServiceOfferingConstraintsCmd extends BaseListCmd implements UserCmd {
+public class GetSharedFileSystemScalingReadinessCmd extends BaseCmd implements UserCmd {
     @Inject private SharedFSService service;
-    @Parameter(name="zoneid",type=CommandType.UUID,entityType=ZoneResponse.class,required=true) private Long zoneId;
-    @Parameter(name="serviceofferingids",type=CommandType.LIST,collectionType=CommandType.UUID,entityType=ServiceOfferingResponse.class,required=true)
-    private List<Long> serviceOfferingIds;
+    @Parameter(name="id",type=CommandType.UUID,entityType=SharedFSResponse.class,required=true) private Long id;
+    @Override public long getEntityOwnerId() { return org.apache.cloudstack.context.CallContext.current().getCallingAccount().getId(); }
     public void execute() {
-        ListResponse<StorageServiceOfferingConstraintResponse> response=service.listOfferingConstraints(zoneId,serviceOfferingIds);
+        StorageServiceRuntimeResponse response=service.getSharedFSScalingReadiness(id);
         response.setResponseName(getCommandName());setResponseObject(response);
     }
 }

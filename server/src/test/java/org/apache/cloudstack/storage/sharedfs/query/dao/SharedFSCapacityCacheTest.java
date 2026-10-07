@@ -19,7 +19,8 @@ package org.apache.cloudstack.storage.sharedfs.query.dao;
 
 import org.junit.Assert;
 import org.junit.Test;
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 public class SharedFSCapacityCacheTest {
     private static final String UUID="07221486-9900-49ed-b617-9e44b87a0f54";
@@ -29,6 +30,7 @@ public class SharedFSCapacityCacheTest {
         for (String suffix:new String[] {"", "/export/parent", "/export/parent/child"}) {
             JsonObject item=new JsonObject();item.addProperty("target","/srv/ablestack-storage/volumes/"+UUID+suffix);item.addProperty("usedBytes",100);item.addProperty("sizeBytes",1000);rows.add(item);
         }
+        JsonObject alias=new JsonObject();alias.addProperty("target","/export/parent");alias.addProperty("peerPath","/srv/ablestack-storage/volumes/"+UUID+"/export/parent");alias.addProperty("usedBytes",100);alias.addProperty("sizeBytes",1000);rows.add(alias);
         capacity.add("capacity",rows);JsonObject result=new JsonObject();result.add("capacitySnapshot",capacity);return result;
     }
     @Test public void sameFilesystemAliasesAreCountedOnceAndOnlyForTheSameVm() {

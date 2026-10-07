@@ -19,7 +19,11 @@ package org.apache.cloudstack.storage.dataservice;
 
 import org.junit.Assert;
 import org.junit.Test;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.apache.cloudstack.storage.dataservice.dao.StorageFileShareDao;
 import org.apache.cloudstack.storage.dataservice.dao.StorageServiceInstanceDao;

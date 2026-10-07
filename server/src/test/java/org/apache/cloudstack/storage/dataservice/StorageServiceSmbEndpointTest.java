@@ -20,7 +20,11 @@ package org.apache.cloudstack.storage.dataservice;
 import java.util.Arrays;
 import org.junit.Assert;
 import org.junit.Test;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.apache.cloudstack.storage.dataservice.dao.StorageServiceProtocolDao;
 

@@ -21,9 +21,12 @@ import com.cloud.user.Account;
 import com.cloud.user.User;
 import com.cloud.user.AccountManager;
 import org.apache.cloudstack.context.CallContext;
-import org.apache.cloudstack.api.command.admin.storage.dataservice.*;
+import org.apache.cloudstack.api.command.admin.storage.dataservice.PreflightStorageServiceRuntimeUpgradeCmd;
+import org.apache.cloudstack.api.command.admin.storage.dataservice.RollbackStorageServiceRuntimeUpgradeCmd;
+import org.apache.cloudstack.api.command.admin.storage.dataservice.UpgradeStorageServiceRuntimeCmd;
 import org.apache.cloudstack.api.command.user.storage.dataservice.BaseStorageServiceAsyncCmd;
-import org.apache.cloudstack.storage.dataservice.dao.*;
+import org.apache.cloudstack.storage.dataservice.dao.StorageServiceInstanceDao;
+import org.apache.cloudstack.storage.dataservice.dao.StorageServiceRuntimeUpgradeDao;
 import org.apache.cloudstack.storage.sharedfs.SharedFSVO;
 import org.apache.cloudstack.storage.sharedfs.dao.SharedFSDao;
 import org.junit.After;
@@ -31,7 +34,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.Assert;
 import org.springframework.test.util.ReflectionTestUtils;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class StorageServiceRuntimeQueueScopeTest {
     private StorageServiceManagerImpl manager;

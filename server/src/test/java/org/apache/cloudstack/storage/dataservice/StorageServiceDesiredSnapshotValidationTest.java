@@ -18,7 +18,9 @@
 package org.apache.cloudstack.storage.dataservice;
 
 import com.cloud.utils.exception.CloudRuntimeException;
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.junit.Assert;
 import org.junit.Test;
 
