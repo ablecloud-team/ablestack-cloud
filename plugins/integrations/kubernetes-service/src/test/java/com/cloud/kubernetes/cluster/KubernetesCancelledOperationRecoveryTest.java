@@ -86,4 +86,63 @@ public class KubernetesCancelledOperationRecoveryTest {
         Mockito.verify(manager, Mockito.never()).stateTransitTo(Mockito.anyLong(), Mockito.any());
         Mockito.verify(manager.asyncJobDao, Mockito.never()).findJob(Mockito.any(), Mockito.any(), Mockito.anyString());
     }
+    @Test public void legacyUnattachedJobMatchesOnlyExactPersistedClusterUuid() {
+        Mockito.when(cluster.getUuid()).thenReturn("cluster-54-uuid");
+        Mockito.when(job.getInstanceId()).thenReturn(null);
+        Mockito.when(job.getCmdInfo()).thenReturn("{\"id\":\"cluster-54-uuid\"}");
+        Assert.assertTrue(KubernetesClusterManagerImpl.isRestartCancelledJob(cluster, job));
+        Mockito.when(job.getCmdInfo()).thenReturn("{\"id\":\"another-cluster\"}");
+        Assert.assertFalse(KubernetesClusterManagerImpl.isRestartCancelledJob(cluster, job));
+    }
+    @Test public void malformedOrMissingLegacyRequestCannotRecoverCluster() {
+        Mockito.when(cluster.getUuid()).thenReturn("cluster-54-uuid");
+        Mockito.when(job.getInstanceId()).thenReturn(null);
+        for (String info : new String[] {null, "bad-json", "{}", "{\"id\":null}"}) {
+            Mockito.when(job.getCmdInfo()).thenReturn(info);
+            Assert.assertFalse(KubernetesClusterManagerImpl.isRestartCancelledJob(cluster, job));
+        }
+    }
+    @Test public void legacyPendingJobCannotUnlockOperation() {
+        KubernetesClusterManagerImpl manager = Mockito.spy(new KubernetesClusterManagerImpl());
+        manager.asyncJobDao = Mockito.mock(AsyncJobDao.class);
+        Mockito.doReturn(job).when(manager).findLegacyInterruptedOperation(cluster);
+        Mockito.when(job.getStatus()).thenReturn(JobInfo.Status.IN_PROGRESS);
+        Assert.assertFalse(manager.recoverRestartCancelledOperation(cluster));
+        Mockito.verify(manager, Mockito.never()).stateTransitTo(Mockito.anyLong(), Mockito.any());
+    }
+    @Test public void upgradeAndScaleCommandsAttachTheActualClusterId() throws Exception {
+        for (org.apache.cloudstack.api.BaseAsyncCmd command : new org.apache.cloudstack.api.BaseAsyncCmd[] {
+                new UpgradeKubernetesClusterCmd(), new org.apache.cloudstack.api.command.user.kubernetes.cluster.ScaleKubernetesClusterCmd()}) {
+            java.lang.reflect.Field id = command.getClass().getDeclaredField("id");
+            id.setAccessible(true);
+            id.set(command, 54L);
+            Assert.assertEquals(Long.valueOf(54L), command.getApiResourceId());
+        }
+    }
+
+    @Test public void newerLegacyCancellationOverridesOlderAttachedCreateJob() {
+        KubernetesClusterManagerImpl manager = Mockito.spy(new KubernetesClusterManagerImpl());
+        manager.asyncJobDao = Mockito.mock(AsyncJobDao.class);
+        manager.kubernetesClusterDetailsDao = Mockito.mock(KubernetesClusterDetailsDao.class);
+        AsyncJobVO older = Mockito.mock(AsyncJobVO.class);
+        Mockito.when(older.getCreated()).thenReturn(new java.util.Date(1000L));
+        Mockito.when(job.getCreated()).thenReturn(new java.util.Date(2000L));
+        Mockito.when(manager.asyncJobDao.findJob(null, 54L, ApiCommandResourceType.KubernetesCluster.toString())).thenReturn(older);
+        Mockito.doReturn(job).when(manager).findLegacyInterruptedOperation(cluster);
+        Mockito.doReturn(true).when(manager).stateTransitTo(54L, KubernetesCluster.Event.OperationFailed);
+        Assert.assertTrue(manager.recoverRestartCancelledOperation(cluster));
+    }
+    @Test public void newerAttachedOrdinaryFailureCannotReuseOldLegacyCancellation() {
+        KubernetesClusterManagerImpl manager = Mockito.spy(new KubernetesClusterManagerImpl());
+        manager.asyncJobDao = Mockito.mock(AsyncJobDao.class);
+        AsyncJobVO older = Mockito.mock(AsyncJobVO.class);
+        Mockito.when(older.getCreated()).thenReturn(new java.util.Date(1000L));
+        Mockito.when(job.getCreated()).thenReturn(new java.util.Date(2000L));
+        Mockito.when(job.getResult()).thenReturn("ordinary failure");
+        Mockito.when(manager.asyncJobDao.findJob(null, 54L, ApiCommandResourceType.KubernetesCluster.toString())).thenReturn(job);
+        Mockito.doReturn(older).when(manager).findLegacyInterruptedOperation(cluster);
+        Assert.assertFalse(manager.recoverRestartCancelledOperation(cluster));
+        Mockito.verify(manager, Mockito.never()).stateTransitTo(Mockito.anyLong(), Mockito.any());
+    }
+
 }

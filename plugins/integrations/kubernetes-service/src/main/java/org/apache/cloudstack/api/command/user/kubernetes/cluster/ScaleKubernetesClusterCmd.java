@@ -109,6 +109,11 @@ public class ScaleKubernetesClusterCmd extends BaseAsyncCmd {
         return id;
     }
 
+    @Override
+    public Long getApiResourceId() {
+        return getId();
+    }
+
     public Long getServiceOfferingId() {
         return serviceOfferingId;
     }

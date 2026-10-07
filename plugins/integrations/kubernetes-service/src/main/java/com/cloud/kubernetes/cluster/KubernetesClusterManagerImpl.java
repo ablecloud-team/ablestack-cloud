@@ -259,6 +259,7 @@ import com.cloud.utils.UuidUtils;
 import com.cloud.utils.component.ComponentContext;
 import com.cloud.utils.component.ManagerBase;
 import com.cloud.utils.concurrency.NamedThreadFactory;
+import com.google.gson.JsonParser;
 import com.cloud.utils.db.Filter;
 import com.cloud.utils.db.GlobalLock;
 import com.cloud.utils.db.SearchBuilder;
@@ -3203,10 +3204,52 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
         }
     }
 
+    static boolean matchesLegacyInterruptedCluster(KubernetesCluster cluster, AsyncJobVO job) {
+        if (job == null || job.getInstanceId() != null || cluster.getUuid() == null) {
+            return false;
+        }
+        try {
+            return cluster.getUuid().equals(new JsonParser().parse(job.getCmdInfo()).getAsJsonObject().get("id").getAsString());
+        } catch (RuntimeException invalidCommandInfo) {
+            // Command info may contain credentials; never include its content in diagnostics.
+            return false;
+        }
+    }
+
+    protected AsyncJobVO findLegacyInterruptedOperation(KubernetesClusterVO cluster) {
+        // Older upgrade/scale commands omitted getApiResourceId(). Match their persisted request
+        // UUID exactly, including removed restart-cancelled jobs, and fail closed on an incomplete page.
+        SearchBuilder<AsyncJobVO> sb = asyncJobDao.createSearchBuilder();
+        sb.and("command", sb.entity().getCmd(), SearchCriteria.Op.EQ);
+        sb.and("type", sb.entity().getInstanceType(), SearchCriteria.Op.EQ);
+        sb.and("unattached", sb.entity().getInstanceId(), SearchCriteria.Op.NULL);
+        sb.and("created", sb.entity().getCreated(), SearchCriteria.Op.GTEQ);
+        SearchCriteria<AsyncJobVO> sc = sb.create();
+        sc.setParameters("command", interruptedOperationCommand(cluster.getState()));
+        sc.setParameters("type", ApiCommandResourceType.KubernetesCluster.toString());
+        sc.setParameters("created", cluster.getCreated());
+        List<AsyncJobVO> candidates = asyncJobDao.searchIncludingRemoved(sc, new Filter(AsyncJobVO.class, "created", false, 0L, 1000L), Boolean.FALSE, false);
+        if (candidates == null || candidates.size() >= 1000) {
+            return null;
+        }
+        AsyncJobVO latest = null;
+        for (AsyncJobVO candidate : candidates) {
+            if (matchesLegacyInterruptedCluster(cluster, candidate)) {
+                if (candidate.getStatus() == JobInfo.Status.IN_PROGRESS) {
+                    return candidate;
+                }
+                if (latest == null) {
+                    latest = candidate;
+                }
+            }
+        }
+        return latest;
+    }
+
     static boolean isRestartCancelledJob(KubernetesCluster cluster, AsyncJobVO job) {
         String expected = interruptedOperationCommand(cluster.getState());
         return expected != null && job != null && job.getStatus() == JobInfo.Status.FAILED
-                && Objects.equals(job.getInstanceId(), cluster.getId())
+                && (Objects.equals(job.getInstanceId(), cluster.getId()) || matchesLegacyInterruptedCluster(cluster, job))
                 && ApiCommandResourceType.KubernetesCluster.toString().equals(job.getInstanceType())
                 && expected.equals(job.getCmd())
                 && "job cancelled because of management server restart or shutdown".equals(job.getResult());
@@ -3217,6 +3260,13 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
             return false;
         }
         AsyncJobVO job = asyncJobDao.findJob(null, cluster.getId(), ApiCommandResourceType.KubernetesCluster.toString());
+        if (job == null || job.getCreated() != null) {
+            AsyncJobVO legacy = findLegacyInterruptedOperation(cluster);
+            if (legacy != null && (job == null || legacy.getStatus() == JobInfo.Status.IN_PROGRESS
+                    || (legacy.getCreated() != null && legacy.getCreated().after(job.getCreated())))) {
+                job = legacy;
+            }
+        }
         if (!isRestartCancelledJob(cluster, job)) {
             return false;
         }
