@@ -132,6 +132,13 @@ public class CreateStorageSmbShareCmd extends BaseStorageServiceAsyncCmd impleme
             description = "Common directory policy to inherit; protocol-local owner and mode must match it")
     private Long posixPolicyId;
 
+    @Parameter(name = "ownershipinheritance", type = CommandType.STRING, description = "AUTHENTICATED_USER or INHERIT_PARENT_OWNER for new objects only")
+    private String ownershipInheritance;
+    @Parameter(name = "inheritgroup", type = CommandType.BOOLEAN, description = "inherit parent GID using directory setgid without changing owner")
+    private Boolean inheritGroup;
+    public String getOwnershipInheritance() { return ownershipInheritance; }
+    public Boolean getInheritGroup() { return inheritGroup; }
+
     public Long getPosixPolicyId() { return posixPolicyId; }
 
     public Long getInstanceId() {

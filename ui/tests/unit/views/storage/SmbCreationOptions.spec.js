@@ -25,6 +25,17 @@ describe('SMB creation permission options', () => {
     expect(vm.patch).toHaveBeenCalledWith({ createmask: '0775', forcecreatemode: '0775', directorymask: '0775', forcedirectorymode: '0775', inheritpermissions: false, confirmfileexecute: false })
     expect(form.createmask).toBe('0660')
   })
+  it('parent group inheritance adds setgid through a parent patch without changing owner', () => {
+    const vm = { form: { directorymode: '0775', posixpolicyid: undefined }, patch: jest.fn() }
+    Widget.methods.setParentGroup.call(vm, true)
+    expect(vm.patch).toHaveBeenCalledWith({ inheritgroup: true, directorymode: '2775' })
+    expect(vm.form.directorymode).toBe('0775')
+  })
+  it('common directories require changing setgid in their common policy', () => {
+    const vm = { form: { directorymode: '0775', posixpolicyid: 'common' }, patch: jest.fn() }
+    Widget.methods.setParentGroup.call(vm, true)
+    expect(vm.patch).toHaveBeenCalledWith({ inheritgroup: true })
+  })
   it('only forced file execute bits trigger warning', () => {
     expect(Widget.computed.hasExecute.call({ form: { forcecreatemode: '0775' } })).toBe(true)
     expect(Widget.computed.hasExecute.call({ form: { forcecreatemode: '0660' } })).toBe(false)

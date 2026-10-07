@@ -9382,5 +9382,9 @@
   "label.posix.directory.apply": "Reapply",
   "label.posix.directory.affected.shares": "Affected NFS/SMB shares",
   "label.posix.directory.acl.add": "Add POSIX ACL entry",
-  "label.posix.directory.access.acl": "Current directory access ACL"
+  "label.posix.directory.access.acl": "Current directory access ACL",
+  "message.smb.ownership.parent.help": "Only new files and directories inherit their parent UID; setgid inherits the parent GID. Existing child owners, inodes and data remain unchanged. Account ACLs still apply. Guest, ADMIN ACL and forced UID/GID combinations are unsupported. Shared directories require setgid in their common POSIX policy.",
+  "label.smb.ownership.parent": "Inherit parent owner",
+  "label.smb.ownership.inheritance": "New object POSIX ownership",
+  "label.smb.ownership.authenticated": "Authenticated user ownership"
 }
