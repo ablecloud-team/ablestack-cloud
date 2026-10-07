@@ -19,6 +19,10 @@
 """Exercise actual SMB source-policy helpers without privileged service changes."""
 import ast
 import ipaddress
+import os
+import subprocess
+import tempfile
+from types import SimpleNamespace
 import re
 import unittest
 from pathlib import Path
@@ -26,7 +30,7 @@ SOURCE = Path(__file__).resolve().parents[2] / 'systemvm/debian/usr/local/bin/ab
 BLOCK = next(block for block in re.findall("<<'PY'\n(.*?)\nPY", SOURCE.read_text(), re.S) if 'def smb_network_policy(' in block)
 TREE = ast.parse(BLOCK)
 NS = {'ipaddress': ipaddress}
-NODES = [node for node in TREE.body if isinstance(node, ast.FunctionDef) and node.name in ('smb_network_policy', 'smb_hosts_allow_lines')]
+NODES = [node for node in TREE.body if isinstance(node, ast.FunctionDef) and node.name in ('smb_network_policy', 'smb_hosts_allow_lines', 'verify_share_mount_boundary')]
 exec(compile(ast.Module(body=NODES, type_ignores=[]), str(SOURCE), 'exec'), NS)
 class SmbNetworkAclTest(unittest.TestCase):
     def policy(self, value): return NS['smb_network_policy'](value)
@@ -47,6 +51,17 @@ class SmbNetworkAclTest(unittest.TestCase):
                 with self.assertRaises(ValueError): self.policy([self.rule(source, 'IP_ADDRESS')])
         invalid = self.rule('10.1.1.9', 'IP_ADDRESS'); invalid['permission'] = 'ADMIN'
         with self.assertRaises(ValueError): self.policy([invalid])
+    def test_nested_mount_validation_captures_findmnt_stdout(self):
+        with tempfile.TemporaryDirectory() as root:
+            child = Path(root) / 'smb' / 'share'; child.mkdir(parents=True)
+            def run(command, **kwargs):
+                captured = kwargs.get('stdout') == subprocess.PIPE and kwargs.get('text') is True
+                return SimpleNamespace(returncode=0, stdout=root + '\n' if captured else None)
+            NS.update({'os': os, 'subprocess': subprocess, 'run': run})
+            NS['verify_share_mount_boundary'](str(child), root)
+            outside = Path(root) / 'smb' / 'link'; outside.symlink_to('/tmp')
+            with self.assertRaises(RuntimeError): NS['verify_share_mount_boundary'](str(outside), root)
+
     def test_disabled_rules_do_not_apply(self):
         rule = self.rule('10.1.1.9', 'IP_ADDRESS'); rule['state'] = 'Disabled'
         self.assertEqual('ANY_SOURCE', self.policy([rule])['networkAccessMode'])
