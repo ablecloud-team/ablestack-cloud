@@ -30,11 +30,17 @@ SOURCE = Path(__file__).resolve().parents[2] / 'systemvm/debian/usr/local/bin/ab
 CODE = SOURCE.read_text().split("<<'PYRESOURCES'\n", 1)[1].split('\nPYRESOURCES', 1)[0]
 
 class ResourceReadinessTest(unittest.TestCase):
-    def run_probe(self, mode, possible='0-15', request=''):
+    def run_probe(self, mode, possible='0-15', request='', present='0-5'):
         files = {
             '/proc/meminfo': 'MemTotal: 4000000 kB\nMemAvailable: 3000000 kB\n',
             '/sys/devices/system/cpu/online': '0-1',
             '/sys/devices/system/cpu/possible': possible,
+            '/sys/devices/system/cpu/present': present,
+            '/sys/devices/system/cpu/cpu2/online': '0',
+            '/sys/devices/system/cpu/cpu3/online': '0',
+            '/sys/devices/system/cpu/cpu4/online': '0',
+            '/sys/devices/system/cpu/cpu5/online': '0',
+            '/sys/devices/system/memory/memory32/state': 'offline',
             '/sys/devices/system/memory/auto_online_blocks': 'offline',
             '/run/request.json': request,
         }
@@ -43,6 +49,7 @@ class ResourceReadinessTest(unittest.TestCase):
             def is_file(self): return self.path in files
             def read_text(self): return files[self.path]
             def write_text(self, value): files[self.path] = value
+            def glob(self, pattern): return [FakePath('/sys/devices/system/memory/memory32/state')]
         tree = ast.parse(CODE)
         tree.body = [node for node in tree.body if not isinstance(node, (ast.Import, ast.ImportFrom))]
         stdout = io.StringIO()
@@ -67,6 +74,22 @@ class ResourceReadinessTest(unittest.TestCase):
         self.assertEqual(0, code)
         self.assertTrue(result['success'])
         self.assertEqual('online', files['/sys/devices/system/memory/auto_online_blocks'])
+
+    def test_hot_added_cpu_and_memory_are_activated_only_after_resize(self):
+        result, files, code = self.run_probe('activate-scale', request='{"targetCpuCount":4}')
+        self.assertEqual(0, code)
+        self.assertEqual('1', files['/sys/devices/system/cpu/cpu2/online'])
+        self.assertEqual('1', files['/sys/devices/system/cpu/cpu3/online'])
+        self.assertEqual('0', files['/sys/devices/system/cpu/cpu4/online'])
+        self.assertEqual('0', files['/sys/devices/system/cpu/cpu5/online'])
+        self.assertEqual('online', files['/sys/devices/system/memory/memory32/state'])
+
+    def test_unpresent_target_cpu_is_blocked_without_cpu_activation(self):
+        result, files, code = self.run_probe('activate-scale', request='{"targetCpuCount":4}', present='0-1')
+        self.assertEqual(1, code)
+        self.assertFalse(result['success'])
+        self.assertEqual('0', files['/sys/devices/system/cpu/cpu2/online'])
+        self.assertEqual('offline', files['/sys/devices/system/memory/memory32/state'])
 
     def test_incompatible_cpu_topology_is_blocked_without_memory_changes(self):
         result, files, code = self.run_probe('prepare-scale', possible='0-1', request='{"targetCpuCount":4}')
