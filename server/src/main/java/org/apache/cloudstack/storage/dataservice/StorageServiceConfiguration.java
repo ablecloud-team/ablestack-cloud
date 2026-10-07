@@ -483,6 +483,10 @@ public final class StorageServiceConfiguration {
         };
     }
     public void promoteVerified(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
+        promoteVerified(instance, operation, () -> { });
+    }
+
+    public void promoteVerified(StorageServiceInstanceVO instance, StorageServiceOperationVO operation, Runnable completeOperation) {
         StorageConfigArtifactVO previous = artifacts.listByInstance(instance.getId()).stream()
                 .filter(row -> "RESTORE_POINT".equals(row.getKind()) && "ACTIVE_LKG".equals(row.getState()))
                 .findFirst().orElse(null);
@@ -506,7 +510,7 @@ public final class StorageServiceConfiguration {
         final StorageConfigArtifactVO point = candidate;
         try {
             store.write(point.getUuid(), archive);
-            if (!artifacts.promoteVerified(instance.getId(), point.getId(), expectedActiveId, expectedActiveRevision)) {
+            if (!artifacts.promoteVerified(instance.getId(), point.getId(), expectedActiveId, expectedActiveRevision, completeOperation)) {
                 throw new CloudRuntimeException("Active verified configuration changed before restore-point promotion");
             }
         } catch (RuntimeException failure) {
