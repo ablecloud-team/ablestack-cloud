@@ -55,6 +55,14 @@ public final class StorageServiceConfiguration {
         if (!READ_ACTIONS.contains(request.getConfigAction())) manager.requireConfigurationAdministrator();
         StorageServiceInstanceVO instance = manager.requireInstance(request.getInstanceId());
         if (READ_ACTIONS.contains(request.getConfigAction())) return response(list(instance, request.getConfigAction()), null);
+        if ("VERIFY_BASELINE".equals(request.getConfigAction())) {
+            manager.executeDesiredChange(request.getBaseCmd(), StorageServiceConfigArtifactResponse.class, () -> {
+                manager.verifyReconciledStorageDesiredState(instance);
+                JsonObject evidence = new JsonObject();evidence.addProperty("verification", "NATIVE_PROBES_PENDING_FINAL_PROMOTION");
+                return response(evidence, instance.getUuid());
+            });
+            return response(list(instance, "LKG"), instance.getUuid());
+        }
         if ("APPLY".equals(request.getConfigAction())) return apply(instance, request);
         if ("RESTORE_LKG".equals(request.getConfigAction())) return apply(instance, lastKnownGoodRequest(instance, request));
         GlobalLock lock = GlobalLock.getInternLock("StorageServiceWriter-" + instance.getId());
@@ -300,6 +308,13 @@ public final class StorageServiceConfiguration {
             if (!mappings.has("runtimeBundleUuid") || !mappings.has("initialVolumeSourceUuid")) {
                 throw new InvalidParameterValueException("New-service plan requires a compatible runtime bundle and explicit initial volume source mapping");
             }
+            String initialMapping = mappings.get("initialVolumeSourceUuid").getAsString();
+            if (mappings.has("volumes") && "NEW".equals(mappings.getAsJsonObject("volumes").has(initialMapping)
+                    ? mappings.getAsJsonObject("volumes").get(initialMapping).getAsString() : null)) {
+                mappings.getAsJsonObject("volumes").addProperty(initialMapping, UUID.randomUUID().toString());
+            }
+            StorageConfigRestorePlan.validateCloneInitialVolume(archive, mappings);
+            manager.preflightConfigurationAdditionalVolumes(blueprint, mappings.getAsJsonObject("volumes"), mappings.get("initialVolumeSourceUuid").getAsString());
             manager.preflightConfigurationRuntimeBundle(mappings.get("runtimeBundleUuid").getAsString());
             targetUuid = UUID.randomUUID().toString();revision = 0;current = new LinkedHashMap<>();
             for (String kind : StorageConfigRestorePlan.ROW_KEYS.keySet()) current.put("desired/" + kind + ".json", "[]".getBytes(StandardCharsets.UTF_8));
@@ -363,6 +378,7 @@ public final class StorageServiceConfiguration {
         // A failed preparation retains its explicit target provenance and requires a fresh review.
         metadata.remove("planToken");metadata.addProperty("planState", "CONSUMED");
         metadata.addProperty("restoreState", "PREPARING");update(row, metadata, row.getState());
+        try {
         StorageServiceInstanceVO selectedTarget = existingTarget;
         JsonObject executionPlan = plan.deepCopy();
         if (createNew) {
@@ -371,6 +387,8 @@ public final class StorageServiceConfiguration {
                 throw new InvalidParameterValueException("Source configuration changed after clone planning");
             }
             manager.preflightConfigurationRuntimeBundle(plan.get("runtimeBundleUuid").getAsString());
+            if (!metadata.has("createdTargetInstanceUuid")) manager.preflightConfigurationAdditionalVolumes(plan.getAsJsonObject("createNew"),
+                    plan.getAsJsonObject("volumeMappings"), plan.get("initialVolumeSourceUuid").getAsString());
             if (metadata.has("createdTargetInstanceUuid")) selectedTarget = manager.configurationInstanceByUuid(metadata.get("createdTargetInstanceUuid").getAsString());
             else {
                 manager.preflightConfigurationNewService(plan.getAsJsonObject("createNew"));
@@ -386,19 +404,22 @@ public final class StorageServiceConfiguration {
             metadata.addProperty("restoreState", "TARGET_PREPARED");update(row, metadata, row.getState());
         }
         final StorageServiceInstanceVO target = selectedTarget;final JsonObject reviewed = executionPlan;
-        try {
-            return manager.executeDesiredChange(manager.configurationTargetCommand(target.getId(), request.getBaseCmd()), StorageServiceConfigArtifactResponse.class, () -> {
+            manager.executeDesiredChange(manager.configurationTargetCommand(target.getId(), request.getBaseCmd()), StorageServiceConfigArtifactResponse.class, () -> {
             String current = manager.captureConfigurationSnapshot(target.getId());
             if (!createNew && (revision(target.getId()) != plan.get("expectedRevision").getAsLong()
                     || !capability.get("baselineSha256").getAsString().equals(StorageConfigArchive.sha256(current.getBytes(StandardCharsets.UTF_8))))) {
                 throw new InvalidParameterValueException("Configuration changed after planning; a new dry-run is required");
             }
+            if (createNew) manager.prepareConfigurationAdditionalVolumes(target, reviewed.getAsJsonObject("volumeMappings"), reviewed.get("initialVolumeSourceUuid").getAsString());
             manager.checkpointConfigurationIdentity(target);
             metadata.remove("planToken");metadata.addProperty("restoreState", "APPLYING");update(row, metadata, row.getState());
             new StorageConfigDomainRestore(manager).apply(target, reviewed, credentials);
-            metadata.addProperty("restoreState", "COMPLETE");metadata.addProperty("restoredAt", System.currentTimeMillis());update(row, metadata, row.getState());
+            metadata.addProperty("restoreState", "VERIFYING");update(row, metadata, row.getState());
             return response(compactRow(row), row.getUuid());
         });
+            // Native probe, exact desired/runtime verification and LKG promotion have all returned.
+            metadata.addProperty("restoreState", "COMPLETE");metadata.addProperty("restoredAt", System.currentTimeMillis());
+            update(row, metadata, row.getState());return response(compactRow(row), row.getUuid());
         } catch (RuntimeException failure) {
             metadata.addProperty("restoreState", "FAILED");
             metadata.addProperty("errorCode", "CONFIG_RESTORE_FAILED");

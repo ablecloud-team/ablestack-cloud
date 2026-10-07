@@ -78,6 +78,39 @@ public final class StorageConfigRestorePlan {
     private static Set<String> ids(JsonArray values) {
         Set<String> ids = new java.util.HashSet<>();for (JsonElement value : values) ids.add(text(value.getAsJsonObject(), "uuid"));return ids;
     }
+    public static void validateCloneInitialVolume(Map<String, byte[]> archive, JsonObject mappings) {
+        if (!mappings.has("createNew") || !mappings.has("initialVolumeSourceUuid") || !mappings.has("runtimeBundleUuid")
+                || !mappings.has("volumes") || !mappings.get("volumes").isJsonObject()) {
+            throw new CloudRuntimeException("New-service initial volume and runtime mapping are required");
+        }
+        String source = text(mappings, "initialVolumeSourceUuid");uuid(source);uuid(text(mappings, "runtimeBundleUuid"));
+        JsonObject volumes = mappings.getAsJsonObject("volumes");
+        if (!volumes.has(source)) throw new CloudRuntimeException("Initial source volume must have an explicit mapping");
+        uuid(volumes.get(source).getAsString());
+        JsonObject declared = null;
+        byte[] bytes = archive.get("desired/volumes.json");
+        if (bytes != null) for (JsonElement value : StorageConfigArchive.json(bytes).getAsJsonArray()) {
+            JsonObject volume = value.getAsJsonObject();if (source.equals(text(volume, "uuid"))) declared = volume;
+        }
+        if (declared == null || !"DATADISK".equals(text(declared, "type")) || !declared.has("size") || declared.get("size").getAsLong() <= 0) {
+            throw new CloudRuntimeException("Initial source volume metadata is unavailable or not a data volume");
+        }
+        JsonObject blueprint = mappings.getAsJsonObject("createNew");
+        if (!"EXISTING".equals(text(blueprint, "backingvolumemode"))) {
+            if (!blueprint.has("size") || blueprint.get("size").getAsLong() <= 0
+                    || java.math.BigInteger.valueOf(blueprint.get("size").getAsLong()).multiply(java.math.BigInteger.valueOf(1073741824L))
+                        .compareTo(java.math.BigInteger.valueOf(declared.get("size").getAsLong())) < 0) {
+                throw new CloudRuntimeException("New initial volume is smaller than the reviewed source volume");
+            }
+        } else if (!blueprint.has("existingvolumeid") || !volumes.get(source).getAsString().equals(text(blueprint, "existingvolumeid"))) {
+            throw new CloudRuntimeException("Existing initial volume differs from the reviewed explicit mapping");
+        }
+        Set<String> selected = new java.util.HashSet<>();
+        for (Map.Entry<String, JsonElement> value : volumes.entrySet()) {
+            uuid(value.getKey());uuid(value.getValue().getAsString());
+            if (!selected.add(value.getValue().getAsString())) throw new CloudRuntimeException("Different source volumes cannot share a target volume binding");
+        }
+    }
     public static void requireCredentials(JsonArray required, JsonObject supplied) {
         Map<String, Set<String>> allowed = new LinkedHashMap<>();
         for (JsonElement value : required) {

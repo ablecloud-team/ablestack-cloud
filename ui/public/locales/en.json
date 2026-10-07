@@ -8723,5 +8723,21 @@
   "message.storage.config.timeout": "The operation continues on the server. Refresh its history to check the result.",
   "label.storage.config.state.SUPERSEDED": "Previous verified configuration",
   "label.storage.config.apply": "Apply reviewed plan",
-  "label.storage.config.lkg.restore": "Restore last verified configuration"
+  "label.storage.config.lkg.restore": "Restore last verified configuration",
+  "label.storage.config.verification": "Verification",
+  "label.storage.config.runtime.status": "Runtime collection",
+  "label.storage.config.verify.baseline": "Verify current configuration",
+  "message.storage.config.clone.required": "Select the initial source volume and a verified runtime bundle.",
+  "label.storage.config.secret.coverage": "Credential coverage",
+  "label.storage.config.target.new": "Create a new service",
+  "message.storage.config.delete.confirm": "Remove this configuration artifact from history? Data volumes are preserved.",
+  "label.storage.config.clone.size": "New initial volume size (GiB)",
+  "label.storage.config.clone.initial": "Source for the new initial volume",
+  "label.storage.config.restore.status": "Restore progress",
+  "label.storage.config.target.existing": "Current service",
+  "label.storage.config.target.mode": "Restore destination",
+  "label.storage.config.expires": "Expires",
+  "label.storage.config.clone.new.volume": "Create a new empty data volume",
+  "label.storage.config.clone.runtime": "Verified runtime bundle",
+  "label.storage.config.size": "Bundle size (bytes)"
 }

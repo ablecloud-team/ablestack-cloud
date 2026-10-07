@@ -124,6 +124,10 @@ def collect(names):
 
 
 def validate_payload(payload):
+    if not isinstance(payload, dict) or set(payload) - {"schemaVersion", "files", "accounts"}:
+        raise ValueError("Identity capsule payload shape is invalid")
+    if not isinstance(payload.get("files"), dict) or not isinstance(payload.get("accounts"), dict):
+        raise ValueError("Identity capsule collections are invalid")
     if payload.get("schemaVersion") != 1 or set(payload.get("files", {})) - FILES or set(payload.get("accounts", {})) - ACCOUNT_FILES:
         raise ValueError("Identity capsule path allow-list mismatch")
     for path, item in payload.get("files", {}).items():
@@ -131,10 +135,12 @@ def validate_payload(payload):
             if set(item) != {"absent"}:
                 raise ValueError("Identity capsule absent-file marker is invalid")
             continue
+        if set(item) != {"data", "mode", "uid", "gid"} or type(item.get("mode")) is not int or type(item.get("gid")) is not int or not 0 <= item["gid"] <= 2147483647:
+            raise ValueError("Identity capsule file metadata is invalid")
         data = base64.b64decode(item["data"], validate=True)
         mode = int(item.get("mode", 0))
         secret_path = path != "/etc/ablestack-storage/smb-managed-identities.json"
-        if len(data) > MAX_CAPSULE_BYTES or item.get("uid") != 0 or mode & 0o022 or mode & 0o111 or (secret_path and mode & 0o007):
+        if len(data) > MAX_CAPSULE_BYTES or item.get("uid") != 0 or not 0 <= mode <= 0o777 or mode & 0o022 or mode & 0o111 or (secret_path and mode & 0o007):
             raise ValueError("Identity capsule file protection is invalid")
     for path, lines in payload.get("accounts", {}).items():
         if not isinstance(lines, list) or len(lines) > 512 or any(not isinstance(line, str) or "\n" in line for line in lines):
@@ -146,6 +152,8 @@ def validate_payload(payload):
         raise ValueError("Identity capsule shadow record has no scoped account")
     if any(line.split(":", 1)[0] not in groups for line in accounts.get("/etc/gshadow", [])):
         raise ValueError("Identity capsule group secret has no scoped group")
+    for path, lines in accounts.items():
+        account_merge("", lines, os.path.basename(path))
     return payload
 
 

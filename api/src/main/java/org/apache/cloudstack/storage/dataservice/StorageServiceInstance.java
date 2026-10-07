@@ -36,6 +36,11 @@ public interface StorageServiceInstance extends ControlledEntity, Identity, Inte
     String StorageServiceVmType = "storageservicevm";
     String StorageServiceProviderName = "STORAGESERVICEVM";
 
+    ConfigKey<Boolean> StorageServiceVerifiedConfigurationEnabled = new ConfigKey<Boolean>("Advanced", Boolean.class,
+            "storage.service.verified.configuration.enabled", "false",
+            "Enable configuration restore APIs and mandatory verified restore-point promotion after compatible runtimes are installed.", true,
+            SharedFS.SharedFSFeatureEnabled.key());
+
     ConfigKey<Integer> StorageServiceFormatMinimumTimeout = new ConfigKey<Integer>("Advanced", Integer.class,
             "storage.service.format.timeout.minimum", "300", "Minimum new backing-volume format deadline in seconds.", true);
     ConfigKey<Integer> StorageServiceFormatSecondsPerTiB = new ConfigKey<Integer>("Advanced", Integer.class,

@@ -147,6 +147,65 @@ class IdentityCapsuleTest(unittest.TestCase):
             capsules.owned_account_records({"/etc/ablestack-storage/smb-local-account-provenance.json":
                                            {"data": base64.b64encode(json.dumps(data).encode()).decode()}})
 
+    def test_native_file_commit_failure_restores_every_prior_file(self):
+        import base64, tempfile, os, stat
+        from unittest.mock import patch
+        from types import SimpleNamespace
+        payload = {"schemaVersion": 1, "files": {}, "accounts": {}}
+        for path in sorted(capsules.FILES):
+            payload["files"][path] = {"data": base64.b64encode(b"new").decode(), "mode": 0o600, "uid": 0, "gid": 0}
+        with tempfile.TemporaryDirectory() as folder:
+            mapped = {path: Path(folder) / str(i) for i, path in enumerate(sorted(capsules.FILES | capsules.ACCOUNT_FILES))}
+            before = {}
+            for path, local in mapped.items():
+                value = b"old"
+                if path.endswith("smb-local-account-provenance.json"):
+                    value = b'{"schemaVersion":1,"accounts":{}}'
+                elif path.endswith("smb-managed-identities.json"):
+                    value = b'{}'
+                elif path in capsules.ACCOUNT_FILES:
+                    value = b""
+                local.write_bytes(value);os.chmod(local, 0o600);before[path] = value
+            def regular(path, maximum=capsules.MAX_CAPSULE_BYTES):
+                local = mapped[path];actual = local.stat()
+                return local.read_bytes(), SimpleNamespace(st_mode=actual.st_mode, st_gid=0)
+            real_replace = os.replace
+            commits = []
+            def replace(source, target):
+                if target in mapped:
+                    commits.append(target)
+                    if len(commits) == 2:
+                        raise OSError("injected second file commit failure")
+                    target = mapped[target]
+                return real_replace(source, target)
+            real_exists = os.path.exists
+            def exists(path):
+                return real_exists(mapped[path]) if path in mapped else real_exists(path)
+            def lexists(path):
+                return path in mapped and real_exists(mapped[path])
+            with patch.object(capsules, "regular_file", regular), patch.object(capsules.os.path, "exists", exists), \
+                 patch.object(capsules.os.path, "lexists", lexists), patch.object(capsules.os.path, "realpath", lambda value: value), \
+                 patch.object(capsules.os, "makedirs"), patch.object(capsules.os, "fchown"), \
+                 patch.object(capsules.os, "replace", replace), \
+                 patch.object(capsules.tempfile if hasattr(capsules, "tempfile") else tempfile, "mkstemp", wraps=tempfile.mkstemp) as temp:
+                # Stage into a disposable directory while preserving the production path allowlist.
+                original = temp._mock_wraps
+                temp.side_effect = lambda **kwargs: original(prefix=kwargs.get("prefix", "test"), dir=folder)
+                with self.assertRaises(OSError):
+                    capsules.restore(payload)
+            self.assertTrue(all(local.read_bytes() == before[path] for path, local in mapped.items()))
+
+    def test_payload_rejects_unknown_metadata_login_accounts_and_unbounded_modes(self):
+        with self.assertRaises(ValueError):
+            capsules.validate_payload({"schemaVersion": 1, "files": {}, "accounts": {}, "script": "ignored"})
+        with self.assertRaises(ValueError):
+            capsules.validate_payload({"schemaVersion": 1, "files": {}, "accounts": {"/etc/passwd": ["synthetic:x:1002:1002::/home/synthetic:/bin/bash"]}})
+        import base64
+        path = "/var/lib/samba/private/passdb.tdb"
+        for mode in (0o4600, -1):
+            with self.assertRaises(ValueError):
+                capsules.validate_payload({"schemaVersion": 1, "files": {path: {"data": base64.b64encode(b"synthetic").decode(), "mode": mode, "uid": 0, "gid": 0}}, "accounts": {}})
+
 
 if __name__ == "__main__":
     unittest.main()

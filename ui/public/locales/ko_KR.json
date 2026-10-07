@@ -8688,5 +8688,21 @@
   "message.storage.config.timeout": "서버에서 작업이 계속 진행될 수 있습니다. 이력을 갱신해 결과를 확인하세요.",
   "label.storage.config.state.SUPERSEDED": "이전 정상 구성",
   "label.storage.config.apply": "확인한 계획 적용",
-  "label.storage.config.lkg.restore": "마지막 정상 구성으로 복원"
+  "label.storage.config.lkg.restore": "마지막 정상 구성으로 복원",
+  "label.storage.config.verification": "검증 상태",
+  "label.storage.config.runtime.status": "런타임 수집 상태",
+  "label.storage.config.verify.baseline": "현재 구성 검증",
+  "message.storage.config.clone.required": "초기 원본 볼륨과 검증된 런타임 번들을 선택하세요.",
+  "label.storage.config.secret.coverage": "비밀값 재입력 범위",
+  "label.storage.config.target.new": "신규 서비스 복제",
+  "message.storage.config.delete.confirm": "이 구성 아티팩트를 이력에서 삭제하시겠습니까? 데이터 볼륨은 보존합니다.",
+  "label.storage.config.clone.size": "새 초기 데이터 볼륨 크기(GiB)",
+  "label.storage.config.clone.initial": "새 초기 볼륨에 대응할 원본 볼륨",
+  "label.storage.config.restore.status": "복원 진행 상태",
+  "label.storage.config.target.existing": "현재 서비스",
+  "label.storage.config.target.mode": "복원 대상",
+  "label.storage.config.expires": "보존 만료 시각",
+  "label.storage.config.clone.new.volume": "새 빈 데이터 볼륨 생성",
+  "label.storage.config.clone.runtime": "검증된 런타임 번들",
+  "label.storage.config.size": "번들 크기(bytes)"
 }
