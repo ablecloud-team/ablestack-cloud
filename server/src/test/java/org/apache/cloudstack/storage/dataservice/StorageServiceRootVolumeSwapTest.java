@@ -125,4 +125,23 @@ public class StorageServiceRootVolumeSwapTest {
         Assert.assertThrows(CloudRuntimeException.class,()->swap.swap(7,10,20,41,99,88));
         Mockito.verify(volumes,Mockito.never()).detachVolume(Mockito.anyLong());
     }
+    @Test public void readyRootOnAnotherPoolIsRejectedBeforeQuiescingTheRunningService() {
+        Mockito.when(staged.getPoolId()).thenReturn(31L);
+        Assert.assertThrows(CloudRuntimeException.class,()->swap.prepare(7,10,20,99));
+        Mockito.verifyNoInteractions(service,orchestration);
+        Mockito.verify(volumes,Mockito.never()).detachVolume(Mockito.anyLong());
+    }
+    @Test public void rollbackUsesTheSamePrimitiveAndRetainsTheRejectedTargetRoot() {
+        Mockito.when(vm.getState()).thenReturn(VirtualMachine.State.Stopped);
+        Mockito.when(vm.getTemplateId()).thenReturn(99L);
+        Mockito.when(previous.getInstanceId()).thenReturn(null);
+        Mockito.when(staged.getInstanceId()).thenReturn(7L);
+        Mockito.when(volumes.findByInstanceAndType(7L,Volume.Type.ROOT)).thenReturn(List.of(staged));
+        swap.swap(7,20,10,99,41,66);
+        Mockito.verify(volumes).detachVolume(20L);Mockito.verify(volumes).attachVolume(10L,7L,0L);
+        Mockito.verify(vm).setTemplateId(41L);Mockito.verify(vm).setGuestOSId(66L);
+        Mockito.verify(staged).setRecreatable(false);
+        Mockito.verify(volumes,Mockito.never()).remove(Mockito.anyLong());Mockito.verifyNoInteractions(service);
+    }
+
 }
