@@ -92,5 +92,48 @@ class NativeWriterLockTest(unittest.TestCase):
             self.assertNotIn('UNEXPECTED_MUTATION', result.stdout)
             self.assertFalse((Path(root) / 'writer.lock').exists())
 
+    def test_real_cli_reads_stdin_payload_without_confusing_it_with_embedded_python(self):
+        with tempfile.TemporaryDirectory() as root:
+            binary = Path(root) / 'ganesha.nfsd'
+            binary.write_text('#!/bin/bash'+chr(10)+'printf "NFS-Ganesha V4.3"'+chr(10))
+            binary.chmod(0o700)
+            environment = os.environ.copy()
+            environment['PATH'] = root + ':' + environment['PATH']
+            environment['ABLESTACK_STORAGE_WRITER_LOCK_FILE'] = str(Path(root) / 'writer.lock')
+            result = subprocess.run([str(SOURCE),'nfs','idmapping','preflight','/dev/stdin'],
+                                    input=json.dumps({'idMappingMode':'NUMERIC'}), env=environment,
+                                    capture_output=True, text=True)
+            self.assertEqual(0, result.returncode, result.stderr)
+            self.assertTrue(json.loads(result.stdout)['success'])
+            self.assertEqual(['ganesha.nfsd'], sorted(p.name for p in Path(root).iterdir()))
+
+    def test_memory_payload_supports_multiple_readers_and_cannot_be_modified(self):
+        bridge = TEXT.split('materialize_stdin_payload_in_memory() {', 1)[1].split('acquire_storage_writer_lock() {', 1)[0]
+        bridge = 'materialize_stdin_payload_in_memory() {' + bridge
+        with tempfile.TemporaryDirectory() as root:
+            script = Path(root) / 'reader.sh'
+            code = """import os,sys,json,fcntl
+path=sys.argv[1]
+with open(path) as reader: first=json.load(reader)
+with open(path) as reader: second=json.load(reader)
+assert first==second
+fd=os.open(path,os.O_RDWR)
+try:
+ try:os.write(fd,b'change');raise AssertionError('Unsealed payload')
+ except PermissionError:pass
+finally:os.close(fd)
+assert oct(os.stat(path).st_mode & 0o777)=='0o600'
+print(json.dumps({'bothReads':True,'sealed':True}))
+"""
+            shell = '#!/bin/bash'+chr(10)+'set -euo pipefail'+chr(10)+bridge+chr(10)
+            shell += 'if [[ "$1" == "/dev/stdin" ]]; then materialize_stdin_payload_in_memory "$@"; exit $?; fi'+chr(10)
+            shell += 'python3 - "$1" <<'+chr(39)+'READMEM'+chr(39)+chr(10)+code+'READMEM'+chr(10)
+            script.write_text(shell);script.chmod(0o700)
+            result=subprocess.run([str(script),'/dev/stdin'],input=json.dumps({'value':'synthetic-private-payload'}),
+                                  capture_output=True,text=True)
+            self.assertEqual(0,result.returncode,result.stderr)
+            self.assertEqual({'bothReads':True,'sealed':True},json.loads(result.stdout))
+            self.assertEqual(['reader.sh'],sorted(p.name for p in Path(root).iterdir()))
+
 if __name__ == '__main__':
     unittest.main()
