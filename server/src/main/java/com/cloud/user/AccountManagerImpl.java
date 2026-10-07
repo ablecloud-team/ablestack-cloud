@@ -1566,7 +1566,7 @@ public class AccountManagerImpl extends ManagerBase implements AccountManager, M
                 accountCmd.getLastName(), accountCmd.getEmail(), accountCmd.getTimeZone(), accountCmd.getAccountName(),
                 accountCmd.getAccountType(), accountCmd.getRoleId(), accountCmd.getDomainId(),
                 accountCmd.getNetworkDomain(), accountCmd.getDetails(), accountCmd.getAccountUUID(),
-                accountCmd.getUserUUID(), User.Source.UNKNOWN, accountCmd.getEnable());
+                accountCmd.getUserUUID(), User.Source.UNKNOWN, Boolean.TRUE.equals(accountCmd.getEnable()));
     }
 
     // ///////////////////////////////////////////////////
