@@ -63,6 +63,7 @@ public class StorageConfigurationBatchTest {
         Mockito.when(protocols.listByInstanceIdAndProtocol(7, StorageServiceInstance.Protocol.NVME_OF)).thenReturn(Collections.emptyList());
         Mockito.doAnswer(call -> { Assert.assertNull(batches(manager).get());return null; }).when(manager).applyNfsDesiredState(instance);
         Mockito.doNothing().when(manager).verifyReconciledStorageDesiredState(instance);
+        Mockito.doReturn(new com.google.gson.JsonObject()).when(manager).observeConfigurationRuntime(instance, "inventory");
         manager.beginConfigurationBatch(7);manager.finishConfigurationBatch(instance);
         Mockito.verify(manager, Mockito.times(1)).applyNfsDesiredState(instance);
         Mockito.verify(manager, Mockito.never()).applySmbDesiredState(Mockito.any(), Mockito.anyMap());
