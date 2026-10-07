@@ -113,6 +113,7 @@
           <a-descriptions-item :label="$t('label.storage.config.keep.resources')">{{ plan.keep.length }}</a-descriptions-item>
           <a-descriptions-item :label="$t('label.storage.config.preserve.resources')">{{ plan.preserve.length }}</a-descriptions-item>
         </a-descriptions>
+        <a-alert v-for="directory in (plan.directoryPreparation || [])" :key="directory.sourceUuid" type="info" show-icon :message="$t('label.storage.config.directory.prepare') + ': ' + directory.relativePath" />
         <a-table size="small" :columns="planColumns" :data-source="changes" :pagination="{ pageSize: 5 }" :scroll="{ x: 750 }" row-key="sourceUuid" />
         <a-form v-if="planPhase==='REVIEW'" layout="vertical">
           <template v-for="required in plan.requiredCredentials" :key="required.ruleUuid">
