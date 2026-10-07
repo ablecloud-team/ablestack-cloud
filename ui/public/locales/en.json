@@ -1,4 +1,8 @@
 {
+  "message.smb.ownership.parent.help": "Only new files and directories inherit their parent UID; setgid inherits the parent GID. Existing child owners, inodes and data remain unchanged. Account ACLs still apply. Guest, ADMIN ACL and forced UID/GID combinations are unsupported. Shared directories require setgid in their common POSIX policy.",
+  "label.smb.ownership.parent": "Inherit parent owner",
+  "label.smb.ownership.inheritance": "New object POSIX ownership",
+  "label.smb.ownership.authenticated": "Authenticated user ownership",
   "message.posix.directory.timeout": "The operation is still running; refresh its status before retrying.",
   "message.posix.directory.read.failed": "Could not refresh directory policies. Last known rows remain visible.",
   "message.posix.directory.policy.help": "NFS and SMB use one policy per backing volume and canonical path. Access requires both protocol ACL and POSIX permission. Parent UID inheritance for SMB is a separate creation policy.",
