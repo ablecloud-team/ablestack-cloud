@@ -51,7 +51,8 @@ public class StorageServiceOperationDaoImpl extends GenericDaoBase<StorageServic
 
     public boolean touchHeartbeat(long id, String operationUuid, long instanceId) {
         // Update only the lease column: phase/diagnostic changes and terminal commits must never be overwritten.
-        try (java.sql.PreparedStatement statement = com.cloud.utils.db.TransactionLegacy.currentTxn().prepareAutoCloseStatement(
+        try (com.cloud.utils.db.TransactionLegacy transaction = com.cloud.utils.db.TransactionLegacy.open("StorageServiceWriterHeartbeat");
+                java.sql.PreparedStatement statement = transaction.prepareAutoCloseStatement(
                 "UPDATE cloud.storage_service_operation SET heartbeat=CURRENT_TIMESTAMP WHERE id=? AND uuid=? AND instance_id=? AND state IN ('RUNNING','RECOVERY_REQUIRED')")) {
             statement.setLong(1, id);statement.setString(2, operationUuid);statement.setLong(3, instanceId);
             return statement.executeUpdate() == 1;
