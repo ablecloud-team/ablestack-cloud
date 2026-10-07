@@ -1880,6 +1880,7 @@ wrapClassName="storage-service-action-modal"
             <template #label><tooltip-label :title="$t('label.storage.service.directory.mode')" :tooltip="$t('message.storage.service.directory.mode.help')" /></template>
             <a-input v-model:value="forms.smbShare.directorymode" placeholder="0770" />
           </a-form-item>
+          <smb-creation-options :form="forms.smbShare" @patch="Object.assign(forms.smbShare, $event)" />
           <a-space wrap>
             <a-checkbox v-model:checked="forms.smbShare.readonly">{{ $t('label.storage.service.permission.readonly') }}</a-checkbox>
             <a-checkbox v-model:checked="forms.smbShare.browseable">{{ $t('label.storage.service.browseable') }}</a-checkbox>
@@ -2308,6 +2309,7 @@ import NicsTab from '@/views/network/NicsTab.vue'
 import TooltipButton from '@/components/widgets/TooltipButton'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import SmbNetworkAccess from '@/views/storage/SmbNetworkAccess'
+import SmbCreationOptions from '@/views/storage/SmbCreationOptions'
 import { Empty } from 'ant-design-vue'
 import {
   DeleteOutlined,
@@ -2522,6 +2524,7 @@ export default {
     TooltipButton,
     TooltipLabel,
     SmbNetworkAccess,
+    SmbCreationOptions,
     Status,
     ProtocolHeader,
     EllipsisText,
@@ -2688,7 +2691,13 @@ export default {
           guestok: false,
           createdirectory: true,
           crossprotocol: false,
-          directorymode: '0770'
+          directorymode: '0770',
+          createmask: '0660',
+          forcecreatemode: '0000',
+          directorymask: '0770',
+          forcedirectorymode: '0000',
+          inheritpermissions: false,
+          confirmfileexecute: false
         },
         smbAcl: {
           id: '',
@@ -3719,6 +3728,7 @@ export default {
         { title: this.$t('label.storage.service.client.unc.root'), dataIndex: 'clientPath', key: 'clientPath', width: 340, code: true },
         { title: this.$t('label.storage.service.internal.path'), dataIndex: 'path', key: 'path', width: 220, code: true },
         { title: this.$t('label.storage.service.ip.port'), dataIndex: 'endpoint', key: 'endpoint', width: 260, code: true },
+        { title: this.$t('label.storage.service.smb.creation.policy'), dataIndex: 'creationPolicy', key: 'creationPolicy', width: 290 },
         { title: this.$t('label.storage.service.browseable'), dataIndex: 'browseable', key: 'browseable', width: 120 },
         { title: this.$t('label.storage.service.guest.access'), dataIndex: 'guestOk', key: 'guestOk', width: 130 },
         { title: this.$t('label.storage.service.permission'), dataIndex: 'permission', key: 'permission', width: 140 },
@@ -3904,6 +3914,7 @@ export default {
           clientPath: this.smbClientPathForShare(name),
           path: share.path || share.mountpath || share.backingpath || '-',
           endpoint: this.smbEndpointPairSummary || `${share.listenip || this.serviceEndpoint || '-'}:${share.port || 445}`,
+          creationPolicy: this.smbCreationPolicySummary(share, config),
           browseable: this.booleanLabel(share.browseable ?? config.browseable),
           guestOk: this.booleanLabel(share.guestok ?? share.guestOk ?? config.guestOk),
           permission: this.permissionLabel(share.permission || (share.readonly || config.readOnly ? 'READ_ONLY' : 'READ_WRITE')),
@@ -7049,7 +7060,13 @@ export default {
         guestok: false,
         createdirectory: true,
         crossprotocol: false,
-        directorymode: '0770'
+        directorymode: '0770',
+        createmask: '0660',
+        forcecreatemode: '0000',
+        directorymask: '0770',
+        forcedirectorymode: '0000',
+        inheritpermissions: false,
+        confirmfileexecute: false
       })
     },
     populateSmbShareForm (record) {
@@ -7076,8 +7093,21 @@ export default {
         guestok: this.boolValue(share.guestok ?? share.guestOk ?? config.guestOk),
         createdirectory: config.createDirectory === undefined && config.createdirectory === undefined ? true : this.boolValue(config.createDirectory ?? config.createdirectory),
         crossprotocol: this.boolValue(config.crossProtocol ?? config.crossprotocol),
-        directorymode: config.directoryMode || config.directorymode || '0770'
+        directorymode: config.directoryMode || config.directorymode || '0770',
+        createmask: config.createMask || '0660',
+        forcecreatemode: config.forceCreateMode || '0000',
+        directorymask: config.directoryMask || '0770',
+        forcedirectorymode: config.forceDirectoryMode || '0000',
+        inheritpermissions: this.boolValue(config.inheritPermissions),
+        confirmfileexecute: false
       })
+    },
+    smbCreationPolicySummary (share, config) {
+      const desired = `${config.createMask || '0660'}/${config.forceCreateMode || '0000'} · ${config.directoryMask || '0770'}/${config.forceDirectoryMode || '0000'}`
+      const runtime = this.parsedInventory.smbAccess?.[share.id]?.creationPolicy
+      if (!runtime) return `${desired} · ${this.$t('label.storage.service.unobserved')}`
+      const consistent = ['createMask', 'forceCreateMode', 'directoryMask', 'forceDirectoryMode'].every(key => String(runtime[key]) === String(config[key] || ({ createMask: '0660', forceCreateMode: '0000', directoryMask: '0770', forceDirectoryMode: '0000' })[key])) && !!runtime.inheritPermissions === this.boolValue(config.inheritPermissions)
+      return `${desired} · ${consistent ? 'CONSISTENT' : 'DRIFT'}`
     },
     resetSmbAclForm () {
       Object.assign(this.forms.smbAcl, {
@@ -7714,6 +7744,12 @@ export default {
         createdirectory: this.forms.smbShare.createdirectory,
         crossprotocol: this.forms.smbShare.crossprotocol,
         directorymode: this.forms.smbShare.directorymode,
+        createmask: this.forms.smbShare.createmask,
+        forcecreatemode: this.forms.smbShare.forcecreatemode,
+        directorymask: this.forms.smbShare.directorymask,
+        forcedirectorymode: this.forms.smbShare.forcedirectorymode,
+        inheritpermissions: this.forms.smbShare.inheritpermissions,
+        confirmfileexecute: this.forms.smbShare.confirmfileexecute,
         cleanupvolumeonfailure: this.forms.smbShare.volumemode === 'NEW' && !!volumeId
       }, this.$t('label.storage.service.create.smb.share'))
     },
@@ -7734,7 +7770,13 @@ export default {
         guestok: this.forms.smbShare.guestok,
         createdirectory: this.forms.smbShare.createdirectory,
         crossprotocol: this.forms.smbShare.crossprotocol,
-        directorymode: this.forms.smbShare.directorymode
+        directorymode: this.forms.smbShare.directorymode,
+        createmask: this.forms.smbShare.createmask,
+        forcecreatemode: this.forms.smbShare.forcecreatemode,
+        directorymask: this.forms.smbShare.directorymask,
+        forcedirectorymode: this.forms.smbShare.forcedirectorymode,
+        inheritpermissions: this.forms.smbShare.inheritpermissions,
+        confirmfileexecute: this.forms.smbShare.confirmfileexecute
       }, this.$t('label.storage.service.update.smb.share'))
     },
     createSmbAcl () {

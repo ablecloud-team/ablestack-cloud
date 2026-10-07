@@ -103,6 +103,31 @@ public class CreateStorageSmbShareCmd extends BaseStorageServiceAsyncCmd impleme
     @Parameter(name = "aclpassword", type = CommandType.STRING, description = "optional initial local SMB user password. Used only for LOCAL_USER creation and not stored.")
     private String aclPassword;
 
+    @Parameter(name = "createmask", type = CommandType.STRING, description = "maximum octal mode for new files, 0000 through 0777")
+    private String createMask;
+
+    @Parameter(name = "forcecreatemode", type = CommandType.STRING, description = "octal bits forced on new files, contained by create mask")
+    private String forceCreateMode;
+
+    @Parameter(name = "directorymask", type = CommandType.STRING, description = "maximum octal mode for new directories, 0000 through 0777")
+    private String directoryMask;
+
+    @Parameter(name = "forcedirectorymode", type = CommandType.STRING, description = "octal bits forced on new directories, contained by directory mask")
+    private String forceDirectoryMode;
+
+    @Parameter(name = "inheritpermissions", type = CommandType.BOOLEAN, description = "inherit parent permissions instead of masks; force modes must be zero")
+    private Boolean inheritPermissions;
+
+    @Parameter(name = "confirmfileexecute", type = CommandType.BOOLEAN, description = "explicit confirmation when forcing execute permission on regular files")
+    private Boolean confirmFileExecute;
+
+    public String getCreateMask() { return createMask; }
+    public String getForceCreateMode() { return forceCreateMode; }
+    public String getDirectoryMask() { return directoryMask; }
+    public String getForceDirectoryMode() { return forceDirectoryMode; }
+    public Boolean getInheritPermissions() { return inheritPermissions; }
+    public Boolean getConfirmFileExecute() { return confirmFileExecute; }
+
     public Long getInstanceId() {
         return instanceId;
     }
