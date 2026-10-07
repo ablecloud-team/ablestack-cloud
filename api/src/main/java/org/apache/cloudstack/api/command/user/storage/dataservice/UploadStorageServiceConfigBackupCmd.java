@@ -32,7 +32,7 @@ import org.apache.cloudstack.api.response.StorageServiceInstanceResponse;
         description = "Storage Service configuration upload with scoped artifacts and explicit resource mapping.", since = "4.23.0",
         requestHasSensitiveInfo = true, responseHasSensitiveInfo = true,
         authorized = {RoleType.Admin})
-public class UploadStorageServiceConfigBackupCmd extends BaseStorageServiceAsyncCmd implements UserCmd, StorageConfigRequest {
+public class UploadStorageServiceConfigBackupCmd extends BaseCmd implements UserCmd, StorageConfigRequest {
     @Inject private StorageService storageService;
     @Parameter(name = "instanceid", type = CommandType.UUID, entityType = StorageServiceInstanceResponse.class, required = true) private Long instanceId;
     public Long getInstanceId() { return instanceId; }
@@ -51,13 +51,11 @@ public class UploadStorageServiceConfigBackupCmd extends BaseStorageServiceAsync
     public BaseCmd getBaseCmd() { return this; }
     public String getConfigAction() { return "UPLOAD"; }
     public long getEntityOwnerId() { return 0; }
-    public String getEventType() { return "STORAGE.CONFIG.UPLOAD"; }
-    public String getEventDescription() { return "Storage Service configuration upload"; }
     @Override
     public void validateSpecificParameters(final java.util.Map<String, String> params) {
         super.validateSpecificParameters(params);
         if (!com.cloud.utils.crypt.EncryptionSecretKeyChecker.useEncryption()) {
-            throw new com.cloud.exception.InvalidParameterValueException("Protected configuration transfer requires management encryption before queueing");
+            throw new com.cloud.exception.InvalidParameterValueException("Protected configuration transfer requires management encryption");
         }
     }
     public void execute() {

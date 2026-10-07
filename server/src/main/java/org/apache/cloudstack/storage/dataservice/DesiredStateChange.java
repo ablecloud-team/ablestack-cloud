@@ -33,6 +33,7 @@ public final class DesiredStateChange {
         void applyPrevious();
         default void started(StorageServiceOperationVO operation) { }
         default void finished() { }
+        default void promoteVerifiedConfiguration(StorageServiceOperationVO operation) { }
     }
     private final StorageServiceOperationDao operations;
     private final StorageServiceDesiredSnapshot snapshots;
@@ -94,6 +95,7 @@ public final class DesiredStateChange {
                     phase(operation, "VERIFYING", 80);
                     runtime.verify();
                     operation.setSnapshotJson(snapshots.capture(instanceId));
+                    runtime.promoteVerifiedConfiguration(operation);
                     operation.setResultJson(gson.toJson(response));
                     operation.setState("COMPLETE"); operation.setCompleted(new Date());
                     phase(operation, "COMPLETE", 100);
@@ -130,8 +132,10 @@ public final class DesiredStateChange {
     private String desiredOnly(String json) {
         try {
             final com.google.gson.JsonElement value = new com.google.gson.JsonParser().parse(json);
-            if (value.isJsonObject() && value.getAsJsonObject().has("nativePosixDirectory")) {
-                final com.google.gson.JsonObject copy = value.getAsJsonObject().deepCopy();copy.remove("nativePosixDirectory");return copy.toString();
+            if (value.isJsonObject()) {
+                final com.google.gson.JsonObject copy = value.getAsJsonObject().deepCopy();
+                copy.remove("nativePosixDirectory");copy.remove("nativePosixDirectories");copy.remove("nativeIdentityCapsule");
+                return copy.toString();
             }
         } catch (RuntimeException invalid) { /* Legacy non-JSON test/diagnostic snapshots remain exact comparisons. */ }
         return json;

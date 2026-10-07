@@ -107,4 +107,23 @@ public class DesiredStateChangeTest {
         Assert.assertEquals("BLOCKED", saved.get().getState());
         verify(snapshots, never()).restore(anyLong(), anyString());
     }
+    @Test public void failedRestorePointPromotionRollsBackInsteadOfMarkingChangeComplete() {
+        org.mockito.Mockito.doThrow(new CloudRuntimeException("restore point storage unavailable"))
+                .when(runtime).promoteVerifiedConfiguration(org.mockito.ArgumentMatchers.any());
+        Assert.assertThrows(CloudRuntimeException.class, () -> engine.execute(7L, "restore", "point-failure", 0L, String.class, () -> "new", runtime));
+        Assert.assertEquals("ROLLED_BACK", saved.get().getState());
+        verify(snapshots).restore(7L, "previous");
+        verify(runtime).applyPrevious();
+    }
+    @Test public void successfulPromotionOccursOnlyAfterRuntimeVerificationAndSnapshotCapture() {
+        Assert.assertEquals("done", engine.execute(7L, "update", "verified-point", 0L, String.class, () -> "done", runtime));
+        org.mockito.InOrder order = org.mockito.Mockito.inOrder(runtime, snapshots);
+        order.verify(runtime).started(org.mockito.ArgumentMatchers.any());
+        order.verify(runtime).preflight();
+        order.verify(snapshots).capture(7L);
+        order.verify(runtime).verify();
+        order.verify(snapshots).capture(7L);
+        order.verify(runtime).promoteVerifiedConfiguration(org.mockito.ArgumentMatchers.any());
+    }
+
 }
