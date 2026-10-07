@@ -29,8 +29,8 @@ from pathlib import Path
 SOURCE = Path(__file__).resolve().parents[2] / 'systemvm/debian/usr/local/bin/ablestack-storagectl'
 BLOCK = next(block for block in re.findall("<<'PY'\n(.*?)\nPY", SOURCE.read_text(), re.S) if 'def smb_network_policy(' in block)
 TREE = ast.parse(BLOCK)
-NS = {'ipaddress': ipaddress, 're': re}
-NODES = [node for node in TREE.body if isinstance(node, ast.FunctionDef) and node.name in ('smb_network_policy', 'smb_hosts_allow_lines', 'verify_share_mount_boundary', 'truth', 'smb_creation_policy', 'smb_creation_lines', 'install_validated_smb_config', 'apply_directory_policy', 'remove_stale_managed_smb_acls')]
+NS = {'ipaddress': ipaddress, 're': re, 'os': os, 'subprocess': subprocess, 'tempfile': tempfile}
+NODES = [node for node in TREE.body if isinstance(node, ast.FunctionDef) and node.name in ('smb_network_policy', 'smb_hosts_allow_lines', 'verify_share_mount_boundary', 'truth', 'smb_creation_policy', 'smb_creation_lines', 'install_validated_smb_config', 'apply_directory_policy', 'remove_stale_managed_smb_acls', 'smb_creation_acl_preflight')]
 exec(compile(ast.Module(body=NODES, type_ignores=[]), str(SOURCE), 'exec'), NS)
 class SmbNetworkAclTest(unittest.TestCase):
     def policy(self, value): return NS['smb_network_policy'](value)
@@ -92,6 +92,18 @@ class SmbNetworkAclTest(unittest.TestCase):
         self.assertEqual([['setfacl', '-x', 'u:1001', '/volume/share'], ['setfacl', '-d', '-x', 'u:1001', '/volume/share']], calls)
         calls.clear(); NS['remove_stale_managed_smb_acls']('/volume/share', previous['aclSummary'], previous)
         self.assertEqual([], calls)
+
+    def test_existing_default_acl_conflict_is_blocked_without_permission_changes(self):
+        policy = NS['smb_creation_policy']({key: '0775' for key in ('createMask', 'forceCreateMode', 'directoryMask', 'forceDirectoryMode')})
+        NS['os'] = os
+        with tempfile.TemporaryDirectory() as root:
+            acl = 'default:user::rwx\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::---\n'
+            NS['run'] = lambda *args, **kwargs: SimpleNamespace(stdout=acl)
+            with self.assertRaisesRegex(RuntimeError, 'default ACL permits 0770'):
+                NS['smb_creation_acl_preflight'](root, policy)
+            acl = acl.replace('other::---', 'other::r-x')
+            self.assertEqual('0775', NS['smb_creation_acl_preflight'](root, policy)['defaultAclMode'])
+            self.assertEqual('COMPATIBLE', NS['smb_creation_acl_preflight'](root, NS['smb_creation_policy']({}))['state'])
 
     def test_creation_defaults_and_exact_forced_modes(self):
         policy = NS['smb_creation_policy']({})
