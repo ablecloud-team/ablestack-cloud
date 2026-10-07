@@ -862,7 +862,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
         final JsonObject smb = inventory.has("smbAccess") ? inventory.getAsJsonObject("smbAccess") : new JsonObject();
         for (StorageFileShareVO share : storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(), StorageServiceInstance.Protocol.SMB)) {
-            if (share.getState() != StorageServiceInstance.ResourceState.Ready || !smb.has(share.getUuid())) throw new CloudRuntimeException("SMB desired/runtime share is not ready");
+            if (share.getState() != StorageServiceInstance.ResourceState.Ready || !smb.has(share.getUuid())) throw new CloudRuntimeException("SMB desired/runtime share is not ready: " + share.getName() + " uuid=" + share.getUuid() + " state=" + share.getState() + " observedShareUuids=" + smb.keySet());
             final JsonObject desired = parseJsonObject(share.getConfigJson());final JsonObject actual = smb.getAsJsonObject(share.getUuid());
             if (!StringUtils.defaultIfBlank(getJsonString(desired, "ownershipInheritance"), "AUTHENTICATED_USER")
                     .equals(StringUtils.defaultIfBlank(getJsonString(actual, "ownershipInheritance"), "AUTHENTICATED_USER"))) {
