@@ -16,6 +16,7 @@
 // under the License.
 
 import Widget from '@/views/storage/PosixPolicyInheritance'
+import SharedFS from '@/views/storage/SharedFSTab'
 jest.mock('@/api', () => ({ getAPI: jest.fn() }))
 
 describe('Protocol-neutral POSIX ownership inheritance', () => {
@@ -28,6 +29,12 @@ describe('Protocol-neutral POSIX ownership inheritance', () => {
     const emitted = jest.fn(); const vm = { protocol: 'SMB', $emit: emitted, policies: [{ id: 'policy', volumeid: 'volume', relativepath: 'shared', effective: JSON.stringify({ effectiveMode: '2775' }) }] }
     Widget.methods.select.call(vm, 'policy')
     expect(emitted).toHaveBeenCalledWith('patch', { posixpolicyid: 'policy', volumeid: 'volume', relativepath: 'shared', volumemode: 'CURRENT', directorymode: '2775', crossprotocol: true })
+  })
+  it('NFS listener choices never include SMB or block-protocol ports', () => {
+    const vm = { storageService: { protocols: [{ protocol: 'SMB', port: 445 }, { protocol: 'NFS', port: 2049 }, { protocol: 'NFS', port: 2050 }, { protocol: 'ISCSI', port: 3260 }], nfsExports: [] },
+      nfsRuntimeProtocolEntries: () => [], normalizeListenerPorts: value => value ? [Number(value)] : [], parseStorageConfig: () => ({}),
+      formatNfsListenerGroupEndpoints: ports => String(ports[0]), $t: value => value }
+    expect(SharedFS.computed.nfsListenerGroupOptions.call(vm).map(row => row.value)).toEqual([2049, 2050])
   })
   it('clearing the selection removes its reference through a parent patch', () => {
     const emitted = jest.fn(); Widget.methods.select.call({ policies: [], $emit: emitted }, undefined)

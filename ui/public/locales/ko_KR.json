@@ -8621,5 +8621,9 @@
   "label.posix.directory.apply": "재적용",
   "label.posix.directory.default.acl": "새 하위 항목 default ACL",
   "label.posix.directory.preview": "변경 영향 확인",
-  "label.posix.directory.current.acl": "현재 access/default ACL"
+  "label.posix.directory.current.acl": "현재 access/default ACL",
+  "label.smb.ownership.authenticated": "인증 사용자 소유권 사용",
+  "message.smb.ownership.parent.help": "새 파일과 디렉터리만 부모 UID를 상속하며 setgid는 부모 GID를 상속합니다. 기존 하위 항목의 소유권·inode·데이터는 유지합니다. 계정 ACL도 계속 적용합니다. 게스트·ADMIN ACL·고정 UID/GID 조합은 지원하지 않습니다. 공통 경로는 공통 POSIX 정책에 setgid가 있어야 합니다.",
+  "label.smb.ownership.inheritance": "새 객체 POSIX 소유권",
+  "label.smb.ownership.parent": "부모 디렉터리 소유자 상속"
 }

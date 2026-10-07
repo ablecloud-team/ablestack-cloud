@@ -30,7 +30,7 @@ SOURCE = Path(__file__).resolve().parents[2] / 'systemvm/debian/usr/local/bin/ab
 BLOCK = next(block for block in re.findall("<<'PY'\n(.*?)\nPY", SOURCE.read_text(), re.S) if 'def smb_network_policy(' in block)
 TREE = ast.parse(BLOCK)
 NS = {'ipaddress': ipaddress, 're': re, 'os': os, 'subprocess': subprocess, 'tempfile': tempfile}
-NODES = [node for node in TREE.body if isinstance(node, ast.FunctionDef) and node.name in ('smb_network_policy', 'smb_hosts_allow_lines', 'verify_share_mount_boundary', 'truth', 'smb_creation_policy', 'smb_creation_lines', 'install_validated_smb_config', 'apply_directory_policy', 'remove_stale_managed_smb_acls', 'smb_creation_acl_preflight', 'verify_common_posix_policy')]
+NODES = [node for node in TREE.body if isinstance(node, ast.FunctionDef) and node.name in ('smb_network_policy', 'smb_hosts_allow_lines', 'verify_share_mount_boundary', 'truth', 'smb_creation_policy', 'smb_creation_lines', 'install_validated_smb_config', 'apply_directory_policy', 'remove_stale_managed_smb_acls', 'smb_creation_acl_preflight', 'verify_common_posix_policy', 'smb_inheritance_policy', 'smb_inheritance_lines')]
 exec(compile(ast.Module(body=NODES, type_ignores=[]), str(SOURCE), 'exec'), NS)
 class SmbNetworkAclTest(unittest.TestCase):
     def policy(self, value): return NS['smb_network_policy'](value)
@@ -104,6 +104,15 @@ class SmbNetworkAclTest(unittest.TestCase):
             acl = acl.replace('other::---', 'other::r-x')
             self.assertEqual('0775', NS['smb_creation_acl_preflight'](root, policy)['defaultAclMode'])
             self.assertEqual('COMPATIBLE', NS['smb_creation_acl_preflight'](root, NS['smb_creation_policy']({}))['state'])
+
+    def test_parent_owner_inheritance_does_not_bypass_account_authentication(self):
+        policy = NS['smb_inheritance_policy']({'ownershipInheritance': 'INHERIT_PARENT_OWNER', 'inheritGroup': True}, [])
+        self.assertEqual(['   inherit owner = yes'], NS['smb_inheritance_lines'](policy))
+        self.assertEqual([], NS['smb_inheritance_lines'](NS['smb_inheritance_policy']({}, [])))
+        for config, acls in [({'inheritGroup': True}, []), ({'ownershipInheritance': 'INHERIT_PARENT_OWNER', 'guestOk': True}, []),
+                             ({'ownershipInheritance': 'INHERIT_PARENT_OWNER', 'posixOwnershipMode': 'FORCED_UID_GID'}, []),
+                             ({'ownershipInheritance': 'INHERIT_PARENT_OWNER'}, [{'permission': 'ADMIN'}])]:
+            with self.assertRaises(ValueError): NS['smb_inheritance_policy'](config, acls)
 
     def test_creation_defaults_and_exact_forced_modes(self):
         policy = NS['smb_creation_policy']({})

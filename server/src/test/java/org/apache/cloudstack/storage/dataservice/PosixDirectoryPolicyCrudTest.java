@@ -82,6 +82,23 @@ public class PosixDirectoryPolicyCrudTest {
         CreateStoragePosixDirectoryPolicyCmd cmd = new CreateStoragePosixDirectoryPolicyCmd();ReflectionTestUtils.setField(cmd, "instanceId", 3L);
         ReflectionTestUtils.setField(cmd, "volumeId", 45L);ReflectionTestUtils.setField(cmd, "relativePath", "shared");ReflectionTestUtils.setField(cmd, "preview", preview);return cmd;
     }
+    @Test public void crossProtocolPathReuseWorksBothDirectionsButNotWithinProtocolOrAcrossVolumes() {
+        StorageFileShareDao shares = (StorageFileShareDao) ReflectionTestUtils.getField(manager, "storageFileShareDao");
+        StorageFileShareVO existing = new StorageFileShareVO(3L, StorageServiceInstance.Protocol.SMB, "smb", "/export/shared", 45L, "xfs", null,
+                StorageServiceInstance.ResourceState.Ready, "{\"relativeSharePath\":\"shared\"}");
+        ReflectionTestUtils.setField(existing, "id", 7L);
+        when(shares.listByInstanceIdAndProtocol(3L, StorageServiceInstance.Protocol.SMB)).thenReturn(Collections.singletonList(existing));
+        manager.validateFileSharePathAvailable(instance, "/export/shared", null, 45L, "NFS export", true, "shared");
+        Assert.assertThrows(InvalidParameterValueException.class, () -> manager.validateFileSharePathAvailable(instance, "/export/shared", null, 45L, "SMB share", true, "shared"));
+        Assert.assertThrows(InvalidParameterValueException.class, () -> manager.validateFileSharePathAvailable(instance, "/export/shared", null, 99L, "NFS export", true, "shared"));
+        StorageFileShareVO nfs = new StorageFileShareVO(3L, StorageServiceInstance.Protocol.NFS, "nfs", "/export/shared", 45L, "xfs", null,
+                StorageServiceInstance.ResourceState.Ready, "{\"relativeSharePath\":\"shared\"}");
+        ReflectionTestUtils.setField(nfs, "id", 8L);
+        when(shares.listByInstanceIdAndProtocol(3L, StorageServiceInstance.Protocol.SMB)).thenReturn(Collections.emptyList());
+        when(shares.listByInstanceIdAndProtocol(3L, StorageServiceInstance.Protocol.NFS)).thenReturn(Collections.singletonList(nfs));
+        manager.validateFileSharePathAvailable(instance, "/export/shared", null, 45L, "SMB share", true, "shared");
+        Assert.assertThrows(InvalidParameterValueException.class, () -> manager.validateFileSharePathAvailable(instance, "/export/shared", null, 45L, "NFS export", true, "shared"));
+    }
     @Test public void policyEntityImplementsApiUuidAndInternalIdContracts() {
         StoragePosixDirectoryPolicyVO policy = new StoragePosixDirectoryPolicyVO();
         Assert.assertTrue(policy instanceof org.apache.cloudstack.api.Identity);

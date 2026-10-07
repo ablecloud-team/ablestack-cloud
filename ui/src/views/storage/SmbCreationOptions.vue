@@ -18,6 +18,17 @@
 <template>
   <section class="smb-creation-options">
     <h4>{{ $t('label.storage.service.smb.creation.policy') }}</h4>
+    <a-form-item :label="$t('label.smb.ownership.inheritance')">
+      <a-select :value="form.ownershipinheritance" @change="patch({ ownershipinheritance: $event, inheritgroup: false })">
+        <a-select-option value="AUTHENTICATED_USER">{{ $t('label.smb.ownership.authenticated') }}</a-select-option>
+        <a-select-option value="INHERIT_PARENT_OWNER">{{ $t('label.smb.ownership.parent') }}</a-select-option>
+      </a-select>
+    </a-form-item>
+    <a-form-item v-if="form.ownershipinheritance === 'INHERIT_PARENT_OWNER'" :label="$t('label.posix.directory.setgid')">
+      <a-switch :checked="form.inheritgroup" @change="setParentGroup" />
+    </a-form-item>
+    <a-alert v-if="form.ownershipinheritance === 'INHERIT_PARENT_OWNER'" type="info" show-icon :message="$t('message.smb.ownership.parent.help')" />
+
     <a-alert type="info" show-icon :message="$t('message.storage.service.smb.creation.help')" />
     <a-form-item :label="$t('label.storage.service.smb.creation.preset')">
       <a-select :value="preset" @change="applyPreset">
@@ -52,6 +63,13 @@ export default {
     }
   },
   methods: {
+    setParentGroup (enabled) {
+      const current = parseInt(this.form.directorymode || '0770', 8)
+      if (Number.isNaN(current)) return
+      const values = { inheritgroup: enabled }
+      if (!this.form.posixpolicyid && enabled) values.directorymode = (current | 0o2000).toString(8).padStart(4, '0')
+      this.patch(values)
+    },
     patch (values) { this.$emit('patch', values) },
     applyPreset (preset) {
       if (preset === 'CUSTOM') return

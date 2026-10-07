@@ -8656,5 +8656,9 @@
   "label.posix.directory.apply": "Reapply",
   "label.posix.directory.default.acl": "Default ACL for new children",
   "label.posix.directory.preview": "Preview impact",
-  "label.posix.directory.current.acl": "Current access/default ACL"
+  "label.posix.directory.current.acl": "Current access/default ACL",
+  "label.smb.ownership.authenticated": "Authenticated user ownership",
+  "message.smb.ownership.parent.help": "Only new files and directories inherit their parent UID; setgid inherits the parent GID. Existing child owners, inodes and data remain unchanged. Account ACLs still apply. Guest, ADMIN ACL and forced UID/GID combinations are unsupported. Shared directories require setgid in their common POSIX policy.",
+  "label.smb.ownership.inheritance": "New object POSIX ownership",
+  "label.smb.ownership.parent": "Inherit parent owner"
 }

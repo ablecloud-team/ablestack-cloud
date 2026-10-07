@@ -59,6 +59,31 @@ public class StorageSmbShareResponse extends BaseResponse {
     private String posixPolicyId;
     public void setPosixPolicyId(String value) { posixPolicyId = value; }
 
+    @SerializedName("ownershipinheritance")
+    @Param(description = "Requested new-object owner inheritance mode")
+    private String ownershipInheritance;
+    @SerializedName("effectiveownershipinheritance")
+    @Param(description = "Observed Samba inheritance mode")
+    private String effectiveOwnershipInheritance;
+    @SerializedName("inheritgroup")
+    @Param(description = "Requested parent group inheritance via setgid")
+    private Boolean inheritGroup;
+    @SerializedName("effectiveowneruid")
+    @Param(description = "Observed current parent owner UID")
+    private Long effectiveOwnerUid;
+    @SerializedName("effectiveownergid")
+    @Param(description = "Observed current parent owner GID")
+    private Long effectiveOwnerGid;
+    @SerializedName("effectivedirectorymode")
+    @Param(description = "Observed current directory mode including setgid")
+    private String effectiveDirectoryMode;
+    public void setOwnershipInheritance(String value) { ownershipInheritance = value; }
+    public void setEffectiveOwnershipInheritance(String value) { effectiveOwnershipInheritance = value; }
+    public void setInheritGroup(Boolean value) { inheritGroup = value; }
+    public void setEffectiveOwnerUid(Long value) { effectiveOwnerUid = value; }
+    public void setEffectiveOwnerGid(Long value) { effectiveOwnerGid = value; }
+    public void setEffectiveDirectoryMode(String value) { effectiveDirectoryMode = value; }
+
     @SerializedName(ApiConstants.ID)
     @Param(description = "ID of the SMB share")
     private String id;

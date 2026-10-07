@@ -5182,6 +5182,23 @@ def smb_creation_lines(policy):
             "   force directory mode = " + policy["forceDirectoryMode"],
             "   inherit permissions = " + ("yes" if policy["inheritPermissions"] else "no")]
 
+def smb_inheritance_policy(config, acls):
+    mode = str(config.get("ownershipInheritance") or "AUTHENTICATED_USER").upper()
+    if mode not in ("AUTHENTICATED_USER", "INHERIT_PARENT_OWNER"):
+        raise ValueError("Unknown SMB parent ownership inheritance mode")
+    group = truth(config, "inheritGroup", False)
+    if group and mode != "INHERIT_PARENT_OWNER":
+        raise ValueError("Parent group inheritance requires parent owner inheritance")
+    if mode == "INHERIT_PARENT_OWNER":
+        if str(config.get("posixOwnershipMode") or "AUTHENTICATED_USER").upper() == "FORCED_UID_GID" or truth(config, "guestOk", False):
+            raise ValueError("Parent owner inheritance conflicts with forced identity or guest access")
+        if any(acl.get("permission") == "ADMIN" and acl.get("state", "Ready") not in ("Disabled", "Destroyed", "Error") for acl in acls):
+            raise ValueError("ADMIN account ACL cannot override parent-owner inheritance")
+    return {"ownershipInheritance": mode, "inheritGroup": group}
+
+def smb_inheritance_lines(policy):
+    return ["   inherit owner = yes"] if policy["ownershipInheritance"] == "INHERIT_PARENT_OWNER" else []
+
 def smb_creation_acl_preflight(path, policy):
     if not int(policy["forceCreateMode"], 8) and not int(policy["forceDirectoryMode"], 8):
         return {"state": "COMPATIBLE", "defaultAclMode": None}
@@ -5507,7 +5524,13 @@ for share in payload.get("shares", []):
         os.makedirs(path, exist_ok=True)
     if config.get("relativeSharePath"):
         verify_share_mount_boundary(path, config.get("volumeMountPath"))
+    inheritance_policy = smb_inheritance_policy(config, share.get("acls", []))
     creation_policy = smb_creation_policy(config)
+    if inheritance_policy["inheritGroup"]:
+        if config.get("posixPolicyUuid") and (os.stat(path).st_mode & 0o2000) == 0:
+            raise ValueError("Common directory policy must provide setgid for parent group inheritance")
+        if not config.get("posixPolicyUuid"):
+            config = dict(config, directoryMode=format(int(config.get("directoryMode") or "0770", 8) | 0o2000, "04o"))
     smb_creation_acl_preflight(path, creation_policy)
     previous = previous_access.get(str(share.get("uuid") or name), {})
     directory_mode = apply_directory_policy(path, config, cross_protocol, previous)
@@ -5547,6 +5570,10 @@ for share in payload.get("shares", []):
         os.chmod(path, 0o777 if not truth(config, 'readOnly', False) else 0o755)
     access_state[str(share.get("uuid") or name)] = {
         **network_policy,
+        **inheritance_policy,
+        "effectiveUid": os.stat(path).st_uid,
+        "effectiveGid": os.stat(path).st_gid,
+        "effectiveDirectoryMode": format(os.stat(path).st_mode & 0o7777, "04o"),
         "posixPolicyUuid": config.get("posixPolicyUuid"),
         "posixPolicyRevision": config.get("posixPolicyRevision"),
         "accountAclCount": configured_acl_count,
@@ -5582,6 +5609,7 @@ for share in payload.get("shares", []):
 
     ])
     lines.extend(smb_creation_lines(creation_policy))
+    lines.extend(smb_inheritance_lines(inheritance_policy))
     lines.extend(smb_hosts_allow_lines(network_policy))
     if valid_users:
         lines.append("   valid users = " + " ".join(valid_users))

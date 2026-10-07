@@ -2707,7 +2707,9 @@ export default {
           directorymask: '0770',
           forcedirectorymode: '0000',
           inheritpermissions: false,
-          confirmfileexecute: false
+          confirmfileexecute: false,
+          ownershipinheritance: 'AUTHENTICATED_USER',
+          inheritgroup: false
         },
         smbAcl: {
           id: '',
@@ -3201,7 +3203,7 @@ export default {
           groups.forEach(group => addPorts(group?.port ?? group?.listenerPort ?? group?.listenerport))
         }
       }
-      (this.storageService.protocols || []).forEach(protocol => {
+      (this.storageService.protocols || []).filter(protocol => String(protocol.protocol || protocol.name || '').toUpperCase() === 'NFS').forEach(protocol => {
         addPorts(protocol?.port ?? protocol?.listenPort ?? protocol?.listenport ?? protocol?.endpointPort)
         addConfigPorts(this.parseStorageConfig(protocol.config))
       })
@@ -3738,6 +3740,7 @@ export default {
         { title: this.$t('label.storage.service.client.unc.root'), dataIndex: 'clientPath', key: 'clientPath', width: 340, code: true },
         { title: this.$t('label.storage.service.internal.path'), dataIndex: 'path', key: 'path', width: 220, code: true },
         { title: this.$t('label.storage.service.ip.port'), dataIndex: 'endpoint', key: 'endpoint', width: 260, code: true },
+        { title: this.$t('label.smb.ownership.inheritance'), dataIndex: 'ownership', key: 'ownership', width: 270 },
         { title: this.$t('label.storage.service.smb.creation.policy'), dataIndex: 'creationPolicy', key: 'creationPolicy', width: 290 },
         { title: this.$t('label.storage.service.browseable'), dataIndex: 'browseable', key: 'browseable', width: 120 },
         { title: this.$t('label.storage.service.guest.access'), dataIndex: 'guestOk', key: 'guestOk', width: 130 },
@@ -3924,6 +3927,7 @@ export default {
           clientPath: this.smbClientPathForShare(name),
           path: share.path || share.mountpath || share.backingpath || '-',
           endpoint: this.smbEndpointPairSummary || `${share.listenip || this.serviceEndpoint || '-'}:${share.port || 445}`,
+          ownership: `${share.effectiveownershipinheritance || share.ownershipinheritance || config.ownershipInheritance || 'AUTHENTICATED_USER'} · ${share.effectiveowneruid ?? '-'}:${share.effectiveownergid ?? '-'} · ${share.effectivedirectorymode || '-'}`,
           creationPolicy: this.smbCreationPolicySummary(share, config),
           browseable: this.booleanLabel(share.browseable ?? config.browseable),
           guestOk: this.booleanLabel(share.guestok ?? share.guestOk ?? config.guestOk),
@@ -7078,7 +7082,9 @@ export default {
         directorymask: '0770',
         forcedirectorymode: '0000',
         inheritpermissions: false,
-        confirmfileexecute: false
+        confirmfileexecute: false,
+        ownershipinheritance: 'AUTHENTICATED_USER',
+        inheritgroup: false
       })
     },
     populateSmbShareForm (record) {
@@ -7112,7 +7118,9 @@ export default {
         directorymask: config.directoryMask || '0770',
         forcedirectorymode: config.forceDirectoryMode || '0000',
         inheritpermissions: this.boolValue(config.inheritPermissions),
-        confirmfileexecute: false
+        confirmfileexecute: false,
+        ownershipinheritance: config.ownershipInheritance || 'AUTHENTICATED_USER',
+        inheritgroup: this.boolValue(config.inheritGroup)
       })
     },
     smbCreationPolicySummary (share, config) {
@@ -7765,6 +7773,8 @@ export default {
         forcecreatemode: this.forms.smbShare.forcecreatemode,
         directorymask: this.forms.smbShare.directorymask,
         forcedirectorymode: this.forms.smbShare.forcedirectorymode,
+        ownershipinheritance: this.forms.smbShare.ownershipinheritance,
+        inheritgroup: this.forms.smbShare.inheritgroup,
         inheritpermissions: this.forms.smbShare.inheritpermissions,
         confirmfileexecute: this.forms.smbShare.confirmfileexecute,
         cleanupvolumeonfailure: this.forms.smbShare.volumemode === 'NEW' && !!volumeId
@@ -7793,6 +7803,8 @@ export default {
         forcecreatemode: this.forms.smbShare.forcecreatemode,
         directorymask: this.forms.smbShare.directorymask,
         forcedirectorymode: this.forms.smbShare.forcedirectorymode,
+        ownershipinheritance: this.forms.smbShare.ownershipinheritance,
+        inheritgroup: this.forms.smbShare.inheritgroup,
         inheritpermissions: this.forms.smbShare.inheritpermissions,
         confirmfileexecute: this.forms.smbShare.confirmfileexecute
       }, this.$t('label.storage.service.update.smb.share'))
