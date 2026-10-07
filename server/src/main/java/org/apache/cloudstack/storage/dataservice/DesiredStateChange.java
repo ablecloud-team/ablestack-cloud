@@ -35,6 +35,9 @@ public final class DesiredStateChange {
         default void finished() { }
         default void prepareNativeCheckpoint(StorageServiceOperationVO operation) { }
         default void promoteVerifiedConfiguration(StorageServiceOperationVO operation) { }
+        default void verifyNativeGeneration(StorageServiceOperationVO operation) { }
+        default void rollbackNativeGeneration(StorageServiceOperationVO operation) { }
+        default void abortNativeCheckpoint(StorageServiceOperationVO operation) { }
     }
     private final StorageServiceOperationDao operations;
     private final StorageServiceDesiredSnapshot snapshots;
@@ -101,6 +104,7 @@ public final class DesiredStateChange {
                     T response = change.get();
                     phase(operation, "VERIFYING", 80);
                     runtime.verify();
+                    runtime.verifyNativeGeneration(operation);
                     operation.setSnapshotJson(snapshots.capture(instanceId));
                     operation.setResultJson(gson.toJson(response));
                     runtime.promoteVerifiedConfiguration(operation);
@@ -124,6 +128,7 @@ public final class DesiredStateChange {
                             snapshots.restore(instanceId, operation.getPreviousSnapshotJson());
                             runtime.applyPrevious();
                             runtime.verify();
+                            runtime.rollbackNativeGeneration(operation);
                             operation.setState("ROLLED_BACK"); operation.setCompleted(new Date());
                             phase(operation, "ROLLED_BACK", 100);
                         } catch (RuntimeException rollback) {
@@ -132,7 +137,13 @@ public final class DesiredStateChange {
                             operation.setCompleted(new Date()); phase(operation, "RECOVERY_REQUIRED", 100);
                         }
                     } else {
-                        operation.setState("BLOCKED"); operation.setCompleted(new Date()); phase(operation, "BLOCKED", 100);
+                        try {
+                            runtime.abortNativeCheckpoint(operation);
+                            operation.setState("BLOCKED");operation.setCompleted(new Date());phase(operation, "BLOCKED", 100);
+                        } catch (RuntimeException cleanup) {
+                            operation.setState("RECOVERY_REQUIRED");operation.setCompleted(new Date());
+                            operation.setDiagnostic(message(failure) + " | checkpoint cleanup: " + message(cleanup));phase(operation, "RECOVERY_REQUIRED", 100);
+                        }
                     }
                     throw new CloudRuntimeException("Storage Service operation " + operation.getUuid() + " " + operation.getState() + ": " + message(failure), failure);
                 }
@@ -145,7 +156,7 @@ public final class DesiredStateChange {
             final com.google.gson.JsonElement value = new com.google.gson.JsonParser().parse(json);
             if (value.isJsonObject()) {
                 final com.google.gson.JsonObject copy = value.getAsJsonObject().deepCopy();
-                copy.remove("nativePosixDirectory");copy.remove("nativePosixDirectories");copy.remove("nativeIdentityCapsule");
+                copy.remove("nativePosixDirectory");copy.remove("nativePosixDirectories");copy.remove("nativeIdentityCapsule");copy.remove("nativeGeneration");
                 return copy.toString();
             }
         } catch (RuntimeException invalid) { /* Legacy non-JSON test/diagnostic snapshots remain exact comparisons. */ }
