@@ -299,6 +299,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
 
     @Override
     public org.apache.cloudstack.api.response.StorageServiceConfigArtifactResponse storageServiceConfiguration(final StorageConfigRequest cmd) {
+        if (!StorageServiceInstance.StorageServiceVerifiedConfigurationEnabled.value()) throw new InvalidParameterValueException("Verified configuration service is disabled until compatible runtime preparation completes");
         return new StorageServiceConfiguration(this, storageConfigArtifactDao, storageOperationDao).execute(cmd);
     }
 
@@ -322,6 +323,38 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             throw new InvalidParameterValueException("Mapped configuration volume must already be attached to the selected service");
         }
         validateStorageServiceBackingVolume(instance, volume.getId(), "configuration restore");return volume.getId();
+    }
+    protected void preflightConfigurationAdditionalVolumes(JsonObject blueprint, JsonObject mappings, String initialSource) {
+        org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd create = configurationCreateCommand(blueprint);
+        org.apache.cloudstack.storage.sharedfs.SharedFS proposed = configurationSharedFsService.preflightSharedFS(create);
+        for (Map.Entry<String, JsonElement> mapping : mappings.entrySet()) {
+            if (initialSource.equals(mapping.getKey())) continue;
+            VolumeVO volume = volumeDao.findByUuid(mapping.getValue().getAsString());
+            if (volume == null || volume.getVolumeType() != com.cloud.storage.Volume.Type.DATADISK
+                    || volume.getState() != com.cloud.storage.Volume.State.Ready || volume.getInstanceId() != null
+                    || volume.getAccountId() != proposed.getAccountId() || volume.getDataCenterId() != proposed.getDataCenterId()
+                    || volume.getPoolId() == null || volume.getSize() == null || volume.getSize() <= 0) {
+                throw new InvalidParameterValueException("Additional clone backing must be an explicitly selected Ready unattached data volume in the target owner and zone");
+            }
+            org.apache.cloudstack.storage.datastore.db.StoragePoolVO pool = configurationStoragePoolDao.findById(volume.getPoolId());
+            if (pool == null || pool.getStatus() != com.cloud.storage.StoragePoolStatus.Up) throw new InvalidParameterValueException("Additional clone storage is unavailable");
+            com.cloud.utils.db.SearchCriteria<org.apache.cloudstack.storage.sharedfs.SharedFSVO> reservations = sharedFSDao.createSearchCriteria();
+            reservations.addAnd("volumeId", com.cloud.utils.db.SearchCriteria.Op.EQ, volume.getId());
+            if (!sharedFSDao.search(reservations, null).isEmpty()) throw new InvalidParameterValueException("Additional clone volume is reserved by another service");
+        }
+    }
+    protected void prepareConfigurationAdditionalVolumes(StorageServiceInstanceVO instance, JsonObject mappings, String initialSource) {
+        for (Map.Entry<String, JsonElement> mapping : mappings.entrySet()) {
+            if (initialSource.equals(mapping.getKey())) continue;
+            VolumeVO volume = volumeDao.findByUuid(mapping.getValue().getAsString());
+            if (volume == null || volume.getAccountId() != instance.getAccountId() || volume.getDataCenterId() != instance.getDataCenterId()
+                    || volume.getVolumeType() != com.cloud.storage.Volume.Type.DATADISK) {
+                throw new InvalidParameterValueException("Additional clone volume binding changed before attachment");
+            }
+            validateStorageServiceBackingVolume(instance, volume.getId(), "configuration clone");
+            if (volume.getInstanceId() == null) volumeApiService.attachVolumeToVM(instance.getVmId(), waitForFileShareVolumeAttachable(volume.getId()).getId(), null, true);
+            configurationVolumeId(instance, volume.getUuid());
+        }
     }
     protected JsonObject exportConfigurationIdentity(StorageServiceInstanceVO instance, String operationUuid, java.security.KeyPair key) {
         JsonArray names = new JsonArray();Set<String> unique = new HashSet<>();
@@ -545,6 +578,23 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         commands.add(EnableStorageServiceProtocolCmd.class);
         commands.add(DeleteStorageServiceProtocolCmd.class);
         commands.add(CreateStorageNfsExportCmd.class);
+        if (StorageServiceInstance.StorageServiceVerifiedConfigurationEnabled.value()) {
+            commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageServiceConfigBackupCmd.class);
+            commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.ListStorageServiceConfigBackupsCmd.class);
+            commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.DownloadStorageServiceConfigBackupCmd.class);
+            commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.UploadStorageServiceConfigBackupCmd.class);
+            commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.ValidateStorageServiceConfigImportCmd.class);
+            commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.PlanStorageServiceConfigRestoreCmd.class);
+            commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.ApplyStorageServiceConfigRestoreCmd.class);
+            commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.ListStorageServiceConfigImportsCmd.class);
+            commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.DeleteStorageServiceConfigBackupCmd.class);
+            commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.DeleteStorageServiceConfigImportCmd.class);
+            commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.ListStorageServiceRestorePointsCmd.class);
+            commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageServiceLastKnownGoodCmd.class);
+            commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.PlanStorageServiceLastKnownGoodRestoreCmd.class);
+            commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.RestoreStorageServiceLastKnownGoodCmd.class);
+            commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.VerifyStorageServiceConfigurationCmd.class);
+        }
         commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.CreateStoragePosixDirectoryPolicyCmd.class);
         commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStoragePosixDirectoryPolicyCmd.class);
         commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.DeleteStoragePosixDirectoryPolicyCmd.class);
@@ -667,6 +717,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                     throw new CloudRuntimeException("Current runtime health is not verified");
                 }
                 verifyReconciledStorageDesiredState(instance);
+                if (StorageServiceInstance.StorageServiceVerifiedConfigurationEnabled.value() && storageConfigArtifactDao.listByInstance(instanceId).stream().noneMatch(point -> "ACTIVE_LKG".equals(point.getState()))) {
+                    new StorageServiceConfiguration(this, storageConfigArtifactDao, storageOperationDao).promoteVerified(instance, latest);
+                }
                 final JsonObject evidence = new JsonObject();evidence.addProperty("reconciliation", "SUPERSEDED_BY_VERIFIED_REVISION");
                 evidence.addProperty("verifiedAt", System.currentTimeMillis());evidence.add("runtime", health);
                 evidence.addProperty("originalDiagnostic", operation.getDiagnostic());
@@ -982,7 +1035,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         }
                     }
                     public void promoteVerifiedConfiguration(StorageServiceOperationVO operation) {
-                        if (instance.getVmId() != null) new StorageServiceConfiguration(StorageServiceManagerImpl.this, storageConfigArtifactDao, storageOperationDao)
+                        if (instance.getVmId() != null && StorageServiceInstance.StorageServiceVerifiedConfigurationEnabled.value()) new StorageServiceConfiguration(StorageServiceManagerImpl.this, storageConfigArtifactDao, storageOperationDao)
                                 .promoteVerified(instance, operation);
                     }
                     public void verify() {
@@ -8070,6 +8123,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     public ConfigKey<?>[] getConfigKeys() {
         return new ConfigKey<?>[] {
                 StorageServiceInstance.StorageServiceCommandTimeout,
+                StorageServiceInstance.StorageServiceVerifiedConfigurationEnabled,
                 StorageServiceInstance.StorageServiceFormatMinimumTimeout,
                 StorageServiceInstance.StorageServiceFormatSecondsPerTiB,
                 StorageServiceInstance.StorageServiceFormatMaximumTimeout,

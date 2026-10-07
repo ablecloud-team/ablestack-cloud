@@ -62,4 +62,41 @@ describe('Configuration backup and restore UI boundaries', () => {
     expect(Widget.methods.unwrap({ liststorageserviceconfigbackupsresponse: { result: JSON.stringify(value) } }, 'listStorageServiceConfigBackups')).toEqual(value)
     expect(Widget.methods.unwrap({ storageserviceconfiguration: { result: JSON.stringify(value) } }, 'queryAsyncJobResult')).toEqual(value)
   })
+  it('does not use a previous service download token after navigating away', async () => {
+    let complete
+    postAPI.mockImplementation(() => new Promise(resolve => { complete = resolve }))
+    const vm = { instanceId: 'a', unwrap: Widget.methods.unwrap, $t: key => key }
+    const pending = Widget.methods.download.call(vm, { id: 'backup' })
+    vm.instanceId = 'b'
+    complete({ downloadstorageserviceconfigbackupresponse: { result: JSON.stringify({ downloadToken: 'synthetic' }) } })
+    await pending
+    expect(postAPI).toHaveBeenCalledTimes(1)
+    expect(postAPI.mock.calls[0][1].instanceid).toBe('a')
+  })
+  it('ignores late volume inventory after the restore target has changed', async () => {
+    let complete
+    getAPI.mockImplementation(() => new Promise(resolve => { complete = resolve }))
+    const vm = { instanceId: 'a', resource: { virtualmachineid: 'vm-a' }, closePlan: Widget.methods.closePlan, preparePlan: jest.fn() }
+    const pending = Widget.methods.openPlan.call(vm, { id: 'backup' })
+    vm.instanceId = 'b'; vm.planTarget = null
+    complete({ listvolumesresponse: { volume: [{ id: 'old-volume', type: 'DATADISK', name: 'old' }] } })
+    await pending
+    expect(vm.preparePlan).not.toHaveBeenCalled()
+    expect(vm.targetVolumes).toBeUndefined()
+  })
+  it('requires a reviewed source initial volume and runtime before clone planning', async () => {
+    const vm = { instanceId: 'a', planTarget: { id: 'backup' }, targetMode: 'CREATE_NEW', volumeMapping: {}, initialVolumeSource: '', cloneRuntime: '', $t: key => key, mutation: jest.fn() }
+    await Widget.methods.preparePlan.call(vm)
+    expect(vm.mutation).not.toHaveBeenCalled()
+    expect(vm.error).toBe('message.storage.config.clone.required')
+  })
+  it('passes explicit clone resource choices and asks the server to allocate planned volume identity', async () => {
+    const vm = { instanceId: 'a', planTarget: { id: 'backup' }, targetMode: 'CREATE_NEW', volumeMapping: {}, initialVolumeSource: 'source-volume', cloneRuntime: 'runtime', clone: { name: 'new-service', size: 20 }, $t: key => key }
+    vm.mutation = jest.fn(async () => ({ metadata: { plan: { blockers: [], requiredCredentials: [] } }, planToken: 'synthetic' }))
+    await Widget.methods.preparePlan.call(vm)
+    const parameters = vm.mutation.mock.calls[0][1]
+    expect(parameters.targetmode).toBe('CREATE_NEW')
+    expect(JSON.parse(parameters.mapping)).toEqual({ volumes: { 'source-volume': 'NEW' }, createNew: { name: 'new-service', size: 20, backingvolumemode: 'NEW' }, initialVolumeSourceUuid: 'source-volume', runtimeBundleUuid: 'runtime' })
+    expect(vm.planPhase).toBe('REVIEW')
+  })
 })

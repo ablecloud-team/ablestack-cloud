@@ -9449,5 +9449,21 @@
   "label.storage.config.create.resources": "Create",
   "label.storage.config.create": "Create configuration backup",
   "label.storage.config.confirmation": "Enter the target service name",
-  "label.storage.config.apply": "Apply reviewed plan"
+  "label.storage.config.apply": "Apply reviewed plan",
+  "message.storage.config.delete.confirm": "Remove this configuration artifact from history? Data volumes are preserved.",
+  "message.storage.config.clone.required": "Select the initial source volume and a verified runtime bundle.",
+  "label.storage.config.verify.baseline": "Verify current configuration",
+  "label.storage.config.verification": "Verification",
+  "label.storage.config.target.new": "Create a new service",
+  "label.storage.config.target.mode": "Restore destination",
+  "label.storage.config.target.existing": "Current service",
+  "label.storage.config.size": "Bundle size (bytes)",
+  "label.storage.config.secret.coverage": "Credential coverage",
+  "label.storage.config.runtime.status": "Runtime collection",
+  "label.storage.config.restore.status": "Restore progress",
+  "label.storage.config.expires": "Expires",
+  "label.storage.config.clone.size": "New initial volume size (GiB)",
+  "label.storage.config.clone.runtime": "Verified runtime bundle",
+  "label.storage.config.clone.new.volume": "Create a new empty data volume",
+  "label.storage.config.clone.initial": "Source for the new initial volume"
 }

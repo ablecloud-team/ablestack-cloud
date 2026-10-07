@@ -9414,5 +9414,21 @@
   "label.storage.config.create.resources": "생성",
   "label.storage.config.create": "구성 백업 생성",
   "label.storage.config.confirmation": "대상 서비스 이름 입력",
-  "label.storage.config.apply": "확인한 계획 적용"
+  "label.storage.config.apply": "확인한 계획 적용",
+  "message.storage.config.delete.confirm": "이 구성 아티팩트를 이력에서 삭제하시겠습니까? 데이터 볼륨은 보존합니다.",
+  "message.storage.config.clone.required": "초기 원본 볼륨과 검증된 런타임 번들을 선택하세요.",
+  "label.storage.config.verify.baseline": "현재 구성 검증",
+  "label.storage.config.verification": "검증 상태",
+  "label.storage.config.target.new": "신규 서비스 복제",
+  "label.storage.config.target.mode": "복원 대상",
+  "label.storage.config.target.existing": "현재 서비스",
+  "label.storage.config.size": "번들 크기(bytes)",
+  "label.storage.config.secret.coverage": "비밀값 재입력 범위",
+  "label.storage.config.runtime.status": "런타임 수집 상태",
+  "label.storage.config.restore.status": "복원 진행 상태",
+  "label.storage.config.expires": "보존 만료 시각",
+  "label.storage.config.clone.size": "새 초기 데이터 볼륨 크기(GiB)",
+  "label.storage.config.clone.runtime": "검증된 런타임 번들",
+  "label.storage.config.clone.new.volume": "새 빈 데이터 볼륨 생성",
+  "label.storage.config.clone.initial": "새 초기 볼륨에 대응할 원본 볼륨"
 }

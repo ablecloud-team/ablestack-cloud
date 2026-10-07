@@ -104,4 +104,18 @@ public class StorageConfigRestorePlanTest {
         Assert.assertThrows(CloudRuntimeException.class, () -> StorageConfigRestorePlan.requireCredentials(required, supplied));
     }
 
+    @Test public void cloneInitialVolumeCannotUseUnlistedSmallerOrAliasedBacking() {
+        Map<String, byte[]> source = archive(true, false);JsonArray volumes = new JsonArray();JsonObject volume = new JsonObject();
+        volume.addProperty("uuid", VOLUME);volume.addProperty("type", "DATADISK");volume.addProperty("size", 2147483648L);volumes.add(volume);
+        source.put("desired/volumes.json", volumes.toString().getBytes(StandardCharsets.UTF_8));
+        JsonObject mappings = mapping();mappings.addProperty("runtimeBundleUuid", SHARE);mappings.addProperty("initialVolumeSourceUuid", VOLUME);
+        JsonObject blueprint = new JsonObject();blueprint.addProperty("size", 1);mappings.add("createNew", blueprint);
+        Assert.assertThrows(CloudRuntimeException.class, () -> StorageConfigRestorePlan.validateCloneInitialVolume(source, mappings));
+        blueprint.addProperty("size", 2);StorageConfigRestorePlan.validateCloneInitialVolume(source, mappings);
+        mappings.getAsJsonObject("volumes").addProperty(EXTRA, VOLUME);
+        Assert.assertThrows(CloudRuntimeException.class, () -> StorageConfigRestorePlan.validateCloneInitialVolume(source, mappings));
+        mappings.getAsJsonObject("volumes").remove(EXTRA);mappings.addProperty("initialVolumeSourceUuid", EXTRA);
+        Assert.assertThrows(CloudRuntimeException.class, () -> StorageConfigRestorePlan.validateCloneInitialVolume(source, mappings));
+    }
+
 }
