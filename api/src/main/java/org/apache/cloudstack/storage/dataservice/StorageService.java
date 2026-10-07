@@ -96,6 +96,11 @@ import org.apache.cloudstack.api.response.StorageServiceRuntimeUpgradeResponse;
 import org.apache.cloudstack.api.response.StorageSmbShareResponse;
 
 public interface StorageService {
+    ListResponse<StorageAccessRuleResponse> createStorageSmbNetworkAcl(org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageSmbNetworkAclCmd cmd);
+    StorageAccessRuleResponse updateStorageSmbNetworkAcl(org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageSmbNetworkAclCmd cmd);
+    boolean deleteStorageSmbNetworkAcl(org.apache.cloudstack.api.command.user.storage.dataservice.DeleteStorageSmbNetworkAclCmd cmd);
+    ListResponse<StorageAccessRuleResponse> listStorageSmbNetworkAcls(org.apache.cloudstack.api.command.user.storage.dataservice.ListStorageSmbNetworkAclsCmd cmd);
+
     org.apache.cloudstack.api.response.StorageNfsServiceSettingsResponse getStorageNfsServiceSettings(org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageNfsServiceSettingsCmd cmd);
     org.apache.cloudstack.api.response.StorageNfsServiceSettingsResponse updateStorageNfsServiceSettings(org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageNfsServiceSettingsCmd cmd);
 

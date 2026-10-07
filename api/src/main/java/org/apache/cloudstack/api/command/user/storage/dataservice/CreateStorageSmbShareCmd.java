@@ -87,6 +87,10 @@ public class CreateStorageSmbShareCmd extends BaseStorageServiceAsyncCmd impleme
     @Parameter(name = "directorymode", type = CommandType.STRING, description = "POSIX mode to apply to a new SMB backing directory")
     private String directoryMode;
 
+    @Parameter(name="networkprincipals",type=CommandType.STRING,description="Optional literal client IP/CIDR allow-list, comma separated, independent of account ACLs")
+    private String networkPrincipals;
+    public String getNetworkPrincipals() { return networkPrincipals; }
+
     @Parameter(name = "aclprincipaltype", type = CommandType.STRING, description = "optional initial SMB ACL principal type: LOCAL_USER, LOCAL_GROUP, AD_USER, or AD_GROUP")
     private String aclPrincipalType;
 

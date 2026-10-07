@@ -94,6 +94,12 @@ public class DesiredStateChangeTest {
         Assert.assertNull(saved.get().getSnapshotJson());
     }
 
+    @Test public void rejectedInputWithUnchangedDesiredStateDoesNotRestartHealthyServices() {
+        when(snapshots.capture(7L)).thenReturn("previous");
+        Assert.assertThrows(CloudRuntimeException.class,()->engine.execute(7L,"network","invalid",0L,String.class,
+                ()->{ throw new com.cloud.exception.InvalidParameterValueException("old runtime capability"); },runtime));
+        Assert.assertEquals("BLOCKED",saved.get().getState());verify(runtime,never()).applyPrevious();verify(snapshots,never()).restore(anyLong(),anyString());
+    }
     @Test public void resourcePreflightFailureNeverMutatesOrRestoresResources() {
         doThrow(new CloudRuntimeException("resource pressure")).when(runtime).preflight();
         Assert.assertThrows(CloudRuntimeException.class, () -> engine.execute(7L, "update", "request", 0L, String.class,

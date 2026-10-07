@@ -604,6 +604,10 @@
               </div>
               <div class="field-hint">{{ $t('message.storage.service.smb.quota.help') }}</div>
             </a-form-item>
+            <a-form-item :label="$t('label.smb.network.sources')">
+              <a-select v-model:value="form.smbnetworkprincipals" mode="tags" :token-separators="[',']" :placeholder="$t('message.smb.network.sources.example')" />
+              <div class="field-hint">{{ $t('message.smb.network.account.and.source') }}</div>
+            </a-form-item>
             <a-space wrap>
               <a-checkbox v-model:checked="form.smbbrowseable">{{ $t('label.storage.service.browseable') }}</a-checkbox>
               <a-checkbox v-model:checked="form.smbguestok">{{ $t('label.storage.service.guest.access') }}</a-checkbox>
@@ -1341,6 +1345,7 @@ export default {
         smbpath: '/export/smb01',
         smbbrowseable: true,
         smbguestok: false,
+        smbnetworkprincipals: [],
         smbreadonly: false,
         smbquotaamount: null,
         smbquotaunit: 'GiB',
@@ -2188,6 +2193,7 @@ export default {
           readonly: snapshot.smbreadonly,
           browseable: snapshot.smbbrowseable,
           guestok: snapshot.smbguestok,
+          networkprincipals: (snapshot.smbnetworkprincipals || []).join(','),
           ...initialSmbAcl
         })
         setup.smbShareId = this.extractCreatedId(shareResponse, 'storagesmbshare')
