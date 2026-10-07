@@ -95,6 +95,11 @@ public class MockAccountManager extends ManagerBase implements AccountManager {
     AccountVO _systemAccount;
 
     @Override
+    public boolean deleteLocalMachineAccount(final AccountVO account, final long callerUserId, final Account caller) {
+        throw new UnsupportedOperationException("Local machine account cleanup is not modeled by the Contrail test mock");
+    }
+
+    @Override
     public boolean configure(final String name, final Map<String, Object> params) throws ConfigurationException {
         _systemAccount = _accountDao.findById(Account.ACCOUNT_ID_SYSTEM);
         if (_systemAccount == null) {
