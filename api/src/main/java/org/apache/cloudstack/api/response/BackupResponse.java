@@ -226,6 +226,12 @@ public class BackupResponse extends BaseResponse {
     @Param(description = "Host-side restore job state for the latest tracked restore", since = "4.23.0")
     private String restoreJobState;
 
+    @SerializedName("restorejobstep")
+    @Param(description = "Current restore operation step")
+    private String restoreJobStep;
+
+    public void setRestoreJobStep(String value) { restoreJobStep = value; }
+
     @SerializedName(ApiConstants.RESTORE_JOB_DETAILS)
     @Param(description = "Failure details for the latest restore job", since = "4.23.0")
     private String restoreJobDetails;

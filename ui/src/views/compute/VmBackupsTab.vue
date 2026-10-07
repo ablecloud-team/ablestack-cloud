@@ -106,8 +106,16 @@ export default {
   watch: {
     scopeKey () { this.rows = []; this.total = 0; this.page = 1; this.search = ''; this.keyword = ''; this.selected = null; this.opening = false; this.submitting = false; this.pending = false; this.unknown = false; this.fetchData() }
   },
-  created () { this.fetchData(); this.onBackupJobComplete = () => this.refresh(); eventBus.on('async-job-complete', this.onBackupJobComplete) },
-  beforeUnmount () { eventBus.off('async-job-complete', this.onBackupJobComplete) },
+  created () {
+    this.fetchData()
+    this.onBackupJobComplete = () => this.refresh()
+    eventBus.on('async-job-complete', this.onBackupJobComplete)
+    eventBus.on('backup-restore-updated', this.onBackupJobComplete)
+  },
+  beforeUnmount () {
+    eventBus.off('async-job-complete', this.onBackupJobComplete)
+    eventBus.off('backup-restore-updated', this.onBackupJobComplete)
+  },
   methods: {
     allowed (api) { return api in this.$store.getters.apis },
     definition (api) { return (vmApis.includes(api) ? compute.children.find(item => item.name === 'vm') : storage.children.find(item => item.name === 'backup'))?.actions.find(action => action.api === api) },

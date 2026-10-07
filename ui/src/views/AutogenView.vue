@@ -1010,6 +1010,12 @@ export default {
         this.fetchData()
       }
     })
+    this.onListEvent('backup-restore-updated', () => {
+      if (this.$route.path === '/vm' || this.$route.path.startsWith('/vm/') ||
+          this.$route.path === '/backup' || this.$route.path.startsWith('/backup/')) {
+        this.fetchData()
+      }
+    })
     this.onListEvent('desktop-refresh-data', () => {
       if (this.$route.path === '/desktopcluster' || this.$route.path.includes('/desktopcluster/')) {
         this.fetchData()

@@ -68,6 +68,32 @@ public class BackupJobStatusResponse extends BaseResponse {
     @Param(description = "VM primary volume transaction outcome, separate from external file restore jobs")
     private BackupStagingInfoResponse.VmRestoreInfo vmRestore;
 
+    @SerializedName("hoststate")
+    @Param(description = "Host data restore state, separate from instance creation and startup")
+    private String hostState;
+
+    @SerializedName("restoreoperationtype")
+    @Param(description = "Tracked restore operation type")
+    private String restoreOperationType;
+
+    @SerializedName("restoretargetvmid")
+    @Param(description = "UUID of the instance created from the backup")
+    private String restoreTargetVmId;
+
+    @SerializedName("restoretargetvmname")
+    @Param(description = "Name of the instance created from the backup")
+    private String restoreTargetVmName;
+
+    @SerializedName("restoretargetvmstate")
+    @Param(description = "Current state of the instance created from the backup")
+    private String restoreTargetVmState;
+
+    public void setHostState(String value) { hostState = value; }
+    public void setRestoreOperationType(String value) { restoreOperationType = value; }
+    public void setRestoreTargetVmId(String value) { restoreTargetVmId = value; }
+    public void setRestoreTargetVmName(String value) { restoreTargetVmName = value; }
+    public void setRestoreTargetVmState(String value) { restoreTargetVmState = value; }
+
     public void setVmRestore(BackupStagingInfoResponse.VmRestoreInfo value) { vmRestore = value; }
 
     public void setStagingQueue(BackupStagingQueueResponse value) { stagingQueue = value; }

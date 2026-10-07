@@ -1655,6 +1655,9 @@ public class BackupManagerTest {
         when(vm.getUuid()).thenReturn("vm-uuid");
         when(vm.getState()).thenReturn(VirtualMachine.State.Stopped);
         when(volumeDao.findIncludingRemovedByInstanceAndType(2L, null)).thenReturn(Collections.emptyList());
+        VMInstanceVO startedVm = mock(VMInstanceVO.class);
+        when(startedVm.getState()).thenReturn(VirtualMachine.State.Running);
+        when(vmInstanceDao.findById(2L)).thenReturn(startedVm);
 
         BackupManagerImpl.BackupSyncTask backupSyncTask = backupManager.new BackupSyncTask(backupManager);
         try (MockedStatic<ActionEventUtils> ignored = Mockito.mockStatic(ActionEventUtils.class)) {

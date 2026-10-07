@@ -72,6 +72,7 @@ import { getAPI, postAPI } from '@/api'
 import { Button } from 'ant-design-vue'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import eventBus from '@/config/eventBus'
+import { isAblestackInstanceCreation, trackBackupInstanceCreation } from '@/utils/backupInstanceCreation'
 
 import DeployVMFromBackup from '@/components/view/DeployVMFromBackup'
 
@@ -162,6 +163,7 @@ export default {
       this.dataPreFill.ostypeid = this.resource.vmdetails.ostypeid
       this.dataPreFill.ostypename = this.resource.vmdetails.osname
       this.dataPreFill.backupid = this.resource.id
+      this.dataPreFill.backupprovider = this.backupProvider
       this.dataPreFill.computeofferingid = this.vmdetails.serviceofferingid
       this.dataPreFill.templateid = this.vmdetails.templateid
       this.dataPreFill.backupArch = this.backupArch
@@ -278,6 +280,7 @@ export default {
       const title = this.$t('label.create.instance.from.backup')
       const description = ''
       const password = this.$t('label.password')
+      const trackCreation = isAblestackInstanceCreation(this.backupProvider)
 
       if (this.backupProvider === 'bx') {
         postAPI('createVMFromBxBackup', args, 'GET', null).then(response => {
@@ -336,7 +339,10 @@ export default {
                   duration: 0
                 })
               }
-              eventBus.emit('vm-refresh-data')
+              if (trackCreation) {
+                trackBackupInstanceCreation({ backupId: args.backupid, jobId, vm, router: this.$router })
+              }
+              eventBus.emit(trackCreation ? 'backup-restore-updated' : 'vm-refresh-data')
             },
             loadingMessage: `${title} ${this.$t('label.in.progress')}`,
             catchMessage: this.$t('error.fetching.async.job.result'),
@@ -348,7 +354,7 @@ export default {
         }
         // Sending a refresh in case it hasn't picked up the new VM
         new Promise(resolve => setTimeout(resolve, 3000)).then(() => {
-          eventBus.emit('vm-refresh-data')
+          eventBus.emit(trackCreation ? 'backup-restore-updated' : 'vm-refresh-data')
         })
       }).catch(error => {
         this.$notifyError(error)

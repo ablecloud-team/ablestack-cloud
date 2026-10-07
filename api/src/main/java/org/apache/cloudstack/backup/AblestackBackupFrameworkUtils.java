@@ -68,6 +68,7 @@ public final class AblestackBackupFrameworkUtils {
     public static final String RESTORE_TARGET_VOLUME_UUID_DETAIL = "ablestack.restore.target.volume.uuid";
     public static final String RESTORE_EVENT_ID_DETAIL = "ablestack.restore.event.id";
     public static final String RESTORE_START_VM_DETAIL = "ablestack.restore.start.vm";
+    public static final String RESTORE_CREATE_INSTANCE_PROGRESS_DETAIL = "ablestack.restore.create.instance.progress";
     public static final String RESTORE_ROLLBACK_REQUIRED = "RESTORE_ROLLBACK_REQUIRED:";
 
     public static final String RESTORE_OPERATION_VM = "VM_RESTORE";

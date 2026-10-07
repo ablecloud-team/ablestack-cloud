@@ -3939,6 +3939,13 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     }
 
     private void checkForPendingBackupJobs(final BackupVO backup) {
+        if (backupDetailsDao.findDetail(backup.getId(), AblestackBackupFrameworkUtils.RESTORE_CREATE_INSTANCE_PROGRESS_DETAIL) != null) {
+            backupDao.loadDetails(backup);
+            final RestoreCreationProgress creation = getCreateInstanceProgress(backup);
+            if (creation != null && ("STARTING".equals(creation.state) || "RUNNING".equals(creation.state))) {
+                throw new CloudRuntimeException("Cannot delete Backup while instance creation or startup is in progress.");
+            }
+        }
         String backupUuid = backup.getUuid();
         long pendingJobs = asyncJobManager.countPendingJobs(backupUuid,
                 CreateVMFromBackupCmd.class.getName(),
@@ -4731,7 +4738,8 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             final boolean cleanupRequired = createInstance && "CLEANUP_REQUIRED".equalsIgnoreCase(
                     backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_JOB_STEP_DETAIL));
             final boolean finalizationRequired = "FINALIZATION_FAILED".equalsIgnoreCase(
-                    backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_JOB_STEP_DETAIL));
+                    backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_JOB_STEP_DETAIL))
+                    || (createInstance && isCreateInstanceFinalizationPending(backup));
             if (vm == null || (!volumeAttach && !isRestoreStatePending(vm) && !cleanupRequired && !finalizationRequired)) {
                 return;
             }
@@ -4783,8 +4791,21 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                 try {
                     finalizeDetachedRestoreOperation(backupProvider, offering, backup, vm, operationType);
                 } catch (Exception e) {
-                    persistRestoreOperationPhase(backup.getId(), "FAILED", "FINALIZATION_FAILED", 95);
+                    backupDao.loadDetails(backup);
+                    final RestoreCreationProgress creation = getCreateInstanceProgress(backup);
+                    final boolean startFailed = creation != null && "START_VM".equals(creation.step);
+                    final String reason = startFailed
+                            ? "Backup data was restored successfully, but starting the instance failed: " + e.getMessage()
+                            : e.getMessage();
+                    persistRestoreOperationPhase(backup.getId(), creation != null && !startFailed ? "RUNNING" : "FAILED",
+                            startFailed ? "START_VM_FAILED" : "FINALIZATION_FAILED",
+                            startFailed ? 98 : 95);
+                    persistBackupDetail(backup.getId(), AblestackBackupFrameworkUtils.RESTORE_JOB_FAILURE_REASON_DETAIL, reason);
                     reconcileExternalRestoreTracking(offering, backup, vm, false, e.getMessage());
+                    if (startFailed) {
+                        completeFailedRestoreTracking(backup, reason);
+                        cleanupTerminalRestoreJobFiles(backup, restoreHost, restoreJobId, backupProvider.getName());
+                    }
                     logger.warn("Failed to finalize completed restore job [{}] for backup [{}], VM [{}]: {}",
                             restoreJobId, backup.getUuid(), vm.getInstanceName(), e.getMessage(), e);
                     return;
@@ -4843,6 +4864,10 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                         && !VirtualMachine.State.Running.equals(vm.getState())) {
                     persistRestoreOperationPhase(backup.getId(), "RUNNING", "START_VM", 98);
                     virtualMachineManager.start(vm.getUuid(), Collections.emptyMap());
+                    final VMInstanceVO startedVm = vmInstanceDao.findById(vm.getId());
+                    if (startedVm == null || !VirtualMachine.State.Running.equals(startedVm.getState())) {
+                        throw new CloudRuntimeException("Instance startup did not reach Running state");
+                    }
                 }
                 ActionEventUtils.onCompletedActionEvent(User.UID_SYSTEM, vm.getAccountId(), EventVO.LEVEL_INFO,
                         EventTypes.EVENT_VM_CREATE_FROM_BACKUP,
@@ -5860,6 +5885,14 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     }
 
     private void validateNoActiveRestoreOperation(final Long backupId) {
+        final BackupVO operationBackup = backupDao.findById(backupId);
+        if (operationBackup != null) {
+            backupDao.loadDetails(operationBackup);
+            final RestoreCreationProgress creation = getCreateInstanceProgress(operationBackup);
+            if (creation != null && ("STARTING".equals(creation.state) || "RUNNING".equals(creation.state))) {
+                throw new CloudRuntimeException("An instance creation from backup is already running for backup " + backupId);
+            }
+        }
         final BackupDetailVO volumeCleanup = backupDetailsDao.findDetail(backupId, ThirdPartyBackupRestore.CLEANUP_STATE_KEY);
         if (volumeCleanup != null && java.util.Set.of("WAITING", "RUNNING").contains(volumeCleanup.getValue())) {
             throw new CloudRuntimeException("Previous volume restore staging cleanup is still pending for backup " + backupId);
@@ -5888,6 +5921,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     }
 
     private void clearPreviousRestoreResult(final Long backupId) {
+        backupDetailsDao.removeDetail(backupId, AblestackBackupFrameworkUtils.RESTORE_CREATE_INSTANCE_PROGRESS_DETAIL);
         backupDetailsDao.removeDetail(backupId, AblestackBackupFrameworkUtils.RESTORE_JOB_STATE_DETAIL);
         backupDetailsDao.removeDetail(backupId, AblestackBackupFrameworkUtils.RESTORE_JOB_STEP_DETAIL);
         backupDetailsDao.removeDetail(backupId, AblestackBackupFrameworkUtils.RESTORE_JOB_PROGRESS_DETAIL);
@@ -5898,6 +5932,18 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         if (backupId == null || backupDetailsDao.findDetail(backupId,
                 AblestackBackupFrameworkUtils.RESTORE_OPERATION_TYPE_DETAIL) == null) {
             return;
+        }
+        final BackupDetailVO operation = backupDetailsDao.findDetail(backupId, AblestackBackupFrameworkUtils.RESTORE_OPERATION_TYPE_DETAIL);
+        if (operation != null && AblestackBackupFrameworkUtils.RESTORE_OPERATION_CREATE_INSTANCE.equals(operation.getValue())) {
+            // Only management writes this record. Host polls cannot complete creation before VM startup.
+            final RestoreCreationProgress creation = new RestoreCreationProgress();
+            creation.state = state;
+            creation.step = step;
+            creation.progress = progress;
+            Transaction.execute(TransactionLegacy.CLOUD_DB, (TransactionCallback<Void>) status -> {
+                persistBackupDetail(backupId, AblestackBackupFrameworkUtils.RESTORE_CREATE_INSTANCE_PROGRESS_DETAIL, new Gson().toJson(creation));
+                return null;
+            });
         }
         persistBackupDetail(backupId, AblestackBackupFrameworkUtils.RESTORE_JOB_STATE_DETAIL, state);
         persistBackupDetail(backupId, AblestackBackupFrameworkUtils.RESTORE_JOB_STEP_DETAIL, step);
@@ -5946,6 +5992,20 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
 
     private void clearTrackedRestoreJobDetails(final BackupVO backup) {
         if (backup == null) {
+            return;
+        }
+        backupDao.loadDetails(backup);
+        final RestoreCreationProgress creation = getCreateInstanceProgress(backup);
+        if (creation != null && ("COMPLETED".equals(creation.state) || isRestoreFailureState(creation.state))) {
+            // Retain one latest creation result and its target VM after host files are removed.
+            // The UI can finish tracking even if cleanup occurs between status polls.
+            for (final String key : List.of(AblestackBackupFrameworkUtils.RESTORE_JOB_ID_DETAIL,
+                    AblestackBackupFrameworkUtils.RESTORE_HOST_ID_DETAIL, AblestackBackupFrameworkUtils.RESTORE_HOST_NAME_DETAIL,
+                    AblestackBackupFrameworkUtils.RESTORE_JOB_CLEANUP_ID_DETAIL, AblestackBackupFrameworkUtils.RESTORE_JOB_TRACKED_AT_DETAIL,
+                    AblestackBackupFrameworkUtils.RESTORE_ASYNC_JOB_ID_DETAIL, AblestackBackupFrameworkUtils.RESTORE_EVENT_ID_DETAIL)) {
+                backupDetailsDao.removeDetail(backup.getId(), key);
+            }
+            backupDao.loadDetails(backup);
             return;
         }
         backupDetailsDao.removeDetail(backup.getId(), AblestackBackupFrameworkUtils.RESTORE_JOB_ID_DETAIL);
@@ -6001,6 +6061,11 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     }
 
     private void completeRestoreJobFileCleanup(final BackupVO backup) {
+        final RestoreCreationProgress creation = getCreateInstanceProgress(backup);
+        if (creation != null && ("COMPLETED".equals(creation.state) || isRestoreFailureState(creation.state))) {
+            clearTrackedRestoreJobDetails(backup);
+            return;
+        }
         final String restoreState = backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_JOB_STATE_DETAIL);
         if (!isRestoreFailureState(restoreState)) {
             clearTrackedRestoreJobDetails(backup);
@@ -6097,6 +6162,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
 
     private boolean applyStoredRestoreJobStatus(final BackupVO backup, final VMInstanceVO vm, final BackupJobStatusResponse response) {
         if (applyRestoreCancellationStatus(backup, response)) { return true; }
+        if (applyCreateInstanceRestoreStatus(backup, response)) { return true; }
         final String state = backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_JOB_STATE_DETAIL);
         if (StringUtils.isBlank(state)) {
             return false;
@@ -6178,6 +6244,82 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         }
     }
 
+    private static final class RestoreCreationProgress {
+        private String state;
+        private String step;
+        private Integer progress;
+    }
+
+    private RestoreCreationProgress getCreateInstanceProgress(final Backup backup) {
+        if (!AblestackBackupFrameworkUtils.RESTORE_OPERATION_CREATE_INSTANCE.equals(
+                backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_OPERATION_TYPE_DETAIL))) {
+            return null;
+        }
+        final String json = backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_CREATE_INSTANCE_PROGRESS_DETAIL);
+        if (StringUtils.isBlank(json)) { return null; }
+        final RestoreCreationProgress creation;
+        try {
+            creation = new Gson().fromJson(json, RestoreCreationProgress.class);
+        } catch (RuntimeException e) {
+            throw new CloudRuntimeException("Unable to read instance creation progress for backup " + backup.getUuid(), e);
+        }
+        if (creation == null || StringUtils.isBlank(creation.state)) {
+            throw new CloudRuntimeException("Instance creation progress is incomplete for backup " + backup.getUuid());
+        }
+        if ("COMPLETED".equals(creation.state) || isRestoreFailureState(creation.state)
+                || "FINALIZING".equals(creation.step) || "START_VM".equals(creation.step)) {
+            return creation;
+        }
+        final String hostState = backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_JOB_STATE_DETAIL);
+        if ("COMPLETED".equalsIgnoreCase(hostState)) {
+            creation.state = "RUNNING";
+            creation.step = "FINALIZING";
+            creation.progress = 95;
+        } else if (StringUtils.isNotBlank(hostState) && !"UNKNOWN".equalsIgnoreCase(hostState)) {
+            creation.state = hostState;
+            creation.step = backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_JOB_STEP_DETAIL);
+            final String progress = backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_JOB_PROGRESS_DETAIL);
+            creation.progress = NumberUtils.isDigits(progress) ? Math.min(Integer.parseInt(progress), 95) : creation.progress;
+        }
+        return creation;
+    }
+
+    private boolean isCreateInstanceFinalizationPending(final Backup backup) {
+        final RestoreCreationProgress creation = getCreateInstanceProgress(backup);
+        return creation != null && Set.of("FINALIZING", "START_VM", "FINALIZATION_FAILED").contains(StringUtils.defaultString(creation.step));
+    }
+
+    private boolean applyCreateInstanceRestoreStatus(final BackupVO backup, final BackupJobStatusResponse response) {
+        backupDao.loadDetails(backup);
+        final RestoreCreationProgress creation = getCreateInstanceProgress(backup);
+        if (creation == null) { return false; }
+        response.setState(creation.state);
+        response.setStep(creation.step);
+        response.setProgress(creation.progress);
+        response.setOperation(AblestackBackupFrameworkUtils.OPERATION_RESTORE);
+        populateCreateInstanceRestoreContext(backup, response);
+        if (isRestoreFailureState(creation.state)) {
+            response.setDetails(backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_JOB_FAILURE_REASON_DETAIL));
+        }
+        return true;
+    }
+
+    private void populateCreateInstanceRestoreContext(final BackupVO backup, final BackupJobStatusResponse response) {
+        if (!AblestackBackupFrameworkUtils.RESTORE_OPERATION_CREATE_INSTANCE.equals(
+                backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_OPERATION_TYPE_DETAIL))
+                || StringUtils.isBlank(backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_CREATE_INSTANCE_PROGRESS_DETAIL))) {
+            return;
+        }
+        response.setRestoreOperationType(AblestackBackupFrameworkUtils.RESTORE_OPERATION_CREATE_INSTANCE);
+        final VMInstanceVO target = findRestoreTargetVm(backup);
+        if (target != null) {
+            accountManager.checkAccess(CallContext.current().getCallingAccount(), null, true, target);
+            response.setRestoreTargetVmId(target.getUuid());
+            response.setRestoreTargetVmName(target.getHostName());
+            response.setRestoreTargetVmState(target.getState().toString());
+        }
+    }
+
     @Override
     public BackupJobStatusResponse getBackupRestoreJobStatus(final Long backupId, final Long eventsOffset, final Integer eventsLimit) {
         final BackupVO backup = backupDao.findById(backupId);
@@ -6241,6 +6383,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             final BackupAnswer restoreAnswer = (BackupAnswer) answer;
             response.setVmRestore(vmRestoreInfo(backup, restoreAnswer.getVmRestoreResult(), restoreAnswer.getVmRestoreResultError()));
             persistRestoreJobStatusDetails(backup.getId(), restoreAnswer);
+            response.setHostState(restoreAnswer.getState());
             response.setState(effectiveRestoreJobState(backup, restoreAnswer));
             response.setStep("CANCELED".equals(response.getState()) && restoreCancellationOperation(backup) != null
                     ? "CANCELED" : StringUtils.defaultIfBlank(restoreAnswer.getStep(), response.getState()));
@@ -6262,6 +6405,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             } else if ("UNKNOWN".equalsIgnoreCase(response.getState())) {
                 applyPendingRestoreJobStatus(vm, response);
             }
+            applyCreateInstanceRestoreStatus(backup, response);
             return response;
         } catch (final Exception e) {
             if (applyStoredRestoreJobStatus(backup, vm, response)) {
@@ -6322,6 +6466,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         response.setOperation(AblestackBackupFrameworkUtils.OPERATION_RESTORE);
         response.setDetails(operation.cancelReason);
         response.setLogPath(AblestackBackupFrameworkUtils.getAsyncRestoreJobLogPath(operation.plan.jobId));
+        populateCreateInstanceRestoreContext(backup, response);
         return true;
     }
 
@@ -6618,8 +6763,13 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         }
         final String restoreJobState = StringUtils.defaultIfBlank(storedRestoreState,
                 StringUtils.defaultIfBlank(providerRestoreState, getRestoreJobStateForResponse(backup)));
-        if (StringUtils.isNotBlank(restoreJobState)) {
+        final RestoreCreationProgress creation = getCreateInstanceProgress(backup);
+        if (creation != null) {
+            response.setRestoreJobState(creation.state);
+            response.setRestoreJobStep(creation.step);
+        } else if (StringUtils.isNotBlank(restoreJobState)) {
             response.setRestoreJobState(restoreJobState);
+            response.setRestoreJobStep(backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_JOB_STEP_DETAIL));
         }
         response.setRestoreJobDetails(restoreFailureReason);
     }
