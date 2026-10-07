@@ -293,6 +293,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         commands.add(DetachStorageServiceBackingVolumeCmd.class);
         commands.add(GetStorageServiceVolumePreparationCmd.class);
         commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.ListStorageServiceOperationsCmd.class);
+        commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.ReconcileStorageServiceOperationCmd.class);
         commands.add(ResizeStorageFileShareCmd.class);
         commands.add(ResizeStorageServiceBackingVolumeCmd.class);
         commands.add(PrepareStorageServiceNvmeOfVmCmd.class);
@@ -348,6 +349,226 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     @Override
+    public org.apache.cloudstack.api.response.StorageServiceOperationResponse reconcileStorageServiceOperation(
+            final org.apache.cloudstack.api.command.user.storage.dataservice.ReconcileStorageServiceOperationCmd cmd) {
+        final long instanceId = getStorageServiceSyncId(cmd);
+        final StorageServiceInstanceVO instance = requireInstance(instanceId);
+        final com.cloud.utils.db.GlobalLock lock = com.cloud.utils.db.GlobalLock.getInternLock("StorageServiceWriter-" + instanceId);
+        try {
+            if (!lock.lock(120)) throw new CloudRuntimeException("Storage Service writer is busy");
+            try {
+                final StorageServiceOperationVO operation = storageOperationDao.findById(cmd.getOperationId());
+                if (operation == null || operation.getInstanceId() != instanceId) throw new InvalidParameterValueException("Operation scope changed");
+                final boolean superseded = StorageOperationReconciliation.superseded(operation, storageOperationDao.listByInstance(instanceId));
+                if (!superseded) throw new InvalidParameterValueException("No later verified revision exists; explicit rollback recovery is required");
+                final StorageServiceOperationVO latest = storageOperationDao.listByInstance(instanceId).stream()
+                        .filter(row -> "COMPLETE".equals(row.getState())).max(java.util.Comparator.comparingLong(StorageServiceOperationVO::getRevision)
+                                .thenComparing(StorageServiceOperationVO::getCreated))
+                        .orElseThrow(() -> new CloudRuntimeException("No verified desired-state snapshot is available"));
+                final String currentSnapshot = new StorageServiceDesiredSnapshot().capture(instanceId);
+                if (latest.getSnapshotJson() == null || !parseJsonObject(currentSnapshot).equals(parseJsonObject(latest.getSnapshotJson()))) {
+                    throw new CloudRuntimeException("Current desired state differs from its latest verified revision");
+                }
+                final StorageServiceGuestCommandResult runtime = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
+                        "operation verify", "", 60, Collections.emptySet()));
+                if (!runtime.isSuccess()) throw new CloudRuntimeException("Current configuration runtime verification failed: " + runtime.getDetails());
+                final JsonObject health = parseJsonObject(normalizeRuntimeResultJson(runtime.getResultJson()));
+                if (!Boolean.TRUE.equals(getJsonBoolean(health, "success")) || !"ok".equalsIgnoreCase(getJsonString(health, "status"))) {
+                    throw new CloudRuntimeException("Current runtime health is not verified");
+                }
+                verifyReconciledStorageDesiredState(instance);
+                final JsonObject evidence = new JsonObject();evidence.addProperty("reconciliation", "SUPERSEDED_BY_VERIFIED_REVISION");
+                evidence.addProperty("verifiedAt", System.currentTimeMillis());evidence.add("runtime", health);
+                evidence.addProperty("originalDiagnostic", operation.getDiagnostic());
+                operation.setResultJson(GSON.toJson(evidence));operation.setState("RECONCILED_SUPERSEDED");operation.setPhase("CURRENT_CONFIG_VERIFIED");
+                operation.setCompleted(new java.util.Date());operation.setHeartbeat(new java.util.Date());operation.setProgress(100);
+                storageOperationDao.update(operation.getId(), operation);
+                final org.apache.cloudstack.api.response.StorageServiceOperationResponse response = new org.apache.cloudstack.api.response.StorageServiceOperationResponse();
+                response.setId(operation.getUuid());response.setInstanceid(instance.getUuid());response.setAction(operation.getAction());response.setState(operation.getState());
+                response.setPhase(operation.getPhase());response.setRevision(operation.getRevision());response.setProgress(operation.getProgress());
+                response.setCreated(operation.getCreated());response.setHeartbeat(operation.getHeartbeat());response.setCompleted(operation.getCompleted());response.setDiagnostic(operation.getDiagnostic());
+                response.setObjectName("storageserviceoperation");return response;
+            } finally { lock.unlock(); }
+        } finally { lock.releaseRef(); }
+    }
+
+    protected void verifyReconciledStorageDesiredState(final StorageServiceInstanceVO instance) {
+        final StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
+                "inventory", "", 30, Collections.emptySet()));
+        if (!result.isSuccess()) throw new CloudRuntimeException("Current desired-state observation is unavailable");
+        final JsonObject inventory = parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));
+        StorageRecoveryObservation.requireFresh(inventory, System.currentTimeMillis() / 1000.0);
+        final Map<String, JsonObject> volumeObservations = new HashMap<>();
+        if (inventory.has("fileShareVolumes")) {
+            for (JsonElement item : inventory.getAsJsonArray("fileShareVolumes")) {
+                final JsonObject observed = item.getAsJsonObject();volumeObservations.put(getJsonString(observed, "volumeUuid"), observed);
+            }
+        }
+        for (StorageServiceInstance.Protocol protocol : new StorageServiceInstance.Protocol[] {StorageServiceInstance.Protocol.NFS, StorageServiceInstance.Protocol.SMB}) {
+            for (StorageFileShareVO share : storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(), protocol)) {
+                if (share.getVolumeId() == null) throw new CloudRuntimeException("File share backing identity is unknown");
+                final VolumeVO volume = requireVolume(share.getVolumeId());final JsonObject observed = volumeObservations.get(volume.getUuid());
+                final JsonObject config = parseJsonObject(share.getConfigJson());
+                if (observed == null || !"EXACT".equals(getJsonString(observed, "mappingStatus"))) throw new CloudRuntimeException("Backing volume is not exactly mapped");
+                final String expectedFilesystem = getJsonString(config, "filesystemUuid");
+                if (expectedFilesystem != null && !expectedFilesystem.equals(getJsonString(observed, "filesystemUuid"))) throw new CloudRuntimeException("Backing filesystem identity changed");
+            }
+        }
+        final JsonObject directoryPolicies = inventory.has("posixDirectoryPolicies") ? inventory.getAsJsonObject("posixDirectoryPolicies") : new JsonObject();
+        for (StoragePosixDirectoryPolicyVO policy : storagePosixPolicyDao.listByInstance(instance.getId())) {
+            if (!"Ready".equals(policy.getState()) || !directoryPolicies.has(policy.getUuid())
+                    || !"CONSISTENT".equals(getJsonString(directoryPolicies.getAsJsonObject(policy.getUuid()), "driftStatus"))) {
+                throw new CloudRuntimeException("Common directory desired/runtime policy is not consistent");
+            }
+        }
+        final Map<String, List<JsonObject>> nfsPseudos = new HashMap<>();
+        if (inventory.has("nfsGaneshaExports")) {
+            for (JsonElement endpoint : inventory.getAsJsonArray("nfsGaneshaExports")) {
+                final JsonObject listener = endpoint.getAsJsonObject();
+                if (!Boolean.TRUE.equals(getJsonBoolean(listener, "listening"))) throw new CloudRuntimeException("NFS endpoint is not listening");
+                for (JsonElement export : listener.getAsJsonArray("entries")) {
+                    JsonObject value = export.getAsJsonObject();
+                    nfsPseudos.computeIfAbsent(getJsonString(value, "pseudo"), key -> new ArrayList<>()).add(value);
+                }
+            }
+        }
+        for (StorageFileShareVO share : storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(), StorageServiceInstance.Protocol.NFS)) {
+            if (share.getState() != StorageServiceInstance.ResourceState.Ready || !nfsPseudos.containsKey("/" + share.getName())) {
+                throw new CloudRuntimeException("NFS desired/runtime export is not ready");
+            }
+            final JsonObject config = parseJsonObject(share.getConfigJson());final JsonArray expected = new JsonArray();
+            for (StorageAccessRuleVO acl : storageAccessRuleDao.listByResource(StorageServiceInstance.AccessResourceType.FILE_SHARE, share.getId())) {
+                if (acl.getState() != StorageServiceInstance.ResourceState.Ready) throw new CloudRuntimeException("NFS ACL is not ready");
+                expected.add(StorageRecoveryObservation.nfsClient(acl.getPrincipal(),
+                        acl.getPermission() == StorageServiceInstance.Permission.READ_WRITE, config, parseJsonObject(acl.getConfigJson())));
+            }
+            if (expected.size() == 0) expected.add(StorageRecoveryObservation.nfsClient("*", true, config, new JsonObject()));
+            for (JsonObject observed : nfsPseudos.get("/" + share.getName())) StorageRecoveryObservation.requireNfsClients(expected, observed);
+        }
+        final JsonObject smb = inventory.has("smbAccess") ? inventory.getAsJsonObject("smbAccess") : new JsonObject();
+        for (StorageFileShareVO share : storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(), StorageServiceInstance.Protocol.SMB)) {
+            if (share.getState() != StorageServiceInstance.ResourceState.Ready || !smb.has(share.getUuid())) throw new CloudRuntimeException("SMB desired/runtime share is not ready");
+            final JsonObject desired = parseJsonObject(share.getConfigJson());final JsonObject actual = smb.getAsJsonObject(share.getUuid());
+            if (!StringUtils.defaultIfBlank(getJsonString(desired, "ownershipInheritance"), "AUTHENTICATED_USER")
+                    .equals(StringUtils.defaultIfBlank(getJsonString(actual, "ownershipInheritance"), "AUTHENTICATED_USER"))) {
+                throw new CloudRuntimeException("SMB ownership inheritance differs from desired state");
+            }
+            if (!StringUtils.defaultIfBlank(getJsonString(desired, "posixOwnershipMode"), "AUTHENTICATED_USER")
+                    .equals(StringUtils.defaultIfBlank(getJsonString(actual, "posixOwnershipMode"), "AUTHENTICATED_USER"))) {
+                throw new CloudRuntimeException("SMB fixed file-operation identity differs from desired state");
+            }
+            final JsonObject creation = SmbCreationPolicy.merge(desired, null, null, null, null, null, null);
+            if (!actual.has("creationPolicy")) throw new CloudRuntimeException("SMB creation policy is unobserved");
+            for (String key : new String[] {"createMask", "forceCreateMode", "directoryMask", "forceDirectoryMode", "inheritPermissions"}) {
+                if (!creation.get(key).equals(actual.getAsJsonObject("creationPolicy").get(key))) throw new CloudRuntimeException("SMB creation policy differs from desired state");
+            }
+            final Set<String> configured = new HashSet<>();
+            for (StorageAccessRuleVO rule : storageAccessRuleDao.listByResource(StorageServiceInstance.AccessResourceType.FILE_SHARE, share.getId())) {
+                if (isSmbNetworkRule(rule) && rule.getState() == StorageServiceInstance.ResourceState.Ready) configured.add(rule.getPrincipal());
+            }
+            final Set<String> observed = new HashSet<>();
+            if (actual.has("allowedSources")) for (JsonElement source : actual.getAsJsonArray("allowedSources")) observed.add(source.getAsString());
+            if (!configured.equals(observed)) throw new CloudRuntimeException("SMB source policy differs from desired state");
+            JsonObject rendered = null;
+            if (inventory.has("smbShares")) for (JsonElement value : inventory.getAsJsonArray("smbShares")) {
+                JsonObject item = value.getAsJsonObject();if (share.getName().equals(getJsonString(item, "name"))) rendered = item;
+            }
+            if (rendered == null) throw new CloudRuntimeException("SMB rendered share is unobserved");
+            List<String> users = new ArrayList<>();List<String> writers = new ArrayList<>();List<String> admins = new ArrayList<>();
+            for (StorageAccessRuleVO acl : storageAccessRuleDao.listByResource(StorageServiceInstance.AccessResourceType.FILE_SHARE, share.getId())) {
+                if (isSmbNetworkRule(acl)) continue;
+                if (acl.getState() != StorageServiceInstance.ResourceState.Ready) throw new CloudRuntimeException("SMB account ACL is not ready");
+                if (acl.getPrincipalType() == StorageServiceInstance.PrincipalType.AD_USER || acl.getPrincipalType() == StorageServiceInstance.PrincipalType.AD_GROUP) {
+                    throw new CloudRuntimeException("SMB AD identity recovery requires domain verification");
+                }
+                String principal = acl.getPrincipal().replace('/', (char) 92);
+                if (principal.indexOf((char) 92) < 0) principal = buildSmbNetbiosName(instance) + (char) 92 + principal;
+                principal = (acl.getPrincipalType() == StorageServiceInstance.PrincipalType.LOCAL_GROUP ? "@" : "") + (char) 34 + principal + (char) 34;
+                users.add(principal);
+                if (!Boolean.TRUE.equals(getJsonBoolean(desired, "readOnly")) && (acl.getPermission() == StorageServiceInstance.Permission.READ_WRITE
+                        || acl.getPermission() == StorageServiceInstance.Permission.ADMIN)) writers.add(principal);
+                if (acl.getPermission() == StorageServiceInstance.Permission.ADMIN) admins.add(principal);
+            }
+            if (!String.join(" ", users).equals(StringUtils.defaultString(getJsonString(rendered, "valid_users")))
+                    || !String.join(" ", writers).equals(StringUtils.defaultString(getJsonString(rendered, "write_list")))
+                    || !String.join(" ", admins).equals(StringUtils.defaultString(getJsonString(rendered, "admin_users")))) {
+                throw new CloudRuntimeException("SMB rendered account permissions differ from desired state");
+            }
+            boolean expectedReadOnly = Boolean.TRUE.equals(getJsonBoolean(desired, "readOnly")) || (!users.isEmpty() && !Boolean.TRUE.equals(getJsonBoolean(desired, "guestOk")));
+            if (expectedReadOnly != "yes".equalsIgnoreCase(getJsonString(rendered, "read_only"))
+                    || Boolean.TRUE.equals(getJsonBoolean(desired, "guestOk")) != "yes".equalsIgnoreCase(getJsonString(rendered, "guest_ok"))) {
+                throw new CloudRuntimeException("SMB rendered read-only or guest policy differs from desired state");
+            }
+            if ("FORCED_UID_GID".equals(getJsonString(desired, "posixOwnershipMode")) &&
+                    (!StringUtils.defaultString(getJsonString(actual, "managedUser")).equals(getJsonString(rendered, "force_user"))
+                    || !StringUtils.defaultString(getJsonString(actual, "managedGroup")).equals(getJsonString(rendered, "force_group")))) {
+                throw new CloudRuntimeException("SMB rendered forced identity differs from desired state");
+            }
+        }
+        final JsonObject iscsi = inventory.has("iscsiTargets") ? inventory.getAsJsonObject("iscsiTargets") : new JsonObject();
+        for (StorageBlockTargetVO target : storageBlockTargetDao.listByInstanceIdAndProtocol(instance.getId(), StorageServiceInstance.Protocol.ISCSI)) {
+            if (target.getState() != StorageServiceInstance.ResourceState.Ready || !iscsi.has("targets")) throw new CloudRuntimeException("iSCSI desired/runtime target is unavailable");
+            JsonObject observed = null;
+            for (JsonElement value : iscsi.getAsJsonArray("targets")) {
+                JsonObject item = value.getAsJsonObject();
+                if (target.getTargetName().equals(getJsonString(item, "targetName"))
+                        && StringUtils.defaultIfBlank(target.getLunOrNamespace(), "0").equals(StringUtils.defaultIfBlank(getJsonString(item, "lunOrNamespace"), "0"))) observed = item;
+            }
+            if (observed == null || !observed.has("runtime")) throw new CloudRuntimeException("iSCSI backing LUN is unobserved");
+            final JsonObject config = parseJsonObject(target.getConfigJson());
+            if (config.has("lunSizeBytes") && (!observed.has("effectiveSizeBytes") || config.get("lunSizeBytes").getAsLong() != observed.get("effectiveSizeBytes").getAsLong())) {
+                throw new CloudRuntimeException("iSCSI effective backing size differs from desired state");
+            }
+            final Set<String> expected = new HashSet<>();
+            for (StorageAccessRuleVO acl : storageAccessRuleDao.listByResource(StorageServiceInstance.AccessResourceType.BLOCK_TARGET, target.getId())) {
+                if (acl.getState() == StorageServiceInstance.ResourceState.Ready) expected.add(acl.getPrincipal());
+            }
+            final Set<String> actual = new HashSet<>();
+            if (observed.getAsJsonObject("runtime").has("acls")) for (JsonElement acl : observed.getAsJsonObject("runtime").getAsJsonArray("acls")) actual.add(acl.getAsString());
+            if (!expected.equals(actual)) throw new CloudRuntimeException("iSCSI initiator ACL differs from desired state");
+        }
+        final List<StorageBlockTargetVO> nvmeTargets = storageBlockTargetDao.listByInstanceIdAndProtocol(instance.getId(), StorageServiceInstance.Protocol.NVME_OF);
+        if (!nvmeTargets.isEmpty()) {
+            if (!inventory.has("nvmeofRuntime") || !Boolean.TRUE.equals(getJsonBoolean(inventory.getAsJsonObject("nvmeofRuntime"), "listening"))) {
+                throw new CloudRuntimeException("NVMe-oF runtime endpoints are unavailable");
+            }
+            final Map<String, JsonObject> observedSubsystems = new HashMap<>();
+            if (inventory.has("nvmeofSubsystems") && inventory.getAsJsonObject("nvmeofSubsystems").has("subsystems")) {
+                for (JsonElement value : inventory.getAsJsonObject("nvmeofSubsystems").getAsJsonArray("subsystems")) {
+                    JsonObject item = value.getAsJsonObject();observedSubsystems.put(getJsonString(item, "targetName"), item.getAsJsonObject("runtime"));
+                }
+            }
+            for (StorageBlockTargetVO target : nvmeTargets) {
+                JsonObject observed = observedSubsystems.get(target.getTargetName());
+                if (target.getState() != StorageServiceInstance.ResourceState.Ready || observed == null
+                        || !Boolean.TRUE.equals(getJsonBoolean(observed, "configfsPresent"))) throw new CloudRuntimeException("NVMe-oF subsystem is not ready");
+                JsonObject config = parseJsonObject(target.getConfigJson());
+                if (isNvmeOfSubsystem(target)) {
+                    final boolean allowAny = Boolean.TRUE.equals(getJsonBoolean(config, "allowAnyHost"));
+                    if (allowAny != Boolean.TRUE.equals(getJsonBoolean(observed, "allowAnyHost"))) throw new CloudRuntimeException("NVMe-oF host access mode differs");
+                    final Set<String> expected = new HashSet<>();
+                    for (StorageAccessRuleVO acl : storageAccessRuleDao.listByResource(StorageServiceInstance.AccessResourceType.BLOCK_TARGET, target.getId())) {
+                        if (allowAny) continue;
+                        if (acl.getState() != StorageServiceInstance.ResourceState.Ready) throw new CloudRuntimeException("NVMe-oF host ACL is not ready");
+                        expected.add(acl.getPrincipal());
+                        JsonObject host = observed.has("hostAuthentication") ? observed.getAsJsonObject("hostAuthentication").getAsJsonObject(acl.getPrincipal()) : null;
+                        StorageRecoveryObservation.requireNvmeHost(parseJsonObject(acl.getConfigJson()), host);
+                    }
+                    if (!expected.equals(StorageRecoveryObservation.strings(observed.getAsJsonArray("allowedHosts")))) throw new CloudRuntimeException("NVMe-oF host ACL differs");
+                } else if (isNvmeOfNamespace(target)) {
+                    JsonObject namespace = null;
+                    for (JsonElement value : observed.getAsJsonArray("namespaces")) {
+                        JsonObject item = value.getAsJsonObject();
+                        if (StringUtils.defaultIfBlank(target.getLunOrNamespace(), "1").equals(getJsonString(item, "namespaceId"))) namespace = item;
+                    }
+                    if (namespace == null || target.getVolumeId() == null) throw new CloudRuntimeException("NVMe-oF namespace backing identity is unknown");
+                    StorageRecoveryObservation.requireNamespace(config, namespace, requireVolume(target.getVolumeId()).getUuid());
+                }
+            }
+        }
+    }
+
+    @Override
     public Long getStorageServiceSyncId(final org.apache.cloudstack.api.BaseCmd cmd) {
         final Long sharedFileSystemId = storageCommandId(cmd, "getSharedFileSystemId");
         if (sharedFileSystemId != null) {
@@ -358,6 +579,12 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             final StorageServiceInstanceVO instance = sharedFS.getVmId() == null ? null : storageServiceInstanceDao.findByVmId(sharedFS.getVmId());
             if (instance == null) return Math.addExact(4_000_000_000_000_000_000L, sharedFS.getId());
             return writableStorageInstanceId(instance.getId());
+        }
+        final Long operationId = storageCommandId(cmd, "getOperationId");
+        if (operationId != null) {
+            final StorageServiceOperationVO operation = storageOperationDao.findById(operationId);
+            if (operation == null) throw new InvalidParameterValueException("Storage Service operation is unavailable");
+            return writableStorageInstanceId(operation.getInstanceId());
         }
         final Long upgradeId = storageCommandId(cmd, "getUpgradeId");
         if (upgradeId != null) {

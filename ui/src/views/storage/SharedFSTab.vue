@@ -41,6 +41,7 @@ class="storage-service__alert"
       @change="handleChangeTab">
       <a-tab-pane :tab="$t('label.details')" key="details">
         <DetailsTab :resource="dataResource" :loading="loading" />
+        <storage-operation-history v-if="storageService.instance && 'listStorageServiceOperations' in $store.getters.apis" :instance-id="storageService.instance.id" />
         <div v-if="hasStorageServiceApi" class="storage-service storage-service--overview">
           <h3 class="storage-service__section-title">{{ $t('label.storage.service.overview') }}</h3>
           <a-alert
@@ -2316,6 +2317,7 @@ import SmbNetworkAccess from '@/views/storage/SmbNetworkAccess'
 import SmbCreationOptions from '@/views/storage/SmbCreationOptions'
 import PosixDirectoryPolicies from '@/views/storage/PosixDirectoryPolicies'
 import PosixPolicyInheritance from '@/views/storage/PosixPolicyInheritance'
+import StorageOperationHistory from '@/views/storage/StorageOperationHistory'
 import { Empty } from 'ant-design-vue'
 import {
   DeleteOutlined,
@@ -2533,6 +2535,7 @@ export default {
     SmbCreationOptions,
     PosixDirectoryPolicies,
     PosixPolicyInheritance,
+    StorageOperationHistory,
     Status,
     ProtocolHeader,
     EllipsisText,
