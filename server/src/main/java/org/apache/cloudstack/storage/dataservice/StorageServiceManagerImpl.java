@@ -837,7 +837,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
         for (StorageFileShareVO share : storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(), StorageServiceInstance.Protocol.NFS)) {
             if (share.getState() != StorageServiceInstance.ResourceState.Ready || !nfsPseudos.containsKey("/" + share.getName())) {
-                throw new CloudRuntimeException("NFS desired/runtime export is not ready");
+                throw new CloudRuntimeException("NFS desired/runtime export is not ready: " + share.getName() + " state=" + share.getState() + " observedPseudos=" + nfsPseudos.keySet());
             }
             final JsonObject config = parseJsonObject(share.getConfigJson());final JsonArray expected = new JsonArray();
             for (StorageAccessRuleVO acl : storageAccessRuleDao.listByResource(StorageServiceInstance.AccessResourceType.FILE_SHARE, share.getId())) {
