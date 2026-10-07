@@ -2289,14 +2289,21 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
     }
 
     public Role getProjectKubernetesAccountRole() {
-        List<Role> roles = roleService.findRolesByName(PROJECT_KUBEADMIN_ACCOUNT_ROLE_NAME);
-        if (CollectionUtils.isNotEmpty(roles)) {
-            Role role = roles.get(0);
-            reconcileDefaultProjectKubernetesRole(role);
-            logger.debug(String.format("Found default role for Kubernetes service account in projects: %s", role));
-            return role;
+        // The managed private role is internal state; caller ACL checks precede runtime key reconciliation.
+        CallContext.register(User.UID_SYSTEM, Account.ACCOUNT_ID_SYSTEM);
+        try {
+            List<Role> roles = roleService.findRolesByName(PROJECT_KUBEADMIN_ACCOUNT_ROLE_NAME);
+            if (CollectionUtils.isNotEmpty(roles)) {
+                Role role = roles.get(0);
+                reconcileDefaultProjectKubernetesRole(role);
+                logger.debug(String.format("Found default role for Kubernetes service account in projects: %s", role));
+                return role;
+            }
+            return createProjectKubernetesAccountRole();
+
+        } finally {
+            CallContext.unregister();
         }
-        return createProjectKubernetesAccountRole();
     }
 
     protected Account createProjectKubernetesAccount(final Project project, final String accountName) {

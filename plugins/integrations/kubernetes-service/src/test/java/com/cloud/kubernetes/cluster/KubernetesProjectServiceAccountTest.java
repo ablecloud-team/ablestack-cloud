@@ -37,6 +37,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class KubernetesProjectServiceAccountTest {
@@ -52,7 +53,8 @@ public class KubernetesProjectServiceAccountTest {
         previousEntityManager = (EntityManager) field.get(null);
         EntityManager entities = Mockito.mock(EntityManager.class);
         Mockito.when(entities.findById(User.class, User.UID_SYSTEM)).thenReturn(Mockito.mock(User.class));
-        Mockito.when(entities.findById(Account.class, Account.ACCOUNT_ID_SYSTEM)).thenReturn(Mockito.mock(Account.class));
+        Account internalSystemAccount = systemAccount();
+        Mockito.when(entities.findById(Account.class, Account.ACCOUNT_ID_SYSTEM)).thenReturn(internalSystemAccount);
         CallContext.init(entities);
         caller = CallContext.register(Mockito.mock(User.class), Mockito.mock(Account.class));
         manager = Mockito.spy(new KubernetesClusterManagerImpl());
@@ -71,6 +73,7 @@ public class KubernetesProjectServiceAccountTest {
                 Mockito.isNull(), Mockito.isNull(), Mockito.eq(User.Source.NATIVE), Mockito.eq(true)))
                 .thenThrow(new CloudRuntimeException("External user service unavailable"));
     }
+    private Account systemAccount() { Account account = Mockito.mock(Account.class); Mockito.when(account.getId()).thenReturn(Account.ACCOUNT_ID_SYSTEM); return account; }
     @After public void finish() { CallContext.unregister(); CallContext.init(previousEntityManager); }
 
     @Test public void localMachineAccountBindsOnlyToRequestedProject() {
@@ -173,5 +176,30 @@ public class KubernetesProjectServiceAccountTest {
         try { manager.createProjectKubernetesAccount(project, name); fail("local failure must propagate"); }
         catch (CloudRuntimeException expected) { assertSame(caller, CallContext.current()); }
         Mockito.verifyNoInteractions(manager.projectManager);
+    }
+
+    @Test public void managedPrivateRoleLookupUsesOnlyInternalSystemScope() {
+        Mockito.doCallRealMethod().when(manager).getProjectKubernetesAccountRole();
+        manager.roleService = Mockito.mock(org.apache.cloudstack.acl.RoleService.class);
+        Role role = Mockito.mock(Role.class);
+        Mockito.when(manager.roleService.findRolesByName(Mockito.anyString())).thenAnswer(i -> {
+            assertEquals(Account.ACCOUNT_ID_SYSTEM, CallContext.current().getCallingAccount().getId());
+            return Collections.singletonList(role);
+        });
+        Mockito.doAnswer(i -> { assertEquals(Account.ACCOUNT_ID_SYSTEM, CallContext.current().getCallingAccount().getId()); return null; })
+                .when(manager).reconcileDefaultProjectKubernetesRole(role);
+        assertSame(role, manager.getProjectKubernetesAccountRole());
+        assertSame(caller, CallContext.current());
+        Mockito.verify(manager, Mockito.never()).createProjectKubernetesAccountRole();
+    }
+    @Test public void privateRoleLookupFailureRestoresUnprivilegedCaller() {
+        Mockito.doCallRealMethod().when(manager).getProjectKubernetesAccountRole();
+        manager.roleService = Mockito.mock(org.apache.cloudstack.acl.RoleService.class);
+        Mockito.when(manager.roleService.findRolesByName(Mockito.anyString())).thenAnswer(i -> {
+            assertEquals(Account.ACCOUNT_ID_SYSTEM, CallContext.current().getCallingAccount().getId());
+            throw new CloudRuntimeException("role lookup failed");
+        });
+        try { manager.getProjectKubernetesAccountRole(); fail("lookup error must propagate"); }
+        catch (CloudRuntimeException expected) { assertSame(caller, CallContext.current()); }
     }
 }
