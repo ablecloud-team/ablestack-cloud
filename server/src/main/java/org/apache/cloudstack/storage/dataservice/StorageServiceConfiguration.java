@@ -349,6 +349,7 @@ public final class StorageServiceConfiguration {
         }
         plan.addProperty("artifactSha256", row.getSha256());if (blueprint == null) plan.addProperty("targetName", target.getName());
         plan.add("requiredCredentials", requiredCredentials(archive));
+        new StorageConfigDomainRestore(manager).validateBindings(plan);
         JsonObject metadata = metadata(row);metadata.add("plan", plan);
         String token = UUID.randomUUID().toString() + UUID.randomUUID().toString();JsonObject capability = new JsonObject();
         capability.addProperty("hash", StorageConfigArchive.sha256(token.getBytes(StandardCharsets.UTF_8)));
