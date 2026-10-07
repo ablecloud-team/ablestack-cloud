@@ -43,7 +43,7 @@ public final class KubernetesRuntimeKeyProfile {
             "associateIpAddress", "disassociateIpAddress", "listLoadBalancerRules", "createLoadBalancerRule",
             "updateLoadBalancerRule", "deleteLoadBalancerRule", "assignToLoadBalancerRule", "removeFromLoadBalancerRule",
             "listLoadBalancerRuleInstances", "listFirewallRules", "createFirewallRule", "updateFirewallRule",
-            "deleteFirewallRule", "listPortForwardingRules", "listNetworkACLs", "createNetworkACL", "deleteNetworkACL",
+            "deleteFirewallRule", "listPortForwardingRules", "listNetworkACLs", "listNetworkACLLists", "createNetworkACL", "deleteNetworkACL",
             "listTags", "createTags", "deleteTags", "listKubernetesClusters", "scaleKubernetesCluster", "queryAsyncJobResult");
     private static final List<String> CSI = Arrays.asList("listDiskOfferings", "listVolumes", "createVolume", "deleteVolume",
             "attachVolume", "detachVolume", "resizeVolume", "listSnapshots", "createSnapshot", "deleteSnapshot");
@@ -108,6 +108,12 @@ public final class KubernetesRuntimeKeyProfile {
 
     public static void validatePermissions(boolean csi, List<? extends RolePermissionEntity> permissions) {
         Set<String> expected = new HashSet<>(commands(csi));
+        // Accept only the exact previous profile when the newly required VPC read command is absent.
+        // Existing credentials are never broadened in place; new creation/explicit rotation gets the new profile.
+        if (permissions != null && permissions.stream().noneMatch(permission ->
+                "listNetworkACLLists".equals(permission.getRule().getRuleString()))) {
+            expected.remove("listNetworkACLLists");
+        }
         if (permissions == null || permissions.size() != expected.size() + 1) {
             throw new CloudRuntimeException("Kubernetes controller key permissions do not match its feature profile");
         }

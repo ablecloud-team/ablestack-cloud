@@ -129,7 +129,7 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
                 || jobs.stream().anyMatch(job -> job.getStatus() == AsyncJob.Status.IN_PROGRESS)) {
             throw new CloudRuntimeException("Cannot delete a Created Kubernetes cluster without a verified failed creation job and no active creation");
         }
-        if (error && !isVerifiedFirstControlProvisioningFailure(last)) {
+        if (error && !isVerifiedPreKubernetesProvisioningFailure(last)) {
             return false;
         }
         if (!CollectionUtils.isEmpty(vmInstanceDao.listNonRemovedVmsByTypeAndNetwork(kubernetesCluster.getNetworkId(), VirtualMachine.Type.User))) {
@@ -145,14 +145,20 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
         return true;
     }
 
-    protected boolean isVerifiedFirstControlProvisioningFailure(AsyncJobVO failed) {
+    protected boolean isVerifiedPreKubernetesProvisioningFailure(AsyncJobVO failed) {
         if (!Long.valueOf(0L).equals(kubernetesCluster.getEtcdNodeCount()) || failed.getResult() == null) {
             return false;
         }
         Object result = org.apache.cloudstack.framework.jobs.impl.JobSerializerHelper.fromSerializedString(failed.getResult());
-        return result instanceof org.apache.cloudstack.api.response.ExceptionResponse
-                && ("Provisioning the control VM failed in the Kubernetes cluster : " + kubernetesCluster.getName())
-                .equals(((org.apache.cloudstack.api.response.ExceptionResponse) result).getErrorText());
+        if (!(result instanceof org.apache.cloudstack.api.response.ExceptionResponse)) {
+            return false;
+        }
+        String error = ((org.apache.cloudstack.api.response.ExceptionResponse) result).getErrorText();
+        // Both creation failures happen before Kubernetes/CSI bootstrap. Node mappings and live network VMs
+        // are checked independently; a later CSI, workload, start, or partial deletion failure is never accepted.
+        return ("Provisioning the control VM failed in the Kubernetes cluster : " + kubernetesCluster.getName()).equals(error)
+                || ("Failed to start Kubernetes cluster : " + kubernetesCluster.getName()
+                        + " as no public IP found for the cluster").equals(error);
     }
 
     private void validateClusterSate() {

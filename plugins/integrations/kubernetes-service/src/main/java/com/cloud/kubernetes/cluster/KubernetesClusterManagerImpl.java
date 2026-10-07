@@ -312,6 +312,7 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
             UpdateFirewallRuleCmd.class,
             DeleteFirewallRuleCmd.class,
             ListNetworkACLsCmd.class,
+            org.apache.cloudstack.api.command.user.network.ListNetworkACLListsCmd.class,
             CreateNetworkACLCmd.class,
             DeleteNetworkACLCmd.class,
             ListKubernetesClustersCmd.class,
@@ -2221,7 +2222,7 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
         }
         java.util.Set<String> previousDefault = new java.util.HashSet<>(expected);
         previousDefault.removeAll(Arrays.asList("listCapabilities", "listZones", "listDiskOfferings", "listTags",
-                "createTags", "deleteTags", "listPortForwardingRules"));
+                "createTags", "deleteTags", "listPortForwardingRules", "listNetworkACLLists"));
         if (!present.containsAll(previousDefault)) {
             return; // Do not broaden an operator-restricted subset with default-looking descriptions.
         }

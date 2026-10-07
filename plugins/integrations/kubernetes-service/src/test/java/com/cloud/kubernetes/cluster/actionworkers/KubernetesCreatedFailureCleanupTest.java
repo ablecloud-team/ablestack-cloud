@@ -125,6 +125,19 @@ public class KubernetesCreatedFailureCleanupTest {
         Mockito.verify(worker, Mockito.never()).stateTransitTo(Mockito.anyLong(), Mockito.any());
         Mockito.verify(details).addDetail(3L, "lifecycle.creation.failed.job", "failed-create-job", false);
     }
+    @Test public void legacyNoPublicIpCreationFailureWithNoNodesCanBeCleaned() {
+        Mockito.when(cluster.getState()).thenReturn(KubernetesCluster.State.Error);
+        Mockito.when(failed.getResult()).thenReturn(serializedFailure("Failed to start Kubernetes cluster : test-cluster as no public IP found for the cluster"));
+        assertTrue(worker.reconcileFailedCreationBeforeDelete());
+        Mockito.verify(details).addDetail(3L, "lifecycle.creation.failed.job", "failed-create-job", false);
+    }
+    @Test public void noPublicIpFailureWithUntrackedVmCannotSkipCsiCleanup() {
+        Mockito.when(cluster.getState()).thenReturn(KubernetesCluster.State.Error);
+        Mockito.when(failed.getResult()).thenReturn(serializedFailure("Failed to start Kubernetes cluster : test-cluster as no public IP found for the cluster"));
+        Mockito.when(worker.vmInstanceDao.listNonRemovedVmsByTypeAndNetwork(Mockito.eq(7L), Mockito.any()))
+                .thenReturn(Collections.singletonList(Mockito.mock(VMInstanceVO.class)));
+        rejectsWithoutCleanupMarker();
+    }
     @Test public void laterFailureIsNotTreatedAsUnprovisioned() {
         Mockito.when(cluster.getState()).thenReturn(KubernetesCluster.State.Error);
         Mockito.when(failed.getResult()).thenReturn(serializedFailure("CSI deployment failed"));

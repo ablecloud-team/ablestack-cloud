@@ -73,6 +73,23 @@ public class KubernetesRuntimeKeyProfileTest {
         Assert.assertFalse(KubernetesRuntimeKeyProfile.commands(false).contains("createSnapshot"));
     }
 
+    @Test public void newBaseAndCsiKeysIncludeTheRequiredVpcAclListRead() {
+        Assert.assertTrue(KubernetesRuntimeKeyProfile.commands(false).contains("listNetworkACLLists"));
+        Assert.assertTrue(KubernetesRuntimeKeyProfile.commands(true).contains("listNetworkACLLists"));
+    }
+    @Test public void exactPreviousProfilesRemainUsableWithoutWideningTheirRules() {
+        for (boolean csi : new boolean[]{false,true}) {
+            List<ApiKeyPairPermissionVO> legacy = permissions(csi);
+            legacy.removeIf(p -> p.getRule().getRuleString().equals("listNetworkACLLists"));
+            validate(key(csi), csi, legacy);
+            Assert.assertFalse(legacy.stream().anyMatch(p -> p.getRule().getRuleString().equals("listNetworkACLLists")));
+        }
+    }
+    @Test(expected = CloudRuntimeException.class) public void legacyProfileWithAnotherMissingCommandStillFailsClosed() {
+        List<ApiKeyPairPermissionVO> legacy = permissions(false);
+        legacy.removeIf(p -> p.getRule().getRuleString().equals("listNetworkACLLists") || p.getRule().getRuleString().equals("listVirtualMachines"));
+        validate(key(false),false,legacy);
+    }
     @Test(expected = CloudRuntimeException.class) public void sharedOrDifferentClusterKeyRejected() {
         ApiKeyPair key = key(true);Mockito.when(key.getName()).thenReturn("shared-kubeadmin");validate(key,true,permissions(true));
     }
