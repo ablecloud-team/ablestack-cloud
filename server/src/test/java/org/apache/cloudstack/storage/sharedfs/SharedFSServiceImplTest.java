@@ -141,6 +141,9 @@ public class SharedFSServiceImplTest {
     @Mock
     private StorageServiceGuestCommandDispatcher guestCommandDispatcher;
 
+    @Mock
+    private com.cloud.service.dao.ServiceOfferingDao serviceOfferingDao;
+
     @Spy
     @InjectMocks
     private SharedFSServiceImpl sharedFSServiceImpl;
@@ -647,10 +650,29 @@ public class SharedFSServiceImplTest {
         when(dataCenterDao.findById(s_zoneId)).thenReturn(zone);
         when(zone.getAllocationState()).thenReturn(Grouping.AllocationState.Enabled);
 
+        com.cloud.service.ServiceOfferingVO original=mock(com.cloud.service.ServiceOfferingVO.class);
+        com.cloud.service.ServiceOfferingVO target=mock(com.cloud.service.ServiceOfferingVO.class);
+        when(serviceOfferingDao.findByIdIncludingRemoved(s_serviceOfferingId)).thenReturn(original);
+        when(serviceOfferingDao.findById(newServiceOfferingId)).thenReturn(target);
+        when(original.getCpu()).thenReturn(2);when(original.getRamSize()).thenReturn(4096);when(original.getSpeed()).thenReturn(2000);
+        when(target.getCpu()).thenReturn(4);when(target.getRamSize()).thenReturn(8192);when(target.getSpeed()).thenReturn(2000);
         when(lifeCycle.changeSharedFSServiceOffering(sharedFS, newServiceOfferingId)).thenReturn(true);
 
         sharedFSServiceImpl.changeSharedFSServiceOffering(cmd);
         Assert.assertEquals(Optional.ofNullable(sharedFS.getServiceOfferingId()), Optional.ofNullable(newServiceOfferingId));
+    }
+
+    @Test
+    public void testColdOfferingChangeRejectsDownscaleAndCustomResources() {
+        com.cloud.service.ServiceOfferingVO original=mock(com.cloud.service.ServiceOfferingVO.class);
+        com.cloud.service.ServiceOfferingVO target=mock(com.cloud.service.ServiceOfferingVO.class);
+        when(serviceOfferingDao.findByIdIncludingRemoved(4L)).thenReturn(original);
+        when(serviceOfferingDao.findById(100L)).thenReturn(target);
+        when(original.getCpu()).thenReturn(2);when(original.getRamSize()).thenReturn(4096);when(original.getSpeed()).thenReturn(2000);
+        when(target.getCpu()).thenReturn(4);when(target.getRamSize()).thenReturn(8192);when(target.getSpeed()).thenReturn(1000);
+        Assert.assertThrows(InvalidParameterValueException.class,()->sharedFSServiceImpl.validateScaleOfferings(4L,100L,false));
+        when(target.getSpeed()).thenReturn(2000);when(target.getCpu()).thenReturn(null);
+        Assert.assertThrows(InvalidParameterValueException.class,()->sharedFSServiceImpl.validateScaleOfferings(4L,100L,false));
     }
 
     @Test(expected = InvalidParameterValueException.class)
@@ -747,7 +769,7 @@ public class SharedFSServiceImplTest {
 
     private void configureRemovalCollaborators() {
         Mockito.lenient().doAnswer(call -> ((java.util.function.Supplier<?>) call.getArgument(1)).get())
-                .when(sharedFSServiceImpl).withSharedFSDeletionLock(Mockito.any(), Mockito.any());
+                .when(sharedFSServiceImpl).withSharedFSWriterLock(Mockito.any(), Mockito.any());
         Mockito.lenient().doNothing().when(sharedFSServiceImpl).auditSharedFSDeletion(Mockito.any(), Mockito.anyString());
         Mockito.lenient().when(lifeCycle.deleteSharedFS(Mockito.any(), Mockito.any(), Mockito.anySet())).thenReturn(true);
         ReflectionTestUtils.setField(sharedFSServiceImpl, "storageServiceInstanceDao",

@@ -19,9 +19,17 @@ package org.apache.cloudstack.storage.sharedfs;
 
 import org.junit.Assert;
 import org.junit.Test;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.springframework.test.util.ReflectionTestUtils;
-import com.cloud.storage.*;
+import com.cloud.storage.Volume;
+import com.cloud.storage.VolumeVO;
 import com.cloud.storage.dao.VolumeDao;
 import com.cloud.exception.InvalidParameterValueException;
 import org.apache.cloudstack.storage.sharedfs.dao.SharedFSDao;
@@ -61,7 +69,7 @@ public class SharedFSDeletionPlanTest {
         try (org.mockito.MockedStatic<com.cloud.utils.db.GlobalLock> locks=mockStatic(com.cloud.utils.db.GlobalLock.class)) {
             com.cloud.utils.db.GlobalLock lock=mock(com.cloud.utils.db.GlobalLock.class);
             locks.when(()->com.cloud.utils.db.GlobalLock.getInternLock("StorageServiceWriter-8")).thenReturn(lock);when(lock.lock(30)).thenReturn(true);
-            Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,()->service.withSharedFSDeletionLock(fs,()->{action.set(true);return true;}));
+            Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,()->service.withSharedFSWriterLock(fs,()->{action.set(true);return true;}));
             Assert.assertFalse(action.get());verify(lock).unlock();verify(lock).releaseRef();
         }
     }

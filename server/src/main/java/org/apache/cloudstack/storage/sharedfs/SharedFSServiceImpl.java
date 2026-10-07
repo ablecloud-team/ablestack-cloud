@@ -201,7 +201,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
     @Inject
     org.apache.cloudstack.storage.dataservice.dao.StorageServiceRuntimeUpgradeDao storageRuntimeUpgradeDao;
 
-    protected <T> T withSharedFSDeletionLock(SharedFS sharedFS, java.util.function.Supplier<T> action) {
+    protected <T> T withSharedFSWriterLock(SharedFS sharedFS, java.util.function.Supplier<T> action) {
         StorageServiceInstanceVO instance=sharedFS.getVmId()==null ? null : storageServiceInstanceDao.findByVmId(sharedFS.getVmId());
         String key=instance==null ? "SharedFSRemoval-"+sharedFS.getId() : "StorageServiceWriter-"+instance.getId();
         com.cloud.utils.db.GlobalLock lock=com.cloud.utils.db.GlobalLock.getInternLock(key);
@@ -209,9 +209,50 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         try {
             held=lock.lock(30);
             if (!held) throw new CloudRuntimeException("Another Storage Service operation is active");
-            if (instance!=null && storageRuntimeUpgradeDao.findActiveByInstanceId(instance.getId())!=null) throw new CloudRuntimeException("A runtime upgrade is active; service removal is blocked");
+            if (instance!=null && storageRuntimeUpgradeDao.findActiveByInstanceId(instance.getId())!=null) throw new CloudRuntimeException("A runtime upgrade is active; the requested service change is blocked");
             return action.get();
         } finally { if (held) lock.unlock(); lock.releaseRef(); }
+    }
+
+    @Inject
+    com.cloud.vm.dao.VMInstanceDao vmInstanceDao;
+    @Inject
+    com.cloud.service.dao.ServiceOfferingDao serviceOfferingDao;
+
+    @Override
+    public org.apache.cloudstack.api.response.StorageServiceRuntimeResponse getSharedFSScalingReadiness(Long id) {
+        SharedFSVO sharedFS=sharedFSDao.findById(id);
+        if (sharedFS==null) throw new InvalidParameterValueException("Shared filesystem is unavailable");
+        accountMgr.checkAccess(CallContext.current().getCallingAccount(),null,false,sharedFS);
+        com.google.gson.JsonObject result=new com.google.gson.JsonObject();com.google.gson.JsonArray reasons=new com.google.gson.JsonArray();
+        com.cloud.vm.VMInstanceVO vm=sharedFS.getVmId()==null ? null : vmInstanceDao.findById(sharedFS.getVmId());
+        if (vm==null) reasons.add("VM_UNAVAILABLE");
+        else if (!vm.isDynamicallyScalable()) reasons.add("LEGACY_VM_DYNAMIC_SCALING_DISABLED");
+        if (vm!=null && vm.getState()==com.cloud.vm.VirtualMachine.State.Running) {
+            try {
+                StorageServiceGuestCommandResult resources=guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(vm.getId(),"operation resources","{}",30,Set.of()));
+                if (!resources.isSuccess()) reasons.add("GUEST_RESOURCE_OBSERVATION_UNAVAILABLE");
+                else {
+                    com.google.gson.JsonObject observed=new com.google.gson.JsonParser().parse(resources.getResultJson()).getAsJsonObject();
+                    result.add("guestResources",observed);
+                    if (!observed.has("success") || !observed.get("success").getAsBoolean()) reasons.add("GUEST_RESOURCE_OBSERVATION_UNAVAILABLE");
+                    if (!observed.has("possibleCpuCount") || !observed.has("onlineCpuCount") || observed.get("possibleCpuCount").getAsInt()<=observed.get("onlineCpuCount").getAsInt()) reasons.add("CPU_HOTPLUG_HEADROOM_UNAVAILABLE");
+                    if (!observed.has("memoryAutoOnline") || observed.get("memoryAutoOnline").isJsonNull()) reasons.add("GUEST_MEMORY_HOTPLUG_UNAVAILABLE");
+                }
+            } catch (RuntimeException failure) { reasons.add("GUEST_RESOURCE_OBSERVATION_UNAVAILABLE"); }
+        } else reasons.add("VM_NOT_RUNNING");
+        com.cloud.service.ServiceOfferingVO current=serviceOfferingDao.findByIdIncludingRemoved(sharedFS.getServiceOfferingId());
+        if (current!=null) {
+            com.google.gson.JsonObject requested=new com.google.gson.JsonObject();
+            requested.addProperty("cpu",current.getCpu());requested.addProperty("memory",current.getRamSize());requested.addProperty("cpuspeed",current.getSpeed());
+            result.add("currentOffering",requested);
+        }
+        List<org.apache.cloudstack.api.response.StorageServiceOfferingConstraintResponse> offerings=getSharedFSProvider(sharedFS.getFsProviderName()).getSharedFSLifeCycle().evaluateOfferings(validateAndGetZone(sharedFS.getDataCenterId()),List.of(sharedFS.getServiceOfferingId()));
+        if (offerings.isEmpty()) reasons.add("OFFERING_CONSTRAINTS_UNAVAILABLE");
+        else { result.add("offering",new com.google.gson.Gson().toJsonTree(offerings.get(0)));for (String reason:offerings.get(0).getReasons()) reasons.add(reason); }
+        result.add("reasons",reasons);result.addProperty("ready",reasons.size()==0);
+        org.apache.cloudstack.api.response.StorageServiceRuntimeResponse response=new org.apache.cloudstack.api.response.StorageServiceRuntimeResponse();
+        response.setId(sharedFS.getUuid());response.setOperation("SCALING_READINESS");response.setSuccess(true);response.setStatus(reasons.size()==0 ? "READY" : "PREPARATION_REQUIRED");response.setResultJson(result.toString());response.setObjectName("sharedfilesystemscalingreadiness");return response;
     }
 
     protected List<SharedFSProvider> sharedFSProviders;
@@ -296,6 +337,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
             cmdList.add(RecoverSharedFSCmd.class);
             cmdList.add(ExpungeSharedFSCmd.class);
             cmdList.add(org.apache.cloudstack.api.command.user.storage.dataservice.GetSharedFileSystemDeletionPlanCmd.class);
+            cmdList.add(org.apache.cloudstack.api.command.user.storage.dataservice.GetSharedFileSystemScalingReadinessCmd.class);
             cmdList.add(org.apache.cloudstack.api.command.user.storage.dataservice.ListSharedFileSystemDeletionAuditsCmd.class);
         }
         return cmdList;
@@ -821,7 +863,12 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
     public SharedFS changeSharedFSServiceOffering(ChangeSharedFSServiceOfferingCmd cmd) throws OperationTimedoutException, ResourceUnavailableException, InsufficientCapacityException, ManagementServerException, VirtualMachineMigrationException {
         SharedFSVO sharedFS = sharedFSDao.findById(cmd.getId());
         Account caller = CallContext.current().getCallingAccount();
+        if (sharedFS==null) throw new InvalidParameterValueException("Shared filesystem is unavailable");
         accountMgr.checkAccess(caller, null, false, sharedFS);
+        if (sharedFS.getState()==State.Ready) {
+            final SharedFSVO running=sharedFS;
+            return withSharedFSWriterLock(running, () -> scaleSharedFSOnline(running,cmd.getServiceOfferingId()));
+        }
         Set<State> validStates = new HashSet<>(List.of(State.Stopped));
         if (!validStates.contains(sharedFS.getState())) {
             throw new InvalidParameterValueException("Service offering of the Shared FileSystem can be changed only if it is in " + validStates.toString() + " state");
@@ -831,6 +878,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         SharedFSLifeCycle lifeCycle = provider.getSharedFSLifeCycle();
         DataCenter zone = validateAndGetZone(sharedFS.getDataCenterId());
         lifeCycle.checkPrerequisites(zone, cmd.getServiceOfferingId());
+        validateScaleOfferings(sharedFS.getServiceOfferingId(),cmd.getServiceOfferingId(),false);
 
         sharedFS = sharedFSDao.findById(cmd.getId());
 
@@ -844,12 +892,89 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         }
     }
 
+    @Inject
+    org.apache.cloudstack.storage.dataservice.dao.StorageServiceOperationDao storageOperationDao;
+
+    protected com.google.gson.JsonObject scalingGuestCommand(long vmId,String command,String payload) {
+        StorageServiceGuestCommandResult result=guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(vmId,command,payload,30,Set.of()));
+        if (!result.isSuccess()) throw new CloudRuntimeException("Storage Service scaling guest command failed");
+        com.google.gson.JsonObject json=new com.google.gson.JsonParser().parse(result.getResultJson()).getAsJsonObject();
+        if (!json.has("success") || !json.get("success").getAsBoolean()) throw new CloudRuntimeException("Storage Service scaling guest evidence is unavailable");
+        return json;
+    }
+
+    protected void validateScaleOfferings(Long beforeId,Long targetId,boolean rejectNoOp) {
+        com.cloud.service.ServiceOfferingVO before=serviceOfferingDao.findByIdIncludingRemoved(beforeId);
+        com.cloud.service.ServiceOfferingVO target=serviceOfferingDao.findById(targetId);
+        if (before==null || target==null || before.getCpu()==null || before.getRamSize()==null || before.getSpeed()==null
+                || target.getCpu()==null || target.getRamSize()==null || target.getSpeed()==null) throw new InvalidParameterValueException("Fixed CPU, memory and CPU speed are required for SharedFS scaling");
+        if (target.getCpu()<before.getCpu() || target.getRamSize()<before.getRamSize() || target.getSpeed()<before.getSpeed()) throw new InvalidParameterValueException("SharedFS scale-down is not supported");
+        if (rejectNoOp) SharedFSOnlineScale.validate(before.getCpu(),before.getRamSize(),target.getCpu(),target.getRamSize());
+    }
+
+    protected SharedFS scaleSharedFSOnline(SharedFSVO sharedFS,Long targetId) {
+        com.cloud.vm.VMInstanceVO vm=vmInstanceDao.findById(sharedFS.getVmId());
+        if (vm==null || !vm.isDynamicallyScalable() || vm.getState()!=com.cloud.vm.VirtualMachine.State.Running) throw new InvalidParameterValueException("This legacy service VM requires controlled dynamic-scaling preparation before online changes");
+        com.cloud.service.ServiceOfferingVO before=serviceOfferingDao.findByIdIncludingRemoved(sharedFS.getServiceOfferingId());
+        com.cloud.service.ServiceOfferingVO target=serviceOfferingDao.findById(targetId);
+        validateScaleOfferings(sharedFS.getServiceOfferingId(),targetId,true);
+        SharedFSLifeCycle life=getSharedFSProvider(sharedFS.getFsProviderName()).getSharedFSLifeCycle();
+        life.checkPrerequisites(validateAndGetZone(sharedFS.getDataCenterId()),targetId);
+        StorageServiceInstanceVO instance=storageServiceInstanceDao.findByVmId(sharedFS.getVmId());
+        if (instance==null) throw new CloudRuntimeException("Storage Service operation scope is unavailable");
+        org.apache.cloudstack.storage.dataservice.StorageServiceOperationVO operation=new org.apache.cloudstack.storage.dataservice.StorageServiceOperationVO();
+        operation.setInstanceId(instance.getId());operation.setAction("SHAREDFS_ONLINE_SCALE");operation.setRequestKey(java.util.UUID.randomUUID().toString());
+        operation.setRevision(storageOperationDao.listByInstance(instance.getId()).stream().filter(row->"COMPLETE".equals(row.getState())).mapToLong(org.apache.cloudstack.storage.dataservice.StorageServiceOperationVO::getRevision).max().orElse(0)+1);
+        operation.setCreatedBy(CallContext.current().getCallingUserId());operation.setState("RUNNING");operation.setPhase("PREFLIGHT");
+        final org.apache.cloudstack.storage.dataservice.StorageServiceOperationVO journal=storageOperationDao.persist(operation);
+        final Long originalId=sharedFS.getServiceOfferingId();
+        try {
+            com.google.gson.JsonObject verified=SharedFSOnlineScale.execute(new SharedFSOnlineScale.Runtime() {
+                public void health() { com.google.gson.JsonObject health=scalingGuestCommand(vm.getId(),"operation verify","{}");if (!"ok".equalsIgnoreCase(health.get("status").getAsString())) throw new CloudRuntimeException("Storage Service health checkpoint failed"); }
+                public com.google.gson.JsonObject resources() { return scalingGuestCommand(vm.getId(),"operation resources","{}"); }
+                public void prepare(int cpus) {
+                    com.google.gson.JsonObject resource=resources();journal.setPreviousSnapshotJson(resource.toString());storageOperationDao.update(journal.getId(),journal);
+                    scalingGuestCommand(vm.getId(),"operation prepare-scale","{\"targetCpuCount\":"+cpus+"}");
+                }
+                public void resize() {
+                    try { if (!life.changeSharedFSServiceOffering(sharedFS,targetId)) throw new CloudRuntimeException("Online offering change was not completed"); }
+                    catch (Exception failure) { throw new CloudRuntimeException("Online offering change failed",failure); }
+                    sharedFS.setServiceOfferingId(targetId);sharedFSDao.update(sharedFS.getId(),sharedFS);
+                }
+                public void restore() {
+                    try {
+                        SharedFSVO current=sharedFSDao.findById(sharedFS.getId());
+                        if (current.getState()==State.Ready) stopSharedFS(current.getId(),false);
+                        current=sharedFSDao.findById(current.getId());
+                        com.cloud.vm.VMInstanceVO observed=vmInstanceDao.findById(current.getVmId());
+                        if (observed==null || observed.getState()!=com.cloud.vm.VirtualMachine.State.Stopped) throw new CloudRuntimeException("Guest did not stop; recovery hardware change is blocked");
+                        if (!life.changeSharedFSServiceOffering(current,originalId)) throw new CloudRuntimeException("Previous offering could not be restored");
+                        current.setServiceOfferingId(originalId);sharedFSDao.update(current.getId(),current);startSharedFS(current.getId());
+                        syncSharedFSToStorageService(sharedFSDao.findById(current.getId()));
+                    } catch (Exception failure) { throw new CloudRuntimeException("Cold recovery of the original resources failed",failure); }
+                }
+                public void pause() { try { Thread.sleep(2000); } catch (InterruptedException interrupted) { Thread.currentThread().interrupt();throw new CloudRuntimeException("Scaling verification interrupted",interrupted); } }
+                public void phase(String value) {
+                    journal.setPhase(value);journal.setHeartbeat(new java.util.Date());
+                    if (List.of("COMPLETE","ROLLED_BACK","RECOVERY_REQUIRED").contains(value)) { journal.setState(value);journal.setProgress(100);journal.setCompleted(new java.util.Date()); }
+                    else journal.setProgress("VERIFYING".equals(value) ? 80 : "RESIZING".equals(value) ? 40 : 10);
+                    storageOperationDao.update(journal.getId(),journal);
+                }
+            },target.getCpu(),(target.getRamSize()-before.getRamSize())*1024L*1024L);
+            journal.setResultJson(verified.toString());storageOperationDao.update(journal.getId(),journal);
+            syncSharedFSToStorageService(sharedFS);return sharedFS;
+        } catch (RuntimeException failure) {
+            if ("RUNNING".equals(journal.getState())) { journal.setState("BLOCKED");journal.setPhase("BLOCKED");journal.setCompleted(new java.util.Date()); }
+            journal.setDiagnostic(failure.getMessage());storageOperationDao.update(journal.getId(),journal);throw failure;
+        }
+    }
+
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_SHAREDFS_DESTROY, eventDescription = "Destroy Shared FileSystem")
     public Boolean destroySharedFS(DestroySharedFSCmd cmd) {
         SharedFSVO sharedFS=sharedFSDao.findById(cmd.getId());
         if (sharedFS==null) throw new InvalidParameterValueException("Shared filesystem is unavailable");
-        return withSharedFSDeletionLock(sharedFS, () -> destroySharedFSInternal(cmd));
+        return withSharedFSWriterLock(sharedFS, () -> destroySharedFSInternal(cmd));
     }
 
     protected Boolean destroySharedFSInternal(DestroySharedFSCmd cmd) {
@@ -905,7 +1030,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         SharedFSVO sharedFS = sharedFSDao.findById(id);
         if (sharedFS == null) throw new InvalidParameterValueException("Shared filesystem is unavailable");
         accountMgr.checkAccess(CallContext.current().getCallingAccount(), null, false, sharedFS);
-        withSharedFSDeletionLock(sharedFS, () -> {
+        withSharedFSWriterLock(sharedFS, () -> {
             prepareSharedFSDeletion(sharedFS, policy, confirmation, expectedPlanHash);
             deleteSharedFSInternal(id);return null;
         });
@@ -1027,7 +1152,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
     public void deleteSharedFS(Long sharedFSId) {
         SharedFSVO sharedFS=sharedFSDao.findById(sharedFSId);
         if (sharedFS==null) throw new InvalidParameterValueException("Shared filesystem is unavailable");
-        withSharedFSDeletionLock(sharedFS, () -> { deleteSharedFSInternal(sharedFSId);return null; });
+        withSharedFSWriterLock(sharedFS, () -> { deleteSharedFSInternal(sharedFSId);return null; });
     }
 
     protected void deleteSharedFSInternal(Long sharedFSId) {

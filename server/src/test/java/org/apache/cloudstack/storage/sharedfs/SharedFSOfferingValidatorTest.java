@@ -20,7 +20,8 @@ import com.cloud.offering.ServiceOffering;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 public class SharedFSOfferingValidatorTest {
     private ServiceOffering valid() {
         ServiceOffering offering=mock(ServiceOffering.class);
