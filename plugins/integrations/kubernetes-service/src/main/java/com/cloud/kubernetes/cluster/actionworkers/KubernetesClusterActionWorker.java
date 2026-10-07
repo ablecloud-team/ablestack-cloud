@@ -762,7 +762,7 @@ public class KubernetesClusterActionWorker {
                 KubernetesNetworkReadiness.SNAPSHOT_COMMAND, 10000, 10000, 30000);
     }
 
-    protected Pair<Boolean, String> executeNodeBootQuery(UserVm vm) throws Exception {
+    protected Pair<String, Integer> nodeBootEndpoint(UserVm vm) {
         Network network = networkDao.findById(kubernetesCluster.getNetworkId());
         String address;
         int port;
@@ -771,19 +771,25 @@ public class KubernetesClusterActionWorker {
             port = DEFAULT_SSH_PORT;
         } else {
             List<com.cloud.network.rules.PortForwardingRuleVO> rules = portForwardingRulesDao.listByVm(vm.getId()).stream()
-                    .filter(rule -> rule.getNetworkId() == kubernetesCluster.getNetworkId()
+                    .filter(rule -> java.util.Objects.equals(rule.getNetworkId(), kubernetesCluster.getNetworkId())
                             && rule.getState() != com.cloud.network.rules.FirewallRule.State.Revoke
                             && "tcp".equalsIgnoreCase(rule.getProtocol()) && rule.getDestinationPortStart() == DEFAULT_SSH_PORT
                             && rule.getDestinationPortEnd() == DEFAULT_SSH_PORT
                             && rule.getSourcePortStart().equals(rule.getSourcePortEnd()))
                     .collect(java.util.stream.Collectors.toList());
-            if (rules.size() != 1) { return new Pair<>(false, ""); }
+            if (rules.size() != 1) { return null; }
             IpAddress ip = ipAddressDao.findById(rules.get(0).getSourceIpAddressId());
-            if (ip == null) { return new Pair<>(false, ""); }
+            if (ip == null) { return null; }
             address = ip.getAddress().addr();
             port = rules.get(0).getSourcePortStart();
         }
-        return SshHelper.sshExecute(address, port, getControlNodeLoginUser(), sshKeyFile, null,
+        return new Pair<>(address, port);
+    }
+
+    protected Pair<Boolean, String> executeNodeBootQuery(UserVm vm) throws Exception {
+        Pair<String, Integer> endpoint = nodeBootEndpoint(vm);
+        if (endpoint == null) { return new Pair<>(false, ""); }
+        return SshHelper.sshExecute(endpoint.first(), endpoint.second(), getControlNodeLoginUser(), sshKeyFile, null,
                 KubernetesNetworkReadiness.BOOT_COMMAND, 10000, 10000, 20000);
     }
 
