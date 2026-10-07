@@ -399,6 +399,7 @@ export default {
       if (!this.isObjectEmpty(this.resource)) {
         var params = {}
         params.id = this.resource.id
+        params.refresh = this.resource.clustertype === 'CloudManaged' && this.resource.state === 'Running'
         getAPI('getKubernetesClusterConfig', params).then(json => {
           const config = json.getkubernetesclusterconfigresponse.clusterconfig
           if (!this.isObjectEmpty(config) &&
@@ -411,6 +412,8 @@ export default {
               description: this.$t('message.error.retrieve.kubeconfig')
             })
           }
+        }).catch(error => {
+          this.$notifyError(error)
         }).finally(() => {
           this.clusterConfigLoading = false
           if (!this.isObjectEmpty(this.kubernetesVersion) && this.isValidValueForKey(this.kubernetesVersion, 'semanticversion')) {

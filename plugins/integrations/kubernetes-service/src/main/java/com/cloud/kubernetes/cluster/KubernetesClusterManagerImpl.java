@@ -176,6 +176,7 @@ import com.cloud.hypervisor.Hypervisor;
 import com.cloud.kubernetes.cluster.KubernetesServiceHelper.KubernetesClusterNodeType;
 import com.cloud.kubernetes.cluster.actionworkers.KubernetesClusterActionWorker;
 import com.cloud.kubernetes.cluster.actionworkers.KubernetesClusterAddWorker;
+import com.cloud.kubernetes.cluster.actionworkers.KubernetesClusterConfigWorker;
 import com.cloud.kubernetes.cluster.actionworkers.KubernetesClusterDestroyWorker;
 import com.cloud.kubernetes.cluster.actionworkers.KubernetesClusterRemoveWorker;
 import com.cloud.kubernetes.cluster.actionworkers.KubernetesClusterScaleWorker;
@@ -2565,6 +2566,11 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
         KubernetesClusterConfigResponse response = new KubernetesClusterConfigResponse();
         response.setId(kubernetesCluster.getUuid());
         response.setName(kubernetesCluster.getName());
+        if (cmd.isRefresh()) {
+            response.setConfigData(refreshKubernetesClusterConfig(kubernetesCluster));
+            response.setObjectName("clusterconfig");
+            return response;
+        }
         String configData = "";
         KubernetesClusterDetailsVO clusterDetailsVO = kubernetesClusterDetailsDao.findDetail(kubernetesCluster.getId(), "kubeConfigData");
         if (clusterDetailsVO != null && StringUtils.isNotEmpty(clusterDetailsVO.getValue())) {
@@ -2578,6 +2584,11 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
         response.setConfigData(configData);
         response.setObjectName("clusterconfig");
         return response;
+    }
+
+    protected String refreshKubernetesClusterConfig(KubernetesCluster cluster) {
+        KubernetesClusterConfigWorker worker = ComponentContext.inject(new KubernetesClusterConfigWorker(cluster, this));
+        return worker.refresh();
     }
 
     @Override

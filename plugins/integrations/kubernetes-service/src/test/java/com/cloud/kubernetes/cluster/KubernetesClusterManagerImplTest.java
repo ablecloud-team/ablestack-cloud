@@ -294,6 +294,21 @@ public class KubernetesClusterManagerImplTest {
 
     }
 
+    @Test
+    public void configurationRefreshChecksAccessBeforeReadingNode() {
+        KubernetesClusterVO cluster = Mockito.mock(KubernetesClusterVO.class);
+        org.apache.cloudstack.api.command.user.kubernetes.cluster.GetKubernetesClusterConfigCmd cmd =
+                Mockito.mock(org.apache.cloudstack.api.command.user.kubernetes.cluster.GetKubernetesClusterConfigCmd.class);
+        Mockito.when(cmd.getId()).thenReturn(1L);
+        Mockito.lenient().when(cmd.isRefresh()).thenReturn(true);
+        Mockito.when(kubernetesClusterDao.findById(1L)).thenReturn(cluster);
+        Mockito.doThrow(new com.cloud.utils.exception.CloudRuntimeException("Access denied")).when(accountManager)
+                .checkAccess(Mockito.any(Account.class), Mockito.any(), Mockito.anyBoolean(), Mockito.any());
+        try { kubernetesClusterManager.getKubernetesClusterConfig(cmd); Assert.fail("Access must be denied"); }
+        catch (com.cloud.utils.exception.CloudRuntimeException expected) { Assert.assertEquals("Access denied", expected.getMessage()); }
+        Mockito.verify(kubernetesClusterManager, Mockito.never()).refreshKubernetesClusterConfig(Mockito.any());
+    }
+
     @Before
     public void setUp() throws Exception {
         CallContext.register(Mockito.mock(User.class), Mockito.mock(Account.class));

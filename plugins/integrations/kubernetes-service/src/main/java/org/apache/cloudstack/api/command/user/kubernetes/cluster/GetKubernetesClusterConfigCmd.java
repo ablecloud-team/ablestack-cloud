@@ -55,9 +55,17 @@ public class GetKubernetesClusterConfigCmd extends BaseCmd {
             description = "The ID of the Kubernetes cluster")
     private Long id;
 
+    @Parameter(name = "refresh", type = CommandType.BOOLEAN,
+            description = "Read the current control-node configuration after certificate renewal. Requires a Running CloudManaged cluster.")
+    private Boolean refresh;
+
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
     /////////////////////////////////////////////////////
+
+    public boolean isRefresh() {
+        return Boolean.TRUE.equals(refresh);
+    }
 
     public Long getId() {
         return id;
