@@ -6738,20 +6738,22 @@ print(json.dumps({"success": ok, "status": "READY" if ok else "RESOURCE_PRESSURE
                   "memoryAvailableBytes": available, "stagingFreeBytes": free}))
 raise SystemExit(0 if ok else 1)
 PYOP
-    elif [[ "$subcommand" == "resources" || "$subcommand" == "prepare-scale" ]]; then
+    elif [[ "$subcommand" == "resources" || "$subcommand" == "prepare-scale" || "$subcommand" == "activate-scale" ]]; then
       python3 - "$action" "$subcommand" <<'PYRESOURCES'
 import json
 import os
 import sys
 from pathlib import Path
 
-def cpu_count(path):
-    text = Path(path).read_text().strip()
-    count = 0
-    for part in text.split(","):
+def cpu_indices(path):
+    values = []
+    for part in Path(path).read_text().strip().split(","):
         bounds = [int(value) for value in part.split("-")]
-        count += bounds[-1] - bounds[0] + 1
-    return count
+        values.extend(range(bounds[0], bounds[-1] + 1))
+    return values
+
+def cpu_count(path):
+    return len(cpu_indices(path))
 
 request_path = sys.argv[1]
 request = json.loads(Path(request_path).read_text().strip() or "{}") if request_path and Path(request_path).is_file() else {}
@@ -6764,10 +6766,25 @@ online_cpus = cpu_count("/sys/devices/system/cpu/online")
 possible_cpus = cpu_count("/sys/devices/system/cpu/possible")
 target_cpus = int(request.get("targetCpuCount")) if request.get("targetCpuCount") is not None else online_cpus
 supported = 0 < target_cpus <= possible_cpus and online_path.is_file()
-if sys.argv[2] == "prepare-scale" and supported:
+if sys.argv[2] in {"prepare-scale", "activate-scale"} and supported:
     online_path.write_text("online")
+if sys.argv[2] == "activate-scale" and supported:
+    present = cpu_indices("/sys/devices/system/cpu/present")
+    supported = target_cpus <= len(present)
+    if supported:
+        for cpu in present[:target_cpus]:
+            cpu_online = Path(f"/sys/devices/system/cpu/cpu{cpu}/online")
+            if cpu_online.is_file() and cpu_online.read_text().strip() == "0":
+                cpu_online.write_text("1")
+        for memory_state in Path("/sys/devices/system/memory").glob("memory[0-9]*/state"):
+            if memory_state.read_text().strip() == "offline":
+                memory_state.write_text("online")
+        online_cpus = cpu_count("/sys/devices/system/cpu/online")
+        for line in Path("/proc/meminfo").read_text().splitlines():
+            key, value = line.split(":", 1)
+            memory[key] = int(value.strip().split()[0]) * 1024
 result = {
-    "success": supported if sys.argv[2] == "prepare-scale" else True,
+    "success": supported if sys.argv[2] in {"prepare-scale", "activate-scale"} else True,
     "status": "READY" if supported else "ONLINE_RESOURCES_UNSUPPORTED",
     "onlineCpuCount": online_cpus,
     "possibleCpuCount": possible_cpus,
