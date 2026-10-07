@@ -24,10 +24,13 @@ import com.cloud.kubernetes.cluster.KubernetesClusterEventTypes;
 import com.cloud.kubernetes.cluster.KubernetesClusterManagerImpl;
 import com.cloud.kubernetes.cluster.KubernetesClusterService;
 import com.cloud.kubernetes.cluster.KubernetesClusterVO;
+import com.cloud.kubernetes.cluster.KubernetesClusterDetailsVO;
+import com.cloud.server.ResourceTag.ResourceObjectType;
 import com.cloud.network.IpAddress;
 import com.cloud.network.Network;
 import com.cloud.network.dao.FirewallRulesDao;
 import com.cloud.network.rules.FirewallRuleVO;
+import com.cloud.network.rules.FirewallRule;
 import com.cloud.network.rules.PortForwardingRuleVO;
 import com.cloud.service.ServiceOfferingVO;
 import com.cloud.utils.Pair;
@@ -42,6 +45,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import org.apache.commons.lang3.StringUtils;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -70,21 +74,30 @@ public class KubernetesClusterRemoveWorker extends KubernetesClusterActionWorker
         } catch (ManagementServerException e) {
             throw new CloudRuntimeException(String.format("Failed to retrieve public IP for the network: %s ", network.getName()));
         }
-        stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.RemoveNodeRequested);
-        boolean result = removeNodesFromCluster(nodeIds, network, publicIp);
+        if (!stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.RemoveNodeRequested)) {
+            throw new CloudRuntimeException("Another Kubernetes cluster operation prevents external node removal");
+        }
+        boolean result;
+        try {
+            result = removeNodesFromCluster(nodeIds, network, publicIp);
+        } catch (RuntimeException e) {
+            stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.OperationFailed);
+            throw new CloudRuntimeException("External node removal is incomplete; retry receipts are retained", e);
+        }
         if (!result) {
             stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.OperationFailed);
         } else {
             stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.OperationSucceeded);
         }
-        String description = String.format("Successfully removed %s nodes from the Kubernetes Cluster %s", nodeIds.size(), kubernetesCluster.getUuid());
+        String description = result ? String.format("Successfully removed %s nodes from the Kubernetes Cluster %s", nodeIds.size(), kubernetesCluster.getUuid())
+                : String.format("External node removal is incomplete for Kubernetes Cluster %s; failed node mappings are retained", kubernetesCluster.getUuid());
         ActionEventUtils.onCompletedActionEvent(CallContext.current().getCallingUserId(), CallContext.current().getCallingAccountId(),
-                EventVO.LEVEL_INFO, KubernetesClusterEventTypes.EVENT_KUBERNETES_CLUSTER_NODES_REMOVE,
+                result ? EventVO.LEVEL_INFO : EventVO.LEVEL_ERROR, KubernetesClusterEventTypes.EVENT_KUBERNETES_CLUSTER_NODES_REMOVE,
                 description, kubernetesCluster.getId(), ApiCommandResourceType.KubernetesCluster.toString(), 0);
         return result;
     }
 
-    private boolean removeNodesFromCluster(List<Long> nodeIds, Network network, IpAddress publicIp) {
+    protected boolean removeNodesFromCluster(List<Long> nodeIds, Network network, IpAddress publicIp) {
         boolean result = true;
         List<Long> removedNodeIds = new ArrayList<>();
         long removedMemory = 0L;
@@ -93,11 +106,21 @@ public class KubernetesClusterRemoveWorker extends KubernetesClusterActionWorker
             UserVmVO vm = userVmDao.findById(nodeId);
             if (vm == null) {
                 logger.debug(String.format("Couldn't find a VM with ID %s, skipping removal from Kubernetes cluster", nodeId));
+                result = false;
                 continue;
             }
             try {
-                removeNodeVmFromCluster(nodeId, vm.getDisplayName().toLowerCase(Locale.ROOT), publicIp.getAddress().addr());
-                result &= removeNodePortForwardingRules(nodeId, network, vm);
+                String nodeName = StringUtils.defaultIfBlank(vm.getHostName(), vm.getDisplayName()).toLowerCase(Locale.ROOT);
+                prepareNodeRemovalRules(vm, network, publicIp);
+                String completedKey = "external.remove.native." + vm.getUuid();
+                if (kubernetesClusterDetailsDao.findDetail(kubernetesCluster.getId(), completedKey) == null) {
+                    removeNodeVmFromCluster(nodeId, nodeName, publicIp.getAddress().addr());
+                    kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), completedKey, nodeName, false);
+                }
+                if (!removeNodePortForwardingRules(nodeId, network, vm)) {
+                    result = false;
+                    continue;
+                }
                 if (System.currentTimeMillis() > removeNodeTimeoutTime) {
                     logger.error(String.format("Removal of node %s from Kubernetes cluster %s timed out", vm.getName(), kubernetesCluster.getName()));
                     result = false;
@@ -109,75 +132,142 @@ public class KubernetesClusterRemoveWorker extends KubernetesClusterActionWorker
                 removedCores += offeringVO.getCpu();
                 String description = String.format("Successfully removed the node %s from Kubernetes cluster %s", vm.getUuid(), kubernetesCluster.getUuid());
                 logger.info(description);
-                ActionEventUtils.onCompletedActionEvent(CallContext.current().getCallingUserId(), CallContext.current().getCallingAccountId(),
-                        EventVO.LEVEL_INFO, KubernetesClusterEventTypes.EVENT_KUBERNETES_CLUSTER_NODES_REMOVE,
-                        description, vm.getId(), ApiCommandResourceType.VirtualMachine.toString(), 0);
+                recordNodeRemovalEvent(description, vm.getId());
             } catch (Exception e) {
                 String err = String.format("Error trying to remove node %s from Kubernetes Cluster %s: %s", vm.getUuid(), kubernetesCluster.getUuid(), e.getMessage());
                 logger.error(err, e);
                 result = false;
             }
         }
-        updateKubernetesCluster(kubernetesCluster.getId(), removedNodeIds, removedMemory, removedCores);
+        if (!removedNodeIds.isEmpty()) {
+            updateKubernetesCluster(kubernetesCluster.getId(), removedNodeIds, removedMemory, removedCores);
+            for (Long id : removedNodeIds) {
+                UserVmVO vm = userVmDao.findById(id);
+                kubernetesClusterDetailsDao.removeDetail(kubernetesCluster.getId(), "external.remove.native." + vm.getUuid());
+                kubernetesClusterDetailsDao.removeDetail(kubernetesCluster.getId(), "external.remove.rules." + vm.getUuid());
+            }
+        }
         return result;
+    }
+
+    protected void recordNodeRemovalEvent(String description, long vmId) {
+        ActionEventUtils.onCompletedActionEvent(CallContext.current().getCallingUserId(), CallContext.current().getCallingAccountId(),
+                EventVO.LEVEL_INFO, KubernetesClusterEventTypes.EVENT_KUBERNETES_CLUSTER_NODES_REMOVE,
+                description, vmId, ApiCommandResourceType.VirtualMachine.toString(), 0);
+    }
+
+    protected void prepareNodeRemovalRules(UserVmVO vm, Network network, IpAddress publicIp) {
+        String key = "external.remove.rules." + vm.getUuid();
+        if (kubernetesClusterDetailsDao.findDetail(kubernetesCluster.getId(), key) != null) {
+            return;
+        }
+        List<String> receipts = new ArrayList<>();
+        for (PortForwardingRuleVO rule : portForwardingRulesDao.listByVm(vm.getId())) {
+            KubernetesOwnedResourceReceipt receipt = findOwnedNativeRule(rule, network, publicIp);
+            if (receipt == null) {
+                continue;
+            }
+            receipts.add(receipt.encode());
+            if (network.getVpcId() == null) {
+                for (FirewallRuleVO firewall : firewallRulesDao.listByIpPurposeProtocolAndNotRevoked(publicIp.getId(), FirewallRule.Purpose.Firewall, "tcp")) {
+                    if (firewall.getSourcePortStart() == rule.getSourcePortStart() && firewall.getSourcePortEnd() == rule.getSourcePortEnd()) {
+                        KubernetesOwnedResourceReceipt firewallReceipt = findOwnedNativeRule(firewall, network, publicIp);
+                        if (firewallReceipt != null && !receipts.contains(firewallReceipt.encode())) {
+                            receipts.add(firewallReceipt.encode());
+                        }
+                    }
+                }
+            }
+        }
+        if (receipts.isEmpty()) {
+            throw new CloudRuntimeException("External Kubernetes node SSH rules have no verified cluster ownership");
+        }
+        kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), key, String.join("\n", receipts), false);
     }
 
     protected boolean removeNodePortForwardingRules(Long nodeId, Network network, UserVmVO vm) {
-        List<PortForwardingRuleVO> pfRules = portForwardingRulesDao.listByVm(nodeId);
-        boolean result = true;
-        for (PortForwardingRuleVO pfRule : pfRules) {
-            try {
-                result &= rulesService.revokePortForwardingRule(pfRule.getId(), true);
-                if (Objects.isNull(network.getVpcId())) {
-                    FirewallRuleVO ruleVO = firewallRulesDao.findByNetworkIdAndPorts(network.getId(), pfRule.getSourcePortStart(), pfRule.getSourcePortEnd());
-                    result &= firewallService.revokeIngressFirewallRule(ruleVO.getId(), true);
+        KubernetesClusterDetailsVO detail = kubernetesClusterDetailsDao.findDetail(kubernetesCluster.getId(), "external.remove.rules." + vm.getUuid());
+        if (detail == null) {
+            return false;
+        }
+        try {
+            IpAddress address = getPublicIp(network);
+            for (String encoded : detail.getValue().split("\n")) {
+                KubernetesOwnedResourceReceipt receipt = KubernetesOwnedResourceReceipt.decode(encoded);
+                FirewallRuleVO rule;
+                if (receipt.type == ResourceObjectType.PortForwardingRule) {
+                    PortForwardingRuleVO forwarding = portForwardingRulesDao.findById(receipt.id);
+                    if (forwarding != null && forwarding.getVirtualMachineId() != nodeId) {
+                        throw new CloudRuntimeException("External node port forwarding target changed");
+                    }
+                    rule = forwarding;
+                } else if (receipt.type == ResourceObjectType.FirewallRule) {
+                    rule = firewallRulesDao.findById(receipt.id);
+                } else {
+                    throw new CloudRuntimeException("Unexpected external node removal receipt type");
                 }
-            } catch (Exception e) {
-                String err = String.format("Failed to cleanup network rules for node %s, due to: %s", vm.getName(), e.getMessage());
-                logger.error(err, e);
+                if (rule == null || rule.getRemoved() != null) {
+                    continue;
+                }
+                validateOwnedNodeRule(receipt, rule, network, address);
+                boolean revoked = receipt.type == ResourceObjectType.PortForwardingRule
+                        ? rulesService.revokePortForwardingRule(receipt.id, true)
+                        : firewallService.revokeIngressFirewallRule(receipt.id, true);
+                if (!revoked) {
+                    return false;
+                }
             }
-        }
-        return result;
-    }
-
-    private void removeNodeVmFromCluster(Long nodeId, String nodeName, String publicIp) throws Exception {
-        File removeNodeScriptFile = retrieveScriptFile(removeNodeFromClusterScript);
-        copyScriptFile(publicIp, CLUSTER_NODES_DEFAULT_START_SSH_PORT, removeNodeScriptFile, removeNodeFromClusterScript);
-        File pkFile = getManagementServerSshPublicKeyFile();
-        String command = String.format("%s%s %s %s %s", scriptPath, removeNodeFromClusterScript, nodeName, "control", "remove");
-        Pair<Boolean, String> result = SshHelper.sshExecute(publicIp, CLUSTER_NODES_DEFAULT_START_SSH_PORT, getControlNodeLoginUser(),
-                pkFile, null, command, 10000, 10000, 10 * 60 * 1000);
-        if (Boolean.FALSE.equals(result.first())) {
-            logger.error(String.format("Node: %s failed to be gracefully drained as a worker node from cluster %s ", nodeName, kubernetesCluster.getName()));
-        }
-        List<PortForwardingRuleVO> nodePfRules = portForwardingRulesDao.listByVm(nodeId);
-        Optional<PortForwardingRuleVO> nodeSshPort = nodePfRules.stream().filter(rule -> rule.getDestinationPortStart() == DEFAULT_SSH_PORT
-                && rule.getVirtualMachineId() == nodeId && rule.getSourcePortStart() >= CLUSTER_NODES_DEFAULT_START_SSH_PORT).findFirst();
-        if (nodeSshPort.isPresent()) {
-            copyScriptFile(publicIp, nodeSshPort.get().getSourcePortStart(), removeNodeScriptFile, removeNodeFromClusterScript);
-            command = String.format("sudo %s%s %s %s %s", scriptPath, removeNodeFromClusterScript, nodeName, "worker", "remove");
-            result = SshHelper.sshExecute(publicIp, nodeSshPort.get().getSourcePortStart(), getControlNodeLoginUser(),
-                    pkFile, null, command, 10000, 10000, 10 * 60 * 1000);
-            if (Boolean.FALSE.equals(result.first())) {
-                logger.error(String.format("Failed to reset node: %s from cluster %s ", nodeName, kubernetesCluster.getName()));
-            }
-            command = String.format("%s%s %s %s %s", scriptPath, removeNodeFromClusterScript, nodeName, "control", "delete");
-            result = SshHelper.sshExecute(publicIp, CLUSTER_NODES_DEFAULT_START_SSH_PORT, getControlNodeLoginUser(),
-                    pkFile, null, command, 10000, 10000, 10 * 60 * 1000);
-            if (Boolean.FALSE.equals(result.first())) {
-                logger.error(String.format("Node: %s failed to be gracefully delete node from cluster %s ", nodeName, kubernetesCluster.getName()));
-            }
-
+            return true;
+        } catch (Exception e) {
+            logger.error("External node rule cleanup is incomplete; mapping and retry receipts are retained", e);
+            return false;
         }
     }
 
-    private void updateKubernetesCluster(long clusterId, List<Long> nodesRemoved, long deallocatedRam, long deallocatedCores) {
+    protected Pair<Boolean, String> executeNodeRemoval(String publicIp, int port, String command) throws Exception {
+        return SshHelper.sshExecute(publicIp, port, getControlNodeLoginUser(), getManagementServerSshPublicKeyFile(),
+                null, command, 10000, 10000, 3 * 60 * 1000);
+    }
+
+    protected void requireNodeRemovalCommand(String publicIp, int port, String command, String stage) throws Exception {
+        Pair<Boolean, String> result = executeNodeRemoval(publicIp, port, command);
+        if (!Boolean.TRUE.equals(result.first())) {
+            // Do not publish remote command output or configuration in the failure response.
+            throw new CloudRuntimeException("External Kubernetes node removal failed at " + stage);
+        }
+    }
+
+    protected void removeNodeVmFromCluster(Long nodeId, String nodeName, String publicIp) throws Exception {
+        if (StringUtils.isBlank(nodeName) || !nodeName.matches("[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?")) {
+            throw new CloudRuntimeException("Invalid external Kubernetes node hostname");
+        }
+        List<PortForwardingRuleVO> rules = portForwardingRulesDao.listByVm(nodeId);
+        Network network = networkDao.findById(kubernetesCluster.getNetworkId());
+        IpAddress address = getPublicIp(network);
+        Optional<PortForwardingRuleVO> nodeSshPort = rules.stream().filter(rule -> rule.getDestinationPortStart() == DEFAULT_SSH_PORT
+                && rule.getVirtualMachineId() == nodeId && findOwnedNativeRule(rule, network, address) != null).findFirst();
+        if (nodeSshPort.isEmpty()) {
+            throw new CloudRuntimeException("External Kubernetes node SSH mapping is missing; node removal is incomplete");
+        }
+        File script = retrieveScriptFile(removeNodeFromClusterScript);
+        Pair<String, Integer> control = getKubernetesClusterServerIpSshPort(null);
+        copyScriptFile(control.first(), control.second(), script, removeNodeFromClusterScript);
+        String prefix = String.format("sudo %s%s %s", scriptPath, removeNodeFromClusterScript, nodeName);
+        requireNodeRemovalCommand(control.first(), control.second(), prefix + " control remove", "DRAIN");
+        copyScriptFile(publicIp, nodeSshPort.get().getSourcePortStart(), script, removeNodeFromClusterScript);
+        requireNodeRemovalCommand(publicIp, nodeSshPort.get().getSourcePortStart(), prefix + " worker remove", "RESET");
+        requireNodeRemovalCommand(control.first(), control.second(), prefix + " control delete", "NODE_DELETE");
+    }
+
+    protected void updateKubernetesCluster(long clusterId, List<Long> nodesRemoved, long deallocatedRam, long deallocatedCores) {
         KubernetesClusterVO kubernetesClusterVO = kubernetesClusterDao.findById(clusterId);
         kubernetesClusterVO.setNodeCount(kubernetesClusterVO.getNodeCount() - nodesRemoved.size());
         kubernetesClusterVO.setMemory(kubernetesClusterVO.getMemory() - deallocatedRam);
         kubernetesClusterVO.setCores(kubernetesClusterVO.getCores() - deallocatedCores);
         kubernetesClusterDao.update(clusterId, kubernetesClusterVO);
 
-        nodesRemoved.forEach(id -> kubernetesClusterVmMapDao.removeByClusterIdAndVmIdsIn(clusterId, nodesRemoved));
+        if (!nodesRemoved.isEmpty()) {
+            kubernetesClusterVmMapDao.removeByClusterIdAndVmIdsIn(clusterId, nodesRemoved);
+        }
     }
 }

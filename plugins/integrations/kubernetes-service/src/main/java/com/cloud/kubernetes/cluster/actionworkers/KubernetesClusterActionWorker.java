@@ -557,6 +557,28 @@ public class KubernetesClusterActionWorker {
         kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "cleanup.native." + type + "." + uuid, receipt.encode(), false);
     }
 
+    protected KubernetesOwnedResourceReceipt findOwnedNativeRule(FirewallRule rule, Network network, IpAddress address) {
+        ResourceObjectType type = rule instanceof PortForwardingRuleVO ? ResourceObjectType.PortForwardingRule : ResourceObjectType.FirewallRule;
+        KubernetesClusterDetailsVO detail = kubernetesClusterDetailsDao.findDetail(kubernetesCluster.getId(), "cleanup.native." + type + "." + rule.getUuid());
+        if (detail == null) {
+            return null;
+        }
+        KubernetesOwnedResourceReceipt receipt = KubernetesOwnedResourceReceipt.decode(detail.getValue());
+        validateOwnedNodeRule(receipt, rule, network, address);
+        return receipt;
+    }
+
+    protected void validateOwnedNodeRule(KubernetesOwnedResourceReceipt receipt, FirewallRule rule, Network network, IpAddress address) {
+        IPAddressVO current = ipAddressDao.findById(address.getId());
+        if (receipt.id != rule.getId() || !receipt.resource.equals(rule.getUuid())
+                || !receipt.service.equals(kubernetesCluster.getUuid()) || !receipt.network.equals(network.getUuid())
+                || !receipt.ip.equals(address.getUuid()) || current == null || !receipt.generation.equals(current.getAllocationGeneration())
+                || rule.getAccountId() != kubernetesCluster.getAccountId() || !Long.valueOf(network.getId()).equals(rule.getNetworkId())
+                || !Long.valueOf(address.getId()).equals(rule.getSourceIpAddressId())) {
+            throw new CloudRuntimeException("Kubernetes node rule ownership changed; removal is incomplete");
+        }
+    }
+
     protected IpAddress acquireVpcTierKubernetesPublicIp(Network network, boolean forEtcd) throws
             InsufficientAddressCapacityException, ResourceAllocationException, ResourceUnavailableException {
         IpAddress ip = networkService.allocateIP(owner, kubernetesCluster.getZoneId(), network.getId(), null, null);
@@ -1018,7 +1040,10 @@ public class KubernetesClusterActionWorker {
             newRule = portForwardingRulesDao.persist(newRule);
             return newRule;
         });
-        rulesService.applyPortForwardingRules(publicIp.getId(), account);
+        recordNativeNetworkResource(ResourceObjectType.PortForwardingRule, pfRule.getId(), pfRule.getUuid(), publicIp);
+        if (!rulesService.applyPortForwardingRules(publicIp.getId(), account)) {
+            throw new CloudRuntimeException("Kubernetes node SSH port forwarding could not be applied");
+        }
         if (logger.isInfoEnabled()) {
             logger.info(String.format("Provisioned SSH port forwarding rule: %s from port %d to %d on %s to the VM IP : %s in Kubernetes cluster : %s", pfRule.getUuid(), sourcePort, destPort, publicIp.getAddress().addr(), vmIp.toString(), kubernetesCluster.getName()));
         }
@@ -1167,8 +1192,11 @@ public class KubernetesClusterActionWorker {
         cidrField.setAccessible(true);
         cidrField.set(rule, sourceCidrList);
 
-        firewallService.createIngressFirewallRule(rule);
-        firewallService.applyIngressFwRules(publicIp.getId(), account);
+        FirewallRule created = firewallService.createIngressFirewallRule(rule);
+        recordNativeNetworkResource(ResourceObjectType.FirewallRule, created.getId(), created.getUuid(), publicIp);
+        if (!firewallService.applyIngressFwRules(publicIp.getId(), account)) {
+            throw new CloudRuntimeException("Kubernetes node SSH firewall could not be applied");
+        }
     }
 
     protected NicVO getVirtualRouterNicOnKubernetesClusterNetwork(KubernetesCluster kubernetesCluster) {

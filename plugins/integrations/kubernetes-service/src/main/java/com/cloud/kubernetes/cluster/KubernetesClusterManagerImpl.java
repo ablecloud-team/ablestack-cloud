@@ -2836,18 +2836,32 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
         return kubernetesCluster;
     }
 
-    private List<Long> validateNodes(List<Long> nodeIds, Long networkId, String networkName, KubernetesCluster cluster,  boolean removeNodes) {
+    protected List<Long> validateNodes(List<Long> nodeIds, Long networkId, String networkName, KubernetesCluster cluster,  boolean removeNodes) {
+        if (cluster.getState() != KubernetesCluster.State.Running && cluster.getState() != KubernetesCluster.State.Alert) {
+            throw new InvalidParameterValueException("External node changes require a Running or Alert Kubernetes cluster");
+        }
+        if (CollectionUtils.isEmpty(nodeIds) || nodeIds.stream().anyMatch(Objects::isNull) || new HashSet<>(nodeIds).size() != nodeIds.size()) {
+            throw new InvalidParameterValueException("External node IDs must be nonempty, unique and valid");
+        }
         Account caller = CallContext.current().getCallingAccount();
         List<Long> validNodeIds = new ArrayList<>(nodeIds);
         for (Long id : nodeIds) {
             VMInstanceVO node = vmInstanceDao.findById(id);
             if (Objects.isNull(node)) {
                 logger.error(String.format("Failed to find node (physical or virtual machine) with ID: %s", id));
-                validNodeIds.remove(id);
-                continue;
+                throw new InvalidParameterValueException("The requested external node VM was not found");
             }
             accountManager.checkAccess(caller, SecurityChecker.AccessType.OperateEntry, false, node);
-            if (!removeNodes) {
+            if (removeNodes) {
+                List<KubernetesClusterVmMapVO> mappings = kubernetesClusterVmMapDao.listByClusterIdAndVmIdsIn(cluster.getId(), Collections.singletonList(id));
+                if (mappings == null || mappings.size() != 1 || !mappings.get(0).isExternalNode()
+                        || mappings.get(0).isControlNode() || mappings.get(0).isEtcdNode()) {
+                    throw new InvalidParameterValueException("Only an external worker belonging to this Kubernetes cluster can be removed");
+                }
+            } else {
+                if (kubernetesClusterVmMapDao.findByVmId(id) != null) {
+                    throw new InvalidParameterValueException("The requested external VM already belongs to a Kubernetes cluster");
+                }
                 VMTemplateVO template = templateDao.findById(node.getTemplateId());
                 if (Objects.isNull(template)) {
                     logger.error((String.format("Failed to find template with ID: %s", id)));
@@ -2857,7 +2871,7 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
                     validNodeIds.remove(id);
                 }
                 NicVO nicVO = nicDao.findDefaultNicForVM(id);
-                if (networkId != nicVO.getNetworkId()) {
+                if (nicVO == null || networkId != nicVO.getNetworkId()) {
                     logger.error(String.format("Node: %s does not have its default NIC in the kubernetes cluster network: %s", node.getId(), networkName));
                     validNodeIds.remove(id);
                 }

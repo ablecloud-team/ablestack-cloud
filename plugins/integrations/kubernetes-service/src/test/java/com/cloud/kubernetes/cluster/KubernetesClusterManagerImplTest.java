@@ -1007,4 +1007,43 @@ public class KubernetesClusterManagerImplTest {
         return version;
     }
 
+
+    private void externalRemovalTarget(boolean external, boolean control, boolean etcd, boolean mapped) {
+        KubernetesClusterVO cluster = Mockito.mock(KubernetesClusterVO.class);
+        Mockito.when(cluster.getId()).thenReturn(901L);
+        Mockito.when(cluster.getState()).thenReturn(KubernetesCluster.State.Running);
+        VMInstanceVO vm = Mockito.mock(VMInstanceVO.class);
+        Mockito.when(vmInstanceDao.findById(81L)).thenReturn(vm);
+        KubernetesClusterVmMapVO mapping = Mockito.mock(KubernetesClusterVmMapVO.class);
+        Mockito.lenient().when(mapping.isExternalNode()).thenReturn(external);
+        Mockito.lenient().when(mapping.isControlNode()).thenReturn(control);
+        Mockito.lenient().when(mapping.isEtcdNode()).thenReturn(etcd);
+        Mockito.when(kubernetesClusterVmMapDao.listByClusterIdAndVmIdsIn(901L, List.of(81L)))
+                .thenReturn(mapped ? List.of(mapping) : Collections.emptyList());
+        kubernetesClusterManager.validateNodes(List.of(81L), null, null, cluster, true);
+    }
+
+    @Test public void externalWorkerRemovalAcceptsOnlyItsMappedWorker() { externalRemovalTarget(true, false, false, true); }
+    @Test(expected = InvalidParameterValueException.class) public void externalRemovalRejectsUnmappedVm() { externalRemovalTarget(true, false, false, false); }
+    @Test(expected = InvalidParameterValueException.class) public void externalRemovalRejectsManagedWorker() { externalRemovalTarget(false, false, false, true); }
+    @Test(expected = InvalidParameterValueException.class) public void externalRemovalRejectsControlNode() { externalRemovalTarget(true, true, false, true); }
+    @Test(expected = InvalidParameterValueException.class) public void externalRemovalRejectsEtcdNode() { externalRemovalTarget(true, false, true, true); }
+    @Test(expected = InvalidParameterValueException.class) public void externalRemovalRejectsDuplicateIdsBeforeMutation() {
+        KubernetesClusterVO cluster = Mockito.mock(KubernetesClusterVO.class);
+        Mockito.when(cluster.getState()).thenReturn(KubernetesCluster.State.Running);
+        kubernetesClusterManager.validateNodes(List.of(81L, 81L), null, null, cluster, true);
+    }
+    @Test(expected = InvalidParameterValueException.class) public void externalNodeChangeRejectsActiveOperation() {
+        KubernetesClusterVO cluster = Mockito.mock(KubernetesClusterVO.class);
+        Mockito.when(cluster.getState()).thenReturn(KubernetesCluster.State.Upgrading);
+        kubernetesClusterManager.validateNodes(List.of(81L), null, null, cluster, true);
+    }
+
+    @Test(expected = InvalidParameterValueException.class) public void externalAdditionRejectsVmAlreadyMappedToAnotherCluster() {
+        KubernetesClusterVO cluster = Mockito.mock(KubernetesClusterVO.class);
+        Mockito.when(cluster.getState()).thenReturn(KubernetesCluster.State.Running);
+        Mockito.when(vmInstanceDao.findById(81L)).thenReturn(Mockito.mock(VMInstanceVO.class));
+        Mockito.when(kubernetesClusterVmMapDao.findByVmId(81L)).thenReturn(Mockito.mock(KubernetesClusterVmMapVO.class));
+        kubernetesClusterManager.validateNodes(List.of(81L), 4L, "network", cluster, false);
+    }
 }
