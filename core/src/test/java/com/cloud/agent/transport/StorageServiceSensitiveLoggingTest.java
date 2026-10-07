@@ -24,7 +24,9 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Level;
 import org.junit.Assert;
 import org.junit.Test;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 public class StorageServiceSensitiveLoggingTest {
     @Test public void payloadIsHiddenFromLogsButPreservedOnTheTransport() {
         StorageServiceHostCommand command=new StorageServiceHostCommand("fixture-vm","smb share apply",

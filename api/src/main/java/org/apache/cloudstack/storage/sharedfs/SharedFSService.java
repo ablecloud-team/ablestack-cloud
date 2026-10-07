@@ -69,6 +69,8 @@ public interface SharedFSService {
 
     SharedFS recoverSharedFS(Long sharedFSId);
 
+    org.apache.cloudstack.api.response.StorageServiceRuntimeResponse getSharedFSScalingReadiness(Long id);
+
     void deleteSharedFS(Long sharedFSId);
 
     void deleteSharedFS(Long sharedFSId, String policy, String confirmation, String expectedPlanHash);

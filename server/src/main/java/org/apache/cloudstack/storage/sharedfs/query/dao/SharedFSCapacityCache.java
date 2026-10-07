@@ -17,8 +17,12 @@
 
 package org.apache.cloudstack.storage.sharedfs.query.dao;
 
-import com.google.gson.*;
-import java.util.*;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.time.Instant;
 
@@ -48,6 +52,7 @@ public final class SharedFSCapacityCache {
                 if (!item.has("target") || !item.has("usedBytes") || !item.has("sizeBytes")) continue;
                 String target=item.get("target").getAsString();
                 String prefix="/srv/ablestack-storage/volumes/";
+                if (!target.startsWith(prefix) && item.has("peerPath") && !item.get("peerPath").isJsonNull()) target=item.get("peerPath").getAsString();
                 if (!target.startsWith(prefix)) continue;
                 String uuid=target.substring(prefix.length()).split("/",2)[0];
                 UUID.fromString(uuid);
