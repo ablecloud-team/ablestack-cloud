@@ -60,6 +60,12 @@ public class StorageServiceDesiredSnapshotValidationTest {
         JsonObject value = extendedSnapshot();Assert.assertEquals(6, StorageServiceDesiredSnapshot.validateSnapshot(7, value.toString()).size());
         share(value).addProperty("posix_policy_id", 99);reject(value);
     }
+    @Test public void nativeSnapshotMergePreservesNullableSqlCells() {
+        JsonObject value = extendedSnapshot();value.add("nativePosixDirectory", new JsonObject());
+        JsonObject decoded = new JsonParser().parse(value.toString()).getAsJsonObject();
+        Assert.assertTrue(share(decoded).has("posix_policy_id"));Assert.assertTrue(share(decoded).get("posix_policy_id").isJsonNull());
+        Assert.assertEquals(6, StorageServiceDesiredSnapshot.validateSnapshot(7, decoded.toString()).size());
+    }
     @Test public void nativeDirectoryMetadataDoesNotExpandTheAllowedSqlTableSet() {
         JsonObject value = extendedSnapshot();value.add("nativePosixDirectory", new JsonObject());
         Assert.assertEquals(6, StorageServiceDesiredSnapshot.validateSnapshot(7, value.toString()).size());

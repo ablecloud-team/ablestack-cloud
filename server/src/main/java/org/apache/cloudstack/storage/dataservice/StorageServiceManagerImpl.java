@@ -5334,7 +5334,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 catch (IllegalStateException | com.google.gson.JsonParseException invalid) { throw new InvalidParameterValueException("POSIX ACL entries must be a structured JSON array"); }
             } else if (!config.has(key)) config.add(key, new JsonArray());
         }
-        final StoragePosixDirectoryPolicyVO policy = current == null ? new StoragePosixDirectoryPolicyVO() : current;
+        StoragePosixDirectoryPolicyVO policy = current == null ? new StoragePosixDirectoryPolicyVO() : current;
         if (current == null) {
             policy.setInstanceId(instance.getId());policy.setVolumeId(volumeId);policy.setRelativePath(relative);
             policy.setPathKey(PosixDirectoryPolicy.pathKey(volume.getUuid(), relative));policy.setRevision(1);policy.setState("Allocated");
@@ -5357,7 +5357,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         final StorageServiceOperationVO operation = storageWriterOperation.get();
         if (operation != null) {
             final JsonObject previous = parseJsonObject(operation.getPreviousSnapshotJson());previous.add("nativePosixDirectory", before);
-            operation.setPreviousSnapshotJson(GSON.toJson(previous));storageOperationDao.update(operation.getId(), operation);
+            operation.setPreviousSnapshotJson(previous.toString());storageOperationDao.update(operation.getId(), operation);
         }
         if ("DELETE".equals(action)) {
             final List<StorageFileShareVO> shares = posixPolicyShares(instance, policy);
@@ -5367,7 +5367,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             dispatchPosixDirectoryCommand(instance, "forget", request);
             return createPosixPolicyResponse(instance, policy, before);
         }
-        if (current == null) storagePosixPolicyDao.persist(policy);
+        if (current == null) policy = storagePosixPolicyDao.persist(policy);
         else { policy.setRevision(policy.getRevision() + 1);storagePosixPolicyDao.update(policy.getId(), policy); }
         policy.setState("Updating");storagePosixPolicyDao.update(policy.getId(), policy);
         try {
