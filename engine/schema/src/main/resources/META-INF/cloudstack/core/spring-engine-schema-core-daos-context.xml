@@ -336,6 +336,7 @@
   <bean id="StorageServiceOperationDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageServiceOperationDaoImpl" />
   <bean id="StorageServiceRuntimeBundleDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageServiceRuntimeBundleDaoImpl" />
   <bean id="StorageServiceRuntimeUpgradeDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageServiceRuntimeUpgradeDaoImpl" />
+  <bean id="StorageServiceTemplateUpgradeDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageServiceTemplateUpgradeDaoImpl" />
   <bean id="kmsKeyDaoImpl" class="org.apache.cloudstack.kms.dao.KMSKeyDaoImpl" />
   <bean id="kmsKekVersionDaoImpl" class="org.apache.cloudstack.kms.dao.KMSKekVersionDaoImpl" />
   <bean id="hsmProfileDaoImpl" class="org.apache.cloudstack.kms.dao.HSMProfileDaoImpl" />

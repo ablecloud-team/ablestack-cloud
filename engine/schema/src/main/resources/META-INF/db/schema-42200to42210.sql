@@ -1287,3 +1287,44 @@ END //
 DELIMITER ;
 CALL cloud.ensure_storage_config_active_lkg();
 DROP PROCEDURE cloud.ensure_storage_config_active_lkg;
+
+
+-- Epic #920: retained ROOT/template upgrade transactions; no user-data volume changes.
+CREATE TABLE IF NOT EXISTS cloud.storage_service_template_upgrade (
+  id bigint unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  uuid varchar(40) NOT NULL,
+  instance_id bigint unsigned NOT NULL,
+  shared_filesystem_id bigint unsigned NOT NULL,
+  source_template_id bigint unsigned NOT NULL,
+  target_template_id bigint unsigned NOT NULL,
+  previous_root_volume_id bigint unsigned NOT NULL,
+  target_root_volume_id bigint unsigned DEFAULT NULL,
+  previous_guest_os_id bigint unsigned NOT NULL,
+  root_device_id bigint unsigned NOT NULL,
+  previous_vm_state varchar(32) NOT NULL,
+  state varchar(40) NOT NULL,
+  phase varchar(64) NOT NULL,
+  progress int NOT NULL DEFAULT 0,
+  revision bigint unsigned NOT NULL,
+  request_key varchar(191) NOT NULL,
+  operation_id bigint unsigned DEFAULT NULL,
+  snapshot_json LONGTEXT,
+  preflight_json MEDIUMTEXT,
+  verification_json MEDIUMTEXT,
+  rollback_result_json MEDIUMTEXT,
+  error_code varchar(128),
+  error_message TEXT,
+  created_by bigint unsigned NOT NULL,
+  started datetime DEFAULT NULL,
+  heartbeat datetime NOT NULL,
+  completed datetime DEFAULT NULL,
+  rollback_retain_until datetime DEFAULT NULL,
+  created datetime NOT NULL,
+  active_instance_id bigint unsigned GENERATED ALWAYS AS
+    (CASE WHEN state IN ('RUNNING','RECOVERY_REQUIRED') THEN instance_id ELSE NULL END) STORED,
+  UNIQUE KEY uk_storage_template_upgrade_uuid(uuid),
+  UNIQUE KEY uk_storage_template_upgrade_request(instance_id,request_key),
+  UNIQUE KEY uk_storage_template_upgrade_active(active_instance_id),
+  KEY idx_storage_template_upgrade_retention(rollback_retain_until),
+  KEY idx_storage_template_upgrade_scope(instance_id,created)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
