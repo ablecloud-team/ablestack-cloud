@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -16,31 +16,127 @@
 # specific language governing permissions and limitations
 # under the License.
 
-(/opt/bin/kubectl get pods -A | grep cloudstack-csi-controller) && exit 0
+set -euo pipefail
+TARGET_DIR="${MOLD_CSI_DIR:-/opt/csi}"
+KUBECTL="${MOLD_KUBECTL:-/opt/bin/kubectl}"
 
-if [ -e /opt/csi/snapshot-crds.yaml ]; then
-    /opt/bin/kubectl apply -f /opt/csi/snapshot-crds.yaml
-    sleep 5
-    /opt/bin/kubectl apply -f /opt/csi/manifest.yaml
-    exit 0
-else
-    TARGET_DIR="/opt/csi"
-    mkdir -p "$TARGET_DIR"
-    CSI_URLS=(
-      "https://github.com/cloudstack/cloudstack-csi-driver/releases/download/v3.0.0/snapshot-crds.yaml"
-      "https://github.com/cloudstack/cloudstack-csi-driver/releases/download/v3.0.0/manifest.yaml"
-    )
-    for url in "${CSI_URLS[@]}"; do
-        filename=$(basename "$url")
+# Only qualified internal bundles can be installed. Do not fetch a stock SHA1 driver.
+python3 - "$TARGET_DIR" <<'PYCODE'
+import hashlib
+import json
+import pathlib
+import re
+import sys
+import yaml
 
-        curl -sSL ${url} -o ${TARGET_DIR}/${filename}
-        if [ $? -ne 0 ]; then
-          echo "Unable to connect to the internet to download the relevant files to install and setup CloudStack CSI driver"
-          exit 1
-        else
-          /opt/bin/kubectl apply -f /opt/csi/snapshot-crds.yaml
-          /opt/bin/kubectl apply -f /opt/csi/manifest.yaml
-          exit 0
-        fi
-    done
-fi
+root = pathlib.Path(sys.argv[1])
+profile = json.loads((root / "profile.json").read_text())
+if profile.get("schemaVersion") != 1 or profile.get("apiSignature") != "HmacSHA256":
+    raise SystemExit("Unsupported Mold CSI profile")
+image = profile.get("driverImage", "")
+if not re.fullmatch(r"ghcr\.io/[a-z0-9.-]+/ablestack-kubernetes-csi@sha256:[a-f0-9]{64}", image):
+    raise SystemExit("CSI requires a fixed internal driver image digest")
+for name in ("snapshot-crds.yaml", "manifest.yaml"):
+    path = root / name
+    if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != profile.get("files", {}).get(name):
+        raise SystemExit("CSI bundle file missing or checksum mismatch: " + name)
+workloads = [d for d in yaml.safe_load_all((root / "manifest.yaml").read_text())
+             if d and d.get("kind") in ("Deployment", "DaemonSet")]
+expected = {("Deployment", "cloudstack-csi-controller"), ("DaemonSet", "cloudstack-csi-node")}
+found = set()
+for workload in workloads:
+    identity = (workload["kind"], workload["metadata"]["name"])
+    if workload["metadata"].get("namespace") != "kube-system":
+        raise SystemExit("Unexpected CSI workload namespace")
+    found.add(identity)
+    containers = workload["spec"]["template"]["spec"]["containers"]
+    if not any(c["name"] in ("cloudstack-csi-controller", "cloudstack-csi-node") and c.get("image") == image for c in containers):
+        raise SystemExit("CSI workload does not use the qualified internal driver")
+    for container in containers:
+        if not re.fullmatch(r".+@sha256:[a-f0-9]{64}", container.get("image", "")):
+            raise SystemExit("CSI sidecar image digest is not fixed")
+if found != expected:
+    raise SystemExit("Required CSI workloads are missing")
+print("MOLD_CSI_BUNDLE_VALIDATED", flush=True)
+PYCODE
+
+"$KUBECTL" apply -f "$TARGET_DIR/snapshot-crds.yaml"
+for resource in volumesnapshotclasses volumesnapshotcontents volumesnapshots; do
+    "$KUBECTL" wait --for=condition=Established "crd/$resource.snapshot.storage.k8s.io" --timeout=60s
+done
+"$KUBECTL" apply -f "$TARGET_DIR/manifest.yaml"
+# Seed the same content annotation used by Secret reconciliation, including
+# workloads created for the first time after the Secret already existed.
+config_digest=$("$KUBECTL" -n kube-system get secret cloudstack-secret -o json | python3 -c 'import base64, hashlib, json, sys; print(hashlib.sha256(base64.b64decode(json.load(sys.stdin)["data"]["cloud-config"], validate=True)).hexdigest())')
+config_patch="{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"mold.ablecloud.io/cloud-config-sha256\":\"$config_digest\"}}}}}"
+"$KUBECTL" -n kube-system patch deployment cloudstack-csi-controller --type=merge -p "$config_patch"
+"$KUBECTL" -n kube-system patch daemonset cloudstack-csi-node --type=merge -p "$config_patch"
+"$KUBECTL" -n kube-system rollout status deployment/cloudstack-csi-controller --timeout=120s
+"$KUBECTL" -n kube-system rollout status daemonset/cloudstack-csi-node --timeout=120s
+# Existing rollout summaries can remain Ready briefly during a VM cold start.
+# Verify current Pod container status and execute the qualified driver binary.
+python3 - "$KUBECTL" "$TARGET_DIR/profile.json" <<'PYCODE'
+import concurrent.futures
+import json
+import os
+import pathlib
+import subprocess
+import sys
+import time
+
+kubectl, profile_path = sys.argv[1:]
+image = json.loads(pathlib.Path(profile_path).read_text())["driverImage"]
+timeout = int(os.environ.get("MOLD_CSI_READY_TIMEOUT_SECONDS", "120"))
+if not 1 <= timeout <= 120:
+    raise SystemExit("Invalid CSI runtime readiness timeout")
+deadline = time.monotonic() + timeout
+
+def command(*args):
+    remaining = deadline - time.monotonic()
+    if remaining <= 0:
+        raise TimeoutError()
+    return subprocess.check_output([kubectl, "--request-timeout=10s", "-n", "kube-system", *args],
+                                   stderr=subprocess.DEVNULL, timeout=min(10, remaining))
+
+def driver_live(pod):
+    name = pod["metadata"]["labels"]["app.kubernetes.io/name"]
+    command("exec", pod["metadata"]["name"], "-c", name, "--", "/cloudstack-csi-driver", "--version")
+    return True
+
+while time.monotonic() < deadline:
+    try:
+        controller = json.loads(command("get", "deployment", "cloudstack-csi-controller", "-o", "json"))
+        node = json.loads(command("get", "daemonset", "cloudstack-csi-node", "-o", "json"))
+        expected = {"cloudstack-csi-controller": controller["spec"].get("replicas", 1),
+                    "cloudstack-csi-node": node["status"].get("desiredNumberScheduled", 0)}
+        pods = json.loads(command("get", "pods", "-o", "json"))["items"]
+        live = [p for p in pods if p["metadata"].get("labels", {}).get("app.kubernetes.io/name") in expected
+                and not p["metadata"].get("deletionTimestamp")]
+        valid = all(value > 0 for value in expected.values())
+        for name, count in expected.items():
+            selected = [p for p in live if p["metadata"]["labels"]["app.kubernetes.io/name"] == name]
+            valid = valid and len(selected) == count
+            if name == "cloudstack-csi-node":
+                valid = valid and len({p["spec"].get("nodeName") for p in selected}) == count
+        for pod in live:
+            containers = pod["spec"]["containers"]
+            statuses = pod.get("status", {}).get("containerStatuses", [])
+            driver_name = pod["metadata"]["labels"]["app.kubernetes.io/name"]
+            valid = valid and pod.get("status", {}).get("phase") == "Running"
+            valid = valid and any(c["name"] == driver_name and c.get("image") == image for c in containers)
+            valid = valid and {s["name"] for s in statuses} == {c["name"] for c in containers}
+            valid = valid and all(s.get("ready") and "running" in s.get("state", {}) for s in statuses)
+            valid = valid and any(c.get("type") == "Ready" and c.get("status") == "True"
+                                  for c in pod.get("status", {}).get("conditions", []))
+        if valid:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=8) as pool:
+                if all(pool.map(driver_live, live)):
+                    print("MOLD_CSI_CURRENT_PODS_READY", len(live), flush=True)
+                    break
+    except (subprocess.SubprocessError, OSError, ValueError, KeyError, TimeoutError):
+        pass
+    time.sleep(min(1, max(0, deadline - time.monotonic())))
+else:
+    raise SystemExit("CSI runtime Pods did not become ready and executable")
+PYCODE
+echo MOLD_CSI_DRIVER_READY

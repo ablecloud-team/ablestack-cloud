@@ -1,0 +1,96 @@
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+ -->
+
+# Kubernetes 앱 복구 시험 fixture
+
+[생명주기 시험 #1230](https://github.com/ablecloud-team/ablestack-cloud/issues/1230)의
+[readiness/종료 처리 개선 #1267](https://github.com/ablecloud-team/ablestack-cloud/issues/1267)을
+재현하는 기존 `rt1230-app` API fixture의 보완 코드입니다. 저장소를 클론하거나 포크한 후
+동일한 경로를 사용할 수 있습니다. 배포할 Kubernetes context는 사용자가 선택합니다.
+
+기존 시험 앱의 API replica 2개, `code` ConfigMap volume, `APP_TOKEN` Secret 환경변수,
+`redis:6379` 서비스와 web proxy가 필요합니다. 별도 namespace에서 시험하고
+기존 데이터와 실제 운영 앱에는 적용하지 않습니다. 파일에 인증키나 kubeconfig가 없습니다.
+
+```bash
+kubectl -n rt1230-app create configmap app-code-1267 \
+  --from-file=api.py=docs/operations/kubernetes-lifecycle/runtime-fixtures/api.py \
+  --dry-run=client -o yaml | kubectl apply -f -
+kubectl -n rt1230-app patch deployment api --type=strategic \
+  --patch-file=docs/operations/kubernetes-lifecycle/runtime-fixtures/api-readiness-lifecycle.patch.yaml
+kubectl -n rt1230-app rollout status deployment/api --timeout=180s
+```
+
+- SIGUSR2는 readiness만 토글합니다. 실패 시 `/ready`는 503, `/health`는 200이며
+  Pod UID와 restart 수를 유지한 채 활성 EndpointSlice에서 제외되어야 합니다.
+  같은 신호를 다시 보내면 readiness와 endpoint가 복구되어야 합니다.
+- SIGUSR1은 liveness와 readiness를 함께 실패시킵니다. 활성 endpoint 제외 후
+  같은 Pod UID의 container restart 증가와 복구를 확인합니다.
+- SIGTERM은 서버의 새 요청 수락을 중지하고 서버 소켓을 정리합니다.
+  배포 patch는 짧은 preStop과 readiness failureThreshold 1을 적용합니다.
+- 검증 요청은 보호된 `/kv/<key>` GET을 사용합니다. 공개 `/config`의 성공을
+  인증 검사로 사용하지 않습니다. HTTP 코드를 body 파싱 전에 기록하고, 오류 본문은
+  길이와 SHA256만 보존합니다. 토큰과 응답 원문은 공개하지 않습니다.
+- 장애 주입 전후 데이터 검사는 읽기 전용으로 수행합니다. baseline 쓰기를 반복해
+  데이터 보존의 증거를 덮어쓰지 않습니다. 주입 구간과 steady 관찰을 별도로 집계합니다.
+
+31번 GFS2의 최신 b46 ISO/1.34.9 독립 클러스터에서 readiness-only의 같은 UID·restart 0,
+liveness의 같은 UID·restart 0→1, 각 데이터 65/65 및 해당 150초 보호된 읽기
+1,452건 HTTP 200/오류 0을 확인했습니다. 이전 fixture의 150초 1,449건 중 파싱 오류
+1건은 별도 실패 기록입니다. 이 결과는 해당 시험 구간에 한하며, 6버전 전체 생명주기나
+2시간/24시간 qualification 또는 CSI 검증을 대신하지 않습니다.
+
+## Redis RDB-only 독립 복원
+
+[복원 절차 개선 #1272](https://github.com/ablecloud-team/ablestack-cloud/issues/1272)는
+전체 AOF 디렉터리 archive와 RDB-only archive를 구별합니다. Redis가 AOF를 사용하는
+원본에서 `SAVE`로 만든 RDB와 파일만 별도 경로에 복원한 경우, 원본의
+`--appendonly yes` command를 그대로 복사하면 RDB를 읽지 않고 빈 AOF로 시작할 수
+있습니다. Ready 상태만으로 복원 성공을 판정하지 않습니다.
+
+1. 원본 Redis의 SAVE 성공 후 RDB 및 파일을 archive로 만들고, 실제 다운로드한
+   bytes의 SHA256을 원본과 비교합니다. archive의 경로/파일 유형도 검증합니다.
+2. 별도 namespace와 빈 NFS 경로에 다운로드 archive를 다시 전달합니다.
+   RDB-only 복원 Redis는 `redis-server --appendonly no --dir /data`로 먼저 시작합니다.
+3. 기준 데이터를 쓰지 않고 원본 record/file checksum과 읽기 응답을 비교합니다.
+4. 복원 Redis에서 `redis-cli CONFIG SET appendonly yes`를 실행합니다.
+   `INFO persistence`의 `aof_enabled:1`, `aof_rewrite_in_progress:0`,
+   `aof_last_bgrewrite_status:ok`, `aof_last_write_status:ok`까지 확인합니다.
+5. 복원 StatefulSet의 command를 원본 AOF 설정으로 바꾸고 실제 재시작합니다.
+   재시작 후에도 같은 읽기 전용 checksum과 응답을 확인합니다.
+6. 복원 namespace 정리 후 PV의 Released/Retain과 원본 앱 보존을 확인합니다.
+
+`finalize-rdb-restore.sh`는 RDB를 `appendonly no`로 읽은 독립 복원 Redis에서
+레코드 수를 확인하고, AOF rewrite와 실제 StatefulSet 재생성 후 보존을 검증합니다.
+원본 앱 namespace를 거부하며 비어 있는 AOF 우선 시작을 정상 복원으로 처리하지 않습니다.
+RDB를 먼저 import한 뒤 다음처럼 실행하고, 별도 읽기 전용 probe로 모든 값과 파일 checksum도 비교합니다.
+
+```bash
+KUBECTL=/path/to/verified/kubectl KUBECONFIG=/path/to/kube.conf \
+  ./finalize-rdb-restore.sh rt1230-r13-restore 100
+```
+
+이미 AOF 우선 시작으로 실패한 복원 Pod가 있다면 해당 **독립 복원** StatefulSet만
+0으로 축소하고 Pod 종료를 확인합니다. 다운로드한 archive의 RDB를 복원 전용 경로에
+다시 복사한 뒤 `appendonly no`로 시작합니다. 원본 Redis·원본 PV·원본 NFS 경로는 변경하지 않습니다.
+
+31번 GFS2/1.34.12 r12에서는 최초 AOF 우선 시작의 DBSIZE0 실패를 보존했습니다.
+다운로드 archive의 RDB import, AOF 재활성화·재시작 뒤 각각100records/64files(4MiB),
+읽기 전용65/65 및 HTTP100 오류0을 확인했습니다. 이는 static NFS 시험이며 CSI
+snapshot/복원 검증을 대신하지 않습니다. 실제 Secret과 kubeconfig는 파일에 없습니다.

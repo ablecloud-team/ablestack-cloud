@@ -19,9 +19,20 @@ package com.cloud.kubernetes.cluster.actionworkers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Comparator;
+import java.util.Set;
+import java.io.File;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import org.apache.cloudstack.framework.jobs.AsyncJob;
+import org.apache.cloudstack.framework.jobs.dao.AsyncJobDao;
+import org.apache.cloudstack.framework.jobs.impl.AsyncJobVO;
+import org.apache.cloudstack.api.command.user.kubernetes.cluster.CreateKubernetesClusterCmd;
+import com.cloud.utils.db.SearchBuilder;
+import com.cloud.utils.db.SearchCriteria;
 
 import com.cloud.bgp.BGPService;
 import com.cloud.dc.ASNumberVO;
@@ -30,9 +41,9 @@ import com.cloud.dc.dao.ASNumberDao;
 import org.apache.cloudstack.annotation.AnnotationService;
 import org.apache.cloudstack.annotation.dao.AnnotationDao;
 import org.apache.cloudstack.api.ApiCommandResourceType;
-import org.apache.cloudstack.api.ApiConstants;
 import org.apache.cloudstack.context.CallContext;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.cloud.exception.ConcurrentOperationException;
 import com.cloud.exception.InsufficientAddressCapacityException;
@@ -47,6 +58,18 @@ import com.cloud.kubernetes.cluster.KubernetesClusterVmMap;
 import com.cloud.kubernetes.cluster.KubernetesClusterVmMapVO;
 import com.cloud.network.IpAddress;
 import com.cloud.network.Network;
+import com.cloud.network.dao.IPAddressVO;
+import com.cloud.network.dao.LoadBalancerVO;
+import com.cloud.network.dao.LoadBalancerVMMapDao;
+import com.cloud.network.dao.LoadBalancerVMMapVO;
+import com.cloud.network.rules.FirewallRuleVO;
+import com.cloud.network.vpc.NetworkACLItemVO;
+import com.cloud.server.ResourceTag;
+import com.cloud.server.ResourceTag.ResourceObjectType;
+import com.cloud.tags.ResourceTagVO;
+import com.cloud.tags.dao.ResourceTagDao;
+import com.cloud.utils.Pair;
+import com.cloud.utils.ssh.SshHelper;
 import com.cloud.network.dao.NetworkVO;
 import com.cloud.network.rules.FirewallRule;
 import com.cloud.user.Account;
@@ -72,10 +95,138 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
     @Inject
     private BGPService bgpService;
 
+    @Inject
+    protected ResourceTagDao resourceTagDao;
+    @Inject
+    protected LoadBalancerVMMapDao loadBalancerVMMapDao;
+
     private List<KubernetesClusterVmMapVO> clusterVMs;
+    @Inject protected AsyncJobDao asyncJobDao;
 
     public KubernetesClusterDestroyWorker(final KubernetesCluster kubernetesCluster, final KubernetesClusterManagerImpl clusterManager) {
         super(kubernetesCluster, clusterManager);
+    }
+
+    protected boolean reconcileFailedCreationBeforeDelete() {
+        final boolean created = kubernetesCluster.getState() == KubernetesCluster.State.Created;
+        final boolean error = kubernetesCluster.getState() == KubernetesCluster.State.Error;
+        final boolean starting = kubernetesCluster.getState() == KubernetesCluster.State.Starting;
+        final boolean alert = kubernetesCluster.getState() == KubernetesCluster.State.Alert;
+        if (!created && !error && !starting && !alert) { return false; }
+        List<KubernetesClusterVmMapVO> nodes = kubernetesClusterVmMapDao.listByClusterId(kubernetesCluster.getId());
+        if (!CollectionUtils.isEmpty(nodes) && !starting) {
+            return error && reconcileUninstalledNodeProvisioningFailure(nodes);
+        }
+        SearchBuilder<AsyncJobVO> builder = asyncJobDao.createSearchBuilder();
+        builder.and("cluster", builder.entity().getInstanceId(), SearchCriteria.Op.EQ);
+        builder.and("kind", builder.entity().getInstanceType(), SearchCriteria.Op.EQ);
+        builder.and("command", builder.entity().getCmd(), SearchCriteria.Op.EQ);
+        builder.done();
+        SearchCriteria<AsyncJobVO> criteria = builder.create();
+        criteria.setParameters("cluster", kubernetesCluster.getId());
+        criteria.setParameters("kind", "KubernetesCluster");
+        criteria.setParameters("command", CreateKubernetesClusterCmd.class.getName());
+        // Completed async jobs are soft removed; their failure receipts remain authoritative.
+        List<AsyncJobVO> jobs = asyncJobDao.searchIncludingRemoved(criteria, null, null, false);
+        AsyncJobVO last = jobs.stream().max(java.util.Comparator.comparingLong(AsyncJobVO::getId)).orElse(null);
+        if (last == null || last.getStatus() != AsyncJob.Status.FAILED
+                || jobs.stream().anyMatch(job -> job.getStatus() == AsyncJob.Status.IN_PROGRESS)) {
+            throw new CloudRuntimeException("Cannot delete a Created Kubernetes cluster without a verified failed creation job and no active creation");
+        }
+        if (starting && !CollectionUtils.isEmpty(nodes)) {
+            // A failed legacy create may have initialized the API. Change only its stale state;
+            // node, CSI and Service cleanup still use the complete normal validation path.
+            if (!stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.CreateFailed)) {
+                throw new CloudRuntimeException("Cannot reconcile the completed failed Kubernetes creation state");
+            }
+            kubernetesCluster = kubernetesClusterDao.findById(kubernetesCluster.getId());
+            return true;
+        }
+        if ((error || alert || starting) && !isVerifiedPreKubernetesProvisioningFailure(last)
+                && !isVerifiedPreflightWithoutBootstrap()) {
+            return false;
+        }
+        if (!CollectionUtils.isEmpty(vmInstanceDao.listNonRemovedVmsByTypeAndNetwork(kubernetesCluster.getNetworkId(), VirtualMachine.Type.User))) {
+            throw new CloudRuntimeException("Unprovisioned creation cleanup requires a network without remaining node VMs");
+        }
+        kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "lifecycle.provisioning.phase", "Preflight", false);
+        kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "lifecycle.creation.failed.job", last.getUuid(), false);
+        if (created && (!stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.StartRequested)
+                || !stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.CreateFailed))) {
+            throw new CloudRuntimeException("Cannot reconcile the failed unprovisioned Kubernetes creation state");
+        }
+        if (starting && !stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.CreateFailed)) {
+            throw new CloudRuntimeException("Cannot reconcile the completed failed Kubernetes creation state");
+        }
+        kubernetesCluster = kubernetesClusterDao.findById(kubernetesCluster.getId());
+        return true;
+    }
+
+    protected boolean isVerifiedPreflightWithoutBootstrap() {
+        KubernetesClusterDetailsVO phase = kubernetesClusterDetailsDao.findDetail(kubernetesCluster.getId(), "lifecycle.provisioning.phase");
+        return kubernetesCluster.getClusterType() == KubernetesCluster.ClusterType.CloudManaged
+                && phase != null && "Preflight".equals(phase.getValue())
+                && StringUtils.isBlank(kubernetesCluster.getEndpoint())
+                && kubernetesClusterDetailsDao.findDetail(kubernetesCluster.getId(), "lifecycle.bootstrap.started") == null
+                && !ownershipCleanupEnabled();
+    }
+
+    protected boolean reconcileUninstalledNodeProvisioningFailure(List<KubernetesClusterVmMapVO> nodes) {
+        KubernetesClusterDetailsVO phase = kubernetesClusterDetailsDao.findDetail(kubernetesCluster.getId(), "lifecycle.provisioning.phase");
+        if (phase == null || !"Nodes".equals(phase.getValue())
+                || kubernetesClusterDetailsDao.findDetail(kubernetesCluster.getId(), "lifecycle.bootstrap.started") != null
+                || !Long.valueOf(0L).equals(kubernetesCluster.getEtcdNodeCount())) { return false; }
+        SearchBuilder<AsyncJobVO> builder = asyncJobDao.createSearchBuilder();
+        builder.and("cluster", builder.entity().getInstanceId(), SearchCriteria.Op.EQ);
+        builder.and("kind", builder.entity().getInstanceType(), SearchCriteria.Op.EQ);
+        builder.and("command", builder.entity().getCmd(), SearchCriteria.Op.EQ);
+        builder.done();
+        SearchCriteria<AsyncJobVO> criteria = builder.create();
+        criteria.setParameters("cluster", kubernetesCluster.getId());
+        criteria.setParameters("kind", "KubernetesCluster");
+        criteria.setParameters("command", CreateKubernetesClusterCmd.class.getName());
+        List<AsyncJobVO> jobs = asyncJobDao.searchIncludingRemoved(criteria, null, null, false);
+        AsyncJobVO last = jobs.stream().max(java.util.Comparator.comparingLong(AsyncJobVO::getId)).orElse(null);
+        if (last == null || last.getStatus() != AsyncJob.Status.FAILED
+                || jobs.stream().anyMatch(job -> job.getStatus() == AsyncJob.Status.IN_PROGRESS)
+                || last.getResult() == null) { return false; }
+        Object result = org.apache.cloudstack.framework.jobs.impl.JobSerializerHelper.fromSerializedString(last.getResult());
+        if (!(result instanceof org.apache.cloudstack.api.response.ExceptionResponse)) { return false; }
+        String message = ((org.apache.cloudstack.api.response.ExceptionResponse) result).getErrorText();
+        if (!("Provisioning node VM failed in the Kubernetes cluster : " + kubernetesCluster.getName()).equals(message)
+                && !("Provisioning additional control VM failed in the Kubernetes cluster : " + kubernetesCluster.getName()).equals(message)
+                && !("Provisioning the control VM failed in the Kubernetes cluster : " + kubernetesCluster.getName()).equals(message)) { return false; }
+        com.cloud.kubernetes.version.KubernetesSupportedVersion version = kubernetesSupportedVersionDao.findById(kubernetesCluster.getKubernetesVersionId());
+        if (version == null) { return false; }
+        java.util.Set<Long> ids = new java.util.HashSet<>();
+        for (KubernetesClusterVmMapVO node : nodes) {
+            com.cloud.vm.UserVmVO vm = userVmDao.findById(node.getVmId());
+            if (node.isExternalNode() || !ids.add(node.getVmId()) || vm == null || vm.getIsoId() != null
+                    || vm.getAccountId() != kubernetesCluster.getAccountId()
+                    || (StringUtils.isNotBlank(node.getNodeVersion()) && !version.getSemanticVersion().equals(node.getNodeVersion()))) { return false; }
+        }
+        List<VMInstanceVO> networkVms = vmInstanceDao.listNonRemovedVmsByTypeAndNetwork(kubernetesCluster.getNetworkId(), VirtualMachine.Type.User);
+        if (networkVms.size() != ids.size() || networkVms.stream().anyMatch(vm -> !ids.contains(vm.getId())
+                || vm.getAccountId() != kubernetesCluster.getAccountId())) { return false; }
+        kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "lifecycle.creation.failed.job", last.getUuid(), false);
+        kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "lifecycle.provisioning.phase", "NodeProvisioningFailed", false);
+        return true;
+    }
+
+    protected boolean isVerifiedPreKubernetesProvisioningFailure(AsyncJobVO failed) {
+        if (!Long.valueOf(0L).equals(kubernetesCluster.getEtcdNodeCount()) || failed.getResult() == null) {
+            return false;
+        }
+        Object result = org.apache.cloudstack.framework.jobs.impl.JobSerializerHelper.fromSerializedString(failed.getResult());
+        if (!(result instanceof org.apache.cloudstack.api.response.ExceptionResponse)) {
+            return false;
+        }
+        String error = ((org.apache.cloudstack.api.response.ExceptionResponse) result).getErrorText();
+        // Both creation failures happen before Kubernetes/CSI bootstrap. Node mappings and live network VMs
+        // are checked independently; a later CSI, workload, start, or partial deletion failure is never accepted.
+        return ("Provisioning the control VM failed in the Kubernetes cluster : " + kubernetesCluster.getName()).equals(error)
+                || ("Failed to start Kubernetes cluster : " + kubernetesCluster.getName()
+                        + " as no public IP found for the cluster").equals(error);
     }
 
     private void validateClusterSate() {
@@ -106,9 +257,6 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
                         ApiCommandResourceType.VirtualMachine);
                 vmContext.setEventResourceId(vmID);
                 try {
-                    if (clusterVM.isControlNode() && kubernetesCluster.isCsiEnabled()) {
-                        deletePVsWithReclaimPolicyDelete();
-                    }
                     UserVm vm = userVmService.destroyVm(vmID, true);
                     if (!userVmManager.expunge(userVM)) {
                         logger.warn("Unable to expunge VM {}, destroying Kubernetes cluster will probably fail", vm);
@@ -169,16 +317,12 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
         if (publicIp == null) {
             throw new ManagementServerException(String.format("No source NAT IP addresses found for network : %s", network.getName()));
         }
-        try {
-            removeLoadBalancingRule(publicIp, network, owner);
-        } catch (ResourceUnavailableException e) {
-            throw new ManagementServerException(String.format("Failed to KubernetesCluster load balancing rule for network : %s", network.getName()), e);
-        }
-        FirewallRule firewallRule = removeApiFirewallRule(publicIp);
+        // API LB rules are removed only from manager receipts validated before VM destruction.
+        FirewallRule firewallRule = null;
         if (firewallRule == null) {
             logMessage(Level.WARN, "Firewall rule for API access can't be removed", null);
         }
-        firewallRule = removeSshFirewallRule(publicIp, network.getId());
+        firewallRule = null;
         if (firewallRule == null) {
             logMessage(Level.WARN, "Firewall rule for SSH access can't be removed", null);
         }
@@ -194,7 +338,7 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
         if (publicIp == null) {
             return;
         }
-        removeVpcTierAclRules(network);
+        // Only manager-created ACL receipts are removed by cleanupNativeAclResources().
         try {
             removePortForwardingRules(publicIp, network, owner, removedVmIds);
         } catch (ResourceUnavailableException e) {
@@ -258,14 +402,426 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
         if (address == null) {
             return;
         }
-        networkService.releaseIpAddress(address.getId());
-        kubernetesClusterDetailsDao.removeDetail(kubernetesCluster.getId(), ApiConstants.PUBLIC_IP_ID);
+        kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "cleanup.retained." + address.getUuid(), "UnverifiedLegacyVpcIp", false);
+    }
+
+    protected boolean hasUnclaimedNetworkResources() {
+        for (IPAddressVO address : ipAddressDao.listByAssociatedNetwork(kubernetesCluster.getNetworkId(), null)) {
+            if (!address.isSourceNat() || !firewallRulesDao.listByIpAndNotRevoked(address.getId()).isEmpty()) {
+                return true;
+            }
+        }
+        NetworkVO network = networkDao.findById(kubernetesCluster.getNetworkId());
+        if (network != null && network.getNetworkACLId() != null && !networkACLItemDao.listByACL(network.getNetworkACLId()).isEmpty()) {
+            return true;
+        }
+        return false;
+    }
+
+    protected void recordVerifiedLegacyApiLoadBalancer() {
+        Network network = networkDao.findById(kubernetesCluster.getNetworkId());
+        if (network == null || manager.isDirectAccess(network)) {
+            return;
+        }
+        IpAddress address = network.getVpcId() == null ? getNetworkSourceNatIp(network) : getVpcTierKubernetesPublicIp(network);
+        if (address == null) {
+            return;
+        }
+        Set<Long> controls = clusterVMs.stream().filter(KubernetesClusterVmMapVO::isControlNode)
+                .map(KubernetesClusterVmMapVO::getVmId).collect(Collectors.toSet());
+        if (controls.isEmpty()) {
+            return;
+        }
+        for (LoadBalancerVO rule : loadBalancerDao.listByIpAddress(address.getId())) {
+            if (rule.getAccountId() != kubernetesCluster.getAccountId() || !Long.valueOf(network.getId()).equals(rule.getNetworkId())
+                    || rule.getSourcePortStart() != CLUSTER_API_PORT || rule.getSourcePortEnd() != CLUSTER_API_PORT
+                    || !"api-lb".equals(rule.getName()) || !resourceTagDao.listBy(rule.getId(), ResourceObjectType.LoadBalancer).isEmpty()) {
+                continue;
+            }
+            Set<Long> members = loadBalancerVMMapDao.listByLoadBalancerId(rule.getId(), false).stream()
+                    .map(LoadBalancerVMMapVO::getInstanceId).collect(Collectors.toSet());
+            if (members.equals(controls)) {
+                // Resource/account/network and exact native control membership prove the legacy association.
+                recordNativeNetworkResource(ResourceObjectType.LoadBalancer, rule.getId(), rule.getUuid(), address);
+            }
+        }
+    }
+
+    protected boolean ownershipCleanupEnabled() {
+        KubernetesClusterDetailsVO detail = kubernetesClusterDetailsDao.findDetail(kubernetesCluster.getId(), "provider.ownership.v1");
+        return detail != null && "true".equals(detail.getValue());
+    }
+
+    protected List<KubernetesOwnedResourceReceipt> recordOwnedNetworkResources(boolean includeNative) {
+        NetworkVO network = networkDao.findById(kubernetesCluster.getNetworkId());
+        if (network == null) {
+            throw new CloudRuntimeException("Cannot verify the Kubernetes cleanup network");
+        }
+        SearchBuilder<ResourceTagVO> builder = resourceTagDao.createSearchBuilder();
+        builder.and("key", builder.entity().getKey(), SearchCriteria.Op.EQ);
+        builder.and("value", builder.entity().getValue(), SearchCriteria.Op.EQ);
+        builder.and("account", builder.entity().getAccountId(), SearchCriteria.Op.EQ);
+        SearchCriteria<ResourceTagVO> criteria = builder.create();
+        criteria.setParameters("key", KubernetesOwnedResourceReceipt.CLUSTER);
+        criteria.setParameters("value", kubernetesCluster.getUuid());
+        criteria.setParameters("account", kubernetesCluster.getAccountId());
+        for (ResourceTagVO tag : resourceTagDao.search(criteria, null)) {
+            ResourceObjectType type = tag.getResourceType();
+            if (!(type == ResourceObjectType.LoadBalancer || type == ResourceObjectType.FirewallRule
+                    || type == ResourceObjectType.NetworkACL || type == ResourceObjectType.PublicIpAddress)) {
+                continue;
+            }
+            Map<String, String> tags = new HashMap<>();
+            for (ResourceTag item : resourceTagDao.listBy(tag.getResourceId(), type)) {
+                tags.put(item.getKey(), item.getValue());
+            }
+            KubernetesOwnedResourceReceipt receipt = KubernetesOwnedResourceReceipt.fromTags(type, tag.getResourceId(),
+                    tag.getResourceUuid(), tags, kubernetesCluster.getUuid(), network.getUuid());
+            validateOwnedResource(receipt, network);
+            kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), receipt.key(), receipt.encode(), false);
+        }
+        List<KubernetesOwnedResourceReceipt> receipts = new ArrayList<>();
+        for (Map.Entry<String, String> detail : kubernetesClusterDetailsDao.listDetailsKeyPairs(kubernetesCluster.getId()).entrySet()) {
+            if (detail.getKey().startsWith(KubernetesOwnedResourceReceipt.PREFIX)
+                    || (includeNative && detail.getKey().startsWith("cleanup.native.") && !detail.getKey().startsWith("cleanup.native.acl."))) {
+                KubernetesOwnedResourceReceipt receipt = KubernetesOwnedResourceReceipt.decode(detail.getValue());
+                if (!receipt.network.equals(network.getUuid())) {
+                    throw new CloudRuntimeException("Persisted cleanup network changed");
+                }
+                validateOwnedResource(receipt, network);
+                receipts.add(receipt);
+            }
+        }
+        receipts.sort(Comparator.comparingInt(r -> r.type == ResourceObjectType.PublicIpAddress ? 1 : 0));
+        return receipts;
+    }
+
+    protected FirewallRuleVO findLiveCleanupRule(KubernetesOwnedResourceReceipt receipt) {
+        // The base firewall_rules row owns removal state. Joined LB/PF DAO rows
+        // can survive a normal deletion and must not claim a reused public IP.
+        FirewallRuleVO rule = firewallRulesDao.findById(receipt.id);
+        return rule == null || rule.getRemoved() != null ? null : rule;
+    }
+
+    protected NetworkACLItemVO findLiveCleanupAcl(long id, String uuid) {
+        // NetworkACLItemDao.findById loads CIDRs without a missing-row guard.
+        // UUID lookup is idempotent after deletion and cannot select a reused ID.
+        NetworkACLItemVO rule = networkACLItemDao.findByUuid(uuid);
+        if (rule != null && rule.getId() != id) {
+            throw new CloudRuntimeException("ACL cleanup identity changed: " + uuid);
+        }
+        return rule;
+    }
+
+    protected void validateOwnedResource(KubernetesOwnedResourceReceipt receipt, NetworkVO network) {
+        IPAddressVO ip = ipAddressDao.findByUuid(receipt.ip);
+        if (receipt.type == ResourceObjectType.LoadBalancer || receipt.type == ResourceObjectType.FirewallRule
+                || receipt.type == ResourceObjectType.PortForwardingRule) {
+            FirewallRuleVO rule = findLiveCleanupRule(receipt);
+            // Resource tags and durable receipts can outlive a normal rule deletion.
+            // A historical rule must never claim or block a subsequently allocated IP.
+            if (rule == null) {
+                return;
+            }
+            if (!receipt.resource.equals(rule.getUuid()) || rule.getAccountId() != kubernetesCluster.getAccountId()
+                    || !Long.valueOf(network.getId()).equals(rule.getNetworkId()) || ip == null
+                    || !Long.valueOf(ip.getId()).equals(rule.getSourceIpAddressId())) {
+                throw new CloudRuntimeException("Network rule cleanup identity changed: " + receipt.resource);
+            }
+        } else if (receipt.type == ResourceObjectType.NetworkACL) {
+            NetworkACLItemVO rule = findLiveCleanupAcl(receipt.id, receipt.resource);
+            if (rule == null) {
+                return;
+            }
+            if (!receipt.resource.equals(rule.getUuid()) || !Long.valueOf(rule.getAclId()).equals(network.getNetworkACLId())) {
+                throw new CloudRuntimeException("ACL cleanup identity changed: " + receipt.resource);
+            }
+        } else if (ip != null && (!receipt.resource.equals(ip.getUuid()) || receipt.id != ip.getId())) {
+            throw new CloudRuntimeException("IP cleanup identity changed: " + receipt.resource);
+        }
+        if (ip != null && ip.getAllocatedTime() != null && (ip.getAccountId() != kubernetesCluster.getAccountId()
+                || !receipt.generation.equals(ip.getAllocationGeneration())
+                || (ip.getAssociatedWithNetworkId() != null && ip.getAssociatedWithNetworkId() != network.getId())
+                || (ip.getVpcId() != null && !ip.getVpcId().equals(network.getVpcId())))) {
+            throw new CloudRuntimeException("Public IP cleanup allocation changed: " + receipt.ip);
+        }
+    }
+
+    protected NetworkVO requireCleanupNetworkAccess() {
+        NetworkVO network = networkDao.findById(kubernetesCluster.getNetworkId());
+        if (network == null) {
+            throw new CloudRuntimeException("Cannot verify the Kubernetes cleanup network");
+        }
+        accountManager.checkAccess(CallContext.current().getCallingAccount(), null, true, network);
+        return network;
+    }
+
+    protected void cleanupOwnedNetworkResources(boolean includeNative) throws ResourceUnavailableException, InsufficientAddressCapacityException {
+        NetworkVO network = requireCleanupNetworkAccess();
+        List<KubernetesOwnedResourceReceipt> receipts = recordOwnedNetworkResources(includeNative);
+        for (KubernetesOwnedResourceReceipt receipt : receipts) {
+            validateOwnedResource(receipt, network);
+            kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "cleanup.remaining", receipt.resource, true);
+            boolean done = true;
+            switch (receipt.type) {
+                case LoadBalancer:
+                    if (findLiveCleanupRule(receipt) != null) {
+                        done = lbService.deleteLoadBalancerRule(receipt.id, true);
+                    }
+                    break;
+                case FirewallRule:
+                    if (findLiveCleanupRule(receipt) != null) {
+                        done = firewallManager.revokeIngressFirewallRule(receipt.id, true);
+                    }
+                    break;
+                case PortForwardingRule:
+                    if (findLiveCleanupRule(receipt) != null) {
+                        done = rulesService.revokePortForwardingRule(receipt.id, true);
+                    }
+                    break;
+                case NetworkACL:
+                    if (findLiveCleanupAcl(receipt.id, receipt.resource) != null) {
+                        done = networkACLService.revokeNetworkACLItem(receipt.id);
+                    }
+                    break;
+                case PublicIpAddress:
+                    IPAddressVO ip = ipAddressDao.findById(receipt.id);
+                    if (ip != null && ip.getAllocatedTime() != null) {
+                        // Preserve shared/manual/source-NAT/static-NAT and their remaining rules.
+                        if (ip.isSourceNat() || ip.isOneToOneNat() || ip.isPortable()
+                                || !firewallRulesDao.listByIpAndNotRevoked(ip.getId()).isEmpty()) {
+                            kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "cleanup.retained." + receipt.resource, "SharedOrProtectedIp", false);
+                        } else {
+                            done = networkService.releaseIpAddress(ip.getId(), receipt.generation);
+                        }
+                    }
+                    break;
+                default:
+                    throw new CloudRuntimeException("Unsupported cleanup resource");
+            }
+            if (!done) {
+                throw new CloudRuntimeException("Cluster-owned resource cleanup failed: " + receipt.resource);
+            }
+        }
+        kubernetesClusterDetailsDao.removeDetail(kubernetesCluster.getId(), "cleanup.remaining");
+    }
+
+    protected void cleanupNativeAclResources() throws ResourceUnavailableException {
+        NetworkVO network = networkDao.findById(kubernetesCluster.getNetworkId());
+        for (Map.Entry<String, String> detail : kubernetesClusterDetailsDao.listDetailsKeyPairs(kubernetesCluster.getId()).entrySet()) {
+            if (!detail.getKey().startsWith("cleanup.native.acl.")) {
+                continue;
+            }
+            String[] receipt = detail.getValue().split("\\|", -1);
+            if (receipt.length != 3 || !network.getUuid().equals(receipt[2])) {
+                throw new CloudRuntimeException("Native ACL cleanup receipt changed");
+            }
+            NetworkACLItemVO acl = findLiveCleanupAcl(Long.parseLong(receipt[0]), KubernetesOwnedResourceReceipt.canonical(receipt[1]));
+            if (acl == null) {
+                continue;
+            }
+            if (!KubernetesOwnedResourceReceipt.canonical(receipt[1]).equals(acl.getUuid())
+                    || !Long.valueOf(acl.getAclId()).equals(network.getNetworkACLId())) {
+                throw new CloudRuntimeException("Native ACL cleanup identity changed");
+            }
+            if (!networkACLService.revokeNetworkACLItem(acl.getId())) {
+                throw new CloudRuntimeException("Native ACL cleanup failed: " + acl.getUuid());
+            }
+        }
+    }
+
+    protected boolean executeServiceCleanup(String action) {
+        try {
+            File script = retrieveScriptFile("cleanup-owned-services");
+            Pair<String, Integer> endpoint = getKubernetesClusterServerIpSshPort(null);
+            copyScriptFile(endpoint.first(), endpoint.second(), script, "cleanup-owned-services");
+            Pair<Boolean, String> result = SshHelper.sshExecute(endpoint.first(), endpoint.second(), getControlNodeLoginUser(),
+                    getManagementServerSshPublicKeyFile(), null, "sudo " + scriptPath + "/cleanup-owned-services --" + action,
+                    10000, 10000, 180000);
+            return Boolean.TRUE.equals(result.first());
+        } catch (Exception error) {
+            logMessage(Level.WARN, "Kubernetes Service cleanup unavailable; cluster-owned fallback is required", error);
+            return false;
+        }
+    }
+
+    protected void stopNodesForOfflineOwnedCleanup() throws ConcurrentOperationException {
+        for (KubernetesClusterVmMapVO map : clusterVMs) {
+            UserVmVO vm = userVmDao.findById(map.getVmId());
+            if (vm != null && !vm.isRemoved() && vm.getState() == VirtualMachine.State.Running) {
+                UserVm stopped = userVmService.stopVirtualMachine(vm.getId(), false);
+                if (stopped == null || stopped.getState() != VirtualMachine.State.Stopped) {
+                    throw new CloudRuntimeException("Cannot stop the cluster controller before offline cleanup");
+                }
+            }
+        }
+    }
+
+    protected static String cleanupFailureReason(Exception error) {
+        String message = error.getMessage();
+        for (String reason : new String[] {"Incomplete or invalid Kubernetes ownership receipt", "Unsupported Kubernetes cleanup receipt",
+                "Invalid persisted Kubernetes cleanup receipt", "Kubernetes cleanup owner or network changed", "Persisted cleanup network changed",
+                "Network rule cleanup identity changed", "ACL cleanup identity changed", "IP cleanup identity changed", "Public IP cleanup allocation changed"}) {
+            if (message != null && (message.equals(reason) || message.startsWith(reason + ": "))) {
+                return reason;
+            }
+        }
+        if (error instanceof NullPointerException && error.getStackTrace().length > 0) {
+            StackTraceElement frame = error.getStackTrace()[0];
+            return "NullPointerException at " + frame.getClassName() + "." + frame.getMethodName() + ":" + frame.getLineNumber();
+        }
+        return error.getClass().getSimpleName();
+    }
+
+    protected void prepareServiceCleanupBeforeNodeRemoval() {
+        kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "cleanup.status", "InProgress", true);
+        kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "cleanup.phase", "ServiceLoadBalancers", true);
+        String failureStage = "NetworkAccess";
+        try {
+            requireCleanupNetworkAccess();
+            failureStage = "ServiceDeletionRequest";
+            boolean online = executeServiceCleanup("request");
+            if (!online && !ownershipCleanupEnabled()) {
+                throw new CloudRuntimeException("Kubernetes API/CCM cleanup unavailable without durable ownership; preserve nodes and retry after recovery");
+            }
+            if (!ownershipCleanupEnabled() && !executeServiceCleanup("wait")) {
+                throw new CloudRuntimeException("CCM did not finalize its legacy Services; preserve nodes and retry after recovery");
+            }
+            if (ownershipCleanupEnabled()) {
+                // Persist all receipts before the first mutation, including while API is unavailable.
+                failureStage = "OwnedResourceValidation";
+                recordOwnedNetworkResources(false);
+                if (!online) {
+                    stopNodesForOfflineOwnedCleanup();
+                }
+                failureStage = "OwnedResourceCleanup";
+                cleanupOwnedNetworkResources(false);
+                failureStage = "ServiceFinalization";
+                if (online && !executeServiceCleanup("finalize")) {
+                    throw new CloudRuntimeException("Owned Mold resources were cleaned but Service finalization failed; retry with nodes preserved");
+                }
+            }
+            failureStage = "NativeAclCleanup";
+            cleanupNativeAclResources();
+            failureStage = "NativeRuleCleanup";
+            cleanupOwnedNetworkResources(true);
+            kubernetesClusterDetailsDao.removeDetail(kubernetesCluster.getId(), "cleanup.failure.stage");
+            kubernetesClusterDetailsDao.removeDetail(kubernetesCluster.getId(), "cleanup.failure.reason");
+            kubernetesClusterDetailsDao.removeDetail(kubernetesCluster.getId(), "cleanup.status");
+            kubernetesClusterDetailsDao.removeDetail(kubernetesCluster.getId(), "cleanup.phase");
+        } catch (Exception error) {
+            kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "cleanup.status", "Blocked", true);
+            kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "cleanup.failure.stage", failureStage, true);
+            kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "cleanup.failure.reason", cleanupFailureReason(error), true);
+            throw new CloudRuntimeException("Kubernetes Service cleanup blocked at " + failureStage
+                    + "; nodes and receipts are preserved for retry", error);
+        }
+    }
+
+    protected void prepareCsiCleanupBeforeNodeRemoval() {
+        if (kubernetesCluster.isCsiEnabled() && !deletePVsWithReclaimPolicyDelete()) {
+            kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "cleanup.status", "Blocked", true);
+            kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "cleanup.phase", "MoldCsiDeleteVolumes", true);
+            throw new CloudRuntimeException("Mold CSI Delete volume cleanup failed or timed out; cluster nodes are preserved. Retry after API/CSI recovery.");
+        }
+    }
+
+    protected boolean isUnprovisionedFailure() {
+        if (!KubernetesCluster.State.Error.equals(kubernetesCluster.getState())
+                && !KubernetesCluster.State.Destroying.equals(kubernetesCluster.getState())
+                && !KubernetesCluster.State.Alert.equals(kubernetesCluster.getState())) {
+            return false;
+        }
+        KubernetesClusterDetailsVO phase = kubernetesClusterDetailsDao.findDetail(kubernetesCluster.getId(), "lifecycle.provisioning.phase");
+        if (phase != null && "NodeProvisioningFailed".equals(phase.getValue())) {
+            KubernetesClusterDetailsVO receipt = kubernetesClusterDetailsDao.findDetail(kubernetesCluster.getId(), "lifecycle.creation.failed.job");
+            return receipt != null && StringUtils.isNotBlank(receipt.getValue())
+                    && kubernetesClusterDetailsDao.findDetail(kubernetesCluster.getId(), "lifecycle.bootstrap.started") == null;
+        }
+        if (phase == null || !"Preflight".equals(phase.getValue())
+                || !CollectionUtils.isEmpty(kubernetesClusterVmMapDao.listByClusterId(kubernetesCluster.getId()))
+                || StringUtils.isNotBlank(kubernetesCluster.getEndpoint())
+                || kubernetesClusterDetailsDao.findDetail(kubernetesCluster.getId(), "lifecycle.bootstrap.started") != null
+                || ownershipCleanupEnabled()) { return false; }
+        KubernetesClusterDetailsVO receipt = kubernetesClusterDetailsDao.findDetail(kubernetesCluster.getId(), "lifecycle.creation.failed.job");
+        return kubernetesCluster.getState() != KubernetesCluster.State.Alert
+                || (receipt != null && StringUtils.isNotBlank(receipt.getValue()));
+    }
+
+    protected boolean failedBeforeApiBootstrap() {
+        KubernetesClusterDetailsVO phase = kubernetesClusterDetailsDao.findDetail(kubernetesCluster.getId(), "lifecycle.provisioning.phase");
+        return (kubernetesCluster.getState() == KubernetesCluster.State.Error || kubernetesCluster.getState() == KubernetesCluster.State.Alert
+                || kubernetesCluster.getState() == KubernetesCluster.State.Destroying || kubernetesCluster.getState() == KubernetesCluster.State.Stopped)
+                && kubernetesCluster.getClusterType() == KubernetesCluster.ClusterType.CloudManaged
+                && phase != null && "Bootstrap".equals(phase.getValue())
+                && StringUtils.isBlank(kubernetesCluster.getEndpoint()) && !ownershipCleanupEnabled();
+    }
+
+    protected boolean prepareFailedBootstrapCleanup() throws ConcurrentOperationException, ResourceUnavailableException, InsufficientAddressCapacityException {
+        if (!failedBeforeApiBootstrap()) {
+            return false;
+        }
+        SearchBuilder<AsyncJobVO> builder = asyncJobDao.createSearchBuilder();
+        builder.and("cluster", builder.entity().getInstanceId(), SearchCriteria.Op.EQ);
+        builder.and("kind", builder.entity().getInstanceType(), SearchCriteria.Op.EQ);
+        builder.and("command", builder.entity().getCmd(), SearchCriteria.Op.EQ);
+        builder.done();
+        SearchCriteria<AsyncJobVO> criteria = builder.create();
+        criteria.setParameters("cluster", kubernetesCluster.getId());
+        criteria.setParameters("kind", "KubernetesCluster");
+        criteria.setParameters("command", CreateKubernetesClusterCmd.class.getName());
+        List<AsyncJobVO> jobs = asyncJobDao.searchIncludingRemoved(criteria, null, null, false);
+        AsyncJobVO last = jobs.stream().max(java.util.Comparator.comparingLong(AsyncJobVO::getId)).orElse(null);
+        if (last == null || last.getStatus() != AsyncJob.Status.FAILED
+                || jobs.stream().anyMatch(job -> job.getStatus() == AsyncJob.Status.IN_PROGRESS)
+                || CollectionUtils.isEmpty(clusterVMs)) {
+            throw new CloudRuntimeException("Failed Bootstrap cleanup requires a completed failed creation job and native nodes");
+        }
+        for (KubernetesClusterVmMapVO map : clusterVMs) {
+            UserVmVO vm = userVmDao.findById(map.getVmId());
+            if (map.isExternalNode() || vm == null || vm.isRemoved() || vm.getAccountId() != kubernetesCluster.getAccountId()) {
+                throw new CloudRuntimeException("Failed Bootstrap cleanup node ownership changed");
+            }
+        }
+        // The endpoint is published only after API readiness, before Provider/CSI deployment.
+        // Quiesce every native node before reclaiming only verified manager-created receipts.
+        recordOwnedNetworkResources(true);
+        stopNodesForOfflineOwnedCleanup();
+        kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "cleanup.bootstrap.failed.job", last.getUuid(), false);
+        cleanupNativeAclResources();
+        cleanupOwnedNetworkResources(true);
+        return true;
+    }
+
+    protected void prepareNodeRemoval() {
+        KubernetesClusterDetailsVO prepared = kubernetesClusterDetailsDao.findDetail(kubernetesCluster.getId(), "cleanup.nodes.prepared");
+        if (prepared == null || !"v1".equals(prepared.getValue())) {
+            if (isUnprovisionedFailure()) {
+                kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "cleanup.nodes.prepared", "v1", false);
+                return;
+            }
+            requireCleanupNetworkAccess();
+            recordVerifiedLegacyApiLoadBalancer();
+            try {
+                if (prepareFailedBootstrapCleanup()) {
+                    kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "cleanup.nodes.prepared", "v1", false);
+                    return;
+                }
+            } catch (ConcurrentOperationException | ResourceUnavailableException | InsufficientAddressCapacityException error) {
+                throw new CloudRuntimeException("Failed Bootstrap native cleanup did not complete; nodes and receipts are preserved for retry", error);
+            }
+            prepareCsiCleanupBeforeNodeRemoval();
+            prepareServiceCleanupBeforeNodeRemoval();
+            kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "cleanup.nodes.prepared", "v1", false);
+        }
     }
 
     public boolean destroy() throws CloudRuntimeException {
         init();
+        reconcileFailedCreationBeforeDelete();
         validateClusterSate();
         this.clusterVMs = kubernetesClusterVmMapDao.listByClusterId(kubernetesCluster.getId());
+        final boolean unprovisionedFailure = isUnprovisionedFailure();
         List<VMInstanceVO> vms = this.clusterVMs.stream().map(vmMap -> vmInstanceDao.findById(vmMap.getVmId())).collect(Collectors.toList());
         if (KubernetesClusterManagerImpl.checkIfVmsAssociatedWithBackupOffering(vms)) {
             throw new CloudRuntimeException("Unable to delete Kubernetes cluster, as node(s) are associated to a backup offering");
@@ -307,8 +863,13 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
         if (logger.isInfoEnabled()) {
             logger.info("Destroying Kubernetes cluster : {}", kubernetesCluster);
         }
+        prepareNodeRemoval();
         stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.DestroyRequested);
         boolean vmsDestroyed = destroyClusterVMs();
+        if (cleanupNetwork && hasUnclaimedNetworkResources()) {
+            cleanupNetwork = false;
+            kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "cleanup.retained.network", "UnclaimedNetworkResources", false);
+        }
         // if there are VM's that were not expunged, we can not delete the network
         if (vmsDestroyed) {
             if (cleanupNetwork) {
@@ -323,7 +884,9 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
                 }
             } else {
                 try {
-                    checkForRulesToDelete();
+                    if (!unprovisionedFailure) {
+                        checkForRulesToDelete();
+                    }
                 } catch (ManagementServerException e) {
                     String msg = String.format("Failed to remove network rules of Kubernetes cluster: %s", kubernetesCluster);
                     logger.warn(msg, e);
@@ -345,6 +908,7 @@ public class KubernetesClusterDestroyWorker extends KubernetesClusterResourceMod
             updateKubernetesClusterEntryForGC();
             throw new CloudRuntimeException(msg);
         }
+        manager.removeClusterServiceKeys(kubernetesCluster);
         stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.OperationSucceeded);
         annotationDao.removeByEntityType(AnnotationService.EntityType.KUBERNETES_CLUSTER.name(), kubernetesCluster.getUuid());
         kubernetesClusterDetailsDao.removeDetails(kubernetesCluster.getId());

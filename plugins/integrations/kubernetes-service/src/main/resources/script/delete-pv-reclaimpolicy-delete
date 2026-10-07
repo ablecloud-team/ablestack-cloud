@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/usr/bin/env python3
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -16,141 +16,220 @@
 # specific language governing permissions and limitations
 # under the License.
 
-set -e
 
-timestamp() {
-    date '+%Y-%m-%d %H:%M:%S'
-}
+"""Bounded, UID-conditional cleanup of Mold CSI Delete volumes."""
+import argparse
+import http.client
+import json
+import os
+import socket
+import subprocess
+import sys
+import tempfile
+import time
+from pathlib import Path
+from urllib.parse import quote, urlencode
 
-echo "$(timestamp) - Starting PV deletion script with reclaimPolicy=Delete"
+DRIVER = "csi.cloudstack.apache.org"
+WORKLOADS = (
+    ("apps/v1", "deployments"), ("apps/v1", "statefulsets"),
+    ("apps/v1", "daemonsets"), ("apps/v1", "replicasets"),
+    ("batch/v1", "jobs"), ("batch/v1", "cronjobs"), ("v1", "pods"),
+)
 
-delete_workloads_using_pvc() {
-    local namespace=$1
-    local pvc_name=$2
 
-    echo "$(timestamp) - Finding workloads using PVC $pvc_name in namespace $namespace..."
+class CleanupError(Exception):
+    pass
 
-    local deleted_count=0
 
-    # Find & delete any deployment using the PVC
-    /opt/bin/kubectl get deployments -n "$namespace" -o json 2>/dev/null | grep -l "$pvc_name" | \
-    while IFS= read -r deployment; do
-        if [ -n "$deployment" ]; then
-            deployment_name=$(echo "$deployment" | cut -d'/' -f2)
-            echo "$(timestamp) -   Deleting Deployment: $deployment_name"
-            /opt/bin/kubectl delete deployment "$deployment_name" -n "$namespace" --ignore-not-found=true
-            deleted_count=$((deleted_count + 1))
-        fi
-    done
+def base(version):
+    return "/api/" + version if version == "v1" else "/apis/" + version
 
-    # Find and delete any StatefulSet using the PVC
-    /opt/bin/kubectl get statefulsets -n "$namespace" -o json 2>/dev/null | grep -l "$pvc_name" | \
-    while IFS= read -r sts; do
-        if [ -n "$sts" ]; then
-            sts_name=$(echo "$sts" | cut -d'/' -f2)
-            echo "$(timestamp) -   Deleting StatefulSet: $sts_name"
-            /opt/bin/kubectl delete statefulset "$sts_name" -n "$namespace" --ignore-not-found=true
-            deleted_count=$((deleted_count + 1))
-        fi
-    done
 
-    # Check standalone ReplicaSets (not owned by Deployments)
-    /opt/bin/kubectl get replicasets -n "$namespace" --no-headers -o custom-columns=NAME:.metadata.name | \
-    while read rs_name; do
-        if [ -n "$rs_name" ]; then
-            rs_volumes=$(/opt/bin/kubectl get replicaset "$rs_name" -n "$namespace" -o jsonpath='{.spec.template.spec.volumes[*].persistentVolumeClaim.claimName}' 2>/dev/null || echo "")
-            if echo "$rs_volumes" | grep -q "$pvc_name"; then
-                owner_kind=$(/opt/bin/kubectl get replicaset "$rs_name" -n "$namespace" -o jsonpath='{.metadata.ownerReferences[0].kind}' 2>/dev/null || echo "")
-                if [ "$owner_kind" != "Deployment" ]; then
-                    echo "$(timestamp) -   Deleting standalone ReplicaSet: $rs_name"
-                    /opt/bin/kubectl delete replicaset "$rs_name" -n "$namespace" --ignore-not-found=true
-                    deleted_count=$((deleted_count + 1))
-                fi
-            fi
-        fi
-    done
+def resource_path(version, resource, obj):
+    meta = obj["metadata"]
+    scope = "/namespaces/" + quote(meta["namespace"], safe="") if meta.get("namespace") else ""
+    return base(version) + scope + "/" + resource + "/" + quote(meta["name"], safe="")
 
-    # Find and delete any DaemonSet using the PVC
-    /opt/bin/kubectl get daemonsets -n "$namespace" -o json 2>/dev/null | grep -l "$pvc_name" | \
-    while IFS= read -r ds; do
-        if [ -n "$ds" ]; then
-            ds_name=$(echo "$ds" | cut -d'/' -f2)
-            echo "$(timestamp) -   Deleting DaemonSet: $ds_name"
-            /opt/bin/kubectl delete daemonset "$ds_name" -n "$namespace" --ignore-not-found=true
-            deleted_count=$((deleted_count + 1))
-        fi
-    done
 
-    # Find and delete any Job using the PVC
-    /opt/bin/kubectl get jobs -n "$namespace" -o json 2>/dev/null | grep -l "$pvc_name" | \
-    while IFS= read -r job; do
-        if [ -n "$job" ]; then
-            job_name=$(echo "$job" | cut -d'/' -f2)
-            echo "$(timestamp) -   Deleting Job: $job_name"
-            /opt/bin/kubectl delete job "$job_name" -n "$namespace" --ignore-not-found=true
-            deleted_count=$((deleted_count + 1))
-        fi
-    done
+def claim_names(resource, obj):
+    spec = obj.get("spec", {})
+    if resource == "cronjobs":
+        spec = spec.get("jobTemplate", {}).get("spec", {}).get("template", {}).get("spec", {})
+    elif resource != "pods":
+        spec = spec.get("template", {}).get("spec", {})
+    return {v["persistentVolumeClaim"]["claimName"] for v in spec.get("volumes", [])
+            if v.get("persistentVolumeClaim", {}).get("claimName")}
 
-    # Find and delete any CronJobs using the PVC
-    /opt/bin/kubectl get cronjobs -n "$namespace" -o json 2>/dev/null | grep -l "$pvc_name" | \
-    while IFS= read -r cronjob; do
-        if [ -n "$cronjob" ]; then
-            cronjob_name=$(echo "$cronjob" | cut -d'/' -f2)
-            echo "$(timestamp) -   Deleting CronJob: $cronjob_name"
-            /opt/bin/kubectl delete cronjob "$cronjob_name" -n "$namespace" --ignore-not-found=true
-            deleted_count=$((deleted_count + 1))
-        fi
-    done
 
-    # Find and delete any standalone Pods using the PVC
-    /opt/bin/kubectl get pods -n "$namespace" --no-headers -o custom-columns=NAME:.metadata.name | \
-    while read pod_name; do
-        if [ -n "$pod_name" ]; then
-            pod_volumes=$(/opt/bin/kubectl get pod "$pod_name" -n "$namespace" -o jsonpath='{.spec.volumes[*].persistentVolumeClaim.claimName}' 2>/dev/null || echo "")
-            if echo "$pod_volumes" | grep -q "$pvc_name"; then
-                owner_kind=$(/opt/bin/kubectl get pod "$pod_name" -n "$namespace" -o jsonpath='{.metadata.ownerReferences[0].kind}' 2>/dev/null || echo "")
-                if [ -z "$owner_kind" ]; then
-                    echo "$(timestamp) -   Deleting standalone Pod: $pod_name"
-                    /opt/bin/kubectl delete pod "$pod_name" -n "$namespace" --ignore-not-found=true
-                    deleted_count=$((deleted_count + 1))
-                fi
-            fi
-        fi
-    done
+def deletion_plan(pvs, pvcs, workloads):
+    claims = {(c["metadata"]["namespace"], c["metadata"]["name"]): c for c in pvcs}
+    volumes, target_claims = [], set()
+    for pv in pvs:
+        spec = pv.get("spec", {})
+        if (spec.get("csi", {}).get("driver") != DRIVER or spec.get("persistentVolumeReclaimPolicy") != "Delete"
+                or pv.get("metadata", {}).get("annotations", {}).get("pv.kubernetes.io/provisioned-by") != DRIVER):
+            continue
+        handle = spec["csi"].get("volumeHandle", "")
+        if not handle:
+            raise CleanupError("Mold CSI PV has no volume handle: " + pv["metadata"]["name"])
+        ref = spec.get("claimRef", {})
+        claim = claims.get((ref.get("namespace"), ref.get("name")))
+        if claim:
+            if ref.get("uid") != claim["metadata"]["uid"] or claim.get("spec", {}).get("volumeName") != pv["metadata"]["name"]:
+                raise CleanupError("PV claim identity changed: " + pv["metadata"]["name"])
+            target_claims.add((ref["namespace"], ref["name"]))
+        volumes.append({"pv": pv, "claim": claim, "handle": handle})
+    selected = []
+    for version, resource, objects in workloads:
+        for obj in objects:
+            ns = obj["metadata"].get("namespace", "")
+            if any((ns, name) in target_claims for name in claim_names(resource, obj)):
+                selected.append((version, resource, obj))
+    return volumes, selected
 
-    if [ $deleted_count -eq 0 ]; then
-        echo "$(timestamp) -   No workloads found using PVC $pvc_name"
-    else
-        echo "$(timestamp) -   Deleted $deleted_count workload(s) using PVC $pvc_name"
-    fi
 
-    echo "$(timestamp) -   Waiting for pods to terminate..."
-    sleep 5
-}
+class UnixConnection(http.client.HTTPConnection):
+    def __init__(self, path):
+        super().__init__("localhost", timeout=20)
+        self.path = path
 
-total_pvcs=0
-processed_pvcs=0
+    def connect(self):
+        self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        self.sock.settimeout(self.timeout)
+        self.sock.connect(self.path)
 
-echo "$(timestamp) - Scanning for PVCs with associated PVs having reclaimPolicy=Delete..."
 
-while read namespace pvc_name pv_name; do
-    if [ -n "$pv_name" ] && [ "$pv_name" != "<none>" ]; then
-        total_pvcs=$((total_pvcs + 1))
-        reclaim_policy=$(/opt/bin/kubectl get pv "$pv_name" --no-headers -o custom-columns=RECLAIM:.spec.persistentVolumeReclaimPolicy 2>/dev/null || echo "")
-        if [ "$reclaim_policy" = "Delete" ]; then
-            processed_pvcs=$((processed_pvcs + 1))
-            echo "$(timestamp) - Processing PVC $pvc_name in namespace $namespace (PV: $pv_name has reclaimPolicy=Delete)"
+class API:
+    def __init__(self, path, deadline):
+        self.path, self.deadline = path, deadline
 
-            delete_workloads_using_pvc "$namespace" "$pvc_name"
-            echo "$(timestamp) - Deleting PVC $pvc_name in namespace $namespace"
-            /opt/bin/kubectl delete pvc "$pvc_name" -n "$namespace" --ignore-not-found=true
+    def request(self, method, path, body=None):
+        if time.monotonic() >= self.deadline:
+            raise CleanupError("PV cleanup timeout; controller nodes must be retained")
+        conn = UnixConnection(self.path)
+        try:
+            data = json.dumps(body).encode() if body is not None else None
+            conn.request(method, path, body=data, headers={"Content-Type": "application/json"})
+            response = conn.getresponse()
+            result = response.read()
+            if response.status == 404:
+                return None
+            if response.status not in (200, 201, 202):
+                raise CleanupError("Kubernetes " + method + " " + path + " failed: HTTP " + str(response.status))
+            return json.loads(result) if result else {}
+        except (OSError, http.client.HTTPException, ValueError) as exc:
+            raise CleanupError("Kubernetes API unavailable during PV cleanup") from exc
+        finally:
+            conn.close()
 
-            echo "$(timestamp) - Completed processing PVC $pvc_name"
-            echo "---"
-        fi
-    fi
-done < <(/opt/bin/kubectl get pvc --all-namespaces --no-headers -o custom-columns=NAMESPACE:.metadata.namespace,NAME:.metadata.name,VOLUME:.spec.volumeName)
+    def list(self, version, resource):
+        result, token = [], ""
+        while True:
+            obj = self.request("GET", base(version) + "/" + resource + "?" + urlencode({"limit": 200, "continue": token}))
+            if obj is None:
+                raise CleanupError("Required Kubernetes resource API is unavailable: " + resource)
+            result.extend(obj.get("items", []))
+            token = obj.get("metadata", {}).get("continue", "")
+            if not token:
+                return result
 
-echo "$(timestamp) - Script completed successfully!"
-echo "$(timestamp) - Summary: Processed $processed_pvcs PVC(s) out of $total_pvcs total PVC(s) found"
+    def delete(self, version, resource, obj):
+        self.request("DELETE", resource_path(version, resource, obj), {
+            "apiVersion": "v1", "kind": "DeleteOptions", "propagationPolicy": "Foreground",
+            "preconditions": {"uid": obj["metadata"]["uid"]},
+        })
+
+    def wait_absent(self, version, resource, obj):
+        path, uid = resource_path(version, resource, obj), obj["metadata"]["uid"]
+        while True:
+            current = self.request("GET", path)
+            if current is None:
+                return
+            if current["metadata"]["uid"] != uid:
+                raise CleanupError("Resource name reused during cleanup: " + path)
+            time.sleep(1)
+
+
+def save_receipt(path, receipt):
+    path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+    temporary = path.with_suffix(".tmp")
+    temporary.write_text(json.dumps(receipt), encoding="utf-8")
+    os.chmod(temporary, 0o600)
+    os.replace(temporary, path)
+
+
+def cleanup(api, journal, plan_only=False):
+    pvs, pvcs = api.list("v1", "persistentvolumes"), api.list("v1", "persistentvolumeclaims")
+    workloads = [(v, r, api.list(v, r)) for v, r in WORKLOADS]
+    volumes, selected = deletion_plan(pvs, pvcs, workloads)
+    prior = json.loads(journal.read_text()) if journal.exists() else {"volumes": []}
+    receipts = {v["uid"]: v for v in prior["volumes"]}
+    for v in volumes:
+        meta = v["pv"]["metadata"]
+        receipts[meta["uid"]] = {"uid": meta["uid"], "name": meta["name"], "handle": v["handle"],
+            "claimUid": v["claim"]["metadata"]["uid"] if v["claim"] else ""}
+    receipt = {"volumes": list(receipts.values()), "completed": False}
+    # Persist identities before the first mutation. Retries retain deleted-PV handles.
+    save_receipt(journal, receipt)
+    print("MOLD_PV_CLEANUP_RECEIPT " + json.dumps(receipt, separators=(",", ":")), flush=True)
+    if plan_only:
+        return
+    for version, resource, obj in selected:
+        api.delete(version, resource, obj)
+    for version, resource, obj in selected:
+        if resource == "pods":
+            api.wait_absent(version, resource, obj)
+    for v in volumes:
+        if v["claim"]:
+            api.delete("v1", "persistentvolumeclaims", v["claim"])
+            api.wait_absent("v1", "persistentvolumeclaims", v["claim"])
+        # Released/unbound Delete volumes need the same UID-guarded deletion.
+        api.delete("v1", "persistentvolumes", v["pv"])
+        api.wait_absent("v1", "persistentvolumes", v["pv"])
+    remaining, _ = deletion_plan(api.list("v1", "persistentvolumes"), api.list("v1", "persistentvolumeclaims"), [])
+    if remaining:
+        raise CleanupError("New or remaining Mold CSI Delete volumes; retry with controller nodes retained")
+    receipt["completed"] = True
+    save_receipt(journal, receipt)
+    print("MOLD_PV_CLEANUP_RECEIPT " + json.dumps(receipt, separators=(",", ":")))
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--plan-only", action="store_true")
+    parser.add_argument("--timeout-seconds", type=int, default=480)
+    args = parser.parse_args()
+    if not 10 <= args.timeout_seconds <= 480:
+        raise CleanupError("Cleanup timeout must be between 10 and 480 seconds")
+    deadline = time.monotonic() + args.timeout_seconds
+    journal = Path("/var/lib/mold/kubernetes-pv-cleanup.json")
+    with tempfile.TemporaryDirectory(prefix="mold-pv-cleanup-") as temporary:
+        path = temporary + "/proxy.sock"
+        proxy = subprocess.Popen(["/opt/bin/kubectl", "--kubeconfig=/etc/kubernetes/admin.conf", "proxy", "--unix-socket=" + path],
+                                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        try:
+            for _ in range(100):
+                if os.path.exists(path):
+                    break
+                if proxy.poll() is not None:
+                    raise CleanupError("Cannot start Kubernetes cleanup proxy")
+                time.sleep(0.1)
+            if not os.path.exists(path):
+                raise CleanupError("Kubernetes cleanup proxy did not become ready")
+            cleanup(API(path, deadline), journal, args.plan_only)
+        finally:
+            proxy.terminate()
+            try:
+                proxy.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                proxy.kill()
+                proxy.wait(timeout=5)
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except (CleanupError, OSError, ValueError) as error:
+        print("MOLD_PV_CLEANUP_FAILED " + str(error), file=sys.stderr)
+        sys.exit(1)

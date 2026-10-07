@@ -213,6 +213,11 @@ public class MockNetworkManagerImpl extends ManagerBase implements NetworkOrches
     * @see com.cloud.network.NetworkService#releaseIpAddress(long)
     */
     @Override
+    public boolean releaseIpAddress(long ipAddressId, String expectedAllocationGeneration) throws InsufficientAddressCapacityException {
+        throw new UnsupportedOperationException("Allocation receipts are not implemented by this VPC test mock");
+    }
+
+    @Override
     public boolean releaseIpAddress(long ipAddressId) throws InsufficientAddressCapacityException {
         // TODO Auto-generated method stub
         return false;

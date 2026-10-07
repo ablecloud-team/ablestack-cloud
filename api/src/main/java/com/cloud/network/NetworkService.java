@@ -100,6 +100,9 @@ public interface NetworkService {
 
     boolean releaseIpAddress(long ipAddressId) throws InsufficientAddressCapacityException;
 
+    /** Releases only the allocation recorded by a durable cleanup receipt. */
+    boolean releaseIpAddress(long ipAddressId, String expectedAllocationGeneration) throws InsufficientAddressCapacityException;
+
     IpAddress allocatePortableIP(Account ipOwner, int regionId, Long zoneId, Long networkId, Long vpcId) throws ResourceAllocationException,
         InsufficientAddressCapacityException, ConcurrentOperationException;
 

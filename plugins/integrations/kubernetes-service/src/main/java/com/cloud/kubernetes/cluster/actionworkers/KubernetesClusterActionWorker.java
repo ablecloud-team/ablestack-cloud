@@ -16,7 +16,10 @@
 // under the License.
 package com.cloud.kubernetes.cluster.actionworkers;
 
+import java.nio.charset.StandardCharsets;
+
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -35,6 +38,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPOutputStream;
 
 import javax.inject.Inject;
 
@@ -101,6 +105,8 @@ import com.cloud.kubernetes.cluster.dao.KubernetesClusterVmMapDao;
 import com.cloud.kubernetes.version.KubernetesSupportedVersion;
 import com.cloud.kubernetes.version.dao.KubernetesSupportedVersionDao;
 import com.cloud.network.IpAddress;
+import com.cloud.network.dao.IPAddressVO;
+import com.cloud.server.ResourceTag.ResourceObjectType;
 import com.cloud.network.IpAddressManager;
 import com.cloud.network.Network;
 import com.cloud.network.NetworkModel;
@@ -142,6 +148,9 @@ import static com.cloud.kubernetes.cluster.KubernetesServiceHelper.KubernetesClu
 import static com.cloud.kubernetes.cluster.KubernetesServiceHelper.KubernetesClusterNodeType.WORKER;
 
 
+import com.cloud.kubernetes.cluster.utils.KubernetesNetworkReadiness;
+import org.apache.cloudstack.network.RoutedIpv4Manager;
+
 public class KubernetesClusterActionWorker {
 
     public static final String CLUSTER_NODE_VM_USER = "cloud";
@@ -178,6 +187,8 @@ public class KubernetesClusterActionWorker {
     protected NetworkOrchestrationService networkMgr;
     @Inject
     protected NetworkDao networkDao;
+    @Inject
+    protected RoutedIpv4Manager routedIpv4Manager;
     @Inject
     protected NetworkModel networkModel;
     @Inject
@@ -253,6 +264,41 @@ public class KubernetesClusterActionWorker {
     protected File deploySecretsScriptFile;
     protected File deployProviderScriptFile;
     protected File deployCsiDriverScriptFile;
+    protected boolean rebalanceHaDns() {
+        if (kubernetesCluster.getControlNodeCount() <= 1) {
+            return true;
+        }
+        return executeDnsRebalance();
+    }
+
+    protected boolean executeDnsRebalance() {
+        return executeDnsRebalance(false);
+    }
+
+    protected boolean verifyHaDns() {
+        return kubernetesCluster.getControlNodeCount() <= 1 || executeDnsRebalance(true);
+    }
+
+    protected boolean executeDnsRebalance(boolean checkOnly) {
+        try {
+            String script = readResourceFile("/script/rebalance-ha-coredns.py");
+            String encoded = Base64.encodeBase64String(script.getBytes(StandardCharsets.UTF_8));
+            String command = "sudo python3 -c 'import base64;exec(base64.b64decode(\"" + encoded + "\"))'";
+            if (checkOnly) {
+                command += " --check-only";
+            }
+            if (kubernetesCluster.getNodeCount() >= 2) {
+                command += " --prefer-workers";
+            }
+            Pair<Boolean, String> result = SshHelper.sshExecute(publicIpAddress, sshPort, getControlNodeLoginUser(),
+                    sshKeyFile, null, command, 10000, 10000, 180000);
+            return result.first() && result.second().contains("HA_COREDNS_READY_ON_DISTINCT_NODES");
+        } catch (Exception e) {
+            logger.warn("Unable to verify CoreDNS distribution for HA Kubernetes cluster {}", kubernetesCluster.getName());
+            return false;
+        }
+    }
+
     protected File autoscaleScriptFile;
     protected File deletePvScriptFile;
     protected KubernetesClusterManagerImpl manager;
@@ -283,13 +329,59 @@ public class KubernetesClusterActionWorker {
         this.sshKeyFile = getManagementServerSshPublicKeyFile();
     }
 
+    protected String prepareKubernetesUserData(String encodedUserData) {
+        return compressUserDataIfNeeded(encodedUserData, UserDataManager.VM_USERDATA_MAX_LENGTH.value());
+    }
+
+    protected static String compressUserDataIfNeeded(String encodedUserData, int maxLength) {
+        if (encodedUserData.length() <= maxLength) {
+            return encodedUserData;
+        }
+        // cloud-init accepts gzip user data, including a completed MIME multipart document.
+        // Compress after CNI concatenation and preserve the global user-data size limit.
+        final ByteArrayOutputStream compressed = new ByteArrayOutputStream();
+        try (GZIPOutputStream gzip = new GZIPOutputStream(compressed)) {
+            gzip.write(Base64.decodeBase64(encodedUserData));
+        } catch (IOException e) {
+            throw new CloudRuntimeException("Failed to compress Kubernetes node user data", e);
+        }
+        String result = Base64.encodeBase64String(compressed.toByteArray());
+        if (result.length() > maxLength) {
+            throw new CloudRuntimeException("Kubernetes node user data exceeds the configured limit even after gzip compression");
+        }
+        return result;
+    }
+
     protected String readResourceFile(String resource) throws IOException {
         return IOUtils.toString(Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResourceAsStream(resource)), com.cloud.utils.StringUtils.getPreferredCharset());
     }
 
     protected String readK8sConfigFile(String resource) throws IOException {
         Path path = Paths.get(String.format("%s%s", CKS_CONFIG_PATH, resource));
-        return Files.readString(path);
+        return prepareManagedAddonPlacement(Files.readString(path));
+    }
+
+    protected String prepareManagedAddonPlacement(String data) throws IOException {
+        String marker = "@@MOLD_MANAGED_ADDON_PLACEMENT@@";
+        if (!data.contains(marker)) {
+            return data;
+        }
+        String encoded = Base64.encodeBase64String(readResourceFile("/script/managed-addon-placement.py").getBytes(StandardCharsets.UTF_8));
+        return data.replace(marker, encoded);
+    }
+
+    protected boolean reconcileManagedAddonPlacement() {
+        try {
+            String encoded = Base64.encodeBase64String(readResourceFile("/script/managed-addon-placement.py").getBytes(StandardCharsets.UTF_8));
+            String helper = "sudo python3 -c 'import base64;exec(base64.b64decode(\"" + encoded + "\"))' --existing ";
+            String command = helper + "CCM && " + helper + "HEADLAMP && echo MOLD_MANAGED_ADDON_RECONCILED";
+            Pair<Boolean, String> result = SshHelper.sshExecute(publicIpAddress, sshPort, getControlNodeLoginUser(),
+                    getManagementServerSshPublicKeyFile(), null, command, 10000, 10000, 90000);
+            return Boolean.TRUE.equals(result.first()) && result.second().contains("MOLD_MANAGED_ADDON_RECONCILED");
+        } catch (Exception e) {
+            logger.warn("Managed Kubernetes add-on placement reconciliation failed for cluster {}", kubernetesCluster.getUuid());
+            return false;
+        }
     }
 
     protected String getControlNodeLoginUser() {
@@ -485,6 +577,36 @@ public class KubernetesClusterActionWorker {
         return publicIp;
     }
 
+    protected void recordNativeNetworkResource(ResourceObjectType type, long id, String uuid, IpAddress address) {
+        Network network = networkDao.findById(kubernetesCluster.getNetworkId());
+        IPAddressVO current = ipAddressDao.findById(address.getId());
+        KubernetesOwnedResourceReceipt receipt = new KubernetesOwnedResourceReceipt(type, id, uuid, kubernetesCluster.getUuid(),
+                network.getUuid(), current.getUuid(), current.getAllocationGeneration());
+        kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "cleanup.native." + type + "." + uuid, receipt.encode(), false);
+    }
+
+    protected KubernetesOwnedResourceReceipt findOwnedNativeRule(FirewallRule rule, Network network, IpAddress address) {
+        ResourceObjectType type = rule instanceof PortForwardingRuleVO ? ResourceObjectType.PortForwardingRule : ResourceObjectType.FirewallRule;
+        KubernetesClusterDetailsVO detail = kubernetesClusterDetailsDao.findDetail(kubernetesCluster.getId(), "cleanup.native." + type + "." + rule.getUuid());
+        if (detail == null) {
+            return null;
+        }
+        KubernetesOwnedResourceReceipt receipt = KubernetesOwnedResourceReceipt.decode(detail.getValue());
+        validateOwnedNodeRule(receipt, rule, network, address);
+        return receipt;
+    }
+
+    protected void validateOwnedNodeRule(KubernetesOwnedResourceReceipt receipt, FirewallRule rule, Network network, IpAddress address) {
+        IPAddressVO current = ipAddressDao.findById(address.getId());
+        if (receipt.id != rule.getId() || !receipt.resource.equals(rule.getUuid())
+                || !receipt.service.equals(kubernetesCluster.getUuid()) || !receipt.network.equals(network.getUuid())
+                || !receipt.ip.equals(address.getUuid()) || current == null || !receipt.generation.equals(current.getAllocationGeneration())
+                || rule.getAccountId() != kubernetesCluster.getAccountId() || !Long.valueOf(network.getId()).equals(rule.getNetworkId())
+                || !Long.valueOf(address.getId()).equals(rule.getSourceIpAddressId())) {
+            throw new CloudRuntimeException("Kubernetes node rule ownership changed; removal is incomplete");
+        }
+    }
+
     protected IpAddress acquireVpcTierKubernetesPublicIp(Network network, boolean forEtcd) throws
             InsufficientAddressCapacityException, ResourceAllocationException, ResourceUnavailableException {
         IpAddress ip = networkService.allocateIP(owner, kubernetesCluster.getZoneId(), network.getId(), null, null);
@@ -493,6 +615,7 @@ public class KubernetesClusterActionWorker {
         }
         ip = vpcService.associateIPToVpc(ip.getId(), network.getVpcId());
         ip = ipAddressManager.associateIPToGuestNetwork(ip.getId(), network.getId(), false);
+        recordNativeNetworkResource(ResourceObjectType.PublicIpAddress, ip.getId(), ip.getUuid(), ip);
         if (!forEtcd) {
             kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), ApiConstants.PUBLIC_IP_ID, ip.getUuid(), false);
         }
@@ -506,6 +629,7 @@ public class KubernetesClusterActionWorker {
             return null;
         }
         ip = networkService.associateIPToNetwork(ip.getId(), network.getId());
+        recordNativeNetworkResource(ResourceObjectType.PublicIpAddress, ip.getId(), ip.getUuid(), ip);
         return ip;
     }
 
@@ -580,6 +704,16 @@ public class KubernetesClusterActionWorker {
         return new Pair<>(null, CLUSTER_NODES_DEFAULT_START_SSH_PORT);
     }
 
+    protected void attachKubernetesIsoToVm(UserVm vm, long isoId, boolean upgradeRetry) {
+        if (upgradeRetry && Objects.equals(vm.getIsoId(), isoId)) {
+            logger.info("Reusing already attached target binaries ISO for VM {} in Kubernetes cluster {}", vm.getUuid(), kubernetesCluster.getUuid());
+            return;
+        }
+        // Let the existing template API reject a different attached ISO. Never detach or
+        // replace operator media to make an interrupted upgrade retry appear successful.
+        templateService.attachIso(isoId, vm.getId(), true);
+    }
+
     protected void attachIsoKubernetesVMs(List<UserVm> clusterVMs, final KubernetesSupportedVersion kubernetesSupportedVersion) throws CloudRuntimeException {
         KubernetesSupportedVersion version = kubernetesSupportedVersion;
         if (kubernetesSupportedVersion == null) {
@@ -608,7 +742,7 @@ public class KubernetesClusterActionWorker {
             CallContext vmContext  = CallContext.register(CallContext.current(), ApiCommandResourceType.VirtualMachine);
             vmContext.putContextParameter(VirtualMachine.class, vm.getUuid());
             try {
-                templateService.attachIso(iso.getId(), vm.getId(), true);
+                attachKubernetesIsoToVm(vm, iso.getId(), kubernetesSupportedVersion != null);
                 if (logger.isInfoEnabled()) {
                     logger.info("Attached binaries ISO for VM: {} in cluster: {}", vm, kubernetesCluster);
                 }
@@ -644,6 +778,71 @@ public class KubernetesClusterActionWorker {
             }
             logger.warn("Failed to detach binaries ISO from VM: {} in the Kubernetes cluster: {} ", vm, kubernetesCluster);
         }
+    }
+
+    protected Pair<Boolean, String> executeNodeNetworkSnapshot() throws Exception {
+        return SshHelper.sshExecute(publicIpAddress, sshPort, getControlNodeLoginUser(), sshKeyFile, null,
+                KubernetesNetworkReadiness.SNAPSHOT_COMMAND, 10000, 10000, 30000);
+    }
+
+    protected Pair<String, Integer> nodeBootEndpoint(UserVm vm) {
+        Network network = networkDao.findById(kubernetesCluster.getNetworkId());
+        String address;
+        int port;
+        if (network != null && (network.getGuestType() == Network.GuestType.Shared || routedIpv4Manager.isRoutedNetwork(network))) {
+            address = vm.getPrivateIpAddress();
+            port = DEFAULT_SSH_PORT;
+        } else {
+            List<com.cloud.network.rules.PortForwardingRuleVO> rules = portForwardingRulesDao.listByVm(vm.getId()).stream()
+                    .filter(rule -> java.util.Objects.equals(rule.getNetworkId(), kubernetesCluster.getNetworkId())
+                            && rule.getState() != com.cloud.network.rules.FirewallRule.State.Revoke
+                            && "tcp".equalsIgnoreCase(rule.getProtocol()) && rule.getDestinationPortStart() == DEFAULT_SSH_PORT
+                            && rule.getDestinationPortEnd() == DEFAULT_SSH_PORT
+                            && rule.getSourcePortStart().equals(rule.getSourcePortEnd()))
+                    .collect(java.util.stream.Collectors.toList());
+            if (rules.size() != 1) { return null; }
+            IpAddress ip = ipAddressDao.findById(rules.get(0).getSourceIpAddressId());
+            if (ip == null) { return null; }
+            address = ip.getAddress().addr();
+            port = rules.get(0).getSourcePortStart();
+        }
+        return new Pair<>(address, port);
+    }
+
+    protected Pair<Boolean, String> executeNodeBootQuery(UserVm vm) throws Exception {
+        Pair<String, Integer> endpoint = nodeBootEndpoint(vm);
+        if (endpoint == null) { return new Pair<>(false, ""); }
+        return SshHelper.sshExecute(endpoint.first(), endpoint.second(), getControlNodeLoginUser(), sshKeyFile, null,
+                KubernetesNetworkReadiness.BOOT_COMMAND, 10000, 10000, 20000);
+    }
+
+    protected boolean waitForNodeNetworkReady(UserVm vm, long timeoutTime) {
+        String name = StringUtils.defaultString(vm.getHostName()).toLowerCase(java.util.Locale.ROOT);
+        if (!name.matches("[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?")) { return false; }
+        String reason = "native readiness query failed";
+        while (System.currentTimeMillis() < timeoutTime) {
+            try {
+                Pair<Boolean, String> boot = executeNodeBootQuery(vm);
+                Pair<Boolean, String> snapshot = executeNodeNetworkSnapshot();
+                if (boot != null && snapshot != null && Boolean.TRUE.equals(boot.first()) && Boolean.TRUE.equals(snapshot.first())) {
+                    String[] fields = StringUtils.trimToEmpty(boot.second()).split("\\s+");
+                    if (fields.length == 2) {
+                        reason = KubernetesNetworkReadiness.failureReason(snapshot.second(), name, vm.getUuid(), fields[0],
+                                Long.parseLong(fields[1]), java.time.Instant.now().getEpochSecond());
+                        if (reason == null) { return true; }
+                    }
+                }
+            } catch (Exception error) {
+                reason = "native readiness query failed";
+            }
+            logger.debug("Kubernetes node {} readiness gate: {}", vm.getUuid(), reason);
+            try { Thread.sleep(15000); } catch (InterruptedException error) {
+                Thread.currentThread().interrupt();
+                return false;
+            }
+        }
+        logger.warn("Kubernetes node {} readiness timed out: {}. Cordon and runtime resources are preserved.", vm.getUuid(), reason);
+        return false;
     }
 
     protected List<KubernetesClusterVmMapVO> getKubernetesClusterVMMaps() {
@@ -697,8 +896,14 @@ public class KubernetesClusterActionWorker {
         sshPort = publicIpSshPort.second();
 
         try {
+            File currentScript = retrieveScriptFile(deploySecretsScriptFilename);
+            if (currentScript == null) {
+                return false;
+            }
+            copyScriptFile(publicIpAddress, sshPort, currentScript, deploySecretsScriptFilename);
             String command = String.format("sudo %s/%s -u '%s' -k '%s' -s '%s'",
                 scriptPath, deploySecretsScriptFilename, ApiServiceConfiguration.getApiServletPathValue(), keys[0], keys[1]);
+            command += " -c '" + kubernetesCluster.getUuid() + "'";
             Account account = accountDao.findById(kubernetesCluster.getAccountId());
             if (account != null && account.getType() == Account.Type.PROJECT) {
                 String projectId = projectService.findByProjectAccountId(account.getId()).getUuid();
@@ -706,6 +911,11 @@ public class KubernetesClusterActionWorker {
             }
             Pair<Boolean, String> result = SshHelper.sshExecute(publicIpAddress, sshPort, getControlNodeLoginUser(),
                     pkFile, null, command, 10000, 10000, 60000);
+            if (Boolean.TRUE.equals(result.first()) && result.second() != null && result.second().contains("MOLD_PROVIDER_OWNERSHIP_V1_READY")) {
+                kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "provider.ownership.v1", "true", false);
+            } else if (Boolean.TRUE.equals(result.first())) {
+                kubernetesClusterDetailsDao.removeDetail(kubernetesCluster.getId(), "provider.ownership.v1");
+            }
             return result.first();
         } catch (Exception e) {
             String msg = String.format("Failed to add cloudstack-secret to Kubernetes cluster: %s", kubernetesCluster.getName());
@@ -717,7 +927,7 @@ public class KubernetesClusterActionWorker {
     protected File retrieveScriptFile(String filename) {
         File file = null;
         try {
-            String data = readResourceFile("/script/" + filename);
+            String data = prepareManagedAddonPlacement(readResourceFile("/script/" + filename));
             file = File.createTempFile(filename, ".sh");
             BufferedWriter writer = new BufferedWriter(new FileWriter(file));
             writer.write(data);
@@ -753,11 +963,22 @@ public class KubernetesClusterActionWorker {
             SshHelper.scpTo(nodeAddress, sshPort, getControlNodeLoginUser(), sshKeyFile, null,
                     "~/", file.getAbsolutePath(), "0755", 20000, 30 * 60 * 1000);
             // Ensure destination dir scriptPath exists and copy file to destination
-            String cmdStr = String.format("sudo mkdir -p %s ; sudo mv ~/%s %s/%s", scriptPath, file.getName(), scriptPath, destination);
-            SshHelper.sshExecute(nodeAddress, sshPort, getControlNodeLoginUser(), sshKeyFile, null,
-                    cmdStr, 10000, 10000, 10 * 60 * 1000);
+            String cmdStr = String.format("sudo mkdir -p %s && sudo mv ~/%s %s/%s", scriptPath, file.getName(), scriptPath, destination);
+            Pair<Boolean, String> installed = executeScriptInstallCommand(nodeAddress, sshPort, cmdStr);
+            requireScriptInstalled(installed);
         } catch (Exception e) {
             throw new CloudRuntimeException(e);
+        }
+    }
+
+    protected Pair<Boolean, String> executeScriptInstallCommand(String nodeAddress, int port, String command) throws Exception {
+        return SshHelper.sshExecute(nodeAddress, port, getControlNodeLoginUser(), sshKeyFile, null,
+                command, 10000, 10000, 10 * 60 * 1000);
+    }
+
+    protected void requireScriptInstalled(Pair<Boolean, String> installed) {
+        if (installed == null || !Boolean.TRUE.equals(installed.first())) {
+            throw new CloudRuntimeException("Kubernetes node script installation failed; verify node SSH access and passwordless sudo before retrying");
         }
     }
 
@@ -814,7 +1035,7 @@ public class KubernetesClusterActionWorker {
         try {
             String command = String.format("sudo %s/%s", scriptPath, deployProviderScriptFilename);
             Pair<Boolean, String> result = SshHelper.sshExecute(publicIpAddress, sshPort, getControlNodeLoginUser(),
-                    pkFile, null, command, 10000, 10000, 60000);
+                    pkFile, null, command, 10000, 10000, 180000);
 
             // Maybe the file isn't present. Try and copy it
             if (!result.first()) {
@@ -829,7 +1050,7 @@ public class KubernetesClusterActionWorker {
 
                 // If at first you don't succeed ...
                 result = SshHelper.sshExecute(publicIpAddress, sshPort, getControlNodeLoginUser(),
-                        pkFile, null, command, 10000, 10000, 60000);
+                        pkFile, null, command, 10000, 10000, 180000);
                 if (!result.first()) {
                     throw new CloudRuntimeException(result.second());
                 }
@@ -851,7 +1072,7 @@ public class KubernetesClusterActionWorker {
         try {
             String command = String.format("sudo %s/%s", scriptPath, deployCsiDriverScriptFilename);
             Pair<Boolean, String> result = SshHelper.sshExecute(publicIpAddress, sshPort, getControlNodeLoginUser(),
-                    pkFile, null, command, 10000, 10000, 60000);
+                    pkFile, null, command, 10000, 10000, 480000);
 
             // Maybe the file isn't present. Try and copy it
             if (!result.first()) {
@@ -866,14 +1087,14 @@ public class KubernetesClusterActionWorker {
 
                 // If at first you don't succeed ...
                 result = SshHelper.sshExecute(publicIpAddress, sshPort, getControlNodeLoginUser(),
-                        pkFile, null, command, 10000, 10000, 60000);
+                        pkFile, null, command, 10000, 10000, 480000);
                 if (!result.first()) {
                     throw new CloudRuntimeException(result.second());
                 }
             }
             return true;
         } catch (Exception e) {
-            String msg = String.format("Failed to deploy kubernetes provider: %s : %s", kubernetesCluster.getName(), e.getMessage());
+            String msg = String.format("Failed to deploy Kubernetes CSI driver: %s : %s", kubernetesCluster.getName(), e.getMessage());
             logAndThrow(Level.ERROR, msg);
             return false;
         }
@@ -933,7 +1154,10 @@ public class KubernetesClusterActionWorker {
             newRule = portForwardingRulesDao.persist(newRule);
             return newRule;
         });
-        rulesService.applyPortForwardingRules(publicIp.getId(), account);
+        recordNativeNetworkResource(ResourceObjectType.PortForwardingRule, pfRule.getId(), pfRule.getUuid(), publicIp);
+        if (!rulesService.applyPortForwardingRules(publicIp.getId(), account)) {
+            throw new CloudRuntimeException("Kubernetes node SSH port forwarding could not be applied");
+        }
         if (logger.isInfoEnabled()) {
             logger.info(String.format("Provisioned SSH port forwarding rule: %s from port %d to %d on %s to the VM IP : %s in Kubernetes cluster : %s", pfRule.getUuid(), sourcePort, destPort, publicIp.getAddress().addr(), vmIp.toString(), kubernetesCluster.getName()));
         }
@@ -1082,8 +1306,11 @@ public class KubernetesClusterActionWorker {
         cidrField.setAccessible(true);
         cidrField.set(rule, sourceCidrList);
 
-        firewallService.createIngressFirewallRule(rule);
-        firewallService.applyIngressFwRules(publicIp.getId(), account);
+        FirewallRule created = firewallService.createIngressFirewallRule(rule);
+        recordNativeNetworkResource(ResourceObjectType.FirewallRule, created.getId(), created.getUuid(), publicIp);
+        if (!firewallService.applyIngressFwRules(publicIp.getId(), account)) {
+            throw new CloudRuntimeException("Kubernetes node SSH firewall could not be applied");
+        }
     }
 
     protected NicVO getVirtualRouterNicOnKubernetesClusterNetwork(KubernetesCluster kubernetesCluster) {

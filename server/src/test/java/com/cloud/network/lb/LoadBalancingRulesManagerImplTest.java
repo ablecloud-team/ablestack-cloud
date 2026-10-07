@@ -361,6 +361,47 @@ public class LoadBalancingRulesManagerImplTest{
     }
 
     @Test
+    public void testUpdateLoadBalancerSourceCidrsReappliesRule() throws Exception {
+        setupUpdateLoadBalancerRule();
+        when(loadBalancerMock.getLbProtocol()).thenReturn(NetUtils.TCP_PROTO);
+        when(loadBalancerMock.getCidrList()).thenReturn("0.0.0.0/0");
+        UpdateLoadBalancerRuleCmd cmd = new UpdateLoadBalancerRuleCmd();
+        ReflectionTestUtils.setField(cmd, ApiConstants.ID, lbRuleId);
+        ReflectionTestUtils.setField(cmd, "cidrList", Arrays.asList("10.0.0.0/8", "2001:db8::/32"));
+        lbr.updateLoadBalancerRule(cmd);
+        Mockito.verify(loadBalancerMock).setCidrList("10.0.0.0/8 2001:db8::/32");
+        Mockito.verify(lbr).applyLoadBalancerConfig(lbRuleId);
+    }
+
+    @Test(expected = org.apache.cloudstack.api.ServerApiException.class)
+    public void testUpdateLoadBalancerRejectsInvalidSourceCidr() throws Exception {
+        setupUpdateLoadBalancerRule();
+        UpdateLoadBalancerRuleCmd cmd = new UpdateLoadBalancerRuleCmd();
+        ReflectionTestUtils.setField(cmd, ApiConstants.ID, lbRuleId);
+        ReflectionTestUtils.setField(cmd, "cidrList", Arrays.asList("invalid/99"));
+        lbr.updateLoadBalancerRule(cmd);
+    }
+
+    @Test
+    public void testUpdateLoadBalancerSourceCidrRollbackRestoresNull() throws Exception {
+        setupUpdateLoadBalancerRule();
+        when(loadBalancerMock.getLbProtocol()).thenReturn(NetUtils.TCP_PROTO);
+        Mockito.doThrow(ResourceUnavailableException.class).when(lbr).applyLoadBalancerConfig(lbRuleId);
+        when(_networkMgr.getProvidersForServiceInNetwork(networkMock, Network.Service.Lb))
+                .thenReturn(Arrays.asList(Network.Provider.VirtualRouter));
+        UpdateLoadBalancerRuleCmd cmd = new UpdateLoadBalancerRuleCmd();
+        ReflectionTestUtils.setField(cmd, ApiConstants.ID, lbRuleId);
+        ReflectionTestUtils.setField(cmd, "cidrList", Arrays.asList("10.0.0.0/8"));
+        try {
+            lbr.updateLoadBalancerRule(cmd);
+            org.junit.Assert.fail("Expected failed backend apply");
+        } catch (CloudRuntimeException expected) {
+            Mockito.verify(loadBalancerMock).setCidrList("10.0.0.0/8");
+            Mockito.verify(loadBalancerMock).setCidrList(null);
+        }
+    }
+
+    @Test
     public void testGetVmNicInLoadBalancerDefaultCase() {
         UserVm userVm = Mockito.mock(UserVm.class);
         LoadBalancerVO loadBalancer = Mockito.mock(LoadBalancerVO.class);

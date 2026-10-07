@@ -52,6 +52,10 @@ import com.cloud.event.ActionEvent;
 import com.cloud.exception.InvalidParameterValueException;
 import com.cloud.exception.ResourceAllocationException;
 import com.cloud.kubernetes.cluster.KubernetesClusterService;
+import com.cloud.kubernetes.cluster.KubernetesCluster;
+import com.cloud.kubernetes.cluster.KubernetesClusterDetailsVO;
+import com.cloud.kubernetes.cluster.dao.KubernetesClusterDetailsDao;
+import com.cloud.kubernetes.cluster.dao.KubernetesClusterVmMapDao;
 import com.cloud.kubernetes.cluster.KubernetesClusterVO;
 import com.cloud.kubernetes.cluster.dao.KubernetesClusterDao;
 import com.cloud.kubernetes.version.dao.KubernetesSupportedVersionDao;
@@ -77,6 +81,10 @@ public class KubernetesVersionManagerImpl extends ManagerBase implements Kuberne
     private KubernetesSupportedVersionDao kubernetesSupportedVersionDao;
     @Inject
     private KubernetesClusterDao kubernetesClusterDao;
+    @Inject
+    private KubernetesClusterDetailsDao kubernetesClusterDetailsDao;
+    @Inject
+    private KubernetesClusterVmMapDao kubernetesClusterVmMapDao;
     @Inject
     private AccountManager accountManager;
     @Inject
@@ -233,7 +241,7 @@ public class KubernetesVersionManagerImpl extends ManagerBase implements Kuberne
         }
     }
 
-    private void deleteKubernetesVersionIso(long templateId) throws IllegalAccessException, NoSuchFieldException,
+    protected boolean deleteKubernetesVersionIso(long templateId) throws IllegalAccessException, NoSuchFieldException,
             IllegalArgumentException {
         CallContext isoContext = CallContext.register(CallContext.current(), ApiCommandResourceType.Iso);
         isoContext.setEventResourceId(templateId);
@@ -241,7 +249,7 @@ public class KubernetesVersionManagerImpl extends ManagerBase implements Kuberne
         deleteIsoCmd = ComponentContext.inject(deleteIsoCmd);
         deleteIsoCmd.setId(templateId);
         try {
-            templateService.deleteIso(deleteIsoCmd);
+            return templateService.deleteIso(deleteIsoCmd);
         } finally {
             CallContext.unregister();
         }
@@ -479,10 +487,44 @@ public class KubernetesVersionManagerImpl extends ManagerBase implements Kuberne
         return response;
     }
 
+    protected boolean isKubernetesVersionReferenced(KubernetesSupportedVersion version) {
+        if (kubernetesClusterDao.listAllByKubernetesVersion(version.getId()).stream().anyMatch(cluster -> cluster.getRemoved() == null)) {
+            return true;
+        }
+        for (KubernetesClusterVO cluster : kubernetesClusterDao.listAll()) {
+            if (cluster.getRemoved() != null) {
+                continue;
+            }
+            for (String name : new String[]{KubernetesVersionReferences.SOURCE, KubernetesVersionReferences.TARGET}) {
+                KubernetesClusterDetailsVO detail = kubernetesClusterDetailsDao.findDetail(cluster.getId(), name);
+                if (detail != null && Long.toString(version.getId()).equals(detail.getValue())) {
+                    return true;
+                }
+            }
+            // Preserve legacy partial upgrades created before persistent artifact pins existed.
+            if (cluster.getState() == KubernetesCluster.State.Upgrading || cluster.getState() == KubernetesCluster.State.Alert) {
+                KubernetesSupportedVersion current = kubernetesSupportedVersionDao.findById(cluster.getKubernetesVersionId());
+                if (current == null) {
+                    throw new CloudRuntimeException("Cannot verify artifact references of an unfinished Kubernetes upgrade");
+                }
+                if (!version.getSemanticVersion().equals(current.getSemanticVersion())
+                        && kubernetesClusterVmMapDao.listByClusterId(cluster.getId()).stream()
+                        .anyMatch(map -> ("v" + version.getSemanticVersion()).equals(map.getNodeVersion()))) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     @Override
     @ActionEvent(eventType = KubernetesVersionEventTypes.EVENT_KUBERNETES_VERSION_DELETE,
             eventDescription = "deleting Kubernetes supported version", async = true)
     public boolean deleteKubernetesSupportedVersion(final DeleteKubernetesSupportedVersionCmd cmd) {
+        return KubernetesVersionReferences.withLock(cmd.getId(), () -> deleteUnreferencedKubernetesVersion(cmd));
+    }
+
+    protected boolean deleteUnreferencedKubernetesVersion(final DeleteKubernetesSupportedVersionCmd cmd) {
         if (!KubernetesClusterService.KubernetesServiceEnabled.value()) {
             throw new CloudRuntimeException("Kubernetes Service plugin is disabled");
         }
@@ -491,9 +533,8 @@ public class KubernetesVersionManagerImpl extends ManagerBase implements Kuberne
         if (version == null) {
             throw new InvalidParameterValueException("Invalid Kubernetes version id specified");
         }
-        List<KubernetesClusterVO> clusters = kubernetesClusterDao.listAllByKubernetesVersion(versionId);
-        if (clusters.size() > 0) {
-            throw new CloudRuntimeException(String.format("Unable to delete Kubernetes version ID: %s. Existing clusters currently using the version.", version.getUuid()));
+        if (isKubernetesVersionReferenced(version)) {
+            throw new CloudRuntimeException(String.format("Unable to delete Kubernetes version ID: %s. Existing clusters or unfinished upgrades reference the artifact.", version.getUuid()));
         }
 
         VMTemplateVO template = templateDao.findByIdIncludingRemoved(version.getIsoId());
@@ -502,7 +543,9 @@ public class KubernetesVersionManagerImpl extends ManagerBase implements Kuberne
         }
         if (template != null && template.getRemoved() == null) { // Delete ISO
             try {
-                deleteKubernetesVersionIso(template.getId());
+                if (!deleteKubernetesVersionIso(template.getId())) {
+                    throw new CloudRuntimeException("Kubernetes binaries ISO deletion did not complete; supported version is preserved for retry");
+                }
             } catch (IllegalAccessException | NoSuchFieldException | IllegalArgumentException ex) {
                 logger.error("Unable to delete binaries ISO: {} associated with supported kubernetes version: {}", template, version, ex);
                 throw new CloudRuntimeException(String.format("Unable to delete binaries ISO ID: %s associated with supported kubernetes version ID: %s", template.getUuid(), version.getUuid()));
@@ -515,6 +558,10 @@ public class KubernetesVersionManagerImpl extends ManagerBase implements Kuberne
     @ActionEvent(eventType = KubernetesVersionEventTypes.EVENT_KUBERNETES_VERSION_UPDATE,
             eventDescription = "Updating Kubernetes supported version")
     public KubernetesSupportedVersionResponse updateKubernetesSupportedVersion(final UpdateKubernetesSupportedVersionCmd cmd) {
+        return KubernetesVersionReferences.withLock(cmd.getId(), () -> updateVersionWithReferenceLock(cmd));
+    }
+
+    protected KubernetesSupportedVersionResponse updateVersionWithReferenceLock(final UpdateKubernetesSupportedVersionCmd cmd) {
         if (!KubernetesClusterService.KubernetesServiceEnabled.value()) {
             throw new CloudRuntimeException("Kubernetes Service plugin is disabled");
         }

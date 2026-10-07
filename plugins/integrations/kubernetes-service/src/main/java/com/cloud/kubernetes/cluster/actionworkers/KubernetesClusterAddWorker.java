@@ -28,7 +28,6 @@ import com.cloud.kubernetes.cluster.KubernetesClusterEventTypes;
 import com.cloud.kubernetes.cluster.KubernetesClusterManagerImpl;
 import com.cloud.kubernetes.cluster.KubernetesClusterService;
 import com.cloud.kubernetes.cluster.KubernetesClusterVO;
-import com.cloud.kubernetes.cluster.utils.KubernetesClusterUtil;
 import com.cloud.network.IpAddress;
 import com.cloud.network.Network;
 import com.cloud.network.dao.FirewallRulesDao;
@@ -71,6 +70,7 @@ public class KubernetesClusterAddWorker extends KubernetesClusterActionWorker {
     }
 
     public boolean addNodesToCluster(List<Long> nodeIds, boolean mountCksIsoOnVr, boolean manualUpgrade) throws CloudRuntimeException {
+        boolean claimed = false;
         try {
             init();
             addNodeTimeoutTime = System.currentTimeMillis() + KubernetesClusterService.KubernetesClusterAddNodeTimeout.value() * 1000;
@@ -86,8 +86,11 @@ public class KubernetesClusterAddWorker extends KubernetesClusterActionWorker {
             } catch (ManagementServerException e) {
                 throw new CloudRuntimeException(String.format("Failed to retrieve public IP for the network: %s ", network.getName()));
             }
+            if (!stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.AddNodeRequested)) {
+                throw new CloudRuntimeException("Another Kubernetes cluster operation prevents external node addition");
+            }
+            claimed = true;
             attachCksIsoForNodesAdditionToCluster(nodeIds, kubernetesCluster.getId(), mountCksIsoOnVr);
-            stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.AddNodeRequested);
             String controlNodeGuestIp = getControlVmPrivateIp();
             Ternary<Integer, Long, Long> nodesAddedAndMemory = importNodeToCluster(nodeIds, network, publicIp, controlNodeGuestIp, mountCksIsoOnVr);
             int nodesAdded = nodesAddedAndMemory.first();
@@ -103,8 +106,9 @@ public class KubernetesClusterAddWorker extends KubernetesClusterActionWorker {
                 return false;
             }
             Pair<String, Integer> publicIpSshPort = getKubernetesClusterServerIpSshPort(null);
-            KubernetesClusterUtil.validateKubernetesClusterReadyNodesCount(kubernetesCluster, publicIpSshPort.first(), publicIpSshPort.second(),
-                    getControlNodeLoginUser(), sshKeyFile, addNodeTimeoutTime, 15000);
+            if (!waitForExternalNodesReady(nodeIds, publicIpSshPort)) {
+                throw new CloudRuntimeException("External Kubernetes nodes did not become Ready with their requested VM identities; mappings are retained for recovery");
+            }
             detachCksIsoFromNodesAddedToCluster(nodeIds, kubernetesCluster.getId(), mountCksIsoOnVr);
             stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.OperationSucceeded);
             String description = String.format("Successfully added %s nodes to Kubernetes Cluster %s", nodesAdded, kubernetesCluster.getUuid());
@@ -113,9 +117,40 @@ public class KubernetesClusterAddWorker extends KubernetesClusterActionWorker {
                     description, kubernetesCluster.getId(), ApiCommandResourceType.KubernetesCluster.toString(), 0);
             return true;
         } catch (Exception e) {
-            stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.OperationFailed);
+            if (claimed) {
+                stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.OperationFailed);
+            }
             throw new CloudRuntimeException(e);
         }
+    }
+
+    protected Pair<Boolean, String> queryExternalNativeNodes(Pair<String, Integer> control) throws Exception {
+        return SshHelper.sshExecute(control.first(), control.second(), getControlNodeLoginUser(), sshKeyFile, null,
+                "sudo /opt/bin/kubectl get nodes -o json --request-timeout=20s", 10000, 10000, 30000);
+    }
+
+    protected boolean externalNodesReady(List<Long> nodeIds, Pair<Boolean, String> query) {
+        if (nodeIds == null || nodeIds.isEmpty() || !Boolean.TRUE.equals(query.first())) { return false; }
+        for (Long id : nodeIds) {
+            UserVmVO vm = userVmDao.findById(id);
+            if (vm == null) { return false; }
+            KubernetesExternalNodeIdentity.NativeNode node = KubernetesExternalNodeIdentity.find(query.second(), vm.getUuid());
+            if (node == null || !node.ready) { return false; }
+        }
+        return true;
+    }
+
+    protected boolean waitForExternalNodesReady(List<Long> nodeIds, Pair<String, Integer> control) {
+        while (System.currentTimeMillis() < addNodeTimeoutTime) {
+            try {
+                if (externalNodesReady(nodeIds, queryExternalNativeNodes(control))) { return true; }
+            } catch (Exception e) {
+                logger.debug("External Kubernetes native readiness query is incomplete; waiting within the operation deadline");
+            }
+            try { Thread.sleep(15000); }
+            catch (InterruptedException e) { Thread.currentThread().interrupt(); return false; }
+        }
+        return false;
     }
 
     private void detachCksIsoFromNodesAddedToCluster(List<Long> nodeIds, long kubernetesClusterId, boolean mountCksIsoOnVr) {
@@ -311,16 +346,19 @@ public class KubernetesClusterAddWorker extends KubernetesClusterActionWorker {
     }
 
     private void revertNetworkRules(Network network, long vmId, int port) {
-        logger.debug(String.format("Reverting network rules for VM ID %s on network %s", vmId, network.getName()));
-        FirewallRuleVO ruleVO = firewallRulesDao.findByNetworkIdAndPorts(network.getId(), port, port);
-        if (Objects.isNull(network.getVpcId())) {
-            logger.debug(String.format("Removing firewall rule %s", ruleVO.getId()));
-            firewallService.revokeIngressFirewallRule(ruleVO.getId(), true);
-        }
-        List<PortForwardingRuleVO> pfRules = portForwardingRulesDao.listByVm(vmId);
-        for (PortForwardingRuleVO pfRule : pfRules) {
-            logger.debug(String.format("Removing port forwarding rule %s", pfRule.getId()));
-            rulesService.revokePortForwardingRule(pfRule.getId(), true);
+        try {
+            IpAddress address = getPublicIp(network);
+            FirewallRuleVO firewall = firewallRulesDao.findByNetworkIdAndPorts(network.getId(), port, port);
+            if (network.getVpcId() == null && firewall != null && findOwnedNativeRule(firewall, network, address) != null) {
+                firewallService.revokeIngressFirewallRule(firewall.getId(), true);
+            }
+            for (PortForwardingRuleVO rule : portForwardingRulesDao.listByVm(vmId)) {
+                if (findOwnedNativeRule(rule, network, address) != null) {
+                    rulesService.revokePortForwardingRule(rule.getId(), true);
+                }
+            }
+        } catch (Exception e) {
+            throw new CloudRuntimeException("External Kubernetes node rule rollback is incomplete", e);
         }
     }
 }

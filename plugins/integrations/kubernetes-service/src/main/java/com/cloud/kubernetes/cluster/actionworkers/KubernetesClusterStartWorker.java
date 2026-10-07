@@ -262,8 +262,11 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
                 cniConfig = substituteASNumber(cniConfig, asNumber);
             }
             cniConfig = Base64.encodeBase64String(cniConfig.getBytes(com.cloud.utils.StringUtils.getPreferredCharset()));
-            base64UserData = userDataManager.concatenateUserData(base64UserData, cniConfig, null);
+            String mergedCloudConfig = KubernetesCniUserData.mergeCloudConfig(base64UserData, cniConfig);
+            base64UserData = mergedCloudConfig != null ? mergedCloudConfig
+                    : userDataManager.concatenateUserData(base64UserData, cniConfig, null);
         }
+        base64UserData = prepareKubernetesUserData(base64UserData);
 
         List<String> keypairs = new ArrayList<String>();
         if (StringUtils.isNotBlank(kubernetesCluster.getKeyPair())) {
@@ -434,6 +437,7 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
         }
 
         String base64UserData = Base64.encodeBase64String(k8sControlNodeConfig.getBytes(com.cloud.utils.StringUtils.getPreferredCharset()));
+        base64UserData = prepareKubernetesUserData(base64UserData);
         List<String> keypairs = new ArrayList<String>();
         if (StringUtils.isNotBlank(kubernetesCluster.getKeyPair())) {
             keypairs.add(kubernetesCluster.getKeyPair());
@@ -479,6 +483,7 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
         }
 
         String base64UserData = Base64.encodeBase64String(k8sControlNodeConfig.getBytes(com.cloud.utils.StringUtils.getPreferredCharset()));
+        base64UserData = prepareKubernetesUserData(base64UserData);
         List<String> keypairs = new ArrayList<String>();
         if (StringUtils.isNotBlank(kubernetesCluster.getKeyPair())) {
             keypairs.add(kubernetesCluster.getKeyPair());
@@ -486,6 +491,13 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
         List<Long> affinityGroupIds = getMergedAffinityGroupIds(ETCD, domainId, accountId);
         String hostName = etcdNodeHostnames.get(etcdNodeIndex);
         Map<String, String> customParameterMap = new HashMap<String, String>();
+        long rootDiskSize = kubernetesCluster.getNodeRootDiskSize();
+        if (rootDiskSize > 0) {
+            customParameterMap.put("rootdisksize", String.valueOf(rootDiskSize));
+        }
+        if (Hypervisor.HypervisorType.VMware.equals(etcdTemplate.getHypervisorType())) {
+            customParameterMap.put(VmDetailConstants.ROOT_DISK_CONTROLLER, "scsi");
+        }
         if (zone.isSecurityGroupEnabled()) {
             List<Long> securityGroupIds = new ArrayList<>();
             securityGroupIds.add(kubernetesCluster.getSecurityGroupId());
@@ -556,7 +568,18 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
         return additionalControlVms;
     }
 
-    private Pair<List<UserVm>, List<Network.IpAddresses>> provisionEtcdCluster(final Network network, final Long domainId, final Long accountId)
+    protected Pair<List<UserVm>, List<Network.IpAddresses>> provisionEtcdClusterOnCreate(final Network network,
+            final Long domainId, final Long accountId) {
+        try {
+            return provisionEtcdCluster(network, domainId, accountId);
+        } catch (CloudRuntimeException | ManagementServerException | ResourceUnavailableException | InsufficientCapacityException e) {
+            logTransitStateAndThrow(Level.ERROR, String.format("Provisioning external etcd VMs failed in the Kubernetes cluster : %s",
+                    kubernetesCluster.getName()), kubernetesCluster.getId(), KubernetesCluster.Event.CreateFailed, e);
+            return null;
+        }
+    }
+
+    protected Pair<List<UserVm>, List<Network.IpAddresses>> provisionEtcdCluster(final Network network, final Long domainId, final Long accountId)
             throws InsufficientCapacityException, ResourceUnavailableException, ManagementServerException {
         List<UserVm> etcdNodeVms = new ArrayList<>();
         List<Network.IpAddresses>  etcdNodeGuestIps = getEtcdNodeGuestIps(network, kubernetesCluster.getEtcdNodeCount());
@@ -585,7 +608,7 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
         return guestIps;
     }
 
-    private Network startKubernetesClusterNetwork(final DeployDestination destination) throws ManagementServerException {
+    protected Network startKubernetesClusterNetwork(final DeployDestination destination) throws ManagementServerException {
         final ReservationContext context = new ReservationContextImpl(null, null, null, owner);
         Network network = networkDao.findById(kubernetesCluster.getNetworkId());
         if (network == null) {
@@ -595,7 +618,9 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
             throw new ManagementServerException(msg);
         }
         try {
-            networkMgr.startNetwork(network.getId(), destination, context);
+            if (!networkMgr.startNetwork(network.getId(), destination, context)) {
+                throw new ManagementServerException("Kubernetes network implementation did not complete; check network resources and account limits");
+            }
             if (logger.isInfoEnabled()) {
                 logger.info("Network: {} is started for the Kubernetes cluster: {}", network, kubernetesCluster);
             }
@@ -739,12 +764,51 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
         kubernetesClusterDao.update(kubernetesCluster.getId(), kubernetesClusterVO);
     }
 
+    public void recordCreationCredentialFailure() {
+        if (kubernetesCluster.getState() == KubernetesCluster.State.Created
+                && CollectionUtils.isEmpty(kubernetesClusterVmMapDao.listByClusterId(kubernetesCluster.getId()))) {
+            kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "lifecycle.provisioning.phase", "Preflight", false);
+            if (!stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.StartRequested)
+                    || !stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.CreateFailed)) {
+                throw new CloudRuntimeException("Cannot record Kubernetes controller credential preparation failure");
+            }
+        }
+    }
+
+    public void recordCreationOperationFailure() {
+        KubernetesCluster current = kubernetesClusterDao.findById(kubernetesCluster.getId());
+        if (current == null) { return; }
+        if (current.getState() == KubernetesCluster.State.Created
+                && CollectionUtils.isEmpty(kubernetesClusterVmMapDao.listByClusterId(kubernetesCluster.getId()))) {
+            kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "lifecycle.provisioning.phase", "Preflight", false);
+            stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.StartRequested);
+            stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.CreateFailed);
+        } else if (current.getState() == KubernetesCluster.State.Starting) {
+            stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.CreateFailed);
+        }
+    }
+
+    protected boolean initializeCreationComponent(String component, java.util.function.BooleanSupplier initialize) {
+        try {
+            return initialize.getAsBoolean();
+        } catch (RuntimeException error) {
+            stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.CreateFailed);
+            throw new CloudRuntimeException("Failed to initialize Kubernetes " + component + "; nodes and cleanup receipts are preserved", error);
+        }
+    }
+
     public boolean startKubernetesClusterOnCreate(Long domainId, Long accountId, Long asNumber) throws ManagementServerException, ResourceUnavailableException, InsufficientCapacityException {
         init();
         if (logger.isInfoEnabled()) {
             logger.info("Starting Kubernetes cluster: {}", kubernetesCluster);
         }
         final long startTimeoutTime = System.currentTimeMillis() + KubernetesClusterService.KubernetesClusterStartTimeout.value() * 1000;
+        // Only a new, unprovisioned creation may claim the Preflight cleanup path.
+        if (!KubernetesCluster.State.Created.equals(kubernetesCluster.getState())
+                || !CollectionUtils.isEmpty(kubernetesClusterVmMapDao.listByClusterId(kubernetesCluster.getId()))) {
+            throw new CloudRuntimeException("Cluster creation preflight requires a new cluster without provisioned nodes");
+        }
+        kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "lifecycle.provisioning.phase", "Preflight", false);
         stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.StartRequested);
         DeployDestination dest = null;
         try {
@@ -777,10 +841,11 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
             launchPermissionDao.persist(launchPermission);
         }
 
+        kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "lifecycle.provisioning.phase", "Nodes", false);
         List<UserVm> etcdVms = new ArrayList<>();
         List<Network.IpAddresses> etcdGuestNodeIps = new ArrayList<>();
         if (kubernetesCluster.getEtcdNodeCount() > 0) {
-            Pair<List<UserVm>, List<Network.IpAddresses>> etcdNodesAndIps = provisionEtcdCluster(network, domainId, accountId);
+            Pair<List<UserVm>, List<Network.IpAddresses>> etcdNodesAndIps = provisionEtcdClusterOnCreate(network, domainId, accountId);
             etcdVms = etcdNodesAndIps.first();
             etcdGuestNodeIps = etcdNodesAndIps.second();
         }
@@ -827,6 +892,8 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
         } catch (ManagementServerException e) {
             logTransitStateAndThrow(Level.ERROR, String.format("Failed to setup Kubernetes cluster : %s, unable to setup network rules for etcd nodes", kubernetesCluster.getName()), kubernetesCluster.getId(), KubernetesCluster.Event.CreateFailed, e);
         }
+        kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "lifecycle.bootstrap.started", "v1", false);
+        kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "lifecycle.provisioning.phase", "Bootstrap", false);
         attachIsoKubernetesVMs(etcdVms);
         attachIsoKubernetesVMs(clusterVMs);
         if (!KubernetesClusterUtil.isKubernetesClusterControlVmRunning(kubernetesCluster, publicIpAddress, publicIpSshPort.second(), startTimeoutTime)) {
@@ -846,8 +913,13 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
         }
         sshPort = publicIpSshPort.second();
         updateKubernetesClusterEntryEndpoint();
-        boolean readyNodesCountValid = KubernetesClusterUtil.validateKubernetesClusterReadyNodesCount(kubernetesCluster, publicIpAddress, sshPort,
-                getControlNodeLoginUser(), sshKeyFile, startTimeoutTime, 15000);
+        // External kubelets remain uninitialized until the CCM sets provider IDs.
+        // Deploy it before waiting for Node and Dashboard workload readiness.
+        if (!initializeCreationComponent("Provider", this::deployProvider)) {
+            logTransitStateAndThrow(Level.ERROR, String.format("Failed to initialize Kubernetes provider for cluster : %s",
+                    kubernetesCluster.getName()), kubernetesCluster.getId(), KubernetesCluster.Event.CreateFailed);
+        }
+        boolean readyNodesCountValid = validateStartedNodes(startTimeoutTime);
         detachIsoKubernetesVMs(clusterVMs);
         if (!readyNodesCountValid) {
             logTransitStateAndThrow(Level.ERROR, String.format("Failed to setup Kubernetes cluster : %s as it does not have desired number of nodes in ready state", kubernetesCluster.getName()), kubernetesCluster.getId(), KubernetesCluster.Event.CreateFailed);
@@ -859,16 +931,49 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
             logTransitStateAndThrow(Level.ERROR, String.format("Failed to setup Kubernetes cluster : %s in usable state as unable to get Dashboard service running for the cluster", kubernetesCluster.getName()), kubernetesCluster.getId(),KubernetesCluster.Event.OperationFailed);
         }
         taintControlNodes();
-        deployProvider();
-        if (kubernetesCluster.isCsiEnabled()) {
-            deployCsiDriver();
+        if (!rebalanceHaDns()) {
+            logTransitStateAndThrow(Level.ERROR, String.format("Failed to setup HA Kubernetes cluster : %s as CoreDNS is not Ready on distinct nodes",
+                    kubernetesCluster.getName()), kubernetesCluster.getId(), KubernetesCluster.Event.CreateFailed);
+        }
+        if (kubernetesCluster.isCsiEnabled() && !initializeCreationComponent("CSI", this::deployCsiDriver)) {
+            logTransitStateAndThrow(Level.ERROR, String.format("Failed to initialize Kubernetes CSI driver for cluster : %s",
+                    kubernetesCluster.getName()), kubernetesCluster.getId(), KubernetesCluster.Event.CreateFailed);
         }
         updateLoginUserDetails(clusterVMs.stream().map(InternalIdentity::getId).collect(Collectors.toList()));
+        kubernetesClusterDetailsDao.addDetail(kubernetesCluster.getId(), "lifecycle.provisioning.phase", "Ready", false);
         stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.OperationSucceeded);
         return true;
     }
 
 
+
+    protected boolean reconcileRuntimeComponents() {
+        if (keys == null || keys.length != 2 || StringUtils.isEmpty(keys[0]) || StringUtils.isEmpty(keys[1])) {
+            return false;
+        }
+        try {
+            retrieveScriptFiles();
+            copyScripts(publicIpAddress, sshPort);
+            if (!createCloudStackSecret(keys) || !deployProvider()) {
+                return false;
+            }
+            return !kubernetesCluster.isCsiEnabled() || deployCsiDriver();
+        } catch (CloudRuntimeException error) {
+            logger.warn("Required Kubernetes runtime component recovery failed for cluster: {}", kubernetesCluster.getUuid());
+            return false;
+        }
+    }
+
+    protected boolean validateStartedNodes(long timeout) {
+        if (!KubernetesClusterUtil.validateKubernetesClusterReadyNodesCount(kubernetesCluster, publicIpAddress, sshPort,
+                getControlNodeLoginUser(), sshKeyFile, timeout, 15000)) { return false; }
+        for (KubernetesClusterVmMapVO map : getKubernetesClusterVMMaps()) {
+            if (map.isEtcdNode()) { continue; }
+            UserVm vm = userVmDao.findById(map.getVmId());
+            if (vm == null || !waitForNodeNetworkReady(vm, timeout)) { return false; }
+        }
+        return true;
+    }
 
     public boolean startStoppedKubernetesCluster(Long domainId, Long accountId) throws CloudRuntimeException {
         init();
@@ -892,11 +997,19 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
         if (!KubernetesClusterUtil.isKubernetesClusterServerRunning(kubernetesCluster, publicIpAddress, CLUSTER_API_PORT, startTimeoutTime, 15000)) {
             logTransitStateAndThrow(Level.ERROR, String.format("Failed to start Kubernetes cluster : %s in usable state", kubernetesCluster.getName()), kubernetesCluster.getId(), KubernetesCluster.Event.OperationFailed);
         }
+        if (!validateStartedNodes(startTimeoutTime) || !reconcileRuntimeComponents()) {
+            logTransitStateAndThrow(Level.ERROR, String.format("Failed to restore required Kubernetes controller components and Ready nodes for cluster : %s",
+                    kubernetesCluster.getName()), kubernetesCluster.getId(), KubernetesCluster.Event.OperationFailed);
+        }
         if (!isKubernetesClusterKubeConfigAvailable(startTimeoutTime)) {
             logTransitStateAndThrow(Level.ERROR, String.format("Failed to start Kubernetes cluster : %s in usable state as unable to retrieve kube-config for the cluster", kubernetesCluster.getName()), kubernetesCluster.getId(), KubernetesCluster.Event.OperationFailed);
         }
         if (!isKubernetesClusterDashboardServiceRunning(false, startTimeoutTime)) {
             logTransitStateAndThrow(Level.ERROR, String.format("Failed to start Kubernetes cluster : %s in usable state as unable to get Dashboard service running for the cluster", kubernetesCluster.getName()), kubernetesCluster.getId(), KubernetesCluster.Event.OperationFailed);
+        }
+        if (!verifyHaDns()) {
+            logTransitStateAndThrow(Level.ERROR, String.format("Failed to start HA Kubernetes cluster : %s as CoreDNS is not Ready on distinct nodes",
+                    kubernetesCluster.getName()), kubernetesCluster.getId(), KubernetesCluster.Event.OperationFailed);
         }
         stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.OperationSucceeded);
         if (logger.isInfoEnabled()) {
@@ -918,15 +1031,6 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
         if (StringUtils.isEmpty(publicIpAddress)) {
             return false;
         }
-        long actualNodeCount = 0;
-        try {
-            actualNodeCount = KubernetesClusterUtil.getKubernetesClusterReadyNodesCount(kubernetesCluster, publicIpAddress, sshPort, getControlNodeLoginUser(), sshKeyFile);
-        } catch (Exception e) {
-            return false;
-        }
-        if (kubernetesCluster.getTotalNodeCount() != actualNodeCount) {
-            return false;
-        }
         if (StringUtils.isEmpty(sshIpPort.first())) {
             return false;
         }
@@ -938,7 +1042,18 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
         if (!isKubernetesClusterKubeConfigAvailable(startTimeoutTime)) {
             return false;
         }
+        // A paused ISO upgrade can leave owned add-ons Pending under operator cordon.
+        // Repair only their validated placement before the dashboard recovery gate.
+        if (!reconcileManagedAddonPlacement()) {
+            return false;
+        }
         if (!isKubernetesClusterDashboardServiceRunning(false, startTimeoutTime)) {
+            return false;
+        }
+        if (!verifyHaDns()) {
+            return false;
+        }
+        if (!validateStartedNodes(startTimeoutTime) || !reconcileRuntimeComponents()) {
             return false;
         }
         // mark the cluster to be running

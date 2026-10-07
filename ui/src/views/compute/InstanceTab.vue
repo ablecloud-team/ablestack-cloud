@@ -17,6 +17,7 @@
 
 <template>
   <a-spin :spinning="loading">
+    <KubernetesNodeNotice :resource="resource" />
     <a-alert v-if="vm.qemuagentversion === 'Not Installed'" :message="$t('message.alert.qemuagentversion')" type="error" show-icon />
     <br/>
     <a-alert v-if="protectionLookupFailed" type="warning" show-icon class="protection-tab-notice">
@@ -147,6 +148,7 @@
 </template>
 
 <script>
+import KubernetesNodeNotice from '@/views/compute/KubernetesNodeNotice'
 
 import { getAPI, postAPI } from '@/api'
 import { mixinDevice } from '@/utils/mixin.js'
@@ -176,6 +178,7 @@ import vmProtectionTabs from '@/utils/vmProtectionTabs'
 export default {
   name: 'InstanceTab',
   components: {
+    KubernetesNodeNotice,
     VmDevicesTab,
     ResourceLayout,
     DetailsTab,

@@ -76,10 +76,10 @@
             :placeholder="apiParams.hypervisor.description"
             showSearch
             optionFilterProp="label"
-            @change="val => { handleZoneHypervisorChange(val) }">
             :filterOption="(input, option) => {
               return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }" >
+            }"
+            @change="val => { handleZoneHypervisorChange(val) }">
             <a-select-option v-for="(opt, optIndex) in selectedZoneHypervisors" :key="optIndex" :label="opt.name || opt.description">
               {{ opt.name || opt.description }}
             </a-select-option>
@@ -132,6 +132,10 @@
             v-model:value="form.noderootdisksize"
             :placeholder="apiParams.noderootdisksize.description"/>
         </a-form-item>
+        <KubernetesStoragePreflight
+          :offerings="storageNodeOfferings"
+          :network="networks[form.networkid] || null"
+          :defaultNetworkOffering="cksNetworkOffering" />
         <a-form-item name="networkid" ref="networkid">
           <template #label>
             <tooltip-label :title="$t('label.networkid')" :tooltip="apiParams.networkid.description"/>
@@ -146,7 +150,7 @@
             }"
             :loading="networkLoading"
             :placeholder="apiParams.networkid.description">
-            <a-select-option v-for="(opt, optIndex) in networks" :key="optIndex" :label="opt.name || opt.description">
+            <a-select-option v-for="(opt, optIndex) in networks" :key="optIndex" :label="opt.name || opt.description || ''">
               {{ opt.name || opt.description }}
             </a-select-option>
           </a-select>
@@ -195,7 +199,7 @@
             }"
             :loading="keyPairLoading"
             :placeholder="apiParams.keypair.description">
-            <a-select-option v-for="(opt, optIndex) in keyPairs" :key="optIndex" :label="opt.name || opt.description">
+            <a-select-option v-for="(opt, optIndex) in keyPairs" :key="optIndex" :label="opt.name || opt.description || ''">
               {{ opt.name || opt.description }}
             </a-select-option>
           </a-select>
@@ -494,11 +498,13 @@ import ResourceIcon from '@/components/view/ResourceIcon'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import UserDataSelection from '@views/compute/wizard/UserDataSelection'
 import OwnershipSelection from '@/views/compute/wizard/OwnershipSelection'
+import KubernetesStoragePreflight from '@/views/compute/KubernetesStoragePreflight'
 
 export default {
   name: 'CreateKubernetesCluster',
   mixins: [mixinForm],
   components: {
+    KubernetesStoragePreflight,
     TooltipLabel,
     ResourceIcon,
     UserDataSelection,
@@ -565,6 +571,15 @@ export default {
     this.keyPairs = [this.emptyEntry]
     this.initForm()
     this.fetchData()
+  },
+  computed: {
+    storageNodeOfferings () {
+      const base = this.serviceOfferings[this.form.serviceofferingid]
+      const roles = this.form.advancedmode
+        ? [['control', 'controlofferingid'], ['worker', 'workerofferingid'], ...(this.form.etcdnodes > 0 ? [['etcd', 'etcdofferingid']] : [])]
+        : [['control/worker', 'serviceofferingid']]
+      return roles.map(([role, field]) => ({ role, offering: this.serviceOfferings[this.form[field]] || base })).filter(item => item.offering)
+    }
   },
   methods: {
     initForm () {
@@ -785,22 +800,25 @@ export default {
       } else {
         filters = ['self', 'featured', 'community']
       }
-      var ckstemplates = []
-      for (const filtername of filters) {
-        const params = {
-          templatefilter: filtername,
-          forcks: true,
-          isready: true
-        }
-        this.templateLoading = true
-        getAPI('listTemplates', params).then(json => {
-          var templates = json?.listtemplatesresponse?.template || []
-          ckstemplates.push(...templates)
-        }).finally(() => {
-          this.templateLoading = false
-        })
-      }
-      this.templates = ckstemplates
+      this.templateLoading = true
+      this.templates = []
+      return Promise.all(filters.map(templatefilter => getAPI('listTemplates', {
+        templatefilter,
+        forcks: true,
+        isready: true
+      }))).then(responses => {
+        const seen = new Set()
+        this.templates = responses.flatMap(json => json?.listtemplatesresponse?.template || [])
+          .filter(template => {
+            if (seen.has(template.id)) return false
+            seen.add(template.id)
+            return true
+          })
+      }).catch(() => {
+        this.templates = []
+      }).finally(() => {
+        this.templateLoading = false
+      })
     },
     fetchNetworkData () {
       const params = {}

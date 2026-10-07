@@ -55,6 +55,9 @@ public interface AccountManager extends AccountService, Configurable {
 
     boolean deleteAccount(AccountVO account, long callerUserId, Account caller);
 
+    /** Internal SYSTEM-only cleanup for an already verified local machine identity, with no external IAM user. */
+    boolean deleteLocalMachineAccount(AccountVO account, long callerUserId, Account caller);
+
     Long checkAccessAndSpecifyAuthority(Account caller, Long zoneId);
 
     Account createAccount(String accountName, Account.Type accountType, Long roleId, Long domainId, String networkDomain, Map<String, String> details, String uuid);

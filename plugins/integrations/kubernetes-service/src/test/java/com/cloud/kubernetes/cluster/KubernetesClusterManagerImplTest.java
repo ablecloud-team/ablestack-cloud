@@ -46,6 +46,7 @@ import com.cloud.user.User;
 import com.cloud.utils.Pair;
 import com.cloud.utils.net.NetUtils;
 import com.cloud.vm.VMInstanceVO;
+import com.cloud.vm.VirtualMachine;
 import com.cloud.vm.dao.VMInstanceDao;
 import com.cloud.host.HostVO;
 import com.cloud.host.dao.HostDao;
@@ -86,6 +87,9 @@ import static com.cloud.kubernetes.cluster.KubernetesServiceHelper.KubernetesClu
 public class KubernetesClusterManagerImplTest {
 
     @Mock
+    com.cloud.kubernetes.cluster.dao.KubernetesClusterDetailsDao kubernetesClusterDetailsDao;
+
+    @Mock
     FirewallRulesDao firewallRulesDao;
 
     @Mock
@@ -122,17 +126,35 @@ public class KubernetesClusterManagerImplTest {
     @InjectMocks
     KubernetesClusterManagerImpl kubernetesClusterManager;
 
-    @Test
-    public void testValidateVpcTierAllocated() {
+    @Test(expected = InvalidParameterValueException.class)
+    public void testValidateVpcTierAllocatedMissingAcl() {
         Network network = Mockito.mock(Network.class);
-        Mockito.when(network.getState()).thenReturn(Network.State.Allocated);
+        Mockito.when(network.getNetworkACLId()).thenReturn(null);
+        kubernetesClusterManager.validateVpcTier(network);
+    }
+
+    @Test(expected = InvalidParameterValueException.class)
+    public void testValidateVpcTierImplementedMissingAcl() {
+        Network network = Mockito.mock(Network.class);
+        Mockito.when(network.getNetworkACLId()).thenReturn(null);
+        kubernetesClusterManager.validateVpcTier(network);
+    }
+    @Test(expected = InvalidParameterValueException.class)
+    public void testValidateVpcTierAllocatedDefaultDeny() {
+        Network network = Mockito.mock(Network.class);
+        Mockito.when(network.getNetworkACLId()).thenReturn(NetworkACL.DEFAULT_DENY);
+        kubernetesClusterManager.validateVpcTier(network);
+    }
+    @Test
+    public void testValidateVpcTierAllocatedExplicitUserAcl() {
+        Network network = Mockito.mock(Network.class);
+        Mockito.when(network.getNetworkACLId()).thenReturn(42L);
         kubernetesClusterManager.validateVpcTier(network);
     }
 
     @Test(expected = InvalidParameterValueException.class)
     public void testValidateVpcTierDefaultDenyRule() {
         Network network = Mockito.mock(Network.class);
-        Mockito.when(network.getState()).thenReturn(Network.State.Implemented);
         Mockito.when(network.getNetworkACLId()).thenReturn(NetworkACL.DEFAULT_DENY);
         kubernetesClusterManager.validateVpcTier(network);
     }
@@ -140,7 +162,6 @@ public class KubernetesClusterManagerImplTest {
     @Test
     public void testValidateVpcTierValid() {
         Network network = Mockito.mock(Network.class);
-        Mockito.when(network.getState()).thenReturn(Network.State.Implemented);
         Mockito.when(network.getNetworkACLId()).thenReturn(NetworkACL.DEFAULT_ALLOW);
         kubernetesClusterManager.validateVpcTier(network);
     }
@@ -276,6 +297,21 @@ public class KubernetesClusterManagerImplTest {
 
     }
 
+    @Test
+    public void configurationRefreshChecksAccessBeforeReadingNode() {
+        KubernetesClusterVO cluster = Mockito.mock(KubernetesClusterVO.class);
+        org.apache.cloudstack.api.command.user.kubernetes.cluster.GetKubernetesClusterConfigCmd cmd =
+                Mockito.mock(org.apache.cloudstack.api.command.user.kubernetes.cluster.GetKubernetesClusterConfigCmd.class);
+        Mockito.when(cmd.getId()).thenReturn(1L);
+        Mockito.lenient().when(cmd.isRefresh()).thenReturn(true);
+        Mockito.when(kubernetesClusterDao.findById(1L)).thenReturn(cluster);
+        Mockito.doThrow(new com.cloud.utils.exception.CloudRuntimeException("Access denied")).when(accountManager)
+                .checkAccess(Mockito.any(Account.class), Mockito.any(), Mockito.anyBoolean(), Mockito.any());
+        try { kubernetesClusterManager.getKubernetesClusterConfig(cmd); Assert.fail("Access must be denied"); }
+        catch (com.cloud.utils.exception.CloudRuntimeException expected) { Assert.assertEquals("Access denied", expected.getMessage()); }
+        Mockito.verify(kubernetesClusterManager, Mockito.never()).refreshKubernetesClusterConfig(Mockito.any());
+    }
+
     @Before
     public void setUp() throws Exception {
         CallContext.register(Mockito.mock(User.class), Mockito.mock(Account.class));
@@ -405,6 +441,29 @@ public class KubernetesClusterManagerImplTest {
         map.put(WORKER.name(), 1L);
         map.put(CONTROL.name(), 2L);
         Assert.assertFalse(kubernetesClusterManager.isAnyNodeOfferingEmpty(map));
+    }
+
+    @Test
+    public void scaleWithoutOfferingDoesNotSynthesizeDefaultOffering() {
+        Assert.assertTrue(kubernetesClusterManager.createScaleNodeTypeToServiceOfferingMap(null, null, null).isEmpty());
+        Assert.assertTrue(kubernetesClusterManager.createScaleNodeTypeToServiceOfferingMap(new HashMap<>(), null, null).isEmpty());
+        Mockito.verifyNoInteractions(serviceOfferingDao);
+    }
+
+    @Test
+    public void scaleWithExplicitDefaultOfferingRetainsGlobalChange() {
+        ServiceOfferingVO offering = Mockito.mock(ServiceOfferingVO.class);
+        Mockito.when(serviceOfferingDao.findById(6L)).thenReturn(offering);
+        Map<String, ServiceOffering> mapping = kubernetesClusterManager.createScaleNodeTypeToServiceOfferingMap(null, 6L, null);
+        Assert.assertEquals(Map.of(DEFAULT.name(), offering), mapping);
+    }
+
+    @Test
+    public void scaleWithExplicitRoleOfferingDoesNotFillOtherRoles() {
+        ServiceOfferingVO offering = Mockito.mock(ServiceOfferingVO.class);
+        Mockito.when(serviceOfferingDao.findById(6L)).thenReturn(offering);
+        Map<String, ServiceOffering> mapping = kubernetesClusterManager.createScaleNodeTypeToServiceOfferingMap(Map.of(WORKER.name(), 6L), null, null);
+        Assert.assertEquals(Map.of(WORKER.name(), offering), mapping);
     }
 
     @Test
@@ -912,6 +971,149 @@ public class KubernetesClusterManagerImplTest {
         kubernetesClusterManager.validateNodeAffinityGroups(Arrays.asList(newNodeId), cluster);
 
         Mockito.verify(kubernetesClusterAffinityGroupMapDao).listAffinityGroupIdsByClusterIdAndNodeType(1L, WORKER.name());
+    }
+
+    @Test
+    public void testValidateUpgradeTargetRejectsCurrentArtifactBeforeVersionComparison() {
+        KubernetesSupportedVersion current = Mockito.mock(KubernetesSupportedVersion.class);
+        KubernetesSupportedVersion target = Mockito.mock(KubernetesSupportedVersion.class);
+        Mockito.when(current.getId()).thenReturn(41L);
+        Mockito.when(target.getId()).thenReturn(41L);
+        try {
+            kubernetesClusterManager.validateKubernetesUpgradeTarget(current, target);
+            Assert.fail("Selecting the current artifact must not start an upgrade");
+        } catch (InvalidParameterValueException e) {
+            Assert.assertTrue(e.getMessage().contains("already using"));
+        }
+        Mockito.verify(current, Mockito.never()).getSemanticVersion();
+        Mockito.verify(target, Mockito.never()).getSemanticVersion();
+    }
+
+    @Test
+    public void testValidateUpgradeTargetAllowsReplacementArtifactAtSameVersion() {
+        kubernetesClusterManager.validateKubernetesUpgradeTarget(
+                upgradeTargetVersion(41L, "1.34.2"), upgradeTargetVersion(42L, "1.34.2"));
+    }
+
+    @Test
+    public void testValidateUpgradeTargetAllowsPatchUpgrade() {
+        kubernetesClusterManager.validateKubernetesUpgradeTarget(
+                upgradeTargetVersion(41L, "1.34.2"), upgradeTargetVersion(42L, "1.34.9"));
+    }
+
+    @Test
+    public void testValidateUpgradeTargetAllowsNextMinorUpgrade() {
+        kubernetesClusterManager.validateKubernetesUpgradeTarget(
+                upgradeTargetVersion(41L, "1.34.12"), upgradeTargetVersion(42L, "1.35.9"));
+    }
+
+    @Test(expected = InvalidParameterValueException.class)
+    public void testValidateUpgradeTargetRejectsDowngrade() {
+        kubernetesClusterManager.validateKubernetesUpgradeTarget(
+                upgradeTargetVersion(41L, "1.34.9"), upgradeTargetVersion(42L, "1.34.2"));
+    }
+
+    @Test(expected = InvalidParameterValueException.class)
+    public void testValidateUpgradeTargetRejectsSkippedMinor() {
+        kubernetesClusterManager.validateKubernetesUpgradeTarget(
+                upgradeTargetVersion(41L, "1.34.2"), upgradeTargetVersion(42L, "1.36.5"));
+    }
+
+    private KubernetesSupportedVersion upgradeTargetVersion(long id, String semanticVersion) {
+        KubernetesSupportedVersion version = Mockito.mock(KubernetesSupportedVersion.class);
+        Mockito.when(version.getId()).thenReturn(id);
+        Mockito.when(version.getSemanticVersion()).thenReturn(semanticVersion);
+        return version;
+    }
+
+
+    private void externalRemovalTarget(boolean external, boolean control, boolean etcd, boolean mapped) {
+        KubernetesClusterVO cluster = Mockito.mock(KubernetesClusterVO.class);
+        Mockito.when(cluster.getId()).thenReturn(901L);
+        Mockito.when(cluster.getState()).thenReturn(KubernetesCluster.State.Running);
+        VMInstanceVO vm = Mockito.mock(VMInstanceVO.class);
+        Mockito.when(vmInstanceDao.findById(81L)).thenReturn(vm);
+        KubernetesClusterVmMapVO mapping = Mockito.mock(KubernetesClusterVmMapVO.class);
+        Mockito.lenient().when(mapping.isExternalNode()).thenReturn(external);
+        Mockito.lenient().when(mapping.isControlNode()).thenReturn(control);
+        Mockito.lenient().when(mapping.isEtcdNode()).thenReturn(etcd);
+        Mockito.when(kubernetesClusterVmMapDao.listByClusterIdAndVmIdsIn(901L, List.of(81L)))
+                .thenReturn(mapped ? List.of(mapping) : Collections.emptyList());
+        kubernetesClusterManager.validateNodes(List.of(81L), null, null, cluster, true);
+    }
+
+    @Test public void externalWorkerRemovalAcceptsOnlyItsMappedWorker() { externalRemovalTarget(true, false, false, true); }
+    @Test(expected = InvalidParameterValueException.class) public void externalRemovalRejectsUnmappedVm() { externalRemovalTarget(true, false, false, false); }
+    @Test(expected = InvalidParameterValueException.class) public void externalRemovalRejectsManagedWorker() { externalRemovalTarget(false, false, false, true); }
+    @Test(expected = InvalidParameterValueException.class) public void externalRemovalRejectsControlNode() { externalRemovalTarget(true, true, false, true); }
+    @Test(expected = InvalidParameterValueException.class) public void externalRemovalRejectsEtcdNode() { externalRemovalTarget(true, false, true, true); }
+    @Test(expected = InvalidParameterValueException.class) public void externalRemovalRejectsDuplicateIdsBeforeMutation() {
+        KubernetesClusterVO cluster = Mockito.mock(KubernetesClusterVO.class);
+        Mockito.when(cluster.getState()).thenReturn(KubernetesCluster.State.Running);
+        kubernetesClusterManager.validateNodes(List.of(81L, 81L), null, null, cluster, true);
+    }
+    @Test(expected = InvalidParameterValueException.class) public void externalNodeChangeRejectsActiveOperation() {
+        KubernetesClusterVO cluster = Mockito.mock(KubernetesClusterVO.class);
+        Mockito.when(cluster.getState()).thenReturn(KubernetesCluster.State.Upgrading);
+        kubernetesClusterManager.validateNodes(List.of(81L), null, null, cluster, true);
+    }
+
+    @Test(expected = InvalidParameterValueException.class) public void externalAdditionRejectsVmAlreadyMappedToAnotherCluster() {
+        KubernetesClusterVO cluster = Mockito.mock(KubernetesClusterVO.class);
+        Mockito.when(cluster.getState()).thenReturn(KubernetesCluster.State.Running);
+        VMInstanceVO vm = Mockito.mock(VMInstanceVO.class);
+        Mockito.when(vm.getState()).thenReturn(VirtualMachine.State.Running);
+        Mockito.when(vmInstanceDao.findById(81L)).thenReturn(vm);
+        Mockito.when(kubernetesClusterVmMapDao.findByVmId(81L)).thenReturn(Mockito.mock(KubernetesClusterVmMapVO.class));
+        kubernetesClusterManager.validateNodes(List.of(81L), 4L, "network", cluster, false);
+    }
+
+    @Test(expected = InvalidParameterValueException.class) public void externalAdditionRejectsFailedOrStoppedVmBeforeNetworkMutation() {
+        KubernetesClusterVO cluster = Mockito.mock(KubernetesClusterVO.class);
+        Mockito.when(cluster.getState()).thenReturn(KubernetesCluster.State.Running);
+        VMInstanceVO vm = Mockito.mock(VMInstanceVO.class);
+        Mockito.when(vm.getState()).thenReturn(VirtualMachine.State.Error);
+        Mockito.when(vmInstanceDao.findById(81L)).thenReturn(vm);
+        try { kubernetesClusterManager.validateNodes(List.of(81L), 4L, "network", cluster, false); }
+        finally { Mockito.verify(kubernetesClusterVmMapDao, Mockito.never()).findByVmId(81L); }
+    }
+    @Test
+    public void partialScaleRecoveryRequiresSizeOnlyAndEveryMappedVmRunning() {
+        KubernetesClusterVO cluster = Mockito.mock(KubernetesClusterVO.class);
+        org.apache.cloudstack.api.command.user.kubernetes.cluster.ScaleKubernetesClusterCmd cmd =
+                Mockito.mock(org.apache.cloudstack.api.command.user.kubernetes.cluster.ScaleKubernetesClusterCmd.class);
+        Mockito.when(cluster.getId()).thenReturn(90L);
+        Mockito.when(cluster.getState()).thenReturn(KubernetesCluster.State.Alert);
+        Mockito.when(cluster.getControlNodeCount()).thenReturn(1L);
+        Mockito.when(cluster.getEtcdNodeCount()).thenReturn(0L);
+        Mockito.when(cluster.getNodeCount()).thenReturn(3L);
+        Mockito.when(cmd.getClusterSize()).thenReturn(2L);
+        Mockito.when(cmd.getNodeIds()).thenReturn(null);
+        Mockito.when(cmd.isAutoscalingEnabled()).thenReturn(null);
+        Mockito.when(cmd.getServiceOfferingId()).thenReturn(null);
+        Mockito.when(cmd.getMinSize()).thenReturn(null);
+        Mockito.when(cmd.getMaxSize()).thenReturn(null);
+        Mockito.when(kubernetesClusterVmMapDao.listByClusterId(90L)).thenReturn(List.of(
+                new KubernetesClusterVmMapVO(90L, 100L, true), new KubernetesClusterVmMapVO(90L, 101L, false),
+                new KubernetesClusterVmMapVO(90L, 102L, false)));
+        VMInstanceVO vm = Mockito.mock(VMInstanceVO.class);
+        Mockito.when(vm.getState()).thenReturn(VirtualMachine.State.Running);
+        Mockito.when(vmInstanceDao.findById(Mockito.anyLong())).thenReturn(vm);
+        Assert.assertTrue(kubernetesClusterManager.isSafePartialScaleRecovery(cluster, cmd));
+        Mockito.when(cmd.getClusterSize()).thenReturn(1L);
+        Assert.assertFalse(kubernetesClusterManager.isSafePartialScaleRecovery(cluster, cmd));
+        Mockito.when(cmd.getClusterSize()).thenReturn(2L);
+        Mockito.when(vm.getState()).thenReturn(VirtualMachine.State.Stopped);
+        Assert.assertFalse(kubernetesClusterManager.isSafePartialScaleRecovery(cluster, cmd));
+        Mockito.lenient().when(vm.getState()).thenReturn(VirtualMachine.State.Running);
+        Mockito.when(cmd.isAutoscalingEnabled()).thenReturn(true);
+        Assert.assertFalse(kubernetesClusterManager.isSafePartialScaleRecovery(cluster, cmd));
+        Mockito.lenient().when(cmd.isAutoscalingEnabled()).thenReturn(null);
+        Mockito.when(cmd.getServiceOfferingId()).thenReturn(5L);
+        Assert.assertFalse(kubernetesClusterManager.isSafePartialScaleRecovery(cluster, cmd));
+        Mockito.lenient().when(cmd.getServiceOfferingId()).thenReturn(null);
+        Mockito.when(cmd.getNodeIds()).thenReturn(List.of(101L));
+        Assert.assertFalse(kubernetesClusterManager.isSafePartialScaleRecovery(cluster, cmd));
     }
 
 }

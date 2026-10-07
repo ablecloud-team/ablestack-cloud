@@ -1,0 +1,207 @@
+#!/usr/bin/env python3
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+
+import argparse
+import http.client
+import json
+import os
+import socket
+import subprocess
+import sys
+import tempfile
+import time
+from pathlib import Path
+from urllib.parse import quote, urlencode
+
+class CleanupError(Exception):
+    pass
+
+
+def base(version):
+    return "/api/" + version if version == "v1" else "/apis/" + version
+
+
+def resource_path(version, resource, obj):
+    meta = obj["metadata"]
+    scope = "/namespaces/" + quote(meta["namespace"], safe="") if meta.get("namespace") else ""
+    return base(version) + scope + "/" + resource + "/" + quote(meta["name"], safe="")
+
+
+class UnixConnection(http.client.HTTPConnection):
+    def __init__(self, path):
+        super().__init__("localhost", timeout=20)
+        self.path = path
+
+    def connect(self):
+        self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        self.sock.settimeout(self.timeout)
+        self.sock.connect(self.path)
+
+
+class API:
+    def __init__(self, path, deadline):
+        self.path, self.deadline = path, deadline
+
+    def request(self, method, path, body=None):
+        if time.monotonic() >= self.deadline:
+            raise CleanupError("PV cleanup timeout; controller nodes must be retained")
+        conn = UnixConnection(self.path)
+        try:
+            data = json.dumps(body).encode() if body is not None else None
+            conn.request(method, path, body=data, headers={"Content-Type": "application/json-patch+json" if method == "PATCH" else "application/json"})
+            response = conn.getresponse()
+            result = response.read()
+            if response.status == 404:
+                return None
+            if response.status not in (200, 201, 202):
+                raise CleanupError("Kubernetes " + method + " " + path + " failed: HTTP " + str(response.status))
+            return json.loads(result) if result else {}
+        except (OSError, http.client.HTTPException, ValueError) as exc:
+            raise CleanupError("Kubernetes API unavailable during PV cleanup") from exc
+        finally:
+            conn.close()
+
+    def list(self, version, resource):
+        result, token = [], ""
+        while True:
+            obj = self.request("GET", base(version) + "/" + resource + "?" + urlencode({"limit": 200, "continue": token}))
+            if obj is None:
+                raise CleanupError("Required Kubernetes resource API is unavailable: " + resource)
+            result.extend(obj.get("items", []))
+            token = obj.get("metadata", {}).get("continue", "")
+            if not token:
+                return result
+
+    def delete(self, version, resource, obj):
+        self.request("DELETE", resource_path(version, resource, obj), {
+            "apiVersion": "v1", "kind": "DeleteOptions", "propagationPolicy": "Foreground",
+            "preconditions": {"uid": obj["metadata"]["uid"]},
+        })
+
+    def wait_absent(self, version, resource, obj):
+        path, uid = resource_path(version, resource, obj), obj["metadata"]["uid"]
+        while True:
+            current = self.request("GET", path)
+            if current is None:
+                return
+            if current["metadata"]["uid"] != uid:
+                raise CleanupError("Resource name reused during cleanup: " + path)
+            time.sleep(1)
+
+
+def save_receipt(path, receipt):
+    path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+    temporary = path.with_suffix(".tmp")
+    temporary.write_text(json.dumps(receipt), encoding="utf-8")
+    os.chmod(temporary, 0o600)
+    os.replace(temporary, path)
+
+
+
+
+def services_receipt(services):
+    return [{"namespace": s["metadata"]["namespace"], "name": s["metadata"]["name"], "uid": s["metadata"]["uid"]}
+            for s in services if s.get("spec", {}).get("type") == "LoadBalancer"]
+
+
+def as_service(item):
+    return {"metadata": item}
+
+
+def request_deletion(api, journal):
+    previous = json.loads(journal.read_text()) if journal.exists() else {"services": []}
+    items = {s["uid"]: s for s in previous["services"]}
+    for item in services_receipt(api.list("v1", "services")):
+        items[item["uid"]] = item
+    receipt = {"services": list(items.values())}
+    save_receipt(journal, receipt)
+    for item in receipt["services"]:
+        api.delete("v1", "services", as_service(item))
+    print("MOLD_SERVICE_CLEANUP_RECEIPT " + json.dumps(receipt, separators=(",", ":")))
+
+
+def finish_deletion(api, journal, finalize):
+    if not journal.exists():
+        raise CleanupError("Missing Service cleanup receipt")
+    receipt = json.loads(journal.read_text())
+    for item in receipt["services"]:
+        path = resource_path("v1", "services", as_service(item))
+        current = api.request("GET", path)
+        if current is not None:
+            if current["metadata"]["uid"] != item["uid"]:
+                raise CleanupError("Service UID changed; replacement is preserved")
+            if not current["metadata"].get("deletionTimestamp"):
+                raise CleanupError("Service deletion was not requested")
+            finalizers = current["metadata"].get("finalizers", [])
+            owned = "service.kubernetes.io/load-balancer-cleanup"
+            if finalize and owned in finalizers:
+                # Called only after durable Mold ownership cleanup has succeeded.
+                # CAS preserves a concurrent update and every foreign finalizer.
+                api.request("PATCH", path, [
+                    {"op": "test", "path": "/metadata/uid", "value": item["uid"]},
+                    {"op": "test", "path": "/metadata/resourceVersion", "value": current["metadata"]["resourceVersion"]},
+                    {"op": "replace", "path": "/metadata/finalizers", "value": [f for f in finalizers if f != owned]},
+                ])
+            api.wait_absent("v1", "services", as_service(item))
+    if services_receipt(api.list("v1", "services")):
+        raise CleanupError("New LoadBalancer Service found; retry before node removal")
+    print("MOLD_SERVICE_CLEANUP_COMPLETE")
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    actions = parser.add_mutually_exclusive_group(required=True)
+    actions.add_argument("--request", action="store_true")
+    actions.add_argument("--wait", action="store_true")
+    actions.add_argument("--finalize", action="store_true")
+    args = parser.parse_args()
+    journal = Path("/var/lib/mold/kubernetes-service-cleanup.json")
+    with tempfile.TemporaryDirectory(prefix="mold-service-cleanup-") as temporary:
+        path = temporary + "/proxy.sock"
+        proxy = subprocess.Popen(["/opt/bin/kubectl", "--kubeconfig=/etc/kubernetes/admin.conf", "proxy", "--unix-socket=" + path],
+                                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        try:
+            for _ in range(100):
+                if os.path.exists(path):
+                    break
+                if proxy.poll() is not None:
+                    raise CleanupError("Cannot start Kubernetes Service cleanup proxy")
+                time.sleep(0.1)
+            if not os.path.exists(path):
+                raise CleanupError("Kubernetes Service cleanup proxy did not become ready")
+            api = API(path, time.monotonic() + 120)
+            if args.request:
+                request_deletion(api, journal)
+            else:
+                finish_deletion(api, journal, args.finalize)
+        finally:
+            proxy.terminate()
+            try:
+                proxy.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                proxy.kill()
+                proxy.wait(timeout=5)
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except (CleanupError, OSError, ValueError) as error:
+        print("MOLD_SERVICE_CLEANUP_FAILED " + str(error), file=sys.stderr)
+        sys.exit(1)

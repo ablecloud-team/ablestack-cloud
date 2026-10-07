@@ -31,6 +31,36 @@ import com.google.gson.annotations.SerializedName;
 @SuppressWarnings("unused")
 @EntityReference(value = {KubernetesCluster.class})
 public class KubernetesClusterResponse extends BaseResponseWithAnnotations implements ControlledViewEntityResponse {
+    @SerializedName("scalenetworkcleanuppending")
+    @Param(description = "Whether a scale operation still requires owned network rule cleanup")
+    private Boolean scaleNetworkCleanupPending;
+
+    public void setScaleNetworkCleanupPending(Boolean value) {
+        scaleNetworkCleanupPending = value;
+    }
+
+    @SerializedName("cleanupstatus")
+    @Param(description = "Cluster cleanup status; Blocked preserves nodes for retry")
+    private String cleanupStatus;
+
+    @SerializedName("cleanupphase")
+    @Param(description = "The failed or current cluster cleanup phase")
+    private String cleanupPhase;
+
+    @SerializedName("cleanupremaining")
+    @Param(description = "Identifiers of cluster-owned resources still awaiting cleanup")
+    private String cleanupRemaining;
+
+    public void setCleanupStatus(String value) {
+        cleanupStatus = value;
+    }
+    public void setCleanupPhase(String value) {
+        cleanupPhase = value;
+    }
+    public void setCleanupRemaining(String value) {
+        cleanupRemaining = value;
+    }
+
     @SerializedName(ApiConstants.ID)
     @Param(description = "The ID of the Kubernetes cluster")
     private String id;
@@ -88,12 +118,36 @@ public class KubernetesClusterResponse extends BaseResponseWithAnnotations imple
     private Long etcdNodes;
 
     @SerializedName(ApiConstants.TEMPLATE_ID)
-    @Param(description = "The ID of the Template of the Kubernetes cluster")
+    @Param(description = "The ID of the default Template of the Kubernetes cluster")
     private String templateId;
 
     @SerializedName(ApiConstants.TEMPLATE_NAME)
-    @Param(description = "the name of the template of the Kubernetes cluster")
+    @Param(description = "the name of the default template of the Kubernetes cluster")
     private String templateName;
+
+    @SerializedName("controltemplateid")
+    @Param(description = "The ID of the effective template for control nodes")
+    private String controlTemplateId;
+
+    @SerializedName("controltemplatename")
+    @Param(description = "The name of the effective template for control nodes")
+    private String controlTemplateName;
+
+    @SerializedName("workertemplateid")
+    @Param(description = "The ID of the effective template for worker nodes")
+    private String workerTemplateId;
+
+    @SerializedName("workertemplatename")
+    @Param(description = "The name of the effective template for worker nodes")
+    private String workerTemplateName;
+
+    @SerializedName("etcdtemplateid")
+    @Param(description = "The ID of the effective template for etcd nodes")
+    private String etcdTemplateId;
+
+    @SerializedName("etcdtemplatename")
+    @Param(description = "The name of the effective template for etcd nodes")
+    private String etcdTemplateName;
 
     @SerializedName(ApiConstants.NETWORK_ID)
     @Param(description = "The ID of the network of the Kubernetes cluster")
@@ -301,6 +355,54 @@ public class KubernetesClusterResponse extends BaseResponseWithAnnotations imple
 
     public void setTemplateName(String templateName) {
         this.templateName = templateName;
+    }
+
+    public String getControlTemplateId() {
+        return controlTemplateId;
+    }
+
+    public void setControlTemplateId(String value) {
+        this.controlTemplateId = value;
+    }
+
+    public String getControlTemplateName() {
+        return controlTemplateName;
+    }
+
+    public void setControlTemplateName(String value) {
+        this.controlTemplateName = value;
+    }
+
+    public String getWorkerTemplateId() {
+        return workerTemplateId;
+    }
+
+    public void setWorkerTemplateId(String value) {
+        this.workerTemplateId = value;
+    }
+
+    public String getWorkerTemplateName() {
+        return workerTemplateName;
+    }
+
+    public void setWorkerTemplateName(String value) {
+        this.workerTemplateName = value;
+    }
+
+    public String getEtcdTemplateId() {
+        return etcdTemplateId;
+    }
+
+    public void setEtcdTemplateId(String value) {
+        this.etcdTemplateId = value;
+    }
+
+    public String getEtcdTemplateName() {
+        return etcdTemplateName;
+    }
+
+    public void setEtcdTemplateName(String value) {
+        this.etcdTemplateName = value;
     }
 
     public String getNetworkId() {

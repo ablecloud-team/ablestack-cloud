@@ -38,12 +38,13 @@ ID=""
 ENABLE=""
 MINSIZE=""
 MAXSIZE=""
-while [ -n "$1" ]; do
+while [ "$#" -gt 0 ]; do
     case "$1" in
         -h | --help)
             usage
             ;;
         -i | --id)
+            [ "$#" -ge 2 ] && [ -n "$2" ] || { echo "ERROR: option requires a value" >&2; exit 1; }
             ID=$2
             shift 2
             ;;
@@ -51,15 +52,17 @@ while [ -n "$1" ]; do
             ENABLE="true"
             shift 1
             ;;
-        -d | --enable)
+        -d | --disable)
             ENABLE="false"
             shift 1
             ;;
         -M | --maxsize)
+            [ "$#" -ge 2 ] && [ -n "$2" ] || { echo "ERROR: option requires a value" >&2; exit 1; }
             MAXSIZE=$2
             shift 2
             ;;
         -m | --minsize)
+            [ "$#" -ge 2 ] && [ -n "$2" ] || { echo "ERROR: option requires a value" >&2; exit 1; }
             MINSIZE=$2
             shift 2
             ;;
@@ -69,25 +72,17 @@ while [ -n "$1" ]; do
             ;;
     esac
 done
-if [ $ENABLE == "true" ] ; then
-    if [ -e /opt/autoscaler/autoscaler_tmpl.yaml ]; then
-        sed -e "s/<cluster-id>/$ID/g" -e "s/<min>/$MINSIZE/g" -e "s/<max>/$MAXSIZE/g" /opt/autoscaler/autoscaler_tmpl.yaml > /opt/autoscaler/autoscaler_now.yaml
-        /opt/bin/kubectl apply -f /opt/autoscaler/autoscaler_now.yaml
-        exit 0
-    else
-        mkdir -p /opt/autoscaler
-        AUTOSCALER_URL="https://raw.githubusercontent.com/kubernetes/autoscaler/master/cluster-autoscaler/cloudprovider/cloudstack/examples/cluster-autoscaler-standard.yaml"
-        autoscaler_conf_file="/opt/autoscaler/autoscaler_tmpl.yaml"
-        curl -sSL ${AUTOSCALER_URL} -o ${autoscaler_conf_file}
-        if [ $? -ne 0 ]; then
-            echo "Unable to connect to the internet to download the autoscaler deployment and image"
-            exit 1
-        else
-            sed -e "s/<cluster-id>/$ID/g" -e "s/<min>/$MINSIZE/g" -e "s/<max>/$MAXSIZE/g" /opt/autoscaler/autoscaler_tmpl.yaml > /opt/autoscaler/autoscaler_now.yaml
-            /opt/bin/kubectl apply -f /opt/autoscaler/autoscaler_now.yaml
-            exit 0
-        fi
-    fi
-else
-    /opt/bin/kubectl delete deployment -n kube-system cluster-autoscaler
-fi
+case "$ENABLE" in
+true)
+    [[ "$ID" =~ ^[A-Za-z0-9-]+$ ]] || { echo "ERROR: invalid cluster ID" >&2; exit 1; }
+    [[ "$MINSIZE" =~ ^[1-9][0-9]*$ && "$MAXSIZE" =~ ^[1-9][0-9]*$ ]] || { echo "ERROR: positive min/max sizes are required" >&2; exit 1; }
+    [ "$MINSIZE" -le "$MAXSIZE" ] || { echo "ERROR: minsize exceeds maxsize" >&2; exit 1; }
+    [ -s /opt/autoscaler/autoscaler_tmpl.yaml ] || { echo "ERROR: validated Mold AutoScaler payload is missing" >&2; exit 1; }
+    sed -e "s/<cluster-id>/$ID/g" -e "s/<min>/$MINSIZE/g" -e "s/<max>/$MAXSIZE/g" /opt/autoscaler/autoscaler_tmpl.yaml > /opt/autoscaler/autoscaler_now.yaml
+    /opt/bin/kubectl apply -f /opt/autoscaler/autoscaler_now.yaml
+    ;;
+false)
+    /opt/bin/kubectl delete deployment -n kube-system cluster-autoscaler --ignore-not-found=true
+    ;;
+*) echo "ERROR: select --enable or --disable" >&2; exit 1 ;;
+esac

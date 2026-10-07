@@ -67,6 +67,9 @@ public class IPAddressVO implements IpAddress {
     @Temporal(value = TemporalType.TIMESTAMP)
     private Date allocatedTime;
 
+    @Column(name = "allocation_generation")
+    private String allocationGeneration;
+
     @Column(name = "vlan_db_id")
     private long vlanId;
 
@@ -230,6 +233,18 @@ public class IPAddressVO implements IpAddress {
 
     public void setAllocatedTime(Date allocated) {
         allocatedTime = allocated;
+        // A pool IP UUID and even the allocation timestamp can be reused. Give
+        // every allocation an independent receipt, including same-timestamp reuse.
+        setAllocationGeneration(allocated == null ? null : UUID.randomUUID().toString());
+    }
+
+    public String getAllocationGeneration() {
+        return allocationGeneration;
+    }
+
+    // Keep a setter call so GenericDao's update proxy tracks this derived field.
+    public void setAllocationGeneration(String allocationGeneration) {
+        this.allocationGeneration = allocationGeneration;
     }
 
     @Override

@@ -1162,6 +1162,10 @@ public class ApiResponseHelper implements ResponseGenerator, ResourceIdSupport {
         ipResponse.setIpAddress(ipAddr.getAddress().toString());
         if (ipAddr.getAllocatedTime() != null) {
             ipResponse.setAllocated(ipAddr.getAllocatedTime());
+            IPAddressVO allocation = ipAddr instanceof IPAddressVO ? (IPAddressVO) ipAddr : ApiDBUtils.findIpAddressById(ipAddr.getId());
+            if (allocation != null) {
+                ipResponse.setAllocationGeneration(allocation.getAllocationGeneration());
+            }
         }
         DataCenter zone = ApiDBUtils.findZoneById(ipAddr.getDataCenterId());
         if (zone != null) {

@@ -35,6 +35,13 @@
         </template>
       </a-dropdown>
     </div>
+    <a-alert
+      v-if="isKubernetesCluster"
+      class="events-order-help"
+      type="info"
+      show-icon
+      :message="$t('message.cks.events.order')"
+      :description="$t('message.cks.events.record.created')" />
     <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
     <list-view
       :loading="tabLoading"
@@ -112,6 +119,9 @@ export default {
     }
   },
   computed: {
+    isKubernetesCluster () {
+      return this.resourceType === 'KubernetesCluster'
+    },
     pageSizeOptions () {
       var sizes = [20, 50, 100, 200, this.$store.getters.defaultListViewPageSize]
       if (this.device !== 'desktop') {
@@ -198,7 +208,11 @@ export default {
           key: columnKey,
           title: this.$t('label.' + String(columnKey).toLowerCase()),
           dataIndex: columnKey,
-          sorter: (a, b) => { return genericCompare(a[columnKey] || '', b[columnKey] || '') }
+          sorter: (a, b) => { return genericCompare(a[columnKey] || '', b[columnKey] || '') },
+          ...(this.isKubernetesCluster && columnKey === 'created' ? { defaultSortOrder: 'descend' } : {}),
+          ...(this.isKubernetesCluster && columnKey === 'state'
+            ? { stateLabel: record => record.state === 'Created' ? this.$t('state.cks.eventrecord.created') : undefined }
+            : {})
         })
       }
     }
@@ -208,4 +222,5 @@ export default {
 
 <style scoped lang="scss">
 @import '@/style/components/view/DetailTab.scss';
+.events-order-help { margin-bottom: 16px; }
 </style>

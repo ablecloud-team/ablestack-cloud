@@ -59,12 +59,20 @@ public class StartKubernetesClusterCmd extends BaseAsyncCmd {
             description = "The ID of the Kubernetes cluster")
     private Long id;
 
+    @Parameter(name = "rotatecontrollercredentials", type = CommandType.BOOLEAN,
+            description = "Replace this stopped cluster's dedicated controller key with the same feature permissions before starting. Defaults to false.")
+    private Boolean rotateControllerCredentials;
+
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
     /////////////////////////////////////////////////////
 
     public Long getId() {
         return id;
+    }
+
+    public boolean isRotateControllerCredentials() {
+        return Boolean.TRUE.equals(rotateControllerCredentials);
     }
 
     @Override

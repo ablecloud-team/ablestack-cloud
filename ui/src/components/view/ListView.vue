@@ -495,7 +495,7 @@
       <template v-if="column.key === 'state'">
         <span class="list-state-with-flatten">
           <status v-if="$route.path.startsWith('/host')" :text="getHostState(record)" displayText />
-          <status v-else :text="text ? text : ''" displayText />
+          <status v-else :text="text ? text : ''" :displayLabel="column.stateLabel ? column.stateLabel(record) : ''" displayText />
           <clone-flatten-control :record="record" @refresh="$emit('refresh')" />
         </span>
       </template>
@@ -865,7 +865,7 @@
         <span> {{ record.loadbalancerrule }} </span>
       </template>
       <template v-if="column.key === 'autoscalingenabled'">
-        <status :text="record.autoscalingenabled ? 'Enabled' : 'Disabled'" displayText/>
+        <a-tag :color="record.autoscalingenabled ? 'blue' : undefined">{{ $t(record.autoscalingenabled ? 'label.cks.cluster.autoscaling.enabled' : 'label.cks.cluster.autoscaling.disabled') }}</a-tag>
       </template>
       <template v-if="column.key === 'current'">
         <span v-if="$route.name === 'vmsnapshot'">{{ $t(record.current ? 'label.vmsnapshot.current.yes' : 'label.vmsnapshot.current.no') }}</span>

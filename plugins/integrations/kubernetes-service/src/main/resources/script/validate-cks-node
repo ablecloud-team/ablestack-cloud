@@ -16,6 +16,28 @@
 # specific language governing permissions and limitations
 # under the License.
 
+if [ "$(awk 'END {print NR}' /proc/swaps)" -gt 1 ]; then
+  echo "External node swap is enabled; disable swap persistently before adding it"
+  exit 1
+fi
+
+# Installed packages alone do not make user-data executable on the next boot.
+if [ -e /etc/cloud/cloud-init.disabled ]; then
+  echo "External node cloud-init is disabled; prepare the guest image before adding it"
+  exit 1
+fi
+CLOUD_INIT_STATUS=$(cloud-init status --long 2>&1)
+if [[ "$CLOUD_INIT_STATUS" == *"status: disabled"* || "$CLOUD_INIT_STATUS" == *"status: error"* ]]; then
+  echo "External node cloud-init datasource is disabled; verify CloudStack metadata and reboot persistence"
+  exit 1
+fi
+for unit in cloud-init.service cloud-final.service; do
+  if ! systemctl is-enabled "$unit" >/dev/null 2>&1; then
+    echo "External node cloud-init boot services are not enabled"
+    exit 1
+  fi
+done
+
 OS=`awk -F= '/^NAME/{print $2}' /etc/os-release`
 REQUIRED_PACKAGES=(cloud-init cloud-guest-utils conntrack apt-transport-https ca-certificates curl gnupg gnupg-agent \
                     software-properties-common gnupg lsb-release python3-json-pointer python3-jsonschema cloud-init containerd.io)

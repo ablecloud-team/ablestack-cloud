@@ -1,4 +1,5 @@
-#!/bin/bash -e
+#!/bin/bash
+set -euo pipefail
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -16,21 +17,13 @@
 # specific language governing permissions and limitations
 # under the License.
 
-(/opt/bin/kubectl get pods -A | grep cloud-controller-manager) && exit 0
-
-if [ -e /opt/provider/provider.yaml ]; then
-    /opt/bin/kubectl apply -f /opt/provider/provider.yaml
-    exit 0
-else
-    mkdir -p /opt/provider
-    PROVIDER_URL="https://raw.githubusercontent.com/apache/cloudstack-kubernetes-provider/main/deployment.yaml"
-    provider_conf_file="/opt/provider/provider.yaml"
-    curl -sSL ${PROVIDER_URL} -o ${provider_conf_file}
-    if [ $? -ne 0 ]; then
-        echo "Unable to connect to the internet to download the provider deployment and image"
-        exit 1
-    else
-        /opt/bin/kubectl apply -f /opt/provider/provider.yaml
-        exit 0
-    fi
-fi
+# Only the validated Mold payload shipped with the ISO may be deployed.
+[ -s /opt/provider/provider.yaml ] || { echo "ERROR: validated Mold Provider payload is missing" >&2; exit 1; }
+KUBECTL="${MOLD_KUBECTL:-/opt/bin/kubectl}"
+MOLD_KUBECTL="$KUBECTL" python3 -c "$(printf '%s' '@@MOLD_MANAGED_ADDON_PLACEMENT@@' | base64 -d)" /opt/provider/provider.yaml CCM
+# Seed the same content annotation used by Secret reconciliation, including
+# workloads created for the first time after the Secret already existed.
+config_digest=$("$KUBECTL" -n kube-system get secret cloudstack-secret -o json | python3 -c 'import base64, hashlib, json, sys; print(hashlib.sha256(base64.b64decode(json.load(sys.stdin)["data"]["cloud-config"], validate=True)).hexdigest())')
+config_patch="{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"mold.ablecloud.io/cloud-config-sha256\":\"$config_digest\"}}}}}"
+"$KUBECTL" -n kube-system patch deployment cloud-controller-manager --type=merge -p "$config_patch"
+"$KUBECTL" -n kube-system rollout status deployment/cloud-controller-manager --timeout=120s

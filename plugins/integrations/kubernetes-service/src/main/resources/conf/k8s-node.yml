@@ -132,6 +132,9 @@ write_files:
 
         mkdir -p /opt/bin
         cd /opt/bin
+        if [ -f "${BINARIES_DIR}/manifest.json" ]; then
+          (cd "${BINARIES_DIR}" && sha256sum -c SHA256SUMS) || exit 1
+        fi
         cp -a ${BINARIES_DIR}/k8s/{kubeadm,kubelet,kubectl} .
         chmod +x {kubeadm,kubelet,kubectl}
 
@@ -139,20 +142,47 @@ write_files:
         mkdir -p /etc/systemd/system/kubelet.service.d
         sed "s:/usr/bin:/opt/bin:g" ${BINARIES_DIR}/10-kubeadm.conf > /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
 
-        echo "KUBELET_EXTRA_ARGS=--cgroup-driver=systemd" > /etc/default/kubelet
+        KUBELET_EXTRA_ARGS="--cgroup-driver=systemd"
+        if [ -s "${BINARIES_DIR}/provider.yaml" ]; then
+          KUBELET_EXTRA_ARGS="$KUBELET_EXTRA_ARGS --cloud-provider=external"
+        fi
+        printf 'KUBELET_EXTRA_ARGS=%s\n' "$KUBELET_EXTRA_ARGS" > /etc/default/kubelet
 
-        output=`ls ${BINARIES_DIR}/docker/`
+        # The guest image may start containerd concurrently with cloud-final.
+        # Never continue to kubeadm after an incomplete ISO image installation.
+        systemctl enable --now containerd
+        containerd_wait_attempts=0
+        until ctr --address /run/containerd/containerd.sock version >/dev/null 2>&1; do
+          if (( containerd_wait_attempts >= 30 )); then
+            echo "ERROR: containerd socket did not become ready for ISO image import" >&2
+            exit 1
+          fi
+          sleep 2
+          containerd_wait_attempts=$((containerd_wait_attempts + 1))
+        done
+
+        # Preserve archive digests; containerd 2.x defaults to transfer import.
+        CTR_IMPORT_OPTIONS=()
+        if ctr -n k8s.io image import --help 2>/dev/null | grep -q -- "--local"; then
+          CTR_IMPORT_OPTIONS=(--local)
+        fi
+        output=$(find "${BINARIES_DIR}/docker" -maxdepth 1 -type f -name "*.tar" -printf "%f\n")
         if [ "$output" != "" ]; then
           while read -r line; do
             crucial_cmd_attempts=1
             while true; do
               if (( "$crucial_cmd_attempts" > "$MAX_SETUP_CRUCIAL_CMD_ATTEMPTS" )); then
                 echo "Loading docker image ${BINARIES_DIR}/docker/$line failed!"
-                break;
+                exit 1;
               fi
               retval=0
               set +e
-              ctr -n k8s.io image import "${BINARIES_DIR}/docker/$line"
+              image_repository=""
+              if [ -s "${BINARIES_DIR}/docker/images.list" ]; then
+                image_repository=$(awk -v archive="$line" '$1 == archive {print $2}' "${BINARIES_DIR}/docker/images.list")
+                [ -n "$image_repository" ] || { echo "ERROR: image import repository missing" >&2; exit 1; }
+              fi
+              ctr -n k8s.io image import "${CTR_IMPORT_OPTIONS[@]}" --digests --base-name "$image_repository" "${BINARIES_DIR}/docker/$line"
               retval=$?
               set -e
               if [ $retval -eq 0 ]; then
@@ -172,11 +202,34 @@ write_files:
           cp "${BINARIES_DIR}/provider.yaml" /opt/provider/provider.yaml
         fi
 
-        PAUSE_IMAGE=`ctr -n k8s.io images ls -q | grep "pause" | sort | tail -n 1`
-        echo $PAUSE_IMAGE
-        if [ -n "$PAUSE_IMAGE" ]; then
-          sed -i "s|sandbox_image = .*|sandbox_image = \"$PAUSE_IMAGE\"|g" /etc/containerd/config.toml
+        PAUSE_IMAGE=""
+        if [ -s "${BINARIES_DIR}/docker/images.list" ]; then
+          PAUSE_IMAGE=$(awk '$2 ~ /\/pause(:[^@]+)?$/ {digest=$1; sub(/\.tar$/, "", digest); repository=$2; sub(/:[^/]+$/, "", repository); print repository "@sha256:" digest}' "${BINARIES_DIR}/docker/images.list")
+        else
+          PAUSE_IMAGE=$(ctr -n k8s.io images ls -q | grep -E '/pause(:|@)' | sort | tail -n 1)
         fi
+        if [ -z "$PAUSE_IMAGE" ] || ! ctr -n k8s.io images ls -q | grep -Fxq "$PAUSE_IMAGE"; then
+          echo "ERROR: ISO pause image is not imported" >&2
+          exit 1
+        fi
+        if grep -qE '^[[:space:]]*sandbox_image[[:space:]]*=' /etc/containerd/config.toml; then
+          sed -i -E "s|^([[:space:]]*)sandbox_image[[:space:]]*=.*|\1sandbox_image = \"$PAUSE_IMAGE\"|" /etc/containerd/config.toml
+        else
+          # containerd 2.x uses config version 3 and a separate pinned_images table.
+          if ! awk -v image="$PAUSE_IMAGE" '
+            /^[[:space:]]*\[/ {pinned = ($0 ~ /cri\.v1\.images.*\.pinned_images\]/)}
+            pinned && /^[[:space:]]*sandbox[[:space:]]*=/ {$0 = "      sandbox = \"" image "\""; changed = 1}
+            {print}
+            END {if (!changed) exit 1}
+          ' /etc/containerd/config.toml > /etc/containerd/config.toml.pause.tmp; then
+            rm -f /etc/containerd/config.toml.pause.tmp
+            echo "ERROR: unsupported containerd sandbox image configuration" >&2
+            exit 1
+          fi
+          cat /etc/containerd/config.toml.pause.tmp > /etc/containerd/config.toml
+          rm -f /etc/containerd/config.toml.pause.tmp
+        fi
+        echo "Configured ISO pause image: $PAUSE_IMAGE"
         systemctl daemon-reload
         systemctl restart containerd
 
@@ -281,12 +334,15 @@ write_files:
       [Unit]
       Requires=containerd.service
       After=containerd.service
+      StartLimitIntervalSec=0
 
       [Service]
-      Type=simple
-      StartLimitInterval=0
+      Type=oneshot
+      RemainAfterExit=yes
+      TimeoutStartSec=900
       Restart=on-failure
-      ExecStartPre=/usr/bin/curl -k https://{{ k8s_control_node.join_ip }}:6443/version
+      RestartSec=10
+      ExecStartPre=/usr/bin/timeout 600 /bin/bash -c 'until /usr/bin/curl -kfsS --connect-timeout 5 --max-time 5 https://{{ k8s_control_node.join_ip }}:6443/version >/dev/null; do sleep 5; done'
       ExecStart=/opt/bin/deploy-kube-system
 
 runcmd:
@@ -294,6 +350,6 @@ runcmd:
   - containerd config default > /etc/containerd/config.toml
   - sed -i 's/SystemdCgroup = false/SystemdCgroup = true/g' /etc/containerd/config.toml
   - until [ -f /opt/bin/setup-kube-system ]; do sleep 5; done
-  - /opt/bin/setup-kube-system
+  - /opt/bin/setup-kube-system || exit 1
   - until [ -f /etc/systemd/system/deploy-kube-system.service ]; do sleep 5; done
   - systemctl start deploy-kube-system

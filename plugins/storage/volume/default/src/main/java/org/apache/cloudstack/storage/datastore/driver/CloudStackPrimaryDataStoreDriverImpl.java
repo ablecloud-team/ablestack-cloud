@@ -379,7 +379,7 @@ public class CloudStackPrimaryDataStoreDriverImpl implements PrimaryDataStoreDri
         CreateCmdResult result = null;
         logger.debug("Taking Snapshot of "+ snapshot);
         try {
-            SnapshotObjectTO snapshotTO = (SnapshotObjectTO) snapshot.getTO();
+            SnapshotObjectTO snapshotTO = getAndUpdateSnapshotObjectTO(snapshot);
             Object payload = snapshot.getPayload();
             if (payload != null && payload instanceof CreateSnapshotPayload) {
                 CreateSnapshotPayload snapshotPayload = (CreateSnapshotPayload) payload;

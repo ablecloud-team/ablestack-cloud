@@ -71,6 +71,11 @@ public class UpgradeKubernetesClusterCmd extends BaseAsyncCmd {
         return id;
     }
 
+    @Override
+    public Long getApiResourceId() {
+        return getId();
+    }
+
     public Long getKubernetesVersionId() {
         return kubernetesVersionId;
     }

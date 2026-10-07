@@ -16,28 +16,46 @@
 # specific language governing permissions and limitations
 # under the License.
 
-export PATH=$PATH:/opt/bin
+set -euo pipefail
+export PATH=/opt/bin:$PATH
+if [ "$#" -ne 3 ]; then
+  echo "Expected node name, node type and operation" >&2
+  exit 2
+fi
 node_name=$1
 node_type=$2
 operation=$3
-
-if [ $operation == "remove" ]; then
-  if [ $node_type == "control" ]; then
-    # get the specific node
-    kubectl get nodes $node_name >/dev/null 2>&1
-    if [[ $(echo $?) -eq 1 ]]; then
-       echo "No node with name $node_name present in the cluster, exiting..."
-       exit 0
-    else
-       # Drain the node
-       kubectl drain $node_name --delete-local-data --force --ignore-daemonsets
-    fi
-  else
-    kubeadm reset -f
-  fi
-else
-  sudo mkdir -p /home/cloud/.kube
-  sudo cp /root/.kube/config /home/cloud/.kube/
-  sudo chown -R cloud:cloud /home/cloud/.kube
-  kubectl delete node $node_name
+if [[ ! "$node_name" =~ ^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$ ]]; then
+  echo "Invalid Kubernetes node name" >&2
+  exit 2
 fi
+case "$operation:$node_type" in
+  remove:control)
+    # Only a successful NotFound lookup makes a retry idempotent. API errors fail.
+    found=$(kubectl get node "$node_name" --ignore-not-found -o name --request-timeout=20s)
+    if [ -z "$found" ]; then
+      echo "Kubernetes node is already absent"
+      exit 0
+    fi
+    original_cordon=$(kubectl get node "$node_name" -o 'jsonpath={.spec.unschedulable}' --request-timeout=20s)
+    if ! kubectl drain "$node_name" --ignore-daemonsets --timeout=120s; then
+      # Restore only a cordon introduced by this failed drain. Do not override an operator cordon.
+      if [ "$original_cordon" != true ]; then
+        kubectl uncordon "$node_name" --request-timeout=20s || true
+      fi
+      exit 1
+    fi
+    ;;
+  remove:worker)
+    kubeadm reset -f
+    # This CKS-owned marker must not suppress a later external-node bootstrap.
+    rm -f /home/cloud/success
+    ;;
+  delete:control)
+    kubectl delete node "$node_name" --ignore-not-found --wait=true --timeout=60s --request-timeout=20s
+    ;;
+  *)
+    echo "Unsupported Kubernetes node removal operation" >&2
+    exit 2
+    ;;
+esac

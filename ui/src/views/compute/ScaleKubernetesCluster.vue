@@ -19,7 +19,7 @@
   <div class="form-layout" v-ctrl-enter="handleSubmit">
     <a-spin :spinning="loading">
       <a-alert type="warning">
-        <template #message>{{ resource.autoscalingenabled ? $t('message.action.scale.kubernetes.cluster.warning') : $t('message.kubernetes.cluster.scale') }}</template>
+        <template #message>{{ isPartialRecovery ? $t('message.kubernetes.scale.partial.recovery', { count: partialRecoverySize }) : resource.autoscalingenabled ? $t('message.action.scale.kubernetes.cluster.warning') : $t('message.kubernetes.cluster.scale') }}</template>
       </a-alert>
       <br />
       <a-form
@@ -28,7 +28,7 @@
         :rules="rules"
         @finish="handleSubmit"
         layout="vertical">
-        <a-form-item name="serviceofferingid" ref="serviceofferingid" v-if="!this.resource.workerofferingid && !this.resource.controlofferingid && !this.resource.etcdofferingid">
+        <a-form-item name="serviceofferingid" ref="serviceofferingid" v-if="!isPartialRecovery && !this.resource.workerofferingid && !this.resource.controlofferingid && !this.resource.etcdofferingid">
           <template #label>
             <tooltip-label :title="$t('label.serviceofferingid')" :tooltip="apiParams.serviceofferingid.description"/>
           </template>
@@ -47,7 +47,7 @@
             </a-select-option>
           </a-select>
         </a-form-item>
-        <a-form-item name="workerofferingid" ref="workerofferingid">
+        <a-form-item name="workerofferingid" ref="workerofferingid" v-if="!isPartialRecovery">
           <template #label>
             <tooltip-label :title="$t('label.service.offering.workernodes')" :tooltip="apiParams.serviceofferingid.description"/>
           </template>
@@ -66,7 +66,7 @@
             </a-select-option>
           </a-select>
         </a-form-item>
-        <a-form-item name="controlofferingid" ref="controlofferingid">
+        <a-form-item name="controlofferingid" ref="controlofferingid" v-if="!isPartialRecovery">
           <template #label>
             <tooltip-label :title="$t('label.service.offering.controlnodes')" :tooltip="apiParams.serviceofferingid.description"/>
           </template>
@@ -85,7 +85,7 @@
             </a-select-option>
           </a-select>
         </a-form-item>
-        <a-form-item name="etcdofferingid" ref="etcdofferingid" v-if="this.resource.etcdnodes && this.resource.etcdnodes > 0 && this.resource.etcdofferingid">
+        <a-form-item name="etcdofferingid" ref="etcdofferingid" v-if="!isPartialRecovery && this.resource.etcdnodes && this.resource.etcdnodes > 0 && this.resource.etcdofferingid">
           <template #label>
             <tooltip-label :title="$t('label.service.offering.etcdnodes')" :tooltip="apiParams.serviceofferingid.description"/>
           </template>
@@ -104,7 +104,7 @@
             </a-select-option>
           </a-select>
         </a-form-item>
-        <a-form-item name="autoscalingenabled" ref="autoscalingenabled" v-if="apiParams.autoscalingenabled">
+        <a-form-item name="autoscalingenabled" ref="autoscalingenabled" v-if="!isPartialRecovery && apiParams.autoscalingenabled">
           <template #label>
             <tooltip-label :title="$t('label.cks.cluster.autoscalingenabled')" :tooltip="apiParams.autoscalingenabled.description"/>
           </template>
@@ -129,12 +129,13 @@
           </a-form-item>
         </span>
         <span v-else>
-          <a-form-item name="size" ref="size" v-if="['Created', 'Running'].includes(resource.state)">
+          <a-form-item name="size" ref="size" v-if="isPartialRecovery || ['Created', 'Running'].includes(resource.state)">
             <template #label>
               <tooltip-label :title="$t('label.cks.cluster.size')" :tooltip="apiParams.size.description"/>
             </template>
             <a-input
               v-model:value="form.size"
+              :disabled="isPartialRecovery"
               :placeholder="apiParams.size.description"/>
           </a-form-item>
         </span>
@@ -151,6 +152,7 @@
 import { ref, reactive, toRaw } from 'vue'
 import { getAPI, postAPI } from '@/api'
 import { mixinForm } from '@/utils/mixin'
+import { partialScaleRecoverySize } from '@/utils/kubernetesScaleRecovery'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 
 export default {
@@ -181,6 +183,10 @@ export default {
       etcdOfferings: []
     }
   },
+  computed: {
+    partialRecoverySize () { return partialScaleRecoverySize(this.resource) },
+    isPartialRecovery () { return this.partialRecoverySize !== null }
+  },
   beforeCreate () {
     this.apiParams = this.$getApiParams('scaleKubernetesCluster')
   },
@@ -194,8 +200,14 @@ export default {
         this.maxsize = this.resource.maxsize
       }
     }
+    if (this.isPartialRecovery) {
+      this.originalSize = this.partialRecoverySize
+      this.autoscalingenabled = null
+      this.minsize = null
+      this.maxsize = null
+    }
     this.initForm()
-    this.fetchData()
+    if (!this.isPartialRecovery) this.fetchData()
   },
   methods: {
     initForm () {
@@ -357,6 +369,10 @@ export default {
           params['nodeofferings[' + advancedOfferings + '].node'] = 'etcd'
           params['nodeofferings[' + advancedOfferings + '].offering'] = this.etcdOfferings[values.etcdofferingid].id
           advancedOfferings++
+        }
+        if (this.isPartialRecovery) {
+          Object.keys(params).filter(key => key !== 'id').forEach(key => delete params[key])
+          params.size = this.partialRecoverySize
         }
         postAPI('scaleKubernetesCluster', params).then(json => {
           const jobId = json.scalekubernetesclusterresponse.jobid

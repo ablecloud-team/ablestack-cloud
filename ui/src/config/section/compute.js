@@ -19,6 +19,7 @@ import { shallowRef, defineAsyncComponent } from 'vue'
 import store from '@/store'
 import { snapshotBusy, snapshotActionReason } from '@/utils/vmSnapshotActions'
 import { isZoneCreated } from '@/utils/zone'
+import { partialScaleRecoverySize } from '@/utils/kubernetesScaleRecovery'
 import { escapeHtml } from '@/utils/util'
 import { getAPI, postAPI, getBaseUrl } from '@/api'
 import { getLatestKubernetesIsoParams } from '@/utils/acsrepo'
@@ -1023,8 +1024,9 @@ export default {
           api: 'startKubernetesCluster',
           icon: 'caret-right-outlined',
           label: 'label.kubernetes.cluster.start',
-          message: 'message.kubernetes.cluster.start',
+          message: 'message.kubernetes.cluster.start.credentials',
           docHelp: 'plugins/cloudstack-kubernetes-service.html#starting-a-stopped-kubernetes-cluster',
+          args: (record, store, isGroupAction) => isGroupAction ? [] : ['rotatecontrollercredentials'],
           dataView: true,
           show: (record) => { return ['Stopped'].includes(record.state) && record.clustertype === 'CloudManaged' },
           groupAction: true,
@@ -1050,7 +1052,7 @@ export default {
           message: 'message.kubernetes.cluster.scale',
           docHelp: 'plugins/cloudstack-kubernetes-service.html#scaling-kubernetes-cluster',
           dataView: true,
-          show: (record) => { return ['Created', 'Running', 'Stopped'].includes(record.state) && record.clustertype === 'CloudManaged' },
+          show: (record) => { return record.clustertype === 'CloudManaged' && (['Created', 'Running', 'Stopped'].includes(record.state) || partialScaleRecoverySize(record) !== null) },
           popup: true,
           component: shallowRef(defineAsyncComponent(() => import('@/views/compute/ScaleKubernetesCluster.vue')))
         },

@@ -105,7 +105,9 @@ public class AddNodesToKubernetesClusterCmd extends BaseAsyncCmd {
     @Override
     public void execute() {
         try {
-            kubernetesClusterService.addNodesToKubernetesCluster(this);
+            if (!kubernetesClusterService.addNodesToKubernetesCluster(this)) {
+                throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Not all external nodes joined the Kubernetes cluster; inspect the retained node state before retrying");
+            }
             final KubernetesClusterResponse response = kubernetesClusterService.createKubernetesClusterResponse(getClusterId());
             response.setResponseName(getCommandName());
             setResponseObject(response);

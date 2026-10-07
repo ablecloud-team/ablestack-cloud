@@ -2341,7 +2341,7 @@ public class KVMStorageProcessor implements StorageProcessor {
 
                     snapshotPath = fullSnapPathAndDirPath.first();
                     String directoryPath = fullSnapPathAndDirPath.second();
-                    String convertResult = convertBaseFileToSnapshotFileInStorageDir(primaryPool, disk, snapshotPath, directoryPath, volume, cmd.getWait());
+                    String convertResult = convertBaseFileToSnapshotFileInStorageDir(ObjectUtils.defaultIfNull(secondaryPool, primaryPool), disk, snapshotPath, directoryPath, volume, cmd.getWait());
 
                     resource.mergeDeltaIntoBaseFile(vm, diskLabel, diskPath, null, true, snapshotName, volume, conn);
 
@@ -2359,6 +2359,8 @@ public class KVMStorageProcessor implements StorageProcessor {
                     Files.createDirectories(Paths.get(snapshotPath).toAbsolutePath().normalize().getParent());
                     extractDiskFromFullVmSnapshot(disk, volume, snapshotPath, snapshotName, vmName, vm);
                 }
+
+                newSnapshot = createRunningSnapshotResult(secondaryPool, snapshotPath);
 
                 /*
                  * libvirt on RHEL6 doesn't handle resume event emitted from
@@ -2437,6 +2439,19 @@ public class KVMStorageProcessor implements StorageProcessor {
         } finally {
             volume.clearPassphrase();
         }
+    }
+
+    protected SnapshotObjectTO createRunningSnapshotResult(KVMStoragePool secondaryPool, String snapshotPath) {
+        String storedPath = snapshotPath;
+        if (secondaryPool != null) {
+            Path base = Paths.get(secondaryPool.getLocalPath()).toAbsolutePath().normalize();
+            Path full = Paths.get(snapshotPath).toAbsolutePath().normalize();
+            if (!full.startsWith(base) || full.equals(base)) {
+                throw new CloudRuntimeException("Live snapshot path is outside the selected secondary store");
+            }
+            storedPath = base.relativize(full).toString();
+        }
+        return createSnapshotToAndUpdatePathAndSize(storedPath, snapshotPath);
     }
 
     private SnapshotObjectTO createSnapshotToAndUpdatePathAndSize(String path, String fullPath) {
