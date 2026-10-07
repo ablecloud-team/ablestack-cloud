@@ -8749,5 +8749,8 @@
   "label.storage.config.runtime.PARTIAL": "Partial runtime collection",
   "label.storage.config.runtime.NOT_REQUESTED": "Desired configuration only",
   "label.storage.config.runtime.UNAVAILABLE_OR_PARTIAL": "Runtime unavailable or partially collected",
-  "message.storage.config.download.integrity": "Downloaded configuration checksum differs from its backup. Please retry."
+  "message.storage.config.download.integrity": "Downloaded configuration checksum differs from its backup. Please retry.",
+  "label.storage.config.runtime.revision": "Verified runtime revision",
+  "label.storage.config.generation.operation": "Verified configuration operation",
+  "label.storage.config.generation.checksum": "Verified configuration SHA-256"
 }

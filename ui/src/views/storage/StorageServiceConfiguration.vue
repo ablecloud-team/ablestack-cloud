@@ -50,6 +50,9 @@
           <a-descriptions-item :label="$t('label.storage.config.runtime.status')">{{ runtimeStateLabel(record.metadata?.runtimeStatus) }}</a-descriptions-item>
           <a-descriptions-item :label="$t('label.storage.config.secret.coverage')">{{ record.metadata?.credentialCoverage || '—' }}</a-descriptions-item>
           <a-descriptions-item :label="$t('label.storage.config.verification')">{{ record.metadata?.verification || '—' }}</a-descriptions-item>
+          <a-descriptions-item :label="$t('label.storage.config.runtime.revision')">{{ record.metadata?.runtimeRevision ?? '—' }}</a-descriptions-item>
+          <a-descriptions-item :label="$t('label.storage.config.generation.operation')">{{ record.metadata?.nativeGeneration?.operationUuid || '—' }}</a-descriptions-item>
+          <a-descriptions-item :label="$t('label.storage.config.generation.checksum')">{{ record.metadata?.nativeGeneration?.configurationSha256 || '—' }}</a-descriptions-item>
           <a-descriptions-item :label="$t('label.storage.config.restore.status')">{{ record.metadata?.restoreState || '—' }}</a-descriptions-item>
           <a-descriptions-item :label="$t('label.storage.config.size')">{{ record.size }}</a-descriptions-item>
           <a-descriptions-item :label="$t('label.storage.config.expires')">{{ record.expires ? new Date(record.expires).toLocaleString() : '—' }}</a-descriptions-item>
@@ -140,6 +143,7 @@ const Sha256 = SHA.sha256
 export default {
   name: 'StorageServiceConfiguration',
   components: { CloudDownloadOutlined, UploadOutlined, DownloadOutlined, RollbackOutlined, ReloadOutlined },
+  emits: ['operation-updated'],
   props: { instanceId: { type: String, required: true }, resource: { type: Object, required: true } },
   data: () => ({ rows: [], loading: false, readFailed: false, generation: 0, busy: '', error: '', backupDialog: false, includeRuntime: true, retentionHours: 168, planTarget: null, plan: null, planPhase: 'MAPPING', planToken: '', lkgPlan: false, planning: false, volumeMapping: {}, targetVolumes: [], credentialValues: {}, confirmation: '', confirmFileExecute: false, targetMode: 'RESTORE_EXISTING', clone: { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP', backingvolumemode: 'NEW' }, initialVolumeSource: '', plannedVolume: '', cloneRuntime: '', cloneOptions: { zones: [], networks: [], offerings: [], disks: [], pools: [], bundles: [], volumes: [] } }),
   computed: {
@@ -195,8 +199,12 @@ export default {
       for (let attempt = 0; attempt < 180; attempt++) {
         if (instance !== this.instanceId) throw new Error(this.$t('message.storage.config.scope.changed'))
         const result = (await getAPI('queryAsyncJobResult', { jobid: job }, { preserveOnFailure: true, timeout: 15000 })).queryasyncjobresultresponse
-        if (result.jobstatus === 1) return this.unwrap(result.jobresult, api)
-        if (result.jobstatus === 2) throw new Error(result.jobresult?.errortext || this.$t('message.storage.config.failed'))
+        if (instance !== this.instanceId) throw new Error(this.$t('message.storage.config.scope.changed'))
+        if (result.jobstatus === 1 || result.jobstatus === 2) {
+          if (['verifyStorageServiceConfiguration', 'applyStorageServiceConfigRestore', 'restoreStorageServiceLastKnownGood'].includes(api)) this.$emit('operation-updated', instance)
+          if (result.jobstatus === 2) throw new Error(result.jobresult?.errortext || this.$t('message.storage.config.failed'))
+          return this.unwrap(result.jobresult, api)
+        }
         await new Promise(resolve => setTimeout(resolve, 1000))
       }
       throw new Error(this.$t('message.storage.config.timeout'))

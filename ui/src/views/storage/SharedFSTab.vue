@@ -41,8 +41,8 @@ class="storage-service__alert"
       @change="handleChangeTab">
       <a-tab-pane :tab="$t('label.details')" key="details">
         <DetailsTab :resource="dataResource" :loading="loading" />
-        <storage-operation-history v-if="storageService.instance && 'listStorageServiceOperations' in $store.getters.apis" :instance-id="storageService.instance.id" />
-        <storage-service-configuration v-if="storageService.instance && 'listStorageServiceConfigBackups' in $store.getters.apis" :instance-id="storageService.instance.id" :resource="dataResource" />
+        <storage-operation-history ref="storageOperationHistory" v-if="storageService.instance && 'listStorageServiceOperations' in $store.getters.apis" :instance-id="storageService.instance.id" />
+        <storage-service-configuration v-if="storageService.instance && 'listStorageServiceConfigBackups' in $store.getters.apis" :instance-id="storageService.instance.id" :resource="dataResource" @operation-updated="refreshStorageOperationHistory" />
         <div v-if="hasStorageServiceApi" class="storage-service storage-service--overview">
           <h3 class="storage-service__section-title">{{ $t('label.storage.service.overview') }}</h3>
           <a-alert
@@ -4681,6 +4681,9 @@ export default {
     this.$emit('wide-layout-change', false)
   },
   methods: {
+    refreshStorageOperationHistory (instanceId) {
+      if (instanceId === this.storageService.instance?.id && this.$refs.storageOperationHistory) this.$refs.storageOperationHistory.refresh()
+    },
     storageLabel (key, fallback) {
       const value = this.$t(key)
       return value && value !== key ? value : fallback
