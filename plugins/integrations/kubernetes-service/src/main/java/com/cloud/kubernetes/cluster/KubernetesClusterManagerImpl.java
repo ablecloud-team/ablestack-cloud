@@ -2260,7 +2260,10 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
         CallContext.register(User.UID_SYSTEM, Account.ACCOUNT_ID_SYSTEM);
         try {
             Role role = getProjectKubernetesAccountRole();
-            UserAccount userAccount = accountService.createUserAccount(accountName,
+            // A previous project service account may have been soft-deleted before external IAM cleanup failed.
+            // Its bootstrap username remains reserved; give each local account incarnation a fresh username.
+            String bootstrapUsername = "mold-cks-project-" + UUID.randomUUID();
+            UserAccount userAccount = accountService.createUserAccount(bootstrapUsername,
                     UUID.randomUUID().toString(), PROJECT_KUBERNETES_ACCOUNT_FIRST_NAME,
                     PROJECT_KUBERNETES_ACCOUNT_LAST_NAME, null, null, accountName, Account.Type.NORMAL, role.getId(),
                     // This is a local machine identity, not an external Keycloak/Glue/Wall user.
@@ -2951,9 +2954,9 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
         CallContext.register(User.UID_SYSTEM, Account.ACCOUNT_ID_SYSTEM);
         try {
             Account serviceAccount = getProjectKubernetesAccount(projectAccount, false);
-            if (serviceAccount != null) {
-                accountManager.deleteAccount(accountDao.findById(serviceAccount.getId()), User.UID_SYSTEM,
-                        accountService.getSystemAccount());
+            if (serviceAccount != null && !accountManager.deleteLocalMachineAccount(accountDao.findById(serviceAccount.getId()),
+                    User.UID_SYSTEM, accountService.getSystemAccount())) {
+                throw new CloudRuntimeException("Cannot clean up the verified local Kubernetes project service account");
             }
         } finally {
             CallContext.unregister();
@@ -2961,14 +2964,9 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
     }
 
     protected void deleteProjectKubernetesAccountIfNeeded(final KubernetesCluster kubernetesCluster) {
-        Account owner = accountService.getAccount(kubernetesCluster.getAccountId());
-        if (owner == null) {
-            return;
-        }
-        if (Account.Type.PROJECT.equals(owner.getType()) &&
-                kubernetesClusterDao.countNotForGCByAccount(owner.getAccountId()) == 0) {
-            deleteProjectKubernetesAccount(owner);
-        }
+        // The dedicated account is shared by clusters within the project. Revoke only the deleted cluster's
+        // scoped key (removeClusterServiceKeys); keep this local machine identity available for a later cluster.
+        // Generic deleteAccount also calls external Keycloak/Glue/Wall and must not be used for this identity.
     }
 
     protected boolean destroyKubernetesCluster(KubernetesCluster kubernetesCluster, boolean deleteProjectAccount) {

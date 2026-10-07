@@ -973,6 +973,19 @@ public class AccountManagerImpl extends ManagerBase implements AccountManager, M
 
     @Override
     public boolean deleteAccount(AccountVO account, long callerUserId, Account caller) {
+        return deleteAccount(account, callerUserId, caller, true);
+    }
+
+    @Override
+    public boolean deleteLocalMachineAccount(AccountVO account, long callerUserId, Account caller) {
+        if (caller == null || caller.getId() != Account.ACCOUNT_ID_SYSTEM || callerUserId != User.UID_SYSTEM
+                || account == null || account.getType() != Account.Type.NORMAL) {
+            throw new PermissionDeniedException("Local machine account cleanup requires SYSTEM and a regular machine identity");
+        }
+        return deleteAccount(account, callerUserId, caller, false);
+    }
+
+    protected boolean deleteAccount(AccountVO account, long callerUserId, Account caller, boolean deleteExternalUsers) {
         long accountId = account.getId();
 
         // delete the account record
@@ -981,14 +994,16 @@ public class AccountManagerImpl extends ManagerBase implements AccountManager, M
             return false;
         }
 
-        // Delete Keycloak User & Glue User
-        try {
-            deleteKeycloakUser(account);
-            deleteGlueUser(account.getAccountName());
-            deleteWallUser(account.getAccountName());
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            return false;
+        // Normal user accounts retain the existing external IAM cleanup contract.
+        if (deleteExternalUsers) {
+            try {
+                deleteKeycloakUser(account);
+                deleteGlueUser(account.getAccountName());
+                deleteWallUser(account.getAccountName());
+            } catch (Exception e) {
+                logger.error(e.getMessage());
+                return false;
+            }
         }
 
         account.setState(State.REMOVED);

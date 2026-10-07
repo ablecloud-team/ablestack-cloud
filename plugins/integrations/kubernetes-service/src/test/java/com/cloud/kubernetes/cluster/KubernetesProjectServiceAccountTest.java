@@ -24,6 +24,7 @@ import com.cloud.projects.dao.ProjectAccountDao;
 import java.util.Collections;
 import com.cloud.user.Account;
 import com.cloud.user.AccountService;
+import com.cloud.user.AccountManager;
 import com.cloud.user.User;
 import com.cloud.user.UserAccount;
 import com.cloud.utils.exception.CloudRuntimeException;
@@ -75,7 +76,7 @@ public class KubernetesProjectServiceAccountTest {
     @Test public void localMachineAccountBindsOnlyToRequestedProject() {
         UserAccount user = Mockito.mock(UserAccount.class);
         Mockito.when(user.getAccountId()).thenReturn(11L);
-        Mockito.when(manager.accountService.createUserAccount(Mockito.eq(name), Mockito.anyString(),
+        Mockito.when(manager.accountService.createUserAccount(Mockito.startsWith("mold-cks-project-"), Mockito.anyString(),
                 Mockito.anyString(), Mockito.anyString(), Mockito.isNull(), Mockito.isNull(), Mockito.eq(name),
                 Mockito.eq(Account.Type.NORMAL), Mockito.eq(10L), Mockito.eq(9L), Mockito.isNull(), Mockito.isNull(),
                 Mockito.isNull(), Mockito.isNull(), Mockito.eq(User.Source.NATIVE), Mockito.eq(false))).thenReturn(user);
@@ -128,8 +129,23 @@ public class KubernetesProjectServiceAccountTest {
         Mockito.verifyNoInteractions(manager.projectManager);
     }
 
+    @Test public void lastClusterDeletionRetainsProjectMachineIdentityWithoutExternalIamCalls() {
+        manager.accountManager = Mockito.mock(AccountManager.class);
+        manager.kubernetesClusterDao = Mockito.mock(com.cloud.kubernetes.cluster.dao.KubernetesClusterDao.class);
+        KubernetesCluster cluster = Mockito.mock(KubernetesCluster.class);
+        Mockito.when(cluster.getAccountId()).thenReturn(22L);
+        Account projectOwner = Mockito.mock(Account.class);
+        Mockito.when(projectOwner.getType()).thenReturn(Account.Type.PROJECT);
+        Mockito.when(projectOwner.getAccountId()).thenReturn(22L);
+        Mockito.when(manager.accountService.getAccount(22L)).thenReturn(projectOwner);
+        Mockito.when(manager.kubernetesClusterDao.countNotForGCByAccount(22L)).thenReturn(0);
+        manager.deleteProjectKubernetesAccountIfNeeded(cluster);
+        Mockito.verifyNoInteractions(manager.accountManager, manager.accountService, manager.projectManager);
+        assertSame(caller, CallContext.current());
+    }
+
     @Test public void localAccountFailureRestoresCallerWithoutMembership() {
-        Mockito.when(manager.accountService.createUserAccount(Mockito.eq(name), Mockito.anyString(),
+        Mockito.when(manager.accountService.createUserAccount(Mockito.startsWith("mold-cks-project-"), Mockito.anyString(),
                 Mockito.anyString(), Mockito.anyString(), Mockito.isNull(), Mockito.isNull(), Mockito.eq(name),
                 Mockito.eq(Account.Type.NORMAL), Mockito.eq(10L), Mockito.eq(9L), Mockito.isNull(), Mockito.isNull(),
                 Mockito.isNull(), Mockito.isNull(), Mockito.eq(User.Source.NATIVE), Mockito.eq(false)))
