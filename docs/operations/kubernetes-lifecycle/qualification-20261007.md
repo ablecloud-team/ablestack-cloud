@@ -39,9 +39,9 @@
 | --- | --- | --- | --- | --- |
 | 1.34.2 | r10, GFS2 control1/worker2 | DNS/HTTP, 앱65·DB/파일·독립 복원, 다운로드/Headlamp | minor1.34 native 확대/축소 | 이후 업그레이드한 장기 r10의 현재 버전과 최초 배포 버전을 구분 |
 | 1.34.9 | r11, 같은 배치 | 앱/독립 복원, 한국어 Headlamp, 실제 키 A→B/원래 복원·폐기 키 거부 | native 확장/축소/PDB | original VM/Node UID 보존 장기 관측 |
-| 1.34.12 | r12, 같은 배치; disposable CSI/프로젝트 별도 | 앱/독립 복원·AOF 실제 재시작·checksum | native AS; 프로젝트 역할/전체 quota 별도 | 대표24시간 관측 진행 중 |
-| 1.35.9 | r13 및 disposable CSI/VPC/CNI | 앱/복원; project VPC basic LB100, offline native DNS/Pod HTTP | native AS1.35, 사용자 CNI2→3→2 | 대표24시간 관측 진행 중 |
-| 1.36.5 | r14 및 최신 CSI fresh r32 | 앱/복원; CSI provision/resize/reattach/snapshot/Retain·Delete | native AS1.36; project role quotas | 대표24시간 관측 진행 중 |
+| 1.34.12 | r12, 같은 배치; disposable CSI/프로젝트 별도 | 앱/독립 복원·AOF 실제 재시작·checksum | native AS; 프로젝트 역할/전체 quota 별도 | 대표 장기관측 종료 PASS(사용자 현재 시점 기준) |
+| 1.35.9 | r13 및 disposable CSI/VPC/CNI | 앱/복원; project VPC basic LB100, offline native DNS/Pod HTTP | native AS1.35, 사용자 CNI2→3→2 | 대표 장기관측 종료 PASS(사용자 현재 시점 기준) |
+| 1.36.5 | r14 및 최신 CSI fresh r32 | 앱/복원; CSI provision/resize/reattach/snapshot/Retain·Delete | native AS1.36; project role quotas | 대표 장기관측 종료 PASS(사용자 현재 시점 기준) |
 | 1.37.1 DEV | r15 및 CSI r25/r27/r32 | 앱/복원, CSI DATA·최종 물리 Delete | native AS1.37/실행 중 controller restart·UI 복구 | development candidate; stable 공식 지원·Release 승격 제외 |
 
 장기 r10–r15는 총18개의 원래 VM/Node UID 및 Ready를 유지했습니다. 잔여 작업은 별도 클러스터를 사용하며 장기 대상의 삭제·키 회전·장애 주입으로 대신하지 않았습니다. 정상 구간과 계획 중단, 원래 실패와 수정 후 복구의 집계를 합치지 않습니다.
@@ -78,7 +78,7 @@
 
 최종 API에는 장기6개 클러스터만 있으며 최초18 VM UUID 및 각 역사 native18 Node UID·Ready가 일치합니다. Retain DATA6개(전부 Ready/GFS2)와 데이터 checksum·회수 기록, 별도 NFS helper8개, 공유 project/offline VPC 및 사용자 manual ACL/다른 할당 세대 IP는 보존하는 자원입니다. 미생성 실패 allocation의 path=NULL/Destroy receipt1개는 정상 deleteVolume로 API 제거·removed 기록을 확인했고 Expunging metadata 상태를 별도 기록했습니다. 실제 할당 볼륨의 물리 Expunged PASS와 구분합니다. 프로젝트 machine identity는 기존 프로젝트를 유지하는 동안 보존하고 삭제한 각 cluster scoped key만 폐기합니다.
 
-PR 준비 기준은 최신 HEAD 전체 License Check PASS/Conflict 없음입니다. 구현·실환경 집중 검증과 PR 준비까지 이 작업 단계이며 Upstream 병합/공식 component·ISO Release/전체 Cloud 통합 build는 후속 Release 단계입니다. 24시간 관측은 완료 시각 전 PASS로 표시하지 않습니다. 실제 발견 자료 중 공개 불가 자료는 공개 문서/PR에 포함하지 않습니다.
+PR 준비 기준은 최신 HEAD 전체 License Check PASS/Conflict 없음입니다. 구현·실환경 집중 검증과 PR 준비까지 이 작업 단계이며 Upstream 병합/공식 component·ISO Release/전체 Cloud 통합 build는 후속 Release 단계입니다. 2026-10-07 사용자 지시로 현재 누적 구간에서 관측·최종 판정을 완료했습니다. 실제20~22시간의 수치를 기록하고 literal24시간 완료로 표시하지 않습니다. 실제 발견 자료 중 공개 불가 자료는 공개 문서/PR에 포함하지 않습니다.
 
 ## 유지보수 시간과 증거 한계
 
@@ -90,10 +90,25 @@ PR 준비 기준은 최신 HEAD 전체 License Check PASS/Conflict 없음입니�
 
 상위 #1230의 하위74건을 번호/제목/상태/갱신 시각으로 대조했습니다. 기존 #1313(cordon ownership), #1321(CSI affinity), #1247(최초 Provider 순서)과 다른 CCM·Headlamp placement 계약만 #1329로 만들고 #1230에 한 번 연결했습니다. #1231/#1233/#1239/#1241/#1263/#1264/#1317/#1328의 결과는 해당 이슈에 갱신하며 새로운 대체 이슈를 만들지 않습니다. 구현·실환경 검증·PR 준비·통합 대기의 상태를 구분하고 PR 병합 전에 하위 이슈를 일괄 종료하지 않습니다. #1264의 마지막 전체 버전 확대 회귀 조건은 대표 현재 코드 실행과 최신12개 ISO 파일검증을 완료한 범위와 구분해 체크하지 않았습니다. 사용자 기준의 전체 통합 빌드·공식 Release regression에서 확인합니다.
 
-## 보존 자원과 관측 종료 예정
+## RT12 최종 관측·종료 판정 — 2026-10-07 20:50 KST
 
-- r12: 현재 22.03시간, native3 Ready, observer 실행 중. 최소24시간 도달 예정 UTC 2026-10-07 13:12:43(한국시간 10-07 22:12:43). 현재 완료 판정 아님.
-- r13: 현재 20.92시간, native3 Ready, observer 실행 중. 최소24시간 도달 예정 UTC 2026-10-07 14:19:41(한국시간 10-07 23:19:41). 현재 완료 판정 아님.
-- r14: 현재 20.25시간, native3 Ready, observer 실행 중. 최소24시간 도달 예정 UTC 2026-10-07 14:59:19(한국시간 10-07 23:59:19). 현재 완료 판정 아님.
+사용자의 “현재 시점이면 충분하므로 지금 관측하고 판정” 지시에 따라 종료 기준을 변경했습니다. **누적 관측과 현재 실환경 재검증 PASS**입니다. 실제 관측20시간51분~22시간38분을 그대로 기록하며, literal24시간 완료로 표시하지 않습니다. 24시간 도달 대기는 더 이상 이번 시험의 잔여 조건이 아닙니다.
+
+| Kubernetes | 실제 누적 관측 | 샘플 | 앱 HTTP 요청 | 오류 | 판정 |
+| --- | --- | ---: | ---: | ---: | --- |
+| v1.34.12 | 22시간 38분 1초 | 1,359 | 135,900 | 0 | PASS(사용자 종료 기준) |
+| v1.35.9 | 21시간 31분 1초 | 1,292 | 129,200 | 0 | PASS(사용자 종료 기준) |
+| v1.36.5 | 20시간 51분 1초 | 1,252 | 125,200 | 0 | PASS(사용자 종료 기준) |
+
+총390,300회의 앱 API 읽기 HTTP는 오류0건, 매회65/65 검사·DB100 records·64files(4MiB) checksum 유지 및3Node Ready입니다. 샘플 간격 최대90초 미만을 확인했습니다. 60초 간격 표본이며 외부 LB의 연속24시간 무중단으로 확대하지 않습니다.
+
+현재 각 버전에서 기존 데이터를 다시 쓰지 않고65/65·DB/파일 checksum을 확인했고, 앱 DNS3종·외부 Service LB100회/오류0·예상 fixture 응답, CCM/AutoScaler/Headlamp Ready·fresh Node Lease·원래 LB rule count를 확인했습니다. 이전 system checkpoint 이후 같은 Pod UID와 추가 restart0입니다. 최근 controller 로그는 private으로 보존했고 마지막10분/최대1000줄에서 fatal/auth/error severity marker0을 확인했습니다. CCM은 해당 구간 새 로그가 없으므로 로그0건을 새 API 호출 성공의 증거로 계산하지 않습니다. 실제 minor별 AutoScaler·키 회전·Provider 동작은 앞선 시험 증거를 재사용합니다.
+
+최초 관측 보조 코드의 LB fixture namespace와 Lease 시간 허용차를 확인해 **현재 리소스와 기존 제품 freshness 계약(과거90초/미래30초)**에 맞춰 재검증했습니다. 최초 엄격 Lease assertion의 값은 보존되지 않아 clock skew 원인으로 단정하지 않습니다. 제품 패치나 신규 중복 이슈를 만들지 않았습니다.
+
+원래 장기 클러스터6개·최초18 VM UUID 및 역사18 native Node UID가 그대로 Running/Ready입니다. 작업 소유권과 `/proc` command/cwd가 일치하는 관측 수집기3개만 종료하고, 클러스터/앱/VM/스토리지/키는 변경하지 않았습니다. frozen 샘플과 현재 결과를 보존했습니다.
+
+**실배포·생명주기 시험의 장기관측 단계는 완료**입니다. 남은 단계는 사용자 지정 Upstream PR 통합·공식 component/ISO Release·전체 Cloud Release build/통합 검사입니다. 기존 #1230 / Epic #1227의 진행 상태를 갱신하며 새 RT12/패치 이슈를 만들지 않습니다.
+
 
 Retain volume UUID는 `90fbba30-99bf-4405-89e1-66980ae8d13d`, `f8a4f70a-40b2-4dcf-8bde-7f57ffff6fdf`, `bf4e0635-c63a-4cb4-9b10-81f3bca0f7f7`, `d1814d1b-a467-45de-b43e-5ef9ee335950`, `c95e29a6-1fd0-49df-b9c0-ae6e7f745fce`, `837700f0-bc46-47ed-858f-2c320ca39a9a`입니다. 외부 helper·Retain 데이터의 회수는 기존 checksum/인계 기록을 사용하고 임의 정리를 하지 않습니다.
