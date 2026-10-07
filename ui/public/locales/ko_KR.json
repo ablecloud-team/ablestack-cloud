@@ -9430,5 +9430,6 @@
   "label.storage.config.clone.size": "새 초기 데이터 볼륨 크기(GiB)",
   "label.storage.config.clone.runtime": "검증된 런타임 번들",
   "label.storage.config.clone.new.volume": "새 빈 데이터 볼륨 생성",
-  "label.storage.config.clone.initial": "새 초기 볼륨에 대응할 원본 볼륨"
+  "label.storage.config.clone.initial": "새 초기 볼륨에 대응할 원본 볼륨",
+  "label.storage.config.clone.volume.mode": "초기 데이터 볼륨"
 }

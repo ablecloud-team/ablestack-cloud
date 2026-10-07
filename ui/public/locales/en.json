@@ -9465,5 +9465,6 @@
   "label.storage.config.clone.size": "New initial volume size (GiB)",
   "label.storage.config.clone.runtime": "Verified runtime bundle",
   "label.storage.config.clone.new.volume": "Create a new empty data volume",
-  "label.storage.config.clone.initial": "Source for the new initial volume"
+  "label.storage.config.clone.initial": "Source for the new initial volume",
+  "label.storage.config.clone.volume.mode": "Initial data volume"
 }
