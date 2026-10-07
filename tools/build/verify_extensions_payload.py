@@ -16,7 +16,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-"""Validate extension files in an extracted management RPM, without executing them."""
+"""Validate combined management and network-runtime RPM extensions without executing them."""
 
 import argparse
 import os
