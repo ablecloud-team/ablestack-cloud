@@ -183,6 +183,9 @@ import com.cloud.kubernetes.cluster.actionworkers.KubernetesClusterScaleWorker;
 import com.cloud.kubernetes.cluster.actionworkers.KubernetesClusterStartWorker;
 import com.cloud.kubernetes.cluster.actionworkers.KubernetesClusterStopWorker;
 import com.cloud.kubernetes.cluster.actionworkers.KubernetesClusterUpgradeWorker;
+import org.apache.cloudstack.framework.jobs.dao.AsyncJobDao;
+import org.apache.cloudstack.framework.jobs.impl.AsyncJobVO;
+import org.apache.cloudstack.jobs.JobInfo;
 import com.cloud.kubernetes.cluster.dao.KubernetesClusterAffinityGroupMapDao;
 import com.cloud.kubernetes.cluster.dao.KubernetesClusterDao;
 import com.cloud.kubernetes.cluster.dao.KubernetesClusterDetailsDao;
@@ -412,6 +415,8 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
     public SecurityGroupService securityGroupService;
     @Inject
     public NetworkHelper networkHelper;
+    @Inject
+    protected AsyncJobDao asyncJobDao;
     @Inject
     private NsxProviderDao nsxProviderDao;
     @Inject
@@ -3187,6 +3192,46 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
        mark the Kubernetes cluster to be 'Alert' state. Through recovery API, or reconciliation clusters in 'Alert' will
        be brought back to known good state or desired state.
      */
+    static String interruptedOperationCommand(KubernetesCluster.State state) {
+        switch (state) {
+            case Upgrading: return UpgradeKubernetesClusterCmd.class.getName();
+            case Scaling:
+            case ScalingStoppedCluster: return ScaleKubernetesClusterCmd.class.getName();
+            case Importing: return AddNodesToKubernetesClusterCmd.class.getName();
+            case RemovingNodes: return RemoveNodesFromKubernetesClusterCmd.class.getName();
+            default: return null;
+        }
+    }
+
+    static boolean isRestartCancelledJob(KubernetesCluster cluster, AsyncJobVO job) {
+        String expected = interruptedOperationCommand(cluster.getState());
+        return expected != null && job != null && job.getStatus() == JobInfo.Status.FAILED
+                && Objects.equals(job.getInstanceId(), cluster.getId())
+                && ApiCommandResourceType.KubernetesCluster.toString().equals(job.getInstanceType())
+                && expected.equals(job.getCmd())
+                && "job cancelled because of management server restart or shutdown".equals(job.getResult());
+    }
+
+    protected boolean recoverRestartCancelledOperation(KubernetesClusterVO cluster) {
+        if (asyncJobDao.findInstancePendingAsyncJob(ApiCommandResourceType.KubernetesCluster.toString(), cluster.getId()) != null) {
+            return false;
+        }
+        AsyncJobVO job = asyncJobDao.findJob(null, cluster.getId(), ApiCommandResourceType.KubernetesCluster.toString());
+        if (!isRestartCancelledJob(cluster, job)) {
+            return false;
+        }
+        // A restart cancellation means the old Java worker is gone. Preserve all partial native work,
+        // source/target pins, user cordon and cleanup receipts; never announce OperationSucceeded.
+        if (!stateTransitTo(cluster.getId(), KubernetesCluster.Event.OperationFailed)) {
+            return false;
+        }
+        kubernetesClusterDetailsDao.addDetail(cluster.getId(), "operation.recovery.last",
+                job.getUuid() + "|" + cluster.getState() + "|management-restart-cancelled", false);
+        logger.warn("Recovered cancelled Kubernetes operation state for cluster {} and job {}; inspect native state before retrying",
+                cluster.getUuid(), job.getUuid());
+        return true;
+    }
+
     public class KubernetesClusterStatusScanner extends ManagedContextRunnable {
         private boolean firstRun = true;
         @Override
@@ -3207,6 +3252,16 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
 
         public void reallyRun() {
             try {
+                for (KubernetesCluster.State interrupted : List.of(KubernetesCluster.State.Upgrading, KubernetesCluster.State.Scaling,
+                        KubernetesCluster.State.ScalingStoppedCluster, KubernetesCluster.State.Importing, KubernetesCluster.State.RemovingNodes)) {
+                    for (KubernetesClusterVO cluster : kubernetesClusterDao.findManagedKubernetesClustersInState(interrupted)) {
+                        try {
+                            recoverRestartCancelledOperation(cluster);
+                        } catch (Exception error) {
+                            logger.warn("Kubernetes cancelled-operation recovery is incomplete for cluster {}", cluster.getUuid());
+                        }
+                    }
+                }
                 // run through Kubernetes clusters in 'Running' state and ensure all the VM's are Running in the cluster
                 List<KubernetesClusterVO> runningKubernetesClusters = kubernetesClusterDao.findManagedKubernetesClustersInState(KubernetesCluster.State.Running);
                 for (KubernetesCluster kubernetesCluster : runningKubernetesClusters) {
