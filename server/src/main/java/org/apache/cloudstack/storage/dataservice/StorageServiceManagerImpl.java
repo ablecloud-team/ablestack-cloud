@@ -1113,7 +1113,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                     }
                     public void promoteVerifiedConfiguration(StorageServiceOperationVO operation) {
                         if (instance.getVmId() != null && StorageServiceInstance.StorageServiceVerifiedConfigurationEnabled.value()) new StorageServiceConfiguration(StorageServiceManagerImpl.this, storageConfigArtifactDao, storageOperationDao)
-                                .promoteVerified(instance, operation);
+                                .promoteVerified(instance, operation, () -> {
+                                    operation.setState("COMPLETE");operation.setPhase("COMPLETE");operation.setProgress(100);
+                                    operation.setCompleted(new java.util.Date());operation.setHeartbeat(new java.util.Date());
+                                    if (!storageOperationDao.update(operation.getId(), operation)) throw new CloudRuntimeException("Unable to commit verified configuration operation");
+                                });
                     }
                     public void verify() {
                         if (instance.getVmId() != null) {

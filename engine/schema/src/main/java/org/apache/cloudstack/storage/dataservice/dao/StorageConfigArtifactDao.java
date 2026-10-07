@@ -25,6 +25,6 @@ public interface StorageConfigArtifactDao extends GenericDao<StorageConfigArtifa
     StorageConfigArtifactVO findByUuid(String uuid);
     List<StorageConfigArtifactVO> listByInstance(long instanceId);
     /** Atomically supersede the reviewed pointer; reject a stale or non-increasing revision. */
-    boolean promoteVerified(long instanceId, long candidateId, Long expectedActiveId, long expectedActiveRevision);
+    boolean promoteVerified(long instanceId, long candidateId, Long expectedActiveId, long expectedActiveRevision, Runnable completeOperation);
 
 }
