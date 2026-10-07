@@ -486,7 +486,7 @@ public class KubernetesClusterScaleWorker extends KubernetesClusterResourceModif
         }
         // Check capacity and transition state
         final long newVmRequiredCount = clusterSize - originalClusterSize;
-        final ServiceOffering clusterServiceOffering = serviceOfferingDao.findById(kubernetesCluster.getServiceOfferingId());
+        final ServiceOffering clusterServiceOffering = getExistingServiceOfferingForNodeType(nodeType, kubernetesCluster);
         if (clusterServiceOffering == null) {
             logTransitStateToFailedIfNeededAndThrow(Level.WARN, String.format("Scaling failed for Kubernetes cluster : %s, cluster service offering not found", kubernetesCluster.getName()));
         }
@@ -753,7 +753,8 @@ public class KubernetesClusterScaleWorker extends KubernetesClusterResourceModif
         for (KubernetesClusterNodeType nodeType : Arrays.asList(CONTROL, ETCD, WORKER)) {
             boolean isWorkerNode = WORKER == nodeType;
             final long newVMRequired = (!isWorkerNode || clusterSize == null) ? 0 : clusterSize - originalClusterSize;
-            if (!scaleClusterDefaultOffering && !serviceOfferingNodeTypeMap.containsKey(nodeType.name()) && newVMRequired == 0) {
+            if (!scaleClusterDefaultOffering && !serviceOfferingNodeTypeMap.containsKey(nodeType.name()) && newVMRequired == 0
+                    && !(isWorkerNode && autoscalingChanged)) {
                 continue;
             }
 
@@ -768,7 +769,7 @@ public class KubernetesClusterScaleWorker extends KubernetesClusterResourceModif
                 if (autoScaled && isNodeOfferingScalingNeeded) {
                     scaleKubernetesClusterOffering(nodeType, scalingServiceOffering, updateNodeOffering, updateClusterOffering);
                 }
-                stateTransitTo(kubernetesCluster.getId(), KubernetesCluster.Event.OperationSucceeded);
+                stateTransitTo(kubernetesCluster.getId(), autoScaled ? KubernetesCluster.Event.OperationSucceeded : KubernetesCluster.Event.OperationFailed);
                 return autoScaled;
             }
             final boolean clusterSizeScalingNeeded = isWorkerNode && clusterSize != null && clusterSize != originalClusterSize;

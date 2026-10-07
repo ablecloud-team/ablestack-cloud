@@ -425,6 +425,29 @@ public class KubernetesClusterManagerImplTest {
     }
 
     @Test
+    public void scaleWithoutOfferingDoesNotSynthesizeDefaultOffering() {
+        Assert.assertTrue(kubernetesClusterManager.createScaleNodeTypeToServiceOfferingMap(null, null, null).isEmpty());
+        Assert.assertTrue(kubernetesClusterManager.createScaleNodeTypeToServiceOfferingMap(new HashMap<>(), null, null).isEmpty());
+        Mockito.verifyNoInteractions(serviceOfferingDao);
+    }
+
+    @Test
+    public void scaleWithExplicitDefaultOfferingRetainsGlobalChange() {
+        ServiceOfferingVO offering = Mockito.mock(ServiceOfferingVO.class);
+        Mockito.when(serviceOfferingDao.findById(6L)).thenReturn(offering);
+        Map<String, ServiceOffering> mapping = kubernetesClusterManager.createScaleNodeTypeToServiceOfferingMap(null, 6L, null);
+        Assert.assertEquals(Map.of(DEFAULT.name(), offering), mapping);
+    }
+
+    @Test
+    public void scaleWithExplicitRoleOfferingDoesNotFillOtherRoles() {
+        ServiceOfferingVO offering = Mockito.mock(ServiceOfferingVO.class);
+        Mockito.when(serviceOfferingDao.findById(6L)).thenReturn(offering);
+        Map<String, ServiceOffering> mapping = kubernetesClusterManager.createScaleNodeTypeToServiceOfferingMap(Map.of(WORKER.name(), 6L), null, null);
+        Assert.assertEquals(Map.of(WORKER.name(), offering), mapping);
+    }
+
+    @Test
     public void testCreateNodeTypeToServiceOfferingMapNullMap() {
         KubernetesClusterVO clusterVO = Mockito.mock(KubernetesClusterVO.class);
         Mockito.when(clusterVO.getServiceOfferingId()).thenReturn(1L);

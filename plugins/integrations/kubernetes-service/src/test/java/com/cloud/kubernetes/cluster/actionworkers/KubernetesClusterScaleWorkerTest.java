@@ -81,6 +81,54 @@ public class KubernetesClusterScaleWorkerTest {
         worker.loadBalancerVMMapDao = loadBalancerVMMapDao;
     }
 
+    private void verifyAutoscalingOnlyRequest(boolean wasEnabled, boolean enable, Long oldMin, Long oldMax,
+                                              Long newMin, Long newMax, boolean success) {
+        Mockito.when(kubernetesCluster.getState()).thenReturn(KubernetesCluster.State.Running);
+        Mockito.when(kubernetesCluster.getNodeCount()).thenReturn(2L);
+        Mockito.when(kubernetesCluster.getAutoscalingEnabled()).thenReturn(wasEnabled);
+        Mockito.lenient().when(kubernetesCluster.getMinSize()).thenReturn(oldMin);
+        Mockito.lenient().when(kubernetesCluster.getMaxSize()).thenReturn(oldMax);
+        KubernetesClusterVmMapVO workerMap = Mockito.mock(KubernetesClusterVmMapVO.class);
+        Mockito.when(workerMap.getVmId()).thenReturn(61L);
+        Mockito.when(kubernetesClusterVmMapDao.listByClusterIdAndVmType(0L, WORKER)).thenReturn(List.of(workerMap));
+        UserVmVO existingWorker = Mockito.mock(UserVmVO.class);
+        Mockito.when(existingWorker.getServiceOfferingId()).thenReturn(6L);
+        Mockito.when(userVmDao.findById(61L)).thenReturn(existingWorker);
+        ServiceOfferingVO existing = Mockito.mock(ServiceOfferingVO.class);
+        Mockito.when(serviceOfferingDao.findById(6L)).thenReturn(existing);
+        KubernetesClusterScaleWorker autoscaleWorker = Mockito.spy(new KubernetesClusterScaleWorker(kubernetesCluster,
+                new java.util.HashMap<>(), null, null, enable, newMin, newMax, clusterManager));
+        autoscaleWorker.serviceOfferingDao = serviceOfferingDao;
+        autoscaleWorker.kubernetesClusterVmMapDao = kubernetesClusterVmMapDao;
+        autoscaleWorker.userVmDao = userVmDao;
+        Mockito.doNothing().when(autoscaleWorker).init();
+        Mockito.doReturn(success).when(autoscaleWorker).autoscaleCluster(enable, newMin, newMax);
+        Mockito.doReturn(true).when(autoscaleWorker).stateTransitTo(Mockito.anyLong(), Mockito.any());
+        Assert.assertEquals(success, autoscaleWorker.scaleCluster());
+        Mockito.verify(autoscaleWorker).autoscaleCluster(enable, newMin, newMax);
+        Mockito.verify(userVmDao).findById(61L);
+        Mockito.verifyNoMoreInteractions(userVmDao);
+        Mockito.verify(autoscaleWorker).stateTransitTo(0L, success ? KubernetesCluster.Event.OperationSucceeded : KubernetesCluster.Event.OperationFailed);
+        Mockito.verify(kubernetesClusterVmMapDao).listByClusterIdAndVmType(0L, WORKER);
+        Mockito.verifyNoMoreInteractions(kubernetesClusterVmMapDao);
+    }
+
+    @Test public void offeringFreeAutoscalerEnableStillRunsControllerConfiguration() {
+        verifyAutoscalingOnlyRequest(false, true, null, null, 2L, 3L, true);
+    }
+
+    @Test public void offeringFreeAutoscalerDisableStillRunsControllerConfiguration() {
+        verifyAutoscalingOnlyRequest(true, false, 2L, 3L, null, null, true);
+    }
+
+    @Test public void offeringFreeAutoscalerLimitsUpdateStillRunsControllerConfiguration() {
+        verifyAutoscalingOnlyRequest(true, true, 2L, 3L, 2L, 4L, true);
+    }
+
+    @Test public void offeringFreeAutoscalerFailureIsReturnedToCaller() {
+        verifyAutoscalingOnlyRequest(false, true, null, null, 2L, 3L, false);
+    }
+
     private void actualRoleMappings() {
         Mockito.when(kubernetesCluster.getId()).thenReturn(31L);
         Mockito.when(kubernetesCluster.getTotalNodeCount()).thenReturn(3L);

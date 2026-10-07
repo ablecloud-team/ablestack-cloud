@@ -2589,7 +2589,7 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
         }
         validateKubernetesClusterScaleParameters(cmd);
         KubernetesClusterVO kubernetesCluster = kubernetesClusterDao.findById(cmd.getId());
-        Map<String, ServiceOffering> nodeToOfferingMap = createNodeTypeToServiceOfferingMap(cmd.getServiceOfferingNodeTypeMap(), cmd.getServiceOfferingId(), kubernetesCluster);
+        Map<String, ServiceOffering> nodeToOfferingMap = createScaleNodeTypeToServiceOfferingMap(cmd.getServiceOfferingNodeTypeMap(), cmd.getServiceOfferingId(), kubernetesCluster);
 
         String[] keys = getServiceUserKeys(kubernetesCluster);
         KubernetesClusterScaleWorker scaleWorker =
@@ -2604,6 +2604,15 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
         scaleWorker.setKeys(keys);
         scaleWorker = ComponentContext.inject(scaleWorker);
         return scaleWorker.scaleCluster();
+    }
+
+    protected Map<String, ServiceOffering> createScaleNodeTypeToServiceOfferingMap(Map<String, Long> idsMapping,
+                                                                                   Long serviceOfferingId, KubernetesClusterVO cluster) {
+        // Size and autoscaling settings do not implicitly request a global offering change.
+        if (serviceOfferingId == null && MapUtils.isEmpty(idsMapping)) {
+            return new HashMap<>();
+        }
+        return createNodeTypeToServiceOfferingMap(idsMapping, serviceOfferingId, cluster);
     }
 
     /**
