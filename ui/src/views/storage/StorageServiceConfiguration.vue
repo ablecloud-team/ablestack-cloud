@@ -19,7 +19,7 @@
   <section class="storage-configuration">
     <h4>{{ $t('label.storage.config.section') }}</h4>
     <a-space wrap>
-      <a-button v-if="can('createStorageServiceConfigBackup')" type="primary" :loading="!!busy" @click="backupDialog=true"><template #icon><CloudDownloadOutlined /></template>{{ $t('label.storage.config.create') }}</a-button>
+      <a-button v-if="can('createStorageServiceConfigBackup')" type="primary" :loading="!!busy" @click="openBackupDialog"><template #icon><CloudDownloadOutlined /></template>{{ $t('label.storage.config.create') }}</a-button>
       <a-upload v-if="can('uploadStorageServiceConfigBackup')" :before-upload="importFile" :show-upload-list="false" accept=".zip"><a-button :disabled="!!busy"><template #icon><UploadOutlined /></template>{{ $t('label.storage.config.import') }}</a-button></a-upload>
       <a-button v-if="can('verifyStorageServiceConfiguration')" :disabled="!!busy" @click="verifyBaseline"><template #icon><ReloadOutlined /></template>{{ $t('label.storage.config.verify.baseline') }}</a-button>
       <a-button v-if="can('planStorageServiceLastKnownGoodRestore')" :disabled="!activePoint || !!busy" @click="openPlan(activePoint, true)"><template #icon><RollbackOutlined /></template>{{ $t('label.storage.config.lkg.restore') }}</a-button>
@@ -49,6 +49,7 @@
         <a-descriptions :column="2" bordered size="small">
           <a-descriptions-item :label="$t('label.storage.config.runtime.status')">{{ runtimeStateLabel(record.metadata?.runtimeStatus) }}</a-descriptions-item>
           <a-descriptions-item :label="$t('label.storage.config.secret.coverage')">{{ record.metadata?.credentialCoverage || '—' }}</a-descriptions-item>
+          <a-descriptions-item :label="$t('label.storage.config.identity.include')">{{ identityCoverageLabel(record) }}</a-descriptions-item>
           <a-descriptions-item :label="$t('label.storage.config.verification')">{{ record.metadata?.verification || '—' }}</a-descriptions-item>
           <a-descriptions-item :label="$t('label.storage.config.runtime.revision')">{{ record.metadata?.runtimeRevision ?? '—' }}</a-descriptions-item>
           <a-descriptions-item :label="$t('label.storage.config.generation.operation')">{{ record.metadata?.nativeGeneration?.operationUuid || '—' }}</a-descriptions-item>
@@ -60,10 +61,18 @@
         </a-descriptions>
       </template>
     </a-table>
-    <a-modal :visible="backupDialog" :title="$t('label.storage.config.create')" :body-style="dialogBody" @cancel="backupDialog=false" @ok="createBackup">
+    <a-modal :visible="backupDialog" :title="$t('label.storage.config.create')" :body-style="dialogBody" @cancel="closeBackupDialog" @ok="createBackup">
       <a-alert type="info" show-icon :message="$t('message.storage.config.data.excluded')" />
+      <a-alert v-if="error" type="error" show-icon :message="error" />
       <a-form layout="vertical">
         <a-form-item :label="$t('label.storage.config.runtime')"><a-switch v-model:checked="includeRuntime" /></a-form-item>
+        <a-form-item><a-checkbox v-model:checked="includeAdIdentity" :disabled="!identityBackupSupported">{{ $t('label.storage.config.identity.include') }}</a-checkbox></a-form-item>
+        <a-alert v-if="!identityBackupSupported" type="info" show-icon :message="$t('message.storage.service.ad.maintenance.unsupported')" />
+        <template v-if="includeAdIdentity">
+          <a-alert type="warning" show-icon :message="$t('message.storage.config.identity.backup.help')" />
+          <a-form-item required><a-checkbox v-model:checked="backupMaintenance">{{ $t('message.storage.template.maintenance.confirm') }}</a-checkbox></a-form-item>
+          <a-form-item required :label="$t('label.storage.config.confirmation')"><a-input v-model:value="backupConfirmation" :placeholder="instanceName" /></a-form-item>
+        </template>
         <a-form-item :label="$t('label.storage.config.retention')"><a-input-number v-model:value="retentionHours" :min="1" :max="2160" /></a-form-item>
       </a-form>
     </a-modal>
@@ -147,6 +156,7 @@
 import { getAPI, postAPI } from '@/api'
 import SHA from 'sha.js'
 import { supportsStorageFormatting, diskProvisioningLabel } from '@/utils/storageDiskProvisioning'
+import { requireAdServiceApproval } from '@/utils/storageAdIdentity'
 import { CloudDownloadOutlined, UploadOutlined, DownloadOutlined, RollbackOutlined, ReloadOutlined } from '@ant-design/icons-vue'
 const Sha256 = SHA.sha256
 
@@ -154,9 +164,13 @@ export default {
   name: 'StorageServiceConfiguration',
   components: { CloudDownloadOutlined, UploadOutlined, DownloadOutlined, RollbackOutlined, ReloadOutlined },
   emits: ['operation-updated'],
-  props: { instanceId: { type: String, required: true }, resource: { type: Object, required: true } },
-  data: () => ({ rows: [], loading: false, readFailed: false, generation: 0, busy: '', error: '', backupDialog: false, includeRuntime: true, retentionHours: 168, planTarget: null, plan: null, planPhase: 'MAPPING', planToken: '', lkgPlan: false, planning: false, volumeMapping: {}, newVolumeSpecs: {}, targetVolumes: [], credentialValues: {}, confirmation: '', confirmFileExecute: false, targetMode: 'RESTORE_EXISTING', clone: { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP', backingvolumemode: 'NEW' }, initialVolumeSource: '', plannedVolume: '', cloneRuntime: '', cloneOptions: { zones: [], networks: [], offerings: [], disks: [], pools: [], bundles: [], volumes: [] } }),
+  props: { instanceId: { type: String, required: true }, instanceName: { type: String, default: '' }, resource: { type: Object, required: true } },
+  data: () => ({ rows: [], loading: false, readFailed: false, generation: 0, busy: '', error: '', backupDialog: false, includeAdIdentity: false, backupMaintenance: false, backupConfirmation: '', includeRuntime: true, retentionHours: 168, planTarget: null, plan: null, planPhase: 'MAPPING', planToken: '', lkgPlan: false, planning: false, volumeMapping: {}, newVolumeSpecs: {}, targetVolumes: [], credentialValues: {}, confirmation: '', confirmFileExecute: false, targetMode: 'RESTORE_EXISTING', clone: { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP', backingvolumemode: 'NEW' }, initialVolumeSource: '', plannedVolume: '', cloneRuntime: '', cloneOptions: { zones: [], networks: [], offerings: [], disks: [], pools: [], bundles: [], volumes: [] } }),
   computed: {
+    identityBackupSupported () {
+      const params = this.$getApiParams?.('createStorageServiceConfigBackup')
+      return !!this.instanceName && !!params?.includeadidentity && !!params?.maintenancewindow && !!params?.confirmation
+    },
     dialogBody () { return { maxHeight: '65vh', overflowY: 'auto' } },
     activePoint () { return this.rows.find(row => row.kind === 'RESTORE_POINT' && row.state === 'ACTIVE_LKG') },
     columns () {
@@ -194,7 +208,11 @@ export default {
         { title: this.$t('label.id'), dataIndex: 'sourceUuid', width: 280 }]
     }
   },
-  watch: { instanceId () { this.generation++; this.rows = []; this.busy = ''; this.error = ''; this.closePlan(); this.refresh() } },
+  watch: {
+    instanceId () { this.generation++; this.rows = []; this.busy = ''; this.error = ''; this.closeBackupDialog(); this.closePlan(); this.refresh() },
+    instanceName () { this.closeBackupDialog() },
+    includeAdIdentity (value) { if (!value) { this.backupMaintenance = false; this.backupConfirmation = '' } }
+  },
   mounted () { this.refresh() },
   beforeUnmount () { this.generation++; this.credentialValues = {} },
   methods: {
@@ -242,13 +260,52 @@ export default {
       return ['AVAILABLE', 'UNAVAILABLE', 'PARTIAL', 'NOT_REQUESTED', 'UNAVAILABLE_OR_PARTIAL'].includes(status)
         ? this.$t('label.storage.config.runtime.' + status) : (status || '—')
     },
+    identityCoverageLabel (record) {
+      const metadata = record.metadata || {}
+      const descriptor = metadata.adIdentitySourceDescriptor
+      const fields = ['schemaVersion', 'kind', 'ownerArtifactUuid', 'sourceInstanceUuid', 'sourceOperationUuid', 'sourceConfigurationSha256', 'ciphertextSha256', 'issuerMac']
+      const uuid = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/
+      const sha = /^[a-f0-9]{64}$/
+      const valid = metadata.adIdentityCoverage === 'VERIFIED_ENCRYPTED_FULL_IDENTITY' && descriptor && typeof descriptor === 'object' && !Array.isArray(descriptor) &&
+        Object.keys(descriptor).length === fields.length && fields.every(field => Object.prototype.hasOwnProperty.call(descriptor, field)) &&
+        descriptor.schemaVersion === 1 && descriptor.kind === 'STORAGE_AD_SEMANTIC_SOURCE' &&
+        ['ownerArtifactUuid', 'sourceInstanceUuid', 'sourceOperationUuid'].every(field => typeof descriptor[field] === 'string' && uuid.test(descriptor[field])) &&
+        ['sourceConfigurationSha256', 'ciphertextSha256', 'issuerMac'].every(field => typeof descriptor[field] === 'string' && sha.test(descriptor[field]))
+      return this.$t(valid ? 'label.storage.config.identity.preserved' : 'label.storage.config.identity.unverified')
+    },
     async verifyBaseline () {
       this.busy = 'VERIFY'; this.error = ''
       try { await this.mutation('verifyStorageServiceConfiguration', {}); await this.refresh() } catch (error) { this.error = error.message } finally { this.busy = '' }
     },
+    openBackupDialog () {
+      this.includeAdIdentity = false; this.backupMaintenance = false; this.backupConfirmation = ''; this.error = ''; this.backupDialog = true
+    },
+    closeBackupDialog () {
+      this.backupDialog = false; this.includeAdIdentity = false; this.backupMaintenance = false; this.backupConfirmation = ''
+    },
+    buildBackupRequest () {
+      const request = { includeruntime: this.includeRuntime, retentionhours: this.retentionHours }
+      if (this.includeAdIdentity !== undefined && typeof this.includeAdIdentity !== 'boolean') throw new Error(this.$t('message.storage.service.ad.maintenance.required'))
+      if (this.includeAdIdentity === true) {
+        if (!this.identityBackupSupported) throw new Error(this.$t('message.storage.service.ad.maintenance.unsupported'))
+        try {
+          Object.assign(request, { includeadidentity: true }, requireAdServiceApproval({ id: this.instanceId, name: this.instanceName }, { maintenancewindow: this.backupMaintenance, confirmation: this.backupConfirmation }))
+        } catch (_) { throw new Error(this.$t('message.storage.service.ad.maintenance.required')) }
+      }
+      return request
+    },
     async createBackup () {
-      this.backupDialog = false; this.busy = 'BACKUP'; this.error = ''
-      try { await this.mutation('createStorageServiceConfigBackup', { includeruntime: this.includeRuntime, retentionhours: this.retentionHours }); await this.refresh() } catch (error) { this.error = error.message } finally { this.busy = '' }
+      if (this.busy) return
+      const instance = this.instanceId; const name = this.instanceName
+      let submitted = false
+      this.error = ''
+      try {
+        const request = this.buildBackupRequest()
+        this.backupDialog = false; this.busy = 'BACKUP'; submitted = true
+        await this.mutation('createStorageServiceConfigBackup', request)
+        if (instance !== this.instanceId || name !== this.instanceName) throw new Error(this.$t('message.storage.config.scope.changed'))
+        await this.refresh()
+      } catch (error) { this.error = error.message } finally { this.busy = ''; if (submitted) this.includeAdIdentity = false; this.backupMaintenance = false; this.backupConfirmation = '' }
     },
     async download (row) {
       const instance = this.instanceId

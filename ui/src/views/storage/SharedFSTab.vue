@@ -72,7 +72,7 @@ class="storage-service__alert"
         <storage-volume-preparation v-if="storageService.instance && 'getStorageServiceVolumePreparation' in $store.getters.apis" :instance-id="storageService.instance.id" :volumes="currentBackingVolumes" @operation-updated="refreshStorageOperationHistory" />
       </a-tab-pane>
       <a-tab-pane v-if="hasStorageServiceApi" :tab="$t('label.storage.tab.backup.restore')" key="backup">
-        <storage-service-configuration v-if="storageService.instance && 'listStorageServiceConfigBackups' in $store.getters.apis" :instance-id="storageService.instance.id" :resource="dataResource" @operation-updated="refreshStorageOperationHistory" />
+        <storage-service-configuration v-if="storageService.instance && 'listStorageServiceConfigBackups' in $store.getters.apis" :instance-id="storageService.instance.id" :instance-name="storageService.instance.name" :resource="dataResource" @operation-updated="refreshStorageOperationHistory" />
       </a-tab-pane>
       <a-tab-pane v-if="hasStorageServiceApi" :tab="$t('label.storage.tab.upgrades')" key="upgrades">
         <a-space wrap class="storage-upgrade-toolbar">
