@@ -57,7 +57,7 @@ public class StorageAdPrincipalRuntimeTest {
         idmap.addProperty("backend","rid");
         identity.add("idmapPolicy",idmap);
         JsonArray spns=new JsonArray();
-        spns.add("cifs/storage.example.test@EXAMPLE.TEST");spns.add("host/storage.example.test@EXAMPLE.TEST");
+        spns.add("cifs/storage.example.test");spns.add("host/storage.example.test");
         identity.add("servicePrincipals",spns);
         JsonArray aliases=new JsonArray();
         JsonObject alias=new JsonObject();
@@ -99,4 +99,5 @@ public class StorageAdPrincipalRuntimeTest {
         else Assert.assertThrows(RuntimeException.class,()->manager.requireStorageAdIdentityFeatures(instance));
         }
     }
+    @Test public void joinedMachineNameUsesExactReceiptAndNeverRegeneratesACloneName(){Fixture f=fixture();Assert.assertEquals("ASTINSTANCE",f.manager.buildSmbNetbiosName(f.instance));StorageIdentityDomainVO domain=new StorageIdentityDomainVO(6,"example.test",null,null,StorageServiceInstance.DomainJoinState.JOINED,"OK","{}");org.apache.cloudstack.storage.dataservice.dao.StorageIdentityDomainDao domains=Mockito.mock(org.apache.cloudstack.storage.dataservice.dao.StorageIdentityDomainDao.class);Mockito.when(domains.findByInstanceId(6L)).thenReturn(domain);ReflectionTestUtils.setField(f.manager,"storageIdentityDomainDao",domains);Assert.assertThrows(RuntimeException.class,()->f.manager.buildSmbNetbiosName(f.instance));domain.setJoinState(StorageServiceInstance.DomainJoinState.NOT_JOINED);Assert.assertTrue(f.manager.buildSmbNetbiosName(f.instance).startsWith("STOR"));}
 }
