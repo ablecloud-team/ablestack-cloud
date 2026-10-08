@@ -68,7 +68,7 @@
             </a-select>
           </a-form-item>
         </a-form>
-        <storage-runtime-compatibility v-if="selectedBundleId" :manifest="selectedBundleVerification.manifest || {}" :verified="selectedBundleVerification.verified === true" />
+        <storage-runtime-compatibility v-if="selectedBundleId" :manifest="selectedBundleVerification.manifest || {}" :verified="selectedBundleVerification.verified === true" :observation="consumerObservation" />
         <a-empty
           v-if="!loading && bundles.length === 0"
           :description="$t('message.storage.service.runtime.bundle.empty')" />
@@ -154,6 +154,7 @@ export default {
   },
   data () {
     return {
+      generation: 0,
       loading: false,
       submitting: false,
       activeAction: '',
@@ -164,6 +165,13 @@ export default {
     }
   },
   computed: {
+    consumerObservation () {
+      try {
+        const value = this.capability.consumerobservation
+        const parsed = typeof value === 'string' ? JSON.parse(value) : value
+        return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {}
+      } catch (error) { return {} }
+    },
     selectedBundleVerification () {
       try { return JSON.parse(this.bundles.find(bundle => bundle.id === this.selectedBundleId)?.catalog || '{}').verification || {} } catch (error) { return {} }
     },
@@ -194,25 +202,35 @@ export default {
   created () {
     this.fetchData()
   },
+  watch: {
+    'resource.id' () {
+      this.generation++; this.loading = false; this.submitting = false; this.activeAction = ''
+      this.capability = {}; this.bundles = []; this.upgrades = []; this.selectedBundleId = undefined
+      this.fetchData()
+    }
+  },
+  beforeUnmount () { this.generation++ },
   methods: {
     async fetchData () {
       if (this.loading) return
+      const token = ++this.generation; const resourceId = this.resource.id
       this.loading = true
       try {
         const responses = await Promise.all([
-          getAPI('getStorageServiceRuntimeUpgradeCapabilities', { sharedfilesystemid: this.resource.id }),
-          getAPI('listStorageServiceRuntimeBundles', { listall: true }),
-          getAPI('listStorageServiceRuntimeUpgrades', { sharedfilesystemid: this.resource.id, listall: true })
+          getAPI('getStorageServiceRuntimeUpgradeCapabilities', { sharedfilesystemid: resourceId }, { timeout: 15000, preserveOnFailure: true }),
+          getAPI('listStorageServiceRuntimeBundles', { listall: true }, { timeout: 15000, preserveOnFailure: true }),
+          getAPI('listStorageServiceRuntimeUpgrades', { sharedfilesystemid: resourceId, listall: true }, { timeout: 15000, preserveOnFailure: true })
         ])
+        if (token !== this.generation || resourceId !== this.resource.id) return
         this.capability = responses[0].getstorageserviceruntimeupgradecapabilitiesresponse?.storageserviceruntimecapability || {}
         this.bundles = responses[1].liststorageserviceruntimebundlesresponse?.storageserviceruntimebundle || []
         this.upgrades = (responses[2].liststorageserviceruntimeupgradesresponse?.storageserviceruntimeupgrade || [])
           .sort((left, right) => String(right.started || '').localeCompare(String(left.started || '')))
         if (!this.selectedBundleId && this.bundles.length > 0) this.selectedBundleId = this.bundles[0].id
       } catch (error) {
-        this.$notifyError(error)
+        if (token === this.generation && resourceId === this.resource.id) this.$notifyError(error)
       } finally {
-        this.loading = false
+        if (token === this.generation) this.loading = false
       }
     },
     runPreflight () {

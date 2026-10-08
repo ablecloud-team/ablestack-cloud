@@ -8791,5 +8791,8 @@
   "label.storage.config.source.volume": "원본 DATA 디스크",
   "label.storage.config.target.volume": "할당 예정 DATA 디스크",
   "label.storage.config.data.policy": "DATA 보존 정책",
-  "message.storage.config.allocation.preserve": "DATA 디스크별 할당 계획을 검토하세요. 복원 실패 시 생성한 디스크는 보존됩니다."
+  "message.storage.config.allocation.preserve": "DATA 디스크별 할당 계획을 검토하세요. 복원 실패 시 생성한 디스크는 보존됩니다.",
+  "label.storage.runtime.observed.version": "현재 확인된 버전",
+  "label.storage.runtime.consumer.unknown": "미확인",
+  "message.storage.runtime.consumer.unverified": "설치된 템플릿 버전의 보호된 manifest가 확인되지 않았습니다. 실행 전 사전 점검에서 호환성을 검증해야 합니다."
 }

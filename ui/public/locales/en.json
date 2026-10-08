@@ -8826,5 +8826,8 @@
   "label.storage.config.source.volume": "Source DATA volume",
   "label.storage.config.target.volume": "Planned DATA volume",
   "label.storage.config.data.policy": "DATA retention policy",
-  "message.storage.config.allocation.preserve": "Review each DATA volume allocation. Created disks are preserved if restore fails."
+  "message.storage.config.allocation.preserve": "Review each DATA volume allocation. Created disks are preserved if restore fails.",
+  "label.storage.runtime.observed.version": "Observed version",
+  "label.storage.runtime.consumer.unknown": "Unverified",
+  "message.storage.runtime.consumer.unverified": "The installed template version has no verified protected manifest. Preflight must verify compatibility before activation."
 }
