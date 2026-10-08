@@ -5080,7 +5080,7 @@ def root_maintenance_nfs_boundary():
         response=subprocess.run(["/usr/local/bin/ablestack-storagectl","operation","maintenance","status"],capture_output=True,text=True,check=True,timeout=min(5,float(os.environ.get("ABLESTACK_STORAGE_RENDERED_BUDGET","5"))))
         maintenance=json.loads(response.stdout)
         scope=maintenance.get("scope")
-        if (maintenance.get("bootHeld") is not True or not isinstance(scope,dict) or set(scope)!={"instanceUuid","templateUpgradeUuid","operationUuid","revision"}
+        if (maintenance.get("bootHeld") is not True or not isinstance(scope,dict) or (set(scope)!={"instanceUuid","templateUpgradeUuid","operationUuid","revision"} and not (maintenance.get("maintenanceKind")=="SERVICE" and set(scope)=={"instanceUuid","maintenanceUuid","operationUuid","revision"} and scope["maintenanceUuid"]==scope["operationUuid"]))
                 or scope!=proof.get("maintenanceScope") or proof.get("scope")!=activation["scope"]
                 or any(scope.get(key)!=value for key,value in activation["scope"].items())):return False
         # This is an approved Root downtime boundary, not NFSv4 state drain.
@@ -6400,7 +6400,7 @@ PYGANESHAFEATURES
 
 posix_directory_policy() {
   local action="$1" payload_file="$2"
-  python3 - "$action" "$payload_file" <<'PYPOSIX'
+  python3 - "$action" "$payload_file" "$0" <<'PYPOSIX'
 import grp
 import hashlib
 import json
@@ -6587,6 +6587,7 @@ class RootInitialization:
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import time
 import uuid
@@ -6636,9 +6637,37 @@ class PosixPolicyReceipt:
         if receipt is None:
             return False
         self.verify(request, observed, receipt)
-        if (stored.get("effective") or {}).get("directoryIdentity") != observed.get("directoryIdentity"):
+        canonical=receipt.get("canonicalDirectoryIdentity",receipt["directoryIdentity"])
+        if (stored.get("effective") or {}).get("directoryIdentity") != canonical:
             raise ValueError("POSIX committed effective directory differs from its post-apply receipt")
+        if canonical!=observed.get("directoryIdentity"):
+            if (receipt.get("canonicalRowSha256")!=hashlib.sha256(json.dumps(stored,sort_keys=True,separators=(",",":"),allow_nan=False).encode()).hexdigest()
+                    or not isinstance(receipt.get("rootScope"),dict) or receipt["rootScope"].get("instanceUuid")!=request["instanceUuid"]
+                    or any(canonical.get(key)!=observed["directoryIdentity"].get(key) for key in IDENTITY_FIELDS if key!="device")):
+                raise ValueError("POSIX ROOT device remap lacks its protected source canonical attestation")
         return True
+
+    def transferred_plan(self,row,observed,root_scope,source_sha,maintenance):
+        request=row.get("request") if isinstance(row,dict) else None
+        names={"instanceUuid","templateUpgradeUuid","operationUuid","revision"}
+        if (not isinstance(root_scope,dict) or set(root_scope)!=names or type(root_scope["revision"]) is not int or root_scope["revision"]<1
+                or maintenance.get("maintenanceKind") not in (None,"ROOT") or maintenance.get("bootHeld") is not True or maintenance.get("scope")!=root_scope
+                or not isinstance(request,dict) or request.get("instanceUuid")!=root_scope["instanceUuid"]
+                or not re.fullmatch("[0-9a-f]{64}",str(source_sha)) or set(row)!={"request","config","effective"} or row.get("config")!=request.get("config",{})):
+            raise ValueError("ROOT POSIX transferred plan lacks its exact protected marker")
+        for key in names-{"revision"}:uuid.UUID(root_scope[key])
+        receipt=self.read(request);self.verify(request,observed,receipt)
+        checksum=hashlib.sha256(json.dumps(row,sort_keys=True,separators=(",",":"),allow_nan=False).encode()).hexdigest()
+        canonical=receipt.get("canonicalDirectoryIdentity");binding=receipt.get("volumeBinding")
+        if (receipt.get("rootScope")!=root_scope or receipt.get("sourceConfigurationSha256")!=source_sha or receipt.get("canonicalRowSha256")!=checksum
+                or not isinstance(canonical,dict) or canonical!=(row.get("effective") or {}).get("directoryIdentity")
+                or not isinstance(binding,dict) or binding.get("volumeUuid")!=request.get("volumeUuid")
+                or binding.get("filesystemUuid")!=observed["directoryIdentity"].get("filesystemUuid")
+                or any(canonical.get(key)!=observed["directoryIdentity"].get(key) for key in IDENTITY_FIELDS if key!="device")):
+            raise ValueError("ROOT POSIX transferred plan differs from its attested source row/inode")
+        return {"success":True,"sideEffects":False,"transferOnly":True,"beforeDirectoryIdentity":observed["directoryIdentity"],
+                "predictedDirectoryIdentity":observed["directoryIdentity"],"configurationDesiredRow":row,"postApplyReceiptRequired":True,
+                "postApplyReceiptVerified":True,"rootScope":root_scope,"sourceConfigurationSha256":source_sha,"dataPermissionsChanged":False,"canonicalDesiredStateChanged":False}
 
     def write(self, request, observed):
         receipt = self.attest(request, observed)
@@ -6661,13 +6690,22 @@ class PosixPolicyReceipt:
         if not isinstance(previous_request, dict) or previous_request.get("uuid") != request.get("uuid"):
             raise ValueError("POSIX receipt rollback lacks the exact previous committed request")
         self.verify(previous_request, observed, previous_receipt)
-        if (previous_policy.get("effective") or {}).get("directoryIdentity") != observed.get("directoryIdentity"):
+        canonical=previous_receipt.get("canonicalDirectoryIdentity",previous_receipt["directoryIdentity"])
+        if (previous_policy.get("effective") or {}).get("directoryIdentity") != canonical:
             raise ValueError("POSIX restored metadata differs from the previous committed policy")
+        if canonical!=observed.get("directoryIdentity") and previous_receipt.get("canonicalRowSha256")!=hashlib.sha256(json.dumps(previous_policy,sort_keys=True,separators=(",",":"),allow_nan=False).encode()).hexdigest():
+            raise ValueError("POSIX previous ROOT receipt lacks its exact canonical policy digest")
         root_receipt_write(self.path(previous_request), previous_receipt)
 
 operation = sys.argv[1]
 with open(sys.argv[2], encoding="utf-8") as fp:
     request = json.load(fp)
+transfer_request=None
+if operation=="attest-plan":
+    transfer_request=request
+    if not isinstance(transfer_request,dict) or set(transfer_request)!={"canonicalPolicyRow","rootScope","sourceConfigurationSha256"}:
+        raise ValueError("ROOT POSIX attest-plan request fields are invalid")
+    request=transfer_request["canonicalPolicyRow"]["request"]
 
 def run(args, **kwargs):
     if "directory_fd" in globals():
@@ -6901,6 +6939,38 @@ def apply_policy_atomic(payload, before, old_policy):
         restore(before)
         raise
 
+def plan_policy(payload, before, old_policy):
+    """Simulate one inode only in private scratch; DATA stays untouched."""
+    verify_expected_directory_identity(payload, before)
+    validate_policy(payload.get("config") or {})
+    if payload.get("rootInitialization") is not None:
+        raise ValueError("NEW root initializer has a separate format receipt transaction")
+    global canonical_path, directory_fd
+    original_path, original_descriptor = canonical_path, directory_fd
+    with tempfile.TemporaryDirectory(prefix="ablestack-posix-plan-", dir="/run") as scratch:
+        descriptor = os.open(scratch, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        try:
+            canonical_path, directory_fd = scratch, descriptor
+            os.chown(descriptor, before["effectiveUid"], before["effectiveGid"])
+            pinned = "/proc/self/fd/" + str(descriptor)
+            run(["setfacl", "-b", pinned]);run(["setfacl", "-k", pinned])
+            run(["setfacl", "--set-file=-", pinned], input="\n".join(before["acl"])+"\n", text=True)
+            os.chmod(descriptor, int(before["effectiveMode"],8))
+            simulated_before = observe(payload)
+            simulated_request = {**payload, "expectedDirectoryIdentity": simulated_before["directoryIdentity"]}
+            simulated = apply_policy_atomic(simulated_request, simulated_before, old_policy)
+        finally:
+            canonical_path, directory_fd = original_path, original_descriptor
+            os.close(descriptor)
+    if observe(payload)["directoryIdentity"] != before["directoryIdentity"]:
+        raise ValueError("POSIX DATA changed during pure policy planning")
+    effective = {**simulated, "canonicalPath": original_path, "device": before["device"], "inode": before["inode"]}
+    effective["directoryIdentity"] = {**effective["directoryIdentity"], "device":before["device"],"inode":before["inode"]}
+    return {"success":True,"sideEffects":False,"scratchOnly":True,"beforeDirectoryIdentity":before["directoryIdentity"],
+            "predictedDirectoryIdentity":effective["directoryIdentity"],"predictedEffective":effective,
+            "configurationDesiredRow":{"request":payload,"config":payload.get("config") or {},"effective":effective},
+            "postApplyReceiptRequired":True}
+
 canonical_path, filesystem_uuid, directory_fd = path_identity(request)
 state_path = "/etc/ablestack-storage/posix-directory-policies.json"
 try:
@@ -6933,9 +7003,26 @@ elif operation == "inspect":
     validate_policy(request.get("config") or {})
     result = observe(request)
     result["previousPolicy"] = desired.get(result["uuid"])
-    result["previousPostApplyReceipt"] = post_apply_receipts.read(request)
+    result["postApplyReceiptVerified"] = False
+    try:
+        result["previousPostApplyReceipt"] = post_apply_receipts.read(request)
+        previous = result["previousPolicy"]
+        if isinstance(previous,dict) and isinstance(previous.get("request"),dict):
+            stored=previous["request"]
+            if all(stored.get(key)==request.get(key) for key in ("uuid","instanceUuid","volumeUuid","volumeMountPath","relativePath")):
+                result["postApplyReceiptVerified"] = post_apply_receipts.replay(stored,previous,result)
+    except (OSError,ValueError,KeyError,TypeError) as unavailable:
+        result["previousPostApplyReceipt"] = None
+        result["postApplyReceiptDiagnostic"] = str(unavailable)
     if result["filesystemRoot"]:
         result["newRootInitialization"] = RootInitialization().preview(request, result, directory_fd)
+elif operation == "attest-plan":
+    response=run([sys.argv[3],"operation","maintenance","status"],capture_output=True,text=True)
+    maintenance=json.loads(response.stdout)
+    result=post_apply_receipts.transferred_plan(transfer_request["canonicalPolicyRow"],observe(request),transfer_request["rootScope"],transfer_request["sourceConfigurationSha256"],maintenance)
+elif operation == "plan":
+    before = observe(request)
+    result = plan_policy(request, before, desired.get(before["uuid"]) or {})
 elif operation == "forget":
     result = observe(request)
     desired.pop(str(uuid.UUID(request["uuid"])), None)
@@ -9828,7 +9915,501 @@ PY
 identity_capsule_command() {
   local action="$1"
   local payload_file="$2"
-  python3 - "$action" "$payload_file" 3<&0 <<'PYIDENTITY'
+  python3 - "$action" "$payload_file" "$0" 3<&0 <<'PYIDENTITY'
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements. See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership. The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+"""Explicit one-inode initialization bound to an immutable NEW format receipt."""
+import hashlib
+import json
+import os
+from pathlib import Path
+import stat
+import tempfile
+import time
+import uuid
+
+
+def root_receipt_read(path):
+    try:
+        info = path.lstat()
+    except FileNotFoundError:
+        return None
+    parent = path.parent.lstat()
+    if (not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid() or info.st_mode & 0o077
+            or info.st_size > 256 * 1024 or not stat.S_ISDIR(parent.st_mode)
+            or parent.st_uid != os.geteuid() or parent.st_mode & 0o022):
+        raise ValueError("NEW filesystem receipt is not protected")
+    directory = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    try:
+        pinned = os.fstat(directory)
+        if (pinned.st_dev, pinned.st_ino, pinned.st_uid, pinned.st_mode) != (parent.st_dev, parent.st_ino, parent.st_uid, parent.st_mode):
+            raise ValueError("NEW filesystem receipt directory changed")
+        descriptor = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=directory)
+    finally:
+        os.close(directory)
+    try:
+        opened = os.fstat(descriptor)
+        fields = ("st_dev", "st_ino", "st_uid", "st_gid", "st_mode", "st_size")
+        if tuple(getattr(opened, key) for key in fields) != tuple(getattr(info, key) for key in fields):
+            raise ValueError("NEW filesystem receipt changed while reading")
+        with os.fdopen(descriptor, "rb", closefd=False) as handle:
+            content = handle.read(256 * 1024 + 1)
+        if len(content) > 256 * 1024:
+            raise ValueError("NEW filesystem receipt is too large")
+        return json.loads(content)
+    finally:
+        os.close(descriptor)
+
+
+def root_receipt_write(path, value):
+    path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+    parent = path.parent.lstat()
+    if not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.geteuid() or parent.st_mode & 0o077:
+        raise ValueError("NEW initializer receipt directory is not protected")
+    descriptor, temporary = tempfile.mkstemp(prefix=".root-initializer-", dir=path.parent)
+    try:
+        os.fchmod(descriptor, 0o600)
+        with os.fdopen(descriptor, "w") as handle:
+            json.dump(value, handle, sort_keys=True, allow_nan=False)
+            handle.flush(); os.fsync(handle.fileno())
+        os.replace(temporary, path)
+        directory = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        try:
+            os.fsync(directory)
+        finally:
+            os.close(directory)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
+
+
+class RootInitialization:
+    def __init__(self, operations=None, receipts=None):
+        self.operations = Path(operations or os.environ.get("ABLESTACK_STORAGE_VOLUME_OPERATIONS", "/var/lib/ablestack-storage/volume-operations"))
+        self.receipts = Path(receipts or os.environ.get("ABLESTACK_STORAGE_ROOT_INITIALIZATIONS", "/var/lib/ablestack-storage/root-posix-initializations"))
+
+    def path(self, request):
+        return self.receipts / (str(uuid.UUID(request["volumeUuid"])) + ".json")
+
+    def scope(self, request):
+        initialization = request.get("rootInitialization")
+        if not isinstance(initialization, dict) or set(initialization) != {"formatReceiptUuid", "operationUuid"}:
+            raise ValueError("NEW root initializer needs its exact format and operation scope")
+        if request.get("allowFilesystemRoot") is not True or request.get("relativePath") not in ("", "."):
+            raise ValueError("NEW initializer applies only to the selected filesystem root")
+        revision = request["revision"]
+        if isinstance(revision, bool) or not isinstance(revision, int) or revision < 1:
+            raise ValueError("NEW initializer policy revision is invalid")
+        return {"instanceUuid": str(uuid.UUID(request["instanceUuid"])), "policyUuid": str(uuid.UUID(request["uuid"])),
+                "volumeUuid": str(uuid.UUID(request["volumeUuid"])), "revision": revision,
+                "formatReceiptUuid": str(uuid.UUID(initialization["formatReceiptUuid"])),
+                "operationUuid": str(uuid.UUID(initialization["operationUuid"]))}
+
+    def empty_root(self, descriptor):
+        for name in os.listdir(descriptor):
+            info = os.stat(name, dir_fd=descriptor, follow_symlinks=False)
+            if name != "lost+found" or not stat.S_ISDIR(info.st_mode) or info.st_uid != os.geteuid() or info.st_mode & 0o022:
+                raise ValueError("NEW filesystem root already contains user data")
+            child = os.open(name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=descriptor)
+            try:
+                if os.listdir(child):
+                    raise ValueError("NEW filesystem root recovery directory contains data")
+            finally:
+                os.close(child)
+
+    def preview(self, request, before, descriptor):
+        receipt = root_receipt_read(self.path(request))
+        if receipt:
+            return {"available": False, "phase": receipt["phase"], "formatReceiptUuid": receipt["scope"]["formatReceiptUuid"]}
+        journal = root_receipt_read(self.operations / (str(uuid.UUID(request["volumeUuid"])) + ".json"))
+        proof = (journal or {}).get("formatReceipt") or {}
+        available = (journal is not None and journal.get("phase") == "COMPLETE" and journal.get("formatStarted") is True
+                     and proof.get("schemaVersion") == 1 and proof.get("volumeUuid") == request["volumeUuid"]
+                     and proof.get("matchedBy") == "VOLUME_SERIAL" and bool(proof.get("serial"))
+                     and journal.get("mountPath") == request["volumeMountPath"]
+                     and proof.get("directoryIdentity") == before["directoryIdentity"]
+                     and proof.get("filesystemUuid") == before["filesystemUuid"])
+        if available:
+            try:
+                self.empty_root(descriptor)
+            except ValueError:
+                available = False
+        return {"available": bool(available), "phase": "UNUSED" if available else "UNAVAILABLE",
+                "formatReceiptUuid": proof.get("receiptUuid") if available else None}
+
+    def prepare(self, request, before, descriptor):
+        scope = self.scope(request)
+        opened = os.fstat(descriptor)
+        actual = {"device": opened.st_dev, "inode": opened.st_ino, "effectiveUid": opened.st_uid,
+                  "effectiveGid": opened.st_gid, "effectiveMode": format(stat.S_IMODE(opened.st_mode), "04o")}
+        if any(before["directoryIdentity"].get(key) != value for key, value in actual.items()):
+            raise ValueError("NEW filesystem root changed after preview")
+        checksum = hashlib.sha256(json.dumps(request.get("config") or {}, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest()
+        existing = root_receipt_read(self.path(request))
+        if existing:
+            if existing.get("scope") != scope or existing.get("policySha256") != checksum or request.get("expectedDirectoryIdentity") != existing["before"]["directoryIdentity"]:
+                raise ValueError("NEW initializer receipt belongs to another request")
+            if existing.get("phase") in ("VERIFIED", "COMPLETE"):
+                if existing["after"]["directoryIdentity"] != before["directoryIdentity"]:
+                    raise ValueError("Initialized filesystem root has changed")
+                return existing, True
+            if existing.get("phase") != "APPLYING" or existing["before"]["directoryIdentity"] != before["directoryIdentity"]:
+                raise ValueError("NEW initializer requires verified recovery")
+            return existing, False
+        journal = root_receipt_read(self.operations / (scope["volumeUuid"] + ".json"))
+        proof = (journal or {}).get("formatReceipt")
+        if (not journal or journal.get("formatStarted") is not True or journal.get("phase") != "COMPLETE"
+                or not isinstance(proof, dict) or proof.get("schemaVersion") != 1
+                or proof.get("receiptUuid") != scope["formatReceiptUuid"]
+                or proof.get("volumeUuid") != scope["volumeUuid"] or proof.get("matchedBy") != "VOLUME_SERIAL"
+                or not proof.get("serial") or journal.get("mountPath") != request["volumeMountPath"]
+                or proof.get("filesystemUuid") != before["filesystemUuid"]
+                or proof.get("directoryIdentity") != before["directoryIdentity"]
+                or request.get("expectedDirectoryIdentity") != before["directoryIdentity"]):
+            raise ValueError("NEW root initialization lacks an exact unused format receipt")
+        self.empty_root(descriptor)
+        receipt = {"scope": scope, "policySha256": checksum, "phase": "APPLYING", "before": before, "createdEpoch": time.time()}
+        root_receipt_write(self.path(request), receipt)
+        return receipt, False
+
+    def verified(self, request, receipt, after):
+        if receipt.get("scope") != self.scope(request) or any(after["directoryIdentity"].get(key) != receipt["before"]["directoryIdentity"].get(key) for key in ("filesystemUuid", "device", "inode")):
+            raise ValueError("NEW root initializer verification scope changed")
+        receipt.update(phase="VERIFIED", after=after, verifiedEpoch=time.time())
+        root_receipt_write(self.path(request), receipt)
+
+    def complete(self, request, receipt):
+        if receipt.get("scope") != self.scope(request) or receipt.get("phase") not in ("VERIFIED", "COMPLETE"):
+            raise ValueError("NEW root initializer has not been verified")
+        receipt.update(phase="COMPLETE", completedEpoch=time.time())
+        root_receipt_write(self.path(request), receipt)
+
+    def failed(self, request, receipt, observed):
+        restored = observed["directoryIdentity"] == receipt["before"]["directoryIdentity"]
+        receipt.update(phase="ROLLED_BACK" if restored else "RECOVERY_REQUIRED", observed=observed)
+        root_receipt_write(self.path(request), receipt)
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements. See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership. The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+"""Post-apply POSIX attestation; replay verifies one inode without changing metadata."""
+import hashlib
+import json
+import os
+import re
+from pathlib import Path
+import time
+import uuid
+
+IDENTITY_FIELDS = ("filesystemUuid", "device", "inode", "effectiveUid", "effectiveGid", "effectiveMode", "aclSha256")
+
+
+class PosixPolicyReceipt:
+    def __init__(self, receipts=None):
+        self.receipts = Path(receipts or os.environ.get("ABLESTACK_STORAGE_POSIX_RECEIPTS", "/var/lib/ablestack-storage/posix-policy-receipts"))
+
+    def scope(self, request):
+        revision = request.get("revision")
+        if type(revision) is not int or revision < 1:
+            raise ValueError("POSIX attestation needs its exact positive policy revision")
+        return {"instanceUuid": str(uuid.UUID(request["instanceUuid"])), "policyUuid": str(uuid.UUID(request["uuid"])),
+                "volumeUuid": str(uuid.UUID(request["volumeUuid"])), "revision": revision,
+                "volumeMountPath": request["volumeMountPath"], "relativePath": request["relativePath"]}
+
+    def path(self, request):
+        return self.receipts / (str(uuid.UUID(request["uuid"])) + ".json")
+
+    def checksum(self, request):
+        return hashlib.sha256(json.dumps(request, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest()
+
+    def read(self, request):
+        return root_receipt_read(self.path(request))
+
+    def attest(self, request, observed):
+        identity = observed.get("directoryIdentity")
+        if not isinstance(identity, dict) or set(identity) != set(IDENTITY_FIELDS):
+            raise ValueError("POSIX post-apply identity is incomplete")
+        return {"schemaVersion": 1, "phase": "COMPLETE", "scope": self.scope(request),
+                "requestSha256": self.checksum(request), "directoryIdentity": identity, "verifiedEpoch": time.time()}
+
+    def verify(self, request, observed, receipt):
+        if (not isinstance(receipt, dict) or receipt.get("schemaVersion") != 1 or receipt.get("phase") != "COMPLETE"
+                or receipt.get("scope") != self.scope(request) or receipt.get("requestSha256") != self.checksum(request)
+                or receipt.get("directoryIdentity") != observed.get("directoryIdentity")):
+            raise ValueError("POSIX post-apply receipt differs from its request or current directory")
+        return True
+
+    def replay(self, request, stored, observed):
+        if not isinstance(stored, dict) or stored.get("request") != request:
+            return False
+        receipt = self.read(request)
+        if receipt is None:
+            return False
+        self.verify(request, observed, receipt)
+        canonical=receipt.get("canonicalDirectoryIdentity",receipt["directoryIdentity"])
+        if (stored.get("effective") or {}).get("directoryIdentity") != canonical:
+            raise ValueError("POSIX committed effective directory differs from its post-apply receipt")
+        if canonical!=observed.get("directoryIdentity"):
+            if (receipt.get("canonicalRowSha256")!=hashlib.sha256(json.dumps(stored,sort_keys=True,separators=(",",":"),allow_nan=False).encode()).hexdigest()
+                    or not isinstance(receipt.get("rootScope"),dict) or receipt["rootScope"].get("instanceUuid")!=request["instanceUuid"]
+                    or any(canonical.get(key)!=observed["directoryIdentity"].get(key) for key in IDENTITY_FIELDS if key!="device")):
+                raise ValueError("POSIX ROOT device remap lacks its protected source canonical attestation")
+        return True
+
+    def transferred_plan(self,row,observed,root_scope,source_sha,maintenance):
+        request=row.get("request") if isinstance(row,dict) else None
+        names={"instanceUuid","templateUpgradeUuid","operationUuid","revision"}
+        if (not isinstance(root_scope,dict) or set(root_scope)!=names or type(root_scope["revision"]) is not int or root_scope["revision"]<1
+                or maintenance.get("maintenanceKind") not in (None,"ROOT") or maintenance.get("bootHeld") is not True or maintenance.get("scope")!=root_scope
+                or not isinstance(request,dict) or request.get("instanceUuid")!=root_scope["instanceUuid"]
+                or not re.fullmatch("[0-9a-f]{64}",str(source_sha)) or set(row)!={"request","config","effective"} or row.get("config")!=request.get("config",{})):
+            raise ValueError("ROOT POSIX transferred plan lacks its exact protected marker")
+        for key in names-{"revision"}:uuid.UUID(root_scope[key])
+        receipt=self.read(request);self.verify(request,observed,receipt)
+        checksum=hashlib.sha256(json.dumps(row,sort_keys=True,separators=(",",":"),allow_nan=False).encode()).hexdigest()
+        canonical=receipt.get("canonicalDirectoryIdentity");binding=receipt.get("volumeBinding")
+        if (receipt.get("rootScope")!=root_scope or receipt.get("sourceConfigurationSha256")!=source_sha or receipt.get("canonicalRowSha256")!=checksum
+                or not isinstance(canonical,dict) or canonical!=(row.get("effective") or {}).get("directoryIdentity")
+                or not isinstance(binding,dict) or binding.get("volumeUuid")!=request.get("volumeUuid")
+                or binding.get("filesystemUuid")!=observed["directoryIdentity"].get("filesystemUuid")
+                or any(canonical.get(key)!=observed["directoryIdentity"].get(key) for key in IDENTITY_FIELDS if key!="device")):
+            raise ValueError("ROOT POSIX transferred plan differs from its attested source row/inode")
+        return {"success":True,"sideEffects":False,"transferOnly":True,"beforeDirectoryIdentity":observed["directoryIdentity"],
+                "predictedDirectoryIdentity":observed["directoryIdentity"],"configurationDesiredRow":row,"postApplyReceiptRequired":True,
+                "postApplyReceiptVerified":True,"rootScope":root_scope,"sourceConfigurationSha256":source_sha,"dataPermissionsChanged":False,"canonicalDesiredStateChanged":False}
+
+    def write(self, request, observed):
+        receipt = self.attest(request, observed)
+        root_receipt_write(self.path(request), receipt)
+        self.verify(request, observed, self.read(request))
+        return receipt
+
+    def restore(self, request, previous_policy, previous_receipt, observed):
+        if previous_receipt is None:
+            # Invalidate newer attestation after an exact rollback to a legacy policy.
+            path = self.path(request)
+            if path.exists() or path.is_symlink():
+                self.read(request)
+                path.unlink()
+                descriptor = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+                try: os.fsync(descriptor)
+                finally: os.close(descriptor)
+            return
+        previous_request = (previous_policy or {}).get("request")
+        if not isinstance(previous_request, dict) or previous_request.get("uuid") != request.get("uuid"):
+            raise ValueError("POSIX receipt rollback lacks the exact previous committed request")
+        self.verify(previous_request, observed, previous_receipt)
+        canonical=previous_receipt.get("canonicalDirectoryIdentity",previous_receipt["directoryIdentity"])
+        if (previous_policy.get("effective") or {}).get("directoryIdentity") != canonical:
+            raise ValueError("POSIX restored metadata differs from the previous committed policy")
+        if canonical!=observed.get("directoryIdentity") and previous_receipt.get("canonicalRowSha256")!=hashlib.sha256(json.dumps(previous_policy,sort_keys=True,separators=(",",":"),allow_nan=False).encode()).hexdigest():
+            raise ValueError("POSIX previous ROOT receipt lacks its exact canonical policy digest")
+        root_receipt_write(self.path(previous_request), previous_receipt)
+"""Same-instance ROOT POSIX receipt transfer; no DATA permission mutation."""
+import hashlib
+import json
+import uuid
+import re
+
+POSIX_TRANSFER_KEYS = {"canonicalRow","rowSha256","postReceipt"}
+
+
+def posix_row_sha256(value):
+    return hashlib.sha256(json.dumps(value,sort_keys=True,separators=(",",":"),allow_nan=False).encode()).hexdigest()
+
+
+def validate_posix_transfers(records,instance_uuid):
+    instance=str(uuid.UUID(instance_uuid))
+    if not isinstance(records,dict) or len(records)>512:raise ValueError("ROOT POSIX receipt collection is invalid")
+    for policy,record in records.items():
+        if str(uuid.UUID(policy))!=policy or not isinstance(record,dict) or set(record)!=POSIX_TRANSFER_KEYS:
+            raise ValueError("ROOT POSIX receipt contains an unknown policy or field")
+        row=record["canonicalRow"]
+        if not isinstance(row,dict) or set(row)!={"request","config","effective"} or record["rowSha256"]!=posix_row_sha256(row):
+            raise ValueError("ROOT POSIX canonical policy digest differs")
+        request=row["request"];revision=request.get("revision")
+        if (request.get("uuid")!=policy or request.get("instanceUuid")!=instance or row["config"]!=request.get("config",{})
+                or type(revision) is not int or revision<1):
+            raise ValueError("ROOT POSIX receipt belongs to another instance/policy")
+        uuid.UUID(request["volumeUuid"])
+        expected_scope={"instanceUuid":instance,"policyUuid":policy,"volumeUuid":request["volumeUuid"],"revision":revision,
+                        "volumeMountPath":request["volumeMountPath"],"relativePath":request["relativePath"]}
+        receipt=record["postReceipt"]
+        if (not isinstance(receipt,dict) or type(receipt.get("schemaVersion")) is not int or receipt.get("schemaVersion")!=1 or receipt.get("phase")!="COMPLETE"
+                or receipt.get("scope")!=expected_scope or receipt.get("requestSha256")!=posix_row_sha256(request)):
+            raise ValueError("ROOT POSIX protected post-apply receipt is invalid")
+        canonical=receipt.get("canonicalDirectoryIdentity",receipt["directoryIdentity"])
+        fields={"filesystemUuid","device","inode","effectiveUid","effectiveGid","effectiveMode","aclSha256"}
+        for identity in (canonical,receipt["directoryIdentity"]):
+            if not isinstance(identity,dict) or set(identity)!=fields:
+                raise ValueError("ROOT POSIX identity has an unsupported field")
+            uuid.UUID(identity["filesystemUuid"])
+            if any(type(identity[key]) is not int or identity[key]<0 for key in ("device","inode","effectiveUid","effectiveGid")) or not re.fullmatch("[0-7]{4}",identity["effectiveMode"]) or not re.fullmatch("[0-9a-f]{64}",identity["aclSha256"]):
+                raise ValueError("ROOT POSIX identity metadata is invalid")
+        if "canonicalDirectoryIdentity" in receipt:
+            root=receipt.get("rootScope");binding=receipt.get("volumeBinding")
+            if (not isinstance(root,dict) or set(root)!={"instanceUuid","templateUpgradeUuid","operationUuid","revision"}
+                    or root["instanceUuid"]!=instance or type(root["revision"]) is not int or root["revision"]<1
+                    or not re.fullmatch("[0-9a-f]{64}",str(receipt.get("sourceConfigurationSha256")))
+                    or receipt.get("canonicalRowSha256")!=record["rowSha256"] or not isinstance(binding,dict)
+                    or set(binding)!={"volumeUuid","sizeBytes","filesystemUuid"} or binding["volumeUuid"]!=request["volumeUuid"]
+                    or type(binding["sizeBytes"]) is not int or binding["sizeBytes"]<=0 or binding["filesystemUuid"]!=canonical["filesystemUuid"]):
+                raise ValueError("ROOT POSIX previous device remap lacks its protected complete provenance")
+            for key in ("instanceUuid","templateUpgradeUuid","operationUuid"):uuid.UUID(root[key])
+        if row["effective"].get("directoryIdentity")!=canonical or any(canonical[key]!=receipt["directoryIdentity"][key] for key in fields if key!="device"):
+            raise ValueError("ROOT POSIX source receipt differs from its canonical inode/attributes")
+    return records
+
+
+class PosixReceiptTransfer:
+    def __init__(self,store=None):
+        self.store=store or PosixPolicyReceipt()
+
+    def collect(self,canonical,instance,inspect):
+        if canonical is None:return {}
+        if not isinstance(canonical,dict):raise ValueError("ROOT POSIX canonical collection is invalid")
+        records={}
+        for policy,row in canonical.items():
+            request=row["request"]
+            actual=inspect(request)
+            receipt=self.store.read(request)
+            if receipt is None:raise ValueError("ROOT POSIX source has no approved post-apply receipt")
+            self.store.verify(request,actual,receipt)
+            canonical_identity=receipt.get("canonicalDirectoryIdentity",receipt["directoryIdentity"])
+            if row["effective"].get("directoryIdentity")!=canonical_identity:
+                raise ValueError("ROOT POSIX source canonical effective state changed")
+            records[policy]={"canonicalRow":row,"rowSha256":posix_row_sha256(row),"postReceipt":receipt}
+        return validate_posix_transfers(records,instance)
+
+    def restore(self,records,root_scope,source_sha,volume_bindings,maintenance,inspect,inspect_volume):
+        # Callers reach this adapter only after decrypting a scope-bound native
+        # identity capsule. Public seed/backup payloads cannot call it directly.
+        instance=str(uuid.UUID(root_scope["instanceUuid"]))
+        validate_posix_transfers(records,instance)
+        keys={"instanceUuid","templateUpgradeUuid","operationUuid","revision"}
+        if (set(root_scope)!=keys or type(root_scope["revision"]) is not int or root_scope["revision"]<1
+                or maintenance.get("bootHeld") is not True or maintenance.get("scope")!=root_scope):
+            raise ValueError("ROOT POSIX receipt restore lacks its exact boot-held maintenance scope")
+        for key in keys-{"revision"}:uuid.UUID(root_scope[key])
+        if not isinstance(source_sha,str) or len(source_sha)!=64 or any(char not in "0123456789abcdef" for char in source_sha):
+            raise ValueError("ROOT POSIX source configuration digest is invalid")
+        if not isinstance(volume_bindings,list):raise ValueError("ROOT POSIX FILE bindings are unavailable")
+        bindings={}
+        for binding in volume_bindings:
+            if set(binding)!={"volumeUuid","sizeBytes","filesystemUuid"} or binding["volumeUuid"] in bindings or type(binding["sizeBytes"]) is not int or binding["sizeBytes"]<=0:
+                raise ValueError("ROOT POSIX FILE binding is ambiguous")
+            uuid.UUID(binding["volumeUuid"]);uuid.UUID(binding["filesystemUuid"]);bindings[binding["volumeUuid"]]=binding
+        staged=[]
+        for policy,record in records.items():
+            row=record["canonicalRow"];request=row["request"];source=record["postReceipt"]
+            binding=bindings.get(request["volumeUuid"])
+            if binding is None:raise ValueError("ROOT POSIX policy volume is outside its frozen FILE set")
+            volume=inspect_volume(binding)
+            if (volume.get("matchedBy")!="VOLUME_SERIAL" or volume.get("mappingStatus")!="EXACT" or not volume.get("serial")
+                    or "".join(char for char in str(volume.get("serial") or "").lower() if char.isalnum()) not in (binding["volumeUuid"].replace("-",""),binding["volumeUuid"].replace("-","")[:20])
+                    or volume.get("sizeBytes")!=binding["sizeBytes"] or volume.get("filesystemUuid")!=binding["filesystemUuid"]
+                    or not any(mount.get("target")==request["volumeMountPath"] for mount in volume.get("mounts",[]))):
+                raise ValueError("ROOT POSIX mounted DATA differs from its frozen serial/filesystem/size")
+            observed=inspect(request)
+            actual=observed["directoryIdentity"];canonical=row["effective"]["directoryIdentity"]
+            if actual.get("filesystemUuid")!=binding["filesystemUuid"] or any(actual.get(key)!=canonical.get(key) for key in canonical if key!="device"):
+                raise ValueError("ROOT POSIX DATA inode/permissions/ACL differ from the approved source")
+            receipt={**source,"directoryIdentity":actual,"canonicalDirectoryIdentity":canonical,
+                     "rootScope":root_scope,"sourceConfigurationSha256":source_sha,"canonicalRowSha256":record["rowSha256"],
+                     "volumeBinding":binding}
+            staged.append((request,observed,receipt))
+        # Reobserve every inode before the first receipt write, then each write.
+        for request,observed,receipt in staged:
+            if inspect(request)["directoryIdentity"]!=observed["directoryIdentity"]:raise ValueError("ROOT POSIX DATA changed before attestation")
+        for request,observed,receipt in staged:
+            if inspect(request)["directoryIdentity"]!=observed["directoryIdentity"]:raise ValueError("ROOT POSIX DATA changed during attestation")
+            root_receipt_write(self.store.path(request),receipt)
+            self.store.verify(request,observed,self.store.read(request))
+        return {"success":True,"posixReceiptsRestored":len(staged),"dataPermissionsChanged":False,"canonicalDesiredStateChanged":False}
+"""Protected original capsule references for same-instance ROOT rollback only."""
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import uuid
+
+
+class RootIdentityReference:
+    def __init__(self,root=None):
+        self.root=Path(root or os.environ.get("ABLESTACK_STORAGE_ROOT_IDENTITY_REFERENCES","/var/lib/ablestack-storage/root-identity-capsules"))
+
+    def scope(self,request):
+        names={"instanceUuid","templateUpgradeUuid","operationUuid","revision"}
+        if not isinstance(request,dict) or (set(request)&names)!=names or "maintenanceUuid" in request:
+            raise ValueError("ROOT identity reference lacks its typed complete scope")
+        result={key:str(uuid.UUID(request[key])) for key in names-{"revision"}}
+        if type(request["revision"]) is not int or request["revision"]<1:raise ValueError("ROOT identity reference revision is invalid")
+        result["revision"]=request["revision"];return result
+
+    def digest(self,capsule):
+        if not isinstance(capsule,dict) or type(capsule.get("schemaVersion")) is not int or capsule["schemaVersion"]!=1 or not re.fullmatch("[0-9a-f]{64}",str(capsule.get("sha256"))):
+            raise ValueError("ROOT identity capsule reference is invalid")
+        return hashlib.sha256(json.dumps(capsule,sort_keys=True,separators=(",",":"),allow_nan=False).encode()).hexdigest()
+
+    def path(self,root_scope,capsule):
+        return self.root/(root_scope["templateUpgradeUuid"]+"-"+self.digest(capsule)+".json")
+
+    def retain(self,request,capsule,source_sha):
+        scope=self.scope(request)
+        if capsule.get("scope")!=scope["instanceUuid"]+":"+scope["operationUuid"] or not re.fullmatch("[0-9a-f]{64}",str(source_sha)):
+            raise ValueError("ROOT export reference source scope/configuration is invalid")
+        value={"schemaVersion":1,"sourceRootScope":scope,"capsuleSha256":self.digest(capsule),"sourceConfigurationSha256":source_sha}
+        path=self.path(scope,capsule);old=root_receipt_read(path)
+        if old is not None and old!=value:raise ValueError("ROOT capsule reference changed after retention")
+        if old is None:root_receipt_write(path,value)
+        return value
+
+    def authorize(self,request,capsule,maintenance):
+        current=self.scope(request)
+        if maintenance.get("maintenanceKind") not in (None,"ROOT") or maintenance.get("bootHeld") is not True or maintenance.get("scope")!=current:
+            raise ValueError("ROOT capsule import requires its exact protected boot-held scope")
+        own=current["instanceUuid"]+":"+current["operationUuid"]
+        if capsule.get("scope")==own:
+            if request.get("originalSourceScope") not in (None,current):raise ValueError("ROOT identity original source differs from its capsule")
+            return own
+        source=self.scope(request.get("originalSourceScope"))
+        if any(source[key]!=current[key] for key in ("instanceUuid","templateUpgradeUuid")) or source["revision"]>=current["revision"]:
+            raise ValueError("ROOT rollback original source is foreign or not a previous revision")
+        record=root_receipt_read(self.path(source,capsule))
+        expected={"schemaVersion":1,"sourceRootScope":source,"capsuleSha256":self.digest(capsule),"sourceConfigurationSha256":request.get("sourceConfigurationSha256")}
+        if record!=expected or capsule.get("scope")!=source["instanceUuid"]+":"+source["operationUuid"]:
+            raise ValueError("ROOT rollback lacks the exact protected original capsule reference")
+        return capsule["scope"]
+
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -9867,6 +10448,9 @@ FILES = {
     "/etc/ablestack-storage/smb-managed-identities.json",
     "/etc/ablestack-storage/smb-local-account-provenance.json",
 }
+AD_FILES = {"/etc/krb5.keytab","/etc/krb5.conf","/etc/ablestack-storage/smb-domain.json","/var/lib/samba/winbindd_idmap.tdb"}
+PUBLIC_IDENTITY_FILES = {"/etc/ablestack-storage/smb-managed-identities.json","/etc/krb5.conf"}
+
 ACCOUNT_FILES = {"/etc/passwd", "/etc/group", "/etc/shadow", "/etc/gshadow"}
 
 
@@ -9910,7 +10494,7 @@ def decrypt(capsule, private_key_pem, expected_scope):
     from cryptography.hazmat.primitives import hashes, serialization
     from cryptography.hazmat.primitives.asymmetric import padding
     from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-    if capsule.get("schemaVersion") != 1 or capsule.get("scope") != expected_scope:
+    if type(capsule.get("schemaVersion")) is not int or capsule.get("schemaVersion") != 1 or capsule.get("scope") != expected_scope:
         raise ValueError("Identity capsule scope mismatch")
     ciphertext = base64.b64decode(capsule["ciphertext"], validate=True)
     if len(ciphertext) > MAX_CAPSULE_BYTES + 16 or hashlib.sha256(ciphertext).hexdigest() != capsule["sha256"]:
@@ -10015,12 +10599,13 @@ def replay_nvme_identity_payload(desired, protected_hosts):
     return {"success": True, "nvmeRestored": True}
 
 
-def collect(names, nvme_hosts=None):
+def collect(names, nvme_hosts=None,ad_identity=None,posix_policies=None):
     names = set(names)
     if any(not isinstance(name, str) or name in {"root", "nobody", "daemon", "cloud", "debian"} or not re.fullmatch(r"[A-Za-z0-9_][A-Za-z0-9_.-]{0,63}", name) for name in names):
         raise ValueError("Invalid managed account name")
     files = {}
-    for path in sorted(FILES):
+    if ad_identity is not None:validate_ad_identity(ad_identity)
+    for path in sorted(FILES | (AD_FILES if ad_identity is not None else set())):
         if not os.path.exists(path):
             files[path] = {"absent": True}
             continue
@@ -10044,16 +10629,71 @@ def collect(names, nvme_hosts=None):
         accounts[path] = [line for line in data.decode().splitlines() if line.split(":", 1)[0] in names]
     for path, records in accounts.items():
         account_merge("", records, os.path.basename(path))
-    return {"schemaVersion": 1, "files": files, "accounts": accounts, "nvmeHosts": collect_nvme_hosts(nvme_hosts or [])}
+    result={"schemaVersion": 1, "files": files, "accounts": accounts, "nvmeHosts": collect_nvme_hosts(nvme_hosts or [])}
+    if ad_identity is not None:result["adIdentity"]=ad_identity
+    if posix_policies is not None:
+        result["posixPolicies"]=posix_policies
+    return result
+
+
+def validate_ad_identity(value):
+    fields={"schemaVersion","domain","realm","workgroup","netbiosName","machineSid","domainSid","servicePrincipals","trustVerified"}
+    if not isinstance(value,dict) or set(value)-{"idmapPolicy"}!=fields or value["schemaVersion"]!=1 or value["trustVerified"] is not True:
+        raise ValueError("AD capsule metadata is not a verified joined identity")
+    domain=value["domain"]
+    if not isinstance(domain,str) or len(domain)>253 or domain!=domain.lower() or not re.fullmatch(r"[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?",domain) or any(not label or label.startswith("-") or label.endswith("-") for label in domain.split(".")):
+        raise ValueError("AD capsule DNS domain is invalid")
+    if value["realm"]!=domain.upper() or any(not re.fullmatch(r"[A-Z0-9][A-Z0-9_-]{0,14}",str(value[key])) for key in ("workgroup","netbiosName")):
+        raise ValueError("AD capsule realm/machine identity is invalid")
+    for key in ("machineSid","domainSid"):
+        if not re.fullmatch(r"S-1-5-21(?:-[0-9]{1,10}){3}",str(value[key])):raise ValueError("AD capsule SID is invalid")
+    principals=value["servicePrincipals"]
+    if not isinstance(principals,list) or not principals or len(principals)>128 or len(set(principals))!=len(principals):raise ValueError("AD capsule SPN list is invalid")
+    for principal in principals:
+        if not isinstance(principal,str) or not re.fullmatch(r"(?:host|cifs)/[a-z0-9.-]+",principal) or not principal.split("/",1)[1].endswith("."+domain):
+            raise ValueError("AD capsule SPN escapes its joined DNS domain")
+    if "idmapPolicy" in value:
+        mapping=value["idmapPolicy"]
+        if not isinstance(mapping,dict) or set(mapping)!={"default","domain"}:raise ValueError("AD capsule idmap policy is incomplete")
+        ranges=[]
+        for label,entry in mapping.items():
+            if not isinstance(entry,dict) or entry.get("backend") not in ("tdb","rid") or set(entry)!=({"backend","range","baseRid"} if entry["backend"]=="rid" else {"backend","range"}):
+                raise ValueError("AD capsule idmap backend is unsupported")
+            numbers=entry["range"]
+            if (not isinstance(numbers,list) or len(numbers)!=2 or any(type(number) is not int for number in numbers)
+                    or not 1000<=numbers[0]<=numbers[1]<=2147483647 or numbers[0]<=65534<=numbers[1]):
+                raise ValueError("AD capsule idmap range is unsafe")
+            if entry["backend"]=="rid" and (type(entry["baseRid"]) is not int or not 0<=entry["baseRid"]<=2147483647):
+                raise ValueError("AD capsule RID base is invalid")
+            ranges.append(numbers)
+        if max(row[0] for row in ranges)<=min(row[1] for row in ranges):raise ValueError("AD capsule idmap ranges overlap")
+    return value
+
+
+def capsule_validate_posix(records,instance):
+    validator=globals().get("validate_posix_transfers")
+    if validator is None:
+        from posix_receipt_transfer import validate_posix_transfers as validator
+    return validator(records,instance)
 
 
 def validate_payload(payload):
-    if not isinstance(payload, dict) or set(payload) - {"schemaVersion", "files", "accounts", "nvmeHosts"}:
+    if not isinstance(payload, dict) or set(payload) - {"schemaVersion", "files", "accounts", "nvmeHosts", "adIdentity", "posixPolicies", "sourceConfigurationSha256"}:
         raise ValueError("Identity capsule payload shape is invalid")
     if not isinstance(payload.get("files"), dict) or not isinstance(payload.get("accounts"), dict):
         raise ValueError("Identity capsule collections are invalid")
-    if payload.get("schemaVersion") != 1 or set(payload.get("files", {})) - FILES or set(payload.get("accounts", {})) - ACCOUNT_FILES:
+    if type(payload.get("schemaVersion")) is not int or payload.get("schemaVersion") != 1 or set(payload.get("files", {})) - (FILES | (AD_FILES if payload.get("adIdentity") is not None else set())) or set(payload.get("accounts", {})) - ACCOUNT_FILES:
         raise ValueError("Identity capsule path allow-list mismatch")
+    if payload.get("adIdentity") is not None:validate_ad_identity(payload["adIdentity"])
+    if payload.get("posixPolicies") is not None:
+        if not isinstance(payload["posixPolicies"],dict):raise ValueError("Identity capsule POSIX collection is invalid")
+    if payload.get("posixPolicies"):
+        source_sha=payload.get("sourceConfigurationSha256")
+        if not isinstance(source_sha,str) or not re.fullmatch("[0-9a-f]{64}",source_sha):raise ValueError("Identity capsule POSIX source configuration is unpinned")
+        records=payload["posixPolicies"]
+        if not isinstance(records,dict):raise ValueError("Identity capsule POSIX records are invalid")
+        first=next(iter(records.values()))
+        capsule_validate_posix(records,first["canonicalRow"]["request"]["instanceUuid"])
     for path, item in payload.get("files", {}).items():
         if item.get("absent") is True:
             if set(item) != {"absent"}:
@@ -10063,7 +10703,7 @@ def validate_payload(payload):
             raise ValueError("Identity capsule file metadata is invalid")
         data = base64.b64decode(item["data"], validate=True)
         mode = int(item.get("mode", 0))
-        secret_path = path != "/etc/ablestack-storage/smb-managed-identities.json"
+        secret_path = path not in PUBLIC_IDENTITY_FILES
         if len(data) > MAX_CAPSULE_BYTES or item.get("uid") != 0 or not 0 <= mode <= 0o777 or mode & 0o022 or mode & 0o111 or (secret_path and mode & 0o007):
             raise ValueError("Identity capsule file protection is invalid")
     for path, lines in payload.get("accounts", {}).items():
@@ -10101,6 +10741,7 @@ def select_restore_domains(payload, domains):
            if (name==iscsi and "ISCSI" in selected) or (name==nvme and "NVMEOF" in selected) or (name not in (iscsi,nvme) and "SMB" in selected)}
     result={"schemaVersion":1,"files":files,"accounts":payload.get("accounts",{}) if "SMB" in selected else {}}
     if "NVMEOF" in selected and payload.get("nvmeHosts"):result["nvmeHosts"]=payload["nvmeHosts"]
+    if "SMB" in selected and payload.get("adIdentity") is not None:result["adIdentity"]=payload["adIdentity"]
     return validate_payload(result)
 
 
@@ -10207,7 +10848,7 @@ def restore_protected(payload, nvme_desired=None):
     return restored
 
 
-LIVE_TDB_FILES = {"/var/lib/samba/private/passdb.tdb", "/var/lib/samba/private/secrets.tdb"}
+LIVE_TDB_FILES = {"/var/lib/samba/private/passdb.tdb", "/var/lib/samba/private/secrets.tdb", "/var/lib/samba/winbindd_idmap.tdb"}
 
 
 def live_identity_database_holders(paths, process_root="/proc", timeout=5):
@@ -10252,6 +10893,8 @@ def restore(payload):
     validate_payload(payload)
     # Fail before account, secret, or filesystem metadata writes. Offline ROOT
     # restoration is allowed only after acceptors/identity daemons are quiesced.
+    if payload.get("posixPolicies"):
+        raise ValueError("POSIX receipts require the scoped SAMEVM ROOT attestation path")
     require_identity_database_quiescence(payload.get("files", {}))
     if payload.get("nvmeHosts"):
         raise ValueError("NVMe authentication capsule requires the protected protocol replay path")
@@ -10346,39 +10989,540 @@ def restore(payload):
                 os.unlink(tmp)
             except FileNotFoundError:
                 pass
-
 import sys
 import re
 from pathlib import Path
 request = json.loads(os.fdopen(3).read() if sys.argv[2] == "/dev/stdin" else Path(sys.argv[2]).read_text())
 action = sys.argv[1]
+def identity_command(arguments,payload=None):
+    import signal
+    if not callable(getattr(os,"pidfd_open",None)) or not callable(getattr(signal,"pidfd_send_signal",None)):
+        raise ValueError("Identity observation requires exact child control")
+    child=subprocess.Popen([sys.argv[3],*arguments],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,
+                           text=True,pass_fds=writer_lock_fds())
+    descriptor=None
+    try:
+        try:descriptor=os.pidfd_open(child.pid,0)
+        except ProcessLookupError:
+            if child.poll() is None:raise ValueError("Identity child scope is unavailable")
+        try:output,_=child.communicate(input=json.dumps(payload) if payload is not None else None,timeout=15)
+        except subprocess.TimeoutExpired:
+            if descriptor is not None:
+                try:signal.pidfd_send_signal(descriptor,signal.SIGTERM,None,0)
+                except ProcessLookupError:pass
+            try:child.wait(timeout=.2)
+            except subprocess.TimeoutExpired:
+                if descriptor is not None:
+                    try:signal.pidfd_send_signal(descriptor,signal.SIGKILL,None,0)
+                    except ProcessLookupError:pass
+                try:child.wait(timeout=.2)
+                except subprocess.TimeoutExpired:pass
+            raise ValueError("Identity observation timed out; attestation remains unverified")
+        if child.returncode or len(output)>8*1024*1024:raise ValueError("Identity observation failed")
+        value=json.loads(output)
+        if value.get("success") is not True:raise ValueError("Identity observation did not verify")
+        return value
+    finally:
+        if descriptor is not None:os.close(descriptor)
+        for stream in (child.stdin,child.stdout):
+            if stream is not None:stream.close()
+
 scope = str(request.get("instanceUuid") or "") + ":" + str(request.get("operationUuid") or "")
 if not re.fullmatch(r"[0-9a-fA-F-]{36}:[0-9a-fA-F-]{36}", scope):
     raise ValueError("Identity capsule request scope is invalid")
 if action == "capabilities":
     from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-    print(json.dumps({"success": True, "schemaVersion": 1, "localIdentity": True, "adIdentity": False}))
+    print(json.dumps({"success": True, "schemaVersion": 1, "localIdentity": True, "adIdentity": False, "posixReceiptTransferSupported":True}))
 elif action == "export":
     names = request.get("names") or []
     domain_path = Path("/etc/ablestack-storage/smb-domain.json")
     domain = json.loads(domain_path.read_text()) if domain_path.exists() else {}
     if str(domain.get("joinState") or domain.get("state") or "").upper() == "JOINED":
         raise ValueError("SMB AD identity transfer is deferred")
-    payload = collect(names, request.get("nvmeHosts") or [])
+    records=None;configuration=None
+    if request.get("includePosixPolicyReceipts") is True:
+        configuration=identity_command(("operation","generation","status"))
+        if (configuration.get("generation",{}).get("instanceUuid")!=request["instanceUuid"]
+                or configuration.get("generation",{}).get("configurationSha256")!=configuration.get("configurationSha256")
+                or configuration.get("pendingOperationUuid") not in (None,request["operationUuid"])):
+            raise ValueError("POSIX source receipt snapshot has a foreign native writer")
+        records=PosixReceiptTransfer().collect(configuration["configurationDesiredState"]["posix-directory-policies.json"],request["instanceUuid"],
+                                              lambda value:identity_command(("posix","directory","inspect","/dev/stdin"),value))
+    payload = collect(names, request.get("nvmeHosts") or [],posix_policies=records)
+    if records is not None:payload["sourceConfigurationSha256"]=configuration["configurationSha256"]
     validate_payload(payload)
-    print(json.dumps({"success": True, "capsule": encrypt(payload, request["publicKey"], scope)}, sort_keys=True))
+    capsule=encrypt(payload,request["publicKey"],scope)
+    reference=None
+    if "templateUpgradeUuid" in request:
+        source=configuration or identity_command(("operation","generation","status"))
+        if (source.get("generation",{}).get("instanceUuid")!=request["instanceUuid"] or source.get("pendingOperationUuid") not in (None,request["operationUuid"])):
+            raise ValueError("ROOT capsule source reference has a foreign generation writer")
+        reference=RootIdentityReference().retain(request,capsule,source["configurationSha256"])
+    print(json.dumps({"success":True,"capsule":capsule,"rootIdentityReference":reference},sort_keys=True))
+elif action == "posix-attest":
+    capsule_scope=RootIdentityReference().authorize(request,request["capsule"],identity_command(("operation","maintenance","status")))
+    payload=decrypt(request["capsule"],request["credentialPrivateKey"],capsule_scope)
+    validate_payload(payload)
+    if payload.get("sourceConfigurationSha256")!=request.get("sourceConfigurationSha256"):
+        raise ValueError("ROOT POSIX source configuration differs from its pinned capsule")
+    result=PosixReceiptTransfer().restore(payload.get("posixPolicies") or {},{key:request[key] for key in ("instanceUuid","templateUpgradeUuid","operationUuid","revision")},
+        request["sourceConfigurationSha256"],request["fileVolumeBindings"],identity_command(("operation","maintenance","status")),
+        lambda value:identity_command(("posix","directory","inspect","/dev/stdin"),value),
+        lambda binding:identity_command(("operation","root-data","inspect","/dev/stdin"),{**{key:request[key] for key in ("instanceUuid","templateUpgradeUuid","operationUuid","revision")},
+                                      "volumes":[{"volumeUuid":binding["volumeUuid"],"sizeBytes":binding["sizeBytes"],"kind":"FILE_DATA"}]})["volumes"][0])
+    print(json.dumps(result,sort_keys=True))
 elif action == "import":
+    if "templateUpgradeUuid" in request:
+        scope=RootIdentityReference().authorize(request,request["capsule"],identity_command(("operation","maintenance","status")))
     payload = decrypt(request["capsule"], request["credentialPrivateKey"], scope)
+    validate_payload(payload)
+    if "templateUpgradeUuid" in request and payload.get("sourceConfigurationSha256") not in (None,request.get("sourceConfigurationSha256")):
+        raise ValueError("ROOT capsule source configuration differs from its pinned import request")
+    if "templateUpgradeUuid" in request and request["capsule"].get("scope")==request["instanceUuid"]+":"+request["operationUuid"]:
+        source_sha=payload.get("sourceConfigurationSha256") or request.get("sourceConfigurationSha256")
+        RootIdentityReference().retain(request,request["capsule"],source_sha)
     if "restoreDomains" in request:payload=select_restore_domains(payload,request["restoreDomains"])
+    receipts_deferred=bool(payload.get("posixPolicies"))
+    payload=dict(payload);payload.pop("posixPolicies",None);payload.pop("sourceConfigurationSha256",None)
     if request.get("deferNvmeReplay") is True:
         validate_payload(payload)
         files_only = dict(payload); files_only.pop("nvmeHosts", None)
-        print(json.dumps({**restore(files_only), "nvmeReplayDeferred": True}, sort_keys=True))
+        print(json.dumps({**restore(files_only), "nvmeReplayDeferred": True,"posixReceiptRestoreDeferred":receipts_deferred}, sort_keys=True))
     else:
-        print(json.dumps(restore_protected(payload, request.get("nvmeDesired")), sort_keys=True))
+        print(json.dumps({**restore_protected(payload, request.get("nvmeDesired")),"posixReceiptRestoreDeferred":receipts_deferred}, sort_keys=True))
 else:
     raise ValueError("Unsupported identity capsule action")
 PYIDENTITY
+}
+
+identity_metadata_command() {
+  python3 - "$subcommand" "$action" "$payload" 3<&0 <<'PYADIDENTITY'
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements. See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership. The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+"""Bounded AD input and principal mapping helpers; no implicit trust attestation."""
+import fcntl
+import hashlib
+import json
+from pathlib import Path
+import stat
+import uuid
+import os
+import ipaddress
+import re
+import subprocess
+import signal
+import time
+
+
+def bounded_ad_run(arguments, capture_output=True, text=True, timeout=5, pass_fds=()):
+    """Exact child termination; never wait without a timeout after a deadline."""
+    if not callable(getattr(os, "pidfd_open", None)) or not callable(getattr(signal, "pidfd_send_signal", None)):
+        raise ValueError("AD operations require exact pidfd child control")
+    until = time.monotonic() + timeout
+    inherited = (9,) if os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD") == "9" else ()
+    child = subprocess.Popen(arguments, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                             text=text, pass_fds=tuple(set((*inherited, *pass_fds))))
+    descriptor = None
+    try:
+        try: descriptor = os.pidfd_open(child.pid, 0)
+        except ProcessLookupError:
+            if child.poll() is None: raise ValueError("AD child identity is unavailable")
+        try:
+            output, error = child.communicate(timeout=max(.001, until-time.monotonic()))
+        except subprocess.TimeoutExpired:
+            if descriptor is not None:
+                try: signal.pidfd_send_signal(descriptor, signal.SIGTERM, None, 0)
+                except ProcessLookupError: pass
+            try: child.wait(timeout=.2)
+            except subprocess.TimeoutExpired:
+                if descriptor is not None:
+                    try: signal.pidfd_send_signal(descriptor, signal.SIGKILL, None, 0)
+                    except ProcessLookupError: pass
+                try: child.wait(timeout=.2)
+                except subprocess.TimeoutExpired: pass
+            raise TimeoutError("AD operation deadline exceeded; trust remains unverified")
+        if len(output) > 256*1024 or len(error) > 256*1024:
+            raise ValueError("AD public metadata response is oversized")
+        return subprocess.CompletedProcess(arguments, child.returncode, output, error)
+    finally:
+        if descriptor is not None: os.close(descriptor)
+        for stream in (child.stdout, child.stderr):
+            if stream is not None: stream.close()
+
+
+def domain_name(value):
+    if not isinstance(value,str) or len(value)>253 or value!=value.strip() or '.' not in value:
+        raise ValueError("AD DNS domain is invalid")
+    labels=value.split('.')
+    if any(not re.fullmatch(r"[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?",label) for label in labels):
+        raise ValueError("AD DNS domain contains an invalid label")
+    return value.lower()
+
+
+def dns_addresses(value):
+    if value in (None,'',[]):return []
+    values=re.split(r"[,\s]+",value) if isinstance(value,str) else value
+    if not isinstance(values,list) or len(values)>16:raise ValueError("AD DNS server list is invalid")
+    result=[]
+    for item in values:
+        if not item:continue
+        address=str(ipaddress.ip_address(item))
+        if address not in result:result.append(address)
+    return result
+
+
+def ad_principal(value,domain,workgroup):
+    domain=domain_name(domain)
+    if not isinstance(value,str) or not value or len(value)>256 or any(ord(char)<32 for char in value):
+        raise ValueError("AD principal is invalid")
+    if chr(92) in value:
+        pieces=value.split(chr(92))
+        if len(pieces)!=2 or pieces[0].upper()!=workgroup.upper():raise ValueError("AD principal belongs to another domain")
+        name=pieces[1]
+    elif '@' in value:
+        pieces=value.split('@')
+        if len(pieces)!=2 or domain_name(pieces[1])!=domain:raise ValueError("AD UPN belongs to another realm")
+        name=pieces[0]
+    else:name=value
+    if not re.fullmatch(r"[A-Za-z0-9_][A-Za-z0-9_. -]{0,127}",name) or name!=name.strip():
+        raise ValueError("AD account name is invalid")
+    return workgroup.upper()+chr(92)+name
+
+
+def sid(value):
+    if not re.fullmatch(r"S-1-5(?:-[0-9]{1,10}){3,15}",str(value or '')):
+        raise ValueError("AD SID is invalid")
+    return value
+
+
+def resolve_ad_principal(kind,principal,domain,workgroup,run=None,deadline=None,expected_domain_sid=None):
+    if kind not in ('AD_USER','AD_GROUP'):raise ValueError("Unknown AD POSIX principal kind")
+    name=ad_principal(principal,domain,workgroup)
+    until=deadline or time.monotonic()+10
+    def command(args):
+        remaining=until-time.monotonic()
+        if remaining<=0:raise TimeoutError("AD principal lookup deadline expired")
+        result=(run or bounded_ad_run)(args,capture_output=True,text=True,timeout=min(5,remaining))
+        if result.returncode:raise ValueError("AD principal mapping is unavailable")
+        return result.stdout.strip()
+    output=command(['wbinfo','--name-to-sid',name])
+    matched=re.fullmatch(r"(S-1-5(?:-[0-9]{1,10}){3,15})\s+([A-Z_]+)\s+\(([124])\)",output)
+    allowed={('SID_USER','1')} if kind=='AD_USER' else {('SID_DOM_GRP','2'),('SID_ALIAS','4')}
+    if not matched or (matched.group(2),matched.group(3)) not in allowed:
+        raise ValueError("AD principal SID kind differs")
+    identity=sid(matched.group(1))
+    if expected_domain_sid is not None:
+        expected_domain_sid=sid(expected_domain_sid)
+        if not re.fullmatch(r"S-1-5-21(?:-[0-9]{1,10}){3}",expected_domain_sid) or not identity.startswith(expected_domain_sid+"-"):
+            raise ValueError("AD principal SID differs from its verified joined domain")
+    option='--sid-to-uid' if kind=='AD_USER' else '--sid-to-gid'
+    numeric=command(['wbinfo',option,identity])
+    if not numeric.isdigit() or not 1000<=int(numeric)<=2147483647 or int(numeric)==65534:
+        raise ValueError("AD principal maps to a protected or invalid numeric identity")
+    inverse='--uid-to-sid' if kind=='AD_USER' else '--gid-to-sid'
+    if command(['wbinfo',inverse,numeric])!=identity:
+        raise ValueError("AD SID/numeric identity reverse mapping differs")
+    return {'principal':name,'sid':identity,'kind':'u' if kind=='AD_USER' else 'g','numericId':int(numeric),'sidType':int(matched.group(3)),'sidTypeName':matched.group(2),'mappingVerified':True}
+
+
+def machine_sids(output):
+    """Read public SID metadata only; local machine SID and AD domain SID differ."""
+    if not isinstance(output,str) or len(output)>65536:raise ValueError("AD SID metadata is oversized")
+    local=re.findall(r"(?m)^SID for local machine [^:\n]+ is:\s*(S-[0-9-]+)\s*$",output)
+    domain=re.findall(r"(?m)^SID for domain [^:\n]+ is:\s*(S-[0-9-]+)\s*$",output)
+    if len(local)!=1 or len(domain)!=1:raise ValueError("AD machine/domain SID metadata is ambiguous")
+    return {"machineSid":sid(local[0]),"domainSid":sid(domain[0])}
+
+
+def service_principal(value,domain):
+    if not isinstance(value,str) or len(value)>512 or value!=value.strip() or any(ord(char)<32 for char in value):
+        raise ValueError("AD service principal is invalid")
+    service,separator,hostname=value.partition('/')
+    if not separator or service.lower() not in ("host","cifs") or '@' in hostname or ':' in hostname:
+        raise ValueError("AD service principal has an unsupported service binding")
+    hostname=domain_name(hostname);domain=domain_name(domain)
+    if not hostname.endswith('.'+domain):raise ValueError("AD service principal hostname is outside its joined domain")
+    return service.lower()+"/"+hostname
+
+
+def keytab_principals(output,domain,required_spns,machine_name=None):
+    """klist -k metadata only; never use -K or return key material."""
+    if not isinstance(output,str) or len(output)>256*1024:raise ValueError("AD keytab metadata is oversized")
+    realm=domain_name(domain).upper();wanted={service_principal(value,domain) for value in required_spns};seen=set()
+    owned_short = {item.split("/", 1)[1].split(".", 1)[0].upper() for item in wanted}
+    if machine_name is not None:
+        if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{0,14}", machine_name): raise ValueError("AD keytab machine name is invalid")
+        account_names = {machine_name.upper()}
+    else: account_names = owned_short
+    for line in output.splitlines():
+        matched=re.fullmatch(r"\s*([0-9]+)\s+([^\s]+)\s*",line)
+        if not matched:continue
+        principal=matched[2];name,separator,actual_realm=principal.rpartition('@')
+        if not separator or actual_realm!=realm:raise ValueError("AD keytab contains a foreign realm")
+        if name.endswith('$'):
+            if not re.fullmatch(r"[A-Za-z0-9_-]{1,15}\$",name) or name[:-1].upper() not in account_names:raise ValueError("AD keytab machine account is invalid")
+            continue
+        if "/" in name and name.split("/",1)[0].lower()=="restrictedkrbhost":
+            host=name.split("/",1)[1]
+            if "." in host:
+                if "host/"+host.lower() not in wanted:raise ValueError("AD restricted HOST principal belongs to another machine")
+            elif host.upper() not in owned_short:
+                raise ValueError("AD restricted short HOST principal belongs to another machine")
+            continue
+        if "/" in name and "." not in name.split("/", 1)[1]:
+            service, host = name.split("/", 1)
+            if service.lower() not in ("host", "cifs") or host.upper() not in owned_short:
+                raise ValueError("AD short service principal belongs to another machine")
+            continue
+        seen.add(service_principal(name,domain))
+    if not wanted<=seen:raise ValueError("AD keytab lacks an exact required CIFS/HOST principal")
+    return {"realm":realm,"servicePrincipals":sorted(seen),"requiredServicePrincipalsVerified":True}
+
+
+class AdIdentityProbe:
+    def __init__(self,run=None,deadline=None):
+        self.run=run or bounded_ad_run;self.deadline=deadline or time.monotonic()+20
+
+    def command(self,arguments):
+        remaining=self.deadline-time.monotonic()
+        if remaining<=0:raise TimeoutError("AD identity probe deadline expired")
+        result=self.run(arguments,capture_output=True,text=True,timeout=min(5,remaining))
+        if result.returncode:raise ValueError("AD identity trust or public metadata probe failed")
+        return result.stdout
+
+    def verify(self,domain,required_spns,expected_sids=None):
+        domain=domain_name(domain)
+        self.command(["net","ads","testjoin","--machine-pass"])
+        observed=machine_sids(self.command(["net","getdomainsid"]))
+        if expected_sids is not None and observed!=expected_sids:raise ValueError("AD machine/domain SID differs from the protected source identity")
+        keytab=keytab_principals(self.command(["klist","-k","/etc/krb5.keytab"]),domain,required_spns)
+        return {**observed,**keytab,"domain":domain,"trustVerified":True,"identityVerified":True}
+
+
+def ad_configuration(domain,workgroup,netbios,existing_smb,dns_servers):
+    """Pure validated domain config; existing shares and private passdb settings remain."""
+    domain=domain_name(domain)
+    if not isinstance(workgroup,str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{0,14}",workgroup):raise ValueError("AD workgroup is invalid")
+    if not isinstance(netbios,str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{0,14}",netbios):raise ValueError("AD NetBIOS name is invalid")
+    dns=dns_addresses(dns_servers)
+    if not dns:raise ValueError("AD join requires explicit validated DNS server addresses")
+    if not isinstance(existing_smb,str) or len(existing_smb)>8*1024*1024:raise ValueError("AD source Samba config is invalid")
+    sections=[];global_lines=[];current=None
+    owned={'workgroup','realm','security','kerberos method','netbios name','winbind use default domain','winbind enum users','winbind enum groups','idmap config * : backend','idmap config * : range'}
+    for line in existing_smb.splitlines():
+        matched=re.fullmatch(r"\s*\[([^\]]+)\]\s*",line)
+        if matched:current=matched[1].lower()
+        if current=='global':
+            if matched:continue
+            if '=' in line and (line.split('=',1)[0].strip().lower() in owned or line.split('=',1)[0].strip().lower().startswith('idmap config '+workgroup.lower()+' :')):continue
+            global_lines.append(line)
+        elif current is not None:sections.append(line)
+        elif line.strip() and not line.lstrip().startswith(('#',';')):raise ValueError("AD Samba source has content before a section")
+    lines=['[global]',*global_lines,'   workgroup = '+workgroup.upper(),'   realm = '+domain.upper(),'   security = ADS',
+           '   kerberos method = secrets and keytab','   netbios name = '+netbios.upper(),'   winbind use default domain = no',
+           '   winbind enum users = no','   winbind enum groups = no','   idmap config * : backend = tdb','   idmap config * : range = 10000-999999']
+    krb='[libdefaults]\n default_realm = '+domain.upper()+'\n dns_lookup_realm = false\n dns_lookup_kdc = true\n rdns = false\n'
+    resolver='search '+domain+'\n'+''.join('nameserver '+address+'\n' for address in dns)
+    return {'smbConfiguration':'\n'.join([*lines,*sections])+'\n','kerberosConfiguration':krb,'resolverConfiguration':resolver,
+            'domain':domain,'realm':domain.upper(),'workgroup':workgroup.upper(),'netbiosName':netbios.upper(),'dnsServers':dns}
+
+def credential_command(arguments,username,password,domain,run=None,deadline=None):
+    """Samba auth file is a sealed memfd; no credential argv/disk/cache file."""
+    domain=domain_name(domain)
+    if not isinstance(username,str) or not re.fullmatch(r"[A-Za-z0-9_.@\\-]{1,256}",username) or any(ord(char)<32 for char in username):
+        raise ValueError("AD join credential username is invalid")
+    if not isinstance(password,str) or not password or len(password)>4096 or any(char in password for char in ("\n","\r","\0")):
+        raise ValueError("AD join credential password cannot be encoded in its protected transport")
+    until=deadline or time.monotonic()+120
+    remaining=until-time.monotonic()
+    if remaining<=0:raise TimeoutError("AD credential operation deadline expired")
+    descriptor=os.memfd_create("storage-ad-credentials",os.MFD_CLOEXEC|os.MFD_ALLOW_SEALING)
+    inherited=(9,) if os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD")=="9" else ()
+    try:
+        os.fchmod(descriptor,0o600)
+        encoded=("username = "+username+"\npassword = "+password+"\ndomain = "+domain+"\n").encode()
+        os.write(descriptor,encoded);os.lseek(descriptor,0,os.SEEK_SET)
+        fcntl.fcntl(descriptor,fcntl.F_ADD_SEALS,fcntl.F_SEAL_WRITE|fcntl.F_SEAL_GROW|fcntl.F_SEAL_SHRINK|fcntl.F_SEAL_SEAL)
+        command=[*arguments,"--authentication-file=/proc/self/fd/"+str(descriptor),"--use-kerberos=required","--use-krb5-ccache=MEMORY:ablestack-ad"]
+        result=(run or bounded_ad_run)(command,capture_output=True,text=True,timeout=min(120,remaining),pass_fds=(*inherited,descriptor))
+        if result.returncode:raise ValueError("Protected AD credential operation failed; private diagnostic omitted")
+        return {"success":True,"protectedCredentialTransport":True}
+    finally:os.close(descriptor)
+
+def idmap_policy(run=None,workgroup=None,deadline=None):
+    if not isinstance(workgroup,str) or not re.fullmatch(r"[A-Z0-9][A-Z0-9_-]{0,14}",workgroup):
+        raise ValueError("AD idmap workgroup is invalid")
+    until=deadline or time.monotonic()+10
+    def parameter(name):
+        remaining=until-time.monotonic()
+        if remaining<=0:raise TimeoutError("AD idmap probe deadline expired")
+        result=(run or bounded_ad_run)(["testparm","-s","--parameter-name="+name],capture_output=True,text=True,timeout=min(3,remaining))
+        if result.returncode:raise ValueError("AD idmap parameter is unavailable")
+        return result.stdout.strip()
+    result={}
+    for label,scope in (("default","*"),("domain",workgroup)):
+        backend=parameter("idmap config "+scope+" : backend")
+        if backend not in ("tdb","rid"):raise ValueError("AD idmap backend cannot be preserved by this runtime")
+        value=parameter("idmap config "+scope+" : range")
+        match=re.fullmatch(r"([0-9]+)\s*-\s*([0-9]+)",value)
+        if not match or not 1000<=int(match[1])<=int(match[2])<=2147483647 or int(match[1])<=65534<=int(match[2]):
+            raise ValueError("AD idmap range overlaps a protected numeric identity")
+        result[label]={"backend":backend,"range":[int(match[1]),int(match[2])]}
+        if backend=="rid":
+            base=parameter("idmap config "+scope+" : base_rid") or "0"
+            if not base.isdigit() or int(base)>2147483647:raise ValueError("AD RID base is invalid")
+            result[label]["baseRid"]=int(base)
+    low,high=result["default"]["range"];other_low,other_high=result["domain"]["range"]
+    if max(low,other_low)<=min(high,other_high):raise ValueError("AD domain/default idmap ranges overlap")
+    return result
+
+
+def collect_joined_ad_identity(domain_state,run=None,deadline=None):
+    if not isinstance(domain_state,dict) or str(domain_state.get("joinState") or domain_state.get("state") or "").upper()!="JOINED":
+        raise ValueError("AD source is not a protected joined identity")
+    config=domain_state.get("config") or {};domain=domain_name(domain_state.get("domainName"))
+    workgroup=str(domain_state.get("workgroup") or config.get("workgroup") or "").upper()
+    netbios=str(domain_state.get("netbiosName") or config.get("netbiosName") or "").upper()
+    if any(not re.fullmatch(r"[A-Z0-9][A-Z0-9_-]{0,14}",item) for item in (workgroup,netbios)):
+        raise ValueError("AD joined source lacks its exact machine/workgroup identity")
+    required=domain_state.get("servicePrincipals")
+    if not isinstance(required,list) or not required or len(required)>128:
+        raise ValueError("AD source lacks its verified explicit CIFS/HOST aliases")
+    until=deadline or time.monotonic()+30
+    probe=AdIdentityProbe(run,until).verify(domain,required)
+    mapping=idmap_policy(run,workgroup,until)
+    return {"schemaVersion":1,"domain":domain,"realm":domain.upper(),"workgroup":workgroup,"netbiosName":netbios,
+            "machineSid":probe["machineSid"],"domainSid":probe["domainSid"],"servicePrincipals":probe["servicePrincipals"],
+            "trustVerified":True,"idmapPolicy":mapping}
+
+
+def ad_protected_json(path,optional=False):
+    path=Path(path)
+    if optional and not path.exists() and not path.is_symlink():return None
+    for parent in (path.parent,path):
+        info=parent.lstat()
+        if info.st_uid!=os.geteuid() or info.st_mode&0o022:raise ValueError("AD metadata is not protected")
+        if parent==path and (not stat.S_ISREG(info.st_mode) or info.st_size>1024*1024):raise ValueError("AD metadata is not a bounded regular file")
+        if parent!=path and not stat.S_ISDIR(info.st_mode):raise ValueError("AD metadata directory is not regular")
+    descriptor=os.open(path,os.O_RDONLY|os.O_NOFOLLOW)
+    try:
+        opened=os.fstat(descriptor)
+        if (opened.st_dev,opened.st_ino,opened.st_size)!=(info.st_dev,info.st_ino,info.st_size):raise ValueError("AD metadata changed while opening")
+        return json.loads(os.read(descriptor,1024*1024+1))
+    finally:os.close(descriptor)
+
+
+def machine_account_sid(output,domain_sid):
+    match=re.fullmatch(r"(S-1-5(?:-[0-9]{1,10}){3,15})\s+SID_USER\s+\(1\)",output.strip())
+    if not match or not match[1].startswith(sid(domain_sid)+"-"):raise ValueError("AD computer account SID belongs to another domain/type")
+    return sid(match[1])
+
+
+def dns_aliases(value,domain):
+    if not isinstance(value,list) or not value or len(value)>64:raise ValueError("AD identity lacks its exact DNS aliases")
+    result=[];seen=set()
+    for row in value:
+        if not isinstance(row,dict) or set(row)!={"hostname","addresses"}:raise ValueError("AD DNS alias has unknown fields")
+        hostname=domain_name(row["hostname"])
+        if not hostname.endswith("."+domain_name(domain)) or hostname in seen:raise ValueError("AD DNS alias is foreign or duplicated")
+        addresses=dns_addresses(row["addresses"])
+        if not addresses or any(ipaddress.ip_address(item).version!=4 for item in addresses):raise ValueError("AD DNS alias lacks exact supported IPv4 endpoints")
+        result.append({"hostname":hostname,"addresses":sorted(addresses)});seen.add(hostname)
+    return sorted(result,key=lambda row:row["hostname"])
+
+
+class AdIdentityRpc:
+    def __init__(self,run=None,configuration=None,generation=None,clock=None):
+        self.run=run or bounded_ad_run;self.deadline=time.monotonic()+45
+        self.configuration=Path(configuration or os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_ROOT","/etc/ablestack-storage"))
+        self.generations=Path(generation or os.environ.get("ABLESTACK_STORAGE_GENERATION_DIR","/var/lib/ablestack-storage/config-generations"))
+        self.clock=clock or time.time
+
+    def scope(self,request):
+        scope={key:str(uuid.UUID(request[key])) for key in ("instanceUuid","operationUuid")}
+        if type(request.get("revision")) is not int or request["revision"]<1:raise ValueError("AD RPC revision is invalid")
+        scope["revision"]=request["revision"]
+        current=ad_protected_json(self.generations/"current.json")
+        pending=ad_protected_json(self.generations/"pending.json",True)
+        if current.get("instanceUuid")!=scope["instanceUuid"] or type(current.get("revision")) is not int or current["revision"]>scope["revision"]:
+            raise ValueError("AD RPC native instance/revision differs")
+        if pending and any(pending.get(key)!=value for key,value in scope.items()):raise ValueError("Foreign pending generation blocks AD attestation")
+        return scope
+
+    def command(self,args):
+        remaining=self.deadline-time.monotonic()
+        if remaining<=0:raise TimeoutError("AD RPC total deadline expired")
+        result=self.run(args,capture_output=True,text=True,timeout=min(5,remaining))
+        if result.returncode:raise ValueError("AD public identity attestation is unavailable")
+        return result.stdout.strip()
+
+    def inspect(self,request):
+        scope=self.scope(request);state=ad_protected_json(self.configuration/"smb-domain.json",True)
+        if state is None or str(state.get("joinState") or state.get("state") or "").upper()!="JOINED":
+            return {"success":True,"scope":scope,"sideEffects":False,"joinState":"NOT_JOINED","trustVerified":False,"identityVerified":False,"adIdentity":False}
+        config=state.get("config") or {};domain=domain_name(state.get("domainName"));realm=domain.upper()
+        workgroup=str(state.get("workgroup") or config.get("workgroup") or "").upper()
+        netbios=str(state.get("netbiosName") or config.get("netbiosName") or "").upper()
+        if any(not re.fullmatch(r"[A-Z0-9][A-Z0-9_-]{0,14}",item) for item in (workgroup,netbios)):raise ValueError("AD joined state lacks its exact workgroup/machine name")
+        required=state.get("servicePrincipals")
+        if not isinstance(required,list) or not required:raise ValueError("AD joined state lacks its explicit service principals")
+        aliases=dns_aliases(state.get("dnsAliases"),domain)
+        expected=state.get("identityReceipt")
+        if not isinstance(expected,dict) or set(expected)!={"machineSid","domainSid","machineAccountSid"}:raise ValueError("AD joined state lacks its protected SID receipt")
+        observed=AdIdentityProbe(self.run,self.deadline).verify(domain,required,{key:expected[key] for key in ("machineSid","domainSid")})
+        account=machine_account_sid(self.command(["wbinfo","--name-to-sid",workgroup+chr(92)+netbios+"$"]),observed["domainSid"])
+        if account!=expected["machineAccountSid"]:raise ValueError("AD computer account differs from the protected joined receipt")
+        listed=self.command(["net","ads","setspn","list","--machine-pass"])
+        spns={line.strip().lower() for line in listed.splitlines() if line.strip().lower().startswith(("cifs/","host/"))}
+        if not {service_principal(item,domain) for item in required}<=spns:raise ValueError("AD computer account lacks its required exact SPNs")
+        servers=dns_addresses(state.get("dnsServers") or config.get("dnsServers"))
+        if not servers:raise ValueError("AD joined state lacks its validated DNS servers")
+        for alias in aliases:
+            for server in servers:
+                output=self.command(["dig","+short","+time=2","+tries=1","A",alias["hostname"],"@"+server])
+                actual=sorted({str(ipaddress.IPv4Address(line)) for line in output.splitlines() if line.strip()})
+                if actual!=alias["addresses"]:raise ValueError("AD DNS alias resolution differs from its exact endpoints")
+        mapping=idmap_policy(self.run,workgroup,self.deadline)
+        if state.get("idmapPolicy")!=mapping:raise ValueError("AD idmap policy differs from its protected joined receipt")
+        if request.get("expectedRealm") not in (None,realm) or request.get("expectedDomainSid") not in (None,observed["domainSid"]):raise ValueError("AD caller realm/domain SID differs")
+        return {"success":True,"scope":scope,"sideEffects":False,"joinState":"JOINED","domain":domain,"realm":realm,"workgroup":workgroup,"netbiosName":netbios,
+                **observed,"machineAccountSid":account,"dnsAliases":aliases,"dnsAliasesVerified":True,"adSpnsVerified":True,"idmapPolicy":mapping,
+                "bootId":Path("/proc/sys/kernel/random/boot_id").read_text().strip(),"generatedEpoch":self.clock(),"adIdentity":True}
+
+    def resolve(self,request):
+        if not request.get("expectedRealm") or not request.get("expectedDomainSid"):raise ValueError("AD mapping requires pinned realm and domain SID")
+        joined=self.inspect(request)
+        if joined.get("joinState")!="JOINED" or joined.get("identityVerified") is not True:raise ValueError("AD mapping requires a freshly verified joined identity")
+        kind=request.get("principalType");resolved=resolve_ad_principal(kind,request.get("principal"),joined["domain"],joined["workgroup"],self.run,self.deadline,joined["domainSid"])
+        return {"success":True,"scope":joined["scope"],"sideEffects":False,"qualifiedName":resolved["principal"],"sid":resolved["sid"],
+                "principalType":kind,"sidType":resolved["sidType"],"sidTypeName":resolved["sidTypeName"],"numericId":resolved["numericId"],"kind":resolved["kind"],"mappingVerified":True,"reverseVerified":True,
+                **{key:joined[key] for key in ("domainSid","realm","workgroup","bootId","generatedEpoch")}}
+
+import sys
+try:
+    request=json.loads(os.fdopen(3).read() if sys.argv[3]=="/dev/stdin" else Path(sys.argv[3]).read_text())
+    handler=AdIdentityRpc()
+    if sys.argv[1:3]==["domain","inspect"]:result=handler.inspect(request)
+    elif sys.argv[1:3]==["principal","resolve"]:result=handler.resolve(request)
+    else:raise ValueError("Unsupported AD readonly RPC")
+    print(json.dumps(result,sort_keys=True))
+except (ValueError,KeyError,TypeError,OSError,TimeoutError):
+    print(json.dumps({"success":False,"sideEffects":False,"errorCode":"AD_IDENTITY_ATTESTATION_REJECTED","trustVerified":False,"identityVerified":False}))
+    raise SystemExit(1)
+PYADIDENTITY
 }
 
 smb_endpoint_run() {
@@ -10436,7 +11580,7 @@ PYSMBENDPOINT
 
 maintenance_command() {
   python3 - "$1" "${2:-}" "$0" "${3:-}" <<'PYMAINTENANCE'
-"""Persistent same-row ROOT maintenance scopes; no credential material."""
+"""Persistent typed ROOT and approved SERVICE maintenance scopes; no credential material."""
 import json
 import os
 from pathlib import Path
@@ -10445,14 +11589,26 @@ import tempfile
 import uuid
 
 SCOPE_KEYS = ("instanceUuid", "templateUpgradeUuid", "operationUuid", "revision")
+SERVICE_SCOPE_KEYS = ("instanceUuid", "maintenanceUuid", "operationUuid", "revision")
 
-def scope(request):
-    result = {key: str(uuid.UUID(request[key])) for key in SCOPE_KEYS[:-1]}
+def scope(request,kind="ROOT"):
+    keys=SCOPE_KEYS if kind=="ROOT" else SERVICE_SCOPE_KEYS if kind=="SERVICE" else None
+    if keys is None or not isinstance(request,dict) or (set(request)&set(SCOPE_KEYS+SERVICE_SCOPE_KEYS))!=set(keys):
+        raise ValueError("Maintenance scope is mixed or unsupported")
+    result = {key: str(uuid.UUID(request[key])) for key in keys[:-1]}
     revision = request["revision"]
-    if isinstance(revision, bool) or not isinstance(revision, int) or revision < 1:
-        raise ValueError("Invalid ROOT maintenance revision")
+    if type(revision) is not int or revision < 1:
+        raise ValueError("Invalid maintenance revision")
     result["revision"] = revision
+    if kind=="SERVICE" and result["maintenanceUuid"]!=result["operationUuid"]:
+        raise ValueError("SERVICE maintenance must use its durable operation identity")
     return result
+
+def marker_kind(marker):
+    kind=marker.get("kind","ROOT")
+    if kind=="SERVICE" and (set(marker)!={"kind","scope","bootHeld"} or marker["bootHeld"] is not True):raise ValueError("SERVICE boot marker is not explicitly held")
+    scope(marker["scope"],kind)
+    return kind
 
 class Maintenance:
     def __init__(self, root=None, generation=None):
@@ -10511,47 +11667,284 @@ class Maintenance:
 
     def status(self):
         marker = self.read(self.marker)
-        value = scope(marker["scope"]) if marker is not None else None
-        return {"success": True, "maintenanceSupported": True, "bootHeld": marker is not None, "scope": value}
+        kind=marker_kind(marker) if marker is not None else None
+        value = scope(marker["scope"],kind) if marker is not None else None
+        return {"success": True, "maintenanceSupported": True, "serviceMaintenanceSupported":True, "maintenanceKind":kind, "bootHeld": marker is not None, "scope": value}
 
-    def enter(self, request):
-        desired = scope(request)
+    def enter(self, request, kind="ROOT"):
+        desired = scope(request,kind)
         marker = self.read(self.marker)
         previous = request.get("expectedPreviousScope")
         if marker is None:
             if previous is not None:
                 raise ValueError("Expected previous ROOT maintenance scope is absent")
         else:
-            actual = scope(marker["scope"])
+            actual_kind=marker_kind(marker)
+            actual = scope(marker["scope"],actual_kind)
+            if actual_kind!=kind:raise ValueError("Foreign maintenance kind is already held")
             if actual == desired:
                 return self.status()
-            if previous is None or scope(previous) != actual or any(actual[key] != desired[key] for key in ("instanceUuid", "templateUpgradeUuid")):
+            owner="templateUpgradeUuid" if kind=="ROOT" else "maintenanceUuid"
+            if previous is None or scope(previous,kind) != actual or any(actual[key] != desired[key] for key in ("instanceUuid", owner)):
                 raise ValueError("ROOT maintenance scope is foreign or changed")
             if desired["revision"] <= actual["revision"]:
                 raise ValueError("ROOT maintenance scope revision did not advance")
-        self.write(self.marker, {"scope": desired})
+        self.write(self.marker, {"kind":kind,"scope": desired,"bootHeld":True})
         return self.status()
 
-    def release(self, request):
-        desired = scope(request)
+    def release(self, request,kind="ROOT"):
+        desired = scope(request,kind)
         verified = request.get("verifiedGeneration")
         if not isinstance(verified, dict) or verified.get("instanceUuid") != desired["instanceUuid"]:
             raise ValueError("Verified ROOT maintenance generation scope is invalid")
         actual = self.generation()
         if actual.get("pendingOperationUuid") or actual.get("generation") != verified or actual.get("configurationSha256") != verified.get("configurationSha256") or actual.get("generationStatus") != "IN_SYNC":
             raise ValueError("ROOT maintenance release generation was not exactly verified")
+        reservation=Path(os.environ.get("ABLESTACK_STORAGE_RESERVATION_DIR","/var/lib/ablestack-storage/resource-reservation"))/"lease.json"
+        if reservation.exists() or reservation.is_symlink():
+            directory=reservation.parent.lstat()
+            if not stat.S_ISDIR(directory.st_mode) or directory.st_uid!=os.geteuid() or directory.st_mode&0o077:raise ValueError("Maintenance resource lease directory is not protected")
+            if self.read(reservation) is not None:raise ValueError("Resource lease must be released before its maintenance boot hold")
         marker = self.read(self.marker)
         receipt = self.read(self.receipt)
         if marker is None:
             if receipt != {"scope": desired, "verifiedGeneration": verified}:
                 raise ValueError("Released ROOT maintenance scope is unavailable or changed")
-            return {"success": True, "released": True, "bootHeld": False, "scope": desired}
-        if scope(marker["scope"]) != desired:
+            return {"success": True, "released": True, "bootHeld": False, "scope": desired,"maintenanceKind":kind}
+        if marker_kind(marker)!=kind or scope(marker["scope"],kind) != desired:
             raise ValueError("ROOT maintenance release scope changed")
         self.write(self.receipt, {"scope": desired, "verifiedGeneration": verified})
         self.marker.unlink()
         self.sync()
-        return {"success": True, "released": True, "bootHeld": False, "scope": desired}
+        return {"success": True, "released": True, "bootHeld": False, "scope": desired,"maintenanceKind":kind}
+"""Approved downtime boundary with durable typed scopes and owned acceptors."""
+import json
+import os
+from pathlib import Path
+import stat
+import uuid
+import ipaddress
+import re
+import signal
+import subprocess
+import time
+
+
+def service_run(arguments,timeout=15,pass_fds=()):
+    if not callable(getattr(os,"pidfd_open",None)) or not callable(getattr(signal,"pidfd_send_signal",None)):
+        raise ValueError("SERVICE maintenance requires exact child control")
+    inherited=(9,) if os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD")=="9" else ()
+    pass_fds=tuple(set((*pass_fds,*inherited)))
+    child=subprocess.Popen(arguments,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,text=True,pass_fds=pass_fds)
+    descriptor=None
+    try:
+        try:descriptor=os.pidfd_open(child.pid,0)
+        except ProcessLookupError:
+            if child.poll() is None:raise ValueError("Maintenance child identity is unavailable")
+        try:output,_=child.communicate(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            if descriptor is not None:
+                try:signal.pidfd_send_signal(descriptor,signal.SIGKILL,None,0)
+                except ProcessLookupError:pass
+            try:child.wait(timeout=.2)
+            except subprocess.TimeoutExpired:pass
+            raise TimeoutError("SERVICE maintenance command timed out; boot remains held")
+        if child.returncode or len(output)>8*1024*1024:raise ValueError("SERVICE maintenance command failed")
+        return output
+    finally:
+        if descriptor is not None:os.close(descriptor)
+        if child.stdout:child.stdout.close()
+
+
+class ServiceMaintenance:
+    def __init__(self,maintenance,cli,run=None,command=None,units=None):
+        self.maintenance=maintenance;self.cli=str(cli);self.run=run or service_run
+        self.command=command or self.native;self.units=units or self.owned_units
+        self.deadline=time.monotonic()+180
+        self.journal=maintenance.root/"service-maintenance.json"
+
+    def remaining(self):
+        remaining=self.deadline-time.monotonic()
+        if remaining<=0:raise TimeoutError("SERVICE maintenance total deadline exceeded")
+        return min(15,remaining)
+
+    def native(self,arguments,payload=None):
+        inherited=(9,) if os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD")=="9" else ()
+        descriptor=None
+        try:
+            if payload is not None:
+                import fcntl
+                descriptor=os.memfd_create("service-maintenance-request",os.MFD_CLOEXEC|os.MFD_ALLOW_SEALING);os.fchmod(descriptor,0o600)
+                os.write(descriptor,json.dumps(payload,allow_nan=False).encode());os.lseek(descriptor,0,os.SEEK_SET)
+                fcntl.fcntl(descriptor,fcntl.F_ADD_SEALS,fcntl.F_SEAL_WRITE|fcntl.F_SEAL_GROW|fcntl.F_SEAL_SHRINK|fcntl.F_SEAL_SEAL)
+                inherited=(*inherited,descriptor);arguments=(*arguments,"/proc/self/fd/"+str(descriptor))
+            result=json.loads(self.run([self.cli,*arguments],timeout=self.remaining(),pass_fds=inherited))
+            if result.get("success") is not True:raise ValueError("SERVICE native observation was not verified")
+            return result
+        finally:
+            if descriptor is not None:os.close(descriptor)
+
+    def fence(self,request):
+        desired=scope(request,"SERVICE");actual=self.maintenance.generation()
+        current=actual.get("generation") or {}
+        if current.get("instanceUuid")!=desired["instanceUuid"] or type(current.get("revision")) is not int or current["revision"]>desired["revision"]:
+            raise ValueError("SERVICE native generation scope is foreign or stale")
+        pending=actual.get("pendingOperationUuid")
+        if pending not in (None,desired["operationUuid"]):raise ValueError("Foreign generation blocks SERVICE maintenance")
+        directory=Path(os.environ.get("ABLESTACK_STORAGE_VOLUME_OPERATIONS","/var/lib/ablestack-storage/volume-operations"))
+        if directory.exists() or directory.is_symlink():
+            info=directory.lstat()
+            if not stat.S_ISDIR(info.st_mode) or info.st_uid!=os.geteuid() or info.st_mode&0o022:raise ValueError("Formatter journals are unprotected")
+            for path in sorted(directory.iterdir()):
+                if path.suffix!=".json":raise ValueError("Unknown formatter journal entry")
+                volume=str(uuid.UUID(path.stem));observed=self.command(("volume","operation","status"),{"volumeUuid":volume})
+                if (observed.get("formatterActive") is True or observed.get("terminationPending") is True
+                        or observed.get("status") not in ("COMPLETE","MOUNT_EXISTING","NOT_STARTED")):
+                    raise ValueError("Unresolved formatter blocks SERVICE maintenance")
+        return desired
+
+    def prove_unit(self,unit,require_active=True):
+        managed_nfs=re.fullmatch(r"ablestack-storage-ganesha@([A-Za-z0-9_.-]+)\.service",unit)
+        managed_smb=re.fullmatch(r"ablestack-storage-smb@([0-9a-f]{24})\.service",unit)
+        if not managed_nfs and not managed_smb:raise ValueError("SERVICE stop refuses a foreign or legacy acceptor")
+        output=self.run(["systemctl","show",unit,"--property=MainPID,ActiveState,SubState","--no-pager"],timeout=self.remaining())
+        value=dict(line.split("=",1) for line in output.splitlines() if "=" in line)
+        if value.get("ActiveState")!="active":
+            if require_active:raise ValueError("SERVICE acceptor is not active")
+            return None
+        pid=int(value.get("MainPID") or "0")
+        if pid<=0:raise ValueError("SERVICE acceptor has no exact main PID")
+        proc=Path("/proc")/str(pid);arguments=[os.fsdecode(item) for item in (proc/"cmdline").read_bytes().split(bytes([0])) if item]
+        executable_path=os.readlink(proc/"exe");executable=Path(executable_path).name
+        allowed={"/usr/bin/ganesha.nfsd","/opt/ablestack-ganesha/5.5.3/bin/ganesha.nfsd"} if managed_nfs else {"/usr/sbin/smbd"}
+        if executable_path not in allowed:raise ValueError("SERVICE executable is outside its packaged paths")
+        if managed_nfs:
+            configuration="/etc/ganesha/ablestack-storage/"+managed_nfs[1]+".conf"
+            if executable!="ganesha.nfsd" or arguments.count("-f")!=1 or arguments[arguments.index("-f")+1]!=configuration:raise ValueError("SERVICE NFS unit has a foreign executable/configuration")
+        else:
+            configuration="/etc/samba/smb.conf"
+            bindings=Path("/etc/ablestack-storage/smb-endpoint-listeners")/(managed_smb[1]+".json")
+            endpoint=self.maintenance.read(bindings)
+            if endpoint is None or executable!="smbd":raise ValueError("SERVICE SMB unit lacks a protected endpoint")
+            if not any(argument in ("--configfile="+configuration,configuration) for argument in arguments):raise ValueError("SERVICE SMB unit has a foreign configuration")
+        if "/"+unit not in (proc/"cgroup").read_text():raise ValueError("SERVICE main PID is outside its owned unit")
+        if managed_nfs:
+            real=Path(configuration).resolve(strict=True);info=real.lstat()
+            if not stat.S_ISREG(info.st_mode) or info.st_uid!=os.geteuid() or info.st_mode&0o022 or info.st_size>8*1024*1024:raise ValueError("SERVICE NFS configuration is not protected")
+            descriptor=os.open(real,os.O_RDONLY|os.O_NOFOLLOW)
+            try:
+                opened=os.fstat(descriptor)
+                if (opened.st_dev,opened.st_ino,opened.st_size)!=(info.st_dev,info.st_ino,info.st_size):raise ValueError("SERVICE NFS configuration changed")
+                content=os.read(descriptor,8*1024*1024+1).decode()
+            finally:os.close(descriptor)
+            addresses=re.findall(r"(?mi)^\s*Bind_Addr\s*=\s*([^;]+);",content);ports=re.findall(r"(?mi)^\s*NFS_Port\s*=\s*([0-9]+);",content)
+            if len(addresses)!=1 or len(ports)!=1:raise ValueError("SERVICE NFS listener configuration is ambiguous")
+            endpoints=[{"listenIp":str(ipaddress.ip_address(addresses[0].strip().strip(chr(34)))),"port":int(ports[0])}]
+        else:endpoints=[{"listenIp":str(ipaddress.ip_address(endpoint["listenIp"])),"port":int(endpoint["port"])}]
+        if any(not 1<=endpoint["port"]<=65535 for endpoint in endpoints):raise ValueError("SERVICE listener port is invalid")
+        return {"unit":unit,"pid":pid,"startTicks":(proc/"stat").read_text().rpartition(")")[2].split()[19],"configurationPath":configuration,"listenerEndpoints":endpoints}
+
+    def listeners_clear(self,owners):
+        endpoints=[endpoint for owner in owners for endpoint in owner.get("listenerEndpoints",[])]
+        if not endpoints:return
+        for arguments in (["ss","-H","-ltnp"],["ss","-H","-lunp"]):
+            output=self.run(arguments,timeout=self.remaining())
+            for line in output.splitlines():
+                fields=line.split()
+                if len(fields)<5:raise ValueError("SERVICE native listener readback is malformed")
+                address,separator,port=fields[3].rpartition(":")
+                if not separator or not port.isdigit():raise ValueError("SERVICE listener address readback is malformed")
+                address=address.strip("[]");address="0.0.0.0" if address=="*" else str(ipaddress.ip_address(address))
+                if any(int(port)==row["port"] and (address in ("0.0.0.0","::") or row["listenIp"] in (address,"0.0.0.0","::")) for row in endpoints):
+                    raise ValueError("SERVICE listener remains exposed after owned stop")
+
+    def owned_units(self):
+        output=self.run(["systemctl","list-units","--state=active","--type=service","--no-legend","--plain",
+                         "ablestack-storage-ganesha@*.service","ablestack-storage-smb@*.service",
+                         "smbd.service","nmbd.service","winbind.service","nfs-ganesha.service","nfs-server.service","nfs-kernel-server.service"],timeout=self.remaining())
+        names=[line.split()[0] for line in output.splitlines() if line.split()]
+        if len(names)!=len(set(names)):raise ValueError("SERVICE owned acceptor set is ambiguous")
+        return [self.prove_unit(unit) for unit in sorted(names)]
+
+    def status(self,request=None):
+        status=self.maintenance.status()
+        if request is not None and status["bootHeld"] and (status["maintenanceKind"]!="SERVICE" or status["scope"]!=scope(request,"SERVICE")):
+            raise ValueError("Foreign maintenance scope cannot be observed as this SERVICE operation")
+        journal=self.maintenance.read(self.journal)
+        if journal is not None and status["bootHeld"] and journal.get("scope")!=status["scope"]:raise ValueError("SERVICE journal scope differs from its boot hold")
+        return {**status,"serviceMaintenanceSupported":True,"drainSupported":False,"phase":journal.get("phase") if journal and status["bootHeld"] else None,
+                "stoppedUnits":journal.get("stoppedUnits",[]) if journal and status["bootHeld"] else []}
+
+    def enter(self,request):
+        desired=self.fence(request);status=self.maintenance.status()
+        if status["bootHeld"] and (status["maintenanceKind"]!="SERVICE" or status["scope"]!=desired):raise ValueError("Foreign boot hold blocks SERVICE entry")
+        journal=self.maintenance.read(self.journal)
+        if journal and journal.get("scope")==desired and journal.get("phase")=="HELD":return self.status(request)
+        owners=self.units() # Validate the entire ownership set before any marker/effect.
+        source_generation=self.maintenance.generation()
+        source_rendered=self.command(("operation","generation","render-status"))
+        if source_rendered.get("bootHeld") is True:raise ValueError("Interrupted rendered writer blocks SERVICE entry")
+        recovering=bool(journal and journal.get("scope")==desired and status.get("bootHeld") is True and status.get("maintenanceKind")=="SERVICE")
+        if not recovering:
+            source_current=source_generation.get("generation") or {};source_sha=source_generation.get("configurationSha256")
+            if (not isinstance(source_sha,str) or not re.fullmatch("[0-9a-f]{64}",source_sha)
+                    or source_current.get("configurationSha256")!=source_sha
+                    or source_generation.get("pendingOperationUuid") not in (None,desired["operationUuid"])):
+                raise ValueError("SERVICE source current/configuration digest drifted before entry")
+            baseline=source_rendered.get("current")
+            if baseline is None or (baseline.get("configurationSha256")!=source_sha
+                    or any(baseline.get("scope",{}).get(key)!=source_current.get(key) for key in ("instanceUuid","operationUuid","revision"))):
+                raise ValueError("SERVICE rendered baseline differs from its exact native source generation")
+
+        self.maintenance.enter(request,"SERVICE")
+        if not journal or journal.get("scope")!=desired:
+            journal={"scope":desired,"phase":"STOPPING","owners":owners,"stoppedUnits":[],"sourceGeneration":source_generation["generation"],"sourceRendered":source_rendered.get("current"),"sourceActivation":source_rendered.get("activation")}
+            self.maintenance.write(self.journal,journal)
+        try:
+            for owner in journal["owners"]:
+                unit=owner["unit"]
+                if unit in journal["stoppedUnits"]:continue
+                fresh=self.prove_unit(unit,False) if self.units==self.owned_units else next((row for row in self.units() if row["unit"]==unit),None)
+                if fresh is not None and fresh!=owner:raise ValueError("SERVICE acceptor identity changed before stop")
+                if fresh is not None:self.run(["systemctl","stop",unit],timeout=self.remaining())
+                journal["stoppedUnits"].append(unit);self.maintenance.write(self.journal,journal)
+            if self.units():raise ValueError("SERVICE acceptors remain active after owned stop")
+            self.listeners_clear(journal["owners"])
+            journal["phase"]="HELD";self.maintenance.write(self.journal,journal)
+            return self.status(request)
+        except Exception:
+            journal["phase"]="RECOVERY_REQUIRED";self.maintenance.write(self.journal,journal)
+            raise
+
+    def quiesce(self,request):
+        desired=self.fence(request);status=self.status(request)
+        if status.get("maintenanceKind")!="SERVICE" or status.get("bootHeld") is not True:raise ValueError("SERVICE quiesce requires its protected held scope")
+        domains=request.get("domains")
+        if not isinstance(domains,list) or not domains or len(set(domains))!=len(domains) or not set(domains)<={"NFS","SMB"}:raise ValueError("SERVICE quiesce domains are invalid")
+        def domain(unit):return "NFS" if unit.startswith("ablestack-storage-ganesha@") else "SMB"
+        owners=[owner for owner in self.units() if domain(owner["unit"]) in domains]
+        stopped=[]
+        for owner in owners:
+            fresh=self.prove_unit(owner["unit"],False) if self.units==self.owned_units else next((row for row in self.units() if row["unit"]==owner["unit"]),None)
+            if fresh!=owner:raise ValueError("SERVICE acceptor changed before inverse quiesce")
+            self.run(["systemctl","stop",owner["unit"]],timeout=self.remaining());stopped.append(owner["unit"])
+        if any(domain(owner["unit"]) in domains for owner in self.units()):raise ValueError("SERVICE inverse acceptors remain active")
+        self.listeners_clear(owners)
+        return {"success":True,"quiesced":True,"scope":desired,"bootHeld":True,"maintenanceKind":"SERVICE","domainsQuiesced":domains,"stoppedUnits":stopped,"drainSupported":False}
+
+    def release(self,request):
+        desired=self.fence(request);status=self.status(request)
+        if not status["bootHeld"]:return self.maintenance.release(request,"SERVICE")
+        journal=self.maintenance.read(self.journal)
+        if journal is None or journal.get("scope")!=desired:raise ValueError("SERVICE release lacks its protected owned-unit receipt")
+        # The coordinator must restore/apply current immutable runtime while the
+        # boot marker remains held. Native readback is fresh and all-four exact.
+        observed=self.command(("operation","generation","render-maintenance-verify"),request)
+        if observed.get("runtimeVerified") is not True or observed.get("scope")!=desired:
+            raise ValueError("SERVICE runtime was not freshly verified under its held scope")
+        result=self.maintenance.release(request,"SERVICE")
+        journal["phase"]="RELEASED";self.maintenance.write(self.journal,journal)
+        return {**result,"serviceMaintenanceSupported":True,"drainSupported":False,"runtimeVerified":True}
 import subprocess
 import sys
 
@@ -10564,10 +11957,19 @@ def native_generation():
 
 try:
     action = sys.argv[1]
-    request = json.loads(Path(sys.argv[2]).read_text()) if action != "status" else {}
+    request = json.loads(Path(sys.argv[2]).read_text()) if action not in ("status","service-capabilities") and sys.argv[2] else {}
     handler = Maintenance(generation=native_generation)
     if action == "status":
         result = handler.status()
+    elif action == "service-capabilities":
+        result={"success":True,"serviceMaintenanceSupported":True,"supportedFeatures":["SERVICE_MAINTENANCE"],"drainSupported":False}
+    elif action.startswith("service-"):
+        service=ServiceMaintenance(handler,sys.argv[3])
+        if action=="service-status":result=service.status(request or None)
+        elif action=="service-enter":result=service.enter(request)
+        elif action=="service-release":result=service.release(request)
+        elif action=="service-quiesce":result=service.quiesce(request)
+        else:raise ValueError("Unknown SERVICE maintenance action")
     elif action == "enter":
         result = handler.enter(request)
     elif action == "release":
@@ -10580,6 +11982,118 @@ except (ValueError, KeyError, OSError) as failure:
     print(json.dumps({"success": False, "errorCode": "ROOT_MAINTENANCE_REJECTED", "reason": str(failure)}))
     raise SystemExit(1)
 PYMAINTENANCE
+}
+
+root_network_bootstrap_command() {
+  python3 - "$payload" "$0" <<'PYROOTNETWORK'
+"""Fresh ROOT primary-network attestation; writes one canonical row, moves no network."""
+import ipaddress
+import json
+import os
+from pathlib import Path
+import re
+import stat
+import subprocess
+import tempfile
+import uuid
+
+
+class RootNetworkBootstrap:
+    def __init__(self,configuration=None,run=None):
+        self.configuration=Path(configuration or os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_ROOT","/etc/ablestack-storage"))
+        self.run=run or subprocess.run
+
+    def observe(self,arguments):
+        result=self.run(arguments,capture_output=True,text=True,timeout=5)
+        if result.returncode or len(result.stdout)>1024*1024:raise ValueError("ROOT primary network observation is unavailable")
+        return json.loads(result.stdout)
+
+    def apply(self,request,maintenance,generation,rendered):
+        keys={"instanceUuid","templateUpgradeUuid","operationUuid","revision"}
+        if not isinstance(request,dict) or set(request)!=keys|{"sharedfsNetwork","primaryBinding"}:raise ValueError("ROOT network bootstrap requires its exact public fields")
+        scope={key:str(uuid.UUID(request[key])) for key in keys-{"revision"}}
+        if type(request.get("revision")) is not int or request["revision"]<1:raise ValueError("ROOT network bootstrap revision is invalid")
+        scope["revision"]=request["revision"]
+        if (maintenance.get("maintenanceKind") not in (None,"ROOT") or maintenance.get("bootHeld") is not True or maintenance.get("scope")!=scope
+                or generation.get("generation") or generation.get("pendingOperationUuid") or rendered.get("current") is not None or rendered.get("bootHeld") is True):
+            raise ValueError("ROOT primary bootstrap is only available on its protected fresh target")
+        desired=generation.get("configurationDesiredState")
+        if not isinstance(desired,dict) or set(desired)!={"desired-state/nfs-export-apply.json","desired-state/smb-share-apply.json","iscsi-targets.json","nvmeof-subsystems.json","posix-directory-policies.json","network-endpoints.json","sharedfs-network.json"} or any(value is not None for name,value in desired.items() if name!="sharedfs-network.json"):
+            raise ValueError("ROOT primary bootstrap cannot seed protocols, aliases or POSIX state")
+        declaration=request.get("sharedfsNetwork");binding=request.get("primaryBinding")
+        if not isinstance(binding,dict) or set(binding)!={"macAddress","primaryIp","prefixlen","gateway"}:raise ValueError("ROOT bootstrap primary binding is incomplete")
+        mac=str(binding["macAddress"]).lower();primary=str(ipaddress.IPv4Address(binding["primaryIp"]));prefix=binding["prefixlen"]
+        if not re.fullmatch(r"[0-9a-f]{2}(?::[0-9a-f]{2}){5}",mac) or type(prefix) is not int or not 1<=prefix<=32:raise ValueError("ROOT primary binding MAC/prefix is invalid")
+        gateway=str(ipaddress.IPv4Address(binding["gateway"])) if binding["gateway"] is not None else None
+        if declaration is not None:
+            if not isinstance(declaration,dict) or set(declaration)-{"macAddress","ipAddress","cidr","gateway","dns1","dns2"} or not {"macAddress","ipAddress","cidr"}<=set(declaration):
+                raise ValueError("ROOT frozen primary declaration has unsupported fields")
+            network=ipaddress.IPv4Network(declaration["cidr"],strict=False)
+            if (str(declaration["macAddress"]).lower()!=mac or str(ipaddress.IPv4Address(declaration["ipAddress"]))!=primary or network.prefixlen!=prefix
+                    or ipaddress.IPv4Address(primary) not in network or declaration.get("gateway")!=gateway):raise ValueError("ROOT source declaration differs from its exact NIC binding")
+            if gateway is not None and ipaddress.IPv4Address(gateway) not in network:raise ValueError("ROOT gateway is outside its source subnet")
+        links=self.observe(["ip","-j","link","show"]);matches=[item for item in links if str(item.get("address","")).lower()==mac and item.get("ifname")!="lo"]
+        if len(matches)!=1:raise ValueError("ROOT primary MAC has no unique current interface")
+        interface=matches[0]["ifname"]
+        addresses=self.observe(["ip","-j","-4","addr","show","dev",interface,"scope","global"])
+        actual={(item.get("local"),item.get("prefixlen")) for row in addresses for item in row.get("addr_info",[]) if item.get("family")=="inet" and item.get("scope")=="global"}
+        if actual!={(primary,prefix)}:raise ValueError("ROOT target primary address/prefix differs; explicit VM bootstrap is required")
+        routes=self.observe(["ip","-j","-4","route","show","default"])
+        actual_routes=[item for item in routes if item.get("dev")==interface]
+        if (gateway is None and actual_routes) or (gateway is not None and (len(actual_routes)!=1 or actual_routes[0].get("gateway")!=gateway)):
+            raise ValueError("ROOT target default route differs from its exact source binding")
+        if declaration is not None:
+            dns=[str(ipaddress.IPv4Address(declaration[key])) for key in ("dns1","dns2") if declaration.get(key)]
+            if dns:
+                actual_dns=[]
+                for line in Path("/etc/resolv.conf").read_text().splitlines():
+                    fields=line.split()
+                    if len(fields)==2 and fields[0]=="nameserver":actual_dns.append(str(ipaddress.ip_address(fields[1])))
+                if actual_dns!=dns:raise ValueError("ROOT resolver differs from its frozen source declaration")
+        path=self.configuration/"sharedfs-network.json";written=False
+        if declaration is not None:
+            self.configuration.mkdir(parents=True,mode=0o700,exist_ok=True);parent=self.configuration.lstat()
+            if not stat.S_ISDIR(parent.st_mode) or parent.st_uid!=os.geteuid() or parent.st_mode&0o022:raise ValueError("ROOT bootstrap canonical directory is not protected")
+            existing=None
+            if path.exists() or path.is_symlink():
+                info=path.lstat()
+                if not stat.S_ISREG(info.st_mode) or info.st_uid!=os.geteuid() or stat.S_IMODE(info.st_mode)!=0o600:raise ValueError("ROOT bootstrap current primary row is not protected")
+                descriptor=os.open(path,os.O_RDONLY|os.O_NOFOLLOW)
+                try:
+                    opened=os.fstat(descriptor)
+                    if (opened.st_dev,opened.st_ino,opened.st_size)!=(info.st_dev,info.st_ino,info.st_size):raise ValueError("ROOT primary row changed while opening")
+                    existing=json.loads(os.read(descriptor,1024*1024))
+                finally:os.close(descriptor)
+            if existing!=declaration:
+                descriptor,temporary=tempfile.mkstemp(prefix=".root-primary-",dir=self.configuration)
+                try:
+                    os.fchmod(descriptor,0o600)
+                    with os.fdopen(descriptor,"w") as handle:json.dump(declaration,handle,sort_keys=True,allow_nan=False);handle.flush();os.fsync(handle.fileno())
+                    os.replace(temporary,path);directory=os.open(self.configuration,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
+                    try:os.fsync(directory)
+                    finally:os.close(directory)
+                    written=True
+                finally:
+                    if os.path.exists(temporary):os.unlink(temporary)
+        elif desired.get("sharedfs-network.json") is not None:raise ValueError("ROOT DHCP source cannot remove an existing static declaration")
+        return {"success":True,"scope":scope,"primaryBindingVerified":True,"sharedfsNetwork":declaration,"canonicalPrimaryWritten":written,
+                "networkChanged":False,"protocolDesiredStateChanged":False,"posixDesiredStateChanged":False,"interface":interface}
+
+import sys
+try:
+    request=json.loads(Path(sys.argv[1]).read_text())
+    def command(arguments):
+        inherited=(9,) if os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD")=="9" else ()
+        result=subprocess.run([sys.argv[2],*arguments],capture_output=True,text=True,timeout=10,pass_fds=inherited)
+        value=json.loads(result.stdout)
+        if result.returncode or value.get("success") is not True:raise ValueError("ROOT bootstrap native scope observation failed")
+        return value
+    result=RootNetworkBootstrap().apply(request,command(("operation","maintenance","status")),command(("operation","generation","status")),command(("operation","generation","render-status")))
+    print(json.dumps(result,sort_keys=True))
+except (ValueError,KeyError,TypeError,OSError):
+    print(json.dumps({"success":False,"errorCode":"ROOT_NETWORK_BOOTSTRAP_REJECTED","networkChanged":False}))
+    raise SystemExit(1)
+PYROOTNETWORK
 }
 
 root_data_inspect() {
@@ -11177,7 +12691,7 @@ class ResourceReservation:
         record=self.read(self.record)
         expired=self.expired(record) if record else False
         observed=dict(self.observe());observed.setdefault("generatedEpoch",self.clock()/1000)
-        return {"success":True,"reservationSupported":True,"drainSupported":False,"logicalReservationOnly":True,
+        return {"success":True,"reservationSupported":True,"supportedFeatures":["LOGICAL_RESOURCE_RESERVATION"],"drainSupported":False,"logicalReservationOnly":True,
                 "reservationAcquired":bool(record and not expired),"scope":record.get("scope") if record else None,
                 "leaseExpiresAt":record.get("leaseExpiresAt") if record else None,"expired":expired,
                 "observed":observed,"blockers":[]}
@@ -11217,7 +12731,7 @@ class ResourceReservation:
             if action=="release":
                 if not record or record["scope"]!=scope:raise ValueError("Logical reservation release scope is unavailable")
                 self.record.unlink();self.sync()
-                return {"success":True,"reservationSupported":True,"reservationAcquired":False,"scope":scope,"drainSupported":False,"logicalReservationOnly":True,"blockers":[]}
+                return {"success":True,"reservationSupported":True,"supportedFeatures":["LOGICAL_RESOURCE_RESERVATION"],"reservationAcquired":False,"scope":scope,"drainSupported":False,"logicalReservationOnly":True,"blockers":[]}
             if action not in ("acquire","renew"):raise ValueError("Unknown fixed logical reservation action")
             if action=="renew" and (not record or self.expired(record)):raise ValueError("Logical reservation renewal lease expired")
             requirements=self.requirements(request) if action=="acquire" else record["requirements"]
@@ -11227,7 +12741,7 @@ class ResourceReservation:
             if observed["stagingFreeBytes"]<requirements["stagingRequiredBytes"]:blockers.append("STAGING_HEADROOM")
             if observed["loadPerCpu"]>requirements["maxLoadPerCpu"]:blockers.append("LOAD_HEADROOM")
             if requirements["requireSessionDrain"]:blockers.append("DRAIN_NOT_IMPLEMENTED")
-            if blockers:return {"success":False,"reservationSupported":True,"reservationAcquired":False,"scope":scope,"observed":observed,"blockers":blockers,"drainSupported":False,"logicalReservationOnly":True}
+            if blockers:return {"success":False,"reservationSupported":True,"supportedFeatures":["LOGICAL_RESOURCE_RESERVATION"],"reservationAcquired":False,"scope":scope,"observed":observed,"blockers":blockers,"drainSupported":False,"logicalReservationOnly":True}
             self.write({"scope":scope,"maintenanceScope":root_scope,"requirements":requirements,"bootId":self.boot_id,"leaseExpiresAt":self.clock()+duration*1000,"observed":observed})
             return self.status()
         finally:os.close(descriptor)
@@ -11749,7 +13263,9 @@ class RenderedGeneration:
     def status(self):
         manifest = self.inspect(self.pointer())
         journal = self.read_journal()
-        return {"success": True, "current": manifest, "activation": journal,
+        return {"success": True, "renderedGenerationSupported": True, "renderedGenerationSchemaVersion": 1,
+                "fullFourProtocolActivationSupported": False, "supportedFeatures": ["RENDERED_CONFIG_GENERATION_HANDLER"],
+                "current": manifest, "activation": journal,
                 "bootHeld": bool(journal and journal["phase"] not in ("COMPLETE", "ROLLED_BACK"))}
 
     def stage(self, request, files, validator):
@@ -12911,7 +14427,7 @@ class RenderedNetwork:
         status=self.runtime.command(("operation","maintenance","status"))
         actual=status.get("scope")
         proof=json.loads(rendered_read(Path("/run/ablestack-storage/rendered-authorization/writer.json"))) if require_writer else None
-        if (status.get("bootHeld") is not True or not isinstance(actual,dict) or set(actual)!={"instanceUuid","templateUpgradeUuid","operationUuid","revision"}
+        if (status.get("bootHeld") is not True or not isinstance(actual,dict) or (set(actual)!={"instanceUuid","templateUpgradeUuid","operationUuid","revision"} and not (status.get("maintenanceKind")=="SERVICE" and set(actual)=={"instanceUuid","maintenanceUuid","operationUuid","revision"} and actual["maintenanceUuid"]==actual["operationUuid"]))
                 or (require_writer and (proof.get("maintenanceScope")!=actual or proof.get("scope")!=scope))
                 or any(actual.get(key)!=value for key,value in scope.items())):
             raise ValueError("Network transition requires the exact approved Root maintenance scope")
@@ -13019,12 +14535,12 @@ class RenderedPrerequisites:
     def __init__(self, runtime,store=None):
         self.runtime=runtime;self.network=RenderedNetwork(runtime,store) if store else None
 
-    def snapshot(self, source, target, expected_bindings):
+    def snapshot(self, source, target, expected_bindings,root_transfer=None):
         if source["sharedfs-network.json"] != target["sharedfs-network.json"]:
             raise ValueError("Primary network transitions require their explicit maintenance plan")
         before = source["posix-directory-policies.json"] or {}
         after = target["posix-directory-policies.json"] or {}
-        snapshots = {}
+        snapshots = {};plans = {}
         for key in sorted(set(before) | set(after)):
             if before.get(key) == after.get(key): continue
             row = after.get(key) or before[key]
@@ -13033,8 +14549,20 @@ class RenderedPrerequisites:
                 raise ValueError("Rendered common policy does not have its exact request UUID")
             inspected = self.runtime.command(("posix", "directory", "inspect"), request)
             expected = request.get("expectedDirectoryIdentity")
-            if expected is not None and expected != inspected["directoryIdentity"]:
-                raise ValueError("Directory changed since the explicit permission preview")
+            if key in after:
+                if root_transfer is not None:
+                    plan=self.runtime.command(("posix","directory","attest-plan"),{"canonicalPolicyRow":row,**root_transfer})
+                    if plan.get("transferOnly") is not True:raise ValueError("ROOT POSIX stage lacks its actual receipt-only transfer plan")
+                else:
+                    if expected != inspected["directoryIdentity"]:raise ValueError("Directory changed since the explicit permission preview")
+                    plan = self.runtime.command(("posix","directory","plan"),request)
+                if (plan.get("sideEffects") is not False or plan.get("postApplyReceiptRequired") is not True
+                        or plan.get("beforeDirectoryIdentity") != inspected["directoryIdentity"]
+                        or plan.get("configurationDesiredRow") != row):
+                    raise ValueError("Rendered directory proposal differs from its pure physical policy plan")
+                plans[key] = plan
+            elif (row.get("effective") or {}).get("directoryIdentity") != inspected["directoryIdentity"]:
+                raise ValueError("Removing a common policy requires its unchanged committed physical inode")
             configured_fs = request.get("expectedFilesystemUuid") or (row.get("effective") or {}).get("filesystemUuid")
             if not configured_fs or configured_fs != inspected["filesystemUuid"]:
                 raise ValueError("Rendered policy lacks its exact previously inspected filesystem")
@@ -13044,7 +14572,7 @@ class RenderedPrerequisites:
         proof = self.runtime.command(("network", "endpoints", "inspect"), {**endpoints, "expectedBindings": expected_bindings})
         if proof.get("sideEffects") is not False or proof.get("bindingsValidated") is not True:
             raise ValueError("Pure network prerequisite proof is unavailable")
-        return {"schemaVersion": 1, "directories": snapshots, "expectedBindings": expected_bindings, "networkProof": proof}
+        return {"schemaVersion": 1, "directories": snapshots, "directoryPlans":plans, "expectedBindings": expected_bindings, "networkProof": proof}
 
     def apply(self, path, previous, rollback=False):
         target = json.loads(rendered_read(path / "desired-state.json"))
@@ -13056,13 +14584,28 @@ class RenderedPrerequisites:
         after = target["posix-directory-policies.json"] or {}
         for key in sorted(receipt["directories"]):
             snapshot = receipt["directories"][key]
+            staged=(receipt.get("directoryPlans") or {}).get(key)
+            if staged and staged.get("transferOnly") is True:
+                if not rollback:
+                    row=after[key]
+                    fresh=self.runtime.command(("posix","directory","attest-plan"),{"canonicalPolicyRow":row,"rootScope":staged["rootScope"],"sourceConfigurationSha256":staged["sourceConfigurationSha256"]})
+                    if fresh!=staged:raise ValueError("ROOT POSIX physical identity changed before transferred activation")
+                # Receipt transfer changed no inode metadata; rollback has no DATA inverse.
+                continue
             if rollback:
                 self.runtime.command(("posix", "directory", "restore"), snapshot)
             elif key not in after:
                 self.runtime.command(("posix", "directory", "forget"), snapshot)
             else:
-                request = dict(after[key]["request"], expectedDirectoryIdentity=snapshot["directoryIdentity"])
-                self.runtime.command(("posix", "directory", "apply"), request)
+                request = after[key]["request"]
+                staged = (receipt.get("directoryPlans") or {}).get(key)
+                fresh = self.runtime.command(("posix","directory","plan"),request)
+                if not staged or fresh != staged:
+                    raise ValueError("Directory physical plan changed before rendered activation")
+                applied = self.runtime.command(("posix", "directory", "apply"), request)
+                if (applied.get("postApplyReceiptVerified") is not True
+                        or applied.get("directoryIdentity") != staged["predictedDirectoryIdentity"]):
+                    raise ValueError("Rendered directory result differs from its staged physical plan")
         return True
 
     def verify(self,path):
@@ -13071,6 +14614,7 @@ class RenderedPrerequisites:
             request=row["request"];config=row.get("config") or request.get("config") or {}
             observed=self.runtime.command(("posix","directory","inspect"),request)
             expected_fs=request.get("expectedFilesystemUuid") or (row.get("effective") or {}).get("filesystemUuid")
+            if observed.get("postApplyReceiptVerified") is not True:raise ValueError("Rendered common policy lacks its fresh exact post-apply attestation")
             if observed["filesystemUuid"]!=expected_fs or observed["effectiveMode"]!=format(int(str(config.get("directoryMode") or "0770"),8),"04o"):
                 raise ValueError("Rendered common policy filesystem/mode readback differs")
             if config.get("applyOwner") and (observed["effectiveUid"],observed["effectiveGid"])!=(config["ownerUid"],config["ownerGid"]):
@@ -13222,7 +14766,14 @@ class RenderedDriver:
                     raise ValueError("Rendered network binding receipt is not protected")
                 expected = json.loads(path.read_text())["expectedBindings"]
             else: expected = []
-        files["prerequisites.json"] = json.dumps(self.prerequisites.snapshot(source, desired, expected), sort_keys=True)
+        root_transfer=None;initial=self.store.read_journal() or {};root_scope=initial.get("initialRootScope")
+        if root_scope is not None and source["posix-directory-policies.json"]!=desired["posix-directory-policies.json"]:
+            maintenance=self.runtime.command(("operation","maintenance","status"))
+            if (maintenance.get("bootHeld") is not True or maintenance.get("scope")!=root_scope
+                    or any(root_scope.get(key)!=value for key,value in self.active_scope.items())):
+                raise ValueError("ROOT POSIX staging lacks its original protected empty baseline scope")
+            root_transfer={"rootScope":root_scope,"sourceConfigurationSha256":hashlib.sha256(json.dumps(desired,sort_keys=True,separators=(",",":"),allow_nan=False).encode()).hexdigest()}
+        files["prerequisites.json"] = json.dumps(self.prerequisites.snapshot(source, desired, expected,root_transfer), sort_keys=True)
         return files
 
     def retain_legacy_nfs_baseline(self,files):
@@ -13327,13 +14878,13 @@ class RenderedDriver:
         # Decrypt the authenticated, scope-bound capsule inside this heap. Only
         # fixed reviewed codec definitions from signed CLI source are loaded.
         source = Path(self.runtime.cli).read_text().split("<<'PYIDENTITY'\n", 1)[1].split("\nPYIDENTITY", 1)[0]
-        allowed = {"decrypt", "validate_payload", "account_merge", "validate_host_nqn", "merge_nvme_identity_payload"}
+        allowed = {"decrypt", "validate_payload", "account_merge", "validate_host_nqn", "merge_nvme_identity_payload","validate_ad_identity","validate_posix_transfers","posix_row_sha256","capsule_validate_posix"}
         tree = ast.parse(source)
         definitions = [item for item in tree.body if isinstance(item, ast.FunctionDef) and item.name in allowed]
         if {item.name for item in definitions} != allowed: raise ValueError("Signed identity codec differs from the fixed contract")
-        namespace = {"base64": base64, "hashlib": hashlib, "os": os, "re": re}
+        namespace = {"base64": base64, "hashlib": hashlib, "os": os, "re": re, "json":json, "uuid":uuid}
         for item in tree.body:
-            if isinstance(item, ast.Assign) and len(item.targets) == 1 and isinstance(item.targets[0], ast.Name) and item.targets[0].id in ("MAX_CAPSULE_BYTES", "FILES", "ACCOUNT_FILES"):
+            if isinstance(item, ast.Assign) and len(item.targets) == 1 and isinstance(item.targets[0], ast.Name) and item.targets[0].id in ("MAX_CAPSULE_BYTES", "FILES", "AD_FILES", "PUBLIC_IDENTITY_FILES", "ACCOUNT_FILES", "POSIX_TRANSFER_KEYS"):
                 namespace[item.targets[0].id] = ast.literal_eval(item.value)
         exec(compile(ast.Module(body=definitions, type_ignores=[]), self.runtime.cli, "exec"), namespace)
         capsule_scope = saved["scope"]["instanceUuid"] + ":" + saved["scope"]["operationUuid"]
@@ -13390,15 +14941,37 @@ class RenderedDriver:
         if proof.get("bindingReceiptVerified") is not True or proof.get("bindingReceiptDesiredStateSha256")!=proof.get("desiredStateSha256"):
             raise ValueError("Canonical rendered network receipt did not verify after desired normalization")
 
+    def service_source(self,request):
+        expected={key:request[key] for key in ("instanceUuid","maintenanceUuid","operationUuid","revision")}
+        if type(expected["revision"]) is not int or expected["revision"]<1:raise ValueError("SERVICE source revision is invalid")
+        for key in ("instanceUuid","maintenanceUuid","operationUuid"):expected[key]=str(uuid.UUID(expected[key]))
+        maintenance=self.runtime.command(("operation","maintenance","status"))
+        if (expected["maintenanceUuid"]!=expected["operationUuid"] or maintenance.get("maintenanceKind")!="SERVICE"
+                or maintenance.get("bootHeld") is not True or maintenance.get("scope")!=expected):raise ValueError("SERVICE source recovery lacks its exact held scope")
+        checkpoint_path=Path(os.environ.get("ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR","/var/lib/ablestack-storage"))/"service-maintenance.json"
+        checkpoint=json.loads(rendered_read(checkpoint_path));status=self.store.status();actual=self.generation()
+        if (checkpoint.get("scope")!=expected or checkpoint.get("phase") not in ("HELD","RECOVERY_REQUIRED")
+                or not checkpoint.get("sourceRendered") or status.get("current")!=checkpoint["sourceRendered"]
+                or actual.get("generation")!=checkpoint.get("sourceGeneration") or actual.get("pendingOperationUuid")
+                or actual.get("generationStatus")!="IN_SYNC" or actual.get("configurationSha256")!=checkpoint["sourceGeneration"].get("configurationSha256")):
+            raise ValueError("SERVICE source recovery differs from its protected pre-activation snapshot")
+        return expected,checkpoint_path,checkpoint,status
+
     def boot_authorized(self, unit, maintenance):
         if not isinstance(unit, str): return False
         root = Path("/run/ablestack-storage/rendered-authorization")
         try:
             proof = json.loads(rendered_read(root / "writer.json"))
             status = self.store.status(); journal = status["activation"]
-            if (maintenance.get("scope") != proof.get("maintenanceScope") or not journal or journal["scope"] != proof["scope"] or journal["phase"] not in ("ACTIVATING", "ROLLING_BACK", "VERIFIED")
-                    or proof["bootId"] != Path("/proc/sys/kernel/random/boot_id").read_text().strip() or unit not in proof["units"]):
+            if proof.get("mode")=="SERVICE_SOURCE_RESTORE":
+                expected,path,checkpoint,source_status=self.service_source(proof["maintenanceScope"])
+                if (checkpoint.get("sourceResumePhase") not in ("REPLAYING","VERIFIED") or source_status.get("activation")!=checkpoint.get("sourceActivation")
+                        or proof.get("sourceManifestSha256")!=checkpoint["sourceRendered"].get("manifestSha256")
+                        or any(expected.get(key)!=value for key,value in proof["scope"].items())):return False
+            elif not journal or journal["scope"] != proof["scope"] or journal["phase"] not in ("ACTIVATING", "ROLLING_BACK", "VERIFIED"):
                 return False
+            if (maintenance.get("scope") != proof.get("maintenanceScope")
+                    or proof["bootId"] != Path("/proc/sys/kernel/random/boot_id").read_text().strip() or unit not in proof["units"]):return False
             pid = str(int(proof["pid"]))
             ticks = Path("/proc/" + pid + "/stat").read_text().rpartition(")")[2].split()[19]
             if ticks != proof["startTicks"]: return False
@@ -13406,14 +14979,14 @@ class RenderedDriver:
             return (info.st_dev, info.st_ino, info.st_uid, stat.S_IMODE(info.st_mode)) == (proof["lockDevice"], proof["lockInode"], os.geteuid(), 0o600)
         except (OSError, KeyError, ValueError, IndexError): return False
 
-    def authorize_units(self, request):
+    def authorize_units(self, request,source_only=False):
         if os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD") != "9":
             raise ValueError("Rendered activation requires its inherited native writer lock")
         lock = os.fstat(9)
         if not stat.S_ISREG(lock.st_mode) or lock.st_uid != os.geteuid() or stat.S_IMODE(lock.st_mode) != 0o600:
             raise ValueError("Rendered activation lock is not protected")
         units = set()
-        paths = [self.store.pointer(), self.store.generations / self.store.scope(request)["operationUuid"]]
+        paths = [self.store.pointer()] if source_only else [self.store.pointer(), self.store.generations / self.store.scope(request)["operationUuid"]]
         for path in paths:
             if path is None: continue
             self.store.inspect(path)
@@ -13431,6 +15004,8 @@ class RenderedDriver:
         proof = {"scope": self.store.scope(request), "maintenanceScope": maintenance.get("scope"), "units": sorted(units), "pid": os.getpid(),
                  "startTicks": Path("/proc/self/stat").read_text().rpartition(")")[2].split()[19],
                  "bootId": Path("/proc/sys/kernel/random/boot_id").read_text().strip(), "lockDevice": lock.st_dev, "lockInode": lock.st_ino}
+        if source_only:
+            proof["mode"]="SERVICE_SOURCE_RESTORE";proof["sourceManifestSha256"]=self.store.inspect(self.store.pointer())["manifestSha256"]
         rendered_json(root / "writer.json", proof)
         return root / "writer.json"
 
@@ -13462,6 +15037,50 @@ class RenderedDriver:
 
     def execute(self, action, request=None, unit=None):
         if action == "render-status": return self.store.status()
+        if action=="render-maintenance-resume-source":
+            expected,checkpoint_path,checkpoint,status=self.service_source(request)
+            if status.get("activation")!=checkpoint.get("sourceActivation"):raise ValueError("SERVICE pre-activation resume cannot adopt a rendered activation")
+            units=checkpoint.get("stoppedUnits")
+            if not isinstance(units,list) or any(not isinstance(unit,str) or not re.fullmatch(r"ablestack-storage-(?:ganesha@[A-Za-z0-9_.-]+|smb@[0-9a-f]{24})\.service",unit) for unit in units):
+                raise ValueError("SERVICE source resume contains an unknown stopped acceptor")
+            domains=[domain for domain,prefix in (("NFS","ablestack-storage-ganesha@"),("SMB","ablestack-storage-smb@")) if any(unit.startswith(prefix) for unit in units)]
+            checkpoint["sourceResumePhase"]="REPLAYING";checkpoint["sourceResumeDomains"]=domains;rendered_json(checkpoint_path,checkpoint)
+            proof=self.authorize_units(request,source_only=True);self.runtime.credentials=request.get("transientCredentials") or {}
+            try:
+                for domain in domains:self.runtime.replay(self.store.pointer(),domain)
+                result=self.verify(self.store.pointer())
+                if not all(result.get(domain) is True for domain in DOMAINS):raise ValueError("SERVICE resumed source runtime failed all-four readback")
+                checkpoint["sourceResumePhase"]="VERIFIED";rendered_json(checkpoint_path,checkpoint)
+                return {"success":True,"scope":expected,"sourceUnchangedVerified":True,"runtimeVerified":True,"resumedDomains":domains,"blockTargetsPreserved":True,"generationAdvanced":False}
+            except Exception:
+                checkpoint["sourceResumePhase"]="RECOVERY_REQUIRED";rendered_json(checkpoint_path,checkpoint);raise
+            finally:proof.unlink(missing_ok=True);rendered_fsync(proof.parent)
+        if action == "render-maintenance-verify":
+            maintenance=self.runtime.command(("operation","maintenance","status"))
+            expected={key:request[key] for key in ("instanceUuid","maintenanceUuid","operationUuid","revision")}
+            if type(expected["revision"]) is not int or expected["revision"]<1:raise ValueError("SERVICE verification revision is invalid")
+            for key in ("instanceUuid","maintenanceUuid","operationUuid"):expected[key]=str(uuid.UUID(expected[key]))
+            if (expected["maintenanceUuid"]!=expected["operationUuid"] or maintenance.get("maintenanceKind")!="SERVICE"
+                    or maintenance.get("bootHeld") is not True or maintenance.get("scope")!=expected):
+                raise ValueError("SERVICE runtime verification lacks its exact held scope")
+            actual=self.generation();verified=request.get("verifiedGeneration")
+            if (not isinstance(verified,dict) or actual.get("generation")!=verified or actual.get("pendingOperationUuid")
+                    or actual.get("generationStatus")!="IN_SYNC" or actual.get("configurationSha256")!=verified.get("configurationSha256")):
+                raise ValueError("SERVICE committed generation was not exactly verified")
+            status=self.store.status();current=status["current"];activation=status.get("activation")
+            if status["bootHeld"] or current is None or current["configurationSha256"]!=actual["configurationSha256"]:
+                raise ValueError("SERVICE immutable current was not finalized")
+            forward=all(verified.get(key)==expected[key] and current["scope"].get(key)==expected[key] for key in ("instanceUuid","operationUuid","revision"))
+            source_unchanged=False
+            if not forward:
+                expected,checkpoint_path,checkpoint,source_status=self.service_source(request)
+                rollback=(activation and activation.get("phase")=="ROLLED_BACK" and all(activation.get("scope",{}).get(key)==expected[key] for key in ("instanceUuid","operationUuid","revision")))
+                source_unchanged=(source_status.get("activation")==checkpoint.get("sourceActivation") and checkpoint.get("sourceResumePhase")=="VERIFIED")
+                if not rollback and not source_unchanged:raise ValueError("SERVICE source was neither rolled back nor verified unchanged before activation")
+            result=self.verify(self.store.pointer())
+            if not all(result.get(domain) is True for domain in DOMAINS):raise ValueError("SERVICE all-four runtime verification failed")
+            return {"success":True,"scope":expected,"runtimeVerified":True,"protocols":result,"rollbackVerified":not forward and not source_unchanged,"sourceUnchangedVerified":source_unchanged,"activationOccurred":not source_unchanged,"sideEffects":False}
+
         if action in ("render-boot-gate", "render-boot"):
             status = self.store.status()
             maintenance = self.runtime.command(("operation", "maintenance", "status"))
@@ -13622,7 +15241,7 @@ fi
 
 # Keep the descriptor open through native child work, even if the management writer disappears.
 case "$command:$subcommand:$action" in
-  operation:reservation:acquire|operation:reservation:renew|operation:reservation:release|operation:reservation:status|volume:operation:capabilities|smb:identity:inspect|smb:endpoint-run:*|health:*|inventory:*|sessions:*|operation:verify:*|operation:observe:*|operation:resources:*|network:endpoints:inspect|operation:generation:render-boot-gate|operation:generation:render-status|operation:generation:status|operation:generation:frozen|posix:directory:inspect|operation:maintenance:status|operation:root-data:inspect|operation:writer-idle:*|volume:operation:status|nfs:idmapping:preflight|nfs:capabilities:*|identity:capsule:capabilities)
+  operation:reservation:acquire|operation:reservation:renew|operation:reservation:release|operation:reservation:status|volume:operation:capabilities|smb:identity:inspect|smb:endpoint-run:*|health:*|inventory:*|sessions:*|operation:verify:*|operation:observe:*|operation:resources:*|network:endpoints:inspect|operation:generation:render-boot-gate|operation:generation:render-status|operation:generation:render-maintenance-verify|operation:generation:status|operation:generation:frozen|posix:directory:inspect|posix:directory:plan|posix:directory:attest-plan|operation:maintenance:status|operation:maintenance:service-status|operation:maintenance:service-capabilities|operation:root-data:inspect|operation:writer-idle:*|volume:operation:status|nfs:idmapping:preflight|nfs:capabilities:*|identity:capsule:capabilities|identity:domain:inspect|identity:principal:resolve)
     ;;
   *)
     acquire_storage_writer_lock || exit $?
@@ -13641,6 +15260,10 @@ esac
 
 case "$command" in
   identity)
+    if [[ ( "$subcommand" == "domain" && "$action" == "inspect" ) || ( "$subcommand" == "principal" && "$action" == "resolve" ) ]]; then
+      identity_metadata_command
+      exit $?
+    fi
     if [[ "$subcommand" != "capsule" || ! -r "$payload" ]]; then
       emit_error "A readable identity capsule request is required."
       exit 2
@@ -13660,13 +15283,15 @@ case "$command" in
   operation)
     if [[ "$subcommand" == "generation" ]]; then
       case "$action" in
-        render-import|render-stage|render-activate|render-rollback|render-status|render-finalize|render-boot|render-boot-gate) rendered_generation_command ;;
+        render-import|render-stage|render-activate|render-rollback|render-status|render-finalize|render-boot|render-boot-gate|render-maintenance-verify|render-maintenance-resume-source) rendered_generation_command ;;
         *) configuration_generation ;;
       esac
     elif [[ "$subcommand" == "reservation" ]]; then
       resource_reservation_command
     elif [[ "$subcommand" == "maintenance" ]]; then
       maintenance_command "$action" "$payload"
+    elif [[ "$subcommand" == "root-network" && "$action" == "bootstrap" ]]; then
+      root_network_bootstrap_command
     elif [[ "$subcommand" == "root-data" && "$action" == "inspect" ]]; then
       root_data_inspect "$payload"
     elif [[ "$subcommand" == "quiesce" ]]; then
@@ -13679,6 +15304,10 @@ import sys
 import uuid
 
 request = json.loads(Path(sys.argv[1]).read_text())
+if "maintenanceUuid" in request:
+    result=subprocess.run([sys.argv[2],"operation","maintenance","service-quiesce",sys.argv[1]],capture_output=True,text=True,timeout=180,pass_fds=(9,))
+    print(result.stdout.strip());raise SystemExit(result.returncode)
+
 domains=request.get("domains",["NFS","SMB"])
 if not isinstance(domains,list) or not domains or len(set(domains))!=len(domains) or not set(domains)<={"NFS","SMB"}:raise ValueError("Quiesce domain scope is invalid")
 instance = str(uuid.UUID(request["instanceUuid"]))

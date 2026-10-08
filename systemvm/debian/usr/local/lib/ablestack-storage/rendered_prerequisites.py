@@ -26,12 +26,12 @@ class RenderedPrerequisites:
     def __init__(self, runtime,store=None):
         self.runtime=runtime;self.network=RenderedNetwork(runtime,store) if store else None
 
-    def snapshot(self, source, target, expected_bindings):
+    def snapshot(self, source, target, expected_bindings,root_transfer=None):
         if source["sharedfs-network.json"] != target["sharedfs-network.json"]:
             raise ValueError("Primary network transitions require their explicit maintenance plan")
         before = source["posix-directory-policies.json"] or {}
         after = target["posix-directory-policies.json"] or {}
-        snapshots = {}
+        snapshots = {};plans = {}
         for key in sorted(set(before) | set(after)):
             if before.get(key) == after.get(key): continue
             row = after.get(key) or before[key]
@@ -40,8 +40,20 @@ class RenderedPrerequisites:
                 raise ValueError("Rendered common policy does not have its exact request UUID")
             inspected = self.runtime.command(("posix", "directory", "inspect"), request)
             expected = request.get("expectedDirectoryIdentity")
-            if expected is not None and expected != inspected["directoryIdentity"]:
-                raise ValueError("Directory changed since the explicit permission preview")
+            if key in after:
+                if root_transfer is not None:
+                    plan=self.runtime.command(("posix","directory","attest-plan"),{"canonicalPolicyRow":row,**root_transfer})
+                    if plan.get("transferOnly") is not True:raise ValueError("ROOT POSIX stage lacks its actual receipt-only transfer plan")
+                else:
+                    if expected != inspected["directoryIdentity"]:raise ValueError("Directory changed since the explicit permission preview")
+                    plan = self.runtime.command(("posix","directory","plan"),request)
+                if (plan.get("sideEffects") is not False or plan.get("postApplyReceiptRequired") is not True
+                        or plan.get("beforeDirectoryIdentity") != inspected["directoryIdentity"]
+                        or plan.get("configurationDesiredRow") != row):
+                    raise ValueError("Rendered directory proposal differs from its pure physical policy plan")
+                plans[key] = plan
+            elif (row.get("effective") or {}).get("directoryIdentity") != inspected["directoryIdentity"]:
+                raise ValueError("Removing a common policy requires its unchanged committed physical inode")
             configured_fs = request.get("expectedFilesystemUuid") or (row.get("effective") or {}).get("filesystemUuid")
             if not configured_fs or configured_fs != inspected["filesystemUuid"]:
                 raise ValueError("Rendered policy lacks its exact previously inspected filesystem")
@@ -51,7 +63,7 @@ class RenderedPrerequisites:
         proof = self.runtime.command(("network", "endpoints", "inspect"), {**endpoints, "expectedBindings": expected_bindings})
         if proof.get("sideEffects") is not False or proof.get("bindingsValidated") is not True:
             raise ValueError("Pure network prerequisite proof is unavailable")
-        return {"schemaVersion": 1, "directories": snapshots, "expectedBindings": expected_bindings, "networkProof": proof}
+        return {"schemaVersion": 1, "directories": snapshots, "directoryPlans":plans, "expectedBindings": expected_bindings, "networkProof": proof}
 
     def apply(self, path, previous, rollback=False):
         target = json.loads(rendered_read(path / "desired-state.json"))
@@ -63,13 +75,28 @@ class RenderedPrerequisites:
         after = target["posix-directory-policies.json"] or {}
         for key in sorted(receipt["directories"]):
             snapshot = receipt["directories"][key]
+            staged=(receipt.get("directoryPlans") or {}).get(key)
+            if staged and staged.get("transferOnly") is True:
+                if not rollback:
+                    row=after[key]
+                    fresh=self.runtime.command(("posix","directory","attest-plan"),{"canonicalPolicyRow":row,"rootScope":staged["rootScope"],"sourceConfigurationSha256":staged["sourceConfigurationSha256"]})
+                    if fresh!=staged:raise ValueError("ROOT POSIX physical identity changed before transferred activation")
+                # Receipt transfer changed no inode metadata; rollback has no DATA inverse.
+                continue
             if rollback:
                 self.runtime.command(("posix", "directory", "restore"), snapshot)
             elif key not in after:
                 self.runtime.command(("posix", "directory", "forget"), snapshot)
             else:
-                request = dict(after[key]["request"], expectedDirectoryIdentity=snapshot["directoryIdentity"])
-                self.runtime.command(("posix", "directory", "apply"), request)
+                request = after[key]["request"]
+                staged = (receipt.get("directoryPlans") or {}).get(key)
+                fresh = self.runtime.command(("posix","directory","plan"),request)
+                if not staged or fresh != staged:
+                    raise ValueError("Directory physical plan changed before rendered activation")
+                applied = self.runtime.command(("posix", "directory", "apply"), request)
+                if (applied.get("postApplyReceiptVerified") is not True
+                        or applied.get("directoryIdentity") != staged["predictedDirectoryIdentity"]):
+                    raise ValueError("Rendered directory result differs from its staged physical plan")
         return True
 
     def verify(self,path):
@@ -78,6 +105,7 @@ class RenderedPrerequisites:
             request=row["request"];config=row.get("config") or request.get("config") or {}
             observed=self.runtime.command(("posix","directory","inspect"),request)
             expected_fs=request.get("expectedFilesystemUuid") or (row.get("effective") or {}).get("filesystemUuid")
+            if observed.get("postApplyReceiptVerified") is not True:raise ValueError("Rendered common policy lacks its fresh exact post-apply attestation")
             if observed["filesystemUuid"]!=expected_fs or observed["effectiveMode"]!=format(int(str(config.get("directoryMode") or "0770"),8),"04o"):
                 raise ValueError("Rendered common policy filesystem/mode readback differs")
             if config.get("applyOwner") and (observed["effectiveUid"],observed["effectiveGid"])!=(config["ownerUid"],config["ownerGid"]):

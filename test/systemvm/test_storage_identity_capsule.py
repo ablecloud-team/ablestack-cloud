@@ -18,6 +18,7 @@
 
 """Exercise encrypted local-identity transport without reading real credential files."""
 import importlib.util
+import sys
 from pathlib import Path
 import unittest
 import subprocess
@@ -26,6 +27,7 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 
 SOURCE = Path(__file__).resolve().parents[2] / "systemvm/debian/usr/local/lib/ablestack-storage/identity_capsule.py"
+sys.path.insert(0,str(SOURCE.parent))
 spec = importlib.util.spec_from_file_location("identity_capsule_test", SOURCE)
 capsules = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(capsules)
@@ -73,6 +75,18 @@ class IdentityCapsuleTest(unittest.TestCase):
             with self.assertRaises(ValueError):capsules.select_restore_domains(payload,scope)
         self.assertEqual(payload['accounts'],capsules.select_restore_domains(payload,['SMB'])['accounts'])
 
+    def test_ad_keytab_capsule_requires_verified_exact_joined_metadata_and_encrypts_key_material(self):
+        import base64
+        metadata={"schemaVersion":1,"domain":"ablestack.local","realm":"ABLESTACK.LOCAL","workgroup":"ABLESTACK","netbiosName":"SERVER",
+                  "machineSid":"S-1-5-21-1-2-3","domainSid":"S-1-5-21-4-5-6","servicePrincipals":["cifs/server.ablestack.local"],"trustVerified":True}
+        file={"data":base64.b64encode(b"SYNTHETIC_KEYTAB_BYTES").decode(),"uid":0,"gid":0,"mode":0o600}
+        payload={"schemaVersion":1,"files":{"/etc/krb5.keytab":file},"accounts":{},"adIdentity":metadata}
+        capsules.validate_payload(payload);wrapped=capsules.encrypt(payload,self.public,"instance:operation")
+        self.assertNotIn("SYNTHETIC",str(wrapped));self.assertEqual(payload,capsules.decrypt(wrapped,self.private,"instance:operation"))
+        for change in ({"trustVerified":False},{"servicePrincipals":["cifs/server.foreign.local"]},{"domainSid":"S-1-5-18"}):
+            with self.assertRaises(ValueError):capsules.validate_payload({**payload,"adIdentity":{**metadata,**change}})
+        with self.assertRaises(ValueError):capsules.validate_payload({key:value for key,value in payload.items() if key!="adIdentity"})
+
     def test_weak_or_wrong_wrapping_key_is_rejected(self):
         key = rsa.generate_private_key(public_exponent=65537, key_size=1024)
         public = key.public_key().public_bytes(serialization.Encoding.PEM,
@@ -108,10 +122,31 @@ class IdentityCapsuleTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             capsules.account_merge("foreign:x:1001001:\n", ["sf_g_test:x:1001001:"], "group")
 
+    def test_encrypted_same_instance_posix_receipt_metadata_round_trip_never_becomes_data_permissions(self):
+        import uuid
+        from posix_policy_receipt import PosixPolicyReceipt
+        from posix_receipt_transfer import posix_row_sha256
+        instance=str(uuid.uuid4());policy=str(uuid.uuid4());volume=str(uuid.uuid4())
+        identity={"filesystemUuid":str(uuid.uuid4()),"device":2064,"inode":123,"effectiveUid":0,"effectiveGid":0,"effectiveMode":"0770","aclSha256":"a"*64}
+        request={"uuid":policy,"instanceUuid":instance,"volumeUuid":volume,"volumeMountPath":"/srv/ablestack-storage/volumes/"+volume,"relativePath":"leaf","revision":2,"config":{"directoryMode":"0770"}}
+        row={"request":request,"config":request["config"],"effective":{"directoryIdentity":identity}}
+        receipt=PosixPolicyReceipt().attest(request,row["effective"])
+        payload={"schemaVersion":1,"files":{},"accounts":{},"sourceConfigurationSha256":"b"*64,
+                 "posixPolicies":{policy:{"canonicalRow":row,"rowSha256":posix_row_sha256(row),"postReceipt":receipt}}}
+        capsules.validate_payload(payload)
+        scope=instance+":"+str(uuid.uuid4())
+        encrypted=capsules.encrypt(payload,self.public,scope)
+        recovered=capsules.decrypt(encrypted,self.private,scope)
+        self.assertEqual(payload,recovered)
+        with self.assertRaises(ValueError):capsules.restore(recovered)
+        subset=capsules.select_restore_domains(recovered,["SMB"])
+        self.assertNotIn("posixPolicies",subset)
+
     def test_runtime_entrypoint_embeds_the_same_reviewed_crypto_implementation(self):
         runtime = SOURCE.parents[2] / "bin/ablestack-storagectl"
         text = runtime.read_text()
-        self.assertIn(SOURCE.read_text(), text)
+        expected=SOURCE.read_text().replace("from posix_receipt_transfer import validate_posix_transfers\n","")
+        self.assertTrue(expected in text, "Signed identity capsule closure differs from reviewed library")
         self.assertIn('3<&0', text)
         self.assertIn('os.fdopen(3).read()', text)
 
@@ -321,6 +356,14 @@ class IdentityCapsuleTest(unittest.TestCase):
             self.assertTrue(capsules.restore_protected(payload, desired)["nvmeRestored"])
         self.assertEqual(["identity", "protocol"], sequence)
 
+
+
+class AdIdentityTdbProtectionTest(unittest.TestCase):
+    def test_winbind_idmap_inode_replacement_requires_real_identity_quiescence(self):
+        path="/var/lib/samba/winbindd_idmap.tdb"
+        self.assertIn(path,capsules.LIVE_TDB_FILES)
+        with self.assertRaises(ValueError):
+            capsules.require_identity_database_quiescence({path:{"absent":True}},observer=lambda paths:[{"pid":123,"path":path,"deleted":False}])
 
 if __name__ == "__main__":
     unittest.main()

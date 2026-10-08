@@ -29,7 +29,7 @@ class RenderedNetwork:
         status=self.runtime.command(("operation","maintenance","status"))
         actual=status.get("scope")
         proof=json.loads(rendered_read(Path("/run/ablestack-storage/rendered-authorization/writer.json"))) if require_writer else None
-        if (status.get("bootHeld") is not True or not isinstance(actual,dict) or set(actual)!={"instanceUuid","templateUpgradeUuid","operationUuid","revision"}
+        if (status.get("bootHeld") is not True or not isinstance(actual,dict) or (set(actual)!={"instanceUuid","templateUpgradeUuid","operationUuid","revision"} and not (status.get("maintenanceKind")=="SERVICE" and set(actual)=={"instanceUuid","maintenanceUuid","operationUuid","revision"} and actual["maintenanceUuid"]==actual["operationUuid"]))
                 or (require_writer and (proof.get("maintenanceScope")!=actual or proof.get("scope")!=scope))
                 or any(actual.get(key)!=value for key,value in scope.items())):
             raise ValueError("Network transition requires the exact approved Root maintenance scope")
