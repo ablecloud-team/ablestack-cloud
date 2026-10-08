@@ -56,7 +56,7 @@ def formatter_namespace():
     def recovery(code, message):
         raise RuntimeError(code)
     ns = dict(requested_filesystem="xfs", operation=operation, device="/dev/verified-data",
-              expected_size=10 * (1 << 40), format_deadline=1500, shutil=Mock(which=Mock(return_value="/sbin/mkfs.xfs")),
+              expected_size=10 * (1 << 40), format_deadline=1500, volume_key='fixture-volume', resolved_device={'serial':'fixture-serial'}, shutil=Mock(which=Mock(return_value="/sbin/mkfs.xfs")),
               run=Mock(return_value=subprocess.CompletedProcess(["wipefs"], 0, '{"signatures":[]}', "")),
               subprocess=command, time=clock, phase=phase, recovery=recovery,
               blkid_value=lambda device, field: "xfs" if field == "TYPE" else "fs-uuid", json=__import__("json"), uuid=uuid, os=os, payload={"provisioningType":"SPARSE"})
@@ -68,7 +68,7 @@ class VolumeFormatTest(unittest.TestCase):
     def test_large_format_survives_multiple_probe_intervals_and_verifies_identity(self):
         ns, phases, process = formatter_namespace()
         self.assertEqual("xfs", ns["format_empty_device"]())
-        self.assertEqual("VERIFYING_FILESYSTEM", phases[-1])
+        self.assertEqual("FILESYSTEM_VERIFIED", phases[-1])
         self.assertGreaterEqual(phases.count("FORMATTING"), 3)
         self.assertEqual(111, ns["operation"]["formatterPid"])
         self.assertEqual(3, process.communicate.call_count)
@@ -107,10 +107,27 @@ class VolumeFormatTest(unittest.TestCase):
         self.assertTrue(ns["operation"]["formatStarted"])
 
 
+    def test_uninterruptible_formatter_never_causes_unbounded_communicate_and_persists_recovery_first(self):
+        ns, phases, process = formatter_namespace();ns["format_deadline"] = 1
+        ns["time"].monotonic.side_effect = [0, 1, 2]
+        process.communicate.side_effect = [subprocess.TimeoutExpired(["mkfs.xfs"], 1),
+                                          subprocess.TimeoutExpired(["mkfs.xfs"], 5),
+                                          subprocess.TimeoutExpired(["mkfs.xfs"], 5)]
+        def terminate():
+            self.assertIn("TIMED_OUT_PENDING_RECONCILE", phases)
+            self.assertTrue(ns["operation"]["terminationPending"])
+        process.terminate.side_effect = terminate
+        with self.assertRaisesRegex(RuntimeError, "RECOVERY_REQUIRED"):ns["format_empty_device"]()
+        process.kill.assert_called_once();self.assertTrue(ns["operation"]["formatterActive"])
+        self.assertTrue(ns["operation"]["terminationPending"])
+        self.assertEqual(3, process.communicate.call_count)
+        self.assertTrue(all(0 < call.kwargs.get("timeout", 0) <= 5 for call in process.communicate.call_args_list))
+        self.assertEqual("RECOVERY_REQUIRED", phases[-1])
+
 class VolumeResumeSafetyTest(unittest.TestCase):
     def setUp(self):
         block = next(value for value in re.findall(r"<<'PY'\n(.*?)\nPY", SOURCE.read_text(), re.S) if "def format_empty_device():" in value)
-        nodes = [node for node in ast.parse(block).body if isinstance(node, ast.FunctionDef) and node.name in ("require_resume_request", "require_resume_filesystem")]
+        nodes = [node for node in ast.parse(block).body if isinstance(node, ast.FunctionDef) and node.name in ("require_resume_request", "require_resume_filesystem", "require_completed_format_receipt", "legacy_complete_mount_is_verified")]
         self.ns = {"uuid": uuid, "active_formatter": lambda record: False}
         exec(compile(ast.Module(body=nodes, type_ignores=[]), str(SOURCE), "exec"), self.ns)
         volume = str(uuid.uuid4()); self.fs = str(uuid.uuid4())
@@ -118,12 +135,26 @@ class VolumeResumeSafetyTest(unittest.TestCase):
                         "volumeUuid":volume, "operationId":"volume-"+volume, "provisioningType":"SPARSE",
                         "importMode":"MOUNT_EXISTING", "resumeOnly":True, "expectedFilesystemUuid":self.fs}
         self.record = {"volumeUuid":volume, "operationId":"volume-"+volume, "formatStarted":True,
-                       "filesystem":"xfs", "filesystemUuid":self.fs}
+                       "filesystem":"xfs", "filesystemUuid":self.fs, "formatterExitCode":0,
+                       "formatterSuccessReceipt":{"schemaVersion":1,"volumeUuid":volume,"filesystemUuid":self.fs,"filesystem":"xfs","formatterExitCode":0}}
 
     def test_fixed_resume_accepts_only_same_scoped_known_existing_filesystem(self):
         self.assertTrue(self.ns["require_resume_request"](self.request, True))
         self.ns["require_resume_filesystem"](self.request,self.record,"xfs",self.fs)
         self.assertTrue(self.ns["require_resume_request"]({**self.request,"provisioningType":"THIN"}, True))
+
+    def test_legacy_successful_complete_is_preserved_for_normal_mount_without_permitting_partial_resume(self):
+        old={**self.record,"phase":"COMPLETE","formatterSuccessReceipt":None,"formatterExitCode":None}
+        normal={**self.request,"resumeOnly":False}
+        self.assertTrue(self.ns['legacy_complete_mount_is_verified'](normal,old,'xfs',self.fs))
+        self.assertFalse(self.ns['legacy_complete_mount_is_verified'](self.request,old,'xfs',self.fs))
+        for changes in ({"phase":"FORMATTING"},{"phase":"TIMED_OUT_PENDING_RECONCILE"},{"terminationPending":True},{"filesystemUuid":str(uuid.uuid4())}):
+            self.assertFalse(self.ns['legacy_complete_mount_is_verified'](normal,{**old,**changes},'xfs',self.fs))
+
+    def test_partial_filesystem_with_uuid_and_type_never_passes_resume_without_exit_success_receipt(self):
+        for changes in ({"formatterSuccessReceipt":None},{"formatterExitCode":None},{"terminationPending":True},
+                        {"formatterSuccessReceipt":{**self.record["formatterSuccessReceipt"],"formatterExitCode":1}}):
+            with self.assertRaises(ValueError):self.ns['require_resume_filesystem'](self.request,{**self.record,**changes},'xfs',self.fs)
 
     def test_resume_requires_its_exact_frozen_filesystem_uuid(self):
         with self.assertRaises(ValueError):
@@ -151,6 +182,21 @@ class VolumeResumeSafetyTest(unittest.TestCase):
             with self.assertRaises(ValueError): self.ns["require_resume_filesystem"](self.request,record,kind,observed)
         self.ns["active_formatter"] = lambda record: True
         with self.assertRaises(ValueError): self.ns["require_resume_filesystem"](self.request,self.record,"xfs",self.fs)
+
+class VolumeFreshDeadlineObservationTest(unittest.TestCase):
+    def test_stale_uninterruptible_formatter_is_projected_without_rewriting_history(self):
+        block=re.search(r"<<'PYVOLUME'\n(.*?)\nPYVOLUME",SOURCE.read_text(),re.S).group(1)
+        function=next(node for node in ast.parse(block).body if isinstance(node,ast.FunctionDef) and node.name=='project_volume_operation')
+        namespace={};exec(compile(ast.Module(body=[function],type_ignores=[]),str(SOURCE),'exec'),namespace)
+        history={'phase':'FORMATTING','started':100,'formatDeadlineSeconds':1500,'formatterPid':123,'devicePath':'/dev/data','operationId':'volume-fixture'}
+        before=dict(history)
+        result=namespace['project_volume_operation'](history,{'active':True,'state':'D'},1700)
+        self.assertEqual('RECOVERY_REQUIRED',result['status']);self.assertTrue(result['formatterActive'])
+        self.assertTrue(result['terminationPending']);self.assertTrue(result['stale'])
+        self.assertEqual('FORMATTING',result['operation']['phase']);self.assertEqual(before,history)
+        self.assertEqual('RECOVERY_REQUIRED',result['observedOperation']['phase'])
+        result=namespace['project_volume_operation'](history,{'active':False,'state':None},1700)
+        self.assertEqual('RECONCILE_REQUIRED',result['status']);self.assertFalse(result['formatterActive'])
 
 class VolumeMutationIdentityTest(unittest.TestCase):
     def setUp(self):
