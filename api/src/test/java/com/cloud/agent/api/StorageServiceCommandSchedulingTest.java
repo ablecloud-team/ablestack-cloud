@@ -19,7 +19,7 @@ package com.cloud.agent.api;
 import org.junit.*;
 public class StorageServiceCommandSchedulingTest {
     @Test public void exactReadOnlyQueriesCanRunWhileAnotherVmOnTheHostIsFormatting(){
-        for(String command:new String[]{"health","inventory","sessions","operation observe","operation verify","operation resources","operation generation status","operation generation frozen","volume operation status","operation maintenance status","operation root-data inspect","identity capsule capabilities","nfs idmapping preflight","operation writer-idle","operation reservation status"}) Assert.assertFalse(command,new StorageServiceHostCommand("same-vm",command,"{}",30).executeInSequence());
+        for(String command:new String[]{"health","inventory","sessions","operation observe","operation verify","operation resources","operation generation status","operation generation frozen","volume operation status","operation maintenance status","operation root-data inspect","identity capsule capabilities","nfs idmapping preflight","operation writer-idle","operation reservation status","smb identity inspect"}) Assert.assertFalse(command,new StorageServiceHostCommand("same-vm",command,"{}",30).executeInSequence());
     }
     @Test public void writersAndUnknownOrExtendedCommandStringsAlwaysRemainSerialized(){
         for(String command:new String[]{"volume attach inspect","nfs export apply","smb share apply","iscsi target apply","nvmeof subsystem apply","operation generation begin","operation generation commit","operation quiesce","operation maintenance release","operation root-data inspect extra","health apply","HEALTH","operation generation status-extra"}) Assert.assertTrue(command,new StorageServiceHostCommand("same-vm",command,"{}",300).executeInSequence());
@@ -33,7 +33,7 @@ public class StorageServiceCommandSchedulingTest {
     }
     @Test public void onlyExactScopedLeaseRenewalBypassesTheLongWriterQueue() {
         Assert.assertFalse(new StorageServiceHostCommand("same-vm","operation reservation renew","{}",15).executeInSequence());
-        for(String value:new String[]{"operation reservation acquire","operation reservation release","operation reservation renew extra","operation reservation renew-all","operation reservation"}) {
+        for(String value:new String[]{"operation reservation acquire","operation reservation release","smb identity rebind","smb identity inspect extra","operation reservation renew extra","operation reservation renew-all","operation reservation"}) {
             Assert.assertTrue(value,new StorageServiceHostCommand("same-vm",value,"{}",15).executeInSequence());
         }
     }

@@ -57,9 +57,11 @@ public class StorageConfigInitialVolumePreparationTest {
         org.mockito.ArgumentCaptor<StorageServiceGuestCommand> request = org.mockito.ArgumentCaptor.forClass(StorageServiceGuestCommand.class);
         Mockito.verify(dispatcher).dispatch(request.capture());
         Assert.assertEquals("MOUNT_EXISTING",new JsonParser().parse(request.getValue().getPayload()).getAsJsonObject().get("importMode").getAsString());
+        Assert.assertFalse(new JsonParser().parse(request.getValue().getPayload()).getAsJsonObject().has("formatDiscardPolicy"));
         Mockito.clearInvocations(dispatcher);blueprint.addProperty("backingvolumemode","NEW");manager.prepareConfigurationInitialVolume(instance,blueprint);
         Mockito.verify(dispatcher).dispatch(request.capture());
         Assert.assertEquals("FORMAT_IF_EMPTY",new JsonParser().parse(request.getValue().getPayload()).getAsJsonObject().get("importMode").getAsString());
+        Assert.assertEquals("SKIP_DISCARD",new JsonParser().parse(request.getValue().getPayload()).getAsJsonObject().get("formatDiscardPolicy").getAsString());
     }
     @Test public void missingObservedFilesystemCannotCompleteNewInitialPreparation() {
         Manager manager = new Manager();StorageServiceGuestCommandDispatcher dispatcher = Mockito.mock(StorageServiceGuestCommandDispatcher.class);
