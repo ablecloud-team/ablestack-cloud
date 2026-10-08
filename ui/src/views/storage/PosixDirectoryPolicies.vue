@@ -86,7 +86,7 @@ export default {
   name: 'PosixDirectoryPolicies',
   components: { PlusOutlined, ReloadOutlined, EditOutlined, DeleteOutlined },
   props: { instanceId: { type: String, required: true }, volumes: { type: Array, default: () => [] } },
-  emits: ['refresh'],
+  emits: ['refresh', 'applied'],
   data () {
     return {
       policies: [],
@@ -102,6 +102,7 @@ export default {
       previewToken: '',
       deleteTarget: null,
       form: {},
+      exportContext: null,
       applyOnly: false,
       confirmed: false,
       previewGeneration: 0,
@@ -114,7 +115,7 @@ export default {
     canUpdate () { return 'updateStoragePosixDirectoryPolicy' in this.$store.getters.apis },
     canDelete () { return 'deleteStoragePosixDirectoryPolicy' in this.$store.getters.apis },
     canApply () { return 'applyStoragePosixDirectoryPolicy' in this.$store.getters.apis },
-    formToken () { return JSON.stringify(this.form) },
+    formToken () { return JSON.stringify({ form: this.form, exportContext: this.exportContext }) },
     previewEffective () { return parse(this.preview?.effective) },
     previewV2 () { return parse(this.preview?.preview) },
     previewCurrent () { return this.previewV2.current || {} },
@@ -160,6 +161,7 @@ export default {
       } catch (error) { if (token === this.generation) this.readError = true } finally { if (token === this.generation) this.loading = false }
     },
     openEditor (policy, applyOnly = false) {
+      this.exportContext = null
       this.applyOnly = applyOnly
       const config = parse(policy?.config); const effective = parse(policy?.effective)
       this.editId = policy?.id || ''; this.clearPreview()
@@ -176,6 +178,13 @@ export default {
       }
       this.editing = true
     },
+    openForExport (exportId, draft, policyId) {
+      const policy = this.policies.find(item => item.id === policyId)
+      if (policyId && !policy) { this.$message.error(this.$t('message.posix.directory.read.failed')); return }
+      this.openEditor(policy)
+      this.exportContext = { exportid: exportId, readonly: !!draft.readonly, rootsquash: !!draft.rootsquash, allsquash: !!draft.allsquash, anonuid: draft.anonuid, anongid: draft.anongid }
+      Object.assign(this.form, { volumeid: draft.volumeid, relativepath: policy?.relativepath || draft.relativepath || '.', owneruid: draft.owneruid, ownergid: draft.ownergid, directorymode: draft.mode || this.form.directorymode })
+    },
     setGroupInheritance (enabled) {
       const current = parseInt(this.form.directorymode || '0770', 8); if (Number.isNaN(current)) return
       this.form.directorymode = ((enabled ? current | 0o2000 : current & ~0o2000).toString(8)).padStart(4, '0'); this.clearPreview()
@@ -184,6 +193,7 @@ export default {
     params () {
       if (this.applyOnly) return { id: this.editId, expectedpolicyrevision: this.form.expectedpolicyrevision }
       return {
+        ...(this.exportContext || {}),
         ...(this.editId ? { id: this.editId } : { instanceid: this.instanceId }),
         volumeid: this.form.volumeid,
         relativepath: this.form.relativepath,
@@ -224,7 +234,7 @@ export default {
       if (!this.validPreview()) return
       const instance = this.instanceId; const generation = this.previewGeneration
       this.saving = true
-      try { await this.resolved(this.editorCommand, { ...this.params(), previewtoken: this.previewV2.previewToken, applyconfirmation: true }); if (instance !== this.instanceId || generation !== this.previewGeneration) return; this.editing = false; this.clearPreview(); await this.refresh(); this.$emit('refresh') } catch (error) { if (instance === this.instanceId && generation === this.previewGeneration) this.previewError = error.message } finally { if (instance === this.instanceId) this.saving = false }
+      try { const saved = await this.resolved(this.editorCommand, { ...this.params(), previewtoken: this.previewV2.previewToken, applyconfirmation: true }); if (instance !== this.instanceId || generation !== this.previewGeneration) return; this.$emit('applied', { policy: saved, exportid: this.exportContext?.exportid }); this.editing = false; this.clearPreview(); await this.refresh(); this.$emit('refresh') } catch (error) { if (instance === this.instanceId && generation === this.previewGeneration) this.previewError = error.message } finally { if (instance === this.instanceId) this.saving = false }
     },
     async remove () {
       this.saving = true
