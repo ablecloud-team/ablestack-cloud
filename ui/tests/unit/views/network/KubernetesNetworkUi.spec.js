@@ -16,6 +16,8 @@
 // under the License.
 
 import { computed, nextTick, ref } from 'vue'
+import { shallowMount } from '@vue/test-utils'
+import KubernetesLoadBalancers from '@/views/compute/KubernetesLoadBalancers'
 import { getAPI, postAPI } from '@/api'
 import PortForwarding from '@/views/network/PortForwarding'
 import FirewallRules from '@/views/network/FirewallRules'
@@ -132,4 +134,22 @@ test('PF VM picker releases its loading state when candidate lookup fails', asyn
   await new Promise(resolve => setImmediate(resolve))
   expect(vm.$notifyError).toHaveBeenCalled()
   expect(vm.addVmModalLoading).toBe(false)
+})
+
+test('ownership inventory uses the standard mini pager and preserves the selected page across refresh', async () => {
+  const rows = Array.from({ length: 21 }, (_, index) => ({ id: 'owner-' + index }))
+  const wrapper = shallowMount({ ...KubernetesLoadBalancers, created () {} }, {
+    props: { resource: { id: 'cluster' } },
+    global: { mocks: { $t: key => key }, renderStubDefaultSlot: true, stubs: { 'a-collapse': true, 'a-collapse-panel': true, 'a-table': true, 'a-pagination': true, 'a-button': true, 'reload-outlined': true } }
+  })
+  await wrapper.setData({ rows, ownerPage: 2 })
+  expect(wrapper.vm.pagedOwnerRows.map(row => row.id)).toEqual(rows.slice(10, 20).map(row => row.id))
+  expect(wrapper.find('.detail-tab-pagination').exists()).toBe(true)
+  expect(wrapper.find('a-pagination-stub').attributes('size')).toBe('small')
+  await wrapper.setData({ rows: rows.map(row => ({ ...row, state: 'Active' })) })
+  expect(wrapper.vm.ownerPage).toBe(2)
+  await wrapper.setData({ rows: rows.slice(0, 1) })
+  expect(wrapper.vm.ownerPage).toBe(1)
+  expect(wrapper.vm.pagedOwnerRows.map(row => row.id)).toEqual(['owner-0'])
+  wrapper.unmount()
 })

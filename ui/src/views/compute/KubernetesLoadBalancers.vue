@@ -24,7 +24,7 @@
     <div v-else class="detail-tab-toolbar"><a-button :loading="busy" @click="fetchRules"><template #icon><reload-outlined /></template>{{ $t('label.refresh') }}</a-button></div>
     <a-collapse v-if="rows.length" class="mold-dialog-section"><a-collapse-panel key="ownership" :header="$t('label.kubernetes.lb.owner')">
     <a-alert v-if="failed" type="error" show-icon :message="$t('message.kubernetes.lb.incomplete')" />
-    <a-table v-else :columns="columns" :dataSource="rows" :rowKey="item => item.id" :pagination="{ pageSize: 10 }">
+    <a-table v-else :columns="columns" :dataSource="pagedOwnerRows" :rowKey="item => item.id" :pagination="false">
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'owner'">{{ $t('label.kubernetes.lb.' + record.owner.kind) }}<br>{{ record.owner.serviceUID }}</template>
         <template v-else-if="column.key === 'backend'">
@@ -38,6 +38,17 @@
         </template>
       </template>
     </a-table>
+    <div v-if="!failed" class="detail-tab-pagination">
+      <a-pagination
+        size="small"
+        :current="ownerPage"
+        :page-size="ownerPageSize"
+        :total="rows.length"
+        show-size-changer
+        :page-size-options="['10', '20', '40', '80', '100']"
+        :show-total="total => `${$t('label.total')} ${total} ${$t('label.items')}`"
+        @change="(page, size) => { ownerPage = page; ownerPageSize = size }" />
+    </div>
     </a-collapse-panel></a-collapse>
     <p class="network-rule-secondary mold-dialog-section">{{ $t('message.kubernetes.lb.health') }}</p>
   </div>
@@ -52,8 +63,9 @@ export default {
   name: 'KubernetesLoadBalancers',
   components: { LoadBalancing },
   props: { resource: { type: Object, required: true } },
-  data () { return { busy: false, failed: false, inventoryReady: false, rows: [], publicIps: [], selectedIpId: null, request: 0 } },
+  data () { return { busy: false, failed: false, inventoryReady: false, rows: [], ownerPage: 1, ownerPageSize: 10, publicIps: [], selectedIpId: null, request: 0 } },
   computed: {
+    pagedOwnerRows () { return this.rows.slice((this.ownerPage - 1) * this.ownerPageSize, this.ownerPage * this.ownerPageSize) },
     selectedIp () { return this.publicIps.find(ip => ip.id === this.selectedIpId) },
     ruleOwners () { return Object.fromEntries(this.rows.filter(row => row.owner).map(row => [row.id, row.owner])) },
     columns () {
@@ -70,7 +82,10 @@ export default {
       ]
     }
   },
-  watch: { resource: { deep: true, handler () { this.fetchRules() } } },
+  watch: {
+    resource: { deep: true, handler () { this.fetchRules() } },
+    rows () { this.ownerPage = Math.min(this.ownerPage, Math.max(1, Math.ceil(this.rows.length / this.ownerPageSize))) }
+  },
   created () { this.fetchRules() },
   beforeUnmount () { this.request++ },
   methods: {
