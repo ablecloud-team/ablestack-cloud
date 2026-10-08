@@ -37,6 +37,7 @@ from ganesha_dbus import GaneshaDbus
 from rendered_credentials import credential_json, credential_bindings, credential_recovery_key, credential_target_inputs
 from root_source_recovery import RootSourceRecovery
 from service_identity_source import ServiceIdentitySource
+from service_identity_cipher import ServiceIdentityCipher
 from root_retained_authorization import RootRetainedAuthorization
 from root_configuration_capsule import root_configuration_sha256
 from nvme_credentials import protected_credential_json
@@ -265,9 +266,18 @@ class RenderedDriver:
         return {domain: True for domain in DOMAINS}
 
     def checkpoint(self, request, source):
-        rendered_directory(self.checkpoints, True)
         scope = self.store.scope(request)
         path = self.checkpoints / (scope["operationUuid"] + ".json")
+        service_cipher=ServiceIdentityCipher()
+        if service_cipher.source_path(scope).exists() or service_cipher.source_path(scope).is_symlink():
+            marker=self.runtime.command(("operation","maintenance","status"))
+            saved=service_cipher.authorize(request,source,marker,self.root_source.canonical_bytes())
+            rendered_directory(self.checkpoints,True)
+            if path.exists() or path.is_symlink():
+                if credential_json(rendered_read(path))!=saved:raise ValueError("SERVICE protected source checkpoint changed")
+            else:rendered_json(path,saved)
+            return saved
+        rendered_directory(self.checkpoints, True)
         retained=self.retained_authority(request)
         if retained is not None:
             saved=self.root_retained.identity_checkpoint(retained)
@@ -368,7 +378,11 @@ class RenderedDriver:
         namespace = {"base64": base64, "hashlib": hashlib, "os": os, "re": re, "json":json, "uuid":uuid}
         for item in tree.body:
             if isinstance(item, ast.Assign) and len(item.targets) == 1 and isinstance(item.targets[0], ast.Name) and item.targets[0].id in ("MAX_CAPSULE_BYTES", "FILES", "AD_FILES", "PUBLIC_IDENTITY_FILES", "ACCOUNT_FILES", "POSIX_TRANSFER_KEYS"):
-                namespace[item.targets[0].id] = ast.literal_eval(item.value)
+                if item.targets[0].id=="MAX_CAPSULE_BYTES":
+                    if ast.dump(item.value)!=ast.dump(ast.parse("8 * 1024 * 1024",mode="eval").body):
+                        raise ValueError("Signed identity codec size bound differs from its exact 8 MiB contract")
+                    namespace["MAX_CAPSULE_BYTES"]=8*1024*1024
+                else:namespace[item.targets[0].id] = ast.literal_eval(item.value)
         exec(compile(ast.Module(body=definitions, type_ignores=[]), self.runtime.cli, "exec"), namespace)
         capsule_scope = saved["scope"]["instanceUuid"] + ":" + saved["scope"]["operationUuid"]
         identity = namespace["decrypt"](saved["capsule"], request["checkpointPrivateKey"], capsule_scope)
@@ -683,7 +697,16 @@ class RenderedDriver:
                 raise ValueError("Rendered primary network change requires its separate verified transition")
             if request["configurationDesiredState"]["network-endpoints.json"]!=previous_desired["network-endpoints.json"]:
                 self.prerequisites.network.authorize(scope,require_writer=False)
-            if retained is None:
+            service_cipher=ServiceIdentityCipher()
+            service_source_available=service_cipher.source_path(scope).exists() or service_cipher.source_path(scope).is_symlink()
+            if retained is None and service_source_available:
+                # A held SERVICE intentionally stopped the old file acceptors.
+                # The old source is proved by fresh PRESTOP all-four capture,
+                # exact AFTERSTOP journal and the native BEFOREJOIN cipher.
+                # Do not re-observe a joined target identity as the old source.
+                marker=self.runtime.command(("operation","maintenance","status"))
+                service_cipher.authorize(request,source,marker,self.root_source.canonical_bytes())
+            elif retained is None:
                 healthy = self.verify(self.store.pointer())
                 if not all(healthy[domain] is True for domain in DOMAINS):raise ValueError("Source runtime lost agreement before durable rendered staging")
             elif (request.get("previousGeneration")!=retained["retainedGeneration"] or request.get("expectedCurrentRenderedSha256")!=retained["retainedRenderedSha256"] or pending.get("previous")!=retained["retainedGeneration"]):

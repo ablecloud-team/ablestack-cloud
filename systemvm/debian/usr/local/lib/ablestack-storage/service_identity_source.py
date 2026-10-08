@@ -156,7 +156,7 @@ class ServiceIdentitySource:
         frozen=saved["sourcePublicIdentity"]
         value={"success":True,"scope":scope,"sourceCaptured":True,"sourceGeneration":saved["sourceGeneration"],
                "sourceConfigurationSha256":saved["sourceConfigurationSha256"],"sourceRenderedManifestSha256":saved["sourceRendered"]["manifestSha256"],
-               "canonicalDesiredStateChanged":False,"publicAdPreStopCaptured":frozen["publicAdIdentity"] is not None,
+               "canonicalDesiredStateChanged":False,"bootId":saved["bootId"],"publicAdPreStopCaptured":frozen["publicAdIdentity"] is not None,
                "publicAdPreStopSha256":frozen["publicAdPreStopSha256"],"publicLocalMachineSid":frozen["publicLocalMachineSid"]}
         if saved.get("sourceStoppedReceipt") is not None:
             value.update(serviceSourceStoppedVerified=True,stoppedReceiptSha256=root_public_sha(saved["sourceStoppedReceipt"]))
