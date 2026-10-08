@@ -50,7 +50,7 @@ class StorageNetworkRootBindingTest(unittest.TestCase):
                     if link['ifname']==args[5]:link['addr_info'].append({'local':ip,'prefixlen':int(prefix),'secondary':True})
             return SimpleNamespace(returncode=0,stderr='')
         self.ns=dict(ipaddress=ipaddress,json=json,os=os,re=re,hashlib=hashlib,stat=stat,tempfile=tempfile,
-                     STATE_PATH=str(self.cache),BINDING_RECEIPT_PATH=str(self.receipt),strict_bindings=None,
+                     STATE_PATH=str(self.cache),BINDING_RECEIPT_PATH=str(self.receipt),STATIC_NETWORK_STATE_PATH=str(self.root/'static.json'),strict_bindings=None,
                      interface_links=lambda:self.links,interface_addresses=lambda:self.addresses,run=run)
         source=SOURCE.read_text();block=source[source.index('def root_binding_targets('):source.index('payload = load_json(payload_path, {})',source.index('def root_binding_targets('))]
         functions=[node for node in ast.parse(block).body if isinstance(node,ast.FunctionDef)]
@@ -155,5 +155,20 @@ class StorageNetworkRootBindingTest(unittest.TestCase):
         self.links[0]['address']='52:54:00:00:00:02'
         with self.assertRaisesRegex(ValueError,'MAC changed'):
             self.ns['verify_root_binding']('10.1.1.11',target)
+
+    def test_secondary_or_protected_static_mismatch_never_becomes_a_primary_receipt(self):
+        self.addresses[0]['addr_info'].append({'local':'10.1.1.11','prefixlen':16,'secondary':True})
+        wrong=[{**self.expected[0],'primaryIp':'10.1.1.11'}]
+        with self.assertRaisesRegex(ValueError,'secondary alias'):self.ns['root_binding_targets'](wrong,self.requested)
+        self.addresses[0]['addr_info'][-1]['secondary']=False
+        static=self.root/'static.json';static.write_text(json.dumps({'macAddress':self.links[0]['address'],'ipAddress':'10.1.1.10'}));static.chmod(0o600)
+        with self.assertRaisesRegex(ValueError,'STATIC declaration'):self.ns['root_binding_targets'](wrong,self.requested)
+        self.assertFalse(self.receipt.exists());self.assertEqual(self.original,self.cache.read_bytes());self.assertFalse(self.calls)
+
+    def test_normal_existing_alias_with_foreign_primary_is_rejected_before_network_or_receipt_write(self):
+        self.addresses.append({'ifname':'eth1','addr_info':[{'local':'10.1.1.11','prefixlen':16}]})
+        self.links.append({'ifname':'eth1','address':'52:54:00:00:00:02'})
+        with self.assertRaisesRegex(ValueError,'selected interface'):self.ns['apply_one'](self.requested[0])
+        self.assertFalse(self.calls);self.assertEqual(self.original,self.cache.read_bytes());self.assertFalse(self.receipt.exists())
 
 if __name__=='__main__':unittest.main()
