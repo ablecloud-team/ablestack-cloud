@@ -105,4 +105,14 @@ class StorageTemplateMaintenanceTest(unittest.TestCase):
         self.maintenance.marker.symlink_to(foreign)
         with self.assertRaises(ValueError):self.maintenance.status()
 
+    def test_resource_lease_must_be_released_before_maintenance_marker(self):
+        import os
+        from unittest.mock import patch
+        self.maintenance.enter(self.scope);reservation=Path(self.temp.name)/"reservation";reservation.mkdir(mode=0o700)
+        record=reservation/"lease.json";record.write_text(json.dumps({"scope":self.scope}));record.chmod(0o600)
+        with patch.dict(os.environ,{"ABLESTACK_STORAGE_RESERVATION_DIR":str(reservation)}):
+            with self.assertRaisesRegex(ValueError,"lease must be released"):self.maintenance.release(dict(self.scope,verifiedGeneration=self.verified))
+            self.assertTrue(self.maintenance.status()["bootHeld"])
+            record.unlink();self.assertTrue(self.maintenance.release(dict(self.scope,verifiedGeneration=self.verified))["released"])
+
 if __name__=='__main__':unittest.main()

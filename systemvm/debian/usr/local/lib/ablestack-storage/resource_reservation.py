@@ -113,7 +113,7 @@ class ResourceReservation:
         record=self.read(self.record)
         expired=self.expired(record) if record else False
         observed=dict(self.observe());observed.setdefault("generatedEpoch",self.clock()/1000)
-        return {"success":True,"reservationSupported":True,"drainSupported":False,"logicalReservationOnly":True,
+        return {"success":True,"reservationSupported":True,"supportedFeatures":["LOGICAL_RESOURCE_RESERVATION"],"drainSupported":False,"logicalReservationOnly":True,
                 "reservationAcquired":bool(record and not expired),"scope":record.get("scope") if record else None,
                 "leaseExpiresAt":record.get("leaseExpiresAt") if record else None,"expired":expired,
                 "observed":observed,"blockers":[]}
@@ -153,7 +153,7 @@ class ResourceReservation:
             if action=="release":
                 if not record or record["scope"]!=scope:raise ValueError("Logical reservation release scope is unavailable")
                 self.record.unlink();self.sync()
-                return {"success":True,"reservationSupported":True,"reservationAcquired":False,"scope":scope,"drainSupported":False,"logicalReservationOnly":True,"blockers":[]}
+                return {"success":True,"reservationSupported":True,"supportedFeatures":["LOGICAL_RESOURCE_RESERVATION"],"reservationAcquired":False,"scope":scope,"drainSupported":False,"logicalReservationOnly":True,"blockers":[]}
             if action not in ("acquire","renew"):raise ValueError("Unknown fixed logical reservation action")
             if action=="renew" and (not record or self.expired(record)):raise ValueError("Logical reservation renewal lease expired")
             requirements=self.requirements(request) if action=="acquire" else record["requirements"]
@@ -163,7 +163,7 @@ class ResourceReservation:
             if observed["stagingFreeBytes"]<requirements["stagingRequiredBytes"]:blockers.append("STAGING_HEADROOM")
             if observed["loadPerCpu"]>requirements["maxLoadPerCpu"]:blockers.append("LOAD_HEADROOM")
             if requirements["requireSessionDrain"]:blockers.append("DRAIN_NOT_IMPLEMENTED")
-            if blockers:return {"success":False,"reservationSupported":True,"reservationAcquired":False,"scope":scope,"observed":observed,"blockers":blockers,"drainSupported":False,"logicalReservationOnly":True}
+            if blockers:return {"success":False,"reservationSupported":True,"supportedFeatures":["LOGICAL_RESOURCE_RESERVATION"],"reservationAcquired":False,"scope":scope,"observed":observed,"blockers":blockers,"drainSupported":False,"logicalReservationOnly":True}
             self.write({"scope":scope,"maintenanceScope":root_scope,"requirements":requirements,"bootId":self.boot_id,"leaseExpiresAt":self.clock()+duration*1000,"observed":observed})
             return self.status()
         finally:os.close(descriptor)

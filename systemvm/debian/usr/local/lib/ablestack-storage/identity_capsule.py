@@ -36,6 +36,9 @@ FILES = {
     "/etc/ablestack-storage/smb-managed-identities.json",
     "/etc/ablestack-storage/smb-local-account-provenance.json",
 }
+AD_FILES = {"/etc/krb5.keytab","/etc/krb5.conf","/etc/ablestack-storage/smb-domain.json","/var/lib/samba/winbindd_idmap.tdb"}
+PUBLIC_IDENTITY_FILES = {"/etc/ablestack-storage/smb-managed-identities.json","/etc/krb5.conf"}
+
 ACCOUNT_FILES = {"/etc/passwd", "/etc/group", "/etc/shadow", "/etc/gshadow"}
 
 
@@ -79,7 +82,7 @@ def decrypt(capsule, private_key_pem, expected_scope):
     from cryptography.hazmat.primitives import hashes, serialization
     from cryptography.hazmat.primitives.asymmetric import padding
     from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-    if capsule.get("schemaVersion") != 1 or capsule.get("scope") != expected_scope:
+    if type(capsule.get("schemaVersion")) is not int or capsule.get("schemaVersion") != 1 or capsule.get("scope") != expected_scope:
         raise ValueError("Identity capsule scope mismatch")
     ciphertext = base64.b64decode(capsule["ciphertext"], validate=True)
     if len(ciphertext) > MAX_CAPSULE_BYTES + 16 or hashlib.sha256(ciphertext).hexdigest() != capsule["sha256"]:
@@ -184,12 +187,13 @@ def replay_nvme_identity_payload(desired, protected_hosts):
     return {"success": True, "nvmeRestored": True}
 
 
-def collect(names, nvme_hosts=None):
+def collect(names, nvme_hosts=None,ad_identity=None,posix_policies=None):
     names = set(names)
     if any(not isinstance(name, str) or name in {"root", "nobody", "daemon", "cloud", "debian"} or not re.fullmatch(r"[A-Za-z0-9_][A-Za-z0-9_.-]{0,63}", name) for name in names):
         raise ValueError("Invalid managed account name")
     files = {}
-    for path in sorted(FILES):
+    if ad_identity is not None:validate_ad_identity(ad_identity)
+    for path in sorted(FILES | (AD_FILES if ad_identity is not None else set())):
         if not os.path.exists(path):
             files[path] = {"absent": True}
             continue
@@ -213,16 +217,71 @@ def collect(names, nvme_hosts=None):
         accounts[path] = [line for line in data.decode().splitlines() if line.split(":", 1)[0] in names]
     for path, records in accounts.items():
         account_merge("", records, os.path.basename(path))
-    return {"schemaVersion": 1, "files": files, "accounts": accounts, "nvmeHosts": collect_nvme_hosts(nvme_hosts or [])}
+    result={"schemaVersion": 1, "files": files, "accounts": accounts, "nvmeHosts": collect_nvme_hosts(nvme_hosts or [])}
+    if ad_identity is not None:result["adIdentity"]=ad_identity
+    if posix_policies is not None:
+        result["posixPolicies"]=posix_policies
+    return result
+
+
+def validate_ad_identity(value):
+    fields={"schemaVersion","domain","realm","workgroup","netbiosName","machineSid","domainSid","servicePrincipals","trustVerified"}
+    if not isinstance(value,dict) or set(value)-{"idmapPolicy"}!=fields or value["schemaVersion"]!=1 or value["trustVerified"] is not True:
+        raise ValueError("AD capsule metadata is not a verified joined identity")
+    domain=value["domain"]
+    if not isinstance(domain,str) or len(domain)>253 or domain!=domain.lower() or not re.fullmatch(r"[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?",domain) or any(not label or label.startswith("-") or label.endswith("-") for label in domain.split(".")):
+        raise ValueError("AD capsule DNS domain is invalid")
+    if value["realm"]!=domain.upper() or any(not re.fullmatch(r"[A-Z0-9][A-Z0-9_-]{0,14}",str(value[key])) for key in ("workgroup","netbiosName")):
+        raise ValueError("AD capsule realm/machine identity is invalid")
+    for key in ("machineSid","domainSid"):
+        if not re.fullmatch(r"S-1-5-21(?:-[0-9]{1,10}){3}",str(value[key])):raise ValueError("AD capsule SID is invalid")
+    principals=value["servicePrincipals"]
+    if not isinstance(principals,list) or not principals or len(principals)>128 or len(set(principals))!=len(principals):raise ValueError("AD capsule SPN list is invalid")
+    for principal in principals:
+        if not isinstance(principal,str) or not re.fullmatch(r"(?:host|cifs)/[a-z0-9.-]+",principal) or not principal.split("/",1)[1].endswith("."+domain):
+            raise ValueError("AD capsule SPN escapes its joined DNS domain")
+    if "idmapPolicy" in value:
+        mapping=value["idmapPolicy"]
+        if not isinstance(mapping,dict) or set(mapping)!={"default","domain"}:raise ValueError("AD capsule idmap policy is incomplete")
+        ranges=[]
+        for label,entry in mapping.items():
+            if not isinstance(entry,dict) or entry.get("backend") not in ("tdb","rid") or set(entry)!=({"backend","range","baseRid"} if entry["backend"]=="rid" else {"backend","range"}):
+                raise ValueError("AD capsule idmap backend is unsupported")
+            numbers=entry["range"]
+            if (not isinstance(numbers,list) or len(numbers)!=2 or any(type(number) is not int for number in numbers)
+                    or not 1000<=numbers[0]<=numbers[1]<=2147483647 or numbers[0]<=65534<=numbers[1]):
+                raise ValueError("AD capsule idmap range is unsafe")
+            if entry["backend"]=="rid" and (type(entry["baseRid"]) is not int or not 0<=entry["baseRid"]<=2147483647):
+                raise ValueError("AD capsule RID base is invalid")
+            ranges.append(numbers)
+        if max(row[0] for row in ranges)<=min(row[1] for row in ranges):raise ValueError("AD capsule idmap ranges overlap")
+    return value
+
+
+def capsule_validate_posix(records,instance):
+    validator=globals().get("validate_posix_transfers")
+    if validator is None:
+        from posix_receipt_transfer import validate_posix_transfers as validator
+    return validator(records,instance)
 
 
 def validate_payload(payload):
-    if not isinstance(payload, dict) or set(payload) - {"schemaVersion", "files", "accounts", "nvmeHosts"}:
+    if not isinstance(payload, dict) or set(payload) - {"schemaVersion", "files", "accounts", "nvmeHosts", "adIdentity", "posixPolicies", "sourceConfigurationSha256"}:
         raise ValueError("Identity capsule payload shape is invalid")
     if not isinstance(payload.get("files"), dict) or not isinstance(payload.get("accounts"), dict):
         raise ValueError("Identity capsule collections are invalid")
-    if payload.get("schemaVersion") != 1 or set(payload.get("files", {})) - FILES or set(payload.get("accounts", {})) - ACCOUNT_FILES:
+    if type(payload.get("schemaVersion")) is not int or payload.get("schemaVersion") != 1 or set(payload.get("files", {})) - (FILES | (AD_FILES if payload.get("adIdentity") is not None else set())) or set(payload.get("accounts", {})) - ACCOUNT_FILES:
         raise ValueError("Identity capsule path allow-list mismatch")
+    if payload.get("adIdentity") is not None:validate_ad_identity(payload["adIdentity"])
+    if payload.get("posixPolicies") is not None:
+        if not isinstance(payload["posixPolicies"],dict):raise ValueError("Identity capsule POSIX collection is invalid")
+    if payload.get("posixPolicies"):
+        source_sha=payload.get("sourceConfigurationSha256")
+        if not isinstance(source_sha,str) or not re.fullmatch("[0-9a-f]{64}",source_sha):raise ValueError("Identity capsule POSIX source configuration is unpinned")
+        records=payload["posixPolicies"]
+        if not isinstance(records,dict):raise ValueError("Identity capsule POSIX records are invalid")
+        first=next(iter(records.values()))
+        capsule_validate_posix(records,first["canonicalRow"]["request"]["instanceUuid"])
     for path, item in payload.get("files", {}).items():
         if item.get("absent") is True:
             if set(item) != {"absent"}:
@@ -232,7 +291,7 @@ def validate_payload(payload):
             raise ValueError("Identity capsule file metadata is invalid")
         data = base64.b64decode(item["data"], validate=True)
         mode = int(item.get("mode", 0))
-        secret_path = path != "/etc/ablestack-storage/smb-managed-identities.json"
+        secret_path = path not in PUBLIC_IDENTITY_FILES
         if len(data) > MAX_CAPSULE_BYTES or item.get("uid") != 0 or not 0 <= mode <= 0o777 or mode & 0o022 or mode & 0o111 or (secret_path and mode & 0o007):
             raise ValueError("Identity capsule file protection is invalid")
     for path, lines in payload.get("accounts", {}).items():
@@ -270,6 +329,7 @@ def select_restore_domains(payload, domains):
            if (name==iscsi and "ISCSI" in selected) or (name==nvme and "NVMEOF" in selected) or (name not in (iscsi,nvme) and "SMB" in selected)}
     result={"schemaVersion":1,"files":files,"accounts":payload.get("accounts",{}) if "SMB" in selected else {}}
     if "NVMEOF" in selected and payload.get("nvmeHosts"):result["nvmeHosts"]=payload["nvmeHosts"]
+    if "SMB" in selected and payload.get("adIdentity") is not None:result["adIdentity"]=payload["adIdentity"]
     return validate_payload(result)
 
 
@@ -376,7 +436,7 @@ def restore_protected(payload, nvme_desired=None):
     return restored
 
 
-LIVE_TDB_FILES = {"/var/lib/samba/private/passdb.tdb", "/var/lib/samba/private/secrets.tdb"}
+LIVE_TDB_FILES = {"/var/lib/samba/private/passdb.tdb", "/var/lib/samba/private/secrets.tdb", "/var/lib/samba/winbindd_idmap.tdb"}
 
 
 def live_identity_database_holders(paths, process_root="/proc", timeout=5):
@@ -421,6 +481,8 @@ def restore(payload):
     validate_payload(payload)
     # Fail before account, secret, or filesystem metadata writes. Offline ROOT
     # restoration is allowed only after acceptors/identity daemons are quiesced.
+    if payload.get("posixPolicies"):
+        raise ValueError("POSIX receipts require the scoped SAMEVM ROOT attestation path")
     require_identity_database_quiescence(payload.get("files", {}))
     if payload.get("nvmeHosts"):
         raise ValueError("NVMe authentication capsule requires the protected protocol replay path")

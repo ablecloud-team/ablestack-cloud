@@ -139,7 +139,14 @@ class RenderedDriver:
                     raise ValueError("Rendered network binding receipt is not protected")
                 expected = json.loads(path.read_text())["expectedBindings"]
             else: expected = []
-        files["prerequisites.json"] = json.dumps(self.prerequisites.snapshot(source, desired, expected), sort_keys=True)
+        root_transfer=None;initial=self.store.read_journal() or {};root_scope=initial.get("initialRootScope")
+        if root_scope is not None and source["posix-directory-policies.json"]!=desired["posix-directory-policies.json"]:
+            maintenance=self.runtime.command(("operation","maintenance","status"))
+            if (maintenance.get("bootHeld") is not True or maintenance.get("scope")!=root_scope
+                    or any(root_scope.get(key)!=value for key,value in self.active_scope.items())):
+                raise ValueError("ROOT POSIX staging lacks its original protected empty baseline scope")
+            root_transfer={"rootScope":root_scope,"sourceConfigurationSha256":hashlib.sha256(json.dumps(desired,sort_keys=True,separators=(",",":"),allow_nan=False).encode()).hexdigest()}
+        files["prerequisites.json"] = json.dumps(self.prerequisites.snapshot(source, desired, expected,root_transfer), sort_keys=True)
         return files
 
     def retain_legacy_nfs_baseline(self,files):
@@ -244,13 +251,13 @@ class RenderedDriver:
         # Decrypt the authenticated, scope-bound capsule inside this heap. Only
         # fixed reviewed codec definitions from signed CLI source are loaded.
         source = Path(self.runtime.cli).read_text().split("<<'PYIDENTITY'\n", 1)[1].split("\nPYIDENTITY", 1)[0]
-        allowed = {"decrypt", "validate_payload", "account_merge", "validate_host_nqn", "merge_nvme_identity_payload"}
+        allowed = {"decrypt", "validate_payload", "account_merge", "validate_host_nqn", "merge_nvme_identity_payload","validate_ad_identity","validate_posix_transfers","posix_row_sha256","capsule_validate_posix"}
         tree = ast.parse(source)
         definitions = [item for item in tree.body if isinstance(item, ast.FunctionDef) and item.name in allowed]
         if {item.name for item in definitions} != allowed: raise ValueError("Signed identity codec differs from the fixed contract")
-        namespace = {"base64": base64, "hashlib": hashlib, "os": os, "re": re}
+        namespace = {"base64": base64, "hashlib": hashlib, "os": os, "re": re, "json":json, "uuid":uuid}
         for item in tree.body:
-            if isinstance(item, ast.Assign) and len(item.targets) == 1 and isinstance(item.targets[0], ast.Name) and item.targets[0].id in ("MAX_CAPSULE_BYTES", "FILES", "ACCOUNT_FILES"):
+            if isinstance(item, ast.Assign) and len(item.targets) == 1 and isinstance(item.targets[0], ast.Name) and item.targets[0].id in ("MAX_CAPSULE_BYTES", "FILES", "AD_FILES", "PUBLIC_IDENTITY_FILES", "ACCOUNT_FILES", "POSIX_TRANSFER_KEYS"):
                 namespace[item.targets[0].id] = ast.literal_eval(item.value)
         exec(compile(ast.Module(body=definitions, type_ignores=[]), self.runtime.cli, "exec"), namespace)
         capsule_scope = saved["scope"]["instanceUuid"] + ":" + saved["scope"]["operationUuid"]
@@ -307,15 +314,37 @@ class RenderedDriver:
         if proof.get("bindingReceiptVerified") is not True or proof.get("bindingReceiptDesiredStateSha256")!=proof.get("desiredStateSha256"):
             raise ValueError("Canonical rendered network receipt did not verify after desired normalization")
 
+    def service_source(self,request):
+        expected={key:request[key] for key in ("instanceUuid","maintenanceUuid","operationUuid","revision")}
+        if type(expected["revision"]) is not int or expected["revision"]<1:raise ValueError("SERVICE source revision is invalid")
+        for key in ("instanceUuid","maintenanceUuid","operationUuid"):expected[key]=str(uuid.UUID(expected[key]))
+        maintenance=self.runtime.command(("operation","maintenance","status"))
+        if (expected["maintenanceUuid"]!=expected["operationUuid"] or maintenance.get("maintenanceKind")!="SERVICE"
+                or maintenance.get("bootHeld") is not True or maintenance.get("scope")!=expected):raise ValueError("SERVICE source recovery lacks its exact held scope")
+        checkpoint_path=Path(os.environ.get("ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR","/var/lib/ablestack-storage"))/"service-maintenance.json"
+        checkpoint=json.loads(rendered_read(checkpoint_path));status=self.store.status();actual=self.generation()
+        if (checkpoint.get("scope")!=expected or checkpoint.get("phase") not in ("HELD","RECOVERY_REQUIRED")
+                or not checkpoint.get("sourceRendered") or status.get("current")!=checkpoint["sourceRendered"]
+                or actual.get("generation")!=checkpoint.get("sourceGeneration") or actual.get("pendingOperationUuid")
+                or actual.get("generationStatus")!="IN_SYNC" or actual.get("configurationSha256")!=checkpoint["sourceGeneration"].get("configurationSha256")):
+            raise ValueError("SERVICE source recovery differs from its protected pre-activation snapshot")
+        return expected,checkpoint_path,checkpoint,status
+
     def boot_authorized(self, unit, maintenance):
         if not isinstance(unit, str): return False
         root = Path("/run/ablestack-storage/rendered-authorization")
         try:
             proof = json.loads(rendered_read(root / "writer.json"))
             status = self.store.status(); journal = status["activation"]
-            if (maintenance.get("scope") != proof.get("maintenanceScope") or not journal or journal["scope"] != proof["scope"] or journal["phase"] not in ("ACTIVATING", "ROLLING_BACK", "VERIFIED")
-                    or proof["bootId"] != Path("/proc/sys/kernel/random/boot_id").read_text().strip() or unit not in proof["units"]):
+            if proof.get("mode")=="SERVICE_SOURCE_RESTORE":
+                expected,path,checkpoint,source_status=self.service_source(proof["maintenanceScope"])
+                if (checkpoint.get("sourceResumePhase") not in ("REPLAYING","VERIFIED") or source_status.get("activation")!=checkpoint.get("sourceActivation")
+                        or proof.get("sourceManifestSha256")!=checkpoint["sourceRendered"].get("manifestSha256")
+                        or any(expected.get(key)!=value for key,value in proof["scope"].items())):return False
+            elif not journal or journal["scope"] != proof["scope"] or journal["phase"] not in ("ACTIVATING", "ROLLING_BACK", "VERIFIED"):
                 return False
+            if (maintenance.get("scope") != proof.get("maintenanceScope")
+                    or proof["bootId"] != Path("/proc/sys/kernel/random/boot_id").read_text().strip() or unit not in proof["units"]):return False
             pid = str(int(proof["pid"]))
             ticks = Path("/proc/" + pid + "/stat").read_text().rpartition(")")[2].split()[19]
             if ticks != proof["startTicks"]: return False
@@ -323,14 +352,14 @@ class RenderedDriver:
             return (info.st_dev, info.st_ino, info.st_uid, stat.S_IMODE(info.st_mode)) == (proof["lockDevice"], proof["lockInode"], os.geteuid(), 0o600)
         except (OSError, KeyError, ValueError, IndexError): return False
 
-    def authorize_units(self, request):
+    def authorize_units(self, request,source_only=False):
         if os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD") != "9":
             raise ValueError("Rendered activation requires its inherited native writer lock")
         lock = os.fstat(9)
         if not stat.S_ISREG(lock.st_mode) or lock.st_uid != os.geteuid() or stat.S_IMODE(lock.st_mode) != 0o600:
             raise ValueError("Rendered activation lock is not protected")
         units = set()
-        paths = [self.store.pointer(), self.store.generations / self.store.scope(request)["operationUuid"]]
+        paths = [self.store.pointer()] if source_only else [self.store.pointer(), self.store.generations / self.store.scope(request)["operationUuid"]]
         for path in paths:
             if path is None: continue
             self.store.inspect(path)
@@ -348,6 +377,8 @@ class RenderedDriver:
         proof = {"scope": self.store.scope(request), "maintenanceScope": maintenance.get("scope"), "units": sorted(units), "pid": os.getpid(),
                  "startTicks": Path("/proc/self/stat").read_text().rpartition(")")[2].split()[19],
                  "bootId": Path("/proc/sys/kernel/random/boot_id").read_text().strip(), "lockDevice": lock.st_dev, "lockInode": lock.st_ino}
+        if source_only:
+            proof["mode"]="SERVICE_SOURCE_RESTORE";proof["sourceManifestSha256"]=self.store.inspect(self.store.pointer())["manifestSha256"]
         rendered_json(root / "writer.json", proof)
         return root / "writer.json"
 
@@ -379,6 +410,50 @@ class RenderedDriver:
 
     def execute(self, action, request=None, unit=None):
         if action == "render-status": return self.store.status()
+        if action=="render-maintenance-resume-source":
+            expected,checkpoint_path,checkpoint,status=self.service_source(request)
+            if status.get("activation")!=checkpoint.get("sourceActivation"):raise ValueError("SERVICE pre-activation resume cannot adopt a rendered activation")
+            units=checkpoint.get("stoppedUnits")
+            if not isinstance(units,list) or any(not isinstance(unit,str) or not re.fullmatch(r"ablestack-storage-(?:ganesha@[A-Za-z0-9_.-]+|smb@[0-9a-f]{24})\.service",unit) for unit in units):
+                raise ValueError("SERVICE source resume contains an unknown stopped acceptor")
+            domains=[domain for domain,prefix in (("NFS","ablestack-storage-ganesha@"),("SMB","ablestack-storage-smb@")) if any(unit.startswith(prefix) for unit in units)]
+            checkpoint["sourceResumePhase"]="REPLAYING";checkpoint["sourceResumeDomains"]=domains;rendered_json(checkpoint_path,checkpoint)
+            proof=self.authorize_units(request,source_only=True);self.runtime.credentials=request.get("transientCredentials") or {}
+            try:
+                for domain in domains:self.runtime.replay(self.store.pointer(),domain)
+                result=self.verify(self.store.pointer())
+                if not all(result.get(domain) is True for domain in DOMAINS):raise ValueError("SERVICE resumed source runtime failed all-four readback")
+                checkpoint["sourceResumePhase"]="VERIFIED";rendered_json(checkpoint_path,checkpoint)
+                return {"success":True,"scope":expected,"sourceUnchangedVerified":True,"runtimeVerified":True,"resumedDomains":domains,"blockTargetsPreserved":True,"generationAdvanced":False}
+            except Exception:
+                checkpoint["sourceResumePhase"]="RECOVERY_REQUIRED";rendered_json(checkpoint_path,checkpoint);raise
+            finally:proof.unlink(missing_ok=True);rendered_fsync(proof.parent)
+        if action == "render-maintenance-verify":
+            maintenance=self.runtime.command(("operation","maintenance","status"))
+            expected={key:request[key] for key in ("instanceUuid","maintenanceUuid","operationUuid","revision")}
+            if type(expected["revision"]) is not int or expected["revision"]<1:raise ValueError("SERVICE verification revision is invalid")
+            for key in ("instanceUuid","maintenanceUuid","operationUuid"):expected[key]=str(uuid.UUID(expected[key]))
+            if (expected["maintenanceUuid"]!=expected["operationUuid"] or maintenance.get("maintenanceKind")!="SERVICE"
+                    or maintenance.get("bootHeld") is not True or maintenance.get("scope")!=expected):
+                raise ValueError("SERVICE runtime verification lacks its exact held scope")
+            actual=self.generation();verified=request.get("verifiedGeneration")
+            if (not isinstance(verified,dict) or actual.get("generation")!=verified or actual.get("pendingOperationUuid")
+                    or actual.get("generationStatus")!="IN_SYNC" or actual.get("configurationSha256")!=verified.get("configurationSha256")):
+                raise ValueError("SERVICE committed generation was not exactly verified")
+            status=self.store.status();current=status["current"];activation=status.get("activation")
+            if status["bootHeld"] or current is None or current["configurationSha256"]!=actual["configurationSha256"]:
+                raise ValueError("SERVICE immutable current was not finalized")
+            forward=all(verified.get(key)==expected[key] and current["scope"].get(key)==expected[key] for key in ("instanceUuid","operationUuid","revision"))
+            source_unchanged=False
+            if not forward:
+                expected,checkpoint_path,checkpoint,source_status=self.service_source(request)
+                rollback=(activation and activation.get("phase")=="ROLLED_BACK" and all(activation.get("scope",{}).get(key)==expected[key] for key in ("instanceUuid","operationUuid","revision")))
+                source_unchanged=(source_status.get("activation")==checkpoint.get("sourceActivation") and checkpoint.get("sourceResumePhase")=="VERIFIED")
+                if not rollback and not source_unchanged:raise ValueError("SERVICE source was neither rolled back nor verified unchanged before activation")
+            result=self.verify(self.store.pointer())
+            if not all(result.get(domain) is True for domain in DOMAINS):raise ValueError("SERVICE all-four runtime verification failed")
+            return {"success":True,"scope":expected,"runtimeVerified":True,"protocols":result,"rollbackVerified":not forward and not source_unchanged,"sourceUnchangedVerified":source_unchanged,"activationOccurred":not source_unchanged,"sideEffects":False}
+
         if action in ("render-boot-gate", "render-boot"):
             status = self.store.status()
             maintenance = self.runtime.command(("operation", "maintenance", "status"))

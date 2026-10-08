@@ -166,7 +166,9 @@ class RenderedGeneration:
     def status(self):
         manifest = self.inspect(self.pointer())
         journal = self.read_journal()
-        return {"success": True, "current": manifest, "activation": journal,
+        return {"success": True, "renderedGenerationSupported": True, "renderedGenerationSchemaVersion": 1,
+                "fullFourProtocolActivationSupported": False, "supportedFeatures": ["RENDERED_CONFIG_GENERATION_HANDLER"],
+                "current": manifest, "activation": journal,
                 "bootHeld": bool(journal and journal["phase"] not in ("COMPLETE", "ROLLED_BACK"))}
 
     def stage(self, request, files, validator):

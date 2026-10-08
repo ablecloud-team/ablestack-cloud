@@ -118,12 +118,43 @@ class PosixDirectoryPolicyTest(unittest.TestCase):
             exec(compile(tail, str(SOURCE), "exec"), self.ns)
         return self.ns["result"]
 
+    def test_legacy_or_stale_receipt_inspect_remains_a_readonly_preview_with_unverified_flag(self):
+        result=self.dispatch("inspect")
+        self.assertIs(False,result["postApplyReceiptVerified"]);self.assertFalse(Path(self.ns["state_path"]).exists())
+        self.request["expectedDirectoryIdentity"]=self.snapshot()["directoryIdentity"]
+        self.dispatch("apply")
+        self.directory.chmod(0o700);observed=self.snapshot()["directoryIdentity"]
+        state=Path(self.ns["state_path"]);content=state.read_bytes()
+        result=self.dispatch("inspect")
+        self.assertIs(False,result["postApplyReceiptVerified"]);self.assertEqual(observed,result["directoryIdentity"]);self.assertEqual(content,state.read_bytes())
+
+    def test_real_private_plan_predicts_post_inode_acl_and_owner_without_touching_data_or_receipts(self):
+        before = self.snapshot();child = self.child.stat()
+        self.request["expectedDirectoryIdentity"] = before["directoryIdentity"]
+        self.request["config"].update(applyOwner=True,ownerUid=65534,ownerGid=65534)
+        plan = self.dispatch("plan")
+        self.assertFalse(plan["sideEffects"]);self.assertTrue(plan["scratchOnly"]);self.assertIs(True,plan["postApplyReceiptSupported"])
+        self.assertEqual(before["directoryIdentity"],self.snapshot()["directoryIdentity"]);self.assertEqual(child,self.child.stat())
+        self.assertFalse((Path(self.temp.name)/"receipts").exists());self.assertFalse(Path(self.ns["state_path"]).exists())
+        actual = self.dispatch("apply")
+        self.assertEqual(plan["predictedDirectoryIdentity"],actual["directoryIdentity"])
+        committed=json.loads(Path(self.ns["state_path"]).read_text())[self.request["uuid"]]
+        self.assertEqual(plan["configurationDesiredRow"],committed)
+        self.assertNotIn("postApplyReceiptSupported",committed["effective"])
+
+    def test_plan_stale_preview_fails_before_scratch_or_data_metadata_changes(self):
+        before=self.snapshot();self.request["expectedDirectoryIdentity"]=before["directoryIdentity"]
+        self.directory.chmod(0o700);changed=self.snapshot()["directoryIdentity"]
+        with self.assertRaises(ValueError):self.dispatch("plan")
+        self.assertEqual(changed,self.snapshot()["directoryIdentity"]);self.assertFalse(Path(self.ns["state_path"]).exists())
+
     def test_readonly_inspect_attests_post_receipt_code_without_writing_canonical_state(self):
         self.request["expectedDirectoryIdentity"] = self.snapshot()["directoryIdentity"]
         self.dispatch("apply");state=Path(self.ns["state_path"])
         data=state.read_bytes();info=state.stat();observed=self.snapshot()["directoryIdentity"]
         result=self.dispatch("inspect")
         self.assertIs(True,result["postApplyReceiptSupported"]);self.assertEqual(observed,result["directoryIdentity"])
+        self.assertIs(True,result["postApplyReceiptVerified"])
         self.assertEqual(data,state.read_bytes());self.assertEqual(info,state.stat())
         self.assertNotIn("postApplyReceiptSupported",json.loads(data)[self.request["uuid"]]["effective"])
 

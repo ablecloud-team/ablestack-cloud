@@ -17,7 +17,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-"""Persistent same-row ROOT maintenance scopes; no credential material."""
+"""Persistent typed ROOT and approved SERVICE maintenance scopes; no credential material."""
 import json
 import os
 from pathlib import Path
@@ -26,14 +26,26 @@ import tempfile
 import uuid
 
 SCOPE_KEYS = ("instanceUuid", "templateUpgradeUuid", "operationUuid", "revision")
+SERVICE_SCOPE_KEYS = ("instanceUuid", "maintenanceUuid", "operationUuid", "revision")
 
-def scope(request):
-    result = {key: str(uuid.UUID(request[key])) for key in SCOPE_KEYS[:-1]}
+def scope(request,kind="ROOT"):
+    keys=SCOPE_KEYS if kind=="ROOT" else SERVICE_SCOPE_KEYS if kind=="SERVICE" else None
+    if keys is None or not isinstance(request,dict) or (set(request)&set(SCOPE_KEYS+SERVICE_SCOPE_KEYS))!=set(keys):
+        raise ValueError("Maintenance scope is mixed or unsupported")
+    result = {key: str(uuid.UUID(request[key])) for key in keys[:-1]}
     revision = request["revision"]
-    if isinstance(revision, bool) or not isinstance(revision, int) or revision < 1:
-        raise ValueError("Invalid ROOT maintenance revision")
+    if type(revision) is not int or revision < 1:
+        raise ValueError("Invalid maintenance revision")
     result["revision"] = revision
+    if kind=="SERVICE" and result["maintenanceUuid"]!=result["operationUuid"]:
+        raise ValueError("SERVICE maintenance must use its durable operation identity")
     return result
+
+def marker_kind(marker):
+    kind=marker.get("kind","ROOT")
+    if kind=="SERVICE" and (set(marker)!={"kind","scope","bootHeld"} or marker["bootHeld"] is not True):raise ValueError("SERVICE boot marker is not explicitly held")
+    scope(marker["scope"],kind)
+    return kind
 
 class Maintenance:
     def __init__(self, root=None, generation=None):
@@ -92,44 +104,53 @@ class Maintenance:
 
     def status(self):
         marker = self.read(self.marker)
-        value = scope(marker["scope"]) if marker is not None else None
-        return {"success": True, "maintenanceSupported": True, "bootHeld": marker is not None, "scope": value}
+        kind=marker_kind(marker) if marker is not None else None
+        value = scope(marker["scope"],kind) if marker is not None else None
+        return {"success": True, "maintenanceSupported": True, "serviceMaintenanceSupported":True, "maintenanceKind":kind, "bootHeld": marker is not None, "scope": value}
 
-    def enter(self, request):
-        desired = scope(request)
+    def enter(self, request, kind="ROOT"):
+        desired = scope(request,kind)
         marker = self.read(self.marker)
         previous = request.get("expectedPreviousScope")
         if marker is None:
             if previous is not None:
                 raise ValueError("Expected previous ROOT maintenance scope is absent")
         else:
-            actual = scope(marker["scope"])
+            actual_kind=marker_kind(marker)
+            actual = scope(marker["scope"],actual_kind)
+            if actual_kind!=kind:raise ValueError("Foreign maintenance kind is already held")
             if actual == desired:
                 return self.status()
-            if previous is None or scope(previous) != actual or any(actual[key] != desired[key] for key in ("instanceUuid", "templateUpgradeUuid")):
+            owner="templateUpgradeUuid" if kind=="ROOT" else "maintenanceUuid"
+            if previous is None or scope(previous,kind) != actual or any(actual[key] != desired[key] for key in ("instanceUuid", owner)):
                 raise ValueError("ROOT maintenance scope is foreign or changed")
             if desired["revision"] <= actual["revision"]:
                 raise ValueError("ROOT maintenance scope revision did not advance")
-        self.write(self.marker, {"scope": desired})
+        self.write(self.marker, {"kind":kind,"scope": desired,"bootHeld":True})
         return self.status()
 
-    def release(self, request):
-        desired = scope(request)
+    def release(self, request,kind="ROOT"):
+        desired = scope(request,kind)
         verified = request.get("verifiedGeneration")
         if not isinstance(verified, dict) or verified.get("instanceUuid") != desired["instanceUuid"]:
             raise ValueError("Verified ROOT maintenance generation scope is invalid")
         actual = self.generation()
         if actual.get("pendingOperationUuid") or actual.get("generation") != verified or actual.get("configurationSha256") != verified.get("configurationSha256") or actual.get("generationStatus") != "IN_SYNC":
             raise ValueError("ROOT maintenance release generation was not exactly verified")
+        reservation=Path(os.environ.get("ABLESTACK_STORAGE_RESERVATION_DIR","/var/lib/ablestack-storage/resource-reservation"))/"lease.json"
+        if reservation.exists() or reservation.is_symlink():
+            directory=reservation.parent.lstat()
+            if not stat.S_ISDIR(directory.st_mode) or directory.st_uid!=os.geteuid() or directory.st_mode&0o077:raise ValueError("Maintenance resource lease directory is not protected")
+            if self.read(reservation) is not None:raise ValueError("Resource lease must be released before its maintenance boot hold")
         marker = self.read(self.marker)
         receipt = self.read(self.receipt)
         if marker is None:
             if receipt != {"scope": desired, "verifiedGeneration": verified}:
                 raise ValueError("Released ROOT maintenance scope is unavailable or changed")
-            return {"success": True, "released": True, "bootHeld": False, "scope": desired}
-        if scope(marker["scope"]) != desired:
+            return {"success": True, "released": True, "bootHeld": False, "scope": desired,"maintenanceKind":kind}
+        if marker_kind(marker)!=kind or scope(marker["scope"],kind) != desired:
             raise ValueError("ROOT maintenance release scope changed")
         self.write(self.receipt, {"scope": desired, "verifiedGeneration": verified})
         self.marker.unlink()
         self.sync()
-        return {"success": True, "released": True, "bootHeld": False, "scope": desired}
+        return {"success": True, "released": True, "bootHeld": False, "scope": desired,"maintenanceKind":kind}
