@@ -421,6 +421,7 @@ class="storage-service__alert"
                 {{ $t('label.storage.service.nic.identity.repair') }}
               </a-button>
             </div>
+            <storage-smb-identity-repair v-if="storageService.instance" :instance-id="storageService.instance.id" :instance-name="storageService.instance.name || dataResource.name || ''" @operation-updated="refreshSmbIdentityRepair" />
             <a-alert
               v-if="smbSetupIncomplete"
               class="storage-service__alert"
@@ -2342,6 +2343,7 @@ import SmbCreationOptions from '@/views/storage/SmbCreationOptions'
 import { supportsStorageFormatting, diskProvisioningLabel } from '@/utils/storageDiskProvisioning'
 import StorageServiceRuntimeUpgrade from '@/views/storage/StorageServiceRuntimeUpgrade'
 import StorageVolumePreparation from '@/views/storage/StorageVolumePreparation'
+import StorageSmbIdentityRepair from '@/views/storage/StorageSmbIdentityRepair'
 import PosixDirectoryPolicies from '@/views/storage/PosixDirectoryPolicies'
 import PosixPolicyInheritance from '@/views/storage/PosixPolicyInheritance'
 import NfsPermissionRecommendations from '@/views/storage/NfsPermissionRecommendations'
@@ -2566,6 +2568,7 @@ export default {
     SmbCreationOptions,
     StorageServiceRuntimeUpgrade,
     StorageVolumePreparation,
+    StorageSmbIdentityRepair,
     PosixDirectoryPolicies,
     PosixPolicyInheritance,
     NfsPermissionRecommendations,
@@ -5480,6 +5483,7 @@ export default {
         this.actionLoading[key] = false
       }
     },
+    refreshSmbIdentityRepair () { this.refreshStorageOperationHistory(); return this.fetchStorageServiceData() },
     async refreshAfterStorageAction (key, actionTab = this.currentTab, actionWideLayout = this.protocolWideLayout) {
       if (!this.storageService.instance) {
         return this.fetchStorageServiceData()

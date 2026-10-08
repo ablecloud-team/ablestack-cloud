@@ -8842,5 +8842,9 @@
   "label.storage.operation.resource.load": "Load / CPU limit",
   "label.storage.operation.resource.sessions": "Active sessions",
   "message.storage.operation.cancel.confirm": "Request cancellation at the next safe boundary?",
-  "message.storage.operation.cancel.boundary": "Cancellation is a request at safe boundaries. A running filesystem formatter is not terminated."
+  "message.storage.operation.cancel.boundary": "Cancellation is a request at safe boundaries. A running filesystem formatter is not terminated.",
+  "label.storage.smb.identity.repair": "Restore SMB authentication connection",
+  "label.storage.smb.identity.repair.acknowledge": "I confirm this SMB maintenance window.",
+  "message.storage.smb.identity.repair.maintenance": "The service restarts its owned SMB processes after proving there are no active sessions or locks, so current authentication information is used. Passwords, DATA and share settings are preserved.",
+  "message.storage.smb.identity.repair.unknown": "The operation result is unconfirmed. Check operation history before another maintenance request."
 }

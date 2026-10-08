@@ -8807,5 +8807,9 @@
   "label.storage.operation.resource.load": "부하 / CPU 기준",
   "label.storage.operation.resource.sessions": "활성 세션",
   "message.storage.operation.cancel.confirm": "다음 안전 경계에서 취소하도록 요청할까요?",
-  "message.storage.operation.cancel.boundary": "취소는 안전 경계에서 처리하는 요청입니다. 실행 중인 파일 시스템 formatter를 종료하지 않습니다."
+  "message.storage.operation.cancel.boundary": "취소는 안전 경계에서 처리하는 요청입니다. 실행 중인 파일 시스템 formatter를 종료하지 않습니다.",
+  "label.storage.smb.identity.repair": "SMB 인증 연결 복구",
+  "label.storage.smb.identity.repair.acknowledge": "SMB 유지보수 작업 시간을 확인합니다.",
+  "message.storage.smb.identity.repair.maintenance": "활성 세션과 잠금이 없음을 확인한 뒤 해당 서비스의 SMB 프로세스를 재시작해 현재 인증 정보를 적용합니다. 암호·DATA·공유 설정은 보존합니다.",
+  "message.storage.smb.identity.repair.unknown": "작업 결과가 확인되지 않았습니다. 다음 유지보수 요청 전에 작업 이력에서 상태를 확인하세요."
 }
