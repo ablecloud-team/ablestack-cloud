@@ -77,6 +77,89 @@ public final class StorageAdIdentityProof {
                 ||!cipherSha.equals(StorageConfigArchive.sha256(cipher))||!cipherSha.equals(text(receipt,"capsuleSha256")))throw new CloudRuntimeException("SERVICE encrypted source capsule digest or cryptographic shape changed");
         return receipt.deepCopy();
     }
+    public static JsonObject localSamBootstrap(JsonObject proof,JsonObject scope,JsonObject generation,String configurationSha,String bootId,String netbiosName) {
+        yes(proof,"success",true);yes(proof,"canonicalDesiredStateChanged",false);
+        if(!scope.equals(proof.get("scope"))||!generation.equals(proof.get("generation"))||!configurationSha.equals(text(proof,"configurationSha256"))
+                ||!bootId.equals(text(proof,"bootId"))||!netbiosName.equals(text(proof,"netbiosName")))throw new CloudRuntimeException("Local SAM bootstrap changed its owned source scope, generation, boot or name");
+        JsonElement initialized=proof.get("localSamInitialized"),preserved=proof.get("identityPreserved");
+        if(initialized==null||preserved==null||!initialized.isJsonPrimitive()||!preserved.isJsonPrimitive()
+                ||!initialized.getAsJsonPrimitive().isBoolean()||!preserved.getAsJsonPrimitive().isBoolean()
+                ||initialized.getAsBoolean()==preserved.getAsBoolean())throw new CloudRuntimeException("Local SAM bootstrap must prove exactly creation or preservation");
+        yes(proof,"sideEffects",initialized.getAsBoolean());String localSid=text(proof,"localMachineSid");sid(localSid);
+        if(!localSid.matches("S-1-5-21-[0-9]+-[0-9]+-[0-9]+"))throw new CloudRuntimeException("Local SAM bootstrap machine SID is invalid");
+        return publicFields(proof,Set.of("success","scope","localSamInitialized","identityPreserved","sideEffects","localMachineSid","netbiosName","bootId","generation","configurationSha256","canonicalDesiredStateChanged"));
+    }
+    private static void canonicalUuid(String value) {
+        if (!value.matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}")) throw new CloudRuntimeException("Semantic identity UUID is invalid");
+    }
+    private static void safeLocalNumber(JsonObject row, String key) {
+        long value = integer(row, key);
+        if (value < 1000 || value == 65534 || value > 2147483647L) throw new CloudRuntimeException("Semantic local numeric identity is unsafe");
+    }
+    /** Public rows attest imported source accounts, never substitute new credentials. */
+    public static JsonObject semanticLocal(JsonObject proof, JsonObject scope, String targetSid, JsonObject plan) {
+        for (String field : Set.of("success", "localAccountsRestored", "localPassdbSidRebased", "targetSamPreserved")) yes(proof, field, true);
+        yes(proof,"canonicalDesiredStateChanged",false);sid(targetSid);
+        if (!scope.equals(proof.get("scope"))) throw new CloudRuntimeException("Semantic local identity belongs to another operation");
+        Set<String> users = new HashSet<>(), groups = new HashSet<>(), userIds = new HashSet<>(), rids = new HashSet<>();
+        for (String field : Set.of("publicMappings", "publicGroupMappings", "managedIdentityMappings")) {
+            if (!proof.has(field) || !proof.get(field).isJsonArray() || proof.getAsJsonArray(field).size() > 512) throw new CloudRuntimeException("Semantic identity mapping collection is invalid");
+        }
+        for (JsonElement item : proof.getAsJsonArray("publicMappings")) {
+            if (!item.isJsonObject() || !item.getAsJsonObject().keySet().equals(Set.of("name", "uid", "gid", "rid", "userSid"))) throw new CloudRuntimeException("Semantic local account mapping is not closed");
+            JsonObject row = item.getAsJsonObject();String name = text(row, "name");
+            if (!name.matches("[a-zA-Z_][a-zA-Z0-9_.-]{0,127}") || !users.add(name)) throw new CloudRuntimeException("Semantic local account name is invalid or duplicated");
+            safeLocalNumber(row, "uid");safeLocalNumber(row, "gid");long rid = integer(row, "rid");
+            if (rid < 1000 || rid > 4294967295L || !rids.add(Long.toString(rid)) || !userIds.add(Long.toString(integer(row, "uid"))) || !(targetSid + "-" + rid).equals(text(row, "userSid"))) throw new CloudRuntimeException("Semantic local account SID/RID or UID union differs");
+        }
+        for (JsonElement item : proof.getAsJsonArray("publicGroupMappings")) {
+            if (!item.isJsonObject() || !item.getAsJsonObject().keySet().equals(Set.of("name", "gid"))) throw new CloudRuntimeException("Semantic group mapping is not closed");
+            JsonObject row = item.getAsJsonObject();String name = text(row, "name");safeLocalNumber(row, "gid");
+            if (!name.matches("[a-zA-Z_][a-zA-Z0-9_.-]{0,127}") || !groups.add(name)) throw new CloudRuntimeException("Semantic group name is invalid or duplicated");
+        }
+        java.util.Map<String, JsonObject> expected = new java.util.HashMap<>();
+        for (String action : new String[] {"keep", "update", "create"}) for (JsonElement item : plan.getAsJsonArray(action)) {
+            JsonObject change = item.getAsJsonObject(), desired = change.getAsJsonObject("desired");
+            if ("access-rules".equals(text(change, "kind"))) {
+                String type = text(desired, "principal_type"), name = text(desired, "principal");
+                if ("LOCAL_USER".equals(type) && !users.contains(name) || "LOCAL_GROUP".equals(type) && !groups.contains(name)) throw new CloudRuntimeException("Reviewed LOCAL ACL lacks an imported source identity");
+            }
+            if (!"file-shares".equals(text(change, "kind")) || !"SMB".equals(text(desired, "protocol"))) continue;
+            JsonObject config = desired.getAsJsonObject("config");
+            if (config != null && config.has("posixOwnershipMode") && "FORCED_UID_GID".equals(text(config, "posixOwnershipMode"))) expected.put(text(change, "sourceUuid"), config);
+        }
+        java.util.Map<String, String> targets = new java.util.HashMap<>();
+        for (JsonElement item : plan.getAsJsonArray("resourceMappings")) {
+            JsonObject row = item.getAsJsonObject();String source = text(row, "sourceShareUuid"), target = text(row, "targetShareUuid");canonicalUuid(source);canonicalUuid(target);
+            if (targets.put(source, target) != null) throw new CloudRuntimeException("Semantic share mapping source collides");
+        }
+        Set<String> aliases = new HashSet<>(), namespaces = new HashSet<>();
+        for (JsonElement item : proof.getAsJsonArray("managedIdentityMappings")) {
+            if (!item.isJsonObject() || !item.getAsJsonObject().keySet().equals(Set.of("sourceShareUuid", "targetShareUuid", "identityNamespaceShareUuid", "managedUser", "managedGroup", "ownerUid", "ownerGid", "sourceIdentityVerified"))) throw new CloudRuntimeException("Semantic fixed owner mapping is not closed");
+            JsonObject row = item.getAsJsonObject();String source = text(row, "sourceShareUuid"), target = text(row, "targetShareUuid"), namespace = text(row, "identityNamespaceShareUuid");canonicalUuid(source);canonicalUuid(target);canonicalUuid(namespace);yes(row, "sourceIdentityVerified", true);
+            JsonObject policy = expected.get(source);String token = namespace.replace("-", "").substring(0, 20);
+            if (policy == null || !target.equals(targets.get(source)) || !aliases.add(source) || !namespaces.add(namespace) || !("sf_u_" + token).equals(text(row, "managedUser")) || !("sf_g_" + token).equals(text(row, "managedGroup"))) throw new CloudRuntimeException("Semantic fixed owner alias differs from reviewed share mapping");
+            JsonObject oldAlias = policy.has("semanticManagedIdentityReceipt") && policy.get("semanticManagedIdentityReceipt").isJsonObject() ? policy.getAsJsonObject("semanticManagedIdentityReceipt") : null;
+            String expectedNamespace = oldAlias == null ? source : text(oldAlias, "identityNamespaceShareUuid");
+            if (!namespace.equals(expectedNamespace) || oldAlias != null && !source.equals(text(oldAlias, "targetShareUuid"))) throw new CloudRuntimeException("Semantic chained alias namespace differs from its archived source provenance");
+            for (String key : Set.of("ownerUid", "ownerGid")) if (integer(row, key) < 10000 || integer(row, key) == 65534 || integer(row, key) > 2147483647L || integer(row, key) != integer(policy, key)) throw new CloudRuntimeException("Semantic fixed owner numeric policy changed");
+        }
+        if (!aliases.equals(expected.keySet())) throw new CloudRuntimeException("Semantic fixed owner mapping coverage is incomplete");
+        return publicFields(proof, Set.of("success", "scope", "localAccountsRestored", "localPassdbSidRebased", "targetSamPreserved", "canonicalDesiredStateChanged", "publicMappings", "publicGroupMappings", "managedIdentityMappings"));
+    }
+    public static JsonObject leaveCleanup(JsonObject proof,JsonObject scope) {
+        for(String field:Set.of("success","left","localMachineSidPreserved","adOwnedArtifactsRemoved","publicConfigurationRestored","computerAliasSpnAbsent","dnsAliasesAbsent"))yes(proof,field,true);
+        yes(proof,"canonicalDesiredStateChanged",false);
+        if(!scope.equals(proof.get("scope"))||!proof.has("ownedArtifactCleanup")||!proof.get("ownedArtifactCleanup").isJsonArray()
+                ||proof.getAsJsonArray("ownedArtifactCleanup").size()!=3)throw new CloudRuntimeException("AD leave has no exact owned artifact cleanup observation");
+        String[] names={"ad-machine.conf","krb5.keytab","winbindd_idmap.tdb"};
+        for(int i=0;i<names.length;i++){
+            JsonElement item=proof.getAsJsonArray("ownedArtifactCleanup").get(i);
+            if(!item.isJsonObject()||!item.getAsJsonObject().keySet().equals(Set.of("name","absent"))||!names[i].equals(text(item.getAsJsonObject(),"name")))throw new CloudRuntimeException("AD leave cleanup includes a foreign, duplicate or unnormalized artifact");
+            yes(item.getAsJsonObject(),"absent",true);
+        }
+        return publicFields(proof,Set.of("success","scope","left","localMachineSidPreserved","adOwnedArtifactsRemoved","canonicalDesiredStateChanged","publicConfigurationRestored","computerAliasSpnAbsent","dnsAliasesAbsent","ownedArtifactCleanup"));
+    }
     /** A local leave observation is fresh and remains bound to the immutable PRESTOP local SAM. */
     public static JsonObject notJoined(JsonObject proof,JsonObject scope,JsonObject source,double now) {
         fresh(proof,scope,now);
