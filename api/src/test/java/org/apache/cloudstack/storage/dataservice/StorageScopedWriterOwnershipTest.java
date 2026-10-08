@@ -23,7 +23,8 @@ import com.cloud.user.Account;
 import com.cloud.user.User;
 import org.junit.Assert;
 import org.junit.Test;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class StorageScopedWriterOwnershipTest {
     @Test public void actualScopedWriterCommandsUseTheValidCallingAccountAndSamePersistentQueue() throws Exception {

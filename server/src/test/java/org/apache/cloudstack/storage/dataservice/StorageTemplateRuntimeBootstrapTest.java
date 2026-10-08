@@ -15,12 +15,16 @@
 // specific language governing permissions and limitations
 // under the License.
 package org.apache.cloudstack.storage.dataservice;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import com.google.gson.JsonObject;
-import com.cloud.agent.api.*;
+import com.cloud.agent.api.StorageServiceRuntimeFileType;
+import com.cloud.agent.api.StorageServiceRuntimeHostAnswer;
+import com.cloud.agent.api.StorageServiceRuntimeOperation;
 import com.cloud.vm.VMInstanceVO;
 import com.cloud.vm.dao.VMInstanceDao;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.test.util.ReflectionTestUtils;
 public class StorageTemplateRuntimeBootstrapTest {

@@ -27,7 +27,6 @@ import com.cloud.user.Account;
 import com.cloud.user.User;
 import org.apache.cloudstack.context.CallContext;
 import org.apache.cloudstack.api.command.admin.storage.dataservice.ConfigureStorageServiceControlPolicyCmd;
-import org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageServiceControlPolicyCmd;
 import org.apache.cloudstack.storage.dataservice.dao.StorageServiceInstanceDao;
 import org.apache.cloudstack.storage.dataservice.dao.StorageServiceOperationControlDao;
 import org.junit.After;
@@ -36,7 +35,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockedStatic;
 import org.springframework.test.util.ReflectionTestUtils;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 public class StorageInstanceControlPolicyTest {
     private static class Manager extends StorageServiceManagerImpl {
@@ -99,4 +107,12 @@ public class StorageInstanceControlPolicyTest {
         JsonObject policy=new JsonObject();policy.addProperty("schemaVersion",1);policy.addProperty("instanceUuid",UUID.randomUUID().toString());policy.addProperty("enabled",true);policy.addProperty("revision",1);manager.instance.setOperationControlPolicyJson(policy.toString());Assert.assertThrows(CloudRuntimeException.class,()->manager.operationControlEnabled(manager.instance));
         policy.addProperty("instanceUuid",manager.instance.getUuid());manager.instance.setOperationControlPolicyJson(policy.toString());ReflectionTestUtils.setField(StorageServiceInstance.StorageServiceOperationControlEnabled,"_value",false);Assert.assertFalse(manager.operationControlEnabled(manager.instance));
     }
+    @Test public void runtimeCoverageTracksTheActuallyLoadedImplementationWhileRootAndScaleAreLinked() {
+        StorageServiceRuntimeUpgradeManager runtime=mock(StorageServiceRuntimeUpgradeManager.class);ReflectionTestUtils.setField(manager,"runtimeUpgradeManager",runtime);
+        JsonObject old=com.google.gson.JsonParser.parseString((String)ReflectionTestUtils.getField(manager.instanceControlPolicyResponse(manager.instance),"resultJson")).getAsJsonObject().getAsJsonObject("coverage");
+        Assert.assertEquals("PENDING",old.get("RUNTIME_UPGRADE").getAsString());Assert.assertEquals("LINKED",old.get("ROOT_UPGRADE").getAsString());Assert.assertEquals("LINKED",old.get("SCALE").getAsString());
+        when(runtime.operationControlLinked()).thenReturn(true);
+        JsonObject full=com.google.gson.JsonParser.parseString((String)ReflectionTestUtils.getField(manager.instanceControlPolicyResponse(manager.instance),"resultJson")).getAsJsonObject().getAsJsonObject("coverage");Assert.assertEquals("LINKED",full.get("RUNTIME_UPGRADE").getAsString());Assert.assertEquals(0,manager.reads);
+    }
+
 }

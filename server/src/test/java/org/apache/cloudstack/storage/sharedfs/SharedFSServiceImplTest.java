@@ -988,4 +988,18 @@ public class SharedFSServiceImplTest {
         verifyNoInteractions(guestCommandDispatcher);
     }
 
+    @Test public void scaleRecoveryCanExcludeOnlyItsExactRollingBackWriter() {
+        org.apache.cloudstack.storage.dataservice.StorageServiceInstanceVO instance=Mockito.mock(org.apache.cloudstack.storage.dataservice.StorageServiceInstanceVO.class);Mockito.when(instance.getId()).thenReturn(7L);
+        SharedFSVO shared=Mockito.mock(SharedFSVO.class);Mockito.when(shared.getVmId()).thenReturn(8L);Mockito.when(storageServiceInstanceDao.findByVmId(8L)).thenReturn(instance);
+        org.apache.cloudstack.storage.dataservice.StorageServiceOperationVO own=new org.apache.cloudstack.storage.dataservice.StorageServiceOperationVO();own.setInstanceId(7L);own.setAction("SHAREDFS_ONLINE_SCALE");own.setState("RUNNING");own.setPhase("ROLLING_BACK");
+        Mockito.when(storageOperationDao.listByInstance(7L)).thenReturn(java.util.List.of(own));
+        ThreadLocal<String> approved=(ThreadLocal<String>)org.springframework.test.util.ReflectionTestUtils.getField(sharedFSServiceImpl,"approvedScaleRecovery");approved.set(own.getUuid());
+        try {
+            sharedFSServiceImpl.requireNoUnresolvedWriter(shared);
+            own.setPhase("RESIZING");Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,()->sharedFSServiceImpl.requireNoUnresolvedWriter(shared));own.setPhase("ROLLING_BACK");
+            org.apache.cloudstack.storage.dataservice.StorageServiceOperationVO foreign=new org.apache.cloudstack.storage.dataservice.StorageServiceOperationVO();foreign.setInstanceId(7L);foreign.setState("RECOVERY_REQUIRED");foreign.setPhase("FORMAT_STARTED");
+            Mockito.when(storageOperationDao.listByInstance(7L)).thenReturn(java.util.List.of(own,foreign));Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,()->sharedFSServiceImpl.requireNoUnresolvedWriter(shared));
+        } finally {approved.remove();}
+    }
+
 }

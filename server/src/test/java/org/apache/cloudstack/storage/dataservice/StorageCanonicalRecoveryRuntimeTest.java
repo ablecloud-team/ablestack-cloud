@@ -15,15 +15,27 @@
 // specific language governing permissions and limitations
 // under the License.
 package org.apache.cloudstack.storage.dataservice;
-import java.util.*;
-import com.google.gson.*;
-import com.cloud.vm.*;
-import com.cloud.vm.dao.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
+import com.cloud.vm.NicVO;
+import com.cloud.vm.dao.NicDao;
+import com.cloud.vm.dao.NicSecondaryIpDao;
+import com.cloud.vm.dao.NicSecondaryIpVO;
 import com.cloud.utils.exception.CloudRuntimeException;
-import org.apache.cloudstack.storage.dataservice.dao.*;
-import org.apache.cloudstack.storage.sharedfs.*;
+import org.apache.cloudstack.storage.dataservice.dao.StorageBlockTargetDao;
+import org.apache.cloudstack.storage.dataservice.dao.StorageFileShareDao;
+import org.apache.cloudstack.storage.sharedfs.SharedFS;
+import org.apache.cloudstack.storage.sharedfs.SharedFSVO;
 import org.apache.cloudstack.storage.sharedfs.dao.SharedFSDao;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.test.util.ReflectionTestUtils;
 public class StorageCanonicalRecoveryRuntimeTest {

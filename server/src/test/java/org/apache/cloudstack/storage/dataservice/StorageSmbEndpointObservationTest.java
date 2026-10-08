@@ -15,8 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 package org.apache.cloudstack.storage.dataservice;
-import com.google.gson.*;
-import org.junit.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import org.junit.Assert;
+import org.junit.Test;
 public class StorageSmbEndpointObservationTest {
     private JsonObject health(){JsonObject root=new JsonObject();root.addProperty("success",true);root.addProperty("generatedEpoch",System.currentTimeMillis()/1000.0);JsonObject smb=new JsonObject();smb.addProperty("available",true);JsonArray endpoints=new JsonArray();for(String ip:new String[]{"10.10.13.240","10.10.13.241"}){JsonObject endpoint=new JsonObject();endpoint.addProperty("listenIp",ip);endpoint.addProperty("port",445);endpoint.addProperty("available",true);endpoint.addProperty("listenerOwned",true);endpoint.addProperty("tcpReady",true);endpoints.add(endpoint);}smb.add("runtimeEndpoints",endpoints);root.add("smbRuntime",smb);return root;}
     @Test public void oneReadyListenerCannotMakeAnotherMissingIpReady(){JsonObject health=health();health.getAsJsonObject("smbRuntime").getAsJsonArray("runtimeEndpoints").get(1).getAsJsonObject().addProperty("listenerOwned",false);Assert.assertEquals("READY",StorageSmbEndpointObservation.project(health,"10.10.13.240",445,System.currentTimeMillis()).get("runtimeState").getAsString());Assert.assertEquals("DEGRADED",StorageSmbEndpointObservation.project(health,"10.10.13.241",445,System.currentTimeMillis()).get("runtimeState").getAsString());Assert.assertEquals("DEGRADED",StorageSmbEndpointObservation.aggregate(health,System.currentTimeMillis()).get("runtimeState").getAsString());}

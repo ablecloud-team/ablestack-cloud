@@ -40,6 +40,8 @@ public class StorageOperationControlTest {
     private static class Manager extends StorageServiceManagerImpl {
         StorageServiceInstanceVO instance;
         @Override protected StorageServiceInstanceVO requireInstance(Long id) { return instance; }
+        @Override public String captureConfigurationSnapshot(long id) {return "{\"tables\":[]}";}
+
     }
     private Manager manager;
     private StorageServiceOperationVO operation;
@@ -57,6 +59,8 @@ public class StorageOperationControlTest {
         operations=Mockito.mock(StorageServiceOperationDao.class);Mockito.when(operations.findById(11L)).thenReturn(operation);Mockito.when(operations.listByInstance(7L)).thenReturn(List.of(operation));ReflectionTestUtils.setField(manager,"storageOperationDao",operations);
         controls=Mockito.mock(StorageServiceOperationControlDao.class);Mockito.when(controls.findByOperation(11L)).thenReturn(control);Mockito.when(controls.lockRow(22L,true)).thenReturn(control);Mockito.when(controls.update(Mockito.anyLong(),Mockito.any())).thenReturn(true);ReflectionTestUtils.setField(manager,"storageOperationControlDao",controls);
         guest=Mockito.mock(StorageServiceGuestCommandDispatcher.class);ReflectionTestUtils.setField(manager,"guestCommandDispatcher",guest);
+        org.apache.cloudstack.storage.dataservice.dao.StorageServiceInstanceDao instances=Mockito.mock(org.apache.cloudstack.storage.dataservice.dao.StorageServiceInstanceDao.class);Mockito.when(instances.findById(7L)).thenReturn(manager.instance);ReflectionTestUtils.setField(manager,"storageServiceInstanceDao",instances);
+
         com.cloud.user.UserVO user=Mockito.mock(com.cloud.user.UserVO.class);Mockito.when(user.getId()).thenReturn(3L);CallContext.register(user,Mockito.mock(com.cloud.user.AccountVO.class));
     }
     @After public void cleanup() {CallContext.unregister();ReflectionTestUtils.setField(StorageServiceInstance.StorageServiceOperationControlEnabled,"_value",oldEnabled);}
@@ -131,6 +135,28 @@ public class StorageOperationControlTest {
         try(MockedStatic<Transaction> ignored=transaction()) {Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,()->manager.acquireOperationResourceReservation(manager.instance,operation));}
         Assert.assertEquals("MEMORY_HEADROOM",com.google.gson.JsonParser.parseString(control.getPolicyJson()).getAsJsonObject().getAsJsonArray("blockers").get(0).getAsString());
         Assert.assertFalse(com.google.gson.JsonParser.parseString(control.getLeaseJson()).getAsJsonObject().get("reservationAcquired").getAsBoolean());Mockito.verify(operations,Mockito.never()).update(Mockito.anyLong(),Mockito.any());
+    }
+
+    @Test public void explicitRootDowntimeScopeDoesNotInventNativeSessionDrain() {
+        Mockito.when(manager.instance.getUuid()).thenReturn("instance");operation.setAction("ROOT_TEMPLATE_UPGRADE");
+        StorageServiceTemplateUpgradeVO root=new StorageServiceTemplateUpgradeVO();root.setInstanceId(7L);root.setOperationId(11L);root.setState("RUNNING");
+        JsonObject policy=new JsonObject();policy.add("requirements",StorageOperationResourceBudget.estimate(StorageOperationResourceBudget.Work.ROOT_UPGRADE,100,0,0,1,true).request());control.setPolicyJson(policy.toString());
+        manager.startRootOperationControl(manager.instance,root,operation);
+        JsonObject updated=com.google.gson.JsonParser.parseString(control.getPolicyJson()).getAsJsonObject();Assert.assertFalse(updated.getAsJsonObject("requirements").get("requireSessionDrain").getAsBoolean());Assert.assertFalse(updated.get("drainSupported").getAsBoolean());
+        JsonObject request=manager.operationReservationRequest(manager.instance,operation);Assert.assertEquals(root.getUuid(),request.get("templateUpgradeUuid").getAsString());Assert.assertEquals(operation.getUuid(),request.getAsJsonObject("maintenanceScope").get("operationUuid").getAsString());
+        root.setOperationId(99L);Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,()->manager.startRootOperationControl(manager.instance,root,operation));Mockito.verifyNoInteractions(guest);
+    }
+
+    @Test public void suspendedCrossBootLeaseCannotBeRenewedUntilExplicitReacquisition() {
+        Mockito.when(manager.instance.getVmId()).thenReturn(7L);operation.setAction("SHAREDFS_ONLINE_SCALE");control.setLeaseJson(lease().toString());
+        JsonObject policy=new JsonObject();policy.add("requirements",StorageOperationResourceBudget.estimate(StorageOperationResourceBudget.Work.SCALE,100,0,0,1,false).request());control.setPolicyJson(policy.toString());
+        Mockito.when(operations.findByUuid(operation.getUuid())).thenReturn(operation);
+        Mockito.when(guest.dispatch(Mockito.any())).thenAnswer(call->{StorageServiceGuestCommand command=call.getArgument(0);JsonObject reply=lease();reply.addProperty("success",true);reply.addProperty("reservationSupported",true);if(command.getOperation().equals("operation reservation release"))reply.addProperty("reservationAcquired",false);return new StorageServiceGuestCommandResult(true,"lease",reply.toString());});
+        manager.beginStorageWriterHeartbeat(operation);
+        try(MockedStatic<Transaction> ignored=transaction()) {
+            manager.suspendManagedOperationControl(operation.getUuid());manager.renewOperationResourceReservation(operation);Mockito.verify(guest,Mockito.times(1)).dispatch(Mockito.any());
+            manager.resumeManagedOperationControl(operation.getUuid());manager.renewOperationResourceReservation(operation);Mockito.verify(guest,Mockito.times(3)).dispatch(Mockito.any());Assert.assertEquals(operation,manager.managedOperation(operation.getUuid()));
+        } finally {manager.endStorageWriterHeartbeat();}
     }
 
 }

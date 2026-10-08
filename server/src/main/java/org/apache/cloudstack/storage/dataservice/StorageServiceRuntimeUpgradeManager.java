@@ -31,6 +31,9 @@ import org.apache.cloudstack.api.response.StorageServiceRuntimeCapabilityRespons
 import org.apache.cloudstack.api.response.StorageServiceRuntimeUpgradeResponse;
 
 public interface StorageServiceRuntimeUpgradeManager {
+    /** Older deployed implementations retain disabled control coverage. */
+    default boolean operationControlLinked() { return false; }
+
     com.google.gson.JsonObject verifyAvailableBundle(Long bundleId);
     com.google.gson.JsonObject templateRuntimeCapabilities(long instanceId);
     com.google.gson.JsonObject checkpointTemplateRuntime(long instanceId, String rootOperationUuid);

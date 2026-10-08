@@ -77,4 +77,23 @@ public class LibvirtStorageServiceHostCommandWrapperTest {
         Assert.assertFalse(wrapper.identityTransportObservation(command, "unavailable").contains("protectedStdinTransport"));
     }
 
+    @Test public void renderedPrivateKeysAndTransientCredentialsUseOnlyQgaStdinWithoutDiskOrArgvCopies() {
+        String payload="{\"checkpointPrivateKey\":\"synthetic-key-only\",\"transientCredentials\":{\"password\":\"synthetic-password-only\"}}";
+        for(String operation:new String[]{"operation generation render-stage","operation generation render-activate","operation generation render-rollback"}) {
+            StorageServiceHostCommand command=new StorageServiceHostCommand("same-vm",operation,payload,60,Collections.emptySet());
+            com.google.gson.JsonObject arguments=com.google.gson.JsonParser.parseString(wrapper.buildGuestExecCommand(command)).getAsJsonObject().getAsJsonObject("arguments");
+            Assert.assertEquals(payload,new String(java.util.Base64.getDecoder().decode(arguments.get("input-data").getAsString()),java.nio.charset.StandardCharsets.UTF_8));
+            String shell=wrapper.buildStorageCtlShell(command);Assert.assertEquals("/usr/local/bin/ablestack-storagectl "+operation+" /dev/stdin",shell);
+            Assert.assertFalse(shell.contains("mktemp"));Assert.assertFalse(arguments.get("arg").toString().contains("synthetic"));
+            Assert.assertFalse(arguments.get("arg").toString().contains(java.util.Base64.getEncoder().encodeToString(payload.getBytes(java.nio.charset.StandardCharsets.UTF_8))));
+            if (!operation.endsWith("render-stage")) {Assert.assertFalse(wrapper.commandFailureDetails(command,1,payload,payload).contains("synthetic"));Assert.assertFalse(wrapper.commandExceptionDetails(command,payload).contains("synthetic"));}
+        }
+    }
+    @Test public void allExplicitlyMaskedGuestCredentialsAvoidPayloadTempfilesAndProcessArguments() {
+        String payload="{\"password\":\"synthetic-only\"}";
+        StorageServiceHostCommand command=new StorageServiceHostCommand("same-vm","smb share apply",payload,60,Collections.singleton("password"));
+        com.google.gson.JsonObject arguments=com.google.gson.JsonParser.parseString(wrapper.buildGuestExecCommand(command)).getAsJsonObject().getAsJsonObject("arguments");
+        Assert.assertTrue(arguments.has("input-data"));Assert.assertFalse(wrapper.buildStorageCtlShell(command).contains("mktemp"));Assert.assertFalse(arguments.get("arg").toString().contains("synthetic"));
+    }
+
 }

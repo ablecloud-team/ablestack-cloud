@@ -15,13 +15,19 @@
 // specific language governing permissions and limitations
 // under the License.
 package org.apache.cloudstack.storage.dataservice;
-import org.junit.*;
-import org.mockito.*;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.apache.cloudstack.context.CallContext;
-import org.apache.cloudstack.api.command.admin.storage.dataservice.*;
-import com.cloud.user.*;
-import org.apache.cloudstack.storage.sharedfs.*;
+import org.apache.cloudstack.api.command.admin.storage.dataservice.BaseStorageTemplateUpgradeAsyncCmd;
+import org.apache.cloudstack.api.command.admin.storage.dataservice.FinalizeStorageServiceSystemVmTemplateUpgradeCmd;
+import org.apache.cloudstack.api.command.admin.storage.dataservice.RollbackStorageServiceSystemVmTemplateUpgradeCmd;
+import org.apache.cloudstack.api.command.admin.storage.dataservice.UpgradeStorageServiceSystemVmTemplateCmd;
+import com.cloud.user.Account;
+import com.cloud.user.AccountManager;
+import org.apache.cloudstack.storage.sharedfs.SharedFSVO;
 import org.apache.cloudstack.storage.sharedfs.dao.SharedFSDao;
 import org.apache.cloudstack.storage.dataservice.dao.StorageServiceInstanceDao;
 public class StorageTemplateUpgradeCommandContractTest {

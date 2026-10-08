@@ -15,10 +15,16 @@
 // specific language governing permissions and limitations
 // under the License.
 package org.apache.cloudstack.storage.sharedfs;
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.cloud.utils.exception.CloudRuntimeException;
-import org.junit.*;
-import java.util.*;
+import org.junit.Assert;
+import org.junit.Test;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 public class StorageSharedFsDeletionIdentityTest {
     private JsonObject scope(){return JsonParser.parseString("{\"sharedfsId\":7,\"sharedfsUuid\":\"11111111-2222-4333-8444-555555555555\",\"vmId\":60,\"policy\":\"PRESERVE_VOLUMES\",\"accountId\":2,\"domainId\":1,\"zoneId\":4}").getAsJsonObject();}
     private JsonObject row(long id){JsonObject v=JsonParser.parseString("{\"type\":\"DATADISK\",\"accountId\":2,\"domainId\":1,\"zoneId\":4,\"poolId\":90,\"sizeBytes\":21474836480,\"attachedVmId\":60,\"state\":\"Ready\"}").getAsJsonObject();v.addProperty("id",id);v.addProperty("uuid",new UUID(0,id).toString());return v;}

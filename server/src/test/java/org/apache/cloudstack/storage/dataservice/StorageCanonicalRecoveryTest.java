@@ -15,8 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 package org.apache.cloudstack.storage.dataservice;
-import com.google.gson.*;
-import org.junit.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
+import org.junit.Assert;
+import org.junit.Test;
 import com.cloud.utils.exception.CloudRuntimeException;
 public class StorageCanonicalRecoveryTest {
     private JsonObject desired(String state) {JsonObject file=new JsonObject();JsonArray acls=new JsonArray();JsonObject acl=new JsonObject();acl.addProperty("state",state);acl.addProperty("principal","same-user");acl.addProperty("permission","RW");acls.add(acl);file.add("acls",acls);JsonObject result=new JsonObject();result.add("desired-state/smb-share-apply.json",file);result.add("desired-state/nfs-export-apply.json",JsonNull.INSTANCE);return result;}

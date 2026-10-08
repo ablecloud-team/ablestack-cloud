@@ -204,6 +204,9 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
     org.apache.cloudstack.storage.dataservice.dao.StorageServiceRuntimeUpgradeDao storageRuntimeUpgradeDao;
 
     @Inject org.apache.cloudstack.storage.dataservice.dao.StorageServiceTemplateUpgradeDao storageTemplateUpgradeDao;
+    @Inject javax.inject.Provider<org.apache.cloudstack.storage.dataservice.StorageService> managedStorageService;
+    private final ThreadLocal<String> approvedScaleRecovery = new ThreadLocal<>();
+
     protected void requireNoRootMaintenance(SharedFS sharedFS) {
         StorageServiceInstanceVO instance=sharedFS.getVmId()==null?null:storageServiceInstanceDao.findByVmId(sharedFS.getVmId());
         if (instance!=null && storageTemplateUpgradeDao.findActive(instance.getId())!=null) throw new CloudRuntimeException("ROOT template maintenance must complete or recover before a service lifecycle change");
@@ -217,6 +220,8 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         StorageServiceInstanceVO instance = storageServiceInstanceDao.findByVmId(sharedFS.getVmId());
         if (instance == null) return;
         for (org.apache.cloudstack.storage.dataservice.StorageServiceOperationVO operation : storageOperationDao.listByInstance(instance.getId())) {
+            if (operation.getUuid().equals(approvedScaleRecovery.get()) && "SHAREDFS_ONLINE_SCALE".equals(operation.getAction())
+                    && operation.getInstanceId() == instance.getId() && "RUNNING".equals(operation.getState()) && "ROLLING_BACK".equals(operation.getPhase())) continue;
             if (Set.of("RUNNING", "RECOVERY_REQUIRED", "ROLLBACK_FAILED").contains(operation.getState())) {
                 throw new CloudRuntimeException("Unresolved Storage Service writer preserves VM and DATA until formal recovery");
             }
@@ -1127,6 +1132,8 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
                     || (original.has("serviceOfferingId") && !sharedFS.getServiceOfferingId().equals(original.get("serviceOfferingId").getAsLong()))
                     || Math.abs(offering.getRamSize()*1024L*1024-original.get("memoryTotalBytes").getAsLong())>512L*1024*1024
                     || !SharedFSOnlineScale.originalResourcesMatch(original,observed)) throw new CloudRuntimeException("Previous online scaling recovery must be verified before another resize");
+            org.apache.cloudstack.storage.dataservice.StorageService control = managedStorageService.get();
+            control.resumeManagedOperationControl(previous.getUuid());control.verifyManagedOperationControl(previous.getUuid());control.finishManagedOperationControl(previous.getUuid(),"ROLLED_BACK");
             previous.setState("ROLLED_BACK");previous.setPhase("ROLLED_BACK");previous.setCompleted(new java.util.Date());previous.setHeartbeat(new java.util.Date());
             previous.setResultJson(observed.toString());previous.setDiagnostic("Original resources and protocol health verified after guest boot completed");storageOperationDao.update(previous.getId(),previous);
         }
@@ -1149,27 +1156,35 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         operation.setCreatedBy(CallContext.current().getCallingUserId());operation.setState("RUNNING");operation.setPhase("PREFLIGHT");
         final org.apache.cloudstack.storage.dataservice.StorageServiceOperationVO journal=storageOperationDao.persist(operation);
         final Long originalId=sharedFS.getServiceOfferingId();
+        org.apache.cloudstack.storage.dataservice.StorageService control = managedStorageService.get();
         try {
+            JsonObject resourceScope = new JsonObject();resourceScope.addProperty("vmId",vm.getId());resourceScope.addProperty("sharedFsUuid",sharedFS.getUuid());
+            resourceScope.addProperty("sourceOfferingId",originalId);resourceScope.addProperty("targetOfferingId",targetId);
+            resourceScope.addProperty("sourceCpuCount",before.getCpu());resourceScope.addProperty("sourceMemoryMiB",before.getRamSize());resourceScope.addProperty("targetCpuCount",target.getCpu());resourceScope.addProperty("targetMemoryMiB",target.getRamSize());
+            control.beginManagedOperationControl(journal.getUuid(),resourceScope.toString(),0);
             com.google.gson.JsonObject verified=SharedFSOnlineScale.execute(new SharedFSOnlineScale.Runtime() {
                 public void health() { com.google.gson.JsonObject health=scalingGuestCommand(vm.getId(),"operation verify","{}");if (!"ok".equalsIgnoreCase(health.get("status").getAsString())) throw new CloudRuntimeException("Storage Service health checkpoint failed"); }
                 public com.google.gson.JsonObject resources() {
                     com.google.gson.JsonObject observed=scalingGuestCommand(vm.getId(),"operation resources","{}");
                     journal.setResultJson(observed.toString());journal.setHeartbeat(new java.util.Date());storageOperationDao.update(journal.getId(),journal);return observed;
                 }
-                public void activate(int cpus) { scalingGuestCommand(vm.getId(),"operation activate-scale","{\"targetCpuCount\":"+cpus+"}"); }
+                public void activate(int cpus) { control.verifyManagedOperationControl(journal.getUuid());scalingGuestCommand(vm.getId(),"operation activate-scale","{\"targetCpuCount\":"+cpus+"}"); }
                 public void prepare(int cpus) {
+                    control.verifyManagedOperationControl(journal.getUuid());
                     com.google.gson.JsonObject resource=resources();
                     resource.addProperty("serviceOfferingId",originalId);resource.addProperty("configuredMemoryMiB",before.getRamSize());resource.addProperty("configuredCpuCount",before.getCpu());resource.addProperty("cpuSpeed",before.getSpeed());
                     journal.setPreviousSnapshotJson(resource.toString());storageOperationDao.update(journal.getId(),journal);
                     scalingGuestCommand(vm.getId(),"operation prepare-scale","{\"targetCpuCount\":"+cpus+"}");
                 }
                 public void resize() {
+                    control.verifyManagedOperationControl(journal.getUuid());
                     try { if (!life.changeSharedFSServiceOffering(sharedFS,targetId)) throw new CloudRuntimeException("Online offering change was not completed"); }
                     catch (Exception failure) { throw new CloudRuntimeException("Online offering change failed",failure); }
                     sharedFS.setServiceOfferingId(targetId);sharedFSDao.update(sharedFS.getId(),sharedFS);
                 }
                 public void restore() {
                     try {
+                        control.suspendManagedOperationControl(journal.getUuid());approvedScaleRecovery.set(journal.getUuid());
                         SharedFSVO current=sharedFSDao.findById(sharedFS.getId());
                         if (current.getState()==State.Ready) stopSharedFS(current.getId(),false);
                         current=sharedFSDao.findById(current.getId());
@@ -1177,13 +1192,14 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
                         if (observed==null || observed.getState()!=com.cloud.vm.VirtualMachine.State.Stopped) throw new CloudRuntimeException("Guest did not stop; recovery hardware change is blocked");
                         if (!life.changeSharedFSServiceOffering(current,originalId)) throw new CloudRuntimeException("Previous offering could not be restored");
                         current.setServiceOfferingId(originalId);sharedFSDao.update(current.getId(),current);startSharedFS(current.getId());
-                        syncSharedFSToStorageService(sharedFSDao.findById(current.getId()));
+                        syncSharedFSToStorageService(sharedFSDao.findById(current.getId()));control.resumeManagedOperationControl(journal.getUuid());
                     } catch (Exception failure) { throw new CloudRuntimeException("Cold recovery of the original resources failed",failure); }
+                    finally {approvedScaleRecovery.remove();}
                 }
                 public void pause() { journal.setHeartbeat(new java.util.Date());storageOperationDao.update(journal.getId(),journal);try { Thread.sleep(2000); } catch (InterruptedException interrupted) { Thread.currentThread().interrupt();throw new CloudRuntimeException("Scaling verification interrupted",interrupted); } }
                 public void phase(String value) {
                     journal.setPhase(value);journal.setHeartbeat(new java.util.Date());
-                    if (List.of("COMPLETE","ROLLED_BACK","RECOVERY_REQUIRED").contains(value)) { journal.setState(value);journal.setProgress(100);journal.setCompleted(new java.util.Date()); }
+                    if (List.of("COMPLETE","ROLLED_BACK","RECOVERY_REQUIRED").contains(value)) { control.finishManagedOperationControl(journal.getUuid(),value);journal.setState(value);journal.setProgress(100);journal.setCompleted(new java.util.Date()); }
                     else journal.setProgress("VERIFYING".equals(value) ? 80 : "RESIZING".equals(value) ? 40 : 10);
                     storageOperationDao.update(journal.getId(),journal);
                 }
@@ -1194,7 +1210,12 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
             if ("RUNNING".equals(journal.getState())) { journal.setState("BLOCKED");journal.setPhase("BLOCKED");journal.setCompleted(new java.util.Date()); }
             String diagnostic=failure.getMessage();
             if (failure.getSuppressed().length>0) diagnostic+="; recovery: "+failure.getSuppressed()[0].getMessage();
-            journal.setDiagnostic(diagnostic);storageOperationDao.update(journal.getId(),journal);throw failure;
+            journal.setDiagnostic(diagnostic);storageOperationDao.update(journal.getId(),journal);
+            if ("BLOCKED".equals(journal.getState())) {
+                try {control.finishManagedOperationControl(journal.getUuid(),"BLOCKED");}
+                catch (RuntimeException cleanup) {failure.addSuppressed(cleanup);}
+            }
+            throw failure;
         }
     }
 

@@ -201,13 +201,18 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
         return stdout;
     }
 
+    private boolean hasSensitivePayload(StorageServiceHostCommand command) {
+        return (command.getMaskedFields() != null && !command.getMaskedFields().isEmpty())
+                || (command.getOperation() != null && java.util.Set.of("operation generation render-activate", "operation generation render-rollback").contains(command.getOperation()));
+    }
+
     protected String commandExceptionDetails(StorageServiceHostCommand command,String diagnostic) {
-        if (command.getMaskedFields() != null && !command.getMaskedFields().isEmpty()) return "Sensitive Storage Service host command failed; secret-bearing diagnostic omitted";
+        if (hasSensitivePayload(command)) return "Sensitive Storage Service host command failed; secret-bearing diagnostic omitted";
         return diagnostic;
     }
 
     protected String commandFailureDetails(StorageServiceHostCommand command, int exitCode, String stdout, String stderr) {
-        if (command.getMaskedFields() != null && !command.getMaskedFields().isEmpty()) {
+        if (hasSensitivePayload(command)) {
             return "Sensitive Storage Service command failed with exit code " + exitCode + "; secret-bearing output omitted";
         }
         String diagnostic=stderr;
@@ -222,6 +227,11 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
         return "Storage Service command failed with exit code " + exitCode + ": " + diagnostic.substring(0,Math.min(diagnostic.length(),2048));
     }
 
+    private boolean usesProtectedStdin(StorageServiceHostCommand command) {
+        return (command.getOperation() != null && command.getOperation().startsWith("identity capsule ")) || (command.getMaskedFields() != null && !command.getMaskedFields().isEmpty())
+                || (command.getOperation() != null && java.util.Set.of("operation generation render-stage", "operation generation render-activate", "operation generation render-rollback").contains(command.getOperation()));
+    }
+
     protected String buildGuestExecCommand(final StorageServiceHostCommand command) {
         final JsonObject qgaCommand = new JsonObject();
         qgaCommand.addProperty("execute", "guest-exec");
@@ -231,7 +241,7 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
         args.add(new JsonPrimitive("-lc"));
         args.add(new JsonPrimitive(buildStorageCtlShell(command)));
         arguments.add("arg", args);
-        if (command.getOperation().startsWith("identity capsule ")) {
+        if (usesProtectedStdin(command)) {
             // QGA stdin keeps wrapping credentials out of the guest process argument list.
             arguments.addProperty("input-data", Base64.getEncoder().encodeToString(
                     (command.getPayload() == null ? "" : command.getPayload()).getBytes(StandardCharsets.UTF_8)));
@@ -247,7 +257,7 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
         }
         final String payload = command.getPayload() == null ? "" : command.getPayload();
         final String encodedPayload = Base64.getEncoder().encodeToString(payload.getBytes(StandardCharsets.UTF_8));
-        if (command.getOperation().startsWith("identity capsule ")) {
+        if (usesProtectedStdin(command)) {
             return "/usr/local/bin/ablestack-storagectl " + command.getOperation() + " /dev/stdin";
         }
         return "payload=$(mktemp /tmp/ablestack-storage-XXXXXX.json); " +

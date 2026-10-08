@@ -69,6 +69,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase implements StorageServiceRuntimeUpgradeManager {
+    @Override public boolean operationControlLinked() { return true; }
     private static final Pattern VERSION_PATTERN = Pattern.compile("[A-Za-z0-9][A-Za-z0-9._-]{0,127}");
     private static final Pattern SHA256_PATTERN = Pattern.compile("[0-9a-fA-F]{64}");
     private static final int MAX_BUNDLE_BYTES = 64 * 1024 * 1024;
@@ -91,6 +92,58 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
     @Inject private org.apache.cloudstack.storage.dataservice.dao.StorageAccessRuleDao accessRuleDao;
     @Inject private org.apache.cloudstack.storage.dataservice.dao.StoragePosixDirectoryPolicyDao posixPolicyDao;
     @Inject private org.apache.cloudstack.storage.dataservice.dao.StorageIdentityDomainDao runtimeIdentityDomainDao;
+
+    @Inject private javax.inject.Provider<StorageService> operationControlService;
+
+    /** The caller owns StorageServiceWriter; these primitives never reacquire it. */
+    protected RuntimeResourceScope beginRuntimeResourceScope(StorageServiceRuntimeUpgradeVO upgrade, boolean rollback) {
+        StorageService service = operationControlService.get();
+        return new RuntimeResourceScope(service, service.beginRuntimeOperationControl(upgrade.getId(), rollback));
+    }
+
+    protected final class RuntimeResourceScope {
+        private final StorageService service;
+        private final String operationUuid;
+        private boolean effectStarted;
+        private boolean finished;
+        RuntimeResourceScope(StorageService service, String operationUuid) {
+            this.service = service; this.operationUuid = operationUuid;
+        }
+        void beforeEffect() {
+            if (operationUuid != null) service.verifyManagedOperationControl(operationUuid);
+            effectStarted = true;
+        }
+        void terminal(String state) {
+            if (operationUuid != null) service.finishManagedOperationControl(operationUuid, state);
+            finished = true;
+        }
+        void failed(RuntimeException original) {
+            if (finished || operationUuid == null) return;
+            String state = effectStarted ? "RECOVERY_REQUIRED"
+                    : original instanceof StorageOperationCancelledException ? "CANCELLED" : "BLOCKED";
+            try { service.finishManagedOperationControl(operationUuid, state); finished = true; }
+            catch (RuntimeException cleanup) { original.addSuppressed(cleanup); }
+        }
+        boolean hasEffects() { return effectStarted; }
+    }
+
+    protected <T> T finishRuntimeResourceScope(RuntimeResourceScope scope, String state, java.util.function.Supplier<T> projection) {
+        scope.terminal(state);
+        return projection.get();
+    }
+
+    protected void failRuntimeControlled(StorageServiceRuntimeUpgradeVO upgrade, RuntimeResourceScope scope, RuntimeException error) {
+        if (scope != null) scope.failed(error);
+        if (scope != null && scope.hasEffects()) {
+            upgrade.setErrorCode("RUNTIME_RECOVERY_REQUIRED");
+            upgrade.setErrorMessage(error.getMessage() == null ? error.getClass().getSimpleName()
+                    : error.getMessage().substring(0, Math.min(1024, error.getMessage().length())));
+            upgrade.setCompleted(null);
+            update(upgrade, StorageServiceRuntimeUpgradeVO.State.MANUAL_RECOVERY, "RECOVERY_REQUIRED", upgrade.getProgress() == null ? 0 : upgrade.getProgress());
+        } else {
+            fail(upgrade, error);
+        }
+    }
 
     private StorageServiceRuntimeUpgradeResponse rootSerializedRuntime(StorageServiceInstanceVO instance,
             java.util.function.Supplier<StorageServiceRuntimeUpgradeResponse> action) {
@@ -631,6 +684,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         }
         final StorageServiceInstanceVO instance = instanceDao.findById(upgrade.getInstanceId());
         final StorageServiceRuntimeBundleVO bundle = requireBundle(upgrade.getBundleId());
+        RuntimeResourceScope control = null;
         try {
             JsonObject preflight = upgrade.getPreflightJson() == null ? null : JsonParser.parseString(upgrade.getPreflightJson()).getAsJsonObject();
             if (preflight == null || !preflight.has("targetRuntimePin") || !runtimePin(bundle).equals(preflight.get("targetRuntimePin"))) {
@@ -643,7 +697,9 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
             JsonObject compatibility = versionCompatibility(instance, manifest, StorageRuntimeVersionCompatibility.Mode.NEW_ACTIVATION, null);
             pinnedBundle(runtimePin(bundle));
             requireRuntimeActivationSafety(instance);
+            control = beginRuntimeResourceScope(upgrade, false);
             update(upgrade, StorageServiceRuntimeUpgradeVO.State.RUNNING, "ACTIVATING", 70);
+            control.beforeEffect();
             final JsonObject activated = invoke(instance, StorageServiceRuntimeOperation.ACTIVATE,
                     upgrade.getTransactionId(), request(upgrade, bundle));
             update(upgrade, StorageServiceRuntimeUpgradeVO.State.RUNNING, "VERIFYING", 85);
@@ -652,19 +708,22 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
             if (!runtimeHealthVerified(health)) {
                 StorageServiceRuntimeBundleVO previous = upgrade.getPreviousBundleId() == null ? null : bundleDao.findById(upgrade.getPreviousBundleId());
                 JsonObject rollbackCompatibility = genericRollbackCompatibility(instance, upgrade, previous);requireRuntimeActivationSafety(instance);
+                control.beforeEffect();
                 final JsonObject rolledBack = invoke(instance, StorageServiceRuntimeOperation.ROLLBACK,
                         upgrade.getTransactionId(), request(upgrade, bundle));
                 rolledBack.add("consumerCompatibility", rollbackCompatibility);rolledBack.add("installedPreviousReadback", verifyGenericPrevious(instance, upgrade, previous));
                 upgrade.setRollbackResultJson(rolledBack.toString());
+                control.terminal("ROLLED_BACK");
                 update(upgrade, StorageServiceRuntimeUpgradeVO.State.ROLLED_BACK, "ROLLED_BACK", 100);
                 throw new CloudRuntimeException("Runtime activation health verification failed and previous runtime was restored: " + health.getDetails());
             }
+            return finishRuntimeResourceScope(control, "COMPLETE", () -> {
             final Long previous = instance.getCurrentRuntimeBundleId();
             instance.setPreviousRuntimeBundleId(previous);
             instance.setCurrentRuntimeBundleId(bundle.getId());
             instance.setRuntimeState("VERIFIED");
             instance.setRuntimeVerifiedAt(new Date());
-            instanceDao.update(instance.getId(), instance);
+            if (!instanceDao.update(instance.getId(), instance)) throw new CloudRuntimeException("Verified runtime projection could not be persisted");
             final JsonObject verification = new JsonObject();
             verification.add("activation", activated);verification.add("consumerCompatibility", compatibility);
             verification.addProperty("healthSuccess", true);
@@ -673,8 +732,9 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
             upgrade.setCompleted(new Date());
             update(upgrade, StorageServiceRuntimeUpgradeVO.State.COMPLETE, "COMPLETE", 100);
             return upgradeResponse(upgrade);
+            });
         } catch (final RuntimeException error) {
-            if (upgrade.getState() != StorageServiceRuntimeUpgradeVO.State.ROLLED_BACK) fail(upgrade, error);
+            if (upgrade.getState() != StorageServiceRuntimeUpgradeVO.State.ROLLED_BACK) failRuntimeControlled(upgrade, control, error);
             throw error;
         }
     }
@@ -698,19 +758,29 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
             throw new CloudRuntimeException("Rollback source is no longer this upgrade's active bundle");
         }
         final JsonObject compatibility = genericRollbackCompatibility(instance, upgrade, previous);requireRuntimeActivationSafety(instance);
+        RuntimeResourceScope control = null;
+        try {
+            control = beginRuntimeResourceScope(upgrade, true);
+            control.beforeEffect();
         final JsonObject result = invoke(instance, StorageServiceRuntimeOperation.ROLLBACK,
                 upgrade.getTransactionId(), request(upgrade, bundle));
         result.add("consumerCompatibility", compatibility);result.add("installedPreviousReadback", verifyGenericPrevious(instance, upgrade, previous));
+        return finishRuntimeResourceScope(control, "ROLLED_BACK", () -> {
         final Long current = instance.getCurrentRuntimeBundleId();
         instance.setCurrentRuntimeBundleId(instance.getPreviousRuntimeBundleId());
         instance.setPreviousRuntimeBundleId(current);
         instance.setRuntimeState("ROLLED_BACK");
         instance.setRuntimeVerifiedAt(new Date());
-        instanceDao.update(instance.getId(), instance);
+        if (!instanceDao.update(instance.getId(), instance)) throw new CloudRuntimeException("Verified runtime projection could not be persisted");
         upgrade.setRollbackResultJson(result.toString());
         upgrade.setCompleted(new Date());
         update(upgrade, StorageServiceRuntimeUpgradeVO.State.ROLLED_BACK, "ROLLED_BACK", 100);
         return upgradeResponse(upgrade);
+        });
+        } catch (RuntimeException error) {
+            failRuntimeControlled(upgrade, control, error);
+            throw error;
+        }
     }
 
     @Override
@@ -957,7 +1027,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
 
     private void update(final StorageServiceRuntimeUpgradeVO upgrade, final StorageServiceRuntimeUpgradeVO.State state,
             final String phase, final int progress) {
-        upgrade.setState(state); upgrade.setPhase(phase); upgrade.setProgress(progress); upgradeDao.update(upgrade.getId(), upgrade);
+        upgrade.setState(state); upgrade.setPhase(phase); upgrade.setProgress(progress); if (!upgradeDao.update(upgrade.getId(), upgrade)) throw new CloudRuntimeException("Runtime upgrade state could not be persisted");
     }
 
     private void fail(final StorageServiceRuntimeUpgradeVO upgrade, final RuntimeException error) {

@@ -15,8 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 package com.cloud.upgrade.dao;
-import java.sql.*;
-import org.junit.*;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mockito;
 public class EuropaSharedFSTemplateUpgradeTest {
     private Connection connection;private Statement statement;private DatabaseMetaData metadata;private ResultSet table;private ResultSet columns;

@@ -15,12 +15,15 @@
 // specific language governing permissions and limitations
 // under the License.
 package com.cloud.vm;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.test.util.ReflectionTestUtils;
 import com.cloud.vm.dao.UserVmDao;
 import com.cloud.vm.dao.NicDao;
-import org.apache.cloudstack.storage.sharedfs.*;
+import org.apache.cloudstack.storage.sharedfs.SharedFS;
+import org.apache.cloudstack.storage.sharedfs.SharedFSVO;
 import org.apache.cloudstack.storage.sharedfs.dao.SharedFSDao;
 import com.cloud.utils.exception.CloudRuntimeException;
 public class SharedFsPrimaryAddressGuardTest {

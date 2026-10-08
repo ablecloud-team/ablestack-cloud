@@ -16,18 +16,36 @@
 // under the License.
 package org.apache.cloudstack.storage.dataservice;
 
-import java.util.*;
-import com.google.gson.*;
-import com.cloud.storage.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.cloud.storage.Volume;
+import com.cloud.storage.VolumeVO;
 import com.cloud.storage.dao.VolumeDao;
-import com.cloud.vm.*;
+import com.cloud.vm.NicVO;
+import com.cloud.vm.UserVmManager;
+import com.cloud.vm.UserVmVO;
+import com.cloud.vm.VirtualMachine;
 import com.cloud.vm.dao.UserVmDao;
 import com.cloud.exception.InvalidParameterValueException;
 import com.cloud.utils.exception.CloudRuntimeException;
-import org.apache.cloudstack.storage.dataservice.dao.*;
+import org.apache.cloudstack.storage.dataservice.dao.StorageFileShareDao;
+import org.apache.cloudstack.storage.dataservice.dao.StoragePosixDirectoryPolicyDao;
+import org.apache.cloudstack.storage.dataservice.dao.StorageServiceOperationControlDao;
+import org.apache.cloudstack.storage.dataservice.dao.StorageServiceProtocolDao;
+import org.apache.cloudstack.storage.dataservice.dao.StorageServiceTemplateUpgradeDao;
 import org.apache.cloudstack.storage.sharedfs.SharedFSVO;
 import org.apache.cloudstack.engine.subsystem.api.storage.VolumeService;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -74,6 +92,7 @@ public class StorageTemplateUpgradeRuntimeTest {
         JsonObject snapshot=new JsonObject();snapshot.add("topology",manager.topology.deepCopy());JsonObject generation=new JsonObject();generation.addProperty("revision",9);generation.addProperty("instanceUuid",instance.getUuid());generation.addProperty("operationUuid",UUID.randomUUID().toString());snapshot.add("sourceGeneration",generation);
         JsonObject desired=new JsonObject();desired.add("desired-state/nfs-export-apply.json",new JsonObject());desired.add("desired-state/smb-share-apply.json",new JsonObject());desired.add("iscsi-targets.json",JsonNull.INSTANCE);desired.add("nvmeof-subsystems.json",JsonNull.INSTANCE);snapshot.add("sourceDesiredState",desired);snapshot.add("identity",new JsonObject());snapshot.add("dataManifest",manager.dataManifest.deepCopy());row.setSnapshotJson(snapshot.toString());
         ReflectionTestUtils.setField(manager,"volumeDao",volumes);ReflectionTestUtils.setField(manager,"rootUpgradeVmDao",vms);ReflectionTestUtils.setField(manager,"rootUpgradeVolumeService",volumeService);ReflectionTestUtils.setField(manager,"storageTemplateUpgradeDao",upgrades);
+        ReflectionTestUtils.setField(manager,"storageOperationControlDao",Mockito.mock(StorageServiceOperationControlDao.class));
         StorageServiceProtocolDao protocols=Mockito.mock(StorageServiceProtocolDao.class);Mockito.when(protocols.listByInstanceId(6L)).thenReturn(List.of());ReflectionTestUtils.setField(manager,"storageServiceProtocolDao",protocols);
         StoragePosixDirectoryPolicyDao policies=Mockito.mock(StoragePosixDirectoryPolicyDao.class);Mockito.when(policies.listByInstance(6L)).thenReturn(List.of());ReflectionTestUtils.setField(manager,"storagePosixPolicyDao",policies);
         StorageFileShareDao shares=Mockito.mock(StorageFileShareDao.class);Mockito.when(shares.listByInstanceIdAndProtocol(Mockito.eq(6L),Mockito.any())).thenReturn(List.of());ReflectionTestUtils.setField(manager,"storageFileShareDao",shares);

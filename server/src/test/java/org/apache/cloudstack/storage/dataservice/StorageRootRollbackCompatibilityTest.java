@@ -15,9 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 package org.apache.cloudstack.storage.dataservice;
-import java.util.*;
+import java.util.Map;
 import com.google.gson.JsonObject;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Test;
 public class StorageRootRollbackCompatibilityTest {
     private JsonObject oldKernel(){JsonObject actual=new JsonObject();actual.addProperty("kernel","6.1-old");actual.addProperty("dhChapSupported",false);actual.addProperty("dhChapCtrlSupported",false);return actual;}
     @Test public void noAuthOldRootCanBeRetainedUntilCurrentDesiredStateRequiresNewKernelAuth(){
