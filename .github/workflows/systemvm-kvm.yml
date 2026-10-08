@@ -112,6 +112,7 @@ jobs:
             systemvm.test.TestStorageQuiesce \
             systemvm.test.TestStorageNfsOwnershipSafety \
             systemvm.test.TestStoragePosixRootInitialization \
+            systemvm.test.TestStorageNewDirectory \
             systemvm.test.TestStorageTemplateBuild \
             systemvm.test.TestStorageSmbEndpointReadiness \
             systemvm.test.TestStorageSmbEndpointLifecycle \

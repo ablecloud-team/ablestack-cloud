@@ -3080,6 +3080,62 @@ from datetime import datetime, timezone
 sys.path.insert(0, "/usr/local/lib/ablestack-storage")
 from volume_identity import VolumeIdentityError, resolve_volume_device  # noqa: E402
 
+"""Initialize a private new inode before an atomic no-replace directory publish."""
+import ctypes
+import errno
+import os
+import stat
+import uuid
+
+
+def publish_new_directory(parent_fd, stage_fd, name, owner_uid=None, owner_gid=None, mode=0o750):
+    if not isinstance(name,str) or not name or name in ('.','..') or '/' in name or '\\' in name or any(ord(ch)<32 for ch in name):
+        raise ValueError('New directory name is not a bounded single component')
+    for value in (owner_uid,owner_gid):
+        if value is not None and (isinstance(value,bool) or not isinstance(value,int) or not 0<=value<=2147483647):
+            raise ValueError('New directory owner must be an explicit numeric UID/GID')
+    if isinstance(mode,bool) or not isinstance(mode,int) or not 0<=mode<=0o7777:raise ValueError('New directory mode is invalid')
+    stage=os.fstat(stage_fd);parent=os.fstat(parent_fd)
+    if (not stat.S_ISDIR(stage.st_mode) or stage.st_uid!=os.geteuid() or stat.S_IMODE(stage.st_mode)!=0o700
+            or stage.st_dev!=parent.st_dev):raise ValueError('New directory staging parent is not a protected directory on the same filesystem')
+    try:
+        existing=os.open(name,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW,dir_fd=parent_fd)
+    except FileNotFoundError:
+        existing=None
+    if existing is not None:
+        os.close(existing);return None
+    private='.new-directory-'+str(uuid.uuid4())
+    os.mkdir(private,mode=0o700,dir_fd=stage_fd)
+    descriptor=os.open(private,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW,dir_fd=stage_fd)
+    created=None
+    try:
+        created=os.fstat(descriptor)
+        if created.st_uid!=os.geteuid() or created.st_dev!=parent.st_dev:raise ValueError('Private new directory identity changed')
+        if owner_uid is not None or owner_gid is not None:
+            os.fchown(descriptor,owner_uid if owner_uid is not None else -1,owner_gid if owner_gid is not None else -1)
+        os.fchmod(descriptor,mode);os.fsync(descriptor)
+        library=ctypes.CDLL(None,use_errno=True)
+        rename=getattr(library,'renameat2',None)
+        if rename is None:raise ValueError('Atomic no-replace directory publication is unavailable')
+        rename.argtypes=[ctypes.c_int,ctypes.c_char_p,ctypes.c_int,ctypes.c_char_p,ctypes.c_uint]
+        rename.restype=ctypes.c_int
+        if rename(stage_fd,os.fsencode(private),parent_fd,os.fsencode(name),1):
+            number=ctypes.get_errno()
+            if number==errno.EEXIST:return None
+            raise OSError(number,os.strerror(number))
+        os.fsync(stage_fd);os.fsync(parent_fd)
+        named=os.stat(name,dir_fd=parent_fd,follow_symlinks=False);opened=os.fstat(descriptor)
+        if (named.st_dev,named.st_ino)!=(created.st_dev,created.st_ino):
+            raise ValueError('Published directory was replaced; replacement metadata remains untouched')
+        return {'created':True,'device':opened.st_dev,'inode':opened.st_ino,'effectiveUid':opened.st_uid,
+                'effectiveGid':opened.st_gid,'effectiveMode':format(stat.S_IMODE(opened.st_mode),'04o')}
+    finally:
+        os.close(descriptor)
+        try:
+            leftover=os.stat(private,dir_fd=stage_fd,follow_symlinks=False)
+            if created is not None and (leftover.st_dev,leftover.st_ino)==(created.st_dev,created.st_ino):os.rmdir(private,dir_fd=stage_fd)
+        except FileNotFoundError:pass
+
 payload_path = sys.argv[1]
 with open(payload_path, "r", encoding="utf-8") as payload_fp:
     payload = json.load(payload_fp)
@@ -3411,17 +3467,37 @@ def format_empty_device():
         except subprocess.TimeoutExpired:
             phase("FORMATTING", elapsedSeconds=time.time() - operation["started"])
             if time.monotonic() >= deadline:
+                # Persist the deadline before attempting signals: an
+                # uninterruptible I/O wait can outlive both TERM and KILL.
+                phase("TIMED_OUT_PENDING_RECONCILE", errorCode="TIMED_OUT_PENDING_RECONCILE",
+                      diagnostic="Format deadline exceeded; bounded formatter termination requested",
+                      formatterPid=process.pid, formatterActive=True, terminationRequested=True,
+                      terminationPending=True, elapsedSeconds=time.time() - operation["started"])
                 process.terminate()
-                try: process.communicate(timeout=5)
+                try:
+                    process.communicate(timeout=5)
                 except subprocess.TimeoutExpired:
                     process.kill()
-                    process.communicate()
+                    try:
+                        process.communicate(timeout=5)
+                    except subprocess.TimeoutExpired:
+                        # The formatter retains FD9 even after this writer
+                        # returns. No retry/second mkfs is authorized here.
+                        phase("RECOVERY_REQUIRED", formatterActive=True, terminationPending=True,
+                              elapsedSeconds=time.time() - operation["started"])
+                        recovery("RECOVERY_REQUIRED", "Formatter did not exit after bounded TERM/KILL; preserve the volume and observe its active writer, never reformat")
+                phase("TIMED_OUT_PENDING_RECONCILE", formatterActive=False, terminationPending=False,
+                      elapsedSeconds=time.time() - operation["started"])
                 recovery("TIMED_OUT_PENDING_RECONCILE", "Format deadline exceeded; re-observe filesystem identity before resuming")
     if process.returncode != 0:
         recovery("RECOVERY_REQUIRED", (stderr.strip() or "Filesystem formatter failed")[:1024])
     phase("VERIFYING_FILESYSTEM", filesystemUuid=blkid_value(device, "UUID"))
     if blkid_value(device, "TYPE") != fs or not operation.get("filesystemUuid"):
         recovery("RECOVERY_REQUIRED", "Formatted filesystem identity cannot be verified")
+    phase("FILESYSTEM_VERIFIED", formatterExitCode=0, formatterActive=False, terminationPending=False,
+          formatterSuccessReceipt={"schemaVersion": 1, "volumeUuid": volume_key, "filesystemUuid": operation["filesystemUuid"],
+                                   "filesystem": fs, "formatterPid": process.pid, "formatterExitCode": 0,
+                                   "serial": resolved_device["serial"], "sizeBytes": expected_size, "verifiedEpoch": time.time()})
     return fs
 
 def active_formatter(record):
@@ -3436,6 +3512,23 @@ def active_formatter(record):
     return bool(command and os.path.basename(os.fsdecode(command[0])) == expected)
 
 
+def legacy_complete_mount_is_verified(request, record, existing_type, observed_uuid):
+    # Compatibility for a normally completed historical preparation. It is
+    # ordinary existing-FS mounting, never an interrupted/partial resume.
+    return (request.get("resumeOnly") is not True and request.get("importMode") == "MOUNT_EXISTING"
+            and record.get("phase") == "COMPLETE" and not record.get("terminationPending")
+            and record.get("volumeUuid") == request.get("volumeUuid")
+            and bool(record.get("filesystemUuid")) and record["filesystemUuid"] == observed_uuid
+            and record.get("filesystem") == existing_type and existing_type in ("xfs", "ext4"))
+
+def require_completed_format_receipt(record, existing_type, observed_uuid):
+    receipt = record.get("formatterSuccessReceipt")
+    if (record.get("terminationPending") or not isinstance(receipt, dict) or receipt.get("schemaVersion") != 1
+            or receipt.get("formatterExitCode") != 0 or record.get("formatterExitCode") != 0
+            or receipt.get("volumeUuid") != record.get("volumeUuid") or receipt.get("filesystemUuid") != observed_uuid
+            or receipt.get("filesystem") != existing_type or record.get("filesystemUuid") != observed_uuid):
+        raise ValueError("Filesystem signatures alone do not prove mkfs completion; preserve partial state for explicit recovery")
+
 def require_resume_filesystem(request, record, existing_type, observed_uuid):
     if not request.get("resumeOnly"):
         return
@@ -3443,6 +3536,7 @@ def require_resume_filesystem(request, record, existing_type, observed_uuid):
         raise ValueError("Volume resume lacks its original scoped format journal")
     if active_formatter(record):
         raise ValueError("Volume resume is blocked by its active formatter")
+    require_completed_format_receipt(record, existing_type, observed_uuid)
     known = record.get("filesystemUuid")
     if not known or not observed_uuid or known != observed_uuid or record.get("filesystem") != existing_type or existing_type not in ("xfs", "ext4"):
         raise ValueError("Volume resume has no verified matching filesystem; blank/partial state cannot authorize mkfs")
@@ -3464,6 +3558,13 @@ if resume_only:
 resume_format = bool(operation.get("formatStarted"))
 if resume_format:
     observed_uuid = blkid_value(device, "UUID")
+    if active_formatter(operation):
+        recovery("RECOVERY_REQUIRED", "An active formatter prohibits mount, probe or a second format")
+    if not legacy_complete_mount_is_verified(payload, operation, existing_filesystem, observed_uuid):
+        try:
+            require_completed_format_receipt(operation, existing_filesystem, observed_uuid)
+        except ValueError as failure:
+            recovery("RECOVERY_REQUIRED", str(failure))
     if operation.get("volumeUuid") != volume_key or operation.get("filesystem") != existing_filesystem or not observed_uuid:
         recovery("RECOVERY_REQUIRED", "Interrupted format has no verified matching filesystem; automatic reformat is prohibited")
     if operation.get("filesystemUuid") and operation["filesystemUuid"] != observed_uuid:
@@ -3513,37 +3614,60 @@ else:
         raise SystemExit(f"Unsupported filesystem for existing Storage Service backing volume: {existing_filesystem}. Supported filesystems: xfs, ext4")
     fs_uuid = blkid_value(device, "UUID")
 
+created_directory_receipts = []
+
 def resolve_backing_path(volume_mount_path, relative_path, create_missing):
     if not relative_path:
         return volume_mount_path
     cleaned = relative_path.strip()
-    if cleaned.startswith("/") or "\\" in cleaned or any(part in ("", ".", "..") for part in cleaned.split("/")):
+    if cleaned.startswith("/") or "\\" in cleaned or any(ord(character) < 32 for character in cleaned) or any(part in ("", ".", "..") for part in cleaned.split("/")):
         raise SystemExit(f"Invalid backing volume relative share path: {relative_path}")
     if cleaned == "export":
         raise SystemExit("The legacy /export root cannot be used as a share backing directory")
-    root = os.path.realpath(volume_mount_path)
-    target = os.path.realpath(os.path.join(root, cleaned))
-    if not target.startswith(root + os.sep):
-        raise SystemExit(f"Backing volume relative share path escapes the mounted volume: {relative_path}")
-    root_device = os.stat(root).st_dev
+    root = os.path.abspath(volume_mount_path)
+    if os.path.realpath(root) != root:
+        raise SystemExit("Backing volume root contains a symlink")
     root_mount = run(["findmnt", "-n", "-o", "TARGET", "-T", root])
-    if root_mount.returncode != 0:
+    if root_mount.returncode or root_mount.stdout.strip() != root:
         raise SystemExit("Cannot verify backing volume mount boundary")
-    current = root
-    for segment in cleaned.split("/"):
-        current = os.path.join(current, segment)
-        if os.path.lexists(current):
-            if os.path.islink(current) or not os.path.isdir(current):
-                raise SystemExit(f"Backing share path contains a symlink or non-directory: {current}")
-            observed_mount = run(["findmnt", "-n", "-o", "TARGET", "-T", current])
-            if (os.stat(current).st_dev != root_device or observed_mount.returncode != 0
-                    or observed_mount.stdout.strip() != root_mount.stdout.strip()):
-                raise SystemExit(f"Backing share path crosses a filesystem or mount boundary: {current}")
-        else:
-            if not create_missing:
-                raise SystemExit(f"Backing volume relative share path does not exist: {relative_path}")
-            os.mkdir(current)
-    return target
+    descriptor = os.open(root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    stage_descriptor = None
+    device = os.fstat(descriptor).st_dev
+    target = root
+    try:
+        components = cleaned.split("/")
+        for index, segment in enumerate(components):
+            initialized = None
+            try:
+                child = os.open(segment, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=descriptor)
+            except FileNotFoundError:
+                if not create_missing:
+                    raise SystemExit("Backing volume relative share path does not exist")
+                if stage_descriptor is None:
+                    stage_name = ".ablestack-directory-initializers"
+                    try: os.mkdir(stage_name, mode=0o700, dir_fd=descriptor)
+                    except FileExistsError: pass
+                    stage_descriptor = os.open(stage_name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=descriptor)
+                permissions = (config.get("newDirectoryPermissions") or {}) if index == len(components) - 1 else {}
+                mode = str(permissions.get("mode") or "0755")
+                if not re.fullmatch(r"0?[0-7]{3,4}", mode): raise ValueError("New backing directory mode is invalid")
+                initialized = publish_new_directory(descriptor, stage_descriptor, segment, permissions.get("ownerUid"), permissions.get("ownerGid"), int(mode, 8))
+                child = os.open(segment, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=descriptor)
+                if initialized:
+                    opened = os.fstat(child)
+                    if (opened.st_dev, opened.st_ino) != (initialized["device"], initialized["inode"]):
+                        raise ValueError("New backing directory changed after atomic publication")
+                    created_directory_receipts.append({**initialized, "relativePath": "/".join(components[:index + 1]),
+                                                       "filesystemUuid": fs_uuid, "volumeUuid": volume_key})
+            os.close(descriptor); descriptor = child
+            target = os.path.join(target, segment)
+            observed = run(["findmnt", "-n", "-o", "TARGET", "-T", target])
+            if os.fstat(descriptor).st_dev != device or observed.returncode or observed.stdout.strip() != root:
+                raise SystemExit("Backing share path crosses a filesystem or mount boundary")
+        return target
+    finally:
+        os.close(descriptor)
+        if stage_descriptor is not None: os.close(stage_descriptor)
 
 backing_path = resolve_backing_path(mount_path, relative_share_path, create_directory)
 
@@ -3569,7 +3693,7 @@ if import_mode != "INSPECT_ONLY":
                                           "sizeBytes": expected_size, "directoryIdentity": identity, "createdEpoch": time.time()}
         finally:
             os.close(root_descriptor)
-    phase("COMPLETE", filesystemUuid=fs_uuid, mountPath=mount_path, elapsedSeconds=time.time() - operation.get("started", time.time()))
+    phase("COMPLETE", filesystemUuid=fs_uuid, mountPath=mount_path, createdDirectoryReceipts=(operation.get("createdDirectoryReceipts") or []) + created_directory_receipts, elapsedSeconds=time.time() - operation.get("started", time.time()))
 
 print(json.dumps({
     "success": True,
@@ -3597,6 +3721,7 @@ print(json.dumps({
     "bootId": open("/proc/sys/kernel/random/boot_id", "r", encoding="utf-8").read().strip() if os.path.exists("/proc/sys/kernel/random/boot_id") else "",
     "mountPath": mount_path,
     "volumeMountPath": mount_path,
+    "createdDirectoryReceipts": created_directory_receipts,
     "relativeSharePath": relative_share_path,
     "backingPath": backing_path,
     "persistentMount": import_mode != "INSPECT_ONLY",
@@ -3613,7 +3738,42 @@ import os
 from pathlib import Path
 import re
 import subprocess
+import stat
+import time
 import sys
+
+def read_volume_operation(path):
+    try:
+        info = path.lstat()
+    except FileNotFoundError:
+        return {}
+    parent = path.parent.lstat()
+    if not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.geteuid() or parent.st_mode & 0o022 or not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid() or info.st_mode & 0o077 or info.st_size > 256 * 1024:
+        raise ValueError("Volume operation journal is not protected")
+    directory = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    try:
+        opened_parent = os.fstat(directory)
+        if (opened_parent.st_dev, opened_parent.st_ino, opened_parent.st_uid, opened_parent.st_mode) != (parent.st_dev, parent.st_ino, parent.st_uid, parent.st_mode):
+            raise ValueError("Volume operation journal directory changed")
+        descriptor = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=directory)
+    finally:
+        os.close(directory)
+    try:
+        opened = os.fstat(descriptor)
+        fields = ("st_dev", "st_ino", "st_uid", "st_gid", "st_mode", "st_size", "st_mtime_ns", "st_ctime_ns")
+        if tuple(getattr(opened, key) for key in fields) != tuple(getattr(info, key) for key in fields):
+            raise ValueError("Volume operation journal changed while opening")
+        with os.fdopen(descriptor, "rb", closefd=False) as handle:
+            content = handle.read(256 * 1024 + 1)
+        after = os.fstat(descriptor)
+        if len(content) > 256 * 1024 or tuple(getattr(after, key) for key in fields) != tuple(getattr(opened, key) for key in fields):
+            raise ValueError("Volume operation journal changed while reading")
+        value = json.loads(content)
+        if not isinstance(value, dict): raise ValueError("Volume operation journal is malformed")
+        return value
+    finally:
+        os.close(descriptor)
+
 
 with open(sys.argv[1], encoding="utf-8") as source:
     payload = json.load(source)
@@ -3625,23 +3785,55 @@ path = root / (volume + ".json")
 if not path.exists():
     print(json.dumps({"success": True, "status": "NOT_STARTED", "operationId": "volume-" + volume}))
     raise SystemExit(0)
-operation = json.loads(path.read_text())
+operation = read_volume_operation(path)
 if operation.get("volumeUuid") != volume:
     raise SystemExit("Volume operation identity mismatch")
-observed = operation.get("phase") or "RECOVERY_REQUIRED"
-pid = operation.get("formatterPid")
-active = False
-if pid:
+def formatter_observation(operation):
+    pid = operation.get("formatterPid")
+    if isinstance(pid, bool) or not isinstance(pid, int) or pid <= 0:
+        return {"active": False, "state": None}
     try:
-        args = Path("/proc/" + str(int(pid)) + "/cmdline").read_bytes().split(bytes([0]))
+        args = Path("/proc/" + str(pid) + "/cmdline").read_bytes().split(bytes([0]))
         active = bool(args and Path(os.fsdecode(args[0])).name in ("mkfs.xfs", "mkfs.ext4")
                       and str(operation.get("devicePath") or "").encode() in args)
-    except (OSError, ValueError):
-        pass
-if observed in ("FORMATTING", "TIMED_OUT_PENDING_RECONCILE") and not active:
-    observed = "RECONCILE_REQUIRED"
-print(json.dumps({"success": True, "status": observed, "formatterActive": active,
-                  "operationId": "volume-" + volume, "operation": operation}, sort_keys=True))
+        raw = Path("/proc/" + str(pid) + "/stat").read_text()
+        state = raw[raw.rfind(")") + 2:].split()[0]
+        return {"active": active, "state": state if active else None}
+    except (OSError, ValueError, IndexError):
+        return {"active": False, "state": None}
+
+
+def project_volume_operation(operation, formatter, now):
+    original = operation.get("phase") or "RECOVERY_REQUIRED"
+    started = operation.get("started")
+    elapsed = max(0, now - float(started)) if isinstance(started, (int, float)) else None
+    deadline = float(operation.get("formatDeadlineSeconds") or 300)
+    active = formatter["active"]
+    expired = elapsed is not None and elapsed >= deadline
+    observed = original
+    stale = original == "FORMATTING" and expired
+    pending = bool(operation.get("terminationPending"))
+    diagnostic = operation.get("diagnostic")
+    error = operation.get("errorCode")
+    if original in ("FORMATTING", "TIMED_OUT_PENDING_RECONCILE", "RECOVERY_REQUIRED"):
+        if active and expired:
+            observed = "RECOVERY_REQUIRED" if formatter.get("state") == "D" or pending else "TIMED_OUT_PENDING_RECONCILE"
+            pending = True
+            error = "FORMATTER_ACTIVE_AFTER_DEADLINE"
+            diagnostic = "Formatter remains active after its deadline; preserve the volume, do not retry mkfs or detach it"
+        elif not active and original in ("FORMATTING", "TIMED_OUT_PENDING_RECONCILE"):
+            observed = "RECONCILE_REQUIRED"
+            diagnostic = "Formatter no longer runs; verify the exact existing filesystem before an explicit resume"
+    projection = {**operation, "phase": observed, "formatterActive": active, "formatterState": formatter.get("state"),
+                  "terminationPending": pending, "elapsedSeconds": elapsed, "stale": stale,
+                  "diagnostic": diagnostic, "errorCode": error}
+    return {"success": True, "status": observed, "formatterActive": active, "formatterState": formatter.get("state"),
+            "terminationPending": pending, "stale": stale, "observedEpoch": now, "elapsedSeconds": elapsed,
+            "diagnostic": diagnostic, "errorCode": error, "operationId": operation.get("operationId"),
+            "operation": operation, "observedOperation": projection}
+
+print(json.dumps(project_volume_operation(operation, formatter_observation(operation), time.time()), sort_keys=True))
+
 PYVOLUME
 }
 
@@ -4549,7 +4741,6 @@ def write_ganesha_configs(endpoint_exports, port):
             content.append("    mount_path_pseudo = true;")
         else:
             content.extend([
-                "    Transports = TCP;",
                 "    Enable_NLM = false;",
                 "    Enable_RQUOTA = false;",
             ])
