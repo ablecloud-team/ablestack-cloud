@@ -122,4 +122,42 @@ class StorageIscsiAuthTest(unittest.TestCase):
             if previous is not None:os.dup2(previous,9);os.close(previous)
             else:os.close(9)
 
+    def test_configfs_ephemeral_preopen_inode_is_not_a_persistent_file_identity(self):
+        import types
+        real_open=os.open;real_stat=os.stat;held=set();order=[]
+        def opened(path,flags,*args,**kwargs):
+            descriptor=real_open(path,flags,*args,**kwargs)
+            if path in self.fields and kwargs.get("dir_fd") is not None:held.add(path);order.append(("open",path))
+            return descriptor
+        def named(path,*args,**kwargs):
+            value=real_stat(path,*args,**kwargs)
+            if path in self.fields and kwargs.get("dir_fd") is not None:
+                order.append(("stat",path))
+                if path not in held:
+                    value=types.SimpleNamespace(**{field:getattr(value,field) for field in ("st_dev","st_ino","st_mode","st_uid","st_gid","st_nlink")})
+                    value.st_ino+=1
+            return value
+        with patch("iscsi_auth.os.open",side_effect=opened),patch("iscsi_auth.os.stat",side_effect=named):
+            result=self.writer.apply(self.target,self.principal,self.config,self.secrets)
+        self.assertTrue(result["credentialReadbackVerified"])
+        for field in self.fields:self.assertLess(order.index(("open",field)),order.index(("stat",field)))
+
+    def test_named_attribute_replaced_after_open_is_rejected_before_any_auth_write(self):
+        real_open=os.open;replacement=self.auth/"replacement"
+        def opened(path,flags,*args,**kwargs):
+            descriptor=real_open(path,flags,*args,**kwargs)
+            if path=="password" and kwargs.get("dir_fd") is not None:
+                replacement.write_text("winner");replacement.chmod(0o600);os.replace(replacement,self.auth/"password")
+            return descriptor
+        with patch("iscsi_auth.os.open",side_effect=opened):
+            with self.assertRaises(ValueError):self.writer.apply(self.target,self.principal,self.config,self.secrets)
+        self.assertEqual([],self.written);self.assertEqual("winner",(self.auth/"password").read_text())
+
+    def test_opened_untrusted_owner_is_rejected_before_any_attribute_write(self):
+        password=self.auth/"password";os.chown(password,65534,password.stat().st_gid)
+        try:
+            with self.assertRaisesRegex(ValueError,"attribute is foreign"):self.writer.apply(self.target,self.principal,self.config,self.secrets)
+            self.assertEqual([],self.written)
+        finally:os.chown(password,os.geteuid(),password.stat().st_gid)
+
 if __name__=="__main__":unittest.main()
