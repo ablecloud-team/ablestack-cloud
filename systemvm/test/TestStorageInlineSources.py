@@ -63,4 +63,14 @@ class StorageInlineSourcesTest(unittest.TestCase):
             self.assertEqual(["RENDERED_CONFIG_GENERATION_HANDLER"],result["supportedFeatures"]);self.assertFalse(result["fullFourProtocolActivationSupported"])
             self.assertFalse((Path(scratch)/"absent").exists())
 
+    def test_signed_iscsi_auth_matches_reviewed_ram_to_configfs_body(self):
+        source=CLI.read_text()
+        actual=source.split("# BEGIN EMBEDDED ISCSI AUTH\n",1)[1].split("# END EMBEDDED ISCSI AUTH",1)[0]
+        self.assertEqual((LIB/"iscsi_auth.py").read_text().rstrip(),actual.rstrip())
+        block=source[source.index("apply_iscsi_targets() {"):source.index("apply_nvmeof_subsystems() {")]
+        self.assertNotIn('f"password={password}"',block);self.assertNotIn('f"mutual_password={mutual_password}"',block)
+        self.assertNotIn('run_targetcli("saveconfig")',block)
+        self.assertIn('ConfigfsIscsiAuth().apply(iqn,initiator,acl_config,secrets)',block)
+        ast.parse(actual)
+
 if __name__=='__main__':unittest.main()
