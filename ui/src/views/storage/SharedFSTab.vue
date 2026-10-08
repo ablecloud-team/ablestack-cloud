@@ -67,7 +67,7 @@ class="storage-service__alert"
       </a-tab-pane>
 
       <a-tab-pane v-if="hasStorageServiceApi" :tab="$t('label.storage.tab.operations')" key="operations">
-        <storage-operation-history ref="storageOperationHistory" v-if="storageService.instance && 'listStorageServiceOperations' in $store.getters.apis" :instance-id="storageService.instance.id" />
+        <storage-operation-history ref="storageOperationHistory" v-if="storageService.instance && 'listStorageServiceOperations' in $store.getters.apis" :instance-id="storageService.instance.id" :instance-name="storageService.instance.name || dataResource.name || ''" />
         <storage-volume-preparation v-if="storageService.instance && 'getStorageServiceVolumePreparation' in $store.getters.apis" :instance-id="storageService.instance.id" :volumes="currentBackingVolumes" @operation-updated="refreshStorageOperationHistory" />
       </a-tab-pane>
       <a-tab-pane v-if="hasStorageServiceApi" :tab="$t('label.storage.tab.backup.restore')" key="backup">
