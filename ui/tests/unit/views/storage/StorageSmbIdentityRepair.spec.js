@@ -72,6 +72,7 @@ describe('Scoped SMB authentication maintenance', () => {
     getAPI.mockResolvedValue({ queryasyncjobresultresponse: { jobstatus: 2, jobresult: { errortext: 'ACTIVE_SESSIONS' } } })
     await Widget.methods.repair.call(value)
     expect(value.error).toBe('ACTIVE_SESSIONS')
+    expect(value.requestKey).toBe('')
     expect(value.visible).toBe(true)
     expect(value.$emit).not.toHaveBeenCalled()
   })
