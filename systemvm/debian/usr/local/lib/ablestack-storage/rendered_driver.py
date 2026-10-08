@@ -34,6 +34,7 @@ from native_render_validation import validate_nfs_candidate, validate_smb_candid
 from native_render_runtime import NativeRenderedRuntime, PROTOCOL_FILES
 from rendered_prerequisites import RenderedPrerequisites
 from ganesha_dbus import GaneshaDbus
+from rendered_credentials import credential_json, credential_bindings, credential_recovery_key, credential_target_inputs
 
 
 class RenderedDriver:
@@ -224,20 +225,48 @@ class RenderedDriver:
         rendered_json(path, saved)
         return saved
 
+    def credential_source(self, request):
+        scope=self.store.scope(request)
+        target=self.store.inspect(self.store.generations/scope["operationUuid"])
+        current=self.store.pointer();manifest=self.store.inspect(current)
+        if manifest["manifestSha256"]!=target["previousRenderedSha256"]:
+            journal=self.store.scoped_activation(request)
+            if journal.get("targetSha256")!=target["manifestSha256"] or journal.get("previousSha256")!=target["previousRenderedSha256"]:
+                raise ValueError("Credential checkpoint source differs from the staged immutable pointer")
+            current=self.store.generations/str(uuid.UUID(journal["previousOperationUuid"]))
+            manifest=self.store.inspect(current)
+        if manifest["manifestSha256"]!=target["previousRenderedSha256"] or manifest["scope"]["instanceUuid"]!=scope["instanceUuid"]:
+            raise ValueError("Credential checkpoint source is foreign")
+        return manifest
+
     def recovery_key(self, request):
-        from cryptography.hazmat.primitives import serialization
-        saved = json.loads(rendered_read(self.checkpoints / (self.store.scope(request)["operationUuid"] + ".json")))
-        private = request.get("checkpointPrivateKey")
-        if not isinstance(private, str):
-            raise ValueError("Protected checkpoint key is required before rendered activation/recovery")
-        key = serialization.load_pem_private_key(private.encode(), password=None)
-        expected = serialization.load_pem_public_key(saved["publicKey"].encode())
-        encoding, form = serialization.Encoding.DER, serialization.PublicFormat.SubjectPublicKeyInfo
-        if key.public_key().public_bytes(encoding, form) != expected.public_bytes(encoding, form):
-            raise ValueError("Protected recovery key does not match the durable identity checkpoint")
-        if saved["scope"] != self.store.scope(request):
-            raise ValueError("Durable identity checkpoint belongs to another operation")
+        scope=self.store.scope(request);source=self.credential_source(request)
+        saved=credential_json(rendered_read(self.checkpoints/(scope["operationUuid"]+".json")))
+        credential_recovery_key(saved,request.get("checkpointPrivateKey"),scope,source["configurationSha256"],request.get("identityCheckpointRef"))
         return saved
+
+    def staged_credential_refs(self, path):
+        self.store.inspect(path)
+        refs={"SMB":{},"ISCSI":{},"NVMEOF":{}}
+        for share in credential_json(rendered_read(path/"smb/manifest.json")).get("shares",[]):
+            key=share["uuid"]
+            if key in refs["SMB"]:raise ValueError("Staged SMB credential share is ambiguous")
+            refs["SMB"][key]=share["credentialRefs"]
+        for domain,filename in (("ISCSI","block/iscsi-plan.json"),("NVMEOF","block/nvmeof-plan.json")):
+            for target in credential_json(rendered_read(path/filename))["targets"]:
+                for acl in target["acls"]:
+                    ref=acl.get("credentialRef")
+                    if ref is None:continue
+                    key=target["targetName"]+"|"+acl["principal"]
+                    if key in refs[domain] and refs[domain][key]!=ref:raise ValueError("Staged block credential binding is ambiguous")
+                    refs[domain][key]=ref
+        return refs
+
+    def protected_target_credentials(self, request, source_only=False):
+        path=self.store.generations/self.store.scope(request)["operationUuid"]
+        desired=credential_json(rendered_read(path/"desired-state.json"))
+        refs=self.staged_credential_refs(path);saved=self.recovery_key(request)
+        return credential_target_inputs(request,desired,refs,saved,self.credential_source(request)["configurationSha256"],source_only)
 
     def restore_identity(self, request):
         journal=self.store.scoped_activation(request)
@@ -480,6 +509,7 @@ class RenderedDriver:
         scope = self.store.scope(request)
         source = self.generation()
         if action in ("render-import", "render-stage"):
+            if action=="render-stage":credential_bindings(self.desired(request),request.get("credentialRefs") or {},scope,source["configurationSha256"])
             files = self.render(request)
             if action == "render-import":
                 if request.get("initialRootBaseline") is True:
@@ -558,21 +588,23 @@ class RenderedDriver:
         if action == "render-finalize": return self.store.finalize(request, self.generation, self.verify)
         if action not in ("render-activate", "render-rollback"):
             raise ValueError("Unknown fixed rendered generation action")
-        self.recovery_key(request)
-        self.runtime.credentials = request.get("transientCredentials") or {}
+        # Authenticate immutable target/source bindings before the first runtime
+        # authorization, pointer publication, identity import or daemon effect.
+        target_credentials=self.protected_target_credentials(request,source_only=action=="render-rollback")
+        self.runtime.credentials={"target":target_credentials,"previous":{}}
         previous_restored = False
         def replay(path, domain, rollback):
             nonlocal previous_restored
             if rollback and not previous_restored:
                 self.restore_identity(request); previous_restored = True
             return self.runtime.replay(path, domain, rollback)
-        proof = self.authorize_units(request)
-        target_path = self.store.generations / scope["operationUuid"]
-        target_manifest = self.store.inspect(target_path)
-        previous_path = self.store.root / "generations" / (self.store.read_journal().get("previousOperationUuid") if self.store.read_journal() and self.store.read_journal()["scope"]==scope else self.store.inspect(self.store.pointer())["scope"]["operationUuid"])
-        def prerequisites(path, rollback):
-            return self.prerequisites.apply(target_path, previous_path, rollback)
+        proof=None
         try:
+            proof = self.authorize_units(request)
+            target_path = self.store.generations / scope["operationUuid"]
+            previous_path = self.store.generations/self.credential_source(request)["scope"]["operationUuid"]
+            def prerequisites(path, rollback):
+                return self.prerequisites.apply(target_path, previous_path, rollback)
             if action == "render-rollback":
                 return self.store.rollback(request, replay, self.verify, self.persist_desired, prerequisites)
             target = self.store.inspect(self.store.generations / scope["operationUuid"])
@@ -581,4 +613,5 @@ class RenderedDriver:
             self.runtime.require_drained(changed)
             return self.store.activate(request, replay, self.verify, self.persist_desired, prerequisites)
         finally:
-            proof.unlink(missing_ok=True);rendered_fsync(proof.parent)
+            if proof is not None:proof.unlink(missing_ok=True);rendered_fsync(proof.parent)
+            self.runtime.credentials.clear()
