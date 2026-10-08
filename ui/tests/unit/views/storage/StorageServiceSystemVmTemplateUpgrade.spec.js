@@ -31,7 +31,7 @@ describe('ROOT template maintenance UI boundaries', () => {
     expect(Widget.computed.canSubmit.call(vm)).toBe(false)
   })
   it('requires verified preflight, maintenance approval and exact service name', () => {
-    const vm = { targetTemplate: 'target', plan: { id: 'planned' }, preflight: { compatible: true }, blockers: [], maintenanceWindow: true, confirmation: 'service', resource: { name: 'service' } }
+    const vm = { targetTemplate: 'target', plan: { id: 'planned' }, preflight: { compatible: true }, rootProvisioning: { selectedProvisioningType: 'SPARSE' }, blockers: [], maintenanceWindow: true, confirmation: 'service', resource: { name: 'service' } }
     expect(Widget.computed.canSubmit.call(vm)).toBe(true)
     vm.preflight.compatible = false
     expect(Widget.computed.canSubmit.call(vm)).toBe(false)
@@ -39,6 +39,19 @@ describe('ROOT template maintenance UI boundaries', () => {
     expect(Widget.computed.canSubmit.call(vm)).toBe(false)
     vm.maintenanceWindow = true; vm.confirmation = 'other'
     expect(Widget.computed.canSubmit.call(vm)).toBe(false)
+  })
+  it('blocks executing a plan whose replacement ROOT is thin or unobserved', () => {
+    const vm = { targetTemplate: 'target', plan: { id: 'planned' }, preflight: { compatible: true }, rootProvisioning: {}, blockers: [], maintenanceWindow: true, confirmation: 'service', resource: { name: 'service' } }
+    expect(Widget.computed.canSubmit.call(vm)).toBe(false)
+    vm.rootProvisioning.selectedProvisioningType = 'thin'; expect(Widget.computed.canSubmit.call(vm)).toBe(false)
+    vm.rootProvisioning.selectedProvisioningType = 'sparse'; expect(Widget.computed.canSubmit.call(vm)).toBe(true)
+  })
+  it('sends an explicitly selected sparse offering only when requesting the plan', async () => {
+    postAPI.mockResolvedValue({ result: { upgrade: { id: 'new-plan' }, preflight: { rootProvisioning: { choices: [{ id: 'sparse-do', provisioningType: 'sparse' }], selectedDiskOfferingUuid: 'sparse-do' } } } })
+    const vm = { canSubmit: true, plan: null, resource: { id: 'a' }, targetTemplate: 'target', rootDiskOffering: 'sparse-do', scope: 0, unwrap: Widget.methods.unwrap }
+    await Widget.methods.preflightPlan.call(vm)
+    expect(postAPI.mock.calls[0][1]).toEqual({ sharedfilesystemid: 'a', templateid: 'target', rootdiskofferingid: 'sparse-do' })
+    expect(vm.rootChoices[0].provisioningType).toBe('sparse'); expect(vm.rootDiskOffering).toBe('sparse-do')
   })
   it('does not label unavailable or unattested identity transport as protected', () => {
     const vm = { capability: {}, preflight: { identityMigration: { success: false, status: 'UNAVAILABLE' } }, $t: key => key }
