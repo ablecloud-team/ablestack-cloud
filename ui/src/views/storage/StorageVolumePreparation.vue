@@ -37,7 +37,7 @@
       <a-descriptions-item :label="$t('label.storage.volume.mount')"><code>{{ identity.mountPath || operation.mountPath || '-' }}</code></a-descriptions-item>
     </a-descriptions>
     <a-alert v-if="observation" type="info" show-icon :message="$t('message.storage.volume.historical.device')" />
-    <a-alert v-if="operation.diagnostic || observation.currentIdentityDiagnostic" type="warning" show-icon :message="operation.diagnostic || observation.currentIdentityDiagnostic" />
+    <a-alert v-if="operation.diagnostic || observation?.currentIdentityDiagnostic" type="warning" show-icon :message="operation.diagnostic || observation?.currentIdentityDiagnostic" />
   </section>
 </template>
 <script>
