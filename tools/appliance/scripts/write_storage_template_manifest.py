@@ -43,6 +43,7 @@ capabilities = {
     "storage.service.template": "true",
     "storage.service.template.version": a.version,
     "storage.service.runtime.abi": "1",
+    "storage.service.runtime.signed.readback": "true",
     "storage.service.desired.state.schema": "1",
     "storage.service.identity.capsule.schema": "1",
     "storage.service.configuration.generation.schema": "1",

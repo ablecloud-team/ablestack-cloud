@@ -32,6 +32,7 @@ manifest = json.loads((root / "etc/ablestack-storage/template-manifest.json").re
 cap = manifest["registrationDetails"]
 for key, expected in {
     "storage.service.template": "true", "storage.service.runtime.abi": "1",
+    "storage.service.runtime.signed.readback": "true",
     "storage.service.desired.state.schema": "1", "storage.service.identity.capsule.schema": "1",
     "storage.service.configuration.generation.schema": "1",
     "storage.service.configuration.generation.adopt": "true",
@@ -66,6 +67,9 @@ for marker in ('identity_capsule_command()', 'action in ("adopt", "align")', 'co
 for module in ("runtime_updater.py", "volume_identity.py", "session_auth.py", "identity_capsule.py", "config_generation.py"):
     if not (root / "usr/local/lib/ablestack-storage" / module).is_file():
         raise SystemExit("Missing Storage Service support module: " + module)
+updater = (root / "usr/local/lib/ablestack-storage/runtime_updater.py").read_text()
+if "def readback(self, request):" not in updater or "updaterSha256" not in updater:
+    raise SystemExit("Template runtime updater lacks signed installed-file readback")
 if a.output:
     a.output.parent.mkdir(parents=True, exist_ok=True)
     a.output.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
