@@ -63,7 +63,8 @@ try:
   path=root/endpoint['configurationPath']
   with tempfile.TemporaryDirectory(prefix='ganesha-validator-',dir='/run') as directory:
    directory=Path(directory);log=directory/'parser.log'
-   server=subprocess.Popen(['ganesha.nfsd','-F','-f',str(path),'-p',str(directory/'pid'),'-L',str(log),'-N','NIV_EVENT'],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+   binary='/opt/ablestack-ganesha/5.5.3/bin/ganesha.nfsd' if Path('/etc/ablestack-storage/ganesha-build-manifest.json').exists() else 'ganesha.nfsd'
+   server=subprocess.Popen([binary,'-F','-f',str(path),'-p',str(directory/'pid'),'-L',str(log),'-N','NIV_EVENT'],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
    try:
     deadline=time.monotonic()+8
     ready=False
