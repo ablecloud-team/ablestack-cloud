@@ -966,9 +966,9 @@
               <h4>{{ $t('label.storage.service.block.auth') }}</h4>
               <a-alert
                 class="section-alert"
-                type="warning"
+                :type="nvmeDhChapCreateSupported ? 'info' : 'warning'"
                 show-icon
-                :message="$t('message.storage.service.nvme.dhchap.unsupported.current.template')" />
+                :message="nvmeDhChapCreateMessage" />
               <a-alert
                 v-if="!form.nvmehostnqn"
                 class="section-alert"
@@ -1039,6 +1039,7 @@
 </template>
 <script>
 import { supportsStorageFormatting } from '@/utils/storageDiskProvisioning'
+import { storageReadDeadline } from '@/utils/storageRead'
 
 import { ref, reactive, toRaw } from 'vue'
 import { ReloadOutlined } from '@ant-design/icons-vue'
@@ -1089,6 +1090,7 @@ export default {
       templateLoading: false,
       templateRequestToken: 0,
       templateReadError: false,
+      nvmeAuthReadToken: 0,
       networkLoading: false,
       availableVolumes: [],
       volumeLoading: false,
@@ -1292,7 +1294,14 @@ export default {
       }
     },
     nvmeDhChapCreateSupported () {
-      return false
+      const template = this.systemTemplates.find(item => item.id === this.form.templateid)
+      return !this.templateLoading && !this.templateReadError && this.isSelectableSystemTemplate(template, this.selectedZone?.id) &&
+        template.details?.['storage.service.nvme.target.auth'] === 'true' && this.form.nvmeengine === 'KERNEL_NVMET' && this.form.nvmetransport === 'tcp'
+    },
+    nvmeDhChapCreateMessage () {
+      const template = this.systemTemplates.find(item => item.id === this.form.templateid)
+      const declaredUnsupported = template?.details?.['storage.service.nvme.target.auth'] === 'false'
+      return this.$t(declaredUnsupported ? 'message.storage.service.nvme.dhchap.unsupported.current.template' : 'message.storage.service.authentication.unknown.help')
     },
     nfsProtocolModeLabel () {
       const labels = {
@@ -1333,6 +1342,16 @@ export default {
         dns1: '',
         dns2: ''
       })
+    },
+    'form.templateid' () { this.clearInitialNvmeAuth() },
+    'form.nvmeengine' () { this.clearInitialNvmeAuth() },
+    'form.nvmetransport' () { this.clearInitialNvmeAuth() },
+    'form.nvmehostnqn' () { this.clearInitialNvmeAuth() },
+    'form.nvmedhchapenabled' (enabled) {
+      if (!enabled) this.clearInitialNvmeAuth()
+    },
+    'form.nvmedhchapctrlenabled' (enabled) {
+      if (!enabled) this.form.nvmedhchapctrlkey = ''
     },
     'form.smbaddomain' (domainName, previousDomainName) {
       const previousDerived = this.deriveAdWorkgroup(previousDomainName)
@@ -2030,6 +2049,7 @@ export default {
           this.closeModal()
           this.runInitialStorageServiceSetup(jobId, setupSnapshot, notificationKey)
         }).catch(error => {
+          this.clearInitialBlockSecrets(setupSnapshot)
           this.$notifyError(error)
         }).finally(() => {
           this.loading = false
@@ -2055,6 +2075,8 @@ export default {
           error?.message || setup.name,
           0
         )
+      } finally {
+        this.clearInitialBlockSecrets(setup)
       }
     },
     notifyStorageServiceSetup (key, type, messageKey, description, duration = 4.5) {
@@ -2079,6 +2101,10 @@ export default {
         if (!instance) {
           throw new Error(this.$t('message.storage.service.setup.instance.not.found'))
         }
+        if ((setup.nvmedhchapenabled === true || setup.nvmedhchapctrlenabled === true) &&
+          (!(sharedfs.virtualmachineid || sharedfs.virtualMachineId) || instance.virtualmachineid !== (sharedfs.virtualmachineid || sharedfs.virtualMachineId))) {
+          throw new Error(this.$t('message.storage.service.authentication.unknown.help'))
+        }
         this.notifyStorageServiceSetup(notificationKey, 'info', 'message.storage.service.setup.protocol.running', setup.name, 0)
         await this.enableSelectedProtocols(instance, setup)
         this.notifyStorageServiceSetup(notificationKey, 'info', 'message.storage.service.setup.resources.running', setup.name, 0)
@@ -2088,6 +2114,7 @@ export default {
         await this.verifyInitialStorageServiceSetup(instance, { ...fileSetup, ...blockSetup }, setup)
         this.notifyStorageServiceSetup(notificationKey, 'success', 'message.storage.service.setup.success', setup.name)
       } finally {
+        this.clearInitialBlockSecrets(setup)
         this.form.smbadpassword = ''
         this.form.smblocalpassword = ''
         this.form.smblocalpasswordconfirm = ''
@@ -2170,7 +2197,7 @@ export default {
         const response = json.liststorageserviceinstancesresponse || {}
         const rawItems = this.firstListValue(response, ['storageserviceinstance', 'storageserviceinstances'])
         const items = this.normalizeApiItems(rawItems)
-        const instance = items.find(item => vmId && item.virtualmachineid === vmId) || items.find(item => item.name === setup.name)
+        const instance = vmId ? items.find(item => item.virtualmachineid === vmId) : items.find(item => item.name === setup.name)
         if (instance) {
           return instance
         }
@@ -2293,77 +2320,133 @@ export default {
       }
       return setup
     },
+    clearInitialNvmeAuth () {
+      this.form.nvmedhchapenabled = false
+      this.form.nvmedhchapctrlenabled = false
+      this.form.nvmedhchapkey = ''
+      this.form.nvmedhchapctrlkey = ''
+    },
+    clearInitialBlockSecrets (snapshot) {
+      for (const field of ['iscsichapsecret', 'iscsimutualchapsecret', 'nvmedhchapkey', 'nvmedhchapctrlkey']) {
+        if (this.form) this.form[field] = ''
+        if (snapshot) snapshot[field] = ''
+      }
+    },
+    initialNvmeAuthRequest (snapshot) {
+      const host = snapshot.nvmedhchapenabled === true
+      const controller = snapshot.nvmedhchapctrlenabled === true
+      const invalidFlag = ['nvmedhchapenabled', 'nvmedhchapctrlenabled'].some(field => snapshot[field] !== undefined && typeof snapshot[field] !== 'boolean')
+      if (invalidFlag || (controller && !host) || (host && (!snapshot.nvmehostnqn || !snapshot.nvmesubsystemnqn || !snapshot.nvmedhchapkey ||
+        (controller && !snapshot.nvmedhchapctrlkey) || snapshot.nvmeengine !== 'KERNEL_NVMET' || (snapshot.nvmetransport || 'tcp') !== 'tcp'))) {
+        throw new Error(this.$t('message.storage.service.authentication.unknown.help'))
+      }
+      return { host, controller }
+    },
+    async requireInitialNvmeAuthCapabilities (instance, auth) {
+      const token = ++this.nvmeAuthReadToken
+      const id = instance.id
+      const vmId = instance.virtualmachineid
+      if (typeof id !== 'string' || !id || !('listStorageServiceInventory' in this.$store.getters.apis)) {
+        throw new Error(this.$t('message.storage.service.authentication.unknown.help'))
+      }
+      let response
+      try {
+        response = await storageReadDeadline(getAPI('listStorageServiceInventory', { instanceid: id }, { timeout: 15000, preserveOnFailure: true }))
+      } catch (_) {
+        throw new Error(this.$t('message.storage.service.authentication.unknown.help'))
+      }
+      if (token !== this.nvmeAuthReadToken || instance.id !== id || instance.virtualmachineid !== vmId) {
+        throw new Error(this.$t('message.storage.service.authentication.unknown.help'))
+      }
+      const rows = this.normalizeApiItems(response.liststorageserviceinventoryresponse?.storageserviceruntime)
+      const observed = rows.length === 1 && rows[0].id === id && rows[0].success === true ? this.parseRuntimeResultJson(rows[0]) : {}
+      const capability = observed.capabilities?.nvmeof
+      if (capability?.kernelTargetSupported !== true || capability.configfsHostSupported !== true || capability.dhChapSupported !== true ||
+        (auth.controller && capability.dhChapCtrlSupported !== true)) {
+        throw new Error(this.$t('message.storage.service.nvme.dhchap.unsupported'))
+      }
+    },
     async createInitialBlockServices (instance, sharedfs, snapshot = this.form) {
       const backingVolumeId = this.initialBackingVolumeId(sharedfs, snapshot)
       const setup = {}
-      if (this.isSetupServiceSelected(snapshot, 'ISCSI') && snapshot.iscsitargetname) {
-        const targetResponse = await this.runStorageServiceSetup('createStorageIscsiTarget', {
-          instanceid: instance.id,
-          targetname: snapshot.iscsitargetname,
-          volumeid: backingVolumeId,
-          lun: snapshot.iscsilun || '0',
-          lunsizebytes: this.toCapacityBytes(snapshot.iscsilunsizeamount, snapshot.iscsilunsizeunit)
-        })
-        const targetId = this.extractCreatedId(targetResponse, 'storageiscsitarget')
-        setup.iscsiTargetId = targetId
-        if (targetId && snapshot.iscsiinitiator) {
-          await this.runStorageServiceSetup('createStorageIscsiAcl', {
-            targetid: targetId,
-            initiatoriqn: snapshot.iscsiinitiator,
-            permission: snapshot.iscsipermission || 'READ_WRITE',
-            chapenabled: snapshot.iscsichapenabled,
-            chapusername: snapshot.iscsichapenabled ? snapshot.iscsichapusername : '',
-            chapsecret: snapshot.iscsichapenabled ? snapshot.iscsichapsecret : '',
-            mutualchapenabled: snapshot.iscsichapenabled && snapshot.iscsimutualchapenabled,
-            mutualchapusername: snapshot.iscsichapenabled && snapshot.iscsimutualchapenabled ? snapshot.iscsimutualchapusername : '',
-            mutualchapsecret: snapshot.iscsichapenabled && snapshot.iscsimutualchapenabled ? snapshot.iscsimutualchapsecret : ''
-          })
-        }
-      }
-      if (this.isSetupServiceSelected(snapshot, 'NVME_OF')) {
-        await this.runStorageServiceSetup('prepareStorageServiceNvmeOfVm', {
-          instanceid: instance.id,
-          engine: snapshot.nvmeengine,
-          transport: snapshot.nvmetransport || 'tcp',
-          validateonly: true
-        })
-        if (snapshot.nvmesubsystemnqn) {
-          const subsystemResponse = await this.runStorageServiceSetup('createStorageNvmeOfSubsystem', {
+      try {
+        if (this.isSetupServiceSelected(snapshot, 'NVME_OF')) {
+          const auth = this.initialNvmeAuthRequest(snapshot)
+          const preparation = await this.runStorageServiceSetup('prepareStorageServiceNvmeOfVm', {
             instanceid: instance.id,
-            subsystemnqn: snapshot.nvmesubsystemnqn,
-            allowanyhost: false,
             engine: snapshot.nvmeengine,
-            transport: snapshot.nvmetransport || 'tcp'
+            transport: snapshot.nvmetransport || 'tcp',
+            validateonly: true
           })
-          const subsystemId = this.extractCreatedId(subsystemResponse, 'storagenvmeofsubsystem')
-          setup.nvmeSubsystemId = subsystemId
-          if (subsystemId && backingVolumeId) {
-            await this.runStorageServiceSetup('createStorageNvmeOfNamespace', {
-              subsystemid: subsystemId,
-              namespaceid: snapshot.nvmenamespaceid || '1',
-              volumeid: backingVolumeId,
-              namespacesizebytes: this.toCapacityBytes(snapshot.nvmenamespacesizeamount, snapshot.nvmenamespacesizeunit)
-            })
+          if (auth.host) {
+            const rows = this.normalizeApiItems(preparation.storageserviceruntime || preparation)
+            if (rows.length !== 1 || rows[0].id !== instance.id || rows[0].success !== true) {
+              throw new Error(this.$t('message.storage.service.authentication.unknown.help'))
+            }
+            await this.requireInitialNvmeAuthCapabilities(instance, auth)
           }
-          if (subsystemId && snapshot.nvmehostnqn) {
-            const dhChapEnabled = this.nvmeDhChapCreateSupported && snapshot.nvmedhchapenabled
-            const dhChapCtrlEnabled = dhChapEnabled && snapshot.nvmedhchapctrlenabled
-            await this.runStorageServiceSetup('createStorageNvmeOfHostAcl', {
-              subsystemid: subsystemId,
-              hostnqn: snapshot.nvmehostnqn,
-              dhchapenabled: dhChapEnabled,
-              dhchapkey: dhChapEnabled ? snapshot.nvmedhchapkey : '',
-              dhchapctrlenabled: dhChapCtrlEnabled,
-              dhchapctrlkey: dhChapCtrlEnabled ? snapshot.nvmedhchapctrlkey : ''
+        }
+        if (this.isSetupServiceSelected(snapshot, 'ISCSI') && snapshot.iscsitargetname) {
+          const targetResponse = await this.runStorageServiceSetup('createStorageIscsiTarget', {
+            instanceid: instance.id,
+            targetname: snapshot.iscsitargetname,
+            volumeid: backingVolumeId,
+            lun: snapshot.iscsilun || '0',
+            lunsizebytes: this.toCapacityBytes(snapshot.iscsilunsizeamount, snapshot.iscsilunsizeunit)
+          })
+          const targetId = this.extractCreatedId(targetResponse, 'storageiscsitarget')
+          setup.iscsiTargetId = targetId
+          if (targetId && snapshot.iscsiinitiator) {
+            await this.runStorageServiceSetup('createStorageIscsiAcl', {
+              targetid: targetId,
+              initiatoriqn: snapshot.iscsiinitiator,
+              permission: snapshot.iscsipermission || 'READ_WRITE',
+              chapenabled: snapshot.iscsichapenabled,
+              chapusername: snapshot.iscsichapenabled ? snapshot.iscsichapusername : '',
+              chapsecret: snapshot.iscsichapenabled ? snapshot.iscsichapsecret : '',
+              mutualchapenabled: snapshot.iscsichapenabled && snapshot.iscsimutualchapenabled,
+              mutualchapusername: snapshot.iscsichapenabled && snapshot.iscsimutualchapenabled ? snapshot.iscsimutualchapusername : '',
+              mutualchapsecret: snapshot.iscsichapenabled && snapshot.iscsimutualchapenabled ? snapshot.iscsimutualchapsecret : ''
             })
           }
         }
+        if (this.isSetupServiceSelected(snapshot, 'NVME_OF')) {
+          if (snapshot.nvmesubsystemnqn) {
+            const subsystemResponse = await this.runStorageServiceSetup('createStorageNvmeOfSubsystem', {
+              instanceid: instance.id,
+              subsystemnqn: snapshot.nvmesubsystemnqn,
+              allowanyhost: false,
+              engine: snapshot.nvmeengine,
+              transport: snapshot.nvmetransport || 'tcp'
+            })
+            const subsystemId = this.extractCreatedId(subsystemResponse, 'storagenvmeofsubsystem')
+            setup.nvmeSubsystemId = subsystemId
+            if (subsystemId && backingVolumeId) {
+              await this.runStorageServiceSetup('createStorageNvmeOfNamespace', {
+                subsystemid: subsystemId,
+                namespaceid: snapshot.nvmenamespaceid || '1',
+                volumeid: backingVolumeId,
+                namespacesizebytes: this.toCapacityBytes(snapshot.nvmenamespacesizeamount, snapshot.nvmenamespacesizeunit)
+              })
+            }
+            if (subsystemId && snapshot.nvmehostnqn) {
+              const dhChapEnabled = snapshot.nvmedhchapenabled === true
+              const dhChapCtrlEnabled = snapshot.nvmedhchapctrlenabled === true
+              await this.runStorageServiceSetup('createStorageNvmeOfHostAcl', {
+                subsystemid: subsystemId,
+                hostnqn: snapshot.nvmehostnqn,
+                dhchapenabled: dhChapEnabled,
+                dhchapkey: dhChapEnabled ? snapshot.nvmedhchapkey : '',
+                dhchapctrlenabled: dhChapCtrlEnabled,
+                dhchapctrlkey: dhChapCtrlEnabled ? snapshot.nvmedhchapctrlkey : ''
+              })
+            }
+          }
+        }
+        return setup
+      } finally {
+        this.clearInitialBlockSecrets(snapshot)
       }
-      this.form.iscsichapsecret = ''
-      this.form.iscsimutualchapsecret = ''
-      this.form.nvmedhchapkey = ''
-      this.form.nvmedhchapctrlkey = ''
-      return setup
     },
     async attachInitialVolume (shareResponse, snapshot = this.form) {
       const shareId = this.extractCreatedId(shareResponse, 'storagesmbshare') || this.extractCreatedId(shareResponse, 'storagenfsexport')
@@ -2437,6 +2520,7 @@ export default {
       }
       if (this.isSetupServiceSelected(setup, 'NVME_OF')) {
         required.add('prepareStorageServiceNvmeOfVm')
+        if (setup.nvmedhchapenabled || setup.nvmedhchapctrlenabled) required.add('listStorageServiceInventory')
         required.add('createStorageNvmeOfSubsystem')
         required.add('listStorageNvmeOfSubsystems')
         if (setup.nvmesubsystemnqn) {
@@ -2514,6 +2598,12 @@ export default {
           const matchingAcl = acls.find(acl => (acl.principal || acl.hostnqn || acl.hostNqn) === snapshot.nvmehostnqn)
           if (!matchingAcl) {
             throw new Error(this.$t('message.storage.service.setup.verify.nvme.acl.missing'))
+          }
+          const auth = { host: snapshot.nvmedhchapenabled === true, controller: snapshot.nvmedhchapctrlenabled === true }
+          const config = this.parseStorageServiceItemConfig(matchingAcl)
+          if ((auth.host && (matchingAcl.dhchapenabled ?? config.dhChapEnabled) !== true) ||
+            (auth.controller && (matchingAcl.dhchapctrlenabled ?? config.dhChapCtrlEnabled) !== true)) {
+            throw new Error(this.$t('message.storage.service.authentication.unknown.help'))
           }
         }
       }
