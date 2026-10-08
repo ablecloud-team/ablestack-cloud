@@ -220,6 +220,28 @@ class StorageSmbEndpointLifecycleTest(unittest.TestCase):
         self.assertEqual(set(),self.active)
         self.assertEqual('ROLLED_BACK',json.loads((self.state/'smb-endpoint-journal.json').read_text())['phase'])
 
+    def test_bash_main_pid_and_smbd_child_in_same_control_group_are_owned(self):
+        source=SOURCE.read_text()
+        start=source.index('def smb_managed_listening_sockets(')
+        end=source.index('def smb_endpoint_connections(',start)
+        key=self.b;child=4242
+        pidfile=self.root/'smbd.pid';pidfile.write_text(str(child));pidfile.chmod(0o644)
+        command=self.root/'cmdline';command.write_bytes(b'/usr/sbin/smbd\0'+('--option=pid directory=/run/ablestack-storage/smb/'+key).encode()+b'\0--option=smb ports=445\0')
+        group='/system.slice/ablestack-storage-smb@'+key+'.service'
+        cgroup=self.root/'cgroup';cgroup.write_text('0::'+group+'\n')
+        paths={'/run/ablestack-storage/smb/'+key+'/smbd.pid':pidfile,'/proc/'+str(child)+'/cmdline':command,'/proc/'+str(child)+'/cgroup':cgroup}
+        def run(args,**kwargs):
+            if args[0]=='ss':return SimpleNamespace(stdout=f'LISTEN 0 128 10.1.1.11:445 0.0.0.0:* users:(("smbd",pid={child},fd=4))')
+            return SimpleNamespace(stdout='MainPID=4241\nControlGroup='+group+'\n')
+        ns=dict(json=json,re=re,stat=stat,os=SimpleNamespace(lstat=lambda value:os.lstat(paths[value]),geteuid=os.geteuid),
+                run=run,subprocess=SimpleNamespace(PIPE=-1),open=lambda value,*args,**kwargs:open(paths[value],*args,**kwargs))
+        exec(compile(ast.parse(source[start:end]),str(SOURCE),'exec'),ns)
+        records={key:json.dumps({'listenIp':'10.1.1.11','port':445}).encode()}
+        self.assertEqual({('10.1.1.11',445)},ns['smb_managed_listening_sockets'](records))
+        cgroup.write_text('0::/system.slice/foreign.service\n')
+        with self.assertRaisesRegex(ValueError,'another service'):
+            ns['smb_managed_listening_sockets'](records)
+
     def test_foreign_transient_smbd_listener_is_not_adopted_as_managed(self):
         self.foreign={('10.1.1.11',445)}
         with self.assertRaisesRegex(RuntimeError,'unrelated'):
