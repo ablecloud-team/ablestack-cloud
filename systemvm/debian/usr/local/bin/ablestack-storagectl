@@ -11261,10 +11261,16 @@ def collect(names, nvme_hosts=None,ad_identity=None,posix_policies=None):
             continue
         data, info = regular_file(path)
         files[path] = {"data": base64.b64encode(data).decode(), "sha256":hashlib.sha256(data).hexdigest(),"mode": stat.S_IMODE(info.st_mode), "uid": 0, "gid": info.st_gid}
+    owned=owned_account_records(files)
+    names.update(owned["/etc/passwd"]);names.update(owned["/etc/group"])
     accounts = {}
     for path in sorted(ACCOUNT_FILES):
         data, _ = regular_file(path)
         accounts[path] = [line for line in data.decode().splitlines() if line.split(":", 1)[0] in names]
+    for path in ("/etc/passwd","/etc/group"):
+        actual={line.split(":",1)[0]:line for line in accounts[path]}
+        if any(actual.get(name)!=record for name,record in owned[path].items()):
+            raise ValueError("Owned historical Unix identity differs before encrypted snapshot")
     for path, records in accounts.items():
         account_merge("", records, os.path.basename(path))
     result={"schemaVersion": 1, "files": files, "accounts": accounts, "nvmeHosts": collect_nvme_hosts(nvme_hosts or [])}
@@ -12390,6 +12396,59 @@ class SemanticLocalIdentity:
         return {"localAccountsRestored":True,"localPassdbSidRebased":True,"targetSamPreserved":True,"publicMappings":mappings,"publicGroupMappings":[{"name":name,"gid":int(value.split(":")[2])} for name,value in sorted(owned["/etc/group"].items())],"managedIdentityMappings":aliases}
 # END EMBEDDED SEMANTIC LOCAL IDENTITY
 
+# BEGIN EMBEDDED SERVICE TARGET CIPHER
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements. See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership. The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+"""Native codec-only TARGET ciphertext publication; no caller publication RPC."""
+import base64
+import hashlib
+import os
+from pathlib import Path
+
+class ServiceTargetCipher:
+    def __init__(self,root=None):self.root=Path(root or os.environ.get("ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR","/var/lib/ablestack-storage"));self.files=ServiceIdentityCipher(self.root)
+    def path(self,scope):return self.root/("service-identity-target-cipher-"+scope["operationUuid"]+".json")
+    def retain(self,request,capsule,target,key_proof):
+        scope=service_cipher_scope(request);saved=self.files.read(self.root/("service-identity-target-"+scope["operationUuid"]+".json"))
+        if (saved.get("kind")!="SERVICE_IDENTITY_TARGET" or saved.get("scope")!=scope or saved.get("phase")!="STOPPED"
+                or target.get("scope")!=scope or target.get("serviceTargetStoppedVerified") is not True
+                or target.get("targetGeneration")!=saved["targetGeneration"] or target.get("targetConfigurationSha256")!=saved["targetConfigurationSha256"]
+                or target.get("stoppedReceiptSha256")!=service_cipher_digest(saved["targetStoppedReceipt"])
+                or key_proof.get("scope")!=scope or key_proof.get("targetWrappingKeyVerified") is not True
+                or not isinstance(capsule,dict) or set(capsule)!={"schemaVersion","scope","wrappedKey","nonce","ciphertext","sha256"}
+                or type(capsule["schemaVersion"]) is not int or capsule["schemaVersion"]!=1 or capsule["scope"]!=scope["instanceUuid"]+":"+scope["operationUuid"]):
+            raise ValueError("TARGET codec ciphertext lacks its actual stopped/key authority")
+        raw=base64.b64decode(capsule["ciphertext"],validate=True)
+        if not raw or len(raw)>8*1024*1024+16 or hashlib.sha256(raw).hexdigest()!=capsule["sha256"] or capsule["sha256"]==key_proof.get("originalCapsuleSha256"):
+            raise ValueError("TARGET ciphertext is invalid or reuses BEFOREJOIN SOURCE")
+        from cryptography.hazmat.primitives import serialization
+        from cryptography.hazmat.primitives.asymmetric import rsa
+        public=serialization.load_pem_public_key(request["publicKey"].encode())
+        if not isinstance(public,rsa.RSAPublicKey) or public.key_size<2048:raise ValueError("TARGET wrapping RSA key is invalid")
+        record={"schemaVersion":1,"kind":"SERVICE_TARGET_IDENTITY_CHECKPOINT","scope":scope,"targetConfigurationSha256":saved["targetConfigurationSha256"],
+                "targetRecordSha256":service_cipher_digest(saved),"stoppedReceiptSha256":service_cipher_digest(saved["targetStoppedReceipt"]),
+                "publicKey":request["publicKey"],"capsule":capsule,"bootId":saved["bootId"]}
+        path=self.path(scope)
+        if path.exists() or path.is_symlink():
+            if self.files.read(path)!=record:raise ValueError("TARGET original ciphertext publication changed")
+        else:self.files.write(path,record)
+        return {"kind":"SERVICE_TARGET_IDENTITY_CHECKPOINT","scope":scope,"capsuleSha256":capsule["sha256"],
+                "targetConfigurationSha256":saved["targetConfigurationSha256"],"checkpointRecordSha256":service_cipher_digest(record)}
+# END EMBEDDED SERVICE TARGET CIPHER
+
 scope = str(request.get("instanceUuid") or "") + ":" + str(request.get("operationUuid") or "")
 if not re.fullmatch(r"[0-9a-fA-F-]{36}:[0-9a-fA-F-]{36}", scope):
     raise ValueError("Identity capsule request scope is invalid")
@@ -12420,6 +12479,30 @@ elif action=="semantic-local-restore":
     state["semanticManagedIdentityAliasBinding"]={key:alias_record[key] for key in ("scope","bootId","sourceCheckpointRecordSha256","originalSourceAuthority")}
     ServiceIdentityCipher(configuration).write(configuration/"smb-domain.json",state)
     print(json.dumps(result,sort_keys=True))
+elif action=="export-target":
+    allowed={"instanceUuid","maintenanceUuid","operationUuid","revision","targetConfigurationSha256","publicKey","identityCheckpointRef","names","nvmeHosts","includePosixPolicyReceipts"}
+    if not isinstance(request,dict) or set(request)-allowed:raise ValueError("TARGET RAW request has unsupported fields")
+    target_scope={key:request[key] for key in ("instanceUuid","maintenanceUuid","operationUuid","revision","targetConfigurationSha256")}
+    key_scope={**target_scope,"publicKey":request["publicKey"]}
+    if "identityCheckpointRef" in request:key_scope["identityCheckpointRef"]=request["identityCheckpointRef"]
+    key_proof=identity_command(("operation","generation","render-service-target-key-guard","/dev/stdin"),key_scope)
+    if key_proof.get("targetWrappingKeyVerified") is not True:raise ValueError("TARGET wrapping key has no protected original checkpoint")
+    cached=identity_command(("operation","generation","render-service-target-cached-cipher","/dev/stdin"),key_scope)
+    if cached.get("cachedTarget") is not None:
+        print(json.dumps({"success":True,**cached["cachedTarget"]},sort_keys=True))
+    else:
+        target=identity_command(("operation","generation","render-service-identity-export-target","/dev/stdin"),target_scope)
+        if target.get("serviceTargetStoppedVerified") is not True or target.get("targetConfigurationSha256")!=request["targetConfigurationSha256"]:
+            raise ValueError("TARGET RAW export lacks its independent owned stopped receipt")
+        payload=collect(request.get("names") or [],request.get("nvmeHosts") or [],ad_identity=target["adIdentity"],
+                        posix_policies=target["posixPolicies"] if request.get("includePosixPolicyReceipts") is True else None)
+        payload["sourceConfigurationSha256"]=target["targetConfigurationSha256"];validate_payload(payload)
+        fresh=identity_command(("operation","generation","render-service-identity-export-target","/dev/stdin"),target_scope)
+        fresh_key=identity_command(("operation","generation","render-service-target-key-guard","/dev/stdin"),key_scope)
+        if fresh!=target or fresh_key!=key_proof:raise ValueError("TARGET stopped identity or original key changed during RAW collection")
+        capsule=encrypt(payload,request["publicKey"],scope)
+        reference=ServiceTargetCipher().retain(request,capsule,target,key_proof)
+        print(json.dumps({"success":True,"capsule":capsule,"serviceIdentityCheckpoint":reference},sort_keys=True))
 elif action == "export":
     names = request.get("names") or []
     root_source=None;service_source=None;ad_metadata=None;records=None;configuration=None
@@ -14891,6 +14974,21 @@ class AdDomainLifecycle:
         except Exception:
             self.snapshot(request,"RECOVERY_REQUIRED",public);raise
 
+    def target_resume(self,request):
+        scope=self.daemon.scope(request);marker=service_cipher_scope(self.daemon.marker(request))
+        root=Path(os.environ.get("ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR","/var/lib/ablestack-storage"))
+        captured=ad_protected_json(root/("service-identity-target-"+scope["operationUuid"]+".json"))
+        if captured.get("kind")!="SERVICE_IDENTITY_TARGET" or captured.get("scope")!=marker:
+            raise ValueError("TARGET winbind resume has no independent captured target")
+        query={**marker,"targetConfigurationSha256":captured["targetConfigurationSha256"]}
+        proof=self.protected_request(("operation","generation","render-service-target-stopped"),query)
+        if (proof.get("scope")!=marker or proof.get("serviceTargetStoppedVerified") is not True
+                or proof.get("bootId")!=Path("/proc/sys/kernel/random/boot_id").read_text().strip()):
+            raise ValueError("TARGET winbind resume lacks its exact owned stopped target")
+        protected_ad_policy(scope["instanceUuid"],configuration=self.configuration)
+        started=self.daemon.start(request)
+        return {**started,"scope":scope,"targetDaemonResumed":True}
+
     def retain(self,request,expected):
         self.daemon.marker(request);state=ad_protected_json(self.state)
         if not isinstance(expected,dict) or state.get("identityReceipt")!={key:expected.get(key) for key in ("machineSid","domainSid","machineAccountSid")}:
@@ -14988,9 +15086,11 @@ class AdDomainLifecycle:
                 if path.exists() or path.is_symlink():raise ValueError("Owned AD artifact remains after cleanup")
                 cleanup.append({"name":name,"absent":True})
             for name in backups:self.restore_public(self.system_root/"etc"/name,backups[name],owned[name])
-            self.write_public(self.state,json.dumps({"state":"NOT_JOINED","joinState":"NOT_JOINED","instanceUuid":request["instanceUuid"],
-                              "netbiosName":actual["netbiosName"],"previousIdentityReceipt":state["identityReceipt"],
-                              "localMachineSid":source["publicLocalMachineSid"]},sort_keys=True))
+            left_state={"state":"NOT_JOINED","joinState":"NOT_JOINED","instanceUuid":request["instanceUuid"],
+                        "netbiosName":actual["netbiosName"],"previousIdentityReceipt":state["identityReceipt"],"localMachineSid":source["publicLocalMachineSid"]}
+            for key in ("semanticManagedIdentityAliasSha256","semanticManagedIdentityAliasBinding","semanticLocalIdentityReceipt"):
+                if key in state:left_state[key]=state[key]
+            self.write_public(self.state,json.dumps(left_state,sort_keys=True))
             fresh=AdIdentityRpc(self.run,self.configuration,cli=self.cli).inspect(request)
             if (fresh.get("joinState")!="NOT_JOINED" or fresh.get("machineSid")!=source["publicLocalMachineSid"]
                     or fresh.get("bootId")!=source["bootId"]):raise ValueError("AD leave final local identity was not freshly attested")
@@ -15010,6 +15110,7 @@ try:
     elif action=="leave":result=handler.leave(request)
     elif action=="semantic-local-restore":result=handler.semantic_local_restore(request)
     elif action=="semantic-local-guard":result=handler.semantic_local_guard(request)
+    elif action=="target-resume":result=handler.target_resume(request)
     elif action=="retain":result=handler.retain(request,request["expectedIdentity"])
     elif action=="daemon-gate":result=handler.daemon.gate()
     elif action=="quiesce":result=handler.daemon.stop(request)
@@ -20107,6 +20208,645 @@ class ServiceIdentityCipher:
         if capsule.get("scope")!=scope["instanceUuid"]+":"+scope["operationUuid"] or hashlib.sha256(base64.b64decode(capsule["ciphertext"],validate=True)).hexdigest()!=capsule.get("sha256"):
             raise ValueError("SERVICE protected original cipher digest/scope changed")
         return checkpoint
+#!/usr/bin/env python3
+
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+"""Persistent typed ROOT and approved SERVICE maintenance scopes; no credential material."""
+import json
+import os
+from pathlib import Path
+import stat
+import tempfile
+import uuid
+
+SCOPE_KEYS = ("instanceUuid", "templateUpgradeUuid", "operationUuid", "revision")
+SERVICE_SCOPE_KEYS = ("instanceUuid", "maintenanceUuid", "operationUuid", "revision")
+
+def scope(request,kind="ROOT"):
+    keys=SCOPE_KEYS if kind=="ROOT" else SERVICE_SCOPE_KEYS if kind=="SERVICE" else None
+    if keys is None or not isinstance(request,dict) or (set(request)&set(SCOPE_KEYS+SERVICE_SCOPE_KEYS))!=set(keys):
+        raise ValueError("Maintenance scope is mixed or unsupported")
+    result = {key: str(uuid.UUID(request[key])) for key in keys[:-1]}
+    revision = request["revision"]
+    if type(revision) is not int or revision < 1:
+        raise ValueError("Invalid maintenance revision")
+    result["revision"] = revision
+    if kind=="SERVICE" and result["maintenanceUuid"]!=result["operationUuid"]:
+        raise ValueError("SERVICE maintenance must use its durable operation identity")
+    return result
+
+def marker_kind(marker):
+    kind=marker.get("kind","ROOT")
+    if kind=="SERVICE" and (set(marker)!={"kind","scope","bootHeld"} or marker["bootHeld"] is not True):raise ValueError("SERVICE boot marker is not explicitly held")
+    scope(marker["scope"],kind)
+    return kind
+
+class Maintenance:
+    def __init__(self, root=None, generation=None):
+        self.root = Path(root or os.environ.get("ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR", "/var/lib/ablestack-storage"))
+        self.marker = self.root / "template-maintenance.json"
+        self.receipt = self.root / "template-maintenance-release.json"
+        self.generation = generation
+
+    def read(self, path):
+        if self.root.exists() or self.root.is_symlink():
+            directory = self.root.lstat()
+            if not stat.S_ISDIR(directory.st_mode) or directory.st_uid != os.geteuid() or directory.st_mode & 0o022:
+                raise ValueError("ROOT maintenance read directory is not protected")
+        if not path.exists() and not path.is_symlink():
+            return None
+        info = path.lstat()
+        if not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid() or stat.S_IMODE(info.st_mode) != 0o600 or info.st_size > 128 * 1024:
+            raise ValueError("ROOT maintenance record is not protected")
+        descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
+        try:
+            opened = os.fstat(descriptor)
+            fields = ("st_dev", "st_ino", "st_uid", "st_gid", "st_mode", "st_size")
+            if any(getattr(opened, key) != getattr(info, key) for key in fields):
+                raise ValueError("ROOT maintenance record changed while opening")
+            with os.fdopen(descriptor, "rb", closefd=False) as handle:
+                data = handle.read(128 * 1024 + 1)
+            if len(data) > 128 * 1024:
+                raise ValueError("ROOT maintenance record exceeds its size limit")
+            return json.loads(data)
+        finally:
+            os.close(descriptor)
+
+    def protected(self):
+        self.root.mkdir(parents=True, exist_ok=True, mode=0o700)
+        info = self.root.lstat()
+        if not stat.S_ISDIR(info.st_mode) or info.st_uid != os.geteuid() or info.st_mode & 0o022:
+            raise ValueError("ROOT maintenance directory is not protected")
+
+    def write(self, path, value):
+        self.protected()
+        descriptor, temporary = tempfile.mkstemp(prefix=".template-maintenance-", dir=self.root)
+        try:
+            os.fchmod(descriptor, 0o600)
+            with os.fdopen(descriptor, "w") as handle:
+                json.dump(value, handle, sort_keys=True);handle.flush();os.fsync(handle.fileno())
+            os.replace(temporary, path)
+            self.sync()
+        finally:
+            if os.path.exists(temporary):
+                os.unlink(temporary)
+
+    def sync(self):
+        descriptor = os.open(self.root, os.O_RDONLY | os.O_DIRECTORY)
+        try:os.fsync(descriptor)
+        finally:os.close(descriptor)
+
+    def status(self):
+        marker = self.read(self.marker)
+        kind=marker_kind(marker) if marker is not None else None
+        value = scope(marker["scope"],kind) if marker is not None else None
+        return {"success": True, "maintenanceSupported": True, "serviceMaintenanceSupported":True, "maintenanceKind":kind, "bootHeld": marker is not None, "scope": value}
+
+    def enter(self, request, kind="ROOT"):
+        desired = scope(request,kind)
+        marker = self.read(self.marker)
+        previous = request.get("expectedPreviousScope")
+        if marker is None:
+            if previous is not None:
+                raise ValueError("Expected previous ROOT maintenance scope is absent")
+        else:
+            actual_kind=marker_kind(marker)
+            actual = scope(marker["scope"],actual_kind)
+            if actual_kind!=kind:raise ValueError("Foreign maintenance kind is already held")
+            if actual == desired:
+                return self.status()
+            owner="templateUpgradeUuid" if kind=="ROOT" else "maintenanceUuid"
+            if previous is None or scope(previous,kind) != actual or any(actual[key] != desired[key] for key in ("instanceUuid", owner)):
+                raise ValueError("ROOT maintenance scope is foreign or changed")
+            if desired["revision"] <= actual["revision"]:
+                raise ValueError("ROOT maintenance scope revision did not advance")
+        self.write(self.marker, {"kind":kind,"scope": desired,"bootHeld":True})
+        return self.status()
+
+    def release(self, request,kind="ROOT"):
+        desired = scope(request,kind)
+        verified = request.get("verifiedGeneration")
+        if not isinstance(verified, dict) or verified.get("instanceUuid") != desired["instanceUuid"]:
+            raise ValueError("Verified ROOT maintenance generation scope is invalid")
+        actual = self.generation()
+        if actual.get("pendingOperationUuid") or actual.get("generation") != verified or actual.get("configurationSha256") != verified.get("configurationSha256") or actual.get("generationStatus") != "IN_SYNC":
+            raise ValueError("ROOT maintenance release generation was not exactly verified")
+        reservation=Path(os.environ.get("ABLESTACK_STORAGE_RESERVATION_DIR","/var/lib/ablestack-storage/resource-reservation"))/"lease.json"
+        if reservation.exists() or reservation.is_symlink():
+            directory=reservation.parent.lstat()
+            if not stat.S_ISDIR(directory.st_mode) or directory.st_uid!=os.geteuid() or directory.st_mode&0o077:raise ValueError("Maintenance resource lease directory is not protected")
+            if self.read(reservation) is not None:raise ValueError("Resource lease must be released before its maintenance boot hold")
+        marker = self.read(self.marker)
+        receipt = self.read(self.receipt)
+        if marker is None:
+            if receipt != {"scope": desired, "verifiedGeneration": verified}:
+                raise ValueError("Released ROOT maintenance scope is unavailable or changed")
+            return {"success": True, "released": True, "bootHeld": False, "scope": desired,"maintenanceKind":kind}
+        if marker_kind(marker)!=kind or scope(marker["scope"],kind) != desired:
+            raise ValueError("ROOT maintenance release scope changed")
+        self.write(self.receipt, {"scope": desired, "verifiedGeneration": verified})
+        self.marker.unlink()
+        self.sync()
+        return {"success": True, "released": True, "bootHeld": False, "scope": desired,"maintenanceKind":kind}
+#!/usr/bin/env python3
+
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+"""Approved downtime boundary with durable typed scopes and owned acceptors."""
+import json
+import os
+from pathlib import Path
+import stat
+import uuid
+import ipaddress
+import re
+import signal
+import subprocess
+import time
+
+
+def service_run(arguments,timeout=15,pass_fds=()):
+    if not callable(getattr(os,"pidfd_open",None)) or not callable(getattr(signal,"pidfd_send_signal",None)):
+        raise ValueError("SERVICE maintenance requires exact child control")
+    inherited=(9,) if os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD")=="9" else ()
+    pass_fds=tuple(set((*pass_fds,*inherited)))
+    child=subprocess.Popen(arguments,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,text=True,pass_fds=pass_fds)
+    descriptor=None
+    try:
+        try:descriptor=os.pidfd_open(child.pid,0)
+        except ProcessLookupError:
+            if child.poll() is None:raise ValueError("Maintenance child identity is unavailable")
+        try:output,_=child.communicate(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            if descriptor is not None:
+                try:signal.pidfd_send_signal(descriptor,signal.SIGKILL,None,0)
+                except ProcessLookupError:pass
+            try:child.wait(timeout=.2)
+            except subprocess.TimeoutExpired:pass
+            raise TimeoutError("SERVICE maintenance command timed out; boot remains held")
+        if child.returncode or len(output)>8*1024*1024:raise ValueError("SERVICE maintenance command failed")
+        return output
+    finally:
+        if descriptor is not None:os.close(descriptor)
+        if child.stdout:child.stdout.close()
+
+
+class ServiceMaintenance:
+    def __init__(self,maintenance,cli,run=None,command=None,units=None):
+        self.maintenance=maintenance;self.cli=str(cli);self.run=run or service_run
+        self.command=command or self.native;self.units=units or self.owned_units
+        self.deadline=time.monotonic()+180
+        self.journal=maintenance.root/"service-maintenance.json"
+
+    def remaining(self):
+        remaining=self.deadline-time.monotonic()
+        if remaining<=0:raise TimeoutError("SERVICE maintenance total deadline exceeded")
+        return min(15,remaining)
+
+    def native(self,arguments,payload=None):
+        inherited=(9,) if os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD")=="9" else ()
+        descriptor=None
+        try:
+            if payload is not None:
+                import fcntl
+                descriptor=os.memfd_create("service-maintenance-request",os.MFD_CLOEXEC|os.MFD_ALLOW_SEALING);os.fchmod(descriptor,0o600)
+                os.write(descriptor,json.dumps(payload,allow_nan=False).encode());os.lseek(descriptor,0,os.SEEK_SET)
+                fcntl.fcntl(descriptor,fcntl.F_ADD_SEALS,fcntl.F_SEAL_WRITE|fcntl.F_SEAL_GROW|fcntl.F_SEAL_SHRINK|fcntl.F_SEAL_SEAL)
+                inherited=(*inherited,descriptor);arguments=(*arguments,"/proc/self/fd/"+str(descriptor))
+            result=json.loads(self.run([self.cli,*arguments],timeout=self.remaining(),pass_fds=inherited))
+            if result.get("success") is not True:raise ValueError("SERVICE native observation was not verified")
+            return result
+        finally:
+            if descriptor is not None:os.close(descriptor)
+
+    def fence(self,request):
+        desired=scope(request,"SERVICE");actual=self.maintenance.generation()
+        current=actual.get("generation") or {}
+        if current.get("instanceUuid")!=desired["instanceUuid"] or type(current.get("revision")) is not int or current["revision"]>desired["revision"]:
+            raise ValueError("SERVICE native generation scope is foreign or stale")
+        pending=actual.get("pendingOperationUuid")
+        if pending not in (None,desired["operationUuid"]):raise ValueError("Foreign generation blocks SERVICE maintenance")
+        directory=Path(os.environ.get("ABLESTACK_STORAGE_VOLUME_OPERATIONS","/var/lib/ablestack-storage/volume-operations"))
+        if directory.exists() or directory.is_symlink():
+            info=directory.lstat()
+            if not stat.S_ISDIR(info.st_mode) or info.st_uid!=os.geteuid() or info.st_mode&0o022:raise ValueError("Formatter journals are unprotected")
+            for path in sorted(directory.iterdir()):
+                if path.suffix!=".json":raise ValueError("Unknown formatter journal entry")
+                volume=str(uuid.UUID(path.stem));observed=self.command(("volume","operation","status"),{"volumeUuid":volume})
+                if (observed.get("formatterActive") is True or observed.get("terminationPending") is True
+                        or observed.get("status") not in ("COMPLETE","MOUNT_EXISTING","NOT_STARTED")):
+                    raise ValueError("Unresolved formatter blocks SERVICE maintenance")
+        return desired
+
+    def prove_unit(self,unit,require_active=True):
+        managed_nfs=re.fullmatch(r"ablestack-storage-ganesha@([A-Za-z0-9_.-]+)\.service",unit)
+        managed_smb=re.fullmatch(r"ablestack-storage-smb@([0-9a-f]{24})\.service",unit)
+        managed_ad=unit=="ablestack-storage-winbind.service"
+        if not managed_nfs and not managed_smb and not managed_ad:raise ValueError("SERVICE stop refuses a foreign or legacy acceptor")
+        output=self.run(["systemctl","show",unit,"--property=MainPID,ActiveState,SubState","--no-pager"],timeout=self.remaining())
+        value=dict(line.split("=",1) for line in output.splitlines() if "=" in line)
+        if value.get("ActiveState")!="active":
+            if require_active:raise ValueError("SERVICE acceptor is not active")
+            return None
+        pid=int(value.get("MainPID") or "0")
+        if pid<=0:raise ValueError("SERVICE acceptor has no exact main PID")
+        proc=Path("/proc")/str(pid);arguments=[os.fsdecode(item) for item in (proc/"cmdline").read_bytes().split(bytes([0])) if item]
+        executable_path=os.readlink(proc/"exe");executable=Path(executable_path).name
+        allowed={"/usr/bin/ganesha.nfsd","/opt/ablestack-ganesha/5.5.3/bin/ganesha.nfsd"} if managed_nfs else {"/usr/sbin/winbindd"} if managed_ad else {"/usr/sbin/smbd"}
+        if executable_path not in allowed:raise ValueError("SERVICE executable is outside its packaged paths")
+        if managed_nfs:
+            configuration="/etc/ganesha/ablestack-storage/"+managed_nfs[1]+".conf"
+            if executable!="ganesha.nfsd" or arguments.count("-f")!=1 or arguments[arguments.index("-f")+1]!=configuration:raise ValueError("SERVICE NFS unit has a foreign executable/configuration")
+        elif managed_ad:
+            configuration="/etc/ablestack-storage/ad-machine.conf"
+            if arguments.count("--configfile="+configuration)!=1:raise ValueError("SERVICE owned AD daemon has a foreign configuration")
+        else:
+            configuration="/etc/samba/smb.conf"
+            bindings=Path("/etc/ablestack-storage/smb-endpoint-listeners")/(managed_smb[1]+".json")
+            endpoint=self.maintenance.read(bindings)
+            if endpoint is None or executable!="smbd":raise ValueError("SERVICE SMB unit lacks a protected endpoint")
+            if not any(argument in ("--configfile="+configuration,configuration) for argument in arguments):raise ValueError("SERVICE SMB unit has a foreign configuration")
+        if "/"+unit not in (proc/"cgroup").read_text():raise ValueError("SERVICE main PID is outside its owned unit")
+        if managed_nfs:
+            real=Path(configuration).resolve(strict=True);info=real.lstat()
+            if not stat.S_ISREG(info.st_mode) or info.st_uid!=os.geteuid() or info.st_mode&0o022 or info.st_size>8*1024*1024:raise ValueError("SERVICE NFS configuration is not protected")
+            descriptor=os.open(real,os.O_RDONLY|os.O_NOFOLLOW)
+            try:
+                opened=os.fstat(descriptor)
+                if (opened.st_dev,opened.st_ino,opened.st_size)!=(info.st_dev,info.st_ino,info.st_size):raise ValueError("SERVICE NFS configuration changed")
+                content=os.read(descriptor,8*1024*1024+1).decode()
+            finally:os.close(descriptor)
+            addresses=re.findall(r"(?mi)^\s*Bind_Addr\s*=\s*([^;]+);",content);ports=re.findall(r"(?mi)^\s*NFS_Port\s*=\s*([0-9]+);",content)
+            if len(addresses)!=1 or len(ports)!=1:raise ValueError("SERVICE NFS listener configuration is ambiguous")
+            endpoints=[{"listenIp":str(ipaddress.ip_address(addresses[0].strip().strip(chr(34)))),"port":int(ports[0])}]
+        elif managed_ad:endpoints=[]
+        else:endpoints=[{"listenIp":str(ipaddress.ip_address(endpoint["listenIp"])),"port":int(endpoint["port"])}]
+        if any(not 1<=endpoint["port"]<=65535 for endpoint in endpoints):raise ValueError("SERVICE listener port is invalid")
+        return {"unit":unit,"pid":pid,"startTicks":(proc/"stat").read_text().rpartition(")")[2].split()[19],"configurationPath":configuration,"listenerEndpoints":endpoints}
+
+    def listeners_clear(self,owners):
+        endpoints=[endpoint for owner in owners for endpoint in owner.get("listenerEndpoints",[])]
+        if not endpoints:return
+        for arguments in (["ss","-H","-ltnp"],["ss","-H","-lunp"]):
+            output=self.run(arguments,timeout=self.remaining())
+            for line in output.splitlines():
+                fields=line.split()
+                if len(fields)<5:raise ValueError("SERVICE native listener readback is malformed")
+                address,separator,port=fields[3].rpartition(":")
+                if not separator or not port.isdigit():raise ValueError("SERVICE listener address readback is malformed")
+                address=address.strip("[]");address="0.0.0.0" if address=="*" else str(ipaddress.ip_address(address))
+                if any(int(port)==row["port"] and (address in ("0.0.0.0","::") or row["listenIp"] in (address,"0.0.0.0","::")) for row in endpoints):
+                    raise ValueError("SERVICE listener remains exposed after owned stop")
+
+    def owned_units(self):
+        output=self.run(["systemctl","list-units","--state=active","--type=service","--no-legend","--plain",
+                         "ablestack-storage-ganesha@*.service","ablestack-storage-smb@*.service","ablestack-storage-winbind.service",
+                         "smbd.service","nmbd.service","winbind.service","nfs-ganesha.service","nfs-server.service","nfs-kernel-server.service"],timeout=self.remaining())
+        names=[line.split()[0] for line in output.splitlines() if line.split()]
+        if len(names)!=len(set(names)):raise ValueError("SERVICE owned acceptor set is ambiguous")
+        return [self.prove_unit(unit) for unit in sorted(names)]
+
+    def status(self,request=None):
+        status=self.maintenance.status()
+        if request is not None and status["bootHeld"] and (status["maintenanceKind"]!="SERVICE" or status["scope"]!=scope(request,"SERVICE")):
+            raise ValueError("Foreign maintenance scope cannot be observed as this SERVICE operation")
+        journal=self.maintenance.read(self.journal)
+        if journal is not None and status["bootHeld"] and journal.get("scope")!=status["scope"]:raise ValueError("SERVICE journal scope differs from its boot hold")
+        return {**status,"serviceMaintenanceSupported":True,"drainSupported":False,"phase":journal.get("phase") if journal and status["bootHeld"] else None,
+                "stoppedUnits":journal.get("stoppedUnits",[]) if journal and status["bootHeld"] else [],
+                **({key:journal[key] for key in ("serviceSourceStoppedVerified","stoppedReceiptSha256","sourceGeneration","sourceConfigurationSha256","publicAdPreStopSha256","publicLocalMachineSid","bootId") if key in journal} if journal and status["bootHeld"] else {})}
+
+    def enter(self,request):
+        desired=self.fence(request);status=self.maintenance.status()
+        if status["bootHeld"] and (status["maintenanceKind"]!="SERVICE" or status["scope"]!=desired):raise ValueError("Foreign boot hold blocks SERVICE entry")
+        journal=self.maintenance.read(self.journal)
+        if journal and journal.get("scope")==desired and journal.get("phase")=="HELD":return self.status(request)
+        owners=self.units() # Validate the entire ownership set before any marker/effect.
+        source_generation=self.maintenance.generation()
+        source_rendered=self.command(("operation","generation","render-status"))
+        if source_rendered.get("bootHeld") is True:raise ValueError("Interrupted rendered writer blocks SERVICE entry")
+        recovering=bool(journal and journal.get("scope")==desired and status.get("bootHeld") is True and status.get("maintenanceKind")=="SERVICE")
+        if not recovering:
+            source_current=source_generation.get("generation") or {};source_sha=source_generation.get("configurationSha256")
+            if (not isinstance(source_sha,str) or not re.fullmatch("[0-9a-f]{64}",source_sha)
+                    or source_current.get("configurationSha256")!=source_sha
+                    or source_generation.get("pendingOperationUuid") not in (None,desired["operationUuid"])):
+                raise ValueError("SERVICE source current/configuration digest drifted before entry")
+            baseline=source_rendered.get("current")
+            if baseline is None or (baseline.get("configurationSha256")!=source_sha
+                    or any(baseline.get("scope",{}).get(key)!=source_current.get(key) for key in ("instanceUuid","operationUuid","revision"))):
+                raise ValueError("SERVICE rendered baseline differs from its exact native source generation")
+
+        identity_checkpoint=self.maintenance.root/("service-identity-source-"+desired["operationUuid"]+".json")
+        domain_file=Path(os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_ROOT","/etc/ablestack-storage"))/"smb-domain.json"
+        domain_state=self.maintenance.read(domain_file) if domain_file.exists() or domain_file.is_symlink() else None
+        identity_required=bool(identity_checkpoint.exists() or identity_checkpoint.is_symlink() or isinstance(domain_state,dict) and str(domain_state.get("state") or domain_state.get("joinState") or "").upper()=="JOINED")
+        if identity_required:
+            captured=self.command(("operation","generation","render-service-source-quiesce-guard"),desired)
+            if captured.get("scope")!=desired or captured.get("sourceCaptured") is not True or captured.get("quiesceAuthorized") is not True:
+                raise ValueError("SERVICE identity stop lacks its protected PRESTOP capture")
+        self.maintenance.enter(request,"SERVICE")
+        if not journal or journal.get("scope")!=desired:
+            journal={"scope":desired,"phase":"STOPPING","owners":owners,"stoppedUnits":[],"sourceGeneration":source_generation["generation"],"sourceRendered":source_rendered.get("current"),"sourceActivation":source_rendered.get("activation")}
+            self.maintenance.write(self.journal,journal)
+        try:
+            for owner in sorted(journal["owners"],key=lambda row:row["unit"]=="ablestack-storage-winbind.service"):
+                unit=owner["unit"]
+                if unit in journal["stoppedUnits"]:continue
+                fresh=self.prove_unit(unit,False) if self.units==self.owned_units else next((row for row in self.units() if row["unit"]==unit),None)
+                if fresh is not None and fresh!=owner:raise ValueError("SERVICE acceptor identity changed before stop")
+                if fresh is not None:self.run(["systemctl","stop",unit],timeout=self.remaining())
+                journal["stoppedUnits"].append(unit);self.maintenance.write(self.journal,journal)
+            if self.units():raise ValueError("SERVICE acceptors remain active after owned stop")
+            self.listeners_clear(journal["owners"])
+            journal["phase"]="HELD";self.maintenance.write(self.journal,journal)
+            if identity_required:
+                stopped=self.command(("operation","generation","render-service-source-stopped"),desired)
+                if stopped.get("scope")!=desired or stopped.get("serviceSourceStoppedVerified") is not True or not re.fullmatch("[0-9a-f]{64}",str(stopped.get("stoppedReceiptSha256"))):
+                    raise ValueError("SERVICE identity source lacks its protected AFTERSTOP receipt")
+                journal.update({key:stopped[key] for key in ("serviceSourceStoppedVerified","stoppedReceiptSha256","sourceGeneration","sourceConfigurationSha256","publicAdPreStopSha256","publicLocalMachineSid","bootId")})
+                self.maintenance.write(self.journal,journal)
+            return self.status(request)
+        except Exception:
+            journal["phase"]="RECOVERY_REQUIRED";self.maintenance.write(self.journal,journal)
+            raise
+
+    def quiesce(self,request):
+        desired=self.fence(request);status=self.status(request)
+        if status.get("maintenanceKind")!="SERVICE" or status.get("bootHeld") is not True:raise ValueError("SERVICE quiesce requires its protected held scope")
+        domains=request.get("domains")
+        if not isinstance(domains,list) or not domains or len(set(domains))!=len(domains) or not set(domains)<={"NFS","SMB"}:raise ValueError("SERVICE quiesce domains are invalid")
+        def domain(unit):return "NFS" if unit.startswith("ablestack-storage-ganesha@") else "SMB"
+        owners=[owner for owner in self.units() if domain(owner["unit"]) in domains]
+        stopped=[]
+        for owner in sorted(owners,key=lambda row:row["unit"]=="ablestack-storage-winbind.service"):
+            fresh=self.prove_unit(owner["unit"],False) if self.units==self.owned_units else next((row for row in self.units() if row["unit"]==owner["unit"]),None)
+            if fresh!=owner:raise ValueError("SERVICE acceptor changed before inverse quiesce")
+            self.run(["systemctl","stop",owner["unit"]],timeout=self.remaining());stopped.append(owner["unit"])
+        if any(domain(owner["unit"]) in domains for owner in self.units()):raise ValueError("SERVICE inverse acceptors remain active")
+        self.listeners_clear(owners)
+        return {"success":True,"quiesced":True,"scope":desired,"bootHeld":True,"maintenanceKind":"SERVICE","domainsQuiesced":domains,"stoppedUnits":stopped,"drainSupported":False}
+
+    def release(self,request):
+        desired=self.fence(request);status=self.status(request)
+        if not status["bootHeld"]:return self.maintenance.release(request,"SERVICE")
+        journal=self.maintenance.read(self.journal)
+        if journal is None or journal.get("scope")!=desired:raise ValueError("SERVICE release lacks its protected owned-unit receipt")
+        # The coordinator must restore/apply current immutable runtime while the
+        # boot marker remains held. Native readback is fresh and all-four exact.
+        observed=self.command(("operation","generation","render-maintenance-verify"),request)
+        if observed.get("runtimeVerified") is not True or observed.get("scope")!=desired:
+            raise ValueError("SERVICE runtime was not freshly verified under its held scope")
+        result=self.maintenance.release(request,"SERVICE")
+        journal["phase"]="RELEASED";self.maintenance.write(self.journal,journal)
+        return {**result,"serviceMaintenanceSupported":True,"drainSupported":False,"runtimeVerified":True}
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements. See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership. The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+"""Fresh TARGET-only LKG capture under a held SERVICE; SOURCE records are immutable."""
+import base64
+import hashlib
+import json
+import os
+from pathlib import Path
+import time
+
+
+class ServiceIdentityTarget:
+    def __init__(self,driver,controller,root=None,identity=None,writer=None,winbind=None):
+        self.source=ServiceIdentitySource(driver,root,identity,writer)
+        self.driver=driver;self.store=driver.store;self.runtime=driver.runtime;self.root=self.source.root
+        self.identity=self.source.identity;self.controller=controller;self.writer=self.source.writer
+        self.winbind=winbind
+    def scope(self,request):
+        if not isinstance(request,dict) or set(request)!={"instanceUuid","maintenanceUuid","operationUuid","revision","targetConfigurationSha256"}:
+            raise ValueError("TARGET capture request is mixed or incomplete")
+        scope=service_identity_scope({key:request[key] for key in ("instanceUuid","maintenanceUuid","operationUuid","revision")})
+        digest=request["targetConfigurationSha256"]
+        if not isinstance(digest,str) or len(digest)!=64 or any(c not in "0123456789abcdef" for c in digest):
+            raise ValueError("TARGET configuration checksum is invalid")
+        return scope
+    def path(self,scope):return self.root/("service-identity-target-"+scope["operationUuid"]+".json")
+    def stop_path(self,scope):return self.root/("service-identity-target-stop-"+scope["operationUuid"]+".json")
+    def cipher_path(self,scope):return self.root/("service-identity-target-cipher-"+scope["operationUuid"]+".json")
+    def observation(self,request):
+        scope=self.scope(request);self.writer();self.source.held(scope)
+        actual,status=self.source.observation(scope)
+        if (any(actual["generation"].get(key)!=scope[key] for key in ("instanceUuid","operationUuid","revision"))
+                or actual.get("pendingOperationUuid") is not None or actual["configurationSha256"]!=request["targetConfigurationSha256"]):
+            raise ValueError("LKG TARGET is not its exact committed current generation")
+        return scope,actual,status
+    def capture(self,request):
+        scope,actual,status=self.observation(request);path=self.path(scope)
+        if path.exists() or path.is_symlink():
+            saved=self.validate(request)[1];return self.receipt(saved)
+        verified=self.driver.verify(self.store.pointer())
+        if set(verified)!=set(DOMAINS) or any(verified[name] is not True for name in DOMAINS):
+            raise ValueError("LKG TARGET all-four readback failed before capture")
+        frozen=self.identity.freeze(scope,actual);owners=self.identity.owners()
+        if (frozen["publicAdIdentity"] is not None)!=any(row["unit"]=="ablestack-storage-winbind.service" for row in owners):
+            raise ValueError("LKG TARGET AD differs from its owned winbind")
+        saved={"schemaVersion":1,"kind":"SERVICE_IDENTITY_TARGET","scope":scope,"phase":"CAPTURED","targetGeneration":actual["generation"],
+               "targetRendered":status["current"],"targetActivation":status.get("activation"),"targetConfigurationSha256":actual["configurationSha256"],
+               "targetPublicIdentity":frozen,"targetOwners":owners,"canonicalBytes":self.source.canonical_bytes(),
+               "bootId":Path("/proc/sys/kernel/random/boot_id").read_text().strip(),"capturedEpoch":time.time()}
+        rendered_json(path,saved);return self.receipt(saved)
+    def receipt(self,saved):
+        value={"success":True,"scope":saved["scope"],"targetCaptured":True,"targetGeneration":saved["targetGeneration"],
+               "targetConfigurationSha256":saved["targetConfigurationSha256"],"targetRenderedManifestSha256":saved["targetRendered"]["manifestSha256"],
+               "bootId":saved["bootId"],"publicLocalMachineSid":saved["targetPublicIdentity"]["publicLocalMachineSid"],"canonicalDesiredStateChanged":False}
+        if saved.get("targetStoppedReceipt") is not None:
+            value.update(serviceTargetStoppedVerified=True,stoppedReceiptSha256=root_public_sha(saved["targetStoppedReceipt"]))
+        return value
+    def validate(self,request):
+        scope,actual,status=self.observation(request);saved=credential_json(rendered_read(self.path(scope)))
+        if (type(saved.get("schemaVersion")) is not int or saved["schemaVersion"]!=1 or saved.get("kind")!="SERVICE_IDENTITY_TARGET" or saved.get("scope")!=scope
+                or saved.get("targetGeneration")!=actual["generation"] or saved.get("targetRendered")!=status["current"]
+                or saved.get("targetActivation")!=status.get("activation") or saved.get("targetConfigurationSha256")!=actual["configurationSha256"]
+                or saved.get("canonicalBytes")!=self.source.canonical_bytes() or saved.get("bootId")!=Path("/proc/sys/kernel/random/boot_id").read_text().strip()):
+            raise ValueError("LKG TARGET captured generation/seven/boot differs")
+        self.identity.unchanged(scope,actual,saved["targetPublicIdentity"])
+        return scope,saved,actual
+    def quiesce(self,request):
+        scope,saved,actual=self.validate(request);owners=saved["targetOwners"];journal_path=self.stop_path(scope)
+        if saved.get("phase")=="STOPPED":return self.stopped(request)
+        if self.identity.owners()!=owners:raise ValueError("LKG TARGET owners changed before stop")
+        if not time.time()-180<=saved["capturedEpoch"]<=time.time()+5:raise ValueError("LKG TARGET PRESTOP capture expired")
+        journal={"kind":"SERVICE_TARGET_STOP_JOURNAL","scope":scope,"phase":"STOPPING","targetGeneration":saved["targetGeneration"],
+                 "targetConfigurationSha256":saved["targetConfigurationSha256"],"owners":owners,"stoppedUnits":[],"bootId":saved["bootId"]}
+        rendered_json(journal_path,journal)
+        try:
+            for owner in sorted(owners,key=lambda row:row["unit"]=="ablestack-storage-winbind.service"):
+                fresh=self.controller.prove_unit(owner["unit"],False)
+                if fresh is None or fresh!=owner:raise ValueError("LKG TARGET unit PID/start/config changed before owned stop")
+                self.controller.run(["systemctl","stop",owner["unit"]],timeout=self.controller.remaining())
+                journal["stoppedUnits"].append(owner["unit"]);rendered_json(journal_path,journal)
+            journal["phase"]="HELD";rendered_json(journal_path,journal)
+            return self.stopped(request)
+        except Exception:
+            journal["phase"]="RECOVERY_REQUIRED";rendered_json(journal_path,journal);raise
+    def stopped(self,request):
+        scope,saved,actual=self.validate(request);journal=credential_json(rendered_read(self.stop_path(scope)));owners=saved["targetOwners"]
+        if (journal.get("kind")!="SERVICE_TARGET_STOP_JOURNAL" or journal.get("scope")!=scope or journal.get("phase") not in ("HELD","RECOVERY_REQUIRED")
+                or journal.get("targetGeneration")!=saved["targetGeneration"] or journal.get("targetConfigurationSha256")!=saved["targetConfigurationSha256"]
+                or journal.get("owners")!=owners or len(journal.get("stoppedUnits",[]))!=len(owners)
+                or set(journal["stoppedUnits"])!={row["unit"] for row in owners} or self.identity.owners()):
+            raise ValueError("LKG TARGET lacks its exact independent owned-stop receipt")
+        self.identity.listeners_clear(owners)
+        if self.identity.holders():raise ValueError("LKG TARGET private TDB holders remain")
+        receipt={"schemaVersion":1,"kind":"SERVICE_TARGET_STOPPED","scope":scope,"targetGeneration":saved["targetGeneration"],
+                 "targetConfigurationSha256":saved["targetConfigurationSha256"],"owners":owners,"knownIdentityDatabaseHolders":0,
+                 "holderObservationScope":ROOT_IDENTITY_HOLDER_SCOPE,"bootId":saved["bootId"],"publicLocalMachineSid":saved["targetPublicIdentity"]["publicLocalMachineSid"]}
+        if saved.get("targetStoppedReceipt") not in (None,receipt):raise ValueError("LKG TARGET stopped receipt changed")
+        if saved.get("targetStoppedReceipt") is None:
+            saved["targetStoppedReceipt"]=receipt;saved["phase"]="STOPPED";rendered_json(self.path(scope),saved)
+        return {**self.receipt(saved),"bootHeld":True,"maintenanceKind":"SERVICE","sideEffects":False}
+    def export_target(self,request):
+        self.stopped(request);scope,saved,actual=self.validate(request)
+        if saved["phase"]!="STOPPED":raise ValueError("LKG RAW TARGET export requires its own AFTERSTOP receipt")
+        return {**self.receipt(saved),"adIdentity":saved["targetPublicIdentity"]["publicAdIdentity"],"posixPolicies":saved["targetPublicIdentity"]["sourcePosixPolicies"],"sideEffects":False}
+    def wrapping_key(self,request):
+        source=ServiceIdentityCipher(self.root);scope=self.scope({key:value for key,value in request.items() if key not in ("publicKey","identityCheckpointRef")})
+        if source.source_path(scope).exists() or source.source_path(scope).is_symlink():
+            native=source.source(scope);record=source.read(source.path(scope))
+            if (record.get("kind")!="SERVICE_SOURCE_IDENTITY_CHECKPOINT" or record.get("serviceScope")!=scope
+                    or record.get("sourceRecordSha256")!=service_cipher_digest(native)):
+                raise ValueError("LKG TARGET lacks its original held SOURCE wrapping-key authority")
+            checkpoint=record["identityCheckpoint"]
+        else:
+            common={key:scope[key] for key in ("instanceUuid","operationUuid","revision")}
+            checkpoint=credential_json(rendered_read(self.driver.checkpoints/(scope["operationUuid"]+".json")))
+            previous=self.driver.credential_source(common);reference=request.get("identityCheckpointRef")
+            if (checkpoint.get("scope")!=common or checkpoint.get("sourceConfigurationSha256")!=previous.get("configurationSha256")
+                    or not isinstance(reference,dict) or set(reference)!={"operationUuid","sha256"}
+                    or reference.get("operationUuid")!=scope["operationUuid"] or reference.get("sha256")!=checkpoint.get("capsule",{}).get("sha256")):
+                raise ValueError("LKG TARGET stage original checkpoint/ref/previous generation differs")
+        from cryptography.hazmat.primitives import serialization
+        from cryptography.hazmat.primitives.asymmetric import rsa
+        public=serialization.load_pem_public_key(str(request.get("publicKey") or "").encode())
+        expected=serialization.load_pem_public_key(checkpoint["publicKey"].encode())
+        if not isinstance(public,rsa.RSAPublicKey) or public.key_size<2048 or public.public_numbers()!=expected.public_numbers():
+            raise ValueError("LKG TARGET wrapping key differs from its original RenderedBatch key")
+        old=checkpoint["capsule"];raw=base64.b64decode(old["ciphertext"],validate=True)
+        if old.get("scope")!=scope["instanceUuid"]+":"+scope["operationUuid"] or hashlib.sha256(raw).hexdigest()!=old.get("sha256"):
+            raise ValueError("LKG TARGET original checkpoint ciphertext scope/digest differs")
+        return old
+
+    def retain_cipher(self,request,capsule):
+        scope,saved,actual=self.validate({key:value for key,value in request.items() if key not in ("publicKey","identityCheckpointRef")})
+        self.stopped({key:value for key,value in request.items() if key not in ("publicKey","identityCheckpointRef")})
+        old=self.wrapping_key(request)
+        if capsule==old:raise ValueError("Before-JOIN SOURCE ciphertext cannot become LKG TARGET")
+        cipher=ServiceIdentityCipher(self.root);path=self.cipher_path(scope)
+        raw=base64.b64decode(capsule["ciphertext"],validate=True)
+        if capsule.get("scope")!=scope["instanceUuid"]+":"+scope["operationUuid"] or hashlib.sha256(raw).hexdigest()!=capsule.get("sha256"):
+            raise ValueError("LKG TARGET ciphertext differs from its exact scope/digest")
+        record={"schemaVersion":1,"kind":"SERVICE_TARGET_IDENTITY_CHECKPOINT","scope":scope,"targetConfigurationSha256":saved["targetConfigurationSha256"],
+                "targetRecordSha256":service_cipher_digest(saved),"stoppedReceiptSha256":root_public_sha(saved["targetStoppedReceipt"]),
+                "publicKey":request["publicKey"],"capsule":capsule,"bootId":saved["bootId"]}
+        if path.exists() or path.is_symlink():
+            if cipher.read(path)!=record:raise ValueError("LKG TARGET cannot replace its original independent ciphertext")
+        else:cipher.write(path,record)
+        return {"kind":"SERVICE_TARGET_IDENTITY_CHECKPOINT","scope":scope,"capsuleSha256":capsule["sha256"],
+                "targetConfigurationSha256":saved["targetConfigurationSha256"],"checkpointRecordSha256":service_cipher_digest(record)}
+    def cached_cipher(self,request):
+        scope=self.scope({key:value for key,value in request.items() if key not in ("publicKey","identityCheckpointRef")})
+        path=self.cipher_path(scope)
+        if not path.exists() and not path.is_symlink():return None
+        self.wrapping_key(request);plain={key:value for key,value in request.items() if key not in ("publicKey","identityCheckpointRef")}
+        _,saved,actual=self.validate(plain);journal=credential_json(rendered_read(self.stop_path(scope)))
+        if journal.get("phase") in ("RESUMED","RESUMING"):self.verify_resumed(scope,saved,actual)
+        else:self.stopped(plain)
+        record=ServiceIdentityCipher(self.root).read(path)
+        if (record.get("kind")!="SERVICE_TARGET_IDENTITY_CHECKPOINT" or record.get("scope")!=scope
+                or record.get("targetRecordSha256")!=service_cipher_digest(saved) or record.get("bootId")!=saved["bootId"]
+                or record.get("stoppedReceiptSha256")!=root_public_sha(saved["targetStoppedReceipt"])
+                or record.get("targetConfigurationSha256")!=saved["targetConfigurationSha256"]):
+            raise ValueError("LKG TARGET cached independent ciphertext authority differs")
+        capsule=record["capsule"];raw=base64.b64decode(capsule["ciphertext"],validate=True)
+        if capsule["scope"]!=scope["instanceUuid"]+":"+scope["operationUuid"] or hashlib.sha256(raw).hexdigest()!=capsule["sha256"]:
+            raise ValueError("LKG TARGET cached ciphertext scope/digest differs")
+        return {"capsule":capsule,"serviceIdentityCheckpoint":{"kind":"SERVICE_TARGET_IDENTITY_CHECKPOINT","scope":scope,"capsuleSha256":capsule["sha256"],
+                "targetConfigurationSha256":saved["targetConfigurationSha256"],"checkpointRecordSha256":service_cipher_digest(record)}}
+
+    def verify_resumed(self,scope,saved,actual):
+        owners=self.identity.owners()
+        if {row["unit"] for row in owners}!={row["unit"] for row in saved["targetOwners"]}:
+            raise ValueError("LKG TARGET resumed owner set differs")
+        for owner in saved["targetOwners"]:self.controller.prove_unit(owner["unit"])
+        verified=self.driver.verify(self.store.pointer())
+        if set(verified)!=set(DOMAINS) or any(verified[name] is not True for name in DOMAINS):
+            raise ValueError("LKG TARGET fresh resumed all-four readback failed")
+        if self.identity.freeze(scope,actual)!=saved["targetPublicIdentity"]:
+            raise ValueError("LKG TARGET resumed public SAM/domain/alias/ownership evidence differs")
+        return {**self.receipt(saved),"targetRuntimeVerified":True,"canonicalDesiredStateChanged":False}
+
+    def resume(self,request):
+        scope,saved,actual=self.validate(request)
+        journal=credential_json(rendered_read(self.stop_path(scope)))
+        if journal.get("phase") in ("RESUMED","RESUMING"):
+            result=self.verify_resumed(scope,saved,actual)
+            if journal["phase"]!="RESUMED":journal["phase"]="RESUMED";rendered_json(self.stop_path(scope),journal)
+            return result
+        self.stopped(request)
+        journal["phase"]="RESUMING";rendered_json(self.stop_path(scope),journal)
+        try:
+            for owner in sorted(saved["targetOwners"],key=lambda row:row["unit"]!="ablestack-storage-winbind.service"):
+                if owner["unit"]=="ablestack-storage-winbind.service":
+                    if self.winbind is None:raise ValueError("LKG TARGET winbind resume producer is unavailable")
+                    self.winbind.start({key:scope[key] for key in ("instanceUuid","operationUuid","revision")})
+                else:self.controller.run(["systemctl","start",owner["unit"]],timeout=self.controller.remaining())
+                self.controller.prove_unit(owner["unit"])
+            verified=self.driver.verify(self.store.pointer())
+            if set(verified)!=set(DOMAINS) or any(verified[name] is not True for name in DOMAINS):raise ValueError("LKG TARGET fresh resume all-four readback failed")
+            self.identity.unchanged(scope,actual,saved["targetPublicIdentity"])
+            journal=credential_json(rendered_read(self.stop_path(scope)));journal["phase"]="RESUMED";rendered_json(self.stop_path(scope),journal)
+            return {**self.receipt(saved),"targetRuntimeVerified":True,"canonicalDesiredStateChanged":False}
+        except Exception:
+            journal=credential_json(rendered_read(self.stop_path(scope)));journal["phase"]="RECOVERY_REQUIRED";rendered_json(self.stop_path(scope),journal);raise
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements. See the NOTICE file
 # distributed with this work for additional information
@@ -20899,7 +21639,24 @@ class RenderedDriver:
         result = subprocess.run(["systemctl", "daemon-reload"], capture_output=True, timeout=self.runtime.remaining(15))
         if result.returncode:raise ValueError("Protocol boot guards could not be loaded")
 
+    def target_identity_handler(self):
+        runtime=self.runtime
+        bridge=type("TargetWinbindResume",(),{"start":lambda ignored,scope:runtime.command(("identity","domain","target-resume"),scope)})()
+        controller=ServiceMaintenance(Maintenance(generation=lambda:self.generation()),runtime.cli)
+        return ServiceIdentityTarget(self,controller,winbind=bridge)
+
     def execute(self, action, request=None, unit=None):
+        if action in ("render-service-capture-target","render-service-quiesce-target","render-service-target-stopped","render-service-identity-export-target","render-service-target-key-guard","render-service-target-cached-cipher","render-service-resume-target"):
+            target=self.target_identity_handler()
+            if action=="render-service-capture-target":return target.capture(request)
+            if action=="render-service-quiesce-target":return target.quiesce(request)
+            if action=="render-service-target-stopped":return target.stopped(request)
+            if action=="render-service-identity-export-target":return target.export_target(request)
+            if action=="render-service-resume-target":return target.resume(request)
+            if action=="render-service-target-cached-cipher":return {"success":True,"cachedTarget":target.cached_cipher(request)}
+            original=target.wrapping_key(request)
+            return {"success":True,"scope":target.scope({key:value for key,value in request.items() if key not in ("publicKey","identityCheckpointRef")}),
+                    "targetWrappingKeyVerified":True,"originalCapsuleSha256":original["sha256"]}
         if action == "render-status": return {**self.store.status(),"rootSourceIdentityCheckpointSupported":True,"retainedRootRestoreSupported":True,"serviceIdentityCheckpointSupported":True}
         if action=="render-service-capture-source":return self.service_identity.capture(request)
         if action=="render-service-source-quiesce-guard":return self.service_identity.guard(request)
@@ -21114,7 +21871,7 @@ try:
     action = sys.argv[1]
     request = json.loads(Path(sys.argv[2]).read_text()) if action not in ("render-status", "render-boot", "render-boot-gate", "render-root-replay-guard") else None
     if request is not None:
-        allowed = {"instanceUuid", "operationUuid", "revision", "expectedCurrentRenderedSha256", "renderedManifestSha256", "previousGeneration", "configurationDesiredState", "protocolDesiredState", "credentialRefs", "checkpointPublicKey", "checkpointPrivateKey", "transientCredentials", "expectedBindings", "initialRootBaseline", "fileVolumeBindings", "identityCheckpointRef", "targetCredentialArtifact", "templateUpgradeUuid", "maintenanceUuid", "verifiedGeneration", "expectedRetainedGeneration", "expectedRetainedRenderedSha256", "baselineRef", "capsule", "credentialPrivateKey", "originalSourceScope", "sourceConfigurationSha256", "retainedRootAuthorization"}
+        allowed = {"instanceUuid", "operationUuid", "revision", "expectedCurrentRenderedSha256", "renderedManifestSha256", "previousGeneration", "configurationDesiredState", "protocolDesiredState", "credentialRefs", "checkpointPublicKey", "checkpointPrivateKey", "transientCredentials", "expectedBindings", "initialRootBaseline", "fileVolumeBindings", "identityCheckpointRef", "targetCredentialArtifact", "templateUpgradeUuid", "maintenanceUuid", "verifiedGeneration", "expectedRetainedGeneration", "expectedRetainedRenderedSha256", "baselineRef", "capsule", "credentialPrivateKey", "originalSourceScope", "sourceConfigurationSha256", "retainedRootAuthorization", "targetConfigurationSha256", "publicKey"}
         if not isinstance(request, dict) or not set(request) <= allowed:
             raise ValueError("Rendered RPC contains an unknown input field")
         if request.get("checkpointPrivateKey") or request.get("credentialPrivateKey") or request.get("transientCredentials") or request.get("targetCredentialArtifact"):
@@ -21186,7 +21943,7 @@ PYADHANDLERCAP
       identity_ad_lifecycle_command "local-sam-bootstrap" "$payload"
       exit $?
     fi
-    if [[ "$subcommand" == "domain" && ( "$action" == "join" || "$action" == "leave" || "$action" == "daemon-gate" || "$action" == "quiesce" || "$action" == "semantic-local-restore" || "$action" == "semantic-local-guard" ) ]]; then
+    if [[ "$subcommand" == "domain" && ( "$action" == "join" || "$action" == "leave" || "$action" == "daemon-gate" || "$action" == "quiesce" || "$action" == "semantic-local-restore" || "$action" == "semantic-local-guard" || "$action" == "target-resume" ) ]]; then
       identity_ad_lifecycle_command "$action" "$payload"
       exit $?
     fi
@@ -21213,7 +21970,7 @@ PYADHANDLERCAP
   operation)
     if [[ "$subcommand" == "generation" ]]; then
       case "$action" in
-        render-import|render-stage|render-activate|render-rollback|render-status|render-finalize|render-boot|render-boot-gate|render-maintenance-verify|render-maintenance-resume-source|render-service-capture-source|render-service-source-quiesce-guard|render-service-source-stopped|render-service-identity-export-source|render-root-capture-source|render-root-resume-source|render-root-replay-guard|render-root-source-quiesce-guard|render-root-quiesce-source|render-root-identity-export-source|render-root-capture-retained|render-root-authorize-retained) rendered_generation_command ;;
+        render-import|render-stage|render-activate|render-rollback|render-status|render-finalize|render-boot|render-boot-gate|render-maintenance-verify|render-maintenance-resume-source|render-service-capture-source|render-service-source-quiesce-guard|render-service-source-stopped|render-service-identity-export-source|render-root-capture-source|render-root-resume-source|render-root-replay-guard|render-root-source-quiesce-guard|render-root-quiesce-source|render-root-identity-export-source|render-root-capture-retained|render-root-authorize-retained|render-service-capture-target|render-service-quiesce-target|render-service-target-stopped|render-service-identity-export-target|render-service-target-key-guard|render-service-target-cached-cipher|render-service-resume-target) rendered_generation_command ;;
         *) configuration_generation ;;
       esac
     elif [[ "$subcommand" == "reservation" ]]; then
