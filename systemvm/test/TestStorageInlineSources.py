@@ -22,7 +22,7 @@ CLI=ROOT/"systemvm/debian/usr/local/bin/ablestack-storagectl"
 
 class StorageInlineSourcesTest(unittest.TestCase):
     def test_signed_rendered_entrypoint_matches_all_fixed_reviewed_library_bodies_exactly(self):
-        modules=['ad_authority','rendered_generation','ganesha_dbus','nvme_credentials','native_renderers','native_render_validation','native_render_runtime','rendered_network','rendered_prerequisites','rendered_credentials','posix_root_initialization','root_identity_reference','root_configuration_capsule','root_source_identity_checkpoint','root_source_recovery','service_identity_source','root_retained_authorization','rendered_driver']
+        modules=['ad_authority','rendered_generation','ganesha_dbus','nvme_credentials','native_renderers','native_render_validation','native_render_runtime','rendered_network','rendered_prerequisites','rendered_credentials','posix_root_initialization','root_identity_reference','root_configuration_capsule','root_source_identity_checkpoint','root_source_recovery','samba_public_sid','service_identity_source','root_retained_authorization','rendered_driver']
         expected=['import sys']
         for name in modules:
             value=(LIB/(name+'.py')).read_text()
@@ -48,7 +48,8 @@ class StorageInlineSourcesTest(unittest.TestCase):
             modules.append(value.rstrip())
         self.assertEqual("\n".join(modules),maintenance)
         ad=source.split("<<'PYADIDENTITY'\n",1)[1].split("\nimport sys\ntry:",1)[0]
-        self.assertEqual((LIB/"ad_identity.py").read_text().rstrip(),ad.rstrip())
+        expected="\n".join((LIB/(name+".py")).read_text().rstrip().replace("from samba_public_sid import samba_public_sid\n","") for name in ("samba_public_sid","ad_identity"))
+        self.assertEqual(expected,ad.rstrip())
 
     def test_signed_root_network_and_handler_availability_are_exact_and_production_false(self):
         source=CLI.read_text();actual=source.split("<<'PYROOTNETWORK'\n",1)[1].split("\nimport sys\ntry:",1)[0]

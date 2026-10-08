@@ -26,6 +26,7 @@ from rendered_generation import DOMAINS,no_rendered_secrets,rendered_read,render
 from rendered_credentials import credential_json
 from root_source_identity_checkpoint import RootSourceIdentityCheckpoint,root_public_sha,root_source_validate_ad_identity,ROOT_IDENTITY_HOLDER_SCOPE
 from root_source_recovery import RootSourceRecovery
+from samba_public_sid import samba_public_sid
 
 
 def service_identity_scope(request):
@@ -50,11 +51,13 @@ def service_identity_writer():
 
 
 class ServicePublicIdentity(RootSourceIdentityCheckpoint):
+    def __init__(self,*args,sid_reader=None,**kwargs):
+        super().__init__(*args,**kwargs);self.sid_reader=sid_reader or samba_public_sid
+
     def local_sid(self):
-        output=self.command(["net","getlocalsid"])
-        match=re.fullmatch(r"SID for domain [^:\r\n]+ is:\s*(S-1-5-21(?:-[0-9]{1,10}){3})\s*",output)
-        if not match:raise ValueError("SERVICE public local SAM SID is unavailable or ambiguous")
-        return match[1]
+        name=self.command(["testparm","-s","--parameter-name=netbios name"]).upper()
+        if not re.fullmatch(r"[A-Z0-9][A-Z0-9_-]{0,14}",name):raise ValueError("SERVICE source NetBIOS machine name is invalid")
+        return self.sid_reader(name)
 
     def freeze(self,scope,actual):
         raw,binding=self.public_file(self.configuration/"smb-domain.json",True)

@@ -26,6 +26,7 @@ import re
 import subprocess
 import signal
 import time
+from samba_public_sid import samba_public_sid
 
 
 def bounded_ad_run(arguments, capture_output=True, text=True, timeout=5, pass_fds=()):
@@ -452,6 +453,7 @@ class AdIdentityRpc:
         aliases=dns_aliases(state.get("dnsAliases"),domain)
         expected=state.get("identityReceipt")
         if not isinstance(expected,dict) or set(expected)!={"machineSid","domainSid","machineAccountSid"}:raise ValueError("AD joined state lacks its protected SID receipt")
+        if samba_public_sid(netbios)!=expected["machineSid"]:raise ValueError("AD public SAM SID differs before any mutating Samba fallback can run")
         observed=AdIdentityProbe(self.configured_run,self.deadline).verify(domain,required,{key:expected[key] for key in ("machineSid","domainSid")},netbios)
         account=machine_account_sid(self.command(["wbinfo","--name-to-sid",workgroup+chr(92)+netbios+"$"]),observed["domainSid"])
         if account!=expected["machineAccountSid"]:raise ValueError("AD computer account differs from the protected joined receipt")
