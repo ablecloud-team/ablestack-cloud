@@ -852,6 +852,27 @@ def nvmeof_port_runtime(state):
 def nvmeof_runtime_ok(runtime):
     return all(str(item.get("state", "")).upper() != "ERROR" for item in runtime.values())
 
+def collect_smb_listener_runtime():
+    desired = load_json_state("desired-state/smb-share-apply.json")
+    if not desired or desired.get("enabled") is False:
+        return {"configured": 0, "listening": True, "runtimeEndpoints": []}
+    rows = desired.get("listeners") or [{"listenIp": desired.get("listenIp") or "0.0.0.0", "port": desired.get("port") or 445}]
+    observed = run(["ss", "-ltnpH"])
+    owned = set()
+    for line in observed.stdout.splitlines():
+        fields = line.split()
+        if len(fields) < 5 or '"smbd"' not in line:
+            continue
+        ip, _, port = fields[3].rpartition(":")
+        owned.add((ip.strip("[]"), port))
+    endpoints = [{"listenIp": str(row.get("listenIp") or "0.0.0.0"), "port": int(row.get("port") or 445),
+                  "listening": (str(row.get("listenIp") or "0.0.0.0"), str(int(row.get("port") or 445))) in owned} for row in rows]
+    return {"configured": len(endpoints), "listening": all(row["listening"] for row in endpoints), "runtimeEndpoints": endpoints}
+
+smb_runtime = collect_smb_listener_runtime()
+if smb_runtime["configured"]:
+    services["smbd"] = "active" if smb_runtime["listening"] else "failed"
+
 iscsi_targets_state = load_json_state("iscsi-targets.json")
 iscsi_ports = desired_iscsi_ports(iscsi_targets_state)
 nvmeof_state = load_json_state("nvmeof-subsystems.json")
@@ -859,7 +880,7 @@ nvmeof_ports = desired_nvmeof_ports(nvmeof_state)
 nvmeof_runtime = nvmeof_port_runtime(nvmeof_state)
 listen_ports = {
     "nfs": ganesha_runtime["listening"] if ganesha_runtime["configured"] else port_listening(2049),
-    "smb": port_listening(445) or port_listening(139),
+    "smb": smb_runtime["listening"] if smb_runtime["configured"] else port_listening(445) or port_listening(139),
     "iscsi": all(port_listening(port) for port in iscsi_ports),
     "iscsiPorts": {str(port): port_listening(port) for port in iscsi_ports},
     "nvmeof": nvmeof_runtime_ok(nvmeof_runtime),
@@ -874,7 +895,7 @@ if iscsi_targets_state.get("targets") and not listen_ports["iscsi"]:
     status = "degraded"
 if desired_state["nvmeofSubsystems"] and not nvmeof_runtime_ok(nvmeof_runtime):
     status = "degraded"
-if desired_state.get("smbDomainError"):
+if desired_state.get("smbDomainError") or (smb_runtime["configured"] and not smb_runtime["listening"]):
     status = "degraded"
 
 print(json.dumps({
@@ -889,6 +910,7 @@ print(json.dumps({
     "identity": {"smbDomain": load_json_state("smb-domain.json"), "smbDomainError": load_json_state("smb-domain-error.json")},
     "listenPorts": listen_ports,
     "nfsGanesha": ganesha_runtime,
+    "smbRuntime": smb_runtime,
     "capabilities": {
         "nvmeof": nvmeof_capabilities(),
         "smbNetworkAccessSupported": bool(commands.get("smbd")),
@@ -5221,6 +5243,8 @@ import json
 import ipaddress
 import atexit
 import grp
+import hashlib
+import stat
 import os
 import pwd
 import re
@@ -5230,6 +5254,18 @@ import time
 import subprocess
 import tempfile
 import sys
+
+smb_operation_started = time.monotonic()
+smb_operation_deadline = smb_operation_started + 300
+smb_apply_deadline = smb_operation_started + 240
+smb_rollback_active = False
+
+def smb_budget(maximum=30):
+    deadline = smb_operation_deadline if smb_rollback_active else smb_apply_deadline
+    remaining = deadline - time.monotonic()
+    if remaining <= 0:
+        raise RuntimeError("SMB endpoint operation deadline expired")
+    return min(maximum, remaining)
 
 payload_path = sys.argv[1]
 with open(payload_path, "r", encoding="utf-8") as payload_fp:
@@ -5252,9 +5288,11 @@ except FileNotFoundError:
 
 
 def run(command, **kwargs):
+    kwargs["timeout"] = smb_budget(kwargs.get("timeout", 30))
     return subprocess.run(command, check=True, **kwargs)
 
 def run_optional(command, **kwargs):
+    kwargs["timeout"] = smb_budget(kwargs.get("timeout", 30))
     try:
         return subprocess.run(command, check=True, **kwargs)
     except (FileNotFoundError, subprocess.CalledProcessError):
@@ -5342,6 +5380,8 @@ created_identity_groups = []
 identity_apply_verified = False
 
 def rollback_uncommitted_managed_identities():
+    global smb_rollback_active
+    smb_rollback_active = True
     if identity_apply_verified:
         return
     for path, content in smb_previous_files.items():
@@ -5701,7 +5741,9 @@ workgroup = derive_ad_workgroup(domain_name, identity_config.get("workgroup"))
 ad_joined = bool(domain_name and join_state == "JOINED")
 netbios_name = safe_netbios_name(payload.get("netbiosName") or identity_config.get("netbiosName"), payload.get("instanceUuid"))
 listener_rows = [item for item in (payload.get("listeners") or []) if isinstance(item, dict)]
-if not listener_rows:
+if payload.get("enabled") is False:
+    listener_rows = []
+elif not listener_rows:
     listener_rows = [{"listenIp": payload.get("listenIp") or "0.0.0.0", "port": payload.get("port") or 445}]
 listener_ports = sorted({int(item.get("port") or 445) for item in listener_rows})
 listener_ips = []
@@ -5978,6 +6020,220 @@ def verify_smb_endpoint_listeners(rows, timeout=10):
             raise RuntimeError("SMB endpoint listener verification failed: " + ", ".join(missing))
         time.sleep(budget(0.2))
 
+def smb_listener_key(ip, port):
+    return hashlib.sha256((str(ipaddress.ip_address(ip)) + ":" + str(int(port))).encode()).hexdigest()[:24]
+
+
+def smb_legacy_listening_sockets():
+    observed = run(["systemctl", "show", "smbd.service", "-p", "MainPID", "--value"],
+                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=10)
+    pid = int(observed.stdout.strip() or "0")
+    if pid <= 0:
+        return set()
+    sockets = run(["ss", "-ltnpH"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=10)
+    result = set()
+    for line in sockets.stdout.splitlines():
+        fields = line.split()
+        if len(fields) < 5 or not re.search(r'"smbd",pid=' + str(pid) + r'[,)]', line):
+            continue
+        ip, _, port = fields[3].rpartition(":")
+        try:
+            result.add((str(ipaddress.ip_address(ip.strip("[]"))), int(port)))
+        except ValueError:
+            pass
+    return result
+
+def smb_endpoint_connections(ip, port):
+    observed = run(["ss", "-tnpH", "state", "established"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=10)
+    count = 0
+    for line in observed.stdout.splitlines():
+        if '"smbd"' not in line:
+            continue
+        for field in line.split():
+            address, separator, raw_port = field.rpartition(":")
+            if separator and raw_port == str(port):
+                try:
+                    if str(ipaddress.ip_address(address.strip("[]"))) == ip:
+                        count += 1
+                        break
+                except ValueError:
+                    pass
+    return count
+
+
+def smb_unit_active(unit):
+    return subprocess.run(["systemctl", "is-active", "--quiet", unit], check=False,
+                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=smb_budget(10)).returncode == 0
+
+
+def reconcile_smb_endpoint_units(rows):
+    wanted = {}
+    for item in rows:
+        ip = str(ipaddress.ip_address(str(item.get("listenIp") or "0.0.0.0")))
+        port = int(item.get("port") or 445)
+        if not 1 <= port <= 65535:
+            raise ValueError("SMB endpoint port is invalid")
+        wanted[smb_listener_key(ip, port)] = {"listenIp": ip, "port": port}
+    for endpoint in wanted.values():
+        if endpoint["listenIp"] in ("0.0.0.0", "::") and any(other != endpoint and other["port"] == endpoint["port"] for other in wanted.values()):
+            raise ValueError("Wildcard and specific SMB endpoints on one port overlap")
+    current_sockets = smb_owned_listening_sockets()
+    legacy_sockets = smb_legacy_listening_sockets()
+    requested_sockets = {(item["listenIp"], item["port"]) for item in wanted.values()}
+    stale_legacy = {(ip, port) for ip, port in legacy_sockets - requested_sockets if ip not in ("127.0.0.1", "::1")}
+    if stale_legacy and legacy_sockets & requested_sockets:
+        raise RuntimeError("Shared legacy SMB acceptor endpoint removal requires explicit maintenance drain")
+    if any(smb_endpoint_connections(ip, port) for ip, port in stale_legacy):
+        raise RuntimeError("Legacy SMB endpoint removal requires its sessions to drain")
+    for endpoint in wanted.values():
+        if endpoint["listenIp"] not in ("0.0.0.0", "::") and any((wildcard, endpoint["port"]) in current_sockets for wildcard in ("0.0.0.0", "::")):
+            raise RuntimeError("Wildcard-to-specific SMB transition requires explicit session drain")
+    registry = os.path.join(state_dir, "smb-endpoint-listeners")
+    os.makedirs(registry, mode=0o750, exist_ok=True)
+    info = os.lstat(registry)
+    if not stat.S_ISDIR(info.st_mode) or info.st_uid != os.geteuid() or info.st_mode & 0o022:
+        raise ValueError("SMB endpoint registry is not protected")
+    unit_path = "/etc/systemd/system/ablestack-storage-smb@.service"
+    unit_content = """[Unit]
+Description=ABLESTACK Storage Service SMB endpoint %i
+After=network-online.target
+Wants=network-online.target
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/ablestack-storagectl smb endpoint-run %i
+RuntimeDirectory=ablestack-storage/smb/%i
+RuntimeDirectoryMode=0750
+KillMode=control-group
+Restart=on-failure
+RestartSec=2
+[Install]
+WantedBy=multi-user.target
+"""
+    if os.path.lexists(unit_path):
+        unit_info = os.lstat(unit_path)
+        if not stat.S_ISREG(unit_info.st_mode) or unit_info.st_uid != os.geteuid() or unit_info.st_mode & 0o022:
+            raise ValueError("SMB endpoint service definition is not protected")
+        with open(unit_path, encoding="utf-8") as handle:
+            if handle.read() != unit_content:
+                raise ValueError("SMB endpoint service definition differs from the managed source")
+    else:
+        descriptor, temporary = tempfile.mkstemp(prefix=".smb-endpoint-unit-", dir=os.path.dirname(unit_path))
+        try:
+            os.fchmod(descriptor, 0o644)
+            with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+                handle.write(unit_content);handle.flush();os.fsync(handle.fileno())
+            os.replace(temporary, unit_path)
+        finally:
+            if os.path.exists(temporary):
+                os.unlink(temporary)
+        run(["systemctl", "daemon-reload"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=10)
+    previous = {}
+    previous_active = set()
+    for name in os.listdir(registry):
+        if not re.fullmatch(r"[0-9a-f]{24}\.json", name):
+            raise ValueError("SMB endpoint registry contains an unrecognized entry")
+        path = os.path.join(registry, name)
+        file_info = os.lstat(path)
+        if not stat.S_ISREG(file_info.st_mode) or file_info.st_uid != os.geteuid() or file_info.st_mode & 0o022:
+            raise ValueError("SMB endpoint listener record is not protected")
+        with open(path, "rb") as handle:
+            content = handle.read(4097)
+        record = json.loads(content)
+        if len(content) > 4096 or set(record) != {"listenIp", "port"} or isinstance(record["port"], bool) or not isinstance(record["port"], int) or not 1 <= record["port"] <= 65535:
+            raise ValueError("SMB endpoint listener record is invalid")
+        if smb_listener_key(record["listenIp"], record["port"]) != name[:-5]:
+            raise ValueError("SMB endpoint listener record scope changed")
+        previous[name[:-5]] = content
+        if smb_unit_active("ablestack-storage-smb@" + name[:-5] + ".service"):
+            previous_active.add(name[:-5])
+    default_enabled = subprocess.run(["systemctl", "is-enabled", "--quiet", "smbd.service"], check=False,
+                                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=smb_budget(10)).returncode == 0
+    default_disabled = False
+    journal_path = os.path.join(registry, "..", "smb-endpoint-journal.json")
+    def atomic_endpoint(path, content):
+        fd, tmp = tempfile.mkstemp(prefix=".smb-endpoint-", dir=os.path.dirname(path))
+        try:
+            os.fchmod(fd, 0o600)
+            with os.fdopen(fd, "wb") as handle:
+                handle.write(content);handle.flush();os.fsync(handle.fileno())
+            os.replace(tmp, path)
+        finally:
+            if os.path.exists(tmp):
+                os.unlink(tmp)
+    def journal(phase):
+        atomic_endpoint(journal_path, json.dumps({"phase": phase, "previous": {key: json.loads(value) for key, value in previous.items()},
+                                                 "previousActive": sorted(previous_active), "previousDefaultEnabled": default_enabled, "target": wanted}, sort_keys=True).encode())
+    started = []
+    stopped = []
+    legacy_stopped = False
+    journal("APPLYING")
+    try:
+        for key, endpoint in wanted.items():
+            atomic_endpoint(os.path.join(registry, key + ".json"), json.dumps(endpoint, sort_keys=True).encode())
+            unit = "ablestack-storage-smb@" + key + ".service"
+            if (endpoint["listenIp"], endpoint["port"]) not in current_sockets:
+                started.append(key)
+                run(["systemctl", "start", unit], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=20)
+        for key in previous.keys() - wanted.keys():
+            old = json.loads(previous[key])
+            if smb_endpoint_connections(old["listenIp"], old["port"]):
+                raise RuntimeError("SMB endpoint removal requires its sessions to drain")
+            unit = "ablestack-storage-smb@" + key + ".service"
+            if key in previous_active:
+                run(["systemctl", "stop", unit], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=20)
+                stopped.append(key)
+            os.unlink(os.path.join(registry, key + ".json"))
+        if stale_legacy:
+            legacy_stopped = True
+            run(["systemctl", "stop", "smbd.service"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=20)
+        proof = verify_smb_endpoint_listeners(rows, timeout=smb_budget(10))
+        # Boot reconcile creates only the desired per-endpoint acceptors after
+        # aliases/mounts exist. Leave a legacy running master and its workers
+        # intact during the in-place migration, but suppress its next boot.
+        run(["systemctl", "disable", "smbd.service"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=10)
+        default_disabled = True
+        journal("VERIFIED")
+        return proof
+    except Exception as apply_failure:
+        global smb_rollback_active
+        smb_rollback_active = True
+        try:
+            for key in reversed(started):
+                run(["systemctl", "stop", "ablestack-storage-smb@" + key + ".service"],
+                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=20)
+            for key in wanted.keys() - previous.keys():
+                path = os.path.join(registry, key + ".json")
+                if os.path.exists(path):
+                    os.unlink(path)
+            for key, content in previous.items():
+                atomic_endpoint(os.path.join(registry, key + ".json"), content)
+            # Restore the protected previous config bytes before reloading the
+            # surviving A workers or restarting a previous endpoint acceptor.
+            rollback_uncommitted_managed_identities()
+            for path, content in smb_previous_files.items():
+                if content is not None:
+                    with open(path, "rb") as handle:
+                        if hashlib.sha256(handle.read()).digest() != hashlib.sha256(content).digest():
+                            raise RuntimeError("Previous SMB configuration hash was not restored")
+                elif os.path.lexists(path):
+                    raise RuntimeError("Previous absent SMB configuration was not restored")
+            if legacy_stopped:
+                run(["systemctl", "start", "smbd.service"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=20)
+            for key in set(stopped) | (set(started) & previous_active):
+                run(["systemctl", "start", "ablestack-storage-smb@" + key + ".service"],
+                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=20)
+            if default_disabled and default_enabled:
+                run(["systemctl", "enable", "smbd.service"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=10)
+            if shutil.which("smbcontrol"):
+                run(["smbcontrol", "all", "reload-config"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=10)
+            previous_rows = [{"listenIp": ip, "port": port} for ip, port in sorted(current_sockets)]
+            verify_smb_endpoint_listeners(previous_rows, timeout=smb_budget(10))
+            journal("ROLLED_BACK")
+        except Exception as rollback_failure:
+            journal("RECOVERY_REQUIRED")
+            raise RuntimeError("SMB endpoint rollback requires manual recovery") from rollback_failure
+        raise apply_failure
+
 def install_validated_smb_config(lines, config_path):
     fd, candidate = tempfile.mkstemp(prefix=".ablestack-smb-", dir=os.path.dirname(config_path))
     try:
@@ -6002,7 +6258,7 @@ with open(os.path.join(state_dir, "smb-access.json"), "w", encoding="utf-8") as 
 
 run(["testparm", "-s"], stdout=subprocess.DEVNULL)
 if shutil.which("systemctl"):
-    for unit in ("smbd", "nmbd"):
+    for unit in ("nmbd",):
         if subprocess.run(["systemctl", "is-active", "--quiet", unit], check=False).returncode != 0:
             run(["systemctl", "enable", "--now", unit], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     if not shutil.which("smbcontrol"):
@@ -6012,7 +6268,7 @@ if shutil.which("systemctl"):
         run(["systemctl", "restart", "smbd", "nmbd"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     else:
         run(["smbcontrol", "all", "reload-config"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-runtime_endpoints = verify_smb_endpoint_listeners(listener_rows)
+runtime_endpoints = reconcile_smb_endpoint_units(listener_rows)
 fd, managed_temporary = tempfile.mkstemp(prefix=".smb-identities-", dir=state_dir)
 try:
     with os.fdopen(fd, "w", encoding="utf-8") as managed_fp:
@@ -8055,6 +8311,52 @@ else:
 PYIDENTITY
 }
 
+smb_endpoint_run() {
+  python3 - "$1" <<'PYSMBENDPOINT'
+import hashlib
+import ipaddress
+import json
+import os
+from pathlib import Path
+import re
+import stat
+import shutil
+import sys
+key = sys.argv[1]
+if not re.fullmatch(r"[0-9a-f]{24}", key):
+    raise ValueError("Invalid managed SMB endpoint key")
+path = Path("/etc/ablestack-storage/smb-endpoint-listeners") / (key + ".json")
+for item in (path.parent, path):
+    info = item.lstat()
+    expected = stat.S_ISDIR(info.st_mode) if item == path.parent else stat.S_ISREG(info.st_mode)
+    if not expected or info.st_uid != os.geteuid() or info.st_mode & 0o022 or stat.S_ISLNK(info.st_mode):
+        raise ValueError("SMB endpoint record is not protected")
+if path.stat().st_size > 4096:
+    raise ValueError("SMB endpoint record exceeds its size limit")
+record = json.loads(path.read_text())
+if set(record) != {"listenIp", "port"}:
+    raise ValueError("SMB endpoint record fields are invalid")
+ip = str(ipaddress.ip_address(record["listenIp"]))
+port = record["port"]
+if isinstance(port, bool) or not isinstance(port, int) or not 1 <= port <= 65535:
+    raise ValueError("Invalid managed SMB endpoint port")
+if hashlib.sha256((ip + ":" + str(port)).encode()).hexdigest()[:24] != key:
+    raise ValueError("SMB endpoint record scope changed")
+pid_dir = "/run/ablestack-storage/smb/" + key
+os.makedirs(pid_dir, mode=0o750, exist_ok=True)
+info = Path(pid_dir).lstat()
+if not stat.S_ISDIR(info.st_mode) or info.st_uid != os.geteuid() or info.st_mode & 0o022:
+    raise ValueError("SMB endpoint PID directory is not protected")
+args = [shutil.which("smbd") or "/usr/sbin/smbd", "--foreground", "--no-process-group", "-s", "/etc/samba/smb.conf",
+        "--option=smb ports=" + str(port), "--option=pid directory=" + pid_dir]
+if ip in ("0.0.0.0", "::"):
+    args.append("--option=bind interfaces only=no")
+else:
+    args.extend(["--option=interfaces=" + ip, "--option=bind interfaces only=yes"])
+os.execv(args[0], args)
+PYSMBENDPOINT
+}
+
 configuration_generation() {
   python3 - "$action" "$payload" <<'PYGENERATION'
 """Durable desired-state generations. No credential material is copied into the journal."""
@@ -8318,7 +8620,7 @@ fi
 
 # Keep the descriptor open through native child work, even if the management writer disappears.
 case "$command:$subcommand:$action" in
-  health:*|inventory:*|sessions:*|operation:verify:*|operation:observe:*|operation:resources:*|operation:generation:status|volume:operation:status|nfs:idmapping:preflight|identity:capsule:capabilities)
+  smb:endpoint-run:*|health:*|inventory:*|sessions:*|operation:verify:*|operation:observe:*|operation:resources:*|operation:generation:status|volume:operation:status|nfs:idmapping:preflight|identity:capsule:capabilities)
     ;;
   *)
     acquire_storage_writer_lock || exit $?
@@ -8376,7 +8678,7 @@ def run(arguments):
     return subprocess.run(arguments, capture_output=True, text=True, timeout=60)
 
 listed = run(["systemctl", "list-units", "--state=active", "--type=service", "--no-legend", "--plain",
-              "ablestack-storage-ganesha@*.service", "smbd.service", "nmbd.service", "winbind.service"])
+              "ablestack-storage-ganesha@*.service", "ablestack-storage-smb@*.service", "smbd.service", "nmbd.service", "winbind.service"])
 if listed.returncode != 0:
     print(json.dumps({"success": False, "quiesced": False, "errorCode": "QUIESCE_SERVICE_OBSERVATION_FAILED"}))
     raise SystemExit(1)
@@ -8384,7 +8686,7 @@ units = []
 for line in listed.stdout.splitlines():
     unit = line.split()[0] if line.split() else ""
     if unit in ("smbd.service", "nmbd.service", "winbind.service") or (
-            unit.startswith("ablestack-storage-ganesha@") and unit.endswith(".service")):
+            (unit.startswith("ablestack-storage-ganesha@") or unit.startswith("ablestack-storage-smb@")) and unit.endswith(".service")):
         units.append(unit)
 stopped = []
 try:
@@ -8625,6 +8927,10 @@ PYIDMAP
     apply_nfs_exports "$payload"
     ;;
   smb)
+    if [[ "$subcommand" == "endpoint-run" ]]; then
+      smb_endpoint_run "$action"
+      exit $?
+    fi
     if [[ -z "$payload" || ! -r "$payload" ]]; then
       emit_error "A readable payload file is required for smb ${subcommand:-<empty>} ${action:-<empty>}."
       exit 2
