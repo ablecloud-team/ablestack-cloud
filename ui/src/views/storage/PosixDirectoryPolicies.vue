@@ -29,15 +29,15 @@
         <template v-if="column.key === 'actions'">
           <a-space>
             <a-button v-if="canUpdate" size="small" @click="openEditor(record)"><template #icon><EditOutlined /></template>{{ $t('label.edit') }}</a-button>
-            <a-button v-if="canApply" size="small" @click="apply(record)">{{ $t('label.posix.directory.apply') }}</a-button>
+            <a-button v-if="canApply" size="small" @click="openEditor(record, true)">{{ $t('label.posix.directory.apply') }}</a-button>
             <a-button v-if="canDelete" size="small" danger @click="deleteTarget=record"><template #icon><DeleteOutlined /></template>{{ $t('label.delete') }}</a-button>
           </a-space>
         </template>
         <template v-else>{{ record[column.dataIndex] }}</template>
       </template>
     </a-table>
-    <a-modal v-model:visible="editing" :title="$t(editId ? 'label.posix.directory.edit' : 'label.posix.directory.create')" :confirm-loading="saving" :body-style="{ maxHeight: '65vh', overflowY: 'auto' }" :ok-button-props="{ disabled: !preview || previewToken !== formToken }" @ok="save" @cancel="clearPreview">
-      <a-form layout="vertical">
+    <a-modal v-model:visible="editing" :title="$t(editId ? 'label.posix.directory.edit' : 'label.posix.directory.create')" :confirm-loading="saving" :body-style="{ maxHeight: '65vh', overflowY: 'auto' }" :ok-button-props="{ disabled: !canSavePreview }" @ok="save" @cancel="clearPreview">
+      <a-form layout="vertical" :disabled="applyOnly">
         <a-form-item :label="$t('label.storage.service.backing.volume')" required>
           <a-select v-model:value="form.volumeid" :disabled="!!editId"><a-select-option v-for="volume in volumes" :key="volume.id" :value="volume.id">{{ volume.name || volume.id }}</a-select-option></a-select>
         </a-form-item>
@@ -58,15 +58,19 @@
           <a-button @click="addEntry(scope.key)"><template #icon><PlusOutlined /></template>{{ $t('label.posix.directory.acl.add') }}</a-button>
         </template>
         <a-alert type="info" show-icon :message="$t('message.posix.directory.nonrecursive')" class="policy-warning" />
-        <a-button :loading="previewing" @click="loadPreview">{{ $t('label.posix.directory.preview') }}</a-button>
         <a-alert v-if="previewError" type="error" show-icon :message="previewError" />
         <a-descriptions v-if="preview" bordered :column="1" size="small">
           <a-descriptions-item :label="$t('label.posix.directory.canonical.path')">{{ preview.canonicalpath }}</a-descriptions-item>
-          <a-descriptions-item :label="$t('label.posix.directory.current.owner')">{{ previewEffective.effectiveUid }}:{{ previewEffective.effectiveGid }} · {{ previewEffective.effectiveMode }}</a-descriptions-item>
+          <a-descriptions-item :label="$t('label.posix.directory.current.owner')">{{ previewCurrent.uid ?? previewEffective.effectiveUid }}:{{ previewCurrent.gid ?? previewEffective.effectiveGid }} · {{ previewCurrent.mode || previewEffective.effectiveMode }}</a-descriptions-item>
+          <a-descriptions-item :label="$t('label.storage.posix.expected.owner')">{{ previewV2.suggested?.applyowner ? previewV2.suggested?.owneruid : previewCurrent.uid }}:{{ previewV2.suggested?.applyowner ? previewV2.suggested?.ownergid : previewCurrent.gid }} · {{ previewV2.suggested?.mode || form.directorymode }}</a-descriptions-item>
+          <a-descriptions-item :label="$t('label.storage.volume.fs.uuid')"><code>{{ previewCurrent.filesystemUuid || '-' }}</code></a-descriptions-item>
           <a-descriptions-item :label="$t('label.posix.directory.affected.shares')">{{ (preview.affectedshares || []).join(', ') || '-' }}</a-descriptions-item>
           <a-descriptions-item :label="$t('label.posix.directory.current.acl')"><pre>{{ (previewEffective.acl || []).join('\n') }}</pre></a-descriptions-item>
         </a-descriptions>
       </a-form>
+      <a-button :loading="previewing" @click="loadPreview">{{ $t('label.posix.directory.preview') }}</a-button>
+      <a-alert v-if="previewV2.readonlyTraversalOK === false" type="warning" show-icon :message="$t('message.storage.posix.read.traverse')" />
+      <a-checkbox v-if="previewV2.previewToken" v-model:checked="confirmed">{{ $t('message.storage.posix.confirm.inode') }}</a-checkbox>
     </a-modal>
     <a-modal :visible="!!deleteTarget" :title="$t('label.delete')" :confirm-loading="saving" @cancel="deleteTarget=null" @ok="remove">
       <a-alert type="warning" show-icon :message="$t('message.posix.directory.delete.preserve')" />
@@ -98,6 +102,9 @@ export default {
       previewToken: '',
       deleteTarget: null,
       form: {},
+      applyOnly: false,
+      confirmed: false,
+      previewGeneration: 0,
       principalTypes: ['NUMERIC_UID', 'NUMERIC_GID', 'LOCAL_USER', 'LOCAL_GROUP'],
       scopes: [{ key: 'access', label: 'label.posix.directory.access.acl' }, { key: 'defaults', label: 'label.posix.directory.default.acl' }]
     }
@@ -109,6 +116,10 @@ export default {
     canApply () { return 'applyStoragePosixDirectoryPolicy' in this.$store.getters.apis },
     formToken () { return JSON.stringify(this.form) },
     previewEffective () { return parse(this.preview?.effective) },
+    previewV2 () { return parse(this.preview?.preview) },
+    previewCurrent () { return this.previewV2.current || {} },
+    canSavePreview () { return this.validPreview() },
+    editorCommand () { return this.applyOnly ? 'applyStoragePosixDirectoryPolicy' : (this.editId ? 'updateStoragePosixDirectoryPolicy' : 'createStoragePosixDirectoryPolicy') },
     setgid () { return /^[0-7]{3,4}$/.test(this.form.directorymode || '') && (parseInt(this.form.directorymode, 8) & 0o2000) !== 0 },
     rows () {
       return this.policies.map(policy => {
@@ -134,11 +145,11 @@ export default {
         { title: this.$t('label.actions'), key: 'actions', fixed: 'right', width: 260, align: 'right' }]
     }
   },
-  watch: { instanceId () { this.generation++; this.policies = []; this.editing = false; this.deleteTarget = null; this.clearPreview(); this.refresh() } },
+  watch: { instanceId () { this.generation++; this.policies = []; this.editing = false; this.deleteTarget = null; this.saving = false; this.clearPreview(); this.refresh() } },
   mounted () { this.refresh() },
-  beforeUnmount () { this.generation++ },
+  beforeUnmount () { this.generation++; this.previewGeneration++ },
   methods: {
-    clearPreview () { this.preview = null; this.previewError = ''; this.previewToken = '' },
+    clearPreview () { this.previewGeneration++; this.previewing = false; this.preview = null; this.previewError = ''; this.previewToken = ''; this.confirmed = false },
     async refresh () {
       const token = ++this.generation; const instance = this.instanceId
       if (!instance) return
@@ -148,7 +159,8 @@ export default {
         this.policies = result.liststorageposixdirectorypoliciesresponse?.storageposixdirectorypolicy || []; this.readError = false
       } catch (error) { if (token === this.generation) this.readError = true } finally { if (token === this.generation) this.loading = false }
     },
-    openEditor (policy) {
+    openEditor (policy, applyOnly = false) {
+      this.applyOnly = applyOnly
       const config = parse(policy?.config); const effective = parse(policy?.effective)
       this.editId = policy?.id || ''; this.clearPreview()
       this.form = {
@@ -170,6 +182,7 @@ export default {
     },
     addEntry (scope) { this.form[scope].push({ principalType: 'NUMERIC_GID', principal: '', permission: 'READ_WRITE' }); this.clearPreview() },
     params () {
+      if (this.applyOnly) return { id: this.editId, expectedpolicyrevision: this.form.expectedpolicyrevision }
       return {
         ...(this.editId ? { id: this.editId } : { instanceid: this.instanceId }),
         volumeid: this.form.volumeid,
@@ -195,21 +208,23 @@ export default {
       }
       throw new Error(this.$t('message.posix.directory.timeout'))
     },
+    validPreview () {
+      const expiry = typeof this.previewV2.expiresAt === 'number' ? this.previewV2.expiresAt : Date.parse(this.previewV2.expiresAt)
+      return !!this.previewV2.previewToken && this.previewV2.schemaVersion === 2 && this.previewToken === this.formToken && this.confirmed && Number.isFinite(expiry) && Date.now() < expiry
+    },
     async loadPreview () {
+      const generation = ++this.previewGeneration
       const token = this.formToken; const instance = this.instanceId; this.previewing = true; this.previewError = ''
       try {
-        const value = await this.resolved(this.editId ? 'updateStoragePosixDirectoryPolicy' : 'createStoragePosixDirectoryPolicy', { ...this.params(), preview: true })
-        if (token === this.formToken && instance === this.instanceId) { this.preview = value; this.previewToken = token }
-      } catch (error) { if (instance === this.instanceId) this.previewError = error.message } finally { this.previewing = false }
+        const value = await this.resolved(this.editorCommand, { ...this.params(), preview: true })
+        if (generation === this.previewGeneration && token === this.formToken && instance === this.instanceId && this.editing) { this.preview = value; this.previewToken = token; this.confirmed = false }
+      } catch (error) { if (generation === this.previewGeneration && instance === this.instanceId) this.previewError = error.message } finally { if (generation === this.previewGeneration) this.previewing = false }
     },
     async save () {
-      if (!this.preview || this.previewToken !== this.formToken) return
+      if (!this.validPreview()) return
+      const instance = this.instanceId; const generation = this.previewGeneration
       this.saving = true
-      try { await this.resolved(this.editId ? 'updateStoragePosixDirectoryPolicy' : 'createStoragePosixDirectoryPolicy', this.params()); this.editing = false; this.clearPreview(); await this.refresh(); this.$emit('refresh') } catch (error) { this.previewError = error.message } finally { this.saving = false }
-    },
-    async apply (policy) {
-      this.saving = true
-      try { await this.resolved('applyStoragePosixDirectoryPolicy', { id: policy.id, expectedpolicyrevision: policy.revision }); await this.refresh(); this.$emit('refresh') } catch (error) { this.$message.error(error.message) } finally { this.saving = false }
+      try { await this.resolved(this.editorCommand, { ...this.params(), previewtoken: this.previewV2.previewToken, applyconfirmation: true }); if (instance !== this.instanceId || generation !== this.previewGeneration) return; this.editing = false; this.clearPreview(); await this.refresh(); this.$emit('refresh') } catch (error) { if (instance === this.instanceId && generation === this.previewGeneration) this.previewError = error.message } finally { if (instance === this.instanceId) this.saving = false }
     },
     async remove () {
       this.saving = true

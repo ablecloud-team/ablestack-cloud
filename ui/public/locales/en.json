@@ -8800,5 +8800,14 @@
   "label.storage.volume.historical.device": "Device recorded at operation time",
   "label.storage.volume.mount": "Mount path",
   "message.storage.volume.observe.failed": "Could not refresh preparation status. The last observation is preserved; retry to obtain the current state.",
-  "message.storage.volume.historical.device": "Recorded device paths describe the past operation. Recovery uses a fresh volume serial and filesystem check; it does not reuse the recorded device path."
+  "message.storage.volume.historical.device": "Recorded device paths describe the past operation. Recovery uses a fresh volume serial and filesystem check; it does not reuse the recorded device path.",
+  "label.storage.posix.expected.owner": "Proposed owner and mode",
+  "message.storage.posix.confirm.inode": "I confirm changing this directory inode with the displayed owner, mode and ACL. Existing child files are preserved.",
+  "message.storage.posix.read.traverse": "The proposed directory permissions do not allow the selected read-only identity to read and traverse this path.",
+  "label.storage.runtime.compatibility": "Compatibility",
+  "label.storage.runtime.consumer.manager": "Management server",
+  "label.storage.runtime.consumer.agent": "Host agent",
+  "label.storage.runtime.consumer.template": "SystemVM platform",
+  "message.storage.runtime.compatibility.unknown": "The last verified manifest does not declare complete compatibility ranges. Compatibility must be verified before a new activation.",
+  "message.storage.runtime.compatibility.scope": "These ranges are part of the last signature verification. Preflight checks the actual management server, host agent and SystemVM platform; a template name is not a version observation."
 }

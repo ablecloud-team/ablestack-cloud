@@ -65,6 +65,9 @@ for the specific language governing permissions and limitations. -->
             <a-descriptions-item v-for="key in detailKeys" :key="key" :label="$t('label.storage.runtime.' + key)"><span class="runtime-value">{{ details[key] || '-' }}</span></a-descriptions-item>
           </a-descriptions>
         </a-tab-pane>
+        <a-tab-pane key="compatibility" :tab="$t('label.storage.runtime.compatibility')">
+          <storage-runtime-compatibility :manifest="metadata(details).verification?.manifest || {}" :verified="metadata(details).verification?.verified === true" />
+        </a-tab-pane>
         <a-tab-pane key="integrity" :tab="$t('label.storage.runtime.verification')">
           <pre class="runtime-value">{{ JSON.stringify(metadata(details).verification || {}, null, 2) }}</pre>
         </a-tab-pane>
@@ -81,6 +84,7 @@ for the specific language governing permissions and limitations. -->
 
 <script>
 import { PlusOutlined, ReloadOutlined } from '@ant-design/icons-vue'
+import StorageRuntimeCompatibility from '@/views/storage/StorageRuntimeCompatibility'
 import MoldDialog from '@/components/view/MoldDialog'
 import { getAPI, postAPI } from '@/api'
 import { createJobTracker } from '@/utils/jobTracker'
@@ -88,7 +92,7 @@ import { listRefreshMixin } from '@/utils/listRefreshMixin'
 
 export default {
   name: 'StorageServiceRuntimeBundles',
-  components: { MoldDialog, PlusOutlined, ReloadOutlined },
+  components: { MoldDialog, PlusOutlined, ReloadOutlined, StorageRuntimeCompatibility },
   mixins: [listRefreshMixin(['fetchBundles'])],
   data () {
     return {

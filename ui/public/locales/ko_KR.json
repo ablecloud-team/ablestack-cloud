@@ -8765,5 +8765,14 @@
   "label.storage.volume.historical.device": "작업 당시 기록된 장치",
   "label.storage.volume.mount": "마운트 경로",
   "message.storage.volume.observe.failed": "준비 상태를 새로 조회하지 못했습니다. 이전 관측을 유지합니다. 업데이트를 눌러 현재 상태를 다시 확인하세요.",
-  "message.storage.volume.historical.device": "작업 당시 장치 경로는 과거 기록입니다. 복구는 볼륨 일련번호와 파일 시스템을 새로 확인하며, 기록된 장치 경로를 재사용하지 않습니다."
+  "message.storage.volume.historical.device": "작업 당시 장치 경로는 과거 기록입니다. 복구는 볼륨 일련번호와 파일 시스템을 새로 확인하며, 기록된 장치 경로를 재사용하지 않습니다.",
+  "label.storage.posix.expected.owner": "예상 소유권 및 권한",
+  "message.storage.posix.confirm.inode": "표시된 소유권·권한·ACL을 이 디렉터리에 적용하는 데 동의합니다. 기존 하위 파일은 보존합니다.",
+  "message.storage.posix.read.traverse": "예상 디렉터리 권한으로 선택된 읽기 전용 주체가 경로를 읽고 탐색할 수 없습니다.",
+  "label.storage.runtime.compatibility": "호환 범위",
+  "label.storage.runtime.consumer.manager": "관리 서버",
+  "label.storage.runtime.consumer.agent": "호스트 에이전트",
+  "label.storage.runtime.consumer.template": "SystemVM 플랫폼",
+  "message.storage.runtime.compatibility.unknown": "마지막 검증 manifest에 전체 호환 범위가 없습니다. 새 활성화 전 호환성 검증이 필요합니다.",
+  "message.storage.runtime.compatibility.scope": "표시된 범위는 마지막 서명 검증에 포함된 값입니다. 사전 점검은 실제 관리 서버·호스트 에이전트·SystemVM 플랫폼을 확인하며, 템플릿 이름으로 버전을 판단하지 않습니다."
 }

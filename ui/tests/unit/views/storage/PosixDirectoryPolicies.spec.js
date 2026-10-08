@@ -36,13 +36,25 @@ describe('Common POSIX directory policy editor', () => {
     await pending; expect(vm.policies).toEqual([{ id: 'known' }])
   })
   it('does not save when preview no longer matches edited input', async () => {
-    const vm = { preview: {}, previewToken: 'before', formToken: 'after', resolved: jest.fn() }
+    const vm = { preview: {}, previewToken: 'before', formToken: 'after', resolved: jest.fn(), validPreview: () => false }
     await Widget.methods.save.call(vm); expect(vm.resolved).not.toHaveBeenCalled()
   })
   it('keeps recursive changes disabled and exposes owner change only when explicit', () => {
     const vm = { editId: '', instanceId: 'a', form: { volumeid: 'v', relativepath: 'shared', owneruid: 0, ownergid: 0, applyowner: false, directorymode: '2775', access: [], defaults: [] } }
     const values = Widget.methods.params.call(vm)
     expect(values.recursive).toBe(false); expect(values.owneruid).toBeUndefined(); expect(values.ownergid).toBeUndefined()
+  })
+  it('requires explicit confirmation, unexpired signed preview and unchanged form', () => {
+    const vm = { previewV2: { schemaVersion: 2, previewToken: 'server-bound-token', expiresAt: Date.now() + 60000 }, previewToken: 'same-form', formToken: 'same-form', confirmed: false }
+    expect(Widget.methods.validPreview.call(vm)).toBe(false)
+    vm.confirmed = true; expect(Widget.methods.validPreview.call(vm)).toBe(true)
+    vm.formToken = 'changed'; expect(Widget.methods.validPreview.call(vm)).toBe(false)
+    vm.formToken = 'same-form'; vm.previewV2.expiresAt = Date.now() - 1; expect(Widget.methods.validPreview.call(vm)).toBe(false)
+  })
+  it('only persists a policy with the server token and confirmed input', async () => {
+    const vm = { instanceId: 'same', previewGeneration: 0, validPreview: () => true, editorCommand: 'updateStoragePosixDirectoryPolicy', params: () => ({ id: 'policy' }), previewV2: { previewToken: 'server-token' }, resolved: jest.fn().mockResolvedValue({}), clearPreview: jest.fn(), refresh: jest.fn(), $emit: jest.fn() }
+    await Widget.methods.save.call(vm)
+    expect(vm.resolved).toHaveBeenCalledWith('updateStoragePosixDirectoryPolicy', { id: 'policy', previewtoken: 'server-token', applyconfirmation: true })
   })
   it('updates setgid without changing remaining permission bits', () => {
     const vm = { form: { directorymode: '0775' }, clearPreview: jest.fn() }
