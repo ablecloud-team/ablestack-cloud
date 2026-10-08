@@ -69,11 +69,35 @@ if sys.argv[1] == 'stop' and os.environ.get('QUIESCE_TEST_FAIL') == sys.argv[2]:
         self.assertEqual(0, result.returncode, result.stderr)
         payload = json.loads(result.stdout)
         self.assertTrue(payload['quiesced'])
+        self.assertTrue(payload['bootHeld'])
+        self.assertEqual(self.request, payload['scope'])
         self.assertTrue(payload['blockTargetsPreserved'])
         self.assertEqual('NORMAL_VM_SHUTDOWN', payload['blockSessionBoundary'])
         calls = (self.temp / 'calls').read_text()
         self.assertNotIn('stop unrelated', calls)
         self.assertNotIn('targetcli', calls)
+
+    def test_actual_quiesce_status_and_verified_release_share_the_exact_scope(self):
+        config = self.temp / "configuration"; config.mkdir(mode=0o700)
+        self.env["ABLESTACK_STORAGE_CONFIGURATION_ROOT"] = str(config)
+        def native(*command, payload=None):
+            result = subprocess.run([str(CLI), *command, *( ["/dev/stdin"] if payload is not None else [] )],
+                                    input=json.dumps(payload) if payload is not None else None,
+                                    env=self.env, capture_output=True, text=True)
+            self.assertEqual(0, result.returncode, result.stderr + result.stdout)
+            return json.loads(result.stdout)
+        for action in ("begin", "verify", "commit", "finish"):
+            native("operation", "generation", action, payload=self.request)
+        entered = native("operation", "maintenance", "enter", payload=self.request)
+        self.assertEqual(self.request, entered["scope"]); self.assertTrue(entered["bootHeld"])
+        quiesced = json.loads(self.run_quiesce().stdout)
+        self.assertEqual(entered["scope"], quiesced["scope"]); self.assertTrue(quiesced["bootHeld"])
+        status = native("operation", "maintenance", "status")
+        self.assertEqual(self.request, status["scope"])
+        generation = native("operation", "generation", "status")["generation"]
+        released = native("operation", "maintenance", "release", payload={**self.request, "verifiedGeneration": generation})
+        self.assertTrue(released["released"]); self.assertFalse(released["bootHeld"])
+        self.assertIsNone(native("operation", "maintenance", "status")["scope"])
 
     def test_partial_service_failure_restores_previously_stopped_units(self):
         self.env['QUIESCE_TEST_FAIL'] = 'smbd.service'

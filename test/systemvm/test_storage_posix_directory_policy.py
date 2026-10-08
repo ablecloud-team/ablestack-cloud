@@ -19,6 +19,7 @@
 """Use the actual embedded POSIX helpers with real inode/mode/ACL operations on temporary data."""
 import ast
 import grp
+import hashlib
 import json
 import os
 import pwd
@@ -49,11 +50,12 @@ class PosixDirectoryPolicyTest(unittest.TestCase):
         def mapped(value):
             return str(self.root) + value[len(self.logical):] if isinstance(value, str) and value.startswith(self.logical) else value
         path = SimpleNamespace(**{name: getattr(os.path, name) for name in ('join',)})
+        path.realpath = lambda value: value
         path.isdir = lambda value: os.path.isdir(mapped(value)); path.islink = lambda value: os.path.islink(mapped(value))
         proxy = SimpleNamespace(**{name: getattr(os, name) for name in ('O_RDONLY', 'O_DIRECTORY', 'O_NOFOLLOW', 'fstat', 'close', 'chown', 'chmod')})
         proxy.path = path; proxy.lstat = lambda value: os.lstat(mapped(value))
         proxy.open = lambda value, *args, **kwargs: os.open(mapped(value), *args, **kwargs)
-        self.ns = {'os': proxy, 'subprocess': subprocess, 'tempfile': tempfile, 're': re, 'uuid': uuid, 'json': json, 'stat': stat, 'pwd': pwd, 'grp': grp, 'desired': {}}
+        self.ns = {'os': proxy, 'subprocess': subprocess, 'tempfile': tempfile, 're': re, 'uuid': uuid, 'json': json, 'hashlib': hashlib, 'stat': stat, 'pwd': pwd, 'grp': grp, 'desired': {}}
         exec(compile(ast.Module(body=NODES, type_ignores=[]), str(SOURCE), 'exec'), self.ns)
         original_run = self.ns['run']
         def run(argv, **kwargs):
@@ -100,6 +102,44 @@ class PosixDirectoryPolicyTest(unittest.TestCase):
         for value in ('../etc', '/etc', 'shared//child'):
             request = dict(self.request, relativePath=value)
             with self.assertRaises(ValueError): self.ns['path_identity'](request)
+
+    def select_filesystem_root(self):
+        self.request = dict(self.request, relativePath="", allowFilesystemRoot=True,
+                            config={"directoryMode": "0750", "applyOwner": False, "recursive": False})
+        path, filesystem, descriptor = self.ns["path_identity"](self.request)
+        self.addCleanup(os.close, descriptor)
+        self.ns.update(request=self.request, canonical_path=path, filesystem_uuid=filesystem, directory_fd=descriptor)
+
+    def test_filesystem_root_requires_explicit_scope_and_exact_preview_before_metadata_changes(self):
+        with self.assertRaises(ValueError): self.ns["path_identity"](dict(self.request, relativePath=""))
+        self.select_filesystem_root()
+        before = self.snapshot(); child = self.child.stat()
+        with self.assertRaises(ValueError): self.ns["apply_policy_atomic"](self.request, before, {})
+        self.assertEqual(before["effectiveMode"], self.snapshot()["effectiveMode"])
+        self.request["expectedDirectoryIdentity"] = before["directoryIdentity"]
+        after = self.ns["apply_policy_atomic"](self.request, before, {})
+        self.assertTrue(after["filesystemRoot"]); self.assertEqual("0750", after["effectiveMode"])
+        self.assertEqual(child, self.child.stat()); self.assertEqual(before["effectiveUid"], after["effectiveUid"])
+
+    def test_filesystem_root_changed_mode_or_filesystem_uuid_invalidates_preview_without_restoring_it(self):
+        self.select_filesystem_root(); before = self.snapshot()
+        self.request["expectedDirectoryIdentity"] = before["directoryIdentity"]
+        self.root.chmod(0o700)
+        changed = self.snapshot()
+        with self.assertRaises(ValueError): self.ns["apply_policy_atomic"](self.request, changed, {})
+        self.assertEqual("0700", self.snapshot()["effectiveMode"])
+        self.request["expectedDirectoryIdentity"] = {**changed["directoryIdentity"], "filesystemUuid": "foreign"}
+        with self.assertRaises(ValueError): self.ns["apply_policy_atomic"](self.request, changed, {})
+        self.assertEqual("0700", self.snapshot()["effectiveMode"])
+
+    def test_filesystem_root_acl_change_invalidates_even_an_unchanged_inode_preview(self):
+        self.select_filesystem_root(); before = self.snapshot()
+        self.request["expectedDirectoryIdentity"] = before["directoryIdentity"]
+        subprocess.run(["setfacl", "-m", "u:10008:r-x", str(self.root)], check=True)
+        changed = self.snapshot()
+        self.assertEqual(before["inode"], changed["inode"])
+        with self.assertRaises(ValueError): self.ns["apply_policy_atomic"](self.request, changed, {})
+        self.assertEqual(changed["directoryIdentity"], self.snapshot()["directoryIdentity"])
 
 class PosixDirectoryObservationTest(unittest.TestCase):
     def test_mode_drift_and_read_errors_are_not_reported_as_consistent(self):
