@@ -373,3 +373,10 @@ CREATE TABLE IF NOT EXISTS cloud.storage_service_template_upgrade (
   KEY idx_storage_template_upgrade_retention(rollback_retain_until),
   KEY idx_storage_template_upgrade_scope(instance_id,created)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Retained ROOT template projection (#920); vm_instance and current ROOT remain authoritative.
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.storage_service_instance', 'current_template_id', 'bigint unsigned DEFAULT NULL');
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.storage_service_instance', 'previous_template_id', 'bigint unsigned DEFAULT NULL');
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.storage_service_instance', 'template_upgrade_state', 'varchar(40) DEFAULT NULL');
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.storage_service_instance', 'last_template_upgrade_id', 'bigint unsigned DEFAULT NULL');
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.storage_service_instance', 'template_verified_at', 'datetime DEFAULT NULL');

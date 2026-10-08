@@ -202,6 +202,12 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
     @Inject
     org.apache.cloudstack.storage.dataservice.dao.StorageServiceRuntimeUpgradeDao storageRuntimeUpgradeDao;
 
+    @Inject org.apache.cloudstack.storage.dataservice.dao.StorageServiceTemplateUpgradeDao storageTemplateUpgradeDao;
+    protected void requireNoRootMaintenance(SharedFS sharedFS) {
+        StorageServiceInstanceVO instance=sharedFS.getVmId()==null?null:storageServiceInstanceDao.findByVmId(sharedFS.getVmId());
+        if (instance!=null && storageTemplateUpgradeDao.findActive(instance.getId())!=null) throw new CloudRuntimeException("ROOT template maintenance must complete or recover before a service lifecycle change");
+    }
+
     protected <T> T withSharedFSWriterLock(SharedFS sharedFS, java.util.function.Supplier<T> action) {
         StorageServiceInstanceVO instance=sharedFS.getVmId()==null ? null : storageServiceInstanceDao.findByVmId(sharedFS.getVmId());
         String key=instance==null ? "SharedFSRemoval-"+sharedFS.getId() : "StorageServiceWriter-"+instance.getId();
@@ -210,6 +216,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         try {
             held=lock.lock(30);
             if (!held) throw new CloudRuntimeException("Another Storage Service operation is active");
+            requireNoRootMaintenance(sharedFS);
             if (instance!=null && storageRuntimeUpgradeDao.findActiveByInstanceId(instance.getId())!=null) throw new CloudRuntimeException("A runtime upgrade is active; the requested service change is blocked");
             return action.get();
         } finally { if (held) lock.unlock(); lock.releaseRef(); }
@@ -697,6 +704,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
     @ActionEvent(eventType = EventTypes.EVENT_SHAREDFS_START, eventDescription = "Starting Shared FileSystem")
     public SharedFS startSharedFS(Long sharedFSId) throws OperationTimedoutException, ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException {
         SharedFSVO sharedFS = sharedFSDao.findById(sharedFSId);
+        requireNoRootMaintenance(sharedFS);
 
         Account caller = CallContext.current().getCallingAccount();
         accountMgr.checkAccess(caller, null, false, sharedFS);
@@ -711,6 +719,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
     @ActionEvent(eventType = EventTypes.EVENT_SHAREDFS_STOP, eventDescription = "Stopping Shared FileSystem")
     public SharedFS stopSharedFS(Long sharedFSId, Boolean forced) {
         SharedFSVO sharedFS = sharedFSDao.findById(sharedFSId);
+        requireNoRootMaintenance(sharedFS);
         Account caller = CallContext.current().getCallingAccount();
         accountMgr.checkAccess(caller, null, false, sharedFS);
         Set<State> validStates = new HashSet<>(List.of(State.Ready));
@@ -746,6 +755,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
     @ActionEvent(eventType = EventTypes.EVENT_SHAREDFS_RESTART, eventDescription = "Restarting Shared FileSystem", async = true)
     public SharedFS restartSharedFS(Long sharedFSId, boolean cleanup) throws OperationTimedoutException, ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException {
         SharedFSVO sharedFS = sharedFSDao.findById(sharedFSId);
+        requireNoRootMaintenance(sharedFS);
         Account caller = CallContext.current().getCallingAccount();
         accountMgr.checkAccess(caller, null, false, sharedFS);
 
@@ -911,6 +921,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
     @ActionEvent(eventType = EventTypes.EVENT_SHAREDFS_CHANGE_DISK_OFFERING, eventDescription = "Change Shared FileSystem disk offering")
     public SharedFS changeSharedFSDiskOffering(ChangeSharedFSDiskOfferingCmd cmd) throws ResourceAllocationException {
         SharedFSVO sharedFS = sharedFSDao.findById(cmd.getId());
+        requireNoRootMaintenance(sharedFS);
         Account caller = CallContext.current().getCallingAccount();
         accountMgr.checkAccess(caller, null, false, sharedFS);
         Set<State> validStates = new HashSet<>(List.of(State.Ready, State.Stopped));
@@ -934,6 +945,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
     @ActionEvent(eventType = EventTypes.EVENT_SHAREDFS_CHANGE_SERVICE_OFFERING, eventDescription = "Change Shared FileSystem service offering")
     public SharedFS changeSharedFSServiceOffering(ChangeSharedFSServiceOfferingCmd cmd) throws OperationTimedoutException, ResourceUnavailableException, InsufficientCapacityException, ManagementServerException, VirtualMachineMigrationException {
         SharedFSVO sharedFS = sharedFSDao.findById(cmd.getId());
+        requireNoRootMaintenance(sharedFS);
         Account caller = CallContext.current().getCallingAccount();
         if (sharedFS==null) throw new InvalidParameterValueException("Shared filesystem is unavailable");
         accountMgr.checkAccess(caller, null, false, sharedFS);
