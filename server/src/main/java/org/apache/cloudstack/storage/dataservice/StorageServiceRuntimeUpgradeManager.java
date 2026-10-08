@@ -39,6 +39,18 @@ public interface StorageServiceRuntimeUpgradeManager {
         throw new com.cloud.utils.exception.CloudRuntimeException("Signed validation runtime proof is unavailable in this deployed runtime manager");
     }
 
+    /** Manual latest-state replay on a retained ROOT is always a new activation. */
+    default com.google.gson.JsonObject restoreRetainedLatestTemplateRuntime(long instanceId, com.google.gson.JsonObject pin,
+            String rootOperationUuid, com.google.gson.JsonObject frozenSourceApproval) {
+        throw new com.cloud.utils.exception.CloudRuntimeException("Retained latest runtime activation is unavailable in this deployed runtime manager");
+    }
+
+    /** Older deployed families cannot attest a retained latest-state replay. */
+    default com.google.gson.JsonObject verifyRetainedLatestTemplateRuntime(long instanceId, com.google.gson.JsonObject pin,
+            String rootOperationUuid, com.google.gson.JsonObject frozenSourceApproval) {
+        throw new com.cloud.utils.exception.CloudRuntimeException("Retained latest runtime verification is unavailable in this deployed runtime manager");
+    }
+
     com.google.gson.JsonObject verifyAvailableBundle(Long bundleId);
     com.google.gson.JsonObject templateRuntimeCapabilities(long instanceId);
     com.google.gson.JsonObject checkpointTemplateRuntime(long instanceId, String rootOperationUuid);
