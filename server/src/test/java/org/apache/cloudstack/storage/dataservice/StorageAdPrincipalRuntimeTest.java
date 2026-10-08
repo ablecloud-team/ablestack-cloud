@@ -27,9 +27,11 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 public class StorageAdPrincipalRuntimeTest {
     private static class Manager extends StorageServiceManagerImpl {
-        JsonObject identity,resolved;List<String> commands=new ArrayList<>();boolean denyFeature;
+        JsonObject identity,resolved,nativeBefore,nativeAfter;List<String> commands=new ArrayList<>();boolean denyFeature,freshScope;int generationCalls;StorageServiceInstanceVO currentInstance;
+        @Override protected StorageServiceInstanceVO requireInstance(Long id){return currentInstance;}
         @Override protected void requireStorageAdIdentityFeatures(StorageServiceInstanceVO instance){if(denyFeature)throw new com.cloud.utils.exception.CloudRuntimeException("AD unsupported");}
-        @Override protected JsonObject rootGuest(StorageServiceInstanceVO instance,String command,JsonObject request,int timeout){commands.add(command);if(command.equals("identity domain inspect"))return identity.deepCopy();Assert.assertEquals(identity.get("domainSid"),request.get("expectedDomainSid"));Assert.assertEquals(identity.get("realm"),request.get("expectedRealm"));return resolved.deepCopy();}
+        @Override protected JsonObject nativeConfigurationGeneration(StorageServiceInstanceVO instance,StorageServiceOperationVO operation,String action){Assert.assertEquals("status",action);Assert.assertNull(operation);return (++generationCalls==1?nativeBefore:nativeAfter).deepCopy();}
+        @Override protected JsonObject rootGuest(StorageServiceInstanceVO instance,String command,JsonObject request,int timeout){commands.add(command);if(command.equals("identity domain inspect")){JsonObject observed=identity.deepCopy();if(freshScope){JsonObject scope=new JsonObject();for(String key:List.of("instanceUuid","operationUuid","revision"))scope.add(key,request.get(key).deepCopy());observed.add("scope",scope);}return observed;}Assert.assertEquals(identity.get("domainSid"),request.get("expectedDomainSid"));Assert.assertEquals(identity.get("realm"),request.get("expectedRealm"));return resolved.deepCopy();}
     }
     private static class Fixture {Manager manager;StorageServiceInstanceVO instance;StorageServiceOperationVO operation;org.apache.cloudstack.storage.dataservice.dao.StorageAccessRuleDao rules;}
     private Fixture fixture() {
@@ -99,4 +101,108 @@ public class StorageAdPrincipalRuntimeTest {
         }
     }
     @Test public void joinedMachineNameUsesExactReceiptAndNeverRegeneratesACloneName(){Fixture f=fixture();Assert.assertEquals("ASTINSTANCE",f.manager.buildSmbNetbiosName(f.instance));StorageIdentityDomainVO domain=new StorageIdentityDomainVO(6,"example.test",null,null,StorageServiceInstance.DomainJoinState.JOINED,"OK","{}");org.apache.cloudstack.storage.dataservice.dao.StorageIdentityDomainDao domains=Mockito.mock(org.apache.cloudstack.storage.dataservice.dao.StorageIdentityDomainDao.class);Mockito.when(domains.findByInstanceId(6L)).thenReturn(domain);ReflectionTestUtils.setField(f.manager,"storageIdentityDomainDao",domains);Assert.assertThrows(RuntimeException.class,()->f.manager.buildSmbNetbiosName(f.instance));domain.setJoinState(StorageServiceInstance.DomainJoinState.NOT_JOINED);Assert.assertTrue(f.manager.buildSmbNetbiosName(f.instance).startsWith("STOR"));}
+    private Fixture freshFixture(){
+        Fixture f=fixture();f.manager.freshScope=true;
+        ThreadLocal<StorageServiceOperationVO> writer=(ThreadLocal<StorageServiceOperationVO>)ReflectionTestUtils.getField(f.manager,"storageWriterOperation");writer.remove();
+        JsonObject generation=new JsonObject();generation.addProperty("instanceUuid",f.instance.getUuid());generation.addProperty("revision",3);
+        JsonObject status=new JsonObject();status.add("generation",generation);status.addProperty("generationStatus","IN_SYNC");status.addProperty("configurationSha256","a".repeat(64));status.add("bootId",f.manager.identity.get("bootId").deepCopy());
+        f.manager.nativeBefore=status;f.manager.nativeAfter=status.deepCopy();f.manager.currentInstance=f.instance;return f;
+    }
+    private StorageIdentityDomainVO domain(Fixture f){return ((org.apache.cloudstack.storage.dataservice.dao.StorageIdentityDomainDao)ReflectionTestUtils.getField(f.manager,"storageIdentityDomainDao")).findByInstanceId(6L);}
+    @Test public void freshStandaloneReadReturnsNewObservationScopeWithoutWriterOrDbMutation(){
+        Fixture f=freshFixture();JsonObject receipt=f.manager.freshStorageAdDomainReceipt(f.instance,domain(f));
+        Assert.assertEquals(f.instance.getUuid(),receipt.getAsJsonObject("scope").get("instanceUuid").getAsString());
+        Assert.assertNotEquals(f.operation.getUuid(),receipt.getAsJsonObject("scope").get("operationUuid").getAsString());
+        Assert.assertEquals(f.manager.identity.get("bootId"),receipt.get("bootId"));Assert.assertEquals(2,f.manager.generationCalls);Assert.assertEquals(List.of("identity domain inspect"),f.manager.commands);
+        org.apache.cloudstack.storage.dataservice.dao.StorageIdentityDomainDao domains=(org.apache.cloudstack.storage.dataservice.dao.StorageIdentityDomainDao)ReflectionTestUtils.getField(f.manager,"storageIdentityDomainDao");
+        Mockito.verify(domains,Mockito.never()).update(Mockito.anyLong(),Mockito.any());Mockito.verifyNoInteractions(f.rules);
+    }
+    @Test public void freshReadRejectsPendingGenerationWrongInstanceAndUnavailableBootBeforeInspect(){
+        for(String field:List.of("pendingOperationUuid","instanceUuid","bootId","revision")){
+            Fixture f=freshFixture();
+            if(field.equals("pendingOperationUuid"))f.manager.nativeBefore.addProperty(field,"44444444-4444-4444-4444-444444444444");
+            else if(field.equals("instanceUuid"))f.manager.nativeBefore.getAsJsonObject("generation").addProperty(field,"44444444-4444-4444-4444-444444444444");
+            else if(field.equals("revision"))f.manager.nativeBefore.getAsJsonObject("generation").addProperty(field,"3");
+            else f.manager.nativeBefore.remove(field);
+            Assert.assertThrows(field,RuntimeException.class,()->f.manager.freshStorageAdDomainReceipt(f.instance,domain(f)));Assert.assertTrue(f.manager.commands.isEmpty());Mockito.verifyNoInteractions(f.rules);
+        }
+    }
+    @Test public void freshReadRejectsChangedGenerationBootOrSourceBindingsBeforePublicReceipt(){
+        for(String field:List.of("revision","bootId","configurationSha256","machineSid","scope")){
+            Fixture f=freshFixture();
+            if(field.equals("revision"))f.manager.nativeAfter.getAsJsonObject("generation").addProperty(field,4);
+            else if(field.equals("configurationSha256"))f.manager.nativeAfter.addProperty(field,"b".repeat(64));
+            else if(field.equals("bootId"))f.manager.identity.addProperty(field,"44444444-4444-4444-4444-444444444444");
+            else if(field.equals("machineSid"))f.manager.identity.addProperty(field,"S-1-5-21-4-5-7");
+            else f.manager.freshScope=false;
+            Assert.assertThrows(field,RuntimeException.class,()->f.manager.freshStorageAdDomainReceipt(f.instance,domain(f)));Mockito.verifyNoInteractions(f.rules);
+        }
+    }
+    @Test public void freshReadRejectsStaleCoercedUnjoinedAndPartialGuestProof(){
+        for(String field:List.of("generatedEpoch","success","joinState","idmapPolicy","sideEffects")){
+            Fixture f=freshFixture();
+            if(field.equals("generatedEpoch"))f.manager.identity.addProperty(field,System.currentTimeMillis()/1000.0-61);
+            else if(field.equals("joinState"))f.manager.identity.addProperty(field,"NOT_JOINED");
+            else if(field.equals("idmapPolicy"))f.manager.identity.remove(field);
+            else f.manager.identity.addProperty(field,field.equals("success")?"true":"false");
+            Assert.assertThrows(field,RuntimeException.class,()->f.manager.freshStorageAdDomainReceipt(f.instance,domain(f)));Mockito.verifyNoInteractions(f.rules);
+        }
+    }
+    @Test public void freshApiDefaultStaysStoredAndTypedReceiptHasNoConfigFallback(){
+        org.apache.cloudstack.api.command.user.storage.dataservice.ListStorageServiceDomainStatusCmd cmd=new org.apache.cloudstack.api.command.user.storage.dataservice.ListStorageServiceDomainStatusCmd();
+        Assert.assertNull(cmd.getFresh());ReflectionTestUtils.setField(cmd,"fresh",true);Assert.assertEquals(Boolean.TRUE,cmd.getFresh());
+        org.apache.cloudstack.api.response.StorageIdentityDomainResponse response=new org.apache.cloudstack.api.response.StorageIdentityDomainResponse();
+        Assert.assertFalse(new com.google.gson.Gson().toJsonTree(response).getAsJsonObject().has("identityreceipt"));
+        Fixture f=freshFixture();f.manager.identity.addProperty("password","synthetic-private");f.manager.identity.addProperty("keytabBytes","synthetic-private");
+        JsonObject receipt=f.manager.freshStorageAdDomainReceipt(f.instance,domain(f));response.setIdentityReceipt(receipt);receipt.addProperty("password","mutated-private-after-copy");response.setObjectName("storageidentitydomain");
+        org.apache.cloudstack.api.response.ListResponse<org.apache.cloudstack.api.response.StorageIdentityDomainResponse> list=new org.apache.cloudstack.api.response.ListResponse<>();
+        list.setResponseName("liststorageservicedomainstatusresponse");list.setResponses(java.util.List.of(response),1);
+        StringBuilder log=new StringBuilder();String wire=com.cloud.api.response.ApiResponseSerializer.toJSONSerializedString(list,log);
+        JsonObject serialized=com.google.gson.JsonParser.parseString(wire).getAsJsonObject().getAsJsonObject("liststorageservicedomainstatusresponse").getAsJsonArray("storageidentitydomain").get(0).getAsJsonObject();
+        JsonObject typed=serialized.getAsJsonObject("identityreceipt");Assert.assertTrue(typed.get("success").getAsJsonPrimitive().isBoolean());Assert.assertTrue(typed.get("success").getAsBoolean());
+        Assert.assertTrue(typed.get("sideEffects").getAsJsonPrimitive().isBoolean());Assert.assertFalse(typed.get("sideEffects").getAsBoolean());
+        Assert.assertEquals(f.instance.getUuid(),typed.getAsJsonObject("scope").get("instanceUuid").getAsString());Assert.assertTrue(typed.getAsJsonObject("scope").get("revision").getAsJsonPrimitive().isNumber());
+        Assert.assertFalse(serialized.has("config"));Assert.assertFalse(wire.contains("private"));Assert.assertFalse(wire.contains("keytabBytes"));Assert.assertFalse(log.toString().contains("private"));
+        Assert.assertTrue(com.google.gson.JsonParser.parseString(log.toString()).getAsJsonObject().getAsJsonObject("liststorageservicedomainstatusresponse").getAsJsonArray("storageidentitydomain").get(0).getAsJsonObject().get("identityreceipt").isJsonObject());
+    }
+
+    @Test public void freshReadRejectsChangedVmOrTenantBeforeReturningIdentity(){
+        for(String field:List.of("vmId","accountId","domainId")){
+            Fixture f=freshFixture();StorageServiceInstanceVO after=Mockito.mock(StorageServiceInstanceVO.class);
+            String expectedUuid=f.instance.getUuid();Mockito.when(after.getUuid()).thenReturn(expectedUuid);Mockito.when(after.getVmId()).thenReturn(7L);
+            if(field.equals("vmId"))Mockito.when(after.getVmId()).thenReturn(8L);
+            else if(field.equals("accountId"))Mockito.when(after.getAccountId()).thenReturn(8L);
+            else Mockito.when(after.getDomainId()).thenReturn(8L);
+            f.manager.currentInstance=after;
+            Assert.assertThrows(field,RuntimeException.class,()->f.manager.freshStorageAdDomainReceipt(f.instance,domain(f)));Mockito.verifyNoInteractions(f.rules);
+        }
+    }
+
+    @Test public void committedCliGenerationStatusProducesCurrentBootForFreshJavaConsumer() throws Exception {
+        java.nio.file.Path root=java.nio.file.Path.of(System.getProperty("user.dir")).toAbsolutePath();while(!java.nio.file.Files.exists(root.resolve("systemvm/debian/usr/local/lib/ablestack-storage/config_generation.py")))root=root.getParent();
+        String script=String.join("\n",
+                "import sys,json,os,tempfile,subprocess,uuid",
+                "from pathlib import Path",
+                "root=Path(sys.argv[1]);sys.path.insert(0,str(root/'systemvm/debian/usr/local/lib/ablestack-storage'))",
+                "import config_generation",
+                "with tempfile.TemporaryDirectory() as directory:",
+                " base=Path(directory);config=base/'config';config.mkdir(mode=0o700);state=base/'generation';state.mkdir(mode=0o700)",
+                " producer=config_generation.Generation(state,config);digest=producer.digest()",
+                " current={'instanceUuid':'11111111-1111-1111-1111-111111111111','operationUuid':str(uuid.uuid4()),'revision':3,'configurationSha256':digest}",
+                " currentPath=state/'current.json';currentPath.write_text(json.dumps(current));currentPath.chmod(0o600)",
+                " before={str(p):p.read_bytes() for p in base.rglob('*') if p.is_file()}",
+                " env=dict(os.environ,ABLESTACK_STORAGE_GENERATION_DIR=str(state),ABLESTACK_STORAGE_CONFIGURATION_ROOT=str(config),ABLESTACK_STORAGE_LOG_FILE='/dev/null')",
+                " replies=[]",
+                " for unused in range(2):",
+                "  reply=subprocess.run(['bash',str(root/'systemvm/debian/usr/local/bin/ablestack-storagectl'),'operation','generation','status'],capture_output=True,text=True,timeout=15,env=env)",
+                "  assert reply.returncode==0,reply.stderr;replies.append(json.loads(reply.stdout))",
+                " assert replies[0]==replies[1] and replies[0]['bootId']==str(uuid.UUID(Path('/proc/sys/kernel/random/boot_id').read_text().strip()))",
+                " assert replies[0]['generation']==current and 'bootId' not in current and replies[0]['generationStatus']=='IN_SYNC'",
+                " assert before=={str(p):p.read_bytes() for p in base.rglob('*') if p.is_file()}",
+                " print(json.dumps(replies[0]))");
+        Process process=new ProcessBuilder("python3","-c",script,root.toString()).redirectErrorStream(true).start();String output=new String(process.getInputStream().readAllBytes(),java.nio.charset.StandardCharsets.UTF_8);Assert.assertEquals(output,0,process.waitFor());
+        JsonObject status=com.google.gson.JsonParser.parseString(output).getAsJsonObject();Fixture f=freshFixture();f.manager.nativeBefore=status;f.manager.nativeAfter=status.deepCopy();f.manager.identity.add("bootId",status.get("bootId").deepCopy());
+        JsonObject receipt=f.manager.freshStorageAdDomainReceipt(f.instance,domain(f));Assert.assertEquals(status.get("bootId"),receipt.get("bootId"));Mockito.verifyNoInteractions(f.rules);
+    }
+
 }
