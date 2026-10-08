@@ -34,7 +34,7 @@ public class ReconcileStorageServiceOperationCmd extends BaseStorageServiceAsync
     @Parameter(name = "operationid", type = CommandType.UUID, entityType = StorageServiceOperationResponse.class, required = true)
     private Long operationId;
     public Long getOperationId() { return operationId; }
-    public long getEntityOwnerId() { return 0; }
+    public long getEntityOwnerId() { return org.apache.cloudstack.context.CallContext.current().getCallingAccountId(); }
     public String getEventType() { return "STORAGE.OPERATION.RECONCILE"; }
     public String getEventDescription() { return "Reconciling a failed Storage Service configuration operation"; }
     public void execute() {

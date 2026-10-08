@@ -558,6 +558,20 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         return sharedFSDao.persist((SharedFSVO) preflightSharedFS(cmd));
     }
 
+    protected void validateSparseNewRootOffering(Long serviceOfferingId) {
+        com.cloud.service.ServiceOfferingVO service=serviceOfferingDao.findById(serviceOfferingId);
+        com.cloud.storage.DiskOfferingVO root=service==null || service.getDiskOfferingId()==null ? null : diskOfferingDao.findById(service.getDiskOfferingId());
+        if(root==null || !(root.getProvisioningType()==com.cloud.storage.Storage.ProvisioningType.SPARSE || root.getProvisioningType()==com.cloud.storage.Storage.ProvisioningType.FAT))throw new InvalidParameterValueException("New SharedFS/clone VM ROOT requires a SPARSE or FAT service offering; existing THIN ROOTs are preserved");
+    }
+    protected void validateSparseNewDataOffering(Long diskOfferingId) {
+        com.cloud.storage.DiskOfferingVO offering=diskOfferingDao.findById(diskOfferingId);
+        if(offering==null || !(offering.getProvisioningType()==com.cloud.storage.Storage.ProvisioningType.SPARSE || offering.getProvisioningType()==com.cloud.storage.Storage.ProvisioningType.FAT))throw new InvalidParameterValueException("New SharedFS DATA requires an explicit SPARSE or FAT disk offering");
+    }
+    protected void verifySparseAllocatedRoot(Long vmId) {
+        List<VolumeVO> roots=volumeDao.findByInstanceAndType(vmId,Volume.Type.ROOT);
+        if(roots.size()!=1 || !(roots.get(0).getProvisioningType()==com.cloud.storage.Storage.ProvisioningType.SPARSE || roots.get(0).getProvisioningType()==com.cloud.storage.Storage.ProvisioningType.FAT))throw new InvalidParameterValueException("New SharedFS ROOT allocation did not report SPARSE/FAT; storage publication is blocked");
+    }
+
     @Override
     public SharedFS preflightSharedFS(CreateSharedFSCmd cmd) {
         Account caller = CallContext.current().getCallingAccount();
@@ -584,6 +598,8 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         SharedFSProvider provider = getSharedFSProvider(cmd.getSharedFSProviderName());
         SharedFSLifeCycle lifeCycle = provider.getSharedFSLifeCycle();
         lifeCycle.checkPrerequisites(zone, cmd.getServiceOfferingId());
+        validateSparseNewRootOffering(cmd.getServiceOfferingId());
+        if(!cmd.isExistingVolume())validateSparseNewDataOffering(cmd.getDiskOfferingId());
 
         NetworkVO networkVO = networkDao.findById(cmd.getNetworkId());
         if (networkVO == null) {
@@ -638,12 +654,15 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         SharedFSLifeCycle lifeCycle = provider.getSharedFSLifeCycle();
         Pair<Long, Long> result;
         try {
+            validateSparseNewRootOffering(sharedFS.getServiceOfferingId());
+            if(!cmd.isExistingVolume())validateSparseNewDataOffering(diskOfferingId);
             if (cmd.isExistingVolume()) {
                 validateExistingInitialVolume(cmd.getExistingVolumeId(),sharedFS.getAccountId(),sharedFS.getDataCenterId(),sharedFS.getId());
                 result=lifeCycle.deployWithExistingVolume(sharedFS,cmd.getNetworkId(),cmd.getExistingVolumeId());
             } else result = lifeCycle.deploySharedFS(sharedFS, cmd.getNetworkId(), diskOfferingId, cmd.getStorageId(), size, minIops, maxIops);
             sharedFS.setVolumeId(result.first());
             sharedFS.setVmId(result.second());
+            verifySparseAllocatedRoot(result.second());
             sharedFSDao.update(sharedFS.getId(), sharedFS);
             configureStaticNetwork(sharedFSDao.findById(sharedFS.getId()));
             if (cmd.isExistingVolume()) inspectExistingInitialVolume(sharedFS);
