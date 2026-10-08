@@ -165,4 +165,42 @@ class StorageSmbIdentityTest(unittest.TestCase):
         self.assertEqual({'success':True,'fixture':True},json.loads(result.stdout))
         self.assertEqual(1,len(result.stdout.splitlines()))
 
+    def test_start_ack_before_socket_and_identity_readiness_polls_without_repeated_service_actions(self):
+        request=self.prepare_rebind();observations=[]
+        def inspect(*args,**kwargs):
+            if not self.calls or self.calls[-1][1]!='start':return self.before
+            observations.append(kwargs.get('allow_missing'))
+            if len(observations)==1:return {**self.after,'ownershipVerified':False,'endpointTcpReady':False}
+            if len(observations)==2:return {**self.after,'identityDatabaseAligned':False}
+            return self.after
+        self.handler.inspect=inspect
+        with patch.object(self.handler,'open_master_handles',return_value={111:os.open('/dev/null',os.O_RDONLY),222:os.open('/dev/null',os.O_RDONLY)}),patch.object(module.signal,'pidfd_send_signal') as send,patch.object(module.time,'sleep'):
+            result=self.handler.rebind(request)
+        self.assertEqual(3,result['verification']['readinessAttempts']);self.assertEqual([True,True,True],observations)
+        self.assertEqual(2,len([args for args in self.calls if args[1]=='start']));self.assertEqual(6,send.call_count)
+        self.assertEqual('COMPLETE',self.handler.repair_journal(self.scope)['phase'])
+        self.assertEqual(self.current,result['generation'])
+
+    def test_recovery_retry_already_aligned_waits_for_tcp_without_signals_or_restart(self):
+        request=self.prepare_rebind();journal={'scope':self.scope,'expected':request['expected'],'phase':'RECOVERY_REQUIRED'};self.handler.repair_journal(self.scope,journal)
+        calls=[]
+        def inspect(*args,**kwargs):
+            calls.append(1)
+            return {**self.after,'endpointTcpReady':len(calls)>=3}
+        self.handler.inspect=inspect
+        with patch.object(self.handler,'open_master_handles') as handles,patch.object(self.handler,'run') as run,patch.object(module.signal,'pidfd_send_signal') as send,patch.object(module.time,'sleep'):
+            result=self.handler.rebind(request)
+        self.assertTrue(result['idempotent']);self.assertEqual(3,len(calls));self.assertEqual('COMPLETE',self.handler.repair_journal(self.scope)['phase'])
+        handles.assert_not_called();run.assert_not_called();send.assert_not_called()
+
+    def test_readiness_scope_change_or_expired_deadline_never_restarts_a_process_or_claims_ready(self):
+        frozen=copy.deepcopy(self.before)
+        self.handler.inspect=lambda *args,**kwargs:{**frozen,'configurationSha256':'foreign'}
+        with self.assertRaisesRegex(ValueError,'source scope'):self.handler.wait_for_ready(self.scope,frozen)
+        self.handler.inspect=lambda *args,**kwargs:{**frozen,'endpointTcpReady':False}
+        self.handler.deadline=module.time.monotonic()+.01
+        with patch.object(module.signal,'pidfd_send_signal') as send,patch.object(self.handler,'run') as run:
+            with self.assertRaises(TimeoutError):self.handler.wait_for_ready(self.scope,frozen)
+            send.assert_not_called();run.assert_not_called()
+
 if __name__=='__main__':unittest.main()
