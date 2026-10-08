@@ -102,3 +102,15 @@ SPARSE 전용 fixed SO metadata2개를 정상 API로 생성했다(실제 disk al
 부모는 MGT b38 delta 후 실제 UI total10.02TiB 복귀를 확인했다. exact listVolumes는 defaultdisplay scope의 initial5368와 displayvolume=false scope의021b가 모두 VM51/Ready/DATADISK/admin/ROOT임을 확인했다. default/hidden 조회를 합쳐야 backing 준비 목록2개를 표시할 수 있으며 볼륨 detach/delete가 발생한 것은 아니다.
 
 이슈 #902 부모의 실제 브라우저 noVNC 콘솔도 병행했다. 초기 검은 화면은 wake/키 입력 뒤 로그인 화면이 표시됐고 CapsLock 입력 상태 보정 후 기존 제공 자격 증명으로 VM47 Administrator 데스크톱 로그인이 성공했다. QGA local '.' LogonUserW 1회 역시 성공했다. DC Domain SAM 인증과 Client local 인증은 유효하며 중복SID/6167 가입 실패 원인은 별도로 남는다. Sysprep/일반화/재설치 및 Client reboot는 아직 승인 대기·미실행이다. 최종 UI #1275 정지 경계는 그대로 유지한다.
+
+## 16:07 KST 실제 인증·시간 정정 후속
+
+정식 VM50 local SMB는 승인된 synthetic credential update1회 뒤 current passdb의 메모리 비교bool=true였다. guest A/B ×unqualified/qualified(single delimiter)/domain6probe는 모두 **session setup NT_STATUS_LOGON_FAILURE**였고 tree거절과 구분했다. 허용source host13.1 ROmount3forms도CIFS13으로 실패해 heldFD·endpoint lifecycle·reboot는 시작하지 않았다. kernel readonly FD에서 A1291/B67681이 deleted passdb/secrets inode3858/3850을 열고 currentpath1381/1421과 다른 것을 확인했다. canonical TDB atomic replace 후 daemon의 old inode가 남은 원인 증거다. original sentinel SHA/inode16777345/UID:GID1001:1001/mode0660 및 두 PID/startTicks 보존, 자기 client mount0/추가reset0을 확인했다. #900 실제 authenticated I/O gate는 미완료이며 코멘트6054393360에 기록했다.
+
+AD Windows clock 정정은 부모 GO로 양쪽 VM45/47에 timezone Korea Standard Time 및 fresh strictverified hostUTC guest-set-time을 각1회 수행했다. DC1/replicationPartner0, peerUTC3hosts 차이약25ms를 사전 확인했다. 실제setter는둘다 성공했고0/30/60초 재관측의delta는최대4.81ms/RTT약1.1ms로재발0이다. DC ADDS/DNS/KDC/Netlogon/W32Time Running/hostname/domain/IP.2/DNS loopback과Client WORKGROUP/hostname/IP.11/DNS.2+기존IPv6를보존했다. NTPpeer/GPO/보안/SID/암호/서비스restart/VMreboot/티켓purge는0이다. 첫정적placeholder preflight 오류는mutation전에실패·unchanged를확인해수정했고, setter완료후readonlyPS polling이짧았던문제는읽기관측만늘려종료했다. setter를재실행하지않았다. 기존16시간clock차이는해결됐지만 duplicateSID/Sysprep승인대기와AD join/auth gate는여전히남는다.
+
+이슈 #974 readonly no-modify진단의mkfs-in-progress bit/120초종료/targetwrite0·header불변 및filesystemHealthy=false는코멘트6054402213에도반영했다. partial021b/임시poolfactor4 보존과finally원복미완료를유지한다. #1275 최종UI표준화착수직전전체작업중단·사용자보고·추가지시대기경계도변경하지않는다.
+
+사용자의직접Sysprep승인후Client47만SPARSE100GiB fullbackup/virtualcompare/wholeSHA/provenance를완료한뒤Sysprep1회·실제shutdown·원본boot를진행했다. ROOT/NIC API보존은확인됐지만OOBE QGA disconnected로새SID/GUID는아직미관측이다. 부모콘솔handoff후실제고유신원/join/ADauth인수를계속하며완료flags는바꾸지않는다. 상세는20261008-ad-client-generalization.md에기록했다.
+
+16:47 Client QGA재연결후새SID prefix786796763/2696268617/1721076406과MachineGuidc58fa7e3-fb62-4aed-ba5e-88dadd252c6b의고유화를실제확인했다. OOBE/약관·관리자입력은사용자handoff대기라우회·unattend·암호/DNS/hostname/join 추가변경0이다. 새hostname/DHCP DNS초기화가관측됐고완료후원래hostname/DNS.2를복원할계획이다. nativePOSIX AD/capsuleAD transfer에deferred분기가남은것도source검토에서확인해kernel/rootowner에게전달했다. AD전체완료로승격하지않는다.
