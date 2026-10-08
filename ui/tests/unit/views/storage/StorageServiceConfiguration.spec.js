@@ -207,5 +207,4 @@ describe('Configuration backup and restore UI boundaries', () => {
     expect(Widget.computed.allocationRows.call({ plan: { volumeAllocationPlan: { allocations: [allocation] } } })).toEqual([allocation])
     expect(Widget.computed.allocationRows.call({ plan: null })).toEqual([])
   })
-
 })
