@@ -1932,12 +1932,14 @@ wrapClassName="storage-service-action-modal"
             class="storage-service__alert"
             type="info"
             show-icon
-            :message="actionModal.type === 'adRejoin' ? $t('message.storage.service.ad.rejoin.help') : $t('message.storage.service.smb.password.sensitive')" />
+            :message="$t('message.storage.service.ad.maintenance.help')" />
           <a-row :gutter="16">
             <a-col :xs="24" :md="24"><a-form-item required><template #label><tooltip-label :title="$t('label.storage.service.ad.domain')" :tooltip="$t('message.storage.service.ad.domain.help')" /></template><a-input v-model:value="forms.adJoin.domainname" /></a-form-item></a-col>
             <a-col :xs="24" :md="24"><a-form-item required><template #label><tooltip-label :title="$t('label.username')" :tooltip="$t('message.storage.service.ad.username.help')" /></template><a-input v-model:value="forms.adJoin.username" /></a-form-item></a-col>
             <a-col :xs="24" :md="24"><a-form-item required><template #label><tooltip-label :title="$t('label.password')" :tooltip="$t('message.storage.service.ad.password.help')" /></template><a-input-password v-model:value="forms.adJoin.password" autocomplete="new-password" /></a-form-item></a-col>
             <a-col :xs="24" :md="24"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.dns.servers')" :tooltip="$t('message.storage.service.dns.servers.help')" /></template><a-input v-model:value="forms.adJoin.dnsservers" /></a-form-item></a-col>
+            <a-col :xs="24" :md="24"><a-form-item required><a-checkbox v-model:checked="forms.adJoin.maintenancewindow">{{ $t('message.storage.template.maintenance.confirm') }}</a-checkbox></a-form-item></a-col>
+            <a-col :xs="24" :md="24"><a-form-item required><template #label><tooltip-label :title="$t('label.storage.config.confirmation')" :tooltip="$t('message.storage.service.ad.maintenance.help')" /></template><a-input v-model:value="forms.adJoin.confirmation" :placeholder="storageService.instance?.name" /></a-form-item></a-col>
           </a-row>
         </div>
         <div v-if="actionModal.type === 'adLeave'" class="storage-action-form storage-action-form--vertical">
@@ -1950,7 +1952,7 @@ wrapClassName="storage-service-action-modal"
             <a-col :xs="24" :md="24">
               <a-form-item required>
                 <template #label>
-                  <tooltip-label :title="$t('label.storage.service.ad.domain')" :tooltip="$t('message.storage.service.ad.leave.confirm.help')" />
+                  <tooltip-label :title="$t('label.storage.service.ad.domain')" :tooltip="$t('message.storage.service.ad.domain.help')" />
                 </template>
                 <a-input :value="currentSmbDomainConfirmation" disabled />
               </a-form-item>
@@ -1958,11 +1960,12 @@ wrapClassName="storage-service-action-modal"
             <a-col :xs="24" :md="24">
               <a-form-item required>
                 <template #label>
-                  <tooltip-label :title="$t('label.confirmation')" :tooltip="$t('message.storage.service.ad.leave.confirm.help')" />
+                  <tooltip-label :title="$t('label.storage.config.confirmation')" :tooltip="$t('message.storage.service.ad.maintenance.help')" />
                 </template>
-                <a-input v-model:value="forms.adLeave.confirmation" :placeholder="currentSmbDomainConfirmation" />
+                <a-input v-model:value="forms.adLeave.confirmation" :placeholder="storageService.instance?.name" />
               </a-form-item>
             </a-col>
+            <a-col :xs="24" :md="24"><a-form-item required><a-checkbox v-model:checked="forms.adLeave.maintenancewindow">{{ $t('message.storage.template.maintenance.confirm') }}</a-checkbox></a-form-item></a-col>
             <a-col :xs="24" :md="24"><a-form-item><template #label><tooltip-label :title="$t('label.username')" :tooltip="$t('message.storage.service.ad.leave.username.help')" /></template><a-input v-model:value="forms.adLeave.username" /></a-form-item></a-col>
             <a-col :xs="24" :md="24"><a-form-item><template #label><tooltip-label :title="$t('label.password')" :tooltip="$t('message.storage.service.ad.leave.password.help')" /></template><a-input-password v-model:value="forms.adLeave.password" autocomplete="new-password" /></a-form-item></a-col>
           </a-row>
@@ -2327,6 +2330,7 @@ wrapClassName="storage-service-action-modal"
 <script>
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 import { readStorageSections, storageReadDeadline } from '@/utils/storageRead'
+import { requireAdServiceApproval, readJoinedAdReceipt, supportsAdMaintenanceApi } from '@/utils/storageAdIdentity'
 import { createScopedStorageReads } from '@/utils/scopedStorageReads'
 
 import { h, resolveComponent } from 'vue'
@@ -2774,9 +2778,12 @@ export default {
           password: '',
           organizationalunit: '',
           dnsservers: '',
-          workgroup: ''
+          workgroup: '',
+          maintenancewindow: false,
+          confirmation: ''
         },
         adLeave: {
+          maintenancewindow: false,
           confirmation: '',
           username: '',
           password: ''
@@ -4560,7 +4567,8 @@ export default {
           deleteEndpointBlocked ||
           (this.actionModal.type === 'detachBackingVolume' && !this.forms.detachBackingVolume.confirmation) ||
           resizeBackingVolumeBlocked ||
-          (this.actionModal.type === 'adLeave' && !this.adLeaveConfirmationMatched)
+          (this.actionModal.type === 'adLeave' && !this.adLeaveConfirmationMatched) ||
+          (['adJoin', 'adRejoin'].includes(this.actionModal.type) && !this.adJoinApprovalMatched)
       }
     },
     isNfsRuntimeDualMode () {
@@ -4629,7 +4637,10 @@ export default {
       if (this.actionModal.type !== 'adLeave') {
         return true
       }
-      return String(this.forms.adLeave.confirmation || '') === String(this.currentSmbDomainConfirmation || '')
+      return this.forms.adLeave.maintenancewindow === true && !!this.storageService.instance?.name && this.forms.adLeave.confirmation === this.storageService.instance.name
+    },
+    adJoinApprovalMatched () {
+      return this.forms.adJoin.maintenancewindow === true && !!this.storageService.instance?.name && this.forms.adJoin.confirmation === this.storageService.instance.name
     },
     deleteTargetTypeLabel () {
       const labels = {
@@ -7406,11 +7417,14 @@ export default {
           password: '',
           organizationalunit: this.smbOrganizationalUnit !== '-' ? this.smbOrganizationalUnit : '',
           dnsservers: this.smbDnsServers !== '-' ? this.smbDnsServers : '',
-          workgroup: this.smbWorkgroup !== '-' ? this.smbWorkgroup : ''
+          workgroup: this.smbWorkgroup !== '-' ? this.smbWorkgroup : '',
+          maintenancewindow: false,
+          confirmation: ''
         }
       }
       if (type === 'adLeave') {
         this.forms.adLeave = {
+          maintenancewindow: false,
           confirmation: '',
           username: '',
           password: ''
@@ -7941,27 +7955,44 @@ export default {
       this.forms.smbAcl.password = ''
       return result
     },
+    async runAdDomainAction (key, api, form, title, verifyJoined) {
+      const instance = this.storageService.instance
+      if (!instance || this.actionLoading[key]) return
+      const target = { id: instance.id, name: instance.name }
+      const actionTab = this.currentTab
+      const wide = this.protocolWideLayout
+      try {
+        if (!supportsAdMaintenanceApi(command => this.$getApiParams?.(command), api, verifyJoined)) {
+          throw new Error('AD_MAINTENANCE_API_UNSUPPORTED')
+        }
+        const approval = requireAdServiceApproval(target, form)
+        this.actionLoading[key] = true
+        const params = { instanceid: target.id, username: form.username, password: form.password, ...approval }
+        if (verifyJoined) Object.assign(params, { domainname: form.domainname, organizationalunit: form.organizationalunit, dnsservers: form.dnsservers, workgroup: form.workgroup, identitymode: 'JOIN_EXISTING' })
+        let response
+        const requestParams = this.cleanParams(params)
+        try { response = await postAPI(api, requestParams) } finally { requestParams.password = ''; params.password = ''; form.password = '' }
+        const body = response[api.toLowerCase() + 'response'] || {}
+        if (typeof body.jobid !== 'string' || !body.jobid) throw new Error('AD_IDENTITY_RECEIPT_UNVERIFIED')
+        const result = await this.$pollJob({ jobId: body.jobid, title, originalPage: this.$route.path, action: { isFetchData: false }, showSuccessMessage: false })
+        if (result?.jobstatus !== 1) throw new Error('AD_IDENTITY_RECEIPT_UNVERIFIED')
+        if (this.storageService.instance?.id !== target.id || this.storageService.instance?.name !== target.name) throw new Error('AD_IDENTITY_RECEIPT_UNVERIFIED')
+        if (verifyJoined) await readJoinedAdReceipt(target, form.domainname)
+        if (this.storageService.instance?.id !== target.id) throw new Error('AD_IDENTITY_RECEIPT_UNVERIFIED')
+        await this.refreshAfterStorageAction(key, actionTab, wide)
+      } catch (error) {
+        const message = error?.message === 'AD_SERVICE_APPROVAL_REQUIRED' ? 'message.storage.service.ad.maintenance.required'
+          : error?.message === 'AD_MAINTENANCE_API_UNSUPPORTED' ? 'message.storage.service.ad.maintenance.unsupported' : 'message.storage.service.ad.receipt.unverified'
+        this.$message.error(this.$t(message))
+      } finally { form.password = ''; this.actionLoading[key] = false }
+    },
     joinAdDomain () {
       const key = this.actionModal.type === 'adRejoin' ? 'adRejoin' : 'adJoin'
-      const result = this.runStorageAction(key, 'joinStorageServiceToAdDomain', {
-        instanceid: this.storageService.instance.id,
-        ...this.forms.adJoin
-      }, this.$t(key === 'adRejoin' ? 'label.storage.service.rejoin.ad.domain' : 'label.storage.service.join.ad.domain'))
-      this.forms.adJoin.password = ''
-      return result
+      return this.runAdDomainAction(key, 'joinStorageServiceToAdDomain', this.forms.adJoin,
+        this.$t(key === 'adRejoin' ? 'label.storage.service.rejoin.ad.domain' : 'label.storage.service.join.ad.domain'), true)
     },
     leaveAdDomain () {
-      if (!this.adLeaveConfirmationMatched) {
-        this.$message.error(this.$t('message.storage.service.ad.leave.confirm.input'))
-        return Promise.resolve()
-      }
-      const result = this.runStorageAction('adLeave', 'leaveStorageServiceFromAdDomain', {
-        instanceid: this.storageService.instance.id,
-        username: this.forms.adLeave.username,
-        password: this.forms.adLeave.password
-      }, this.$t('label.storage.service.leave.ad.domain'))
-      this.forms.adLeave.password = ''
-      return result
+      return this.runAdDomainAction('adLeave', 'leaveStorageServiceFromAdDomain', this.forms.adLeave, this.$t('label.storage.service.leave.ad.domain'), false)
     },
     async checkAdDomainStatus () {
       if (!this.storageService.instance || this.actionLoading.adStatus) {

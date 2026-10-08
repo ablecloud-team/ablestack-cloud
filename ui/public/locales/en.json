@@ -6556,7 +6556,7 @@
   "message.storage.service.initial.smb.acl.help": "Initial access rule applied when the share is created. This is separate from the AD domain join account; choose AD user and enter the user name for user-based access.",
   "message.storage.service.smb.ad.principal.required": "Enter the AD user or group allowed to access this SMB share.",
   "message.storage.service.ad.rejoin.help": "Retries the domain join using the current AD domain information. The password is used only for the API request and is not stored in the UI.",
-  "message.storage.service.ad.leave.warning": "Leaving the AD domain can make SMB permissions based on AD users or groups invalid. Enter the current AD domain name to continue.",
+  "message.storage.service.ad.leave.warning": "Leaving the AD domain affects AD-based SMB authentication. Approve the maintenance window and enter the exact service name.",
   "message.storage.service.ad.leave.confirm.help": "Enter the current AD domain name exactly to prevent accidental domain leave.",
   "message.storage.service.ad.leave.confirm.input": "Enter the current AD domain name exactly.",
   "message.storage.service.ad.leave.username.help": "AD account used when domain leave requires explicit credentials. Leave empty to try leaving with the current SystemVM domain state.",
@@ -8864,5 +8864,9 @@
   "label.storage.control.policy.action.RESTORE": "Configuration restore",
   "label.storage.control.policy.action.RUNTIME_UPGRADE": "Runtime upgrade",
   "label.storage.control.policy.action.ROOT_UPGRADE": "Template upgrade",
-  "label.storage.control.policy.action.SCALE": "Compute change"
+  "label.storage.control.policy.action.SCALE": "Compute change",
+  "message.storage.service.ad.maintenance.help": "Joining or leaving AD can interrupt SMB client connections. Approve the maintenance window and enter the exact service name.",
+  "message.storage.service.ad.maintenance.required": "Approve the maintenance window and enter the exact service name.",
+  "message.storage.service.ad.receipt.unverified": "The current AD identity could not be verified. Review the service state before continuing.",
+  "message.storage.service.ad.maintenance.unsupported": "The current API cannot verify the protected AD maintenance workflow."
 }

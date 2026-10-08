@@ -38,7 +38,7 @@ const context = () => {
     notifyStorageServiceSetup: jest.fn(),
     parentFetchData: jest.fn()
   }
-  for (const name of ['initialNvmeAuthRequest', 'requireInitialNvmeAuthCapabilities', 'normalizeApiItems', 'parseRuntimeResultJson', 'clearInitialBlockSecrets', 'clearInitialNvmeAuth', 'parseStorageServiceItemConfig', 'isNvmeSubsystemItem']) vm[name] = methods[name]
+  for (const name of ['initialNvmeAuthRequest', 'requireInitialNvmeAuthCapabilities', 'normalizeApiItems', 'parseRuntimeResultJson', 'clearInitialBlockSecrets', 'clearInitialAdCredentials', 'clearInitialNvmeAuth', 'parseStorageServiceItemConfig', 'isNvmeSubsystemItem']) vm[name] = methods[name]
   return vm
 }
 const create = (vm, setup) => methods.createInitialBlockServices.call(vm, instance(), {}, setup)
