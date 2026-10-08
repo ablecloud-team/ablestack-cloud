@@ -5591,13 +5591,46 @@ def run(args, **kwargs):
         kwargs["pass_fds"] = (directory_fd,)
     return subprocess.run(args, check=True, timeout=15, **kwargs)
 
+def verify_legacy_mount_binding(payload, root, filesystem_uuid):
+    expected_uuid = payload.get("expectedFilesystemUuid")
+    expected_serial = payload.get("expectedVolumeSerial")
+    if not expected_uuid or expected_uuid != filesystem_uuid or not isinstance(expected_serial, str) or not expected_serial:
+        raise ValueError("Legacy filesystem root needs its fresh filesystem UUID and volume serial")
+    identity = uuid.UUID(payload["volumeUuid"]).hex
+    compact_serial = "".join(character for character in expected_serial.lower() if character.isalnum())
+    if compact_serial not in (identity, identity[:20]):
+        raise ValueError("Legacy filesystem root serial differs from its attached volume")
+    source = run(["findmnt", "-n", "-o", "SOURCE", "--mountpoint", root], stdout=subprocess.PIPE, text=True).stdout.strip()
+    inventory = json.loads(run(["lsblk", "-b", "-J", "-o", "PATH,NAME,TYPE,SIZE,SERIAL,UUID,FSTYPE,MOUNTPOINT"], stdout=subprocess.PIPE, text=True).stdout)
+    devices = []
+    def flatten(items, parent=None):
+        for item in items:
+            disk = item if item.get("type") == "disk" else parent
+            devices.append((item, disk))
+            flatten(item.get("children") or [], disk)
+    flatten(inventory.get("blockdevices") or [])
+    roots = {disk.get("path") for item, disk in devices if disk and (item.get("mountpoint") in ("/", "/boot", "/boot/efi") or item.get("fstype") == "swap")}
+    matches = [(item, disk) for item, disk in devices if item.get("path") and os.path.realpath(item["path"]) == os.path.realpath(source)]
+    if len(matches) != 1:
+        raise ValueError("Legacy filesystem root mounted device is ambiguous")
+    item, disk = matches[0]
+    if (not disk or disk.get("path") in roots or (item.get("serial") or disk.get("serial")) != expected_serial
+            or item.get("uuid") != expected_uuid or item.get("type") not in ("disk", "part")):
+        raise ValueError("Legacy mount is not the exact attached DATA filesystem")
+    if payload.get("expectedSizeBytes") is not None and int(disk.get("size") or 0) != int(payload["expectedSizeBytes"]):
+        raise ValueError("Legacy filesystem root volume size differs from its frozen DATA binding")
+    return {"volumeSerial": expected_serial, "observedDevicePath": item["path"]}
+
 def path_identity(payload):
     volume = str(uuid.UUID(payload["volumeUuid"]))
     root = str(payload["volumeMountPath"]).rstrip("/")
-    if root != "/srv/ablestack-storage/volumes/" + volume or os.path.islink(root) or not os.path.isdir(root) or os.path.realpath(root) != root:
-        raise ValueError("POSIX policy requires the selected managed volume mount root")
     relative = str(payload["relativePath"])
     filesystem_root = relative in ("", ".")
+    managed = root == "/srv/ablestack-storage/volumes/" + volume
+    legacy = (payload.get("allowLegacyMountRoot") is True and filesystem_root and payload.get("allowFilesystemRoot") is True
+              and re.fullmatch(r"/export(?:/[A-Za-z0-9][A-Za-z0-9_.-]{0,127})?", root) is not None)
+    if not (managed or legacy) or os.path.islink(root) or not os.path.isdir(root) or os.path.realpath(root) != root:
+        raise ValueError("POSIX policy requires an exact managed or explicitly bound legacy DATA mount root")
     if filesystem_root and payload.get("allowFilesystemRoot") is not True:
         raise ValueError("Filesystem root policy requires an explicit root preview/apply scope")
     if relative.startswith("/") or "\\" in relative or any(ord(ch) < 32 for ch in relative):
@@ -5608,6 +5641,8 @@ def path_identity(payload):
     mounted = run(["findmnt", "-n", "-o", "TARGET,UUID", "-T", root], stdout=subprocess.PIPE, text=True).stdout.strip().split()
     if len(mounted) != 2 or mounted[0] != root:
         raise ValueError("Selected volume mount identity is unavailable")
+    if legacy:
+        verify_legacy_mount_binding(payload, root, mounted[1])
     descriptor = os.open(root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
     device = os.fstat(descriptor).st_dev
     path = root
@@ -5656,6 +5691,11 @@ def observe(payload):
     result["directoryIdentity"] = {key: result[key] for key in ("filesystemUuid", "device", "inode", "effectiveUid", "effectiveGid", "effectiveMode")}
     result["directoryIdentity"]["aclSha256"] = hashlib.sha256(json.dumps(result["acl"], separators=(",", ":")).encode()).hexdigest()
     result["allowFilesystemRoot"] = result["filesystemRoot"]
+    if payload.get("allowLegacyMountRoot") is True:
+        result["allowLegacyMountRoot"] = True
+        result["expectedFilesystemUuid"] = payload.get("expectedFilesystemUuid")
+        result["expectedVolumeSerial"] = payload.get("expectedVolumeSerial")
+        result["expectedSizeBytes"] = payload.get("expectedSizeBytes")
     if payload.get("rootInitialization") is not None:
         result["rootInitialization"] = payload["rootInitialization"]
     return result
