@@ -105,4 +105,12 @@ class StorageRootDataInspectionTest(unittest.TestCase):
         with patch.object(module.subprocess,'run',side_effect=subprocess.TimeoutExpired('wipefs',8)):
             self.assertFalse(module.inspect_signatures('/dev/selected')['available'])
 
+    def test_partial_uuid_prefix_is_rejected_but_exact_qemu_twenty_character_serial_is_allowed(self):
+        token=self.volume.replace("-","")
+        for serial in (token[:8],token[:19],token[:21],"prefix"+token):
+            self.disk["serial"]=serial
+            with self.assertRaises(Exception):self.inspect()
+        self.disk["serial"]=token[:20]
+        self.assertEqual("EXACT",self.inspect()[0]["mappingStatus"])
+
 if __name__=='__main__':unittest.main()
