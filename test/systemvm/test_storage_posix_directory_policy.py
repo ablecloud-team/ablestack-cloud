@@ -132,6 +132,39 @@ class PosixDirectoryPolicyTest(unittest.TestCase):
         with self.assertRaises(ValueError): self.ns["apply_policy_atomic"](self.request, changed, {})
         self.assertEqual("0700", self.snapshot()["effectiveMode"])
 
+    def select_legacy_root(self):
+        self.logical = '/export'
+        self.request = dict(self.request, relativePath='', volumeMountPath=self.logical, allowFilesystemRoot=True,
+                            allowLegacyMountRoot=True, expectedFilesystemUuid='fake-filesystem-uuid', expectedVolumeSerial=self.volume.replace('-','')[:20],
+                            expectedSizeBytes=20*(1<<30), config={'directoryMode':'0750','applyOwner':False})
+        previous = self.ns['run']
+        self.legacy_device = {'path':'/dev/data','type':'disk','name':'data','size':20*(1<<30),
+                              'serial':self.request['expectedVolumeSerial'],'uuid':'fake-filesystem-uuid','mountpoint':'/export'}
+        def observed(argv, **kwargs):
+            if argv[0]=='lsblk': return SimpleNamespace(stdout=json.dumps({'blockdevices':[self.legacy_device]}))
+            if argv[0]=='findmnt' and argv[3]=='SOURCE':return SimpleNamespace(stdout='/dev/data\n')
+            return previous(argv, **kwargs)
+        self.ns['run']=observed
+
+    def test_explicit_legacy_data_root_binding_preserves_data_and_requires_preview_cas(self):
+        self.select_legacy_root()
+        path, filesystem, descriptor = self.ns['path_identity'](self.request);self.addCleanup(os.close,descriptor)
+        self.ns.update(request=self.request,canonical_path=path,filesystem_uuid=filesystem,directory_fd=descriptor)
+        before=self.snapshot();child=self.child.stat()
+        self.assertTrue(before['allowLegacyMountRoot']);self.assertEqual('fake-filesystem-uuid',before['expectedFilesystemUuid'])
+        with self.assertRaises(ValueError):self.ns['apply_policy_atomic'](self.request,before,{})
+        self.request['expectedDirectoryIdentity']=before['directoryIdentity']
+        self.ns['apply_policy_atomic'](self.request,before,{})
+        self.assertEqual(child,self.child.stat());self.assertEqual('Existing child data remains unchanged',self.child.read_text())
+
+    def test_legacy_mount_foreign_serial_root_device_or_filesystem_uuid_is_rejected(self):
+        self.select_legacy_root()
+        for changes in ({'serial':'foreign'},{'mountpoint':'/'},{'uuid':'foreign'}):
+            original=dict(self.legacy_device);self.legacy_device.update(changes)
+            with self.assertRaises(ValueError):self.ns['path_identity'](self.request)
+            self.legacy_device.clear();self.legacy_device.update(original)
+        with self.assertRaises(ValueError):self.ns['path_identity']({**self.request,'volumeMountPath':'/export/../outside'})
+
     def test_filesystem_root_acl_change_invalidates_even_an_unchanged_inode_preview(self):
         self.select_filesystem_root(); before = self.snapshot()
         self.request["expectedDirectoryIdentity"] = before["directoryIdentity"]
