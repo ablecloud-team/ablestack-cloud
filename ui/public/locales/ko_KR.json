@@ -8754,5 +8754,16 @@
   "message.nfs.permission.no.root": "No root squash의 새 디렉터리는 0:0과 0770을 권장하며 직접 변경할 수 있습니다. 기존 디렉터리의 권한 변경은 별도 미리보기와 명시적 적용이 필요합니다.",
   "message.nfs.permission.root": "Root squash의 새 디렉터리는 선택한 익명 UID:GID와 0775를 권장합니다. 별도 디렉터리 정책을 검토하고 적용하기 전에는 기존 데이터 권한을 유지합니다.",
   "message.nfs.permission.all": "All squash의 새 디렉터리는 root squash 여부와 관계없이 선택한 익명 UID:GID와 0775를 권장합니다. 기존 권한 변경은 별도 디렉터리 정책으로 검토해야 합니다.",
-  "message.nfs.permission.recursive.separate": "재귀 권한 변경은 별도 미리보기와 확인이 필요합니다. 프로토콜 설정 반영은 기존 데이터를 재귀적으로 변경하지 않습니다."
+  "message.nfs.permission.recursive.separate": "재귀 권한 변경은 별도 미리보기와 확인이 필요합니다. 프로토콜 설정 반영은 기존 데이터를 재귀적으로 변경하지 않습니다.",
+  "label.storage.volume.preparation": "백킹 볼륨 준비 상태",
+  "label.storage.volume.auto.observe": "자동 업데이트",
+  "label.storage.volume.formatter.active": "포맷 프로세스 실행 중",
+  "label.storage.volume.operation": "작업",
+  "label.storage.volume.deadline": "포맷 제한 시간(초)",
+  "label.storage.volume.current.device": "현재 장치",
+  "label.storage.volume.fs.uuid": "파일 시스템 UUID",
+  "label.storage.volume.historical.device": "작업 당시 기록된 장치",
+  "label.storage.volume.mount": "마운트 경로",
+  "message.storage.volume.observe.failed": "준비 상태를 새로 조회하지 못했습니다. 이전 관측을 유지합니다. 업데이트를 눌러 현재 상태를 다시 확인하세요.",
+  "message.storage.volume.historical.device": "작업 당시 장치 경로는 과거 기록입니다. 복구는 볼륨 일련번호와 파일 시스템을 새로 확인하며, 기록된 장치 경로를 재사용하지 않습니다."
 }

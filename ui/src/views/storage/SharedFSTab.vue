@@ -42,6 +42,7 @@ class="storage-service__alert"
       <a-tab-pane :tab="$t('label.details')" key="details">
         <DetailsTab :resource="dataResource" :loading="loading" />
         <storage-operation-history ref="storageOperationHistory" v-if="storageService.instance && 'listStorageServiceOperations' in $store.getters.apis" :instance-id="storageService.instance.id" />
+        <storage-volume-preparation v-if="storageService.instance && 'getStorageServiceVolumePreparation' in $store.getters.apis" :instance-id="storageService.instance.id" :volumes="currentBackingVolumes" />
         <storage-service-configuration v-if="storageService.instance && 'listStorageServiceConfigBackups' in $store.getters.apis" :instance-id="storageService.instance.id" :resource="dataResource" @operation-updated="refreshStorageOperationHistory" />
         <storage-service-template-upgrade-history v-if="'listStorageServiceTemplateUpgrades' in $store.getters.apis" :resource="dataResource" @operation-updated="refreshTemplateOperationHistory" />
         <div v-if="hasStorageServiceApi" class="storage-service storage-service--overview">
@@ -2326,6 +2327,7 @@ import TooltipButton from '@/components/widgets/TooltipButton'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import SmbNetworkAccess from '@/views/storage/SmbNetworkAccess'
 import SmbCreationOptions from '@/views/storage/SmbCreationOptions'
+import StorageVolumePreparation from '@/views/storage/StorageVolumePreparation'
 import PosixDirectoryPolicies from '@/views/storage/PosixDirectoryPolicies'
 import PosixPolicyInheritance from '@/views/storage/PosixPolicyInheritance'
 import NfsPermissionRecommendations from '@/views/storage/NfsPermissionRecommendations'
@@ -2548,6 +2550,7 @@ export default {
     TooltipLabel,
     SmbNetworkAccess,
     SmbCreationOptions,
+    StorageVolumePreparation,
     PosixDirectoryPolicies,
     PosixPolicyInheritance,
     NfsPermissionRecommendations,
