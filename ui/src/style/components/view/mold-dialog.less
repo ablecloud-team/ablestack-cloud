@@ -133,6 +133,12 @@
 .mold-form-dialog > .action-button { flex: 0 0 auto; margin: 16px 0 0; padding: 16px 0 0; border-top: 1px solid var(--ui-border); }
 .mold-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 24px; }
 .mold-form-full { grid-column: ~"1 / -1"; }
+/* Keep vertical grid fields stacked when AntD applies mobile column flex-basis. */
+.mold-form-dialog.ant-form-vertical .mold-form-grid > .ant-form-item {
+  flex-wrap: nowrap;
+  > .ant-form-item-label,
+  > .ant-form-item-control { flex: 0 0 auto; width: 100%; min-width: 0; }
+}
 body .mold-dialog.network-rule-dialog .form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 24px; margin: 0 0 20px; padding: 0; }
 body .mold-dialog.network-rule-dialog .form__item { width: 100%; min-width: 0; margin: 0; }
 body .mold-dialog.network-rule-dialog .form__label { font-size: 14px; font-weight: 600; color: var(--ui-text-primary); margin-bottom: 8px; }
