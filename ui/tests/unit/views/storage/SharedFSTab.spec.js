@@ -373,3 +373,23 @@ describe('SharedFS nested path choices', () => {
     expect(SharedFSTab.methods.nestedBackingPathOptions.call(context, { volumemode: 'EXISTING', volumeid: '' })).toEqual([])
   })
 })
+
+describe('SharedFS hidden backing volume scope', () => {
+  it('loads a hidden UUID only after the visible UUID lookup is empty', async () => {
+    const vm = { $store: { getters: { userInfo: { roletype: 'Admin' } } }, listApi: jest.fn().mockResolvedValueOnce([]).mockResolvedValueOnce([{ id: 'hidden', size: 10995116277760 }]) }
+    const rows = await SharedFSTab.methods.listScopedBackingVolumes.call(vm, { id: 'hidden', listall: true, listsystemvms: true })
+    expect(rows[0].size).toBe(10995116277760)
+    expect(vm.listApi.mock.calls[1]).toEqual(['listVolumes', { id: 'hidden', listall: true, listsystemvms: true, displayvolume: false }, 'volume'])
+  })
+  it('includes hidden volumes beside visible volumes within the same service VM', async () => {
+    const vm = { $store: { getters: { userInfo: { roletype: 'Admin' } } }, listApi: jest.fn().mockResolvedValueOnce([{ id: 'visible' }]).mockResolvedValueOnce([{ id: 'hidden' }]) }
+    expect(await SharedFSTab.methods.listScopedBackingVolumes.call(vm, { virtualmachineid: 'service-vm' })).toEqual([{ id: 'visible' }, { id: 'hidden' }])
+  })
+  it('does not request root-only hidden data for a regular user or an unscoped list', async () => {
+    const vm = { $store: { getters: { userInfo: { roletype: 'User' } } }, listApi: jest.fn().mockResolvedValue([]) }
+    await SharedFSTab.methods.listScopedBackingVolumes.call(vm, { id: 'known' })
+    expect(vm.listApi).toHaveBeenCalledTimes(1)
+    await expect(SharedFSTab.methods.listScopedBackingVolumes.call(vm, {})).rejects.toThrow('scope')
+    expect(vm.listApi).toHaveBeenCalledTimes(1)
+  })
+})
