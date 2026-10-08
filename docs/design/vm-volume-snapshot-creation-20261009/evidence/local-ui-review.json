@@ -1,0 +1,516 @@
+{
+  "sourceCommit": "04f90128924ec783a4a41838df7bac8065a8502a",
+  "scope": "LOCAL_ERROR_STATE_DISPLAY_ONLY_PREVIOUS_MANAGEMENT_API_NO_VM_CREATION",
+  "displayChecks": [
+    {
+      "createButton": [
+        {
+          "disabled": true,
+          "text": "가상머신 생성"
+        }
+      ],
+      "documentWidth": 1670,
+      "emptyStyle": {
+        "background": "rgb(255, 255, 255)",
+        "foreground": "rgb(75, 85, 99)"
+      },
+      "labels": [
+        "템플릿",
+        "ISO",
+        "볼륨",
+        "스냅샷"
+      ],
+      "placeholderColor": "rgb(75, 85, 99)",
+      "selectedStyle": {
+        "background": "rgb(230, 244, 255)",
+        "foreground": "rgb(9, 105, 218)"
+      },
+      "selectedType": "volumeid",
+      "sourceText": "템플릿\nISO\n볼륨\n스냅샷\n기존 볼륨을 그대로 루트 디스크로 사용합니다. 복사본을 만들지 않습니다. 원본 저장소와 크기를 유지합니다.\n사용 가능한 원본만 보기\n업데이트\n생성 원본을 조회하지 못했습니다. 새로 고침하여 다시 확인하세요.\n서버의 생성 원본 API를 확인할 수 없습니다. 관리 서버 버전과 API 권한을 확인하세요.\n\t이름 / UUID\t출처 / 운영체제\t상태 / 복구 시점\t논리 용량 / 부팅\t저장소 / 범위\t사용 가능 여부\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n\n생성 원본을 조회하지 못했습니다. 새로 고침하여 다시 확인하세요.",
+      "sourceWidth": 891.078125,
+      "viewport": {
+        "height": 900,
+        "width": 1680
+      },
+      "label": "local-ui-volume-light-1680",
+      "screenshot": "local-ui-volume-light-1680.png",
+      "noPageHorizontalOverflow": true,
+      "noCreationTranslationKeys": true,
+      "emptyContrast": 7.557378129674007,
+      "selectedContrast": 4.635489920795544,
+      "placeholderContrast": 7.557378129674007
+    },
+    {
+      "createButton": [
+        {
+          "disabled": true,
+          "text": "가상머신 생성"
+        }
+      ],
+      "documentWidth": 1356,
+      "emptyStyle": {
+        "background": "rgb(255, 255, 255)",
+        "foreground": "rgb(75, 85, 99)"
+      },
+      "labels": [
+        "템플릿",
+        "ISO",
+        "볼륨",
+        "스냅샷"
+      ],
+      "placeholderColor": "rgb(75, 85, 99)",
+      "selectedStyle": {
+        "background": "rgb(230, 244, 255)",
+        "foreground": "rgb(9, 105, 218)"
+      },
+      "selectedType": "volumeid",
+      "sourceText": "템플릿\nISO\n볼륨\n스냅샷\n기존 볼륨을 그대로 루트 디스크로 사용합니다. 복사본을 만들지 않습니다. 원본 저장소와 크기를 유지합니다.\n사용 가능한 원본만 보기\n업데이트\n생성 원본을 조회하지 못했습니다. 새로 고침하여 다시 확인하세요.\n서버의 생성 원본 API를 확인할 수 없습니다. 관리 서버 버전과 API 권한을 확인하세요.\n\t이름 / UUID\t출처 / 운영체제\t상태 / 복구 시점\t논리 용량 / 부팅\t저장소 / 범위\t사용 가능 여부\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n\n생성 원본을 조회하지 못했습니다. 새로 고침하여 다시 확인하세요.",
+      "sourceWidth": 668.65625,
+      "viewport": {
+        "height": 900,
+        "width": 1366
+      },
+      "label": "local-ui-volume-light-1366",
+      "screenshot": "local-ui-volume-light-1366.png",
+      "noPageHorizontalOverflow": true,
+      "noCreationTranslationKeys": true,
+      "emptyContrast": 7.557378129674007,
+      "selectedContrast": 4.635489920795544,
+      "placeholderContrast": 7.557378129674007
+    },
+    {
+      "createButton": [
+        {
+          "disabled": true,
+          "text": "가상머신 생성"
+        }
+      ],
+      "documentWidth": 380,
+      "emptyStyle": {
+        "background": "rgb(255, 255, 255)",
+        "foreground": "rgb(75, 85, 99)"
+      },
+      "labels": [
+        "템플릿",
+        "ISO",
+        "볼륨",
+        "스냅샷"
+      ],
+      "placeholderColor": "rgb(75, 85, 99)",
+      "selectedStyle": {
+        "background": "rgb(230, 244, 255)",
+        "foreground": "rgb(9, 105, 218)"
+      },
+      "selectedType": "volumeid",
+      "sourceText": "템플릿\nISO\n볼륨\n스냅샷\n기존 볼륨을 그대로 루트 디스크로 사용합니다. 복사본을 만들지 않습니다. 원본 저장소와 크기를 유지합니다.\n사용 가능한 원본만 보기\n업데이트\n생성 원본을 조회하지 못했습니다. 새로 고침하여 다시 확인하세요.\n서버의 생성 원본 API를 확인할 수 없습니다. 관리 서버 버전과 API 권한을 확인하세요.\n\t이름 / UUID\t출처 / 운영체제\t상태 / 복구 시점\t논리 용량 / 부팅\t저장소 / 범위\t사용 가능 여부\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n\n생성 원본을 조회하지 못했습니다. 새로 고침하여 다시 확인하세요.",
+      "sourceWidth": 256,
+      "viewport": {
+        "height": 844,
+        "width": 390
+      },
+      "label": "local-ui-volume-light-390",
+      "screenshot": "local-ui-volume-light-390.png",
+      "noPageHorizontalOverflow": true,
+      "noCreationTranslationKeys": true,
+      "emptyContrast": 7.557378129674007,
+      "selectedContrast": 4.635489920795544,
+      "placeholderContrast": 7.557378129674007
+    },
+    {
+      "createButton": [
+        {
+          "disabled": true,
+          "text": "가상머신 생성"
+        }
+      ],
+      "documentWidth": 1670,
+      "emptyStyle": {
+        "background": "rgb(255, 255, 255)",
+        "foreground": "rgb(75, 85, 99)"
+      },
+      "labels": [
+        "템플릿",
+        "ISO",
+        "볼륨",
+        "스냅샷"
+      ],
+      "placeholderColor": "rgb(75, 85, 99)",
+      "selectedStyle": {
+        "background": "rgb(230, 244, 255)",
+        "foreground": "rgb(9, 105, 218)"
+      },
+      "selectedType": "snapshotid",
+      "sourceText": "템플릿\nISO\n볼륨\n스냅샷\n스냅샷 시점의 루트 디스크에서 새 디스크를 복구합니다. 원본 스냅샷과 기존 가상머신은 유지합니다. 데이터 디스크와 메모리는 자동 복구하지 않습니다.\n사용 가능한 원본만 보기\n업데이트\n생성 원본을 조회하지 못했습니다. 새로 고침하여 다시 확인하세요.\n서버의 생성 원본 API를 확인할 수 없습니다. 관리 서버 버전과 API 권한을 확인하세요.\n\t이름 / UUID\t출처 / 운영체제\t상태 / 복구 시점\t논리 용량 / 부팅\t저장소 / 범위\t사용 가능 여부\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n\n생성 원본을 조회하지 못했습니다. 새로 고침하여 다시 확인하세요.",
+      "sourceWidth": 891.078125,
+      "viewport": {
+        "height": 900,
+        "width": 1680
+      },
+      "label": "local-ui-snapshot-light-1680",
+      "screenshot": "local-ui-snapshot-light-1680.png",
+      "noPageHorizontalOverflow": true,
+      "noCreationTranslationKeys": true,
+      "emptyContrast": 7.557378129674007,
+      "selectedContrast": 4.635489920795544,
+      "placeholderContrast": 7.557378129674007
+    },
+    {
+      "createButton": [
+        {
+          "disabled": true,
+          "text": "가상머신 생성"
+        }
+      ],
+      "documentWidth": 1356,
+      "emptyStyle": {
+        "background": "rgb(255, 255, 255)",
+        "foreground": "rgb(75, 85, 99)"
+      },
+      "labels": [
+        "템플릿",
+        "ISO",
+        "볼륨",
+        "스냅샷"
+      ],
+      "placeholderColor": "rgb(75, 85, 99)",
+      "selectedStyle": {
+        "background": "rgb(230, 244, 255)",
+        "foreground": "rgb(9, 105, 218)"
+      },
+      "selectedType": "snapshotid",
+      "sourceText": "템플릿\nISO\n볼륨\n스냅샷\n스냅샷 시점의 루트 디스크에서 새 디스크를 복구합니다. 원본 스냅샷과 기존 가상머신은 유지합니다. 데이터 디스크와 메모리는 자동 복구하지 않습니다.\n사용 가능한 원본만 보기\n업데이트\n생성 원본을 조회하지 못했습니다. 새로 고침하여 다시 확인하세요.\n서버의 생성 원본 API를 확인할 수 없습니다. 관리 서버 버전과 API 권한을 확인하세요.\n\t이름 / UUID\t출처 / 운영체제\t상태 / 복구 시점\t논리 용량 / 부팅\t저장소 / 범위\t사용 가능 여부\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n\n생성 원본을 조회하지 못했습니다. 새로 고침하여 다시 확인하세요.",
+      "sourceWidth": 668.65625,
+      "viewport": {
+        "height": 900,
+        "width": 1366
+      },
+      "label": "local-ui-snapshot-light-1366",
+      "screenshot": "local-ui-snapshot-light-1366.png",
+      "noPageHorizontalOverflow": true,
+      "noCreationTranslationKeys": true,
+      "emptyContrast": 7.557378129674007,
+      "selectedContrast": 4.635489920795544,
+      "placeholderContrast": 7.557378129674007
+    },
+    {
+      "createButton": [
+        {
+          "disabled": true,
+          "text": "가상머신 생성"
+        }
+      ],
+      "documentWidth": 380,
+      "emptyStyle": {
+        "background": "rgb(255, 255, 255)",
+        "foreground": "rgb(75, 85, 99)"
+      },
+      "labels": [
+        "템플릿",
+        "ISO",
+        "볼륨",
+        "스냅샷"
+      ],
+      "placeholderColor": "rgb(75, 85, 99)",
+      "selectedStyle": {
+        "background": "rgb(230, 244, 255)",
+        "foreground": "rgb(9, 105, 218)"
+      },
+      "selectedType": "snapshotid",
+      "sourceText": "템플릿\nISO\n볼륨\n스냅샷\n스냅샷 시점의 루트 디스크에서 새 디스크를 복구합니다. 원본 스냅샷과 기존 가상머신은 유지합니다. 데이터 디스크와 메모리는 자동 복구하지 않습니다.\n사용 가능한 원본만 보기\n업데이트\n생성 원본을 조회하지 못했습니다. 새로 고침하여 다시 확인하세요.\n서버의 생성 원본 API를 확인할 수 없습니다. 관리 서버 버전과 API 권한을 확인하세요.\n\t이름 / UUID\t출처 / 운영체제\t상태 / 복구 시점\t논리 용량 / 부팅\t저장소 / 범위\t사용 가능 여부\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n\n생성 원본을 조회하지 못했습니다. 새로 고침하여 다시 확인하세요.",
+      "sourceWidth": 256,
+      "viewport": {
+        "height": 844,
+        "width": 390
+      },
+      "label": "local-ui-snapshot-light-390",
+      "screenshot": "local-ui-snapshot-light-390.png",
+      "noPageHorizontalOverflow": true,
+      "noCreationTranslationKeys": true,
+      "emptyContrast": 7.557378129674007,
+      "selectedContrast": 4.635489920795544,
+      "placeholderContrast": 7.557378129674007
+    },
+    {
+      "createButton": [
+        {
+          "disabled": true,
+          "text": "가상머신 생성"
+        }
+      ],
+      "documentWidth": 1670,
+      "emptyStyle": {
+        "background": "rgb(34, 40, 47)",
+        "foreground": "rgb(197, 204, 212)"
+      },
+      "labels": [
+        "템플릿",
+        "ISO",
+        "볼륨",
+        "스냅샷"
+      ],
+      "placeholderColor": "rgb(197, 204, 212)",
+      "selectedStyle": {
+        "background": "rgb(23, 55, 90)",
+        "foreground": "rgb(105, 177, 255)"
+      },
+      "selectedType": "snapshotid",
+      "sourceText": "템플릿\nISO\n볼륨\n스냅샷\n스냅샷 시점의 루트 디스크에서 새 디스크를 복구합니다. 원본 스냅샷과 기존 가상머신은 유지합니다. 데이터 디스크와 메모리는 자동 복구하지 않습니다.\n사용 가능한 원본만 보기\n업데이트\n생성 원본을 조회하지 못했습니다. 새로 고침하여 다시 확인하세요.\n서버의 생성 원본 API를 확인할 수 없습니다. 관리 서버 버전과 API 권한을 확인하세요.\n\t이름 / UUID\t출처 / 운영체제\t상태 / 복구 시점\t논리 용량 / 부팅\t저장소 / 범위\t사용 가능 여부\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n\n생성 원본을 조회하지 못했습니다. 새로 고침하여 다시 확인하세요.",
+      "sourceWidth": 891.078125,
+      "viewport": {
+        "height": 900,
+        "width": 1680
+      },
+      "label": "local-ui-snapshot-dark-1680",
+      "screenshot": "local-ui-snapshot-dark-1680.png",
+      "noPageHorizontalOverflow": true,
+      "noCreationTranslationKeys": true,
+      "emptyContrast": 9.176047597421213,
+      "selectedContrast": 5.3933950152862,
+      "placeholderContrast": 9.176047597421213
+    },
+    {
+      "createButton": [
+        {
+          "disabled": true,
+          "text": "가상머신 생성"
+        }
+      ],
+      "documentWidth": 1356,
+      "emptyStyle": {
+        "background": "rgb(34, 40, 47)",
+        "foreground": "rgb(197, 204, 212)"
+      },
+      "labels": [
+        "템플릿",
+        "ISO",
+        "볼륨",
+        "스냅샷"
+      ],
+      "placeholderColor": "rgb(197, 204, 212)",
+      "selectedStyle": {
+        "background": "rgb(23, 55, 90)",
+        "foreground": "rgb(105, 177, 255)"
+      },
+      "selectedType": "snapshotid",
+      "sourceText": "템플릿\nISO\n볼륨\n스냅샷\n스냅샷 시점의 루트 디스크에서 새 디스크를 복구합니다. 원본 스냅샷과 기존 가상머신은 유지합니다. 데이터 디스크와 메모리는 자동 복구하지 않습니다.\n사용 가능한 원본만 보기\n업데이트\n생성 원본을 조회하지 못했습니다. 새로 고침하여 다시 확인하세요.\n서버의 생성 원본 API를 확인할 수 없습니다. 관리 서버 버전과 API 권한을 확인하세요.\n\t이름 / UUID\t출처 / 운영체제\t상태 / 복구 시점\t논리 용량 / 부팅\t저장소 / 범위\t사용 가능 여부\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n\n생성 원본을 조회하지 못했습니다. 새로 고침하여 다시 확인하세요.",
+      "sourceWidth": 668.65625,
+      "viewport": {
+        "height": 900,
+        "width": 1366
+      },
+      "label": "local-ui-snapshot-dark-1366",
+      "screenshot": "local-ui-snapshot-dark-1366.png",
+      "noPageHorizontalOverflow": true,
+      "noCreationTranslationKeys": true,
+      "emptyContrast": 9.176047597421213,
+      "selectedContrast": 5.3933950152862,
+      "placeholderContrast": 9.176047597421213
+    },
+    {
+      "createButton": [
+        {
+          "disabled": true,
+          "text": "가상머신 생성"
+        }
+      ],
+      "documentWidth": 380,
+      "emptyStyle": {
+        "background": "rgb(34, 40, 47)",
+        "foreground": "rgb(197, 204, 212)"
+      },
+      "labels": [
+        "템플릿",
+        "ISO",
+        "볼륨",
+        "스냅샷"
+      ],
+      "placeholderColor": "rgb(197, 204, 212)",
+      "selectedStyle": {
+        "background": "rgb(23, 55, 90)",
+        "foreground": "rgb(105, 177, 255)"
+      },
+      "selectedType": "snapshotid",
+      "sourceText": "템플릿\nISO\n볼륨\n스냅샷\n스냅샷 시점의 루트 디스크에서 새 디스크를 복구합니다. 원본 스냅샷과 기존 가상머신은 유지합니다. 데이터 디스크와 메모리는 자동 복구하지 않습니다.\n사용 가능한 원본만 보기\n업데이트\n생성 원본을 조회하지 못했습니다. 새로 고침하여 다시 확인하세요.\n서버의 생성 원본 API를 확인할 수 없습니다. 관리 서버 버전과 API 권한을 확인하세요.\n\t이름 / UUID\t출처 / 운영체제\t상태 / 복구 시점\t논리 용량 / 부팅\t저장소 / 범위\t사용 가능 여부\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n\n생성 원본을 조회하지 못했습니다. 새로 고침하여 다시 확인하세요.",
+      "sourceWidth": 256,
+      "viewport": {
+        "height": 844,
+        "width": 390
+      },
+      "label": "local-ui-snapshot-dark-390",
+      "screenshot": "local-ui-snapshot-dark-390.png",
+      "noPageHorizontalOverflow": true,
+      "noCreationTranslationKeys": true,
+      "emptyContrast": 9.176047597421213,
+      "selectedContrast": 5.3933950152862,
+      "placeholderContrast": 9.176047597421213
+    },
+    {
+      "createButton": [
+        {
+          "disabled": true,
+          "text": "가상머신 생성"
+        }
+      ],
+      "documentWidth": 1670,
+      "emptyStyle": {
+        "background": "rgb(34, 40, 47)",
+        "foreground": "rgb(197, 204, 212)"
+      },
+      "labels": [
+        "템플릿",
+        "ISO",
+        "볼륨",
+        "스냅샷"
+      ],
+      "placeholderColor": "rgb(197, 204, 212)",
+      "selectedStyle": {
+        "background": "rgb(23, 55, 90)",
+        "foreground": "rgb(105, 177, 255)"
+      },
+      "selectedType": "volumeid",
+      "sourceText": "템플릿\nISO\n볼륨\n스냅샷\n기존 볼륨을 그대로 루트 디스크로 사용합니다. 복사본을 만들지 않습니다. 원본 저장소와 크기를 유지합니다.\n사용 가능한 원본만 보기\n업데이트\n생성 원본을 조회하지 못했습니다. 새로 고침하여 다시 확인하세요.\n서버의 생성 원본 API를 확인할 수 없습니다. 관리 서버 버전과 API 권한을 확인하세요.\n\t이름 / UUID\t출처 / 운영체제\t상태 / 복구 시점\t논리 용량 / 부팅\t저장소 / 범위\t사용 가능 여부\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n\n생성 원본을 조회하지 못했습니다. 새로 고침하여 다시 확인하세요.",
+      "sourceWidth": 891.078125,
+      "viewport": {
+        "height": 900,
+        "width": 1680
+      },
+      "label": "local-ui-volume-dark-1680",
+      "screenshot": "local-ui-volume-dark-1680.png",
+      "noPageHorizontalOverflow": true,
+      "noCreationTranslationKeys": true,
+      "emptyContrast": 9.176047597421213,
+      "selectedContrast": 5.3933950152862,
+      "placeholderContrast": 9.176047597421213
+    },
+    {
+      "createButton": [
+        {
+          "disabled": true,
+          "text": "가상머신 생성"
+        }
+      ],
+      "documentWidth": 1356,
+      "emptyStyle": {
+        "background": "rgb(34, 40, 47)",
+        "foreground": "rgb(197, 204, 212)"
+      },
+      "labels": [
+        "템플릿",
+        "ISO",
+        "볼륨",
+        "스냅샷"
+      ],
+      "placeholderColor": "rgb(197, 204, 212)",
+      "selectedStyle": {
+        "background": "rgb(23, 55, 90)",
+        "foreground": "rgb(105, 177, 255)"
+      },
+      "selectedType": "volumeid",
+      "sourceText": "템플릿\nISO\n볼륨\n스냅샷\n기존 볼륨을 그대로 루트 디스크로 사용합니다. 복사본을 만들지 않습니다. 원본 저장소와 크기를 유지합니다.\n사용 가능한 원본만 보기\n업데이트\n생성 원본을 조회하지 못했습니다. 새로 고침하여 다시 확인하세요.\n서버의 생성 원본 API를 확인할 수 없습니다. 관리 서버 버전과 API 권한을 확인하세요.\n\t이름 / UUID\t출처 / 운영체제\t상태 / 복구 시점\t논리 용량 / 부팅\t저장소 / 범위\t사용 가능 여부\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n\n생성 원본을 조회하지 못했습니다. 새로 고침하여 다시 확인하세요.",
+      "sourceWidth": 668.65625,
+      "viewport": {
+        "height": 900,
+        "width": 1366
+      },
+      "label": "local-ui-volume-dark-1366",
+      "screenshot": "local-ui-volume-dark-1366.png",
+      "noPageHorizontalOverflow": true,
+      "noCreationTranslationKeys": true,
+      "emptyContrast": 9.176047597421213,
+      "selectedContrast": 5.3933950152862,
+      "placeholderContrast": 9.176047597421213
+    },
+    {
+      "createButton": [
+        {
+          "disabled": true,
+          "text": "가상머신 생성"
+        }
+      ],
+      "documentWidth": 380,
+      "emptyStyle": {
+        "background": "rgb(34, 40, 47)",
+        "foreground": "rgb(197, 204, 212)"
+      },
+      "labels": [
+        "템플릿",
+        "ISO",
+        "볼륨",
+        "스냅샷"
+      ],
+      "placeholderColor": "rgb(197, 204, 212)",
+      "selectedStyle": {
+        "background": "rgb(23, 55, 90)",
+        "foreground": "rgb(105, 177, 255)"
+      },
+      "selectedType": "volumeid",
+      "sourceText": "템플릿\nISO\n볼륨\n스냅샷\n기존 볼륨을 그대로 루트 디스크로 사용합니다. 복사본을 만들지 않습니다. 원본 저장소와 크기를 유지합니다.\n사용 가능한 원본만 보기\n업데이트\n생성 원본을 조회하지 못했습니다. 새로 고침하여 다시 확인하세요.\n서버의 생성 원본 API를 확인할 수 없습니다. 관리 서버 버전과 API 권한을 확인하세요.\n\t이름 / UUID\t출처 / 운영체제\t상태 / 복구 시점\t논리 용량 / 부팅\t저장소 / 범위\t사용 가능 여부\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n\n생성 원본을 조회하지 못했습니다. 새로 고침하여 다시 확인하세요.",
+      "sourceWidth": 256,
+      "viewport": {
+        "height": 844,
+        "width": 390
+      },
+      "label": "local-ui-volume-dark-390",
+      "screenshot": "local-ui-volume-dark-390.png",
+      "noPageHorizontalOverflow": true,
+      "noCreationTranslationKeys": true,
+      "emptyContrast": 9.176047597421213,
+      "selectedContrast": 5.3933950152862,
+      "placeholderContrast": 9.176047597421213
+    }
+  ],
+  "keyboardSourceCommit": "46597839c7866d38a8564527bfb61b4efd8bf785",
+  "keyboardChecks": [
+    {
+      "transition": "template-to-volume",
+      "focusedValue": "volumeid",
+      "staleTemplateSummary": false
+    },
+    {
+      "checked": true,
+      "focusedTag": "INPUT",
+      "focusedValue": "isoid",
+      "expected": "isoid",
+      "pass": true
+    },
+    {
+      "checked": true,
+      "focusedTag": "INPUT",
+      "focusedValue": "templateid",
+      "expected": "templateid",
+      "pass": true
+    },
+    {
+      "checked": true,
+      "focusedTag": "INPUT",
+      "focusedValue": "isoid",
+      "expected": "isoid",
+      "pass": true
+    },
+    {
+      "checked": true,
+      "focusedTag": "INPUT",
+      "focusedValue": "volumeid",
+      "expected": "volumeid",
+      "pass": true
+    },
+    {
+      "checked": true,
+      "focusedTag": "INPUT",
+      "focusedValue": "snapshotid",
+      "expected": "snapshotid",
+      "pass": true
+    }
+  ],
+  "horizontalScroll": {
+    "clientWidth": 669,
+    "scrollLeft": 211,
+    "scrollWidth": 880,
+    "documentWidth": 1356,
+    "viewport": 1366
+  },
+  "limitations": [
+    "Actual deployed candidate, summary, confirmation, job success/failure/reentry and all 16 VM creation/boot cases are NOT_RUN.",
+    "Existing global alert banner text overlaps buttons in the 390px viewport."
+  ]
+}

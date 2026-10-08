@@ -1,0 +1,35 @@
+{
+  "base": "2871963cd43aeb592f619c1b67d8a5974846409d",
+  "run": 37830071871,
+  "testSuites": {
+    "failed": 5,
+    "passed": 102
+  },
+  "tests": {
+    "failed": 9,
+    "passed": 1035
+  },
+  "failedSuiteSources": [
+    {
+      "path": "ui/tests/unit/utils/vmNicActions.spec.js",
+      "changedByEpic": false
+    },
+    {
+      "path": "ui/tests/unit/utils/vmDiskDeployment.spec.js",
+      "changedByEpic": false
+    },
+    {
+      "path": "ui/tests/unit/components/GuestNetworkSummary.spec.js",
+      "changedByEpic": false
+    },
+    {
+      "path": "ui/tests/unit/views/OAuthActionSchema.spec.js",
+      "changedByEpic": false
+    },
+    {
+      "path": "ui/tests/unit/autoAlertDiscovery.spec.js",
+      "changedByEpic": false
+    }
+  ],
+  "note": "Failures on unchanged tests; this does not assert the full baseline CI was rerun. Node14 Array.at incompatibility observed in vmDiskDeployment.spec.js."
+}

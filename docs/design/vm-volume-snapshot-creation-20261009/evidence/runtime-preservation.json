@@ -1,0 +1,60 @@
+[
+  {
+    "cluster": 31,
+    "jarSha256": "74d9335bc8f311f7799a66a198e30273f403ac2673352be189281bb3b30fe321",
+    "service": "active",
+    "clientHttp": 200,
+    "webInfPresent": true,
+    "activeJarUnchanged": true,
+    "userVmCount": 74,
+    "userVmIdsUnchanged": true,
+    "hostStates": [
+      {
+        "name": "ablecube31-1",
+        "state": "Up",
+        "version": "4.23.0.0-Mold.Europa-202609222315"
+      },
+      {
+        "name": "ablecube31-2",
+        "state": "Up",
+        "version": "4.23.0.0-Mold.Europa-202609222315"
+      },
+      {
+        "name": "ablecube31-3",
+        "state": "Up",
+        "version": "4.23.0.0-Mold.Europa-202609222315"
+      }
+    ],
+    "creationApi": "Unknown API command: listVirtualMachineCreationSources",
+    "scope": "READ_ONLY_NO_SERVICE_OR_VM_CHANGE"
+  },
+  {
+    "cluster": 32,
+    "jarSha256": "44710304f7a3602bccde89e4ec6218dad134034d4e57268166a941ba5b531b83",
+    "service": "active",
+    "clientHttp": 200,
+    "webInfPresent": true,
+    "activeJarUnchanged": true,
+    "userVmCount": 13,
+    "userVmIdsUnchanged": true,
+    "hostStates": [
+      {
+        "name": "ablecube32-1",
+        "state": "Up",
+        "version": "4.23.0.0"
+      },
+      {
+        "name": "ablecube32-2",
+        "state": "Up",
+        "version": "4.23.0.0"
+      },
+      {
+        "name": "ablecube32-3",
+        "state": "Up",
+        "version": "4.23.0.0"
+      }
+    ],
+    "creationApi": "Unknown API command: listVirtualMachineCreationSources",
+    "scope": "READ_ONLY_NO_SERVICE_OR_VM_CHANGE"
+  }
+]

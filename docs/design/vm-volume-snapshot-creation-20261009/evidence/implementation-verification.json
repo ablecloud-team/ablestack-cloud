@@ -1,0 +1,73 @@
+{
+  "epic": 1335,
+  "status": "IMPLEMENTED_PENDING_DEPLOYMENT_AND_UI_E2E",
+  "managementSourceCommit": "3223a396342c39d909869b0128a60085d80ed740",
+  "managementChangedClasses": 68,
+  "changedModules": [
+    "api",
+    "core",
+    "server",
+    "engine/orchestration",
+    "plugins/hypervisors/kvm"
+  ],
+  "javaTests": {
+    "api": 65,
+    "server": 40,
+    "orchestration": 48,
+    "kvmMatcher": 1,
+    "totalPassed": 154
+  },
+  "uiFocusedTestsPassed": 21,
+  "checkstyleErrors": 0,
+  "changedModuleRat": "PASS",
+  "trackedSourceRat": "PASS",
+  "managementArtifacts": {
+    "31": {
+      "sha256": "621afb62eaa991c7caec9f7ce8877b8f6280301b5b705340675bf74edbdd3375",
+      "status": "STAGED_ONLY"
+    },
+    "32": {
+      "sha256": "7451c740df28e198e5778f33e558a4650c6792756354a9389edd955a271e82c0",
+      "status": "STAGED_ONLY"
+    }
+  },
+  "agentRuntimeReadOnlyChecks": {
+    "cluster": 32,
+    "hosts": 3,
+    "passed": 6,
+    "scope": "UNUSED_AND_ACTIVE_DISK_IDENTIFICATION_ONLY"
+  },
+  "uiE2E": {
+    "requiredRepresentativeCases": 16,
+    "passed": 0,
+    "failed": 0,
+    "notRun": 16,
+    "reason": "Management JAR activation and mold restart were rejected by automatic approval review. No detailed reason was supplied. Human approval request is pending."
+  },
+  "localBrowserReview": {
+    "sourceCommit": "04f90128924ec783a4a41838df7bac8065a8502a",
+    "displayViews": 12,
+    "scope": "LOCAL_ERROR_STATE_DISPLAY_ONLY_PREVIOUS_MANAGEMENT_API_NO_VM_CREATION",
+    "status": "OBSERVED_SOURCE_ERROR_STATE_CHECKS_PASS_WITH_RECORDED_GLOBAL_BANNER_LIMITATION",
+    "evidence": "local-ui-review.json",
+    "actualVmCreationCasesNotRun": 16
+  },
+  "issuesClosed": [],
+  "pr": "https://github.com/ablecloud-team/ablestack-cloud/pull/1344",
+  "prDraft": true,
+  "uiArtifact": {
+    "sourceCommit": "04f90128924ec783a4a41838df7bac8065a8502a",
+    "file": "ui-epic1335-04f90128924.tgz",
+    "sha256": "7d1fad3f00b9fdf52eb336b891aa76a73017f0b79fab3f223d757f6e12d69f6c",
+    "bytes": 15085157,
+    "status": "STAGED_ONLY",
+    "build": {
+      "sourceCommit": "04f90128924ec783a4a41838df7bac8065a8502a",
+      "command": "npm run build",
+      "buildVersion": "v4.23.0-Europa-20261009-RC1",
+      "exitCode": 0,
+      "status": "PASS"
+    }
+  },
+  "sourceClassHashesMatchFinalWorktree": true
+}
