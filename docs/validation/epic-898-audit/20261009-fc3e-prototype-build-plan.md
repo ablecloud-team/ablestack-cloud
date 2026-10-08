@@ -74,3 +74,15 @@ Local budget은 새 source/output/roundtrip 및 guest build를 합해 최소 32 
 실패 시 자기 local build process와 owned NBD/mount만 정리하고 실패 로그·원인·partial artifact를 보존한다. Cloud API 등록/VM 생성/13번 host 배포·재시작·DATA 변경은 build GO에도 포함하지 않으며 별도 parent GO가 필요하다. 원본/partial/Client47 및 최종 UI는 변경하지 않는다.
 
 준비 proof는 acceptance-audit/fc3e-prototype-build-readiness-source.json에 source file hashes·sealed 지원 및 artifactBuildExecuted=false로 저장했다. 이 계획 단계에서 image·private key·local build VM은 생성하지 않았다.
+
+## 실제 로컬 빌드 진행 — 2026-10-09 01:03 KST 기준
+
+부모 GO 이후 `fc3e7f5c134828288ac89dc98300533ffcb909ff`의 clean detached ext4 clone에서 fresh ISO Packer 정규 빌드를 시작했다. signing key는 새 prototype용 Ed25519이며 sealed memfd에만 존재한다. 공개 키만 isolated source의 trust directory에 넣었다. canonical source/기존 ea392 artifact는 변경하지 않았다.
+
+실제 초기 생성 argv는 `qemu-img create -f qcow2 -o preallocation=metadata ../dist/systemvmtemplate 5000M`이다. 초기 qcow2는 backing-none, virtual 5,242,880,000 B, 실제 할당 991,232 B, 필요한 L2 table 10 개가 모두 할당됐다. create/convert의 실제 argv를 외부 observer로 기록하며 `-b`, `-c` 또는 metadata preallocation 누락은 거절한다.
+
+SSH reset 대기는 설치 전 guest 상태였으며 읽기 전용 VNC에서 software 설치 → GRUB → finishing/update-initramfs → guest boot까지 전진을 확인했다. 화면 입력·recipe 수정·임의 PID 종료는 0 회다. 이후 Packer SSH가 정상 연결됐고 pinned 6.12.95 kernel을 설치/hold한 뒤 기본 SystemVM package provision을 수행 중이다.
+
+별도 readonly builder 자원 관측에서 ROOT 여유 2,557,394,944 B, boot 여유 245,021,696 B, RAM available 1,632 MiB, swap 0을 확인했다. 로컬 host의 ext4 여유는 약 821 GiB, RAM available은 약 28 GiB였다. 모든 자원 수치는 해당 시각의 관측이며 Ganesha compile 완료를 뜻하지 않는다.
+
+증빙은 `fc3e-prototype-build-control/build-start.json`, `qemu-img-argv.jsonl`, `initial-sparse-image-layout.json`, `installer-console-observation.json`, `local-builder-resource-readonly.json` 및 `build.log`이다. 최종 build exit, signed bundle, compressed roundtrip, installed POM/runtime source lineage, selected Ganesha service/ACL self-test 및 NBD cleanup은 아직 검증 전이다. Cloud 등록/VM 생성/13번 배포·재시작은 0 회이며 fullFour / AD / retained ROOT / 최종 UI #1275 완료로 표시하지 않는다.
