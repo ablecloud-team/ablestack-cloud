@@ -227,9 +227,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             }
             public void started(StorageServiceOperationVO row) { beginStorageWriterHeartbeat(row); }
             public void applyPrevious() {
+                configurationRecoverySource.set(frozenRecoveryConfiguration(instance, operation));
+                reconcileRecoveryNetwork(instance, operation);
                 restoreNativePosixOperation(null, instance, true);
                 for (StorageServiceInstance.Protocol protocol : StorageServiceInstance.Protocol.values()) {
-                    if (protocol != StorageServiceInstance.Protocol.NVME_OF || !Boolean.TRUE.equals(configurationNativeNvmeReplayed.get())) {
+                    if (recoveryProtocolPresent(protocol) && (protocol != StorageServiceInstance.Protocol.NVME_OF || !Boolean.TRUE.equals(configurationNativeNvmeReplayed.get()))) {
                         applyStorageServiceProtocolDesiredState(instance, protocol);
                     }
                 }
@@ -252,7 +254,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         new StorageServiceConfiguration(StorageServiceManagerImpl.this, storageConfigArtifactDao, storageOperationDao).failInterruptedCandidates(row);
                     }
                     cleanupConfigurationIdentityCheckpoint(row);
-                } finally { endStorageWriterHeartbeat();configurationNativeNvmeReplayed.remove(); }
+                } finally { endStorageWriterHeartbeat();configurationNativeNvmeReplayed.remove();configurationRecoverySource.remove(); }
             }
         }, System.currentTimeMillis());
     }
@@ -284,6 +286,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         private String identityStatus = "UNKNOWN";
         private String identityWarning;
         private String nfsRuntimeIdMappingMode="UNKNOWN";
+        private JsonObject protocolRuntimeHealth;
         private final List<String> serviceIps = new ArrayList<>();
         private final Set<String> aliasIps = new HashSet<>();
         private final Map<StorageServiceInstance.Protocol, Map<Integer, Integer>> linkedResourceCounts = new HashMap<>();
@@ -296,6 +299,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         private String error;
         private final Map<String, JsonObject> observations = new LinkedHashMap<>();
         private final Map<String, JsonObject> sharePolicies = new LinkedHashMap<>();
+        private JsonObject protocolRuntimeHealth;
 
         protected JsonObject observation(final String key) {
             return StringUtils.isBlank(key) ? null : observations.get(key);
@@ -350,6 +354,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     private org.apache.cloudstack.storage.dataservice.dao.StoragePosixDirectoryPolicyDao storagePosixPolicyDao;
     private final ThreadLocal<StorageServiceOperationVO> storageWriterOperation = new ThreadLocal<>();
     private final ThreadLocal<Boolean> configurationNativeNvmeReplayed = new ThreadLocal<>();
+    private final ThreadLocal<JsonObject> configurationRecoverySource = new ThreadLocal<>();
     @Inject private org.apache.cloudstack.storage.dataservice.dao.StorageConfigArtifactDao storageConfigArtifactDao;
     @Inject private org.apache.cloudstack.storage.dataservice.dao.StorageServiceRuntimeBundleDao storageRuntimeBundleDao;
     @Inject private org.apache.cloudstack.storage.sharedfs.SharedFSService configurationSharedFsService;
@@ -476,9 +481,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         if (request.getExpectedRevision() != null && request.getExpectedRevision() != revision) throw new InvalidParameterValueException("Desired revision changed; refresh before maintenance");
                         StorageServiceOperationVO recorded=row.getOperationId()==null?null:storageOperationDao.findById(row.getOperationId());
                         boolean manualRollback = "ROLLBACK".equals(action) && "COMPLETE".equals(row.getState()) || recorded!=null && "ROOT_TEMPLATE_ROLLBACK".equals(recorded.getAction());
-                        if (manualRollback && "COMPLETE".equals(row.getState()) && rootRequiresNvmeAuth(instance)) {
-                            com.cloud.storage.VMTemplateVO previous=rootUpgradeTemplateDao.findById(row.getSourceTemplateId());rootUpgradeTemplateDao.loadDetails(previous);
-                            if (!"true".equalsIgnoreCase(previous.getDetails().get("storage.service.nvme.target.auth"))) throw new InvalidParameterValueException("Retained ROOT cannot serve the current NVMe authentication configuration");
+                        if (manualRollback && "COMPLETE".equals(row.getState()) && !rootRollbackCompatibility(row).get("compatible").getAsBoolean()) {
+                            throw new InvalidParameterValueException("Retained ROOT cannot serve the current desired features: "+rootRollbackCompatibility(row).get("blockers"));
                         }
                         if (manualRollback && "COMPLETE".equals(row.getState()) && !rootRollbackAllowed(row)) throw new InvalidParameterValueException("Retained ROOT rollback is unavailable or expired");
                         if ("PLANNED".equals(row.getState())) StorageTemplateUpgradePlanner.approve(row, revision, shared.getName(), request.getConfirmation(), request.getMaintenanceWindow());
@@ -489,7 +493,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                             RootUpgradeRuntime runtime = new RootUpgradeRuntime(instance, shared, row, operation, manualRollback);
                             StorageServiceTemplateUpgradeEngine engine = new StorageServiceTemplateUpgradeEngine(storageTemplateUpgradeDao);
                             if ("ROLLBACK".equals(action)) engine.rollback(row, runtime);else engine.execute(row, runtime);
-                        } finally { endStorageWriterHeartbeat();configurationNativeNvmeReplayed.remove(); }
+                        } finally { endStorageWriterHeartbeat();configurationNativeNvmeReplayed.remove();configurationRecoverySource.remove(); }
                     } else throw new InvalidParameterValueException("Unknown template lifecycle action");
                     org.apache.cloudstack.context.CallContext.current().setEventResourceId(row.getId());
                     org.apache.cloudstack.context.CallContext.current().setEventDetails("SharedFS ROOT transaction "+row.getUuid()+" "+row.getState());
@@ -541,12 +545,32 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         return StorageRootTopologySnapshot.capture(rootUpgradeVmDao.findById(instance.getVmId()), nicDao.listByVmId(instance.getVmId()),
                 nicSecondaryIpDao.listByVmId(instance.getVmId()), volumeDao.findByInstance(instance.getVmId()));
     }
+    protected JsonObject inspectRootData(StorageServiceInstanceVO instance,SharedFSVO shared,String operationUuid,String templateUpgradeUuid) {
+        Set<Long> files=new HashSet<>(),raw=new HashSet<>();Map<String,Set<String>> declared=new HashMap<>();
+        if(shared.getVolumeId()!=null)files.add(shared.getVolumeId());
+        for(StorageServiceInstance.Protocol protocol:new StorageServiceInstance.Protocol[]{StorageServiceInstance.Protocol.NFS,StorageServiceInstance.Protocol.SMB}) {
+            for(StorageFileShareVO share:storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(),protocol)) {
+                if(share.getVolumeId()==null)throw new CloudRuntimeException("File backing is unavailable");files.add(share.getVolumeId());
+                String uuid=requireVolume(share.getVolumeId()).getUuid(),filesystem=getJsonString(parseJsonObject(share.getConfigJson()),"filesystemUuid");
+                if(filesystem!=null)declared.computeIfAbsent(uuid,key->new HashSet<>()).add(filesystem);
+            }
+        }
+        for(StorageServiceInstance.Protocol protocol:new StorageServiceInstance.Protocol[]{StorageServiceInstance.Protocol.ISCSI,StorageServiceInstance.Protocol.NVME_OF}) for(StorageBlockTargetVO target:storageBlockTargetDao.listByInstanceIdAndProtocol(instance.getId(),protocol)) if(target.getVolumeId()!=null)raw.add(target.getVolumeId());
+        JsonArray volumes=new JsonArray();Set<Long> covered=new HashSet<>();
+        for(VolumeVO volume:volumeDao.findByInstanceAndType(instance.getVmId(),com.cloud.storage.Volume.Type.DATADISK)) {
+            if(files.contains(volume.getId())&&raw.contains(volume.getId()))throw new CloudRuntimeException("A DATA disk cannot be both FILE and block backing during ROOT maintenance");
+            covered.add(volume.getId());JsonObject disk=new JsonObject();disk.addProperty("volumeUuid",volume.getUuid());disk.addProperty("sizeBytes",volume.getSize());disk.addProperty("kind",files.contains(volume.getId())?"FILE_DATA":raw.contains(volume.getId())?"BLOCK_RAW":"UNUSED");volumes.add(disk);
+        }
+        if(!covered.containsAll(files)||!covered.containsAll(raw))throw new CloudRuntimeException("A declared service DATA disk is not attached to the same VM");
+        JsonObject request=new JsonObject();request.addProperty("instanceUuid",instance.getUuid());request.addProperty("operationUuid",operationUuid);request.addProperty("templateUpgradeUuid",templateUpgradeUuid);request.add("volumes",volumes);
+        return StorageRootDataManifest.freeze(volumes,rootGuest(instance,"operation root-data inspect",request,60),declared,System.currentTimeMillis());
+    }
     protected JsonArray rootNetworkBindings(StorageServiceInstanceVO instance,JsonObject cache) {
         JsonArray result=new JsonArray();if (cache==null || !cache.has("endpoints")) return result;
         Map<Long,NicVO> interfaces=new HashMap<>();Map<String,NicVO> owners=new HashMap<>();
         for (NicVO nic:nicDao.listByVmId(instance.getVmId())) {
-            interfaces.put(nic.getId(),nic);if (StringUtils.isNotBlank(nic.getIPv4Address())) {
-                NicVO previous=owners.putIfAbsent(nic.getIPv4Address(),nic);if (previous!=null && previous.getId()!=nic.getId()) throw new CloudRuntimeException("Cached ROOT endpoint primary ownership is ambiguous");
+            interfaces.put(nic.getId(),nic);String primary=declaredProtocolPrimary(instance,nic);if (StringUtils.isNotBlank(primary)) {
+                NicVO previous=owners.putIfAbsent(primary,nic);if (previous!=null && previous.getId()!=nic.getId()) throw new CloudRuntimeException("Cached ROOT endpoint primary ownership is ambiguous");
             }
         }
         for (NicSecondaryIpVO alias:nicSecondaryIpDao.listByVmId(instance.getVmId())) {
@@ -557,8 +581,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         for (JsonElement value:cache.getAsJsonArray("endpoints")) {
             JsonObject entry=value.getAsJsonObject();String ip=getJsonString(entry,"listenIp");NicVO nic=owners.get(ip);
             if (nic==null || StringUtils.isBlank(nic.getMacAddress())) throw new CloudRuntimeException("Cached ROOT endpoint has no preserved NIC owner");
-            String cachedPrimary=getJsonString(entry,"primaryIp");if (StringUtils.isNotBlank(cachedPrimary) && !cachedPrimary.equals(nic.getIPv4Address())) throw new CloudRuntimeException("Cached ROOT endpoint primary address differs from its preserved NIC");
-            JsonObject binding=new JsonObject();binding.addProperty("listenIp",ip);binding.addProperty("macAddress",nic.getMacAddress());binding.addProperty("primaryIp",nic.getIPv4Address());
+            String cachedPrimary=getJsonString(entry,"primaryIp");if (StringUtils.isNotBlank(cachedPrimary) && !cachedPrimary.equals(declaredProtocolPrimary(instance,nic))) throw new CloudRuntimeException("Cached ROOT endpoint primary address differs from its preserved NIC");
+            JsonObject binding=new JsonObject();binding.addProperty("listenIp",ip);binding.addProperty("macAddress",nic.getMacAddress());binding.addProperty("primaryIp",declaredProtocolPrimary(instance,nic));
             if (entry.has("prefixlen")) binding.add("prefixlen",entry.get("prefixlen"));result.add(binding);
         }
         return result;
@@ -615,6 +639,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             JsonObject identity = rootIdentityCapabilities(instance);result.add("identityMigration", identity);
             if (!Boolean.TRUE.equals(getJsonBoolean(identity,"localIdentity")) || !Boolean.TRUE.equals(getJsonBoolean(identity,"protectedStdinTransport"))) blockers.add("IDENTITY_CAPSULE_UNAVAILABLE");
             try {
+                JsonObject probe=new JsonObject();probe.addProperty("instanceUuid",instance.getUuid());probe.addProperty("operationUuid",java.util.UUID.randomUUID().toString());probe.addProperty("templateUpgradeUuid",java.util.UUID.randomUUID().toString());probe.addProperty("revision",rootDesiredRevision(instance.getId())+1);
+                JsonObject maintenance=rootGuest(instance,"operation maintenance status",probe,30);
+                if (!Boolean.TRUE.equals(getJsonBoolean(maintenance,"maintenanceSupported"))) blockers.add("ROOT_BOOT_MAINTENANCE_UNAVAILABLE");
+                if (Boolean.TRUE.equals(getJsonBoolean(maintenance,"bootHeld"))) blockers.add("ROOT_BOOT_MAINTENANCE_HELD");result.add("maintenance",maintenance);
                 JsonObject runtimeCode=runtimeUpgradeManager.templateRuntimeCapabilities(instance.getId());result.add("runtimeCode",runtimeCode);
                 if (!Boolean.TRUE.equals(getJsonBoolean(runtimeCode,"signedRuntimeReadback")) || getJsonString(runtimeCode,"updaterSha256")==null
                         || !java.util.Objects.equals(getJsonString(runtimeCode,"updaterSha256"),getJsonString(runtimeCode,"expectedUpdaterSha256"))) blockers.add("SIGNED_RUNTIME_READBACK_HELPER_UNAVAILABLE");
@@ -625,7 +653,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 else {JsonElement endpoints=generation.getAsJsonObject("configurationDesiredState").get("network-endpoints.json");
                     if (endpoints!=null && endpoints.isJsonObject()) rootNetworkBindings(instance,endpoints.getAsJsonObject());}
                 if (!"IN_SYNC".equals(getJsonString(generation,"generationStatus")) || generation.get("runtimeRevision").getAsLong() != rootDesiredRevision(instance.getId())) blockers.add("NATIVE_GENERATION_DRIFT");
-                verifyReconciledStorageDesiredState(instance);JsonObject health=rootGuest(instance,"operation verify",new JsonObject(),60);result.add("runtime",health);
+                verifyReconciledStorageDesiredState(instance);result.add("dataManifest",inspectRootData(instance,shared,java.util.UUID.randomUUID().toString(),java.util.UUID.randomUUID().toString()));
+                JsonObject health=rootGuest(instance,"operation verify",new JsonObject(),60);result.add("runtime",health);
                 if (!"ok".equalsIgnoreCase(getJsonString(health,"status"))) blockers.add("CURRENT_RUNTIME_DEGRADED");
             } catch (RuntimeException drift) { blockers.add("CURRENT_RUNTIME_UNVERIFIED"); }
             JsonObject sessions=observeConfigurationRuntime(instance,"sessions");result.add("sessions",sessions);result.add("activeSessions",sessions.has("count")?sessions.get("count"):com.google.gson.JsonNull.INSTANCE);
@@ -659,13 +688,21 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         try {
             RootUpgradeRuntime runtime = new RootUpgradeRuntime(instance,shared,row,operation,"ROOT_TEMPLATE_ROLLBACK".equals(operation.getAction()));
             new StorageServiceTemplateUpgradeEngine(storageTemplateUpgradeDao).execute(row,runtime);
-        } finally { endStorageWriterHeartbeat();configurationNativeNvmeReplayed.remove(); }
+        } finally { endStorageWriterHeartbeat();configurationNativeNvmeReplayed.remove();configurationRecoverySource.remove(); }
+    }
+    protected JsonObject rootRollbackCompatibility(StorageServiceTemplateUpgradeVO row) {
+        StorageServiceInstanceVO instance=storageServiceInstanceDao.findById(row.getInstanceId());boolean requiresAuth=instance!=null&&rootRequiresNvmeAuth(instance),requiresController=false;
+        if(instance!=null)for(StorageBlockTargetVO target:storageBlockTargetDao.listByInstanceIdAndProtocol(instance.getId(),StorageServiceInstance.Protocol.NVME_OF)) for(StorageAccessRuleVO rule:storageAccessRuleDao.listByResource(StorageServiceInstance.AccessResourceType.BLOCK_TARGET,target.getId())) if(Boolean.TRUE.equals(getJsonBoolean(parseJsonObject(rule.getConfigJson()),"dhChapCtrlEnabled")))requiresController=true;
+        JsonObject source=parseJsonObject(row.getSnapshotJson());JsonObject capabilities=null;
+        if(source.has("runtime")&&source.getAsJsonObject("runtime").has("capabilities")&&source.getAsJsonObject("runtime").getAsJsonObject("capabilities").has("nvmeof"))capabilities=source.getAsJsonObject("runtime").getAsJsonObject("capabilities").getAsJsonObject("nvmeof");
+        com.cloud.storage.VMTemplateVO previous=rootUpgradeTemplateDao.findById(row.getSourceTemplateId());if(previous!=null)rootUpgradeTemplateDao.loadDetails(previous);
+        return StorageRootRollbackCompatibility.evaluate(requiresAuth,requiresController,capabilities,previous==null?null:previous.getDetails());
     }
     protected boolean rootRollbackAllowed(StorageServiceTemplateUpgradeVO row) {
         StorageServiceInstanceVO owner=storageServiceInstanceDao.findById(row.getInstanceId());
         if (owner==null || owner.getVmId()==null || row.getTargetRootVolumeId()==null || volumeDao.findByInstanceAndType(owner.getVmId(),com.cloud.storage.Volume.Type.ROOT).stream().noneMatch(root->root.getId()==row.getTargetRootVolumeId())) return false;
         return "COMPLETE".equals(row.getState()) && row.getRollbackRetainUntil() != null && row.getRollbackRetainUntil().after(new java.util.Date())
-                && volumeDao.findById(row.getPreviousRootVolumeId()) != null && row.getTargetRootVolumeId() != null;
+                && volumeDao.findById(row.getPreviousRootVolumeId()) != null && row.getTargetRootVolumeId() != null && rootRollbackCompatibility(row).get("compatible").getAsBoolean();
     }
     protected void finalizeTemplateUpgrade(StorageServiceInstanceVO instance, StorageServiceTemplateUpgradeVO row) {
         if ("FINALIZED".equals(row.getState())) return;
@@ -695,12 +732,13 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         value.addProperty("sourceTemplateUuid",source == null ? null : source.getUuid());value.addProperty("targetTemplateUuid",target == null ? null : target.getUuid());
         VolumeVO previous = volumeDao.findById(row.getPreviousRootVolumeId());VolumeVO staged = row.getTargetRootVolumeId() == null ? null : volumeDao.findById(row.getTargetRootVolumeId());
         value.addProperty("previousRootVolumeUuid",previous == null ? null : previous.getUuid());value.addProperty("targetRootVolumeUuid",staged == null ? null : staged.getUuid());
-        value.addProperty("rollbackRetainUntil",row.getRollbackRetainUntil() == null ? null : row.getRollbackRetainUntil().toInstant().toString());value.addProperty("rollbackAllowed",rootRollbackAllowed(row));
+        value.addProperty("rollbackRetainUntil",row.getRollbackRetainUntil() == null ? null : row.getRollbackRetainUntil().toInstant().toString());value.addProperty("rollbackAllowed",rootRollbackAllowed(row));if("COMPLETE".equals(row.getState()))value.add("rollbackCompatibility",rootRollbackCompatibility(row));
         value.addProperty("finalizeAllowed", java.util.Set.of("COMPLETE","ROLLED_BACK","BLOCKED").contains(row.getState()) && (row.getRollbackRetainUntil() == null || !row.getRollbackRetainUntil().after(new java.util.Date())));
         value.addProperty("started",row.getStarted() == null ? null : row.getStarted().toInstant().toString());value.addProperty("completed",row.getCompleted() == null ? null : row.getCompleted().toInstant().toString());
         if (row.getVerificationJson() != null) value.add("verification",parseJsonObject(row.getVerificationJson()));
         if (row.getRollbackResultJson() != null) value.add("rollbackResult",parseJsonObject(row.getRollbackResultJson()));
         if (row.getSnapshotJson() != null) { JsonObject snapshot = parseJsonObject(row.getSnapshotJson());
+            if (snapshot.has("bootHeld")) value.add("bootHeld",snapshot.get("bootHeld"));
             if (snapshot.has("quiescedAt") && snapshot.has("serviceVerifiedAt")) value.addProperty("actualDowntimeSeconds",Math.max(0,(snapshot.get("serviceVerifiedAt").getAsLong()-snapshot.get("quiescedAt").getAsLong())/1000));
             if (snapshot.has("rollbackQuiescedAt") && snapshot.has("rollbackServiceVerifiedAt")) value.addProperty("rollbackDowntimeSeconds",Math.max(0,(snapshot.get("rollbackServiceVerifiedAt").getAsLong()-snapshot.get("rollbackQuiescedAt").getAsLong())/1000)); }
         return value;
@@ -752,34 +790,68 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             value.add("sourceGeneration",generation.getAsJsonObject("generation"));
             if (!generation.has("configurationDesiredState")) throw new CloudRuntimeException("ROOT desired-state seed capability is unavailable");
             value.add("sourceDesiredState",generation.getAsJsonObject("configurationDesiredState"));
-            value.add("runtime",rootGuest(instance,"operation observe",new JsonObject(),60));persist(value);
+            value.add("dataManifest",inspectRootData(instance,shared,operation.getUuid(),row.getUuid()));
+            value.add("runtime",rootGuest(instance,"operation observe",new JsonObject(),60));
+            JsonObject preflight=parseJsonObject(row.getPreflightJson());if(preflight.has("dataManifest"))StorageRootDataManifest.requireSame(preflight.getAsJsonObject("dataManifest"),value.getAsJsonObject("dataManifest"));persist(value);
         }
         public void quiesce() {
             sameTopology();if (currentRoot() == row.getTargetRootVolumeId()) return;
-            if (rootUpgradeVmDao.findById(instance.getVmId()).getState() == com.cloud.vm.VirtualMachine.State.Running) rootGuest(instance,"operation quiesce",scope(),60);
+            if (rootUpgradeVmDao.findById(instance.getVmId()).getState() == com.cloud.vm.VirtualMachine.State.Running) enterMaintenance("sourceMaintenanceScope");
             JsonObject value=snapshot();if (!value.has("quiescedAt")) {value.addProperty("quiescedAt",System.currentTimeMillis());persist(value);}
             lifecycle.stop(instance.getVmId());
         }
-        private JsonObject scope() {JsonObject scope=new JsonObject();scope.addProperty("instanceUuid",instance.getUuid());scope.addProperty("operationUuid",operation.getUuid());scope.addProperty("revision",operation.getRevision());return scope;}
+        private JsonObject scope() {JsonObject scope=new JsonObject();scope.addProperty("instanceUuid",instance.getUuid());scope.addProperty("templateUpgradeUuid",row.getUuid());scope.addProperty("operationUuid",operation.getUuid());scope.addProperty("revision",operation.getRevision());return scope;}
+        private void enterMaintenance(String scopeKey) {
+            JsonObject requested=scope();JsonObject status=rootGuest(instance,"operation maintenance status",requested,30);
+            if (!Boolean.TRUE.equals(getJsonBoolean(status,"maintenanceSupported"))) throw new CloudRuntimeException("Protected ROOT boot maintenance is unavailable");
+            JsonObject value=snapshot();JsonObject actual=status.has("scope") && status.get("scope").isJsonObject()?status.getAsJsonObject("scope"):null;
+            JsonObject known=value.has(scopeKey) && value.get(scopeKey).isJsonObject()?value.getAsJsonObject(scopeKey):null;
+            if (actual!=null && !actual.equals(requested)) {
+                if (known==null || !known.equals(actual) || !instance.getUuid().equals(getJsonString(actual,"instanceUuid"))
+                        || !row.getUuid().equals(getJsonString(actual,"templateUpgradeUuid"))) throw new CloudRuntimeException("A foreign ROOT maintenance scope cannot be adopted");
+                requested.add("expectedPreviousScope",actual.deepCopy());
+            }
+            JsonObject transition=new JsonObject();transition.add("requested",scope());if(actual!=null)transition.add("expectedPreviousScope",actual.deepCopy());
+            value.add(scopeKey+"Transition",transition);value.addProperty("bootHeld",true);persist(value);
+            JsonObject entered=rootGuest(instance,"operation quiesce",requested,60);
+            if (!Boolean.TRUE.equals(getJsonBoolean(entered,"quiesced")) || !Boolean.TRUE.equals(getJsonBoolean(entered,"bootHeld"))
+                    || !scope().equals(entered.get("scope"))) throw new CloudRuntimeException("ROOT acceptors were not held under the exact requested maintenance scope");
+            value=snapshot();value.add(scopeKey,scope());value.remove(scopeKey+"Transition");persist(value);
+        }
+        private void releaseMaintenance(String scopeKey) {
+            JsonObject status=nativeConfigurationGeneration(instance,null,"status");String pending=getJsonString(status,"pendingOperationUuid");
+            if (pending!=null) {
+                if (!operation.getUuid().equals(pending)) throw new CloudRuntimeException("Foreign native generation blocks ROOT maintenance release");
+                nativeConfigurationGeneration(instance,operation,"finish");status=nativeConfigurationGeneration(instance,null,"status");
+            }
+            if (!"IN_SYNC".equals(getJsonString(status,"generationStatus")) || getJsonString(status,"pendingOperationUuid")!=null) throw new CloudRuntimeException("ROOT maintenance remains held until the native generation is fully verified");
+            JsonObject saved=snapshot().getAsJsonObject(scopeKey);if (saved==null || !saved.equals(scope())) throw new CloudRuntimeException("ROOT maintenance release scope changed");
+            JsonObject request=scope();request.add("verifiedGeneration",status.getAsJsonObject("generation"));JsonObject released=rootGuest(instance,"operation maintenance release",request,30);
+            if (!Boolean.TRUE.equals(getJsonBoolean(released,"released")) || !Boolean.FALSE.equals(getJsonBoolean(released,"bootHeld"))) throw new CloudRuntimeException("ROOT service boot remains held after release");
+            JsonObject value=snapshot();value.addProperty("bootHeld",false);value.add("maintenanceRelease",released);persist(value);
+        }
         public void swapRoot() {
             sameTopology();if (currentRoot() != row.getTargetRootVolumeId()) swap.swap(instance.getVmId(),row.getPreviousRootVolumeId(),row.getTargetRootVolumeId(),row.getSourceTemplateId(),row.getTargetTemplateId(),rootUpgradeTemplateDao.findById(row.getTargetTemplateId()).getGuestOSId());sameTopology();
         }
         public void bootTarget() { requireBinding(row.getTargetRootVolumeId(),row.getTargetTemplateId());lifecycle.startAndAwaitCapabilities(instance,operation.getUuid());sameTopology();requireBinding(row.getTargetRootVolumeId(),row.getTargetTemplateId());
-            rootGuest(instance,"operation quiesce",scope(),60);
+            enterMaintenance("targetMaintenanceScope");
             JsonObject value=snapshot();value.add("targetRuntimeVerified",runtimeUpgradeManager.restoreTemplateRuntime(instance.getId(),value.getAsJsonObject("signedRuntime").getAsJsonObject("pin"),operation.getUuid(),"target"));persist(value); }
         public void restoreIdentity() {requireBinding(row.getTargetRootVolumeId(),row.getTargetTemplateId());sameTopology();restoreConfigurationIdentity(instance,snapshot().getAsJsonObject("identity"));}
         private void restoreMounts() {
-            for (StorageServiceInstance.Protocol protocol : new StorageServiceInstance.Protocol[]{StorageServiceInstance.Protocol.NFS,StorageServiceInstance.Protocol.SMB}) {
-                for (StorageFileShareVO share : storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(),protocol)) {
-                    VolumeVO volume = requireVolume(share.getVolumeId());JsonObject payload=createFileShareVolumePayload(instance,share,volume);payload.addProperty("importMode","MOUNT_EXISTING");
-                    JsonObject observed=rootGuest(instance,"volume attach inspect",payload,120);String expected=getJsonString(parseJsonObject(share.getConfigJson()),"filesystemUuid");
-                    if (expected==null && snapshot().getAsJsonObject("runtime").has("fileShareVolumes")) {
-                        for (JsonElement entry:snapshot().getAsJsonObject("runtime").getAsJsonArray("fileShareVolumes")) {
-                            JsonObject previous=entry.getAsJsonObject();if (volume.getUuid().equals(getJsonString(previous,"volumeUuid"))) expected=getJsonString(previous,"filesystemUuid");
-                        }
-                    }
-                    if (!volume.getUuid().equals(getJsonString(observed,"volumeUuid")) || expected == null || !expected.equals(getJsonString(observed,"filesystemUuid"))) throw new CloudRuntimeException("Existing backing filesystem identity changed");
+            JsonObject current=inspectRootData(instance,shared,operation.getUuid(),row.getUuid());JsonObject frozen=snapshot().getAsJsonObject("dataManifest");StorageRootDataManifest.requireSame(frozen,current);
+            Map<String,VolumeVO> disks=new HashMap<>();for(VolumeVO disk:volumeDao.findByInstanceAndType(instance.getVmId(),com.cloud.storage.Volume.Type.DATADISK))disks.put(disk.getUuid(),disk);
+            for(JsonElement entry:frozen.getAsJsonArray("volumes")) {
+                JsonObject identity=entry.getAsJsonObject();if(!"FILE_DATA".equals(getJsonString(identity,"kind")))continue;
+                String uuid=getJsonString(identity,"volumeUuid");VolumeVO volume=disks.get(uuid);if(volume==null)throw new CloudRuntimeException("Frozen FILE DATA attachment disappeared");
+                String mount="/srv/ablestack-storage/volumes/"+uuid;
+                if(identity.has("mounts")) for(JsonElement value:identity.getAsJsonArray("mounts")) {
+                    JsonObject observed=value.getAsJsonObject();String target=getJsonString(observed,"target");String root=getJsonString(observed,"fsroot");
+                    if((root==null||"/".equals(root)) && (mount.equals(target)||("/export".equals(target)&&Long.valueOf(volume.getId()).equals(shared.getVolumeId())))) {mount=target;break;}
                 }
+                JsonObject payload=new JsonObject();payload.addProperty("shareUuid",instance.getUuid());payload.addProperty("volumeUuid",uuid);payload.addProperty("volumeName",volume.getName());payload.addProperty("volumeSizeBytes",volume.getSize());
+                payload.addProperty("filesystem",getJsonString(identity,"filesystem"));payload.addProperty("mountPath",mount);payload.addProperty("importMode","MOUNT_EXISTING");payload.addProperty("createDirectory",false);
+                JsonObject observed=rootGuest(instance,"volume attach inspect",payload,120);
+                if(!uuid.equals(getJsonString(observed,"volumeUuid")) || !getJsonString(identity,"filesystemUuid").equals(getJsonString(observed,"filesystemUuid")))throw new CloudRuntimeException("Frozen FILE DATA filesystem identity changed during existing mount recovery");
             }
         }
         private void applyAll() {
@@ -819,7 +891,13 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 if (source.get(path).isJsonNull()) continue;
                 if (protocol != StorageServiceInstance.Protocol.NVME_OF || !Boolean.TRUE.equals(configurationNativeNvmeReplayed.get())) applyStorageServiceProtocolDesiredState(instance,protocol);
             }
-            verifyReconciledStorageDesiredState(instance);sameTopology();
+            verifyReconciledStorageDesiredState(instance);
+            JsonObject normalized=nativeConfigurationGeneration(instance,null,"status");
+            if(normalized.has("configurationDesiredState")) {
+                StorageCanonicalRecovery.requireSameMeaning(source,normalized.getAsJsonObject("configurationDesiredState"));
+                seedDesired();verifyReconciledStorageDesiredState(instance);
+            }
+            sameTopology();
         }
         private void seedDesired() {
             JsonObject status=nativeConfigurationGeneration(instance,null,"status");
@@ -850,7 +928,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             nativeConfigurationGeneration(instance,operation,"verify");nativeConfigurationGeneration(instance,operation,"commit");
             health.add("signedRuntime",runtimeProof);row.setVerificationJson(health.toString());JsonObject value=snapshot();value.addProperty("serviceVerifiedAt",System.currentTimeMillis());persist(value);
         }
-        public void commit() { complete(true); }
+        public void commit() {releaseMaintenance("targetMaintenanceScope");complete(true);}
         private void complete(boolean target) {
             requireBinding(target?row.getTargetRootVolumeId():row.getPreviousRootVolumeId(),target?row.getTargetTemplateId():row.getSourceTemplateId());sameTopology();
             operation.setSnapshotJson(captureConfigurationSnapshot(instance.getId()));operation.setResultJson(rootUpgradeJson(row).toString());
@@ -881,13 +959,13 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             if (row.getTargetRootVolumeId()==null || root!=row.getTargetRootVolumeId()) throw new CloudRuntimeException("Rollback ROOT binding changed");
             JsonObject interrupted=snapshot();if (!interrupted.has("rollbackQuiescedAt")) {interrupted.addProperty("rollbackQuiescedAt",System.currentTimeMillis());persist(interrupted);}
             if (rootUpgradeVmDao.findById(instance.getVmId()).getState()==com.cloud.vm.VirtualMachine.State.Running) {
-                try {rootGuest(instance,"operation quiesce",scope(),60);}
+                try {enterMaintenance("targetMaintenanceScope");}
                 catch (RuntimeException qgaUnavailable) {if (manualRollback) throw qgaUnavailable;logger.warn("Target ROOT QGA is unavailable; continuing graceful VM shutdown for rollback {}",row.getUuid());}
             }
             lifecycle.stop(instance.getVmId());swap.swap(instance.getVmId(),row.getTargetRootVolumeId(),row.getPreviousRootVolumeId(),row.getTargetTemplateId(),row.getSourceTemplateId(),row.getPreviousGuestOsId());sameTopology();
         }
         public void bootPrevious() {requireBinding(row.getPreviousRootVolumeId(),row.getSourceTemplateId());lifecycle.startAndAwaitCapabilities(instance,operation.getUuid());
-            rootGuest(instance,"operation quiesce",scope(),60);
+            if (row.getSnapshotJson()!=null) enterMaintenance("sourceMaintenanceScope");
             if (row.getSnapshotJson()!=null) {JsonObject value=snapshot();value.add("previousRuntimeVerified",runtimeUpgradeManager.restoreTemplateRuntime(instance.getId(),value.getAsJsonObject("signedRuntime").getAsJsonObject("pin"),operation.getUuid(),"previous"));persist(value);}}
         public void reconcilePrevious() {
             if (row.getSnapshotJson()==null) return;
@@ -901,7 +979,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             if (!"ok".equalsIgnoreCase(getJsonString(health,"status"))) throw new CloudRuntimeException("Previous ROOT runtime health is degraded");
             health.add("signedRuntime",runtimeProof);row.setRollbackResultJson(health.toString());
             if (row.getSnapshotJson()!=null) {JsonObject value=snapshot();value.addProperty("serviceVerifiedAt",System.currentTimeMillis());value.addProperty("rollbackServiceVerifiedAt",System.currentTimeMillis());persist(value);}
-            if (manualRollback) {nativeConfigurationGeneration(instance,operation,"verify");nativeConfigurationGeneration(instance,operation,"commit");complete(false);}
+            if (manualRollback) {nativeConfigurationGeneration(instance,operation,"verify");nativeConfigurationGeneration(instance,operation,"commit");releaseMaintenance("sourceMaintenanceScope");complete(false);}
+            else if (row.getSnapshotJson()!=null) releaseMaintenance("sourceMaintenanceScope");
         }
         public void finished(boolean success) {
             if (!success && !manualRollback) {
@@ -1713,7 +1792,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
         final StorageServiceInstance.Protocol protocol = operationProtocol(cmd);
         return new DesiredStateChange(storageOperationDao, new StorageServiceDesiredSnapshot()).execute(
-                instanceId, cmd.getCommandName(), idempotency, revision, responseClass, change, new DesiredStateChange.Runtime() {
+                instanceId, cmd.getCommandName(), idempotency, revision, StorageServiceRequestFingerprint.of(cmd), responseClass, change, new DesiredStateChange.Runtime() {
                     public void started(StorageServiceOperationVO operation) { beginStorageWriterHeartbeat(operation); }
                     public void finished() {
                         try {
@@ -1724,7 +1803,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                             }
                             cleanupConfigurationIdentityCheckpoint(operation);
                         }
-                        finally { endStorageWriterHeartbeat();configurationNativeNvmeReplayed.remove(); }
+                        finally { endStorageWriterHeartbeat();configurationNativeNvmeReplayed.remove();configurationRecoverySource.remove(); }
                     }
                     public void preflight() {
                         if (storageTemplateUpgradeDao.findActive(instanceId) != null) throw new CloudRuntimeException("A SystemVM ROOT template upgrade requires recovery or completion");
@@ -1756,6 +1835,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                             // Persist the recovery scope before beginning native staging, including a crash during this RPC.
                             snapshot.add("nativeGeneration", new JsonObject());operation.setPreviousSnapshotJson(snapshot.toString());
                             if (!storageOperationDao.update(operation.getId(), operation)) throw new CloudRuntimeException("Unable to persist native generation scope");
+                            JsonObject before = nativeConfigurationGeneration(instance, null, "status");
+                            if (before.has("configurationDesiredState")) snapshot.add("nativeDesiredState", before.get("configurationDesiredState"));
+                            JsonObject previousScope=new JsonObject();previousScope.add("previous",before.get("generation"));snapshot.add("nativeGeneration",previousScope);
+                            operation.setPreviousSnapshotJson(snapshot.toString());
+                            if (!storageOperationDao.update(operation.getId(),operation)) throw new CloudRuntimeException("Unable to persist pre-mutation native desired state");
                             JsonObject nativeState = nativeConfigurationGeneration(instance, operation, "begin");
                             snapshot.add("nativeGeneration", nativeState);operation.setPreviousSnapshotJson(snapshot.toString());
                             if (!storageOperationDao.update(operation.getId(), operation)) throw new CloudRuntimeException("Unable to persist previous native generation");
@@ -1793,11 +1877,14 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         }
                     }
                     public void applyPrevious() {
+                        StorageServiceOperationVO recovering = storageWriterOperation.get();
+                        configurationRecoverySource.set(frozenRecoveryConfiguration(instance, recovering));
+                        reconcileRecoveryNetwork(instance, recovering);
                         restoreNativePosixOperation(cmd, instance, true);
                         if (protocol != null) {
-                            if (protocol != StorageServiceInstance.Protocol.NVME_OF || !Boolean.TRUE.equals(configurationNativeNvmeReplayed.get())) applyStorageServiceProtocolDesiredState(instance, protocol);
+                            if (recoveryProtocolPresent(protocol) && (protocol != StorageServiceInstance.Protocol.NVME_OF || !Boolean.TRUE.equals(configurationNativeNvmeReplayed.get()))) applyStorageServiceProtocolDesiredState(instance, protocol);
                         } else for (StorageServiceInstance.Protocol item : StorageServiceInstance.Protocol.values()) {
-                            if (item != StorageServiceInstance.Protocol.NVME_OF || !Boolean.TRUE.equals(configurationNativeNvmeReplayed.get())) applyStorageServiceProtocolDesiredState(instance, item);
+                            if (recoveryProtocolPresent(item) && (item != StorageServiceInstance.Protocol.NVME_OF || !Boolean.TRUE.equals(configurationNativeNvmeReplayed.get()))) applyStorageServiceProtocolDesiredState(instance, item);
                         }
                         restoreNativePosixOperation(cmd, instance, false);
                     }
@@ -1838,9 +1925,72 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         String pending = getJsonString(observed, "pendingOperationUuid");
         if (pending == null) return;
         if (!operation.getUuid().equals(pending)) throw new CloudRuntimeException("Another native generation is pending");
+        JsonObject frozen = configurationRecoverySource.get();
+        if (frozen != null) {
+            verifyRecoveredStorageWriter(instance);
+            JsonObject live = nativeConfigurationGeneration(instance, null, "status");
+            StorageCanonicalRecovery.requireSameMeaning(frozen.getAsJsonObject("configurationDesiredState"), recoveryComparableConfiguration(instance, frozen.getAsJsonObject("configurationDesiredState"), live.getAsJsonObject("configurationDesiredState")));
+            JsonObject request = new JsonObject();request.addProperty("instanceUuid", instance.getUuid());request.addProperty("operationUuid", operation.getUuid());request.addProperty("revision", operation.getRevision());
+            request.add("previousGeneration", frozen.get("generation"));request.add("configurationDesiredState", frozen.get("configurationDesiredState"));
+            JsonObject restored = rootGuest(instance, "operation generation restore", request, 30);
+            if (!Boolean.TRUE.equals(getJsonBoolean(restored,"canonicalRestored")) || !operation.getUuid().equals(getJsonString(restored,"pendingOperationUuid"))
+                    || !getJsonString(frozen,"configurationSha256").equals(getJsonString(restored,"configurationSha256"))) throw new CloudRuntimeException("Canonical recovery did not restore the exact previous generation");
+            verifyRecoveredStorageWriter(instance);
+        }
         nativeConfigurationGeneration(instance, operation, "rollback");
     }
 
+    protected JsonObject frozenRecoveryConfiguration(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
+        if (!hasNativeConfigurationGeneration(operation)) return null;
+        JsonObject snapshot = parseJsonObject(operation.getPreviousSnapshotJson());
+        JsonObject nativeState = snapshot.getAsJsonObject("nativeGeneration");
+        JsonObject previous = nativeState.has("previous") && nativeState.get("previous").isJsonObject() ? nativeState.getAsJsonObject("previous") : null;
+        if (previous == null) {
+            JsonObject status=nativeConfigurationGeneration(instance,null,"status");
+            if (!operation.getUuid().equals(getJsonString(status,"pendingOperationUuid"))) return null;
+            previous=status.getAsJsonObject("generation");
+            if(previous!=null && previous.has("revision") && previous.get("revision").getAsLong()>=operation.getRevision())throw new CloudRuntimeException("Recovery source cannot be a newer native generation");
+        }
+        if (previous == null || !previous.has("operationUuid")) return null;
+        JsonObject frozen = rootGuest(instance, "operation generation frozen", previous, 30);
+        if (!Boolean.TRUE.equals(getJsonBoolean(frozen,"frozen")) || !previous.equals(frozen.get("generation"))
+                || !instance.getUuid().equals(getJsonString(previous,"instanceUuid"))) throw new CloudRuntimeException("Recovery source is not the writer's exact verified native generation");
+        if (snapshot.has("nativeDesiredState") && !snapshot.get("nativeDesiredState").equals(frozen.get("configurationDesiredState"))) throw new CloudRuntimeException("Recovery source differs from the durable pre-mutation native desired state");
+        return frozen;
+    }
+    private JsonObject recoveryComparableConfiguration(StorageServiceInstanceVO instance, JsonObject source, JsonObject observed) {
+        JsonObject comparable = observed.deepCopy();
+        for (StorageServiceInstance.Protocol protocol:StorageServiceInstance.Protocol.values()) {
+            String path=StorageCanonicalRecovery.protocolPath(protocol);if (!source.get(path).isJsonNull() || comparable.get(path).isJsonNull()) continue;
+            boolean empty = protocol==StorageServiceInstance.Protocol.NFS || protocol==StorageServiceInstance.Protocol.SMB
+                    ? storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(),protocol).isEmpty()
+                    : storageBlockTargetDao.listByInstanceIdAndProtocol(instance.getId(),protocol).isEmpty();
+            if (!empty || !StorageCanonicalRecovery.emptyProtocolFile(protocol,comparable.get(path))) throw new CloudRuntimeException("A formerly absent protocol has active desired resources during recovery");
+            comparable.add(path,com.google.gson.JsonNull.INSTANCE);
+        }
+        return comparable;
+    }
+    private boolean recoveryProtocolPresent(StorageServiceInstance.Protocol protocol) {
+        JsonObject source = configurationRecoverySource.get();
+        return source == null || !source.getAsJsonObject("configurationDesiredState").get(StorageCanonicalRecovery.protocolPath(protocol)).isJsonNull();
+    }
+    protected void reconcileRecoveryNetwork(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
+        JsonObject source = configurationRecoverySource.get();if (source == null) return;
+        JsonElement cached = source.getAsJsonObject("configurationDesiredState").get("network-endpoints.json");if (cached == null || cached.isJsonNull()) return;
+        JsonArray bindings = rootNetworkBindings(instance, cached.getAsJsonObject());JsonObject request = new JsonObject();
+        request.addProperty("instanceUuid",instance.getUuid());request.addProperty("operationUuid",operation.getUuid());request.addProperty("revision",operation.getRevision());request.add("expectedBindings",bindings);
+        JsonObject observed = rootGuest(instance,"network endpoints reconcile",request,60);Map<String,JsonObject> endpoints = new HashMap<>();
+        if (observed.has("endpoints")) for (JsonElement value:observed.getAsJsonArray("endpoints")) {JsonObject endpoint=value.getAsJsonObject();endpoints.put(getJsonString(endpoint,"listenIp"),endpoint);}
+        for (JsonElement value:bindings) {JsonObject expected=value.getAsJsonObject();JsonObject actual=endpoints.get(getJsonString(expected,"listenIp"));
+            if (actual==null || !Boolean.TRUE.equals(getJsonBoolean(actual,"active")) || getJsonString(actual,"macAddress")==null || !getJsonString(expected,"macAddress").equalsIgnoreCase(getJsonString(actual,"macAddress"))) throw new CloudRuntimeException("Recovery endpoint is not active on its declared primary NIC MAC");}
+    }
+    protected String declaredProtocolPrimary(StorageServiceInstanceVO instance, NicVO nic) {
+        if (nic!=null && nic.isDefaultNic() && sharedFSDao!=null && instance.getVmId()!=null) {
+            SharedFSVO shared=sharedFSDao.findByVm(instance.getVmId());
+            if (shared!=null && shared.getNetworkMode()==SharedFS.NetworkMode.STATIC && StringUtils.isNotBlank(shared.getIpAddress())) return shared.getIpAddress();
+        }
+        return nic==null ? null : nic.getIPv4Address();
+    }
     private boolean hasNativeConfigurationGeneration(StorageServiceOperationVO operation) {
         return operation != null && operation.getPreviousSnapshotJson() != null
                 && parseJsonObject(operation.getPreviousSnapshotJson()).has("nativeGeneration");
@@ -3074,7 +3224,14 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
         final JsonObject payload = new JsonObject();
         payload.addProperty("volumeUuid", volume.getUuid());
-        return createRuntimeResponse(instance, "volume operation status", payload.toString());
+        StorageServiceGuestCommandResult history=guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),"volume operation status",payload.toString(),5,Collections.emptySet()));
+        JsonObject result=parseJsonObject(normalizeRuntimeResultJson(history.getResultJson()));result.addProperty("historicalDevicePathOnly",true);
+        try {
+            JsonObject request=new JsonObject();request.addProperty("instanceUuid",instance.getUuid());request.addProperty("operationUuid",java.util.UUID.randomUUID().toString());request.addProperty("templateUpgradeUuid",java.util.UUID.randomUUID().toString());JsonArray volumes=new JsonArray();JsonObject disk=new JsonObject();disk.addProperty("volumeUuid",volume.getUuid());disk.addProperty("sizeBytes",volume.getSize());disk.addProperty("kind","UNUSED");volumes.add(disk);request.add("volumes",volumes);
+            JsonObject observed=StorageRootDataManifest.freeze(volumes,rootGuest(instance,"operation root-data inspect",request,5),Collections.emptyMap(),System.currentTimeMillis());
+            result.add("currentIdentity",observed.getAsJsonArray("volumes").get(0));result.addProperty("currentIdentityStatus","EXACT");result.addProperty("observedEpoch",observed.get("generatedEpoch").getAsDouble());
+        } catch(RuntimeException unavailable) {result.addProperty("currentIdentityStatus","UNAVAILABLE");result.addProperty("currentIdentityDiagnostic","Fresh exact serial and filesystem observation is unavailable; historical journal paths cannot be used as a resume device");}
+        return createRuntimeResponse(instance,"volume operation status",history.isSuccess(),history.isSuccess()?"OBSERVED":"ERROR",history.getDetails(),result.toString());
     }
 
     @Override
@@ -3244,7 +3401,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
         if (canReuseManagedAttachedFileShareVolume(instance, share, volume, attachedVmId)) {
             share.setConfigJson(buildManagedFileShareVolumeReuseConfigJson(share.getConfigJson(), importMode, volume, share.getPath()));
-            storageFileShareDao.update(share.getId(), share);
+            // Each share must record a fresh exact observation of the actual disk, including legacy UUID-null reuse rows.
+            inspectAttachedFileShareVolume(instance,share,volume,"MOUNT_EXISTING");
             return;
         }
         if (instance.getVmId() != null) {
@@ -4047,6 +4205,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
     }
 
+    private String canonicalAppliedState(StorageServiceInstance.ResourceState state) {
+        return state==StorageServiceInstance.ResourceState.Creating || state==StorageServiceInstance.ResourceState.Updating ? StorageServiceInstance.ResourceState.Ready.name() : state.name();
+    }
+
     protected void applySmbDesiredState(final StorageServiceInstanceVO instance) {
         applySmbDesiredState(instance, Collections.emptyMap());
     }
@@ -4081,7 +4243,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             listener.addProperty("id", protocol.getUuid());
             listener.addProperty("listenIp", StringUtils.defaultIfBlank(protocol.getListenIp(), "0.0.0.0"));
             listener.addProperty("port", protocol.getPort() == null ? defaultProtocolPort(StorageServiceInstance.Protocol.SMB) : protocol.getPort());
-            listener.addProperty("state", protocol.getState().name());
+            listener.addProperty("state", canonicalAppliedState(protocol.getState()));
             listeners.add(listener);
         }
         payload.addProperty("enabled", enabled);
@@ -4120,14 +4282,14 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             if (share.getQuotaBytes() != null) {
                 smbShare.addProperty("quotaBytes", share.getQuotaBytes());
             }
-            smbShare.addProperty("state", share.getState().name());
+            smbShare.addProperty("state", canonicalAppliedState(share.getState()));
             smbShare.add("config", parseJsonObject(share.getConfigJson()));
 
             final JsonArray acls = new JsonArray();
             final JsonArray networkAcls = new JsonArray();
             for (final StorageAccessRuleVO rule : storageAccessRuleDao.listByResource(StorageServiceInstance.AccessResourceType.FILE_SHARE, share.getId())) {
                 if (isSmbNetworkRule(rule)) {
-                    JsonObject network=new JsonObject();network.addProperty("uuid",rule.getUuid());network.addProperty("principalType",rule.getPrincipalType().name());network.addProperty("principal",rule.getPrincipal());network.addProperty("permission","CONNECT");network.addProperty("state",rule.getState().name());networkAcls.add(network);continue;
+                    JsonObject network=new JsonObject();network.addProperty("uuid",rule.getUuid());network.addProperty("principalType",rule.getPrincipalType().name());network.addProperty("principal",rule.getPrincipal());network.addProperty("permission","CONNECT");network.addProperty("state",canonicalAppliedState(rule.getState()));networkAcls.add(network);continue;
                 }
                 if (!isSmbPrincipalType(rule.getPrincipalType())) {
                     continue;
@@ -4138,7 +4300,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 acl.addProperty("principalType", rule.getPrincipalType().name());
                 acl.addProperty("principal", rule.getPrincipal());
                 acl.addProperty("permission", rule.getPermission().name());
-                acl.addProperty("state", rule.getState().name());
+                acl.addProperty("state", canonicalAppliedState(rule.getState()));
                 acl.add("config", parseJsonObject(rule.getConfigJson()));
                 if (rulePasswords != null && rulePasswords.containsKey(rule.getId())) {
                     acl.addProperty("password", rulePasswords.get(rule.getId()));
@@ -4726,6 +4888,13 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 && !normalizeVolumeIdentity(volume.getUuid()).equals(normalizeVolumeIdentity(observedVolumeUuid))) {
             throw new CloudRuntimeException("Storage Service volume inspection returned a different backing volume identity");
         }
+        final String expectedFilesystem=getJsonString(parseJsonObject(share.getConfigJson()),"filesystemUuid");
+        final String actualFilesystem=getJsonString(resultJson,"filesystemUuid");
+        if (!Boolean.TRUE.equals(getJsonBoolean(resultJson,"success")) || StringUtils.isBlank(actualFilesystem)
+                || StringUtils.isBlank(getJsonString(resultJson,"serial")) || StringUtils.isBlank(getJsonString(resultJson,"matchedBy"))
+                || StringUtils.isBlank(observedVolumeUuid) || expectedFilesystem!=null && !expectedFilesystem.equals(actualFilesystem)) {
+            throw new CloudRuntimeException("File backing reuse/preparation requires a fresh exact guest serial and filesystem identity");
+        }
         resultJson.addProperty("volumeUuid", volume.getUuid());
         if (resultJson.has("filesystem") && !resultJson.get("filesystem").isJsonNull()) {
             share.setFilesystem(resultJson.get("filesystem").getAsString());
@@ -4927,7 +5096,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 endpoint.addProperty("nicUuid", targetNic.getUuid());
             }
             if (StringUtils.isNotBlank(targetNic.getIPv4Address())) {
-                endpoint.addProperty("primaryIp", targetNic.getIPv4Address());
+                endpoint.addProperty("primaryIp", declaredProtocolPrimary(instance,targetNic));
             }
             if (StringUtils.isNotBlank(targetNic.getIPv4Netmask())) {
                 endpoint.addProperty("netmask", targetNic.getIPv4Netmask());
@@ -7997,6 +8166,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         response.setIdentityWarning(context == null ? null : context.identityWarning);
         response.setEffectiveEndpoints(createEffectiveProtocolEndpoints(protocol, context, listenerPort, wildcard));
         response.setRuntimeState(!protocol.isEnabled() ? "DISABLED" : protocol.getState().name().toUpperCase(Locale.ROOT));
+        if(protocol.getProtocol()==StorageServiceInstance.Protocol.SMB && protocol.isEnabled()) {
+            JsonObject observed=StorageSmbEndpointObservation.project(context==null?null:context.protocolRuntimeHealth,protocol.getListenIp(),listenerPort,System.currentTimeMillis());
+            String runtime=getJsonString(observed,"runtimeState");response.setRuntimeState(runtime);response.setState("READY".equals(runtime)?"Ready":"DEGRADED".equals(runtime)?"Error":"Unknown");
+        }
+
         final Map<Integer, Integer> linkedCounts = context == null ? null : context.linkedResourceCounts.get(protocol.getProtocol());
         response.setLinkedResourceCount(linkedCounts == null ? 0 : linkedCounts.getOrDefault(listenerPort, 0));
         if (protocol.getProtocol() == StorageServiceInstance.Protocol.NFS) {
@@ -8063,12 +8237,13 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
         try {
             final StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
-                    "health", "", StorageServiceInstance.StorageServiceCommandTimeout.value(), Collections.emptySet()));
+                    "operation verify", "", 30, Collections.emptySet()));
             if (!result.isSuccess() || StringUtils.isBlank(result.getResultJson())) {
                 return null;
             }
             final JsonElement root = new JsonParser().parse(normalizeRuntimeResultJson(result.getResultJson()));
             if(context != null && root.isJsonObject()) {
+                context.protocolRuntimeHealth=root.getAsJsonObject().deepCopy();
                 context.nfsRuntimeIdMappingMode=StringUtils.defaultIfBlank(getJsonString(getJsonObject(root.getAsJsonObject(),"nfsGanesha"),"idMappingMode"),"UNKNOWN");
             }
             final List<String> candidates = new ArrayList<>();
@@ -8212,6 +8387,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             endpoint.setIpAddress(address);
             endpoint.setPort(port);
             endpoint.setRole(wildcard ? (address.equals(StringUtils.defaultIfBlank(context.runtimePrimaryIp, context.primaryIp)) ? "PRIMARY" : "ALIAS") : "DEDICATED");
+            if(protocol.getProtocol()==StorageServiceInstance.Protocol.SMB) {
+                JsonObject observed=StorageSmbEndpointObservation.project(context==null?null:context.protocolRuntimeHealth,wildcard?protocol.getListenIp():address,port,System.currentTimeMillis());
+                endpoint.setRuntimeState(!protocol.isEnabled()?"DISABLED":getJsonString(observed,"runtimeState"));endpoint.setListening(protocol.isEnabled()&&Boolean.TRUE.equals(getJsonBoolean(observed,"listening")));endpoint.setListenerOwned(Boolean.TRUE.equals(getJsonBoolean(observed,"listenerOwned")));endpoint.setDiagnostic(getJsonString(observed,"diagnostic"));if(observed.has("observedEpoch"))endpoint.setObservedEpoch(observed.get("observedEpoch").getAsDouble());
+            }
             endpoint.setObjectName("storageserviceprotocolendpoint");
             endpoints.add(endpoint);
         }
@@ -8333,6 +8512,14 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         response.setState(share.getState().name());
         response.setConfig(share.getConfigJson());
         populateFileShareVolumeResponse(response, volume, parseJsonObject(share.getConfigJson()), runtimeObservation);
+        JsonArray declaredListeners=new JsonArray();
+        if (instance!=null) for(StorageServiceProtocolVO listener:storageServiceProtocolDao.listByInstanceIdAndProtocol(instance.getId(),StorageServiceInstance.Protocol.SMB)) {
+            if(!listener.isEnabled())continue;JsonObject endpoint=new JsonObject();endpoint.addProperty("listenIp",StringUtils.defaultIfBlank(listener.getListenIp(),"0.0.0.0"));endpoint.addProperty("port",listener.getPort()==null?445:listener.getPort());declaredListeners.add(endpoint);
+        }
+        if(declaredListeners.size()==0){JsonObject endpoint=new JsonObject();endpoint.addProperty("listenIp","0.0.0.0");endpoint.addProperty("port",445);declaredListeners.add(endpoint);}
+        JsonObject listeners=StorageSmbEndpointObservation.aggregate(runtimeObservation!=null&&runtimeObservation.has("smbRuntimeHealth")?runtimeObservation.getAsJsonObject("smbRuntimeHealth"):null,declaredListeners,System.currentTimeMillis());
+        String runtime=getJsonString(listeners,"runtimeState");response.setRuntimeState(runtime);response.setListenerObservations(listeners.toString());response.setListenerScope("SERVICE");
+        if(share.getState()==StorageServiceInstance.ResourceState.Ready)response.setState("READY".equals(runtime)?"Ready":"DEGRADED".equals(runtime)?"Error":"Unknown");
         List<String> sources=new ArrayList<>();
         for (StorageAccessRuleVO rule:storageAccessRuleDao.listByResource(StorageServiceInstance.AccessResourceType.FILE_SHARE,share.getId())) {
             if (isSmbNetworkRule(rule) && rule.getState()!=StorageServiceInstance.ResourceState.Disabled && rule.getState()!=StorageServiceInstance.ResourceState.Destroyed && rule.getState()!=StorageServiceInstance.ResourceState.Error) sources.add(rule.getPrincipal());
@@ -8375,7 +8562,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
         try {
             final StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
-                    "inventory", "", StorageServiceInstance.StorageServiceCommandTimeout.value(), Collections.emptySet()));
+                    "operation observe", "", 30, Collections.emptySet()));
             if (!result.isSuccess()) {
                 logger.warn("Unable to read file-share runtime inventory for Storage Service instance [{}]: {}", instance.getUuid(), result.getDetails());
                 snapshot.error = result.getDetails();
@@ -8393,6 +8580,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                     if (entry.getValue().isJsonObject()) snapshot.sharePolicies.put(entry.getKey(), entry.getValue().getAsJsonObject());
                 }
             }
+            StorageServiceGuestCommandResult health=guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),"operation verify","",30,Collections.emptySet()));
+            if(health.isSuccess())snapshot.protocolRuntimeHealth=parseJsonObject(normalizeRuntimeResultJson(health.getResultJson()));
             snapshot.available = true;
             for (final JsonElement element : inventory.getAsJsonArray("fileShareVolumes")) {
                 if (!element.isJsonObject()) {
@@ -8422,6 +8611,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         final JsonObject volumeObservation = volume == null ? null : snapshot.observation(normalizeVolumeIdentity(volume.getUuid()));
         final JsonObject result = volumeObservation == null ? new JsonObject() : volumeObservation.deepCopy();
         if (snapshot.sharePolicies.containsKey(share.getUuid())) result.add("smbAccess", snapshot.sharePolicies.get(share.getUuid()).deepCopy());
+        if(share.getProtocol()==StorageServiceInstance.Protocol.SMB && snapshot.protocolRuntimeHealth!=null)result.add("smbRuntimeHealth",snapshot.protocolRuntimeHealth.deepCopy());
         return result;
     }
 

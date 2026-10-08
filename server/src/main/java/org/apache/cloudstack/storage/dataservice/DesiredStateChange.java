@@ -67,6 +67,10 @@ public final class DesiredStateChange {
 
     public <T> T execute(long instanceId, String action, String clientKey, Long expectedRevision,
             Class<T> responseClass, Supplier<T> change, Runtime runtime) {
+        return execute(instanceId,action,clientKey,expectedRevision,null,responseClass,change,runtime);
+    }
+    public <T> T execute(long instanceId,String action,String clientKey,Long expectedRevision,String requestFingerprint,
+            Class<T> responseClass,Supplier<T> change,Runtime runtime) {
         final String token = clientKey == null ? UUID.randomUUID().toString() : clientKey;
         if (!token.matches("[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}")) throw new IllegalArgumentException("Invalid Storage Service idempotency key");
         final String request = action + ":" + token;
@@ -76,7 +80,18 @@ public final class DesiredStateChange {
             try {
                 StorageServiceOperationVO previous = operations.findByRequest(instanceId, request);
                 if (previous != null) {
-                    if ("COMPLETE".equals(previous.getState())) return gson.fromJson(previous.getResultJson(), responseClass);
+                    if (previous.getCreatedBy() != CallContext.current().getCallingUserId()) {
+                        throw new CloudRuntimeException("Idempotency key belongs to another actor; use a new key");
+                    }
+                    if(requestFingerprint!=null) {
+                        com.google.gson.JsonObject stored=previous.getResultJson()==null || !new com.google.gson.JsonParser().parse(previous.getResultJson()).isJsonObject()?new com.google.gson.JsonObject():new com.google.gson.JsonParser().parse(previous.getResultJson()).getAsJsonObject();
+                        if(!stored.has("_requestFingerprint") || !messageDigestEqual(requestFingerprint,stored.get("_requestFingerprint").getAsString())) throw new CloudRuntimeException("Idempotency key belongs to a different request target or parameter intent; use a new key");
+                    }
+                    if ("COMPLETE".equals(previous.getState())) {
+                        com.google.gson.JsonElement response=new com.google.gson.JsonParser().parse(previous.getResultJson());
+                        if(response.isJsonObject() && response.getAsJsonObject().has("_response"))response=response.getAsJsonObject().get("_response");
+                        return gson.fromJson(response,responseClass);
+                    }
                     throw new CloudRuntimeException("Storage Service operation already exists: " + previous.getUuid() + " " + previous.getState());
                 }
                 java.util.List<StorageServiceOperationVO> history = operations.listByInstance(instanceId);
@@ -91,6 +106,7 @@ public final class DesiredStateChange {
                 operation.setInstanceId(instanceId); operation.setAction(action); operation.setRequestKey(request);
                 operation.setRevision(committed + 1); operation.setCreatedBy(CallContext.current().getCallingUserId());
                 operation.setState("RUNNING"); operation.setPhase("PREFLIGHT");
+                if(requestFingerprint!=null){com.google.gson.JsonObject intent=new com.google.gson.JsonObject();intent.addProperty("_requestFingerprint",requestFingerprint);operation.setResultJson(intent.toString());}
                 operation = operations.persist(operation);
                 runtime.started(operation);
                 boolean mutated = false;
@@ -106,7 +122,9 @@ public final class DesiredStateChange {
                     runtime.verify();
                     runtime.verifyNativeGeneration(operation);
                     operation.setSnapshotJson(snapshots.capture(instanceId));
-                    operation.setResultJson(gson.toJson(response));
+                    com.google.gson.JsonElement serialized=gson.toJsonTree(response);
+                    if(requestFingerprint!=null){com.google.gson.JsonObject result=new com.google.gson.JsonObject();result.addProperty("_requestFingerprint",requestFingerprint);result.add("_response",serialized);serialized=result;}
+                    operation.setResultJson(serialized.toString());
                     runtime.promoteVerifiedConfiguration(operation);
                     // The verified configuration path commits COMPLETE and its LKG pointer together.
                     if (!"COMPLETE".equals(operation.getState())) {
@@ -151,12 +169,14 @@ public final class DesiredStateChange {
         } finally { lock.releaseRef(); }
     }
 
+    private boolean messageDigestEqual(String expected,String actual){return java.security.MessageDigest.isEqual(expected.getBytes(java.nio.charset.StandardCharsets.UTF_8),actual.getBytes(java.nio.charset.StandardCharsets.UTF_8));}
+
     private String desiredOnly(String json) {
         try {
             final com.google.gson.JsonElement value = new com.google.gson.JsonParser().parse(json);
             if (value.isJsonObject()) {
                 final com.google.gson.JsonObject copy = value.getAsJsonObject().deepCopy();
-                copy.remove("nativePosixDirectory");copy.remove("nativePosixDirectories");copy.remove("nativeIdentityCapsule");copy.remove("nativeGeneration");
+                copy.remove("nativePosixDirectory");copy.remove("nativePosixDirectories");copy.remove("nativeIdentityCapsule");copy.remove("nativeGeneration");copy.remove("nativeDesiredState");
                 return copy.toString();
             }
         } catch (RuntimeException invalid) { /* Legacy non-JSON test/diagnostic snapshots remain exact comparisons. */ }
