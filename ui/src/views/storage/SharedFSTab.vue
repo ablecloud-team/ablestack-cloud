@@ -1332,7 +1332,15 @@ class="storage-service__alert"
         </div>
       </a-tab-pane>
 
-      <a-tab-pane :tab="$t('label.networks')" key="nics" v-if="'listNics' in $store.getters.apis"><NicsTab :resource="vm"/></a-tab-pane>
+      <a-tab-pane :tab="$t('label.networks')" key="nics" v-if="'listNics' in $store.getters.apis">
+        <a-descriptions v-if="dataResource.networkmode === 'STATIC'" bordered size="small" :column="1" class="storage-static-network">
+          <a-descriptions-item :label="$t('label.sharedfs.network.mode')">STATIC</a-descriptions-item>
+          <a-descriptions-item :label="$t('label.sharedfs.ip.cidr')">{{ dataResource.ipcidr || '—' }}</a-descriptions-item>
+          <a-descriptions-item :label="$t('label.cidr')">{{ dataResource.cidr || '—' }}</a-descriptions-item>
+          <a-descriptions-item :label="$t('label.gateway')">{{ dataResource.gateway || '—' }}</a-descriptions-item>
+        </a-descriptions>
+        <NicsTab :resource="vm"/>
+      </a-tab-pane>
       <a-tab-pane v-if="$store.getters.features.instancesdisksstatsretentionenabled" :tab="$t('label.volume.metrics')" key="volumestats"><StatsTab :resource="volume" :resourceType="'Volume'"/></a-tab-pane>
       <a-tab-pane :tab="$t('label.metrics')" key="vmstats"><StatsTab :resource="vm"/></a-tab-pane>
       <a-tab-pane :tab="$t('label.events')" key="events" v-if="'listEvents' in $store.getters.apis"><events-tab :resource="resource" resourceType="SharedFS" :loading="loading" /></a-tab-pane>
@@ -8384,6 +8392,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.storage-static-network { margin-bottom: 16px; }
+
   .page-header-wrapper-grid-content-main {
     width: 100%;
     height: 100%;
