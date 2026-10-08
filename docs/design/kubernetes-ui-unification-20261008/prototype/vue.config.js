@@ -24,6 +24,11 @@ module.exports = {
   chainWebpack: config => {
     base.chainWebpack(config)
     config.module.rules.delete('eslint')
+    const aliases = config.resolve.alias.entries()
+    config.resolve.alias.clear()
+    config.resolve.alias.set('@/api$', path.resolve(__dirname, 'fixture-api.js'))
+    config.resolve.alias.set('@/utils/plugins$', path.resolve(__dirname, 'fixture-plugins.js'))
+    Object.entries(aliases).filter(([key])=>!['@/api$','@/utils/plugins$'].includes(key)).forEach(([key,value])=>config.resolve.alias.set(key,value))
     config.entry('app').clear().add(path.resolve(__dirname, 'main.js'))
     config.plugin('html').tap(args => { args[0].template = path.resolve(__dirname, 'index.html'); return args })
   },

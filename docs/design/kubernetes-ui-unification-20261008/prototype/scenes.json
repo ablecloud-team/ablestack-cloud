@@ -45,13 +45,15 @@
     "id": "events",
     "title": "이벤트",
     "kind": "page",
-    "tab": "events"
+    "tab": "events",
+    "source": "기존 EventsTab.vue + ListView.vue 직접 사용 (수정 없음)"
   },
   {
     "id": "comments",
     "title": "코멘트",
     "kind": "page",
-    "tab": "comments"
+    "tab": "comments",
+    "source": "기존 AnnotationsTab.vue 직접 사용 (수정 없음)"
   },
   {
     "id": "iso-list",
@@ -578,7 +580,7 @@
         "type": "select"
       }
     ],
-    "alert": "기존 Kubernetes 클러스터를 Mold에 등록합니다. 노드 VM 배포와 Kubernetes 설치는 외부 운영자가 수행합니다.",
+    "alert": "외부에서 운영하는 Kubernetes 클러스터를 Mold에 등록합니다. 등록 후 기존 Mold VM을 외부 노드로 연결할 수 있으며, VM 배포·Kubernetes 설치·가입은 수행하지 않습니다.",
     "button": "다음"
   },
   {
@@ -589,7 +591,7 @@
     "source": "CreateKubernetesClusterCmd.java / KubernetesClusterManagerImpl.java",
     "api": "createKubernetesCluster(clustertype=ExternalManaged)",
     "id": "create-external-options",
-    "title": "외부 관리형 · 선택 정보",
+    "title": "외부 관리형 · 선택 정보와 VM 연결",
     "step": 1,
     "fields": [
       {
@@ -605,10 +607,28 @@
       {
         "label": "SSH 키 쌍 (선택)",
         "value": "선택 안 함",
-        "type": "select"
+        "type": "select",
+        "wide": true
+      },
+      {
+        "name": "connectafter",
+        "label": "기존 VM 연결",
+        "type": "select",
+        "value": "later",
+        "options": [
+          {
+            "value": "later",
+            "label": "등록만 · 나중에 연결 (기본)"
+          },
+          {
+            "value": "after",
+            "label": "등록 후 외부 노드 추가 계속하기"
+          }
+        ],
+        "wide": true
       }
     ],
-    "hint": "선택 정보는 등록 메타데이터입니다. ISO를 마운트하거나 노드를 배포하지 않습니다. 기본 등록에서는 해당 API 매개변수를 생략합니다.",
+    "hint": "기존 VM은 클러스터 등록 성공 후 별도 연결합니다. 외부 노드 추가에서 제어/워커 역할을 지정하며, Kubernetes 설치·실제 가입은 외부 운영자가 수행합니다. 선택한 버전·네트워크·SSH 키는 등록 메타데이터입니다.",
     "button": "다음"
   },
   {
@@ -623,9 +643,9 @@
     "step": 2,
     "checks": [
       "클러스터 이름 · Zone · 등록 소유자 확인",
-      "clustertype=ExternalManaged로 등록",
-      "ISO·컴퓨트·노드 수·ROOT·CNI·CSI·레지스트리 배포 매개변수 생략",
-      "등록 완료 후 기존 Mold VM을 별도 연결 가능",
+      "외부 관리형으로 등록",
+      "VM 자동 배포·Kubernetes 설치·CNI/CSI 설치를 수행하지 않음",
+      "기본: 등록만 완료 · 가상머신 탭에서 외부 노드 추가 가능",
       "Mold 시작·중지·자동 확장·업그레이드 작업은 제공하지 않음"
     ],
     "alert": "등록 상태 Running은 Kubernetes API 접속이나 워크로드 건강 상태의 검증 결과가 아닙니다.",
@@ -1123,7 +1143,8 @@
     "danger": true,
     "button": "등록 삭제",
     "source": "compute.js / AutogenView API form",
-    "api": "deleteKubernetesCluster"
+    "api": "deleteKubernetesCluster",
+    "externalManaged": true
   },
   {
     "id": "bulk-start",
@@ -1375,7 +1396,9 @@
     "hint": "관리 포트 보호와 사용자 규칙의 소유권 구분을 유지합니다. 공유 FirewallRules·PortForwarding 태그 편집 폼을 재사용합니다.",
     "button": "태그 저장",
     "source": "FirewallRules.vue / PortForwarding.vue",
-    "api": "createTags"
+    "api": "createTags",
+    "network": true,
+    "tab": "firewall"
   },
   {
     "id": "pf-vm",
@@ -1395,10 +1418,12 @@
         "type": "select"
       }
     ],
-    "hint": "동일 네트워크·티어의 VM과 실제 NIC를 조회해 선택합니다. VM 이름에서 SSH 포트를 계산하지 않습니다.",
+    "hint": "선택한 VM의 NIC 주소를 포트 포워딩 규칙에 연결합니다. VM·NIC 후보는 실제 계정·프로젝트·네트워크 범위에서 조회합니다.",
     "button": "VM 선택",
     "source": "PortForwarding.vue",
-    "api": "createPortForwardingRule"
+    "api": "createPortForwardingRule",
+    "network": true,
+    "tab": "portforwarding"
   },
   {
     "id": "rules-delete",
@@ -1416,7 +1441,7 @@
   {
     "id": "comment-delete",
     "title": "코멘트 삭제",
-    "kind": "dialog",
+    "kind": "popover",
     "width": 600,
     "summary": [
       [
@@ -1432,13 +1457,14 @@
     "alertType": "warning",
     "danger": true,
     "button": "코멘트 삭제",
-    "source": "AnnotationsTab.vue / Popconfirm",
-    "api": "removeAnnotation"
+    "source": "기존 AnnotationsTab.vue의 Popconfirm 그대로 (수정 없음)",
+    "api": "removeAnnotation",
+    "tab": "comments"
   },
   {
     "id": "comment-visibility",
     "title": "코멘트 공개 범위 변경",
-    "kind": "dialog",
+    "kind": "popover",
     "width": 600,
     "summary": [
       [
@@ -1453,8 +1479,9 @@
     "alert": "코멘트 접근 권한과 대상 사용자를 확인합니다.",
     "alertType": "warning",
     "button": "공개 범위 변경",
-    "source": "AnnotationsTab.vue / Popconfirm",
-    "api": "updateAnnotationVisibility"
+    "source": "기존 AnnotationsTab.vue의 Popconfirm 그대로 (수정 없음)",
+    "api": "updateAnnotationVisibility",
+    "tab": "comments"
   },
   {
     "id": "upgrade-empty",
@@ -1509,5 +1536,1342 @@
     "disabled": true,
     "source": "AddKubernetesSupportedVersion.vue",
     "api": "addKubernetesSupportedVersion"
+  },
+  {
+    "kind": "dialog",
+    "network": true,
+    "width": 960,
+    "summary": [
+      [
+        "네트워크",
+        "app-isolated-network"
+      ],
+      [
+        "공인 IP",
+        "203.0.113.12"
+      ],
+      [
+        "소유자 / Zone",
+        "demo-team / Zone-A"
+      ],
+      [
+        "규칙 소유권",
+        "사용자 규칙"
+      ]
+    ],
+    "id": "firewall-create",
+    "title": "방화벽 규칙 추가",
+    "tab": "firewall",
+    "api": "createFirewallRule",
+    "source": "FirewallRules.vue",
+    "fields": [
+      {
+        "name": "cidr",
+        "label": "소스 CIDR",
+        "value": "198.51.100.0/24",
+        "type": "input",
+        "required": true,
+        "help": "여러 CIDR은 쉼표로 구분합니다."
+      },
+      {
+        "name": "protocol",
+        "label": "프로토콜",
+        "value": "tcp",
+        "type": "select",
+        "options": [
+          {
+            "value": "tcp",
+            "label": "TCP"
+          },
+          {
+            "value": "udp",
+            "label": "UDP"
+          },
+          {
+            "value": "icmp",
+            "label": "ICMP"
+          }
+        ],
+        "required": true
+      },
+      {
+        "name": "startport",
+        "label": "시작 포트",
+        "value": 8080,
+        "type": "number",
+        "min": 1,
+        "max": 65535,
+        "required": true,
+        "when": {
+          "field": "protocol",
+          "values": [
+            "tcp",
+            "udp"
+          ]
+        }
+      },
+      {
+        "name": "endport",
+        "label": "종료 포트",
+        "value": 8080,
+        "type": "number",
+        "min": 1,
+        "max": 65535,
+        "required": true,
+        "when": {
+          "field": "protocol",
+          "values": [
+            "tcp",
+            "udp"
+          ]
+        }
+      },
+      {
+        "name": "icmptype",
+        "label": "ICMP 유형",
+        "value": 8,
+        "type": "number",
+        "min": -1,
+        "max": 255,
+        "when": {
+          "field": "protocol",
+          "values": [
+            "icmp"
+          ]
+        }
+      },
+      {
+        "name": "icmpcode",
+        "label": "ICMP 코드",
+        "value": 0,
+        "type": "number",
+        "min": -1,
+        "max": 255,
+        "when": {
+          "field": "protocol",
+          "values": [
+            "icmp"
+          ]
+        }
+      }
+    ],
+    "button": "규칙 추가",
+    "hint": "TCP·UDP는 포트 범위, ICMP는 유형·코드를 입력합니다. 실제 적용은 비동기 작업 결과를 확인합니다."
+  },
+  {
+    "kind": "dialog",
+    "network": true,
+    "width": 960,
+    "summary": [
+      [
+        "네트워크",
+        "app-isolated-network"
+      ],
+      [
+        "공인 IP",
+        "203.0.113.12"
+      ],
+      [
+        "소유자 / Zone",
+        "demo-team / Zone-A"
+      ],
+      [
+        "규칙 소유권",
+        "사용자 규칙"
+      ]
+    ],
+    "id": "firewall-replace",
+    "title": "방화벽 규칙 교체",
+    "tab": "firewall",
+    "api": "deleteFirewallRule → createFirewallRule",
+    "source": "FirewallRules.vue",
+    "fields": [
+      {
+        "name": "cidr",
+        "label": "소스 CIDR",
+        "value": "198.51.100.0/24",
+        "type": "input",
+        "required": true,
+        "help": "여러 CIDR은 쉼표로 구분합니다."
+      },
+      {
+        "name": "protocol",
+        "label": "프로토콜",
+        "value": "tcp",
+        "type": "select",
+        "options": [
+          {
+            "value": "tcp",
+            "label": "TCP"
+          },
+          {
+            "value": "udp",
+            "label": "UDP"
+          },
+          {
+            "value": "icmp",
+            "label": "ICMP"
+          }
+        ],
+        "required": true
+      },
+      {
+        "name": "startport",
+        "label": "시작 포트",
+        "value": 8080,
+        "type": "number",
+        "min": 1,
+        "max": 65535,
+        "required": true,
+        "when": {
+          "field": "protocol",
+          "values": [
+            "tcp",
+            "udp"
+          ]
+        }
+      },
+      {
+        "name": "endport",
+        "label": "종료 포트",
+        "value": 8080,
+        "type": "number",
+        "min": 1,
+        "max": 65535,
+        "required": true,
+        "when": {
+          "field": "protocol",
+          "values": [
+            "tcp",
+            "udp"
+          ]
+        }
+      },
+      {
+        "name": "icmptype",
+        "label": "ICMP 유형",
+        "value": 8,
+        "type": "number",
+        "min": -1,
+        "max": 255,
+        "when": {
+          "field": "protocol",
+          "values": [
+            "icmp"
+          ]
+        }
+      },
+      {
+        "name": "icmpcode",
+        "label": "ICMP 코드",
+        "value": 0,
+        "type": "number",
+        "min": -1,
+        "max": 255,
+        "when": {
+          "field": "protocol",
+          "values": [
+            "icmp"
+          ]
+        }
+      }
+    ],
+    "button": "규칙 교체",
+    "alert": "현재 API는 규칙의 포트·CIDR을 직접 변경하지 않습니다. 기존 규칙 삭제와 새 규칙 생성 사이에 연결이 끊길 수 있습니다.",
+    "alertType": "warning"
+  },
+  {
+    "kind": "dialog",
+    "network": true,
+    "width": 960,
+    "summary": [
+      [
+        "네트워크",
+        "app-isolated-network"
+      ],
+      [
+        "공인 IP",
+        "203.0.113.12"
+      ],
+      [
+        "소유자 / Zone",
+        "demo-team / Zone-A"
+      ],
+      [
+        "규칙 소유권",
+        "사용자 규칙"
+      ]
+    ],
+    "id": "pf-create",
+    "title": "포트 포워딩 규칙 추가",
+    "tab": "portforwarding",
+    "api": "createPortForwardingRule",
+    "source": "PortForwarding.vue",
+    "fields": [
+      {
+        "name": "protocol",
+        "label": "프로토콜",
+        "value": "tcp",
+        "type": "select",
+        "options": [
+          {
+            "value": "tcp",
+            "label": "TCP"
+          },
+          {
+            "value": "udp",
+            "label": "UDP"
+          }
+        ],
+        "required": true,
+        "group": "",
+        "wide": true
+      },
+      {
+        "name": "publicport",
+        "label": "시작 포트",
+        "value": 8080,
+        "type": "number",
+        "min": 1,
+        "max": 65535,
+        "required": true,
+        "group": "공인 포트"
+      },
+      {
+        "name": "publicendport",
+        "label": "종료 포트",
+        "value": 8080,
+        "type": "number",
+        "min": 1,
+        "max": 65535,
+        "required": true,
+        "group": "공인 포트"
+      },
+      {
+        "name": "privateport",
+        "label": "시작 포트",
+        "value": 80,
+        "type": "number",
+        "min": 1,
+        "max": 65535,
+        "required": true,
+        "group": "게스트 포트"
+      },
+      {
+        "name": "privateendport",
+        "label": "종료 포트",
+        "value": 80,
+        "type": "number",
+        "min": 1,
+        "max": 65535,
+        "required": true,
+        "group": "게스트 포트"
+      },
+      {
+        "name": "vm",
+        "label": "대상 VM",
+        "value": "worker-01",
+        "type": "select",
+        "options": [
+          {
+            "value": "worker-01",
+            "label": "worker-01"
+          },
+          {
+            "value": "worker-02",
+            "label": "worker-02"
+          }
+        ],
+        "required": true,
+        "group": "연결 대상"
+      },
+      {
+        "name": "nic",
+        "label": "대상 NIC 주소",
+        "value": "192.0.2.11 · 기본 NIC",
+        "type": "select",
+        "options": [
+          {
+            "value": "192.0.2.11 · 기본 NIC",
+            "label": "192.0.2.11 · 기본 NIC"
+          },
+          {
+            "value": "192.0.2.111 · 보조 IP",
+            "label": "192.0.2.111 · 보조 IP"
+          }
+        ],
+        "required": true,
+        "group": "연결 대상"
+      },
+      {
+        "name": "firewall",
+        "label": "방화벽 자동 개방",
+        "value": false,
+        "type": "switch",
+        "disabled": true,
+        "help": "방화벽 규칙은 별도 추가합니다.",
+        "group": "방화벽 설정",
+        "wide": true
+      }
+    ],
+    "button": "규칙 추가",
+    "hint": "공인·게스트 포트 범위 길이를 맞춥니다. VPC는 선택한 티어와 허용 CIDR을 함께 적용합니다."
+  },
+  {
+    "kind": "dialog",
+    "network": true,
+    "width": 960,
+    "summary": [
+      [
+        "네트워크",
+        "app-isolated-network"
+      ],
+      [
+        "공인 IP",
+        "203.0.113.12"
+      ],
+      [
+        "소유자 / Zone",
+        "demo-team / Zone-A"
+      ],
+      [
+        "규칙 소유권",
+        "사용자 규칙"
+      ]
+    ],
+    "id": "pf-edit",
+    "title": "포트 포워딩 설정 변경",
+    "tab": "portforwarding",
+    "api": "updatePortForwardingRule",
+    "source": "PortForwarding.vue",
+    "fields": [
+      {
+        "name": "protocol",
+        "label": "프로토콜",
+        "value": "tcp",
+        "type": "select",
+        "options": [
+          {
+            "value": "tcp",
+            "label": "TCP"
+          },
+          {
+            "value": "udp",
+            "label": "UDP"
+          }
+        ],
+        "required": true,
+        "disabled": true,
+        "group": "",
+        "wide": true
+      },
+      {
+        "name": "publicport",
+        "label": "시작 포트",
+        "value": 8080,
+        "type": "number",
+        "min": 1,
+        "max": 65535,
+        "required": true,
+        "disabled": true,
+        "group": "공인 포트"
+      },
+      {
+        "name": "publicendport",
+        "label": "종료 포트",
+        "value": 8080,
+        "type": "number",
+        "min": 1,
+        "max": 65535,
+        "required": true,
+        "disabled": true,
+        "group": "공인 포트"
+      },
+      {
+        "name": "privateport",
+        "label": "시작 포트",
+        "value": 80,
+        "type": "number",
+        "min": 1,
+        "max": 65535,
+        "required": true,
+        "group": "게스트 포트"
+      },
+      {
+        "name": "privateendport",
+        "label": "종료 포트",
+        "value": 80,
+        "type": "number",
+        "min": 1,
+        "max": 65535,
+        "required": true,
+        "group": "게스트 포트"
+      },
+      {
+        "name": "vm",
+        "label": "대상 VM",
+        "value": "worker-01",
+        "type": "select",
+        "options": [
+          {
+            "value": "worker-01",
+            "label": "worker-01"
+          },
+          {
+            "value": "worker-02",
+            "label": "worker-02"
+          }
+        ],
+        "required": true,
+        "group": "연결 대상"
+      },
+      {
+        "name": "nic",
+        "label": "대상 NIC 주소",
+        "value": "192.0.2.11 · 기본 NIC",
+        "type": "select",
+        "options": [
+          {
+            "value": "192.0.2.11 · 기본 NIC",
+            "label": "192.0.2.11 · 기본 NIC"
+          },
+          {
+            "value": "192.0.2.111 · 보조 IP",
+            "label": "192.0.2.111 · 보조 IP"
+          }
+        ],
+        "required": true,
+        "group": "연결 대상"
+      },
+      {
+        "name": "firewall",
+        "label": "방화벽 자동 개방",
+        "value": false,
+        "type": "switch",
+        "disabled": true,
+        "help": "방화벽 규칙은 별도 추가합니다.",
+        "group": "방화벽 설정",
+        "wide": true
+      }
+    ],
+    "button": "저장",
+    "hint": "기존 공인 포트와 프로토콜은 유지합니다. 대상 VM·NIC와 게스트 포트 범위를 변경합니다."
+  },
+  {
+    "kind": "dialog",
+    "network": true,
+    "width": 960,
+    "summary": [
+      [
+        "네트워크",
+        "app-isolated-network"
+      ],
+      [
+        "공인 IP",
+        "203.0.113.12"
+      ],
+      [
+        "소유자 / Zone",
+        "demo-team / Zone-A"
+      ],
+      [
+        "규칙 소유권",
+        "사용자 규칙"
+      ]
+    ],
+    "id": "lb-create",
+    "title": "로드밸런서 규칙 추가",
+    "tab": "loadbalancers",
+    "api": "createLoadBalancerRule → assignToLoadBalancerRule",
+    "source": "LoadBalancing.vue",
+    "fields": [
+      {
+        "name": "name",
+        "label": "규칙 이름",
+        "value": "app-web",
+        "type": "input",
+        "required": true
+      },
+      {
+        "name": "description",
+        "label": "설명",
+        "value": "애플리케이션 HTTPS 서비스",
+        "type": "input"
+      },
+      {
+        "name": "publicport",
+        "label": "공인 포트",
+        "value": 443,
+        "type": "number",
+        "min": 1,
+        "max": 65535,
+        "required": true
+      },
+      {
+        "name": "privateport",
+        "label": "게스트 포트",
+        "value": 8443,
+        "type": "number",
+        "min": 1,
+        "max": 65535,
+        "required": true
+      },
+      {
+        "name": "algorithm",
+        "label": "분산 알고리즘",
+        "value": "roundrobin",
+        "type": "select",
+        "options": [
+          {
+            "value": "roundrobin",
+            "label": "roundrobin"
+          },
+          {
+            "value": "leastconn",
+            "label": "leastconn"
+          },
+          {
+            "value": "source",
+            "label": "source"
+          }
+        ],
+        "required": true
+      },
+      {
+        "name": "protocol",
+        "label": "프로토콜",
+        "value": "tcp",
+        "type": "select",
+        "options": [
+          {
+            "value": "tcp",
+            "label": "TCP"
+          },
+          {
+            "value": "udp",
+            "label": "UDP"
+          },
+          {
+            "value": "tcp-proxy",
+            "label": "TCP-PROXY"
+          },
+          {
+            "value": "http",
+            "label": "HTTP"
+          },
+          {
+            "value": "ssl",
+            "label": "SSL"
+          }
+        ],
+        "required": true
+      },
+      {
+        "name": "cidr",
+        "label": "소스 CIDR",
+        "value": "198.51.100.0/24",
+        "type": "input",
+        "wide": true
+      },
+      {
+        "name": "cert",
+        "label": "SSL 인증서",
+        "value": "app-web-tls",
+        "type": "select",
+        "options": [
+          {
+            "value": "app-web-tls",
+            "label": "app-web-tls"
+          }
+        ],
+        "when": {
+          "field": "protocol",
+          "values": [
+            "ssl"
+          ]
+        }
+      },
+      {
+        "name": "backendssl",
+        "label": "백엔드 SSL",
+        "value": true,
+        "type": "switch",
+        "when": {
+          "field": "protocol",
+          "values": [
+            "ssl"
+          ]
+        }
+      }
+    ],
+    "button": "규칙 생성 및 VM 연결",
+    "nodeTable": true,
+    "hint": "규칙 생성 → 대상 VM·NIC 연결 → SSL 선택 시 인증서 연결. 실패한 단계와 생성된 규칙을 구분합니다."
+  },
+  {
+    "kind": "dialog",
+    "network": true,
+    "width": 960,
+    "summary": [
+      [
+        "네트워크",
+        "app-isolated-network"
+      ],
+      [
+        "공인 IP",
+        "203.0.113.12"
+      ],
+      [
+        "소유자 / Zone",
+        "demo-team / Zone-A"
+      ],
+      [
+        "규칙 소유권",
+        "사용자 규칙"
+      ]
+    ],
+    "id": "lb-edit",
+    "title": "로드밸런서 설정 변경",
+    "tab": "loadbalancers",
+    "api": "updateLoadBalancerRule",
+    "source": "LoadBalancing.vue",
+    "fields": [
+      {
+        "name": "name",
+        "label": "규칙 이름",
+        "value": "app-web",
+        "type": "input",
+        "required": true
+      },
+      {
+        "name": "description",
+        "label": "설명",
+        "value": "애플리케이션 HTTPS 서비스",
+        "type": "input"
+      },
+      {
+        "name": "publicport",
+        "label": "공인 포트",
+        "value": 443,
+        "type": "number",
+        "min": 1,
+        "max": 65535,
+        "required": true,
+        "disabled": true
+      },
+      {
+        "name": "privateport",
+        "label": "게스트 포트",
+        "value": 8443,
+        "type": "number",
+        "min": 1,
+        "max": 65535,
+        "required": true,
+        "disabled": true
+      },
+      {
+        "name": "algorithm",
+        "label": "분산 알고리즘",
+        "value": "roundrobin",
+        "type": "select",
+        "options": [
+          {
+            "value": "roundrobin",
+            "label": "roundrobin"
+          },
+          {
+            "value": "leastconn",
+            "label": "leastconn"
+          },
+          {
+            "value": "source",
+            "label": "source"
+          }
+        ],
+        "required": true
+      },
+      {
+        "name": "protocol",
+        "label": "프로토콜",
+        "value": "tcp",
+        "type": "select",
+        "options": [
+          {
+            "value": "tcp",
+            "label": "TCP"
+          },
+          {
+            "value": "udp",
+            "label": "UDP"
+          },
+          {
+            "value": "tcp-proxy",
+            "label": "TCP-PROXY"
+          },
+          {
+            "value": "http",
+            "label": "HTTP"
+          },
+          {
+            "value": "ssl",
+            "label": "SSL"
+          }
+        ],
+        "required": true
+      },
+      {
+        "name": "cidr",
+        "label": "소스 CIDR",
+        "value": "198.51.100.0/24",
+        "type": "input",
+        "wide": true
+      },
+      {
+        "name": "backendssl",
+        "label": "백엔드 SSL",
+        "value": true,
+        "type": "switch",
+        "when": {
+          "field": "protocol",
+          "values": [
+            "ssl"
+          ]
+        },
+        "wide": true
+      }
+    ],
+    "button": "저장",
+    "hint": "포트 변경은 규칙 교체가 필요합니다. 인증서 연결·해제는 SSL 인증서 작업에서 별도로 수행합니다."
+  },
+  {
+    "kind": "dialog",
+    "network": true,
+    "width": 960,
+    "summary": [
+      [
+        "네트워크",
+        "app-isolated-network"
+      ],
+      [
+        "공인 IP",
+        "203.0.113.12"
+      ],
+      [
+        "소유자 / Zone",
+        "demo-team / Zone-A"
+      ],
+      [
+        "규칙 소유권",
+        "사용자 규칙"
+      ]
+    ],
+    "id": "lb-backends",
+    "title": "로드밸런서 대상 VM·NIC 연결",
+    "tab": "loadbalancers",
+    "api": "assignToLoadBalancerRule",
+    "source": "LoadBalancing.vue",
+    "fields": [
+      {
+        "name": "nic",
+        "label": "선택 VM의 NIC",
+        "value": "192.0.2.11 · 기본 NIC",
+        "type": "select",
+        "options": [
+          {
+            "value": "192.0.2.11 · 기본 NIC",
+            "label": "192.0.2.11 · 기본 NIC"
+          },
+          {
+            "value": "192.0.2.111 · 보조 IP",
+            "label": "192.0.2.111 · 보조 IP"
+          }
+        ],
+        "required": true
+      }
+    ],
+    "button": "선택 VM 연결",
+    "nodeTable": true,
+    "hint": "같은 네트워크·VPC 티어의 VM/NIC를 조회합니다. 현재 연결과 새 선택을 구분합니다."
+  },
+  {
+    "kind": "dialog",
+    "network": true,
+    "width": 960,
+    "summary": [
+      [
+        "네트워크",
+        "app-isolated-network"
+      ],
+      [
+        "공인 IP",
+        "203.0.113.12"
+      ],
+      [
+        "소유자 / Zone",
+        "demo-team / Zone-A"
+      ],
+      [
+        "규칙 소유권",
+        "사용자 규칙"
+      ]
+    ],
+    "id": "lb-backend-remove",
+    "title": "로드밸런서 대상 VM 연결 해제",
+    "tab": "loadbalancers",
+    "api": "removeFromLoadBalancerRule",
+    "source": "LoadBalancing.vue",
+    "fields": [],
+    "button": "연결 해제",
+    "alert": "worker-02 / 192.0.2.12를 규칙에서 연결 해제합니다. VM은 보존됩니다.",
+    "alertType": "warning",
+    "danger": true
+  },
+  {
+    "kind": "dialog",
+    "network": true,
+    "width": 960,
+    "summary": [
+      [
+        "네트워크",
+        "app-isolated-network"
+      ],
+      [
+        "공인 IP",
+        "203.0.113.12"
+      ],
+      [
+        "소유자 / Zone",
+        "demo-team / Zone-A"
+      ],
+      [
+        "규칙 소유권",
+        "사용자 규칙"
+      ]
+    ],
+    "id": "lb-stickiness",
+    "title": "로드밸런서 세션 유지 설정",
+    "tab": "loadbalancers",
+    "api": "createLBStickinessPolicy / deleteLBStickinessPolicy",
+    "source": "LoadBalancing.vue",
+    "fields": [
+      {
+        "name": "method",
+        "label": "세션 유지 방식",
+        "value": "LbCookie",
+        "type": "select",
+        "options": [
+          {
+            "value": "사용 안 함",
+            "label": "사용 안 함"
+          },
+          {
+            "value": "LbCookie",
+            "label": "LbCookie"
+          },
+          {
+            "value": "AppCookie",
+            "label": "AppCookie"
+          },
+          {
+            "value": "SourceBased",
+            "label": "SourceBased"
+          }
+        ]
+      },
+      {
+        "name": "name",
+        "label": "정책 이름",
+        "value": "app-web-session",
+        "type": "input",
+        "required": true
+      },
+      {
+        "name": "cookie",
+        "label": "쿠키 이름",
+        "value": "APPSESSION",
+        "type": "input",
+        "when": {
+          "field": "method",
+          "values": [
+            "LbCookie",
+            "AppCookie"
+          ]
+        }
+      },
+      {
+        "name": "mode",
+        "label": "쿠키 모드",
+        "value": "insert",
+        "type": "select",
+        "options": [
+          {
+            "value": "insert",
+            "label": "insert"
+          },
+          {
+            "value": "rewrite",
+            "label": "rewrite"
+          },
+          {
+            "value": "prefix",
+            "label": "prefix"
+          }
+        ],
+        "when": {
+          "field": "method",
+          "values": [
+            "LbCookie"
+          ]
+        }
+      },
+      {
+        "name": "holdtime",
+        "label": "유지 시간 (분)",
+        "value": 30,
+        "type": "number",
+        "when": {
+          "field": "method",
+          "values": [
+            "SourceBased"
+          ]
+        }
+      }
+    ],
+    "button": "저장",
+    "hint": "네트워크 Provider가 지원하는 방식만 표시합니다. 사용 안 함은 기존 정책 삭제에 대응합니다."
+  },
+  {
+    "kind": "dialog",
+    "network": true,
+    "width": 960,
+    "summary": [
+      [
+        "네트워크",
+        "app-isolated-network"
+      ],
+      [
+        "공인 IP",
+        "203.0.113.12"
+      ],
+      [
+        "소유자 / Zone",
+        "demo-team / Zone-A"
+      ],
+      [
+        "규칙 소유권",
+        "사용자 규칙"
+      ]
+    ],
+    "id": "lb-tls",
+    "title": "로드밸런서 SSL 인증서 연결",
+    "tab": "loadbalancers",
+    "api": "assignCertToLoadBalancer / removeCertFromLoadBalancer",
+    "source": "LoadBalancing.vue",
+    "fields": [
+      {
+        "name": "action",
+        "label": "인증서 작업",
+        "value": "기존 인증서 연결",
+        "type": "select",
+        "options": [
+          {
+            "value": "기존 인증서 연결",
+            "label": "기존 인증서 연결"
+          },
+          {
+            "value": "인증서 연결 해제",
+            "label": "인증서 연결 해제"
+          }
+        ]
+      },
+      {
+        "name": "cert",
+        "label": "인증서",
+        "value": "app-web-tls · 유효",
+        "type": "select",
+        "options": [
+          {
+            "value": "app-web-tls · 유효",
+            "label": "app-web-tls · 유효"
+          }
+        ],
+        "required": true
+      }
+    ],
+    "button": "저장",
+    "hint": "인증서 연결·해제 후 규칙을 다시 조회합니다. 백엔드 SSL은 규칙 설정에서 변경합니다."
+  },
+  {
+    "kind": "dialog",
+    "network": true,
+    "width": 960,
+    "summary": [
+      [
+        "네트워크",
+        "app-isolated-network"
+      ],
+      [
+        "공인 IP",
+        "203.0.113.12"
+      ],
+      [
+        "소유자 / Zone",
+        "demo-team / Zone-A"
+      ],
+      [
+        "규칙 소유권",
+        "사용자 규칙"
+      ]
+    ],
+    "id": "firewall-delete",
+    "title": "방화벽 규칙 삭제",
+    "tab": "firewall",
+    "api": "deleteFirewallRule",
+    "source": "FirewallRules.vue",
+    "fields": [],
+    "button": "규칙 삭제",
+    "alert": "선택한 사용자 규칙을 삭제합니다. 연결된 트래픽에 영향을 줍니다. 관리·Provider 규칙은 대상에서 제외합니다.",
+    "alertType": "warning",
+    "danger": true
+  },
+  {
+    "kind": "dialog",
+    "network": true,
+    "width": 960,
+    "summary": [
+      [
+        "네트워크",
+        "app-isolated-network"
+      ],
+      [
+        "공인 IP",
+        "203.0.113.12"
+      ],
+      [
+        "소유자 / Zone",
+        "demo-team / Zone-A"
+      ],
+      [
+        "규칙 소유권",
+        "사용자 규칙"
+      ]
+    ],
+    "id": "pf-delete",
+    "title": "포트 포워딩 규칙 삭제",
+    "tab": "portforwarding",
+    "api": "deletePortForwardingRule",
+    "source": "PortForwarding.vue",
+    "fields": [],
+    "button": "규칙 삭제",
+    "alert": "선택한 사용자 규칙을 삭제합니다. 연결된 트래픽에 영향을 줍니다. 관리·Provider 규칙은 대상에서 제외합니다.",
+    "alertType": "warning",
+    "danger": true
+  },
+  {
+    "kind": "dialog",
+    "network": true,
+    "width": 960,
+    "summary": [
+      [
+        "네트워크",
+        "app-isolated-network"
+      ],
+      [
+        "공인 IP",
+        "203.0.113.12"
+      ],
+      [
+        "소유자 / Zone",
+        "demo-team / Zone-A"
+      ],
+      [
+        "규칙 소유권",
+        "사용자 규칙"
+      ]
+    ],
+    "id": "lb-delete",
+    "title": "로드밸런서 규칙 삭제",
+    "tab": "loadbalancers",
+    "api": "deleteLoadBalancerRule",
+    "source": "LoadBalancing.vue",
+    "fields": [],
+    "button": "규칙 삭제",
+    "alert": "선택한 사용자 규칙을 삭제합니다. 연결된 트래픽에 영향을 줍니다. 관리·Provider 규칙은 대상에서 제외합니다.",
+    "alertType": "warning",
+    "danger": true
+  },
+  {
+    "id": "ip-firewall",
+    "title": "공인 IP · 공통 방화벽",
+    "kind": "page",
+    "tab": "firewall",
+    "context": "ip",
+    "source": "NetworkRulesTabLayout.vue · 공통 표준 개선 제안"
+  },
+  {
+    "id": "ip-portforwarding",
+    "title": "공인 IP · 공통 포트 포워딩",
+    "kind": "page",
+    "tab": "portforwarding",
+    "context": "ip",
+    "source": "NetworkRulesTabLayout.vue · 공통 표준 개선 제안"
+  },
+  {
+    "id": "ip-loadbalancers",
+    "title": "공인 IP · 공통 로드밸런서",
+    "kind": "page",
+    "tab": "loadbalancers",
+    "context": "ip",
+    "source": "NetworkRulesTabLayout.vue · 공통 표준 개선 제안"
+  },
+  {
+    "id": "network-unavailable",
+    "title": "네트워크 조회 실패 · 설정 제한",
+    "kind": "page",
+    "tab": "loadbalancers",
+    "networkState": "failed",
+    "source": "NetworkRulesTabLayout.vue · 공통 오류 상태"
+  },
+  {
+    "id": "list-context",
+    "title": "클러스터 목록 · 실행 중 행 우클릭",
+    "kind": "popover",
+    "tab": "list",
+    "source": "ListView / InfoCard / AutogenView → ResourceContextMenu / ActionButton / ResourceActionMenu"
+  },
+  {
+    "id": "list-context-stopped",
+    "title": "클러스터 목록 · 중지된 행 우클릭",
+    "kind": "popover",
+    "tab": "list",
+    "source": "ListView / InfoCard / AutogenView → ResourceContextMenu / ActionButton / ResourceActionMenu"
+  },
+  {
+    "id": "list-context-external",
+    "title": "클러스터 목록 · 외부 관리형 우클릭",
+    "kind": "popover",
+    "tab": "list",
+    "source": "ListView / InfoCard / AutogenView → ResourceContextMenu / ActionButton / ResourceActionMenu"
+  },
+  {
+    "id": "list-context-multiple",
+    "title": "클러스터 목록 · 다중 선택 우클릭",
+    "kind": "popover",
+    "tab": "list",
+    "source": "ListView / InfoCard / AutogenView → ResourceContextMenu / ActionButton / ResourceActionMenu"
+  },
+  {
+    "id": "detail-actions",
+    "title": "클러스터 상세 · 작업 메뉴",
+    "kind": "popover",
+    "tab": "details",
+    "source": "ListView / InfoCard / AutogenView → ResourceContextMenu / ActionButton / ResourceActionMenu"
+  },
+  {
+    "id": "detail-context",
+    "title": "클러스터 상세 · 좌측 정보 우클릭",
+    "kind": "popover",
+    "tab": "details",
+    "source": "ListView / InfoCard / AutogenView → ResourceContextMenu / ActionButton / ResourceActionMenu"
+  },
+  {
+    "id": "iso-list-context",
+    "title": "ISO 목록 · 행 우클릭",
+    "kind": "popover",
+    "tab": "list",
+    "source": "ListView / InfoCard / AutogenView → ResourceContextMenu / ActionButton / ResourceActionMenu"
+  },
+  {
+    "id": "iso-detail-actions",
+    "title": "ISO 상세 · 작업 메뉴",
+    "kind": "popover",
+    "tab": "details",
+    "source": "ListView / InfoCard / AutogenView → ResourceContextMenu / ActionButton / ResourceActionMenu"
+  },
+  {
+    "id": "iso-detail-context",
+    "title": "ISO 상세 · 좌측 정보 우클릭",
+    "kind": "popover",
+    "tab": "details",
+    "source": "ListView / InfoCard / AutogenView → ResourceContextMenu / ActionButton / ResourceActionMenu"
+  },
+  {
+    "id": "nodes-manual",
+    "title": "가상머신 탭 · 수동 확장",
+    "kind": "page",
+    "tab": "nodes",
+    "autoScale": false,
+    "source": "ScaleKubernetesCluster / KubernetesAddNodes · 가상머신 상세 탭 표준"
+  },
+  {
+    "id": "nodes-external",
+    "title": "가상머신 탭 · 외부 관리형",
+    "kind": "page",
+    "tab": "nodes",
+    "externalManaged": true,
+    "source": "addVirtualMachinesToKubernetesCluster · 기존 VM 역할 연결"
+  },
+  {
+    "id": "external-vm-add",
+    "title": "외부 관리형 · 외부 노드 추가",
+    "kind": "dialog",
+    "tab": "nodes",
+    "externalManaged": true,
+    "width": 960,
+    "nodeTable": true,
+    "button": "VM 연결 등록",
+    "summary": [
+      [
+        "클러스터",
+        "k8s-external-demo"
+      ],
+      [
+        "관리 유형",
+        "외부 관리형"
+      ]
+    ],
+    "fields": [
+      {
+        "name": "iscontrolnode",
+        "label": "등록 역할",
+        "type": "select",
+        "value": false,
+        "options": [
+          {
+            "value": false,
+            "label": "워커 노드"
+          },
+          {
+            "value": true,
+            "label": "제어 노드"
+          }
+        ],
+        "required": true
+      }
+    ],
+    "hint": "선택한 기존 VM의 연결과 역할만 등록합니다. VM 배포, ISO 설치, kubeadm join은 수행하지 않으며 실제 Kubernetes 가입은 외부 운영자가 확인해야 합니다.",
+    "source": "AddVirtualMachinesToKubernetesClusterCmd / addVmsToCluster"
+  },
+  {
+    "kind": "dialog",
+    "create": true,
+    "external": true,
+    "width": 1120,
+    "source": "CreateKubernetesClusterCmd.java / KubernetesClusterManagerImpl.java",
+    "api": "createKubernetesCluster(clustertype=ExternalManaged)",
+    "id": "create-external-connect-review",
+    "title": "외부 관리형 · 등록 후 VM 연결 검토",
+    "step": 2,
+    "checks": [
+      "클러스터 이름 · Zone · 등록 소유자 확인",
+      "1단계: 외부 관리형 클러스터 등록",
+      "등록 성공 후 외부 노드 추가에서 기존 VM·제어/워커 역할 선택",
+      "2단계: 선택한 기존 VM과 제어/워커 역할 연결",
+      "VM 연결 실패 시 등록된 클러스터를 유지하고 연결만 재시도",
+      "Kubernetes 배포·설치·가입·확장은 외부 운영자 수행"
+    ],
+    "alert": "등록 상태 Running은 Kubernetes API 접속이나 워크로드 건강 상태의 검증 결과가 아닙니다.",
+    "button": "등록 후 VM 연결",
+    "connectAfter": true
   }
 ]

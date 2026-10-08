@@ -14,7 +14,7 @@ Epic #1227의 Kubernetes 전 생명주기 기능을 VM 목록·상세와 같은 
 | 목록 툴바 | 업데이트 / 필터 / 프로젝트·보기 / 주요 추가 버튼 / 검색·아이콘 | 텍스트가 있는 주 버튼을 먼저 배치하고 검색·보조 아이콘을 오른쪽에 배치. 일괄 작업은 선택 후 표시 |
 | 목록 테이블 | ListView `middle`, 교차 행 배경, 선택 열 30px, 정렬·열 선택 | 이름 아이콘/링크·빠른 작업, 상태, CPU/메모리 한 줄. 실제 VM과 같은 49px 행·32px 선택 열 렌더링 |
 | 메인 목록 페이지 | AutogenView 별도 mini pagination, 하단 좌측, 위 여백 10px | 전체·표시 범위 → 이전/페이지/다음 → `20 / 쪽` → 이동하기. 기본 20, 옵션 20/50/100/200, 비 desktop은 10 추가 |
-| 상세 탭 툴바 | VM 볼륨/NIC 주 버튼과 EventsTab 업데이트 | 탭 콘텐츠 최상단 좌측, 주 버튼 `아이콘 + type=primary`, 보조 작업 뒤에 `ReloadOutlined + 업데이트`. gap 8px, 아래 여백 20px |
+| 상세 탭 툴바 | VM 볼륨/NIC 주 버튼과 EventsTab 업데이트 | 기능 탭 콘텐츠 최상단 좌측, 주 버튼 `아이콘 + type=primary`, 보조 작업 뒤에 `ReloadOutlined + 업데이트`. gap 8px, 아래 여백 20px. 이벤트·코멘트는 기존 공통 버튼을 그대로 사용 |
 | 상세 탭 페이지 | EventsTab/AnnotationsTab의 `detail-tab-pagination` | 별도 mini pagination, 하단 우측, 위 여백 20px, wrap/gap 8px. 이벤트·목록은 범위/크기/이동, 코멘트는 10개 고정·크기 선택 없음 |
 | 상세 골격 | 공통 ResourceLayout + InfoCard + 우측 탭 | desktop 7/17, tablet 8/16, gutter 12. 좁은 화면은 24/24로 쌓임. breakpoint별 실제 그리드는 공통 컴포넌트 준수 |
 | 상세 탭 | 데스크톱 세로 탭, 모바일 가로 탭 | 상세, 노드, 액세스, 부하 분산, 방화벽, 포트 포워딩, 이벤트, 코멘트. 기존 하위 기능을 얕은 탭 계층으로 정리 |
@@ -217,3 +217,14 @@ API/secret key, kubeconfig, Headlamp 토큰, registry password는 정보 카드�
 - [생성 API 정의](https://github.com/ablecloud-team/ablestack-cloud/blob/c169d9a203f49ce07e038297873bc3c24cd8ffb4/plugins/integrations/kubernetes-service/src/main/java/org/apache/cloudstack/api/command/user/kubernetes/cluster/CreateKubernetesClusterCmd.java)
 - [관리 유형별 생성·작업 제한](https://github.com/ablecloud-team/ablestack-cloud/blob/c169d9a203f49ce07e038297873bc3c24cd8ffb4/plugins/integrations/kubernetes-service/src/main/java/com/cloud/kubernetes/cluster/KubernetesClusterManagerImpl.java)
 - [외부 관리형 VM 연결 API](https://github.com/ablecloud-team/ablestack-cloud/blob/c169d9a203f49ce07e038297873bc3c24cd8ffb4/plugins/integrations/kubernetes-service/src/main/java/org/apache/cloudstack/api/command/user/kubernetes/cluster/AddVirtualMachinesToKubernetesClusterCmd.java)
+
+## 네트워크 공통 표준·공통 탭 재사용·다크 안내 보완
+
+[네트워크 상세 설계](NETWORK-DESIGN.md)에 방화벽/PF/LB 공통 레이아웃 자체 변경, 설정 API별 필드/제약/실패 흐름, 일반 IP와 Kubernetes 재사용, 보호/소유권을 통합했다. 이벤트·코멘트는 기존 EventsTab/AnnotationsTab을 수정 없이 직접 사용한다. 다크 대화상자의 검정 도움말은 공통 테마 토큰 수정안으로 반영했다. 해당 변경은 같은 #1330의 구현 수용 기준으로 관리하며 별도 중복 이슈를 만들지 않는다.
+
+상세 탭 본문은 정보만 표시한다. 업데이트/상태 변경을 포함한 탭 내부 버튼은 두지 않는다. 리소스 상단 작업 메뉴와 다른 기능 탭의 툴바는 각 기존 역할을 유지한다. ISO 상세도 같은 정보 전용 계약을 적용한다.
+
+
+## 작업 메뉴·관리 유형별 노드 기능 최종 보완
+
+목록의 이클립스 버튼을 제거하고 VM 표준 ResourceContextMenu/ActionButton/ResourceActionMenu를 공유한다. 상세 작업 dropdown과 좌측 정보 context menu도 같은 항목/권한/상태 규칙을 적용한다. 다크 목록 SVG는 currentColor로 표시한다. 가상머신 탭은 CloudManaged의 확장, ExternalManaged의 기존 VM·역할 연결을 각각 주 작업으로 제공한다. 외부 관리형 생성은 등록만 또는 등록 성공 후 VM 연결 계속하기이며 실제 Kubernetes 설치·가입과 구분한다. 상세 API/실패 처리와 구현 수용 기준은 [ACTION-DESIGN.md](ACTION-DESIGN.md)를 따른다.
