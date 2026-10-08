@@ -5353,11 +5353,17 @@ export default {
       if (!this.identityRepair.eligible || !this.identityRepair.runtimePrimaryIp) return
       this.identityRepair.loading = true
       try {
-        await this.callStorageIdentityRepair(false, this.identityRepair.runtimePrimaryIp)
-        await this.fetchStorageServiceData()
-        if (this.storageIdentityDrift) {
+        const sharedFsId = this.resource.id
+        const expectedPrimary = this.identityRepair.runtimePrimaryIp
+        await this.callStorageIdentityRepair(false, expectedPrimary)
+        if (this.resource.id !== sharedFsId) return
+        const postcondition = this.parseIdentityRepairEvidence(await this.callStorageIdentityRepair(true))
+        if (this.resource.id !== sharedFsId) return
+        if (postcondition.reason !== 'ALREADY_CONSISTENT' || postcondition.persistedPrimaryIp !== expectedPrimary || postcondition.runtimePrimaryIp !== expectedPrimary || !Array.isArray(postcondition.aliases) || JSON.stringify([...postcondition.aliases].sort()) !== JSON.stringify([...this.identityRepair.aliases].sort())) {
           throw new Error(this.$t('message.storage.service.nic.identity.repair.postcondition.failed'))
         }
+        await this.fetchStorageServiceData()
+        if (this.resource.id !== sharedFsId) return
         this.identityRepair.visible = false
         this.$message.success(this.$t('message.storage.service.nic.identity.repair.success'))
       } catch (error) {
