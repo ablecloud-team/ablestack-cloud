@@ -41,10 +41,6 @@ class="storage-service__alert"
       @change="handleChangeTab">
       <a-tab-pane :tab="$t('label.details')" key="details">
         <DetailsTab :resource="dataResource" :loading="loading" />
-        <storage-operation-history ref="storageOperationHistory" v-if="storageService.instance && 'listStorageServiceOperations' in $store.getters.apis" :instance-id="storageService.instance.id" />
-        <storage-volume-preparation v-if="storageService.instance && 'getStorageServiceVolumePreparation' in $store.getters.apis" :instance-id="storageService.instance.id" :volumes="currentBackingVolumes" />
-        <storage-service-configuration v-if="storageService.instance && 'listStorageServiceConfigBackups' in $store.getters.apis" :instance-id="storageService.instance.id" :resource="dataResource" @operation-updated="refreshStorageOperationHistory" />
-        <storage-service-template-upgrade-history v-if="'listStorageServiceTemplateUpgrades' in $store.getters.apis" :resource="dataResource" @operation-updated="refreshTemplateOperationHistory" />
         <div v-if="hasStorageServiceApi" class="storage-service storage-service--overview">
           <h3 class="storage-service__section-title">{{ $t('label.storage.service.overview') }}</h3>
           <a-alert
@@ -68,6 +64,21 @@ class="storage-service__alert"
             </dl>
           </template>
         </div>
+      </a-tab-pane>
+
+      <a-tab-pane v-if="hasStorageServiceApi" :tab="$t('label.storage.tab.operations')" key="operations">
+        <storage-operation-history ref="storageOperationHistory" v-if="storageService.instance && 'listStorageServiceOperations' in $store.getters.apis" :instance-id="storageService.instance.id" />
+        <storage-volume-preparation v-if="storageService.instance && 'getStorageServiceVolumePreparation' in $store.getters.apis" :instance-id="storageService.instance.id" :volumes="currentBackingVolumes" />
+      </a-tab-pane>
+      <a-tab-pane v-if="hasStorageServiceApi" :tab="$t('label.storage.tab.backup.restore')" key="backup">
+        <storage-service-configuration v-if="storageService.instance && 'listStorageServiceConfigBackups' in $store.getters.apis" :instance-id="storageService.instance.id" :resource="dataResource" @operation-updated="refreshStorageOperationHistory" />
+      </a-tab-pane>
+      <a-tab-pane v-if="hasStorageServiceApi" :tab="$t('label.storage.tab.upgrades')" key="upgrades">
+        <a-space wrap class="storage-upgrade-toolbar">
+          <a-button v-if="'upgradeStorageServiceRuntime' in $store.getters.apis" type="primary" @click="runtimeUpgradeVisible = true"><template #icon><CloudUploadOutlined /></template>{{ $t('label.storage.service.runtime.upgrade') }}</a-button>
+        </a-space>
+        <storage-service-runtime-upgrade v-if="runtimeUpgradeVisible" :key="dataResource.id" :resource="dataResource" @close-action="runtimeUpgradeVisible = false" />
+        <storage-service-template-upgrade-history v-if="'listStorageServiceTemplateUpgrades' in $store.getters.apis" :resource="dataResource" @operation-updated="refreshTemplateOperationHistory" />
       </a-tab-pane>
 
       <a-tab-pane v-if="hasStorageServiceApi" tab="NFS" key="nfs">
@@ -2328,6 +2339,7 @@ import TooltipLabel from '@/components/widgets/TooltipLabel'
 import SmbNetworkAccess from '@/views/storage/SmbNetworkAccess'
 import SmbCreationOptions from '@/views/storage/SmbCreationOptions'
 import { supportsStorageFormatting, diskProvisioningLabel } from '@/utils/storageDiskProvisioning'
+import StorageServiceRuntimeUpgrade from '@/views/storage/StorageServiceRuntimeUpgrade'
 import StorageVolumePreparation from '@/views/storage/StorageVolumePreparation'
 import PosixDirectoryPolicies from '@/views/storage/PosixDirectoryPolicies'
 import PosixPolicyInheritance from '@/views/storage/PosixPolicyInheritance'
@@ -2551,6 +2563,7 @@ export default {
     TooltipLabel,
     SmbNetworkAccess,
     SmbCreationOptions,
+    StorageServiceRuntimeUpgrade,
     StorageVolumePreparation,
     PosixDirectoryPolicies,
     PosixPolicyInheritance,
@@ -2602,6 +2615,7 @@ export default {
       storagePoolLoading: false,
       virtualmachines: [],
       currentTab: 'details',
+      runtimeUpgradeVisible: false,
       protocolWideLayout: false,
       dataResource: {},
       storageService: {
@@ -4802,7 +4816,8 @@ export default {
     },
     handleChangeTab (e) {
       this.currentTab = e
-      if (['details', 'nfs', 'smb', 'iscsi', 'nvmeof'].includes(e)) {
+      if (e !== 'upgrades') this.runtimeUpgradeVisible = false
+      if (['details', 'operations', 'backup', 'upgrades', 'nfs', 'smb', 'iscsi', 'nvmeof'].includes(e)) {
         this.fetchStorageServiceData()
       }
       if (!this.isStorageProtocolTab(e)) {

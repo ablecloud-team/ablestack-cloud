@@ -8777,5 +8777,8 @@
   "message.storage.runtime.compatibility.scope": "표시된 범위는 마지막 서명 검증에 포함된 값입니다. 사전 점검은 실제 관리 서버·호스트 에이전트·SystemVM 플랫폼을 확인하며, 템플릿 이름으로 버전을 판단하지 않습니다.",
   "label.storage.template.root.offering": "교체용 ROOT 디스크 오퍼링",
   "message.storage.template.root.sparse": "새 ROOT는 SPARSE 또는 FAT 프로비저닝을 사용해야 합니다. 기존 ROOT는 이전 구성 복귀를 위해 보존합니다.",
-  "message.storage.disk.sparse.required": "새 스토리지 디스크에는 SPARSE 또는 FAT 프로비저닝 오퍼링이 필요합니다."
+  "message.storage.disk.sparse.required": "새 스토리지 디스크에는 SPARSE 또는 FAT 프로비저닝 오퍼링이 필요합니다.",
+  "label.storage.tab.operations": "작업",
+  "label.storage.tab.backup.restore": "백업·복원",
+  "label.storage.tab.upgrades": "업그레이드"
 }
