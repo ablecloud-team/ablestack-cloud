@@ -428,7 +428,14 @@ class AdIdentityRpc:
     def inspect(self,request):
         scope=self.scope(request);state=ad_protected_json(self.configuration/"smb-domain.json",True)
         if state is None or str(state.get("joinState") or state.get("state") or "").upper()!="JOINED":
-            return {"success":True,"scope":scope,"sideEffects":False,"joinState":"NOT_JOINED","trustVerified":False,"identityVerified":False,"adIdentity":False}
+            if state is not None and state.get("instanceUuid")!=scope["instanceUuid"]:raise ValueError("Unjoined public identity belongs to another native instance")
+            machine_name=(state or {}).get("netbiosName")
+            machine=None
+            if machine_name is not None:
+                if not re.fullmatch(r"[A-Z0-9][A-Z0-9_-]{0,14}",str(machine_name)):raise ValueError("Unjoined public machine name is invalid")
+                machine=samba_public_sid(machine_name)
+            return {"success":True,"scope":scope,"sideEffects":False,"joinState":"NOT_JOINED","trustVerified":False,"identityVerified":False,"adIdentity":False,
+                    "machineSid":machine,"bootId":str(uuid.UUID(Path("/proc/sys/kernel/random/boot_id").read_text().strip())),"generatedEpoch":self.clock()}
         if state.get("instanceUuid")!=scope["instanceUuid"]:raise ValueError("AD joined receipt belongs to another native instance")
         config=state.get("config") or {};domain=domain_name(state.get("domainName"));realm=domain.upper()
         machine_config=self.configuration/"ad-machine.conf"

@@ -22,6 +22,10 @@ import stat
 import struct
 
 
+class SambaPublicSidMissing(ValueError):
+    pass
+
+
 class PublicSidTdbData(ctypes.Structure):
     _fields_=[("dptr",ctypes.c_void_p),("dsize",ctypes.c_size_t)]
 
@@ -61,7 +65,8 @@ def samba_public_sid(netbios,path=None,library=None):
         if not database:raise ValueError("Existing public SAM SID database cannot be opened read-only")
         key=("SECRETS/SID/"+netbios).encode();buffer=ctypes.create_string_buffer(key)
         data=lib.tdb_fetch(database,PublicSidTdbData(ctypes.cast(buffer,ctypes.c_void_p),len(key)))
-        if not data.dptr or data.dsize!=68:raise ValueError("Existing exact machine SAM SID key is absent or malformed")
+        if not data.dptr:raise SambaPublicSidMissing("Existing exact machine SAM SID key is absent")
+        if data.dsize!=68:raise ValueError("Existing exact machine SAM SID key is malformed")
         result=samba_sid_bytes(ctypes.string_at(data.dptr,data.dsize))
         after=os.fstat(descriptor);named=os.stat(path.name,dir_fd=directory,follow_symlinks=False);named_parent=path.parent.lstat()
         if (any(getattr(opened,key)!=getattr(after,key) or getattr(opened,key)!=getattr(named,key) for key in fields)
