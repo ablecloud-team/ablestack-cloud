@@ -9515,5 +9515,16 @@
   "message.nfs.permission.no.root": "No root squash suggests 0:0 with mode 0770 for a new directory. You can change these values. Changes to an existing directory require a separate preview and explicit apply.",
   "message.nfs.permission.all": "All squash suggests the selected anonymous UID:GID with mode 0775 for a new directory, even when root squash is off. Review an explicit directory policy to change existing permissions.",
   "label.nfs.permission.use.recommendation": "Use recommended values",
-  "label.nfs.permission.recommended": "Recommended new directory ownership and mode"
+  "label.nfs.permission.recommended": "Recommended new directory ownership and mode",
+  "message.storage.volume.observe.failed": "Could not refresh preparation status. The last observation is preserved; retry to obtain the current state.",
+  "message.storage.volume.historical.device": "Recorded device paths describe the past operation. Recovery uses a fresh volume serial and filesystem check; it does not reuse the recorded device path.",
+  "label.storage.volume.preparation": "Backing volume preparation",
+  "label.storage.volume.operation": "Operation",
+  "label.storage.volume.mount": "Mount path",
+  "label.storage.volume.historical.device": "Device recorded at operation time",
+  "label.storage.volume.fs.uuid": "Filesystem UUID",
+  "label.storage.volume.formatter.active": "Formatter running",
+  "label.storage.volume.deadline": "Format deadline (seconds)",
+  "label.storage.volume.current.device": "Current device",
+  "label.storage.volume.auto.observe": "Automatic updates"
 }
