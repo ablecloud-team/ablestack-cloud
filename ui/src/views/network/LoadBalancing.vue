@@ -1995,6 +1995,7 @@ export default {
       }
       getAPI('listVirtualMachines', {
         listAll: true,
+        state: 'Present',
         keyword: this.searchQuery,
         page: this.vmPage,
         pagesize: this.vmPageSize,

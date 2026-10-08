@@ -905,16 +905,18 @@ export default {
       }
       getAPI('listVirtualMachines', {
         listAll: true,
+        state: 'Present',
         keyword: this.searchQuery,
         page: this.vmPage,
         pagesize: this.vmPageSize,
         networkid: networkId
       }).then(response => {
         this.vmCount = response.listvirtualmachinesresponse.count || 0
-        this.vms = response.listvirtualmachinesresponse.virtualmachine
-        this.addVmModalLoading = false
+        this.vms = response.listvirtualmachinesresponse.virtualmachine || []
       }).catch(error => {
         this.$notifyError(error)
+      }).finally(() => {
+        this.addVmModalLoading = false
       })
     },
     handleChangePage (page, pageSize) {

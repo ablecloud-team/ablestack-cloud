@@ -113,3 +113,23 @@ test('reopening a SourceBased policy preserves its configured table size and exp
   await nextTick()
   expect(vm.form).toMatchObject({ methodname: 'SourceBased', name: 'source-policy', tablesize: '10k', expire: '30m' })
 })
+
+test.each([['PF', PortForwarding], ['LB', LoadBalancing]])('%s VM picker excludes deleted VMs at the API before pagination while retaining stopped VMs', async (name, component) => {
+  getAPI.mockResolvedValue({ listvirtualmachinesresponse: { count: 14, virtualmachine: [{ id: 'stopped-vm', state: 'Stopped' }] } })
+  const vm = { resource: { associatednetworkid: 'net' }, searchQuery: 'backend', vmPage: 2, vmPageSize: 10, $notifyError: jest.fn() }
+  component.methods.fetchVirtualMachines.call(vm)
+  await new Promise(resolve => setImmediate(resolve))
+  expect(getAPI).toHaveBeenCalledWith('listVirtualMachines', { listAll: true, state: 'Present', keyword: 'backend', page: 2, pagesize: 10, networkid: 'net' })
+  expect(vm.vms).toEqual([{ id: 'stopped-vm', state: 'Stopped' }])
+  expect(vm.vmCount).toBe(14)
+  expect(vm.addVmModalLoading).toBe(false)
+})
+
+test('PF VM picker releases its loading state when candidate lookup fails', async () => {
+  getAPI.mockRejectedValue(new Error('lookup failed'))
+  const vm = { resource: { associatednetworkid: 'net' }, $notifyError: jest.fn() }
+  PortForwarding.methods.fetchVirtualMachines.call(vm)
+  await new Promise(resolve => setImmediate(resolve))
+  expect(vm.$notifyError).toHaveBeenCalled()
+  expect(vm.addVmModalLoading).toBe(false)
+})
