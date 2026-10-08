@@ -2703,7 +2703,14 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 "identity capsule export", request.toString(), 60, Set.of("capsule")));
         if (!result.isSuccess()) throw new CloudRuntimeException("Protected local identity snapshot is unavailable");
         JsonObject observed = parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));
-        if (!Boolean.TRUE.equals(getJsonBoolean(observed, "success")) || !observed.has("capsule")) throw new CloudRuntimeException("Identity snapshot was not verified");
+        if (!Boolean.TRUE.equals(getNativeBoolean(observed, "success")) || !observed.has("capsule")||!observed.get("capsule").isJsonObject()) throw new CloudRuntimeException("Identity snapshot was not verified");
+        if(rootScope!=null&&rootScope.has("maintenanceUuid")){
+            JsonObject receipt=StorageAdIdentityProof.serviceCipherCheckpoint(getJsonObject(observed,"serviceIdentityCheckpoint"),observed.getAsJsonObject("capsule"),rootScope,sourceSha);
+            StorageServiceOperationVO operation=storageWriterOperation.get();
+            if(operation==null||!operation.getUuid().equals(operationUuid)||!serviceMaintenanceScope(instance,operation).equals(rootScope))throw new CloudRuntimeException("SERVICE identity export is outside its reserved writer");
+            JsonObject snapshot=parseJsonObject(operation.getPreviousSnapshotJson());snapshot.add("adServiceCipherCheckpoint",receipt);
+            operation.setPreviousSnapshotJson(snapshot.toString());if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("SERVICE native encrypted source receipt could not be persisted");
+        }
         return observed.getAsJsonObject("capsule");
     }
     protected void importConfigurationIdentity(StorageServiceInstanceVO instance, String operationUuid, JsonObject capsule, byte[] protectedKey) {
@@ -2729,6 +2736,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         java.security.KeyPair key = serviceBatch==null?StorageIdentityCapsule.wrappingKey():serviceBatch.key;
         byte[] protectedKey = StorageIdentityCapsule.protectedPrivateKey(key);
         JsonObject capsule=rootScope==null?exportConfigurationIdentity(instance,operation.getUuid(),key):exportConfigurationIdentity(instance,operation.getUuid(),key,rootScope,sourceSha);
+        JsonObject serviceCheckpoint=rootScope!=null&&rootScope.has("maintenanceUuid")?StorageAdIdentityProof.serviceCipherCheckpoint(
+                getJsonObject(parseJsonObject(operation.getPreviousSnapshotJson()),"adServiceCipherCheckpoint"),capsule,rootScope,sourceSha):null;
         String keyId = java.util.UUID.nameUUIDFromBytes(("identity-key:" + operation.getUuid()).getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString();
         StorageConfigArtifactStore store = new StorageConfigArtifactStore(java.nio.file.Path.of(System.getProperty("cloudstack.storage.identity.path",
                 "/var/lib/cloudstack-management/storage-identity-capsules")));
@@ -2739,8 +2748,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         JsonObject reference = new JsonObject();reference.addProperty("operationUuid", operation.getUuid());reference.addProperty("keyId", keyId);
         reference.addProperty("capsuleSha256",StorageConfigArchive.sha256(data));reference.addProperty("keySha256",StorageConfigArchive.sha256(protectedKey));
         if(rootScope!=null){reference.add(rootScope.has("maintenanceUuid")?"sourceMaintenanceScope":"sourceRootScope",rootScope.deepCopy());reference.addProperty("sourceConfigurationSha256",sourceSha);}
-        JsonObject snapshot = parseJsonObject(operation.getPreviousSnapshotJson());snapshot.add("nativeIdentityCapsule", reference);
-        operation.setPreviousSnapshotJson(snapshot.toString());storageOperationDao.update(operation.getId(), operation);
+        JsonObject snapshot = parseJsonObject(operation.getPreviousSnapshotJson());
+        if(serviceCheckpoint!=null)reference.add("sourceServiceIdentityCheckpoint",serviceCheckpoint.deepCopy());
+        snapshot.add("nativeIdentityCapsule", reference);
+        operation.setPreviousSnapshotJson(snapshot.toString());if(!storageOperationDao.update(operation.getId(), operation))throw new CloudRuntimeException("Encrypted identity capsule reference could not be persisted");
     }
     protected void restoreConfigurationIdentity(StorageServiceInstanceVO instance, JsonObject reference) {
         String operationUuid = getJsonString(reference, "operationUuid");
