@@ -1559,6 +1559,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     protected StorageRenderedGenerationCoordinator.Runtime renderedRuntime(StorageServiceInstanceVO instance,RenderedBatch batch) {
         return new StorageRenderedGenerationCoordinator.Runtime() {
             public JsonObject render(String action,JsonObject request) {
+                if("rollback".equals(action)&&parseJsonObject(batch.operation.getPreviousSnapshotJson()).has("adIdentityEffectPhase"))throw new CloudRuntimeException("AD domain identity effect requires verified owned inverse before rendered rollback");
                 StorageServiceGuestCommandResult result=guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),"operation generation render-"+action,request.toString(),120,Set.of("checkpointPrivateKey","transientCredentials","targetCredentialArtifact")));
                 if(!result.isSuccess())throw new CloudRuntimeException("Rendered generation "+action+" failed; inspect its scoped recovery receipt");return parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));
             }
@@ -1568,9 +1569,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             public void verifyAllProtocols(){verifyReconciledStorageDesiredState(instance);}
             public JsonObject nativeGenerationStatus(){return nativeConfigurationGeneration(instance,null,"status");}
             public void commitGeneration(JsonObject receipt){JsonObject status=nativeGenerationStatus();if(getJsonString(status,"pendingOperationUuid")!=null){if(!batch.operation.getUuid().equals(getJsonString(status,"pendingOperationUuid")))throw new CloudRuntimeException("Foreign native commit blocks recovery");nativeConfigurationGeneration(instance,batch.operation,"verify");nativeConfigurationGeneration(instance,batch.operation,"commit");nativeConfigurationGeneration(instance,batch.operation,"finish");}}
-            public void rollbackGeneration(JsonObject receipt){JsonObject status=nativeGenerationStatus();if(getJsonString(status,"pendingOperationUuid")==null&&receipt.get("previousGeneration").equals(status.get("generation"))&&"IN_SYNC".equals(getJsonString(status,"generationStatus")))return;nativeConfigurationGeneration(instance,batch.operation,"rollback");}
-            public void resumeUnchangedMaintenance(){if("SERVICE_MAINTENANCE".equals(batch.operation.getAction()))rootGuest(instance,"operation generation render-maintenance-resume-source",serviceMaintenanceScope(instance,batch.operation),120);}
-            public void releaseMaintenance(){releaseOperationResourceReservation(instance,batch.operation);if("SERVICE_MAINTENANCE".equals(batch.operation.getAction()))releaseServiceMaintenance(instance,batch.operation);}
+            public void rollbackGeneration(JsonObject receipt){if(parseJsonObject(batch.operation.getPreviousSnapshotJson()).has("adIdentityEffectPhase"))throw new CloudRuntimeException("AD domain identity effect requires verified owned inverse before rollback");JsonObject status=nativeGenerationStatus();if(getJsonString(status,"pendingOperationUuid")==null&&receipt.get("previousGeneration").equals(status.get("generation"))&&"IN_SYNC".equals(getJsonString(status,"generationStatus")))return;nativeConfigurationGeneration(instance,batch.operation,"rollback");}
+            public void resumeUnchangedMaintenance(){if("SERVICE_MAINTENANCE".equals(batch.operation.getAction())||parseJsonObject(batch.operation.getPreviousSnapshotJson()).has("adServiceMaintenanceScope"))rootGuest(instance,"operation generation render-maintenance-resume-source",serviceMaintenanceScope(instance,batch.operation),120);}
+            public void releaseMaintenance(){releaseOperationResourceReservation(instance,batch.operation);if("SERVICE_MAINTENANCE".equals(batch.operation.getAction())||parseJsonObject(batch.operation.getPreviousSnapshotJson()).has("adServiceMaintenanceScope"))releaseServiceMaintenance(instance,batch.operation);}
             public void promote(){new StorageServiceConfiguration(StorageServiceManagerImpl.this,storageConfigArtifactDao,storageOperationDao).promoteVerified(instance,batch.operation,()->{batch.operation.setState("COMPLETE");batch.operation.setPhase("COMPLETE");batch.operation.setProgress(100);batch.operation.setCompleted(new java.util.Date());if(!storageOperationDao.update(batch.operation.getId(),batch.operation))throw new CloudRuntimeException("Rendered operation LKG could not be committed");});}
         };
     }
@@ -1601,6 +1602,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     protected void recoverRenderedStorageWriter(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
+        if(parseJsonObject(operation.getPreviousSnapshotJson()).has("adIdentityEffectPhase"))throw new CloudRuntimeException("AD identity effect requires its owned domain recovery before generic configuration rollback");
         RenderedBatch batch=restoreRenderedBatch(operation);if(batch.retainedRootAuthorization!=null)throw new CloudRuntimeException("Retained ROOT recovery requires its latest-source ROOT compensation transaction");requiredRenderedValidationProfile(instance);
         operation.setState("RUNNING");operation.setCompleted(null);if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Rendered recovery writer could not be persisted");beginStorageWriterHeartbeat(operation);renderedBatch.set(batch);
         try {
@@ -2722,7 +2724,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     protected void checkpointConfigurationIdentity(StorageServiceInstanceVO instance,JsonObject rootScope,String sourceSha) {
         StorageServiceOperationVO operation = storageWriterOperation.get();
         if (operation == null || operation.getPreviousSnapshotJson() == null) throw new CloudRuntimeException("Configuration operation snapshot is unavailable");
-        java.security.KeyPair key = StorageIdentityCapsule.wrappingKey();
+        RenderedBatch serviceBatch=rootScope!=null&&rootScope.has("maintenanceUuid")?renderedBatch.get():null;
+        if(rootScope!=null&&rootScope.has("maintenanceUuid")&&(serviceBatch==null||serviceBatch.operation.getId()!=operation.getId()))throw new CloudRuntimeException("SERVICE identity source requires the exact pre-created rendered checkpoint key");
+        java.security.KeyPair key = serviceBatch==null?StorageIdentityCapsule.wrappingKey():serviceBatch.key;
         byte[] protectedKey = StorageIdentityCapsule.protectedPrivateKey(key);
         JsonObject capsule=rootScope==null?exportConfigurationIdentity(instance,operation.getUuid(),key):exportConfigurationIdentity(instance,operation.getUuid(),key,rootScope,sourceSha);
         String keyId = java.util.UUID.nameUUIDFromBytes(("identity-key:" + operation.getUuid()).getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString();
@@ -2734,7 +2738,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         catch (RuntimeException failure) { store.remove(keyId);throw failure; }
         JsonObject reference = new JsonObject();reference.addProperty("operationUuid", operation.getUuid());reference.addProperty("keyId", keyId);
         reference.addProperty("capsuleSha256",StorageConfigArchive.sha256(data));reference.addProperty("keySha256",StorageConfigArchive.sha256(protectedKey));
-        if(rootScope!=null){reference.add("sourceRootScope",rootScope.deepCopy());reference.addProperty("sourceConfigurationSha256",sourceSha);}
+        if(rootScope!=null){reference.add(rootScope.has("maintenanceUuid")?"sourceMaintenanceScope":"sourceRootScope",rootScope.deepCopy());reference.addProperty("sourceConfigurationSha256",sourceSha);}
         JsonObject snapshot = parseJsonObject(operation.getPreviousSnapshotJson());snapshot.add("nativeIdentityCapsule", reference);
         operation.setPreviousSnapshotJson(snapshot.toString());storageOperationDao.update(operation.getId(), operation);
     }
@@ -3243,11 +3247,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 if (isSmbNetworkRule(acl)) continue;
                 if (acl.getState() != StorageServiceInstance.ResourceState.Ready) throw new CloudRuntimeException("SMB account ACL is not ready");
                 if (acl.getPrincipalType() == StorageServiceInstance.PrincipalType.AD_USER || acl.getPrincipalType() == StorageServiceInstance.PrincipalType.AD_GROUP) {
-                    throw new CloudRuntimeException("SMB AD identity recovery requires domain verification");
+                    JsonObject config=parseJsonObject(acl.getConfigJson()),bound=config.has("adPrincipalReceipt")&&config.get("adPrincipalReceipt").isJsonObject()?config.getAsJsonObject("adPrincipalReceipt"):null;if(bound==null)throw new CloudRuntimeException("SMB AD ACL lacks its verified principal identity receipt");JsonObject fresh=resolveStorageAdPrincipal(instance,acl.getPrincipalType(),acl.getPrincipal());for(String field:List.of("qualifiedName","sid","sidType","numericId","kind","domainSid","realm","workgroup"))if(!bound.has(field)||!bound.get(field).equals(fresh.get(field)))throw new CloudRuntimeException("SMB AD principal mapping changed before runtime verification");
                 }
                 String principal = acl.getPrincipal().replace('/', (char) 92);
                 if (principal.indexOf((char) 92) < 0) principal = buildSmbNetbiosName(instance) + (char) 92 + principal;
-                principal = (acl.getPrincipalType() == StorageServiceInstance.PrincipalType.LOCAL_GROUP ? "@" : "") + (char) 34 + principal + (char) 34;
+                principal = (acl.getPrincipalType() == StorageServiceInstance.PrincipalType.LOCAL_GROUP || acl.getPrincipalType() == StorageServiceInstance.PrincipalType.AD_GROUP ? "@" : "") + (char) 34 + principal + (char) 34;
                 users.add(principal);
                 if (!Boolean.TRUE.equals(getJsonBoolean(desired, "readOnly")) && (acl.getPermission() == StorageServiceInstance.Permission.READ_WRITE
                         || acl.getPermission() == StorageServiceInstance.Permission.ADMIN)) writers.add(principal);
@@ -3443,6 +3447,23 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             idempotency = scoped.getIdempotencyKey(); revision = scoped.getExpectedRevision();
         }
         final StorageServiceInstance.Protocol protocol = operationProtocol(cmd);
+        final boolean adLifecycle=cmd instanceof JoinStorageServiceToAdDomainCmd||cmd instanceof LeaveStorageServiceFromAdDomainCmd;
+        if(adLifecycle){if(cmd instanceof JoinStorageServiceToAdDomainCmd){JoinStorageServiceToAdDomainCmd join=(JoinStorageServiceToAdDomainCmd)cmd;
+        requireAdLifecycleApproval(instance,join.getMaintenanceWindow(),join.getConfirmation());
+        if(!Set.of("JOIN_EXISTING","NEW_INSTANCE").contains(join.getIdentityMode()))throw new InvalidParameterValueException("AD identity mode is invalid");
+        if("NEW_INSTANCE".equals(join.getIdentityMode())){requireConfigurationAdministrator();
+        requiredRenderedValidationProfile(instance);
+        }String machine="NEW_INSTANCE".equals(join.getIdentityMode())?"AST"+instance.getUuid().replace("-","").substring(0,12).toUpperCase(Locale.ROOT):buildSmbNetbiosName(instance);
+        StorageAdLifecycleRequest.publicJoin(join.getDomainName(),join.getWorkgroup(),machine,join.getDnsServers(),adOwnedEndpointAddresses(instance),join.getIdentityMode(),null);
+        StorageAdLifecycleRequest.validateCredentials(join.getUsername(),join.getPassword());
+        StorageAdLifecycleRequest.validateOrganizationalUnit(join.getOrganizationalUnit());
+        }else {LeaveStorageServiceFromAdDomainCmd leave=(LeaveStorageServiceFromAdDomainCmd)cmd;
+        requireAdLifecycleApproval(instance,leave.getMaintenanceWindow(),leave.getConfirmation());
+        requireNoAdPrincipalReferences(instance);
+        if(leave.getUsername()!=null||leave.getPassword()!=null)StorageAdLifecycleRequest.validateCredentials(leave.getUsername(),leave.getPassword());
+        }JsonObject availability=rootGuest(instance,"operation generation render-status",new JsonObject(),15);
+        if(!Boolean.TRUE.equals(getNativeBoolean(availability,"serviceIdentityCheckpointSupported")))throw new CloudRuntimeException("AD lifecycle requires protected SERVICE PRESTOP identity and stopped checkpoint support");
+        }
         return new DesiredStateChange(storageOperationDao, new StorageServiceDesiredSnapshot()).execute(
                 instanceId, cmd.getCommandName(), idempotency, revision, StorageServiceRequestFingerprint.of(cmd), responseClass, change, new DesiredStateChange.Runtime() {
                     public void started(StorageServiceOperationVO operation) { startOperationControl(instance, operation, cmd);beginStorageWriterHeartbeat(operation); }
@@ -3456,7 +3477,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                                 catch (RuntimeException pending) { logger.warn("Native generation finalization remains pending for operation {}", operation.getUuid()); }
                             }
                             cleanupConfigurationIdentityCheckpoint(operation);
-                            releaseOperationResourceReservation(instance, operation);
+                            if(operation==null||!"RECOVERY_REQUIRED".equals(operation.getState())||!parseJsonObject(operation.getPreviousSnapshotJson()).has("adServiceSource"))releaseOperationResourceReservation(instance, operation);
                         }
                         finally { endStorageWriterHeartbeat();renderedBatch.remove();configurationNativeNvmeReplayed.remove();configurationRecoverySource.remove();configurationRecoveryBindings.remove(); }
                     }
@@ -3485,6 +3506,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         }
                     }
                     public void prepareNativeCheckpoint(StorageServiceOperationVO operation) {
+                        if(adLifecycle){prepareAdServiceCheckpoint(instance,operation);return;}
                         if (StorageServiceInstance.StorageServiceVerifiedConfigurationEnabled.value() && instance.getVmId() != null
                                 && (protocol == StorageServiceInstance.Protocol.SMB || protocol == StorageServiceInstance.Protocol.ISCSI
                                     || protocol == StorageServiceInstance.Protocol.NVME_OF)) checkpointConfigurationIdentity(instance);
@@ -3526,6 +3548,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         }
                     }
                     public void ensureRollbackSafe() {
+                        StorageServiceOperationVO active=storageWriterOperation.get();if(active!=null&&parseJsonObject(active.getPreviousSnapshotJson()).has("adIdentityEffectPhase"))throw new CloudRuntimeException("AD identity mutation requires verified owned recovery before any desired DB rollback");
                         if(renderedBatch.get()!=null&&renderedBatch.get().receipt!=null&&renderedCoordinator(instance,renderedBatch.get()).recoveryDecision(renderedBatch.get().receipt)==StorageRenderedRecoveryState.Decision.COMMITTED)throw new CloudRuntimeException("Rendered native generation committed; preserve target declaration for forward finalization");
                         if (instance.getVmId() == null) return;
                         JsonObject observed=rootGuest(instance,"operation writer-idle",new JsonObject(),15);
@@ -4839,20 +4862,22 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
 
     private StorageIdentityDomainResponse doJoinStorageServiceToAdDomain(final JoinStorageServiceToAdDomainCmd cmd) {
         final StorageServiceInstanceVO instance = requireInstance(cmd.getInstanceId());
-        ensureSmbProtocol(instance);
+        ensureSmbProtocol(instance);requireAdLifecycleApproval(instance,cmd.getMaintenanceWindow(),cmd.getConfirmation());
+        String joinedMachine="NEW_INSTANCE".equals(cmd.getIdentityMode())?"AST"+instance.getUuid().replace("-","").substring(0,12).toUpperCase(Locale.ROOT):buildSmbNetbiosName(instance);
         StorageIdentityDomainVO domain = storageIdentityDomainDao.findByInstanceId(instance.getId());
         if (domain == null) {
             domain = new StorageIdentityDomainVO(instance.getId(), cmd.getDomainName(), cmd.getOrganizationalUnit(), cmd.getDnsServers(),
                     StorageServiceInstance.DomainJoinState.JOINING, "UNKNOWN", buildIdentityDomainConfigJson(cmd.getDomainName(), cmd.getWorkgroup()));
-            domain = storageIdentityDomainDao.persist(domain);
+            JsonObject config=parseJsonObject(domain.getConfigJson());config.addProperty("identityMode",cmd.getIdentityMode());config.addProperty("netbiosName",joinedMachine);domain.setConfigJson(config.toString());
+            domain = storageIdentityDomainDao.persist(domain);if(domain==null)throw new CloudRuntimeException("AD domain declaration could not be allocated");
         } else {
             domain.setDomainName(cmd.getDomainName());
             domain.setOrganizationalUnit(cmd.getOrganizationalUnit());
             domain.setDnsServers(cmd.getDnsServers());
             domain.setJoinState(StorageServiceInstance.DomainJoinState.JOINING);
             domain.setHealthState("UNKNOWN");
-            domain.setConfigJson(buildIdentityDomainConfigJson(cmd.getDomainName(), cmd.getWorkgroup()));
-            storageIdentityDomainDao.update(domain.getId(), domain);
+            JsonObject config=parseJsonObject(buildIdentityDomainConfigJson(cmd.getDomainName(), cmd.getWorkgroup()));config.addProperty("identityMode",cmd.getIdentityMode());config.addProperty("netbiosName",joinedMachine);domain.setConfigJson(config.toString());
+            if(!storageIdentityDomainDao.update(domain.getId(),domain))throw new CloudRuntimeException("AD domain declaration could not be persisted");
         }
 
         try {
@@ -4860,12 +4885,12 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         } catch (final RuntimeException e) {
             domain.setJoinState(StorageServiceInstance.DomainJoinState.ERROR);
             domain.setHealthState("ERROR");
-            storageIdentityDomainDao.update(domain.getId(), domain);
+            if(!storageIdentityDomainDao.update(domain.getId(),domain))throw new CloudRuntimeException("AD domain declaration could not be persisted");
             throw e;
         }
         domain.setJoinState(StorageServiceInstance.DomainJoinState.JOINED);
         domain.setHealthState("OK");
-        storageIdentityDomainDao.update(domain.getId(), domain);
+        if(!storageIdentityDomainDao.update(domain.getId(),domain))throw new CloudRuntimeException("AD domain declaration could not be persisted");
         applySmbDesiredState(instance);
         return createIdentityDomainResponse(domain);
     }
@@ -4876,15 +4901,15 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     private StorageIdentityDomainResponse doLeaveStorageServiceFromAdDomain(final LeaveStorageServiceFromAdDomainCmd cmd) {
-        final StorageServiceInstanceVO instance = requireInstance(cmd.getInstanceId());
+        final StorageServiceInstanceVO instance = requireInstance(cmd.getInstanceId());requireAdLifecycleApproval(instance,cmd.getMaintenanceWindow(),cmd.getConfirmation());requireNoAdPrincipalReferences(instance);
         StorageIdentityDomainVO domain = storageIdentityDomainDao.findByInstanceId(instance.getId());
         if (domain == null) {
             domain = new StorageIdentityDomainVO(instance.getId(), "", null, null,
                     StorageServiceInstance.DomainJoinState.NOT_JOINED, "UNKNOWN", null);
-            domain = storageIdentityDomainDao.persist(domain);
+            domain = storageIdentityDomainDao.persist(domain);if(domain==null)throw new CloudRuntimeException("AD domain declaration could not be allocated");
         } else {
             domain.setJoinState(StorageServiceInstance.DomainJoinState.LEAVING);
-            storageIdentityDomainDao.update(domain.getId(), domain);
+            if(!storageIdentityDomainDao.update(domain.getId(),domain))throw new CloudRuntimeException("AD domain declaration could not be persisted");
         }
 
         try {
@@ -4892,12 +4917,12 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         } catch (final RuntimeException e) {
             domain.setJoinState(StorageServiceInstance.DomainJoinState.ERROR);
             domain.setHealthState("ERROR");
-            storageIdentityDomainDao.update(domain.getId(), domain);
+            if(!storageIdentityDomainDao.update(domain.getId(),domain))throw new CloudRuntimeException("AD domain declaration could not be persisted");
             throw e;
         }
         domain.setJoinState(StorageServiceInstance.DomainJoinState.NOT_JOINED);
         domain.setHealthState("NOT_JOINED");
-        storageIdentityDomainDao.update(domain.getId(), domain);
+        if(!storageIdentityDomainDao.update(domain.getId(),domain))throw new CloudRuntimeException("AD domain declaration could not be persisted");
         applySmbDesiredState(instance);
         return createIdentityDomainResponse(domain);
     }
@@ -6258,44 +6283,58 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         return share.getPath();
     }
 
-    protected void applyAdJoin(final StorageServiceInstanceVO instance, final StorageIdentityDomainVO domain,
-            final String username, final String password) {
-        if (instance.getVmId() == null) {
-            logger.debug("Storage Service instance [{}] has no System VM yet; AD join state is stored but not applied", instance.getUuid());
-            return;
-        }
-        final JsonObject payload = new JsonObject();
-        payload.addProperty("instanceUuid", instance.getUuid());
-        payload.addProperty("netbiosName", buildSmbNetbiosName(instance));
-        payload.addProperty("domainName", domain.getDomainName());
-        payload.addProperty("username", username);
-        payload.addProperty("password", password);
-        payload.addProperty("organizationalUnit", domain.getOrganizationalUnit());
-        payload.addProperty("dnsServers", domain.getDnsServers());
-        payload.add("config", parseJsonObject(domain.getConfigJson()));
-        final StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
-                "smb domain join", GSON.toJson(payload), StorageServiceInstance.StorageServiceCommandTimeout.value(), Collections.singleton("password")));
-        if (!result.isSuccess()) {
-            throw new CloudRuntimeException("Failed to join SMB AD domain on Storage Service System VM: " + result.getDetails());
-        }
+    protected void prepareAdServiceCheckpoint(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
+        requiredRenderedValidationProfile(instance);requireNoPendingVolumeFormatter(instance);JsonObject before=nativeConfigurationGeneration(instance,null,"status");if(!"IN_SYNC".equals(getJsonString(before,"generationStatus"))||getJsonString(before,"pendingOperationUuid")!=null)throw new CloudRuntimeException("AD service source generation is not settled");
+        prepareRenderedBatch(instance,operation,before);if(renderedBatch.get()==null)throw new CloudRuntimeException("AD service requires a scoped four-protocol source baseline");JsonObject scope=serviceMaintenanceScope(instance,operation),captured=rootGuest(instance,"operation generation render-service-capture-source",scope,120);
+        if(!Boolean.TRUE.equals(getNativeBoolean(captured,"success"))||!Boolean.TRUE.equals(getNativeBoolean(captured,"sourceCaptured"))||!scope.equals(captured.get("scope"))||!before.get("generation").equals(captured.get("sourceGeneration"))||!getJsonString(before,"configurationSha256").equals(getJsonString(captured,"sourceConfigurationSha256"))||!Boolean.FALSE.equals(getNativeBoolean(captured,"canonicalDesiredStateChanged")))throw new CloudRuntimeException("AD service source was not captured before native pending and stop");
+        Boolean adCaptured=getNativeBoolean(captured,"publicAdPreStopCaptured");JsonElement publicAdSha=captured.get("publicAdPreStopSha256");if(getJsonString(captured,"bootId")==null||!getJsonString(captured,"bootId").matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}")||adCaptured==null||publicAdSha==null||adCaptured&&(getJsonString(captured,"publicAdPreStopSha256")==null||!getJsonString(captured,"publicAdPreStopSha256").matches("[a-f0-9]{64}"))||!adCaptured&&!publicAdSha.isJsonNull()||getJsonString(captured,"publicLocalMachineSid")==null||!getJsonString(captured,"publicLocalMachineSid").matches("S-1-5-21-[0-9]+-[0-9]+-[0-9]+")||!getJsonString(renderedBatch.get().previousManifest,"manifestSha256").equals(getJsonString(captured,"sourceRenderedManifestSha256")))throw new CloudRuntimeException("AD SERVICE source public identity or rendered baseline proof is invalid");
+        JsonObject snapshot=parseJsonObject(operation.getPreviousSnapshotJson());snapshot.add("adServiceSource",captured);snapshot.add("nativeDesiredState",before.get("configurationDesiredState").deepCopy());snapshot.add("nativeGeneration",nativeConfigurationGeneration(instance,operation,"begin"));operation.setPreviousSnapshotJson(snapshot.toString());if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("AD service source checkpoint could not be persisted");
+        snapshot=parseJsonObject(operation.getPreviousSnapshotJson());snapshot.add("adServiceMaintenanceScope",scope);snapshot.addProperty("adServiceEnterAttempted",true);operation.setPreviousSnapshotJson(snapshot.toString());if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("AD SERVICE enter intent could not be recorded before effects");
+        JsonObject held=rootGuest(instance,"operation maintenance service-enter",scope,120);
+        if(!Boolean.TRUE.equals(getNativeBoolean(held,"success"))||!Boolean.TRUE.equals(getNativeBoolean(held,"bootHeld"))||!Boolean.TRUE.equals(getNativeBoolean(held,"serviceSourceStoppedVerified"))||!scope.equals(held.get("scope"))||!captured.get("sourceGeneration").equals(held.get("sourceGeneration"))||!getJsonString(captured,"sourceConfigurationSha256").equals(getJsonString(held,"sourceConfigurationSha256"))||!"SERVICE".equals(getJsonString(held,"maintenanceKind"))||!getJsonString(captured,"bootId").equals(getJsonString(held,"bootId"))||!java.util.Objects.equals(captured.get("publicAdPreStopSha256"),held.get("publicAdPreStopSha256"))||!getJsonString(captured,"publicLocalMachineSid").equals(getJsonString(held,"publicLocalMachineSid"))||getJsonString(held,"stoppedReceiptSha256")==null||!getJsonString(held,"stoppedReceiptSha256").matches("[a-f0-9]{64}"))throw new CloudRuntimeException("AD service private identity holders were not stopped under their exact protected source");
+        snapshot=parseJsonObject(operation.getPreviousSnapshotJson());snapshot.add("adServiceMaintenanceScope",scope);snapshot.add("adServiceStopped",held);operation.setPreviousSnapshotJson(snapshot.toString());if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("AD service stopped identity receipt could not be saved");checkpointConfigurationIdentity(instance,scope,getJsonString(before,"configurationSha256"));
     }
-
-    protected void applyAdLeave(final StorageServiceInstanceVO instance, final String username, final String password) {
-        if (instance.getVmId() == null) {
-            logger.debug("Storage Service instance [{}] has no System VM yet; AD leave state is stored but not applied", instance.getUuid());
-            return;
-        }
-        final StorageIdentityDomainVO domain = storageIdentityDomainDao.findByInstanceId(instance.getId());
-        final JsonObject payload = new JsonObject();
-        payload.addProperty("instanceUuid", instance.getUuid());
-        payload.addProperty("domainName", domain == null ? null : domain.getDomainName());
-        payload.addProperty("username", username);
-        payload.addProperty("password", password);
-        final StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
-                "smb domain leave", GSON.toJson(payload), StorageServiceInstance.StorageServiceCommandTimeout.value(), Collections.singleton("password")));
-        if (!result.isSuccess()) {
-            throw new CloudRuntimeException("Failed to leave SMB AD domain on Storage Service System VM: " + result.getDetails());
-        }
+    protected void requireAdLifecycleApproval(StorageServiceInstanceVO instance,Boolean maintenance,String confirmation) {if(!Boolean.TRUE.equals(maintenance)||!instance.getName().equals(confirmation))throw new InvalidParameterValueException("AD identity change requires explicit interrupted-session approval and exact instance name");requireStorageAdIdentityFeatures(instance);}
+    protected void requireNoAdPrincipalReferences(StorageServiceInstanceVO instance) {
+        for(StorageFileShareVO share:storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(),StorageServiceInstance.Protocol.SMB))for(StorageAccessRuleVO acl:storageAccessRuleDao.listByResource(StorageServiceInstance.AccessResourceType.FILE_SHARE,share.getId()))if(acl.getState()!=StorageServiceInstance.ResourceState.Destroyed&&(acl.getPrincipalType()==StorageServiceInstance.PrincipalType.AD_USER||acl.getPrincipalType()==StorageServiceInstance.PrincipalType.AD_GROUP))throw new InvalidParameterValueException("AD leave requires removing domain principal share bindings first");
+        for(StoragePosixDirectoryPolicyVO policy:storagePosixPolicyDao.listByInstance(instance.getId()))if(policy.getConfigJson()!=null&&(policy.getConfigJson().contains("AD_USER")||policy.getConfigJson().contains("AD_GROUP")))throw new InvalidParameterValueException("AD leave requires removing domain POSIX bindings first");
+    }
+    protected JsonObject ownedAdServiceScope(StorageServiceInstanceVO instance) {
+        StorageServiceOperationVO operation=storageWriterOperation.get();if(operation==null)throw new CloudRuntimeException("AD lifecycle requires its reserved configuration writer");JsonObject scope=serviceMaintenanceScope(instance,operation),held=rootGuest(instance,"operation maintenance service-status",scope,15);
+        if(!Boolean.TRUE.equals(getNativeBoolean(held,"success"))||!Boolean.TRUE.equals(getNativeBoolean(held,"bootHeld"))||!scope.equals(held.get("scope")))throw new CloudRuntimeException("AD lifecycle requires the exact held SERVICE maintenance scope");return scope;
+    }
+    protected JsonArray adOwnedEndpointAddresses(StorageServiceInstanceVO instance) {
+        Set<String> values=new java.util.TreeSet<>();for(StorageServiceProtocolVO protocol:storageServiceProtocolDao.listByInstanceIdAndProtocol(instance.getId(),StorageServiceInstance.Protocol.SMB))if(protocol.isEnabled()&&com.cloud.utils.net.NetUtils.isValidIp4(protocol.getListenIp())&&!"0.0.0.0".equals(protocol.getListenIp()))values.add(protocol.getListenIp());
+        if(values.isEmpty()){List<NicVO> primary=nicDao.listByVmId(instance.getVmId()).stream().filter(NicVO::isDefaultNic).collect(java.util.stream.Collectors.toList());if(primary.size()!=1)throw new CloudRuntimeException("AD join requires one owned primary network address");String address=declaredProtocolPrimary(instance,primary.get(0));if(!com.cloud.utils.net.NetUtils.isValidIp4(address))throw new CloudRuntimeException("AD primary network address is unavailable");values.add(address);}
+        JsonArray result=new JsonArray();values.forEach(result::add);return result;
+    }
+    protected JsonObject requiredAdServiceSourceIdentity(StorageServiceInstanceVO instance) {
+        StorageServiceOperationVO operation=storageWriterOperation.get();
+        if(operation==null)throw new CloudRuntimeException("AD lifecycle has no reserved source operation");
+        JsonObject snapshot=parseJsonObject(operation.getPreviousSnapshotJson()),source=getJsonObject(snapshot,"adServiceSource"),stopped=getJsonObject(snapshot,"adServiceStopped"),scope=serviceMaintenanceScope(instance,operation);
+        if(!scope.equals(source.get("scope"))||!scope.equals(stopped.get("scope"))||!Boolean.TRUE.equals(getNativeBoolean(stopped,"serviceSourceStoppedVerified"))
+                ||getJsonString(source,"bootId")==null||!getJsonString(source,"bootId").equals(getJsonString(stopped,"bootId"))
+                ||getJsonString(source,"publicLocalMachineSid")==null||!getJsonString(source,"publicLocalMachineSid").equals(getJsonString(stopped,"publicLocalMachineSid")))throw new CloudRuntimeException("AD lifecycle lacks its exact protected stopped local identity binding");
+        StorageAdIdentityProof.validateServiceSource(source);return source.deepCopy();
+    }
+    protected void markAdIdentityEffect(String phase) {StorageServiceOperationVO operation=storageWriterOperation.get();if(operation==null)throw new CloudRuntimeException("AD identity effect has no durable writer");JsonObject snapshot=parseJsonObject(operation.getPreviousSnapshotJson());snapshot.addProperty("adIdentityEffectPhase",phase);operation.setPreviousSnapshotJson(snapshot.toString());if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("AD identity effect phase could not be persisted");}
+    protected void applyAdJoin(final StorageServiceInstanceVO instance, final StorageIdentityDomainVO domain,final String username,final String password) {
+        if(instance.getVmId()==null)throw new CloudRuntimeException("AD join cannot be completed before a running SystemVM is available");requireStorageAdIdentityFeatures(instance);JsonObject scope=ownedAdServiceScope(instance),source=requiredAdServiceSourceIdentity(instance),config=parseJsonObject(domain.getConfigJson());
+        String mode=StringUtils.defaultIfBlank(getJsonString(config,"identityMode"),"JOIN_EXISTING"),machine=StringUtils.defaultIfBlank(getJsonString(config,"netbiosName"),"NEW_INSTANCE".equals(mode)?"AST"+instance.getUuid().replace("-","").substring(0,12).toUpperCase(Locale.ROOT):buildSmbNetbiosName(instance));
+        JsonObject publicConfiguration=StorageAdLifecycleRequest.publicJoin(domain.getDomainName(),getJsonString(config,"workgroup"),machine,domain.getDnsServers(),adOwnedEndpointAddresses(instance),mode,null);
+        JsonObject request=StorageAdLifecycleRequest.join(scope,publicConfiguration,username,password,domain.getOrganizationalUnit());requireProtectedIdentityTransport(instance,getJsonString(scope,"operationUuid"));markAdIdentityEffect("JOIN_STARTED");StorageServiceGuestCommandResult result=guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),"identity domain join",request.toString(),180,Set.of("username","password")));
+        if(!result.isSuccess())throw new CloudRuntimeException("Protected AD domain join failed");JsonObject joined=parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));if(!Boolean.TRUE.equals(getNativeBoolean(joined,"success"))||!scopeAsOperation(scope).equals(joined.get("scope"))||!Boolean.FALSE.equals(getNativeBoolean(joined,"canonicalDesiredStateChanged"))||!joined.has("identity"))throw new CloudRuntimeException("AD join did not return its exact owned identity receipt without changing canonical state");
+        JsonObject identity=StorageAdIdentityProof.joined(joined.getAsJsonObject("identity"),scopeAsOperation(scope),domain.getDomainName(),null,publicConfiguration.getAsJsonObject("idmapPolicy"),System.currentTimeMillis()/1000.0);
+        StorageAdIdentityProof.bindServiceSource(identity,source);
+        if(!publicConfiguration.get("dnsAliases").equals(identity.get("dnsAliases"))||!publicConfiguration.get("servicePrincipals").equals(identity.get("servicePrincipals"))||!machine.equals(getJsonString(identity,"netbiosName")))throw new CloudRuntimeException("AD joined machine, DNS aliases or service principals changed");
+        JsonObject updated=config.deepCopy();updated.add("identityReceipt",identity);updated.addProperty("netbiosName",getJsonString(identity,"netbiosName"));updated.add("idmapPolicy",identity.get("idmapPolicy").deepCopy());domain.setConfigJson(updated.toString());markAdIdentityEffect("JOIN_VERIFIED");
+    }
+    private JsonObject scopeAsOperation(JsonObject scope) {JsonObject operation=scope.deepCopy();operation.remove("maintenanceUuid");operation.remove("templateUpgradeUuid");return operation;}
+    protected void applyAdLeave(final StorageServiceInstanceVO instance,final String username,final String password) {
+        if(instance.getVmId()==null)throw new CloudRuntimeException("AD leave cannot be completed without a running SystemVM");requireStorageAdIdentityFeatures(instance);JsonObject scope=ownedAdServiceScope(instance),source=requiredAdServiceSourceIdentity(instance),request=scope.deepCopy();if(username!=null)request.addProperty("username",username);if(password!=null)request.addProperty("password",password);
+        requireProtectedIdentityTransport(instance,getJsonString(scope,"operationUuid"));markAdIdentityEffect("LEAVE_STARTED");StorageServiceGuestCommandResult result=guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),"identity domain leave",request.toString(),180,Set.of("username","password")));if(!result.isSuccess())throw new CloudRuntimeException("Protected AD domain leave failed");JsonObject left=parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));
+        if(!Boolean.TRUE.equals(getNativeBoolean(left,"success"))||!Boolean.TRUE.equals(getNativeBoolean(left,"left"))||!Boolean.TRUE.equals(getNativeBoolean(left,"localMachineSidPreserved"))||!Boolean.TRUE.equals(getNativeBoolean(left,"adOwnedArtifactsRemoved"))||!Boolean.FALSE.equals(getNativeBoolean(left,"canonicalDesiredStateChanged"))||!scopeAsOperation(scope).equals(left.get("scope")))throw new CloudRuntimeException("AD leave lacks its fresh local identity and owned artifact cleanup proof");
+        JsonObject observed=rootGuest(instance,"identity domain inspect",scopeAsOperation(scope),30);StorageAdIdentityProof.notJoined(observed,scopeAsOperation(scope),source,System.currentTimeMillis()/1000.0);markAdIdentityEffect("LEAVE_VERIFIED");
     }
 
     protected void cleanupFailedBlockTargetCreate(final StorageServiceInstanceVO instance, final StorageBlockTargetVO target, final boolean cleanupVolumeOnFailure) {

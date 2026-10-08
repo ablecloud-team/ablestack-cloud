@@ -49,6 +49,13 @@ public class LeaveStorageServiceFromAdDomainCmd extends BaseStorageServiceAsyncC
     @Parameter(name = "password", type = CommandType.STRING, description = "domain leave password. Not stored.")
     private String password;
 
+    @Parameter(name = "maintenancewindow", type = CommandType.BOOLEAN, description = "Explicit approval to stop owned SMB and winbind services during this identity change")
+    private Boolean maintenanceWindow;
+    @Parameter(name = "confirmation", type = CommandType.STRING, description = "Exact Storage Service instance name approving the maintenance window")
+    private String confirmation;
+    public Boolean getMaintenanceWindow() { return maintenanceWindow; }
+    public String getConfirmation() { return confirmation; }
+
     public Long getInstanceId() {
         return instanceId;
     }
