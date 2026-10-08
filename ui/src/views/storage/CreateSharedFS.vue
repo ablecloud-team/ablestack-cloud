@@ -319,16 +319,16 @@
                     v-for="(serviceoffering, index) in serviceofferings"
                     :value="serviceoffering.id"
                     :key="index"
-                    :disabled="!serviceoffering.compatibility?.compatible"
+                    :disabled="!isSelectableNewRootOffering(serviceoffering)"
                     :title="offeringReason(serviceoffering)"
                     :label="serviceoffering.displaytext || serviceoffering.name">
-                    <span v-if="!serviceoffering.compatibility?.compatible" class="field-hint">{{ offeringReason(serviceoffering) }} · </span>
+                    <span v-if="!isSelectableNewRootOffering(serviceoffering)" class="field-hint">{{ offeringReason(serviceoffering) }} · </span>
                     {{ serviceoffering.displaytext || serviceoffering.name }}
                   </a-select-option>
                 </a-select>
                 <div class="field-hint">{{ $t('message.storage.service.offering.requirements', { cpu: offeringRequirements?.minimumcpu || minCpu, memory: offeringRequirements?.minimummemory || minMemory }) }}</div>
                 <a-alert v-if="serviceOfferingReadError" type="warning" show-icon :message="$t('message.storage.service.offering.unavailable')" />
-                <a-alert v-else-if="!serviceofferingLoading && serviceofferings.length && !serviceofferings.some(item => item.compatibility?.compatible)" type="warning" show-icon :message="$t('message.storage.service.offering.no.compatible')" />
+                <a-alert v-else-if="!serviceofferingLoading && serviceofferings.length && !serviceofferings.some(item => isSelectableNewRootOffering(item))" type="warning" show-icon :message="$t('message.storage.service.offering.no.compatible')" />
                 <a-space wrap>
                   <a-button size="small" :loading="serviceofferingLoading" @click="fetchServiceOfferings"><template #icon><ReloadOutlined /></template>{{ $t('label.refresh') }}</a-button>
                   <a v-if="$store.getters.apis.createServiceOffering" href="#/computeoffering" target="_blank" rel="noopener">{{ $t('label.storage.service.offering.create.guide') }}</a>
@@ -1113,6 +1113,7 @@ export default {
       serviceofferingLoading: false,
       serviceOfferingRequestToken: 0,
       serviceOfferingReadError: false,
+      serviceOfferingScope: null,
       offeringRequirements: null,
       minCpu: store.getters.features?.sharedfsvmmincpucount || 2,
       minMemory: store.getters.features?.sharedfsvmminramsize || 1024,
@@ -1731,38 +1732,57 @@ export default {
       }
       return Promise.resolve()
     },
+    hasSparseNewRootOffering (offering) {
+      const uuid = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/
+      return typeof offering?.id === 'string' && uuid.test(offering.id) && typeof offering.provisioningtype === 'string' &&
+        ['sparse', 'fat'].includes(offering.provisioningtype.toLowerCase()) && typeof offering.diskofferingid === 'string' && uuid.test(offering.diskofferingid)
+    },
+    isSelectableNewRootOffering (offering) {
+      return !this.serviceofferingLoading && !this.serviceOfferingReadError && this.serviceOfferingScope === this.templateOwnerScope() &&
+        offering?.compatibility?.compatible === true && this.hasSparseNewRootOffering(offering)
+    },
+    assertNewRootOffering (id) {
+      const selected = this.serviceofferings.find(item => item.id === id)
+      if (typeof id !== 'string' || !this.isSelectableNewRootOffering(selected)) {
+        throw new Error(this.$t('message.storage.disk.sparse.required'))
+      }
+    },
     offeringReason (offering) {
+      if (!this.hasSparseNewRootOffering(offering)) return this.$t('message.storage.disk.sparse.required')
       const reasons = offering.compatibility?.reasons || ['CONSTRAINTS_UNAVAILABLE']
       return reasons.map(code => this.$t('message.storage.service.offering.reason.' + code.toLowerCase())).join(', ')
     },
     async fetchServiceOfferings () {
       const request = ++this.serviceOfferingRequestToken
       const zoneId = this.selectedZone.id
+      const scope = this.templateOwnerScope()
       this.serviceofferingLoading = true
       this.serviceOfferingReadError = false
       this.serviceofferings = []
       this.offeringRequirements = null
+      this.serviceOfferingScope = null
       this.form.serviceofferingid = ''
       const params = { zoneid: zoneId, listall: true, domainid: this.owner.domainid }
       if (this.owner.projectid) params.projectid = this.owner.projectid
       else params.account = this.owner.account
       try {
         const json = await getAPI('listServiceOfferings', params, { preserveOnFailure: true, timeout: 15000 })
-        if (request !== this.serviceOfferingRequestToken || zoneId !== this.selectedZone.id) return
+        if (request !== this.serviceOfferingRequestToken || zoneId !== this.selectedZone.id || scope !== this.templateOwnerScope()) return
         const items = json.listserviceofferingsresponse.serviceoffering || []
         this.serviceofferings = items.map(item => ({ ...item, compatibility: null }))
         if (!items.length) return
         const response = await getAPI('listStorageServiceOfferingConstraints', {
           zoneid: zoneId, serviceofferingids: items.map(item => item.id).join(',')
         }, { preserveOnFailure: true, timeout: 15000 })
-        if (request !== this.serviceOfferingRequestToken || zoneId !== this.selectedZone.id) return
+        if (request !== this.serviceOfferingRequestToken || zoneId !== this.selectedZone.id || scope !== this.templateOwnerScope()) return
         const entries = response.liststorageserviceofferingconstraintsresponse.storageserviceofferingconstraint || []
         const byId = Object.fromEntries(entries.map(item => [item.id, item]))
         this.offeringRequirements = entries[0] || null
         this.serviceofferings = items.map(item => ({ ...item, compatibility: byId[item.id] || null }))
-        this.form.serviceofferingid = this.serviceofferings.find(item => item.compatibility?.compatible)?.id || ''
+        this.serviceOfferingScope = scope
+        this.form.serviceofferingid = this.serviceofferings.find(item => item.compatibility?.compatible === true && this.hasSparseNewRootOffering(item))?.id || ''
       } catch (error) {
-        if (request === this.serviceOfferingRequestToken && zoneId === this.selectedZone.id) this.serviceOfferingReadError = true
+        if (request === this.serviceOfferingRequestToken && zoneId === this.selectedZone.id && scope === this.templateOwnerScope()) this.serviceOfferingReadError = true
       } finally {
         if (request === this.serviceOfferingRequestToken) this.serviceofferingLoading = false
       }
@@ -2049,6 +2069,7 @@ export default {
         const values = this.handleRemoveFields(formRaw)
 
         const data = this.buildCreateSharedFsRequest(values)
+        this.assertNewRootOffering(data.serviceofferingid)
         const missingApis = this.missingStorageServiceSetupApis()
         if (missingApis.length > 0) {
           this.$notification.error({
