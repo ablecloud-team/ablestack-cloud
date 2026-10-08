@@ -8829,5 +8829,18 @@
   "message.storage.config.allocation.preserve": "Review each DATA volume allocation. Created disks are preserved if restore fails.",
   "label.storage.runtime.observed.version": "Observed version",
   "label.storage.runtime.consumer.unknown": "Unverified",
-  "message.storage.runtime.consumer.unverified": "The installed template version has no verified protected manifest. Preflight must verify compatibility before activation."
+  "message.storage.runtime.consumer.unverified": "The installed template version has no verified protected manifest. Preflight must verify compatibility before activation.",
+  "label.storage.operation.cancel.request": "Request cancellation",
+  "label.storage.operation.control.revision": "Control revision",
+  "label.storage.operation.reservation": "Resource reservation",
+  "label.storage.operation.drain": "Session drain state",
+  "label.storage.operation.drain.request": "Request session drain",
+  "label.storage.operation.required": "Required",
+  "label.storage.operation.observed": "Observed",
+  "label.storage.operation.resource.memory": "Available memory (bytes)",
+  "label.storage.operation.resource.staging": "Staging space (bytes)",
+  "label.storage.operation.resource.load": "Load / CPU limit",
+  "label.storage.operation.resource.sessions": "Active sessions",
+  "message.storage.operation.cancel.confirm": "Request cancellation at the next safe boundary?",
+  "message.storage.operation.cancel.boundary": "Cancellation is a request at safe boundaries. A running filesystem formatter is not terminated."
 }

@@ -28,6 +28,9 @@
         <template v-else-if="column.key === 'actions'"><a-button v-if="canReconcile && ['RECOVERY_REQUIRED','BLOCKED','ROLLED_BACK'].includes(record.state)" size="small" :loading="saving === record.id" @click="reconcileTarget=record">{{ $t('label.storage.operation.reconcile') }}</a-button></template>
         <template v-else>{{ record[column.dataIndex] }}</template>
       </template>
+      <template v-if="canControl" #expandedRowRender="{ record }">
+        <storage-operation-control :instance-id="instanceId" :operation-id="record.id" :instance-name="instanceName" @operation-updated="refresh" />
+      </template>
     </a-table>
     <a-modal :visible="!!reconcileTarget" :title="$t('label.storage.operation.reconcile')" :confirm-loading="!!saving" :body-style="{ maxHeight: '65vh', overflowY: 'auto' }" @cancel="reconcileTarget=null" @ok="reconcile">
       <a-alert type="info" show-icon :message="$t('message.storage.operation.reconcile.help')" />
@@ -38,13 +41,15 @@
 </template>
 <script>
 import { getAPI, postAPI } from '@/api'
+import StorageOperationControl from '@/views/storage/StorageOperationControl'
 import { ReloadOutlined } from '@ant-design/icons-vue'
 export default {
   name: 'StorageOperationHistory',
-  components: { ReloadOutlined },
-  props: { instanceId: { type: String, required: true } },
+  components: { ReloadOutlined, StorageOperationControl },
+  props: { instanceId: { type: String, required: true }, instanceName: { type: String, default: '' } },
   data: () => ({ rows: [], loading: false, readError: false, generation: 0, reconcileTarget: null, saving: '', error: '' }),
   computed: {
+    canControl () { return 'getStorageServiceOperationControl' in this.$store.getters.apis },
     canReconcile () { return 'reconcileStorageServiceOperation' in this.$store.getters.apis },
     columns () {
       return [
