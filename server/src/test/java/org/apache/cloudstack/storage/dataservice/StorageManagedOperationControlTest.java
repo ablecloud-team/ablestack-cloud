@@ -91,4 +91,8 @@ public class StorageManagedOperationControlTest {
         control.setLeaseJson("{\"reservationAcquired\":true}");Assert.assertEquals(java.util.Set.of("LOGICAL_RESOURCE_RESERVATION"),manager.requiredManagedOperationFeatures(7L));
     }
 
+    @Test public void importedRendererHandlerDependencySurvivesPolicyOffAndUnresolvedCheckpoint() {
+        manager.beginRuntimeOperationControl(10L,false);enabled(false);operation.setState("COMPLETE");control.setLeaseJson("{\"reservationAcquired\":false}");Mockito.when(manager.instance.getOperationControlPolicyJson()).thenReturn("{\"schemaVersion\":1,\"instanceUuid\":\"instance\",\"enabled\":false,\"renderedValidationProfile\":{\"enabled\":false,\"baselineImported\":true}}");
+        Assert.assertEquals(java.util.Set.of("RENDERED_CONFIG_GENERATION_HANDLER"),manager.requiredManagedOperationFeatures(7L));Mockito.when(manager.instance.getOperationControlPolicyJson()).thenReturn("{\"schemaVersion\":1,\"instanceUuid\":\"instance\",\"enabled\":false}");operation.setState("RECOVERY_REQUIRED");operation.setPreviousSnapshotJson("{\"renderedGeneration\":{\"phase\":\"STAGING\"}}");Assert.assertTrue(manager.requiredManagedOperationFeatures(7L).contains("RENDERED_CONFIG_GENERATION_HANDLER"));
+    }
 }
