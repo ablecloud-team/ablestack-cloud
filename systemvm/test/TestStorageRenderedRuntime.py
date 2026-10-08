@@ -105,4 +105,20 @@ class StorageRenderedRuntimeTest(unittest.TestCase):
             self.adapter.command=lambda *args,**kwargs:{'volumes':[{**good,**change}]}
             with self.assertRaises(ValueError):self.adapter.reobserve_block(Path('/unused'),plan)
 
+    def test_cold_iscsi_readback_checks_durable_keys_and_kernel_null_unset_values(self):
+        instance=str(uuid.uuid4());target="iqn.2026-10.local.storage:target";principal="iqn.2026-10.example:client"
+        root=Path(self.temp.name)/"iscsi";self.adapter.iscsi_root=root;group=root/target/"tpgt_1"
+        auth=group/"acls"/principal/"auth";auth.mkdir(parents=True);(group/"np").mkdir();(group/"lun").mkdir();(group/"attrib").mkdir()
+        (group/"attrib/authentication").write_text("1")
+        for field,value in (("userid","synthetic-user"),("password","  SYNTHETIC_CHAP_ONLY  "),("userid_mutual","NULL"),("password_mutual","NULL")):(auth/field).write_text(value)
+        secret_dir=Path(self.temp.name)/"iscsi-secrets";secret_dir.mkdir(mode=0o700);vault=secret_dir/"iscsi-acl-secrets.json"
+        vault.write_text(json.dumps({target+"|"+principal:{"chapSecret":"  SYNTHETIC_CHAP_ONLY  "}}));vault.chmod(0o600);self.adapter.iscsi_credentials_path=vault
+        plan={"protocol":"ISCSI","targets":[{"targetName":target,"acls":[{"uuid":str(uuid.uuid4()),"principal":principal,"config":{"chapEnabled":True,"chapUsername":"synthetic-user","mutualChapEnabled":False}}],"listeners":[],"backstores":[]}]}
+        self.assertTrue(self.adapter.verify_block(plan,instance_uuid=instance))
+        (auth/"password").write_text("SYNTHETIC_DIFFERENT")
+        with self.assertRaisesRegex(ValueError,"protected durable"):self.adapter.verify_block(plan,instance_uuid=instance)
+        plan["targets"][0]["acls"][0]["config"]={};(group/"attrib/authentication").write_text("0")
+        for field in ("userid","password","userid_mutual","password_mutual"):(auth/field).write_text("NULL")
+        self.assertTrue(self.adapter.verify_block(plan,instance_uuid=instance))
+
 if __name__=='__main__':unittest.main()

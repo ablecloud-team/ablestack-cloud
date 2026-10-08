@@ -276,10 +276,13 @@ class NativeRenderedRuntime:
                 for acl in target["acls"]:
                     config = acl.get("config") or {}; auth = root / "acls" / acl["principal"] / "auth"
                     for flag, username, field in (("chapEnabled", "chapUsername", "userid"), ("mutualChapEnabled", "mutualChapUsername", "userid_mutual")):
-                        if (auth / field).read_text().strip() != (str(config.get(username) or "") if config.get(flag) else ""):
+                        observed_identity=(auth/field).read_text().rstrip("\n")
+                        if observed_identity=="NULL":observed_identity=""
+                        if observed_identity != (str(config.get(username) or "") if config.get(flag) else ""):
                             raise ValueError("Rendered CHAP identity differs")
                     for flag, field, secret in (("chapEnabled", "password", "chapSecret"), ("mutualChapEnabled", "password_mutual", "mutualChapSecret")):
-                        observed = (auth / field).read_text().strip()
+                        observed = (auth / field).read_text().rstrip("\n")
+                        if observed=="NULL":observed=""
                         if bool(observed) != bool(config.get(flag)):
                             raise ValueError("Rendered CHAP credential presence differs")
                         expected = ((self.credentials.get(credential_side) or {}).get("ISCSI") or {}).get(acl.get("uuid"), {}).get(secret)
