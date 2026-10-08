@@ -45,6 +45,7 @@ import org.apache.cloudstack.storage.sharedfs.dao.SharedFSDao;
 import org.apache.cloudstack.storage.sharedfs.query.dao.SharedFSJoinDao;
 import org.apache.cloudstack.storage.sharedfs.query.vo.SharedFSJoinVO;
 import org.apache.cloudstack.storage.dataservice.StorageServiceGuestCommandDispatcher;
+import org.apache.cloudstack.storage.dataservice.StorageServiceGuestCommandResult;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -115,6 +116,9 @@ public class SharedFSServiceImplTest {
 
     @Mock
     VolumeDao volumeDao;
+
+    @Mock
+    com.cloud.vm.dao.VMInstanceDao vmInstanceDao;
 
     @Mock
     PrimaryDataStoreDao storagePoolDao;
@@ -935,6 +939,12 @@ public class SharedFSServiceImplTest {
     @Test public void onlyNewDataAllocationRequiresSparseAndAllocatedRootIsRechecked() {
         DiskOfferingVO thin=mock(DiskOfferingVO.class);when(thin.getProvisioningType()).thenReturn(com.cloud.storage.Storage.ProvisioningType.THIN);when(diskOfferingDao.findById(126L)).thenReturn(thin);Assert.assertThrows(InvalidParameterValueException.class,()->sharedFSServiceImpl.validateSparseNewDataOffering(126L));sharedFSServiceImpl.validateSparseNewDataOffering(124L);
         VolumeVO root=mock(VolumeVO.class);when(root.getProvisioningType()).thenReturn(com.cloud.storage.Storage.ProvisioningType.THIN);when(volumeDao.findByInstanceAndType(77L,Volume.Type.ROOT)).thenReturn(java.util.List.of(root));Assert.assertThrows(InvalidParameterValueException.class,()->sharedFSServiceImpl.verifySparseAllocatedRoot(77L));sharedFSServiceImpl.verifySparseAllocatedRoot(s_vmId);
+    }
+
+    @Test public void orphanFormatterJournalBlocksLifecycleEvenWhenLegacyWriterLeaseSaysIdle() {
+        SharedFSVO shared=getMockSharedFS();shared.setVmId(s_vmId);com.cloud.vm.VMInstanceVO vm=mock(com.cloud.vm.VMInstanceVO.class);when(vm.getId()).thenReturn(s_vmId);when(vm.getState()).thenReturn(com.cloud.vm.VirtualMachine.State.Running);when(vmInstanceDao.findById(s_vmId)).thenReturn(vm);VolumeVO data=mock(VolumeVO.class);when(data.getUuid()).thenReturn("owned-data");when(volumeDao.findByInstanceAndType(s_vmId,Volume.Type.DATADISK)).thenReturn(List.of(data));
+        when(guestCommandDispatcher.dispatch(any())).thenAnswer(call->{org.apache.cloudstack.storage.dataservice.StorageServiceGuestCommand command=call.getArgument(0);return new StorageServiceGuestCommandResult(true,"observed",command.getOperation().equals("operation writer-idle")?"{\"success\":true,\"status\":\"WRITER_IDLE\"}":"{\"success\":true,\"status\":\"TIMED_OUT_PENDING_RECONCILE\",\"formatterActive\":false,\"operation\":{\"formatStarted\":true,\"phase\":\"TIMED_OUT_PENDING_RECONCILE\",\"filesystemUuid\":\"partial-header\"}}");});
+        Assert.assertThrows(CloudRuntimeException.class,()->sharedFSServiceImpl.requireNativeLifecycleIdle(shared));verify(lifeCycle,never()).stopSharedFS(any(),any());verify(lifeCycle,never()).deleteSharedFS(any(),any(),any());
     }
 
 }
