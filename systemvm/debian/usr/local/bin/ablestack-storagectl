@@ -248,12 +248,15 @@ PY
 
 network_endpoint_apply() {
   local payload_file="${1:-}"
-  if [[ -z "$payload_file" || ! -r "$payload_file" ]]; then
+  if [[ -z "$payload_file" || ( ! -r "$payload_file" && "${3:-}" != "reconcile" ) ]]; then
     emit_error "A readable payload file is required for network endpoint apply."
     exit 2
   fi
-  python3 - "$payload_file" <<'PY'
+  python3 - "$payload_file" "${2:-}" "${3:-}" <<'PY'
 import ipaddress
+import hashlib
+import stat
+import tempfile
 import json
 import os
 import re
@@ -261,7 +264,11 @@ import subprocess
 import sys
 
 STATE_PATH = "/etc/ablestack-storage/network-endpoints.json"
+BINDING_RECEIPT_PATH = "/var/lib/ablestack-storage/network-endpoint-bindings.json"
 payload_path = sys.argv[1]
+binding_path = sys.argv[2] if len(sys.argv) > 2 else ""
+reconcile_mode = len(sys.argv) > 3 and sys.argv[3] == "reconcile"
+strict_bindings = None
 
 def run(args):
     return subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
@@ -383,12 +390,135 @@ def find_target_iface(entry, links):
         return candidates[0], requested_prefix_value
     return None, requested_prefix_value
 
+def root_binding_targets(expected, requested):
+    if not isinstance(expected, list):
+        raise ValueError("ROOT expectedBindings must be an array")
+    targets = {}
+    links = interface_links()
+    addresses = interface_addresses()
+    for item in expected:
+        if not isinstance(item, dict):
+            raise ValueError("ROOT endpoint binding is invalid")
+        ip = str(ipaddress.IPv4Address(item["listenIp"]))
+        primary = str(ipaddress.IPv4Address(item["primaryIp"]))
+        mac = str(item["macAddress"]).lower()
+        prefix = item["prefixlen"]
+        if not re.fullmatch(r"(?:[0-9a-f]{2}:){5}[0-9a-f]{2}", mac) or isinstance(prefix, bool) or not isinstance(prefix, int) or not 0 <= prefix <= 32:
+            raise ValueError("ROOT endpoint MAC or prefix is invalid")
+        matching = [link for link in links if str(link.get("address") or "").lower() == mac]
+        if len(matching) != 1 or not matching[0].get("ifname"):
+            raise ValueError("ROOT endpoint MAC is missing or ambiguous")
+        iface = matching[0]["ifname"]
+        primary_owners = [link["ifname"] for link in addresses for address in link.get("addr_info", []) if address.get("local") == primary]
+        if primary_owners != [iface]:
+            raise ValueError("ROOT endpoint primary IP does not belong to its pinned MAC")
+        owners = [(link["ifname"], int(address.get("prefixlen", -1))) for link in addresses
+                  for address in link.get("addr_info", []) if address.get("local") == ip]
+        if owners and owners != [(iface, prefix)]:
+            raise ValueError("ROOT endpoint IP is bound to a foreign MAC or prefix")
+        target = {"listenIp": ip, "primaryIp": primary, "macAddress": mac, "interface": iface, "prefixlen": prefix}
+        if ip in targets and targets[ip] != target:
+            raise ValueError("ROOT endpoint binding is ambiguous")
+        targets[ip] = target
+    required = {str(entry.get("listenIp") or entry.get("listenip") or "").strip() for entry in requested}
+    required -= {"", "0.0.0.0", "::"}
+    if not required.issubset(targets):
+        raise ValueError("Cached ROOT endpoint has no pinned NIC binding")
+    return targets
+
+
+def verify_root_binding(ip, target):
+    links = interface_links()
+    actual = [link for link in links if link.get("ifname") == target["interface"]]
+    if len(actual) != 1 or str(actual[0].get("address") or "").lower() != target["macAddress"]:
+        raise ValueError("ROOT endpoint interface MAC changed during replay")
+    owners = [(link["ifname"], int(address.get("prefixlen", -1))) for link in interface_addresses()
+              for address in link.get("addr_info", []) if address.get("local") == ip]
+    if owners != [(target["interface"], target["prefixlen"])]:
+        raise ValueError("ROOT endpoint actual IP binding differs from its pinned topology")
+    return {"listenIp": ip, "interface": target["interface"], "prefixlen": target["prefixlen"],
+            "macAddress": target["macAddress"], "active": True}
+
+def read_binding_receipt():
+    if not os.path.lexists(BINDING_RECEIPT_PATH):
+        return None
+    info = os.lstat(BINDING_RECEIPT_PATH)
+    if not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid() or info.st_mode & 0o022 or info.st_size > 1024 * 1024:
+        raise ValueError("ROOT endpoint binding receipt is not protected")
+    with open(BINDING_RECEIPT_PATH, encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def write_binding_receipt(expected, proofs):
+    directory = os.path.dirname(BINDING_RECEIPT_PATH)
+    os.makedirs(directory, mode=0o700, exist_ok=True)
+    info = os.lstat(directory)
+    if not stat.S_ISDIR(info.st_mode) or info.st_uid != os.geteuid() or info.st_mode & 0o022:
+        raise ValueError("ROOT endpoint binding receipt directory is not protected")
+    present = os.path.isfile(STATE_PATH)
+    if not present and (expected or proofs):
+        raise ValueError("Nonempty ROOT endpoint bindings require a desired cache")
+    checksum = None
+    if present:
+        with open(STATE_PATH, "rb") as handle:
+            checksum = hashlib.sha256(handle.read()).hexdigest()
+    record = {"schemaVersion": 1, "desiredPresent": present, "desiredStateSha256": checksum, "expectedBindings": expected, "observedBindings": proofs}
+    fd, temporary = tempfile.mkstemp(prefix=".network-bindings-", dir=directory)
+    try:
+        os.fchmod(fd, 0o600)
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            json.dump(record, handle, sort_keys=True);handle.flush();os.fsync(handle.fileno())
+        os.replace(temporary, BINDING_RECEIPT_PATH)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
+
+
+def observed_binding_expectations(entries):
+    links = interface_links()
+    addresses = interface_addresses()
+    result = []
+    for entry in entries:
+        ip = str(entry.get("listenIp") or entry.get("listenip") or "").strip()
+        if not ip or ip in ("0.0.0.0", "::"):
+            continue
+        owners = [(link, addr) for link in addresses for addr in link.get("addr_info", []) if addr.get("local") == ip]
+        if len(owners) != 1:
+            raise ValueError("Managed endpoint address ownership is ambiguous")
+        owner, address = owners[0]
+        matches = [link for link in links if link.get("ifname") == owner["ifname"]]
+        if len(matches) != 1:
+            raise ValueError("Managed endpoint link ownership is ambiguous")
+        primary = str(entry.get("primaryIp") or "").strip()
+        if not primary:
+            candidates = [addr["local"] for addr in owner.get("addr_info", []) if not addr.get("secondary")]
+            if len(candidates) != 1:
+                raise ValueError("Managed endpoint primary IP is unavailable")
+            primary = candidates[0]
+        result.append({"listenIp": ip, "macAddress": matches[0].get("address"), "primaryIp": primary,
+                       "prefixlen": int(address["prefixlen"])})
+    root_binding_targets(result, entries)
+    return result
+
 def apply_one(entry):
     listen_ip = str(entry.get("listenIp") or entry.get("listenip") or "").strip()
     if not listen_ip or listen_ip in ("0.0.0.0", "::"):
         return None
     ipaddress.IPv4Address(listen_ip)
     links = interface_addresses()
+    if strict_bindings is not None:
+        target = strict_bindings[listen_ip]
+        existing, _ = find_existing_iface(listen_ip, links)
+        if not existing:
+            result = run(["ip", "link", "set", target["interface"], "up"])
+            if result.returncode:
+                raise RuntimeError("ROOT endpoint interface activation failed")
+            result = run(["ip", "addr", "add", listen_ip + "/" + str(target["prefixlen"]), "dev", target["interface"]])
+            if result.returncode and "File exists" not in (result.stderr or ""):
+                raise RuntimeError("ROOT endpoint address replay failed")
+        verified = verify_root_binding(listen_ip, target)
+        verified["changed"] = not bool(existing)
+        return verified
     iface, prefix = find_existing_iface(listen_ip, links)
     if iface:
         return {"listenIp": listen_ip, "interface": iface, "prefixlen": prefix, "active": True, "changed": False}
@@ -409,6 +539,30 @@ def apply_one(entry):
 
 payload = load_json(payload_path, {})
 requested = [entry for entry in normalize_payload(payload) if isinstance(entry, dict)]
+expected = None
+if binding_path:
+    with open(binding_path, encoding="utf-8") as handle:
+        binding_request = json.load(handle)
+    if "expectedBindings" in binding_request:
+        expected = binding_request["expectedBindings"]
+receipt = read_binding_receipt()
+if expected is None and payload_path == STATE_PATH and receipt is not None:
+    present = os.path.isfile(STATE_PATH)
+    checksum = None
+    if present:
+        with open(STATE_PATH, "rb") as handle:
+            checksum = hashlib.sha256(handle.read()).hexdigest()
+    if receipt.get("schemaVersion") != 1 or receipt.get("desiredPresent", True) != present or receipt.get("desiredStateSha256") != checksum:
+        raise ValueError("ROOT endpoint binding receipt does not match its desired cache")
+    expected = receipt["expectedBindings"]
+if expected and not os.path.isfile(STATE_PATH):
+    raise ValueError("Nonempty ROOT endpoint bindings require a desired cache")
+if reconcile_mode and not os.path.isfile(STATE_PATH) and expected is None and receipt is None:
+    expected = []
+if expected is not None:
+    strict_bindings = root_binding_targets(expected, requested)
+    expected = [{key: target[key] for key in ("listenIp", "macAddress", "primaryIp", "prefixlen")}
+                for ip, target in sorted(strict_bindings.items())]
 state = load_json(STATE_PATH, {"endpoints": []})
 merged = {str(entry.get("listenIp") or entry.get("listenip") or "").strip(): entry for entry in state.get("endpoints", []) if isinstance(entry, dict)}
 results = []
@@ -418,18 +572,20 @@ for entry in requested:
         continue
     merged[result["listenIp"]] = {**entry, "listenIp": result["listenIp"], "prefixlen": result["prefixlen"]}
     results.append(result)
-write_state(list(merged.values()))
+if strict_bindings is None:
+    write_state(list(merged.values()))
+    if receipt is not None:
+        expected = observed_binding_expectations(list(merged.values()))
+        write_binding_receipt(expected, results)
+else:
+    write_binding_receipt(expected, results)
 print(json.dumps({"success": True, "status": "ok", "endpoints": results, "count": len(results)}, sort_keys=True))
 PY
 }
 
 network_endpoints_reconcile() {
   local state="/etc/ablestack-storage/network-endpoints.json"
-  if [[ ! -r "$state" ]]; then
-    emit_success "No Storage Service network endpoints to reconcile."
-    return 0
-  fi
-  network_endpoint_apply "$state"
+  network_endpoint_apply "$state" "${1:-}" "reconcile"
 }
 
 runtime_health() {
@@ -8829,7 +8985,7 @@ PYRESOURCES
       network_endpoint_apply "$payload"
     elif [[ "$subcommand" == "endpoints" && "$action" == "reconcile" ]]; then
       log_command "$command $subcommand $action" ""
-      network_endpoints_reconcile
+      network_endpoints_reconcile "$payload"
     else
       emit_error "Unsupported network operation: ${subcommand:-<empty>} ${action:-<empty>}"
       exit 2
