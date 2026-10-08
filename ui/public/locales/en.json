@@ -9537,5 +9537,6 @@
   "label.storage.runtime.compatibility": "Compatibility",
   "label.storage.posix.expected.owner": "Proposed owner and mode",
   "message.storage.template.root.sparse": "The new ROOT must use SPARSE or FAT provisioning. The existing ROOT is preserved for rollback.",
-  "label.storage.template.root.offering": "Replacement ROOT disk offering"
+  "label.storage.template.root.offering": "Replacement ROOT disk offering",
+  "message.storage.disk.sparse.required": "New storage disks require SPARSE or FAT provisioning."
 }
