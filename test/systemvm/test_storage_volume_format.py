@@ -82,6 +82,27 @@ class VolumeFormatTest(unittest.TestCase):
             with self.assertRaises(SystemExit): ns["format_empty_device"]()
             ns["subprocess"].Popen.assert_not_called()
 
+    def test_discard_policy_is_per_exact_new_volume_and_options_never_become_arbitrary_flags(self):
+        ns, _, _ = formatter_namespace();ns["payload"]["formatDiscardPolicy"]="SKIP_DISCARD"
+        ns["format_empty_device"]()
+        self.assertEqual(["mkfs.xfs","-f","-K","/dev/verified-data"],ns["subprocess"].Popen.call_args.args[0])
+        self.assertEqual("SKIP_DISCARD",ns["operation"]["formatDiscardPolicy"])
+        ns, _, _ = formatter_namespace();ns["payload"]["formatDiscardPolicy"]="SKIP_DISCARD";ns["requested_filesystem"]="ext4"
+        ns["blkid_value"]=lambda device,field:"ext4" if field=="TYPE" else "fs-uuid"
+        self.assertEqual("ext4",ns["format_empty_device"]())
+        self.assertEqual(["mkfs.ext4","-F","-E","nodiscard,lazy_itable_init=1,lazy_journal_init=1","/dev/verified-data"],ns["subprocess"].Popen.call_args.args[0])
+        ns, _, _ = formatter_namespace();ns["payload"]["formatDiscardPolicy"]="-f /dev/foreign"
+        with self.assertRaises(SystemExit):ns["format_empty_device"]()
+        ns["subprocess"].Popen.assert_not_called()
+
+    def test_real_cli_format_capabilities_is_readonly_and_matches_supported_policy(self):
+        with tempfile.TemporaryDirectory() as folder:
+            environment=dict(os.environ,ABLESTACK_STORAGE_WRITER_LOCK_FILE=str(Path(folder)/'writer'/'lock'))
+            result=subprocess.run([str(SOURCE),'volume','operation','capabilities'],env=environment,capture_output=True,text=True,timeout=10)
+            self.assertEqual(0,result.returncode,result.stderr);value=json.loads(result.stdout)
+            self.assertEqual(['DEFAULT','SKIP_DISCARD'],value['formatDiscardPolicies']);self.assertTrue(value['sparseFormatRequired']);self.assertTrue(value['formatterSuccessReceiptSupported'])
+            self.assertEqual([],list(Path(folder).iterdir()))
+
     def test_prior_format_never_authorizes_automatic_reformat(self):
         ns, _, _ = formatter_namespace()
         ns["operation"]["formatStarted"] = True

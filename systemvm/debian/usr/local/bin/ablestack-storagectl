@@ -3452,9 +3452,18 @@ def format_empty_device():
         recovery("RECOVERY_REQUIRED", "Unable to prove the device has no existing signatures")
     if json.loads(signatures.stdout).get("signatures"):
         recovery("RECOVERY_REQUIRED", "Existing device signatures prohibit automatic formatting")
-    command = [tool, "-f", device] if fs == "xfs" else [tool, "-F", device]
+    discard_policy = str(payload.get("formatDiscardPolicy") or "DEFAULT").upper()
+    if discard_policy not in ("DEFAULT", "SKIP_DISCARD"):
+        raise SystemExit("Unsupported per-volume filesystem discard policy")
+    command = [tool, "-f"] if fs == "xfs" else [tool, "-F"]
+    if discard_policy == "SKIP_DISCARD":
+        # Scope this option to the exact newly proved blank volume. In SPARSE
+        # qcow2, discarding the complete logical 10TiB address space can exhaust
+        # the deadline while punching metadata holes in the shared backend.
+        command += ["-K"] if fs == "xfs" else ["-E", "nodiscard,lazy_itable_init=1,lazy_journal_init=1"]
+    command.append(device)
     phase("FORMATTING", formatStarted=True, formatReceiptUuid=str(uuid.uuid4()), filesystem=fs, devicePath=device,
-          started=time.time(), volumeSizeBytes=expected_size, formatter=tool, formatterOptions=command[1:-1])
+          started=time.time(), volumeSizeBytes=expected_size, formatter=tool, formatterOptions=command[1:-1], formatDiscardPolicy=discard_policy)
     inherited = (9,) if os.path.exists("/proc/self/fd/9") else ()
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, pass_fds=inherited)
     format_invoked = True
@@ -3497,7 +3506,8 @@ def format_empty_device():
     phase("FILESYSTEM_VERIFIED", formatterExitCode=0, formatterActive=False, terminationPending=False,
           formatterSuccessReceipt={"schemaVersion": 1, "volumeUuid": volume_key, "filesystemUuid": operation["filesystemUuid"],
                                    "filesystem": fs, "formatterPid": process.pid, "formatterExitCode": 0,
-                                   "serial": resolved_device["serial"], "sizeBytes": expected_size, "verifiedEpoch": time.time()})
+                                   "serial": resolved_device["serial"], "sizeBytes": expected_size, "formatDiscardPolicy": discard_policy,
+                                   "formatterOptions": command[1:-1], "verifiedEpoch": time.time()})
     return fs
 
 def active_formatter(record):
@@ -3707,6 +3717,8 @@ print(json.dumps({
     "resumed": resume_only,
     "resumeOnly": resume_only,
     "formatInvoked": format_invoked,
+    "formatDiscardPolicy": operation.get("formatDiscardPolicy"),
+    "formatterOptions": operation.get("formatterOptions"),
     "formatterActive": active_formatter(operation),
     "volumeUuid": payload.get("volumeUuid"),
     "devicePath": device,
@@ -10244,7 +10256,7 @@ fi
 
 # Keep the descriptor open through native child work, even if the management writer disappears.
 case "$command:$subcommand:$action" in
-  smb:identity:inspect|smb:endpoint-run:*|health:*|inventory:*|sessions:*|operation:verify:*|operation:observe:*|operation:resources:*|operation:generation:status|operation:generation:frozen|posix:directory:inspect|operation:maintenance:status|operation:root-data:inspect|operation:writer-idle:*|volume:operation:status|nfs:idmapping:preflight|identity:capsule:capabilities)
+  volume:operation:capabilities|smb:identity:inspect|smb:endpoint-run:*|health:*|inventory:*|sessions:*|operation:verify:*|operation:observe:*|operation:resources:*|operation:generation:status|operation:generation:frozen|posix:directory:inspect|operation:maintenance:status|operation:root-data:inspect|operation:writer-idle:*|volume:operation:status|nfs:idmapping:preflight|identity:capsule:capabilities)
     ;;
   *)
     acquire_storage_writer_lock || exit $?
@@ -10503,7 +10515,9 @@ PYRESOURCES
     fi
     ;;
   volume)
-    if [[ "$subcommand" == "attach" && "$action" == "inspect" ]]; then
+    if [[ "$subcommand" == "operation" && "$action" == "capabilities" ]]; then
+      printf '%s\n' '{"success":true,"formatDiscardPolicies":["DEFAULT","SKIP_DISCARD"],"sparseFormatRequired":true,"formatterSuccessReceiptSupported":true,"readonlyVolumeIdentitySupported":true}'
+    elif [[ "$subcommand" == "attach" && "$action" == "inspect" ]]; then
       if [[ -z "$payload" || ! -r "$payload" ]]; then
         emit_error "A readable payload file is required for volume attach inspect."
         exit 2
