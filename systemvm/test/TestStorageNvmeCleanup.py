@@ -21,13 +21,16 @@ import fcntl
 import json
 import os
 import sys
+import subprocess
+import ipaddress
+from types import SimpleNamespace
 import tempfile
 import unittest
 import uuid
 from unittest.mock import patch
 LIB=Path(__file__).resolve().parents[2]/"systemvm/debian/usr/local/lib/ablestack-storage"
 sys.path.insert(0,str(LIB))
-from nvme_cleanup import NvmeManagedCleanup
+from nvme_cleanup import NvmeManagedCleanup,nvme_loopback_network_request
 from nvme_credentials import NvmeCredentialStore
 
 
@@ -178,5 +181,73 @@ class StorageNvmeCleanupTest(unittest.TestCase):
         self.assertNotIn("remove_stale_managed_port_links",block);self.assertNotIn("unlink_all_subsystems",block)
         self.assertNotIn('if os.environ.get("ABLESTACK_STORAGE_RENDERED_REPLAY") and',block)
 
+
+    def test_exact_signed_network_body_reproduces_no_nic_loopback_rejection_without_alias_effects(self):
+        cli=LIB.parent.parent/"bin/ablestack-storagectl";block=cli.read_text().split("network_endpoint_apply() {",1)[1].split("network_endpoints_reconcile() {",1)[0]
+        source=block.split("<<'PY'\n",1)[1].split("\nPY",1)[0];tree=ast.parse(source)
+        names={"run","netmask_to_prefix","cidr_to_prefix","requested_prefix","interface_addresses","interface_links",
+               "find_existing_iface","find_target_iface","apply_one","validate_endpoint_primary"}
+        definitions=[node for node in tree.body if isinstance(node,ast.FunctionDef) and node.name in names]
+        self.assertEqual(names,{node.name for node in definitions});calls=[]
+        def fake(args,**kwargs):
+            calls.append(args)
+            if args==["ip","-j","-4","addr","show","scope","global"]:return SimpleNamespace(returncode=0,stdout="[]",stderr="")
+            if args==["ip","-j","link","show"]:return SimpleNamespace(returncode=0,stdout=json.dumps([{"ifname":"lo","link_type":"loopback","flags":["LOOPBACK","UP"]}]),stderr="")
+            raise AssertionError("alias side effect reached "+repr(args))
+        namespace={"ipaddress":ipaddress,"json":json,"subprocess":SimpleNamespace(run=fake,PIPE=subprocess.PIPE),"strict_bindings":None}
+        exec(compile(ast.Module(body=definitions,type_ignores=[]),str(cli),"exec"),namespace)
+        with self.assertRaisesRegex(RuntimeError,"No System VM interface"):namespace["apply_one"]({"listenIp":"127.0.0.1","port":4420})
+        self.assertTrue(calls);self.assertFalse(any("add" in args or "set" in args for args in calls))
+
+    def test_full_signed_normal_python_entry_reaches_first_create_boundary_only_after_exact_lo_guard(self):
+        cli=LIB.parent.parent/"bin/ablestack-storagectl";block=cli.read_text().split("apply_nvmeof_subsystems() {",1)[1].split("identity_capsule_command() {",1)[0]
+        source=block.split("<<'PY'\n",1)[1].split("\nPY",1)[0];tree=ast.parse(source)
+        # Stop immediately before modprobe/configfs creation, exercising every
+        # real constructor/credential/parser/network precondition from entry.
+        boundary=next(i for i,node in enumerate(tree.body) if isinstance(node,ast.If) and ast.unparse(node.test)=="enabled")
+        root=self.root/"first-create";state=root/"state";state.mkdir(parents=True,mode=0o700)
+        base=root/"nvmet";payload=copy.deepcopy({**self.payload,"listenIp":"127.0.0.1","port":4420,"listeners":[{"listenIp":"127.0.0.1","port":4420}]})
+        import base64,struct,zlib
+        key=os.urandom(32);synthetic="DHHC-1:01:"+base64.b64encode(key+struct.pack("<I",zlib.crc32(key)&0xffffffff)).decode()+":"
+        payload["subsystems"][0]["config"]={"engine":"KERNEL_NVMET","allowAnyHost":False}
+        payload["subsystems"][0]["hosts"][0]["config"]={"dhChapEnabled":True,"dhChapCtrlEnabled":False}
+        payload["subsystems"][0]["hosts"][0]["secrets"]={"dhChapKey":synthetic}
+        rows=[{"ifname":"lo","flags":["LOOPBACK","UP"],"addr_info":[{"family":"inet","scope":"host","local":"127.0.0.1","prefixlen":8}]}]
+        class Paths(ast.NodeTransformer):
+            def visit_Constant(inner,node):
+                if isinstance(node.value,str):
+                    swaps={"/etc/ablestack-storage":str(state),"/sys/kernel/config/nvmet":str(base),
+                           "/etc/ablestack-storage/secrets/nvmeof-acl-secrets.json":str(state/"secrets/nvmeof-acl-secrets.json")}
+                    if node.value in swaps:return ast.copy_location(ast.Constant(swaps[node.value]),node)
+                return node
+        program=ast.fix_missing_locations(Paths().visit(ast.Module(body=tree.body[:boundary],type_ignores=[])))
+        for mode in ("present","absent","foreign","fakeflag"):
+            with self.subTest(mode=mode):
+                observed=copy.deepcopy(rows)
+                if mode=="absent":observed=[]
+                elif mode=="foreign":observed[0]["addr_info"][0]["local"]="192.0.2.20"
+                elif mode=="fakeflag":observed[0]["flags"]=["UP"]
+                calls=[]
+                def fake(args,**kwargs):
+                    calls.append(args)
+                    if args==["ip","-j","-4","addr","show","dev","lo"]:return SimpleNamespace(returncode=0,stdout=json.dumps(observed),stderr="")
+                    raise AssertionError("network/secret/kernel effect reached "+repr(args))
+                fd=os.memfd_create("synthetic-normal-nvme-entry",os.MFD_CLOEXEC|os.MFD_ALLOW_SEALING)
+                try:
+                    os.fchmod(fd,0o600);os.write(fd,json.dumps(payload).encode());os.lseek(fd,0,os.SEEK_SET)
+                    fcntl.fcntl(fd,fcntl.F_ADD_SEALS,fcntl.F_SEAL_WRITE|fcntl.F_SEAL_GROW|fcntl.F_SEAL_SHRINK|fcntl.F_SEAL_SEAL)
+                    with patch.object(sys,"argv",["-",f"/proc/self/fd/{fd}",str(cli)]),patch("subprocess.run",side_effect=fake),patch.dict(os.environ,{},clear=False):
+                        previous_mode=os.environ.pop("ABLESTACK_STORAGE_RENDERED_REPLAY",None)
+                        try:
+                            namespace={}
+                            if mode=="present":exec(compile(program,str(cli),"exec"),namespace);self.assertEqual({},namespace["public_network"])
+                            else:
+                                with self.assertRaises(ValueError):exec(compile(program,str(cli),"exec"),namespace)
+                        finally:
+                            if previous_mode is not None:os.environ["ABLESTACK_STORAGE_RENDERED_REPLAY"]=previous_mode
+                finally:os.close(fd)
+                self.assertEqual([["ip","-j","-4","addr","show","dev","lo"]],calls)
+                self.assertFalse(base.exists());self.assertFalse((state/"nvme-runtime-ownership.json").exists());self.assertFalse((state/"secrets/nvmeof-acl-secrets.json").exists())
+        self.assertEqual(self.before,self.raw.read_bytes())
 
 if __name__=="__main__":unittest.main()
