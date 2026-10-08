@@ -61,3 +61,11 @@ UI total이10.02TiB→20GiB로 내려간 뒤 API/DB/libvirt/guest를 읽기 전�
 현재 pool factor4 임시 override와 정확한 NEW 021b 논리 예약을 보존한다. 원래 override 부재/상속1과 global 불변 증거를 가진 finally guard는 유지하지만 partial 복구 대기 볼륨을 삭제해 원복시키지 않는다. 정식 recovery/retain/cleanup 승인 후 override 삭제와 상속1 확인을 별도 완료해야 한다. ext4 SPARSE 순차 시험도 아직 시작하지 않았다.
 
 주요 증거: large-sparse-xfs-watcher-complete.json, large-sparse-xfs-readonly-status-proof.json, large-sparse-xfs-resource-monitor-proof.json, large-sparse-xfs-post-deadline-process.json, large-sparse-xfs-post-exit-journal-identity.json, large-sparse-xfs-current-attachment-read.json, large-sparse-xfs-job-fresh-read.json. #974는 OPEN이며 SPARSE 정상 format/resume/response loss/partial와 ext4·일반 block·실제 UI 최종 인수가 남는다.
+
+## 승인된 no-modify 진단 결과
+
+xfs_repair6.1.0 -n -m512 -P가 fresh exact serial/10TiB/ROOTancestor 제외/unmounted/WRITER_IDLE를 확인한 NEW021b만 읽었다. primary superblock의 **filesystem mkfs-in-progress bit set**를 실제 검출했고 secondary superblock scan 중120.000520875초 deadline으로 종료했다. PID151105/startTicks1304904에 pidfd TERM을 전달해 exit-15/terminationPending=false, KILL 없이 종료됐다. fresh child0/writerIdle=true를 확인했다.
+
+AS1GiB를 강제했고 관측 RSS5.09MB/AS9.34MB였다. 대상 write counters4/0/4174337/645120과64KiBheaderSHA1f036503a7447d1c8cf2c9b046a8337a831f4d4b5487b3dfc799a82703d98eec는 전후 동일하다. FSUUID f8c35...와 TIMED_OUT_PENDING_RECONCILE journal을 보존했다. **filesystemHealthy=false/FORMAT_COMPLETE승격false**다. -L/쓰기 repair/mount/새 mkfs/VM51 reboot/detach/delete를 수행하지 않았다. 진단 종료는 filesystem 완성이나 자동 resume 허가가 아니다.
+
+증거는 sparse-partial-xfs-readonly-diagnostic-summary.json/full proof/inflight fresh child0 파일이다. pool factor4와 partial 볼륨은 여전히 보존되며 finally override 제거/상속1 복원은 미완료다. 현재 factor1 환산 logical allocation307.75%이므로 원복과 후속 allocation 제약을 구분해서 보고한다.
