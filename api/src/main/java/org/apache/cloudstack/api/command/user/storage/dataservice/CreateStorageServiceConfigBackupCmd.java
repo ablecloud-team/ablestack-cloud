@@ -42,7 +42,7 @@ public class CreateStorageServiceConfigBackupCmd extends BaseStorageServiceAsync
     public Integer getRetentionHours() { return retentionHours; }
     public BaseCmd getBaseCmd() { return this; }
     public String getConfigAction() { return "BACKUP"; }
-    public long getEntityOwnerId() { return 0; }
+
     public String getEventType() { return "STORAGE.CONFIG.BACKUP"; }
     public String getEventDescription() { return "Storage Service configuration backup"; }
     public void execute() {

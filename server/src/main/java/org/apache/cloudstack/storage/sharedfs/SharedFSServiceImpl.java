@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -253,6 +254,44 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
             volumeDetailsDao.addDetail(volume.getId(), org.apache.cloudstack.storage.dataservice.StorageVolumeLifecycleProtection.RECEIPT, receipt, false);
             volumeDetailsDao.addDetail(volume.getId(), org.apache.cloudstack.storage.dataservice.StorageVolumeLifecycleProtection.STATE, "VERIFIED", false);
         }
+    }
+
+    private final ThreadLocal<Long> approvedRemovalVm = new ThreadLocal<>();
+
+    @Override
+    public Long getVmStorageServiceSyncId(long vmId) {
+        SharedFSVO shared = sharedFSDao.findByVm(vmId);
+        if (shared == null) throw new InvalidParameterValueException("SharedFS VM writer binding is unavailable");
+        accountMgr.checkAccess(CallContext.current().getCallingAccount(), null, false, shared);
+        StorageServiceInstanceVO instance = storageServiceInstanceDao.findByVmId(vmId);
+        if (instance != null && (instance.getAccountId() != shared.getAccountId() || instance.getDomainId() != shared.getDomainId()
+                || instance.getDataCenterId() != shared.getDataCenterId())) throw new CloudRuntimeException("SharedFS writer binding belongs to another owner/domain/zone");
+        return instance == null ? Math.addExact(4_000_000_000_000_000_000L, shared.getId()) : instance.getId();
+    }
+
+    @Override
+    public void requireVmLifecycleSafety(long vmId, String operation) {
+        SharedFSVO shared = sharedFSDao.findByVm(vmId);
+        if (shared == null) throw new CloudRuntimeException("SharedFS VM lifecycle binding is unavailable; preserve VM and DATA");
+        accountMgr.checkAccess(CallContext.current().getCallingAccount(), null, false, shared);
+        if (Set.of("DESTROY", "EXPUNGE").contains(operation)) {
+            if (!Objects.equals(approvedRemovalVm.get(), vmId)) throw new InvalidParameterValueException("Use the SharedFS deletion policy API to preserve or explicitly delete DATA; direct VM removal is blocked");
+            storedDeletionVolumeIds(shared);
+            if (!volumeDao.findByInstanceAndType(vmId, Volume.Type.DATADISK).isEmpty()) throw new CloudRuntimeException("All approved DATA must be detached and verified before VM removal");
+        } else if ("RESTORE".equals(operation)) {
+            throw new InvalidParameterValueException("Use the verified SharedFS ROOT template maintenance API; generic ROOT replacement is blocked");
+        } else if (!Set.of("STOP", "REBOOT", "MIGRATE").contains(operation)) {
+            throw new InvalidParameterValueException("Unknown SharedFS VM lifecycle operation");
+        }
+        requireNoRootMaintenance(shared);
+        requireNativeLifecycleIdle(shared);
+    }
+
+    protected boolean removeSharedFSProvider(SharedFSVO shared, SharedFSLifeCycle lifecycle, Set<Long> volumes) {
+        Long previous = approvedRemovalVm.get();
+        approvedRemovalVm.set(shared.getVmId());
+        try {return lifecycle.deleteSharedFS(shared, shared.getDataVolumePolicy(), volumes);}
+        finally {if (previous == null) approvedRemovalVm.remove();else approvedRemovalVm.set(previous);}
     }
 
     protected <T> T withSharedFSWriterLock(SharedFS sharedFS, java.util.function.Supplier<T> action) {
@@ -746,7 +785,10 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
             if (!lifeCycle.stopSharedFS(sharedFS,false)) throw new CloudRuntimeException("Initial VM could not be stopped for preserved-volume cleanup");
             VolumeVO observed=volumeDao.findById(sharedFS.getVolumeId());
             Set<Long> ownData=observed!=null && sharedFS.getVmId().equals(observed.getInstanceId()) ? Set.of(sharedFS.getVolumeId()) : Set.of();
-            if (!lifeCycle.deleteSharedFS(sharedFS,SharedFS.DataVolumePolicy.PRESERVE_VOLUMES,ownData)) throw new CloudRuntimeException("Initial VM cleanup did not complete");
+            sharedFS.setDataVolumePolicy(SharedFS.DataVolumePolicy.PRESERVE_VOLUMES);
+            sharedFS.setDeletionPlanJson(createDeletionPlan(sharedFS, SharedFS.DataVolumePolicy.PRESERVE_VOLUMES).toString());
+            if (!sharedFSDao.update(sharedFS.getId(), sharedFS)) throw new CloudRuntimeException("Initial cleanup DATA identity plan could not be persisted");
+            if (!removeSharedFSProvider(sharedFS, lifeCycle, ownData)) throw new CloudRuntimeException("Initial VM cleanup did not complete");
             sharedFSDao.remove(sharedFS.getId());
         } catch (RuntimeException recovery) { failure.addSuppressed(recovery);logger.warn("Initial existing-volume deployment requires recovery for SharedFS {}",sharedFS.getUuid()); }
     }
@@ -1386,7 +1428,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
             stateTransitTo(sharedFS, Event.ExpungeOperation);
             auditSharedFSDeletion(sharedFS, "STARTED");
             try {
-                if (!lifeCycle.deleteSharedFS(sharedFS, sharedFS.getDataVolumePolicy(), ids)) throw new CloudRuntimeException("Provider did not complete service removal");
+                if (!removeSharedFSProvider(sharedFS, lifeCycle, ids)) throw new CloudRuntimeException("Provider did not complete service removal");
             } catch (RuntimeException failure) {
                 try { auditSharedFSDeletion(sharedFS, "FAILED_RETRYABLE"); } catch (RuntimeException auditFailure) { failure.addSuppressed(auditFailure); }
                 throw failure;

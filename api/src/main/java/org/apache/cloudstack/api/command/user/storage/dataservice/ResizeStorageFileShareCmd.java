@@ -68,10 +68,7 @@ public class ResizeStorageFileShareCmd extends BaseStorageServiceAsyncCmd implem
         return resizeVolume;
     }
 
-    @Override
-    public long getEntityOwnerId() {
-        return 0;
-    }
+
 
     @Override
     public String getEventType() {

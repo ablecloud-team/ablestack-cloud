@@ -218,10 +218,7 @@ public class UpdateStorageNfsExportCmd extends BaseStorageServiceAsyncCmd implem
         return protocolMode;
     }
 
-    @Override
-    public long getEntityOwnerId() {
-        return 0;
-    }
+
 
     @Override
     public String getEventType() {

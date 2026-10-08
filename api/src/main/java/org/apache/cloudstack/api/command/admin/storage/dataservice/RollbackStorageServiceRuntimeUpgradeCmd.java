@@ -32,7 +32,7 @@ public class RollbackStorageServiceRuntimeUpgradeCmd extends BaseStorageServiceA
     @Inject private StorageService storageService;
     @Parameter(name = "upgradeid", type = CommandType.UUID, entityType = StorageServiceRuntimeUpgradeResponse.class, required = true) private Long upgradeId;
     public Long getUpgradeId() { return upgradeId; }
-    public long getEntityOwnerId() { return 0; }
+
     public String getEventType() { return "STORAGE.SERVICE.RUNTIME.ROLLBACK"; }
     public String getEventDescription() { return "Rolling back Storage Service runtime transaction " + upgradeId; }
     public void execute() { final StorageServiceRuntimeUpgradeResponse response = storageService.rollbackStorageServiceRuntimeUpgrade(this); response.setResponseName(getCommandName()); setResponseObject(response); }

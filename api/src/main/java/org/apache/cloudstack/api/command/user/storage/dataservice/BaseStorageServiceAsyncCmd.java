@@ -32,6 +32,7 @@ public abstract class BaseStorageServiceAsyncCmd extends BaseAsyncCmd {
 
     public String getIdempotencyKey() { return idempotencyKey; }
     public Long getExpectedRevision() { return expectedRevision; }
+    @Override public long getEntityOwnerId() { return org.apache.cloudstack.context.CallContext.current().getCallingAccount().getId(); }
     @Override public String getSyncObjType() { return "StorageServiceInstance"; }
     @Override public Long getSyncObjId() { return storageServiceScope.getStorageServiceSyncId(this); }
 }

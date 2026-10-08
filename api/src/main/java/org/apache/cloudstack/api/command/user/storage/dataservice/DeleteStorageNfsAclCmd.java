@@ -46,10 +46,7 @@ public class DeleteStorageNfsAclCmd extends BaseStorageServiceAsyncCmd implement
         return id;
     }
 
-    @Override
-    public long getEntityOwnerId() {
-        return 0;
-    }
+
 
     @Override
     public String getEventType() {

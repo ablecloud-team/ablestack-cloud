@@ -90,10 +90,7 @@ public class CreateStorageNvmeOfNamespaceCmd extends BaseStorageServiceAsyncCmd 
         return cleanupVolumeOnFailure;
     }
 
-    @Override
-    public long getEntityOwnerId() {
-        return 0;
-    }
+
 
     @Override
     public String getEventType() {

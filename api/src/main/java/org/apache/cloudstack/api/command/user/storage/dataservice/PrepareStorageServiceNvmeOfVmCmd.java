@@ -75,10 +75,7 @@ public class PrepareStorageServiceNvmeOfVmCmd extends BaseStorageServiceAsyncCmd
         return validateOnly;
     }
 
-    @Override
-    public long getEntityOwnerId() {
-        return 0;
-    }
+
 
     @Override
     public String getEventType() {

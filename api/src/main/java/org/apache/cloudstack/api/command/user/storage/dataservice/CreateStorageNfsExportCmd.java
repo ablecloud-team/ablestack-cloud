@@ -235,10 +235,7 @@ public class CreateStorageNfsExportCmd extends BaseStorageServiceAsyncCmd implem
         return deferApply;
     }
 
-    @Override
-    public long getEntityOwnerId() {
-        return 0;
-    }
+
 
     @Override
     public String getEventType() {

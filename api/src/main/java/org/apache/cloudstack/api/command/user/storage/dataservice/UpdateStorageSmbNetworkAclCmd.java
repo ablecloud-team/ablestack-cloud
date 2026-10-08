@@ -57,10 +57,7 @@ public class UpdateStorageSmbNetworkAclCmd extends BaseStorageServiceAsyncCmd im
         return principal;
     }
 
-    @Override
-    public long getEntityOwnerId() {
-        return 0;
-    }
+
 
     @Override
     public String getEventType() {

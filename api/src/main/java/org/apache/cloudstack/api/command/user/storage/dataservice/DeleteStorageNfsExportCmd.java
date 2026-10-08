@@ -46,10 +46,7 @@ public class DeleteStorageNfsExportCmd extends BaseStorageServiceAsyncCmd implem
         return id;
     }
 
-    @Override
-    public long getEntityOwnerId() {
-        return 0;
-    }
+
 
     @Override
     public String getEventType() {

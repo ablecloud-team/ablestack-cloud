@@ -36,7 +36,7 @@ public class PreflightStorageServiceRuntimeUpgradeCmd extends BaseStorageService
     @Parameter(name = "bundleid", type = CommandType.UUID, entityType = StorageServiceRuntimeBundleResponse.class, required = true) private Long bundleId;
     public Long getSharedFileSystemId() { return sharedFileSystemId; }
     public Long getBundleId() { return bundleId; }
-    public long getEntityOwnerId() { return 0; }
+
     public String getEventType() { return "STORAGE.SERVICE.RUNTIME.PREFLIGHT"; }
     public String getEventDescription() { return "Preflighting Storage Service runtime bundle " + bundleId; }
     public void execute() { final StorageServiceRuntimeUpgradeResponse response = storageService.preflightStorageServiceRuntimeUpgrade(this); response.setResponseName(getCommandName()); setResponseObject(response); }

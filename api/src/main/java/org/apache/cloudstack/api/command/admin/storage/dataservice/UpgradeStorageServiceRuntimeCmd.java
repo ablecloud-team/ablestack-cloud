@@ -32,7 +32,7 @@ public class UpgradeStorageServiceRuntimeCmd extends BaseStorageServiceAsyncCmd 
     @Inject private StorageService storageService;
     @Parameter(name = "upgradeid", type = CommandType.UUID, entityType = StorageServiceRuntimeUpgradeResponse.class, required = true) private Long upgradeId;
     public Long getUpgradeId() { return upgradeId; }
-    public long getEntityOwnerId() { return 0; }
+
     public String getEventType() { return "STORAGE.SERVICE.RUNTIME.UPGRADE"; }
     public String getEventDescription() { return "Upgrading Storage Service runtime transaction " + upgradeId; }
     public void execute() { final StorageServiceRuntimeUpgradeResponse response = storageService.upgradeStorageServiceRuntime(this); response.setResponseName(getCommandName()); setResponseObject(response); }
