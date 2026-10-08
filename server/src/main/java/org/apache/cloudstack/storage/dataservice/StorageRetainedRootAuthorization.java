@@ -42,6 +42,7 @@ public final class StorageRetainedRootAuthorization {
     private static JsonObject reference(JsonObject value) {
         if(value==null||!value.keySet().equals(Set.of("authorizationUuid","sha256"))||!string(value,"authorizationUuid").matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"))throw new CloudRuntimeException("Retained ROOT protected reference is invalid");hash(string(value,"sha256"));return value.deepCopy();
     }
+    public static JsonObject retainedReference(JsonObject value) {return reference(value);}
     public static JsonObject captureRequest(JsonObject scope,JsonObject retainedGeneration,String retainedRenderedSha256) {
         scope(scope);hash(retainedRenderedSha256);if(retainedGeneration==null||!string(scope,"instanceUuid").equals(string(retainedGeneration,"instanceUuid")))throw new CloudRuntimeException("Retained ROOT baseline generation belongs to another instance");
         JsonObject request=scope.deepCopy();request.add("expectedRetainedGeneration",retainedGeneration.deepCopy());request.addProperty("expectedRetainedRenderedSha256",retainedRenderedSha256);return request;
