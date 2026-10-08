@@ -208,7 +208,13 @@ export default {
       }
     },
     async resolved (command, params) {
-      let result = await postAPI(command, params); const payload = result[command.toLowerCase() + 'response'] || result
+      let result
+      try { result = await postAPI(command, params) } catch (error) {
+        const response = error.response?.data
+        const body = response?.[command.toLowerCase() + 'response'] || response?.errorresponse
+        throw new Error(typeof body?.errortext === 'string' ? body.errortext : error.message)
+      }
+      const payload = result[command.toLowerCase() + 'response'] || result
       if (!payload.jobid) return payload.storageposixdirectorypolicy || payload
       for (let i = 0; i < 60; i++) {
         result = await getAPI('queryAsyncJobResult', { jobid: payload.jobid }, { preserveOnFailure: true, timeout: 15000 }); const job = result.queryasyncjobresultresponse

@@ -16,11 +16,16 @@
 // under the License.
 
 import Widget from '@/views/storage/PosixDirectoryPolicies'
-import { getAPI } from '@/api'
+import { getAPI, postAPI } from '@/api'
 jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
 
 describe('Common POSIX directory policy editor', () => {
-  beforeEach(() => getAPI.mockReset())
+  beforeEach(() => { getAPI.mockReset(); postAPI.mockReset() })
+  it('shows the API validation reason without dumping the signed approval token', async () => {
+    postAPI.mockRejectedValue({ message: 'Request failed with status code 431', response: { data: { createstorageposixdirectorypolicyresponse: { errortext: 'Approval token exceeds the allowed input limit', previewtoken: 'private-token' } } } })
+    await expect(Widget.methods.resolved.call({}, 'createStoragePosixDirectoryPolicy', {})).rejects.toThrow('Approval token exceeds the allowed input limit')
+    expect(getAPI).not.toHaveBeenCalled()
+  })
   it('preserves known policies when a read fails', async () => {
     const vm = { instanceId: 'a', generation: 0, policies: [{ id: 'known' }], loading: false, readError: false }
     getAPI.mockRejectedValue(new Error('timeout'))
