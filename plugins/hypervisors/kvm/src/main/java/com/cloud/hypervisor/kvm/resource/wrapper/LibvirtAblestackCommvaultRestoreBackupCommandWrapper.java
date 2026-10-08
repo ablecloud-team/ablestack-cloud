@@ -43,6 +43,7 @@ import org.apache.cloudstack.utils.qemu.QemuImgFile;
 import org.apache.commons.lang3.StringUtils;
 import org.libvirt.LibvirtException;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
