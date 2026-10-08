@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import { shallowMount } from '@vue/test-utils'
 import Widget from '@/views/storage/StorageVolumePreparation'
 import { getAPI } from '@/api'
 jest.mock('@/api', () => ({ getAPI: jest.fn() }))
@@ -29,6 +30,12 @@ function instance () {
 describe('Durable volume preparation observation', () => {
   beforeEach(() => { getAPI.mockReset(); jest.useFakeTimers() })
   afterEach(() => { jest.clearAllTimers(); jest.useRealTimers() })
+  it('renders an initial empty observation without reading null diagnostics', () => {
+    const wrapper = shallowMount(Widget, { props: { instanceId: 'a', volumes: [] }, global: { mocks: { $t: value => value }, stubs: ['a-space', 'a-select', 'a-select-option', 'a-button', 'a-switch', 'a-alert', 'a-descriptions', 'a-descriptions-item'] } })
+    expect(wrapper.find('.storage-volume-preparation').exists()).toBe(true)
+    expect(wrapper.find('h4').text()).toBe('label.storage.volume.preparation')
+    wrapper.unmount()
+  })
   it('keeps historical and fresh device identities separate', async () => {
     const vm = instance(); getAPI.mockResolvedValue(reply('COMPLETE')); await vm.refresh()
     expect(vm.observation.operation.devicePath).toBe('/dev/sdc')
