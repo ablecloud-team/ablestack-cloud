@@ -26,6 +26,18 @@ describe('Common POSIX directory policy editor', () => {
     await expect(Widget.methods.resolved.call({}, 'createStoragePosixDirectoryPolicy', {})).rejects.toThrow('Approval token exceeds the allowed input limit')
     expect(getAPI).not.toHaveBeenCalled()
   })
+  it('shows the policy actually approved for reapply instead of unrelated NFS recommendations', () => {
+    const vm = { preview: { config: JSON.stringify({ applyOwner: true, ownerUid: 0, ownerGid: 0, directoryMode: '0770' }) }, previewCurrent: { uid: 0, gid: 0, mode: '0770' }, previewV2: { suggested: { applyowner: true, owneruid: 65534, ownergid: 65534, mode: '0775' } } }
+    expect(Widget.computed.previewTarget.call(vm)).toEqual({ uid: 0, gid: 0, mode: '0770' })
+  })
+  it('shows observed owners when the signed policy preserves ownership', () => {
+    const vm = { preview: { config: { applyOwner: false, ownerUid: 0, ownerGid: 0, directoryMode: '2775' } }, previewCurrent: { uid: 1002, gid: 1003, mode: '0770' } }
+    expect(Widget.computed.previewTarget.call(vm)).toEqual({ uid: 1002, gid: 1003, mode: '2775' })
+  })
+  it('does not substitute unapproved draft values for a missing policy in the preview', () => {
+    const vm = { preview: {}, form: { owneruid: 0, ownergid: 0, directorymode: '0777' }, previewCurrent: { uid: 1002, gid: 1003, mode: '0750' } }
+    expect(Widget.computed.previewTarget.call(vm)).toEqual({ uid: 1002, gid: 1003, mode: '0750' })
+  })
   it('preserves known policies when a read fails', async () => {
     const vm = { instanceId: 'a', generation: 0, policies: [{ id: 'known' }], loading: false, readError: false }
     getAPI.mockRejectedValue(new Error('timeout'))
