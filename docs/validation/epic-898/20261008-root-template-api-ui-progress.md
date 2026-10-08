@@ -10,7 +10,7 @@
 
 focused Maven package는 ROOT 관련 43개와 SharedFS 41개, 합계 84개 테스트가 실패·오류 없이 통과했다. 원본 로그는 WSL scratch의 root-real-backend-final-tests-build.log다. 새 ROOT의 실제 signed runtime 계보 일치와 static NIC 보호, 실제 template 빌드·배포·ROOT 교체·역교체·전 단계 실패 주입은 별도 인수 게이트로 남아 있다.
 
-UI 코드 a16a88d42cd는 target을 명시적으로 선택한 뒤 사전 검증 결과, 세션 수, 보존 DATA 수, identity 이관, rollback 가능 여부를 확인하게 한다. maintenance 확인과 정확한 서비스 이름이 맞아야 실행한다. async job은 모달을 닫은 뒤 추적하며, 이전 리소스의 늦은 응답과 unmount 이후 callback을 격리한다. 관련 9개 UI 테스트가 통과했다. 첫 production 빌드는 마지막 요청 객체의 lint 오류로 실패했고 형식을 수정한 뒤 다시 빌드하고 있다. 아직 이 UI를 클러스터에 배포하거나 실제 ROOT 교체를 수행하지 않았다.
+UI 코드 a16a88d42cd는 target을 명시적으로 선택한 뒤 사전 검증 결과, 세션 수, 보존 DATA 수, identity 이관, rollback 가능 여부를 확인하게 한다. maintenance 확인과 정확한 서비스 이름이 맞아야 실행한다. async job은 모달을 닫은 뒤 추적하며, 이전 리소스의 늦은 응답과 unmount 이후 callback을 격리한다. 관련 9개 UI 테스트가 통과했다. 첫 production 빌드는 마지막 요청 객체의 lint 오류로 실패했고 형식을 수정한 뒤 재빌드가 통과했다. UI a16a88d42cd744925f9b2164dfa6037cca28f78b를 844개 static 파일로 배포했고 모든 hash와 config.json·WEB-INF·관리 서버 PID 보존을 검증했다. index SHA-256은 4ace4e1b648f32e8f4bb3d321105493a6a75ea4cbd95fc996732f32f342a567e이고 backup은 /root/epic898-ui-backup-20261008-102139다. 새 ROOT API backend는 아직 배포하지 않았으므로 ROOT UI의 실제 실행 인수는 남아 있다.
 
 ## 실제 새 테스트 VM에서 발견한 SMB / STATIC 결함
 
@@ -23,3 +23,13 @@ Samba 4.17의 신규 binding을 별도 endpoint master로 추가하는 prototype
 재부팅 후에는 management의 IP 조회가 보조 IP B를 기본 IP로 선택해 NIC DB를 240에서 241로 덮어쓰는 별도 P1을 확인했다. 실제 로그와 DB 관측으로 확인했으며 인위적인 NIC 복구를 적용하지 않았다. STATIC declared primary 보호 및 host agent IP 선택 회귀 수정을 진행한다.
 
 원래 SharedFS 39/41 및 기존 검증 fixture49의 DATA를 삭제하거나 포맷하지 않았다. 이슈 #900/#913/#920은 인수 완료 전 OPEN을 유지한다.
+
+## 적용된 DDL 및 실제 네트워크 UI
+
+최소 DDL SHA-256 2f73ca6805c5789a5b7fc79af9c4e1dce76e19ec1b0105bfbd3240cf0bf4822c를 적용한 후 같은 스크립트를 재실행해 idempotency도 확인했다. ROOT 테이블의 unique constraints와 인스턴스 projection 5열을 검증했고 기존 instance 7행을 보존했다. backend 교체·관리 서버 재시작·ROOT swap은 수행하지 않았다.
+
+실제 Chrome에서 SharedFS50의 네트워크 탭을 열어 STATIC, 10.10.13.240/16, 10.10.0.0/16 및 10.10.0.1 표시를 확인했다. 기존 Generic NIC API가 L2의 netmask/gateway를 제공하지 않으므로 SharedFS 설정값을 함께 표시한다. 현재 DB NIC의 B241 drift는 숨기지 않고 별도 원인 수정 후 재검증한다.
+
+![변경 전 네트워크 화면](20261008-static-network-before.png)
+
+![설정값이 표시되는 네트워크 화면](20261008-static-network-after.png)
