@@ -180,6 +180,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         final java.security.KeyPair key;
         JsonObject receipt;
         JsonObject stageRequest;
+        JsonObject retainedRootAuthorization;
+        String identityCheckpointSourceConfigurationSha256;
         RenderedBatch(StorageServiceOperationVO operation,JsonObject source,JsonObject manifest,java.security.KeyPair key) {this.operation=operation;this.source=source;this.previousManifest=manifest;this.key=key;}
     }
 
@@ -1374,8 +1376,27 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         renderedBatch.set(createRenderedBatch(instance,operation,before,manifest,null));
     }
     protected RenderedBatch createRenderedBatch(StorageServiceInstanceVO instance,StorageServiceOperationVO operation,JsonObject before,JsonObject manifest,JsonObject rootScope) {
+        return createRenderedBatch(instance,operation,before,manifest,rootScope,null,null);
+    }
+    protected RenderedBatch createRenderedBatch(StorageServiceInstanceVO instance,StorageServiceOperationVO operation,JsonObject before,JsonObject manifest,JsonObject rootScope,JsonObject retainedAuthorization,String latestIdentitySha) {
         java.security.KeyPair key=StorageIdentityCapsule.wrappingKey();byte[] protectedKey=StorageIdentityCapsule.protectedPrivateKey(key);String keyId=java.util.UUID.nameUUIDFromBytes(("rendered-key:"+operation.getUuid()).getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString();renderedKeyStore().write(keyId,protectedKey);
-        RenderedBatch batch=new RenderedBatch(operation,before.deepCopy(),manifest.deepCopy(),key);JsonObject snapshot=parseJsonObject(operation.getPreviousSnapshotJson()),rendered=new JsonObject();rendered.addProperty("keyId",keyId);rendered.addProperty("keySha256",StorageConfigArchive.sha256(protectedKey));rendered.add("source",before.deepCopy());rendered.add("previousManifest",manifest.deepCopy());rendered.addProperty("phase","PREPARED");if(rootScope!=null)rendered.add("rootScope",rootScope.deepCopy());snapshot.add("renderedGeneration",rendered);operation.setPreviousSnapshotJson(snapshot.toString());if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Rendered encrypted recovery key reference could not be persisted");return batch;
+        RenderedBatch batch=new RenderedBatch(operation,before.deepCopy(),manifest.deepCopy(),key);
+        JsonObject snapshot=parseJsonObject(operation.getPreviousSnapshotJson()),rendered=new JsonObject();
+        rendered.addProperty("keyId",keyId);
+        rendered.addProperty("keySha256",StorageConfigArchive.sha256(protectedKey));
+        rendered.add("source",before.deepCopy());
+        rendered.add("previousManifest",manifest.deepCopy());
+        rendered.addProperty("phase","PREPARED");
+        if(rootScope!=null)rendered.add("rootScope",rootScope.deepCopy());
+        if(retainedAuthorization!=null){batch.retainedRootAuthorization=retainedAuthorization.deepCopy();
+        batch.identityCheckpointSourceConfigurationSha256=latestIdentitySha;
+        rendered.add("retainedRootAuthorization",retainedAuthorization.deepCopy());
+        rendered.addProperty("identityCheckpointSourceConfigurationSha256",latestIdentitySha);
+        }snapshot.add("renderedGeneration",rendered);
+        operation.setPreviousSnapshotJson(snapshot.toString());
+        if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Rendered encrypted recovery key reference could not be persisted");
+        return batch;
+
     }
 
     protected JsonObject rootPrimaryBinding(StorageServiceInstanceVO instance,JsonElement sourceNetwork) {
@@ -1424,20 +1445,33 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         return createRenderedBatch(instance,operation,before,manifest,rootScope);
     }
 
+    protected RenderedBatch prepareRetainedRenderedBatch(StorageServiceInstanceVO instance,StorageServiceOperationVO operation,JsonObject rootScope,JsonObject baseline,JsonObject authorization,String latestIdentitySha) {
+        if(latestIdentitySha==null||!latestIdentitySha.matches("[a-f0-9]{64}"))throw new CloudRuntimeException("Retained ROOT authenticated latest identity hash is invalid");
+        JsonObject before=baseline.getAsJsonObject("nativeState"),manifest=baseline.getAsJsonObject("rendered");if(before==null||manifest==null||!baseline.get("generation").equals(before.get("generation")))throw new CloudRuntimeException("Retained ROOT actual old baseline cannot be replaced with latest identity state");
+        StorageRetainedRootAuthorization.captureRequest(rootScope,before.getAsJsonObject("generation"),getJsonString(manifest,"manifestSha256"));authorization=StorageRetainedRootAuthorization.retainedReference(authorization);
+        if(!operation.getUuid().equals(getJsonString(rootScope,"operationUuid"))||operation.getRevision()!=getJsonLong(rootScope,"revision"))throw new CloudRuntimeException("Retained ROOT batch scope differs from its durable operation");
+        JsonObject snapshot=parseJsonObject(operation.getPreviousSnapshotJson());if(snapshot.has("renderedGeneration")){RenderedBatch existing=restoreRenderedBatch(operation);if(!authorization.equals(existing.retainedRootAuthorization)||!latestIdentitySha.equals(existing.identityCheckpointSourceConfigurationSha256)||!before.equals(existing.source))throw new CloudRuntimeException("Retained ROOT encrypted batch belongs to another baseline or authorization");return existing;}
+        return createRenderedBatch(instance,operation,before,manifest,rootScope,authorization,latestIdentitySha);
+    }
+
     protected void stageRootRendered(StorageServiceInstanceVO instance,StorageServiceOperationVO operation,RenderedBatch batch,JsonObject canonical) {
         if(batch.receipt!=null&&batch.receipt.has("staged")) {
             String phase=getJsonString(batch.receipt,"phase");if(Set.of("VERIFIED","GENERATION_COMMITTING","GENERATION_COMMITTED","FINALIZED","RELEASED","COMPLETE").contains(phase)){verifyReconciledStorageDesiredState(instance);return;}
             renderedCoordinator(instance,batch).activate(batch.receipt,renderedActivationRequest(instance,batch));return;
         }
-        JsonObject request=renderedRequest(instance,operation,canonical,batch.source.getAsJsonObject("generation"),batch.previousManifest);request.addProperty("checkpointPublicKey",StorageIdentityCapsule.pem("PUBLIC KEY",batch.key.getPublic().getEncoded()));request.add("credentialRefs",renderedCredentialReferences(batch,canonical));batch.stageRequest=request;
-        StorageRenderedGenerationCoordinator coordinator=renderedCoordinator(instance,batch);batch.receipt=coordinator.stage(request);coordinator.activate(batch.receipt,renderedActivationRequest(instance,batch));
+        JsonObject request=renderedRequest(instance,operation,canonical,batch.source.getAsJsonObject("generation"),batch.previousManifest);request.addProperty("checkpointPublicKey",StorageIdentityCapsule.pem("PUBLIC KEY",batch.key.getPublic().getEncoded()));request.add("credentialRefs",renderedCredentialReferences(batch,canonical));if(batch.retainedRootAuthorization!=null)request.add("retainedRootAuthorization",batch.retainedRootAuthorization.deepCopy());batch.stageRequest=request;
+        StorageRenderedGenerationCoordinator coordinator=renderedCoordinator(instance,batch);batch.receipt=coordinator.stage(request);if(batch.retainedRootAuthorization!=null&&!batch.identityCheckpointSourceConfigurationSha256.equals(getJsonString(batch.receipt.getAsJsonObject("staged"),"identityCheckpointSourceConfigurationSha256")))throw new CloudRuntimeException("Retained ROOT checkpoint is not bound to authenticated latest identity");coordinator.activate(batch.receipt,renderedActivationRequest(instance,batch));
     }
 
     protected JsonObject renderedRollbackRequest(StorageServiceInstanceVO instance,RenderedBatch batch) {
+        if(batch.retainedRootAuthorization!=null)throw new CloudRuntimeException("Retained ROOT cannot replay historical state; recover its latest captured source ROOT");
+        return renderedCheckpointRequest(instance,batch);
+    }
+    private JsonObject renderedCheckpointRequest(StorageServiceInstanceVO instance,RenderedBatch batch) {
         JsonObject request=operationReservationScope(instance,batch.operation);JsonObject staged=batch.receipt.getAsJsonObject("staged");request.add("renderedManifestSha256",staged.get("renderedManifestSha256"));request.add("identityCheckpointRef",staged.get("identityCheckpointRef").deepCopy());request.addProperty("checkpointPrivateKey",StorageIdentityCapsule.pem("PRIVATE KEY",batch.key.getPrivate().getEncoded()));return request;
     }
     protected JsonObject renderedActivationRequest(StorageServiceInstanceVO instance,RenderedBatch batch) {
-        JsonObject request=renderedRollbackRequest(instance,batch);
+        JsonObject request=renderedCheckpointRequest(instance,batch);
         JsonObject target=new JsonObject(),credentials=new JsonObject();JsonObject smb=new JsonObject();for(Map.Entry<Long,String> entry:batch.smbPasswords.entrySet()){StorageAccessRuleVO acl=storageAccessRuleDao.findById(entry.getKey());JsonObject values=new JsonObject();values.addProperty("password",entry.getValue());smb.add(acl.getUuid(),values);}target.add("SMB",smb);
         for(Map.Entry<String,Map<Long,JsonObject>> domain:Map.of("ISCSI",batch.iscsiSecrets,"NVMEOF",batch.nvmeSecrets).entrySet()){JsonObject values=new JsonObject();for(Map.Entry<Long,JsonObject> entry:domain.getValue().entrySet()){StorageAccessRuleVO acl=storageAccessRuleDao.findById(entry.getKey());values.add(acl.getUuid(),entry.getValue().deepCopy());}target.add(domain.getKey(),values);}
         JsonObject saved=parseJsonObject(batch.operation.getPreviousSnapshotJson()).getAsJsonObject("renderedGeneration");JsonObject reference=saved!=null&&saved.has("targetInputRef")?saved.getAsJsonObject("targetInputRef"):null;
@@ -1447,7 +1481,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     protected JsonObject renderedCredentialReferences(RenderedBatch batch,JsonObject canonical) {
-        JsonObject checkpoint=new JsonObject();checkpoint.addProperty("kind","IDENTITY_CHECKPOINT");checkpoint.addProperty("operationUuid",batch.operation.getUuid());checkpoint.add("sourceConfigurationSha256",batch.source.get("configurationSha256").deepCopy());
+        JsonObject checkpoint=new JsonObject();checkpoint.addProperty("kind","IDENTITY_CHECKPOINT");checkpoint.addProperty("operationUuid",batch.operation.getUuid());if(batch.retainedRootAuthorization==null)checkpoint.add("sourceConfigurationSha256",batch.source.get("configurationSha256").deepCopy());else checkpoint.addProperty("sourceConfigurationSha256",batch.identityCheckpointSourceConfigurationSha256);
         JsonObject refs=new JsonObject();
         for(String domain:List.of("SMB","ISCSI","NVMEOF"))refs.add(domain,new JsonObject());
         JsonElement smb=canonical.get(StorageRenderedDesiredState.PROTOCOL_PATHS.get(StorageServiceInstance.Protocol.SMB));
@@ -1502,11 +1536,21 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         java.security.KeyPair key;
         try {byte[] der=java.util.Base64.getMimeDecoder().decode(pem.replace("-----BEGIN PRIVATE KEY-----","").replace("-----END PRIVATE KEY-----",""));java.security.KeyFactory factory=java.security.KeyFactory.getInstance("RSA");java.security.interfaces.RSAPrivateCrtKey privateKey=(java.security.interfaces.RSAPrivateCrtKey)factory.generatePrivate(new java.security.spec.PKCS8EncodedKeySpec(der));key=new java.security.KeyPair(factory.generatePublic(new java.security.spec.RSAPublicKeySpec(privateKey.getModulus(),privateKey.getPublicExponent())),privateKey);}
         catch(java.security.GeneralSecurityException|IllegalArgumentException invalid){throw new CloudRuntimeException("Rendered encrypted recovery key cannot be verified",invalid);}
-        RenderedBatch batch=new RenderedBatch(operation,saved.getAsJsonObject("source"),saved.getAsJsonObject("previousManifest"),key);batch.receipt=saved.has("receipt")&&saved.get("receipt").isJsonObject()?saved.getAsJsonObject("receipt").deepCopy():new JsonObject();if(!batch.receipt.has("phase"))batch.receipt.addProperty("phase","PREPARED");if(!batch.receipt.has("scope"))batch.receipt.add("scope",operationReservationScope(storageServiceInstanceDao.findById(operation.getInstanceId()),operation));if(!batch.receipt.has("previousGeneration"))batch.receipt.add("previousGeneration",batch.source.get("generation").deepCopy());if(!batch.receipt.has("previousRenderedSha256"))batch.receipt.add("previousRenderedSha256",batch.previousManifest.get("manifestSha256").deepCopy());return batch;
+        RenderedBatch batch=new RenderedBatch(operation,saved.getAsJsonObject("source"),saved.getAsJsonObject("previousManifest"),key);
+        if(saved.has("retainedRootAuthorization")){batch.retainedRootAuthorization=saved.getAsJsonObject("retainedRootAuthorization").deepCopy();
+        batch.identityCheckpointSourceConfigurationSha256=getJsonString(saved,"identityCheckpointSourceConfigurationSha256");
+        if(batch.identityCheckpointSourceConfigurationSha256==null||!batch.identityCheckpointSourceConfigurationSha256.matches("[a-f0-9]{64}"))throw new CloudRuntimeException("Retained ROOT latest identity checkpoint hash is unavailable");
+        }batch.receipt=saved.has("receipt")&&saved.get("receipt").isJsonObject()?saved.getAsJsonObject("receipt").deepCopy():new JsonObject();
+        if(!batch.receipt.has("phase"))batch.receipt.addProperty("phase","PREPARED");
+        if(!batch.receipt.has("scope"))batch.receipt.add("scope",operationReservationScope(storageServiceInstanceDao.findById(operation.getInstanceId()),operation));
+        if(!batch.receipt.has("previousGeneration"))batch.receipt.add("previousGeneration",batch.source.get("generation").deepCopy());
+        if(!batch.receipt.has("previousRenderedSha256"))batch.receipt.add("previousRenderedSha256",batch.previousManifest.get("manifestSha256").deepCopy());
+        return batch;
+
     }
 
     protected void recoverRenderedStorageWriter(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
-        RenderedBatch batch=restoreRenderedBatch(operation);requiredRenderedValidationProfile(instance);
+        RenderedBatch batch=restoreRenderedBatch(operation);if(batch.retainedRootAuthorization!=null)throw new CloudRuntimeException("Retained ROOT recovery requires its latest-source ROOT compensation transaction");requiredRenderedValidationProfile(instance);
         operation.setState("RUNNING");operation.setCompleted(null);if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Rendered recovery writer could not be persisted");beginStorageWriterHeartbeat(operation);renderedBatch.set(batch);
         try {
             StorageRenderedGenerationCoordinator coordinator=renderedCoordinator(instance,batch);
