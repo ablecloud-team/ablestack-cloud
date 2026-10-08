@@ -34,7 +34,7 @@
     <a-table :columns="columns" :data-source="rows" row-key="id" :loading="loading" :pagination="false" :scroll="{ x: 900 }" size="small">
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'name'"><router-link :to="'/backup/' + record.id">{{ record.name || record.id }}</router-link><small v-if="provider(record) === 'kboss'" class="backup-secondary">{{ $t('label.compressionstatus') }}: {{ record.compressionstatus || '—' }} · {{ $t('label.validationstatus') }}: {{ record.validationstatus || '—' }}</small></template>
-        <template v-else-if="column.key === 'status'"><status :text="record.status" /> {{ record.status }}</template>
+        <template v-else-if="column.key === 'status'"><backup-progress :record="record" :statusText="record.status" @restore-finished="record.restoreoperationpending = false; record.restorejobstate = $event" /></template>
         <template v-else-if="column.key === 'size'">{{ bytes(record.size) }} / {{ bytes(record.virtualsize) }}</template>
         <template v-else-if="column.key === 'type'">{{ record.type || '—' }} / {{ record.intervaltype || '—' }}</template>
         <template v-else-if="column.key === 'created'">{{ $toLocaleDate(record.created) }}</template>
@@ -60,15 +60,15 @@
             <a-descriptions-item :label="$t('label.id')">{{ selected.id }}</a-descriptions-item>
             <a-descriptions-item :label="$t('label.created')">{{ $toLocaleDate(selected.created) }}</a-descriptions-item>
           </a-descriptions>
-          <a-form layout="vertical" class="backup-form">
+          <a-form v-if="actionApi !== 'cancelBackupStagingJob'" layout="vertical" class="backup-form">
             <template v-if="actionApi === 'restoreBackup'">
               <a-form-item :label="$t('label.quickrestore')"><a-switch v-model:checked="quickrestore" /></a-form-item>
               <a-form-item v-if="isAdmin && quickrestore && allowed('listHosts')" :label="$t('label.hostid')"><a-select v-model:value="hostId" allow-clear :loading="hostsLoading" :placeholder="$t('label.vmbackup.automatic')"><a-select-option v-for="host in hosts" :key="host.id" :value="host.id">{{ host.name }}</a-select-option></a-select></a-form-item>
             </template>
             <a-form-item v-else :label="$t('label.forced')" :extra="$t('message.vmbackup.force')"><a-switch v-model:checked="forced" /></a-form-item>
           </a-form>
-          <a-alert type="warning" show-icon :message="$t(actionApi === 'deleteBackup' ? 'message.vmbackup.delete' : 'message.vmbackup.restore')" />
-          <div class="backup-footer"><a-button :disabled="submitting" @click="closeAction">{{ $t('label.cancel') }}</a-button><a-button type="primary" :danger="actionApi === 'deleteBackup'" :loading="submitting" :disabled="pending || unknown" @click="submitAction">{{ $t(selectedAction.label) }}</a-button></div>
+          <a-alert type="warning" show-icon :message="actionApi === 'cancelBackupStagingJob' ? 'Cancel waiting staging job (' + selected.stagingqueue.operation + ')' : $t(actionApi === 'deleteBackup' ? 'message.vmbackup.delete' : 'message.vmbackup.restore')" />
+          <div class="backup-footer"><a-button :disabled="submitting" @click="closeAction">{{ $t('label.cancel') }}</a-button><a-button type="primary" :danger="['deleteBackup', 'cancelBackupStagingJob'].includes(actionApi)" :loading="submitting" :disabled="actionApi !== 'cancelBackupStagingJob' && (pending || unknown)" @click="submitAction">{{ $t(selectedAction.label) }}</a-button></div>
         </template>
       </div>
     </a-modal>
@@ -82,14 +82,14 @@ import { listRefreshMixin } from '@/utils/listRefreshMixin'
 import compute from '@/config/section/compute'
 import storage from '@/config/section/storage'
 import eventBus from '@/config/eventBus'
-import Status from '@/components/widgets/Status'
+import BackupProgress from '@/components/view/BackupProgress'
 
 const vmApis = ['createBackup', 'assignVirtualMachineToBackupOffering', 'removeVirtualMachineFromBackupOffering', 'createBackupSchedule', 'finishBackupChain']
-const rowApis = ['restoreVolumeFromBackupAndAttachToVM', 'createVMFromBackup', 'deleteBackup']
+const rowApis = ['restoreVolumeFromBackupAndAttachToVM', 'createVMFromBackup', 'deleteBackup', 'cancelBackupStagingJob', 'getBackupStagingInfo']
 const activeStates = ['Allocated', 'Queued', 'BackingUp', 'ReadyForImageTransfer', 'FinalizingImageTransfer', 'Restoring']
 export default {
   name: 'VmBackupsTab',
-  components: { Status },
+  components: { BackupProgress },
   mixins: [listRefreshMixin(['fetchData'], { active: vm => !!vm.resource.id })],
   inject: { parentFetchData: { default: null } },
   props: { resource: { type: Object, required: true } },
@@ -99,22 +99,36 @@ export default {
     isAdmin () { return this.$store.getters.userInfo?.roletype === 'Admin' },
     selectedAction () { return this.definition(this.actionApi) || {} },
     modalComponent () { return unref(this.selectedAction.component) },
-    modalWidth () { return this.actionApi === 'createVMFromBackup' ? '90%' : 680 },
+    modalWidth () { return this.actionApi === 'createVMFromBackup' ? '90%' : this.actionApi === 'getBackupStagingInfo' ? 1200 : 680 },
     settings () { return vmApis.filter(api => api !== 'createBackup' && this.visible(api)).map(this.definition) },
     columns () { return ['name', 'status', 'size', 'type', 'created', 'actions'].map(key => ({ key, dataIndex: key, title: this.$t(key === 'size' ? 'label.vmbackup.sizes' : key === 'type' ? 'label.vmbackup.types' : 'label.' + key), ...(key === 'actions' ? { width: 165, fixed: 'right' } : {}) })) }
   },
   watch: {
     scopeKey () { this.rows = []; this.total = 0; this.page = 1; this.search = ''; this.keyword = ''; this.selected = null; this.opening = false; this.submitting = false; this.pending = false; this.unknown = false; this.fetchData() }
   },
-  created () { this.fetchData(); this.onBackupJobComplete = () => this.refresh(); eventBus.on('async-job-complete', this.onBackupJobComplete) },
-  beforeUnmount () { eventBus.off('async-job-complete', this.onBackupJobComplete) },
+  created () {
+    this.fetchData()
+    this.onBackupJobComplete = () => this.refresh()
+    eventBus.on('async-job-complete', this.onBackupJobComplete)
+    eventBus.on('backup-restore-updated', this.onBackupJobComplete)
+  },
+  beforeUnmount () {
+    eventBus.off('async-job-complete', this.onBackupJobComplete)
+    eventBus.off('backup-restore-updated', this.onBackupJobComplete)
+  },
   methods: {
     allowed (api) { return api in this.$store.getters.apis },
     definition (api) { return (vmApis.includes(api) ? compute.children.find(item => item.name === 'vm') : storage.children.find(item => item.name === 'backup'))?.actions.find(action => action.api === api) },
     provider (row) { return (row?.provider || this.resource.backupprovider || '').toLowerCase() },
     context (row = this.resource) { return row === this.resource ? row : { ...row, provider: this.provider(row) } },
-    visible (api, row = this.resource) { const action = this.definition(api); return !!action && this.allowed(api) && (!action.show || !!action.show(this.context(row), this.$store.getters)) },
+    visible (api, row = this.resource) {
+      if (api === 'deleteBackup' && ['veeam', 'ablestack-veeam', 'netbackup', 'ablestack-netbackup'].includes(this.provider(row)) && row.deleteallowed !== true) return false
+      const action = this.definition(api)
+      return !!action && this.allowed(api) && (!action.show || !!action.show(this.context(row), this.$store.getters))
+    },
     disabled (api, row = this.resource) {
+      if (['cancelBackupStagingJob', 'getBackupStagingInfo'].includes(api)) return !this.visible(api, row) || this.opening || this.submitting
+      if (['restoreBackup', 'restoreVolumeFromBackupAndAttachToVM', 'createVMFromBackup'].includes(api) && row.restoreavailable === false) return true
       const action = this.definition(api)
       return !this.visible(api, row) || this.opening || this.submitting || this.pending || this.unknown || this.rows.some(item => activeStates.includes(item.status)) || this.resource.hostcontrolstate === 'Offline' || !!action?.disabled?.(this.context(row), this.$store.getters, [])
     },
@@ -148,7 +162,7 @@ export default {
           const result = await getAPI('listBackups', { id: row.id, virtualmachineid: this.resource.id, listvmdetails: true })
           fresh = result.listbackupsresponse.backup?.find(item => item.id === row.id && item.virtualmachineid === this.resource.id)
           if (scope !== this.scopeKey || this.listRefreshDisposed) return
-          if (!fresh || !this.visible(api, fresh)) throw new Error(this.$t('message.vmbackup.unavailable'))
+          if (!fresh || !this.visible(api, fresh) || (['restoreBackup', 'restoreVolumeFromBackupAndAttachToVM', 'createVMFromBackup'].includes(api) && fresh.restoreavailable === false)) throw new Error(this.$t('message.vmbackup.unavailable'))
         }
         this.actionApi = api; this.selected = { ...fresh }; this.quickrestore = false; this.forced = false; this.hostId = undefined; this.hosts = []
         if (api === 'restoreBackup' && this.isAdmin && this.allowed('listHosts')) {
@@ -161,10 +175,11 @@ export default {
       } catch (error) { if (scope === this.scopeKey && !this.listRefreshDisposed) this.$notifyError(error) } finally { if (scope === this.scopeKey) this.opening = false }
     },
     async submitAction () {
-      if (this.submitting || this.pending || this.unknown || !this.selected) return
+      if (this.submitting || !this.selected || (this.actionApi !== 'cancelBackupStagingJob' && (this.pending || this.unknown))) return
       const api = this.actionApi; const selected = { ...this.selected }; const scope = this.scopeKey
-      if (!['restoreBackup', 'deleteBackup'].includes(api) || this.disabled(api, selected)) return
-      const params = { id: selected.id, ...(api === 'deleteBackup' ? { forced: this.forced } : { quickrestore: this.quickrestore }) }
+      if (!['restoreBackup', 'deleteBackup', 'cancelBackupStagingJob'].includes(api) || this.disabled(api, selected)) return
+      const cancelWaiting = api === 'cancelBackupStagingJob'
+      const params = { id: selected.id, ...(cancelWaiting ? { operation: selected.stagingqueue.operation, stagingjobid: selected.stagingqueue.stagingjobid } : api === 'deleteBackup' ? { forced: this.forced } : { quickrestore: this.quickrestore }) }
       if (api === 'restoreBackup' && this.isAdmin && this.quickrestore && this.hostId) params.hostid = this.hostId
       this.submitting = true
       let sent = false
@@ -173,16 +188,26 @@ export default {
         if (scope !== this.scopeKey || this.listRefreshDisposed) return
         const fresh = backups.listbackupsresponse.backup?.find(item => item.id === selected.id && item.virtualmachineid === this.resource.id)
         const vm = machines.listvirtualmachinesresponse.virtualmachine?.find(item => item.id === this.resource.id)
-        if (!fresh || !vm || vm.hostcontrolstate === 'Offline' || activeStates.includes(fresh.status) || !this.visible(api, fresh)) throw new Error(this.$t('message.vmbackup.unavailable'))
+        if (!fresh || !vm || (!cancelWaiting && (vm.hostcontrolstate === 'Offline' || activeStates.includes(fresh.status))) || !this.visible(api, fresh) || (cancelWaiting && fresh.stagingqueue.stagingjobid !== params.stagingjobid) || (api === 'restoreBackup' && fresh.restoreavailable === false)) throw new Error(this.$t('message.vmbackup.unavailable'))
         if (!this.isAdmin || !this.quickrestore || !this.allowed('listHosts')) delete params.hostid
         sent = true
         const result = await postAPI(api, params)
         if (scope !== this.scopeKey || this.listRefreshDisposed) return
         const jobId = result[api.toLowerCase() + 'response']?.jobid
         if (!jobId) { this.unknown = true; throw new Error(this.$t('message.job.result.unknown')) }
+        const commvaultRestore = api === 'restoreBackup' && String(fresh.provider || '').toLowerCase() === 'ablestack-commvault'
+        if (commvaultRestore) {
+          const trackedBackup = this.rows.find(item => item.id === selected.id)
+          if (trackedBackup) {
+            trackedBackup.restoreoperationpending = true
+            trackedBackup.restorejobstate = 'STARTING'
+            trackedBackup.restorejobstep = 'REQUESTED'
+          }
+          this.$message.info({ content: this.$t('label.backup.restore.requested'), duration: 2 })
+        }
         this.selected = null; this.pending = true
         const refresh = () => { if (scope === this.scopeKey && !this.listRefreshDisposed) { this.pending = false; this.unknown = false; this.refresh() } }
-        this.$pollJob({ jobId, originalPage: this.$route.path, title: this.$t(this.definition(api).label), description: selected.name || selected.id, resourceId: selected.id, action: { api, resource: selected, isFetchData: false }, successMethod: refresh, errorMethod: refresh, catchMethod: () => { if (scope === this.scopeKey && !this.listRefreshDisposed) { this.pending = false; this.unknown = true } } }).catch(() => { if (scope === this.scopeKey && !this.listRefreshDisposed && this.pending) { this.pending = false; this.unknown = true } })
+        this.$pollJob({ jobId, originalPage: this.$route.path, title: this.$t(this.definition(api).label), description: selected.name || selected.id, resourceId: selected.id, action: { api, resource: selected, isFetchData: false }, showLoading: !commvaultRestore, showSuccessMessage: !commvaultRestore, successMethod: refresh, errorMethod: refresh, catchMethod: () => { if (scope === this.scopeKey && !this.listRefreshDisposed) { this.pending = false; this.unknown = true } } }).catch(() => { if (scope === this.scopeKey && !this.listRefreshDisposed && this.pending) { this.pending = false; this.unknown = true } })
       } catch (error) { if (scope === this.scopeKey && !this.listRefreshDisposed) { if (sent && !error.response) this.unknown = true; this.$notifyError(error) } } finally { if (scope === this.scopeKey) this.submitting = false }
     }
   }

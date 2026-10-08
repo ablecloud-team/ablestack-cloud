@@ -104,6 +104,7 @@ import com.cloud.upgrade.dao.EuropaVolumeViewReconciler;
 import com.cloud.upgrade.dao.EuropaNetworkSchemaUpgrade;
 import com.cloud.upgrade.dao.EuropaGuiThemeSchemaUpgrade;
 import com.cloud.upgrade.dao.EuropaSystemVmSchemaUpgrade;
+import com.cloud.upgrade.dao.EuropaThirdPartyStagingConfigUpgrade;
 import com.cloud.upgrade.dao.EuropaDrRecoverySchemaUpgrade;
 import com.cloud.upgrade.dao.Upgrade420to421;
 import com.cloud.upgrade.dao.Upgrade421to430;
@@ -572,6 +573,7 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
                 runEuropaPhase(conn, "europa-4.23-s10-vbmc-v1", () -> com.cloud.upgrade.dao.EuropaVbmcSchemaUpgrade.migrate(conn));
                 runEuropaPhase(conn, EuropaSchemaUpgrade.S11, () -> com.cloud.upgrade.dao.EuropaVmProcessConfigUpgrade.migrate(conn));
                 runEuropaPhase(conn, "europa-4.23-s12-process-profile-v1", () -> com.cloud.upgrade.dao.EuropaVmProcessProfileUpgrade.migrate(conn));
+                runEuropaPhase(conn, EuropaThirdPartyStagingConfigUpgrade.PHASE, () -> EuropaThirdPartyStagingConfigUpgrade.migrate(conn));
                 // Completed phase markers do not guarantee views match the running binary.
                 try {
                     EuropaVolumeViewReconciler.reconcile(conn);

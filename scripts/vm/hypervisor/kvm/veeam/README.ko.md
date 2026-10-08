@@ -19,6 +19,11 @@ under the License.
 
 # Ablestack Veeam + Mold 백업 (호스트 / datadisk)
 
+공통 Staging의 볼륨별 백업을 사용하는 경우 [볼륨별 Staging 운영 안내](../THIRDPARTY-VOLUME-STAGING.ko.md)를 먼저 확인한다.
+이 모드의 외부 UI 복원은 `ABLESTACK-<backup-UUID>-metadata` Job을 복원하고
+`restoreBackupArtifact`를 통해 Mold의 순차 볼륨 복원을 요청한다.
+아래 호스트 전체/datadisk 절차는 기존 방식에 해당한다.
+
 ## 핵심
 
 | 항목 | 값 |
@@ -34,7 +39,7 @@ under the License.
 MS URL·KVM IP·hostname·zone은 agent/API에서 조회합니다. API key/secret만 넘기면 됩니다.
 스크립트가 없으면 이전 배포 패키지입니다 → `veeam-host-deploy/deploy-from-ms.sh` 재실행.
 
-`veeam_config.sh` / pre-notify가 **VeeamBackup offering을 자동 등록**합니다  
+`veeam_config.sh` / pre-notify가 **VeeamBackup offering을 자동 등록**합니다
 (`importBackupOffering` provider=`ablestack-veeam`, externalid=`veeam`). NAS repository는 만들지 않습니다.
 
 ```bash

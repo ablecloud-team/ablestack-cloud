@@ -28,6 +28,21 @@ import java.util.Map;
 
 public class AblestackVeeamTakeBackupCommand extends Command {
     private String vmName;
+    private String volumeStagingManifest;
+    private String volumeBackupStartPlan;
+    private Integer stagingBufferPercent;
+    private Integer stagingQueueTimeout;
+
+    public Integer getStagingQueueTimeout() { return stagingQueueTimeout; }
+    public void setStagingQueueTimeout(Integer value) { stagingQueueTimeout = value; }
+
+    public String getVolumeStagingManifest() { return volumeStagingManifest; }
+    public void setVolumeStagingManifest(String value) { volumeStagingManifest = value; }
+    public String getVolumeBackupStartPlan() { return volumeBackupStartPlan; }
+    public void setVolumeBackupStartPlan(String value) { volumeBackupStartPlan = value; }
+    public Integer getStagingBufferPercent() { return stagingBufferPercent; }
+    public void setStagingBufferPercent(Integer value) { stagingBufferPercent = value; }
+    private String backupJobId;
     private String backupPath;
     private List<PrimaryDataStoreTO> volumePools;
     private List<String> volumePaths;
@@ -40,6 +55,7 @@ public class AblestackVeeamTakeBackupCommand extends Command {
     private String parentCheckpointXml;
     private Map<String, String> parentCheckpointXmlChain;
     private List<String> backupFiles;
+    private boolean waitForCompletion = true;
 
     public AblestackVeeamTakeBackupCommand(final String vmName, final String backupPath) {
         super();
@@ -53,6 +69,14 @@ public class AblestackVeeamTakeBackupCommand extends Command {
 
     public void setVmName(final String vmName) {
         this.vmName = vmName;
+    }
+
+    public String getBackupJobId() {
+        return backupJobId;
+    }
+
+    public void setBackupJobId(final String backupJobId) {
+        this.backupJobId = backupJobId;
     }
 
     public String getBackupPath() {
@@ -149,6 +173,14 @@ public class AblestackVeeamTakeBackupCommand extends Command {
 
     public void setBackupFiles(final List<String> backupFiles) {
         this.backupFiles = backupFiles;
+    }
+
+    public boolean isWaitForCompletion() {
+        return waitForCompletion;
+    }
+
+    public void setWaitForCompletion(final boolean waitForCompletion) {
+        this.waitForCompletion = waitForCompletion;
     }
 
     @Override

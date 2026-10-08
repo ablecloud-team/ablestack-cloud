@@ -785,6 +785,7 @@ import _ from 'lodash'
 import { mixin, mixinDevice } from '@/utils/mixin.js'
 import store from '@/store'
 import eventBus from '@/config/eventBus'
+import { isAblestackInstanceCreation, trackBackupInstanceCreation } from '@/utils/backupInstanceCreation'
 
 import OwnershipSelection from '@views/compute/wizard/OwnershipSelection'
 import InfoCard from '@/components/view/InfoCard'
@@ -2010,6 +2011,7 @@ export default {
                 if (networkConfig && networkConfig.length > 0) {
                   deployVmData['iptonetworklist[' + j + '].ip'] = networkConfig[0].ipAddress ? networkConfig[0].ipAddress : undefined
                   deployVmData['iptonetworklist[' + j + '].mac'] = networkConfig[0].macAddress ? networkConfig[0].macAddress : undefined
+                  deployVmData['iptonetworklist[' + j + '].enabled'] = networkConfig[0].enabled === undefined ? true : networkConfig[0].enabled
                 }
               }
             }
@@ -2052,6 +2054,7 @@ export default {
         const title = this.$t('label.create.instance.from.backup')
         const description = values.name || ''
         const password = this.$t('label.password')
+        const trackCreation = isAblestackInstanceCreation(this.dataPreFill.backupprovider)
 
         deployVmData = Object.fromEntries(
           Object.entries(deployVmData).filter(([key, value]) => value !== undefined))
@@ -2059,10 +2062,12 @@ export default {
         postAPI('createVMFromBackup', deployVmData, 'GET', {}).then(response => {
           const jobId = response.deployvirtualmachineresponse.jobid
           if (jobId) {
+            this.$emit('restore-started')
             this.$pollJob({
               jobId,
               title,
               description,
+              successMessage: this.$t('label.create.instance.from.backup.requested'),
               successMethod: result => {
                 const vm = result.jobresult.virtualmachine
                 const name = vm.displayname || vm.name || vm.id
@@ -2082,7 +2087,10 @@ export default {
                     duration: 0
                   })
                 }
-                eventBus.emit('vm-refresh-data')
+                if (trackCreation) {
+                  trackBackupInstanceCreation({ backupId: deployVmData.backupid, jobId, vm, router: this.$router })
+                }
+                eventBus.emit(trackCreation ? 'backup-restore-updated' : 'vm-refresh-data')
               },
               loadingMessage: `${title} ${this.$t('label.in.progress')}`,
               catchMessage: this.$t('error.fetching.async.job.result'),
@@ -2093,7 +2101,7 @@ export default {
           }
           // Sending a refresh in case it hasn't picked up the new VM
           new Promise(resolve => setTimeout(resolve, 3000)).then(() => {
-            eventBus.emit('vm-refresh-data')
+            eventBus.emit(trackCreation ? 'backup-restore-updated' : 'vm-refresh-data')
           })
           if (!values.stayonpage) {
             this.$emit('close-action')

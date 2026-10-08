@@ -39,8 +39,6 @@ import org.apache.cloudstack.storage.to.PrimaryDataStoreTO;
 import org.apache.cloudstack.utils.qemu.QemuImg;
 import org.apache.cloudstack.utils.qemu.QemuImgException;
 import org.apache.cloudstack.utils.qemu.QemuImgFile;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.libvirt.LibvirtException;
 
@@ -64,13 +62,42 @@ public class LibvirtAblestackVeeamRestoreBackupCommandWrapper extends CommandWra
     private static final String COMMAND_EXIT_MARKER = "__CS_COMMAND_EXIT__=";
     private static final String ATTACH_QCOW2_DISK_COMMAND = " virsh attach-disk %s %s %s --driver qemu --subdriver qcow2 --cache none";
     private static final String ATTACH_RBD_DISK_XML_COMMAND = " virsh attach-device %s /dev/stdin <<EOF%sEOF";
-    private static final String CURRENT_DEVICE = "virsh domblklist --domain %s | tail -n 3 | head -n 1 | awk '{print $1}'";
+    private static final String CURRENT_DEVICE = "virsh domblklist --domain %s --details | awk '($3 ~ /^(vd|sd|hd)[a-z]+$/) {print $3} "
+            + "($4 ~ /^(vd|sd|hd)[a-z]+$/) {print $4}' | sort -V | tail -n 1";
     private static final String QEMU_IMG_HAS_BACKING_COMMAND = "qemu-img info --output=json %s 2>/dev/null | grep -q '\"backing-filename\"'";
-    private static final String RESTORE_TRACE = "[ABLESTACK_VEEAM_RESTORE_TRACE]";
+    private static final String RESTORE_TRACE = AblestackBackupFrameworkUtils.buildTracePrefix("veeam", AblestackBackupFrameworkUtils.OPERATION_RESTORE);
     private static final long RESTORE_PRIMARY_SPACE_BUFFER_BYTES = 10L * 1024L * 1024L * 1024L;
 
     @Override
     public Answer execute(final AblestackVeeamRestoreBackupCommand command, final LibvirtComputingResource serverResource) {
+        if (!command.isWaitForCompletion()) {
+            return LibvirtAblestackAsyncBackupRunner.startDetachedRestore(command, logger, RESTORE_TRACE, "veeam",
+                    command.getRestoreJobId(), command.getVmName(), command.getBackupPath());
+        }
+        if (command.getVolumeRestorePlan() != null) {
+            try {
+                LibvirtAblestackVolumeRestoreHelper.restore(serverResource, logger, command.getVolumeRestorePlan(), command.getVmName(),
+                        command.getRestoreVolumePools(), command.getRestoreVolumePaths());
+                String restoredVolumeId = null;
+                if (command.isVmExists() == null) {
+                    String target = command.getRestoreVolumePaths().get(0);
+                    restoredVolumeId = target.substring(target.lastIndexOf('/') + 1);
+                    if (AblestackBackupFrameworkUtils.hasRestoreStage(command.getRestorePlan(), BackupRestoreStage.ATTACH_VOLUME)
+                            && VirtualMachine.State.Running.equals(command.getVmState())
+                            && !attachVolumeToVm(serverResource.getStoragePoolMgr(), command.getVmName(), command.getRestoreVolumePools().get(0),
+                                    target, command.getCacheMode())) {
+                        throw new CloudRuntimeException("Unable to attach prepared restored volume");
+                    }
+                }
+                LibvirtAblestackAsyncBackupRunner.markRestoreJobCompleted(logger, "veeam", command.getRestoreJobId(), command.getVmName(),
+                        command.getBackupPath(), StringUtils.defaultIfBlank(restoredVolumeId, "Volume restore completed"));
+                return new BackupAnswer(command, true, restoredVolumeId);
+            } catch (Exception e) {
+                LibvirtAblestackAsyncBackupRunner.markRestoreJobFailed(logger, "veeam", command.getRestoreJobId(), command.getVmName(),
+                        command.getBackupPath(), e.getMessage());
+                return new BackupAnswer(command, false, e.getMessage());
+            }
+        }
         final String backupPath = command.getBackupPath();
         final Boolean vmExists = command.isVmExists();
         final String diskType = command.getDiskType();
@@ -87,7 +114,17 @@ public class LibvirtAblestackVeeamRestoreBackupCommandWrapper extends CommandWra
         final KVMStoragePoolManager storagePoolMgr = serverResource.getStoragePoolMgr();
         String newVolumeId = null;
 
+        logger.info("{} phase=[ENTER], restoreJobId=[{}], jobLog=[{}], vm=[{}], backupPath=[{}], vmExists=[{}], "
+                        + "restorePlan=[{}], restoreVolumePaths=[{}], backupFiles=[{}], backupFileChains=[{}]",
+                RESTORE_TRACE, command.getRestoreJobId(), AblestackBackupFrameworkUtils.getAsyncRestoreJobLogPath(command.getRestoreJobId()),
+                command.getVmName(), backupPath, vmExists, restorePlan, restoreVolumePaths, backupFiles, backupFileChains);
+        LibvirtAblestackAsyncBackupRunner.markRestoreJobRunning(logger, "veeam", command.getRestoreJobId(), command.getVmName(), backupPath,
+                "Veeam restore command started");
         try {
+            LibvirtAblestackAsyncBackupRunner.markRestoreJobStep(logger, "veeam", command.getRestoreJobId(), command.getVmName(), backupPath,
+                    "VALIDATE_CHAIN", "Validating restore chain");
+            LibvirtAblestackAsyncBackupRunner.markRestoreJobStep(logger, "veeam", command.getRestoreJobId(), command.getVmName(), backupPath,
+                    "RESTORE_DATA", "Restoring backup data");
             if (Objects.isNull(vmExists)) {
                 final PrimaryDataStoreTO restoreVolumePool = restoreVolumePools.get(0);
                 final String restoreVolumePath = restoreVolumePaths.get(0);
@@ -97,55 +134,52 @@ public class LibvirtAblestackVeeamRestoreBackupCommandWrapper extends CommandWra
                         backupFiles, backupFileChains, volumeChainStates, command.getVmName(), command.getVmState(), timeout, cacheMode, restorePlan);
             } else if (Boolean.TRUE.equals(vmExists)) {
                 restoreVolumesOfExistingVM(storagePoolMgr, restoreVolumePools, restoreVolumePaths, backedVolumeUUIDs,
-                        backupPath, backupFiles, backupFileChains, volumeChainStates, timeout, restorePlan, command.getCheckpointName());
+                        backupPath, backupFiles, backupFileChains, volumeChainStates, timeout, restorePlan, command.getCheckpointName(), command.getVmName());
             } else {
                 restoreVolumesOfDestroyedVMs(storagePoolMgr, restoreVolumePools, restoreVolumePaths, backedVolumeUUIDs,
-                        backupPath, backupFiles, backupFileChains, volumeChainStates, timeout, restorePlan, command.getCheckpointName());
+                        backupPath, backupFiles, backupFileChains, volumeChainStates, timeout, restorePlan, command.getCheckpointName(), command.getVmName());
             }
         } catch (final CloudRuntimeException e) {
             final String errorMessage = e.getMessage() != null ? e.getMessage() : "";
+            LibvirtAblestackAsyncBackupRunner.markRestoreJobFailed(logger, "veeam", command.getRestoreJobId(), command.getVmName(), backupPath, errorMessage);
             return new BackupAnswer(command, false, errorMessage);
         }
 
+        logger.info("{} phase=[DONE], restoreJobId=[{}], vm=[{}], backupPath=[{}], vmExists=[{}], newVolumeId=[{}]",
+                RESTORE_TRACE, command.getRestoreJobId(), command.getVmName(), backupPath, vmExists, newVolumeId);
+        LibvirtAblestackAsyncBackupRunner.markRestoreJobCompleted(logger, "veeam", command.getRestoreJobId(), command.getVmName(), backupPath,
+                StringUtils.defaultIfBlank(newVolumeId, "Veeam restore command completed"));
         return new BackupAnswer(command, true, newVolumeId);
     }
 
     private void restoreVolumesOfExistingVM(final KVMStoragePoolManager storagePoolMgr, final List<PrimaryDataStoreTO> restoreVolumePools,
             final List<String> restoreVolumePaths, final List<String> backedVolumesUUIDs, final String backupPath, final List<String> backupFiles,
             final List<String> backupFileChains, final List<BackupVolumeChainState> volumeChainStates, final int timeout,
-            final BackupRestorePlan restorePlan, final String checkpointName) {
+            final BackupRestorePlan restorePlan, final String checkpointName, final String vmName) {
+        boolean restoreCompleted = false;
         try {
             validateChainStatePlan(volumeChainStates, restorePlan);
-            if (tryRestoreVolumesWithRbdSnapRollback(storagePoolMgr, restoreVolumePools, restoreVolumePaths, checkpointName, timeout)) {
-                return;
-            }
             final List<List<String>> localBackupPathsByVolume = getLocalBackupPathsForVolumes(backupPath, backupFiles, backupFileChains, volumeChainStates,
                     restoreVolumePaths, backedVolumesUUIDs);
-            validatePrimaryStorageSpaceForFileRestorePlan(restoreVolumePaths, localBackupPathsByVolume, restoreVolumePools);
-            for (int idx = 0; idx < restoreVolumePaths.size(); idx++) {
-                final PrimaryDataStoreTO restoreVolumePool = restoreVolumePools.get(idx);
-                final String restoreVolumePath = restoreVolumePaths.get(idx);
-                final String backupVolumeUuid = backedVolumesUUIDs.get(idx);
-                final List<String> localBackupPaths = localBackupPathsByVolume.get(idx);
-                logger.info("Resolved Veeam local backup paths for existing VM volume [{}], target [{}]: {}",
-                        backupVolumeUuid, restoreVolumePath, localBackupPaths);
-                validateResolvedChainPaths(localBackupPaths, restoreVolumePath);
-                if (!replaceVolumeWithBackup(storagePoolMgr, restoreVolumePool, restoreVolumePath, localBackupPaths, timeout, backupPath, idx)) {
-                    throw new CloudRuntimeException(String.format("Unable to restore contents from the backup volume [%s].", backupVolumeUuid));
-                }
-            }
+            LibvirtAblestackRestoreTransaction.restore(logger, RESTORE_TRACE, vmName, storagePoolMgr,
+                    restoreVolumePools, restoreVolumePaths, localBackupPathsByVolume, timeout,
+                    (index, temporaryTarget) -> prepareVmVolume(storagePoolMgr, restoreVolumePools.get(index),
+                            restoreVolumePaths.get(index), temporaryTarget, localBackupPathsByVolume.get(index), timeout, backupPath, index));
+            restoreCompleted = true;
         } finally {
-            cleanupBackupDirectory(backupPath, restorePlan);
+            if (restoreCompleted) {
+                cleanupBackupDirectory(backupPath, restorePlan);
+            }
         }
     }
 
     private void restoreVolumesOfDestroyedVMs(final KVMStoragePoolManager storagePoolMgr, final List<PrimaryDataStoreTO> restoreVolumePools,
             final List<String> restoreVolumePaths, final List<String> backedVolumesUUIDs, final String backupPath, final List<String> backupFiles,
             final List<String> backupFileChains, final List<BackupVolumeChainState> volumeChainStates, final int timeout,
-            final BackupRestorePlan restorePlan, final String checkpointName) {
+            final BackupRestorePlan restorePlan, final String checkpointName, final String vmName) {
         // Same disk rewrite as existing-VM restore; createVMFromBackup / destroyed-VM restore land here when vmExists=false.
         restoreVolumesOfExistingVM(storagePoolMgr, restoreVolumePools, restoreVolumePaths, backedVolumesUUIDs,
-                backupPath, backupFiles, backupFileChains, volumeChainStates, timeout, restorePlan, checkpointName);
+                backupPath, backupFiles, backupFileChains, volumeChainStates, timeout, restorePlan, checkpointName, vmName);
     }
 
     private void validateChainStatePlan(final List<BackupVolumeChainState> volumeChainStates, final BackupRestorePlan restorePlan) {
@@ -203,59 +237,9 @@ public class LibvirtAblestackVeeamRestoreBackupCommandWrapper extends CommandWra
         }
     }
 
-    private boolean tryRestoreVolumesWithRbdSnapRollback(final KVMStoragePoolManager storagePoolMgr,
-            final List<PrimaryDataStoreTO> restoreVolumePools, final List<String> restoreVolumePaths, final String checkpointName,
-            final int timeout) {
-        if (StringUtils.isBlank(checkpointName) || CollectionUtils.isEmpty(restoreVolumePools) || CollectionUtils.isEmpty(restoreVolumePaths)
-                || restoreVolumePools.size() != restoreVolumePaths.size()) {
-            return false;
-        }
-        for (final PrimaryDataStoreTO pool : restoreVolumePools) {
-            if (pool == null || pool.getPoolType() != Storage.StoragePoolType.RBD) {
-                return false;
-            }
-        }
-        for (int idx = 0; idx < restoreVolumePaths.size(); idx++) {
-            final PrimaryDataStoreTO volumePool = restoreVolumePools.get(idx);
-            final KVMStoragePool volumeStoragePool = storagePoolMgr.getStoragePool(volumePool.getPoolType(), volumePool.getUuid());
-            final String normalizedVolumePath = normalizeRbdVolumePath(restoreVolumePaths.get(idx), volumeStoragePool);
-            if (!rbdSnapshotExists(volumeStoragePool, normalizedVolumePath, checkpointName, timeout)) {
-                logger.info("{} phase=[RBD_SNAP_ROLLBACK_SKIP], reason=[checkpoint_missing], volume=[{}], checkpoint=[{}]",
-                        RESTORE_TRACE, normalizedVolumePath, checkpointName);
-                return false;
-            }
-        }
-        for (int idx = 0; idx < restoreVolumePaths.size(); idx++) {
-            final PrimaryDataStoreTO volumePool = restoreVolumePools.get(idx);
-            final KVMStoragePool volumeStoragePool = storagePoolMgr.getStoragePool(volumePool.getPoolType(), volumePool.getUuid());
-            final String normalizedVolumePath = normalizeRbdVolumePath(restoreVolumePaths.get(idx), volumeStoragePool);
-            if (!rollbackRbdVolumeToCheckpoint(volumeStoragePool, normalizedVolumePath, checkpointName, timeout)) {
-                throw new CloudRuntimeException(String.format(
-                        "Failed to rollback RBD volume [%s] to checkpoint snapshot [%s]", normalizedVolumePath, checkpointName));
-            }
-        }
-        logger.info("{} phase=[RBD_SNAP_ROLLBACK_DONE], checkpoint=[{}], volumeCount=[{}]",
-                RESTORE_TRACE, checkpointName, restoreVolumePaths.size());
-        return true;
-    }
-
-    private boolean rollbackRbdVolumeToCheckpoint(final KVMStoragePool volumeStoragePool, final String volumePath,
-            final String checkpointName, final int timeout) {
-        logger.info("{} phase=[RBD_SNAP_ROLLBACK_BEGIN], volume=[{}], checkpoint=[{}]",
-                RESTORE_TRACE, volumePath, checkpointName);
-        final String rollbackCommand = buildRbdSnapshotCommand(volumeStoragePool, "snap rollback", volumePath + "@" + checkpointName);
-        final CommandExecutionResult rollbackResult = executeBashCommandWithResult(rollbackCommand, timeout, "Rollback RBD volume to checkpoint");
-        if (rollbackResult.exitCode != 0) {
-            logger.error("{} phase=[RBD_SNAP_ROLLBACK_FAILED], volume=[{}], checkpoint=[{}], exit=[{}], output=[{}]",
-                    RESTORE_TRACE, volumePath, checkpointName, rollbackResult.exitCode, rollbackResult.output);
-            return false;
-        }
-        return true;
-    }
-
     private void deleteBackupDirectory(final String backupDirectory) {
         try {
-            FileUtils.deleteDirectory(new File(backupDirectory));
+            LibvirtAblestackStagingCleanup.delete("ablestack-veeam", Path.of(backupDirectory), null);
         } catch (final IOException e) {
             logger.error(String.format("Failed to delete backup directory: %s", backupDirectory), e);
             throw new CloudRuntimeException("Failed to delete the backup directory");
@@ -324,6 +308,15 @@ public class LibvirtAblestackVeeamRestoreBackupCommandWrapper extends CommandWra
     private boolean replaceVolumeWithBackup(final KVMStoragePoolManager storagePoolMgr, final PrimaryDataStoreTO volumePool,
             final String volumePath, final List<String> backupPaths, final int timeout, final String backupRootPath, final int backupIndex) {
         return replaceVolumeWithBackup(storagePoolMgr, volumePool, volumePath, backupPaths, timeout, backupRootPath, backupIndex, false);
+    }
+
+    private boolean prepareVmVolume(final KVMStoragePoolManager manager, final PrimaryDataStoreTO pool,
+            final String originalTarget, final String temporaryTarget, final List<String> chain,
+            final int timeout, final String backupRoot, final int index) {
+        if (pool.getPoolType() != Storage.StoragePoolType.RBD && chain.stream().noneMatch(path -> path.endsWith(".rbdiff"))) {
+            return LibvirtAblestackFileRestoreHelper.prepareFileVolume(RESTORE_TRACE, logger, originalTarget, temporaryTarget, chain, timeout);
+        }
+        return replaceVolumeWithBackup(manager, pool, temporaryTarget, chain, timeout, backupRoot, index, true);
     }
 
     private boolean replaceVolumeWithBackup(final KVMStoragePoolManager storagePoolMgr, final PrimaryDataStoreTO volumePool,
@@ -595,59 +588,8 @@ public class LibvirtAblestackVeeamRestoreBackupCommandWrapper extends CommandWra
     }
 
     private boolean replaceFileVolumeWithBackup(final String volumePath, final List<String> backupPaths, final int timeout) {
-        if (backupPaths == null || backupPaths.isEmpty()) {
-            return false;
-        }
-        if (backupPaths.size() == 1) {
-            return replaceFileVolumeWithBackup(volumePath, getLastExistingBackupPath(backupPaths), timeout);
-        }
-
-        Path tempDir = null;
-        try {
-            tempDir = Files.createTempDirectory("cs-veeam-qcow2-chain-");
-            Path latestChainFile = null;
-            Path previousChainFile = null;
-            for (int index = 0; index < backupPaths.size(); index++) {
-                final String backupPath = backupPaths.get(index);
-                if (StringUtils.isBlank(backupPath)) {
-                    continue;
-                }
-                final Path source = Paths.get(backupPath);
-                if (!Files.exists(source)) {
-                    throw new CloudRuntimeException(String.format("Missing QCOW2 backup chain file [%s] for restore", backupPath));
-                }
-                final Path copiedChainFile = tempDir.resolve(String.format("%03d-%s", index, source.getFileName()));
-                Files.copy(source, copiedChainFile, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
-                if (previousChainFile != null) {
-                    rebaseBackupChainFile(copiedChainFile, previousChainFile, timeout);
-                }
-                previousChainFile = copiedChainFile;
-                latestChainFile = copiedChainFile;
-            }
-            if (latestChainFile == null) {
-                throw new CloudRuntimeException(String.format("No QCOW2 backup chain files were prepared for restore to volume [%s]", volumePath));
-            }
-            return replaceFileVolumeWithBackup(volumePath, latestChainFile.toString(), timeout);
-        } catch (final IOException e) {
-            logger.error("Failed to reconstruct QCOW2 backup chain {} for volume {}: {}", backupPaths, volumePath, e.getMessage(), e);
-            return false;
-        } finally {
-            if (tempDir != null) {
-                try {
-                    FileUtils.deleteDirectory(tempDir.toFile());
-                } catch (final IOException e) {
-                    logger.warn("Failed to delete temporary QCOW2 restore chain directory {}", tempDir, e);
-                }
-            }
-        }
-    }
-
-    private void rebaseBackupChainFile(final Path child, final Path parent, final int timeout) throws IOException {
-        final String command = String.format("qemu-img rebase -u -F qcow2 -b %s %s", quote(parent.toString()), quote(child.toString()));
-        final CommandExecutionResult result = executeBashCommandWithResult(command, timeout, "Rebase QCOW2 restore chain");
-        if (result.exitCode != 0) {
-            throw new IOException(String.format("qemu-img rebase failed for %s with parent %s: %s", child, parent, result.output));
-        }
+        return LibvirtAblestackFileRestoreHelper.replaceFileVolumeChain(RESTORE_TRACE, logger, volumePath, backupPaths, timeout,
+                "cs-veeam-restore-volume-");
     }
 
     private QemuImg.PhysicalDiskFormat getBackupFileFormat(final String backupPath) {

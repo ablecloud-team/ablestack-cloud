@@ -27,6 +27,7 @@ import java.util.List;
 
 public class AblestackNasTakeBackupCommand extends Command {
     private String vmName;
+    private String backupJobId;
     private String backupPath;
     private String backupType;
     private String checkpointName;
@@ -39,6 +40,7 @@ public class AblestackNasTakeBackupCommand extends Command {
     private List<String> volumePaths;
     private List<String> backupFiles;
     private Boolean quiesce;
+    private boolean waitForCompletion = true;
     @LogLevel(LogLevel.Log4jLevel.Off)
     private String mountOptions;
     private Integer mountTimeout;
@@ -56,6 +58,14 @@ public class AblestackNasTakeBackupCommand extends Command {
 
     public void setVmName(String vmName) {
         this.vmName = vmName;
+    }
+
+    public String getBackupJobId() {
+        return backupJobId;
+    }
+
+    public void setBackupJobId(final String backupJobId) {
+        this.backupJobId = backupJobId;
     }
 
     public String getBackupPath() {
@@ -168,6 +178,14 @@ public class AblestackNasTakeBackupCommand extends Command {
 
     public void setQuiesce(Boolean quiesce) {
         this.quiesce = quiesce;
+    }
+
+    public boolean isWaitForCompletion() {
+        return waitForCompletion;
+    }
+
+    public void setWaitForCompletion(final boolean waitForCompletion) {
+        this.waitForCompletion = waitForCompletion;
     }
 
     public Integer getBandwidthLimitMbps() {

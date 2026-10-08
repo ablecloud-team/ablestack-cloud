@@ -210,6 +210,7 @@ mold_backup_load_config() {
   BACKUP_OPERATION="${BACKUP_OPERATION:-seed-import}"
   CLEANUP_STAGING_AFTER_BACKUP="${CLEANUP_STAGING_AFTER_BACKUP:-false}"
   CLEANUP_STAGING_ON_ERROR="${CLEANUP_STAGING_ON_ERROR:-false}"
+  CLEANUP_DURABLE_STAGE_FORCE="${CLEANUP_DURABLE_STAGE_FORCE:-false}"
   BACKUP_OFFERING_NAME="${BACKUP_OFFERING_NAME:-VeeamBackup}"
   BACKUP_REPO_TYPE="${BACKUP_REPO_TYPE:-local}"
   BACKUP_REPO_NAME="${BACKUP_REPO_NAME:-Ablestack Data Disk}"
@@ -249,6 +250,7 @@ mold_backup_load_config() {
   VM_TARGETS="${VM_TARGETS:-}"
   KVM_HOSTNAME="${KVM_HOSTNAME:-}"
   RESTORE_WATCH_TRIGGER_MOLD="${RESTORE_WATCH_TRIGGER_MOLD:-false}"
+  RESTORE_WATCH_SKIP_EXISTING_ON_START="${RESTORE_WATCH_SKIP_EXISTING_ON_START:-true}"
   VEEAM_UI_RESTORE_SOURCE="${VEEAM_UI_RESTORE_SOURCE:-mold-only}"
   RESTORE_LOCK_DIR="${RESTORE_LOCK_DIR:-}"
   VEEAM_RESTORE_WATCH_WINDOW_MIN="${VEEAM_RESTORE_WATCH_WINDOW_MIN:-60}"
@@ -274,6 +276,7 @@ mold_backup_load_config() {
   else
     VEEAM_TRIGGER_METHOD="${VEEAM_TRIGGER_METHOD:-auto}"
   fi
+  mold_backup_load_common_staging || return 1
   return 0
 }
 
@@ -902,6 +905,7 @@ mold_backup_run_local_incremental_on_mount() {
     -q "${quiesce}" \
     -f "${backup_files}" \
     -d "${disk_paths}" \
+    --data-operation-timeout-seconds "$(mold_backup_api_data_operation_timeout)" \
     || mold_backup_die "ablestack_veeam_nasbackup.sh ${op} failed"
 }
 
@@ -1098,6 +1102,7 @@ mold_backup_run_local_seed_import() {
     --source-format "${source_format}" \
     --veeam-restore-point "${VEEAM_RESTORE_POINT_ID}" \
     --bootstrap-checkpoint "${BOOTSTRAP_CHECKPOINT}" \
+    --data-operation-timeout-seconds "$(mold_backup_api_data_operation_timeout)" \
     || mold_backup_die "ablestack_veeam_nasbackup.sh import-veeam-seed failed"
 }
 
@@ -1126,16 +1131,26 @@ mold_backup_api_create_backup() {
 mold_backup_api_restore() {
   mold_backup_require_var BACKUP_ID
   local json job_id
+  MOLD_RESTORE_ASYNC_JOB_ID=""
+  MOLD_RESTORE_ASYNC_SUBMITTED=false
   # Existing-VM restore requires Stopped; FLR→Mold auto-stops unless RESTORE_AUTO_STOP=false.
   if [[ -n "${VM_NAME:-}" ]]; then
     mold_backup_api_ensure_vm_stopped_for_restore "$VM_NAME" || return 1
   fi
-  json=$(mold_backup_cmk_run restoreAblestackVeeamBackup "id=${BACKUP_ID}" 2>/dev/null) \
+  local restore_args=("id=${BACKUP_ID}")
+  [[ -n "${VEEAM_RESTORE_SESSION_ID:-}" ]] && restore_args+=("sessionid=${VEEAM_RESTORE_SESSION_ID}")
+  json=$(mold_backup_cmk_run restoreAblestackVeeamBackup "${restore_args[@]}" 2>/dev/null) \
     || json=$(mold_backup_cmk_run restoreBackup "id=${BACKUP_ID}" 2>/dev/null) \
     || return 1
   job_id="$(mold_backup_api_json_field "$json" "restoreablestackveeambackupresponse.jobid")"
   [[ -z "$job_id" ]] && job_id="$(mold_backup_api_json_field "$json" "restorebackupresponse.jobid")"
   if [[ -n "$job_id" ]]; then
+    MOLD_RESTORE_ASYNC_JOB_ID="$job_id"
+    if [[ "${MOLD_RESTORE_ASYNC_DETACH:-false}" == "true" ]]; then
+      MOLD_RESTORE_ASYNC_SUBMITTED=true
+      mold_backup_notify_log info "Restore async job submitted: ${job_id}; host restore will continue independently"
+      return 0
+    fi
     mold_backup_notify_log info "restoreAblestackVeeamBackup job=${job_id}; waiting for MS/agent restore"
     mold_backup_api_wait_async_job "$job_id" 3600 || return 1
     mold_backup_notify_log info "Restore async job completed: ${job_id}"
@@ -1450,6 +1465,41 @@ except Exception:
   echo "$val"
 }
 
+mold_backup_load_common_staging() {
+  [[ "${VEEAM_PROVIDER_NAME:-ablestack-veeam}" == "ablestack-veeam" ]] || return 0
+  local enabled root
+  enabled="$(mold_backup_api_list_config_value "backup.thirdparty.staging.enable")" || return 1
+  if [[ "$enabled" != "true" ]]; then
+    mold_backup_notify_log err "Configure common staging and enable backup.thirdparty.staging.enable in Mold first."
+    return 1
+  fi
+  root="$(mold_backup_api_list_config_value "backup.thirdparty.staging.root.path")" || return 1
+  if [[ "$root" != /* || "$root" == / ]]; then
+    mold_backup_notify_log err "backup.thirdparty.staging.root.path must specify an absolute staging directory."
+    return 1
+  fi
+  root="$(realpath -m -- "$root")" || return 1
+  VEEAM_HOST_BACKUP_PATH="${root%/}/ablestack-veeam"
+  STAGING_PATH="$VEEAM_HOST_BACKUP_PATH"
+  export VEEAM_HOST_BACKUP_PATH STAGING_PATH
+}
+
+mold_backup_api_external_stage_timeout() {
+  local operation_timeout
+  operation_timeout="$(mold_backup_api_data_operation_timeout)"
+  echo "${VEEAM_EXTERNAL_STAGE_TIMEOUT:-$((operation_timeout + 600))}"
+}
+
+mold_backup_api_data_operation_timeout() {
+  local configured
+  configured="$(mold_backup_api_list_config_value "backup.data.operation.timeout" 2>/dev/null || true)"
+  if [[ "$configured" =~ ^[1-9][0-9]*$ ]]; then
+    echo "$configured"
+    return 0
+  fi
+  echo "${VEEAM_DATA_OPERATION_TIMEOUT:-43200}"
+}
+
 mold_backup_api_update_config_if_needed() {
   local name="$1" value="$2"
   local current
@@ -1537,7 +1587,6 @@ except Exception:
 
 mold_backup_api_ensure_global_settings() {
   local chain_size
-  local stage_root
   mold_backup_api_update_config_if_needed "backup.framework.enabled" "true"
   mold_backup_api_update_config_if_needed "backup.enable.attach.detach.of.volumes" "true"
   # Append ablestack-veeam; do not wipe existing providers (dummy,nas,netbackup,...).
@@ -1545,14 +1594,10 @@ mold_backup_api_ensure_global_settings() {
   [[ -n "${VEEAM_URL:-}" ]] && mold_backup_api_update_config_if_needed "backup.plugin.ablestack-veeam.url" "${VEEAM_URL}"
   [[ -n "${VEEAM_USERNAME:-}" ]] && mold_backup_api_update_config_if_needed "backup.plugin.ablestack-veeam.username" "${VEEAM_USERNAME}"
   [[ -n "${VEEAM_PASSWORD:-}" ]] && mold_backup_api_update_config_if_needed "backup.plugin.ablestack-veeam.password" "${VEEAM_PASSWORD}"
-  stage_root="${VEEAM_HOST_BACKUP_PATH:-${STAGING_PATH:-/tmp/mold/veeam}}"
-  if [[ -n "$stage_root" ]]; then
-    mold_backup_api_update_config_if_needed "backup.plugin.ablestack-veeam.stage.root.path" "$stage_root"
-  fi
   # Align Mold FULL↔incremental switch with host hook VEEAM_MAX_CHAIN when set.
   chain_size="${BACKUP_CHAIN_SIZE:-${VEEAM_MAX_CHAIN:-}}"
   if [[ -n "$chain_size" && "$chain_size" =~ ^[0-9]+$ && "$chain_size" -gt 0 ]]; then
-    mold_backup_api_update_config_if_needed "backup.chain.size" "$chain_size"
+    mold_backup_api_update_config_if_needed "kvm.backup.chain.size" "$chain_size"
   fi
   mold_backup_api_ensure_cluster_incremental_backup
 }
@@ -2071,27 +2116,23 @@ mold_backup_api_find_offering_id() {
   local offering_name="${2:-$(mold_backup_offering_name)}"
   local json
   json=$(mold_backup_api_list_backup_offerings) || return 1
-  # Do NOT alias ablestack-veeam ↔ veeam: provider=veeam is the NAS-hybrid bean
-  # and fails seed import with "No valid backup repository found for the VM".
+  # Match the actual plugin name; stock and Ablestack providers are distinct.
   echo "$json" | python3 -c "
 import json, sys
 provider = (sys.argv[1] or '').lower()
 name = sys.argv[2] if len(sys.argv) > 2 else ''
-aliases = {provider}
-if provider == 'ablestack-nas':
-    aliases.update(['ablestack-nas', 'nas'])
 try:
     d = json.load(sys.stdin)
     offs = d.get('listbackupofferingsresponse', {}).get('backupoffering', [])
     if isinstance(offs, dict): offs = [offs]
     if name:
         for o in offs:
-            if o.get('name') == name and (o.get('provider') or '').lower() in aliases:
+            if o.get('name') == name and (o.get('provider') or '').lower() == provider:
                 print(o.get('id', ''))
                 sys.exit(0)
     for o in offs:
         p = (o.get('provider') or '').lower()
-        if p in aliases:
+        if p == provider:
             print(o.get('id', ''))
             break
 except Exception:
@@ -2411,6 +2452,10 @@ mold_backup_api_ensure_vm_stopped_for_restore() {
 mold_backup_api_create_veeam_and_wait() {
   local vm_id="$1" vm_label="${2:-}"
   local json job_id backup_id backup_type backup_name ids_before interval_type veeam_job
+  local stage_timeout stage_started_at remaining_timeout
+  stage_timeout="$(mold_backup_api_external_stage_timeout)"
+  [[ "$stage_timeout" =~ ^[1-9][0-9]*$ ]] || stage_timeout=43200
+  stage_started_at="$(date +%s)"
   backup_name="$(mold_backup_api_build_backup_name_for_vm "$vm_id" "$vm_label")"
   ids_before="$(mold_backup_api_list_backup_ids "$vm_id" 2>/dev/null || true)"
   interval_type="$(mold_backup_resolve_veeam_interval_type "${VEEAM_SCHEDULE_NAME:-${SCHEDULE:-default}}")"
@@ -2429,14 +2474,16 @@ mold_backup_api_create_veeam_and_wait() {
   job_id="$(mold_backup_api_json_field "$json" "createablestackveeambackupresponse.jobid")"
   [[ -z "$job_id" ]] && job_id="$(mold_backup_api_json_field "$json" "createbackupresponse.jobid")"
   if [[ -n "$job_id" ]]; then
-    mold_backup_notify_log info "createAblestackVeeamBackup job=${job_id}; waiting for MS/NAS backup"
-    json=$(mold_backup_api_wait_async_job "$job_id" 1200) || return 1
+    mold_backup_notify_log info "createAblestackVeeamBackup job=${job_id}; waiting for MS/NAS backup timeout=${stage_timeout}s"
+    json=$(mold_backup_api_wait_async_job "$job_id" "$stage_timeout") || return 1
     backup_id="$(mold_backup_api_json_field "$json" "queryasyncjobresultresponse.jobresult.backup.id")"
     backup_type="$(mold_backup_api_json_field "$json" "queryasyncjobresultresponse.jobresult.backup.type")"
     if [[ -z "$backup_id" ]]; then
       local latest
       # Wait for a NEW backup id (not in ids_before) to reach BackedUp — do not reuse older FULL.
-      latest="$(mold_backup_api_wait_new_backup_for_vm "$vm_id" "$ids_before" 900 2>/dev/null || true)"
+      remaining_timeout=$((stage_timeout - ($(date +%s) - stage_started_at)))
+      [[ "$remaining_timeout" -gt 0 ]] || return 1
+      latest="$(mold_backup_api_wait_new_backup_for_vm "$vm_id" "$ids_before" "$remaining_timeout" 2>/dev/null || true)"
       if [[ -z "$latest" ]]; then
         latest="$(mold_backup_api_find_latest_backup_for_vm "$vm_id" "backedup" 2>/dev/null || true)"
       fi
@@ -2486,6 +2533,12 @@ mold_backup_api_wait_new_backup_for_vm() {
           return 0
         fi
         if [[ "$st" == "backingup" ]]; then
+          local volume_path
+          volume_path="$(mold_backup_api_backup_external_id "$vm_id" "$bid" 2>/dev/null || true)"
+          if [[ -n "$volume_path" && -f "${volume_path}/.volume-bootstrap" ]]; then
+            echo "${bid}|${btype}"
+            return 0
+          fi
           if [[ $((elapsed % 30)) -eq 0 ]]; then
             mold_backup_notify_log info "Waiting for new backup ${bid} (${btype}) BackingUp→BackedUp (elapsed=${elapsed}s)"
           fi
@@ -3067,12 +3120,36 @@ mold_backup_process_vm_pre_notify() {
   # Mark this VM as Veeam-driven so the Mold→Veeam hook does not start Veeam again.
   mold_backup_trigger_mark "veeam-active" "$vm_name"
 
+  if [[ "${VEEAM_PROVIDER_NAME:-ablestack-veeam}" == "ablestack-veeam" && "${VEEAM_BACKUP_MODE:-}" == "filelevel" ]]; then
+    # The template UI job only releases the bootstrap gate. Mold submits isolated volume jobs
+    # after this parent session stops; it remains responsible for the logical backup outcome.
+    backup_result="$(mold_backup_api_create_veeam_and_wait "$vm_id" "$vm_name" || true)"
+    [[ -n "$backup_result" ]] || return 1
+    backup_id="${backup_result%%|*}"
+    backup_type="${backup_result#*|}"
+    host_path="$(mold_backup_api_backup_external_id "$vm_id" "$backup_id" 2>/dev/null || true)"
+    local bootstrap_wait=0
+    until [[ -n "$host_path" && -f "${host_path}/.volume-bootstrap" ]]; do
+      [[ "$bootstrap_wait" -lt 60 ]] || return 1
+      sleep 1
+      bootstrap_wait=$((bootstrap_wait + 1))
+      host_path="$(mold_backup_api_backup_external_id "$vm_id" "$backup_id" 2>/dev/null || true)"
+    done
+    mkdir -p "${VEEAM_AGENT_PAYLOAD_PATH}/${vm_name}"
+    cp -- "${host_path}/.volume-bootstrap" "${VEEAM_AGENT_PAYLOAD_PATH}/${vm_name}/backup-bootstrap.txt"
+    mold_backup_state_write_line "$state_file" \
+      "vm=${vm_name} id=${vm_id} backup_id=${backup_id} type=${backup_type} path=${host_path} status=pipeline"
+    mold_backup_notify_log info "Volume backup accepted vm=${vm_name} backup_id=${backup_id}; Mold owns volume transfers and completion"
+    return 0
+  fi
+
   local chain_count staging_paths source_format
   chain_count="$(mold_backup_api_veeam_backup_count "$vm_id")"
 
   # Host Agent file-level:
-  #  - RBD (any chain): Mold-native createAblestackVeeamBackup (snap + export/diff for Mold
-  #    restore). Veeam Agent gets a tiny marker only — never SyncDirs sparse .raw/.rbdiff.
+  #  - RBD (any chain): Mold-native createAblestackVeeamBackup creates the Ceph
+  #    checkpoint and exports .raw/.rbdiff files. Veeam must back up those files;
+  #    the snapshot/meta alone is not a valid backup chain.
   #  - qcow2 first (no BackedUp): host export → importSeed → FULL (BackedUp)
   #  - qcow2 next: createAblestackVeeamBackup → agent TakeBackup → INCREMENTAL
   #    Do NOT call importSeed again (always FULL) and do NOT race a second host export.
@@ -3086,7 +3163,7 @@ mold_backup_process_vm_pre_notify() {
       mold_backup_state_write_line "$state_file" "vm=${vm_name} id=${vm_id} status=fail reason=offering-repo-mismatch"
       return 1
     }
-    mold_backup_notify_log info "File-level RBD: Mold-native createAblestackVeeamBackup (snap/diff; Veeam marker only; chain=${chain_count})"
+    mold_backup_notify_log info "File-level RBD: Mold-native createAblestackVeeamBackup (export .raw/.rbdiff; chain=${chain_count})"
     backup_result="$(mold_backup_api_create_veeam_and_wait "$vm_id" "$vm_name" || true)"
     if [[ -z "$backup_result" ]]; then
       mold_backup_notify_log err "Mold RBD backup failed for ${vm_name} (agent TakeBackup / BackedUp wait)"
@@ -3097,10 +3174,15 @@ mold_backup_process_vm_pre_notify() {
     backup_type="${backup_result#*|}"
     host_path="$(mold_backup_api_backup_external_id "$vm_id" "$backup_id" 2>/dev/null || true)"
     [[ -z "$host_path" ]] && host_path="${VEEAM_HOST_BACKUP_PATH}/${vm_name}"
+    if ! mold_backup_host_path_has_rbd_payload "$host_path"; then
+      mold_backup_notify_log err "File-level RBD: ${vm_name} backup_id=${backup_id} has no .raw/.rbdiff payload under ${host_path}; refusing backup without file-chain payload"
+      mold_backup_state_write_line "$state_file" "vm=${vm_name} id=${vm_id} backup_id=${backup_id} type=${backup_type} path=${host_path} status=fail reason=rbd-payload-missing"
+      return 1
+    fi
     mold_backup_state_write_line "$state_file" \
       "vm=${vm_name} id=${vm_id} backup_id=${backup_id} type=${backup_type} path=${host_path} status=success"
-    mold_backup_publish_for_veeam_agent "$vm_name" "$host_path"
-    mold_backup_notify_log info "Pre-notify OK vm=${vm_name} backup_id=${backup_id} type=${backup_type} path=${host_path} (mold-native RBD)"
+    mold_backup_publish_for_veeam_agent "$vm_name" "$host_path" "$backup_id"
+    mold_backup_notify_log info "Pre-notify OK vm=${vm_name} backup_id=${backup_id} type=${backup_type} path=${host_path} (mold-native RBD file-chain)"
     return 0
   fi
 
@@ -3313,6 +3395,7 @@ mold_backup_run_host_export() {
     -f "${backup_files}" \
     -d "${disk_paths}" \
     -q "${QUIESCE_VM:-false}" \
+    --data-operation-timeout-seconds "$(mold_backup_api_data_operation_timeout)" \
     >"$export_log" 2>&1; then
     mold_backup_notify_log err "Host export failed (${HOST_EXPORT_SCRIPT}): $(tail -5 "$export_log" | tr '\n' ' ')"
     rm -f "$export_log"
@@ -3322,20 +3405,26 @@ mold_backup_run_host_export() {
   echo "${backup_subdir}"
 }
 
-# True if host_path looks like an RBD Mold stage (must not be SyncDirs'd as sparse .raw).
+mold_backup_host_path_has_rbd_payload() {
+  local host_path="${1:-}"
+  [[ -n "$host_path" && -d "$host_path" ]] || return 1
+  find "$host_path" -maxdepth 1 -type f \( -name '*.raw' -o -name '*.rbdiff' \) -print -quit 2>/dev/null | grep -q .
+}
+
+# True if host_path looks like an RBD Mold stage.
 mold_backup_host_path_is_rbd() {
   local host_path="${1:-}"
   [[ -n "$host_path" && -d "$host_path" ]] || return 1
   [[ -f "${host_path}/rbd-backup.meta" ]] && return 0
-  find "$host_path" -maxdepth 1 -type f \( -name '*.raw' -o -name '*.rbdiff' \) -print -quit 2>/dev/null | grep -q .
+  mold_backup_host_path_has_rbd_payload "$host_path"
 }
 
 # Publish Mold backup artifacts for Veeam Agent SyncDirs under VEEAM_AGENT_PAYLOAD_PATH.
-# RBD: marker + tiny meta only (Mold keeps .raw/.rbdiff under VEEAM_HOST_BACKUP_PATH for restore).
+# RBD: publish .raw/.rbdiff file-chain just like qcow2; metadata-only payload is refused by pre-notify.
 # QCOW2: hardlink/copy disk files into <vm>/current so Agent sees a stable tree.
 mold_backup_publish_for_veeam_agent() {
-  local vm_name="$1" host_path="$2"
-  local publish legacy meta_f
+  local vm_name="$1" host_path="$2" backup_id="${3:-}"
+  local publish legacy ckpt=""
   [[ "${VEEAM_BACKUP_MODE:-}" == "filelevel" ]] || return 0
   [[ -n "$vm_name" && -n "$host_path" && -d "$host_path" ]] || return 0
 
@@ -3351,26 +3440,20 @@ mold_backup_publish_for_veeam_agent() {
   fi
 
   if mold_backup_host_path_is_rbd "$host_path"; then
-    cat > "${publish}/mold-rbd-native.marker" <<EOF
-vm=${vm_name}
-mode=mold-native-rbd
-stage_path=${host_path}
-published_at=$(date -Iseconds)
-EOF
-    for meta_f in rbd-backup.meta domain-config.xml domain.xml veeam-seed.meta staging.complete; do
-      [[ -f "${host_path}/${meta_f}" ]] || continue
-      cp -a "${host_path}/${meta_f}" "${publish}/" 2>/dev/null || true
-    done
-    # FLR watch ignores agent-payload mtime changes shortly after our own publish.
-    date +%s > "${publish}/.mold-agent-publish" 2>/dev/null || true
-    chmod -R a+rX "$publish" 2>/dev/null || true
-    mold_backup_notify_log info "Published RBD native marker for Veeam Agent (no .raw/.rbdiff SyncDirs): ${host_path} -> ${publish}"
-    # Do NOT Start-VBR/Active Full here — we are already inside the Veeam job
-    # that invoked pre-notify. Auto-start caused a second backup after one UI Start.
-    return 0
+    ckpt="$(mold_backup_meta_field "${host_path}/rbd-backup.meta" checkpoint_name 2>/dev/null || true)"
+    [[ -z "$ckpt" ]] && ckpt="$(basename "$host_path")"
+    [[ "$ckpt" =~ ^[0-9]{4}\.[0-9]{2}\.[0-9]{2}\. ]] || ckpt=""
+    if [[ -n "$backup_id" && -n "$ckpt" ]]; then
+      mold_backup_registry_index_checkpoint_backup "$vm_name" "$ckpt" "$backup_id"
+      mold_backup_registry_set_vm_backup_id "$vm_name" "$backup_id" "" "${VEEAM_JOB_NAME:-}"
+    fi
+    if ! mold_backup_host_path_has_rbd_payload "$host_path"; then
+      mold_backup_notify_log err "RBD stage has no .raw/.rbdiff payload; not publishing metadata-only backup: ${host_path}"
+      return 1
+    fi
   fi
 
-  # QCOW2 / file-backed: prefer hardlinks over a full copy before Veeam SnapshotRequired.
+  # QCOW2 / RBD file-chain: prefer hardlinks over a full copy before Veeam SnapshotRequired.
   if command -v cp >/dev/null 2>&1 && cp -al "${host_path}/." "$publish/" 2>/dev/null; then
     mold_backup_notify_log info "Published staging (hardlink) for Veeam Agent: ${host_path} -> ${publish}"
   elif command -v rsync >/dev/null 2>&1; then
@@ -3387,6 +3470,11 @@ EOF
 
 mold_backup_cleanup_host_path() {
   [[ -d "${VEEAM_HOST_BACKUP_PATH}" ]] || return 0
+  # Datadisk mode keeps restore/export data here. Prune it only by explicit opt-in.
+  if mold_backup_is_datadisk_mode && [[ "${CLEANUP_DURABLE_STAGE_FORCE:-false}" != "true" ]]; then
+    mold_backup_notify_log info "Skip host-path wipe (datadisk durable stage; set CLEANUP_DURABLE_STAGE_FORCE=true to prune)"
+    return 0
+  fi
   # File-level Veeam Agent jobs track /tmp/mold/veeam via SyncDirs CBT.
   # Wiping the whole tree (or racing deletes) causes:
   #   "Failed to delete directory [...]; Failed to backup files /tmp/mold/veeam"
@@ -4006,6 +4094,33 @@ mold_backup_restore_session_mark_seen() {
   fi
 }
 
+mold_backup_restore_watch_baseline_marker() {
+  local state_file
+  state_file="$(mold_backup_restore_watch_state)"
+  echo "${state_file}.baseline-complete"
+}
+
+mold_backup_initialize_restore_watch_baseline() {
+  local since_min="${1:-${VEEAM_RESTORE_WATCH_WINDOW_MIN:-60}}"
+  local marker sid _rest marked=0
+  [[ "${RESTORE_WATCH_SKIP_EXISTING_ON_START:-true}" == "true" ]] || return 0
+  marker="$(mold_backup_restore_watch_baseline_marker)"
+  [[ -f "$marker" ]] && return 0
+
+  while IFS='|' read -r sid _rest; do
+    [[ -n "$sid" ]] || continue
+    if [[ "$sid" =~ ^[0-9a-fA-F-]{8,}$ || "$sid" == local-flr-* ]]; then
+      mold_backup_restore_session_mark_seen "$sid"
+      marked=$((marked+1))
+    fi
+  done < <(
+    mold_backup_query_veeam_restores "$since_min" 2>/dev/null || true
+    mold_backup_query_local_host_flr "$since_min" 2>/dev/null || true
+  )
+  date -u +%FT%TZ > "$marker" 2>/dev/null || true
+  mold_backup_notify_log info "Veeam restore watcher initial baseline completed sessions=${marked}"
+}
+
 # Query Veeam for restore sessions that completed within the last N minutes.
 # Emits one line per session: sessionId|targetIp|endTimeUTC|result|name|backupName|restorePointId
 # The target IP/computer is parsed out of the session Options XML (FLR/restore specs put
@@ -4083,8 +4198,9 @@ function Get-RpInfoFromSession {
       } catch {}
     }
   } catch {}
-  if (-not \$rpId) {
-    \$opt = [string]\$Session.Options
+  # Agent Host FLR may expose the restore point only through Options.FlrInfo.
+  \$opt = [string]\$Session.Options
+  if (-not \$rpId -and \$opt) {
     foreach (\$pat in @(
       'RestorePointId="([^"]+)"',
       'ObjectRestorePointId="([^"]+)"',
@@ -4096,6 +4212,24 @@ function Get-RpInfoFromSession {
     )) {
       \$m = [regex]::Match(\$opt, \$pat)
       if (\$m.Success) { \$rpId = \$m.Groups[1].Value; break }
+    }
+  }
+  if (-not \$rpEpoch -and \$opt) {
+    foreach (\$pat in @(
+      'OibCreationTimeUtc="([^"]+)"',
+      'OibDT="([^"]+)"',
+      'CreationTimeUtc="([^"]+)"'
+    )) {
+      \$m = [regex]::Match(\$opt, \$pat)
+      if (-not \$m.Success) { continue }
+      try {
+        \$ct = [datetime]::Parse(\$m.Groups[1].Value, [System.Globalization.CultureInfo]::InvariantCulture)
+        if (\$ct.Kind -eq [DateTimeKind]::Unspecified) {
+          \$ct = [DateTime]::SpecifyKind(\$ct, [DateTimeKind]::Utc)
+        }
+        \$rpEpoch = Rp-ToEpoch \$ct
+        if (\$rpEpoch) { break }
+      } catch {}
     }
   }
   if (-not \$rpId -and \$null -ne \$Session.RestorePointId) {
@@ -4151,6 +4285,18 @@ function Get-RpInfoFromSession {
           }
         }
         if (\$rpEpoch) { break }
+      }
+      if (-not \$rpEpoch) {
+        foreach (\$cand in @(Get-VBRObjectRestorePoint -ErrorAction SilentlyContinue)) {
+          \$id = \$cand.Id; if (\$id -is [guid]) { \$id = \$id.Guid }
+          if (([string]\$id).Trim('{}').ToLower() -eq \$want) {
+            \$ct = \$null
+            try { if (\$null -ne \$cand.CreationTimeUTC) { \$ct = \$cand.CreationTimeUTC } } catch {}
+            if (\$null -eq \$ct) { try { \$ct = \$cand.CreationTime } catch {} }
+            \$rpEpoch = Rp-ToEpoch \$ct
+            if (\$rpEpoch) { break }
+          }
+        }
       }
     } catch {}
   }
@@ -5162,7 +5308,45 @@ except Exception:
   [[ -n "$backup_id" ]] && echo "$backup_id"
 }
 
-# Handle one Veeam restore session: dedup, host check, flock, optional Mold restore API.
+# Returns 0 when handled, 1 for a legacy session, 2 when exact resolution needs retry.
+mold_backup_handle_volume_restore_session() {
+  local job="$1" sid="$2" rp_id="${3:-}" trigger_mold="${4:-false}"
+  local json matched tracked allowed reason vm async_id
+  local -a params=("provider=ablestack-veeam" "jobid=${sid%%#*}")
+  [[ -z "$rp_id" || "$rp_id" == "n/a" ]] || params+=("externalid=${rp_id}")
+  json="$(mold_backup_cmk_run resolveBackupArtifact "${params[@]}" 2>/dev/null)" || return 2
+  matched="$(mold_backup_api_json_field "$json" "resolvebackupartifactresponse.matched")"
+  [[ -n "$matched" ]] || return 2
+  if [[ "${matched,,}" != "true" ]]; then
+    if [[ "$job" == ABLESTACK-* || "$job" == *ABLESTACK-* ]]; then
+      mold_backup_notify_log warn "restore-watch: child session=${sid} rp=${rp_id:-unknown} has no exact Mold artifact; waiting, no timestamp fallback"
+      return 2
+    fi
+    return 1
+  fi
+  vm="$(mold_backup_api_json_field "$json" "resolvebackupartifactresponse.vmname")"
+  tracked="$(mold_backup_api_json_field "$json" "resolvebackupartifactresponse.tracked")"
+  allowed="$(mold_backup_api_json_field "$json" "resolvebackupartifactresponse.restoreallowed")"
+  reason="$(mold_backup_api_json_field "$json" "resolvebackupartifactresponse.reason")"
+  if [[ "${tracked,,}" == "true" || "${allowed,,}" != "true" ]]; then
+    mold_backup_emit_restore_event "mold.restore.skipped.volume-pipeline" "$vm" "session=${sid};rp=${rp_id};reason=${reason}"
+    mold_backup_restore_session_mark_seen "$sid"
+    return 0
+  fi
+  if [[ "$trigger_mold" != "true" ]]; then
+    mold_backup_notify_log info "restore-watch: metadata session=${sid} vm=${vm}; enable RESTORE_WATCH_TRIGGER_MOLD to restore its logical backup"
+    return 0
+  fi
+  [[ -n "$rp_id" && "$rp_id" != "n/a" ]] || return 2
+  json="$(mold_backup_cmk_run restoreBackupArtifact "provider=ablestack-veeam" "externalid=${rp_id}" "jobid=${sid%%#*}" 2>/dev/null)" || return 2
+  async_id="$(mold_backup_api_json_field "$json" "restorebackupartifactresponse.jobid")"
+  [[ -n "$async_id" ]] || return 2
+  mold_backup_restore_session_mark_seen "$sid"
+  mold_backup_emit_restore_event "mold.restore.submitted" "$vm" "session=${sid};rp=${rp_id};async_job_id=${async_id};source=metadata-ui"
+  return 0
+}
+
+# Handle one legacy Veeam restore session: dedup, host check, flock, optional Mold restore API.
 mold_backup_handle_veeam_restore_session() {
   local job="$1" vm="$2" sid="$3" detail="$4" trigger_mold="${5:-false}" rp_id="${6:-}"
   local ckpt=""
@@ -5176,6 +5360,10 @@ mold_backup_handle_veeam_restore_session() {
     rp_id="${rp_id// /}"
     [[ "$rp_id" == "n/a" ]] && rp_id=""
   fi
+  local pipeline_rc=0
+  mold_backup_handle_volume_restore_session "$job" "$sid" "$rp_id" "$trigger_mold" || pipeline_rc=$?
+  [[ "$pipeline_rc" == 0 ]] && return 0
+  [[ "$pipeline_rc" == 2 ]] && return 1
   local rp_epoch=""
   if [[ "$detail" == *"rp_epoch="* ]]; then
     rp_epoch="$(sed -n 's/.*rp_epoch=\([^;]*\).*/\1/p' <<<"$detail" | tail -1)"
@@ -5197,10 +5385,8 @@ mold_backup_handle_veeam_restore_session() {
     return 0
   fi
   if mold_backup_trigger_active "mold-restore-active" "$vm"; then
-    mold_backup_trigger_clear "mold-restore-active" "$vm"
-    mold_backup_restore_session_mark_seen "$sid"
-    mold_backup_emit_restore_event "mold.restore.skipped.mold-active" "$vm" "session=${sid}"
-    return 0
+    mold_backup_notify_log warn "restore-watch: clearing stale mold-restore-active for ${vm} and continuing"
+    mold_backup_trigger_clear "mold-restore-active" "$vm" || true
   fi
   if [[ "$trigger_mold" != "true" ]]; then
     mold_backup_reflect_one_restore "$job" "$vm" "$sid" "$detail"
@@ -5219,13 +5405,26 @@ mold_backup_handle_veeam_restore_session() {
     return 0
   fi
   local backup_id rc=0
+  unset BACKUP_ID VM_UUID || true
   backup_id="$(mold_backup_resolve_backup_id_for_vm "$vm" "$job" "$rp_id" "$ckpt" "$rp_epoch" 2>/dev/null || true)"
   if [[ -z "$backup_id" ]]; then
     mold_backup_emit_restore_event "mold.restore.failed" "$vm" "session=${sid};reason=no-backup-id;rp=${rp_id:-n/a};ckpt=${ckpt:-n/a};rp_epoch=${rp_epoch:-n/a}"
-    mold_backup_restore_lock_release
+    mold_backup_restore_lock_release || true
     return 1
   fi
-  export BACKUP_ID="$backup_id" VM_NAME="$vm"
+  export BACKUP_ID="$backup_id" VM_NAME="$vm" VEEAM_RESTORE_SESSION_ID="${sid%%#*}"
+  VM_UUID="$(mold_backup_api_get_vm_id "$vm" 2>/dev/null || true)"
+  export VM_UUID
+  if [[ -z "$VM_UUID" ]]; then
+    mold_backup_notify_log err "restore-watch: cannot resolve Mold UUID for ${vm}"
+    mold_backup_restore_lock_release || true
+    return 1
+  fi
+  if ! mold_backup_api_verify_backup_for_vm "$backup_id" "$VM_UUID" 2>/dev/null; then
+    mold_backup_emit_restore_event "mold.restore.failed" "$vm" "session=${sid};reason=backup-owner-mismatch;backup_id=${backup_id}"
+    mold_backup_restore_lock_release || true
+    return 1
+  fi
   [[ -n "$rp_id" ]] && export VEEAM_RESTORE_POINT_ID="$rp_id"
   export RESTORE_SOURCE="${RESTORE_SOURCE:-${VEEAM_UI_RESTORE_SOURCE:-mold-only}}"
   mold_backup_notify_log info "Veeam UI restore session=${sid} vm=${vm} rp=${rp_id:-n/a} ckpt=${ckpt:-n/a} → Mold datadisk restore backup_id=${backup_id} (RESTORE_SOURCE=${RESTORE_SOURCE})"
@@ -5234,9 +5433,16 @@ mold_backup_handle_veeam_restore_session() {
   mold_backup_trigger_mark "mold-restore-active" "$vm"
   mold_backup_trigger_mark "veeam-restore-active" "$vm"
   if mold_backup_restore_notify "$(hostname -s)" "$job"; then
-    mold_backup_registry_save_restore "$job" "$vm" "veeam" "$sid" "${detail};backup_id=${backup_id}" "mold-restored"
     mold_backup_restore_session_mark_seen "$sid"
-    mold_backup_emit_restore_event "mold.restore.completed" "$vm" "session=${sid};backup_id=${backup_id}"
+    if [[ "${MOLD_RESTORE_ASYNC_SUBMITTED:-false}" == "true" ]]; then
+      mold_backup_registry_save_restore "$job" "$vm" "veeam" "$sid" \
+        "${detail};backup_id=${backup_id};async_job_id=${MOLD_RESTORE_ASYNC_JOB_ID:-}" "mold-submitted"
+      mold_backup_emit_restore_event "mold.restore.submitted" "$vm" \
+        "session=${sid};backup_id=${backup_id};async_job_id=${MOLD_RESTORE_ASYNC_JOB_ID:-}"
+    else
+      mold_backup_registry_save_restore "$job" "$vm" "veeam" "$sid" "${detail};backup_id=${backup_id}" "mold-restored"
+      mold_backup_emit_restore_event "mold.restore.completed" "$vm" "session=${sid};backup_id=${backup_id}"
+    fi
   else
     # Always mark seen on failure so restore-watch does not re-stop the same VM every 3min.
     # Set RESTORE_WATCH_RETRY_FAILED=true to allow retries of failed sessions.
@@ -5246,9 +5452,9 @@ mold_backup_handle_veeam_restore_session() {
     mold_backup_emit_restore_event "mold.restore.failed" "$vm" "session=${sid};backup_id=${backup_id}"
     rc=1
   fi
-  mold_backup_trigger_clear "mold-restore-active" "$vm"
-  mold_backup_trigger_clear "veeam-restore-active" "$vm"
-  mold_backup_restore_lock_release
+  mold_backup_trigger_clear "mold-restore-active" "$vm" || true
+  mold_backup_trigger_clear "veeam-restore-active" "$vm" || true
+  mold_backup_restore_lock_release || true
   return "$rc"
 }
 
@@ -5270,12 +5476,9 @@ mold_backup_watch_veeam_restores() {
       VM_TARGETS+="${VM_TARGETS:+,}${_vm}:${_ip:-${_vm}}"
     done
   fi
-  [[ -n "${VM_TARGETS:-}" ]] || {
-    mold_backup_notify_log warn "Veeam→Mold(restore): VM_TARGETS empty; set VM_INCLUDE or VM_TARGETS"
-    return 0
-  }
   [[ "${trigger_mold}" == "true" ]] && mold_backup_restore_preflight
   mold_backup_notify_log info "=== restore-watch job=${job} window=${since_min}min trigger_mold=${trigger_mold} host=$(mold_backup_local_kvm_name) ==="
+  mold_backup_initialize_restore_watch_baseline "$since_min"
   local sid sip et result nm bn rp_id rp_epoch matched_ip vm
   local processed=0 handled=0
   while IFS='|' read -r sid sip et result nm bn rp_id rp_epoch; do
@@ -5303,6 +5506,21 @@ mold_backup_watch_veeam_restores() {
       mold_backup_notify_log info "restore-watch: skip session ${sid} bad end='${et}'"
       continue
     fi
+    if mold_backup_restore_session_seen "$sid"; then
+      continue
+    fi
+    # Child jobs identify one logical point by restore point UUID. They belong to
+    # a Host agent, so template-job/VM IP ownership filters cannot identify them.
+    local pipeline_rc=0
+    mold_backup_handle_volume_restore_session "${bn:-$nm}" "$sid" "$rp_id" "$trigger_mold" || pipeline_rc=$?
+    if [[ "$pipeline_rc" == 0 ]]; then
+      handled=$((handled+1))
+      continue
+    elif [[ "$pipeline_rc" == 2 ]]; then
+      mold_backup_notify_log warn "restore-watch: exact artifact resolution pending for session=${sid}"
+      continue
+    fi
+    [[ -n "${VM_TARGETS:-}" ]] || continue
     # Same KVM host can run Job 2 + Job 6 + ablecubeN. FLR sessions must only be
     # handled by the watch whose --job matches the session backup / FLR name.
     # Examples: bn=ablecube2, nm=FLR__ablecube2_, bn=Agent Backup Job 6
@@ -5943,7 +6161,7 @@ mold_backup_pre_notify() {
   local saved_include=""
   [[ -n "$job" ]] || mold_backup_die "VEEAM_JOB_NAME is required for pre-notify"
   VEEAM_JOB_NAME="$job"
-  mold_backup_load_config || exit 1
+  mold_backup_load_config || return 1
   VEEAM_JOB_NAME="$(mold_backup_normalize_job_name "${VEEAM_JOB_NAME:-$job}")"
   job="$VEEAM_JOB_NAME"
 
@@ -5957,7 +6175,11 @@ mold_backup_pre_notify() {
   export MOLD_BACKUP_HOOK="pre-notify"
   export VEEAM_SCHEDULE_NAME="$schedule"
   SCHEDULE="$schedule"
-  mkdir -p "$(mold_backup_state_dir)" "${VEEAM_HOST_BACKUP_PATH}" "${VEEAM_AGENT_PAYLOAD_PATH}"
+  # Mold prepares the actual staging mount before creating its backup directories.
+  mkdir -p "$(mold_backup_state_dir)" "${VEEAM_AGENT_PAYLOAD_PATH}"
+  if [[ "${VEEAM_PROVIDER_NAME:-ablestack-veeam}" != "ablestack-veeam" ]]; then
+    mkdir -p "${VEEAM_HOST_BACKUP_PATH}"
+  fi
 
   local offering_id="" vm_name
   local success=0 fail=0 skip=0
@@ -6063,7 +6285,7 @@ mold_backup_post_notify() {
 
   export MOLD_BACKUP_HOOK="post-notify"
   mold_backup_notify_log info "=== post-notify (설계4: Post-script + 백업ID 저장) client=${client} job=${job} ==="
-  local state_file line vm_name backup_id status guest_handled=0 guest_fail=0 vm_id reason rc=0
+  local state_file line vm_name backup_id status guest_handled=0 guest_fail=0 vm_id reason rc=0 volume_pipeline=0
   local host_rp_id=""
   state_file="$(mold_backup_latest_state_file "$job" || true)"
 
@@ -6108,6 +6330,13 @@ mold_backup_post_notify() {
       status="$(mold_backup_state_parse_field "$line" "status")"
       vm_id="$(mold_backup_state_parse_field "$line" "id")"
       reason="$(mold_backup_state_parse_field "$line" "reason")"
+      if [[ "$status" == "pipeline" ]]; then
+        volume_pipeline=1
+        mold_backup_trigger_clear "veeam-active" "$vm_name"
+        mold_backup_trigger_mark "backup-cooldown" "$vm_name"
+        mold_backup_notify_log info "Parent UI session finished for volume backup ${backup_id}; child jobs own catalog completion"
+        continue
+      fi
       # Mold schedule/UI backup → Veeam trigger: Mold NAS backup already exists (HOURLY/MANUAL).
       if [[ "$status" == "success" && "$reason" == "mold-triggered" ]]; then
         mold_backup_notify_log info "guest post: skip for ${vm_name} (Mold backup already done; no duplicate import)"
@@ -6188,7 +6417,9 @@ mold_backup_post_notify() {
     mold_backup_notify_log warn "post-notify: no guest VM processed for job=${job} (re-run pre-notify before post, or check state dir)"
   fi
 
-  if [[ "${CLEANUP_STAGING_AFTER_BACKUP}" == "true" ]]; then
+  if [[ "$volume_pipeline" -eq 1 ]]; then
+    mold_backup_notify_log info "Skip parent staging cleanup; volume pipelines retain artifacts until child transfer confirmation"
+  elif [[ "${CLEANUP_STAGING_AFTER_BACKUP}" == "true" ]]; then
     mold_backup_cleanup_host_path
     mold_backup_cleanup_staging
   else
@@ -6233,12 +6464,18 @@ mold_backup_restore_notify() {
     RESTORE_SOURCE="mold-only"
   fi
   mold_backup_notify_log info "=== restore-notify client=${client} job=${job} backup_id=${BACKUP_ID:-} vm=${VM_NAME:-} source=${restore_source} ==="
-  mold_backup_require_var BACKUP_ID
+  [[ -n "${BACKUP_ID:-}" ]] || {
+    mold_backup_notify_log err "restore-notify: BACKUP_ID required"
+    return 1
+  }
   [[ -n "${VM_UUID:-}" ]] || {
     [[ -n "${VM_NAME:-}" ]] && VM_UUID="$(mold_backup_api_get_vm_id "$VM_NAME" 2>/dev/null || true)"
   }
-  [[ -n "${VM_UUID:-}" ]] || mold_backup_die "restore requires VM_NAME or VM_UUID (individual VM restore)"
-  mold_backup_api_verify_backup_for_vm "$BACKUP_ID" "$VM_UUID" || exit 1
+  [[ -n "${VM_UUID:-}" ]] || {
+    mold_backup_notify_log err "restore requires VM_NAME or VM_UUID (individual VM restore)"
+    return 1
+  }
+  mold_backup_api_verify_backup_for_vm "$BACKUP_ID" "$VM_UUID" || return 1
 
   # Loop guard for reverse restore-sync: mark this VM so the Veeam->Mold restore
   # watcher skips reflecting a restore that Mold itself initiated.
@@ -6264,6 +6501,7 @@ mold_backup_restore_notify() {
   fi
 
   mold_backup_notify_log info "=== restore-notify done ==="
+  return 0
 }
 
 # Start Veeam Guest Files (FLR) for the restore point mapped to this VM/backup.
@@ -6598,14 +6836,9 @@ mold_backup_registry_cleanup_for_backup() {
 # (NetBackup-style catalog delete). Never calls deleteBackup from the host.
 mold_backup_catalog_delete_sync() {
   local job="${1:-${VEEAM_JOB_NAME:-}}"
-  local enable="${VEEAM_CATALOG_DELETE_SYNC:-true}"
   local state_dir state_f live_file prev_file live_ids deleted_id vm bid epoch
   local -a vms=()
   local -A sync_vms=()
-  [[ "$enable" == "true" ]] || {
-    mold_backup_notify_log info "catalog-sync: disabled (VEEAM_CATALOG_DELETE_SYNC=false)"
-    return 0
-  }
   [[ -n "$job" ]] || return 0
   mold_backup_load_config 2>/dev/null || true
   mold_backup_resolve_api_secret 2>/dev/null || true

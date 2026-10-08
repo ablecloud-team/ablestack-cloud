@@ -25,10 +25,13 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import org.apache.cloudstack.backup.Backup;
+import org.apache.cloudstack.backup.ThirdPartyBackupManifest;
+import org.json.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -212,6 +215,312 @@ public class AblestackVeeamSshClient {
             }
         }
         return restorePoints;
+    }
+
+    /**
+     * NetBackup-style existence check: true if this restore-point GUID is still in Veeam.
+     * Checks Get-VBRRestorePoint and Get-VBRObjectRestorePoint (Agent OibId).
+     */
+    public boolean restorePointExists(final String restorePointId) {
+        if (StringUtils.isBlank(restorePointId)) {
+            return false;
+        }
+        final String escapedId = restorePointId.replace("'", "''").trim().replace("{", "").replace("}", "");
+        final List<String> cmds = Arrays.asList(
+                "$want = '" + escapedId + "'.ToLower()",
+                "function Rp-Match($rp) {",
+                "  if ($null -eq $rp) { return $false }",
+                "  $id = $rp.Id; if ($id -is [guid]) { $id = $id.Guid }",
+                "  return ([string]$id).Trim('{}').ToLower() -eq $want",
+                "}",
+                "$hit = $false",
+                "foreach ($b in @(Get-VBRBackup -ErrorAction SilentlyContinue)) {",
+                "  foreach ($cand in @($b | Get-VBRRestorePoint -ErrorAction SilentlyContinue)) {",
+                "    if (Rp-Match $cand) { $hit = $true; break }",
+                "  }",
+                "  if ($hit) { break }",
+                "}",
+                "if (-not $hit) {",
+                "  $hit = [bool](Get-VBRRestorePoint -ErrorAction SilentlyContinue | Where-Object { Rp-Match $_ } | Select-Object -First 1)",
+                "}",
+                "if (-not $hit) {",
+                "  $hit = [bool](Get-VBRObjectRestorePoint -ErrorAction SilentlyContinue | Where-Object { Rp-Match $_ } | Select-Object -First 1)",
+                "}",
+                "if ($hit) { Write-Output 'EXISTS' } else { Write-Output 'MISSING' }"
+        );
+        final Pair<Boolean, String> response = executePowerShellCommands(cmds);
+        if (response == null || !response.first()) {
+            // Probe failure must not delete (NetBackup would also keep on API error).
+            throw new CloudRuntimeException(String.format(
+                    "Failed to probe Veeam restore point [%s] over SSH", restorePointId));
+        }
+        final String payload = StringUtils.trimToEmpty(response.second());
+        return payload.contains("EXISTS");
+    }
+
+    public boolean volumeSourceReady(String templateName) {
+        JSONObject result = volumeResult(Arrays.asList(
+                "$ErrorActionPreference='Stop'",
+                "Get-Command Copy-VBRComputerBackupJob -ErrorAction Stop | Out-Null",
+                "$jobs=@(Get-VBRComputerBackupJob -Name " + ps(templateName) + ")",
+                "if ($jobs.Count -ne 1) { throw 'Volume staging requires one existing Linux Agent template job' }",
+                "$busy=@(Get-VBRComputerBackupJobSession -Name " + ps(templateName) + " | Where-Object { [string]$_.State -ne 'Stopped' })",
+                "Write-Output ('ABLESTACK_JSON:' + (@{ready=($busy.Count -eq 0)} | ConvertTo-Json -Compress))"));
+        return result.getBoolean("ready");
+    }
+
+    /** One deterministic child job protects precisely one image (or the final metadata directory). */
+    public ThirdPartyBackupManifest.Artifact backupVolumeArtifact(String templateName, String sourceIp,
+            ThirdPartyBackupManifest.Artifact artifact, boolean metadata) {
+        return backupVolumeArtifact(templateName, sourceIp, artifact, metadata, true);
+    }
+
+    public ThirdPartyBackupManifest.Artifact recoverVolumeArtifact(ThirdPartyBackupManifest.Artifact artifact, boolean metadata) {
+        return backupVolumeArtifact(null, null, artifact, metadata, false);
+    }
+
+    public ThirdPartyBackupManifest.Artifact linkVolumeArtifact(ThirdPartyBackupManifest.Artifact artifact, boolean metadata, String jobId) {
+        try { java.util.UUID.fromString(jobId); }
+        catch (IllegalArgumentException e) { throw new CloudRuntimeException("Veeam requires an external session UUID", e); }
+        artifact.jobId = jobId;
+        return recoverVolumeArtifact(artifact, metadata);
+    }
+
+    private ThirdPartyBackupManifest.Artifact backupVolumeArtifact(String templateName, String sourceIp,
+            ThirdPartyBackupManifest.Artifact artifact, boolean metadata, boolean submit) {
+        String name = volumeJobName(artifact, metadata);
+        List<String> commands = new ArrayList<>();
+        commands.add("$ErrorActionPreference='Stop'");
+        commands.add("$name=" + ps(name));
+        commands.add("$submissionAttempted=" + (submit && StringUtils.isBlank(artifact.jobId) ? "$false" : "$true"));
+        commands.add("try {");
+        if (!submit && StringUtils.isBlank(artifact.jobId)) {
+            commands.add("$sessions=@(Get-VBRComputerBackupJobSession -Name $name)");
+            commands.add("if ($sessions.Count -eq 0) { Write-Output 'ABLESTACK_JSON:{\"jobId\":null}'; return }");
+            commands.add("if ($sessions.Count -ne 1) { throw 'Artifact recovery session is ambiguous' }");
+            commands.add("$session=$sessions[0]");
+        } else if (StringUtils.isBlank(artifact.jobId)) {
+            commands.add("$job=Get-VBRComputerBackupJob -Name $name -ErrorAction SilentlyContinue");
+            commands.add("if ($job) { $submissionAttempted=$true }");
+            commands.add("if (-not $job) {");
+            commands.add("  $template=Get-VBRComputerBackupJob -Name " + ps(templateName));
+            commands.add("  if (@($template).Count -ne 1) { throw 'Linux Agent template job is ambiguous or missing' }");
+            commands.add("  $computer=@(Get-VBRDiscoveredComputer | Where-Object { (@($_.IPAddress)+@($_.IpAddresses)) -contains " + ps(sourceIp) + " })");
+            commands.add("  if ($computer.Count -ne 1) { throw 'Source Host must resolve to one discovered Linux Agent computer' }");
+            // Linux Agent scope accepts directories; include exactly this payload file within its directory.
+            final java.nio.file.Path artifactPath = java.nio.file.Path.of(artifact.path);
+            commands.add("  $files=New-VBRSelectedFilesBackupOptions -OSPlatform Linux -BackupSelectedFiles -SelectedFiles @(" +
+                    ps(metadata ? artifact.path : artifactPath.getParent().toString()) + ")" +
+                    (metadata ? "" : " -IncludeMask @(" + ps(artifactPath.getFileName().toString()) + ")"));
+            commands.add("  $scripts=New-VBRJobScriptOptions");
+            // A cloned template may carry a schedule until configuration succeeds; preserve uncertainty after cloning.
+            commands.add("  $submissionAttempted=$true");
+            commands.add("  Copy-VBRComputerBackupJob -Job $template -Name $name -Description " + ps("Mold logical backup " + artifact.backupUuid) + " | Out-Null");
+            commands.add("  $job=Get-VBRComputerBackupJob -Name $name");
+            commands.add("  Set-VBRComputerBackupJob -Job $job -BackupObject $computer -BackupType SelectedFiles -SelectedFilesOptions $files -ScriptOptions $scripts -EnableSchedule:$false | Out-Null");
+            commands.add("}");
+            commands.add("$sessions=@(Get-VBRComputerBackupJobSession -Name $name)");
+            commands.add("if ($sessions.Count -eq 0) { $submissionAttempted=$true; $sessions=@(Start-VBRComputerBackupJob -Job $job -FullBackup -RunAsync) }");
+            commands.add("if ($sessions.Count -ne 1) { throw 'Child job must have exactly one session; automatic resubmission is unsafe' }");
+            commands.add("$session=$sessions[0]");
+        } else {
+            commands.add("$id=" + ps(artifact.jobId));
+            commands.add("$sessions=@(Get-VBRComputerBackupJobSession -Name $name | Where-Object { [string]$_.Id -eq $id })");
+            commands.add("if ($sessions.Count -ne 1) { throw 'External session does not match the exact artifact backup job' }");
+            commands.add("$session=$sessions[0]");
+        }
+        commands.add("$out=@{jobId=[string]$session.Id;completed=$false}");
+        commands.add("if ([string]$session.State -eq 'Stopped') {");
+        commands.add("  $out.terminal=$true");
+        commands.add("  if ([string]$session.Result -ne 'Success') { $out.failure='Child backup failed: '+[string]$session.Result }");
+        commands.add("  else {");
+        commands.add("  $backup=Get-VBRBackup -Name $name");
+        commands.add("  $points=@(Get-VBRRestorePoint -Backup $backup)");
+        commands.add("  if ($points.Count -eq 1) { $out.completed=$true; $out.externalId=[string]$points[0].Id; $out.backupTime=$points[0].CreationTime.ToUniversalTime().ToString('o') }");
+        commands.add("  elseif ($points.Count -gt 1) { throw 'Child restore point is ambiguous' }");
+        commands.add("  }");
+        commands.add("}");
+        commands.add("Write-Output ('ABLESTACK_JSON:' + ($out | ConvertTo-Json -Compress))");
+        commands.add("} catch { if (!$submissionAttempted) { Write-Output ('ABLESTACK_JSON:' + (@{notSubmitted=$true;failure=$_.Exception.Message} | ConvertTo-Json -Compress)); return }; throw }");
+        JSONObject result = volumeResult(commands);
+        if (result.optBoolean("notSubmitted", false)) {
+            throw new org.apache.cloudstack.backup.ThirdPartyBackupSubmissionException(result.optString("failure", "Veeam backup was not submitted"));
+        }
+        if (result.isNull("jobId")) { return null; }
+        artifact.jobId = result.getString("jobId");
+        artifact.completed = result.getBoolean("completed");
+        artifact.externalId = result.optString("externalId", null);
+        artifact.backupTime = result.optString("backupTime", null);
+        artifact.externalTerminal = result.optBoolean("terminal", false);
+        artifact.externalFailure = result.optString("failure", null);
+        return artifact;
+    }
+
+    private static String volumeJobName(ThirdPartyBackupManifest.Artifact artifact, boolean metadata) {
+        return "ABLESTACK-" + artifact.backupUuid + "-" + (metadata ? "metadata" :
+                java.util.UUID.nameUUIDFromBytes(artifact.path.getBytes(StandardCharsets.UTF_8)).toString());
+    }
+
+    /** A successful, exact child catalog query is required before reporting absence. */
+    public boolean volumeArtifactExists(ThirdPartyBackupManifest.Artifact artifact) {
+        JSONObject result = volumeResult(Arrays.asList(
+                "$ErrorActionPreference='Stop'",
+                "$names=@(" + ps(volumeJobName(artifact, false)) + "," + ps(volumeJobName(artifact, true)) + ")",
+                "$backups=@(Get-VBRBackup -Name $names | Where-Object { $names -contains $_.Name })",
+                "$points=@($backups | Get-VBRRestorePoint)",
+                "$id=" + ps(artifact.externalId.replace("{", "").replace("}", "").toLowerCase(Locale.ROOT)),
+                "$exists=[bool]($points | Where-Object { ([string]$_.Id).Trim('{}').ToLower() -eq $id } | Select-Object -First 1)",
+                "if (-not $exists) { $exists=[bool](Get-VBRBackup | Get-VBRRestorePoint | Where-Object { ([string]$_.Id).Trim('{}').ToLower() -eq $id } | Select-Object -First 1) }",
+                "Write-Output ('ABLESTACK_JSON:' + (@{exists=$exists} | ConvertTo-Json -Compress))"));
+        return result.getBoolean("exists");
+    }
+
+    /** Child jobs have one independent Full restore point; never erase a template or a multi-point backup. */
+    public boolean deleteVolumeArtifact(ThirdPartyBackupManifest.Artifact artifact, boolean metadata) {
+        return deleteVolumeArtifact(artifact, metadata, false);
+    }
+
+    public boolean deleteVolumeArtifact(ThirdPartyBackupManifest.Artifact artifact, boolean metadata, boolean policyExpiration) {
+        JSONObject result = volumeResult(Arrays.asList(
+                "$ErrorActionPreference='Stop'",
+                "$name=" + ps(volumeJobName(artifact, metadata)),
+                "$jobs=@(Get-VBRComputerBackupJob -Name $name | Where-Object { $_.Name -eq $name })",
+                "if ($jobs.Count -gt 1) { throw 'Artifact job name is ambiguous' }",
+                "$busy=@(Get-VBRComputerBackupJobSession -Name $name | Where-Object { [string]$_.State -ne 'Stopped' })",
+                "if ($busy.Count -ne 0) { throw 'Artifact job is still active' }",
+                "$backups=@(Get-VBRBackup -Name $name | Where-Object { $_.Name -eq $name })",
+                "if ($backups.Count -gt 1) { throw 'Artifact backup name is ambiguous' }",
+                "if ($backups.Count -eq 0 -and " + (StringUtils.isNotBlank(artifact.externalId) ? "$true" : "$false") + ") {",
+                "  $saved=Get-VBRBackup | Get-VBRRestorePoint | Where-Object { ([string]$_.Id).Trim('{}').ToLower() -eq "
+                        + ps(StringUtils.defaultString(artifact.externalId).replace("{", "").replace("}", "").toLowerCase(Locale.ROOT)) + " } | Select-Object -First 1",
+                "  if ($saved) { throw 'Artifact backup was renamed or moved; reconcile it before deletion' }",
+                "}",
+                "foreach ($backup in $backups) {",
+                "  $points=@(Get-VBRRestorePoint -Backup $backup)",
+                "  if ($points.Count -ne 0 -and " + (policyExpiration ? "$true" : "$false")
+                        + ") { throw 'Artifact is still retained by Veeam; expiration cleanup must not erase it' }",
+                "  if ($points.Count -gt 1) { throw 'Refusing to erase a backup with more than one artifact restore point' }",
+                "  if ($points.Count -eq 1 -and " + (StringUtils.isNotBlank(artifact.externalId) ? "$true" : "$false")
+                        + " -and ([string]$points[0].Id).Trim('{}').ToLower() -ne "
+                        + ps(StringUtils.defaultString(artifact.externalId).replace("{", "").replace("}", "").toLowerCase(Locale.ROOT))
+                        + ") { throw 'Artifact restore point differs from the saved catalog reference' }",
+                "  Remove-VBRBackup -Backup $backup -FromDisk -Confirm:$false | Out-Null",
+                "}",
+                "if (@(Get-VBRBackup -Name $name | Where-Object { $_.Name -eq $name }).Count -ne 0) { throw 'Artifact backup deletion has not completed' }",
+                "if ($jobs.Count -eq 1) { Remove-VBRComputerBackupJob -Job $jobs[0] -Confirm:$false | Out-Null }",
+                "Write-Output ('ABLESTACK_JSON:' + (@{deleted=$true} | ConvertTo-Json -Compress))"));
+        return result.getBoolean("deleted");
+    }
+
+    private JSONObject volumeResult(List<String> commands) {
+        Pair<Boolean, String> response = executePowerShellCommands(commands);
+        if (response == null || !response.first()) {
+            throw new CloudRuntimeException("Veeam volume operation failed: " + (response == null ? "no response" : response.second()));
+        }
+        return Arrays.stream(response.second().split("\\r?\\n")).map(String::trim).filter(line -> line.startsWith("ABLESTACK_JSON:"))
+                .map(line -> new JSONObject(line.substring("ABLESTACK_JSON:".length()))).findFirst()
+                .orElseThrow(() -> new CloudRuntimeException("Veeam volume operation did not return a job reference"));
+    }
+
+    /** Agent file restore requires the FLR object to remain in the same PowerShell session. */
+    public org.apache.cloudstack.backup.ThirdPartyBackupRestore.Result restoreVolumeArtifact(
+            org.apache.cloudstack.backup.ThirdPartyBackupRestore.Request request, String destinationHost, String destinationIp,
+            boolean recoverOnly) {
+        if (!request.jobId.matches("[A-Za-z0-9_.-]+") || request.sequence < 0) {
+            throw new CloudRuntimeException("Invalid Veeam volume restore identity");
+        }
+        String parent = java.nio.file.Path.of(request.artifact.path).getParent().toString();
+        String name = java.nio.file.Path.of(request.artifact.path).getFileName().toString();
+        String destination = java.nio.file.Path.of(request.destination).getParent().toString();
+        String key = request.jobId + "-" + request.sequence;
+        JSONObject result = volumeResult(Arrays.asList(
+                "$ErrorActionPreference='Stop'",
+                "$root=Join-Path $env:ProgramData 'ABLESTACK/Mold/volume-restore'",
+                "[System.IO.Directory]::CreateDirectory($root) | Out-Null",
+                "$receipt=Join-Path $root " + ps(key + ".json"),
+                "$restoreJob=" + ps(request.jobId),
+                "$binding=" + ps(new com.google.gson.Gson().toJson(request) + "|" + destinationHost + "|" + destinationIp),
+                "function Save-Receipt($value) { $value.requestId=$restoreJob; $tmp=$receipt+'.tmp'; $bytes=[Text.Encoding]::UTF8.GetBytes(($value | ConvertTo-Json -Compress)); "
+                        + "$file=[IO.File]::Open($tmp,[IO.FileMode]::Create,[IO.FileAccess]::Write,[IO.FileShare]::None); "
+                        + "try { $file.Write($bytes,0,$bytes.Length); $file.Flush($true) } finally { $file.Dispose() }; "
+                        + "if ([IO.File]::Exists($receipt)) { [IO.File]::Replace($tmp,$receipt,$null) } else { [IO.File]::Move($tmp,$receipt) } }",
+                "if (Test-Path -LiteralPath $receipt) { $old=Get-Content -LiteralPath $receipt -Raw -Encoding UTF8 | ConvertFrom-Json; "
+                        + "if ($old.binding -cne $binding) { throw 'Veeam restore receipt belongs to another request' }; "
+                        + "if (!$old.terminal -and $old.jobId) { "
+                        + "$sessions=@(Get-VBRRestoreSession -Id ([guid]$old.jobId)); "
+                        + "if ($sessions.Count -ne 1) { throw 'Exact Veeam restore task status is unavailable; termination remains unconfirmed' }; "
+                        + "$result=[string]$sessions[0].Result; if ([string]::IsNullOrEmpty($result)) { $result=[string]$sessions[0].Info.Result }; "
+                        + "if ($result -in @('Success','Failed','Warning','Canceled')) { "
+                        + "$old.terminal=$true; $old.completed=($result -eq 'Success'); "
+                        + "if (!$old.completed) { $old.failure='Veeam restore failed: '+$result }; Save-Receipt $old } }; "
+                        + "Write-Output ('ABLESTACK_JSON:' + ($old | ConvertTo-Json -Compress)); return }",
+                "if (" + (recoverOnly ? "$true" : "$false") + ") { Write-Output 'ABLESTACK_JSON:{\"jobId\":null}'; return }",
+                // CreateNew prevents a second PowerShell session from submitting the same restore.
+                "$intent=[IO.File]::Open($receipt,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write,[IO.FileShare]::None)",
+                "try { $bytes=[Text.Encoding]::UTF8.GetBytes((@{binding=$binding;requestId=$restoreJob;jobId=$null;completed=$false;terminal=$false;failure=$null} | ConvertTo-Json -Compress)); "
+                        + "$intent.Write($bytes,0,$bytes.Length); $intent.Flush($true) } finally { $intent.Dispose() }",
+                "$flr=$null; $submitted=$false; $terminal=$false; $task=$null; $failure=$null; $success=$false; $callbackIds=@()",
+                "try {",
+                "  Get-Command Start-VBRLinuxGuestItemRestore -ErrorAction Stop | Out-Null",
+                "  $points=@(Get-VBRBackup | Get-VBRRestorePoint | Where-Object { ([string]$_.Id).Trim('{}') -eq " + ps(request.artifact.externalId) + " })",
+                "  if ($points.Count -ne 1) { throw 'Exact artifact restore point is missing or ambiguous' }",
+                "  $targets=@(Get-VBRDiscoveredComputer | Where-Object { $_.Name -eq " + ps(destinationHost)
+                        + " -or @($_.IpAddresses) -contains " + ps(destinationIp) + " })",
+                "  if ($targets.Count -ne 1) { throw 'Restore Worker Host must identify one Veeam Agent computer' }",
+                "  $mounts=@(Get-VBRServer -Name " + ps(destinationHost) + ")",
+                "  if ($mounts.Count -eq 0) { $mounts=@(Get-VBRServer | Where-Object { [string]$_.Type -eq 'Linux' } | Sort-Object Name | Select-Object -First 1) }",
+                "  if ($mounts.Count -ne 1) { throw 'Veeam infrastructure must provide one available Linux FLR mount server' }",
+                "  try {",
+                "    $flr=Start-VBRLinuxFileRestore -RestorePoint $points[0] -MountServer $mounts[0]",
+                "    $callbackIds=@(@($flr.Id,$flr.SessionId,$flr.Session.Id,$flr.RestoreSession.Id) | Where-Object { $_ } | ForEach-Object { $parsed=[guid]::Empty; if ([guid]::TryParse([string]$_,[ref]$parsed)) { $parsed.ToString() } } | Select-Object -Unique)",
+                "    $items=@(Get-VBRLinuxGuestItem -LinuxFlrObject $flr -Path " + ps(parent)
+                        + " | Where-Object { $_.Name -eq " + ps(name) + " })",
+                "    if ($items.Count -ne 1) { throw 'Exact artifact file or metadata directory is missing or ambiguous' }",
+                "    $submitted=$true",
+                "    $task=Start-VBRLinuxGuestItemRestore -LinuxFlrObject $flr -Item $items -TargetAgentMachine $targets[0] -TargetDirectory "
+                        + ps(destination) + " -Overwrite",
+                "    if ($null -eq $task) { throw 'Veeam file restore returned no task session' }",
+                "    Save-Receipt @{binding=$binding;jobId=[string]$task.Id;callbackJobIds=@($callbackIds);completed=$false;terminal=$false;failure=$null}",
+                "    $result=[string]$task.Result; if ([string]::IsNullOrEmpty($result)) { $result=[string]$task.Info.Result }",
+                "    $terminal=$result -in @('Success','Failed','Warning','Canceled')",
+                "    if (!$terminal) { throw ('Veeam artifact restore did not confirm a terminal result: '+$result) }",
+                "    $success=$result -eq 'Success'; if (!$success) { $failure='Veeam artifact restore ended with '+$result }",
+                "  } finally { if ($null -ne $flr) { Stop-VBRLinuxFileRestore -LinuxFlrObject $flr | Out-Null } }",
+                "} catch { $failure=$_.Exception.Message; if (!$submitted) { $terminal=$true } }",
+                "$jobId=if ($null -ne $task) { [string]$task.Id } elseif ($terminal) { " + ps("flr:" + key) + " } else { $null }",
+                "$out=@{binding=$binding;jobId=$jobId;callbackJobIds=@($callbackIds);completed=($success -and $terminal);terminal=$terminal;failure=$failure}",
+                "Save-Receipt $out",
+                "Write-Output ('ABLESTACK_JSON:' + ($out | ConvertTo-Json -Compress))"));
+        if (result.isNull("jobId")) { return null; }
+        org.apache.cloudstack.backup.ThirdPartyBackupRestore.Result restored = new org.apache.cloudstack.backup.ThirdPartyBackupRestore.Result(
+                result.getString("jobId"), result.getBoolean("completed"));
+        restored.externalTerminal = result.getBoolean("terminal");
+        if (result.optJSONArray("callbackJobIds") != null) {
+            for (Object value : result.getJSONArray("callbackJobIds")) {
+                restored.callbackJobIds.add(java.util.UUID.fromString(String.valueOf(value)).toString());
+            }
+        }
+        restored.failure = restored.externalTerminal && !result.isNull("failure") ? result.getString("failure") : null;
+        return restored;
+    }
+
+    public void cleanupVolumeRestoreReceipts(String jobId) {
+        if (!jobId.matches("[A-Za-z0-9_.-]+")) { throw new CloudRuntimeException("Invalid Veeam restore cleanup ID"); }
+        volumeResult(Arrays.asList(
+                "$ErrorActionPreference='Stop'",
+                "$root=Join-Path $env:ProgramData 'ABLESTACK/Mold/volume-restore'",
+                "$files=@(); if (Test-Path -LiteralPath $root) { $files=@(Get-ChildItem -LiteralPath $root -Filter " + ps(jobId + "-*.json") + " -File) }",
+                "foreach ($file in $files) { $receipt=Get-Content -LiteralPath $file.FullName -Raw -Encoding UTF8 | ConvertFrom-Json; "
+                        + "if ($receipt.requestId -cne " + ps(jobId) + " -or !$receipt.terminal) { throw 'Veeam restore receipt is active or its owner is unconfirmed' } }",
+                "foreach ($file in $files) { Remove-Item -LiteralPath $file.FullName -Force }",
+                "Write-Output 'ABLESTACK_JSON:{\"deleted\":true}'"));
+    }
+
+    private static String ps(String value) {
+        if (value == null || value.indexOf('\n') >= 0 || value.indexOf('\r') >= 0) {
+            throw new CloudRuntimeException("Invalid Veeam volume operation argument");
+        }
+        return "'" + value.replace("'", "''") + "'";
     }
 
     private Pair<Boolean, String> executePowerShellCommands(final List<String> cmds) {

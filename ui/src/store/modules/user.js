@@ -389,6 +389,9 @@ const user = {
             ['listHSMProfiles', { listall: true }, json => {
               commit('SET_FEATURES', { ...state.features, hashsmprofiles: json.listhsmprofilesresponse?.count > 0 })
             }],
+            ['listConfigurations', { name: 'backup.framework.provider.plugin' }, json => {
+              commit('SET_FEATURES', { ...state.features, backupProviderPlugins: json.listconfigurationsresponse?.configuration?.[0]?.value || '' })
+            }],
             ['listNetworkServiceProviders', { name: 'SecurityGroupProvider', state: 'Enabled' }, json => {
               commit('SET_SHOW_SECURITY_GROUPS', json.listnetworkserviceprovidersresponse?.count > 0)
             }],
@@ -636,6 +639,12 @@ const user = {
       if (state.discoveryGeneration !== generation || state.apis !== apis) return
       const value = json?.listconfigurationsresponse?.configuration?.[0]?.value
       if (value) commit('SET_CUSTOM_HYPERVISOR_NAME', value)
+      const backupProviderJson = await discoverOptional(apis, 'listConfigurations', { name: 'backup.framework.provider.plugin' })
+      if (state.discoveryGeneration !== generation || state.apis !== apis) return
+      commit('SET_FEATURES', {
+        ...state.features,
+        backupProviderPlugins: backupProviderJson?.listconfigurationsresponse?.configuration?.[0]?.value || ''
+      })
       return result
     },
     async UpdateConfiguration ({ commit, state }) {
