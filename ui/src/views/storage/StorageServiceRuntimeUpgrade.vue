@@ -68,6 +68,7 @@
             </a-select>
           </a-form-item>
         </a-form>
+        <storage-runtime-compatibility v-if="selectedBundleId" :manifest="selectedBundleVerification.manifest || {}" :verified="selectedBundleVerification.verified === true" />
         <a-empty
           v-if="!loading && bundles.length === 0"
           :description="$t('message.storage.service.runtime.bundle.empty')" />
@@ -142,11 +143,12 @@
 
 <script>
 import { getAPI, postAPI } from '@/api'
+import StorageRuntimeCompatibility from '@/views/storage/StorageRuntimeCompatibility'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 
 export default {
   name: 'StorageServiceRuntimeUpgrade',
-  components: { TooltipLabel },
+  components: { TooltipLabel, StorageRuntimeCompatibility },
   props: {
     resource: { type: Object, required: true }
   },
@@ -162,6 +164,9 @@ export default {
     }
   },
   computed: {
+    selectedBundleVerification () {
+      try { return JSON.parse(this.bundles.find(bundle => bundle.id === this.selectedBundleId)?.catalog || '{}').verification || {} } catch (error) { return {} }
+    },
     latestUpgrade () {
       return this.upgrades.length > 0 ? this.upgrades[0] : null
     },
