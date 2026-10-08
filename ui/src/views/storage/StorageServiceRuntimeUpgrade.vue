@@ -183,7 +183,7 @@ export default {
         (!this.latestUpgrade || !['RUNNING', 'PREFLIGHT_READY'].includes(this.latestUpgrade.state))
     },
     canUpgrade () {
-      return !this.loading && !this.submitting && this.latestUpgrade?.state === 'PREFLIGHT_READY'
+      return !this.loading && !this.submitting && this.latestUpgrade?.state === 'PREFLIGHT_READY' && this.latestUpgrade.bundleid === this.selectedBundleId
     },
     canRollback () {
       return !this.loading && !this.submitting && this.latestUpgrade?.state === 'COMPLETE' &&
@@ -226,7 +226,10 @@ export default {
         this.bundles = responses[1].liststorageserviceruntimebundlesresponse?.storageserviceruntimebundle || []
         this.upgrades = (responses[2].liststorageserviceruntimeupgradesresponse?.storageserviceruntimeupgrade || [])
           .sort((left, right) => String(right.started || '').localeCompare(String(left.started || '')))
-        if (!this.selectedBundleId && this.bundles.length > 0) this.selectedBundleId = this.bundles[0].id
+        if (!this.selectedBundleId && this.bundles.length > 0) {
+          this.selectedBundleId = this.upgrades[0]?.state === 'PREFLIGHT_READY' && this.bundles.some(bundle => bundle.id === this.upgrades[0].bundleid)
+            ? this.upgrades[0].bundleid : this.bundles.find(bundle => bundle.state === 'AVAILABLE')?.id
+        }
       } catch (error) {
         if (token === this.generation && resourceId === this.resource.id) this.$notifyError(error)
       } finally {
@@ -240,6 +243,7 @@ export default {
       })
     },
     runUpgrade () {
+      if (!this.canUpgrade) return
       this.startAsync('upgrade', 'upgradeStorageServiceRuntime', { upgradeid: this.latestUpgrade.id })
     },
     runRollback () {
@@ -247,9 +251,12 @@ export default {
     },
     startAsync (action, api, params) {
       if (this.submitting) return
+      const token = this.generation; const resourceId = this.resource.id
+      const current = () => token === this.generation && resourceId === this.resource.id
       this.submitting = true
       this.activeAction = action
       postAPI(api, params).then(response => {
+        if (!current()) return
         const root = response[`${api.toLowerCase()}response`] || response[Object.keys(response)[0]] || {}
         this.$pollJob({
           jobId: root.jobid,
@@ -258,12 +265,13 @@ export default {
           showLoading: false,
           successMessage: this.$t(`message.storage.service.runtime.${action}.success`),
           errorMessage: this.$t(`message.storage.service.runtime.${action}.failed`),
-          successMethod: () => { this.submitting = false; this.activeAction = ''; this.fetchData() },
-          errorMethod: () => { this.submitting = false; this.activeAction = ''; this.fetchData() },
-          catchMethod: () => { this.submitting = false; this.activeAction = '' },
-          resourceId: this.resource.id
+          successMethod: () => { if (!current()) return; this.submitting = false; this.activeAction = ''; this.fetchData() },
+          errorMethod: () => { if (!current()) return; this.submitting = false; this.activeAction = ''; this.fetchData() },
+          catchMethod: () => { if (!current()) return; this.submitting = false; this.activeAction = '' },
+          resourceId
         })
       }).catch(error => {
+        if (!current()) return
         this.$notifyError(error)
         this.submitting = false
         this.activeAction = ''
