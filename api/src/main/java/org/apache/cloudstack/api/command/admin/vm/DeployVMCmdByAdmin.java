@@ -63,6 +63,11 @@ public class DeployVMCmdByAdmin extends DeployVMCmd implements AdminCmd {
     }
 
     @Override
+    public Long getSourceClusterId() {
+        return getClusterId();
+    }
+
+    @Override
     public boolean isBlankInstance() {
         return Boolean.TRUE.equals(blankInstance);
     }

@@ -94,12 +94,11 @@ public class DeployVMCmd extends BaseDeployVMCmd {
 
     @Parameter(name = "sourcerevision", type = CommandType.STRING, description = "Previously validated volume/snapshot revision")
     private String sourceRevision;
-    @Parameter(name = ApiConstants.CLUSTER_ID, type = CommandType.UUID, entityType = org.apache.cloudstack.api.response.ClusterResponse.class,
-            description = "Required source cluster for existing ROOT adoption")
-    private Long sourceClusterId;
+
     private Map<String, String> sourceBootProfile = new java.util.HashMap<>();
+
     public String getSourceRevision() { return sourceRevision; }
-    public Long getSourceClusterId() { return sourceClusterId; }
+    public Long getSourceClusterId() { return null; }
     public void setSourceBootProfile(Map<String, String> profile) {
         sourceBootProfile.clear();
         sourceBootProfile.put("vm.creation.source", "true");

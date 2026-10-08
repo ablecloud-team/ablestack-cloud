@@ -120,6 +120,9 @@ export default {
 </script>
 <style lang="less" scoped>
 .creation-source-selection { color: var(--ui-text); }
+:deep(.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled)) { background: var(--ui-bg-selected) !important; color: var(--ui-link) !important; border-color: var(--ui-focus) !important; font-weight: 600; }
+:deep(.ant-radio-button-wrapper-checked::before) { background: var(--ui-focus) !important; }
+:deep(.ant-radio-button-wrapper:focus-within) { outline: 2px solid var(--ui-focus); outline-offset: 2px; }
 .source-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 16px 0; }
 .source-toolbar .ant-input-search { max-width: 340px; }
 .ant-alert { margin-top: 12px; }

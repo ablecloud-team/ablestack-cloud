@@ -1085,6 +1085,7 @@
                             <exclude>**/.vagrant</exclude>
                             <exclude>**/*.json</exclude>
                             <!-- Raw validation transcripts are generated evidence, not source files. -->
+                            <exclude>docs/design/vm-volume-snapshot-creation-20261009/evidence/environment32-hosts.txt</exclude>
                             <exclude>docs/validation/issue-1118/final-state.txt</exclude>
                             <exclude>docs/validation/issue-1118/lint.txt</exclude>
                             <exclude>docs/validation/issue-1118/cleanup-final.txt</exclude>

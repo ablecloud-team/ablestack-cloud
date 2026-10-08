@@ -41,18 +41,18 @@ ROOT 디스크로 생성할 스냅샷입니다.
 10 / 쪽
 4
 컴퓨트 오퍼링
-	컴퓨트 오퍼링	 CPU	 메모리	 압축/중복제거	 스토리지 태그	
- 
-	
- 
-	
- 
-	
- 
-	
- 
-	
- 
+	컴퓨트 오퍼링	 CPU	 메모리	 압축/중복제거	 스토리지 태그
+
+
+
+
+
+
+
+
+
+
+
 
 
 	1C1GB-TO-64C128GB-FR-GFS	1-64 CPU x 2.00 Ghz	1024-131072 MB	비활성화	glue-gfs
@@ -63,7 +63,7 @@ ROOT 디스크로 생성할 스냅샷입니다.
 
 	8Core-16GB-Fixed-Offering	8 CPU x 2.00 Ghz	16384 MB	비활성화	glue-gfs
 
-	4Core 8GB	4 CPU x 2.00 Ghz	8192 MB	비활성화	
+	4Core 8GB	4 CPU x 2.00 Ghz	8192 MB	비활성화
 
 	2Core 2GB	2 CPU x 2.00 Ghz	2048 MB	비활성화	glue-gfs
 
@@ -81,41 +81,41 @@ CPU 코어
 메모리(MB)
 5
 데이터 디스크
-	디스크 오퍼링	 디스크 크기(GB 단위)	 최소 IOPS/최대 IOPS	
- 
-	
- 
-	
- 
-	
- 
+	디스크 오퍼링	 디스크 크기(GB 단위)	 최소 IOPS/최대 IOPS
 
 
-	설정 안함	
+
+
+
+
+
+
+
+	설정 안함
 -
 	-
 
-	FTCTL Internal Root Disk	
+	FTCTL Internal Root Disk
 사용자지정 디스크 크기
 	-
 
-	FTCTL Internal Data Disk	
+	FTCTL Internal Data Disk
 사용자지정 디스크 크기
 	-
 
-	Custom-GFS-Thin	
+	Custom-GFS-Thin
 사용자지정 디스크 크기
 	-
 
-	Custom-CLVM	
+	Custom-CLVM
 사용자지정 디스크 크기
 	-
 
-	Custom-CLVM-NG	
+	Custom-CLVM-NG
 사용자지정 디스크 크기
 	-
 
-	Custom-GFS-Sparse	
+	Custom-GFS-Sparse
 사용자지정 디스크 크기
 	-
 전체 6 개 항목
@@ -124,48 +124,48 @@ CPU 코어
 6
 네트워크
 인스턴스를 연결할 네트워크를 하나 이상 선택하세요. 여기에서 새 네트워크를 만들 수도 있습니다. 여기에서 새 네트워크를 생성할 수도 있습니다.
-	
-	네트워크	게스트 유형	VPC	VM 오토스케일링 지원	
- 
-	
- 
-	
- 
-	
- 
-	
- 
-	
- 
+
+	네트워크	게스트 유형	VPC	VM 오토스케일링 지원
 
 
-	
+
+
+
+
+
+
+
+
+
+
+
+
 	 E1335-VM-Origin-L2	L2		No
 
-	
+
 	 k8s-ui1330-gfs2-net	Isolated		No
 
-	
+
 	 Admin-Isoloated-Net	Isolated		Yes
 
-	
+
 	 L2-Test	L2		No
 
-	
+
 	 ADMIN-L2-Network	L2		No
 전체 5 개 항목
 1
 10 / 쪽
 7
 SSH 키 쌍
-	SSH 키 쌍	 계정	 도메인	
- 
-	
- 
-	
- 
-	
- 
+	SSH 키 쌍	 계정	 도메인
+
+
+
+
+
+
+
 
 
 	k1230-20261006	admin	ROOT
@@ -176,7 +176,7 @@ SSH 키 쌍
 10 / 쪽
 8
 확장 모드
-고급 설정 표시 
+고급 설정 표시
 9
 상세
 가상머신을 생성하기 전에 다음 설정을 확인해 주세요.
