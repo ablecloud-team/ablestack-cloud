@@ -4,7 +4,7 @@
 
 - RootSquash 새 leaf의 실제 root클라이언트 쓰기→65534:65534, 명시 singleleaf POSIX preview/apply 후 NoRootSquash 새 파일→0:0을 확인했다. 기존 child와 원래 sentinel의 inode·소유권·mode·SHA는 보존했다.
 - 동일 export를 UI RO 옵션만 전환한35c66f61/generation22 후, client RO 옵션을 지정하지 않은 정상RW mount에서 기존 파일 읽기는 성공하고 새 파일 생성은 서버 EROFS(errno30)로 거절됐다. 생성 대상 파일은 존재하지 않으며 정상 umount했다.
-- 중첩 NN parenta4415adf/child63ecccd8는 같은 DATA의 nn/nn-child 상대 경로에서 생성했고 crossRW/file hash 및 실제 서버anonUID1001을 확인했다. name-domain 클라이언트 표시65534는 별도로 기록했다.
+- 중첩 NN parenta4415adf/child63ecccd8는 같은 DATA의 nn 및 nn/child 상대 경로에서 생성했고 crossRW/file hash 및 실제 서버anonUID1001을 확인했다. name-domain 클라이언트 표시65534는 별도로 기록했다.
 - 실제 UI에서 자식 이름을 명시해 child export설정만 삭제한834eff6c/generation23 이후 parent export와 physicalparentinode133/child33685634/file33685636의 내용·1001:1001·mode를 보존했다. 부모 mount에서 child파일 읽기가 성공하고 제거된 child pseudo의 직접 mount는 ENOENT로 거절됐다. 데이터 디렉터리 삭제·포맷은 없다.
 
 NFS 서비스 설정 UI에서 NAME_DOMAIN→NUMERIC을 선택했다. owner/squash와 별도 서비스 정책이며 클라이언트 설정은 자동 변경하지 않는다는 안내를 확인했다. operationc6454d7b/generation24는 COMPLETE, 실제 UI에 설정·실행 NUMERIC/CONSISTENT가 표시됐다.
