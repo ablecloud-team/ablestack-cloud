@@ -115,7 +115,6 @@ AD Windows clock 정정은 부모 GO로 양쪽 VM45/47에 timezone Korea Standar
 
 16:47 Client QGA재연결후새SID prefix786796763/2696268617/1721076406과MachineGuidc58fa7e3-fb62-4aed-ba5e-88dadd252c6b의고유화를실제확인했다. OOBE/약관·관리자입력은사용자handoff대기라우회·unattend·암호/DNS/hostname/join 추가변경0이다. 새hostname/DHCP DNS초기화가관측됐고완료후원래hostname/DNS.2를복원할계획이다. nativePOSIX AD/capsuleAD transfer에deferred분기가남은것도source검토에서확인해kernel/rootowner에게전달했다. AD전체완료로승격하지않는다.
 
-
 ## 최신 진행 상태: 관리 서버 재배포와 AD 일반화
 
 앞선 시간대의 Sysprep 승인 대기 및 SMB AD 보류 기록은 당시 상태이다. 이후 사용자 승인을 받아 SMB-Client의 100GiB SPARSE ROOT를 별도 백업하고 논리적 디스크 비교 및 체크섬을 검증한 뒤 Sysprep을 1회 수행했다. 새 SID와 MachineGuid가 ADSvr과 다름을 실제 확인했다. 현재 사용자 OOBE 완료 대기이며, 완료 후 DNS·원래 호스트명을 복원하고 AD 가입을 재검증한다. ADSvr 및 원래 SharedFS DATA는 변경하지 않았다.
@@ -125,3 +124,11 @@ AD Windows clock 정정은 부모 GO로 양쪽 VM45/47에 timezone Korea Standar
 신규 기능 UI는 0c70의 독립 git archive에서 생산 빌드 중이다. 작업 제어 및 SMB 인증 복구 UI의 14개 테스트가 통과했으나 실제 브라우저 복구 작업은 아직 수행하지 않았다. 기존 master의 삭제된 인증 DB 열린 파일과 세션·잠금 0 상태를 fresh 확인했다. 새로운 자원 임대 소스는 논리적 여유 임대이며 실제 RAM 예약·드레인 지원 완료로 표시하지 않는다.
 
 최종 UI 표준화 #1275는 기능 구현·검증 완료 뒤 착수 직전에 작업을 중단하고 사용자에게 보고하는 조건을 유지한다. 통합 PR #1271은 진행 중 Draft이며 이 새 기록으로 이슈를 완료 처리하지 않는다.
+
+## 18:27 KST 후속 capacity / 복구 조건
+
+0c70 실제 startup 후 fresh readonly 7 instance health 모두 success/native ok, 3 hosts UpEnabled를 확인했다. 이는 SMB 인증 완료 또는 partial XFS 건강 완료를 뜻하지 않는다. authoritative DB capacity12,556,027,510,048B/total16,319,648,235,520B, factor4, allocatedthreshold0.85 확인으로 정상 새 여유1225GiB를 확정했다. 3TiB 추가는97.15%라 거절 범위이며, 1TiB 순차 보조 시험은 새 ROOT/템플릿 예약 재확인 조건으로 계획한다. 정확한10TiB는 추가 실제capacity/ratio정책 판단이 필요하고 기존 partial 삭제/설정우회0이다. 상세는20261008-capacity-multinew-plan.md에 기록했다.
+
+부모의 SMB identity repair 실제1은 RECOVERY_REQUIRED cb8bb5c9/jobebf709c3로 종료됐으며 rebind 후 A346908/B346911/currentDBalignedtrue는 관측됐지만 COMPLETE가 아니다. 추가reset/auth/clientI/O0 HOLD를 유지한다. 새 postrepair harness는 actual030efd/catalog701c/CLI9e24와 MGT0c70 선택 구성을 넣은 별도 파일/증빙으로 준비했고 이전 d758/b38 증빙은 보존했다. reset전 intent를 독점 저장해 ambiguous response 후 중복reset을 막고 explicitGO 후만 RAM one-reset/guest6/host3/heldFD를 수행한다.
+
+Client47 fresh QGA09:22:52UTC는 OOBEInProgress1/SetupPhase4/msoobe, WORKGROUP/WIN-63TQIUEHE5Q, 새SID/KST/IP.11 보존을 확인했다. 사용자 OOBE완료 회신 전 DNS/hostname/join/암호 mutation0이다. AD는 ready-conditional이며 전체기능 완료/정지로 간주하지 않는다. partial51/021b 보존 및 poolfactor4 guard23325/finally미완료, 최종UI1275 경계는 그대로다.
