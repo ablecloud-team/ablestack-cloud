@@ -8787,5 +8787,9 @@
   "message.storage.volume.resume.unknown": "작업 완료 여부를 확인하지 못했습니다. 다시 시도하기 전에 작업 이력을 업데이트하세요.",
   "label.storage.operation.state.COMPLETE_NO_CONFIG_CHANGE": "준비 재개 완료",
   "label.storage.volume.elapsed": "경과 시간(초)",
-  "label.storage.volume.observed.at": "관측 시각(UTC)"
+  "label.storage.volume.observed.at": "관측 시각(UTC)",
+  "label.storage.config.source.volume": "원본 DATA 디스크",
+  "label.storage.config.target.volume": "할당 예정 DATA 디스크",
+  "label.storage.config.data.policy": "DATA 보존 정책",
+  "message.storage.config.allocation.preserve": "DATA 디스크별 할당 계획을 검토하세요. 복원 실패 시 생성한 디스크는 보존됩니다."
 }

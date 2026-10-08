@@ -8822,5 +8822,9 @@
   "message.storage.volume.resume.unknown": "The job is still unobserved. Refresh the operation history before retrying.",
   "label.storage.operation.state.COMPLETE_NO_CONFIG_CHANGE": "Preparation resumed (configuration unchanged)",
   "label.storage.volume.elapsed": "Elapsed time (seconds)",
-  "label.storage.volume.observed.at": "Observed at (UTC)"
+  "label.storage.volume.observed.at": "Observed at (UTC)",
+  "label.storage.config.source.volume": "Source DATA volume",
+  "label.storage.config.target.volume": "Planned DATA volume",
+  "label.storage.config.data.policy": "DATA retention policy",
+  "message.storage.config.allocation.preserve": "Review each DATA volume allocation. Created disks are preserved if restore fails."
 }

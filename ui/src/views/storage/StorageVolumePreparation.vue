@@ -32,7 +32,7 @@
       <a-descriptions-item :label="$t('label.storage.volume.formatter.active')">{{ observation.formatterActive ? $t('label.yes') : $t('label.no') }}</a-descriptions-item>
       <a-descriptions-item :label="$t('label.storage.volume.operation')"><code>{{ observation.operationId || operation.operationId || '-' }}</code></a-descriptions-item>
       <a-descriptions-item :label="$t('label.storage.volume.deadline')">{{ operation.formatDeadlineSeconds ?? '-' }}</a-descriptions-item>
-      <a-descriptions-item :label="$t('label.storage.volume.elapsed')">{{ typeof operation.elapsedSeconds === 'number' ? Math.round(operation.elapsedSeconds) : '-' }}</a-descriptions-item>
+      <a-descriptions-item :label="$t('label.storage.volume.elapsed')">{{ typeof observedOperation.elapsedSeconds === 'number' ? Math.round(observedOperation.elapsedSeconds) : '-' }}</a-descriptions-item>
       <a-descriptions-item :label="$t('label.storage.volume.observed.at')">{{ observedAt }}</a-descriptions-item>
       <a-descriptions-item :label="$t('label.storage.volume.current.device')"><code>{{ identity.observedDevicePath || '-' }}</code> · {{ observation.currentIdentityStatus || 'UNAVAILABLE' }}</a-descriptions-item>
       <a-descriptions-item :label="$t('label.storage.volume.fs.uuid')"><code>{{ identity.filesystemUuid || operation.filesystemUuid || '-' }}</code></a-descriptions-item>
@@ -40,7 +40,7 @@
       <a-descriptions-item :label="$t('label.storage.volume.mount')"><code>{{ identity.mountPath || operation.mountPath || '-' }}</code></a-descriptions-item>
     </a-descriptions>
     <a-alert v-if="observation" type="info" show-icon :message="$t('message.storage.volume.historical.device')" />
-    <a-alert v-if="operation.diagnostic || observation?.currentIdentityDiagnostic" type="warning" show-icon :message="operation.diagnostic || observation?.currentIdentityDiagnostic" />
+    <a-alert v-if="observation?.diagnostic || operation.diagnostic || observation?.currentIdentityDiagnostic" type="warning" show-icon :message="observation?.diagnostic || operation.diagnostic || observation?.currentIdentityDiagnostic" />
     <a-modal
       :visible="resumeVisible"
       :title="$t('label.storage.volume.resume')"
@@ -62,7 +62,7 @@
 import { getAPI, postAPI } from '@/api'
 import { ReloadOutlined } from '@ant-design/icons-vue'
 const parse = value => { try { return typeof value === 'string' ? JSON.parse(value) : (value || {}) } catch (error) { return {} } }
-const terminal = new Set(['COMPLETE', 'RECOVERY_REQUIRED', 'RECONCILE_REQUIRED', 'NOT_STARTED', 'IDENTITY_MISMATCH', 'ERROR'])
+const terminal = new Set(['TIMED_OUT_PENDING_RECONCILE', 'COMPLETE', 'RECOVERY_REQUIRED', 'RECONCILE_REQUIRED', 'NOT_STARTED', 'IDENTITY_MISMATCH', 'ERROR'])
 export default {
   name: 'StorageVolumePreparation',
   components: { ReloadOutlined },
@@ -71,17 +71,18 @@ export default {
   data: () => ({ selectedVolume: '', observation: null, loading: false, readError: false, automatic: false, generation: 0, timer: null, disposed: false, resumeVisible: false, resuming: false, resumeKey: '', resumeError: '', resumeJob: '' }),
   computed: {
     resumeSupported () { return 'resumeStorageServiceVolumePreparation' in (this.$store?.getters?.apis || {}) },
-    canResume () { return this.resumeSupported && !this.readError && this.observation?.currentIdentityStatus === 'EXACT' && this.observation?.formatterActive === false && this.operation.formatStarted === true && !!this.identity.filesystemUuid && (!this.operation.filesystemUuid || this.operation.filesystemUuid === this.identity.filesystemUuid) },
+    canResume () { return this.resumeSupported && !this.readError && this.observation?.currentIdentityStatus === 'EXACT' && this.observation?.formatterActive === false && this.operation.formatStarted === true && this.operation.formatterSuccessReceipt?.schemaVersion === 1 && this.operation.formatterSuccessReceipt?.formatterExitCode === 0 && this.operation.formatterExitCode === 0 && !this.observation?.terminationPending && !this.observation?.stale && !!this.identity.filesystemUuid && (!this.operation.filesystemUuid || this.operation.filesystemUuid === this.identity.filesystemUuid) },
     observedAt () {
       const milliseconds = Number(this.observation?.observedEpoch) * 1000
       return Number.isFinite(milliseconds) && milliseconds > 0 && milliseconds <= 8640000000000000 ? new Date(milliseconds).toISOString() : '-'
     },
     operation () { return this.observation?.operation || {} },
+    observedOperation () { return this.observation?.observedOperation || this.operation },
     identity () { return this.observation?.currentIdentity || {} },
     phaseColor () {
       const state = this.observation?.status || this.operation.phase
       if (state === 'COMPLETE') return 'green'
-      if (['RECOVERY_REQUIRED', 'IDENTITY_MISMATCH', 'ERROR'].includes(state)) return 'red'
+      if (['TIMED_OUT_PENDING_RECONCILE', 'RECOVERY_REQUIRED', 'IDENTITY_MISMATCH', 'ERROR'].includes(state)) return 'red'
       return 'orange'
     }
   },
