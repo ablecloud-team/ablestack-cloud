@@ -59,26 +59,53 @@ class RootSourceRecovery:
         return scope
 
     def canonical_bytes(self):
-        root=Path(os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_ROOT","/etc/ablestack-storage"));result={}
-        for name in sorted(DESIRED_PATHS):
-            path=root/name
-            try:info=path.lstat()
-            except FileNotFoundError:
-                result[name]={"present":False,"sha256":None};continue
-            parent=path.parent.lstat()
-            if (not stat.S_ISDIR(parent.st_mode) or parent.st_uid!=os.geteuid() or parent.st_mode&0o022
-                    or not stat.S_ISREG(info.st_mode) or info.st_uid!=os.geteuid() or info.st_mode&0o022 or info.st_size>8*1024*1024):
-                raise ValueError("ROOT source canonical file is not protected")
-            descriptor=os.open(path,os.O_RDONLY|os.O_NOFOLLOW)
-            try:
-                fields=("st_dev","st_ino","st_mode","st_uid","st_gid","st_size","st_mtime_ns","st_ctime_ns")
-                opened=os.fstat(descriptor)
-                if any(getattr(info,key)!=getattr(opened,key) for key in fields):raise ValueError("ROOT canonical file changed while opening")
-                data=os.read(descriptor,8*1024*1024+1);after=os.fstat(descriptor)
-                if len(data)>8*1024*1024 or any(getattr(after,key)!=getattr(opened,key) for key in fields):raise ValueError("ROOT canonical file changed while reading")
-                result[name]={"present":True,"sha256":hashlib.sha256(data).hexdigest()}
-            finally:os.close(descriptor)
-        return result
+        root=Path(os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_ROOT","/etc/ablestack-storage"))
+        info=root.lstat()
+        if not stat.S_ISDIR(info.st_mode) or info.st_uid!=os.geteuid() or info.st_mode&0o022:
+            raise ValueError("ROOT canonical namespace is not protected")
+        root_fd=os.open(root,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW);result={}
+        fields=("st_dev","st_ino","st_mode","st_uid","st_gid","st_size","st_mtime_ns","st_ctime_ns")
+        try:
+            opened_root=os.fstat(root_fd)
+            if (info.st_dev,info.st_ino,info.st_mode,info.st_uid,info.st_gid)!=(opened_root.st_dev,opened_root.st_ino,opened_root.st_mode,opened_root.st_uid,opened_root.st_gid):
+                raise ValueError("ROOT canonical namespace changed while opening")
+            for name in sorted(DESIRED_PATHS):
+                parts=name.split("/");parent_fd=os.dup(root_fd);parent_path=root;absent=False
+                try:
+                    for part in parts[:-1]:
+                        try:parent_info=os.stat(part,dir_fd=parent_fd,follow_symlinks=False)
+                        except FileNotFoundError:
+                            absent=True;break
+                        if not stat.S_ISDIR(parent_info.st_mode) or parent_info.st_uid!=os.geteuid() or parent_info.st_mode&0o022:
+                            raise ValueError("ROOT canonical parent is not protected")
+                        descriptor=os.open(part,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW,dir_fd=parent_fd);actual=os.fstat(descriptor)
+                        if (parent_info.st_dev,parent_info.st_ino,parent_info.st_mode,parent_info.st_uid)!=(actual.st_dev,actual.st_ino,actual.st_mode,actual.st_uid):
+                            os.close(descriptor);raise ValueError("ROOT canonical parent changed while opening")
+                        os.close(parent_fd);parent_fd=descriptor;parent_path=parent_path/part
+                    if absent:
+                        result[name]={"present":False,"sha256":None};continue
+                    try:leaf=os.stat(parts[-1],dir_fd=parent_fd,follow_symlinks=False)
+                    except FileNotFoundError:
+                        result[name]={"present":False,"sha256":None};continue
+                    if not stat.S_ISREG(leaf.st_mode) or leaf.st_uid!=os.geteuid() or leaf.st_mode&0o022 or leaf.st_size>8*1024*1024:
+                        raise ValueError("ROOT source canonical file is not protected")
+                    descriptor=os.open(parts[-1],os.O_RDONLY|os.O_NOFOLLOW,dir_fd=parent_fd)
+                    try:
+                        opened=os.fstat(descriptor)
+                        if any(getattr(leaf,key)!=getattr(opened,key) for key in fields):raise ValueError("ROOT canonical file changed while opening")
+                        data=os.read(descriptor,8*1024*1024+1);after=os.fstat(descriptor)
+                        named=os.stat(parts[-1],dir_fd=parent_fd,follow_symlinks=False)
+                        if (len(data)>8*1024*1024 or any(getattr(after,key)!=getattr(opened,key) or getattr(named,key)!=getattr(opened,key) for key in fields)
+                                or (parent_path.lstat().st_dev,parent_path.lstat().st_ino)!=(os.fstat(parent_fd).st_dev,os.fstat(parent_fd).st_ino)):
+                            raise ValueError("ROOT canonical file or named parent changed while reading")
+                        result[name]={"present":True,"sha256":hashlib.sha256(data).hexdigest()}
+                    finally:os.close(descriptor)
+                finally:os.close(parent_fd)
+            final=root.lstat()
+            if (final.st_dev,final.st_ino,final.st_mode,final.st_uid)!=(opened_root.st_dev,opened_root.st_ino,opened_root.st_mode,opened_root.st_uid):
+                raise ValueError("ROOT canonical namespace changed during capture")
+            return result
+        finally:os.close(root_fd)
 
     def observation(self,scope):
         actual=self.driver.generation();status=self.store.status();current=status.get("current")

@@ -73,4 +73,14 @@ class StorageInlineSourcesTest(unittest.TestCase):
         self.assertIn('ConfigfsIscsiAuth().apply(iqn,initiator,acl_config,secrets)',block)
         ast.parse(actual)
 
+    def test_signed_private_source_collector_is_quiescent_no_backup_and_byte_bound(self):
+        source=CLI.read_text().split("<<'PYIDENTITY'\n",1)[1].split("\nPYIDENTITY",1)[0]
+        actual=ast.parse(source);expected=ast.parse((LIB/"identity_capsule.py").read_text())
+        for name in ("regular_file","collect"):
+            got=next(item for item in actual.body if isinstance(item,ast.FunctionDef) and item.name==name)
+            wanted=next(item for item in expected.body if isinstance(item,ast.FunctionDef) and item.name==name)
+            self.assertEqual(ast.dump(wanted),ast.dump(got))
+        collect=next(item for item in actual.body if isinstance(item,ast.FunctionDef) and item.name=="collect")
+        self.assertNotIn("tdbbackup",ast.unparse(collect));self.assertIn("live_identity_database_holders",ast.unparse(collect))
+
 if __name__=='__main__':unittest.main()

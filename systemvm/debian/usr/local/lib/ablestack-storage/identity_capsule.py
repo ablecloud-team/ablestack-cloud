@@ -49,12 +49,17 @@ def regular_file(path, maximum=MAX_CAPSULE_BYTES):
     descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
     try:
         observed = os.fstat(descriptor)
-        if (observed.st_dev, observed.st_ino) != (info.st_dev, info.st_ino):
+        fields=("st_dev","st_ino","st_mode","st_uid","st_gid","st_size","st_mtime_ns","st_ctime_ns")
+        if any(getattr(observed,key)!=getattr(info,key) for key in fields):
             raise ValueError("Identity capsule source changed")
         with os.fdopen(descriptor, "rb", closefd=False) as handle:
             data = handle.read(maximum + 1)
+        after=os.fstat(descriptor)
         if len(data) > maximum:
             raise ValueError("Identity capsule source exceeds limit")
+        named=os.stat(path,follow_symlinks=False)
+        if any(getattr(after,key)!=getattr(observed,key) or getattr(named,key)!=getattr(observed,key) for key in fields):
+            raise ValueError("Identity capsule source changed while reading")
         return data, info
     finally:
         os.close(descriptor)
@@ -193,24 +198,17 @@ def collect(names, nvme_hosts=None,ad_identity=None,posix_policies=None):
         raise ValueError("Invalid managed account name")
     files = {}
     if ad_identity is not None:validate_ad_identity(ad_identity)
+    # Raw private TDB bytes are exported only after owned identity holders stop.
+    # A temporary tdbbackup file would be an additional plaintext credential sink.
+    private_databases={path for path in FILES|AD_FILES if path.endswith(".tdb")}
+    if live_identity_database_holders(private_databases):
+        raise ValueError("SMB_IDENTITY_SOURCE_QUIESCE_REQUIRED")
     for path in sorted(FILES | (AD_FILES if ad_identity is not None else set())):
         if not os.path.exists(path):
             files[path] = {"absent": True}
             continue
         data, info = regular_file(path)
-        if path.endswith(".tdb"):
-            # tdbbackup validates and makes a coherent copy while Samba is running.
-            suffix = ".epic-capsule-" + os.urandom(8).hex()
-            backup = path + suffix
-            try:
-                subprocess.run(["tdbbackup", "-s", suffix, path], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=15)
-                data, _ = regular_file(backup)
-            finally:
-                try:
-                    os.unlink(backup)
-                except FileNotFoundError:
-                    pass
-        files[path] = {"data": base64.b64encode(data).decode(), "mode": stat.S_IMODE(info.st_mode), "uid": 0, "gid": info.st_gid}
+        files[path] = {"data": base64.b64encode(data).decode(), "sha256":hashlib.sha256(data).hexdigest(),"mode": stat.S_IMODE(info.st_mode), "uid": 0, "gid": info.st_gid}
     accounts = {}
     for path in sorted(ACCOUNT_FILES):
         data, _ = regular_file(path)
@@ -287,9 +285,11 @@ def validate_payload(payload):
             if set(item) != {"absent"}:
                 raise ValueError("Identity capsule absent-file marker is invalid")
             continue
-        if set(item) != {"data", "mode", "uid", "gid"} or type(item.get("mode")) is not int or type(item.get("gid")) is not int or not 0 <= item["gid"] <= 2147483647:
+        if set(item)-{"sha256"} != {"data", "mode", "uid", "gid"} or type(item.get("mode")) is not int or type(item.get("gid")) is not int or not 0 <= item["gid"] <= 2147483647:
             raise ValueError("Identity capsule file metadata is invalid")
         data = base64.b64decode(item["data"], validate=True)
+        if "sha256" in item and (not isinstance(item["sha256"],str) or not re.fullmatch("[0-9a-f]{64}",item["sha256"]) or hashlib.sha256(data).hexdigest()!=item["sha256"]):
+            raise ValueError("Identity capsule private source byte checksum mismatch")
         mode = int(item.get("mode", 0))
         secret_path = path not in PUBLIC_IDENTITY_FILES
         if len(data) > MAX_CAPSULE_BYTES or item.get("uid") != 0 or not 0 <= mode <= 0o777 or mode & 0o022 or mode & 0o111 or (secret_path and mode & 0o007):
