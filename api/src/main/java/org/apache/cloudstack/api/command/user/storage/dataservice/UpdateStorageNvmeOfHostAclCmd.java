@@ -82,10 +82,7 @@ public class UpdateStorageNvmeOfHostAclCmd extends BaseStorageServiceAsyncCmd im
         return dhChapCtrlKey;
     }
 
-    @Override
-    public long getEntityOwnerId() {
-        return 0;
-    }
+
 
     @Override
     public String getEventType() {

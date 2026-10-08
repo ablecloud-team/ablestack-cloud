@@ -52,7 +52,9 @@ public class StorageWriterHeartbeatTest {
         Mockito.doReturn(future).when(executor).scheduleWithFixedDelay(runnable.capture(), Mockito.anyLong(), Mockito.anyLong(), Mockito.any());
         java.util.List<RuntimeException> failures = new java.util.ArrayList<>();
         try (StorageWriterHeartbeat heartbeat = new StorageWriterHeartbeat(operation, operations, executor, failures::add)) {
-            runnable.getValue().run();runnable.getValue().run();
+            runnable.getValue().run();
+            Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,heartbeat::requireAvailable);
+            runnable.getValue().run();heartbeat.requireAvailable();
             Assert.assertEquals(1, failures.size());
             Mockito.verify(operations, Mockito.times(2)).touchHeartbeat(0L, null, 0L);
             Mockito.verify(operation, Mockito.never()).setState(Mockito.any());

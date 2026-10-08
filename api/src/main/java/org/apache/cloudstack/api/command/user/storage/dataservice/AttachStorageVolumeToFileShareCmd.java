@@ -76,10 +76,7 @@ public class AttachStorageVolumeToFileShareCmd extends BaseStorageServiceAsyncCm
         return importMode;
     }
 
-    @Override
-    public long getEntityOwnerId() {
-        return 0;
-    }
+
 
     @Override
     public String getEventType() {

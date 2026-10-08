@@ -103,10 +103,7 @@ public class CreateStorageIscsiAclCmd extends BaseStorageServiceAsyncCmd impleme
         return mutualChapSecret;
     }
 
-    @Override
-    public long getEntityOwnerId() {
-        return 0;
-    }
+
 
     @Override
     public String getEventType() {

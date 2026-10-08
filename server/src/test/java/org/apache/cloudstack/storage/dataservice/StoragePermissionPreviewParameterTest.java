@@ -58,4 +58,18 @@ public class StoragePermissionPreviewParameterTest {
         CreateStoragePosixDirectoryPolicyCmd command=command();ServerApiException failure=Assert.assertThrows(ServerApiException.class,()->worker.processParameters(command,Map.of("previewtoken","a".repeat(131073))));
         Assert.assertTrue(failure.getMessage().contains("131072"));Assert.assertNull(command.getPreviewToken());verifyNoInteractions(handler);
     }
+    @Test public void approvalRequestsAndResponsesAreSensitiveAndRequireAnEncryptedQueue() {
+        for(Class<?> type:new Class<?>[]{org.apache.cloudstack.api.command.user.storage.dataservice.CreateStoragePosixDirectoryPolicyCmd.class,org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStoragePosixDirectoryPolicyCmd.class,org.apache.cloudstack.api.command.user.storage.dataservice.ApplyStoragePosixDirectoryPolicyCmd.class}) {
+            org.apache.cloudstack.api.APICommand metadata=type.getAnnotation(org.apache.cloudstack.api.APICommand.class);Assert.assertTrue(metadata.requestHasSensitiveInfo());Assert.assertTrue(metadata.responseHasSensitiveInfo());
+        }
+        Object previous=ReflectionTestUtils.getField(com.cloud.utils.crypt.EncryptionSecretKeyChecker.class,"s_useEncryption");
+        try {
+            ReflectionTestUtils.setField(com.cloud.utils.crypt.EncryptionSecretKeyChecker.class,"s_useEncryption",false);
+            Assert.assertThrows(com.cloud.exception.InvalidParameterValueException.class,()->command().validateSpecificParameters(Map.of("previewtoken","test-approval")));
+            command().validateSpecificParameters(Map.of("preview","true"));
+            ReflectionTestUtils.setField(com.cloud.utils.crypt.EncryptionSecretKeyChecker.class,"s_useEncryption",true);command().validateSpecificParameters(Map.of("previewtoken","test-approval"));
+        } finally {ReflectionTestUtils.setField(com.cloud.utils.crypt.EncryptionSecretKeyChecker.class,"s_useEncryption",previous);}
+        verifyNoInteractions(handler);
+    }
+
 }

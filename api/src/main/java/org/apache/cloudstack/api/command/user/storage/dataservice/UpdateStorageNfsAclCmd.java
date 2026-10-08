@@ -103,10 +103,7 @@ public class UpdateStorageNfsAclCmd extends BaseStorageServiceAsyncCmd implement
         return secure;
     }
 
-    @Override
-    public long getEntityOwnerId() {
-        return 0;
-    }
+
 
     @Override
     public String getEventType() {

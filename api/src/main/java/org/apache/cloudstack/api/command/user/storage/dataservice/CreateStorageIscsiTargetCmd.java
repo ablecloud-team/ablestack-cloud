@@ -112,10 +112,7 @@ public class CreateStorageIscsiTargetCmd extends BaseStorageServiceAsyncCmd impl
         return cleanupVolumeOnFailure;
     }
 
-    @Override
-    public long getEntityOwnerId() {
-        return 0;
-    }
+
 
     @Override
     public String getEventType() {

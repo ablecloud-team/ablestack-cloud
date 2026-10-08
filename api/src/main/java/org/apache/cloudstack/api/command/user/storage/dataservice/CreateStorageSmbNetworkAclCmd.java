@@ -39,7 +39,7 @@ public class CreateStorageSmbNetworkAclCmd extends BaseStorageServiceAsyncCmd im
     public String getPrincipalType() { return principalType; }
     public String getPrincipal() { return principal; }
     public String getPrincipals() { return principals; }
-    @Override public long getEntityOwnerId() { return 0; }
+
     @Override public String getEventType() { return "STORAGE.SMB.NETWORKACL.CREATE"; }
     @Override public String getEventDescription() { return "Creating SMB source allow rules for share "+shareId; }
     @Override public void execute() { ListResponse<StorageAccessRuleResponse> response=service.createStorageSmbNetworkAcl(this);response.setResponseName(getCommandName());setResponseObject(response); }

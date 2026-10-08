@@ -46,10 +46,7 @@ public class DeleteStorageSmbNetworkAclCmd extends BaseStorageServiceAsyncCmd im
         return id;
     }
 
-    @Override
-    public long getEntityOwnerId() {
-        return 0;
-    }
+
 
     @Override
     public String getEventType() {

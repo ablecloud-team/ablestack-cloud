@@ -288,8 +288,8 @@ public class SharedFSServiceImplTest {
 
     @Test
     public void testFailedInitialAttachmentCleanupPreservesData() {
-        SharedFSVO fs=getMockSharedFS();fs.setVmId(7L);fs.setVolumeId(6L);
-        VolumeVO volume=mock(VolumeVO.class);when(volumeDao.findById(6L)).thenReturn(volume);when(volume.getInstanceId()).thenReturn(7L);
+        SharedFSVO fs=getMockSharedFS();ReflectionTestUtils.setField(fs,"id",9L);fs.setVmId(7L);fs.setVolumeId(6L);
+        VolumeVO volume=mock(VolumeVO.class);when(volumeDao.findById(6L)).thenReturn(volume);when(volume.getInstanceId()).thenReturn(7L);when(volume.getId()).thenReturn(6L);when(volume.getUuid()).thenReturn("22222222-2222-4222-8222-222222222222");when(volume.getVolumeType()).thenReturn(Volume.Type.DATADISK);when(volume.getAccountId()).thenReturn(s_ownerId);when(volume.getDomainId()).thenReturn(s_domainId);when(volume.getDataCenterId()).thenReturn(s_zoneId);when(volume.getPoolId()).thenReturn(null);when(volume.getSize()).thenReturn(1024L);when(sharedFSDao.update(Mockito.anyLong(),any())).thenReturn(true);
         when(lifeCycle.deleteSharedFS(fs,SharedFS.DataVolumePolicy.PRESERVE_VOLUMES,Set.of(6L))).thenReturn(true);
         sharedFSServiceImpl.cleanupFailedInitialVolume(fs,lifeCycle,new CloudRuntimeException("inspection failed"));
         verify(lifeCycle).deleteSharedFS(fs,SharedFS.DataVolumePolicy.PRESERVE_VOLUMES,Set.of(6L));verify(sharedFSDao).remove(fs.getId());

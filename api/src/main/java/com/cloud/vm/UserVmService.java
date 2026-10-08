@@ -626,4 +626,7 @@ public interface UserVmService {
             hypervisor, httpmethod, userData, userDataId, userDataDetails, sshKeyPairs, requestedIps, defaultIps, displayVm, keyboard, affinityGroupIdList, customParameters,
             customId, dhcpOptionMap, dataDiskTemplateToDiskOfferingMap, templateOvfPropertiesMap, dynamicScalingEnabled, vmType, overrideDiskOfferingId, null, volume, snapshot);
     }
+    /** SharedFS-backed User VMs join the same persistent writer queue as their storage APIs. */
+    Long getStorageServiceSyncIdForVm(Long vmId);
+
 }
