@@ -38,12 +38,14 @@ public final class StorageServiceTemplateUpgradeEngine {
         void reconcilePrevious();
         void verifyPrevious();
         void finished(boolean success);
+        default boolean forwardRecoveryRequired(){return false;}
     }
     private final StorageServiceTemplateUpgradeDao upgrades;
     public StorageServiceTemplateUpgradeEngine(StorageServiceTemplateUpgradeDao upgrades) { this.upgrades=upgrades; }
     private static final java.util.List<String> FORWARD = java.util.List.of("PREFLIGHT","STAGING_ROOT","SNAPSHOTTING_CONFIG","QUIESCING","SWAPPING_ROOT","BOOTING_TARGET","RESTORING_IDENTITY","RECONCILING","VERIFYING","COMMITTING");
     public void execute(StorageServiceTemplateUpgradeVO row,Runtime runtime) {
         if (!java.util.Set.of("PLANNED","RUNNING","RECOVERY_REQUIRED").contains(row.getState())) throw new CloudRuntimeException("Template upgrade is not executable in its current state");
+        if(runtime.forwardRecoveryRequired()) {row.setState("RUNNING");try{phase(row,"VERIFYING",85);runtime.verify();phase(row,"COMMITTING",95);runtime.commit();if(!"COMPLETE".equals(row.getState())){row.setState("COMPLETE");row.setCompleted(new Date());phase(row,"COMPLETE",100);}cleanup(row,runtime,true);return;}catch(RuntimeException pending){row.setState("RECOVERY_REQUIRED");row.setErrorCode("COMMITTED_ROOT_FINALIZATION_REQUIRED");row.setErrorMessage(safe(pending));phase(row,"RECOVERY_REQUIRED",95);throw pending;}}
         String resume = row.getPhase();
         if ("RECOVERY_REQUIRED".equals(row.getState()) || resume.startsWith("ROLLING_BACK") || resume.equals("BOOTING_PREVIOUS") || resume.equals("RECONCILING_PREVIOUS")) {
             rollback(row,runtime);return;
@@ -71,6 +73,8 @@ public final class StorageServiceTemplateUpgradeEngine {
                 row.setState("BLOCKED");row.setCompleted(new Date());phase(row,"BLOCKED",100);cleanup(row,runtime,false);
                 throw new CloudRuntimeException("Template upgrade blocked before ROOT staging",failed);
             }
+            try {if(runtime.forwardRecoveryRequired()){row.setState("RECOVERY_REQUIRED");row.setErrorCode("COMMITTED_ROOT_FINALIZATION_REQUIRED");phase(row,"RECOVERY_REQUIRED",95);throw new CloudRuntimeException("Committed target ROOT requires forward finalization",failed);}}
+            catch(RuntimeException uncertain){row.setState("RECOVERY_REQUIRED");phase(row,"RECOVERY_REQUIRED",95);throw uncertain;}
             rollback(row,runtime);
             throw new CloudRuntimeException("Template upgrade failed; previous ROOT recovered",failed);
         }

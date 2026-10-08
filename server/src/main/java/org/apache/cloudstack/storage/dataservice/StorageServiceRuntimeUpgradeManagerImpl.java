@@ -327,7 +327,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         requireBundle(previous.getId());
         JsonObject preflight = upgrade.getPreflightJson() == null ? null : JsonParser.parseString(upgrade.getPreflightJson()).getAsJsonObject();
         JsonObject checkpoint = preflight == null ? null : preflight.getAsJsonObject("sourceSignedRuntime");
-        JsonObject manifest = signedManifest(previous);requireSignedRuntimeFeatures(instance, manifest);
+        JsonObject manifest = signedManifest(previous);requireSignedRuntimeFeatures(instance, manifest, previous);
         StorageRuntimeVersionCompatibility.RetainedPreviousEvidence evidence = retainedPreviousEvidence(instance, previous, checkpoint, null, null);
         return versionCompatibility(instance, manifest, StorageRuntimeVersionCompatibility.Mode.RETAINED_PREVIOUS_ROLLBACK, evidence);
     }
@@ -376,6 +376,8 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         StorageServiceRuntimeBundleVO bundle = requireBundle(instance.getCurrentRuntimeBundleId());
         JsonObject pin = runtimePin(bundle), rootBinding = sourceRootBinding(instance), hostBinding = runtimeValidationHostBinding(instance);
         JsonObject manifest = signedManifest(bundle);
+        StorageRuntimeFeatureCompatibility.advertised(manifest);
+        JsonArray signedFeatures = manifest.has("supportedFeatures") ? manifest.getAsJsonArray("supportedFeatures").deepCopy() : new JsonArray();
         String cliSha = runtimeManifestCliSha256(manifest);
         if (!expectedCliSha256.equals(cliSha)) throw new CloudRuntimeException("Installed signed runtime CLI differs from the validation profile artifact");
         StorageServiceRuntimeUpgradeVO receipt = null;
@@ -401,6 +403,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         pinnedBundle(pin);
         JsonObject proof = new JsonObject();proof.addProperty("schemaVersion", 1);proof.addProperty("readOnly", true);
         proof.addProperty("signedRuntimeVerified", true);proof.add("runtimePin", pin);proof.addProperty("actualCliSha256", cliSha);
+        proof.add("signedSupportedFeatures", signedFeatures);
         proof.addProperty("cliHashEvidence", "SIGNED_READBACK_FILE_HASH_AND_ENTRYPOINT_BINDING");
         proof.addProperty("nativeFileHashesVerified", true);proof.addProperty("transactionId", receipt.getTransactionId());
         proof.addProperty("approvedRuntimeVerifiedAtMillis", instance.getRuntimeVerifiedAt().getTime());
@@ -706,7 +709,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
             verifyBytes(manifest, bundle.getManifestSha256(), "runtime manifest");
             final JsonObject verified = new StorageServiceRuntimeBundleVerifier().verify(bundle, archive, manifest, signature,
                     trustedKey(bundle.getSigningKeyId()));
-            requireSignedRuntimeFeatures(instance, verified.getAsJsonObject("manifest"));
+            requireSignedRuntimeFeatures(instance, verified.getAsJsonObject("manifest"), bundle);
             final JsonObject consumerCompatibility = versionCompatibility(instance, verified.getAsJsonObject("manifest"), StorageRuntimeVersionCompatibility.Mode.NEW_ACTIVATION, null);
             final JsonObject sourceCheckpoint = instance.getCurrentRuntimeBundleId() == null ? null
                     : installedCheckpoint(instance, requireBundle(instance.getCurrentRuntimeBundleId()), transactionId);
@@ -763,7 +766,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
             if (preflight.has("sourceSignedRuntime") && !sourceRootBinding(instance).equals(preflight.getAsJsonObject("sourceSignedRuntime").get("sourceRootBinding"))) {
                 throw new CloudRuntimeException("Source ROOT changed after runtime preflight");
             }
-            JsonObject manifest = signedManifest(bundle);requireSignedRuntimeFeatures(instance, manifest);
+            JsonObject manifest = signedManifest(bundle);requireSignedRuntimeFeatures(instance, manifest, bundle);
             JsonObject compatibility = versionCompatibility(instance, manifest, StorageRuntimeVersionCompatibility.Mode.NEW_ACTIVATION, null);
             pinnedBundle(runtimePin(bundle));
             requireRuntimeActivationSafety(instance);
@@ -903,7 +906,28 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
     }
 
     protected void requireSignedRuntimeFeatures(StorageServiceInstanceVO instance, JsonObject manifest) {
+        requireSignedRuntimeFeatures(instance, manifest, null);
+    }
+
+    protected void requireSignedRuntimeFeatures(StorageServiceInstanceVO instance, JsonObject manifest, StorageServiceRuntimeBundleVO normalCandidate) {
         java.util.Set<String> required = requiredRuntimeFeatures(instance);
+        if (normalCandidate != null && java.util.Objects.equals(instance.getCurrentRuntimeBundleId(), normalCandidate.getId())
+                && required.stream().anyMatch(feature -> AD_IDENTITY_FEATURES.contains(feature) || "POSIX_AD_PRINCIPALS".equals(feature))) {
+            java.util.Set<String> scoped = runtimeDependencyService().scopedValidatedRuntimeFeatures(instance.getId(), java.util.Set.copyOf(required));
+            if (scoped == null) throw new CloudRuntimeException("Validated fixture feature requirements are unavailable");
+            if (!scoped.equals(required)) {
+                java.util.Set<String> exact = new java.util.HashSet<>(required);
+                exact.removeAll(AD_IDENTITY_FEATURES);exact.remove("POSIX_AD_PRINCIPALS");exact.add("SMB_AD_IDENTITY_HANDLER");
+                if (!scoped.equals(exact)) throw new CloudRuntimeException("Validated fixture cannot discard other runtime feature requirements");
+                String candidateCli = runtimeManifestCliSha256(manifest);
+                JsonObject currentProof = freshSignedRuntimeValidationProof(instance.getId(), candidateCli);
+                if (!runtimePin(normalCandidate).equals(currentProof.getAsJsonObject("runtimePin"))
+                        || !candidateCli.equals(stringValue(currentProof, "actualCliSha256"))) {
+                    throw new CloudRuntimeException("Validated AD fixture runtime activation requires the exact current approved signed pin");
+                }
+                required = java.util.Set.copyOf(scoped);
+            }
+        }
         if (required.stream().anyMatch(feature -> AD_IDENTITY_FEATURES.contains(feature) || "POSIX_AD_PRINCIPALS".equals(feature))) {
             requireNativeAdFeatures(instance, required);
         }

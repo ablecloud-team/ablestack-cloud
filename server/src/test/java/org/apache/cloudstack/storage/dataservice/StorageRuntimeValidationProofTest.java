@@ -173,4 +173,37 @@ public class StorageRuntimeValidationProofTest {
         manager.stringFileBoolean = true;
         try (MockedConstruction<StorageServiceRuntimeBundleVerifier> ignored = verifier()) { Assert.assertThrows(CloudRuntimeException.class, () -> manager.freshSignedRuntimeValidationProof(17L, CLI)); }
     }
+
+    @Test public void proofReturnsOnlyExactSignedFeaturesAndDetachedArray() {
+        JsonArray declared = new JsonArray();declared.add("NESTED_FILE_SHARE");declared.add("SMB_AD_IDENTITY_HANDLER");
+        manifest.add("supportedFeatures", declared);
+        try (MockedConstruction<StorageServiceRuntimeBundleVerifier> ignored = verifier()) {
+            JsonObject result = manager.freshSignedRuntimeValidationProof(17L, CLI);
+            Assert.assertEquals(declared, result.getAsJsonArray("signedSupportedFeatures"));
+            result.getAsJsonArray("signedSupportedFeatures").remove(0);
+            Assert.assertEquals(2, manifest.getAsJsonArray("supportedFeatures").size());
+            Assert.assertEquals(List.of(StorageServiceRuntimeOperation.READBACK), manager.operations);
+        }
+    }
+    @Test public void legacyManifestDoesNotInventHandlerFeatures() {
+        try (MockedConstruction<StorageServiceRuntimeBundleVerifier> ignored = verifier()) {
+            JsonObject result = manager.freshSignedRuntimeValidationProof(17L, CLI);
+            Assert.assertEquals(0, result.getAsJsonArray("signedSupportedFeatures").size());
+        }
+    }
+    @Test public void malformedSignedFeatureShapeBlocksBeforeNativeReadback() {
+        manifest.addProperty("supportedFeatures", "SMB_AD_IDENTITY_HANDLER");
+        try (MockedConstruction<StorageServiceRuntimeBundleVerifier> ignored = verifier()) {
+            Assert.assertThrows(CloudRuntimeException.class, () -> manager.freshSignedRuntimeValidationProof(17L, CLI));
+            Assert.assertTrue(manager.operations.isEmpty());
+        }
+    }
+    @Test public void duplicateSignedHandlerFeatureCannotBecomeProof() {
+        JsonArray declared = new JsonArray();declared.add("SMB_AD_IDENTITY_HANDLER");declared.add("SMB_AD_IDENTITY_HANDLER");
+        manifest.add("supportedFeatures", declared);
+        try (MockedConstruction<StorageServiceRuntimeBundleVerifier> ignored = verifier()) {
+            Assert.assertThrows(CloudRuntimeException.class, () -> manager.freshSignedRuntimeValidationProof(17L, CLI));
+            Assert.assertTrue(manager.operations.isEmpty());
+        }
+    }
 }

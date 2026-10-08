@@ -123,4 +123,12 @@ public class StorageServiceTemplateUpgradeEngineTest {
         Mockito.doThrow(new CloudRuntimeException("incompatible")).when(runtime).preflight();Assert.assertThrows(CloudRuntimeException.class,()->engine().execute(row,runtime));
         Mockito.verify(runtime).finished(false);Assert.assertEquals("BLOCKED",row.getState());
     }
+    @Test public void nativeCommitBeforeProjectionFailureRetainsTargetAndRecoversForwardWithoutAnotherSwap() {
+        StorageServiceTemplateUpgradeVO row=new StorageServiceTemplateUpgradeVO();StorageServiceTemplateUpgradeEngine.Runtime runtime=Mockito.mock(StorageServiceTemplateUpgradeEngine.Runtime.class);java.util.concurrent.atomic.AtomicBoolean committed=new java.util.concurrent.atomic.AtomicBoolean();
+        Mockito.when(runtime.forwardRecoveryRequired()).thenAnswer(call->committed.get());Mockito.doAnswer(call->{committed.set(true);throw new CloudRuntimeException("projection lost after native commit");}).when(runtime).commit();
+        Assert.assertThrows(CloudRuntimeException.class,()->engine().execute(row,runtime));Assert.assertEquals("RECOVERY_REQUIRED",row.getState());Mockito.verify(runtime,Mockito.never()).restorePreviousRoot();Mockito.doNothing().when(runtime).commit();engine().execute(row,runtime);Assert.assertEquals("COMPLETE",row.getState());Mockito.verify(runtime,Mockito.times(1)).swapRoot();Mockito.verify(runtime,Mockito.times(1)).bootTarget();Mockito.verify(runtime,Mockito.never()).restorePreviousRoot();Mockito.verify(runtime,Mockito.times(2)).verify();
+    }
+    @Test public void uncertainCommitObservationAfterFailureCannotFallThroughToDestructivePreviousRootSwap() {
+        StorageServiceTemplateUpgradeVO row=new StorageServiceTemplateUpgradeVO();StorageServiceTemplateUpgradeEngine.Runtime runtime=Mockito.mock(StorageServiceTemplateUpgradeEngine.Runtime.class);Mockito.when(runtime.forwardRecoveryRequired()).thenReturn(false).thenThrow(new CloudRuntimeException("native readback unavailable"));Mockito.doThrow(new CloudRuntimeException("commit transport lost")).when(runtime).commit();Assert.assertThrows(CloudRuntimeException.class,()->engine().execute(row,runtime));Assert.assertEquals("RECOVERY_REQUIRED",row.getState());Mockito.verify(runtime,Mockito.never()).restorePreviousRoot();
+    }
 }

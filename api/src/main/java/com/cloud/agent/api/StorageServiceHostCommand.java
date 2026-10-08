@@ -26,7 +26,7 @@ public class StorageServiceHostCommand extends Command {
             "operation observe","operation verify","operation resources","operation generation status","operation generation frozen",
             "volume operation status","volume operation capabilities","operation maintenance status","operation root-data inspect",
             "identity capsule capabilities","nfs idmapping preflight","operation writer-idle","operation reservation status","smb identity inspect",
-            "operation generation render-status","operation generation render-boot-gate","posix directory inspect","posix directory plan","nfs capabilities");
+            "operation generation render-status","operation generation render-boot-gate","posix directory inspect","posix directory plan","posix directory attest-plan","nfs capabilities","identity domain capabilities","identity domain inspect","identity principal resolve");
     private static final Set<String> SCOPED_COORDINATION_OPERATIONS = Set.of("operation reservation renew");
     private String vmName;
     private String operation;
