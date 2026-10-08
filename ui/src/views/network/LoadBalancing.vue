@@ -237,7 +237,7 @@ class="mold-dialog network-rule-dialog"
       :rowKey="record => record.id"
       :expandRowByClick="true">
       <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'name'">{{ record.name }} <a-tag v-if="isProtectedRule(record)">{{ $t(ruleOwners[record.id] ? 'label.kubernetes.lb.' + ruleOwners[record.id].kind : 'label.kubernetes.lb.unknown') }}</a-tag></template>
+        <template v-if="column.key === 'name'">{{ record.name }} <a-tag v-if="ruleOwners[record.id]">{{ $t('label.kubernetes.lb.' + ruleOwners[record.id].kind) }}</a-tag></template>
         <template v-if="column.key === 'cidrlist'">
           <span style="white-space: pre-line"> {{ record.cidrlist?.replaceAll(",", "\n") }}</span>
         </template>
@@ -1621,6 +1621,8 @@ export default {
           this.form.domain = this.selectedStickinessPolicy.params.domain
           this.form.length = this.selectedStickinessPolicy.params.length
           this.form.holdtime = this.selectedStickinessPolicy.params.holdtime
+          this.form.tablesize = this.selectedStickinessPolicy.params.tablesize
+          this.form.expire = this.selectedStickinessPolicy.params.expire
           this.form.nocache = !!this.selectedStickinessPolicy.params.nocache
           this.form.indirect = !!this.selectedStickinessPolicy.params.indirect
           this.form.postonly = !!this.selectedStickinessPolicy.params.postonly

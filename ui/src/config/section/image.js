@@ -399,6 +399,7 @@ export default {
         },
         {
           api: 'getUploadParamsForKubernetesSupportedVersion',
+          dialogWidth: 1000,
           icon: 'cloud-upload-outlined',
           label: 'label.kubernetes.version.from.local',
           listView: true,

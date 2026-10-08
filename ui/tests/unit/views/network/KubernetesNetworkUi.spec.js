@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import { getAPI, postAPI } from '@/api'
 import PortForwarding from '@/views/network/PortForwarding'
 import FirewallRules from '@/views/network/FirewallRules'
@@ -105,4 +105,11 @@ test('LB VM picker headings react to a language change while the component stays
   expect(columns.value.map(column => column.title)).toContain('ko:label.name')
   locale.value = 'en'
   expect(columns.value.map(column => column.title)).toEqual(['name', 'state', 'displayname', 'account', 'zonename', 'select'].map(field => 'en:label.' + field))
+})
+
+test('reopening a SourceBased policy preserves its configured table size and expiry', async () => {
+  const vm = { initForm: jest.fn(), form: {}, $t: key => key, stickinessPolicies: [{ lbruleid: 'rule', stickinesspolicy: [{ id: 'policy', name: 'source-policy', methodname: 'SourceBased', params: { tablesize: '10k', expire: '30m' } }] }] }
+  LoadBalancing.methods.openStickinessModal.call(vm, 'rule')
+  await nextTick()
+  expect(vm.form).toMatchObject({ methodname: 'SourceBased', name: 'source-policy', tablesize: '10k', expire: '30m' })
 })

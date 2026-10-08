@@ -825,7 +825,7 @@ export default {
         const filters = ['cloud.managed', 'external.managed']
         return filters
       },
-      details: ['name', 'description', 'zonename', 'kubernetesversionname', 'autoscalingenabled', 'csienabled', { field: 'minsize', customTitle: 'cks.cluster.minsize' }, { field: 'maxsize', customTitle: 'cks.cluster.maxsize' }, { field: 'size', customTitle: 'cks.cluster.size' }, 'controlnodes', 'controlaffinitygroupnames', 'etcdnodes', 'etcdaffinitygroupnames', 'workeraffinitygroupnames', { field: 'cpunumber', customTitle: 'cks.cluster.total.allocated.cpu' }, { field: 'memory', customTitle: 'cks.cluster.total.allocated.memory' }, 'keypair', 'cniconfigname', 'associatednetworkname', 'account', 'domain', 'zonename', 'clustertype', 'created'],
+      details: ['name', 'description', 'zonename', 'kubernetesversionname', 'autoscalingenabled', 'csienabled', { field: 'minsize', customTitle: 'cks.cluster.minsize' }, { field: 'maxsize', customTitle: 'cks.cluster.maxsize' }, { field: 'size', customTitle: 'cks.cluster.size' }, 'controlnodes', 'controlaffinitygroupnames', 'etcdnodes', 'etcdaffinitygroupnames', 'workeraffinitygroupnames', { field: 'cpunumber', customTitle: 'cks.cluster.total.allocated.cpu' }, { field: 'memory', customTitle: 'cks.cluster.total.allocated.memory' }, 'keypair', 'cniconfigname', 'associatednetworkname', 'account', 'domain', 'clustertype', 'created'],
       tabs: [
         {
           name: 'k8s',
