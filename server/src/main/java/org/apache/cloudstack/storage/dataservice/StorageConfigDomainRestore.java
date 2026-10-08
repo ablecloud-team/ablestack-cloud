@@ -58,7 +58,7 @@ public final class StorageConfigDomainRestore {
         final Class<? extends BaseCmd> type;final String method;
         Command(Class<? extends BaseCmd> type, String method) { this.type = type;this.method = method; }
     }
-    private Command command(String kind, JsonObject row, boolean update, Map<String, JsonObject> owners) {
+    private Command command(String kind, JsonObject row, boolean update, Map<String, JsonObject> owners,boolean authenticatedAd) {
         String protocol = text(row, "protocol");
         if ("protocols".equals(kind)) return new Command(EnableStorageServiceProtocolCmd.class, "enableStorageServiceProtocol");
         if ("posix-directory-policies".equals(kind)) return new Command(update ? UpdateStoragePosixDirectoryPolicyCmd.class : CreateStoragePosixDirectoryPolicyCmd.class, "executeStoragePosixDirectoryPolicy");
@@ -80,7 +80,7 @@ public final class StorageConfigDomainRestore {
             if ("NFS".equals(ownerProtocol)) return new Command(update ? UpdateStorageNfsAclCmd.class : CreateStorageNfsAclCmd.class, update ? "updateStorageNfsAcl" : "createStorageNfsAcl");
             if ("SMB".equals(ownerProtocol)) {
                 if (Set.of("CIDR", "IP_ADDRESS").contains(type)) return new Command(update ? UpdateStorageSmbNetworkAclCmd.class : CreateStorageSmbNetworkAclCmd.class, update ? "updateStorageSmbNetworkAcl" : "createStorageSmbNetworkAcl");
-                if (Set.of("AD_USER", "AD_GROUP").contains(type)) throw new InvalidParameterValueException("SMB AD configuration restore is deferred");
+                if (Set.of("AD_USER", "AD_GROUP").contains(type)&&!authenticatedAd) throw new InvalidParameterValueException("SMB AD configuration restore requires its authenticated source authority");
                 return new Command(update ? UpdateStorageSmbAclCmd.class : CreateStorageSmbAclCmd.class, update ? "updateStorageSmbAcl" : "createStorageSmbAcl");
             }
             if ("ISCSI".equals(ownerProtocol)) return new Command(update ? UpdateStorageIscsiAclCmd.class : CreateStorageIscsiAclCmd.class, update ? "updateStorageIscsiAcl" : "createStorageIscsiAcl");
@@ -103,8 +103,11 @@ public final class StorageConfigDomainRestore {
         }
         for (String action : new String[] {"update", "create"}) for (JsonElement item : plan.getAsJsonArray(action)) {
             JsonObject change = item.getAsJsonObject();String kind = text(change, "kind");JsonObject desired = change.getAsJsonObject("desired");
-            if ("identity-domain".equals(kind)) continue;// AD is blocked by semantic validation; an empty identity observation is not an apply input.
-            Command command = command(kind, desired, "update".equals(action), owners);
+            if ("identity-domain".equals(kind)) {
+                if(text(desired,"domain_name")!=null&&!text(desired,"domain_name").isBlank()&&!plan.has("adIdentitySourceDescriptor"))throw new InvalidParameterValueException("AD domain restore requires the reviewed authenticated source");
+                continue;
+            }
+            Command command = command(kind, desired, "update".equals(action), owners,plan.has("adIdentitySourceDescriptor"));
             JsonObject parameters = StorageConfigCommandBinding.parameters(desired, kind);
             if ("access-rules".equals(kind)) {
                 String protocol = text(owners.get(text(desired, "resourceUuid")), "protocol");
@@ -121,6 +124,10 @@ public final class StorageConfigDomainRestore {
         if (plan.getAsJsonArray("blockers").size() > 0 || !instance.getUuid().equals(text(plan, "targetInstanceUuid"))) {
             throw new InvalidParameterValueException("Configuration restore plan is blocked or changed scope");
         }
+        if(plan.has("adIdentitySourceDescriptor"))for(String action:new String[]{"keep","update","create"})for(JsonElement item:plan.getAsJsonArray(action)){
+            JsonObject change=item.getAsJsonObject(),desired=change.getAsJsonObject("desired");
+            if("access-rules".equals(text(change,"kind"))&&Set.of("LOCAL_USER","LOCAL_GROUP").contains(text(desired,"principal_type"))&&credentials.has(text(desired,"uuid")))throw new InvalidParameterValueException("Encrypted-source LOCAL restore forbids credential replacement");
+        }
         Map<String, Long> currentIds = manager.configurationResourceIds(instance.getId());
         Map<String, Long> mapped = new HashMap<>();Map<String, JsonObject> owners = new HashMap<>();
         JsonArray changes = new JsonArray();
@@ -134,6 +141,21 @@ public final class StorageConfigDomainRestore {
         }
         manager.beginConfigurationBatch(instance.getId());
         try {
+            if(plan.has("adIdentitySourceDescriptor"))manager.prepareAdSemanticResourceMappings(instance,plan);
+            for(JsonElement item:changes){
+                JsonObject change=item.getAsJsonObject(),desired=change.getAsJsonObject("desired");
+                if("identity-domain".equals(text(change,"kind"))&&text(desired,"domain_name")!=null&&!text(desired,"domain_name").isBlank())manager.restoreAdSemanticDomain(instance,desired,plan,credentials);
+            }
+            if(plan.has("adIdentitySourceDescriptor"))for(JsonElement item:changes){
+                JsonObject change=item.getAsJsonObject(),desired=change.getAsJsonObject("desired");
+                if(!"access-rules".equals(text(change,"kind"))||!Set.of("AD_USER","AD_GROUP").contains(text(desired,"principal_type")))continue;
+                JsonObject config=desired.has("config")&&desired.get("config").isJsonObject()?desired.getAsJsonObject("config"):new JsonObject();
+                JsonObject original=config.has("adPrincipalReceipt")&&config.get("adPrincipalReceipt").isJsonObject()?config.getAsJsonObject("adPrincipalReceipt"):null;
+                if(original==null)throw new InvalidParameterValueException("AD permission restore requires its original encrypted-source-bound principal mapping");
+                JsonObject resolved=manager.resolveStorageAdPrincipal(instance,StorageServiceInstance.PrincipalType.valueOf(text(desired,"principal_type")),text(desired,"principal"));
+                for(String field:new String[]{"sid","domainSid","principalType","sidType","sidTypeName","kind","numericId","qualifiedName"})if(!original.has(field)||!original.get(field).equals(resolved.get(field)))throw new InvalidParameterValueException("Fresh AD principal mapping changed before POSIX or share restoration");
+                config.add("adPrincipalReceipt",resolved);desired.add("config",config);
+            }
             if ("CREATE_NEW".equals(text(plan, "targetMode"))) {
                 Set<String> prepared = new java.util.HashSet<>();
                 for (JsonElement item : changes) {
@@ -157,7 +179,7 @@ public final class StorageConfigDomainRestore {
                     JsonObject change = item.getAsJsonObject();if (!kind.equals(text(change, "kind")) || "KEEP".equals(text(change, "action"))) continue;
                     if ("identity-domain".equals(kind)) continue;
                     JsonObject desired = change.getAsJsonObject("desired");boolean update = "UPDATE".equals(text(change, "action"));
-                    Command command = command(kind, desired, update, owners);JsonObject parameters = StorageConfigCommandBinding.parameters(desired, kind);
+                    Command command = command(kind, desired, update, owners,plan.has("adIdentitySourceDescriptor"));JsonObject parameters = StorageConfigCommandBinding.parameters(desired, kind);
                     if (update) parameters.addProperty("id", mapped.get(text(change, "sourceUuid")));
                     else if (!command.type.equals(CreateStorageNvmeOfNamespaceCmd.class) && !kind.equals("access-rules")) parameters.addProperty("instanceid", instance.getId());
                     String volume = text(desired, "volumeUuid");

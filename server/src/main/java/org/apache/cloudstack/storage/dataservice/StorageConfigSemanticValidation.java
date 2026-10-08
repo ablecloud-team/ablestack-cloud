@@ -51,7 +51,8 @@ public final class StorageConfigSemanticValidation {
     private static int compare(int[] left, int[] right) {
         for (int i = 0; i < left.length; i++) if (left[i] != right[i]) return Integer.compare(left[i], right[i]);return 0;
     }
-    public static void validate(Map<String, byte[]> archive, StorageServiceManagerImpl manager) {
+    public static void validate(Map<String, byte[]> archive, StorageServiceManagerImpl manager) {validate(archive,manager,false);}
+    public static void validate(Map<String, byte[]> archive, StorageServiceManagerImpl manager,boolean authenticatedAdSource) {
         Map<String, JsonArray> collections = StorageConfigRestorePlan.resources(archive);
         for (Map.Entry<String, JsonArray> collection : collections.entrySet()) for (JsonElement item : collection.getValue()) {
             JsonObject row = item.getAsJsonObject();JsonObject config = row.has("config") ? row.getAsJsonObject("config") : new JsonObject();
@@ -82,11 +83,16 @@ public final class StorageConfigSemanticValidation {
                 } else throw new InvalidParameterValueException("Invalid file-share protocol");
                 if (row.has("quota_bytes") && !row.get("quota_bytes").isJsonNull() && row.get("quota_bytes").getAsLong() < 0) throw new InvalidParameterValueException("Negative share quota");
             } else if ("identity-domain".equals(collection.getKey())) {
-                if (text(row, "domain_name") != null && !text(row, "domain_name").isBlank()) throw new InvalidParameterValueException("SMB AD configuration restore is deferred");
+                if (text(row, "domain_name") != null && !text(row, "domain_name").isBlank()) {
+                    if(!authenticatedAdSource)throw new InvalidParameterValueException("SMB AD configuration restore requires an authenticated managed encrypted source");
+                    JsonObject identity=config.has("identityReceipt")&&config.get("identityReceipt").isJsonObject()?config.getAsJsonObject("identityReceipt"):null;
+                    if(identity==null||!"JOINED".equals(text(identity,"joinState"))||!text(row,"domain_name").equals(text(identity,"domain"))||!identity.has("idmapPolicy"))throw new InvalidParameterValueException("AD source declaration lacks its original joined identity");
+                    StorageAdLifecycleRequest.validateIdmap(identity.getAsJsonObject("idmapPolicy"));
+                }
             } else if ("access-rules".equals(collection.getKey())) {
                 String principal = text(row, "principal");String type = text(row, "principal_type");
                 if (principal == null || principal.isBlank() || principal.length() > 255 || principal.chars().anyMatch(Character::isISOControl)) throw new InvalidParameterValueException("Invalid access principal");
-                if (Set.of("AD_USER", "AD_GROUP").contains(type)) throw new InvalidParameterValueException("SMB AD configuration restore is deferred");
+                if (Set.of("AD_USER", "AD_GROUP").contains(type)&&!authenticatedAdSource) throw new InvalidParameterValueException("SMB AD configuration restore requires an authenticated managed encrypted source");
                 StorageServiceInstance.PrincipalType.valueOf(type);
                 StorageServiceInstance.Permission.valueOf(text(row, "permission"));
             } else if ("block-targets".equals(collection.getKey())) {

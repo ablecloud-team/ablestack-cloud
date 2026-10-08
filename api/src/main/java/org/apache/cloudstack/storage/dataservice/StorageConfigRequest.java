@@ -25,6 +25,8 @@ public interface StorageConfigRequest {
     default Long getInstanceId() { return null; }
     default Long getArtifactId() { return null; }
     default Boolean getIncludeRuntime() { return null; }
+    default Boolean getIncludeAdIdentity() { return null; }
+    default Boolean getMaintenanceWindow() { return null; }
     default Integer getRetentionHours() { return null; }
     default String getData() { return null; }
     default String getSha256() { return null; }

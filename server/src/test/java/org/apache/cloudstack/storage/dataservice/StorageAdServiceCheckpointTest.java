@@ -27,7 +27,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 public class StorageAdServiceCheckpointTest {
     private static class Manager extends StorageServiceManagerImpl {
-        List<String> events=new ArrayList<>();JsonObject before;boolean wrongCapture,wrongStopped,wrongBoot;
+        List<String> events=new ArrayList<>();JsonObject before;boolean wrongCapture,wrongStopped,wrongBoot,bootstrapCreated,wrongBootstrap,lostBootstrap;StorageServiceOperationVO activeOperation;
         @Override protected JsonObject requiredRenderedValidationProfile(StorageServiceInstanceVO instance){return new JsonObject();}
         @Override protected void requireNoPendingVolumeFormatter(StorageServiceInstanceVO instance){ }
         @Override protected void prepareRenderedBatch(StorageServiceInstanceVO instance,StorageServiceOperationVO operation,JsonObject nativeBefore){events.add("IMPORT_READONLY_SOURCE");JsonObject manifest=new JsonObject();manifest.addProperty("manifestSha256","b".repeat(64));ThreadLocal<RenderedBatch> batches=(ThreadLocal<RenderedBatch>)ReflectionTestUtils.getField(this,"renderedBatch");batches.set(new RenderedBatch(operation,nativeBefore,manifest,StorageIdentityCapsule.wrappingKey()));}
@@ -41,6 +41,15 @@ public class StorageAdServiceCheckpointTest {
         result.add("publicAdPreStopSha256",JsonNull.INSTANCE);
         result.addProperty("publicLocalMachineSid","S-1-5-21-1-2-3");
         result.addProperty("bootId","33333333-3333-3333-3333-333333333333");
+        if(command.equals("identity local-sam bootstrap")){
+            Assert.assertTrue(com.google.gson.JsonParser.parseString(activeOperation.getPreviousSnapshotJson()).getAsJsonObject().get("adSamBootstrapAttempted").getAsBoolean());
+            Assert.assertEquals(java.util.Set.of("instanceUuid","operationUuid","revision","netbiosName","initializationApproved","expectedGeneration","expectedConfigurationSha256","expectedBootId"),scope.keySet());
+            if(lostBootstrap)throw new com.cloud.utils.exception.CloudRuntimeException("Lost bootstrap reply");
+            JsonObject binding=new JsonObject();for(String key:List.of("instanceUuid","operationUuid","revision"))binding.add(key,scope.get(key).deepCopy());result.add("scope",binding);
+            result.add("generation",before.get("generation").deepCopy());result.addProperty("configurationSha256","a".repeat(64));result.addProperty("netbiosName",scope.get("netbiosName").getAsString());
+            result.addProperty("localMachineSid","S-1-5-21-1-2-3");result.addProperty("localSamInitialized",bootstrapCreated);result.addProperty("identityPreserved",!bootstrapCreated);result.addProperty("sideEffects",bootstrapCreated);result.addProperty("canonicalDesiredStateChanged",false);
+            if(wrongBootstrap)result.addProperty("identityPreserved","true");return result;
+        }
         if(command.endsWith("capture-source")){result.addProperty("sourceCaptured",true);
         result.addProperty("canonicalDesiredStateChanged",false);
         result.addProperty("sourceRenderedManifestSha256","b".repeat(64));
@@ -69,6 +78,7 @@ public class StorageAdServiceCheckpointTest {
         f.manager.before=new JsonObject();
         f.manager.before.add("generation",gen);
         f.manager.before.addProperty("generationStatus","IN_SYNC");
+        f.manager.before.addProperty("bootId","33333333-3333-3333-3333-333333333333");f.manager.activeOperation=f.operation;
         f.manager.before.addProperty("configurationSha256","a".repeat(64));
         f.manager.before.add("configurationDesiredState",new JsonObject());
         org.apache.cloudstack.storage.dataservice.dao.StorageServiceOperationDao operations=Mockito.mock(org.apache.cloudstack.storage.dataservice.dao.StorageServiceOperationDao.class);
@@ -169,6 +179,25 @@ public class StorageAdServiceCheckpointTest {
     @Test public void failedDurableSourceReceiptWriteCannotReturnCipherToManagedStorage(){
         CipherFixture f=cipherFixture();Mockito.when(f.operations.update(Mockito.anyLong(),Mockito.any())).thenReturn(false);
         Assert.assertThrows(RuntimeException.class,()->f.manager.exportConfigurationIdentity(f.instance,f.operation.getUuid(),StorageIdentityCapsule.wrappingKey(),f.scope,"a".repeat(64)));
+    }
+
+    @Test public void firstJoinDispatchesApprovedSamBootstrapBeforeSourceImportAndCapture(){
+        for(boolean created:new boolean[]{false,true}){
+            Fixture f=fixture();f.operation.setAction("joinStorageServiceToAdDomain");f.manager.bootstrapCreated=created;f.manager.prepareAdServiceCheckpoint(f.instance,f.operation);
+            Assert.assertTrue(f.manager.events.indexOf("identity local-sam bootstrap")<f.manager.events.indexOf("IMPORT_READONLY_SOURCE"));
+            Assert.assertTrue(f.manager.events.indexOf("identity local-sam bootstrap")<f.manager.events.indexOf("operation generation render-service-capture-source"));
+            JsonObject snapshot=com.google.gson.JsonParser.parseString(f.operation.getPreviousSnapshotJson()).getAsJsonObject();JsonObject proof=snapshot.getAsJsonObject("adSamBootstrapReceipt");
+            Assert.assertEquals(created,proof.get("localSamInitialized").getAsBoolean());Assert.assertEquals(!created,proof.get("identityPreserved").getAsBoolean());
+            Assert.assertEquals(proof.get("localMachineSid"),snapshot.getAsJsonObject("adServiceSource").get("publicLocalMachineSid"));
+        }
+    }
+    @Test public void unknownSamInitializationCannotCaptureSourceOrClaimGenericRollback(){
+        for(boolean lost:new boolean[]{false,true}){
+            Fixture f=fixture();f.operation.setAction("joinStorageServiceToAdDomain");f.manager.lostBootstrap=lost;f.manager.wrongBootstrap=!lost;
+            Assert.assertThrows(RuntimeException.class,()->f.manager.prepareAdServiceCheckpoint(f.instance,f.operation));Assert.assertFalse(f.manager.events.contains("IMPORT_READONLY_SOURCE"));Assert.assertFalse(f.manager.events.contains("GEN_begin"));Assert.assertFalse(f.manager.events.contains("RAW_IDENTITY_AFTER_STOP"));
+            JsonObject snapshot=com.google.gson.JsonParser.parseString(f.operation.getPreviousSnapshotJson()).getAsJsonObject();Assert.assertTrue(snapshot.get("adSamBootstrapAttempted").getAsBoolean());Assert.assertFalse(snapshot.has("adSamBootstrapReceipt"));
+            Assert.assertThrows(RuntimeException.class,()->ReflectionTestUtils.invokeMethod(f.manager,"rollbackNativeConfigurationGeneration",f.instance,f.operation));Assert.assertFalse(f.manager.events.contains("GEN_rollback"));
+        }
     }
 
 }

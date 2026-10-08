@@ -47,6 +47,18 @@ public final class StorageIdentityCapsule {
         }
         return encrypted.getBytes(StandardCharsets.UTF_8);
     }
+    public static java.security.PrivateKey unwrapProtectedPrivateKey(byte[] protectedKey) {
+        String encrypted=new String(protectedKey,StandardCharsets.UTF_8),plain=com.cloud.utils.crypt.DBEncryptionUtil.decrypt(encrypted);
+        if(plain.equals(encrypted)||!plain.startsWith("-----BEGIN PRIVATE KEY-----")||!plain.trim().endsWith("-----END PRIVATE KEY-----"))throw new CloudRuntimeException("Managed identity wrapping key is not protected or is unavailable");
+        byte[] encoded=null;
+        try {
+            encoded=Base64.getDecoder().decode(plain.replace("-----BEGIN PRIVATE KEY-----","").replace("-----END PRIVATE KEY-----","").replaceAll("\\s",""));
+            java.security.PrivateKey key=java.security.KeyFactory.getInstance("RSA").generatePrivate(new java.security.spec.PKCS8EncodedKeySpec(encoded));
+            if(!(key instanceof java.security.interfaces.RSAPrivateKey)||((java.security.interfaces.RSAPrivateKey)key).getModulus().bitLength()<2048)throw new CloudRuntimeException("Managed identity wrapping key strength is invalid");
+            return key;
+        } catch(java.security.GeneralSecurityException|IllegalArgumentException invalid){throw new CloudRuntimeException("Managed identity wrapping key cannot be decoded",invalid);}
+        finally {if(encoded!=null)java.util.Arrays.fill(encoded,(byte)0);}
+    }
     public static JsonObject importRequest(String instanceUuid, String operationUuid, JsonObject capsule, byte[] protectedKey) {
         JsonObject request = new JsonObject();request.addProperty("instanceUuid", instanceUuid);request.addProperty("operationUuid", operationUuid);request.add("capsule", capsule);
         request.addProperty("credentialPrivateKey", com.cloud.utils.crypt.DBEncryptionUtil.decrypt(new String(protectedKey, StandardCharsets.UTF_8)));return request;

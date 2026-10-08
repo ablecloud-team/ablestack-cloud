@@ -46,7 +46,7 @@ public final class StorageConfigArchive {
     private static final Set<String> PATHS = Set.of("manifest.json", "desired/instance.json", "desired/protocols.json",
             "desired/file-shares.json", "desired/block-targets.json", "desired/access-rules.json", "desired/identity-domain.json",
             "desired/volumes.json", "desired/posix-directory-policies.json", "runtime/inventory.json", "runtime/health.json",
-            "runtime/sessions.json", "rendered/nfs/exports.json", "rendered/samba/shares.json", "rendered/iscsi/targets.json",
+            "runtime/sessions.json", "identity/ad-source-descriptor.json", "rendered/nfs/exports.json", "rendered/samba/shares.json", "rendered/iscsi/targets.json",
             "rendered/nvmeof/subsystems.json", "system/mounts.json", "system/services.json", "README.md", "SHA256SUMS");
     private StorageConfigArchive() { }
 

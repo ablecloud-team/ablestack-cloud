@@ -44,6 +44,9 @@ public class RestoreStorageServiceLastKnownGoodCmd extends BaseStorageServiceAsy
     public String getConfirmation() { return confirmation; }
     @Parameter(name = "credentials", type = CommandType.STRING, length = 16384) private String credentials;
     public String getCredentials() { return credentials; }
+    @Parameter(name = "maintenancewindow", type = CommandType.BOOLEAN, description = "Explicit approval for a reviewed protected identity last-known-good restore")
+    private Boolean maintenanceWindow;
+    public Boolean getMaintenanceWindow() { return maintenanceWindow; }
     public BaseCmd getBaseCmd() { return this; }
     public String getConfigAction() { return "RESTORE_LKG"; }
 

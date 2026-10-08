@@ -38,6 +38,15 @@ public class CreateStorageServiceConfigBackupCmd extends BaseStorageServiceAsync
     public Long getInstanceId() { return instanceId; }
     @Parameter(name = "includeruntime", type = CommandType.BOOLEAN) private Boolean includeRuntime;
     public Boolean getIncludeRuntime() { return includeRuntime; }
+    @Parameter(name = "includeadidentity", type = CommandType.BOOLEAN, description = "Include a protected full local and AD identity capsule after approved SERVICE interruption; false by default")
+    private Boolean includeAdIdentity;
+    public Boolean getIncludeAdIdentity() { return includeAdIdentity; }
+    @Parameter(name = "maintenancewindow", type = CommandType.BOOLEAN, description = "Explicit approval to stop owned protocol and identity services while collecting protected identity")
+    private Boolean maintenanceWindow;
+    public Boolean getMaintenanceWindow() { return maintenanceWindow; }
+    @Parameter(name = "confirmation", type = CommandType.STRING, length = 255, description = "Exact Storage Service instance name approving identity backup interruption")
+    private String confirmation;
+    public String getConfirmation() { return confirmation; }
     @Parameter(name = "retentionhours", type = CommandType.INTEGER) private Integer retentionHours;
     public Integer getRetentionHours() { return retentionHours; }
     public BaseCmd getBaseCmd() { return this; }

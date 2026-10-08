@@ -78,7 +78,7 @@ public final class StorageConfigCommandBinding {
         JsonObject config = resource.has("config") ? resource.getAsJsonObject("config") : new JsonObject();
         Set<String> informational = Set.of("posixPolicy", "volumeMode", "importMode", "posixPolicyUuid", "localAccount", "resourceKind", "type",
                 "volumeName", "volumeUuid", "backstoreName", "devicePath", "blockBackstore", "schemaVersion", "managedDirectoryMode",
-                "aclManaged", "crossProtocolPosix", "protocolMode", "idMappingMode", "securityType", "listenerGroups");
+                "aclManaged", "adPrincipalReceipt", "localSemanticIdentityReceipt", "semanticManagedIdentityReceipt", "crossProtocolPosix", "protocolMode", "idMappingMode", "securityType", "listenerGroups");
         for (Map.Entry<String, JsonElement> field : config.entrySet()) {
             String key = field.getKey();JsonElement value = field.getValue();if (value == null || value.isJsonNull() || informational.contains(key)) continue;
             String parameter = "relativeSharePath".equals(key) ? "relativepath" : "listenerGroupPorts".equals(key) ? "listenerports" :

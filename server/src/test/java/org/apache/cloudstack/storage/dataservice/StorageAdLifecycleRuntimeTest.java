@@ -96,7 +96,7 @@ public class StorageAdLifecycleRuntimeTest {
         response.addProperty("canonicalDesiredStateChanged",false);
         response.addProperty("localMachineSidPreserved",true);
         response.addProperty("adOwnedArtifactsRemoved",true);
-        response.add("scope",common);
+        response.add("scope",common);addClosedLeaveProof(response,m);
         m.post=new JsonObject();
         m.post.addProperty("success",true);
         m.post.addProperty("sideEffects",false);
@@ -112,7 +112,11 @@ public class StorageAdLifecycleRuntimeTest {
         m.applyAdLeave(instance(),null,null);
         Assert.assertEquals(List.of("PROTECTED_STDIN","LEAVE_STARTED","LEAVE_VERIFIED"),m.phases);
         }
-    private JsonObject leftReceipt(Manager m){JsonObject response=new JsonObject();response.addProperty("success",true);response.addProperty("left",true);response.addProperty("canonicalDesiredStateChanged",false);response.addProperty("localMachineSidPreserved",true);response.addProperty("adOwnedArtifactsRemoved",true);JsonObject scope=m.scope.deepCopy();scope.remove("maintenanceUuid");response.add("scope",scope);return response;}
+    private void addClosedLeaveProof(JsonObject response,Manager manager){
+        for(String field:List.of("publicConfigurationRestored","computerAliasSpnAbsent","dnsAliasesAbsent"))response.addProperty(field,true);
+        JsonArray cleanup=new JsonArray();for(String name:List.of("ad-machine.conf","krb5.keytab","winbindd_idmap.tdb")){JsonObject artifact=new JsonObject();artifact.addProperty("name",name);artifact.addProperty("absent",true);cleanup.add(artifact);}response.add("ownedArtifactCleanup",cleanup);response.add("identity",localObservation(manager));
+    }
+    private JsonObject leftReceipt(Manager m){JsonObject response=new JsonObject();response.addProperty("success",true);response.addProperty("left",true);response.addProperty("canonicalDesiredStateChanged",false);response.addProperty("localMachineSidPreserved",true);response.addProperty("adOwnedArtifactsRemoved",true);JsonObject scope=m.scope.deepCopy();scope.remove("maintenanceUuid");response.add("scope",scope);addClosedLeaveProof(response,m);return response;}
     private JsonObject localObservation(Manager m){JsonObject response=new JsonObject();response.addProperty("success",true);response.addProperty("sideEffects",false);response.addProperty("joinState","NOT_JOINED");for(String field:List.of("trustVerified","identityVerified","adIdentity"))response.addProperty(field,false);response.addProperty("machineSid","S-1-5-21-4-5-6");response.addProperty("bootId","33333333-3333-3333-3333-333333333333");response.addProperty("generatedEpoch",System.currentTimeMillis()/1000.0);JsonObject scope=m.scope.deepCopy();scope.remove("maintenanceUuid");response.add("scope",scope);return response;}
     @Test public void leaveStaleCrossBootOrChangedSamCannotRecordVerifiedExternalEffect(){
         for(String field:List.of("generatedEpoch","bootId","machineSid")){
@@ -150,6 +154,27 @@ public class StorageAdLifecycleRuntimeTest {
         Assert.assertThrows(RuntimeException.class,()->m.applyAdJoin(instance(),domain,"operator","synthetic-test-password"));
         Assert.assertThrows(RuntimeException.class,()->m.applyAdLeave(instance(),null,null));
         Assert.assertTrue(m.phases.isEmpty());Mockito.verifyNoInteractions(guest);
+    }
+
+    @Test public void incompleteRemoteOrPublicRestorationCannotPublishLeftState(){
+        for(String field:List.of("publicConfigurationRestored","computerAliasSpnAbsent","dnsAliasesAbsent","identity")){
+            Manager m=manager();JsonObject response=leftReceipt(m);m.post=localObservation(m);
+            if(field.equals("identity"))response.getAsJsonObject(field).addProperty("machineSid","S-1-5-21-4-5-7");else response.addProperty(field,"true");
+            StorageServiceGuestCommandDispatcher guest=Mockito.mock(StorageServiceGuestCommandDispatcher.class);Mockito.when(guest.dispatch(Mockito.any())).thenReturn(new StorageServiceGuestCommandResult(true,"left",response.toString()));ReflectionTestUtils.setField(m,"guestCommandDispatcher",guest);
+            Assert.assertThrows(field,RuntimeException.class,()->m.applyAdLeave(instance(),null,null));Assert.assertFalse(m.phases.contains("LEAVE_VERIFIED"));
+        }
+    }
+    @Test public void leftCleanupRejectsMissingChangedOrUnnormalizedOwnedArtifacts(){
+        for(String wrong:List.of("missing","path","duplicate","absent","extra")){
+            Manager m=manager();JsonObject response=leftReceipt(m);m.post=localObservation(m);JsonArray cleanup=response.getAsJsonArray("ownedArtifactCleanup");
+            if(wrong.equals("missing"))cleanup.remove(2);
+            else if(wrong.equals("path"))cleanup.get(0).getAsJsonObject().addProperty("name","../ad-machine.conf");
+            else if(wrong.equals("duplicate"))cleanup.get(2).getAsJsonObject().addProperty("name","krb5.keytab");
+            else if(wrong.equals("absent"))cleanup.get(1).getAsJsonObject().addProperty("absent","true");
+            else cleanup.get(0).getAsJsonObject().addProperty("keytabBytes","synthetic-private");
+            StorageServiceGuestCommandDispatcher guest=Mockito.mock(StorageServiceGuestCommandDispatcher.class);Mockito.when(guest.dispatch(Mockito.any())).thenReturn(new StorageServiceGuestCommandResult(true,"left",response.toString()));ReflectionTestUtils.setField(m,"guestCommandDispatcher",guest);
+            Assert.assertThrows(wrong,RuntimeException.class,()->m.applyAdLeave(instance(),null,null));Assert.assertEquals(List.of("PROTECTED_STDIN","LEAVE_STARTED"),m.phases);
+        }
     }
 
 }

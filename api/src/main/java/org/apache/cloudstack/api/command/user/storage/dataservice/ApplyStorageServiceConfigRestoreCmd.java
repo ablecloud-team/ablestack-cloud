@@ -42,6 +42,9 @@ public class ApplyStorageServiceConfigRestoreCmd extends BaseStorageServiceAsync
     public String getPlanToken() { return planToken; }
     @Parameter(name = "confirmation", type = CommandType.STRING, length = 255) private String confirmation;
     public String getConfirmation() { return confirmation; }
+    @Parameter(name = "maintenancewindow", type = CommandType.BOOLEAN, description = "Explicit approval to stop owned services for a reviewed protected AD identity restore")
+    private Boolean maintenanceWindow;
+    public Boolean getMaintenanceWindow() { return maintenanceWindow; }
     @Parameter(name = "credentials", type = CommandType.STRING, length = 16384) private String credentials;
     public String getCredentials() { return credentials; }
     public BaseCmd getBaseCmd() { return this; }
