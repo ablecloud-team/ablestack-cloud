@@ -48,12 +48,13 @@ if sys.argv[1] == 'stop' and os.environ.get('QUIESCE_TEST_FAIL') == sys.argv[2]:
     raise SystemExit(1)
 """)
         fake.chmod(0o755)
-        self.request = {"instanceUuid": str(uuid.uuid4()), "operationUuid": str(uuid.uuid4()), "revision": 4}
+        self.request = {"instanceUuid": str(uuid.uuid4()), "operationUuid": str(uuid.uuid4()), "revision": 4, "templateUpgradeUuid": str(uuid.uuid4())}
         self.payload = self.temp / "request.json"
         self.payload.write_text(json.dumps(self.request))
         self.env = dict(os.environ, PATH=str(self.bin) + ':' + os.environ['PATH'],
                         ABLESTACK_STORAGE_WRITER_LOCK_FILE=str(self.temp / 'writer.lock'),
                         ABLESTACK_STORAGE_GENERATION_DIR=str(self.temp / 'generations'),
+                        ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR=str(self.temp / 'maintenance'),
                         QUIESCE_TEST_LOG=str(self.temp / 'calls'))
 
     def tearDown(self):
@@ -90,6 +91,22 @@ if sys.argv[1] == 'stop' and os.environ.get('QUIESCE_TEST_FAIL') == sys.argv[2]:
         result = self.run_quiesce()
         self.assertNotEqual(0, result.returncode)
         self.assertFalse((self.temp / 'calls').exists())
+
+    def test_writer_idle_is_nonblocking_read_only_and_reports_busy_without_creating_files(self):
+        import fcntl
+        lock=self.temp/'writer.lock'
+        command=[str(CLI),'operation','writer-idle']
+        empty=subprocess.run(command,env=self.env,capture_output=True,text=True)
+        self.assertTrue(json.loads(empty.stdout)['writerIdle'])
+        self.assertFalse(lock.exists())
+        lock.touch(mode=0o600)
+        before=lock.stat()
+        with lock.open('a') as held:
+            fcntl.flock(held,fcntl.LOCK_EX|fcntl.LOCK_NB)
+            busy=subprocess.run(command,env=self.env,capture_output=True,text=True)
+        self.assertEqual(0,busy.returncode)
+        self.assertFalse(json.loads(busy.stdout)['writerIdle'])
+        self.assertEqual(before.st_mtime_ns,lock.stat().st_mtime_ns)
 
     def test_writer_conflict_prevents_quiesce(self):
         import fcntl

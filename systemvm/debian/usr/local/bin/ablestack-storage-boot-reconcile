@@ -48,6 +48,12 @@ if [[ ! -x "$STORAGECTL" ]]; then
   exit 1
 fi
 
+maintenance="$($STORAGECTL operation maintenance status)"
+if ! printf '%s' "$maintenance" | python3 -c 'import json,sys; value=json.load(sys.stdin); raise SystemExit(0 if value.get("success") and not value.get("bootHeld") else 1)'; then
+  log "SKIPPED_MAINTENANCE: automatic protocol restore held for ROOT verification"
+  exit 0
+fi
+
 if [[ -s /etc/ablestack-storage/sharedfs-network.json ]]; then
   /usr/local/sbin/ablestack-sharedfs-network /etc/ablestack-storage/sharedfs-network.json >> "$LOG_FILE" 2>&1
 else
