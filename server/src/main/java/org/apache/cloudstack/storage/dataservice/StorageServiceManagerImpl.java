@@ -1393,6 +1393,22 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if(!Boolean.TRUE.equals(getNativeBoolean(status,"success"))||current==null||!expected.equals(current.get("scope"))||!getJsonString(before,"configurationSha256").equals(getJsonString(current,"configurationSha256")))throw new CloudRuntimeException("ROOT source rendered baseline differs from the exact native source scope and canonical seven files");return current.deepCopy();
     }
 
+    protected JsonObject captureRetainedRootBaseline(StorageServiceInstanceVO instance,JsonObject rootScope) {
+        JsonObject nativeState=nativeConfigurationGeneration(instance,null,"status"),rendered=rootGuest(instance,"operation generation render-status",new JsonObject(),15);
+        if(!Boolean.TRUE.equals(getNativeBoolean(nativeState,"success"))||!Boolean.TRUE.equals(getNativeBoolean(rendered,"success"))||!"IN_SYNC".equals(getJsonString(nativeState,"generationStatus"))||getJsonString(nativeState,"pendingOperationUuid")!=null||!Boolean.TRUE.equals(getNativeBoolean(rendered,"retainedRootRestoreSupported"))||!rendered.has("current")||!rendered.get("current").isJsonObject())throw new CloudRuntimeException("Retained ROOT baseline is not available under its protected quarantine");
+        JsonObject generation=nativeState.getAsJsonObject("generation"),current=rendered.getAsJsonObject("current");String manifest=getJsonString(current,"manifestSha256");
+        JsonObject request=StorageRetainedRootAuthorization.captureRequest(rootScope,generation,manifest),response=rootGuest(instance,"operation generation render-root-capture-retained",request,120);
+        JsonObject baseline=new JsonObject();baseline.add("generation",generation.deepCopy());baseline.add("rendered",current.deepCopy());baseline.add("nativeState",nativeState.deepCopy());baseline.add("baselineRef",StorageRetainedRootAuthorization.requireCaptured(rootScope,generation,manifest,response));return baseline;
+    }
+    protected JsonObject authorizeRetainedRoot(StorageServiceInstanceVO instance,JsonObject rootScope,JsonObject baseline,JsonObject identityReference,JsonArray fileBindings) {
+        StorageConfigArtifactStore store=new StorageConfigArtifactStore(java.nio.file.Path.of(System.getProperty("cloudstack.storage.identity.path","/var/lib/cloudstack-management/storage-identity-capsules")));
+        JsonObject capsule=parseJsonObject(new String(store.read(getJsonString(identityReference,"operationUuid"),getJsonString(identityReference,"capsuleSha256")),java.nio.charset.StandardCharsets.UTF_8));byte[] key=store.read(getJsonString(identityReference,"keyId"),getJsonString(identityReference,"keySha256"));
+        JsonObject request=StorageRetainedRootAuthorization.authorizeRequest(rootScope,baseline.getAsJsonObject("baselineRef"),capsule,key,identityReference.getAsJsonObject("sourceRootScope"),getJsonString(identityReference,"sourceConfigurationSha256"),fileBindings);
+        requireProtectedIdentityTransport(instance,getJsonString(rootScope,"operationUuid"));StorageServiceGuestCommandResult result=guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),"operation generation render-root-authorize-retained",request.toString(),120,Set.of("capsule","credentialPrivateKey")));
+        if(!result.isSuccess())throw new CloudRuntimeException("Retained ROOT encrypted latest-source authorization failed");JsonObject observed=parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));
+        return StorageRetainedRootAuthorization.requireAuthorized(rootScope,baseline.getAsJsonObject("generation"),getJsonString(baseline.getAsJsonObject("rendered"),"manifestSha256"),getJsonString(identityReference,"sourceConfigurationSha256"),observed);
+    }
+
     protected RenderedBatch prepareRootRenderedBaseline(StorageServiceInstanceVO instance,StorageServiceOperationVO operation,JsonObject rootScope,JsonObject source) {
         JsonObject expected=operationReservationScope(instance,operation);for(String key:List.of("instanceUuid","operationUuid","revision"))if(!java.util.Objects.equals(rootScope.get(key),expected.get(key)))throw new CloudRuntimeException("ROOT rendered maintenance scope differs from its durable operation");
         JsonObject previous=parseJsonObject(operation.getPreviousSnapshotJson());JsonObject known=previous.has("renderedGeneration")&&previous.get("renderedGeneration").isJsonObject()?previous.getAsJsonObject("renderedGeneration"):null;
