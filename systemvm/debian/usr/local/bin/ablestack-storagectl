@@ -6646,6 +6646,7 @@ elif operation == "forget":
 if operation == "apply" and initializer and not already_effective:
     initializer.complete(request, initialization_receipt)
     result["newRootInitialization"] = {"available": False, "phase": "COMPLETE", "formatReceiptUuid": initialization_receipt["scope"]["formatReceiptUuid"]}
+result["postApplyReceiptSupported"] = True
 os.close(directory_fd)
 print(json.dumps(result, sort_keys=True))
 PYPOSIX
