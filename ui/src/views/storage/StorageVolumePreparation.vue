@@ -19,6 +19,7 @@
   <section class="storage-table-section storage-volume-preparation">
     <h4>{{ $t('label.storage.volume.preparation') }}</h4>
     <a-space wrap>
+      <a-button v-if="resumeSupported" type="primary" :disabled="!canResume || loading || resuming" @click="openResume">{{ $t('label.storage.volume.resume') }}</a-button>
       <a-select :value="selectedVolume" :placeholder="$t('label.storage.service.backing.volume')" style="min-width: 240px" @change="selectVolume">
         <a-select-option v-for="volume in volumes" :key="volume.id" :value="volume.id">{{ volume.name || volume.id }}</a-select-option>
       </a-select>
@@ -38,19 +39,37 @@
     </a-descriptions>
     <a-alert v-if="observation" type="info" show-icon :message="$t('message.storage.volume.historical.device')" />
     <a-alert v-if="operation.diagnostic || observation?.currentIdentityDiagnostic" type="warning" show-icon :message="operation.diagnostic || observation?.currentIdentityDiagnostic" />
+    <a-modal
+      :visible="resumeVisible"
+      :title="$t('label.storage.volume.resume')"
+      :confirm-loading="resuming"
+      :cancel-button-props="{ disabled: resuming }"
+      :ok-button-props="{ disabled: !canResume || resuming }"
+      :body-style="{ maxHeight: '65vh', overflowY: 'auto' }"
+      @ok="resume"
+      @cancel="!resuming && (resumeVisible = false)">
+      <a-alert type="info" show-icon :message="$t('message.storage.volume.resume.safe')" />
+      <p><code>{{ observation?.operationId || operation.operationId }}</code></p>
+      <p><code>{{ identity.filesystemUuid }}</code></p>
+      <a-alert v-if="resumeJob" type="info" show-icon :message="resumeJob" />
+      <a-alert v-if="resumeError" type="error" show-icon :message="resumeError" />
+    </a-modal>
   </section>
 </template>
 <script>
-import { getAPI } from '@/api'
+import { getAPI, postAPI } from '@/api'
 import { ReloadOutlined } from '@ant-design/icons-vue'
 const parse = value => { try { return typeof value === 'string' ? JSON.parse(value) : (value || {}) } catch (error) { return {} } }
 const terminal = new Set(['COMPLETE', 'RECOVERY_REQUIRED', 'RECONCILE_REQUIRED', 'NOT_STARTED', 'IDENTITY_MISMATCH', 'ERROR'])
 export default {
   name: 'StorageVolumePreparation',
   components: { ReloadOutlined },
+  emits: ['operation-updated'],
   props: { instanceId: { type: String, required: true }, volumes: { type: Array, default: () => [] } },
-  data: () => ({ selectedVolume: '', observation: null, loading: false, readError: false, automatic: false, generation: 0, timer: null, disposed: false }),
+  data: () => ({ selectedVolume: '', observation: null, loading: false, readError: false, automatic: false, generation: 0, timer: null, disposed: false, resumeVisible: false, resuming: false, resumeKey: '', resumeError: '', resumeJob: '' }),
   computed: {
+    resumeSupported () { return 'resumeStorageServiceVolumePreparation' in (this.$store?.getters?.apis || {}) },
+    canResume () { return this.resumeSupported && !this.readError && this.observation?.currentIdentityStatus === 'EXACT' && this.observation?.formatterActive === false && this.operation.formatStarted === true && !!this.identity.filesystemUuid && (!this.operation.filesystemUuid || this.operation.filesystemUuid === this.identity.filesystemUuid) },
     operation () { return this.observation?.operation || {} },
     identity () { return this.observation?.currentIdentity || {} },
     phaseColor () {
@@ -66,7 +85,35 @@ export default {
   },
   beforeUnmount () { this.disposed = true; this.invalidate() },
   methods: {
-    invalidate () { this.generation++; clearTimeout(this.timer); this.timer = null; this.observation = null; this.readError = false; this.loading = false },
+    openResume () {
+      if (!this.canResume) return
+      if (!this.resumeKey) this.resumeKey = 'volume-resume-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2)
+      this.resumeError = ''; this.resumeVisible = true
+    },
+    async resume () {
+      if (!this.canResume || this.resuming) return
+      const generation = this.generation; const instance = this.instanceId; const volume = this.selectedVolume
+      this.resuming = true; this.resumeError = ''
+      try {
+        const response = await postAPI('resumeStorageServiceVolumePreparation', { instanceid: instance, volumeid: volume, operationid: this.observation.operationId || this.operation.operationId, expectedfilesystemuuid: this.identity.filesystemUuid, idempotencykey: this.resumeKey }, { timeout: 15000 })
+        if (generation !== this.generation || this.disposed) return
+        this.resumeJob = response.resumestorageservicevolumepreparationresponse?.jobid || ''
+        if (this.resumeJob) {
+          let complete = false
+          for (let i = 0; i < 120; i++) {
+            if (generation !== this.generation || this.disposed) return
+            const reply = await getAPI('queryAsyncJobResult', { jobid: this.resumeJob }, { timeout: 15000, preserveOnFailure: true })
+            const job = reply.queryasyncjobresultresponse
+            if (job.jobstatus === 1) { complete = true; break }
+            if (job.jobstatus === 2) throw new Error(job.jobresult?.errortext || this.$t('message.storage.volume.resume.failed'))
+            await new Promise(resolve => setTimeout(resolve, 1000))
+          }
+          if (!complete) throw new Error(this.$t('message.storage.volume.resume.unknown'))
+        }
+        if (generation === this.generation) { this.resumeVisible = false; await this.refresh(); this.$emit('operation-updated', instance) }
+      } catch (error) { if (generation === this.generation && !this.disposed) this.resumeError = error.message } finally { this.resuming = false }
+    },
+    invalidate () { this.generation++; clearTimeout(this.timer); this.timer = null; this.resumeVisible = false; this.resumeError = ''; this.resumeJob = ''; this.resumeKey = ''; this.observation = null; this.readError = false; this.loading = false },
     selectVolume (id) { this.invalidate(); this.selectedVolume = id; this.refresh() },
     setAutomatic (enabled) { this.automatic = enabled; clearTimeout(this.timer); this.timer = null; if (enabled) this.refresh() },
     async refresh () {
