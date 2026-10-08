@@ -55,7 +55,7 @@ public abstract class BaseStoragePosixDirectoryPolicyCmd extends BaseStorageServ
     private Long expectedPolicyRevision;
     @Parameter(name = "exportid", type = CommandType.UUID, entityType = org.apache.cloudstack.api.response.StorageNfsExportResponse.class, description = "NFS export whose exact existing backing directory is previewed")
     private Long exportId;
-    @Parameter(name = "previewtoken", type = CommandType.STRING, description = "Actor-bound permission preview approval token")
+    @Parameter(name = "previewtoken", type = CommandType.STRING, length = 131072, description = "Actor-bound permission preview approval token")
     private String previewToken;
     @Parameter(name = "applyconfirmation", type = CommandType.BOOLEAN, description = "Explicitly apply the previewed policy to this directory inode only")
     private Boolean applyConfirmation;
