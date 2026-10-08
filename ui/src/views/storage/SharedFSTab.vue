@@ -5204,18 +5204,18 @@ export default {
       if (this.volume.id) {
         ids.add(this.volume.id)
       }
-      const volumeRequests = [...ids].map(id => this.listApi('listVolumes', {
+      const volumeRequests = [...ids].map(id => this.listScopedBackingVolumes({
         id,
         listall: true,
         listsystemvms: true
-      }, 'volume'))
+      }))
       const vmId = this.resource.virtualmachineid || this.vm.id || instance?.virtualmachineid
       if (vmId) {
-        volumeRequests.push(this.listApi('listVolumes', {
+        volumeRequests.push(this.listScopedBackingVolumes({
           virtualmachineid: vmId,
           listall: true,
           listsystemvms: true
-        }, 'volume'))
+        }))
       }
       const volumeLists = await Promise.all(volumeRequests)
       const seen = new Set()
@@ -5226,6 +5226,14 @@ export default {
         seen.add(String(volume.id))
         return true
       })
+    },
+    async listScopedBackingVolumes (params) {
+      // Hidden volumes are queried only for a known service VM or exact backing UUID.
+      if (!params.id && !params.virtualmachineid) throw new Error('Backing volume scope is required')
+      const visible = await this.listApi('listVolumes', params, 'volume')
+      if (this.$store.getters.userInfo?.roletype !== 'Admin' || params.id && visible.length) return visible
+      const hidden = await this.listApi('listVolumes', { ...params, displayvolume: false }, 'volume')
+      return [...visible, ...hidden]
     },
     async listApi (api, params, objectName) {
       const apiMap = this.$store.getters.apis || {}
