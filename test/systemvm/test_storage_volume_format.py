@@ -21,6 +21,10 @@
 import ast
 from pathlib import Path
 import re
+import os
+import json
+import stat
+import tempfile
 import subprocess
 import unittest
 import uuid
@@ -55,7 +59,7 @@ def formatter_namespace():
               expected_size=10 * (1 << 40), format_deadline=1500, shutil=Mock(which=Mock(return_value="/sbin/mkfs.xfs")),
               run=Mock(return_value=subprocess.CompletedProcess(["wipefs"], 0, '{"signatures":[]}', "")),
               subprocess=command, time=clock, phase=phase, recovery=recovery,
-              blkid_value=lambda device, field: "xfs" if field == "TYPE" else "fs-uuid", json=__import__("json"), uuid=uuid)
+              blkid_value=lambda device, field: "xfs" if field == "TYPE" else "fs-uuid", json=__import__("json"), uuid=uuid, os=os, payload={"provisioningType":"SPARSE"})
     exec(compile(ast.Module(body=[node], type_ignores=[]), str(SOURCE), "exec"), ns)
     return ns, phases, process
 
@@ -71,6 +75,12 @@ class VolumeFormatTest(unittest.TestCase):
         self.assertEqual("fs-uuid", ns["operation"]["filesystemUuid"])
         self.assertEqual(10 * (1 << 40), ns["operation"]["volumeSizeBytes"])
         uuid.UUID(ns["operation"]["formatReceiptUuid"])
+
+    def test_new_format_rejects_thin_or_unknown_provisioning_before_mkfs(self):
+        for provision in ("THIN", None, "UNKNOWN"):
+            ns, _, _ = formatter_namespace(); ns["payload"] = {"provisioningType": provision}
+            with self.assertRaises(SystemExit): ns["format_empty_device"]()
+            ns["subprocess"].Popen.assert_not_called()
 
     def test_prior_format_never_authorizes_automatic_reformat(self):
         ns, _, _ = formatter_namespace()
@@ -96,6 +106,51 @@ class VolumeFormatTest(unittest.TestCase):
         process.terminate.assert_called_once()
         self.assertTrue(ns["operation"]["formatStarted"])
 
+
+class VolumeResumeSafetyTest(unittest.TestCase):
+    def setUp(self):
+        block = next(value for value in re.findall(r"<<'PY'\n(.*?)\nPY", SOURCE.read_text(), re.S) if "def format_empty_device():" in value)
+        nodes = [node for node in ast.parse(block).body if isinstance(node, ast.FunctionDef) and node.name in ("require_resume_request", "require_resume_filesystem")]
+        self.ns = {"uuid": uuid, "active_formatter": lambda record: False}
+        exec(compile(ast.Module(body=nodes, type_ignores=[]), str(SOURCE), "exec"), self.ns)
+        volume = str(uuid.uuid4()); self.fs = str(uuid.uuid4())
+        self.request = {"instanceUuid":str(uuid.uuid4()), "managerOperationUuid":str(uuid.uuid4()), "revision":3,
+                        "volumeUuid":volume, "operationId":"volume-"+volume, "provisioningType":"SPARSE",
+                        "importMode":"MOUNT_EXISTING", "resumeOnly":True, "expectedFilesystemUuid":self.fs}
+        self.record = {"volumeUuid":volume, "operationId":"volume-"+volume, "formatStarted":True,
+                       "filesystem":"xfs", "filesystemUuid":self.fs}
+
+    def test_fixed_resume_accepts_only_same_scoped_known_existing_filesystem(self):
+        self.assertTrue(self.ns["require_resume_request"](self.request, True))
+        self.ns["require_resume_filesystem"](self.request,self.record,"xfs",self.fs)
+        self.assertTrue(self.ns["require_resume_request"]({**self.request,"provisioningType":"THIN"}, True))
+
+    def test_resume_requires_its_exact_frozen_filesystem_uuid(self):
+        with self.assertRaises(ValueError):
+            self.ns["require_resume_filesystem"]({**self.request,"expectedFilesystemUuid":str(uuid.uuid4())},self.record,"xfs",self.fs)
+
+    def test_protected_operation_journal_rejects_writable_files_and_symlinks(self):
+        block = next(value for value in re.findall(r"<<'PY'\n(.*?)\nPY", SOURCE.read_text(), re.S) if "def format_empty_device():" in value)
+        function = next(node for node in ast.parse(block).body if isinstance(node,ast.FunctionDef) and node.name=="read_volume_operation")
+        namespace={"os":os,"stat":stat,"json":json}
+        exec(compile(ast.Module(body=[function],type_ignores=[]),str(SOURCE),"exec"),namespace)
+        with tempfile.TemporaryDirectory() as folder:
+            path=Path(folder)/'volume.json';path.write_text(json.dumps(self.record));path.chmod(0o600)
+            self.assertEqual(self.record,namespace['read_volume_operation'](path))
+            path.chmod(0o666)
+            with self.assertRaises(ValueError):namespace['read_volume_operation'](path)
+            path.chmod(0o600);real=path.with_suffix('.real');path.rename(real);path.symlink_to(real)
+            with self.assertRaises(ValueError):namespace['read_volume_operation'](path)
+
+    def test_resume_cannot_authorize_format_blank_partial_foreign_uuid_or_active_formatter(self):
+        for changes in ({"importMode":"FORMAT_IF_EMPTY"}, {"resumeOnly":False}, {"operationId":"volume-"+str(uuid.uuid4())}, {"revision":True}):
+            with self.assertRaises(ValueError): self.ns["require_resume_request"]({**self.request,**changes}, True)
+        for record,kind,observed in ((self.record,None,None), ({**self.record,"filesystemUuid":None},"xfs",self.fs),
+                                    (self.record,"xfs",str(uuid.uuid4())), ({**self.record,"volumeUuid":str(uuid.uuid4())},"xfs",self.fs),
+                                    ({**self.record,"formatStarted":False},"xfs",self.fs)):
+            with self.assertRaises(ValueError): self.ns["require_resume_filesystem"](self.request,record,kind,observed)
+        self.ns["active_formatter"] = lambda record: True
+        with self.assertRaises(ValueError): self.ns["require_resume_filesystem"](self.request,self.record,"xfs",self.fs)
 
 class VolumeMutationIdentityTest(unittest.TestCase):
     def setUp(self):

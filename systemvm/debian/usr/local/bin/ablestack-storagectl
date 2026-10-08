@@ -3059,8 +3059,9 @@ PY
 
 volume_attach_inspect() {
   local payload_file="$1"
+  local resume_mode="${2:-}"
 
-  python3 - "$payload_file" <<'PY'
+  python3 - "$payload_file" "$resume_mode" <<'PY'
 import json
 import fcntl
 import re
@@ -3083,6 +3084,27 @@ payload_path = sys.argv[1]
 with open(payload_path, "r", encoding="utf-8") as payload_fp:
     payload = json.load(payload_fp)
 
+def require_resume_request(request, required):
+    resume = request.get("resumeOnly") is True
+    if required and not resume:
+        raise ValueError("Volume resume requires resumeOnly=true")
+    if not resume:
+        return False
+    if request.get("importMode") != "MOUNT_EXISTING":
+        raise ValueError("Volume resume cannot authorize a format import mode")
+    for key in ("instanceUuid", "managerOperationUuid", "volumeUuid"):
+        uuid.UUID(str(request[key]))
+    revision = request["revision"]
+    if isinstance(revision, bool) or not isinstance(revision, int) or revision < 1:
+        raise ValueError("Volume resume manager revision is invalid")
+    if request.get("operationId") != "volume-" + str(uuid.UUID(request["volumeUuid"])):
+        raise ValueError("Volume resume native operation scope changed")
+    if request.get("provisioningType") not in ("THIN", "SPARSE", "FAT"):
+        raise ValueError("Volume resume provisioning type is unknown")
+    return True
+
+resume_only = require_resume_request(payload, len(sys.argv) > 2 and sys.argv[2] == "resume")
+
 PROBE_TIMEOUT_SECONDS = 20
 format_deadline = max(1, min(7200, int(payload.get("formatDeadlineSeconds") or 300)))
 volume_key = str(payload.get("volumeUuid") or "")
@@ -3097,8 +3119,40 @@ try:
 except BlockingIOError:
     print(json.dumps({"success": False, "errorCode": "OPERATION_BUSY", "operationId": "volume-" + volume_key}))
     raise SystemExit(1)
+def read_volume_operation(path):
+    try:
+        info = path.lstat()
+    except FileNotFoundError:
+        return {}
+    parent = path.parent.lstat()
+    if not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.geteuid() or parent.st_mode & 0o022 or not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid() or info.st_mode & 0o077 or info.st_size > 256 * 1024:
+        raise ValueError("Volume operation journal is not protected")
+    directory = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    try:
+        opened_parent = os.fstat(directory)
+        if (opened_parent.st_dev, opened_parent.st_ino, opened_parent.st_uid, opened_parent.st_mode) != (parent.st_dev, parent.st_ino, parent.st_uid, parent.st_mode):
+            raise ValueError("Volume operation journal directory changed")
+        descriptor = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=directory)
+    finally:
+        os.close(directory)
+    try:
+        opened = os.fstat(descriptor)
+        fields = ("st_dev", "st_ino", "st_uid", "st_gid", "st_mode", "st_size", "st_mtime_ns", "st_ctime_ns")
+        if tuple(getattr(opened, key) for key in fields) != tuple(getattr(info, key) for key in fields):
+            raise ValueError("Volume operation journal changed while opening")
+        with os.fdopen(descriptor, "rb", closefd=False) as handle:
+            content = handle.read(256 * 1024 + 1)
+        after = os.fstat(descriptor)
+        if len(content) > 256 * 1024 or tuple(getattr(after, key) for key in fields) != tuple(getattr(opened, key) for key in fields):
+            raise ValueError("Volume operation journal changed while reading")
+        value = json.loads(content)
+        if not isinstance(value, dict): raise ValueError("Volume operation journal is malformed")
+        return value
+    finally:
+        os.close(descriptor)
+
 try:
-    operation = json.loads(operation_path.read_text()) if operation_path.exists() else {}
+    operation = read_volume_operation(operation_path)
 except (ValueError, OSError):
     raise SystemExit("RECOVERY_REQUIRED: volume operation journal is unreadable")
 
@@ -3323,7 +3377,12 @@ def persist_backing_mount(device, target_path, fs):
     daemon_reload()
     return fs_uuid
 
+format_invoked = False
+
 def format_empty_device():
+    global format_invoked
+    if payload.get("provisioningType") not in ("SPARSE", "FAT"):
+        raise SystemExit("New filesystem formatting requires explicit SPARSE or FAT provisioning; existing THIN data can only be inspected or mounted")
     fs = str(requested_filesystem or "xfs").lower()
     if fs not in {"xfs", "ext4"}:
         raise SystemExit(f"Unsupported filesystem for empty backing volume format: {fs}")
@@ -3340,7 +3399,9 @@ def format_empty_device():
     command = [tool, "-f", device] if fs == "xfs" else [tool, "-F", device]
     phase("FORMATTING", formatStarted=True, formatReceiptUuid=str(uuid.uuid4()), filesystem=fs, devicePath=device,
           started=time.time(), volumeSizeBytes=expected_size, formatter=tool, formatterOptions=command[1:-1])
-    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    inherited = (9,) if os.path.exists("/proc/self/fd/9") else ()
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, pass_fds=inherited)
+    format_invoked = True
     phase("FORMATTING", formatterPid=process.pid)
     deadline = time.monotonic() + format_deadline
     while True:
@@ -3362,6 +3423,43 @@ def format_empty_device():
     if blkid_value(device, "TYPE") != fs or not operation.get("filesystemUuid"):
         recovery("RECOVERY_REQUIRED", "Formatted filesystem identity cannot be verified")
     return fs
+
+def active_formatter(record):
+    pid = record.get("formatterPid")
+    if isinstance(pid, bool) or not isinstance(pid, int) or pid <= 0:
+        return False
+    try:
+        command = Path("/proc/" + str(pid) + "/cmdline").read_bytes().split(b"\x00")
+    except FileNotFoundError:
+        return False
+    expected = str(record.get("formatter") or "mkfs." + str(record.get("filesystem") or ""))
+    return bool(command and os.path.basename(os.fsdecode(command[0])) == expected)
+
+
+def require_resume_filesystem(request, record, existing_type, observed_uuid):
+    if not request.get("resumeOnly"):
+        return
+    if record.get("volumeUuid") != request["volumeUuid"] or record.get("operationId") != request["operationId"] or record.get("formatStarted") is not True:
+        raise ValueError("Volume resume lacks its original scoped format journal")
+    if active_formatter(record):
+        raise ValueError("Volume resume is blocked by its active formatter")
+    known = record.get("filesystemUuid")
+    if not known or not observed_uuid or known != observed_uuid or record.get("filesystem") != existing_type or existing_type not in ("xfs", "ext4"):
+        raise ValueError("Volume resume has no verified matching filesystem; blank/partial state cannot authorize mkfs")
+    if request.get("expectedFilesystemUuid") is not None and request["expectedFilesystemUuid"] != known:
+        raise ValueError("Volume resume filesystem UUID changed after its preflight")
+
+if resume_only:
+    require_resume_filesystem(payload, operation, existing_filesystem, blkid_value(device, "UUID"))
+    # The historical mount choice is immutable authority for a preparation
+    # resume. A request cannot redirect it to another path or create DATA dirs.
+    prior_mount = operation.get("mountPath")
+    expected_mount = "/srv/ablestack-storage/volumes/" + volume_key
+    if prior_mount is not None and prior_mount != expected_mount:
+        raise ValueError("Volume resume journal has an unsupported managed mount root")
+    mount_path = expected_mount
+    relative_share_path = ""
+    create_directory = False
 
 resume_format = bool(operation.get("formatStarted"))
 if resume_format:
@@ -3478,6 +3576,14 @@ print(json.dumps({
     "status": "ok",
     "operation": operation,
     "schemaVersion": 2,
+    "operationId": operation.get("operationId"),
+    "instanceUuid": payload.get("instanceUuid"),
+    "managerOperationUuid": payload.get("managerOperationUuid"),
+    "revision": payload.get("revision"),
+    "resumed": resume_only,
+    "resumeOnly": resume_only,
+    "formatInvoked": format_invoked,
+    "formatterActive": active_formatter(operation),
     "volumeUuid": payload.get("volumeUuid"),
     "devicePath": device,
     "observedDevicePath": device,
@@ -9779,6 +9885,13 @@ PYRESOURCES
       fi
       log_command "$command $subcommand $action" "$payload"
       volume_attach_inspect "$payload"
+    elif [[ "$subcommand" == "operation" && "$action" == "resume" ]]; then
+      if [[ -z "$payload" || ! -r "$payload" ]]; then
+        emit_error "A readable payload file is required for volume operation resume."
+        exit 2
+      fi
+      log_command "$command $subcommand $action" "$payload"
+      volume_attach_inspect "$payload" "resume"
     elif [[ "$subcommand" == "operation" && "$action" == "status" ]]; then
       if [[ -z "$payload" || ! -r "$payload" ]]; then
         emit_error "A readable payload file is required for volume operation status."
