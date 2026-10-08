@@ -32,6 +32,7 @@ FILES = {
     "/var/lib/samba/private/passdb.tdb",
     "/var/lib/samba/private/secrets.tdb",
     "/etc/ablestack-storage/secrets/iscsi-acl-secrets.json",
+    "/etc/ablestack-storage/secrets/nvmeof-acl-secrets.json",
     "/etc/ablestack-storage/smb-managed-identities.json",
     "/etc/ablestack-storage/smb-local-account-provenance.json",
 }
@@ -260,6 +261,18 @@ def validate_payload(payload):
     return payload
 
 
+def select_restore_domains(payload, domains):
+    validate_payload(payload)
+    if not isinstance(domains,list) or not domains or len(set(domains))!=len(domains) or not set(domains)<={"SMB","ISCSI","NVMEOF"}:
+        raise ValueError("Protected identity restore has an unknown domain scope")
+    selected=set(domains);iscsi="/etc/ablestack-storage/secrets/iscsi-acl-secrets.json";nvme="/etc/ablestack-storage/secrets/nvmeof-acl-secrets.json"
+    files={name:value for name,value in payload.get("files",{}).items()
+           if (name==iscsi and "ISCSI" in selected) or (name==nvme and "NVMEOF" in selected) or (name not in (iscsi,nvme) and "SMB" in selected)}
+    result={"schemaVersion":1,"files":files,"accounts":payload.get("accounts",{}) if "SMB" in selected else {}}
+    if "NVMEOF" in selected and payload.get("nvmeHosts"):result["nvmeHosts"]=payload["nvmeHosts"]
+    return validate_payload(result)
+
+
 def account_merge(current, records, kind):
     """Keep unrelated OS identities and reject UID/GID/name conflicts before any write."""
     fields = {"passwd": 7, "group": 4, "shadow": 9, "gshadow": 4}
@@ -398,6 +411,7 @@ def require_identity_database_quiescence(files, observer=live_identity_database_
     # a process-global open db_sam and its children inherit it; reload-config
     # does not make a replacement inode the authentication database.
     touched = set(files) & LIVE_TDB_FILES
+    if not touched:return
     holders = observer(touched)
     if holders:
         raise ValueError("SMB_IDENTITY_QUIESCE_REQUIRED: live Samba database replacement is prohibited")
@@ -411,32 +425,33 @@ def restore(payload):
     if payload.get("nvmeHosts"):
         raise ValueError("NVMe authentication capsule requires the protected protocol replay path")
     staged = {}
-    current_files = {}
-    for provenance_path in ("/etc/ablestack-storage/smb-local-account-provenance.json",
-                            "/etc/ablestack-storage/smb-managed-identities.json"):
-        if os.path.lexists(provenance_path):
-            data, _ = regular_file(provenance_path)
-            current_files[provenance_path] = {"data": base64.b64encode(data).decode()}
-    owned = owned_account_records(current_files)
-    # Hash databases contain no stored provenance. Their names are authorized only
-    # after the public passwd/group records are checked exactly against provenance.
-    for identity_path, secret_path in (("/etc/passwd", "/etc/shadow"), ("/etc/group", "/etc/gshadow")):
-        current, _ = regular_file(identity_path)
-        observed = {line.split(":", 1)[0]: line for line in current.decode().splitlines()}
-        old_names = {line.split(":", 1)[0] for line in payload.get("accounts", {}).get(identity_path, [])}
-        created_names = set()
-        for name, record in owned[identity_path].items():
-            if name not in old_names and name in observed:
-                if observed[name] != record:
-                    raise ValueError("Post-snapshot identity provenance changed")
-                created_names.add(name)
-        secrets, _ = regular_file(secret_path)
-        owned[secret_path] = {line.split(":", 1)[0]: line for line in secrets.decode().splitlines()
-                              if line.split(":", 1)[0] in created_names}
-    for path, records in payload.get("accounts", {}).items():
-        current, info = regular_file(path)
-        merged = rollback_account_merge(current.decode(), records, os.path.basename(path), owned[path])
-        staged[path] = (merged.encode(), stat.S_IMODE(info.st_mode), info.st_gid)
+    if payload.get("accounts"):
+        current_files = {}
+        for provenance_path in ("/etc/ablestack-storage/smb-local-account-provenance.json",
+                                "/etc/ablestack-storage/smb-managed-identities.json"):
+            if os.path.lexists(provenance_path):
+                data, _ = regular_file(provenance_path)
+                current_files[provenance_path] = {"data": base64.b64encode(data).decode()}
+        owned = owned_account_records(current_files)
+        # Hash databases contain no stored provenance. Their names are authorized only
+        # after the public passwd/group records are checked exactly against provenance.
+        for identity_path, secret_path in (("/etc/passwd", "/etc/shadow"), ("/etc/group", "/etc/gshadow")):
+            current, _ = regular_file(identity_path)
+            observed = {line.split(":", 1)[0]: line for line in current.decode().splitlines()}
+            old_names = {line.split(":", 1)[0] for line in payload.get("accounts", {}).get(identity_path, [])}
+            created_names = set()
+            for name, record in owned[identity_path].items():
+                if name not in old_names and name in observed:
+                    if observed[name] != record:
+                        raise ValueError("Post-snapshot identity provenance changed")
+                    created_names.add(name)
+            secrets, _ = regular_file(secret_path)
+            owned[secret_path] = {line.split(":", 1)[0]: line for line in secrets.decode().splitlines()
+                                  if line.split(":", 1)[0] in created_names}
+        for path, records in payload.get("accounts", {}).items():
+            current, info = regular_file(path)
+            merged = rollback_account_merge(current.decode(), records, os.path.basename(path), owned[path])
+            staged[path] = (merged.encode(), stat.S_IMODE(info.st_mode), info.st_gid)
     absent = []
     for path, item in payload.get("files", {}).items():
         if os.path.lexists(path):
