@@ -91,4 +91,39 @@ public class StorageAdIdentityProofTest {
         Process process=new ProcessBuilder("python3","-c",script,source.resolve("systemvm/debian/usr/local/lib/ablestack-storage").toString()).redirectErrorStream(true).start();String output=new String(process.getInputStream().readAllBytes(),java.nio.charset.StandardCharsets.UTF_8);Assert.assertEquals(output,0,process.waitFor());JsonObject metadata=com.google.gson.JsonParser.parseString(output).getAsJsonObject();JsonObject proof=joined();proof.add("servicePrincipals",metadata.get("servicePrincipals"));proof.add("realm",metadata.get("realm"));Assert.assertEquals(proof,StorageAdIdentityProof.joined(proof,scope(),"example.test","S-1-5-21-1-2-3",proof.getAsJsonObject("idmapPolicy"),1001));Assert.assertFalse(metadata.getAsJsonArray("servicePrincipals").get(0).getAsString().contains("@"));
     }
     @Test public void undocumentedSecretFieldsNeverEnterPersistedPublicReceipts(){JsonObject proof=joined();proof.addProperty("password","synthetic-secret");proof.addProperty("keytabBytes","synthetic-key");JsonObject sanitized=StorageAdIdentityProof.joined(proof,scope(),"example.test",null,null,1001);Assert.assertFalse(sanitized.has("password"));Assert.assertFalse(sanitized.has("keytabBytes"));JsonObject mapped=principal("AD_USER",1);mapped.addProperty("privateKey","synthetic-key");Assert.assertFalse(StorageAdIdentityProof.principal(mapped,scope(),joined(),"AD_USER","EXAMPLE\\alice",1001).has("privateKey"));}
+    private JsonObject localPlan() {
+        JsonObject plan=new JsonObject();for(String action:new String[]{"keep","update","create","resourceMappings"})plan.add(action,new JsonArray());
+        JsonObject policy=new JsonObject();policy.addProperty("posixOwnershipMode","FORCED_UID_GID");policy.addProperty("ownerUid",10000);policy.addProperty("ownerGid",10001);
+        JsonObject share=new JsonObject();share.addProperty("protocol","SMB");share.add("config",policy);
+        JsonObject change=new JsonObject();change.addProperty("kind","file-shares");change.addProperty("sourceUuid","aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa");change.add("desired",share);plan.getAsJsonArray("create").add(change);
+        JsonObject mapping=new JsonObject();mapping.addProperty("sourceShareUuid","aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa");mapping.addProperty("targetShareUuid","bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb");plan.getAsJsonArray("resourceMappings").add(mapping);return plan;
+    }
+    private JsonObject localReceipt() {
+        JsonObject proof=new JsonObject();for(String field:Set.of("success","localAccountsRestored","localPassdbSidRebased","targetSamPreserved"))proof.addProperty(field,true);proof.add("scope",scope());proof.addProperty("canonicalDesiredStateChanged",false);
+        proof.add("publicMappings",com.google.gson.JsonParser.parseString("[{\"name\":\"alice\",\"uid\":1001,\"gid\":1002,\"rid\":1003,\"userSid\":\"S-1-5-21-4-5-6-1003\"}]").getAsJsonArray());
+        proof.add("publicGroupMappings",com.google.gson.JsonParser.parseString("[{\"name\":\"staff\",\"gid\":1002}]").getAsJsonArray());
+        proof.add("managedIdentityMappings",com.google.gson.JsonParser.parseString("[{\"sourceShareUuid\":\"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa\",\"targetShareUuid\":\"bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb\",\"identityNamespaceShareUuid\":\"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa\",\"managedUser\":\"sf_u_aaaaaaaaaaaa4aaa8aaa\",\"managedGroup\":\"sf_g_aaaaaaaaaaaa4aaa8aaa\",\"ownerUid\":10000,\"ownerGid\":10001,\"sourceIdentityVerified\":true}]").getAsJsonArray());return proof;
+    }
+    @Test public void localRestoreRequiresLiteralExactUserGroupAndFixedOwnerMappings() {
+        Assert.assertEquals(localReceipt(),StorageAdIdentityProof.semanticLocal(localReceipt(),scope(),"S-1-5-21-4-5-6",localPlan()));
+        for(String field:Set.of("uid","rid","userSid","extra")){
+            JsonObject wrong=localReceipt(),row=wrong.getAsJsonArray("publicMappings").get(0).getAsJsonObject();
+            if("uid".equals(field))row.addProperty(field,"1001");else if("rid".equals(field))row.addProperty(field,4294967296L);else if("userSid".equals(field))row.addProperty(field,"S-1-5-21-7-8-9-1003");else row.addProperty(field,true);
+            Assert.assertThrows(RuntimeException.class,()->StorageAdIdentityProof.semanticLocal(wrong,scope(),"S-1-5-21-4-5-6",localPlan()));
+        }
+        for(String field:Set.of("targetShareUuid","identityNamespaceShareUuid","sourceIdentityVerified","ownerUid","extra")){
+            JsonObject wrong=localReceipt(),row=wrong.getAsJsonArray("managedIdentityMappings").get(0).getAsJsonObject();
+            if(field.endsWith("Uuid"))row.addProperty(field,"cccccccc-cccc-4ccc-8ccc-cccccccccccc");else if("sourceIdentityVerified".equals(field))row.addProperty(field,"true");else if("ownerUid".equals(field))row.addProperty(field,10002);else row.addProperty(field,true);
+            Assert.assertThrows(RuntimeException.class,()->StorageAdIdentityProof.semanticLocal(wrong,scope(),"S-1-5-21-4-5-6",localPlan()));
+        }
+    }
+    @Test public void localRestoreCannotAuthorizeMissingAccountsOrGuessedChainedNamespace() {
+        JsonObject plan=localPlan(),acl=new JsonObject(),change=new JsonObject();acl.addProperty("principal_type","LOCAL_GROUP");acl.addProperty("principal","foreign");change.addProperty("kind","access-rules");change.add("desired",acl);plan.getAsJsonArray("create").add(change);
+        Assert.assertThrows(RuntimeException.class,()->StorageAdIdentityProof.semanticLocal(localReceipt(),scope(),"S-1-5-21-4-5-6",plan));acl.addProperty("principal","staff");
+        Assert.assertEquals(localReceipt(),StorageAdIdentityProof.semanticLocal(localReceipt(),scope(),"S-1-5-21-4-5-6",plan));
+        JsonObject chained=localPlan(),policy=chained.getAsJsonArray("create").get(0).getAsJsonObject().getAsJsonObject("desired").getAsJsonObject("config"),old=localReceipt().getAsJsonArray("managedIdentityMappings").get(0).getAsJsonObject().deepCopy();old.addProperty("targetShareUuid","aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa");old.addProperty("identityNamespaceShareUuid","cccccccc-cccc-4ccc-8ccc-cccccccccccc");policy.add("semanticManagedIdentityReceipt",old);
+        Assert.assertThrows(RuntimeException.class,()->StorageAdIdentityProof.semanticLocal(localReceipt(),scope(),"S-1-5-21-4-5-6",chained));
+        JsonObject proof=localReceipt(),alias=proof.getAsJsonArray("managedIdentityMappings").get(0).getAsJsonObject();alias.addProperty("identityNamespaceShareUuid","cccccccc-cccc-4ccc-8ccc-cccccccccccc");alias.addProperty("managedUser","sf_u_cccccccccccc4ccc8ccc");alias.addProperty("managedGroup","sf_g_cccccccccccc4ccc8ccc");
+        Assert.assertEquals(proof,StorageAdIdentityProof.semanticLocal(proof,scope(),"S-1-5-21-4-5-6",chained));
+    }
 }

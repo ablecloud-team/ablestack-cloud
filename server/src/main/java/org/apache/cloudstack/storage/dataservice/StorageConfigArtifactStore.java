@@ -44,6 +44,9 @@ public final class StorageConfigArtifactStore {
         }
         return root.resolve(uuid + ".zip");
     }
+    public boolean contains(String uuid) {
+        return Files.exists(path(uuid), LinkOption.NOFOLLOW_LINKS);
+    }
     public void write(String uuid, byte[] bytes) {
         if (bytes == null || bytes.length > StorageConfigArchive.MAX_ARCHIVE_BYTES) throw new CloudRuntimeException("Configuration artifact size exceeds limit");
         Path target = path(uuid);Path temporary = null;
