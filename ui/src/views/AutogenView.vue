@@ -1961,7 +1961,9 @@ export default {
     handleDataViewAction (action) {
       this.detailActionsVisible = false
       this.execAction(action, false)
-      this.actionTrigger = this.$refs?.detailActionsTrigger?.$el || this.actionTrigger
+      if (this.actionTrigger?.closest('.autogen-action-dropdown')) {
+        this.actionTrigger = this.$refs?.detailActionsTrigger?.$el || this.actionTrigger
+      }
     },
     execAction (action, isGroupAction) {
       this.actionTrigger = document.activeElement

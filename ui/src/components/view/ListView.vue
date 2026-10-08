@@ -1400,7 +1400,7 @@ export default {
   methods: {
     handleTableChange (pagination, filters, sorter) { this.$emit('table-change', pagination, filters, sorter) },
     snapshotRowEvents (record) {
-      if (this.$route.name !== 'vmsnapshot') return {}
+      if (!['vmsnapshot', 'kubernetes', 'kubernetesiso'].includes(this.$route.name)) return {}
       return {
         tabindex: 0,
         onKeydown: event => {

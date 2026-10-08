@@ -64,9 +64,27 @@ test('a newly opened modal retains focus when previous restoration is queued', a
 
 test('detail menu actions return to the persistent actions button', () => {
   const trigger = document.createElement('button')
+  const menu = document.createElement('div')
+  menu.className = 'autogen-action-dropdown'
+  const item = document.createElement('button')
+  menu.appendChild(item)
+  document.body.append(trigger, menu)
+  item.focus()
   const context = { ...view(), $refs: { detailActionsTrigger: { $el: trigger } }, execAction: jest.fn() }
+  context.execAction.mockImplementation(() => { context.actionTrigger = document.activeElement })
   const action = { api: 'scaleKubernetesCluster' }
   AutogenView.methods.handleDataViewAction.call(context, action)
   expect(context.execAction).toHaveBeenCalledWith(action, false)
+  expect(context.actionTrigger).toBe(trigger)
+})
+
+test('tab toolbar actions retain their original trigger instead of the global menu button', () => {
+  const trigger = document.createElement('button')
+  const menuButton = document.createElement('button')
+  document.body.append(trigger, menuButton)
+  trigger.focus()
+  const context = { ...view(), $refs: { detailActionsTrigger: { $el: menuButton } }, execAction: jest.fn() }
+  context.execAction.mockImplementation(() => { context.actionTrigger = document.activeElement })
+  AutogenView.methods.handleDataViewAction.call(context, { api: 'scaleKubernetesCluster' })
   expect(context.actionTrigger).toBe(trigger)
 })
