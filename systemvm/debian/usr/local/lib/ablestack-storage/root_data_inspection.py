@@ -68,6 +68,9 @@ def inspect_data(request, blockdevices, filesystems, signature_observer=inspect_
         disk = next((item for item in devices if item.get("path") == disk_path), None)
         if not disk or disk.get("name") in root_disk_names(devices) or int(disk.get("size") or 0) != size:
             raise ValueError("ROOT DATA disk identity or exact size differs")
+        serial="".join(char for char in str(disk.get("serial") or "").lower() if char.isalnum())
+        exact=volume.replace("-","")
+        if serial not in (exact,exact[:20]):raise ValueError("ROOT DATA requires a full or exact 20-character volume serial")
         if disk_path in seen_paths:
             raise ValueError("Two ROOT DATA records resolve to the same disk")
         seen_paths.add(disk_path)
