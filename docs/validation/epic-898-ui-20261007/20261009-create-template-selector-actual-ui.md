@@ -14,3 +14,7 @@
 ![실제 SYSTEM 템플릿 선택 목록](create-system-template-selector-20261009.png)
 
 ![기본 템플릿으로 복귀](create-system-template-default-20261009.png)
+
+새 UI 적용 후 원래 상세 URL을 다시 reload해 정보 탭 Ready/XFS/100 GiB와 로딩 종료를 확인했다. 기존 THIN 볼륨을 읽기만 했으며 새 디스크를 생성하지 않았다.
+
+![새 UI 적용 후 원래 상세](original-details-after-template45c-20261009.png)
