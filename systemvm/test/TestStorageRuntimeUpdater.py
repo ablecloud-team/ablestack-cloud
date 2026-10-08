@@ -147,6 +147,49 @@ class StorageRuntimeUpdaterTest(unittest.TestCase):
         self.run_updater("activate", request)
         return request
 
+    def make_activating(self, switched=False):
+        bootstrap = self.run_updater("bootstrap")["currentVersion"]
+        request = self.stage_transaction()
+        state = self.run_updater("status", request)
+        state.update(phase="ACTIVATING", previousVersion=bootstrap)
+        (self.state_root / request['transactionId'] / 'state.json').write_text(json.dumps(state))
+        if switched:
+            previous = self.runtime_root / 'previous'
+            previous.symlink_to(self.runtime_root / 'releases' / bootstrap)
+            current = self.runtime_root / 'current'
+            current.unlink()
+            current.symlink_to(self.runtime_root / 'releases/v2')
+        return request, bootstrap
+
+    def test_activation_resume_after_pointer_switch_keeps_the_original_previous_release(self):
+        request, previous = self.make_activating(switched=True)
+        result = self.run_updater('activate', request)
+        self.assertEqual('COMPLETE', result['phase'])
+        self.assertEqual(previous, result['previousVersion'])
+        self.assertEqual(previous, self.run_updater('capabilities')['previousVersion'])
+        self.assertTrue(self.run_updater('readback', request)['signedRuntimeVerified'])
+
+    def test_activation_resume_before_pointer_switch_replays_the_pinned_release(self):
+        request, previous = self.make_activating()
+        result = self.run_updater('activate', request)
+        self.assertEqual('COMPLETE', result['phase'])
+        self.assertEqual(previous, result['previousVersion'])
+        self.assertEqual('v2', result['currentVersion'])
+
+    def test_activation_resume_rejects_a_third_current_release_without_writing_state(self):
+        request, previous = self.make_activating()
+        third = self.runtime_root / 'releases/third'
+        third.mkdir()
+        current = self.runtime_root / 'current'
+        current.unlink()
+        current.symlink_to(third)
+        state_path = self.state_root / request['transactionId'] / 'state.json'
+        before = state_path.read_bytes()
+        result = self.run_updater('activate', request, success=False)
+        self.assertEqual('ACTIVATION_RESUME_STATE_MISMATCH', result['errorCode'])
+        self.assertEqual(before, state_path.read_bytes())
+        self.assertEqual('third', self.run_updater('capabilities')['currentVersion'])
+
     def test_signed_readback_verifies_exact_release_and_has_no_state_or_target_writes(self):
         request = self.activate_signed()
         before = {str(path): (path.read_bytes(), path.stat().st_mtime_ns) for path in self.temp.rglob('*') if path.is_file() and not path.is_symlink()}
