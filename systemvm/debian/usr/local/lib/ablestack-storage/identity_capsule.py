@@ -24,6 +24,7 @@ import os
 import re
 import stat
 import subprocess
+import time
 from pathlib import Path
 
 MAX_CAPSULE_BYTES = 8 * 1024 * 1024
@@ -362,8 +363,51 @@ def restore_protected(payload, nvme_desired=None):
     return restored
 
 
+LIVE_TDB_FILES = {"/var/lib/samba/private/passdb.tdb", "/var/lib/samba/private/secrets.tdb"}
+
+
+def live_identity_database_holders(paths, process_root="/proc", timeout=5):
+    """Observe inode ownership only. Never read credential DB contents/NT data."""
+    names = set(paths) & LIVE_TDB_FILES
+    if not names: return []
+    deadline = time.monotonic() + timeout
+    holders = []
+    for process in Path(process_root).iterdir():
+        if time.monotonic() >= deadline: raise ValueError("SMB_IDENTITY_OBSERVATION_UNAVAILABLE: process deadline exceeded")
+        if not process.name.isdigit(): continue
+        try:
+            name = (process / "comm").read_text().strip()
+            if name not in ("smbd", "nmbd", "winbindd", "samba", "samba-dcerpcd", "samba-bgqd"): continue
+            for entry in (process / "fd").iterdir():
+                try:
+                    target = os.readlink(entry)
+                    canonical = target[:-10] if target.endswith(" (deleted)") else target
+                    if canonical not in names: continue
+                    info = entry.stat()
+                    holders.append({"pid": int(process.name), "fd": int(entry.name), "path": canonical,
+                                    "device": info.st_dev, "inode": info.st_ino, "deleted": target.endswith(" (deleted)")})
+                except FileNotFoundError: continue
+        except FileNotFoundError: continue
+        except PermissionError as unavailable:
+            raise ValueError("SMB_IDENTITY_OBSERVATION_UNAVAILABLE: server descriptors cannot be observed") from unavailable
+    return holders
+
+
+def require_identity_database_quiescence(files, observer=live_identity_database_holders):
+    # Whole TDB byte replacement changes its inode. Samba 4.17 tdbsam keeps
+    # a process-global open db_sam and its children inherit it; reload-config
+    # does not make a replacement inode the authentication database.
+    touched = set(files) & LIVE_TDB_FILES
+    holders = observer(touched)
+    if holders:
+        raise ValueError("SMB_IDENTITY_QUIESCE_REQUIRED: live Samba database replacement is prohibited")
+
+
 def restore(payload):
     validate_payload(payload)
+    # Fail before account, secret, or filesystem metadata writes. Offline ROOT
+    # restoration is allowed only after acceptors/identity daemons are quiesced.
+    require_identity_database_quiescence(payload.get("files", {}))
     if payload.get("nvmeHosts"):
         raise ValueError("NVMe authentication capsule requires the protected protocol replay path")
     staged = {}
