@@ -129,4 +129,10 @@ if [[ ! -x "$MOUNT_DIR/bin/targetcli" && ! -x "$MOUNT_DIR/usr/bin/targetcli" ]];
   exit 1
 fi
 
+validator_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+validation_args=("$MOUNT_DIR")
+if [[ -n "${SYSTEMVM_STORAGE_TEMPLATE_MANIFEST_OUTPUT:-}" ]]; then
+  validation_args+=(--output "$SYSTEMVM_STORAGE_TEMPLATE_MANIFEST_OUTPUT")
+fi
+python3 "$validator_dir/validate_storage_template.py" "${validation_args[@]}"
 echo "SystemVM image validation passed: $IMAGE"

@@ -34,11 +34,11 @@
       "qemuargs": [
         [
           "-m",
-          "500M"
+          "2048M"
         ],
         [
           "-smp",
-          "1"
+          "2"
         ]
       ],
       "shutdown_command": "sudo halt -p",
@@ -52,9 +52,15 @@
   "description": "CloudStack SystemVM template",
   "provisioners": [
     {
+      "type": "file",
+      "source": "storage-kernel-amd64.json",
+      "destination": "/tmp/storage-kernel-amd64.json"
+    },
+    {
       "execute_command": "echo 'cloud' | sudo -u root -S bash {{.Path}}",
       "scripts": [
         "scripts/apt_upgrade.sh",
+        "scripts/install_storage_kernel.sh",
         "scripts/configure_grub.sh",
         "scripts/configure_locale.sh",
         "scripts/configure_networking.sh",

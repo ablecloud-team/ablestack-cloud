@@ -4634,6 +4634,42 @@ def verify_share_mount_boundary(path, root):
         if os.stat(current).st_dev != device or observed.returncode != 0 or observed.stdout.strip() != mount.stdout.strip():
             raise RuntimeError("Share backing path crosses a filesystem or mount boundary")
 
+def ensure_directory_below_volume(root, path, create):
+    relative = os.path.relpath(path, root)
+    if relative == "." or relative.startswith("../") or os.path.isabs(relative):
+        raise ValueError("Export directory must be below the selected volume root")
+    descriptor = os.open(root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    device = os.fstat(descriptor).st_dev
+    mounted = run(["findmnt", "-n", "-o", "TARGET", "-T", root])
+    if mounted.returncode != 0 or mounted.stdout.strip() != root:
+        os.close(descriptor)
+        raise RuntimeError("Selected backing volume mount changed")
+    current = root
+    created_final = False
+    try:
+        components = relative.split(os.sep)
+        for index, part in enumerate(components):
+            created = False
+            try:
+                child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=descriptor)
+            except FileNotFoundError:
+                if not create:
+                    raise RuntimeError("Backing directory does not exist")
+                os.mkdir(part, mode=0o750, dir_fd=descriptor)
+                child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=descriptor)
+                created = True
+            os.close(descriptor)
+            descriptor = child
+            current = os.path.join(current, part)
+            observed = run(["findmnt", "-n", "-o", "TARGET", "-T", current])
+            if os.fstat(descriptor).st_dev != device or observed.returncode != 0 or observed.stdout.strip() != root:
+                raise RuntimeError("Backing directory crosses a mount boundary")
+            if index == len(components) - 1:
+                created_final = created
+        return {"device": os.fstat(descriptor).st_dev, "inode": os.fstat(descriptor).st_ino} if created_final else None
+    finally:
+        os.close(descriptor)
+
 def ensure_export_alias(export):
     export_config = effective_nfs_export_config(export.get("config") or {})
     backing_path = str(export_config.get("backingPath") or "").strip().rstrip("/")
@@ -4657,10 +4693,7 @@ def ensure_export_alias(export):
     if not is_path_on_mount(backing_path, volume_mount_path):
         raise ValueError(f"NFS export {uuid} backingPath {backing_path} is not under mounted volume {volume_mount_path}")
     create_directory = truth(export_config, "createDirectory", True)
-    if not os.path.exists(backing_path):
-        if not create_directory:
-            raise RuntimeError(f"NFS export {uuid} backing directory does not exist: {backing_path}")
-        os.makedirs(backing_path, exist_ok=True)
+    export["_createdBackingDirectory"] = ensure_directory_below_volume(volume_mount_path, backing_path, create_directory)
     if not os.path.isdir(backing_path):
         raise ValueError(f"NFS export {uuid} backingPath is not a directory: {backing_path}")
     verify_share_mount_boundary(backing_path, volume_mount_path)
@@ -4708,32 +4741,30 @@ def verify_common_posix_policy(path, config):
         raise RuntimeError("Common POSIX directory is a symlink")
     return True
 
-def apply_posix_permissions(backing_path, export_config):
+def apply_posix_permissions(backing_path, export_config, created_directory=False):
+    # Protocol reconciliation observes common policy ownership. It never changes
+    # ownership/mode on pre-existing data, including legacy exports.
     if verify_common_posix_policy(backing_path, export_config):
         return
+    if not created_directory:
+        return
+    if truth(export_config, "recursivePermission", False):
+        raise ValueError("Recursive permissions require a separate explicit POSIX directory operation")
     owner_uid = int_config(export_config, "ownerUid")
     owner_gid = int_config(export_config, "ownerGid")
     mode = mode_config(export_config)
-    recursive = truth(export_config, "recursivePermission", False)
-    if owner_uid is None and owner_gid is None and mode is None:
-        return
-    uid = owner_uid if owner_uid is not None else -1
-    gid = owner_gid if owner_gid is not None else -1
-    paths = [backing_path]
-    if recursive:
-        for root, dirs, files in os.walk(backing_path):
-            paths.append(root)
-            paths.extend(os.path.join(root, name) for name in dirs)
-            paths.extend(os.path.join(root, name) for name in files)
-    seen = set()
-    for item in paths:
-        if item in seen or not os.path.exists(item):
-            continue
-        seen.add(item)
+    descriptor = os.open(backing_path, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    try:
+        opened = os.fstat(descriptor)
+        expected = (created_directory["device"], created_directory["inode"])
+        if (opened.st_dev, opened.st_ino) != expected or (os.lstat(backing_path).st_dev, os.lstat(backing_path).st_ino) != expected:
+            raise RuntimeError("New export directory changed before initialization")
         if owner_uid is not None or owner_gid is not None:
-            os.chown(item, uid, gid)
+            os.fchown(descriptor, owner_uid if owner_uid is not None else -1, owner_gid if owner_gid is not None else -1)
         if mode is not None:
-            os.chmod(item, mode)
+            os.fchmod(descriptor, mode)
+    finally:
+        os.close(descriptor)
 
 def load_alias_state():
     try:
@@ -4773,7 +4804,7 @@ for export in payload.get("exports", []):
             "backingPath": backing_path,
             "name": export.get("name"),
         }
-        apply_posix_permissions(backing_path, export_config)
+        apply_posix_permissions(backing_path, export_config, export.get("_createdBackingDirectory", False))
         rendered_acl_keys = set()
         clients = []
         for acl in export.get("acls", []):
@@ -8055,7 +8086,7 @@ class Generation:
         return {"success": True, "generationSupported": True, "runtimeRevision": current.get("revision", 0),
                 "generation": current, "pendingOperationUuid": pending.get("operationUuid") if pending else None,
                 "generationStatus": "PENDING" if pending else ("IN_SYNC" if current and current.get("configurationSha256") == digest else "UNVERIFIED"),
-                "configurationSha256": digest}
+                "configurationSha256": digest, "configurationDesiredState": self.files()}
 
     def request(self, request):
         result = dict(request)
@@ -8072,11 +8103,63 @@ class Generation:
             raise ValueError("Generation operation scope changed")
         return pending
 
+    def seed(self, request):
+        if request.get("sourceKind") != "INTERNAL_ROOT_GENERATION":
+            raise ValueError("ROOT seed accepts only an internal source generation")
+        source = request.get("previousGeneration")
+        desired = request.get("configurationDesiredState")
+        if not isinstance(source, dict) or source.get("instanceUuid") != request["instanceUuid"]:
+            raise ValueError("ROOT seed source generation scope changed")
+        old_revision = source.get("revision")
+        if isinstance(old_revision, bool) or not isinstance(old_revision, int) or not 0 < old_revision < request["revision"]:
+            raise ValueError("ROOT seed source revision is invalid")
+        str(uuid.UUID(source["operationUuid"]))
+        current = read_json(self.current) or {}
+        pending = read_json(self.pending)
+        if pending or (current and current != request.get("expectedPreviousGeneration")):
+            raise ValueError("ROOT seed target generation changed")
+        allowed = set(self.files())
+        if not isinstance(desired, dict) or set(desired) != allowed or redact(desired) != desired:
+            raise ValueError("ROOT seed must contain the exact nonsecret configuration allowlist")
+        if any(value is not None and not isinstance(value, dict) for value in desired.values()):
+            raise ValueError("ROOT seed desired files must be JSON objects or absent")
+        checksum = hashlib.sha256(json.dumps(desired, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+        if checksum != source.get("configurationSha256"):
+            raise ValueError("ROOT seed desired state checksum differs from source generation")
+        # This command seeds only allowlisted declarative files before reconcile.
+        # It does not adopt a generation, render a daemon config or touch DATA.
+        protected_directory(self.config)
+        for name in allowed:
+            protected_directory((self.config / name).parent)
+        previous = {name: read_json(self.config / name) for name in allowed}
+        try:
+            for name in sorted(allowed):
+                path = self.config / name
+                protected_directory(path.parent)
+                if desired[name] is None:
+                    path.unlink(missing_ok=True)
+                else:
+                    atomic_json(path, desired[name])
+            if self.digest() != checksum:
+                raise ValueError("ROOT seed configuration changed while writing")
+        except Exception:
+            for name, value in previous.items():
+                path = self.config / name
+                if value is None:
+                    path.unlink(missing_ok=True)
+                else:
+                    atomic_json(path, value)
+            raise
+        return {"success": True, "seeded": True, "configurationSha256": checksum,
+                "generationAdopted": False}
+
     def execute(self, action, request=None):
         if action == "status":
             return self.status()
         protected_directory(self.root)
         request = self.request(request)
+        if action == "seed":
+            return self.seed(request)
         if action in ("adopt", "align"):
             if read_json(self.pending) is not None:
                 raise ValueError("Pending generation must be recovered before ROOT transfer")
@@ -8150,7 +8233,6 @@ class Generation:
             self.pending.unlink()
             return self.status()
         raise ValueError("Unsupported generation action")
-
 import sys
 request = json.loads(Path(sys.argv[2]).read_text()) if sys.argv[1] != "status" and len(sys.argv) > 2 and sys.argv[2] else None
 try:
@@ -8203,6 +8285,64 @@ case "$command" in
   operation)
     if [[ "$subcommand" == "generation" ]]; then
       configuration_generation
+    elif [[ "$subcommand" == "quiesce" ]]; then
+      python3 - "$action" <<'PYQUIESCE'
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import uuid
+
+request = json.loads(Path(sys.argv[1]).read_text())
+instance = str(uuid.UUID(request["instanceUuid"]))
+operation = str(uuid.UUID(request["operationUuid"]))
+revision = request["revision"]
+if isinstance(revision, bool) or not isinstance(revision, int) or revision < 1:
+    raise ValueError("Quiesce revision is invalid")
+root = Path(os.environ.get("ABLESTACK_STORAGE_GENERATION_DIR", "/var/lib/ablestack-storage/config-generations"))
+for name in ("current.json", "pending.json"):
+    path = root / name
+    value = json.loads(path.read_text()) if path.exists() else {}
+    if value and value.get("instanceUuid") != instance:
+        raise ValueError("Quiesce generation instance changed")
+    if name == "pending.json" and value and value.get("operationUuid") != operation:
+        raise ValueError("Quiesce conflicts with a pending generation operation")
+    if value and value.get("revision", 0) > revision:
+        raise ValueError("Quiesce revision is stale")
+
+def run(arguments):
+    return subprocess.run(arguments, capture_output=True, text=True, timeout=60)
+
+listed = run(["systemctl", "list-units", "--state=active", "--type=service", "--no-legend", "--plain",
+              "ablestack-storage-ganesha@*.service", "smbd.service", "nmbd.service", "winbind.service"])
+if listed.returncode != 0:
+    print(json.dumps({"success": False, "quiesced": False, "errorCode": "QUIESCE_SERVICE_OBSERVATION_FAILED"}))
+    raise SystemExit(1)
+units = []
+for line in listed.stdout.splitlines():
+    unit = line.split()[0] if line.split() else ""
+    if unit in ("smbd.service", "nmbd.service", "winbind.service") or (
+            unit.startswith("ablestack-storage-ganesha@") and unit.endswith(".service")):
+        units.append(unit)
+stopped = []
+try:
+    for unit in units:
+        if run(["systemctl", "stop", unit]).returncode != 0:
+            raise RuntimeError("A file protocol service could not be stopped")
+        stopped.append(unit)
+    os.sync()
+    print(json.dumps({"success": True, "quiesced": True, "instanceUuid": instance,
+                      "operationUuid": operation, "revision": revision, "stoppedUnits": stopped,
+                      "blockTargetsPreserved": True, "blockSessionBoundary": "NORMAL_VM_SHUTDOWN"}))
+except Exception:
+    # Restore services on a partial quiesce failure. Desired files and all
+    # configfs target/LUN/namespace mappings are deliberately untouched.
+    for unit in reversed(stopped):
+        run(["systemctl", "start", unit])
+    print(json.dumps({"success": False, "quiesced": False, "errorCode": "QUIESCE_FAILED"}))
+    raise SystemExit(1)
+PYQUIESCE
     elif [[ "$subcommand" == "writer-idle" ]]; then
       printf '%s\n' '{"success":true,"status":"WRITER_IDLE","writerLockSupported":true}'
     elif [[ "$subcommand" == "preflight" ]]; then

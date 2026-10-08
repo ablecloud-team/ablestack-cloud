@@ -62,12 +62,16 @@ class StorageRuntimeUpdaterTest(unittest.TestCase):
         for name in ENTRYPOINTS:
             self.write_script(self.entrypoint_root / name, "bootstrap")
             self.write_script(self.source / name, "v2")
-        self.private_key = self.temp / "private.pem"
+        self.private_key_fd = os.memfd_create("storage-runtime-test-key", os.MFD_CLOEXEC)
+        private = subprocess.check_output(["openssl", "genpkey", "-algorithm", "ED25519"], stderr=subprocess.DEVNULL)
+        os.write(self.private_key_fd, private)
+        os.lseek(self.private_key_fd, 0, os.SEEK_SET)
+        self.private_key = Path(f"/proc/self/fd/{self.private_key_fd}")
         self.public_key = self.trusted_keys / "test-key.pem"
-        subprocess.run(["openssl", "genpkey", "-algorithm", "ED25519", "-out", str(self.private_key)], check=True)
-        subprocess.run(["openssl", "pkey", "-in", str(self.private_key), "-pubout", "-out", str(self.public_key)], check=True)
+        subprocess.run(["openssl", "pkey", "-in", str(self.private_key), "-pubout", "-out", str(self.public_key)], check=True, pass_fds=(self.private_key_fd,))
 
     def tearDown(self):
+        os.close(self.private_key_fd)
         shutil.rmtree(self.temp, ignore_errors=True)
 
     def write_script(self, path, value):
@@ -97,7 +101,7 @@ class StorageRuntimeUpdaterTest(unittest.TestCase):
         subprocess.run([
             str(BUNDLE_BUILDER), "--version", version, "--private-key", str(self.private_key),
             "--key-id", "test-key", "--output-dir", str(self.output), "--source-root", str(self.source),
-        ], check=True, env=env, capture_output=True, text=True)
+        ], check=True, env=env, capture_output=True, text=True, pass_fds=(self.private_key_fd,))
         return self.output / f"ablestack-storage-runtime-{version}.tar.gz"
 
     def stage_transaction(self, transaction="tx-1", version="v2"):

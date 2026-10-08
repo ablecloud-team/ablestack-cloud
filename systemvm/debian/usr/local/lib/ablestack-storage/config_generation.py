@@ -106,7 +106,7 @@ class Generation:
         return {"success": True, "generationSupported": True, "runtimeRevision": current.get("revision", 0),
                 "generation": current, "pendingOperationUuid": pending.get("operationUuid") if pending else None,
                 "generationStatus": "PENDING" if pending else ("IN_SYNC" if current and current.get("configurationSha256") == digest else "UNVERIFIED"),
-                "configurationSha256": digest}
+                "configurationSha256": digest, "configurationDesiredState": self.files()}
 
     def request(self, request):
         result = dict(request)
@@ -123,11 +123,63 @@ class Generation:
             raise ValueError("Generation operation scope changed")
         return pending
 
+    def seed(self, request):
+        if request.get("sourceKind") != "INTERNAL_ROOT_GENERATION":
+            raise ValueError("ROOT seed accepts only an internal source generation")
+        source = request.get("previousGeneration")
+        desired = request.get("configurationDesiredState")
+        if not isinstance(source, dict) or source.get("instanceUuid") != request["instanceUuid"]:
+            raise ValueError("ROOT seed source generation scope changed")
+        old_revision = source.get("revision")
+        if isinstance(old_revision, bool) or not isinstance(old_revision, int) or not 0 < old_revision < request["revision"]:
+            raise ValueError("ROOT seed source revision is invalid")
+        str(uuid.UUID(source["operationUuid"]))
+        current = read_json(self.current) or {}
+        pending = read_json(self.pending)
+        if pending or (current and current != request.get("expectedPreviousGeneration")):
+            raise ValueError("ROOT seed target generation changed")
+        allowed = set(self.files())
+        if not isinstance(desired, dict) or set(desired) != allowed or redact(desired) != desired:
+            raise ValueError("ROOT seed must contain the exact nonsecret configuration allowlist")
+        if any(value is not None and not isinstance(value, dict) for value in desired.values()):
+            raise ValueError("ROOT seed desired files must be JSON objects or absent")
+        checksum = hashlib.sha256(json.dumps(desired, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+        if checksum != source.get("configurationSha256"):
+            raise ValueError("ROOT seed desired state checksum differs from source generation")
+        # This command seeds only allowlisted declarative files before reconcile.
+        # It does not adopt a generation, render a daemon config or touch DATA.
+        protected_directory(self.config)
+        for name in allowed:
+            protected_directory((self.config / name).parent)
+        previous = {name: read_json(self.config / name) for name in allowed}
+        try:
+            for name in sorted(allowed):
+                path = self.config / name
+                protected_directory(path.parent)
+                if desired[name] is None:
+                    path.unlink(missing_ok=True)
+                else:
+                    atomic_json(path, desired[name])
+            if self.digest() != checksum:
+                raise ValueError("ROOT seed configuration changed while writing")
+        except Exception:
+            for name, value in previous.items():
+                path = self.config / name
+                if value is None:
+                    path.unlink(missing_ok=True)
+                else:
+                    atomic_json(path, value)
+            raise
+        return {"success": True, "seeded": True, "configurationSha256": checksum,
+                "generationAdopted": False}
+
     def execute(self, action, request=None):
         if action == "status":
             return self.status()
         protected_directory(self.root)
         request = self.request(request)
+        if action == "seed":
+            return self.seed(request)
         if action in ("adopt", "align"):
             if read_json(self.pending) is not None:
                 raise ValueError("Pending generation must be recovered before ROOT transfer")

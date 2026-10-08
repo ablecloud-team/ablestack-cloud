@@ -143,6 +143,43 @@ class GenerationTest(unittest.TestCase):
             new_target.execute("adopt", request)
         self.assertFalse(new_target.current.exists())
 
+    def seed_request(self):
+        self.complete()
+        source = self.generation.status()
+        return {**self.request, "operationUuid": str(uuid.uuid4()), "revision": 2,
+                "sourceKind": "INTERNAL_ROOT_GENERATION", "previousGeneration": source["generation"],
+                "configurationDesiredState": source["configurationDesiredState"]}
+
+    def test_new_root_seed_preserves_exact_absence_and_never_adopts_generation(self):
+        request = self.seed_request()
+        target = module.Generation(self.root / "target-generations", self.root / "target-configuration")
+        result = target.execute("seed", request)
+        self.assertTrue(result["seeded"])
+        self.assertFalse(result["generationAdopted"])
+        self.assertEqual(request["previousGeneration"]["configurationSha256"], target.digest())
+        self.assertFalse((target.config / "iscsi-targets.json").exists())
+        self.assertFalse(target.current.exists())
+        target.execute("adopt", request)
+        self.assertEqual(1, target.status()["runtimeRevision"])
+
+    def test_root_seed_rejects_unsafe_paths_secrets_and_non_internal_source(self):
+        request = self.seed_request()
+        for changes in ({"sourceKind": "CONFIGURATION_IMPORT"},
+                        {"configurationDesiredState": {**request["configurationDesiredState"], "../../etc/shadow": {}}},
+                        {"configurationDesiredState": {**request["configurationDesiredState"], "iscsi-targets.json": {"chapSecret": "SYNTHETIC"}}}):
+            target = module.Generation(self.root / str(uuid.uuid4()), self.root / str(uuid.uuid4()))
+            with self.assertRaises(ValueError):
+                target.execute("seed", {**request, **changes})
+            self.assertFalse(target.config.exists())
+
+    def test_root_seed_checksum_mismatch_leaves_target_unchanged(self):
+        request = self.seed_request()
+        request["configurationDesiredState"]["iscsi-targets.json"] = {}
+        target = module.Generation(self.root / "target-generation", self.root / "target-configuration")
+        with self.assertRaises(ValueError):
+            target.execute("seed", request)
+        self.assertFalse(target.config.exists())
+
     def test_retained_root_aligns_forward_only_after_current_configuration_replay(self):
         self.complete()
         original = module.read_json(self.generation.current)

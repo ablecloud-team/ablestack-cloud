@@ -31,7 +31,7 @@ function configure_grub() {
 # If you change this file, run 'update-grub' afterwards to update
 # /boot/grub/grub.cfg.
 
-GRUB_DEFAULT=0
+GRUB_DEFAULT="Advanced options for Debian GNU/Linux>Debian GNU/Linux, with Linux $(python3 -c 'import json; print(json.load(open("/tmp/storage-kernel-amd64.json"))["kernelVersion"])')"
 GRUB_TIMEOUT=0
 GRUB_DISTRIBUTOR=Debian
 GRUB_CMDLINE_LINUX_DEFAULT="quiet fsck.mode=force fsck.repair=yes"
