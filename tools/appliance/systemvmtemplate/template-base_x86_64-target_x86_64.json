@@ -46,7 +46,17 @@
       "ssh_timeout": "120m",
       "ssh_username": "cloud",
       "type": "qemu",
-      "vm_name": "systemvmtemplate"
+      "vm_name": "systemvmtemplate",
+      "qemu_img_args": {
+        "create": [
+          "-o",
+          "preallocation=metadata"
+        ],
+        "convert": [
+          "-o",
+          "preallocation=metadata"
+        ]
+      }
     }
   ],
   "description": "CloudStack SystemVM template",

@@ -347,7 +347,7 @@ function ovm_export() {
 function kvm_export() {
   log INFO "creating kvm export"
   set +e
-  qemu-img convert -o compat=0.10 -f qcow2 -c -O qcow2 "dist/${appliance}" "dist/${appliance_build_name}-kvm-${CREATE_DATE}.qcow2"
+  qemu-img convert -o compat=0.10,preallocation=metadata -f qcow2 -O qcow2 "dist/${appliance}" "dist/${appliance_build_name}-kvm-${CREATE_DATE}.qcow2"
   local qemuresult=$?
   set -e
   if [[ ${qemuresult} -ne 0 ]]; then
