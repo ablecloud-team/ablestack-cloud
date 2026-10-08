@@ -67,6 +67,7 @@ class="storage-service__alert"
       </a-tab-pane>
 
       <a-tab-pane v-if="hasStorageServiceApi" :tab="$t('label.storage.tab.operations')" key="operations">
+        <storage-control-policy v-if="storageService.instance" :instance-id="storageService.instance.id" :instance-name="storageService.instance.name || dataResource.name || ''" @operation-updated="refreshStorageOperationHistory" />
         <storage-operation-history ref="storageOperationHistory" v-if="storageService.instance && 'listStorageServiceOperations' in $store.getters.apis" :instance-id="storageService.instance.id" :instance-name="storageService.instance.name || dataResource.name || ''" />
         <storage-volume-preparation v-if="storageService.instance && 'getStorageServiceVolumePreparation' in $store.getters.apis" :instance-id="storageService.instance.id" :volumes="currentBackingVolumes" @operation-updated="refreshStorageOperationHistory" />
       </a-tab-pane>
@@ -2348,6 +2349,7 @@ import PosixDirectoryPolicies from '@/views/storage/PosixDirectoryPolicies'
 import PosixPolicyInheritance from '@/views/storage/PosixPolicyInheritance'
 import NfsPermissionRecommendations from '@/views/storage/NfsPermissionRecommendations'
 import { nfsPermissionPreset, recommendedNfsPermissionPatch } from '@/utils/storageNfsPermissions'
+import StorageControlPolicy from './StorageControlPolicy'
 import StorageOperationHistory from '@/views/storage/StorageOperationHistory'
 import StorageServiceConfiguration from '@/views/storage/StorageServiceConfiguration'
 import StorageServiceTemplateUpgradeHistory from '@/views/storage/StorageServiceTemplateUpgradeHistory'
@@ -2573,6 +2575,7 @@ export default {
     PosixPolicyInheritance,
     NfsPermissionRecommendations,
     StorageOperationHistory,
+    StorageControlPolicy,
     StorageServiceConfiguration,
     StorageServiceTemplateUpgradeHistory,
     Status,
