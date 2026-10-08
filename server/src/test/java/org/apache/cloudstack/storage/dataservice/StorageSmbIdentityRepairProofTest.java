@@ -49,4 +49,22 @@ public class StorageSmbIdentityRepairProofTest {
         JsonObject quiesced=inspection();quiesced.addProperty("identityRestoreSafe",true);StorageSmbIdentityRepairProof.requireRestoreSafe(scope(),quiesced);
         quiesced.getAsJsonObject("scope").addProperty("operationUuid","foreign");Assert.assertThrows(CloudRuntimeException.class,()->StorageSmbIdentityRepairProof.requireRestoreSafe(scope(),quiesced));
     }
+    @Test public void actualProcStartTicksDecimalStringsAreVerifiedButMalformedIdentifiersAreRejected() {
+        JsonObject value=inspection();value.getAsJsonArray("masters").get(0).getAsJsonObject().addProperty("startTicks","694");StorageSmbIdentityRepairProof.requirePreflight(scope(),value);
+        for(String tick:new String[]{"+694","0694","0","NaN","694x","999999999999999999999999"}) {
+            value.getAsJsonArray("masters").get(0).getAsJsonObject().addProperty("startTicks",tick);
+            Assert.assertThrows(CloudRuntimeException.class,()->StorageSmbIdentityRepairProof.requirePreflight(scope(),value));
+        }
+    }
+
+    @Test public void actualSignedFixedInspectorSchemaPassesBeforeAnyServiceRestart() throws Exception {
+        try(java.io.InputStream stream=getClass().getResourceAsStream("/storage-smb-identity-inspect-actual.json")) {
+            Assert.assertNotNull(stream);
+            JsonObject observed=com.google.gson.JsonParser.parseString(new String(stream.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();
+            StorageSmbIdentityRepairProof.requirePreflight(observed.getAsJsonObject("scope"),observed);
+            Assert.assertFalse(observed.get("identityDatabaseAligned").getAsBoolean());
+            Assert.assertThrows(CloudRuntimeException.class,()->StorageSmbIdentityRepairProof.requireRestoreSafe(observed.getAsJsonObject("scope"),observed));
+        }
+    }
+
 }

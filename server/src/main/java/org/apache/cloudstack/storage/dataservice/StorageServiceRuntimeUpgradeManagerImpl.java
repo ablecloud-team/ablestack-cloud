@@ -90,6 +90,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
     @Inject private org.apache.cloudstack.storage.dataservice.dao.StorageServiceProtocolDao protocolDao;
     @Inject private org.apache.cloudstack.storage.dataservice.dao.StorageAccessRuleDao accessRuleDao;
     @Inject private org.apache.cloudstack.storage.dataservice.dao.StoragePosixDirectoryPolicyDao posixPolicyDao;
+    @Inject private org.apache.cloudstack.storage.dataservice.dao.StorageIdentityDomainDao runtimeIdentityDomainDao;
 
     private StorageServiceRuntimeUpgradeResponse rootSerializedRuntime(StorageServiceInstanceVO instance,
             java.util.function.Supplier<StorageServiceRuntimeUpgradeResponse> action) {
@@ -273,7 +274,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         requireBundle(previous.getId());
         JsonObject preflight = upgrade.getPreflightJson() == null ? null : JsonParser.parseString(upgrade.getPreflightJson()).getAsJsonObject();
         JsonObject checkpoint = preflight == null ? null : preflight.getAsJsonObject("sourceSignedRuntime");
-        JsonObject manifest = signedManifest(previous);StorageRuntimeFeatureCompatibility.require(manifest, requiredRuntimeFeatures(instance));
+        JsonObject manifest = signedManifest(previous);requireSignedRuntimeFeatures(instance, manifest);
         StorageRuntimeVersionCompatibility.RetainedPreviousEvidence evidence = retainedPreviousEvidence(instance, previous, checkpoint, null, null);
         return versionCompatibility(instance, manifest, StorageRuntimeVersionCompatibility.Mode.RETAINED_PREVIOUS_ROLLBACK, evidence);
     }
@@ -331,7 +332,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         if (bundle.getServiceImpact()!=StorageServiceRuntimeBundleVO.ServiceImpact.NONE) throw new CloudRuntimeException("Pinned runtime requires additional template maintenance");
         byte[] archive=download(bundle.getArtifactUrl(),MAX_BUNDLE_BYTES),manifest=download(bundle.getManifestUrl(),MAX_MANIFEST_BYTES),signature=download(bundle.getSignatureUrl(),MAX_SIGNATURE_BYTES);
         JsonObject verified=new StorageServiceRuntimeBundleVerifier().verify(bundle,archive,manifest,signature,trustedKey(bundle.getSigningKeyId()));
-        StorageRuntimeFeatureCompatibility.require(verified.getAsJsonObject("manifest"),requiredRuntimeFeatures(instance));
+        requireSignedRuntimeFeatures(instance, verified.getAsJsonObject("manifest"));
         JsonObject checkpoint = activate && "previous".equals(direction) ? originalRootCheckpoint(instance, bundle) : null;
         StorageRuntimeVersionCompatibility.Mode mode = checkpoint == null ? StorageRuntimeVersionCompatibility.Mode.NEW_ACTIVATION : StorageRuntimeVersionCompatibility.Mode.RETAINED_PREVIOUS_ROLLBACK;
         StorageRuntimeVersionCompatibility.RetainedPreviousEvidence evidence = checkpoint == null ? null : retainedPreviousEvidence(instance, bundle, checkpoint, null, null);
@@ -346,11 +347,11 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         }
         if (activate && ("VERIFIED".equals(phase) || "PREFLIGHT_OK".equals(phase))) {
             invoke(instance,StorageServiceRuntimeOperation.PREFLIGHT,transaction,request);
-            pinnedBundle(runtimePin(bundle));StorageRuntimeFeatureCompatibility.require(verified.getAsJsonObject("manifest"),requiredRuntimeFeatures(instance));
+            pinnedBundle(runtimePin(bundle));requireSignedRuntimeFeatures(instance, verified.getAsJsonObject("manifest"));
             compatibility = versionCompatibility(instance, verified.getAsJsonObject("manifest"), mode, evidence);
             requireRuntimeActivationSafety(instance);invoke(instance,StorageServiceRuntimeOperation.ACTIVATE,transaction,request);
         } else if (activate && ("ACTIVATING".equals(phase) || "COMPLETE".equals(phase))) {
-            pinnedBundle(runtimePin(bundle));StorageRuntimeFeatureCompatibility.require(verified.getAsJsonObject("manifest"),requiredRuntimeFeatures(instance));
+            pinnedBundle(runtimePin(bundle));requireSignedRuntimeFeatures(instance, verified.getAsJsonObject("manifest"));
             compatibility = versionCompatibility(instance, verified.getAsJsonObject("manifest"), mode, evidence);
             requireRuntimeActivationSafety(instance);invoke(instance,StorageServiceRuntimeOperation.ACTIVATE,transaction,request);
         }
@@ -582,7 +583,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
             verifyBytes(manifest, bundle.getManifestSha256(), "runtime manifest");
             final JsonObject verified = new StorageServiceRuntimeBundleVerifier().verify(bundle, archive, manifest, signature,
                     trustedKey(bundle.getSigningKeyId()));
-            StorageRuntimeFeatureCompatibility.require(verified.getAsJsonObject("manifest"), requiredRuntimeFeatures(instance));
+            requireSignedRuntimeFeatures(instance, verified.getAsJsonObject("manifest"));
             final JsonObject consumerCompatibility = versionCompatibility(instance, verified.getAsJsonObject("manifest"), StorageRuntimeVersionCompatibility.Mode.NEW_ACTIVATION, null);
             final JsonObject sourceCheckpoint = instance.getCurrentRuntimeBundleId() == null ? null
                     : installedCheckpoint(instance, requireBundle(instance.getCurrentRuntimeBundleId()), transactionId);
@@ -638,7 +639,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
             if (preflight.has("sourceSignedRuntime") && !sourceRootBinding(instance).equals(preflight.getAsJsonObject("sourceSignedRuntime").get("sourceRootBinding"))) {
                 throw new CloudRuntimeException("Source ROOT changed after runtime preflight");
             }
-            JsonObject manifest = signedManifest(bundle);StorageRuntimeFeatureCompatibility.require(manifest, requiredRuntimeFeatures(instance));
+            JsonObject manifest = signedManifest(bundle);requireSignedRuntimeFeatures(instance, manifest);
             JsonObject compatibility = versionCompatibility(instance, manifest, StorageRuntimeVersionCompatibility.Mode.NEW_ACTIVATION, null);
             pinnedBundle(runtimePin(bundle));
             requireRuntimeActivationSafety(instance);
@@ -730,15 +731,71 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         return response;
     }
 
+    private static final java.util.Set<String> AD_IDENTITY_FEATURES = java.util.Set.of("SMB_ACTIVE_DIRECTORY", "SMB_AD_IDENTITY");
+    private static boolean activeAdPrincipal(StorageAccessRuleVO rule) {
+        return (rule.getPrincipalType() == StorageServiceInstance.PrincipalType.AD_USER || rule.getPrincipalType() == StorageServiceInstance.PrincipalType.AD_GROUP)
+                && rule.getState() != StorageServiceInstance.ResourceState.Disabled && rule.getState() != StorageServiceInstance.ResourceState.Destroyed;
+    }
+    private static boolean posixAdPrincipals(JsonObject config) {
+        for (String field : new String[] {"accessEntries", "defaultEntries"}) {
+            if (!config.has(field)) continue;
+            if (!config.get(field).isJsonArray()) throw new CloudRuntimeException("Active POSIX principal feature shape is invalid");
+            for (com.google.gson.JsonElement row : config.getAsJsonArray(field)) {
+                if (!row.isJsonObject() || !row.getAsJsonObject().has("principalType") || !row.getAsJsonObject().get("principalType").isJsonPrimitive()
+                        || !row.getAsJsonObject().get("principalType").getAsJsonPrimitive().isString()) throw new CloudRuntimeException("Active POSIX principal feature shape is invalid");
+                String kind = row.getAsJsonObject().get("principalType").getAsString();
+                if ("AD_USER".equals(kind) || "AD_GROUP".equals(kind)) return true;
+            }
+        }
+        return false;
+    }
+    protected void requireSignedRuntimeFeatures(StorageServiceInstanceVO instance, JsonObject manifest) {
+        java.util.Set<String> required = requiredRuntimeFeatures(instance);
+        if (required.stream().anyMatch(feature -> AD_IDENTITY_FEATURES.contains(feature) || "POSIX_AD_PRINCIPALS".equals(feature))) {
+            requireNativeAdFeatures(instance, required);
+        }
+        StorageRuntimeFeatureCompatibility.require(manifest, required);
+    }
+    private static boolean trueCapability(JsonObject object, String key) {
+        return object.has(key) && object.get(key).isJsonPrimitive() && object.get(key).getAsJsonPrimitive().isBoolean() && object.get(key).getAsBoolean();
+    }
+    protected void requireNativeAdFeatures(StorageServiceInstanceVO instance, java.util.Set<String> required) {
+        JsonObject request = new JsonObject();request.addProperty("instanceUuid", instance.getUuid());request.addProperty("operationUuid", UUID.randomUUID().toString());
+        StorageServiceGuestCommandResult observed = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
+                "identity capsule capabilities", request.toString(), 15, Collections.emptySet()));
+        if (observed == null || !observed.isSuccess() || observed.getResultJson() == null || observed.getResultJson().isBlank()) {
+            throw new CloudRuntimeException("FEATURE_UNAVAILABLEBLOCK: native AD capability is unobserved");
+        }
+        JsonObject caps = JsonParser.parseString(observed.getResultJson()).getAsJsonObject();
+        if (!trueCapability(caps, "success") || !trueCapability(caps, "adIdentity")) {
+            throw new CloudRuntimeException("FEATURE_UNAVAILABLEBLOCK: native AD identity transfer is unsupported");
+        }
+        java.util.Set<String> advertised = StorageRuntimeFeatureCompatibility.advertised(caps);
+        for (String feature : required) {
+            if ((AD_IDENTITY_FEATURES.contains(feature) || "POSIX_AD_PRINCIPALS".equals(feature)) && !advertised.contains(feature)) {
+                throw new CloudRuntimeException("FEATURE_UNAVAILABLEBLOCK: native capability lacks " + feature);
+            }
+        }
+    }
+
     protected java.util.Set<String> requiredRuntimeFeatures(final StorageServiceInstanceVO instance) {
         final java.util.Set<String> features = new java.util.HashSet<>();
-        if (!posixPolicyDao.listByInstance(instance.getId()).isEmpty()) features.add("POSIX_DIRECTORY_POLICY");
+        java.util.List<StoragePosixDirectoryPolicyVO> policies = posixPolicyDao.listByInstance(instance.getId());
+        if (!policies.isEmpty()) features.add("POSIX_DIRECTORY_POLICY");
+        StorageIdentityDomainVO domain = runtimeIdentityDomainDao.findByInstanceId(instance.getId());
+        if (domain != null && domain.getJoinState() != StorageServiceInstance.DomainJoinState.NOT_JOINED) features.addAll(AD_IDENTITY_FEATURES);
+        for (StoragePosixDirectoryPolicyVO policy : policies) {
+            if ("Disabled".equalsIgnoreCase(policy.getState()) || "Destroyed".equalsIgnoreCase(policy.getState())) continue;
+            JsonObject config = JsonParser.parseString(policy.getConfigJson() == null ? "{}" : policy.getConfigJson()).getAsJsonObject();
+            if (posixAdPrincipals(config)) {features.addAll(AD_IDENTITY_FEATURES);features.add("POSIX_AD_PRINCIPALS");}
+        }
         for (StorageServiceInstance.Protocol protocol : new StorageServiceInstance.Protocol[] {StorageServiceInstance.Protocol.NFS, StorageServiceInstance.Protocol.SMB}) {
             for (StorageFileShareVO share : fileShareDao.listByInstanceIdAndProtocol(instance.getId(), protocol)) {
                 JsonObject config = new JsonParser().parse(share.getConfigJson() == null ? "{}" : share.getConfigJson()).getAsJsonObject();
                 features.addAll(StorageRuntimeFeatureCompatibility.shareFeatures(config, protocol));
                 if (protocol == StorageServiceInstance.Protocol.SMB) {
                     for (StorageAccessRuleVO rule : accessRuleDao.listByResource(StorageServiceInstance.AccessResourceType.FILE_SHARE, share.getId())) {
+                        if (share.getState() != StorageServiceInstance.ResourceState.Disabled && share.getState() != StorageServiceInstance.ResourceState.Destroyed && activeAdPrincipal(rule)) features.addAll(AD_IDENTITY_FEATURES);
                         if ((rule.getPrincipalType() == StorageServiceInstance.PrincipalType.CIDR || rule.getPrincipalType() == StorageServiceInstance.PrincipalType.IP_ADDRESS)
                                 && rule.getState() != StorageServiceInstance.ResourceState.Disabled && rule.getState() != StorageServiceInstance.ResourceState.Destroyed) {
                             features.add("SMB_NETWORK_ACL");
