@@ -77,7 +77,8 @@ export default {
       const migration = this.preflight.identityMigration || this.capability.identityMigration
       if (!migration) return '—'
       if (typeof migration === 'string') return migration
-      return migration.available === false ? this.$t('label.no') : this.$t('label.storage.template.identity.protected')
+      if (migration.available === false || migration.success === false || migration.localIdentity === false || migration.protectedStdinTransport === false || migration.status === 'UNAVAILABLE') return this.$t('label.no')
+      return migration.localIdentity === true && migration.protectedStdinTransport === true ? this.$t('label.storage.template.identity.protected') : '—'
     },
     canSubmit () {
       if (this.loading || this.submitting || !this.targetTemplate) return false
