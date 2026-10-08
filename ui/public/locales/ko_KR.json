@@ -9473,5 +9473,12 @@
   "label.storage.template.data.preserved": "보존할 데이터 볼륨",
   "label.storage.template.current.root": "현재 ROOT 볼륨",
   "label.storage.template.current": "현재 SystemVM 템플릿",
-  "label.storage.template.change.target": "대상 템플릿 변경"
+  "label.storage.template.change.target": "대상 템플릿 변경",
+  "message.nfs.permission.root": "Root squash의 새 디렉터리는 선택한 익명 UID:GID와 0775를 권장합니다. 별도 디렉터리 정책을 검토하고 적용하기 전에는 기존 데이터 권한을 유지합니다.",
+  "message.nfs.permission.recursive.separate": "재귀 권한 변경은 별도 미리보기와 확인이 필요합니다. 프로토콜 설정 반영은 기존 데이터를 재귀적으로 변경하지 않습니다.",
+  "message.nfs.permission.readonly.preserve": "읽기 전용 공유는 기존 소유권과 권한을 유지합니다. 적용 전에 읽기 및 디렉터리 탐색 권한을 확인해야 합니다.",
+  "message.nfs.permission.no.root": "No root squash의 새 디렉터리는 0:0과 0770을 권장하며 직접 변경할 수 있습니다. 기존 디렉터리의 권한 변경은 별도 미리보기와 명시적 적용이 필요합니다.",
+  "message.nfs.permission.all": "All squash의 새 디렉터리는 root squash 여부와 관계없이 선택한 익명 UID:GID와 0775를 권장합니다. 기존 권한 변경은 별도 디렉터리 정책으로 검토해야 합니다.",
+  "label.nfs.permission.use.recommendation": "권장값 사용",
+  "label.nfs.permission.recommended": "새 디렉터리 권장 소유권 및 권한"
 }
