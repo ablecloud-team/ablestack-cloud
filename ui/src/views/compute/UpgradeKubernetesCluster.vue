@@ -31,7 +31,9 @@
         :model="form"
         :rules="rules"
         @finish="handleSubmit"
-        layout="vertical">
+        layout="vertical"
+class="mold-form-dialog">
+      <div class="mold-form-content"><KubernetesDialogContext :resource="resource" />
         <a-form-item name="kubernetesversionid" ref="kubernetesversionid">
           <template #label>
             <tooltip-label :title="$t('label.kubernetesversionid')" :tooltip="apiParams.kubernetesversionid.description"/>
@@ -45,7 +47,7 @@
               return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
             }"
             :loading="kubernetesVersionLoading"
-            :placeholder="apiParams.kubernetesversionid.description"
+            :placeholder="$t('label.kubernetesversionid')"
             v-focus="true" >
             <a-select-option v-for="(opt, optIndex) in this.kubernetesVersions" :key="optIndex" :label="opt.name || opt.description">
               {{ opt.name || opt.description }}
@@ -53,7 +55,8 @@
           </a-select>
         </a-form-item>
 
-        <div :span="24" class="action-button">
+        </div>
+      <div :span="24" class="action-button">
           <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
           <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
         </div>
@@ -64,6 +67,7 @@
 
 <script>
 import { ref, reactive, toRaw } from 'vue'
+import KubernetesDialogContext from '@/components/view/KubernetesDialogContext'
 import { getAPI, postAPI } from '@/api'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import { isKubernetesUpgradeTarget } from '@/utils/kubernetesUpgrade'
@@ -71,6 +75,7 @@ import { isKubernetesUpgradeTarget } from '@/utils/kubernetesUpgrade'
 export default {
   name: 'UpgradeKubernetesCluster',
   components: {
+    KubernetesDialogContext,
     TooltipLabel
   },
   props: {

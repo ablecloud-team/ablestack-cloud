@@ -18,73 +18,7 @@
 <template>
   <div>
     <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
-    <div>
-      <div class="form" v-ctrl-enter="openAddVMModal">
-        <div class="form__item">
-          <div class="form__label">{{ $t('label.privateport') }}</div>
-          <a-input-group class="form__item__input-container" compact>
-            <a-input
-              v-focus="true"
-              v-model:value="newRule.privateport"
-              :placeholder="$t('label.start')"
-              style="border-right: 0; width: 60px; margin-right: 0;"></a-input>
-            <a-input
-              placeholder="-"
-              disabled
-              class="tag-disabled-input"
-              style="width: 30px; border-left: 0; border-right: 0; pointer-events: none; text-align:
-              center; margin-right: 0;"></a-input>
-            <a-input
-              v-model:value="newRule.privateendport"
-              :placeholder="$t('label.end')"
-              style="border-left: 0; width: 60px; text-align: right; margin-right: 0;"></a-input>
-          </a-input-group>
-        </div>
-        <div class="form__item">
-          <div class="form__label">{{ $t('label.publicport') }}</div>
-          <a-input-group class="form__item__input-container" compact>
-            <a-input
-              v-model:value="newRule.publicport"
-              :placeholder="$t('label.start')"
-              style="border-right: 0; width: 60px; margin-right: 0;"></a-input>
-            <a-input
-              placeholder="-"
-              disabled
-              class="tag-disabled-input"
-              style="width: 30px; border-left: 0; border-right: 0; pointer-events: none;
-              text-align: center; margin-right: 0;"></a-input>
-            <a-input
-              v-model:value="newRule.publicendport"
-              :placeholder="$t('label.end')"
-              style="border-left: 0; width: 60px; text-align: right; margin-right: 0;"></a-input>
-          </a-input-group>
-        </div>
-        <div class="form__item">
-          <div class="form__label">{{ $t('label.protocol') }}</div>
-          <a-select
-            v-model:value="newRule.protocol"
-            style="width: 100%;"
-            showSearch
-            optionFilterProp="label"
-            :filterOption="(input, option) => {
-              return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }" >
-            <a-select-option value="tcp" label="$t('label.tcp')">{{ $t('label.tcp') }}</a-select-option>
-            <a-select-option value="udp" :label="$t('label.udp')">{{ $t('label.udp') }}</a-select-option>
-          </a-select>
-        </div>
-        <div v-if="isVPC()">
-          <div class="form__item" ref="newCidrList">
-            <tooltip-label :title="$t('label.sourcecidrlist')" bold :tooltip="apiParams.cidrlist.description" :tooltip-placement="'right'"/>
-            <a-input v-model:value="newRule.cidrlist"></a-input>
-          </div>
-        </div>
-        <div class="form__item" style="margin-left: auto;">
-          <div class="form__label">{{ $t('label.add.vm') }}</div>
-          <a-button :disabled="!('createPortForwardingRule' in $store.getters.apis)" type="primary" @click="openAddVMModal">{{ $t('label.add') }}</a-button>
-        </div>
-      </div>
-    </div>
+    <network-rules-toolbar :can-add="'createPortForwardingRule' in $store.getters.apis" :loading="loading" @add="openRuleDialog()" @refresh="fetchData" />
 
     <a-divider/>
     <a-button
@@ -132,11 +66,13 @@
         </template>
         <template v-if="column.key === 'actions'">
           <div class="actions">
+            <tooltip-button :tooltip="$t('label.edit')" icon="edit-outlined" :disabled="isProtectedManagementRule(record) || !('updatePortForwardingRule' in $store.getters.apis)" @onClick="openRuleDialog(record)" />
             <tooltip-button
               :tooltip="$t('label.tags')"
               icon="tag-outlined"
               buttonClass="rule-action"
               @onClick="() => openTagsModal(record.id)" />
+            <a-popconfirm :title="$t('label.delete') + '?'" @confirm="deleteRule(record)" :disabled="isProtectedManagementRule(record)">
             <tooltip-button
               :tooltip="isProtectedManagementRule(record) ? $t('message.kubernetes.management.rule.delete.disabled') : $t('label.remove.rule')"
               type="primary"
@@ -144,13 +80,14 @@
               icon="delete-outlined"
               buttonClass="rule-action"
               :disabled="!('deletePortForwardingRule' in $store.getters.apis) || isProtectedManagementRule(record)"
-              @onClick="deleteRule(record)" />
+               />
+            </a-popconfirm>
           </div>
         </template>
       </template>
     </a-table>
     <a-pagination
-      class="pagination"
+      class="detail-tab-pagination"
       size="small"
       :current="page"
       :pageSize="pageSize"
@@ -166,6 +103,8 @@
     </a-pagination>
 
     <a-modal
+centered
+class="mold-dialog network-rule-dialog"
       :title="$t('label.edit.tags')"
       :visible="tagsModalVisible"
       :footer="null"
@@ -217,15 +156,28 @@
     </a-modal>
 
     <a-modal
-      :title="$t('label.add.vm')"
+centered
+class="mold-dialog network-rule-dialog"
+      :title="$t(editingRule ? 'label.edit' : 'label.network.rule.add')"
       :maskClosable="false"
       :closable="true"
       :visible="addVmModalVisible"
-      class="vm-modal"
-      width="60vw"
+
+      :width="920"
       :footer="null"
       @cancel="closeModal">
-      <div v-ctrl-enter="addRule">
+      <div class="mold-form-dialog">
+      <div class="mold-form-content" v-ctrl-enter="addRule"><NetworkRuleContext :resource="resource" />
+        <div class="form">
+          <div class="form__item form__item--full"><div class="form__label">{{ $t('label.protocol') }}</div><a-select v-model:value="newRule.protocol" :disabled="!!editingRule"><a-select-option value="tcp">TCP</a-select-option><a-select-option value="udp">UDP</a-select-option></a-select></div>
+          <div class="form__item"><div class="form__label">{{ $t('label.publicport') }} · {{ $t('label.start') }}</div><a-input-number v-model:value="newRule.publicport" :min="1" :max="65535" :disabled="!!editingRule" style="width: 100%" /></div>
+          <div class="form__item"><div class="form__label">{{ $t('label.publicport') }} · {{ $t('label.end') }}</div><a-input-number v-model:value="newRule.publicendport" :min="1" :max="65535" :disabled="!!editingRule" style="width: 100%" /></div>
+          <div class="form__item"><div class="form__label">{{ $t('label.privateport') }} · {{ $t('label.start') }}</div><a-input-number v-model:value="newRule.privateport" :min="1" :max="65535" style="width: 100%" /></div>
+          <div class="form__item"><div class="form__label">{{ $t('label.privateport') }} · {{ $t('label.end') }}</div><a-input-number v-model:value="newRule.privateendport" :min="1" :max="65535" style="width: 100%" /></div>
+          <div v-if="isVPC()" class="form__item form__item--full"><div class="form__label">{{ $t('label.sourcecidrlist') }}</div><a-input v-model:value="newRule.cidrlist" /></div>
+        </div>
+        <div class="network-form-group-label">{{ $t('label.virtualmachine') }} / {{ $t('label.nic') }}</div>
+
         <span
           v-if="'vpcid' in resource && (!('associatednetworkid' in resource) || vpcConserveMode)">
           <strong>{{ $t('label.select.tier') }} </strong>
@@ -307,7 +259,7 @@
           </template>
         </a-table>
         <a-pagination
-          class="pagination"
+          class="detail-tab-pagination"
           size="small"
           :current="vmPage"
           :pageSize="vmPageSize"
@@ -325,6 +277,7 @@
       <div :span="24" class="action-button">
         <a-button @click="closeModal">{{ $t('label.cancel') }}</a-button>
         <a-button type="primary" ref="submit" :disabled="newRule.virtualmachineid === null" @click="addRule">{{ $t('label.ok') }}</a-button>
+      </div>
       </div>
     </a-modal>
 
@@ -348,9 +301,12 @@
 </template>
 
 <script>
+import { validForwardPorts } from '@/utils/networkRuleForm'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 
 import { reactive, ref, toRaw } from 'vue'
+import NetworkRuleContext from '@/components/view/NetworkRuleContext'
+import NetworkRulesToolbar from '@/components/view/NetworkRulesToolbar'
 import { getAPI, postAPI } from '@/api'
 import { clusterManagementPorts, listAllKubernetesPortRules, listKubernetesClustersForIp } from '@/utils/kubernetesPorts'
 import Status from '@/components/widgets/Status'
@@ -362,6 +318,8 @@ import TooltipLabel from '@/components/widgets/TooltipLabel.vue'
 export default {
   mixins: [listRefreshMixin(['fetchPFRules'])],
   components: {
+    NetworkRuleContext,
+    NetworkRulesToolbar,
     TooltipLabel,
     Status,
     TooltipButton,
@@ -380,6 +338,8 @@ export default {
   inject: ['parentFetchData', 'parentToggleLoading'],
   data () {
     return {
+      createModalVisible: false,
+      editingRule: null,
       checked: false,
       selectedRowKeys: [],
       showGroupActionModal: false,
@@ -748,16 +708,19 @@ export default {
     },
     addRule () {
       if (this.loading) return
+      if (!validForwardPorts(this.newRule)) { this.$notification.error({ message: this.$t('label.required'), description: this.$t('message.network.ports.invalid') }); return }
       this.loading = true
-      this.addVmModalVisible = false
+      if (this.editingRule && this.isProtectedManagementRule(this.editingRule)) { this.loading = false; return }
+      if (!this.newRule.virtualmachineid || !this.newRule.vmguestip) { this.loading = false; return }
       const networkId = ('vpcid' in this.resource && (!('associatednetworkid' in this.resource) || this.vpcConserveMode)) ? this.selectedTier : this.resource.associatednetworkid
-      postAPI('createPortForwardingRule', {
-        ...this.newRule,
-        ipaddressid: this.resource.id,
-        networkid: networkId
-      }).then(response => {
+      const api = this.editingRule ? 'updatePortForwardingRule' : 'createPortForwardingRule'
+      if (!this.$store.getters.apis[api]) { this.loading = false; return }
+      const params = this.editingRule
+        ? { id: this.editingRule.id, privateport: this.newRule.privateport, privateendport: this.newRule.privateendport, virtualmachineid: this.newRule.virtualmachineid, vmguestip: this.newRule.vmguestip, ...(this.isVPC() ? { cidrlist: this.newRule.cidrlist } : {}) }
+        : { ...this.newRule, ipaddressid: this.resource.id, networkid: networkId }
+      postAPI(api, params).then(response => {
         this.$pollJob({
-          jobId: response.createportforwardingruleresponse.jobid,
+          jobId: response[api.toLowerCase() + 'response'].jobid,
           successMessage: this.$t('message.success.add.port.forward'),
           successMethod: () => {
             this.closeModal()
@@ -765,13 +728,13 @@ export default {
           },
           errorMessage: this.$t('message.add.port.forward.failed'),
           errorMethod: () => {
-            this.closeModal()
+            this.loading = false
             this.fetchData()
           },
           loadingMessage: this.$t('message.add.port.forward.processing'),
           catchMessage: this.$t('error.fetching.async.job.result'),
           catchMethod: () => {
-            this.closeModal()
+            this.loading = false
             this.fetchData()
           }
         })
@@ -896,6 +859,14 @@ export default {
       }).catch(error => {
         this.$notifyError(error)
       })
+    },
+    openRuleDialog (rule) {
+      if (rule && this.isProtectedManagementRule(rule)) return
+      this.editingRule = rule || null
+      this.resetAllRules()
+      if (rule) { this.newRule = { ...rule }; this.checked = rule.virtualmachineid }
+      this.openAddVMModal()
+      if (rule) this.fetchNics({ target: { value: rule.virtualmachineid } })
     },
     openAddVMModal () {
       if (this.addVmModalLoading) return

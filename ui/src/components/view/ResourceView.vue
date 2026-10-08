@@ -29,7 +29,7 @@
     <template #right>
       <a-card
         class="spin-content resource-content-card"
-        :loading="loading"
+        :loading="loading && !resource.id"
         :bordered="true"
         style="width:100%">
         <keep-alive v-if="tabs.length === 1">

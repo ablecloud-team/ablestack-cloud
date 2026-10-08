@@ -22,7 +22,9 @@
         :ref="formRef"
         :model="form"
         :rules="rules"
-        layout="vertical">
+        layout="vertical"
+class="mold-form-dialog">
+      <div class="mold-form-content">
         <a-form-item ref="state" name="state" :label="$t('label.state')">
           <a-select
             id="state-selection"
@@ -33,7 +35,7 @@
               return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
             }"
             :loading="stateLoading"
-            :placeholder="apiParams.state.description"
+            :placeholder="$t('label.state')"
             v-focus="true" >
             <a-select-option v-for="(opt, optIndex) in states" :key="optIndex" :label="opt.name || opt.description">
               {{ opt.name || opt.description }}
@@ -41,7 +43,8 @@
           </a-select>
         </a-form-item>
 
-        <div :span="24" class="action-button">
+        </div>
+      <div :span="24" class="action-button">
           <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
           <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
         </div>

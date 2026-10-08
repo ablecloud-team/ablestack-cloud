@@ -21,7 +21,7 @@ import KubernetesServiceTab from '@/views/compute/KubernetesServiceTab.vue'
 jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
 
 const refresh = resource => {
-  const state = { resource, virtualmachines: [{ id: 'previous' }], instanceLoading: false }
+  const state = { $t: value => value, resource, virtualmachines: [{ id: 'previous' }], instanceLoading: false }
   KubernetesServiceTab.methods.fetchInstances.call(state)
   return state
 }
@@ -116,4 +116,12 @@ test('Headlamp and legacy guidance use view role and bounded TokenRequest, witho
     expect(commands).toContain(`--serviceaccount=${namespace}:${name}`)
     expect(commands).not.toMatch(/cluster-admin|describe secret|service-account-token/)
   }
+})
+
+test('keeps the visible history tab after a parent resource refresh', () => {
+  window.history.replaceState({}, '', '#/kubernetes/cluster?tab=loadbalancing')
+  const vm = { $route: { path: '/kubernetes/cluster', query: {} }, currentTab: 'details' }
+  KubernetesServiceTab.methods.setCurrentTab.call(vm)
+  expect(vm.currentTab).toBe('loadbalancing')
+  window.history.replaceState({}, '', '/')
 })

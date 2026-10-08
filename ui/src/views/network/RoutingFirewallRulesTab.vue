@@ -27,7 +27,8 @@
         '<b>' + $t('label.deny') + '</b>').replace('%y', resource.egressdefaultpolicy ? '<b>' + $t('message.denied') + '</b>' : '<b>' + $t('message.allowed') + '</b>.')" />
       </template>
     </a-alert>
-    <div>
+    <NetworkRulesToolbar :can-add="'createRoutingFirewallRule' in $store.getters.apis" :loading="loading" @add="addRuleVisible = true" @refresh="fetchData" />
+    <a-modal class="mold-dialog network-rule-dialog" centered :width="760" :visible="addRuleVisible" :title="$t('label.network.rule.add')" :footer="null" @cancel="addRuleVisible = false">
       <div class="form" v-ctrl-enter="addRule">
         <div class="form__item">
           <div class="form__label">{{ $t('label.sourcecidr') }}</div>
@@ -87,7 +88,8 @@
           <a-button :disabled="!('createRoutingFirewallRule' in $store.getters.apis)" type="primary" ref="submit" @click="addRule">{{ $t('label.add') }}</a-button>
         </div>
       </div>
-    </div>
+      <div class="action-button"><a-button @click="addRuleVisible = false">{{ $t('label.cancel') }}</a-button></div>
+    </a-modal>
 
     <a-divider/>
     <a-button
@@ -168,6 +170,7 @@
 </template>
 
 <script>
+import NetworkRulesToolbar from '@/components/view/NetworkRulesToolbar'
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 
 import { getAPI, postAPI } from '@/api'
@@ -180,6 +183,7 @@ export default {
   mixins: [listRefreshMixin(['fetchData'])],
   name: 'RoutingFirewallRulesTab',
   components: {
+    NetworkRulesToolbar,
     Status,
     TooltipButton,
     BulkActionView
@@ -192,6 +196,7 @@ export default {
   },
   data () {
     return {
+      addRuleVisible: false,
       selectedRowKeys: [],
       showGroupActionModal: false,
       selectedItems: [],

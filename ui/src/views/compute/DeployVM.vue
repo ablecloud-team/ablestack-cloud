@@ -428,12 +428,12 @@
                         <template v-if="!showOverrideDiskOfferingOption">
                           <div v-if="selectedRootDiskSize && !showRootDiskSizeChanger" class="root-default-value">
                             <span>{{ selectedRootDiskSize }} GB</span>
-                            <a-tag v-if="serviceOffering?.diskofferingstrictness">{{ $t('label.vm.disk.fixed') }}</a-tag>
+                            <a-tag v-if="serviceOffering?.diskofferingstrictness && !templateStrictCustomRoot">{{ $t('label.vm.disk.fixed') }}</a-tag>
                           </div>
                           <a-form-item :label="$t('label.override.rootdisk.size')">
                             <a-switch
                               v-model:checked="form.rootdisksizeitem"
-                              :disabled="serviceOffering?.diskofferingstrictness || (template && template.deployasis)"
+                              :disabled="templateStrictCustomRoot || serviceOffering?.diskofferingstrictness || (template && template.deployasis)"
                               @change="changeRootDiskSizeOverride" />
                             <p class="option-help">{{ $t('message.vm.root.size.override') }}</p>
                           </a-form-item>
@@ -1165,6 +1165,7 @@
 </template>
 
 <script>
+import { strictTemplateCustomRoot } from '@/utils/templateRootDisk'
 import { deploymentTpmParams } from '@/utils/tpm'
 import AdditionalIsoSelection from './AdditionalIsoSelection.vue'
 import { ref, reactive, toRaw, nextTick, h } from 'vue'
@@ -1450,6 +1451,9 @@ export default {
         isoname: this.iso?.name,
         isodisplaytext: this.iso?.displaytext
       }
+    },
+    templateStrictCustomRoot () {
+      return strictTemplateCustomRoot(this.imageType, this.serviceOffering, this.options.diskOfferings, this.template)
     },
     isoRootOfferingStrict () { return this.imageType === 'isoid' && this.serviceOffering?.diskofferingstrictness === true },
     mappedRootOfferingQueryKey () {
@@ -1932,6 +1936,12 @@ export default {
     }
   },
   watch: {
+    templateStrictCustomRoot (required) {
+      if (!required) return
+      this.showRootDiskSizeChanger = true
+      this.form.rootdisksizeitem = true
+      if (!(Number(this.form.rootdisksize) > 0)) this.form.rootdisksize = this.dataPreFill.minrootdisksize
+    },
     mappedRootOfferingQueryKey: {
       async handler (queryKey) {
         this.mappedRootOffering = null
@@ -2014,7 +2024,7 @@ export default {
         this.serviceOffering = _.find(this.options.serviceOfferings, (option) => option.id === instanceConfig.computeofferingid)
         if (this.imageType === 'templateid' &&
             (this.serviceOffering?.diskofferingstrictness || this.template?.deployasis) &&
-            (this.showOverrideDiskOfferingOption || this.showRootDiskSizeChanger)) {
+            (this.showOverrideDiskOfferingOption || (this.showRootDiskSizeChanger && !this.templateStrictCustomRoot))) {
           this.updateOverrideRootDiskShowParam(false)
         }
 
@@ -2665,7 +2675,8 @@ export default {
       }
     },
     changeRootDiskSizeOverride (value) {
-      this.showRootDiskSizeChanger = value
+      this.showRootDiskSizeChanger = value || this.templateStrictCustomRoot
+      if (this.templateStrictCustomRoot) this.form.rootdisksizeitem = true
       if (!value) this.form.rootdisksize = this.serviceOffering?.rootdisksize || this.dataPreFill.minrootdisksize
     },
     updateComputeOffering (id, kvdoEnable) {
@@ -4152,7 +4163,11 @@ export default {
         this.onToggleLeaseData()
       }
 
-      this.form.rootdisksizeitem = this.showRootDiskSizeChanger && this.rootDiskSizeFixed > 0
+      if (this.templateStrictCustomRoot) {
+        this.showRootDiskSizeChanger = true
+        if (!(Number(this.form.rootdisksize) > 0)) this.form.rootdisksize = this.dataPreFill.minrootdisksize
+      }
+      this.form.rootdisksizeitem = this.templateStrictCustomRoot || this.showRootDiskSizeChanger && this.rootDiskSizeFixed > 0
       this.formModel = toRaw(this.form)
     },
     handlerError (error) {

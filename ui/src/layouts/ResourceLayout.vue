@@ -20,11 +20,11 @@
     class="page-header-index-wide page-header-wrapper-grid-content-main"
     :class="{ 'page-header-wrapper-grid-content-main--wide': wide }">
     <a-row :gutter="12">
-      <a-col v-if="!wide" :md="24" :lg="device === 'desktop' ? 7 : 8" style="margin-bottom: 12px">
+      <a-col v-if="!wide" :xs="24" :md="24" :lg="device === 'desktop' ? 7 : 8" style="margin-bottom: 12px">
         <slot name="left">
         </slot>
       </a-col>
-      <a-col :md="24" :lg="wide ? 24 : (device === 'desktop' ? 17 : 16)">
+      <a-col :xs="24" :md="24" :lg="wide ? 24 : (device === 'desktop' ? 17 : 16)">
         <slot name="right">
         </slot>
       </a-col>

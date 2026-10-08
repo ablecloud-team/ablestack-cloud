@@ -185,7 +185,7 @@
           @cancel="cancelAction"
           :confirmLoading="actionLoading"
           :footer="null"
-          width="auto"
+          :width="currentAction.dialogWidth || 'auto'"
         >
           <template #title>
             <span v-if="currentAction.label">{{ $t(currentAction.label) }}</span>
@@ -922,6 +922,7 @@ export default {
   provide: function () {
     return {
       parentFetchData: this.fetchData,
+      parentExecuteAction: this.handleDataViewAction,
       parentToggleLoading: this.toggleLoading,
       parentStartLoading: this.startLoading,
       parentFinishLoading: this.finishLoading,
@@ -1625,6 +1626,9 @@ export default {
             this.$store.getters.customColumns[this.$store.getters.userInfo.id][this.$route.path] = this.selectedColumns
           } else {
             this.selectedColumns = this.$store.getters.customColumns[this.$store.getters.userInfo.id][this.$route.path] || this.selectedColumns
+            if (this.$route.name === 'kubernetes') {
+              this.selectedColumns = [...new Set(this.selectedColumns.map(key => ['cpunumber', 'memory'].includes(key) ? 'resources' : key))]
+            }
             if (this.$route.name === 'vmsnapshot') {
               // Replace the former default domain column in saved selections as well.
               this.selectedColumns = [...new Set(this.selectedColumns.map(key => key === 'domain' ? 'zonename' : key))]

@@ -16,9 +16,13 @@
 // under the License.
 
 <template>
-  <a-spin :spinning="busy">
-    <a-alert type="info" show-icon :message="$t('message.kubernetes.lb.readonly')" />
-    <a-button class="refresh" @click="fetchRules" :loading="busy">{{ $t('label.refresh') }}</a-button>
+  <div class="kubernetes-load-balancers">
+    <load-balancing v-if="selectedIp && inventoryReady" :key="selectedIp.id" :resource="selectedIp" :rule-owners="ruleOwners" :context-loading="busy || failed" @refresh-inventory="fetchRules">
+      <template #toolbar-context><label class="detail-tab-toolbar-context"><span>{{ $t('label.publicip') }}</span><a-select v-model:value="selectedIpId" :placeholder="$t('label.publicip')" :options="publicIps.map(ip => ({ value: ip.id, label: ip.ipaddress }))" /></label></template>
+      <template #guidance><a-alert class="network-rules-guidance" type="info" show-icon :message="$t('message.kubernetes.lb.readonly')" /></template>
+    </load-balancing>
+    <div v-else class="detail-tab-toolbar"><a-button :loading="busy" @click="fetchRules"><template #icon><reload-outlined /></template>{{ $t('label.refresh') }}</a-button></div>
+    <a-collapse v-if="rows.length" class="mold-dialog-section"><a-collapse-panel key="ownership" :header="$t('label.kubernetes.lb.owner')">
     <a-alert v-if="failed" type="error" show-icon :message="$t('message.kubernetes.lb.incomplete')" />
     <a-table v-else :columns="columns" :dataSource="rows" :rowKey="item => item.id" :pagination="{ pageSize: 10 }">
       <template #bodyCell="{ column, record }">
@@ -34,19 +38,24 @@
         </template>
       </template>
     </a-table>
-    <p>{{ $t('message.kubernetes.lb.health') }}</p>
-  </a-spin>
+    </a-collapse-panel></a-collapse>
+    <p class="network-rule-secondary mold-dialog-section">{{ $t('message.kubernetes.lb.health') }}</p>
+  </div>
 </template>
 
 <script>
+import LoadBalancing from '@/views/network/LoadBalancing'
 import { getAPI } from '@/api'
 import { listKubernetesNetworkResources, kubernetesLoadBalancerOwner, clusterApiAddress } from '@/utils/kubernetesLoadBalancers'
 
 export default {
   name: 'KubernetesLoadBalancers',
+  components: { LoadBalancing },
   props: { resource: { type: Object, required: true } },
-  data () { return { busy: false, failed: false, rows: [], request: 0 } },
+  data () { return { busy: false, failed: false, inventoryReady: false, rows: [], publicIps: [], selectedIpId: null, request: 0 } },
   computed: {
+    selectedIp () { return this.publicIps.find(ip => ip.id === this.selectedIpId) },
+    ruleOwners () { return Object.fromEntries(this.rows.filter(row => row.owner).map(row => [row.id, row.owner])) },
     columns () {
       return [
         { title: this.$t('label.name'), dataIndex: 'name' },
@@ -71,7 +80,6 @@ export default {
       const current = () => request === this.request && resource.id === this.resource.id
       this.busy = true
       this.failed = false
-      this.rows = []
       const list = (command, body, item, params) => listKubernetesNetworkResources(getAPI, command, body, item, params)
       const scope = resource.projectid ? { projectid: resource.projectid } : { account: resource.account, domainid: resource.domainid }
       try {
@@ -81,6 +89,10 @@ export default {
         if (!network) throw new Error('Cluster network is unavailable')
         if (network.type === 'Shared' || network.ip4routing) return
         const ips = await list('listPublicIpAddresses', 'listpublicipaddressesresponse', 'publicipaddress', { ...scope, associatednetworkid: resource.networkid })
+        if (current()) {
+          this.publicIps = ips
+          if (!ips.some(ip => ip.id === this.selectedIpId)) this.selectedIpId = ips.find(ip => ip.id === resource.ipaddressid)?.id || ips[0]?.id
+        }
         const aclRules = network.vpcid
           ? await list('listNetworkACLs', 'listnetworkaclsresponse', 'networkacl', { ...scope, aclid: network.aclid }) : []
         const rows = []
@@ -104,9 +116,9 @@ export default {
             }
           }
         }
-        if (current()) this.rows = rows
+        if (current()) { this.rows = rows; this.inventoryReady = true }
       } catch (error) {
-        if (current()) { this.rows = []; this.failed = true; this.$notifyError(error) }
+        if (current()) { this.failed = true; this.$notifyError(error) }
       } finally { if (current()) this.busy = false }
     },
     accessRules (rules, lb, vpc) {

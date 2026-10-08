@@ -53,11 +53,11 @@ test('VM lookup failure and stale response cannot claim unmanaged or replace a n
   expect(state.cluster).toBeNull()
 })
 
-test('LB read failure clears previous rules and leaves a visible incomplete state', async () => {
+test('LB read failure retains the snapshot and marks management unavailable', async () => {
   const state = { resource: { id: 'cluster', networkid: 'network' }, request: 0, rows: [{ id: 'stale' }], $notifyError: jest.fn() }
   getAPI.mockRejectedValueOnce(new Error('Forbidden'))
   await KubernetesLoadBalancers.methods.fetchRules.call(state)
-  expect(state.rows).toEqual([])
+  expect(state.rows).toEqual([{ id: 'stale' }])
   expect(state.failed).toBe(true)
   expect(state.busy).toBe(false)
 })
