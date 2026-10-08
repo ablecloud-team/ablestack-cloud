@@ -110,3 +110,10 @@ test('same-name unrelated VM cannot resolve an unknown source request', async ()
   const wrapper = mountOperations([operation]); await wrapper.vm.check(operation)
   expect(operation.vmid).toBeUndefined(); expect(operation.status).toBe('unknown'); expect(postAPI).not.toHaveBeenCalled(); wrapper.unmount()
 })
+
+test('unavailable server command displays a localized version and permission action', async () => {
+  getAPI.mockRejectedValue({ response: { data: { errorresponse: { errortext: 'Unknown API command: listVirtualMachineCreationSources' } } } })
+  const wrapper = mountSelection(); await flushPromises()
+  expect(wrapper.vm.error).toBe('message.creation.source.api.required')
+  expect(wrapper.vm.sources).toEqual([]); wrapper.unmount()
+})

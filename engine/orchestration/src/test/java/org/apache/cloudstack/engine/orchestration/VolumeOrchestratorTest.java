@@ -962,4 +962,29 @@ public class VolumeOrchestratorTest {
                         "setPassphraseForVolumeEncryption", volume, null, 2L));
         Mockito.verifyNoInteractions(passphraseDao);
     }
+    @Test
+    public void snapshotRestorePreservesLogicalRootSizeDespiteLargerOffering() {
+        com.cloud.storage.SnapshotVO snapshot = Mockito.mock(com.cloud.storage.SnapshotVO.class);
+        Mockito.when(snapshot.getSize()).thenReturn(100L * 1024 * 1024 * 1024);
+        com.cloud.template.VirtualMachineTemplate template = Mockito.mock(com.cloud.template.VirtualMachineTemplate.class);
+        VirtualMachine vm = Mockito.mock(VirtualMachine.class);
+        Assert.assertEquals(100L * 1024 * 1024 * 1024, volumeOrchestrator.resolveRootVolumeSize("test-root", template, vm, 200L, snapshot));
+        Mockito.verifyNoInteractions(template, vm);
+    }
+
+    @Test
+    public void snapshotRestorePreservesLogicalRootSizeDespiteSmallerOffering() {
+        com.cloud.storage.SnapshotVO snapshot = Mockito.mock(com.cloud.storage.SnapshotVO.class);
+        Mockito.when(snapshot.getSize()).thenReturn(100L * 1024 * 1024 * 1024);
+        com.cloud.template.VirtualMachineTemplate template = Mockito.mock(com.cloud.template.VirtualMachineTemplate.class);
+        Assert.assertEquals(100L * 1024 * 1024 * 1024, volumeOrchestrator.resolveRootVolumeSize("test-root", template, null, 20L, snapshot));
+        Mockito.verifyNoInteractions(template);
+    }
+
+    @Test(expected = CloudRuntimeException.class)
+    public void snapshotRestoreBlocksMissingLogicalSizeBeforeAllocation() {
+        com.cloud.storage.SnapshotVO snapshot = Mockito.mock(com.cloud.storage.SnapshotVO.class);
+        volumeOrchestrator.resolveRootVolumeSize("test-root", null, null, 200L, snapshot);
+    }
+
 }

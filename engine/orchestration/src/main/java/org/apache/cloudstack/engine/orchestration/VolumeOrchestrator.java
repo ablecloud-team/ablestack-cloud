@@ -1272,30 +1272,7 @@ public class VolumeOrchestrator extends ManagerBase implements VolumeOrchestrati
             provideVmInfoToTheStorageVolume(vm, volume);
             return toDiskProfile(volume, offering);
         }
-        Long size;
-        if (snapshot != null) {
-            if (!(snapshot instanceof com.cloud.storage.SnapshotVO) || ((com.cloud.storage.SnapshotVO) snapshot).getSize() <= 0) {
-                throw new CloudRuntimeException("SNAPSHOT_SIZE_UNKNOWN: snapshot logical ROOT size is missing");
-            }
-            size = ((com.cloud.storage.SnapshotVO) snapshot).getSize();
-        } else {
-            size = _tmpltMgr.getTemplateSize(template, vm.getDataCenterId());
-        }
-        if (rootDisksize != null) {
-            if (template.isDeployAsIs()) {
-                // Volume size specified from template deploy-as-is
-                size = rootDisksize;
-            } else {
-                rootDisksize = rootDisksize * 1024 * 1024 * 1024;
-                if (rootDisksize > size) {
-                    logger.debug("Using root disk size of [{}] bytes for the volume [{}].", toHumanReadableSize(rootDisksize), name);
-                    size = rootDisksize;
-                } else {
-                    logger.debug("The specified root disk size of [{}] bytes is smaller than the template. Using root disk size of [{}] bytes for the volume [{}].",
-                            toHumanReadableSize(rootDisksize), size, name);
-                }
-            }
-        }
+        long size = resolveRootVolumeSize(name, template, vm, rootDisksize, snapshot);
 
         minIops = minIops != null ? minIops : offering.getMinIops();
         maxIops = maxIops != null ? maxIops : offering.getMaxIops();
@@ -1367,6 +1344,34 @@ public class VolumeOrchestrator extends ManagerBase implements VolumeOrchestrati
             }
         }
         return toDiskProfile(vol, offering);
+    }
+
+    long resolveRootVolumeSize(String name, VirtualMachineTemplate template, VirtualMachine vm, Long rootDisksize, Snapshot snapshot) {
+        long size;
+        if (snapshot != null) {
+            if (!(snapshot instanceof com.cloud.storage.SnapshotVO) || ((com.cloud.storage.SnapshotVO) snapshot).getSize() <= 0) {
+                throw new CloudRuntimeException("SNAPSHOT_SIZE_UNKNOWN: snapshot logical ROOT size is missing");
+            }
+            size = ((com.cloud.storage.SnapshotVO) snapshot).getSize();
+        } else {
+            size = _tmpltMgr.getTemplateSize(template, vm.getDataCenterId());
+        }
+        if (snapshot == null && rootDisksize != null) {
+            if (template.isDeployAsIs()) {
+                // Volume size specified from template deploy-as-is
+                size = rootDisksize;
+            } else {
+                rootDisksize = rootDisksize * 1024 * 1024 * 1024;
+                if (rootDisksize > size) {
+                    logger.debug("Using root disk size of [{}] bytes for the volume [{}].", toHumanReadableSize(rootDisksize), name);
+                    size = rootDisksize;
+                } else {
+                    logger.debug("The specified root disk size of [{}] bytes is smaller than the template. Using root disk size of [{}] bytes for the volume [{}].",
+                            toHumanReadableSize(rootDisksize), size, name);
+                }
+            }
+        }
+        return size;
     }
 
     private void provideVmInfoToTheStorageVolume(VirtualMachine vm, Volume volume) {

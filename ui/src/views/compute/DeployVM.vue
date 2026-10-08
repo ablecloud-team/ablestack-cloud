@@ -1502,12 +1502,19 @@ export default {
       // ISO data inputs are separate from formModel; always derive their summary from current selections.
       return {
         ...this.vm,
+        ...(this.isCreationSource ? {
+          ostypeid: this.selectedCreationSource?.bootprofile?.ostypeid,
+          ostypename: this.selectedCreationSource?.bootprofile?.osname,
+          templateformat: undefined,
+          templateid: undefined,
+          isoid: undefined
+        } : {}),
         disksizetotalgb: this.diskSize || null,
         rootdiskofferingid: this.rootDiskOffering?.id,
         rootdiskofferingdisplaytext: this.rootDiskOffering?.displayText,
         datadiskofferingid: this.dataDiskOffering?.id,
         datadiskofferingdisplaytext: this.dataDiskOffering?.displayText,
-        templateformat: this.imageType === 'isoid' ? 'ISO' : this.template?.format,
+        templateformat: this.isCreationSource ? undefined : this.imageType === 'isoid' ? 'ISO' : this.template?.format,
         isoname: this.iso?.name,
         isodisplaytext: this.iso?.displaytext
       }
@@ -1631,6 +1638,11 @@ export default {
       return ['User'].includes(this.$store.getters.userInfo.roletype) || store.getters.project.id
     },
     diskSize () {
+      if (this.isCreationSource) {
+        const root = this.selectedCreationSource?.sizebytes
+        const data = this.selectedDataDiskSize
+        return [root ? (root / 1024 ** 3).toLocaleString() + ' GiB (Root)' : '', data ? `${data} GiB × ${this.selectedDataDiskCount} (Data)` : ''].filter(Boolean).join(' | ')
+      }
       const customRootDiskSize = _.get(this.instanceConfig, 'rootdisksize', null)
       const customDataDiskSize = _.get(this.instanceConfig, 'size', null)
       let computeOfferingDiskSize = _.get(this.serviceOffering, 'rootdisksize', null)
@@ -2927,7 +2939,7 @@ export default {
       this.selectedCreationSource = null; this.sourceConfirmed = false; this.sourceConfirmVisible = false; this.sourceAcknowledged = false
       this.template = null; this.iso = null; this.volume = null; this.snapshot = null
       for (const key of ['templateid', 'isoid', 'volumeid', 'snapshotid', 'boottype', 'bootmode', 'rootdisksize', 'rootkmskeyid', 'datakmskeyid', 'userdata', 'userdataid', 'overridediskofferingid']) this.form[key] = undefined
-      for (const key of ['templateid', 'templatename', 'templatedisplaytext', 'isoid', 'isoname', 'isodisplaytext', 'guestosname']) this.vm[key] = undefined
+      for (const key of ['templateid', 'templatename', 'templatedisplaytext', 'isoid', 'isoname', 'isodisplaytext', 'guestosname', 'ostypeid', 'ostypename']) this.vm[key] = undefined
       this.sshKeyPairs = []; this.userDataValues = {}; this.templateUserDataValues = {}; this.userdataDefaultOverridePolicy = 'ALLOWOVERRIDE'
       this.rootStorageSelection = { valid: true }; this.dataStorageSelection = { valid: true }; this.diskOffering = null; this.overrideDiskOffering = null
       this.showRootDiskSizeChanger = false; this.additionalIsoSelection = { enabled: false, ids: [], valid: true }
@@ -2938,7 +2950,7 @@ export default {
       this.selectedCreationSource = source
       this.form[this.imageType] = source.id; this.form.hypervisor = 'KVM'; this.form.vmNumber = 1
       this.form.boottype = source.bootprofile.boottype; this.form.bootmode = source.bootprofile.bootmode
-      this.vm.hypervisor = 'KVM'; this.vm.guestosname = source.bootprofile.osname
+      this.vm.hypervisor = 'KVM'; this.vm.guestosname = source.bootprofile.osname; this.vm.ostypeid = source.bootprofile.ostypeid; this.vm.ostypename = source.bootprofile.osname
       if (source.sourcekind === 'volume') {
         this.volume = source
         if (source.storage?.scope === 'CLUSTER' && source.storage.clusterid) {

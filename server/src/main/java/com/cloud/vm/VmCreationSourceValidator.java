@@ -184,6 +184,9 @@ public class VmCreationSourceValidator extends ManagerBase implements VmCreation
         out.bootprofile.putAll(saved);
         out.volumetype = saved.getOrDefault("volumetype", volume == null ? "UNKNOWN" : volume.getVolumeType().name());
         if (!"ROOT".equals(out.volumetype)) { out.reject("ROOT_PROVENANCE_UNKNOWN"); }
+        // Existing storage drivers still need the retained VolumeVO to resolve snapshot restore context.
+        // Expunged volumes are found IncludingRemoved; a physically missing row must fail before allocation.
+        if (snapshot != null && volume == null) { out.reject("SOURCE_VOLUME_METADATA_MISSING"); }
         out.sourcevolumeid = saved.getOrDefault("sourcevolumeid", volume == null ? null : volume.getUuid());
         out.sizebytes = longValue(saved.get("sizebytes"), snapshot == null ? volume.getSize() : snapshot.getSize());
         Long templateId = longValue(saved.get("templateid"), volume == null ? null : volume.getTemplateId());

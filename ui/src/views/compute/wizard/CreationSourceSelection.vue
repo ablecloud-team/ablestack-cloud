@@ -18,7 +18,7 @@
 <template>
   <section class="creation-source-selection" data-testid="creation-source-selection">
     <a-radio-group :value="imageType" @change="$emit('change-image-type', $event.target.value)">
-      <a-radio-button v-for="kind in ['templateid', 'isoid', 'volumeid', 'snapshotid']" :key="kind" :value="kind">{{ $t('label.' + kind) }}</a-radio-button>
+      <a-radio-button v-for="kind in ['templateid', 'isoid', 'volumeid', 'snapshotid']" :key="kind" :value="kind">{{ $t('label.' + kind.replace(/id$/, '')) }}</a-radio-button>
     </a-radio-group>
     <a-alert type="info" show-icon :message="$t('message.creation.source.' + sourceKind)" />
     <div class="source-toolbar">
@@ -109,7 +109,8 @@ export default {
         this.preselectionUsed = true
       } catch (error) {
         if (sequence !== this.requestSequence) return
-        this.sources = []; this.count = 0; this.error = error.response?.data?.errorresponse?.errortext || this.$t('message.creation.source.api.required'); this.$emit('select', null)
+        this.sources = []; this.count = 0; const detail = error.response?.data?.errorresponse?.errortext || ''
+        this.error = /Unknown API command/i.test(detail) ? this.$t('message.creation.source.api.required') : detail || this.$t('message.creation.source.fetch.failed'); this.$emit('select', null)
       } finally {
         if (sequence === this.requestSequence) { this.loading = false; this.$emit('loading', false) }
       }
@@ -125,5 +126,6 @@ export default {
 .source-meta { color: var(--ui-text-secondary); font-size: 12px; overflow-wrap: anywhere; margin-top: 4px; }
 .source-reason { color: var(--ui-text-secondary); overflow-wrap: anywhere; }
 :deep(.ant-table-thead > tr > th) { background: var(--ui-bg-elevated) !important; color: var(--ui-text-secondary) !important; border-color: var(--ui-border); }
+:deep(.ant-table-placeholder > td), :deep(.ant-empty-description) { color: var(--ui-text-secondary) !important; }
 :deep(.ant-table-tbody > tr > td) { color: var(--ui-text); border-color: var(--ui-border); }
 </style>

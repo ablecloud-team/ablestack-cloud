@@ -139,14 +139,14 @@ public class VmCreationSourceValidatorTest {
         when(snapshot.getState()).thenReturn(Snapshot.State.BackedUp); when(info.getPath()).thenReturn(null);
         assertTrue(validator.inspect(volume, snapshot, 1L, null).reasoncodes.contains("SNAPSHOT_NOT_RESTORABLE"));
     }
-    @Test public void capturedMetadataWorksWithoutOriginalVolumeAndPreservesLogicalSize() {
+    @Test public void missingOriginalVolumeRowIsBlockedWithoutLosingCapturedBootAndLogicalSize() {
         Map<String, String> saved = new HashMap<>();
         saved.put("volumetype", "ROOT"); saved.put("templateid", "201"); saved.put("ostypeid", "os-uuid"); saved.put("boottype", "UEFI");
         saved.put("bootmode", "LEGACY"); saved.put("sizebytes", String.valueOf(64L << 30)); saved.put("provenance", "captured");
         Map<String, String> details = new HashMap<>(); saved.forEach((key, value) -> details.put(VmCreationSourceService.PREFIX + key, value));
         when(validator.snapshotDetails.listDetailsKeyPairs(601L)).thenReturn(details);
         VmCreationSourceResponse source = validator.inspect(null, snapshot, 1L, null);
-        assertTrue(source.reasoncodes.toString(), source.allowed); assertEquals(Long.valueOf(64L << 30), source.sizebytes);
+        assertTrue(!source.allowed); assertTrue(source.reasoncodes.contains("SOURCE_VOLUME_METADATA_MISSING")); assertEquals(Long.valueOf(64L << 30), source.sizebytes);
         assertEquals("UEFI", source.bootprofile.get("boottype"));
     }
     @Test public void legacySnapshotDoesNotReadMutableCurrentVmBootMetadata() {
