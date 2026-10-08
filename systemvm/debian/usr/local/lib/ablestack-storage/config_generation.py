@@ -61,10 +61,20 @@ def read_json(path):
         return None
     if not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid() or info.st_size > MAX_BYTES or info.st_mode & 0o022:
         raise ValueError("Generation input is not a protected regular file")
-    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
+    parent = path.parent.lstat()
+    if not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.geteuid() or parent.st_mode & 0o022:
+        raise ValueError("Generation parent directory is not protected")
+    parent_fd = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    try:
+        pinned_parent = os.fstat(parent_fd)
+        if (pinned_parent.st_dev, pinned_parent.st_ino, pinned_parent.st_uid, pinned_parent.st_mode) != (parent.st_dev, parent.st_ino, parent.st_uid, parent.st_mode):
+            raise ValueError("Generation parent changed while opening")
+        fd = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=parent_fd)
+    finally:
+        os.close(parent_fd)
     try:
         opened = os.fstat(fd)
-        if (opened.st_dev, opened.st_ino, opened.st_size) != (info.st_dev, info.st_ino, info.st_size):
+        if (opened.st_dev, opened.st_ino, opened.st_uid, opened.st_gid, opened.st_mode, opened.st_size) != (info.st_dev, info.st_ino, info.st_uid, info.st_gid, info.st_mode, info.st_size):
             raise ValueError("Generation input changed while opening")
         with os.fdopen(fd, "rb", closefd=False) as handle:
             value = handle.read(MAX_BYTES + 1)
@@ -84,6 +94,10 @@ def redact(value):
     return value
 
 class Generation:
+    paths = ("desired-state/nfs-export-apply.json", "desired-state/smb-share-apply.json",
+             "iscsi-targets.json", "nvmeof-subsystems.json", "posix-directory-policies.json",
+             "network-endpoints.json", "sharedfs-network.json")
+
     def __init__(self, state=None, configuration=None):
         self.root = Path(state or os.environ.get("ABLESTACK_STORAGE_GENERATION_DIR", "/var/lib/ablestack-storage/config-generations"))
         self.config = Path(configuration or os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_ROOT", "/etc/ablestack-storage"))
@@ -91,10 +105,7 @@ class Generation:
         self.pending = self.root / "pending.json"
 
     def files(self):
-        paths = ("desired-state/nfs-export-apply.json", "desired-state/smb-share-apply.json",
-                 "iscsi-targets.json", "nvmeof-subsystems.json", "posix-directory-policies.json",
-                 "network-endpoints.json", "sharedfs-network.json")
-        return {name: redact(read_json(self.config / name)) for name in paths}
+        return {name: redact(read_json(self.config / name)) for name in self.paths}
 
     def digest(self):
         return hashlib.sha256(json.dumps(self.files(), sort_keys=True, separators=(",", ":")).encode()).hexdigest()
@@ -122,6 +133,77 @@ class Generation:
         if not pending or any(pending[key] != request[key] for key in ("instanceUuid", "operationUuid", "revision")):
             raise ValueError("Generation operation scope changed")
         return pending
+
+    def canonical_desired(self, desired):
+        if not isinstance(desired, dict) or set(desired) != set(self.paths) or redact(desired) != desired:
+            raise ValueError("Desired state must contain the exact nonsecret configuration allowlist")
+        if any(value is not None and not isinstance(value, dict) for value in desired.values()):
+            raise ValueError("Desired files must be JSON objects or absent")
+        content = json.dumps(desired, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()
+        if len(content) > MAX_BYTES:
+            raise ValueError("Desired state exceeds its size limit")
+        return hashlib.sha256(content).hexdigest()
+
+    def frozen(self, request):
+        # Immutable verification artifacts are the authority for canonical file
+        # presence. Observed/live desired files may already be partially applied.
+        artifact = read_json(self.root / (request["operationUuid"] + ".json"))
+        if not isinstance(artifact, dict) or artifact.get("phase") != "VERIFIED":
+            raise ValueError("Frozen verified generation is unavailable")
+        if any(artifact.get(key) != request[key] for key in ("instanceUuid", "operationUuid", "revision")):
+            raise ValueError("Frozen generation scope changed")
+        desired = artifact.get("desired")
+        checksum = self.canonical_desired(desired)
+        if checksum != artifact.get("configurationSha256") or isinstance(artifact.get("verifiedAt"), bool) or not isinstance(artifact.get("verifiedAt"), (int, float)):
+            raise ValueError("Frozen generation desired state was not exactly verified")
+        generation = {key: artifact[key] for key in ("instanceUuid", "operationUuid", "revision", "configurationSha256", "verifiedAt")}
+        return {"success": True, "generationSupported": True, "frozen": True,
+                "generation": generation, "configurationSha256": checksum, "configurationDesiredState": desired}
+
+    def replace_desired(self, desired):
+        protected_directory(self.config)
+        for name in self.paths:
+            protected_directory((self.config / name).parent)
+        previous = {name: read_json(self.config / name) for name in self.paths}
+        def write(values):
+            for name in sorted(self.paths):
+                path = self.config / name
+                if values[name] is None:
+                    path.unlink(missing_ok=True)
+                    descriptor = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+                    try:
+                        os.fsync(descriptor)
+                    finally:
+                        os.close(descriptor)
+                else:
+                    atomic_json(path, values[name])
+        try:
+            write(desired)
+            if self.digest() != self.canonical_desired(desired):
+                raise ValueError("Desired state changed while normalizing")
+        except Exception:
+            write(previous)
+            raise
+
+    def restore(self, request):
+        pending = self.scoped(request)
+        previous = request.get("previousGeneration")
+        if not previous or pending.get("previous") != previous:
+            raise ValueError("Canonical restore previous generation changed")
+        source = self.request(previous)
+        if source["instanceUuid"] != request["instanceUuid"] or source["revision"] >= request["revision"]:
+            raise ValueError("Canonical restore source scope changed")
+        checksum = self.canonical_desired(request.get("configurationDesiredState"))
+        if checksum != pending.get("beforeSha256") or checksum != previous.get("configurationSha256"):
+            raise ValueError("Canonical restore differs from the pending writer's frozen source")
+        # Manager must first compare the DB semantics and verify real runtime.
+        # This normalizes only fixed declarative files; rollback remains a
+        # separate verified action. Daemons, secrets, DATA and generation
+        # pointers are never changed here.
+        self.replace_desired(request["configurationDesiredState"])
+        return {"success": True, "generationSupported": True, "canonicalRestored": True,
+                "configurationSha256": checksum, "generationAdvanced": False,
+                "pendingOperationUuid": pending["operationUuid"]}
 
     def seed(self, request):
         if request.get("sourceKind") != "INTERNAL_ROOT_GENERATION":
@@ -176,8 +258,12 @@ class Generation:
     def execute(self, action, request=None):
         if action == "status":
             return self.status()
-        protected_directory(self.root)
         request = self.request(request)
+        if action == "frozen":
+            return self.frozen(request)
+        protected_directory(self.root)
+        if action == "restore":
+            return self.restore(request)
         if action == "seed":
             return self.seed(request)
         if action in ("adopt", "align"):
