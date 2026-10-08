@@ -9546,5 +9546,7 @@
   "message.storage.volume.resume.safe": "Resume mounting and verification of the existing filesystem. The formatter is not run again. Service configuration is applied separately.",
   "message.storage.volume.resume.failed": "Preparation resume failed. Check the operation history.",
   "label.storage.volume.resume": "Resume preparation",
-  "label.storage.operation.state.COMPLETE_NO_CONFIG_CHANGE": "Preparation resumed (configuration unchanged)"
+  "label.storage.operation.state.COMPLETE_NO_CONFIG_CHANGE": "Preparation resumed (configuration unchanged)",
+  "label.storage.volume.observed.at": "Observed at (UTC)",
+  "label.storage.volume.elapsed": "Elapsed time (seconds)"
 }
