@@ -41,3 +41,13 @@ scope와 부팅·generation·설정·DB identity 및 endpoint 준비가 그대�
 ![NIC 식별 복구 사전 점검](smb-coldboot-nic-identity-dryrun.png)
 
 RAM 인증 클라이언트의 재부팅 실패 관측 경로에도 unmount 후 파일을 읽는 테스트 도구 버그가 있어 세션이 종료됐다. 비밀 stderr를 공개하지 않았고 비밀번호는 폐기됐으며 추가 reset은 없다. 성공한 재부팅 전 검증과 실패한 부팅 검증을 구분하고, 도구를 보완해 다음 재검증을 수행한다. 최종 UI 표준화는 계속 미착수이다.
+
+## 정식 NIC 복구와 두 번째 부팅 결과
+
+실제 UI의 NIC 복구 적용으로 기존 NIC UUID/MAC와 보조 .241을 보존한 채 Cloud의 기본 IP만 .240으로 정렬했다. 새 listVirtualMachines 결과에서 기본 NIC .240과 secondary .241을 확인했다. 그 후 UI로 기존 B .241:445의 프로토콜을 재적용하여 operation c62be023/generation15가 정상 완료됐다. 양쪽 network-endpoints.json 항목과 protected binding receipt의 primaryIp .240/MAC02:01:00:cc:00:09/prefix16을 실제 읽어 검증했다. receipt desired SHA-256은 5342c0fb78f336ce4e68cb50a0cac1117ff8706ad71cb6d8fdebbb5370662250이다.
+
+보조 IP를 수동으로 추가하거나 protected receipt/DB를 직접 편집하지 않았다. 기존 정상 CAS·프로토콜 API 경로로 정렬했다. UI가 복구 직후 오래된 protocol view를 사후 조건으로 검사하는 문제가 있어 fresh dry-run의 ALREADY_CONSISTENT, primary 양쪽 일치 및 alias 보존을 검증하도록 소스25014112b49에서 개선했다. 29개 관련 UI 테스트와 lint가 통과했으며 새 빌드 배포는 후속이다.
+
+다시 실제 UI로 강제 옵션 없이 정상 재부팅한 뒤 새 bootId1426d39c...에서 primary .240/secondary .241, 양쪽 owned445 리스너와 원래 DATA·로컬 SID를 확인했다. 부팅 reconcile은 Result=success / ExecMainStatus=0이다. RemainAfterExit가 없는 oneshot의 inactive/dead 상태는 정상 종료이며 서비스 실패로 오판하지 않는다.
+
+이 두 번째 부팅은 인증 비밀을 재설정하지 않은 상태의 자동 네트워크·서비스 복구 증빙이다. 첫 테스트 RAM 클라이언트가 종료됐기 때문에 동일 자격 증명의 재부팅 전후 인증은 아직 별도 검증 중이다. 원본 데이터·기존THIN 보존, 신규THIN0, 최종UI표준화0 조건을 유지한다.
