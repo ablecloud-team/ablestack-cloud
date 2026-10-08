@@ -32,6 +32,8 @@
       <a-descriptions-item :label="$t('label.storage.volume.formatter.active')">{{ observation.formatterActive ? $t('label.yes') : $t('label.no') }}</a-descriptions-item>
       <a-descriptions-item :label="$t('label.storage.volume.operation')"><code>{{ observation.operationId || operation.operationId || '-' }}</code></a-descriptions-item>
       <a-descriptions-item :label="$t('label.storage.volume.deadline')">{{ operation.formatDeadlineSeconds ?? '-' }}</a-descriptions-item>
+      <a-descriptions-item :label="$t('label.storage.volume.elapsed')">{{ typeof operation.elapsedSeconds === 'number' ? Math.round(operation.elapsedSeconds) : '-' }}</a-descriptions-item>
+      <a-descriptions-item :label="$t('label.storage.volume.observed.at')">{{ observedAt }}</a-descriptions-item>
       <a-descriptions-item :label="$t('label.storage.volume.current.device')"><code>{{ identity.observedDevicePath || '-' }}</code> · {{ observation.currentIdentityStatus || 'UNAVAILABLE' }}</a-descriptions-item>
       <a-descriptions-item :label="$t('label.storage.volume.fs.uuid')"><code>{{ identity.filesystemUuid || operation.filesystemUuid || '-' }}</code></a-descriptions-item>
       <a-descriptions-item :label="$t('label.storage.volume.historical.device')"><code>{{ operation.devicePath || '-' }}</code></a-descriptions-item>
@@ -70,6 +72,10 @@ export default {
   computed: {
     resumeSupported () { return 'resumeStorageServiceVolumePreparation' in (this.$store?.getters?.apis || {}) },
     canResume () { return this.resumeSupported && !this.readError && this.observation?.currentIdentityStatus === 'EXACT' && this.observation?.formatterActive === false && this.operation.formatStarted === true && !!this.identity.filesystemUuid && (!this.operation.filesystemUuid || this.operation.filesystemUuid === this.identity.filesystemUuid) },
+    observedAt () {
+      const milliseconds = Number(this.observation?.observedEpoch) * 1000
+      return Number.isFinite(milliseconds) && milliseconds > 0 && milliseconds <= 8640000000000000 ? new Date(milliseconds).toISOString() : '-'
+    },
     operation () { return this.observation?.operation || {} },
     identity () { return this.observation?.currentIdentity || {} },
     phaseColor () {
