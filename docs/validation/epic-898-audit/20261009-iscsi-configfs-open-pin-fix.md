@@ -23,3 +23,5 @@ NEW64MiB DATA d736 전체SHA 불변 및 qcowcheck errors0을 확인했다.
 SPARSE/loopback 범위에서 진행한다. source18 PASS를 actual CHAP/mutual
 login·I/O 성공으로 표시하지 않는다. production fullFour/AD/ROOT swap은
 미완료이며 이슈를 닫지 않는다. 최종UI #1275는 미착수다.
+
+커널 6.12 primary 근거: [configfs dentry](https://github.com/torvalds/linux/blob/v6.12/fs/configfs/dir.c), [inode 생성](https://github.com/torvalds/linux/blob/v6.12/fs/configfs/inode.c).
