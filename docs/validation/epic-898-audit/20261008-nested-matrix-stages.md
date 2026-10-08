@@ -2,7 +2,7 @@
 
 범위 승인: 부모의 NEWprefix epic898-nested-audit-09, VM50/instanceb54a3c04-fe88-4bde-9ae3-1c67e0998030, existingDATAa0bbe566-7aa6-4bbd-9998-226a4f52bf0c(20GiB)/FSUUIDa4337197-eab7-4e86-bd4a-a7b4ffd64adf, MOUNT_EXISTING만. 신규디스크/포맷/ROOT/endpoint/IP변경0, 기존audit-baseline·held파일·기존user/password/owner변경0, recursiveapply0.
 
-현재 관리 구성 d3f9 selected58(b38 RuntimeUpgrade family보존), native4a3b stable actualinstalled. finaloneSHA renderer/AD/fulltemplate가 없으므로 전체원자·AD·freshROOT 검증을 완료로 표시하지 않는다.
+초기 단계의 관리 구성은 d3f9 selected58(b38 RuntimeUpgrade family 보존), native4a3b stable actualinstalled였다. 최신 VM50은 79 선택 관리 오버레이와 signed7b86 v2이며 후속 증거를 아래에 기록한다. finaloneSHA renderer/AD/fulltemplate가 없으므로 전체원자·AD·freshROOT 검증을 완료로 표시하지 않는다.
 
 ## 선행 사실과 안전 fence
 
@@ -22,7 +22,7 @@
 | SN | sn, sn/child | SMB parent→NFS child | independentACL/parentdirectory읽기보존/상호clientI/O |
 | CROSS | cross | NFS+SMB samephysicaldirectory | crossprotocol=false negative→true positive, 서로 만든NEWfile 관측 |
 | UPDATE | rename/path/update leaf | storedrelative존재+path-only name변경 | effective relative가유지되고legacydefault로이동하지않음 |
-| VOLUME | 필요시별도승인NEWSPARSE20G | volume-onlyupdate overlap | volume만바뀌어도nestedcheck/freshFSUUID필수; 현재NEWdisk승인0이라별도pending |
+| VOLUME | 필요시별도승인NEWSPARSE20G | volume-onlyupdate overlap | volume만바뀌어도nestedcheck/freshFSUUID필수; 사용자의 Epic 범위/SPARSE 조건 내 허용이며 실제 생성은 부모 stage GO 대기 |
 | SYMLINK | ownprefix/escape | 자기NEWsymlink만 만든뒤APIcreate negative | O_NOFOLLOW/escape fence 실패, outside경로쓰기0, ownsymlink정리 |
 | BIND | ownprefix/bind-target | 자기NEWsameFSbindmount후APIcreate negative | same st_dev라도mountboundary거절, ownbind만finallyumount, rootmount변경0 |
 
@@ -55,3 +55,11 @@ exact exportbind/physicalDATA는 dev2064/inode137/FSUUIDa433가동일하다. set
 actual packages nfs-ganesha/nfs-ganesha-vfs는4.3-2, activePID80235의VFS library는/usr/lib/x86_64-linux-gnu/ganesha/libfsalvfs.so다. readelf는미설치(추가설치0), librarybytes에는acl_get_fd/acl_get_file/posix_acl_2_fsal_acl 이름이없었으나libacl은링크돼있다. 링크만으로VFS ACL 지원을확정하지않고동적symbol엄밀검증은미완료로표시한다. [공식Ganesha ACL 지원표](https://github.com/nfs-ganesha/nfs-ganesha/wiki/ACL-Support)는FSAL_VFS의POSIX ACL 지원을5.5.3+로명시한다. 실제4.3 package와Unix/NFS대조negative는현재build의VFS namedACL지원부족에대한강한근거이다.
 
 해결은새공식package/build의VFS POSIX ACL capability 및freshfulltemplate 검증을별도gate로다룬다. owner/worldmode/chmod/daemonrestart를추측해우회하지않는다. mixedcrossRW/NS·SNchilddelete/crosssamepath/volume-only/symlink·bindfence/NUMERICcoldpersist 및전체원자·AD 인수는미완료로유지한다. 최종UI1275 QA는여전히0이다.
+
+## 21:21 KST POSIX receipt 및 NUMERIC cold 후속
+
+명시적 UI policy56cee470-44ba-486e-a6fb-f3ba71498389 rev2 재적용 후, VM50 cold boot c53e1cbb-5dfd-4d39-b9ce-b61c5171e6a4에서 one-shot reconcile Result=success/Exit0을 확인했다. GEN38/checksumfe812...·canonical files·leaf inode33685632/0:0/0770·original DATA root128와 sentinel16777345/hash·LocalSID·primary240/alias241를 보존했다. Protected receipt는 FS UUIDa433/device2064/inode/owner/mode/ACLsha의 일곱 필드와 requestSHA/rev2가 일치하며 mtime가 이번 boot 시작 전이다. receipt를 새 boot에서 쓴 것으로 해석하지 않는다.
+
+21:21:24 KST host13.1에서 NN parent a4415adf의 정확한 NFSv4 pseudo를 read-only로 마운트해 child/nn-cross-client-rw.txt를 읽었다. UID/GID1001:1001, inode33685636, mode0640, SHA5aa3a409... 동일이다. client nfs4_disable_idmapping은 Y→Y/inode 보존/쓰기0, 신규 파일0, 정상 umount/자기 mount directory 정리 완료다. 증거는 906-numeric-post-cold-nn-client-readonly.json이다.
+
+NS/SN mixed named ACL cross-read 실패, crossprotocol same-directory, volume-only update, symlink/bind boundary 및 최종 전체 원자·AD 인수는 계속 남아 있다. 이 cold 성공이 Ganesha4.3의 named ACL 실패를 해결했다고 해석하지 않는다.

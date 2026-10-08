@@ -1,4 +1,15 @@
-# Epic #898 인수 게이트 감사 — 2026-10-08
+# Epic #898 인수 게이트 감사 — 시간대별 기록
+
+이 문서는 초기 감사부터 이어진 시간대별 기록이다. 아래의 838 HEAD·09:50 상태와 당시 구현 누락은 **역사적 스냅샷**이며 현재 상태로 읽지 않는다. 최신 상태와 실제 배포·source-only 검증을 먼저 요약한다.
+
+- AD는 사용자 승인 후 작업이 재개됐다. Client SID 일반화·고유 SID/GUID 및 시각 정정은 실제 확인했지만 OOBE 사용자 완료 회신·정상 AD 가입·SMB AD·POSIX AD 전체 인수는 남아 있다. AD 보류를 완료로 간주하지 않는다.
+- 최종 UI#1275 표준화는 마지막이다. 착수 직전 전체 작업을 중단하고 사용자에게 보고·추가 지시를 기다리는 경계를 유지한다. 현재 기능 UI 검증은 별도이다.
+- 실제 VM50은 기본240/alias241·두 SMB listener·DATA/SID 보존과 정식 인증/SS·NN child delete/NUMERIC 표시를 검증했다. signed7b86 v2(CLI01b8...) upgrade 후 명시적 UI policy rev2 재적용과 cold boot c53e1cbb의 reconcile exit0·protected receipt scope/mtime·DATA/SID/NIC 보존을 확인했다. NN 부모 export 외부 read-only 재조회에서도 UID/GID1001 및 기존 inode/hash가 보존됐다. NS/SN named ACL cross-read는 Ganesha4.3 VFS에서 EACCES로 실패했으며 새 ACL 지원 package/build가 필요하다.
+- 최신 VM50 signed38a4(CLI99c1...)는 POSIX inspect의 postApplyReceiptSupported=true를 실제 반환하며 GEN38/fe812·bootc53·SMB/NFS PID·receipt mtime·원래 DATA/SID/NIC가 유지됐다. NEW20GiB SPARSE7b4fae44는 정상 할당만 완료했고 API/host metadata·미연결 상태를 확인했다. 연결·포맷·삭제0이다.
+- partial VM51/021b SPARSE10TiB는 filesystemHealthy=false/mkfs-in-progress 증거로 보존한다. 포맷·삭제·detach·reboot0이며 원래39/41/49도 보존한다. pool factor4 guard의 finally 복구와 정확한 새10TiB capacity 승인은 미완료다. 새 디스크는 모두 SPARSE/FAT만 허용한다.
+- Runtime 자원 제어의 begin/verify/finish 연결과 10개 회귀를 포함한 direct63 PASS/561 reactor 이후 자원·NFS 의존성 후속 direct72 PASS 및 정상 Checkstyle reactor585 tests/97 classes PASS를 확인했다. 이는 source 증거이다. 실제 관리 서버는79 선택 오버레이와 legacy b38 runtime family가 섞인 구성이며 global/per-instance policy OFF, native lease/drain 실제 수행0이다. source 통과·논리적 자원 임대·전체 기능 완료를 구분한다.
+
+## 초기 감사 스냅샷 — 2026-10-08 09:50 KST
 
 전체 union 29개를 원문·현재 GitHub 코멘트·소스·검증 문서와 대조했다. #911은 기존 CLOSED 상태이며 #902와 다른 이슈의 AD 인증 부분만 사용자 요청으로 보류한다. 나머지 이슈는 부분 증거를 전체 완료로 확대하지 않는다.
 
