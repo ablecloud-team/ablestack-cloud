@@ -2,12 +2,15 @@
 
 이 문서는 초기 감사부터 이어진 시간대별 기록이다. 아래의 838 HEAD·09:50 상태와 당시 구현 누락은 **역사적 스냅샷**이며 현재 상태로 읽지 않는다. 최신 상태와 실제 배포·source-only 검증을 먼저 요약한다.
 
+현재 통합 snapshot은 [20261008-current-progress.md](20261008-current-progress.md)이다. 23:32 KST 최신 source614 tests/102 classes PASS는 source freeze·배포 검토 단계이며 actual379+#1333과 구분한다. #910 volume-only source 준비의 actual BLOCKED는 당시 백엔드의 volume-unqualified relative 비교가 원인이고 native prepare/update는0이다. Kubernetes 요청3개는 사용자 철회로 범위에서 제외한다.
+
+- Namespace3hunks+3tests만1dad2501b5cf3ee4528389ef73a7b61181cf6678 별도source pin/push, exact narrow reactor 진행/live0이다. 전체614 WIP는 pin0이며 profile snapshot이 renderedGeneration을 덮어쓰는 P1 및 native commit→DBsave crash gap 보완 전 actual all4 HOLD다. Native27 crypto/POSIX/SERVICE src257+130도guard검토/pin0/live0이며 ROOTswap0/AD인수0/최종1275착수0을 유지한다.
 - AD는 사용자 승인 후 작업이 재개됐다. Client SID 일반화·고유 SID/GUID 및 시각 정정은 실제 확인했지만 OOBE 사용자 완료 회신·정상 AD 가입·SMB AD·POSIX AD 전체 인수는 남아 있다. AD 보류를 완료로 간주하지 않는다.
 - 최종 UI#1275 표준화는 마지막이다. 착수 직전 전체 작업을 중단하고 사용자에게 보고·추가 지시를 기다리는 경계를 유지한다. 현재 기능 UI 검증은 별도이다.
 - 실제 VM50은 기본240/alias241·두 SMB listener·DATA/SID 보존과 정식 인증/SS·NN child delete/NUMERIC 표시를 검증했다. signed7b86 v2(CLI01b8...) upgrade 후 명시적 UI policy rev2 재적용과 cold boot c53e1cbb의 reconcile exit0·protected receipt scope/mtime·DATA/SID/NIC 보존을 확인했다. NN 부모 export 외부 read-only 재조회에서도 UID/GID1001 및 기존 inode/hash가 보존됐다. NS/SN named ACL cross-read는 Ganesha4.3 VFS에서 EACCES로 실패했으며 새 ACL 지원 package/build가 필요하다.
-- 최신 VM50 signed38a4(CLI99c1...)는 POSIX inspect의 postApplyReceiptSupported=true를 실제 반환하며 GEN38/fe812·bootc53·SMB/NFS PID·receipt mtime·원래 DATA/SID/NIC가 유지됐다. NEW20GiB SPARSE7b4fae44는 정상 할당만 완료했고 API/host metadata·미연결 상태를 확인했다. 연결·포맷·삭제0이다.
+- 최신 VM50 signed38a4(CLI99c1...)는 POSIX inspect의 postApplyReceiptSupported=true를 실제 반환하며 GEN38/fe812·bootc53·SMB/NFS PID·receipt mtime·원래 DATA/SID/NIC가 유지됐다. NEW20GiB SPARSE7b4fae44는 정상 할당·metadata 경로 회귀 이후 정규 NFS pipeline으로 새XFS5b11/formatter receipt1회 및 NN 외부 write/fsync/cross-read까지 확인했다. 원래DATA 포맷0이며 volume-only source 준비가 서버의 volume-root를 제외한 overlap 비교로 BLOCKED돼 해당 update negative/positive는 미완료다.
 - partial VM51/021b SPARSE10TiB는 filesystemHealthy=false/mkfs-in-progress 증거로 보존한다. 포맷·삭제·detach·reboot0이며 원래39/41/49도 보존한다. pool factor4 guard의 finally 복구와 정확한 새10TiB capacity 승인은 미완료다. 새 디스크는 모두 SPARSE/FAT만 허용한다.
-- Runtime 자원 제어의 begin/verify/finish 연결과 10개 회귀를 포함한 direct63 PASS/561 reactor 이후 자원·NFS 의존성 후속 direct72 PASS 및 정상 Checkstyle reactor585 tests/97 classes PASS를 확인했다. 이는 source 증거이다. 실제 관리 서버는79 선택 오버레이와 legacy b38 runtime family가 섞인 구성이며 global/per-instance policy OFF, native lease/drain 실제 수행0이다. source 통과·논리적 자원 임대·전체 기능 완료를 구분한다.
+- Runtime 자원 제어의 begin/verify/finish 연결과 10개 회귀를 포함한 direct63 PASS/561 reactor 이후 자원·NFS 의존성 후속 direct72 PASS 및 정상 Checkstyle reactor585 tests/97 classes PASS를 확인했다. 이는 source 증거이다. 실제 관리 서버는379 선택 오버레이+#1333 Volume13 hotfix와 legacy b38 runtime family가 섞인 구성이며 global/per-instance policy OFF, native lease/drain 실제 수행0이다. source 통과·논리적 자원 임대·전체 기능 완료를 구분한다.
 
 ## 초기 감사 스냅샷 — 2026-10-08 09:50 KST
 
