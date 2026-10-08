@@ -393,3 +393,15 @@ describe('SharedFS hidden backing volume scope', () => {
     expect(vm.listApi).toHaveBeenCalledTimes(1)
   })
 })
+
+describe('SharedFS workflow tabs', () => {
+  it('loads current service data for work tabs and limits wide view to protocols', () => {
+    const vm = { protocolWideLayout: true, runtimeUpgradeVisible: true, fetchStorageServiceData: jest.fn(), isStorageProtocolTab: () => false, updateRouteQuery: jest.fn(), emitWideLayout: jest.fn() }
+    SharedFSTab.methods.handleChangeTab.call(vm, 'operations')
+    expect(vm.currentTab).toBe('operations')
+    expect(vm.fetchStorageServiceData).toHaveBeenCalledTimes(1)
+    expect(vm.protocolWideLayout).toBe(false)
+    expect(vm.runtimeUpgradeVisible).toBe(false)
+    expect(vm.updateRouteQuery).toHaveBeenCalledWith('operations')
+  })
+})
