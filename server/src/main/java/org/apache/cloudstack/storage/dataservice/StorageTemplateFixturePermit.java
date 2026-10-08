@@ -80,6 +80,23 @@ public final class StorageTemplateFixturePermit {
         yes(observed,"attachedToFixture");yes(observed,"notRemoved");
         if("DATADISK".equals(text(observed,"type")))yes(observed,"newDataWithoutBacking");
     }
+    public static void verifyRootTarget(JsonObject artifact,JsonObject request,Set<String> existingInstances,long now) {
+        if(number(artifact,"schemaVersion")!=1||!"NEW_SPARSE_ROOT_TARGET".equals(text(artifact,"kind")))throw new CloudRuntimeException("Unsupported private ROOT target authorization");
+        JsonObject creation=artifact.deepCopy();creation.addProperty("kind","NEW_SPARSE_PRECREATE");verify(creation,request,existingInstances,now);
+        for(String field:Set.of("sharedFsUuid","instanceUuid","vmUuid","sourceRootVolumeUuid","sourceTemplateUuid","targetTemplateUuid","targetTemplateChecksum","targetTemplateDetailsSha256","sourceConfigurationSha256","rootDiskOfferingUuid"))if(text(request,field).isBlank())throw new CloudRuntimeException("Private ROOT target scope is incomplete");
+        if(!text(artifact,"expectedCliSha256").equals(text(request,"expectedCliSha256"))||!text(artifact,"sourceCommit").equals(text(request,"targetSourceCommit")))throw new CloudRuntimeException("Private ROOT target signed CLI or template source pin changed");
+        if(number(request,"desiredRevision")<0||!text(request,"sourceConfigurationSha256").matches("[a-f0-9]{64}"))throw new CloudRuntimeException("Private ROOT target source generation is invalid");
+    }
+    public void claimRootTarget(String artifactUuid,String sha256,String upgradeUuid,JsonObject request) {
+        JsonObject claim=new JsonObject();claim.addProperty("artifactUuid",artifactUuid);claim.addProperty("artifactSha256",sha256);claim.addProperty("templateUpgradeUuid",upgradeUuid);claim.add("request",request.deepCopy());immutable(UUID.nameUUIDFromBytes(("root-target-claim:"+artifactUuid).getBytes(StandardCharsets.UTF_8)).toString(),claim);
+    }
+    public void requireRootTargetClaim(String artifactUuid,String sha256,String upgradeUuid) {
+        JsonObject claim=readProtected(UUID.nameUUIDFromBytes(("root-target-claim:"+artifactUuid).getBytes(StandardCharsets.UTF_8)).toString());
+        if(!artifactUuid.equals(text(claim,"artifactUuid"))||!sha256.equals(text(claim,"artifactSha256"))||!upgradeUuid.equals(text(claim,"templateUpgradeUuid")))throw new CloudRuntimeException("Private ROOT target approval belongs to another transaction");
+    }
+    public JsonObject approveRootTarget(String artifactUuid,String sha256,JsonObject request,Set<String> existingInstances) {
+        JsonObject artifact=JsonParser.parseString(new String(artifacts.read(artifactUuid,sha256),StandardCharsets.UTF_8)).getAsJsonObject();verifyRootTarget(artifact,request,existingInstances,System.currentTimeMillis());return artifact;
+    }
     public JsonObject approve(String artifactUuid,String sha256,JsonObject request,Set<String> existingInstances) {
         JsonObject artifact=JsonParser.parseString(new String(artifacts.read(artifactUuid,sha256),StandardCharsets.UTF_8)).getAsJsonObject();
         verify(artifact,request,existingInstances,System.currentTimeMillis());return artifact;
@@ -106,6 +123,7 @@ public final class StorageTemplateFixturePermit {
         JsonObject receipt=new JsonObject();receipt.addProperty("artifactUuid",artifactUuid);receipt.addProperty("artifactSha256",sha256);receipt.addProperty("sharedFsUuid",sharedUuid);receipt.add("request",request.deepCopy());receipt.add("bindings",bindings.deepCopy());
         immutable(receiptUuid(sharedUuid),receipt);
     }
+    public JsonObject createdReceipt(String sharedUuid) {return readProtected(receiptUuid(sharedUuid));}
     public JsonObject requireCreated(String sharedUuid,long vmId,String vmUuid,long accountId,long zoneId,VMTemplateVO target,Set<String> existingInstances) {
         JsonObject receipt=readProtected(receiptUuid(sharedUuid)),request=receipt.getAsJsonObject("request"),bindings=receipt.getAsJsonObject("bindings");
         approve(text(receipt,"artifactUuid"),text(receipt,"artifactSha256"),request,existingInstances);
