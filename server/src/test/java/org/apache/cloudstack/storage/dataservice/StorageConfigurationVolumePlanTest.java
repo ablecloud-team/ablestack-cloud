@@ -37,7 +37,7 @@ public class StorageConfigurationVolumePlanTest {
         Fixture(int count) {
             scope.addProperty("artifactUuid", id(900));scope.addProperty("allocationNamespace", id(901));scope.addProperty("targetInstanceUuid", id(902));scope.addProperty("zoneUuid", id(903));
             blueprint.addProperty("diskofferingid", id(910));blueprint.addProperty("storageid", id(911));
-            JsonObject offering = json("{\"active\":true,\"accessible\":true,\"customized\":true,\"storageType\":\"shared\",\"minSizeGiB\":1,\"maxSizeGiB\":4096,\"maxVolumeSizeGiB\":40000,\"tags\":[\"glue-gfs\"]}");offering.addProperty("uuid", id(910));
+            JsonObject offering = json("{\"active\":true,\"accessible\":true,\"customized\":true,\"storageType\":\"shared\",\"minSizeGiB\":1,\"maxSizeGiB\":4096,\"maxVolumeSizeGiB\":40000,\"tags\":[\"glue-gfs\"]}");offering.addProperty("uuid", id(910));offering.addProperty("provisioningType", "sparse");
             JsonObject pool = json("{\"up\":true,\"accessible\":true,\"supported\":true,\"tags\":[\"glue-gfs\"]}");pool.addProperty("uuid", id(911));pool.addProperty("zoneUuid", id(903));
             JsonObject offerings = new JsonObject();offerings.add(id(910), offering);catalog.add("offerings", offerings);
             JsonObject pools = new JsonObject();pools.add(id(911), pool);catalog.add("pools", pools);catalog.add("existingVolumes", new JsonObject());
@@ -133,6 +133,13 @@ public class StorageConfigurationVolumePlanTest {
         Fixture mismatch = new Fixture(1);mismatch.blueprint.addProperty("backingvolumemode", "EXISTING");mismatch.blueprint.addProperty("existingvolumeid", id(950));blocked(mismatch);
         Fixture existing = new Fixture(1);existing.existing(1);existing.build();existing.blueprint.addProperty("existingvolumeid", id(951));blocked(existing);
         Fixture wrongMode = new Fixture(1);wrongMode.blueprint.addProperty("backingvolumemode", "UNKNOWN");blocked(wrongMode);
+    }
+
+    @Test public void allNewDataRequiresSparseOrFatAndUnknownOrThinIsBlockedBeforeAllocation() {
+        for (String mode : new String[] {"thin", "THIN", "unknown"}) {Fixture f = new Fixture(1);f.offering().addProperty("provisioningType", mode);blocked(f);}
+        Fixture missing = new Fixture(1);missing.offering().remove("provisioningType");blocked(missing);
+        Fixture sparse = new Fixture(1);Assert.assertEquals("SPARSE", allocation(sparse.build(),0).get("provisioningType").getAsString());
+        Fixture fat = new Fixture(1);fat.offering().addProperty("provisioningType", "fat");Assert.assertEquals("FAT", allocation(fat.build(),0).get("provisioningType").getAsString());
     }
 
 }

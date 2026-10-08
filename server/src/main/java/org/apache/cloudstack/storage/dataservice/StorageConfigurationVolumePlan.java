@@ -102,6 +102,9 @@ public final class StorageConfigurationVolumePlan {
                 JsonObject offering = catalogEntry(catalog, "offerings", offeringUuid);JsonObject pool = pool(catalog, poolUuid, scope);
                 require(flag(offering, "active") && flag(offering, "accessible"), "Offering is unavailable to the target tenant");
                 require("shared".equals(text(offering, "storageType")), "Clone offering must use shared storage");
+                String provisioning = text(offering, "provisioningType").toUpperCase(java.util.Locale.ROOT);
+                require(Set.of("SPARSE", "FAT").contains(provisioning), "NEW clone DATA must be SPARSE or FAT; THIN is forbidden");
+                allocation.addProperty("provisioningType", provisioning);
                 require(!offering.has("encrypted") || !flag(offering, "encrypted"), "Encrypted NEW offering requires an explicit supported KMS mapping");
                 Set<String> poolTags = strings(pool, "tags");require(poolTags.containsAll(strings(offering, "tags")), "Offering tags do not match the selected pool");
                 long minimum = ceilGiB(number(source, "size"));

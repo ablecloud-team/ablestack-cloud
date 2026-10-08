@@ -79,12 +79,13 @@ public class StorageServiceRootVolumeSwapTest {
         Mockito.when(root.getTemplateId()).thenReturn(template);Mockito.when(root.getInstanceId()).thenReturn(attached);
         Mockito.when(root.getAccountId()).thenReturn(2L);Mockito.when(root.getDataCenterId()).thenReturn(5L);
         Mockito.when(root.getState()).thenReturn(Volume.State.Ready);Mockito.when(root.getPoolId()).thenReturn(30L);
-        Mockito.when(root.getDeviceId()).thenReturn(0L);Mockito.when(root.getSize()).thenReturn(5L*1024*1024*1024);
+        Mockito.when(root.getProvisioningType()).thenReturn(com.cloud.storage.Storage.ProvisioningType.SPARSE);Mockito.when(root.getDeviceId()).thenReturn(0L);Mockito.when(root.getSize()).thenReturn(5L*1024*1024*1024);
         return root;
     }
     @Test public void runningStageDetachesDuplicateWithinItsTransactionAndKeepsCurrentTemplate() {
         Mockito.when(orchestration.allocateDuplicateVolume(previous,null,99L)).thenReturn(staged);
-        Assert.assertEquals(staged,swap.allocate(7,10,target,"441a5cbd-1690-4d85-b29f-ad9a843738c5"));
+        com.cloud.storage.DiskOfferingVO sparse=Mockito.mock(com.cloud.storage.DiskOfferingVO.class);Mockito.when(sparse.getId()).thenReturn(44L);Mockito.when(sparse.getProvisioningType()).thenReturn(com.cloud.storage.Storage.ProvisioningType.SPARSE);Mockito.when(sparse.isCustomized()).thenReturn(true);
+        Assert.assertEquals(staged,swap.allocate(7,10,target,"441a5cbd-1690-4d85-b29f-ad9a843738c5",sparse));Mockito.verify(staged).setDiskOfferingId(44L);Mockito.verify(staged).setProvisioningType(com.cloud.storage.Storage.ProvisioningType.SPARSE);
         Mockito.verify(staged).setInstanceId(null);Mockito.verify(staged).setSize(6L*1024*1024*1024);
         Mockito.verify(vm,Mockito.never()).setTemplateId(Mockito.any());
         Mockito.verify(volumes,Mockito.never()).detachVolume(10L);
@@ -142,6 +143,15 @@ public class StorageServiceRootVolumeSwapTest {
         Mockito.verify(vm).setTemplateId(41L);Mockito.verify(vm).setGuestOSId(66L);
         Mockito.verify(staged).setRecreatable(false);
         Mockito.verify(volumes,Mockito.never()).remove(Mockito.anyLong());Mockito.verifyNoInteractions(service);
+    }
+
+    @Test public void thinOrUnspecifiedNewRootOfferingIsRejectedBeforeAllocation() {
+        com.cloud.storage.DiskOfferingVO thin=Mockito.mock(com.cloud.storage.DiskOfferingVO.class);Mockito.when(thin.getProvisioningType()).thenReturn(com.cloud.storage.Storage.ProvisioningType.THIN);
+        Assert.assertThrows(CloudRuntimeException.class,()->swap.allocate(7,10,target,"441a5cbd-1690-4d85-b29f-ad9a843738c5",thin));Assert.assertThrows(CloudRuntimeException.class,()->swap.allocate(7,10,target,"441a5cbd-1690-4d85-b29f-ad9a843738c5"));Mockito.verifyNoInteractions(orchestration);
+    }
+    @Test public void thinStagedRootCannotBePhysicallyCreatedWhileExistingThinSourceIsPreserved() {
+        Mockito.when(previous.getProvisioningType()).thenReturn(com.cloud.storage.Storage.ProvisioningType.THIN);Mockito.when(staged.getProvisioningType()).thenReturn(com.cloud.storage.Storage.ProvisioningType.THIN);
+        Assert.assertThrows(CloudRuntimeException.class,()->swap.prepare(7,10,20,99));Mockito.verifyNoInteractions(service);Mockito.verify(previous,Mockito.never()).setProvisioningType(Mockito.any());
     }
 
 }

@@ -31,6 +31,9 @@ public abstract class BaseStorageTemplateUpgradeAsyncCmd extends BaseStorageServ
     private String confirmation;
     @Parameter(name="maintenancewindow", type=CommandType.BOOLEAN, description="Explicitly authorize interrupted sessions in this maintenance window")
     private Boolean maintenanceWindow;
+    @Parameter(name="rootdiskofferingid",type=CommandType.UUID,entityType=org.apache.cloudstack.api.response.DiskOfferingResponse.class,description="Compatible SPARSE or FAT offering for the newly staged ROOT")
+    private Long rootDiskOfferingId;
+    public Long getRootDiskOfferingId(){return rootDiskOfferingId;}
     public Long getSharedFileSystemId(){return sharedFileSystemId;}
     public Long getUpgradeId(){return upgradeId;}
     public Long getTemplateId(){return templateId;}

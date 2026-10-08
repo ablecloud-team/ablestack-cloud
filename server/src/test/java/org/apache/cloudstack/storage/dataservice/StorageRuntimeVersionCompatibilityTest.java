@@ -104,4 +104,23 @@ public class StorageRuntimeVersionCompatibilityTest {
         JsonObject m = manifest(), before = m.deepCopy();evaluate(m,"4.23.0.0","4.23.0.0","4.23.0.0");Assert.assertEquals(before,m);
         blocked(StorageRuntimeVersionCompatibility.evaluate(null,null,null,null,null,null), "SIGNED_COMPATIBILITY_CONTEXT_UNAVAILABLE");
     }
+    private static StorageRuntimeVersionCompatibility.RetainedPreviousEvidence originalUnknownEvidence(boolean observedUnknown) {
+        return new StorageRuntimeVersionCompatibility.RetainedPreviousEvidence("runtime-immutable-1", "a".repeat(64), "a".repeat(64), "b".repeat(64), "b".repeat(64), true, true, true, true, observedUnknown);
+    }
+    @Test public void declaredRangesCanRetainOnlyTheExplicitlyObservedUnknownOriginalSourcePlatform() {
+        JsonObject m = manifest();StorageRuntimeVersionCompatibility.RetainedPreviousEvidence prior = originalUnknownEvidence(true);
+        JsonObject permitted = StorageRuntimeVersionCompatibility.evaluate(m,"4.23.0.0","4.23.0.0",null,StorageRuntimeVersionCompatibility.Mode.RETAINED_PREVIOUS_ROLLBACK,prior);allowed(permitted);
+        Assert.assertTrue(permitted.get("legacyExceptionApplied").getAsBoolean());Assert.assertFalse(permitted.get("rangeCompatibilityVerified").getAsBoolean());
+        Assert.assertEquals("RETAINED_PREVIOUS_PLATFORM_UNKNOWN_APPROVED",permitted.get("state").getAsString());
+        blocked(StorageRuntimeVersionCompatibility.evaluate(m,"4.23.0.0","4.23.0.0",null,StorageRuntimeVersionCompatibility.Mode.RETAINED_PREVIOUS_ROLLBACK,originalUnknownEvidence(false)),"TEMPLATE_VERSION_UNAVAILABLE");
+        blocked(StorageRuntimeVersionCompatibility.evaluate(m,"4.23.0.0","4.23.0.0",null,StorageRuntimeVersionCompatibility.Mode.NEW_ACTIVATION,prior),"TEMPLATE_VERSION_UNAVAILABLE");
+    }
+    @Test public void sourceUnknownExceptionCannotBypassKnownIncompatibilityMalformedValueOrOtherConsumer() {
+        StorageRuntimeVersionCompatibility.RetainedPreviousEvidence prior = originalUnknownEvidence(true);
+        blocked(StorageRuntimeVersionCompatibility.evaluate(manifest(),"4.24.0.0","4.23.0.0",null,StorageRuntimeVersionCompatibility.Mode.RETAINED_PREVIOUS_ROLLBACK,prior),"MANAGER_VERSION_INCOMPATIBLE");
+        blocked(StorageRuntimeVersionCompatibility.evaluate(manifest(),"4.23.0.0",null,null,StorageRuntimeVersionCompatibility.Mode.RETAINED_PREVIOUS_ROLLBACK,prior),"AGENT_VERSION_UNAVAILABLE");
+        blocked(StorageRuntimeVersionCompatibility.evaluate(manifest(),"4.23.0.0","4.23.0.0","4.23.0.0.88",StorageRuntimeVersionCompatibility.Mode.RETAINED_PREVIOUS_ROLLBACK,prior),"TEMPLATE_VERSION_INVALID");
+        blocked(StorageRuntimeVersionCompatibility.evaluate(manifest(),"4.23.0.0","4.23.0.0","4.24.0.0",StorageRuntimeVersionCompatibility.Mode.RETAINED_PREVIOUS_ROLLBACK,prior),"TEMPLATE_VERSION_INCOMPATIBLE");
+    }
+
 }

@@ -33,10 +33,19 @@ public final class StorageRuntimeVersionCompatibility {
     /** Protected server evidence only. Never construct this from API request fields or unverified catalog metadata. */
     public static final class RetainedPreviousEvidence {
         private final String pinnedBundleVersion, pinnedManifestSha256, verifiedManifestSha256, pinnedArchiveSha256, verifiedArchiveSha256;
-        private final boolean approvedLkgReceipt, featureCompatibilityVerified, provenanceVerified, previousRootBindingVerified;
+        private final boolean approvedLkgReceipt, featureCompatibilityVerified, provenanceVerified, previousRootBindingVerified, originalTemplatePlatformUnknown;
         public RetainedPreviousEvidence(String pinnedBundleVersion, String pinnedManifestSha256, String verifiedManifestSha256,
                 String pinnedArchiveSha256, String verifiedArchiveSha256, boolean approvedLkgReceipt,
                 boolean featureCompatibilityVerified, boolean provenanceVerified, boolean previousRootBindingVerified) {
+            this(pinnedBundleVersion, pinnedManifestSha256, verifiedManifestSha256, pinnedArchiveSha256, verifiedArchiveSha256,
+                    approvedLkgReceipt, featureCompatibilityVerified, provenanceVerified, previousRootBindingVerified, false);
+        }
+        /** originalTemplatePlatformUnknown must come from the fresh protected pre-transition source checkpoint, not missing history. */
+        public RetainedPreviousEvidence(String pinnedBundleVersion, String pinnedManifestSha256, String verifiedManifestSha256,
+                String pinnedArchiveSha256, String verifiedArchiveSha256, boolean approvedLkgReceipt,
+                boolean featureCompatibilityVerified, boolean provenanceVerified, boolean previousRootBindingVerified,
+                boolean originalTemplatePlatformUnknown) {
+            this.originalTemplatePlatformUnknown = originalTemplatePlatformUnknown;
             this.pinnedBundleVersion = pinnedBundleVersion;this.pinnedManifestSha256 = pinnedManifestSha256;this.verifiedManifestSha256 = verifiedManifestSha256;
             this.pinnedArchiveSha256 = pinnedArchiveSha256;this.verifiedArchiveSha256 = verifiedArchiveSha256;this.approvedLkgReceipt = approvedLkgReceipt;
             this.featureCompatibilityVerified = featureCompatibilityVerified;this.provenanceVerified = provenanceVerified;this.previousRootBindingVerified = previousRootBindingVerified;
@@ -94,6 +103,13 @@ public final class StorageRuntimeVersionCompatibility {
             boolean inside = observed.compareTo(lower) >= 0 && observed.compareTo(upper) < 0;
             consumer.addProperty("compatible", inside);consumer.addProperty("state", inside ? "COMPATIBLE" : "OUTSIDE_RANGE");
             if (!inside) {consumer.addProperty("errorCode", prefix + "_VERSION_INCOMPATIBLE");blockers.add(prefix + "_VERSION_INCOMPATIBLE");}
+        }
+        if (mode == Mode.RETAINED_PREVIOUS_ROLLBACK && retainedEvidence != null
+                && retainedEvidence.originalTemplatePlatformUnknown && retainedEvidence.permits(verifiedManifest)
+                && blockers.size() == 1 && "TEMPLATE_VERSION_UNAVAILABLE".equals(blockers.get(0).getAsString())) {
+            warnings.add("TEMPLATE_VERSION_UNAVAILABLE");warnings.add("RETAINED_SOURCE_PLATFORM_UNVERIFIED");blockers.remove(0);
+            JsonObject previous = consumers.getAsJsonObject("template");previous.addProperty("legacyExceptionApplied", true);previous.addProperty("state", "LEGACY_SOURCE_PLATFORM_UNKNOWN");
+            result.addProperty("compatible", true);result.addProperty("state", "RETAINED_PREVIOUS_PLATFORM_UNKNOWN_APPROVED");result.addProperty("legacyExceptionApplied", true);return result;
         }
         boolean compatible = blockers.size() == 0;result.addProperty("compatible", compatible);result.addProperty("rangeCompatibilityVerified", compatible);result.addProperty("state", compatible ? "COMPATIBLE" : "INCOMPATIBLE");return result;
     }
