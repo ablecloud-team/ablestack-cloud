@@ -6,7 +6,7 @@ AD 신원 계획은 literal `true` flag 와 유효한 공개 descriptor exact 8 
 
 미승인이나 지원되지 않는 schema 는 계획을 plain restore 로 낮추지 않고 요청을 거절한다. 권한·이름·token·SHA·descriptor·scope 변경과 실패 / unknown 결과를 검증한다. 사용한 request credentials 참조는 finally 에서 해제하고 원문 transport 오류를 화면 로그로 전달하지 않는다. 전체 browser heap 의 물리적 zeroize 를 주장하지 않는다.
 
-API APPLY 는 maintenancewindow 를 지원하지만 읽기 당시 LKG command 와 adapter 의 getter 전달이 누락돼 있었다. backend owner 에게 후속을 전달했다. 현재 UI 는 LKG 에 해당 schema 가 없으면 fail closed 이며 실제 LKG / AD 복원 효과를 주장하지 않는다.
+API APPLY 는 maintenancewindow 를 지원하지만 읽기 당시 LKG command 와 adapter 의 getter 전달이 누락돼 있었다. backend owner 가 LKG getter 및 adapter 전달을 추가해 정상 817 테스트 소스 982d5ba0cc4로 pin했다. 실제 관리 서버 배포와 다르며 UI 는 해당 schema 가 없으면 fail closed 이다. AD TARGET encrypted descriptor 가 LKG 에 없어 full AD LKG 는 아직 서버에서 차단한다. 실제 LKG / AD 복원 효과를 주장하지 않는다.
 
 신규 11 개 포함 161 개 테스트 / 11 개 suite 와 변경 범위 no-fix lint 가 완료 상태로 통과했다. style block 은 byte 단위로 동일하고 최종 #1275 style / theme / button 정렬 / keyboard QA 는 미착수다. 실제 복원 및 AD 효과는 0 이며 source pin / backend / guest / 실제 UI 검증과 구분한다.
 
@@ -37,3 +37,7 @@ API APPLY 는 maintenancewindow 를 지원하지만 읽기 당시 LKG command �
 - manifest SHA: `a46fc583721ebad0b8cc89a4ae2c2760cb5defb684fbb3304bde6e7cdf6cb2a3`
 
 현재 실제 복원 / AD 효과는 0 이다. 새로운 backend / native 및 유효한 승인 계획이 준비된 뒤 API 와 Cua 기능 인수를 진행한다. 전체 SharedFS 또는 최종 UI #1275 완료로 보고하지 않는다.
+
+부모가 소스 5 개를 `21c0b67c69fe22af5df70456f4083802647abfe1` 로 pin / push 했다. 기존 plain plan 읽기와 지원되지 않는 API 의 guard UI 검증은 가능한 범위에서 별도 진행하며 실제 AD restore positive 는 새 backend / native 뒤에 수행한다.
+
+백엔드 source direct180 계약에 따라 인증된 원본은 암호화 LOCAL passdb / Unix 계정 복원을 소비하므로 SMB_LOCAL 암호 재입력 요구를 제거한다. UI 는 서버 `requiredCredentials` 를 그대로 사용하고 SMB_AD_REJOIN 및 CHAP / DHCHAP 요구만 계획이 반환한 대로 표시한다. 이 source 후속을 실제 신원 복원 성공으로 확대하지 않는다.
