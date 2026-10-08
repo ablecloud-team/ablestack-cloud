@@ -32,10 +32,11 @@ from ad_winbind import AdWinbind,AD_WINBIND_CONFIGURATION
 from posix_root_initialization import root_receipt_write
 from service_identity_cipher import ServiceIdentityCipher,service_cipher_digest,service_cipher_scope
 from samba_public_sid import samba_public_sid
+from semantic_ad_source import semantic_new_target,semantic_same_target
 
 
 class AdDomainLifecycle:
-    def __init__(self,cli,configuration=None,run=None,daemon=None,quiescence=None,system_root=None,source_provider=None,sid_reader=None):
+    def __init__(self,cli,configuration=None,run=None,daemon=None,quiescence=None,system_root=None,source_provider=None,sid_reader=None,original_provider=None):
         self.system_root=Path(system_root or "/")
         self.cli=str(cli);self.configuration=Path(configuration or os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_ROOT","/etc/ablestack-storage"))
         self.run=run or bounded_ad_run;self.deadline=time.monotonic()+180
@@ -43,7 +44,7 @@ class AdDomainLifecycle:
         self.quiescence=quiescence or self.require_quiescence
         self.state=self.configuration/"smb-domain.json";self.journal=self.configuration/"ad-lifecycle"/"current.json"
         self.machine=self.configuration/"ad-machine.conf"
-        self.source_provider=source_provider
+        self.source_provider=source_provider;self.original_provider=original_provider
         self.sid_reader=sid_reader or (lambda name:samba_public_sid(name,self.system_root/'var/lib/samba/private/secrets.tdb'))
 
     def command(self,arguments):
@@ -113,14 +114,9 @@ class AdDomainLifecycle:
         mode=request.get("identityMode")
         if mode not in ("JOIN_EXISTING","NEW_INSTANCE"):raise ValueError("AD join requires an explicit identity mode")
         if mode=="NEW_INSTANCE":
-            expected_name="AST"+scope["instanceUuid"].replace("-","")[:12].upper()
+            expected_name="STOR"+scope["instanceUuid"].replace("-","")[:10].upper()
             if pure["netbiosName"]!=expected_name:raise ValueError("Fresh clone AD computer name must be derived from its new instance UUID")
-            source_identity=request.get("sourceIdentity")
-            if isinstance(source_identity,dict) and pure["netbiosName"]==source_identity.get("netbiosName"):
-                raise ValueError("Fresh clone cannot reuse the source AD computer account name")
-            if isinstance(source_identity,dict):
-                if any(value in set(source_identity.get("servicePrincipals") or []) for value in required) or any(row["hostname"] in {item["hostname"] for item in source_identity.get("dnsAliases") or []} for row in aliases):
-                    raise ValueError("Fresh clone cannot reuse source AD aliases or service principals")
+            if "sourceIdentity" in request:raise ValueError("Caller plain source identity has no authenticated original authority")
 
         ou=request.get("organizationalUnit")
         if ou is not None and (not isinstance(ou,str) or not re.fullmatch(r"[A-Za-z0-9_ .,-/]{1,512}",ou) or ou!=ou.strip()):raise ValueError("AD organizational unit is invalid")
@@ -179,18 +175,7 @@ class AdDomainLifecycle:
                     or observed.get("pendingOperationUuid")!=scope["operationUuid"] or observed.get("generationStatus")!="PENDING"):
                 raise ValueError("AD mutation source generation/seven differs")
             if fresh:
-                # Fixed request travels through the same bounded sealed input
-                # mechanism as other native lifecycle observations.
-                descriptor=os.memfd_create("ad-source-authority",os.MFD_CLOEXEC|os.MFD_ALLOW_SEALING)
-                try:
-                    import fcntl
-                    os.fchmod(descriptor,0o600);os.write(descriptor,json.dumps(scope).encode());os.lseek(descriptor,0,os.SEEK_SET)
-                    fcntl.fcntl(descriptor,fcntl.F_ADD_SEALS,fcntl.F_SEAL_WRITE|fcntl.F_SEAL_GROW|fcntl.F_SEAL_SHRINK|fcntl.F_SEAL_SEAL)
-                    result=self.run([self.cli,"operation","generation","render-service-identity-export-source","/proc/self/fd/"+str(descriptor)],
-                                    capture_output=True,text=True,timeout=min(15,self.deadline-time.monotonic()),pass_fds=(descriptor,9) if os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD")=="9" else (descriptor,))
-                    if result.returncode:raise ValueError("AD mutation fresh AFTERSTOP source was rejected")
-                    source=json.loads(result.stdout)
-                finally:os.close(descriptor)
+                source=self.protected_request(("operation","generation","render-service-identity-export-source"),scope)
             else:
                 frozen=native["sourcePublicIdentity"]
                 source={"scope":scope,"serviceSourceStoppedVerified":True,"bootId":native["bootId"],"publicLocalMachineSid":frozen["publicLocalMachineSid"],
@@ -200,6 +185,35 @@ class AdDomainLifecycle:
                 or not re.fullmatch(r"S-1-5-21(?:-[0-9]{1,10}){3}",str(source.get("publicLocalMachineSid")))):
             raise ValueError("AD mutation source boot/SAM/stopped proof is invalid")
         return source
+
+    def protected_request(self,command,request):
+        import fcntl
+        temporary=os.memfd_create("ad-protected-request",os.MFD_CLOEXEC|os.MFD_ALLOW_SEALING)
+        # Signed shell helpers reserve FD3 for protected stdin and FD9 for the
+        # native writer. Keep the sealed request outside both reserved slots.
+        try:descriptor=fcntl.fcntl(temporary,fcntl.F_DUPFD_CLOEXEC,16)
+        finally:os.close(temporary)
+        try:
+            os.fchmod(descriptor,0o600);os.write(descriptor,json.dumps(request).encode());os.lseek(descriptor,0,os.SEEK_SET)
+            fcntl.fcntl(descriptor,fcntl.F_ADD_SEALS,fcntl.F_SEAL_WRITE|fcntl.F_SEAL_GROW|fcntl.F_SEAL_SHRINK|fcntl.F_SEAL_SEAL)
+            remaining=self.deadline-time.monotonic()
+            if remaining<=0:raise TimeoutError("AD protected request deadline expired")
+            result=self.run([self.cli,*command,"/proc/self/fd/"+str(descriptor)],capture_output=True,text=True,timeout=min(15,remaining),
+                            pass_fds=(descriptor,9) if os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD")=="9" else (descriptor,))
+            if result.returncode:raise ValueError("AD protected authority observer rejected its request")
+            return json.loads(result.stdout)
+        finally:os.close(descriptor)
+
+    def original_source(self,request):
+        if "sourceIdentity" in request:raise ValueError("Caller plain source identity has no authenticated original authority")
+        fields=("originalSourceAuthority","originalSourceCapsule","originalSourceCredentialPrivateKey")
+        if any(field not in request for field in fields):raise ValueError("NEW_INSTANCE requires authenticated original authority and fresh target SAM bootstrap")
+        scoped={**self.daemon.scope(request),**{field:request[field] for field in fields}}
+        result=self.original_provider(scoped) if self.original_provider is not None else self.protected_request(("identity","capsule","semantic-original"),scoped)
+        if (not isinstance(result,dict) or result.get("success") is not True or result.get("scope")!=self.daemon.scope(request)
+                or result.get("originalSourceAuthority")!=request["originalSourceAuthority"] or not isinstance(result.get("originalIdentity"),dict)):
+            raise ValueError("AD semantic original decoder receipt is invalid")
+        return {"descriptor":result["originalSourceAuthority"],"identity":result["originalIdentity"]}
 
     def public_backup(self,path):
         if not path.exists() and not path.is_symlink():return {"absent":True}
@@ -224,13 +238,27 @@ class AdDomainLifecycle:
         journal=ad_protected_json(self.journal,True)
         own_complete=bool(journal and journal.get("scope")==self.daemon.scope(request) and journal.get("phase")=="COMPLETE")
         source=self.source_authority(request,fresh=not own_complete)
+        configured=self.run(["testparm","-s","--parameter-name=netbios name"],capture_output=True,text=True,timeout=min(5,self.deadline-time.monotonic()))
+        if configured.returncode or configured.stdout.strip().upper()!=public["netbiosName"]:
+            raise ValueError("AD JOIN name differs from the actual captured target configuration")
+        if self.sid_reader(public["netbiosName"])!=source["publicLocalMachineSid"]:
+            raise ValueError("AD JOIN machine name has no exact captured target SAM key")
+        original=None
+        if public["identityMode"]=="NEW_INSTANCE":
+            original=self.original_source(request)
+            semantic_new_target(original,public,source,self.daemon.scope(request)["instanceUuid"])
+        elif any(field in request for field in ("originalSourceAuthority","originalSourceCapsule","originalSourceCredentialPrivateKey")):
+            original=self.original_source(request)
+            semantic_same_target(original,public,source,self.daemon.scope(request)["instanceUuid"])
         if existing and existing.get("state")=="JOINED":
             actual=AdIdentityRpc(self.run,self.configuration,cli=self.cli).inspect(request)
             if actual.get("identityVerified") is not True or any(actual.get(key)!=public[key] for key in ("domain","realm","workgroup","netbiosName","dnsAliases","servicePrincipals")):
                 raise ValueError("Existing AD identity cannot be silently replaced or rejoined")
+            if public["identityMode"]=="NEW_INSTANCE" and (existing.get("semanticOriginalSourceAuthority")!=original["descriptor"]
+                    or actual.get("machineSid")!=source["publicLocalMachineSid"] or actual.get("machineAccountSid")==original["identity"]["machineAccountSid"]
+                    or actual.get("domainSid")!=original["identity"]["domainSid"] or actual.get("idmapPolicy")!=original["identity"]["idmapPolicy"]):
+                raise ValueError("NEW_INSTANCE retry differs from its authenticated original or preserved target")
             return {"success":True,"scope":self.daemon.scope(request),"identityPreserved":True,"rejoined":False,"identity":actual,"canonicalDesiredStateChanged":False}
-        if public["identityMode"]=="NEW_INSTANCE" and ((self.system_root/"etc/krb5.keytab").exists() or existing):raise ValueError("Fresh clone cannot carry a source AD identity")
-        if public["identityMode"]=="NEW_INSTANCE":raise ValueError("NEW_INSTANCE requires authenticated original authority and fresh target SAM bootstrap")
         for path in (self.machine,self.system_root/"etc/krb5.keytab",self.system_root/"var/lib/samba/winbindd_idmap.tdb"):
             if path.exists() or path.is_symlink():raise ValueError("AD first join refuses preexisting foreign identity artifacts")
         self.quiescence()
@@ -260,12 +288,15 @@ class AdDomainLifecycle:
             account=machine_account_sid(self.command(["wbinfo","--name-to-sid",public["workgroup"]+chr(92)+public["netbiosName"]+"$"]),probe["domainSid"])
             mapping=idmap_policy(self.configured_run,public["workgroup"],self.deadline)
             if mapping!=public["idmapPolicy"]:raise ValueError("AD joined idmap readback differs from its exact private configuration")
-            if probe["machineSid"]!=source["publicLocalMachineSid"]:raise ValueError("JOIN_EXISTING changed its original public local SAM SID")
+            if probe["machineSid"]!=source["publicLocalMachineSid"]:raise ValueError("AD JOIN changed the target's captured public local SAM SID")
+            if original is not None and (probe["domainSid"]!=original["identity"]["domainSid"] or account==original["identity"]["machineAccountSid"]):
+                raise ValueError("NEW_INSTANCE computer identity reuses or escapes authenticated original")
             state={"state":"JOINED","joinState":"JOINED","instanceUuid":self.daemon.scope(request)["instanceUuid"],"domainName":public["domain"],"realm":public["realm"],"workgroup":public["workgroup"],"netbiosName":public["netbiosName"],
                    "dnsServers":public["dnsServers"],"dnsAliases":public["dnsAliases"],"servicePrincipals":public["servicePrincipals"],"idmapPolicy":mapping,
                    "identityReceipt":{key:probe[key] for key in ("machineSid","domainSid")},"machineConfigurationSha256":hashlib.sha256(self.machine.read_bytes()).hexdigest()}
             state["identityReceipt"]["machineAccountSid"]=account
             state["ordinaryJoinSource"]={"scope":source["scope"],"bootId":source["bootId"],"localMachineSid":source["publicLocalMachineSid"]}
+            if original is not None:state["semanticOriginalSourceAuthority"]=original["descriptor"]
             state["publicConfigurationBeforeJoin"]=backups
             state["ownedPublicConfigurationSha256"]={"krb5.conf":hashlib.sha256(pure["kerberosConfiguration"].encode()).hexdigest(),"resolv.conf":hashlib.sha256(pure["resolverConfiguration"].encode()).hexdigest()}
             state["ownedAdArtifacts"]=["ad-machine.conf","krb5.keytab","winbindd_idmap.tdb"]
