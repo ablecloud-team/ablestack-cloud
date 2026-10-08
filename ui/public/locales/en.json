@@ -9535,5 +9535,7 @@
   "label.storage.runtime.consumer.manager": "Management server",
   "label.storage.runtime.consumer.agent": "Host agent",
   "label.storage.runtime.compatibility": "Compatibility",
-  "label.storage.posix.expected.owner": "Proposed owner and mode"
+  "label.storage.posix.expected.owner": "Proposed owner and mode",
+  "message.storage.template.root.sparse": "The new ROOT must use SPARSE or FAT provisioning. The existing ROOT is preserved for rollback.",
+  "label.storage.template.root.offering": "Replacement ROOT disk offering"
 }

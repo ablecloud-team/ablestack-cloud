@@ -9500,5 +9500,7 @@
   "label.storage.runtime.consumer.manager": "관리 서버",
   "label.storage.runtime.consumer.agent": "호스트 에이전트",
   "label.storage.runtime.compatibility": "호환 범위",
-  "label.storage.posix.expected.owner": "예상 소유권 및 권한"
+  "label.storage.posix.expected.owner": "예상 소유권 및 권한",
+  "message.storage.template.root.sparse": "새 ROOT는 SPARSE 또는 FAT 프로비저닝을 사용해야 합니다. 기존 ROOT는 이전 구성 복귀를 위해 보존합니다.",
+  "label.storage.template.root.offering": "교체용 ROOT 디스크 오퍼링"
 }
