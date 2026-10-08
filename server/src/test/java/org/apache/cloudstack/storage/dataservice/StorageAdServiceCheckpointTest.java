@@ -97,4 +97,78 @@ public class StorageAdServiceCheckpointTest {
         }
     }
 
+    private static JsonObject cipher(JsonObject scope){
+        byte[] ciphertext=new byte[32];java.util.Arrays.fill(ciphertext,(byte)7);
+        JsonObject value=new JsonObject();value.addProperty("schemaVersion",1);value.addProperty("scope",scope.get("instanceUuid").getAsString()+":"+scope.get("operationUuid").getAsString());
+        value.addProperty("ciphertext",java.util.Base64.getEncoder().encodeToString(ciphertext));value.addProperty("nonce",java.util.Base64.getEncoder().encodeToString(new byte[12]));value.addProperty("wrappedKey",java.util.Base64.getEncoder().encodeToString(new byte[256]));value.addProperty("sha256",StorageConfigArchive.sha256(ciphertext));return value;
+    }
+    private static JsonObject cipherReceipt(JsonObject scope,JsonObject capsule){
+        JsonObject value=new JsonObject();value.addProperty("kind","SERVICE_SOURCE_IDENTITY_CHECKPOINT");value.add("scope",scope.deepCopy());value.addProperty("capsuleSha256",capsule.get("sha256").getAsString());value.addProperty("sourceConfigurationSha256","a".repeat(64));value.addProperty("checkpointRecordSha256","d".repeat(64));return value;
+    }
+    private static JsonObject cipherScope(){
+        JsonObject scope=new JsonObject();scope.addProperty("instanceUuid","11111111-1111-1111-1111-111111111111");scope.addProperty("operationUuid","22222222-2222-2222-2222-222222222222");scope.addProperty("maintenanceUuid","22222222-2222-2222-2222-222222222222");scope.addProperty("revision",4);return scope;
+    }
+    @Test public void encryptedServiceSourceUsesTheExactCipherScopeAndOriginalConfigurationReceipt(){
+        JsonObject scope=cipherScope(),capsule=cipher(scope),receipt=cipherReceipt(scope,capsule);
+        Assert.assertEquals(receipt,StorageAdIdentityProof.serviceCipherCheckpoint(receipt,capsule,scope,"a".repeat(64)));
+        for(String field:List.of("scope","sourceConfigurationSha256","checkpointRecordSha256","kind")){
+            JsonObject wrong=receipt.deepCopy();
+            if(field.equals("scope"))wrong.getAsJsonObject(field).addProperty("maintenanceUuid","33333333-3333-3333-3333-333333333333");
+            else wrong.addProperty(field,field.equals("sourceConfigurationSha256")?"b".repeat(64):"wrong");
+            Assert.assertThrows(field,RuntimeException.class,()->StorageAdIdentityProof.serviceCipherCheckpoint(wrong,capsule,scope,"a".repeat(64)));
+        }
+        JsonObject extra=receipt.deepCopy();extra.addProperty("privateKey","synthetic-secret");
+        Assert.assertThrows(RuntimeException.class,()->StorageAdIdentityProof.serviceCipherCheckpoint(extra,capsule,scope,"a".repeat(64)));
+    }
+    @Test public void changedCiphertextDigestOrMalformedEncryptionCannotBeRetainedAsSource(){
+        JsonObject scope=cipherScope(),capsule=cipher(scope),receipt=cipherReceipt(scope,capsule);
+        for(String field:List.of("ciphertext","nonce","wrappedKey","scope","schemaVersion","sha256")){
+            JsonObject wrong=capsule.deepCopy();
+            if(field.equals("ciphertext"))wrong.addProperty(field,java.util.Base64.getEncoder().encodeToString(new byte[32]));
+            else if(field.equals("nonce")||field.equals("wrappedKey"))wrong.addProperty(field,"AAAA");
+            else wrong.addProperty(field,"changed");
+            Assert.assertThrows(field,RuntimeException.class,()->StorageAdIdentityProof.serviceCipherCheckpoint(receipt,wrong,scope,"a".repeat(64)));
+        }
+    }
+    private static class CipherFixture {
+        StorageServiceManagerImpl manager;StorageServiceInstanceVO instance;StorageServiceOperationVO operation;JsonObject scope,capsule,response;
+        org.apache.cloudstack.storage.dataservice.dao.StorageServiceOperationDao operations;
+    }
+    private CipherFixture cipherFixture(){
+        CipherFixture f=new CipherFixture();
+        f.manager=new StorageServiceManagerImpl(){@Override protected void requireProtectedIdentityTransport(StorageServiceInstanceVO instance,String operationUuid){}};
+        f.instance=Mockito.mock(StorageServiceInstanceVO.class);Mockito.when(f.instance.getUuid()).thenReturn("11111111-1111-1111-1111-111111111111");Mockito.when(f.instance.getVmId()).thenReturn(7L);
+        f.operation=new StorageServiceOperationVO();f.operation.setRevision(4);f.operation.setPreviousSnapshotJson("{}");
+        ThreadLocal<StorageServiceOperationVO> writers=(ThreadLocal<StorageServiceOperationVO>)ReflectionTestUtils.getField(f.manager,"storageWriterOperation");writers.set(f.operation);
+        f.scope=cipherScope();f.scope.addProperty("operationUuid",f.operation.getUuid());f.scope.addProperty("maintenanceUuid",f.operation.getUuid());f.capsule=cipher(f.scope);
+        f.response=new JsonObject();f.response.addProperty("success",true);f.response.add("capsule",f.capsule);f.response.add("serviceIdentityCheckpoint",cipherReceipt(f.scope,f.capsule));
+        f.operations=Mockito.mock(org.apache.cloudstack.storage.dataservice.dao.StorageServiceOperationDao.class);ReflectionTestUtils.setField(f.manager,"storageOperationDao",f.operations);
+        org.apache.cloudstack.storage.dataservice.dao.StorageFileShareDao shares=Mockito.mock(org.apache.cloudstack.storage.dataservice.dao.StorageFileShareDao.class);
+        Mockito.when(shares.listByInstanceIdAndProtocol(Mockito.anyLong(),Mockito.any())).thenReturn(java.util.Collections.emptyList());ReflectionTestUtils.setField(f.manager,"storageFileShareDao",shares);
+        org.apache.cloudstack.storage.dataservice.dao.StorageBlockTargetDao targets=Mockito.mock(org.apache.cloudstack.storage.dataservice.dao.StorageBlockTargetDao.class);
+        Mockito.when(targets.listByInstanceIdAndProtocol(Mockito.anyLong(),Mockito.any())).thenReturn(java.util.Collections.emptyList());ReflectionTestUtils.setField(f.manager,"storageBlockTargetDao",targets);
+        StorageServiceGuestCommandDispatcher guest=Mockito.mock(StorageServiceGuestCommandDispatcher.class);
+        Mockito.when(guest.dispatch(Mockito.any())).thenAnswer(call->new StorageServiceGuestCommandResult(true,"encrypted",f.response.toString()));ReflectionTestUtils.setField(f.manager,"guestCommandDispatcher",guest);
+        return f;
+    }
+    @Test public void nativeSourceCipherReceiptMustBeDurableBeforeExportReturnsToManagedStorage(){
+        CipherFixture f=cipherFixture();Mockito.when(f.operations.update(Mockito.anyLong(),Mockito.any())).thenAnswer(call->{StorageServiceOperationVO operation=call.getArgument(1);Assert.assertTrue(com.google.gson.JsonParser.parseString(operation.getPreviousSnapshotJson()).getAsJsonObject().has("adServiceCipherCheckpoint"));return true;});
+        Assert.assertEquals(f.capsule,f.manager.exportConfigurationIdentity(f.instance,f.operation.getUuid(),StorageIdentityCapsule.wrappingKey(),f.scope,"a".repeat(64)));
+        Mockito.verify(f.operations).update(Mockito.anyLong(),Mockito.any());
+    }
+    @Test public void missingOrForeignSourceReceiptRejectsBeforeDurableSourcePublication(){
+        for(String wrong:List.of("missing","source","success")){
+            CipherFixture f=cipherFixture();
+            if(wrong.equals("missing"))f.response.remove("serviceIdentityCheckpoint");
+            else if(wrong.equals("success"))f.response.addProperty("success","true");
+            else f.response.getAsJsonObject("serviceIdentityCheckpoint").addProperty("sourceConfigurationSha256","b".repeat(64));
+            Assert.assertThrows(wrong,RuntimeException.class,()->f.manager.exportConfigurationIdentity(f.instance,f.operation.getUuid(),StorageIdentityCapsule.wrappingKey(),f.scope,"a".repeat(64)));
+            Mockito.verifyNoInteractions(f.operations);
+        }
+    }
+    @Test public void failedDurableSourceReceiptWriteCannotReturnCipherToManagedStorage(){
+        CipherFixture f=cipherFixture();Mockito.when(f.operations.update(Mockito.anyLong(),Mockito.any())).thenReturn(false);
+        Assert.assertThrows(RuntimeException.class,()->f.manager.exportConfigurationIdentity(f.instance,f.operation.getUuid(),StorageIdentityCapsule.wrappingKey(),f.scope,"a".repeat(64)));
+    }
+
 }

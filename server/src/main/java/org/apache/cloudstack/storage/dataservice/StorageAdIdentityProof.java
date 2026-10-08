@@ -60,6 +60,23 @@ public final class StorageAdIdentityProof {
         }return publicFields(proof,Set.of("success","scope","sideEffects","joinState","domain","realm","workgroup","netbiosName","machineSid","domainSid","machineAccountSid","servicePrincipals","dnsAliases","idmapPolicy","trustVerified","identityVerified","dnsAliasesVerified","adSpnsVerified","adIdentity","bootId","generatedEpoch","requiredServicePrincipalsVerified"));
 
     }
+    public static JsonObject serviceCipherCheckpoint(JsonObject receipt,JsonObject capsule,JsonObject scope,String sourceSha) {
+        if(scope==null||receipt==null||!receipt.keySet().equals(Set.of("kind","scope","capsuleSha256","sourceConfigurationSha256","checkpointRecordSha256"))
+                ||!"SERVICE_SOURCE_IDENTITY_CHECKPOINT".equals(text(receipt,"kind"))||!scope.equals(receipt.get("scope")))throw new CloudRuntimeException("SERVICE encrypted source checkpoint has no exact native scope receipt");
+        if(scope==null||!scope.keySet().equals(Set.of("instanceUuid","operationUuid","maintenanceUuid","revision"))
+                ||!scope.get("operationUuid").equals(scope.get("maintenanceUuid")))throw new CloudRuntimeException("SERVICE encrypted source checkpoint has an invalid owned operation binding");
+        for(String key:Set.of("instanceUuid","operationUuid","maintenanceUuid"))if(!text(scope,key).matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"))throw new CloudRuntimeException("SERVICE encrypted source checkpoint UUID is invalid");
+        if(integer(scope,"revision")<1||sourceSha==null||!sourceSha.matches("[a-f0-9]{64}")||!sourceSha.equals(text(receipt,"sourceConfigurationSha256"))
+                ||!text(receipt,"checkpointRecordSha256").matches("[a-f0-9]{64}"))throw new CloudRuntimeException("SERVICE encrypted source checkpoint configuration proof is invalid");
+        if(capsule==null||!capsule.keySet().equals(Set.of("schemaVersion","scope","wrappedKey","nonce","ciphertext","sha256"))||integer(capsule,"schemaVersion")!=1
+                ||!(text(scope,"instanceUuid")+":"+text(scope,"operationUuid")).equals(text(capsule,"scope")))throw new CloudRuntimeException("SERVICE encrypted source capsule shape or scope is invalid");
+        String cipherSha=text(capsule,"sha256");byte[] cipher,nonce,wrapped;
+        try {cipher=java.util.Base64.getDecoder().decode(text(capsule,"ciphertext"));nonce=java.util.Base64.getDecoder().decode(text(capsule,"nonce"));wrapped=java.util.Base64.getDecoder().decode(text(capsule,"wrappedKey"));}
+        catch(IllegalArgumentException invalid){throw new CloudRuntimeException("SERVICE source cipher encoding is invalid",invalid);}
+        if(cipher.length<16||cipher.length>16*1024*1024||nonce.length!=12||wrapped.length<256||wrapped.length>1024||!cipherSha.matches("[a-f0-9]{64}")
+                ||!cipherSha.equals(StorageConfigArchive.sha256(cipher))||!cipherSha.equals(text(receipt,"capsuleSha256")))throw new CloudRuntimeException("SERVICE encrypted source capsule digest or cryptographic shape changed");
+        return receipt.deepCopy();
+    }
     /** A local leave observation is fresh and remains bound to the immutable PRESTOP local SAM. */
     public static JsonObject notJoined(JsonObject proof,JsonObject scope,JsonObject source,double now) {
         fresh(proof,scope,now);
