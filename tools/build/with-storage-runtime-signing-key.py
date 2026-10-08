@@ -19,41 +19,80 @@
 
 """Run a release builder with an Ed25519 private key held only in a memfd."""
 import argparse
+from contextlib import contextmanager
+import fcntl
 import os
 import re
+import stat
 from pathlib import Path
 import subprocess
 
-p = argparse.ArgumentParser()
-p.add_argument("--key-id", required=True)
-p.add_argument("--trusted-key-dir", type=Path, required=True)
-p.add_argument("--require-stable", choices=("true", "false"), default="false")
-p.add_argument("command", nargs=argparse.REMAINDER)
-a = p.parse_args()
-if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}", a.key_id):
-    p.error("Signing key ID is invalid")
-if not a.command:
-    p.error("A release build command is required")
-command = a.command[1:] if a.command[0] == "--" else a.command
-private = os.environ.pop("STORAGE_RUNTIME_SIGNING_PRIVATE_KEY", "").encode()
-if not private:
-    if a.require_stable == "true":
-        raise SystemExit("Published runtime bundles require the stable storage_runtime_signing_private_key secret")
-    private = subprocess.check_output(["openssl", "genpkey", "-algorithm", "ED25519"], stderr=subprocess.DEVNULL)
-    print("Using an ephemeral signing key for this test build", flush=True)
-fd = os.memfd_create("storage-runtime-signing-key", os.MFD_CLOEXEC)
-try:
-    os.fchmod(fd, 0o600)
-    os.write(fd, private)
-    private = None
-    os.lseek(fd, 0, os.SEEK_SET)
-    key = f"/proc/self/fd/{fd}"
-    public = subprocess.check_output(["openssl", "pkey", "-in", key, "-pubout"],
-                                     pass_fds=(fd,), stderr=subprocess.DEVNULL)
-    a.trusted_key_dir.mkdir(parents=True, exist_ok=True)
-    (a.trusted_key_dir / (a.key_id + ".pem")).write_bytes(public)
-    env = dict(os.environ, STORAGE_RUNTIME_SIGNING_PRIVATE_KEY_FILE=key)
-    result = subprocess.run(command, env=env, pass_fds=(fd,))
-    raise SystemExit(result.returncode)
-finally:
-    os.close(fd)
+REQUIRED_SEALS = (fcntl.F_SEAL_WRITE | fcntl.F_SEAL_GROW |
+                  fcntl.F_SEAL_SHRINK | fcntl.F_SEAL_SEAL)
+
+
+@contextmanager
+def sealed_signing_key(private):
+    """Erase the input buffer and close the immutable descriptor on every exit."""
+    fd = None
+    try:
+        fd = os.memfd_create("storage-runtime-signing-key",
+                             os.MFD_CLOEXEC | os.MFD_ALLOW_SEALING)
+        os.fchmod(fd, 0o600)
+        view = memoryview(private)
+        try:
+            offset = 0
+            while offset < len(view):
+                written = os.write(fd, view[offset:])
+                if written <= 0:
+                    raise RuntimeError("Signing key descriptor write was incomplete")
+                offset += written
+        finally:
+            view.release()
+            private[:] = b"\0" * len(private)
+        os.lseek(fd, 0, os.SEEK_SET)
+        fcntl.fcntl(fd, fcntl.F_ADD_SEALS, REQUIRED_SEALS)
+        info = os.fstat(fd)
+        if (fcntl.fcntl(fd, fcntl.F_GET_SEALS) & REQUIRED_SEALS != REQUIRED_SEALS
+                or not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid()
+                or stat.S_IMODE(info.st_mode) != 0o600):
+            raise RuntimeError("Signing key descriptor protection could not be verified")
+        yield fd
+    finally:
+        private[:] = b"\0" * len(private)
+        if fd is not None:
+            os.close(fd)
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--key-id", required=True)
+    parser.add_argument("--trusted-key-dir", type=Path, required=True)
+    parser.add_argument("--require-stable", choices=("true", "false"), default="false")
+    parser.add_argument("command", nargs=argparse.REMAINDER)
+    args = parser.parse_args(argv)
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}", args.key_id):
+        parser.error("Signing key ID is invalid")
+    command = args.command[1:] if args.command[:1] == ["--"] else args.command
+    if not command:
+        parser.error("A release build command is required")
+    private = bytearray(os.environ.pop("STORAGE_RUNTIME_SIGNING_PRIVATE_KEY", "").encode())
+    if not private:
+        if args.require_stable == "true":
+            raise SystemExit("Published runtime bundles require the stable storage_runtime_signing_private_key secret")
+        private = bytearray(subprocess.check_output(
+            ["openssl", "genpkey", "-algorithm", "ED25519"], stderr=subprocess.DEVNULL))
+        print("Using an ephemeral signing key for this test build", flush=True)
+    with sealed_signing_key(private) as fd:
+        key = f"/proc/self/fd/{fd}"
+        public = subprocess.check_output(["openssl", "pkey", "-in", key, "-pubout"],
+                                         pass_fds=(fd,), stderr=subprocess.DEVNULL)
+        args.trusted_key_dir.mkdir(parents=True, exist_ok=True)
+        (args.trusted_key_dir / (args.key_id + ".pem")).write_bytes(public)
+        env = dict(os.environ, STORAGE_RUNTIME_SIGNING_PRIVATE_KEY_FILE=key)
+        result = subprocess.run(command, env=env, pass_fds=(fd,))
+        return result.returncode
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
