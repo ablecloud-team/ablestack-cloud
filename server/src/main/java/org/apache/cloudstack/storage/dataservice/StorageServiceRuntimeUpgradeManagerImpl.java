@@ -339,6 +339,75 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
     private static com.google.gson.JsonElement nullableVersion(String value) {return value == null ? com.google.gson.JsonNull.INSTANCE : new com.google.gson.JsonPrimitive(value);}
     private static boolean validDigest(String value) {return value != null && value.matches("[a-f0-9]{64}");}
 
+    protected JsonObject runtimeValidationHostBinding(StorageServiceInstanceVO instance) {
+        VMInstanceVO vm = vmInstanceDao.findById(instance.getVmId());
+        com.cloud.host.HostVO host = vm == null || vm.getHostId() == null ? null : runtimeHostDao.findById(vm.getHostId());
+        if (vm == null || host == null || vm.getAccountId() != instance.getAccountId() || vm.getDataCenterId() != instance.getDataCenterId()
+                || vm.getUuid() == null || host.getUuid() == null || host.getVersion() == null) {
+            throw new CloudRuntimeException("Signed validation runtime host binding is unavailable");
+        }
+        JsonObject binding = new JsonObject();
+        binding.addProperty("vmId", vm.getId());binding.addProperty("vmUuid", vm.getUuid());
+        binding.addProperty("hostId", host.getId());binding.addProperty("hostUuid", host.getUuid());binding.addProperty("agentVersion", host.getVersion());
+        binding.addProperty("accountId", instance.getAccountId());binding.addProperty("zoneId", instance.getDataCenterId());return binding;
+    }
+
+    protected String runtimeManifestCliSha256(JsonObject manifest) {
+        if (!manifest.has("files") || !manifest.get("files").isJsonArray()) throw new CloudRuntimeException("Signed runtime file manifest is unavailable");
+        String cli = null;
+        for (com.google.gson.JsonElement entry : manifest.getAsJsonArray("files")) {
+            if (!entry.isJsonObject()) throw new CloudRuntimeException("Signed runtime file manifest is malformed");
+            JsonObject file = entry.getAsJsonObject();
+            if ("ablestack-storagectl".equals(stringValue(file, "path"))) {
+                if (cli != null || !validDigest(stringValue(file, "sha256"))) throw new CloudRuntimeException("Signed runtime CLI file hash is ambiguous or unavailable");
+                cli = stringValue(file, "sha256");
+            }
+        }
+        if (cli == null) throw new CloudRuntimeException("Signed runtime CLI file hash is unavailable");return cli;
+    }
+
+    @Override public JsonObject freshSignedRuntimeValidationProof(long instanceId, String expectedCliSha256) {
+        if (!validDigest(expectedCliSha256)) throw new CloudRuntimeException("Validation profile CLI hash must be an exact SHA256");
+        StorageServiceInstanceVO instance = instanceDao.findById(instanceId);
+        if (instance == null || instance.getVmId() == null || instance.getCurrentRuntimeBundleId() == null
+                || instance.getRuntimeVerifiedAt() == null || instance.getRuntimeVerifiedAt().getTime() <= 0) {
+            throw new CloudRuntimeException("Validation fixture lacks an approved installed signed runtime receipt");
+        }
+        StorageServiceRuntimeBundleVO bundle = requireBundle(instance.getCurrentRuntimeBundleId());
+        JsonObject pin = runtimePin(bundle), rootBinding = sourceRootBinding(instance), hostBinding = runtimeValidationHostBinding(instance);
+        JsonObject manifest = signedManifest(bundle);
+        String cliSha = runtimeManifestCliSha256(manifest);
+        if (!expectedCliSha256.equals(cliSha)) throw new CloudRuntimeException("Installed signed runtime CLI differs from the validation profile artifact");
+        StorageServiceRuntimeUpgradeVO receipt = null;
+        for (StorageServiceRuntimeUpgradeVO row : upgradeDao.listByInstanceId(instanceId)) {
+            if (row.getInstanceId() != instanceId || !java.util.Objects.equals(row.getBundleId(), bundle.getId())
+                    || row.getState() != StorageServiceRuntimeUpgradeVO.State.COMPLETE || row.getCompleted() == null
+                    || row.getTransactionId() == null || row.getTransactionId().isBlank()) continue;
+            if (receipt == null || row.getCompleted().after(receipt.getCompleted())) receipt = row;
+        }
+        if (receipt == null) throw new CloudRuntimeException("Validation fixture requires a completed normal signed runtime upgrade transaction for read-only verification");
+        JsonObject consumer = freshConsumerObservation(instance);
+        String updater = sha256(resource("/storage-runtime/bootstrap/runtime_updater.py"));
+        if (!Boolean.TRUE.equals(booleanValue(consumer, "updaterVerified"))) throw new CloudRuntimeException("Validation fixture runtime observer is unverified");
+        JsonObject request = pin.deepCopy();request.addProperty("transactionId", receipt.getTransactionId());
+        JsonObject readback = requireRuntimeReadback(invoke(instance, StorageServiceRuntimeOperation.READBACK, receipt.getTransactionId(), request), bundle);
+        if (!updater.equals(stringValue(readback, "updaterSha256"))) throw new CloudRuntimeException("Validation fixture signed runtime readback helper differs from the pinned observer");
+        StorageServiceInstanceVO fresh = instanceDao.findById(instanceId);
+        if (fresh == null || !java.util.Objects.equals(fresh.getCurrentRuntimeBundleId(), bundle.getId())
+                || !java.util.Objects.equals(fresh.getVmId(), instance.getVmId()) || !java.util.Objects.equals(fresh.getUuid(), instance.getUuid())
+                || !sourceRootBinding(fresh).equals(rootBinding) || !runtimeValidationHostBinding(fresh).equals(hostBinding)) {
+            throw new CloudRuntimeException("Validation fixture runtime, ROOT, or host binding changed during readback");
+        }
+        pinnedBundle(pin);
+        JsonObject proof = new JsonObject();proof.addProperty("schemaVersion", 1);proof.addProperty("readOnly", true);
+        proof.addProperty("signedRuntimeVerified", true);proof.add("runtimePin", pin);proof.addProperty("actualCliSha256", cliSha);
+        proof.addProperty("cliHashEvidence", "SIGNED_READBACK_FILE_HASH_AND_ENTRYPOINT_BINDING");
+        proof.addProperty("nativeFileHashesVerified", true);proof.addProperty("transactionId", receipt.getTransactionId());
+        proof.addProperty("approvedRuntimeVerifiedAtMillis", instance.getRuntimeVerifiedAt().getTime());
+        proof.add("consumerObservation", consumer);proof.add("sourceRootBinding", rootBinding);proof.add("hostBinding", hostBinding);
+        proof.addProperty("updaterSha256", updater);proof.addProperty("observedAtMillis", System.currentTimeMillis());return proof;
+    }
+
     @Override public JsonObject templateRuntimeCapabilities(long instanceId) {
         StorageServiceInstanceVO instance=instanceDao.findById(instanceId);
         if (instance==null || instance.getVmId()==null) throw new CloudRuntimeException("ROOT runtime VM is unavailable");
@@ -370,10 +439,10 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         if (!observed.has("updaterSha256") || !helperSha.equals(observed.get("updaterSha256").getAsString())) throw new CloudRuntimeException("ROOT runtime helper changed during installed-code readback");return observed;
     }
     protected JsonObject requireRuntimeReadback(JsonObject result,StorageServiceRuntimeBundleVO bundle) {
-        if (!result.has("success") || !result.get("success").getAsBoolean()
-                || !result.has("signedRuntimeVerified") || !result.get("signedRuntimeVerified").getAsBoolean()
-                || !result.has("installedFilesVerified") || !result.get("installedFilesVerified").getAsBoolean()
-                || !result.has("entrypointsVerified") || !result.get("entrypointsVerified").getAsBoolean()
+        if (!Boolean.TRUE.equals(booleanValue(result, "success"))
+                || !Boolean.TRUE.equals(booleanValue(result, "signedRuntimeVerified"))
+                || !Boolean.TRUE.equals(booleanValue(result, "installedFilesVerified"))
+                || !Boolean.TRUE.equals(booleanValue(result, "entrypointsVerified"))
                 || !bundle.getVersion().equals(result.has("currentVersion")?result.get("currentVersion").getAsString():null)
                 || !bundle.getSha256().equals(result.has("archiveSha256")?result.get("archiveSha256").getAsString():null)
                 || !bundle.getManifestSha256().equals(result.has("manifestSha256")?result.get("manifestSha256").getAsString():null)) {
@@ -1111,7 +1180,8 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
     }
 
     private Boolean booleanValue(final JsonObject object, final String name) {
-        return object.has(name) && !object.get(name).isJsonNull() ? object.get(name).getAsBoolean() : null;
+        return object.has(name) && object.get(name).isJsonPrimitive() && object.get(name).getAsJsonPrimitive().isBoolean()
+                ? object.get(name).getAsBoolean() : null;
     }
 
     private StorageServiceRuntimeBundleResponse bundleResponse(final StorageServiceRuntimeBundleVO bundle) {

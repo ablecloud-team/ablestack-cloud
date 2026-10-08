@@ -164,6 +164,25 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     private java.util.concurrent.ScheduledExecutorService interruptedWriterExecutor;
     private java.util.concurrent.ScheduledExecutorService writerHeartbeatExecutor;
     private final ThreadLocal<StorageWriterHeartbeat> storageWriterHeartbeat = new ThreadLocal<>();
+    private final ThreadLocal<RenderedBatch> renderedBatch = new ThreadLocal<>();
+    private final ThreadLocal<StorageServiceOperationVO> serviceMaintenanceOperation = new ThreadLocal<>();
+    protected static final class RenderedBatch {
+        final StorageServiceOperationVO operation;
+        final JsonObject source;
+        final JsonObject previousManifest;
+        final Map<Long,String> smbPasswords=new HashMap<>();
+        final Map<Long,JsonObject> iscsiSecrets=new HashMap<>();
+        final Map<Long,JsonObject> nvmeSecrets=new HashMap<>();
+        final Map<Long,StorageServiceInstance.ResourceState> nvmeStates=new HashMap<>();
+        final JsonObject plannedPosix=new JsonObject();
+        final Map<Long,JsonObject> posixApplyRequests=new HashMap<>();
+        final JsonObject plannedEndpoints=new JsonObject();
+        final java.security.KeyPair key;
+        JsonObject receipt;
+        JsonObject stageRequest;
+        RenderedBatch(StorageServiceOperationVO operation,JsonObject source,JsonObject manifest,java.security.KeyPair key) {this.operation=operation;this.source=source;this.previousManifest=manifest;this.key=key;}
+    }
+
     private final java.util.concurrent.ConcurrentMap<Long, Object> operationLeaseLocks = new java.util.concurrent.ConcurrentHashMap<>();
     private final Set<Long> suspendedOperationLeases = java.util.concurrent.ConcurrentHashMap.newKeySet();
 
@@ -203,6 +222,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                             recoverVolumePreparation(instance,current);
                         } else if (current != null && instance != null && "SMB_IDENTITY_REPAIR".equals(current.getAction()) && InterruptedStateChange.stale(current, System.currentTimeMillis())) {
                             recoverSmbIdentityRepair(instance, current);
+                        } else if(current!=null&&instance!=null&&parseJsonObject(current.getPreviousSnapshotJson()).has("renderedGeneration")&&InterruptedStateChange.stale(current,System.currentTimeMillis())) {
+                            recoverRenderedStorageWriter(instance,current);
                         } else if (current != null && instance != null && Set.of("RUNTIME_UPGRADE", "RUNTIME_ROLLBACK", "SHAREDFS_ONLINE_SCALE").contains(current.getAction())
                                 && InterruptedStateChange.stale(current, System.currentTimeMillis())) {
                             current.setState("RECOVERY_REQUIRED");current.setPhase("RECOVERY_REQUIRED");current.setHeartbeat(new java.util.Date());
@@ -411,6 +432,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         ConfigurationBatch batch = configurationBatch.get();
         if (batch == null || batch.instanceId != instance.getId()) throw new CloudRuntimeException("Configuration batch scope changed");
         configurationBatch.remove();
+        if(renderedBatch.get()!=null){renderedBatch.get().smbPasswords.putAll(batch.smbCredentials);renderedBatch.get().iscsiSecrets.putAll(batch.iscsiCredentials);renderedBatch.get().nvmeSecrets.putAll(batch.nvmeCredentials);renderedBatch.get().nvmeStates.putAll(batch.nvmeHostStates);return;}
         for (StorageServiceInstance.Protocol protocol : StorageServiceInstance.Protocol.values()) {
             if (storageServiceProtocolDao.listByInstanceIdAndProtocol(instance.getId(), protocol).stream().noneMatch(StorageServiceProtocolVO::isEnabled)) continue;
             if (protocol == StorageServiceInstance.Protocol.NFS) {
@@ -1190,6 +1212,272 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         return createRuntimeResponse(instance,"NFS capabilities",true,"OBSERVED","Fresh installed NFS capability proof",result.toString());
     }
 
+    private StorageConfigArtifactStore renderedValidationStore() {
+        return new StorageConfigArtifactStore(java.nio.file.Path.of(System.getProperty("cloudstack.storage.rendered.validation.path","/var/lib/cloudstack-management/storage-rendered-validation")));
+    }
+
+    protected JsonObject renderedValidationBindings(StorageServiceInstanceVO instance) {
+        JsonObject binding=rootResourceBinding(instance);JsonObject disks=new JsonObject();JsonObject policy=instanceControlPolicy(instance);JsonObject profile=policy.has("renderedValidationProfile")?policy.getAsJsonObject("renderedValidationProfile"):null;
+        JsonObject provenance=profile!=null&&profile.has("fixtureProvenance")&&profile.get("fixtureProvenance").isJsonObject()?profile.getAsJsonObject("fixtureProvenance").getAsJsonObject("volumes"):null;
+        List<VolumeVO> attached=new ArrayList<>(volumeDao.findByInstanceAndType(instance.getVmId(),com.cloud.storage.Volume.Type.ROOT));attached.addAll(volumeDao.findByInstanceAndType(instance.getVmId(),com.cloud.storage.Volume.Type.DATADISK));
+        for(VolumeVO volume:attached) {
+            JsonObject row=new JsonObject();row.addProperty("type",volume.getVolumeType().name());row.addProperty("sizeBytes",volume.getSize());row.addProperty("poolId",volume.getPoolId());row.addProperty("path",volume.getPath());
+            row.addProperty("provisioningType",volume.getProvisioningType()==null?null:volume.getProvisioningType().name());row.addProperty("attachedToFixture",java.util.Objects.equals(volume.getInstanceId(),instance.getVmId()));
+            row.addProperty("ownerAndZoneVerified",volume.getAccountId()==instance.getAccountId()&&volume.getDataCenterId()==instance.getDataCenterId()&&volume.getRemoved()==null&&volume.getState()==com.cloud.storage.Volume.State.Ready);
+            boolean unbacked=volume.getVolumeType()==com.cloud.storage.Volume.Type.DATADISK&&volume.getTemplateId()==null&&StringUtils.isBlank(volume.getChainInfo());
+            row.addProperty("newDataWithoutBacking",unbacked&&volume.getCreated()!=null&&volume.getCreated().getTime()>System.currentTimeMillis()-24L*60*60*1000);
+            if(unbacked&&provenance!=null&&provenance.has(volume.getUuid())&&provenance.get(volume.getUuid()).isJsonObject()&&StorageRenderedValidationProfile.retainedNewData(row,provenance.getAsJsonObject(volume.getUuid())))row.addProperty("newDataWithoutBacking",true);
+            disks.add(volume.getUuid(),row);
+        }
+        binding.add("volumes",disks);return binding;
+    }
+
+    protected JsonObject requiredRenderedValidationProfile(StorageServiceInstanceVO instance) {
+        JsonObject policy=instanceControlPolicy(instance);JsonObject profile=policy.has("renderedValidationProfile")&&policy.get("renderedValidationProfile").isJsonObject()?policy.getAsJsonObject("renderedValidationProfile"):null;
+        if(profile==null || !Boolean.TRUE.equals(getJsonBoolean(profile,"enabled")))throw new CloudRuntimeException("Four-protocol candidate validation is not authorized for this instance");
+        JsonObject artifact=parseJsonObject(new String(renderedValidationStore().read(getJsonString(profile,"artifactUuid"),getJsonString(profile,"artifactSha256")),java.nio.charset.StandardCharsets.UTF_8));
+        StorageRenderedValidationProfile.verify(artifact,instance.getUuid(),instance.getName(),renderedValidationBindings(instance),System.currentTimeMillis());
+        runtimeUpgradeManager.freshSignedRuntimeValidationProof(instance.getId(),getJsonString(artifact,"expectedCliSha256"));StorageRenderedValidationProfile.requireHandler(rootGuest(instance,"operation generation render-status",new JsonObject(),15));return profile;
+    }
+
+    @Override
+    public StorageServiceRuntimeResponse configureStorageRenderedValidationProfile(org.apache.cloudstack.api.command.admin.storage.dataservice.ConfigureStorageRenderedValidationProfileCmd cmd) {
+        requireConfigurationAdministrator();StorageServiceInstanceVO instance=requireInstance(cmd.getInstanceId());
+        if(cmd.getEnabled()==null || cmd.getExpectedProfileRevision()==null || !instance.getName().equals(cmd.getConfirmation()))throw new InvalidParameterValueException("Rendered validation requires exact instance name, enabled value and profile revision");
+        com.cloud.utils.db.GlobalLock lock=com.cloud.utils.db.GlobalLock.getInternLock("StorageServiceWriter-"+instance.getId());
+        try {
+            if(!lock.lock(120))throw new CloudRuntimeException("Storage Service writer is active");
+            try {
+                JsonObject policy=instanceControlPolicy(instance);JsonObject previous=policy.has("renderedValidationProfile")?policy.getAsJsonObject("renderedValidationProfile"):new JsonObject();
+                StorageServiceOperationVO recovery=renderedProfileRecoveryOperation(instance,previous,cmd.getEnabled());requireVolumeResumeIdle(instance,recovery);requireNoPendingVolumeFormatter(instance);
+                long revision=previous.has("revision")?previous.get("revision").getAsLong():0;if(revision!=cmd.getExpectedProfileRevision())throw new InvalidParameterValueException("Rendered validation profile changed; refresh before retry");
+                JsonObject profile=StorageRenderedValidationProfile.next(previous,cmd.getEnabled(),revision+1);
+                if(cmd.getEnabled()) {
+                    if(cmd.getArtifactUuid()==null || !StringUtils.defaultString(cmd.getArtifactSha256()).matches("[a-f0-9]{64}"))throw new InvalidParameterValueException("Protected rendered validation artifact identity is required");
+                    JsonObject artifact=parseJsonObject(new String(renderedValidationStore().read(cmd.getArtifactUuid(),cmd.getArtifactSha256()),java.nio.charset.StandardCharsets.UTF_8));
+                    StorageRenderedValidationProfile.verify(artifact,instance.getUuid(),instance.getName(),renderedValidationBindings(instance),System.currentTimeMillis());
+                    java.util.Set<String> excluded=new HashSet<>();for(JsonElement id:artifact.getAsJsonArray("excludedInstanceUuids"))excluded.add(id.getAsString());
+                    for(StorageServiceInstanceVO other:storageServiceInstanceDao.listAll())if(other.getId()!=instance.getId()&&!excluded.contains(other.getUuid()))throw new CloudRuntimeException("Protected validation artifact must exclude every other existing instance");
+                    JsonObject runtime=runtimeUpgradeManager.freshSignedRuntimeValidationProof(instance.getId(),getJsonString(artifact,"expectedCliSha256"));
+                    JsonObject nativeStatus=rootGuest(instance,"operation generation render-status",new JsonObject(),15);
+                    StorageRenderedValidationProfile.requireHandler(nativeStatus);
+                    if(Boolean.TRUE.equals(getJsonBoolean(nativeStatus,"bootHeld"))){if(recovery==null)throw new CloudRuntimeException("Rendered held writer requires exact scoped recovery authorization");RenderedBatch batch=restoreRenderedBatch(recovery);StorageRenderedRecoveryState.observe(operationReservationScope(instance,recovery),batch.receipt,nativeConfigurationGeneration(instance,null,"status"),nativeStatus);}
+                    profile.add("fixtureProvenance",artifact.get("bindings").deepCopy());
+                    profile.addProperty("artifactUuid",cmd.getArtifactUuid());profile.addProperty("artifactSha256",cmd.getArtifactSha256());profile.add("runtimeProof",runtime);profile.addProperty("productionCapability",false);
+                } else if(Boolean.TRUE.equals(getJsonBoolean(previous,"baselineImported")))throw new CloudRuntimeException("Imported rendered fixture remains guarded until its verified profile retirement");
+                Transaction.execute((TransactionCallback<Void>)status->{StorageServiceInstanceVO locked=storageServiceInstanceDao.lockRow(instance.getId(),true);JsonObject current=instanceControlPolicy(locked);JsonObject old=current.has("renderedValidationProfile")?current.getAsJsonObject("renderedValidationProfile"):new JsonObject();long actual=old.has("revision")?old.get("revision").getAsLong():0;if(actual!=revision)throw new CloudRuntimeException("Rendered profile revision changed before persistence");current.add("renderedValidationProfile",profile);locked.setOperationControlPolicyJson(current.toString());if(!storageServiceInstanceDao.update(locked.getId(),locked))throw new CloudRuntimeException("Rendered validation profile could not be saved");instance.setOperationControlPolicyJson(current.toString());return null;});
+                return createRuntimeResponse(instance,"rendered validation profile",true,"CONFIGURED","Scoped disposable validation; production capability remains false",profile.toString());
+            } finally {lock.unlock();}
+        } finally {lock.releaseRef();}
+    }
+
+    protected StorageServiceOperationVO renderedProfileRecoveryOperation(StorageServiceInstanceVO instance,JsonObject previous,boolean enabled) {
+        if(!enabled||!Boolean.TRUE.equals(getJsonBoolean(previous,"baselineImported")))return null;
+        StorageServiceOperationVO selected=null;long committed=rootDesiredRevision(instance.getId());
+        for(StorageServiceOperationVO operation:storageOperationDao.listByInstance(instance.getId())) {
+            if(operation.getRevision()<=committed||!("RECOVERY_REQUIRED".equals(operation.getState())||InterruptedStateChange.stale(operation,System.currentTimeMillis())))continue;
+            if(!parseJsonObject(operation.getPreviousSnapshotJson()).has("renderedGeneration")||operation.getAction().startsWith("ROOT_TEMPLATE_")||selected!=null)throw new CloudRuntimeException("Validation reauthorization cannot adopt another unresolved writer");selected=operation;
+        }
+        return selected;
+    }
+
+    protected boolean renderedValidationEnabled(StorageServiceInstanceVO instance) {
+        JsonObject policy=instanceControlPolicy(instance);
+        return policy.has("renderedValidationProfile") && policy.get("renderedValidationProfile").isJsonObject()
+                && Boolean.TRUE.equals(getJsonBoolean(policy.getAsJsonObject("renderedValidationProfile"),"enabled"));
+    }
+
+    private StorageConfigArtifactStore renderedKeyStore() {
+        return new StorageConfigArtifactStore(java.nio.file.Path.of(System.getProperty("cloudstack.storage.rendered.keys.path","/var/lib/cloudstack-management/storage-rendered-keys")));
+    }
+
+    protected JsonArray renderedFileBindings(StorageServiceInstanceVO instance,JsonObject canonical,StorageServiceOperationVO operation) {
+        java.util.Set<Long> ids=new HashSet<>();
+        for(StorageServiceInstance.Protocol protocol:List.of(StorageServiceInstance.Protocol.NFS,StorageServiceInstance.Protocol.SMB)) {
+            if(canonical.get(StorageRenderedDesiredState.PROTOCOL_PATHS.get(protocol)).isJsonNull())continue;
+            for(StorageFileShareVO share:storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(),protocol))if(share.getVolumeId()!=null&&isApplicableFileShareState(share.getState(),true))ids.add(share.getVolumeId());
+        }
+        JsonArray requestVolumes=new JsonArray();for(Long id:ids){VolumeVO volume=volumeDao.findById(id);JsonObject row=new JsonObject();row.addProperty("volumeUuid",volume.getUuid());row.addProperty("sizeBytes",volume.getSize());row.addProperty("kind","FILE_DATA");requestVolumes.add(row);}
+        if(requestVolumes.size()==0)return new JsonArray();
+        JsonObject request=operationReservationScope(instance,operation);request.addProperty("templateUpgradeUuid",operation.getUuid());request.add("volumes",requestVolumes);
+        JsonObject inspected=StorageRootDataManifest.freeze(requestVolumes,rootGuest(instance,"operation root-data inspect",request,30),Collections.emptyMap(),System.currentTimeMillis());
+        JsonArray result=new JsonArray();for(JsonElement item:inspected.getAsJsonArray("volumes")){JsonObject row=item.getAsJsonObject(),binding=new JsonObject();binding.add("volumeUuid",row.get("volumeUuid"));binding.add("sizeBytes",row.get("sizeBytes"));binding.add("filesystemUuid",row.get("filesystemUuid"));result.add(binding);}return result;
+    }
+
+    protected JsonObject renderedRequest(StorageServiceInstanceVO instance,StorageServiceOperationVO operation,JsonObject canonical,JsonObject previous,JsonObject manifest) {
+        JsonObject request=operationReservationScope(instance,operation);request.add("previousGeneration",previous.deepCopy());request.add("configurationDesiredState",canonical.deepCopy());request.add("protocolDesiredState",StorageRenderedDesiredState.protocols(canonical));
+        request.add("fileVolumeBindings",renderedFileBindings(instance,canonical,operation));JsonElement endpoints=canonical.get("network-endpoints.json");request.add("expectedBindings",endpoints!=null&&endpoints.isJsonObject()?rootNetworkBindings(instance,endpoints.getAsJsonObject()):new JsonArray());
+        request.add("expectedCurrentRenderedSha256",manifest==null?com.google.gson.JsonNull.INSTANCE:manifest.get("manifestSha256").deepCopy());request.add("credentialRefs",new JsonObject());return request;
+    }
+
+    protected void prepareRenderedBatch(StorageServiceInstanceVO instance,StorageServiceOperationVO operation,JsonObject before) {
+        if(!renderedValidationEnabled(instance))return;requiredRenderedValidationProfile(instance);
+        if(!before.has("configurationDesiredState")||!before.has("generation")||!"IN_SYNC".equals(getJsonString(before,"generationStatus")))throw new CloudRuntimeException("Rendered candidate source is not a verified native generation");
+        JsonObject source=before.getAsJsonObject("configurationDesiredState").deepCopy();JsonObject status=rootGuest(instance,"operation generation render-status",new JsonObject(),15);
+        JsonObject manifest=status.has("current")&&status.get("current").isJsonObject()?status.getAsJsonObject("current"):null;
+        if(manifest==null) {
+            JsonObject previous=before.getAsJsonObject("generation"),request=renderedRequest(instance,operation,source,previous,null);
+            request.add("instanceUuid",previous.get("instanceUuid"));request.add("operationUuid",previous.get("operationUuid"));request.add("revision",previous.get("revision"));
+            status=rootGuest(instance,"operation generation render-import",request,120);manifest=status.has("current")&&status.get("current").isJsonObject()?status.getAsJsonObject("current"):null;
+            JsonObject importedScope=manifest!=null&&manifest.has("scope")&&manifest.get("scope").isJsonObject()?manifest.getAsJsonObject("scope"):null;
+            if(importedScope==null || !java.util.Objects.equals(getJsonString(previous,"instanceUuid"),getJsonString(importedScope,"instanceUuid")) || !java.util.Objects.equals(getJsonString(previous,"operationUuid"),getJsonString(importedScope,"operationUuid")) || !java.util.Objects.equals(getJsonLong(previous,"revision"),getJsonLong(importedScope,"revision")))throw new CloudRuntimeException("Rendered source import did not preserve the exact native source scope");
+        }
+        if(!getJsonString(before,"configurationSha256").equals(getJsonString(manifest,"configurationSha256")))throw new CloudRuntimeException("Rendered source pointer differs from the native source checksum");
+        final JsonObject importedManifest=manifest.deepCopy();Transaction.execute((TransactionCallback<Void>)tx->{StorageServiceInstanceVO locked=storageServiceInstanceDao.lockRow(instance.getId(),true);JsonObject policy=instanceControlPolicy(locked);JsonObject profile=policy.getAsJsonObject("renderedValidationProfile");if(profile==null||!Boolean.TRUE.equals(getJsonBoolean(profile,"enabled")))throw new CloudRuntimeException("Rendered profile authorization disappeared before import binding");profile.addProperty("baselineImported",true);profile.add("baselineManifest",importedManifest);locked.setOperationControlPolicyJson(policy.toString());if(!storageServiceInstanceDao.update(locked.getId(),locked))throw new CloudRuntimeException("Rendered profile imported marker could not be saved");instance.setOperationControlPolicyJson(policy.toString());return null;});
+
+        java.security.KeyPair key=StorageIdentityCapsule.wrappingKey();byte[] protectedKey=StorageIdentityCapsule.protectedPrivateKey(key);String keyId=java.util.UUID.nameUUIDFromBytes(("rendered-key:"+operation.getUuid()).getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString();renderedKeyStore().write(keyId,protectedKey);
+        RenderedBatch batch=new RenderedBatch(operation,before.deepCopy(),manifest.deepCopy(),key);JsonObject snapshot=parseJsonObject(operation.getPreviousSnapshotJson()),rendered=new JsonObject();rendered.addProperty("keyId",keyId);rendered.addProperty("keySha256",StorageConfigArchive.sha256(protectedKey));rendered.add("source",before.deepCopy());rendered.add("previousManifest",manifest.deepCopy());rendered.addProperty("phase","PREPARED");snapshot.add("renderedGeneration",rendered);operation.setPreviousSnapshotJson(snapshot.toString());if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Rendered encrypted recovery key reference could not be persisted");renderedBatch.set(batch);
+    }
+
+    protected JsonObject renderedActivationRequest(StorageServiceInstanceVO instance,RenderedBatch batch) {
+        JsonObject request=operationReservationScope(instance,batch.operation);JsonObject staged=batch.receipt.getAsJsonObject("staged");request.add("renderedManifestSha256",staged.get("renderedManifestSha256"));request.add("identityCheckpointRef",staged.get("identityCheckpointRef").deepCopy());request.addProperty("checkpointPrivateKey",StorageIdentityCapsule.pem("PRIVATE KEY",batch.key.getPrivate().getEncoded()));
+        JsonObject target=new JsonObject(),credentials=new JsonObject();JsonObject smb=new JsonObject();for(Map.Entry<Long,String> entry:batch.smbPasswords.entrySet()){StorageAccessRuleVO acl=storageAccessRuleDao.findById(entry.getKey());JsonObject values=new JsonObject();values.addProperty("password",entry.getValue());smb.add(acl.getUuid(),values);}target.add("SMB",smb);
+        for(Map.Entry<String,Map<Long,JsonObject>> domain:Map.of("ISCSI",batch.iscsiSecrets,"NVMEOF",batch.nvmeSecrets).entrySet()){JsonObject values=new JsonObject();for(Map.Entry<Long,JsonObject> entry:domain.getValue().entrySet()){StorageAccessRuleVO acl=storageAccessRuleDao.findById(entry.getKey());values.add(acl.getUuid(),entry.getValue().deepCopy());}target.add(domain.getKey(),values);}
+        JsonObject saved=parseJsonObject(batch.operation.getPreviousSnapshotJson()).getAsJsonObject("renderedGeneration");JsonObject reference=saved!=null&&saved.has("targetInputRef")?saved.getAsJsonObject("targetInputRef"):null;
+        if(reference!=null){byte[] encrypted=renderedKeyStore().read(getJsonString(reference,"artifactUuid"),getJsonString(reference,"artifactSha256"));request.add("targetCredentialArtifact",StorageRenderedCredentialCapsule.transport(reference,encrypted));}
+        else if(target.entrySet().stream().anyMatch(e->e.getValue().isJsonObject()&&e.getValue().getAsJsonObject().size()>0))throw new CloudRuntimeException("Rendered target credentials have no authenticated durable capsule");
+        credentials.add("target",new JsonObject());credentials.add("previous",new JsonObject());request.add("transientCredentials",credentials);return request;
+    }
+
+    protected JsonObject renderedCredentialReferences(RenderedBatch batch,JsonObject canonical) {
+        JsonObject checkpoint=new JsonObject();checkpoint.addProperty("kind","IDENTITY_CHECKPOINT");checkpoint.addProperty("operationUuid",batch.operation.getUuid());checkpoint.add("sourceConfigurationSha256",batch.source.get("configurationSha256").deepCopy());
+        JsonObject refs=new JsonObject();
+        for(String domain:List.of("SMB","ISCSI","NVMEOF"))refs.add(domain,new JsonObject());
+        JsonElement smb=canonical.get(StorageRenderedDesiredState.PROTOCOL_PATHS.get(StorageServiceInstance.Protocol.SMB));
+        if(smb.isJsonObject())for(JsonElement item:smb.getAsJsonObject().getAsJsonArray("shares")){JsonObject share=item.getAsJsonObject();refs.getAsJsonObject("SMB").add(getJsonString(share,"uuid"),checkpoint.deepCopy());}
+        JsonElement iscsi=canonical.get(StorageRenderedDesiredState.PROTOCOL_PATHS.get(StorageServiceInstance.Protocol.ISCSI));
+        if(iscsi.isJsonObject())for(JsonElement target:iscsi.getAsJsonObject().getAsJsonArray("targets"))for(JsonElement acl:target.getAsJsonObject().getAsJsonArray("acls")){JsonObject rule=acl.getAsJsonObject();refs.getAsJsonObject("ISCSI").add(getJsonString(target.getAsJsonObject(),"targetName")+"|"+getJsonString(rule,"principal"),checkpoint.deepCopy());}
+        JsonElement nvme=canonical.get(StorageRenderedDesiredState.PROTOCOL_PATHS.get(StorageServiceInstance.Protocol.NVME_OF));
+        if(nvme.isJsonObject())for(JsonElement target:nvme.getAsJsonObject().getAsJsonArray("subsystems"))for(JsonElement acl:target.getAsJsonObject().getAsJsonArray("hosts")){JsonObject rule=acl.getAsJsonObject();refs.getAsJsonObject("NVMEOF").add(getJsonString(target.getAsJsonObject(),"targetName")+"|"+getJsonString(rule,"principal"),checkpoint.deepCopy());}
+        JsonObject privateTarget=renderedActivationRequestForTargetOnly(batch);if(privateTarget.size()>0) {
+            JsonObject encrypted=StorageRenderedCredentialCapsule.encrypt(operationReservationScope(storageServiceInstanceDao.findById(batch.operation.getInstanceId()),batch.operation),canonical,privateTarget,batch.key.getPublic());
+            byte[] bytes=encrypted.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);String digest=StorageConfigArchive.sha256(bytes);String id=java.util.UUID.nameUUIDFromBytes(("rendered-input:"+batch.operation.getUuid()+":"+digest).getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString();renderedKeyStore().write(id,bytes);
+            JsonObject reference=new JsonObject();reference.addProperty("kind","TARGET_CREDENTIAL_CAPSULE");reference.addProperty("artifactUuid",id);reference.addProperty("artifactSha256",digest);reference.addProperty("operationUuid",batch.operation.getUuid());
+            JsonObject snapshot=parseJsonObject(batch.operation.getPreviousSnapshotJson());snapshot.getAsJsonObject("renderedGeneration").add("targetInputRef",reference);batch.operation.setPreviousSnapshotJson(snapshot.toString());if(!storageOperationDao.update(batch.operation.getId(),batch.operation))throw new CloudRuntimeException("Rendered protected input reference could not be persisted");
+            for(String domain:List.of("ISCSI","NVMEOF"))for(Map.Entry<String,JsonElement> resource:refs.getAsJsonObject(domain).entrySet())resource.getValue().getAsJsonObject().add("targetCredentialVersion",reference.deepCopy());
+            if(smb.isJsonObject()&&privateTarget.has("SMB"))for(JsonElement item:smb.getAsJsonObject().getAsJsonArray("shares")){JsonObject share=item.getAsJsonObject();JsonArray allowed=new JsonArray();for(JsonElement acl:share.getAsJsonArray("acls")){String aclUuid=getJsonString(acl.getAsJsonObject(),"uuid");if(privateTarget.getAsJsonObject("SMB").has(aclUuid))allowed.add(aclUuid);}if(allowed.size()>0){JsonObject scopedVersion=reference.deepCopy();scopedVersion.add("aclUuids",allowed);refs.getAsJsonObject("SMB").getAsJsonObject(getJsonString(share,"uuid")).add("targetCredentialVersion",scopedVersion);}}
+        }
+        StorageRenderedCredentialBindings.validateSmb(canonical,refs,privateTarget);return refs;
+    }
+
+    private JsonObject renderedActivationRequestForTargetOnly(RenderedBatch batch) {
+        JsonObject target=new JsonObject(),smb=new JsonObject(),iscsi=new JsonObject(),nvme=new JsonObject();
+        for(Map.Entry<Long,String> entry:batch.smbPasswords.entrySet()){StorageAccessRuleVO acl=storageAccessRuleDao.findById(entry.getKey());JsonObject values=new JsonObject();values.addProperty("password",entry.getValue());smb.add(acl.getUuid(),values);}
+        for(Map.Entry<Long,JsonObject> entry:batch.iscsiSecrets.entrySet())iscsi.add(storageAccessRuleDao.findById(entry.getKey()).getUuid(),entry.getValue().deepCopy());
+        for(Map.Entry<Long,JsonObject> entry:batch.nvmeSecrets.entrySet())nvme.add(storageAccessRuleDao.findById(entry.getKey()).getUuid(),entry.getValue().deepCopy());
+        if(smb.size()>0)target.add("SMB",smb);if(iscsi.size()>0)target.add("ISCSI",iscsi);if(nvme.size()>0)target.add("NVMEOF",nvme);return target;
+    }
+
+    protected StorageRenderedGenerationCoordinator renderedCoordinator(StorageServiceInstanceVO instance,RenderedBatch batch) {
+        return new StorageRenderedGenerationCoordinator(new StorageRenderedGenerationCoordinator.Runtime() {
+            public JsonObject render(String action,JsonObject request) {
+                StorageServiceGuestCommandResult result=guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),"operation generation render-"+action,request.toString(),120,Set.of("checkpointPrivateKey","transientCredentials","targetCredentialArtifact")));
+                if(!result.isSuccess())throw new CloudRuntimeException("Rendered generation "+action+" failed; inspect its scoped recovery receipt");return parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));
+            }
+            public void save(JsonObject receipt) {JsonObject snapshot=parseJsonObject(batch.operation.getPreviousSnapshotJson()),saved=snapshot.getAsJsonObject("renderedGeneration");saved.add("receipt",receipt.deepCopy());saved.addProperty("phase",receipt.get("phase").getAsString());batch.operation.setPreviousSnapshotJson(snapshot.toString());if(!storageOperationDao.update(batch.operation.getId(),batch.operation))throw new CloudRuntimeException("Rendered public phase receipt could not be persisted");}
+            public void requireAvailable(){requireNoOperationCancellation(batch.operation);}
+            public void requireCommittedAvailable(){StorageWriterHeartbeat heartbeat=storageWriterHeartbeat.get();if(heartbeat!=null)heartbeat.requireAvailable();renewOperationResourceReservation(batch.operation);StorageServiceOperationControlVO control=storageOperationControlDao.findByOperation(batch.operation.getId());if(control!=null&&(control.getInstanceId()!=instance.getId()||control.getOperationId()!=batch.operation.getId()))throw new CloudRuntimeException("Committed recovery control scope changed");}
+            public void verifyAllProtocols(){verifyReconciledStorageDesiredState(instance);}
+            public JsonObject nativeGenerationStatus(){return nativeConfigurationGeneration(instance,null,"status");}
+            public void commitGeneration(JsonObject receipt){JsonObject status=nativeGenerationStatus();if(getJsonString(status,"pendingOperationUuid")!=null){if(!batch.operation.getUuid().equals(getJsonString(status,"pendingOperationUuid")))throw new CloudRuntimeException("Foreign native commit blocks recovery");nativeConfigurationGeneration(instance,batch.operation,"verify");nativeConfigurationGeneration(instance,batch.operation,"commit");nativeConfigurationGeneration(instance,batch.operation,"finish");}}
+            public void rollbackGeneration(JsonObject receipt){JsonObject status=nativeGenerationStatus();if(getJsonString(status,"pendingOperationUuid")==null&&receipt.get("previousGeneration").equals(status.get("generation"))&&"IN_SYNC".equals(getJsonString(status,"generationStatus")))return;nativeConfigurationGeneration(instance,batch.operation,"rollback");}
+            public void resumeUnchangedMaintenance(){if("SERVICE_MAINTENANCE".equals(batch.operation.getAction()))rootGuest(instance,"operation generation render-maintenance-resume-source",serviceMaintenanceScope(instance,batch.operation),120);}
+            public void releaseMaintenance(){releaseOperationResourceReservation(instance,batch.operation);if("SERVICE_MAINTENANCE".equals(batch.operation.getAction()))releaseServiceMaintenance(instance,batch.operation);}
+            public void promote(){new StorageServiceConfiguration(StorageServiceManagerImpl.this,storageConfigArtifactDao,storageOperationDao).promoteVerified(instance,batch.operation,()->{batch.operation.setState("COMPLETE");batch.operation.setPhase("COMPLETE");batch.operation.setProgress(100);batch.operation.setCompleted(new java.util.Date());if(!storageOperationDao.update(batch.operation.getId(),batch.operation))throw new CloudRuntimeException("Rendered operation LKG could not be committed");});}
+        },operationReservationScope(instance,batch.operation));
+    }
+
+    protected RenderedBatch restoreRenderedBatch(StorageServiceOperationVO operation) {
+        JsonObject snapshot=parseJsonObject(operation.getPreviousSnapshotJson());JsonObject saved=snapshot.has("renderedGeneration")&&snapshot.get("renderedGeneration").isJsonObject()?snapshot.getAsJsonObject("renderedGeneration"):null;
+        if(saved==null)throw new CloudRuntimeException("Rendered interrupted writer has no durable encrypted source checkpoint");
+        byte[] protectedKey=renderedKeyStore().read(getJsonString(saved,"keyId"),getJsonString(saved,"keySha256"));String pem=com.cloud.utils.crypt.DBEncryptionUtil.decrypt(new String(protectedKey,java.nio.charset.StandardCharsets.UTF_8));
+        java.security.KeyPair key;
+        try {byte[] der=java.util.Base64.getMimeDecoder().decode(pem.replace("-----BEGIN PRIVATE KEY-----","").replace("-----END PRIVATE KEY-----",""));java.security.KeyFactory factory=java.security.KeyFactory.getInstance("RSA");java.security.interfaces.RSAPrivateCrtKey privateKey=(java.security.interfaces.RSAPrivateCrtKey)factory.generatePrivate(new java.security.spec.PKCS8EncodedKeySpec(der));key=new java.security.KeyPair(factory.generatePublic(new java.security.spec.RSAPublicKeySpec(privateKey.getModulus(),privateKey.getPublicExponent())),privateKey);}
+        catch(java.security.GeneralSecurityException|IllegalArgumentException invalid){throw new CloudRuntimeException("Rendered encrypted recovery key cannot be verified",invalid);}
+        RenderedBatch batch=new RenderedBatch(operation,saved.getAsJsonObject("source"),saved.getAsJsonObject("previousManifest"),key);batch.receipt=saved.has("receipt")&&saved.get("receipt").isJsonObject()?saved.getAsJsonObject("receipt").deepCopy():new JsonObject();if(!batch.receipt.has("phase"))batch.receipt.addProperty("phase","PREPARED");if(!batch.receipt.has("scope"))batch.receipt.add("scope",operationReservationScope(storageServiceInstanceDao.findById(operation.getInstanceId()),operation));if(!batch.receipt.has("previousGeneration"))batch.receipt.add("previousGeneration",batch.source.get("generation").deepCopy());if(!batch.receipt.has("previousRenderedSha256"))batch.receipt.add("previousRenderedSha256",batch.previousManifest.get("manifestSha256").deepCopy());return batch;
+    }
+
+    protected void recoverRenderedStorageWriter(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
+        RenderedBatch batch=restoreRenderedBatch(operation);requiredRenderedValidationProfile(instance);
+        operation.setState("RUNNING");operation.setCompleted(null);if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Rendered recovery writer could not be persisted");beginStorageWriterHeartbeat(operation);renderedBatch.set(batch);
+        try {
+            StorageRenderedGenerationCoordinator coordinator=renderedCoordinator(instance,batch);
+            if(coordinator.recoveryDecision(batch.receipt)==StorageRenderedRecoveryState.Decision.COMMITTED) {
+                operation.setSnapshotJson(captureConfigurationSnapshot(instance.getId()));coordinator.commit(batch.receipt,renderedActivationRequest(instance,batch));
+            } else {
+                requireNoPendingVolumeFormatter(instance);
+                new StorageServiceDesiredSnapshot().restore(instance.getId(),operation.getPreviousSnapshotJson());
+                coordinator.rollback(batch.receipt,batch.receipt.has("staged")?renderedActivationRequest(instance,batch):operationReservationScope(instance,operation));
+                releaseOperationResourceReservation(instance,operation);if("SERVICE_MAINTENANCE".equals(operation.getAction()))releaseServiceMaintenance(instance,operation);
+                operation.setState("ROLLED_BACK");operation.setPhase("INTERRUPTED_RENDERED_WRITER_ROLLED_BACK");operation.setProgress(100);operation.setCompleted(new java.util.Date());
+                if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Rendered rollback terminal could not be persisted");
+            }
+        } catch(RuntimeException pending){operation.setState("RECOVERY_REQUIRED");operation.setPhase("RECOVERY_REQUIRED");operation.setDiagnostic("Rendered scoped recovery remains pending");storageOperationDao.update(operation.getId(),operation);throw pending;}
+        finally{renderedBatch.remove();endStorageWriterHeartbeat();}
+    }
+
+    protected void stageAndActivateRendered(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
+        RenderedBatch batch=renderedBatch.get();if(batch==null)return;
+        JsonObject canonical=buildRenderedConfigurationDesiredState(instance,batch.source.getAsJsonObject("configurationDesiredState"),batch.smbPasswords,batch.iscsiSecrets,batch.nvmeSecrets,batch.nvmeStates);
+        if(batch.plannedPosix.size()>0){JsonObject rows=canonical.get("posix-directory-policies.json").isJsonObject()?canonical.getAsJsonObject("posix-directory-policies.json"):new JsonObject();for(Map.Entry<String,JsonElement> entry:batch.plannedPosix.entrySet())if(entry.getValue().isJsonNull())rows.remove(entry.getKey());else rows.add(entry.getKey(),entry.getValue().deepCopy());canonical.add("posix-directory-policies.json",rows.size()==0?com.google.gson.JsonNull.INSTANCE:rows);}
+        if(batch.plannedEndpoints.size()>0) {
+            JsonObject network=canonical.get("network-endpoints.json").isJsonObject()?canonical.getAsJsonObject("network-endpoints.json").deepCopy():new JsonObject();JsonArray endpoints=network.has("endpoints")?network.getAsJsonArray("endpoints"):new JsonArray();
+            for(Map.Entry<String,JsonElement> entry:batch.plannedEndpoints.entrySet()){for(int i=endpoints.size()-1;i>=0;i--)if(entry.getKey().equals(getJsonString(endpoints.get(i).getAsJsonObject(),"listenIp")))endpoints.remove(i);endpoints.add(entry.getValue().deepCopy());}network.add("endpoints",endpoints);canonical.add("network-endpoints.json",network);
+        }
+        JsonObject request=renderedRequest(instance,operation,canonical,batch.source.getAsJsonObject("generation"),batch.previousManifest);request.addProperty("checkpointPublicKey",StorageIdentityCapsule.pem("PUBLIC KEY",batch.key.getPublic().getEncoded()));request.add("credentialRefs",renderedCredentialReferences(batch,canonical));batch.stageRequest=request;
+        StorageRenderedGenerationCoordinator coordinator=renderedCoordinator(instance,batch);batch.receipt=coordinator.stage(request);coordinator.activate(batch.receipt,renderedActivationRequest(instance,batch));
+        for(Map.Entry<Long,JsonObject> planned:batch.posixApplyRequests.entrySet()) {
+            JsonObject inspected=dispatchPosixDirectoryCommand(instance,"inspect",planned.getValue());if(!Boolean.TRUE.equals(getJsonBoolean(inspected,"postApplyReceiptVerified")))throw new CloudRuntimeException("Rendered POSIX post-apply receipt is not verified");
+            JsonObject effective=inspected.deepCopy();requirePosixPostApplyIdentity(planned.getValue(),effective,inspected);StoragePosixDirectoryPolicyVO policy=storagePosixPolicyDao.findById(planned.getKey());policy.setEffectiveJson(effective.toString());policy.setLastApplied(new java.util.Date());policy.setState("Ready");if(!storagePosixPolicyDao.update(policy.getId(),policy))throw new CloudRuntimeException("Rendered POSIX physical attestation could not be saved");
+        }
+    }
+
+    private JsonObject serviceMaintenanceScope(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {JsonObject scope=operationReservationScope(instance,operation);scope.addProperty("maintenanceUuid",operation.getUuid());return scope;}
+    private void releaseServiceMaintenance(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
+        JsonObject nativeState=nativeConfigurationGeneration(instance,null,"status");
+        if(!"IN_SYNC".equals(getJsonString(nativeState,"generationStatus"))||getJsonString(nativeState,"pendingOperationUuid")!=null)throw new CloudRuntimeException("Service maintenance release requires a verified native generation");
+        JsonObject request=serviceMaintenanceScope(instance,operation);request.add("verifiedGeneration",nativeState.get("generation").deepCopy());JsonObject released=rootGuest(instance,"operation maintenance service-release",request,60);
+        if(!Boolean.TRUE.equals(getJsonBoolean(released,"released")) || !Boolean.FALSE.equals(getJsonBoolean(released,"bootHeld")))throw new CloudRuntimeException("Approved service maintenance remains held");
+    }
+
+    @Override
+    public StorageServiceRuntimeResponse applyStorageServiceApprovedMaintenance(org.apache.cloudstack.api.command.admin.storage.dataservice.ApplyStorageServiceApprovedMaintenanceCmd cmd) {
+        requireConfigurationAdministrator();StorageServiceInstanceVO instance=requireInstance(cmd.getInstanceId());
+        if(!Boolean.TRUE.equals(cmd.getMaintenanceWindow()) || !instance.getName().equals(cmd.getConfirmation()))throw new InvalidParameterValueException("Approved downtime requires the exact instance name and maintenance window");
+        com.cloud.utils.db.GlobalLock lock=com.cloud.utils.db.GlobalLock.getInternLock("StorageServiceWriter-"+instance.getId());
+        try {
+            if(!lock.lock(120))throw new CloudRuntimeException("Storage Service writer is active");
+            try {
+                String clientKey=cmd.getIdempotencyKey();if(clientKey!=null&&!clientKey.matches("[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}"))throw new InvalidParameterValueException("Invalid maintenance idempotency key");
+                String key="SERVICE_MAINTENANCE:"+(clientKey==null?java.util.UUID.randomUUID():clientKey);StorageServiceOperationVO operation=storageOperationDao.findByRequest(instance.getId(),key);
+                if(operation!=null) {
+                    JsonObject result=parseJsonObject(operation.getResultJson());
+                    if(operation.getInstanceId()!=instance.getId()||operation.getCreatedBy()!=org.apache.cloudstack.context.CallContext.current().getCallingUserId()
+                            ||!java.util.Objects.equals(getJsonString(result,"_requestFingerprint"),StorageServiceRequestFingerprint.of(cmd)))throw new InvalidParameterValueException("Maintenance retry belongs to another actor or reviewed intent");
+                    if("COMPLETE".equals(operation.getState())) {
+                        JsonObject publicResult=result.has("_response")&&result.get("_response").isJsonObject()?result.getAsJsonObject("_response").deepCopy():new JsonObject();publicResult.addProperty("operationUuid",operation.getUuid());publicResult.addProperty("state","COMPLETE");
+                        return createRuntimeResponse(instance,"approved service maintenance",true,"COMPLETE","Original reviewed maintenance already completed",publicResult.toString());
+                    }
+                    throw new CloudRuntimeException("Maintenance request already has durable state; inspect its original operation before retry");
+                }
+                requiredRenderedValidationProfile(instance);StorageConfigArtifactVO artifact=storageConfigArtifactDao.findById(cmd.getArtifactId());JsonObject metadata=artifact==null?null:parseJsonObject(artifact.getMetadataJson());
+                if(artifact==null||artifact.getInstanceId()!=instance.getId()||metadata==null||!metadata.has("plan")||!instance.getUuid().equals(getJsonString(metadata.getAsJsonObject("plan"),"targetInstanceUuid"))||"CREATE_NEW".equals(getJsonString(metadata.getAsJsonObject("plan"),"targetMode")))throw new InvalidParameterValueException("Maintenance requires a reviewed existing-target plan for this same instance");
+                requireVolumeResumeIdle(instance,null);requireNoPendingVolumeFormatter(instance);
+                new StorageServiceConfiguration(StorageServiceManagerImpl.this,storageConfigArtifactDao,storageOperationDao).validateApprovedMaintenancePlan(instance,cmd);
+                long revision=rootDesiredRevision(instance.getId());if(cmd.getExpectedRevision()!=null&&cmd.getExpectedRevision()!=revision)throw new InvalidParameterValueException("Maintenance desired revision changed");
+                operation=new StorageServiceOperationVO();operation.setInstanceId(instance.getId());operation.setAction("SERVICE_MAINTENANCE");operation.setRequestKey(key);operation.setRevision(revision+1);operation.setCreatedBy(org.apache.cloudstack.context.CallContext.current().getCallingUserId());operation.setState("RUNNING");operation.setPhase("PREFLIGHT");operation.setPreviousSnapshotJson(captureConfigurationSnapshot(instance.getId()));JsonObject retryIntent=new JsonObject();retryIntent.addProperty("_requestFingerprint",StorageServiceRequestFingerprint.of(cmd));operation.setResultJson(retryIntent.toString());operation=storageOperationDao.persist(operation);beginStorageWriterHeartbeat(operation);serviceMaintenanceOperation.set(operation);
+                try {
+                    StorageServiceOperationControlVO control=startOperationControl(instance,operation);
+                    if(control!=null){JsonObject policy=parseJsonObject(control.getPolicyJson());JsonObject requirements=policy.getAsJsonObject("requirements");requirements.addProperty("requireSessionDrain",false);policy.addProperty("drainRequired",false);policy.addProperty("drainSupported",false);policy.addProperty("downtimeBoundary","APPROVED_SERVICE_MAINTENANCE");control.setPolicyJson(policy.toString());storageOperationControlDao.update(control.getId(),control);acquireOperationResourceReservation(instance,operation);}
+                    JsonObject before=nativeConfigurationGeneration(instance,null,"status");prepareRenderedBatch(instance,operation,before);JsonObject snapshot=parseJsonObject(operation.getPreviousSnapshotJson());JsonObject nativeCheckpoint=nativeConfigurationGeneration(instance,operation,"begin");snapshot.add("nativeGeneration",nativeCheckpoint);snapshot.add("nativeDesiredState",before.get("configurationDesiredState"));operation.setPreviousSnapshotJson(snapshot.toString());storageOperationDao.update(operation.getId(),operation);
+                    JsonObject held=rootGuest(instance,"operation maintenance service-enter",serviceMaintenanceScope(instance,operation),60);if(!"SERVICE".equals(getJsonString(held,"kind")) || !Boolean.TRUE.equals(getJsonBoolean(held,"bootHeld")) || !serviceMaintenanceScope(instance,operation).equals(held.get("scope")))throw new CloudRuntimeException("Service acceptors were not held under the exact approved operation");operation.setPhase("HELD");storageOperationDao.update(operation.getId(),operation);
+                    org.apache.cloudstack.api.response.StorageServiceConfigArtifactResponse restored=storageServiceConfiguration(cmd);JsonObject result=parseJsonObject(operation.getResultJson());result.add("_response",new com.google.gson.Gson().toJsonTree(restored));operation.setResultJson(result.toString());if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Reviewed maintenance response could not be persisted");return createRuntimeResponse(instance,"approved service maintenance",true,"COMPLETE","Reviewed all-protocol configuration applied during approved downtime",new com.google.gson.Gson().toJson(restored));
+                } catch(RuntimeException failed) {operation.setState("RECOVERY_REQUIRED");operation.setPhase("RECOVERY_REQUIRED");operation.setDiagnostic("Approved service maintenance requires its scoped recovery");storageOperationDao.update(operation.getId(),operation);throw failed;}
+                finally {renderedBatch.remove();serviceMaintenanceOperation.remove();endStorageWriterHeartbeat();}
+            } finally {lock.unlock();}
+        } finally {lock.releaseRef();}
+    }
+
     protected JsonObject nfsCapabilities(StorageServiceInstanceVO instance) {
         JsonObject observed=new JsonObject();
         try {if(instance.getVmId()!=null)observed=rootGuest(instance,"nfs capabilities",new JsonObject(),5);}
@@ -1456,7 +1744,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     public Set<String> requiredManagedOperationFeatures(long instanceId) {
         StorageServiceInstanceVO instance=requireInstance(instanceId);Set<String> required=new HashSet<>();
         // Disabled infrastructure does not erase the obligations of an opted-in instance or retained lease.
-        if(instanceControlPolicy(instance).get("enabled").getAsBoolean())required.add("LOGICAL_RESOURCE_RESERVATION");
+        JsonObject policy=instanceControlPolicy(instance);if(policy.get("enabled").getAsBoolean())required.add("LOGICAL_RESOURCE_RESERVATION");
+        JsonObject rendered=policy.has("renderedValidationProfile")&&policy.get("renderedValidationProfile").isJsonObject()?policy.getAsJsonObject("renderedValidationProfile"):null;
+        if(rendered!=null&&(Boolean.TRUE.equals(getJsonBoolean(rendered,"enabled"))||Boolean.TRUE.equals(getJsonBoolean(rendered,"baselineImported"))))required.add("RENDERED_CONFIG_GENERATION_HANDLER");
         for(StorageServiceOperationVO operation:storageOperationDao.listByInstance(instanceId)) {
             StorageServiceOperationControlVO control=storageOperationControlDao.findByOperation(operation.getId());
             if(operation.getInstanceId()!=instanceId)throw new CloudRuntimeException("Retained operation feature scope is foreign");
@@ -1466,6 +1756,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 if(unresolved || Boolean.TRUE.equals(getJsonBoolean(parseJsonObject(control.getLeaseJson()),"reservationAcquired")))required.add("LOGICAL_RESOURCE_RESERVATION");
             }
             if(unresolved && "SERVICE_MAINTENANCE".equals(operation.getAction()))required.add("SERVICE_MAINTENANCE");
+            if(unresolved&&parseJsonObject(operation.getPreviousSnapshotJson()).has("renderedGeneration"))required.add("RENDERED_CONFIG_GENERATION_HANDLER");
         }
         return Collections.unmodifiableSet(required);
     }
@@ -2488,6 +2779,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         commands.add(JoinStorageServiceToAdDomainCmd.class);
         commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageServiceOperationControlCmd.class);
         commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageNfsCapabilitiesCmd.class);
+        commands.add(org.apache.cloudstack.api.command.admin.storage.dataservice.ConfigureStorageRenderedValidationProfileCmd.class);
+        commands.add(org.apache.cloudstack.api.command.admin.storage.dataservice.ApplyStorageServiceApprovedMaintenanceCmd.class);
         commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageServiceControlPolicyCmd.class);
         commands.add(org.apache.cloudstack.api.command.admin.storage.dataservice.ConfigureStorageServiceControlPolicyCmd.class);
         commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.RepairStorageServiceSmbIdentityCmd.class);
@@ -2583,6 +2876,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                     if (operation.getAction().startsWith("ROOT_TEMPLATE_")) recoverInterruptedTemplateUpgrade(instance, operation);
                     else if("VOLUME_PREPARATION_RESUME".equals(operation.getAction()))recoverVolumePreparation(instance,operation);
                     else if("SMB_IDENTITY_REPAIR".equals(operation.getAction()))recoverSmbIdentityRepair(instance,operation);
+                    else if(parseJsonObject(operation.getPreviousSnapshotJson()).has("renderedGeneration"))recoverRenderedStorageWriter(instance,operation);
                     else recoverInterruptedStorageWriter(instance, operation);
                     final org.apache.cloudstack.api.response.StorageServiceOperationResponse recovered = new org.apache.cloudstack.api.response.StorageServiceOperationResponse();
                     recovered.setId(operation.getUuid());recovered.setInstanceid(instance.getUuid());recovered.setAction(operation.getAction());
@@ -2897,6 +3191,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     protected <T> T executeDesiredChange(org.apache.cloudstack.api.BaseCmd cmd, Class<T> responseClass, java.util.function.Supplier<T> change) {
         final long instanceId = getStorageServiceSyncId(cmd);
         final StorageServiceInstanceVO instance = requireInstance(instanceId);
+        JsonObject controlPolicy=instanceControlPolicy(instance);JsonObject renderedPolicy=controlPolicy.has("renderedValidationProfile")?controlPolicy.getAsJsonObject("renderedValidationProfile"):null;
+        if(renderedPolicy!=null&&Boolean.TRUE.equals(getJsonBoolean(renderedPolicy,"baselineImported"))&&!Boolean.TRUE.equals(getJsonBoolean(renderedPolicy,"enabled")))throw new CloudRuntimeException("Imported rendered fixture requires its authorized recovery profile; legacy writers are blocked");
+        if(serviceMaintenanceOperation.get()!=null && configurationBatch.get()==null) {
+            StorageServiceOperationVO approved=serviceMaintenanceOperation.get();if(approved.getInstanceId()!=instanceId)throw new CloudRuntimeException("Maintenance plan targets a foreign instance");enterStorageMutationBoundary(approved);T response=change.get();stageAndActivateRendered(instance,approved);approved.setSnapshotJson(captureConfigurationSnapshot(instanceId));storageOperationDao.update(approved.getId(),approved);RenderedBatch rendered=renderedBatch.get();renderedCoordinator(instance,rendered).commit(rendered.receipt,renderedActivationRequest(instance,rendered));return response;
+        }
         final ConfigurationBatch batch = configurationBatch.get();
         if (batch != null) {
             if (batch.instanceId != instanceId) throw new InvalidParameterValueException("Configuration command targets a different service");
@@ -2924,7 +3223,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                             cleanupConfigurationIdentityCheckpoint(operation);
                             releaseOperationResourceReservation(instance, operation);
                         }
-                        finally { endStorageWriterHeartbeat();configurationNativeNvmeReplayed.remove();configurationRecoverySource.remove();configurationRecoveryBindings.remove(); }
+                        finally { endStorageWriterHeartbeat();renderedBatch.remove();configurationNativeNvmeReplayed.remove();configurationRecoverySource.remove();configurationRecoveryBindings.remove(); }
                     }
                     public void preflight() {
                         if(protocol==StorageServiceInstance.Protocol.NFS)requireNfsNamedPolicyCapability(instance);
@@ -2954,34 +3253,25 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         if (StorageServiceInstance.StorageServiceVerifiedConfigurationEnabled.value() && instance.getVmId() != null
                                 && (protocol == StorageServiceInstance.Protocol.SMB || protocol == StorageServiceInstance.Protocol.ISCSI
                                     || protocol == StorageServiceInstance.Protocol.NVME_OF)) checkpointConfigurationIdentity(instance);
-                        if (StorageServiceInstance.StorageServiceVerifiedConfigurationEnabled.value() && instance.getVmId() != null) {
-                            JsonObject snapshot = parseJsonObject(operation.getPreviousSnapshotJson());
-                            // Persist the recovery scope before beginning native staging, including a crash during this RPC.
-                            snapshot.add("nativeGeneration", new JsonObject());operation.setPreviousSnapshotJson(snapshot.toString());
-                            if (!storageOperationDao.update(operation.getId(), operation)) throw new CloudRuntimeException("Unable to persist native generation scope");
-                            JsonObject before = nativeConfigurationGeneration(instance, null, "status");
-                            if (before.has("configurationDesiredState")) snapshot.add("nativeDesiredState", before.get("configurationDesiredState"));
-                            JsonObject previousScope=new JsonObject();previousScope.add("previous",before.get("generation"));snapshot.add("nativeGeneration",previousScope);
-                            operation.setPreviousSnapshotJson(snapshot.toString());
-                            if (!storageOperationDao.update(operation.getId(),operation)) throw new CloudRuntimeException("Unable to persist pre-mutation native desired state");
-                            JsonObject nativeState = nativeConfigurationGeneration(instance, operation, "begin");
-                            snapshot.add("nativeGeneration", nativeState);operation.setPreviousSnapshotJson(snapshot.toString());
-                            if (!storageOperationDao.update(operation.getId(), operation)) throw new CloudRuntimeException("Unable to persist previous native generation");
-                        }
+                        prepareDesiredStateNativeCheckpoint(instance,operation);
                     }
+                    public void stageAndActivate(StorageServiceOperationVO operation){stageAndActivateRendered(instance,operation);}
                     public void verifyNativeGeneration(StorageServiceOperationVO operation) {
+                        if(renderedBatch.get()!=null)return;
                         if (hasNativeConfigurationGeneration(operation)) {
                             nativeConfigurationGeneration(instance, operation, "verify");
                             nativeConfigurationGeneration(instance, operation, "commit");
                         }
                     }
                     public void rollbackNativeGeneration(StorageServiceOperationVO operation) {
+                        if(renderedBatch.get()!=null)return;
                         rollbackNativeConfigurationGeneration(instance, operation);
                     }
                     public void abortNativeCheckpoint(StorageServiceOperationVO operation) {
                         rollbackNativeConfigurationGeneration(instance, operation);
                     }
                     public void promoteVerifiedConfiguration(StorageServiceOperationVO operation) {
+                        if(renderedBatch.get()!=null){RenderedBatch batch=renderedBatch.get();renderedCoordinator(instance,batch).commit(batch.receipt,renderedActivationRequest(instance,batch));return;}
                         if (instance.getVmId() != null && StorageServiceInstance.StorageServiceVerifiedConfigurationEnabled.value()) new StorageServiceConfiguration(StorageServiceManagerImpl.this, storageConfigArtifactDao, storageOperationDao)
                                 .promoteVerified(instance, operation, () -> {
                                     operation.setState("COMPLETE");operation.setPhase("COMPLETE");operation.setProgress(100);
@@ -3001,6 +3291,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         }
                     }
                     public void ensureRollbackSafe() {
+                        if(renderedBatch.get()!=null&&renderedBatch.get().receipt!=null&&renderedCoordinator(instance,renderedBatch.get()).recoveryDecision(renderedBatch.get().receipt)==StorageRenderedRecoveryState.Decision.COMMITTED)throw new CloudRuntimeException("Rendered native generation committed; preserve target declaration for forward finalization");
                         if (instance.getVmId() == null) return;
                         JsonObject observed=rootGuest(instance,"operation writer-idle",new JsonObject(),15);
                         if(!"WRITER_IDLE".equals(getJsonString(observed,"status")))throw new CloudRuntimeException("Active or terminating native formatter preserves VM/DATA and requires forward recovery; rollback is deferred");
@@ -3008,6 +3299,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         requireIdentityRollbackSafe(instance, storageWriterOperation.get());
                     }
                     public void applyPrevious() {
+                        if(renderedBatch.get()!=null){RenderedBatch batch=renderedBatch.get();if(batch.receipt==null)batch=restoreRenderedBatch(batch.operation);renderedCoordinator(instance,batch).rollback(batch.receipt,batch.receipt.has("staged")?renderedActivationRequest(instance,batch):operationReservationScope(instance,batch.operation));return;}
                         StorageServiceOperationVO recovering = storageWriterOperation.get();
                         configurationRecoverySource.set(frozenRecoveryConfiguration(instance, recovering));
                         reconcileRecoveryNetwork(instance, recovering);
@@ -3020,6 +3312,23 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         restoreNativePosixOperation(cmd, instance, false);
                     }
                 });
+    }
+
+    protected void prepareDesiredStateNativeCheckpoint(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
+        if(!StorageServiceInstance.StorageServiceVerifiedConfigurationEnabled.value() || instance.getVmId()==null)return;
+        JsonObject snapshot=parseJsonObject(operation.getPreviousSnapshotJson());
+        snapshot.add("nativeGeneration",new JsonObject());operation.setPreviousSnapshotJson(snapshot.toString());
+        if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Unable to persist native generation scope");
+        JsonObject before=nativeConfigurationGeneration(instance,null,"status");prepareRenderedBatch(instance,operation,before);
+        // The rendered preparation persists its encrypted key and source pointer. Reload before merging the native checkpoint.
+        snapshot=parseJsonObject(operation.getPreviousSnapshotJson());
+        if(before.has("configurationDesiredState"))snapshot.add("nativeDesiredState",before.get("configurationDesiredState").deepCopy());
+        JsonObject previousScope=new JsonObject();previousScope.add("previous",before.get("generation").deepCopy());snapshot.add("nativeGeneration",previousScope);
+        operation.setPreviousSnapshotJson(snapshot.toString());
+        if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Unable to persist pre-mutation native desired state");
+        JsonObject nativeState=nativeConfigurationGeneration(instance,operation,"begin");snapshot=parseJsonObject(operation.getPreviousSnapshotJson());
+        snapshot.add("nativeGeneration",nativeState);operation.setPreviousSnapshotJson(snapshot.toString());
+        if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Unable to persist previous native generation");
     }
 
     protected void beginStorageWriterHeartbeat(StorageServiceOperationVO operation) {
@@ -5376,6 +5685,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     protected void applyNfsDesiredState(final StorageServiceInstanceVO instance, final String removeListenIp, final boolean includeAllocatedResources) {
+        if (renderedBatch.get()!=null) return;
         if (configurationBatch.get() != null) return;
         if (instance.getVmId() == null) {
             logger.debug("Storage Service instance [{}] has no System VM yet; NFS state is stored but not applied", instance.getUuid());
@@ -5554,6 +5864,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     protected void applySmbDesiredState(final StorageServiceInstanceVO instance, final Map<Long, String> rulePasswords) {
+        if(renderedBatch.get()!=null){if(rulePasswords!=null)renderedBatch.get().smbPasswords.putAll(rulePasswords);return;}
         if (configurationBatch.get() != null) {
             if (rulePasswords != null) configurationBatch.get().smbCredentials.putAll(rulePasswords);
             return;
@@ -5780,6 +6091,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     protected void applyIscsiDesiredState(final StorageServiceInstanceVO instance, final Map<Long, JsonObject> chapSecrets) {
+        if(renderedBatch.get()!=null){if(chapSecrets!=null)renderedBatch.get().iscsiSecrets.putAll(chapSecrets);return;}
+
         if (configurationBatch.get() != null) {
             if (chapSecrets != null) configurationBatch.get().iscsiCredentials.putAll(chapSecrets);
             return;
@@ -5816,11 +6129,13 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     protected void applyNvmeOfDesiredState(final StorageServiceInstanceVO instance, final Map<Long, JsonObject> nvmeSecrets) {
+
         applyNvmeOfDesiredState(instance, nvmeSecrets, Collections.emptyMap());
     }
 
     protected void applyNvmeOfDesiredState(final StorageServiceInstanceVO instance, final Map<Long, JsonObject> nvmeSecrets,
             final Map<Long, StorageServiceInstance.ResourceState> hostStateOverrides) {
+        if(renderedBatch.get()!=null){if(nvmeSecrets!=null)renderedBatch.get().nvmeSecrets.putAll(nvmeSecrets);if(hostStateOverrides!=null)renderedBatch.get().nvmeStates.putAll(hostStateOverrides);return;}
         if (configurationBatch.get() != null) {
             if (nvmeSecrets != null) configurationBatch.get().nvmeCredentials.putAll(nvmeSecrets);
             if (hostStateOverrides != null) configurationBatch.get().nvmeHostStates.putAll(hostStateOverrides);
@@ -8421,7 +8736,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             if (!shares.isEmpty()) throw new InvalidParameterValueException("Directory policy is still referenced by NFS/SMB shares; unlink or replace it first");
             storagePosixPolicyDao.remove(policy.getId());
             policy.setState("Deleted");
-            dispatchPosixDirectoryCommand(instance, "forget", request);
+            if(renderedBatch.get()!=null)renderedBatch.get().plannedPosix.add(policy.getUuid(),com.google.gson.JsonNull.INSTANCE);else dispatchPosixDirectoryCommand(instance, "forget", request);
             return createPosixPolicyResponse(instance, policy, before);
         }
         if (current == null) policy = storagePosixPolicyDao.persist(policy);
@@ -8429,6 +8744,12 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         policy.setState("Updating");storagePosixPolicyDao.update(policy.getId(), policy);
         try {
             final JsonObject apply=posixPolicyPayload(instance,policy);apply.add("expectedDirectoryIdentity",identity.deepCopy());
+            if(renderedBatch.get()!=null) {
+                JsonObject plan=dispatchPosixDirectoryCommand(instance,"plan",apply);
+                if(!plan.has("sideEffects") || !Boolean.FALSE.equals(getJsonBoolean(plan,"sideEffects")) || !Boolean.TRUE.equals(getJsonBoolean(plan,"scratchOnly")) || !Boolean.TRUE.equals(getJsonBoolean(plan,"postApplyReceiptRequired")) || !plan.has("configurationDesiredRow") || !plan.get("configurationDesiredRow").isJsonObject())throw new CloudRuntimeException("Rendered POSIX prerequisite is not a pure verified physical plan");
+                JsonObject row=plan.getAsJsonObject("configurationDesiredRow");if(!apply.equals(row.get("request")))throw new CloudRuntimeException("Rendered POSIX plan changed the original guarded request");
+                renderedBatch.get().plannedPosix.add(policy.getUuid(),row.deepCopy());renderedBatch.get().posixApplyRequests.put(policy.getId(),apply.deepCopy());JsonObject predicted=plan.getAsJsonObject("predictedEffective").deepCopy();policy.setEffectiveJson(predicted.toString());policy.setState("Ready");storagePosixPolicyDao.update(policy.getId(),policy);bindMatchingPosixShares(instance,policy,predicted);predicted.addProperty("driftStatus","PENDING_RENDERED_GENERATION");return createPosixPolicyResponse(instance,policy,predicted);
+            }
             final JsonObject effective = dispatchPosixDirectoryCommand(instance, "apply", apply);
             requirePosixPostApplyIdentity(apply, effective, dispatchPosixDirectoryCommand(instance, "inspect", apply));
             policy.setEffectiveJson(GSON.toJson(effective));policy.setLastApplied(new java.util.Date());policy.setState("Ready");
@@ -9395,6 +9716,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if (port != null) {
             payload.addProperty("port", port);
         }
+        if(renderedBatch.get()!=null) {payload.addProperty("macAddress",targetNic.getMacAddress());renderedBatch.get().plannedEndpoints.add(listenIp,payload);return;}
         final StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
                 "network endpoint apply", GSON.toJson(payload), StorageServiceInstance.StorageServiceCommandTimeout.value(), Collections.emptySet()));
         if (!result.isSuccess()) {

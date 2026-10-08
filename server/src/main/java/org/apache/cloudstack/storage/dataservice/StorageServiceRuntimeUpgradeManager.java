@@ -34,6 +34,11 @@ public interface StorageServiceRuntimeUpgradeManager {
     /** Older deployed implementations retain disabled control coverage. */
     default boolean operationControlLinked() { return false; }
 
+    /** Read-only proof is unavailable in older deployed runtime manager families. */
+    default com.google.gson.JsonObject freshSignedRuntimeValidationProof(long instanceId, String expectedCliSha256) {
+        throw new com.cloud.utils.exception.CloudRuntimeException("Signed validation runtime proof is unavailable in this deployed runtime manager");
+    }
+
     com.google.gson.JsonObject verifyAvailableBundle(Long bundleId);
     com.google.gson.JsonObject templateRuntimeCapabilities(long instanceId);
     com.google.gson.JsonObject checkpointTemplateRuntime(long instanceId, String rootOperationUuid);
