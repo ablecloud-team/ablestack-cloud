@@ -41,3 +41,7 @@
     "sha256": "041fa1bb64277eb0fead9f6dce41bec7a70ed809c6d4109d0fb0ecdc9ef4c8b5"
   }
 ]
+
+AD 사전 검증의 시간 정정: 두 Windows VM을 Korea Standard Time으로 변경하고 verified host UTC로 QGA guest-set-time을 각각1회 적용했다. UTC차이는5ms이내로0/30/60초 재관측에서유지됐으며 AD services/NIC/DNS/기존SID는보존했다. 브라우저 콘솔에서도 Seoul 표기를확인했다. SID 일반화는이후사용자승인으로 별도진행한다.
+
+![서울 시간대 실제 콘솔](smb-client-kst-time-console.png)
