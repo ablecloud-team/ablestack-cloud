@@ -64,4 +64,19 @@ public class StorageTemplateFixturePermitTest {
         for(String key:Set.of("attachedToFixture","notRemoved","newDataWithoutBacking")) {JsonObject changed=disk.deepCopy();changed.addProperty(key,false);Assert.assertThrows(RuntimeException.class,()->StorageTemplateFixturePermit.requireAllocatedDisk(disk,changed));}
         JsonObject changed=disk.deepCopy();changed.addProperty("state","Allocated");Assert.assertThrows(RuntimeException.class,()->StorageTemplateFixturePermit.requireAllocatedDisk(disk,changed));
     }
+    private JsonObject rootTargetRequest() {
+        JsonObject r=request();for(String field:Set.of("sharedFsUuid","instanceUuid","vmUuid","sourceRootVolumeUuid","sourceTemplateUuid","targetTemplateUuid","targetTemplateChecksum","targetTemplateDetailsSha256","rootDiskOfferingUuid"))r.addProperty(field,field);r.addProperty("sourceConfigurationSha256","c".repeat(64));r.addProperty("desiredRevision",4);r.addProperty("expectedCliSha256","b".repeat(64));r.addProperty("targetSourceCommit","a".repeat(40));return r;
+    }
+    @Test public void distinctUserRootTargetRequiresItsExactSourceFixtureRevisionAndSignedPins() {
+        JsonObject r=rootTargetRequest(),a=artifact(r);a.addProperty("kind","NEW_SPARSE_ROOT_TARGET");StorageTemplateFixturePermit.verifyRootTarget(a,r,excluded,System.currentTimeMillis());
+        for(String field:Set.of("instanceUuid","sourceRootVolumeUuid","targetTemplateUuid","targetTemplateChecksum","sourceConfigurationSha256","desiredRevision")){JsonObject changed=r.deepCopy();changed.addProperty(field,"foreign");Assert.assertThrows(RuntimeException.class,()->StorageTemplateFixturePermit.verifyRootTarget(a,changed,excluded,System.currentTimeMillis()));}
+        JsonObject bad=a.deepCopy();bad.addProperty("expectedCliSha256","d".repeat(64));JsonObject wrongCli=bad;Assert.assertThrows(RuntimeException.class,()->StorageTemplateFixturePermit.verifyRootTarget(wrongCli,r,excluded,System.currentTimeMillis()));
+        bad=a.deepCopy();bad.addProperty("sourceCommit","d".repeat(40));JsonObject foreign=bad;Assert.assertThrows(RuntimeException.class,()->StorageTemplateFixturePermit.verifyRootTarget(foreign,r,excluded,System.currentTimeMillis()));
+        bad=a.deepCopy();bad.addProperty("expiresAtMillis",System.currentTimeMillis()-1);JsonObject expired=bad;Assert.assertThrows(RuntimeException.class,()->StorageTemplateFixturePermit.verifyRootTarget(expired,r,excluded,System.currentTimeMillis()));
+    }
+    @Test public void rootTargetArtifactCanBelongToOnlyOneDurableUpgrade() throws Exception {
+        Path path=Files.createTempDirectory("root-target-claim-");Files.setPosixFilePermissions(path,java.nio.file.attribute.PosixFilePermissions.fromString("rwx------"));StorageTemplateFixturePermit store=new StorageTemplateFixturePermit(path);String id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",sha="c".repeat(64),upgrade="bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+        store.claimRootTarget(id,sha,upgrade,rootTargetRequest());store.claimRootTarget(id,sha,upgrade,rootTargetRequest());store.requireRootTargetClaim(id,sha,upgrade);
+        Assert.assertThrows(RuntimeException.class,()->store.claimRootTarget(id,sha,"cccccccc-cccc-cccc-cccc-cccccccccccc",rootTargetRequest()));Assert.assertThrows(RuntimeException.class,()->store.requireRootTargetClaim(id,sha,"cccccccc-cccc-cccc-cccc-cccccccccccc"));
+    }
 }
