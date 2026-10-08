@@ -62,7 +62,7 @@
         <a-descriptions v-if="preview" bordered :column="1" size="small">
           <a-descriptions-item :label="$t('label.posix.directory.canonical.path')">{{ preview.canonicalpath }}</a-descriptions-item>
           <a-descriptions-item :label="$t('label.posix.directory.current.owner')">{{ previewCurrent.uid ?? previewEffective.effectiveUid }}:{{ previewCurrent.gid ?? previewEffective.effectiveGid }} · {{ previewCurrent.mode || previewEffective.effectiveMode }}</a-descriptions-item>
-          <a-descriptions-item :label="$t('label.storage.posix.expected.owner')">{{ previewV2.suggested?.applyowner ? previewV2.suggested?.owneruid : previewCurrent.uid }}:{{ previewV2.suggested?.applyowner ? previewV2.suggested?.ownergid : previewCurrent.gid }} · {{ previewV2.suggested?.mode || form.directorymode }}</a-descriptions-item>
+          <a-descriptions-item :label="$t('label.storage.posix.expected.owner')">{{ previewTarget.uid }}:{{ previewTarget.gid }} · {{ previewTarget.mode }}</a-descriptions-item>
           <a-descriptions-item :label="$t('label.storage.volume.fs.uuid')"><code>{{ previewCurrent.filesystemUuid || '-' }}</code></a-descriptions-item>
           <a-descriptions-item :label="$t('label.posix.directory.affected.shares')">{{ (preview.affectedshares || []).join(', ') || '-' }}</a-descriptions-item>
           <a-descriptions-item :label="$t('label.posix.directory.current.acl')"><pre>{{ (previewEffective.acl || []).join('\n') }}</pre></a-descriptions-item>
@@ -119,6 +119,14 @@ export default {
     previewEffective () { return parse(this.preview?.effective) },
     previewV2 () { return parse(this.preview?.preview) },
     previewCurrent () { return this.previewV2.current || {} },
+    previewTarget () {
+      const config = parse(this.preview?.config)
+      return {
+        uid: config.applyOwner === true ? config.ownerUid : this.previewCurrent.uid,
+        gid: config.applyOwner === true ? config.ownerGid : this.previewCurrent.gid,
+        mode: config.directoryMode || this.previewCurrent.mode
+      }
+    },
     canSavePreview () { return this.validPreview() },
     editorCommand () { return this.applyOnly ? 'applyStoragePosixDirectoryPolicy' : (this.editId ? 'updateStoragePosixDirectoryPolicy' : 'createStoragePosixDirectoryPolicy') },
     setgid () { return /^[0-7]{3,4}$/.test(this.form.directorymode || '') && (parseInt(this.form.directorymode, 8) & 0o2000) !== 0 },
