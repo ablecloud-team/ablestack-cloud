@@ -4625,7 +4625,16 @@ export default {
       const labels = {
         protocol: 'label.protocol',
         nfsExport: 'label.storage.service.nfs.export',
-        nfsAcl: 'label.storage.service.nfs.acl'
+        nfsAcl: 'label.storage.service.nfs.acl',
+        smbShare: 'label.storage.service.smb.share',
+        smbAcl: 'label.storage.service.smb.acl',
+        iscsiTarget: 'label.storage.service.iscsi.target',
+        iscsiAcl: 'label.storage.service.iscsi.acl',
+        nvmeSubsystem: 'label.storage.service.nvme.subsystem',
+        nvmeNamespace: 'label.storage.service.namespace',
+        nvmeHostAcl: 'label.storage.service.nvme.host.acl',
+        protocolListener: 'label.storage.service.nfs.listener.group',
+        nvmeListener: 'label.storage.service.nfs.listener.group'
       }
       return this.$t(labels[this.forms.deleteConfirm.resourceType] || 'label.resource')
     }
