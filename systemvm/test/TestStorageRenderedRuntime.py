@@ -33,7 +33,7 @@ class StorageRenderedRuntimeTest(unittest.TestCase):
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
         self.cli=Path(self.temp.name)/"fixed-cli"
-        self.cli.write_text("#!/usr/bin/python3\nimport fcntl,json,os,sys,time\nif sys.argv[1]=='sleep': time.sleep(5)\nvalue=json.load(open(sys.argv[-1])) if sys.argv[-1].startswith('/proc/self/fd/') else {}\nprint(json.dumps({'success':True,'args':sys.argv[1:],'payloadPresent':bool(value),'sealed':bool(fcntl.fcntl(int(sys.argv[-1].rsplit('/',1)[1]),fcntl.F_GET_SEALS)) if value else False}))\n")
+        self.cli.write_text("#!/usr/bin/python3\nimport fcntl,json,os,sys,time\nif sys.argv[1]=='sleep': time.sleep(5)\nvalue=json.load(open(sys.argv[-1])) if sys.argv[-1].startswith('/proc/self/fd/') else {}\nprint(json.dumps({'success':True,'args':sys.argv[1:],'payloadPresent':bool(value),'rootSourceMode':os.environ.get('ABLESTACK_STORAGE_ROOT_SOURCE_REPLAY'),'sealed':bool(fcntl.fcntl(int(sys.argv[-1].rsplit('/',1)[1]),fcntl.F_GET_SEALS)) if value else False}))\n")
         self.cli.chmod(0o700)
         self.adapter=NativeRenderedRuntime(self.cli,None)
 
@@ -120,5 +120,13 @@ class StorageRenderedRuntimeTest(unittest.TestCase):
         plan["targets"][0]["acls"][0]["config"]={};(group/"attrib/authentication").write_text("0")
         for field in ("userid","password","userid_mutual","password_mutual"):(auth/field).write_text("NULL")
         self.assertTrue(self.adapter.verify_block(plan,instance_uuid=instance))
+
+    def test_root_source_replay_mode_is_coordinator_owned_and_removed_from_ordinary_commands(self):
+        with patch.dict(os.environ,{"ABLESTACK_STORAGE_ROOT_SOURCE_REPLAY":"1"}):
+            self.assertIsNone(self.adapter.command(("fixed",))["rootSourceMode"])
+            self.assertIsNone(self.adapter.command(("fixed",),replay=Path("/synthetic/source"))["rootSourceMode"])
+            self.adapter.root_source_replay=True
+            self.assertEqual("1",self.adapter.command(("fixed",),replay=Path("/synthetic/source"))["rootSourceMode"])
+            self.assertIsNone(self.adapter.command(("fixed",))["rootSourceMode"])
 
 if __name__=='__main__':unittest.main()
