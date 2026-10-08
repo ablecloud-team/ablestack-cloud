@@ -38,6 +38,9 @@ from rendered_credentials import credential_json, credential_bindings, credentia
 from root_source_recovery import RootSourceRecovery
 from service_identity_source import ServiceIdentitySource
 from service_identity_cipher import ServiceIdentityCipher
+from template_maintenance import Maintenance
+from service_maintenance import ServiceMaintenance
+from service_identity_target import ServiceIdentityTarget
 from root_retained_authorization import RootRetainedAuthorization
 from root_configuration_capsule import root_configuration_sha256
 from nvme_credentials import protected_credential_json
@@ -542,7 +545,24 @@ class RenderedDriver:
         result = subprocess.run(["systemctl", "daemon-reload"], capture_output=True, timeout=self.runtime.remaining(15))
         if result.returncode:raise ValueError("Protocol boot guards could not be loaded")
 
+    def target_identity_handler(self):
+        runtime=self.runtime
+        bridge=type("TargetWinbindResume",(),{"start":lambda ignored,scope:runtime.command(("identity","domain","target-resume"),scope)})()
+        controller=ServiceMaintenance(Maintenance(generation=lambda:self.generation()),runtime.cli)
+        return ServiceIdentityTarget(self,controller,winbind=bridge)
+
     def execute(self, action, request=None, unit=None):
+        if action in ("render-service-capture-target","render-service-quiesce-target","render-service-target-stopped","render-service-identity-export-target","render-service-target-key-guard","render-service-target-cached-cipher","render-service-resume-target"):
+            target=self.target_identity_handler()
+            if action=="render-service-capture-target":return target.capture(request)
+            if action=="render-service-quiesce-target":return target.quiesce(request)
+            if action=="render-service-target-stopped":return target.stopped(request)
+            if action=="render-service-identity-export-target":return target.export_target(request)
+            if action=="render-service-resume-target":return target.resume(request)
+            if action=="render-service-target-cached-cipher":return {"success":True,"cachedTarget":target.cached_cipher(request)}
+            original=target.wrapping_key(request)
+            return {"success":True,"scope":target.scope({key:value for key,value in request.items() if key not in ("publicKey","identityCheckpointRef")}),
+                    "targetWrappingKeyVerified":True,"originalCapsuleSha256":original["sha256"]}
         if action == "render-status": return {**self.store.status(),"rootSourceIdentityCheckpointSupported":True,"retainedRootRestoreSupported":True,"serviceIdentityCheckpointSupported":True}
         if action=="render-service-capture-source":return self.service_identity.capture(request)
         if action=="render-service-source-quiesce-guard":return self.service_identity.guard(request)

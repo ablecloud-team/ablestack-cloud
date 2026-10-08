@@ -210,10 +210,16 @@ def collect(names, nvme_hosts=None,ad_identity=None,posix_policies=None):
             continue
         data, info = regular_file(path)
         files[path] = {"data": base64.b64encode(data).decode(), "sha256":hashlib.sha256(data).hexdigest(),"mode": stat.S_IMODE(info.st_mode), "uid": 0, "gid": info.st_gid}
+    owned=owned_account_records(files)
+    names.update(owned["/etc/passwd"]);names.update(owned["/etc/group"])
     accounts = {}
     for path in sorted(ACCOUNT_FILES):
         data, _ = regular_file(path)
         accounts[path] = [line for line in data.decode().splitlines() if line.split(":", 1)[0] in names]
+    for path in ("/etc/passwd","/etc/group"):
+        actual={line.split(":",1)[0]:line for line in accounts[path]}
+        if any(actual.get(name)!=record for name,record in owned[path].items()):
+            raise ValueError("Owned historical Unix identity differs before encrypted snapshot")
     for path, records in accounts.items():
         account_merge("", records, os.path.basename(path))
     result={"schemaVersion": 1, "files": files, "accounts": accounts, "nvmeHosts": collect_nvme_hosts(nvme_hosts or [])}

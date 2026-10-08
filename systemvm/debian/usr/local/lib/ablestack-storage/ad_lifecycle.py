@@ -34,6 +34,7 @@ from service_identity_cipher import ServiceIdentityCipher,service_cipher_digest,
 from samba_public_sid import samba_public_sid
 from semantic_ad_source import semantic_new_target,semantic_same_target
 from local_sam_bootstrap import LocalSamBootstrap
+from ad_authority import protected_ad_policy
 
 
 class AdDomainLifecycle:
@@ -365,6 +366,21 @@ class AdDomainLifecycle:
         except Exception:
             self.snapshot(request,"RECOVERY_REQUIRED",public);raise
 
+    def target_resume(self,request):
+        scope=self.daemon.scope(request);marker=service_cipher_scope(self.daemon.marker(request))
+        root=Path(os.environ.get("ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR","/var/lib/ablestack-storage"))
+        captured=ad_protected_json(root/("service-identity-target-"+scope["operationUuid"]+".json"))
+        if captured.get("kind")!="SERVICE_IDENTITY_TARGET" or captured.get("scope")!=marker:
+            raise ValueError("TARGET winbind resume has no independent captured target")
+        query={**marker,"targetConfigurationSha256":captured["targetConfigurationSha256"]}
+        proof=self.protected_request(("operation","generation","render-service-target-stopped"),query)
+        if (proof.get("scope")!=marker or proof.get("serviceTargetStoppedVerified") is not True
+                or proof.get("bootId")!=Path("/proc/sys/kernel/random/boot_id").read_text().strip()):
+            raise ValueError("TARGET winbind resume lacks its exact owned stopped target")
+        protected_ad_policy(scope["instanceUuid"],configuration=self.configuration)
+        started=self.daemon.start(request)
+        return {**started,"scope":scope,"targetDaemonResumed":True}
+
     def retain(self,request,expected):
         self.daemon.marker(request);state=ad_protected_json(self.state)
         if not isinstance(expected,dict) or state.get("identityReceipt")!={key:expected.get(key) for key in ("machineSid","domainSid","machineAccountSid")}:
@@ -462,9 +478,11 @@ class AdDomainLifecycle:
                 if path.exists() or path.is_symlink():raise ValueError("Owned AD artifact remains after cleanup")
                 cleanup.append({"name":name,"absent":True})
             for name in backups:self.restore_public(self.system_root/"etc"/name,backups[name],owned[name])
-            self.write_public(self.state,json.dumps({"state":"NOT_JOINED","joinState":"NOT_JOINED","instanceUuid":request["instanceUuid"],
-                              "netbiosName":actual["netbiosName"],"previousIdentityReceipt":state["identityReceipt"],
-                              "localMachineSid":source["publicLocalMachineSid"]},sort_keys=True))
+            left_state={"state":"NOT_JOINED","joinState":"NOT_JOINED","instanceUuid":request["instanceUuid"],
+                        "netbiosName":actual["netbiosName"],"previousIdentityReceipt":state["identityReceipt"],"localMachineSid":source["publicLocalMachineSid"]}
+            for key in ("semanticManagedIdentityAliasSha256","semanticManagedIdentityAliasBinding","semanticLocalIdentityReceipt"):
+                if key in state:left_state[key]=state[key]
+            self.write_public(self.state,json.dumps(left_state,sort_keys=True))
             fresh=AdIdentityRpc(self.run,self.configuration,cli=self.cli).inspect(request)
             if (fresh.get("joinState")!="NOT_JOINED" or fresh.get("machineSid")!=source["publicLocalMachineSid"]
                     or fresh.get("bootId")!=source["bootId"]):raise ValueError("AD leave final local identity was not freshly attested")
