@@ -1,6 +1,7 @@
-# SharedFS Epic 현재 진행 구분 — 2026-10-08 23:32 KST
+# SharedFS Epic 시간대별 감사와 현재 진행 — 2026-10-09
 
-최신 추가: NEW20 child 삭제 API 1 회와 parent held-FD 596 회 I/O 및 기존 DATA 보존 실증을 완료했다. 실제 Ganesha restart를 관측했으며 fullFour / AD / ROOT swap / 최종 UI #1275 완료를 뜻하지 않는다. fc3e 로컬 fresh ISO 프로토타입은 6.12.95 커널 provision 단계에서 빌드 중이며 Cloud 등록·배포는 0이다.
+최신 상태: NEW20 child 삭제 API 1 회·parent held-FD 596 회 I/O·기존 DATA 보존을 실제 확인했다. fc3e 로컬 fresh ISO 프로토타입은 빌드/서명/독립 이미지 검사 PASS이며 Cloud 등록·배포는 0이다. Runtime normal SAME PIN ONLY source는 direct 98 tests PASS지만 실제 배포 인수가 아니다. AD는 진행 중이며 Client OOBE 사용자 답변·새 handler 실제 검증은 아직 필요하다. 최종 UI #1275의 착수 직전 전체 중단·사용자 보고·추가 지시 대기 경계를 유지한다.
+
 이 문서는 시간대별 과거 기록과 현재 상태를 구분하는 진행 snapshot이다. 최종 UI#1275는 마지막 착수 직전 전체 작업 중단·사용자 보고·추가 지시 대기 경계를 유지한다.
 
 ## 2026-10-09 00:02 KST 후속
@@ -66,3 +67,11 @@ Source volumea0bbe566-7aa6-4bbd-9998-226a4f52bf0c에서 새 SMB nameepic898-volu
 5. AD와 정확10TiB는 사용자 입력 대기 조건을 유지하면서 독립 기능 source/실증을 계속한다. 최종 UI 표준11탭 전체 QA는 경계 전 착수하지 않는다.
 
 이 snapshot 이후 실제 변경0/Java 편집0이며 어떤 미완료 이슈도 닫지 않는다.
+
+## 2026-10-09 01:44 KST 로컬 prototype 및 다음 계획
+
+fc3e의 exact old source로 만든 SPARSE prototype은 source/POM/platform/CLI·Ganesha5.5.3 ACL self-test·selected service·서명·압축 roundtrip·NBD cleanup을 독립 검증했다. 새 base로 relabel하지 않았다. 결과는 [로컬 빌드 인수](20261009-fc3e-prototype-build-result.md)에 기록했다. fullFour/AD/retained ROOT 완료는 false이며 Cloud 등록과 새 VM 생성은 0이다.
+
+private USER 등록과 명시적 templateid 선택은 [등록 계획](20261009-fc3e-private-user-registration-plan.md)의 source gate를 먼저 통과해야 한다. SYSTEM 전역등록은 하지 않는다. primary cache 최초 THIN 생성 gap을 backend/parent에 전달했으며 SPARSE/FAT before-first-create 보장 전 실제 생성은 HOLD다. factor4 guard23325와 partial021b는 그대로 보존한다.
+
+iSCSI auth9a83의 source6파일 hash/42 focused는 현재 source 증거이며 기존 kernelLoginVerified=false를 유지했다. [로컬 인증 실증 계획](20261009-local-iscsi-auth-9a83-plan.md)은 원본 prototype을 보존한 전체 SPARSE ROOT copy·NEW RAW DATA·RAM initiator를 제안한다. 실제 새 QEMU/디스크/target/login은 별도 GO 전 0이다.
