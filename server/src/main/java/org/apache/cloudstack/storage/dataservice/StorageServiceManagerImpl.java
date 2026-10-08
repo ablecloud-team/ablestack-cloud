@@ -254,7 +254,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         new StorageServiceConfiguration(StorageServiceManagerImpl.this, storageConfigArtifactDao, storageOperationDao).failInterruptedCandidates(row);
                     }
                     cleanupConfigurationIdentityCheckpoint(row);
-                } finally { endStorageWriterHeartbeat();configurationNativeNvmeReplayed.remove();configurationRecoverySource.remove(); }
+                } finally { endStorageWriterHeartbeat();configurationNativeNvmeReplayed.remove();configurationRecoverySource.remove();configurationRecoveryBindings.remove(); }
             }
         }, System.currentTimeMillis());
     }
@@ -355,6 +355,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     private final ThreadLocal<StorageServiceOperationVO> storageWriterOperation = new ThreadLocal<>();
     private final ThreadLocal<Boolean> configurationNativeNvmeReplayed = new ThreadLocal<>();
     private final ThreadLocal<JsonObject> configurationRecoverySource = new ThreadLocal<>();
+    private final ThreadLocal<JsonArray> configurationRecoveryBindings = new ThreadLocal<>();
     @Inject private org.apache.cloudstack.storage.dataservice.dao.StorageConfigArtifactDao storageConfigArtifactDao;
     @Inject private org.apache.cloudstack.storage.dataservice.dao.StorageServiceRuntimeBundleDao storageRuntimeBundleDao;
     @Inject private org.apache.cloudstack.storage.sharedfs.SharedFSService configurationSharedFsService;
@@ -493,7 +494,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                             RootUpgradeRuntime runtime = new RootUpgradeRuntime(instance, shared, row, operation, manualRollback);
                             StorageServiceTemplateUpgradeEngine engine = new StorageServiceTemplateUpgradeEngine(storageTemplateUpgradeDao);
                             if ("ROLLBACK".equals(action)) engine.rollback(row, runtime);else engine.execute(row, runtime);
-                        } finally { endStorageWriterHeartbeat();configurationNativeNvmeReplayed.remove();configurationRecoverySource.remove(); }
+                        } finally { endStorageWriterHeartbeat();configurationNativeNvmeReplayed.remove();configurationRecoverySource.remove();configurationRecoveryBindings.remove(); }
                     } else throw new InvalidParameterValueException("Unknown template lifecycle action");
                     org.apache.cloudstack.context.CallContext.current().setEventResourceId(row.getId());
                     org.apache.cloudstack.context.CallContext.current().setEventDetails("SharedFS ROOT transaction "+row.getUuid()+" "+row.getState());
@@ -688,7 +689,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         try {
             RootUpgradeRuntime runtime = new RootUpgradeRuntime(instance,shared,row,operation,"ROOT_TEMPLATE_ROLLBACK".equals(operation.getAction()));
             new StorageServiceTemplateUpgradeEngine(storageTemplateUpgradeDao).execute(row,runtime);
-        } finally { endStorageWriterHeartbeat();configurationNativeNvmeReplayed.remove();configurationRecoverySource.remove(); }
+        } finally { endStorageWriterHeartbeat();configurationNativeNvmeReplayed.remove();configurationRecoverySource.remove();configurationRecoveryBindings.remove(); }
     }
     protected JsonObject rootRollbackCompatibility(StorageServiceTemplateUpgradeVO row) {
         StorageServiceInstanceVO instance=storageServiceInstanceDao.findById(row.getInstanceId());boolean requiresAuth=instance!=null&&rootRequiresNvmeAuth(instance),requiresController=false;
@@ -1803,7 +1804,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                             }
                             cleanupConfigurationIdentityCheckpoint(operation);
                         }
-                        finally { endStorageWriterHeartbeat();configurationNativeNvmeReplayed.remove();configurationRecoverySource.remove(); }
+                        finally { endStorageWriterHeartbeat();configurationNativeNvmeReplayed.remove();configurationRecoverySource.remove();configurationRecoveryBindings.remove(); }
                     }
                     public void preflight() {
                         if (storageTemplateUpgradeDao.findActive(instanceId) != null) throw new CloudRuntimeException("A SystemVM ROOT template upgrade requires recovery or completion");
@@ -1928,6 +1929,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         JsonObject frozen = configurationRecoverySource.get();
         if (frozen != null) {
             verifyRecoveredStorageWriter(instance);
+            reconcileRecoveryNetwork(instance,operation);
             JsonObject live = nativeConfigurationGeneration(instance, null, "status");
             StorageCanonicalRecovery.requireSameMeaning(frozen.getAsJsonObject("configurationDesiredState"), recoveryComparableConfiguration(instance, frozen.getAsJsonObject("configurationDesiredState"), live.getAsJsonObject("configurationDesiredState")));
             JsonObject request = new JsonObject();request.addProperty("instanceUuid", instance.getUuid());request.addProperty("operationUuid", operation.getUuid());request.addProperty("revision", operation.getRevision());
@@ -1935,6 +1937,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             JsonObject restored = rootGuest(instance, "operation generation restore", request, 30);
             if (!Boolean.TRUE.equals(getJsonBoolean(restored,"canonicalRestored")) || !operation.getUuid().equals(getJsonString(restored,"pendingOperationUuid"))
                     || !getJsonString(frozen,"configurationSha256").equals(getJsonString(restored,"configurationSha256"))) throw new CloudRuntimeException("Canonical recovery did not restore the exact previous generation");
+            reconcileRecoveryNetwork(instance,operation,true);
+            JsonObject canonical=nativeConfigurationGeneration(instance,null,"status");
+            if (!frozen.get("configurationDesiredState").equals(canonical.get("configurationDesiredState"))
+                    || !getJsonString(frozen,"configurationSha256").equals(getJsonString(canonical,"configurationSha256"))) throw new CloudRuntimeException("Canonical recovery changed after endpoint receipt reconciliation");
             verifyRecoveredStorageWriter(instance);
         }
         nativeConfigurationGeneration(instance, operation, "rollback");
@@ -1968,13 +1974,37 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             if (!empty || !StorageCanonicalRecovery.emptyProtocolFile(protocol,comparable.get(path))) throw new CloudRuntimeException("A formerly absent protocol has active desired resources during recovery");
             comparable.add(path,com.google.gson.JsonNull.INSTANCE);
         }
+        normalizeRecoveryNetworkPrimary(instance,source,comparable);
         return comparable;
+    }
+    private void normalizeRecoveryNetworkPrimary(StorageServiceInstanceVO instance,JsonObject source,JsonObject comparable) {
+        JsonArray proven=configurationRecoveryBindings.get();
+        JsonElement original=source.get("network-endpoints.json"),candidate=comparable.get("network-endpoints.json");
+        if(proven==null || original==null || !original.isJsonObject() || candidate==null || !candidate.isJsonObject())return;
+        Map<String,JsonObject> expected=new HashMap<>(),bindings=new HashMap<>();
+        for(JsonElement value:proven){JsonObject binding=value.getAsJsonObject();bindings.put(getJsonString(binding,"listenIp"),binding);}
+        for(JsonElement value:original.getAsJsonObject().getAsJsonArray("endpoints")){JsonObject entry=value.getAsJsonObject();if(expected.put(getJsonString(entry,"listenIp"),entry)!=null)throw new CloudRuntimeException("Frozen recovery endpoint is ambiguous");}
+        for(JsonElement value:candidate.getAsJsonObject().getAsJsonArray("endpoints")) {
+            JsonObject entry=value.getAsJsonObject();String ip=getJsonString(entry,"listenIp");JsonObject before=expected.get(ip),binding=bindings.get(ip);
+            if(before==null || binding==null)throw new CloudRuntimeException("Recovery endpoint is outside the fresh exact NIC binding proof");
+            String oldPrimary=getJsonString(before,"primaryIp"),currentPrimary=getJsonString(entry,"primaryIp");
+            if(java.util.Objects.equals(oldPrimary,currentPrimary))continue;
+            NicVO nic=resolveProtocolListenAddress(instance,ip);
+            if(nic==null || !nic.isDefaultNic() || !java.util.Objects.equals(oldPrimary,declaredProtocolPrimary(instance,nic))
+                    || !java.util.Objects.equals(currentPrimary,nic.getIPv4Address()) || !java.util.Objects.equals(oldPrimary,getJsonString(binding,"primaryIp"))
+                    || !nic.getMacAddress().equalsIgnoreCase(getJsonString(binding,"macAddress"))) throw new CloudRuntimeException("Recovery primary metadata differs from the declared and freshly verified default NIC");
+            entry.add("primaryIp",before.get("primaryIp").deepCopy());
+        }
     }
     private boolean recoveryProtocolPresent(StorageServiceInstance.Protocol protocol) {
         JsonObject source = configurationRecoverySource.get();
         return source == null || !source.getAsJsonObject("configurationDesiredState").get(StorageCanonicalRecovery.protocolPath(protocol)).isJsonNull();
     }
     protected void reconcileRecoveryNetwork(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
+        reconcileRecoveryNetwork(instance,operation,false);
+    }
+    private void reconcileRecoveryNetwork(StorageServiceInstanceVO instance, StorageServiceOperationVO operation,boolean verifyReceipt) {
+        configurationRecoveryBindings.remove();
         JsonObject source = configurationRecoverySource.get();if (source == null) return;
         JsonElement cached = source.getAsJsonObject("configurationDesiredState").get("network-endpoints.json");if (cached == null || cached.isJsonNull()) return;
         JsonArray bindings = rootNetworkBindings(instance, cached.getAsJsonObject());JsonObject request = new JsonObject();
@@ -1983,6 +2013,12 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if (observed.has("endpoints")) for (JsonElement value:observed.getAsJsonArray("endpoints")) {JsonObject endpoint=value.getAsJsonObject();endpoints.put(getJsonString(endpoint,"listenIp"),endpoint);}
         for (JsonElement value:bindings) {JsonObject expected=value.getAsJsonObject();JsonObject actual=endpoints.get(getJsonString(expected,"listenIp"));
             if (actual==null || !Boolean.TRUE.equals(getJsonBoolean(actual,"active")) || getJsonString(actual,"macAddress")==null || !getJsonString(expected,"macAddress").equalsIgnoreCase(getJsonString(actual,"macAddress"))) throw new CloudRuntimeException("Recovery endpoint is not active on its declared primary NIC MAC");}
+        if(verifyReceipt && bindings.size()>0) {
+            String desired=getJsonString(observed,"desiredStateSha256"),receipt=getJsonString(observed,"bindingReceiptDesiredStateSha256");
+            if(!Boolean.TRUE.equals(getJsonBoolean(observed,"bindingReceiptVerified")) || desired==null || !desired.matches("[0-9a-f]{64}") || !desired.equals(receipt)
+                    || !Boolean.TRUE.equals(getJsonBoolean(observed,"desiredStatePresent")) || !Boolean.TRUE.equals(getJsonBoolean(observed,"bindingReceiptDesiredStatePresent"))) throw new CloudRuntimeException("Canonical recovery endpoint binding receipt was not verified against the new cache bytes");
+        }
+        configurationRecoveryBindings.set(bindings.deepCopy());
     }
     protected String declaredProtocolPrimary(StorageServiceInstanceVO instance, NicVO nic) {
         if (nic!=null && nic.isDefaultNic() && sharedFSDao!=null && instance.getVmId()!=null) {
