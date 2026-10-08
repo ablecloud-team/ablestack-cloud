@@ -25,7 +25,7 @@ public class StorageServiceHostCommand extends Command {
     private static final Set<String> READ_ONLY_OPERATIONS=Set.of("health","inventory","sessions",
             "operation observe","operation verify","operation resources","operation generation status","operation generation frozen",
             "volume operation status","operation maintenance status","operation root-data inspect",
-            "identity capsule capabilities","nfs idmapping preflight","operation writer-idle","operation reservation status");
+            "identity capsule capabilities","nfs idmapping preflight","operation writer-idle","operation reservation status","smb identity inspect");
     private static final Set<String> SCOPED_COORDINATION_OPERATIONS = Set.of("operation reservation renew");
     private String vmName;
     private String operation;
