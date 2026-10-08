@@ -22,6 +22,7 @@ public interface StorageTemplateUpgradeRequest {
     Long getSharedFileSystemId();
     Long getUpgradeId();
     Long getTemplateId();
+    default Long getRootDiskOfferingId() { return null; }
     String getConfirmation();
     Boolean getMaintenanceWindow();
     String getIdempotencyKey();

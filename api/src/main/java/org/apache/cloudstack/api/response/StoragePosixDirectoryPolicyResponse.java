@@ -58,6 +58,10 @@ public class StoragePosixDirectoryPolicyResponse extends BaseResponse {
     @SerializedName("affectedshares")
     @Param(description = "NFS exports and SMB shares sharing this canonical path")
     private java.util.List<String> affectedShares;
+    @SerializedName("preview")
+    @Param(description = "Version 2 permission preview, stat identity, recommendation and approval token JSON")
+    private String preview;
+    public void setPreview(String value) { preview = value; }
     public void setId(String value) { id = value; }
     public void setInstanceId(String value) { instanceId = value; }
     public void setVolumeId(String value) { volumeId = value; }

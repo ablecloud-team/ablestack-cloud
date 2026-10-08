@@ -53,6 +53,30 @@ public abstract class BaseStoragePosixDirectoryPolicyCmd extends BaseStorageServ
     private Boolean preview;
     @Parameter(name = "expectedpolicyrevision", type = CommandType.LONG, description = "Expected current common directory policy revision")
     private Long expectedPolicyRevision;
+    @Parameter(name = "exportid", type = CommandType.UUID, entityType = org.apache.cloudstack.api.response.StorageNfsExportResponse.class, description = "NFS export whose exact existing backing directory is previewed")
+    private Long exportId;
+    @Parameter(name = "previewtoken", type = CommandType.STRING, description = "Actor-bound permission preview approval token")
+    private String previewToken;
+    @Parameter(name = "applyconfirmation", type = CommandType.BOOLEAN, description = "Explicitly apply the previewed policy to this directory inode only")
+    private Boolean applyConfirmation;
+    @Parameter(name = "readonly", type = CommandType.BOOLEAN, description = "NFS recommendation context; read-only preserves owner and mode")
+    private Boolean readOnly;
+    @Parameter(name = "rootsquash", type = CommandType.BOOLEAN, description = "NFS root squash recommendation context")
+    private Boolean rootSquash;
+    @Parameter(name = "allsquash", type = CommandType.BOOLEAN, description = "NFS all squash recommendation context")
+    private Boolean allSquash;
+    @Parameter(name = "anonuid", type = CommandType.LONG, description = "NFS anonymous UID recommendation context")
+    private Long anonUid;
+    @Parameter(name = "anongid", type = CommandType.LONG, description = "NFS anonymous GID recommendation context")
+    private Long anonGid;
+    public Long getExportId() { return exportId; }
+    public String getPreviewToken() { return previewToken; }
+    public Boolean getApplyConfirmation() { return applyConfirmation; }
+    public Boolean getReadOnly() { return readOnly; }
+    public Boolean getRootSquash() { return rootSquash; }
+    public Boolean getAllSquash() { return allSquash; }
+    public Long getAnonUid() { return anonUid; }
+    public Long getAnonGid() { return anonGid; }
     public Long getId() { return id; }
     public Long getInstanceId() { return instanceId; }
     public Long getVolumeId() { return volumeId; }
@@ -67,7 +91,7 @@ public abstract class BaseStoragePosixDirectoryPolicyCmd extends BaseStorageServ
     public Boolean getPreview() { return preview; }
     public Long getExpectedPolicyRevision() { return expectedPolicyRevision; }
     public abstract String getPolicyAction();
-    public long getEntityOwnerId() { return 0; }
+    public long getEntityOwnerId() { return org.apache.cloudstack.context.CallContext.current().getCallingAccountId(); }
     public String getEventType() { return "STORAGE.POSIX.DIRECTORY." + getPolicyAction(); }
     public String getEventDescription() { return "Managing protocol-neutral Storage Service POSIX directory policy"; }
     public void execute() {

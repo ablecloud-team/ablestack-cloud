@@ -93,6 +93,10 @@ public final class StorageServiceRootVolumeSwap {
 
     /** Allocate once without publishing a second active ROOT; do not change the running VM template. */
     public VolumeVO allocate(long vmId,long previousRootId,VMTemplateVO target,String operationUuid) {
+        throw new CloudRuntimeException("New ROOT allocation requires an explicit validated SPARSE or FAT disk offering");
+    }
+    public VolumeVO allocate(long vmId,long previousRootId,VMTemplateVO target,String operationUuid,com.cloud.storage.DiskOfferingVO offering) {
+        if(offering==null || !(offering.getProvisioningType()==com.cloud.storage.Storage.ProvisioningType.SPARSE || offering.getProvisioningType()==com.cloud.storage.Storage.ProvisioningType.FAT)) throw new CloudRuntimeException("THIN or unknown ROOT staging is forbidden");
         UUID operation=UUID.fromString(operationUuid);
         UserVmVO vm=vm(vmId);VolumeVO previous=root(previousRootId,vm);activeRoot(vm,previous);
         if (target==null || previous.getPoolId()==null || previous.getDeviceId()==null
@@ -102,15 +106,15 @@ public final class StorageServiceRootVolumeSwap {
             VolumeVO existing=volumes.findByUuid(uuid);
             if (existing!=null) {
                 root(existing.getId(),vm);
-                if (existing.getInstanceId()!=null || !Objects.equals(existing.getTemplateId(),target.getId())) {
+                if (existing.getInstanceId()!=null || !Objects.equals(existing.getTemplateId(),target.getId()) || existing.getDiskOfferingId()!=offering.getId() || existing.getProvisioningType()!=offering.getProvisioningType()) {
                     throw new CloudRuntimeException("Staged ROOT provenance changed");
                 }
                 return existing;
             }
             Volume allocated=orchestration.allocateDuplicateVolume(previous,null,target.getId());
             VolumeVO staged=volumes.findById(allocated.getId());
-            staged.setUuid(uuid);staged.setInstanceId(null);staged.setDeviceId(previous.getDeviceId());
-            staged.setSize(Math.max(previous.getSize(),target.getSize()==null?0:target.getSize()));
+            staged.setUuid(uuid);staged.setInstanceId(null);staged.setDeviceId(previous.getDeviceId());staged.setDiskOfferingId(offering.getId());staged.setProvisioningType(offering.getProvisioningType());
+            staged.setSize(Math.max(offering.isCustomized()?0:offering.getDiskSize(),Math.max(previous.getSize(),target.getSize()==null?0:target.getSize())));
             // ROOT retained for rollback is never implicitly recreatable or garbage-collected as a VM scratch disk.
             staged.setRecreatable(false);
             if (!volumes.update(staged.getId(),staged)) throw new CloudRuntimeException("Unable to persist detached staged ROOT");
@@ -122,6 +126,7 @@ public final class StorageServiceRootVolumeSwap {
     public VolumeVO prepare(long vmId,long previousRootId,long stagedRootId,long targetTemplateId) {
         UserVmVO vm=vm(vmId);VolumeVO previous=root(previousRootId,vm);activeRoot(vm,previous);
         VolumeVO staged=root(stagedRootId,vm);
+        if(staged.getProvisioningType()!=com.cloud.storage.Storage.ProvisioningType.SPARSE && staged.getProvisioningType()!=com.cloud.storage.Storage.ProvisioningType.FAT)throw new CloudRuntimeException("THIN or unknown staged ROOT cannot be physically created");
         if (staged.getInstanceId()!=null || !Objects.equals(staged.getTemplateId(),targetTemplateId)) {
             throw new CloudRuntimeException("Staged ROOT binding changed before preparation");
         }
