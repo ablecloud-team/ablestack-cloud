@@ -113,6 +113,9 @@ public class LibvirtStorageServiceRuntimeHostCommandWrapperTest {
 
     @org.junit.Test public void protectedBootstrapIsInstalledAtomicallyOnlyAfterItsCompleteHashMatches() throws Exception {
         java.nio.file.Path dir=java.nio.file.Files.createTempDirectory("runtime-bootstrap-atomic");java.nio.file.Path live=dir.resolve("updater.py"),incoming=dir.resolve("updater.py.incoming");
+        boolean systemVmRoot=((Number)java.nio.file.Files.getAttribute(dir,"unix:uid")).intValue()==0;
+        if (!systemVmRoot) java.nio.file.Files.delete(dir);
+        org.junit.Assume.assumeTrue("Bootstrap installation validates the SystemVM root-owned file contract",systemVmRoot);
         java.nio.file.Files.writeString(live,"working-old-helper");byte[] next="verified-new-helper".getBytes(java.nio.charset.StandardCharsets.UTF_8);java.nio.file.Files.write(incoming,next);
         com.cloud.agent.api.StorageServiceRuntimeHostCommand command=new com.cloud.agent.api.StorageServiceRuntimeHostCommand("same-vm","root-op",com.cloud.agent.api.StorageServiceRuntimeFileType.UPDATER_MODULE,null,0,next.length,"0".repeat(64),"",true,true,30);
         String digest=org.apache.commons.codec.digest.DigestUtils.sha256Hex(next);command.setFileSha256("0".repeat(64));

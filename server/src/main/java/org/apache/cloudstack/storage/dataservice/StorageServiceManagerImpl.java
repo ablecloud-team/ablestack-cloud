@@ -541,6 +541,28 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         return StorageRootTopologySnapshot.capture(rootUpgradeVmDao.findById(instance.getVmId()), nicDao.listByVmId(instance.getVmId()),
                 nicSecondaryIpDao.listByVmId(instance.getVmId()), volumeDao.findByInstance(instance.getVmId()));
     }
+    protected JsonArray rootNetworkBindings(StorageServiceInstanceVO instance,JsonObject cache) {
+        JsonArray result=new JsonArray();if (cache==null || !cache.has("endpoints")) return result;
+        Map<Long,NicVO> interfaces=new HashMap<>();Map<String,NicVO> owners=new HashMap<>();
+        for (NicVO nic:nicDao.listByVmId(instance.getVmId())) {
+            interfaces.put(nic.getId(),nic);if (StringUtils.isNotBlank(nic.getIPv4Address())) {
+                NicVO previous=owners.putIfAbsent(nic.getIPv4Address(),nic);if (previous!=null && previous.getId()!=nic.getId()) throw new CloudRuntimeException("Cached ROOT endpoint primary ownership is ambiguous");
+            }
+        }
+        for (NicSecondaryIpVO alias:nicSecondaryIpDao.listByVmId(instance.getVmId())) {
+            if (StringUtils.isNotBlank(alias.getIp4Address()) && interfaces.containsKey(alias.getNicId())) {
+                NicVO nic=interfaces.get(alias.getNicId());NicVO previous=owners.putIfAbsent(alias.getIp4Address(),nic);if (previous!=null && previous.getId()!=nic.getId()) throw new CloudRuntimeException("Cached ROOT endpoint secondary ownership is ambiguous");
+            }
+        }
+        for (JsonElement value:cache.getAsJsonArray("endpoints")) {
+            JsonObject entry=value.getAsJsonObject();String ip=getJsonString(entry,"listenIp");NicVO nic=owners.get(ip);
+            if (nic==null || StringUtils.isBlank(nic.getMacAddress())) throw new CloudRuntimeException("Cached ROOT endpoint has no preserved NIC owner");
+            String cachedPrimary=getJsonString(entry,"primaryIp");if (StringUtils.isNotBlank(cachedPrimary) && !cachedPrimary.equals(nic.getIPv4Address())) throw new CloudRuntimeException("Cached ROOT endpoint primary address differs from its preserved NIC");
+            JsonObject binding=new JsonObject();binding.addProperty("listenIp",ip);binding.addProperty("macAddress",nic.getMacAddress());binding.addProperty("primaryIp",nic.getIPv4Address());
+            if (entry.has("prefixlen")) binding.add("prefixlen",entry.get("prefixlen"));result.add(binding);
+        }
+        return result;
+    }
     private JsonObject rootUpgradeCapabilities(StorageServiceInstanceVO instance) {
         com.cloud.vm.UserVmVO vm = rootUpgradeVmDao.findById(instance.getVmId());JsonObject value = new JsonObject();
         com.cloud.storage.VMTemplateVO template = rootUpgradeTemplateDao.findById(vm.getTemplateId());
@@ -600,6 +622,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 if (currentBundle==null || instance.getRuntimeVerifiedAt()==null || !currentBundle.getVersion().equals(getJsonString(runtimeCode,"currentVersion"))) blockers.add("SOURCE_SIGNED_RUNTIME_PROJECTION_UNVERIFIED");
                 JsonObject generation = nativeConfigurationGeneration(instance,null,"status");result.add("nativeGeneration",generation);
                 if (!generation.has("configurationDesiredState")) blockers.add("ROOT_DESIRED_SEED_CAPABILITY_UNAVAILABLE");
+                else {JsonElement endpoints=generation.getAsJsonObject("configurationDesiredState").get("network-endpoints.json");
+                    if (endpoints!=null && endpoints.isJsonObject()) rootNetworkBindings(instance,endpoints.getAsJsonObject());}
                 if (!"IN_SYNC".equals(getJsonString(generation,"generationStatus")) || generation.get("runtimeRevision").getAsLong() != rootDesiredRevision(instance.getId())) blockers.add("NATIVE_GENERATION_DRIFT");
                 verifyReconciledStorageDesiredState(instance);JsonObject health=rootGuest(instance,"operation verify",new JsonObject(),60);result.add("runtime",health);
                 if (!"ok".equalsIgnoreCase(getJsonString(health,"status"))) blockers.add("CURRENT_RUNTIME_DEGRADED");
@@ -741,6 +765,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             sameTopology();if (currentRoot() != row.getTargetRootVolumeId()) swap.swap(instance.getVmId(),row.getPreviousRootVolumeId(),row.getTargetRootVolumeId(),row.getSourceTemplateId(),row.getTargetTemplateId(),rootUpgradeTemplateDao.findById(row.getTargetTemplateId()).getGuestOSId());sameTopology();
         }
         public void bootTarget() { requireBinding(row.getTargetRootVolumeId(),row.getTargetTemplateId());lifecycle.startAndAwaitCapabilities(instance,operation.getUuid());sameTopology();requireBinding(row.getTargetRootVolumeId(),row.getTargetTemplateId());
+            rootGuest(instance,"operation quiesce",scope(),60);
             JsonObject value=snapshot();value.add("targetRuntimeVerified",runtimeUpgradeManager.restoreTemplateRuntime(instance.getId(),value.getAsJsonObject("signedRuntime").getAsJsonObject("pin"),operation.getUuid(),"target"));persist(value); }
         public void restoreIdentity() {requireBinding(row.getTargetRootVolumeId(),row.getTargetTemplateId());sameTopology();restoreConfigurationIdentity(instance,snapshot().getAsJsonObject("identity"));}
         private void restoreMounts() {
@@ -771,6 +796,17 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             }
             for (StorageServiceProtocolVO protocol : storageServiceProtocolDao.listByInstanceId(instance.getId())) {
                 if (protocol.isEnabled()) ensureGuestProtocolListenAddress(instance,protocol.getListenIp(),resolveProtocolListenAddress(instance,protocol.getListenIp()),protocol.getPort());
+            }
+            JsonElement cachedEndpoints=snapshot().getAsJsonObject("sourceDesiredState").get("network-endpoints.json");
+            if (cachedEndpoints!=null && cachedEndpoints.isJsonObject()) {
+                JsonArray expected=rootNetworkBindings(instance,cachedEndpoints.getAsJsonObject());JsonObject network=scope();network.add("expectedBindings",expected);
+                JsonObject observed=rootGuest(instance,"network endpoints reconcile",network,60);Map<String,JsonObject> actual=new HashMap<>();
+                if (observed.has("endpoints")) for (JsonElement endpoint:observed.getAsJsonArray("endpoints")) {JsonObject entry=endpoint.getAsJsonObject();actual.put(getJsonString(entry,"listenIp"),entry);}
+                for (JsonElement endpoint:expected) {
+                    JsonObject binding=endpoint.getAsJsonObject();JsonObject active=actual.get(getJsonString(binding,"listenIp"));
+                    if (active==null || !Boolean.TRUE.equals(getJsonBoolean(active,"active")) || getJsonString(active,"macAddress")==null
+                            || !getJsonString(binding,"macAddress").equalsIgnoreCase(getJsonString(active,"macAddress"))) throw new CloudRuntimeException("Replayed ROOT endpoint is not active on its preserved NIC MAC");
+                }
             }
             restoreMounts();
             for (StoragePosixDirectoryPolicyVO policy : storagePosixPolicyDao.listByInstance(instance.getId())) {
@@ -851,6 +887,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             lifecycle.stop(instance.getVmId());swap.swap(instance.getVmId(),row.getTargetRootVolumeId(),row.getPreviousRootVolumeId(),row.getTargetTemplateId(),row.getSourceTemplateId(),row.getPreviousGuestOsId());sameTopology();
         }
         public void bootPrevious() {requireBinding(row.getPreviousRootVolumeId(),row.getSourceTemplateId());lifecycle.startAndAwaitCapabilities(instance,operation.getUuid());
+            rootGuest(instance,"operation quiesce",scope(),60);
             if (row.getSnapshotJson()!=null) {JsonObject value=snapshot();value.add("previousRuntimeVerified",runtimeUpgradeManager.restoreTemplateRuntime(instance.getId(),value.getAsJsonObject("signedRuntime").getAsJsonObject("pin"),operation.getUuid(),"previous"));persist(value);}}
         public void reconcilePrevious() {
             if (row.getSnapshotJson()==null) return;
