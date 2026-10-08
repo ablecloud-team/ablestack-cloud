@@ -124,7 +124,7 @@ public class StorageOperationControlTest {
     }
 
     @Test public void nativeResourceBlockersAreDurableAndCannotReachAWriterEffect() {
-        Mockito.when(manager.instance.getVmId()).thenReturn(7L);Mockito.when(manager.instance.getUuid()).thenReturn("instance");
+        Mockito.when(manager.instance.getVmId()).thenReturn(7L);Mockito.when(manager.instance.getUuid()).thenReturn("instance");Mockito.when(manager.instance.getOperationControlPolicyJson()).thenReturn("{\"schemaVersion\":1,\"instanceUuid\":\"instance\",\"enabled\":true,\"revision\":1}");
         JsonObject policy=new JsonObject();policy.add("requirements",StorageOperationResourceBudget.estimate(StorageOperationResourceBudget.Work.CONFIGURATION,100,0,0,1,false).request());control.setPolicyJson(policy.toString());
         JsonObject reply=lease();reply.addProperty("success",false);reply.addProperty("reservationSupported",true);reply.addProperty("reservationAcquired",false);com.google.gson.JsonArray blockers=new com.google.gson.JsonArray();blockers.add("MEMORY_HEADROOM");reply.add("blockers",blockers);
         Mockito.when(guest.dispatch(Mockito.any())).thenAnswer(call->{StorageServiceGuestCommand command=call.getArgument(0);Assert.assertEquals("operation reservation acquire",command.getOperation());Assert.assertEquals(5,command.getTimeoutSeconds());return new StorageServiceGuestCommandResult(false,"resource headroom blocked",reply.toString());});

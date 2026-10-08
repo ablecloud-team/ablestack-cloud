@@ -43,7 +43,7 @@ public interface StorageServiceInstance extends ControlledEntity, Identity, Inte
 
     ConfigKey<Boolean> StorageServiceOperationControlEnabled = new ConfigKey<Boolean>("Advanced", Boolean.class,
             "storage.service.operation.control.enabled", "false",
-            "Enable native resource reservations and cooperative operation control after signed runtime capability validation", false);
+            "Enable resource control infrastructure; each compatible instance still requires explicit per-instance opt-in", false);
     ConfigKey<Boolean> StorageServiceVerifiedConfigurationEnabled = new ConfigKey<Boolean>("Advanced", Boolean.class,
             "storage.service.verified.configuration.enabled", "false",
             "Enable configuration restore APIs and mandatory verified restore-point promotion after compatible runtimes are installed.", true,

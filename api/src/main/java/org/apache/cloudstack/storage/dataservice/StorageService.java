@@ -249,4 +249,7 @@ public interface StorageService {
     StorageServiceRuntimeUpgradeResponse rollbackStorageServiceRuntimeUpgrade(RollbackStorageServiceRuntimeUpgradeCmd cmd);
     org.apache.cloudstack.api.response.StorageServiceConfigArtifactResponse storageServiceConfiguration(StorageConfigRequest cmd);
 
+    StorageServiceRuntimeResponse getStorageServiceControlPolicy(org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageServiceControlPolicyCmd cmd);
+    StorageServiceRuntimeResponse configureStorageServiceControlPolicy(org.apache.cloudstack.api.command.admin.storage.dataservice.ConfigureStorageServiceControlPolicyCmd cmd);
+
 }

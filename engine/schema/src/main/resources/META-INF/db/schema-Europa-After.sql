@@ -1445,3 +1445,6 @@ CREATE TABLE IF NOT EXISTS `dr_cleanup_export_resume` (
   `drained` TINYINT(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`cleanup_run_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Per-instance opt-in keeps unprepared legacy guests out of resource lease/control paths.
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.storage_service_instance', 'operation_control_policy_json', 'LONGTEXT DEFAULT NULL');

@@ -45,4 +45,23 @@ public final class EuropaSharedFSOperationControlUpgrade {
             throw new CloudRuntimeException("Unable to apply SharedFS operation control migration", failure);
         }
     }
+    public static void migratePolicy(Connection connection) {
+        try (Statement statement = connection.createStatement()) {
+            try (java.sql.ResultSet table = connection.getMetaData().getTables("cloud", null, "storage_service_instance", new String[]{"TABLE"})) {
+                if (!table.next()) return;
+            }
+            try (java.sql.ResultSet column = connection.getMetaData().getColumns("cloud", null, "storage_service_instance", "operation_control_policy_json")) {
+                if (column.next()) return;
+            }
+            try {statement.execute("ALTER TABLE cloud.storage_service_instance ADD COLUMN operation_control_policy_json LONGTEXT DEFAULT NULL");}
+            catch (java.sql.SQLException raced) {
+                try (java.sql.ResultSet now = connection.getMetaData().getColumns("cloud", null, "storage_service_instance", "operation_control_policy_json")) {
+                    if (!now.next()) throw raced;
+                }
+            }
+        } catch (java.sql.SQLException failure) {
+            throw new CloudRuntimeException("Unable to apply per-instance Storage Service operation control policy migration", failure);
+        }
+    }
+
 }
