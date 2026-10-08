@@ -8317,8 +8317,11 @@ export default {
       if (status === 'PREPARATION_REQUIRED' || status === 'NOT_ATTACHED') {
         return 'orange'
       }
-      if (item.success === false) {
+      if (item.success === false || ['DEGRADED', 'FAILED', 'ERROR', 'RECOVERY_REQUIRED'].includes(status)) {
         return 'red'
+      }
+      if (['UNAVAILABLE', 'STALE', 'UNKNOWN', 'PENDING'].includes(status)) {
+        return 'orange'
       }
       return 'blue'
     },
