@@ -17,7 +17,6 @@
 package org.apache.cloudstack.storage.sharedfs;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import com.cloud.storage.Volume;
 import com.cloud.storage.VolumeVO;
 import com.cloud.storage.VolumeDetailVO;
@@ -26,7 +25,6 @@ import com.cloud.storage.dao.VolumeDetailsDao;
 import com.cloud.vm.VMInstanceVO;
 import com.cloud.vm.VirtualMachine;
 import com.cloud.vm.dao.VMInstanceDao;
-import com.cloud.utils.db.GlobalLock;
 import com.cloud.utils.exception.CloudRuntimeException;
 import org.apache.cloudstack.storage.dataservice.StorageServiceInstanceVO;
 import org.apache.cloudstack.storage.dataservice.StorageServiceOperationVO;
@@ -39,9 +37,12 @@ import org.apache.cloudstack.storage.dataservice.dao.StorageServiceOperationDao;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.MockedStatic;
 import org.springframework.test.util.ReflectionTestUtils;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 public class SharedFSLifecycleProtectionTest {
     private SharedFSServiceImpl service;

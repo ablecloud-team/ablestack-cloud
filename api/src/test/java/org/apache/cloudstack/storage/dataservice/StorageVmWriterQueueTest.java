@@ -26,7 +26,8 @@ import org.apache.cloudstack.api.command.admin.vm.MigrateVMCmd;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.test.util.ReflectionTestUtils;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class StorageVmWriterQueueTest {
     @Test public void actualGenericVmCommandsJoinTheirSharedFsInstanceWriterQueue() {

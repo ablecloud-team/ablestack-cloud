@@ -164,6 +164,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     private java.util.concurrent.ScheduledExecutorService interruptedWriterExecutor;
     private java.util.concurrent.ScheduledExecutorService writerHeartbeatExecutor;
     private final ThreadLocal<StorageWriterHeartbeat> storageWriterHeartbeat = new ThreadLocal<>();
+    private final java.util.concurrent.ConcurrentMap<Long, Object> operationLeaseLocks = new java.util.concurrent.ConcurrentHashMap<>();
+    private final Set<Long> suspendedOperationLeases = java.util.concurrent.ConcurrentHashMap.newKeySet();
 
     @Override
     public boolean start() {
@@ -201,6 +203,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                             recoverVolumePreparation(instance,current);
                         } else if (current != null && instance != null && "SMB_IDENTITY_REPAIR".equals(current.getAction()) && InterruptedStateChange.stale(current, System.currentTimeMillis())) {
                             recoverSmbIdentityRepair(instance, current);
+                        } else if (current != null && instance != null && Set.of("RUNTIME_UPGRADE", "RUNTIME_ROLLBACK", "SHAREDFS_ONLINE_SCALE").contains(current.getAction())
+                                && InterruptedStateChange.stale(current, System.currentTimeMillis())) {
+                            current.setState("RECOVERY_REQUIRED");current.setPhase("RECOVERY_REQUIRED");current.setHeartbeat(new java.util.Date());
+                            current.setDiagnostic("Interrupted managed lifecycle writer requires its exact runtime or scale recovery; generic configuration replay is blocked");
+                            if (!storageOperationDao.update(current.getId(), current)) throw new CloudRuntimeException("Managed recovery hold could not be persisted");
                         } else if (current != null && instance != null && InterruptedStateChange.stale(current, System.currentTimeMillis())) {
                             recoverInterruptedStorageWriter(instance, current);
                         }
@@ -504,7 +511,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         if ("PLANNED".equals(row.getState())) StorageTemplateUpgradePlanner.approve(row, revision, shared.getName(), request.getConfirmation(), request.getMaintenanceWindow());
                         else if (!java.util.Set.of("RUNNING", "RECOVERY_REQUIRED", "COMPLETE").contains(row.getState())) throw new InvalidParameterValueException("Upgrade cannot run in its current state");
                         StorageServiceOperationVO operation = rootUpgradeOperation(instance, row, revision, manualRollback);
-                        beginStorageWriterHeartbeat(operation);
+                        startRootOperationControl(instance, row, operation);beginStorageWriterHeartbeat(operation);
                         try {
                             RootUpgradeRuntime runtime = new RootUpgradeRuntime(instance, shared, row, operation, manualRollback);
                             StorageServiceTemplateUpgradeEngine engine = new StorageServiceTemplateUpgradeEngine(storageTemplateUpgradeDao);
@@ -706,7 +713,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
     private StorageServiceOperationVO rootUpgradeOperation(StorageServiceInstanceVO instance, StorageServiceTemplateUpgradeVO row, long revision, boolean manualRollback) {
         StorageServiceOperationVO existing = row.getOperationId() == null ? null : storageOperationDao.findById(row.getOperationId());
-        if (existing != null && (!manualRollback || !"COMPLETE".equals(row.getState()))) return existing;
+        if (existing != null && (!manualRollback || !"COMPLETE".equals(row.getState()))) {
+            if (existing.getInstanceId() != instance.getId() || !existing.getAction().startsWith("ROOT_TEMPLATE_")) throw new CloudRuntimeException("ROOT operation writer scope changed");
+            existing.setState("RUNNING");existing.setHeartbeat(new java.util.Date());if (!storageOperationDao.update(existing.getId(),existing)) throw new CloudRuntimeException("ROOT recovery writer could not be resumed");return existing;
+        }
         StorageServiceOperationVO operation = new StorageServiceOperationVO();operation.setInstanceId(instance.getId());
         operation.setAction(manualRollback ? "ROOT_TEMPLATE_ROLLBACK" : "ROOT_TEMPLATE_UPGRADE");
         operation.setRequestKey(operation.getAction()+":"+row.getUuid());operation.setRevision(revision+1);
@@ -725,7 +735,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if (row == null) throw new CloudRuntimeException("ROOT writer transaction is missing");
         if ("COMPLETE".equals(row.getState()) || "ROLLED_BACK".equals(row.getState()) || "BLOCKED".equals(row.getState())) return;
         SharedFSVO shared = sharedFSDao.findById(row.getSharedFilesystemId());
-        beginStorageWriterHeartbeat(operation);
+        operation.setState("RUNNING");if (!storageOperationDao.update(operation.getId(),operation)) throw new CloudRuntimeException("ROOT recovery writer could not be resumed");
+        startRootOperationControl(instance, row, operation);beginStorageWriterHeartbeat(operation);
         try {
             RootUpgradeRuntime runtime = new RootUpgradeRuntime(instance,shared,row,operation,"ROOT_TEMPLATE_ROLLBACK".equals(operation.getAction()));
             new StorageServiceTemplateUpgradeEngine(storageTemplateUpgradeDao).execute(row,runtime);
@@ -799,6 +810,29 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
         private JsonObject snapshot() { return parseJsonObject(row.getSnapshotJson()); }
         private void persist(JsonObject snapshot) { row.setSnapshotJson(snapshot.toString());row.setHeartbeat(new java.util.Date());if (!storageTemplateUpgradeDao.update(row.getId(),row)) throw new CloudRuntimeException("Unable to persist ROOT checkpoint"); }
+        private void resourceCheckpoint(boolean mutation) {
+            requireNoOperationCancellation(operation);
+            if (storageOperationControlDao.findByOperation(operation.getId()) == null) return;
+            acquireOperationResourceReservation(instance, operation);
+            if (mutation) enterStorageMutationBoundary(operation);
+        }
+        private void suspendRootLease() {
+            synchronized (operationLeaseLocks.computeIfAbsent(operation.getId(), ignored -> new Object())) {
+                suspendedOperationLeases.add(operation.getId());releaseOperationResourceReservation(instance, operation);
+            }
+            endStorageWriterHeartbeat();
+        }
+        private void releaseRootLease() {
+            synchronized (operationLeaseLocks.computeIfAbsent(operation.getId(), ignored -> new Object())) {
+                suspendedOperationLeases.add(operation.getId());releaseOperationResourceReservation(instance,operation);
+            }
+        }
+        private void resumeRootLease() {
+            synchronized (operationLeaseLocks.computeIfAbsent(operation.getId(), ignored -> new Object())) {
+                suspendedOperationLeases.remove(operation.getId());acquireOperationResourceReservation(instance, operation);
+            }
+            beginStorageWriterHeartbeat(operation);requireNoOperationCancellation(operation);
+        }
         private long currentRoot() {
             List<VolumeVO> roots = volumeDao.findByInstanceAndType(instance.getVmId(),com.cloud.storage.Volume.Type.ROOT);
             if (roots.size() != 1) throw new CloudRuntimeException("Exactly one current ROOT is required");return roots.get(0).getId();
@@ -811,12 +845,14 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
         public void preflight() {
             requireRootWriterIdle(instance,row);
-            if (row.getSnapshotJson() != null) { sameTopology();return; }
+            if (row.getSnapshotJson() != null) { sameTopology();resourceCheckpoint(false);return; }
             lifecycle.startAndAwaitCapabilities(instance,operation.getUuid());
             JsonObject result = rootPreflight(instance,shared,row.getTargetTemplateId(),false,getJsonLong(parseJsonObject(row.getPreflightJson()).getAsJsonObject("rootProvisioning"),"selectedDiskOfferingId"));
             if (!result.get("compatible").getAsBoolean()) throw new InvalidParameterValueException("ROOT preflight blocked: "+result.get("blockers"));
+            resourceCheckpoint(false);
         }
         public void stageRoot() {
+            resourceCheckpoint(false);
             JsonObject provision=parseJsonObject(row.getPreflightJson()).getAsJsonObject("rootProvisioning");Long offeringId=provision==null?null:getJsonLong(provision,"selectedDiskOfferingId");
             com.cloud.storage.DiskOfferingVO offering=offeringId==null?null:configurationDiskOfferingDao.findById(offeringId);
             if(offering==null || !rootOfferingCompatible(volumeDao.findById(row.getPreviousRootVolumeId()),rootUpgradeTemplateDao.findById(row.getTargetTemplateId()),offering)) throw new CloudRuntimeException("Planned SPARSE/FAT ROOT offering is no longer compatible");
@@ -825,6 +861,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             swap.prepare(instance.getVmId(),row.getPreviousRootVolumeId(),row.getTargetRootVolumeId(),row.getTargetTemplateId());
         }
         public void checkpoint() {
+            resourceCheckpoint(false);
             if (row.getSnapshotJson() != null) { sameTopology();return; }
             JsonObject signedRuntime=runtimeUpgradeManager.checkpointTemplateRuntime(instance.getId(),operation.getUuid());
             checkpointConfigurationIdentity(instance);
@@ -840,7 +877,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
         public void quiesce() {
             sameTopology();if (currentRoot() == row.getTargetRootVolumeId()) return;
-            if (rootUpgradeVmDao.findById(instance.getVmId()).getState() == com.cloud.vm.VirtualMachine.State.Running) enterMaintenance("sourceMaintenanceScope");
+            if (rootUpgradeVmDao.findById(instance.getVmId()).getState() == com.cloud.vm.VirtualMachine.State.Running) {
+                resourceCheckpoint(true);enterMaintenance("sourceMaintenanceScope");suspendRootLease();
+            }
             JsonObject value=snapshot();if (!value.has("quiescedAt")) {value.addProperty("quiescedAt",System.currentTimeMillis());persist(value);}
             requireNoPendingVolumeFormatter(instance);
             lifecycle.stop(instance.getVmId());
@@ -879,9 +918,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             sameTopology();if (currentRoot() != row.getTargetRootVolumeId()) swap.swap(instance.getVmId(),row.getPreviousRootVolumeId(),row.getTargetRootVolumeId(),row.getSourceTemplateId(),row.getTargetTemplateId(),rootUpgradeTemplateDao.findById(row.getTargetTemplateId()).getGuestOSId());sameTopology();
         }
         public void bootTarget() { requireBinding(row.getTargetRootVolumeId(),row.getTargetTemplateId());lifecycle.startAndAwaitCapabilities(instance,operation.getUuid());sameTopology();requireBinding(row.getTargetRootVolumeId(),row.getTargetTemplateId());
-            enterMaintenance("targetMaintenanceScope");
+            enterMaintenance("targetMaintenanceScope");resumeRootLease();resourceCheckpoint(true);
             JsonObject value=snapshot();value.add("targetRuntimeVerified",runtimeUpgradeManager.restoreTemplateRuntime(instance.getId(),value.getAsJsonObject("signedRuntime").getAsJsonObject("pin"),operation.getUuid(),"target"));persist(value); }
-        public void restoreIdentity() {requireBinding(row.getTargetRootVolumeId(),row.getTargetTemplateId());sameTopology();restoreConfigurationIdentity(instance,snapshot().getAsJsonObject("identity"));}
+        public void restoreIdentity() {resourceCheckpoint(true);requireBinding(row.getTargetRootVolumeId(),row.getTargetTemplateId());sameTopology();restoreConfigurationIdentity(instance,snapshot().getAsJsonObject("identity"));}
         private void restoreMounts() {
             JsonObject current=inspectRootData(instance,shared,operation.getUuid(),row.getUuid());JsonObject frozen=snapshot().getAsJsonObject("dataManifest");StorageRootDataManifest.requireSame(frozen,current);
             Map<String,VolumeVO> disks=new HashMap<>();for(VolumeVO disk:volumeDao.findByInstanceAndType(instance.getVmId(),com.cloud.storage.Volume.Type.DATADISK))disks.put(disk.getUuid(),disk);
@@ -900,7 +939,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             }
         }
         private void applyAll() {
-            sameTopology();
+            resourceCheckpoint(true);sameTopology();
             if (shared.getNetworkMode() == SharedFS.NetworkMode.STATIC) {
                 List<NicVO> nics=nicDao.listByVmId(instance.getVmId()).stream().filter(NicVO::isDefaultNic).collect(java.util.stream.Collectors.toList());
                 if (nics.size()!=1) throw new CloudRuntimeException("Static ROOT recovery requires its preserved NIC");
@@ -966,14 +1005,14 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             nativeConfigurationGeneration(instance,operation,"begin");
         }
         public void verify() {
-            requireBinding(row.getTargetRootVolumeId(),row.getTargetTemplateId());sameTopology();
+            resourceCheckpoint(false);requireBinding(row.getTargetRootVolumeId(),row.getTargetTemplateId());sameTopology();
             JsonObject runtimeProof=runtimeUpgradeManager.verifyTemplateRuntime(instance.getId(),snapshot().getAsJsonObject("signedRuntime").getAsJsonObject("pin"),operation.getUuid(),"target");
             verifyReconciledStorageDesiredState(instance);JsonObject health=rootGuest(instance,"operation verify",new JsonObject(),60);
             if (!"ok".equalsIgnoreCase(getJsonString(health,"status"))) throw new CloudRuntimeException("ROOT runtime health is degraded");
             nativeConfigurationGeneration(instance,operation,"verify");nativeConfigurationGeneration(instance,operation,"commit");
             health.add("signedRuntime",runtimeProof);row.setVerificationJson(health.toString());JsonObject value=snapshot();value.addProperty("serviceVerifiedAt",System.currentTimeMillis());persist(value);
         }
-        public void commit() {releaseMaintenance("targetMaintenanceScope");complete(true);}
+        public void commit() {resourceCheckpoint(false);releaseRootLease();releaseMaintenance("targetMaintenanceScope");complete(true);}
         private void complete(boolean target) {
             requireBinding(target?row.getTargetRootVolumeId():row.getPreviousRootVolumeId(),target?row.getTargetTemplateId():row.getSourceTemplateId());sameTopology();
             operation.setSnapshotJson(captureConfigurationSnapshot(instance.getId()));operation.setResultJson(rootUpgradeJson(row).toString());
@@ -1004,7 +1043,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             if (row.getTargetRootVolumeId()==null || root!=row.getTargetRootVolumeId()) throw new CloudRuntimeException("Rollback ROOT binding changed");
             JsonObject interrupted=snapshot();if (!interrupted.has("rollbackQuiescedAt")) {interrupted.addProperty("rollbackQuiescedAt",System.currentTimeMillis());persist(interrupted);}
             if (rootUpgradeVmDao.findById(instance.getVmId()).getState()==com.cloud.vm.VirtualMachine.State.Running) {
-                try {enterMaintenance("targetMaintenanceScope");}
+                try {enterMaintenance("targetMaintenanceScope");resourceCheckpoint(true);suspendRootLease();}
                 catch (RuntimeException qgaUnavailable) {if (manualRollback) throw qgaUnavailable;logger.warn("Target ROOT QGA is unavailable; continuing graceful VM shutdown for rollback {}",row.getUuid());}
             }
             lifecycle.stop(instance.getVmId());swap.swap(instance.getVmId(),row.getTargetRootVolumeId(),row.getPreviousRootVolumeId(),row.getTargetTemplateId(),row.getSourceTemplateId(),row.getPreviousGuestOsId());sameTopology();
@@ -1015,7 +1054,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             return original;
         }
         public void bootPrevious() {requireBinding(row.getPreviousRootVolumeId(),row.getSourceTemplateId());lifecycle.startAndAwaitCapabilities(instance,operation.getUuid());
-            if (row.getSnapshotJson()!=null) enterMaintenance("sourceMaintenanceScope");
+            if (row.getSnapshotJson()!=null) {enterMaintenance("sourceMaintenanceScope");resumeRootLease();resourceCheckpoint(true);}
             if (row.getSnapshotJson()!=null) {JsonObject value=snapshot();value.add("previousRuntimeVerified",runtimeUpgradeManager.restoreTemplateRuntime(instance.getId(),originalSourceRuntime(value).getAsJsonObject("pin"),operation.getUuid(),"previous"));persist(value);}}
         public void reconcilePrevious() {
             if (row.getSnapshotJson()==null) return;
@@ -1029,8 +1068,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             if (!"ok".equalsIgnoreCase(getJsonString(health,"status"))) throw new CloudRuntimeException("Previous ROOT runtime health is degraded");
             health.add("signedRuntime",runtimeProof);row.setRollbackResultJson(health.toString());
             if (row.getSnapshotJson()!=null) {JsonObject value=snapshot();value.addProperty("serviceVerifiedAt",System.currentTimeMillis());value.addProperty("rollbackServiceVerifiedAt",System.currentTimeMillis());persist(value);}
-            if (manualRollback) {nativeConfigurationGeneration(instance,operation,"verify");nativeConfigurationGeneration(instance,operation,"commit");releaseMaintenance("sourceMaintenanceScope");complete(false);}
-            else if (row.getSnapshotJson()!=null) releaseMaintenance("sourceMaintenanceScope");
+            resourceCheckpoint(false);
+            if (manualRollback) {nativeConfigurationGeneration(instance,operation,"verify");nativeConfigurationGeneration(instance,operation,"commit");releaseRootLease();releaseMaintenance("sourceMaintenanceScope");complete(false);}
+            else if (row.getSnapshotJson()!=null) {releaseRootLease();releaseMaintenance("sourceMaintenanceScope");}
         }
         public void finished(boolean success) {
             if (!success && !manualRollback) {
@@ -1039,7 +1079,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 }
                 operation.setState(row.getState());operation.setPhase(row.getPhase());operation.setProgress(100);operation.setCompleted(new java.util.Date());operation.setHeartbeat(new java.util.Date());operation.setDiagnostic(row.getErrorMessage());storageOperationDao.update(operation.getId(),operation);
             } else {nativeConfigurationGeneration(instance,operation,"finish");cleanupConfigurationIdentityCheckpoint(operation);}
-            if ("Stopped".equals(row.getPreviousVmState())) lifecycle.stop(instance.getVmId());
+            if (!"RECOVERY_REQUIRED".equals(row.getState())) releaseRootLease();
+            if ("Stopped".equals(row.getPreviousVmState()) && !"RECOVERY_REQUIRED".equals(row.getState())) lifecycle.stop(instance.getVmId());
         }
     }
 
@@ -1157,8 +1198,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         result.addProperty("active", enabled && global);result.addProperty("logicalReservationOnly", true);
         result.add("nativeCapabilities", policy.has("nativeCapabilities") ? policy.get("nativeCapabilities") : new JsonObject());
         result.add("policy", publicPolicy);JsonObject coverage = new JsonObject();
-        for (String work : List.of("CONFIGURATION", "FILESYSTEM_FORMAT", "BACKUP", "RESTORE")) coverage.addProperty(work, "LINKED");
-        for (String work : List.of("RUNTIME_UPGRADE", "ROOT_UPGRADE", "SCALE")) coverage.addProperty(work, "PENDING");
+        for (String work : List.of("CONFIGURATION", "FILESYSTEM_FORMAT", "BACKUP", "RESTORE", "ROOT_UPGRADE", "SCALE")) coverage.addProperty(work, "LINKED");
+        coverage.addProperty("RUNTIME_UPGRADE", runtimeUpgradeManager != null && runtimeUpgradeManager.operationControlLinked() ? "LINKED" : "PENDING");
         result.add("coverage", coverage);JsonArray blockers = new JsonArray();if (!global) blockers.add("GLOBAL_CONTROL_DISABLED");if (!enabled) blockers.add("INSTANCE_CONTROL_NOT_OPTED_IN");
         result.add("blockers", blockers);
         return createRuntimeResponse(instance, "operation control policy", true, "OBSERVED", "Scoped logical resource control policy", result.toString());
@@ -1279,9 +1320,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
 
     protected StorageServiceOperationControlVO startOperationControl(StorageServiceInstanceVO instance, StorageServiceOperationVO operation,
             org.apache.cloudstack.api.BaseCmd command) {
-        if (!operationControlEnabled(instance)) return null;
         StorageServiceOperationControlVO existing = storageOperationControlDao.findByOperation(operation.getId());
         if (existing != null) return existing;
+        if (!operationControlEnabled(instance)) return null;
         String declaration = captureConfigurationSnapshot(instance.getId());
         JsonObject document = parseJsonObject(declaration);int count = 0;
         for (JsonElement table : document.getAsJsonArray("tables")) count += table.getAsJsonObject().getAsJsonArray("rows").size();
@@ -1297,6 +1338,156 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         policy.addProperty("drainSupported", false);policy.addProperty("reservationSupported", false);
         row.setPolicyJson(policy.toString());JsonObject lease = new JsonObject();lease.addProperty("state", "NOT_ACQUIRED");row.setLeaseJson(lease.toString());
         return storageOperationControlDao.persist(row);
+    }
+
+    protected void startRootOperationControl(StorageServiceInstanceVO instance, StorageServiceTemplateUpgradeVO root, StorageServiceOperationVO operation) {
+        StorageServiceOperationControlVO control = startOperationControl(instance, operation);
+        if (control == null) return;
+        if (!java.util.Objects.equals(root.getOperationId(), operation.getId()) || root.getInstanceId() != instance.getId()
+                || !Set.of("RUNNING", "RECOVERY_REQUIRED", "COMPLETE").contains(root.getState())) throw new CloudRuntimeException("ROOT approved downtime resource binding is unavailable");
+        JsonObject scope = operationReservationScope(instance, operation);scope.addProperty("templateUpgradeUuid", root.getUuid());
+        JsonObject policy = parseJsonObject(control.getPolicyJson());
+        if (policy.has("rootMaintenanceScope") && !scope.equals(policy.get("rootMaintenanceScope"))) throw new CloudRuntimeException("ROOT resource downtime scope changed");
+        policy.add("rootMaintenanceScope",scope);policy.addProperty("downtimeBoundary", "PROTECTED_ROOT_MAINTENANCE");
+        JsonObject requirements = policy.getAsJsonObject("requirements").deepCopy();requirements.addProperty("requireSessionDrain",false);
+        policy.add("requirements", requirements);policy.addProperty("drainRequired",false);policy.addProperty("drainSupported",false);
+        control.setPolicyJson(policy.toString());if (!storageOperationControlDao.update(control.getId(), control)) throw new CloudRuntimeException("ROOT explicit downtime budget could not be persisted");
+    }
+
+    protected JsonObject operationReservationRequest(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
+        JsonObject request = operationReservationScope(instance, operation);
+        StorageServiceOperationControlVO control = storageOperationControlDao.findByOperation(operation.getId());
+        JsonObject policy = control == null ? new JsonObject() : parseJsonObject(control.getPolicyJson());
+        if (StringUtils.defaultString(operation.getAction()).startsWith("ROOT_TEMPLATE_")) {
+            JsonObject maintenance = policy.has("rootMaintenanceScope") ? policy.getAsJsonObject("rootMaintenanceScope") : null;
+            if (maintenance == null || !instance.getUuid().equals(getJsonString(maintenance,"instanceUuid"))
+                    || !operation.getUuid().equals(getJsonString(maintenance,"operationUuid")) || !Long.valueOf(operation.getRevision()).equals(getJsonLong(maintenance,"revision"))) throw new CloudRuntimeException("ROOT lease maintenance scope is unavailable");
+            request.addProperty("templateUpgradeUuid",getJsonString(maintenance,"templateUpgradeUuid"));request.add("maintenanceScope",maintenance.deepCopy());
+        }
+        return request;
+    }
+
+    protected StorageServiceOperationVO managedOperation(String uuid) {
+        StorageServiceOperationVO current = storageWriterOperation.get();
+        if (current == null || !current.getUuid().equals(uuid)) throw new CloudRuntimeException("Managed resource scope is not the current serialized writer");
+        StorageServiceOperationVO durable = storageOperationDao.findById(current.getId());
+        if (durable == null || durable.getInstanceId() != current.getInstanceId() || !uuid.equals(durable.getUuid())) throw new CloudRuntimeException("Managed resource writer disappeared");
+        return current;
+    }
+
+    @Override
+    public String beginRuntimeOperationControl(long upgradeId, boolean rollback) {
+        StorageServiceRuntimeUpgradeVO upgrade = storageRuntimeUpgradeDao.findById(upgradeId);
+        if (upgrade == null) throw new CloudRuntimeException("Runtime resource upgrade scope is unavailable");
+        StorageServiceInstanceVO instance = requireInstance(upgrade.getInstanceId());
+        String key = "runtime:" + upgrade.getUuid() + ":" + upgrade.getTransactionId() + (rollback ? ":ROLLBACK" : ":FORWARD");
+        StorageServiceOperationVO operation = storageOperationDao.findByRequest(instance.getId(), key);
+        if (operation == null && !operationControlEnabled(instance)) return null;
+        Long bundleId = rollback ? upgrade.getPreviousBundleId() : Long.valueOf(upgrade.getBundleId());
+        if (bundleId == null) throw new CloudRuntimeException("Runtime resource rollback destination is unavailable");
+        StorageServiceRuntimeBundleVO bundle = storageRuntimeBundleDao.findById(bundleId);
+        if (bundle == null || bundle.getArtifactSize() == null || bundle.getArtifactSize() < 0) throw new CloudRuntimeException("Runtime materialized artifact size is unavailable");
+        JsonObject metadata = new JsonObject();metadata.addProperty("upgradeUuid", upgrade.getUuid());metadata.addProperty("transactionId", upgrade.getTransactionId());
+        metadata.addProperty("rollback", rollback);metadata.addProperty("bundleUuid", bundle.getUuid());metadata.addProperty("archiveSha256", bundle.getSha256());metadata.addProperty("manifestSha256", bundle.getManifestSha256());
+        JsonObject preflight = parseJsonObject(upgrade.getPreflightJson());
+        for (String field : List.of("targetRuntimePin", "sourceSignedRuntime")) if (preflight.has(field)) metadata.add(field, preflight.get(field).deepCopy());
+        metadata.add("rootBinding", rootResourceBinding(instance));
+        if (operation == null) {
+            operation = new StorageServiceOperationVO();operation.setInstanceId(instance.getId());operation.setAction(rollback ? "RUNTIME_ROLLBACK" : "RUNTIME_UPGRADE");
+            operation.setRequestKey(key);operation.setRevision(Math.max(1, rootDesiredRevision(instance.getId()) + 1));
+            operation.setCreatedBy(upgrade.getCreatedBy() == null ? org.apache.cloudstack.context.CallContext.current().getCallingUserId() : upgrade.getCreatedBy());
+            operation.setState("RUNNING");operation.setPhase("PREFLIGHT");operation = storageOperationDao.persist(operation);
+        }
+        beginManagedOperationControl(operation.getUuid(), metadata.toString(), bundle.getArtifactSize());
+        return operation.getUuid();
+    }
+
+    protected JsonObject rootResourceBinding(StorageServiceInstanceVO instance) {
+        List<VolumeVO> roots = volumeDao.findByInstanceAndType(instance.getVmId(), com.cloud.storage.Volume.Type.ROOT);
+        if (roots.size() != 1) throw new CloudRuntimeException("Managed resource scope requires one frozen ROOT binding");
+        VolumeVO root = roots.get(0);JsonObject result = new JsonObject();result.addProperty("vmId", instance.getVmId());
+        result.addProperty("rootVolumeUuid", root.getUuid());result.addProperty("rootVolumeId", root.getId());result.addProperty("templateId", root.getTemplateId());return result;
+    }
+
+    @Override
+    public void beginManagedOperationControl(String operationUuid, String scopeJson, long artifactBytes) {
+        StorageServiceOperationVO operation = storageOperationDao.findByUuid(operationUuid);
+        if (operation == null || !Set.of("RUNTIME_UPGRADE", "RUNTIME_ROLLBACK", "SHAREDFS_ONLINE_SCALE").contains(operation.getAction())) throw new CloudRuntimeException("Managed lifecycle writer scope is unavailable");
+        StorageServiceInstanceVO instance = requireInstance(operation.getInstanceId());JsonObject metadata = parseJsonObject(scopeJson);
+        if (metadata.entrySet().isEmpty() || artifactBytes < 0) throw new CloudRuntimeException("Managed lifecycle resource declaration is unavailable");
+        StorageServiceOperationControlVO existing = storageOperationControlDao.findByOperation(operation.getId());
+        if (existing == null && !operationControlEnabled(instance)) { beginStorageWriterHeartbeat(operation);return; }
+        if (!Set.of("RUNNING", "RECOVERY_REQUIRED").contains(operation.getState())) throw new CloudRuntimeException("Managed lifecycle resource writer is already terminal");
+        StorageServiceOperationControlVO control = startOperationControl(instance, operation);
+        if (control == null) throw new CloudRuntimeException("Managed lifecycle resource policy is unavailable");
+        JsonObject policy = parseJsonObject(control.getPolicyJson());
+        if (policy.has("managedScope") && (!metadata.equals(policy.get("managedScope")) || !Long.valueOf(artifactBytes).equals(getJsonLong(policy,"artifactBytes")))) throw new CloudRuntimeException("Managed lifecycle immutable resource scope changed");
+        if (!policy.has("managedScope")) {
+            policy.add("managedScope", metadata);policy.addProperty("artifactBytes", artifactBytes);
+            policy.add("requirements", StorageOperationResourceBudget.estimate(operationResourceWork(operation.getAction(), null),
+                    policy.get("declarationBytes").getAsLong(), artifactBytes, 0, policy.get("resourcesCount").getAsInt(), false).request());
+            control.setPolicyJson(policy.toString());if (!storageOperationControlDao.update(control.getId(),control)) throw new CloudRuntimeException("Managed resource scope could not be persisted");
+        }
+        if (storageWriterOperation.get() != null && !operationUuid.equals(storageWriterOperation.get().getUuid())) throw new CloudRuntimeException("Another resource writer is bound to this execution");
+        beginStorageWriterHeartbeat(operation);
+        try { acquireOperationResourceReservation(instance, operation);requireNoOperationCancellation(operation); }
+        catch (RuntimeException blocked) {
+            try {finishManagedOperationControl(operation.getUuid(),blocked instanceof StorageOperationCancelledException ? "CANCELLED" : "BLOCKED");}
+            catch (RuntimeException cleanup) {blocked.addSuppressed(cleanup);operation.setState("RECOVERY_REQUIRED");operation.setPhase("RECOVERY_REQUIRED");storageOperationDao.update(operation.getId(),operation);}
+            throw blocked;
+        }
+    }
+
+    @Override
+    public void verifyManagedOperationControl(String uuid) {
+        if (uuid == null) return;
+        StorageServiceOperationVO operation = managedOperation(uuid);
+        if (storageOperationControlDao.findByOperation(operation.getId()) == null) {
+            if ("RECOVERY_REQUIRED".equals(operation.getState())) {operation.setState("RUNNING");if (!storageOperationDao.update(operation.getId(),operation)) throw new CloudRuntimeException("Managed recovery writer could not be resumed");}
+            return;
+        }
+        renewOperationResourceReservation(operation);enterStorageMutationBoundary(operation);
+        if ("RECOVERY_REQUIRED".equals(operation.getState())) {operation.setState("RUNNING");if(!storageOperationDao.update(operation.getId(),operation)) throw new CloudRuntimeException("Managed recovery writer could not be resumed");}
+    }
+
+    @Override
+    public void suspendManagedOperationControl(String uuid) {
+        if (uuid == null) return;StorageServiceOperationVO operation = managedOperation(uuid);
+        synchronized (operationLeaseLocks.computeIfAbsent(operation.getId(), ignored -> new Object())) {
+            suspendedOperationLeases.add(operation.getId());releaseOperationResourceReservation(requireInstance(operation.getInstanceId()),operation);
+        }
+        StorageWriterHeartbeat heartbeat = storageWriterHeartbeat.get();
+        if (heartbeat != null) heartbeat.close();storageWriterHeartbeat.remove();
+    }
+
+    @Override
+    public void resumeManagedOperationControl(String uuid) {
+        if (uuid == null) return;StorageServiceOperationVO operation = storageOperationDao.findByUuid(uuid);
+        if (operation == null) throw new CloudRuntimeException("Suspended managed writer disappeared");
+        synchronized (operationLeaseLocks.computeIfAbsent(operation.getId(), ignored -> new Object())) {
+            suspendedOperationLeases.remove(operation.getId());acquireOperationResourceReservation(requireInstance(operation.getInstanceId()),operation);
+        }
+        beginStorageWriterHeartbeat(operation);
+    }
+
+    @Override
+    public void finishManagedOperationControl(String uuid, String terminalState) {
+        if (uuid == null) return;StorageServiceOperationVO operation = managedOperation(uuid);
+        if (!Set.of("COMPLETE", "ROLLED_BACK", "BLOCKED", "CANCELLED", "RECOVERY_REQUIRED", "MANUAL_RECOVERY").contains(terminalState)) throw new CloudRuntimeException("Managed writer terminal state is invalid");
+        try {
+            if (!Set.of("RECOVERY_REQUIRED", "MANUAL_RECOVERY").contains(terminalState)) {
+                if (Set.of("COMPLETE", "ROLLED_BACK").contains(terminalState)) requireNoOperationCancellation(operation);
+                synchronized (operationLeaseLocks.computeIfAbsent(operation.getId(), ignored -> new Object())) {
+                    suspendedOperationLeases.add(operation.getId());releaseOperationResourceReservation(requireInstance(operation.getInstanceId()), operation);
+                }
+            }
+            operation.setState("MANUAL_RECOVERY".equals(terminalState) ? "RECOVERY_REQUIRED" : terminalState);operation.setPhase(operation.getState());
+            operation.setHeartbeat(new java.util.Date());operation.setCompleted(new java.util.Date());operation.setProgress(100);
+            if (!storageOperationDao.update(operation.getId(), operation)) throw new CloudRuntimeException("Managed resource writer terminal state could not be persisted");
+        } catch (RuntimeException pending) {
+            operation.setState("RECOVERY_REQUIRED");operation.setPhase("RECOVERY_REQUIRED");operation.setDiagnostic("Managed resource finalization remains pending");
+            storageOperationDao.update(operation.getId(), operation);throw pending;
+        } finally {endStorageWriterHeartbeat();}
     }
 
     protected StorageOperationResourceBudget.Work operationResourceWork(String action, org.apache.cloudstack.api.BaseCmd command) {
@@ -1331,10 +1522,14 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     protected void acquireOperationResourceReservation(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
-        if (!operationControlEnabled(instance) || instance.getVmId() == null) return;
+        if (instance.getVmId() == null) return;
         StorageServiceOperationControlVO control = storageOperationControlDao.findByOperation(operation.getId());
-        if (control == null || control.getInstanceId() != instance.getId()) throw new CloudRuntimeException("Operation control budget is unavailable");
-        JsonObject policy = parseJsonObject(control.getPolicyJson());JsonObject request = operationReservationScope(instance, operation);
+        if (control == null) {
+            if (!operationControlEnabled(instance)) return;
+            throw new CloudRuntimeException("Operation control budget is unavailable");
+        }
+        if (control.getInstanceId() != instance.getId()) throw new CloudRuntimeException("Operation control budget belongs to another instance");
+        JsonObject policy = parseJsonObject(control.getPolicyJson());JsonObject request = operationReservationRequest(instance, operation);
         request.add("requirements", policy.get("requirements").deepCopy());request.addProperty("leaseDurationSeconds", 90);
         StorageServiceGuestCommandResult reply = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(
                 instance.getVmId(), "operation reservation acquire", request.toString(), 5, Collections.emptySet()));
@@ -1397,11 +1592,18 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     protected void renewOperationResourceReservation(StorageServiceOperationVO operation) {
+        synchronized (operationLeaseLocks.computeIfAbsent(operation.getId(), ignored -> new Object())) {
+            if (suspendedOperationLeases.contains(operation.getId())) return;
+            renewActiveOperationResourceReservation(operation);
+        }
+    }
+
+    private void renewActiveOperationResourceReservation(StorageServiceOperationVO operation) {
         StorageServiceOperationControlVO control = storageOperationControlDao.findByOperation(operation.getId());
         if (control == null || !Boolean.TRUE.equals(getJsonBoolean(parseJsonObject(control.getLeaseJson()), "reservationAcquired"))) return;
         StorageServiceInstanceVO instance = storageServiceInstanceDao.findById(operation.getInstanceId());
         if (instance == null || instance.getVmId() == null) throw new CloudRuntimeException("Resource reservation instance is unavailable");
-        JsonObject renewed = rootGuest(instance, "operation reservation renew", operationReservationScope(instance, operation), 15);
+        JsonObject renewed = rootGuest(instance, "operation reservation renew", operationReservationRequest(instance, operation), 15);
         requireOperationReservationScope(instance, operation, renewed);
         requireFreshOperationLease(renewed);
         Transaction.execute((TransactionCallback<Void>) status -> {
@@ -1414,18 +1616,26 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     protected void releaseOperationResourceReservation(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
+        if (operation == null) return;
+        synchronized (operationLeaseLocks.computeIfAbsent(operation.getId(), ignored -> new Object())) {
+            releaseActiveOperationResourceReservation(instance,operation);
+        }
+    }
+
+    private void releaseActiveOperationResourceReservation(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
         if (instance.getVmId() == null || operation == null) return;
         StorageServiceOperationControlVO control = storageOperationControlDao.findByOperation(operation.getId());
         if (control == null || control.getLeaseJson() == null) return;
         JsonObject lease = parseJsonObject(control.getLeaseJson());
         if (!Boolean.TRUE.equals(getJsonBoolean(lease, "reservationAcquired"))) return;
         if ("RECOVERY_REQUIRED".equals(operation.getState())) return; // Releasing an unfinished native writer cannot authorize a second effect.
-        JsonObject released = rootGuest(instance, "operation reservation release", operationReservationScope(instance, operation), 15);
+        JsonObject released = rootGuest(instance, "operation reservation release", operationReservationRequest(instance, operation), 15);
         requireOperationReservationScope(instance, operation, released);
+        if (!Boolean.FALSE.equals(getJsonBoolean(released, "reservationAcquired"))) throw new CloudRuntimeException("Native resource lease release was not verified");
         Transaction.execute((TransactionCallback<Void>) status -> {
             StorageServiceOperationControlVO locked = storageOperationControlDao.lockRow(control.getId(), true);
             if (locked == null || locked.getOperationId() != operation.getId()) throw new CloudRuntimeException("Reservation release control scope disappeared");
-            locked.setLeaseJson(released.toString());locked.setUpdated(new java.util.Date());storageOperationControlDao.update(locked.getId(), locked);
+            locked.setLeaseJson(released.toString());locked.setUpdated(new java.util.Date());if (!storageOperationControlDao.update(locked.getId(), locked)) throw new CloudRuntimeException("Native resource release receipt could not be persisted");
             return null;
         });
     }
@@ -2702,6 +2912,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     protected void beginStorageWriterHeartbeat(StorageServiceOperationVO operation) {
+        StorageWriterHeartbeat previous = storageWriterHeartbeat.get();if (previous != null) previous.close();
         storageWriterOperation.set(operation);
         if (writerHeartbeatExecutor != null) {
             storageWriterHeartbeat.set(new StorageWriterHeartbeat(operation, storageOperationDao, writerHeartbeatExecutor,
@@ -8050,6 +8261,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         try {
             final JsonObject apply=posixPolicyPayload(instance,policy);apply.add("expectedDirectoryIdentity",identity.deepCopy());
             final JsonObject effective = dispatchPosixDirectoryCommand(instance, "apply", apply);
+            requirePosixPostApplyIdentity(apply, effective, dispatchPosixDirectoryCommand(instance, "inspect", apply));
             policy.setEffectiveJson(GSON.toJson(effective));policy.setLastApplied(new java.util.Date());policy.setState("Ready");
             storagePosixPolicyDao.update(policy.getId(), policy);
             bindMatchingPosixShares(instance, policy, effective);
@@ -8134,6 +8346,29 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         final JsonObject observed = parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));
         if (!Boolean.TRUE.equals(getJsonBoolean(observed, "success"))) throw new CloudRuntimeException("POSIX directory runtime did not confirm " + action);
         return observed;
+    }
+
+    protected void requirePosixPostApplyIdentity(JsonObject request, JsonObject effective, JsonObject fresh) {
+        if (!effective.has("postApplyReceiptVerified") || !effective.get("postApplyReceiptVerified").isJsonPrimitive()
+                || !effective.get("postApplyReceiptVerified").getAsJsonPrimitive().isBoolean() || !effective.get("postApplyReceiptVerified").getAsBoolean()) throw new CloudRuntimeException("POSIX post-apply protected receipt is unavailable");
+        Set<String> fields = Set.of("filesystemUuid", "device", "inode", "effectiveUid", "effectiveGid", "effectiveMode", "aclSha256");
+        JsonObject post = effective.has("directoryIdentity") && effective.get("directoryIdentity").isJsonObject() ? effective.getAsJsonObject("directoryIdentity") : null;
+        JsonObject inspected = fresh.has("directoryIdentity") && fresh.get("directoryIdentity").isJsonObject() ? fresh.getAsJsonObject("directoryIdentity") : null;
+        if (post == null || inspected == null || !post.keySet().equals(fields) || !post.equals(inspected)) throw new CloudRuntimeException("POSIX post-apply directory identity differs from fresh inspection");
+        for (String field : List.of("device", "inode", "effectiveUid", "effectiveGid")) {
+            if (!post.get(field).isJsonPrimitive() || !post.get(field).getAsJsonPrimitive().isNumber() || post.get(field).getAsBigDecimal().stripTrailingZeros().scale() > 0 || post.get(field).getAsLong() < 0) throw new CloudRuntimeException("POSIX post-apply numeric identity is invalid");
+        }
+        if (!StringUtils.defaultString(getJsonString(post,"aclSha256")).matches("[a-f0-9]{64}") || !StringUtils.defaultString(getJsonString(post,"effectiveMode")).matches("[0-7]{4}")
+                || getJsonString(request,"expectedFilesystemUuid") == null || !getJsonString(request,"expectedFilesystemUuid").equals(getJsonString(post,"filesystemUuid"))) throw new CloudRuntimeException("POSIX post-apply filesystem/permission identity is invalid");
+        for (String field : List.of("uuid", "instanceUuid", "volumeUuid", "volumeMountPath", "relativePath", "revision")) {
+            if (!request.has(field) || !request.get(field).equals(effective.get(field)) || !request.get(field).equals(fresh.get(field))) throw new CloudRuntimeException("POSIX post-apply scope differs from the requested policy");
+        }
+        for (String field : List.of("filesystemUuid", "device", "inode")) {
+            if (request.has("expectedDirectoryIdentity") && !request.getAsJsonObject("expectedDirectoryIdentity").get(field).equals(post.get(field))) throw new CloudRuntimeException("POSIX applied inode differs from its approved preview");
+        }
+        JsonObject config = request.getAsJsonObject("config");
+        if (Boolean.TRUE.equals(getJsonBoolean(config,"applyOwner")) && (!config.get("ownerUid").equals(post.get("effectiveUid")) || !config.get("ownerGid").equals(post.get("effectiveGid")))) throw new CloudRuntimeException("POSIX applied owner differs from the desired policy");
+        if (!config.get("directoryMode").equals(post.get("effectiveMode"))) throw new CloudRuntimeException("POSIX applied mode differs from the desired policy");
     }
 
     protected void validateExistingNfsPermissionEdit(StorageFileShareVO share,Long confirmedPolicyId,Integer uid,Integer gid,String mode,Boolean recursive) {

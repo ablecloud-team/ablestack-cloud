@@ -16,7 +16,6 @@
 // under the License.
 package org.apache.cloudstack.storage.sharedfs;
 
-import java.util.List;
 import com.cloud.storage.Volume;
 import com.cloud.storage.VolumeVO;
 import com.cloud.storage.dao.VolumeDao;
@@ -31,7 +30,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockedStatic;
 import org.springframework.test.util.ReflectionTestUtils;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.anySet;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 public class SharedFSDeletionExecutionRecoveryTest {
     private static class Service extends SharedFSServiceImpl {

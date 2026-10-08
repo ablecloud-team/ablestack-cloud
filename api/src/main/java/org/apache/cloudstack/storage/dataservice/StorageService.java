@@ -96,6 +96,14 @@ import org.apache.cloudstack.api.response.StorageServiceRuntimeUpgradeResponse;
 import org.apache.cloudstack.api.response.StorageSmbShareResponse;
 
 public interface StorageService {
+    /** Called only by an already serialized lifecycle writer, never by readonly preflight. */
+    String beginRuntimeOperationControl(long upgradeId, boolean rollback);
+    void beginManagedOperationControl(String operationUuid, String scopeJson, long artifactBytes);
+    void verifyManagedOperationControl(String operationUuid);
+    void suspendManagedOperationControl(String operationUuid);
+    void resumeManagedOperationControl(String operationUuid);
+    void finishManagedOperationControl(String operationUuid, String terminalState);
+
     StorageServiceRuntimeResponse repairStorageServiceSmbIdentity(org.apache.cloudstack.api.command.user.storage.dataservice.RepairStorageServiceSmbIdentityCmd cmd);
     StorageServiceRuntimeResponse storageServiceOperationControl(org.apache.cloudstack.api.command.user.storage.dataservice.BaseStorageServiceOperationControlCmd cmd);
     org.apache.cloudstack.api.response.StorageServiceTemplateUpgradeResponse storageServiceTemplateUpgrade(StorageTemplateUpgradeRequest request);

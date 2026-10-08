@@ -15,13 +15,25 @@
 // specific language governing permissions and limitations
 // under the License.
 package org.apache.cloudstack.storage.dataservice;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import com.google.gson.JsonObject;
-import com.cloud.agent.api.*;
+import com.cloud.agent.api.StorageServiceRuntimeFileType;
+import com.cloud.agent.api.StorageServiceRuntimeOperation;
 import com.cloud.utils.exception.CloudRuntimeException;
-import org.apache.cloudstack.storage.dataservice.dao.*;
-import org.junit.*;
-import org.mockito.*;
+import org.apache.cloudstack.storage.dataservice.dao.StorageServiceInstanceDao;
+import org.apache.cloudstack.storage.dataservice.dao.StorageServiceOperationDao;
+import org.apache.cloudstack.storage.dataservice.dao.StorageServiceRuntimeBundleDao;
+import org.apache.cloudstack.storage.dataservice.dao.StorageServiceRuntimeUpgradeDao;
+import org.apache.cloudstack.storage.dataservice.dao.StorageServiceTemplateUpgradeDao;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.MockedConstruction;
+import org.mockito.Mockito;
 import org.springframework.test.util.ReflectionTestUtils;
 public class StoragePinnedRuntimeReplayTest {
     private static class Manager extends StorageServiceRuntimeUpgradeManagerImpl {
@@ -46,12 +58,14 @@ public class StoragePinnedRuntimeReplayTest {
     }
     private Manager manager;private String operationUuid;private StorageServiceTemplateUpgradeVO root;private StorageServiceTemplateUpgradeDao roots;private StorageServiceRuntimeBundleVO bundle;
     @Before public void setup(){
-        manager=new Manager();StorageServiceInstanceDao instances=Mockito.mock(StorageServiceInstanceDao.class);StorageServiceOperationDao operations=Mockito.mock(StorageServiceOperationDao.class);roots=Mockito.mock(StorageServiceTemplateUpgradeDao.class);StorageServiceRuntimeBundleDao bundles=Mockito.mock(StorageServiceRuntimeBundleDao.class);
+        manager=new Manager();
+        StorageService controls=Mockito.mock(StorageService.class);ReflectionTestUtils.setField(manager,"operationControlService",(javax.inject.Provider<StorageService>)()->controls);
+StorageServiceInstanceDao instances=Mockito.mock(StorageServiceInstanceDao.class);StorageServiceOperationDao operations=Mockito.mock(StorageServiceOperationDao.class);roots=Mockito.mock(StorageServiceTemplateUpgradeDao.class);StorageServiceRuntimeBundleDao bundles=Mockito.mock(StorageServiceRuntimeBundleDao.class);
         StorageServiceInstanceVO instance=Mockito.mock(StorageServiceInstanceVO.class);Mockito.when(instance.getId()).thenReturn(6L);Mockito.when(instance.getVmId()).thenReturn(60L);Mockito.when(instance.getPreviousRuntimeBundleId()).thenReturn(5L);Mockito.when(instance.getCurrentRuntimeBundleId()).thenReturn(5L);Mockito.when(instance.getRuntimeVerifiedAt()).thenReturn(new Date());Mockito.when(instances.findById(6L)).thenReturn(instance);
         StorageServiceOperationVO operation=Mockito.mock(StorageServiceOperationVO.class);operationUuid=UUID.randomUUID().toString();Mockito.when(operation.getId()).thenReturn(3L);Mockito.when(operation.getInstanceId()).thenReturn(6L);Mockito.when(operation.getState()).thenReturn("RUNNING");Mockito.when(operation.getAction()).thenReturn("ROOT_TEMPLATE_UPGRADE");Mockito.when(operations.findByUuid(operationUuid)).thenReturn(operation);
         root=new StorageServiceTemplateUpgradeVO();root.setOperationId(3L);root.setPreviousRootVolumeId(70L);root.setSourceTemplateId(80L);Mockito.when(roots.findActive(6L)).thenReturn(root);
         bundle=Mockito.mock(StorageServiceRuntimeBundleVO.class);Mockito.when(bundle.getId()).thenReturn(5L);Mockito.when(bundle.getUuid()).thenReturn("bundle-uuid");Mockito.when(bundle.getVersion()).thenReturn("source-code");Mockito.when(bundle.getSha256()).thenReturn("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");Mockito.when(bundle.getManifestSha256()).thenReturn("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");Mockito.when(bundle.getSigningKeyId()).thenReturn("trusted-key");Mockito.when(bundle.getRuntimeAbiVersion()).thenReturn("1");Mockito.when(bundle.getDesiredStateSchemaVersion()).thenReturn("1");Mockito.when(bundle.getState()).thenReturn(StorageServiceRuntimeBundleVO.State.AVAILABLE);Mockito.when(bundle.getServiceImpact()).thenReturn(StorageServiceRuntimeBundleVO.ServiceImpact.NONE);Mockito.when(bundles.findById(5L)).thenReturn(bundle);Mockito.when(bundles.findByUuid("bundle-uuid")).thenReturn(bundle);
-        ReflectionTestUtils.setField(manager,"instanceDao",instances);ReflectionTestUtils.setField(manager,"rootWriterDao",operations);ReflectionTestUtils.setField(manager,"rootUpgradeDao",roots);ReflectionTestUtils.setField(manager,"bundleDao",bundles);
+        Mockito.when(instances.update(Mockito.anyLong(),Mockito.any())).thenReturn(true);ReflectionTestUtils.setField(manager,"instanceDao",instances);ReflectionTestUtils.setField(manager,"rootWriterDao",operations);ReflectionTestUtils.setField(manager,"rootUpgradeDao",roots);ReflectionTestUtils.setField(manager,"bundleDao",bundles);
     }
     private MockedConstruction<StorageServiceRuntimeBundleVerifier> verification(){return Mockito.mockConstruction(StorageServiceRuntimeBundleVerifier.class,(mock,context)->{
         JsonObject verified=new JsonObject();JsonObject manifest=new JsonObject();manifest.addProperty("bundleVersion","source-code");
@@ -137,7 +151,7 @@ public class StoragePinnedRuntimeReplayTest {
     private StorageServiceRuntimeUpgradeVO genericUpgrade(JsonObject sourceCheckpoint){
         StorageServiceRuntimeUpgradeVO upgrade=new StorageServiceRuntimeUpgradeVO(6L,5L,5L,"runtime-unit",1L);upgrade.setState(StorageServiceRuntimeUpgradeVO.State.PREFLIGHT_READY);
         JsonObject preflight=new JsonObject();preflight.add("targetRuntimePin",manager.runtimePin(bundle));preflight.add("sourceSignedRuntime",sourceCheckpoint);upgrade.setPreflightJson(preflight.toString());
-        StorageServiceRuntimeUpgradeDao upgrades=Mockito.mock(StorageServiceRuntimeUpgradeDao.class);Mockito.when(upgrades.findById(7L)).thenReturn(upgrade);ReflectionTestUtils.setField(manager,"upgradeDao",upgrades);
+        StorageServiceRuntimeUpgradeDao upgrades=Mockito.mock(StorageServiceRuntimeUpgradeDao.class);Mockito.when(upgrades.findById(7L)).thenReturn(upgrade);Mockito.when(upgrades.update(Mockito.anyLong(),Mockito.any())).thenReturn(true);ReflectionTestUtils.setField(manager,"upgradeDao",upgrades);
         StorageServiceGuestCommandDispatcher guest=Mockito.mock(StorageServiceGuestCommandDispatcher.class);Mockito.when(guest.dispatch(Mockito.any())).thenReturn(new StorageServiceGuestCommandResult(true,"ok","{\"success\":true,\"status\":\"ok\"}"));ReflectionTestUtils.setField(manager,"guestCommandDispatcher",guest);return upgrade;
     }
     private void genericActivate(){org.apache.cloudstack.api.command.admin.storage.dataservice.UpgradeStorageServiceRuntimeCmd cmd=Mockito.mock(org.apache.cloudstack.api.command.admin.storage.dataservice.UpgradeStorageServiceRuntimeCmd.class);Mockito.when(cmd.getUpgradeId()).thenReturn(7L);ReflectionTestUtils.invokeMethod(manager,"doUpgrade",cmd);}

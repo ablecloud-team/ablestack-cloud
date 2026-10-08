@@ -15,7 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 package org.apache.cloudstack.storage.dataservice;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Test;
 import org.mockito.Mockito;
 import com.google.gson.JsonObject;
 import com.cloud.utils.exception.CloudRuntimeException;

@@ -16,7 +16,8 @@
 // under the License.
 
 package com.cloud.agent.api;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Test;
 public class StorageServiceCommandSchedulingTest {
     @Test public void exactReadOnlyQueriesCanRunWhileAnotherVmOnTheHostIsFormatting(){
         for(String command:new String[]{"health","inventory","sessions","operation observe","operation verify","operation resources","operation generation status","operation generation frozen","volume operation status","volume operation capabilities","operation maintenance status","operation root-data inspect","identity capsule capabilities","nfs idmapping preflight","operation writer-idle","operation reservation status","smb identity inspect"}) Assert.assertFalse(command,new StorageServiceHostCommand("same-vm",command,"{}",30).executeInSequence());
@@ -36,6 +37,11 @@ public class StorageServiceCommandSchedulingTest {
         for(String value:new String[]{"operation reservation acquire","operation reservation release","smb identity rebind","smb identity inspect extra","operation reservation renew extra","operation reservation renew-all","operation reservation"}) {
             Assert.assertTrue(value,new StorageServiceHostCommand("same-vm",value,"{}",15).executeInSequence());
         }
+    }
+
+    @Test public void renderedObservationsAndPermissionPlansAreExactReadonlyQueriesWhileActivationIsSerialized() {
+        for(String value:new String[]{"operation generation render-status","operation generation render-boot-gate","posix directory inspect","posix directory plan"}) Assert.assertFalse(value,new StorageServiceHostCommand("same-vm",value,"{}",15).executeInSequence());
+        for(String value:new String[]{"operation generation render-stage","operation generation render-activate","operation generation render-rollback","operation generation render-finalize","posix directory apply","posix directory plan extra"}) Assert.assertTrue(value,new StorageServiceHostCommand("same-vm",value,"{}",60).executeInSequence());
     }
 
 }
