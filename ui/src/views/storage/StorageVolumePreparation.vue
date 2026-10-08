@@ -77,7 +77,8 @@ export default {
       try {
         const result = await getAPI('getStorageServiceVolumePreparation', { instanceid: instance, volumeid: volume }, { timeout: 15000, preserveOnFailure: true })
         if (this.disposed || generation !== this.generation || instance !== this.instanceId || volume !== this.selectedVolume) return
-        const response = result.getstorageservicevolumepreparationresponse
+        const envelope = result.getstorageservicevolumepreparationresponse
+        const response = envelope?.storageserviceruntime || envelope
         if (!response || response.success !== true) throw new Error('Volume preparation observation unavailable')
         const observed = parse(response.resultjson)
         if (!observed.status || typeof observed.status !== 'string' || (observed.operation?.volumeUuid && observed.operation.volumeUuid !== volume)) throw new Error('Invalid volume preparation observation')

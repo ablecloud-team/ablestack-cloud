@@ -18,7 +18,7 @@
 import Widget from '@/views/storage/StorageVolumePreparation'
 import { getAPI } from '@/api'
 jest.mock('@/api', () => ({ getAPI: jest.fn() }))
-const reply = status => ({ getstorageservicevolumepreparationresponse: { success: true, resultjson: JSON.stringify({ status, operationId: 'volume-v', operation: { phase: status, devicePath: '/dev/sdc' }, currentIdentity: { observedDevicePath: '/dev/sdb' } }) } })
+const reply = status => ({ getstorageservicevolumepreparationresponse: { storageserviceruntime: { success: true, resultjson: JSON.stringify({ status, operationId: 'volume-v', operation: { phase: status, devicePath: '/dev/sdc' }, currentIdentity: { observedDevicePath: '/dev/sdb' } }) } } })
 function instance () {
   const vm = { ...Widget.data(), instanceId: 'a', selectedVolume: 'v' }
   vm.operation = {}
