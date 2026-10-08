@@ -37,4 +37,15 @@ public class EuropaSharedFSOperationControlUpgradeTest {
         Connection connection=Mockito.mock(Connection.class);Mockito.when(connection.createStatement()).thenThrow(new SQLException("read-only database"));
         Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,()->EuropaSharedFSOperationControlUpgrade.migrate(connection));
     }
+    @Test public void independentPolicyPhaseAddsNullableOptInOnlyWhenInstanceTableExistsAndColumnIsAbsent() throws Exception {
+        Connection connection=Mockito.mock(Connection.class);Statement statement=Mockito.mock(Statement.class);java.sql.DatabaseMetaData metadata=Mockito.mock(java.sql.DatabaseMetaData.class);java.sql.ResultSet table=Mockito.mock(java.sql.ResultSet.class),column=Mockito.mock(java.sql.ResultSet.class);
+        Mockito.when(connection.createStatement()).thenReturn(statement);Mockito.when(connection.getMetaData()).thenReturn(metadata);Mockito.when(metadata.getTables(Mockito.eq("cloud"),Mockito.isNull(),Mockito.eq("storage_service_instance"),Mockito.any())).thenReturn(table);Mockito.when(table.next()).thenReturn(true);Mockito.when(metadata.getColumns("cloud",null,"storage_service_instance","operation_control_policy_json")).thenReturn(column);Mockito.when(column.next()).thenReturn(false);
+        EuropaSharedFSOperationControlUpgrade.migratePolicy(connection);Mockito.verify(statement).execute("ALTER TABLE cloud.storage_service_instance ADD COLUMN operation_control_policy_json LONGTEXT DEFAULT NULL");
+    }
+    @Test public void freshAbsentTableAndAlreadyInstalledPolicyDoNotMutateRowsOrRepeatAlter() throws Exception {
+        Connection connection=Mockito.mock(Connection.class);Statement statement=Mockito.mock(Statement.class);java.sql.DatabaseMetaData metadata=Mockito.mock(java.sql.DatabaseMetaData.class);java.sql.ResultSet table=Mockito.mock(java.sql.ResultSet.class),column=Mockito.mock(java.sql.ResultSet.class);
+        Mockito.when(connection.createStatement()).thenReturn(statement);Mockito.when(connection.getMetaData()).thenReturn(metadata);Mockito.when(metadata.getTables(Mockito.eq("cloud"),Mockito.isNull(),Mockito.eq("storage_service_instance"),Mockito.any())).thenReturn(table);Mockito.when(table.next()).thenReturn(false,true);Mockito.when(metadata.getColumns("cloud",null,"storage_service_instance","operation_control_policy_json")).thenReturn(column);Mockito.when(column.next()).thenReturn(true);
+        EuropaSharedFSOperationControlUpgrade.migratePolicy(connection);EuropaSharedFSOperationControlUpgrade.migratePolicy(connection);Mockito.verify(statement,Mockito.never()).execute(Mockito.anyString());
+    }
+
 }
