@@ -15,10 +15,15 @@
 // specific language governing permissions and limitations
 // under the License.
 package org.apache.cloudstack.storage.dataservice;
-import java.util.*;
-import com.google.gson.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.cloud.utils.exception.CloudRuntimeException;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Test;
 public class StorageRootDataManifestTest {
     private JsonArray request(){JsonArray rows=new JsonArray();for(String kind:List.of("FILE_DATA","BLOCK_RAW","UNUSED")){JsonObject row=new JsonObject();row.addProperty("volumeUuid",kind);row.addProperty("kind",kind);row.addProperty("sizeBytes",1024);rows.add(row);}return rows;}
     private JsonObject actual(){JsonObject value=new JsonObject();value.addProperty("generatedEpoch",System.currentTimeMillis()/1000.0);value.addProperty("bootId","same-source-boot");JsonArray disks=request();for(JsonElement entry:disks){JsonObject row=entry.getAsJsonObject();row.addProperty("mappingStatus","EXACT");row.addProperty("matchedBy","VOLUME_SERIAL");row.addProperty("serial","serial-"+row.get("volumeUuid").getAsString());row.addProperty("observedDevicePath","/dev/vdb");if("FILE_DATA".equals(row.get("kind").getAsString())){row.addProperty("filesystem","xfs");row.addProperty("filesystemUuid","actual-xfs-uuid");}}value.add("volumes",disks);return value;}

@@ -15,7 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 package org.apache.cloudstack.storage.dataservice;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageSmbAclCmd;
 import com.cloud.utils.exception.CloudRuntimeException;
