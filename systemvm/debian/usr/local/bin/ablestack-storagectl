@@ -6235,6 +6235,88 @@ class RootInitialization:
         restored = observed["directoryIdentity"] == receipt["before"]["directoryIdentity"]
         receipt.update(phase="ROLLED_BACK" if restored else "RECOVERY_REQUIRED", observed=observed)
         root_receipt_write(self.path(request), receipt)
+"""Post-apply POSIX attestation; replay verifies one inode without changing metadata."""
+import hashlib
+import json
+import os
+from pathlib import Path
+import time
+import uuid
+
+IDENTITY_FIELDS = ("filesystemUuid", "device", "inode", "effectiveUid", "effectiveGid", "effectiveMode", "aclSha256")
+
+
+class PosixPolicyReceipt:
+    def __init__(self, receipts=None):
+        self.receipts = Path(receipts or os.environ.get("ABLESTACK_STORAGE_POSIX_RECEIPTS", "/var/lib/ablestack-storage/posix-policy-receipts"))
+
+    def scope(self, request):
+        revision = request.get("revision")
+        if type(revision) is not int or revision < 1:
+            raise ValueError("POSIX attestation needs its exact positive policy revision")
+        return {"instanceUuid": str(uuid.UUID(request["instanceUuid"])), "policyUuid": str(uuid.UUID(request["uuid"])),
+                "volumeUuid": str(uuid.UUID(request["volumeUuid"])), "revision": revision,
+                "volumeMountPath": request["volumeMountPath"], "relativePath": request["relativePath"]}
+
+    def path(self, request):
+        return self.receipts / (str(uuid.UUID(request["uuid"])) + ".json")
+
+    def checksum(self, request):
+        return hashlib.sha256(json.dumps(request, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest()
+
+    def read(self, request):
+        return root_receipt_read(self.path(request))
+
+    def attest(self, request, observed):
+        identity = observed.get("directoryIdentity")
+        if not isinstance(identity, dict) or set(identity) != set(IDENTITY_FIELDS):
+            raise ValueError("POSIX post-apply identity is incomplete")
+        return {"schemaVersion": 1, "phase": "COMPLETE", "scope": self.scope(request),
+                "requestSha256": self.checksum(request), "directoryIdentity": identity, "verifiedEpoch": time.time()}
+
+    def verify(self, request, observed, receipt):
+        if (not isinstance(receipt, dict) or receipt.get("schemaVersion") != 1 or receipt.get("phase") != "COMPLETE"
+                or receipt.get("scope") != self.scope(request) or receipt.get("requestSha256") != self.checksum(request)
+                or receipt.get("directoryIdentity") != observed.get("directoryIdentity")):
+            raise ValueError("POSIX post-apply receipt differs from its request or current directory")
+        return True
+
+    def replay(self, request, stored, observed):
+        if not isinstance(stored, dict) or stored.get("request") != request:
+            return False
+        receipt = self.read(request)
+        if receipt is None:
+            return False
+        self.verify(request, observed, receipt)
+        if (stored.get("effective") or {}).get("directoryIdentity") != observed.get("directoryIdentity"):
+            raise ValueError("POSIX committed effective directory differs from its post-apply receipt")
+        return True
+
+    def write(self, request, observed):
+        receipt = self.attest(request, observed)
+        root_receipt_write(self.path(request), receipt)
+        self.verify(request, observed, self.read(request))
+        return receipt
+
+    def restore(self, request, previous_policy, previous_receipt, observed):
+        if previous_receipt is None:
+            # Invalidate newer attestation after an exact rollback to a legacy policy.
+            path = self.path(request)
+            if path.exists() or path.is_symlink():
+                self.read(request)
+                path.unlink()
+                descriptor = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+                try: os.fsync(descriptor)
+                finally: os.close(descriptor)
+            return
+        previous_request = (previous_policy or {}).get("request")
+        if not isinstance(previous_request, dict) or previous_request.get("uuid") != request.get("uuid"):
+            raise ValueError("POSIX receipt rollback lacks the exact previous committed request")
+        self.verify(previous_request, observed, previous_receipt)
+        if (previous_policy.get("effective") or {}).get("directoryIdentity") != observed.get("directoryIdentity"):
+            raise ValueError("POSIX restored metadata differs from the previous committed policy")
+        root_receipt_write(self.path(previous_request), previous_receipt)
+
 operation = sys.argv[1]
 with open(sys.argv[2], encoding="utf-8") as fp:
     request = json.load(fp)
@@ -6362,7 +6444,9 @@ def verify_expected_directory_identity(payload, before):
 
 def restore(snapshot):
     path, filesystem = canonical_path, filesystem_uuid
-    if filesystem != snapshot["filesystemUuid"] or os.fstat(directory_fd).st_ino != int(snapshot["inode"]):
+    value = os.fstat(directory_fd)
+    if (filesystem != snapshot["filesystemUuid"] or (value.st_dev, value.st_ino) != (int(snapshot["device"]), int(snapshot["inode"]))
+            or os.path.islink(path) or (os.lstat(path).st_dev, os.lstat(path).st_ino) != (value.st_dev, value.st_ino)):
         raise ValueError("Refusing POSIX restore on a replaced filesystem or directory")
     for line in snapshot["acl"]:
         if not re.fullmatch(r"(?:default:)?(?:user|group|mask|other):[0-9]*:[r-][w-][x-]", line):
@@ -6479,11 +6563,20 @@ except FileNotFoundError:
 
 initializer = RootInitialization() if request.get("rootInitialization") is not None else None
 initialization_receipt = None
+post_apply_receipts = PosixPolicyReceipt()
+already_effective = False
 if operation == "restore":
     if initializer:
         initialization_receipt = root_receipt_read(initializer.path(request))
         if not initialization_receipt or initialization_receipt.get("scope") != initializer.scope(request):
             raise ValueError("NEW root initializer restore scope changed")
+    # Validate previous attestation before any metadata inverse operation.
+    previous_receipt = request.get("previousPostApplyReceipt")
+    if previous_receipt is not None:
+        previous_request = (request.get("previousPolicy") or {}).get("request")
+        if not isinstance(previous_request, dict):
+            raise ValueError("POSIX restore lacks its previous committed request")
+        post_apply_receipts.verify(previous_request, request, previous_receipt)
     result = restore(request)
     result["driftStatus"] = "RESTORED"
     if initializer:
@@ -6492,6 +6585,7 @@ elif operation == "inspect":
     validate_policy(request.get("config") or {})
     result = observe(request)
     result["previousPolicy"] = desired.get(result["uuid"])
+    result["previousPostApplyReceipt"] = post_apply_receipts.read(request)
     if result["filesystemRoot"]:
         result["newRootInitialization"] = RootInitialization().preview(request, result, directory_fd)
 elif operation == "forget":
@@ -6500,14 +6594,19 @@ elif operation == "forget":
 elif operation == "apply":
     before = observe(request)
     before["previousPolicy"] = desired.get(before["uuid"])
+    before["previousPostApplyReceipt"] = post_apply_receipts.read(request)
     old = before["previousPolicy"] or {}
+    already_effective = post_apply_receipts.replay(request, old, before)
     replayed = False
-    if initializer:
+    if initializer and not already_effective:
         initialization_receipt, replayed = initializer.prepare(request, before, directory_fd)
     try:
-        if replayed:
+        if already_effective:
+            result = {**old["effective"], **before, "driftStatus": "CONSISTENT", "alreadyEffective": True, "postApplyReceiptVerified": True}
+            result.pop("previousPolicy", None);result.pop("previousPostApplyReceipt", None)
+        elif replayed:
             result = {**initialization_receipt["after"], **before, "driftStatus": "CONSISTENT"}
-            result.pop("previousPolicy", None)
+            result.pop("previousPolicy", None);result.pop("previousPostApplyReceipt", None)
         else:
             result = apply_policy_atomic(request, before, old)
             if initializer:
@@ -6516,11 +6615,12 @@ elif operation == "apply":
         if initializer:
             initializer.failed(request, initialization_receipt, observe(request))
         raise
-    desired[before["uuid"]] = {"request": request, "config": request.get("config") or {}, "effective": result}
+    if not already_effective:
+        desired[before["uuid"]] = {"request": request, "config": request.get("config") or {}, "effective": result}
 else:
     raise ValueError("Unsupported POSIX directory operation")
 
-if operation in ("apply", "forget", "restore"):
+if operation in ("apply", "forget", "restore") and not already_effective:
     fd, temporary = tempfile.mkstemp(prefix=".posix-policy-", dir=os.path.dirname(state_path))
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as fp:
@@ -6535,7 +6635,15 @@ if operation in ("apply", "forget", "restore"):
     finally:
         if os.path.exists(temporary):
             os.unlink(temporary)
-if operation == "apply" and initializer:
+if operation == "apply" and not already_effective:
+    post_apply_receipts.write(request, result)
+    result["alreadyEffective"] = False
+    result["postApplyReceiptVerified"] = True
+elif operation == "restore":
+    post_apply_receipts.restore(request, request.get("previousPolicy"), request.get("previousPostApplyReceipt"), result)
+elif operation == "forget":
+    post_apply_receipts.restore(request, None, None, result)
+if operation == "apply" and initializer and not already_effective:
     initializer.complete(request, initialization_receipt)
     result["newRootInitialization"] = {"available": False, "phase": "COMPLETE", "formatReceiptUuid": initialization_receipt["scope"]["formatReceiptUuid"]}
 os.close(directory_fd)
