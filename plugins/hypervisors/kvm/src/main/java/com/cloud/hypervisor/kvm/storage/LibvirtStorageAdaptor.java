@@ -1704,13 +1704,25 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
                 disk.getFormat() : PhysicalDiskFormat.RAW;
         String sourcePath = disk.getPath();
 
+        // A null cache/copy request creates a metadata-preallocated disk from its first allocation.
+        Storage.ProvisioningType copyProvisioning = provisioningType == null ? Storage.ProvisioningType.SPARSE : provisioningType;
+        if (copyProvisioning != Storage.ProvisioningType.THIN && sourceFormat != PhysicalDiskFormat.TAR && sourceFormat != PhysicalDiskFormat.DIR
+                && QEMU_IMG_MANAGED_POOL_TYPES.contains(destPool.getType()) && destPool.getType() != StoragePoolType.RBD) {
+            PhysicalDiskFormat requestedFormat = destPool.getDefaultFormat();
+            if (requestedFormat != PhysicalDiskFormat.QCOW2 && requestedFormat != PhysicalDiskFormat.RAW) {
+                throw new CloudRuntimeException("A non-THIN copy requires a known QCOW2 or RAW file destination before creation");
+            }
+            if (requestedFormat == PhysicalDiskFormat.RAW && copyProvisioning != Storage.ProvisioningType.FAT) {
+                throw new CloudRuntimeException("RAW file copies cannot honor metadata preallocation; explicitly select FAT/full before creation");
+            }
+        }
         KVMPhysicalDisk newDisk;
         logger.debug("copyPhysicalDisk: disk size:{}, virtualsize:{} format:{}", toHumanReadableSize(disk.getSize()), toHumanReadableSize(disk.getVirtualSize()), disk.getFormat());
         if (destPool.getType() != StoragePoolType.RBD) {
             if (disk.getFormat() == PhysicalDiskFormat.TAR) {
                 newDisk = destPool.createPhysicalDisk(name, PhysicalDiskFormat.DIR, Storage.ProvisioningType.THIN, disk.getVirtualSize(), null);
             } else {
-                newDisk = destPool.createPhysicalDisk(name, Storage.ProvisioningType.THIN, disk.getVirtualSize(), null);
+                newDisk = destPool.createPhysicalDisk(name, copyProvisioning, disk.getVirtualSize(), null);
             }
         } else {
             newDisk = new KVMPhysicalDisk(destPool.getSourceDir() + "/" + name, name, destPool);
@@ -1747,7 +1759,7 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
                     Map<String, String> info = qemu.info(srcFile);
                     String backingFile = info.get(QemuImg.BACKING_FILE);
                     // qcow2 templates can just be copied into place
-                    if (sourceFormat.equals(destFormat) && backingFile == null && sourcePath.endsWith(".qcow2")) {
+                    if (copyProvisioning == Storage.ProvisioningType.THIN && sourceFormat.equals(destFormat) && backingFile == null && sourcePath.endsWith(".qcow2")) {
                         String result = Script.runSimpleBashScript("cp -f " + sourcePath + " " + destPath, timeout);
                         if (result != null) {
                             throw new CloudRuntimeException("Failed to create disk: " + result);
@@ -1759,7 +1771,12 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
                             if (destPool.getType() == StoragePoolType.CLVM) {
                                 keepBitmaps = false;
                             }
-                            qemu.convert(srcFile, destFile, null, null, null, new QemuImageOptions(srcFile.getFormat(), srcFile.getFileName(), null),
+                            Map<String, String> copyOptions = new HashMap<>();
+                            if (destFormat == PhysicalDiskFormat.QCOW2 || destFormat == PhysicalDiskFormat.RAW && copyProvisioning == Storage.ProvisioningType.FAT
+                                    && QEMU_IMG_MANAGED_POOL_TYPES.contains(destPool.getType())) {
+                                copyOptions.put(QemuImg.PREALLOCATION, QemuImg.PreallocationType.getPreallocationType(copyProvisioning).toString());
+                            }
+                            qemu.convert(srcFile, destFile, null, copyOptions, null, new QemuImageOptions(srcFile.getFormat(), srcFile.getFileName(), null),
                                     null, false, keepBitmaps, false,
                                     false, null, null);
                             Map<String, String> destInfo = qemu.info(destFile);
@@ -1838,7 +1855,14 @@ public class LibvirtStorageAdaptor implements StorageAdaptor {
             destFile.setFormat(destFormat);
 
             try {
-                qemu.convert(srcFile, destFile);
+                if (destPool.getType() != StoragePoolType.RBD && (destFormat == PhysicalDiskFormat.QCOW2
+                        || destFormat == PhysicalDiskFormat.RAW && copyProvisioning == Storage.ProvisioningType.FAT && QEMU_IMG_MANAGED_POOL_TYPES.contains(destPool.getType()))) {
+                    Map<String, String> copyOptions = new HashMap<>();
+                    copyOptions.put(QemuImg.PREALLOCATION, QemuImg.PreallocationType.getPreallocationType(copyProvisioning).toString());
+                    qemu.convert(srcFile, destFile, copyOptions, (String)null);
+                } else {
+                    qemu.convert(srcFile, destFile);
+                }
             } catch (QemuImgException | LibvirtException e) {
                 logger.error("Failed to convert " + srcFile.getFileName() + " to " + destFile.getFileName() + " the error was: " + e.getMessage());
                 newDisk = null;
