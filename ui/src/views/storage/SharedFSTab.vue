@@ -43,6 +43,7 @@ class="storage-service__alert"
         <DetailsTab :resource="dataResource" :loading="loading" />
         <storage-operation-history ref="storageOperationHistory" v-if="storageService.instance && 'listStorageServiceOperations' in $store.getters.apis" :instance-id="storageService.instance.id" />
         <storage-service-configuration v-if="storageService.instance && 'listStorageServiceConfigBackups' in $store.getters.apis" :instance-id="storageService.instance.id" :resource="dataResource" @operation-updated="refreshStorageOperationHistory" />
+        <storage-service-template-upgrade-history v-if="'listStorageServiceTemplateUpgrades' in $store.getters.apis" :resource="dataResource" @operation-updated="refreshTemplateOperationHistory" />
         <div v-if="hasStorageServiceApi" class="storage-service storage-service--overview">
           <h3 class="storage-service__section-title">{{ $t('label.storage.service.overview') }}</h3>
           <a-alert
@@ -2320,6 +2321,7 @@ import PosixDirectoryPolicies from '@/views/storage/PosixDirectoryPolicies'
 import PosixPolicyInheritance from '@/views/storage/PosixPolicyInheritance'
 import StorageOperationHistory from '@/views/storage/StorageOperationHistory'
 import StorageServiceConfiguration from '@/views/storage/StorageServiceConfiguration'
+import StorageServiceTemplateUpgradeHistory from '@/views/storage/StorageServiceTemplateUpgradeHistory'
 import { Empty } from 'ant-design-vue'
 import {
   DeleteOutlined,
@@ -2539,6 +2541,7 @@ export default {
     PosixPolicyInheritance,
     StorageOperationHistory,
     StorageServiceConfiguration,
+    StorageServiceTemplateUpgradeHistory,
     Status,
     ProtocolHeader,
     EllipsisText,
@@ -4681,6 +4684,10 @@ export default {
     this.$emit('wide-layout-change', false)
   },
   methods: {
+    refreshTemplateOperationHistory (sharedFsId) {
+      if (sharedFsId !== this.dataResource.id) return
+      if (this.$refs.storageOperationHistory) this.$refs.storageOperationHistory.refresh()
+    },
     refreshStorageOperationHistory (instanceId) {
       if (instanceId === this.storageService.instance?.id && this.$refs.storageOperationHistory) this.$refs.storageOperationHistory.refresh()
     },
