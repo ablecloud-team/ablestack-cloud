@@ -68,14 +68,22 @@ class StorageNetworkRootBindingTest(unittest.TestCase):
     def test_exact_mac_replay_and_separate_receipt_preserve_desired_bytes(self):
         proof=self.bind()
         self.assertEqual('52:54:00:00:00:01',proof['macAddress'])
-        self.ns['write_binding_receipt'](self.expected,[proof])
+        attestation=self.ns['write_binding_receipt'](self.expected,[proof])
+        self.assertTrue(attestation['bindingReceiptVerified'])
+        self.assertTrue(attestation['desiredStatePresent'])
+        self.assertEqual(attestation['desiredStateSha256'],attestation['bindingReceiptDesiredStateSha256'])
+        self.assertEqual(hashlib.sha256(self.original).hexdigest(),attestation['desiredStateSha256'])
         self.assertEqual(self.original,self.cache.read_bytes())
         self.assertEqual(hashlib.sha256(self.original).hexdigest(),json.loads(self.receipt.read_text())['desiredStateSha256'])
         self.assertEqual(0o600,self.receipt.stat().st_mode&0o777)
 
     def test_absent_desired_empty_bindings_receipt_never_creates_desired_file(self):
         self.cache.unlink()
-        self.ns['write_binding_receipt']([],[])
+        attestation=self.ns['write_binding_receipt']([],[])
+        self.assertTrue(attestation['bindingReceiptVerified'])
+        self.assertFalse(attestation['desiredStatePresent'])
+        self.assertIsNone(attestation['bindingReceiptDesiredStateSha256'])
+        self.assertIsNone(attestation['desiredStateSha256'])
         receipt=self.ns['read_binding_receipt']()
         self.assertFalse(receipt['desiredPresent'])
         self.assertIsNone(receipt['desiredStateSha256'])
@@ -88,6 +96,26 @@ class StorageNetworkRootBindingTest(unittest.TestCase):
             self.ns['write_binding_receipt'](self.expected,[])
         self.assertFalse(self.cache.exists())
         self.assertFalse(self.receipt.exists())
+
+    def test_readback_rejects_cache_bytes_or_observed_binding_drift(self):
+        proof=self.bind();self.ns['write_binding_receipt'](self.expected,[proof])
+        self.cache.write_bytes(self.original + b"\n")
+        with self.assertRaisesRegex(ValueError,'readback'):
+            self.ns['verify_binding_receipt'](self.expected,[proof])
+        self.cache.write_bytes(self.original)
+        with self.assertRaisesRegex(ValueError,'readback'):
+            self.ns['verify_binding_receipt'](self.expected,[{**proof,'macAddress':'52:54:00:00:00:02'}])
+        self.assertTrue(self.ns['verify_binding_receipt'](self.expected,[proof])['bindingReceiptVerified'])
+
+    def test_readback_rejects_a_symlink_or_writable_receipt(self):
+        proof=self.bind();self.ns['write_binding_receipt'](self.expected,[proof])
+        self.receipt.chmod(0o666)
+        with self.assertRaisesRegex(ValueError,'protected'):
+            self.ns['verify_binding_receipt'](self.expected,[proof])
+        self.receipt.chmod(0o600)
+        moved=self.receipt.with_suffix('.real');self.receipt.rename(moved);self.receipt.symlink_to(moved)
+        with self.assertRaisesRegex(ValueError,'protected'):
+            self.ns['verify_binding_receipt'](self.expected,[proof])
 
     def test_renamed_interface_reboot_uses_receipt_mac_and_same_primary(self):
         proof=self.bind();self.ns['write_binding_receipt'](self.expected,[proof])
