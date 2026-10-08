@@ -28,7 +28,7 @@ import java.util.Collections;
 import com.cloud.utils.db.TransactionLegacy;
 import com.cloud.utils.exception.CloudRuntimeException;
 
-/** Page-scoped DB projection: only attached, referenced, distinct data volumes. No guest reads. */
+/** Page-scoped DB projection: all attached, distinct DATA volumes including unreferenced preparation volumes. No guest reads. */
 public final class SharedFSCapacityProjection {
     private SharedFSCapacityProjection() { }
 
@@ -66,19 +66,11 @@ public final class SharedFSCapacityProjection {
         for (Long id : ids) result.put(id, new Capacity());
         final String slots = String.join(",", Collections.nCopies(ids.length, "?"));
         final String query = "SELECT sf.id, v.id, v.size, v.state, sf.vm_id, v.uuid FROM shared_filesystem sf "
-                + "JOIN (SELECT id AS sharedfs_id, volume_id FROM shared_filesystem WHERE id IN (" + slots + ") "
-                + "UNION SELECT sf2.id, fs.volume_id FROM shared_filesystem sf2 "
-                + "JOIN storage_service_instance si ON si.vm_id=sf2.vm_id JOIN storage_file_share fs ON fs.instance_id=si.id "
-                + "WHERE fs.state<>'Destroyed' AND sf2.id IN (" + slots + ") "
-                + "UNION SELECT sf3.id, bt.volume_id FROM shared_filesystem sf3 "
-                + "JOIN storage_service_instance si ON si.vm_id=sf3.vm_id JOIN storage_block_target bt ON bt.instance_id=si.id "
-                + "WHERE bt.state<>'Destroyed' AND sf3.id IN (" + slots + ")) refs ON refs.sharedfs_id=sf.id "
-                + "JOIN volumes v ON v.id=refs.volume_id AND v.instance_id=sf.vm_id "
-                + "WHERE v.removed IS NULL AND v.state NOT IN ('Destroy','Destroying','Expunging','Expunged')";
+                + "JOIN volumes v ON v.instance_id=sf.vm_id AND v.volume_type='DATADISK' "
+                + "WHERE sf.id IN (" + slots + ") AND v.removed IS NULL "
+                + "AND v.state NOT IN ('Destroy','Destroying','Expunging','Expunged')";
         try (PreparedStatement statement = TransactionLegacy.currentTxn().prepareAutoCloseStatement(query)) {
-            for (int group=0; group<3; group++) {
-                for (int i=0; i<ids.length; i++) statement.setLong(group*ids.length+i+1, ids[i]);
-            }
+            for (int i=0; i<ids.length; i++) statement.setLong(i+1, ids[i]);
             try (ResultSet rows = statement.executeQuery()) {
                 while (rows.next()) {
                     long size = rows.getLong(3);

@@ -142,4 +142,31 @@ public class StorageConfigurationVolumePlanTest {
         Fixture fat = new Fixture(1);fat.offering().addProperty("provisioningType", "fat");Assert.assertEquals("FAT", allocation(fat.build(),0).get("provisioningType").getAsString());
     }
 
+    @Test public void executionBindingKeepsAdditionalUuidsResourcesAndParentReviewHash() {
+        Fixture f=new Fixture(3);JsonObject original=f.build();JsonObject before=original.deepCopy();JsonObject bound=StorageConfigurationVolumePlan.bindAdditionalExecution(original,id(970),id(971));StorageConfigurationVolumePlan.requireFrozen(bound);
+        Assert.assertEquals(before,original);Assert.assertEquals(original.get("planSha256"),bound.get("parentPlanSha256"));Assert.assertEquals(2,bound.getAsJsonArray("allocations").size());Assert.assertEquals(id(971),bound.getAsJsonObject("volumeMappings").get(id(1)).getAsString());
+        JsonObject prior=allocation(original,1).deepCopy();prior.addProperty("targetInstanceUuid",id(970));Assert.assertEquals(prior,allocation(bound,0));Assert.assertEquals(StorageConfigurationVolumePlan.bindAdditionalExecution(original,id(970),id(971)),bound);
+        Assert.assertEquals(bound,StorageConfigurationVolumePlan.bindAdditionalExecution(bound,id(970),id(971)));
+    }
+    @Test public void changedRealizationTamperedReviewOrForeignExistingInitialIsRejected() {
+        Fixture f=new Fixture(2);JsonObject original=f.build();JsonObject bound=StorageConfigurationVolumePlan.bindAdditionalExecution(original,id(970),id(971));
+        Assert.assertThrows(CloudRuntimeException.class,()->StorageConfigurationVolumePlan.bindAdditionalExecution(bound,id(972),id(971)));
+        original.getAsJsonObject("scope").addProperty("accountId",99);Assert.assertThrows(CloudRuntimeException.class,()->StorageConfigurationVolumePlan.bindAdditionalExecution(original,id(970),id(971)));
+        Fixture existing=new Fixture(1);existing.existing(1);JsonObject review=existing.build();Assert.assertThrows(CloudRuntimeException.class,()->StorageConfigurationVolumePlan.bindAdditionalExecution(review,id(970),id(971)));
+    }
+    @Test public void realizedInitialCannotAliasSourceOrAdditionalAndTargetCannotAliasData() {
+        JsonObject original=new Fixture(2).build();String other=allocation(original,1).get("plannedUuid").getAsString();
+        Assert.assertThrows(CloudRuntimeException.class,()->StorageConfigurationVolumePlan.bindAdditionalExecution(original,id(970),id(1)));
+        Assert.assertThrows(CloudRuntimeException.class,()->StorageConfigurationVolumePlan.bindAdditionalExecution(original,id(970),other));
+        Assert.assertThrows(CloudRuntimeException.class,()->StorageConfigurationVolumePlan.bindAdditionalExecution(original,other,id(971)));
+    }
+    @Test public void strongerRealizationProofChecksOwnerPoolSizeProvisioningAndActualAttachment() {
+        Fixture f=new Fixture(2);JsonObject original=f.build();JsonObject target=f.scope.deepCopy();target.addProperty("uuid",id(970));JsonObject initial=f.scope.deepCopy();initial.addProperty("uuid",id(971));initial.addProperty("type","DATADISK");initial.addProperty("state","Ready");initial.addProperty("attachedInstanceUuid",id(970));initial.addProperty("poolUuid",id(911));initial.addProperty("sizeBytes",21474836480L);initial.addProperty("provisioningType","SPARSE");
+        StorageConfigurationVolumePlan.bindAdditionalExecution(original,target,initial);
+        for(String key:new String[]{"accountId","poolUuid","sizeBytes","provisioningType","attachedInstanceUuid","type"}) {
+            JsonObject bad=initial.deepCopy();if(key.equals("accountId")||key.equals("sizeBytes"))bad.addProperty(key,999);else bad.addProperty(key,key.equals("type")?"ROOT":key.equals("provisioningType")?"THIN":id(999));
+            Assert.assertThrows(CloudRuntimeException.class,()->StorageConfigurationVolumePlan.bindAdditionalExecution(original,target,bad));
+        }
+    }
+
 }

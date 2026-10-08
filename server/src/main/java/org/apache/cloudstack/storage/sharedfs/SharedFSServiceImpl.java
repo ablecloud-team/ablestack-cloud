@@ -208,6 +208,21 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         if (instance!=null && storageTemplateUpgradeDao.findActive(instance.getId())!=null) throw new CloudRuntimeException("ROOT template maintenance must complete or recover before a service lifecycle change");
     }
 
+    protected void requireNativeLifecycleIdle(SharedFS sharedFS) {
+        if(sharedFS.getVmId()==null)return;
+        com.cloud.vm.VMInstanceVO vm=vmInstanceDao.findById(sharedFS.getVmId());
+        if(vm==null || vm.getState()!=com.cloud.vm.VirtualMachine.State.Running)return;
+        StorageServiceGuestCommandResult observed=guestCommandDispatcher.dispatch(new org.apache.cloudstack.storage.dataservice.StorageServiceGuestCommand(vm.getId(),"operation writer-idle","{}",15,Set.of()));
+        com.google.gson.JsonObject idle=observed.isSuccess()?new com.google.gson.JsonParser().parse(observed.getResultJson()).getAsJsonObject():new com.google.gson.JsonObject();
+        if(!idle.has("status") || !"WRITER_IDLE".equals(idle.get("status").getAsString()))throw new CloudRuntimeException("Active or terminating formatter preserves this VM and DATA; lifecycle change is blocked until forward recovery");
+        for(VolumeVO volume:volumeDao.findByInstanceAndType(vm.getId(),Volume.Type.DATADISK)) {
+            com.google.gson.JsonObject payload=new com.google.gson.JsonObject();payload.addProperty("volumeUuid",volume.getUuid());
+            StorageServiceGuestCommandResult probe=guestCommandDispatcher.dispatch(new org.apache.cloudstack.storage.dataservice.StorageServiceGuestCommand(vm.getId(),"volume operation status",payload.toString(),5,Set.of()));
+            if(!probe.isSuccess())throw new CloudRuntimeException("Formatter journal observation is unavailable; VM/DATA lifecycle change is blocked");
+            org.apache.cloudstack.storage.dataservice.StorageFormatterLifecycleGate.requireIdle(new com.google.gson.JsonParser().parse(probe.getResultJson()).getAsJsonObject());
+        }
+    }
+
     protected <T> T withSharedFSWriterLock(SharedFS sharedFS, java.util.function.Supplier<T> action) {
         StorageServiceInstanceVO instance=sharedFS.getVmId()==null ? null : storageServiceInstanceDao.findByVmId(sharedFS.getVmId());
         String key=instance==null ? "SharedFSRemoval-"+sharedFS.getId() : "StorageServiceWriter-"+instance.getId();
@@ -217,6 +232,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
             held=lock.lock(30);
             if (!held) throw new CloudRuntimeException("Another Storage Service operation is active");
             requireNoRootMaintenance(sharedFS);
+            requireNativeLifecycleIdle(sharedFS);
             if (instance!=null && storageRuntimeUpgradeDao.findActiveByInstanceId(instance.getId())!=null) throw new CloudRuntimeException("A runtime upgrade is active; the requested service change is blocked");
             return action.get();
         } finally { if (held) lock.unlock(); lock.releaseRef(); }
@@ -693,6 +709,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         sharedFS.setInitialImportState("RECOVERY_REQUIRED");sharedFSDao.update(sharedFS.getId(),sharedFS);
         if (sharedFS.getVmId()==null) { sharedFSDao.remove(sharedFS.getId());return; }
         try {
+            requireNativeLifecycleIdle(sharedFS);
             if (!lifeCycle.stopSharedFS(sharedFS,false)) throw new CloudRuntimeException("Initial VM could not be stopped for preserved-volume cleanup");
             VolumeVO observed=volumeDao.findById(sharedFS.getVolumeId());
             Set<Long> ownData=observed!=null && sharedFS.getVmId().equals(observed.getInstanceId()) ? Set.of(sharedFS.getVolumeId()) : Set.of();
@@ -739,6 +756,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
     public SharedFS stopSharedFS(Long sharedFSId, Boolean forced) {
         SharedFSVO sharedFS = sharedFSDao.findById(sharedFSId);
         requireNoRootMaintenance(sharedFS);
+        requireNativeLifecycleIdle(sharedFS);
         Account caller = CallContext.current().getCallingAccount();
         accountMgr.checkAccess(caller, null, false, sharedFS);
         Set<State> validStates = new HashSet<>(List.of(State.Ready));
@@ -775,6 +793,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
     public SharedFS restartSharedFS(Long sharedFSId, boolean cleanup) throws OperationTimedoutException, ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException {
         SharedFSVO sharedFS = sharedFSDao.findById(sharedFSId);
         requireNoRootMaintenance(sharedFS);
+        requireNativeLifecycleIdle(sharedFS);
         Account caller = CallContext.current().getCallingAccount();
         accountMgr.checkAccess(caller, null, false, sharedFS);
 
@@ -941,6 +960,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
     public SharedFS changeSharedFSDiskOffering(ChangeSharedFSDiskOfferingCmd cmd) throws ResourceAllocationException {
         SharedFSVO sharedFS = sharedFSDao.findById(cmd.getId());
         requireNoRootMaintenance(sharedFS);
+        requireNativeLifecycleIdle(sharedFS);
         Account caller = CallContext.current().getCallingAccount();
         accountMgr.checkAccess(caller, null, false, sharedFS);
         Set<State> validStates = new HashSet<>(List.of(State.Ready, State.Stopped));
@@ -965,6 +985,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
     public SharedFS changeSharedFSServiceOffering(ChangeSharedFSServiceOfferingCmd cmd) throws OperationTimedoutException, ResourceUnavailableException, InsufficientCapacityException, ManagementServerException, VirtualMachineMigrationException {
         SharedFSVO sharedFS = sharedFSDao.findById(cmd.getId());
         requireNoRootMaintenance(sharedFS);
+        requireNativeLifecycleIdle(sharedFS);
         Account caller = CallContext.current().getCallingAccount();
         if (sharedFS==null) throw new InvalidParameterValueException("Shared filesystem is unavailable");
         accountMgr.checkAccess(caller, null, false, sharedFS);

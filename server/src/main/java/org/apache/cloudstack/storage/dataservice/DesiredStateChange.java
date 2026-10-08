@@ -31,6 +31,7 @@ public final class DesiredStateChange {
         void preflight();
         void verify();
         void applyPrevious();
+        default void ensureRollbackSafe() { }
         default void started(StorageServiceOperationVO operation) { }
         default void finished() { }
         default void prepareNativeCheckpoint(StorageServiceOperationVO operation) { }
@@ -143,6 +144,7 @@ public final class DesiredStateChange {
                     if (mutated && operation.getPreviousSnapshotJson() != null) {
                         try {
                             phase(operation, "ROLLING_BACK", 85);
+                            runtime.ensureRollbackSafe();
                             snapshots.restore(instanceId, operation.getPreviousSnapshotJson());
                             runtime.applyPrevious();
                             runtime.verify();

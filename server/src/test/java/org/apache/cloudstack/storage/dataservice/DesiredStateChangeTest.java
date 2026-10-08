@@ -245,4 +245,10 @@ public class DesiredStateChangeTest {
         verify(runtime).prepareNativeCheckpoint(any());
     }
 
+    @Test public void activeOrTerminatingFormatterPreventsDatabaseRollbackAndProtocolReplay() {
+        doThrow(new CloudRuntimeException("D-state formatter still owns the native writer lease")).when(runtime).ensureRollbackSafe();
+        Assert.assertThrows(CloudRuntimeException.class,()->engine.execute(7L,"create-nfs","formatter-timeout",0L,String.class,()->{throw new CloudRuntimeException("native formatter timeout");},runtime));
+        Assert.assertEquals("RECOVERY_REQUIRED",saved.get().getState());verify(snapshots,never()).restore(anyLong(),anyString());verify(runtime,never()).applyPrevious();verify(runtime,never()).rollbackNativeGeneration(any());verify(runtime,never()).promoteVerifiedConfiguration(any());
+    }
+
 }
