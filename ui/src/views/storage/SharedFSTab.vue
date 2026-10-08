@@ -4010,12 +4010,19 @@ export default {
     smbVolumeRows () {
       const rows = []
       const seen = new Set()
+      const namesByVolume = new Map()
+      this.storageService.smbShares.forEach((share, index) => {
+        const volume = this.volumeForShare(share)
+        const id = volume.id || volume.uuid || share.volumeid || share.volumeId || ('smb-share-' + index)
+        if (!namesByVolume.has(id)) namesByVolume.set(id, new Set())
+        namesByVolume.get(id).add(this.clientVisibleName(share.name || share.sharename, '-'))
+      })
       this.storageService.smbShares.forEach((share, index) => {
         const volume = this.volumeForShare(share)
         const id = volume.id || volume.uuid || share.volumeid || share.volumeId || `smb-share-${index}`
         if (seen.has(id)) return
         seen.add(id)
-        const shareName = this.clientVisibleName(share.name || share.sharename, '-')
+        const shareName = Array.from(namesByVolume.get(id)).join(', ')
         const resizeContext = this.backingVolumeActionFields(volume, shareName, share.volumesize || share.volumeSize)
         rows.push({
           key: id,
