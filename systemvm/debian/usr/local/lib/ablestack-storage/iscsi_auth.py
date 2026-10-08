@@ -98,13 +98,20 @@ class ConfigfsIscsiAuth:
     def attribute(self,directory,field,write=False):
         if field not in ("userid","password","userid_mutual","password_mutual"):
             raise ValueError("iSCSI authentication attribute is outside its fixed allowlist")
-        info=os.stat(field,dir_fd=directory,follow_symlinks=False)
-        if not stat.S_ISREG(info.st_mode) or info.st_uid!=os.geteuid() or info.st_mode&0o022 or info.st_nlink!=1:
-            raise ValueError("iSCSI authentication attribute is foreign")
-        descriptor=os.open(field,(os.O_RDWR if write else os.O_RDONLY)|os.O_NOFOLLOW,dir_fd=directory)
-        if self.identity(info)!=self.identity(os.fstat(descriptor)):
-            os.close(descriptor);raise ValueError("iSCSI authentication attribute changed while opening")
-        return descriptor,info
+        # configfs drops unreferenced attribute dentries and allocates a new
+        # inode on lookup. Pin the opened dentry first, then compare its name.
+        try:descriptor=os.open(field,(os.O_RDWR if write else os.O_RDONLY)|os.O_NOFOLLOW,dir_fd=directory)
+        except OSError as invalid:raise ValueError("iSCSI authentication attribute is unavailable or not a direct file") from invalid
+        try:
+            opened=os.fstat(descriptor)
+            if not stat.S_ISREG(opened.st_mode) or opened.st_uid!=os.geteuid() or opened.st_mode&0o022 or opened.st_nlink!=1:
+                raise ValueError("iSCSI authentication attribute is foreign")
+            named=os.stat(field,dir_fd=directory,follow_symlinks=False)
+            if self.identity(named)!=self.identity(opened):
+                raise ValueError("iSCSI authentication attribute changed after its dentry was pinned")
+            return descriptor,opened
+        except BaseException:
+            os.close(descriptor);raise
 
     def apply(self,target,initiator,config,secrets):
         values=iscsi_auth_values(config,secrets);self.writer()
