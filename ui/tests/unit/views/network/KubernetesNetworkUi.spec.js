@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import { computed, ref } from 'vue'
 import { getAPI, postAPI } from '@/api'
 import PortForwarding from '@/views/network/PortForwarding'
 import FirewallRules from '@/views/network/FirewallRules'
@@ -96,4 +97,12 @@ test('LB refresh failure retains visible targets and reports stale data', async 
   expect(vm.listRefreshFailed).toBe(true)
   expect(request.failed).toBe(true)
   expect(vm.loading).toBe(false)
+})
+
+test('LB VM picker headings react to a language change while the component stays mounted', () => {
+  const locale = ref('ko')
+  const columns = computed(() => LoadBalancing.computed.vmColumns.call({ $t: key => locale.value + ':' + key }))
+  expect(columns.value.map(column => column.title)).toContain('ko:label.name')
+  locale.value = 'en'
+  expect(columns.value.map(column => column.title)).toEqual(['name', 'state', 'displayname', 'account', 'zonename', 'select'].map(field => 'en:label.' + field))
 })

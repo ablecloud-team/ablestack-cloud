@@ -1082,37 +1082,6 @@ export default {
         loading: false,
         data: []
       },
-      vmColumns: [
-        {
-          key: 'name',
-          title: this.$t('label.name'),
-          dataIndex: 'name',
-          width: 220
-        },
-        {
-          key: 'state',
-          title: this.$t('label.state'),
-          dataIndex: 'state'
-        },
-        {
-          title: this.$t('label.displayname'),
-          dataIndex: 'displayname'
-        },
-        {
-          title: this.$t('label.account'),
-          dataIndex: 'account'
-        },
-        {
-          title: this.$t('label.zonename'),
-          dataIndex: 'zonename'
-        },
-        {
-          key: 'actions',
-          title: this.$t('label.select'),
-          dataIndex: 'actions',
-          width: 80
-        }
-      ],
       vmPage: 1,
       vmPageSize: 10,
       vmCount: 0,
@@ -1169,6 +1138,39 @@ export default {
     }
   },
   computed: {
+    vmColumns () {
+      return [
+        {
+          key: 'name',
+          title: this.$t('label.name'),
+          dataIndex: 'name',
+          width: 220
+        },
+        {
+          key: 'state',
+          title: this.$t('label.state'),
+          dataIndex: 'state'
+        },
+        {
+          title: this.$t('label.displayname'),
+          dataIndex: 'displayname'
+        },
+        {
+          title: this.$t('label.account'),
+          dataIndex: 'account'
+        },
+        {
+          title: this.$t('label.zonename'),
+          dataIndex: 'zonename'
+        },
+        {
+          key: 'actions',
+          title: this.$t('label.select'),
+          dataIndex: 'actions',
+          width: 80
+        }
+      ]
+    },
     compactColumns () {
       return [
         { key: 'name', dataIndex: 'name', title: this.$t('label.name'), width: 180 },
