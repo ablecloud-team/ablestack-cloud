@@ -49,7 +49,7 @@ class StorageLocalSamBootstrapTest(unittest.TestCase):
         return subprocess.CompletedProcess(args,0,out,"")
     def test_missing_target_sam_is_created_only_by_explicit_approved_bootstrap_then_preserved(self):
         result=self.bootstrap.initialize(self.request)
-        self.assertTrue(result["localSamInitialized"]);self.assertFalse(result["canonicalDesiredStateChanged"]);self.assertEqual(self.sid,result["localMachineSid"])
+        self.assertTrue(result["localSamInitialized"]);self.assertTrue(result["sideEffects"]);self.assertFalse(result["canonicalDesiredStateChanged"]);self.assertEqual(self.sid,result["localMachineSid"])
         self.calls.clear();again=self.bootstrap.initialize(self.request)
         self.assertFalse(again["localSamInitialized"]);self.assertTrue(again["identityPreserved"]);self.assertEqual(result["localMachineSid"],again["localMachineSid"])
         self.assertFalse(any(args[:2]==["net","setlocalsid"] for args in self.calls))
@@ -125,7 +125,7 @@ class StorageLocalSamBootstrapTest(unittest.TestCase):
                 result=subprocess.run(["bash",cli,"identity","local-sam","bootstrap",str(payload)],env=env,capture_output=True,text=True,timeout=20)
                 assert result.returncode==0,result.stdout+result.stderr
                 values.append(json.loads(result.stdout))
-            assert values[0]["localSamInitialized"] is True and values[1]["identityPreserved"] is True
+            assert values[0]["localSamInitialized"] is True and values[0]["sideEffects"] is True and values[1]["identityPreserved"] is True and values[1]["sideEffects"] is False
             assert values[0]["localMachineSid"]==values[1]["localMachineSid"]
             assert values[0]["generation"]==current and values[1]["configurationSha256"]==digest
             assert json.loads((generation/"current.json").read_text())==current

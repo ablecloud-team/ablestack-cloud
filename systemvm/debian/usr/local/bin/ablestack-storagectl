@@ -7603,7 +7603,8 @@ def smb_forced_identity(config, share_uuid, acls, create=False):
     token = re.sub(r"[^a-fA-F0-9]", "", str(share_uuid))[:20].lower()
     if len(token) != 20:
         raise ValueError("Managed identity needs a stable share UUID")
-    user, group = "sf_u_" + token, "sf_g_" + token
+    alias=semantic_forced_alias(payload.get("instanceUuid"),share_uuid,uid,gid,state_dir)
+    user, group = (alias["managedUser"],alias["managedGroup"]) if alias else ("sf_u_" + token,"sf_g_" + token)
     try:
         observed_group = grp.getgrnam(group)
         if observed_group.gr_gid != gid:
@@ -7635,6 +7636,7 @@ def smb_forced_identity(config, share_uuid, acls, create=False):
         if grp.getgrnam(group).gr_gid != gid:
             raise ValueError("Managed group failed GID verification")
     result = {"posixOwnershipMode": mode, "ownerUid": uid, "ownerGid": gid, "managedUser": user, "managedGroup": group}
+    if alias:result["sourceIdentityShareUuid"]=alias["sourceIdentityShareUuid"]
     if create:
         recorded = managed_identities.get(str(share_uuid), {})
         result["createdByControllerUser"] = bool(recorded.get("createdByControllerUser")) or user in created_identity_users
@@ -7785,6 +7787,103 @@ def ensure_local_smb_user(user, password):
         record_created_local_identity(user=user, group=user if created_group else None)
     run(["smbpasswd", "-s", "-a", user], input=f"{password}\n{password}\n", text=True)
     run(["smbpasswd", "-e", user])
+
+# BEGIN EMBEDDED SEMANTIC OWNER ALIAS
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements. See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership. The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+"""Protected source-share aliases retain fixed Unix owners after UUID remap."""
+import base64
+import hashlib
+import json
+import os
+from pathlib import Path
+import uuid
+import re
+
+SEMANTIC_ALIAS_FILE="/etc/ablestack-storage/smb-semantic-identity-aliases.json"
+SEMANTIC_ALIAS_ROW={"sourceShareUuid","targetShareUuid","managedUser","managedGroup","ownerUid","ownerGid","sourceIdentityVerified","identityNamespaceShareUuid"}
+
+
+def semantic_managed_aliases(original,resource_mappings):
+    file=original["payload"]["files"].get("/etc/ablestack-storage/smb-managed-identities.json")
+    managed={} if not file or file.get("absent") is True else json.loads(base64.b64decode(file["data"],validate=True))
+    if not isinstance(managed,dict):raise ValueError("Semantic managed identity collection is invalid")
+    if not isinstance(resource_mappings,list) or len(resource_mappings)>512:raise ValueError("Semantic share mapping is unavailable")
+    result=[];sources=set();targets=set()
+    for mapping in resource_mappings:
+        if not isinstance(mapping,dict) or set(mapping)!={"sourceShareUuid","targetShareUuid"}:raise ValueError("Semantic share mapping shape is invalid")
+        for field in ("sourceShareUuid","targetShareUuid"):
+            value=mapping[field]
+            if not isinstance(value,str) or str(uuid.UUID(value))!=value:raise ValueError("Semantic share UUID is invalid")
+        source=mapping["sourceShareUuid"];target=mapping["targetShareUuid"]
+        if source in sources or target in targets:raise ValueError("Semantic share mapping union collides")
+        sources.add(source);targets.add(target);identity=managed.get(source)
+        if identity is None:continue
+        namespace=identity.get("sourceIdentityShareUuid",source)
+        if not isinstance(namespace,str) or str(uuid.UUID(namespace))!=namespace:raise ValueError("Semantic owner namespace UUID is invalid")
+        token=namespace.replace("-","")[:20]
+        if (identity.get("managedUser")!="sf_u_"+token or identity.get("managedGroup")!="sf_g_"+token or identity.get("posixOwnershipMode")!="FORCED_UID_GID"):
+            raise ValueError("Semantic source forced owner namespace differs")
+        for field in ("ownerUid","ownerGid"):
+            value=identity.get(field)
+            if type(value) is not int or not 10000<=value<=2147483647 or value==65534:raise ValueError("Semantic source fixed owner numeric identity is unsafe")
+        result.append({**mapping,**{key:identity[key] for key in ("managedUser","managedGroup","ownerUid","ownerGid")},"sourceIdentityVerified":True,"identityNamespaceShareUuid":namespace})
+    if set(managed)-sources:raise ValueError("Semantic source fixed owners have no reviewed target mapping")
+    return result
+
+
+def semantic_forced_alias(instance,share,uid,gid,configuration=None):
+    root=Path(configuration or os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_ROOT","/etc/ablestack-storage"));path=root/"smb-semantic-identity-aliases.json"
+    if not path.exists() and not path.is_symlink():return None
+    raw=ad_authority_read(path,0o600);aliases=json.loads(raw);state=json.loads(ad_authority_read(root/"smb-domain.json",0o600))
+    if (type(aliases.get("schemaVersion")) is not int or aliases["schemaVersion"]!=1 or aliases.get("instanceUuid")!=instance
+            or state.get("instanceUuid")!=instance or state.get("semanticManagedIdentityAliasSha256")!=hashlib.sha256(raw).hexdigest()):
+        raise ValueError("Semantic fixed owner aliases are not bound to protected native identity")
+    scope=aliases.get("scope")
+    if (not isinstance(scope,dict) or set(scope)!={"instanceUuid","maintenanceUuid","operationUuid","revision"}
+            or scope.get("instanceUuid")!=instance or scope.get("maintenanceUuid")!=scope.get("operationUuid")
+            or type(scope.get("revision")) is not int or scope["revision"]<1
+            or not isinstance(aliases.get("sourceCheckpointRecordSha256"),str) or not re.fullmatch("[0-9a-f]{64}",aliases["sourceCheckpointRecordSha256"])):
+        raise ValueError("Semantic alias source scope/cipher receipt is invalid")
+    for key in ("instanceUuid","maintenanceUuid","operationUuid"):
+        if not isinstance(scope[key],str) or str(uuid.UUID(scope[key]))!=scope[key]:raise ValueError("Semantic alias source scope UUID is invalid")
+    if not isinstance(aliases.get("bootId"),str) or str(uuid.UUID(aliases["bootId"]))!=aliases["bootId"]:raise ValueError("Semantic alias source boot is invalid")
+    binding=state.get("semanticManagedIdentityAliasBinding")
+    if (not isinstance(binding,dict) or aliases.get("scope")!=binding.get("scope") or aliases.get("bootId")!=binding.get("bootId")
+            or aliases.get("sourceCheckpointRecordSha256")!=binding.get("sourceCheckpointRecordSha256")
+            or aliases.get("originalSourceAuthority")!=binding.get("originalSourceAuthority")):
+        raise ValueError("Semantic alias receipt scope/boot/source cipher binding differs")
+    rows=aliases.get("mappings")
+    if not isinstance(rows,list):raise ValueError("Semantic fixed owner alias rows are invalid")
+    selected=None;seen=set()
+    for row in rows:
+        if not isinstance(row,dict) or set(row)!=SEMANTIC_ALIAS_ROW or row["sourceIdentityVerified"] is not True:raise ValueError("Semantic fixed owner alias row is unverified")
+        for key in ("sourceShareUuid","targetShareUuid","identityNamespaceShareUuid"):
+            if not isinstance(row[key],str) or str(uuid.UUID(row[key]))!=row[key]:raise ValueError("Semantic fixed owner alias UUID is invalid")
+        token=row["identityNamespaceShareUuid"].replace("-","")[:20]
+        if row["managedUser"]!="sf_u_"+token or row["managedGroup"]!="sf_g_"+token or row["targetShareUuid"] in seen:
+            raise ValueError("Semantic fixed owner alias namespace collides")
+        for key in ("ownerUid","ownerGid"):
+            if type(row[key]) is not int or not 10000<=row[key]<=2147483647 or row[key]==65534:raise ValueError("Semantic alias numeric row is unsafe")
+        seen.add(row["targetShareUuid"])
+        if row["targetShareUuid"]==str(share):selected=row
+    if selected is None:return None
+    if type(uid) is not int or type(gid) is not int or selected["ownerUid"]!=uid or selected["ownerGid"]!=gid:raise ValueError("Semantic fixed owner alias numeric policy differs")
+    return {**{key:selected[key] for key in ("managedUser","managedGroup","ownerUid","ownerGid")},"sourceIdentityShareUuid":selected["identityNamespaceShareUuid"]}
+# END EMBEDDED SEMANTIC OWNER ALIAS
 
 def safe_netbios_name(value, instance_uuid):
     raw = re.sub(r"[^A-Za-z0-9]", "", str(value or ""))
@@ -10987,9 +11086,10 @@ FILES = {
     "/etc/ablestack-storage/secrets/nvmeof-acl-secrets.json",
     "/etc/ablestack-storage/smb-managed-identities.json",
     "/etc/ablestack-storage/smb-local-account-provenance.json",
+    "/etc/ablestack-storage/smb-semantic-identity-aliases.json",
 }
 AD_FILES = {"/etc/krb5.keytab","/etc/krb5.conf","/etc/ablestack-storage/smb-domain.json","/var/lib/samba/winbindd_idmap.tdb","/etc/ablestack-storage/ad-machine.conf"}
-PUBLIC_IDENTITY_FILES = {"/etc/ablestack-storage/smb-managed-identities.json","/etc/krb5.conf"}
+PUBLIC_IDENTITY_FILES = {"/etc/ablestack-storage/smb-managed-identities.json","/etc/ablestack-storage/smb-semantic-identity-aliases.json","/etc/krb5.conf"}
 
 ACCOUNT_FILES = {"/etc/passwd", "/etc/group", "/etc/shadow", "/etc/gshadow"}
 
@@ -11370,8 +11470,16 @@ def owned_account_records(files):
     managed = files.get("/etc/ablestack-storage/smb-managed-identities.json", {})
     if managed and not managed.get("absent"):
         content = json.loads(base64.b64decode(managed["data"], validate=True))
+        aliases_file=files.get("/etc/ablestack-storage/smb-semantic-identity-aliases.json",{})
+        aliases={} if not aliases_file or aliases_file.get("absent") else {row["targetShareUuid"]:row for row in json.loads(base64.b64decode(aliases_file["data"],validate=True)).get("mappings",[])}
         for uuid, identity in content.items():
-            suffix = str(uuid).replace("-", "")[:20]
+            source=identity.get("sourceIdentityShareUuid")
+            if source is not None:
+                row=aliases.get(uuid)
+                if (not isinstance(row,dict) or row.get("sourceIdentityVerified") is not True or row.get("identityNamespaceShareUuid")!=source
+                        or any(row.get(key)!=identity.get(key) for key in ("managedUser","managedGroup","ownerUid","ownerGid"))):
+                    raise ValueError("Managed aliased identity lacks its exact encrypted source receipt")
+            suffix = str(source or uuid).replace("-", "")[:20]
             user, group = identity.get("managedUser"), identity.get("managedGroup")
             if user != "sf_u_" + suffix or group != "sf_g_" + suffix:
                 raise ValueError("Managed fixed identity provenance is invalid")
@@ -11869,6 +11977,419 @@ def semantic_same_target(original,public,source,instance_uuid):
     return identity
 # END EMBEDDED AD SEMANTIC SOURCE
 
+# BEGIN EMBEDDED SEMANTIC LOCAL IDENTITY
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements. See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership. The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+"""One existing public local SAM SID key through libtdb opened O_RDONLY."""
+import ctypes
+import os
+from pathlib import Path
+import re
+import stat
+import struct
+
+
+class SambaPublicSidMissing(ValueError):
+    pass
+
+
+class PublicSidTdbData(ctypes.Structure):
+    _fields_=[("dptr",ctypes.c_void_p),("dsize",ctypes.c_size_t)]
+
+
+def samba_sid_bytes(value):
+    # Samba 4.17 stores struct dom_sid (revision, count, authority, 15 LE u32).
+    if not isinstance(value,bytes) or len(value)!=68 or value[0]!=1 or value[1]!=4 or value[2:8]!=bytes([0,0,0,0,0,5]):
+        raise ValueError("Existing public SAM SID has an unsupported binary shape")
+    subauthorities=struct.unpack("<4I",value[8:24])
+    if subauthorities[0]!=21:raise ValueError("Existing public SID is not a local domain SAM identity")
+    return "S-1-5-"+ "-".join(str(number) for number in subauthorities)
+
+
+def samba_public_sid(netbios,path=None,library=None):
+    if not isinstance(netbios,str) or not re.fullmatch(r"[A-Z0-9][A-Z0-9_-]{0,14}",netbios):
+        raise ValueError("Public SAM SID requires its exact validated NetBIOS machine name")
+    path=Path(path or "/var/lib/samba/private/secrets.tdb")
+    parent=path.parent.lstat();info=path.lstat();fields=("st_dev","st_ino","st_uid","st_gid","st_mode","st_size","st_mtime_ns","st_ctime_ns")
+    if (not stat.S_ISDIR(parent.st_mode) or parent.st_uid!=os.geteuid() or parent.st_mode&0o022
+            or not stat.S_ISREG(info.st_mode) or info.st_uid!=os.geteuid() or stat.S_IMODE(info.st_mode)!=0o600
+            or info.st_nlink!=1 or not 0<info.st_size<=64*1024*1024):
+        raise ValueError("Existing SAM SID database is not protected")
+    directory=os.open(path.parent,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW);descriptor=None;database=None;data=None
+    lib=library
+    try:
+        actual_parent=os.fstat(directory)
+        if (actual_parent.st_dev,actual_parent.st_ino)!=(parent.st_dev,parent.st_ino):raise ValueError("SAM SID database parent changed")
+        descriptor=os.open(path.name,os.O_RDONLY|os.O_NOFOLLOW,dir_fd=directory);opened=os.fstat(descriptor)
+        if any(getattr(opened,key)!=getattr(info,key) for key in fields):raise ValueError("SAM SID database changed during open")
+        if lib is None:lib=ctypes.CDLL("libtdb.so.1",use_errno=True)
+        lib.tdb_open.argtypes=[ctypes.c_char_p,ctypes.c_int,ctypes.c_int,ctypes.c_int,ctypes.c_uint];lib.tdb_open.restype=ctypes.c_void_p
+        lib.tdb_fetch.argtypes=[ctypes.c_void_p,PublicSidTdbData];lib.tdb_fetch.restype=PublicSidTdbData
+        lib.tdb_close.argtypes=[ctypes.c_void_p];lib.tdb_close.restype=ctypes.c_int
+        # O_RDONLY and no TDB_CLEAR_IF_FIRST/CREATE flags. The descriptor-bound
+        # proc path prevents a named replacement from selecting another file.
+        database=lib.tdb_open(("/proc/self/fd/"+str(descriptor)).encode(),0,0,os.O_RDONLY,0)
+        if not database:raise ValueError("Existing public SAM SID database cannot be opened read-only")
+        key=("SECRETS/SID/"+netbios).encode();buffer=ctypes.create_string_buffer(key)
+        data=lib.tdb_fetch(database,PublicSidTdbData(ctypes.cast(buffer,ctypes.c_void_p),len(key)))
+        if not data.dptr:raise SambaPublicSidMissing("Existing exact machine SAM SID key is absent")
+        if data.dsize!=68:raise ValueError("Existing exact machine SAM SID key is malformed")
+        result=samba_sid_bytes(ctypes.string_at(data.dptr,data.dsize))
+        after=os.fstat(descriptor);named=os.stat(path.name,dir_fd=directory,follow_symlinks=False);named_parent=path.parent.lstat()
+        if (any(getattr(opened,key)!=getattr(after,key) or getattr(opened,key)!=getattr(named,key) for key in fields)
+                or (named_parent.st_dev,named_parent.st_ino)!=(parent.st_dev,parent.st_ino)):
+            raise ValueError("SAM SID database or named parent changed during the public key read")
+        return result
+    finally:
+        if data is not None and data.dptr:
+            allocator=ctypes.CDLL(None);allocator.free.argtypes=[ctypes.c_void_p];allocator.free.restype=None;allocator.free(data.dptr)
+        if database:lib.tdb_close(database)
+        if descriptor is not None:os.close(descriptor)
+        os.close(directory)
+
+def ad_authority_read(path, exact_mode=None):
+    path=Path(path);parent=path.parent.lstat();info=path.lstat()
+    if (not stat.S_ISDIR(parent.st_mode) or parent.st_uid!=os.geteuid() or parent.st_mode&0o022
+            or not stat.S_ISREG(info.st_mode) or info.st_uid!=os.geteuid() or info.st_mode&0o022
+            or info.st_size>8*1024*1024 or exact_mode is not None and stat.S_IMODE(info.st_mode)!=exact_mode):
+        raise ValueError("AD policy authority is not protected")
+    directory=os.open(path.parent,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
+    descriptor=None
+    fields=("st_dev","st_ino","st_uid","st_gid","st_mode","st_size","st_mtime_ns","st_ctime_ns")
+    try:
+        opened_parent=os.fstat(directory)
+        if (opened_parent.st_dev,opened_parent.st_ino)!=(parent.st_dev,parent.st_ino):raise ValueError("AD policy directory changed")
+        descriptor=os.open(path.name,os.O_RDONLY|os.O_NOFOLLOW,dir_fd=directory);opened=os.fstat(descriptor)
+        if any(getattr(opened,key)!=getattr(info,key) for key in fields):raise ValueError("AD policy changed during open")
+        with os.fdopen(descriptor,"rb",closefd=False) as handle:raw=handle.read(8*1024*1024+1)
+        after=os.fstat(descriptor);named=os.stat(path.name,dir_fd=directory,follow_symlinks=False)
+        if len(raw)>8*1024*1024 or any(getattr(opened,key)!=getattr(after,key) or getattr(opened,key)!=getattr(named,key) for key in fields):
+            raise ValueError("AD policy changed during read")
+        return raw
+    finally:
+        if descriptor is not None:os.close(descriptor)
+        os.close(directory)
+import signal
+def bounded_ad_run(arguments, capture_output=True, text=True, timeout=5, pass_fds=()):
+    """Exact child termination; never wait without a timeout after a deadline."""
+    if not callable(getattr(os, "pidfd_open", None)) or not callable(getattr(signal, "pidfd_send_signal", None)):
+        raise ValueError("AD operations require exact pidfd child control")
+    until = time.monotonic() + timeout
+    inherited = (9,) if os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD") == "9" else ()
+    child = subprocess.Popen(arguments, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                             text=text, env=dict(os.environ,LC_ALL="C"), pass_fds=tuple(set((*inherited, *pass_fds))))
+    descriptor = None
+    try:
+        try: descriptor = os.pidfd_open(child.pid, 0)
+        except ProcessLookupError:
+            if child.poll() is None: raise ValueError("AD child identity is unavailable")
+        try:
+            output, error = child.communicate(timeout=max(.001, until-time.monotonic()))
+        except subprocess.TimeoutExpired:
+            if descriptor is not None:
+                try: signal.pidfd_send_signal(descriptor, signal.SIGTERM, None, 0)
+                except ProcessLookupError: pass
+            try: child.wait(timeout=.2)
+            except subprocess.TimeoutExpired:
+                if descriptor is not None:
+                    try: signal.pidfd_send_signal(descriptor, signal.SIGKILL, None, 0)
+                    except ProcessLookupError: pass
+                try: child.wait(timeout=.2)
+                except subprocess.TimeoutExpired: pass
+            raise TimeoutError("AD operation deadline exceeded; trust remains unverified")
+        if len(output) > 256*1024 or len(error) > 256*1024:
+            raise ValueError("AD public metadata response is oversized")
+        return subprocess.CompletedProcess(arguments, child.returncode, output, error)
+    finally:
+        if descriptor is not None: os.close(descriptor)
+        for stream in (child.stdout, child.stderr):
+            if stream is not None: stream.close()
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements. See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership. The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+"""Protected source-share aliases retain fixed Unix owners after UUID remap."""
+import base64
+import hashlib
+import json
+import os
+from pathlib import Path
+import uuid
+import re
+
+SEMANTIC_ALIAS_FILE="/etc/ablestack-storage/smb-semantic-identity-aliases.json"
+SEMANTIC_ALIAS_ROW={"sourceShareUuid","targetShareUuid","managedUser","managedGroup","ownerUid","ownerGid","sourceIdentityVerified","identityNamespaceShareUuid"}
+
+
+def semantic_managed_aliases(original,resource_mappings):
+    file=original["payload"]["files"].get("/etc/ablestack-storage/smb-managed-identities.json")
+    managed={} if not file or file.get("absent") is True else json.loads(base64.b64decode(file["data"],validate=True))
+    if not isinstance(managed,dict):raise ValueError("Semantic managed identity collection is invalid")
+    if not isinstance(resource_mappings,list) or len(resource_mappings)>512:raise ValueError("Semantic share mapping is unavailable")
+    result=[];sources=set();targets=set()
+    for mapping in resource_mappings:
+        if not isinstance(mapping,dict) or set(mapping)!={"sourceShareUuid","targetShareUuid"}:raise ValueError("Semantic share mapping shape is invalid")
+        for field in ("sourceShareUuid","targetShareUuid"):
+            value=mapping[field]
+            if not isinstance(value,str) or str(uuid.UUID(value))!=value:raise ValueError("Semantic share UUID is invalid")
+        source=mapping["sourceShareUuid"];target=mapping["targetShareUuid"]
+        if source in sources or target in targets:raise ValueError("Semantic share mapping union collides")
+        sources.add(source);targets.add(target);identity=managed.get(source)
+        if identity is None:continue
+        namespace=identity.get("sourceIdentityShareUuid",source)
+        if not isinstance(namespace,str) or str(uuid.UUID(namespace))!=namespace:raise ValueError("Semantic owner namespace UUID is invalid")
+        token=namespace.replace("-","")[:20]
+        if (identity.get("managedUser")!="sf_u_"+token or identity.get("managedGroup")!="sf_g_"+token or identity.get("posixOwnershipMode")!="FORCED_UID_GID"):
+            raise ValueError("Semantic source forced owner namespace differs")
+        for field in ("ownerUid","ownerGid"):
+            value=identity.get(field)
+            if type(value) is not int or not 10000<=value<=2147483647 or value==65534:raise ValueError("Semantic source fixed owner numeric identity is unsafe")
+        result.append({**mapping,**{key:identity[key] for key in ("managedUser","managedGroup","ownerUid","ownerGid")},"sourceIdentityVerified":True,"identityNamespaceShareUuid":namespace})
+    if set(managed)-sources:raise ValueError("Semantic source fixed owners have no reviewed target mapping")
+    return result
+
+
+def semantic_forced_alias(instance,share,uid,gid,configuration=None):
+    root=Path(configuration or os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_ROOT","/etc/ablestack-storage"));path=root/"smb-semantic-identity-aliases.json"
+    if not path.exists() and not path.is_symlink():return None
+    raw=ad_authority_read(path,0o600);aliases=json.loads(raw);state=json.loads(ad_authority_read(root/"smb-domain.json",0o600))
+    if (type(aliases.get("schemaVersion")) is not int or aliases["schemaVersion"]!=1 or aliases.get("instanceUuid")!=instance
+            or state.get("instanceUuid")!=instance or state.get("semanticManagedIdentityAliasSha256")!=hashlib.sha256(raw).hexdigest()):
+        raise ValueError("Semantic fixed owner aliases are not bound to protected native identity")
+    scope=aliases.get("scope")
+    if (not isinstance(scope,dict) or set(scope)!={"instanceUuid","maintenanceUuid","operationUuid","revision"}
+            or scope.get("instanceUuid")!=instance or scope.get("maintenanceUuid")!=scope.get("operationUuid")
+            or type(scope.get("revision")) is not int or scope["revision"]<1
+            or not isinstance(aliases.get("sourceCheckpointRecordSha256"),str) or not re.fullmatch("[0-9a-f]{64}",aliases["sourceCheckpointRecordSha256"])):
+        raise ValueError("Semantic alias source scope/cipher receipt is invalid")
+    for key in ("instanceUuid","maintenanceUuid","operationUuid"):
+        if not isinstance(scope[key],str) or str(uuid.UUID(scope[key]))!=scope[key]:raise ValueError("Semantic alias source scope UUID is invalid")
+    if not isinstance(aliases.get("bootId"),str) or str(uuid.UUID(aliases["bootId"]))!=aliases["bootId"]:raise ValueError("Semantic alias source boot is invalid")
+    binding=state.get("semanticManagedIdentityAliasBinding")
+    if (not isinstance(binding,dict) or aliases.get("scope")!=binding.get("scope") or aliases.get("bootId")!=binding.get("bootId")
+            or aliases.get("sourceCheckpointRecordSha256")!=binding.get("sourceCheckpointRecordSha256")
+            or aliases.get("originalSourceAuthority")!=binding.get("originalSourceAuthority")):
+        raise ValueError("Semantic alias receipt scope/boot/source cipher binding differs")
+    rows=aliases.get("mappings")
+    if not isinstance(rows,list):raise ValueError("Semantic fixed owner alias rows are invalid")
+    selected=None;seen=set()
+    for row in rows:
+        if not isinstance(row,dict) or set(row)!=SEMANTIC_ALIAS_ROW or row["sourceIdentityVerified"] is not True:raise ValueError("Semantic fixed owner alias row is unverified")
+        for key in ("sourceShareUuid","targetShareUuid","identityNamespaceShareUuid"):
+            if not isinstance(row[key],str) or str(uuid.UUID(row[key]))!=row[key]:raise ValueError("Semantic fixed owner alias UUID is invalid")
+        token=row["identityNamespaceShareUuid"].replace("-","")[:20]
+        if row["managedUser"]!="sf_u_"+token or row["managedGroup"]!="sf_g_"+token or row["targetShareUuid"] in seen:
+            raise ValueError("Semantic fixed owner alias namespace collides")
+        for key in ("ownerUid","ownerGid"):
+            if type(row[key]) is not int or not 10000<=row[key]<=2147483647 or row[key]==65534:raise ValueError("Semantic alias numeric row is unsafe")
+        seen.add(row["targetShareUuid"])
+        if row["targetShareUuid"]==str(share):selected=row
+    if selected is None:return None
+    if type(uid) is not int or type(gid) is not int or selected["ownerUid"]!=uid or selected["ownerGid"]!=gid:raise ValueError("Semantic fixed owner alias numeric policy differs")
+    return {**{key:selected[key] for key in ("managedUser","managedGroup","ownerUid","ownerGid")},"sourceIdentityShareUuid":selected["identityNamespaceShareUuid"]}
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements. See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership. The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+"""RID-backed tdbsam4 LOCAL import; original SAM and AD material are excluded."""
+import base64
+import ctypes
+import fcntl
+import os
+from pathlib import Path
+import re
+import struct
+import time
+
+LOCAL_PASSDB="/var/lib/samba/private/passdb.tdb"
+LOCAL_SEMANTIC_FILES={LOCAL_PASSDB,"/etc/ablestack-storage/smb-managed-identities.json","/etc/ablestack-storage/smb-local-account-provenance.json"}
+
+
+class SemanticRamTdb:
+    def __init__(self,data):
+        temporary=os.memfd_create("semantic-passdb",os.MFD_CLOEXEC|os.MFD_ALLOW_SEALING)
+        try:self.fd=fcntl.fcntl(temporary,fcntl.F_DUPFD_CLOEXEC,16)
+        finally:os.close(temporary)
+        os.fchmod(self.fd,0o600);os.write(self.fd,data)
+        self.lib=ctypes.CDLL("libtdb.so.1")
+        self.lib.tdb_open.argtypes=[ctypes.c_char_p,ctypes.c_int,ctypes.c_int,ctypes.c_int,ctypes.c_uint];self.lib.tdb_open.restype=ctypes.c_void_p
+        self.lib.tdb_fetch.argtypes=[ctypes.c_void_p,PublicSidTdbData];self.lib.tdb_fetch.restype=PublicSidTdbData
+        self.lib.tdb_store.argtypes=[ctypes.c_void_p,PublicSidTdbData,PublicSidTdbData,ctypes.c_int];self.lib.tdb_store.restype=ctypes.c_int
+        self.lib.tdb_firstkey.argtypes=[ctypes.c_void_p];self.lib.tdb_firstkey.restype=PublicSidTdbData
+        self.lib.tdb_nextkey.argtypes=[ctypes.c_void_p,PublicSidTdbData];self.lib.tdb_nextkey.restype=PublicSidTdbData
+        self.lib.tdb_close.argtypes=[ctypes.c_void_p]
+        self.free=ctypes.CDLL(None).free;self.free.argtypes=[ctypes.c_void_p]
+        self.db=self.lib.tdb_open(("/proc/self/fd/"+str(self.fd)).encode(),0,0,os.O_RDWR,0)
+        if not self.db:
+            os.close(self.fd);raise ValueError("Authenticated semantic passdb cannot open in RAM")
+    def close(self):
+        if self.db:self.lib.tdb_close(self.db);self.db=None
+        os.close(self.fd)
+    def fetch(self,key):
+        buffer=ctypes.create_string_buffer(key);value=self.lib.tdb_fetch(self.db,PublicSidTdbData(ctypes.cast(buffer,ctypes.c_void_p),len(key)))
+        try:
+            if not value.dptr:return None
+            if value.dsize>MAX_CAPSULE_BYTES:raise ValueError("Semantic record exceeds its bound")
+            return ctypes.string_at(value.dptr,value.dsize)
+        finally:
+            if value.dptr:self.free(value.dptr)
+    def keys(self):
+        result=[];value=self.lib.tdb_firstkey(self.db)
+        while value.dptr:
+            try:
+                if value.dsize>512 or len(result)>=4096:raise ValueError("Semantic passdb key inventory exceeds its bound")
+                result.append(ctypes.string_at(value.dptr,value.dsize))
+                following=self.lib.tdb_nextkey(self.db,value)
+            finally:self.free(value.dptr)
+            value=following
+        return result
+    def store(self,key,value):
+        k=ctypes.create_string_buffer(key);v=ctypes.create_string_buffer(value)
+        if self.lib.tdb_store(self.db,PublicSidTdbData(ctypes.cast(k,ctypes.c_void_p),len(key)),PublicSidTdbData(ctypes.cast(v,ctypes.c_void_p),len(value)),3):
+            raise ValueError("Semantic public-domain update in RAM failed")
+    def bytes(self):
+        if not 0<os.fstat(self.fd).st_size<=MAX_CAPSULE_BYTES:raise ValueError("Semantic passdb size is invalid")
+        os.lseek(self.fd,0,os.SEEK_SET);return os.read(self.fd,MAX_CAPSULE_BYTES+1)
+
+
+def semantic_samu_public(value,name,source_identity,target_name):
+    # Samba 4.17 SAMU_BUFFER_V3/V4: seven uint32 times, twelve B
+    # strings, user/group RID, then private fields. Parse no hash/history bytes.
+    if not isinstance(value,bytes) or len(value)<28:raise ValueError("Semantic tdbsam4 record is truncated")
+    offset=28;strings=[];encoded=[]
+    for _ in range(12):
+        if offset+4>len(value):raise ValueError("Semantic tdbsam4 public string header is truncated")
+        size=struct.unpack_from("<I",value,offset)[0];offset+=4
+        if size>65536 or offset+size>len(value):raise ValueError("Semantic tdbsam4 public string is unbounded")
+        part=value[offset:offset+size];offset+=size;strings.append(part);encoded.append(struct.pack("<I",size)+part)
+    if strings[0]!=name.encode()+bytes([0]) or offset+8>len(value):raise ValueError("Semantic passdb key/username differs")
+    rid,group_rid=struct.unpack_from("<II",value,offset)
+    if not 1000<=rid<=4294967295 or not 0<group_rid<=4294967295:raise ValueError("Semantic passdb RID is reserved or invalid")
+    domain=strings[1].rstrip(bytes([0])).decode("ascii")
+    if domain not in (source_identity["netbiosName"],source_identity["workgroup"],target_name):
+        raise ValueError("Semantic local account domain is foreign")
+    if domain==source_identity["netbiosName"]:
+        new=target_name.encode()+bytes([0]);encoded[1]=struct.pack("<I",len(new))+new
+    result=value[:28]+b"".join(encoded)+value[offset:]
+    # The entire RID/private tail is preserved exactly.
+    return {"rid":rid,"groupRid":group_rid},result
+
+
+def semantic_passdb_namespace(database,owned,source_identity,target_sid,target_name):
+    if database.fetch(b"INFO/version\0")!=struct.pack("<I",4) or database.fetch(b"INFO/minor_version\0")!=struct.pack("<I",0):
+        raise ValueError("Semantic LOCAL requires exact tdbsam4; implicit conversion is forbidden")
+    keys=database.keys();allowed={b"INFO/version\0",b"INFO/minor_version\0",b"NEXT_RID\0"};rows=[];used=set()
+    for key in keys:
+        if key in allowed:continue
+        if key.startswith(b"USER_") and key.endswith(bytes([0])):
+            name=key[5:-1].decode("ascii")
+            if name not in owned:raise ValueError("Semantic passdb contains an unowned account")
+            metadata,rebased=semantic_samu_public(database.fetch(key),name,source_identity,target_name)
+            rid=metadata["rid"]
+            if rid in used:raise ValueError("Semantic passdb user RID collision")
+            used.add(rid)
+            if database.fetch(("RID_%08x"%rid).encode()+bytes([0]))!=name.encode()+bytes([0]):
+                raise ValueError("Semantic passdb RID reverse authority differs")
+            unix=owned[name].split(":");rows.append({"name":name,"uid":int(unix[2]),"gid":int(unix[3]),"rid":rid,"userSid":target_sid+"-"+str(rid)})
+            if rebased!=database.fetch(key):database.store(key,rebased)
+        elif not re.fullmatch(b"RID_[0-9a-f]{8}\0",key):
+            raise ValueError("Semantic passdb has unsupported privilege or foreign keys")
+    expected={("RID_%08x"%row["rid"]).encode()+bytes([0]) for row in rows}
+    if {key for key in keys if key.startswith(b"RID_")}!=expected:raise ValueError("Semantic passdb forward/reverse RID union differs")
+    next_rid=database.fetch(b"NEXT_RID\0")
+    if next_rid is None or len(next_rid)!=4 or (used and struct.unpack("<I",next_rid)[0]<=max(used)):
+        raise ValueError("Semantic passdb next RID counter is unavailable or collides")
+    return sorted(rows,key=lambda row:row["name"])
+
+
+class SemanticLocalIdentity:
+    def __init__(self,run=None,read=None,apply=None,sid_reader=None):
+        self.run=run or bounded_ad_run;self.read=read or regular_file;self.apply=apply or restore
+        self.sid_reader=sid_reader or samba_public_sid;self.deadline=time.monotonic()+120
+    def restore_local(self,original,target_sid,target_name,resource_mappings=None):
+        payload=original["payload"];owned=owned_account_records(payload["files"]);accounts=payload["accounts"]
+        aliases=semantic_managed_aliases(original,resource_mappings if resource_mappings is not None else [])
+        if self.sid_reader(target_name)!=target_sid:raise ValueError("Semantic target SAM differs before LOCAL import")
+        for path in ("/etc/passwd","/etc/group"):
+            incoming=accounts.get(path,[])
+            if {line.split(":",1)[0]:line for line in incoming}!=owned[path]:raise ValueError("Semantic Unix identities lack exact source provenance")
+        for path,lines in accounts.items():
+            names={line.split(":",1)[0] for line in lines};public="/etc/passwd" if path in ("/etc/passwd","/etc/shadow") else "/etc/group"
+            if not names<=set(owned[public]):raise ValueError("Semantic secret account names lack public ownership")
+            current,_=self.read(path);account_merge(current.decode(),lines,Path(path).name)
+        local={path:dict(item) for path,item in payload["files"].items() if path in LOCAL_SEMANTIC_FILES};item=local.get(LOCAL_PASSDB);mappings=[]
+        if item is not None and item.get("absent") is not True:
+            if item.get("uid")!=0 or item.get("mode")!=0o600:raise ValueError("Semantic passdb is unprotected")
+            data=base64.b64decode(item["data"],validate=True)
+            database=SemanticRamTdb(data)
+            try:
+                mappings=semantic_passdb_namespace(database,owned["/etc/passwd"],original["identity"],target_sid,target_name)
+                local[LOCAL_PASSDB]={"data":base64.b64encode(database.bytes()).decode(),"uid":0,"gid":item["gid"],"mode":0o600}
+            finally:database.close()
+        elif any(not name.startswith("sf_u_") for name in owned["/etc/passwd"]):raise ValueError("Authenticated semantic LOCAL accounts have no source passdb")
+        # Existing target Unix and passdb unions must be owned by the same
+        # source names/RIDs, even when restoring an earlier password snapshot.
+        try:target_data,_=self.read(LOCAL_PASSDB)
+        except FileNotFoundError:target_data=None
+        if target_data:
+            database=SemanticRamTdb(target_data)
+            try:
+                observed=semantic_passdb_namespace(database,owned["/etc/passwd"],{**original["identity"],"netbiosName":target_name},target_sid,target_name)
+                incoming={row["name"]:row["rid"] for row in mappings}
+                if any(incoming.get(row["name"])!=row["rid"] for row in observed):raise ValueError("Semantic target passdb has a foreign RID union")
+            finally:database.close()
+        self.apply({"schemaVersion":1,"files":local,"accounts":accounts})
+        if self.sid_reader(target_name)!=target_sid:raise ValueError("Semantic LOCAL import changed target SAM")
+        for path in ("/etc/passwd","/etc/group"):
+            actual,_=self.read(path);rows={line.split(":",1)[0]:line for line in actual.decode().splitlines()}
+            if any(rows.get(name)!=value for name,value in owned[path].items()):raise ValueError("Semantic Unix UID/GID readback differs")
+        result=self.run(["pdbedit","--list","--verbose"],capture_output=True,text=True,timeout=min(15,self.deadline-time.monotonic()))
+        if result.returncode:raise ValueError("Semantic Samba public namespace readback failed")
+        blocks=re.split(r"(?m)^Unix username:\s*",result.stdout);observed={}
+        if blocks[0].replace("-","").strip():raise ValueError("Semantic public passdb readback prefix is invalid")
+        for block in blocks[1:]:
+            name=block.splitlines()[0].strip();matches=re.findall(r"(?m)^User SID:\s*(S-[0-9-]+)\s*$",block)
+            if name in observed or len(matches)!=1:raise ValueError("Semantic public passdb readback is repeated or incomplete")
+            observed[name]=matches[0]
+        if observed!={row["name"]:row["userSid"] for row in mappings}:raise ValueError("Semantic user RID does not resolve in target SAM namespace")
+        return {"localAccountsRestored":True,"localPassdbSidRebased":True,"targetSamPreserved":True,"publicMappings":mappings,"publicGroupMappings":[{"name":name,"gid":int(value.split(":")[2])} for name,value in sorted(owned["/etc/group"].items())],"managedIdentityMappings":aliases}
+# END EMBEDDED SEMANTIC LOCAL IDENTITY
+
 scope = str(request.get("instanceUuid") or "") + ":" + str(request.get("operationUuid") or "")
 if not re.fullmatch(r"[0-9a-fA-F-]{36}:[0-9a-fA-F-]{36}", scope):
     raise ValueError("Identity capsule request scope is invalid")
@@ -11882,6 +12403,23 @@ elif action=="semantic-original":
     if type(target_scope["revision"]) is not int or target_scope["revision"]<1:raise ValueError("Semantic target revision is invalid")
     original=semantic_original_source(request)
     print(json.dumps({"success":True,"scope":target_scope,"originalSourceAuthority":original["descriptor"],"originalIdentity":original["identity"]},sort_keys=True))
+elif action=="semantic-local-restore":
+    original=semantic_original_source(request)
+    guard=identity_command(("identity","domain","semantic-local-guard","/dev/stdin"),request)
+    common={key:request[key] for key in ("instanceUuid","operationUuid","revision")}
+    if guard.get("success") is not True or guard.get("scope")!=common or guard.get("originalSourceAuthority")!=original["descriptor"]:
+        raise ValueError("Semantic LOCAL importer has no protected target guard")
+    result=SemanticLocalIdentity().restore_local(original,guard["targetLocalMachineSid"],guard["targetNetbiosName"],request.get("resourceMappings",[]))
+    alias_record={"schemaVersion":1,"instanceUuid":request["instanceUuid"],"scope":guard["serviceScope"],"bootId":guard["bootId"],
+                  "sourceCheckpointRecordSha256":guard["sourceCheckpointRecordSha256"],"originalSourceAuthority":original["descriptor"],"mappings":result["managedIdentityMappings"]}
+    configuration=Path(os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_ROOT","/etc/ablestack-storage"))
+    alias_path=configuration/"smb-semantic-identity-aliases.json"
+    ServiceIdentityCipher(configuration).write(alias_path,alias_record)
+    state=json.loads(ad_authority_read(configuration/"smb-domain.json",0o600))
+    state["semanticManagedIdentityAliasSha256"]=hashlib.sha256(ad_authority_read(alias_path,0o600)).hexdigest()
+    state["semanticManagedIdentityAliasBinding"]={key:alias_record[key] for key in ("scope","bootId","sourceCheckpointRecordSha256","originalSourceAuthority")}
+    ServiceIdentityCipher(configuration).write(configuration/"smb-domain.json",state)
+    print(json.dumps(result,sort_keys=True))
 elif action == "export":
     names = request.get("names") or []
     root_source=None;service_source=None;ad_metadata=None;records=None;configuration=None
@@ -12477,8 +13015,10 @@ class AdIdentityRpc:
         return scope
 
     def configured_run(self,args,**kwargs):
-        if self.config_override and args[0] in ("net","testparm"):
+        if self.config_override and args[0]=="net":
             args=[args[0],"--configfile="+self.config_override,*args[1:]]
+        elif self.config_override and args[0]=="testparm":
+            args=[args[0],self.config_override,*args[1:]]
         return self.run(args,**kwargs)
 
     def command(self,args):
@@ -13587,8 +14127,10 @@ class AdIdentityRpc:
         return scope
 
     def configured_run(self,args,**kwargs):
-        if self.config_override and args[0] in ("net","testparm"):
+        if self.config_override and args[0]=="net":
             args=[args[0],"--configfile="+self.config_override,*args[1:]]
+        elif self.config_override and args[0]=="testparm":
+            args=[args[0],self.config_override,*args[1:]]
         return self.run(args,**kwargs)
 
     def command(self,args):
@@ -13802,7 +14344,7 @@ class LocalSamBootstrap:
         if after.get("generation")!=current or after.get("configurationSha256")!=generation.get("configurationSha256") or after.get("bootId")!=generation["bootId"]:
             raise ValueError("SAM bootstrap changed a canonical generation or boot")
         record["phase"]="COMPLETE";root_receipt_write(path,record)
-        return {"success":True,"scope":scope,"localSamInitialized":True,"localMachineSid":planned,"netbiosName":name,"identityPreserved":False,
+        return {"success":True,"scope":scope,"localSamInitialized":True,"localMachineSid":planned,"netbiosName":name,"identityPreserved":False,"sideEffects":True,
                 "canonicalDesiredStateChanged":False,"bootId":generation["bootId"],"generation":current,"configurationSha256":generation["configurationSha256"]}
 def semantic_new_target(original,public,source,instance_uuid):
     descriptor=original["descriptor"];identity=original["identity"]
@@ -14040,7 +14582,8 @@ class AdDomainLifecycle:
         return result.stdout.strip()
 
     def configured_run(self,arguments,**kwargs):
-        if arguments[0] in ("net","testparm"):arguments=[arguments[0],"--configfile="+str(self.machine),*arguments[1:]]
+        if arguments[0]=="net":arguments=[arguments[0],"--configfile="+str(self.machine),*arguments[1:]]
+        elif arguments[0]=="testparm":arguments=[arguments[0],str(self.machine),*arguments[1:]]
         return self.run(arguments,**kwargs)
 
     def require_quiescence(self):
@@ -14295,6 +14838,59 @@ class AdDomainLifecycle:
             finally:self.snapshot(request,"RECOVERY_REQUIRED",public)
             raise
 
+    def semantic_local_authority(self,request):
+        # Reuse protected SOURCE/cipher and the exact owned writer; public
+        # request dictionaries cannot authorize a direct identity import.
+        LocalSamBootstrap(self.cli).require_writer()
+        source=self.source_authority(request,fresh=False);original=self.original_source(request)
+        state=ad_protected_json(self.state);scope=self.daemon.scope(request);identity=original["identity"]
+        if state.get("instanceUuid")!=scope["instanceUuid"] or state.get("joinState")!="JOINED":
+            raise ValueError("Semantic LOCAL requires its domain-first protected joined target")
+        receipt=state.get("identityReceipt") or {};name=state.get("netbiosName")
+        if receipt.get("machineSid")!=source["publicLocalMachineSid"] or self.sid_reader(name)!=source["publicLocalMachineSid"]:
+            raise ValueError("Semantic LOCAL target SAM changed after domain-first join")
+        same=original["descriptor"]["sourceInstanceUuid"]==scope["instanceUuid"]
+        if same:
+            if receipt!={key:identity[key] for key in ("machineSid","domainSid","machineAccountSid")}:
+                raise ValueError("SAME_VM semantic LOCAL target SID authority differs")
+            fields=("realm","workgroup","netbiosName","dnsAliases","servicePrincipals","idmapPolicy","machineConfigurationSha256")
+            if state.get("domainName")!=identity["domain"] or any(state.get(key)!=identity[key] for key in fields):
+                raise ValueError("SAME_VM semantic LOCAL joined metadata differs")
+        elif (state.get("semanticOriginalSourceAuthority")!=original["descriptor"] or receipt.get("machineSid")==identity["machineSid"]
+                or receipt.get("domainSid")!=identity["domainSid"] or receipt.get("machineAccountSid")==identity["machineAccountSid"]):
+            raise ValueError("NEW_INSTANCE semantic LOCAL original/target binding differs")
+        return source,original,state
+
+    def semantic_local_guard(self,request):
+        source,original,state=self.semantic_local_authority(request);journal=ad_protected_json(self.journal)
+        if journal.get("scope")!=self.daemon.scope(request) or journal.get("phase")!="LOCAL_RESTORING":
+            raise ValueError("Semantic LOCAL import lacks its owned restore journal")
+        self.quiescence()
+        return {"success":True,"scope":self.daemon.scope(request),"originalSourceAuthority":original["descriptor"],
+                "targetLocalMachineSid":source["publicLocalMachineSid"],"targetNetbiosName":state["netbiosName"],"bootId":source["bootId"],
+                "serviceScope":self.daemon.marker(request),"sourceCheckpointRecordSha256":service_cipher_digest(ServiceIdentityCipher().read(ServiceIdentityCipher().path(self.daemon.marker(request))))}
+
+    def semantic_local_restore(self,request):
+        source,original,state=self.semantic_local_authority(request)
+        public={key:state[key] for key in ("realm","workgroup","netbiosName","dnsAliases","servicePrincipals")}
+        public["domain"]=state["domainName"]
+        self.daemon.stop(request);self.quiescence();self.snapshot(request,"LOCAL_RESTORING",public)
+        try:
+            fields=("originalSourceAuthority","originalSourceCapsule","originalSourceCredentialPrivateKey")
+            result=self.protected_request(("identity","capsule","semantic-local-restore"),{**self.daemon.marker(request),**{field:request[field] for field in fields},"resourceMappings":request.get("resourceMappings",[])})
+            if any(result.get(key) is not True for key in ("localAccountsRestored","localPassdbSidRebased","targetSamPreserved")):
+                raise ValueError("Semantic LOCAL importer has no complete literal receipt")
+            self.daemon.start(request);fresh=AdIdentityRpc(self.run,self.configuration,cli=self.cli).inspect(request)
+            if fresh.get("machineSid")!=source["publicLocalMachineSid"] or fresh.get("bootId")!=source["bootId"] or fresh.get("identityVerified") is not True:
+                raise ValueError("Semantic LOCAL final joined identity was not freshly preserved")
+            state=ad_protected_json(self.state)
+            state["semanticLocalIdentityReceipt"]={"scope":self.daemon.scope(request),"originalSourceAuthority":original["descriptor"],
+                                                  "publicMappings":result["publicMappings"],"publicGroupMappings":result["publicGroupMappings"],"managedIdentityMappings":result["managedIdentityMappings"]}
+            self.write_public(self.state,json.dumps(state,sort_keys=True));self.snapshot(request,"COMPLETE",public)
+            return {"success":True,"scope":self.daemon.scope(request),**result,"identity":fresh,"canonicalDesiredStateChanged":False}
+        except Exception:
+            self.snapshot(request,"RECOVERY_REQUIRED",public);raise
+
     def retain(self,request,expected):
         self.daemon.marker(request);state=ad_protected_json(self.state)
         if not isinstance(expected,dict) or state.get("identityReceipt")!={key:expected.get(key) for key in ("machineSid","domainSid","machineAccountSid")}:
@@ -14412,6 +15008,8 @@ try:
     if action=="local-sam-bootstrap":result=LocalSamBootstrap(sys.argv[3]).initialize(request)
     elif action=="join":result=handler.join(request)
     elif action=="leave":result=handler.leave(request)
+    elif action=="semantic-local-restore":result=handler.semantic_local_restore(request)
+    elif action=="semantic-local-guard":result=handler.semantic_local_guard(request)
     elif action=="retain":result=handler.retain(request,request["expectedIdentity"])
     elif action=="daemon-gate":result=handler.daemon.gate()
     elif action=="quiesce":result=handler.daemon.stop(request)
@@ -16200,6 +16798,100 @@ def ad_mapped_entry(entry,request,run=None,cli=None,configuration=None,generatio
 # specific language governing permissions and limitations
 # under the License.
 
+"""Protected source-share aliases retain fixed Unix owners after UUID remap."""
+import base64
+import hashlib
+import json
+import os
+from pathlib import Path
+import uuid
+import re
+
+SEMANTIC_ALIAS_FILE="/etc/ablestack-storage/smb-semantic-identity-aliases.json"
+SEMANTIC_ALIAS_ROW={"sourceShareUuid","targetShareUuid","managedUser","managedGroup","ownerUid","ownerGid","sourceIdentityVerified","identityNamespaceShareUuid"}
+
+
+def semantic_managed_aliases(original,resource_mappings):
+    file=original["payload"]["files"].get("/etc/ablestack-storage/smb-managed-identities.json")
+    managed={} if not file or file.get("absent") is True else json.loads(base64.b64decode(file["data"],validate=True))
+    if not isinstance(managed,dict):raise ValueError("Semantic managed identity collection is invalid")
+    if not isinstance(resource_mappings,list) or len(resource_mappings)>512:raise ValueError("Semantic share mapping is unavailable")
+    result=[];sources=set();targets=set()
+    for mapping in resource_mappings:
+        if not isinstance(mapping,dict) or set(mapping)!={"sourceShareUuid","targetShareUuid"}:raise ValueError("Semantic share mapping shape is invalid")
+        for field in ("sourceShareUuid","targetShareUuid"):
+            value=mapping[field]
+            if not isinstance(value,str) or str(uuid.UUID(value))!=value:raise ValueError("Semantic share UUID is invalid")
+        source=mapping["sourceShareUuid"];target=mapping["targetShareUuid"]
+        if source in sources or target in targets:raise ValueError("Semantic share mapping union collides")
+        sources.add(source);targets.add(target);identity=managed.get(source)
+        if identity is None:continue
+        namespace=identity.get("sourceIdentityShareUuid",source)
+        if not isinstance(namespace,str) or str(uuid.UUID(namespace))!=namespace:raise ValueError("Semantic owner namespace UUID is invalid")
+        token=namespace.replace("-","")[:20]
+        if (identity.get("managedUser")!="sf_u_"+token or identity.get("managedGroup")!="sf_g_"+token or identity.get("posixOwnershipMode")!="FORCED_UID_GID"):
+            raise ValueError("Semantic source forced owner namespace differs")
+        for field in ("ownerUid","ownerGid"):
+            value=identity.get(field)
+            if type(value) is not int or not 10000<=value<=2147483647 or value==65534:raise ValueError("Semantic source fixed owner numeric identity is unsafe")
+        result.append({**mapping,**{key:identity[key] for key in ("managedUser","managedGroup","ownerUid","ownerGid")},"sourceIdentityVerified":True,"identityNamespaceShareUuid":namespace})
+    if set(managed)-sources:raise ValueError("Semantic source fixed owners have no reviewed target mapping")
+    return result
+
+
+def semantic_forced_alias(instance,share,uid,gid,configuration=None):
+    root=Path(configuration or os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_ROOT","/etc/ablestack-storage"));path=root/"smb-semantic-identity-aliases.json"
+    if not path.exists() and not path.is_symlink():return None
+    raw=ad_authority_read(path,0o600);aliases=json.loads(raw);state=json.loads(ad_authority_read(root/"smb-domain.json",0o600))
+    if (type(aliases.get("schemaVersion")) is not int or aliases["schemaVersion"]!=1 or aliases.get("instanceUuid")!=instance
+            or state.get("instanceUuid")!=instance or state.get("semanticManagedIdentityAliasSha256")!=hashlib.sha256(raw).hexdigest()):
+        raise ValueError("Semantic fixed owner aliases are not bound to protected native identity")
+    scope=aliases.get("scope")
+    if (not isinstance(scope,dict) or set(scope)!={"instanceUuid","maintenanceUuid","operationUuid","revision"}
+            or scope.get("instanceUuid")!=instance or scope.get("maintenanceUuid")!=scope.get("operationUuid")
+            or type(scope.get("revision")) is not int or scope["revision"]<1
+            or not isinstance(aliases.get("sourceCheckpointRecordSha256"),str) or not re.fullmatch("[0-9a-f]{64}",aliases["sourceCheckpointRecordSha256"])):
+        raise ValueError("Semantic alias source scope/cipher receipt is invalid")
+    for key in ("instanceUuid","maintenanceUuid","operationUuid"):
+        if not isinstance(scope[key],str) or str(uuid.UUID(scope[key]))!=scope[key]:raise ValueError("Semantic alias source scope UUID is invalid")
+    if not isinstance(aliases.get("bootId"),str) or str(uuid.UUID(aliases["bootId"]))!=aliases["bootId"]:raise ValueError("Semantic alias source boot is invalid")
+    binding=state.get("semanticManagedIdentityAliasBinding")
+    if (not isinstance(binding,dict) or aliases.get("scope")!=binding.get("scope") or aliases.get("bootId")!=binding.get("bootId")
+            or aliases.get("sourceCheckpointRecordSha256")!=binding.get("sourceCheckpointRecordSha256")
+            or aliases.get("originalSourceAuthority")!=binding.get("originalSourceAuthority")):
+        raise ValueError("Semantic alias receipt scope/boot/source cipher binding differs")
+    rows=aliases.get("mappings")
+    if not isinstance(rows,list):raise ValueError("Semantic fixed owner alias rows are invalid")
+    selected=None;seen=set()
+    for row in rows:
+        if not isinstance(row,dict) or set(row)!=SEMANTIC_ALIAS_ROW or row["sourceIdentityVerified"] is not True:raise ValueError("Semantic fixed owner alias row is unverified")
+        for key in ("sourceShareUuid","targetShareUuid","identityNamespaceShareUuid"):
+            if not isinstance(row[key],str) or str(uuid.UUID(row[key]))!=row[key]:raise ValueError("Semantic fixed owner alias UUID is invalid")
+        token=row["identityNamespaceShareUuid"].replace("-","")[:20]
+        if row["managedUser"]!="sf_u_"+token or row["managedGroup"]!="sf_g_"+token or row["targetShareUuid"] in seen:
+            raise ValueError("Semantic fixed owner alias namespace collides")
+        for key in ("ownerUid","ownerGid"):
+            if type(row[key]) is not int or not 10000<=row[key]<=2147483647 or row[key]==65534:raise ValueError("Semantic alias numeric row is unsafe")
+        seen.add(row["targetShareUuid"])
+        if row["targetShareUuid"]==str(share):selected=row
+    if selected is None:return None
+    if type(uid) is not int or type(gid) is not int or selected["ownerUid"]!=uid or selected["ownerGid"]!=gid:raise ValueError("Semantic fixed owner alias numeric policy differs")
+    return {**{key:selected[key] for key in ("managedUser","managedGroup","ownerUid","ownerGid")},"sourceIdentityShareUuid":selected["identityNamespaceShareUuid"]}
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements. See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership. The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
 """Immutable rendered configuration publication and verified ordered replay.
 
 Validators and runtime callbacks are fixed native adapters, never RPC-provided
@@ -16967,7 +17659,7 @@ def render_smb_candidate(payload, cli, credential_refs=None):
                     or uid<10000 or gid<10000 or uid==65534 or gid==65534 or uid>2147483647 or gid>2147483647
                     or len(token)!=20 or not config.get('posixPolicyUuid') or config.get('guestOk') or administrators):
                 raise ValueError('SMB forced identity is not bound to its explicit common POSIX policy')
-            forced={'managedUser':'sf_u_'+token,'managedGroup':'sf_g_'+token,'ownerUid':uid,'ownerGid':gid}
+            forced=semantic_forced_alias(payload['instanceUuid'],share['uuid'],uid,gid) or {'managedUser':'sf_u_'+token,'managedGroup':'sf_g_'+token,'ownerUid':uid,'ownerGid':gid}
             lines+=['   force user = '+forced['managedUser'],'   force group = '+forced['managedGroup']]
         policy=namespace['smb_network_policy'](share.get('networkAcls') or []);lines+=namespace['smb_hosts_allow_lines'](policy)
         if principals:lines+=['   valid users = '+' '.join(principals)]
@@ -20450,7 +21142,7 @@ fi
 
 # Keep the descriptor open through native child work, even if the management writer disappears.
 case "$command:$subcommand:$action" in
-  operation:reservation:acquire|operation:reservation:renew|operation:reservation:release|operation:reservation:status|volume:operation:capabilities|smb:identity:inspect|smb:endpoint-run:*|health:*|inventory:*|sessions:*|operation:verify:*|operation:observe:*|operation:resources:*|network:endpoints:inspect|operation:generation:render-boot-gate|operation:generation:render-status|operation:generation:render-maintenance-verify|operation:generation:render-root-identity-export-source|operation:generation:status|operation:generation:frozen|posix:directory:inspect|posix:directory:plan|posix:directory:attest-plan|operation:maintenance:status|operation:maintenance:service-status|operation:maintenance:service-capabilities|operation:root-data:inspect|operation:writer-idle:*|volume:operation:status|nfs:idmapping:preflight|nfs:capabilities:*|identity:capsule:capabilities|identity:capsule:semantic-original|identity:domain:inspect|identity:principal:resolve|identity:domain:daemon-gate|identity:domain:capabilities)
+  operation:reservation:acquire|operation:reservation:renew|operation:reservation:release|operation:reservation:status|volume:operation:capabilities|smb:identity:inspect|smb:endpoint-run:*|health:*|inventory:*|sessions:*|operation:verify:*|operation:observe:*|operation:resources:*|network:endpoints:inspect|operation:generation:render-boot-gate|operation:generation:render-status|operation:generation:render-maintenance-verify|operation:generation:render-root-identity-export-source|operation:generation:status|operation:generation:frozen|posix:directory:inspect|posix:directory:plan|posix:directory:attest-plan|operation:maintenance:status|operation:maintenance:service-status|operation:maintenance:service-capabilities|operation:root-data:inspect|operation:writer-idle:*|volume:operation:status|nfs:idmapping:preflight|nfs:capabilities:*|identity:capsule:capabilities|identity:capsule:semantic-original|identity:domain:inspect|identity:principal:resolve|identity:domain:daemon-gate|identity:domain:semantic-local-guard|identity:domain:capabilities)
     ;;
   *)
     acquire_storage_writer_lock || exit $?
@@ -20494,7 +21186,7 @@ PYADHANDLERCAP
       identity_ad_lifecycle_command "local-sam-bootstrap" "$payload"
       exit $?
     fi
-    if [[ "$subcommand" == "domain" && ( "$action" == "join" || "$action" == "leave" || "$action" == "daemon-gate" || "$action" == "quiesce" ) ]]; then
+    if [[ "$subcommand" == "domain" && ( "$action" == "join" || "$action" == "leave" || "$action" == "daemon-gate" || "$action" == "quiesce" || "$action" == "semantic-local-restore" || "$action" == "semantic-local-guard" ) ]]; then
       identity_ad_lifecycle_command "$action" "$payload"
       exit $?
     fi

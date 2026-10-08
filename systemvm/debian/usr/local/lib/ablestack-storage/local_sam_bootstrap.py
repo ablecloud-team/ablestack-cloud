@@ -138,5 +138,5 @@ class LocalSamBootstrap:
         if after.get("generation")!=current or after.get("configurationSha256")!=generation.get("configurationSha256") or after.get("bootId")!=generation["bootId"]:
             raise ValueError("SAM bootstrap changed a canonical generation or boot")
         record["phase"]="COMPLETE";root_receipt_write(path,record)
-        return {"success":True,"scope":scope,"localSamInitialized":True,"localMachineSid":planned,"netbiosName":name,"identityPreserved":False,
+        return {"success":True,"scope":scope,"localSamInitialized":True,"localMachineSid":planned,"netbiosName":name,"identityPreserved":False,"sideEffects":True,
                 "canonicalDesiredStateChanged":False,"bootId":generation["bootId"],"generation":current,"configurationSha256":generation["configurationSha256"]}

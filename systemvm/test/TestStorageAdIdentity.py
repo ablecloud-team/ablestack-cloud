@@ -147,6 +147,16 @@ class StorageAdIdentityRpcTest(unittest.TestCase):
             else:raise AssertionError(args)
         else:raise AssertionError(args)
         return subprocess.CompletedProcess(args,0,output,"")
+    def test_private_configuration_argv_keeps_net_option_and_uses_one_positional_testparm_path_without_shell(self):
+        recorded=[]
+        def run(args,**kwargs):recorded.append(args);self.assertNotIn("shell",kwargs);return subprocess.CompletedProcess(args,0,"","")
+        self.rpc.run=run;self.rpc.config_override=str(self.base/"private config (quoted).conf")
+        self.rpc.configured_run(["testparm","-s","--parameter-name=idmap config * : backend"],capture_output=True,text=True,timeout=5)
+        self.rpc.configured_run(["net","ads","testjoin","--machine-pass"],capture_output=True,text=True,timeout=5)
+        self.assertEqual(["testparm",self.rpc.config_override,"-s","--parameter-name=idmap config * : backend"],recorded[0])
+        self.assertEqual(["net","--configfile="+self.rpc.config_override,"ads","testjoin","--machine-pass"],recorded[1])
+        self.assertFalse(any(arg.startswith("--configfile=") for arg in recorded[0]))
+
     def test_joined_attestation_includes_fresh_trust_computer_sid_dns_spn_idmap_and_creates_no_files(self):
         before={str(path):path.read_bytes() for path in self.base.rglob("*.json")}
         result=self.rpc.inspect(self.scope)

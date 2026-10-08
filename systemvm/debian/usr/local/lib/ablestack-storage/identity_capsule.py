@@ -35,9 +35,10 @@ FILES = {
     "/etc/ablestack-storage/secrets/nvmeof-acl-secrets.json",
     "/etc/ablestack-storage/smb-managed-identities.json",
     "/etc/ablestack-storage/smb-local-account-provenance.json",
+    "/etc/ablestack-storage/smb-semantic-identity-aliases.json",
 }
 AD_FILES = {"/etc/krb5.keytab","/etc/krb5.conf","/etc/ablestack-storage/smb-domain.json","/var/lib/samba/winbindd_idmap.tdb","/etc/ablestack-storage/ad-machine.conf"}
-PUBLIC_IDENTITY_FILES = {"/etc/ablestack-storage/smb-managed-identities.json","/etc/krb5.conf"}
+PUBLIC_IDENTITY_FILES = {"/etc/ablestack-storage/smb-managed-identities.json","/etc/ablestack-storage/smb-semantic-identity-aliases.json","/etc/krb5.conf"}
 
 ACCOUNT_FILES = {"/etc/passwd", "/etc/group", "/etc/shadow", "/etc/gshadow"}
 
@@ -418,8 +419,16 @@ def owned_account_records(files):
     managed = files.get("/etc/ablestack-storage/smb-managed-identities.json", {})
     if managed and not managed.get("absent"):
         content = json.loads(base64.b64decode(managed["data"], validate=True))
+        aliases_file=files.get("/etc/ablestack-storage/smb-semantic-identity-aliases.json",{})
+        aliases={} if not aliases_file or aliases_file.get("absent") else {row["targetShareUuid"]:row for row in json.loads(base64.b64decode(aliases_file["data"],validate=True)).get("mappings",[])}
         for uuid, identity in content.items():
-            suffix = str(uuid).replace("-", "")[:20]
+            source=identity.get("sourceIdentityShareUuid")
+            if source is not None:
+                row=aliases.get(uuid)
+                if (not isinstance(row,dict) or row.get("sourceIdentityVerified") is not True or row.get("identityNamespaceShareUuid")!=source
+                        or any(row.get(key)!=identity.get(key) for key in ("managedUser","managedGroup","ownerUid","ownerGid"))):
+                    raise ValueError("Managed aliased identity lacks its exact encrypted source receipt")
+            suffix = str(source or uuid).replace("-", "")[:20]
             user, group = identity.get("managedUser"), identity.get("managedGroup")
             if user != "sf_u_" + suffix or group != "sf_g_" + suffix:
                 raise ValueError("Managed fixed identity provenance is invalid")

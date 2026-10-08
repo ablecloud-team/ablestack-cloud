@@ -24,6 +24,7 @@ import re
 import tempfile
 import zlib
 from ad_authority import protected_ad_policy,ad_qualified_name
+from semantic_identity_alias import semantic_forced_alias
 
 NFS_HELPERS = {'assign_ganesha_export_ids','effective_nfs_export_config','endpoint_key','export_id','ganesha_access','ganesha_bind_addr','ganesha_client_list','ganesha_clients','ganesha_raw_literal','ganesha_squash','nested_export_filesystem_id','nfs_export_listener_ports','nfs_export_endpoint_ips','nfs_export_principal','nfs_protocols_for_mode','quote_ganesha','render_ganesha_export','safe_export_root_name','truth','write_ganesha_configs','int_config'}
 SMB_HELPERS = {'local_or_ad_name','safe_netbios_name','safe_share_name','samba_principal','smb_conf_quote','smb_creation_lines','smb_creation_policy','smb_effective_read_only','smb_group','smb_hosts_allow_lines','smb_identity','smb_inheritance_lines','smb_inheritance_policy','smb_network_policy','smb_user','truth'}
@@ -161,7 +162,7 @@ def render_smb_candidate(payload, cli, credential_refs=None):
                     or uid<10000 or gid<10000 or uid==65534 or gid==65534 or uid>2147483647 or gid>2147483647
                     or len(token)!=20 or not config.get('posixPolicyUuid') or config.get('guestOk') or administrators):
                 raise ValueError('SMB forced identity is not bound to its explicit common POSIX policy')
-            forced={'managedUser':'sf_u_'+token,'managedGroup':'sf_g_'+token,'ownerUid':uid,'ownerGid':gid}
+            forced=semantic_forced_alias(payload['instanceUuid'],share['uuid'],uid,gid) or {'managedUser':'sf_u_'+token,'managedGroup':'sf_g_'+token,'ownerUid':uid,'ownerGid':gid}
             lines+=['   force user = '+forced['managedUser'],'   force group = '+forced['managedGroup']]
         policy=namespace['smb_network_policy'](share.get('networkAcls') or []);lines+=namespace['smb_hosts_allow_lines'](policy)
         if principals:lines+=['   valid users = '+' '.join(principals)]
