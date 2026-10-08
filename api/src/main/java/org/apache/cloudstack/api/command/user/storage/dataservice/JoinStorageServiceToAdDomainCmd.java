@@ -61,6 +61,17 @@ public class JoinStorageServiceToAdDomainCmd extends BaseStorageServiceAsyncCmd 
     @Parameter(name = "workgroup", type = CommandType.STRING, description = "NetBIOS workgroup")
     private String workgroup;
 
+    @Parameter(name = "maintenancewindow", type = CommandType.BOOLEAN, description = "Explicit approval to stop owned SMB and winbind services during this identity change")
+    private Boolean maintenanceWindow;
+    @Parameter(name = "confirmation", type = CommandType.STRING, description = "Exact Storage Service instance name approving the maintenance window")
+    private String confirmation;
+    public Boolean getMaintenanceWindow() { return maintenanceWindow; }
+    public String getConfirmation() { return confirmation; }
+
+    @Parameter(name = "identitymode", type = CommandType.STRING, description = "JOIN_EXISTING preserves this machine identity; NEW_INSTANCE is limited to an approved disposable new instance restore")
+    private String identityMode;
+    public String getIdentityMode() { return identityMode == null ? "JOIN_EXISTING" : identityMode; }
+
     public Long getInstanceId() {
         return instanceId;
     }

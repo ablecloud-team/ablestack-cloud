@@ -53,8 +53,7 @@ public class StorageAdPrincipalRuntimeTest {
         for(String field:List.of("trustVerified","identityVerified","dnsAliasesVerified","adSpnsVerified","adIdentity"))identity.addProperty(field,true);
         identity.addProperty("bootId","22222222-2222-2222-2222-222222222222");
         identity.addProperty("generatedEpoch",System.currentTimeMillis()/1000.0);
-        JsonObject idmap=new JsonObject();
-        idmap.addProperty("backend","rid");
+        JsonObject idmap=com.google.gson.JsonParser.parseString("{\"default\":{\"backend\":\"tdb\",\"range\":[10000,60000]},\"domain\":{\"backend\":\"rid\",\"range\":[1000000,1999999],\"baseRid\":0}}").getAsJsonObject();
         identity.add("idmapPolicy",idmap);
         JsonArray spns=new JsonArray();
         spns.add("cifs/storage.example.test");spns.add("host/storage.example.test");
