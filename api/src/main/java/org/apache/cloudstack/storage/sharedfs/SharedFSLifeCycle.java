@@ -33,6 +33,24 @@ public interface SharedFSLifeCycle {
 
     Pair<Long, Long> deploySharedFS(SharedFS sharedFS, Long networkId, Long diskOfferingId, Long storageId, Long size, Long minIops, Long maxIops) throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException;
 
+    default void checkPrerequisites(DataCenter zone, Long serviceOfferingId, Long templateId) {
+        if (templateId != null) throw new UnsupportedOperationException("Provider does not support explicit Storage Service templates");
+        checkPrerequisites(zone, serviceOfferingId);
+    }
+
+    default Pair<Long, Long> deploySharedFS(SharedFS sharedFS, Long networkId, Long diskOfferingId, Long storageId,
+            Long size, Long minIops, Long maxIops, Long templateId) throws ResourceUnavailableException,
+            InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
+        if (templateId != null) throw new UnsupportedOperationException("Provider does not support explicit Storage Service templates");
+        return deploySharedFS(sharedFS, networkId, diskOfferingId, storageId, size, minIops, maxIops);
+    }
+
+    default Pair<Long, Long> deployWithExistingVolume(SharedFS sharedFS, Long networkId, Long volumeId, Long templateId)
+            throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
+        if (templateId != null) throw new UnsupportedOperationException("Provider does not support explicit Storage Service templates");
+        return deployWithExistingVolume(sharedFS, networkId, volumeId);
+    }
+
     default Pair<Long, Long> deployWithExistingVolume(SharedFS sharedFS, Long networkId, Long volumeId) throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
         throw new UnsupportedOperationException("Provider does not support preserved initial volumes");
     }
