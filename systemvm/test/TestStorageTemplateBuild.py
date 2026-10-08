@@ -58,8 +58,17 @@ class StorageTemplateBuildTest(unittest.TestCase):
         manifest = json.loads((self.root / 'etc/ablestack-storage/template-manifest.json').read_text())
         self.assertEqual('test-template', manifest['templateVersion'])
         self.assertEqual('test-runtime', manifest['runtimeBundleVersion'])
+        self.assertEqual('4.23.0.0', manifest['platformVersion'])
+        self.assertEqual(manifest['platformVersion'], manifest['productVersion'])
+        self.assertEqual(manifest['sourceFiles']['pom.xml'], manifest['platformVersionSource']['sha256'])
         self.assertEqual(64, len(manifest['sourceTreeSha256']))
         self.assertEqual('true', manifest['registrationDetails']['storage.service.configuration.generation.adopt'])
+
+    def test_build_filename_version_cannot_replace_the_platform_attestation(self):
+        path = self.root / 'etc/ablestack-storage/template-manifest.json'
+        manifest = json.loads(path.read_text()); manifest['platformVersion'] = '4.23.0.0.88'
+        path.write_text(json.dumps(manifest))
+        self.assertNotEqual(0, self.validate().returncode)
 
     def test_kernel_without_auth_is_rejected(self):
         (self.boot / ('config-' + self.lock['kernelVersion'])).write_text('# CONFIG_NVME_TARGET_AUTH is not set')

@@ -100,6 +100,12 @@ manifest = {
     "buildCommit": commit,
     "buildTime": build_time,
     "files": files,
+    "compatibility": {
+        "schemaVersion": 1,
+        "manager": {"minimumVersion": "4.23.0.0", "maximumVersionExclusive": "4.24.0.0"},
+        "agent": {"minimumVersion": "4.23.0.0", "maximumVersionExclusive": "4.24.0.0"},
+        "template": {"minimumVersion": "4.23.0.0", "maximumVersionExclusive": "4.24.0.0"},
+    },
     "configurationGenerationSchemaVersion": "1",
     "identityCapsuleSchemaVersion": "1",
     "configurationGenerationRootTransfer": ["ADOPT", "ALIGN"],
