@@ -99,6 +99,8 @@ UI backup→download→upload→validate→plan preview→apply와 정상 create
 
 protected private USER로 CREATE_NEW하는 F2의 template/artifact foundation은 API-only다. 일반 UI backup/download/upload/validate/preview/apply는 실제 지원하는 SYSTEM/EXISTING 경로로 별도 검증하고, private foundation apply의 UI operation/history 조회를 사용자 UI 제출 성공으로 대체하지 않는다. UI에 지원하지 않는 multi NEW 입력은 API-only gate와 남은 기능 UI gap을 표시한다.
 
+AD 신원을 포함한 일반 CREATE_NEW 사용자 UI 는 공개 SYSTEM 템플릿의 explicit UUID 선택을 추가로 요구한다. 공개 artifact coverage 와 exact descriptor 를 확인하고 Ready / scalable / KVM / x86_64 / 동일 zone / owner 문맥 및 literal seed.absent metadata 를 통과한 후보만 직접 선택한다. mapping.createNew.templateid 는 sealed planToken 에 고정되며 prepare / apply 직전 변경을 막는다. 이 기능 소스는 188 개 테스트 / 13 개 suite PASS 및 독립 운영 850 파일 PASS 이고, 실제 AD clone / 새 VM 생성은 0 이다. 내부 private USER / source artifact / key reference 는 API-only foundation 에 남는다. 일반 non-AD clone 의 templateid 기본 생략은 유지한다.
+
 CREATE_NEW F2에 source4 DATA를 NEW로 매핑한다. planSHA→execution parentSHA/actual target-initial bind·추가 deterministic customID/provenance receipt/CAS를 고정한다. initial 중복 allocation0, FILE1/RAW 0, default PRESERVE다. source file copy를 주장하지 않고 새 target data의 external all4를 확인한다.
 
 same artifact/key replay·response loss·INTENT/ALLOCATED/attach/prepare failure·MGT restart recovery에서 count/UUID/owner/zone/pool/provisioning/targetVM/revision을 보존한다. formatted partial/imported Ready를 cleanup 삭제하지 않는다. fresh EXISTS는 자기 Ready DATA만 사용해 disk offering 불필요·foreign/tenant/size/failure preserve를 검증한다. UI에 없는 field는 API-only request와 actual UI 결과 조회를 구분한다.
