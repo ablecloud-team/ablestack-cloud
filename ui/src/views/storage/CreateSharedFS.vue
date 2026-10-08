@@ -381,6 +381,7 @@
             </a-col>
             <a-col :xs="24" :lg="12">
               <template v-if="!form.useexistingvolume">
+                <a-alert type="info" show-icon :message="$t('message.storage.disk.sparse.required')" />
                 <a-form-item ref="diskofferingid" name="diskofferingid" required>
                   <template #label>
                     <tooltip-label :title="$t('label.diskofferingid')" :tooltip="apiParams.diskofferingid.description || $t('label.diskofferingid')"/>
@@ -1023,6 +1024,7 @@
   </a-spin>
 </template>
 <script>
+import { supportsStorageFormatting } from '@/utils/storageDiskProvisioning'
 
 import { ref, reactive, toRaw } from 'vue'
 import { ReloadOutlined } from '@ant-design/icons-vue'
@@ -1671,9 +1673,9 @@ export default {
         params.account = this.owner.account
       }
       getAPI('listDiskOfferings', params).then(json => {
-        this.diskofferings = json.listdiskofferingsresponse.diskoffering || []
-        this.form.diskofferingid = this.diskofferings[0].id || ''
-        this.customDiskOffering = this.diskofferings[0].iscustomized || false
+        this.diskofferings = (json.listdiskofferingsresponse.diskoffering || []).filter(supportsStorageFormatting)
+        this.form.diskofferingid = this.diskofferings[0]?.id || ''
+        this.customDiskOffering = this.diskofferings[0]?.iscustomized || false
         this.isCustomizedDiskIOps = this.diskofferings[0]?.iscustomizediops || false
         this.reconcileSelectedStoragePool()
       }).finally(() => {

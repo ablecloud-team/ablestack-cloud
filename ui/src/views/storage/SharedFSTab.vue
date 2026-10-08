@@ -2327,6 +2327,7 @@ import TooltipButton from '@/components/widgets/TooltipButton'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import SmbNetworkAccess from '@/views/storage/SmbNetworkAccess'
 import SmbCreationOptions from '@/views/storage/SmbCreationOptions'
+import { supportsStorageFormatting, diskProvisioningLabel } from '@/utils/storageDiskProvisioning'
 import StorageVolumePreparation from '@/views/storage/StorageVolumePreparation'
 import PosixDirectoryPolicies from '@/views/storage/PosixDirectoryPolicies'
 import PosixPolicyInheritance from '@/views/storage/PosixPolicyInheritance'
@@ -3742,6 +3743,7 @@ export default {
         { title: this.$t('label.size'), dataIndex: 'size', key: 'size', width: 130 },
         { title: this.$t('label.storage.service.used.capacity'), dataIndex: 'used', key: 'used', width: 140 },
         { title: this.$t('label.diskoffering'), dataIndex: 'diskOffering', key: 'diskOffering', width: 220 },
+        { title: this.$t('label.provisioningtype'), dataIndex: 'provisioningType', key: 'provisioningType', width: 150 },
         { title: this.$t('label.storagepool'), dataIndex: 'storagePool', key: 'storagePool', width: 220 },
         { title: this.$t('label.filesystem'), dataIndex: 'filesystem', key: 'filesystem', width: 130 },
         { title: this.$t('label.storage.service.current.guest.device'), dataIndex: 'runtimeDevicePath', key: 'runtimeDevicePath', width: 180, code: true },
@@ -3796,6 +3798,7 @@ export default {
         { title: this.$t('label.size'), dataIndex: 'size', key: 'size', width: 130 },
         { title: this.$t('label.storage.service.used.capacity'), dataIndex: 'used', key: 'used', width: 140 },
         { title: this.$t('label.diskoffering'), dataIndex: 'diskOffering', key: 'diskOffering', width: 220 },
+        { title: this.$t('label.provisioningtype'), dataIndex: 'provisioningType', key: 'provisioningType', width: 150 },
         { title: this.$t('label.storagepool'), dataIndex: 'storagePool', key: 'storagePool', width: 220 },
         { title: this.$t('label.filesystem'), dataIndex: 'filesystem', key: 'filesystem', width: 130 },
         { title: this.$t('label.storage.service.current.guest.device'), dataIndex: 'runtimeDevicePath', key: 'runtimeDevicePath', width: 180, code: true },
@@ -3916,6 +3919,7 @@ export default {
           size: this.formatCapacityValue(volume.size),
           used: this.formatCapacityValue(volume.usedfsbytes || volume.usedphysicalsize || volume.physicalsize),
           diskOffering: volume.diskofferingname || '-',
+          provisioningType: diskProvisioningLabel(volume),
           storagePool: volume.storage || volume.storagepool || volume.storagePoolName || '-',
           filesystem: this.nfsBackingVolumeFilesystem(volume),
           runtimeDevicePath: runtimeShare.runtimedevicepath || runtimeShare.runtimeDevicePath || '-',
@@ -4001,6 +4005,7 @@ export default {
           size: this.formatCapacityValue(share.volumesize || share.volumeSize || volume.size),
           used: this.formatCapacityValue(share.usedbytes || share.usedBytes || volume.usedfsbytes || volume.usedphysicalsize || volume.physicalsize || share.physicalsize),
           diskOffering: share.diskofferingname || share.diskOfferingName || volume.diskofferingname || '-',
+          provisioningType: diskProvisioningLabel(volume),
           storagePool: share.storage || share.storagepool || share.storagePoolName || volume.storage || '-',
           filesystem: this.displayBackingVolumeFilesystem(volume, share),
           runtimeDevicePath: share.runtimedevicepath || share.runtimeDevicePath || '-',
@@ -4064,6 +4069,7 @@ export default {
         { title: this.$t('label.size'), dataIndex: 'size', key: 'size', width: 130 },
         { title: this.$t('label.storage.service.used.capacity'), dataIndex: 'used', key: 'used', width: 140 },
         { title: this.$t('label.diskoffering'), dataIndex: 'diskOffering', key: 'diskOffering', width: 220 },
+        { title: this.$t('label.provisioningtype'), dataIndex: 'provisioningType', key: 'provisioningType', width: 150 },
         { title: this.$t('label.storagepool'), dataIndex: 'storagePool', key: 'storagePool', width: 220 },
         { title: this.$t('label.storage.service.iscsi.target'), dataIndex: 'targetName', key: 'targetName', width: 300, code: true },
         { title: this.$t('label.state'), dataIndex: 'state', key: 'state', width: 120 },
@@ -4149,6 +4155,7 @@ export default {
         { title: this.$t('label.size'), dataIndex: 'size', key: 'size', width: 130 },
         { title: this.$t('label.storage.service.used.capacity'), dataIndex: 'used', key: 'used', width: 140 },
         { title: this.$t('label.diskoffering'), dataIndex: 'diskOffering', key: 'diskOffering', width: 220 },
+        { title: this.$t('label.provisioningtype'), dataIndex: 'provisioningType', key: 'provisioningType', width: 150 },
         { title: this.$t('label.storagepool'), dataIndex: 'storagePool', key: 'storagePool', width: 220 },
         { title: this.$t('label.storage.service.namespace'), dataIndex: 'namespaceName', key: 'namespaceName', width: 300, code: true },
         { title: this.$t('label.state'), dataIndex: 'state', key: 'state', width: 120 },
@@ -4248,6 +4255,7 @@ export default {
           size: this.formatCapacityValue(target.volumesizebytes || target.volumeSizeBytes || target.volumesize || target.volumeSize || volume.size),
           used: this.formatCapacityValue(target.usedbytes || target.usedBytes || volume.usedfsbytes || volume.usedphysicalsize || volume.physicalsize || target.physicalsize),
           diskOffering: target.diskofferingname || target.diskOfferingName || volume.diskofferingname || '-',
+          provisioningType: diskProvisioningLabel(volume),
           storagePool: target.storage || target.storagepool || target.storagePoolName || volume.storage || '-',
           targetName,
           state: target.volumestate || target.volumeState || volume.state || '-',
@@ -4386,6 +4394,7 @@ export default {
           size: this.formatCapacityValue(target.volumesizebytes || target.volumeSizeBytes || volume.size),
           used: this.formatCapacityValue(target.usedbytes || target.usedBytes || volume.usedfsbytes || volume.usedphysicalsize || target.physicalsize),
           diskOffering: target.diskofferingname || target.diskOfferingName || volume.diskofferingname || '-',
+          provisioningType: diskProvisioningLabel(volume),
           storagePool: target.storage || target.storagepool || target.storagePoolName || volume.storage || '-',
           namespaceName,
           state: target.volumestate || target.volumeState || volume.state || '-',
@@ -4900,7 +4909,7 @@ export default {
         listall: true,
         ...(this.resource.zoneid ? { zoneid: this.resource.zoneid } : {})
       }), json => {
-        this.diskOfferings = json.listdiskofferingsresponse.diskoffering || []
+        this.diskOfferings = (json.listdiskofferingsresponse.diskoffering || []).filter(supportsStorageFormatting)
         this.reconcileNfsNewVolumeStorage()
         this.reconcileSmbNewVolumeStorage()
       })
