@@ -26,12 +26,17 @@ public final class StorageWriterHeartbeat implements AutoCloseable {
     private final ScheduledFuture<?> future;
     public StorageWriterHeartbeat(StorageServiceOperationVO operation, StorageServiceOperationDao operations,
             ScheduledExecutorService executor, java.util.function.Consumer<RuntimeException> unavailable) {
+        this(operation, operations, executor, unavailable, () -> { });
+    }
+    public StorageWriterHeartbeat(StorageServiceOperationVO operation, StorageServiceOperationDao operations,
+            ScheduledExecutorService executor, java.util.function.Consumer<RuntimeException> unavailable, Runnable renewResourceLease) {
         final long id = operation.getId();
         final long instanceId = operation.getInstanceId();
         final String uuid = operation.getUuid();
         future = executor.scheduleWithFixedDelay(() -> {
             try {
                 operations.touchHeartbeat(id, uuid, instanceId);
+                renewResourceLease.run();
             } catch (RuntimeException failure) {
                 unavailable.accept(failure);
             }

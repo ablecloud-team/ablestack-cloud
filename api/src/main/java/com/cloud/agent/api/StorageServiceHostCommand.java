@@ -25,7 +25,8 @@ public class StorageServiceHostCommand extends Command {
     private static final Set<String> READ_ONLY_OPERATIONS=Set.of("health","inventory","sessions",
             "operation observe","operation verify","operation resources","operation generation status","operation generation frozen",
             "volume operation status","operation maintenance status","operation root-data inspect",
-            "identity capsule capabilities","nfs idmapping preflight","operation writer-idle");
+            "identity capsule capabilities","nfs idmapping preflight","operation writer-idle","operation reservation status");
+    private static final Set<String> SCOPED_COORDINATION_OPERATIONS = Set.of("operation reservation renew");
     private String vmName;
     private String operation;
     @LogLevel(LogLevel.Log4jLevel.Off)
@@ -77,6 +78,8 @@ public class StorageServiceHostCommand extends Command {
     public boolean executeInSequence() {
         // Status must not wait behind a many-minute formatter in the host-wide agent queue.
         // Mutations remain serialized by the instance async queue, management lock and native writer lease.
-        return operation==null || !READ_ONLY_OPERATIONS.contains(operation);
+        // Renewal changes only the exact-scope reservation receipt under its independent native control lock.
+        // It must remain available while the same VM formatter holds the ordinary writer queue and FD9.
+        return operation==null || !(READ_ONLY_OPERATIONS.contains(operation) || SCOPED_COORDINATION_OPERATIONS.contains(operation));
     }
 }

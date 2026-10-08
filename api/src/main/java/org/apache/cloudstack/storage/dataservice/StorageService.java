@@ -96,6 +96,7 @@ import org.apache.cloudstack.api.response.StorageServiceRuntimeUpgradeResponse;
 import org.apache.cloudstack.api.response.StorageSmbShareResponse;
 
 public interface StorageService {
+    StorageServiceRuntimeResponse storageServiceOperationControl(org.apache.cloudstack.api.command.user.storage.dataservice.BaseStorageServiceOperationControlCmd cmd);
     org.apache.cloudstack.api.response.StorageServiceTemplateUpgradeResponse storageServiceTemplateUpgrade(StorageTemplateUpgradeRequest request);
 
     org.apache.cloudstack.api.response.StorageServiceOperationResponse reconcileStorageServiceOperation(
