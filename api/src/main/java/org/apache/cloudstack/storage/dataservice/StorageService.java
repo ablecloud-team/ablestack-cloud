@@ -98,6 +98,9 @@ import org.apache.cloudstack.api.response.StorageSmbShareResponse;
 public interface StorageService {
     StorageServiceRuntimeResponse getStorageNfsCapabilities(org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageNfsCapabilitiesCmd cmd);
     /** Called only by an already serialized lifecycle writer, never by readonly preflight. */
+    java.util.Set<String> requiredManagedOperationFeatures(long instanceId);
+    java.util.Set<String> requiredStoragePackageFeatures(long instanceId);
+    void verifyStoragePackageFeatures(long instanceId);
     String beginRuntimeOperationControl(long upgradeId, boolean rollback);
     void beginManagedOperationControl(String operationUuid, String scopeJson, long artifactBytes);
     void verifyManagedOperationControl(String operationUuid);

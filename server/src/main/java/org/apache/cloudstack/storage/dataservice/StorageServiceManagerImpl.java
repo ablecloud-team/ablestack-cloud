@@ -849,9 +849,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             lifecycle.startAndAwaitCapabilities(instance,operation.getUuid());
             JsonObject result = rootPreflight(instance,shared,row.getTargetTemplateId(),false,getJsonLong(parseJsonObject(row.getPreflightJson()).getAsJsonObject("rootProvisioning"),"selectedDiskOfferingId"));
             if (!result.get("compatible").getAsBoolean()) throw new InvalidParameterValueException("ROOT preflight blocked: "+result.get("blockers"));
-            resourceCheckpoint(false);
+            requireRootPosixReceiptCoverage(instance);resourceCheckpoint(false);
         }
         public void stageRoot() {
+            if(row.getTargetRootVolumeId()==null)requireRootPosixReceiptCoverage(instance);
             resourceCheckpoint(false);
             JsonObject provision=parseJsonObject(row.getPreflightJson()).getAsJsonObject("rootProvisioning");Long offeringId=provision==null?null:getJsonLong(provision,"selectedDiskOfferingId");
             com.cloud.storage.DiskOfferingVO offering=offeringId==null?null:configurationDiskOfferingDao.findById(offeringId);
@@ -1401,12 +1402,86 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         return request;
     }
 
+    protected void requireRootPosixReceiptCoverage(StorageServiceInstanceVO instance) {
+        List<StoragePosixDirectoryPolicyVO> policies=storagePosixPolicyDao.listByInstance(instance.getId());
+        if(policies.isEmpty())return;
+        JsonObject observed=nativeConfigurationGeneration(instance,null,"status");
+        JsonObject files=observed.has("configurationDesiredState") && observed.get("configurationDesiredState").isJsonObject()?observed.getAsJsonObject("configurationDesiredState"):null;
+        JsonObject rows=files!=null && files.has("posix-directory-policies.json") && files.get("posix-directory-policies.json").isJsonObject()?files.getAsJsonObject("posix-directory-policies.json"):null;
+        if(rows==null)throw new CloudRuntimeException("ROOT_POSIX_RECEIPT_COVERAGE_UNAVAILABLE: source common policies have no exact canonical generation");
+        for(StoragePosixDirectoryPolicyVO policy:policies) {
+            if(!"Ready".equals(policy.getState()) || !rows.has(policy.getUuid()) || !rows.get(policy.getUuid()).isJsonObject())throw new CloudRuntimeException("ROOT_POSIX_RECEIPT_COVERAGE_UNAVAILABLE: source common policy is not ready or missing");
+            JsonObject inspected=dispatchPosixDirectoryCommand(instance,"inspect",posixPolicyPayload(instance,policy));
+            requireRootPosixReceipt(rows.getAsJsonObject(policy.getUuid()),inspected);
+        }
+    }
+
+    protected void requireRootPosixReceipt(JsonObject canonical,JsonObject inspected) {
+        JsonObject previous=inspected.has("previousPolicy") && inspected.get("previousPolicy").isJsonObject()?inspected.getAsJsonObject("previousPolicy"):null;
+        JsonObject receipt=inspected.has("previousPostApplyReceipt") && inspected.get("previousPostApplyReceipt").isJsonObject()?inspected.getAsJsonObject("previousPostApplyReceipt"):null;
+        JsonObject identity=inspected.has("directoryIdentity") && inspected.get("directoryIdentity").isJsonObject()?inspected.getAsJsonObject("directoryIdentity"):null;
+        boolean supported=inspected.has("postApplyReceiptSupported") && inspected.get("postApplyReceiptSupported").isJsonPrimitive()
+                && inspected.get("postApplyReceiptSupported").getAsJsonPrimitive().isBoolean() && inspected.get("postApplyReceiptSupported").getAsBoolean();
+        boolean verified=inspected.has("postApplyReceiptVerified") && inspected.get("postApplyReceiptVerified").isJsonPrimitive()
+                && inspected.get("postApplyReceiptVerified").getAsJsonPrimitive().isBoolean() && inspected.get("postApplyReceiptVerified").getAsBoolean();
+        if(!supported || !verified || previous==null || receipt==null || identity==null
+                || !"COMPLETE".equals(getJsonString(receipt,"phase")) || !identity.equals(receipt.get("directoryIdentity"))
+                || !StorageRenderedDesiredState.redact(previous).equals(canonical) || !previous.has("effective") || !previous.get("effective").isJsonObject()
+                || !previous.has("request") || !previous.get("request").isJsonObject())throw new CloudRuntimeException("ROOT_POSIX_RECEIPT_COVERAGE_UNAVAILABLE: explicitly reapply and verify legacy source policy before ROOT maintenance");
+        JsonElement sourceIdentity=previous.getAsJsonObject("effective").get("directoryIdentity");
+        JsonElement canonicalIdentity=receipt.has("canonicalDirectoryIdentity")?receipt.get("canonicalDirectoryIdentity"):identity;
+        if(sourceIdentity==null || !sourceIdentity.equals(canonicalIdentity) || !canonicalIdentity.isJsonObject())throw new CloudRuntimeException("ROOT POSIX canonical source receipt changed");
+        for(String field:List.of("filesystemUuid","inode","effectiveUid","effectiveGid","effectiveMode","aclSha256")) {
+            if(!identity.has(field) || !identity.get(field).equals(canonicalIdentity.getAsJsonObject().get(field)))throw new CloudRuntimeException("ROOT POSIX source metadata changed beyond an attested device mapping");
+        }
+        if(!identity.get("device").equals(canonicalIdentity.getAsJsonObject().get("device"))
+                && (!receipt.has("rootScope") || !receipt.get("rootScope").isJsonObject() || !StringUtils.defaultString(getJsonString(receipt,"sourceConfigurationSha256")).matches("[a-f0-9]{64}")))throw new CloudRuntimeException("ROOT POSIX device mapping has no protected ROOT transfer attestation");
+        JsonObject request=previous.getAsJsonObject("request"),scope=receipt.has("scope") && receipt.get("scope").isJsonObject()?receipt.getAsJsonObject("scope"):null;
+        if(scope==null)throw new CloudRuntimeException("ROOT POSIX source receipt scope is unavailable");
+        for(String field:List.of("instanceUuid","volumeUuid","revision","volumeMountPath","relativePath")) {
+            if(!request.has(field) || !request.get(field).equals(scope.get(field)) || !request.get(field).equals(inspected.get(field)))throw new CloudRuntimeException("ROOT POSIX source receipt scope changed");
+        }
+        if(!request.has("uuid") || !request.get("uuid").equals(scope.get("policyUuid")) || !request.get("uuid").equals(inspected.get("uuid")))throw new CloudRuntimeException("ROOT POSIX source receipt belongs to another policy");
+    }
+
     protected StorageServiceOperationVO managedOperation(String uuid) {
         StorageServiceOperationVO current = storageWriterOperation.get();
         if (current == null || !current.getUuid().equals(uuid)) throw new CloudRuntimeException("Managed resource scope is not the current serialized writer");
         StorageServiceOperationVO durable = storageOperationDao.findById(current.getId());
         if (durable == null || durable.getInstanceId() != current.getInstanceId() || !uuid.equals(durable.getUuid())) throw new CloudRuntimeException("Managed resource writer disappeared");
         return current;
+    }
+
+    @Override
+    public Set<String> requiredManagedOperationFeatures(long instanceId) {
+        StorageServiceInstanceVO instance=requireInstance(instanceId);Set<String> required=new HashSet<>();
+        // Disabled infrastructure does not erase the obligations of an opted-in instance or retained lease.
+        if(instanceControlPolicy(instance).get("enabled").getAsBoolean())required.add("LOGICAL_RESOURCE_RESERVATION");
+        for(StorageServiceOperationVO operation:storageOperationDao.listByInstance(instanceId)) {
+            StorageServiceOperationControlVO control=storageOperationControlDao.findByOperation(operation.getId());
+            if(operation.getInstanceId()!=instanceId)throw new CloudRuntimeException("Retained operation feature scope is foreign");
+            boolean unresolved=!Set.of("COMPLETE","ROLLED_BACK","BLOCKED","CANCELLED","RECONCILED_SUPERSEDED").contains(StringUtils.defaultString(operation.getState()));
+            if(control!=null) {
+                if(control.getInstanceId()!=instanceId || control.getOperationId()!=operation.getId())throw new CloudRuntimeException("Retained resource feature scope is foreign");
+                if(unresolved || Boolean.TRUE.equals(getJsonBoolean(parseJsonObject(control.getLeaseJson()),"reservationAcquired")))required.add("LOGICAL_RESOURCE_RESERVATION");
+            }
+            if(unresolved && "SERVICE_MAINTENANCE".equals(operation.getAction()))required.add("SERVICE_MAINTENANCE");
+        }
+        return Collections.unmodifiableSet(required);
+    }
+
+    @Override
+    public Set<String> requiredStoragePackageFeatures(long instanceId) {
+        StorageServiceInstanceVO instance=requireInstance(instanceId);
+        for(StorageFileShareVO share:storageFileShareDao.listByInstanceIdAndProtocol(instanceId,StorageServiceInstance.Protocol.NFS)) {
+            if(share.getState()!=StorageServiceInstance.ResourceState.Disabled && share.getState()!=StorageServiceInstance.ResourceState.Destroyed && nfsShareHasNamedPolicy(instance,share))return Set.of("NFS_VFS_POSIX_ACL");
+        }
+        return Collections.emptySet();
+    }
+
+    @Override
+    public void verifyStoragePackageFeatures(long instanceId) {
+        if(requiredStoragePackageFeatures(instanceId).contains("NFS_VFS_POSIX_ACL"))StorageNfsPosixAclCapability.require(nfsCapabilities(requireInstance(instanceId)),System.currentTimeMillis());
     }
 
     @Override
@@ -5343,6 +5418,32 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 }
             }
         }
+    }
+
+    protected JsonObject buildRenderedConfigurationDesiredState(StorageServiceInstanceVO instance, JsonObject frozenSource,
+            Map<Long,String> smbPasswords, Map<Long,JsonObject> iscsiSecrets, Map<Long,JsonObject> nvmeSecrets,
+            Map<Long,StorageServiceInstance.ResourceState> nvmeHostStates) {
+        if(frozenSource==null || !frozenSource.keySet().equals(StorageRenderedDesiredState.PATHS))throw new CloudRuntimeException("Rendered source has an incomplete canonical generation");
+        Map<StorageServiceInstance.Protocol,JsonObject> protocols=new java.util.EnumMap<>(StorageServiceInstance.Protocol.class);
+        for(StorageServiceInstance.Protocol protocol:StorageServiceInstance.Protocol.values()) {
+            String path=StorageRenderedDesiredState.PROTOCOL_PATHS.get(protocol);
+            boolean declared=storageServiceProtocolDao.listByInstanceIdAndProtocol(instance.getId(),protocol).stream().anyMatch(StorageServiceProtocolVO::isEnabled);
+            if(protocol==StorageServiceInstance.Protocol.NFS || protocol==StorageServiceInstance.Protocol.SMB)declared|=storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(),protocol).stream().anyMatch(share->isApplicableFileShareState(share.getState(),true));
+            else declared|=storageBlockTargetDao.listByInstanceIdAndProtocol(instance.getId(),protocol).stream().anyMatch(target->isApplicableResourceState(target.getState(),true));
+            if(protocol==StorageServiceInstance.Protocol.SMB) {
+                StorageIdentityDomainVO domain=storageIdentityDomainDao.findByInstanceId(instance.getId());
+                declared|=domain!=null && StringUtils.isNotBlank(domain.getDomainName());
+            }
+            if(frozenSource.get(path).isJsonNull() && !declared) {protocols.put(protocol,null);continue;}
+            JsonObject desired;
+            if(protocol==StorageServiceInstance.Protocol.NFS)desired=buildNfsDesiredPayload(instance,null,true);
+            else if(protocol==StorageServiceInstance.Protocol.SMB)desired=buildSmbDesiredPayload(instance,smbPasswords);
+            else if(protocol==StorageServiceInstance.Protocol.ISCSI)desired=buildIscsiDesiredPayload(instance,iscsiSecrets);
+            else desired=buildNvmeOfDesiredPayload(instance,nvmeSecrets,nvmeHostStates);
+            if(!declared)desired.addProperty("enabled",false);
+            protocols.put(protocol,desired);
+        }
+        return StorageRenderedDesiredState.candidate(frozenSource,protocols);
     }
 
     protected JsonObject buildNfsDesiredPayload(final StorageServiceInstanceVO instance, final String removeListenIp, final boolean includeAllocatedResources) {
