@@ -59,6 +59,20 @@ class IdentityCapsuleTest(unittest.TestCase):
             with self.assertRaises(ValueError):
                 capsules.validate_payload({"schemaVersion": 1, "files": {path: {}}, "accounts": {}})
 
+    def test_scoped_block_restore_never_touches_samba_database_or_operating_system_accounts(self):
+        iscsi='/etc/ablestack-storage/secrets/iscsi-acl-secrets.json'
+        payload={'schemaVersion':1,'files':{iscsi:{'absent':True},'/var/lib/samba/private/passdb.tdb':{'absent':True}},
+                 'accounts':{'/etc/passwd':['synthetic:x:1002:1002::/nonexistent:/usr/sbin/nologin']}}
+        selected=capsules.select_restore_domains(payload,['ISCSI'])
+        self.assertEqual({iscsi:{'absent':True}},selected['files']);self.assertEqual({},selected['accounts'])
+        from unittest.mock import Mock,patch
+        observer=Mock(side_effect=AssertionError('unaffected Samba inspection'))
+        capsules.require_identity_database_quiescence(selected['files'],observer)
+        observer.assert_not_called()
+        for scope in ([],['UNKNOWN'],['SMB','SMB']):
+            with self.assertRaises(ValueError):capsules.select_restore_domains(payload,scope)
+        self.assertEqual(payload['accounts'],capsules.select_restore_domains(payload,['SMB'])['accounts'])
+
     def test_weak_or_wrong_wrapping_key_is_rejected(self):
         key = rsa.generate_private_key(public_exponent=65537, key_size=1024)
         public = key.public_key().public_bytes(serialization.Encoding.PEM,

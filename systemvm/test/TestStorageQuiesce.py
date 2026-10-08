@@ -77,6 +77,14 @@ if sys.argv[1] == 'stop' and os.environ.get('QUIESCE_TEST_FAIL') == sys.argv[2]:
         self.assertNotIn('stop unrelated', calls)
         self.assertNotIn('targetcli', calls)
 
+    def test_root_smb_credential_inverse_quiesces_only_smb_and_keeps_nfs_serving(self):
+        self.payload.write_text(json.dumps({**self.request,"domains":["SMB"]}))
+        result=self.run_quiesce()
+        self.assertEqual(0,result.returncode,result.stderr)
+        value=json.loads(result.stdout);self.assertEqual(["SMB"],value["domainsQuiesced"]);self.assertEqual(self.request,value["scope"])
+        calls=(self.temp/"calls").read_text();self.assertIn("stop smbd.service",calls)
+        self.assertNotIn("stop ablestack-storage-ganesha@",calls);self.assertNotIn("disable ablestack-storage-ganesha@",calls)
+
     def test_actual_quiesce_status_and_verified_release_share_the_exact_scope(self):
         config = self.temp / "configuration"; config.mkdir(mode=0o700)
         self.env["ABLESTACK_STORAGE_CONFIGURATION_ROOT"] = str(config)

@@ -86,4 +86,23 @@ class StorageRootDataInspectionTest(unittest.TestCase):
         self.disk['children']=[{'name':'sdb1','path':'/dev/sdb1','type':'part','fstype':'ext4','uuid':'CHILD-FS'}]
         with self.assertRaises(ValueError):self.inspect()
 
+    def test_blank_requires_readonly_signature_absence_and_no_partition_or_filesystem(self):
+        self.request['volumes'][0]['kind']='UNUSED';self.mounts=[]
+        self.disk.pop('mountpoint');self.disk.pop('fstype');self.disk.pop('uuid')
+        def inspect(proof):return module.inspect_data(self.request,[self.root,self.disk],self.mounts,lambda path:proof)[0]
+        self.assertTrue(inspect({'available':True,'signatures':[]})['blank'])
+        self.assertFalse(inspect({'available':False,'signatures':[]})['blank'])
+        self.assertFalse(inspect({'available':True,'signatures':[{'type':'xfs','uuid':'PARTIAL'}]})['blank'])
+        self.disk['children']=[{'path':'/dev/sdb1','name':'sdb1','type':'part'}]
+        self.assertFalse(inspect({'available':True,'signatures':[]})['blank'])
+
+    def test_signature_probe_uses_only_no_act_and_failed_observation_does_not_claim_blank(self):
+        from unittest.mock import patch
+        import subprocess
+        with patch.object(module.subprocess,'run',return_value=subprocess.CompletedProcess([],0,'{"signatures": []}')) as run:
+            self.assertEqual({'available':True,'signatures':[]},module.inspect_signatures('/dev/selected'))
+            self.assertEqual(['wipefs','--no-act','--json','/dev/selected'],run.call_args.args[0])
+        with patch.object(module.subprocess,'run',side_effect=subprocess.TimeoutExpired('wipefs',8)):
+            self.assertFalse(module.inspect_signatures('/dev/selected')['available'])
+
 if __name__=='__main__':unittest.main()

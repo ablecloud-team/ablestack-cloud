@@ -4,6 +4,7 @@ After=local-fs.target network-online.target rpcbind.service
 Wants=network-online.target rpcbind.service
 
 [Service]
+ExecCondition=/usr/local/bin/ablestack-storagectl operation generation render-boot-gate %n
 Type=simple
 ExecStartPre=/bin/mkdir -p /run/ablestack-storage/ganesha /etc/ganesha/ablestack-storage /run/ganesha
 ExecStartPre=/usr/bin/find /run/ganesha -maxdepth 1 -name ganesha.pid -type f -delete

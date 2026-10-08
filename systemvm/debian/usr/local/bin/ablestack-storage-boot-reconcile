@@ -14,6 +14,99 @@ LOG_FILE="${ABLESTACK_STORAGE_BOOT_RECONCILE_LOG:-/var/log/ablestack-storage-boo
 MAX_ATTEMPTS="${ABLESTACK_STORAGE_BOOT_RECONCILE_ATTEMPTS:-12}"
 SLEEP_SECONDS="${ABLESTACK_STORAGE_BOOT_RECONCILE_SLEEP:-5}"
 
+BOOT_DEADLINE="$(python3 - <<'PYBOOTDEADLINE'
+import time
+print(time.monotonic()+240)
+PYBOOTDEADLINE
+)"
+export ABLESTACK_STORAGE_BOOT_DEADLINE_MONOTONIC="$BOOT_DEADLINE"
+boot_bounded_exec() {
+  python3 - "$BOOT_DEADLINE" "$@" 3<&0 <<'PYBOOTRUNNER'
+"""Bounded boot children share one monotonic budget and exact pidfd termination."""
+import json
+import os
+from pathlib import Path
+import stat
+import tempfile
+import signal
+import subprocess
+import time
+
+
+class BootRunner:
+    def __init__(self,deadline):
+        self.deadline=float(deadline)
+        self.journal=Path(os.environ.get("ABLESTACK_STORAGE_BOOT_CHILD_JOURNAL","/run/ablestack-storage/boot-execution/current.json"))
+
+    def checkpoint(self,phase,child,arguments):
+        self.journal.parent.mkdir(parents=True,mode=0o700,exist_ok=True)
+        info=self.journal.parent.lstat()
+        if not stat.S_ISDIR(info.st_mode) or info.st_uid!=os.geteuid() or info.st_mode&0o077:raise ValueError("Boot execution journal is not protected")
+        ticks=None
+        try:ticks=Path("/proc/"+str(child.pid)+"/stat").read_text().rpartition(")")[2].split()[19]
+        except FileNotFoundError:pass
+        record={"phase":phase,"childPid":child.pid,"startTicks":ticks,"command":Path(arguments[0]).name,"childActive":child.poll() is None,
+                "bootId":Path("/proc/sys/kernel/random/boot_id").read_text().strip(),"updatedEpoch":time.time()}
+        descriptor,temporary=tempfile.mkstemp(prefix=".boot-child-",dir=self.journal.parent)
+        try:
+            os.fchmod(descriptor,0o600)
+            with os.fdopen(descriptor,"w") as handle:json.dump(record,handle);handle.flush();os.fsync(handle.fileno())
+            os.replace(temporary,self.journal)
+            directory=os.open(self.journal.parent,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
+            try:os.fsync(directory)
+            finally:os.close(directory)
+        finally:
+            if os.path.exists(temporary):os.unlink(temporary)
+
+    def run(self,arguments,stdin_fd=None):
+        remaining=self.deadline-time.monotonic()
+        if remaining<=0:raise TimeoutError("Storage boot total deadline exceeded before another command")
+        if not callable(getattr(os,"pidfd_open",None)) or not callable(getattr(signal,"pidfd_send_signal",None)):
+            raise ValueError("Storage boot requires exact pidfd child control")
+        inherited=(9,) if os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD")=="9" else ()
+        if stdin_fd is not None:inherited=(*inherited,stdin_fd)
+        child=subprocess.Popen(arguments,stdin=stdin_fd if stdin_fd is not None else subprocess.DEVNULL,pass_fds=inherited)
+        descriptor=None
+        try:
+            try:descriptor=os.pidfd_open(child.pid,0)
+            except ProcessLookupError:
+                if child.poll() is None:raise ValueError("Storage boot child identity is unavailable")
+            self.checkpoint("RUNNING",child,arguments)
+            try:
+                code=child.wait(timeout=max(.001,self.deadline-time.monotonic()-1))
+                self.checkpoint("COMPLETE" if code==0 else "FAILED",child,arguments)
+                return {"success":code==0,"exitCode":code,"childActive":False}
+            except subprocess.TimeoutExpired:
+                self.checkpoint("TIMED_OUT_PENDING_RECONCILE",child,arguments)
+                # The caller's APPLYING protocol receipt already precedes this
+                # command. Never communicate()/wait without a bounded timeout.
+                if descriptor is not None:
+                    try:signal.pidfd_send_signal(descriptor,signal.SIGTERM,None,0)
+                    except ProcessLookupError:pass
+                try:child.wait(timeout=max(.001,min(.5,self.deadline-time.monotonic())))
+                except subprocess.TimeoutExpired:
+                    if descriptor is not None:
+                        try:signal.pidfd_send_signal(descriptor,signal.SIGKILL,None,0)
+                        except ProcessLookupError:pass
+                    try:child.wait(timeout=max(.001,min(.5,self.deadline-time.monotonic())))
+                    except subprocess.TimeoutExpired:pass
+                self.checkpoint("RECOVERY_REQUIRED" if child.poll() is None else "TIMED_OUT",child,arguments)
+                return {"success":False,"exitCode":child.poll(),"childActive":child.poll() is None,"deadlineExceeded":True,
+                        "recoveryRequired":True,"childPid":child.pid}
+        finally:
+            if descriptor is not None:os.close(descriptor)
+
+import json,sys
+try:
+ result=BootRunner(sys.argv[1]).run(sys.argv[2:],stdin_fd=3)
+ if not result['success']:print(json.dumps({'bootCommandFailed':True,**result}),flush=True)
+ raise SystemExit(0 if result['success'] else 1)
+except (TimeoutError,ValueError) as failure:
+ print(json.dumps({'bootCommandFailed':True,'recoveryRequired':True,'reason':str(failure)}),flush=True)
+ raise SystemExit(1)
+PYBOOTRUNNER
+}
+
 log() {
   mkdir -p "$(dirname "$LOG_FILE")"
   printf '%s %s\n' "$(date -Is)" "$*" >> "$LOG_FILE"
@@ -33,10 +126,20 @@ ensure_ganesha_runtime_dirs() {
 
 ensure_nvmeof_runtime() {
   mkdir -p /sys/kernel/config
-  mountpoint -q /sys/kernel/config || mount -t configfs configfs /sys/kernel/config >/dev/null 2>&1 || true
-  modprobe nvmet >/dev/null 2>&1 || true
-  modprobe nvmet-tcp >/dev/null 2>&1 || true
+  mountpoint -q /sys/kernel/config || boot_bounded_exec mount -t configfs configfs /sys/kernel/config >/dev/null 2>&1 || true
+  boot_bounded_exec modprobe nvmet >/dev/null 2>&1 || true
+  boot_bounded_exec modprobe nvmet-tcp >/dev/null 2>&1 || true
 }
+
+rendered="$(boot_bounded_exec "$STORAGECTL" operation generation render-status)"
+if ! printf '%s' "$rendered" | python3 -c 'import json,sys; value=json.load(sys.stdin); raise SystemExit(0 if value.get("success") and not value.get("bootHeld") else 1)'; then
+  log "SKIPPED_RENDERED_RECOVERY: automatic protocol restore held for configuration verification"
+  exit 0
+fi
+if printf '%s' "$rendered" | python3 -c 'import json,sys; raise SystemExit(0 if json.load(sys.stdin).get("current") else 1)'; then
+  boot_bounded_exec "$STORAGECTL" operation generation render-boot >> "$LOG_FILE" 2>&1
+  exit $?
+fi
 
 if [[ ! -s "$NFS_PAYLOAD" && ! -s "$SMB_PAYLOAD" && ! -s "$ISCSI_PAYLOAD" && ! -s "$NVMEOF_PAYLOAD" && ! -s "$POSIX_POLICIES" ]]; then
   log "no saved Storage Service desired state; skipping boot reconcile"
@@ -48,19 +151,19 @@ if [[ ! -x "$STORAGECTL" ]]; then
   exit 1
 fi
 
-maintenance="$($STORAGECTL operation maintenance status)"
+maintenance="$(boot_bounded_exec "$STORAGECTL" operation maintenance status)"
 if ! printf '%s' "$maintenance" | python3 -c 'import json,sys; value=json.load(sys.stdin); raise SystemExit(0 if value.get("success") and not value.get("bootHeld") else 1)'; then
   log "SKIPPED_MAINTENANCE: automatic protocol restore held for ROOT verification"
   exit 0
 fi
 
 if [[ -s /etc/ablestack-storage/sharedfs-network.json ]]; then
-  /usr/local/sbin/ablestack-sharedfs-network /etc/ablestack-storage/sharedfs-network.json >> "$LOG_FILE" 2>&1
+  boot_bounded_exec /usr/local/sbin/ablestack-sharedfs-network /etc/ablestack-storage/sharedfs-network.json >> "$LOG_FILE" 2>&1
 else
   if systemctl cat cloud-dhclient@eth0.service >/dev/null 2>&1; then
-    systemctl start cloud-dhclient@eth0.service >> "$LOG_FILE" 2>&1
+    boot_bounded_exec systemctl start cloud-dhclient@eth0.service >> "$LOG_FILE" 2>&1
   elif ! ip -4 -o addr show dev eth0 scope global | grep -q ' inet '; then
-    timeout 90 dhclient -4 -1 -pf /run/dhclient.eth0.pid -lf /var/lib/dhcp/dhclient.eth0.leases eth0 >> "$LOG_FILE" 2>&1
+    boot_bounded_exec dhclient -4 -1 -pf /run/dhclient.eth0.pid -lf /var/lib/dhcp/dhclient.eth0.leases eth0 >> "$LOG_FILE" 2>&1
   fi
 fi
 
@@ -68,15 +171,76 @@ log "starting boot reconcile nfs=$NFS_PAYLOAD smb=$SMB_PAYLOAD iscsi=$ISCSI_PAYL
 ensure_ganesha_runtime_dirs
 systemctl daemon-reload >/dev/null 2>&1 || true
 
+# A protocol already verified in this boot is not repeatedly re-applied when
+# another protocol is still cold. Protected receipts bind the saved desired file
+# hash, current boot ID and protocol; changed files invalidate the checkpoint.
+boot_protocol_checkpoint() {
+  python3 - "$1" "$2" "$3" <<'PYBOOTCHECKPOINT'
+import hashlib,json,os,stat,sys,tempfile,time
+from pathlib import Path
+protocol,source,action=sys.argv[1:]
+if protocol not in ("POSIX","NFS","SMB","ISCSI","NVMEOF"):raise ValueError("Unknown boot protocol checkpoint")
+root=Path(os.environ.get("ABLESTACK_STORAGE_BOOT_CHECKPOINT_DIR","/run/ablestack-storage/boot-checkpoints"))
+path=root/(protocol.lower()+".json");desired=Path(source)
+info=desired.lstat()
+if not stat.S_ISREG(info.st_mode) or info.st_uid!=os.geteuid() or info.st_mode&0o022:raise ValueError("Boot desired state is not protected")
+identity={"protocol":protocol,"desiredSha256":hashlib.sha256(desired.read_bytes()).hexdigest(),"bootId":Path("/proc/sys/kernel/random/boot_id").read_text().strip()}
+previous=None
+if path.exists():
+ item=path.lstat();parent=root.lstat()
+ if not stat.S_ISREG(item.st_mode) or item.st_uid!=os.geteuid() or stat.S_IMODE(item.st_mode)!=0o600 or not stat.S_ISDIR(parent.st_mode) or parent.st_uid!=os.geteuid() or parent.st_mode&0o077:raise ValueError("Boot protocol receipt is not protected")
+ previous=json.loads(path.read_text())
+if action=="check":raise SystemExit(0 if previous and all(previous.get(key)==value for key,value in identity.items()) and previous.get("phase")=="VERIFIED" else 1)
+if action not in ("APPLYING","VERIFIED","FAILED"):raise ValueError("Unknown boot checkpoint phase")
+root.mkdir(parents=True,mode=0o700,exist_ok=True);parent=root.lstat()
+if not stat.S_ISDIR(parent.st_mode) or parent.st_uid!=os.geteuid() or parent.st_mode&0o077:raise ValueError("Boot checkpoint directory is not protected")
+fd,temporary=tempfile.mkstemp(prefix=".boot-protocol-",dir=root)
+try:
+ os.fchmod(fd,0o600)
+ with os.fdopen(fd,"w") as handle:json.dump({**identity,"phase":action,"updatedEpoch":time.time()},handle);handle.flush();os.fsync(handle.fileno())
+ os.replace(temporary,path)
+ directory=os.open(root,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
+ try:os.fsync(directory)
+ finally:os.close(directory)
+finally:
+ if os.path.exists(temporary):os.unlink(temporary)
+PYBOOTCHECKPOINT
+}
+
+boot_protocol_ready() {
+  local protocol="$1" source="$2" health
+  health="$(boot_bounded_exec env ABLESTACK_STORAGECTL_CACHE=0 "$STORAGECTL" operation verify)" || return 1
+  printf '%s' "$health" | python3 -c '
+import json,sys
+from pathlib import Path
+protocol,source=sys.argv[1:];health=json.load(sys.stdin);desired=json.loads(Path(source).read_text())
+if health.get("success") is not True:raise SystemExit(1)
+if protocol=="SMB":
+ observed=health.get("smbRuntime") or {};active=desired.get("enabled") is not False and any(row.get("state","Ready") not in ("Disabled","Destroyed","Error") for row in desired.get("shares",[]))
+ ready=observed.get("available") is True and (bool(observed.get("runtimeEndpoints")) and all(row.get("listenerOwned") is True and row.get("tcpReady") is True for row in observed["runtimeEndpoints"]) if active else not (health.get("listenPorts") or {}).get("smb"))
+elif protocol=="NFS":
+ observed=health.get("nfsGanesha") or {};active=desired.get("enabled") is not False and any(row.get("state","Ready") not in ("Disabled","Destroyed","Error") for row in desired.get("exports",[]))
+ ready=(bool(observed.get("endpoints")) and observed.get("status")=="ok" and all(row.get("processRunning") is True and row.get("listening") is True for row in observed["endpoints"])) if active else not (health.get("listenPorts") or {}).get("nfs")
+else:ready=True
+raise SystemExit(0 if ready else 1)
+' "$protocol" "$source"
+}
+
 attempt=1
 while (( attempt <= MAX_ATTEMPTS )); do
+  if ! python3 - "$BOOT_DEADLINE" <<'PYBOOTREMAINING'
+import sys,time
+raise SystemExit(0 if time.monotonic()<float(sys.argv[1]) else 1)
+PYBOOTREMAINING
+  then log "RECOVERY_REQUIRED: storage boot total deadline exhausted";exit 1;fi
   log "attempt $attempt/$MAX_ATTEMPTS"
-  mount -a >> "$LOG_FILE" 2>&1 || true
+  boot_bounded_exec mount -a >> "$LOG_FILE" 2>&1 || true
   ensure_ganesha_runtime_dirs
-  "$STORAGECTL" network endpoints reconcile >> "$LOG_FILE" 2>&1 || true
+  boot_bounded_exec "$STORAGECTL" network endpoints reconcile >> "$LOG_FILE" 2>&1 || true
   success=1
-  if [[ -s "$POSIX_POLICIES" ]]; then
-    if python3 - "$STORAGECTL" "$POSIX_POLICIES" <<'PYPOSIXBOOT' >> "$LOG_FILE" 2>&1
+  if [[ -s "$POSIX_POLICIES" ]] && ! boot_protocol_checkpoint POSIX "$POSIX_POLICIES" check; then
+    boot_protocol_checkpoint POSIX "$POSIX_POLICIES" APPLYING
+    if boot_bounded_exec python3 - "$STORAGECTL" "$POSIX_POLICIES" <<'PYPOSIXBOOT' >> "$LOG_FILE" 2>&1
 import json
 import os
 import subprocess
@@ -97,52 +261,66 @@ for item in policies.values():
         os.unlink(path)
 PYPOSIXBOOT
     then
+      boot_protocol_checkpoint POSIX "$POSIX_POLICIES" VERIFIED
       log "Common POSIX directory policies reapplied successfully"
     else
+      boot_protocol_checkpoint POSIX "$POSIX_POLICIES" FAILED
       log "Common POSIX directory policy reapply failed"
       success=0
     fi
   fi
-  if [[ -s "$NFS_PAYLOAD" ]]; then
-    if "$STORAGECTL" nfs export apply "$NFS_PAYLOAD" >> "$LOG_FILE" 2>&1; then
+  if [[ -s "$NFS_PAYLOAD" ]] && ! (boot_protocol_checkpoint NFS "$NFS_PAYLOAD" check && boot_protocol_ready NFS "$NFS_PAYLOAD"); then
+    boot_protocol_checkpoint NFS "$NFS_PAYLOAD" APPLYING
+    if boot_bounded_exec "$STORAGECTL" nfs export apply "$NFS_PAYLOAD" >> "$LOG_FILE" 2>&1 && boot_protocol_ready NFS "$NFS_PAYLOAD"; then
+      boot_protocol_checkpoint NFS "$NFS_PAYLOAD" VERIFIED
       log "NFS desired state reapplied successfully"
     else
+      boot_protocol_checkpoint NFS "$NFS_PAYLOAD" FAILED
       log "NFS desired state reapply failed"
       success=0
     fi
   fi
-  if [[ -s "$SMB_PAYLOAD" ]]; then
-    if "$STORAGECTL" smb share apply "$SMB_PAYLOAD" >> "$LOG_FILE" 2>&1; then
+  if [[ -s "$SMB_PAYLOAD" ]] && ! (boot_protocol_checkpoint SMB "$SMB_PAYLOAD" check && boot_protocol_ready SMB "$SMB_PAYLOAD"); then
+    boot_protocol_checkpoint SMB "$SMB_PAYLOAD" APPLYING
+    if boot_bounded_exec "$STORAGECTL" smb share apply "$SMB_PAYLOAD" >> "$LOG_FILE" 2>&1 && boot_protocol_ready SMB "$SMB_PAYLOAD"; then
+      boot_protocol_checkpoint SMB "$SMB_PAYLOAD" VERIFIED
       log "SMB desired state reapplied successfully"
     else
+      boot_protocol_checkpoint SMB "$SMB_PAYLOAD" FAILED
       log "SMB desired state reapply failed"
       success=0
     fi
   fi
-  if [[ -s "$ISCSI_PAYLOAD" ]]; then
-    if ABLESTACK_STORAGE_ISCSI_AUTHORITATIVE_REBUILD=1 "$STORAGECTL" iscsi target apply "$ISCSI_PAYLOAD" >> "$LOG_FILE" 2>&1; then
+  if [[ -s "$ISCSI_PAYLOAD" ]] && ! boot_protocol_checkpoint ISCSI "$ISCSI_PAYLOAD" check; then
+    boot_protocol_checkpoint ISCSI "$ISCSI_PAYLOAD" APPLYING
+    if ABLESTACK_STORAGE_ISCSI_AUTHORITATIVE_REBUILD=1 boot_bounded_exec "$STORAGECTL" iscsi target apply "$ISCSI_PAYLOAD" >> "$LOG_FILE" 2>&1; then
+      boot_protocol_checkpoint ISCSI "$ISCSI_PAYLOAD" VERIFIED
       log "iSCSI desired state reapplied successfully"
     else
+      boot_protocol_checkpoint ISCSI "$ISCSI_PAYLOAD" FAILED
       log "iSCSI desired state reapply failed"
       success=0
     fi
   fi
-  if [[ -s "$NVMEOF_PAYLOAD" ]]; then
+  if [[ -s "$NVMEOF_PAYLOAD" ]] && ! boot_protocol_checkpoint NVMEOF "$NVMEOF_PAYLOAD" check; then
+    boot_protocol_checkpoint NVMEOF "$NVMEOF_PAYLOAD" APPLYING
     ensure_nvmeof_runtime
-    if "$STORAGECTL" nvmeof subsystem apply "$NVMEOF_PAYLOAD" >> "$LOG_FILE" 2>&1; then
+    if boot_bounded_exec "$STORAGECTL" nvmeof subsystem apply "$NVMEOF_PAYLOAD" >> "$LOG_FILE" 2>&1; then
+      boot_protocol_checkpoint NVMEOF "$NVMEOF_PAYLOAD" VERIFIED
       log "NVMe-oF desired state reapplied successfully"
     else
+      boot_protocol_checkpoint NVMEOF "$NVMEOF_PAYLOAD" FAILED
       log "NVMe-oF desired state reapply failed"
       success=0
     fi
   fi
   if (( success == 1 )); then
     if [[ -x "$MONITOR" ]]; then
-      "$MONITOR" --once >> "$LOG_FILE" 2>&1 || true
+      boot_bounded_exec "$MONITOR" --once >> "$LOG_FILE" 2>&1 || true
     fi
     exit 0
   fi
-  sleep "$SLEEP_SECONDS"
+  boot_bounded_exec sleep "$SLEEP_SECONDS" || exit 1
   attempt=$((attempt + 1))
 done
 

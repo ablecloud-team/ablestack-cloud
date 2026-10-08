@@ -120,7 +120,19 @@ jobs:
             systemvm.test.TestStorageTemplateMaintenance \
             systemvm.test.TestStorageRootDataInspection \
             systemvm.test.TestStorageSmbFreshHealth \
-            systemvm.test.TestStorageSmbIdentity
+            systemvm.test.TestStorageSmbIdentity \
+            systemvm.test.TestStorageResourceReservation \
+            systemvm.test.TestStorageInlineSources \
+            systemvm.test.TestStorageNativeRenderers \
+            systemvm.test.TestStorageRenderedGeneration \
+            systemvm.test.TestStorageRenderedDriver \
+            systemvm.test.TestStorageRenderedRuntime \
+            systemvm.test.TestStorageRenderedNetwork \
+            systemvm.test.TestStorageRenderedPrerequisites \
+            systemvm.test.TestStorageGaneshaDbus \
+            systemvm.test.TestStorageNvmeCredentials \
+            systemvm.test.TestStorageBootRunner \
+            systemvm.test.TestStorageBootProtocolCheckpoint
           python3 test/systemvm/test_storage_config_generation.py
           python3 test/systemvm/test_storage_identity_capsule.py
           python3 test/systemvm/test_storage_writer_lock.py

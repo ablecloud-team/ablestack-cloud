@@ -93,10 +93,11 @@ class ResourceReservation:
     def status(self):
         record=self.read(self.record)
         expired=self.expired(record) if record else False
+        observed=dict(self.observe());observed.setdefault("generatedEpoch",self.clock()/1000)
         return {"success":True,"reservationSupported":True,"drainSupported":False,"logicalReservationOnly":True,
                 "reservationAcquired":bool(record and not expired),"scope":record.get("scope") if record else None,
                 "leaseExpiresAt":record.get("leaseExpiresAt") if record else None,"expired":expired,
-                "observed":record.get("observed") if record else None,"blockers":[]}
+                "observed":observed,"blockers":[]}
 
     def write(self,value):
         descriptor,temporary=tempfile.mkstemp(prefix=".reservation-",dir=self.root)

@@ -96,4 +96,10 @@ class StorageResourceReservationTest(unittest.TestCase):
             self.assertFalse((self.root/'live-reservation/lease.json').exists())
         finally:os.close(descriptor)
 
+    def test_status_uses_fresh_resource_observation_without_rewriting_lease_or_creating_directory(self):
+        first=self.store.status();self.assertEqual(1,first['observed']['generatedEpoch']);self.assertFalse(self.store.root.exists())
+        self.store.execute('acquire',self.request);before=self.store.record.read_bytes();self.now=2000;self.observed={**self.observed,'memoryAvailableBytes':99}
+        current=self.store.status();self.assertEqual(99,current['observed']['memoryAvailableBytes']);self.assertEqual(2,current['observed']['generatedEpoch'])
+        self.assertEqual(before,self.store.record.read_bytes());self.assertTrue(current['reservationAcquired'])
+
 if __name__=='__main__':unittest.main()
