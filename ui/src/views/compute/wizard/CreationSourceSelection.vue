@@ -129,6 +129,7 @@ export default {
 :deep(.ant-radio-button-wrapper:focus-within) { outline: 2px solid var(--ui-focus); outline-offset: 2px; }
 .source-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 16px 0; }
 .source-toolbar .ant-input-search { max-width: 340px; }
+:deep(.ant-input::placeholder) { color: var(--ui-text-secondary) !important; opacity: 1; }
 .ant-alert { margin-top: 12px; }
 .source-meta { color: var(--ui-text-secondary); font-size: 12px; overflow-wrap: anywhere; margin-top: 4px; }
 .source-reason { color: var(--ui-text-secondary); overflow-wrap: anywhere; }
