@@ -101,6 +101,9 @@ public interface StorageService {
     StorageServiceRuntimeResponse getStorageNfsCapabilities(org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageNfsCapabilitiesCmd cmd);
     /** Called only by an already serialized lifecycle writer, never by readonly preflight. */
     java.util.Set<String> requiredManagedOperationFeatures(long instanceId);
+    default java.util.Set<String> scopedValidatedRuntimeFeatures(long instanceId,java.util.Set<String> declaredFeatures) {
+        if(declaredFeatures==null)throw new com.cloud.utils.exception.CloudRuntimeException("Declared runtime features are unavailable");return java.util.Collections.unmodifiableSet(new java.util.HashSet<>(declaredFeatures));
+    }
     java.util.Set<String> requiredStoragePackageFeatures(long instanceId);
     void verifyStoragePackageFeatures(long instanceId);
     String beginRuntimeOperationControl(long upgradeId, boolean rollback);
