@@ -9822,6 +9822,25 @@ class SmbIdentity:
                 "configurationUnchanged":current["configurationSha256"]==previous["configurationSha256"],
                 "generationAdvanced":False,"verification":current,"previousMasters":previous["masters"]}
 
+    def wait_for_ready(self,request,frozen,require_drained=True):
+        # systemctl start acknowledges process creation before Samba has opened
+        # its databases/listeners. Reobserve only; never signal/restart a healthy
+        # acceptor to resolve this readiness race.
+        deadline=time.monotonic()+self.remaining(30)
+        attempts=0
+        while True:
+            attempts+=1
+            result=self.inspect(request,allow_missing=True)
+            stable=("scope","bootId","generation","configurationSha256","databases")
+            if any(result.get(key)!=frozen.get(key) for key in stable):
+                raise ValueError("SMB rebind source scope/configuration/database changed during readiness")
+            if (result["identityDatabaseAligned"] and result["ownershipVerified"] and result.get("endpointTcpReady",True)
+                    and (not require_drained or result["sessions"]["safeToRebind"] is True)):
+                return {**result,"readinessAttempts":attempts}
+            remaining=min(deadline-time.monotonic(),self.deadline-time.monotonic())
+            if remaining<=0:raise TimeoutError("SMB acceptor readiness did not verify within its fixed deadline")
+            time.sleep(min(.1,remaining))
+
     def rebind(self,request):
         scope=self.scope(request);self.generation(scope,writer=True)
         journal=self.repair_journal(scope)
@@ -9834,8 +9853,11 @@ class SmbIdentity:
             wanted=[{key:item[key] for key in ("listenIp","port","key","unit")} for item in expected["ownedEndpoints"]]
             actual=[{key:item[key] for key in ("listenIp","port","key","unit")} for item in before["ownedEndpoints"]]
             if wanted!=actual:raise ValueError("SMB interrupted repair endpoint registry changed")
-            if journal["phase"]=="COMPLETE" and before["identityDatabaseAligned"] and before["ownershipVerified"]:
-                return self.result(before,expected,rebound=True,idempotent=True)
+            if before["identityDatabaseAligned"] and before["ownershipVerified"]:
+                result=self.wait_for_ready(request,expected,require_drained=journal["phase"]!="COMPLETE")
+                journal["phase"]="COMPLETE";journal["completedEpoch"]=time.time();journal["resultMasters"]=result["masters"]
+                journal["readinessAttempts"]=result["readinessAttempts"];self.repair_journal(scope,journal)
+                return self.result(result,expected,rebound=True,idempotent=True)
             # All present listeners were still resolved to known units by
             # inspect. Resume the same frozen repair through the common drained
             # rebind path; missing old acceptors are started only from its
@@ -9877,11 +9899,8 @@ class SmbIdentity:
                 self.run(["systemctl","stop",unit]);stopped.append(unit)
             for endpoint in before["ownedEndpoints"]:self.run(["systemctl","start",endpoint["unit"]])
             journal["phase"]="VERIFYING";self.repair_journal(scope,journal)
-            result=self.inspect(request)
-            if (not result["identityDatabaseAligned"] or not result["endpointTcpReady"] or result["sessions"]["safeToRebind"] is not True or result["generation"]!=before["generation"]
-                    or result["configurationSha256"]!=before["configurationSha256"] or result["databases"]!=before["databases"] or result["bootId"]!=before["bootId"]):
-                raise ValueError("SMB acceptor identity rebind did not verify source byte/identity preservation")
-            journal["phase"]="COMPLETE";journal["completedEpoch"]=time.time();journal["resultMasters"]=result["masters"];self.repair_journal(scope,journal)
+            result=self.wait_for_ready(request,before)
+            journal["phase"]="COMPLETE";journal["completedEpoch"]=time.time();journal["resultMasters"]=result["masters"];journal["readinessAttempts"]=result["readinessAttempts"];self.repair_journal(scope,journal)
             return self.result(result,expected,rebound=True)
         except Exception:
             journal["phase"]="RECOVERY_REQUIRED";journal["stoppedUnits"]=stopped;self.repair_journal(scope,journal)
