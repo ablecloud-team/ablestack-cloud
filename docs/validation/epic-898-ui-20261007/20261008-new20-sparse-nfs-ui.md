@@ -15,3 +15,7 @@
 외부Linux client에서 child로파일을작성·fsync한뒤 parent/child 두mount로같은내용을읽었다. inode133/UID:GID1002:1002/mode0640/SHA d8108a34...가일치했다. parent inode33685632/child132는같은dev2080/FS5b11의권한·identity를유지했다. Client idmapping flagY는변경하지않았고 두mount는정상정리했다. protected journal root0600/COMPLETE/PID89199/formatreceipt가동일하며원본sentinel도보존했다.
 
 이번20G검증은 정확한10TiB SPARSE 성공시험을대체하지않는다. 다음volume-only 이동·overlap negative/child삭제보존 및full4/ROOT/AD가남아있다. 최종UI#1275는착수하지않고기능완료뒤시작직전중단·보고·추가지시대기한다.
+
+두 고유 DATA의 실제 UI 행은 각각20GiB와174.8/174.7MiB를 표시했다. 같은볼륨의여러내보내기참조는각각한번만집계했고새UUID7b4의SPARSE와기존a0bbe의보존된THIN을구분했다. 신규THIN생성은0이다.
+
+![두고유DATA 실제UI](20261008-new20-two-data-unique-ui.png)
