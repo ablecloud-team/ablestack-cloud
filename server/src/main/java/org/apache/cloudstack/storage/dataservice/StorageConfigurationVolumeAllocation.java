@@ -180,7 +180,10 @@ public final class StorageConfigurationVolumeAllocation {
         StorageConfigurationVolumePlan.requireSameScope(allocation, volume);require(StorageConfigurationVolumePlan.number(allocation, "sizeBytes") == StorageConfigurationVolumePlan.number(volume, "sizeBytes"), "Staged DATA size changed");
         String pool = nullable(volume, "poolUuid");require(pool == null && !ready || text(allocation, "poolUuid").equals(pool), "Staged DATA moved outside the reviewed pool");
         if (ready) require("Ready".equals(text(volume, "state")), "Staged DATA is not Ready");
-        if ("NEW".equals(text(allocation, "mode"))) require(allocation.equals(StorageConfigurationVolumePlan.object(volume, "provenance")), "UUID collision or foreign DATA provenance prohibits adoption");
+        if ("NEW".equals(text(allocation, "mode"))) {
+            String provisioning = text(allocation, "provisioningType");require(Set.of("SPARSE", "FAT").contains(provisioning) && provisioning.equalsIgnoreCase(text(volume, "provisioningType")), "NEW staged DATA provisioning must match approved SPARSE or FAT; THIN is forbidden");
+            require(allocation.equals(StorageConfigurationVolumePlan.object(volume, "provenance")), "UUID collision or foreign DATA provenance prohibits adoption");
+        }
         String target = nullable(volume, "attachedInstanceUuid");require(target == null || text(allocation, "targetInstanceUuid").equals(target), "Staged DATA belongs to a different service");
     }
     private static void requireObservation(JsonObject allocation, JsonObject observed) {require(text(allocation, "plannedUuid").equals(text(observed, "volumeUuid")) && "EXACT".equals(text(observed, "mappingStatus")) && StorageConfigurationVolumePlan.number(allocation, "sizeBytes") == StorageConfigurationVolumePlan.number(observed, "sizeBytes"), "Fresh exact backing device identity is unavailable");}

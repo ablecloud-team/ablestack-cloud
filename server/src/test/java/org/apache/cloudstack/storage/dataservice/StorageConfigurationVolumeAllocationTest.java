@@ -45,7 +45,7 @@ public class StorageConfigurationVolumeAllocationTest {
         }
         JsonObject volume(JsonObject allocation, String state) {
             JsonObject value = StorageConfigurationVolumePlanTest.json("{\"type\":\"DATADISK\"}");value.addProperty("uuid", id(allocation));value.addProperty("state", state);
-            for (String key : new String[] {"accountId", "domainId", "projectId", "zoneUuid", "sizeBytes"}) if (allocation.has(key)) value.add(key, allocation.get(key).deepCopy());return value;
+            for (String key : new String[] {"accountId", "domainId", "projectId", "zoneUuid", "sizeBytes", "provisioningType"}) if (allocation.has(key)) value.add(key, allocation.get(key).deepCopy());return value;
         }
         public void createPhysical(JsonObject allocation) {
             fault("create-before");createCalls++;JsonObject value = volumes.get(id(allocation));value.addProperty("state", "Ready");value.add("poolUuid", allocation.get("poolUuid").deepCopy());fault("create-after");
@@ -180,6 +180,11 @@ public class StorageConfigurationVolumeAllocationTest {
             JsonObject plan = plan(1);Runtime r = new Runtime();r.failOnce = "prepare-after";fail(plan, r);JsonObject observed = r.observations.get(uuid(plan, 0));
             if ("sizeBytes".equals(field)) observed.addProperty(field, 1);else observed.addProperty(field, "wrong-identity");fail(plan, r);Assert.assertEquals(1, r.formatCalls);Assert.assertEquals(0, r.mountCalls);Assert.assertEquals(0, r.deleteCalls);
         }
+    }
+
+    @Test public void actualThinVolumeCannotPassAnApprovedSparseReceiptOrBeFormatted() {
+        JsonObject plan = plan(1);Runtime r = new Runtime();r.failOnce="create-before";fail(plan,r);
+        r.volumes.get(uuid(plan,0)).addProperty("provisioningType","thin");fail(plan,r);Assert.assertEquals(0,r.createCalls);Assert.assertEquals(0,r.formatCalls);Assert.assertEquals(0,r.deleteCalls);
     }
 
 }

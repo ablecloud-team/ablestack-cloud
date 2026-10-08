@@ -461,7 +461,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                     requireRootWriterIdle(instance, null);
                     long revision = rootDesiredRevision(instance.getId());
                     if (request.getExpectedRevision() != null && request.getExpectedRevision() != revision) throw new InvalidParameterValueException("Desired revision changed");
-                    JsonObject preflight = rootPreflight(instance, shared, request.getTemplateId(), true);
+                    JsonObject preflight = rootPreflight(instance, shared, request.getTemplateId(), true,request.getRootDiskOfferingId());
                     if (!preflight.get("compatible").getAsBoolean()) { result.add("preflight", preflight);return rootUpgradeResponse(instance.getUuid(), result); }
                     String key = request.getIdempotencyKey() == null ? java.util.UUID.randomUUID().toString() : request.getIdempotencyKey();
                     StorageServiceTemplateUpgradeVO row = new StorageTemplateUpgradePlanner(storageTemplateUpgradeDao).plan(instance, shared.getId(),
@@ -486,6 +486,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                             throw new InvalidParameterValueException("Retained ROOT cannot serve the current desired features: "+rootRollbackCompatibility(row).get("blockers"));
                         }
                         if (manualRollback && "COMPLETE".equals(row.getState()) && !rootRollbackAllowed(row)) throw new InvalidParameterValueException("Retained ROOT rollback is unavailable or expired");
+                        JsonObject plannedProvision=parseJsonObject(row.getPreflightJson()).getAsJsonObject("rootProvisioning");
+                        if(!manualRollback && request.getRootDiskOfferingId()!=null && (plannedProvision==null || !request.getRootDiskOfferingId().equals(getJsonLong(plannedProvision,"selectedDiskOfferingId")))) throw new InvalidParameterValueException("ROOT offering differs from the immutable preflight plan");
                         if ("PLANNED".equals(row.getState())) StorageTemplateUpgradePlanner.approve(row, revision, shared.getName(), request.getConfirmation(), request.getMaintenanceWindow());
                         else if (!java.util.Set.of("RUNNING", "RECOVERY_REQUIRED", "COMPLETE").contains(row.getState())) throw new InvalidParameterValueException("Upgrade cannot run in its current state");
                         StorageServiceOperationVO operation = rootUpgradeOperation(instance, row, revision, manualRollback);
@@ -615,7 +617,30 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         return observed;
     }
 
+    protected JsonObject rootProvisioningPlan(VolumeVO previous,com.cloud.storage.VMTemplateVO target,Long requested) {
+        JsonObject result=new JsonObject();JsonArray choices=new JsonArray(),blockers=new JsonArray();List<com.cloud.storage.DiskOfferingVO> compatible=new ArrayList<>();
+        for(com.cloud.storage.DiskOfferingVO offering:configurationDiskOfferingDao.listAll()) if(rootOfferingCompatible(previous,target,offering)) {
+            compatible.add(offering);JsonObject choice=new JsonObject();choice.addProperty("id",offering.getUuid());choice.addProperty("name",offering.getName());choice.addProperty("provisioningType",offering.getProvisioningType().name());choice.addProperty("diskSizeBytes",offering.getDiskSize());choice.addProperty("cacheMode",String.valueOf(offering.getCacheMode()));choices.add(choice);
+        }
+        com.cloud.storage.DiskOfferingVO selected=requested==null ? compatible.size()==1?compatible.get(0):null : compatible.stream().filter(value->value.getId()==requested).findFirst().orElse(null);
+        if(selected==null)blockers.add(requested!=null?"ROOT_DISK_OFFERING_INCOMPATIBLE":compatible.isEmpty()?"ROOT_SPARSE_FAT_OFFERING_UNAVAILABLE":"ROOT_DISK_OFFERING_SELECTION_REQUIRED");
+        else {result.addProperty("selectedDiskOfferingUuid",selected.getUuid());result.addProperty("selectedDiskOfferingId",selected.getId());result.addProperty("selectedProvisioningType",selected.getProvisioningType().name());result.addProperty("selectionReason",requested==null?"ONLY_COMPATIBLE_SPARSE_FAT_OFFERING":"EXPLICIT_COMPATIBLE_SPARSE_FAT_OFFERING");}
+        result.add("choices",choices);result.add("blockers",blockers);return result;
+    }
+    private boolean rootOfferingCompatible(VolumeVO previous,com.cloud.storage.VMTemplateVO target,com.cloud.storage.DiskOfferingVO candidate) {
+        if(previous==null || target==null || candidate==null || !(candidate.getProvisioningType()==com.cloud.storage.Storage.ProvisioningType.SPARSE || candidate.getProvisioningType()==com.cloud.storage.Storage.ProvisioningType.FAT)
+                || !"Active".equalsIgnoreCase(String.valueOf(candidate.getState())))return false;
+        com.cloud.storage.DiskOfferingVO original=configurationDiskOfferingDao.findById(previous.getDiskOfferingId());if(original==null)return false;
+        long size=Math.max(previous.getSize(),target.getSize()==null?0:target.getSize());
+        return (candidate.isCustomized() || candidate.getDiskSize()>=size) && original.isUseLocalStorage()==candidate.isUseLocalStorage() && original.getEncrypt()==candidate.getEncrypt()
+                && java.util.Objects.equals(original.getCacheMode(),candidate.getCacheMode()) && java.util.Objects.equals(original.getTags(),candidate.getTags())
+                && java.util.Objects.equals(original.isCustomizedIops(),candidate.isCustomizedIops()) && java.util.Objects.equals(original.getMinIops(),candidate.getMinIops()) && java.util.Objects.equals(original.getMaxIops(),candidate.getMaxIops())
+                && java.util.Objects.equals(original.getBytesReadRate(),candidate.getBytesReadRate()) && java.util.Objects.equals(original.getBytesWriteRate(),candidate.getBytesWriteRate()) && java.util.Objects.equals(original.getIopsReadRate(),candidate.getIopsReadRate()) && java.util.Objects.equals(original.getIopsWriteRate(),candidate.getIopsWriteRate());
+    }
     private JsonObject rootPreflight(StorageServiceInstanceVO instance, SharedFSVO shared, long targetId, boolean allowStopped) {
+        return rootPreflight(instance,shared,targetId,allowStopped,null);
+    }
+    private JsonObject rootPreflight(StorageServiceInstanceVO instance, SharedFSVO shared, long targetId, boolean allowStopped,Long requestedOffering) {
         JsonObject result = rootTemplateCatalog(instance, targetId);JsonArray blockers = result.getAsJsonArray("blockers");
         com.cloud.vm.UserVmVO vm = rootUpgradeVmDao.findById(instance.getVmId());
         if (shared.getState() != SharedFS.State.Ready && shared.getState() != SharedFS.State.Stopped) blockers.add("SHAREDFS_TRANSITIONAL");
@@ -628,6 +653,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         else {
             org.apache.cloudstack.storage.datastore.db.StoragePoolVO pool = configurationStoragePoolDao.findById(roots.get(0).getPoolId());
             com.cloud.storage.VMTemplateVO target = rootUpgradeTemplateDao.findById(targetId);
+            JsonObject provisioning=rootProvisioningPlan(roots.get(0),target,requestedOffering);result.add("rootProvisioning",provisioning);
+            for(JsonElement blocker:provisioning.getAsJsonArray("blockers"))blockers.add(blocker);
             if (pool == null || pool.getStatus() != com.cloud.storage.StoragePoolStatus.Up || target == null
                     || !rootUpgradeStorageManager.storagePoolHasEnoughSpace(Math.max(roots.get(0).getSize(), target.getSize() == null ? 0 : target.getSize()),pool)) blockers.add("ROOT_PRIMARY_STORAGE_CAPACITY_UNAVAILABLE");
         }
@@ -773,11 +800,14 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             requireRootWriterIdle(instance,row);
             if (row.getSnapshotJson() != null) { sameTopology();return; }
             lifecycle.startAndAwaitCapabilities(instance,operation.getUuid());
-            JsonObject result = rootPreflight(instance,shared,row.getTargetTemplateId(),false);
+            JsonObject result = rootPreflight(instance,shared,row.getTargetTemplateId(),false,getJsonLong(parseJsonObject(row.getPreflightJson()).getAsJsonObject("rootProvisioning"),"selectedDiskOfferingId"));
             if (!result.get("compatible").getAsBoolean()) throw new InvalidParameterValueException("ROOT preflight blocked: "+result.get("blockers"));
         }
         public void stageRoot() {
-            if (row.getTargetRootVolumeId() == null) { VolumeVO target = swap.allocate(instance.getVmId(),row.getPreviousRootVolumeId(),rootUpgradeTemplateDao.findById(row.getTargetTemplateId()),row.getUuid());row.setTargetRootVolumeId(target.getId());storageTemplateUpgradeDao.update(row.getId(),row); }
+            JsonObject provision=parseJsonObject(row.getPreflightJson()).getAsJsonObject("rootProvisioning");Long offeringId=provision==null?null:getJsonLong(provision,"selectedDiskOfferingId");
+            com.cloud.storage.DiskOfferingVO offering=offeringId==null?null:configurationDiskOfferingDao.findById(offeringId);
+            if(offering==null || !rootOfferingCompatible(volumeDao.findById(row.getPreviousRootVolumeId()),rootUpgradeTemplateDao.findById(row.getTargetTemplateId()),offering)) throw new CloudRuntimeException("Planned SPARSE/FAT ROOT offering is no longer compatible");
+            if (row.getTargetRootVolumeId() == null) { VolumeVO target = swap.allocate(instance.getVmId(),row.getPreviousRootVolumeId(),rootUpgradeTemplateDao.findById(row.getTargetTemplateId()),row.getUuid(),offering);row.setTargetRootVolumeId(target.getId());storageTemplateUpgradeDao.update(row.getId(),row); }
             if (currentRoot() == row.getTargetRootVolumeId()) return;
             swap.prepare(instance.getVmId(),row.getPreviousRootVolumeId(),row.getTargetRootVolumeId(),row.getTargetTemplateId());
         }
@@ -786,7 +816,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             JsonObject signedRuntime=runtimeUpgradeManager.checkpointTemplateRuntime(instance.getId(),operation.getUuid());
             checkpointConfigurationIdentity(instance);
             JsonObject previous = parseJsonObject(operation.getPreviousSnapshotJson());
-            JsonObject value = new JsonObject();value.add("topology",rootTopology(instance));value.add("identity",previous.getAsJsonObject("nativeIdentityCapsule"));value.add("signedRuntime",signedRuntime);
+            JsonObject value = new JsonObject();value.add("topology",rootTopology(instance));value.add("identity",previous.getAsJsonObject("nativeIdentityCapsule"));value.add("signedRuntime",signedRuntime);value.add("sourceSignedRuntime",signedRuntime.deepCopy());
             JsonObject generation=nativeConfigurationGeneration(instance,null,"status");
             value.add("sourceGeneration",generation.getAsJsonObject("generation"));
             if (!generation.has("configurationDesiredState")) throw new CloudRuntimeException("ROOT desired-state seed capability is unavailable");
@@ -949,7 +979,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         public void restorePreviousRoot() {
             if (manualRollback && !snapshot().has("manualRollbackGeneration")) {
                 lifecycle.startAndAwaitCapabilities(instance,operation.getUuid());verifyReconciledStorageDesiredState(instance);checkpointConfigurationIdentity(instance);
-                JsonObject value=snapshot();value.add("signedRuntime",runtimeUpgradeManager.checkpointTemplateRuntime(instance.getId(),operation.getUuid()));value.add("identity",parseJsonObject(operation.getPreviousSnapshotJson()).getAsJsonObject("nativeIdentityCapsule"));
+                JsonObject value=snapshot();value.add("manualRollbackRuntime",runtimeUpgradeManager.checkpointTemplateRuntime(instance.getId(),operation.getUuid()));value.add("identity",parseJsonObject(operation.getPreviousSnapshotJson()).getAsJsonObject("nativeIdentityCapsule"));
                 JsonObject observed=nativeConfigurationGeneration(instance,null,"status");JsonObject source=observed.getAsJsonObject("generation");
                 if (!observed.has("configurationDesiredState")) throw new CloudRuntimeException("Current ROOT seed capability is unavailable");
                 value.add("sourceGeneration",source);value.add("sourceDesiredState",observed.getAsJsonObject("configurationDesiredState"));value.add("manualRollbackGeneration",source);persist(value);
@@ -965,9 +995,14 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             }
             lifecycle.stop(instance.getVmId());swap.swap(instance.getVmId(),row.getTargetRootVolumeId(),row.getPreviousRootVolumeId(),row.getTargetTemplateId(),row.getSourceTemplateId(),row.getPreviousGuestOsId());sameTopology();
         }
+        private JsonObject originalSourceRuntime(JsonObject value) {
+            JsonObject original=value.has("sourceSignedRuntime")?value.getAsJsonObject("sourceSignedRuntime"):value.getAsJsonObject("signedRuntime");
+            if(original==null || !original.has("sourceRootBinding") || original.getAsJsonObject("sourceRootBinding").get("rootVolumeId").getAsLong()!=row.getPreviousRootVolumeId()) throw new CloudRuntimeException("Original previous ROOT signed-runtime approval evidence is unavailable or belongs to another ROOT");
+            return original;
+        }
         public void bootPrevious() {requireBinding(row.getPreviousRootVolumeId(),row.getSourceTemplateId());lifecycle.startAndAwaitCapabilities(instance,operation.getUuid());
             if (row.getSnapshotJson()!=null) enterMaintenance("sourceMaintenanceScope");
-            if (row.getSnapshotJson()!=null) {JsonObject value=snapshot();value.add("previousRuntimeVerified",runtimeUpgradeManager.restoreTemplateRuntime(instance.getId(),value.getAsJsonObject("signedRuntime").getAsJsonObject("pin"),operation.getUuid(),"previous"));persist(value);}}
+            if (row.getSnapshotJson()!=null) {JsonObject value=snapshot();value.add("previousRuntimeVerified",runtimeUpgradeManager.restoreTemplateRuntime(instance.getId(),originalSourceRuntime(value).getAsJsonObject("pin"),operation.getUuid(),"previous"));persist(value);}}
         public void reconcilePrevious() {
             if (row.getSnapshotJson()==null) return;
             restoreConfigurationIdentity(instance,snapshot().getAsJsonObject("identity"));
@@ -975,7 +1010,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
         public void verifyPrevious() {
             requireBinding(row.getPreviousRootVolumeId(),row.getSourceTemplateId());
-            JsonObject runtimeProof=row.getSnapshotJson()==null?new JsonObject():runtimeUpgradeManager.verifyTemplateRuntime(instance.getId(),snapshot().getAsJsonObject("signedRuntime").getAsJsonObject("pin"),operation.getUuid(),"previous");
+            JsonObject runtimeProof=row.getSnapshotJson()==null?new JsonObject():runtimeUpgradeManager.verifyTemplateRuntime(instance.getId(),originalSourceRuntime(snapshot()).getAsJsonObject("pin"),operation.getUuid(),"previous");
             verifyReconciledStorageDesiredState(instance);JsonObject health=rootGuest(instance,"operation verify",new JsonObject(),60);
             if (!"ok".equalsIgnoreCase(getJsonString(health,"status"))) throw new CloudRuntimeException("Previous ROOT runtime health is degraded");
             health.add("signedRuntime",runtimeProof);row.setRollbackResultJson(health.toString());
@@ -1252,6 +1287,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         payload.addProperty("volumeSizeBytes", volume.getSize());payload.addProperty("filesystem", getJsonString(blueprint, "filesystem"));
         payload.addProperty("mountPath", "/srv/ablestack-storage/volumes/" + volume.getUuid());
         payload.addProperty("importMode", existing ? "MOUNT_EXISTING" : "FORMAT_IF_EMPTY");
+        if(volume.getProvisioningType()!=null)payload.addProperty("provisioningType",volume.getProvisioningType().name());
+        if(!existing)requireSparseNewFilesystem(volume);
         int deadline = backingVolumeFormatDeadline(volume.getSize());payload.addProperty("formatDeadlineSeconds", deadline);
         payload.addProperty("operationId", "volume-" + volume.getUuid());
         StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
@@ -2481,6 +2518,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     private StorageNfsExportResponse doUpdateStorageNfsExport(final UpdateStorageNfsExportCmd cmd) {
         final StorageFileShareVO share = requireNfsExport(cmd.getId());
         final StorageServiceInstanceVO instance = requireInstance(share.getInstanceId());
+        validateExistingNfsPermissionEdit(share,cmd.getPosixPolicyId(),cmd.getOwnerUid(),cmd.getOwnerGid(),cmd.getMode(),cmd.getRecursivePermission());
         final String protocolMode = resolveNfsServiceProtocolMode(instance);
         validateNfsRequestedProtocolMode(cmd.getProtocolMode(), protocolMode);
         validateNfsEndpointPolicyForMode(protocolMode, cmd.getEndpointMode(), cmd.getListenIps(), cmd.getListenerPorts());
@@ -4908,6 +4946,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         final String mode = StringUtils.defaultIfBlank(importMode, "MOUNT_EXISTING").toUpperCase(java.util.Locale.ROOT);
         payload.addProperty("importMode", mode);
         final boolean formatting = "FORMAT_EMPTY".equals(mode) || "FORMAT_IF_EMPTY".equals(mode);
+        if(formatting)requireSparseNewFilesystem(volume);
         final int formatDeadline = backingVolumeFormatDeadline(volume.getSize() == null ? 0 : volume.getSize());
         payload.addProperty("formatDeadlineSeconds", formatDeadline);
         payload.addProperty("operationId", "volume-" + volume.getUuid());
@@ -4937,6 +4976,13 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
         share.setConfigJson(buildFileShareAttachConfigJson(share.getConfigJson(), importMode, volume, resultJson));
         storageFileShareDao.update(share.getId(), share);
+    }
+
+    protected void requireSparseNewFilesystem(VolumeVO volume) {
+        com.cloud.storage.Storage.ProvisioningType provision=volume.getProvisioningType();
+        com.cloud.storage.DiskOfferingVO offering=configurationDiskOfferingDao.findById(volume.getDiskOfferingId());
+        if(provision!=com.cloud.storage.Storage.ProvisioningType.SPARSE && provision!=com.cloud.storage.Storage.ProvisioningType.FAT
+                || offering==null || offering.getProvisioningType()!=provision) throw new InvalidParameterValueException("New SharedFS formatting requires an authoritative SPARSE or FAT volume and matching disk offering; THIN/unknown DATA is preserved without formatting");
     }
 
     protected int backingVolumeFormatDeadline(long bytes) {
@@ -4983,6 +5029,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         payload.addProperty("volumeUuid", volume.getUuid());
         payload.addProperty("volumeName", volume.getName());
         payload.addProperty("volumeSizeBytes", volume.getSize());
+        if(volume.getProvisioningType()!=null)payload.addProperty("provisioningType",volume.getProvisioningType().name());
         final JsonObject config = parseJsonObject(share.getConfigJson()).deepCopy();
         if (!config.has("volumeMountPath") || config.get("volumeMountPath").isJsonNull()) {
             config.addProperty("volumeMountPath", resolveFileShareVolumeMountRoot(instance, volume, share.getPath()));
@@ -6948,13 +6995,21 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if (current != null && cmd.getExpectedPolicyRevision() != null && cmd.getExpectedPolicyRevision() != current.getRevision()) {
             throw new InvalidParameterValueException("The common directory policy revision changed; refresh its impact preview");
         }
-        final Long volumeId = current == null ? cmd.getVolumeId() : current.getVolumeId();
+        final StorageFileShareVO export = cmd.getExportId() == null ? null : requireFileShare(cmd.getExportId());
+        if (export != null && (export.getInstanceId()!=instance.getId() || export.getProtocol()!=StorageServiceInstance.Protocol.NFS)) throw new InvalidParameterValueException("Permission preview export belongs to another service or protocol");
+        final Long volumeId = current == null ? (export==null ? cmd.getVolumeId() : export.getVolumeId()) : current.getVolumeId();
+        if (cmd.getVolumeId()!=null && !cmd.getVolumeId().equals(volumeId)) throw new InvalidParameterValueException("Permission preview volume differs from the selected export or policy");
+        if (export!=null && !java.util.Objects.equals(export.getVolumeId(),volumeId)) throw new InvalidParameterValueException("Permission preview export and policy use different DATA volumes");
         if (volumeId == null) throw new InvalidParameterValueException("Backing volume is required");
         validateStorageServiceBackingVolume(instance, volumeId, "POSIX directory policy");
         final VolumeVO volume = requireVolume(volumeId);
-        final String relative = current == null ? PosixDirectoryPolicy.relativePath(cmd.getRelativePath()) : current.getRelativePath();
+        final JsonObject backing = posixPreviewBacking(instance, volume, export);
+        final String exportRelative = export==null ? null : posixExportRelative(export,backing);
+        final String inputRelative = ".".equals(cmd.getRelativePath()) ? "" : cmd.getRelativePath();
+        final String relative = current==null ? (export!=null ? exportRelative : "".equals(inputRelative) ? "" : PosixDirectoryPolicy.relativePath(inputRelative)) : current.getRelativePath();
+        if (export!=null && !relative.equals(exportRelative) || inputRelative!=null && !relative.equals(inputRelative)) throw new InvalidParameterValueException("Permission preview path must exactly match the selected export or policy");
         if (current != null && (cmd.getVolumeId() != null && !cmd.getVolumeId().equals(volumeId)
-                || cmd.getRelativePath() != null && !cmd.getRelativePath().equals(relative))) {
+                || inputRelative != null && !inputRelative.equals(relative))) {
             throw new InvalidParameterValueException("Directory policy path identity is immutable");
         }
         final JsonObject config = current == null ? new JsonObject() : parseJsonObjectStrict(current.getConfigJson(), "POSIX directory policy");
@@ -6982,6 +7037,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 throw new InvalidParameterValueException("The canonical directory already has a common POSIX policy; edit that policy");
             }
         }
+        config.add("volumeMountPath",backing.get("volumeMountPath"));
+        config.add("expectedFilesystemUuid",backing.get("filesystemUuid"));config.add("expectedVolumeSerial",backing.get("serial"));config.addProperty("expectedSizeBytes",volume.getSize());
+        config.addProperty("allowFilesystemRoot",relative.isEmpty());config.addProperty("allowLegacyMountRoot",!getJsonString(backing,"volumeMountPath").equals("/srv/ablestack-storage/volumes/"+volume.getUuid()));
         policy.setConfigJson(GSON.toJson(config));
         final JsonObject request = posixPolicyPayload(instance, policy);
         final JsonObject before = dispatchPosixDirectoryCommand(instance, "inspect", request);
@@ -6993,7 +7051,19 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 throw new InvalidParameterValueException("The directory is referenced by another POSIX policy");
             }
         }
-        if (Boolean.TRUE.equals(cmd.getPreview())) return createPosixPolicyResponse(instance, policy, before);
+        final JsonObject identity = before.has("directoryIdentity") && before.get("directoryIdentity").isJsonObject() ? before.getAsJsonObject("directoryIdentity") : null;
+        if(identity==null && !"DELETE".equals(action))throw new InvalidParameterValueException("Runtime does not support exact permission preview identity; upgrade the signed runtime first");
+        final JsonObject intent = posixPreviewIntent(instance,policy,cmd,export,before);
+        final long actor=org.apache.cloudstack.context.CallContext.current().getCallingUserId();
+        if (Boolean.TRUE.equals(cmd.getPreview())) {
+            JsonObject preview=posixPermissionPreview(instance,policy,cmd,export,before,intent,actor);
+            org.apache.cloudstack.api.response.StoragePosixDirectoryPolicyResponse response=createPosixPolicyResponse(instance,policy,before);response.setPreview(preview.toString());return response;
+        }
+        if(configurationBatch.get()==null && !"DELETE".equals(action)) {
+            if(!Boolean.TRUE.equals(cmd.getApplyConfirmation()))throw new InvalidParameterValueException("Explicit nonrecursive permission apply confirmation is required");
+            StoragePermissionPreviewToken.verify(cmd.getPreviewToken(),intent,identity,actor,System.currentTimeMillis(),StoragePermissionPreviewToken.key());
+        }
+        if(identity!=null)request.add("expectedDirectoryIdentity",identity.deepCopy());
         final StorageServiceOperationVO operation = storageWriterOperation.get();
         if (operation != null) {
             final JsonObject previous = parseJsonObject(operation.getPreviousSnapshotJson());
@@ -7019,7 +7089,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         else { policy.setRevision(policy.getRevision() + 1);storagePosixPolicyDao.update(policy.getId(), policy); }
         policy.setState("Updating");storagePosixPolicyDao.update(policy.getId(), policy);
         try {
-            final JsonObject effective = dispatchPosixDirectoryCommand(instance, "apply", posixPolicyPayload(instance, policy));
+            final JsonObject apply=posixPolicyPayload(instance,policy);apply.add("expectedDirectoryIdentity",identity.deepCopy());
+            final JsonObject effective = dispatchPosixDirectoryCommand(instance, "apply", apply);
             policy.setEffectiveJson(GSON.toJson(effective));policy.setLastApplied(new java.util.Date());policy.setState("Ready");
             storagePosixPolicyDao.update(policy.getId(), policy);
             bindMatchingPosixShares(instance, policy, effective);
@@ -7032,11 +7103,63 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
 
+    protected JsonObject posixPreviewBacking(StorageServiceInstanceVO instance,VolumeVO volume,StorageFileShareVO export) {
+        JsonObject request=new JsonObject();request.addProperty("instanceUuid",instance.getUuid());request.addProperty("operationUuid",java.util.UUID.randomUUID().toString());request.addProperty("templateUpgradeUuid",java.util.UUID.randomUUID().toString());
+        JsonArray requested=new JsonArray();JsonObject disk=new JsonObject();disk.addProperty("volumeUuid",volume.getUuid());disk.addProperty("sizeBytes",volume.getSize());disk.addProperty("kind","FILE_DATA");requested.add(disk);request.add("volumes",requested);
+        JsonObject observed=StorageRootDataManifest.freeze(requested,rootGuest(instance,"operation root-data inspect",request,30),Collections.emptyMap(),System.currentTimeMillis());
+        JsonObject backing=observed.getAsJsonArray("volumes").get(0).getAsJsonObject();Set<String> mounts=new HashSet<>();
+        if(backing.has("mounts"))for(JsonElement value:backing.getAsJsonArray("mounts")){JsonObject mount=value.getAsJsonObject();String target=getJsonString(mount,"target");if(target!=null)mounts.add(target);}
+        String managed="/srv/ablestack-storage/volumes/"+volume.getUuid();String selected=resolveFileShareVolumeMountRoot(instance,volume,export==null?null:export.getPath());
+        if(!mounts.contains(selected)) {
+            if(export!=null && mounts.contains(export.getPath()))selected=export.getPath();
+            else if(mounts.contains(managed))selected=managed;
+            else throw new InvalidParameterValueException("Permission preview needs a freshly verified exact mounted DATA filesystem");
+        }
+        if(!managed.equals(selected) && (export==null || !("/export".equals(selected) || selected.matches("/export/[A-Za-z0-9._-]+")))) throw new InvalidParameterValueException("Legacy root permission preview requires its exact selected NFS export");
+        backing.addProperty("volumeMountPath",selected);return backing;
+    }
+    protected String posixExportRelative(StorageFileShareVO export,JsonObject backing) {
+        JsonObject config=parseJsonObject(export.getConfigJson());String root=getJsonString(backing,"volumeMountPath");
+        String declared=getJsonString(config,"filesystemUuid");if(declared!=null && !declared.equals(getJsonString(backing,"filesystemUuid")))throw new InvalidParameterValueException("Stored export filesystem identity differs from the fresh DATA observation");
+        String relative=getJsonString(config,"relativeSharePath");if(StringUtils.isNotBlank(relative))return PosixDirectoryPolicy.relativePath(relative);
+        String path=getJsonString(config,"backingPath");if(path==null)path=export.getPath();
+        if(root.equals(path))return "";
+        if(path!=null && path.startsWith(root+"/"))return PosixDirectoryPolicy.relativePath(path.substring(root.length()+1));
+        throw new InvalidParameterValueException("Export canonical backing directory is unavailable; refresh its exact volume inspection");
+    }
+    private JsonObject posixNfsContext(org.apache.cloudstack.api.command.user.storage.dataservice.BaseStoragePosixDirectoryPolicyCmd cmd,StorageFileShareVO export) {
+        JsonObject previous=export==null?new JsonObject():parseJsonObject(export.getConfigJson());JsonObject context=new JsonObject();
+        context.addProperty("readOnly",cmd.getReadOnly()==null?getBoolean(previous,"readOnly",false):cmd.getReadOnly());
+        context.addProperty("rootSquash",cmd.getRootSquash()==null?getBoolean(previous,"rootSquash",true):cmd.getRootSquash());
+        context.addProperty("allSquash",cmd.getAllSquash()==null?getBoolean(previous,"allSquash",false):cmd.getAllSquash());
+        long uid=cmd.getAnonUid()==null?getInt(previous,"anonUid",65534):cmd.getAnonUid(),gid=cmd.getAnonGid()==null?getInt(previous,"anonGid",65534):cmd.getAnonGid();PosixDirectoryPolicy.numericId(uid);PosixDirectoryPolicy.numericId(gid);
+        context.addProperty("anonUid",uid);context.addProperty("anonGid",gid);return context;
+    }
+    private JsonObject posixPreviewIntent(StorageServiceInstanceVO instance,StoragePosixDirectoryPolicyVO policy,
+            org.apache.cloudstack.api.command.user.storage.dataservice.BaseStoragePosixDirectoryPolicyCmd cmd,StorageFileShareVO export,JsonObject before) {
+        JsonObject intent=new JsonObject();intent.addProperty("instanceUuid",instance.getUuid());intent.addProperty("volumeUuid",requireVolume(policy.getVolumeId()).getUuid());intent.addProperty("relativePath",policy.getRelativePath());intent.addProperty("canonicalPath",getJsonString(before,"canonicalPath"));
+        intent.addProperty("action",cmd.getPolicyAction());intent.addProperty("policyId",cmd.getId());intent.addProperty("policyRevision",cmd.getId()==null?0:policy.getRevision());intent.addProperty("exportUuid",export==null?null:export.getUuid());intent.add("config",parseJsonObject(policy.getConfigJson()));intent.add("nfsContext",posixNfsContext(cmd,export));
+        JsonArray affected=new JsonArray();for(StorageFileShareVO share:matchingPosixShares(instance,policy))affected.add(share.getUuid());intent.add("affectedShares",affected);return intent;
+    }
+    private JsonObject posixPermissionPreview(StorageServiceInstanceVO instance,StoragePosixDirectoryPolicyVO policy,
+            org.apache.cloudstack.api.command.user.storage.dataservice.BaseStoragePosixDirectoryPolicyCmd cmd,StorageFileShareVO export,JsonObject before,JsonObject intent,long actor) {
+        JsonObject preview=new JsonObject(),current=new JsonObject(),expected=new JsonObject(),suggested=new JsonObject();preview.addProperty("schemaVersion",2);
+        current.add("uid",before.get("effectiveUid"));current.add("gid",before.get("effectiveGid"));current.add("mode",before.get("effectiveMode"));current.addProperty("exists",true);
+        for(String field:new String[]{"canonicalPath","filesystemUuid","device","inode","acl"})current.add(field,before.get(field));preview.add("current",current);expected.add("directoryIdentity",before.get("directoryIdentity"));preview.add("expected",expected);
+        JsonObject context=posixNfsContext(cmd,export);boolean readOnly=getBoolean(context,"readOnly",false),all=getBoolean(context,"allSquash",false),root=getBoolean(context,"rootSquash",true);
+        suggested.addProperty("policy",readOnly?"READ_ONLY_PRESERVE":all?"ALL_SQUASH":root?"ROOT_SQUASH":"NO_ROOT_SQUASH");suggested.addProperty("applyowner",!readOnly);
+        suggested.add("owneruid",readOnly?before.get("effectiveUid"):all||root?context.get("anonUid"):GSON.toJsonTree(0));suggested.add("ownergid",readOnly?before.get("effectiveGid"):all||root?context.get("anonGid"):GSON.toJsonTree(0));suggested.add("mode",readOnly?before.get("effectiveMode"):GSON.toJsonTree(all||root?"0775":"0770"));preview.add("suggested",suggested);
+        preview.add("readonlyTraversalOK",before.has("readonlyTraversalOK")?before.get("readonlyTraversalOK"):com.google.gson.JsonNull.INSTANCE);preview.addProperty("recursiveAllowed",false);preview.add("affectedShares",intent.get("affectedShares"));
+        long now=System.currentTimeMillis();preview.addProperty("expiresAt",now+600000L);preview.addProperty("previewToken",StoragePermissionPreviewToken.issue(intent,before.getAsJsonObject("directoryIdentity"),actor,now,StoragePermissionPreviewToken.key()));return preview;
+    }
+
     protected JsonObject posixPolicyPayload(final StorageServiceInstanceVO instance, final StoragePosixDirectoryPolicyVO policy) {
         final VolumeVO volume = requireVolume(policy.getVolumeId());
         final JsonObject payload = new JsonObject();payload.addProperty("instanceUuid", instance.getUuid());
         payload.addProperty("uuid", policy.getUuid());payload.addProperty("volumeUuid", volume.getUuid());
-        payload.addProperty("volumeMountPath", resolveFileShareVolumeMountRoot(instance, volume, null));
+        JsonObject config=parseJsonObjectStrict(policy.getConfigJson(),"POSIX directory policy");
+        payload.addProperty("volumeMountPath",StringUtils.defaultIfBlank(getJsonString(config,"volumeMountPath"),resolveFileShareVolumeMountRoot(instance,volume,null)));
+        for(String field:new String[]{"allowFilesystemRoot","allowLegacyMountRoot","expectedFilesystemUuid","expectedVolumeSerial","expectedSizeBytes"})if(config.has(field))payload.add(field,config.get(field));
         payload.addProperty("relativePath", policy.getRelativePath());payload.addProperty("revision", policy.getRevision());
         payload.add("config", parseJsonObjectStrict(policy.getConfigJson(), "POSIX directory policy"));return payload;
     }
@@ -7052,6 +7175,15 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         final JsonObject observed = parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));
         if (!Boolean.TRUE.equals(getJsonBoolean(observed, "success"))) throw new CloudRuntimeException("POSIX directory runtime did not confirm " + action);
         return observed;
+    }
+
+    protected void validateExistingNfsPermissionEdit(StorageFileShareVO share,Long confirmedPolicyId,Integer uid,Integer gid,String mode,Boolean recursive) {
+        if(Boolean.TRUE.equals(recursive))throw new InvalidParameterValueException("Recursive NFS permission changes are unsupported; preview and apply the exact common directory inode");
+        JsonObject previous=parseJsonObject(share.getConfigJson());
+        boolean changed=uid!=null && !java.util.Objects.equals(uid,getJsonInt(previous,"ownerUid",-1))
+                || gid!=null && !java.util.Objects.equals(gid,getJsonInt(previous,"ownerGid",-1))
+                || mode!=null && (getJsonString(previous,"mode")==null || !PosixDirectoryPolicy.directoryMode(mode).equals(PosixDirectoryPolicy.directoryMode(getJsonString(previous,"mode"))));
+        if(changed && confirmedPolicyId==null)throw new InvalidParameterValueException("Existing NFS owner/mode changes require a previewed and explicitly applied common POSIX policy ID");
     }
 
     protected void inheritPosixDirectoryPolicy(final StorageServiceInstanceVO instance, final StorageFileShareVO share,
@@ -7109,17 +7241,25 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         final JsonObject config = parseJsonObject(share.getConfigJson());
         final String relative = getJsonString(config, "relativeSharePath");
         if (StringUtils.isNotBlank(relative)) return PosixDirectoryPolicy.relativePath(relative);
-        final String backing = getJsonString(config, "backingPath");
+        String backing = getJsonString(config,"backingPath");
+        if(StringUtils.isBlank(backing))backing=getJsonString(getJsonObject(config,"lastInspection"),"backingPath");
+        if(StringUtils.isBlank(backing))backing=share.getPath();
         if (share.getVolumeId() == null || StringUtils.isBlank(backing)) return null;
         final String root = resolveFileShareVolumeMountRoot(instance, requireVolume(share.getVolumeId()), share.getPath());
-        return backing.startsWith(root + "/") ? PosixDirectoryPolicy.relativePath(backing.substring(root.length() + 1)) : null;
+        return root.equals(backing) ? "" : backing.startsWith(root + "/") ? PosixDirectoryPolicy.relativePath(backing.substring(root.length() + 1)) : null;
     }
 
     protected List<StorageFileShareVO> matchingPosixShares(final StorageServiceInstanceVO instance, final StoragePosixDirectoryPolicyVO policy) {
         final List<StorageFileShareVO> resources = new ArrayList<>();
         for (StorageServiceInstance.Protocol protocol : new StorageServiceInstance.Protocol[] {StorageServiceInstance.Protocol.NFS, StorageServiceInstance.Protocol.SMB}) {
             for (StorageFileShareVO share : storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(), protocol)) {
-                if (Long.valueOf(policy.getVolumeId()).equals(share.getVolumeId()) && policy.getRelativePath().equals(sharePosixRelativePath(instance, share))) resources.add(share);
+                if(!Long.valueOf(policy.getVolumeId()).equals(share.getVolumeId()))continue;
+                boolean same=policy.getRelativePath().equals(sharePosixRelativePath(instance,share));
+                if(!same) {
+                    JsonObject shareConfig=parseJsonObject(share.getConfigJson());String path=getJsonString(shareConfig,"backingPath");if(path==null)path=getJsonString(getJsonObject(shareConfig,"lastInspection"),"backingPath");if(path==null)path=share.getPath();
+                    String root=getJsonString(parseJsonObject(policy.getConfigJson()),"volumeMountPath");String canonical=root==null?null:root+(policy.getRelativePath().isEmpty()?"":"/"+policy.getRelativePath());same=canonical!=null && canonical.equals(path);
+                }
+                if(same)resources.add(share);
             }
         }
         return resources;

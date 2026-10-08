@@ -52,7 +52,7 @@ public final class PosixDirectoryPolicy {
     public static String pathKey(final String volumeUuid, final String relativePath) {
         if (volumeUuid == null) throw new InvalidParameterValueException("Backing volume identity is required");
         final String identity;
-        try { identity = UUID.fromString(volumeUuid).toString() + ":" + relativePath(relativePath); }
+        try { identity = UUID.fromString(volumeUuid).toString() + ":" + ("".equals(relativePath) ? "" : relativePath(relativePath)); }
         catch (IllegalArgumentException invalid) { throw new InvalidParameterValueException("Invalid backing volume identity"); }
         try {
             final byte[] digest = MessageDigest.getInstance("SHA-256").digest(identity.getBytes(StandardCharsets.UTF_8));
