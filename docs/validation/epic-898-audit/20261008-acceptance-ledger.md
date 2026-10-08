@@ -51,7 +51,7 @@
 | #902 | SMB AD 보류 | 사용자 지시로 AD join/DNS/SPN/Kerberos/aliases 인수는 보류하며 완료로 표시하지 않음. | 다른 기능의 local SMB나 NFS/block 테스트에 AD 대기 사유를 전파하지 않음. |
 | #907 | IPv4 account AND source 실제 실증 | 허용CIDR localauth I/O·비허용source 동일계정deny·allowedsource noaccountdeny·다른share독립/재부팅·DB/runtime/UI. | NO rules 호환·guest noallow deny·multiSMBendpoint(#900), IPv6지원 capability reject·CIDR parse matrix·renderfail rollback/최종 UI. |
 | #901 | 행 기반 구조/포트 실증 | NFS2049/2050 listener rows, SMB445가NFSselector에 섞이는 결함 수정 및 actual UI 확인. | wildcard/dedicated/multiport/dual/IPv6long tooltip·linkedexports·fixedcolumns가로scroll·다크actual; #1275 최종표통합. |
-| #1275 | 최종 WAITING | VM 세로tab/MoldDialog/좌측toolbar primary·ReloadOutlined/wide-last 사용자표준 및 별도목업 검증자료 존재. | 선행 nonAD 기능/API/field 확정 뒤8tabs+모든dialog actual; header/footerfixed/bodyonlyscroll, desktop/small/light/dark/ko/en/keyboard/focus/empty/partial/error/regression. |
+| #1275 | 최종 WAITING | VM 세로tab/MoldDialog/좌측toolbar primary·ReloadOutlined/wide-last 사용자표준 및 별도목업 검증자료 존재. | 선행 nonAD 기능/API/field 확정 뒤11tabs+모든dialog actual; header/footerfixed/bodyonlyscroll, desktop/small/light/dark/ko/en/keyboard/focus/empty/partial/error/regression. |
 
 ## 12:12 KST 후속 실증과 source/runtime 분리
 
@@ -70,3 +70,19 @@
 관련 상세 증거는 `20261008-static-smb-disposable.md`, `20261008-large-format-actual.md`, `20261008-multinew-volume-design.md`에 나뉜다. #974 진행 코멘트는 `6051296801`, `6051385328`이며 어떤 미완료 이슈도 닫지 않았다.
 
 이슈 #909 후속으로 부모가 독립 planner/provenance receipt helper 2개와 신규 unit만 구현하도록 위임했다. ROOT compile freeze 동안 scratch prototype만 작성했으며 JUnit 30개 PASS다. 실제 repo Java 복사·Manager/Configuration integration·Cloud multiNEW all4proto 실증은 아직 없으므로 완료 상태는 바꾸지 않았다. 인터페이스와 파일 소유 범위는 `20261008-multinew-prototype.md`에 기록한다.
+
+사용자 추가 인수 기준으로 모든 NEW 디스크 생성은 SPARSE 또는 FAT만 허용한다. 과거 THIN 10TiB XFS/ext4 결과는 역사로 보존하지만 현재 #974 완료 게이트에서 제외했다. 새 offering/actual volume/allocation receipt의 provisioning과 실제 qemu preallocation=metadata 또는full 증거를 대조한다. 기존 DATA는 재포맷하지 않으며 fixture51에 새 SPARSE 10TiB DATA만 추가해 순차 재시험한다. 독립 multiNEW helper에도 planned/actual SPARSE/FAT 검증과 THIN/unknown 차단을 추가해 32개 unit을 통과했다.
+
+사용자 상세 화면 구조 변경에 따라 최종 실제 UI 인수는 정보 탭과 작업/백업·복원/업그레이드 탭을 분리한 11개 세로 탭 기준이다. 볼륨 준비/진행/이력은 새 작업 탭에서 검증하고 상세 정보 탭에 작업 버튼을 혼합하지 않는다.
+
+사용자 AD 환경 준비로 #902 및 다른 이슈의 AD 부분 보류를 해제했다. 현재 상태는 환경 준비/조사 재개이며 실제 join/auth/SPN/Kerberos/aliases 인수 완료가 아니다. ADSvr192.168.16.2는 ablestack.local/ABLESTACK의 primaryDC이며 NTDS/DNS/Kdc/Netlogon Running, AD-integrated DNS zones 확인을 read-only QGA로 마쳤다. Client192.168.16.11은 WORKGROUP/PartOfDomain=false, DNS는VR.1/8.8.8.8이라 DC DNS 설정과 join/reboot 검증이 필요하다. FORMAT critical 중 network/domain mutation은 보류하고 이후 승인된 범위로만 수행한다. 새 service의 ROOT/DATA도 SPARSE/FAT 필수다.
+
+최종 #1275 UI 표준화는 마지막 단계다. 모든 다른 기능/AD/실증/배포 게이트가 완료되면 #1275를 OPEN으로 유지하고, **최종 UI 표준화 착수 직전에 전체 작업을 중단해 사용자에게 보고하고 추가 지시를 기다린다**. 현재 요청받은 기능 UI/정보와 작업 탭 분리/API와 실제 UI 검증은 계속한다. 최종 스타일/버튼 순서/대화상자 표준/11개 탭 전체 QA를 그 경계 전에 착수하지 않는다.
+
+## SPARSE fault 및 AD 실제 후속
+
+이슈 #974 새 SPARSE10TiB 021b는 실제 preallocation=metadata/Cloud SPARSE/actual qcow2 backing-none를 확인하고 정확한 formatter를60초 일시 중단했다. 실제 UI와 read-only API는 writer 중 FORMATTING 관측을 통과했다. 다만 XFS discard 뒤 log ZERO_RANGE의 D-state와1500초 timeout을 재현해 MGT error530/RECOVERY_REQUIRED, native TIMED_OUT_PENDING_RECONCILE로 남았다. fresh child 없음/writerIdle=true/부분 XFS UUID만 확인했으며 정상 완료로 인정하지 않는다. 삭제·mount·새 포맷·재부팅을 하지 않았고 ext4 SPARSE와 명시 resume는 아직 남는다. API/DB/libvirt/guest의021b attachment는 유지되므로 UI20GiB로 감소한 현상은 share rollback 뒤 hidden-unreferenced projection 누락이다. pool factor4 임시 override는 보존 중이며 recovery 계획과 finally 상속1 원복이 미완료다.
+
+이슈 #902 Client 자신의 DNS만192.168.16.2로 바꾸고 SRV/DC discovery를 확인했다. 실제 join은0x52e LOGON_FAILURE로 실패해 WORKGROUP/reboot0을 보존한다. DC SYSTEM readonly RID500은 Administrator/UPN=null/Enabled=true/LockedOut=false/PasswordExpired=false, badLogonCount0, lockoutThreshold0이다. Runtime env→host→guest stdin 문자열 길이와 동일성 bool은 모두 일치했다. 원문 credential/NT/hash는 출력·저장하지 않았으며 추가 인증 반복이나 비밀번호 reset을 하지 않는다. 도메인 가입·Kerberos·SPN/alias·SMB AD auth 인수는 미완료다.
+
+multiNEW 순수 realization binder를 포함한 독립 helper tests36개와 version compatibility tests15개가 direct PASS다. 실제 Manager adapter/root replay version wiring 및 all-protocol Cloud 실증 완료와 구분한다. RuntimeImpl checkpoint는 아직 sourceRootBinding/fresh consumer/installedLKG 증거를 반환하지 않아 production wiring 보완이 필요하다.

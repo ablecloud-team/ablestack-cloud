@@ -1,5 +1,7 @@
 # #974 실제 10TiB XFS·ext4 부분 인수 — 2026-10-08
 
+새 사용자 기준: 앞으로 모든 NEW 디스크는 SPARSE 이상(SPARSE/FAT)이어야 한다. 아래 THIN 10TiB XFS·ext4 실험과 계획은 과거 기록이며 현재 #974 인수 증거에서 제외한다. 기존 DATA는 재포맷하지 않고 새 10TiB SPARSE DATA로 재시험한다.
+
 검증은 부모의 명시적 승인 후 별도 NEW fixture와 새 DATA에만 수행했다. 원래 VM39/41/49와 SMB fixture50는 변경하지 않았다. 초기20GiB fixture51은 남기고 큰 DATA는 XFS와ext4를한개씩순차생성한다. XFS와 ext4 모두 실제 UI 검증 후 정리를 완료했다. 전체 #974 완료 기록이 아니다.
 
 | 항목 | 값 |
