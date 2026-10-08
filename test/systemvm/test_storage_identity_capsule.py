@@ -104,7 +104,7 @@ class IdentityCapsuleTest(unittest.TestCase):
     def test_capsule_capabilities_reads_pipe_without_writing_payload_file(self):
         runtime = (SOURCE.parents[2] / "bin/ablestack-storagectl").read_text()
         start = runtime.index("identity_capsule_command() {")
-        end = runtime.index('\ncommand="', start)
+        end = runtime.index('\nPYIDENTITY\n}', start) + len('\nPYIDENTITY\n}')
         function = runtime[start:end]
         request = {"instanceUuid": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
                    "operationUuid": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"}
@@ -113,6 +113,33 @@ class IdentityCapsuleTest(unittest.TestCase):
         response = json.loads(result.stdout)
         self.assertTrue(response["success"])
         self.assertFalse(response["adIdentity"])
+
+    def test_live_tdb_replacement_is_rejected_before_any_restore_write(self):
+        from unittest.mock import patch
+        payload={"schemaVersion":1,"files":{"/var/lib/samba/private/passdb.tdb":{"absent":True}},"accounts":{}}
+        with patch.object(capsules,'require_identity_database_quiescence',side_effect=ValueError('SMB_IDENTITY_QUIESCE_REQUIRED')) as guard, patch.object(capsules,'regular_file') as read, patch.object(capsules.os,'replace') as replace:
+            with self.assertRaisesRegex(ValueError,'SMB_IDENTITY_QUIESCE_REQUIRED'):capsules.restore(payload)
+            guard.assert_called_once_with(payload['files']);read.assert_not_called();replace.assert_not_called()
+
+    def test_deleted_database_handle_blocks_restore_as_well_as_current_inode_handle(self):
+        for deleted in (False,True):
+            with self.assertRaisesRegex(ValueError,'QUIESCE_REQUIRED'):
+                capsules.require_identity_database_quiescence({'/var/lib/samba/private/passdb.tdb':{}},lambda paths:[{'pid':123,'deleted':deleted}])
+        capsules.require_identity_database_quiescence({'/var/lib/samba/private/passdb.tdb':{}},lambda paths:[])
+
+    def test_descriptor_observation_reads_metadata_only_and_handles_process_disappearance(self):
+        import tempfile,os
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);process=root/'123';(process/'fd').mkdir(parents=True);(process/'comm').write_text('smbd')
+            database=root/'passdb.tdb';database.write_bytes(b'SYNTHETIC_METADATA_FIXTURE')
+            descriptor=process/'fd/27';descriptor.symlink_to(database)
+            from unittest.mock import patch
+            real_link=os.readlink
+            with patch.object(capsules.os,'readlink',side_effect=lambda path:'/var/lib/samba/private/passdb.tdb (deleted)' if str(path).endswith('/27') else real_link(path)):
+                holders=capsules.live_identity_database_holders(capsules.LIVE_TDB_FILES,root)
+            self.assertEqual(1,len(holders));self.assertTrue(holders[0]['deleted']);self.assertEqual(database.stat().st_ino,holders[0]['inode'])
+            self.assertNotIn('SYNTHETIC',str(holders))
+            (process/'comm').unlink();self.assertEqual([],capsules.live_identity_database_holders(capsules.LIVE_TDB_FILES,root))
 
     def test_shadow_requires_matching_scoped_nonlogin_account(self):
         with self.assertRaises(ValueError):
