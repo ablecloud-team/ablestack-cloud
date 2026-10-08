@@ -37,6 +37,7 @@ public final class DesiredStateChange {
         default void started(StorageServiceOperationVO operation) { }
         default void finished() { }
         default void prepareNativeCheckpoint(StorageServiceOperationVO operation) { }
+        default void stageAndActivate(StorageServiceOperationVO operation) { }
         default void promoteVerifiedConfiguration(StorageServiceOperationVO operation) { }
         default void verifyNativeGeneration(StorageServiceOperationVO operation) { }
         default void rollbackNativeGeneration(StorageServiceOperationVO operation) { }
@@ -125,6 +126,7 @@ public final class DesiredStateChange {
                     mutated = true;
                     phase(operation, "APPLYING", 30);
                     T response = change.get();
+                    runtime.checkControl(operation);runtime.stageAndActivate(operation);
                     runtime.checkControl(operation);
                     phase(operation, "VERIFYING", 80);
                     runtime.verify();

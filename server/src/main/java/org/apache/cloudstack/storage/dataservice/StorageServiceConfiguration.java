@@ -429,13 +429,9 @@ public final class StorageServiceConfiguration {
             finally { lock.unlock(); }
         } finally { lock.releaseRef(); }
     }
-    private StorageServiceConfigArtifactResponse applyLocked(StorageServiceInstanceVO source, StorageConfigRequest request) {
-        StorageConfigArtifactVO row = row(source, request);JsonObject metadata = metadata(row);
-        if (!"PLANNED".equals(metadata.has("planState") ? metadata.get("planState").getAsString() : "")
-                || !metadata.has("plan") || !metadata.has("planToken")) throw new InvalidParameterValueException("A validated configuration plan is required");
-        JsonObject plan = metadata.getAsJsonObject("plan");JsonObject capability = metadata.getAsJsonObject("planToken");
-        boolean createNew = "CREATE_NEW".equals(plan.get("targetMode").getAsString());
-        final StorageServiceInstanceVO existingTarget = createNew ? null : manager.configurationInstanceByUuid(plan.get("targetInstanceUuid").getAsString());
+    private JsonObject requirePlanCapability(StorageConfigArtifactVO row,JsonObject metadata,StorageConfigRequest request) {
+        if(!"PLANNED".equals(metadata.has("planState")?metadata.get("planState").getAsString():"")||!metadata.has("plan")||!metadata.has("planToken"))throw new InvalidParameterValueException("A validated configuration plan is required");
+        JsonObject plan=metadata.getAsJsonObject("plan"),capability=metadata.getAsJsonObject("planToken");
         if (request.getPlanToken() == null || !plan.get("targetName").getAsString().equals(request.getConfirmation())
                 || capability.get("user").getAsLong() != CallContext.current().getCallingUserId()
                 || capability.get("expires").getAsLong() < System.currentTimeMillis()
@@ -444,6 +440,19 @@ public final class StorageServiceConfiguration {
                 || !row.getSha256().equals(plan.get("artifactSha256").getAsString())) {
             throw new InvalidParameterValueException("Configuration plan confirmation or capability changed");
         }
+        return plan;
+    }
+    public void validateApprovedMaintenancePlan(StorageServiceInstanceVO source,StorageConfigRequest request) {
+        StorageConfigArtifactVO row=row(source,request);JsonObject metadata=metadata(row),plan=requirePlanCapability(row,metadata,request),capability=metadata.getAsJsonObject("planToken");
+        if("CREATE_NEW".equals(plan.get("targetMode").getAsString())||!source.getUuid().equals(plan.get("targetInstanceUuid").getAsString()))throw new InvalidParameterValueException("Maintenance requires an existing-target plan for this same instance");
+        if(revision(source.getId())!=plan.get("expectedRevision").getAsLong()||!capability.get("baselineSha256").getAsString().equals(StorageConfigArchive.sha256(manager.captureConfigurationSnapshot(source.getId()).getBytes(StandardCharsets.UTF_8))))throw new InvalidParameterValueException("Configuration changed after planning; a new dry-run is required");
+        JsonObject credentials=request.getCredentials()==null?new JsonObject():com.google.gson.JsonParser.parseString(request.getCredentials()).getAsJsonObject();StorageConfigRestorePlan.requireCredentials(plan.getAsJsonArray("requiredCredentials"),credentials);
+    }
+    private StorageServiceConfigArtifactResponse applyLocked(StorageServiceInstanceVO source, StorageConfigRequest request) {
+        StorageConfigArtifactVO row = row(source, request);JsonObject metadata = metadata(row);
+        JsonObject plan=requirePlanCapability(row,metadata,request);JsonObject capability=metadata.getAsJsonObject("planToken");
+        boolean createNew="CREATE_NEW".equals(plan.get("targetMode").getAsString());
+        final StorageServiceInstanceVO existingTarget=createNew?null:manager.configurationInstanceByUuid(plan.get("targetInstanceUuid").getAsString());
         JsonObject credentials = request.getCredentials() == null ? new JsonObject() : new com.google.gson.JsonParser().parse(request.getCredentials()).getAsJsonObject();
         StorageConfigRestorePlan.requireCredentials(plan.getAsJsonArray("requiredCredentials"), credentials);
         // Consume the capability under the artifact lock BEFORE allocating any Cloud resource.
