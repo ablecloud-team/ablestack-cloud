@@ -85,6 +85,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
     @Inject private StorageServiceRuntimeHostDispatcher runtimeDispatcher;
     @Inject private StorageServiceGuestCommandDispatcher guestCommandDispatcher;
     @Inject private VMInstanceDao vmInstanceDao;
+    @Inject private com.cloud.vm.dao.UserVmDao runtimeUserVmDao;
     @Inject private com.cloud.host.dao.HostDao runtimeHostDao;
     @Inject private com.cloud.storage.dao.VolumeDao runtimeVolumeDao;
     @Inject private org.apache.cloudstack.storage.dataservice.dao.StorageFileShareDao fileShareDao;
@@ -441,6 +442,168 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         JsonObject observed=requireRuntimeReadback(invoke(instance,StorageServiceRuntimeOperation.READBACK,transaction,request),bundle);
         if (!observed.has("updaterSha256") || !helperSha.equals(observed.get("updaterSha256").getAsString())) throw new CloudRuntimeException("ROOT runtime helper changed during installed-code readback");return observed;
     }
+    private static long retainedApprovalId(JsonObject value, String name) {
+        try {
+            if (!value.has(name) || !value.get(name).isJsonPrimitive()
+                    || !value.get(name).getAsJsonPrimitive().isNumber()) {
+                throw new IllegalArgumentException("not a typed numeric binding");
+            }
+            long result = value.get(name).getAsBigDecimal().longValueExact();
+            if (result <= 0) throw new IllegalArgumentException("not a positive binding");
+            return result;
+        } catch (RuntimeException invalid) {
+            throw new CloudRuntimeException("Retained latest runtime approval has an invalid " + name);
+        }
+    }
+
+    private JsonObject requireRetainedLatestApproval(long instanceId, JsonObject pin, String operationUuid,
+            JsonObject approval) {
+        StorageServiceInstanceVO instance = instanceDao.findById(instanceId);
+        StorageServiceOperationVO operation = rootWriterDao.findByUuid(operationUuid);
+        StorageServiceTemplateUpgradeVO root = rootUpgradeDao.findActive(instanceId);
+        if (instance == null || instance.getVmId() == null || operation == null || root == null
+                || !operationUuid.equals(operation.getUuid()) || operation.getInstanceId() != instanceId
+                || root.getInstanceId() != instanceId || !"RUNNING".equals(operation.getState())
+                || !"ROOT_TEMPLATE_ROLLBACK".equals(operation.getAction())
+                || !Long.valueOf(operation.getId()).equals(root.getOperationId()) || root.getSnapshotJson() == null
+                || root.getTargetRootVolumeId() == null || root.getTargetRootVolumeId() == root.getPreviousRootVolumeId()) {
+            throw new CloudRuntimeException("Retained latest runtime requires its active manual ROOT rollback writer");
+        }
+        UUID.fromString(operationUuid);
+        SharedFSVO shared = sharedFSDao.findById(root.getSharedFilesystemId());
+        if (shared == null || !instance.getVmId().equals(shared.getVmId()) || shared.getAccountId() != instance.getAccountId()
+                || shared.getDomainId() != instance.getDomainId() || shared.getDataCenterId() == null
+                || shared.getDataCenterId() != instance.getDataCenterId()) {
+            throw new CloudRuntimeException("Retained latest runtime belongs to another SharedFS VM or tenant");
+        }
+        JsonObject snapshot = JsonParser.parseString(root.getSnapshotJson()).getAsJsonObject();
+        if (!Boolean.TRUE.equals(booleanValue(snapshot, "manualSourcePrepared"))
+                || !snapshot.has("manualRollbackGeneration") || !snapshot.get("manualRollbackGeneration").isJsonObject()
+                || !snapshot.has("sourceCapture") || !snapshot.get("sourceCapture").isJsonObject()
+                || !snapshot.has("identity") || !snapshot.get("identity").isJsonObject()
+                || !snapshot.has("manualSourceSignedRuntime") || !snapshot.get("manualSourceSignedRuntime").isJsonObject()
+                || !snapshot.has("manualSourceValidationProfile") || !snapshot.get("manualSourceValidationProfile").isJsonObject()) {
+            throw new CloudRuntimeException("Retained latest runtime lacks its protected prepared source snapshot");
+        }
+        JsonObject scope = new JsonObject(); scope.addProperty("instanceUuid", instance.getUuid());
+        scope.addProperty("templateUpgradeUuid", root.getUuid()); scope.addProperty("operationUuid", operationUuid);
+        scope.addProperty("revision", operation.getRevision());
+        if (operation.getRevision() <= 0 || !scope.equals(snapshot.getAsJsonObject("sourceCapture").get("scope"))
+                || !scope.equals(snapshot.getAsJsonObject("identity").get("sourceRootScope"))) {
+            throw new CloudRuntimeException("Retained latest runtime source capture has another ROOT scope or revision");
+        }
+        JsonObject expected = new JsonObject(); expected.add("rootScope", scope);
+        expected.add("sourceRuntime", snapshot.get("manualSourceSignedRuntime").deepCopy());
+        expected.add("sourceValidationProfile", snapshot.get("manualSourceValidationProfile").deepCopy());
+        expected.addProperty("sourceRootVolumeId", root.getTargetRootVolumeId());
+        expected.addProperty("sourceTemplateId", root.getTargetTemplateId());
+        expected.addProperty("targetRootVolumeId", root.getPreviousRootVolumeId());
+        expected.addProperty("targetTemplateId", root.getSourceTemplateId());
+        if (approval == null || !expected.equals(approval)
+                || retainedApprovalId(snapshot, "manualSourceRootVolumeId") != root.getTargetRootVolumeId()
+                || retainedApprovalId(snapshot, "manualSourceTemplateId") != root.getTargetTemplateId()) {
+            throw new CloudRuntimeException("Retained latest runtime approval differs from the protected DB snapshot");
+        }
+        for (String name : new String[]{"sourceRootVolumeId", "sourceTemplateId", "targetRootVolumeId", "targetTemplateId"}) {
+            retainedApprovalId(approval, name);
+        }
+        JsonObject checkpoint = snapshot.getAsJsonObject("manualSourceSignedRuntime");
+        StorageServiceRuntimeBundleVO bundle = pinnedBundle(pin);
+        if (!pin.equals(checkpoint.get("pin")) || !checkpoint.has("approvedInstalledLkg")
+                || !checkpoint.get("approvedInstalledLkg").isJsonObject() || !checkpoint.has("sourceRootBinding")
+                || !checkpoint.get("sourceRootBinding").isJsonObject() || !checkpoint.has("verification")
+                || !checkpoint.get("verification").isJsonObject()) {
+            throw new CloudRuntimeException("Retained latest runtime signed source pin or approval is unavailable");
+        }
+        JsonObject installed = checkpoint.getAsJsonObject("approvedInstalledLkg").deepCopy();
+        retainedApprovalId(installed, "verifiedAtMillis"); installed.remove("verifiedAtMillis");
+        JsonObject observed = requireRuntimeReadback(checkpoint.getAsJsonObject("verification"), bundle);
+        String helper = sha256(resource("/storage-runtime/bootstrap/runtime_updater.py"));
+        if (!pin.equals(installed) || !helper.equals(stringValue(checkpoint, "updaterSha256"))
+                || !helper.equals(stringValue(observed, "updaterSha256"))) {
+            throw new CloudRuntimeException("Retained latest runtime source signed LKG or updater provenance changed");
+        }
+        JsonObject source = checkpoint.getAsJsonObject("sourceRootBinding");
+        com.cloud.storage.VolumeVO sourceVolume = runtimeVolumeDao.findById(root.getTargetRootVolumeId());
+        if (sourceVolume == null || sourceVolume.getRemoved() != null || sourceVolume.getState() != com.cloud.storage.Volume.State.Ready
+                || sourceVolume.getVolumeType() != com.cloud.storage.Volume.Type.ROOT || sourceVolume.getPoolId() == null
+                || sourceVolume.getAccountId() != instance.getAccountId() || sourceVolume.getDataCenterId() != instance.getDataCenterId()
+                || sourceVolume.getTemplateId() == null || sourceVolume.getUuid() == null || sourceVolume.getTemplateId() != root.getTargetTemplateId()
+                || !instance.getUuid().equals(stringValue(source, "instanceUuid"))
+                || retainedApprovalId(source, "vmId") != instance.getVmId()
+                || retainedApprovalId(source, "rootVolumeId") != root.getTargetRootVolumeId()
+                || !sourceVolume.getUuid().equals(stringValue(source, "rootVolumeUuid"))
+                || retainedApprovalId(source, "templateId") != root.getTargetTemplateId()
+                || retainedApprovalId(source, "accountId") != instance.getAccountId()
+                || retainedApprovalId(source, "zoneId") != instance.getDataCenterId()) {
+            throw new CloudRuntimeException("Retained latest runtime source ROOT binding was replaced or belongs to another tenant");
+        }
+        VMInstanceVO vm = vmInstanceDao.findById(instance.getVmId());
+        com.cloud.vm.UserVmVO userVm = runtimeUserVmDao.findById(instance.getVmId());
+        com.cloud.storage.VolumeVO targetVolume = runtimeVolumeDao.findById(root.getPreviousRootVolumeId());
+        if (vm == null || vm.getState() != com.cloud.vm.VirtualMachine.State.Running || vm.getHostId() == null
+                || vm.getType() != com.cloud.vm.VirtualMachine.Type.User
+                || userVm == null || !com.cloud.vm.UserVmManager.SHAREDFSVM.equals(userVm.getUserVmType())
+                || vm.getHypervisorType() != com.cloud.hypervisor.Hypervisor.HypervisorType.KVM
+                || vm.getTemplateId() != root.getSourceTemplateId() || targetVolume == null
+                || targetVolume.getState() != com.cloud.storage.Volume.State.Ready || targetVolume.getRemoved() != null
+                || targetVolume.getVolumeType() != com.cloud.storage.Volume.Type.ROOT || targetVolume.getPoolId() == null
+                || !instance.getVmId().equals(targetVolume.getInstanceId()) || targetVolume.getAccountId() != instance.getAccountId()
+                || targetVolume.getDataCenterId() != instance.getDataCenterId() || targetVolume.getTemplateId() == null
+                || targetVolume.getTemplateId() != root.getSourceTemplateId()) {
+            throw new CloudRuntimeException("Retained latest runtime current ROOT or host placement is unavailable");
+        }
+        JsonObject target = sourceRootBinding(instance);
+        if (retainedApprovalId(target, "rootVolumeId") != root.getPreviousRootVolumeId()
+                || retainedApprovalId(target, "templateId") != root.getSourceTemplateId()) {
+            throw new CloudRuntimeException("Retained latest runtime is not running on the approved retained ROOT");
+        }
+        return target;
+    }
+
+    @Override public JsonObject restoreRetainedLatestTemplateRuntime(long instanceId, JsonObject pin,
+            String operationUuid, JsonObject frozenSourceApproval) {
+        JsonObject approved = frozenSourceApproval == null ? null : frozenSourceApproval.deepCopy();
+        JsonObject frozenPin = pin == null ? null : pin.deepCopy();
+        JsonObject target = requireRetainedLatestApproval(instanceId, frozenPin, operationUuid, approved);
+        StorageServiceInstanceVO instance = instanceDao.findById(instanceId);
+        String helper = requireTemplateRuntimeHelper(instance);
+        requireRuntimePackageFeatures(instance);
+        JsonObject result = stagePinnedRuntime(instance, pinnedBundle(frozenPin), operationUuid, "retained-latest", true,
+                () -> { if (!target.equals(requireRetainedLatestApproval(instanceId, frozenPin, operationUuid, approved))) {
+                    throw new CloudRuntimeException("Retained latest runtime approval changed before effects");
+                } });
+        if (!helper.equals(stringValue(result, "updaterSha256"))
+                || !target.equals(requireRetainedLatestApproval(instanceId, frozenPin, operationUuid, approved))) {
+            throw new CloudRuntimeException("Retained latest runtime target or protected approval changed during activation");
+        }
+        return result;
+    }
+
+    @Override public JsonObject verifyRetainedLatestTemplateRuntime(long instanceId, JsonObject pin,
+            String operationUuid, JsonObject frozenSourceApproval) {
+        JsonObject approved = frozenSourceApproval == null ? null : frozenSourceApproval.deepCopy();
+        JsonObject frozenPin = pin == null ? null : pin.deepCopy();
+        JsonObject target = requireRetainedLatestApproval(instanceId, frozenPin, operationUuid, approved);
+        StorageServiceInstanceVO instance = instanceDao.findById(instanceId);
+        StorageServiceRuntimeBundleVO bundle = pinnedBundle(frozenPin);
+        String helper = requireTemplateRuntimeHelper(instance);
+        JsonObject manifest = signedManifest(bundle); requireSignedRuntimeFeatures(instance, manifest);
+        JsonObject compatible = versionCompatibility(instance, manifest, StorageRuntimeVersionCompatibility.Mode.NEW_ACTIVATION, null);
+        requireRuntimePackageFeatures(instance); requireRuntimeActivationSafety(instance);
+        String transaction = "root-retained-latest-" + operationUuid;
+        JsonObject request = runtimePin(bundle); request.addProperty("transactionId", transaction);
+        if (!target.equals(requireRetainedLatestApproval(instanceId, frozenPin, operationUuid, approved))) {
+            throw new CloudRuntimeException("Retained latest runtime approval changed before readback");
+        }
+        JsonObject result = requireRuntimeReadback(invoke(instance, StorageServiceRuntimeOperation.READBACK, transaction, request), bundle);
+        if (!helper.equals(stringValue(result, "updaterSha256"))
+                || !target.equals(requireRetainedLatestApproval(instanceId, frozenPin, operationUuid, approved))) {
+            throw new CloudRuntimeException("Retained latest runtime target or protected approval changed during verification");
+        }
+        result.add("consumerCompatibility", compatible); return result;
+    }
+
     protected JsonObject requireRuntimeReadback(JsonObject result,StorageServiceRuntimeBundleVO bundle) {
         if (!Boolean.TRUE.equals(booleanValue(result, "success"))
                 || !Boolean.TRUE.equals(booleanValue(result, "signedRuntimeVerified"))
@@ -454,6 +617,10 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         return result;
     }
     private JsonObject stagePinnedRuntime(StorageServiceInstanceVO instance,StorageServiceRuntimeBundleVO bundle,String operationUuid,String direction,boolean activate) {
+        return stagePinnedRuntime(instance, bundle, operationUuid, direction, activate, null);
+    }
+    private JsonObject stagePinnedRuntime(StorageServiceInstanceVO instance,StorageServiceRuntimeBundleVO bundle,
+            String operationUuid,String direction,boolean activate,Runnable approvalGuard) {
         if (bundle.getServiceImpact()!=StorageServiceRuntimeBundleVO.ServiceImpact.NONE) throw new CloudRuntimeException("Pinned runtime requires additional template maintenance");
         byte[] archive=download(bundle.getArtifactUrl(),MAX_BUNDLE_BYTES),manifest=download(bundle.getManifestUrl(),MAX_MANIFEST_BYTES),signature=download(bundle.getSignatureUrl(),MAX_SIGNATURE_BYTES);
         JsonObject verified=new StorageServiceRuntimeBundleVerifier().verify(bundle,archive,manifest,signature,trustedKey(bundle.getSigningKeyId()));
@@ -463,6 +630,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         StorageRuntimeVersionCompatibility.RetainedPreviousEvidence evidence = checkpoint == null ? null : retainedPreviousEvidence(instance, bundle, checkpoint, null, null);
         JsonObject compatibility = activate ? versionCompatibility(instance, verified.getAsJsonObject("manifest"), mode, evidence) : null;
         requireRuntimeActivationSafety(instance);
+        if (approvalGuard != null) approvalGuard.run();
         String transaction="root-"+direction+"-"+operationUuid;ensureBootstrap(instance,bundle,transaction);
         JsonObject request=runtimePin(bundle);request.addProperty("transactionId",transaction);request.addProperty("totalSize",archive.length);request.addProperty("manifestSize",manifest.length);request.addProperty("signatureSize",signature.length);
         JsonObject started=invoke(instance,StorageServiceRuntimeOperation.BEGIN,transaction,request);String phase=started.has("phase")?started.get("phase").getAsString():null;
@@ -474,11 +642,13 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
             invoke(instance,StorageServiceRuntimeOperation.PREFLIGHT,transaction,request);
             pinnedBundle(runtimePin(bundle));requireSignedRuntimeFeatures(instance, verified.getAsJsonObject("manifest"));
             compatibility = versionCompatibility(instance, verified.getAsJsonObject("manifest"), mode, evidence);
-            requireRuntimeActivationSafety(instance);invoke(instance,StorageServiceRuntimeOperation.ACTIVATE,transaction,request);
+            requireRuntimeActivationSafety(instance); if (approvalGuard != null) approvalGuard.run();
+            invoke(instance,StorageServiceRuntimeOperation.ACTIVATE,transaction,request);
         } else if (activate && ("ACTIVATING".equals(phase) || "COMPLETE".equals(phase))) {
             pinnedBundle(runtimePin(bundle));requireSignedRuntimeFeatures(instance, verified.getAsJsonObject("manifest"));
             compatibility = versionCompatibility(instance, verified.getAsJsonObject("manifest"), mode, evidence);
-            requireRuntimeActivationSafety(instance);invoke(instance,StorageServiceRuntimeOperation.ACTIVATE,transaction,request);
+            requireRuntimeActivationSafety(instance); if (approvalGuard != null) approvalGuard.run();
+            invoke(instance,StorageServiceRuntimeOperation.ACTIVATE,transaction,request);
         }
         JsonObject readback = requireRuntimeReadback(invoke(instance,StorageServiceRuntimeOperation.READBACK,transaction,request),bundle);
         if (activate) requireRuntimePackageFeatures(instance);

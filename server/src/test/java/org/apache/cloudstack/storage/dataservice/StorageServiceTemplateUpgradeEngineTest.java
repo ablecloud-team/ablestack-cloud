@@ -131,4 +131,23 @@ public class StorageServiceTemplateUpgradeEngineTest {
     @Test public void uncertainCommitObservationAfterFailureCannotFallThroughToDestructivePreviousRootSwap() {
         StorageServiceTemplateUpgradeVO row=new StorageServiceTemplateUpgradeVO();StorageServiceTemplateUpgradeEngine.Runtime runtime=Mockito.mock(StorageServiceTemplateUpgradeEngine.Runtime.class);Mockito.when(runtime.forwardRecoveryRequired()).thenReturn(false).thenThrow(new CloudRuntimeException("native readback unavailable"));Mockito.doThrow(new CloudRuntimeException("commit transport lost")).when(runtime).commit();Assert.assertThrows(CloudRuntimeException.class,()->engine().execute(row,runtime));Assert.assertEquals("RECOVERY_REQUIRED",row.getState());Mockito.verify(runtime,Mockito.never()).restorePreviousRoot();
     }
+    @Test public void retainedPrecommitFailureRestoresLatestRootWithoutHistoricalReplay() {
+        StorageServiceTemplateUpgradeVO row=new StorageServiceTemplateUpgradeVO();StorageServiceTemplateUpgradeEngine.Runtime runtime=Mockito.mock(StorageServiceTemplateUpgradeEngine.Runtime.class);
+        Mockito.doThrow(new CloudRuntimeException("retained activation failed")).when(runtime).reconcilePrevious();Mockito.when(runtime.compensateLatestSourceRequired()).thenReturn(true);
+        Assert.assertThrows(CloudRuntimeException.class,()->engine().rollback(row,runtime));Assert.assertEquals("BLOCKED",row.getState());Assert.assertEquals("RETAINED_ROOT_FAILED_LATEST_SOURCE_RESTORED",row.getErrorCode());Mockito.verify(runtime).compensateLatestSource();Mockito.verify(runtime,Mockito.never()).verifyPrevious();Mockito.verify(runtime).finished(false);
+    }
+    @Test public void retainedCommitReceiptGapForcesForwardRecoveryAndCannotSwapBackLatestRoot() {
+        StorageServiceTemplateUpgradeVO row=new StorageServiceTemplateUpgradeVO();StorageServiceTemplateUpgradeEngine.Runtime runtime=Mockito.mock(StorageServiceTemplateUpgradeEngine.Runtime.class);
+        Mockito.when(runtime.forwardRecoveryRequired()).thenReturn(false,true);Mockito.doThrow(new CloudRuntimeException("native commit completed but DAO receipt failed")).when(runtime).verifyPrevious();Mockito.when(runtime.compensateLatestSourceRequired()).thenReturn(true);
+        Assert.assertThrows(CloudRuntimeException.class,()->engine().rollback(row,runtime));Assert.assertEquals("RECOVERY_REQUIRED",row.getState());Assert.assertEquals("COMMITTED_RETAINED_ROOT_FINALIZATION_REQUIRED",row.getErrorCode());Mockito.verify(runtime,Mockito.never()).compensateLatestSource();
+    }
+    @Test public void failedLatestRootCompensationRemainsHeldRecoveryRequired() {
+        StorageServiceTemplateUpgradeVO row=new StorageServiceTemplateUpgradeVO();StorageServiceTemplateUpgradeEngine.Runtime runtime=Mockito.mock(StorageServiceTemplateUpgradeEngine.Runtime.class);
+        Mockito.doThrow(new CloudRuntimeException("retained activation failed")).when(runtime).reconcilePrevious();Mockito.when(runtime.compensateLatestSourceRequired()).thenReturn(true);Mockito.doThrow(new CloudRuntimeException("source resume unavailable")).when(runtime).compensateLatestSource();
+        Assert.assertThrows(CloudRuntimeException.class,()->engine().rollback(row,runtime));Assert.assertEquals("RECOVERY_REQUIRED",row.getState());Assert.assertNull(row.getCompleted());Mockito.verify(runtime,Mockito.never()).finished(Mockito.anyBoolean());
+    }
+    @Test public void committedRetainedRecoveryResumesOnlyVerificationAndFinalize() {
+        StorageServiceTemplateUpgradeVO row=new StorageServiceTemplateUpgradeVO();StorageServiceTemplateUpgradeEngine.Runtime runtime=Mockito.mock(StorageServiceTemplateUpgradeEngine.Runtime.class);Mockito.when(runtime.forwardRecoveryRequired()).thenReturn(true);
+        engine().rollback(row,runtime);Mockito.verify(runtime).verifyPrevious();Mockito.verify(runtime,Mockito.never()).restorePreviousRoot();Mockito.verify(runtime,Mockito.never()).bootPrevious();Mockito.verify(runtime,Mockito.never()).compensateLatestSource();
+    }
 }

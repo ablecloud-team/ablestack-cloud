@@ -39,6 +39,8 @@ public final class StorageServiceTemplateUpgradeEngine {
         void verifyPrevious();
         void finished(boolean success);
         default boolean forwardRecoveryRequired(){return false;}
+        default boolean compensateLatestSourceRequired(){return false;}
+        default void compensateLatestSource(){throw new CloudRuntimeException("Latest ROOT source compensation is unavailable");}
     }
     private final StorageServiceTemplateUpgradeDao upgrades;
     public StorageServiceTemplateUpgradeEngine(StorageServiceTemplateUpgradeDao upgrades) { this.upgrades=upgrades; }
@@ -83,11 +85,17 @@ public final class StorageServiceTemplateUpgradeEngine {
     public void rollback(StorageServiceTemplateUpgradeVO row,Runtime runtime) {
         row.setState("RUNNING");
         try {
+            if(runtime.forwardRecoveryRequired()){phase(row,"RECONCILING_PREVIOUS",95);runtime.verifyPrevious();cleanup(row,runtime,false);return;}
+
             phase(row,"ROLLING_BACK_ROOT",85);runtime.restorePreviousRoot();
             phase(row,"BOOTING_PREVIOUS",90);runtime.bootPrevious();
             phase(row,"RECONCILING_PREVIOUS",95);runtime.reconcilePrevious();runtime.verifyPrevious();
             if (!"ROLLED_BACK".equals(row.getState())) {row.setState("ROLLED_BACK");row.setCompleted(new Date());phase(row,"ROLLED_BACK",100);}
         } catch (RuntimeException failed) {
+            try {
+                if(runtime.forwardRecoveryRequired()){row.setState("RECOVERY_REQUIRED");row.setErrorCode("COMMITTED_RETAINED_ROOT_FINALIZATION_REQUIRED");phase(row,"RECOVERY_REQUIRED",95);throw new CloudRuntimeException("Committed latest configuration on retained ROOT requires forward finalization",failed);}
+                if(runtime.compensateLatestSourceRequired()){phase(row,"COMPENSATING_LATEST_ROOT",95);runtime.compensateLatestSource();row.setState("BLOCKED");row.setErrorCode("RETAINED_ROOT_FAILED_LATEST_SOURCE_RESTORED");row.setErrorMessage(safe(failed));row.setCompleted(new Date());phase(row,"BLOCKED",100);cleanup(row,runtime,false);throw new CloudRuntimeException("Retained ROOT replay failed; original latest ROOT source was verified and restored",failed);}
+            }catch(RuntimeException compensationFailure){if("BLOCKED".equals(row.getState())||"COMMITTED_RETAINED_ROOT_FINALIZATION_REQUIRED".equals(row.getErrorCode()))throw compensationFailure;failed.addSuppressed(compensationFailure);}
             row.setState("RECOVERY_REQUIRED");row.setErrorCode("TEMPLATE_UPGRADE_RECOVERY_REQUIRED");
             row.setErrorMessage((row.getErrorMessage()==null?"":row.getErrorMessage()+" | ")+"rollback: "+safe(failed));phase(row,"RECOVERY_REQUIRED",100);
             throw new CloudRuntimeException("Previous ROOT recovery requires reconciliation",failed);

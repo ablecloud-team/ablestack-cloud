@@ -55,4 +55,37 @@ public class StorageRetainedRootBatchTest {
     @Test public void checkpointCredentialRefsUseLatestHashAndNeverTheOldHistoricalConfiguration(){Manager m=new Manager();StorageServiceManagerImpl.RenderedBatch batch=batch(m);JsonObject canonical=new JsonObject();for(String path:StorageRenderedDesiredState.PATHS)canonical.add(path,JsonNull.INSTANCE);JsonObject smb=new JsonObject(),share=new JsonObject();share.addProperty("uuid","22222222-2222-2222-2222-222222222222");share.add("acls",new JsonArray());JsonArray shares=new JsonArray();shares.add(share);smb.add("shares",shares);canonical.add("desired-state/smb-share-apply.json",smb);JsonObject refs=m.renderedCredentialReferences(batch,canonical);JsonObject checkpoint=refs.getAsJsonObject("SMB").getAsJsonObject(share.get("uuid").getAsString());Assert.assertEquals("d".repeat(64),checkpoint.get("sourceConfigurationSha256").getAsString());Assert.assertEquals(batch.operation.getUuid(),checkpoint.get("operationUuid").getAsString());}
     @Test public void historicalRenderRollbackIsRejectedButProtectedForwardActivationRemainsAvailable(){Manager m=new Manager();StorageServiceManagerImpl.RenderedBatch batch=batch(m);JsonObject staged=new JsonObject();staged.addProperty("renderedManifestSha256","e".repeat(64));JsonObject checkpoint=new JsonObject();checkpoint.addProperty("operationUuid",batch.operation.getUuid());checkpoint.addProperty("sha256","a".repeat(64));staged.add("identityCheckpointRef",checkpoint);batch.receipt=new JsonObject();batch.receipt.add("staged",staged);Assert.assertThrows(RuntimeException.class,()->m.renderedRollbackRequest(Mockito.mock(StorageServiceInstanceVO.class),batch));StorageServiceInstanceVO instance=Mockito.mock(StorageServiceInstanceVO.class);Mockito.when(instance.getUuid()).thenReturn("33333333-3333-3333-3333-333333333333");Assert.assertTrue(m.renderedActivationRequest(instance,batch).has("checkpointPrivateKey"));}
     @Test public void malformedRetainedFrameCannotReachKeyPersistenceOrRenderEffects(){Manager m=new Manager();StorageServiceOperationVO operation=new StorageServiceOperationVO();operation.setPreviousSnapshotJson("{}");JsonObject baseline=new JsonObject(),nativeState=new JsonObject(),generation=new JsonObject(),manifest=new JsonObject();generation.addProperty("instanceUuid","33333333-3333-3333-3333-333333333333");nativeState.add("generation",generation);baseline.add("generation",generation.deepCopy());baseline.add("nativeState",nativeState);manifest.addProperty("manifestSha256","c".repeat(64));baseline.add("rendered",manifest);Assert.assertThrows(RuntimeException.class,()->m.prepareRetainedRenderedBatch(Mockito.mock(StorageServiceInstanceVO.class),operation,new JsonObject(),baseline,ref(),"d".repeat(64)));Assert.assertNull(m.oldBaseline);Assert.assertEquals("{}",operation.getPreviousSnapshotJson());}
+    @Test public void retainedNativeCheckpointUsesTheAuthenticatedLatestCapsuleKeyPair() throws Exception {
+        java.nio.file.Path identities=java.nio.file.Files.createTempDirectory("retained-key-identity-"),keys=java.nio.file.Files.createTempDirectory("retained-key-rendered-");for(java.nio.file.Path path:java.util.List.of(identities,keys))java.nio.file.Files.setPosixFilePermissions(path,java.nio.file.attribute.PosixFilePermissions.fromString("rwx------"));String oldIdentity=System.getProperty("cloudstack.storage.identity.path"),oldKeys=System.getProperty("cloudstack.storage.rendered.keys.path");System.setProperty("cloudstack.storage.identity.path",identities.toString());System.setProperty("cloudstack.storage.rendered.keys.path",keys.toString());java.security.KeyPair authenticated=StorageIdentityCapsule.wrappingKey();String pem=StorageIdentityCapsule.pem("PRIVATE KEY",authenticated.getPrivate().getEncoded());
+        try(org.mockito.MockedStatic<com.cloud.utils.crypt.DBEncryptionUtil> crypto=Mockito.mockStatic(com.cloud.utils.crypt.DBEncryptionUtil.class)) {
+            crypto.when(()->com.cloud.utils.crypt.DBEncryptionUtil.decrypt("opaque-encrypted-test-key")).thenReturn(pem);byte[] cipher="opaque-encrypted-test-key".getBytes(java.nio.charset.StandardCharsets.UTF_8);String keyId="55555555-5555-5555-5555-555555555555";new StorageConfigArtifactStore(identities).write(keyId,cipher);
+            StorageServiceManagerImpl manager=new StorageServiceManagerImpl();
+        StorageServiceOperationVO operation=new StorageServiceOperationVO();
+        operation.setPreviousSnapshotJson("{}");
+        operation.setRevision(5);
+        StorageServiceInstanceVO instance=Mockito.mock(StorageServiceInstanceVO.class);
+        Mockito.when(instance.getId()).thenReturn(6L);
+        JsonObject scope=new JsonObject();
+        scope.addProperty("instanceUuid","33333333-3333-3333-3333-333333333333");
+        scope.addProperty("operationUuid",operation.getUuid());
+        scope.addProperty("templateUpgradeUuid","44444444-4444-4444-4444-444444444444");
+        scope.addProperty("revision",5);
+        JsonObject identity=new JsonObject();
+        identity.addProperty("keyId",keyId);
+        identity.addProperty("keySha256",StorageConfigArchive.sha256(cipher));
+        identity.add("sourceRootScope",scope);
+        JsonObject snapshot=new JsonObject();
+        snapshot.add("identity",identity);
+        StorageServiceTemplateUpgradeVO root=new StorageServiceTemplateUpgradeVO();
+        root.setOperationId(operation.getId());
+        root.setSnapshotJson(snapshot.toString());
+        org.apache.cloudstack.storage.dataservice.dao.StorageServiceTemplateUpgradeDao roots=Mockito.mock(org.apache.cloudstack.storage.dataservice.dao.StorageServiceTemplateUpgradeDao.class);
+        Mockito.when(roots.findActive(6L)).thenReturn(root);
+        org.springframework.test.util.ReflectionTestUtils.setField(manager,"storageTemplateUpgradeDao",roots);
+        org.apache.cloudstack.storage.dataservice.dao.StorageServiceOperationDao operations=Mockito.mock(org.apache.cloudstack.storage.dataservice.dao.StorageServiceOperationDao.class);
+        Mockito.when(operations.update(Mockito.anyLong(),Mockito.any())).thenReturn(true);
+        org.springframework.test.util.ReflectionTestUtils.setField(manager,"storageOperationDao",operations);
+            StorageServiceManagerImpl.RenderedBatch batch=manager.createRenderedBatch(instance,operation,new JsonObject(),new JsonObject(),scope,ref(),"d".repeat(64));Assert.assertArrayEquals(authenticated.getPublic().getEncoded(),batch.key.getPublic().getEncoded());Assert.assertArrayEquals(authenticated.getPrivate().getEncoded(),batch.key.getPrivate().getEncoded());JsonObject durable=com.google.gson.JsonParser.parseString(operation.getPreviousSnapshotJson()).getAsJsonObject().getAsJsonObject("renderedGeneration");Assert.assertEquals(StorageConfigArchive.sha256(cipher),durable.get("keySha256").getAsString());Assert.assertFalse(operation.getPreviousSnapshotJson().contains("BEGIN PRIVATE KEY"));operation.setPreviousSnapshotJson("{}");StorageServiceManagerImpl.RenderedBatch retried=manager.createRenderedBatch(instance,operation,new JsonObject(),new JsonObject(),scope,ref(),"d".repeat(64));Assert.assertArrayEquals(authenticated.getPublic().getEncoded(),retried.key.getPublic().getEncoded());
+        }finally {if(oldIdentity==null)System.clearProperty("cloudstack.storage.identity.path");else System.setProperty("cloudstack.storage.identity.path",oldIdentity);if(oldKeys==null)System.clearProperty("cloudstack.storage.rendered.keys.path");else System.setProperty("cloudstack.storage.rendered.keys.path",oldKeys);}
+    }
 }

@@ -902,6 +902,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 suspendedOperationLeases.add(operation.getId());releaseOperationResourceReservation(instance,operation);
             }
         }
+        private void resumeCompensationLease() {
+            synchronized(operationLeaseLocks.computeIfAbsent(operation.getId(),ignored->new Object())){suspendedOperationLeases.remove(operation.getId());acquireOperationResourceReservation(instance,operation);}
+            beginStorageWriterHeartbeat(operation);StorageWriterHeartbeat heartbeat=storageWriterHeartbeat.get();if(heartbeat!=null)heartbeat.requireAvailable();
+        }
         private void resumeRootLease() {
             synchronized (operationLeaseLocks.computeIfAbsent(operation.getId(), ignored -> new Object())) {
                 suspendedOperationLeases.remove(operation.getId());acquireOperationResourceReservation(instance, operation);
@@ -956,7 +960,15 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         public void quiesce() {
             sameTopology();if (currentRoot() == row.getTargetRootVolumeId()) return;
             if (rootUpgradeVmDao.findById(instance.getVmId()).getState() == com.cloud.vm.VirtualMachine.State.Running) {
-                resourceCheckpoint(true);enterMaintenance("sourceMaintenanceScope");
+                captureAndQuiesceRootSource("sourceMaintenanceScope");
+                suspendRootLease();
+            }
+            JsonObject value=snapshot();if (!value.has("quiescedAt")) {value.addProperty("quiescedAt",System.currentTimeMillis());persist(value);}
+            requireNoPendingVolumeFormatter(instance);
+            lifecycle.stop(instance.getVmId());
+        }
+        private void captureAndQuiesceRootSource(String scopeKey) {
+                resourceCheckpoint(true);enterMaintenance(scopeKey);
                 JsonObject value=snapshot(),request=scope();request.add("verifiedGeneration",value.get("sourceGeneration").deepCopy());
                 JsonObject captured=rootGuest(instance,"operation generation render-root-capture-source",request,120);
                 if(!Boolean.TRUE.equals(getNativeBoolean(captured,"success"))||!Boolean.TRUE.equals(getNativeBoolean(captured,"sourceCaptured"))||!scope().equals(captured.get("scope"))||!value.get("sourceGeneration").equals(captured.get("sourceGeneration"))||!Boolean.FALSE.equals(getNativeBoolean(captured,"canonicalDesiredStateChanged"))
@@ -974,11 +986,6 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         ||getJsonString(quiesced,"stoppedReceiptSha256")==null||!getJsonString(quiesced,"stoppedReceiptSha256").matches("[a-f0-9]{64}"))throw new CloudRuntimeException("ROOT source identity holders were not stopped under the captured maintenance scope");
                 value=snapshot();value.add("sourceQuiescence",quiesced);persist(value);
                 if(!value.has("identity")) {checkpointConfigurationIdentity(instance,scope(),getJsonString(value.getAsJsonObject("sourceGeneration"),"configurationSha256"));value=snapshot();JsonObject reference=parseJsonObject(operation.getPreviousSnapshotJson()).getAsJsonObject("nativeIdentityCapsule");if(reference==null)throw new CloudRuntimeException("Stopped ROOT identity capsule checkpoint is unavailable");value.add("identity",reference);persist(value);}
-                suspendRootLease();
-            }
-            JsonObject value=snapshot();if (!value.has("quiescedAt")) {value.addProperty("quiescedAt",System.currentTimeMillis());persist(value);}
-            requireNoPendingVolumeFormatter(instance);
-            lifecycle.stop(instance.getVmId());
         }
         private JsonObject scope() {JsonObject scope=new JsonObject();scope.addProperty("instanceUuid",instance.getUuid());scope.addProperty("templateUpgradeUuid",row.getUuid());scope.addProperty("operationUuid",operation.getUuid());scope.addProperty("revision",operation.getRevision());return scope;}
         private void enterMaintenance(String scopeKey) {
@@ -1050,6 +1057,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             if (operation.getUuid().equals(getJsonString(generation,"operationUuid")) && generation.get("revision").getAsLong()==operation.getRevision()) return;
             JsonObject source=snapshot().getAsJsonObject("sourceGeneration");
             JsonObject request=scope();request.add("previousGeneration",source);request.add("expectedPreviousGeneration",generation);
+            if(previousRoot&&manualRollback) {if(rootRendered==null||rootRendered.retainedRootAuthorization==null)throw new CloudRuntimeException("Retained ROOT native generation requires protected latest-source authorization");if(!snapshot().getAsJsonObject("retainedBaseline").get("generation").equals(generation))throw new CloudRuntimeException("Retained ROOT old generation drifted before pending transfer");nativeConfigurationGeneration(instance,operation,"begin");return;}
             if (previousRoot && !manualRollback) {
                 if (!source.equals(generation) || !"IN_SYNC".equals(getJsonString(status,"generationStatus"))) throw new CloudRuntimeException("Recovered previous ROOT generation differs");return;
             }
@@ -1074,8 +1082,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
         public void commit() {if(forwardRecoveryRequired())renderedRuntime(instance,rendered()).requireCommittedAvailable();else resourceCheckpoint(false);JsonObject value=snapshot();value.addProperty("renderedCommitStarted",true);persist(value);rootCoordinator(true).commit(rendered().receipt,renderedActivationRequest(instance,rendered()));}
         public boolean forwardRecoveryRequired() {
-            if(manualRollback||row.getSnapshotJson()==null||!Boolean.TRUE.equals(getNativeBoolean(snapshot(),"renderedCommitStarted")))return false;
-            requireBinding(row.getTargetRootVolumeId(),row.getTargetTemplateId());sameTopology();return rootCoordinator(true).recoveryDecision(rendered().receipt)==StorageRenderedRecoveryState.Decision.COMMITTED;
+            if(row.getSnapshotJson()==null)return false;
+            if(!Boolean.TRUE.equals(getNativeBoolean(snapshot(),"renderedCommitStarted"))){if(!manualRollback)return false;JsonObject previous=parseJsonObject(operation.getPreviousSnapshotJson()),saved=previous.has("renderedGeneration")?previous.getAsJsonObject("renderedGeneration"):null;if(saved==null||!saved.has("retainedRootAuthorization")||!saved.has("receipt")||!saved.getAsJsonObject("receipt").has("staged"))return false;}
+            requireBinding(manualRollback?row.getPreviousRootVolumeId():row.getTargetRootVolumeId(),manualRollback?row.getSourceTemplateId():row.getTargetTemplateId());sameTopology();return rootCoordinator(!manualRollback).recoveryDecision(rendered().receipt)==StorageRenderedRecoveryState.Decision.COMMITTED;
         }
         private void complete(boolean target) {
             requireBinding(target?row.getTargetRootVolumeId():row.getPreviousRootVolumeId(),target?row.getTargetTemplateId():row.getSourceTemplateId());sameTopology();
@@ -1094,21 +1103,26 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             });
         }
         public void restorePreviousRoot() {
-            if(manualRollback&&!snapshot().has("manualRollbackGeneration")){JsonObject renderer=rootGuest(instance,"operation generation render-status",new JsonObject(),15);StorageRenderedValidationProfile.requireHandler(renderer);if(!Boolean.TRUE.equals(getNativeBoolean(renderer,"retainedRootRestoreSupported")))throw new CloudRuntimeException("Retained ROOT latest-source aggregate replay is unavailable; no ROOT swap is started");}
-            if (manualRollback && !snapshot().has("manualRollbackGeneration")) {
-                lifecycle.startAndAwaitCapabilities(instance,operation.getUuid());verifyReconciledStorageDesiredState(instance);checkpointConfigurationIdentity(instance);
-                JsonObject value=snapshot();value.add("manualRollbackRuntime",runtimeUpgradeManager.checkpointTemplateRuntime(instance.getId(),operation.getUuid()));value.add("identity",parseJsonObject(operation.getPreviousSnapshotJson()).getAsJsonObject("nativeIdentityCapsule"));
-                JsonObject observed=nativeConfigurationGeneration(instance,null,"status");JsonObject source=observed.getAsJsonObject("generation");
-                if (!observed.has("configurationDesiredState")) throw new CloudRuntimeException("Current ROOT seed capability is unavailable");
-                value.add("sourceGeneration",source);value.add("sourceDesiredState",observed.getAsJsonObject("configurationDesiredState"));value.add("manualRollbackGeneration",source);persist(value);
+            if(manualRollback&&!snapshot().has("manualSourcePrepared")){JsonObject renderer=rootGuest(instance,"operation generation render-status",new JsonObject(),15);StorageRenderedValidationProfile.requireHandler(renderer);if(!Boolean.TRUE.equals(getNativeBoolean(renderer,"retainedRootRestoreSupported")))throw new CloudRuntimeException("Retained ROOT latest-source aggregate replay is unavailable; no ROOT swap is started");}
+            if (manualRollback && !snapshot().has("manualSourcePrepared")) {
+                requireBinding(row.getTargetRootVolumeId(),row.getTargetTemplateId());lifecycle.startAndAwaitCapabilities(instance,operation.getUuid());
+                JsonObject renderer=rootGuest(instance,"operation generation render-status",new JsonObject(),15);
+                if(!Boolean.TRUE.equals(getNativeBoolean(renderer,"rootSourceIdentityCheckpointSupported")))throw new CloudRuntimeException("Latest ROOT source requires protected PRESTOP identity checkpoint support");
+                JsonObject sourceValidationProfile=requiredRenderedValidationProfile(instance);requireRootPosixReceiptCoverage(instance);
+                JsonObject observed=nativeConfigurationGeneration(instance,null,"status");if(!"IN_SYNC".equals(getJsonString(observed,"generationStatus"))||getJsonString(observed,"pendingOperationUuid")!=null||!observed.has("configurationDesiredState"))throw new CloudRuntimeException("Latest ROOT source is not a settled native generation");
+                JsonObject source=observed.getAsJsonObject("generation"),latest=snapshot();latest.add("forwardSourceSnapshot",latest.deepCopy());latest.add("topology",rootTopology(instance));latest.add("dataManifest",inspectRootData(instance,shared,operation.getUuid(),row.getUuid()));
+                latest.add("manualSourceValidationProfile",sourceValidationProfile.deepCopy());latest.add("manualSourceSignedRuntime",runtimeUpgradeManager.checkpointTemplateRuntime(instance.getId(),operation.getUuid()));latest.add("sourceGeneration",source.deepCopy());latest.add("sourceDesiredState",observed.get("configurationDesiredState").deepCopy());latest.add("sourceRendered",importRootSourceRenderedBaseline(instance,operation,observed));
+                latest.addProperty("manualSourceRootVolumeId",row.getTargetRootVolumeId());latest.addProperty("manualSourceTemplateId",row.getTargetTemplateId());latest.remove("identity");latest.remove("sourceCapture");latest.remove("sourceQuiescence");
+                if(latest.has("targetMaintenanceScope"))latest.add("manualSourceMaintenanceScope",latest.get("targetMaintenanceScope").deepCopy());latest.addProperty("manualSourcePrepared",true);persist(latest);
             }
+            if(manualRollback&&!snapshot().has("manualRollbackGeneration")){captureAndQuiesceRootSource("manualSourceMaintenanceScope");JsonObject latest=snapshot();latest.add("manualRollbackGeneration",latest.get("sourceGeneration").deepCopy());persist(latest);suspendRootLease();}
             if (row.getSnapshotJson()==null) return;
             sameTopology();long root=currentRoot();
             if (root == row.getPreviousRootVolumeId()) {requireBinding(row.getPreviousRootVolumeId(),row.getSourceTemplateId());return;}
             if (row.getTargetRootVolumeId()==null || root!=row.getTargetRootVolumeId()) throw new CloudRuntimeException("Rollback ROOT binding changed");
             JsonObject interrupted=snapshot();if (!interrupted.has("rollbackQuiescedAt")) {interrupted.addProperty("rollbackQuiescedAt",System.currentTimeMillis());persist(interrupted);}
             if (rootUpgradeVmDao.findById(instance.getVmId()).getState()==com.cloud.vm.VirtualMachine.State.Running) {
-                try {enterMaintenance("targetMaintenanceScope");resourceCheckpoint(true);suspendRootLease();}
+                try {if(!manualRollback)enterMaintenance("targetMaintenanceScope");resourceCheckpoint(true);suspendRootLease();}
                 catch (RuntimeException qgaUnavailable) {if (manualRollback) throw qgaUnavailable;logger.warn("Target ROOT QGA is unavailable; continuing graceful VM shutdown for rollback {}",row.getUuid());}
             }
             lifecycle.stop(instance.getVmId());swap.swap(instance.getVmId(),row.getTargetRootVolumeId(),row.getPreviousRootVolumeId(),row.getTargetTemplateId(),row.getSourceTemplateId(),row.getPreviousGuestOsId());sameTopology();
@@ -1118,12 +1132,28 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             if(original==null || !original.has("sourceRootBinding") || original.getAsJsonObject("sourceRootBinding").get("rootVolumeId").getAsLong()!=row.getPreviousRootVolumeId()) throw new CloudRuntimeException("Original previous ROOT signed-runtime approval evidence is unavailable or belongs to another ROOT");
             return original;
         }
+        private JsonObject previousRuntimeApproval() {
+            if(!manualRollback)return originalSourceRuntime(snapshot());JsonObject approved=snapshot().getAsJsonObject("manualSourceSignedRuntime");
+            if(approved==null||!approved.has("sourceRootBinding")||getJsonLong(approved.getAsJsonObject("sourceRootBinding"),"rootVolumeId")==null||getJsonLong(approved.getAsJsonObject("sourceRootBinding"),"rootVolumeId")!=row.getTargetRootVolumeId())throw new CloudRuntimeException("Latest ROOT signed runtime source binding is unavailable");return approved;
+        }
+        private JsonObject retainedLatestRuntimeApproval() {
+            JsonObject value=snapshot(),approval=new JsonObject();approval.add("rootScope",scope());approval.add("sourceRuntime",previousRuntimeApproval().deepCopy());approval.add("sourceValidationProfile",value.get("manualSourceValidationProfile").deepCopy());
+            approval.add("sourceRootVolumeId",value.get("manualSourceRootVolumeId").deepCopy());approval.add("sourceTemplateId",value.get("manualSourceTemplateId").deepCopy());approval.addProperty("targetRootVolumeId",row.getPreviousRootVolumeId());approval.addProperty("targetTemplateId",row.getSourceTemplateId());return approval;
+        }
         public void bootPrevious() {requireBinding(row.getPreviousRootVolumeId(),row.getSourceTemplateId());lifecycle.startAndAwaitCapabilities(instance,operation.getUuid());
             if (row.getSnapshotJson()!=null) {enterMaintenance("sourceMaintenanceScope");resumeRootLease();resourceCheckpoint(true);}
-            if (row.getSnapshotJson()!=null) {JsonObject value=snapshot();value.add("previousRuntimeVerified",runtimeUpgradeManager.restoreTemplateRuntime(instance.getId(),originalSourceRuntime(value).getAsJsonObject("pin"),operation.getUuid(),"previous"));persist(value);}}
+            if (row.getSnapshotJson()!=null) {JsonObject value=snapshot();value.add("previousRuntimeVerified",manualRollback?runtimeUpgradeManager.restoreRetainedLatestTemplateRuntime(instance.getId(),previousRuntimeApproval().getAsJsonObject("pin"),operation.getUuid(),retainedLatestRuntimeApproval()):runtimeUpgradeManager.restoreTemplateRuntime(instance.getId(),previousRuntimeApproval().getAsJsonObject("pin"),operation.getUuid(),"previous"));persist(value);
+                if(manualRollback&&!value.has("retainedBaseline")){value.add("retainedBaseline",captureRetainedRootBaseline(instance,scope()));persist(value);}}}
         public void reconcilePrevious() {
             if(row.getSnapshotJson()==null)return;
-            if(manualRollback)throw new CloudRuntimeException("Retained ROOT latest-source adapter must complete before manual aggregate replay");
+            if(manualRollback) {
+                requireBinding(row.getPreviousRootVolumeId(),row.getSourceTemplateId());sameTopology();JsonObject value=snapshot();if(!value.has("retainedBaseline")||!value.has("identity"))throw new CloudRuntimeException("Retained ROOT protected baseline or latest identity checkpoint is unavailable");
+                JsonObject savedOperation=parseJsonObject(operation.getPreviousSnapshotJson());if(savedOperation.has("renderedGeneration")){RenderedBatch existing=restoreRenderedBatch(operation);if(existing.retainedRootAuthorization!=null&&existing.receipt.has("staged")){rootRendered=existing;stageRootRendered(instance,operation,existing,value.getAsJsonObject("sourceDesiredState"));transferGeneration(true);return;}}
+                restoreRootConfigurationIdentity(instance,scope(),value.getAsJsonObject("identity"),fileBindings(),false);restoreMounts();restoreRootConfigurationIdentity(instance,scope(),value.getAsJsonObject("identity"),fileBindings(),true);
+                JsonObject authorization=value.has("retainedRootAuthorization")?value.getAsJsonObject("retainedRootAuthorization"):authorizeRetainedRoot(instance,scope(),value.getAsJsonObject("retainedBaseline"),value.getAsJsonObject("identity"),fileBindings());value.add("retainedRootAuthorization",authorization);persist(value);
+                rootRendered=prepareRetainedRenderedBatch(instance,operation,scope(),value.getAsJsonObject("retainedBaseline"),authorization,getJsonString(value.getAsJsonObject("identity"),"sourceConfigurationSha256"));stageRootRendered(instance,operation,rootRendered,value.getAsJsonObject("sourceDesiredState"));
+                JsonObject actual=nativeConfigurationGeneration(instance,null,"status");if(!value.get("sourceDesiredState").equals(actual.get("configurationDesiredState")))throw new CloudRuntimeException("Retained ROOT aggregate did not preserve exact authenticated latest canonical state");transferGeneration(true);sameTopology();return;
+            }
             requireBinding(row.getPreviousRootVolumeId(),row.getSourceTemplateId());sameTopology();
             if(snapshot().has("identity")){restoreRootConfigurationIdentity(instance,scope(),snapshot().getAsJsonObject("identity"),fileBindings(),false);restoreMounts();restoreRootConfigurationIdentity(instance,scope(),snapshot().getAsJsonObject("identity"),fileBindings(),true);}else if(!snapshot().has("sourceCapture"))throw new CloudRuntimeException("ROOT source capture must be verified before source recovery");
             JsonObject source=snapshot().getAsJsonObject("sourceGeneration"),status=nativeConfigurationGeneration(instance,null,"status");
@@ -1134,16 +1164,29 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
         public void verifyPrevious() {
             requireBinding(row.getPreviousRootVolumeId(),row.getSourceTemplateId());
-            JsonObject runtimeProof=row.getSnapshotJson()==null?new JsonObject():runtimeUpgradeManager.verifyTemplateRuntime(instance.getId(),originalSourceRuntime(snapshot()).getAsJsonObject("pin"),operation.getUuid(),"previous");
+            JsonObject runtimeProof=row.getSnapshotJson()==null?new JsonObject():manualRollback?runtimeUpgradeManager.verifyRetainedLatestTemplateRuntime(instance.getId(),previousRuntimeApproval().getAsJsonObject("pin"),operation.getUuid(),retainedLatestRuntimeApproval()):runtimeUpgradeManager.verifyTemplateRuntime(instance.getId(),previousRuntimeApproval().getAsJsonObject("pin"),operation.getUuid(),"previous");
             verifyReconciledStorageDesiredState(instance);JsonObject health=rootGuest(instance,"operation verify",new JsonObject(),60);
             if (!"ok".equalsIgnoreCase(getJsonString(health,"status"))) throw new CloudRuntimeException("Previous ROOT runtime health is degraded");
             health.add("signedRuntime",runtimeProof);row.setRollbackResultJson(health.toString());
             if (row.getSnapshotJson()!=null) {JsonObject value=snapshot();value.addProperty("serviceVerifiedAt",System.currentTimeMillis());value.addProperty("rollbackServiceVerifiedAt",System.currentTimeMillis());persist(value);}
-            resourceCheckpoint(false);
-            if (manualRollback) {nativeConfigurationGeneration(instance,operation,"verify");nativeConfigurationGeneration(instance,operation,"commit");releaseRootLease();releaseMaintenance("sourceMaintenanceScope");complete(false);}
+            if(manualRollback&&forwardRecoveryRequired())renderedRuntime(instance,rendered()).requireCommittedAvailable();else resourceCheckpoint(false);
+            if (manualRollback) {JsonObject commitState=snapshot();commitState.addProperty("renderedCommitStarted",true);persist(commitState);RenderedBatch batch=rendered();StorageRenderedGenerationCoordinator.Runtime delegate=renderedRuntime(instance,batch);new StorageRenderedGenerationCoordinator(new StorageRenderedGenerationCoordinator.Runtime(){
+                public JsonObject render(String action,JsonObject request){return delegate.render(action,request);}public void save(JsonObject receipt){delegate.save(receipt);}public void requireAvailable(){delegate.requireAvailable();}public void requireCommittedAvailable(){delegate.requireCommittedAvailable();}public void verifyAllProtocols(){delegate.verifyAllProtocols();}public JsonObject nativeGenerationStatus(){return delegate.nativeGenerationStatus();}public void commitGeneration(JsonObject receipt){delegate.commitGeneration(receipt);}public void rollbackGeneration(JsonObject receipt){throw new CloudRuntimeException("Retained ROOT historical rollback is forbidden");}public void releaseMaintenance(){releaseRootLease();RootUpgradeRuntime.this.releaseMaintenance("sourceMaintenanceScope");}public void promote(){operation.setSnapshotJson(captureConfigurationSnapshot(instance.getId()));complete(false);}
+            },operationReservationScope(instance,operation)).commit(batch.receipt,renderedActivationRequest(instance,batch));}
             else if (row.getSnapshotJson()!=null) {releaseRootLease();releaseMaintenance("sourceMaintenanceScope");}
         }
+        public boolean compensateLatestSourceRequired(){return manualRollback&&row.getSnapshotJson()!=null&&snapshot().has("sourceCapture")&&!forwardRecoveryRequired();}
+        public void compensateLatestSource() {
+            JsonObject value=snapshot();long latestRoot=getJsonLong(value,"manualSourceRootVolumeId"),latestTemplate=getJsonLong(value,"manualSourceTemplateId");sameTopology();long actual=currentRoot();
+            if(actual!=latestRoot){if(actual!=row.getPreviousRootVolumeId())throw new CloudRuntimeException("Manual compensation ROOT binding is foreign");requireNoPendingVolumeFormatter(instance);suspendRootLease();lifecycle.stop(instance.getVmId());swap.swap(instance.getVmId(),actual,latestRoot,row.getSourceTemplateId(),latestTemplate,rootUpgradeTemplateDao.findById(latestTemplate).getGuestOSId());}
+            requireBinding(latestRoot,latestTemplate);lifecycle.startAndAwaitCapabilities(instance,operation.getUuid());enterMaintenance("manualSourceMaintenanceScope");resumeCompensationLease();
+            JsonObject status=nativeConfigurationGeneration(instance,null,"status"),source=value.getAsJsonObject("sourceGeneration");if(!source.equals(status.get("generation"))||getJsonString(status,"pendingOperationUuid")!=null||!value.get("sourceDesiredState").equals(status.get("configurationDesiredState")))throw new CloudRuntimeException("Original latest ROOT native source drifted during compensation");
+            JsonObject request=scope();request.add("verifiedGeneration",source.deepCopy());JsonObject resumed=rootGuest(instance,"operation generation render-root-resume-source",request,120);if(!Boolean.TRUE.equals(getNativeBoolean(resumed,"success"))||!scope().equals(resumed.get("scope"))||!"VERIFIED".equals(getJsonString(resumed,"sourceResumePhase"))||!Boolean.TRUE.equals(getNativeBoolean(resumed,"runtimeVerified"))||!Boolean.TRUE.equals(getNativeBoolean(resumed,"canonicalBytesUnchangedVerified"))||!Boolean.FALSE.equals(getNativeBoolean(resumed,"canonicalDesiredStateChanged"))||!Boolean.FALSE.equals(getNativeBoolean(resumed,"nativeGenerationChanged"))||!source.equals(resumed.get("sourceGeneration"))||!getJsonString(value.getAsJsonObject("sourceRendered"),"manifestSha256").equals(getJsonString(resumed,"sourceRenderedManifestSha256")))throw new CloudRuntimeException("Original latest ROOT source was not resumed under its captured protected scope");
+            JsonObject protocols=resumed.getAsJsonObject("protocols");for(String protocol:List.of("NFS","SMB","ISCSI","NVMEOF"))if(protocols==null||!Boolean.TRUE.equals(getNativeBoolean(protocols,protocol)))throw new CloudRuntimeException("Original latest ROOT source protocol was not verified");
+            runtimeUpgradeManager.verifyTemplateRuntime(instance.getId(),value.getAsJsonObject("manualSourceSignedRuntime").getAsJsonObject("pin"),operation.getUuid(),"source");verifyReconciledStorageDesiredState(instance);releaseRootLease();releaseMaintenance("manualSourceMaintenanceScope");value=snapshot();value.addProperty("manualLatestSourceRestored",true);persist(value);
+        }
         public void finished(boolean success) {
+            if(manualRollback&&Boolean.TRUE.equals(getNativeBoolean(snapshot(),"manualLatestSourceRestored"))){operation.setState("BLOCKED");operation.setPhase("LATEST_ROOT_SOURCE_RESTORED");operation.setCompleted(new java.util.Date());if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Latest ROOT compensation projection is pending");return;}
             if (!success && !manualRollback) {
                 if ("ROLLED_BACK".equals(row.getState())) {
                     instance.setCurrentTemplateId(row.getSourceTemplateId());instance.setPreviousTemplateId(row.getTargetTemplateId());instance.setTemplateUpgradeState("ROLLED_BACK");instance.setLastTemplateUpgradeId(row.getId());instance.setTemplateVerifiedAt(new java.util.Date());storageServiceInstanceDao.update(instance.getId(),instance);
@@ -1379,7 +1422,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         return createRenderedBatch(instance,operation,before,manifest,rootScope,null,null);
     }
     protected RenderedBatch createRenderedBatch(StorageServiceInstanceVO instance,StorageServiceOperationVO operation,JsonObject before,JsonObject manifest,JsonObject rootScope,JsonObject retainedAuthorization,String latestIdentitySha) {
-        java.security.KeyPair key=StorageIdentityCapsule.wrappingKey();byte[] protectedKey=StorageIdentityCapsule.protectedPrivateKey(key);String keyId=java.util.UUID.nameUUIDFromBytes(("rendered-key:"+operation.getUuid()).getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString();renderedKeyStore().write(keyId,protectedKey);
+        java.security.KeyPair key;byte[] protectedKey;
+        if(retainedAuthorization==null){key=StorageIdentityCapsule.wrappingKey();protectedKey=StorageIdentityCapsule.protectedPrivateKey(key);}else {StorageServiceTemplateUpgradeVO root=storageTemplateUpgradeDao.findActive(instance.getId());if(root==null||!Long.valueOf(operation.getId()).equals(root.getOperationId()))throw new CloudRuntimeException("Retained ROOT checkpoint key has no active protected parent");JsonObject identity=parseJsonObject(root.getSnapshotJson()).getAsJsonObject("identity");if(identity==null||!rootScope.equals(identity.get("sourceRootScope")))throw new CloudRuntimeException("Retained ROOT checkpoint key belongs to another latest source scope");StorageConfigArtifactStore identities=new StorageConfigArtifactStore(java.nio.file.Path.of(System.getProperty("cloudstack.storage.identity.path","/var/lib/cloudstack-management/storage-identity-capsules")));protectedKey=identities.read(getJsonString(identity,"keyId"),getJsonString(identity,"keySha256"));key=restoredRenderedKey(protectedKey);}
+        String keyId=java.util.UUID.nameUUIDFromBytes(("rendered-key:"+operation.getUuid()).getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString();
+        if(retainedAuthorization==null)renderedKeyStore().write(keyId,protectedKey);else {try{byte[] existing=renderedKeyStore().read(keyId,StorageConfigArchive.sha256(protectedKey));if(!java.util.Arrays.equals(existing,protectedKey))throw new CloudRuntimeException("Retained ROOT encrypted checkpoint key changed");}catch(CloudRuntimeException absent){java.nio.file.Path path=java.nio.file.Path.of(System.getProperty("cloudstack.storage.rendered.keys.path","/var/lib/cloudstack-management/storage-rendered-keys")).resolve(keyId+".zip");if(java.nio.file.Files.exists(path,java.nio.file.LinkOption.NOFOLLOW_LINKS))throw absent;renderedKeyStore().write(keyId,protectedKey);}}
         RenderedBatch batch=new RenderedBatch(operation,before.deepCopy(),manifest.deepCopy(),key);
         JsonObject snapshot=parseJsonObject(operation.getPreviousSnapshotJson()),rendered=new JsonObject();
         rendered.addProperty("keyId",keyId);
@@ -1529,13 +1575,18 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         };
     }
 
-    protected RenderedBatch restoreRenderedBatch(StorageServiceOperationVO operation) {
-        JsonObject snapshot=parseJsonObject(operation.getPreviousSnapshotJson());JsonObject saved=snapshot.has("renderedGeneration")&&snapshot.get("renderedGeneration").isJsonObject()?snapshot.getAsJsonObject("renderedGeneration"):null;
-        if(saved==null)throw new CloudRuntimeException("Rendered interrupted writer has no durable encrypted source checkpoint");
-        byte[] protectedKey=renderedKeyStore().read(getJsonString(saved,"keyId"),getJsonString(saved,"keySha256"));String pem=com.cloud.utils.crypt.DBEncryptionUtil.decrypt(new String(protectedKey,java.nio.charset.StandardCharsets.UTF_8));
+    private java.security.KeyPair restoredRenderedKey(byte[] protectedKey) {
+        String pem=com.cloud.utils.crypt.DBEncryptionUtil.decrypt(new String(protectedKey,java.nio.charset.StandardCharsets.UTF_8));
         java.security.KeyPair key;
         try {byte[] der=java.util.Base64.getMimeDecoder().decode(pem.replace("-----BEGIN PRIVATE KEY-----","").replace("-----END PRIVATE KEY-----",""));java.security.KeyFactory factory=java.security.KeyFactory.getInstance("RSA");java.security.interfaces.RSAPrivateCrtKey privateKey=(java.security.interfaces.RSAPrivateCrtKey)factory.generatePrivate(new java.security.spec.PKCS8EncodedKeySpec(der));key=new java.security.KeyPair(factory.generatePublic(new java.security.spec.RSAPublicKeySpec(privateKey.getModulus(),privateKey.getPublicExponent())),privateKey);}
         catch(java.security.GeneralSecurityException|IllegalArgumentException invalid){throw new CloudRuntimeException("Rendered encrypted recovery key cannot be verified",invalid);}
+        return key;
+    }
+
+    protected RenderedBatch restoreRenderedBatch(StorageServiceOperationVO operation) {
+        JsonObject snapshot=parseJsonObject(operation.getPreviousSnapshotJson());JsonObject saved=snapshot.has("renderedGeneration")&&snapshot.get("renderedGeneration").isJsonObject()?snapshot.getAsJsonObject("renderedGeneration"):null;
+        if(saved==null)throw new CloudRuntimeException("Rendered interrupted writer has no durable encrypted source checkpoint");
+        byte[] protectedKey=renderedKeyStore().read(getJsonString(saved,"keyId"),getJsonString(saved,"keySha256"));java.security.KeyPair key=restoredRenderedKey(protectedKey);
         RenderedBatch batch=new RenderedBatch(operation,saved.getAsJsonObject("source"),saved.getAsJsonObject("previousManifest"),key);
         if(saved.has("retainedRootAuthorization")){batch.retainedRootAuthorization=saved.getAsJsonObject("retainedRootAuthorization").deepCopy();
         batch.identityCheckpointSourceConfigurationSha256=getJsonString(saved,"identityCheckpointSourceConfigurationSha256");
