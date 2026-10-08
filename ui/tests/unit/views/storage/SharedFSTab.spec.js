@@ -171,6 +171,36 @@ describe('SharedFSTab operational evidence', () => {
     expect(rows[0].authVerificationLabel).toBe('label.storage.service.authentication.unknown')
   })
 
+  it('verifies fresh NIC identity after repair without treating a stale protocol view as failure', async () => {
+    const context = {
+      resource: { id: 'shared' },
+      identityRepair: { eligible: true, runtimePrimaryIp: '10.10.13.240', aliases: ['10.10.13.241'], loading: false, visible: true },
+      storageIdentityDrift: true,
+      callStorageIdentityRepair: jest.fn().mockResolvedValueOnce({}).mockResolvedValueOnce({ resultjson: { reason: 'ALREADY_CONSISTENT', persistedPrimaryIp: '10.10.13.240', runtimePrimaryIp: '10.10.13.240', aliases: ['10.10.13.241'] } }),
+      parseIdentityRepairEvidence: SharedFSTab.methods.parseIdentityRepairEvidence,
+      fetchStorageServiceData: jest.fn().mockResolvedValue(),
+      $t: value => value,
+      $message: { success: jest.fn(), error: jest.fn() }
+    }
+    await SharedFSTab.methods.applyStorageIdentityRepair.call(context)
+    expect(context.callStorageIdentityRepair.mock.calls).toEqual([[false, '10.10.13.240'], [true]])
+    expect(context.identityRepair.visible).toBe(false)
+    expect(context.$message.success).toHaveBeenCalled()
+    expect(context.$message.error).not.toHaveBeenCalled()
+  })
+  it('does not publish repaired NIC evidence after switching to another SharedFS', async () => {
+    const context = {
+      resource: { id: 'shared' },
+      identityRepair: { eligible: true, runtimePrimaryIp: '10.10.13.240', aliases: [], loading: false, visible: true },
+      callStorageIdentityRepair: jest.fn().mockImplementation(async () => { context.resource.id = 'other'; return {} }),
+      fetchStorageServiceData: jest.fn(),
+      $message: { success: jest.fn(), error: jest.fn() }
+    }
+    await SharedFSTab.methods.applyStorageIdentityRepair.call(context)
+    expect(context.callStorageIdentityRepair).toHaveBeenCalledTimes(1)
+    expect(context.fetchStorageServiceData).not.toHaveBeenCalled()
+    expect(context.$message.success).not.toHaveBeenCalled()
+  })
   it('shows the guarded NIC repair only when drift and API capability are both present', () => {
     const visible = SharedFSTab.computed.canRepairStorageIdentity.call({
       storageIdentityDrift: true,
