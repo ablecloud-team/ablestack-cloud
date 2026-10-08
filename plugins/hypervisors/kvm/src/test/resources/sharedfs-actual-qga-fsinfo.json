@@ -1,0 +1,119 @@
+{
+  "return": [
+    {
+      "name": "sdb",
+      "type": "xfs",
+      "mountpoint": "/export/epic898-nn-parent09",
+      "disk": [
+        {
+          "serial": "0QEMU_QEMU_HARDDISK_a0bbe5667aa64bbd9998",
+          "bus-type": "scsi",
+          "bus": 0,
+          "unit": 1,
+          "pci-controller": {
+            "bus": 0,
+            "slot": 9,
+            "domain": 0,
+            "function": 0
+          },
+          "dev": "/dev/sdb",
+          "target": 0
+        }
+      ],
+      "used-bytes": 183300096,
+      "total-bytes": 21407727616
+    },
+    {
+      "name": "sdb",
+      "type": "xfs",
+      "mountpoint": "/export/epic898-ui-root-squash09",
+      "disk": [
+        {
+          "serial": "0QEMU_QEMU_HARDDISK_a0bbe5667aa64bbd9998",
+          "bus-type": "scsi",
+          "bus": 0,
+          "unit": 1,
+          "pci-controller": {
+            "bus": 0,
+            "slot": 9,
+            "domain": 0,
+            "function": 0
+          },
+          "dev": "/dev/sdb",
+          "target": 0
+        }
+      ],
+      "used-bytes": 183300096,
+      "total-bytes": 21407727616
+    },
+    {
+      "name": "sdb",
+      "type": "xfs",
+      "mountpoint": "/srv/ablestack-storage/volumes/a0bbe566-7aa6-4bbd-9998-226a4f52bf0c",
+      "disk": [
+        {
+          "serial": "0QEMU_QEMU_HARDDISK_a0bbe5667aa64bbd9998",
+          "bus-type": "scsi",
+          "bus": 0,
+          "unit": 1,
+          "pci-controller": {
+            "bus": 0,
+            "slot": 9,
+            "domain": 0,
+            "function": 0
+          },
+          "dev": "/dev/sdb",
+          "target": 0
+        }
+      ],
+      "used-bytes": 183300096,
+      "total-bytes": 21407727616
+    },
+    {
+      "name": "sda1",
+      "type": "ext2",
+      "mountpoint": "/boot",
+      "disk": [
+        {
+          "serial": "0QEMU_QEMU_HARDDISK_93a86081946d4b7fb64e",
+          "bus-type": "scsi",
+          "bus": 0,
+          "unit": 0,
+          "pci-controller": {
+            "bus": 0,
+            "slot": 9,
+            "domain": 0,
+            "function": 0
+          },
+          "dev": "/dev/sda1",
+          "target": 0
+        }
+      ],
+      "used-bytes": 53917696,
+      "total-bytes": 371366912
+    },
+    {
+      "name": "sda6",
+      "type": "ext4",
+      "mountpoint": "/",
+      "disk": [
+        {
+          "serial": "0QEMU_QEMU_HARDDISK_93a86081946d4b7fb64e",
+          "bus-type": "scsi",
+          "bus": 0,
+          "unit": 0,
+          "pci-controller": {
+            "bus": 0,
+            "slot": 9,
+            "domain": 0,
+            "function": 0
+          },
+          "dev": "/dev/sda6",
+          "target": 0
+        }
+      ],
+      "used-bytes": 1500401664,
+      "total-bytes": 4160720896
+    }
+  ]
+}
