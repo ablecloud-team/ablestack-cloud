@@ -4675,13 +4675,40 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if(instance.getVmId()==null)throw new InvalidParameterValueException("AD principal requires a running joined Storage Service instance");requireStorageAdIdentityFeatures(instance);
         StorageIdentityDomainVO domain=storageIdentityDomainDao.findByInstanceId(instance.getId());if(domain==null||domain.getJoinState()!=StorageServiceInstance.DomainJoinState.JOINED)throw new InvalidParameterValueException("AD principal requires a joined configured domain");
         StorageServiceOperationVO operation=storageWriterOperation.get();if(operation==null)throw new CloudRuntimeException("AD principal lookup requires the reserved configuration writer scope");
-        JsonObject scope=operationReservationScope(instance,operation),configured=parseJsonObject(domain.getConfigJson()),previous=configured.has("identityReceipt")&&configured.get("identityReceipt").isJsonObject()?configured.getAsJsonObject("identityReceipt"):null;
-        if(previous==null||getJsonString(previous,"domainSid")==null||!previous.has("idmapPolicy"))throw new CloudRuntimeException("AD joined domain lacks its protected public identity receipt; re-attest the domain before editing AD ACLs");
-        JsonObject request=scope.deepCopy();String expectedSid=getJsonString(previous,"domainSid");request.addProperty("expectedDomainSid",expectedSid);request.addProperty("expectedRealm",domain.getDomainName().toUpperCase(Locale.ROOT));
-        JsonObject observed=rootGuest(instance,"identity domain inspect",request,30);JsonObject joined=StorageAdIdentityProof.joined(observed,scope,domain.getDomainName(),expectedSid,previous==null?null:previous.getAsJsonObject("idmapPolicy"),System.currentTimeMillis()/1000.0);
-        for(String field:List.of("machineSid","machineAccountSid","workgroup","netbiosName","dnsAliases","servicePrincipals"))if(!previous.has(field)||!previous.get(field).equals(joined.get(field)))throw new CloudRuntimeException("AD joined identity or service binding changed; re-attest before principal mutation");
-        request.addProperty("expectedDomainSid",getJsonString(joined,"domainSid"));request.addProperty("principalType",type.name());request.addProperty("principal",principal);JsonObject resolved=rootGuest(instance,"identity principal resolve",request,30);
+        JsonObject scope=operationReservationScope(instance,operation),joined=inspectBoundStorageAdDomain(instance,domain,scope),request=scope.deepCopy();
+        request.addProperty("expectedDomainSid",getJsonString(joined,"domainSid"));request.addProperty("expectedRealm",getJsonString(joined,"realm"));request.addProperty("principalType",type.name());request.addProperty("principal",principal);JsonObject resolved=rootGuest(instance,"identity principal resolve",request,30);
         return StorageAdIdentityProof.principal(resolved,scope,joined,type.name(),principal,System.currentTimeMillis()/1000.0);
+    }
+    protected JsonObject inspectBoundStorageAdDomain(StorageServiceInstanceVO instance,StorageIdentityDomainVO domain,JsonObject scope) {
+        if(domain==null||domain.getInstanceId()!=instance.getId()||domain.getJoinState()!=StorageServiceInstance.DomainJoinState.JOINED)throw new CloudRuntimeException("Fresh AD observation requires the exact configured joined domain");
+        JsonObject configured=parseJsonObject(domain.getConfigJson()),previous=getJsonObject(configured,"identityReceipt");
+        if(getJsonString(previous,"domainSid")==null||!previous.has("idmapPolicy")||!previous.has("scope")||!previous.get("scope").isJsonObject()
+                ||!instance.getUuid().equals(getJsonString(previous.getAsJsonObject("scope"),"instanceUuid")))throw new CloudRuntimeException("AD joined domain lacks its protected public instance identity receipt");
+        JsonObject request=scope.deepCopy();String expectedSid=getJsonString(previous,"domainSid");request.addProperty("expectedDomainSid",expectedSid);request.addProperty("expectedRealm",domain.getDomainName().toUpperCase(Locale.ROOT));
+        JsonObject observed=rootGuest(instance,"identity domain inspect",request,30),joined=StorageAdIdentityProof.joined(observed,scope,domain.getDomainName(),expectedSid,previous.getAsJsonObject("idmapPolicy"),System.currentTimeMillis()/1000.0);
+        for(String field:List.of("machineSid","machineAccountSid","workgroup","netbiosName","dnsAliases","servicePrincipals"))if(!previous.has(field)||!previous.get(field).equals(joined.get(field)))throw new CloudRuntimeException("AD joined identity or service binding changed; re-attest before principal mutation");
+        return joined;
+    }
+    private JsonObject settledAdObservationGeneration(StorageServiceInstanceVO instance) {
+        JsonObject status=nativeConfigurationGeneration(instance,null,"status"),generation=getJsonObject(status,"generation");
+        JsonElement revision=generation.get("revision");
+        if(!"IN_SYNC".equals(getJsonString(status,"generationStatus"))||getJsonString(status,"pendingOperationUuid")!=null
+                ||!instance.getUuid().equals(getJsonString(generation,"instanceUuid"))||revision==null||!revision.isJsonPrimitive()
+                ||!revision.getAsJsonPrimitive().isNumber()||!revision.getAsString().matches("[0-9]+")||revision.getAsLong()<0
+                ||getJsonString(status,"configurationSha256")==null||!getJsonString(status,"configurationSha256").matches("[a-f0-9]{64}")
+                ||getJsonString(status,"bootId")==null||!getJsonString(status,"bootId").matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"))throw new CloudRuntimeException("Fresh AD observation requires its settled native generation and current boot identity");
+        return status;
+    }
+    private JsonObject adObservationInstanceBinding(StorageServiceInstanceVO instance) {
+        JsonObject binding=new JsonObject();binding.addProperty("instanceUuid",instance.getUuid());binding.addProperty("vmId",instance.getVmId());binding.addProperty("accountId",instance.getAccountId());binding.addProperty("domainId",instance.getDomainId());return binding;
+    }
+    protected JsonObject freshStorageAdDomainReceipt(StorageServiceInstanceVO instance,StorageIdentityDomainVO domain) {
+        if(instance.getVmId()==null)throw new CloudRuntimeException("Fresh AD observation requires a running SystemVM");requireStorageAdIdentityFeatures(instance);
+        JsonObject instanceBinding=adObservationInstanceBinding(instance),before=settledAdObservationGeneration(instance),scope=new JsonObject();scope.addProperty("instanceUuid",instance.getUuid());scope.addProperty("operationUuid",java.util.UUID.randomUUID().toString());scope.add("revision",before.getAsJsonObject("generation").get("revision").deepCopy());
+        JsonObject joined=inspectBoundStorageAdDomain(instance,domain,scope),after=settledAdObservationGeneration(instance);
+        if(!instanceBinding.equals(adObservationInstanceBinding(requireInstance(instance.getId())))||!before.get("generation").equals(after.get("generation"))||!before.get("configurationSha256").equals(after.get("configurationSha256"))
+                ||!before.get("bootId").equals(after.get("bootId"))||!before.get("bootId").equals(joined.get("bootId")))throw new CloudRuntimeException("Native generation or boot changed during fresh AD observation");
+        return joined;
     }
     protected String buildBoundSmbAclConfig(StorageServiceInstance.PrincipalType type,String password,JsonObject identity) {
         JsonObject config=parseJsonObject(buildSmbAclConfigJson(type,password));if(identity!=null)config.add("adPrincipalReceipt",identity.deepCopy());return config.toString();
@@ -4940,6 +4967,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
 
     @Override
     public ListResponse<StorageIdentityDomainResponse> listStorageServiceDomainStatus(final ListStorageServiceDomainStatusCmd cmd) {
+        if(Boolean.TRUE.equals(cmd.getFresh())&&cmd.getInstanceId()==null)throw new InvalidParameterValueException("Fresh AD observation requires one explicit Storage Service instance");
         final List<StorageIdentityDomainVO> domains = new ArrayList<>();
         if (cmd.getInstanceId() != null) {
             final StorageServiceInstanceVO instance = requireInstance(cmd.getInstanceId());
@@ -4954,7 +4982,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
         final List<StorageIdentityDomainResponse> responses = new ArrayList<>();
         for (StorageIdentityDomainVO domain : domains) {
-            responses.add(createIdentityDomainResponse(domain));
+            StorageIdentityDomainResponse response=createIdentityDomainResponse(domain);
+            if(Boolean.TRUE.equals(cmd.getFresh()))response.setIdentityReceipt(freshStorageAdDomainReceipt(storageServiceInstanceDao.findById(domain.getInstanceId()),domain));
+            responses.add(response);
         }
         final ListResponse<StorageIdentityDomainResponse> response = new ListResponse<>();
         response.setResponses(responses, responses.size());
