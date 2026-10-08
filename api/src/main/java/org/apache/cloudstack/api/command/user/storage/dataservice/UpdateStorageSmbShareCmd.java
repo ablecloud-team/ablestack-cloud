@@ -187,10 +187,7 @@ public class UpdateStorageSmbShareCmd extends BaseStorageServiceAsyncCmd impleme
         return directoryMode;
     }
 
-    @Override
-    public long getEntityOwnerId() {
-        return 0;
-    }
+
 
     @Override
     public String getEventType() {

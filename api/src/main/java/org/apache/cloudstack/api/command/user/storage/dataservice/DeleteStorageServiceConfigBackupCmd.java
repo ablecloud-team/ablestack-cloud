@@ -40,7 +40,7 @@ public class DeleteStorageServiceConfigBackupCmd extends BaseStorageServiceAsync
     public Long getArtifactId() { return artifactId; }
     public BaseCmd getBaseCmd() { return this; }
     public String getConfigAction() { return "DELETE_BACKUP"; }
-    public long getEntityOwnerId() { return 0; }
+
     public String getEventType() { return "STORAGE.CONFIG.DELETE_BACKUP"; }
     public String getEventDescription() { return "Storage Service configuration delete_backup"; }
     public void execute() {

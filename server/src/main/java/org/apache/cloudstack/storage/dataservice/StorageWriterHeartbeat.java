@@ -24,6 +24,7 @@ import org.apache.cloudstack.storage.dataservice.dao.StorageServiceOperationDao;
 /** A live manager renews only the persistent heartbeat while guest calls or promotion can block. */
 public final class StorageWriterHeartbeat implements AutoCloseable {
     private final ScheduledFuture<?> future;
+    private final java.util.concurrent.atomic.AtomicReference<RuntimeException> renewalFailure = new java.util.concurrent.atomic.AtomicReference<>();
     public StorageWriterHeartbeat(StorageServiceOperationVO operation, StorageServiceOperationDao operations,
             ScheduledExecutorService executor, java.util.function.Consumer<RuntimeException> unavailable) {
         this(operation, operations, executor, unavailable, () -> { });
@@ -37,10 +38,15 @@ public final class StorageWriterHeartbeat implements AutoCloseable {
             try {
                 operations.touchHeartbeat(id, uuid, instanceId);
                 renewResourceLease.run();
+                renewalFailure.set(null);
             } catch (RuntimeException failure) {
+                renewalFailure.set(failure);
                 unavailable.accept(failure);
             }
         }, 20, 20, TimeUnit.SECONDS);
+    }
+    public void requireAvailable() {
+        if (renewalFailure.get() != null) throw new com.cloud.utils.exception.CloudRuntimeException("Writer heartbeat or native lease renewal is unavailable; effect/promotion is held");
     }
     public void close() { future.cancel(false); }
 }

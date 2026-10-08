@@ -32,7 +32,7 @@ public class UpdateStorageNfsServiceSettingsCmd extends BaseStorageServiceAsyncC
     public Long getInstanceId(){return instanceId;}
     @Parameter(name="idmappingmode",type=CommandType.STRING,required=true) private String idMappingMode;
     public String getIdMappingMode(){return idMappingMode;}
-    public long getEntityOwnerId(){return 0;}
+
     public String getEventType(){return "STORAGE.SERVICE.NFS.SETTINGS";}
     public String getEventDescription(){return "Changing service-wide NFS owner mapping";}
     public void execute(){StorageNfsServiceSettingsResponse response=service.updateStorageNfsServiceSettings(this);response.setResponseName(getCommandName());setResponseObject(response);}

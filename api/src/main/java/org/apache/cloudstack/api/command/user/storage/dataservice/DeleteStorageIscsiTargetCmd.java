@@ -46,10 +46,7 @@ public class DeleteStorageIscsiTargetCmd extends BaseStorageServiceAsyncCmd impl
         return id;
     }
 
-    @Override
-    public long getEntityOwnerId() {
-        return 0;
-    }
+
 
     @Override
     public String getEventType() {

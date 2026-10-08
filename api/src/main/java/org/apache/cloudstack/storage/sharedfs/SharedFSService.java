@@ -84,5 +84,10 @@ public interface SharedFSService {
 
     SharedFS getSharedFSForVmId(long vmId);
 
+    /** Internal VM lifecycle entrypoints must preserve pending SharedFS DATA recovery. */
+    void requireVmLifecycleSafety(long vmId, String operation);
+
+    Long getVmStorageServiceSyncId(long vmId);
+
     SharedFS updateSharedFSPostRestore(long sharedFsId, long volumeId);
 }

@@ -104,10 +104,7 @@ public class UpdateStorageIscsiTargetCmd extends BaseStorageServiceAsyncCmd impl
         return listenerPorts;
     }
 
-    @Override
-    public long getEntityOwnerId() {
-        return 0;
-    }
+
 
     @Override
     public String getEventType() {

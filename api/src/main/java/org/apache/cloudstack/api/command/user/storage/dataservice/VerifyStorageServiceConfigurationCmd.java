@@ -38,7 +38,7 @@ public class VerifyStorageServiceConfigurationCmd extends BaseStorageServiceAsyn
     public Long getInstanceId() { return instanceId; }
     public BaseCmd getBaseCmd() { return this; }
     public String getConfigAction() { return "VERIFY_BASELINE"; }
-    public long getEntityOwnerId() { return 0; }
+
     public String getEventType() { return "STORAGE.CONFIG.VERIFY"; }
     public String getEventDescription() { return "Verify current Storage Service configuration"; }
     public void execute() {

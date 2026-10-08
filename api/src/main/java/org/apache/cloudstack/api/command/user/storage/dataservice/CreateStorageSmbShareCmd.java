@@ -227,10 +227,7 @@ public class CreateStorageSmbShareCmd extends BaseStorageServiceAsyncCmd impleme
         return aclPassword;
     }
 
-    @Override
-    public long getEntityOwnerId() {
-        return 0;
-    }
+
 
     @Override
     public String getEventType() {

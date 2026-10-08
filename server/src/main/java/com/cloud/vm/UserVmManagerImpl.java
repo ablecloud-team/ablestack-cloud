@@ -986,6 +986,23 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
     }
 
     @Inject private org.apache.cloudstack.storage.sharedfs.dao.SharedFSDao staticSharedFsDao;
+    @Inject private javax.inject.Provider<org.apache.cloudstack.storage.sharedfs.SharedFSService> storageFsLifecycleSafety;
+
+    @Override
+    public Long getStorageServiceSyncIdForVm(Long vmId) {
+        if (vmId == null) return null;
+        UserVmVO vm = _vmDao.findById(vmId);
+        if (vm == null || !UserVmManager.SHAREDFSVM.equals(vm.getUserVmType())) return null;
+        _accountMgr.checkAccess(CallContext.current().getCallingAccount(), null, false, vm);
+        return storageFsLifecycleSafety.get().getVmStorageServiceSyncId(vmId);
+    }
+
+    protected void requireStorageVmLifecycleSafety(UserVmVO vm, String operation) {
+        if (!UserVmManager.SHAREDFSVM.equals(vm.getUserVmType())) return;
+        _accountMgr.checkAccess(CallContext.current().getCallingAccount(), null, false, vm);
+        storageFsLifecycleSafety.get().requireVmLifecycleSafety(vm.getId(), operation);
+    }
+
 
     /** Guest-reported aliases cannot replace an operator-declared SharedFS primary address. */
     protected boolean preserveDeclaredSharedFsPrimary(long vmId, NicVO nic) {
@@ -1416,6 +1433,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             return null;
         }
 
+        requireStorageVmLifecycleSafety(vm, "REBOOT");
         if (vm.getState() == State.Running && vm.getHostId() != null) {
             collectVmDiskAndNetworkStatistics(vm, State.Running);
 
@@ -2960,6 +2978,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
 
     @Override
     public boolean expunge(UserVmVO vm) {
+        requireStorageVmLifecycleSafety(vm, "EXPUNGE");
         vm = _vmDao.acquireInLockTable(vm.getId());
         if (vm == null) {
             return false;
@@ -6439,6 +6458,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         if (vm == null) {
             throw new InvalidParameterValueException("unable to find a virtual machine with id " + vmId);
         }
+        requireStorageVmLifecycleSafety(vm, "STOP");
         checkFastCloneOperationAllowed(vmId, "stop");
 
         if (forced) {
@@ -6807,6 +6827,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             throw ex;
         }
 
+        requireStorageVmLifecycleSafety(vm, "DESTROY");
         if (vm.getState() == State.Destroyed || vm.getState() == State.Expunging) {
             logger.trace("Vm {} is already destroyed", vm);
             return vm;
@@ -8058,6 +8079,8 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         if (vm == null) {
             throw new InvalidParameterValueException("Unable to find the VM by id=" + vmId);
         }
+        UserVmVO lifecycleVm = _vmDao.findById(vmId);
+        if (lifecycleVm != null) requireStorageVmLifecycleSafety(lifecycleVm, "MIGRATE");
         // business logic
         if (vm.getState() != State.Running) {
             if (logger.isDebugEnabled()) {
@@ -8687,6 +8710,8 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             throw new InvalidParameterValueException("Unable to find the VM by ID " + vmId);
         }
 
+        UserVmVO lifecycleVm = _vmDao.findById(vmId);
+        if (lifecycleVm != null) requireStorageVmLifecycleSafety(lifecycleVm, "MIGRATE");
         // OfflineVmwareMigration: this would be it ;) if multiple paths exist: unify
         if (vm.getState() != State.Running) {
             // OfflineVmwareMigration: and not vmware
@@ -9724,6 +9749,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
     }
 
     public UserVm restoreVMInternal(Account caller, UserVmVO vm, Long newTemplateId, Long rootDiskOfferingId, boolean expunge, Map<String, String> details) throws InsufficientCapacityException, ResourceUnavailableException, ResourceAllocationException {
+        requireStorageVmLifecycleSafety(vm, "RESTORE");
         checkFastCloneOperationAllowed(vm.getId(), "restore");
         return _itMgr.restoreVirtualMachine(vm.getId(), newTemplateId, rootDiskOfferingId, expunge, details);
     }

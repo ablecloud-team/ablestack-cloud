@@ -66,10 +66,7 @@ public class ResizeStorageServiceBackingVolumeCmd extends BaseStorageServiceAsyn
         return size;
     }
 
-    @Override
-    public long getEntityOwnerId() {
-        return 0;
-    }
+
 
     @Override
     public String getEventType() {

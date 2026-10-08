@@ -58,10 +58,7 @@ public class DetachStorageServiceBackingVolumeCmd extends BaseStorageServiceAsyn
         return volumeId;
     }
 
-    @Override
-    public long getEntityOwnerId() {
-        return 0;
-    }
+
 
     @Override
     public String getEventType() {

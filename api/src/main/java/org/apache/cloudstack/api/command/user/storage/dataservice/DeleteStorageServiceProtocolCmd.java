@@ -69,10 +69,7 @@ public class DeleteStorageServiceProtocolCmd extends BaseStorageServiceAsyncCmd 
         return port;
     }
 
-    @Override
-    public long getEntityOwnerId() {
-        return 0;
-    }
+
 
     @Override
     public String getEventType() {

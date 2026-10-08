@@ -46,7 +46,7 @@ public class ApplyStorageServiceConfigRestoreCmd extends BaseStorageServiceAsync
     public String getCredentials() { return credentials; }
     public BaseCmd getBaseCmd() { return this; }
     public String getConfigAction() { return "APPLY"; }
-    public long getEntityOwnerId() { return 0; }
+
     public String getEventType() { return "STORAGE.CONFIG.APPLY"; }
     public String getEventDescription() { return "Storage Service configuration apply"; }
     @Override

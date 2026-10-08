@@ -46,7 +46,7 @@ public class RestoreStorageServiceLastKnownGoodCmd extends BaseStorageServiceAsy
     public String getCredentials() { return credentials; }
     public BaseCmd getBaseCmd() { return this; }
     public String getConfigAction() { return "RESTORE_LKG"; }
-    public long getEntityOwnerId() { return 0; }
+
     public String getEventType() { return "STORAGE.CONFIG.RESTORE_LKG"; }
     public String getEventDescription() { return "Storage Service configuration restore_lkg"; }
     @Override

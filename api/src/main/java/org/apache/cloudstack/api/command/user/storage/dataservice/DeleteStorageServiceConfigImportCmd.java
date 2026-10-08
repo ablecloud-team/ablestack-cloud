@@ -40,7 +40,7 @@ public class DeleteStorageServiceConfigImportCmd extends BaseStorageServiceAsync
     public Long getArtifactId() { return artifactId; }
     public BaseCmd getBaseCmd() { return this; }
     public String getConfigAction() { return "DELETE_IMPORT"; }
-    public long getEntityOwnerId() { return 0; }
+
     public String getEventType() { return "STORAGE.CONFIG.DELETE_IMPORT"; }
     public String getEventDescription() { return "Storage Service configuration delete_import"; }
     public void execute() {

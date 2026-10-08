@@ -69,6 +69,13 @@ public abstract class BaseStoragePosixDirectoryPolicyCmd extends BaseStorageServ
     private Long anonUid;
     @Parameter(name = "anongid", type = CommandType.LONG, description = "NFS anonymous GID recommendation context")
     private Long anonGid;
+    @Override
+    public void validateSpecificParameters(java.util.Map<String, String> params) {
+        super.validateSpecificParameters(params);
+        if (params.containsKey("previewtoken") && !com.cloud.utils.crypt.EncryptionSecretKeyChecker.useEncryption()) {
+            throw new com.cloud.exception.InvalidParameterValueException("Permission approval tokens require encrypted persistent async requests");
+        }
+    }
     public Long getExportId() { return exportId; }
     public String getPreviewToken() { return previewToken; }
     public Boolean getApplyConfirmation() { return applyConfirmation; }

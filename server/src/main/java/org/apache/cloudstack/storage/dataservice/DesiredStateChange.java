@@ -33,6 +33,7 @@ public final class DesiredStateChange {
         void applyPrevious();
         default void ensureRollbackSafe() { }
         default void checkControl(StorageServiceOperationVO operation) { }
+        default void beginMutation(StorageServiceOperationVO operation) { }
         default void started(StorageServiceOperationVO operation) { }
         default void finished() { }
         default void prepareNativeCheckpoint(StorageServiceOperationVO operation) { }
@@ -120,9 +121,11 @@ public final class DesiredStateChange {
                     phase(operation, "PREPARED", 15);
                     runtime.prepareNativeCheckpoint(operation);
                     runtime.checkControl(operation);
+                    runtime.beginMutation(operation);
                     mutated = true;
                     phase(operation, "APPLYING", 30);
                     T response = change.get();
+                    runtime.checkControl(operation);
                     phase(operation, "VERIFYING", 80);
                     runtime.verify();
                     runtime.verifyNativeGeneration(operation);
@@ -130,6 +133,7 @@ public final class DesiredStateChange {
                     com.google.gson.JsonElement serialized=gson.toJsonTree(response);
                     if(requestFingerprint!=null){com.google.gson.JsonObject result=new com.google.gson.JsonObject();result.addProperty("_requestFingerprint",requestFingerprint);result.add("_response",serialized);serialized=result;}
                     operation.setResultJson(serialized.toString());
+                    runtime.checkControl(operation);
                     runtime.promoteVerifiedConfiguration(operation);
                     // The verified configuration path commits COMPLETE and its LKG pointer together.
                     if (!"COMPLETE".equals(operation.getState())) {

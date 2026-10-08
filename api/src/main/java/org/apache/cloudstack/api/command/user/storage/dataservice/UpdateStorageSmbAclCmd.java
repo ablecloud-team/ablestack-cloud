@@ -68,10 +68,7 @@ public class UpdateStorageSmbAclCmd extends BaseStorageServiceAsyncCmd implement
         return password;
     }
 
-    @Override
-    public long getEntityOwnerId() {
-        return 0;
-    }
+
 
     @Override
     public String getEventType() {

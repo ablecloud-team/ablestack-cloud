@@ -91,4 +91,46 @@ public class StorageOperationControlTest {
         Mockito.when(manager.instance.getUuid()).thenReturn("instance");
         Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,()->manager.requireOperationReservationScope(manager.instance,operation,observed));
     }
+    @Test public void explicitFormattingAndBackupRestoreActionsUseTheirOwnMaterializedResourceProfiles() {
+        org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageNfsExportCmd format=Mockito.mock(org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageNfsExportCmd.class);Mockito.when(format.getImportMode()).thenReturn("FORMAT_IF_EMPTY");
+        Assert.assertEquals(StorageOperationResourceBudget.Work.FILESYSTEM_FORMAT,manager.operationResourceWork("createstoragenfsexportresponse",format));
+        Assert.assertEquals(StorageOperationResourceBudget.Work.BACKUP,manager.operationResourceWork("createstorageserviceconfigbackupresponse",null));
+        Assert.assertEquals(StorageOperationResourceBudget.Work.RESTORE,manager.operationResourceWork("applystorageserviceconfigrestoreresponse",null));
+        Assert.assertEquals(StorageOperationResourceBudget.Work.ROOT_UPGRADE,manager.operationResourceWork("ROOT_TEMPLATE_UPGRADE",null));
+        Assert.assertEquals(StorageOperationResourceBudget.Work.RUNTIME_UPGRADE,manager.operationResourceWork("RUNTIME_UPGRADE",null));
+        Assert.assertEquals(StorageOperationResourceBudget.Work.SCALE,manager.operationResourceWork("SHAREDFS_ONLINE_SCALE",null));
+        Assert.assertTrue(manager.operationRequiresDrain(null,"createstorageiscsitargetresponse"));
+    }
+    private JsonObject lease() {
+        Mockito.when(manager.instance.getUuid()).thenReturn("instance");
+        JsonObject lease=new JsonObject();lease.add("scope",manager.operationReservationScope(manager.instance,operation));lease.addProperty("reservationAcquired",true);lease.addProperty("logicalReservationOnly",true);lease.addProperty("leaseExpiresAt",System.currentTimeMillis()+90_000);
+        JsonObject observed=new JsonObject();observed.addProperty("generatedEpoch",System.currentTimeMillis()/1000.0);observed.addProperty("memoryAvailableBytes",2L<<30);observed.addProperty("stagingFreeBytes",3L<<30);observed.addProperty("loadPerCpu",0.25);lease.add("observed",observed);return lease;
+    }
+    @Test public void expiredStaleUnknownAndNonLogicalLeasesCannotAuthorizeEffects() {
+        JsonObject lease=lease();manager.requireFreshOperationLease(lease);
+        lease.addProperty("leaseExpiresAt",System.currentTimeMillis()-1);Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,()->manager.requireFreshOperationLease(lease));
+        lease.addProperty("leaseExpiresAt",System.currentTimeMillis()+90_000);lease.getAsJsonObject("observed").addProperty("generatedEpoch",1);Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,()->manager.requireFreshOperationLease(lease));
+        JsonObject unknown=lease();unknown.getAsJsonObject("observed").remove("memoryAvailableBytes");Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,()->manager.requireFreshOperationLease(unknown));
+        JsonObject stringFlag=lease();stringFlag.addProperty("logicalReservationOnly","true");Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,()->manager.requireFreshOperationLease(stringFlag));
+        JsonObject physical=lease();physical.addProperty("logicalReservationOnly",false);Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,()->manager.requireFreshOperationLease(physical));
+    }
+    @Test public void cancellationAndApplyPhaseShareTheSameControlRowCasBoundary() {
+        control.setLeaseJson(lease().toString());control.setCancelRequested(true);
+        try(MockedStatic<Transaction> ignored=transaction()) {Assert.assertThrows(StorageOperationCancelledException.class,()->manager.enterStorageMutationBoundary(operation));}
+        Mockito.verify(operations,Mockito.never()).update(Mockito.anyLong(),Mockito.any());
+        control.setCancelRequested(false);Mockito.when(operations.update(Mockito.anyLong(),Mockito.any())).thenReturn(true);
+        try(MockedStatic<Transaction> ignored=transaction()) {manager.enterStorageMutationBoundary(operation);}
+        Assert.assertEquals("APPLYING",operation.getPhase());Assert.assertFalse(manager.operationCancelable(operation));
+    }
+
+    @Test public void nativeResourceBlockersAreDurableAndCannotReachAWriterEffect() {
+        Mockito.when(manager.instance.getVmId()).thenReturn(7L);Mockito.when(manager.instance.getUuid()).thenReturn("instance");
+        JsonObject policy=new JsonObject();policy.add("requirements",StorageOperationResourceBudget.estimate(StorageOperationResourceBudget.Work.CONFIGURATION,100,0,0,1,false).request());control.setPolicyJson(policy.toString());
+        JsonObject reply=lease();reply.addProperty("success",false);reply.addProperty("reservationSupported",true);reply.addProperty("reservationAcquired",false);com.google.gson.JsonArray blockers=new com.google.gson.JsonArray();blockers.add("MEMORY_HEADROOM");reply.add("blockers",blockers);
+        Mockito.when(guest.dispatch(Mockito.any())).thenAnswer(call->{StorageServiceGuestCommand command=call.getArgument(0);Assert.assertEquals("operation reservation acquire",command.getOperation());Assert.assertEquals(5,command.getTimeoutSeconds());return new StorageServiceGuestCommandResult(false,"resource headroom blocked",reply.toString());});
+        try(MockedStatic<Transaction> ignored=transaction()) {Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,()->manager.acquireOperationResourceReservation(manager.instance,operation));}
+        Assert.assertEquals("MEMORY_HEADROOM",com.google.gson.JsonParser.parseString(control.getPolicyJson()).getAsJsonObject().getAsJsonArray("blockers").get(0).getAsString());
+        Assert.assertFalse(com.google.gson.JsonParser.parseString(control.getLeaseJson()).getAsJsonObject().get("reservationAcquired").getAsBoolean());Mockito.verify(operations,Mockito.never()).update(Mockito.anyLong(),Mockito.any());
+    }
+
 }

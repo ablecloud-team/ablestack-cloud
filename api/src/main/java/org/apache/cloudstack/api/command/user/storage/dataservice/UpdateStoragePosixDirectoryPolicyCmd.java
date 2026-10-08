@@ -23,7 +23,7 @@ import org.apache.cloudstack.api.response.StoragePosixDirectoryPolicyResponse;
 
 @APICommand(name = "updateStoragePosixDirectoryPolicy", responseObject = StoragePosixDirectoryPolicyResponse.class,
         description = "Update a protocol-neutral POSIX directory policy; existing child data is preserved.", since = "4.23.0",
-        requestHasSensitiveInfo = false, responseHasSensitiveInfo = false,
+        requestHasSensitiveInfo = true, responseHasSensitiveInfo = true,
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
 public class UpdateStoragePosixDirectoryPolicyCmd extends BaseStoragePosixDirectoryPolicyCmd {
     public String getPolicyAction() { return "UPDATE"; }

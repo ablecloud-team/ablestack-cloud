@@ -75,10 +75,7 @@ public class CreateStorageNvmeOfSubsystemCmd extends BaseStorageServiceAsyncCmd 
         return transport;
     }
 
-    @Override
-    public long getEntityOwnerId() {
-        return 0;
-    }
+
 
     @Override
     public String getEventType() {

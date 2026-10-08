@@ -78,10 +78,7 @@ public class EnableStorageServiceProtocolCmd extends BaseStorageServiceAsyncCmd 
         return protocolMode;
     }
 
-    @Override
-    public long getEntityOwnerId() {
-        return 0;
-    }
+
 
     @Override
     public String getEventType() {

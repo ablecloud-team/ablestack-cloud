@@ -23,7 +23,7 @@ import org.apache.cloudstack.api.response.StoragePosixDirectoryPolicyResponse;
 
 @APICommand(name = "createStoragePosixDirectoryPolicy", responseObject = StoragePosixDirectoryPolicyResponse.class,
         description = "Create a protocol-neutral POSIX directory policy; existing child data is preserved.", since = "4.23.0",
-        requestHasSensitiveInfo = false, responseHasSensitiveInfo = false,
+        requestHasSensitiveInfo = true, responseHasSensitiveInfo = true,
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
 public class CreateStoragePosixDirectoryPolicyCmd extends BaseStoragePosixDirectoryPolicyCmd {
     public String getPolicyAction() { return "CREATE"; }
