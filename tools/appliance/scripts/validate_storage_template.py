@@ -23,6 +23,7 @@ import hashlib
 import json
 import re
 from pathlib import Path
+from storage_identity_seed import identity_seed_absence
 
 p = argparse.ArgumentParser()
 p.add_argument("image_root", type=Path)
@@ -31,6 +32,8 @@ a = p.parse_args()
 root = a.image_root
 manifest = json.loads((root / "etc/ablestack-storage/template-manifest.json").read_text())
 cap = manifest["registrationDetails"]
+if manifest.get("freshIdentitySeedAbsence") != identity_seed_absence(root):
+    raise SystemExit("Template identity seed absence evidence differs from the image")
 for key, expected in {
     "storage.service.template": "true", "storage.service.runtime.abi": "1",
     "storage.service.runtime.signed.readback": "true",
@@ -41,6 +44,7 @@ for key, expected in {
     "storage.service.configuration.generation.adopt": "true",
     "storage.service.configuration.generation.align": "true",
     "storage.service.nvme.target.auth": "true",
+    "storage.service.local.identity.seed.absent": "true",
 }.items():
     if cap.get(key) != expected:
         raise SystemExit("Unsupported template capability: " + key)

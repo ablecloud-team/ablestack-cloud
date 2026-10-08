@@ -25,6 +25,7 @@ import os
 import re
 import xml.etree.ElementTree as ET
 from pathlib import Path
+from storage_identity_seed import identity_seed_absence
 import subprocess
 
 ENTRYPOINTS = ("ablestack-storagectl", "ablestack-storage-boot-reconcile", "ablestack-storage-monitor")
@@ -34,6 +35,7 @@ p.add_argument("--source-root", type=Path, required=True)
 p.add_argument("--version", required=True)
 p.add_argument("--runtime-version", required=True)
 a = p.parse_args()
+seed_absence = identity_seed_absence(a.image_root)
 pom_path = a.source_root / "pom.xml"
 declared_version = ET.parse(pom_path).getroot().findtext("{*}version") or ""
 version_match = re.fullmatch(r"([0-9]+\.[0-9]+\.[0-9]+(?:\.[0-9]+)?)(?:-[A-Za-z][A-Za-z0-9_.-]*)?", declared_version)
@@ -68,6 +70,7 @@ capabilities = {
     "storage.service.nvme.target.auth": "true",
     "storage.service.kernel.version": lock["kernelVersion"],
     "storage.service.source.commit": commit,
+    "storage.service.local.identity.seed.absent": "true",
 }
 source_files = {"pom.xml": pom_sha256}
 for base in ("systemvm/debian", "tools/appliance/systemvmtemplate", "tools/appliance/scripts", "tools/build"):
@@ -83,7 +86,7 @@ manifest = {"sourceTreeSha256": source_tree_sha, "sourceFiles": source_files, "m
             "platformVersion": platform_version, "productVersion": platform_version,
             "platformVersionSource": {"path": "pom.xml", "sha256": pom_sha256, "declaredVersion": declared_version},
             "architecture": "x86_64", "hypervisor": "KVM",
-            "kernel": lock, "registrationDetails": capabilities, "runtimeFiles": files}
+            "kernel": lock, "registrationDetails": capabilities, "runtimeFiles": files, "freshIdentitySeedAbsence": seed_absence}
 output = a.image_root / "etc/ablestack-storage/template-manifest.json"
 output.parent.mkdir(parents=True, exist_ok=True)
 output.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
