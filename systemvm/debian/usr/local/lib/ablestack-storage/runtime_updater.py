@@ -173,6 +173,7 @@ class RuntimeUpdater:
             "success": True,
             "runtimeAbiVersion": RUNTIME_ABI_VERSION,
             "desiredStateSchemaVersion": DESIRED_STATE_SCHEMA_VERSION,
+            "signedRuntimeReadback": True,
             "supportedServiceImpacts": sorted(SUPPORTED_IMPACTS),
             "currentVersion": self.current_version(),
             "previousVersion": self.current_version(self.previous),
@@ -181,7 +182,7 @@ class RuntimeUpdater:
             ),
             "commands": [
                 "capabilities", "bootstrap", "begin", "status", "finalize", "verify",
-                "preflight", "activate", "rollback", "cleanup",
+                "preflight", "activate", "rollback", "cleanup", "readback",
             ],
         }
 
@@ -395,9 +396,10 @@ class RuntimeUpdater:
                     if result.returncode != 0:
                         raise RuntimeUpgradeError("RELEASE_SELF_TEST_FAILED", f"shell syntax check failed: {name}")
                 elif interpreter.endswith("python3"):
-                    result = subprocess.run([interpreter, "-m", "py_compile", str(path)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                    if result.returncode != 0:
-                        raise RuntimeUpgradeError("RELEASE_SELF_TEST_FAILED", f"python syntax check failed: {name}")
+                    try:
+                        compile(path.read_bytes(), str(path), "exec")
+                    except (SyntaxError, ValueError) as invalid:
+                        raise RuntimeUpgradeError("RELEASE_SELF_TEST_FAILED", f"python syntax check failed: {name}") from invalid
 
     def verify(self, request):
         state = self.read_state(request)
@@ -469,6 +471,45 @@ class RuntimeUpdater:
                                  currentVersion=target_version, activatedAt=int(time.time()))
         return {"success": True, **state}
 
+    def readback(self, request):
+        state = self.read_state(request)
+        if state.get("phase") not in {"VERIFIED", "PREFLIGHT_OK", "COMPLETE"}:
+            raise RuntimeUpgradeError("INVALID_PHASE", "signed runtime readback requires a verified transaction")
+        expected = {
+            "bundleVersion": require_identifier(request.get("bundleVersion"), "bundleVersion"),
+            "archiveSha256": require_sha256(request.get("archiveSha256"), "archiveSha256"),
+            "manifestSha256": require_sha256(request.get("manifestSha256"), "manifestSha256"),
+        }
+        if any(state.get(key) != value for key, value in expected.items()):
+            raise RuntimeUpgradeError("RUNTIME_READBACK_SCOPE_MISMATCH", "signed runtime readback transaction scope changed")
+        transaction = self.transaction_dir(request)
+        if sha256_file(transaction / "manifest.json") != expected["manifestSha256"]:
+            raise RuntimeUpgradeError("MANIFEST_HASH_MISMATCH", "staged manifest hash differs from its pinned source")
+        if sha256_file(transaction / "bundle.tar.gz") != expected["archiveSha256"]:
+            raise RuntimeUpgradeError("ARCHIVE_HASH_MISMATCH", "staged bundle hash differs from its pinned source")
+        manifest = self.load_manifest(transaction)
+        if manifest["bundleVersion"] != expected["bundleVersion"]:
+            raise RuntimeUpgradeError("MANIFEST_INVALID", "signed runtime manifest version differs from its pinned source")
+        self.verify_signature(transaction, manifest)
+        if self.current_version() != expected["bundleVersion"]:
+            raise RuntimeUpgradeError("SIGNED_RUNTIME_NOT_INSTALLED", "current runtime is not the pinned signed release")
+        release = self.releases / expected["bundleVersion"]
+        self.verify_release(manifest, release)
+        for name in ENTRYPOINTS:
+            entrypoint = self.entrypoint_root / name
+            expected_link = self.current / name
+            try:
+                literal = Path(os.path.abspath(entrypoint.parent / os.readlink(entrypoint)))
+                bound = entrypoint.resolve(strict=True)
+                required = (release / name).resolve(strict=True)
+            except (OSError, RuntimeError) as failure:
+                raise RuntimeUpgradeError("RUNTIME_ENTRYPOINT_BINDING_INVALID", "a managed runtime entrypoint is not bound") from failure
+            if not entrypoint.is_symlink() or literal != expected_link or bound != required:
+                raise RuntimeUpgradeError("RUNTIME_ENTRYPOINT_BINDING_INVALID", "a managed runtime entrypoint differs from the active release")
+        return {"success": True, "signedRuntimeVerified": True, "installedFilesVerified": True,
+                "entrypointsVerified": True, "currentVersion": expected["bundleVersion"],
+                "archiveSha256": expected["archiveSha256"], "manifestSha256": expected["manifestSha256"]}
+
     def rollback(self, request):
         state = self.read_state(request)
         previous_version = state.get("previousVersion") or self.current_version(self.previous)
@@ -504,6 +545,7 @@ class RuntimeUpdater:
             "preflight": self.preflight,
             "activate": self.activate,
             "rollback": self.rollback,
+            "readback": self.readback,
             "cleanup": self.cleanup,
         }
         if operation not in handlers:
