@@ -1,4 +1,5 @@
 {
+  "message.storage.config.clone.identity.template.required": "An AD identity clone requires an explicitly selected public SYSTEM template with verified absent local identity seeds. No eligible template is selected automatically.",
   "label.storage.config.identity.source.service": "Identity source service UUID",
   "label.storage.config.identity.source.artifact": "Identity source backup UUID",
   "message.storage.config.identity.backup.help": "Preserve encrypted local SMB users and AD identity. Client connections may be interrupted; approve the maintenance window and enter the exact service name.",
