@@ -36,6 +36,7 @@ const context = () => ({
   mutation: jest.fn().mockResolvedValue({}),
   refresh: jest.fn().mockResolvedValue(),
   buildBackupRequest: Widget.methods.buildBackupRequest,
+  validIdentityDescriptor: Widget.methods.validIdentityDescriptor,
   closeBackupDialog: Widget.methods.closeBackupDialog
 })
 

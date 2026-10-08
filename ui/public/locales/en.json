@@ -8872,5 +8872,7 @@
   "label.storage.config.identity.include": "Include SMB identity",
   "message.storage.config.identity.backup.help": "Preserve encrypted local SMB users and AD identity. Client connections may be interrupted; approve the maintenance window and enter the exact service name.",
   "label.storage.config.identity.preserved": "Encrypted identity preserved",
-  "label.storage.config.identity.unverified": "Identity preservation unverified"
+  "label.storage.config.identity.unverified": "Identity preservation unverified",
+  "label.storage.config.identity.source.artifact": "Identity source backup UUID",
+  "label.storage.config.identity.source.service": "Identity source service UUID"
 }

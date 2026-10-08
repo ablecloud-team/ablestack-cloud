@@ -8837,5 +8837,7 @@
   "label.storage.config.identity.include": "SMB 신원 포함",
   "message.storage.config.identity.backup.help": "SMB 로컬 사용자와 AD 신원도 암호화하여 보존합니다. 이 과정에서 클라이언트 연결이 중단될 수 있으므로 유지보수 중단을 승인하고 서비스 이름을 정확히 입력하세요.",
   "label.storage.config.identity.preserved": "암호화 신원 보존",
-  "label.storage.config.identity.unverified": "신원 보존 미검증"
+  "label.storage.config.identity.unverified": "신원 보존 미검증",
+  "label.storage.config.identity.source.artifact": "신원 원본 백업 UUID",
+  "label.storage.config.identity.source.service": "신원 원본 서비스 UUID"
 }
