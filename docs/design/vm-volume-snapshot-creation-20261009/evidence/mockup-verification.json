@@ -1,0 +1,67 @@
+{
+  "scope": "Offline design interactions and responsive UI; not Cloud backend or real VM tests",
+  "date": "2026-10-09",
+  "checks": [
+    {
+      "case": "source-switch-reset",
+      "pass": true
+    },
+    {
+      "case": "volume-ack-required",
+      "pass": true
+    },
+    {
+      "case": "volume-ack-enable",
+      "pass": true
+    },
+    {
+      "case": "unavailable-source-disabled",
+      "pass": true
+    },
+    {
+      "case": "empty-blocks-submit",
+      "pass": true
+    },
+    {
+      "case": "query-error-blocks-submit",
+      "pass": true
+    },
+    {
+      "case": "retry-restores-candidates",
+      "pass": true
+    },
+    {
+      "case": "failure-source-preservation-and-owned-resources",
+      "pass": true
+    },
+    {
+      "case": "1366-dark-no-overflow",
+      "pass": true,
+      "width": 1366
+    },
+    {
+      "case": "390-light-no-overflow",
+      "pass": true,
+      "width": 390
+    },
+    {
+      "case": "mobile-confirm-accessible",
+      "pass": true
+    },
+    {
+      "case": "stopped-completion-state",
+      "pass": true
+    },
+    {
+      "case": "1680-light-no-overflow",
+      "pass": true,
+      "width": 1680
+    },
+    {
+      "case": "no-preview-console-error",
+      "pass": true,
+      "errors": []
+    }
+  ],
+  "screenshotLimitation": "Two long full-page captures timed out; stable viewport captures were saved and inspected."
+}

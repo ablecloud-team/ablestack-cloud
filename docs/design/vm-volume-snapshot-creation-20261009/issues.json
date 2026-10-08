@@ -1,0 +1,96 @@
+{
+  "epic": 1335,
+  "epicUrl": "https://github.com/ablecloud-team/ablestack-cloud/issues/1335",
+  "children": [
+    {
+      "key": "C1",
+      "number": 1336,
+      "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1336",
+      "title": "[Europa][P0] VM 생성 원본 적격성 API와 볼륨·스냅샷 후보 조회 결함 개선",
+      "priority": "P0",
+      "depends": []
+    },
+    {
+      "key": "C2",
+      "number": 1337,
+      "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1337",
+      "title": "[Europa][P1] 기존 볼륨 기반 VM 생성의 원본 편입·동시성·실패 보존 개선",
+      "priority": "P1",
+      "depends": [
+        1336
+      ]
+    },
+    {
+      "key": "C3",
+      "number": 1338,
+      "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1338",
+      "title": "[Europa][P1] ROOT 스냅샷 기반 VM 복구의 출처 메타데이터·원본 보존 개선",
+      "priority": "P1",
+      "depends": [
+        1336
+      ]
+    },
+    {
+      "key": "C4",
+      "number": 1339,
+      "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1339",
+      "title": "[Europa][P1] 볼륨·스냅샷 생성의 OS·BIOS·UEFI·디스크 부팅 환경 상속 개선",
+      "priority": "P1",
+      "depends": [
+        1336,
+        1338
+      ]
+    },
+    {
+      "key": "C5",
+      "number": 1340,
+      "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1340",
+      "title": "[Europa][P1][UI] 볼륨·스냅샷 VM 생성의 후보 표·원본 요약·최종 확인 개선",
+      "priority": "P1",
+      "depends": [
+        1336,
+        1337,
+        1338,
+        1339
+      ]
+    },
+    {
+      "key": "C6",
+      "number": 1341,
+      "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1341",
+      "title": "[Europa][P1] 볼륨·스냅샷 VM 생성의 비동기 작업·부분 실패·재시도 상태 개선",
+      "priority": "P1",
+      "depends": [
+        1337,
+        1338,
+        1340
+      ]
+    },
+    {
+      "key": "C7",
+      "number": 1342,
+      "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1342",
+      "title": "[Europa][P2] 스냅샷 VM 생성의 대상 스토리지 선택·용량 사전 검사 확장",
+      "priority": "P2",
+      "depends": [
+        1336,
+        1338
+      ]
+    },
+    {
+      "key": "C8",
+      "number": 1343,
+      "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1343",
+      "title": "[Europa][P1][검증] 볼륨·스냅샷 VM 생성·게스트 부팅·원본 무결성 E2E 검증",
+      "priority": "P1",
+      "depends": [
+        1336,
+        1337,
+        1338,
+        1339,
+        1340,
+        1341
+      ]
+    }
+  ]
+}

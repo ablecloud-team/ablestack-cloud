@@ -1,0 +1,34 @@
+{
+  "scope": "Current source methods plus fake API responses; not a deployed VM creation test",
+  "sourceCommit": "2871963cd43aeb592f619c1b67d8a5974846409d",
+  "observations": [
+    {
+      "id": "pagination",
+      "expectedPageSize": 10,
+      "observedPageSize": 15,
+      "source": "DeployVM.vue:3484-3504"
+    },
+    {
+      "id": "volume-type-filter",
+      "observedDataDiskCandidates": 15,
+      "note": "No boot provenance or template required by the UI filter."
+    },
+    {
+      "id": "empty-volume-array",
+      "observedError": "Cannot read properties of undefined (reading 'forEach')"
+    },
+    {
+      "id": "snapshot-state-filter",
+      "observedCreatingCandidate": true
+    },
+    {
+      "id": "snapshot-route-filter",
+      "routeSnapshotId": "requested-snapshot",
+      "observedApiId": null
+    },
+    {
+      "id": "empty-snapshot-array",
+      "observedError": "Cannot read properties of undefined (reading 'forEach')"
+    }
+  ]
+}
