@@ -61,7 +61,7 @@ export default {
   mounted () { this.refresh() },
   beforeUnmount () { this.generation++ },
   methods: {
-    color (state) { return state === 'COMPLETE' || state === 'RECONCILED_SUPERSEDED' ? 'green' : (state === 'RECOVERY_REQUIRED' ? 'red' : (state === 'RUNNING' ? 'blue' : 'orange')) },
+    color (state) { return state === 'COMPLETE' || state === 'COMPLETE_NO_CONFIG_CHANGE' || state === 'RECONCILED_SUPERSEDED' ? 'green' : (state === 'RECOVERY_REQUIRED' ? 'red' : (state === 'RUNNING' ? 'blue' : 'orange')) },
     async refresh () {
       const token = ++this.generation; const instance = this.instanceId; this.loading = true
       try {
