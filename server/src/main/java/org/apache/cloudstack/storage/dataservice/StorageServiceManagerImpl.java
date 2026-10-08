@@ -582,10 +582,27 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         Long hostId = vm.getHostId() == null ? vm.getLastHostId() : vm.getHostId();
         com.cloud.host.HostVO host = hostId == null ? null : rootUpgradeHostDao.findById(hostId);
         String managerVersion = com.cloud.server.ManagementServer.class.getPackage().getImplementationVersion();
-        StorageServiceSystemVmTemplateCatalog catalog = new StorageServiceSystemVmTemplateCatalog(rootUpgradeTemplateDao);
+        StorageServiceSystemVmTemplateCatalog catalog = new StorageServiceSystemVmTemplateCatalog(rootUpgradeTemplateDao,rootFixtureTemplateStoreDao,
+                target->rootPrivateTemplateFixture(instance,vm,target));
         return templateId == null ? catalog.list(vm, managerVersion, host == null ? null : host.getVersion(), rootRequiresNvmeAuth(instance))
                 : catalog.preflight(vm, templateId, managerVersion, host == null ? null : host.getVersion(), rootRequiresNvmeAuth(instance));
     }
+    @Inject private org.apache.cloudstack.storage.datastore.db.TemplateDataStoreDao rootFixtureTemplateStoreDao;
+    protected boolean rootPrivateTemplateFixture(StorageServiceInstanceVO instance,com.cloud.vm.UserVmVO vm,com.cloud.storage.VMTemplateVO target) {
+        try {
+            requireConfigurationAdministrator();SharedFSVO shared=sharedFSDao.findByVm(vm.getId());
+            if(shared==null||target.isPublicTemplate()||target.getAccountId()!=instance.getAccountId())return false;
+            Set<String> excluded=new HashSet<>();for(StorageServiceInstanceVO other:storageServiceInstanceDao.listAll())if(other.getId()!=instance.getId())excluded.add(other.getUuid());
+            JsonObject receipt=new StorageTemplateFixturePermit().requireCreated(shared.getUuid(),vm.getId(),vm.getUuid(),instance.getAccountId(),vm.getDataCenterId(),target,excluded);
+            JsonObject bindings=receipt.getAsJsonObject("bindings");
+            List<VolumeVO> data=volumeDao.findByInstanceAndType(vm.getId(),com.cloud.storage.Volume.Type.DATADISK);
+            VolumeVO bound=data.stream().filter(volume->volume.getUuid().equals(getJsonString(bindings,"dataVolumeUuid"))).findFirst().orElse(null);
+            if(bound==null||!bindings.has("dataDisk"))return false;
+            JsonObject observed=new JsonObject();observed.addProperty("volumeUuid",bound.getUuid());observed.addProperty("path",bound.getPath());observed.addProperty("poolId",bound.getPoolId());observed.addProperty("type",bound.getVolumeType().name());observed.addProperty("accountId",bound.getAccountId());observed.addProperty("zoneId",bound.getDataCenterId());observed.addProperty("sizeBytes",bound.getSize());observed.addProperty("provisioningType",bound.getProvisioningType()==null?null:bound.getProvisioningType().name());observed.addProperty("templateId",bound.getTemplateId());observed.addProperty("state",bound.getState().name());observed.addProperty("attachedToFixture",java.util.Objects.equals(bound.getInstanceId(),vm.getId()));observed.addProperty("notRemoved",bound.getRemoved()==null);observed.addProperty("newDataWithoutBacking",bound.getTemplateId()==null&&StringUtils.isBlank(bound.getChainInfo()));
+            StorageTemplateFixturePermit.requireAllocatedDisk(bindings.getAsJsonObject("dataDisk"),observed);return true;
+        }catch(RuntimeException unavailable){return false;}
+    }
+
     protected JsonObject rootTopology(StorageServiceInstanceVO instance) {
         return StorageRootTopologySnapshot.capture(rootUpgradeVmDao.findById(instance.getVmId()), nicDao.listByVmId(instance.getVmId()),
                 nicSecondaryIpDao.listByVmId(instance.getVmId()), volumeDao.findByInstance(instance.getVmId()));

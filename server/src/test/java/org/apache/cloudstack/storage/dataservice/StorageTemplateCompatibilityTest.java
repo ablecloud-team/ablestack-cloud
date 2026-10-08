@@ -75,4 +75,17 @@ public class StorageTemplateCompatibilityTest {
         JsonObject result=StorageTemplateCompatibility.evaluate(template(),template(),details,true,"4.23.0","4.23.0",false);
         Assert.assertFalse(result.get("compatible").getAsBoolean());Assert.assertTrue(result.toString().contains("SIGNED_RUNTIME_READBACK_CAPABILITY_MISSING"));
     }
+    @Test public void fourthNumericPartIsComparedAndFivePartBuildNumberRemainsUnknown() {
+        Map<String,String> details=metadata();details.put("storage.service.upgrade.min.manager.version","4.23.0.2");
+        Assert.assertFalse(StorageTemplateCompatibility.evaluate(template(),template(),details,true,"4.23.0.1","4.23.0.0",false).get("compatible").getAsBoolean());
+        Assert.assertFalse(StorageTemplateCompatibility.evaluate(template(),template(),metadata(),true,"4.23.0.0.88","4.23.0",false).get("compatible").getAsBoolean());
+        Assert.assertTrue(StorageTemplateCompatibility.evaluate(template(),template(),details,true,"4.23.0.2-Mold.Europa","4.23.0",false).get("compatible").getAsBoolean());
+    }
+    @Test public void privateUserTemplateNeedsProtectedAuthorizationAndOtherChecksStillApply() {
+        VMTemplateVO target=template();Mockito.when(target.getTemplateType()).thenReturn(Storage.TemplateType.USER);
+        Assert.assertFalse(StorageTemplateCompatibility.evaluate(target,template(),metadata(),true,"4.23.0","4.23.0",false).get("compatible").getAsBoolean());
+        Assert.assertTrue(StorageTemplateCompatibility.evaluate(target,template(),metadata(),true,"4.23.0","4.23.0",false,true).get("compatible").getAsBoolean());
+        Mockito.when(target.isPublicTemplate()).thenReturn(true);
+        Assert.assertFalse(StorageTemplateCompatibility.evaluate(target,template(),metadata(),true,"4.23.0","4.23.0",false,true).get("compatible").getAsBoolean());
+    }
 }

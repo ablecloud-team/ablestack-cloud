@@ -62,4 +62,13 @@ public class StorageServiceSystemVmTemplateCatalogTest {
         JsonObject result=new StorageServiceSystemVmTemplateCatalog(dao).preflight(vm,11,"4.23.0","4.23.0",false);
         Assert.assertFalse(result.get("compatible").getAsBoolean());Assert.assertTrue(result.toString().contains("TARGET_NOT_DOWNLOADED_IN_ZONE"));
     }
+    @Test public void privateUserCatalogUsesTheProtectedCreationScopeAndRealZoneDownload() {
+        VMTemplateDao dao=Mockito.mock(VMTemplateDao.class);VMTemplateVO source=template(10,false),target=template(11,true);Mockito.when(target.getTemplateType()).thenReturn(Storage.TemplateType.USER);
+        Mockito.when(dao.findById(10L)).thenReturn(source);Mockito.when(dao.findById(11L)).thenReturn(target);Mockito.when(dao.listAllReadySystemVMTemplates(5L)).thenReturn(List.of());
+        org.apache.cloudstack.storage.datastore.db.TemplateDataStoreDao downloads=Mockito.mock(org.apache.cloudstack.storage.datastore.db.TemplateDataStoreDao.class);org.apache.cloudstack.storage.datastore.db.TemplateDataStoreVO ready=Mockito.mock(org.apache.cloudstack.storage.datastore.db.TemplateDataStoreVO.class);Mockito.when(downloads.findByTemplateZoneReady(11,5L)).thenReturn(ready);Mockito.when(ready.getDownloadState()).thenReturn(com.cloud.storage.VMTemplateStorageResourceAssoc.Status.DOWNLOADED);Mockito.when(ready.getState()).thenReturn(org.apache.cloudstack.engine.subsystem.api.storage.ObjectInDataStoreStateMachine.State.Ready);
+        UserVmVO vm=Mockito.mock(UserVmVO.class);Mockito.when(vm.getTemplateId()).thenReturn(10L);Mockito.when(vm.getDataCenterId()).thenReturn(5L);
+        Assert.assertTrue(new StorageServiceSystemVmTemplateCatalog(dao,downloads,t->t==target).preflight(vm,11,"4.23.0","4.23.0",false).get("compatible").getAsBoolean());
+        Assert.assertFalse(new StorageServiceSystemVmTemplateCatalog(dao,downloads,t->false).preflight(vm,11,"4.23.0","4.23.0",false).get("compatible").getAsBoolean());
+        Mockito.when(downloads.findByTemplateZoneReady(11,5L)).thenReturn(null);Assert.assertFalse(new StorageServiceSystemVmTemplateCatalog(dao,downloads,t->true).preflight(vm,11,"4.23.0","4.23.0",false).get("compatible").getAsBoolean());
+    }
 }

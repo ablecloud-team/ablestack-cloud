@@ -17,6 +17,8 @@
 
 package org.apache.cloudstack.storage.sharedfs.lifecycle;
 
+import org.mockito.Mockito;
+
 import com.cloud.dc.DataCenter;
 import com.cloud.dc.DataCenterVO;
 import com.cloud.dc.dao.DataCenterDao;
@@ -302,6 +304,47 @@ public class StorageVmSharedFSLifeCycleTest {
          Pair<Long, Long> result = lifeCycle.deploySharedFS(sharedFS, s_networkId, s_diskOfferingId, s_storageId, s_size, s_minIops, s_maxIops);
          Assert.assertEquals(Optional.ofNullable(result.first()), Optional.ofNullable(s_volumeId));
          Assert.assertEquals(Optional.ofNullable(result.second()), Optional.ofNullable(s_vmId));
+    }
+
+    @Test
+    public void explicitTemplateDoesNotReadOrMutateGlobalDefaultAndLaunchPermissions() throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, IOException, OperationTimedoutException {
+        SharedFS sharedFS = prepareDeploySharedFS();
+        VMTemplateVO explicit=mock(VMTemplateVO.class);when(explicit.getId()).thenReturn(90L);when(explicit.isDynamicallyScalable()).thenReturn(true);when(templateDao.findById(90L)).thenReturn(explicit);
+        Mockito.clearInvocations(templateDao);
+        when(sharedFS.getAccountId()).thenReturn(s_ownerId);
+
+        Account owner = mock(Account.class);
+        when(owner.getId()).thenReturn(s_ownerId);
+        when(accountMgr.getActiveAccountById(s_ownerId)).thenReturn(owner);
+
+        UserVm vm = mock(UserVm.class);
+        when(vm.getId()).thenReturn(s_vmId);
+        when(userVmService.createAdvancedVirtualMachine(
+                any(DataCenter.class), any(ServiceOffering.class), any(VirtualMachineTemplate.class), anyList(), any(Account.class), anyString(),
+                anyString(), anyLong(), anyLong(), any(), isNull(), any(Hypervisor.HypervisorType.class), any(BaseCmd.HTTPMethod.class), anyString(),
+                isNull(), isNull(), anyList(), isNull(), any(Network.IpAddresses.class), isNull(), isNull(), isNull(),
+                anyMap(), isNull(), isNull(), isNull(), isNull(),
+                anyBoolean(), anyString(), isNull(), isNull(), isNull(), isNull())).thenReturn(vm);
+
+        VolumeVO rootVol = mock(VolumeVO.class);
+        when(rootVol.getVolumeType()).thenReturn(Volume.Type.ROOT);
+        when(rootVol.getName()).thenReturn("ROOT-1");
+        VolumeVO dataVol = mock(VolumeVO.class);
+        when(dataVol.getId()).thenReturn(s_volumeId);
+        when(dataVol.getName()).thenReturn("DATA-1");
+        when(dataVol.getVolumeType()).thenReturn(Volume.Type.DATADISK);
+        when(dataVol.getPoolId()).thenReturn(s_storageId);
+        when(volumeDao.findByInstance(s_vmId)).thenReturn(List.of(rootVol, dataVol));
+
+         Pair<Long, Long> result = lifeCycle.deploySharedFS(sharedFS, s_networkId, s_diskOfferingId, s_storageId, s_size, s_minIops, s_maxIops,90L);
+         Assert.assertEquals(Optional.ofNullable(result.first()), Optional.ofNullable(s_volumeId));
+         Assert.assertEquals(Optional.ofNullable(result.second()), Optional.ofNullable(s_vmId));
+        Mockito.verify(templateDao,Mockito.never()).findSystemVMReadyTemplate(Mockito.anyLong(),Mockito.any(),Mockito.anyString());
+        Mockito.verify(launchPermissionDao,Mockito.never()).persist(Mockito.any());
+        Mockito.verify(userVmService).createAdvancedVirtualMachine(any(DataCenter.class),any(ServiceOffering.class),Mockito.eq(explicit),anyList(),any(Account.class),anyString(),
+                anyString(),anyLong(),anyLong(),any(),isNull(),any(Hypervisor.HypervisorType.class),any(BaseCmd.HTTPMethod.class),anyString(),
+                isNull(),isNull(),anyList(),isNull(),any(Network.IpAddresses.class),isNull(),isNull(),isNull(),
+                anyMap(),isNull(),isNull(),isNull(),isNull(),anyBoolean(),anyString(),isNull(),isNull(),isNull(),isNull());
     }
 
     @Test(expected = CloudRuntimeException.class)
