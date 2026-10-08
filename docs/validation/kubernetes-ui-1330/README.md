@@ -35,9 +35,9 @@ for the specific language governing permissions and limitations. -->
 
 ## 최종 빌드 및 배포
 
-관련18 suites / 151 tests PASS. Node20.20.2/npm10.8.2, WSL ext4에서 production UI 모듈을 빌드한다. 명령은 `NODE_OPTIONS=--openssl-legacy-provider npm run build`이다. webpack4의 OpenSSL 호환 옵션과 bundle 크기 경고가 있으며 전체 Cloud 빌드는 실행하지 않았다.
+관련18 suites / 152 tests PASS. Node20.20.2/npm10.8.2, WSL ext4에서 production UI 모듈을 빌드한다. 명령은 `NODE_OPTIONS=--openssl-legacy-provider npm run build`이다. webpack4의 OpenSSL 호환 옵션과 bundle 크기 경고가 있으며 전체 Cloud 빌드는 실행하지 않았다.
 
-최종 UI 패키지 `kubernetes-ui-1330-20261008-235919.tgz`의 SHA-256은 `b5fe5d18c5321cec2efe6faa11f39da575455ceeb7c808028b449ed7ef07396d`이다. 31번 active webapp의 정적 파일 840개 해시 일치를 확인했다. WEB-INF/config.json과 mold PID5641을 보존했고 mold active 및 `/client/` HTTP200을 확인했다. 백업은 `/root/kubernetes-ui-1330-deploy-20261008-235929/static-backup.tgz`이다. 서버 전체 디렉터리 교체와 rsync --delete는 사용하지 않았다.
+최종 UI 패키지 `kubernetes-ui-1330-20261009-001905.tgz`의 SHA-256은 `b46fb19232105395fc05a9bb648646fc2991dd6886d8a1433e1d036af1ec1de0`이다. 31번 active webapp의 정적 파일 840개 해시 일치를 확인했다. WEB-INF/config.json과 mold PID5641을 보존했고 mold active 및 `/client/` HTTP200을 확인했다. 백업은 `/root/kubernetes-ui-1330-deploy-20261009-001914/static-backup.tgz`이다. 서버 전체 디렉터리 교체와 rsync --delete는 사용하지 않았다.
 
 최종 배포에서 부하분산 업데이트를 클릭한 직후에도 기존 2개 규칙과 대상 VM이 유지됐다. 전체 skeleton0/spinner0, 업데이트 버튼 loading1, 버튼 간격8px을 확인했고 번역 키가 화면에 노출되지 않았다. SourceBased 정책의 `10k/30m` 재열기, `20k/40m` 수정 후 재열기, 정책 제거까지 실제 UI/API로 통과했다. 다크모드 레이블·입력값·안내문을 실제 화면에서 재확인했다.
 
@@ -58,6 +58,28 @@ for the specific language governing permissions and limitations. -->
 사용자 승인으로 `store.download.follow.redirects`를 잠시 true로 변경해 GitHub Release ISO의 URL 등록 및 Ready/Successfully Installed를 확인하고 원래 false로 복구했다. 공개 Release ISO832,899,072bytes의 SHA-256을 확인한 뒤 사용자가 로컬 파일을 선택했고 실제 UI 제출로 전송·Ready/Successfully Installed까지 확인했다. 파일 선택을 실제 전송 성공으로 대신 판정하지 않았다. 시험 ISO3개는 정리했다.
 
 별도 VPC·Tungsten·SSL·LB AS 그룹 환경은 이번31번 실 동작 통과로 판정하지 않는다. Kubernetes/ISO 목록의 Shift+F10·Escape와 Tab/Shift+Tab 순환·Escape/취소 및 트리거 초점 복귀를 확인했지만 전체 접근성 인증을 의미하지 않는다. 일반 공통 화면의 API 조건과 단위 검증 범위는 UI-MATRIX에 구분한다.
+
+## 추가 다크모드 재검증
+
+사용자 첨부 및 실제 31번 화면에서 관리 주체 / Service UID 내장 pagination의 prev/next 배경이 rgb(255,255,255)이고, Headlamp 안내 제목 4개가 rgba(0,0,0,0.65)임을 확인했다. 기존 일반 입력/문단 검사로 해당 보조 목록과 Timeline 제목까지 통과한 것으로 해석하지 않는다.
+
+관리 주체 목록을 공통 detail-tab-pagination의 small pager로 변경했고 전체 항목/10·20·40·80·100 페이지 크기 선택을 적용했다. 갱신은 현재 페이지를 보존하며 행 감소로 범위를 벗어난 페이지는 유효한 마지막 페이지로 보정한다. 공통 dark-mode의 prev/next 버튼 배경/테두리도 보완했다. 최종 실제 펼친 목록에서 흰 배경 제거, 비활성 화살표의 어두운 상태, 전체 1건 및 크기 선택을 light/dark에서 확인했다. 실제 UI에서 페이지 크기를 10→20→10으로 바꾸어 값 반영과 행 유지도 확인했다. 다중 페이지·갱신 보존·행 감소 경계는 단위 회귀로 확인했다.
+
+Headlamp 접속·읽기 전용 계정과 15분 토큰·기존 Kubernetes Dashboard·접근 계정 정리 제목 4개는 Timeline content가 기존 테마 primary 텍스트를 상속하도록 변경했다. head/tail도 테마 surface/border를 따른다. 실제 두 테마에서 네 제목의 글자 크기 14px 유지, 대비 및 본문/링크/명령 예시 가독성을 확인했다. 최종 computed style 기준으로 다크 텍스트 rgb(240,243,246)/배경 rgb(34,40,47)의 대비는 13.35:1(수정 전 1.30:1), 라이트 텍스트 rgb(31,41,55)/흰 배경의 대비는 14.68:1이었다. 자격증명은 생성하거나 게시하지 않았고 kubeconfig는 계속 숨긴 상태로 검증했다.
+
+![관리 주체 목록 다크 페이지네이션 수정](images/ownership-pagination-dark-after.jpg)
+![관리 주체 목록 라이트 페이지네이션](images/ownership-pagination-light-after.jpg)
+![Headlamp 안내 다크 제목 수정](images/headlamp-labels-dark-after.jpg)
+![기존 Dashboard·정리 제목 다크 수정](images/headlamp-labels-dark-cleanup-after.jpg)
+![Headlamp 안내 라이트 제목](images/headlamp-labels-light-after.jpg)
+
+<details>
+<summary>실제 수정 전 기준 화면</summary>
+
+![관리 주체 목록 흰 pagination 버튼](images/ownership-pagination-dark-before.jpg)
+![Headlamp 검정 제목](images/headlamp-labels-dark-before.jpg)
+
+</details>
 
 ## 실제 화면 증거
 

@@ -14,7 +14,7 @@ for the specific language governing permissions and limitations. -->
 | 구간 | 실제 검증과 결과 | 판정 |
 |---|---|---|
 | 소스 | `codex/kubernetes-ui-1330`, upstream `ablestack-europa` c169d9a203f49ce07e038297873bc3c24cd8ffb4 기반, dhslove ext4 작업 트리 | 확인 |
-| 검사 | 변경 파일 lint, 관련 18 suites / 151 tests | PASS |
+| 검사 | 변경 파일 lint, 관련 18 suites / 152 tests | PASS |
 | UI 빌드 | Node 20.20.2, `NODE_OPTIONS=--openssl-legacy-provider npm run build`; production UI 모듈 | PASS, 최종 배포 기록은 README |
 | 목록 | VM 공통 행·자원 표시·이름 검색 1건·선택/해제·이름 정렬·우클릭 메뉴·전체 7건 pager | PASS |
 | 상세 | 좌우 공통 ResourceLayout·정보 탭 버튼 0개·상단 작업 메뉴·좌측 정보 우클릭·짧은 외부 워커 레이블 | PASS |
@@ -39,6 +39,7 @@ for the specific language governing permissions and limitations. -->
 | ISO 로컬 업로드 | live API·1000px 폼·다크 가이드·필수값 거절 확인, 공개 Release ISO 832,899,072bytes 및 SHA-256 확인 | PASS, 사용자 파일 선택 후 UI 제출·832,899,072bytes 실제 전송·Ready; 시험 ISO 삭제 |
 | 공통 화면 | 일반 VM strict custom root120GB/GFS2 생성, 공통 네트워크 화면/이벤트 목록·코멘트 생성/삭제 | PASS, #1233 회귀 수정 포함 |
 | 키보드 | Kubernetes/ISO 목록 Shift+F10·Escape, Tab/Shift+Tab·모달 안 초점 순환·Escape/취소·실행 버튼 복귀, 삭제 트리거/새 모달 DOM 회귀 | PASS, 전체 접근성 인증은 범위 밖 |
+| 추가 다크 검토 | 관리 주체 목록 공통 mini pagination·흰 prev/next 배경 제거, Headlamp 접속/읽기 토큰/기존 Dashboard/정리 제목 4개 테마 primary·14px, light/dark 실제 펼침·computed style·대비 확인 | PASS, README 추가 증거 |
 | 테마 | 주요 입력/안내문/표·팝업 light/dark, ko/en; 실제 언어 전환 후 LB VM 머리글 반영 | PASS |
 | 좁은 화면 | 390×844, 화면 body380px·대화상자380px, 내용 내부 표 스크롤, 기본 viewport 복구 | PASS |
 | 조건부 기능 | VPC ACL·Tungsten·SSL 인증서·LB AutoScale VM 그룹: 31번 제공/설정 범위 외. 공통 API 권한 조건 및 정적/단위 검증 | 해당 환경 실 동작 미검증 |
