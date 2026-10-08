@@ -60,6 +60,24 @@ public final class EuropaSharedFSTemplateUpgrade {
                     + "  KEY idx_storage_template_upgrade_retention(rollback_retain_until), "
                     + "  KEY idx_storage_template_upgrade_scope(instance_id,created) "
                     + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ");
+            try (java.sql.ResultSet table=connection.getMetaData().getTables("cloud",null,"storage_service_instance",new String[]{"TABLE"})) {
+                if (!table.next()) return; // A fresh installation receives these columns when Diplo creates the instance table.
+            }
+            java.util.Set<String> columns=new java.util.HashSet<>();
+            try (java.sql.ResultSet existing=connection.getMetaData().getColumns("cloud",null,"storage_service_instance",null)) {
+                while (existing.next()) columns.add(existing.getString("COLUMN_NAME").toLowerCase(java.util.Locale.ROOT));
+            }
+            String[][] projection={{"current_template_id","bigint unsigned DEFAULT NULL"},{"previous_template_id","bigint unsigned DEFAULT NULL"},
+                    {"template_upgrade_state","varchar(40) DEFAULT NULL"},{"last_template_upgrade_id","bigint unsigned DEFAULT NULL"},{"template_verified_at","datetime DEFAULT NULL"}};
+            for (String[] column:projection) {
+                if (columns.contains(column[0])) continue;
+                try {statement.execute("ALTER TABLE cloud.storage_service_instance ADD COLUMN "+column[0]+" "+column[1]);}
+                catch (java.sql.SQLException raced) {
+                    try (java.sql.ResultSet now=connection.getMetaData().getColumns("cloud",null,"storage_service_instance",column[0])) {
+                        if (!now.next()) throw raced; // Another management node may have installed the same projection concurrently.
+                    }
+                }
+            }
         } catch (java.sql.SQLException failure) {
             throw new CloudRuntimeException("Unable to apply SharedFS retained ROOT upgrade migration",failure);
         }

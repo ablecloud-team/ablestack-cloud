@@ -30,7 +30,7 @@ import com.google.gson.JsonObject;
 public class StorageTemplateCompatibilityTest {
     private Map<String,String> metadata() {
         Map<String,String> details=new HashMap<>();
-        details.put("storage.service.template","true");details.put("storage.service.template.version","test-1");
+        details.put("storage.service.template","true");details.put("storage.service.runtime.signed.readback","true");details.put("storage.service.template.version","test-1");
         details.put("storage.service.runtime.abi","1");details.put("storage.service.desired.state.schema","1");
         details.put("storage.service.identity.capsule.schema","1");
         details.put("storage.service.upgrade.min.manager.version","4.23.0");details.put("storage.service.upgrade.min.agent.version","4.23.0");
@@ -69,5 +69,10 @@ public class StorageTemplateCompatibilityTest {
         Assert.assertFalse(StorageTemplateCompatibility.evaluate(template(),template(),details,true,"4.23.0","4.23.0",true).get("compatible").getAsBoolean());
         details.put("storage.service.nvme.target.auth","true");
         Assert.assertTrue(StorageTemplateCompatibility.evaluate(template(),template(),details,true,"4.23.0","4.23.0",true).get("compatible").getAsBoolean());
+    }
+    @Test public void targetWithoutSignedRuntimeReadbackCannotEnterRootCutover() {
+        Map<String,String> details=metadata();details.remove("storage.service.runtime.signed.readback");
+        JsonObject result=StorageTemplateCompatibility.evaluate(template(),template(),details,true,"4.23.0","4.23.0",false);
+        Assert.assertFalse(result.get("compatible").getAsBoolean());Assert.assertTrue(result.toString().contains("SIGNED_RUNTIME_READBACK_CAPABILITY_MISSING"));
     }
 }

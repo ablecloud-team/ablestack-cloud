@@ -38,7 +38,7 @@ public final class StorageRootTopologySnapshot {
         nics.stream().sorted(Comparator.comparingLong(NicVO::getId)).forEach(nic->{
             if (nic.getInstanceId()!=vm.getId()) throw new CloudRuntimeException("NIC snapshot scope changed");
             JsonObject value=new JsonObject();value.addProperty("id",nic.getId());value.addProperty("uuid",nic.getUuid());
-            value.addProperty("deviceId",nic.getDeviceId());value.addProperty("networkId",nic.getNetworkId());
+            value.addProperty("deviceId",nic.getDeviceId());value.addProperty("networkId",nic.getNetworkId());value.addProperty("defaultNic",nic.isDefaultNic());
             value.addProperty("mac",nic.getMacAddress());value.addProperty("ipv4",nic.getIPv4Address());value.addProperty("ipv6",nic.getIPv6Address());
             interfaces.add(value);
         });
