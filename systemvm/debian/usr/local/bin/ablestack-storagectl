@@ -10074,6 +10074,92 @@ identity_capsule_command() {
 # to you under the Apache License, Version 2.0 (the
 # "License"); you may not use this file except in compliance
 # with the License. You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+"""Native-observed latest ROOT configuration inside the authenticated identity capsule."""
+import re
+import hashlib
+import json
+import uuid
+ROOT_CONFIGURATION_PATHS={"desired-state/nfs-export-apply.json","desired-state/smb-share-apply.json","iscsi-targets.json","nvmeof-subsystems.json","posix-directory-policies.json","network-endpoints.json","sharedfs-network.json"}
+
+
+def root_configuration_no_secrets(value):
+    if isinstance(value,dict):
+        for key,item in value.items():
+            if not isinstance(key,str) or any(token in key.lower() for token in ("password","secret","dhchapkey","dhchapctrlkey","privatekey","keytab","capsule")):
+                raise ValueError("ROOT configuration accepts public references, not credential material")
+            root_configuration_no_secrets(item)
+    elif isinstance(value,list):
+        for item in value:root_configuration_no_secrets(item)
+
+
+def root_configuration_sha256(value):
+    if not isinstance(value,dict) or set(value)!=ROOT_CONFIGURATION_PATHS or any(item is not None and not isinstance(item,dict) for item in value.values()):
+        raise ValueError("ROOT configuration requires its exact seven canonical files")
+    return hashlib.sha256(json.dumps(value,sort_keys=True,separators=(",",":"),allow_nan=False).encode()).hexdigest()
+
+
+def root_capsule_scope(value):
+    fields={"instanceUuid","templateUpgradeUuid","operationUuid","revision"}
+    if not isinstance(value,dict) or set(value)!=fields:
+        raise ValueError("ROOT configuration capsule scope is not exact")
+    for key in fields-{"revision"}:
+        if not isinstance(value[key],str) or str(uuid.UUID(value[key]))!=value[key]:
+            raise ValueError("ROOT configuration capsule UUID is invalid")
+    if type(value["revision"]) is not int or value["revision"]<1:raise ValueError("ROOT configuration capsule revision is invalid")
+    return value
+
+
+def validate_root_configuration(value):
+    fields={"schemaVersion","kind","scope","sourceGeneration","sourceConfigurationSha256","configurationDesiredState"}
+    if (not isinstance(value,dict) or set(value)!=fields or type(value["schemaVersion"]) is not int or value["schemaVersion"]!=1
+            or value["kind"]!="ROOT_SOURCE_CONFIGURATION"):
+        raise ValueError("ROOT configuration capsule fields are not exact")
+    scope=root_capsule_scope(value["scope"]);generation=value["sourceGeneration"];checksum=value["sourceConfigurationSha256"]
+    if not isinstance(checksum,str) or not re.fullmatch("[0-9a-f]{64}",checksum):raise ValueError("ROOT configuration capsule checksum is invalid")
+    if (not isinstance(generation,dict) or generation.get("instanceUuid")!=scope["instanceUuid"]
+            or type(generation.get("revision")) is not int or not 1<=generation["revision"]<=scope["revision"]
+            or generation.get("configurationSha256")!=checksum):
+        raise ValueError("ROOT configuration capsule source generation is foreign or unpinned")
+    if not isinstance(generation.get("operationUuid"),str) or str(uuid.UUID(generation["operationUuid"]))!=generation["operationUuid"]:
+        raise ValueError("ROOT configuration capsule source operation is invalid")
+    root_configuration_no_secrets(value["configurationDesiredState"])
+    if root_configuration_sha256(value["configurationDesiredState"])!=checksum:
+        raise ValueError("ROOT configuration capsule seven-file checksum differs")
+    return value
+
+
+def root_configuration_from_observation(request,observed):
+    scope=root_capsule_scope({key:request[key] for key in ("instanceUuid","templateUpgradeUuid","operationUuid","revision")})
+    if (observed.get("generationStatus")!="IN_SYNC" or observed.get("pendingOperationUuid")
+            or (observed.get("generation") or {}).get("configurationSha256")!=observed.get("configurationSha256")):
+        raise ValueError("ROOT configuration capsule requires a fresh native LKG before source shutdown")
+    result={"schemaVersion":1,"kind":"ROOT_SOURCE_CONFIGURATION","scope":scope,"sourceGeneration":observed["generation"],
+            "sourceConfigurationSha256":observed["configurationSha256"],"configurationDesiredState":observed["configurationDesiredState"]}
+    return validate_root_configuration(result)
+
+
+def root_configuration_authorize(payload,expected_scope,source_sha):
+    if not isinstance(payload,dict) or "rootSourceConfiguration" not in payload:
+        raise ValueError("Retained ROOT requires its latest encrypted native seven-file source")
+    value=validate_root_configuration(payload["rootSourceConfiguration"])
+    if value["scope"]!=root_capsule_scope(expected_scope) or value["sourceConfigurationSha256"]!=source_sha:
+        raise ValueError("Retained ROOT encrypted source differs from its protected scope or source reference")
+    return value["configurationDesiredState"]
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements. See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership. The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
 #
 # http://www.apache.org/licenses/LICENSE-2.0
 #
@@ -10599,7 +10685,7 @@ FILES = {
     "/etc/ablestack-storage/smb-managed-identities.json",
     "/etc/ablestack-storage/smb-local-account-provenance.json",
 }
-AD_FILES = {"/etc/krb5.keytab","/etc/krb5.conf","/etc/ablestack-storage/smb-domain.json","/var/lib/samba/winbindd_idmap.tdb"}
+AD_FILES = {"/etc/krb5.keytab","/etc/krb5.conf","/etc/ablestack-storage/smb-domain.json","/var/lib/samba/winbindd_idmap.tdb","/etc/ablestack-storage/ad-machine.conf"}
 PUBLIC_IDENTITY_FILES = {"/etc/ablestack-storage/smb-managed-identities.json","/etc/krb5.conf"}
 
 ACCOUNT_FILES = {"/etc/passwd", "/etc/group", "/etc/shadow", "/etc/gshadow"}
@@ -10787,7 +10873,7 @@ def collect(names, nvme_hosts=None,ad_identity=None,posix_policies=None):
 
 def validate_ad_identity(value):
     fields={"schemaVersion","domain","realm","workgroup","netbiosName","machineSid","domainSid","servicePrincipals","trustVerified"}
-    if not isinstance(value,dict) or set(value)-{"idmapPolicy"}!=fields or value["schemaVersion"]!=1 or value["trustVerified"] is not True:
+    if not isinstance(value,dict) or set(value)-{"idmapPolicy","machineAccountSid","dnsAliases","machineConfigurationSha256"}!=fields or type(value["schemaVersion"]) is not int or value["schemaVersion"]!=1 or value["trustVerified"] is not True:
         raise ValueError("AD capsule metadata is not a verified joined identity")
     domain=value["domain"]
     if not isinstance(domain,str) or len(domain)>253 or domain!=domain.lower() or not re.fullmatch(r"[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?",domain) or any(not label or label.startswith("-") or label.endswith("-") for label in domain.split(".")):
@@ -10816,6 +10902,22 @@ def validate_ad_identity(value):
                 raise ValueError("AD capsule RID base is invalid")
             ranges.append(numbers)
         if max(row[0] for row in ranges)<=min(row[1] for row in ranges):raise ValueError("AD capsule idmap ranges overlap")
+    extra={"machineAccountSid","dnsAliases","machineConfigurationSha256"}
+    if extra&set(value):
+        if not extra<=set(value) or "idmapPolicy" not in value:raise ValueError("AD full identity capsule metadata is incomplete")
+        account=value["machineAccountSid"]
+        if not isinstance(account,str) or not re.fullmatch(re.escape(value["domainSid"])+r"-[0-9]{1,10}",account):raise ValueError("AD computer account SID differs from its domain")
+        if not re.fullmatch("[0-9a-f]{64}",str(value["machineConfigurationSha256"])):raise ValueError("AD private configuration digest is invalid")
+        aliases=value["dnsAliases"]
+        if not isinstance(aliases,list) or not aliases or len(aliases)>64:raise ValueError("AD capsule DNS aliases are unavailable")
+        wanted=set()
+        for alias in aliases:
+            if not isinstance(alias,dict) or set(alias)!={"hostname","addresses"} or not alias["hostname"].endswith("."+domain) or not re.fullmatch("[a-z0-9.-]+",alias["hostname"]):raise ValueError("AD capsule DNS alias is foreign")
+            if not isinstance(alias["addresses"],list) or not alias["addresses"] or len(alias["addresses"])>16:raise ValueError("AD capsule DNS endpoint set is invalid")
+            import ipaddress
+            for address in alias["addresses"]:ipaddress.IPv4Address(address)
+            wanted.update(service+"/"+alias["hostname"] for service in ("host","cifs"))
+        if not wanted<=set(principals):raise ValueError("AD capsule aliases lack exact CIFS/HOST SPNs")
     return value
 
 
@@ -10826,14 +10928,25 @@ def capsule_validate_posix(records,instance):
     return validator(records,instance)
 
 
+def capsule_validate_root_configuration(value):
+    validator=globals().get("validate_root_configuration")
+    if validator is None:
+        from root_configuration_capsule import validate_root_configuration as validator
+    return validator(value)
+
+
 def validate_payload(payload):
-    if not isinstance(payload, dict) or set(payload) - {"schemaVersion", "files", "accounts", "nvmeHosts", "adIdentity", "posixPolicies", "sourceConfigurationSha256"}:
+    if not isinstance(payload, dict) or set(payload) - {"schemaVersion", "files", "accounts", "nvmeHosts", "adIdentity", "posixPolicies", "sourceConfigurationSha256", "rootSourceConfiguration"}:
         raise ValueError("Identity capsule payload shape is invalid")
     if not isinstance(payload.get("files"), dict) or not isinstance(payload.get("accounts"), dict):
         raise ValueError("Identity capsule collections are invalid")
     if type(payload.get("schemaVersion")) is not int or payload.get("schemaVersion") != 1 or set(payload.get("files", {})) - (FILES | (AD_FILES if payload.get("adIdentity") is not None else set())) or set(payload.get("accounts", {})) - ACCOUNT_FILES:
         raise ValueError("Identity capsule path allow-list mismatch")
     if payload.get("adIdentity") is not None:validate_ad_identity(payload["adIdentity"])
+    if payload.get("rootSourceConfiguration") is not None:
+        header=capsule_validate_root_configuration(payload["rootSourceConfiguration"])
+        if payload.get("sourceConfigurationSha256")!=header["sourceConfigurationSha256"]:
+            raise ValueError("Identity capsule ROOT configuration source checksum differs")
     if payload.get("posixPolicies") is not None:
         if not isinstance(payload["posixPolicies"],dict):raise ValueError("Identity capsule POSIX collection is invalid")
     if payload.get("posixPolicies"):
@@ -11186,29 +11299,47 @@ if action == "capabilities":
     print(json.dumps({"success": True, "schemaVersion": 1, "localIdentity": True, "adIdentity": False, "posixReceiptTransferSupported":True}))
 elif action == "export":
     names = request.get("names") or []
-    domain_path = Path("/etc/ablestack-storage/smb-domain.json")
-    domain = json.loads(domain_path.read_text()) if domain_path.exists() else {}
-    if str(domain.get("joinState") or domain.get("state") or "").upper() == "JOINED":
-        raise ValueError("SMB AD identity transfer is deferred")
-    records=None;configuration=None
-    if request.get("includePosixPolicyReceipts") is True:
-        configuration=identity_command(("operation","generation","status"))
-        if (configuration.get("generation",{}).get("instanceUuid")!=request["instanceUuid"]
-                or configuration.get("generation",{}).get("configurationSha256")!=configuration.get("configurationSha256")
-                or configuration.get("pendingOperationUuid") not in (None,request["operationUuid"])):
-            raise ValueError("POSIX source receipt snapshot has a foreign native writer")
-        records=PosixReceiptTransfer().collect(configuration["configurationDesiredState"]["posix-directory-policies.json"],request["instanceUuid"],
-                                              lambda value:identity_command(("posix","directory","inspect","/dev/stdin"),value))
-    payload = collect(names, request.get("nvmeHosts") or [],posix_policies=records)
+    root_source=None;ad_metadata=None;records=None;configuration=None
+    if "templateUpgradeUuid" in request:
+        root_scope={key:request[key] for key in ("instanceUuid","templateUpgradeUuid","operationUuid","revision")}
+        root_source=identity_command(("operation","generation","render-root-identity-export-source","/dev/stdin"),root_scope)
+        if root_source.get("scope")!=root_scope or root_source.get("rootSourceStoppedVerified") is not True:
+            raise ValueError("ROOT RAW identity export lacks its protected owned stopped receipt")
+        ad_metadata=root_source["adIdentity"]
+        if ad_metadata is not None:validate_ad_identity(ad_metadata)
+        records=root_source["posixPolicies"] if request.get("includePosixPolicyReceipts") is True else None
+        configuration={"generation":root_source["sourceGeneration"],"configurationSha256":root_source["sourceConfigurationSha256"]}
+    else:
+        domain_path = Path("/etc/ablestack-storage/smb-domain.json")
+        domain = json.loads(domain_path.read_text()) if domain_path.exists() else {}
+        if str(domain.get("joinState") or domain.get("state") or "").upper()=="JOINED":
+            actual=identity_command(("identity","domain","inspect","/dev/stdin"),{key:request[key] for key in ("instanceUuid","operationUuid","revision")})
+            if actual.get("identityVerified") is not True or not domain.get("machineConfigurationSha256"):
+                raise ValueError("SMB AD source lacks its complete verified machine configuration receipt")
+            ad_metadata={"schemaVersion":1,**{key:actual[key] for key in ("domain","realm","workgroup","netbiosName","machineSid","domainSid","machineAccountSid","servicePrincipals","trustVerified","idmapPolicy","dnsAliases")},"machineConfigurationSha256":domain["machineConfigurationSha256"]}
+            validate_ad_identity(ad_metadata)
+        if request.get("includePosixPolicyReceipts") is True:
+            configuration=identity_command(("operation","generation","status"))
+            if (configuration.get("generation",{}).get("instanceUuid")!=request["instanceUuid"]
+                    or configuration.get("generation",{}).get("configurationSha256")!=configuration.get("configurationSha256")
+                    or configuration.get("pendingOperationUuid") not in (None,request["operationUuid"])):
+                raise ValueError("POSIX source receipt snapshot has a foreign native writer")
+            records=PosixReceiptTransfer().collect(configuration["configurationDesiredState"]["posix-directory-policies.json"],request["instanceUuid"],
+                                                  lambda value:identity_command(("posix","directory","inspect","/dev/stdin"),value))
+    payload = collect(names, request.get("nvmeHosts") or [],ad_identity=ad_metadata,posix_policies=records)
     if records is not None:payload["sourceConfigurationSha256"]=configuration["configurationSha256"]
+    if root_source is not None:
+        # The latest source seven are authenticated inside AEAD, never trusted
+        # from an outer caller snapshot on retained ROOT authorization.
+        payload["rootSourceConfiguration"]=root_source["rootSourceConfiguration"]
+        payload["sourceConfigurationSha256"]=root_source["sourceConfigurationSha256"]
+        fresh=identity_command(("operation","generation","render-root-identity-export-source","/dev/stdin"),root_scope)
+        if fresh!=root_source:raise ValueError("ROOT stopped source changed while RAW identity bytes were collected")
     validate_payload(payload)
     capsule=encrypt(payload,request["publicKey"],scope)
     reference=None
-    if "templateUpgradeUuid" in request:
-        source=configuration or identity_command(("operation","generation","status"))
-        if (source.get("generation",{}).get("instanceUuid")!=request["instanceUuid"] or source.get("pendingOperationUuid") not in (None,request["operationUuid"])):
-            raise ValueError("ROOT capsule source reference has a foreign generation writer")
-        reference=RootIdentityReference().retain(request,capsule,source["configurationSha256"])
+    if root_source is not None:
+        reference=RootIdentityReference().retain(request,capsule,root_source["sourceConfigurationSha256"])
     print(json.dumps({"success":True,"capsule":capsule,"rootIdentityReference":reference},sort_keys=True))
 elif action == "posix-attest":
     capsule_scope=RootIdentityReference().authorize(request,request["capsule"],identity_command(("operation","maintenance","status")))
@@ -11234,7 +11365,7 @@ elif action == "import":
         RootIdentityReference().retain(request,request["capsule"],source_sha)
     if "restoreDomains" in request:payload=select_restore_domains(payload,request["restoreDomains"])
     receipts_deferred=bool(payload.get("posixPolicies"))
-    payload=dict(payload);payload.pop("posixPolicies",None);payload.pop("sourceConfigurationSha256",None)
+    payload=dict(payload);payload.pop("posixPolicies",None);payload.pop("sourceConfigurationSha256",None);payload.pop("rootSourceConfiguration",None)
     if request.get("deferNvmeReplay") is True:
         validate_payload(payload)
         files_only = dict(payload); files_only.pop("nvmeHosts", None)
@@ -15105,6 +15236,402 @@ def credential_target_inputs(request, desired, refs, saved, source_sha, source_o
 # specific language governing permissions and limitations
 # under the License.
 
+"""Native-observed latest ROOT configuration inside the authenticated identity capsule."""
+import re
+import hashlib
+import json
+import uuid
+ROOT_CONFIGURATION_PATHS={"desired-state/nfs-export-apply.json","desired-state/smb-share-apply.json","iscsi-targets.json","nvmeof-subsystems.json","posix-directory-policies.json","network-endpoints.json","sharedfs-network.json"}
+
+
+def root_configuration_no_secrets(value):
+    if isinstance(value,dict):
+        for key,item in value.items():
+            if not isinstance(key,str) or any(token in key.lower() for token in ("password","secret","dhchapkey","dhchapctrlkey","privatekey","keytab","capsule")):
+                raise ValueError("ROOT configuration accepts public references, not credential material")
+            root_configuration_no_secrets(item)
+    elif isinstance(value,list):
+        for item in value:root_configuration_no_secrets(item)
+
+
+def root_configuration_sha256(value):
+    if not isinstance(value,dict) or set(value)!=ROOT_CONFIGURATION_PATHS or any(item is not None and not isinstance(item,dict) for item in value.values()):
+        raise ValueError("ROOT configuration requires its exact seven canonical files")
+    return hashlib.sha256(json.dumps(value,sort_keys=True,separators=(",",":"),allow_nan=False).encode()).hexdigest()
+
+
+def root_capsule_scope(value):
+    fields={"instanceUuid","templateUpgradeUuid","operationUuid","revision"}
+    if not isinstance(value,dict) or set(value)!=fields:
+        raise ValueError("ROOT configuration capsule scope is not exact")
+    for key in fields-{"revision"}:
+        if not isinstance(value[key],str) or str(uuid.UUID(value[key]))!=value[key]:
+            raise ValueError("ROOT configuration capsule UUID is invalid")
+    if type(value["revision"]) is not int or value["revision"]<1:raise ValueError("ROOT configuration capsule revision is invalid")
+    return value
+
+
+def validate_root_configuration(value):
+    fields={"schemaVersion","kind","scope","sourceGeneration","sourceConfigurationSha256","configurationDesiredState"}
+    if (not isinstance(value,dict) or set(value)!=fields or type(value["schemaVersion"]) is not int or value["schemaVersion"]!=1
+            or value["kind"]!="ROOT_SOURCE_CONFIGURATION"):
+        raise ValueError("ROOT configuration capsule fields are not exact")
+    scope=root_capsule_scope(value["scope"]);generation=value["sourceGeneration"];checksum=value["sourceConfigurationSha256"]
+    if not isinstance(checksum,str) or not re.fullmatch("[0-9a-f]{64}",checksum):raise ValueError("ROOT configuration capsule checksum is invalid")
+    if (not isinstance(generation,dict) or generation.get("instanceUuid")!=scope["instanceUuid"]
+            or type(generation.get("revision")) is not int or not 1<=generation["revision"]<=scope["revision"]
+            or generation.get("configurationSha256")!=checksum):
+        raise ValueError("ROOT configuration capsule source generation is foreign or unpinned")
+    if not isinstance(generation.get("operationUuid"),str) or str(uuid.UUID(generation["operationUuid"]))!=generation["operationUuid"]:
+        raise ValueError("ROOT configuration capsule source operation is invalid")
+    root_configuration_no_secrets(value["configurationDesiredState"])
+    if root_configuration_sha256(value["configurationDesiredState"])!=checksum:
+        raise ValueError("ROOT configuration capsule seven-file checksum differs")
+    return value
+
+
+def root_configuration_from_observation(request,observed):
+    scope=root_capsule_scope({key:request[key] for key in ("instanceUuid","templateUpgradeUuid","operationUuid","revision")})
+    if (observed.get("generationStatus")!="IN_SYNC" or observed.get("pendingOperationUuid")
+            or (observed.get("generation") or {}).get("configurationSha256")!=observed.get("configurationSha256")):
+        raise ValueError("ROOT configuration capsule requires a fresh native LKG before source shutdown")
+    result={"schemaVersion":1,"kind":"ROOT_SOURCE_CONFIGURATION","scope":scope,"sourceGeneration":observed["generation"],
+            "sourceConfigurationSha256":observed["configurationSha256"],"configurationDesiredState":observed["configurationDesiredState"]}
+    return validate_root_configuration(result)
+
+
+def root_configuration_authorize(payload,expected_scope,source_sha):
+    if not isinstance(payload,dict) or "rootSourceConfiguration" not in payload:
+        raise ValueError("Retained ROOT requires its latest encrypted native seven-file source")
+    value=validate_root_configuration(payload["rootSourceConfiguration"])
+    if value["scope"]!=root_capsule_scope(expected_scope) or value["sourceConfigurationSha256"]!=source_sha:
+        raise ValueError("Retained ROOT encrypted source differs from its protected scope or source reference")
+    return value["configurationDesiredState"]
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements. See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership. The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+"""Public PRESTOP identity and scoped owned-stop proof; no private DB reads."""
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import stat
+import subprocess
+import time
+import ipaddress
+
+ROOT_IDENTITY_COMMS=("smbd","nmbd","winbindd","samba","samba-dcerpcd","samba-bgqd")
+ROOT_IDENTITY_DATABASES=("/var/lib/samba/private/passdb.tdb","/var/lib/samba/private/secrets.tdb","/var/lib/samba/winbindd_idmap.tdb")
+ROOT_IDENTITY_HOLDER_SCOPE={"processNames":list(ROOT_IDENTITY_COMMS),"databasePaths":list(ROOT_IDENTITY_DATABASES)}
+
+
+def root_public_sha(value):
+    return hashlib.sha256(json.dumps(value,sort_keys=True,separators=(",",":"),allow_nan=False).encode()).hexdigest()
+
+
+def root_source_validate_ad_identity(value):
+    fields={"schemaVersion","domain","realm","workgroup","netbiosName","machineSid","domainSid","servicePrincipals","trustVerified"}
+    if not isinstance(value,dict) or set(value)-{"idmapPolicy","machineAccountSid","dnsAliases","machineConfigurationSha256"}!=fields or type(value["schemaVersion"]) is not int or value["schemaVersion"]!=1 or value["trustVerified"] is not True:
+        raise ValueError("AD capsule metadata is not a verified joined identity")
+    domain=value["domain"]
+    if not isinstance(domain,str) or len(domain)>253 or domain!=domain.lower() or not re.fullmatch(r"[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?",domain) or any(not label or label.startswith("-") or label.endswith("-") for label in domain.split(".")):
+        raise ValueError("AD capsule DNS domain is invalid")
+    if value["realm"]!=domain.upper() or any(not re.fullmatch(r"[A-Z0-9][A-Z0-9_-]{0,14}",str(value[key])) for key in ("workgroup","netbiosName")):
+        raise ValueError("AD capsule realm/machine identity is invalid")
+    for key in ("machineSid","domainSid"):
+        if not re.fullmatch(r"S-1-5-21(?:-[0-9]{1,10}){3}",str(value[key])):raise ValueError("AD capsule SID is invalid")
+    principals=value["servicePrincipals"]
+    if not isinstance(principals,list) or not principals or len(principals)>128 or len(set(principals))!=len(principals):raise ValueError("AD capsule SPN list is invalid")
+    for principal in principals:
+        if not isinstance(principal,str) or not re.fullmatch(r"(?:host|cifs)/[a-z0-9.-]+",principal) or not principal.split("/",1)[1].endswith("."+domain):
+            raise ValueError("AD capsule SPN escapes its joined DNS domain")
+    if "idmapPolicy" in value:
+        mapping=value["idmapPolicy"]
+        if not isinstance(mapping,dict) or set(mapping)!={"default","domain"}:raise ValueError("AD capsule idmap policy is incomplete")
+        ranges=[]
+        for label,entry in mapping.items():
+            if not isinstance(entry,dict) or entry.get("backend") not in ("tdb","rid") or set(entry)!=({"backend","range","baseRid"} if entry["backend"]=="rid" else {"backend","range"}):
+                raise ValueError("AD capsule idmap backend is unsupported")
+            numbers=entry["range"]
+            if (not isinstance(numbers,list) or len(numbers)!=2 or any(type(number) is not int for number in numbers)
+                    or not 1000<=numbers[0]<=numbers[1]<=2147483647 or numbers[0]<=65534<=numbers[1]):
+                raise ValueError("AD capsule idmap range is unsafe")
+            if entry["backend"]=="rid" and (type(entry["baseRid"]) is not int or not 0<=entry["baseRid"]<=2147483647):
+                raise ValueError("AD capsule RID base is invalid")
+            ranges.append(numbers)
+        if max(row[0] for row in ranges)<=min(row[1] for row in ranges):raise ValueError("AD capsule idmap ranges overlap")
+    extra={"machineAccountSid","dnsAliases","machineConfigurationSha256"}
+    if extra&set(value):
+        if not extra<=set(value) or "idmapPolicy" not in value:raise ValueError("AD full identity capsule metadata is incomplete")
+        account=value["machineAccountSid"]
+        if not isinstance(account,str) or not re.fullmatch(re.escape(value["domainSid"])+r"-[0-9]{1,10}",account):raise ValueError("AD computer account SID differs from its domain")
+        if not re.fullmatch("[0-9a-f]{64}",str(value["machineConfigurationSha256"])):raise ValueError("AD private configuration digest is invalid")
+        aliases=value["dnsAliases"]
+        if not isinstance(aliases,list) or not aliases or len(aliases)>64:raise ValueError("AD capsule DNS aliases are unavailable")
+        wanted=set()
+        for alias in aliases:
+            if not isinstance(alias,dict) or set(alias)!={"hostname","addresses"} or not alias["hostname"].endswith("."+domain) or not re.fullmatch("[a-z0-9.-]+",alias["hostname"]):raise ValueError("AD capsule DNS alias is foreign")
+            if not isinstance(alias["addresses"],list) or not alias["addresses"] or len(alias["addresses"])>16:raise ValueError("AD capsule DNS endpoint set is invalid")
+            import ipaddress
+            for address in alias["addresses"]:ipaddress.IPv4Address(address)
+            wanted.update(service+"/"+alias["hostname"] for service in ("host","cifs"))
+        if not wanted<=set(principals):raise ValueError("AD capsule aliases lack exact CIFS/HOST SPNs")
+    return value
+
+class RootSourceIdentityCheckpoint:
+    def __init__(self,runtime,configuration=None,run=None,process_root=None):
+        self.runtime=runtime
+        self.configuration=Path(configuration or os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_ROOT","/etc/ablestack-storage"))
+        self.run=run or subprocess.run;self.process_root=Path(process_root or "/proc")
+        self.deadline=time.monotonic()+180
+
+    def command(self,args):
+        remaining=self.deadline-time.monotonic()
+        if remaining<=0:raise TimeoutError("ROOT source stop exceeded its total deadline")
+        value=self.run(args,capture_output=True,text=True,timeout=min(15,remaining))
+        if value.returncode or len(value.stdout)>1024*1024:raise ValueError("ROOT owned source observation/stop failed")
+        return value.stdout.strip()
+
+    def public_file(self,path,optional=False,exact_mode=None):
+        path=Path(path);parent=path.parent.lstat()
+        if not stat.S_ISDIR(parent.st_mode) or parent.st_uid!=os.geteuid() or parent.st_mode&0o022:
+            raise ValueError("ROOT public identity parent is not protected")
+        directory=os.open(path.parent,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
+        fields=("st_dev","st_ino","st_mode","st_uid","st_gid","st_size","st_mtime_ns","st_ctime_ns")
+        parent_fields=("st_dev","st_ino","st_mode","st_uid","st_gid")
+        try:
+            held_parent=os.fstat(directory)
+            if any(getattr(parent,key)!=getattr(held_parent,key) for key in parent_fields):
+                raise ValueError("ROOT public identity parent changed while opening")
+            try:before=os.stat(path.name,dir_fd=directory,follow_symlinks=False)
+            except FileNotFoundError:
+                if optional:
+                    named_parent=path.parent.lstat()
+                    if any(getattr(named_parent,key)!=getattr(held_parent,key) for key in parent_fields):
+                        raise ValueError("ROOT absent public identity parent changed")
+                    return None,None
+                raise
+            if (not stat.S_ISREG(before.st_mode) or before.st_uid!=os.geteuid() or before.st_mode&0o022 or before.st_size>8*1024*1024
+                    or (exact_mode is not None and stat.S_IMODE(before.st_mode)!=exact_mode)):
+                raise ValueError("ROOT public identity file is not protected")
+            fd=os.open(path.name,os.O_RDONLY|os.O_NOFOLLOW,dir_fd=directory)
+            try:
+                opened=os.fstat(fd);data=os.read(fd,8*1024*1024+1);after=os.fstat(fd)
+                named=os.stat(path.name,dir_fd=directory,follow_symlinks=False);named_parent=path.parent.lstat()
+                if (len(data)>8*1024*1024 or any(getattr(before,key)!=getattr(opened,key) or getattr(after,key)!=getattr(opened,key)
+                        or getattr(named,key)!=getattr(opened,key) for key in fields)
+                        or any(getattr(named_parent,key)!=getattr(held_parent,key) for key in parent_fields)):
+                    raise ValueError("ROOT public identity file or parent changed during read")
+                signature={key:getattr(opened,key) for key in fields}
+                signature.update({"parentDevice":held_parent.st_dev,"parentInode":held_parent.st_ino,"sha256":hashlib.sha256(data).hexdigest()})
+                return data,signature
+            finally:os.close(fd)
+        finally:os.close(directory)
+
+    def posix(self,desired,instance):
+        rows=desired["posix-directory-policies.json"];records={}
+        if rows is None:return records
+        if not isinstance(rows,dict):raise ValueError("ROOT source POSIX policies are invalid")
+        receipt_root=Path(os.environ.get("ABLESTACK_STORAGE_POSIX_RECEIPTS","/var/lib/ablestack-storage/posix-policy-receipts"))
+        for policy,row in rows.items():
+            request=row["request"]
+            if request.get("instanceUuid")!=instance or request.get("uuid")!=policy:raise ValueError("ROOT source POSIX scope is foreign")
+            observed=self.runtime.command(("posix","directory","inspect"),request)
+            raw,_=self.public_file(receipt_root/(policy+".json"))
+            receipt=credential_json(raw)
+            expected={"instanceUuid":instance,"policyUuid":policy,"volumeUuid":request["volumeUuid"],"revision":request["revision"],
+                      "volumeMountPath":request["volumeMountPath"],"relativePath":request["relativePath"]}
+            identity=observed.get("directoryIdentity");canonical=receipt.get("canonicalDirectoryIdentity",receipt.get("directoryIdentity"))
+            if (type(receipt.get("schemaVersion")) is not int or receipt["schemaVersion"]!=1 or receipt.get("phase")!="COMPLETE"
+                    or receipt.get("scope")!=expected or receipt.get("requestSha256")!=root_public_sha(request)
+                    or receipt.get("directoryIdentity")!=identity or row.get("effective",{}).get("directoryIdentity")!=canonical):
+                raise ValueError("ROOT source POSIX UID/GID/inode policy is not freshly attested")
+            records[policy]={"canonicalRow":row,"rowSha256":root_public_sha(row),"postReceipt":receipt}
+        return records
+
+    def freeze(self,scope,actual):
+        raw,binding=self.public_file(self.configuration/"smb-domain.json",True)
+        state=credential_json(raw) if raw is not None else {};metadata=None;machine_binding=None
+        if str(state.get("joinState") or state.get("state") or "").upper()=="JOINED":
+            inspect=self.runtime.command(("identity","domain","inspect"),{key:scope[key] for key in ("instanceUuid","operationUuid","revision")})
+            required=("domain","realm","workgroup","netbiosName","machineSid","domainSid","machineAccountSid","servicePrincipals","trustVerified","idmapPolicy","dnsAliases")
+            if (inspect.get("scope")!={key:scope[key] for key in ("instanceUuid","operationUuid","revision")}
+                    or inspect.get("identityVerified") is not True or inspect.get("trustVerified") is not True
+                    or inspect.get("adSpnsVerified") is not True or inspect.get("dnsAliasesVerified") is not True
+                    or any(key not in inspect for key in required)):
+                raise ValueError("ROOT PRESTOP AD public identity is incomplete or unverified")
+            _,machine_binding=self.public_file(self.configuration/"ad-machine.conf",exact_mode=0o600)
+            if state.get("machineConfigurationSha256")!=machine_binding["sha256"]:
+                raise ValueError("ROOT PRESTOP AD machine configuration differs from its protected joined receipt")
+            metadata={"schemaVersion":1,**{key:inspect[key] for key in required},"machineConfigurationSha256":machine_binding["sha256"]}
+            root_source_validate_ad_identity(metadata);no_rendered_secrets(metadata)
+        result={"schemaVersion":1,"publicAdIdentity":metadata,"publicAdPreStopSha256":root_public_sha(metadata) if metadata is not None else None,
+                "domainFileBinding":binding,"machineFileBinding":machine_binding,
+                "sourcePosixPolicies":self.posix(actual["configurationDesiredState"],scope["instanceUuid"]),
+                "rootSourceConfiguration":root_configuration_from_observation(scope,actual)}
+        no_rendered_secrets(result);return result
+
+    def unchanged(self,scope,actual,frozen):
+        if (not isinstance(frozen,dict) or set(frozen)!={"schemaVersion","publicAdIdentity","publicAdPreStopSha256","domainFileBinding","machineFileBinding","sourcePosixPolicies","rootSourceConfiguration"}
+                or type(frozen["schemaVersion"]) is not int or frozen["schemaVersion"]!=1):
+            raise ValueError("ROOT protected PRESTOP public identity shape changed")
+        _,domain=self.public_file(self.configuration/"smb-domain.json",True)
+        if domain!=frozen["domainFileBinding"]:raise ValueError("ROOT PRESTOP public AD state changed")
+        if frozen["machineFileBinding"] is not None:
+            _,machine=self.public_file(self.configuration/"ad-machine.conf",exact_mode=0o600)
+            if machine!=frozen["machineFileBinding"]:raise ValueError("ROOT PRESTOP public machine configuration changed")
+        if (frozen["publicAdPreStopSha256"]!=(root_public_sha(frozen["publicAdIdentity"]) if frozen["publicAdIdentity"] is not None else None)
+                or frozen["rootSourceConfiguration"]!=root_configuration_from_observation(scope,actual)
+                or frozen["sourcePosixPolicies"]!=self.posix(actual["configurationDesiredState"],scope["instanceUuid"])):
+            raise ValueError("ROOT PRESTOP public identity/UID/policy source changed")
+        if frozen["publicAdIdentity"] is not None:root_source_validate_ad_identity(frozen["publicAdIdentity"])
+        no_rendered_secrets(frozen)
+
+    def owner(self,unit,require_active=True):
+        nfs=re.fullmatch(r"ablestack-storage-ganesha@([A-Za-z0-9_.-]+)\.service",unit)
+        smb=re.fullmatch(r"ablestack-storage-smb@([0-9a-f]{24})\.service",unit)
+        ad=unit=="ablestack-storage-winbind.service"
+        if not nfs and not smb and not ad:raise ValueError("ROOT stop refuses a foreign or legacy file/identity acceptor")
+        output=self.command(["systemctl","show",unit,"--property=MainPID,ActiveState","--no-pager"])
+        values=dict(line.split("=",1) for line in output.splitlines() if "=" in line)
+        if values.get("ActiveState")!="active":
+            if require_active:raise ValueError("ROOT source owner is no longer active")
+            return None
+        pid=int(values.get("MainPID") or "0")
+        if pid<=0:raise ValueError("ROOT source owner lacks its exact main PID")
+        process=self.process_root/str(pid);args=[os.fsdecode(item) for item in (process/"cmdline").read_bytes().split(b"\0") if item]
+        exe=os.readlink(process/"exe");endpoints=[]
+        if nfs:
+            config="/etc/ganesha/ablestack-storage/"+nfs[1]+".conf"
+            if exe not in ("/usr/bin/ganesha.nfsd","/opt/ablestack-ganesha/5.5.3/bin/ganesha.nfsd") or args.count("-f")!=1 or args[args.index("-f")+1]!=config:
+                raise ValueError("ROOT NFS owner executable/configuration differs")
+            raw,_=self.public_file(Path(config).resolve(strict=True));content=raw.decode()
+            addresses=re.findall(r"(?mi)^\s*Bind_Addr\s*=\s*([^;]+);",content);ports=re.findall(r"(?mi)^\s*NFS_Port\s*=\s*([0-9]+);",content)
+            if len(addresses)!=1 or len(ports)!=1:raise ValueError("ROOT NFS owner listener is ambiguous")
+            endpoints=[{"listenIp":str(ipaddress.ip_address(addresses[0].strip().strip('"'))),"port":int(ports[0])}]
+        elif smb:
+            config="/etc/samba/smb.conf"
+            if exe!="/usr/sbin/smbd" or not any(arg in ("--configfile="+config,config) for arg in args):
+                raise ValueError("ROOT SMB owner executable/configuration differs")
+            raw,_=self.public_file(self.configuration/"smb-endpoint-listeners"/(smb[1]+".json"))
+            endpoint=credential_json(raw);endpoints=[{"listenIp":str(ipaddress.ip_address(endpoint["listenIp"])),"port":int(endpoint["port"])}]
+        else:
+            config="/etc/ablestack-storage/ad-machine.conf"
+            if exe!="/usr/sbin/winbindd" or args.count("--configfile="+config)!=1:
+                raise ValueError("ROOT winbind owner executable/configuration differs")
+        if "/"+unit not in (process/"cgroup").read_text():raise ValueError("ROOT source PID differs from its owned service")
+        if any(not 1<=row["port"]<=65535 for row in endpoints):raise ValueError("ROOT owned listener port is invalid")
+        return {"unit":unit,"pid":pid,"startTicks":(process/"stat").read_text().rpartition(")")[2].split()[19],"configurationPath":config,"listenerEndpoints":endpoints}
+
+    def owners(self):
+        output=self.command(["systemctl","list-units","--state=active","--type=service","--no-legend","--plain",
+                "ablestack-storage-ganesha@*.service","ablestack-storage-smb@*.service","ablestack-storage-winbind.service",
+                "smbd.service","nmbd.service","winbind.service","samba.service","nfs-server.service","nfs-kernel-server.service","nfs-ganesha.service"])
+        names=[line.split()[0] for line in output.splitlines() if line.split()]
+        if len(names)!=len(set(names)):raise ValueError("ROOT source owner set is ambiguous")
+        return [self.owner(unit) for unit in sorted(names)]
+
+    def listeners_clear(self,owners):
+        endpoints=[row for owner in owners for row in owner["listenerEndpoints"]]
+        if not endpoints:return
+        for args in (["ss","-H","-ltnp"],["ss","-H","-lunp"]):
+            for line in self.command(args).splitlines():
+                fields=line.split()
+                if len(fields)<5:raise ValueError("ROOT source listener readback is malformed")
+                address,sep,port=fields[3].rpartition(":")
+                if not sep or not port.isdigit():raise ValueError("ROOT source listener readback is malformed")
+                address=address.strip("[]");address="0.0.0.0" if address=="*" else str(ipaddress.ip_address(address))
+                if any(int(port)==row["port"] and (address in ("0.0.0.0","::") or row["listenIp"] in (address,"0.0.0.0","::")) for row in endpoints):
+                    raise ValueError("ROOT owned listener remains exposed after stop")
+
+    def holders(self):
+        holders=[];until=min(self.deadline,time.monotonic()+5)
+        for process in self.process_root.iterdir():
+            if time.monotonic()>until:raise ValueError("ROOT scoped identity holder observation timed out")
+            if not process.name.isdigit():continue
+            try:
+                if (process/"comm").read_text().strip() not in ROOT_IDENTITY_COMMS:continue
+                for fd in (process/"fd").iterdir():
+                    try:
+                        name=os.readlink(fd);name=name[:-10] if name.endswith(" (deleted)") else name
+                        if name in ROOT_IDENTITY_DATABASES:
+                            value=fd.stat();holders.append({"pid":int(process.name),"fd":int(fd.name),"path":name,"device":value.st_dev,"inode":value.st_ino})
+                    except FileNotFoundError:continue
+            except FileNotFoundError:continue
+            except PermissionError as invalid:raise ValueError("ROOT scoped identity holders cannot be observed") from invalid
+        return holders
+
+    def stopped(self,scope,actual,frozen,source_rendered,previous=None,plan=None):
+        self.unchanged(scope,actual,frozen)
+        owners=self.owners()
+        if previous is not None:
+            if (previous.get("scope")!=scope or previous.get("sourceGeneration")!=actual["generation"]
+                    or previous.get("sourceConfigurationSha256")!=actual["configurationSha256"]
+                    or previous.get("sourceRenderedManifestSha256")!=source_rendered["manifestSha256"]
+                    or previous.get("publicAdPreStopSha256")!=frozen["publicAdPreStopSha256"]
+                    or previous.get("holderObservationScope")!=ROOT_IDENTITY_HOLDER_SCOPE
+                    or type(previous.get("knownIdentityDatabaseHolders")) is not int or previous["knownIdentityDatabaseHolders"]!=0
+                    or previous.get("bootId")!=Path("/proc/sys/kernel/random/boot_id").read_text().strip()):
+                raise ValueError("ROOT source stopped receipt is foreign or from another boot")
+            if owners:raise ValueError("ROOT source service restarted after its stopped receipt")
+            self.listeners_clear(previous["owners"])
+            if self.holders():raise ValueError("ROOT known identity DB holder appeared after stopped receipt")
+            return previous
+        if plan is not None:
+            current={row["unit"]:row for row in owners}
+            if any(row["unit"] not in {item["unit"] for item in plan} for row in owners):
+                raise ValueError("ROOT source acquired a foreign owner during stopped recovery")
+            if any(current.get(row["unit"],row)!=row for row in plan):
+                raise ValueError("ROOT source planned owner changed during stopped recovery")
+            owners=plan
+        joined=frozen["publicAdIdentity"] is not None
+        if joined!=any(row["unit"]=="ablestack-storage-winbind.service" for row in owners):
+            raise ValueError("ROOT PRESTOP joined identity differs from its owned active winbind")
+        for owner in owners:
+            fresh=self.owner(owner["unit"],False)
+            if fresh is not None and fresh!=owner:raise ValueError("ROOT source owner PID changed before stop")
+        # Stop every owned file acceptor before the private identity daemon.
+        for owner in sorted(owners,key=lambda row:row["unit"]=="ablestack-storage-winbind.service"):
+            fresh=self.owner(owner["unit"],False)
+            if fresh is not None and fresh!=owner:raise ValueError("ROOT source owner PID changed during stop")
+            if fresh is not None:self.command(["systemctl","stop",owner["unit"]])
+        if self.owners():raise ValueError("ROOT owned source acceptors remain active")
+        self.listeners_clear(owners)
+        if self.holders():raise ValueError("ROOT known Samba identity DB holders remain after stop")
+        self.unchanged(scope,actual,frozen)
+        return {"schemaVersion":1,"kind":"ROOT_SOURCE_STOPPED","scope":scope,"sourceGeneration":actual["generation"],
+                "sourceConfigurationSha256":actual["configurationSha256"],"sourceRenderedManifestSha256":source_rendered["manifestSha256"],
+                "publicAdPreStopSha256":frozen["publicAdPreStopSha256"],"owners":owners,
+                "holderObservationScope":ROOT_IDENTITY_HOLDER_SCOPE,"knownIdentityDatabaseHolders":0,
+                "bootId":Path("/proc/sys/kernel/random/boot_id").read_text().strip(),"stoppedEpoch":time.time()}
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements. See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership. The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
 """Protected ROOT source recovery; immutable baseline and exact canonical bytes."""
 import hashlib
 import fcntl
@@ -15137,6 +15664,7 @@ class RootSourceRecovery:
         self.driver=driver;self.store=driver.store;self.runtime=driver.runtime
         self.root=Path(root or os.environ.get("ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR","/var/lib/ablestack-storage"))/"root-rendered-recovery"
         self.authorization=Path("/run/ablestack-storage/rendered-authorization")
+        self.identity=RootSourceIdentityCheckpoint(self.runtime)
 
     def path(self,scope):
         return self.root/("source-"+scope["templateUpgradeUuid"]+".json")
@@ -15215,26 +15743,70 @@ class RootSourceRecovery:
     def capture(self,request):
         scope=self.marker(request);actual,status=self.observation(scope);path=self.path(scope)
         if path.exists() or path.is_symlink():
-            self.validate(request)
-            return {"success":True,"scope":scope,"sourceCaptured":True,"sourceGeneration":actual["generation"],"sideEffects":False}
+            _,_,saved=self.validate(request)
+            self.identity.unchanged(scope,actual,saved["sourcePublicIdentity"])
+            return {**self.capture_receipt(scope,saved),"sideEffects":False}
         verified=self.driver.verify(self.store.pointer())
         if set(verified)!=set(DOMAINS) or any(verified[domain] is not True for domain in DOMAINS):
             raise ValueError("ROOT source baseline failed fresh all-four readback before quiesce")
         value={"schemaVersion":1,"scope":scope,"phase":"CAPTURED","sourceGeneration":actual["generation"],
                "sourceRendered":status["current"],"sourceActivation":status.get("activation"),
-               "sourceConfigurationSha256":actual["configurationSha256"],"canonicalBytes":self.canonical_bytes(),"capturedEpoch":time.time()}
+               "sourceConfigurationSha256":actual["configurationSha256"],"canonicalBytes":self.canonical_bytes(),"capturedEpoch":time.time(),
+               "sourcePublicIdentity":self.identity.freeze(scope,actual)}
         rendered_json(path,value)
-        return {"success":True,"scope":scope,"sourceCaptured":True,"sourceGeneration":value["sourceGeneration"],
-                "sourceRenderedManifestSha256":value["sourceRendered"]["manifestSha256"],"canonicalDesiredStateChanged":False}
+        return self.capture_receipt(scope,value)
+
+    def capture_receipt(self,scope,saved):
+        frozen=saved["sourcePublicIdentity"]
+        return {"success":True,"scope":scope,"sourceCaptured":True,"sourceGeneration":saved["sourceGeneration"],
+                "sourceConfigurationSha256":saved["sourceConfigurationSha256"],
+                "sourceRenderedManifestSha256":saved["sourceRendered"]["manifestSha256"],"canonicalDesiredStateChanged":False,
+                "publicAdPreStopCaptured":frozen["publicAdIdentity"] is not None,"publicAdPreStopSha256":frozen["publicAdPreStopSha256"]}
+
+    def quiesce_source(self,request):
+        scope,path,saved=self.validate(request)
+        if saved["phase"] not in ("CAPTURED","STOPPING","QUIESCED","RECOVERY_REQUIRED"):
+            raise ValueError("ROOT source quiesce phase differs")
+        actual,_=self.observation(scope)
+        self.identity.unchanged(scope,actual,saved["sourcePublicIdentity"])
+        if saved.get("sourceStoppedReceipt") is not None:
+            receipt=self.identity.stopped(scope,actual,saved["sourcePublicIdentity"],saved["sourceRendered"],saved["sourceStoppedReceipt"])
+        else:
+            if "sourceStopOwners" not in saved:
+                saved["sourceStopOwners"]=self.identity.owners()
+            saved["phase"]="STOPPING";rendered_json(path,saved)
+            try:
+                receipt=self.identity.stopped(scope,actual,saved["sourcePublicIdentity"],saved["sourceRendered"],plan=saved["sourceStopOwners"])
+            except Exception:
+                saved["phase"]="RECOVERY_REQUIRED";rendered_json(path,saved);raise
+            saved["sourceStoppedReceipt"]=receipt
+        saved["phase"]="QUIESCED";rendered_json(path,saved)
+        return {**self.capture_receipt(scope,saved),"quiesced":True,"bootHeld":True,"maintenanceSupported":True,
+                "instanceUuid":scope["instanceUuid"],"operationUuid":scope["operationUuid"],"revision":scope["revision"],
+                "domainsQuiesced":["NFS","SMB"],"stoppedUnits":[row["unit"] for row in receipt["owners"]],
+                "blockTargetsPreserved":True,"blockSessionBoundary":"NORMAL_VM_SHUTDOWN",
+                "rootSourceStoppedVerified":True,"stoppedReceiptSha256":root_public_sha(receipt)}
+
+    def identity_export_source(self,request):
+        scope,path,saved=self.validate(request)
+        receipt=saved.get("sourceStoppedReceipt")
+        if saved["phase"]!="QUIESCED" or not isinstance(receipt,dict) or receipt.get("bootId")!=Path("/proc/sys/kernel/random/boot_id").read_text().strip():
+            raise ValueError("ROOT RAW identity export requires its same-boot protected stopped source receipt")
+        actual,_=self.observation(scope)
+        self.identity.stopped(scope,actual,saved["sourcePublicIdentity"],saved["sourceRendered"],receipt)
+        frozen=saved["sourcePublicIdentity"]
+        return {**self.capture_receipt(scope,saved),"rootSourceStoppedVerified":True,"stoppedReceiptSha256":root_public_sha(receipt),
+                "adIdentity":frozen["publicAdIdentity"],"posixPolicies":frozen["sourcePosixPolicies"],
+                "rootSourceConfiguration":frozen["rootSourceConfiguration"],"sideEffects":False}
 
     def validate(self,request,require_verified=False):
         scope=self.marker(request);path=self.path(scope);saved=credential_json(rendered_read(path));actual,status=self.observation(scope)
-        fields={"schemaVersion","scope","phase","sourceGeneration","sourceRendered","sourceActivation","sourceConfigurationSha256","canonicalBytes","capturedEpoch"}
-        if not isinstance(saved,dict) or not set(saved)<=fields|{"startedDomains","verifiedEpoch"} or not fields<=set(saved):
+        fields={"schemaVersion","scope","phase","sourceGeneration","sourceRendered","sourceActivation","sourceConfigurationSha256","canonicalBytes","capturedEpoch","sourcePublicIdentity"}
+        if not isinstance(saved,dict) or not set(saved)<=fields|{"startedDomains","verifiedEpoch","sourceStopOwners","sourceStoppedReceipt"} or not fields<=set(saved):
             raise ValueError("ROOT source checkpoint fields are not exact")
         root_recovery_scope(saved["scope"])
         if (type(saved.get("schemaVersion")) is not int or saved["schemaVersion"]!=1 or saved.get("scope")!=scope
-                or saved.get("phase") not in ("CAPTURED","QUIESCED","REPLAYING","VERIFIED","RECOVERY_REQUIRED")
+                or saved.get("phase") not in ("CAPTURED","STOPPING","QUIESCED","REPLAYING","VERIFIED","RECOVERY_REQUIRED")
                 or saved.get("sourceGeneration")!=actual["generation"] or saved.get("sourceRendered")!=status["current"]
                 or saved.get("sourceActivation")!=status.get("activation") or saved.get("sourceConfigurationSha256")!=actual["configurationSha256"]
                 or saved.get("canonicalBytes")!=self.canonical_bytes()):
@@ -15627,7 +16199,7 @@ class RenderedDriver:
         # Decrypt the authenticated, scope-bound capsule inside this heap. Only
         # fixed reviewed codec definitions from signed CLI source are loaded.
         source = Path(self.runtime.cli).read_text().split("<<'PYIDENTITY'\n", 1)[1].split("\nPYIDENTITY", 1)[0]
-        allowed = {"decrypt", "validate_payload", "account_merge", "validate_host_nqn", "merge_nvme_identity_payload","validate_ad_identity","validate_posix_transfers","posix_row_sha256","capsule_validate_posix"}
+        allowed = {"decrypt", "validate_payload", "account_merge", "validate_host_nqn", "merge_nvme_identity_payload","validate_ad_identity","validate_posix_transfers","posix_row_sha256","capsule_validate_posix","capsule_validate_root_configuration"}
         tree = ast.parse(source)
         definitions = [item for item in tree.body if isinstance(item, ast.FunctionDef) and item.name in allowed]
         if {item.name for item in definitions} != allowed: raise ValueError("Signed identity codec differs from the fixed contract")
@@ -15795,8 +16367,10 @@ class RenderedDriver:
         if result.returncode:raise ValueError("Protocol boot guards could not be loaded")
 
     def execute(self, action, request=None, unit=None):
-        if action == "render-status": return self.store.status()
+        if action == "render-status": return {**self.store.status(),"rootSourceIdentityCheckpointSupported":True}
         if action=="render-root-capture-source":return self.root_source.capture(request)
+        if action=="render-root-quiesce-source":return self.root_source.quiesce_source(request)
+        if action=="render-root-identity-export-source":return self.root_source.identity_export_source(request)
         if action=="render-root-resume-source":return self.root_source.resume(request)
         if action=="render-root-replay-guard":return self.root_source.guard()
         if action=="render-root-source-quiesce-guard":
@@ -16012,7 +16586,7 @@ fi
 
 # Keep the descriptor open through native child work, even if the management writer disappears.
 case "$command:$subcommand:$action" in
-  operation:reservation:acquire|operation:reservation:renew|operation:reservation:release|operation:reservation:status|volume:operation:capabilities|smb:identity:inspect|smb:endpoint-run:*|health:*|inventory:*|sessions:*|operation:verify:*|operation:observe:*|operation:resources:*|network:endpoints:inspect|operation:generation:render-boot-gate|operation:generation:render-status|operation:generation:render-maintenance-verify|operation:generation:status|operation:generation:frozen|posix:directory:inspect|posix:directory:plan|posix:directory:attest-plan|operation:maintenance:status|operation:maintenance:service-status|operation:maintenance:service-capabilities|operation:root-data:inspect|operation:writer-idle:*|volume:operation:status|nfs:idmapping:preflight|nfs:capabilities:*|identity:capsule:capabilities|identity:domain:inspect|identity:principal:resolve)
+  operation:reservation:acquire|operation:reservation:renew|operation:reservation:release|operation:reservation:status|volume:operation:capabilities|smb:identity:inspect|smb:endpoint-run:*|health:*|inventory:*|sessions:*|operation:verify:*|operation:observe:*|operation:resources:*|network:endpoints:inspect|operation:generation:render-boot-gate|operation:generation:render-status|operation:generation:render-maintenance-verify|operation:generation:render-root-identity-export-source|operation:generation:status|operation:generation:frozen|posix:directory:inspect|posix:directory:plan|posix:directory:attest-plan|operation:maintenance:status|operation:maintenance:service-status|operation:maintenance:service-capabilities|operation:root-data:inspect|operation:writer-idle:*|volume:operation:status|nfs:idmapping:preflight|nfs:capabilities:*|identity:capsule:capabilities|identity:domain:inspect|identity:principal:resolve)
     ;;
   *)
     acquire_storage_writer_lock || exit $?
@@ -16066,7 +16640,7 @@ case "$command" in
   operation)
     if [[ "$subcommand" == "generation" ]]; then
       case "$action" in
-        render-import|render-stage|render-activate|render-rollback|render-status|render-finalize|render-boot|render-boot-gate|render-maintenance-verify|render-maintenance-resume-source) rendered_generation_command ;;
+        render-import|render-stage|render-activate|render-rollback|render-status|render-finalize|render-boot|render-boot-gate|render-maintenance-verify|render-maintenance-resume-source|render-root-capture-source|render-root-resume-source|render-root-replay-guard|render-root-source-quiesce-guard|render-root-quiesce-source|render-root-identity-export-source) rendered_generation_command ;;
         *) configuration_generation ;;
       esac
     elif [[ "$subcommand" == "reservation" ]]; then
@@ -16126,9 +16700,8 @@ except (ValueError, KeyError, TypeError):
 
 rendered_pointer=Path(os.environ.get("ABLESTACK_STORAGE_RENDERED_GENERATIONS","/var/lib/ablestack-storage/rendered-generations"))/"current"
 if set(domains)=={"NFS","SMB"} and rendered_pointer.is_symlink():
-    guarded=subprocess.run([sys.argv[2],"operation","generation","render-root-source-quiesce-guard","/dev/stdin"],input=json.dumps(expected_scope),capture_output=True,text=True,timeout=30,pass_fds=(9,))
-    if guarded.returncode or json.loads(guarded.stdout).get("quiesceAuthorized") is not True:
-        raise ValueError("ROOT source must be captured under its held marker before quiesce")
+    stopped=subprocess.run([sys.argv[2],"operation","generation","render-root-quiesce-source","/dev/stdin"],input=json.dumps(expected_scope),capture_output=True,text=True,timeout=180,pass_fds=(9,))
+    print(stopped.stdout.strip());raise SystemExit(stopped.returncode)
 
 def run(arguments):
     return subprocess.run(arguments, capture_output=True, text=True, timeout=60)
