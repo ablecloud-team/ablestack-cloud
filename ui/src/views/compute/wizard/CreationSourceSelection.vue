@@ -17,7 +17,7 @@
 
 <template>
   <section class="creation-source-selection" data-testid="creation-source-selection">
-    <a-radio-group :value="imageType" @change="$emit('change-image-type', $event.target.value)">
+    <a-radio-group :value="imageType" @change="$emit('change-image-type', $event.target.value, true)">
       <a-radio-button v-for="kind in ['templateid', 'isoid', 'volumeid', 'snapshotid']" :key="kind" :value="kind">{{ $t('label.' + kind.replace(/id$/, '')) }}</a-radio-button>
     </a-radio-group>
     <a-alert type="info" show-icon :message="$t('message.creation.source.' + sourceKind)" />
@@ -40,7 +40,7 @@ size="small"
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'name'"><strong>{{ record.name }}</strong><div class="source-meta">{{ record.id }}</div></template>
         <template v-else-if="column.key === 'origin'">{{ record.sourcevm?.displayname || record.sourcevm?.name || $t('label.creation.source.origin.unknown') }}<div class="source-meta">{{ record.bootprofile?.osname || '—' }}</div></template>
-        <template v-else-if="column.key === 'state'"><a-tag :color="record.allowed ? 'green' : 'default'">{{ $t('label.creation.source.state.' + record.state) }}</a-tag><div v-if="record.snapshotcreated" class="source-meta">{{ date(record.snapshotcreated) }}</div></template>
+        <template v-else-if="column.key === 'state'"><a-tag :color="record.allowed ? 'green' : 'default'">{{ stateLabel(record.state) }}</a-tag><div v-if="record.snapshotcreated" class="source-meta">{{ date(record.snapshotcreated) }}</div></template>
         <template v-else-if="column.key === 'size'">{{ bytes(record.sizebytes) }}<div class="source-meta">{{ record.bootprofile?.boottype }} · {{ record.bootprofile?.bootmode }}</div></template>
         <template v-else-if="column.key === 'storage'">{{ record.storage?.name || '—' }}<div class="source-meta">{{ record.storage?.type }} · {{ record.storage?.scope }}</div></template>
         <template v-else-if="column.key === 'eligibility'">
@@ -77,6 +77,14 @@ export default {
   watch: { query: { deep: true, immediate: true, handler () { this.page = 1; this.preselectionUsed = false; this.$emit('select', null); this.fetchSources() } } },
   beforeUnmount () { this.requestSequence++ },
   methods: {
+    focusSelectedType () {
+      const input = this.$el.querySelector('.ant-radio-button-wrapper-checked input')
+      if (input) input.focus()
+    },
+    stateLabel (state) {
+      const key = 'label.creation.source.state.' + state
+      return this.$te?.(key) ? this.$t(key) : this.$t('label.creation.source.state.unknown')
+    },
     bytes (value) { return value == null ? '—' : (value / 1024 ** 3).toLocaleString(undefined, { maximumFractionDigits: 2 }) + ' GiB' },
     date (value) { return new Date(value).toLocaleString() },
     search () { this.page = 1; this.fetchSources() },

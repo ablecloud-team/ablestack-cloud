@@ -8456,5 +8456,6 @@
   "message.creation.source.reason.SECURE_BOOT_STATE_UNSUPPORTED": "Restoring Secure Boot keys and state cannot be verified.",
   "message.creation.source.reason.SOURCE_IN_USE": "Another active VM is using this disk on a host.",
   "message.creation.source.reason.SOURCE_RUNTIME_UNKNOWN": "Cannot verify disk consumers on all source storage hosts. Check host and Agent availability.",
-  "message.creation.source.reason.SOURCE_VOLUME_METADATA_MISSING": "Retained source volume metadata is missing, so storage restore cannot be prepared. Ask an administrator to recover the source metadata."
+  "message.creation.source.reason.SOURCE_VOLUME_METADATA_MISSING": "Retained source volume metadata is missing, so storage restore cannot be prepared. Ask an administrator to recover the source metadata.",
+  "label.creation.source.state.unknown": "Needs review"
 }

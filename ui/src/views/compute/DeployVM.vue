@@ -151,6 +151,7 @@
                   <div v-if="zoneSelected" style="margin-top: 15px">
                     <template v-if="isCreationSource">
                       <creation-source-selection
+                        ref="creationSourceSelection"
                         :key="imageType"
                         :image-type="imageType"
                         :query="creationSourceQuery"
@@ -2976,12 +2977,13 @@ export default {
       if (!result?.allowed) throw new Error((result?.reasoncodes || []).map(reason => this.$t('message.creation.source.reason.' + reason)).join(' ') || this.$t('message.creation.source.required'))
       return result
     },
-    changeImageType (imageType) {
+    changeImageType (imageType, restoreSourceFocus = false) {
       this.clearCreationSource()
       if (['volumeid', 'snapshotid'].includes(imageType)) this.form.vmNumber = 1
       this.additionalIsoSelection = { enabled: false, ids: [], valid: true }
       this.imageType = imageType
       this.updateImages()
+      if (restoreSourceFocus) this.$nextTick(() => this.$refs.creationSourceSelection?.focusSelectedType())
     },
     handleSubmitAndStay (e) {
       this.form.stayonpage = true

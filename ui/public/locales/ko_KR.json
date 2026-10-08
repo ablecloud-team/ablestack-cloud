@@ -8421,5 +8421,6 @@
   "message.creation.source.reason.SECURE_BOOT_STATE_UNSUPPORTED": "Secure Boot 키와 상태 복구를 확인할 수 없습니다.",
   "message.creation.source.reason.SOURCE_IN_USE": "호스트에서 다른 가상머신이 원본 디스크를 사용 중입니다.",
   "message.creation.source.reason.SOURCE_RUNTIME_UNKNOWN": "호스트의 원본 디스크 사용 상태를 확인하지 못했습니다. Agent와 호스트 상태를 확인하세요.",
-  "message.creation.source.reason.SOURCE_VOLUME_METADATA_MISSING": "원본 볼륨의 보관된 메타데이터가 없어 스토리지 복원을 준비할 수 없습니다. 관리자에게 원본 메타데이터 복구를 요청하세요."
+  "message.creation.source.reason.SOURCE_VOLUME_METADATA_MISSING": "원본 볼륨의 보관된 메타데이터가 없어 스토리지 복원을 준비할 수 없습니다. 관리자에게 원본 메타데이터 복구를 요청하세요.",
+  "label.creation.source.state.unknown": "확인 필요"
 }
