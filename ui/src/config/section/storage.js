@@ -840,6 +840,15 @@ export default {
           show: (record) => { return ['Ready', 'Stopped'].includes(record.state) }
         },
         {
+          api: 'getStorageServiceTemplateUpgradeCapabilities',
+          icon: 'cloud-upload-outlined',
+          label: 'label.storage.template.execute',
+          dataView: true,
+          popup: true,
+          component: shallowRef(defineAsyncComponent(() => import('@/views/storage/StorageServiceSystemVmTemplateUpgrade.vue'))),
+          show: (record) => { return ['Ready', 'Stopped'].includes(record.state) }
+        },
+        {
           api: 'changeSharedFileSystemServiceOffering',
           icon: 'arrows-alt-outlined',
           docHelp: 'adminguide/storage.html#lifecycle-operations',
