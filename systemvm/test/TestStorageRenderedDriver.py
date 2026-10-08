@@ -180,4 +180,49 @@ class StorageRenderedDriverTest(unittest.TestCase):
             with self.assertRaises(ValueError):driver.execute("render-maintenance-resume-source",service)
             self.assertEqual(["NFS","SMB"],replayed)
 
+    def baseline_private_fixture(self):
+        from nvme_credentials import NvmeCredentialStore
+        from rendered_generation import DESIRED_PATHS
+        scope={"instanceUuid":str(uuid.uuid4()),"operationUuid":str(uuid.uuid4()),"revision":4}
+        desired={name:None for name in DESIRED_PATHS};share=str(uuid.uuid4());local=str(uuid.uuid4());chap=str(uuid.uuid4());host=str(uuid.uuid4())
+        iqn="iqn.2026-10.local.storage:source";initiator="iqn.2026-10.example:client";nqn="nqn.2026-10.local.storage:source";client="nqn.2026-10.example:client"
+        desired["desired-state/smb-share-apply.json"]={"shares":[{"uuid":share,"acls":[{"uuid":local,"principal":"testuser","principalType":"LOCAL_USER"}]}]}
+        desired["iscsi-targets.json"]={"targets":[{"uuid":str(uuid.uuid4()),"targetName":iqn,"acls":[{"uuid":chap,"principal":initiator,"config":{"chapEnabled":True}}]}]}
+        desired["nvmeof-subsystems.json"]={"subsystems":[{"uuid":str(uuid.uuid4()),"targetName":nqn,"hosts":[{"uuid":host,"principal":client,"config":{"dhChapEnabled":True}}]}]}
+        current={**scope,"configurationSha256":"a"*64};source={"generation":current,"pendingOperationUuid":None,"generationStatus":"IN_SYNC","configurationSha256":"a"*64,"configurationDesiredState":desired}
+        request={**scope,"previousGeneration":current,"configurationDesiredState":desired,"credentialRefs":{}}
+        driver=RenderedDriver(self.cli,RenderedGeneration(self.root/"render"));private=self.root/"secrets";private.mkdir(mode=0o700)
+        driver.runtime.iscsi_credentials_path=private/"iscsi.json";driver.runtime.iscsi_credentials_path.write_text(json.dumps({iqn+"|"+initiator:{"chapSecret":"SYNTHETIC_SOURCE_ONLY"}}));driver.runtime.iscsi_credentials_path.chmod(0o600)
+        driver.runtime.nvme_credentials=NvmeCredentialStore(private/"nvme.json");driver.runtime.nvme_credentials.persist({"schemaVersion":1,"instanceUuid":scope["instanceUuid"],"hosts":{client:{"dhChapKey":"DHHC-1:SYNTHETIC_SOURCE_ONLY"}}})
+        driver.runtime.command=lambda *args:{"success":True,"scope":scope,"ownershipVerified":True,"identityDatabaseAligned":True}
+        return driver,request,source
+
+    def test_native_baseline_derives_current_vault_refs_only_from_pinned_source_slots_and_aligned_live_passdb(self):
+        driver,request,source=self.baseline_private_fixture()
+        public_lookup=subprocess.CompletedProcess(["pdbedit","-L","-u","testuser"],0,"testuser:1001:Public account\n","")
+        with patch("rendered_driver.subprocess.run",return_value=public_lookup) as observed:
+            refs=driver.baseline_credential_refs(request,source)
+        self.assertEqual(["pdbedit","-L","-u","testuser"],observed.call_args.args[0])
+        self.assertEqual({"SMB","ISCSI","NVMEOF"},set(refs))
+        for resources in refs.values():
+            for ref in resources.values():
+                self.assertEqual("CURRENT_PRIVATE_VAULT",ref["kind"]);self.assertEqual(request["operationUuid"],ref["operationUuid"])
+                self.assertEqual(source["configurationSha256"],ref["sourceConfigurationSha256"])
+        self.assertNotIn("SYNTHETIC",json.dumps(refs));self.assertNotIn("authenticated",json.dumps(refs))
+
+    def test_native_baseline_refuses_caller_refs_missing_private_slots_foreign_nvme_instance_and_deleted_passdb_alignment(self):
+        driver,request,source=self.baseline_private_fixture()
+        public_lookup=subprocess.CompletedProcess([],0,"testuser:1001:Public account\n","")
+        with patch("rendered_driver.subprocess.run",return_value=public_lookup):
+            with self.assertRaises(ValueError):driver.baseline_credential_refs({**request,"credentialRefs":{"SMB":{}}},source)
+            with self.assertRaises(ValueError):driver.baseline_credential_refs(request,{**source,"pendingOperationUuid":str(uuid.uuid4())})
+            driver.runtime.command=lambda *args:{"success":True,"scope":{key:request[key] for key in ("instanceUuid","operationUuid","revision")},"ownershipVerified":True,"identityDatabaseAligned":False}
+            with self.assertRaisesRegex(ValueError,"aligned"):driver.baseline_credential_refs(request,source)
+            driver.runtime.command=lambda *args:{"success":True,"scope":{key:request[key] for key in ("instanceUuid","operationUuid","revision")},"ownershipVerified":True,"identityDatabaseAligned":True}
+            driver.runtime.iscsi_credentials_path.unlink()
+            with self.assertRaisesRegex(ValueError,"private vault slot"):driver.baseline_credential_refs(request,source)
+            driver.runtime.iscsi_credentials_path.write_text(json.dumps({next(iter(source["configurationDesiredState"]["iscsi-targets.json"]["targets"]))["targetName"]+"|iqn.2026-10.example:client":{"chapSecret":"SYNTHETIC_SOURCE_ONLY"}}));driver.runtime.iscsi_credentials_path.chmod(0o600)
+            record=driver.runtime.nvme_credentials.read();record["instanceUuid"]=str(uuid.uuid4());driver.runtime.nvme_credentials.persist(record)
+            with self.assertRaisesRegex(ValueError,"another source instance"):driver.baseline_credential_refs(request,source)
+
 if __name__=='__main__':unittest.main()

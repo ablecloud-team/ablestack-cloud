@@ -66,7 +66,9 @@ class NativeRenderedRuntime:
         descriptor = None
         inherited = (9,) if os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD") == "9" else ()
         environment = dict(os.environ, ABLESTACK_STORAGECTL_CACHE="0")
+        environment.pop("ABLESTACK_STORAGE_ROOT_SOURCE_REPLAY",None)
         if replay:
+            if getattr(self,"root_source_replay",False):environment["ABLESTACK_STORAGE_ROOT_SOURCE_REPLAY"]="1"
             environment["ABLESTACK_STORAGE_RENDERED_REPLAY"] = str(replay)
             environment["ABLESTACK_STORAGE_RENDERED_FROM"] = str(replay_from or replay)
             environment["ABLESTACK_STORAGE_RENDERED_BUDGET"] = str(self.remaining(180))

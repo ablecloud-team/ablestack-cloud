@@ -109,6 +109,7 @@ log_command() {
 }
 
 persist_nfs_desired_state() {
+  if [[ "${ABLESTACK_STORAGE_ROOT_SOURCE_REPLAY:-}" == "1" ]]; then return 0; fi
   local payload_file="$1"
   local tmp
   if [[ -z "$payload_file" || ! -r "$payload_file" ]]; then
@@ -122,6 +123,7 @@ persist_nfs_desired_state() {
 }
 
 persist_smb_desired_state() {
+  if [[ "${ABLESTACK_STORAGE_ROOT_SOURCE_REPLAY:-}" == "1" ]]; then return 0; fi
   local payload_file="$1"
   local tmp
   if [[ -z "$payload_file" || ! -r "$payload_file" ]]; then
@@ -8847,8 +8849,9 @@ def sanitized(value):
         return [sanitized(v) for v in value]
     return value
 
-with open(state_file, "w", encoding="utf-8") as state_fp:
-    json.dump(sanitized(payload), state_fp, sort_keys=True, indent=2)
+if os.environ.get("ABLESTACK_STORAGE_ROOT_SOURCE_REPLAY")!="1":
+    with open(state_file, "w", encoding="utf-8") as state_fp:
+        json.dump(sanitized(payload), state_fp, sort_keys=True, indent=2)
 
 def run(args, timeout=20):
     return subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=timeout)
@@ -10057,8 +10060,9 @@ if os.environ.get("ABLESTACK_STORAGE_RENDERED_REPLAY") and os.path.isdir(base):
 credential_store.persist(credential_record)
 state_payload = redact_sensitive(dict(payload))
 state_payload["lastApply"] = {"success": True, "applied": applied, "skipped": skipped}
-with open(os.path.join(state_dir, "nvmeof-subsystems.json"), "w", encoding="utf-8") as state_fp:
-    json.dump(state_payload, state_fp, sort_keys=True, indent=2)
+if os.environ.get("ABLESTACK_STORAGE_ROOT_SOURCE_REPLAY")!="1":
+    with open(os.path.join(state_dir, "nvmeof-subsystems.json"), "w", encoding="utf-8") as state_fp:
+        json.dump(state_payload, state_fp, sort_keys=True, indent=2)
 
 print(json.dumps({"success": True, "subsystems": len(payload.get("subsystems", [])), "applied": applied, "skipped": skipped}))
 PY
@@ -14288,7 +14292,9 @@ class NativeRenderedRuntime:
         descriptor = None
         inherited = (9,) if os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD") == "9" else ()
         environment = dict(os.environ, ABLESTACK_STORAGECTL_CACHE="0")
+        environment.pop("ABLESTACK_STORAGE_ROOT_SOURCE_REPLAY",None)
         if replay:
+            if getattr(self,"root_source_replay",False):environment["ABLESTACK_STORAGE_ROOT_SOURCE_REPLAY"]="1"
             environment["ABLESTACK_STORAGE_RENDERED_REPLAY"] = str(replay)
             environment["ABLESTACK_STORAGE_RENDERED_FROM"] = str(replay_from or replay)
             environment["ABLESTACK_STORAGE_RENDERED_BUDGET"] = str(self.remaining(180))
@@ -15104,6 +15110,195 @@ def credential_target_inputs(request, desired, refs, saved, source_sha, source_o
 # specific language governing permissions and limitations
 # under the License.
 
+"""Protected ROOT source recovery; immutable baseline and exact canonical bytes."""
+import hashlib
+import fcntl
+import json
+import os
+import re
+from pathlib import Path
+import stat
+import time
+import uuid
+
+
+def root_recovery_scope(request):
+    keys={"instanceUuid","templateUpgradeUuid","operationUuid","revision"}
+    if not isinstance(request,dict) or "maintenanceUuid" in request:
+        raise ValueError("ROOT source recovery cannot borrow a SERVICE scope")
+    if not set(request)<=keys|{"verifiedGeneration"}:
+        raise ValueError("ROOT source recovery accepts no caller snapshot or replay flag")
+    value={key:request[key] for key in keys}
+    for key in keys-{"revision"}:
+        if not isinstance(value[key],str) or str(uuid.UUID(value[key]))!=value[key]:
+            raise ValueError("ROOT source recovery UUID is invalid")
+    if type(value["revision"]) is not int or value["revision"]<1:
+        raise ValueError("ROOT source recovery revision is invalid")
+    return value
+
+
+class RootSourceRecovery:
+    def __init__(self,driver,root=None):
+        self.driver=driver;self.store=driver.store;self.runtime=driver.runtime
+        self.root=Path(root or os.environ.get("ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR","/var/lib/ablestack-storage"))/"root-rendered-recovery"
+        self.authorization=Path("/run/ablestack-storage/rendered-authorization")
+
+    def path(self,scope):
+        return self.root/("source-"+scope["templateUpgradeUuid"]+".json")
+
+    def marker(self,request):
+        scope=root_recovery_scope(request)
+        status=self.runtime.command(("operation","maintenance","status"))
+        if status.get("maintenanceKind")!="ROOT" or status.get("bootHeld") is not True or status.get("scope")!=scope:
+            raise ValueError("ROOT source recovery lacks its exact protected held marker")
+        return scope
+
+    def canonical_bytes(self):
+        root=Path(os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_ROOT","/etc/ablestack-storage"));result={}
+        for name in sorted(DESIRED_PATHS):
+            path=root/name
+            try:info=path.lstat()
+            except FileNotFoundError:
+                result[name]={"present":False,"sha256":None};continue
+            parent=path.parent.lstat()
+            if (not stat.S_ISDIR(parent.st_mode) or parent.st_uid!=os.geteuid() or parent.st_mode&0o022
+                    or not stat.S_ISREG(info.st_mode) or info.st_uid!=os.geteuid() or info.st_mode&0o022 or info.st_size>8*1024*1024):
+                raise ValueError("ROOT source canonical file is not protected")
+            descriptor=os.open(path,os.O_RDONLY|os.O_NOFOLLOW)
+            try:
+                fields=("st_dev","st_ino","st_mode","st_uid","st_gid","st_size","st_mtime_ns","st_ctime_ns")
+                opened=os.fstat(descriptor)
+                if any(getattr(info,key)!=getattr(opened,key) for key in fields):raise ValueError("ROOT canonical file changed while opening")
+                data=os.read(descriptor,8*1024*1024+1);after=os.fstat(descriptor)
+                if len(data)>8*1024*1024 or any(getattr(after,key)!=getattr(opened,key) for key in fields):raise ValueError("ROOT canonical file changed while reading")
+                result[name]={"present":True,"sha256":hashlib.sha256(data).hexdigest()}
+            finally:os.close(descriptor)
+        return result
+
+    def observation(self,scope):
+        actual=self.driver.generation();status=self.store.status();current=status.get("current")
+        generation=actual.get("generation") or {};checksum=actual.get("configurationSha256")
+        if (actual.get("pendingOperationUuid") or actual.get("generationStatus")!="IN_SYNC"
+                or generation.get("instanceUuid")!=scope["instanceUuid"] or type(generation.get("revision")) is not int
+                or generation["revision"]>scope["revision"] or generation.get("configurationSha256")!=checksum):
+            raise ValueError("ROOT source native generation is stale, pending or unverified")
+        if (status.get("bootHeld") is not False or not isinstance(current,dict) or current.get("configurationSha256")!=checksum
+                or any(current.get("scope",{}).get(key)!=generation.get(key) for key in ("instanceUuid","operationUuid","revision"))):
+            raise ValueError("ROOT source requires its exact previously imported immutable baseline")
+        desired=json.loads(rendered_read(self.store.pointer()/"desired-state.json"))
+        if actual.get("configurationDesiredState")!=desired:
+            raise ValueError("ROOT source canonical seven differ from the immutable baseline")
+        return actual,status
+
+    def capture(self,request):
+        scope=self.marker(request);actual,status=self.observation(scope);path=self.path(scope)
+        if path.exists() or path.is_symlink():
+            self.validate(request)
+            return {"success":True,"scope":scope,"sourceCaptured":True,"sourceGeneration":actual["generation"],"sideEffects":False}
+        verified=self.driver.verify(self.store.pointer())
+        if set(verified)!=set(DOMAINS) or any(verified[domain] is not True for domain in DOMAINS):
+            raise ValueError("ROOT source baseline failed fresh all-four readback before quiesce")
+        value={"schemaVersion":1,"scope":scope,"phase":"CAPTURED","sourceGeneration":actual["generation"],
+               "sourceRendered":status["current"],"sourceActivation":status.get("activation"),
+               "sourceConfigurationSha256":actual["configurationSha256"],"canonicalBytes":self.canonical_bytes(),"capturedEpoch":time.time()}
+        rendered_json(path,value)
+        return {"success":True,"scope":scope,"sourceCaptured":True,"sourceGeneration":value["sourceGeneration"],
+                "sourceRenderedManifestSha256":value["sourceRendered"]["manifestSha256"],"canonicalDesiredStateChanged":False}
+
+    def validate(self,request,require_verified=False):
+        scope=self.marker(request);path=self.path(scope);saved=credential_json(rendered_read(path));actual,status=self.observation(scope)
+        fields={"schemaVersion","scope","phase","sourceGeneration","sourceRendered","sourceActivation","sourceConfigurationSha256","canonicalBytes","capturedEpoch"}
+        if not isinstance(saved,dict) or not set(saved)<=fields|{"startedDomains","verifiedEpoch"} or not fields<=set(saved):
+            raise ValueError("ROOT source checkpoint fields are not exact")
+        root_recovery_scope(saved["scope"])
+        if (type(saved.get("schemaVersion")) is not int or saved["schemaVersion"]!=1 or saved.get("scope")!=scope
+                or saved.get("phase") not in ("CAPTURED","QUIESCED","REPLAYING","VERIFIED","RECOVERY_REQUIRED")
+                or saved.get("sourceGeneration")!=actual["generation"] or saved.get("sourceRendered")!=status["current"]
+                or saved.get("sourceActivation")!=status.get("activation") or saved.get("sourceConfigurationSha256")!=actual["configurationSha256"]
+                or saved.get("canonicalBytes")!=self.canonical_bytes()):
+            raise ValueError("ROOT source recovery differs from its protected pre-quiesce checkpoint")
+        if require_verified and request.get("verifiedGeneration")!=saved["sourceGeneration"]:
+            raise ValueError("ROOT source resume caller generation differs from the protected source")
+        return scope,path,saved
+
+    def guard(self):
+        marker=self.runtime.command(("operation","maintenance","status"))
+        request=marker.get("scope");scope,path,saved=self.validate(request)
+        proof=credential_json(rendered_read(self.authorization/"writer.json"))
+        if (saved["phase"] not in ("REPLAYING","VERIFIED") or proof.get("mode")!="ROOT_SOURCE_RESTORE"
+                or proof.get("maintenanceScope")!=scope or proof.get("sourceManifestSha256")!=saved["sourceRendered"]["manifestSha256"]
+                or proof.get("scope")!={key:scope[key] for key in ("instanceUuid","operationUuid","revision")}
+                or os.environ.get("ABLESTACK_STORAGE_RENDERED_REPLAY")!=str(self.store.pointer())
+                or os.environ.get("ABLESTACK_STORAGE_RENDERED_FROM")!=str(self.store.pointer())
+                or proof.get("bootId")!=Path("/proc/sys/kernel/random/boot_id").read_text().strip()):
+            raise ValueError("ROOT source replay lacks its protected baseline writer authorization")
+        try:
+            process=Path("/proc")/str(int(proof["pid"]))
+            before=(process/"stat").read_text().rpartition(")")[2].split()[19]
+            lock=(process/"fd/9").stat();own=os.fstat(9)
+            named_path=Path(os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FILE","/run/ablestack-storage/desired-writer.lock"))
+            named=named_path.lstat()
+            identity=(lock.st_dev,lock.st_ino,lock.st_uid,stat.S_IMODE(lock.st_mode))
+            if (not stat.S_ISREG(lock.st_mode) or identity!=(proof["lockDevice"],proof["lockInode"],os.geteuid(),0o600)
+                    or identity!=(own.st_dev,own.st_ino,own.st_uid,stat.S_IMODE(own.st_mode))
+                    or identity!=(named.st_dev,named.st_ino,named.st_uid,stat.S_IMODE(named.st_mode))
+                    or before!=proof["startTicks"]):
+                raise ValueError("ROOT source writer descriptor identity changed")
+            pattern=r"(?m)^lock:\s+[0-9]+:\s+FLOCK\s+ADVISORY\s+WRITE\s+[0-9]+\s+[0-9a-f]+:[0-9a-f]+:"+str(lock.st_ino)+r"\s+0\s+EOF\s*$"
+            if not re.search(pattern,(process/"fdinfo/9").read_text()) or not re.search(pattern,Path("/proc/self/fdinfo/9").read_text()):
+                raise ValueError("ROOT source writer does not hold its own exclusive lock")
+            descriptor=os.open(named_path,os.O_RDONLY|os.O_NOFOLLOW)
+            try:
+                try:fcntl.flock(descriptor,fcntl.LOCK_EX|fcntl.LOCK_NB)
+                except BlockingIOError:pass
+                else:
+                    fcntl.flock(descriptor,fcntl.LOCK_UN);raise ValueError("ROOT source writer no longer holds its exclusive lock")
+            finally:os.close(descriptor)
+            if (process/"stat").read_text().rpartition(")")[2].split()[19]!=before:raise ValueError("ROOT source writer process changed")
+        except (OSError,KeyError,TypeError,IndexError) as invalid:
+            raise ValueError("ROOT source replay writer is unavailable") from invalid
+        return {"success":True,"scope":scope,"rootSourceReplayAuthorized":True,"canonicalBytesUnchangedVerified":True}
+
+    def resume(self,request):
+        scope,path,saved=self.validate(request,True)
+        saved["phase"]="REPLAYING";saved["startedDomains"]=[];rendered_json(path,saved)
+        proof=None;previous_mode=getattr(self.runtime,"root_source_replay",False);self.runtime.credentials={"target":{},"previous":{}}
+        try:
+            proof=self.driver.authorize_units(request,source_only="ROOT")
+            self.runtime.root_source_replay=True
+            for domain in DOMAINS:
+                self.validate(request,True)
+                saved["startedDomains"].append(domain);rendered_json(path,saved)
+                self.runtime.replay(self.store.pointer(),domain)
+            self.validate(request,True)
+            verified=self.driver.verify(self.store.pointer())
+            if set(verified)!=set(DOMAINS) or any(verified[domain] is not True for domain in DOMAINS):
+                raise ValueError("ROOT resumed source failed fresh all-four readback")
+            saved["phase"]="VERIFIED";saved["verifiedEpoch"]=time.time();rendered_json(path,saved)
+            return {"success":True,"scope":scope,"sourceResumePhase":"VERIFIED","runtimeVerified":True,"protocols":verified,
+                    "sourceGeneration":saved["sourceGeneration"],"sourceRenderedManifestSha256":saved["sourceRendered"]["manifestSha256"],
+                    "canonicalDesiredStateChanged":False,"nativeGenerationChanged":False,"canonicalBytesUnchangedVerified":True}
+        except Exception:
+            saved["phase"]="RECOVERY_REQUIRED";rendered_json(path,saved)
+            raise
+        finally:
+            self.runtime.root_source_replay=previous_mode;self.runtime.credentials.clear()
+            if proof is not None:proof.unlink(missing_ok=True);rendered_fsync(proof.parent)
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements. See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership. The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
 """Scope-bound native RPC coordinator. Credential checkpoints contain ciphertext only."""
 import hashlib
 import ast
@@ -15129,6 +15324,7 @@ class RenderedDriver:
         self.prerequisites = RenderedPrerequisites(self.runtime,self.store)
         self.runtime.persist_one = self.persist_one
         self.nfs_config_root=Path("/etc/ganesha/ablestack-storage")
+        self.root_source=RootSourceRecovery(self)
 
     def verify(self,path):
         manifest=self.store.inspect(path);bindings=json.loads(rendered_read(path/"file-volumes.json"))
@@ -15193,6 +15389,51 @@ class RenderedDriver:
                 raise ValueError("Rendered FILE_DATA mounted filesystem/serial/size differs from its frozen manifest")
             verified.append({**row,"mountPath":root})
         return {"schemaVersion":1,"volumes":verified}
+
+    def baseline_credential_refs(self,request,source):
+        scope=self.store.scope(request)
+        if (source.get("pendingOperationUuid") or source.get("generationStatus")!="IN_SYNC"
+                or source.get("generation")!=request.get("previousGeneration")
+                or source.get("configurationDesiredState")!=request.get("configurationDesiredState")
+                or any((source.get("generation") or {}).get(key)!=value for key,value in scope.items())
+                or request.get("credentialRefs") not in (None,{})):
+            raise ValueError("Baseline private references require only the exact native current declaration")
+        refs={"SMB":{},"ISCSI":{},"NVMEOF":{}};desired=source["configurationDesiredState"];inactive={"Disabled","Destroyed","Error"}
+        smb=desired[PROTOCOL_FILES["SMB"]] or {};users=set()
+        for share in smb.get("shares") or []:
+            if smb.get("enabled") is False or share.get("state","Ready") in inactive:continue
+            refs["SMB"][share["uuid"]]={"kind":"CURRENT_PRIVATE_VAULT",**{key:scope[key] for key in ("instanceUuid","operationUuid")},"sourceConfigurationSha256":source["configurationSha256"],"vault":"SAMBA_PASSDB"}
+            for acl in share.get("acls") or []:
+                if acl.get("state","Ready") not in inactive and acl.get("principalType")=="LOCAL_USER":users.add(acl["principal"])
+        if users:
+            identity=self.runtime.command(("smb","identity","inspect"),scope)
+            if (identity.get("success") is not True or identity.get("scope")!=scope or identity.get("ownershipVerified") is not True
+                    or identity.get("identityDatabaseAligned") is not True):
+                raise ValueError("Baseline Samba private databases are not aligned with the owned live source")
+            for name in sorted(users):
+                if not isinstance(name,str) or not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_.-]{0,63}",name):raise ValueError("Baseline managed Samba account name is invalid")
+                observed=subprocess.run(["pdbedit","-L","-u",name],stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,text=True,timeout=self.runtime.remaining(10))
+                rows=observed.stdout.splitlines()
+                if observed.returncode or len(rows)!=1 or rows[0].split(":",1)[0]!=name:
+                    raise ValueError("Baseline managed Samba account is absent from its protected current passdb")
+        iscsi=protected_credential_json(self.runtime.iscsi_credentials_path) or {}
+        nvme=self.runtime.nvme_credentials.read()
+        for domain,collection,acls,flags,vault in (("ISCSI","targets","acls",(("chapEnabled","chapSecret"),("mutualChapEnabled","mutualChapSecret")),"ISCSI_ACL_AUTH"),
+                                                 ("NVMEOF","subsystems","hosts",(("dhChapEnabled","dhChapKey"),("dhChapCtrlEnabled","dhChapCtrlKey")),"NVME_HOST_AUTH")):
+            payload=desired[PROTOCOL_FILES[domain]] or {}
+            for resource in payload.get(collection) or []:
+                if payload.get("enabled") is False or resource.get("state","Ready") in inactive:continue
+                for acl in resource.get(acls) or []:
+                    if acl.get("state","Ready") in inactive:continue
+                    key=resource["targetName"]+"|"+acl["principal"];config=acl.get("config") or {}
+                    private=iscsi.get(key) if domain=="ISCSI" else (nvme or {}).get("hosts",{}).get(acl["principal"])
+                    for flag,field in flags:
+                        if config.get(flag):
+                            if domain=="NVMEOF" and (nvme or {}).get("instanceUuid")!=scope["instanceUuid"]:raise ValueError("Baseline NVMe private vault belongs to another source instance")
+                            if not isinstance(private,dict) or not isinstance(private.get(field),str) or not private[field]:
+                                raise ValueError("Baseline authentication lacks its exact protected current private vault slot")
+                    refs[domain][key]={"kind":"CURRENT_PRIVATE_VAULT",**{key:scope[key] for key in ("instanceUuid","operationUuid")},"sourceConfigurationSha256":source["configurationSha256"],"vault":vault}
+        return refs
 
     def render(self, request):
         desired = self.desired(request)
@@ -15449,7 +15690,12 @@ class RenderedDriver:
         try:
             proof = json.loads(rendered_read(root / "writer.json"))
             status = self.store.status(); journal = status["activation"]
-            if proof.get("mode")=="SERVICE_SOURCE_RESTORE":
+            if proof.get("mode")=="ROOT_SOURCE_RESTORE":
+                expected,path,checkpoint=self.root_source.validate(proof["maintenanceScope"])
+                if (checkpoint.get("phase") not in ("REPLAYING","VERIFIED")
+                        or proof.get("sourceManifestSha256")!=checkpoint["sourceRendered"]["manifestSha256"]
+                        or any(expected.get(key)!=value for key,value in proof["scope"].items())):return False
+            elif proof.get("mode")=="SERVICE_SOURCE_RESTORE":
                 expected,path,checkpoint,source_status=self.service_source(proof["maintenanceScope"])
                 if (checkpoint.get("sourceResumePhase") not in ("REPLAYING","VERIFIED") or source_status.get("activation")!=checkpoint.get("sourceActivation")
                         or proof.get("sourceManifestSha256")!=checkpoint["sourceRendered"].get("manifestSha256")
@@ -15491,7 +15737,12 @@ class RenderedDriver:
                  "startTicks": Path("/proc/self/stat").read_text().rpartition(")")[2].split()[19],
                  "bootId": Path("/proc/sys/kernel/random/boot_id").read_text().strip(), "lockDevice": lock.st_dev, "lockInode": lock.st_ino}
         if source_only:
-            proof["mode"]="SERVICE_SOURCE_RESTORE";proof["sourceManifestSha256"]=self.store.inspect(self.store.pointer())["manifestSha256"]
+            if source_only=="ROOT":
+                expected,path,checkpoint=self.root_source.validate(request)
+                if maintenance.get("maintenanceKind")!="ROOT":raise ValueError("ROOT source cannot borrow a SERVICE authorization")
+                proof["mode"]="ROOT_SOURCE_RESTORE"
+            else:proof["mode"]="SERVICE_SOURCE_RESTORE"
+            proof["sourceManifestSha256"]=self.store.inspect(self.store.pointer())["manifestSha256"]
         rendered_json(root / "writer.json", proof)
         return root / "writer.json"
 
@@ -15523,6 +15774,12 @@ class RenderedDriver:
 
     def execute(self, action, request=None, unit=None):
         if action == "render-status": return self.store.status()
+        if action=="render-root-capture-source":return self.root_source.capture(request)
+        if action=="render-root-resume-source":return self.root_source.resume(request)
+        if action=="render-root-replay-guard":return self.root_source.guard()
+        if action=="render-root-source-quiesce-guard":
+            scope,path,checkpoint=self.root_source.validate(request)
+            return {"success":True,"scope":scope,"sourceCaptured":True,"quiesceAuthorized":True,"sideEffects":False}
         if action=="render-maintenance-resume-source":
             expected,checkpoint_path,checkpoint,status=self.service_source(request)
             if status.get("activation")!=checkpoint.get("sourceActivation"):raise ValueError("SERVICE pre-activation resume cannot adopt a rendered activation")
@@ -15594,6 +15851,8 @@ class RenderedDriver:
         source = self.generation()
         if action in ("render-import", "render-stage"):
             if action=="render-stage":credential_bindings(self.desired(request),request.get("credentialRefs") or {},scope,source["configurationSha256"])
+            if action=="render-import" and request.get("initialRootBaseline") is not True:
+                request={**request,"credentialRefs":self.baseline_credential_refs(request,source)}
             files = self.render(request)
             if action == "render-import":
                 if request.get("initialRootBaseline") is True:
@@ -15701,9 +15960,9 @@ class RenderedDriver:
             self.runtime.credentials.clear()
 try:
     action = sys.argv[1]
-    request = json.loads(Path(sys.argv[2]).read_text()) if action not in ("render-status", "render-boot", "render-boot-gate") else None
+    request = json.loads(Path(sys.argv[2]).read_text()) if action not in ("render-status", "render-boot", "render-boot-gate", "render-root-replay-guard") else None
     if request is not None:
-        allowed = {"instanceUuid", "operationUuid", "revision", "expectedCurrentRenderedSha256", "renderedManifestSha256", "previousGeneration", "configurationDesiredState", "protocolDesiredState", "credentialRefs", "checkpointPublicKey", "checkpointPrivateKey", "transientCredentials", "expectedBindings", "initialRootBaseline", "fileVolumeBindings", "identityCheckpointRef", "targetCredentialArtifact"}
+        allowed = {"instanceUuid", "operationUuid", "revision", "expectedCurrentRenderedSha256", "renderedManifestSha256", "previousGeneration", "configurationDesiredState", "protocolDesiredState", "credentialRefs", "checkpointPublicKey", "checkpointPrivateKey", "transientCredentials", "expectedBindings", "initialRootBaseline", "fileVolumeBindings", "identityCheckpointRef", "targetCredentialArtifact", "templateUpgradeUuid", "maintenanceUuid", "verifiedGeneration"}
         if not isinstance(request, dict) or not set(request) <= allowed:
             raise ValueError("Rendered RPC contains an unknown input field")
         if request.get("checkpointPrivateKey") or request.get("transientCredentials") or request.get("targetCredentialArtifact"):
@@ -15737,6 +15996,18 @@ case "$command:$subcommand:$action" in
     acquire_storage_writer_lock || exit $?
     ;;
 esac
+
+if [[ -n "${ABLESTACK_STORAGE_ROOT_SOURCE_REPLAY:-}" ]]; then
+  case "$command:$subcommand:$action" in
+    nfs:export:apply|smb:share:apply|iscsi:target:apply|nvmeof:subsystem:apply)
+      if [[ "$ABLESTACK_STORAGE_ROOT_SOURCE_REPLAY" != "1" ]]; then
+        printf '%s\n' '{"success":false,"errorCode":"ROOT_SOURCE_REPLAY_REJECTED"}'
+        exit 2
+      fi
+      rendered_generation_command render-root-replay-guard "" >/dev/null
+      ;;
+  esac
+fi
 
 case "$command:$subcommand:$action" in
   nfs:export:apply|smb:share:apply|iscsi:target:apply|nvmeof:subsystem:apply)
@@ -15830,6 +16101,12 @@ try:
 except (ValueError, KeyError, TypeError):
     print(json.dumps({"success": False, "quiesced": False, "errorCode": "QUIESCE_MAINTENANCE_SCOPE_REJECTED"}))
     raise SystemExit(1)
+
+rendered_pointer=Path(os.environ.get("ABLESTACK_STORAGE_RENDERED_GENERATIONS","/var/lib/ablestack-storage/rendered-generations"))/"current"
+if set(domains)=={"NFS","SMB"} and rendered_pointer.is_symlink():
+    guarded=subprocess.run([sys.argv[2],"operation","generation","render-root-source-quiesce-guard","/dev/stdin"],input=json.dumps(expected_scope),capture_output=True,text=True,timeout=30,pass_fds=(9,))
+    if guarded.returncode or json.loads(guarded.stdout).get("quiesceAuthorized") is not True:
+        raise ValueError("ROOT source must be captured under its held marker before quiesce")
 
 def run(arguments):
     return subprocess.run(arguments, capture_output=True, text=True, timeout=60)
