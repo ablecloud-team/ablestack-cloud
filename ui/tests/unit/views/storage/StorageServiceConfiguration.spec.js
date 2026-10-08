@@ -113,7 +113,7 @@ describe('Configuration backup and restore UI boundaries', () => {
     expect(vm.error).toBe('message.storage.config.clone.required')
   })
   it('passes explicit clone resource choices and asks the server to allocate planned volume identity', async () => {
-    const vm = { instanceId: 'a', planTarget: { id: 'backup' }, targetMode: 'CREATE_NEW', volumeMapping: {}, initialVolumeSource: 'source-volume', cloneRuntime: 'runtime', clone: { name: 'new-service', size: 20 }, $t: key => key }
+    const vm = { instanceId: 'a', planTarget: { id: 'backup' }, targetMode: 'CREATE_NEW', volumeMapping: {}, initialVolumeSource: 'source-volume', cloneRuntime: 'runtime', clone: { name: 'new-service', size: 20 }, $t: key => key, assertCloneOffering: jest.fn() }
     vm.mutation = jest.fn(async () => ({ metadata: { plan: { blockers: [], requiredCredentials: [] } }, planToken: 'synthetic' }))
     await Widget.methods.preparePlan.call(vm)
     const parameters = vm.mutation.mock.calls[0][1]
@@ -122,7 +122,7 @@ describe('Configuration backup and restore UI boundaries', () => {
     expect(vm.planPhase).toBe('REVIEW')
   })
   it('maps an existing initial clone disk without passing a new-disk offering or format size', async () => {
-    const vm = { instanceId: 'a', planTarget: { id: 'backup' }, targetMode: 'CREATE_NEW', volumeMapping: {}, initialVolumeSource: 'source-volume', cloneRuntime: 'runtime', clone: { name: 'new-service', backingvolumemode: 'EXISTING', existingvolumeid: 'selected-data', diskofferingid: 'not-needed', storageid: 'not-needed', size: 20 }, $t: key => key }
+    const vm = { instanceId: 'a', planTarget: { id: 'backup' }, targetMode: 'CREATE_NEW', volumeMapping: {}, initialVolumeSource: 'source-volume', cloneRuntime: 'runtime', clone: { name: 'new-service', backingvolumemode: 'EXISTING', existingvolumeid: 'selected-data', diskofferingid: 'not-needed', storageid: 'not-needed', size: 20 }, $t: key => key, assertCloneOffering: jest.fn() }
     vm.mutation = jest.fn(async () => ({ metadata: { plan: { blockers: [], requiredCredentials: [] } }, planToken: 'synthetic' }))
     await Widget.methods.preparePlan.call(vm)
     const mappings = JSON.parse(vm.mutation.mock.calls[0][1].mapping)
@@ -174,7 +174,7 @@ describe('Configuration backup and restore UI boundaries', () => {
     } finally { click.mockRestore() }
   })
   it('sends independent NEW FILE and RAW allocations while preserving existing DATA mappings', async () => {
-    const vm = { instanceId: 'a', planTarget: { id: 'backup' }, targetMode: 'CREATE_NEW', volumeMapping: { file: 'NEW', raw: 'NEW', retained: 'existing-data' }, newVolumeSpecs: { file: { diskofferingid: 'sparse', storageid: 'pool', sizeGiB: 40 }, raw: { diskofferingid: 'fat', storageid: 'pool', sizeGiB: 80 } }, initialVolumeSource: 'initial', cloneRuntime: 'runtime', clone: { name: 'clone', diskofferingid: 'sparse', storageid: 'pool', size: 20 }, $t: key => key }
+    const vm = { instanceId: 'a', planTarget: { id: 'backup' }, targetMode: 'CREATE_NEW', volumeMapping: { file: 'NEW', raw: 'NEW', retained: 'existing-data' }, newVolumeSpecs: { file: { diskofferingid: 'sparse', storageid: 'pool', sizeGiB: 40 }, raw: { diskofferingid: 'fat', storageid: 'pool', sizeGiB: 80 } }, initialVolumeSource: 'initial', cloneRuntime: 'runtime', clone: { name: 'clone', diskofferingid: 'sparse', storageid: 'pool', size: 20 }, $t: key => key, assertCloneOffering: jest.fn() }
     vm.mutation = jest.fn(async () => ({ metadata: { plan: { blockers: [], requiredCredentials: [] } }, planToken: 'reviewed' }))
     await Widget.methods.preparePlan.call(vm)
     const mappings = JSON.parse(vm.mutation.mock.calls[0][1].mapping)
@@ -189,16 +189,19 @@ describe('Configuration backup and restore UI boundaries', () => {
     expect(vm.confirmation).toBe('')
   })
   it('offers only known SPARSE or FAT compute and DATA offerings for clone creation', async () => {
-    const vm = { instanceId: 'a', planTarget: {}, clone: { zoneid: 'zone' }, cloneOptions: {}, options: Widget.methods.options }
+    const rootId = '44444444-4444-4444-8444-444444444444'
+    const thin = '11111111-1111-4111-8111-111111111111'; const sparse = '22222222-2222-4222-8222-222222222222'; const unknown = '33333333-3333-4333-8333-333333333333'
+    const vm = { instanceId: 'a', planTarget: {}, clone: { zoneid: 'zone' }, cloneOptionToken: 0, cloneOptions: {}, options: Widget.methods.options, cloneDiscoveryScope: Widget.methods.cloneDiscoveryScope, clearCloneZoneOptions: Widget.methods.clearCloneZoneOptions, sparseCloneRootOffering: Widget.methods.sparseCloneRootOffering, $t: key => key }
     getAPI.mockImplementation(api => Promise.resolve({
       listNetworks: { listnetworksresponse: { network: [] } },
-      listServiceOfferings: { listserviceofferingsresponse: { serviceoffering: [{ id: 'thin-root', provisioningtype: 'thin' }, { id: 'sparse-root', provisioningtype: 'sparse' }, { id: 'unknown-root' }] } },
+      listServiceOfferings: { listserviceofferingsresponse: { serviceoffering: [{ id: thin, provisioningtype: 'thin', diskofferingid: rootId }, { id: sparse, provisioningtype: 'sparse', diskofferingid: rootId }, { id: unknown, diskofferingid: rootId }] } },
+      listStorageServiceOfferingConstraints: { liststorageserviceofferingconstraintsresponse: { storageserviceofferingconstraint: [{ id: thin, compatible: true }, { id: sparse, compatible: true }, { id: unknown, compatible: true }] } },
       listDiskOfferings: { listdiskofferingsresponse: { diskoffering: [{ id: 'thin', provisioningtype: 'thin' }, { id: 'sparse', provisioningtype: 'sparse' }, { id: 'fat', provisioningtype: 'fat' }, { id: 'unknown' }] } },
       listStoragePools: { liststoragepoolsresponse: { storagepool: [] } },
       listVolumes: { listvolumesresponse: { volume: [] } }
     }[api]))
     await Widget.methods.loadCloneZoneOptions.call(vm)
-    expect(vm.cloneOptions.offerings.map(row => row.value)).toEqual(['sparse-root'])
+    expect(vm.cloneOptions.offerings.map(row => row.value)).toEqual([sparse])
     expect(vm.cloneOptions.disks.map(row => row.value)).toEqual(['sparse', 'fat'])
     expect(vm.cloneOptions.disks[0].label).toContain('SPARSE')
   })
