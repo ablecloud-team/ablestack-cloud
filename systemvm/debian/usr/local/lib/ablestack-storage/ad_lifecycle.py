@@ -33,6 +33,7 @@ from posix_root_initialization import root_receipt_write
 from service_identity_cipher import ServiceIdentityCipher,service_cipher_digest,service_cipher_scope
 from samba_public_sid import samba_public_sid
 from semantic_ad_source import semantic_new_target,semantic_same_target
+from local_sam_bootstrap import LocalSamBootstrap
 
 
 class AdDomainLifecycle:
@@ -55,7 +56,8 @@ class AdDomainLifecycle:
         return result.stdout.strip()
 
     def configured_run(self,arguments,**kwargs):
-        if arguments[0] in ("net","testparm"):arguments=[arguments[0],"--configfile="+str(self.machine),*arguments[1:]]
+        if arguments[0]=="net":arguments=[arguments[0],"--configfile="+str(self.machine),*arguments[1:]]
+        elif arguments[0]=="testparm":arguments=[arguments[0],str(self.machine),*arguments[1:]]
         return self.run(arguments,**kwargs)
 
     def require_quiescence(self):
@@ -309,6 +311,59 @@ class AdDomainLifecycle:
             try:self.daemon.stop(request)
             finally:self.snapshot(request,"RECOVERY_REQUIRED",public)
             raise
+
+    def semantic_local_authority(self,request):
+        # Reuse protected SOURCE/cipher and the exact owned writer; public
+        # request dictionaries cannot authorize a direct identity import.
+        LocalSamBootstrap(self.cli).require_writer()
+        source=self.source_authority(request,fresh=False);original=self.original_source(request)
+        state=ad_protected_json(self.state);scope=self.daemon.scope(request);identity=original["identity"]
+        if state.get("instanceUuid")!=scope["instanceUuid"] or state.get("joinState")!="JOINED":
+            raise ValueError("Semantic LOCAL requires its domain-first protected joined target")
+        receipt=state.get("identityReceipt") or {};name=state.get("netbiosName")
+        if receipt.get("machineSid")!=source["publicLocalMachineSid"] or self.sid_reader(name)!=source["publicLocalMachineSid"]:
+            raise ValueError("Semantic LOCAL target SAM changed after domain-first join")
+        same=original["descriptor"]["sourceInstanceUuid"]==scope["instanceUuid"]
+        if same:
+            if receipt!={key:identity[key] for key in ("machineSid","domainSid","machineAccountSid")}:
+                raise ValueError("SAME_VM semantic LOCAL target SID authority differs")
+            fields=("realm","workgroup","netbiosName","dnsAliases","servicePrincipals","idmapPolicy","machineConfigurationSha256")
+            if state.get("domainName")!=identity["domain"] or any(state.get(key)!=identity[key] for key in fields):
+                raise ValueError("SAME_VM semantic LOCAL joined metadata differs")
+        elif (state.get("semanticOriginalSourceAuthority")!=original["descriptor"] or receipt.get("machineSid")==identity["machineSid"]
+                or receipt.get("domainSid")!=identity["domainSid"] or receipt.get("machineAccountSid")==identity["machineAccountSid"]):
+            raise ValueError("NEW_INSTANCE semantic LOCAL original/target binding differs")
+        return source,original,state
+
+    def semantic_local_guard(self,request):
+        source,original,state=self.semantic_local_authority(request);journal=ad_protected_json(self.journal)
+        if journal.get("scope")!=self.daemon.scope(request) or journal.get("phase")!="LOCAL_RESTORING":
+            raise ValueError("Semantic LOCAL import lacks its owned restore journal")
+        self.quiescence()
+        return {"success":True,"scope":self.daemon.scope(request),"originalSourceAuthority":original["descriptor"],
+                "targetLocalMachineSid":source["publicLocalMachineSid"],"targetNetbiosName":state["netbiosName"],"bootId":source["bootId"],
+                "serviceScope":self.daemon.marker(request),"sourceCheckpointRecordSha256":service_cipher_digest(ServiceIdentityCipher().read(ServiceIdentityCipher().path(self.daemon.marker(request))))}
+
+    def semantic_local_restore(self,request):
+        source,original,state=self.semantic_local_authority(request)
+        public={key:state[key] for key in ("realm","workgroup","netbiosName","dnsAliases","servicePrincipals")}
+        public["domain"]=state["domainName"]
+        self.daemon.stop(request);self.quiescence();self.snapshot(request,"LOCAL_RESTORING",public)
+        try:
+            fields=("originalSourceAuthority","originalSourceCapsule","originalSourceCredentialPrivateKey")
+            result=self.protected_request(("identity","capsule","semantic-local-restore"),{**self.daemon.marker(request),**{field:request[field] for field in fields},"resourceMappings":request.get("resourceMappings",[])})
+            if any(result.get(key) is not True for key in ("localAccountsRestored","localPassdbSidRebased","targetSamPreserved")):
+                raise ValueError("Semantic LOCAL importer has no complete literal receipt")
+            self.daemon.start(request);fresh=AdIdentityRpc(self.run,self.configuration,cli=self.cli).inspect(request)
+            if fresh.get("machineSid")!=source["publicLocalMachineSid"] or fresh.get("bootId")!=source["bootId"] or fresh.get("identityVerified") is not True:
+                raise ValueError("Semantic LOCAL final joined identity was not freshly preserved")
+            state=ad_protected_json(self.state)
+            state["semanticLocalIdentityReceipt"]={"scope":self.daemon.scope(request),"originalSourceAuthority":original["descriptor"],
+                                                  "publicMappings":result["publicMappings"],"publicGroupMappings":result["publicGroupMappings"],"managedIdentityMappings":result["managedIdentityMappings"]}
+            self.write_public(self.state,json.dumps(state,sort_keys=True));self.snapshot(request,"COMPLETE",public)
+            return {"success":True,"scope":self.daemon.scope(request),**result,"identity":fresh,"canonicalDesiredStateChanged":False}
+        except Exception:
+            self.snapshot(request,"RECOVERY_REQUIRED",public);raise
 
     def retain(self,request,expected):
         self.daemon.marker(request);state=ad_protected_json(self.state)

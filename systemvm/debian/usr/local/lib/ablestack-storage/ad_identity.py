@@ -414,8 +414,10 @@ class AdIdentityRpc:
         return scope
 
     def configured_run(self,args,**kwargs):
-        if self.config_override and args[0] in ("net","testparm"):
+        if self.config_override and args[0]=="net":
             args=[args[0],"--configfile="+self.config_override,*args[1:]]
+        elif self.config_override and args[0]=="testparm":
+            args=[args[0],self.config_override,*args[1:]]
         return self.run(args,**kwargs)
 
     def command(self,args):

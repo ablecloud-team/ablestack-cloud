@@ -281,6 +281,41 @@ class StorageAdLifecycleTest(unittest.TestCase):
         self.assertFalse(self.lifecycle.machine.exists());self.assertFalse(self.lifecycle.journal.exists())
         self.assertFalse(any(row[0]!="testparm" for row in self.calls))
 
+    def test_semantic_local_guard_requires_actual_fd9_named_flock_joined_authority_and_owned_restore_phase(self):
+        joined=self.lifecycle.join(self.request);state=json.loads(self.lifecycle.state.read_text())
+        identity={"schemaVersion":1,**{key:joined["identity"][key] for key in ("domain","realm","workgroup","netbiosName","machineSid","domainSid","machineAccountSid","dnsAliases","servicePrincipals","idmapPolicy")},"machineConfigurationSha256":state["machineConfigurationSha256"],"trustVerified":True}
+        descriptor={"sourceInstanceUuid":self.request["instanceUuid"]}
+        request={**self.request,"originalSourceAuthority":descriptor,"originalSourceCapsule":{},"originalSourceCredentialPrivateKey":"SYNTHETIC"}
+        self.lifecycle.original_provider=lambda scoped:{"success":True,"scope":self.lifecycle.daemon.scope(request),"originalSourceAuthority":descriptor,"originalIdentity":identity}
+        path=self.root/"actual-writer";fd=os.open(path,os.O_RDWR|os.O_CREAT|os.O_EXCL,0o600);saved=None
+        try:
+            try:saved=os.dup(9)
+            except OSError:pass
+            os.dup2(fd,9);fcntl.flock(9,fcntl.LOCK_EX|fcntl.LOCK_NB)
+            with patch.dict(os.environ,{"ABLESTACK_STORAGE_WRITER_LOCK_FD":"9","ABLESTACK_STORAGE_WRITER_LOCK_FILE":str(path)}):
+                with self.assertRaisesRegex(ValueError,"owned restore journal"):self.lifecycle.semantic_local_guard(request)
+                self.lifecycle.snapshot(request,"LOCAL_RESTORING",{})
+                with patch("ad_lifecycle.ServiceIdentityCipher") as cipher:
+                    cipher.return_value.read.return_value={"syntheticOpaqueCipher":True}
+                    result=self.lifecycle.semantic_local_guard(request)
+                self.assertEqual(self.lifecycle.daemon.scope(request),result["scope"]);self.assertEqual("S-1-5-21-1-2-3",result["targetLocalMachineSid"])
+                self.quiescent=False
+                with self.assertRaises(ValueError):self.lifecycle.semantic_local_guard(request)
+                self.quiescent=True;fcntl.flock(9,fcntl.LOCK_UN)
+                with self.assertRaisesRegex(ValueError,"exclusive"):self.lifecycle.semantic_local_guard(request)
+        finally:
+            os.close(fd)
+            if saved is None:os.close(9)
+            else:os.dup2(saved,9);os.close(saved)
+
+    def test_actual_signed_semantic_local_guard_rejects_absent_native_writer_before_any_private_import(self):
+        cli=Path(__file__).resolve().parents[2]/"systemvm/debian/usr/local/bin/ablestack-storagectl"
+        payload=self.root/"guard.json";payload.write_text(json.dumps(self.request));before={str(p):p.read_bytes() for p in self.root.rglob("*") if p.is_file()}
+        result=subprocess.run(["bash",str(cli),"identity","domain","semantic-local-guard",str(payload)],capture_output=True,text=True,timeout=15,
+                              env={key:value for key,value in os.environ.items() if key!="ABLESTACK_STORAGE_WRITER_LOCK_FD"})
+        self.assertNotEqual(0,result.returncode);self.assertEqual("AD_LIFECYCLE_REJECTED",json.loads(result.stdout)["errorCode"])
+        self.assertEqual(before,{str(p):p.read_bytes() for p in self.root.rglob("*") if p.is_file()})
+
     def test_samevm_retained_identity_binds_the_machine_config_digest_inside_real_aead_before_start(self):
         from identity_capsule import encrypt,decrypt,validate_payload
         from cryptography.hazmat.primitives import serialization
