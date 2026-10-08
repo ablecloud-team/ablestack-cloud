@@ -197,6 +197,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         StorageServiceInstanceVO instance = storageServiceInstanceDao.findById(row.getInstanceId());
                         if (current != null && instance != null && current.getAction().startsWith("ROOT_TEMPLATE_")) {
                             recoverInterruptedTemplateUpgrade(instance, current);
+                        } else if(current!=null && instance!=null && "VOLUME_PREPARATION_RESUME".equals(current.getAction())) {
+                            recoverVolumePreparation(instance,current);
                         } else if (current != null && instance != null && InterruptedStateChange.stale(current, System.currentTimeMillis())) {
                             recoverInterruptedStorageWriter(instance, current);
                         }
@@ -1291,6 +1293,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if(!existing)requireSparseNewFilesystem(volume);
         int deadline = backingVolumeFormatDeadline(volume.getSize());payload.addProperty("formatDeadlineSeconds", deadline);
         payload.addProperty("operationId", "volume-" + volume.getUuid());
+        StorageServiceOperationVO writer=storageWriterOperation.get();if(writer!=null){payload.addProperty("managerOperationUuid",writer.getUuid());payload.addProperty("managerRevision",writer.getRevision());}
         StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
                 "volume attach inspect", payload.toString(), Math.max(StorageServiceInstance.StorageServiceCommandTimeout.value(), deadline + 120), Collections.emptySet()));
         if (!result.isSuccess()) throw new CloudRuntimeException("New configuration service initial volume preparation failed: " + result.getDetails());
@@ -1426,6 +1429,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         commands.add(AttachStorageVolumeToFileShareCmd.class);
         commands.add(DetachStorageServiceBackingVolumeCmd.class);
         commands.add(GetStorageServiceVolumePreparationCmd.class);
+        commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.ResumeStorageServiceVolumePreparationCmd.class);
         commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.ListStorageServiceOperationsCmd.class);
         commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.ReconcileStorageServiceOperationCmd.class);
         commands.add(ResizeStorageFileShareCmd.class);
@@ -1501,8 +1505,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 final StorageServiceOperationVO operation = storageOperationDao.findById(cmd.getOperationId());
                 if (operation == null || operation.getInstanceId() != instanceId) throw new InvalidParameterValueException("Operation scope changed");
                 if ("RUNNING".equals(operation.getState()) || ("RECOVERY_REQUIRED".equals(operation.getState())
-                        && !StorageOperationReconciliation.superseded(operation, storageOperationDao.listByInstance(instanceId)))) {
+                        && ("VOLUME_PREPARATION_RESUME".equals(operation.getAction()) || !StorageOperationReconciliation.superseded(operation, storageOperationDao.listByInstance(instanceId))))) {
                     if (operation.getAction().startsWith("ROOT_TEMPLATE_")) recoverInterruptedTemplateUpgrade(instance, operation);
+                    else if("VOLUME_PREPARATION_RESUME".equals(operation.getAction()))recoverVolumePreparation(instance,operation);
                     else recoverInterruptedStorageWriter(instance, operation);
                     final org.apache.cloudstack.api.response.StorageServiceOperationResponse recovered = new org.apache.cloudstack.api.response.StorageServiceOperationResponse();
                     recovered.setId(operation.getUuid());recovered.setInstanceid(instance.getUuid());recovered.setAction(operation.getAction());
@@ -3290,6 +3295,75 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     @Override
+    public StorageServiceRuntimeResponse resumeStorageServiceVolumePreparation(
+            org.apache.cloudstack.api.command.user.storage.dataservice.ResumeStorageServiceVolumePreparationCmd cmd) {
+        long instanceId=getStorageServiceSyncId(cmd);StorageServiceInstanceVO instance=requireInstance(instanceId);VolumeVO volume=requireVolume(cmd.getVolumeId());
+        validateVolumeResumeScope(instance,volume);
+        if(!("volume-"+volume.getUuid()).equals(cmd.getOperationId()))throw new InvalidParameterValueException("Native preparation operation ID does not belong to the selected DATA volume");
+        String token=cmd.getIdempotencyKey()==null?java.util.UUID.randomUUID().toString():cmd.getIdempotencyKey();
+        if(!token.matches("[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}"))throw new InvalidParameterValueException("Invalid volume preparation idempotency key");
+        String fingerprint=StorageServiceRequestFingerprint.of(cmd),requestKey="VOLUME_PREPARATION_RESUME:"+token;
+        com.cloud.utils.db.GlobalLock lock=com.cloud.utils.db.GlobalLock.getInternLock("StorageServiceWriter-"+instanceId);
+        try {if(!lock.lock(120))throw new CloudRuntimeException("Storage Service writer is busy");
+            try {
+                StorageServiceOperationVO operation=storageOperationDao.findByRequest(instanceId,requestKey);
+                if(operation!=null) {
+                    JsonObject previous=parseJsonObject(operation.getResultJson());
+                    if(operation.getCreatedBy()!=org.apache.cloudstack.context.CallContext.current().getCallingUserId() || !fingerprint.equals(getJsonString(previous,"_requestFingerprint")))throw new InvalidParameterValueException("Volume resume idempotency key belongs to another actor or request");
+                    if("COMPLETE_NO_CONFIG_CHANGE".equals(operation.getState()))return volumeResumeResponse(instance,operation);
+                } else {
+                    requireVolumeResumeIdle(instance,null);
+                    long committed=rootDesiredRevision(instanceId);if(cmd.getExpectedRevision()!=null && cmd.getExpectedRevision()!=committed)throw new InvalidParameterValueException("Desired revision changed; refresh preparation status");
+                    JsonObject scope=new JsonObject();scope.addProperty("volumeId",volume.getId());scope.addProperty("volumeUuid",volume.getUuid());scope.addProperty("volumeSizeBytes",volume.getSize());scope.addProperty("operationId",cmd.getOperationId());scope.addProperty("expectedFilesystemUuid",cmd.getExpectedFilesystemUuid());
+                    scope.addProperty("provisioningType",volume.getProvisioningType()==null?"UNKNOWN":volume.getProvisioningType().name());
+                    operation=new StorageServiceOperationVO();operation.setInstanceId(instanceId);operation.setRequestKey(requestKey);operation.setAction("VOLUME_PREPARATION_RESUME");operation.setCreatedBy(org.apache.cloudstack.context.CallContext.current().getCallingUserId());operation.setRevision(committed+1);operation.setState("RUNNING");operation.setPhase("PREFLIGHT_VOLUME_RESUME");operation.setPreviousSnapshotJson(scope.toString());
+                    JsonObject result=new JsonObject();result.addProperty("_requestFingerprint",fingerprint);result.addProperty("desiredStateChanged",false);result.addProperty("baseDesiredRevision",committed);operation.setResultJson(result.toString());operation=storageOperationDao.persist(operation);
+                }
+                recoverVolumePreparation(instance,operation);return volumeResumeResponse(instance,operation);
+            } finally {lock.unlock();}
+        } finally {lock.releaseRef();}
+    }
+    protected void validateVolumeResumeScope(StorageServiceInstanceVO instance,VolumeVO volume) {
+        if(instance.getVmId()==null || volume.getVolumeType()!=com.cloud.storage.Volume.Type.DATADISK || !instance.getVmId().equals(volume.getInstanceId())
+                || volume.getAccountId()!=instance.getAccountId() || volume.getDataCenterId()!=instance.getDataCenterId() || volume.getState()!=com.cloud.storage.Volume.State.Ready)throw new InvalidParameterValueException("Resume requires the same owned Ready DATA disk attached to the service VM");
+        validateStorageServiceBackingVolume(instance,volume.getId(),"volume preparation resume");
+    }
+    protected void requireVolumeResumeIdle(StorageServiceInstanceVO instance,StorageServiceOperationVO own) {
+        if(storageTemplateUpgradeDao.findActive(instance.getId())!=null || storageRuntimeUpgradeDao.findActiveByInstanceId(instance.getId())!=null)throw new CloudRuntimeException("ROOT or runtime upgrade is active");
+        for(StorageServiceOperationVO row:storageOperationDao.listByInstance(instance.getId())) {
+            if(own!=null && row.getId()==own.getId())continue;
+            if("RUNNING".equals(row.getState()) || "RECOVERY_REQUIRED".equals(row.getState()) && row.getRevision()>rootDesiredRevision(instance.getId()))throw new CloudRuntimeException("Resolve the existing desired writer before forward volume preparation resume");
+        }
+        JsonObject idle=rootGuest(instance,"operation writer-idle",new JsonObject(),15);
+        if(!"WRITER_IDLE".equals(getJsonString(idle,"status")))throw new CloudRuntimeException("A native formatter/writer is active; resume cannot run concurrently");
+    }
+    protected void recoverVolumePreparation(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
+        if(!"VOLUME_PREPARATION_RESUME".equals(operation.getAction()))throw new InvalidParameterValueException("Not a forward volume resume operation");
+        JsonObject scope=parseJsonObject(operation.getPreviousSnapshotJson());VolumeVO volume=requireVolume(getJsonLong(scope,"volumeId"));validateVolumeResumeScope(instance,volume);
+        if(!volume.getUuid().equals(getJsonString(scope,"volumeUuid")) || volume.getSize()!=scope.get("volumeSizeBytes").getAsLong()
+                || !java.util.Objects.equals(getJsonString(scope,"provisioningType"),volume.getProvisioningType()==null?"UNKNOWN":volume.getProvisioningType().name()))throw new InvalidParameterValueException("Pinned resume DATA UUID or size changed");
+        requireVolumeResumeIdle(instance,operation);beginStorageWriterHeartbeat(operation);
+        try {
+            operation.setState("RUNNING");operation.setPhase("VERIFYING_EXISTING_FILESYSTEM");operation.setProgress(20);operation.setHeartbeat(new java.util.Date());if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Unable to persist forward resume intent");
+            JsonObject request=scope.deepCopy();request.addProperty("instanceUuid",instance.getUuid());request.addProperty("managerOperationUuid",operation.getUuid());request.addProperty("operationUuid",operation.getUuid());request.addProperty("revision",operation.getRevision());request.addProperty("resumeOnly",true);request.addProperty("importMode","MOUNT_EXISTING");
+            JsonObject nativeResult=rootGuest(instance,"volume operation resume",request,120);
+            if(!Boolean.TRUE.equals(getJsonBoolean(nativeResult,"resumed")) || !Boolean.TRUE.equals(getJsonBoolean(nativeResult,"resumeOnly")) || !Boolean.FALSE.equals(getJsonBoolean(nativeResult,"formatInvoked")) || !Boolean.FALSE.equals(getJsonBoolean(nativeResult,"formatterActive"))
+                    || !volume.getUuid().equals(getJsonString(nativeResult,"volumeUuid")) || !getJsonString(scope,"operationId").equals(getJsonString(nativeResult,"operationId"))
+                    || !"VOLUME_SERIAL".equals(getJsonString(nativeResult,"matchedBy")) || getJsonString(nativeResult,"filesystemUuid")==null
+                    || !instance.getUuid().equals(getJsonString(nativeResult,"instanceUuid")) || !operation.getUuid().equals(getJsonString(nativeResult,"managerOperationUuid"))
+                    || getJsonLong(nativeResult,"revision")==null || operation.getRevision()!=getJsonLong(nativeResult,"revision"))throw new CloudRuntimeException("Native forward resume did not verify the exact existing filesystem without formatting");
+            String expected=getJsonString(scope,"expectedFilesystemUuid");if(expected!=null && !expected.equals(getJsonString(nativeResult,"filesystemUuid")))throw new CloudRuntimeException("Completed filesystem UUID differs from the approved resume scope");
+            JsonObject result=parseJsonObject(operation.getResultJson());result.add("native",nativeResult);result.addProperty("managedOperationUuid",operation.getUuid());result.addProperty("desiredStateChanged",false);operation.setResultJson(result.toString());operation.setState("COMPLETE_NO_CONFIG_CHANGE");operation.setPhase("EXISTING_FILESYSTEM_RECONCILED");operation.setProgress(100);operation.setCompleted(new java.util.Date());operation.setHeartbeat(new java.util.Date());if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Unable to persist verified volume resume");
+        } catch(RuntimeException failed) {
+            operation.setState("RECOVERY_REQUIRED");operation.setPhase("VOLUME_RESUME_RECOVERY_REQUIRED");operation.setDiagnostic("Existing filesystem resume failed; DATA preserved without mkfs");operation.setHeartbeat(new java.util.Date());storageOperationDao.update(operation.getId(),operation);throw failed;
+        } finally {endStorageWriterHeartbeat();}
+    }
+    private StorageServiceRuntimeResponse volumeResumeResponse(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
+        JsonObject result=parseJsonObject(operation.getResultJson());result.remove("_requestFingerprint");result.addProperty("managedOperationUuid",operation.getUuid());result.addProperty("managedOperationState",operation.getState());
+        return createRuntimeResponse(instance,"volume operation resume","COMPLETE_NO_CONFIG_CHANGE".equals(operation.getState()),operation.getState(),operation.getDiagnostic(),result.toString());
+    }
+
+    @Override
     public StorageServiceRuntimeResponse getStorageServiceVolumePreparation(GetStorageServiceVolumePreparationCmd cmd) {
         final StorageServiceInstanceVO instance = requireInstance(cmd.getInstanceId());
         final VolumeVO volume = requireVolume(cmd.getVolumeId());
@@ -4950,6 +5024,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         final int formatDeadline = backingVolumeFormatDeadline(volume.getSize() == null ? 0 : volume.getSize());
         payload.addProperty("formatDeadlineSeconds", formatDeadline);
         payload.addProperty("operationId", "volume-" + volume.getUuid());
+        StorageServiceOperationVO writer=storageWriterOperation.get();if(writer!=null){payload.addProperty("managerOperationUuid",writer.getUuid());payload.addProperty("managerRevision",writer.getRevision());}
         final int commandDeadline = formatting ? Math.max(StorageServiceInstance.StorageServiceCommandTimeout.value(), formatDeadline + 120)
                 : StorageServiceInstance.StorageServiceCommandTimeout.value();
         final StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),

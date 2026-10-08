@@ -201,6 +201,16 @@ public class SharedFSServiceImplTest {
         when(provider.getSharedFSLifeCycle()).thenReturn(lifeCycle);
         when(lifeCycle.stopSharedFS(any(),any())).thenReturn(true);
         ReflectionTestUtils.setField(sharedFSServiceImpl, "sharedFSStateMachine", _stateMachine);
+        com.cloud.service.ServiceOfferingVO sparseService = mock(com.cloud.service.ServiceOfferingVO.class);
+        when(sparseService.getDiskOfferingId()).thenReturn(124L);
+        when(serviceOfferingDao.findById(s_serviceOfferingId)).thenReturn(sparseService);
+        DiskOfferingVO sparseRootOffering = mock(DiskOfferingVO.class);
+        when(sparseRootOffering.getProvisioningType()).thenReturn(com.cloud.storage.Storage.ProvisioningType.SPARSE);
+        when(diskOfferingDao.findById(124L)).thenReturn(sparseRootOffering);
+        VolumeVO allocatedSparseRoot = mock(VolumeVO.class);
+        when(allocatedSparseRoot.getProvisioningType()).thenReturn(com.cloud.storage.Storage.ProvisioningType.SPARSE);
+        when(volumeDao.findByInstanceAndType(s_vmId,Volume.Type.ROOT)).thenReturn(java.util.List.of(allocatedSparseRoot));
+
     }
 
     @After
@@ -276,6 +286,7 @@ public class SharedFSServiceImplTest {
     @Test
     public void testDeploySharedFS() throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, NoTransitionException, OperationTimedoutException {
         CreateSharedFSCmd cmd = getMockCreateSharedFSCmd();
+        DiskOfferingVO sparseData=mock(DiskOfferingVO.class);when(sparseData.getProvisioningType()).thenReturn(com.cloud.storage.Storage.ProvisioningType.SPARSE);when(diskOfferingDao.findById(s_diskOfferingId)).thenReturn(sparseData);
 
         SharedFSVO sharedFS = getMockSharedFS();
         when(sharedFSDao.findById(0L)).thenReturn(sharedFS);
@@ -293,6 +304,7 @@ public class SharedFSServiceImplTest {
     @Test
     public void testDeploySharedFSException() throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, NoTransitionException, OperationTimedoutException {
         CreateSharedFSCmd cmd = getMockCreateSharedFSCmd();
+        DiskOfferingVO sparseData=mock(DiskOfferingVO.class);when(sparseData.getProvisioningType()).thenReturn(com.cloud.storage.Storage.ProvisioningType.SPARSE);when(diskOfferingDao.findById(s_diskOfferingId)).thenReturn(sparseData);
 
         SharedFSVO sharedFS = getMockSharedFS();
         when(sharedFSDao.findById(0L)).thenReturn(sharedFS);
@@ -317,6 +329,7 @@ public class SharedFSServiceImplTest {
         when(zone.getAllocationState()).thenReturn(Grouping.AllocationState.Enabled);
 
         DiskOfferingVO diskOfferingVO = mock(DiskOfferingVO.class);
+        when(diskOfferingVO.getProvisioningType()).thenReturn(com.cloud.storage.Storage.ProvisioningType.SPARSE);
         when(diskOfferingDao.findById(s_diskOfferingId)).thenReturn(diskOfferingVO);
         when(diskOfferingVO.isCustomized()).thenReturn(true);
         when(diskOfferingVO.isCustomizedIops()).thenReturn(true);
@@ -436,6 +449,7 @@ public class SharedFSServiceImplTest {
         when(zone.getAllocationState()).thenReturn(Grouping.AllocationState.Enabled);
 
         DiskOfferingVO diskOfferingVO = mock(DiskOfferingVO.class);
+        when(diskOfferingVO.getProvisioningType()).thenReturn(com.cloud.storage.Storage.ProvisioningType.SPARSE);
         when(diskOfferingDao.findById(s_diskOfferingId)).thenReturn(diskOfferingVO);
         when(diskOfferingVO.isCustomized()).thenReturn(true);
         when(diskOfferingVO.isCustomizedIops()).thenReturn(true);
@@ -464,6 +478,7 @@ public class SharedFSServiceImplTest {
         when(zone.getAllocationState()).thenReturn(Grouping.AllocationState.Enabled);
 
         DiskOfferingVO diskOfferingVO = mock(DiskOfferingVO.class);
+        when(diskOfferingVO.getProvisioningType()).thenReturn(com.cloud.storage.Storage.ProvisioningType.SPARSE);
         when(diskOfferingDao.findById(s_diskOfferingId)).thenReturn(diskOfferingVO);
         when(diskOfferingVO.isCustomized()).thenReturn(true);
         when(diskOfferingVO.isCustomizedIops()).thenReturn(true);
@@ -913,4 +928,13 @@ public class SharedFSServiceImplTest {
             verify(_stateMachine, times(1)).transitTo(sharedFS, SharedFS.Event.OperationFailed, null, sharedFSDao);
         }
     }
+    @Test public void newSharedFsVmCannotUseAThinOrUnknownRootOffering() {
+        com.cloud.service.ServiceOfferingVO service=mock(com.cloud.service.ServiceOfferingVO.class);when(service.getDiskOfferingId()).thenReturn(125L);when(serviceOfferingDao.findById(90L)).thenReturn(service);DiskOfferingVO thin=mock(DiskOfferingVO.class);when(thin.getProvisioningType()).thenReturn(com.cloud.storage.Storage.ProvisioningType.THIN);when(diskOfferingDao.findById(125L)).thenReturn(thin);
+        Assert.assertThrows(InvalidParameterValueException.class,()->sharedFSServiceImpl.validateSparseNewRootOffering(90L));Assert.assertThrows(InvalidParameterValueException.class,()->sharedFSServiceImpl.validateSparseNewRootOffering(91L));sharedFSServiceImpl.validateSparseNewRootOffering(s_serviceOfferingId);
+    }
+    @Test public void onlyNewDataAllocationRequiresSparseAndAllocatedRootIsRechecked() {
+        DiskOfferingVO thin=mock(DiskOfferingVO.class);when(thin.getProvisioningType()).thenReturn(com.cloud.storage.Storage.ProvisioningType.THIN);when(diskOfferingDao.findById(126L)).thenReturn(thin);Assert.assertThrows(InvalidParameterValueException.class,()->sharedFSServiceImpl.validateSparseNewDataOffering(126L));sharedFSServiceImpl.validateSparseNewDataOffering(124L);
+        VolumeVO root=mock(VolumeVO.class);when(root.getProvisioningType()).thenReturn(com.cloud.storage.Storage.ProvisioningType.THIN);when(volumeDao.findByInstanceAndType(77L,Volume.Type.ROOT)).thenReturn(java.util.List.of(root));Assert.assertThrows(InvalidParameterValueException.class,()->sharedFSServiceImpl.verifySparseAllocatedRoot(77L));sharedFSServiceImpl.verifySparseAllocatedRoot(s_vmId);
+    }
+
 }

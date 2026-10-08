@@ -177,6 +177,7 @@ public interface StorageService {
     StorageFileShareResponse attachStorageVolumeToFileShare(AttachStorageVolumeToFileShareCmd cmd);
 
     StorageServiceRuntimeResponse getStorageServiceVolumePreparation(GetStorageServiceVolumePreparationCmd cmd);
+    StorageServiceRuntimeResponse resumeStorageServiceVolumePreparation(org.apache.cloudstack.api.command.user.storage.dataservice.ResumeStorageServiceVolumePreparationCmd cmd);
 
     StorageServiceRuntimeResponse detachStorageServiceBackingVolume(DetachStorageServiceBackingVolumeCmd cmd);
 
