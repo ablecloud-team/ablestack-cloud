@@ -9425,6 +9425,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     protected String buildSmbNetbiosName(final StorageServiceInstanceVO instance) {
+        if(instance!=null&&storageIdentityDomainDao!=null){StorageIdentityDomainVO joined=storageIdentityDomainDao.findByInstanceId(instance.getId());if(joined!=null&&joined.getJoinState()==StorageServiceInstance.DomainJoinState.JOINED){JsonObject config=parseJsonObject(joined.getConfigJson());JsonObject receipt=config.has("identityReceipt")&&config.get("identityReceipt").isJsonObject()?config.getAsJsonObject("identityReceipt"):null;String name=receipt==null?null:getJsonString(receipt,"netbiosName");if(name==null||!name.matches("[A-Z0-9][A-Z0-9_-]{0,14}"))throw new CloudRuntimeException("Joined SMB domain lacks its verified machine NetBIOS name");return name;}}
         final String uuid = instance == null ? "" : StringUtils.defaultString(instance.getUuid());
         final String suffix = uuid.replaceAll("[^A-Fa-f0-9]", "");
         final String value = "STOR" + (suffix.length() >= 10 ? suffix.substring(0, 10) : StringUtils.rightPad(suffix, 10, "0"));
