@@ -9565,5 +9565,6 @@
   "label.storage.config.identity.preserved": "암호화 신원 보존",
   "label.storage.config.identity.include": "SMB 신원 포함",
   "label.storage.config.identity.source.service": "신원 원본 서비스 UUID",
-  "label.storage.config.identity.source.artifact": "신원 원본 백업 UUID"
+  "label.storage.config.identity.source.artifact": "신원 원본 백업 UUID",
+  "message.storage.config.clone.identity.template.required": "AD 신원을 복원하는 새 인스턴스에는 로컬 신원 seed 부재가 확인된 공개 SYSTEM 템플릿을 직접 선택해야 합니다. 적합한 템플릿을 자동 선택하지 않습니다."
 }
