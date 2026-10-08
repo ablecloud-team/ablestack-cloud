@@ -22,7 +22,7 @@ CLI=ROOT/"systemvm/debian/usr/local/bin/ablestack-storagectl"
 
 class StorageInlineSourcesTest(unittest.TestCase):
     def test_signed_rendered_entrypoint_matches_all_fixed_reviewed_library_bodies_exactly(self):
-        modules=['ad_authority','rendered_generation','ganesha_dbus','nvme_credentials','native_renderers','native_render_validation','native_render_runtime','rendered_network','rendered_prerequisites','rendered_credentials','posix_root_initialization','root_identity_reference','root_configuration_capsule','root_source_identity_checkpoint','root_source_recovery','samba_public_sid','service_identity_source','root_retained_authorization','rendered_driver']
+        modules=['ad_authority','rendered_generation','ganesha_dbus','nvme_credentials','native_renderers','native_render_validation','native_render_runtime','rendered_network','rendered_prerequisites','rendered_credentials','posix_root_initialization','root_identity_reference','root_configuration_capsule','root_source_identity_checkpoint','root_source_recovery','samba_public_sid','service_identity_source','service_identity_cipher','root_retained_authorization','rendered_driver']
         expected=['import sys']
         for name in modules:
             value=(LIB/(name+'.py')).read_text()
@@ -74,6 +74,13 @@ class StorageInlineSourcesTest(unittest.TestCase):
         self.assertIn('ConfigfsIscsiAuth().apply(iqn,initiator,acl_config,secrets)',block)
         ast.parse(actual)
 
+    def test_signed_service_cipher_producer_body_is_exact_without_caller_publication_rpc(self):
+        source=CLI.read_text()
+        actual=source.split("# BEGIN EMBEDDED SERVICE CIPHER\n",1)[1].split("\n# END EMBEDDED SERVICE CIPHER",1)[0]
+        expected=(LIB/"service_identity_cipher.py").read_text()
+        expected=expected[expected.index('"""Native-only AFTERSTOP'):]
+        self.assertEqual(expected,actual)
+        self.assertNotIn("render-service-retain-identity",source)
     def test_signed_private_source_collector_is_quiescent_no_backup_and_byte_bound(self):
         source=CLI.read_text().split("<<'PYIDENTITY'\n",1)[1].split("\nPYIDENTITY",1)[0]
         actual=ast.parse(source);expected=ast.parse((LIB/"identity_capsule.py").read_text())
