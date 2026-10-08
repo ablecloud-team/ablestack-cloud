@@ -10603,6 +10603,7 @@ PYIDMAP
   smb)
     if [[ "$subcommand" == "identity" && ( "$action" == "inspect" || "$action" == "rebind" ) ]]; then
       smb_identity_command
+      exit $?
     elif [[ "$subcommand" == "endpoint-run" ]]; then
       smb_endpoint_run "$action"
       exit $?
