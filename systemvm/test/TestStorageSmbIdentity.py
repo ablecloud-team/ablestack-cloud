@@ -13,7 +13,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-import copy,json,os
+import copy,json,os,subprocess
 from pathlib import Path
 import sys,tempfile,unittest,uuid
 from unittest.mock import patch
@@ -153,5 +153,16 @@ class StorageSmbIdentityTest(unittest.TestCase):
             with self.assertRaises(ValueError):self.handler.rebind(request)
             handles.assert_not_called()
         self.assertEqual([],self.calls)
+
+    def test_actual_smb_case_returns_exactly_one_success_json_without_share_domain_fallthrough(self):
+        cli=Path(__file__).resolve().parents[2]/"systemvm/debian/usr/local/bin/ablestack-storagectl"
+        source=cli.read_text();start=source.index('  smb)\n',source.index('command="${1:-}"'));end=source.index('  iscsi)\n',start)
+        case=source[start:end]
+        payload=Path(self.temp.name)/'payload.json';payload.write_text('{}')
+        script='set -euo pipefail\ncommand=smb\nsubcommand=identity\naction=inspect\npayload='+str(payload)+'\nsmb_identity_command() { printf \'%s\\n\' \'{"success":true,"fixture":true}\'; }\nemit_error() { printf \'UNEXPECTED_ERROR\\n\'; }\nlog_command() { printf \'UNEXPECTED_LOG\\n\'; }\ncase "$command" in\n'+case+'esac\n'
+        result=subprocess.run(['bash'],input=script,capture_output=True,text=True,timeout=5)
+        self.assertEqual(0,result.returncode,result.stderr)
+        self.assertEqual({'success':True,'fixture':True},json.loads(result.stdout))
+        self.assertEqual(1,len(result.stdout.splitlines()))
 
 if __name__=='__main__':unittest.main()
