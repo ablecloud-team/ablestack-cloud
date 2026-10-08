@@ -22,15 +22,17 @@
       :ref="formRef"
       :rules="rules"
       @finish="handleSubmit"
-      layout="vertical">
+      layout="vertical"
+class="mold-form-dialog">
+      <div class="mold-form-content"><KubernetesDialogContext :resource="resource" /><a-alert v-if="operationIncomplete" type="warning" show-icon class="mold-dialog-summary" :message="$t('message.kubernetes.ui.node.incomplete')" />
       <div v-if="vms.length > 0">
         <a-form-item name="nodeids" ref="nodeids">
           <template #label>
-            <tooltip-label :title="$t('label.add.nodes')" :tooltip="apiParams.nodeids.description"/>
+            <tooltip-label :title="$t('label.target.virtualmachines')" :tooltip="apiParams.nodeids.description"/>
           </template>
           <a-select
             v-model:value="form.nodeids"
-            :placeholder="$t('label.add.nodes')"
+            :placeholder="$t('label.target.virtualmachines')"
             mode="multiple"
             :loading="loading"
             showSearch
@@ -56,6 +58,7 @@
       </div>
       <p v-else v-html="$t('label.vms.empty')" />
 
+      </div>
       <div :span="24" class="action-button">
         <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
         <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
@@ -66,12 +69,14 @@
 
 <script>
 import { ref, reactive, toRaw } from 'vue'
+import KubernetesDialogContext from '@/components/view/KubernetesDialogContext'
 import { getAPI, postAPI } from '@/api'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 
 export default {
   name: 'AddNodesToKubernetesCluster',
   components: {
+    KubernetesDialogContext,
     TooltipLabel
   },
   props: {
@@ -83,6 +88,8 @@ export default {
   data () {
     return {
       vms: [],
+      pendingNodeJob: null,
+      operationIncomplete: false,
       loading: false
     }
   },
@@ -94,7 +101,7 @@ export default {
     this.formRef = ref()
     this.form = reactive({})
     this.rules = reactive({
-      nodeids: [{ type: 'array' }]
+      nodeids: [{ type: 'array', required: true, min: 1, message: this.$t('label.required') }]
     })
     this.fetchData()
   },
@@ -104,33 +111,20 @@ export default {
     },
     async fetchVms () {
       this.loading = true
-      this.vms = await this.callListVms(this.resource.accountid, this.resource.domainid)
-      const cksVms = this.resource.virtualmachines.map(vm => vm.id)
-      this.vms = this.vms.filter(vm => !cksVms.includes(vm.id))
-      this.loading = false
-    },
-    callListVms (accountId, domainId) {
-      return new Promise((resolve) => {
-        this.volumes = []
-        getAPI('listVirtualMachines', {
-          accountId: accountId,
-          domainId: domainId,
-          details: 'min',
-          listall: 'true',
-          networkid: this.resource.networkid
-        }).then(json => {
-          const vms = json.listvirtualmachinesresponse.virtualmachine || []
-          resolve(vms)
-        })
-      })
+      try {
+        const attached = new Set((this.resource.virtualmachines || []).map(vm => vm.id))
+        const scope = this.resource.projectid ? { projectid: this.resource.projectid } : { account: this.resource.account, domainid: this.resource.domainid }
+        const response = await getAPI('listVirtualMachines', { ...scope, details: 'all', listall: true, networkid: this.resource.networkid, state: 'Running', pagesize: -1 })
+        this.vms = (response.listvirtualmachinesresponse.virtualmachine || []).filter(vm => !attached.has(vm.id) && vm.state === 'Running' && (vm.nic || []).some(nic => nic.isdefault && nic.networkid === this.resource.networkid))
+      } catch (error) { this.$notifyError(error) } finally { this.loading = false }
     },
     closeAction () {
       this.$emit('close-action')
     },
     handleSubmit (e) {
-      e.preventDefault()
+      if (e && e.preventDefault) e.preventDefault()
       if (this.loading) return
-      this.formRef.value.validate().then(async () => {
+      return this.formRef.value.validate().then(async () => {
         const values = toRaw(this.form)
         const params = {
           id: this.resource.id
@@ -146,8 +140,10 @@ export default {
         }
         this.loading = true
         try {
-          const jobId = await this.addNodesToKubernetesCluster(params)
-          await this.$pollJob({
+          const jobId = this.pendingNodeJob || await this.addNodesToKubernetesCluster(params)
+          this.pendingNodeJob = jobId
+          this.operationIncomplete = false
+          const result = await this.$pollJob({
             jobId,
             title: this.$t('label.action.add.nodes.to.kubernetes.cluster'),
             description: this.resource.name,
@@ -161,11 +157,15 @@ export default {
               isFetchData: false
             }
           })
-          this.closeAction()
+          if (result.jobstatus === 1) { this.pendingNodeJob = null; this.closeAction() } else {
+            this.operationIncomplete = true
+            if (result.jobstatus === 2) this.pendingNodeJob = null
+            this.parentFetchData()
+          }
           this.loading = false
         } catch (error) {
           await this.$notifyError(error)
-          this.closeAction()
+          this.operationIncomplete = true
           this.loading = false
         }
       })

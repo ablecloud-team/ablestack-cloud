@@ -123,7 +123,7 @@
                         @exec-action="handleDataViewAction"/>
                     </div>
                   </template>
-                  <a-button type="primary" class="autogen-action-dropdown__button">
+                  <a-button ref="detailActionsTrigger" type="primary" class="autogen-action-dropdown__button">
                     <template #icon>
                       <down-outlined />
                     </template>
@@ -185,7 +185,7 @@
           @cancel="cancelAction"
           :confirmLoading="actionLoading"
           :footer="null"
-          width="auto"
+          :width="currentAction.dialogWidth || 'auto'"
         >
           <template #title>
             <span v-if="currentAction.label">{{ $t(currentAction.label) }}</span>
@@ -922,6 +922,7 @@ export default {
   provide: function () {
     return {
       parentFetchData: this.fetchData,
+      parentExecuteAction: this.handleDataViewAction,
       parentToggleLoading: this.toggleLoading,
       parentStartLoading: this.startLoading,
       parentFinishLoading: this.finishLoading,
@@ -954,6 +955,7 @@ export default {
       resource: {},
       selectedRowKeys: [],
       currentAction: {},
+      actionTrigger: null,
       showAction: false,
       dataView: false,
       projectView: false,
@@ -1625,6 +1627,9 @@ export default {
             this.$store.getters.customColumns[this.$store.getters.userInfo.id][this.$route.path] = this.selectedColumns
           } else {
             this.selectedColumns = this.$store.getters.customColumns[this.$store.getters.userInfo.id][this.$route.path] || this.selectedColumns
+            if (this.$route.name === 'kubernetes') {
+              this.selectedColumns = [...new Set(this.selectedColumns.map(key => ['cpunumber', 'memory'].includes(key) ? 'resources' : key))]
+            }
             if (this.$route.name === 'vmsnapshot') {
               // Replace the former default domain column in saved selections as well.
               this.selectedColumns = [...new Set(this.selectedColumns.map(key => key === 'domain' ? 'zonename' : key))]
@@ -1906,10 +1911,18 @@ export default {
       return request
     },
     closeAction () {
+      const trigger = this.actionTrigger
+      this.actionTrigger = null
       this.actionLoading = false
       this.showAction = false
       this.currentAction = {}
       this.actionConfirmText = ''
+      // Clearing currentAction unmounts the legacy modal before AntD can restore focus.
+      this.$nextTick(() => {
+        if (!this.showAction && trigger?.isConnected && trigger !== document.body) {
+          trigger.focus({ preventScroll: true })
+        }
+      })
     },
     cancelAction () {
       eventBus.emit('action-closing', { action: this.currentAction })
@@ -1948,8 +1961,12 @@ export default {
     handleDataViewAction (action) {
       this.detailActionsVisible = false
       this.execAction(action, false)
+      if (this.actionTrigger?.closest('.autogen-action-dropdown')) {
+        this.actionTrigger = this.$refs?.detailActionsTrigger?.$el || this.actionTrigger
+      }
     },
     execAction (action, isGroupAction) {
+      this.actionTrigger = document.activeElement
       if (action.api === 'createVMSnapshot') action = { ...action, resource: Object.freeze({ ...action.resource }) }
       if (action.snapshotMode) {
         this.currentAction = { ...action, invokedAsGroupAction: !!isGroupAction, snapshotTargets: Object.freeze((isGroupAction ? this.selectedItems : [action.resource]).filter(Boolean).map(row => Object.freeze({ ...row }))) }

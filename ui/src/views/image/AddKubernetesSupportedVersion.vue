@@ -35,7 +35,7 @@
           </template>
           <a-input
             v-model:value="form.semanticversion"
-            :placeholder="apiParams.semanticversion.description"
+            :placeholder="$t('label.semanticversion')"
             v-focus="true" />
         </a-form-item>
         <a-form-item ref="name" name="name">
@@ -44,7 +44,7 @@
           </template>
           <a-input
             v-model:value="form.name"
-            :placeholder="apiParams.name.description"/>
+            :placeholder="$t('label.name')"/>
         </a-form-item>
         <a-form-item ref="zoneid" name="zoneid">
           <template #label>
@@ -59,7 +59,7 @@
               return  option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
             }"
             :loading="zoneLoading"
-            :placeholder="apiParams.zoneid.description"
+            :placeholder="$t('label.zoneid')"
             @change="handleZoneChange">
             <a-select-option v-for="opt in this.zones" :key="opt.id" :label="opt.name || opt.description">
               <span>
@@ -76,7 +76,7 @@
           </template>
           <a-input
             v-model:value="form.url"
-            :placeholder="apiParams.url.description" />
+            :placeholder="$t('label.url')" />
         </a-form-item>
         <a-form-item ref="file" name="file" :label="$t('label.templatefileupload')" v-else>
           <a-upload-dragger
@@ -99,7 +99,7 @@
           </template>
           <a-input
             v-model:value="form.checksum"
-            :placeholder="apiParams.checksum.description" />
+            :placeholder="$t('label.checksum')" />
         </a-form-item>
         <a-form-item ref="mincpunumber" name="mincpunumber">
           <template #label>
@@ -107,7 +107,7 @@
           </template>
           <a-input
             v-model:value="form.mincpunumber"
-            :placeholder="apiParams.mincpunumber.description"/>
+            :placeholder="$t('label.mincpunumber')"/>
         </a-form-item>
         <a-form-item ref="minmemory" name="minmemory">
           <template #label>
@@ -115,7 +115,7 @@
           </template>
           <a-input
             v-model:value="form.minmemory"
-            :placeholder="apiParams.minmemory.description"/>
+            :placeholder="$t('label.minmemory')"/>
         </a-form-item>
         <a-form-item ref="directdownload" name="directdownload" v-if="currentForm !== 'Upload'">
           <template #label>
@@ -124,7 +124,7 @@
           <a-switch
             :disabled="directDownloadDisabled"
             v-model:checked="form.directdownload"
-            :placeholder="apiParams.directdownload.description"/>
+            :placeholder="$t('label.directdownload')"/>
         </a-form-item>
         <a-form-item
           name="arch"
@@ -139,7 +139,7 @@
               return option.children[0].children.toLowerCase().indexOf(input.toLowerCase()) >= 0
             }"
             v-model:value="form.arch"
-            :placeholder="apiParams.arch.description">
+            :placeholder="$t('label.arch')">
             <a-select-option v-for="opt in architectureTypes.opts" :key="opt.id">
               {{ opt.name || opt.description }}
             </a-select-option>
@@ -409,10 +409,6 @@ export default {
 
 <style scoped lang="less">
   .form-layout {
-    width: 80vw;
-
-    @media (min-width: 700px) {
-      width: 550px;
-    }
+    width: 100%;
   }
 </style>

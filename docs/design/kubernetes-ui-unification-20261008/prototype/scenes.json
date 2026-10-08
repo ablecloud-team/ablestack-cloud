@@ -1,0 +1,2877 @@
+[
+  {
+    "id": "list",
+    "title": "클러스터 목록",
+    "kind": "page",
+    "tab": "details"
+  },
+  {
+    "id": "detail",
+    "title": "클러스터 상세",
+    "kind": "page",
+    "tab": "details"
+  },
+  {
+    "id": "nodes",
+    "title": "노드 목록",
+    "kind": "page",
+    "tab": "nodes"
+  },
+  {
+    "id": "access",
+    "title": "액세스 안내",
+    "kind": "page",
+    "tab": "access"
+  },
+  {
+    "id": "loadbalancers",
+    "title": "서비스 부하 분산",
+    "kind": "page",
+    "tab": "loadbalancers"
+  },
+  {
+    "id": "firewall",
+    "title": "방화벽 규칙",
+    "kind": "page",
+    "tab": "firewall"
+  },
+  {
+    "id": "portforwarding",
+    "title": "포트 포워딩",
+    "kind": "page",
+    "tab": "portforwarding"
+  },
+  {
+    "id": "events",
+    "title": "이벤트",
+    "kind": "page",
+    "tab": "events",
+    "source": "기존 EventsTab.vue + ListView.vue 직접 사용 (수정 없음)"
+  },
+  {
+    "id": "comments",
+    "title": "코멘트",
+    "kind": "page",
+    "tab": "comments",
+    "source": "기존 AnnotationsTab.vue 직접 사용 (수정 없음)"
+  },
+  {
+    "id": "iso-list",
+    "title": "Kubernetes ISO 목록",
+    "kind": "page",
+    "tab": "details"
+  },
+  {
+    "id": "iso-detail",
+    "title": "Kubernetes ISO 상세",
+    "kind": "page",
+    "tab": "details"
+  },
+  {
+    "id": "create-basic",
+    "title": "쿠버네티스 클러스터 생성",
+    "kind": "dialog",
+    "step": 0,
+    "button": "다음",
+    "fields": [
+      {
+        "label": "클러스터 이름",
+        "value": "k8s-app-demo",
+        "type": "input",
+        "required": true
+      },
+      {
+        "label": "설명",
+        "value": "애플리케이션 운영 클러스터",
+        "type": "input"
+      },
+      {
+        "label": "Zone",
+        "value": "Zone-A",
+        "type": "select",
+        "required": true
+      },
+      {
+        "label": "하이퍼바이저",
+        "value": "KVM",
+        "type": "select"
+      },
+      {
+        "label": "Kubernetes 버전",
+        "value": "1.37.1 · Mold 검증 완료",
+        "type": "select",
+        "required": true
+      },
+      {
+        "label": "계정 / 프로젝트",
+        "value": "demo-team · 현재 계정",
+        "type": "select"
+      }
+    ],
+    "section": "1. 기본 정보와 배포 대상",
+    "hint": "ISO 이름과 버전은 별개입니다. 선택한 등록 항목의 UUID와 다운로드 준비 상태를 함께 확인합니다.",
+    "width": 1120,
+    "create": true,
+    "summary": [
+      [
+        "클러스터",
+        "k8s-app-demo"
+      ],
+      [
+        "현재 상태",
+        "실행 중"
+      ],
+      [
+        "관리 유형",
+        "Mold 관리형"
+      ],
+      [
+        "Kubernetes",
+        "1.35.9"
+      ],
+      [
+        "Zone / 소유자",
+        "Zone-A / demo-team"
+      ]
+    ],
+    "source": "CreateKubernetesCluster.vue",
+    "api": "createKubernetesCluster"
+  },
+  {
+    "id": "create-nodes",
+    "title": "쿠버네티스 클러스터 생성",
+    "kind": "dialog",
+    "step": 1,
+    "button": "다음",
+    "fields": [
+      {
+        "label": "기본 컴퓨트 오퍼링",
+        "value": "4 vCPU · 8,192 MB",
+        "type": "select",
+        "required": true
+      },
+      {
+        "label": "워커 노드 수",
+        "value": 2,
+        "type": "number",
+        "required": true
+      },
+      {
+        "label": "노드 ROOT 디스크 (GiB)",
+        "value": 40,
+        "type": "number",
+        "required": true
+      },
+      {
+        "label": "고가용성 제어 노드",
+        "value": false,
+        "type": "switch"
+      },
+      {
+        "label": "제어 노드 수",
+        "value": 1,
+        "type": "number"
+      },
+      {
+        "label": "SSH 키 쌍",
+        "value": "app-team-key",
+        "type": "select"
+      }
+    ],
+    "section": "2. 노드와 스토리지",
+    "hint": "기본 템플릿과 실제 역할별 배포 템플릿을 구분합니다. 스토리지 사전 검증과 오퍼링 제약을 유지합니다.",
+    "cards": [
+      [
+        "배치 스토리지",
+        "Primary · GFS2"
+      ],
+      [
+        "초기 노드 합계",
+        "제어 1 + 워커 2"
+      ],
+      [
+        "할당 자원 합계",
+        "12 vCPU · 24,576 MB"
+      ],
+      [
+        "ROOT 디스크 합계",
+        "120 GiB"
+      ]
+    ],
+    "width": 1120,
+    "create": true,
+    "summary": [
+      [
+        "클러스터",
+        "k8s-app-demo"
+      ],
+      [
+        "현재 상태",
+        "실행 중"
+      ],
+      [
+        "관리 유형",
+        "Mold 관리형"
+      ],
+      [
+        "Kubernetes",
+        "1.35.9"
+      ],
+      [
+        "Zone / 소유자",
+        "Zone-A / demo-team"
+      ]
+    ],
+    "source": "CreateKubernetesCluster.vue",
+    "api": "createKubernetesCluster"
+  },
+  {
+    "id": "create-advanced",
+    "title": "쿠버네티스 클러스터 생성",
+    "kind": "dialog",
+    "step": 2,
+    "button": "다음",
+    "fields": [
+      {
+        "label": "네트워크",
+        "value": "app-isolated-network",
+        "type": "select",
+        "required": true
+      },
+      {
+        "label": "고급 역할 설정",
+        "value": true,
+        "type": "switch"
+      },
+      {
+        "label": "제어 노드 오퍼링",
+        "value": "4 vCPU · 8,192 MB",
+        "type": "select"
+      },
+      {
+        "label": "제어 노드 템플릿",
+        "value": "app-node-template",
+        "type": "select"
+      },
+      {
+        "label": "워커 노드 오퍼링",
+        "value": "4 vCPU · 8,192 MB",
+        "type": "select"
+      },
+      {
+        "label": "워커 노드 템플릿",
+        "value": "app-node-template",
+        "type": "select"
+      },
+      {
+        "label": "외부 etcd 노드 수",
+        "value": 0,
+        "type": "number"
+      },
+      {
+        "label": "제어 노드 Affinity 그룹",
+        "value": [
+          "control-spread"
+        ],
+        "type": "multi"
+      },
+      {
+        "label": "워커 노드 Affinity 그룹",
+        "value": [
+          "worker-spread"
+        ],
+        "type": "multi"
+      },
+      {
+        "label": "CNI 구성",
+        "value": "Calico · 등록 구성",
+        "type": "select"
+      }
+    ],
+    "section": "3. 네트워크와 역할별 배치",
+    "hint": "HA·외부 etcd·AS 번호 입력은 선택한 버전, Zone, CNI와 API 메타데이터 조건에 따라 표시합니다.",
+    "width": 1120,
+    "create": true,
+    "summary": [
+      [
+        "클러스터",
+        "k8s-app-demo"
+      ],
+      [
+        "현재 상태",
+        "실행 중"
+      ],
+      [
+        "관리 유형",
+        "Mold 관리형"
+      ],
+      [
+        "Kubernetes",
+        "1.35.9"
+      ],
+      [
+        "Zone / 소유자",
+        "Zone-A / demo-team"
+      ]
+    ],
+    "source": "CreateKubernetesCluster.vue",
+    "api": "createKubernetesCluster"
+  },
+  {
+    "id": "create-ha-etcd",
+    "title": "클러스터 생성 · HA / 외부 etcd",
+    "kind": "dialog",
+    "step": 2,
+    "button": "다음",
+    "fields": [
+      {
+        "label": "HA 사용",
+        "value": true,
+        "type": "switch"
+      },
+      {
+        "label": "제어 노드 수",
+        "value": 3,
+        "type": "number"
+      },
+      {
+        "label": "외부 LoadBalancer IP",
+        "value": "203.0.113.20",
+        "type": "input"
+      },
+      {
+        "label": "네트워크",
+        "value": "app-isolated-network",
+        "type": "select",
+        "required": true
+      },
+      {
+        "label": "고급 역할 설정",
+        "value": true,
+        "type": "switch"
+      },
+      {
+        "label": "제어 노드 오퍼링",
+        "value": "4 vCPU · 8,192 MB",
+        "type": "select"
+      },
+      {
+        "label": "제어 노드 템플릿",
+        "value": "app-node-template",
+        "type": "select"
+      },
+      {
+        "label": "워커 노드 오퍼링",
+        "value": "4 vCPU · 8,192 MB",
+        "type": "select"
+      },
+      {
+        "label": "워커 노드 템플릿",
+        "value": "app-node-template",
+        "type": "select"
+      },
+      {
+        "label": "외부 etcd 노드 수",
+        "value": 3,
+        "type": "number"
+      },
+      {
+        "label": "etcd 오퍼링",
+        "value": "4 vCPU · 8,192 MB",
+        "type": "select"
+      },
+      {
+        "label": "etcd 템플릿",
+        "value": "app-node-template",
+        "type": "select"
+      },
+      {
+        "label": "etcd Affinity 그룹",
+        "value": [
+          "etcd-spread"
+        ],
+        "type": "multi"
+      },
+      {
+        "label": "CNI 구성 / 동적 매개변수",
+        "value": "Calico · 선택 구성의 필드",
+        "type": "select"
+      }
+    ],
+    "section": "3. HA·외부 etcd·역할별 배치",
+    "hint": "HA 지원 버전에서만 제어 노드 수와 외부 LB IP를 표시합니다. 외부 etcd를 사용하면 해당 오퍼링·템플릿·Affinity를 별도로 선택합니다.",
+    "width": 1120,
+    "create": true,
+    "summary": [
+      [
+        "클러스터",
+        "k8s-app-demo"
+      ],
+      [
+        "현재 상태",
+        "실행 중"
+      ],
+      [
+        "관리 유형",
+        "Mold 관리형"
+      ],
+      [
+        "Kubernetes",
+        "1.35.9"
+      ],
+      [
+        "Zone / 소유자",
+        "Zone-A / demo-team"
+      ]
+    ],
+    "source": "CreateKubernetesCluster.vue",
+    "api": "createKubernetesCluster",
+    "ha": true
+  },
+  {
+    "id": "create-addons",
+    "title": "쿠버네티스 클러스터 생성",
+    "kind": "dialog",
+    "step": 3,
+    "button": "다음",
+    "fields": [
+      {
+        "label": "CSI 드라이버 설치",
+        "value": false,
+        "type": "switch"
+      },
+      {
+        "label": "프라이빗 레지스트리 사용",
+        "value": true,
+        "type": "switch"
+      },
+      {
+        "label": "레지스트리 URL",
+        "value": "registry.example.com",
+        "type": "input"
+      },
+      {
+        "label": "사용자 이름",
+        "value": "app-reader",
+        "type": "input"
+      },
+      {
+        "label": "비밀번호",
+        "value": "••••••••",
+        "type": "password"
+      }
+    ],
+    "section": "4. 선택 구성요소와 이미지 저장소",
+    "hint": "기본 mold-cks ISO에는 CSI가 포함되지 않습니다. 별도 CSI 릴리즈 또는 검증된 CSI 프로파일을 사용하며, 지원 정보가 없으면 설치 가능으로 표시하지 않습니다.",
+    "cards": [
+      [
+        "ISO 프로파일",
+        "mold-cks · 기본"
+      ],
+      [
+        "Provider / AutoScaler",
+        "Mold HMAC-SHA256 구성"
+      ],
+      [
+        "CSI",
+        "기본 제외 · 별도 설치"
+      ]
+    ],
+    "width": 1120,
+    "create": true,
+    "summary": [
+      [
+        "클러스터",
+        "k8s-app-demo"
+      ],
+      [
+        "현재 상태",
+        "실행 중"
+      ],
+      [
+        "관리 유형",
+        "Mold 관리형"
+      ],
+      [
+        "Kubernetes",
+        "1.35.9"
+      ],
+      [
+        "Zone / 소유자",
+        "Zone-A / demo-team"
+      ]
+    ],
+    "source": "CreateKubernetesCluster.vue",
+    "api": "createKubernetesCluster"
+  },
+  {
+    "id": "create-review",
+    "title": "쿠버네티스 클러스터 생성",
+    "kind": "dialog",
+    "step": 4,
+    "button": "클러스터 생성",
+    "section": "5. 최종 검토",
+    "hint": "배포 직전 준비 상태·계정 한도·스토리지·네트워크·ISO를 다시 조회합니다. 검증 실패 시 해당 단계로 돌아가 수정합니다.",
+    "checks": [
+      "선택 ISO Ready · x86_64 · Kubernetes 1.37.1",
+      "3개 노드 · 12 vCPU · 24,576 MB · ROOT 120 GiB",
+      "Primary GFS2 배치와 ROOT 최소 크기 확인",
+      "계정 한도 및 IP·네트워크 준비 확인",
+      "기본 ISO의 CSI 미포함 확인"
+    ],
+    "width": 1120,
+    "create": true,
+    "summary": [
+      [
+        "클러스터",
+        "k8s-app-demo"
+      ],
+      [
+        "현재 상태",
+        "실행 중"
+      ],
+      [
+        "관리 유형",
+        "Mold 관리형"
+      ],
+      [
+        "Kubernetes",
+        "1.35.9"
+      ],
+      [
+        "Zone / 소유자",
+        "Zone-A / demo-team"
+      ]
+    ],
+    "source": "CreateKubernetesCluster.vue",
+    "api": "createKubernetesCluster"
+  },
+  {
+    "kind": "dialog",
+    "create": true,
+    "external": true,
+    "width": 1120,
+    "source": "CreateKubernetesClusterCmd.java / KubernetesClusterManagerImpl.java",
+    "api": "createKubernetesCluster(clustertype=ExternalManaged)",
+    "id": "create-external-basic",
+    "title": "클러스터 생성 · 외부 관리형",
+    "step": 0,
+    "fields": [
+      {
+        "label": "클러스터 이름",
+        "value": "k8s-external-demo",
+        "type": "input",
+        "required": true
+      },
+      {
+        "label": "설명",
+        "value": "외부에서 운영하는 Kubernetes 클러스터",
+        "type": "input"
+      },
+      {
+        "label": "Zone",
+        "value": "Zone-A",
+        "type": "select",
+        "required": true
+      },
+      {
+        "label": "계정 / 프로젝트",
+        "value": "demo-team · 현재 계정",
+        "type": "select"
+      }
+    ],
+    "alert": "외부에서 운영하는 Kubernetes 클러스터를 Mold에 등록합니다. 등록 후 기존 Mold VM을 외부 노드로 연결할 수 있으며, VM 배포·Kubernetes 설치·가입은 수행하지 않습니다.",
+    "button": "다음"
+  },
+  {
+    "kind": "dialog",
+    "create": true,
+    "external": true,
+    "width": 1120,
+    "source": "CreateKubernetesClusterCmd.java / KubernetesClusterManagerImpl.java",
+    "api": "createKubernetesCluster(clustertype=ExternalManaged)",
+    "id": "create-external-options",
+    "title": "외부 관리형 · 선택 정보와 VM 연결",
+    "step": 1,
+    "fields": [
+      {
+        "label": "Kubernetes 지원 버전 (선택)",
+        "value": "선택 안 함",
+        "type": "select"
+      },
+      {
+        "label": "기존 네트워크 (선택)",
+        "value": "선택 안 함",
+        "type": "select"
+      },
+      {
+        "label": "SSH 키 쌍 (선택)",
+        "value": "선택 안 함",
+        "type": "select",
+        "wide": true
+      },
+      {
+        "name": "connectafter",
+        "label": "기존 VM 연결",
+        "type": "select",
+        "value": "later",
+        "options": [
+          {
+            "value": "later",
+            "label": "등록만 · 나중에 연결 (기본)"
+          },
+          {
+            "value": "after",
+            "label": "등록 후 외부 노드 추가 계속하기"
+          }
+        ],
+        "wide": true
+      }
+    ],
+    "hint": "기존 VM은 클러스터 등록 성공 후 별도 연결합니다. 외부 노드 추가에서 제어/워커 역할을 지정하며, Kubernetes 설치·실제 가입은 외부 운영자가 수행합니다. 선택한 버전·네트워크·SSH 키는 등록 메타데이터입니다.",
+    "button": "다음"
+  },
+  {
+    "kind": "dialog",
+    "create": true,
+    "external": true,
+    "width": 1120,
+    "source": "CreateKubernetesClusterCmd.java / KubernetesClusterManagerImpl.java",
+    "api": "createKubernetesCluster(clustertype=ExternalManaged)",
+    "id": "create-external-review",
+    "title": "외부 관리형 · 등록 검토",
+    "step": 2,
+    "checks": [
+      "클러스터 이름 · Zone · 등록 소유자 확인",
+      "외부 관리형으로 등록",
+      "VM 자동 배포·Kubernetes 설치·CNI/CSI 설치를 수행하지 않음",
+      "기본: 등록만 완료 · 가상머신 탭에서 외부 노드 추가 가능",
+      "Mold 시작·중지·자동 확장·업그레이드 작업은 제공하지 않음"
+    ],
+    "alert": "등록 상태 Running은 Kubernetes API 접속이나 워크로드 건강 상태의 검증 결과가 아닙니다.",
+    "button": "외부 관리형 등록"
+  },
+  {
+    "id": "start",
+    "title": "클러스터 시작",
+    "kind": "dialog",
+    "summary": [
+      [
+        "클러스터",
+        "k8s-app-demo"
+      ],
+      [
+        "상태 변경",
+        "중지됨 → 시작 중"
+      ],
+      [
+        "대상 노드",
+        "제어 1 · 워커 2"
+      ]
+    ],
+    "fields": [
+      {
+        "label": "Controller API 인증 정보 재발급",
+        "value": false,
+        "type": "checkbox"
+      }
+    ],
+    "hint": "재발급은 복구가 필요한 경우에만 선택합니다. 권한·유효기간·HMAC-SHA256 인증 동작을 유지합니다.",
+    "button": "시작",
+    "source": "compute.js / AutogenView API form",
+    "api": "startKubernetesCluster"
+  },
+  {
+    "id": "stop",
+    "title": "클러스터 중지",
+    "kind": "dialog",
+    "summary": [
+      [
+        "클러스터",
+        "k8s-app-demo"
+      ],
+      [
+        "현재 상태",
+        "실행 중"
+      ],
+      [
+        "관리 유형",
+        "Mold 관리형"
+      ],
+      [
+        "Kubernetes",
+        "1.35.9"
+      ],
+      [
+        "Zone / 소유자",
+        "Zone-A / demo-team"
+      ]
+    ],
+    "alert": "노드가 중지되면 애플리케이션과 Kubernetes API에 접속할 수 없습니다.",
+    "alertType": "warning",
+    "checks": [
+      "VM·ROOT·데이터 볼륨은 삭제하지 않습니다.",
+      "현재 클러스터와 대상 노드 수를 다시 확인했습니다."
+    ],
+    "button": "중지",
+    "source": "compute.js / AutogenView API form",
+    "api": "stopKubernetesCluster"
+  },
+  {
+    "id": "scale",
+    "title": "클러스터 확장 / 축소",
+    "kind": "dialog",
+    "fields": [
+      {
+        "label": "워커 목표 수",
+        "value": 3,
+        "type": "number",
+        "required": true
+      },
+      {
+        "label": "워커 컴퓨트 오퍼링",
+        "value": "4 vCPU · 8,192 MB",
+        "type": "select"
+      },
+      {
+        "label": "제어 노드 컴퓨트 오퍼링",
+        "value": "현재 오퍼링 유지",
+        "type": "select"
+      },
+      {
+        "label": "etcd 컴퓨트 오퍼링",
+        "value": "외부 etcd 사용 시 표시",
+        "type": "select"
+      }
+    ],
+    "hint": "수동 목표 수 변경과 역할별 오퍼링 변경을 구분합니다. 자동 확장 사용 중에는 충돌 안내와 기존 서버 검증을 적용합니다.",
+    "cards": [
+      [
+        "변경 전",
+        "워커 2 · 12 vCPU"
+      ],
+      [
+        "변경 후",
+        "워커 3 · 16 vCPU"
+      ],
+      [
+        "증가 할당량",
+        "4 vCPU · 8,192 MB · ROOT 40 GiB"
+      ]
+    ],
+    "button": "변경 적용",
+    "source": "ScaleKubernetesCluster.vue",
+    "api": "scaleKubernetesCluster",
+    "summary": [
+      [
+        "클러스터",
+        "k8s-app-demo"
+      ],
+      [
+        "현재 상태",
+        "실행 중"
+      ],
+      [
+        "관리 유형",
+        "Mold 관리형"
+      ],
+      [
+        "Kubernetes",
+        "1.35.9"
+      ],
+      [
+        "Zone / 소유자",
+        "Zone-A / demo-team"
+      ]
+    ]
+  },
+  {
+    "id": "autoscale",
+    "title": "오토스케일링 설정",
+    "kind": "dialog",
+    "fields": [
+      {
+        "label": "AutoScaler 사용 설정",
+        "value": true,
+        "type": "switch"
+      },
+      {
+        "label": "최소 워커 노드 수",
+        "value": 2,
+        "type": "number",
+        "required": true
+      },
+      {
+        "label": "최대 워커 노드 수",
+        "value": 3,
+        "type": "number",
+        "required": true
+      }
+    ],
+    "hint": "사용 설정은 런타임 정상 판정이 아닙니다. 현재 API가 제공하지 않는 건강 상태는 관측 정보 없음으로 표시합니다.",
+    "cards": [
+      [
+        "사용 설정",
+        "사용"
+      ],
+      [
+        "최근 런타임 관측",
+        "정보 없음"
+      ],
+      [
+        "허용 워커 범위",
+        "2–3"
+      ]
+    ],
+    "button": "설정 저장",
+    "source": "ScaleKubernetesCluster.vue",
+    "api": "scaleKubernetesCluster",
+    "summary": [
+      [
+        "클러스터",
+        "k8s-app-demo"
+      ],
+      [
+        "현재 상태",
+        "실행 중"
+      ],
+      [
+        "관리 유형",
+        "Mold 관리형"
+      ],
+      [
+        "Kubernetes",
+        "1.35.9"
+      ],
+      [
+        "Zone / 소유자",
+        "Zone-A / demo-team"
+      ]
+    ]
+  },
+  {
+    "id": "scale-recovery",
+    "title": "부분 확장 복구",
+    "kind": "dialog",
+    "alert": "일부 노드만 준비되었습니다. 원래 목표 수로 복구를 재시도할 수 있습니다.",
+    "alertType": "warning",
+    "fields": [
+      {
+        "label": "복구 목표 워커 수",
+        "value": 3,
+        "type": "number",
+        "disabled": true
+      }
+    ],
+    "summary": [
+      [
+        "클러스터",
+        "k8s-app-demo"
+      ],
+      [
+        "원래 목표 / 현재 준비",
+        "3 / 2"
+      ],
+      [
+        "복구 작업",
+        "동일 목표 재시도"
+      ]
+    ],
+    "hint": "기존 partialScaleRecoverySize 조건을 유지합니다. 이 경로에서는 오퍼링·AutoScaler 설정을 동시에 변경하지 않습니다.",
+    "button": "복구 재시도",
+    "source": "ScaleKubernetesCluster.vue",
+    "api": "scaleKubernetesCluster"
+  },
+  {
+    "id": "upgrade",
+    "title": "클러스터 업그레이드",
+    "kind": "dialog",
+    "summary": [
+      [
+        "클러스터",
+        "k8s-app-demo"
+      ],
+      [
+        "현재 상태",
+        "실행 중"
+      ],
+      [
+        "관리 유형",
+        "Mold 관리형"
+      ],
+      [
+        "Kubernetes",
+        "1.35.9"
+      ],
+      [
+        "Zone / 소유자",
+        "Zone-A / demo-team"
+      ]
+    ],
+    "fields": [
+      {
+        "label": "목표 버전",
+        "value": "1.36.5 · Ready",
+        "type": "select",
+        "required": true
+      }
+    ],
+    "alert": "노드를 순차적으로 업그레이드합니다. 워크로드 준비 상태에 따라 후속 노드 작업이 중단될 수 있습니다.",
+    "alertType": "warning",
+    "checks": [
+      "동일 버전·하향·마이너 건너뛰기 후보 제외",
+      "제어 노드 → 워커 순서와 기존 노드 UID 보존",
+      "PDB·cordon·CSI 워크로드 게이트 유지"
+    ],
+    "button": "업그레이드",
+    "source": "UpgradeKubernetesCluster.vue",
+    "api": "upgradeKubernetesCluster"
+  },
+  {
+    "id": "affinity",
+    "title": "Affinity 그룹 변경",
+    "kind": "dialog",
+    "summary": [
+      [
+        "클러스터",
+        "k8s-app-demo"
+      ],
+      [
+        "필요 상태",
+        "중지됨"
+      ]
+    ],
+    "fields": [
+      {
+        "label": "제어 노드 Affinity 그룹",
+        "value": [
+          "control-spread"
+        ],
+        "type": "multi"
+      },
+      {
+        "label": "워커 노드 Affinity 그룹",
+        "value": [
+          "worker-spread"
+        ],
+        "type": "multi"
+      },
+      {
+        "label": "외부 etcd Affinity 그룹",
+        "value": "외부 etcd 사용 시 표시",
+        "type": "select"
+      }
+    ],
+    "hint": "CloudManaged·Stopped 조건을 유지합니다. 역할별 다중 선택과 권한 제한을 공통 폼에서 표현합니다.",
+    "button": "변경 저장",
+    "source": "ChangeKubernetesClusterAffinity.vue",
+    "api": "updateKubernetesClusterAffinityGroups"
+  },
+  {
+    "id": "add-nodes",
+    "title": "외부 노드 추가",
+    "kind": "dialog",
+    "width": 920,
+    "summary": [
+      [
+        "클러스터",
+        "k8s-app-demo"
+      ],
+      [
+        "현재 상태",
+        "실행 중"
+      ],
+      [
+        "관리 유형",
+        "Mold 관리형"
+      ],
+      [
+        "Kubernetes",
+        "1.35.9"
+      ],
+      [
+        "Zone / 소유자",
+        "Zone-A / demo-team"
+      ]
+    ],
+    "nodeTable": true,
+    "fields": [
+      {
+        "label": "CKS ISO 마운트",
+        "value": true,
+        "type": "checkbox"
+      },
+      {
+        "label": "수동 업그레이드",
+        "value": false,
+        "type": "checkbox"
+      }
+    ],
+    "hint": "외부 노드의 VM 소유권과 클러스터 멤버십을 구분합니다. 연결 해제는 VM 삭제와 다릅니다.",
+    "button": "노드 추가",
+    "source": "KubernetesAddNodes.vue",
+    "api": "addNodesToKubernetesCluster"
+  },
+  {
+    "id": "remove-nodes",
+    "title": "외부 노드 연결 해제",
+    "kind": "dialog",
+    "width": 920,
+    "summary": [
+      [
+        "클러스터",
+        "k8s-app-demo"
+      ],
+      [
+        "현재 상태",
+        "실행 중"
+      ],
+      [
+        "관리 유형",
+        "Mold 관리형"
+      ],
+      [
+        "Kubernetes",
+        "1.35.9"
+      ],
+      [
+        "Zone / 소유자",
+        "Zone-A / demo-team"
+      ]
+    ],
+    "nodeTable": true,
+    "fields": [],
+    "hint": "외부 노드의 VM 소유권과 클러스터 멤버십을 구분합니다. 연결 해제는 VM 삭제와 다릅니다.",
+    "button": "연결 해제",
+    "source": "KubernetesRemoveNodes.vue",
+    "api": "removeNodesFromKubernetesCluster"
+  },
+  {
+    "id": "delete-worker",
+    "title": "워커 노드 삭제",
+    "kind": "dialog",
+    "summary": [
+      [
+        "클러스터",
+        "k8s-app-demo"
+      ],
+      [
+        "노드",
+        "worker-02 · 1.35.9"
+      ],
+      [
+        "역할 / 유형",
+        "워커 · Mold 관리형"
+      ]
+    ],
+    "alert": "drain 및 PDB 검증 후 노드 VM을 삭제합니다. 보호된 제어 노드 또는 AutoScaler 사용 중인 노드는 이 작업을 제한합니다.",
+    "alertType": "warning",
+    "checks": [
+      "노드와 워크로드 영향 범위를 확인했습니다."
+    ],
+    "danger": true,
+    "button": "노드 삭제",
+    "source": "KubernetesServiceTab.vue / node Popconfirm",
+    "api": "scaleKubernetesCluster(nodeids)"
+  },
+  {
+    "id": "delete-cluster",
+    "title": "클러스터 삭제",
+    "kind": "dialog",
+    "summary": [
+      [
+        "클러스터",
+        "k8s-app-demo"
+      ],
+      [
+        "현재 상태",
+        "실행 중"
+      ],
+      [
+        "관리 유형",
+        "Mold 관리형"
+      ],
+      [
+        "Kubernetes",
+        "1.35.9"
+      ],
+      [
+        "Zone / 소유자",
+        "Zone-A / demo-team"
+      ]
+    ],
+    "alert": "클러스터와 관리형 노드를 삭제합니다. 데이터 정리가 실패하면 노드를 보존하고 재시도 상태를 표시합니다.",
+    "alertType": "error",
+    "checks": [
+      "UID로 확인된 CSI PV 정리 정책 적용",
+      "Retain 볼륨과 사용자 네트워크 규칙은 보존",
+      "실패 단계와 남은 자원 목록을 결과에서 확인"
+    ],
+    "danger": true,
+    "button": "클러스터 삭제",
+    "source": "compute.js / AutogenView API form",
+    "api": "deleteKubernetesCluster"
+  },
+  {
+    "id": "delete-external",
+    "title": "외부 관리형 클러스터 삭제",
+    "kind": "dialog",
+    "summary": [
+      [
+        "클러스터",
+        "k8s-external-demo"
+      ],
+      [
+        "관리 유형",
+        "외부 관리형"
+      ]
+    ],
+    "fields": [
+      {
+        "label": "관련 VM 정리 (cleanup)",
+        "value": false,
+        "type": "checkbox"
+      },
+      {
+        "label": "즉시 영구 삭제 (expunge)",
+        "value": false,
+        "type": "checkbox"
+      }
+    ],
+    "alert": "기본값은 등록 정보 제거입니다. VM 정리는 별도 선택이며 expunge는 관리자/API 권한이 있을 때만 표시합니다.",
+    "alertType": "warning",
+    "danger": true,
+    "button": "등록 삭제",
+    "source": "compute.js / AutogenView API form",
+    "api": "deleteKubernetesCluster",
+    "externalManaged": true
+  },
+  {
+    "id": "bulk-start",
+    "title": "선택한 클러스터 시작",
+    "kind": "dialog",
+    "width": 960,
+    "bulk": true,
+    "alert": "선택한 항목별 현재 상태와 실행 가능 여부를 다시 확인합니다. 실행 불가 항목을 조용히 건너뛰지 않습니다.",
+    "alertType": "warning",
+    "checks": [
+      "선택한 2개 클러스터와 대상 노드 합계를 확인했습니다."
+    ],
+    "danger": false,
+    "button": "2개 클러스터 시작",
+    "source": "compute.js / ListView group action",
+    "api": "startKubernetesCluster"
+  },
+  {
+    "id": "bulk-stop",
+    "title": "선택한 클러스터 중지",
+    "kind": "dialog",
+    "width": 960,
+    "bulk": true,
+    "alert": "선택한 항목별 현재 상태와 실행 가능 여부를 다시 확인합니다. 실행 불가 항목을 조용히 건너뛰지 않습니다.",
+    "alertType": "warning",
+    "checks": [
+      "선택한 2개 클러스터와 대상 노드 합계를 확인했습니다."
+    ],
+    "danger": false,
+    "button": "2개 클러스터 중지",
+    "source": "compute.js / ListView group action",
+    "api": "stopKubernetesCluster"
+  },
+  {
+    "id": "bulk-delete",
+    "title": "선택한 클러스터 삭제",
+    "kind": "dialog",
+    "width": 960,
+    "bulk": true,
+    "alert": "선택한 항목별 현재 상태와 실행 가능 여부를 다시 확인합니다. 실행 불가 항목을 조용히 건너뛰지 않습니다.",
+    "alertType": "error",
+    "checks": [
+      "선택한 2개 클러스터와 대상 노드 합계를 확인했습니다."
+    ],
+    "danger": true,
+    "button": "2개 클러스터 삭제",
+    "source": "compute.js / ListView group action",
+    "api": "deleteKubernetesCluster"
+  },
+  {
+    "id": "iso-register",
+    "title": "Kubernetes ISO URL 등록",
+    "kind": "dialog",
+    "fields": [
+      {
+        "label": "Kubernetes 버전",
+        "value": "1.37.1",
+        "type": "input",
+        "required": true
+      },
+      {
+        "label": "등록 이름",
+        "value": "Mold-Kubernetes-1.37.1-amd64-r1",
+        "type": "input",
+        "required": true
+      },
+      {
+        "label": "Zone",
+        "value": "Zone-A",
+        "type": "select",
+        "required": true
+      },
+      {
+        "label": "다운로드 URL",
+        "value": "https://github.com/ablecloud-team/ablestack-kubernetes-iso/releases/download/<release>/<asset>.iso",
+        "type": "input",
+        "required": true
+      },
+      {
+        "label": "Mold 체크섬",
+        "value": "0123456789abcdef0123456789abcdef",
+        "type": "input"
+      },
+      {
+        "label": "최소 CPU (vCPU)",
+        "value": 2,
+        "type": "number"
+      },
+      {
+        "label": "최소 메모리 (MB)",
+        "value": 2048,
+        "type": "number"
+      },
+      {
+        "label": "아키텍처",
+        "value": "x86_64",
+        "type": "select"
+      },
+      {
+        "label": "직접 다운로드",
+        "value": false,
+        "type": "switch"
+      }
+    ],
+    "hint": "이름은 식별용 표시명입니다. Release 등록 JSON의 버전·URL·checksum 값을 사용하며, 등록 후 Ready 상태를 확인해야 클러스터에서 선택할 수 있습니다.",
+    "button": "ISO 등록",
+    "api": "addKubernetesSupportedVersion",
+    "width": 1000,
+    "source": "AddKubernetesSupportedVersion.vue"
+  },
+  {
+    "id": "iso-upload",
+    "title": "Kubernetes ISO 파일 업로드",
+    "kind": "dialog",
+    "fields": [
+      {
+        "label": "Kubernetes 버전",
+        "value": "1.37.1",
+        "type": "input",
+        "required": true
+      },
+      {
+        "label": "등록 이름",
+        "value": "Mold-Kubernetes-1.37.1-amd64-r1",
+        "type": "input",
+        "required": true
+      },
+      {
+        "label": "Zone",
+        "value": "Zone-A",
+        "type": "select",
+        "required": true
+      },
+      {
+        "label": "ISO 파일",
+        "value": "Mold-Kubernetes-1.37.1-amd64-r1.iso",
+        "type": "upload",
+        "required": true
+      },
+      {
+        "label": "Mold 체크섬",
+        "value": "0123456789abcdef0123456789abcdef",
+        "type": "input"
+      },
+      {
+        "label": "최소 CPU (vCPU)",
+        "value": 2,
+        "type": "number"
+      },
+      {
+        "label": "최소 메모리 (MB)",
+        "value": 2048,
+        "type": "number"
+      },
+      {
+        "label": "아키텍처",
+        "value": "x86_64",
+        "type": "select"
+      }
+    ],
+    "hint": "업로드·처리·다운로드 준비 상태를 구분합니다. 실패 시 폼 선택을 유지하고 해당 필드에 오류를 표시합니다.",
+    "button": "파일 업로드",
+    "api": "getUploadParamsForKubernetesSupportedVersion",
+    "width": 1000,
+    "source": "AddKubernetesSupportedVersion.vue"
+  },
+  {
+    "id": "iso-state",
+    "title": "지원 버전 상태 변경",
+    "kind": "dialog",
+    "summary": [
+      [
+        "등록 이름",
+        "Mold-Kubernetes-1.37.1-amd64-r1"
+      ],
+      [
+        "ISO 다운로드 상태",
+        "Ready"
+      ],
+      [
+        "현재 상태",
+        "사용"
+      ]
+    ],
+    "fields": [
+      {
+        "label": "지원 버전 상태",
+        "value": "사용 안 함",
+        "type": "select"
+      }
+    ],
+    "hint": "지원 버전 사용 설정과 ISO 다운로드 Ready는 별도 상태입니다. 기존 클러스터가 사용한 산출물은 변경하지 않습니다.",
+    "button": "상태 저장",
+    "source": "UpdateKubernetesSupportedVersion.vue",
+    "api": "updateKubernetesSupportedVersion"
+  },
+  {
+    "id": "iso-delete",
+    "title": "지원 버전 등록 삭제",
+    "kind": "dialog",
+    "summary": [
+      [
+        "등록 이름",
+        "Mold-Kubernetes-1.37.1-amd64-r1"
+      ],
+      [
+        "Kubernetes",
+        "1.37.1"
+      ],
+      [
+        "참조 클러스터",
+        "확인 필요"
+      ]
+    ],
+    "alert": "현재 참조 상태를 조회한 뒤 서버의 삭제 제약을 적용합니다. GitHub 릴리즈 파일 삭제와는 별개입니다.",
+    "alertType": "warning",
+    "danger": true,
+    "button": "등록 삭제",
+    "source": "image.js / AutogenView API form",
+    "api": "deleteKubernetesSupportedVersion"
+  },
+  {
+    "id": "network-tags",
+    "title": "네트워크 규칙 태그 편집",
+    "kind": "dialog",
+    "summary": [
+      [
+        "대상",
+        "사용자 방화벽 또는 포트 포워딩 규칙"
+      ],
+      [
+        "클러스터",
+        "k8s-app-demo"
+      ]
+    ],
+    "fields": [
+      {
+        "label": "태그 키",
+        "value": "team",
+        "type": "input",
+        "required": true
+      },
+      {
+        "label": "태그 값",
+        "value": "app",
+        "type": "input"
+      }
+    ],
+    "hint": "관리 포트 보호와 사용자 규칙의 소유권 구분을 유지합니다. 공유 FirewallRules·PortForwarding 태그 편집 폼을 재사용합니다.",
+    "button": "태그 저장",
+    "source": "FirewallRules.vue / PortForwarding.vue",
+    "api": "createTags",
+    "network": true,
+    "tab": "firewall"
+  },
+  {
+    "id": "pf-vm",
+    "title": "포트 포워딩 VM 선택",
+    "kind": "dialog",
+    "width": 960,
+    "nodeTable": true,
+    "fields": [
+      {
+        "label": "VPC 티어",
+        "value": "app-tier",
+        "type": "select"
+      },
+      {
+        "label": "선택 VM의 NIC",
+        "value": "192.0.2.12 · 기본 NIC",
+        "type": "select"
+      }
+    ],
+    "hint": "선택한 VM의 NIC 주소를 포트 포워딩 규칙에 연결합니다. VM·NIC 후보는 실제 계정·프로젝트·네트워크 범위에서 조회합니다.",
+    "button": "VM 선택",
+    "source": "PortForwarding.vue",
+    "api": "createPortForwardingRule",
+    "network": true,
+    "tab": "portforwarding"
+  },
+  {
+    "id": "rules-delete",
+    "title": "선택한 네트워크 규칙 삭제",
+    "kind": "dialog",
+    "width": 920,
+    "ruleTable": true,
+    "alert": "사용자 규칙만 삭제할 수 있습니다. Kubernetes API·SSH 관리 포트 규칙은 보호됩니다.",
+    "alertType": "warning",
+    "danger": true,
+    "button": "규칙 삭제",
+    "source": "FirewallRules.vue / PortForwarding.vue / BulkActionView.vue",
+    "api": "deleteFirewallRule / deletePortForwardingRule"
+  },
+  {
+    "id": "comment-delete",
+    "title": "코멘트 삭제",
+    "kind": "popover",
+    "width": 600,
+    "summary": [
+      [
+        "대상 코멘트",
+        "운영 점검 기록 (예시)"
+      ],
+      [
+        "작성자",
+        "demo-admin"
+      ]
+    ],
+    "alert": "선택한 코멘트를 삭제합니다.",
+    "alertType": "warning",
+    "danger": true,
+    "button": "코멘트 삭제",
+    "source": "기존 AnnotationsTab.vue의 Popconfirm 그대로 (수정 없음)",
+    "api": "removeAnnotation",
+    "tab": "comments"
+  },
+  {
+    "id": "comment-visibility",
+    "title": "코멘트 공개 범위 변경",
+    "kind": "popover",
+    "width": 600,
+    "summary": [
+      [
+        "대상 코멘트",
+        "운영 점검 기록 (예시)"
+      ],
+      [
+        "변경",
+        "관리자만 → 해당 자원 사용자"
+      ]
+    ],
+    "alert": "코멘트 접근 권한과 대상 사용자를 확인합니다.",
+    "alertType": "warning",
+    "button": "공개 범위 변경",
+    "source": "기존 AnnotationsTab.vue의 Popconfirm 그대로 (수정 없음)",
+    "api": "updateAnnotationVisibility",
+    "tab": "comments"
+  },
+  {
+    "id": "upgrade-empty",
+    "title": "업그레이드 가능 버전 없음",
+    "kind": "dialog",
+    "summary": [
+      [
+        "현재 Kubernetes",
+        "1.37.1"
+      ],
+      [
+        "결과",
+        "허용되는 후보 없음"
+      ]
+    ],
+    "alert": "동일·하향·마이너 건너뛰기 또는 준비되지 않은 ISO는 선택할 수 없습니다.",
+    "alertType": "info",
+    "disabled": true,
+    "button": "업그레이드",
+    "source": "UpgradeKubernetesCluster.vue",
+    "api": "upgradeKubernetesCluster"
+  },
+  {
+    "id": "validation-error",
+    "title": "ISO 등록 입력 오류",
+    "kind": "dialog",
+    "width": 1000,
+    "fields": [
+      {
+        "label": "Kubernetes 버전",
+        "value": "1.37.1",
+        "type": "input",
+        "required": true
+      },
+      {
+        "label": "다운로드 URL",
+        "value": "https://",
+        "type": "input",
+        "required": true,
+        "error": "유효한 ISO 파일 URL을 입력해 주세요."
+      },
+      {
+        "label": "Mold 체크섬",
+        "value": "검증 형식 불일치",
+        "type": "input",
+        "error": "Release 등록 JSON의 checksum 값을 확인해 주세요."
+      }
+    ],
+    "alert": "입력값을 확인해 주세요. 다른 선택값은 유지했습니다.",
+    "alertType": "error",
+    "button": "ISO 등록",
+    "disabled": true,
+    "source": "AddKubernetesSupportedVersion.vue",
+    "api": "addKubernetesSupportedVersion"
+  },
+  {
+    "kind": "dialog",
+    "network": true,
+    "width": 960,
+    "summary": [
+      [
+        "네트워크",
+        "app-isolated-network"
+      ],
+      [
+        "공인 IP",
+        "203.0.113.12"
+      ],
+      [
+        "소유자 / Zone",
+        "demo-team / Zone-A"
+      ],
+      [
+        "규칙 소유권",
+        "사용자 규칙"
+      ]
+    ],
+    "id": "firewall-create",
+    "title": "방화벽 규칙 추가",
+    "tab": "firewall",
+    "api": "createFirewallRule",
+    "source": "FirewallRules.vue",
+    "fields": [
+      {
+        "name": "cidr",
+        "label": "소스 CIDR",
+        "value": "198.51.100.0/24",
+        "type": "input",
+        "required": true,
+        "help": "여러 CIDR은 쉼표로 구분합니다."
+      },
+      {
+        "name": "protocol",
+        "label": "프로토콜",
+        "value": "tcp",
+        "type": "select",
+        "options": [
+          {
+            "value": "tcp",
+            "label": "TCP"
+          },
+          {
+            "value": "udp",
+            "label": "UDP"
+          },
+          {
+            "value": "icmp",
+            "label": "ICMP"
+          }
+        ],
+        "required": true
+      },
+      {
+        "name": "startport",
+        "label": "시작 포트",
+        "value": 8080,
+        "type": "number",
+        "min": 1,
+        "max": 65535,
+        "required": true,
+        "when": {
+          "field": "protocol",
+          "values": [
+            "tcp",
+            "udp"
+          ]
+        }
+      },
+      {
+        "name": "endport",
+        "label": "종료 포트",
+        "value": 8080,
+        "type": "number",
+        "min": 1,
+        "max": 65535,
+        "required": true,
+        "when": {
+          "field": "protocol",
+          "values": [
+            "tcp",
+            "udp"
+          ]
+        }
+      },
+      {
+        "name": "icmptype",
+        "label": "ICMP 유형",
+        "value": 8,
+        "type": "number",
+        "min": -1,
+        "max": 255,
+        "when": {
+          "field": "protocol",
+          "values": [
+            "icmp"
+          ]
+        }
+      },
+      {
+        "name": "icmpcode",
+        "label": "ICMP 코드",
+        "value": 0,
+        "type": "number",
+        "min": -1,
+        "max": 255,
+        "when": {
+          "field": "protocol",
+          "values": [
+            "icmp"
+          ]
+        }
+      }
+    ],
+    "button": "규칙 추가",
+    "hint": "TCP·UDP는 포트 범위, ICMP는 유형·코드를 입력합니다. 실제 적용은 비동기 작업 결과를 확인합니다."
+  },
+  {
+    "kind": "dialog",
+    "network": true,
+    "width": 960,
+    "summary": [
+      [
+        "네트워크",
+        "app-isolated-network"
+      ],
+      [
+        "공인 IP",
+        "203.0.113.12"
+      ],
+      [
+        "소유자 / Zone",
+        "demo-team / Zone-A"
+      ],
+      [
+        "규칙 소유권",
+        "사용자 규칙"
+      ]
+    ],
+    "id": "firewall-replace",
+    "title": "방화벽 규칙 교체",
+    "tab": "firewall",
+    "api": "deleteFirewallRule → createFirewallRule",
+    "source": "FirewallRules.vue",
+    "fields": [
+      {
+        "name": "cidr",
+        "label": "소스 CIDR",
+        "value": "198.51.100.0/24",
+        "type": "input",
+        "required": true,
+        "help": "여러 CIDR은 쉼표로 구분합니다."
+      },
+      {
+        "name": "protocol",
+        "label": "프로토콜",
+        "value": "tcp",
+        "type": "select",
+        "options": [
+          {
+            "value": "tcp",
+            "label": "TCP"
+          },
+          {
+            "value": "udp",
+            "label": "UDP"
+          },
+          {
+            "value": "icmp",
+            "label": "ICMP"
+          }
+        ],
+        "required": true
+      },
+      {
+        "name": "startport",
+        "label": "시작 포트",
+        "value": 8080,
+        "type": "number",
+        "min": 1,
+        "max": 65535,
+        "required": true,
+        "when": {
+          "field": "protocol",
+          "values": [
+            "tcp",
+            "udp"
+          ]
+        }
+      },
+      {
+        "name": "endport",
+        "label": "종료 포트",
+        "value": 8080,
+        "type": "number",
+        "min": 1,
+        "max": 65535,
+        "required": true,
+        "when": {
+          "field": "protocol",
+          "values": [
+            "tcp",
+            "udp"
+          ]
+        }
+      },
+      {
+        "name": "icmptype",
+        "label": "ICMP 유형",
+        "value": 8,
+        "type": "number",
+        "min": -1,
+        "max": 255,
+        "when": {
+          "field": "protocol",
+          "values": [
+            "icmp"
+          ]
+        }
+      },
+      {
+        "name": "icmpcode",
+        "label": "ICMP 코드",
+        "value": 0,
+        "type": "number",
+        "min": -1,
+        "max": 255,
+        "when": {
+          "field": "protocol",
+          "values": [
+            "icmp"
+          ]
+        }
+      }
+    ],
+    "button": "규칙 교체",
+    "alert": "현재 API는 규칙의 포트·CIDR을 직접 변경하지 않습니다. 기존 규칙 삭제와 새 규칙 생성 사이에 연결이 끊길 수 있습니다.",
+    "alertType": "warning"
+  },
+  {
+    "kind": "dialog",
+    "network": true,
+    "width": 960,
+    "summary": [
+      [
+        "네트워크",
+        "app-isolated-network"
+      ],
+      [
+        "공인 IP",
+        "203.0.113.12"
+      ],
+      [
+        "소유자 / Zone",
+        "demo-team / Zone-A"
+      ],
+      [
+        "규칙 소유권",
+        "사용자 규칙"
+      ]
+    ],
+    "id": "pf-create",
+    "title": "포트 포워딩 규칙 추가",
+    "tab": "portforwarding",
+    "api": "createPortForwardingRule",
+    "source": "PortForwarding.vue",
+    "fields": [
+      {
+        "name": "protocol",
+        "label": "프로토콜",
+        "value": "tcp",
+        "type": "select",
+        "options": [
+          {
+            "value": "tcp",
+            "label": "TCP"
+          },
+          {
+            "value": "udp",
+            "label": "UDP"
+          }
+        ],
+        "required": true,
+        "group": "",
+        "wide": true
+      },
+      {
+        "name": "publicport",
+        "label": "시작 포트",
+        "value": 8080,
+        "type": "number",
+        "min": 1,
+        "max": 65535,
+        "required": true,
+        "group": "공인 포트"
+      },
+      {
+        "name": "publicendport",
+        "label": "종료 포트",
+        "value": 8080,
+        "type": "number",
+        "min": 1,
+        "max": 65535,
+        "required": true,
+        "group": "공인 포트"
+      },
+      {
+        "name": "privateport",
+        "label": "시작 포트",
+        "value": 80,
+        "type": "number",
+        "min": 1,
+        "max": 65535,
+        "required": true,
+        "group": "게스트 포트"
+      },
+      {
+        "name": "privateendport",
+        "label": "종료 포트",
+        "value": 80,
+        "type": "number",
+        "min": 1,
+        "max": 65535,
+        "required": true,
+        "group": "게스트 포트"
+      },
+      {
+        "name": "vm",
+        "label": "대상 VM",
+        "value": "worker-01",
+        "type": "select",
+        "options": [
+          {
+            "value": "worker-01",
+            "label": "worker-01"
+          },
+          {
+            "value": "worker-02",
+            "label": "worker-02"
+          }
+        ],
+        "required": true,
+        "group": "연결 대상"
+      },
+      {
+        "name": "nic",
+        "label": "대상 NIC 주소",
+        "value": "192.0.2.11 · 기본 NIC",
+        "type": "select",
+        "options": [
+          {
+            "value": "192.0.2.11 · 기본 NIC",
+            "label": "192.0.2.11 · 기본 NIC"
+          },
+          {
+            "value": "192.0.2.111 · 보조 IP",
+            "label": "192.0.2.111 · 보조 IP"
+          }
+        ],
+        "required": true,
+        "group": "연결 대상"
+      },
+      {
+        "name": "firewall",
+        "label": "방화벽 자동 개방",
+        "value": false,
+        "type": "switch",
+        "disabled": true,
+        "help": "방화벽 규칙은 별도 추가합니다.",
+        "group": "방화벽 설정",
+        "wide": true
+      }
+    ],
+    "button": "규칙 추가",
+    "hint": "공인·게스트 포트 범위 길이를 맞춥니다. VPC는 선택한 티어와 허용 CIDR을 함께 적용합니다."
+  },
+  {
+    "kind": "dialog",
+    "network": true,
+    "width": 960,
+    "summary": [
+      [
+        "네트워크",
+        "app-isolated-network"
+      ],
+      [
+        "공인 IP",
+        "203.0.113.12"
+      ],
+      [
+        "소유자 / Zone",
+        "demo-team / Zone-A"
+      ],
+      [
+        "규칙 소유권",
+        "사용자 규칙"
+      ]
+    ],
+    "id": "pf-edit",
+    "title": "포트 포워딩 설정 변경",
+    "tab": "portforwarding",
+    "api": "updatePortForwardingRule",
+    "source": "PortForwarding.vue",
+    "fields": [
+      {
+        "name": "protocol",
+        "label": "프로토콜",
+        "value": "tcp",
+        "type": "select",
+        "options": [
+          {
+            "value": "tcp",
+            "label": "TCP"
+          },
+          {
+            "value": "udp",
+            "label": "UDP"
+          }
+        ],
+        "required": true,
+        "disabled": true,
+        "group": "",
+        "wide": true
+      },
+      {
+        "name": "publicport",
+        "label": "시작 포트",
+        "value": 8080,
+        "type": "number",
+        "min": 1,
+        "max": 65535,
+        "required": true,
+        "disabled": true,
+        "group": "공인 포트"
+      },
+      {
+        "name": "publicendport",
+        "label": "종료 포트",
+        "value": 8080,
+        "type": "number",
+        "min": 1,
+        "max": 65535,
+        "required": true,
+        "disabled": true,
+        "group": "공인 포트"
+      },
+      {
+        "name": "privateport",
+        "label": "시작 포트",
+        "value": 80,
+        "type": "number",
+        "min": 1,
+        "max": 65535,
+        "required": true,
+        "group": "게스트 포트"
+      },
+      {
+        "name": "privateendport",
+        "label": "종료 포트",
+        "value": 80,
+        "type": "number",
+        "min": 1,
+        "max": 65535,
+        "required": true,
+        "group": "게스트 포트"
+      },
+      {
+        "name": "vm",
+        "label": "대상 VM",
+        "value": "worker-01",
+        "type": "select",
+        "options": [
+          {
+            "value": "worker-01",
+            "label": "worker-01"
+          },
+          {
+            "value": "worker-02",
+            "label": "worker-02"
+          }
+        ],
+        "required": true,
+        "group": "연결 대상"
+      },
+      {
+        "name": "nic",
+        "label": "대상 NIC 주소",
+        "value": "192.0.2.11 · 기본 NIC",
+        "type": "select",
+        "options": [
+          {
+            "value": "192.0.2.11 · 기본 NIC",
+            "label": "192.0.2.11 · 기본 NIC"
+          },
+          {
+            "value": "192.0.2.111 · 보조 IP",
+            "label": "192.0.2.111 · 보조 IP"
+          }
+        ],
+        "required": true,
+        "group": "연결 대상"
+      },
+      {
+        "name": "firewall",
+        "label": "방화벽 자동 개방",
+        "value": false,
+        "type": "switch",
+        "disabled": true,
+        "help": "방화벽 규칙은 별도 추가합니다.",
+        "group": "방화벽 설정",
+        "wide": true
+      }
+    ],
+    "button": "저장",
+    "hint": "기존 공인 포트와 프로토콜은 유지합니다. 대상 VM·NIC와 게스트 포트 범위를 변경합니다."
+  },
+  {
+    "kind": "dialog",
+    "network": true,
+    "width": 960,
+    "summary": [
+      [
+        "네트워크",
+        "app-isolated-network"
+      ],
+      [
+        "공인 IP",
+        "203.0.113.12"
+      ],
+      [
+        "소유자 / Zone",
+        "demo-team / Zone-A"
+      ],
+      [
+        "규칙 소유권",
+        "사용자 규칙"
+      ]
+    ],
+    "id": "lb-create",
+    "title": "로드밸런서 규칙 추가",
+    "tab": "loadbalancers",
+    "api": "createLoadBalancerRule → assignToLoadBalancerRule",
+    "source": "LoadBalancing.vue",
+    "fields": [
+      {
+        "name": "name",
+        "label": "규칙 이름",
+        "value": "app-web",
+        "type": "input",
+        "required": true
+      },
+      {
+        "name": "description",
+        "label": "설명",
+        "value": "애플리케이션 HTTPS 서비스",
+        "type": "input"
+      },
+      {
+        "name": "publicport",
+        "label": "공인 포트",
+        "value": 443,
+        "type": "number",
+        "min": 1,
+        "max": 65535,
+        "required": true
+      },
+      {
+        "name": "privateport",
+        "label": "게스트 포트",
+        "value": 8443,
+        "type": "number",
+        "min": 1,
+        "max": 65535,
+        "required": true
+      },
+      {
+        "name": "algorithm",
+        "label": "분산 알고리즘",
+        "value": "roundrobin",
+        "type": "select",
+        "options": [
+          {
+            "value": "roundrobin",
+            "label": "roundrobin"
+          },
+          {
+            "value": "leastconn",
+            "label": "leastconn"
+          },
+          {
+            "value": "source",
+            "label": "source"
+          }
+        ],
+        "required": true
+      },
+      {
+        "name": "protocol",
+        "label": "프로토콜",
+        "value": "tcp",
+        "type": "select",
+        "options": [
+          {
+            "value": "tcp",
+            "label": "TCP"
+          },
+          {
+            "value": "udp",
+            "label": "UDP"
+          },
+          {
+            "value": "tcp-proxy",
+            "label": "TCP-PROXY"
+          },
+          {
+            "value": "http",
+            "label": "HTTP"
+          },
+          {
+            "value": "ssl",
+            "label": "SSL"
+          }
+        ],
+        "required": true
+      },
+      {
+        "name": "cidr",
+        "label": "소스 CIDR",
+        "value": "198.51.100.0/24",
+        "type": "input",
+        "wide": true
+      },
+      {
+        "name": "cert",
+        "label": "SSL 인증서",
+        "value": "app-web-tls",
+        "type": "select",
+        "options": [
+          {
+            "value": "app-web-tls",
+            "label": "app-web-tls"
+          }
+        ],
+        "when": {
+          "field": "protocol",
+          "values": [
+            "ssl"
+          ]
+        }
+      },
+      {
+        "name": "backendssl",
+        "label": "백엔드 SSL",
+        "value": true,
+        "type": "switch",
+        "when": {
+          "field": "protocol",
+          "values": [
+            "ssl"
+          ]
+        }
+      }
+    ],
+    "button": "규칙 생성 및 VM 연결",
+    "nodeTable": true,
+    "hint": "규칙 생성 → 대상 VM·NIC 연결 → SSL 선택 시 인증서 연결. 실패한 단계와 생성된 규칙을 구분합니다."
+  },
+  {
+    "kind": "dialog",
+    "network": true,
+    "width": 960,
+    "summary": [
+      [
+        "네트워크",
+        "app-isolated-network"
+      ],
+      [
+        "공인 IP",
+        "203.0.113.12"
+      ],
+      [
+        "소유자 / Zone",
+        "demo-team / Zone-A"
+      ],
+      [
+        "규칙 소유권",
+        "사용자 규칙"
+      ]
+    ],
+    "id": "lb-edit",
+    "title": "로드밸런서 설정 변경",
+    "tab": "loadbalancers",
+    "api": "updateLoadBalancerRule",
+    "source": "LoadBalancing.vue",
+    "fields": [
+      {
+        "name": "name",
+        "label": "규칙 이름",
+        "value": "app-web",
+        "type": "input",
+        "required": true
+      },
+      {
+        "name": "description",
+        "label": "설명",
+        "value": "애플리케이션 HTTPS 서비스",
+        "type": "input"
+      },
+      {
+        "name": "publicport",
+        "label": "공인 포트",
+        "value": 443,
+        "type": "number",
+        "min": 1,
+        "max": 65535,
+        "required": true,
+        "disabled": true
+      },
+      {
+        "name": "privateport",
+        "label": "게스트 포트",
+        "value": 8443,
+        "type": "number",
+        "min": 1,
+        "max": 65535,
+        "required": true,
+        "disabled": true
+      },
+      {
+        "name": "algorithm",
+        "label": "분산 알고리즘",
+        "value": "roundrobin",
+        "type": "select",
+        "options": [
+          {
+            "value": "roundrobin",
+            "label": "roundrobin"
+          },
+          {
+            "value": "leastconn",
+            "label": "leastconn"
+          },
+          {
+            "value": "source",
+            "label": "source"
+          }
+        ],
+        "required": true
+      },
+      {
+        "name": "protocol",
+        "label": "프로토콜",
+        "value": "tcp",
+        "type": "select",
+        "options": [
+          {
+            "value": "tcp",
+            "label": "TCP"
+          },
+          {
+            "value": "udp",
+            "label": "UDP"
+          },
+          {
+            "value": "tcp-proxy",
+            "label": "TCP-PROXY"
+          },
+          {
+            "value": "http",
+            "label": "HTTP"
+          },
+          {
+            "value": "ssl",
+            "label": "SSL"
+          }
+        ],
+        "required": true
+      },
+      {
+        "name": "cidr",
+        "label": "소스 CIDR",
+        "value": "198.51.100.0/24",
+        "type": "input",
+        "wide": true
+      },
+      {
+        "name": "backendssl",
+        "label": "백엔드 SSL",
+        "value": true,
+        "type": "switch",
+        "when": {
+          "field": "protocol",
+          "values": [
+            "ssl"
+          ]
+        },
+        "wide": true
+      }
+    ],
+    "button": "저장",
+    "hint": "포트 변경은 규칙 교체가 필요합니다. 인증서 연결·해제는 SSL 인증서 작업에서 별도로 수행합니다."
+  },
+  {
+    "kind": "dialog",
+    "network": true,
+    "width": 960,
+    "summary": [
+      [
+        "네트워크",
+        "app-isolated-network"
+      ],
+      [
+        "공인 IP",
+        "203.0.113.12"
+      ],
+      [
+        "소유자 / Zone",
+        "demo-team / Zone-A"
+      ],
+      [
+        "규칙 소유권",
+        "사용자 규칙"
+      ]
+    ],
+    "id": "lb-backends",
+    "title": "로드밸런서 대상 VM·NIC 연결",
+    "tab": "loadbalancers",
+    "api": "assignToLoadBalancerRule",
+    "source": "LoadBalancing.vue",
+    "fields": [
+      {
+        "name": "nic",
+        "label": "선택 VM의 NIC",
+        "value": "192.0.2.11 · 기본 NIC",
+        "type": "select",
+        "options": [
+          {
+            "value": "192.0.2.11 · 기본 NIC",
+            "label": "192.0.2.11 · 기본 NIC"
+          },
+          {
+            "value": "192.0.2.111 · 보조 IP",
+            "label": "192.0.2.111 · 보조 IP"
+          }
+        ],
+        "required": true
+      }
+    ],
+    "button": "선택 VM 연결",
+    "nodeTable": true,
+    "hint": "같은 네트워크·VPC 티어의 VM/NIC를 조회합니다. 현재 연결과 새 선택을 구분합니다."
+  },
+  {
+    "kind": "dialog",
+    "network": true,
+    "width": 960,
+    "summary": [
+      [
+        "네트워크",
+        "app-isolated-network"
+      ],
+      [
+        "공인 IP",
+        "203.0.113.12"
+      ],
+      [
+        "소유자 / Zone",
+        "demo-team / Zone-A"
+      ],
+      [
+        "규칙 소유권",
+        "사용자 규칙"
+      ]
+    ],
+    "id": "lb-backend-remove",
+    "title": "로드밸런서 대상 VM 연결 해제",
+    "tab": "loadbalancers",
+    "api": "removeFromLoadBalancerRule",
+    "source": "LoadBalancing.vue",
+    "fields": [],
+    "button": "연결 해제",
+    "alert": "worker-02 / 192.0.2.12를 규칙에서 연결 해제합니다. VM은 보존됩니다.",
+    "alertType": "warning",
+    "danger": true
+  },
+  {
+    "kind": "dialog",
+    "network": true,
+    "width": 960,
+    "summary": [
+      [
+        "네트워크",
+        "app-isolated-network"
+      ],
+      [
+        "공인 IP",
+        "203.0.113.12"
+      ],
+      [
+        "소유자 / Zone",
+        "demo-team / Zone-A"
+      ],
+      [
+        "규칙 소유권",
+        "사용자 규칙"
+      ]
+    ],
+    "id": "lb-stickiness",
+    "title": "로드밸런서 세션 유지 설정",
+    "tab": "loadbalancers",
+    "api": "createLBStickinessPolicy / deleteLBStickinessPolicy",
+    "source": "LoadBalancing.vue",
+    "fields": [
+      {
+        "name": "method",
+        "label": "세션 유지 방식",
+        "value": "LbCookie",
+        "type": "select",
+        "options": [
+          {
+            "value": "사용 안 함",
+            "label": "사용 안 함"
+          },
+          {
+            "value": "LbCookie",
+            "label": "LbCookie"
+          },
+          {
+            "value": "AppCookie",
+            "label": "AppCookie"
+          },
+          {
+            "value": "SourceBased",
+            "label": "SourceBased"
+          }
+        ]
+      },
+      {
+        "name": "name",
+        "label": "정책 이름",
+        "value": "app-web-session",
+        "type": "input",
+        "required": true
+      },
+      {
+        "name": "cookie",
+        "label": "쿠키 이름",
+        "value": "APPSESSION",
+        "type": "input",
+        "when": {
+          "field": "method",
+          "values": [
+            "LbCookie",
+            "AppCookie"
+          ]
+        }
+      },
+      {
+        "name": "mode",
+        "label": "쿠키 모드",
+        "value": "insert",
+        "type": "select",
+        "options": [
+          {
+            "value": "insert",
+            "label": "insert"
+          },
+          {
+            "value": "rewrite",
+            "label": "rewrite"
+          },
+          {
+            "value": "prefix",
+            "label": "prefix"
+          }
+        ],
+        "when": {
+          "field": "method",
+          "values": [
+            "LbCookie"
+          ]
+        }
+      },
+      {
+        "name": "holdtime",
+        "label": "유지 시간 (분)",
+        "value": 30,
+        "type": "number",
+        "when": {
+          "field": "method",
+          "values": [
+            "SourceBased"
+          ]
+        }
+      }
+    ],
+    "button": "저장",
+    "hint": "네트워크 Provider가 지원하는 방식만 표시합니다. 사용 안 함은 기존 정책 삭제에 대응합니다."
+  },
+  {
+    "kind": "dialog",
+    "network": true,
+    "width": 960,
+    "summary": [
+      [
+        "네트워크",
+        "app-isolated-network"
+      ],
+      [
+        "공인 IP",
+        "203.0.113.12"
+      ],
+      [
+        "소유자 / Zone",
+        "demo-team / Zone-A"
+      ],
+      [
+        "규칙 소유권",
+        "사용자 규칙"
+      ]
+    ],
+    "id": "lb-tls",
+    "title": "로드밸런서 SSL 인증서 연결",
+    "tab": "loadbalancers",
+    "api": "assignCertToLoadBalancer / removeCertFromLoadBalancer",
+    "source": "LoadBalancing.vue",
+    "fields": [
+      {
+        "name": "action",
+        "label": "인증서 작업",
+        "value": "기존 인증서 연결",
+        "type": "select",
+        "options": [
+          {
+            "value": "기존 인증서 연결",
+            "label": "기존 인증서 연결"
+          },
+          {
+            "value": "인증서 연결 해제",
+            "label": "인증서 연결 해제"
+          }
+        ]
+      },
+      {
+        "name": "cert",
+        "label": "인증서",
+        "value": "app-web-tls · 유효",
+        "type": "select",
+        "options": [
+          {
+            "value": "app-web-tls · 유효",
+            "label": "app-web-tls · 유효"
+          }
+        ],
+        "required": true
+      }
+    ],
+    "button": "저장",
+    "hint": "인증서 연결·해제 후 규칙을 다시 조회합니다. 백엔드 SSL은 규칙 설정에서 변경합니다."
+  },
+  {
+    "kind": "dialog",
+    "network": true,
+    "width": 960,
+    "summary": [
+      [
+        "네트워크",
+        "app-isolated-network"
+      ],
+      [
+        "공인 IP",
+        "203.0.113.12"
+      ],
+      [
+        "소유자 / Zone",
+        "demo-team / Zone-A"
+      ],
+      [
+        "규칙 소유권",
+        "사용자 규칙"
+      ]
+    ],
+    "id": "firewall-delete",
+    "title": "방화벽 규칙 삭제",
+    "tab": "firewall",
+    "api": "deleteFirewallRule",
+    "source": "FirewallRules.vue",
+    "fields": [],
+    "button": "규칙 삭제",
+    "alert": "선택한 사용자 규칙을 삭제합니다. 연결된 트래픽에 영향을 줍니다. 관리·Provider 규칙은 대상에서 제외합니다.",
+    "alertType": "warning",
+    "danger": true
+  },
+  {
+    "kind": "dialog",
+    "network": true,
+    "width": 960,
+    "summary": [
+      [
+        "네트워크",
+        "app-isolated-network"
+      ],
+      [
+        "공인 IP",
+        "203.0.113.12"
+      ],
+      [
+        "소유자 / Zone",
+        "demo-team / Zone-A"
+      ],
+      [
+        "규칙 소유권",
+        "사용자 규칙"
+      ]
+    ],
+    "id": "pf-delete",
+    "title": "포트 포워딩 규칙 삭제",
+    "tab": "portforwarding",
+    "api": "deletePortForwardingRule",
+    "source": "PortForwarding.vue",
+    "fields": [],
+    "button": "규칙 삭제",
+    "alert": "선택한 사용자 규칙을 삭제합니다. 연결된 트래픽에 영향을 줍니다. 관리·Provider 규칙은 대상에서 제외합니다.",
+    "alertType": "warning",
+    "danger": true
+  },
+  {
+    "kind": "dialog",
+    "network": true,
+    "width": 960,
+    "summary": [
+      [
+        "네트워크",
+        "app-isolated-network"
+      ],
+      [
+        "공인 IP",
+        "203.0.113.12"
+      ],
+      [
+        "소유자 / Zone",
+        "demo-team / Zone-A"
+      ],
+      [
+        "규칙 소유권",
+        "사용자 규칙"
+      ]
+    ],
+    "id": "lb-delete",
+    "title": "로드밸런서 규칙 삭제",
+    "tab": "loadbalancers",
+    "api": "deleteLoadBalancerRule",
+    "source": "LoadBalancing.vue",
+    "fields": [],
+    "button": "규칙 삭제",
+    "alert": "선택한 사용자 규칙을 삭제합니다. 연결된 트래픽에 영향을 줍니다. 관리·Provider 규칙은 대상에서 제외합니다.",
+    "alertType": "warning",
+    "danger": true
+  },
+  {
+    "id": "ip-firewall",
+    "title": "공인 IP · 공통 방화벽",
+    "kind": "page",
+    "tab": "firewall",
+    "context": "ip",
+    "source": "NetworkRulesTabLayout.vue · 공통 표준 개선 제안"
+  },
+  {
+    "id": "ip-portforwarding",
+    "title": "공인 IP · 공통 포트 포워딩",
+    "kind": "page",
+    "tab": "portforwarding",
+    "context": "ip",
+    "source": "NetworkRulesTabLayout.vue · 공통 표준 개선 제안"
+  },
+  {
+    "id": "ip-loadbalancers",
+    "title": "공인 IP · 공통 로드밸런서",
+    "kind": "page",
+    "tab": "loadbalancers",
+    "context": "ip",
+    "source": "NetworkRulesTabLayout.vue · 공통 표준 개선 제안"
+  },
+  {
+    "id": "network-unavailable",
+    "title": "네트워크 조회 실패 · 설정 제한",
+    "kind": "page",
+    "tab": "loadbalancers",
+    "networkState": "failed",
+    "source": "NetworkRulesTabLayout.vue · 공통 오류 상태"
+  },
+  {
+    "id": "list-context",
+    "title": "클러스터 목록 · 실행 중 행 우클릭",
+    "kind": "popover",
+    "tab": "list",
+    "source": "ListView / InfoCard / AutogenView → ResourceContextMenu / ActionButton / ResourceActionMenu"
+  },
+  {
+    "id": "list-context-stopped",
+    "title": "클러스터 목록 · 중지된 행 우클릭",
+    "kind": "popover",
+    "tab": "list",
+    "source": "ListView / InfoCard / AutogenView → ResourceContextMenu / ActionButton / ResourceActionMenu"
+  },
+  {
+    "id": "list-context-external",
+    "title": "클러스터 목록 · 외부 관리형 우클릭",
+    "kind": "popover",
+    "tab": "list",
+    "source": "ListView / InfoCard / AutogenView → ResourceContextMenu / ActionButton / ResourceActionMenu"
+  },
+  {
+    "id": "list-context-multiple",
+    "title": "클러스터 목록 · 다중 선택 우클릭",
+    "kind": "popover",
+    "tab": "list",
+    "source": "ListView / InfoCard / AutogenView → ResourceContextMenu / ActionButton / ResourceActionMenu"
+  },
+  {
+    "id": "detail-actions",
+    "title": "클러스터 상세 · 작업 메뉴",
+    "kind": "popover",
+    "tab": "details",
+    "source": "ListView / InfoCard / AutogenView → ResourceContextMenu / ActionButton / ResourceActionMenu"
+  },
+  {
+    "id": "detail-context",
+    "title": "클러스터 상세 · 좌측 정보 우클릭",
+    "kind": "popover",
+    "tab": "details",
+    "source": "ListView / InfoCard / AutogenView → ResourceContextMenu / ActionButton / ResourceActionMenu"
+  },
+  {
+    "id": "iso-list-context",
+    "title": "ISO 목록 · 행 우클릭",
+    "kind": "popover",
+    "tab": "list",
+    "source": "ListView / InfoCard / AutogenView → ResourceContextMenu / ActionButton / ResourceActionMenu"
+  },
+  {
+    "id": "iso-detail-actions",
+    "title": "ISO 상세 · 작업 메뉴",
+    "kind": "popover",
+    "tab": "details",
+    "source": "ListView / InfoCard / AutogenView → ResourceContextMenu / ActionButton / ResourceActionMenu"
+  },
+  {
+    "id": "iso-detail-context",
+    "title": "ISO 상세 · 좌측 정보 우클릭",
+    "kind": "popover",
+    "tab": "details",
+    "source": "ListView / InfoCard / AutogenView → ResourceContextMenu / ActionButton / ResourceActionMenu"
+  },
+  {
+    "id": "nodes-manual",
+    "title": "가상머신 탭 · 수동 확장",
+    "kind": "page",
+    "tab": "nodes",
+    "autoScale": false,
+    "source": "ScaleKubernetesCluster / KubernetesAddNodes · 가상머신 상세 탭 표준"
+  },
+  {
+    "id": "nodes-external",
+    "title": "가상머신 탭 · 외부 관리형",
+    "kind": "page",
+    "tab": "nodes",
+    "externalManaged": true,
+    "source": "addVirtualMachinesToKubernetesCluster · 기존 VM 역할 연결"
+  },
+  {
+    "id": "external-vm-add",
+    "title": "외부 관리형 · 외부 노드 추가",
+    "kind": "dialog",
+    "tab": "nodes",
+    "externalManaged": true,
+    "width": 960,
+    "nodeTable": true,
+    "button": "VM 연결 등록",
+    "summary": [
+      [
+        "클러스터",
+        "k8s-external-demo"
+      ],
+      [
+        "관리 유형",
+        "외부 관리형"
+      ]
+    ],
+    "fields": [
+      {
+        "name": "iscontrolnode",
+        "label": "등록 역할",
+        "type": "select",
+        "value": false,
+        "options": [
+          {
+            "value": false,
+            "label": "워커 노드"
+          },
+          {
+            "value": true,
+            "label": "제어 노드"
+          }
+        ],
+        "required": true
+      }
+    ],
+    "hint": "선택한 기존 VM의 연결과 역할만 등록합니다. VM 배포, ISO 설치, kubeadm join은 수행하지 않으며 실제 Kubernetes 가입은 외부 운영자가 확인해야 합니다.",
+    "source": "AddVirtualMachinesToKubernetesClusterCmd / addVmsToCluster"
+  },
+  {
+    "kind": "dialog",
+    "create": true,
+    "external": true,
+    "width": 1120,
+    "source": "CreateKubernetesClusterCmd.java / KubernetesClusterManagerImpl.java",
+    "api": "createKubernetesCluster(clustertype=ExternalManaged)",
+    "id": "create-external-connect-review",
+    "title": "외부 관리형 · 등록 후 VM 연결 검토",
+    "step": 2,
+    "checks": [
+      "클러스터 이름 · Zone · 등록 소유자 확인",
+      "1단계: 외부 관리형 클러스터 등록",
+      "등록 성공 후 외부 노드 추가에서 기존 VM·제어/워커 역할 선택",
+      "2단계: 선택한 기존 VM과 제어/워커 역할 연결",
+      "VM 연결 실패 시 등록된 클러스터를 유지하고 연결만 재시도",
+      "Kubernetes 배포·설치·가입·확장은 외부 운영자 수행"
+    ],
+    "alert": "등록 상태 Running은 Kubernetes API 접속이나 워크로드 건강 상태의 검증 결과가 아닙니다.",
+    "button": "등록 후 VM 연결",
+    "connectAfter": true
+  }
+]

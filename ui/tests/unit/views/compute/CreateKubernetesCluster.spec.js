@@ -16,7 +16,7 @@
 // under the License.
 
 import { computed, reactive } from 'vue'
-import { getAPI } from '@/api'
+import { getAPI, postAPI } from '@/api'
 import CreateKubernetesCluster from '@/views/compute/CreateKubernetesCluster.vue'
 
 jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
@@ -82,4 +82,59 @@ test('a rejected query does not leave stale templates or the loading spinner act
   await CreateKubernetesCluster.methods.fetchCksTemplates.call(vm)
   expect(vm.templates).toEqual([])
   expect(vm.templateLoading).toBe(false)
+})
+
+test('wizard validates the current step and cannot send a create request early', async () => {
+  const validateFields = jest.fn().mockResolvedValue({})
+  const vm = { wizardStep: 0, formRef: { value: { validateFields } } }
+  await CreateKubernetesCluster.methods.nextWizardStep.call(vm)
+  expect(validateFields).toHaveBeenCalledWith(['name', 'zoneid', 'hypervisor', 'kubernetesversionid'])
+  expect(vm.wizardStep).toBe(1)
+  const nextWizardStep = jest.fn()
+  CreateKubernetesCluster.methods.handleSubmit.call({ wizardStep: 3, nextWizardStep })
+  expect(nextWizardStep).toHaveBeenCalledTimes(1)
+})
+
+test('invalid wizard input stays on its step with the focused field', async () => {
+  const scrollToField = jest.fn()
+  const vm = { wizardStep: 1, formRef: { value: { validateFields: jest.fn().mockRejectedValue({ errorFields: [{ name: ['size'] }] }), scrollToField } } }
+  await CreateKubernetesCluster.methods.nextWizardStep.call(vm)
+  expect(vm.wizardStep).toBe(1)
+  expect(scrollToField).toHaveBeenCalledWith(['size'])
+})
+
+test('single KVM zone auto-selects an index and submits the default without manual re-selection', async () => {
+  getAPI.mockResolvedValue({ listhypervisorsresponse: { hypervisor: [{ name: 'KVM' }] } })
+  const vm = {
+    wizardStep: 4,
+    loading: false,
+    form: { hypervisor: null },
+    selectedZone: { id: 'zone' },
+    formRef: { value: { validate: jest.fn().mockResolvedValue({}) } },
+    handleRemoveFields: values => ({ ...values, name: 'test', zoneid: 0, kubernetesversionid: 0, serviceofferingid: 0, size: 1 }),
+    zones: [{ id: 'zone' }],
+    kubernetesVersions: [{ id: 'iso' }],
+    serviceOfferings: [{ id: 'compute' }],
+    owner: {},
+    arrayHasItems: list => Boolean(list?.length),
+    isValidValueForKey: () => false,
+    $notifyError: jest.fn(),
+    $pollJob: jest.fn(),
+    $t: key => key,
+    closeAction: jest.fn()
+  }
+  await CreateKubernetesCluster.methods.fetchZoneHypervisors.call(vm)
+  expect(vm.form.hypervisor).toBe(0)
+  postAPI.mockResolvedValue({ createkubernetesclusterresponse: { jobid: 'job' } })
+  await CreateKubernetesCluster.methods.handleSubmit.call(vm)
+  expect(postAPI).toHaveBeenCalledWith('createKubernetesCluster', expect.objectContaining({ hypervisor: 'kvm', zoneid: 'zone' }))
+  expect(vm.$notifyError).not.toHaveBeenCalled()
+})
+
+test('a submission exception retains the dialog, restores loading and reports the actual error', async () => {
+  const error = new Error('selection is unavailable')
+  const vm = { wizardStep: 4, loading: false, form: {}, formRef: { value: { validate: jest.fn().mockRejectedValue(error) } }, $notifyError: jest.fn() }
+  await CreateKubernetesCluster.methods.handleSubmit.call(vm)
+  expect(vm.loading).toBe(false)
+  expect(vm.$notifyError).toHaveBeenCalledWith(error)
 })

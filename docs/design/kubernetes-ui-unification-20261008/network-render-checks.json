@@ -1,0 +1,5059 @@
+{
+  "desktop": [
+    {
+      "id": "list",
+      "theme": "light",
+      "file": "list-light.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": []
+    },
+    {
+      "id": "list",
+      "theme": "dark",
+      "file": "list-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": []
+    },
+    {
+      "id": "detail",
+      "theme": "light",
+      "file": "detail-light.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": []
+    },
+    {
+      "id": "detail",
+      "theme": "dark",
+      "file": "detail-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": []
+    },
+    {
+      "id": "nodes",
+      "theme": "light",
+      "file": "nodes-light.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "클러스터 확장"
+        }
+      ]
+    },
+    {
+      "id": "nodes",
+      "theme": "dark",
+      "file": "nodes-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "클러스터 확장"
+        }
+      ]
+    },
+    {
+      "id": "access",
+      "theme": "light",
+      "file": "access-light.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "구성 다운로드"
+        }
+      ]
+    },
+    {
+      "id": "access",
+      "theme": "dark",
+      "file": "access-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "구성 다운로드"
+        }
+      ]
+    },
+    {
+      "id": "loadbalancers",
+      "theme": "light",
+      "file": "loadbalancers-light.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "로드밸런서 추가"
+        }
+      ]
+    },
+    {
+      "id": "loadbalancers",
+      "theme": "dark",
+      "file": "loadbalancers-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "로드밸런서 추가"
+        }
+      ]
+    },
+    {
+      "id": "firewall",
+      "theme": "light",
+      "file": "firewall-light.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "방화벽 규칙 추가"
+        }
+      ]
+    },
+    {
+      "id": "firewall",
+      "theme": "dark",
+      "file": "firewall-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "방화벽 규칙 추가"
+        }
+      ]
+    },
+    {
+      "id": "portforwarding",
+      "theme": "light",
+      "file": "portforwarding-light.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "포트 포워딩 추가"
+        }
+      ]
+    },
+    {
+      "id": "portforwarding",
+      "theme": "dark",
+      "file": "portforwarding-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "포트 포워딩 추가"
+        }
+      ]
+    },
+    {
+      "id": "events",
+      "theme": "light",
+      "file": "events-light.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": []
+    },
+    {
+      "id": "events",
+      "theme": "dark",
+      "file": "events-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": []
+    },
+    {
+      "id": "comments",
+      "theme": "light",
+      "file": "comments-light.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [
+        {
+          "icon": false,
+          "text": "보내기"
+        }
+      ]
+    },
+    {
+      "id": "comments",
+      "theme": "dark",
+      "file": "comments-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [
+        {
+          "icon": false,
+          "text": "보내기"
+        }
+      ]
+    },
+    {
+      "id": "iso-list",
+      "theme": "light",
+      "file": "iso-list-light.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": []
+    },
+    {
+      "id": "iso-list",
+      "theme": "dark",
+      "file": "iso-list-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": []
+    },
+    {
+      "id": "iso-detail",
+      "theme": "light",
+      "file": "iso-detail-light.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": []
+    },
+    {
+      "id": "iso-detail",
+      "theme": "dark",
+      "file": "iso-detail-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": []
+    },
+    {
+      "id": "create-basic",
+      "theme": "light",
+      "file": "create-basic-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "ISO 이름과 버전은 별개입니다. 선택한 등록 항목의 UUID와 다운로드 준비 상태를 함께 확인합니다."
+        }
+      ],
+      "modalWidth": 1120,
+      "primaryIcons": [],
+      "title": "쿠버네티스 클러스터 생성"
+    },
+    {
+      "id": "create-basic",
+      "theme": "dark",
+      "file": "create-basic-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "ISO 이름과 버전은 별개입니다. 선택한 등록 항목의 UUID와 다운로드 준비 상태를 함께 확인합니다."
+        }
+      ],
+      "modalWidth": 1120,
+      "primaryIcons": [],
+      "title": "쿠버네티스 클러스터 생성"
+    },
+    {
+      "id": "create-nodes",
+      "theme": "light",
+      "file": "create-nodes-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(102, 112, 133)",
+          "contrast": 4.97,
+          "text": "배치 스토리지"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(102, 112, 133)",
+          "contrast": 4.97,
+          "text": "초기 노드 합계"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(102, 112, 133)",
+          "contrast": 4.97,
+          "text": "할당 자원 합계"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(102, 112, 133)",
+          "contrast": 4.97,
+          "text": "ROOT 디스크 합계"
+        },
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "기본 템플릿과 실제 역할별 배포 템플릿을 구분합니다. 스토리지 사전 검증과 오퍼링 제약을 유지합니다."
+        }
+      ],
+      "modalWidth": 1120,
+      "primaryIcons": [],
+      "title": "쿠버네티스 클러스터 생성"
+    },
+    {
+      "id": "create-nodes",
+      "theme": "dark",
+      "file": "create-nodes-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(154, 164, 175)",
+          "contrast": 5.88,
+          "text": "배치 스토리지"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(154, 164, 175)",
+          "contrast": 5.88,
+          "text": "초기 노드 합계"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(154, 164, 175)",
+          "contrast": 5.88,
+          "text": "할당 자원 합계"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(154, 164, 175)",
+          "contrast": 5.88,
+          "text": "ROOT 디스크 합계"
+        },
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "기본 템플릿과 실제 역할별 배포 템플릿을 구분합니다. 스토리지 사전 검증과 오퍼링 제약을 유지합니다."
+        }
+      ],
+      "modalWidth": 1120,
+      "primaryIcons": [],
+      "title": "쿠버네티스 클러스터 생성"
+    },
+    {
+      "id": "create-advanced",
+      "theme": "light",
+      "file": "create-advanced-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "HA·외부 etcd·AS 번호 입력은 선택한 버전, Zone, CNI와 API 메타데이터 조건에 따라 표시합니다."
+        }
+      ],
+      "modalWidth": 1120,
+      "primaryIcons": [],
+      "title": "쿠버네티스 클러스터 생성"
+    },
+    {
+      "id": "create-advanced",
+      "theme": "dark",
+      "file": "create-advanced-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "HA·외부 etcd·AS 번호 입력은 선택한 버전, Zone, CNI와 API 메타데이터 조건에 따라 표시합니다."
+        }
+      ],
+      "modalWidth": 1120,
+      "primaryIcons": [],
+      "title": "쿠버네티스 클러스터 생성"
+    },
+    {
+      "id": "create-ha-etcd",
+      "theme": "light",
+      "file": "create-ha-etcd-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "HA 지원 버전에서만 제어 노드 수와 외부 LB IP를 표시합니다. 외부 etcd를 사용하면 해당 오퍼링·템플릿·Affinity를 별도로 선택합니다."
+        }
+      ],
+      "modalWidth": 1120,
+      "primaryIcons": [],
+      "title": "클러스터 생성 · HA / 외부 etcd"
+    },
+    {
+      "id": "create-ha-etcd",
+      "theme": "dark",
+      "file": "create-ha-etcd-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "HA 지원 버전에서만 제어 노드 수와 외부 LB IP를 표시합니다. 외부 etcd를 사용하면 해당 오퍼링·템플릿·Affinity를 별도로 선택합니다."
+        }
+      ],
+      "modalWidth": 1120,
+      "primaryIcons": [],
+      "title": "클러스터 생성 · HA / 외부 etcd"
+    },
+    {
+      "id": "create-addons",
+      "theme": "light",
+      "file": "create-addons-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(102, 112, 133)",
+          "contrast": 4.97,
+          "text": "ISO 프로파일"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(102, 112, 133)",
+          "contrast": 4.97,
+          "text": "Provider / AutoScaler"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(102, 112, 133)",
+          "contrast": 4.97,
+          "text": "CSI"
+        },
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "기본 mold-cks ISO에는 CSI가 포함되지 않습니다. 별도 CSI 릴리즈 또는 검증된 CSI 프로파일을 사용하며, 지원 정보가 없으면 설치 가능으로 표시하지 않습니다."
+        }
+      ],
+      "modalWidth": 1120,
+      "primaryIcons": [],
+      "title": "쿠버네티스 클러스터 생성"
+    },
+    {
+      "id": "create-addons",
+      "theme": "dark",
+      "file": "create-addons-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(154, 164, 175)",
+          "contrast": 5.88,
+          "text": "ISO 프로파일"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(154, 164, 175)",
+          "contrast": 5.88,
+          "text": "Provider / AutoScaler"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(154, 164, 175)",
+          "contrast": 5.88,
+          "text": "CSI"
+        },
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "기본 mold-cks ISO에는 CSI가 포함되지 않습니다. 별도 CSI 릴리즈 또는 검증된 CSI 프로파일을 사용하며, 지원 정보가 없으면 설치 가능으로 표시하지 않습니다."
+        }
+      ],
+      "modalWidth": 1120,
+      "primaryIcons": [],
+      "title": "쿠버네티스 클러스터 생성"
+    },
+    {
+      "id": "create-review",
+      "theme": "light",
+      "file": "create-review-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "contrast": 7.56,
+          "text": "선택 ISO Ready · x86_64 · Kubernetes 1.37.1"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "contrast": 7.56,
+          "text": "3개 노드 · 12 vCPU · 24,576 MB · ROOT 120 GiB"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "contrast": 7.56,
+          "text": "Primary GFS2 배치와 ROOT 최소 크기 확인"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "contrast": 7.56,
+          "text": "계정 한도 및 IP·네트워크 준비 확인"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "contrast": 7.56,
+          "text": "기본 ISO의 CSI 미포함 확인"
+        },
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "배포 직전 준비 상태·계정 한도·스토리지·네트워크·ISO를 다시 조회합니다. 검증 실패 시 해당 단계로 돌아가 수정합니다."
+        }
+      ],
+      "modalWidth": 1120,
+      "primaryIcons": [],
+      "title": "쿠버네티스 클러스터 생성"
+    },
+    {
+      "id": "create-review",
+      "theme": "dark",
+      "file": "create-review-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "contrast": 9.18,
+          "text": "선택 ISO Ready · x86_64 · Kubernetes 1.37.1"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "contrast": 9.18,
+          "text": "3개 노드 · 12 vCPU · 24,576 MB · ROOT 120 GiB"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "contrast": 9.18,
+          "text": "Primary GFS2 배치와 ROOT 최소 크기 확인"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "contrast": 9.18,
+          "text": "계정 한도 및 IP·네트워크 준비 확인"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "contrast": 9.18,
+          "text": "기본 ISO의 CSI 미포함 확인"
+        },
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "배포 직전 준비 상태·계정 한도·스토리지·네트워크·ISO를 다시 조회합니다. 검증 실패 시 해당 단계로 돌아가 수정합니다."
+        }
+      ],
+      "modalWidth": 1120,
+      "primaryIcons": [],
+      "title": "쿠버네티스 클러스터 생성"
+    },
+    {
+      "id": "create-external-basic",
+      "theme": "light",
+      "file": "create-external-basic-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "외부에서 운영하는 Kubernetes 클러스터를 Mold에 등록합니다. 등록 후 기존 Mold VM을 외부 노드로 연결할 수 있으며, VM 배포·Kubernetes 설치·가입은 수행하지 않습니다."
+        }
+      ],
+      "modalWidth": 1120,
+      "primaryIcons": [],
+      "title": "클러스터 생성 · 외부 관리형"
+    },
+    {
+      "id": "create-external-basic",
+      "theme": "dark",
+      "file": "create-external-basic-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "외부에서 운영하는 Kubernetes 클러스터를 Mold에 등록합니다. 등록 후 기존 Mold VM을 외부 노드로 연결할 수 있으며, VM 배포·Kubernetes 설치·가입은 수행하지 않습니다."
+        }
+      ],
+      "modalWidth": 1120,
+      "primaryIcons": [],
+      "title": "클러스터 생성 · 외부 관리형"
+    },
+    {
+      "id": "create-external-options",
+      "theme": "light",
+      "file": "create-external-options-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "기존 VM은 클러스터 등록 성공 후 별도 연결합니다. 외부 노드 추가에서 제어/워커 역할을 지정하며, Kubernetes 설치·실제 가입은 외부 운영자가 수행합니다. 선택한 버전·네트워크·SSH 키는 등록 메타데이터입니다."
+        }
+      ],
+      "modalWidth": 1120,
+      "primaryIcons": [],
+      "title": "외부 관리형 · 선택 정보와 VM 연결"
+    },
+    {
+      "id": "create-external-options",
+      "theme": "dark",
+      "file": "create-external-options-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "기존 VM은 클러스터 등록 성공 후 별도 연결합니다. 외부 노드 추가에서 제어/워커 역할을 지정하며, Kubernetes 설치·실제 가입은 외부 운영자가 수행합니다. 선택한 버전·네트워크·SSH 키는 등록 메타데이터입니다."
+        }
+      ],
+      "modalWidth": 1120,
+      "primaryIcons": [],
+      "title": "외부 관리형 · 선택 정보와 VM 연결"
+    },
+    {
+      "id": "create-external-review",
+      "theme": "light",
+      "file": "create-external-review-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "등록 상태 Running은 Kubernetes API 접속이나 워크로드 건강 상태의 검증 결과가 아닙니다."
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "contrast": 7.56,
+          "text": "클러스터 이름 · Zone · 등록 소유자 확인"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "contrast": 7.56,
+          "text": "외부 관리형으로 등록"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "contrast": 7.56,
+          "text": "VM 자동 배포·Kubernetes 설치·CNI/CSI 설치를 수행하지 않음"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "contrast": 7.56,
+          "text": "기본: 등록만 완료 · 가상머신 탭에서 외부 노드 추가 가능"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "contrast": 7.56,
+          "text": "Mold 시작·중지·자동 확장·업그레이드 작업은 제공하지 않음"
+        }
+      ],
+      "modalWidth": 1120,
+      "primaryIcons": [],
+      "title": "외부 관리형 · 등록 검토"
+    },
+    {
+      "id": "create-external-review",
+      "theme": "dark",
+      "file": "create-external-review-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "등록 상태 Running은 Kubernetes API 접속이나 워크로드 건강 상태의 검증 결과가 아닙니다."
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "contrast": 9.18,
+          "text": "클러스터 이름 · Zone · 등록 소유자 확인"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "contrast": 9.18,
+          "text": "외부 관리형으로 등록"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "contrast": 9.18,
+          "text": "VM 자동 배포·Kubernetes 설치·CNI/CSI 설치를 수행하지 않음"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "contrast": 9.18,
+          "text": "기본: 등록만 완료 · 가상머신 탭에서 외부 노드 추가 가능"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "contrast": 9.18,
+          "text": "Mold 시작·중지·자동 확장·업그레이드 작업은 제공하지 않음"
+        }
+      ],
+      "modalWidth": 1120,
+      "primaryIcons": [],
+      "title": "외부 관리형 · 등록 검토"
+    },
+    {
+      "id": "start",
+      "theme": "light",
+      "file": "start-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "재발급은 복구가 필요한 경우에만 선택합니다. 권한·유효기간·HMAC-SHA256 인증 동작을 유지합니다."
+        }
+      ],
+      "modalWidth": 760,
+      "primaryIcons": [],
+      "title": "클러스터 시작"
+    },
+    {
+      "id": "start",
+      "theme": "dark",
+      "file": "start-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "재발급은 복구가 필요한 경우에만 선택합니다. 권한·유효기간·HMAC-SHA256 인증 동작을 유지합니다."
+        }
+      ],
+      "modalWidth": 760,
+      "primaryIcons": [],
+      "title": "클러스터 시작"
+    },
+    {
+      "id": "stop",
+      "theme": "light",
+      "file": "stop-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            255,
+            248,
+            230
+          ],
+          "color": "rgb(92, 59, 0)",
+          "contrast": 9.53,
+          "text": "노드가 중지되면 애플리케이션과 Kubernetes API에 접속할 수 없습니다."
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "contrast": 7.56,
+          "text": "VM·ROOT·데이터 볼륨은 삭제하지 않습니다."
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "contrast": 7.56,
+          "text": "현재 클러스터와 대상 노드 수를 다시 확인했습니다."
+        }
+      ],
+      "modalWidth": 760,
+      "primaryIcons": [],
+      "title": "클러스터 중지"
+    },
+    {
+      "id": "stop",
+      "theme": "dark",
+      "file": "stop-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            64,
+            59,
+            43
+          ],
+          "color": "rgb(255, 231, 163)",
+          "contrast": 9.19,
+          "text": "노드가 중지되면 애플리케이션과 Kubernetes API에 접속할 수 없습니다."
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "contrast": 9.18,
+          "text": "VM·ROOT·데이터 볼륨은 삭제하지 않습니다."
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "contrast": 9.18,
+          "text": "현재 클러스터와 대상 노드 수를 다시 확인했습니다."
+        }
+      ],
+      "modalWidth": 760,
+      "primaryIcons": [],
+      "title": "클러스터 중지"
+    },
+    {
+      "id": "scale",
+      "theme": "light",
+      "file": "scale-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(102, 112, 133)",
+          "contrast": 4.97,
+          "text": "변경 전"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(102, 112, 133)",
+          "contrast": 4.97,
+          "text": "변경 후"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(102, 112, 133)",
+          "contrast": 4.97,
+          "text": "증가 할당량"
+        },
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "수동 목표 수 변경과 역할별 오퍼링 변경을 구분합니다. 자동 확장 사용 중에는 충돌 안내와 기존 서버 검증을 적용합니다."
+        }
+      ],
+      "modalWidth": 760,
+      "primaryIcons": [],
+      "title": "클러스터 확장 / 축소"
+    },
+    {
+      "id": "scale",
+      "theme": "dark",
+      "file": "scale-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(154, 164, 175)",
+          "contrast": 5.88,
+          "text": "변경 전"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(154, 164, 175)",
+          "contrast": 5.88,
+          "text": "변경 후"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(154, 164, 175)",
+          "contrast": 5.88,
+          "text": "증가 할당량"
+        },
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "수동 목표 수 변경과 역할별 오퍼링 변경을 구분합니다. 자동 확장 사용 중에는 충돌 안내와 기존 서버 검증을 적용합니다."
+        }
+      ],
+      "modalWidth": 760,
+      "primaryIcons": [],
+      "title": "클러스터 확장 / 축소"
+    },
+    {
+      "id": "autoscale",
+      "theme": "light",
+      "file": "autoscale-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(102, 112, 133)",
+          "contrast": 4.97,
+          "text": "사용 설정"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(102, 112, 133)",
+          "contrast": 4.97,
+          "text": "최근 런타임 관측"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(102, 112, 133)",
+          "contrast": 4.97,
+          "text": "허용 워커 범위"
+        },
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "사용 설정은 런타임 정상 판정이 아닙니다. 현재 API가 제공하지 않는 건강 상태는 관측 정보 없음으로 표시합니다."
+        }
+      ],
+      "modalWidth": 760,
+      "primaryIcons": [],
+      "title": "오토스케일링 설정"
+    },
+    {
+      "id": "autoscale",
+      "theme": "dark",
+      "file": "autoscale-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(154, 164, 175)",
+          "contrast": 5.88,
+          "text": "사용 설정"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(154, 164, 175)",
+          "contrast": 5.88,
+          "text": "최근 런타임 관측"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(154, 164, 175)",
+          "contrast": 5.88,
+          "text": "허용 워커 범위"
+        },
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "사용 설정은 런타임 정상 판정이 아닙니다. 현재 API가 제공하지 않는 건강 상태는 관측 정보 없음으로 표시합니다."
+        }
+      ],
+      "modalWidth": 760,
+      "primaryIcons": [],
+      "title": "오토스케일링 설정"
+    },
+    {
+      "id": "scale-recovery",
+      "theme": "light",
+      "file": "scale-recovery-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            255,
+            248,
+            230
+          ],
+          "color": "rgb(92, 59, 0)",
+          "contrast": 9.53,
+          "text": "일부 노드만 준비되었습니다. 원래 목표 수로 복구를 재시도할 수 있습니다."
+        },
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "기존 partialScaleRecoverySize 조건을 유지합니다. 이 경로에서는 오퍼링·AutoScaler 설정을 동시에 변경하지 않습니다."
+        }
+      ],
+      "modalWidth": 760,
+      "primaryIcons": [],
+      "title": "부분 확장 복구"
+    },
+    {
+      "id": "scale-recovery",
+      "theme": "dark",
+      "file": "scale-recovery-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            64,
+            59,
+            43
+          ],
+          "color": "rgb(255, 231, 163)",
+          "contrast": 9.19,
+          "text": "일부 노드만 준비되었습니다. 원래 목표 수로 복구를 재시도할 수 있습니다."
+        },
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "기존 partialScaleRecoverySize 조건을 유지합니다. 이 경로에서는 오퍼링·AutoScaler 설정을 동시에 변경하지 않습니다."
+        }
+      ],
+      "modalWidth": 760,
+      "primaryIcons": [],
+      "title": "부분 확장 복구"
+    },
+    {
+      "id": "upgrade",
+      "theme": "light",
+      "file": "upgrade-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            255,
+            248,
+            230
+          ],
+          "color": "rgb(92, 59, 0)",
+          "contrast": 9.53,
+          "text": "노드를 순차적으로 업그레이드합니다. 워크로드 준비 상태에 따라 후속 노드 작업이 중단될 수 있습니다."
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "contrast": 7.56,
+          "text": "동일 버전·하향·마이너 건너뛰기 후보 제외"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "contrast": 7.56,
+          "text": "제어 노드 → 워커 순서와 기존 노드 UID 보존"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "contrast": 7.56,
+          "text": "PDB·cordon·CSI 워크로드 게이트 유지"
+        }
+      ],
+      "modalWidth": 760,
+      "primaryIcons": [],
+      "title": "클러스터 업그레이드"
+    },
+    {
+      "id": "upgrade",
+      "theme": "dark",
+      "file": "upgrade-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            64,
+            59,
+            43
+          ],
+          "color": "rgb(255, 231, 163)",
+          "contrast": 9.19,
+          "text": "노드를 순차적으로 업그레이드합니다. 워크로드 준비 상태에 따라 후속 노드 작업이 중단될 수 있습니다."
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "contrast": 9.18,
+          "text": "동일 버전·하향·마이너 건너뛰기 후보 제외"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "contrast": 9.18,
+          "text": "제어 노드 → 워커 순서와 기존 노드 UID 보존"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "contrast": 9.18,
+          "text": "PDB·cordon·CSI 워크로드 게이트 유지"
+        }
+      ],
+      "modalWidth": 760,
+      "primaryIcons": [],
+      "title": "클러스터 업그레이드"
+    },
+    {
+      "id": "affinity",
+      "theme": "light",
+      "file": "affinity-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "CloudManaged·Stopped 조건을 유지합니다. 역할별 다중 선택과 권한 제한을 공통 폼에서 표현합니다."
+        }
+      ],
+      "modalWidth": 760,
+      "primaryIcons": [],
+      "title": "Affinity 그룹 변경"
+    },
+    {
+      "id": "affinity",
+      "theme": "dark",
+      "file": "affinity-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "CloudManaged·Stopped 조건을 유지합니다. 역할별 다중 선택과 권한 제한을 공통 폼에서 표현합니다."
+        }
+      ],
+      "modalWidth": 760,
+      "primaryIcons": [],
+      "title": "Affinity 그룹 변경"
+    },
+    {
+      "id": "add-nodes",
+      "theme": "light",
+      "file": "add-nodes-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "외부 노드의 VM 소유권과 클러스터 멤버십을 구분합니다. 연결 해제는 VM 삭제와 다릅니다."
+        }
+      ],
+      "modalWidth": 920,
+      "primaryIcons": [],
+      "title": "외부 노드 추가"
+    },
+    {
+      "id": "add-nodes",
+      "theme": "dark",
+      "file": "add-nodes-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "외부 노드의 VM 소유권과 클러스터 멤버십을 구분합니다. 연결 해제는 VM 삭제와 다릅니다."
+        }
+      ],
+      "modalWidth": 920,
+      "primaryIcons": [],
+      "title": "외부 노드 추가"
+    },
+    {
+      "id": "remove-nodes",
+      "theme": "light",
+      "file": "remove-nodes-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "외부 노드의 VM 소유권과 클러스터 멤버십을 구분합니다. 연결 해제는 VM 삭제와 다릅니다."
+        }
+      ],
+      "modalWidth": 920,
+      "primaryIcons": [],
+      "title": "외부 노드 연결 해제"
+    },
+    {
+      "id": "remove-nodes",
+      "theme": "dark",
+      "file": "remove-nodes-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "외부 노드의 VM 소유권과 클러스터 멤버십을 구분합니다. 연결 해제는 VM 삭제와 다릅니다."
+        }
+      ],
+      "modalWidth": 920,
+      "primaryIcons": [],
+      "title": "외부 노드 연결 해제"
+    },
+    {
+      "id": "delete-worker",
+      "theme": "light",
+      "file": "delete-worker-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            255,
+            248,
+            230
+          ],
+          "color": "rgb(92, 59, 0)",
+          "contrast": 9.53,
+          "text": "drain 및 PDB 검증 후 노드 VM을 삭제합니다. 보호된 제어 노드 또는 AutoScaler 사용 중인 노드는 이 작업을 제한합니다."
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "contrast": 7.56,
+          "text": "노드와 워크로드 영향 범위를 확인했습니다."
+        }
+      ],
+      "modalWidth": 760,
+      "primaryIcons": [],
+      "title": "워커 노드 삭제"
+    },
+    {
+      "id": "delete-worker",
+      "theme": "dark",
+      "file": "delete-worker-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            64,
+            59,
+            43
+          ],
+          "color": "rgb(255, 231, 163)",
+          "contrast": 9.19,
+          "text": "drain 및 PDB 검증 후 노드 VM을 삭제합니다. 보호된 제어 노드 또는 AutoScaler 사용 중인 노드는 이 작업을 제한합니다."
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "contrast": 9.18,
+          "text": "노드와 워크로드 영향 범위를 확인했습니다."
+        }
+      ],
+      "modalWidth": 760,
+      "primaryIcons": [],
+      "title": "워커 노드 삭제"
+    },
+    {
+      "id": "delete-cluster",
+      "theme": "light",
+      "file": "delete-cluster-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            255,
+            241,
+            240
+          ],
+          "color": "rgb(112, 27, 27)",
+          "contrast": 10.26,
+          "text": "클러스터와 관리형 노드를 삭제합니다. 데이터 정리가 실패하면 노드를 보존하고 재시도 상태를 표시합니다."
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "contrast": 7.56,
+          "text": "UID로 확인된 CSI PV 정리 정책 적용"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "contrast": 7.56,
+          "text": "Retain 볼륨과 사용자 네트워크 규칙은 보존"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "contrast": 7.56,
+          "text": "실패 단계와 남은 자원 목록을 결과에서 확인"
+        }
+      ],
+      "modalWidth": 760,
+      "primaryIcons": [],
+      "title": "클러스터 삭제"
+    },
+    {
+      "id": "delete-cluster",
+      "theme": "dark",
+      "file": "delete-cluster-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            65,
+            45,
+            51
+          ],
+          "color": "rgb(255, 210, 210)",
+          "contrast": 9.33,
+          "text": "클러스터와 관리형 노드를 삭제합니다. 데이터 정리가 실패하면 노드를 보존하고 재시도 상태를 표시합니다."
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "contrast": 9.18,
+          "text": "UID로 확인된 CSI PV 정리 정책 적용"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "contrast": 9.18,
+          "text": "Retain 볼륨과 사용자 네트워크 규칙은 보존"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "contrast": 9.18,
+          "text": "실패 단계와 남은 자원 목록을 결과에서 확인"
+        }
+      ],
+      "modalWidth": 760,
+      "primaryIcons": [],
+      "title": "클러스터 삭제"
+    },
+    {
+      "id": "delete-external",
+      "theme": "light",
+      "file": "delete-external-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            255,
+            248,
+            230
+          ],
+          "color": "rgb(92, 59, 0)",
+          "contrast": 9.53,
+          "text": "기본값은 등록 정보 제거입니다. VM 정리는 별도 선택이며 expunge는 관리자/API 권한이 있을 때만 표시합니다."
+        }
+      ],
+      "modalWidth": 760,
+      "primaryIcons": [],
+      "title": "외부 관리형 클러스터 삭제"
+    },
+    {
+      "id": "delete-external",
+      "theme": "dark",
+      "file": "delete-external-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            64,
+            59,
+            43
+          ],
+          "color": "rgb(255, 231, 163)",
+          "contrast": 9.19,
+          "text": "기본값은 등록 정보 제거입니다. VM 정리는 별도 선택이며 expunge는 관리자/API 권한이 있을 때만 표시합니다."
+        }
+      ],
+      "modalWidth": 760,
+      "primaryIcons": [],
+      "title": "외부 관리형 클러스터 삭제"
+    },
+    {
+      "id": "bulk-start",
+      "theme": "light",
+      "file": "bulk-start-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            255,
+            248,
+            230
+          ],
+          "color": "rgb(92, 59, 0)",
+          "contrast": 9.53,
+          "text": "선택한 항목별 현재 상태와 실행 가능 여부를 다시 확인합니다. 실행 불가 항목을 조용히 건너뛰지 않습니다."
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "contrast": 7.56,
+          "text": "선택한 2개 클러스터와 대상 노드 합계를 확인했습니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [],
+      "title": "선택한 클러스터 시작"
+    },
+    {
+      "id": "bulk-start",
+      "theme": "dark",
+      "file": "bulk-start-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            64,
+            59,
+            43
+          ],
+          "color": "rgb(255, 231, 163)",
+          "contrast": 9.19,
+          "text": "선택한 항목별 현재 상태와 실행 가능 여부를 다시 확인합니다. 실행 불가 항목을 조용히 건너뛰지 않습니다."
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "contrast": 9.18,
+          "text": "선택한 2개 클러스터와 대상 노드 합계를 확인했습니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [],
+      "title": "선택한 클러스터 시작"
+    },
+    {
+      "id": "bulk-stop",
+      "theme": "light",
+      "file": "bulk-stop-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            255,
+            248,
+            230
+          ],
+          "color": "rgb(92, 59, 0)",
+          "contrast": 9.53,
+          "text": "선택한 항목별 현재 상태와 실행 가능 여부를 다시 확인합니다. 실행 불가 항목을 조용히 건너뛰지 않습니다."
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "contrast": 7.56,
+          "text": "선택한 2개 클러스터와 대상 노드 합계를 확인했습니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [],
+      "title": "선택한 클러스터 중지"
+    },
+    {
+      "id": "bulk-stop",
+      "theme": "dark",
+      "file": "bulk-stop-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            64,
+            59,
+            43
+          ],
+          "color": "rgb(255, 231, 163)",
+          "contrast": 9.19,
+          "text": "선택한 항목별 현재 상태와 실행 가능 여부를 다시 확인합니다. 실행 불가 항목을 조용히 건너뛰지 않습니다."
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "contrast": 9.18,
+          "text": "선택한 2개 클러스터와 대상 노드 합계를 확인했습니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [],
+      "title": "선택한 클러스터 중지"
+    },
+    {
+      "id": "bulk-delete",
+      "theme": "light",
+      "file": "bulk-delete-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            255,
+            241,
+            240
+          ],
+          "color": "rgb(112, 27, 27)",
+          "contrast": 10.26,
+          "text": "선택한 항목별 현재 상태와 실행 가능 여부를 다시 확인합니다. 실행 불가 항목을 조용히 건너뛰지 않습니다."
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "contrast": 7.56,
+          "text": "선택한 2개 클러스터와 대상 노드 합계를 확인했습니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [],
+      "title": "선택한 클러스터 삭제"
+    },
+    {
+      "id": "bulk-delete",
+      "theme": "dark",
+      "file": "bulk-delete-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            65,
+            45,
+            51
+          ],
+          "color": "rgb(255, 210, 210)",
+          "contrast": 9.33,
+          "text": "선택한 항목별 현재 상태와 실행 가능 여부를 다시 확인합니다. 실행 불가 항목을 조용히 건너뛰지 않습니다."
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "contrast": 9.18,
+          "text": "선택한 2개 클러스터와 대상 노드 합계를 확인했습니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [],
+      "title": "선택한 클러스터 삭제"
+    },
+    {
+      "id": "iso-register",
+      "theme": "light",
+      "file": "iso-register-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "이름은 식별용 표시명입니다. Release 등록 JSON의 버전·URL·checksum 값을 사용하며, 등록 후 Ready 상태를 확인해야 클러스터에서 선택할 수 있습니다."
+        }
+      ],
+      "modalWidth": 1000,
+      "primaryIcons": [],
+      "title": "Kubernetes ISO URL 등록"
+    },
+    {
+      "id": "iso-register",
+      "theme": "dark",
+      "file": "iso-register-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "이름은 식별용 표시명입니다. Release 등록 JSON의 버전·URL·checksum 값을 사용하며, 등록 후 Ready 상태를 확인해야 클러스터에서 선택할 수 있습니다."
+        }
+      ],
+      "modalWidth": 1000,
+      "primaryIcons": [],
+      "title": "Kubernetes ISO URL 등록"
+    },
+    {
+      "id": "iso-upload",
+      "theme": "light",
+      "file": "iso-upload-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            250,
+            250,
+            250
+          ],
+          "color": "rgb(75, 85, 99)",
+          "contrast": 7.24,
+          "text": "파일을 선택하거나 이곳에 끌어다 놓으세요."
+        },
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "업로드·처리·다운로드 준비 상태를 구분합니다. 실패 시 폼 선택을 유지하고 해당 필드에 오류를 표시합니다."
+        }
+      ],
+      "modalWidth": 1000,
+      "primaryIcons": [],
+      "title": "Kubernetes ISO 파일 업로드"
+    },
+    {
+      "id": "iso-upload",
+      "theme": "dark",
+      "file": "iso-upload-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "contrast": 9.18,
+          "text": "파일을 선택하거나 이곳에 끌어다 놓으세요."
+        },
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "업로드·처리·다운로드 준비 상태를 구분합니다. 실패 시 폼 선택을 유지하고 해당 필드에 오류를 표시합니다."
+        }
+      ],
+      "modalWidth": 1000,
+      "primaryIcons": [],
+      "title": "Kubernetes ISO 파일 업로드"
+    },
+    {
+      "id": "iso-state",
+      "theme": "light",
+      "file": "iso-state-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "지원 버전 사용 설정과 ISO 다운로드 Ready는 별도 상태입니다. 기존 클러스터가 사용한 산출물은 변경하지 않습니다."
+        }
+      ],
+      "modalWidth": 760,
+      "primaryIcons": [],
+      "title": "지원 버전 상태 변경"
+    },
+    {
+      "id": "iso-state",
+      "theme": "dark",
+      "file": "iso-state-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "지원 버전 사용 설정과 ISO 다운로드 Ready는 별도 상태입니다. 기존 클러스터가 사용한 산출물은 변경하지 않습니다."
+        }
+      ],
+      "modalWidth": 760,
+      "primaryIcons": [],
+      "title": "지원 버전 상태 변경"
+    },
+    {
+      "id": "iso-delete",
+      "theme": "light",
+      "file": "iso-delete-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            255,
+            248,
+            230
+          ],
+          "color": "rgb(92, 59, 0)",
+          "contrast": 9.53,
+          "text": "현재 참조 상태를 조회한 뒤 서버의 삭제 제약을 적용합니다. GitHub 릴리즈 파일 삭제와는 별개입니다."
+        }
+      ],
+      "modalWidth": 760,
+      "primaryIcons": [],
+      "title": "지원 버전 등록 삭제"
+    },
+    {
+      "id": "iso-delete",
+      "theme": "dark",
+      "file": "iso-delete-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            64,
+            59,
+            43
+          ],
+          "color": "rgb(255, 231, 163)",
+          "contrast": 9.19,
+          "text": "현재 참조 상태를 조회한 뒤 서버의 삭제 제약을 적용합니다. GitHub 릴리즈 파일 삭제와는 별개입니다."
+        }
+      ],
+      "modalWidth": 760,
+      "primaryIcons": [],
+      "title": "지원 버전 등록 삭제"
+    },
+    {
+      "id": "network-tags",
+      "theme": "light",
+      "file": "network-tags-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "관리 포트 보호와 사용자 규칙의 소유권 구분을 유지합니다. 공유 FirewallRules·PortForwarding 태그 편집 폼을 재사용합니다."
+        }
+      ],
+      "modalWidth": 760,
+      "primaryIcons": [],
+      "title": "네트워크 규칙 태그 편집"
+    },
+    {
+      "id": "network-tags",
+      "theme": "dark",
+      "file": "network-tags-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "관리 포트 보호와 사용자 규칙의 소유권 구분을 유지합니다. 공유 FirewallRules·PortForwarding 태그 편집 폼을 재사용합니다."
+        }
+      ],
+      "modalWidth": 760,
+      "primaryIcons": [],
+      "title": "네트워크 규칙 태그 편집"
+    },
+    {
+      "id": "pf-vm",
+      "theme": "light",
+      "file": "pf-vm-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "선택한 VM의 NIC 주소를 포트 포워딩 규칙에 연결합니다. VM·NIC 후보는 실제 계정·프로젝트·네트워크 범위에서 조회합니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "포트 포워딩 추가"
+        }
+      ],
+      "title": "포트 포워딩 VM 선택"
+    },
+    {
+      "id": "pf-vm",
+      "theme": "dark",
+      "file": "pf-vm-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "선택한 VM의 NIC 주소를 포트 포워딩 규칙에 연결합니다. VM·NIC 후보는 실제 계정·프로젝트·네트워크 범위에서 조회합니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "포트 포워딩 추가"
+        }
+      ],
+      "title": "포트 포워딩 VM 선택"
+    },
+    {
+      "id": "rules-delete",
+      "theme": "light",
+      "file": "rules-delete-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            255,
+            248,
+            230
+          ],
+          "color": "rgb(92, 59, 0)",
+          "contrast": 9.53,
+          "text": "사용자 규칙만 삭제할 수 있습니다. Kubernetes API·SSH 관리 포트 규칙은 보호됩니다."
+        }
+      ],
+      "modalWidth": 920,
+      "primaryIcons": [],
+      "title": "선택한 네트워크 규칙 삭제"
+    },
+    {
+      "id": "rules-delete",
+      "theme": "dark",
+      "file": "rules-delete-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            64,
+            59,
+            43
+          ],
+          "color": "rgb(255, 231, 163)",
+          "contrast": 9.19,
+          "text": "사용자 규칙만 삭제할 수 있습니다. Kubernetes API·SSH 관리 포트 규칙은 보호됩니다."
+        }
+      ],
+      "modalWidth": 920,
+      "primaryIcons": [],
+      "title": "선택한 네트워크 규칙 삭제"
+    },
+    {
+      "id": "comment-delete",
+      "theme": "light",
+      "file": "comment-delete-light.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [
+        {
+          "icon": false,
+          "text": "보내기"
+        }
+      ]
+    },
+    {
+      "id": "comment-delete",
+      "theme": "dark",
+      "file": "comment-delete-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [
+        {
+          "icon": false,
+          "text": "보내기"
+        }
+      ]
+    },
+    {
+      "id": "comment-visibility",
+      "theme": "light",
+      "file": "comment-visibility-light.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [
+        {
+          "icon": false,
+          "text": "보내기"
+        }
+      ]
+    },
+    {
+      "id": "comment-visibility",
+      "theme": "dark",
+      "file": "comment-visibility-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [
+        {
+          "icon": false,
+          "text": "보내기"
+        }
+      ]
+    },
+    {
+      "id": "upgrade-empty",
+      "theme": "light",
+      "file": "upgrade-empty-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "동일·하향·마이너 건너뛰기 또는 준비되지 않은 ISO는 선택할 수 없습니다."
+        }
+      ],
+      "modalWidth": 760,
+      "primaryIcons": [],
+      "title": "업그레이드 가능 버전 없음"
+    },
+    {
+      "id": "upgrade-empty",
+      "theme": "dark",
+      "file": "upgrade-empty-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "동일·하향·마이너 건너뛰기 또는 준비되지 않은 ISO는 선택할 수 없습니다."
+        }
+      ],
+      "modalWidth": 760,
+      "primaryIcons": [],
+      "title": "업그레이드 가능 버전 없음"
+    },
+    {
+      "id": "validation-error",
+      "theme": "light",
+      "file": "validation-error-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            255,
+            241,
+            240
+          ],
+          "color": "rgb(112, 27, 27)",
+          "contrast": 10.26,
+          "text": "입력값을 확인해 주세요. 다른 선택값은 유지했습니다."
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(112, 27, 27)",
+          "contrast": 11.28,
+          "text": "유효한 ISO 파일 URL을 입력해 주세요."
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(112, 27, 27)",
+          "contrast": 11.28,
+          "text": "Release 등록 JSON의 checksum 값을 확인해 주세요."
+        }
+      ],
+      "modalWidth": 1000,
+      "primaryIcons": [],
+      "title": "ISO 등록 입력 오류"
+    },
+    {
+      "id": "validation-error",
+      "theme": "dark",
+      "file": "validation-error-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            65,
+            45,
+            51
+          ],
+          "color": "rgb(255, 210, 210)",
+          "contrast": 9.33,
+          "text": "입력값을 확인해 주세요. 다른 선택값은 유지했습니다."
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(247, 147, 154)",
+          "contrast": 6.79,
+          "text": "유효한 ISO 파일 URL을 입력해 주세요."
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(247, 147, 154)",
+          "contrast": 6.79,
+          "text": "Release 등록 JSON의 checksum 값을 확인해 주세요."
+        }
+      ],
+      "modalWidth": 1000,
+      "primaryIcons": [],
+      "title": "ISO 등록 입력 오류"
+    },
+    {
+      "id": "firewall-create",
+      "theme": "light",
+      "file": "firewall-create-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "contrast": 7.56,
+          "text": "여러 CIDR은 쉼표로 구분합니다."
+        },
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "TCP·UDP는 포트 범위, ICMP는 유형·코드를 입력합니다. 실제 적용은 비동기 작업 결과를 확인합니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "방화벽 규칙 추가"
+        }
+      ],
+      "title": "방화벽 규칙 추가"
+    },
+    {
+      "id": "firewall-create",
+      "theme": "dark",
+      "file": "firewall-create-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "contrast": 9.18,
+          "text": "여러 CIDR은 쉼표로 구분합니다."
+        },
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "TCP·UDP는 포트 범위, ICMP는 유형·코드를 입력합니다. 실제 적용은 비동기 작업 결과를 확인합니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "방화벽 규칙 추가"
+        }
+      ],
+      "title": "방화벽 규칙 추가"
+    },
+    {
+      "id": "firewall-replace",
+      "theme": "light",
+      "file": "firewall-replace-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            255,
+            248,
+            230
+          ],
+          "color": "rgb(92, 59, 0)",
+          "contrast": 9.53,
+          "text": "현재 API는 규칙의 포트·CIDR을 직접 변경하지 않습니다. 기존 규칙 삭제와 새 규칙 생성 사이에 연결이 끊길 수 있습니다."
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "contrast": 7.56,
+          "text": "여러 CIDR은 쉼표로 구분합니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "방화벽 규칙 추가"
+        }
+      ],
+      "title": "방화벽 규칙 교체"
+    },
+    {
+      "id": "firewall-replace",
+      "theme": "dark",
+      "file": "firewall-replace-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            64,
+            59,
+            43
+          ],
+          "color": "rgb(255, 231, 163)",
+          "contrast": 9.19,
+          "text": "현재 API는 규칙의 포트·CIDR을 직접 변경하지 않습니다. 기존 규칙 삭제와 새 규칙 생성 사이에 연결이 끊길 수 있습니다."
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "contrast": 9.18,
+          "text": "여러 CIDR은 쉼표로 구분합니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "방화벽 규칙 추가"
+        }
+      ],
+      "title": "방화벽 규칙 교체"
+    },
+    {
+      "id": "pf-create",
+      "theme": "light",
+      "file": "pf-create-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "contrast": 7.56,
+          "text": "방화벽 규칙은 별도 추가합니다."
+        },
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "공인·게스트 포트 범위 길이를 맞춥니다. VPC는 선택한 티어와 허용 CIDR을 함께 적용합니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "포트 포워딩 추가"
+        }
+      ],
+      "title": "포트 포워딩 규칙 추가"
+    },
+    {
+      "id": "pf-create",
+      "theme": "dark",
+      "file": "pf-create-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "contrast": 9.18,
+          "text": "방화벽 규칙은 별도 추가합니다."
+        },
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "공인·게스트 포트 범위 길이를 맞춥니다. VPC는 선택한 티어와 허용 CIDR을 함께 적용합니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "포트 포워딩 추가"
+        }
+      ],
+      "title": "포트 포워딩 규칙 추가"
+    },
+    {
+      "id": "pf-edit",
+      "theme": "light",
+      "file": "pf-edit-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "contrast": 7.56,
+          "text": "방화벽 규칙은 별도 추가합니다."
+        },
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "기존 공인 포트와 프로토콜은 유지합니다. 대상 VM·NIC와 게스트 포트 범위를 변경합니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "포트 포워딩 추가"
+        }
+      ],
+      "title": "포트 포워딩 설정 변경"
+    },
+    {
+      "id": "pf-edit",
+      "theme": "dark",
+      "file": "pf-edit-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "contrast": 9.18,
+          "text": "방화벽 규칙은 별도 추가합니다."
+        },
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "기존 공인 포트와 프로토콜은 유지합니다. 대상 VM·NIC와 게스트 포트 범위를 변경합니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "포트 포워딩 추가"
+        }
+      ],
+      "title": "포트 포워딩 설정 변경"
+    },
+    {
+      "id": "lb-create",
+      "theme": "light",
+      "file": "lb-create-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "규칙 생성 → 대상 VM·NIC 연결 → SSL 선택 시 인증서 연결. 실패한 단계와 생성된 규칙을 구분합니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "로드밸런서 추가"
+        }
+      ],
+      "title": "로드밸런서 규칙 추가"
+    },
+    {
+      "id": "lb-create",
+      "theme": "dark",
+      "file": "lb-create-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "규칙 생성 → 대상 VM·NIC 연결 → SSL 선택 시 인증서 연결. 실패한 단계와 생성된 규칙을 구분합니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "로드밸런서 추가"
+        }
+      ],
+      "title": "로드밸런서 규칙 추가"
+    },
+    {
+      "id": "lb-edit",
+      "theme": "light",
+      "file": "lb-edit-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "포트 변경은 규칙 교체가 필요합니다. 인증서 연결·해제는 SSL 인증서 작업에서 별도로 수행합니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "로드밸런서 추가"
+        }
+      ],
+      "title": "로드밸런서 설정 변경"
+    },
+    {
+      "id": "lb-edit",
+      "theme": "dark",
+      "file": "lb-edit-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "포트 변경은 규칙 교체가 필요합니다. 인증서 연결·해제는 SSL 인증서 작업에서 별도로 수행합니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "로드밸런서 추가"
+        }
+      ],
+      "title": "로드밸런서 설정 변경"
+    },
+    {
+      "id": "lb-backends",
+      "theme": "light",
+      "file": "lb-backends-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "같은 네트워크·VPC 티어의 VM/NIC를 조회합니다. 현재 연결과 새 선택을 구분합니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "로드밸런서 추가"
+        }
+      ],
+      "title": "로드밸런서 대상 VM·NIC 연결"
+    },
+    {
+      "id": "lb-backends",
+      "theme": "dark",
+      "file": "lb-backends-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "같은 네트워크·VPC 티어의 VM/NIC를 조회합니다. 현재 연결과 새 선택을 구분합니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "로드밸런서 추가"
+        }
+      ],
+      "title": "로드밸런서 대상 VM·NIC 연결"
+    },
+    {
+      "id": "lb-backend-remove",
+      "theme": "light",
+      "file": "lb-backend-remove-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            255,
+            248,
+            230
+          ],
+          "color": "rgb(92, 59, 0)",
+          "contrast": 9.53,
+          "text": "worker-02 / 192.0.2.12를 규칙에서 연결 해제합니다. VM은 보존됩니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "로드밸런서 추가"
+        }
+      ],
+      "title": "로드밸런서 대상 VM 연결 해제"
+    },
+    {
+      "id": "lb-backend-remove",
+      "theme": "dark",
+      "file": "lb-backend-remove-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            64,
+            59,
+            43
+          ],
+          "color": "rgb(255, 231, 163)",
+          "contrast": 9.19,
+          "text": "worker-02 / 192.0.2.12를 규칙에서 연결 해제합니다. VM은 보존됩니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "로드밸런서 추가"
+        }
+      ],
+      "title": "로드밸런서 대상 VM 연결 해제"
+    },
+    {
+      "id": "lb-stickiness",
+      "theme": "light",
+      "file": "lb-stickiness-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "네트워크 Provider가 지원하는 방식만 표시합니다. 사용 안 함은 기존 정책 삭제에 대응합니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "로드밸런서 추가"
+        }
+      ],
+      "title": "로드밸런서 세션 유지 설정"
+    },
+    {
+      "id": "lb-stickiness",
+      "theme": "dark",
+      "file": "lb-stickiness-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "네트워크 Provider가 지원하는 방식만 표시합니다. 사용 안 함은 기존 정책 삭제에 대응합니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "로드밸런서 추가"
+        }
+      ],
+      "title": "로드밸런서 세션 유지 설정"
+    },
+    {
+      "id": "lb-tls",
+      "theme": "light",
+      "file": "lb-tls-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "인증서 연결·해제 후 규칙을 다시 조회합니다. 백엔드 SSL은 규칙 설정에서 변경합니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "로드밸런서 추가"
+        }
+      ],
+      "title": "로드밸런서 SSL 인증서 연결"
+    },
+    {
+      "id": "lb-tls",
+      "theme": "dark",
+      "file": "lb-tls-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "인증서 연결·해제 후 규칙을 다시 조회합니다. 백엔드 SSL은 규칙 설정에서 변경합니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "로드밸런서 추가"
+        }
+      ],
+      "title": "로드밸런서 SSL 인증서 연결"
+    },
+    {
+      "id": "firewall-delete",
+      "theme": "light",
+      "file": "firewall-delete-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            255,
+            248,
+            230
+          ],
+          "color": "rgb(92, 59, 0)",
+          "contrast": 9.53,
+          "text": "선택한 사용자 규칙을 삭제합니다. 연결된 트래픽에 영향을 줍니다. 관리·Provider 규칙은 대상에서 제외합니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "방화벽 규칙 추가"
+        }
+      ],
+      "title": "방화벽 규칙 삭제"
+    },
+    {
+      "id": "firewall-delete",
+      "theme": "dark",
+      "file": "firewall-delete-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            64,
+            59,
+            43
+          ],
+          "color": "rgb(255, 231, 163)",
+          "contrast": 9.19,
+          "text": "선택한 사용자 규칙을 삭제합니다. 연결된 트래픽에 영향을 줍니다. 관리·Provider 규칙은 대상에서 제외합니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "방화벽 규칙 추가"
+        }
+      ],
+      "title": "방화벽 규칙 삭제"
+    },
+    {
+      "id": "pf-delete",
+      "theme": "light",
+      "file": "pf-delete-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            255,
+            248,
+            230
+          ],
+          "color": "rgb(92, 59, 0)",
+          "contrast": 9.53,
+          "text": "선택한 사용자 규칙을 삭제합니다. 연결된 트래픽에 영향을 줍니다. 관리·Provider 규칙은 대상에서 제외합니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "포트 포워딩 추가"
+        }
+      ],
+      "title": "포트 포워딩 규칙 삭제"
+    },
+    {
+      "id": "pf-delete",
+      "theme": "dark",
+      "file": "pf-delete-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            64,
+            59,
+            43
+          ],
+          "color": "rgb(255, 231, 163)",
+          "contrast": 9.19,
+          "text": "선택한 사용자 규칙을 삭제합니다. 연결된 트래픽에 영향을 줍니다. 관리·Provider 규칙은 대상에서 제외합니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "포트 포워딩 추가"
+        }
+      ],
+      "title": "포트 포워딩 규칙 삭제"
+    },
+    {
+      "id": "lb-delete",
+      "theme": "light",
+      "file": "lb-delete-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            255,
+            248,
+            230
+          ],
+          "color": "rgb(92, 59, 0)",
+          "contrast": 9.53,
+          "text": "선택한 사용자 규칙을 삭제합니다. 연결된 트래픽에 영향을 줍니다. 관리·Provider 규칙은 대상에서 제외합니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "로드밸런서 추가"
+        }
+      ],
+      "title": "로드밸런서 규칙 삭제"
+    },
+    {
+      "id": "lb-delete",
+      "theme": "dark",
+      "file": "lb-delete-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            64,
+            59,
+            43
+          ],
+          "color": "rgb(255, 231, 163)",
+          "contrast": 9.19,
+          "text": "선택한 사용자 규칙을 삭제합니다. 연결된 트래픽에 영향을 줍니다. 관리·Provider 규칙은 대상에서 제외합니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "로드밸런서 추가"
+        }
+      ],
+      "title": "로드밸런서 규칙 삭제"
+    },
+    {
+      "id": "ip-firewall",
+      "theme": "light",
+      "file": "ip-firewall-light.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "방화벽 규칙 추가"
+        }
+      ]
+    },
+    {
+      "id": "ip-firewall",
+      "theme": "dark",
+      "file": "ip-firewall-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "방화벽 규칙 추가"
+        }
+      ]
+    },
+    {
+      "id": "ip-portforwarding",
+      "theme": "light",
+      "file": "ip-portforwarding-light.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "포트 포워딩 추가"
+        }
+      ]
+    },
+    {
+      "id": "ip-portforwarding",
+      "theme": "dark",
+      "file": "ip-portforwarding-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "포트 포워딩 추가"
+        }
+      ]
+    },
+    {
+      "id": "ip-loadbalancers",
+      "theme": "light",
+      "file": "ip-loadbalancers-light.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "로드밸런서 추가"
+        }
+      ]
+    },
+    {
+      "id": "ip-loadbalancers",
+      "theme": "dark",
+      "file": "ip-loadbalancers-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "로드밸런서 추가"
+        }
+      ]
+    },
+    {
+      "id": "network-unavailable",
+      "theme": "light",
+      "file": "network-unavailable-light.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "로드밸런서 추가"
+        }
+      ]
+    },
+    {
+      "id": "network-unavailable",
+      "theme": "dark",
+      "file": "network-unavailable-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "로드밸런서 추가"
+        }
+      ]
+    },
+    {
+      "id": "list-context",
+      "theme": "light",
+      "file": "list-context-light.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [],
+      "menus": [
+        {
+          "items": [
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "클러스터 중지"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "클러스터 확장 / 축소"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "클러스터 업그레이드"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "외부 노드 추가"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "오토스케일링 설정"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "클러스터 삭제"
+            }
+          ],
+          "text": "k8s-app-demo\n컴퓨트\n클러스터 중지\n클러스터 확장 / 축소\n클러스터 업그레이드\n외부 노드 추가\n관리\n오토스케일링 설정\n삭제\n클러스터 삭제"
+        }
+      ]
+    },
+    {
+      "id": "list-context",
+      "theme": "dark",
+      "file": "list-context-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [],
+      "menus": [
+        {
+          "items": [
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "클러스터 중지"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "클러스터 확장 / 축소"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "클러스터 업그레이드"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "외부 노드 추가"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "오토스케일링 설정"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "클러스터 삭제"
+            }
+          ],
+          "text": "k8s-app-demo\n컴퓨트\n클러스터 중지\n클러스터 확장 / 축소\n클러스터 업그레이드\n외부 노드 추가\n관리\n오토스케일링 설정\n삭제\n클러스터 삭제"
+        }
+      ]
+    },
+    {
+      "id": "list-context-stopped",
+      "theme": "light",
+      "file": "list-context-stopped-light.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [],
+      "menus": [
+        {
+          "items": [
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "클러스터 시작"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "클러스터 확장 / 축소"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "Affinity 그룹 변경"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "오토스케일링 설정"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "클러스터 삭제"
+            }
+          ],
+          "text": "k8s-test-demo\n컴퓨트\n클러스터 시작\n클러스터 확장 / 축소\nAffinity 그룹 변경\n관리\n오토스케일링 설정\n삭제\n클러스터 삭제"
+        }
+      ]
+    },
+    {
+      "id": "list-context-stopped",
+      "theme": "dark",
+      "file": "list-context-stopped-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [],
+      "menus": [
+        {
+          "items": [
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "클러스터 시작"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "클러스터 확장 / 축소"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "Affinity 그룹 변경"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "오토스케일링 설정"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "클러스터 삭제"
+            }
+          ],
+          "text": "k8s-test-demo\n컴퓨트\n클러스터 시작\n클러스터 확장 / 축소\nAffinity 그룹 변경\n관리\n오토스케일링 설정\n삭제\n클러스터 삭제"
+        }
+      ]
+    },
+    {
+      "id": "list-context-external",
+      "theme": "light",
+      "file": "list-context-external-light.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [],
+      "menus": [
+        {
+          "items": [
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "외부 노드 추가"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "외부 관리형 등록 삭제"
+            }
+          ],
+          "text": "k8s-external-demo\n관리\n외부 노드 추가\n삭제\n외부 관리형 등록 삭제"
+        }
+      ]
+    },
+    {
+      "id": "list-context-external",
+      "theme": "dark",
+      "file": "list-context-external-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [],
+      "menus": [
+        {
+          "items": [
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "외부 노드 추가"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "외부 관리형 등록 삭제"
+            }
+          ],
+          "text": "k8s-external-demo\n관리\n외부 노드 추가\n삭제\n외부 관리형 등록 삭제"
+        }
+      ]
+    },
+    {
+      "id": "list-context-multiple",
+      "theme": "light",
+      "file": "list-context-multiple-light.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [],
+      "menus": [
+        {
+          "items": [
+            {
+              "disabled": "true",
+              "icon": true,
+              "text": "선택한 클러스터 시작"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "선택한 클러스터 중지"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "선택한 클러스터 삭제"
+            }
+          ],
+          "text": "k8s-app-demo 외 1개\n컴퓨트\n선택한 클러스터 시작\n선택한 클러스터 중지\n삭제\n선택한 클러스터 삭제"
+        }
+      ]
+    },
+    {
+      "id": "list-context-multiple",
+      "theme": "dark",
+      "file": "list-context-multiple-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [],
+      "menus": [
+        {
+          "items": [
+            {
+              "disabled": "true",
+              "icon": true,
+              "text": "선택한 클러스터 시작"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "선택한 클러스터 중지"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "선택한 클러스터 삭제"
+            }
+          ],
+          "text": "k8s-app-demo 외 1개\n컴퓨트\n선택한 클러스터 시작\n선택한 클러스터 중지\n삭제\n선택한 클러스터 삭제"
+        }
+      ]
+    },
+    {
+      "id": "detail-actions",
+      "theme": "light",
+      "file": "detail-actions-light.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [],
+      "menus": [
+        {
+          "items": [
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "클러스터 중지"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "클러스터 확장 / 축소"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "클러스터 업그레이드"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "외부 노드 추가"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "오토스케일링 설정"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "클러스터 삭제"
+            }
+          ],
+          "text": "컴퓨트\n클러스터 중지\n클러스터 확장 / 축소\n클러스터 업그레이드\n외부 노드 추가\n관리\n오토스케일링 설정\n삭제\n클러스터 삭제"
+        }
+      ]
+    },
+    {
+      "id": "detail-actions",
+      "theme": "dark",
+      "file": "detail-actions-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [],
+      "menus": [
+        {
+          "items": [
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "클러스터 중지"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "클러스터 확장 / 축소"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "클러스터 업그레이드"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "외부 노드 추가"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "오토스케일링 설정"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "클러스터 삭제"
+            }
+          ],
+          "text": "컴퓨트\n클러스터 중지\n클러스터 확장 / 축소\n클러스터 업그레이드\n외부 노드 추가\n관리\n오토스케일링 설정\n삭제\n클러스터 삭제"
+        }
+      ]
+    },
+    {
+      "id": "detail-context",
+      "theme": "light",
+      "file": "detail-context-light.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [],
+      "menus": [
+        {
+          "items": [
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "클러스터 중지"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "클러스터 확장 / 축소"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "클러스터 업그레이드"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "외부 노드 추가"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "오토스케일링 설정"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "클러스터 삭제"
+            }
+          ],
+          "text": "k8s-app-demo\n컴퓨트\n클러스터 중지\n클러스터 확장 / 축소\n클러스터 업그레이드\n외부 노드 추가\n관리\n오토스케일링 설정\n삭제\n클러스터 삭제"
+        }
+      ]
+    },
+    {
+      "id": "detail-context",
+      "theme": "dark",
+      "file": "detail-context-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [],
+      "menus": [
+        {
+          "items": [
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "클러스터 중지"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "클러스터 확장 / 축소"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "클러스터 업그레이드"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "외부 노드 추가"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "오토스케일링 설정"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "클러스터 삭제"
+            }
+          ],
+          "text": "k8s-app-demo\n컴퓨트\n클러스터 중지\n클러스터 확장 / 축소\n클러스터 업그레이드\n외부 노드 추가\n관리\n오토스케일링 설정\n삭제\n클러스터 삭제"
+        }
+      ]
+    },
+    {
+      "id": "iso-list-context",
+      "theme": "light",
+      "file": "iso-list-context-light.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [],
+      "menus": [
+        {
+          "items": [
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "지원 버전 상태 변경"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "지원 버전 등록 삭제"
+            }
+          ],
+          "text": "Mold-Kubernetes-1.37.1-amd64-r1\n관리\n지원 버전 상태 변경\n삭제\n지원 버전 등록 삭제"
+        }
+      ]
+    },
+    {
+      "id": "iso-list-context",
+      "theme": "dark",
+      "file": "iso-list-context-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [],
+      "menus": [
+        {
+          "items": [
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "지원 버전 상태 변경"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "지원 버전 등록 삭제"
+            }
+          ],
+          "text": "Mold-Kubernetes-1.37.1-amd64-r1\n관리\n지원 버전 상태 변경\n삭제\n지원 버전 등록 삭제"
+        }
+      ]
+    },
+    {
+      "id": "iso-detail-actions",
+      "theme": "light",
+      "file": "iso-detail-actions-light.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [],
+      "menus": [
+        {
+          "items": [
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "지원 버전 상태 변경"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "지원 버전 등록 삭제"
+            }
+          ],
+          "text": "관리\n지원 버전 상태 변경\n삭제\n지원 버전 등록 삭제"
+        }
+      ]
+    },
+    {
+      "id": "iso-detail-actions",
+      "theme": "dark",
+      "file": "iso-detail-actions-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [],
+      "menus": [
+        {
+          "items": [
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "지원 버전 상태 변경"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "지원 버전 등록 삭제"
+            }
+          ],
+          "text": "관리\n지원 버전 상태 변경\n삭제\n지원 버전 등록 삭제"
+        }
+      ]
+    },
+    {
+      "id": "iso-detail-context",
+      "theme": "light",
+      "file": "iso-detail-context-light.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [],
+      "menus": [
+        {
+          "items": [
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "지원 버전 상태 변경"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "지원 버전 등록 삭제"
+            }
+          ],
+          "text": "Mold-Kubernetes-1.37.1-amd64-r1\n관리\n지원 버전 상태 변경\n삭제\n지원 버전 등록 삭제"
+        }
+      ]
+    },
+    {
+      "id": "iso-detail-context",
+      "theme": "dark",
+      "file": "iso-detail-context-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [],
+      "menus": [
+        {
+          "items": [
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "지원 버전 상태 변경"
+            },
+            {
+              "disabled": "false",
+              "icon": true,
+              "text": "지원 버전 등록 삭제"
+            }
+          ],
+          "text": "Mold-Kubernetes-1.37.1-amd64-r1\n관리\n지원 버전 상태 변경\n삭제\n지원 버전 등록 삭제"
+        }
+      ]
+    },
+    {
+      "id": "nodes-manual",
+      "theme": "light",
+      "file": "nodes-manual-light.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "클러스터 확장"
+        }
+      ]
+    },
+    {
+      "id": "nodes-manual",
+      "theme": "dark",
+      "file": "nodes-manual-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "클러스터 확장"
+        }
+      ]
+    },
+    {
+      "id": "nodes-external",
+      "theme": "light",
+      "file": "nodes-external-light.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "외부 노드 추가"
+        }
+      ]
+    },
+    {
+      "id": "nodes-external",
+      "theme": "dark",
+      "file": "nodes-external-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "외부 노드 추가"
+        }
+      ]
+    },
+    {
+      "id": "external-vm-add",
+      "theme": "light",
+      "file": "external-vm-add-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "선택한 기존 VM의 연결과 역할만 등록합니다. VM 배포, ISO 설치, kubeadm join은 수행하지 않으며 실제 Kubernetes 가입은 외부 운영자가 확인해야 합니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "외부 노드 추가"
+        }
+      ],
+      "title": "외부 관리형 · 외부 노드 추가"
+    },
+    {
+      "id": "external-vm-add",
+      "theme": "dark",
+      "file": "external-vm-add-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "선택한 기존 VM의 연결과 역할만 등록합니다. VM 배포, ISO 설치, kubeadm join은 수행하지 않으며 실제 Kubernetes 가입은 외부 운영자가 확인해야 합니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "외부 노드 추가"
+        }
+      ],
+      "title": "외부 관리형 · 외부 노드 추가"
+    },
+    {
+      "id": "create-external-connect-review",
+      "theme": "light",
+      "file": "create-external-connect-review-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "등록 상태 Running은 Kubernetes API 접속이나 워크로드 건강 상태의 검증 결과가 아닙니다."
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "contrast": 7.56,
+          "text": "클러스터 이름 · Zone · 등록 소유자 확인"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "contrast": 7.56,
+          "text": "1단계: 외부 관리형 클러스터 등록"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "contrast": 7.56,
+          "text": "등록 성공 후 외부 노드 추가에서 기존 VM·제어/워커 역할 선택"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "contrast": 7.56,
+          "text": "2단계: 선택한 기존 VM과 제어/워커 역할 연결"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "contrast": 7.56,
+          "text": "VM 연결 실패 시 등록된 클러스터를 유지하고 연결만 재시도"
+        },
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "contrast": 7.56,
+          "text": "Kubernetes 배포·설치·가입·확장은 외부 운영자 수행"
+        }
+      ],
+      "modalWidth": 1120,
+      "primaryIcons": [],
+      "title": "외부 관리형 · 등록 후 VM 연결 검토"
+    },
+    {
+      "id": "create-external-connect-review",
+      "theme": "dark",
+      "file": "create-external-connect-review-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "등록 상태 Running은 Kubernetes API 접속이나 워크로드 건강 상태의 검증 결과가 아닙니다."
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "contrast": 9.18,
+          "text": "클러스터 이름 · Zone · 등록 소유자 확인"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "contrast": 9.18,
+          "text": "1단계: 외부 관리형 클러스터 등록"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "contrast": 9.18,
+          "text": "등록 성공 후 외부 노드 추가에서 기존 VM·제어/워커 역할 선택"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "contrast": 9.18,
+          "text": "2단계: 선택한 기존 VM과 제어/워커 역할 연결"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "contrast": 9.18,
+          "text": "VM 연결 실패 시 등록된 클러스터를 유지하고 연결만 재시도"
+        },
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "contrast": 9.18,
+          "text": "Kubernetes 배포·설치·가입·확장은 외부 운영자 수행"
+        }
+      ],
+      "modalWidth": 1120,
+      "primaryIcons": [],
+      "title": "외부 관리형 · 등록 후 VM 연결 검토"
+    }
+  ],
+  "mobile": [
+    {
+      "id": "detail",
+      "theme": "light",
+      "file": "detail-mobile-light.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": []
+    },
+    {
+      "id": "detail",
+      "theme": "dark",
+      "file": "detail-mobile-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": []
+    },
+    {
+      "id": "create-ha-etcd",
+      "theme": "light",
+      "file": "create-ha-etcd-mobile-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "HA 지원 버전에서만 제어 노드 수와 외부 LB IP를 표시합니다. 외부 etcd를 사용하면 해당 오퍼링·템플릿·Affinity를 별도로 선택합니다."
+        }
+      ],
+      "modalWidth": 374,
+      "primaryIcons": [],
+      "title": "클러스터 생성 · HA / 외부 etcd"
+    },
+    {
+      "id": "create-ha-etcd",
+      "theme": "dark",
+      "file": "create-ha-etcd-mobile-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "HA 지원 버전에서만 제어 노드 수와 외부 LB IP를 표시합니다. 외부 etcd를 사용하면 해당 오퍼링·템플릿·Affinity를 별도로 선택합니다."
+        }
+      ],
+      "modalWidth": 374,
+      "primaryIcons": [],
+      "title": "클러스터 생성 · HA / 외부 etcd"
+    },
+    {
+      "id": "iso-register",
+      "theme": "light",
+      "file": "iso-register-mobile-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "이름은 식별용 표시명입니다. Release 등록 JSON의 버전·URL·checksum 값을 사용하며, 등록 후 Ready 상태를 확인해야 클러스터에서 선택할 수 있습니다."
+        }
+      ],
+      "modalWidth": 374,
+      "primaryIcons": [],
+      "title": "Kubernetes ISO URL 등록"
+    },
+    {
+      "id": "iso-register",
+      "theme": "dark",
+      "file": "iso-register-mobile-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "이름은 식별용 표시명입니다. Release 등록 JSON의 버전·URL·checksum 값을 사용하며, 등록 후 Ready 상태를 확인해야 클러스터에서 선택할 수 있습니다."
+        }
+      ],
+      "modalWidth": 374,
+      "primaryIcons": [],
+      "title": "Kubernetes ISO URL 등록"
+    },
+    {
+      "id": "delete",
+      "theme": "light",
+      "file": "delete-mobile-light.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": []
+    },
+    {
+      "id": "delete",
+      "theme": "dark",
+      "file": "delete-mobile-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": []
+    },
+    {
+      "id": "create-external-basic",
+      "theme": "light",
+      "file": "create-external-basic-mobile-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "외부에서 운영하는 Kubernetes 클러스터를 Mold에 등록합니다. 등록 후 기존 Mold VM을 외부 노드로 연결할 수 있으며, VM 배포·Kubernetes 설치·가입은 수행하지 않습니다."
+        }
+      ],
+      "modalWidth": 374,
+      "primaryIcons": [],
+      "title": "클러스터 생성 · 외부 관리형"
+    },
+    {
+      "id": "create-external-basic",
+      "theme": "dark",
+      "file": "create-external-basic-mobile-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "외부에서 운영하는 Kubernetes 클러스터를 Mold에 등록합니다. 등록 후 기존 Mold VM을 외부 노드로 연결할 수 있으며, VM 배포·Kubernetes 설치·가입은 수행하지 않습니다."
+        }
+      ],
+      "modalWidth": 374,
+      "primaryIcons": [],
+      "title": "클러스터 생성 · 외부 관리형"
+    },
+    {
+      "id": "firewall",
+      "theme": "light",
+      "file": "firewall-mobile-light.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "방화벽 규칙 추가"
+        }
+      ]
+    },
+    {
+      "id": "firewall",
+      "theme": "dark",
+      "file": "firewall-mobile-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "방화벽 규칙 추가"
+        }
+      ]
+    },
+    {
+      "id": "portforwarding",
+      "theme": "light",
+      "file": "portforwarding-mobile-light.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "포트 포워딩 추가"
+        }
+      ]
+    },
+    {
+      "id": "portforwarding",
+      "theme": "dark",
+      "file": "portforwarding-mobile-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "포트 포워딩 추가"
+        }
+      ]
+    },
+    {
+      "id": "loadbalancers",
+      "theme": "light",
+      "file": "loadbalancers-mobile-light.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "로드밸런서 추가"
+        }
+      ]
+    },
+    {
+      "id": "loadbalancers",
+      "theme": "dark",
+      "file": "loadbalancers-mobile-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [],
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "로드밸런서 추가"
+        }
+      ]
+    },
+    {
+      "id": "pf-create",
+      "theme": "light",
+      "file": "pf-create-mobile-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "contrast": 7.56,
+          "text": "방화벽 규칙은 별도 추가합니다."
+        },
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "공인·게스트 포트 범위 길이를 맞춥니다. VPC는 선택한 티어와 허용 CIDR을 함께 적용합니다."
+        }
+      ],
+      "modalWidth": 374,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "포트 포워딩 추가"
+        }
+      ],
+      "title": "포트 포워딩 규칙 추가"
+    },
+    {
+      "id": "pf-create",
+      "theme": "dark",
+      "file": "pf-create-mobile-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "contrast": 9.18,
+          "text": "방화벽 규칙은 별도 추가합니다."
+        },
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "공인·게스트 포트 범위 길이를 맞춥니다. VPC는 선택한 티어와 허용 CIDR을 함께 적용합니다."
+        }
+      ],
+      "modalWidth": 374,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "포트 포워딩 추가"
+        }
+      ],
+      "title": "포트 포워딩 규칙 추가"
+    }
+  ],
+  "extra": [
+    {
+      "file": "firewall-create-icmp-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            255,
+            255,
+            255
+          ],
+          "color": "rgb(75, 85, 99)",
+          "contrast": 7.56,
+          "text": "여러 CIDR은 쉼표로 구분합니다."
+        },
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "TCP·UDP는 포트 범위, ICMP는 유형·코드를 입력합니다. 실제 적용은 비동기 작업 결과를 확인합니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "방화벽 규칙 추가"
+        }
+      ],
+      "title": "방화벽 규칙 추가"
+    },
+    {
+      "file": "lb-create-ssl-light.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "규칙 생성 → 대상 VM·NIC 연결 → SSL 선택 시 인증서 연결. 실패한 단계와 생성된 규칙을 구분합니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "로드밸런서 추가"
+        }
+      ],
+      "title": "로드밸런서 규칙 추가"
+    },
+    {
+      "file": "lb-create-selected-light.jpg",
+      "status": "선택한 VM 1개 · NIC 주소 1개",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "규칙 생성 → 대상 VM·NIC 연결 → SSL 선택 시 인증서 연결. 실패한 단계와 생성된 규칙을 구분합니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "로드밸런서 추가"
+        }
+      ],
+      "title": "로드밸런서 규칙 추가"
+    },
+    {
+      "file": "lb-create-rule-only-light.jpg",
+      "ruleOnlyEnabled": true,
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "대상 VM 없이 규칙만 생성합니다. 생성 후 ‘대상 VM·NIC’ 작업에서 연결하세요."
+        },
+        {
+          "background": [
+            234,
+            244,
+            255
+          ],
+          "color": "rgb(11, 59, 102)",
+          "contrast": 10.31,
+          "text": "규칙 생성 → 대상 VM·NIC 연결 → SSL 선택 시 인증서 연결. 실패한 단계와 생성된 규칙을 구분합니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "로드밸런서 추가"
+        }
+      ],
+      "title": "로드밸런서 규칙 추가"
+    },
+    {
+      "file": "firewall-create-icmp-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            34,
+            40,
+            47
+          ],
+          "color": "rgb(197, 204, 212)",
+          "contrast": 9.18,
+          "text": "여러 CIDR은 쉼표로 구분합니다."
+        },
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "TCP·UDP는 포트 범위, ICMP는 유형·코드를 입력합니다. 실제 적용은 비동기 작업 결과를 확인합니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "방화벽 규칙 추가"
+        }
+      ],
+      "title": "방화벽 규칙 추가"
+    },
+    {
+      "file": "lb-create-ssl-dark.jpg",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "규칙 생성 → 대상 VM·NIC 연결 → SSL 선택 시 인증서 연결. 실패한 단계와 생성된 규칙을 구분합니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "로드밸런서 추가"
+        }
+      ],
+      "title": "로드밸런서 규칙 추가"
+    },
+    {
+      "file": "lb-create-selected-dark.jpg",
+      "status": "선택한 VM 1개 · NIC 주소 1개",
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "규칙 생성 → 대상 VM·NIC 연결 → SSL 선택 시 인증서 연결. 실패한 단계와 생성된 규칙을 구분합니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "로드밸런서 추가"
+        }
+      ],
+      "title": "로드밸런서 규칙 추가"
+    },
+    {
+      "file": "lb-create-rule-only-dark.jpg",
+      "ruleOnlyEnabled": true,
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "대상 VM 없이 규칙만 생성합니다. 생성 후 ‘대상 VM·NIC’ 작업에서 연결하세요."
+        },
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "규칙 생성 → 대상 VM·NIC 연결 → SSL 선택 시 인증서 연결. 실패한 단계와 생성된 규칙을 구분합니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "로드밸런서 추가"
+        }
+      ],
+      "title": "로드밸런서 규칙 추가"
+    }
+  ],
+  "focused": {
+    "pfGroups": [
+      {
+        "fields": [
+          "프로토콜"
+        ],
+        "tops": [
+          206
+        ]
+      },
+      {
+        "fields": [
+          "시작 포트",
+          "종료 포트"
+        ],
+        "heading": "공인 포트",
+        "tops": [
+          337.90625,
+          337.90625
+        ]
+      },
+      {
+        "fields": [
+          "시작 포트",
+          "종료 포트"
+        ],
+        "heading": "게스트 포트",
+        "tops": [
+          469.8125,
+          469.8125
+        ]
+      },
+      {
+        "fields": [
+          "대상 VM",
+          "대상 NIC 주소"
+        ],
+        "heading": "연결 대상",
+        "tops": [
+          601.71875,
+          601.71875
+        ]
+      },
+      {
+        "fields": [
+          "방화벽 자동 개방"
+        ],
+        "heading": "방화벽 설정",
+        "tops": [
+          733.625
+        ]
+      }
+    ],
+    "lbDefaultSelected": 0,
+    "lbSelectedSubmitEnabled": true,
+    "lbSelectedStatus": "선택한 VM 1개 · NIC 주소 1개",
+    "lbSelected-light": "선택한 VM 1개 · NIC 주소 1개",
+    "lbRuleOnly-light": true,
+    "lbSelected-dark": "선택한 VM 1개 · NIC 주소 1개",
+    "lbRuleOnly-dark": true,
+    "darkLbControls": [
+      {
+        "bg": "rgb(23, 55, 90)",
+        "color": "rgb(105, 177, 255)",
+        "text": "VM 선택 후 연결"
+      },
+      {
+        "bg": "rgb(23, 55, 90)",
+        "color": "rgb(240, 243, 246)",
+        "text": ""
+      },
+      {
+        "bg": "rgb(23, 55, 90)",
+        "color": "rgb(240, 243, 246)",
+        "text": "k8s-worker-01"
+      },
+      {
+        "bg": "rgb(23, 55, 90)",
+        "color": "rgb(240, 243, 246)",
+        "text": "NIC-01 · 10.0.1.21"
+      },
+      {
+        "bg": "rgb(23, 55, 90)",
+        "color": "rgb(240, 243, 246)",
+        "text": "실행 중"
+      },
+      {
+        "bg": "rgb(23, 55, 90)",
+        "color": "rgb(240, 243, 246)",
+        "text": "미연결"
+      },
+      {
+        "bg": "rgb(48, 54, 61)",
+        "color": "rgb(154, 164, 175)",
+        "text": "NIC-02 · 10.0.1.22"
+      },
+      {
+        "bg": "rgb(48, 54, 61)",
+        "color": "rgb(154, 164, 175)",
+        "text": "NIC-02 · 10.0.1.22"
+      }
+    ],
+    "detail-light-bodyButtons": 0,
+    "detail-dark-bodyButtons": 0,
+    "iso-detail-light-bodyButtons": 0,
+    "iso-detail-dark-bodyButtons": 0,
+    "fontGroup14": {
+      "fields": [
+        {
+          "font": "14px",
+          "label": "프로토콜",
+          "width": 902,
+          "x": 499,
+          "y": 206
+        },
+        {
+          "font": "14px",
+          "label": "시작 포트",
+          "width": 441,
+          "x": 499,
+          "y": 338
+        },
+        {
+          "font": "14px",
+          "label": "종료 포트",
+          "width": 441,
+          "x": 960,
+          "y": 338
+        },
+        {
+          "font": "14px",
+          "label": "시작 포트",
+          "width": 441,
+          "x": 499,
+          "y": 470
+        },
+        {
+          "font": "14px",
+          "label": "종료 포트",
+          "width": 441,
+          "x": 960,
+          "y": 470
+        },
+        {
+          "font": "14px",
+          "label": "대상 VM",
+          "width": 441,
+          "x": 499,
+          "y": 602
+        },
+        {
+          "font": "14px",
+          "label": "대상 NIC 주소",
+          "width": 441,
+          "x": 960,
+          "y": 602
+        },
+        {
+          "font": "14px",
+          "label": "방화벽 자동 개방",
+          "width": 902,
+          "x": 499,
+          "y": 734
+        }
+      ],
+      "labels": [
+        {
+          "font": "14px",
+          "line": "1px",
+          "text": "공인 포트",
+          "weight": "600",
+          "y": 304
+        },
+        {
+          "font": "14px",
+          "line": "1px",
+          "text": "게스트 포트",
+          "weight": "600",
+          "y": 436
+        },
+        {
+          "font": "14px",
+          "line": "1px",
+          "text": "연결 대상",
+          "weight": "600",
+          "y": 568
+        },
+        {
+          "font": "14px",
+          "line": "1px",
+          "text": "방화벽 설정",
+          "weight": "600",
+          "y": 700
+        }
+      ]
+    },
+    "nodesManaged": {
+      "buttons": [
+        {
+          "href": "?s=autoscale&theme=dark&capture=1",
+          "icon": true,
+          "primary": true,
+          "text": "클러스터 확장"
+        },
+        {
+          "href": "?s=add-nodes&theme=dark&capture=1",
+          "icon": true,
+          "primary": false,
+          "text": "외부 노드 추가"
+        },
+        {
+          "href": null,
+          "icon": true,
+          "primary": false,
+          "text": "업데이트"
+        }
+      ]
+    },
+    "kubernetesDarkIcons": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "contrast": 13.35,
+        "fill": "rgb(240, 243, 246)",
+        "width": 18
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "contrast": 13.35,
+        "fill": "rgb(240, 243, 246)",
+        "width": 18
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "contrast": 13.35,
+        "fill": "rgb(240, 243, 246)",
+        "width": 18
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "contrast": 13.35,
+        "fill": "rgb(240, 243, 246)",
+        "width": 18
+      }
+    ],
+    "kubernetesDarkSelectedIcon": {
+      "background": "rgb(38, 38, 38)",
+      "ellipsisButtons": 0,
+      "fill": "rgb(240, 243, 246)"
+    },
+    "externalVmInitialDisabled": true,
+    "externalVmControlSelection": {
+      "submitEnabled": true,
+      "role": "false"
+    },
+    "menuKeyboardOpened": true,
+    "menuEscapeClosed": true,
+    "externalCreateConnectionReview": {
+      "url": "http://127.0.0.1:8775/?s=create-external-connect-review&theme=dark&capture=1",
+      "title": "외부 관리형 · 등록 후 VM 연결 검토"
+    },
+    "externalCreateConnectContinuation": {
+      "url": "http://127.0.0.1:8775/?s=external-vm-add&theme=dark&capture=1",
+      "dialog": "외부 관리형 · 외부 노드 추가"
+    },
+    "nodesExternal": {
+      "buttons": [
+        {
+          "href": "?s=external-vm-add&theme=dark&capture=1",
+          "icon": true,
+          "primary": true,
+          "text": "외부 노드 추가"
+        },
+        {
+          "href": null,
+          "icon": true,
+          "primary": false,
+          "text": "업데이트"
+        }
+      ]
+    }
+  },
+  "pagination": [
+    {
+      "id": "events",
+      "theme": "light",
+      "text": "전체 42 개 항목 중 41-42 표시\n1\n2\n3\n4\n5\n10 / 쪽\n이동하기",
+      "file": "events-pagination-light.jpg"
+    },
+    {
+      "id": "list",
+      "theme": "light",
+      "text": "전체 42 개 항목 중 41-42 표시\n1\n2\n3\n20 / 쪽\n이동하기",
+      "file": "list-pagination-light.jpg"
+    },
+    {
+      "id": "events",
+      "theme": "dark",
+      "text": "전체 42 개 항목 중 41-42 표시\n1\n2\n3\n4\n5\n10 / 쪽\n이동하기",
+      "file": "events-pagination-dark.jpg"
+    },
+    {
+      "id": "list",
+      "theme": "dark",
+      "text": "전체 42 개 항목 중 41-42 표시\n1\n2\n3\n20 / 쪽\n이동하기",
+      "file": "list-pagination-dark.jpg"
+    }
+  ]
+}

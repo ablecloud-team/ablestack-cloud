@@ -1,0 +1,90 @@
+{
+  "base_commit": "c169d9a203f49ce07e038297873bc3c24cd8ffb4",
+  "node": "20.20.2",
+  "npm": "10.8.2",
+  "build_exit_code": 0,
+  "build_complete": true,
+  "full_cloud_build": false,
+  "warnings": [
+    "Browserslist caniuse-lite outdated",
+    "webpack asset size limit",
+    "webpack entrypoint size limit",
+    "webpack performance recommendations"
+  ],
+  "static_browser_check": {
+    "list": {
+      "ellipsis": 0,
+      "iconFill": "rgb(240, 243, 246)",
+      "rows": 4
+    },
+    "listContext": "k8s-app-demo\n컴퓨트\n클러스터 중지\n클러스터 확장 / 축소\n클러스터 업그레이드\n외부 노드 추가\n관리\n오토스케일링 설정\n삭제\n클러스터 삭제",
+    "detailMenu": "컴퓨트\n클러스터 중지\n클러스터 확장 / 축소\n클러스터 업그레이드\n외부 노드 추가\n관리\n오토스케일링 설정\n삭제\n클러스터 삭제",
+    "detailBodyButtons": 0,
+    "externalNodeToolbar": [
+      {
+        "primary": true,
+        "text": "외부 노드 추가"
+      },
+      {
+        "primary": false,
+        "text": "업데이트"
+      }
+    ],
+    "manualExpansion": "?s=scale&theme=light&capture=1",
+    "externalReview": " 클러스터 이름 · Zone · 등록 소유자 확인\n\n 1단계: 외부 관리형 클러스터 등록\n\n 등록 성공 후 외부 노드 추가에서 기존 VM·제어/워커 역할 선택\n\n 2단계: 선택한 기존 VM과 제어/워커 역할 연결\n\n VM 연결 실패 시 등록된 클러스터를 유지하고 연결만 재시도\n\n Kubernetes 배포·설치·가입·확장은 외부 운영자 수행",
+    "externalConnectDialog": "외부 관리형 · 외부 노드 추가",
+    "pfGroupFonts": [
+      "14px",
+      "14px",
+      "14px",
+      "14px"
+    ],
+    "lbSelection": "선택한 VM 1개 · NIC 주소 1개",
+    "lbRender": {
+      "bodyOverflow": false,
+      "guides": [
+        {
+          "background": [
+            33,
+            55,
+            76
+          ],
+          "color": "rgb(214, 235, 255)",
+          "contrast": 10.07,
+          "text": "규칙 생성 → 대상 VM·NIC 연결 → SSL 선택 시 인증서 연결. 실패한 단계와 생성된 규칙을 구분합니다."
+        }
+      ],
+      "modalWidth": 960,
+      "primaryIcons": [
+        {
+          "icon": true,
+          "text": "로드밸런서 추가"
+        }
+      ],
+      "title": "로드밸런서 규칙 추가"
+    },
+    "commonCommentConfirm": "코멘트를 삭제하시겠습니까?\n아니오예",
+    "runtimeErrors": []
+  },
+  "source_sha256": {
+    "prototype/App.vue": "9ef4bc16e9fb5980994609129f8a072896c4996ec53d224b1a0b31908a587f78",
+    "prototype/NetworkRuleForm.vue": "ef5e1b645ebee46578f9ba22c2ef32f289a15c6b536487722f9c02e8b72461ce",
+    "prototype/NetworkRulesTabLayout.vue": "15e862c385d1386351c06d5008567ffb155c1a4ab1ec0aa5bc69c84fb465633c",
+    "prototype/babel.config.js": "e627c01cf166dcfed30129e6bf8edf24c5f10e3d8441da149bd45294f816af89",
+    "prototype/fixture-api.js": "17342175840069decebe488d556ffa87c706ac641cf1421022f80d0642a47c9c",
+    "prototype/fixture-plugins.js": "d52f635c4e54ffa3915d0e133be7d4f5ab37f6a548fcea9a0dac03265ec6f9cc",
+    "prototype/index.html": "a53cf1d4fcfdfb69efe105f00815b32958a98a0e5cdc369b72f2dd7b5522d382",
+    "prototype/main.js": "7fd4bb6aac1ff08e9df1f21c738345f39a82c2fae97be14cd98219532fff0000",
+    "prototype/network-ui-model.js": "784afa355a6f711ddd0e09e730767ccc10e9cd18a8a5198514d76a9bf0c58db2",
+    "prototype/postcss.config.js": "3930a4cd1b014f5726aa1de4da1f1fe099ab379b94650caff5f83dfe460a57d4",
+    "prototype/scenes.json": "bb9bba333e57e1ff45e293c6e3819c495860c6615b736460b16471e09eb08019",
+    "prototype/theme-guidance.css": "eb0f41807f371ba50105d1be3df6a26db742bbe59191dae5fff346de0093022d",
+    "prototype/vue.config.js": "6b980ac75b04850cc4dd8910df8733fdbc280578bbe2272a3c483b209dda59bc"
+  },
+  "ui_lock_sha256": "23379939285231d360907e8d7242206efd5359654b9903614788040680133ffc",
+  "output_app_assets": [
+    "js/app.8a713154.js",
+    "js/app.8a713154.js.map",
+    "css/app.0a2cb716.css"
+  ]
+}

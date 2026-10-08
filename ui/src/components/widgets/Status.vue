@@ -81,6 +81,14 @@ export default {
           case 'running':
             state = this.$t('state.running')
             break
+          case 'scaling':
+          case 'scalingstoppedcluster':
+          case 'upgrading':
+          case 'importing':
+          case 'removingnodes':
+          case 'recovering':
+            state = this.$t('state.' + state.toLowerCase())
+            break
           case 'stopped':
             state = this.$t('state.stopped')
             break

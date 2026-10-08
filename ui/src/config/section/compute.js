@@ -808,7 +808,7 @@ export default {
       searchFilters: ['name', 'domainid', 'account', 'state'],
       permission: ['listKubernetesClusters'],
       columns: (store) => {
-        var fields = ['name', 'state', 'clustertype', { field: 'size', customTitle: 'cks.cluster.size' }, { field: 'cpunumber', customTitle: 'cks.cluster.total.allocated.cpu' }, { field: 'memory', customTitle: 'cks.cluster.total.allocated.memory' }, 'kubernetesversionname']
+        var fields = ['name', 'state', 'clustertype', { field: 'size', customTitle: 'cks.cluster.size' }, { field: 'resources', customTitle: 'cks.cluster.total.allocated.resources' }, 'kubernetesversionname']
         if (['Admin', 'DomainAdmin'].includes(store.userInfo.roletype)) {
           fields.push('account')
         }
@@ -825,7 +825,7 @@ export default {
         const filters = ['cloud.managed', 'external.managed']
         return filters
       },
-      details: ['name', 'description', 'zonename', 'kubernetesversionname', 'autoscalingenabled', 'csienabled', { field: 'minsize', customTitle: 'cks.cluster.minsize' }, { field: 'maxsize', customTitle: 'cks.cluster.maxsize' }, { field: 'size', customTitle: 'cks.cluster.size' }, 'controlnodes', 'controlaffinitygroupnames', 'etcdnodes', 'etcdaffinitygroupnames', 'workeraffinitygroupnames', { field: 'cpunumber', customTitle: 'cks.cluster.total.allocated.cpu' }, { field: 'memory', customTitle: 'cks.cluster.total.allocated.memory' }, 'keypair', 'cniconfigname', 'associatednetworkname', 'account', 'domain', 'zonename', 'clustertype', 'created'],
+      details: ['name', 'description', 'zonename', 'kubernetesversionname', 'autoscalingenabled', 'csienabled', { field: 'minsize', customTitle: 'cks.cluster.minsize' }, { field: 'maxsize', customTitle: 'cks.cluster.maxsize' }, { field: 'size', customTitle: 'cks.cluster.size' }, 'controlnodes', 'controlaffinitygroupnames', 'etcdnodes', 'etcdaffinitygroupnames', 'workeraffinitygroupnames', { field: 'cpunumber', customTitle: 'cks.cluster.total.allocated.cpu' }, { field: 'memory', customTitle: 'cks.cluster.total.allocated.memory' }, 'keypair', 'cniconfigname', 'associatednetworkname', 'account', 'domain', 'clustertype', 'created'],
       tabs: [
         {
           name: 'k8s',
@@ -1012,6 +1012,7 @@ export default {
       actions: [
         {
           api: 'createKubernetesCluster',
+          dialogWidth: 1120,
           icon: 'plus-outlined',
           label: 'label.kubernetes.cluster.create',
           docHelp: 'plugins/cloudstack-kubernetes-service.html#creating-a-new-kubernetes-cluster',
@@ -1047,6 +1048,7 @@ export default {
         },
         {
           api: 'scaleKubernetesCluster',
+          dialogWidth: 760,
           icon: 'arrows-alt-outlined',
           label: 'label.kubernetes.cluster.scale',
           message: 'message.kubernetes.cluster.scale',
@@ -1058,6 +1060,7 @@ export default {
         },
         {
           api: 'updateKubernetesClusterAffinityGroups',
+          dialogWidth: 760,
           icon: 'swap-outlined',
           label: 'label.change.affinity',
           dataView: true,
@@ -1067,6 +1070,7 @@ export default {
         },
         {
           api: 'upgradeKubernetesCluster',
+          dialogWidth: 760,
           icon: 'plus-circle-outlined',
           label: 'label.kubernetes.cluster.upgrade',
           message: 'message.kubernetes.cluster.upgrade',
@@ -1078,6 +1082,7 @@ export default {
         },
         {
           api: 'addNodesToKubernetesCluster',
+          dialogWidth: 920,
           icon: 'plus-outlined',
           label: 'label.kubernetes.cluster.add.nodes.to.cluster',
           message: 'message.kubernetes.cluster.add.nodes',
@@ -1088,6 +1093,7 @@ export default {
         },
         {
           api: 'removeNodesFromKubernetesCluster',
+          dialogWidth: 920,
           icon: 'minus-outlined',
           label: 'label.kubernetes.cluster.remove.nodes.from.cluster',
           message: 'message.kubernetes.cluster.remove.nodes',
@@ -1095,6 +1101,26 @@ export default {
           show: (record) => { return ['Running', 'Alert'].includes(record.state) && record.clustertype === 'CloudManaged' && (record.virtualmachines.filter(vm => vm.isexternalnode) || []).length > 0 },
           popup: true,
           component: shallowRef(defineAsyncComponent(() => import('@/views/compute/KubernetesRemoveNodes.vue')))
+        },
+        {
+          api: 'addVirtualMachinesToKubernetesCluster',
+          icon: 'plus-outlined',
+          label: 'label.kubernetes.external.nodes.add',
+          dataView: true,
+          popup: true,
+          dialogWidth: 920,
+          show: record => record.clustertype === 'ExternalManaged' && record.state === 'Running',
+          component: shallowRef(defineAsyncComponent(() => import('@/views/compute/ExternalKubernetesNodes.vue')))
+        },
+        {
+          api: 'removeVirtualMachinesFromKubernetesCluster',
+          icon: 'disconnect-outlined',
+          label: 'label.kubernetes.external.nodes.remove',
+          dataView: true,
+          popup: true,
+          dialogWidth: 920,
+          show: record => record.clustertype === 'ExternalManaged' && record.state === 'Running' && (record.virtualmachines || []).length > 0,
+          component: shallowRef(defineAsyncComponent(() => import('@/views/compute/ExternalKubernetesNodes.vue')))
         },
         {
           api: 'deleteKubernetesCluster',

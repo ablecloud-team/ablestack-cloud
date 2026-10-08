@@ -18,130 +18,143 @@
 <template>
   <div class="form-layout" v-ctrl-enter="handleSubmit">
     <a-spin :spinning="loading">
-      <a-alert type="warning">
-        <template #message>{{ isPartialRecovery ? $t('message.kubernetes.scale.partial.recovery', { count: partialRecoverySize }) : resource.autoscalingenabled ? $t('message.action.scale.kubernetes.cluster.warning') : $t('message.kubernetes.cluster.scale') }}</template>
-      </a-alert>
-      <br />
       <a-form
         :ref="formRef"
         :model="form"
         :rules="rules"
         @finish="handleSubmit"
-        layout="vertical">
-        <a-form-item name="serviceofferingid" ref="serviceofferingid" v-if="!isPartialRecovery && !this.resource.workerofferingid && !this.resource.controlofferingid && !this.resource.etcdofferingid">
-          <template #label>
-            <tooltip-label :title="$t('label.serviceofferingid')" :tooltip="apiParams.serviceofferingid.description"/>
-          </template>
-          <a-select
-            id="offering-selection"
-            v-model:value="form.serviceofferingid"
-            showSearch
-            optionFilterProp="label"
-            :filterOption="(input, option) => {
-              return option.label.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }"
-            :loading="serviceOfferingLoading"
-            :placeholder="apiParams.serviceofferingid.description">
-            <a-select-option v-for="(opt, optIndex) in serviceOfferings" :key="optIndex" :label="opt.name || opt.description">
-              {{ opt.name || opt.description }}
-            </a-select-option>
-          </a-select>
-        </a-form-item>
-        <a-form-item name="workerofferingid" ref="workerofferingid" v-if="!isPartialRecovery">
-          <template #label>
-            <tooltip-label :title="$t('label.service.offering.workernodes')" :tooltip="apiParams.serviceofferingid.description"/>
-          </template>
-          <a-select
-            id="offering-selection-worker"
-            v-model:value="form.workerofferingid"
-            showSearch
-            optionFilterProp="label"
-            :filterOption="(input, option) => {
-              return option.label.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }"
-            :loading="serviceOfferingLoading"
-            :placeholder="apiParams.serviceofferingid.description">
-            <a-select-option v-for="(opt, optIndex) in workerOfferings" :key="optIndex" :label="opt.name || opt.description">
-              {{ opt.name || opt.description }}
-            </a-select-option>
-          </a-select>
-        </a-form-item>
-        <a-form-item name="controlofferingid" ref="controlofferingid" v-if="!isPartialRecovery">
-          <template #label>
-            <tooltip-label :title="$t('label.service.offering.controlnodes')" :tooltip="apiParams.serviceofferingid.description"/>
-          </template>
-          <a-select
-            id="offering-selection-control"
-            v-model:value="form.controlofferingid"
-            showSearch
-            optionFilterProp="label"
-            :filterOption="(input, option) => {
-              return option.label.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }"
-            :loading="serviceOfferingLoading"
-            :placeholder="apiParams.serviceofferingid.description">
-            <a-select-option v-for="(opt, optIndex) in controlOfferings" :key="optIndex" :label="opt.name || opt.description">
-              {{ opt.name || opt.description }}
-            </a-select-option>
-          </a-select>
-        </a-form-item>
-        <a-form-item name="etcdofferingid" ref="etcdofferingid" v-if="!isPartialRecovery && this.resource.etcdnodes && this.resource.etcdnodes > 0 && this.resource.etcdofferingid">
-          <template #label>
-            <tooltip-label :title="$t('label.service.offering.etcdnodes')" :tooltip="apiParams.serviceofferingid.description"/>
-          </template>
-          <a-select
-            id="offering-selection-etcd"
-            v-model:value="form.etcdofferingid"
-            showSearch
-            optionFilterProp="label"
-            :filterOption="(input, option) => {
-              return option.label.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }"
-            :loading="serviceOfferingLoading"
-            :placeholder="apiParams.serviceofferingid.description">
-            <a-select-option v-for="(opt, optIndex) in etcdOfferings" :key="optIndex" :label="opt.name || opt.description">
-              {{ opt.name || opt.description }}
-            </a-select-option>
-          </a-select>
-        </a-form-item>
-        <a-form-item name="autoscalingenabled" ref="autoscalingenabled" v-if="!isPartialRecovery && apiParams.autoscalingenabled">
-          <template #label>
-            <tooltip-label :title="$t('label.cks.cluster.autoscalingenabled')" :tooltip="apiParams.autoscalingenabled.description"/>
-          </template>
-          <a-switch :checked="autoscalingenabled" @change="val => { autoscalingenabled = val }" />
-        </a-form-item>
-        <span v-if="autoscalingenabled">
-          <a-form-item name="minsize" ref="minsize">
-            <template #label>
-              <tooltip-label :title="$t('label.cks.cluster.minsize')" :tooltip="apiParams.minsize.description"/>
+        layout="vertical"
+        class="mold-form-dialog">
+        <div class="mold-form-content">
+          <KubernetesDialogContext :resource="resource" />
+          <div class="kubernetes-scale-summary">
+            <a-card v-for="(summary, index) in scaleSummary" :key="index" size="small">
+              <div class="kubernetes-summary-label">{{ $t(summary.label) }}</div>
+              <strong>{{ summary.nodes }}</strong>
+              <div>{{ summary.resources }}</div>
+            </a-card>
+          </div>
+          <a-alert class="kubernetes-scale-notice" :type="isPartialRecovery || resource.autoscalingenabled ? 'warning' : 'info'" show-icon>
+            <template #message>{{ isPartialRecovery ? $t('message.kubernetes.scale.partial.recovery', { count: partialRecoverySize }) : resource.autoscalingenabled ? $t('message.action.scale.kubernetes.cluster.warning') : $t('message.kubernetes.cluster.scale') }}</template>
+          </a-alert>
+
+          <div class="mold-form-grid">
+            <a-form-item class="kubernetes-scale-full" name="serviceofferingid" ref="serviceofferingid" v-if="!isPartialRecovery && !this.resource.workerofferingid && !this.resource.controlofferingid && !this.resource.etcdofferingid">
+              <template #label>
+                <tooltip-label :title="$t('label.serviceofferingid')" :tooltip="apiParams.serviceofferingid.description"/>
+              </template>
+              <a-select
+                id="offering-selection"
+                v-model:value="form.serviceofferingid"
+                showSearch
+                optionFilterProp="label"
+                :filterOption="(input, option) => {
+                  return String(option.label?.children || option.label || '').toLowerCase().indexOf(input.toLowerCase()) >= 0
+                }"
+                :loading="serviceOfferingLoading"
+                :placeholder="$t('label.serviceofferingid')">
+                <a-select-option v-for="(opt, optIndex) in serviceOfferings" :key="optIndex" :label="opt.name || opt.description">
+                  {{ opt.name || opt.description }}
+                </a-select-option>
+              </a-select>
+            </a-form-item>
+            <a-form-item name="workerofferingid" ref="workerofferingid" v-if="!isPartialRecovery">
+              <template #label>
+                <tooltip-label :title="$t('label.service.offering.workernodes')" :tooltip="apiParams.serviceofferingid.description"/>
+              </template>
+              <a-select
+                id="offering-selection-worker"
+                v-model:value="form.workerofferingid"
+                showSearch
+                optionFilterProp="label"
+                :filterOption="(input, option) => {
+                  return String(option.label?.children || option.label || '').toLowerCase().indexOf(input.toLowerCase()) >= 0
+                }"
+                :loading="serviceOfferingLoading"
+                :placeholder="$t('label.service.offering.workernodes')">
+                <a-select-option v-for="(opt, optIndex) in workerOfferings" :key="optIndex" :label="opt.name || opt.description">
+                  {{ opt.name || opt.description }}
+                </a-select-option>
+              </a-select>
+            </a-form-item>
+            <a-form-item name="controlofferingid" ref="controlofferingid" v-if="!isPartialRecovery">
+              <template #label>
+                <tooltip-label :title="$t('label.service.offering.controlnodes')" :tooltip="apiParams.serviceofferingid.description"/>
+              </template>
+              <a-select
+                id="offering-selection-control"
+                v-model:value="form.controlofferingid"
+                showSearch
+                optionFilterProp="label"
+                :filterOption="(input, option) => {
+                  return String(option.label?.children || option.label || '').toLowerCase().indexOf(input.toLowerCase()) >= 0
+                }"
+                :loading="serviceOfferingLoading"
+                :placeholder="$t('label.service.offering.controlnodes')">
+                <a-select-option v-for="(opt, optIndex) in controlOfferings" :key="optIndex" :label="opt.name || opt.description">
+                  {{ opt.name || opt.description }}
+                </a-select-option>
+              </a-select>
+            </a-form-item>
+            <a-form-item name="etcdofferingid" ref="etcdofferingid" v-if="!isPartialRecovery && this.resource.etcdnodes && this.resource.etcdnodes > 0 && this.resource.etcdofferingid">
+              <template #label>
+                <tooltip-label :title="$t('label.service.offering.etcdnodes')" :tooltip="apiParams.serviceofferingid.description"/>
+              </template>
+              <a-select
+                id="offering-selection-etcd"
+                v-model:value="form.etcdofferingid"
+                showSearch
+                optionFilterProp="label"
+                :filterOption="(input, option) => {
+                  return String(option.label?.children || option.label || '').toLowerCase().indexOf(input.toLowerCase()) >= 0
+                }"
+                :loading="serviceOfferingLoading"
+                :placeholder="$t('label.service.offering.etcdnodes')">
+                <a-select-option v-for="(opt, optIndex) in etcdOfferings" :key="optIndex" :label="opt.name || opt.description">
+                  {{ opt.name || opt.description }}
+                </a-select-option>
+              </a-select>
+            </a-form-item>
+            <a-form-item class="kubernetes-scale-full" name="autoscalingenabled" ref="autoscalingenabled" v-if="!isPartialRecovery && apiParams.autoscalingenabled">
+              <template #label>
+                <tooltip-label :title="$t('label.cks.cluster.autoscalingenabled')" :tooltip="apiParams.autoscalingenabled.description"/>
+              </template>
+              <a-switch :checked="autoscalingenabled" @change="val => { autoscalingenabled = val }" />
+            </a-form-item>
+            <template v-if="autoscalingenabled">
+              <a-form-item name="minsize" ref="minsize">
+                <template #label>
+                  <tooltip-label :title="$t('label.cks.cluster.minsize')" :tooltip="apiParams.minsize.description"/>
+                </template>
+                <a-input
+                  v-model:value="form.minsize"
+                  :placeholder="$t('label.cks.cluster.minsize')"/>
+              </a-form-item>
+              <a-form-item name="maxsize" ref="maxsize">
+                <template #label>
+                  <tooltip-label :title="$t('label.cks.cluster.maxsize')" :tooltip="apiParams.maxsize.description"/>
+                </template>
+                <a-input
+                  v-model:value="form.maxsize"
+                  :placeholder="$t('label.cks.cluster.maxsize')"/>
+              </a-form-item>
             </template>
-            <a-input
-              v-model:value="form.minsize"
-              :placeholder="apiParams.minsize.description"/>
-          </a-form-item>
-          <a-form-item name="maxsize" ref="maxsize">
-            <template #label>
-              <tooltip-label :title="$t('label.cks.cluster.maxsize')" :tooltip="apiParams.maxsize.description"/>
+            <template v-else>
+              <a-form-item name="size" ref="size" v-if="isPartialRecovery || ['Created', 'Running'].includes(resource.state)">
+                <template #label>
+                  <tooltip-label :title="$t('label.cks.cluster.size')" :tooltip="apiParams.size.description"/>
+                </template>
+                <a-input
+                  v-model:value="form.size"
+                  :disabled="isPartialRecovery"
+                  :placeholder="$t('label.cks.cluster.size')"/>
+              </a-form-item>
             </template>
-            <a-input
-              v-model:value="form.maxsize"
-              :placeholder="apiParams.maxsize.description"/>
-          </a-form-item>
-        </span>
-        <span v-else>
-          <a-form-item name="size" ref="size" v-if="isPartialRecovery || ['Created', 'Running'].includes(resource.state)">
-            <template #label>
-              <tooltip-label :title="$t('label.cks.cluster.size')" :tooltip="apiParams.size.description"/>
-            </template>
-            <a-input
-              v-model:value="form.size"
-              :disabled="isPartialRecovery"
-              :placeholder="apiParams.size.description"/>
-          </a-form-item>
-        </span>
-        <div :span="24" class="action-button">
+          </div>
+        </div>
+        <div class="action-button">
           <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
-          <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
+          <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.kubernetes.ui.apply') }}</a-button>
         </div>
       </a-form>
     </a-spin>
@@ -150,6 +163,7 @@
 
 <script>
 import { ref, reactive, toRaw } from 'vue'
+import KubernetesDialogContext from '@/components/view/KubernetesDialogContext'
 import { getAPI, postAPI } from '@/api'
 import { mixinForm } from '@/utils/mixin'
 import { partialScaleRecoverySize } from '@/utils/kubernetesScaleRecovery'
@@ -159,6 +173,7 @@ export default {
   name: 'ScaleKubernetesCluster',
   mixins: [mixinForm],
   components: {
+    KubernetesDialogContext,
     TooltipLabel
   },
   props: {
@@ -184,6 +199,25 @@ export default {
     }
   },
   computed: {
+    scaleSummary () {
+      const before = Number(this.resource.size || 0)
+      const after = this.autoscalingenabled ? Number(this.form.minsize || before) : Number(this.form.size || 0)
+      const control = Number(this.resource.controlnodes || 1); const etcd = Number(this.resource.etcdnodes || 0)
+      const base = this.serviceOfferings[this.form.serviceofferingid]
+      const worker = this.workerOfferings[this.form.workerofferingid] || base
+      const controller = this.controlOfferings[this.form.controlofferingid] || base
+      const database = this.etcdOfferings[this.form.etcdofferingid] || base
+      const cpu = Number(worker?.cpunumber || 0) * after + Number(controller?.cpunumber || 0) * control + Number(database?.cpunumber || 0) * etcd
+      const memory = Number(worker?.memory || 0) * after + Number(controller?.memory || 0) * control + Number(database?.memory || 0) * etcd
+      const previousCpu = Number(this.resource.cpunumber || 0); const previousMemory = Number(this.resource.memory || 0)
+      const ready = !this.serviceOfferingLoading && !!worker && !!controller
+      const allocated = (c, m) => c + ' vCPU · ' + m.toLocaleString() + ' MB'
+      return [
+        { label: 'label.kubernetes.ui.before', nodes: control + ' ' + this.$t('label.kubernetes.node.role.control') + ' / ' + before + ' ' + this.$t('label.kubernetes.node.role.worker'), resources: allocated(previousCpu, previousMemory) },
+        { label: 'label.kubernetes.ui.after', nodes: this.autoscalingenabled ? this.form.minsize + '–' + this.form.maxsize + ' ' + this.$t('label.kubernetes.node.role.worker') : control + ' ' + this.$t('label.kubernetes.node.role.control') + ' / ' + after + ' ' + this.$t('label.kubernetes.node.role.worker'), resources: ready ? allocated(cpu, memory) : '—' },
+        { label: 'label.kubernetes.ui.delta', nodes: (after - before > 0 ? '+' : '') + (after - before) + ' ' + this.$t('label.kubernetes.node.role.worker'), resources: ready ? allocated(cpu - previousCpu, memory - previousMemory) : '—' }
+      ]
+    },
     partialRecoverySize () { return partialScaleRecoverySize(this.resource) },
     isPartialRecovery () { return this.partialRecoverySize !== null }
   },
@@ -229,7 +263,7 @@ export default {
         this.fetchKubernetesClusterServiceOfferingData(this.resource.workerofferingid, 'worker')
         this.fetchKubernetesClusterServiceOfferingData(this.resource.controlofferingid, 'control')
         if (this.resource.etcdofferingid && this.resource.etcdnodes && this.resource.etcdnodes > 0) {
-          this.fetchKubernetesClusterServiceOfferingData(this.resource.controlofferingid, 'etcd')
+          this.fetchKubernetesClusterServiceOfferingData(this.resource.etcdofferingid, 'etcd')
         }
         return
       }
@@ -408,12 +442,16 @@ export default {
 </script>
 
 <style scoped lang="less">
-  .form-layout {
-    width: 60vw;
-
-    @media (min-width: 500px) {
-      width: 450px;
-    }
-  }
-
+.form-layout {
+  width: 100%;
+  min-width: 0;
+}
+.kubernetes-scale-full { grid-column: ~"1 / -1"; }
+.kubernetes-scale-notice { margin-bottom: 20px; }
+.action-button {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  :deep(.ant-btn) { margin: 0; }
+}
 </style>

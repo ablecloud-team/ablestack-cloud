@@ -25,6 +25,7 @@ import bootstrap from './core/bootstrap'
 import './core/lazy_use'
 import extensions from './core/ext'
 import './permission' // permission control
+import './style/components/view/DetailTab.scss'
 import './utils/filter' // global filter
 import {
   pollJobPlugin,

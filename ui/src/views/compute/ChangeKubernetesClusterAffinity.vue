@@ -23,7 +23,9 @@
         :model="form"
         :rules="rules"
         @finish="handleSubmit"
-        layout="vertical">
+        layout="vertical"
+class="mold-form-dialog">
+      <div class="mold-form-content"><KubernetesDialogContext :resource="resource" />
         <a-form-item name="controlaffinitygroupids" ref="controlaffinitygroupids">
           <template #label>
             <tooltip-label :title="$t('label.cks.cluster.control.nodes.affinitygroupid')" :tooltip="$t('label.cks.cluster.control.nodes.affinitygroupid')"/>
@@ -75,7 +77,8 @@
             </a-select-option>
           </a-select>
         </a-form-item>
-        <div :span="24" class="action-button">
+        </div>
+      <div :span="24" class="action-button">
           <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
           <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
         </div>
@@ -86,6 +89,7 @@
 
 <script>
 import { ref, reactive } from 'vue'
+import KubernetesDialogContext from '@/components/view/KubernetesDialogContext'
 import { getAPI, postAPI } from '@/api'
 import { mixinForm } from '@/utils/mixin'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
@@ -100,6 +104,7 @@ export default {
     }
   },
   components: {
+    KubernetesDialogContext,
     TooltipLabel
   },
   inject: ['parentFetchData'],

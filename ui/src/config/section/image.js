@@ -389,6 +389,7 @@ export default {
       actions: [
         {
           api: 'addKubernetesSupportedVersion',
+          dialogWidth: 1000,
           icon: 'plus-outlined',
           label: 'label.kubernetes.version.add',
           listView: true,
@@ -398,6 +399,7 @@ export default {
         },
         {
           api: 'getUploadParamsForKubernetesSupportedVersion',
+          dialogWidth: 1000,
           icon: 'cloud-upload-outlined',
           label: 'label.kubernetes.version.from.local',
           listView: true,
@@ -407,6 +409,7 @@ export default {
         },
         {
           api: 'updateKubernetesSupportedVersion',
+          dialogWidth: 1000,
           icon: 'edit-outlined',
           label: 'label.kubernetes.version.update',
           dataView: true,

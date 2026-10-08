@@ -18,35 +18,11 @@
 <template>
   <a-spin :spinning="fetchLoading">
 
-     <div style="width: 100%; display: flex">
-      <a-button
-        type="dashed"
-        style="width: 100%; margin-right: 10px"
-        :disabled="!('createNetworkACL' in $store.getters.apis)"
-        @click="openAddRuleModal">
-        <template #icon><plus-outlined /></template>
-        {{ $t('label.add.acl.rule') }}
-      </a-button>
-
-      <a-button type="dashed" @click="handleImportRules" style="width: 100%;  margin-right: 10px">
-        <template #icon><upload-outlined /></template>
-        {{ $t('label.acl.import') }}
-      </a-button>
-
-      <a-button type="dashed" @click="exportAclList" style="width: 100%">
-        <template #icon><download-outlined /></template>
-        {{ $t('label.acl.export') }}
-      </a-button>
-
-      <div class="search-bar">
-        <a-input-search
-          style="width: 25vw;float: right;margin-left: 10px; z-index: 8"
-          :placeholder="$t('label.search')"
-          v-model:value="searchQuery"
-          @search="fetchData"
-        />
-      </div>
-    </div>
+    <NetworkRulesToolbar :can-add="'createNetworkACL' in $store.getters.apis" :loading="fetchLoading" @add="openAddRuleModal" @refresh="fetchData">
+      <a-button @click="handleImportRules"><template #icon><upload-outlined /></template>{{ $t('label.acl.import') }}</a-button>
+      <a-button @click="exportAclList"><template #icon><download-outlined /></template>{{ $t('label.acl.export') }}</a-button>
+      <a-input-search class="network-rules-search" :placeholder="$t('label.search')" v-model:value="searchQuery" @search="fetchData" />
+    </NetworkRulesToolbar>
 
     <div class="list">
       <draggable
@@ -131,6 +107,9 @@
     </div>
 
     <a-modal
+class="mold-dialog network-rule-dialog"
+centered
+:width="760"
       v-if="tagsModalVisible"
       :title="$t('label.edit.tags')"
       :visible="tagsModalVisible"
@@ -180,6 +159,9 @@
 
     </a-modal>
     <a-modal
+class="mold-dialog network-rule-dialog"
+centered
+:width="760"
       v-if="ruleModalVisible"
       :title="ruleModalTitle"
       :closable="true"
@@ -312,13 +294,15 @@
     </a-modal>
 
     <a-modal
+class="mold-dialog network-rule-dialog"
+centered
+:width="760"
       v-if="showImportModal"
       :visible="showImportModal"
       :title="$t('label.acl.import')"
       :closable="true"
       :maskClosable="false"
       :footer="null"
-      :width="800"
       @cancel="closeImportModal">
       <import-network-a-c-l
         :resource="resource"
@@ -330,6 +314,7 @@
 
 <script>
 import { ref, reactive, toRaw } from 'vue'
+import NetworkRulesToolbar from '@/components/view/NetworkRulesToolbar'
 import { getAPI, postAPI } from '@/api'
 import draggable from 'vuedraggable'
 import { mixinForm } from '@/utils/mixin'
@@ -340,6 +325,7 @@ export default {
   name: 'AclListRulesTab',
   mixins: [mixinForm],
   components: {
+    NetworkRulesToolbar,
     draggable,
     TooltipButton,
     ImportNetworkACL

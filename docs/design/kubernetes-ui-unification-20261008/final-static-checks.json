@@ -1,0 +1,55 @@
+{
+  "list": {
+    "ellipsis": 0,
+    "iconFill": "rgb(240, 243, 246)",
+    "rows": 4
+  },
+  "listContext": "k8s-app-demo\n컴퓨트\n클러스터 중지\n클러스터 확장 / 축소\n클러스터 업그레이드\n외부 노드 추가\n관리\n오토스케일링 설정\n삭제\n클러스터 삭제",
+  "detailMenu": "컴퓨트\n클러스터 중지\n클러스터 확장 / 축소\n클러스터 업그레이드\n외부 노드 추가\n관리\n오토스케일링 설정\n삭제\n클러스터 삭제",
+  "detailBodyButtons": 0,
+  "externalNodeToolbar": [
+    {
+      "primary": true,
+      "text": "외부 노드 추가"
+    },
+    {
+      "primary": false,
+      "text": "업데이트"
+    }
+  ],
+  "manualExpansion": "?s=scale&theme=light&capture=1",
+  "externalReview": " 클러스터 이름 · Zone · 등록 소유자 확인\n\n 1단계: 외부 관리형 클러스터 등록\n\n 등록 성공 후 외부 노드 추가에서 기존 VM·제어/워커 역할 선택\n\n 2단계: 선택한 기존 VM과 제어/워커 역할 연결\n\n VM 연결 실패 시 등록된 클러스터를 유지하고 연결만 재시도\n\n Kubernetes 배포·설치·가입·확장은 외부 운영자 수행",
+  "externalConnectDialog": "외부 관리형 · 외부 노드 추가",
+  "pfGroupFonts": [
+    "14px",
+    "14px",
+    "14px",
+    "14px"
+  ],
+  "lbSelection": "선택한 VM 1개 · NIC 주소 1개",
+  "lbRender": {
+    "bodyOverflow": false,
+    "guides": [
+      {
+        "background": [
+          33,
+          55,
+          76
+        ],
+        "color": "rgb(214, 235, 255)",
+        "contrast": 10.07,
+        "text": "규칙 생성 → 대상 VM·NIC 연결 → SSL 선택 시 인증서 연결. 실패한 단계와 생성된 규칙을 구분합니다."
+      }
+    ],
+    "modalWidth": 960,
+    "primaryIcons": [
+      {
+        "icon": true,
+        "text": "로드밸런서 추가"
+      }
+    ],
+    "title": "로드밸런서 규칙 추가"
+  },
+  "commonCommentConfirm": "코멘트를 삭제하시겠습니까?\n아니오예",
+  "runtimeErrors": []
+}
