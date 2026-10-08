@@ -16,6 +16,7 @@
 from pathlib import Path
 import fcntl,os
 import sys,subprocess,unittest,time
+from unittest.mock import patch
 LIB=Path(__file__).resolve().parents[2]/"systemvm/debian/usr/local/lib/ablestack-storage"
 sys.path.insert(0,str(LIB))
 import ad_identity as module
@@ -126,6 +127,7 @@ class StorageAdIdentityRpcTest(unittest.TestCase):
         self.calls=[];self.foreign_dns=False;self.foreign_sid=False
         self.write(self.gen/"current.json",{**self.scope,"revision":1});self.write(self.config/"smb-domain.json",self.state)
         self.rpc=module.AdIdentityRpc(self.run_command,self.config,self.gen)
+        self.public_sid=patch.object(module,"samba_public_sid",return_value=self.sids["machineSid"]);self.public_sid.start();self.addCleanup(self.public_sid.stop)
     def write(self,path,value):
         import json
         path.write_text(json.dumps(value));path.chmod(0o600)
@@ -158,6 +160,14 @@ class StorageAdIdentityRpcTest(unittest.TestCase):
         self.foreign_sid=True
         with self.assertRaises(ValueError):self.rpc.resolve(request)
         with self.assertRaises(ValueError):self.rpc.resolve({**request,"expectedRealm":"FOREIGN.LOCAL"})
+    def test_missing_or_foreign_existing_public_sam_sid_rejects_before_net_or_winbind_commands(self):
+        self.calls.clear()
+        with patch.object(module,"samba_public_sid",side_effect=ValueError("absent exact key")):
+            with self.assertRaises(ValueError):self.rpc.inspect(self.scope)
+        self.assertEqual([],self.calls)
+        with patch.object(module,"samba_public_sid",return_value="S-1-5-21-9-9-9"):
+            with self.assertRaises(ValueError):self.rpc.inspect(self.scope)
+        self.assertEqual([],self.calls)
     def test_missing_joined_receipt_foreign_writer_or_dns_alias_change_never_claims_joined(self):
         self.foreign_dns=True
         with self.assertRaises(ValueError):self.rpc.inspect(self.scope)
