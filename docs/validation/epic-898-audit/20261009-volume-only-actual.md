@@ -40,7 +40,6 @@ Old source의 새 자기 테스트 파일 volume-only-source-preserve-20261008.t
 
 Named ACL mixed · symlink/bind 경계 · 새20 child-delete는 아직 남아 있으므로 #910은 OPEN이다. 현재 client mount/formatter는 0이며 다음 별도 GO까지 추가 변경하지 않는다.
 
-
 ## 부모 실제 UI 확인
 
 namespace1dad 관리 / 기능 UI373a에서 SMB 부모와 자식 모두 새 SPARSE 볼륨과
@@ -56,3 +55,28 @@ Ready로 표시됐다. 자식의 편집 대화상자를 읽기 전용으로 열�
 통과했고, immutable UI 모듈 빌드를 진행 중이다. 아직 해당 UI 수정의 실제 배포
 증거는 아니다. 템플릿/CSS/대화상자 배치는 바꾸지 않았으며 최종 UI #1275는
 착수하지 않았다.
+
+## NEW20 NFS child 삭제 실증 — 2026-10-09 00:52–00:55 KST
+
+부모의 명시적 GO 이후 NEW20의 NFS child `ca41e478-ab1c-4339-a05e-574aa4d3d0dc` 하나만 정상 API로 삭제했다. Job `42a90bcb-100d-44ec-857f-512e2f517916`는 00:52:44 생성, 00:52:57 완료, status 1 / success true였다. Managed operation `6f046dee-6f36-4c91-88cd-71012a03e6d7`도 COMPLETE / revision 48 / progress 100이며 native GEN 47 → 48, SHA `7b5d9c896e1363a6aae8823c07c5adb7d1b2c4397d034ad619c6eba24fb54755`, IN_SYNC / pending NULL을 확인했다.
+
+parent pseudo를 mount하여 새 자기 파일 `child/new20-nn-childdelete-held-20261009.txt`를 만들고 같은 열린 FD로 120 초간 write/fsync/read를 관측했다. inode `135`, UID/GID `1002:1002`, mode `0640`이며 총 596 회, 오류 0, 최대 측정 지연 16.0 ms였다. 정상 FD close / worker exit 0 / umount / worker 없음 / 자기 mount 0을 확인했다. 전체 event stream을 파일에 저장한 것으로 주장하지 않으며, 구조화된 초기·중간 관측과 최종 count/cleanup 결과를 남겼다.
+
+| 항목 | 실제 전후 결과 |
+| --- | --- |
+| parent Export_Id / Filesystem_Id | `46750` / `14045721289127484551.9992890067150287163` 그대로 |
+| Ganesha daemon | PID `98665` / startTicks `583781` → PID `255722` / startTicks `1354270`; 실제 restart |
+| child 직접 pseudo | fresh mount exit `32`, 서버 `No such file or directory`, mounted false |
+| parent fresh 접근 | 같은 child 디렉터리와 기존 file `133` 읽기 정상 |
+| 기존 file | inode `133`, UID/GID `1002:1002`, mode `0640`, SHA `d8108a34...` 그대로 |
+| parent / child 디렉터리 | inode `33685632` / `132`, device `2080`, owner/mode 그대로 |
+| binding / fstab | parent bind 및 marker 보존, child alias bind/marker만 제거 |
+| 남은 fstab 기록 | child의 backing marker 행은 잔존; 완료된 정리라고 확대하지 않음 |
+| DATA / format | FS `5b11` / serial `7b4` / 20 GiB 그대로, format journal SHA/mtime 및 PID `89199` 동일 |
+| 원본 회귀 | sentinel inode/hash/UID/mode, old FS `a433`, SID/boot/network/SMB PID 보존 |
+| canonical 7 files | NFS desired 파일만 변경, 다른 6 개 해시 그대로 |
+| 종료 | client flag `Y` 그대로, flag 쓰기 0, cleanupPending false |
+
+현재 daemon이 재시작됐음에도 이 특정 parent 열린 FD의 관측에서는 오류 없이 I/O가 보존됐다. 모든 NFS 세션의 무중단이나 Ganesha PID 보존을 증명한 것으로 확대하지 않는다. 새 파일 외 기존 파일 쓰기, 추가 export 삭제, format, volume 삭제, password reset, 원본/partial 변경은 0 회다.
+
+증빙은 `910-new20-nfs-child-delete-api-proof.json`, `910-new20-nfs-delete-managed-operation-readonly.json`, `910-new20-nfs-delete-held-client-proof.json`, `910-new20-nfs-delete-direct-pseudo-proof.json`, `910-new20-nfs-child-delete-preservation-comparison.json` 및 native baseline 전후 파일이다. 실제 UI의 child absent / parent Ready 확인은 부모가 별도 수집한다. Named ACL mixed, symlink/bind 경계, 전체 cold recovery 및 다른 Epic 기능은 미완료이며 `#910`은 OPEN이다.

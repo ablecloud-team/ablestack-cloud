@@ -1,5 +1,6 @@
 # SharedFS Epic 현재 진행 구분 — 2026-10-08 23:32 KST
 
+최신 추가: NEW20 child 삭제 API 1 회와 parent held-FD 596 회 I/O 및 기존 DATA 보존 실증을 완료했다. 실제 Ganesha restart를 관측했으며 fullFour / AD / ROOT swap / 최종 UI #1275 완료를 뜻하지 않는다. fc3e 로컬 fresh ISO 프로토타입은 6.12.95 커널 provision 단계에서 빌드 중이며 Cloud 등록·배포는 0이다.
 이 문서는 시간대별 과거 기록과 현재 상태를 구분하는 진행 snapshot이다. 최종 UI#1275는 마지막 착수 직전 전체 작업 중단·사용자 보고·추가 지시 대기 경계를 유지한다.
 
 ## 2026-10-09 00:02 KST 후속
