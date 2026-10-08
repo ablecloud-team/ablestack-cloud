@@ -22,6 +22,8 @@ import argparse
 import hashlib
 import json
 import os
+import re
+import xml.etree.ElementTree as ET
 from pathlib import Path
 import subprocess
 
@@ -32,6 +34,15 @@ p.add_argument("--source-root", type=Path, required=True)
 p.add_argument("--version", required=True)
 p.add_argument("--runtime-version", required=True)
 a = p.parse_args()
+pom_path = a.source_root / "pom.xml"
+declared_version = ET.parse(pom_path).getroot().findtext("{*}version") or ""
+version_match = re.fullmatch(r"([0-9]+\.[0-9]+\.[0-9]+(?:\.[0-9]+)?)(?:-[A-Za-z][A-Za-z0-9_.-]*)?", declared_version)
+if not version_match:
+    raise SystemExit("Source POM product version is not a supported three/four-part platform version")
+platform_version = version_match.group(1)
+if platform_version.count(".") == 2:
+    platform_version += ".0"
+pom_sha256 = hashlib.sha256(pom_path.read_bytes()).hexdigest()
 lock = json.loads((a.source_root / "tools/appliance/systemvmtemplate/storage-kernel-amd64.json").read_text())
 commit = os.environ.get("ABLESTACK_STORAGE_RUNTIME_BUILD_COMMIT") or subprocess.check_output(
     ["git", "rev-parse", "HEAD"], cwd=a.source_root, text=True).strip()
@@ -42,6 +53,7 @@ for name in ENTRYPOINTS:
 capabilities = {
     "storage.service.template": "true",
     "storage.service.template.version": a.version,
+    "storage.service.platform.version": platform_version,
     "storage.service.template.maintenance.gate": "true",
     "storage.service.template.data.identity.inspect": "true",
     "storage.service.runtime.abi": "1",
@@ -57,7 +69,7 @@ capabilities = {
     "storage.service.kernel.version": lock["kernelVersion"],
     "storage.service.source.commit": commit,
 }
-source_files = {}
+source_files = {"pom.xml": pom_sha256}
 for base in ("systemvm/debian", "tools/appliance/systemvmtemplate", "tools/appliance/scripts", "tools/build"):
     for path in sorted((a.source_root / base).rglob("*")):
         relative = path.relative_to(a.source_root).as_posix()
@@ -68,6 +80,8 @@ for name in ("tools/appliance/build.sh", "tools/appliance/shar_cloud_scripts.sh"
 source_tree_sha = hashlib.sha256(json.dumps(source_files, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 manifest = {"sourceTreeSha256": source_tree_sha, "sourceFiles": source_files, "manifestSchemaVersion": "1", "templateVersion": a.version,
             "runtimeBundleVersion": a.runtime_version, "buildCommit": commit,
+            "platformVersion": platform_version, "productVersion": platform_version,
+            "platformVersionSource": {"path": "pom.xml", "sha256": pom_sha256, "declaredVersion": declared_version},
             "architecture": "x86_64", "hypervisor": "KVM",
             "kernel": lock, "registrationDetails": capabilities, "runtimeFiles": files}
 output = a.image_root / "etc/ablestack-storage/template-manifest.json"

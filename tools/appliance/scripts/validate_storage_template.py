@@ -21,6 +21,7 @@
 import argparse
 import hashlib
 import json
+import re
 from pathlib import Path
 
 p = argparse.ArgumentParser()
@@ -45,6 +46,14 @@ for key, expected in {
 for key in ("templateVersion", "runtimeBundleVersion", "buildCommit"):
     if not manifest.get(key):
         raise SystemExit("Missing template provenance: " + key)
+platform = manifest.get("platformVersion")
+if not isinstance(platform, str) or not re.fullmatch(r"[0-9]+(?:\.[0-9]+){3}", platform):
+    raise SystemExit("Template platform version is unknown or contains a build-number segment")
+if manifest.get("productVersion") != platform or cap.get("storage.service.platform.version") != platform:
+    raise SystemExit("Template platform version attestation differs from registration metadata")
+provenance = manifest.get("platformVersionSource") or {}
+if provenance.get("path") != "pom.xml" or provenance.get("sha256") != (manifest.get("sourceFiles") or {}).get("pom.xml"):
+    raise SystemExit("Template platform version lacks its pinned source POM proof")
 lock = manifest["kernel"]
 version = lock["kernelVersion"]
 config = (root / ("boot/config-" + version)).read_text().splitlines()

@@ -128,6 +128,13 @@ class StorageRuntimeUpdaterTest(unittest.TestCase):
         self.run_updater("preflight", request)
         return request
 
+    def test_signed_builder_pins_all_three_platform_compatibility_ranges(self):
+        self.build_bundle()
+        compatibility = json.loads((self.output / 'manifest.json').read_text())['compatibility']
+        self.assertEqual(1, compatibility['schemaVersion'])
+        for domain in ('manager', 'agent', 'template'):
+            self.assertEqual({'minimumVersion': '4.23.0.0', 'maximumVersionExclusive': '4.24.0.0'}, compatibility[domain])
+
     def test_signed_bundle_activation_and_rollback(self):
         bootstrap = self.run_updater("bootstrap")
         self.assertEqual("BOOTSTRAPPED", bootstrap["phase"])
