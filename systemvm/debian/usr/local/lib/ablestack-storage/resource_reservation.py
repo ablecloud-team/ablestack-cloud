@@ -27,9 +27,10 @@ import uuid
 
 
 class ResourceReservation:
-    def __init__(self,root=None,generation=None,observe=None,clock=None,boot_id=None):
+    def __init__(self,root=None,generation=None,observe=None,clock=None,boot_id=None,maintenance=None):
         self.root=Path(root or os.environ.get("ABLESTACK_STORAGE_RESERVATION_DIR","/var/lib/ablestack-storage/resource-reservation"))
         self.record=self.root/"lease.json";self.lock=self.root/"lease.lock"
+        self.maintenance=Path(maintenance or Path(os.environ.get("ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR","/var/lib/ablestack-storage"))/"template-maintenance.json")
         self.generation=Path(generation or os.environ.get("ABLESTACK_STORAGE_GENERATION_DIR","/var/lib/ablestack-storage/config-generations"))
         self.observe=observe or self.resources;self.clock=clock or (lambda:int(time.time()*1000))
         self.boot_id=boot_id or Path("/proc/sys/kernel/random/boot_id").read_text().strip()
@@ -59,13 +60,31 @@ class ResourceReservation:
         if isinstance(revision,bool) or not isinstance(revision,int) or revision<1:raise ValueError("Logical reservation revision is invalid")
         return {**scope,"revision":revision}
 
-    def validate_generation(self,scope):
+    def validate_root_maintenance(self,scope,request):
+        expected=request.get("maintenanceScope")
+        template=request.get("templateUpgradeUuid")
+        if (not isinstance(expected,dict) or set(expected)!={"instanceUuid","operationUuid","revision","templateUpgradeUuid"}
+                or any(expected.get(key)!=value for key,value in scope.items())
+                or type(expected.get("revision")) is not int
+                or str(uuid.UUID(template))!=expected.get("templateUpgradeUuid")):
+            raise ValueError("Logical ROOT reservation lacks its exact maintenance scope")
+        marker=self.read(self.maintenance)
+        if not marker or set(marker)!={"scope"} or not isinstance(marker.get("scope"),dict) or type(marker["scope"].get("revision")) is not int or marker.get("scope")!=expected:
+            raise ValueError("Logical ROOT reservation does not match its protected boot-held marker")
+        return expected
+
+    def validate_generation(self,scope,request):
         current=self.read(self.generation/"current.json")
         pending=self.read(self.generation/"pending.json")
         if current and current.get("instanceUuid")!=scope["instanceUuid"]:raise ValueError("Logical reservation native instance is foreign")
         if pending and any(pending.get(key)!=value for key,value in scope.items()):raise ValueError("Logical reservation conflicts with native pending writer")
-        if not current and not pending:raise ValueError("Logical reservation has no protected native instance scope")
+        root_scope=None
+        if not current and not pending:
+            root_scope=self.validate_root_maintenance(scope,request)
+        elif request.get("maintenanceScope") is not None or request.get("templateUpgradeUuid") is not None:
+            root_scope=self.validate_root_maintenance(scope,request)
         if current and current.get("revision",0)>scope["revision"]:raise ValueError("Logical reservation revision is stale")
+        return root_scope
 
     def requirements(self,request):
         requirements=request.get("requirements")
@@ -115,7 +134,7 @@ class ResourceReservation:
 
     def execute(self,action,request=None):
         if action=="status":return self.status()
-        scope=self.scope(request);self.validate_generation(scope)
+        scope=self.scope(request);root_scope=self.validate_generation(scope,request)
         duration=request.get("leaseDurationSeconds",90)
         if isinstance(duration,bool) or not isinstance(duration,int) or not 30<=duration<=300:raise ValueError("Logical reservation TTL is invalid")
         self.root.mkdir(parents=True,mode=0o700,exist_ok=True)
@@ -129,6 +148,8 @@ class ResourceReservation:
             record=self.read(self.record)
             if record and record["scope"]!=scope and (action!="acquire" or not self.expired(record)):
                 raise ValueError("Logical reservation belongs to another scope")
+            if record and record["scope"]==scope and record.get("maintenanceScope")!=root_scope:
+                raise ValueError("Logical reservation maintenance attestation changed")
             if action=="release":
                 if not record or record["scope"]!=scope:raise ValueError("Logical reservation release scope is unavailable")
                 self.record.unlink();self.sync()
@@ -143,6 +164,6 @@ class ResourceReservation:
             if observed["loadPerCpu"]>requirements["maxLoadPerCpu"]:blockers.append("LOAD_HEADROOM")
             if requirements["requireSessionDrain"]:blockers.append("DRAIN_NOT_IMPLEMENTED")
             if blockers:return {"success":False,"reservationSupported":True,"reservationAcquired":False,"scope":scope,"observed":observed,"blockers":blockers,"drainSupported":False,"logicalReservationOnly":True}
-            self.write({"scope":scope,"requirements":requirements,"bootId":self.boot_id,"leaseExpiresAt":self.clock()+duration*1000,"observed":observed})
+            self.write({"scope":scope,"maintenanceScope":root_scope,"requirements":requirements,"bootId":self.boot_id,"leaseExpiresAt":self.clock()+duration*1000,"observed":observed})
             return self.status()
         finally:os.close(descriptor)
