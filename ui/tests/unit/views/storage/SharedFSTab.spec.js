@@ -435,3 +435,43 @@ describe('SharedFS workflow tabs', () => {
     expect(vm.updateRouteQuery).toHaveBeenCalledWith('operations')
   })
 })
+
+describe('SharedFS SMB backing volume references', () => {
+  function rows (shares) {
+    const volumes = {
+      'volume-a': { id: 'volume-a', name: 'Sparse A', size: 20, provisioningtype: 'SPARSE' },
+      'volume-b': { id: 'volume-b', name: 'Sparse B', size: 30, provisioningtype: 'SPARSE' }
+    }
+    const context = {
+      storageService: { smbShares: shares },
+      volumeForShare: share => volumes[share.volumeid || share.volumeId] || {},
+      clientVisibleName: name => name,
+      backingVolumeActionFields: () => ({}),
+      formatCapacityValue: value => value,
+      displayBackingVolumeFilesystem: () => 'xfs',
+      fileShareVolumeMappingStatusLabel: value => value
+    }
+    return SharedFSTab.computed.smbVolumeRows.call(context)
+  }
+
+  it('shows all parent and child references once while keeping one capacity row per volume', () => {
+    const result = rows([
+      { id: 'parent', name: 'parent', volumeid: 'volume-a' },
+      { id: 'child', name: 'child', volumeId: 'volume-a' },
+      { id: 'child', name: 'child', volumeid: 'volume-a' }
+    ])
+    expect(result).toHaveLength(1)
+    expect(result[0]).toMatchObject({ id: 'volume-a', size: 20, shareName: 'parent, child', shareId: 'parent' })
+  })
+
+  it('does not merge the same share name on different backing volume identities', () => {
+    const result = rows([
+      { id: 'a', name: 'same-relative', volumeid: 'volume-a' },
+      { id: 'b', name: 'same-relative', volumeid: 'volume-b' },
+      { id: 'b-child', name: 'child', volumeid: 'volume-b' }
+    ])
+    expect(result).toHaveLength(2)
+    expect(result[0]).toMatchObject({ id: 'volume-a', shareName: 'same-relative', size: 20 })
+    expect(result[1]).toMatchObject({ id: 'volume-b', shareName: 'same-relative, child', size: 30 })
+  })
+})
