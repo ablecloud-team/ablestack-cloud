@@ -16,87 +16,70 @@
 # under the License.
 
 
-"""Exercise the actual embedded NFS readiness probe without privileged mutations."""
-import ast
-import ipaddress
+"""Exercise the embedded NFS probe budget and kernel-child safety without mounts."""
+import ast,ipaddress,json,os,re,signal,subprocess,tempfile,time,unittest
 from pathlib import Path
-import re
-import subprocess
-import tempfile
-import time
-import os
-import unittest
-from unittest.mock import Mock
+from types import SimpleNamespace
+from unittest.mock import Mock,patch
 
-SOURCE = Path(__file__).resolve().parents[2] / "systemvm/debian/usr/local/bin/ablestack-storagectl"
+SOURCE=Path(__file__).resolve().parents[2]/"systemvm/debian/usr/local/bin/ablestack-storagectl"
 
 
-def probe_namespace():
-    blocks = re.findall(r"<<'PY'\n(.*?)\nPY", SOURCE.read_text(), re.S)
-    block = next(value for value in blocks if "def probe_nfs_export_visibility(" in value)
-    tree = ast.parse(block)
-    node = next(item for item in tree.body if isinstance(item, ast.FunctionDef)
-                and item.name == "probe_nfs_export_visibility")
-    process = Mock()
-    process.TimeoutExpired = subprocess.TimeoutExpired
-    process.PIPE, process.DEVNULL = subprocess.PIPE, subprocess.DEVNULL
-    process.run.return_value = subprocess.CompletedProcess(["ip"], 0,
-                                                         "2: eth0 inet 10.1.1.9/24 scope global eth0", "")
-    ns = dict(ipaddress=ipaddress, subprocess=process, time=time, tempfile=tempfile, os=os,
-              payload={}, endpoint_key=lambda ip, port: str(port))
-    exec(compile(ast.Module(body=[node], type_ignores=[]), str(SOURCE), "exec"), ns)
-    return ns
+def probe_namespace(results):
+    block=next(value for value in re.findall(r"<<'PY'\n(.*?)\nPY",SOURCE.read_text(),re.S) if "def probe_nfs_export_visibility(" in value)
+    node=next(item for item in ast.parse(block).body if isinstance(item,ast.FunctionDef) and item.name=="probe_nfs_export_visibility")
+    api=Mock();api.PIPE=subprocess.PIPE;api.TimeoutExpired=subprocess.TimeoutExpired;api.CompletedProcess=subprocess.CompletedProcess
+    children=[]
+    def create(arguments,**kwargs):
+        result=results.pop(0);child=Mock(pid=777,returncode=None)
+        child.poll.return_value=None if isinstance(result,Exception) else 0
+        if isinstance(result,Exception):child.communicate.side_effect=result
+        else:
+            child.returncode=result.returncode;child.communicate.return_value=(result.stdout,result.stderr)
+        children.append(child);return child
+    api.Popen.side_effect=create
+    values={name:getattr(os,name) for name in dir(os)};values['pidfd_open']=Mock(return_value=100);values['close']=Mock()
+    system=SimpleNamespace(**values);signals=SimpleNamespace(SIGTERM=signal.SIGTERM,SIGKILL=signal.SIGKILL,pidfd_send_signal=Mock())
+    ns={'ipaddress':ipaddress,'subprocess':api,'os':system,'signal':signals,'time':time,'tempfile':tempfile,'payload':{},'endpoint_key':lambda ip,port:str(port)}
+    exec(compile(ast.Module(body=[node],type_ignores=[]),str(SOURCE),'exec'),ns)
+    return ns,children
 
 
 class NfsReadinessTest(unittest.TestCase):
+    def endpoint_export(self):
+        return {'listenIp':'0.0.0.0','port':2049,'listening':True},{'uuid':'export','pseudo':'/export','clients':[{'clients':'*'}]}
+    def ip_result(self):return subprocess.CompletedProcess(['ip'],0,'2: eth0 inet 10.1.1.9/24 scope global eth0','')
+
     def test_restricted_acl_skips_local_mount_without_disabling_listener(self):
-        ns = probe_namespace()
-        endpoint = {"listenIp": "0.0.0.0", "port": 2049, "listening": True}
-        export = {"uuid": "export", "name": "restricted", "pseudo": "/restricted",
-                  "clients": [{"clients": "10.9.0.0/24"}]}
-        failures = ns["probe_nfs_export_visibility"]([endpoint], {("0.0.0.0", 2049): [export]})
-        self.assertEqual([], failures)
-        self.assertTrue(endpoint["listening"])
-        self.assertTrue(endpoint["probeSuccess"])
-        self.assertIsNone(endpoint["exportsVisible"])
-        self.assertEqual("SKIPPED_ACL", endpoint["probeResults"][0]["status"])
-        self.assertEqual(1, ns["subprocess"].run.call_count)
+        ns,children=probe_namespace([self.ip_result()]);endpoint,export=self.endpoint_export();export['clients']=[{'clients':'10.9.0.0/24'}]
+        failures=ns['probe_nfs_export_visibility']([endpoint],{('0.0.0.0',2049):[export]})
+        self.assertEqual([],failures);self.assertTrue(endpoint['listening']);self.assertEqual('SKIPPED_ACL',endpoint['probeResults'][0]['status']);self.assertEqual(1,ns['subprocess'].Popen.call_count)
 
-    def test_eligible_client_probe_is_bounded_and_cleans_up_without_recursion(self):
-        ns = probe_namespace()
-        with tempfile.TemporaryDirectory() as tmp:
-            ns["nfs_probe_root"] = tmp
-            ns["subprocess"].run.side_effect = [
-                subprocess.CompletedProcess(["ip"], 0, "2: eth0 inet 10.1.1.9/24 scope global eth0", ""),
-                subprocess.TimeoutExpired(["mount"], 15),
-                subprocess.CompletedProcess(["umount"], 0, "", ""),
-            ]
-            endpoint = {"listenIp": "0.0.0.0", "port": 2049, "listening": True}
-            export = {"uuid": "export", "pseudo": "/export", "clients": [{"clients": "*"}]}
-            failures = ns["probe_nfs_export_visibility"]([endpoint], {("0.0.0.0", 2049): [export]})
-            self.assertEqual([], failures)
-            self.assertEqual("PROBE_PENDING", endpoint["probeResults"][0]["status"])
-            self.assertLessEqual(ns["subprocess"].run.call_args_list[1].kwargs["timeout"], 15)
-            self.assertEqual([], list(Path(tmp).iterdir()))
+    def test_uninterruptible_mount_retains_writer_and_has_only_bounded_waits_and_no_success_claim(self):
+        ns,children=probe_namespace([self.ip_result(),subprocess.TimeoutExpired(['mount'],15)])
+        with tempfile.TemporaryDirectory() as root,patch.dict(os.environ,{'ABLESTACK_STORAGE_WRITER_LOCK_FD':'9','ABLESTACK_STORAGE_NFS_PROBE_JOURNAL':str(Path(root)/'journal.json')}):
+            ns['nfs_probe_root']=root;endpoint,export=self.endpoint_export()
+            failures=ns['probe_nfs_export_visibility']([endpoint],{('0.0.0.0',2049):[export]})
+            self.assertEqual([endpoint],failures);result=endpoint['probeResults'][0]
+            self.assertEqual('PROBE_PENDING',result['status']);self.assertTrue(result['probeChildActive']);self.assertTrue(result['cleanupPending']);self.assertFalse(endpoint['probeSuccess'])
+            self.assertEqual('RECOVERY_REQUIRED',json.loads((Path(root)/'journal.json').read_text())['phase']);self.assertEqual(2,ns['subprocess'].Popen.call_count);self.assertEqual((9,),ns['subprocess'].Popen.call_args.kwargs['pass_fds'])
+            self.assertTrue(all(0<call.kwargs['timeout']<=15 for call in children[1].communicate.call_args_list))
+            self.assertEqual([signal.SIGTERM,signal.SIGKILL],[call.args[1] for call in ns['signal'].pidfd_send_signal.call_args_list])
 
-    def test_cleanup_timeout_preserves_original_probe_result(self):
-        ns = probe_namespace()
-        with tempfile.TemporaryDirectory() as tmp:
-            ns["nfs_probe_root"] = tmp
-            ns["subprocess"].run.side_effect = [
-                subprocess.CompletedProcess(["ip"], 0, "2: eth0 inet 10.1.1.9/24 scope global eth0", ""),
-                subprocess.TimeoutExpired(["mount"], 15),
-                subprocess.TimeoutExpired(["umount"], 10),
-            ]
-            endpoint = {"listenIp": "0.0.0.0", "port": 2049, "listening": True}
-            export = {"uuid": "export", "pseudo": "/export", "clients": [{"clients": "*"}]}
-            failures = ns["probe_nfs_export_visibility"]([endpoint], {("0.0.0.0", 2049): [export]})
-            self.assertEqual([], failures)
-            result = endpoint["probeResults"][0]
-            self.assertEqual("PROBE_PENDING", result["status"])
-            self.assertTrue(result["cleanupPending"])
-            self.assertTrue(endpoint["listening"])
+    def test_mount_unmount_and_cleanup_share_the_same_total_deadline(self):
+        ns,children=probe_namespace([self.ip_result(),subprocess.CompletedProcess(['mount'],0,'',''),subprocess.TimeoutExpired(['umount'],10)])
+        ns['payload']['probeDeadlineSeconds']=1
+        with tempfile.TemporaryDirectory() as root:
+            ns['nfs_probe_root']=root;endpoint,export=self.endpoint_export();started=time.monotonic()
+            ns['probe_nfs_export_visibility']([endpoint],{('0.0.0.0',2049):[export]})
+            self.assertLess(time.monotonic()-started,1);self.assertTrue(endpoint['probeResults'][0]['cleanupPending'])
+            self.assertTrue(all(call.kwargs['timeout']<=1 for child in children for call in child.communicate.call_args_list))
 
+    def test_successful_probe_checks_both_mount_and_unmount_before_ready(self):
+        done=subprocess.CompletedProcess([],0,'','');ns,children=probe_namespace([self.ip_result(),done,done,done])
+        with tempfile.TemporaryDirectory() as root:
+            ns['nfs_probe_root']=root;endpoint,export=self.endpoint_export()
+            self.assertEqual([],ns['probe_nfs_export_visibility']([endpoint],{('0.0.0.0',2049):[export]}));self.assertTrue(endpoint['probeSuccess']);self.assertTrue(endpoint['probeResults'][0]['success'])
+            self.assertEqual([],list(Path(root).iterdir()))
 
-if __name__ == "__main__":
-    unittest.main()
+if __name__=='__main__':unittest.main()

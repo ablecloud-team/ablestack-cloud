@@ -76,7 +76,7 @@ function install_packages() {
   ${apt_get} install grub-legacy \
     rsyslog logrotate cron net-tools ifupdown tmux vim-tiny htop netbase iptables nftables \
     openssh-server e2fsprogs tcpdump iftop socat wget coreutils systemd \
-    python-is-python3 python3 python3-cryptography python3-flask python3-netaddr python3-yaml jq ieee-data \
+    python-is-python3 python3 python3-dbus dbus python3-cryptography python3-flask python3-netaddr python3-yaml jq ieee-data \
     bzip2 sed gawk diffutils grep gzip less tar telnet ftp rsync traceroute psmisc lsof procps \
     inetutils-ping iputils-arping httping curl \
     dnsutils zip unzip ethtool uuid file iproute2 acpid sudo \

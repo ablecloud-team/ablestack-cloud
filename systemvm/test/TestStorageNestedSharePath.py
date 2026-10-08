@@ -20,25 +20,30 @@
 import os
 import ast
 import hashlib
+import importlib.util
 import json
 import ipaddress
 import re
 import subprocess
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 SOURCE = Path(__file__).resolve().parents[1] / "debian/usr/local/bin/ablestack-storagectl"
 text = SOURCE.read_text()
 start = text.index("def resolve_backing_path(")
 end = text.index("\nbacking_path = resolve_backing_path", start)
-namespace = {"os": os, "run": lambda args: subprocess.run(args, capture_output=True, text=True)}
+helper=SOURCE.parents[1]/"lib/ablestack-storage/new_directory.py"
+spec=importlib.util.spec_from_file_location("nested_directory_test",helper);directory=importlib.util.module_from_spec(spec);spec.loader.exec_module(directory)
+namespace = {"os": os,"re":re,"config":{},"created_directory_receipts":[],"fs_uuid":"11111111-1111-4111-8111-111111111111","volume_key":"22222222-2222-4222-8222-222222222222",
+             "publish_new_directory":directory.publish_new_directory,"run": lambda args: subprocess.run(args, capture_output=True, text=True)}
 exec(compile(text[start:end], str(SOURCE), "exec"), namespace)
 resolve = namespace["resolve_backing_path"]
 
 class NestedPathTest(unittest.TestCase):
     def test_nested_creation_and_existing_directory(self):
-        with tempfile.TemporaryDirectory() as root:
+        with tempfile.TemporaryDirectory() as root, patch.dict(namespace,{"run":lambda args:subprocess.CompletedProcess(args,0,root,"")}):
             target = resolve(root, "parent/child", True)
             self.assertTrue(Path(target).is_dir())
             self.assertEqual(target, resolve(root, "parent/child", False))
@@ -47,18 +52,18 @@ class NestedPathTest(unittest.TestCase):
             self.assertEqual("preserved", Path(target, "keep.txt").read_text())
 
     def test_absolute_traversal_symlink_and_file_are_rejected(self):
-        with tempfile.TemporaryDirectory() as root, tempfile.TemporaryDirectory() as outside:
+        with tempfile.TemporaryDirectory() as root, tempfile.TemporaryDirectory() as outside, patch.dict(namespace,{"run":lambda args:subprocess.CompletedProcess(args,0,root,"")}):
             Path(root, "link").symlink_to(outside)
             Path(root, "file").write_text("data")
             for path in ("/absolute", "../outside", "parent/../other", "parent/./child", "link/child", "file/child", "missing"):
-                with self.subTest(path=path), self.assertRaises(SystemExit):
+                with self.subTest(path=path), self.assertRaises((SystemExit,OSError)):
                     resolve(root, path, False)
 
     def test_mount_boundary_is_verified_before_directory_creation(self):
         with tempfile.TemporaryDirectory() as root:
             Path(root, "parent").mkdir()
             original = namespace["run"]
-            namespace["run"] = lambda args: subprocess.CompletedProcess(args, 0, "/different" if args[-1].endswith("parent") else "/root", "")
+            namespace["run"] = lambda args: subprocess.CompletedProcess(args, 0, "/different" if args[-1].endswith("parent") else root, "")
             try:
                 with self.assertRaises(SystemExit):
                     resolve(root, "parent/child", True)

@@ -17,6 +17,7 @@
 
 
 """Exercise the actual embedded NFS readiness probe without privileged mutations."""
+import hashlib
 import ast
 import os
 import re
@@ -32,7 +33,7 @@ TREE = ast.parse(BLOCK)
 class NfsIdMappingTest(unittest.TestCase):
     def render(self, mode, root):
         node = next(item for item in TREE.body if isinstance(item, ast.FunctionDef) and item.name == 'write_ganesha_configs')
-        namespace = {
+        namespace = {'hashlib':hashlib,
             'os': os, 'ganesha_conf_dir': root, 'id_mapping_mode': mode,
             'endpoint_key': lambda ip, port: ip.replace('.', '_') + '_' + str(port),
             'ganesha_bind_addr': lambda ip: ip,
