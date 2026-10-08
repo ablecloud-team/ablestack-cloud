@@ -42,6 +42,7 @@ class StorageSmbEndpointLifecycleTest(unittest.TestCase):
         self.state.mkdir(mode=0o750)
         self.unit_path = self.root / 'endpoint.service'
         self.legacy = {('10.1.1.10',445)}
+        self.foreign=set()
         self.active = set()
         self.calls = []
         self.fail_start = None
@@ -68,10 +69,13 @@ class StorageSmbEndpointLifecycleTest(unittest.TestCase):
                 if key == self.fail_start:
                     raise subprocess.CalledProcessError(1,args)
             if args[:2] == ['systemctl','stop']:
-                self.active.discard(args[2].split('@')[1].split('.')[0])
+                if args[2]=='smbd.service':
+                    self.legacy.clear()
+                else:
+                    self.active.discard(args[2].split('@')[1].split('.')[0])
             return SimpleNamespace(returncode=0)
         def sockets():
-            result = set(self.legacy)
+            result = set(self.legacy) | self.foreign
             for key in self.active:
                 record = json.loads((self.state / 'smb-endpoint-listeners' / (key+'.json')).read_text())
                 result.add((record['listenIp'],record['port']))
@@ -86,7 +90,8 @@ class StorageSmbEndpointLifecycleTest(unittest.TestCase):
                        tempfile=SimpleNamespace(mkstemp=lambda **kwargs:tempfile.mkstemp(**{**kwargs,'dir':str(self.root) if kwargs.get('dir')=='/etc/systemd/system' else kwargs.get('dir')})),run=run,
                        subprocess=SimpleNamespace(run=run,DEVNULL=-3),
                        open=lambda path,*args,**kwargs:open(mapped(path),*args,**kwargs),
-                       smb_owned_listening_sockets=sockets,smb_legacy_listening_sockets=lambda:set(self.legacy),verify_smb_endpoint_listeners=verify,
+                       smb_owned_listening_sockets=sockets,smb_legacy_listening_sockets=lambda:set(self.legacy),
+                       smb_managed_listening_sockets=lambda records: sockets()-self.legacy-self.foreign,verify_smb_endpoint_listeners=verify,
                        rollback_uncommitted_managed_identities=lambda:(self.calls.append(["restore-global-config"]),setattr(self,'restore_called',True)),
                        smb_previous_files={str(self.config):self.previous_config},smb_previous_modes={str(self.config):0o644},
                        identity_apply_verified=False,created_identity_users=[],created_identity_groups=[],run_optional=run,
@@ -215,6 +220,18 @@ class StorageSmbEndpointLifecycleTest(unittest.TestCase):
         self.assertEqual(set(),self.active)
         self.assertEqual('ROLLED_BACK',json.loads((self.state/'smb-endpoint-journal.json').read_text())['phase'])
 
+    def test_foreign_transient_smbd_listener_is_not_adopted_as_managed(self):
+        self.foreign={('10.1.1.11',445)}
+        with self.assertRaisesRegex(RuntimeError,'unrelated'):
+            self.apply()
+        self.assertEqual(set(),self.active)
+
+    def test_empty_default_wildcard_with_no_saved_desired_or_sessions_can_transition(self):
+        self.legacy={('0.0.0.0',445)}
+        self.apply()
+        self.assertEqual({self.a,self.b},self.active)
+        self.assertEqual(set(),self.legacy)
+
     def test_shared_legacy_acceptor_removal_is_blocked_while_other_endpoint_remains(self):
         self.legacy.add(('10.1.1.11',445))
         with self.assertRaisesRegex(RuntimeError,'maintenance'):
@@ -224,6 +241,8 @@ class StorageSmbEndpointLifecycleTest(unittest.TestCase):
 
     def test_wildcard_overlap_is_rejected_before_starting_or_writing_registry(self):
         self.legacy={('0.0.0.0',445)}
+        (self.state/'desired-state').mkdir()
+        (self.state/'desired-state/smb-share-apply.json').write_text('{}')
         with self.assertRaisesRegex(RuntimeError,'drain'):
             self.apply()
         self.assertFalse((self.state/'smb-endpoint-listeners').exists())
