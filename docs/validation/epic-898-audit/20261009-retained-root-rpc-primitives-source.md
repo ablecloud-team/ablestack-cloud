@@ -1,0 +1,24 @@
+# retained ROOT 암호화 승인 프레임·RPC source pin
+
+552634de6730f130d94612098c5d525cda673365의Manager1개+newhelper/2test를
+exactSHA로pin했다. 정상CheckstyleAPI/server/KVM/storagevm-am116suites/
+720tests 및 direct96이 통과했고 실패·오류·skip0이다.
+Java9882 NULSHA3f7c1fe8b98b150566178f8798cbd012022e5a61c865a97e40262b57dcab6859
+및producer2SHA가 전후 같다. DDL/bootstrap변경0이다.
+
+첫normal은test의1188자line이1024제한을넘어Checkstyle로실패했다.
+문장줄분리만수정하고새hash/fullreactor로확인했으며skip나과거count를
+재사용하지 않았다. immutable5module출력을retained-root-primitives-final-720/
+module-outputs에보관했다.
+
+capturerpc는Root4+expectedoldgeneration/pointer를검증하고opaquebaselineRef
+UUID/SHA를받는다. authorizer는Root4+baselineRef+latest encryptedcapsule/
+protectedprivateKey/originalAADscope/latestSHA/FILEbindings를protectedstdin으로
+전달한다. 캡슐·privatekey를mask하고plainlatest7/snapshot필드를전송하지않는다.
+accepted nativeAuthRef2키와정확latestSHA·oldbaseline을검증하며혼합을거부한다.
+
+추가7meaningful회귀는helper3+realRPC4다. 이단위는primitives만구현했고
+manualretainedphase 연결과nativeauthorization/stage/transfer는후속이다.
+actualROOTswap/retainedauthorize0,productionFour/ADfalse,관리실제배포0이다.
+현재관리ADE/source707/oldRuntime2와구분한다.
+최종UI #1275는미착수이고시작직전중단·보고후추가지시를기다린다.
