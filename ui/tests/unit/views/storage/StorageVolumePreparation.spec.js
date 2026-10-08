@@ -37,9 +37,11 @@ describe('Durable volume preparation observation', () => {
     wrapper.unmount()
   })
   it('blocks resume without exact observed identity or while formatting is active', () => {
-    const vm = { resumeSupported: true, readError: false, observation: { currentIdentityStatus: 'EXACT', formatterActive: true }, operation: { formatStarted: true }, identity: { filesystemUuid: 'known' } }
+    const vm = { resumeSupported: true, readError: false, observation: { currentIdentityStatus: 'EXACT', formatterActive: true }, operation: { formatStarted: true, formatterExitCode: 0, formatterSuccessReceipt: { schemaVersion: 1, formatterExitCode: 0 } }, identity: { filesystemUuid: 'known' } }
     expect(Widget.computed.canResume.call(vm)).toBe(false)
     vm.observation.formatterActive = false; expect(Widget.computed.canResume.call(vm)).toBe(true)
+    vm.operation.formatterSuccessReceipt = null; expect(Widget.computed.canResume.call(vm)).toBe(false)
+    vm.operation.formatterSuccessReceipt = { schemaVersion: 1, formatterExitCode: 0 }
     vm.operation.filesystemUuid = 'other'; expect(Widget.computed.canResume.call(vm)).toBe(false)
     vm.operation.filesystemUuid = 'known'; vm.observation.currentIdentityStatus = 'UNAVAILABLE'; expect(Widget.computed.canResume.call(vm)).toBe(false)
   })

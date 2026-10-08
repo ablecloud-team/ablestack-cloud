@@ -9548,5 +9548,9 @@
   "label.storage.volume.resume": "Resume preparation",
   "label.storage.operation.state.COMPLETE_NO_CONFIG_CHANGE": "Preparation resumed (configuration unchanged)",
   "label.storage.volume.observed.at": "Observed at (UTC)",
-  "label.storage.volume.elapsed": "Elapsed time (seconds)"
+  "label.storage.volume.elapsed": "Elapsed time (seconds)",
+  "message.storage.config.allocation.preserve": "Review each DATA volume allocation. Created disks are preserved if restore fails.",
+  "label.storage.config.target.volume": "Planned DATA volume",
+  "label.storage.config.source.volume": "Source DATA volume",
+  "label.storage.config.data.policy": "DATA retention policy"
 }
