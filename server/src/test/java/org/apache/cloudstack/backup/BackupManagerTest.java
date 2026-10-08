@@ -3488,6 +3488,62 @@ public class BackupManagerTest {
     }
 
     @Test
+    public void testRecoveryCleanupStateIsNotOverwrittenByStatusUpdate() throws Exception {
+        for (String providerName : List.of("ablestack-nas", "ablestack-veeam", "ablestack-commvault", "ablestack-netbackup")) {
+            for (String cleanupState : List.of("WAITING", "ARTIFACTS_REMOVED")) {
+                for (boolean canceled : new boolean[] {false, true}) {
+                    assertRecoveryPersistsCompletedCleanup(providerName, cleanupState, canceled);
+                }
+            }
+        }
+    }
+
+    private void assertRecoveryPersistsCompletedCleanup(String providerName, String cleanupState, boolean canceled) throws Exception {
+        BackupVO backup = recoveryBackup(canceled);
+        backup.getDetails().put(AblestackBackupFrameworkUtils.BACKUP_CLEANUP_STATE_DETAIL, cleanupState);
+        backup.getDetails().put(AblestackBackupFrameworkUtils.RESOURCE_COUNT_PENDING_DETAIL, "true");
+        Map<String, String> persistedDetails = new HashMap<>(backup.getDetails());
+        VMInstanceVO vm = mock(VMInstanceVO.class);
+        when(backupProvider.getName()).thenReturn(providerName);
+        when(backupProvider.cleanupCanceledBackup(vm, backup)).thenReturn(true);
+        when(agentManager.send(eq(42L), any(AblestackBackupJobCleanupCommand.class)))
+                .thenAnswer(call -> new com.cloud.agent.api.Answer(call.getArgument(1), true, "Stopped and cleaned"));
+        Mockito.doAnswer(call -> {
+            persistedDetails.put(call.getArgument(1), call.getArgument(2));
+            return null;
+        }).when(backupDetailsDao).addDetail(eq(backup.getId()), anyString(), anyString(), eq(false));
+        Mockito.doAnswer(call -> {
+            ((BackupVO) call.getArgument(0)).setDetails(new HashMap<>(persistedDetails));
+            return null;
+        }).when(backupDao).loadDetails(backup);
+        Mockito.doAnswer(call -> {
+            // BackupDaoImpl.update saves the object's details after updating its status.
+            persistedDetails.clear();
+            persistedDetails.putAll(((BackupVO) call.getArgument(1)).getDetails());
+            return true;
+        }).when(backupDao).update(eq(backup.getId()), eq(backup));
+
+        assertTrue(backupManager.reconcileAblestackBackupRecovery(backupProvider, backup, vm));
+        assertEquals(providerName + "/" + cleanupState + "/" + canceled, "COMPLETED",
+                persistedDetails.get(AblestackBackupFrameworkUtils.BACKUP_CLEANUP_STATE_DETAIL));
+        assertEquals(canceled ? Backup.Status.Canceled : Backup.Status.Failed, backup.getStatus());
+        assertEquals("true", persistedDetails.get(AblestackBackupFrameworkUtils.RESOURCE_COUNT_PENDING_DETAIL));
+        if (canceled) {
+            assertEquals("Backup canceled; termination and cleanup confirmed",
+                    persistedDetails.get(AblestackBackupFrameworkUtils.BACKUP_CANCELLATION_DETAIL));
+        }
+        // Completed cleanup must not query missing worker records or delete artifacts again.
+        Mockito.clearInvocations(backupProvider, agentManager);
+        if (canceled) {
+            assertFalse(backupManager.reconcileAblestackBackupRecovery(backupProvider, backup, vm));
+        } else {
+            assertTrue(backupManager.reconcileAblestackBackupRecovery(backupProvider, backup, vm));
+        }
+        verify(backupProvider, never()).cleanupCanceledBackup(any(), any());
+        Mockito.verifyNoInteractions(agentManager);
+    }
+
+    @Test
     public void testRecoveryDoesNotChangeOtherBackupProviders() {
         BackupVO backup = new BackupVO();
         backup.setDetails(Collections.singletonMap(AblestackBackupFrameworkUtils.BACKUP_CLEANUP_STATE_DETAIL, "WAITING"));

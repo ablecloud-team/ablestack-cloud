@@ -16,7 +16,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-"""Regression tests for uncertain libvirt abort and owned guest freeze cleanup."""
+"""Regression tests for backup polling, uncertain abort and owned freeze cleanup."""
 import json
 import os
 from pathlib import Path
@@ -119,6 +119,102 @@ timeout() { printf '%s\n' "$*" > "$ABLESTACK_BACKUP_JOB_DIR/control-args"; }
 virsh -c qemu:///system domjobinfo "$VM"
 [[ "$DATA_OPERATION_TIMEOUT_SECONDS" == 3600 ]] || exit 1
 [[ "$(cat "$ABLESTACK_BACKUP_JOB_DIR/control-args")" == '-k 5s 1s virsh -c qemu:///system domjobinfo i-2-45-VM' ]]
+""")
+        self.assertEqual(0, result.returncode, result.stderr)
+
+    def test_missing_completed_stats_while_backup_active_does_not_abort(self):
+        result = self.run_shell(r"""
+DATA_OPERATION_TIMEOUT_SECONDS=3600
+printf '0' > "$ABLESTACK_BACKUP_JOB_DIR/polls"
+virsh() {
+  local polls
+  polls=$(cat "$ABLESTACK_BACKUP_JOB_DIR/polls")
+  case "$*" in
+    *domjobinfo*--completed*)
+      [[ "$*" == *--keep-completed* ]] || return 9
+      if [[ "$polls" -lt 2 ]]; then echo 'Job type: None'; else echo 'Job type: Completed'; fi ;;
+    *domjobinfo*)
+      if [[ "$polls" -lt 2 ]]; then echo 'Job type: Unbounded'; else echo 'Job type: None'; fi ;;
+    *domjobabort*) touch "$ABLESTACK_BACKUP_JOB_DIR/unexpected-abort" ;;
+  esac
+}
+sleep() {
+  [[ "$BACKUP_JOB_MAY_BE_ACTIVE" == 1 ]] || exit 8
+  printf '%s' "$(( $(cat "$ABLESTACK_BACKUP_JOB_DIR/polls") + 1 ))" > "$ABLESTACK_BACKUP_JOB_DIR/polls"
+}
+ablestack_backup_job_started
+ablestack_wait_for_backup || exit 1
+[[ "$(cat "$ABLESTACK_BACKUP_JOB_DIR/polls")" == 2 && "$BACKUP_JOB_MAY_BE_ACTIVE" == 0 && ! -f "$ABLESTACK_BACKUP_JOB_DIR/unexpected-abort" ]]
+""")
+        self.assertEqual(0, result.returncode, result.stderr)
+
+    def test_completed_stats_are_not_used_while_current_job_is_active(self):
+        result = self.run_shell(r"""
+DATA_OPERATION_TIMEOUT_SECONDS=3600
+virsh() {
+  case "$*" in
+    *domjobinfo*--completed*)
+      [[ -f "$ABLESTACK_BACKUP_JOB_DIR/current-job-ended" ]] || touch "$ABLESTACK_BACKUP_JOB_DIR/premature-completed-query"
+      echo 'Job type: Completed' ;;
+    *domjobinfo*)
+      if [[ -f "$ABLESTACK_BACKUP_JOB_DIR/current-job-ended" ]]; then echo 'Job type: None'; else echo 'Job type: Bounded'; fi ;;
+  esac
+}
+sleep() { touch "$ABLESTACK_BACKUP_JOB_DIR/current-job-ended"; }
+ablestack_backup_job_started
+ablestack_wait_for_backup || exit 1
+[[ -f "$ABLESTACK_BACKUP_JOB_DIR/current-job-ended" && ! -f "$ABLESTACK_BACKUP_JOB_DIR/premature-completed-query" && "$BACKUP_JOB_MAY_BE_ACTIVE" == 0 ]]
+""")
+        self.assertEqual(0, result.returncode, result.stderr)
+
+    def test_idle_backup_requires_completed_result(self):
+        for status in ('None', 'Failed', 'Cancelled', ''):
+            with self.subTest(status=status):
+                result = self.run_shell(r"""
+DATA_OPERATION_TIMEOUT_SECONDS=3600
+virsh() {
+  case "$*" in
+    *domjobinfo*--completed*) echo 'Job type: STATUS' ;;
+    *domjobinfo*) echo 'Job type: None' ;;
+  esac
+}
+sleep() { exit 9; }
+ablestack_backup_job_started
+if ablestack_wait_for_backup; then exit 1; fi
+[[ "$BACKUP_JOB_MAY_BE_ACTIVE" == 1 ]]
+""".replace('STATUS', status))
+                self.assertEqual(0, result.returncode, result.stderr)
+
+    def test_failed_status_query_never_marks_backup_complete(self):
+        for query in ('current', 'completed'):
+            with self.subTest(query=query):
+                result = self.run_shell(r"""
+DATA_OPERATION_TIMEOUT_SECONDS=3600
+virsh() {
+  case "$*" in
+    *domjobinfo*--completed*) return 124 ;;
+    *domjobinfo*) CURRENT_QUERY ;;
+  esac
+}
+ablestack_backup_job_started
+if ablestack_wait_for_backup; then exit 1; fi
+[[ "$BACKUP_JOB_MAY_BE_ACTIVE" == 1 ]]
+""".replace('CURRENT_QUERY', 'return 124' if query == 'current' else "echo 'Job type: None'"))
+                self.assertEqual(0, result.returncode, result.stderr)
+
+    def test_active_backup_wait_uses_transfer_deadline(self):
+        result = self.run_shell(r"""
+DATA_OPERATION_TIMEOUT_SECONDS=2
+elapsed=0
+date() { printf '%s\n' "$elapsed"; }
+virsh() {
+  [[ "$*" != *--completed* ]] || exit 9
+  echo 'Job type: Unbounded'
+}
+sleep() { elapsed=$((elapsed + 1)); }
+ablestack_backup_job_started
+if ablestack_wait_for_backup; then exit 1; fi
+[[ "$elapsed" == 2 && "$BACKUP_JOB_MAY_BE_ACTIVE" == 1 ]]
 """)
         self.assertEqual(0, result.returncode, result.stderr)
 

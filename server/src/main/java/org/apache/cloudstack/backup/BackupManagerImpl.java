@@ -5820,18 +5820,21 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         }
         // Persist artifact cleanup independently: retrying job-record deletion must not delete payloads twice.
         backupDetailsDao.addDetail(backup.getId(), AblestackBackupFrameworkUtils.BACKUP_CLEANUP_STATE_DETAIL, "ARTIFACTS_REMOVED", false);
+        backupDao.loadDetails(backup);
         return finishAblestackBackupJobCleanup(provider, backup, canceled);
     }
 
     private boolean finishAblestackBackupJobCleanup(final BackupProvider provider, final BackupVO backup, final boolean canceled) {
         if (!cleanupBackupJobFiles(backup.getHostId(), backup.getUuid(), provider.getName())) { return false; }
         backupDetailsDao.addDetail(backup.getId(), AblestackBackupFrameworkUtils.BACKUP_CLEANUP_STATE_DETAIL, "COMPLETED", false);
-        backup.setStatus(canceled ? Backup.Status.Canceled : Backup.Status.Failed);
-        backupDao.update(backup.getId(), backup);
         if (canceled) {
             backupDetailsDao.addDetail(backup.getId(), AblestackBackupFrameworkUtils.BACKUP_CANCELLATION_DETAIL,
                     "Backup canceled; termination and cleanup confirmed", false);
         }
+        // update also saves details; reload so stale WAITING cannot overwrite completed cleanup.
+        backupDao.loadDetails(backup);
+        backup.setStatus(canceled ? Backup.Status.Canceled : Backup.Status.Failed);
+        backupDao.update(backup.getId(), backup);
         // Keep the pending accounting proof: failed/canceled jobs were never counted.
         return true;
     }

@@ -89,16 +89,31 @@ ablestack_backup_cleanup_safe() {
 
 ablestack_wait_for_backup() {
   local deadline=$(( $(date +%s) + DATA_OPERATION_TIMEOUT_SECONDS ))
-  local info status
+  local info active_status status
   while (( $(date +%s) < deadline )); do
-    info=$(virsh -c qemu:///system domjobinfo "$VM" --completed --keep-completed) || {
-      log -ne "FAILED backup status is unavailable vm=[$VM]"
+    # --completed queries the last finished job, not the currently running backup.
+    # Its None result while IO is active must never trigger cleanup or abort.
+    info=$(virsh -c qemu:///system domjobinfo "$VM") || {
+      log -ne "FAILED active backup status is unavailable vm=[$VM]"
       return 1
     }
-    status=$(awk '/Job type:/ {print $3}' <<< "$info")
-    case "$status" in
-      Completed) BACKUP_JOB_MAY_BE_ACTIVE=0; return 0 ;;
-      Failed|None|'') log -ne "FAILED backup did not complete vm=[$VM] status=[$status]"; return 1 ;;
+    active_status=$(awk '/Job type:/ {print $3}' <<< "$info")
+    case "$active_status" in
+      Bounded|Unbounded) ;;
+      None)
+        info=$(virsh -c qemu:///system domjobinfo "$VM" --completed --keep-completed) || {
+          log -ne "FAILED completed backup status is unavailable vm=[$VM]"
+          return 1
+        }
+        status=$(awk '/Job type:/ {print $3}' <<< "$info")
+        if [[ "$status" == "Completed" ]]; then
+          BACKUP_JOB_MAY_BE_ACTIVE=0
+          return 0
+        fi
+        log -ne "FAILED backup did not complete vm=[$VM] activeStatus=[$active_status] status=[$status]"
+        return 1
+        ;;
+      *) log -ne "FAILED active backup status is unexpected vm=[$VM] status=[$active_status]"; return 1 ;;
     esac
     sleep 5
   done
