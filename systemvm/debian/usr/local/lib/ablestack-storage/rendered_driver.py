@@ -35,6 +35,8 @@ from native_render_runtime import NativeRenderedRuntime, PROTOCOL_FILES
 from rendered_prerequisites import RenderedPrerequisites
 from ganesha_dbus import GaneshaDbus
 from rendered_credentials import credential_json, credential_bindings, credential_recovery_key, credential_target_inputs
+from root_source_recovery import RootSourceRecovery
+from nvme_credentials import protected_credential_json
 
 
 class RenderedDriver:
@@ -45,6 +47,7 @@ class RenderedDriver:
         self.prerequisites = RenderedPrerequisites(self.runtime,self.store)
         self.runtime.persist_one = self.persist_one
         self.nfs_config_root=Path("/etc/ganesha/ablestack-storage")
+        self.root_source=RootSourceRecovery(self)
 
     def verify(self,path):
         manifest=self.store.inspect(path);bindings=json.loads(rendered_read(path/"file-volumes.json"))
@@ -109,6 +112,51 @@ class RenderedDriver:
                 raise ValueError("Rendered FILE_DATA mounted filesystem/serial/size differs from its frozen manifest")
             verified.append({**row,"mountPath":root})
         return {"schemaVersion":1,"volumes":verified}
+
+    def baseline_credential_refs(self,request,source):
+        scope=self.store.scope(request)
+        if (source.get("pendingOperationUuid") or source.get("generationStatus")!="IN_SYNC"
+                or source.get("generation")!=request.get("previousGeneration")
+                or source.get("configurationDesiredState")!=request.get("configurationDesiredState")
+                or any((source.get("generation") or {}).get(key)!=value for key,value in scope.items())
+                or request.get("credentialRefs") not in (None,{})):
+            raise ValueError("Baseline private references require only the exact native current declaration")
+        refs={"SMB":{},"ISCSI":{},"NVMEOF":{}};desired=source["configurationDesiredState"];inactive={"Disabled","Destroyed","Error"}
+        smb=desired[PROTOCOL_FILES["SMB"]] or {};users=set()
+        for share in smb.get("shares") or []:
+            if smb.get("enabled") is False or share.get("state","Ready") in inactive:continue
+            refs["SMB"][share["uuid"]]={"kind":"CURRENT_PRIVATE_VAULT",**{key:scope[key] for key in ("instanceUuid","operationUuid")},"sourceConfigurationSha256":source["configurationSha256"],"vault":"SAMBA_PASSDB"}
+            for acl in share.get("acls") or []:
+                if acl.get("state","Ready") not in inactive and acl.get("principalType")=="LOCAL_USER":users.add(acl["principal"])
+        if users:
+            identity=self.runtime.command(("smb","identity","inspect"),scope)
+            if (identity.get("success") is not True or identity.get("scope")!=scope or identity.get("ownershipVerified") is not True
+                    or identity.get("identityDatabaseAligned") is not True):
+                raise ValueError("Baseline Samba private databases are not aligned with the owned live source")
+            for name in sorted(users):
+                if not isinstance(name,str) or not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_.-]{0,63}",name):raise ValueError("Baseline managed Samba account name is invalid")
+                observed=subprocess.run(["pdbedit","-L","-u",name],stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,text=True,timeout=self.runtime.remaining(10))
+                rows=observed.stdout.splitlines()
+                if observed.returncode or len(rows)!=1 or rows[0].split(":",1)[0]!=name:
+                    raise ValueError("Baseline managed Samba account is absent from its protected current passdb")
+        iscsi=protected_credential_json(self.runtime.iscsi_credentials_path) or {}
+        nvme=self.runtime.nvme_credentials.read()
+        for domain,collection,acls,flags,vault in (("ISCSI","targets","acls",(("chapEnabled","chapSecret"),("mutualChapEnabled","mutualChapSecret")),"ISCSI_ACL_AUTH"),
+                                                 ("NVMEOF","subsystems","hosts",(("dhChapEnabled","dhChapKey"),("dhChapCtrlEnabled","dhChapCtrlKey")),"NVME_HOST_AUTH")):
+            payload=desired[PROTOCOL_FILES[domain]] or {}
+            for resource in payload.get(collection) or []:
+                if payload.get("enabled") is False or resource.get("state","Ready") in inactive:continue
+                for acl in resource.get(acls) or []:
+                    if acl.get("state","Ready") in inactive:continue
+                    key=resource["targetName"]+"|"+acl["principal"];config=acl.get("config") or {}
+                    private=iscsi.get(key) if domain=="ISCSI" else (nvme or {}).get("hosts",{}).get(acl["principal"])
+                    for flag,field in flags:
+                        if config.get(flag):
+                            if domain=="NVMEOF" and (nvme or {}).get("instanceUuid")!=scope["instanceUuid"]:raise ValueError("Baseline NVMe private vault belongs to another source instance")
+                            if not isinstance(private,dict) or not isinstance(private.get(field),str) or not private[field]:
+                                raise ValueError("Baseline authentication lacks its exact protected current private vault slot")
+                    refs[domain][key]={"kind":"CURRENT_PRIVATE_VAULT",**{key:scope[key] for key in ("instanceUuid","operationUuid")},"sourceConfigurationSha256":source["configurationSha256"],"vault":vault}
+        return refs
 
     def render(self, request):
         desired = self.desired(request)
@@ -365,7 +413,12 @@ class RenderedDriver:
         try:
             proof = json.loads(rendered_read(root / "writer.json"))
             status = self.store.status(); journal = status["activation"]
-            if proof.get("mode")=="SERVICE_SOURCE_RESTORE":
+            if proof.get("mode")=="ROOT_SOURCE_RESTORE":
+                expected,path,checkpoint=self.root_source.validate(proof["maintenanceScope"])
+                if (checkpoint.get("phase") not in ("REPLAYING","VERIFIED")
+                        or proof.get("sourceManifestSha256")!=checkpoint["sourceRendered"]["manifestSha256"]
+                        or any(expected.get(key)!=value for key,value in proof["scope"].items())):return False
+            elif proof.get("mode")=="SERVICE_SOURCE_RESTORE":
                 expected,path,checkpoint,source_status=self.service_source(proof["maintenanceScope"])
                 if (checkpoint.get("sourceResumePhase") not in ("REPLAYING","VERIFIED") or source_status.get("activation")!=checkpoint.get("sourceActivation")
                         or proof.get("sourceManifestSha256")!=checkpoint["sourceRendered"].get("manifestSha256")
@@ -407,7 +460,12 @@ class RenderedDriver:
                  "startTicks": Path("/proc/self/stat").read_text().rpartition(")")[2].split()[19],
                  "bootId": Path("/proc/sys/kernel/random/boot_id").read_text().strip(), "lockDevice": lock.st_dev, "lockInode": lock.st_ino}
         if source_only:
-            proof["mode"]="SERVICE_SOURCE_RESTORE";proof["sourceManifestSha256"]=self.store.inspect(self.store.pointer())["manifestSha256"]
+            if source_only=="ROOT":
+                expected,path,checkpoint=self.root_source.validate(request)
+                if maintenance.get("maintenanceKind")!="ROOT":raise ValueError("ROOT source cannot borrow a SERVICE authorization")
+                proof["mode"]="ROOT_SOURCE_RESTORE"
+            else:proof["mode"]="SERVICE_SOURCE_RESTORE"
+            proof["sourceManifestSha256"]=self.store.inspect(self.store.pointer())["manifestSha256"]
         rendered_json(root / "writer.json", proof)
         return root / "writer.json"
 
@@ -439,6 +497,12 @@ class RenderedDriver:
 
     def execute(self, action, request=None, unit=None):
         if action == "render-status": return self.store.status()
+        if action=="render-root-capture-source":return self.root_source.capture(request)
+        if action=="render-root-resume-source":return self.root_source.resume(request)
+        if action=="render-root-replay-guard":return self.root_source.guard()
+        if action=="render-root-source-quiesce-guard":
+            scope,path,checkpoint=self.root_source.validate(request)
+            return {"success":True,"scope":scope,"sourceCaptured":True,"quiesceAuthorized":True,"sideEffects":False}
         if action=="render-maintenance-resume-source":
             expected,checkpoint_path,checkpoint,status=self.service_source(request)
             if status.get("activation")!=checkpoint.get("sourceActivation"):raise ValueError("SERVICE pre-activation resume cannot adopt a rendered activation")
@@ -510,6 +574,8 @@ class RenderedDriver:
         source = self.generation()
         if action in ("render-import", "render-stage"):
             if action=="render-stage":credential_bindings(self.desired(request),request.get("credentialRefs") or {},scope,source["configurationSha256"])
+            if action=="render-import" and request.get("initialRootBaseline") is not True:
+                request={**request,"credentialRefs":self.baseline_credential_refs(request,source)}
             files = self.render(request)
             if action == "render-import":
                 if request.get("initialRootBaseline") is True:
