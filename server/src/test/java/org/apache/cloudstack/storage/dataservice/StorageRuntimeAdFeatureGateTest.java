@@ -37,6 +37,9 @@ public class StorageRuntimeAdFeatureGateTest {
     @Before public void setup(){
         manager=new StorageServiceRuntimeUpgradeManagerImpl();instance=Mockito.mock(StorageServiceInstanceVO.class);Mockito.when(instance.getId()).thenReturn(6L);Mockito.when(instance.getVmId()).thenReturn(60L);Mockito.when(instance.getUuid()).thenReturn("11111111-2222-4333-8444-555555555555");
         domains=Mockito.mock(StorageIdentityDomainDao.class);shares=Mockito.mock(StorageFileShareDao.class);rules=Mockito.mock(StorageAccessRuleDao.class);policies=Mockito.mock(StoragePosixDirectoryPolicyDao.class);StorageServiceProtocolDao protocols=Mockito.mock(StorageServiceProtocolDao.class);guest=Mockito.mock(StorageServiceGuestCommandDispatcher.class);
+        StorageService dependency = Mockito.mock(StorageService.class);
+        Mockito.when(dependency.requiredManagedOperationFeatures(6L)).thenReturn(Set.of());
+        ReflectionTestUtils.setField(manager,"operationControlService",(javax.inject.Provider<StorageService>)()->dependency);
         ReflectionTestUtils.setField(manager,"runtimeIdentityDomainDao",domains);ReflectionTestUtils.setField(manager,"fileShareDao",shares);ReflectionTestUtils.setField(manager,"accessRuleDao",rules);ReflectionTestUtils.setField(manager,"posixPolicyDao",policies);ReflectionTestUtils.setField(manager,"protocolDao",protocols);ReflectionTestUtils.setField(manager,"guestCommandDispatcher",guest);
     }
     private void domain(StorageServiceInstance.DomainJoinState state){StorageIdentityDomainVO row=Mockito.mock(StorageIdentityDomainVO.class);Mockito.when(row.getJoinState()).thenReturn(state);Mockito.when(domains.findByInstanceId(6L)).thenReturn(row);}

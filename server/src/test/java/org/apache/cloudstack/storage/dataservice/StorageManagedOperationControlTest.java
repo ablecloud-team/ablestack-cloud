@@ -84,4 +84,11 @@ public class StorageManagedOperationControlTest {
     @Test public void scaleSuspensionRetainsTheExactWriterForRecoveryAndReleasePrecedesTerminal() {
         String uuid=manager.beginRuntimeOperationControl(10L,false);manager.suspendManagedOperationControl(uuid);Assert.assertEquals(operation,manager.managedOperation(uuid));Assert.assertEquals(1,manager.released);manager.resumeManagedOperationControl(uuid);manager.finishManagedOperationControl(uuid,"ROLLED_BACK");Assert.assertEquals(2,manager.released);Assert.assertEquals("ROLLED_BACK",operation.getState());
     }
+    @Test public void policyAndRetainedRecoveryLeaseRequireSignedFeatureEvenAfterGlobalDisable() {
+        ReflectionTestUtils.setField(StorageServiceInstance.StorageServiceOperationControlEnabled,"_value",false);Assert.assertEquals(java.util.Set.of("LOGICAL_RESOURCE_RESERVATION"),manager.requiredManagedOperationFeatures(7L));
+        enabled(true);ReflectionTestUtils.setField(StorageServiceInstance.StorageServiceOperationControlEnabled,"_value",true);String uuid=manager.beginRuntimeOperationControl(10L,false);enabled(false);ReflectionTestUtils.setField(StorageServiceInstance.StorageServiceOperationControlEnabled,"_value",false);
+        manager.finishManagedOperationControl(uuid,"RECOVERY_REQUIRED");Assert.assertEquals(java.util.Set.of("LOGICAL_RESOURCE_RESERVATION"),manager.requiredManagedOperationFeatures(7L));operation.setState("COMPLETE");control.setLeaseJson("{\"reservationAcquired\":false}");Assert.assertTrue(manager.requiredManagedOperationFeatures(7L).isEmpty());
+        control.setLeaseJson("{\"reservationAcquired\":true}");Assert.assertEquals(java.util.Set.of("LOGICAL_RESOURCE_RESERVATION"),manager.requiredManagedOperationFeatures(7L));
+    }
+
 }
