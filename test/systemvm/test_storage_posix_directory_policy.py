@@ -118,6 +118,15 @@ class PosixDirectoryPolicyTest(unittest.TestCase):
             exec(compile(tail, str(SOURCE), "exec"), self.ns)
         return self.ns["result"]
 
+    def test_readonly_inspect_attests_post_receipt_code_without_writing_canonical_state(self):
+        self.request["expectedDirectoryIdentity"] = self.snapshot()["directoryIdentity"]
+        self.dispatch("apply");state=Path(self.ns["state_path"])
+        data=state.read_bytes();info=state.stat();observed=self.snapshot()["directoryIdentity"]
+        result=self.dispatch("inspect")
+        self.assertIs(True,result["postApplyReceiptSupported"]);self.assertEqual(observed,result["directoryIdentity"])
+        self.assertEqual(data,state.read_bytes());self.assertEqual(info,state.stat())
+        self.assertNotIn("postApplyReceiptSupported",json.loads(data)[self.request["uuid"]]["effective"])
+
     def test_boot_replay_after_explicit_owner_mode_acl_change_is_nonmutating_and_byte_identical(self):
         before = self.snapshot()
         self.request["config"].update(applyOwner=True, ownerUid=65534, ownerGid=65534)
