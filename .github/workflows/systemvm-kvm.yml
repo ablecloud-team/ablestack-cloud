@@ -136,7 +136,8 @@ jobs:
           python3 test/systemvm/test_storage_config_generation.py
           python3 test/systemvm/test_storage_identity_capsule.py
           python3 test/systemvm/test_storage_writer_lock.py
-          python3 test/systemvm/test_storage_posix_directory_policy.py
+          sudo python3 test/systemvm/test_storage_posix_directory_policy.py
+          sudo python3 systemvm/test/TestStorageGaneshaFeatures.py
 
       - name: Download and verify Debian installer ISO
         run: |
