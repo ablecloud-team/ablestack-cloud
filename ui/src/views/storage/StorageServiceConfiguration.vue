@@ -105,7 +105,14 @@
         <a-form-item v-for="volume in sourceVolumes" :key="volume" :label="$t('label.storage.config.volume.mapping') + ': ' + volume">
           <a-input v-if="targetMode==='CREATE_NEW' && volume===initialVolumeSource && clone.backingvolumemode==='NEW'" :value="$t('label.storage.config.clone.new.volume')" disabled />
           <a-select v-else-if="targetMode==='CREATE_NEW' && volume===initialVolumeSource" :value="clone.existingvolumeid" :options="cloneOptions.volumes" disabled />
-          <a-select v-else v-model:value="volumeMapping[volume]" :options="targetMode==='CREATE_NEW' ? cloneOptions.volumes : targetVolumes" :disabled="planPhase==='REVIEW'" />
+          <template v-else>
+            <a-select v-model:value="volumeMapping[volume]" :options="targetMode==='CREATE_NEW' ? [{ value: 'NEW', label: $t('label.storage.config.clone.new.volume') }, ...cloneOptions.volumes] : targetVolumes" :disabled="planPhase==='REVIEW'" @change="setVolumeMapping(volume)" />
+            <template v-if="targetMode==='CREATE_NEW' && volumeMapping[volume]==='NEW'">
+              <a-form-item :label="$t('label.diskofferingid')"><a-select v-model:value="newVolumeSpecs[volume].diskofferingid" :options="cloneOptions.disks" :disabled="planPhase==='REVIEW'" /></a-form-item>
+              <a-form-item :label="$t('label.storage.service.primary.storage')"><a-select v-model:value="newVolumeSpecs[volume].storageid" :options="cloneOptions.pools" :disabled="planPhase==='REVIEW'" /></a-form-item>
+              <a-form-item :label="$t('label.storage.config.clone.size')"><a-input-number v-model:value="newVolumeSpecs[volume].sizeGiB" :min="1" :disabled="planPhase==='REVIEW'" /></a-form-item>
+            </template>
+          </template>
         </a-form-item>
       </a-form>
       <template v-if="plan">
@@ -121,6 +128,8 @@
           <a-descriptions-item :label="$t('label.storage.config.preserve.resources')">{{ plan.preserve.length }}</a-descriptions-item>
         </a-descriptions>
         <a-alert v-for="directory in (plan.directoryPreparation || [])" :key="directory.sourceUuid" type="info" show-icon :message="$t('label.storage.config.directory.prepare') + ': ' + directory.relativePath" />
+        <a-alert v-if="allocationRows.length" type="info" show-icon :message="$t('message.storage.config.allocation.preserve')" />
+        <a-table v-if="allocationRows.length" size="small" :columns="allocationColumns" :data-source="allocationRows" :pagination="false" :scroll="{ x: 1300 }" row-key="sourceUuid" />
         <a-table size="small" :columns="planColumns" :data-source="changes" :pagination="{ pageSize: 5 }" :scroll="{ x: 750 }" row-key="sourceUuid" />
         <a-form v-if="planPhase==='REVIEW'" layout="vertical">
           <template v-for="required in plan.requiredCredentials" :key="required.ruleUuid">
@@ -137,6 +146,7 @@
 <script>
 import { getAPI, postAPI } from '@/api'
 import SHA from 'sha.js'
+import { supportsStorageFormatting, diskProvisioningLabel } from '@/utils/storageDiskProvisioning'
 import { CloudDownloadOutlined, UploadOutlined, DownloadOutlined, RollbackOutlined, ReloadOutlined } from '@ant-design/icons-vue'
 const Sha256 = SHA.sha256
 
@@ -145,7 +155,7 @@ export default {
   components: { CloudDownloadOutlined, UploadOutlined, DownloadOutlined, RollbackOutlined, ReloadOutlined },
   emits: ['operation-updated'],
   props: { instanceId: { type: String, required: true }, resource: { type: Object, required: true } },
-  data: () => ({ rows: [], loading: false, readFailed: false, generation: 0, busy: '', error: '', backupDialog: false, includeRuntime: true, retentionHours: 168, planTarget: null, plan: null, planPhase: 'MAPPING', planToken: '', lkgPlan: false, planning: false, volumeMapping: {}, targetVolumes: [], credentialValues: {}, confirmation: '', confirmFileExecute: false, targetMode: 'RESTORE_EXISTING', clone: { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP', backingvolumemode: 'NEW' }, initialVolumeSource: '', plannedVolume: '', cloneRuntime: '', cloneOptions: { zones: [], networks: [], offerings: [], disks: [], pools: [], bundles: [], volumes: [] } }),
+  data: () => ({ rows: [], loading: false, readFailed: false, generation: 0, busy: '', error: '', backupDialog: false, includeRuntime: true, retentionHours: 168, planTarget: null, plan: null, planPhase: 'MAPPING', planToken: '', lkgPlan: false, planning: false, volumeMapping: {}, newVolumeSpecs: {}, targetVolumes: [], credentialValues: {}, confirmation: '', confirmFileExecute: false, targetMode: 'RESTORE_EXISTING', clone: { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP', backingvolumemode: 'NEW' }, initialVolumeSource: '', plannedVolume: '', cloneRuntime: '', cloneOptions: { zones: [], networks: [], offerings: [], disks: [], pools: [], bundles: [], volumes: [] } }),
   computed: {
     dialogBody () { return { maxHeight: '65vh', overflowY: 'auto' } },
     activePoint () { return this.rows.find(row => row.kind === 'RESTORE_POINT' && row.state === 'ACTIVE_LKG') },
@@ -164,6 +174,19 @@ export default {
       return [...volumes]
     },
     changes () { return this.plan ? [...this.plan.create, ...this.plan.update, ...this.plan.keep] : [] },
+    allocationRows () { return this.plan?.volumeAllocationPlan?.allocations || [] },
+    allocationColumns () {
+      return [
+        { title: this.$t('label.storage.config.source.volume'), dataIndex: 'sourceUuid', width: 260 },
+        { title: this.$t('label.storage.config.target.volume'), dataIndex: 'plannedUuid', width: 260 },
+        { title: this.$t('label.type'), dataIndex: 'usage', width: 120 },
+        { title: this.$t('label.storage.config.clone.volume.mode'), dataIndex: 'mode', width: 100 },
+        { title: this.$t('label.provisioningtype'), dataIndex: 'provisioningType', width: 120 },
+        { title: this.$t('label.diskofferingid'), dataIndex: 'offeringUuid', width: 260 },
+        { title: this.$t('label.storage.service.primary.storage'), dataIndex: 'poolUuid', width: 260 },
+        { title: this.$t('label.storage.config.size'), dataIndex: 'sizeBytes', width: 150 },
+        { title: this.$t('label.storage.config.data.policy'), dataIndex: 'dataPolicy', width: 130 }]
+    },
     planColumns () {
       return [
         { title: this.$t('label.type'), dataIndex: 'kind', width: 180 },
@@ -301,7 +324,7 @@ export default {
     },
     async loadCloneZoneOptions () {
       const target = this.planTarget; const instance = this.instanceId; const zoneid = this.clone.zoneid
-      this.clone.networkid = undefined; this.clone.storageid = undefined; this.volumeMapping = {}
+      this.clone.networkid = undefined; this.clone.storageid = undefined; this.clone.diskofferingid = undefined; this.clone.serviceofferingid = undefined; this.volumeMapping = {}; this.newVolumeSpecs = {}
       try {
         const results = await Promise.all([
           getAPI('listNetworks', { zoneid }, { timeout: 15000, preserveOnFailure: true }),
@@ -311,11 +334,16 @@ export default {
           getAPI('listVolumes', { zoneid, type: 'DATADISK', state: 'Ready' }, { timeout: 15000, preserveOnFailure: true })])
         if (target !== this.planTarget || instance !== this.instanceId || zoneid !== this.clone.zoneid) return
         this.cloneOptions.networks = this.options(results[0].listnetworksresponse.network)
-        this.cloneOptions.offerings = this.options(results[1].listserviceofferingsresponse.serviceoffering)
-        this.cloneOptions.disks = this.options(results[2].listdiskofferingsresponse.diskoffering)
+        this.cloneOptions.offerings = this.options((results[1].listserviceofferingsresponse.serviceoffering || []).filter(supportsStorageFormatting))
+        this.cloneOptions.disks = (results[2].listdiskofferingsresponse.diskoffering || []).filter(supportsStorageFormatting).map(row => ({ value: row.id, label: (row.name || row.id) + ' · ' + diskProvisioningLabel(row) + ' · ' + row.id }))
         this.cloneOptions.pools = this.options((results[3].liststoragepoolsresponse.storagepool || []).filter(row => row.state === 'Up'))
         this.cloneOptions.volumes = this.options((results[4].listvolumesresponse.volume || []).filter(row => !row.virtualmachineid))
       } catch (error) { if (target === this.planTarget && instance === this.instanceId) this.error = error.message }
+    },
+    setVolumeMapping (source) {
+      if (this.volumeMapping[source] === 'NEW') this.newVolumeSpecs[source] = this.newVolumeSpecs[source] || { dataPolicy: 'PRESERVE' }
+      else delete this.newVolumeSpecs[source]
+      this.planToken = ''; this.confirmation = ''
     },
     async preparePlan () {
       const target = this.planTarget; const instance = this.instanceId
@@ -332,6 +360,8 @@ export default {
           if (existing) {
             delete mappings.createNew.diskofferingid; delete mappings.createNew.size; delete mappings.createNew.storageid
           } else delete mappings.createNew.existingvolumeid
+          const specifications = Object.fromEntries(Object.entries(this.volumeMapping).filter(([source, target]) => source !== this.initialVolumeSource && target === 'NEW').map(([source]) => [source, { ...(this.newVolumeSpecs?.[source] || {}), dataPolicy: 'PRESERVE' }]))
+          if (Object.keys(specifications).length) mappings.newVolumes = specifications
           mappings.initialVolumeSourceUuid = this.initialVolumeSource; mappings.runtimeBundleUuid = this.cloneRuntime
         }
         const result = await this.mutation(api, { artifactid: this.planTarget.id, targetmode: this.targetMode, mapping: JSON.stringify(mappings) })
@@ -348,7 +378,7 @@ export default {
       this.closePlan(); this.busy = 'RESTORE'; this.error = ''
       try { await this.mutation(api, parameters); await this.refresh() } catch (error) { this.error = error.message } finally { this.busy = '' }
     },
-    closePlan () { this.planTarget = null; this.plan = null; this.planToken = ''; this.planPhase = 'MAPPING'; this.volumeMapping = {}; this.credentialValues = {}; this.confirmation = ''; this.lkgPlan = false; this.planning = false; this.confirmFileExecute = false; this.targetMode = 'RESTORE_EXISTING'; this.initialVolumeSource = ''; this.plannedVolume = ''; this.cloneRuntime = ''; this.clone = { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP', backingvolumemode: 'NEW' } }
+    closePlan () { this.planTarget = null; this.plan = null; this.planToken = ''; this.planPhase = 'MAPPING'; this.volumeMapping = {}; this.newVolumeSpecs = {}; this.credentialValues = {}; this.confirmation = ''; this.lkgPlan = false; this.planning = false; this.confirmFileExecute = false; this.targetMode = 'RESTORE_EXISTING'; this.initialVolumeSource = ''; this.plannedVolume = ''; this.cloneRuntime = ''; this.clone = { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP', backingvolumemode: 'NEW' } }
   }
 }
 </script>

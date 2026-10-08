@@ -173,4 +173,39 @@ describe('Configuration backup and restore UI boundaries', () => {
       expect(vm.error).toBe('message.storage.config.download.integrity')
     } finally { click.mockRestore() }
   })
+  it('sends independent NEW FILE and RAW allocations while preserving existing DATA mappings', async () => {
+    const vm = { instanceId: 'a', planTarget: { id: 'backup' }, targetMode: 'CREATE_NEW', volumeMapping: { file: 'NEW', raw: 'NEW', retained: 'existing-data' }, newVolumeSpecs: { file: { diskofferingid: 'sparse', storageid: 'pool', sizeGiB: 40 }, raw: { diskofferingid: 'fat', storageid: 'pool', sizeGiB: 80 } }, initialVolumeSource: 'initial', cloneRuntime: 'runtime', clone: { name: 'clone', diskofferingid: 'sparse', storageid: 'pool', size: 20 }, $t: key => key }
+    vm.mutation = jest.fn(async () => ({ metadata: { plan: { blockers: [], requiredCredentials: [] } }, planToken: 'reviewed' }))
+    await Widget.methods.preparePlan.call(vm)
+    const mappings = JSON.parse(vm.mutation.mock.calls[0][1].mapping)
+    expect(mappings.volumes).toEqual({ initial: 'NEW', file: 'NEW', raw: 'NEW', retained: 'existing-data' })
+    expect(mappings.newVolumes).toEqual({ file: { diskofferingid: 'sparse', storageid: 'pool', sizeGiB: 40, dataPolicy: 'PRESERVE' }, raw: { diskofferingid: 'fat', storageid: 'pool', sizeGiB: 80, dataPolicy: 'PRESERVE' } })
+  })
+  it('removes a NEW allocation request when the operator selects existing DATA', () => {
+    const vm = { volumeMapping: { source: 'existing' }, newVolumeSpecs: { source: { diskofferingid: 'sparse' } }, planToken: 'old', confirmation: 'clone' }
+    Widget.methods.setVolumeMapping.call(vm, 'source')
+    expect(vm.newVolumeSpecs).toEqual({})
+    expect(vm.planToken).toBe('')
+    expect(vm.confirmation).toBe('')
+  })
+  it('offers only known SPARSE or FAT compute and DATA offerings for clone creation', async () => {
+    const vm = { instanceId: 'a', planTarget: {}, clone: { zoneid: 'zone' }, cloneOptions: {}, options: Widget.methods.options }
+    getAPI.mockImplementation(api => Promise.resolve({
+      listNetworks: { listnetworksresponse: { network: [] } },
+      listServiceOfferings: { listserviceofferingsresponse: { serviceoffering: [{ id: 'thin-root', provisioningtype: 'thin' }, { id: 'sparse-root', provisioningtype: 'sparse' }, { id: 'unknown-root' }] } },
+      listDiskOfferings: { listdiskofferingsresponse: { diskoffering: [{ id: 'thin', provisioningtype: 'thin' }, { id: 'sparse', provisioningtype: 'sparse' }, { id: 'fat', provisioningtype: 'fat' }, { id: 'unknown' }] } },
+      listStoragePools: { liststoragepoolsresponse: { storagepool: [] } },
+      listVolumes: { listvolumesresponse: { volume: [] } }
+    }[api]))
+    await Widget.methods.loadCloneZoneOptions.call(vm)
+    expect(vm.cloneOptions.offerings.map(row => row.value)).toEqual(['sparse-root'])
+    expect(vm.cloneOptions.disks.map(row => row.value)).toEqual(['sparse', 'fat'])
+    expect(vm.cloneOptions.disks[0].label).toContain('SPARSE')
+  })
+  it('shows exact reviewed identities and retention policy from the server allocation plan', () => {
+    const allocation = { sourceUuid: 'source', plannedUuid: 'planned', usage: 'BLOCK_RAW', provisioningType: 'SPARSE', dataPolicy: 'PRESERVE' }
+    expect(Widget.computed.allocationRows.call({ plan: { volumeAllocationPlan: { allocations: [allocation] } } })).toEqual([allocation])
+    expect(Widget.computed.allocationRows.call({ plan: null })).toEqual([])
+  })
+
 })
