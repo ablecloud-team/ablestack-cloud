@@ -23,6 +23,10 @@ public final class StorageFormatterLifecycleGate {
     public static void requireIdle(JsonObject status) {
         if(status==null || !status.has("success") || !status.get("success").getAsBoolean())throw new CloudRuntimeException("Formatter journal is unobserved; preserve VM/DATA");
         String phase=status.has("status")?status.get("status").getAsString():"UNKNOWN";
+        if (status.has("formatterActive") && !status.get("formatterActive").isJsonNull() && status.get("formatterActive").getAsBoolean()
+                || status.has("terminationPending") && !status.get("terminationPending").isJsonNull() && status.get("terminationPending").getAsBoolean()) {
+            throw new CloudRuntimeException("Explicit active or terminating formatter overrides journal phase; preserve VM/DATA");
+        }
         if("NOT_STARTED".equals(phase))return;
         if(!status.has("formatterActive") || status.get("formatterActive").getAsBoolean()
                 || status.has("terminationPending") && status.get("terminationPending").getAsBoolean())throw new CloudRuntimeException("Active or terminating formatter preserves VM/DATA");

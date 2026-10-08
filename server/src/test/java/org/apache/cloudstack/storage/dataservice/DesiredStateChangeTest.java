@@ -251,4 +251,13 @@ public class DesiredStateChangeTest {
         Assert.assertEquals("RECOVERY_REQUIRED",saved.get().getState());verify(snapshots,never()).restore(anyLong(),anyString());verify(runtime,never()).applyPrevious();verify(runtime,never()).rollbackNativeGeneration(any());verify(runtime,never()).promoteVerifiedConfiguration(any());
     }
 
+
+    @Test public void cooperativeCancellationBeforeApplyAbortsCheckpointWithoutDesiredOrRuntimeMutation() {
+        doThrow(new StorageOperationCancelledException("operator cancelled")).when(runtime).checkControl(any());
+        Assert.assertThrows(CloudRuntimeException.class, () -> engine.execute(7L,"update","cancel-before-apply",0L,String.class,()->"unsafe",runtime));
+        Assert.assertEquals("CANCELLED",saved.get().getState());
+        verify(runtime).abortNativeCheckpoint(any());verify(runtime,never()).prepareNativeCheckpoint(any());
+        verify(runtime,never()).applyPrevious();verify(snapshots,never()).restore(anyLong(),anyString());
+    }
+
 }
