@@ -141,6 +141,46 @@ public final class StorageConfigurationVolumePlan {
         plan.addProperty("planSha256", sha256(canonical(plan)));return plan;
     }
 
+    /** Resolve server-created service/initial DATA once, leaving every additional UUID and reviewed resource unchanged. */
+    public static JsonObject bindAdditionalExecution(JsonObject reviewed, String actualTargetInstanceUuid, String actualInitialVolumeUuid) {
+        requireFrozen(reviewed);uuid(actualTargetInstanceUuid);uuid(actualInitialVolumeUuid);
+        if (reviewed.has("realization")) {
+            JsonObject saved = object(reviewed, "realization");
+            require(actualTargetInstanceUuid.equals(text(saved, "targetInstanceUuid")) && actualInitialVolumeUuid.equals(text(saved, "initialVolumeUuid")), "A persisted execution realization cannot change target or initial DATA");
+            return reviewed.deepCopy();
+        }
+        JsonObject execution = reviewed.deepCopy();JsonArray additional = new JsonArray();JsonObject bindings = reviewed.getAsJsonObject("volumeMappings").deepCopy();String initialSource = null;
+        for (JsonElement value : reviewed.getAsJsonArray("allocations")) {
+            JsonObject allocation = value.getAsJsonObject();String source = text(allocation, "sourceUuid");
+            require(!actualTargetInstanceUuid.equals(source) && !actualTargetInstanceUuid.equals(text(allocation, "plannedUuid")), "Actual target identity cannot alias a DATA binding");
+            require(!actualInitialVolumeUuid.equals(source), "Actual initial DATA cannot alias source DATA");
+            if (flag(allocation, "initial")) {
+                require(initialSource == null, "Execution plan must have exactly one initial DATA source");initialSource = source;
+                if ("EXISTING".equals(text(allocation, "mode"))) require(actualInitialVolumeUuid.equals(text(allocation, "plannedUuid")), "Existing initial DATA cannot be replaced by a foreign volume");
+            } else {
+                require(!actualInitialVolumeUuid.equals(text(allocation, "plannedUuid")), "Actual initial DATA cannot alias additional backing");
+                JsonObject realized = allocation.deepCopy();realized.addProperty("targetInstanceUuid", actualTargetInstanceUuid);additional.add(realized);
+            }
+        }
+        require(initialSource != null, "Execution plan has no reviewed initial DATA source");bindings.addProperty(initialSource, actualInitialVolumeUuid);
+        execution.getAsJsonObject("scope").addProperty("targetInstanceUuid", actualTargetInstanceUuid);execution.add("allocations", additional);execution.add("volumeMappings", bindings);
+        execution.addProperty("parentPlanSha256", text(reviewed, "planSha256"));execution.remove("planSha256");JsonObject realization = new JsonObject();realization.addProperty("targetInstanceUuid", actualTargetInstanceUuid);realization.addProperty("initialVolumeSourceUuid", initialSource);realization.addProperty("initialVolumeUuid", actualInitialVolumeUuid);execution.add("realization", realization);
+        execution.addProperty("planSha256", sha256(canonical(execution)));return execution;
+    }
+
+    /** Optional stronger DTO overload; no caller-supplied actual resource observation may enter this boundary. */
+    public static JsonObject bindAdditionalExecution(JsonObject reviewed, JsonObject actualTarget, JsonObject actualInitial) {
+        requireFrozen(reviewed);JsonObject scope = object(reviewed, "scope");requireSameScope(scope, actualTarget);requireSameScope(scope, actualInitial);
+        require("DATADISK".equals(text(actualInitial, "type")) && "Ready".equals(text(actualInitial, "state")), "Realized initial backing must be Ready DATA");
+        String target = uuid(text(actualTarget, "uuid")), initial = uuid(text(actualInitial, "uuid"));require(target.equals(text(actualInitial, "attachedInstanceUuid")), "Initial DATA is not attached to the realized service");
+        for (JsonElement value : reviewed.getAsJsonArray("allocations")) {
+            JsonObject item = value.getAsJsonObject();if (!flag(item, "initial")) continue;
+            require(text(item, "poolUuid").equals(text(actualInitial, "poolUuid")) && number(item, "sizeBytes") == number(actualInitial, "sizeBytes"), "Initial DATA pool/size differs from the reviewed creator contract");
+            if ("NEW".equals(text(item, "mode"))) require(text(item, "provisioningType").equalsIgnoreCase(text(actualInitial, "provisioningType")), "Initial NEW DATA provisioning differs from reviewed SPARSE/FAT");
+        }
+        return bindAdditionalExecution(reviewed, target, initial);
+    }
+
     public static void requireFrozen(JsonObject plan) {
         JsonObject body = plan.deepCopy();String expected = text(body, "planSha256");body.remove("planSha256");
         require(expected.equals(sha256(canonical(body))), "Allocation plan changed after review");

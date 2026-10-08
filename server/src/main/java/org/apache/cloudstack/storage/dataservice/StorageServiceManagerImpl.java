@@ -226,6 +226,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                     throw new CloudRuntimeException("Native writer is active or its recovery lock capability is unavailable");
                 }
                 if (storageRuntimeUpgradeDao.findActiveByInstanceId(instance.getId()) != null) throw new CloudRuntimeException("Runtime upgrade is active");
+                requireNoPendingVolumeFormatter(instance);
             }
             public void started(StorageServiceOperationVO row) { beginStorageWriterHeartbeat(row); }
             public void applyPrevious() {
@@ -1919,6 +1920,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                             }
                         }
                     }
+                    public void ensureRollbackSafe() {
+                        JsonObject observed=rootGuest(instance,"operation writer-idle",new JsonObject(),15);
+                        if(!"WRITER_IDLE".equals(getJsonString(observed,"status")))throw new CloudRuntimeException("Active or terminating native formatter preserves VM/DATA and requires forward recovery; rollback is deferred");
+                        requireNoPendingVolumeFormatter(instance);
+                    }
                     public void applyPrevious() {
                         StorageServiceOperationVO recovering = storageWriterOperation.get();
                         configurationRecoverySource.set(frozenRecoveryConfiguration(instance, recovering));
@@ -3327,6 +3333,13 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if(instance.getVmId()==null || volume.getVolumeType()!=com.cloud.storage.Volume.Type.DATADISK || !instance.getVmId().equals(volume.getInstanceId())
                 || volume.getAccountId()!=instance.getAccountId() || volume.getDataCenterId()!=instance.getDataCenterId() || volume.getState()!=com.cloud.storage.Volume.State.Ready)throw new InvalidParameterValueException("Resume requires the same owned Ready DATA disk attached to the service VM");
         validateStorageServiceBackingVolume(instance,volume.getId(),"volume preparation resume");
+    }
+    protected void requireNoPendingVolumeFormatter(StorageServiceInstanceVO instance) {
+        for(VolumeVO volume:volumeDao.findByInstanceAndType(instance.getVmId(),com.cloud.storage.Volume.Type.DATADISK)) {
+            JsonObject payload=new JsonObject();payload.addProperty("volumeUuid",volume.getUuid());
+            JsonObject status=rootGuest(instance,"volume operation status",payload,5);
+            StorageFormatterLifecycleGate.requireIdle(status);
+        }
     }
     protected void requireVolumeResumeIdle(StorageServiceInstanceVO instance,StorageServiceOperationVO own) {
         if(storageTemplateUpgradeDao.findActive(instance.getId())!=null || storageRuntimeUpgradeDao.findActiveByInstanceId(instance.getId())!=null)throw new CloudRuntimeException("ROOT or runtime upgrade is active");
@@ -5108,6 +5121,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         final JsonObject config = parseJsonObject(share.getConfigJson()).deepCopy();
         if (!config.has("volumeMountPath") || config.get("volumeMountPath").isJsonNull()) {
             config.addProperty("volumeMountPath", resolveFileShareVolumeMountRoot(instance, volume, share.getPath()));
+        }
+        if(share.getProtocol()==StorageServiceInstance.Protocol.NFS && Boolean.TRUE.equals(getJsonBoolean(config,"createDirectory"))
+                && getJsonLong(config,"ownerUid")!=null && getJsonLong(config,"ownerGid")!=null && getJsonString(config,"mode")!=null) {
+            JsonObject permissions=new JsonObject();permissions.add("ownerUid",config.get("ownerUid"));permissions.add("ownerGid",config.get("ownerGid"));permissions.addProperty("mode",PosixDirectoryPolicy.directoryMode(getJsonString(config,"mode")));config.add("newDirectoryPermissions",permissions);
         }
         config.remove("devicePath");
         final JsonObject inspection = getJsonObject(config, "lastInspection");
