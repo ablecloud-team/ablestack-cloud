@@ -1,0 +1,36 @@
+{
+  "base_commit": "c169d9a203f49ce07e038297873bc3c24cd8ffb4",
+  "node": "20.20.2",
+  "npm": "10.8.2",
+  "build_exit_code": 0,
+  "build_complete": true,
+  "full_cloud_build": false,
+  "warnings": [
+    "Browserslist caniuse-lite outdated",
+    "webpack asset size limit",
+    "webpack entrypoint size limit",
+    "webpack performance recommendations"
+  ],
+  "static_browser_check": {
+    "scene": "create-ha-etcd",
+    "theme": "dark",
+    "modal_width": 1120,
+    "footer_visible": true,
+    "console_errors_warnings": 0
+  },
+  "source_sha256": {
+    "prototype/App.vue": "1330d56f7c30c6ff9eeffaf38a4230aee36602bf607302cccf263df1f7b175ea",
+    "prototype/babel.config.js": "e627c01cf166dcfed30129e6bf8edf24c5f10e3d8441da149bd45294f816af89",
+    "prototype/index.html": "a53cf1d4fcfdfb69efe105f00815b32958a98a0e5cdc369b72f2dd7b5522d382",
+    "prototype/main.js": "2ce9451156505e477e897d0353595c9e5757e7aa00816b8ea73fd8e7a025c634",
+    "prototype/postcss.config.js": "3930a4cd1b014f5726aa1de4da1f1fe099ab379b94650caff5f83dfe460a57d4",
+    "prototype/scenes.json": "262390404c153df2f848e439e3f6cd2d7d5012a1bced20dece87d4254004172a",
+    "prototype/vue.config.js": "a1513f233e5de23873e47de7ad364907fd2806fee47c7c18ad344e6e28b8fd2b"
+  },
+  "ui_lock_sha256": "23379939285231d360907e8d7242206efd5359654b9903614788040680133ffc",
+  "output_app_assets": [
+    "js/app.54f45c81.js.map",
+    "js/app.54f45c81.js",
+    "css/app.370dc122.css"
+  ]
+}

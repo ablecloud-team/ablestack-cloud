@@ -1,0 +1,378 @@
+{
+  "access-dark.jpg": {
+    "bytes": 91823,
+    "sha256": "f0fc4295c103c24de33ef22cb62539e78623c676dd019b6ef35aa81ebe752668"
+  },
+  "access-light.jpg": {
+    "bytes": 93254,
+    "sha256": "af52c10d7cf53029faaaf9363dd718195f3e92f42f68aec8fa9a15f8f0cde7df"
+  },
+  "add-nodes-dark.jpg": {
+    "bytes": 90799,
+    "sha256": "b87b3055fb6116bcce61b9528b5f9264d423585daea44e6c66d38e45d94ce965"
+  },
+  "add-nodes-light.jpg": {
+    "bytes": 94657,
+    "sha256": "e4efd8b208b1228b6fb0759367b5fdcaf01a18de4159d55f8d0d7292fb572d09"
+  },
+  "affinity-dark.jpg": {
+    "bytes": 83207,
+    "sha256": "a5b58b546fd7df656b247f982b37979dd331a3d957dcff8c2be6e56ae74bd19f"
+  },
+  "affinity-light.jpg": {
+    "bytes": 87702,
+    "sha256": "f8b3c77e16d7a0f06d9d996965a77c171d6cbb7d926f27657ccac95d56124998"
+  },
+  "autoscale-dark.jpg": {
+    "bytes": 89238,
+    "sha256": "826c41b092700dc190a528dae8bf3644b9f3dfd19555035a067506e6ebf57222"
+  },
+  "autoscale-light.jpg": {
+    "bytes": 93251,
+    "sha256": "23042f8e3bc28918f26bc651d3407acb2edb087508a38530af5e9f1d621b07e2"
+  },
+  "bulk-delete-dark.jpg": {
+    "bytes": 84694,
+    "sha256": "e2c246083e3075827ee1ecbc1330c5e3bdc9e53ced2b1214a5a4449811b0efe6"
+  },
+  "bulk-delete-light.jpg": {
+    "bytes": 89099,
+    "sha256": "0adf77969c1cc25d61bda3767b47f8fcf5039a13228cf33956a4f2ed5ab23dbe"
+  },
+  "bulk-start-dark.jpg": {
+    "bytes": 85381,
+    "sha256": "2c8d64b3942a9d52bfe30c116be5de14478fbb895bcc9b2fb4faf8defb3b204a"
+  },
+  "bulk-start-light.jpg": {
+    "bytes": 88749,
+    "sha256": "1e48daa2fa461e9352c9d595594968c48389ecf287ea209807076f42d68c2b38"
+  },
+  "bulk-stop-dark.jpg": {
+    "bytes": 85344,
+    "sha256": "13604f75582baa77b706c584e931699a3c703c83a9df6726fe7a3dfa3aea175f"
+  },
+  "bulk-stop-light.jpg": {
+    "bytes": 88969,
+    "sha256": "351b1483996d332e60c1f124ddd9bf135037698dca04d78ad3cd9c8ee2492a57"
+  },
+  "comment-delete-dark.jpg": {
+    "bytes": 75008,
+    "sha256": "1f3246090f9f839f1006d4094a442fdf47823b470d6444fd7f78fa7371c82603"
+  },
+  "comment-delete-light.jpg": {
+    "bytes": 77553,
+    "sha256": "36717a5d0c8d9b98b5ca27c4338d0dd10170ad4b660b8e8476372f0dfe56d735"
+  },
+  "comment-visibility-dark.jpg": {
+    "bytes": 78388,
+    "sha256": "2ca98e762891b54c9a44485469cb16342e9f3d2903e7ae818577f71da4417759"
+  },
+  "comment-visibility-light.jpg": {
+    "bytes": 80754,
+    "sha256": "dd0379217e749ea8cd0bc9ff9c582a6efc4b44bc603056b2ea107b33fe076a0e"
+  },
+  "comments-dark.jpg": {
+    "bytes": 69339,
+    "sha256": "0a8ef42438f929ceb60f7db29d71a1f5d2083d41cb535bce53537040b73763e2"
+  },
+  "comments-light.jpg": {
+    "bytes": 69606,
+    "sha256": "fb8c0d898891c5136db677f7884f2b3ec15202648cee47a819f60e5fe5edc560"
+  },
+  "create-addons-dark.jpg": {
+    "bytes": 101857,
+    "sha256": "303c02acb733125b6e32ba5f69412bff1cae7f960af44c88a0cc8fc6ae2f7a38"
+  },
+  "create-addons-light.jpg": {
+    "bytes": 109207,
+    "sha256": "9251098e57c2b6313fd6fd6a261fdfa051a3c8c0029c0e26a05572e6ec176b1d"
+  },
+  "create-advanced-dark.jpg": {
+    "bytes": 103579,
+    "sha256": "c84767cc58069f5cf8ff9cc6270432e6752b8290a551be2ec7279bae901fd4d7"
+  },
+  "create-advanced-light.jpg": {
+    "bytes": 110846,
+    "sha256": "b382de6ff41676b310b080fb8edfb427400e404e47e912cca085a45f9ad7aae2"
+  },
+  "create-basic-dark.jpg": {
+    "bytes": 92517,
+    "sha256": "9810179f592570edda4a2b700c908e9ca9896d337182bbf584c2143e2589bb11"
+  },
+  "create-basic-light.jpg": {
+    "bytes": 97980,
+    "sha256": "33582cdf7c152795c253337111d9f31a01733f15b4cb78aec86c478c686ed8a6"
+  },
+  "create-ha-etcd-dark-mobile.jpg": {
+    "bytes": 26967,
+    "sha256": "01abc69cbd8ce7d231d784d145d1c9de772a7abd92e074ea4a55a397791e8cbf"
+  },
+  "create-ha-etcd-dark.jpg": {
+    "bytes": 104735,
+    "sha256": "2897eea3458a902a87c6e1a90159daa776e0b171092dc83c02df04d9a5a947df"
+  },
+  "create-ha-etcd-light-mobile.jpg": {
+    "bytes": 29179,
+    "sha256": "bc41f3836694e4f63d5a20d16c69b19032577abb923420aa71f97070b6abc88e"
+  },
+  "create-ha-etcd-light.jpg": {
+    "bytes": 111657,
+    "sha256": "3cce9a6d612728aa0481fe03ead9d565bae05b5cb3438d1a6e4efc445833edf1"
+  },
+  "create-nodes-dark.jpg": {
+    "bytes": 99252,
+    "sha256": "cacf97f5f921540712733ea6b0ddc3d71dda951a7cb551c30d2969b2f60648ad"
+  },
+  "create-nodes-light.jpg": {
+    "bytes": 105476,
+    "sha256": "d8e2811651571e54a6dd8791bf91b635277463c4139bb88b290ae2923d76d10e"
+  },
+  "create-review-dark.jpg": {
+    "bytes": 93668,
+    "sha256": "fa7d6a9698cfd1a9b3b9506fdb7d8b6f7b27cd730e277924d82560718d27369d"
+  },
+  "create-review-light.jpg": {
+    "bytes": 100103,
+    "sha256": "37ba7e430acce50e161d985596148ca9f9b1426ecb7f607ec32b15e64e0e02fc"
+  },
+  "delete-cluster-dark-mobile.jpg": {
+    "bytes": 39510,
+    "sha256": "ffa8f24afb4cda6ddebc764c553cbffabdc286282be44d1db031e5add90c763d"
+  },
+  "delete-cluster-dark.jpg": {
+    "bytes": 87706,
+    "sha256": "b0a2bb2e3d47816976a457453b2dc79834431d550ffef343903b5586f8ef3c84"
+  },
+  "delete-cluster-light-mobile.jpg": {
+    "bytes": 40864,
+    "sha256": "ef6c55b3427970b6920a86bcca4dd7ac6e2e64d3d27234b67535e7a2a818ca4f"
+  },
+  "delete-cluster-light.jpg": {
+    "bytes": 89967,
+    "sha256": "ea9df00a6b9c6962bd10b1423541aa5e0385099d44dc111bf1ee36151d0f7eaf"
+  },
+  "delete-external-dark.jpg": {
+    "bytes": 83290,
+    "sha256": "29cc23d34b761342e8a17936767cd9c36f26300d73bf500a82328ffd60f6b27b"
+  },
+  "delete-external-light.jpg": {
+    "bytes": 86663,
+    "sha256": "7db53c9cd9375044099dce2d4e21147f0fa4d3468e12ef5bb352da1ef234551b"
+  },
+  "delete-worker-dark.jpg": {
+    "bytes": 85336,
+    "sha256": "42ec18c349ef48ff1fc8b23bf925fe72eb627974f9543e2013d7782762b9f810"
+  },
+  "delete-worker-light.jpg": {
+    "bytes": 87677,
+    "sha256": "8e5c8abd14500bca10a82cfe0162bdd9f787a352342031b815a6790d153fb0f4"
+  },
+  "detail-dark-mobile.jpg": {
+    "bytes": 24949,
+    "sha256": "43615bbbdae8466e377605e3224afcc5ce3c015b8b1f9670b8cd3feafeb69937"
+  },
+  "detail-dark.jpg": {
+    "bytes": 83919,
+    "sha256": "4d86271f25d10fe8179db3426e3e19efb8282706878d0d245be60f0e84935522"
+  },
+  "detail-light-mobile.jpg": {
+    "bytes": 26076,
+    "sha256": "2bcd473777d30663eb7e36a8387951e1ce3d71ed38e752eb67ef983915fa87bf"
+  },
+  "detail-light.jpg": {
+    "bytes": 84208,
+    "sha256": "f0c9a782f0df42b742cc9339ec7dc100a711dd385c846dccf1fd2197d7d689bd"
+  },
+  "events-dark.jpg": {
+    "bytes": 73265,
+    "sha256": "b4ccfedc32cf2eb0c8af08521e232f99a4873a4c45715b0341ad5d8292087241"
+  },
+  "events-light.jpg": {
+    "bytes": 73138,
+    "sha256": "b203d213d12e655df05064dc32778a1104dfe6c33885b57610786cadb0126dcd"
+  },
+  "firewall-dark.jpg": {
+    "bytes": 81475,
+    "sha256": "123461590c5ae74812d383b51c19996863521c767d84627e3adc415d11f9bab6"
+  },
+  "firewall-light.jpg": {
+    "bytes": 81528,
+    "sha256": "6c2d75f117eb90764667c1d01623e693d9dbda02d2448d007f36a37184983114"
+  },
+  "iso-delete-dark.jpg": {
+    "bytes": 81170,
+    "sha256": "53ccc140d93fac98fdea55ebeba2296ddfbf5c54464eb91cc4f41cd061d24cb1"
+  },
+  "iso-delete-light.jpg": {
+    "bytes": 82656,
+    "sha256": "1ea66f5cd3995983821bdd1feee241dd18d779faf5314c4c42e40c5150fe440b"
+  },
+  "iso-detail-dark.jpg": {
+    "bytes": 77159,
+    "sha256": "085f02b719c443b848c8ca52ebf0c04fc7f0fae9a86c3e2efde190f9780af2e5"
+  },
+  "iso-detail-light.jpg": {
+    "bytes": 77184,
+    "sha256": "8ad718fd522355d96df4311524514f2b2e0892b2c84b674aaba482dd2880c3cd"
+  },
+  "iso-list-dark.jpg": {
+    "bytes": 84235,
+    "sha256": "3df7029d5aad929e5d61cfe646f4a24c94ba89deb80ae8312015a2b4e0277e59"
+  },
+  "iso-list-light.jpg": {
+    "bytes": 85605,
+    "sha256": "51d886282e29f41d842bf0bbcd867f999c8a65ebf65e120d3db74c779b7feef9"
+  },
+  "iso-register-dark-mobile.jpg": {
+    "bytes": 28361,
+    "sha256": "e10f1e4f512dfc4a0309fcb65b8ed8358d7f548aa0f116243a849a70568a4032"
+  },
+  "iso-register-dark.jpg": {
+    "bytes": 89512,
+    "sha256": "bca252b4bdb469e92cdd75d90a2af12977ef8711ba14c32c3cd4cd73131667d7"
+  },
+  "iso-register-light-mobile.jpg": {
+    "bytes": 30755,
+    "sha256": "d0fe97654e3217198d7a4c5ea760e68cbdbcca4159e1f0ef29f9d31d86ece0f7"
+  },
+  "iso-register-light.jpg": {
+    "bytes": 98496,
+    "sha256": "ad3f30030c57340f5129ae8a72250b00756b78358cc661c1e83d110c6d0a6d71"
+  },
+  "iso-state-dark.jpg": {
+    "bytes": 81820,
+    "sha256": "7a424f4bfb46f00742664d9d0110f20c534479cc082ea93796c0f84b2a68b2c9"
+  },
+  "iso-state-light.jpg": {
+    "bytes": 84644,
+    "sha256": "fb21fc00ee151655e2030c3311f5f4d0132b6ba2545b315110bf03815913660a"
+  },
+  "iso-upload-dark.jpg": {
+    "bytes": 88151,
+    "sha256": "929236c1fa83359c8c0c6590d377dad33ccd8211ea9d4783a2d5ddd3e55f376c"
+  },
+  "iso-upload-light.jpg": {
+    "bytes": 98407,
+    "sha256": "9460faa18a724d6f68008b14c32ae7926a3f69958b38fcf930c64064fa962716"
+  },
+  "list-dark.jpg": {
+    "bytes": 82176,
+    "sha256": "d28a476d0ef6ff850eb8a5dcf9806699e1f6de8bb1c6040f21d98066aee13863"
+  },
+  "list-light.jpg": {
+    "bytes": 82607,
+    "sha256": "07ac4d324c2b7a69ece24bac2355a7de370ef60b723741ca7bb51611914dd1e2"
+  },
+  "loadbalancers-dark.jpg": {
+    "bytes": 91254,
+    "sha256": "52e37440a2bddac86ae1fae795c003fcd180d6623316c376ae1948fbac123bc4"
+  },
+  "loadbalancers-light.jpg": {
+    "bytes": 90263,
+    "sha256": "f0908548e53cd2d2ebc89649c4c7cb9cab5a521d42772424ce3efdc5482b49a0"
+  },
+  "network-tags-dark.jpg": {
+    "bytes": 81025,
+    "sha256": "135bbf964b80b5fc8a9dc4497ec9ab0b4420233fcb5bb36e425814164b0b415b"
+  },
+  "network-tags-light.jpg": {
+    "bytes": 85068,
+    "sha256": "515f7a0d4754ccb8d4d2155a40dd1011d5d38543d106b8e6e3e92903b31450fa"
+  },
+  "nodes-dark.jpg": {
+    "bytes": 84699,
+    "sha256": "77f9ed4701a7ee6cdc5984207802c1db7be1dafe4545da73015fb7060fa16e51"
+  },
+  "nodes-light.jpg": {
+    "bytes": 85161,
+    "sha256": "92a5156f85b95160c1ba81e61430651802cb4af7b740c6cf7626c0f452184687"
+  },
+  "pf-vm-dark.jpg": {
+    "bytes": 88261,
+    "sha256": "4c5af89778d04c328e424c41ee26db61c38add641170d563937da44c3afa3483"
+  },
+  "pf-vm-light.jpg": {
+    "bytes": 93487,
+    "sha256": "ae95c6a144e67dac67a3e09058ed92e74a71c39678a0448dc84166484d72cdf6"
+  },
+  "portforwarding-dark.jpg": {
+    "bytes": 82138,
+    "sha256": "15afa1082beec6aa9ddbc4b4ca085a9484fb96291a6a5a23ca833fd14fb340b1"
+  },
+  "portforwarding-light.jpg": {
+    "bytes": 82291,
+    "sha256": "1e90cc7809b299347f0432ed4f33a7f182d9a4d109917e6d70a9a67ee8dea02f"
+  },
+  "remove-nodes-dark.jpg": {
+    "bytes": 92482,
+    "sha256": "3ff44c527887505c9df63a436d2265033950d3e46a6a8cbee1c5c16413c388d8"
+  },
+  "remove-nodes-light.jpg": {
+    "bytes": 94958,
+    "sha256": "4ba3b8ccc5954b5ea2f2022b21697effc61c17a41dc223fdacebcd6e774cd2b4"
+  },
+  "rules-delete-dark.jpg": {
+    "bytes": 82344,
+    "sha256": "57a0dc061b3d512f015920dae62477c44cf35f7147ac69cea5a09a33a7588b46"
+  },
+  "rules-delete-light.jpg": {
+    "bytes": 85629,
+    "sha256": "bf1b93dcd93899482aed2ff674d311aa232890ce0cbc292472045436a32a3b03"
+  },
+  "scale-dark.jpg": {
+    "bytes": 95947,
+    "sha256": "27cd6008ac2fb54ce7f8563342983aab41ea60894470e7db483306142d5d5024"
+  },
+  "scale-light.jpg": {
+    "bytes": 99783,
+    "sha256": "785cd6694d186d052c4c87e90f4214198e6d5a399e09ddd114606ee0c2f39dda"
+  },
+  "scale-recovery-dark.jpg": {
+    "bytes": 89492,
+    "sha256": "49f9dc52f926d3585a70a1d2d141b9283138409d1d508e453342afe299c1b0c3"
+  },
+  "scale-recovery-light.jpg": {
+    "bytes": 92687,
+    "sha256": "6d7b9db2f507de1dc23e73ed831c498e91dcb7ebfd68eff65b3e42789447625b"
+  },
+  "start-dark.jpg": {
+    "bytes": 80990,
+    "sha256": "62be3f307a01b6bfae657fea8e0e194b886a87cefb6aebd65ca9487ab21e7cb6"
+  },
+  "start-light.jpg": {
+    "bytes": 84723,
+    "sha256": "49830f9bfed655cd412b12171a602ca42273cfcfafb481f6049c07c5344b6ee0"
+  },
+  "stop-dark.jpg": {
+    "bytes": 85915,
+    "sha256": "0bf527619835139ff89a30ccddf2a04a00ca89fec5a47a631cb68314ab20e1d7"
+  },
+  "stop-light.jpg": {
+    "bytes": 88012,
+    "sha256": "f9fe61cc850d9d6cc54752414b79809e34f29571305c16d1fecd08c666d1bf10"
+  },
+  "upgrade-dark.jpg": {
+    "bytes": 90246,
+    "sha256": "84cbb167637919ededb69fcef56034e339c1916d095be49462552f00832d139a"
+  },
+  "upgrade-empty-dark.jpg": {
+    "bytes": 77829,
+    "sha256": "c03e40b4b167806bd7f22cf6ee6d78c8598e7be49067768c8d618b298437a15d"
+  },
+  "upgrade-empty-light.jpg": {
+    "bytes": 81276,
+    "sha256": "722a363f365757d131fe5bb0d14b9cb12198d3f24daec2fd369d72adfb87b211"
+  },
+  "upgrade-light.jpg": {
+    "bytes": 92963,
+    "sha256": "a7edabcaa861ac612688c6eb7ef5134a5dce699a5ec16c341700526d5ea3f8ba"
+  },
+  "validation-error-dark.jpg": {
+    "bytes": 80480,
+    "sha256": "76b8631dfde722d99e6d3e6588f3ae952a9d0af59340269abe8da343e50d7170"
+  },
+  "validation-error-light.jpg": {
+    "bytes": 86864,
+    "sha256": "18566d862a89a54365252e6777fbfee65ede87721a654ded6a4251533fdfeb22"
+  }
+}
