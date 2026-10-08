@@ -164,6 +164,7 @@
                       <a-alert type="info" show-icon :message="$t('message.creation.source.fixed.boot')" />
                     </template>
                     <os-based-image-selection
+                      ref="imageSelection"
                       v-else-if="isModernImageSelection"
                       :selectedImageType="imageType"
                       :imagePreSelected="!!this.queryTemplateId || !!this.queryIsoId"
@@ -188,10 +189,11 @@
                       @update-disk-size="updateFieldValue"
                       @change-iso-hypervisor="value => form.hypervisor = value" />
                     <a-card
+                      ref="legacyImageSelection"
                       v-else
                       :tabList="imageTypeList"
                       :activeTabKey="imageType"
-                      @tabChange="key => changeImageType(key)">
+                      @tabChange="key => changeImageType(key, true)">
                       <div v-if="imageType === 'templateid'">
                         {{ $t('message.template.desc') }}
                         <template-iso-selection
@@ -2983,7 +2985,13 @@ export default {
       this.additionalIsoSelection = { enabled: false, ids: [], valid: true }
       this.imageType = imageType
       this.updateImages()
-      if (restoreSourceFocus) this.$nextTick(() => this.$refs.creationSourceSelection?.focusSelectedType())
+      if (restoreSourceFocus) {
+        this.$nextTick(() => {
+          const selection = this.$refs.creationSourceSelection || this.$refs.imageSelection || this.$refs.legacyImageSelection
+          const input = selection?.$el.querySelector('.ant-radio-button-wrapper-checked input, .ant-tabs-tab-active [role=tab]')
+          if (input) input.focus()
+        })
+      }
     },
     handleSubmitAndStay (e) {
       this.form.stayonpage = true

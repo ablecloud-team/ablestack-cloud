@@ -77,10 +77,6 @@ export default {
   watch: { query: { deep: true, immediate: true, handler () { this.page = 1; this.preselectionUsed = false; this.$emit('select', null); this.fetchSources() } } },
   beforeUnmount () { this.requestSequence++ },
   methods: {
-    focusSelectedType () {
-      const input = this.$el.querySelector('.ant-radio-button-wrapper-checked input')
-      if (input) input.focus()
-    },
     stateLabel (state) {
       const key = 'label.creation.source.state.' + state
       return this.$te?.(key) ? this.$t(key) : this.$t('label.creation.source.state.unknown')
