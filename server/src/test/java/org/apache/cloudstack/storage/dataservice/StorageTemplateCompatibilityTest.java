@@ -30,7 +30,7 @@ import com.google.gson.JsonObject;
 public class StorageTemplateCompatibilityTest {
     private Map<String,String> metadata() {
         Map<String,String> details=new HashMap<>();
-        details.put("storage.service.template","true");details.put("storage.service.runtime.signed.readback","true");details.put("storage.service.template.version","test-1");
+        details.put("storage.service.template","true");details.put("storage.service.runtime.signed.readback","true");details.put("storage.service.template.maintenance.gate","true");details.put("storage.service.data.identity.inspect","true");details.put("storage.service.template.version","test-1");
         details.put("storage.service.runtime.abi","1");details.put("storage.service.desired.state.schema","1");
         details.put("storage.service.identity.capsule.schema","1");
         details.put("storage.service.upgrade.min.manager.version","4.23.0");details.put("storage.service.upgrade.min.agent.version","4.23.0");

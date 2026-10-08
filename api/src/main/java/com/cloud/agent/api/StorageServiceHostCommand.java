@@ -22,6 +22,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class StorageServiceHostCommand extends Command {
+    private static final Set<String> READ_ONLY_OPERATIONS=Set.of("health","inventory","sessions",
+            "operation observe","operation verify","operation resources","operation generation status","operation generation frozen",
+            "volume operation status","operation maintenance status","operation root-data inspect",
+            "identity capsule capabilities","nfs idmapping preflight","operation writer-idle");
     private String vmName;
     private String operation;
     @LogLevel(LogLevel.Log4jLevel.Off)
@@ -71,6 +75,8 @@ public class StorageServiceHostCommand extends Command {
 
     @Override
     public boolean executeInSequence() {
-        return true;
+        // Status must not wait behind a many-minute formatter in the host-wide agent queue.
+        // Mutations remain serialized by the instance async queue, management lock and native writer lease.
+        return operation==null || !READ_ONLY_OPERATIONS.contains(operation);
     }
 }

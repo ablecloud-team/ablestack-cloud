@@ -120,6 +120,7 @@ public class StorageServiceRuntimeHostCommand extends Command {
 
     @Override
     public boolean executeInSequence() {
-        return true;
+        return operation!=StorageServiceRuntimeOperation.CAPABILITIES && operation!=StorageServiceRuntimeOperation.STATUS
+                && operation!=StorageServiceRuntimeOperation.READBACK;
     }
 }
