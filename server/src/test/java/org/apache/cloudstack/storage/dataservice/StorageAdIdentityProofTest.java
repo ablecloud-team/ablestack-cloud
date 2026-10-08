@@ -43,7 +43,7 @@ public class StorageAdIdentityProofTest {
         map.addProperty("backend","rid");
         p.add("idmapPolicy",map);
         JsonArray spns=new JsonArray();
-        spns.add("cifs/storage.example.test@EXAMPLE.TEST");spns.add("host/storage.example.test@EXAMPLE.TEST");
+        spns.add("cifs/storage.example.test");spns.add("host/storage.example.test");
         p.add("servicePrincipals",spns);
         JsonArray aliases=new JsonArray();
         JsonObject alias=new JsonObject();
@@ -60,4 +60,9 @@ public class StorageAdIdentityProofTest {
     @Test public void userAndBothGroupSidKindsResolveOnlyInTheExactJoinedRealm(){for(long sidType:new long[]{1,2,4}){String type=sidType==1?"AD_USER":"AD_GROUP";JsonObject proof=principal(type,sidType);Assert.assertEquals(proof,StorageAdIdentityProof.principal(proof,scope(),joined(),type,"EXAMPLE\\alice",1001));}}
     @Test public void foreignPrincipalSidWrongKindOrNumericFallbackIsRejected(){JsonObject proof=principal("AD_USER",1);Assert.assertThrows(RuntimeException.class,()->StorageAdIdentityProof.principal(proof,scope(),joined(),"AD_USER","FOREIGN\\alice",1001));Assert.assertThrows(RuntimeException.class,()->StorageAdIdentityProof.principal(proof,scope(),joined(),"AD_USER","alice@foreign.test",1001));for(long uid:new long[]{0,65534,2147483648L}){JsonObject wrong=proof.deepCopy();wrong.addProperty("numericId",uid);Assert.assertThrows(RuntimeException.class,()->StorageAdIdentityProof.principal(wrong,scope(),joined(),"AD_USER","EXAMPLE\\alice",1001));}JsonObject wrong=proof.deepCopy();wrong.addProperty("sidType",2);Assert.assertThrows(RuntimeException.class,()->StorageAdIdentityProof.principal(wrong,scope(),joined(),"AD_USER","EXAMPLE\\alice",1001));}
     @Test public void staleCrossBootStringNumericAndReverseUnverifiedReceiptsCannotBeUsed(){for(String key:Set.of("bootId","numericId","reverseVerified")){JsonObject wrong=principal("AD_GROUP",2);if(key.equals("bootId"))wrong.addProperty(key,"22222222-2222-2222-2222-222222222222");if(key.equals("numericId"))wrong.addProperty(key,"1001201");if(key.equals("reverseVerified"))wrong.addProperty(key,false);Assert.assertThrows(RuntimeException.class,()->StorageAdIdentityProof.principal(wrong,scope(),joined(),"AD_GROUP","EXAMPLE\\alice",1001));}}
+    @Test public void realNativeKeytabPublicMetadataProducerMatchesJavaReceiptSchema() throws Exception {
+        java.nio.file.Path source=java.nio.file.Path.of(System.getProperty("user.dir")).toAbsolutePath();while(!java.nio.file.Files.exists(source.resolve("systemvm/debian/usr/local/lib/ablestack-storage/ad_identity.py")))source=source.getParent();
+        String script="import sys,json;sys.path.insert(0,sys.argv[1]);import ad_identity;print(json.dumps(ad_identity.keytab_principals('1 host/storage.example.test@EXAMPLE.TEST\\n1 cifs/storage.example.test@EXAMPLE.TEST\\n','example.test',['host/storage.example.test','cifs/storage.example.test'],'ASTINSTANCE')))";
+        Process process=new ProcessBuilder("python3","-c",script,source.resolve("systemvm/debian/usr/local/lib/ablestack-storage").toString()).redirectErrorStream(true).start();String output=new String(process.getInputStream().readAllBytes(),java.nio.charset.StandardCharsets.UTF_8);Assert.assertEquals(output,0,process.waitFor());JsonObject metadata=com.google.gson.JsonParser.parseString(output).getAsJsonObject();JsonObject proof=joined();proof.add("servicePrincipals",metadata.get("servicePrincipals"));proof.add("realm",metadata.get("realm"));Assert.assertEquals(proof,StorageAdIdentityProof.joined(proof,scope(),"example.test","S-1-5-21-1-2-3",proof.getAsJsonObject("idmapPolicy"),1001));Assert.assertFalse(metadata.getAsJsonArray("servicePrincipals").get(0).getAsString().contains("@"));
+    }
 }

@@ -39,13 +39,13 @@ public final class StorageAdIdentityProof {
         for(String field:Set.of("workgroup","netbiosName"))if(!text(proof,field).matches("[A-Z0-9][A-Z0-9_-]{0,14}"))throw new CloudRuntimeException("AD qualified workgroup or machine name is invalid");
         if(!proof.has("idmapPolicy")||!proof.get("idmapPolicy").isJsonObject()||proof.getAsJsonObject("idmapPolicy").size()==0||expectedIdmap!=null&&!expectedIdmap.equals(proof.get("idmapPolicy")))throw new CloudRuntimeException("AD idmap policy is missing or changed");
         if(!proof.has("servicePrincipals")||!proof.get("servicePrincipals").isJsonArray()||proof.getAsJsonArray("servicePrincipals").size()==0||!proof.has("dnsAliases")||!proof.get("dnsAliases").isJsonArray()||proof.getAsJsonArray("dnsAliases").size()==0)throw new CloudRuntimeException("AD service principal or DNS alias proof is unavailable");
-        Set<String> principals=new HashSet<>();for(JsonElement value:proof.getAsJsonArray("servicePrincipals"))if(!value.isJsonPrimitive()||!value.getAsJsonPrimitive().isString()||!value.getAsString().matches("(?i)(host|cifs)/[a-z0-9.-]+@[A-Z0-9.-]+")||!principals.add(value.getAsString().toLowerCase(Locale.ROOT)))throw new CloudRuntimeException("AD service principal receipt is malformed or duplicated");
+        Set<String> principals=new HashSet<>();for(JsonElement value:proof.getAsJsonArray("servicePrincipals"))if(!value.isJsonPrimitive()||!value.getAsJsonPrimitive().isString()||!value.getAsString().matches("(?i)(host|cifs)/[a-z0-9.-]+")||!principals.add(value.getAsString().toLowerCase(Locale.ROOT)))throw new CloudRuntimeException("AD service principal receipt is malformed or duplicated");
         Set<String> aliases=new HashSet<>();
         for(JsonElement value:proof.getAsJsonArray("dnsAliases")){if(!value.isJsonObject())throw new CloudRuntimeException("AD DNS alias receipt is malformed");
         JsonObject alias=value.getAsJsonObject();
         String hostname=text(alias,"hostname").toLowerCase(Locale.ROOT);
         if(!hostname.endsWith("."+domain.toLowerCase(Locale.ROOT))||!aliases.add(hostname)||!alias.has("addresses")||!alias.get("addresses").isJsonArray()||alias.getAsJsonArray("addresses").size()==0)throw new CloudRuntimeException("AD DNS alias is foreign, duplicated or empty");
-        for(String service:Set.of("host","cifs"))if(!principals.contains(service+"/"+hostname+"@"+domain.toLowerCase(Locale.ROOT)))throw new CloudRuntimeException("AD DNS alias lacks its exact host/cifs service principal binding");
+        for(String service:Set.of("host","cifs"))if(!principals.contains(service+"/"+hostname))throw new CloudRuntimeException("AD DNS alias lacks its exact host/cifs service principal binding");
         Set<String> addresses=new HashSet<>();
         for(JsonElement address:alias.getAsJsonArray("addresses"))if(!address.isJsonPrimitive()||!address.getAsJsonPrimitive().isString()||!com.cloud.utils.net.NetUtils.isValidIp4(address.getAsString())||!addresses.add(address.getAsString()))throw new CloudRuntimeException("AD DNS alias address receipt is invalid");
         }return proof.deepCopy();
