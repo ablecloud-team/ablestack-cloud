@@ -1,0 +1,13 @@
+{
+  "kernelVersion": "6.12.95+deb12-amd64",
+  "packageVersion": "6.12.95-1~bpo12+1",
+  "packageName": "linux-image-6.12.95+deb12-amd64",
+  "url": "https://deb.debian.org/debian/pool/main/l/linux-signed-amd64/linux-image-6.12.95+deb12-amd64_6.12.95-1~bpo12+1_amd64.deb",
+  "sha256": "5e524b782be67cb0d6a2e7b51816a2ac519e573ef7324b9a63a4124365653ecc",
+  "requiredConfig": {
+    "CONFIG_NVME_TARGET": "m",
+    "CONFIG_NVME_TARGET_TCP": "m",
+    "CONFIG_NVME_TARGET_AUTH": "y",
+    "CONFIG_NVME_AUTH": "m"
+  }
+}

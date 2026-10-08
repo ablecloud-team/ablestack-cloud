@@ -117,6 +117,10 @@ elif [ ! -z "${BUILD_NUMBER}" ]; then
 fi
 
 appliance_build_name="${appliance}${version_tag}-${target_arch}"
+if [[ "$appliance" == "systemvmtemplate" && "$target_arch" == "x86_64" ]]; then
+  export SYSTEMVM_STORAGE_TEMPLATE_VERSION="${version:-unversioned}"
+  export SYSTEMVM_STORAGE_RUNTIME_VERSION="${SYSTEMVM_STORAGE_RUNTIME_VERSION:-${version:-unversioned}}"
+fi
 
 ###
 ### Generic helper functions
