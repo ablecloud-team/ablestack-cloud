@@ -8747,5 +8747,12 @@
   "message.storage.template.read.failed": "템플릿 또는 업그레이드 이력을 갱신하지 못했습니다. 확인된 내용을 유지하며 업데이트로 다시 조회할 수 있습니다.",
   "message.storage.template.maintenance.confirm": "유지보수 시간의 서비스 중단을 승인합니다.",
   "message.storage.template.running": "템플릿 유지보수를 백그라운드에서 진행합니다. 작업에 따라 이력이 갱신됩니다.",
-  "message.storage.template.finalize.confirm": "확정하면 보관된 이전 ROOT를 삭제하여 ROOT 롤백이 불가능해집니다. 모든 데이터 볼륨은 보존합니다."
+  "message.storage.template.finalize.confirm": "확정하면 보관된 이전 ROOT를 삭제하여 ROOT 롤백이 불가능해집니다. 모든 데이터 볼륨은 보존합니다.",
+  "label.nfs.permission.recommended": "새 디렉터리 권장 소유권 및 권한",
+  "label.nfs.permission.use.recommendation": "권장값 사용",
+  "message.nfs.permission.readonly.preserve": "읽기 전용 공유는 기존 소유권과 권한을 유지합니다. 적용 전에 읽기 및 디렉터리 탐색 권한을 확인해야 합니다.",
+  "message.nfs.permission.no.root": "No root squash의 새 디렉터리는 0:0과 0770을 권장하며 직접 변경할 수 있습니다. 기존 디렉터리의 권한 변경은 별도 미리보기와 명시적 적용이 필요합니다.",
+  "message.nfs.permission.root": "Root squash의 새 디렉터리는 선택한 익명 UID:GID와 0775를 권장합니다. 별도 디렉터리 정책을 검토하고 적용하기 전에는 기존 데이터 권한을 유지합니다.",
+  "message.nfs.permission.all": "All squash의 새 디렉터리는 root squash 여부와 관계없이 선택한 익명 UID:GID와 0775를 권장합니다. 기존 권한 변경은 별도 디렉터리 정책으로 검토해야 합니다.",
+  "message.nfs.permission.recursive.separate": "재귀 권한 변경은 별도 미리보기와 확인이 필요합니다. 프로토콜 설정 반영은 기존 데이터를 재귀적으로 변경하지 않습니다."
 }

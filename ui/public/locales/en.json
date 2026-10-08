@@ -8782,5 +8782,12 @@
   "message.storage.template.read.failed": "Template or upgrade history could not be refreshed. Known results are preserved; retry Update.",
   "message.storage.template.maintenance.confirm": "I approve the service interruption in this maintenance window.",
   "message.storage.template.running": "Template maintenance is running in the background. History will update as the job progresses.",
-  "message.storage.template.finalize.confirm": "Finalization deletes the retained previous ROOT. It removes the ROOT rollback option and preserves all data volumes."
+  "message.storage.template.finalize.confirm": "Finalization deletes the retained previous ROOT. It removes the ROOT rollback option and preserves all data volumes.",
+  "label.nfs.permission.recommended": "Recommended new directory ownership and mode",
+  "label.nfs.permission.use.recommendation": "Use recommended values",
+  "message.nfs.permission.readonly.preserve": "Read-only exports preserve existing ownership and permissions. Verify read and traversal access before applying.",
+  "message.nfs.permission.no.root": "No root squash suggests 0:0 with mode 0770 for a new directory. You can change these values. Changes to an existing directory require a separate preview and explicit apply.",
+  "message.nfs.permission.root": "Root squash suggests the selected anonymous UID:GID with mode 0775 for a new directory. Existing data permissions are preserved unless an explicit directory policy is reviewed and applied.",
+  "message.nfs.permission.all": "All squash suggests the selected anonymous UID:GID with mode 0775 for a new directory, even when root squash is off. Review an explicit directory policy to change existing permissions.",
+  "message.nfs.permission.recursive.separate": "Recursive permission changes require a separate preview and confirmation. Protocol reconciliation does not recursively change existing data."
 }

@@ -1620,8 +1620,8 @@ wrapClassName="storage-service-action-modal"
             <div class="storage-action-section__title">{{ $t('label.storage.service.nfs.export.options') }}</div>
             <div class="storage-action-checkbox-grid">
               <a-checkbox v-model:checked="forms.nfsExport.readonly">{{ $t('label.storage.service.permission.readonly') }}</a-checkbox>
-              <a-checkbox v-model:checked="forms.nfsExport.rootsquash">{{ $t('label.storage.service.root.squash') }}</a-checkbox>
-              <a-checkbox v-model:checked="forms.nfsExport.allsquash">{{ $t('label.storage.service.all.squash') }}</a-checkbox>
+              <a-checkbox v-model:checked="forms.nfsExport.rootsquash" @change="event => updateNfsSquashOption('rootsquash', event.target.checked)">{{ $t('label.storage.service.root.squash') }}</a-checkbox>
+              <a-checkbox v-model:checked="forms.nfsExport.allsquash" @change="event => updateNfsSquashOption('allsquash', event.target.checked)">{{ $t('label.storage.service.all.squash') }}</a-checkbox>
               <a-checkbox v-model:checked="forms.nfsExport.sync">{{ $t('label.storage.service.sync') }}</a-checkbox>
               <a-checkbox v-model:checked="forms.nfsExport.secure">
                 <a-tooltip :title="$t('message.storage.service.secure.help')">
@@ -1638,6 +1638,7 @@ wrapClassName="storage-service-action-modal"
           </section>
           <section class="storage-action-section">
             <div class="storage-action-section__title">{{ $t('label.storage.service.posix.permission') }}</div>
+            <nfs-permission-recommendations :form="forms.nfsExport" @patch="Object.assign(forms.nfsExport, $event)" />
             <a-row :gutter="12">
               <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.owner.uid')" :tooltip="$t('message.storage.service.owner.uid.help')" /></template><a-input-number :disabled="!!forms.nfsExport.posixpolicyid" v-model:value="forms.nfsExport.owneruid" class="storage-input-number" :min="0" :max="65535" /></a-form-item></a-col>
               <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.owner.gid')" :tooltip="$t('message.storage.service.owner.gid.help')" /></template><a-input-number :disabled="!!forms.nfsExport.posixpolicyid" v-model:value="forms.nfsExport.ownergid" class="storage-input-number" :min="0" :max="65535" /></a-form-item></a-col>
@@ -2327,6 +2328,8 @@ import SmbNetworkAccess from '@/views/storage/SmbNetworkAccess'
 import SmbCreationOptions from '@/views/storage/SmbCreationOptions'
 import PosixDirectoryPolicies from '@/views/storage/PosixDirectoryPolicies'
 import PosixPolicyInheritance from '@/views/storage/PosixPolicyInheritance'
+import NfsPermissionRecommendations from '@/views/storage/NfsPermissionRecommendations'
+import { nfsPermissionPreset, recommendedNfsPermissionPatch } from '@/utils/storageNfsPermissions'
 import StorageOperationHistory from '@/views/storage/StorageOperationHistory'
 import StorageServiceConfiguration from '@/views/storage/StorageServiceConfiguration'
 import StorageServiceTemplateUpgradeHistory from '@/views/storage/StorageServiceTemplateUpgradeHistory'
@@ -2547,6 +2550,7 @@ export default {
     SmbCreationOptions,
     PosixDirectoryPolicies,
     PosixPolicyInheritance,
+    NfsPermissionRecommendations,
     StorageOperationHistory,
     StorageServiceConfiguration,
     StorageServiceTemplateUpgradeHistory,
@@ -8332,37 +8336,34 @@ export default {
     },
     effectiveNfsExportConfig (config = {}) {
       const next = { ...config }
-      const readOnly = this.boolValue(next.readOnly ?? next.readonly)
-      const rootSquash = next.rootSquash === undefined && next.rootsquash === undefined ? true : this.boolValue(next.rootSquash ?? next.rootsquash)
-      if (!readOnly && rootSquash) {
-        if (next.anonUid === undefined && next.anonuid === undefined) next.anonUid = 65534
-        if (next.anonGid === undefined && next.anongid === undefined) next.anonGid = 65534
-        if (next.ownerUid === undefined && next.owneruid === undefined) next.ownerUid = next.anonUid ?? next.anonuid ?? 65534
-        if (next.ownerGid === undefined && next.ownergid === undefined) next.ownerGid = next.anonGid ?? next.anongid ?? 65534
-        if (!next.mode) next.mode = '0775'
+      const preset = nfsPermissionPreset(config)
+      if (preset.applyowner) {
+        if (preset.policy !== 'NO_ROOT_SQUASH') {
+          if (next.anonUid === undefined && next.anonuid === undefined) next.anonUid = 65534
+          if (next.anonGid === undefined && next.anongid === undefined) next.anonGid = 65534
+        }
+        if (next.ownerUid === undefined && next.owneruid === undefined) next.ownerUid = preset.owneruid
+        if (next.ownerGid === undefined && next.ownergid === undefined) next.ownerGid = preset.ownergid
+        if (!next.mode) next.mode = preset.mode
         if (next.recursivePermission === undefined && next.recursivepermission === undefined) next.recursivePermission = false
       }
       return next
     },
+    updateNfsSquashOption (key, checked) {
+      this.forms.nfsExport[key] = checked
+      Object.assign(this.forms.nfsExport, recommendedNfsPermissionPatch(this.forms.nfsExport))
+    },
     applyNfsWritableDefaults () {
-      if (this.forms.nfsExport.posixpolicyid || this.forms.nfsExport.readonly || !this.forms.nfsExport.rootsquash) {
-        return
+      if (this.forms.nfsExport.posixpolicyid || this.forms.nfsExport.readonly) return
+      const preset = nfsPermissionPreset(this.forms.nfsExport)
+      const missing = value => value === undefined || value === null || value === ''
+      if (preset.policy !== 'NO_ROOT_SQUASH') {
+        if (missing(this.forms.nfsExport.anonuid)) this.forms.nfsExport.anonuid = 65534
+        if (missing(this.forms.nfsExport.anongid)) this.forms.nfsExport.anongid = 65534
       }
-      if (this.forms.nfsExport.anonuid === null || this.forms.nfsExport.anonuid === undefined || this.forms.nfsExport.anonuid === '') {
-        this.forms.nfsExport.anonuid = 65534
-      }
-      if (this.forms.nfsExport.anongid === null || this.forms.nfsExport.anongid === undefined || this.forms.nfsExport.anongid === '') {
-        this.forms.nfsExport.anongid = 65534
-      }
-      if (this.forms.nfsExport.owneruid === null || this.forms.nfsExport.owneruid === undefined || this.forms.nfsExport.owneruid === '') {
-        this.forms.nfsExport.owneruid = this.forms.nfsExport.anonuid
-      }
-      if (this.forms.nfsExport.ownergid === null || this.forms.nfsExport.ownergid === undefined || this.forms.nfsExport.ownergid === '') {
-        this.forms.nfsExport.ownergid = this.forms.nfsExport.anongid
-      }
-      if (!this.forms.nfsExport.mode) {
-        this.forms.nfsExport.mode = '0775'
-      }
+      if (missing(this.forms.nfsExport.owneruid)) this.forms.nfsExport.owneruid = preset.owneruid
+      if (missing(this.forms.nfsExport.ownergid)) this.forms.nfsExport.ownergid = preset.ownergid
+      if (!this.forms.nfsExport.mode) this.forms.nfsExport.mode = preset.mode
     },
     clientVisibleName (value, fallback) {
       const normalized = String(value || fallback || '').trim().replace(/^\/+|\/+$/g, '')
