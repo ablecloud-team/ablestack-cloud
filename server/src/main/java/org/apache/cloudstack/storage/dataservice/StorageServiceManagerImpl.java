@@ -1184,6 +1184,40 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     @Override
+    public StorageServiceRuntimeResponse getStorageNfsCapabilities(org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageNfsCapabilitiesCmd cmd) {
+        StorageServiceInstanceVO instance=requireInstance(cmd.getInstanceId());JsonObject result=nfsCapabilities(instance);
+        return createRuntimeResponse(instance,"NFS capabilities",true,"OBSERVED","Fresh installed NFS capability proof",result.toString());
+    }
+
+    protected JsonObject nfsCapabilities(StorageServiceInstanceVO instance) {
+        JsonObject observed=new JsonObject();
+        try {if(instance.getVmId()!=null)observed=rootGuest(instance,"nfs capabilities",new JsonObject(),5);}
+        catch(RuntimeException unavailable) {observed.addProperty("diagnostic","NFS_CAPABILITY_OBSERVATION_UNAVAILABLE");}
+        JsonObject result=new JsonObject();
+        for(String field:List.of("success","generatedEpoch","ganeshaVersion","ganeshaBuildManifestSha256","vfsLibrarySha256","posixAclBuildEnabled","posixAclSelfTestVerified","supportedFeatures","diagnostic"))if(observed.has(field))result.add(field,observed.get(field).deepCopy());
+        result.addProperty("nfsVfsPosixAclSupported",StorageNfsPosixAclCapability.supported(observed,System.currentTimeMillis()));return result;
+    }
+
+    protected boolean nfsShareHasNamedPolicy(StorageServiceInstanceVO instance,StorageFileShareVO share) {
+        if(share.getProtocol()!=StorageServiceInstance.Protocol.NFS || share.getVolumeId()==null)return false;
+        String root=sharePosixRelativePath(instance,share);if(root==null)return false;
+        for(StoragePosixDirectoryPolicyVO policy:storagePosixPolicyDao.listByInstance(instance.getId())) {
+            if(!Long.valueOf(policy.getVolumeId()).equals(share.getVolumeId()) || !"Ready".equals(policy.getState()))continue;
+            String path=policy.getRelativePath();
+            if((root.isEmpty() || root.equals(path) || path.startsWith(root+"/")) && StorageNfsPosixAclCapability.named(parseJsonObject(policy.getConfigJson()),parseJsonObject(policy.getEffectiveJson())))return true;
+        }
+        return false;
+    }
+
+    protected void requireNfsNamedPolicyCapability(StorageServiceInstanceVO instance) {
+        for(StorageFileShareVO share:storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(),StorageServiceInstance.Protocol.NFS)) {
+            if(share.getState()!=StorageServiceInstance.ResourceState.Disabled && share.getState()!=StorageServiceInstance.ResourceState.Destroyed && nfsShareHasNamedPolicy(instance,share)) {
+                StorageNfsPosixAclCapability.require(nfsCapabilities(instance),System.currentTimeMillis());return;
+            }
+        }
+    }
+
+    @Override
     public StorageServiceRuntimeResponse getStorageServiceControlPolicy(
             org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageServiceControlPolicyCmd cmd) {
         return instanceControlPolicyResponse(requireInstance(cmd.getInstanceId()));
@@ -2378,6 +2412,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         commands.add(ListStorageSmbAclsCmd.class);
         commands.add(JoinStorageServiceToAdDomainCmd.class);
         commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageServiceOperationControlCmd.class);
+        commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageNfsCapabilitiesCmd.class);
         commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageServiceControlPolicyCmd.class);
         commands.add(org.apache.cloudstack.api.command.admin.storage.dataservice.ConfigureStorageServiceControlPolicyCmd.class);
         commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.RepairStorageServiceSmbIdentityCmd.class);
@@ -2817,6 +2852,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         finally { endStorageWriterHeartbeat();configurationNativeNvmeReplayed.remove();configurationRecoverySource.remove();configurationRecoveryBindings.remove(); }
                     }
                     public void preflight() {
+                        if(protocol==StorageServiceInstance.Protocol.NFS)requireNfsNamedPolicyCapability(instance);
                         StorageServiceOperationVO active = storageWriterOperation.get();
                         if (active != null) acquireOperationResourceReservation(instance, active);
                         if (storageTemplateUpgradeDao.findActive(instanceId) != null) throw new CloudRuntimeException("A SystemVM ROOT template upgrade requires recovery or completion");
@@ -5271,6 +5307,45 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             return;
         }
 
+        requireNfsNamedPolicyCapability(instance);
+        final JsonObject payload = buildNfsDesiredPayload(instance,removeListenIp,includeAllocatedResources);
+        final int requestedExportCount = payload.getAsJsonArray("exports").size();
+
+        final StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
+                "nfs export apply", GSON.toJson(payload), StorageServiceInstance.StorageServiceCommandTimeout.value(), Collections.emptySet()));
+        if (!result.isSuccess()) {
+            throw new CloudRuntimeException("Failed to apply NFS desired state on Storage Service System VM: " + result.getDetails());
+        }
+        final JsonObject resultJson = parseJsonObject(result.getResultJson());
+        if (storageWriterOperation.get() != null) logger.info("Configuration NFS apply result for {}: requested={} exports={} endpoints={} ready={}",
+                instance.getUuid(), requestedExportCount, getJsonInt(resultJson, "exports", 0), getJsonInt(resultJson, "endpoints", 0), getJsonBoolean(resultJson, "runtimeReady"));
+        if (resultJson.has("runtimeReady") && !resultJson.get("runtimeReady").getAsBoolean()) {
+            throw new CloudRuntimeException("Failed to apply NFS desired state on Storage Service System VM: nfs-ganesha did not report a listening endpoint");
+        }
+        if (requestedExportCount > 0) {
+            final int appliedExportCount = getJsonInt(resultJson, "exports", 0);
+            final int appliedEndpointCount = getJsonInt(resultJson, "endpoints", 0);
+            if (appliedExportCount <= 0 || appliedEndpointCount <= 0) {
+                throw new CloudRuntimeException("Failed to apply NFS desired state on Storage Service System VM: expected " + requestedExportCount +
+                        " export(s), but Ganesha runtime reported exports=" + appliedExportCount + ", endpoints=" + appliedEndpointCount);
+            }
+        }
+        if (resultJson.has("runtimeEndpoints") && resultJson.get("runtimeEndpoints").isJsonArray()) {
+            for (final JsonElement endpoint : resultJson.getAsJsonArray("runtimeEndpoints")) {
+                if (endpoint != null && endpoint.isJsonObject()) {
+                    final JsonObject endpointJson = endpoint.getAsJsonObject();
+                    if (endpointJson.has("listening") && !endpointJson.get("listening").getAsBoolean()) {
+                        final String endpointIp = endpointJson.has("listenIp") ? endpointJson.get("listenIp").getAsString() : "unknown";
+                        final String endpointPort = endpointJson.has("port") ? endpointJson.get("port").getAsString() : "unknown";
+                        throw new CloudRuntimeException("Failed to apply NFS desired state on Storage Service System VM: nfs-ganesha endpoint " +
+                                endpointIp + ":" + endpointPort + " is not listening");
+                    }
+                }
+            }
+        }
+    }
+
+    protected JsonObject buildNfsDesiredPayload(final StorageServiceInstanceVO instance, final String removeListenIp, final boolean includeAllocatedResources) {
         final JsonObject payload = new JsonObject();
         payload.addProperty("instanceUuid", instance.getUuid());
         payload.addProperty("instanceId", instance.getId());
@@ -5320,10 +5395,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             }
             final JsonObject shareConfig = parseJsonObjectStrict(share.getConfigJson(), "NFS export " + share.getUuid());
             shareConfig.addProperty("protocolMode", serviceProtocolMode);
-            if (ensureNfsExportListenerGroupPorts(shareConfig, serviceProtocolMode, defaultNfsListenerPort)) {
-                share.setConfigJson(GSON.toJson(shareConfig));
-                storageFileShareDao.update(share.getId(), share);
-            }
+            ensureNfsExportListenerGroupPorts(shareConfig, serviceProtocolMode, defaultNfsListenerPort);
             validateNfsExportBackingConfig(share, shareConfig);
             final JsonObject export = new JsonObject();
             export.addProperty("id", share.getId());
@@ -5369,40 +5441,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             exports.add(export);
         }
         payload.add("exports", exports);
-        final int requestedExportCount = exports.size();
-
-        final StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
-                "nfs export apply", GSON.toJson(payload), StorageServiceInstance.StorageServiceCommandTimeout.value(), Collections.emptySet()));
-        if (!result.isSuccess()) {
-            throw new CloudRuntimeException("Failed to apply NFS desired state on Storage Service System VM: " + result.getDetails());
-        }
-        final JsonObject resultJson = parseJsonObject(result.getResultJson());
-        if (storageWriterOperation.get() != null) logger.info("Configuration NFS apply result for {}: requested={} exports={} endpoints={} ready={}",
-                instance.getUuid(), requestedExportCount, getJsonInt(resultJson, "exports", 0), getJsonInt(resultJson, "endpoints", 0), getJsonBoolean(resultJson, "runtimeReady"));
-        if (resultJson.has("runtimeReady") && !resultJson.get("runtimeReady").getAsBoolean()) {
-            throw new CloudRuntimeException("Failed to apply NFS desired state on Storage Service System VM: nfs-ganesha did not report a listening endpoint");
-        }
-        if (requestedExportCount > 0) {
-            final int appliedExportCount = getJsonInt(resultJson, "exports", 0);
-            final int appliedEndpointCount = getJsonInt(resultJson, "endpoints", 0);
-            if (appliedExportCount <= 0 || appliedEndpointCount <= 0) {
-                throw new CloudRuntimeException("Failed to apply NFS desired state on Storage Service System VM: expected " + requestedExportCount +
-                        " export(s), but Ganesha runtime reported exports=" + appliedExportCount + ", endpoints=" + appliedEndpointCount);
-            }
-        }
-        if (resultJson.has("runtimeEndpoints") && resultJson.get("runtimeEndpoints").isJsonArray()) {
-            for (final JsonElement endpoint : resultJson.getAsJsonArray("runtimeEndpoints")) {
-                if (endpoint != null && endpoint.isJsonObject()) {
-                    final JsonObject endpointJson = endpoint.getAsJsonObject();
-                    if (endpointJson.has("listening") && !endpointJson.get("listening").getAsBoolean()) {
-                        final String endpointIp = endpointJson.has("listenIp") ? endpointJson.get("listenIp").getAsString() : "unknown";
-                        final String endpointPort = endpointJson.has("port") ? endpointJson.get("port").getAsString() : "unknown";
-                        throw new CloudRuntimeException("Failed to apply NFS desired state on Storage Service System VM: nfs-ganesha endpoint " +
-                                endpointIp + ":" + endpointPort + " is not listening");
-                    }
-                }
-            }
-        }
+        return payload;
     }
 
     private String canonicalAppliedState(StorageServiceInstance.ResourceState state) {
@@ -5423,6 +5462,16 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             return;
         }
 
+        final JsonObject payload = buildSmbDesiredPayload(instance,rulePasswords);
+
+        final StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
+                "smb share apply", GSON.toJson(payload), StorageServiceInstance.StorageServiceCommandTimeout.value(), Collections.singleton("password")));
+        if (!result.isSuccess()) {
+            throw new CloudRuntimeException("Failed to apply SMB desired state on Storage Service System VM: " + result.getDetails());
+        }
+    }
+
+    protected JsonObject buildSmbDesiredPayload(final StorageServiceInstanceVO instance, final Map<Long, String> rulePasswords) {
         final JsonObject payload = new JsonObject();
         payload.addProperty("instanceUuid", instance.getUuid());
         payload.addProperty("instanceId", instance.getId());
@@ -5512,12 +5561,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             shares.add(smbShare);
         }
         payload.add("shares", shares);
-
-        final StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
-                "smb share apply", GSON.toJson(payload), StorageServiceInstance.StorageServiceCommandTimeout.value(), Collections.singleton("password")));
-        if (!result.isSuccess()) {
-            throw new CloudRuntimeException("Failed to apply SMB desired state on Storage Service System VM: " + result.getDetails());
-        }
+        return payload;
     }
 
     protected String resolveSmbRuntimeBackingPath(final StorageServiceInstanceVO instance, final StorageFileShareVO share) {
@@ -5644,6 +5688,16 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             return;
         }
 
+        final JsonObject payload = buildIscsiDesiredPayload(instance,chapSecrets);
+        final StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
+                "iscsi target apply", GSON.toJson(payload), StorageServiceInstance.StorageServiceCommandTimeout.value(),
+                new HashSet<>(Arrays.asList("chapSecret", "mutualChapSecret"))));
+        if (!result.isSuccess()) {
+            throw new CloudRuntimeException("Failed to apply iSCSI desired state on Storage Service System VM: " + result.getDetails());
+        }
+    }
+
+    protected JsonObject buildIscsiDesiredPayload(final StorageServiceInstanceVO instance, final Map<Long, JsonObject> chapSecrets) {
         final JsonObject payload = buildBlockProtocolPayload(instance, StorageServiceInstance.Protocol.ISCSI);
         final JsonArray targets = new JsonArray();
         for (final StorageBlockTargetVO target : storageBlockTargetDao.listByInstanceIdAndProtocol(instance.getId(), StorageServiceInstance.Protocol.ISCSI)) {
@@ -5653,12 +5707,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
         payload.add("targets", targets);
 
-        final StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
-                "iscsi target apply", GSON.toJson(payload), StorageServiceInstance.StorageServiceCommandTimeout.value(),
-                new HashSet<>(Arrays.asList("chapSecret", "mutualChapSecret"))));
-        if (!result.isSuccess()) {
-            throw new CloudRuntimeException("Failed to apply iSCSI desired state on Storage Service System VM: " + result.getDetails());
-        }
+        return payload;
     }
 
     protected void applyNvmeOfDesiredState(final StorageServiceInstanceVO instance) {
@@ -8213,6 +8262,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         policy.setConfigJson(GSON.toJson(config));
         final JsonObject request = posixPolicyPayload(instance, policy);
         final JsonObject before = dispatchPosixDirectoryCommand(instance, "inspect", request);
+        if (!"DELETE".equals(action) && (!before.has("postApplyReceiptSupported") || !before.get("postApplyReceiptSupported").isJsonPrimitive()
+                || !before.get("postApplyReceiptSupported").getAsJsonPrimitive().isBoolean() || !before.get("postApplyReceiptSupported").getAsBoolean())) throw new InvalidParameterValueException("POSIX_POST_APPLY_RECEIPT_UNAVAILABLE: upgrade the signed runtime before permission preview or application");
+
         if (current == null && cmd.getDirectoryMode() == null) {
             config.add("directoryMode", before.get("effectiveMode"));policy.setConfigJson(GSON.toJson(config));
         }
@@ -8314,6 +8366,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
     private JsonObject posixPermissionPreview(StorageServiceInstanceVO instance,StoragePosixDirectoryPolicyVO policy,
             org.apache.cloudstack.api.command.user.storage.dataservice.BaseStoragePosixDirectoryPolicyCmd cmd,StorageFileShareVO export,JsonObject before,JsonObject intent,long actor) {
+        if(export!=null && (StorageNfsPosixAclCapability.named(parseJsonObject(policy.getConfigJson()),before) || nfsShareHasNamedPolicy(instance,export)))StorageNfsPosixAclCapability.require(nfsCapabilities(instance),System.currentTimeMillis());
         JsonObject preview=new JsonObject(),current=new JsonObject(),expected=new JsonObject(),suggested=new JsonObject();preview.addProperty("schemaVersion",2);
         current.add("uid",before.get("effectiveUid"));current.add("gid",before.get("effectiveGid"));current.add("mode",before.get("effectiveMode"));current.addProperty("exists",true);
         for(String field:new String[]{"canonicalPath","filesystemUuid","device","inode","acl"})current.add(field,before.get(field));preview.add("current",current);expected.add("directoryIdentity",before.get("directoryIdentity"));preview.add("expected",expected);
@@ -8405,6 +8458,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             throw new InvalidParameterValueException("Protocol share does not match the selected common POSIX directory");
         }
         if (!"Ready".equals(policy.getState())) throw new InvalidParameterValueException("Common POSIX directory policy is not ready");
+        if(share.getProtocol()==StorageServiceInstance.Protocol.NFS && StorageNfsPosixAclCapability.named(parseJsonObject(policy.getConfigJson()),parseJsonObject(policy.getEffectiveJson())))StorageNfsPosixAclCapability.require(nfsCapabilities(instance),System.currentTimeMillis());
+
         final JsonObject shareOptions = parseJsonObject(share.getConfigJson());
         if (Boolean.TRUE.equals(getJsonBoolean(shareOptions, "inheritGroup"))
                 && (Integer.parseInt(getJsonString(parseJsonObject(policy.getEffectiveJson()), "effectiveMode"), 8) & 02000) == 0) {

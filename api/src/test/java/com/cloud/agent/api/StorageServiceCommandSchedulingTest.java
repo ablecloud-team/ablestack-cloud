@@ -40,7 +40,7 @@ public class StorageServiceCommandSchedulingTest {
     }
 
     @Test public void renderedObservationsAndPermissionPlansAreExactReadonlyQueriesWhileActivationIsSerialized() {
-        for(String value:new String[]{"operation generation render-status","operation generation render-boot-gate","posix directory inspect","posix directory plan"}) Assert.assertFalse(value,new StorageServiceHostCommand("same-vm",value,"{}",15).executeInSequence());
+        for(String value:new String[]{"operation generation render-status","operation generation render-boot-gate","posix directory inspect","posix directory plan","nfs capabilities"}) Assert.assertFalse(value,new StorageServiceHostCommand("same-vm",value,"{}",15).executeInSequence());
         for(String value:new String[]{"operation generation render-stage","operation generation render-activate","operation generation render-rollback","operation generation render-finalize","posix directory apply","posix directory plan extra"}) Assert.assertTrue(value,new StorageServiceHostCommand("same-vm",value,"{}",60).executeInSequence());
     }
 

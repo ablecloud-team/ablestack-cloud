@@ -45,10 +45,10 @@ public class StoragePermissionPreviewRuntimeTest {
         @Override protected VolumeVO requireVolume(Long id){return volume;}
         @Override protected void validateStorageServiceBackingVolume(StorageServiceInstanceVO instance,Long volume,String resource){ }
         @Override protected JsonObject posixPreviewBacking(StorageServiceInstanceVO instance,VolumeVO volume,StorageFileShareVO export){JsonObject value=new JsonObject();value.addProperty("volumeMountPath","/srv/ablestack-storage/volumes/"+volume.getUuid());value.addProperty("filesystemUuid","filesystem-original");value.addProperty("serial","serial-original");return value;}
-        boolean applied;boolean receiptVerified=true;boolean freshInodeChanged;boolean forgedOwner;
+        boolean applied;boolean receiptSupported=true;boolean receiptVerified=true;boolean freshInodeChanged;boolean forgedOwner;
         @Override protected JsonObject dispatchPosixDirectoryCommand(StorageServiceInstanceVO instance,String action,JsonObject request) {
             if (action.equals("apply")) {applies++;lastApply=request.deepCopy();applied=true;}
-            JsonObject value=new JsonObject();value.addProperty("success",true);value.addProperty("effectiveUid",applied&&!forgedOwner?0:65534);value.addProperty("effectiveGid",applied?0:65534);
+            JsonObject value=new JsonObject();value.addProperty("success",true);value.addProperty("postApplyReceiptSupported",receiptSupported);value.addProperty("effectiveUid",applied&&!forgedOwner?0:65534);value.addProperty("effectiveGid",applied?0:65534);
             value.addProperty("effectiveMode",applied?"0770":"0775");value.addProperty("canonicalPath",request.get("volumeMountPath").getAsString()+(request.get("relativePath").getAsString().isEmpty()?"":"/"+request.get("relativePath").getAsString()));
             value.addProperty("filesystemUuid","filesystem-original");value.addProperty("device",2049);value.addProperty("inode",inode+(applied&&action.equals("inspect")&&freshInodeChanged?1:0));value.add("acl",new JsonArray());
             for(String field:List.of("uuid","instanceUuid","volumeUuid","volumeMountPath","relativePath","revision"))value.add(field,request.get(field));
@@ -95,5 +95,9 @@ public class StoragePermissionPreviewRuntimeTest {
     @Test public void aSuccessfulApplyWithoutProtectedReceiptCannotPromoteReady() {manager.receiptVerified=false;Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,()->approvedApply());}
     @Test public void aDirectoryReplacementAfterApplyCannotPromoteReady() {manager.freshInodeChanged=true;Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,()->approvedApply());}
     @Test public void aConsistentButWrongAppliedOwnerCannotPromoteReady() {manager.forgedOwner=true;Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,()->approvedApply());}
+
+    @Test public void unsupportedLegacyPostApplyReceiptIsRejectedBeforePolicyPersistenceOrGuestApply() {
+        manager.receiptSupported=false;Assert.assertThrows(InvalidParameterValueException.class,()->preview());Assert.assertEquals(0,manager.applies);Mockito.verify(policies,Mockito.never()).persist(Mockito.any());Mockito.verify(policies,Mockito.never()).update(Mockito.anyLong(),Mockito.any());
+    }
 
 }
