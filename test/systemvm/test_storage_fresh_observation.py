@@ -42,7 +42,7 @@ class FreshObservationTest(unittest.TestCase):
         source=SOURCE.read_text()
         branch=re.search(r'    if previous_netbios_name and previous_netbios_name != netbios_name:\n(.*?)\nfd, managed_temporary',source,re.S).group(0).split("\nfd, managed_temporary")[0]
         import textwrap
-        branch=textwrap.dedent(branch)
+        branch=textwrap.dedent(branch.split("\nruntime_endpoints =",1)[0])
         calls=[];scope={"previous_netbios_name":"OLD","netbios_name":"NEW","run":lambda command,**kwargs:calls.append(command),"subprocess":subprocess}
         exec(branch,scope);self.assertEqual([["systemctl","restart","smbd","nmbd"]],calls)
         calls.clear();scope["previous_netbios_name"]="NEW";exec(branch,scope);self.assertEqual([["smbcontrol","all","reload-config"]],calls)
