@@ -7092,7 +7092,14 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             return resolveFileSharePath(path, name);
         }
         final String safeRelativePath = normalizeRelativeSharePath(relativePath);
-        final String mountRoot = resolveFileShareVolumeMountRoot(instance, volume, path);
+        String mountRoot=volume==null?resolveFileShareVolumeMountRoot(instance,volume,path):"/srv/ablestack-storage/volumes/"+volume.getUuid();
+        if(volume!=null && StringUtils.isNotBlank(path)) {
+            for(StorageServiceInstance.Protocol protocol:List.of(StorageServiceInstance.Protocol.NFS,StorageServiceInstance.Protocol.SMB))for(StorageFileShareVO existing:storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(),protocol)) {
+                if(java.util.Objects.equals(existing.getVolumeId(),volume.getId()) && path.equals(existing.getPath()) && existing.getState()==StorageServiceInstance.ResourceState.Ready) {
+                    JsonObject config=parseJsonObject(existing.getConfigJson());String recorded=getJsonString(config,"volumeMountPath");if(StringUtils.isNotBlank(recorded))mountRoot=recorded;
+                }
+            }
+        }
         return mountRoot + "/" + safeRelativePath;
     }
 
@@ -7318,6 +7325,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
         final String normalizedPath = relativePath == null ? StringUtils.removeStart(normalizeFileSharePath(path), "/")
                 : normalizeRelativeSharePath(relativePath);
+        final boolean qualified=relativePath!=null&&requestedVolumeId!=null&&currentShareId==null;
+        final String requestedPhysical=qualified?"/srv/ablestack-storage/volumes/"+requireVolume(requestedVolumeId).getUuid()+"/"+normalizedPath:null;
         final List<StorageFileShareVO> shares = new ArrayList<>();
         shares.addAll(storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(), StorageServiceInstance.Protocol.NFS));
         shares.addAll(storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(), StorageServiceInstance.Protocol.SMB));
@@ -7329,6 +7338,13 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 continue;
             }
             final String existingPath = physicalRelativeSharePath(existing);
+            if(qualified && existing.getVolumeId()!=null && !requestedVolumeId.equals(existing.getVolumeId())) {
+                String existingPhysical=resolveSmbRuntimeBackingPath(instance,existing);
+                if(StringUtils.isBlank(existingPhysical))throw new InvalidParameterValueException("Existing share has no proven physical backing path");
+                if(requestedPhysical.equals(existingPhysical)||isSubPath(requestedPhysical,existingPhysical)||isSubPath(existingPhysical,requestedPhysical))throw new InvalidParameterValueException(resourceName+" physically overlaps a different backing volume");
+                // Relative directory text is local to its exact managed volume UUID; published-name validation remains separate.
+                continue;
+            }
             if (normalizedPath.equals(existingPath)) {
                 if (allowCrossProtocolReuse && existing.getProtocol() != ("NFS export".equals(resourceName)
                         ? StorageServiceInstance.Protocol.NFS : StorageServiceInstance.Protocol.SMB)
