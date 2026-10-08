@@ -11745,12 +11745,143 @@ class ServiceIdentityCipher:
 
 # END EMBEDDED SERVICE CIPHER
 
+# BEGIN EMBEDDED AD SEMANTIC SOURCE
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements. See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership. The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+"""Read-only authentication of manager-vault AD semantic source material.
+
+The manager binds the exact descriptor to the COMPLETE original BACKUP row,
+archive SHA and hidden vault references before protected stdin delivery.
+This consumer verifies that those delivered descriptor/cipher/key bytes agree;
+a public caller dictionary alone is never original identity authority.
+"""
+import base64
+import hashlib
+import hmac
+import json
+import re
+import uuid
+import ipaddress
+
+SEMANTIC_AD_KIND="STORAGE_AD_SEMANTIC_SOURCE"
+SEMANTIC_AD_FIELDS={"schemaVersion","kind","ownerArtifactUuid","sourceInstanceUuid","sourceOperationUuid","sourceConfigurationSha256","ciphertextSha256","issuerMac"}
+SEMANTIC_CAPSULE_FIELDS={"schemaVersion","scope","wrappedKey","nonce","ciphertext","sha256"}
+
+
+def semantic_original_source(request):
+    # No files, processes or directory mutations occur in this parser.
+    if not isinstance(request,dict) or "sourceIdentity" in request:
+        raise ValueError("Caller plain source identity has no semantic authority")
+    descriptor=request.get("originalSourceAuthority");capsule=request.get("originalSourceCapsule");pem=request.get("originalSourceCredentialPrivateKey")
+    if (not isinstance(descriptor,dict) or set(descriptor)!=SEMANTIC_AD_FIELDS
+            or type(descriptor.get("schemaVersion")) is not int or descriptor["schemaVersion"]!=1
+            or descriptor.get("kind")!=SEMANTIC_AD_KIND):
+        raise ValueError("AD semantic descriptor has an invalid closed shape")
+    for field in ("ownerArtifactUuid","sourceInstanceUuid","sourceOperationUuid"):
+        value=descriptor[field]
+        if not isinstance(value,str) or str(uuid.UUID(value))!=value:raise ValueError("AD semantic descriptor UUID is invalid")
+    for field in ("sourceConfigurationSha256","ciphertextSha256","issuerMac"):
+        if not isinstance(descriptor[field],str) or not re.fullmatch("[0-9a-f]{64}",descriptor[field]):
+            raise ValueError("AD semantic descriptor digest/MAC is invalid")
+    if (not isinstance(capsule,dict) or set(capsule)!=SEMANTIC_CAPSULE_FIELDS
+            or type(capsule.get("schemaVersion")) is not int or capsule["schemaVersion"]!=1):
+        raise ValueError("AD semantic source capsule has an invalid closed shape")
+    expected_scope=descriptor["sourceInstanceUuid"]+":"+descriptor["sourceOperationUuid"]
+    if capsule["scope"]!=expected_scope:raise ValueError("AD semantic original scope differs")
+    for field,limit in (("ciphertext",(MAX_CAPSULE_BYTES+16)*2),("wrappedKey",4096),("nonce",64)):
+        if not isinstance(capsule[field],str) or len(capsule[field])>limit:raise ValueError("AD semantic cipher encoding is unbounded")
+    ciphertext=base64.b64decode(capsule["ciphertext"],validate=True)
+    digest=hashlib.sha256(ciphertext).hexdigest()
+    if not ciphertext or len(ciphertext)>MAX_CAPSULE_BYTES+16 or digest!=descriptor["ciphertextSha256"] or digest!=capsule["sha256"]:
+        raise ValueError("AD semantic ciphertext digest differs")
+    if not isinstance(pem,str) or len(pem)>65536:raise ValueError("AD semantic private unwrap key is unavailable")
+    from cryptography.hazmat.primitives import serialization
+    from cryptography.hazmat.primitives.asymmetric import rsa
+    private=serialization.load_pem_private_key(pem.encode(),password=None)
+    if not isinstance(private,rsa.RSAPrivateKey) or private.key_size<2048:raise ValueError("AD semantic unwrap key is not supported RSA")
+    der=private.private_bytes(serialization.Encoding.DER,serialization.PrivateFormat.PKCS8,serialization.NoEncryption())
+    authenticated={key:value for key,value in descriptor.items() if key!="issuerMac"}
+    canonical=json.dumps(authenticated,sort_keys=True,separators=(",",":"),ensure_ascii=False).encode()
+    mac=hmac.new(hashlib.sha256(der).digest(),canonical,hashlib.sha256).hexdigest()
+    if not hmac.compare_digest(mac,descriptor["issuerMac"]):raise ValueError("AD semantic issuer MAC differs")
+    # Existing codec checks RSA OAEP, GCM authentication and exact original AAD.
+    payload=decrypt(capsule,pem,expected_scope);validate_payload(payload)
+    if payload.get("sourceConfigurationSha256")!=descriptor["sourceConfigurationSha256"]:
+        raise ValueError("AD semantic decoded source configuration differs")
+    identity=payload.get("adIdentity")
+    required={"machineAccountSid","dnsAliases","idmapPolicy","machineConfigurationSha256"}
+    if not isinstance(identity,dict) or not required<=set(identity):raise ValueError("AD semantic source lacks full joined authority")
+    aliases=identity["dnsAliases"]
+    if aliases!=sorted(aliases,key=lambda row:row["hostname"]) or len({row["hostname"] for row in aliases})!=len(aliases):
+        raise ValueError("AD semantic source aliases are unnormalized")
+    for alias in aliases:
+        if alias["hostname"]!=alias["hostname"].lower() or alias["addresses"]!=sorted(set(alias["addresses"])):
+            raise ValueError("AD semantic source alias addresses are unnormalized")
+        for address in alias["addresses"]:
+            if str(ipaddress.IPv4Address(address))!=address:raise ValueError("AD semantic source address is unnormalized")
+    expected=sorted(service+"/"+row["hostname"] for row in aliases for service in ("host","cifs"))
+    if sorted(identity["servicePrincipals"])!=expected or len(identity["servicePrincipals"])!=len(expected):
+        raise ValueError("AD semantic source SPNs are not exact owned aliases")
+    for field in ("machineSid","domainSid"):
+        if any(int(part)>4294967295 for part in identity[field].split("-")[4:]):raise ValueError("AD semantic source SID subauthority is out of range")
+    account=identity["machineAccountSid"]
+    if int(account.rsplit("-",1)[1])>4294967295:raise ValueError("AD semantic computer SID RID is out of range")
+    return {"descriptor":dict(descriptor),"identity":dict(identity),"payload":payload}
+
+
+def semantic_new_target(original,public,source,instance_uuid):
+    descriptor=original["descriptor"];identity=original["identity"]
+    if instance_uuid==descriptor["sourceInstanceUuid"]:raise ValueError("NEW_INSTANCE cannot reuse the source native instance")
+    if source.get("adIdentity") is not None:raise ValueError("NEW_INSTANCE target is already joined")
+    if source.get("publicLocalMachineSid")==identity["machineSid"]:raise ValueError("NEW_INSTANCE target SAM equals the original source")
+    if public["netbiosName"]==identity["netbiosName"]:raise ValueError("NEW_INSTANCE reuses the original computer name")
+    if public["domain"]!=identity["domain"] or public["realm"]!=identity["realm"] or public["idmapPolicy"]!=identity["idmapPolicy"]:
+        raise ValueError("NEW_INSTANCE domain or SID mapping differs from authenticated original")
+    original_aliases={row["hostname"] for row in identity["dnsAliases"]}
+    if any(row["hostname"] in original_aliases for row in public["dnsAliases"]) or set(public["servicePrincipals"])&set(identity["servicePrincipals"]):
+        raise ValueError("NEW_INSTANCE cannot reuse original aliases/SPNs")
+    return identity
+
+
+def semantic_same_target(original,public,source,instance_uuid):
+    identity=original["identity"]
+    if instance_uuid!=original["descriptor"]["sourceInstanceUuid"]:raise ValueError("SAME_VM semantic source belongs to another instance")
+    current=source.get("adIdentity")
+    fields=("domain","realm","workgroup","netbiosName","machineSid","domainSid","machineAccountSid","servicePrincipals","dnsAliases","idmapPolicy","machineConfigurationSha256")
+    if (not isinstance(current,dict) or source.get("publicLocalMachineSid")!=identity["machineSid"]
+            or any(current.get(key)!=identity.get(key) for key in fields)):
+        raise ValueError("SAME_VM semantic source differs from its freshly captured joined authority")
+    if any(public.get(key)!=identity.get(key) for key in ("domain","realm","workgroup","netbiosName","servicePrincipals","dnsAliases","idmapPolicy")):
+        raise ValueError("SAME_VM semantic request replaces original domain identity")
+    return identity
+# END EMBEDDED AD SEMANTIC SOURCE
+
 scope = str(request.get("instanceUuid") or "") + ":" + str(request.get("operationUuid") or "")
 if not re.fullmatch(r"[0-9a-fA-F-]{36}:[0-9a-fA-F-]{36}", scope):
     raise ValueError("Identity capsule request scope is invalid")
 if action == "capabilities":
     from cryptography.hazmat.primitives.ciphers.aead import AESGCM
     print(json.dumps({"success": True, "schemaVersion": 1, "localIdentity": True, "adIdentity": False, "posixReceiptTransferSupported":True}))
+elif action=="semantic-original":
+    target_scope={key:request[key] for key in ("instanceUuid","operationUuid","revision")}
+    for key in ("instanceUuid","operationUuid"):
+        if not isinstance(target_scope[key],str) or str(uuid.UUID(target_scope[key]))!=target_scope[key]:raise ValueError("Semantic target UUID is invalid")
+    if type(target_scope["revision"]) is not int or target_scope["revision"]<1:raise ValueError("Semantic target revision is invalid")
+    original=semantic_original_source(request)
+    print(json.dumps({"success":True,"scope":target_scope,"originalSourceAuthority":original["descriptor"],"originalIdentity":original["identity"]},sort_keys=True))
 elif action == "export":
     names = request.get("names") or []
     root_source=None;service_source=None;ad_metadata=None;records=None;configuration=None
@@ -13673,6 +13804,31 @@ class LocalSamBootstrap:
         record["phase"]="COMPLETE";root_receipt_write(path,record)
         return {"success":True,"scope":scope,"localSamInitialized":True,"localMachineSid":planned,"netbiosName":name,"identityPreserved":False,
                 "canonicalDesiredStateChanged":False,"bootId":generation["bootId"],"generation":current,"configurationSha256":generation["configurationSha256"]}
+def semantic_new_target(original,public,source,instance_uuid):
+    descriptor=original["descriptor"];identity=original["identity"]
+    if instance_uuid==descriptor["sourceInstanceUuid"]:raise ValueError("NEW_INSTANCE cannot reuse the source native instance")
+    if source.get("adIdentity") is not None:raise ValueError("NEW_INSTANCE target is already joined")
+    if source.get("publicLocalMachineSid")==identity["machineSid"]:raise ValueError("NEW_INSTANCE target SAM equals the original source")
+    if public["netbiosName"]==identity["netbiosName"]:raise ValueError("NEW_INSTANCE reuses the original computer name")
+    if public["domain"]!=identity["domain"] or public["realm"]!=identity["realm"] or public["idmapPolicy"]!=identity["idmapPolicy"]:
+        raise ValueError("NEW_INSTANCE domain or SID mapping differs from authenticated original")
+    original_aliases={row["hostname"] for row in identity["dnsAliases"]}
+    if any(row["hostname"] in original_aliases for row in public["dnsAliases"]) or set(public["servicePrincipals"])&set(identity["servicePrincipals"]):
+        raise ValueError("NEW_INSTANCE cannot reuse original aliases/SPNs")
+    return identity
+
+
+def semantic_same_target(original,public,source,instance_uuid):
+    identity=original["identity"]
+    if instance_uuid!=original["descriptor"]["sourceInstanceUuid"]:raise ValueError("SAME_VM semantic source belongs to another instance")
+    current=source.get("adIdentity")
+    fields=("domain","realm","workgroup","netbiosName","machineSid","domainSid","machineAccountSid","servicePrincipals","dnsAliases","idmapPolicy","machineConfigurationSha256")
+    if (not isinstance(current,dict) or source.get("publicLocalMachineSid")!=identity["machineSid"]
+            or any(current.get(key)!=identity.get(key) for key in fields)):
+        raise ValueError("SAME_VM semantic source differs from its freshly captured joined authority")
+    if any(public.get(key)!=identity.get(key) for key in ("domain","realm","workgroup","netbiosName","servicePrincipals","dnsAliases","idmapPolicy")):
+        raise ValueError("SAME_VM semantic request replaces original domain identity")
+    return identity
 #!/usr/bin/env python3
 
 # Licensed to the Apache Software Foundation (ASF) under one
@@ -13865,7 +14021,7 @@ import uuid
 
 
 class AdDomainLifecycle:
-    def __init__(self,cli,configuration=None,run=None,daemon=None,quiescence=None,system_root=None,source_provider=None,sid_reader=None):
+    def __init__(self,cli,configuration=None,run=None,daemon=None,quiescence=None,system_root=None,source_provider=None,sid_reader=None,original_provider=None):
         self.system_root=Path(system_root or "/")
         self.cli=str(cli);self.configuration=Path(configuration or os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_ROOT","/etc/ablestack-storage"))
         self.run=run or bounded_ad_run;self.deadline=time.monotonic()+180
@@ -13873,7 +14029,7 @@ class AdDomainLifecycle:
         self.quiescence=quiescence or self.require_quiescence
         self.state=self.configuration/"smb-domain.json";self.journal=self.configuration/"ad-lifecycle"/"current.json"
         self.machine=self.configuration/"ad-machine.conf"
-        self.source_provider=source_provider
+        self.source_provider=source_provider;self.original_provider=original_provider
         self.sid_reader=sid_reader or (lambda name:samba_public_sid(name,self.system_root/'var/lib/samba/private/secrets.tdb'))
 
     def command(self,arguments):
@@ -13943,14 +14099,9 @@ class AdDomainLifecycle:
         mode=request.get("identityMode")
         if mode not in ("JOIN_EXISTING","NEW_INSTANCE"):raise ValueError("AD join requires an explicit identity mode")
         if mode=="NEW_INSTANCE":
-            expected_name="AST"+scope["instanceUuid"].replace("-","")[:12].upper()
+            expected_name="STOR"+scope["instanceUuid"].replace("-","")[:10].upper()
             if pure["netbiosName"]!=expected_name:raise ValueError("Fresh clone AD computer name must be derived from its new instance UUID")
-            source_identity=request.get("sourceIdentity")
-            if isinstance(source_identity,dict) and pure["netbiosName"]==source_identity.get("netbiosName"):
-                raise ValueError("Fresh clone cannot reuse the source AD computer account name")
-            if isinstance(source_identity,dict):
-                if any(value in set(source_identity.get("servicePrincipals") or []) for value in required) or any(row["hostname"] in {item["hostname"] for item in source_identity.get("dnsAliases") or []} for row in aliases):
-                    raise ValueError("Fresh clone cannot reuse source AD aliases or service principals")
+            if "sourceIdentity" in request:raise ValueError("Caller plain source identity has no authenticated original authority")
 
         ou=request.get("organizationalUnit")
         if ou is not None and (not isinstance(ou,str) or not re.fullmatch(r"[A-Za-z0-9_ .,-/]{1,512}",ou) or ou!=ou.strip()):raise ValueError("AD organizational unit is invalid")
@@ -14009,18 +14160,7 @@ class AdDomainLifecycle:
                     or observed.get("pendingOperationUuid")!=scope["operationUuid"] or observed.get("generationStatus")!="PENDING"):
                 raise ValueError("AD mutation source generation/seven differs")
             if fresh:
-                # Fixed request travels through the same bounded sealed input
-                # mechanism as other native lifecycle observations.
-                descriptor=os.memfd_create("ad-source-authority",os.MFD_CLOEXEC|os.MFD_ALLOW_SEALING)
-                try:
-                    import fcntl
-                    os.fchmod(descriptor,0o600);os.write(descriptor,json.dumps(scope).encode());os.lseek(descriptor,0,os.SEEK_SET)
-                    fcntl.fcntl(descriptor,fcntl.F_ADD_SEALS,fcntl.F_SEAL_WRITE|fcntl.F_SEAL_GROW|fcntl.F_SEAL_SHRINK|fcntl.F_SEAL_SEAL)
-                    result=self.run([self.cli,"operation","generation","render-service-identity-export-source","/proc/self/fd/"+str(descriptor)],
-                                    capture_output=True,text=True,timeout=min(15,self.deadline-time.monotonic()),pass_fds=(descriptor,9) if os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD")=="9" else (descriptor,))
-                    if result.returncode:raise ValueError("AD mutation fresh AFTERSTOP source was rejected")
-                    source=json.loads(result.stdout)
-                finally:os.close(descriptor)
+                source=self.protected_request(("operation","generation","render-service-identity-export-source"),scope)
             else:
                 frozen=native["sourcePublicIdentity"]
                 source={"scope":scope,"serviceSourceStoppedVerified":True,"bootId":native["bootId"],"publicLocalMachineSid":frozen["publicLocalMachineSid"],
@@ -14030,6 +14170,35 @@ class AdDomainLifecycle:
                 or not re.fullmatch(r"S-1-5-21(?:-[0-9]{1,10}){3}",str(source.get("publicLocalMachineSid")))):
             raise ValueError("AD mutation source boot/SAM/stopped proof is invalid")
         return source
+
+    def protected_request(self,command,request):
+        import fcntl
+        temporary=os.memfd_create("ad-protected-request",os.MFD_CLOEXEC|os.MFD_ALLOW_SEALING)
+        # Signed shell helpers reserve FD3 for protected stdin and FD9 for the
+        # native writer. Keep the sealed request outside both reserved slots.
+        try:descriptor=fcntl.fcntl(temporary,fcntl.F_DUPFD_CLOEXEC,16)
+        finally:os.close(temporary)
+        try:
+            os.fchmod(descriptor,0o600);os.write(descriptor,json.dumps(request).encode());os.lseek(descriptor,0,os.SEEK_SET)
+            fcntl.fcntl(descriptor,fcntl.F_ADD_SEALS,fcntl.F_SEAL_WRITE|fcntl.F_SEAL_GROW|fcntl.F_SEAL_SHRINK|fcntl.F_SEAL_SEAL)
+            remaining=self.deadline-time.monotonic()
+            if remaining<=0:raise TimeoutError("AD protected request deadline expired")
+            result=self.run([self.cli,*command,"/proc/self/fd/"+str(descriptor)],capture_output=True,text=True,timeout=min(15,remaining),
+                            pass_fds=(descriptor,9) if os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD")=="9" else (descriptor,))
+            if result.returncode:raise ValueError("AD protected authority observer rejected its request")
+            return json.loads(result.stdout)
+        finally:os.close(descriptor)
+
+    def original_source(self,request):
+        if "sourceIdentity" in request:raise ValueError("Caller plain source identity has no authenticated original authority")
+        fields=("originalSourceAuthority","originalSourceCapsule","originalSourceCredentialPrivateKey")
+        if any(field not in request for field in fields):raise ValueError("NEW_INSTANCE requires authenticated original authority and fresh target SAM bootstrap")
+        scoped={**self.daemon.scope(request),**{field:request[field] for field in fields}}
+        result=self.original_provider(scoped) if self.original_provider is not None else self.protected_request(("identity","capsule","semantic-original"),scoped)
+        if (not isinstance(result,dict) or result.get("success") is not True or result.get("scope")!=self.daemon.scope(request)
+                or result.get("originalSourceAuthority")!=request["originalSourceAuthority"] or not isinstance(result.get("originalIdentity"),dict)):
+            raise ValueError("AD semantic original decoder receipt is invalid")
+        return {"descriptor":result["originalSourceAuthority"],"identity":result["originalIdentity"]}
 
     def public_backup(self,path):
         if not path.exists() and not path.is_symlink():return {"absent":True}
@@ -14054,13 +14223,27 @@ class AdDomainLifecycle:
         journal=ad_protected_json(self.journal,True)
         own_complete=bool(journal and journal.get("scope")==self.daemon.scope(request) and journal.get("phase")=="COMPLETE")
         source=self.source_authority(request,fresh=not own_complete)
+        configured=self.run(["testparm","-s","--parameter-name=netbios name"],capture_output=True,text=True,timeout=min(5,self.deadline-time.monotonic()))
+        if configured.returncode or configured.stdout.strip().upper()!=public["netbiosName"]:
+            raise ValueError("AD JOIN name differs from the actual captured target configuration")
+        if self.sid_reader(public["netbiosName"])!=source["publicLocalMachineSid"]:
+            raise ValueError("AD JOIN machine name has no exact captured target SAM key")
+        original=None
+        if public["identityMode"]=="NEW_INSTANCE":
+            original=self.original_source(request)
+            semantic_new_target(original,public,source,self.daemon.scope(request)["instanceUuid"])
+        elif any(field in request for field in ("originalSourceAuthority","originalSourceCapsule","originalSourceCredentialPrivateKey")):
+            original=self.original_source(request)
+            semantic_same_target(original,public,source,self.daemon.scope(request)["instanceUuid"])
         if existing and existing.get("state")=="JOINED":
             actual=AdIdentityRpc(self.run,self.configuration,cli=self.cli).inspect(request)
             if actual.get("identityVerified") is not True or any(actual.get(key)!=public[key] for key in ("domain","realm","workgroup","netbiosName","dnsAliases","servicePrincipals")):
                 raise ValueError("Existing AD identity cannot be silently replaced or rejoined")
+            if public["identityMode"]=="NEW_INSTANCE" and (existing.get("semanticOriginalSourceAuthority")!=original["descriptor"]
+                    or actual.get("machineSid")!=source["publicLocalMachineSid"] or actual.get("machineAccountSid")==original["identity"]["machineAccountSid"]
+                    or actual.get("domainSid")!=original["identity"]["domainSid"] or actual.get("idmapPolicy")!=original["identity"]["idmapPolicy"]):
+                raise ValueError("NEW_INSTANCE retry differs from its authenticated original or preserved target")
             return {"success":True,"scope":self.daemon.scope(request),"identityPreserved":True,"rejoined":False,"identity":actual,"canonicalDesiredStateChanged":False}
-        if public["identityMode"]=="NEW_INSTANCE" and ((self.system_root/"etc/krb5.keytab").exists() or existing):raise ValueError("Fresh clone cannot carry a source AD identity")
-        if public["identityMode"]=="NEW_INSTANCE":raise ValueError("NEW_INSTANCE requires authenticated original authority and fresh target SAM bootstrap")
         for path in (self.machine,self.system_root/"etc/krb5.keytab",self.system_root/"var/lib/samba/winbindd_idmap.tdb"):
             if path.exists() or path.is_symlink():raise ValueError("AD first join refuses preexisting foreign identity artifacts")
         self.quiescence()
@@ -14090,12 +14273,15 @@ class AdDomainLifecycle:
             account=machine_account_sid(self.command(["wbinfo","--name-to-sid",public["workgroup"]+chr(92)+public["netbiosName"]+"$"]),probe["domainSid"])
             mapping=idmap_policy(self.configured_run,public["workgroup"],self.deadline)
             if mapping!=public["idmapPolicy"]:raise ValueError("AD joined idmap readback differs from its exact private configuration")
-            if probe["machineSid"]!=source["publicLocalMachineSid"]:raise ValueError("JOIN_EXISTING changed its original public local SAM SID")
+            if probe["machineSid"]!=source["publicLocalMachineSid"]:raise ValueError("AD JOIN changed the target's captured public local SAM SID")
+            if original is not None and (probe["domainSid"]!=original["identity"]["domainSid"] or account==original["identity"]["machineAccountSid"]):
+                raise ValueError("NEW_INSTANCE computer identity reuses or escapes authenticated original")
             state={"state":"JOINED","joinState":"JOINED","instanceUuid":self.daemon.scope(request)["instanceUuid"],"domainName":public["domain"],"realm":public["realm"],"workgroup":public["workgroup"],"netbiosName":public["netbiosName"],
                    "dnsServers":public["dnsServers"],"dnsAliases":public["dnsAliases"],"servicePrincipals":public["servicePrincipals"],"idmapPolicy":mapping,
                    "identityReceipt":{key:probe[key] for key in ("machineSid","domainSid")},"machineConfigurationSha256":hashlib.sha256(self.machine.read_bytes()).hexdigest()}
             state["identityReceipt"]["machineAccountSid"]=account
             state["ordinaryJoinSource"]={"scope":source["scope"],"bootId":source["bootId"],"localMachineSid":source["publicLocalMachineSid"]}
+            if original is not None:state["semanticOriginalSourceAuthority"]=original["descriptor"]
             state["publicConfigurationBeforeJoin"]=backups
             state["ownedPublicConfigurationSha256"]={"krb5.conf":hashlib.sha256(pure["kerberosConfiguration"].encode()).hexdigest(),"resolv.conf":hashlib.sha256(pure["resolverConfiguration"].encode()).hexdigest()}
             state["ownedAdArtifacts"]=["ad-machine.conf","krb5.keytab","winbindd_idmap.tdb"]
@@ -20264,7 +20450,7 @@ fi
 
 # Keep the descriptor open through native child work, even if the management writer disappears.
 case "$command:$subcommand:$action" in
-  operation:reservation:acquire|operation:reservation:renew|operation:reservation:release|operation:reservation:status|volume:operation:capabilities|smb:identity:inspect|smb:endpoint-run:*|health:*|inventory:*|sessions:*|operation:verify:*|operation:observe:*|operation:resources:*|network:endpoints:inspect|operation:generation:render-boot-gate|operation:generation:render-status|operation:generation:render-maintenance-verify|operation:generation:render-root-identity-export-source|operation:generation:status|operation:generation:frozen|posix:directory:inspect|posix:directory:plan|posix:directory:attest-plan|operation:maintenance:status|operation:maintenance:service-status|operation:maintenance:service-capabilities|operation:root-data:inspect|operation:writer-idle:*|volume:operation:status|nfs:idmapping:preflight|nfs:capabilities:*|identity:capsule:capabilities|identity:domain:inspect|identity:principal:resolve|identity:domain:daemon-gate|identity:domain:capabilities)
+  operation:reservation:acquire|operation:reservation:renew|operation:reservation:release|operation:reservation:status|volume:operation:capabilities|smb:identity:inspect|smb:endpoint-run:*|health:*|inventory:*|sessions:*|operation:verify:*|operation:observe:*|operation:resources:*|network:endpoints:inspect|operation:generation:render-boot-gate|operation:generation:render-status|operation:generation:render-maintenance-verify|operation:generation:render-root-identity-export-source|operation:generation:status|operation:generation:frozen|posix:directory:inspect|posix:directory:plan|posix:directory:attest-plan|operation:maintenance:status|operation:maintenance:service-status|operation:maintenance:service-capabilities|operation:root-data:inspect|operation:writer-idle:*|volume:operation:status|nfs:idmapping:preflight|nfs:capabilities:*|identity:capsule:capabilities|identity:capsule:semantic-original|identity:domain:inspect|identity:principal:resolve|identity:domain:daemon-gate|identity:domain:capabilities)
     ;;
   *)
     acquire_storage_writer_lock || exit $?
