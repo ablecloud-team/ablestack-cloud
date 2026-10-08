@@ -40,6 +40,14 @@ describe('ROOT template maintenance UI boundaries', () => {
     vm.maintenanceWindow = true; vm.confirmation = 'other'
     expect(Widget.computed.canSubmit.call(vm)).toBe(false)
   })
+  it('does not label unavailable or unattested identity transport as protected', () => {
+    const vm = { capability: {}, preflight: { identityMigration: { success: false, status: 'UNAVAILABLE' } }, $t: key => key }
+    expect(Widget.computed.identityLabel.call(vm)).toBe('label.no')
+    vm.preflight.identityMigration = { localIdentity: true }
+    expect(Widget.computed.identityLabel.call(vm)).toBe('—')
+    vm.preflight.identityMigration.protectedStdinTransport = true
+    expect(Widget.computed.identityLabel.call(vm)).toBe('label.storage.template.identity.protected')
+  })
   it('preserves known template rows after a transient read failure', async () => {
     getAPI.mockRejectedValue(new Error('offline'))
     const vm = { resource: { id: 'a' }, scope: 0, templates: [{ templateUuid: 'known' }], unwrap: Widget.methods.unwrap }
