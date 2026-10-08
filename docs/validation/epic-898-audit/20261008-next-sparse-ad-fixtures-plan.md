@@ -101,3 +101,19 @@ host13.1/.2/.3은 공유 GFS의 같은 inode1313342를 관측했다. qcow2v3/bac
 관리된 실제 volumeRoot+relative를 qualified physical key로 검증하고 legacy/export mountboundary 보호와 구분하는 source 수정이 필요하다. guard를 단순히 끄거나 새 경로로 시험을 우회하지 않는다. 이 BLOCKED는 안전한 before-effect 보존 증거이며 **volume-only update negative/positive 완료 증거는 아니다.** Java full reactor freeze 동안 Manager owner에게 exact request/source조건/mount topology를 전달했고 추가 실제 mutation은0이다.
 
 증거910-volume-only-old-cross-smb-prepare-proof.json,910-volume-only-blocked-mount-binding-readonly.json을 기록한다.
+
+## Namespace 실제 배포 후 API·UI volume-only negative 통과
+
+2026-10-08 23:44:47 KST에 부모가 관리 모듈 175 class의 검토된 namespace 1dad 변경을 배포했다. 관리 PID 1171342 / JAR SHA e99a3ca3bea20e04635edaa7ec007f47058979aa30b39cbf6e370f55c00fc31b, backup /root/epic898-backup-20261008-234320 및 원래 Runtime 2 class 보존을 확인했다. 이 namespace 배포는 전체 614 WIP 또는 새 profile/strict Runtime 배포가 아니다.
+
+새 명시적 intent와 idempotency key로 과거와 같은 old a0b SMB 요청을 다시 생성했다. 과거 job 829c BLOCKED 증빙은 보존했다. 새 share 7ec0c41b-afa9-48ed-ba5c-fcb55ba29661 / epic898-volumeonly-ns-move10은 old a0b / FS a433 / managed /srv 경로에서 Ready이고, 기존 LOCAL_USER epic898-nested-client09의 UID 1002 ACL은 password 파라미터 없이 추가했다. 새 leaf inode 33685639 / device 2064 / 0:0 / 0770 및 named/default user 1002 ACL을 확인했다. 원래 디렉터리 재귀 변경과 포맷은 0이다.
+
+API는 id + volumeid 7b4 + crossprotocol false와 별도 idempotency key만 전송했다. name/path/relativepath/filesystem/importmode는 생략했다. Job 4bc878b4-182b-43d8-8d2a-342e7eb2aedc / operation 932c5ee0-938a-49aa-a90e-8d406a83e244는 target NFS가 이미 사용하는 같은 물리 경로를 준비 전에 거절해 code 530 / BLOCKED였다.
+
+부모 실제 UI도 현재 백킹 볼륨 7b4 선택과 cross switch OFF를 한 번 제출했다. Job 7f49383d-2564-466c-9a80-bb3c58795f80 (DB 909, actor 2, 14:51:21 UTC) / operation c67f3896-530b-4fa7-ba8c-996acd33cb8c도 같은 이유로 BLOCKED였다. UI가 기존 name/relativepath와 FORMAT_IF_EMPTY를 보냈다는 일반 파라미터를 확인했다. API의 volume-id-only 요청과 UI의 필드 유지 요청을 혼동하지 않는다. UI는 native prepare에 도달하지 않아 추가 포맷 0이다.
+
+API 직전 baseline과 UI 직후를 대조해 source 전체 config·old volume/FS/경로·leaf/ACL, target NFS 전체 config·parent/child/file inode·owner/hash, native GEN 42 / checksum 4bcac862... / canonical 7 files, 원래 sentinel·SID·boot c53·SMB PID 2548/2552·POSIX receipt mtime가 모두 같음을 확인했다. 새 target file inode 133 / SHA d810...와 original sentinel inode 16777345 / SHA fe084...도 보존됐다.
+
+따라서 서로 다른 managed volume의 같은 relative 준비와, volume-id-only가 실제 같은-volume crossprotocol 충돌을 준비 전에 막는 negative는 API·UI 실제 확인했다. 같은 프로토콜의 진짜 이동, 디렉터리/파일 보존 이동, child 삭제 및 전체 #910 인수는 아직 별도 GO 전이다. 비밀번호 reset·재포맷·자동 cleanup·원본/partial/AD OOBE 변경 0을 유지한다.
+
+증빙: 910-volume-only-1dad-cross-source-prepare.json, 910-volume-only-1dad-negative-proof.json, 910-volume-only-ui-negative-proof.json 및 각 전후 native baseline이다.
