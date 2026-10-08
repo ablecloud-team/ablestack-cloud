@@ -50,6 +50,11 @@ import com.cloud.utils.exception.CloudRuntimeException;
         since = "4.20.0",
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
 public class StartSharedFSCmd extends BaseAsyncCmd implements UserCmd {
+    @javax.inject.Inject private org.apache.cloudstack.storage.dataservice.StorageService storageScope;
+    public Long getSharedFileSystemId(){return getId();}
+    @Override public String getSyncObjType(){return "StorageServiceInstance";}
+    @Override public Long getSyncObjId(){return storageScope.getStorageServiceSyncId(this);}
+
 
     @Inject
     SharedFSService sharedFSService;

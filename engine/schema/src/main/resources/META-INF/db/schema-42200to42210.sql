@@ -1328,3 +1328,25 @@ CREATE TABLE IF NOT EXISTS cloud.storage_service_template_upgrade (
   KEY idx_storage_template_upgrade_retention(rollback_retain_until),
   KEY idx_storage_template_upgrade_scope(instance_id,created)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Existing SharedFS installations need the ROOT projection; Diplo-After creates it for new installations.
+SET @storage_root_projection_sql = IF(EXISTS(SELECT 1 FROM information_schema.tables WHERE table_schema='cloud' AND table_name='storage_service_instance'), 'CALL cloud.IDEMPOTENT_ADD_COLUMN(''cloud.storage_service_instance'', ''current_template_id'', ''bigint unsigned DEFAULT NULL'')', 'SELECT 1');
+PREPARE storage_root_projection_stmt FROM @storage_root_projection_sql;
+EXECUTE storage_root_projection_stmt;
+DEALLOCATE PREPARE storage_root_projection_stmt;
+SET @storage_root_projection_sql = IF(EXISTS(SELECT 1 FROM information_schema.tables WHERE table_schema='cloud' AND table_name='storage_service_instance'), 'CALL cloud.IDEMPOTENT_ADD_COLUMN(''cloud.storage_service_instance'', ''previous_template_id'', ''bigint unsigned DEFAULT NULL'')', 'SELECT 1');
+PREPARE storage_root_projection_stmt FROM @storage_root_projection_sql;
+EXECUTE storage_root_projection_stmt;
+DEALLOCATE PREPARE storage_root_projection_stmt;
+SET @storage_root_projection_sql = IF(EXISTS(SELECT 1 FROM information_schema.tables WHERE table_schema='cloud' AND table_name='storage_service_instance'), 'CALL cloud.IDEMPOTENT_ADD_COLUMN(''cloud.storage_service_instance'', ''template_upgrade_state'', ''varchar(40) DEFAULT NULL'')', 'SELECT 1');
+PREPARE storage_root_projection_stmt FROM @storage_root_projection_sql;
+EXECUTE storage_root_projection_stmt;
+DEALLOCATE PREPARE storage_root_projection_stmt;
+SET @storage_root_projection_sql = IF(EXISTS(SELECT 1 FROM information_schema.tables WHERE table_schema='cloud' AND table_name='storage_service_instance'), 'CALL cloud.IDEMPOTENT_ADD_COLUMN(''cloud.storage_service_instance'', ''last_template_upgrade_id'', ''bigint unsigned DEFAULT NULL'')', 'SELECT 1');
+PREPARE storage_root_projection_stmt FROM @storage_root_projection_sql;
+EXECUTE storage_root_projection_stmt;
+DEALLOCATE PREPARE storage_root_projection_stmt;
+SET @storage_root_projection_sql = IF(EXISTS(SELECT 1 FROM information_schema.tables WHERE table_schema='cloud' AND table_name='storage_service_instance'), 'CALL cloud.IDEMPOTENT_ADD_COLUMN(''cloud.storage_service_instance'', ''template_verified_at'', ''datetime DEFAULT NULL'')', 'SELECT 1');
+PREPARE storage_root_projection_stmt FROM @storage_root_projection_sql;
+EXECUTE storage_root_projection_stmt;
+DEALLOCATE PREPARE storage_root_projection_stmt;

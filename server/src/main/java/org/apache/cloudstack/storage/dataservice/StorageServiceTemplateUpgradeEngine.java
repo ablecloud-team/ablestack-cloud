@@ -41,49 +41,54 @@ public final class StorageServiceTemplateUpgradeEngine {
     }
     private final StorageServiceTemplateUpgradeDao upgrades;
     public StorageServiceTemplateUpgradeEngine(StorageServiceTemplateUpgradeDao upgrades) { this.upgrades=upgrades; }
+    private static final java.util.List<String> FORWARD = java.util.List.of("PREFLIGHT","STAGING_ROOT","SNAPSHOTTING_CONFIG","QUIESCING","SWAPPING_ROOT","BOOTING_TARGET","RESTORING_IDENTITY","RECONCILING","VERIFYING","COMMITTING");
     public void execute(StorageServiceTemplateUpgradeVO row,Runtime runtime) {
-        if (!java.util.Set.of("PLANNED","RUNNING","RECOVERY_REQUIRED").contains(row.getState())) {
-            throw new CloudRuntimeException("Template upgrade is not executable in its current state");
+        if (!java.util.Set.of("PLANNED","RUNNING","RECOVERY_REQUIRED").contains(row.getState())) throw new CloudRuntimeException("Template upgrade is not executable in its current state");
+        String resume = row.getPhase();
+        if ("RECOVERY_REQUIRED".equals(row.getState()) || resume.startsWith("ROLLING_BACK") || resume.equals("BOOTING_PREVIOUS") || resume.equals("RECONCILING_PREVIOUS")) {
+            rollback(row,runtime);return;
         }
+        int first = "PLANNED".equals(row.getState()) ? 0 : FORWARD.indexOf(resume);
+        if (first < 0) throw new CloudRuntimeException("Unknown durable ROOT phase requires administrator recovery");
         row.setState("RUNNING");if (row.getStarted()==null) row.setStarted(new Date());
-        boolean attempted=false;
+        boolean attempted=first>0;
         try {
-            phase(row,"PREFLIGHT",2);runtime.preflight();
+            if (first<=0) {phase(row,"PREFLIGHT",2);runtime.preflight();}
             attempted=true;
-            phase(row,"STAGING_ROOT",10);runtime.stageRoot();
-            phase(row,"SNAPSHOTTING_CONFIG",20);runtime.checkpoint();
-            phase(row,"QUIESCING",30);runtime.quiesce();
-            phase(row,"SWAPPING_ROOT",40);runtime.swapRoot();
-            phase(row,"BOOTING_TARGET",50);runtime.bootTarget();
-            phase(row,"RESTORING_IDENTITY",60);runtime.restoreIdentity();
-            phase(row,"RECONCILING",70);runtime.reconcile();
-            phase(row,"VERIFYING",85);runtime.verify();
-            phase(row,"COMMITTING",95);runtime.commit();
-            if (!"COMPLETE".equals(row.getState())) {
-                row.setState("COMPLETE");row.setCompleted(new Date());phase(row,"COMPLETE",100);
-            }
+            if (first<=1) {phase(row,"STAGING_ROOT",10);runtime.stageRoot();}
+            if (first<=2) {phase(row,"SNAPSHOTTING_CONFIG",20);runtime.checkpoint();}
+            if (first<=3) {phase(row,"QUIESCING",30);runtime.quiesce();}
+            if (first<=4) {phase(row,"SWAPPING_ROOT",40);runtime.swapRoot();}
+            if (first<=5) {phase(row,"BOOTING_TARGET",50);runtime.bootTarget();}
+            if (first<=6) {phase(row,"RESTORING_IDENTITY",60);runtime.restoreIdentity();}
+            if (first<=7) {phase(row,"RECONCILING",70);runtime.reconcile();}
+            if (first<=8) {phase(row,"VERIFYING",85);runtime.verify();}
+            if (first<=9) {phase(row,"COMMITTING",95);runtime.commit();}
+            if (!"COMPLETE".equals(row.getState())) {row.setState("COMPLETE");row.setCompleted(new Date());phase(row,"COMPLETE",100);}
         } catch (RuntimeException failed) {
-            row.setState("RUNNING");
-            row.setErrorCode("TEMPLATE_UPGRADE_FAILED");row.setErrorMessage(safe(failed));
+            row.setState("RUNNING");row.setErrorCode("TEMPLATE_UPGRADE_FAILED");row.setErrorMessage(safe(failed));
             if (!attempted) {
-                row.setState("BLOCKED");row.setCompleted(new Date());phase(row,"BLOCKED",100);
+                row.setState("BLOCKED");row.setCompleted(new Date());phase(row,"BLOCKED",100);cleanup(row,runtime,false);
                 throw new CloudRuntimeException("Template upgrade blocked before ROOT staging",failed);
             }
-            try {
-                phase(row,"ROLLING_BACK_ROOT",85);runtime.restorePreviousRoot();
-                phase(row,"BOOTING_PREVIOUS",90);runtime.bootPrevious();
-                phase(row,"RECONCILING_PREVIOUS",95);runtime.reconcilePrevious();runtime.verifyPrevious();
-                row.setState("ROLLED_BACK");row.setCompleted(new Date());phase(row,"ROLLED_BACK",100);
-            } catch (RuntimeException rollback) {
-                row.setState("RECOVERY_REQUIRED");row.setErrorCode("TEMPLATE_UPGRADE_RECOVERY_REQUIRED");
-                row.setErrorMessage(safe(failed)+" | rollback: "+safe(rollback));phase(row,"RECOVERY_REQUIRED",100);
-                throw new CloudRuntimeException("Template upgrade and previous ROOT recovery require reconciliation",rollback);
-            }
-            cleanup(row,runtime,false);
+            rollback(row,runtime);
             throw new CloudRuntimeException("Template upgrade failed; previous ROOT recovered",failed);
         }
-        // Cleanup cannot invalidate an already committed ROOT/verified configuration.
         cleanup(row,runtime,true);
+    }
+    public void rollback(StorageServiceTemplateUpgradeVO row,Runtime runtime) {
+        row.setState("RUNNING");
+        try {
+            phase(row,"ROLLING_BACK_ROOT",85);runtime.restorePreviousRoot();
+            phase(row,"BOOTING_PREVIOUS",90);runtime.bootPrevious();
+            phase(row,"RECONCILING_PREVIOUS",95);runtime.reconcilePrevious();runtime.verifyPrevious();
+            if (!"ROLLED_BACK".equals(row.getState())) {row.setState("ROLLED_BACK");row.setCompleted(new Date());phase(row,"ROLLED_BACK",100);}
+        } catch (RuntimeException failed) {
+            row.setState("RECOVERY_REQUIRED");row.setErrorCode("TEMPLATE_UPGRADE_RECOVERY_REQUIRED");
+            row.setErrorMessage((row.getErrorMessage()==null?"":row.getErrorMessage()+" | ")+"rollback: "+safe(failed));phase(row,"RECOVERY_REQUIRED",100);
+            throw new CloudRuntimeException("Previous ROOT recovery requires reconciliation",failed);
+        }
+        cleanup(row,runtime,false);
     }
     private void cleanup(StorageServiceTemplateUpgradeVO row,Runtime runtime,boolean success) {
         try { runtime.finished(success); }

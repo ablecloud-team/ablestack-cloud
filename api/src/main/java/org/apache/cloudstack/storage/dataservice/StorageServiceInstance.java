@@ -33,6 +33,11 @@ public interface StorageServiceInstance extends ControlledEntity, Identity, Inte
             true,
             SharedFS.SharedFSFeatureEnabled.key());
 
+    ConfigKey<Integer> StorageServiceTemplateRollbackRetentionHours = new ConfigKey<Integer>("Advanced", Integer.class,
+            "storage.service.template.rollback.retention.hours", "168",
+            "Hours to retain a verified previous SharedFS ROOT before explicit finalize (1 to 1440).", true,
+            SharedFS.SharedFSFeatureEnabled.key());
+
     String StorageServiceVmType = "storageservicevm";
     String StorageServiceProviderName = "STORAGESERVICEVM";
 

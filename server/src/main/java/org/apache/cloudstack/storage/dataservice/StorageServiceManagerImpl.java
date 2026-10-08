@@ -195,7 +195,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                     try {
                         StorageServiceOperationVO current = storageOperationDao.findById(row.getId());
                         StorageServiceInstanceVO instance = storageServiceInstanceDao.findById(row.getInstanceId());
-                        if (current != null && instance != null && InterruptedStateChange.stale(current, System.currentTimeMillis())) {
+                        if (current != null && instance != null && current.getAction().startsWith("ROOT_TEMPLATE_")) {
+                            recoverInterruptedTemplateUpgrade(instance, current);
+                        } else if (current != null && instance != null && InterruptedStateChange.stale(current, System.currentTimeMillis())) {
                             recoverInterruptedStorageWriter(instance, current);
                         }
                     } finally { lock.unlock(); }
@@ -354,6 +356,18 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     @Inject private com.cloud.storage.dao.DiskOfferingDao configurationDiskOfferingDao;
     @Inject private org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao configurationStoragePoolDao;
 
+
+    @Inject private org.apache.cloudstack.storage.dataservice.dao.StorageServiceTemplateUpgradeDao storageTemplateUpgradeDao;
+    @Inject private com.cloud.vm.dao.UserVmDao rootUpgradeVmDao;
+    @Inject private com.cloud.storage.dao.VMTemplateDao rootUpgradeTemplateDao;
+    @Inject private com.cloud.host.dao.HostDao rootUpgradeHostDao;
+    @Inject private com.cloud.storage.StorageManager rootUpgradeStorageManager;
+    @Inject private com.cloud.vm.VirtualMachineManager rootUpgradeVmManager;
+    @Inject private org.apache.cloudstack.engine.orchestration.service.VolumeOrchestrationService rootUpgradeVolumeOrchestration;
+    @Inject private org.apache.cloudstack.engine.subsystem.api.storage.VolumeDataFactory rootUpgradeVolumeFactory;
+    @Inject private org.apache.cloudstack.engine.subsystem.api.storage.TemplateDataFactory rootUpgradeTemplateFactory;
+    @Inject private org.apache.cloudstack.engine.subsystem.api.storage.VolumeService rootUpgradeVolumeService;
+
     protected static final class ConfigurationBatch {
         final long instanceId;
         final Map<Long, String> smbCredentials = new HashMap<>();
@@ -413,6 +427,441 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         } catch (ReflectiveOperationException failure) { throw new InvalidParameterValueException("Current configuration API method is unavailable"); }
     }
 
+
+
+    @Override
+    public org.apache.cloudstack.api.response.StorageServiceTemplateUpgradeResponse storageServiceTemplateUpgrade(StorageTemplateUpgradeRequest request) {
+        requireConfigurationAdministrator();
+        SharedFSVO shared = sharedFSDao.findById(request.getSharedFileSystemId());
+        if (shared == null || shared.getVmId() == null) throw new InvalidParameterValueException("SharedFS SystemVM is unavailable");
+        StorageServiceInstanceVO instance = storageServiceInstanceDao.findByVmId(shared.getVmId());
+        if (instance == null) throw new InvalidParameterValueException("Storage Service instance is unavailable");
+        if (java.util.Set.of("TEMPLATES","CAPABILITIES","HISTORY").contains(request.getTemplateAction())) {
+            JsonObject result;
+            if ("TEMPLATES".equals(request.getTemplateAction())) result=rootTemplateCatalog(instance,null);
+            else if ("CAPABILITIES".equals(request.getTemplateAction())) result=rootUpgradeCapabilities(instance);
+            else {result=new JsonObject();JsonArray history=new JsonArray();storageTemplateUpgradeDao.listByInstance(instance.getId()).stream()
+                    .sorted(java.util.Comparator.comparing(StorageServiceTemplateUpgradeVO::getCreated).reversed()).forEach(row->history.add(rootUpgradeJson(row)));
+                result.add("upgrades",history);result.addProperty("count",history.size());}
+            return rootUpgradeResponse(instance.getUuid(),result);
+        }
+        com.cloud.utils.db.GlobalLock lock = com.cloud.utils.db.GlobalLock.getInternLock("StorageServiceWriter-" + instance.getId());
+        try {
+            if (!lock.lock(120)) throw new CloudRuntimeException("Storage Service writer is busy");
+            try {
+                JsonObject result = new JsonObject();String action = request.getTemplateAction();
+                if ("PREFLIGHT".equals(action)) {
+                    if (request.getTemplateId() == null) throw new InvalidParameterValueException("Select an explicit Storage Service template");
+                    requireRootWriterIdle(instance, null);
+                    long revision = rootDesiredRevision(instance.getId());
+                    if (request.getExpectedRevision() != null && request.getExpectedRevision() != revision) throw new InvalidParameterValueException("Desired revision changed");
+                    JsonObject preflight = rootPreflight(instance, shared, request.getTemplateId(), true);
+                    if (!preflight.get("compatible").getAsBoolean()) { result.add("preflight", preflight);return rootUpgradeResponse(instance.getUuid(), result); }
+                    String key = request.getIdempotencyKey() == null ? java.util.UUID.randomUUID().toString() : request.getIdempotencyKey();
+                    StorageServiceTemplateUpgradeVO row = new StorageTemplateUpgradePlanner(storageTemplateUpgradeDao).plan(instance, shared.getId(),
+                            rootUpgradeVmDao.findById(instance.getVmId()), volumeDao.findByInstanceAndType(instance.getVmId(), com.cloud.storage.Volume.Type.ROOT),
+                            rootUpgradeTemplateDao.findById(request.getTemplateId()), preflight, revision, key, org.apache.cloudstack.context.CallContext.current().getCallingUserId());
+                    result.add("upgrade", rootUpgradeJson(row));result.add("preflight", parseJsonObject(row.getPreflightJson()));
+                } else {
+                    StorageServiceTemplateUpgradeVO row = request.getUpgradeId() == null ? null : storageTemplateUpgradeDao.findById(request.getUpgradeId());
+                    if (row == null || row.getInstanceId() != instance.getId() || row.getSharedFilesystemId() != shared.getId()) throw new InvalidParameterValueException("Template upgrade scope changed");
+                    if ("UPGRADE".equals(action) && "COMPLETE".equals(row.getState())) { result.add("upgrade", rootUpgradeJson(row));return rootUpgradeResponse(row.getUuid(), result); }
+                    if (!java.util.Objects.equals(shared.getName(), request.getConfirmation()) || (java.util.Set.of("UPGRADE","ROLLBACK").contains(action) && !Boolean.TRUE.equals(request.getMaintenanceWindow()))) {
+                        throw new InvalidParameterValueException("ROOT maintenance requires interrupted-session approval and the exact SharedFS name");
+                    }
+                    requireRootWriterIdle(instance, row);
+                    if ("FINALIZE".equals(action)) finalizeTemplateUpgrade(instance, row);
+                    else if ("UPGRADE".equals(action) || "ROLLBACK".equals(action)) {
+                        long revision = rootDesiredRevision(instance.getId());
+                        if (request.getExpectedRevision() != null && request.getExpectedRevision() != revision) throw new InvalidParameterValueException("Desired revision changed; refresh before maintenance");
+                        StorageServiceOperationVO recorded=row.getOperationId()==null?null:storageOperationDao.findById(row.getOperationId());
+                        boolean manualRollback = "ROLLBACK".equals(action) && "COMPLETE".equals(row.getState()) || recorded!=null && "ROOT_TEMPLATE_ROLLBACK".equals(recorded.getAction());
+                        if (manualRollback && "COMPLETE".equals(row.getState()) && rootRequiresNvmeAuth(instance)) {
+                            com.cloud.storage.VMTemplateVO previous=rootUpgradeTemplateDao.findById(row.getSourceTemplateId());rootUpgradeTemplateDao.loadDetails(previous);
+                            if (!"true".equalsIgnoreCase(previous.getDetails().get("storage.service.nvme.target.auth"))) throw new InvalidParameterValueException("Retained ROOT cannot serve the current NVMe authentication configuration");
+                        }
+                        if (manualRollback && "COMPLETE".equals(row.getState()) && !rootRollbackAllowed(row)) throw new InvalidParameterValueException("Retained ROOT rollback is unavailable or expired");
+                        if ("PLANNED".equals(row.getState())) StorageTemplateUpgradePlanner.approve(row, revision, shared.getName(), request.getConfirmation(), request.getMaintenanceWindow());
+                        else if (!java.util.Set.of("RUNNING", "RECOVERY_REQUIRED", "COMPLETE").contains(row.getState())) throw new InvalidParameterValueException("Upgrade cannot run in its current state");
+                        StorageServiceOperationVO operation = rootUpgradeOperation(instance, row, revision, manualRollback);
+                        beginStorageWriterHeartbeat(operation);
+                        try {
+                            RootUpgradeRuntime runtime = new RootUpgradeRuntime(instance, shared, row, operation, manualRollback);
+                            StorageServiceTemplateUpgradeEngine engine = new StorageServiceTemplateUpgradeEngine(storageTemplateUpgradeDao);
+                            if ("ROLLBACK".equals(action)) engine.rollback(row, runtime);else engine.execute(row, runtime);
+                        } finally { endStorageWriterHeartbeat();configurationNativeNvmeReplayed.remove(); }
+                    } else throw new InvalidParameterValueException("Unknown template lifecycle action");
+                    org.apache.cloudstack.context.CallContext.current().setEventResourceId(row.getId());
+                    org.apache.cloudstack.context.CallContext.current().setEventDetails("SharedFS ROOT transaction "+row.getUuid()+" "+row.getState());
+                    result.add("upgrade", rootUpgradeJson(row));
+                }
+                return rootUpgradeResponse(instance.getUuid(), result);
+            } finally { lock.unlock(); }
+        } finally { lock.releaseRef(); }
+    }
+    private org.apache.cloudstack.api.response.StorageServiceTemplateUpgradeResponse rootUpgradeResponse(String id, JsonObject result) {
+        org.apache.cloudstack.api.response.StorageServiceTemplateUpgradeResponse response = new org.apache.cloudstack.api.response.StorageServiceTemplateUpgradeResponse();
+        response.setId(id);response.setResult(StorageConfigSemantic.redact(result).toString());return response;
+    }
+    protected long rootDesiredRevision(long instanceId) {
+        return storageOperationDao.listByInstance(instanceId).stream().filter(row -> "COMPLETE".equals(row.getState())).mapToLong(StorageServiceOperationVO::getRevision).max().orElse(0);
+    }
+    protected void requireRootWriterIdle(StorageServiceInstanceVO instance, StorageServiceTemplateUpgradeVO own) {
+        if (storageRuntimeUpgradeDao.findActiveByInstanceId(instance.getId()) != null) throw new CloudRuntimeException("A runtime upgrade is active");
+        StorageServiceTemplateUpgradeVO active = storageTemplateUpgradeDao.findActive(instance.getId());
+        if (active != null && (own == null || active.getId() != own.getId())) throw new CloudRuntimeException("Another ROOT upgrade requires recovery");
+        long committed = rootDesiredRevision(instance.getId());
+        for (StorageServiceOperationVO operation : storageOperationDao.listByInstance(instance.getId())) {
+            if (own != null && java.util.Objects.equals(own.getOperationId(), operation.getId())) continue;
+            if ("RUNNING".equals(operation.getState()) || "RECOVERY_REQUIRED".equals(operation.getState()) && operation.getRevision() > committed) {
+                throw new CloudRuntimeException("An unresolved Storage Service writer requires recovery");
+            }
+        }
+    }
+    private boolean rootRequiresNvmeAuth(StorageServiceInstanceVO instance) {
+        for (StorageBlockTargetVO target : storageBlockTargetDao.listByInstanceIdAndProtocol(instance.getId(), StorageServiceInstance.Protocol.NVME_OF)) {
+            for (StorageAccessRuleVO rule : storageAccessRuleDao.listByResource(StorageServiceInstance.AccessResourceType.BLOCK_TARGET, target.getId())) {
+                JsonObject config = parseJsonObject(rule.getConfigJson());
+                if (Boolean.TRUE.equals(getJsonBoolean(config,"dhChapEnabled")) || Boolean.TRUE.equals(getJsonBoolean(config,"dhChapCtrlEnabled"))) return true;
+            }
+        }
+        return false;
+    }
+    protected JsonObject rootTemplateCatalog(StorageServiceInstanceVO instance, Long templateId) {
+        com.cloud.vm.UserVmVO vm = rootUpgradeVmDao.findById(instance.getVmId());
+        if (vm == null) throw new InvalidParameterValueException("SharedFS VM is unavailable");
+        Long hostId = vm.getHostId() == null ? vm.getLastHostId() : vm.getHostId();
+        com.cloud.host.HostVO host = hostId == null ? null : rootUpgradeHostDao.findById(hostId);
+        String managerVersion = com.cloud.server.ManagementServer.class.getPackage().getImplementationVersion();
+        StorageServiceSystemVmTemplateCatalog catalog = new StorageServiceSystemVmTemplateCatalog(rootUpgradeTemplateDao);
+        return templateId == null ? catalog.list(vm, managerVersion, host == null ? null : host.getVersion(), rootRequiresNvmeAuth(instance))
+                : catalog.preflight(vm, templateId, managerVersion, host == null ? null : host.getVersion(), rootRequiresNvmeAuth(instance));
+    }
+    protected JsonObject rootTopology(StorageServiceInstanceVO instance) {
+        return StorageRootTopologySnapshot.capture(rootUpgradeVmDao.findById(instance.getVmId()), nicDao.listByVmId(instance.getVmId()),
+                nicSecondaryIpDao.listByVmId(instance.getVmId()), volumeDao.findByInstance(instance.getVmId()));
+    }
+    private JsonObject rootUpgradeCapabilities(StorageServiceInstanceVO instance) {
+        com.cloud.vm.UserVmVO vm = rootUpgradeVmDao.findById(instance.getVmId());JsonObject value = new JsonObject();
+        com.cloud.storage.VMTemplateVO template = rootUpgradeTemplateDao.findById(vm.getTemplateId());
+        List<VolumeVO> roots = volumeDao.findByInstanceAndType(vm.getId(), com.cloud.storage.Volume.Type.ROOT);
+        value.addProperty("currentTemplateUuid", template == null ? null : template.getUuid());
+        value.addProperty("currentRootVolumeUuid", roots.size() == 1 ? roots.get(0).getUuid() : null);
+        value.addProperty("desiredRevision", rootDesiredRevision(instance.getId()));value.addProperty("maintenanceRequired", true);
+        value.addProperty("templateUpgradeState",instance.getTemplateUpgradeState());value.addProperty("templateVerifiedAt",instance.getTemplateVerifiedAt()==null?null:instance.getTemplateVerifiedAt().toInstant().toString());
+        if (instance.getPreviousTemplateId()!=null) {com.cloud.storage.VMTemplateVO previous=rootUpgradeTemplateDao.findById(instance.getPreviousTemplateId());value.addProperty("previousTemplateUuid",previous==null?null:previous.getUuid());}
+        value.addProperty("automaticRollback", true);value.addProperty("dataVolumePolicy", "MOUNT_EXISTING");
+        StorageServiceTemplateUpgradeVO active = storageTemplateUpgradeDao.findActive(instance.getId());
+        if (active!=null) {JsonObject cached=parseJsonObject(active.getPreflightJson());value.add("activeSessions",cached.has("activeSessions")?cached.get("activeSessions"):new JsonObject());value.add("identityMigration",cached.has("identityMigration")?cached.get("identityMigration"):new JsonObject());}
+        else {JsonObject sessions=observeConfigurationRuntime(instance,"sessions");value.add("sessions",sessions);value.add("activeSessions",sessions.has("count")?sessions.get("count"):com.google.gson.JsonNull.INSTANCE);value.add("identityMigration",vm.getState()==com.cloud.vm.VirtualMachine.State.Running?rootIdentityCapabilities(instance):new JsonObject());}
+        if (active != null) value.add("activeUpgrade", rootUpgradeJson(active));return value;
+    }
+    private JsonObject rootIdentityCapabilities(StorageServiceInstanceVO instance) {
+        JsonObject request = new JsonObject();request.addProperty("instanceUuid", instance.getUuid());request.addProperty("operationUuid", java.util.UUID.randomUUID().toString());
+        try { return rootGuest(instance,"identity capsule capabilities",request,30); }
+        catch (RuntimeException unavailable) { JsonObject result = new JsonObject();result.addProperty("success", false);result.addProperty("status", "UNAVAILABLE");return result; }
+    }
+    protected JsonObject rootGuest(StorageServiceInstanceVO instance, String command, JsonObject request, int timeout) {
+        StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),command,request.toString(),timeout,Collections.emptySet()));
+        JsonObject observed = parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));
+        if (!result.isSuccess() || !Boolean.TRUE.equals(getJsonBoolean(observed,"success"))) throw new CloudRuntimeException("ROOT runtime step failed: " + command);
+        return observed;
+    }
+
+    private JsonObject rootPreflight(StorageServiceInstanceVO instance, SharedFSVO shared, long targetId, boolean allowStopped) {
+        JsonObject result = rootTemplateCatalog(instance, targetId);JsonArray blockers = result.getAsJsonArray("blockers");
+        com.cloud.vm.UserVmVO vm = rootUpgradeVmDao.findById(instance.getVmId());
+        if (shared.getState() != SharedFS.State.Ready && shared.getState() != SharedFS.State.Stopped) blockers.add("SHAREDFS_TRANSITIONAL");
+        if (!StorageServiceInstance.StorageServiceVerifiedConfigurationEnabled.value()) blockers.add("VERIFIED_CONFIGURATION_DISABLED");
+        StorageIdentityDomainVO domain=storageIdentityDomainDao.findByInstanceId(instance.getId());
+        if (domain!=null && domain.getJoinState()!=StorageServiceInstance.DomainJoinState.NOT_JOINED) blockers.add("AD_IDENTITY_MIGRATION_REQUIRES_VALIDATION");
+        List<VolumeVO> roots = volumeDao.findByInstanceAndType(vm.getId(), com.cloud.storage.Volume.Type.ROOT);
+        if (roots.size() != 1 || roots.get(0).getState() != com.cloud.storage.Volume.State.Ready || roots.get(0).getPoolId() == null
+                || !java.util.Objects.equals(roots.get(0).getTemplateId(),vm.getTemplateId())) blockers.add("CURRENT_ROOT_UNVERIFIED");
+        else {
+            org.apache.cloudstack.storage.datastore.db.StoragePoolVO pool = configurationStoragePoolDao.findById(roots.get(0).getPoolId());
+            com.cloud.storage.VMTemplateVO target = rootUpgradeTemplateDao.findById(targetId);
+            if (pool == null || pool.getStatus() != com.cloud.storage.StoragePoolStatus.Up || target == null
+                    || !rootUpgradeStorageManager.storagePoolHasEnoughSpace(Math.max(roots.get(0).getSize(), target.getSize() == null ? 0 : target.getSize()),pool)) blockers.add("ROOT_PRIMARY_STORAGE_CAPACITY_UNAVAILABLE");
+        }
+        Set<Long> devices = new HashSet<>();
+        for (VolumeVO volume : volumeDao.findByInstance(vm.getId())) {
+            if (volume.getDeviceId() == null || !devices.add(volume.getDeviceId()) || volume.getState() != com.cloud.storage.Volume.State.Ready) blockers.add("VOLUME_MAPPING_AMBIGUOUS");
+        }
+        result.add("topology", rootTopology(instance));result.add("dataVolumes",result.getAsJsonObject("topology").get("dataVolumes"));
+        if (vm.getState() == com.cloud.vm.VirtualMachine.State.Running) {
+            JsonObject identity = rootIdentityCapabilities(instance);result.add("identityMigration", identity);
+            if (!Boolean.TRUE.equals(getJsonBoolean(identity,"localIdentity")) || !Boolean.TRUE.equals(getJsonBoolean(identity,"protectedStdinTransport"))) blockers.add("IDENTITY_CAPSULE_UNAVAILABLE");
+            try {
+                JsonObject generation = nativeConfigurationGeneration(instance,null,"status");result.add("nativeGeneration",generation);
+                if (!generation.has("configurationDesiredState")) blockers.add("ROOT_DESIRED_SEED_CAPABILITY_UNAVAILABLE");
+                if (!"IN_SYNC".equals(getJsonString(generation,"generationStatus")) || generation.get("runtimeRevision").getAsLong() != rootDesiredRevision(instance.getId())) blockers.add("NATIVE_GENERATION_DRIFT");
+                verifyReconciledStorageDesiredState(instance);result.add("runtime", rootGuest(instance,"operation verify",new JsonObject(),60));
+            } catch (RuntimeException drift) { blockers.add("CURRENT_RUNTIME_UNVERIFIED"); }
+            JsonObject sessions=observeConfigurationRuntime(instance,"sessions");result.add("sessions",sessions);result.add("activeSessions",sessions.has("count")?sessions.get("count"):com.google.gson.JsonNull.INSTANCE);
+        } else if (vm.getState() == com.cloud.vm.VirtualMachine.State.Stopped && allowStopped) result.addProperty("runtimePreflightPending",true);
+        else blockers.add("SOURCE_VM_NOT_RUNNING");
+        result.addProperty("compatible", blockers.size() == 0);result.addProperty("desiredRevision",rootDesiredRevision(instance.getId()));
+        result.addProperty("rollbackAvailable",true);result.addProperty("estimatedDowntimeSeconds",300);return result;
+    }
+    private StorageServiceOperationVO rootUpgradeOperation(StorageServiceInstanceVO instance, StorageServiceTemplateUpgradeVO row, long revision, boolean manualRollback) {
+        StorageServiceOperationVO existing = row.getOperationId() == null ? null : storageOperationDao.findById(row.getOperationId());
+        if (existing != null && (!manualRollback || !"COMPLETE".equals(row.getState()))) return existing;
+        StorageServiceOperationVO operation = new StorageServiceOperationVO();operation.setInstanceId(instance.getId());
+        operation.setAction(manualRollback ? "ROOT_TEMPLATE_ROLLBACK" : "ROOT_TEMPLATE_UPGRADE");
+        operation.setRequestKey(operation.getAction()+":"+row.getUuid());operation.setRevision(revision+1);
+        operation.setCreatedBy(org.apache.cloudstack.context.CallContext.current().getCallingUserId());operation.setState("RUNNING");operation.setPhase("PREFLIGHT");
+        operation.setPreviousSnapshotJson(captureConfigurationSnapshot(instance.getId()));
+        return Transaction.execute((TransactionCallback<StorageServiceOperationVO>) status -> {
+            StorageServiceOperationVO saved = storageOperationDao.persist(operation);row.setOperationId(saved.getId());
+            row.setState("RUNNING");if (manualRollback) row.setPhase("ROLLING_BACK_ROOT");
+            if (!storageTemplateUpgradeDao.update(row.getId(),row)) throw new CloudRuntimeException("Unable to reserve ROOT writer");return saved;
+        });
+    }
+    protected void recoverInterruptedTemplateUpgrade(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
+        if (!InterruptedStateChange.stale(operation,System.currentTimeMillis())) return;
+        StorageServiceTemplateUpgradeVO row = storageTemplateUpgradeDao.listByInstance(instance.getId()).stream()
+                .filter(item -> java.util.Objects.equals(item.getOperationId(),operation.getId())).findFirst().orElse(null);
+        if (row == null) throw new CloudRuntimeException("ROOT writer transaction is missing");
+        if ("COMPLETE".equals(row.getState()) || "ROLLED_BACK".equals(row.getState()) || "BLOCKED".equals(row.getState())) return;
+        SharedFSVO shared = sharedFSDao.findById(row.getSharedFilesystemId());
+        beginStorageWriterHeartbeat(operation);
+        try {
+            RootUpgradeRuntime runtime = new RootUpgradeRuntime(instance,shared,row,operation,"ROOT_TEMPLATE_ROLLBACK".equals(operation.getAction()));
+            new StorageServiceTemplateUpgradeEngine(storageTemplateUpgradeDao).execute(row,runtime);
+        } finally { endStorageWriterHeartbeat();configurationNativeNvmeReplayed.remove(); }
+    }
+    protected boolean rootRollbackAllowed(StorageServiceTemplateUpgradeVO row) {
+        StorageServiceInstanceVO owner=storageServiceInstanceDao.findById(row.getInstanceId());
+        if (owner==null || owner.getVmId()==null || row.getTargetRootVolumeId()==null || volumeDao.findByInstanceAndType(owner.getVmId(),com.cloud.storage.Volume.Type.ROOT).stream().noneMatch(root->root.getId()==row.getTargetRootVolumeId())) return false;
+        return "COMPLETE".equals(row.getState()) && row.getRollbackRetainUntil() != null && row.getRollbackRetainUntil().after(new java.util.Date())
+                && volumeDao.findById(row.getPreviousRootVolumeId()) != null && row.getTargetRootVolumeId() != null;
+    }
+    protected void finalizeTemplateUpgrade(StorageServiceInstanceVO instance, StorageServiceTemplateUpgradeVO row) {
+        if ("FINALIZED".equals(row.getState())) return;
+        if (!java.util.Set.of("COMPLETE","ROLLED_BACK","BLOCKED").contains(row.getState())) throw new InvalidParameterValueException("ROOT recovery must finish before finalize");
+        if (row.getRollbackRetainUntil() != null && row.getRollbackRetainUntil().after(new java.util.Date())) throw new InvalidParameterValueException("Rollback ROOT retention has not expired");
+        long discarded = "COMPLETE".equals(row.getState()) ? row.getPreviousRootVolumeId() : row.getTargetRootVolumeId() == null ? 0 : row.getTargetRootVolumeId();
+        if (discarded != 0) {
+            VolumeVO volume = volumeDao.findById(discarded);
+            if (volume != null && volume.getRemoved() == null) {
+                if (volume.getVolumeType() != com.cloud.storage.Volume.Type.ROOT || volume.getInstanceId() != null || volume.getAccountId() != instance.getAccountId()
+                        || volume.getDataCenterId() != instance.getDataCenterId()) throw new InvalidParameterValueException("Only the detached retained ROOT may be finalized");
+                rootUpgradeVolumeService.destroyVolume(discarded);
+                try {
+                    org.apache.cloudstack.engine.subsystem.api.storage.VolumeService.VolumeApiResult result = rootUpgradeVolumeService.expungeVolumeAsync(rootUpgradeVolumeFactory.getVolume(discarded)).get(15,java.util.concurrent.TimeUnit.MINUTES);
+                    if (result == null || result.isFailed()) throw new CloudRuntimeException("Detached ROOT expunge requires retry");
+                } catch (InterruptedException interrupted) { Thread.currentThread().interrupt();throw new CloudRuntimeException("ROOT finalize interrupted",interrupted); }
+                catch (java.util.concurrent.ExecutionException | java.util.concurrent.TimeoutException pending) { throw new CloudRuntimeException("ROOT finalize requires reconciliation",pending); }
+            }
+        }
+        StorageServiceOperationVO operation = row.getOperationId() == null ? null : storageOperationDao.findById(row.getOperationId());
+        cleanupConfigurationIdentityCheckpoint(operation);row.setState("FINALIZED");row.setPhase("FINALIZED");row.setHeartbeat(new java.util.Date());storageTemplateUpgradeDao.update(row.getId(),row);
+    }
+    private JsonObject rootUpgradeJson(StorageServiceTemplateUpgradeVO row) {
+        JsonObject value = new JsonObject();value.addProperty("id",row.getUuid());value.addProperty("state",row.getState());value.addProperty("phase",row.getPhase());
+        value.addProperty("progress",row.getProgress());value.addProperty("revision",row.getRevision());value.addProperty("errorCode",row.getErrorCode());value.addProperty("errorMessage",row.getErrorMessage());
+        com.cloud.storage.VMTemplateVO source = rootUpgradeTemplateDao.findById(row.getSourceTemplateId());com.cloud.storage.VMTemplateVO target = rootUpgradeTemplateDao.findById(row.getTargetTemplateId());
+        value.addProperty("sourceTemplateUuid",source == null ? null : source.getUuid());value.addProperty("targetTemplateUuid",target == null ? null : target.getUuid());
+        VolumeVO previous = volumeDao.findById(row.getPreviousRootVolumeId());VolumeVO staged = row.getTargetRootVolumeId() == null ? null : volumeDao.findById(row.getTargetRootVolumeId());
+        value.addProperty("previousRootVolumeUuid",previous == null ? null : previous.getUuid());value.addProperty("targetRootVolumeUuid",staged == null ? null : staged.getUuid());
+        value.addProperty("rollbackRetainUntil",row.getRollbackRetainUntil() == null ? null : row.getRollbackRetainUntil().toInstant().toString());value.addProperty("rollbackAllowed",rootRollbackAllowed(row));
+        value.addProperty("finalizeAllowed", java.util.Set.of("COMPLETE","ROLLED_BACK","BLOCKED").contains(row.getState()) && (row.getRollbackRetainUntil() == null || !row.getRollbackRetainUntil().after(new java.util.Date())));
+        value.addProperty("started",row.getStarted() == null ? null : row.getStarted().toInstant().toString());value.addProperty("completed",row.getCompleted() == null ? null : row.getCompleted().toInstant().toString());
+        if (row.getVerificationJson() != null) value.add("verification",parseJsonObject(row.getVerificationJson()));
+        if (row.getRollbackResultJson() != null) value.add("rollbackResult",parseJsonObject(row.getRollbackResultJson()));
+        if (row.getSnapshotJson() != null) { JsonObject snapshot = parseJsonObject(row.getSnapshotJson());
+            if (snapshot.has("quiescedAt") && snapshot.has("serviceVerifiedAt")) value.addProperty("actualDowntimeSeconds",Math.max(0,(snapshot.get("serviceVerifiedAt").getAsLong()-snapshot.get("quiescedAt").getAsLong())/1000));
+            if (snapshot.has("rollbackQuiescedAt") && snapshot.has("rollbackServiceVerifiedAt")) value.addProperty("rollbackDowntimeSeconds",Math.max(0,(snapshot.get("rollbackServiceVerifiedAt").getAsLong()-snapshot.get("rollbackQuiescedAt").getAsLong())/1000)); }
+        return value;
+    }
+
+    protected StorageServiceRootVolumeSwap rootVolumeSwap() {
+        return new StorageServiceRootVolumeSwap(volumeDao,rootUpgradeVmDao,rootUpgradeVolumeOrchestration,rootUpgradeVolumeFactory,rootUpgradeTemplateFactory,rootUpgradeVolumeService);
+    }
+
+    protected final class RootUpgradeRuntime implements StorageServiceTemplateUpgradeEngine.Runtime {
+        private final StorageServiceInstanceVO instance;private final SharedFSVO shared;private final StorageServiceTemplateUpgradeVO row;
+        private final StorageServiceOperationVO operation;private final boolean manualRollback;
+        private final StorageServiceRootVolumeSwap swap = rootVolumeSwap();
+        private final StorageRootVmLifecycle lifecycle = new StorageRootVmLifecycle(rootUpgradeVmManager,rootUpgradeVmDao,guestCommandDispatcher);
+        RootUpgradeRuntime(StorageServiceInstanceVO instance, SharedFSVO shared, StorageServiceTemplateUpgradeVO row, StorageServiceOperationVO operation, boolean manualRollback) {
+            this.instance=instance;this.shared=shared;this.row=row;this.operation=operation;this.manualRollback=manualRollback;
+        }
+        private JsonObject snapshot() { return parseJsonObject(row.getSnapshotJson()); }
+        private void persist(JsonObject snapshot) { row.setSnapshotJson(snapshot.toString());row.setHeartbeat(new java.util.Date());if (!storageTemplateUpgradeDao.update(row.getId(),row)) throw new CloudRuntimeException("Unable to persist ROOT checkpoint"); }
+        private long currentRoot() {
+            List<VolumeVO> roots = volumeDao.findByInstanceAndType(instance.getVmId(),com.cloud.storage.Volume.Type.ROOT);
+            if (roots.size() != 1) throw new CloudRuntimeException("Exactly one current ROOT is required");return roots.get(0).getId();
+        }
+        private void sameTopology() { StorageRootTopologySnapshot.requireSame(snapshot().getAsJsonObject("topology"),rootTopology(instance)); }
+        private void requireBinding(long rootId,long templateId) {
+            VolumeVO root=volumeDao.findById(rootId);com.cloud.vm.UserVmVO vm=rootUpgradeVmDao.findById(instance.getVmId());
+            if (currentRoot()!=rootId || root==null || root.getState()!=com.cloud.storage.Volume.State.Ready || !java.util.Objects.equals(root.getTemplateId(),templateId)
+                    || vm.getTemplateId()!=templateId) throw new CloudRuntimeException("Current ROOT and SystemVM template binding changed");
+        }
+        public void preflight() {
+            requireRootWriterIdle(instance,row);
+            if (row.getSnapshotJson() != null) { sameTopology();return; }
+            lifecycle.startAndAwaitCapabilities(instance,operation.getUuid());
+            JsonObject result = rootPreflight(instance,shared,row.getTargetTemplateId(),false);
+            if (!result.get("compatible").getAsBoolean()) throw new InvalidParameterValueException("ROOT preflight blocked: "+result.get("blockers"));
+        }
+        public void stageRoot() {
+            if (row.getTargetRootVolumeId() == null) { VolumeVO target = swap.allocate(instance.getVmId(),row.getPreviousRootVolumeId(),rootUpgradeTemplateDao.findById(row.getTargetTemplateId()),row.getUuid());row.setTargetRootVolumeId(target.getId());storageTemplateUpgradeDao.update(row.getId(),row); }
+            if (currentRoot() == row.getTargetRootVolumeId()) return;
+            swap.prepare(instance.getVmId(),row.getPreviousRootVolumeId(),row.getTargetRootVolumeId(),row.getTargetTemplateId());
+        }
+        public void checkpoint() {
+            if (row.getSnapshotJson() != null) { sameTopology();return; }
+            checkpointConfigurationIdentity(instance);
+            JsonObject previous = parseJsonObject(operation.getPreviousSnapshotJson());
+            JsonObject value = new JsonObject();value.add("topology",rootTopology(instance));value.add("identity",previous.getAsJsonObject("nativeIdentityCapsule"));
+            JsonObject generation=nativeConfigurationGeneration(instance,null,"status");
+            value.add("sourceGeneration",generation.getAsJsonObject("generation"));
+            if (!generation.has("configurationDesiredState")) throw new CloudRuntimeException("ROOT desired-state seed capability is unavailable");
+            value.add("sourceDesiredState",generation.getAsJsonObject("configurationDesiredState"));
+            value.add("runtime",rootGuest(instance,"operation observe",new JsonObject(),60));persist(value);
+        }
+        public void quiesce() {
+            sameTopology();if (currentRoot() == row.getTargetRootVolumeId()) return;
+            if (rootUpgradeVmDao.findById(instance.getVmId()).getState() == com.cloud.vm.VirtualMachine.State.Running) rootGuest(instance,"operation quiesce",scope(),60);
+            JsonObject value=snapshot();if (!value.has("quiescedAt")) {value.addProperty("quiescedAt",System.currentTimeMillis());persist(value);}
+            lifecycle.stop(instance.getVmId());
+        }
+        private JsonObject scope() {JsonObject scope=new JsonObject();scope.addProperty("instanceUuid",instance.getUuid());scope.addProperty("operationUuid",operation.getUuid());scope.addProperty("revision",operation.getRevision());return scope;}
+        public void swapRoot() {
+            sameTopology();if (currentRoot() != row.getTargetRootVolumeId()) swap.swap(instance.getVmId(),row.getPreviousRootVolumeId(),row.getTargetRootVolumeId(),row.getSourceTemplateId(),row.getTargetTemplateId(),rootUpgradeTemplateDao.findById(row.getTargetTemplateId()).getGuestOSId());sameTopology();
+        }
+        public void bootTarget() { requireBinding(row.getTargetRootVolumeId(),row.getTargetTemplateId());lifecycle.startAndAwaitCapabilities(instance,operation.getUuid());sameTopology();requireBinding(row.getTargetRootVolumeId(),row.getTargetTemplateId()); }
+        public void restoreIdentity() {requireBinding(row.getTargetRootVolumeId(),row.getTargetTemplateId());sameTopology();restoreConfigurationIdentity(instance,snapshot().getAsJsonObject("identity"));}
+        private void restoreMounts() {
+            for (StorageServiceInstance.Protocol protocol : new StorageServiceInstance.Protocol[]{StorageServiceInstance.Protocol.NFS,StorageServiceInstance.Protocol.SMB}) {
+                for (StorageFileShareVO share : storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(),protocol)) {
+                    VolumeVO volume = requireVolume(share.getVolumeId());JsonObject payload=createFileShareVolumePayload(instance,share,volume);payload.addProperty("importMode","MOUNT_EXISTING");
+                    JsonObject observed=rootGuest(instance,"volume attach inspect",payload,120);String expected=getJsonString(parseJsonObject(share.getConfigJson()),"filesystemUuid");
+                    if (expected==null && snapshot().getAsJsonObject("runtime").has("fileShareVolumes")) {
+                        for (JsonElement entry:snapshot().getAsJsonObject("runtime").getAsJsonArray("fileShareVolumes")) {
+                            JsonObject previous=entry.getAsJsonObject();if (volume.getUuid().equals(getJsonString(previous,"volumeUuid"))) expected=getJsonString(previous,"filesystemUuid");
+                        }
+                    }
+                    if (!volume.getUuid().equals(getJsonString(observed,"volumeUuid")) || expected == null || !expected.equals(getJsonString(observed,"filesystemUuid"))) throw new CloudRuntimeException("Existing backing filesystem identity changed");
+                }
+            }
+        }
+        private void applyAll() {
+            sameTopology();
+            if (shared.getNetworkMode() == SharedFS.NetworkMode.STATIC) {
+                List<NicVO> nics=nicDao.listByVmId(instance.getVmId());
+                if (nics.size()!=1) throw new CloudRuntimeException("Static ROOT recovery requires its preserved NIC");
+                JsonObject network=new JsonObject();network.addProperty("macAddress",nics.get(0).getMacAddress());network.addProperty("ipAddress",shared.getIpAddress());network.addProperty("cidr",shared.getCidr());
+                if (StringUtils.isNotBlank(shared.getGateway())) network.addProperty("gateway",shared.getGateway());
+                if (StringUtils.isNotBlank(shared.getDns1())) network.addProperty("dns1",shared.getDns1());
+                if (StringUtils.isNotBlank(shared.getDns2())) network.addProperty("dns2",shared.getDns2());
+                StorageServiceGuestCommandResult configured=guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),"configure-sharedfs-static-network",network.toString(),60,Collections.emptySet()));
+                if (!configured.isSuccess()) throw new CloudRuntimeException("Preserved static network recovery failed");
+            }
+            for (StorageServiceProtocolVO protocol : storageServiceProtocolDao.listByInstanceId(instance.getId())) {
+                if (protocol.isEnabled()) ensureGuestProtocolListenAddress(instance,protocol.getListenIp(),resolveProtocolListenAddress(instance,protocol.getListenIp()),protocol.getPort());
+            }
+            restoreMounts();
+            for (StoragePosixDirectoryPolicyVO policy : storagePosixPolicyDao.listByInstance(instance.getId())) {
+                if (!"Ready".equals(policy.getState())) throw new CloudRuntimeException("Common directory policy is not ready");
+                dispatchPosixDirectoryCommand(instance,"apply",posixPolicyPayload(instance,policy));
+            }
+            JsonObject source=snapshot().getAsJsonObject("sourceDesiredState");
+            for (StorageServiceInstance.Protocol protocol : StorageServiceInstance.Protocol.values()) {
+                String path=protocol==StorageServiceInstance.Protocol.NFS ? "desired-state/nfs-export-apply.json" : protocol==StorageServiceInstance.Protocol.SMB ? "desired-state/smb-share-apply.json" : protocol==StorageServiceInstance.Protocol.ISCSI ? "iscsi-targets.json" : "nvmeof-subsystems.json";
+                if (source.get(path).isJsonNull()) continue;
+                if (protocol != StorageServiceInstance.Protocol.NVME_OF || !Boolean.TRUE.equals(configurationNativeNvmeReplayed.get())) applyStorageServiceProtocolDesiredState(instance,protocol);
+            }
+            verifyReconciledStorageDesiredState(instance);sameTopology();
+        }
+        private void seedDesired() {
+            JsonObject status=nativeConfigurationGeneration(instance,null,"status");
+            if (getJsonString(status,"pendingOperationUuid")!=null) return;
+            JsonObject value=snapshot();JsonObject request=scope();request.addProperty("sourceKind","INTERNAL_ROOT_GENERATION");
+            request.add("previousGeneration",value.getAsJsonObject("sourceGeneration"));request.add("configurationDesiredState",value.getAsJsonObject("sourceDesiredState"));
+            request.add("expectedPreviousGeneration",status.getAsJsonObject("generation"));rootGuest(instance,"operation generation seed",request,30);
+        }
+        public void reconcile() {requireBinding(row.getTargetRootVolumeId(),row.getTargetTemplateId());sameTopology();seedDesired();applyAll();transferGeneration(false);}
+        private void transferGeneration(boolean previousRoot) {
+            JsonObject status=nativeConfigurationGeneration(instance,null,"status");String pending=getJsonString(status,"pendingOperationUuid");
+            if (pending != null) { if (!operation.getUuid().equals(pending)) throw new CloudRuntimeException("Another native generation requires recovery");return; }
+            JsonObject generation=status.getAsJsonObject("generation");
+            if (operation.getUuid().equals(getJsonString(generation,"operationUuid")) && generation.get("revision").getAsLong()==operation.getRevision()) return;
+            JsonObject source=snapshot().getAsJsonObject("sourceGeneration");
+            JsonObject request=scope();request.add("previousGeneration",source);request.add("expectedPreviousGeneration",generation);
+            if (previousRoot && !manualRollback) {
+                if (!source.equals(generation) || !"IN_SYNC".equals(getJsonString(status,"generationStatus"))) throw new CloudRuntimeException("Recovered previous ROOT generation differs");return;
+            }
+            rootGuest(instance,"operation generation "+(previousRoot ? "align" : "adopt"),request,30);
+            nativeConfigurationGeneration(instance,operation,"begin");
+        }
+        public void verify() {
+            requireBinding(row.getTargetRootVolumeId(),row.getTargetTemplateId());sameTopology();verifyReconciledStorageDesiredState(instance);JsonObject health=rootGuest(instance,"operation verify",new JsonObject(),60);
+            if (!"ok".equalsIgnoreCase(getJsonString(health,"status"))) throw new CloudRuntimeException("ROOT runtime health is degraded");
+            nativeConfigurationGeneration(instance,operation,"verify");nativeConfigurationGeneration(instance,operation,"commit");
+            row.setVerificationJson(health.toString());JsonObject value=snapshot();value.addProperty("serviceVerifiedAt",System.currentTimeMillis());persist(value);
+        }
+        public void commit() { complete(true); }
+        private void complete(boolean target) {
+            requireBinding(target?row.getTargetRootVolumeId():row.getPreviousRootVolumeId(),target?row.getTargetTemplateId():row.getSourceTemplateId());sameTopology();
+            operation.setSnapshotJson(captureConfigurationSnapshot(instance.getId()));operation.setResultJson(rootUpgradeJson(row).toString());
+            new StorageServiceConfiguration(StorageServiceManagerImpl.this,storageConfigArtifactDao,storageOperationDao).promoteVerified(instance,operation,() -> {
+                operation.setState("COMPLETE");operation.setPhase("COMPLETE");operation.setProgress(100);operation.setCompleted(new java.util.Date());operation.setHeartbeat(new java.util.Date());
+                if (!storageOperationDao.update(operation.getId(),operation)) throw new CloudRuntimeException("Unable to commit ROOT writer");
+                instance.setCurrentTemplateId(target ? row.getTargetTemplateId() : row.getSourceTemplateId());
+                instance.setPreviousTemplateId(target ? row.getSourceTemplateId() : row.getTargetTemplateId());
+                instance.setTemplateUpgradeState(target ? "COMPLETE" : "ROLLED_BACK");instance.setLastTemplateUpgradeId(row.getId());instance.setTemplateVerifiedAt(new java.util.Date());
+                if (!storageServiceInstanceDao.update(instance.getId(),instance)) throw new CloudRuntimeException("Unable to commit template instance projection");
+                row.setState(target ? "COMPLETE" : "ROLLED_BACK");row.setPhase(row.getState());row.setProgress(100);row.setCompleted(new java.util.Date());
+                row.setRollbackRetainUntil(new java.util.Date(System.currentTimeMillis()+Math.min(1440,Math.max(1,StorageServiceInstance.StorageServiceTemplateRollbackRetentionHours.value()))*60L*60*1000));
+                if (!storageTemplateUpgradeDao.update(row.getId(),row)) throw new CloudRuntimeException("Unable to commit retained ROOT transaction");
+            });
+        }
+        public void restorePreviousRoot() {
+            if (manualRollback && !snapshot().has("manualRollbackGeneration")) {
+                lifecycle.startAndAwaitCapabilities(instance,operation.getUuid());verifyReconciledStorageDesiredState(instance);checkpointConfigurationIdentity(instance);
+                JsonObject value=snapshot();value.add("identity",parseJsonObject(operation.getPreviousSnapshotJson()).getAsJsonObject("nativeIdentityCapsule"));
+                JsonObject observed=nativeConfigurationGeneration(instance,null,"status");JsonObject source=observed.getAsJsonObject("generation");
+                if (!observed.has("configurationDesiredState")) throw new CloudRuntimeException("Current ROOT seed capability is unavailable");
+                value.add("sourceGeneration",source);value.add("sourceDesiredState",observed.getAsJsonObject("configurationDesiredState"));value.add("manualRollbackGeneration",source);persist(value);
+            }
+            if (row.getSnapshotJson()==null) return;
+            sameTopology();long root=currentRoot();
+            if (root == row.getPreviousRootVolumeId()) {requireBinding(row.getPreviousRootVolumeId(),row.getSourceTemplateId());return;}
+            if (row.getTargetRootVolumeId()==null || root!=row.getTargetRootVolumeId()) throw new CloudRuntimeException("Rollback ROOT binding changed");
+            JsonObject interrupted=snapshot();if (!interrupted.has("rollbackQuiescedAt")) {interrupted.addProperty("rollbackQuiescedAt",System.currentTimeMillis());persist(interrupted);}
+            if (rootUpgradeVmDao.findById(instance.getVmId()).getState()==com.cloud.vm.VirtualMachine.State.Running) {
+                try {rootGuest(instance,"operation quiesce",scope(),60);}
+                catch (RuntimeException qgaUnavailable) {if (manualRollback) throw qgaUnavailable;logger.warn("Target ROOT QGA is unavailable; continuing graceful VM shutdown for rollback {}",row.getUuid());}
+            }
+            lifecycle.stop(instance.getVmId());swap.swap(instance.getVmId(),row.getTargetRootVolumeId(),row.getPreviousRootVolumeId(),row.getTargetTemplateId(),row.getSourceTemplateId(),row.getPreviousGuestOsId());sameTopology();
+        }
+        public void bootPrevious() {requireBinding(row.getPreviousRootVolumeId(),row.getSourceTemplateId());lifecycle.startAndAwaitCapabilities(instance,operation.getUuid());}
+        public void reconcilePrevious() {
+            if (row.getSnapshotJson()==null) return;
+            restoreConfigurationIdentity(instance,snapshot().getAsJsonObject("identity"));
+            if (manualRollback) seedDesired();applyAll();transferGeneration(true);
+        }
+        public void verifyPrevious() {
+            requireBinding(row.getPreviousRootVolumeId(),row.getSourceTemplateId());verifyReconciledStorageDesiredState(instance);JsonObject health=rootGuest(instance,"operation verify",new JsonObject(),60);
+            if (!"ok".equalsIgnoreCase(getJsonString(health,"status"))) throw new CloudRuntimeException("Previous ROOT runtime health is degraded");
+            row.setRollbackResultJson(health.toString());
+            if (row.getSnapshotJson()!=null) {JsonObject value=snapshot();value.addProperty("serviceVerifiedAt",System.currentTimeMillis());value.addProperty("rollbackServiceVerifiedAt",System.currentTimeMillis());persist(value);}
+            if (manualRollback) {nativeConfigurationGeneration(instance,operation,"verify");nativeConfigurationGeneration(instance,operation,"commit");complete(false);}
+        }
+        public void finished(boolean success) {
+            if (!success && !manualRollback) {
+                if ("ROLLED_BACK".equals(row.getState())) {
+                    instance.setCurrentTemplateId(row.getSourceTemplateId());instance.setPreviousTemplateId(row.getTargetTemplateId());instance.setTemplateUpgradeState("ROLLED_BACK");instance.setLastTemplateUpgradeId(row.getId());instance.setTemplateVerifiedAt(new java.util.Date());storageServiceInstanceDao.update(instance.getId(),instance);
+                }
+                operation.setState(row.getState());operation.setPhase(row.getPhase());operation.setProgress(100);operation.setCompleted(new java.util.Date());operation.setHeartbeat(new java.util.Date());operation.setDiagnostic(row.getErrorMessage());storageOperationDao.update(operation.getId(),operation);
+            } else {nativeConfigurationGeneration(instance,operation,"finish");cleanupConfigurationIdentityCheckpoint(operation);}
+            if ("Stopped".equals(row.getPreviousVmState())) lifecycle.stop(instance.getVmId());
+        }
+    }
 
     @Override
     public org.apache.cloudstack.api.response.StorageServiceConfigArtifactResponse storageServiceConfiguration(final StorageConfigRequest cmd) {
@@ -844,6 +1293,13 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         commands.add(UpgradeStorageServiceRuntimeCmd.class);
         commands.add(ListStorageServiceRuntimeUpgradesCmd.class);
         commands.add(RollbackStorageServiceRuntimeUpgradeCmd.class);
+        commands.add(org.apache.cloudstack.api.command.admin.storage.dataservice.ListStorageServiceSystemVmTemplatesCmd.class);
+        commands.add(org.apache.cloudstack.api.command.admin.storage.dataservice.GetStorageServiceTemplateUpgradeCapabilitiesCmd.class);
+        commands.add(org.apache.cloudstack.api.command.admin.storage.dataservice.PreflightStorageServiceSystemVmTemplateUpgradeCmd.class);
+        commands.add(org.apache.cloudstack.api.command.admin.storage.dataservice.UpgradeStorageServiceSystemVmTemplateCmd.class);
+        commands.add(org.apache.cloudstack.api.command.admin.storage.dataservice.ListStorageServiceTemplateUpgradesCmd.class);
+        commands.add(org.apache.cloudstack.api.command.admin.storage.dataservice.RollbackStorageServiceSystemVmTemplateUpgradeCmd.class);
+        commands.add(org.apache.cloudstack.api.command.admin.storage.dataservice.FinalizeStorageServiceSystemVmTemplateUpgradeCmd.class);
         return commands;
     }
 
@@ -878,7 +1334,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 if (operation == null || operation.getInstanceId() != instanceId) throw new InvalidParameterValueException("Operation scope changed");
                 if ("RUNNING".equals(operation.getState()) || ("RECOVERY_REQUIRED".equals(operation.getState())
                         && !StorageOperationReconciliation.superseded(operation, storageOperationDao.listByInstance(instanceId)))) {
-                    recoverInterruptedStorageWriter(instance, operation);
+                    if (operation.getAction().startsWith("ROOT_TEMPLATE_")) recoverInterruptedTemplateUpgrade(instance, operation);
+                    else recoverInterruptedStorageWriter(instance, operation);
                     final org.apache.cloudstack.api.response.StorageServiceOperationResponse recovered = new org.apache.cloudstack.api.response.StorageServiceOperationResponse();
                     recovered.setId(operation.getUuid());recovered.setInstanceid(instance.getUuid());recovered.setAction(operation.getAction());
                     recovered.setState(operation.getState());recovered.setPhase(operation.getPhase());recovered.setRevision(operation.getRevision());
@@ -1219,6 +1676,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         finally { endStorageWriterHeartbeat();configurationNativeNvmeReplayed.remove(); }
                     }
                     public void preflight() {
+                        if (storageTemplateUpgradeDao.findActive(instanceId) != null) throw new CloudRuntimeException("A SystemVM ROOT template upgrade requires recovery or completion");
                         if (storageRuntimeUpgradeDao.findActiveByInstanceId(instanceId) != null) {
                             throw new CloudRuntimeException("A Storage Service runtime upgrade is active");
                         }
@@ -1295,14 +1753,14 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 });
     }
 
-    private void beginStorageWriterHeartbeat(StorageServiceOperationVO operation) {
+    protected void beginStorageWriterHeartbeat(StorageServiceOperationVO operation) {
         storageWriterOperation.set(operation);
         if (writerHeartbeatExecutor != null) {
             storageWriterHeartbeat.set(new StorageWriterHeartbeat(operation, storageOperationDao, writerHeartbeatExecutor,
                     failure -> logger.warn("Writer heartbeat renewal is temporarily unavailable for operation {}", operation.getUuid())));
         }
     }
-    private void endStorageWriterHeartbeat() {
+    protected void endStorageWriterHeartbeat() {
         StorageWriterHeartbeat heartbeat = storageWriterHeartbeat.get();
         try { if (heartbeat != null) heartbeat.close(); }
         finally { storageWriterHeartbeat.remove();storageWriterOperation.remove(); }
@@ -8412,6 +8870,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         return new ConfigKey<?>[] {
                 StorageServiceInstance.StorageServiceCommandTimeout,
                 StorageServiceInstance.StorageServiceVerifiedConfigurationEnabled,
+                StorageServiceInstance.StorageServiceTemplateRollbackRetentionHours,
                 StorageServiceInstance.StorageServiceFormatMinimumTimeout,
                 StorageServiceInstance.StorageServiceFormatSecondsPerTiB,
                 StorageServiceInstance.StorageServiceFormatMaximumTimeout,
