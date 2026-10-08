@@ -5225,6 +5225,8 @@ import os
 import pwd
 import re
 import shutil
+import socket
+import time
 import subprocess
 import tempfile
 import sys
@@ -5918,6 +5920,64 @@ for share in payload.get("shares", []):
             "filesystem": share.get("filesystem"),
         }
 
+def smb_owned_listening_sockets(timeout=10):
+    observed = run(["ss", "-ltnpH"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=timeout)
+    result = set()
+    for line in observed.stdout.splitlines():
+        fields = line.split()
+        if len(fields) < 5 or '"smbd"' not in line:
+            continue
+        address, _, port = fields[3].rpartition(":")
+        address = address.strip("[]")
+        try:
+            result.add((str(ipaddress.ip_address(address)), int(port)))
+        except ValueError:
+            continue
+    return result
+
+
+def verify_smb_endpoint_listeners(rows, timeout=10):
+    deadline = time.monotonic() + timeout
+    def budget(maximum):
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise RuntimeError("SMB endpoint listener verification deadline expired")
+        return min(maximum, remaining)
+    requested = []
+    for row in rows:
+        ip = str(ipaddress.ip_address(str(row.get("listenIp") or "0.0.0.0")))
+        port = int(row.get("port") or 445)
+        if not 1 <= port <= 65535:
+            raise ValueError("SMB endpoint port is invalid")
+        requested.append((ip, port))
+    addresses = run(["ip", "-j", "address", "show"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=budget(10))
+    assigned = {str(ipaddress.ip_address(item["local"])) for interface in json.loads(addresses.stdout)
+                for item in interface.get("addr_info", []) if item.get("local")}
+    if any(ip not in ("0.0.0.0", "::") and ip not in assigned for ip, port in requested):
+        raise RuntimeError("An SMB endpoint IP is not assigned to this Storage Service VM")
+    while True:
+        owned = smb_owned_listening_sockets(timeout=budget(10))
+        proofs = []
+        for ip, port in requested:
+            remaining = budget(1)
+            ready = False
+            if (ip, port) in owned:
+                target = "127.0.0.1" if ip == "0.0.0.0" else "::1" if ip == "::" else ip
+                try:
+                    with socket.create_connection((target, port), timeout=remaining):
+                        ready = True
+                except OSError:
+                    pass
+            proofs.append({"listenIp": ip, "port": port, "listenerOwned": (ip, port) in owned,
+                           "tcpReady": ready, "success": ready})
+        if all(item["success"] for item in proofs):
+            budget(1)
+            return proofs
+        if time.monotonic() >= deadline:
+            missing = [str(item["listenIp"]) + ":" + str(item["port"]) for item in proofs if not item["success"]]
+            raise RuntimeError("SMB endpoint listener verification failed: " + ", ".join(missing))
+        time.sleep(budget(0.2))
+
 def install_validated_smb_config(lines, config_path):
     fd, candidate = tempfile.mkstemp(prefix=".ablestack-smb-", dir=os.path.dirname(config_path))
     try:
@@ -5952,6 +6012,7 @@ if shutil.which("systemctl"):
         run(["systemctl", "restart", "smbd", "nmbd"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     else:
         run(["smbcontrol", "all", "reload-config"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+runtime_endpoints = verify_smb_endpoint_listeners(listener_rows)
 fd, managed_temporary = tempfile.mkstemp(prefix=".smb-identities-", dir=state_dir)
 try:
     with os.fdopen(fd, "w", encoding="utf-8") as managed_fp:
@@ -5982,7 +6043,7 @@ for share_uuid, old_identity in managed_identities.items():
         run(["groupdel", group], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     except (KeyError, subprocess.CalledProcessError):
         pass
-print(json.dumps({"success": True, "shares": len(payload.get("shares", [])), "quotas": len(quota_state), "adJoined": ad_joined, "netbiosName": netbios_name, "access": access_state}))
+print(json.dumps({"success": True, "shares": len(payload.get("shares", [])), "quotas": len(quota_state), "adJoined": ad_joined, "netbiosName": netbios_name, "access": access_state, "runtimeEndpoints": runtime_endpoints, "runtimeReady": True}))
 PY
 
   if [[ "$mode" == "preflight" ]]; then return 0; fi

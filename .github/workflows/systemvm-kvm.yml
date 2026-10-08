@@ -111,7 +111,8 @@ jobs:
             systemvm.test.TestStorageRuntimeUpdater \
             systemvm.test.TestStorageQuiesce \
             systemvm.test.TestStorageNfsOwnershipSafety \
-            systemvm.test.TestStorageTemplateBuild
+            systemvm.test.TestStorageTemplateBuild \
+            systemvm.test.TestStorageSmbEndpointReadiness
           python3 test/systemvm/test_storage_config_generation.py
           python3 test/systemvm/test_storage_identity_capsule.py
           python3 test/systemvm/test_storage_writer_lock.py
