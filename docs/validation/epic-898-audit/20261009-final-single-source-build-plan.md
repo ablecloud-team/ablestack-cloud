@@ -2,7 +2,7 @@
 
 이 문서는 2026-10-09 읽기 전용 준비 결과다. 아래 최종 source S 는 아직 고정되지 않았다. NVMe 정상 경로, retained ROOT, AD lifecycle · winbind · principal authority 의 필요한 native/backend 핀을 먼저 통합하고 normal 검증 뒤 새 full image 를 빌드한다. 기존 fc3e 이미지나 hybrid runtime copy 를 S 로 재라벨하지 않는다. 이 계획으로 신규 QEMU · 디스크 · template 등록 · Cloud 배포를 실행하지 않았다. 별도 승인된 로컬 NVMe 결과는 다른 문서로 관리한다.
 
-현재 추가 source는 retained primitive552634de673의normal720/116이며 manualphase는미연결이다. 아래713 등은 각 단계 provenance로 유지한다. 최종S는 이 추가단위와 뒤의필수핀도포함해 다시고정한다.
+현재 후속 소스는 retained manual 7064edbdfd8의 normal 752/118, AD SERVICE 0e699dac326의 normal 780/123 및 원본 암호문 f0dd1962bea의 native 117까지 반영했다. NVMe run7은 실제 로컬 인증·I/O를 통과했다. 아래 표의 713/720 및 run5는 당시 provenance이며 현재 인수 결과로 재사용하지 않는다. 최종 S는 남은 typed AD·의미 복원 및 기능 입력 후속을 포함해 새로 고정한다.
 
 ## 현재 source 와 actual 구성
 
@@ -54,7 +54,7 @@ ISO cache 는 installer 다운로드만 줄인다. 현재 kernel/Ganesha recipe 
 7. RPM 은 isolated Rocky 9.7 container/rootfs 에서 tools/build/rocky97-rpm-build.sh 의 정상 path 를 사용한다. PACK/BRAND/PACKAGE_VERSION=4.23.0.0/RELEASE/TIMESTAMP 를 고정하고 LOCAL_FAST=false 로 전체 modules 를 포함한다. UI-only RPM 을 full RPM 으로 표시하지 않는다. helper 가 DNF repository/global config 를 수정하므로 canonical WSL 환경에서 바로 실행하지 않는다.
 8. RPM spec 은 Maven -DskipTests 로 packaging 하므로 별도 normal 테스트 gate 가 필요하다. RPM/SRPM manifest · NEVRA · dependency list · packaged JAR/entry hashes · public trusted key · generated scripts 를 추출해 앞 단계 출력과 대조한다. 아직 RPM build/install 은 0 이다.
 
-실행 GO 뒤 사용할 정규 command 형태는 아래와 같다. S · selector · build number · key ID · release 값은 parent 가 고정한 manifest 에서 가져오고, 아래 명령은 현재 실행하지 않는다.
+사용자가 승인한 Epic 구현·빌드·테스트 배포 범위에서 사용할 정규 command 형태는 아래와 같다. 필수 소스와 입력이 고정되면 불필요한 재승인 없이 진행한다. S · selector · build number · key ID · release 값은 parent 가 고정한 manifest 에서 가져오고, 아래 명령은 현재 실행하지 않는다.
 
 ```bash
 mvn -B -pl server,plugins/hypervisors/kvm,plugins/storage/sharedfs/storagevm -am \
@@ -84,9 +84,9 @@ RPM noredist helper 의 cloudstack-nonoss clone 은 현재 floating HEAD 이고 
 
 API StorageServiceHostCommand allowlist/DTO, SharedFS lifecycle explicit-template overload/CreateSharedFS params, TemplateUpgradeRequest artifact references, Manager/helpers/provider Spring XML 을 함께 검증한다. agents 는 API command classes + KVM wrappers + existing QemuImg overload ABI 를 실제 JAR 과 대조한다. 새 family 에 required class 가 빠지거나 다른 dependency 를 끌어오면 부분 반영하지 않는다.
 
-operation control/policy 의 기존 nullable column/table 은 이미 적용됐고 source 707/713 에 새 DDL 은 없다. 새 S 의 migration diff 를 다시 검토한다. 최초 deployment 에서는 global/instance policy OFF · 기존 recovery rows · 원본 DATA/VM/guest protocol 보존을 확인한다. 전체 새 package/runtime 배포는 별도 parent GO 이며 현재 13번 source 713/strict family 적용은 0 이다.
+operation control/policy 의 기존 nullable column/table 은 이미 적용됐고 source 707/713 에 새 DDL 은 없다. 새 S 의 migration diff 를 다시 검토한다. 최초 deployment 에서는 global/instance policy OFF · 기존 recovery rows · 원본 DATA/VM/guest protocol 보존을 확인한다. 전체 새 package/runtime 배포는 부모 에이전트가 ABI·입력 검증 후 조율하며 현재 13번 source 713/strict family 적용은 0 이다.
 
-protected NEW SPARSE validation artifact 는 exact instance/name/ROOT/DATA/current signed pin/expected CLI/source S 와 original exclusion 을 고정한다. private USER template 의 zone/KVM/arch/Ready/owner/launch 권한, SPARSE ROOT+DATA offerings · actual metadata cache · unique NIC/IP · capacity 를 fresh로 검증한 뒤 등록/생성을 승인받는다. SYSTEM 전역 선택은 바꾸지 않는다. helper/default false 및 platform proof 부족을 waiver 로 우회하지 않는다.
+protected NEW SPARSE validation artifact 는 exact instance/name/ROOT/DATA/current signed pin/expected CLI/source S 와 original exclusion 을 고정한다. private USER template 의 zone/KVM/arch/Ready/owner/launch 권한, SPARSE ROOT+DATA offerings · actual metadata cache · unique NIC/IP · capacity 를 fresh로 검증한 뒤 사용자 승인 범위의 테스트 등록·생성을 진행한다. SYSTEM 전역 선택은 바꾸지 않는다. helper/default false 및 platform proof 부족을 waiver 로 우회하지 않는다.
 
 ## 서명 권한과 최종 acceptance 경계
 
