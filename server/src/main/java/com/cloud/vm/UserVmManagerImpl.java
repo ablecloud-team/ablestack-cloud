@@ -985,6 +985,22 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         }
     }
 
+    @Inject private org.apache.cloudstack.storage.sharedfs.dao.SharedFSDao staticSharedFsDao;
+
+    /** Guest-reported aliases cannot replace an operator-declared SharedFS primary address. */
+    protected boolean preserveDeclaredSharedFsPrimary(long vmId, NicVO nic) {
+        UserVmVO vm=_vmDao.findById(vmId);
+        if (vm==null || !UserVmManager.SHAREDFSVM.equals(vm.getUserVmType()) || nic!=null && !nic.isDefaultNic()) return false;
+        org.apache.cloudstack.storage.sharedfs.SharedFSVO shared=staticSharedFsDao.findByVm(vmId);
+        if (shared==null || shared.getNetworkMode()!=org.apache.cloudstack.storage.sharedfs.SharedFS.NetworkMode.STATIC) return false;
+        if (nic==null || nic.getInstanceId()!=vmId || !NetUtils.isValidIp4(shared.getIpAddress())) throw new CloudRuntimeException("Declared static SharedFS primary identity is unavailable");
+        if (!shared.getIpAddress().equals(nic.getIPv4Address())) {
+            nic.setIPv4Address(shared.getIpAddress());
+            if (!_nicDao.update(nic.getId(),nic)) throw new CloudRuntimeException("Unable to preserve declared SharedFS primary NIC address");
+        }
+        return true;
+    }
+
     private class VmIpAddrFetchThread extends ManagedContextRunnable {
         long nicId;
         long vmId;
@@ -1016,6 +1032,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                 logger.debug("Trying IP retrieval for Instance [ID: {}, UUID: {}, name: {}], NIC {}", vmId, vmUuid, vmName, nic);
                 Answer answer = _agentMgr.send(hostId, cmd);
                 if (answer.getResult()) {
+                    if (preserveDeclaredSharedFsPrimary(vmId,nic)) {vmIdCountMap.remove(nicId);decrementCount=false;return;}
                     String vmIp = answer.getDetails();
                     if (vmIp == null) {
                         // we got a valid response and the NIC does not have an IP assigned, as such we will update the database with null

@@ -32,6 +32,10 @@ import org.apache.cloudstack.api.response.StorageServiceRuntimeUpgradeResponse;
 
 public interface StorageServiceRuntimeUpgradeManager {
     com.google.gson.JsonObject verifyAvailableBundle(Long bundleId);
+    com.google.gson.JsonObject templateRuntimeCapabilities(long instanceId);
+    com.google.gson.JsonObject checkpointTemplateRuntime(long instanceId, String rootOperationUuid);
+    com.google.gson.JsonObject restoreTemplateRuntime(long instanceId, com.google.gson.JsonObject pin, String rootOperationUuid, String direction);
+    com.google.gson.JsonObject verifyTemplateRuntime(long instanceId, com.google.gson.JsonObject pin, String rootOperationUuid, String direction);
     StorageServiceRuntimeBundleResponse updateBundle(UpdateStorageServiceRuntimeBundleCmd cmd);
     boolean deleteBundle(DeleteStorageServiceRuntimeBundleCmd cmd);
     StorageServiceRuntimeBundleResponse register(RegisterStorageServiceRuntimeBundleCmd cmd);

@@ -97,7 +97,7 @@ public final class LibvirtGetVmIpAddressCommandWrapper extends CommandWrapper<Ge
         Pair<Integer,String> response = executePipedCommands(commands, 0);
         if (response != null) {
             String output = response.second();
-            Pair<String, String> ipAddresses = getIpAddresses(output, macAddress);
+            Pair<String, String> ipAddresses = getIpAddresses(output, macAddress, networkCidr);
             String ipv4 = ipAddresses.first();
             if (networkCidr == null || NetUtils.isIpWithInCidrRange(ipv4, networkCidr)) {
                 ip = ipv4;
@@ -108,7 +108,7 @@ public final class LibvirtGetVmIpAddressCommandWrapper extends CommandWrapper<Ge
         return ip;
     }
 
-    private Pair<String, String> getIpAddresses(String output, String macAddress) {
+    private Pair<String, String> getIpAddresses(String output, String macAddress, String networkCidr) {
         String ipv4 = null;
         String ipv6 = null;
         boolean found = false;
@@ -124,15 +124,17 @@ public final class LibvirtGetVmIpAddressCommandWrapper extends CommandWrapper<Ge
                 if (!device.equals("-") || !mac.equals("-")) {
                     break;
                 }
-            } else if (!mac.equals(macAddress)) {
+            } else if (!mac.equalsIgnoreCase(macAddress)) {
                 continue;
             }
             found = true;
             String ipFamily = parts[parts.length - 2];
             String ipPart = parts[parts.length - 1].split("/")[0];
-            if (ipFamily.equals("ipv4")) {
+            if (ipFamily.equals("ipv4") && ipv4 == null && NetUtils.isValidIp4(ipPart)
+                    && (networkCidr == null || NetUtils.isIpWithInCidrRange(ipPart, networkCidr))) {
+                // libvirt reports the primary first, followed by secondary addresses on this MAC.
                 ipv4 = ipPart;
-            } else if (ipFamily.equals("ipv6")) {
+            } else if (ipFamily.equals("ipv6") && ipv6 == null) {
                 ipv6 = ipPart;
             }
         }
