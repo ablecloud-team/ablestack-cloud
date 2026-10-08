@@ -282,6 +282,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
     SnapshotDataFactory snapshotDataFactory;
     @Inject
     SnapshotDetailsDao snapshotDetailsDao;
+    @Inject private com.cloud.vm.VmCreationSourceService creationSourceService;
 
     private int _totalRetries;
     private int _pauseInterval;
@@ -2203,6 +2204,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
             if (snapshot == null) {
                 throw new CloudRuntimeException(String.format("Failed to create snapshot for volume: %s", volume));
             }
+            creationSourceService.captureSnapshot(snapshot, volume);
             CallContext.current().putContextParameter(Snapshot.class, snapshot.getUuid());
             _resourceLimitMgr.incrementResourceCount(volume.getAccountId(), ResourceType.snapshot);
             _resourceLimitMgr.incrementResourceCount(volume.getAccountId(), storeResourceType, volume.getSize());

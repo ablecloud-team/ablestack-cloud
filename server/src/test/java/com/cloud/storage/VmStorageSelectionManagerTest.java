@@ -112,7 +112,7 @@ public class VmStorageSelectionManagerTest {
     @Test public void existingRootVolumeCannotBeRetargetedByDeployParameter() {
         DeployVMCmd cmd = mock(DeployVMCmd.class);
         when(cmd.getRootStorageId()).thenReturn(9L);
-        when(cmd.isVolumeOrSnapshotProvided()).thenReturn(true);
+        when(cmd.getVolumeId()).thenReturn(4L);
         when(accounts.isRootAdmin(2L)).thenReturn(true);
         assertThrows(InvalidParameterValueException.class, () -> manager.prepare(cmd, null, account, null, null));
     }

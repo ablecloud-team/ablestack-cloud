@@ -114,7 +114,7 @@ export default {
       this.$emit('update:value', pool ? { id: pool.id, name: pool.name, valid: this.valid } : { valid: true })
     },
     async fetchPools () {
-      if (!this.query.zoneid || !this.query.templateid || !this.query.serviceofferingid || !this.query.hypervisor || !Number.isInteger(this.query.diskcount || 1) || (this.query.diskcount != null && this.query.diskcount < 1)) { this.loading = false; return }
+      if (!this.query.zoneid || (!this.query.templateid && !this.query.snapshotid) || !this.query.serviceofferingid || !this.query.hypervisor || !Number.isInteger(this.query.diskcount || 1) || (this.query.diskcount != null && this.query.diskcount < 1)) { this.loading = false; return }
       const sequence = ++this.requestSequence
       this.loading = true
       this.error = false

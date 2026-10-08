@@ -92,6 +92,27 @@ public class DeployVMCmd extends BaseDeployVMCmd {
         return volumeId;
     }
 
+    @Parameter(name = "sourcerevision", type = CommandType.STRING, description = "Previously validated volume/snapshot revision")
+    private String sourceRevision;
+    @Parameter(name = ApiConstants.CLUSTER_ID, type = CommandType.UUID, entityType = org.apache.cloudstack.api.response.ClusterResponse.class,
+            description = "Required source cluster for existing ROOT adoption")
+    private Long sourceClusterId;
+    private Map<String, String> sourceBootProfile = new java.util.HashMap<>();
+    public String getSourceRevision() { return sourceRevision; }
+    public Long getSourceClusterId() { return sourceClusterId; }
+    public void setSourceBootProfile(Map<String, String> profile) {
+        sourceBootProfile.clear();
+        sourceBootProfile.put("vm.creation.source", "true");
+        sourceBootProfile.put("vm.creation.source.id", profile.get("sourceid"));
+        sourceBootProfile.put("vm.creation.source.kind", profile.get("sourcekind"));
+        sourceBootProfile.put("vm.creation.source.osuuid", profile.get("ostypeid"));
+        sourceBootProfile.put(com.cloud.vm.VmDetailConstants.TPM_VERSION, "NONE");
+        for (String key : java.util.Arrays.asList("rootDiskController", "kvm.guest.os.machine.type", "video.hardware", "video.ram")) {
+            if (profile.containsKey(key)) { sourceBootProfile.put(key, profile.get(key)); }
+        }
+        setBootType(profile.get("boottype")); setBootMode(profile.get("bootmode"));
+    }
+
     public Long getSnapshotId() {
         return snapshotId;
     }
@@ -99,6 +120,7 @@ public class DeployVMCmd extends BaseDeployVMCmd {
     @Override
     public Map<String, String> getDetails() {
         Map<String, String> details = super.getDetails();
+        details.putAll(sourceBootProfile);
         if (volumeId != null) {
             details.put("volumeId", String.valueOf(volumeId));
         }

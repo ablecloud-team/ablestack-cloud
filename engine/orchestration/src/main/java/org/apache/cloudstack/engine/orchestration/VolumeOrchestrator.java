@@ -429,8 +429,13 @@ public class VolumeOrchestrator extends ManagerBase implements VolumeOrchestrati
             }
             DataCenterDeployment plan = new DataCenterDeployment(dc.getId(), podId, clusterId, hostId, null, null);
 
-            final List<StoragePool> poolList = allocator.allocateToPool(dskCh, profile, plan, avoidList, StoragePoolAllocator.RETURN_UPTO_ALL);
-            if (poolList != null && !poolList.isEmpty()) {
+            final List<StoragePool> allocatedPools = allocator.allocateToPool(dskCh, profile, plan, avoidList, StoragePoolAllocator.RETURN_UPTO_ALL);
+            List<StoragePool> poolList = allocatedPools == null ? new ArrayList<>() : new ArrayList<>(allocatedPools);
+            VolumeDetailVO requestedPool = _volDetailDao.findDetail(dskCh.getVolumeId(), com.cloud.storage.VmStorageSelectionService.REQUIRED_POOL);
+            if (requestedPool != null && (vm == null || vm.getLastHostId() == null)) {
+                poolList.removeIf(candidate -> !requestedPool.getValue().equals(candidate.getUuid()));
+            }
+            if (!poolList.isEmpty()) {
                 StorageUtil.traceLogStoragePools(poolList, logger, "pools to choose from: ");
                 // Check if the preferred storage pool can be used. If yes, use it.
                 Optional<StoragePool> storagePool = getPreferredStoragePool(poolList, vm);
@@ -1269,7 +1274,10 @@ public class VolumeOrchestrator extends ManagerBase implements VolumeOrchestrati
         }
         Long size;
         if (snapshot != null) {
-            size = _volsDao.findByIdIncludingRemoved(snapshot.getVolumeId()).getSize();
+            if (!(snapshot instanceof com.cloud.storage.SnapshotVO) || ((com.cloud.storage.SnapshotVO) snapshot).getSize() <= 0) {
+                throw new CloudRuntimeException("SNAPSHOT_SIZE_UNKNOWN: snapshot logical ROOT size is missing");
+            }
+            size = ((com.cloud.storage.SnapshotVO) snapshot).getSize();
         } else {
             size = _tmpltMgr.getTemplateSize(template, vm.getDataCenterId());
         }
@@ -1342,6 +1350,14 @@ public class VolumeOrchestrator extends ManagerBase implements VolumeOrchestrati
             _resourceLimitMgr.incrementVolumeResourceCount(vm.getAccountId(), vol.isDisplayVolume(), vol.getSize(), offering);
         }
         if (snapshot != null) {
+            Object selection = org.apache.cloudstack.context.CallContext.current().getContextParameter("vm.creation.snapshot.targetpool");
+            if (selection instanceof Long) {
+                Long target = (Long) selection;
+                StoragePoolVO selected = _storagePoolDao.findById(target);
+                if (selected == null) { throw new CloudRuntimeException("Selected snapshot storage no longer exists"); }
+                _volDetailDao.addDetail(vol.getId(), com.cloud.storage.VmStorageSelectionService.REQUIRED_POOL, selected.getUuid(), false);
+                vol.setPoolId(target); _volsDao.update(vol.getId(), vol);
+            }
             UserVmVO userVmVO = _userVmDao.findById(vm.getId());
             try {
                 VolumeInfo volumeInfo = createVolumeFromSnapshot(vol, snapshot, userVmVO);
@@ -1367,17 +1383,22 @@ public class VolumeOrchestrator extends ManagerBase implements VolumeOrchestrati
     }
 
     private Volume attachExistingVolumeToVm(VirtualMachine vm, long deviceId, Volume volume, Type type) {
-        VolumeVO volumeVO = _volumeDao.findById(volume.getId());
-        if (volumeVO == null) {
-            throw new CloudRuntimeException(String.format("Could not find the volume %s in the DB", volume));
-        }
-        volumeVO.setDeviceId(deviceId);
-        volumeVO.setVolumeType(type);
-        if (vm != null) {
-            volumeVO.setInstanceId(vm.getId());
-        }
-        _volumeDao.update(volumeVO.getId(), volumeVO);
-        return volumeVO;
+        return Transaction.execute((TransactionCallback<VolumeVO>) status -> {
+            VolumeVO current = _volumeDao.lockRow(volume.getId(), true);
+            if (current == null || current.getState() != Volume.State.Ready || current.getRemoved() != null) {
+                throw new CloudRuntimeException("SOURCE_NOT_READY: volume changed before ROOT adoption");
+            }
+            if (current.getInstanceId() != null && (vm == null || !current.getInstanceId().equals(vm.getId()))) {
+                throw new CloudRuntimeException("SOURCE_ATTACHED: another VM has claimed this volume");
+            }
+            if (vm == null || current.getAccountId() != vm.getAccountId() || current.getDataCenterId() != vm.getDataCenterId()) {
+                throw new CloudRuntimeException("SOURCE_OWNER_MISMATCH: existing ROOT owner and zone must be preserved");
+            }
+            _volDetailDao.addDetail(current.getId(), "vm.creation.adopted", vm.getUuid(), false);
+            current.setDeviceId(deviceId); current.setVolumeType(type); current.setInstanceId(vm.getId());
+            _volumeDao.update(current.getId(), current);
+            return current;
+        });
     }
 
     @Override
