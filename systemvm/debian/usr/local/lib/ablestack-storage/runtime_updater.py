@@ -125,6 +125,7 @@ class RuntimeUpdater:
             "ABLESTACK_STORAGE_RUNTIME_ENTRYPOINT_ROOT", "/usr/local/bin"))
         self.lock_file = Path(os.environ.get(
             "ABLESTACK_STORAGE_RUNTIME_LOCK", "/run/lock/ablestack-storage-runtime-upgrade.lock"))
+        self.template_manifest = Path(os.environ.get("ABLESTACK_STORAGE_TEMPLATE_MANIFEST", "/etc/ablestack-storage/template-manifest.json"))
         self.releases = self.runtime_root / "releases"
         self.current = self.runtime_root / "current"
         self.previous = self.runtime_root / "previous"
@@ -168,9 +169,60 @@ class RuntimeUpdater:
         except OSError:
             return None
 
+    def platform_attestation(self):
+        unknown = {"platformVersionKnown": False, "platformVersion": None, "productVersion": None,
+                   "templateManifestSha256": None, "platformVersionDiagnostic": "PLATFORM_VERSION_UNKNOWN"}
+        try:
+            path = self.template_manifest
+            info = path.lstat(); parent = path.parent.lstat()
+            if (not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid() or info.st_mode & 0o022
+                    or info.st_size > 2 * 1024 * 1024 or not stat.S_ISDIR(parent.st_mode)
+                    or parent.st_uid != os.geteuid() or parent.st_mode & 0o022):
+                return unknown
+            directory = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+            try:
+                opened_parent = os.fstat(directory)
+                fields = ("st_dev", "st_ino", "st_uid", "st_mode")
+                if tuple(getattr(opened_parent, key) for key in fields) != tuple(getattr(parent, key) for key in fields):
+                    return unknown
+                descriptor = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW | getattr(os, "O_NOATIME", 0), dir_fd=directory)
+            finally:
+                os.close(directory)
+            try:
+                opened = os.fstat(descriptor)
+                fields = ("st_dev", "st_ino", "st_uid", "st_gid", "st_mode", "st_size", "st_mtime_ns", "st_ctime_ns")
+                if tuple(getattr(opened, key) for key in fields) != tuple(getattr(info, key) for key in fields):
+                    return unknown
+                with os.fdopen(descriptor, "rb", closefd=False) as handle:
+                    content = handle.read(2 * 1024 * 1024 + 1)
+                after = os.fstat(descriptor)
+                if len(content) > 2 * 1024 * 1024 or tuple(getattr(after, key) for key in fields) != tuple(getattr(opened, key) for key in fields):
+                    return unknown
+            finally:
+                os.close(descriptor)
+            manifest = json.loads(content)
+            version = manifest.get("platformVersion")
+            proof = manifest.get("platformVersionSource") or {}
+            declared = proof.get("declaredVersion")
+            matched = re.fullmatch(r"([0-9]+(?:\.[0-9]+){2,3})(?:-[A-Za-z][A-Za-z0-9_.-]*)?", declared) if isinstance(declared, str) else None
+            normalized = matched.group(1) if matched else None
+            if normalized and normalized.count(".") == 2:
+                normalized += ".0"
+            if (normalized != version or not isinstance(version, str) or not re.fullmatch(r"[0-9]+(?:\.[0-9]+){3}", version)
+                    or manifest.get("productVersion") != version
+                    or (manifest.get("registrationDetails") or {}).get("storage.service.platform.version") != version
+                    or proof.get("path") != "pom.xml" or not SHA256_RE.fullmatch(str(proof.get("sha256") or ""))
+                    or (manifest.get("sourceFiles") or {}).get("pom.xml") != proof.get("sha256")):
+                return unknown
+            return {"platformVersionKnown": True, "platformVersion": version, "productVersion": version,
+                    "templateManifestSha256": hashlib.sha256(content).hexdigest(), "platformVersionSource": proof}
+        except (OSError, ValueError, TypeError, AttributeError):
+            return unknown
+
     def capabilities(self, _request):
         return {
             "success": True,
+            **self.platform_attestation(),
             "runtimeAbiVersion": RUNTIME_ABI_VERSION,
             "desiredStateSchemaVersion": DESIRED_STATE_SCHEMA_VERSION,
             "signedRuntimeReadback": True,

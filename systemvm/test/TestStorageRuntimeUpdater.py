@@ -58,6 +58,7 @@ class StorageRuntimeUpdaterTest(unittest.TestCase):
             "ABLESTACK_STORAGE_RUNTIME_TRUSTED_KEYS": str(self.trusted_keys),
             "ABLESTACK_STORAGE_RUNTIME_ENTRYPOINT_ROOT": str(self.entrypoint_root),
             "ABLESTACK_STORAGE_RUNTIME_LOCK": str(self.lock_file),
+            "ABLESTACK_STORAGE_TEMPLATE_MANIFEST": str(self.temp / 'template-manifest.json'),
         })
         for name in ENTRYPOINTS:
             self.write_script(self.entrypoint_root / name, "bootstrap")
@@ -127,6 +128,36 @@ class StorageRuntimeUpdaterTest(unittest.TestCase):
         self.run_updater("verify", request)
         self.run_updater("preflight", request)
         return request
+
+    def platform_manifest(self, version='4.23.0.0'):
+        path = Path(self.env['ABLESTACK_STORAGE_TEMPLATE_MANIFEST'])
+        path.write_text(json.dumps({'platformVersion':version, 'productVersion':version,
+                                    'registrationDetails':{'storage.service.platform.version':version},
+                                    'platformVersionSource':{'path':'pom.xml','sha256':'a'*64,'declaredVersion':version},
+                                    'sourceFiles':{'pom.xml':'a'*64}}))
+        path.chmod(0o644)
+        return path
+
+    def test_fresh_platform_capabilities_bind_the_protected_guest_manifest_without_writes(self):
+        path = self.platform_manifest(); content = path.read_bytes(); before = path.stat()
+        result = self.run_updater('capabilities')
+        self.assertTrue(result['platformVersionKnown']); self.assertEqual('4.23.0.0', result['platformVersion'])
+        self.assertEqual(result['platformVersion'], result['productVersion'])
+        self.assertEqual(hashlib.sha256(content).hexdigest(), result['templateManifestSha256'])
+        self.assertEqual(before, path.stat()); self.assertEqual(content, path.read_bytes())
+
+    def test_absence_build_number_and_writable_or_symlink_platform_evidence_remain_unknown(self):
+        self.assertFalse(self.run_updater('capabilities')['platformVersionKnown'])
+        self.assertIsNone(self.run_updater('capabilities')['platformVersion'])
+        path = self.platform_manifest('4.23.0.0.88')
+        self.assertFalse(self.run_updater('capabilities')['platformVersionKnown'])
+        path = self.platform_manifest(); value = json.loads(path.read_text())
+        value['platformVersionSource']['declaredVersion'] = '4.22.0.0'; path.write_text(json.dumps(value))
+        self.assertFalse(self.run_updater('capabilities')['platformVersionKnown'])
+        path = self.platform_manifest(); path.chmod(0o666)
+        self.assertFalse(self.run_updater('capabilities')['platformVersionKnown'])
+        path.chmod(0o644); real = path.with_suffix('.real'); path.rename(real); path.symlink_to(real)
+        self.assertFalse(self.run_updater('capabilities')['platformVersionKnown'])
 
     def test_signed_builder_pins_all_three_platform_compatibility_ranges(self):
         self.build_bundle()
