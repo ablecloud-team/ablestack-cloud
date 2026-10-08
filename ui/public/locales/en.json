@@ -1,4 +1,7 @@
 {
+  "label.storage.tab.upgrades": "Upgrades",
+  "label.storage.tab.operations": "Operations",
+  "label.storage.tab.backup.restore": "Backup and restore",
   "message.storage.disk.sparse.required": "New storage disks require SPARSE or FAT provisioning.",
   "message.storage.template.root.sparse": "The new ROOT must use SPARSE or FAT provisioning. The existing ROOT is preserved for rollback.",
   "label.storage.template.root.offering": "Replacement ROOT disk offering",
