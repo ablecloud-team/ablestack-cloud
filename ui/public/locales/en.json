@@ -8809,5 +8809,7 @@
   "label.storage.runtime.consumer.agent": "Host agent",
   "label.storage.runtime.consumer.template": "SystemVM platform",
   "message.storage.runtime.compatibility.unknown": "The last verified manifest does not declare complete compatibility ranges. Compatibility must be verified before a new activation.",
-  "message.storage.runtime.compatibility.scope": "These ranges are part of the last signature verification. Preflight checks the actual management server, host agent and SystemVM platform; a template name is not a version observation."
+  "message.storage.runtime.compatibility.scope": "These ranges are part of the last signature verification. Preflight checks the actual management server, host agent and SystemVM platform; a template name is not a version observation.",
+  "label.storage.template.root.offering": "Replacement ROOT disk offering",
+  "message.storage.template.root.sparse": "The new ROOT must use SPARSE or FAT provisioning. The existing ROOT is preserved for rollback."
 }

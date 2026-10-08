@@ -35,6 +35,12 @@
             </a-select-option>
           </a-select>
         </a-form-item>
+        <a-form-item v-if="rootChoices.length" :label="$t('label.storage.template.root.offering')" required>
+          <a-select v-model:value="rootDiskOffering" :disabled="loading || submitting" @change="clearPlan">
+            <a-select-option v-for="offering in rootChoices" :key="offering.id" :value="offering.id" :disabled="!['sparse', 'fat'].includes(String(offering.provisioningType || '').toLowerCase())">{{ offering.name }} · {{ offering.provisioningType }}</a-select-option>
+          </a-select>
+        </a-form-item>
+        <a-alert type="info" show-icon :message="$t('message.storage.template.root.sparse')" />
         <template v-if="plan">
           <a-alert v-for="blocker in blockers" :key="blocker" type="error" show-icon :message="blocker" />
           <a-descriptions bordered size="small" :column="1">
@@ -69,10 +75,11 @@ export default {
   components: { ReloadOutlined },
   props: { resource: { type: Object, required: true }, pollJob: { type: Boolean, default: true } },
   emits: ['close-action', 'accepted', 'operation-updated'],
-  data: () => ({ loading: false, submitting: false, error: '', readFailed: false, scope: 0, capability: {}, templates: [], targetTemplate: undefined, plan: null, confirmation: '', maintenanceWindow: false }),
+  data: () => ({ loading: false, submitting: false, error: '', readFailed: false, scope: 0, capability: {}, templates: [], targetTemplate: undefined, rootDiskOffering: undefined, rootChoices: [], plan: null, confirmation: '', maintenanceWindow: false }),
   computed: {
     preflight () { return this.plan?.preflight || {} },
     blockers () { return this.preflight.blockers || this.plan?.blockers || [] },
+    rootProvisioning () { return this.preflight.rootProvisioning || {} },
     identityLabel () {
       const migration = this.preflight.identityMigration || this.capability.identityMigration
       if (!migration) return '—'
@@ -83,10 +90,10 @@ export default {
     canSubmit () {
       if (this.loading || this.submitting || !this.targetTemplate) return false
       if (!this.plan) return this.templates.some(row => row.templateUuid === this.targetTemplate && row.compatible && !row.current)
-      return this.preflight.compatible === true && !this.blockers.length && this.maintenanceWindow && this.confirmation === this.resource.name && this.preflight.rollbackAvailable !== false
+      return this.preflight.compatible === true && ['sparse', 'fat'].includes(String(this.rootProvisioning.selectedProvisioningType || '').toLowerCase()) && !this.blockers.length && this.maintenanceWindow && this.confirmation === this.resource.name && this.preflight.rollbackAvailable !== false
     }
   },
-  watch: { 'resource.id' () { this.scope++; this.submitting = false; this.clearPlan(); this.capability = {}; this.templates = []; this.targetTemplate = undefined; this.refresh() } },
+  watch: { 'resource.id' () { this.scope++; this.submitting = false; this.clearPlan(); this.capability = {}; this.templates = []; this.targetTemplate = undefined; this.rootDiskOffering = undefined; this.rootChoices = []; this.refresh() } },
   mounted () { this.refresh() },
   beforeUnmount () { this.scope++ },
   methods: {
@@ -105,6 +112,7 @@ export default {
         ])
         if (token !== this.scope || id !== this.resource.id) return
         this.capability = this.unwrap(responses[0], 'getStorageServiceTemplateUpgradeCapabilities')
+        if (this.capability.rootProvisioning?.choices) this.rootChoices = this.capability.rootProvisioning.choices
         this.templates = this.unwrap(responses[1], 'listStorageServiceSystemVmTemplates').templates || []
         this.readFailed = false
       } catch (error) { if (token === this.scope) this.readFailed = true } finally { if (token === this.scope) this.loading = false }
@@ -113,9 +121,11 @@ export default {
       if (!this.canSubmit || this.plan) return
       const token = this.scope; const id = this.resource.id; this.submitting = true; this.error = ''
       try {
-        const result = this.unwrap(await postAPI('preflightStorageServiceSystemVmTemplateUpgrade', { sharedfilesystemid: id, templateid: this.targetTemplate }), 'preflightStorageServiceSystemVmTemplateUpgrade')
+        const result = this.unwrap(await postAPI('preflightStorageServiceSystemVmTemplateUpgrade', { sharedfilesystemid: id, templateid: this.targetTemplate, ...(this.rootDiskOffering ? { rootdiskofferingid: this.rootDiskOffering } : {}) }), 'preflightStorageServiceSystemVmTemplateUpgrade')
         if (token !== this.scope || id !== this.resource.id) return
         this.plan = { ...(result.upgrade || result), preflight: result.preflight || result.upgrade?.preflight || {} }
+        if (this.plan.preflight.rootProvisioning?.choices) this.rootChoices = this.plan.preflight.rootProvisioning.choices
+        if (this.plan.preflight.rootProvisioning?.selectedDiskOfferingUuid) this.rootDiskOffering = this.plan.preflight.rootProvisioning.selectedDiskOfferingUuid
       } catch (error) { if (token === this.scope) this.error = error.message } finally { if (token === this.scope) this.submitting = false }
     },
     async upgrade () {
