@@ -23,6 +23,7 @@ from pathlib import Path
 import re
 import tempfile
 import zlib
+from ad_authority import protected_ad_policy,ad_qualified_name
 
 NFS_HELPERS = {'assign_ganesha_export_ids','effective_nfs_export_config','endpoint_key','export_id','ganesha_access','ganesha_bind_addr','ganesha_client_list','ganesha_clients','ganesha_raw_literal','ganesha_squash','nested_export_filesystem_id','nfs_export_listener_ports','nfs_export_endpoint_ips','nfs_export_principal','nfs_protocols_for_mode','quote_ganesha','render_ganesha_export','safe_export_root_name','truth','write_ganesha_configs','int_config'}
 SMB_HELPERS = {'local_or_ad_name','safe_netbios_name','safe_share_name','samba_principal','smb_conf_quote','smb_creation_lines','smb_creation_policy','smb_effective_read_only','smb_group','smb_hosts_allow_lines','smb_identity','smb_inheritance_lines','smb_inheritance_policy','smb_network_policy','smb_user','truth'}
@@ -108,6 +109,8 @@ def render_smb_candidate(payload, cli, credential_refs=None):
     ad_joined=bool(identity.get('domainName') and identity.get('joinState')=='JOINED')
     workgroup=namespace['derive_ad_workgroup'](identity.get('domainName'),identity_config.get('workgroup'))
     netbios=namespace['safe_netbios_name'](payload.get('netbiosName') or identity_config.get('netbiosName'),payload.get('instanceUuid'))
+    ad_policy=protected_ad_policy(payload['instanceUuid'],identity,netbios) if ad_joined else None
+    namespace.update(ad_policy=ad_policy,ad_qualified_name=ad_qualified_name)
     listeners=[] if payload.get('enabled') is False else (payload.get('listeners') or [{'listenIp':payload.get('listenIp') or '0.0.0.0','port':payload.get('port') or 445}])
     rows=[]
     for item in listeners:
@@ -126,7 +129,7 @@ def render_smb_candidate(payload, cli, credential_refs=None):
     if ad_joined:
         realm=str(identity['domainName']).upper()
         if not re.fullmatch('[A-Z0-9.-]+',realm):raise ValueError('AD rendered realm is invalid')
-        lines+=['   realm = '+realm,'   security = ADS','   kerberos method = secrets and keytab','   winbind use default domain = yes','   winbind enum users = yes','   winbind enum groups = yes','   idmap config * : backend = tdb','   idmap config * : range = 10000-999999']
+        lines+=['   realm = '+ad_policy['realm'],'   security = ADS','   kerberos method = secrets and keytab','   winbind use default domain = yes','   winbind enum users = yes','   winbind enum groups = yes']+ad_policy['idmapLines']
     else:
         lines+=['   security = user']
     files={};manifest_shares=[]
