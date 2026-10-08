@@ -53,6 +53,8 @@ done
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 source_root="${source_root:-${repo_root}/systemvm/debian/usr/local/bin}"
+build_commit="${build_commit:-$(git -C "$repo_root" rev-parse HEAD)}"
+build_time="${build_time:-$(date -u +%Y-%m-%dT%H:%M:%SZ)}"
 output_dir="${output_dir:-${repo_root}/dist/storage-runtime}"
 mkdir -p "$output_dir"
 
@@ -98,6 +100,9 @@ manifest = {
     "buildCommit": commit,
     "buildTime": build_time,
     "files": files,
+    "configurationGenerationSchemaVersion": "1",
+    "identityCapsuleSchemaVersion": "1",
+    "configurationGenerationRootTransfer": ["ADOPT", "ALIGN"],
     "supportedFeatures": ["NESTED_FILE_SHARE", "NFS_NUMERIC_IDENTITY", "POSIX_DIRECTORY_POLICY", "SMB_NETWORK_ACL", "SMB_CREATION_MODE", "SMB_PARENT_OWNER", "SMB_FORCED_IDENTITY"],
 }
 Path(output).write_text(json.dumps(manifest, sort_keys=True, separators=(",", ":")) + "\n", encoding="utf-8")
