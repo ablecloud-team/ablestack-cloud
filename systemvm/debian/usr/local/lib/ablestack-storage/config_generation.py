@@ -117,7 +117,8 @@ class Generation:
         return {"success": True, "generationSupported": True, "runtimeRevision": current.get("revision", 0),
                 "generation": current, "pendingOperationUuid": pending.get("operationUuid") if pending else None,
                 "generationStatus": "PENDING" if pending else ("IN_SYNC" if current and current.get("configurationSha256") == digest else "UNVERIFIED"),
-                "configurationSha256": digest, "configurationDesiredState": self.files()}
+                "configurationSha256": digest, "configurationDesiredState": self.files(),
+                "bootId":str(uuid.UUID(Path("/proc/sys/kernel/random/boot_id").read_text().strip()))}
 
     def request(self, request):
         result = dict(request)
