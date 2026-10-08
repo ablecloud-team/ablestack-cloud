@@ -51,7 +51,7 @@ actual ADE 707/old Runtime 2는 새 profile proof를 default fail-closed 한다.
 
 private USER T_source를 정상 등록해 owner/launch 권한·zone Ready/KVM/x86_64·checksum/protected manifest/POM/S/canonical key를 확인한다. SYSTEM 전역 selector를 바꾸지 않는다. 실제 template/runtime/catalog/artifact UUID 를 반환값으로 고정한다.
 
-소스 검토 당시 CreateSharedFS custom form/request builder에는 templateid가 없었다. 일반 사용자 SYSTEM 선택은 기존 form/select로 optional templateid를 보완한 별도 기능 source다. default 미지정은 기존 동작을 유지하고, API가 반환한 SYSTEM/Ready/scalable/KVM/zone/arch/owner-context 조건을 확인한다. 실제 제출·성공 Cua 검증 전 source-only로 표시한다.
+소스 검토 당시 CreateSharedFS custom form/request builder에는 templateid가 없었다. 이후 SYSTEM selector 와 ROOT SPARSE/FAT Create-only 필터를 각각 source / 실제 UI 부정 범위로 검증했다. ROOT150 의 actual SPARSE default / THIN disabled 는 새 VM 생성 성공과 별개다. 일반 사용자 SYSTEM 선택은 기존 form/select로 optional templateid를 보완한 별도 기능 source다. default 미지정은 기존 동작을 유지하고, API가 반환한 SYSTEM/Ready/scalable/KVM/zone/arch/owner-context 조건을 확인한다. 실제 제출·성공 Cua 검증 전 source-only로 표시한다.
 
 일반 사용자 생성 F_UI는 정상 UI의 eligible SYSTEM 선택 또는 default와 SPARSE SO/DO로 검증한다. 별도 Root5/DATA20 예산25 GiB를 추가하고 exact SYSTEM UUID/실제 request/job/결과를 고정한다. SYSTEM prototype을 전역 등록해 후보를 억지로 만들지 않는다. eligible SYSTEM이 없으면 explicit UI success는 OPEN으로 남는다.
 
@@ -121,7 +121,7 @@ F2 검증 후 client quiesce와 getSharedFileSystemDeletionPlan의 actual 목록
 
 기존 ROOT upgrade form은 listStorageServiceSystemVmTemplates의 일반 SYSTEM target selector/preflight/execute를 재사용한다. private USER target의 승인 artifact UUID/SHA는 일반 폼에 없고 내부 API-only foundation이다. 해당 API job의 실제 UI history/status 조회와 일반 SYSTEM target의 실제 UI 선택·실행은 다른 증거다. eligible SYSTEM target이 없으면 사용자 ROOT UI success는 OPEN이며 hidden Vue mutation/browser API injection으로 우회하지 않는다.
 
-F1 current all4/identity/DATA/Root pin과 정식 maintenance Root4를 freeze한다. private USER T_target 승인/preflight/UI upgrade→PRESTOP→quiesce→AFTERSTOP encrypted source→swap→bootstrap/signed code/identity/mount/attest→all4 stage/activate/verify/commit/finalize를 job/history/guest와 연결한다. 명시 maintenance의 interruption이며 열린 handle 연속성을 주장하지 않는다.
+F1 current all4/identity/DATA/Root pin과 정식 maintenance Root4를 freeze한다. private USER T_target 의 내부 API-only 승인/preflight/upgrade와 실제 UI job/history 조회→PRESTOP→quiesce→AFTERSTOP encrypted source→swap→bootstrap/signed code/identity/mount/attest→all4 stage/activate/verify/commit/finalize를 job/history/guest와 연결한다. 명시 maintenance의 interruption이며 열린 handle 연속성을 주장하지 않는다.
 
 같은 bytes의 다른 templateUUID는 Root/transaction 교체 subset이다. OS/kernel/package gate는 실제 다른 approved artifact/capability delta가 있어야 한다. supplied target 없이 이름/detail만 바꿔 upgrade를 주장하지 않는다.
 
@@ -131,7 +131,7 @@ precommit fault는 latest source Root/data/canonical7/gen/runtime로 정상 swap
 
 OOBE 사용자 완료 회신과 actual 완료 확인 뒤만 기존 승인된 Client 47 DNS→DC.2/hostname/join/reboot를 한다. 회신이 없으면 conditional OPEN으로 남기고 다른 기능을 계속한다. 질문 반복/OOBE·약관·암호 우회는0이다.
 
-F3 isolated DHCP/route/DNS/MAC·SPARSE Root/Data·fresh handler/normal signed pin/profile을 확인한다. 새 AD test user/group/alias scope와 cleanup을 고정하고 UI/API join/leave/principal receipt, DC/DNS/SPN/NetBIOS/machineSID/keytab/idmap, Windows Kerberos/CIFS alias/AD user-group ACL positive/denied를 검증한다. source-only proof는 actual join/identity 복원이 아니다.
+F3 isolated DHCP/route/DNS/MAC·SPARSE Root/Data·fresh handler/normal signed pin/profile을 확인한다. 새 AD test user/group/alias scope와 cleanup을 고정하고 UI/API join/leave/principal receipt, DC/DNS/SPN/NetBIOS/machineSID/keytab/idmap, Windows Kerberos/CIFS alias/AD user-group ACL positive/denied를 검증한다. source-only proof는 actual join/identity 복원이 아니다. native ordinary117 의 typed JOIN/LEAVE·SAM bootstrap 은 source / 합성 net writer 범위이며 Cloud AD0 이다. seed cleanup / absence exact8 은 WIP PIN0 / 새 image0 이므로 단일 image 를 새로 빌드한 뒤 fresh 두 guest SID 고유성을 실제 검증해야 한다.
 
 `#915`: 서로 다른 parent1001001:1001001/setgid2775의 AD 생성·old owner 보존·RO/invalid 거절·기본복귀. `#908`: 관리ID>=10000의 AD/local force identity·권한제거 뒤 auth-success/tree-denied·실principal audit·NFS policy 일치. `#916`: SID→UID/GID/defaultACL/protectedID/충돌을 검증한다.
 
@@ -180,3 +180,9 @@ NEW10 TiB actual metadata/identity/ROOT 제외/formatter budget/deadline·bounde
 | #1275 | 마지막 STOP | 기능시험만, 최종11탭 QA 전에 사용자 대기 |
 
 다른 이슈의 style/theme 잔여도 #1275 경계로 표시해 기능 완료와 혼동하지 않는다. functional만 끝났다고 조기 close하지 않고 source gap은 pin/live/actual proof까지 OPEN으로 남긴다.
+
+## 최신 기능 소스와 실제 효과 경계
+
+2026-10-09 native 일반 JOIN/LEAVE 117, ROOT Create 필터 UI150, 신원 포함 백업 UI141 및 복원 승인 UI161 source 결과를 구분한다. 현재 actual MGT 는 ADE707 이며 새 AD fresh/backup/restore producer 전체 기능은 아직 실제 효과를 검증하지 않았다. UI 는 `adIdentityRestoreRequiresMaintenance === true` 에서만 명시적 중단 승인과 사용자 exact name 을 전달하고, source authorization / issuer / 원본 권한은 서버가 검증한다. UI 에 sourceauth JSON 이나 private key 를 입력하지 않는다. LKG maintenance getter / adapter 보완도 source API 정합성 체크포인트에 포함한다.
+
+seed8 proof 는 `/root/work/epic898-preparation/template-identity-seed-eight-proof.json` 이다. 기존 fc3e 공개 SAM seed 보존 증거를 새 sanitized image 성공으로 재표시하지 않는다. 실제 새 VM / template 등록 / AD / ROOT 효과와 최종 UI #1275 착수는 각각 별도 gate 로 유지한다.
