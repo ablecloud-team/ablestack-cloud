@@ -106,6 +106,13 @@ class StoragePosixRootInitializationTest(unittest.TestCase):
         real = self.journal_path.with_suffix(".real"); self.journal_path.rename(real); self.journal_path.symlink_to(real)
         with self.assertRaises(ValueError): self.initializer.preview(self.request, self.before, self.descriptor)
 
+    def test_cli_embeds_post_apply_receipt_without_an_unsigned_guest_import(self):
+        helper = SOURCE.with_name("posix_policy_receipt.py").read_text().split('"""Post-apply POSIX', 1)[1]
+        helper = helper.replace("from posix_root_initialization import root_receipt_read, root_receipt_write\n", "")
+        cli = SOURCE.parents[2] / "bin/ablestack-storagectl"
+        self.assertTrue(helper.strip() in cli.read_text(), "POSIX receipt closure differs from signed CLI")
+        self.assertNotIn("from posix_policy_receipt import", cli.read_text())
+
     def test_cli_embeds_the_complete_helper_without_a_new_guest_import(self):
         cli = SOURCE.parents[2] / "bin/ablestack-storagectl"
         embedded = SOURCE.read_text().split('"""Explicit one-inode', 1)[1].strip()

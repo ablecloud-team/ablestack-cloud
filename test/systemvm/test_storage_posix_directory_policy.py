@@ -28,10 +28,12 @@ import shutil
 import stat
 import subprocess
 import tempfile
+import time
 import unittest
 import uuid
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import patch
 SOURCE = Path(__file__).resolve().parents[2] / 'systemvm/debian/usr/local/bin/ablestack-storagectl'
 BLOCK = re.search("<<'PYPOSIX'\n(.*?)\nPYPOSIX", SOURCE.read_text(), re.S).group(1)
 NODES = [node for node in ast.parse(BLOCK).body if isinstance(node, ast.FunctionDef)]
@@ -55,8 +57,13 @@ class PosixDirectoryPolicyTest(unittest.TestCase):
         proxy = SimpleNamespace(**{name: getattr(os, name) for name in ('O_RDONLY', 'O_DIRECTORY', 'O_NOFOLLOW', 'fstat', 'close', 'chown', 'chmod')})
         proxy.path = path; proxy.lstat = lambda value: os.lstat(mapped(value))
         proxy.open = lambda value, *args, **kwargs: os.open(mapped(value), *args, **kwargs)
-        self.ns = {'os': proxy, 'subprocess': subprocess, 'tempfile': tempfile, 're': re, 'uuid': uuid, 'json': json, 'hashlib': hashlib, 'stat': stat, 'pwd': pwd, 'grp': grp, 'desired': {}}
-        exec(compile(ast.Module(body=NODES, type_ignores=[]), str(SOURCE), 'exec'), self.ns)
+        for name in ("geteuid", "fchmod", "fdopen", "fsync", "replace", "unlink"):
+            setattr(proxy, name, getattr(os, name))
+        path.dirname = os.path.dirname;path.exists = os.path.exists
+        proxy.environ = os.environ
+        self.ns = {'Path': Path, 'time': time, 'IDENTITY_FIELDS': ('filesystemUuid', 'device', 'inode', 'effectiveUid', 'effectiveGid', 'effectiveMode', 'aclSha256'), 'os': proxy, 'subprocess': subprocess, 'tempfile': tempfile, 're': re, 'uuid': uuid, 'json': json, 'hashlib': hashlib, 'stat': stat, 'pwd': pwd, 'grp': grp, 'desired': {}}
+        definitions = [node for node in ast.parse(BLOCK).body if isinstance(node, (ast.FunctionDef, ast.ClassDef))]
+        exec(compile(ast.Module(body=definitions, type_ignores=[]), str(SOURCE), 'exec'), self.ns)
         original_run = self.ns['run']
         def run(argv, **kwargs):
             if argv[0] == 'findmnt':
@@ -102,6 +109,105 @@ class PosixDirectoryPolicyTest(unittest.TestCase):
         for value in ('../etc', '/etc', 'shared//child'):
             request = dict(self.request, relativePath=value)
             with self.assertRaises(ValueError): self.ns['path_identity'](request)
+
+    def dispatch(self, operation):
+        state = Path(self.temp.name) / "policies.json"
+        self.ns.update(operation=operation, state_path=str(state))
+        tail = BLOCK[BLOCK.index("initializer = RootInitialization()"):BLOCK.index("os.close(directory_fd)\nprint(json.dumps(result")]
+        with patch.dict(os.environ, {"ABLESTACK_STORAGE_POSIX_RECEIPTS": str(Path(self.temp.name) / "receipts")}):
+            exec(compile(tail, str(SOURCE), "exec"), self.ns)
+        return self.ns["result"]
+
+    def test_boot_replay_after_explicit_owner_mode_acl_change_is_nonmutating_and_byte_identical(self):
+        before = self.snapshot()
+        self.request["config"].update(applyOwner=True, ownerUid=65534, ownerGid=65534)
+        self.request["expectedDirectoryIdentity"] = before["directoryIdentity"]
+        child = self.child.stat()
+        after = self.dispatch("apply")
+        self.assertEqual(65534, after["effectiveUid"]);self.assertTrue(after["postApplyReceiptVerified"])
+        state = Path(self.ns["state_path"]); state_info = state.stat(); state_bytes = state.read_bytes()
+        receipt = Path(self.temp.name) / "receipts" / (self.request["uuid"] + ".json")
+        receipt_info = receipt.stat(); receipt_bytes = receipt.read_bytes()
+        # Simulate a new boot process loading the protected committed desired bytes.
+        self.ns["desired"] = json.loads(state_bytes)
+        original_run = self.ns["run"]
+        def readonly(argv, **kwargs):
+            self.assertNotEqual("setfacl", argv[0]);return original_run(argv, **kwargs)
+        self.ns["run"] = readonly
+        self.ns["os"].chown = lambda *args: self.fail("boot performed chown")
+        self.ns["os"].chmod = lambda *args: self.fail("boot performed chmod")
+        second = self.dispatch("apply")
+        self.assertTrue(second["alreadyEffective"]);self.assertEqual(after["directoryIdentity"], second["directoryIdentity"])
+        self.assertEqual(state_bytes, state.read_bytes());self.assertEqual(state_info, state.stat())
+        self.assertEqual(receipt_bytes, receipt.read_bytes());self.assertEqual(receipt_info, receipt.stat())
+        self.assertEqual(child, self.child.stat())
+
+    def test_boot_replay_rejects_changed_acl_and_replaced_inode_without_metadata_effects(self):
+        self.request["expectedDirectoryIdentity"] = self.snapshot()["directoryIdentity"]
+        self.dispatch("apply")
+        subprocess.run(["setfacl", "-m", "u:10008:r-x", str(self.directory)], check=True)
+        changed = self.snapshot()["directoryIdentity"]
+        with self.assertRaises(ValueError):self.dispatch("apply")
+        self.assertEqual(changed, self.snapshot()["directoryIdentity"])
+        # Even a replacement with equal permissions cannot adopt the committed receipt.
+        self.directory.rename(self.root / "original")
+        self.directory.mkdir();self.directory.chmod(0o2775)
+        new_info = self.directory.stat()
+        with self.assertRaises(ValueError):self.dispatch("apply")
+        self.assertEqual(new_info, self.directory.stat())
+
+    def test_boot_missing_legacy_receipt_does_not_approve_stale_preview(self):
+        self.request["expectedDirectoryIdentity"] = self.snapshot()["directoryIdentity"]
+        self.dispatch("apply")
+        receipt = Path(self.temp.name) / "receipts" / (self.request["uuid"] + ".json")
+        receipt.unlink()
+        observed = self.snapshot()["directoryIdentity"]
+        with self.assertRaises(ValueError):self.dispatch("apply")
+        self.assertEqual(observed, self.snapshot()["directoryIdentity"])
+
+    def test_foreign_or_unprotected_post_receipt_cannot_attest_an_existing_policy(self):
+        self.request["expectedDirectoryIdentity"] = self.snapshot()["directoryIdentity"]
+        self.dispatch("apply")
+        receipt = Path(self.temp.name) / "receipts" / (self.request["uuid"] + ".json")
+        original = receipt.read_text(); observed = self.snapshot()["directoryIdentity"]
+        foreign = json.loads(original);foreign["scope"]["revision"] += 1
+        receipt.write_text(json.dumps(foreign))
+        with self.assertRaises(ValueError):self.dispatch("apply")
+        self.assertEqual(observed, self.snapshot()["directoryIdentity"])
+        receipt.write_text(original);receipt.chmod(0o644)
+        with self.assertRaises(ValueError):self.dispatch("apply")
+        self.assertEqual(observed, self.snapshot()["directoryIdentity"])
+        receipt.chmod(0o600);saved=receipt.with_suffix(".saved");receipt.rename(saved);receipt.symlink_to(saved)
+        with self.assertRaises(ValueError):self.dispatch("apply")
+        self.assertEqual(observed, self.snapshot()["directoryIdentity"])
+
+    def test_restore_rejects_a_foreign_receipt_before_metadata_inverse(self):
+        self.request["expectedDirectoryIdentity"] = self.snapshot()["directoryIdentity"]
+        self.dispatch("apply")
+        snapshot = self.dispatch("inspect")
+        self.request = {**self.request, "revision": 2, "expectedDirectoryIdentity": snapshot["directoryIdentity"],
+                        "config": {**self.request["config"], "directoryMode": "0775"}}
+        self.ns["request"] = self.request
+        self.dispatch("apply"); observed = self.snapshot()["directoryIdentity"]
+        snapshot["previousPostApplyReceipt"]["requestSha256"] = "0" * 64
+        self.request = snapshot;self.ns["request"] = snapshot
+        with self.assertRaises(ValueError):self.dispatch("restore")
+        self.assertEqual(observed, self.snapshot()["directoryIdentity"])
+
+    def test_restore_reinstates_exact_previous_policy_receipt_then_boot_is_noop(self):
+        self.request["expectedDirectoryIdentity"] = self.snapshot()["directoryIdentity"]
+        self.dispatch("apply")
+        old = dict(self.request);old["config"] = dict(old["config"])
+        snapshot = self.dispatch("inspect")
+        self.request = {**old, "revision": 2, "expectedDirectoryIdentity": snapshot["directoryIdentity"],
+                        "config": {**old["config"], "directoryMode": "0775"}}
+        self.ns["request"] = self.request
+        self.dispatch("apply")
+        self.request = snapshot;self.ns["request"] = self.request
+        self.dispatch("restore")
+        self.request = old;self.ns["request"] = old
+        result = self.dispatch("apply")
+        self.assertTrue(result["alreadyEffective"]);self.assertEqual(snapshot["directoryIdentity"], result["directoryIdentity"])
 
     def select_filesystem_root(self):
         self.request = dict(self.request, relativePath="", allowFilesystemRoot=True,
