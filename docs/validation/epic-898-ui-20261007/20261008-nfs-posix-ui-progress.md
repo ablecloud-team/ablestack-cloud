@@ -23,3 +23,13 @@ Chrome에서 name epic898-ui-root-squash09, 현재 볼륨, 새 leaf 생성, root
 ![승인 토큰의 API 입력 제한 오류](posix-approval-token-api-limit-ui.png)
 
 apply 이후 읽기 검사에서 leaf/newfile/원래 sentinel의 inode·UID/GID·mode·SHA가 모두 그대로다. actual policy 적용 및 NFS noRootSquash 업데이트는 아직 없다. source2403741e5b5의 UI오류는 승인 토큰을 출력하지 않고 API errortext만 표시하도록 개선됐으며 8개 테스트/lint가 통과했다. 새 생산 빌드는 진행 중이고 actual 재검증은 API수정 배포 후 수행한다.
+
+## API 수정 배포 후 실제 적용
+
+3d3209df8fb의 previewtoken 필드만 기존 crypto 상한131072자로 설정한 직접 컴파일 class68853ed...를 기존 d3f9 관리 JAR 위에1개 항목으로 배포했다. 기존 JAR의 다른 바이트를 보존했고 19:17:40KST 새PID1139523에서10:18:32UTC 새로운 admin API·7Running·3UpEnabled를 확인했다. JAR SHA는9c0f16ce57be9ab32d154aadbc72bffc0e82342a5a684dbb166b6813cca0108a이다. 다른 source WIP 및 agent 변경은 포함하지 않았다.
+
+Chrome에서 정상 재로그인 후 같은 NFS 편집→noRootSquash draft→명시owner0:0/mode0770→새preview→확인 체크→policy적용을 다시 수행했다. operationf9ec2935-8017-4a5c-8ba2-1e45fb0165c1은 COMPLETE/generation20이며 정책56cee470-44ba-486e-a6fb-f3ba71498389/revision1/Ready로 저장됐다. 별도 NFS 편집에서 이 정책을 참조하는 noRootSquash 업데이트 operationd5cb721a-c1b4-4909-bf30-b2c266e1812d도 COMPLETE/generation21이다.
+
+실제 UI 목록에 rootSquash아니오/allSquash아니오 및 공통 policy0:0/0770/CONSISTENT가 표시된다. 적용은 새 테스트 leaf 한 디렉터리이며 기존 하위 파일·원래 DATA root는 대상이 아니다. 실제 클라이언트 쓰기 및 하위 파일 inode·소유권·내용 보존 확인은 별도 진행 중이다.
+
+![실제 no root squash와 공통 정책 적용](nfs-no-root-posix-applied-ui.png)
