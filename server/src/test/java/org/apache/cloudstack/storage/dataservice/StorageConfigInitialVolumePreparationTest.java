@@ -34,6 +34,8 @@ public class StorageConfigInitialVolumePreparationTest {
         protected void requireNewVolumeFormatSupport(StorageServiceInstanceVO instance) { }
     }
     private void sparse(Manager manager) {
+        ReflectionTestUtils.setField(manager,"configurationVolumeDetailsDao",Mockito.mock(com.cloud.storage.dao.VolumeDetailsDao.class));
+        Mockito.when(manager.volume.getVolumeType()).thenReturn(com.cloud.storage.Volume.Type.DATADISK);
         Mockito.when(manager.volume.getProvisioningType()).thenReturn(com.cloud.storage.Storage.ProvisioningType.SPARSE);
         com.cloud.storage.dao.DiskOfferingDao offerings=Mockito.mock(com.cloud.storage.dao.DiskOfferingDao.class);
         com.cloud.storage.DiskOfferingVO offering=Mockito.mock(com.cloud.storage.DiskOfferingVO.class);

@@ -355,8 +355,12 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
         }
         // Validate the entire plan before the first detach or VM removal.
         for (Long id : volumeIds) {
-            VolumeVO volume = volumeDao.findById(id);
-            if (volume == null) continue;
+            VolumeVO volume = volumeDao.findByIdIncludingRemoved(id);
+            if (volume == null) throw new CloudRuntimeException("A reviewed DATA row disappeared without retained identity; VM removal is blocked");
+            if (policy == SharedFS.DataVolumePolicy.PRESERVE_VOLUMES && (volume.getRemoved() != null
+                    || volume.getState() == Volume.State.Destroy || volume.getState() == Volume.State.Expunging || volume.getState() == Volume.State.Expunged)) {
+                throw new CloudRuntimeException("A reviewed DATA volume was removed externally; preservation cannot be claimed");
+            }
             if (volume.getVolumeType() != Volume.Type.DATADISK || volume.getAccountId() != sharedFS.getAccountId()) {
                 throw new CloudRuntimeException("Deletion plan contains a non-data volume or a foreign account volume");
             }
@@ -377,8 +381,9 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
         if (vmId != null) expungeVm(vmId);
         if (policy == SharedFS.DataVolumePolicy.DELETE_VOLUMES) {
             for (Long id : volumeIds) {
-                VolumeVO volume = volumeDao.findById(id);
-                if (volume == null || volume.getState() == Volume.State.Destroy || volume.getState() == Volume.State.Expunging || volume.getState() == Volume.State.Expunged) continue;
+                VolumeVO volume = volumeDao.findByIdIncludingRemoved(id);
+                if (volume == null) throw new CloudRuntimeException("Reviewed DATA identity disappeared during deletion");
+                if (volume.getRemoved() != null || volume.getState() == Volume.State.Destroy || volume.getState() == Volume.State.Expunging || volume.getState() == Volume.State.Expunged) continue;
                 boolean allocated = volume.getState() == Volume.State.Allocated;
                 Volume removed = volumeApiService.destroyVolume(id, CallContext.current().getCallingAccount(), allocated, allocated, null);
                 VolumeVO remaining = volumeDao.findById(id);

@@ -69,4 +69,17 @@ public class StorageSmbIdentityRepairRuntimeTest {
         Assert.assertThrows(CloudRuntimeException.class,()->manager.requireIdentityRollbackSafe(instance,operation));Assert.assertEquals(0,manager.rebinds);
         Mockito.verify(operations,Mockito.never()).update(Mockito.anyLong(),Mockito.any());
     }
+    @Test public void exactRecoveryRetryClearsStaleFailureDiagnosticAndKeepsOriginalScope() {
+        manager.foreignAfter=true;
+        Assert.assertThrows(CloudRuntimeException.class,()->manager.recoverSmbIdentityRepair(instance,operation));
+        JsonObject frozen=com.google.gson.JsonParser.parseString(operation.getPreviousSnapshotJson()).getAsJsonObject();
+        Assert.assertEquals("SMB_REPAIR_READBACK_REQUIRED",com.google.gson.JsonParser.parseString(operation.getResultJson()).getAsJsonObject().get("errorCode").getAsString());
+        manager.foreignAfter=false;
+        manager.recoverSmbIdentityRepair(instance,operation);
+        Assert.assertEquals("COMPLETE_NO_CONFIG_CHANGE",operation.getState());
+        Assert.assertFalse(operation.getDiagnostic().contains("requires exact"));
+        Assert.assertFalse(com.google.gson.JsonParser.parseString(operation.getResultJson()).getAsJsonObject().has("errorCode"));
+        Assert.assertEquals(frozen,com.google.gson.JsonParser.parseString(operation.getPreviousSnapshotJson()));
+    }
+
 }
