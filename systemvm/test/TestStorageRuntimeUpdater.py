@@ -141,6 +141,44 @@ class StorageRuntimeUpdaterTest(unittest.TestCase):
         result = subprocess.run([str(self.entrypoint_root / "ablestack-storagectl")], text=True, capture_output=True, check=True)
         self.assertEqual("bootstrap", result.stdout.strip())
 
+    def activate_signed(self):
+        self.run_updater("bootstrap")
+        request = self.stage_transaction()
+        self.run_updater("activate", request)
+        return request
+
+    def test_signed_readback_verifies_exact_release_and_has_no_state_or_target_writes(self):
+        request = self.activate_signed()
+        before = {str(path): (path.read_bytes(), path.stat().st_mtime_ns) for path in self.temp.rglob('*') if path.is_file() and not path.is_symlink()}
+        result = self.run_updater("readback", request)
+        self.assertTrue(result["signedRuntimeVerified"])
+        self.assertTrue(result["installedFilesVerified"])
+        self.assertTrue(result["entrypointsVerified"])
+        after = {str(path): (path.read_bytes(), path.stat().st_mtime_ns) for path in self.temp.rglob('*') if path.is_file() and not path.is_symlink()}
+        self.assertEqual(before, after)
+
+    def test_signed_readback_rejects_different_scope_installed_bytes_and_entrypoint_binding(self):
+        request = self.activate_signed()
+        different = self.run_updater("readback", dict(request, archiveSha256="0" * 64), success=False)
+        self.assertEqual("RUNTIME_READBACK_SCOPE_MISMATCH", different["errorCode"])
+        entrypoint = self.entrypoint_root / ENTRYPOINTS[0]
+        entrypoint.unlink()
+        entrypoint.symlink_to(self.runtime_root / 'releases/v2' / ENTRYPOINTS[0])
+        wrong_binding = self.run_updater("readback", request, success=False)
+        self.assertEqual("RUNTIME_ENTRYPOINT_BINDING_INVALID", wrong_binding["errorCode"])
+        entrypoint.unlink()
+        entrypoint.symlink_to(self.runtime_root / 'current' / ENTRYPOINTS[0])
+        target = self.runtime_root / 'releases/v2' / ENTRYPOINTS[0]
+        target.write_text('#!/bin/bash\necho changed\n')
+        changed = self.run_updater("readback", request, success=False)
+        self.assertEqual("RELEASE_HASH_MISMATCH", changed["errorCode"])
+
+    def test_unsigned_bootstrap_cannot_pass_signed_readback(self):
+        self.run_updater("bootstrap")
+        request = self.stage_transaction()
+        result = self.run_updater("readback", request, success=False)
+        self.assertEqual("SIGNED_RUNTIME_NOT_INSTALLED", result["errorCode"])
+
     def test_manifest_signature_tamper_is_rejected(self):
         self.run_updater("bootstrap")
         archive = self.build_bundle("tampered")
