@@ -34,6 +34,8 @@ class RenderedPrerequisites:
         snapshots = {};plans = {}
         for key in sorted(set(before) | set(after)):
             if before.get(key) == after.get(key): continue
+            if root_transfer is not None and root_transfer.get("retainedRootAuthorization") and key not in after:
+                continue # Drop historical canonical policy without DATA/receipt effects.
             row = after.get(key) or before[key]
             request = row.get("request")
             if not isinstance(request, dict) or str(uuid.UUID(request["uuid"])) != key:
@@ -42,7 +44,7 @@ class RenderedPrerequisites:
             expected = request.get("expectedDirectoryIdentity")
             if key in after:
                 if root_transfer is not None:
-                    plan=self.runtime.command(("posix","directory","attest-plan"),{"canonicalPolicyRow":row,**root_transfer})
+                    plan=self.runtime.command(("posix","directory","attest-plan"),{"canonicalPolicyRow":row,**{name:root_transfer[name] for name in ("rootScope","sourceConfigurationSha256")}})
                     if plan.get("transferOnly") is not True:raise ValueError("ROOT POSIX stage lacks its actual receipt-only transfer plan")
                 else:
                     if expected != inspected["directoryIdentity"]:raise ValueError("Directory changed since the explicit permission preview")
