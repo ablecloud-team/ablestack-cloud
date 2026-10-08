@@ -35,6 +35,7 @@ import service_identity_source as module
 from rendered_generation import DESIRED_PATHS,DOMAINS,rendered_json
 from template_maintenance import Maintenance
 from service_maintenance import ServiceMaintenance
+from service_identity_cipher import ServiceIdentityCipher
 
 
 class StorageServiceIdentitySourceTest(unittest.TestCase):
@@ -58,7 +59,7 @@ class StorageServiceIdentitySourceTest(unittest.TestCase):
         self.public=module.ServicePublicIdentity(self.runtime,self.config,run=self.run_command,sid_reader=lambda name:self.local_sid)
         self.public.owners=lambda:copy.deepcopy(self.active);self.public.holders=lambda:copy.deepcopy(self.holders);self.public.listeners_clear=self.listeners_clear
         self.source=module.ServiceIdentitySource(self.driver,self.maintenance_root,self.public,self.writer)
-        self.env={"ABLESTACK_STORAGE_CONFIGURATION_ROOT":str(self.config),"ABLESTACK_STORAGE_VOLUME_OPERATIONS":str(self.root/"volume-journals")}
+        self.env={"ABLESTACK_STORAGE_CONFIGURATION_ROOT":str(self.config),"ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR":str(self.maintenance_root),"ABLESTACK_STORAGE_VOLUME_OPERATIONS":str(self.root/"volume-journals")}
         self.env_patch=patch.dict(os.environ,self.env);self.env_patch.start();self.addCleanup(self.env_patch.stop)
     def writer(self):self.writer_calls+=1
     def run_command(self,args,**kwargs):
@@ -96,7 +97,7 @@ class StorageServiceIdentitySourceTest(unittest.TestCase):
             paths.append(str(path));self.assertNotIn(".tdb",str(path));self.assertNotIn("keytab",str(path));return original(path,*args,**kwargs)
         self.public.public_file=observe
         result=self.source.capture(self.scope);saved=json.loads(self.source.path(self.scope).read_text())
-        self.assertTrue(result["publicAdPreStopCaptured"]);self.assertEqual(self.local_sid,result["publicLocalMachineSid"])
+        self.assertTrue(result["publicAdPreStopCaptured"]);self.assertEqual(self.local_sid,result["publicLocalMachineSid"]);self.assertEqual(Path("/proc/sys/kernel/random/boot_id").read_text().strip(),result["bootId"])
         self.assertEqual("CAPTURED",saved["phase"]);self.assertNotIn("rootSourceConfiguration",saved["sourcePublicIdentity"]);self.assertEqual(0o600,self.source.path(self.scope).stat().st_mode&0o777)
         self.assertTrue(any("ad-machine.conf" in path for path in paths));self.assertFalse(any(args[0]=="systemctl" for args in self.calls))
     def test_mixed_root_uuid_invalid_types_or_foreign_generation_are_rejected_before_record(self):
@@ -193,7 +194,7 @@ class StorageServiceIdentitySourceTest(unittest.TestCase):
             return self.source.export_source(payload)
         namespace={"request":request,"action":"export","re":re,"Path":Path,"json":json,"identity_command":command,"validate_ad_identity":validate_ad_identity,
                    "validate_payload":validate_payload,"encrypt":encrypt,
-                   "collect":lambda *args,**kwargs:collections.append(kwargs) or {"schemaVersion":1,"files":{},"accounts":{}}}
+                   "collect":lambda *args,**kwargs:collections.append(kwargs) or {"schemaVersion":1,"files":{},"accounts":{}},"ServiceIdentityCipher":ServiceIdentityCipher}
         output=io.StringIO()
         with contextlib.redirect_stdout(output):exec(compile(ast.Module(body=nodes,type_ignores=[]),str(cli),"exec"),namespace)
         capsule=json.loads(output.getvalue())["capsule"]
