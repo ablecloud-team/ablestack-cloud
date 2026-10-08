@@ -20,6 +20,7 @@ import pwd
 import grp
 from rendered_generation import rendered_read
 from rendered_network import RenderedNetwork
+from ad_authority import ad_mapped_entry
 
 
 class RenderedPrerequisites:
@@ -119,6 +120,9 @@ class RenderedPrerequisites:
                     elif kind=="NUMERIC_GID":name="group";number=int(principal)
                     elif kind=="LOCAL_USER":name="user";number=pwd.getpwnam(principal).pw_uid
                     elif kind=="LOCAL_GROUP":name="group";number=grp.getgrnam(principal).gr_gid
+                    elif kind in ("AD_USER","AD_GROUP"):
+                        mapped=ad_mapped_entry(entry,request,cli=self.runtime.cli)
+                        name="user" if mapped["kind"]=="u" else "group";number=mapped["numericId"]
                     else:raise ValueError("Rendered principal mapping needs its implemented identity adapter")
                     permission="r-x" if entry["permission"]=="READ_ONLY" else "rwx"
                     expected=("default:" if default else "")+name+":"+str(number)+":"+permission
