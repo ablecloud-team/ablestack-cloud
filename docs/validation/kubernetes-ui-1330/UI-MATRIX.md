@@ -29,12 +29,12 @@ for the specific language governing permissions and limitations. -->
 | PF | public/guest port pair·VM/NIC 목적 그룹, VM352 18443→18080 생성·18081 변경/원복·삭제 | PASS |
 | LB | VM352만 선택·기본 NIC 지정, 18444→18080 생성·CIDR/알고리즘 편집·VM 해제/재연결·태그 추가/삭제 | PASS, 수동 규칙 정리 기록은 README |
 | 실제 통신 | Windows 시험 PC 10.10.21.101/32에서 PF/LB `UI1330 backend OK` 응답 | PASS |
-| 갱신 | 기존 규칙 및 대상 행 유지·전체 skeleton0/spinner0·버튼만 loading1·toolbar gap8px | PASS, 최종 재확인은 README |
-| SourceBased | 정책 생성은 PASS; 테이블 크기/만료시간 재열기 누락을 #1331에 등록·복원 패치·회귀 검사 | 최종 배포 재검증 기록은 README |
+| 갱신 | 기존 규칙 및 대상 행 유지·전체 skeleton0/spinner0·버튼만 loading1·toolbar gap8px | PASS, 최종 패키지의 실 화면 재확인 완료 |
+| SourceBased | 재열기 누락 #1331 복원 패치·회귀 검사, 실제 10k/30m 재열기→20k/40m 수정·재열기→정책 제거 | PASS |
 | 보호 | API6443 LB/PF·관리 SSH 규칙 체크박스/설정/태그/삭제 비활성화, 일반 규칙 작업 가능 | PASS |
 | ISO | 이름 검색1건·URL 등록·잘못된 semantic version API431 및 입력 유지·state-only 수정·Disabled | PASS |
 | ISO 다운로드 | 기존 Release URL은 관리 서버 redirect=false 정책으로 HTTP302 차단. #1228/#1230에 명시된 전제조건 | 시험 중 true/종료 후 false 복구 승인 대기 |
-| ISO 로컬 업로드 | live API 제공과 업로드 아이콘 진입 확인, 실제 로컬 폼·다크 가이드·필수값 거절 확인; ISO 파일 전송은 미실행 | 실 업로드 미검증 |
+| ISO 로컬 업로드 | live API·1000px 폼·다크 가이드·필수값 거절 확인, 공개 Release ISO 832,899,072bytes 및 SHA-256 확인 | Chrome 확장 로컬 파일 권한 제한으로 사용자 파일 선택 대기; 실제 전송 미검증 |
 | 공통 화면 | 일반 VM strict custom root120GB/GFS2 생성, 공통 네트워크 화면/이벤트 목록·코멘트 생성/삭제 | PASS, #1233 회귀 수정 포함 |
 | 테마 | 주요 입력/안내문/표·팝업 light/dark, ko/en; 실제 언어 전환 후 LB VM 머리글 반영 | PASS |
 | 좁은 화면 | 390×844, 화면 body380px·대화상자380px, 내용 내부 표 스크롤, 기본 viewport 복구 | PASS |
