@@ -17,11 +17,11 @@
 
 import Upgrade from '@/views/storage/StorageServiceRuntimeUpgrade'
 import Compatibility from '@/views/storage/StorageRuntimeCompatibility'
-import { getAPI } from '@/api'
+import { getAPI, postAPI } from '@/api'
 jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
 
 describe('Verified runtime consumer observations', () => {
-  beforeEach(() => getAPI.mockReset())
+  beforeEach(() => { getAPI.mockReset(); postAPI.mockReset() })
   it.each(['broken', 'null', '[]'])('treats malformed consumer observation %s as unverified', consumerobservation => {
     expect(Upgrade.computed.consumerObservation.call({ capability: { consumerobservation } })).toEqual({})
   })
@@ -57,6 +57,28 @@ describe('Verified runtime consumer observations', () => {
     resolveCapability({ getstorageserviceruntimeupgradecapabilitiesresponse: { storageserviceruntimecapability: { currentversion: 'old-service-runtime' } } })
     await pending
     expect(vm.capability.currentversion).toBe('new-service-runtime')
+    expect(vm.$notifyError).not.toHaveBeenCalled()
+  })
+  it('activates only the bundle that completed the displayed preflight', () => {
+    const vm = { loading: false, submitting: false, latestUpgrade: { id: 'reviewed', state: 'PREFLIGHT_READY', bundleid: 'bundle-a' }, selectedBundleId: 'bundle-b', startAsync: jest.fn() }
+    vm.canUpgrade = Upgrade.computed.canUpgrade.call(vm)
+    expect(vm.canUpgrade).toBe(false)
+    Upgrade.methods.runUpgrade.call(vm)
+    expect(vm.startAsync).not.toHaveBeenCalled()
+    vm.selectedBundleId = 'bundle-a'
+    vm.canUpgrade = Upgrade.computed.canUpgrade.call(vm)
+    Upgrade.methods.runUpgrade.call(vm)
+    expect(vm.startAsync).toHaveBeenCalledWith('upgrade', 'upgradeStorageServiceRuntime', { upgradeid: 'reviewed' })
+  })
+  it('does not attach an old service mutation response to a new service', async () => {
+    let complete
+    postAPI.mockImplementation(() => new Promise(resolve => { complete = resolve }))
+    const vm = { generation: 0, submitting: false, resource: { id: 'old' }, $pollJob: jest.fn(), $t: key => key, $notifyError: jest.fn() }
+    Upgrade.methods.startAsync.call(vm, 'upgrade', 'upgradeStorageServiceRuntime', { upgradeid: 'old-upgrade' })
+    vm.generation++; vm.resource = { id: 'new' }
+    complete({ upgradestorageserviceruntimeresponse: { jobid: 'old-job' } })
+    await Promise.resolve()
+    expect(vm.$pollJob).not.toHaveBeenCalled()
     expect(vm.$notifyError).not.toHaveBeenCalled()
   })
 })
