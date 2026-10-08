@@ -289,6 +289,20 @@
                 </a-select>
               </a-form-item>
             </a-col>
+            <a-col v-if="hasTemplateSelection" :xs="24" :md="12">
+              <a-form-item ref="templateid" name="templateid">
+                <template #label>
+                  <tooltip-label :title="$t('label.templateid')" :tooltip="$t('label.template')" />
+                </template>
+                <a-select v-model:value="form.templateid" :loading="templateLoading" showSearch optionFilterProp="label" :filterOption="filterOption">
+                  <a-select-option value="" :label="$t('label.default')">{{ $t('label.default') }}</a-select-option>
+                  <a-select-option v-for="template in systemTemplates" :key="template.id" :value="template.id" :label="template.name">
+                    {{ template.name }}
+                  </a-select-option>
+                </a-select>
+                <a-alert v-if="templateReadError" type="warning" show-icon :message="$t('message.storage.template.read.failed')" />
+              </a-form-item>
+            </a-col>
             <a-col :xs="24" :md="12">
               <a-form-item ref="serviceofferingid" name="serviceofferingid" required>
                 <template #label>
@@ -1071,6 +1085,10 @@ export default {
       zoneLoading: false,
       configLoading: false,
       networks: [],
+      systemTemplates: [],
+      templateLoading: false,
+      templateRequestToken: 0,
+      templateReadError: false,
       networkLoading: false,
       availableVolumes: [],
       volumeLoading: false,
@@ -1120,6 +1138,9 @@ export default {
   computed: {
     isNormalUserOrProject () {
       return ['User'].includes(this.$store.getters.userInfo.roletype) || store.getters.project?.id
+    },
+    hasTemplateSelection () {
+      return !!this.apiParams?.templateid && !!this.$store.getters.apis.listTemplates
     },
     hasStorageServiceApi () {
       return 'listStorageServiceInstances' in this.$store.getters.apis
@@ -1320,11 +1341,12 @@ export default {
       }
     }
   },
-  beforeUnmount () { this.serviceOfferingRequestToken++ },
+  beforeUnmount () { this.serviceOfferingRequestToken++; this.templateRequestToken++ },
   methods: {
     initForm () {
       this.formRef = ref()
       this.form = reactive({
+        templateid: '',
         networkmode: 'DHCP',
         ipcidr: '',
         gateway: '',
@@ -1398,6 +1420,7 @@ export default {
         resizeallowed: true
       })
       this.rules = reactive({
+        templateid: [{ validator: this.validateSystemTemplate, trigger: 'change' }],
         zoneid: [{ required: true, message: this.$t('message.error.zone') }],
         name: [{ required: true, message: this.$t('label.required') }],
         networkid: [{ required: true, message: this.$t('label.required') }],
@@ -1562,6 +1585,11 @@ export default {
       return array !== null && array !== undefined && Array.isArray(array) && array.length > 0
     },
     fetchOwnerOptions (OwnerOptions) {
+      this.templateRequestToken++
+      this.systemTemplates = []
+      this.templateLoading = false
+      this.templateReadError = false
+      if (this.form) this.form.templateid = ''
       this.owner = {}
       const selectedDomain = OwnerOptions.domains?.find(domain => domain.id === OwnerOptions.selectedDomain)
       const selectedProject = OwnerOptions.projects?.find(project => project.id === OwnerOptions.selectedProject)
@@ -1617,11 +1645,51 @@ export default {
       if (!this.selectedZone) {
         return
       }
+      this.form.templateid = ''
+      this.fetchSystemTemplates()
       this.fetchServiceOfferings()
       this.fetchDiskOfferings()
       this.fetchStoragePools()
       this.fetchNetworks()
       this.fetchAvailableVolumes()
+    },
+    templateOwnerScope () {
+      return JSON.stringify({ zoneid: this.selectedZone?.id, domainid: this.owner?.domainid, account: this.owner?.account, projectid: this.owner?.projectid })
+    },
+    isSelectableSystemTemplate (template, zoneId) {
+      return typeof template?.id === 'string' && template.id.trim() !== '' && template.templatetype === 'SYSTEM' && template.isready === true &&
+        String(template.hypervisor || '').toUpperCase() === 'KVM' && template.isdynamicallyscalable === true &&
+        (!template.zoneid || template.zoneid === zoneId) && (!template.arch || template.arch === 'x86_64')
+    },
+    async fetchSystemTemplates () {
+      const request = ++this.templateRequestToken
+      const scope = this.templateOwnerScope()
+      const zoneId = this.selectedZone?.id
+      this.systemTemplates = []
+      this.templateReadError = false
+      if (!zoneId || !this.hasTemplateSelection) { this.templateLoading = false; return }
+      this.templateLoading = true
+      const admin = ['Admin', 'DomainAdmin'].includes(this.$store.getters.userInfo?.roletype)
+      const params = { zoneid: zoneId, hypervisor: 'KVM', system: true, templatefilter: admin ? 'all' : 'executable' }
+      if (admin) params.listall = true
+      if (this.owner.projectid) params.projectid = this.owner.projectid
+      else { params.account = this.owner.account; params.domainid = this.owner.domainid }
+      try {
+        const response = await getAPI('listTemplates', params, { preserveOnFailure: true, timeout: 15000 })
+        if (request !== this.templateRequestToken || scope !== this.templateOwnerScope()) return
+        this.systemTemplates = (response.listtemplatesresponse?.template || []).filter(item => this.isSelectableSystemTemplate(item, zoneId))
+      } catch (error) {
+        if (request === this.templateRequestToken && scope === this.templateOwnerScope()) this.templateReadError = true
+      } finally {
+        if (request === this.templateRequestToken) this.templateLoading = false
+      }
+    },
+    validateSystemTemplate (rule, value) {
+      if (!this.hasFormValue(value)) return Promise.resolve()
+      if (this.templateLoading || this.templateReadError || !this.systemTemplates.some(item => item.id === value && this.isSelectableSystemTemplate(item, this.selectedZone?.id))) {
+        return Promise.reject(this.$t('message.storage.template.read.failed'))
+      }
+      return Promise.resolve()
     },
     offeringReason (offering) {
       const reasons = offering.compatibility?.reasons || ['CONSTRAINTS_UNAVAILABLE']
@@ -1900,6 +1968,13 @@ export default {
         filesystem: existing ? undefined : values.filesystem,
         domainid: this.owner.domainid
       }
+      const templateId = values.templateid ?? this.form?.templateid
+      if (this.hasFormValue(templateId)) {
+        if (this.hasTemplateSelection === false || this.templateLoading || this.templateReadError || !this.systemTemplates?.some(item => item.id === templateId && this.isSelectableSystemTemplate(item, values.zoneid))) {
+          throw new Error(this.$t('message.storage.template.read.failed'))
+        }
+        data.templateid = templateId
+      }
       if (!existing && this.isCustomizedDiskIOps && this.hasFormValue(values.miniops) && this.hasFormValue(values.maxiops)) {
         data.miniops = Number(values.miniops)
         data.maxiops = Number(values.maxiops)
@@ -1962,6 +2037,8 @@ export default {
       }).catch((error) => {
         if (error?.errorFields?.[0]?.name) {
           this.formRef.value.scrollToField(error.errorFields[0].name)
+        } else if (error instanceof Error) {
+          this.$notifyError(error)
         }
       })
     },
