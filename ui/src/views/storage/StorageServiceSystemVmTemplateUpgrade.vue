@@ -128,8 +128,14 @@ export default {
         this.$emit('accepted', { jobid: body.jobid, resourceId: id })
         this.$emit('close-action')
         if (body.jobid && this.pollJob) {
-          this.$pollJob({ jobId: body.jobid, title: this.$t('label.storage.template.execute'), description: name, resourceId: id, showLoading: false,
-            successMethod: () => { if (token === this.scope && id === this.resource.id) this.$emit('operation-updated', id) } })
+          this.$pollJob({
+            jobId: body.jobid,
+            title: this.$t('label.storage.template.execute'),
+            description: name,
+            resourceId: id,
+            showLoading: false,
+            successMethod: () => { if (token === this.scope && id === this.resource.id) this.$emit('operation-updated', id) }
+          })
         } else if (!body.jobid) this.$emit('operation-updated', id)
       } catch (error) { if (token === this.scope) this.error = error.message } finally { if (token === this.scope) this.submitting = false }
     }
