@@ -8692,6 +8692,7 @@
   "label.storage.config.verification": "검증 상태",
   "label.storage.config.runtime.status": "런타임 수집 상태",
   "label.storage.config.verify.baseline": "현재 구성 검증",
+  "message.storage.config.clone.identity.template.required": "AD 신원을 복원하는 새 인스턴스에는 로컬 신원 seed 부재가 확인된 공개 SYSTEM 템플릿을 직접 선택해야 합니다. 적합한 템플릿을 자동 선택하지 않습니다.",
   "message.storage.config.clone.required": "초기 원본 볼륨과 검증된 런타임 번들을 선택하세요.",
   "label.storage.config.secret.coverage": "비밀값 재입력 범위",
   "label.storage.config.target.new": "신규 서비스 복제",

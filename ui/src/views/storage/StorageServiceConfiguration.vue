@@ -96,6 +96,10 @@
         <template v-if="targetMode==='CREATE_NEW'">
           <a-form-item :label="$t('label.name')"><a-input v-model:value="clone.name" :disabled="planPhase==='REVIEW'" /></a-form-item>
           <a-form-item :label="$t('label.zoneid')"><a-select v-model:value="clone.zoneid" :options="cloneOptions.zones" :disabled="planPhase==='REVIEW'" @change="loadCloneZoneOptions" /></a-form-item>
+          <a-form-item v-if="cloneRequiresIdentityTemplate" :label="$t('label.templateid')">
+            <a-select v-model:value="clone.templateid" :options="cloneOptions.templates" :loading="cloneTemplateLoading" :disabled="planPhase==='REVIEW'" show-search option-filter-prop="label" />
+            <a-alert type="info" show-icon :message="$t('message.storage.config.clone.identity.template.required')" />
+          </a-form-item>
           <a-form-item :label="$t('label.networkid')"><a-select v-model:value="clone.networkid" :options="cloneOptions.networks" :disabled="planPhase==='REVIEW'" /></a-form-item>
           <a-form-item :label="$t('label.serviceofferingid')"><a-select v-model:value="clone.serviceofferingid" :options="cloneOptions.offerings" :disabled="planPhase==='REVIEW'" /></a-form-item>
           <a-form-item :label="$t('label.diskofferingid')"><a-select v-model:value="clone.diskofferingid" :options="cloneOptions.disks" :disabled="planPhase==='REVIEW'" /></a-form-item>
@@ -174,8 +178,12 @@ export default {
   components: { CloudDownloadOutlined, UploadOutlined, DownloadOutlined, RollbackOutlined, ReloadOutlined },
   emits: ['operation-updated'],
   props: { instanceId: { type: String, required: true }, instanceName: { type: String, default: '' }, resource: { type: Object, required: true } },
-  data: () => ({ rows: [], loading: false, readFailed: false, generation: 0, busy: '', error: '', backupDialog: false, includeAdIdentity: false, backupMaintenance: false, backupConfirmation: '', includeRuntime: true, retentionHours: 168, planTarget: null, plan: null, planPhase: 'MAPPING', planToken: '', lkgPlan: false, planning: false, volumeMapping: {}, newVolumeSpecs: {}, targetVolumes: [], credentialValues: {}, confirmation: '', restoreMaintenance: false, reviewedPlan: '', confirmFileExecute: false, targetMode: 'RESTORE_EXISTING', clone: { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP', backingvolumemode: 'NEW' }, initialVolumeSource: '', plannedVolume: '', cloneRuntime: '', cloneOptionToken: 0, cloneOptionScope: null, cloneOfferingRows: [], cloneOfferingLoading: false, cloneOfferingError: false, cloneOptions: { zones: [], networks: [], offerings: [], disks: [], pools: [], bundles: [], volumes: [] } }),
+  data: () => ({ rows: [], loading: false, readFailed: false, generation: 0, busy: '', error: '', backupDialog: false, includeAdIdentity: false, backupMaintenance: false, backupConfirmation: '', includeRuntime: true, retentionHours: 168, planTarget: null, plan: null, planPhase: 'MAPPING', planToken: '', lkgPlan: false, planning: false, volumeMapping: {}, newVolumeSpecs: {}, targetVolumes: [], credentialValues: {}, confirmation: '', restoreMaintenance: false, reviewedPlan: '', confirmFileExecute: false, targetMode: 'RESTORE_EXISTING', clone: { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP', backingvolumemode: 'NEW' }, initialVolumeSource: '', plannedVolume: '', cloneRuntime: '', cloneOptionToken: 0, cloneOptionScope: null, cloneOfferingRows: [], cloneOfferingLoading: false, cloneOfferingError: false, cloneTemplateToken: 0, cloneTemplateScope: null, cloneTemplateRows: [], cloneTemplateLoading: false, cloneTemplateError: false, cloneOptions: { zones: [], networks: [], offerings: [], disks: [], pools: [], bundles: [], volumes: [], templates: [] } }),
   computed: {
+    cloneRequiresIdentityTemplate () {
+      const metadata = this.planTarget?.metadata || {}
+      return metadata.adIdentitySourceDescriptor !== undefined || metadata.adIdentityCoverage !== undefined || this.plan?.adIdentitySourceDescriptor !== undefined
+    },
     cloneActiveProject () { return this.$store?.getters?.project?.id },
     identityBackupSupported () {
       const params = this.$getApiParams?.('createStorageServiceConfigBackup')
@@ -227,10 +235,12 @@ export default {
     'resource.account' () { this.clearCloneZoneOptions() },
     'resource.domainid' () { this.clearCloneZoneOptions() },
     'resource.projectid' () { this.clearCloneZoneOptions() },
-    cloneActiveProject () { this.clearCloneZoneOptions() }
+    cloneActiveProject () { this.clearCloneZoneOptions() },
+    'clone.templateid' () { this.restoreMaintenance = false; this.reviewedPlan = ''; this.planToken = ''; this.confirmation = '' },
+    'planTarget.metadata': { deep: true, handler () { this.clearCloneZoneOptions() } }
   },
   mounted () { this.refresh() },
-  beforeUnmount () { this.generation++; this.cloneOptionToken++; this.cloneOptionScope = null; this.cloneOfferingRows = []; this.credentialValues = {} },
+  beforeUnmount () { this.generation++; this.cloneOptionToken++; this.cloneOptionScope = null; this.cloneOfferingRows = []; if (this.clearCloneTemplates) this.clearCloneTemplates(); this.credentialValues = {} },
   methods: {
     can (api) { return api in this.$store.getters.apis },
     unwrap (value, api) {
@@ -405,7 +415,49 @@ export default {
       return typeof offering?.id === 'string' && uuid.test(offering.id) && typeof offering.provisioningtype === 'string' &&
         ['sparse', 'fat'].includes(offering.provisioningtype.toLowerCase()) && typeof offering.diskofferingid === 'string' && uuid.test(offering.diskofferingid)
     },
+    cloneIdentityTemplateScope () {
+      const metadata = this.planTarget?.metadata || {}
+      return JSON.stringify({ scope: this.cloneDiscoveryScope(), descriptor: metadata.adIdentitySourceDescriptor || this.plan?.adIdentitySourceDescriptor, coverage: metadata.adIdentityCoverage })
+    },
+    eligibleCloneIdentityTemplate (template) {
+      const uuid = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/
+      return typeof template?.id === 'string' && uuid.test(template.id) && template.templatetype === 'SYSTEM' && template.ispublic === true &&
+        template.isready === true && template.isdynamicallyscalable === true && template.hypervisor === 'KVM' &&
+        template.arch === 'x86_64' && template.zoneid === this.clone.zoneid && template.details?.['storage.service.local.identity.seed.absent'] === 'true'
+    },
+    clearCloneTemplates () {
+      this.cloneTemplateToken++; this.cloneTemplateScope = null; this.cloneTemplateRows = []; this.cloneTemplateLoading = false; this.cloneTemplateError = false
+      this.cloneOptions.templates = []; delete this.clone.templateid
+    },
+    async loadCloneTemplates () {
+      this.clearCloneTemplates()
+      if (!this.cloneRequiresIdentityTemplate || !this.clone.zoneid) return
+      const token = ++this.cloneTemplateToken; const scope = this.cloneIdentityTemplateScope()
+      this.cloneTemplateLoading = true
+      const admin = ['Admin', 'DomainAdmin'].includes(this.$store?.getters?.userInfo?.roletype)
+      const owner = this.resource?.projectid ? { projectid: this.resource.projectid } : { account: this.resource?.account, domainid: this.resource?.domainid }
+      const parameters = { zoneid: this.clone.zoneid, hypervisor: 'KVM', system: true, templatefilter: admin ? 'all' : 'executable', ...owner }
+      if (admin) parameters.listall = true
+      try {
+        if (!this.can('listTemplates')) throw new Error('unsupported')
+        const response = await getAPI('listTemplates', parameters, { timeout: 15000, preserveOnFailure: true })
+        if (token !== this.cloneTemplateToken || scope !== this.cloneIdentityTemplateScope() || this.targetMode !== 'CREATE_NEW') return
+        this.cloneTemplateRows = (response.listtemplatesresponse?.template || []).filter(row => this.eligibleCloneIdentityTemplate(row))
+        this.cloneOptions.templates = this.options(this.cloneTemplateRows); this.cloneTemplateScope = scope
+      } catch (_) { if (token === this.cloneTemplateToken && scope === this.cloneIdentityTemplateScope()) this.cloneTemplateError = true } finally { if (token === this.cloneTemplateToken) this.cloneTemplateLoading = false }
+    },
+    assertCloneIdentityTemplate (reviewedPlan) {
+      if (!this.cloneRequiresIdentityTemplate) return
+      const metadata = this.planTarget?.metadata || {}
+      const descriptor = metadata.adIdentitySourceDescriptor || reviewedPlan?.adIdentitySourceDescriptor
+      if (!this.validIdentityDescriptor(descriptor) || (!reviewedPlan && metadata.adIdentityCoverage !== 'VERIFIED_ENCRYPTED_FULL_IDENTITY') ||
+        (reviewedPlan && (!this.validIdentityDescriptor(reviewedPlan.adIdentitySourceDescriptor) || Object.keys(descriptor).some(key => descriptor[key] !== reviewedPlan.adIdentitySourceDescriptor[key])))) throw new Error(this.$t('message.storage.service.ad.receipt.unverified'))
+      const template = this.cloneTemplateRows.find(row => row.id === this.clone.templateid)
+      if (this.cloneTemplateLoading || this.cloneTemplateError || this.cloneTemplateScope !== this.cloneIdentityTemplateScope() || !this.eligibleCloneIdentityTemplate(template) ||
+        (reviewedPlan && reviewedPlan.createNew?.templateid !== template.id)) throw new Error(this.$t('message.storage.config.clone.identity.template.required'))
+    },
     clearCloneZoneOptions () {
+      if (this.clearCloneTemplates) this.clearCloneTemplates()
       this.cloneOptionToken++; this.cloneOptionScope = null; this.cloneOfferingRows = []; this.cloneOfferingLoading = false; this.cloneOfferingError = false
       for (const key of ['networks', 'offerings', 'disks', 'pools', 'volumes']) this.cloneOptions[key] = []
       for (const key of ['networkid', 'storageid', 'diskofferingid', 'serviceofferingid', 'existingvolumeid']) this.clone[key] = undefined
@@ -447,6 +499,7 @@ export default {
         this.clone.serviceofferingid = compatible[0]?.id
         if (!compatible.length) this.error = this.$t('message.storage.service.offering.no.compatible')
       } catch (error) { if (token === this.cloneOptionToken && scope === this.cloneDiscoveryScope()) { this.cloneOfferingError = true; this.error = this.$t('message.storage.service.offering.unavailable') } } finally { if (token === this.cloneOptionToken) this.cloneOfferingLoading = false }
+      if (this.cloneRequiresIdentityTemplate) await this.loadCloneTemplates()
     },
     setVolumeMapping (source) {
       if (this.volumeMapping[source] === 'NEW') this.newVolumeSpecs[source] = this.newVolumeSpecs[source] || { dataPolicy: 'PRESERVE' }
@@ -462,10 +515,12 @@ export default {
         if (this.targetMode === 'CREATE_NEW') {
           if (!this.initialVolumeSource || !this.cloneRuntime) throw new Error(this.$t('message.storage.config.clone.required'))
           this.assertCloneOffering()
+          if (this.cloneRequiresIdentityTemplate) this.assertCloneIdentityTemplate()
           const existing = this.clone.backingvolumemode === 'EXISTING'
           if (existing && !this.clone.existingvolumeid) throw new Error(this.$t('message.storage.config.clone.required'))
           mappings.volumes[this.initialVolumeSource] = existing ? this.clone.existingvolumeid : 'NEW'
           mappings.createNew = { ...this.clone, backingvolumemode: existing ? 'EXISTING' : 'NEW' }
+          if (!this.cloneRequiresIdentityTemplate) delete mappings.createNew.templateid
           if (existing) {
             delete mappings.createNew.diskofferingid; delete mappings.createNew.size; delete mappings.createNew.storageid
           } else delete mappings.createNew.existingvolumeid
@@ -473,9 +528,18 @@ export default {
           if (Object.keys(specifications).length) mappings.newVolumes = specifications
           mappings.initialVolumeSourceUuid = this.initialVolumeSource; mappings.runtimeBundleUuid = this.cloneRuntime
         }
-        const result = await this.mutation(api, { artifactid: this.planTarget.id, targetmode: this.targetMode, mapping: JSON.stringify(mappings) })
+        const mode = this.targetMode
+        const cloneScope = mode === 'CREATE_NEW' && this.cloneRequiresIdentityTemplate ? this.cloneIdentityTemplateScope() : null
+        const selectedTemplate = this.clone?.templateid
+        const result = await this.mutation(api, { artifactid: this.planTarget.id, targetmode: mode, mapping: JSON.stringify(mappings) })
         if (target !== this.planTarget || instance !== this.instanceId) return
+        if (mode !== this.targetMode || (mode === 'CREATE_NEW' && ((cloneScope !== null && cloneScope !== this.cloneIdentityTemplateScope()) || selectedTemplate !== this.clone?.templateid))) throw new Error(this.$t('message.storage.config.scope.changed'))
         this.plan = result.metadata.plan; this.planToken = result.planToken || ''
+        this.planPhase = 'MAPPING'
+        if (this.targetMode === 'CREATE_NEW' && this.cloneRequiresIdentityTemplate) {
+          if (this.cloneTemplateScope !== this.cloneIdentityTemplateScope()) await this.loadCloneTemplates()
+          this.assertCloneIdentityTemplate(this.plan)
+        }
         this.planPhase = this.plan.blockers.length ? 'MAPPING' : 'REVIEW'
         this.reviewedPlan = JSON.stringify({ instance: this.instanceId, artifact: this.planTarget.id, token: this.planToken, plan: this.plan })
         this.credentialValues = Object.fromEntries(this.plan.requiredCredentials.map(row => [row.ruleUuid, {}]))
@@ -496,6 +560,9 @@ export default {
         if (!this.validIdentityDescriptor(this.plan.adIdentitySourceDescriptor) || typeof this.plan.artifactSha256 !== 'string' || !/^[a-f0-9]{64}$/.test(this.plan.artifactSha256)) { this.restoreMaintenance = false; this.error = this.$t('message.storage.service.ad.receipt.unverified'); return }
         if (!this.$getApiParams?.(api)?.maintenancewindow || this.restoreMaintenance !== true) { this.restoreMaintenance = false; this.error = this.$t('message.storage.service.ad.maintenance.required'); return }
       }
+      if (this.targetMode === 'CREATE_NEW') {
+        try { this.assertCloneIdentityTemplate(this.plan) } catch (error) { this.restoreMaintenance = false; this.error = error.message; return }
+      }
       const parameters = { artifactid: this.planTarget.id, plantoken: this.planToken, confirmation: this.confirmation, credentials: JSON.stringify(this.credentialValues) }
       if (requiresIdentity) parameters.maintenancewindow = true
       const instance = this.instanceId
@@ -506,7 +573,7 @@ export default {
         await this.refresh()
       } catch (_) { this.error = this.$t('message.storage.config.failed') } finally { parameters.credentials = ''; this.busy = '' }
     },
-    closePlan () { this.cloneOptionToken++; this.cloneOptionScope = null; this.cloneOfferingRows = []; this.cloneOfferingLoading = false; this.cloneOfferingError = false; this.planTarget = null; this.plan = null; this.planToken = ''; this.restoreMaintenance = false; this.reviewedPlan = ''; this.planPhase = 'MAPPING'; this.volumeMapping = {}; this.newVolumeSpecs = {}; this.credentialValues = {}; this.confirmation = ''; this.lkgPlan = false; this.planning = false; this.confirmFileExecute = false; this.targetMode = 'RESTORE_EXISTING'; this.initialVolumeSource = ''; this.plannedVolume = ''; this.cloneRuntime = ''; this.clone = { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP', backingvolumemode: 'NEW' } }
+    closePlan () { if (this.clearCloneTemplates) this.clearCloneTemplates(); this.cloneOptionToken++; this.cloneOptionScope = null; this.cloneOfferingRows = []; this.cloneOfferingLoading = false; this.cloneOfferingError = false; this.planTarget = null; this.plan = null; this.planToken = ''; this.restoreMaintenance = false; this.reviewedPlan = ''; this.planPhase = 'MAPPING'; this.volumeMapping = {}; this.newVolumeSpecs = {}; this.credentialValues = {}; this.confirmation = ''; this.lkgPlan = false; this.planning = false; this.confirmFileExecute = false; this.targetMode = 'RESTORE_EXISTING'; this.initialVolumeSource = ''; this.plannedVolume = ''; this.cloneRuntime = ''; this.clone = { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP', backingvolumemode: 'NEW' } }
   }
 }
 </script>

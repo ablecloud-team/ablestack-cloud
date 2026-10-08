@@ -8727,6 +8727,7 @@
   "label.storage.config.verification": "Verification",
   "label.storage.config.runtime.status": "Runtime collection",
   "label.storage.config.verify.baseline": "Verify current configuration",
+  "message.storage.config.clone.identity.template.required": "An AD identity clone requires an explicitly selected public SYSTEM template with verified absent local identity seeds. No eligible template is selected automatically.",
   "message.storage.config.clone.required": "Select the initial source volume and a verified runtime bundle.",
   "label.storage.config.secret.coverage": "Credential coverage",
   "label.storage.config.target.new": "Create a new service",
