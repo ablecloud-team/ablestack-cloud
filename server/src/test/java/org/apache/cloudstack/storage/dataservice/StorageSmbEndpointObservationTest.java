@@ -1,0 +1,35 @@
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+package org.apache.cloudstack.storage.dataservice;
+import com.google.gson.*;
+import org.junit.*;
+public class StorageSmbEndpointObservationTest {
+    private JsonObject health(){JsonObject root=new JsonObject();root.addProperty("success",true);root.addProperty("generatedEpoch",System.currentTimeMillis()/1000.0);JsonObject smb=new JsonObject();smb.addProperty("available",true);JsonArray endpoints=new JsonArray();for(String ip:new String[]{"10.10.13.240","10.10.13.241"}){JsonObject endpoint=new JsonObject();endpoint.addProperty("listenIp",ip);endpoint.addProperty("port",445);endpoint.addProperty("available",true);endpoint.addProperty("listenerOwned",true);endpoint.addProperty("tcpReady",true);endpoints.add(endpoint);}smb.add("runtimeEndpoints",endpoints);root.add("smbRuntime",smb);return root;}
+    @Test public void oneReadyListenerCannotMakeAnotherMissingIpReady(){JsonObject health=health();health.getAsJsonObject("smbRuntime").getAsJsonArray("runtimeEndpoints").get(1).getAsJsonObject().addProperty("listenerOwned",false);Assert.assertEquals("READY",StorageSmbEndpointObservation.project(health,"10.10.13.240",445,System.currentTimeMillis()).get("runtimeState").getAsString());Assert.assertEquals("DEGRADED",StorageSmbEndpointObservation.project(health,"10.10.13.241",445,System.currentTimeMillis()).get("runtimeState").getAsString());Assert.assertEquals("DEGRADED",StorageSmbEndpointObservation.aggregate(health,System.currentTimeMillis()).get("runtimeState").getAsString());}
+    @Test public void processExitSuccessAndOwnedSocketWithoutTcpReadinessCannotClaimReady(){JsonObject health=health();health.getAsJsonObject("smbRuntime").getAsJsonArray("runtimeEndpoints").get(0).getAsJsonObject().addProperty("tcpReady",false);Assert.assertEquals("DEGRADED",StorageSmbEndpointObservation.project(health,"10.10.13.240",445,System.currentTimeMillis()).get("runtimeState").getAsString());}
+    @Test public void staleOrUnobservableRuntimeMasksDatabaseReady(){JsonObject old=health();old.addProperty("generatedEpoch",0);Assert.assertEquals("UNAVAILABLE",StorageSmbEndpointObservation.project(old,"10.10.13.240",445,System.currentTimeMillis()).get("runtimeState").getAsString());JsonObject unavailable=health();unavailable.getAsJsonObject("smbRuntime").addProperty("available",false);Assert.assertEquals("UNAVAILABLE",StorageSmbEndpointObservation.project(unavailable,"10.10.13.240",445,System.currentTimeMillis()).get("runtimeState").getAsString());}
+    @Test public void exactIpAndPortAndUniqueObservationAreMandatory(){JsonObject health=health();Assert.assertEquals("DEGRADED",StorageSmbEndpointObservation.project(health,"10.10.13.241",1445,System.currentTimeMillis()).get("runtimeState").getAsString());health.getAsJsonObject("smbRuntime").getAsJsonArray("runtimeEndpoints").add(health.getAsJsonObject("smbRuntime").getAsJsonArray("runtimeEndpoints").get(0).deepCopy());Assert.assertEquals("UNAVAILABLE",StorageSmbEndpointObservation.project(health,"10.10.13.240",445,System.currentTimeMillis()).get("runtimeState").getAsString());}
+    @Test public void serviceWideSharedConfigRequiresEveryDeclaredListenerEvenWhenObservationOmitsOne() {
+        JsonObject health=health();JsonArray declared=health.getAsJsonObject("smbRuntime").getAsJsonArray("runtimeEndpoints").deepCopy();health.getAsJsonObject("smbRuntime").getAsJsonArray("runtimeEndpoints").remove(1);
+        JsonObject result=StorageSmbEndpointObservation.aggregate(health,declared,System.currentTimeMillis());Assert.assertEquals("SERVICE",result.get("listenerScope").getAsString());Assert.assertEquals("DEGRADED",result.get("runtimeState").getAsString());Assert.assertEquals(2,result.getAsJsonArray("endpoints").size());
+    }
+    @Test public void explicitSelectedScopeIsUnaffectedByUnrelatedEndpointFailure() {
+        JsonObject health=health();JsonArray scope=new JsonArray();scope.add(health.getAsJsonObject("smbRuntime").getAsJsonArray("runtimeEndpoints").get(0).deepCopy());health.getAsJsonObject("smbRuntime").getAsJsonArray("runtimeEndpoints").get(1).getAsJsonObject().addProperty("tcpReady",false);
+        Assert.assertEquals("READY",StorageSmbEndpointObservation.aggregate(health,scope,System.currentTimeMillis()).get("runtimeState").getAsString());
+    }
+
+}

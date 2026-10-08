@@ -48,6 +48,8 @@ public final class StorageTemplateCompatibility {
         minimum(capability.get("storage.service.upgrade.min.manager.version"),managerVersion,"MANAGER_VERSION_INCOMPATIBLE",blockers);
         minimum(capability.get("storage.service.upgrade.min.agent.version"),agentVersion,"AGENT_VERSION_INCOMPATIBLE",blockers);
         if (!"true".equalsIgnoreCase(capability.get("storage.service.runtime.signed.readback"))) blockers.add("SIGNED_RUNTIME_READBACK_CAPABILITY_MISSING");
+        if (!"true".equalsIgnoreCase(capability.get("storage.service.template.maintenance.gate"))) blockers.add("TEMPLATE_BOOT_MAINTENANCE_CAPABILITY_MISSING");
+        if (!"true".equalsIgnoreCase(capability.get("storage.service.data.identity.inspect"))) blockers.add("DATA_IDENTITY_INSPECT_CAPABILITY_MISSING");
         if (requiresNvmeAuth && !"true".equalsIgnoreCase(capability.get("storage.service.nvme.target.auth"))) blockers.add("NVME_AUTH_UNAVAILABLE");
         JsonObject result=new JsonObject();JsonArray errors=new JsonArray();blockers.forEach(errors::add);
         result.addProperty("compatible",blockers.isEmpty());result.add("blockers",errors);

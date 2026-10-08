@@ -35,6 +35,13 @@ public class StorageSmbShareResponse extends BaseResponse {
     @Param(description="Canonical client source IP/CIDR allow-list")
     private java.util.List<String> allowedSources;
 
+    @SerializedName("runtimestate") @Param(description="Fresh owned SMB listener state") private String runtimeState;
+    @SerializedName("listenerobservations") @Param(description="Fresh per-IP and port owned SMB listeners") private String listenerObservations;
+    @SerializedName("listenerscope") @Param(description="SMB shares are exposed through all enabled service listeners") private String listenerScope;
+    public void setListenerScope(String value){listenerScope=value;}
+    public void setRuntimeState(String value){runtimeState=value;}
+    public void setListenerObservations(String value){listenerObservations=value;}
+
     public void setNetworkAccessMode(String value) { networkAccessMode=value; }
     public void setAllowedSources(java.util.List<String> value) { allowedSources=value; }
 

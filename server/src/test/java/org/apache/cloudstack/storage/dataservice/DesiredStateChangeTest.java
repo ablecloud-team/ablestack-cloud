@@ -219,4 +219,30 @@ public class DesiredStateChangeTest {
         Assert.assertEquals("RECOVERY_REQUIRED", saved.get().getState());
     }
 
+    @Test public void exactRequestFingerprintReplaysOriginalResponseWithoutMutation() {
+        Assert.assertEquals(Boolean.TRUE,engine.execute(7L,"password-reset","bound",0L,"intent-A",Boolean.class,()->true,runtime));
+        when(operations.findByRequest(7L,"password-reset:bound")).thenReturn(saved.get());
+        Assert.assertEquals(Boolean.TRUE,engine.execute(7L,"password-reset","bound",0L,"intent-A",Boolean.class,()->{throw new AssertionError("duplicate mutation");},runtime));
+        verify(runtime).prepareNativeCheckpoint(any());
+    }
+    @Test public void reusedKeyForAnotherTargetOrParameterIntentIsRejectedBeforeMutation() {
+        engine.execute(7L,"password-reset","bound",0L,"intent-XFS",Boolean.class,()->true,runtime);
+        when(operations.findByRequest(7L,"password-reset:bound")).thenReturn(saved.get());
+        Assert.assertThrows(CloudRuntimeException.class,()->engine.execute(7L,"password-reset","bound",0L,"intent-EXT4",Boolean.class,()->{throw new AssertionError("foreign mutation");},runtime));
+        verify(runtime).prepareNativeCheckpoint(any());
+    }
+    @Test public void historicalUnboundKeyCannotAssertCurrentBodyIdentity() {
+        StorageServiceOperationVO old=new StorageServiceOperationVO();old.setState("COMPLETE");old.setResultJson("true");when(operations.findByRequest(7L,"reset:legacy")).thenReturn(old);
+        Assert.assertThrows(CloudRuntimeException.class,()->engine.execute(7L,"reset","legacy",0L,"new-intent",Boolean.class,()->{throw new AssertionError("unbound replay");},runtime));
+        verify(runtime,never()).prepareNativeCheckpoint(any());
+    }
+
+    @Test public void anotherActorCannotReplayAnIdenticalTargetAndFingerprint() {
+        engine.execute(7L,"reset","bound-actor",0L,"same-intent",Boolean.class,()->true,runtime);
+        when(operations.findByRequest(7L,"reset:bound-actor")).thenReturn(saved.get());
+        User other=mock(User.class);Account account=mock(Account.class);when(other.getId()).thenReturn(42L);when(account.getId()).thenReturn(2L);CallContext.unregister();CallContext.register(other,account);
+        Assert.assertThrows(CloudRuntimeException.class,()->engine.execute(7L,"reset","bound-actor",0L,"same-intent",Boolean.class,()->{throw new AssertionError("foreign replay");},runtime));
+        verify(runtime).prepareNativeCheckpoint(any());
+    }
+
 }

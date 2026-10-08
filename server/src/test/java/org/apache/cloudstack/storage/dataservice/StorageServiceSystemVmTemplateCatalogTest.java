@@ -36,7 +36,7 @@ public class StorageServiceSystemVmTemplateCatalogTest {
         Mockito.when(row.getTemplateType()).thenReturn(Storage.TemplateType.SYSTEM);
         Mockito.when(row.getHypervisorType()).thenReturn(Hypervisor.HypervisorType.KVM);
         Mockito.when(row.getArch()).thenReturn(CPU.CPUArch.amd64);
-        Mockito.when(row.getDetails()).thenReturn(declared?Map.of("storage.service.template","true","storage.service.template.version","verified-1","storage.service.runtime.signed.readback","true",
+        Mockito.when(row.getDetails()).thenReturn(declared?Map.of("storage.service.template","true","storage.service.template.version","verified-1","storage.service.runtime.signed.readback","true","storage.service.template.maintenance.gate","true","storage.service.data.identity.inspect","true",
                 "storage.service.runtime.abi","1","storage.service.desired.state.schema","1","storage.service.identity.capsule.schema","1",
                 "storage.service.upgrade.min.manager.version","4.23.0","storage.service.upgrade.min.agent.version","4.23.0"):Map.of());
         return row;
