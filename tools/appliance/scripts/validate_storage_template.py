@@ -33,6 +33,7 @@ cap = manifest["registrationDetails"]
 for key, expected in {
     "storage.service.template": "true", "storage.service.runtime.abi": "1",
     "storage.service.runtime.signed.readback": "true",
+    "storage.service.template.maintenance.gate": "true",
     "storage.service.desired.state.schema": "1", "storage.service.identity.capsule.schema": "1",
     "storage.service.configuration.generation.schema": "1",
     "storage.service.configuration.generation.adopt": "true",
@@ -61,7 +62,7 @@ for item in manifest["runtimeFiles"]:
     if hashlib.sha256(source.read_bytes()).hexdigest() != item["sha256"]:
         raise SystemExit("Runtime source differs from template manifest: " + item["path"])
 cli = (root / "usr/local/bin/ablestack-storagectl").read_text()
-for marker in ('identity_capsule_command()', 'action in ("adopt", "align")', 'configurationSha256'):
+for marker in ('identity_capsule_command()', 'action in ("adopt", "align")', 'configurationSha256', 'maintenance_command()', 'root_data_inspect()'):
     if marker not in cli:
         raise SystemExit("Template runtime does not implement required ROOT recovery capability")
 for module in ("runtime_updater.py", "volume_identity.py", "session_auth.py", "identity_capsule.py", "config_generation.py"):

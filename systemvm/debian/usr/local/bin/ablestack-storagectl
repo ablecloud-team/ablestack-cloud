@@ -1011,19 +1011,40 @@ def nvmeof_runtime_ok(runtime):
 def collect_smb_listener_runtime():
     desired = load_json_state("desired-state/smb-share-apply.json")
     if not desired or desired.get("enabled") is False:
-        return {"configured": 0, "listening": True, "runtimeEndpoints": []}
+        return {"configured": 0, "available": True, "listening": True, "runtimeEndpoints": []}
     rows = desired.get("listeners") or [{"listenIp": desired.get("listenIp") or "0.0.0.0", "port": desired.get("port") or 445}]
+    deadline = time.monotonic() + 5
     observed = run(["ss", "-ltnpH"])
     owned = set()
-    for line in observed.stdout.splitlines():
-        fields = line.split()
-        if len(fields) < 5 or '"smbd"' not in line:
-            continue
-        ip, _, port = fields[3].rpartition(":")
-        owned.add((ip.strip("[]"), port))
-    endpoints = [{"listenIp": str(row.get("listenIp") or "0.0.0.0"), "port": int(row.get("port") or 445),
-                  "listening": (str(row.get("listenIp") or "0.0.0.0"), str(int(row.get("port") or 445))) in owned} for row in rows]
-    return {"configured": len(endpoints), "listening": all(row["listening"] for row in endpoints), "runtimeEndpoints": endpoints}
+    if observed.returncode == 0:
+        for line in observed.stdout.splitlines():
+            fields = line.split()
+            if len(fields) < 5 or '"smbd"' not in line:
+                continue
+            ip, _, port = fields[3].rpartition(":")
+            owned.add((ip.strip("[]"), port))
+    endpoints = []
+    for row in rows:
+        ip = str(row.get("listenIp") or "0.0.0.0")
+        port = int(row.get("port") or 445)
+        listener_owned = (ip, str(port)) in owned
+        ready = False
+        remaining = deadline - time.monotonic()
+        if listener_owned and remaining > 0:
+            target = "127.0.0.1" if ip == "0.0.0.0" else "::1" if ip == "::" else ip
+            try:
+                with socket.create_connection((target, port), timeout=min(1, remaining)):
+                    ready = True
+            except OSError:
+                pass
+        endpoints.append({"listenIp": ip, "port": port, "listenerOwned": listener_owned,
+                          "tcpReady": ready, "listening": listener_owned and ready,
+                          "available": observed.returncode == 0})
+    result = {"configured": len(endpoints), "available": observed.returncode == 0,
+              "listening": all(row["listening"] for row in endpoints), "runtimeEndpoints": endpoints}
+    if observed.returncode != 0:
+        result["errorCode"] = "SMB_SOCKET_OBSERVATION_UNAVAILABLE"
+    return result
 
 smb_runtime = collect_smb_listener_runtime()
 if smb_runtime["configured"]:
@@ -1058,6 +1079,8 @@ print(json.dumps({
     "success": True,
     "status": status,
     "hostname": socket.gethostname(),
+    "generatedEpoch": time.time(),
+    "observedEpoch": time.time(),
     "uptimeSeconds": int(time.time() - os.stat("/proc/1").st_ctime) if os.path.exists("/proc/1") else None,
     "network": {"addresses": collect_network_addresses()},
     "services": services,
@@ -6199,6 +6222,34 @@ def smb_legacy_listening_sockets():
             pass
     return result
 
+def smb_managed_listening_sockets(records):
+    known = set()
+    observed = run(["ss", "-ltnpH"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=10)
+    for key, content in records.items():
+        record = json.loads(content)
+        unit = "ablestack-storage-smb@" + key + ".service"
+        result = run(["systemctl", "show", unit, "-p", "MainPID", "--value"],
+                     stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=10)
+        pid = int(result.stdout.strip() or "0")
+        if pid <= 0:
+            continue
+        try:
+            with open("/proc/" + str(pid) + "/cmdline", "rb") as handle:
+                command = handle.read().split(b"\x00")
+        except FileNotFoundError:
+            continue
+        required = [("--option=pid directory=/run/ablestack-storage/smb/" + key).encode(),
+                    ("--option=smb ports=" + str(record["port"])).encode()]
+        if any(argument not in command for argument in required):
+            raise ValueError("Managed SMB acceptor PID does not match its pinned endpoint")
+        for line in observed.stdout.splitlines():
+            if re.search(r'"smbd",pid=' + str(pid) + r'[,)]', line):
+                fields = line.split()
+                ip, _, port = fields[3].rpartition(":")
+                if (ip.strip("[]"), int(port)) == (record["listenIp"], record["port"]):
+                    known.add((record["listenIp"], record["port"]))
+    return known
+
 def smb_endpoint_connections(ip, port):
     observed = run(["ss", "-tnpH", "state", "established"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=10)
     count = 0
@@ -6209,7 +6260,8 @@ def smb_endpoint_connections(ip, port):
             address, separator, raw_port = field.rpartition(":")
             if separator and raw_port == str(port):
                 try:
-                    if str(ipaddress.ip_address(address.strip("[]"))) == ip:
+                    actual_ip = str(ipaddress.ip_address(address.strip("[]")))
+                    if ip in ("0.0.0.0", "::") or actual_ip == ip:
                         count += 1
                         break
                 except ValueError:
@@ -6234,6 +6286,7 @@ def reconcile_smb_endpoint_units(rows):
         if endpoint["listenIp"] in ("0.0.0.0", "::") and any(other != endpoint and other["port"] == endpoint["port"] for other in wanted.values()):
             raise ValueError("Wildcard and specific SMB endpoints on one port overlap")
     current_sockets = smb_owned_listening_sockets()
+    previous_sockets = set(current_sockets)
     legacy_sockets = smb_legacy_listening_sockets()
     requested_sockets = {(item["listenIp"], item["port"]) for item in wanted.values()}
     stale_legacy = {(ip, port) for ip, port in legacy_sockets - requested_sockets if ip not in ("127.0.0.1", "::1")}
@@ -6241,9 +6294,14 @@ def reconcile_smb_endpoint_units(rows):
         raise RuntimeError("Shared legacy SMB acceptor endpoint removal requires explicit maintenance drain")
     if any(smb_endpoint_connections(ip, port) for ip, port in stale_legacy):
         raise RuntimeError("Legacy SMB endpoint removal requires its sessions to drain")
+    empty_default_transition = False
     for endpoint in wanted.values():
-        if endpoint["listenIp"] not in ("0.0.0.0", "::") and any((wildcard, endpoint["port"]) in current_sockets for wildcard in ("0.0.0.0", "::")):
-            raise RuntimeError("Wildcard-to-specific SMB transition requires explicit session drain")
+        overlaps = {(wildcard, endpoint["port"]) for wildcard in ("0.0.0.0", "::") if (wildcard, endpoint["port"]) in current_sockets}
+        if endpoint["listenIp"] not in ("0.0.0.0", "::") and overlaps:
+            old_desired = os.path.join(state_dir, "desired-state", "smb-share-apply.json")
+            if os.path.lexists(old_desired) or not overlaps.issubset(legacy_sockets) or any(smb_endpoint_connections(ip, port) for ip, port in overlaps):
+                raise RuntimeError("Wildcard-to-specific SMB transition requires explicit session drain")
+            empty_default_transition = True
     registry = os.path.join(state_dir, "smb-endpoint-listeners")
     os.makedirs(registry, mode=0o750, exist_ok=True)
     info = os.lstat(registry)
@@ -6302,6 +6360,10 @@ WantedBy=multi-user.target
         previous[name[:-5]] = content
         if smb_unit_active("ablestack-storage-smb@" + name[:-5] + ".service"):
             previous_active.add(name[:-5])
+    managed_sockets = smb_managed_listening_sockets(previous)
+    foreign = (current_sockets & requested_sockets) - legacy_sockets - managed_sockets
+    if foreign:
+        raise RuntimeError("SMB endpoint listener is owned by an unrelated acceptor")
     default_enabled = subprocess.run(["systemctl", "is-enabled", "--quiet", "smbd.service"], check=False,
                                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=smb_budget(10)).returncode == 0
     default_disabled = False
@@ -6324,6 +6386,10 @@ WantedBy=multi-user.target
     legacy_stopped = False
     journal("APPLYING")
     try:
+        if empty_default_transition:
+            legacy_stopped = True
+            run(["systemctl", "stop", "smbd.service"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=20)
+            current_sockets = smb_owned_listening_sockets()
         for key, endpoint in wanted.items():
             atomic_endpoint(os.path.join(registry, key + ".json"), json.dumps(endpoint, sort_keys=True).encode())
             unit = "ablestack-storage-smb@" + key + ".service"
@@ -6339,7 +6405,7 @@ WantedBy=multi-user.target
                 run(["systemctl", "stop", unit], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=20)
                 stopped.append(key)
             os.unlink(os.path.join(registry, key + ".json"))
-        if stale_legacy:
+        if stale_legacy and not legacy_stopped:
             legacy_stopped = True
             run(["systemctl", "stop", "smbd.service"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=20)
         proof = verify_smb_endpoint_listeners(rows, timeout=smb_budget(10))
@@ -6382,7 +6448,7 @@ WantedBy=multi-user.target
                 run(["systemctl", "enable", "smbd.service"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=10)
             if shutil.which("smbcontrol"):
                 run(["smbcontrol", "all", "reload-config"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=10)
-            previous_rows = [{"listenIp": ip, "port": port} for ip, port in sorted(current_sockets)]
+            previous_rows = [{"listenIp": ip, "port": port} for ip, port in sorted(previous_sockets)]
             verify_smb_endpoint_listeners(previous_rows, timeout=smb_budget(10))
             journal("ROLLED_BACK")
         except Exception as rollback_failure:
@@ -8509,8 +8575,251 @@ if ip in ("0.0.0.0", "::"):
     args.append("--option=bind interfaces only=no")
 else:
     args.extend(["--option=interfaces=" + ip, "--option=bind interfaces only=yes"])
+# The Python source came from a heredoc pipe. Samba treats EOF on an
+# inherited pipe as parent death; systemd acceptors use the null device.
+null_descriptor = os.open("/dev/null", os.O_RDONLY)
+try:
+    os.dup2(null_descriptor, 0)
+finally:
+    os.close(null_descriptor)
 os.execv(args[0], args)
 PYSMBENDPOINT
+}
+
+maintenance_command() {
+  python3 - "$1" "${2:-}" "$0" "${3:-}" <<'PYMAINTENANCE'
+"""Persistent same-row ROOT maintenance scopes; no credential material."""
+import json
+import os
+from pathlib import Path
+import stat
+import tempfile
+import uuid
+
+SCOPE_KEYS = ("instanceUuid", "templateUpgradeUuid", "operationUuid", "revision")
+
+def scope(request):
+    result = {key: str(uuid.UUID(request[key])) for key in SCOPE_KEYS[:-1]}
+    revision = request["revision"]
+    if isinstance(revision, bool) or not isinstance(revision, int) or revision < 1:
+        raise ValueError("Invalid ROOT maintenance revision")
+    result["revision"] = revision
+    return result
+
+class Maintenance:
+    def __init__(self, root=None, generation=None):
+        self.root = Path(root or os.environ.get("ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR", "/var/lib/ablestack-storage"))
+        self.marker = self.root / "template-maintenance.json"
+        self.receipt = self.root / "template-maintenance-release.json"
+        self.generation = generation
+
+    def read(self, path):
+        if self.root.exists() or self.root.is_symlink():
+            directory = self.root.lstat()
+            if not stat.S_ISDIR(directory.st_mode) or directory.st_uid != os.geteuid() or directory.st_mode & 0o022:
+                raise ValueError("ROOT maintenance read directory is not protected")
+        if not path.exists() and not path.is_symlink():
+            return None
+        info = path.lstat()
+        if not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid() or stat.S_IMODE(info.st_mode) != 0o600 or info.st_size > 128 * 1024:
+            raise ValueError("ROOT maintenance record is not protected")
+        descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
+        try:
+            opened = os.fstat(descriptor)
+            fields = ("st_dev", "st_ino", "st_uid", "st_gid", "st_mode", "st_size")
+            if any(getattr(opened, key) != getattr(info, key) for key in fields):
+                raise ValueError("ROOT maintenance record changed while opening")
+            with os.fdopen(descriptor, "rb", closefd=False) as handle:
+                data = handle.read(128 * 1024 + 1)
+            if len(data) > 128 * 1024:
+                raise ValueError("ROOT maintenance record exceeds its size limit")
+            return json.loads(data)
+        finally:
+            os.close(descriptor)
+
+    def protected(self):
+        self.root.mkdir(parents=True, exist_ok=True, mode=0o700)
+        info = self.root.lstat()
+        if not stat.S_ISDIR(info.st_mode) or info.st_uid != os.geteuid() or info.st_mode & 0o022:
+            raise ValueError("ROOT maintenance directory is not protected")
+
+    def write(self, path, value):
+        self.protected()
+        descriptor, temporary = tempfile.mkstemp(prefix=".template-maintenance-", dir=self.root)
+        try:
+            os.fchmod(descriptor, 0o600)
+            with os.fdopen(descriptor, "w") as handle:
+                json.dump(value, handle, sort_keys=True);handle.flush();os.fsync(handle.fileno())
+            os.replace(temporary, path)
+            self.sync()
+        finally:
+            if os.path.exists(temporary):
+                os.unlink(temporary)
+
+    def sync(self):
+        descriptor = os.open(self.root, os.O_RDONLY | os.O_DIRECTORY)
+        try:os.fsync(descriptor)
+        finally:os.close(descriptor)
+
+    def status(self):
+        marker = self.read(self.marker)
+        value = scope(marker["scope"]) if marker is not None else None
+        return {"success": True, "maintenanceSupported": True, "bootHeld": marker is not None, "scope": value}
+
+    def enter(self, request):
+        desired = scope(request)
+        marker = self.read(self.marker)
+        previous = request.get("expectedPreviousScope")
+        if marker is None:
+            if previous is not None:
+                raise ValueError("Expected previous ROOT maintenance scope is absent")
+        else:
+            actual = scope(marker["scope"])
+            if actual == desired:
+                return self.status()
+            if previous is None or scope(previous) != actual or any(actual[key] != desired[key] for key in ("instanceUuid", "templateUpgradeUuid")):
+                raise ValueError("ROOT maintenance scope is foreign or changed")
+            if desired["revision"] <= actual["revision"]:
+                raise ValueError("ROOT maintenance scope revision did not advance")
+        self.write(self.marker, {"scope": desired})
+        return self.status()
+
+    def release(self, request):
+        desired = scope(request)
+        verified = request.get("verifiedGeneration")
+        if not isinstance(verified, dict) or verified.get("instanceUuid") != desired["instanceUuid"]:
+            raise ValueError("Verified ROOT maintenance generation scope is invalid")
+        actual = self.generation()
+        if actual.get("pendingOperationUuid") or actual.get("generation") != verified or actual.get("configurationSha256") != verified.get("configurationSha256") or actual.get("generationStatus") != "IN_SYNC":
+            raise ValueError("ROOT maintenance release generation was not exactly verified")
+        marker = self.read(self.marker)
+        receipt = self.read(self.receipt)
+        if marker is None:
+            if receipt != {"scope": desired, "verifiedGeneration": verified}:
+                raise ValueError("Released ROOT maintenance scope is unavailable or changed")
+            return {"success": True, "released": True, "bootHeld": False, "scope": desired}
+        if scope(marker["scope"]) != desired:
+            raise ValueError("ROOT maintenance release scope changed")
+        self.write(self.receipt, {"scope": desired, "verifiedGeneration": verified})
+        self.marker.unlink()
+        self.sync()
+        return {"success": True, "released": True, "bootHeld": False, "scope": desired}
+import subprocess
+import sys
+
+def native_generation():
+    inherited = (9,) if os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD") == "9" else ()
+    result = subprocess.run([sys.argv[3], "operation", "generation", "status"], capture_output=True, text=True, timeout=30, pass_fds=inherited)
+    if result.returncode:
+        raise ValueError("Verified native generation is unavailable")
+    return json.loads(result.stdout)
+
+try:
+    action = sys.argv[1]
+    request = json.loads(Path(sys.argv[2]).read_text()) if action != "status" else {}
+    handler = Maintenance(generation=native_generation)
+    if action == "status":
+        result = handler.status()
+    elif action == "enter":
+        result = handler.enter(request)
+    elif action == "release":
+        result = handler.release(request)
+    else:
+        raise ValueError("Unsupported ROOT maintenance action")
+    if sys.argv[4] != "quiet":
+        print(json.dumps(result, sort_keys=True))
+except (ValueError, KeyError, OSError) as failure:
+    print(json.dumps({"success": False, "errorCode": "ROOT_MAINTENANCE_REJECTED", "reason": str(failure)}))
+    raise SystemExit(1)
+PYMAINTENANCE
+}
+
+root_data_inspect() {
+  python3 - "$1" <<'PYROOTDATA'
+"""Fresh, strictly identified DATA inventory for same-VM ROOT changes."""
+import os
+from pathlib import Path
+import uuid
+import sys
+sys.path.insert(0, "/usr/local/lib/ablestack-storage")
+from volume_identity import (VolumeIdentityError, flatten_devices, flatten_mounts,
+                             resolve_volume_device, root_disk_names)
+
+def inspect_data(request, blockdevices, filesystems):
+    for key in ("instanceUuid", "operationUuid", "templateUpgradeUuid"):
+        str(uuid.UUID(request[key]))
+    volumes = request.get("volumes")
+    if not isinstance(volumes, list) or len(volumes) > 512:
+        raise ValueError("ROOT DATA manifest request is invalid")
+    devices = flatten_devices(blockdevices)
+    mounts = flatten_mounts(filesystems)
+    seen_ids = set()
+    seen_paths = set()
+    result = []
+    for entry in volumes:
+        volume = str(uuid.UUID(entry["volumeUuid"]))
+        kind = entry["kind"]
+        size = entry["sizeBytes"]
+        if volume in seen_ids or kind not in ("FILE_DATA", "BLOCK_RAW", "UNUSED") or isinstance(size, bool) or not isinstance(size, int) or size <= 0:
+            raise ValueError("ROOT DATA request has an ambiguous or invalid volume")
+        seen_ids.add(volume)
+        managed = "/srv/ablestack-storage/volumes/" + volume
+        sources = {mount.get("source") for mount in mounts if mount.get("target") == managed}
+        if len(sources) > 1:
+            raise ValueError("ROOT DATA backing mount source is ambiguous")
+        mount_source = next(iter(sources)) if sources else None
+        mapped = resolve_volume_device(blockdevices, volume_uuid=volume, filesystem_uuid=entry.get("filesystemUuid"),
+                                       mount_source=mount_source, expected_size=size, allow_blank_size_fallback=False)
+        if mapped["matchedBy"] != "VOLUME_SERIAL":
+            raise ValueError("ROOT DATA requires an exact stable volume serial mapping")
+        disk_path = mapped["diskPath"]
+        disk = next((item for item in devices if item.get("path") == disk_path), None)
+        if not disk or disk.get("name") in root_disk_names(devices) or int(disk.get("size") or 0) != size:
+            raise ValueError("ROOT DATA disk identity or exact size differs")
+        if disk_path in seen_paths:
+            raise ValueError("Two ROOT DATA records resolve to the same disk")
+        seen_paths.add(disk_path)
+        selected = next((item for item in devices if item.get("path") == mapped["devicePath"]), disk)
+        if kind == "FILE_DATA":
+            candidates = [item for item in devices if item.get("fstype") and
+                          (item.get("path") == disk_path or (item.get("_parentDisk") or {}).get("path") == disk_path)]
+            declared = entry.get("filesystemUuid")
+            if declared:
+                candidates = [item for item in candidates if item.get("uuid") == declared]
+            if len(candidates) != 1 or not candidates[0].get("uuid"):
+                raise ValueError("ROOT FILE DATA filesystem identity is unavailable or ambiguous")
+            selected = candidates[0]
+        related = []
+        for mount in mounts:
+            source = str(mount.get("source") or "").split("[", 1)[0]
+            if source == selected.get("path") or (selected.get("uuid") and mount.get("uuid") == selected["uuid"]):
+                related.append({key: mount[key] for key in ("source", "target", "fstype", "options", "uuid") if key in mount})
+        result.append({"volumeUuid": volume, "kind": kind, "mappingStatus": "EXACT", "matchedBy": mapped["matchedBy"],
+                       "serial": disk.get("serial"), "wwn": disk.get("wwn"), "sizeBytes": int(disk["size"]),
+                       "observedDevicePath": selected.get("path"), "filesystemUuid": selected.get("uuid"),
+                       "filesystem": selected.get("fstype"), "mounts": related})
+    return result
+import json
+import subprocess
+import sys
+import time
+
+def observed(args):
+    result = subprocess.run(args, capture_output=True, text=True, timeout=20)
+    if result.returncode:
+        raise ValueError("Fresh ROOT DATA observation failed")
+    return json.loads(result.stdout)
+
+try:
+    request = json.loads(Path(sys.argv[1]).read_text())
+    block = observed(["lsblk", "-b", "-J", "-o", "NAME,PATH,TYPE,SIZE,FSTYPE,UUID,MOUNTPOINT,SERIAL,WWN"])
+    mounts = observed(["findmnt", "-J", "-o", "SOURCE,TARGET,FSTYPE,OPTIONS,UUID"])
+    result = inspect_data(request, block.get("blockdevices", []), mounts.get("filesystems", []))
+    print(json.dumps({"success": True, "generatedEpoch": time.time(), "bootId": Path("/proc/sys/kernel/random/boot_id").read_text().strip(), "volumes": result}, sort_keys=True))
+except (ValueError, KeyError, OSError, VolumeIdentityError) as failure:
+    print(json.dumps({"success": False, "errorCode": "ROOT_DATA_IDENTITY_REJECTED", "reason": str(failure)}))
+    raise SystemExit(1)
+PYROOTDATA
 }
 
 configuration_generation() {
@@ -8776,7 +9085,7 @@ fi
 
 # Keep the descriptor open through native child work, even if the management writer disappears.
 case "$command:$subcommand:$action" in
-  smb:endpoint-run:*|health:*|inventory:*|sessions:*|operation:verify:*|operation:observe:*|operation:resources:*|operation:generation:status|volume:operation:status|nfs:idmapping:preflight|identity:capsule:capabilities)
+  smb:endpoint-run:*|health:*|inventory:*|sessions:*|operation:verify:*|operation:observe:*|operation:resources:*|operation:generation:status|operation:maintenance:status|operation:root-data:inspect|operation:writer-idle:*|volume:operation:status|nfs:idmapping:preflight|identity:capsule:capabilities)
     ;;
   *)
     acquire_storage_writer_lock || exit $?
@@ -8804,8 +9113,12 @@ case "$command" in
   operation)
     if [[ "$subcommand" == "generation" ]]; then
       configuration_generation
+    elif [[ "$subcommand" == "maintenance" ]]; then
+      maintenance_command "$action" "$payload"
+    elif [[ "$subcommand" == "root-data" && "$action" == "inspect" ]]; then
+      root_data_inspect "$payload"
     elif [[ "$subcommand" == "quiesce" ]]; then
-      python3 - "$action" <<'PYQUIESCE'
+      python3 - "$action" "$0" <<'PYQUIESCE'
 import json
 import os
 from pathlib import Path
@@ -8830,23 +9143,31 @@ for name in ("current.json", "pending.json"):
     if value and value.get("revision", 0) > revision:
         raise ValueError("Quiesce revision is stale")
 
+maintenance = subprocess.run([sys.argv[2], "operation", "maintenance", "enter", sys.argv[1]],
+                             capture_output=True, text=True, timeout=30, pass_fds=(9,))
+if maintenance.returncode:
+    print(maintenance.stdout.strip())
+    raise SystemExit(1)
+
 def run(arguments):
     return subprocess.run(arguments, capture_output=True, text=True, timeout=60)
 
 listed = run(["systemctl", "list-units", "--state=active", "--type=service", "--no-legend", "--plain",
-              "ablestack-storage-ganesha@*.service", "ablestack-storage-smb@*.service", "smbd.service", "nmbd.service", "winbind.service"])
+              "ablestack-storage-ganesha@*.service", "ablestack-storage-smb@*.service", "smbd.service", "nmbd.service", "winbind.service", "nfs-server.service", "nfs-kernel-server.service", "nfs-ganesha.service"])
 if listed.returncode != 0:
     print(json.dumps({"success": False, "quiesced": False, "errorCode": "QUIESCE_SERVICE_OBSERVATION_FAILED"}))
     raise SystemExit(1)
 units = []
 for line in listed.stdout.splitlines():
     unit = line.split()[0] if line.split() else ""
-    if unit in ("smbd.service", "nmbd.service", "winbind.service") or (
+    if unit in ("smbd.service", "nmbd.service", "winbind.service", "nfs-server.service", "nfs-kernel-server.service", "nfs-ganesha.service") or (
             (unit.startswith("ablestack-storage-ganesha@") or unit.startswith("ablestack-storage-smb@")) and unit.endswith(".service")):
         units.append(unit)
 stopped = []
 try:
     for unit in units:
+        if run(["systemctl", "disable", unit]).returncode != 0:
+            raise RuntimeError("A file protocol acceptor could not be quarantined for boot")
         if run(["systemctl", "stop", unit]).returncode != 0:
             raise RuntimeError("A file protocol service could not be stopped")
         stopped.append(unit)
@@ -8863,7 +9184,28 @@ except Exception:
     raise SystemExit(1)
 PYQUIESCE
     elif [[ "$subcommand" == "writer-idle" ]]; then
-      printf '%s\n' '{"success":true,"status":"WRITER_IDLE","writerLockSupported":true}'
+      python3 - <<'PYWRITERSTATUS'
+import fcntl
+import json
+import os
+from pathlib import Path
+import stat
+path = Path(os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FILE", "/run/ablestack-storage/desired-writer.lock"))
+idle = True
+if path.exists() or path.is_symlink():
+    info = path.lstat()
+    if not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid() or stat.S_IMODE(info.st_mode) != 0o600:
+        raise ValueError("Native writer lock observation is not protected")
+    descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
+    try:
+        try:
+            fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            idle = False
+    finally:
+        os.close(descriptor)
+print(json.dumps({"success": True, "status": "WRITER_IDLE" if idle else "WRITER_BUSY", "writerIdle": idle, "writerLockSupported": True}))
+PYWRITERSTATUS
     elif [[ "$subcommand" == "preflight" ]]; then
       python3 - <<'PYOP'
 import json

@@ -42,6 +42,8 @@ for name in ENTRYPOINTS:
 capabilities = {
     "storage.service.template": "true",
     "storage.service.template.version": a.version,
+    "storage.service.template.maintenance.gate": "true",
+    "storage.service.template.data.identity.inspect": "true",
     "storage.service.runtime.abi": "1",
     "storage.service.runtime.signed.readback": "true",
     "storage.service.desired.state.schema": "1",
