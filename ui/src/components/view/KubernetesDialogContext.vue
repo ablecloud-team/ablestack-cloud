@@ -16,7 +16,7 @@
 // under the License.
 
 <template>
-  <a-descriptions class="mold-dialog-summary" size="small" bordered :column="2">
+  <a-descriptions class="mold-dialog-summary" size="small" bordered :column="{ xs: 1, sm: 2 }">
     <a-descriptions-item :label="$t('label.name')">{{ resource.name || '—' }}</a-descriptions-item>
     <a-descriptions-item :label="$t('label.state')"><status :text="resource.state || ''" displayText /></a-descriptions-item>
     <a-descriptions-item :label="$t('label.clustertype')">{{ $t(resource.clustertype === 'ExternalManaged' ? 'label.external.managed' : 'label.cloud.managed') }}</a-descriptions-item>
