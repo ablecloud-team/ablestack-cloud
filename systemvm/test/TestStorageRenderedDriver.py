@@ -124,4 +124,60 @@ class StorageRenderedDriverTest(unittest.TestCase):
         self.assertIsNone(source['generation']);self.assertEqual(desired,json.loads((store.pointer()/'desired-state.json').read_text()))
         self.assertIn('initialRootScope',result['activation'])
 
+    def test_service_release_verifies_forward_or_only_exact_protected_rollback_source(self):
+        from rendered_generation import DOMAINS,rendered_json
+        service={"instanceUuid":str(uuid.uuid4()),"operationUuid":str(uuid.uuid4()),"revision":4};service["maintenanceUuid"]=service["operationUuid"]
+        old={"instanceUuid":service["instanceUuid"],"operationUuid":str(uuid.uuid4()),"revision":3,"configurationSha256":"a"*64}
+        new={**{key:service[key] for key in ("instanceUuid","operationUuid","revision")},"configurationSha256":"b"*64}
+        store=RenderedGeneration(self.root/"render");driver=RenderedDriver(self.cli,store)
+        source={"scope":{key:old[key] for key in ("instanceUuid","operationUuid","revision")},"configurationSha256":"a"*64,"manifestSha256":"c"*64}
+        current={"scope":{key:new[key] for key in ("instanceUuid","operationUuid","revision")},"configurationSha256":"b"*64,"manifestSha256":"d"*64}
+        activation={"scope":{key:service[key] for key in ("instanceUuid","operationUuid","revision")},"phase":"COMPLETE"}
+        generation=new;verified={domain:True for domain in DOMAINS}
+        store.status=lambda:{"bootHeld":False,"current":current,"activation":activation};store.pointer=lambda:self.root/"known"
+        driver.generation=lambda:{"generation":generation,"configurationSha256":generation["configurationSha256"],"generationStatus":"IN_SYNC","pendingOperationUuid":None}
+        driver.runtime.command=lambda args:{"bootHeld":True,"scope":service,"maintenanceKind":"SERVICE"}
+        driver.verify=lambda path:verified
+        self.assertFalse(driver.execute("render-maintenance-verify",{**service,"verifiedGeneration":new})["rollbackVerified"])
+        checkpoint=self.root/"maintenance";checkpoint.mkdir(mode=0o700)
+        rendered_json(checkpoint/"service-maintenance.json",{"scope":service,"phase":"HELD","sourceGeneration":old,"sourceRendered":source,"sourceActivation":None})
+        generation=old;current=source;activation={**activation,"phase":"ROLLED_BACK"}
+        with patch.dict(os.environ,{"ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR":str(checkpoint)}):
+            self.assertTrue(driver.execute("render-maintenance-verify",{**service,"verifiedGeneration":old})["rollbackVerified"])
+            current={**source,"manifestSha256":"f"*64}
+            with self.assertRaises(ValueError):driver.execute("render-maintenance-verify",{**service,"verifiedGeneration":old})
+            current=source;activation={**activation,"phase":"COMPLETE"}
+            with self.assertRaises(ValueError):driver.execute("render-maintenance-verify",{**service,"verifiedGeneration":old})
+            activation={**activation,"phase":"ROLLED_BACK"};verified={**verified,"NFS":False}
+            with self.assertRaisesRegex(ValueError,"all-four"):driver.execute("render-maintenance-verify",{**service,"verifiedGeneration":old})
+
+    def test_service_cancel_before_activation_resumes_only_captured_file_domains_and_marks_source_unchanged(self):
+        from rendered_generation import DOMAINS,rendered_json
+        service={"instanceUuid":str(uuid.uuid4()),"operationUuid":str(uuid.uuid4()),"revision":4};service["maintenanceUuid"]=service["operationUuid"]
+        old={"instanceUuid":service["instanceUuid"],"operationUuid":str(uuid.uuid4()),"revision":3,"configurationSha256":"a"*64}
+        manifest={"scope":{key:old[key] for key in ("instanceUuid","operationUuid","revision")},"configurationSha256":"a"*64,"manifestSha256":"c"*64}
+        checkpoint_root=self.root/"maintenance";checkpoint_root.mkdir(mode=0o700)
+        checkpoint={"scope":service,"phase":"HELD","sourceGeneration":old,"sourceRendered":manifest,"sourceActivation":None,
+                    "stoppedUnits":["ablestack-storage-ganesha@known.service","ablestack-storage-smb@"+"d"*24+".service"]}
+        record=checkpoint_root/"service-maintenance.json";rendered_json(record,checkpoint)
+        store=RenderedGeneration(self.root/"render");driver=RenderedDriver(self.cli,store);status={"bootHeld":False,"current":manifest,"activation":None}
+        store.status=lambda:status;store.pointer=lambda:self.root/"source"
+        driver.runtime.command=lambda args:{"bootHeld":True,"scope":service,"maintenanceKind":"SERVICE"}
+        driver.generation=lambda:{"generation":old,"configurationSha256":"a"*64,"generationStatus":"IN_SYNC","pendingOperationUuid":None}
+        driver.verify=lambda path:{domain:True for domain in DOMAINS};replayed=[];driver.runtime.replay=lambda path,domain:replayed.append(domain)
+        authorization=self.root/"authorization";authorization.mkdir(mode=0o700);writer=authorization/"writer.json"
+        def authorize(request,source_only=False):
+            self.assertTrue(source_only);rendered_json(writer,{"scope":service});return writer
+        driver.authorize_units=authorize
+        with patch.dict(os.environ,{"ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR":str(checkpoint_root)}):
+            with self.assertRaises(ValueError):driver.execute("render-maintenance-verify",{**service,"verifiedGeneration":old})
+            resumed=driver.execute("render-maintenance-resume-source",service)
+            self.assertEqual(["NFS","SMB"],replayed);self.assertTrue(resumed["blockTargetsPreserved"]);self.assertFalse(resumed["generationAdvanced"])
+            verified=driver.execute("render-maintenance-verify",{**service,"verifiedGeneration":old})
+            self.assertTrue(verified["sourceUnchangedVerified"]);self.assertFalse(verified["rollbackVerified"]);self.assertFalse(verified["activationOccurred"])
+            self.assertFalse(writer.exists());self.assertEqual("VERIFIED",json.loads(record.read_text())["sourceResumePhase"])
+            status["activation"]={"scope":{key:service[key] for key in ("instanceUuid","operationUuid","revision")},"phase":"ACTIVATING"}
+            with self.assertRaises(ValueError):driver.execute("render-maintenance-resume-source",service)
+            self.assertEqual(["NFS","SMB"],replayed)
+
 if __name__=='__main__':unittest.main()

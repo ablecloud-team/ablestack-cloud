@@ -109,7 +109,7 @@ manifest = {
     "configurationGenerationSchemaVersion": "1",
     "identityCapsuleSchemaVersion": "1",
     "configurationGenerationRootTransfer": ["ADOPT", "ALIGN"],
-    "supportedFeatures": ["NESTED_FILE_SHARE", "NFS_NUMERIC_IDENTITY", "POSIX_DIRECTORY_POLICY", "SMB_NETWORK_ACL", "SMB_CREATION_MODE", "SMB_PARENT_OWNER", "SMB_FORCED_IDENTITY"],
+    "supportedFeatures": ["NESTED_FILE_SHARE", "NFS_NUMERIC_IDENTITY", "POSIX_DIRECTORY_POLICY", "SMB_NETWORK_ACL", "SMB_CREATION_MODE", "SMB_PARENT_OWNER", "SMB_FORCED_IDENTITY", "LOGICAL_RESOURCE_RESERVATION", "SERVICE_MAINTENANCE", "RENDERED_CONFIG_GENERATION_HANDLER"],
 }
 Path(output).write_text(json.dumps(manifest, sort_keys=True, separators=(",", ":")) + "\n", encoding="utf-8")
 PY

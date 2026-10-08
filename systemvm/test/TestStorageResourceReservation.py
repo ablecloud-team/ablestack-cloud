@@ -34,7 +34,7 @@ class StorageResourceReservationTest(unittest.TestCase):
         self.request={**self.scope,'requirements':self.requirements}
 
     def test_status_never_creates_files_and_does_not_claim_ram_allocation(self):
-        result=self.store.status();self.assertTrue(result['reservationSupported']);self.assertFalse(result['reservationAcquired']);self.assertTrue(result['logicalReservationOnly']);self.assertFalse((self.root/'reservation').exists())
+        result=self.store.status();self.assertTrue(result['reservationSupported']);self.assertFalse(result['reservationAcquired']);self.assertTrue(result['logicalReservationOnly']);self.assertIn('LOGICAL_RESOURCE_RESERVATION',result['supportedFeatures']);self.assertFalse((self.root/'reservation').exists())
 
     def test_acquire_renew_release_are_scoped_and_keep_a_logical_expiry(self):
         result=self.store.execute('acquire',self.request);self.assertTrue(result['reservationAcquired']);self.assertEqual(91000,result['leaseExpiresAt'])
