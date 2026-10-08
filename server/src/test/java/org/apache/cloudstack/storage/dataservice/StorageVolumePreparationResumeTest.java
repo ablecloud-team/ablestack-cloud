@@ -29,9 +29,10 @@ import org.mockito.Mockito;
 import org.springframework.test.util.ReflectionTestUtils;
 public class StorageVolumePreparationResumeTest {
     private static final class Manager extends StorageServiceManagerImpl {
-        VolumeVO volume;boolean busy,noFormat=true,wrongFilesystem;int mutations;
+        VolumeVO volume;boolean busy,noFormat=true,wrongFilesystem,partial;int mutations;
         @Override protected VolumeVO requireVolume(Long id){return volume;}
         @Override protected void validateVolumeResumeScope(StorageServiceInstanceVO instance,VolumeVO volume){ }
+        @Override protected void requireVolumeFormatterCompletion(StorageServiceInstanceVO instance, VolumeVO volume) {if(partial)throw new CloudRuntimeException("formatter has only a partial header");}
         @Override protected void requireVolumeResumeIdle(StorageServiceInstanceVO instance,StorageServiceOperationVO own){if(busy)throw new CloudRuntimeException("formatter active");}
         @Override protected JsonObject rootGuest(StorageServiceInstanceVO instance,String command,JsonObject request,int timeout){Assert.assertEquals("volume operation resume",command);Assert.assertEquals("MOUNT_EXISTING",request.get("importMode").getAsString());Assert.assertTrue(request.get("resumeOnly").getAsBoolean());Assert.assertFalse(request.has("devicePath"));mutations++;JsonObject result=new JsonObject();result.addProperty("success",true);result.addProperty("resumed",true);result.addProperty("resumeOnly",true);result.addProperty("formatInvoked",!noFormat);result.addProperty("formatterActive",false);result.add("instanceUuid",request.get("instanceUuid"));result.add("managerOperationUuid",request.get("managerOperationUuid"));result.add("revision",request.get("revision"));result.add("volumeUuid",request.get("volumeUuid"));result.add("operationId",request.get("operationId"));result.addProperty("matchedBy","VOLUME_SERIAL");result.addProperty("filesystemUuid",wrongFilesystem?"foreign":"original-filesystem");return result;}
     }
@@ -41,4 +42,11 @@ public class StorageVolumePreparationResumeTest {
     @Test public void activeFormatterAndChangedPinnedSizeAreRejectedBeforeMutation(){manager.busy=true;Assert.assertThrows(CloudRuntimeException.class,()->manager.recoverVolumePreparation(instance,operation));Assert.assertEquals(0,manager.mutations);manager.busy=false;Mockito.when(manager.volume.getSize()).thenReturn(2048L);Assert.assertThrows(InvalidParameterValueException.class,()->manager.recoverVolumePreparation(instance,operation));Assert.assertEquals(0,manager.mutations);}
     @Test public void filesystemMismatchOrAbsentNoFormatEvidenceKeepsRecoveryRequired(){manager.wrongFilesystem=true;Assert.assertThrows(CloudRuntimeException.class,()->manager.recoverVolumePreparation(instance,operation));Assert.assertEquals("RECOVERY_REQUIRED",operation.getState());manager.wrongFilesystem=false;manager.noFormat=false;Assert.assertThrows(CloudRuntimeException.class,()->manager.recoverVolumePreparation(instance,operation));Assert.assertEquals("RECOVERY_REQUIRED",operation.getState());}
     @Test public void failedDurableIntentCannotDispatchNativeMutation(){Mockito.when(operations.update(Mockito.anyLong(),Mockito.any())).thenReturn(false);Assert.assertThrows(CloudRuntimeException.class,()->manager.recoverVolumePreparation(instance,operation));Assert.assertEquals(0,manager.mutations);}
+    @Test public void partialHeaderWithoutSuccessfulFormatterProofNeverDispatchesMountOrProbe() {
+        manager.partial=true;
+        Assert.assertThrows(CloudRuntimeException.class,()->manager.recoverVolumePreparation(instance,operation));
+        Assert.assertEquals(0,manager.mutations);
+        Assert.assertEquals("RECOVERY_REQUIRED",operation.getState());
+    }
+
 }

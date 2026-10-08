@@ -32,11 +32,19 @@ public class StorageConfigInitialVolumePreparationTest {
         protected Long configurationVolumeId(StorageServiceInstanceVO instance, String uuid) { return 45L; }
         protected int backingVolumeFormatDeadline(long bytes) { return 420; }
     }
+    private void sparse(Manager manager) {
+        Mockito.when(manager.volume.getProvisioningType()).thenReturn(com.cloud.storage.Storage.ProvisioningType.SPARSE);
+        com.cloud.storage.dao.DiskOfferingDao offerings=Mockito.mock(com.cloud.storage.dao.DiskOfferingDao.class);
+        com.cloud.storage.DiskOfferingVO offering=Mockito.mock(com.cloud.storage.DiskOfferingVO.class);
+        Mockito.when(offering.getProvisioningType()).thenReturn(com.cloud.storage.Storage.ProvisioningType.SPARSE);
+        Mockito.when(offerings.findById(Mockito.anyLong())).thenReturn(offering);
+        ReflectionTestUtils.setField(manager,"configurationDiskOfferingDao",offerings);
+    }
     @Test public void onlyExplicitNewInitialDataUsesEmptyFormattingAndExistingAlwaysMounts() {
         Manager manager = new Manager();StorageServiceGuestCommandDispatcher dispatcher = Mockito.mock(StorageServiceGuestCommandDispatcher.class);
         ReflectionTestUtils.setField(manager, "guestCommandDispatcher", dispatcher);
         StorageServiceInstanceVO instance = Mockito.mock(StorageServiceInstanceVO.class);Mockito.when(instance.getVmId()).thenReturn(43L);Mockito.when(instance.getUuid()).thenReturn("instance");
-        VolumeVO volume = Mockito.mock(VolumeVO.class);manager.volume=volume;Mockito.when(volume.getUuid()).thenReturn("volume");Mockito.when(volume.getSize()).thenReturn(21474836480L);
+        VolumeVO volume = Mockito.mock(VolumeVO.class);manager.volume=volume;Mockito.when(volume.getUuid()).thenReturn("volume");Mockito.when(volume.getSize()).thenReturn(21474836480L);sparse(manager);
         Mockito.when(dispatcher.dispatch(Mockito.any())).thenAnswer(call -> {
             StorageServiceGuestCommand command = call.getArgument(0);
             Assert.assertEquals("volume attach inspect",command.getOperation());Assert.assertEquals(540,command.getTimeoutSeconds());
@@ -57,7 +65,7 @@ public class StorageConfigInitialVolumePreparationTest {
         Manager manager = new Manager();StorageServiceGuestCommandDispatcher dispatcher = Mockito.mock(StorageServiceGuestCommandDispatcher.class);
         ReflectionTestUtils.setField(manager,"guestCommandDispatcher",dispatcher);
         StorageServiceInstanceVO instance = Mockito.mock(StorageServiceInstanceVO.class);Mockito.when(instance.getVmId()).thenReturn(43L);
-        manager.volume=Mockito.mock(VolumeVO.class);Mockito.when(manager.volume.getUuid()).thenReturn("volume");Mockito.when(manager.volume.getSize()).thenReturn(21474836480L);
+        manager.volume=Mockito.mock(VolumeVO.class);Mockito.when(manager.volume.getUuid()).thenReturn("volume");Mockito.when(manager.volume.getSize()).thenReturn(21474836480L);sparse(manager);
         Mockito.when(dispatcher.dispatch(Mockito.any())).thenReturn(new StorageServiceGuestCommandResult(true,"ok","{\"success\":true,\"volumeUuid\":\"volume\"}"));
         Assert.assertThrows(CloudRuntimeException.class,()->manager.prepareConfigurationInitialVolume(instance,new JsonObject()));
     }

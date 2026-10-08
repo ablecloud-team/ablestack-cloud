@@ -111,7 +111,17 @@ public final class StorageServiceConfiguration {
         return row.getMetadataJson() == null ? new JsonObject() : new com.google.gson.JsonParser().parse(row.getMetadataJson()).getAsJsonObject();
     }
     private void update(StorageConfigArtifactVO row, JsonObject metadata, String state) {
-        row.setMetadataJson(metadata.toString());row.setState(state);row.setUpdated(new Date());artifacts.update(row.getId(), row);
+        com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<Void>) status -> {
+            StorageConfigArtifactVO locked = artifacts.lockRow(row.getId(), true);
+            if (locked == null) throw new CloudRuntimeException("Configuration artifact disappeared before its metadata update");
+            JsonObject current = metadata(locked);
+            // Allocation receipts are independently CAS-updated. A stale phase snapshot cannot erase them.
+            if (current.has("receipts")) metadata.add("receipts", current.get("receipts").deepCopy());
+            locked.setMetadataJson(metadata.toString());locked.setState(state);locked.setUpdated(new Date());
+            if (!artifacts.update(locked.getId(), locked)) throw new CloudRuntimeException("Configuration artifact metadata update failed");
+            row.setMetadataJson(locked.getMetadataJson());row.setState(state);row.setUpdated(locked.getUpdated());
+            return null;
+        });
     }
     private JsonObject publicRow(StorageConfigArtifactVO row) {
         JsonObject result = new JsonObject();result.addProperty("id", row.getUuid());result.addProperty("kind", row.getKind());
@@ -329,21 +339,38 @@ public final class StorageServiceConfiguration {
         String snapshot = manager.captureConfigurationSnapshot(target.getId());
         Map<String, byte[]> current = StorageConfigSemantic.export(snapshot, manager.configurationInstanceMetadata(target), manager.configurationVolumeMetadata(snapshot));
         long revision = revision(target.getId());String targetUuid = target.getUuid();JsonObject blueprint = null;
+        JsonObject allocationPlan = null;
+        JsonObject metadata = metadata(row);
+        JsonObject requestedVolumeMapping = new JsonObject();
         if ("CREATE_NEW".equals(mode)) {
             if (!mappings.has("createNew") || !mappings.get("createNew").isJsonObject()) throw new InvalidParameterValueException("New-service blueprint requires explicit zone/network/offering/storage mapping");
-            blueprint = mappings.getAsJsonObject("createNew");manager.preflightConfigurationNewService(blueprint);
+            blueprint = mappings.getAsJsonObject("createNew");
+            if (!metadata.has("createdTargetInstanceUuid")) manager.preflightConfigurationNewService(blueprint);
+            for (String field : new String[] {"createNew", "volumes", "newVolumes", "initialVolumeSourceUuid", "runtimeBundleUuid"}) {
+                if (mappings.has(field)) requestedVolumeMapping.add(field, mappings.get(field).deepCopy());
+            }
             if (!mappings.has("runtimeBundleUuid") || !mappings.has("initialVolumeSourceUuid")) {
                 throw new InvalidParameterValueException("New-service plan requires a compatible runtime bundle and explicit initial volume source mapping");
             }
-            String initialMapping = mappings.get("initialVolumeSourceUuid").getAsString();
-            if (mappings.has("volumes") && "NEW".equals(mappings.getAsJsonObject("volumes").has(initialMapping)
-                    ? mappings.getAsJsonObject("volumes").get(initialMapping).getAsString() : null)) {
-                mappings.getAsJsonObject("volumes").addProperty(initialMapping, UUID.randomUUID().toString());
+            if (metadata.has("createdTargetInstanceUuid")) {
+                JsonObject previous = metadata.getAsJsonObject("plan");
+                if (!requestedVolumeMapping.equals(metadata.get("requestedVolumeMapping")) || !previous.has("volumeAllocationPlan")) {
+                    throw new InvalidParameterValueException("A partially created clone must retain its exact reviewed allocation scope and mapping");
+                }
+                allocationPlan = previous.getAsJsonObject("volumeAllocationPlan").deepCopy();
+                StorageConfigurationVolumePlan.requireFrozen(allocationPlan);
+                targetUuid = previous.get("targetInstanceUuid").getAsString();
+            } else {
+                String namespace = metadata.has("allocationNamespace") ? metadata.get("allocationNamespace").getAsString() : UUID.randomUUID().toString();
+                targetUuid = metadata.has("plannedTargetInstanceUuid") ? metadata.get("plannedTargetInstanceUuid").getAsString() : UUID.randomUUID().toString();
+                allocationPlan = manager.buildConfigurationVolumePlan(archive, mappings, row, namespace, targetUuid);
+                metadata.addProperty("allocationNamespace", namespace);metadata.addProperty("plannedTargetInstanceUuid", targetUuid);
+                metadata.add("requestedVolumeMapping", requestedVolumeMapping.deepCopy());
             }
+            mappings.add("volumes", allocationPlan.getAsJsonObject("volumeMappings").deepCopy());
             StorageConfigRestorePlan.validateCloneInitialVolume(archive, mappings);
-            manager.preflightConfigurationAdditionalVolumes(blueprint, mappings.getAsJsonObject("volumes"), mappings.get("initialVolumeSourceUuid").getAsString());
             manager.preflightConfigurationRuntimeBundle(mappings.get("runtimeBundleUuid").getAsString());
-            targetUuid = UUID.randomUUID().toString();revision = 0;current = new LinkedHashMap<>();
+            revision = 0;current = new LinkedHashMap<>();
             for (String kind : StorageConfigRestorePlan.ROW_KEYS.keySet()) current.put("desired/" + kind + ".json", "[]".getBytes(StandardCharsets.UTF_8));
             JsonArray volumes = new JsonArray();
             JsonObject mappedVolumes = mappings.has("volumes") ? mappings.getAsJsonObject("volumes") : new JsonObject();
@@ -359,6 +386,7 @@ public final class StorageServiceConfiguration {
             plan.addProperty("plannedTargetIdentity", true);
             plan.add("runtimeBundleUuid", mappings.get("runtimeBundleUuid").deepCopy());
             plan.add("initialVolumeSourceUuid", mappings.get("initialVolumeSourceUuid").deepCopy());
+            plan.add("volumeAllocationPlan", allocationPlan.deepCopy());
         }
         plan.addProperty("artifactSha256", row.getSha256());if (blueprint == null) plan.addProperty("targetName", target.getName());
         plan.add("requiredCredentials", requiredCredentials(archive));
@@ -375,7 +403,11 @@ public final class StorageServiceConfiguration {
             }
             plan.add("directoryPreparation", directories);
         }
-        JsonObject metadata = metadata(row);metadata.add("plan", plan);
+        if (metadata.has("createdTargetInstanceUuid")) {
+            // Repeat review retains domain identities too; partially created resources cannot be rebound by a new plan.
+            plan = metadata.getAsJsonObject("plan").deepCopy();
+        }
+        metadata.add("plan", plan);
         String token = UUID.randomUUID().toString() + UUID.randomUUID().toString();JsonObject capability = new JsonObject();
         capability.addProperty("hash", StorageConfigArchive.sha256(token.getBytes(StandardCharsets.UTF_8)));
         capability.addProperty("user", CallContext.current().getCallingUserId());capability.addProperty("expires", System.currentTimeMillis() + 300000);
@@ -427,21 +459,25 @@ public final class StorageServiceConfiguration {
                 throw new InvalidParameterValueException("Source configuration changed after clone planning");
             }
             manager.preflightConfigurationRuntimeBundle(plan.get("runtimeBundleUuid").getAsString());
-            if (!metadata.has("createdTargetInstanceUuid")) manager.preflightConfigurationAdditionalVolumes(plan.getAsJsonObject("createNew"),
-                    plan.getAsJsonObject("volumeMappings"), plan.get("initialVolumeSourceUuid").getAsString());
+            if (!plan.has("volumeAllocationPlan")) throw new InvalidParameterValueException("Clone requires a newly reviewed allocation plan; legacy plans cannot allocate additional DATA");
+            StorageConfigurationVolumePlan.requireFrozen(plan.getAsJsonObject("volumeAllocationPlan"));
             if (metadata.has("createdTargetInstanceUuid")) selectedTarget = manager.configurationInstanceByUuid(metadata.get("createdTargetInstanceUuid").getAsString());
             else {
                 manager.preflightConfigurationNewService(plan.getAsJsonObject("createNew"));
                 selectedTarget = manager.createConfigurationNewService(plan.getAsJsonObject("createNew"));
                 metadata.addProperty("createdTargetInstanceUuid", selectedTarget.getUuid());metadata.addProperty("restoreState", "TARGET_CREATED");update(row, metadata, row.getState());
             }
-            if (!"TARGET_PREPARED".equals(metadata.has("restoreState") ? metadata.get("restoreState").getAsString() : "")) {
+            if (!plan.get("runtimeBundleUuid").getAsString().equals(metadata.has("runtimePreparedBundleUuid") ? metadata.get("runtimePreparedBundleUuid").getAsString() : null)) {
                 manager.upgradeConfigurationNewServiceRuntime(selectedTarget, plan.get("runtimeBundleUuid").getAsString());
+                metadata.add("runtimePreparedBundleUuid", plan.get("runtimeBundleUuid").deepCopy());
+                update(row, metadata, row.getState());
             }
-            manager.prepareConfigurationInitialVolume(selectedTarget, plan.getAsJsonObject("createNew"));
             executionPlan.addProperty("targetInstanceUuid", selectedTarget.getUuid());executionPlan.addProperty("expectedRevision", 0);
-            String initial = plan.get("initialVolumeSourceUuid").getAsString();
-            executionPlan.getAsJsonObject("volumeMappings").addProperty(initial, manager.configurationInitialVolume(selectedTarget).getUuid());
+            JsonObject realized = manager.bindConfigurationVolumeExecution(selectedTarget, row, plan.getAsJsonObject("volumeAllocationPlan"));
+            if (metadata.has("volumeExecutionPlan") && !realized.equals(metadata.get("volumeExecutionPlan"))) throw new CloudRuntimeException("Clone execution realization changed after persistence");
+            metadata.add("volumeExecutionPlan", realized.deepCopy());
+            executionPlan.add("volumeAllocationPlan", realized.deepCopy());
+            executionPlan.add("volumeMappings", realized.getAsJsonObject("volumeMappings").deepCopy());
             metadata.addProperty("restoreState", "TARGET_PREPARED");update(row, metadata, row.getState());
         }
         final StorageServiceInstanceVO target = selectedTarget;final JsonObject reviewed = executionPlan;
@@ -451,7 +487,10 @@ public final class StorageServiceConfiguration {
                     || !capability.get("baselineSha256").getAsString().equals(StorageConfigArchive.sha256(current.getBytes(StandardCharsets.UTF_8))))) {
                 throw new InvalidParameterValueException("Configuration changed after planning; a new dry-run is required");
             }
-            if (createNew) manager.prepareConfigurationAdditionalVolumes(target, reviewed.getAsJsonObject("volumeMappings"), reviewed.get("initialVolumeSourceUuid").getAsString());
+            if (createNew) {
+                manager.prepareConfigurationInitialVolume(target, reviewed.getAsJsonObject("createNew"));
+                manager.prepareConfigurationVolumeAllocations(target, row, reviewed.getAsJsonObject("volumeAllocationPlan"));
+            }
             manager.checkpointConfigurationIdentity(target);
             metadata.remove("planToken");metadata.addProperty("restoreState", "APPLYING");update(row, metadata, row.getState());
             new StorageConfigDomainRestore(manager).apply(target, reviewed, credentials);

@@ -755,10 +755,11 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
     @ActionEvent(eventType = EventTypes.EVENT_SHAREDFS_STOP, eventDescription = "Stopping Shared FileSystem")
     public SharedFS stopSharedFS(Long sharedFSId, Boolean forced) {
         SharedFSVO sharedFS = sharedFSDao.findById(sharedFSId);
-        requireNoRootMaintenance(sharedFS);
-        requireNativeLifecycleIdle(sharedFS);
+        if (sharedFS == null) throw new InvalidParameterValueException("Shared filesystem is unavailable");
         Account caller = CallContext.current().getCallingAccount();
         accountMgr.checkAccess(caller, null, false, sharedFS);
+        requireNoRootMaintenance(sharedFS);
+        requireNativeLifecycleIdle(sharedFS);
         Set<State> validStates = new HashSet<>(List.of(State.Ready));
         if (!validStates.contains(sharedFS.getState())) {
             throw new InvalidParameterValueException("Shared FileSystem can be stopped only if it is in the " + State.Ready + " state");
@@ -792,10 +793,11 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
     @ActionEvent(eventType = EventTypes.EVENT_SHAREDFS_RESTART, eventDescription = "Restarting Shared FileSystem", async = true)
     public SharedFS restartSharedFS(Long sharedFSId, boolean cleanup) throws OperationTimedoutException, ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException {
         SharedFSVO sharedFS = sharedFSDao.findById(sharedFSId);
-        requireNoRootMaintenance(sharedFS);
-        requireNativeLifecycleIdle(sharedFS);
+        if (sharedFS == null) throw new InvalidParameterValueException("Shared filesystem is unavailable");
         Account caller = CallContext.current().getCallingAccount();
         accountMgr.checkAccess(caller, null, false, sharedFS);
+        requireNoRootMaintenance(sharedFS);
+        requireNativeLifecycleIdle(sharedFS);
 
         Set<State> validStates = new HashSet<>(List.of(State.Ready, State.Stopped));
         if (!validStates.contains(sharedFS.getState())) {
@@ -959,10 +961,11 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
     @ActionEvent(eventType = EventTypes.EVENT_SHAREDFS_CHANGE_DISK_OFFERING, eventDescription = "Change Shared FileSystem disk offering")
     public SharedFS changeSharedFSDiskOffering(ChangeSharedFSDiskOfferingCmd cmd) throws ResourceAllocationException {
         SharedFSVO sharedFS = sharedFSDao.findById(cmd.getId());
-        requireNoRootMaintenance(sharedFS);
-        requireNativeLifecycleIdle(sharedFS);
+        if (sharedFS == null) throw new InvalidParameterValueException("Shared filesystem is unavailable");
         Account caller = CallContext.current().getCallingAccount();
         accountMgr.checkAccess(caller, null, false, sharedFS);
+        requireNoRootMaintenance(sharedFS);
+        requireNativeLifecycleIdle(sharedFS);
         Set<State> validStates = new HashSet<>(List.of(State.Ready, State.Stopped));
 
         if (!validStates.contains(sharedFS.getState())) {
@@ -984,11 +987,11 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
     @ActionEvent(eventType = EventTypes.EVENT_SHAREDFS_CHANGE_SERVICE_OFFERING, eventDescription = "Change Shared FileSystem service offering")
     public SharedFS changeSharedFSServiceOffering(ChangeSharedFSServiceOfferingCmd cmd) throws OperationTimedoutException, ResourceUnavailableException, InsufficientCapacityException, ManagementServerException, VirtualMachineMigrationException {
         SharedFSVO sharedFS = sharedFSDao.findById(cmd.getId());
+        if (sharedFS == null) throw new InvalidParameterValueException("Shared filesystem is unavailable");
+        Account caller = CallContext.current().getCallingAccount();
+        accountMgr.checkAccess(caller, null, false, sharedFS);
         requireNoRootMaintenance(sharedFS);
         requireNativeLifecycleIdle(sharedFS);
-        Account caller = CallContext.current().getCallingAccount();
-        if (sharedFS==null) throw new InvalidParameterValueException("Shared filesystem is unavailable");
-        accountMgr.checkAccess(caller, null, false, sharedFS);
         if (sharedFS.getState()==State.Ready) {
             final SharedFSVO running=sharedFS;
             return withSharedFSWriterLock(running, () -> scaleSharedFSOnline(running,cmd.getServiceOfferingId()));

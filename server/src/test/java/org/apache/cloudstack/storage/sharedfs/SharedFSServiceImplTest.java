@@ -18,6 +18,8 @@
 package org.apache.cloudstack.storage.sharedfs;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
@@ -945,6 +947,29 @@ public class SharedFSServiceImplTest {
         SharedFSVO shared=getMockSharedFS();shared.setVmId(s_vmId);com.cloud.vm.VMInstanceVO vm=mock(com.cloud.vm.VMInstanceVO.class);when(vm.getId()).thenReturn(s_vmId);when(vm.getState()).thenReturn(com.cloud.vm.VirtualMachine.State.Running);when(vmInstanceDao.findById(s_vmId)).thenReturn(vm);VolumeVO data=mock(VolumeVO.class);when(data.getUuid()).thenReturn("owned-data");when(volumeDao.findByInstanceAndType(s_vmId,Volume.Type.DATADISK)).thenReturn(List.of(data));
         when(guestCommandDispatcher.dispatch(any())).thenAnswer(call->{org.apache.cloudstack.storage.dataservice.StorageServiceGuestCommand command=call.getArgument(0);return new StorageServiceGuestCommandResult(true,"observed",command.getOperation().equals("operation writer-idle")?"{\"success\":true,\"status\":\"WRITER_IDLE\"}":"{\"success\":true,\"status\":\"TIMED_OUT_PENDING_RECONCILE\",\"formatterActive\":false,\"operation\":{\"formatStarted\":true,\"phase\":\"TIMED_OUT_PENDING_RECONCILE\",\"filesystemUuid\":\"partial-header\"}}");});
         Assert.assertThrows(CloudRuntimeException.class,()->sharedFSServiceImpl.requireNativeLifecycleIdle(shared));verify(lifeCycle,never()).stopSharedFS(any(),any());verify(lifeCycle,never()).deleteSharedFS(any(),any(),any());
+    }
+
+    @Test
+    public void unauthorizedLifecycleCallsNeverProbeTheGuest() throws Exception {
+        when(sharedFSDao.findById(s_sharedFSId)).thenReturn(getMockSharedFS());
+        Mockito.doThrow(new PermissionDeniedException("foreign owner")).when(accountMgr).checkAccess(any(), any(), eq(false), any(SharedFS.class));
+        ChangeSharedFSDiskOfferingCmd disk = mock(ChangeSharedFSDiskOfferingCmd.class);
+        when(disk.getId()).thenReturn(s_sharedFSId);
+        ChangeSharedFSServiceOfferingCmd service = mock(ChangeSharedFSServiceOfferingCmd.class);
+        when(service.getId()).thenReturn(s_sharedFSId);
+        Assert.assertThrows(PermissionDeniedException.class, () -> sharedFSServiceImpl.stopSharedFS(s_sharedFSId, false));
+        Assert.assertThrows(PermissionDeniedException.class, () -> sharedFSServiceImpl.restartSharedFS(s_sharedFSId, false));
+        Assert.assertThrows(PermissionDeniedException.class, () -> sharedFSServiceImpl.changeSharedFSDiskOffering(disk));
+        Assert.assertThrows(PermissionDeniedException.class, () -> sharedFSServiceImpl.changeSharedFSServiceOffering(service));
+        verifyNoInteractions(guestCommandDispatcher);
+    }
+
+    @Test
+    public void missingLifecycleResourceFailsBeforeAnyGuestObservation() {
+        when(sharedFSDao.findById(999L)).thenReturn(null);
+        Assert.assertThrows(InvalidParameterValueException.class, () -> sharedFSServiceImpl.stopSharedFS(999L, false));
+        Assert.assertThrows(InvalidParameterValueException.class, () -> sharedFSServiceImpl.restartSharedFS(999L, false));
+        verifyNoInteractions(guestCommandDispatcher);
     }
 
 }
