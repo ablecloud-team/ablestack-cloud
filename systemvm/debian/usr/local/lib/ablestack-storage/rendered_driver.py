@@ -36,6 +36,7 @@ from rendered_prerequisites import RenderedPrerequisites
 from ganesha_dbus import GaneshaDbus
 from rendered_credentials import credential_json, credential_bindings, credential_recovery_key, credential_target_inputs
 from root_source_recovery import RootSourceRecovery
+from service_identity_source import ServiceIdentitySource
 from root_retained_authorization import RootRetainedAuthorization
 from root_configuration_capsule import root_configuration_sha256
 from nvme_credentials import protected_credential_json
@@ -50,6 +51,7 @@ class RenderedDriver:
         self.runtime.persist_one = self.persist_one
         self.nfs_config_root=Path("/etc/ganesha/ablestack-storage")
         self.root_source=RootSourceRecovery(self)
+        self.service_identity=ServiceIdentitySource(self)
         self.root_retained=RootRetainedAuthorization(self)
 
     def retained_authority(self,request,for_stage=False):
@@ -527,7 +529,11 @@ class RenderedDriver:
         if result.returncode:raise ValueError("Protocol boot guards could not be loaded")
 
     def execute(self, action, request=None, unit=None):
-        if action == "render-status": return {**self.store.status(),"rootSourceIdentityCheckpointSupported":True,"retainedRootRestoreSupported":True}
+        if action == "render-status": return {**self.store.status(),"rootSourceIdentityCheckpointSupported":True,"retainedRootRestoreSupported":True,"serviceIdentityCheckpointSupported":True}
+        if action=="render-service-capture-source":return self.service_identity.capture(request)
+        if action=="render-service-source-quiesce-guard":return self.service_identity.guard(request)
+        if action=="render-service-source-stopped":return self.service_identity.stopped(request)
+        if action=="render-service-identity-export-source":return self.service_identity.export_source(request)
         if action=="render-root-capture-source":return self.root_source.capture(request)
         if action=="render-root-capture-retained":return self.root_retained.capture(request)
         if action=="render-root-authorize-retained":return self.root_retained.authorize(request)

@@ -11604,8 +11604,19 @@ if action == "capabilities":
     print(json.dumps({"success": True, "schemaVersion": 1, "localIdentity": True, "adIdentity": False, "posixReceiptTransferSupported":True}))
 elif action == "export":
     names = request.get("names") or []
-    root_source=None;ad_metadata=None;records=None;configuration=None
-    if "templateUpgradeUuid" in request:
+    root_source=None;service_source=None;ad_metadata=None;records=None;configuration=None
+    if "templateUpgradeUuid" in request and "maintenanceUuid" in request:raise ValueError("Identity source export cannot mix ROOT and SERVICE scopes")
+    if "maintenanceUuid" in request:
+        service_scope={key:request[key] for key in ("instanceUuid","maintenanceUuid","operationUuid","revision")}
+        service_source=identity_command(("operation","generation","render-service-identity-export-source","/dev/stdin"),service_scope)
+        if service_source.get("scope")!=service_scope or service_source.get("serviceSourceStoppedVerified") is not True:
+            raise ValueError("SERVICE RAW identity export lacks its protected owned stopped source")
+        ad_metadata=service_source["adIdentity"]
+        if ad_metadata is not None:validate_ad_identity(ad_metadata)
+        records=service_source["posixPolicies"] if request.get("includePosixPolicyReceipts") is True else None
+        configuration={"generation":service_source["sourceGeneration"],"configurationSha256":service_source["sourceConfigurationSha256"]}
+        if request.get("sourceConfigurationSha256") not in (None,service_source["sourceConfigurationSha256"]):raise ValueError("SERVICE identity export source SHA differs")
+    elif "templateUpgradeUuid" in request:
         root_scope={key:request[key] for key in ("instanceUuid","templateUpgradeUuid","operationUuid","revision")}
         root_source=identity_command(("operation","generation","render-root-identity-export-source","/dev/stdin"),root_scope)
         if root_source.get("scope")!=root_scope or root_source.get("rootSourceStoppedVerified") is not True:
@@ -11618,11 +11629,7 @@ elif action == "export":
         domain_path = Path("/etc/ablestack-storage/smb-domain.json")
         domain = json.loads(domain_path.read_text()) if domain_path.exists() else {}
         if str(domain.get("joinState") or domain.get("state") or "").upper()=="JOINED":
-            actual=identity_command(("identity","domain","inspect","/dev/stdin"),{key:request[key] for key in ("instanceUuid","operationUuid","revision")})
-            if actual.get("identityVerified") is not True or not domain.get("machineConfigurationSha256"):
-                raise ValueError("SMB AD source lacks its complete verified machine configuration receipt")
-            ad_metadata={"schemaVersion":1,**{key:actual[key] for key in ("domain","realm","workgroup","netbiosName","machineSid","domainSid","machineAccountSid","servicePrincipals","trustVerified","idmapPolicy","dnsAliases")},"machineConfigurationSha256":domain["machineConfigurationSha256"]}
-            validate_ad_identity(ad_metadata)
+            raise ValueError("Joined AD RAW export requires typed SERVICE or ROOT AFTERSTOP source authority")
         if request.get("includePosixPolicyReceipts") is True:
             configuration=identity_command(("operation","generation","status"))
             if (configuration.get("generation",{}).get("instanceUuid")!=request["instanceUuid"]
@@ -11640,6 +11647,10 @@ elif action == "export":
         payload["sourceConfigurationSha256"]=root_source["sourceConfigurationSha256"]
         fresh=identity_command(("operation","generation","render-root-identity-export-source","/dev/stdin"),root_scope)
         if fresh!=root_source:raise ValueError("ROOT stopped source changed while RAW identity bytes were collected")
+    if service_source is not None:
+        payload["sourceConfigurationSha256"]=service_source["sourceConfigurationSha256"]
+        fresh=identity_command(("operation","generation","render-service-identity-export-source","/dev/stdin"),service_scope)
+        if fresh!=service_source:raise ValueError("SERVICE stopped source changed during RAW identity collection")
     validate_payload(payload)
     capsule=encrypt(payload,request["publicKey"],scope)
     reference=None
@@ -12467,7 +12478,8 @@ class ServiceMaintenance:
     def prove_unit(self,unit,require_active=True):
         managed_nfs=re.fullmatch(r"ablestack-storage-ganesha@([A-Za-z0-9_.-]+)\.service",unit)
         managed_smb=re.fullmatch(r"ablestack-storage-smb@([0-9a-f]{24})\.service",unit)
-        if not managed_nfs and not managed_smb:raise ValueError("SERVICE stop refuses a foreign or legacy acceptor")
+        managed_ad=unit=="ablestack-storage-winbind.service"
+        if not managed_nfs and not managed_smb and not managed_ad:raise ValueError("SERVICE stop refuses a foreign or legacy acceptor")
         output=self.run(["systemctl","show",unit,"--property=MainPID,ActiveState,SubState","--no-pager"],timeout=self.remaining())
         value=dict(line.split("=",1) for line in output.splitlines() if "=" in line)
         if value.get("ActiveState")!="active":
@@ -12477,11 +12489,14 @@ class ServiceMaintenance:
         if pid<=0:raise ValueError("SERVICE acceptor has no exact main PID")
         proc=Path("/proc")/str(pid);arguments=[os.fsdecode(item) for item in (proc/"cmdline").read_bytes().split(bytes([0])) if item]
         executable_path=os.readlink(proc/"exe");executable=Path(executable_path).name
-        allowed={"/usr/bin/ganesha.nfsd","/opt/ablestack-ganesha/5.5.3/bin/ganesha.nfsd"} if managed_nfs else {"/usr/sbin/smbd"}
+        allowed={"/usr/bin/ganesha.nfsd","/opt/ablestack-ganesha/5.5.3/bin/ganesha.nfsd"} if managed_nfs else {"/usr/sbin/winbindd"} if managed_ad else {"/usr/sbin/smbd"}
         if executable_path not in allowed:raise ValueError("SERVICE executable is outside its packaged paths")
         if managed_nfs:
             configuration="/etc/ganesha/ablestack-storage/"+managed_nfs[1]+".conf"
             if executable!="ganesha.nfsd" or arguments.count("-f")!=1 or arguments[arguments.index("-f")+1]!=configuration:raise ValueError("SERVICE NFS unit has a foreign executable/configuration")
+        elif managed_ad:
+            configuration="/etc/ablestack-storage/ad-machine.conf"
+            if arguments.count("--configfile="+configuration)!=1:raise ValueError("SERVICE owned AD daemon has a foreign configuration")
         else:
             configuration="/etc/samba/smb.conf"
             bindings=Path("/etc/ablestack-storage/smb-endpoint-listeners")/(managed_smb[1]+".json")
@@ -12501,6 +12516,7 @@ class ServiceMaintenance:
             addresses=re.findall(r"(?mi)^\s*Bind_Addr\s*=\s*([^;]+);",content);ports=re.findall(r"(?mi)^\s*NFS_Port\s*=\s*([0-9]+);",content)
             if len(addresses)!=1 or len(ports)!=1:raise ValueError("SERVICE NFS listener configuration is ambiguous")
             endpoints=[{"listenIp":str(ipaddress.ip_address(addresses[0].strip().strip(chr(34)))),"port":int(ports[0])}]
+        elif managed_ad:endpoints=[]
         else:endpoints=[{"listenIp":str(ipaddress.ip_address(endpoint["listenIp"])),"port":int(endpoint["port"])}]
         if any(not 1<=endpoint["port"]<=65535 for endpoint in endpoints):raise ValueError("SERVICE listener port is invalid")
         return {"unit":unit,"pid":pid,"startTicks":(proc/"stat").read_text().rpartition(")")[2].split()[19],"configurationPath":configuration,"listenerEndpoints":endpoints}
@@ -12521,7 +12537,7 @@ class ServiceMaintenance:
 
     def owned_units(self):
         output=self.run(["systemctl","list-units","--state=active","--type=service","--no-legend","--plain",
-                         "ablestack-storage-ganesha@*.service","ablestack-storage-smb@*.service",
+                         "ablestack-storage-ganesha@*.service","ablestack-storage-smb@*.service","ablestack-storage-winbind.service",
                          "smbd.service","nmbd.service","winbind.service","nfs-ganesha.service","nfs-server.service","nfs-kernel-server.service"],timeout=self.remaining())
         names=[line.split()[0] for line in output.splitlines() if line.split()]
         if len(names)!=len(set(names)):raise ValueError("SERVICE owned acceptor set is ambiguous")
@@ -12534,7 +12550,8 @@ class ServiceMaintenance:
         journal=self.maintenance.read(self.journal)
         if journal is not None and status["bootHeld"] and journal.get("scope")!=status["scope"]:raise ValueError("SERVICE journal scope differs from its boot hold")
         return {**status,"serviceMaintenanceSupported":True,"drainSupported":False,"phase":journal.get("phase") if journal and status["bootHeld"] else None,
-                "stoppedUnits":journal.get("stoppedUnits",[]) if journal and status["bootHeld"] else []}
+                "stoppedUnits":journal.get("stoppedUnits",[]) if journal and status["bootHeld"] else [],
+                **({key:journal[key] for key in ("serviceSourceStoppedVerified","stoppedReceiptSha256","sourceGeneration","sourceConfigurationSha256","publicAdPreStopSha256","publicLocalMachineSid") if key in journal} if journal and status["bootHeld"] else {})}
 
     def enter(self,request):
         desired=self.fence(request);status=self.maintenance.status()
@@ -12557,12 +12574,20 @@ class ServiceMaintenance:
                     or any(baseline.get("scope",{}).get(key)!=source_current.get(key) for key in ("instanceUuid","operationUuid","revision"))):
                 raise ValueError("SERVICE rendered baseline differs from its exact native source generation")
 
+        identity_checkpoint=self.maintenance.root/("service-identity-source-"+desired["operationUuid"]+".json")
+        domain_file=Path(os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_ROOT","/etc/ablestack-storage"))/"smb-domain.json"
+        domain_state=self.maintenance.read(domain_file) if domain_file.exists() or domain_file.is_symlink() else None
+        identity_required=bool(identity_checkpoint.exists() or identity_checkpoint.is_symlink() or isinstance(domain_state,dict) and str(domain_state.get("state") or domain_state.get("joinState") or "").upper()=="JOINED")
+        if identity_required:
+            captured=self.command(("operation","generation","render-service-source-quiesce-guard"),desired)
+            if captured.get("scope")!=desired or captured.get("sourceCaptured") is not True or captured.get("quiesceAuthorized") is not True:
+                raise ValueError("SERVICE identity stop lacks its protected PRESTOP capture")
         self.maintenance.enter(request,"SERVICE")
         if not journal or journal.get("scope")!=desired:
             journal={"scope":desired,"phase":"STOPPING","owners":owners,"stoppedUnits":[],"sourceGeneration":source_generation["generation"],"sourceRendered":source_rendered.get("current"),"sourceActivation":source_rendered.get("activation")}
             self.maintenance.write(self.journal,journal)
         try:
-            for owner in journal["owners"]:
+            for owner in sorted(journal["owners"],key=lambda row:row["unit"]=="ablestack-storage-winbind.service"):
                 unit=owner["unit"]
                 if unit in journal["stoppedUnits"]:continue
                 fresh=self.prove_unit(unit,False) if self.units==self.owned_units else next((row for row in self.units() if row["unit"]==unit),None)
@@ -12572,6 +12597,12 @@ class ServiceMaintenance:
             if self.units():raise ValueError("SERVICE acceptors remain active after owned stop")
             self.listeners_clear(journal["owners"])
             journal["phase"]="HELD";self.maintenance.write(self.journal,journal)
+            if identity_required:
+                stopped=self.command(("operation","generation","render-service-source-stopped"),desired)
+                if stopped.get("scope")!=desired or stopped.get("serviceSourceStoppedVerified") is not True or not re.fullmatch("[0-9a-f]{64}",str(stopped.get("stoppedReceiptSha256"))):
+                    raise ValueError("SERVICE identity source lacks its protected AFTERSTOP receipt")
+                journal.update({key:stopped[key] for key in ("serviceSourceStoppedVerified","stoppedReceiptSha256","sourceGeneration","sourceConfigurationSha256","publicAdPreStopSha256","publicLocalMachineSid")})
+                self.maintenance.write(self.journal,journal)
             return self.status(request)
         except Exception:
             journal["phase"]="RECOVERY_REQUIRED";self.maintenance.write(self.journal,journal)
@@ -12585,7 +12616,7 @@ class ServiceMaintenance:
         def domain(unit):return "NFS" if unit.startswith("ablestack-storage-ganesha@") else "SMB"
         owners=[owner for owner in self.units() if domain(owner["unit"]) in domains]
         stopped=[]
-        for owner in owners:
+        for owner in sorted(owners,key=lambda row:row["unit"]=="ablestack-storage-winbind.service"):
             fresh=self.prove_unit(owner["unit"],False) if self.units==self.owned_units else next((row for row in self.units() if row["unit"]==owner["unit"]),None)
             if fresh!=owner:raise ValueError("SERVICE acceptor changed before inverse quiesce")
             self.run(["systemctl","stop",owner["unit"]],timeout=self.remaining());stopped.append(owner["unit"])
@@ -16709,6 +16740,224 @@ class RootSourceRecovery:
 # specific language governing permissions and limitations
 # under the License.
 
+"""SERVICE-only public PRESTOP and fresh owned-stop identity export authority."""
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import stat
+import time
+import uuid
+
+
+def service_identity_scope(request):
+    keys={"instanceUuid","maintenanceUuid","operationUuid","revision"}
+    if not isinstance(request,dict) or set(request)!=keys:raise ValueError("SERVICE identity source requires only its exact typed four-field scope")
+    result={key:request[key] for key in keys}
+    for key in keys-{"revision"}:
+        if not isinstance(result[key],str) or str(uuid.UUID(result[key]))!=result[key]:raise ValueError("SERVICE identity UUID is invalid")
+    if result["maintenanceUuid"]!=result["operationUuid"] or type(result["revision"]) is not int or result["revision"]<1:
+        raise ValueError("SERVICE identity operation/revision differs")
+    return result
+
+
+def service_identity_writer():
+    if os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD")!="9":raise ValueError("SERVICE identity capture requires its owned native writer")
+    info=os.fstat(9);path=Path(os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FILE","/run/ablestack-storage/desired-writer.lock"));named=path.lstat()
+    pattern=r"(?m)^lock:\s+[0-9]+:\s+FLOCK\s+ADVISORY\s+WRITE\s+[0-9]+\s+[0-9a-f]+:[0-9a-f]+:"+str(info.st_ino)+r"\s+0\s+EOF\s*$"
+    if (not stat.S_ISREG(info.st_mode) or info.st_uid!=os.geteuid() or stat.S_IMODE(info.st_mode)!=0o600
+            or not stat.S_ISREG(named.st_mode) or named.st_uid!=os.geteuid() or stat.S_IMODE(named.st_mode)!=0o600
+            or (info.st_dev,info.st_ino)!=(named.st_dev,named.st_ino) or not re.search(pattern,Path("/proc/self/fdinfo/9").read_text())):
+        raise ValueError("SERVICE identity writer does not hold its exact exclusive named descriptor")
+
+
+class ServicePublicIdentity(RootSourceIdentityCheckpoint):
+    def local_sid(self):
+        output=self.command(["net","getlocalsid"])
+        match=re.fullmatch(r"SID for domain [^:\r\n]+ is:\s*(S-1-5-21(?:-[0-9]{1,10}){3})\s*",output)
+        if not match:raise ValueError("SERVICE public local SAM SID is unavailable or ambiguous")
+        return match[1]
+
+    def freeze(self,scope,actual):
+        raw,binding=self.public_file(self.configuration/"smb-domain.json",True)
+        state=credential_json(raw) if raw is not None else {};metadata=None;machine_binding=None
+        local_sid=self.local_sid()
+        if str(state.get("joinState") or state.get("state") or "").upper()=="JOINED":
+            expected={key:scope[key] for key in ("instanceUuid","operationUuid","revision")}
+            observed=self.runtime.command(("identity","domain","inspect"),expected)
+            required=("domain","realm","workgroup","netbiosName","machineSid","domainSid","machineAccountSid","servicePrincipals","trustVerified","idmapPolicy","dnsAliases")
+            epoch=observed.get("generatedEpoch");boot=Path("/proc/sys/kernel/random/boot_id").read_text().strip()
+            if (observed.get("scope")!=expected or any(observed.get(name) is not True for name in ("identityVerified","trustVerified","adSpnsVerified","dnsAliasesVerified"))
+                    or observed.get("bootId")!=boot or type(epoch) not in (int,float) or not time.time()-60<=epoch<=time.time()+5
+                    or any(name not in observed for name in required) or observed.get("machineSid")!=local_sid):
+                raise ValueError("SERVICE PRESTOP AD public trust/SID/SPN/DNS/idmap evidence is not fresh")
+            _,machine_binding=self.public_file(self.configuration/"ad-machine.conf",exact_mode=0o600)
+            if state.get("machineConfigurationSha256")!=machine_binding["sha256"]:raise ValueError("SERVICE AD machine configuration differs from its protected joined receipt")
+            metadata={"schemaVersion":1,**{name:observed[name] for name in required},"machineConfigurationSha256":machine_binding["sha256"]}
+            root_source_validate_ad_identity(metadata)
+        result={"schemaVersion":1,"publicAdIdentity":metadata,"publicAdPreStopSha256":root_public_sha(metadata) if metadata is not None else None,
+                "publicLocalMachineSid":local_sid,"domainFileBinding":binding,"machineFileBinding":machine_binding,
+                "sourcePosixPolicies":self.posix(actual["configurationDesiredState"],scope["instanceUuid"])}
+        no_rendered_secrets(result);return result
+
+    def unchanged(self,scope,actual,frozen):
+        fields={"schemaVersion","publicAdIdentity","publicAdPreStopSha256","publicLocalMachineSid","domainFileBinding","machineFileBinding","sourcePosixPolicies"}
+        if not isinstance(frozen,dict) or set(frozen)!=fields or type(frozen["schemaVersion"]) is not int or frozen["schemaVersion"]!=1:
+            raise ValueError("SERVICE PRESTOP identity shape differs")
+        _,domain=self.public_file(self.configuration/"smb-domain.json",True)
+        if domain!=frozen["domainFileBinding"]:raise ValueError("SERVICE PRESTOP public AD state changed")
+        if frozen["machineFileBinding"] is not None:
+            _,machine=self.public_file(self.configuration/"ad-machine.conf",exact_mode=0o600)
+            if machine!=frozen["machineFileBinding"]:raise ValueError("SERVICE PRESTOP machine configuration changed")
+        if (self.local_sid()!=frozen["publicLocalMachineSid"]
+                or frozen["publicAdPreStopSha256"]!=(root_public_sha(frozen["publicAdIdentity"]) if frozen["publicAdIdentity"] is not None else None)
+                or frozen["sourcePosixPolicies"]!=self.posix(actual["configurationDesiredState"],scope["instanceUuid"])):
+            raise ValueError("SERVICE PRESTOP public SID/POSIX authority changed")
+        if frozen["publicAdIdentity"] is not None:root_source_validate_ad_identity(frozen["publicAdIdentity"])
+        no_rendered_secrets(frozen)
+
+
+class ServiceIdentitySource:
+    def __init__(self,driver,root=None,identity=None,writer=None):
+        self.driver=driver;self.store=driver.store;self.runtime=driver.runtime
+        self.root=Path(root or os.environ.get("ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR","/var/lib/ablestack-storage"))
+        self.identity=identity or ServicePublicIdentity(self.runtime);self.writer=writer or service_identity_writer
+
+    def path(self,scope):
+        return self.root/("service-identity-source-"+scope["operationUuid"]+".json")
+
+    def canonical_bytes(self):
+        # Reuse only the protected canonical byte reader; no ROOT marker,
+        # ROOT scope conversion, ROOT recovery record or replay authority.
+        return RootSourceRecovery.canonical_bytes(self)
+
+    def observation(self,scope,allow_pending=False):
+        actual=self.driver.generation();status=self.store.status();current=status.get("current");generation=actual.get("generation") or {}
+        pending=actual.get("pendingOperationUuid");checksum=actual.get("configurationSha256")
+        if (pending not in ((None,scope["operationUuid"]) if allow_pending else (None,))
+                or actual.get("generationStatus") not in (("IN_SYNC","PENDING") if pending else ("IN_SYNC",))
+                or generation.get("instanceUuid")!=scope["instanceUuid"] or type(generation.get("revision")) is not int
+                or generation["revision"]>scope["revision"] or generation.get("configurationSha256")!=checksum
+                or status.get("bootHeld") is not False or not isinstance(current,dict) or current.get("configurationSha256")!=checksum
+                or any(current.get("scope",{}).get(key)!=generation.get(key) for key in ("instanceUuid","operationUuid","revision"))):
+            raise ValueError("SERVICE identity source native/rendered generation is foreign, pending or stale")
+        desired=credential_json(rendered_read(self.store.pointer()/"desired-state.json"))
+        if actual.get("configurationDesiredState")!=desired:raise ValueError("SERVICE source seven differ from their immutable imported baseline")
+        return actual,status
+
+    def held(self,scope):
+        marker=self.runtime.command(("operation","maintenance","status"))
+        if marker.get("bootHeld") is not True or marker.get("maintenanceKind")!="SERVICE" or marker.get("scope")!=scope:
+            raise ValueError("SERVICE identity export requires its exact held SERVICE marker")
+
+    def capture(self,request):
+        scope=service_identity_scope(request);self.writer()
+        marker=self.runtime.command(("operation","maintenance","status"))
+        if marker.get("bootHeld") is not False and (marker.get("maintenanceKind")!="SERVICE" or marker.get("scope")!=scope):
+            raise ValueError("Foreign held maintenance blocks SERVICE identity PRESTOP capture")
+        actual,status=self.observation(scope);path=self.path(scope)
+        if path.exists() or path.is_symlink():
+            _,saved,_=self.validate(request)
+            return {**self.receipt(scope,saved),"sideEffects":False}
+        verified=self.driver.verify(self.store.pointer())
+        if set(verified)!=set(DOMAINS) or any(verified[name] is not True for name in DOMAINS):
+            raise ValueError("SERVICE source all-four readback failed before PRESTOP capture")
+        frozen=self.identity.freeze(scope,actual);owners=self.identity.owners()
+        if (frozen["publicAdIdentity"] is not None)!=any(row["unit"]=="ablestack-storage-winbind.service" for row in owners):
+            raise ValueError("SERVICE PRESTOP AD identity differs from its exact owned winbind")
+        saved={"schemaVersion":1,"kind":"SERVICE_IDENTITY_SOURCE","scope":scope,"phase":"CAPTURED","sourceGeneration":actual["generation"],
+               "sourceRendered":status["current"],"sourceActivation":status.get("activation"),"sourceConfigurationSha256":actual["configurationSha256"],
+               "sourcePublicIdentity":frozen,"sourceOwners":owners,"canonicalBytes":self.canonical_bytes(),
+               "bootId":Path("/proc/sys/kernel/random/boot_id").read_text().strip(),"capturedEpoch":time.time()}
+        rendered_json(path,saved);return self.receipt(scope,saved)
+
+    def receipt(self,scope,saved):
+        frozen=saved["sourcePublicIdentity"]
+        value={"success":True,"scope":scope,"sourceCaptured":True,"sourceGeneration":saved["sourceGeneration"],
+               "sourceConfigurationSha256":saved["sourceConfigurationSha256"],"sourceRenderedManifestSha256":saved["sourceRendered"]["manifestSha256"],
+               "canonicalDesiredStateChanged":False,"publicAdPreStopCaptured":frozen["publicAdIdentity"] is not None,
+               "publicAdPreStopSha256":frozen["publicAdPreStopSha256"],"publicLocalMachineSid":frozen["publicLocalMachineSid"]}
+        if saved.get("sourceStoppedReceipt") is not None:
+            value.update(serviceSourceStoppedVerified=True,stoppedReceiptSha256=root_public_sha(saved["sourceStoppedReceipt"]))
+        return value
+
+    def validate(self,request,held=False):
+        scope=service_identity_scope(request);self.writer()
+        marker=self.runtime.command(("operation","maintenance","status"))
+        if marker.get("bootHeld") is not False and (marker.get("maintenanceKind")!="SERVICE" or marker.get("scope")!=scope):
+            raise ValueError("Foreign maintenance cannot borrow SERVICE identity source")
+        if held:self.held(scope)
+        saved=credential_json(rendered_read(self.path(scope)));actual,status=self.observation(scope,True)
+        fields={"schemaVersion","kind","scope","phase","sourceGeneration","sourceRendered","sourceActivation","sourceConfigurationSha256","sourcePublicIdentity","sourceOwners","canonicalBytes","bootId","capturedEpoch"}
+        if (not isinstance(saved,dict) or not fields<=set(saved) or not set(saved)<=fields|{"sourceStoppedReceipt"}
+                or type(saved["schemaVersion"]) is not int or saved["schemaVersion"]!=1 or saved["kind"]!="SERVICE_IDENTITY_SOURCE"
+                or saved["scope"]!=scope or saved["phase"] not in ("CAPTURED","STOPPED") or saved["sourceGeneration"]!=actual["generation"]
+                or saved["sourceRendered"]!=status["current"] or saved["sourceActivation"]!=status.get("activation")
+                or saved["sourceConfigurationSha256"]!=actual["configurationSha256"] or saved["canonicalBytes"]!=self.canonical_bytes()
+                or saved["bootId"]!=Path("/proc/sys/kernel/random/boot_id").read_text().strip()):
+            raise ValueError("SERVICE identity source checkpoint differs from its exact PRESTOP source")
+        self.identity.unchanged(scope,actual,saved["sourcePublicIdentity"])
+        return scope,saved,actual
+
+    def guard(self,request):
+        scope,saved,actual=self.validate(request)
+        marker=self.runtime.command(("operation","maintenance","status"))
+        if marker.get("bootHeld") is False and (type(saved["capturedEpoch"]) not in (int,float) or not time.time()-180<=saved["capturedEpoch"]<=time.time()+5):
+            raise ValueError("SERVICE PRESTOP capture expired before its owned stop")
+        observed={row["unit"]:row for row in self.identity.owners()}
+        if any(row["unit"] not in {owner["unit"] for owner in saved["sourceOwners"]} for row in observed.values()):
+            raise ValueError("SERVICE source acquired a foreign identity owner")
+        if any(observed.get(owner["unit"],owner)!=owner for owner in saved["sourceOwners"]):
+            raise ValueError("SERVICE PRESTOP owner PID/start/configuration changed")
+        return {**self.receipt(scope,saved),"quiesceAuthorized":True,"sideEffects":False}
+
+    def stopped(self,request):
+        scope,saved,actual=self.validate(request,True)
+        journal=credential_json(rendered_read(self.root/"service-maintenance.json"));owners=saved["sourceOwners"]
+        if (journal.get("scope")!=scope or journal.get("phase") not in ("HELD","RECOVERY_REQUIRED")
+                or journal.get("sourceGeneration")!=saved["sourceGeneration"] or journal.get("sourceRendered")!=saved["sourceRendered"]
+                or journal.get("sourceActivation")!=saved["sourceActivation"] or journal.get("owners")!=owners
+                or not isinstance(journal.get("stoppedUnits"),list) or len(journal["stoppedUnits"])!=len(owners)
+                or set(journal["stoppedUnits"])!={row["unit"] for row in owners}
+                or self.identity.owners()):
+            raise ValueError("SERVICE identity source lacks its exact durable owned-stop journal")
+        self.identity.listeners_clear(owners)
+        if self.identity.holders():raise ValueError("SERVICE known private identity database holders remain after stop")
+        frozen=saved["sourcePublicIdentity"]
+        receipt={"schemaVersion":1,"kind":"SERVICE_SOURCE_STOPPED","scope":scope,"sourceGeneration":saved["sourceGeneration"],
+                 "sourceConfigurationSha256":saved["sourceConfigurationSha256"],"sourceRenderedManifestSha256":saved["sourceRendered"]["manifestSha256"],
+                 "publicAdPreStopSha256":frozen["publicAdPreStopSha256"],"publicLocalMachineSid":frozen["publicLocalMachineSid"],
+                 "owners":owners,"holderObservationScope":ROOT_IDENTITY_HOLDER_SCOPE,"knownIdentityDatabaseHolders":0,
+                 "bootId":saved["bootId"]}
+        previous=saved.get("sourceStoppedReceipt")
+        if previous is not None and previous!=receipt:raise ValueError("SERVICE protected stopped receipt changed")
+        if previous is None:
+            saved["sourceStoppedReceipt"]=receipt;saved["phase"]="STOPPED";rendered_json(self.path(scope),saved)
+        return {**self.receipt(scope,saved),"bootHeld":True,"maintenanceKind":"SERVICE","stoppedUnits":[owner["unit"] for owner in owners],"sideEffects":False}
+
+    def export_source(self,request):
+        scope,saved,actual=self.validate(request,True)
+        if saved["phase"]!="STOPPED" or saved.get("sourceStoppedReceipt") is None:raise ValueError("SERVICE RAW export requires its protected AFTERSTOP receipt")
+        self.stopped(request)
+        frozen=saved["sourcePublicIdentity"]
+        return {**self.receipt(scope,saved),"adIdentity":frozen["publicAdIdentity"],"posixPolicies":frozen["sourcePosixPolicies"],
+                "sideEffects":False}
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements. See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership. The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
 """Retained ROOT baseline and latest AEAD authority; no canonical/DATA effects."""
 import ast
 import base64
@@ -16996,6 +17245,7 @@ class RenderedDriver:
         self.runtime.persist_one = self.persist_one
         self.nfs_config_root=Path("/etc/ganesha/ablestack-storage")
         self.root_source=RootSourceRecovery(self)
+        self.service_identity=ServiceIdentitySource(self)
         self.root_retained=RootRetainedAuthorization(self)
 
     def retained_authority(self,request,for_stage=False):
@@ -17473,7 +17723,11 @@ class RenderedDriver:
         if result.returncode:raise ValueError("Protocol boot guards could not be loaded")
 
     def execute(self, action, request=None, unit=None):
-        if action == "render-status": return {**self.store.status(),"rootSourceIdentityCheckpointSupported":True,"retainedRootRestoreSupported":True}
+        if action == "render-status": return {**self.store.status(),"rootSourceIdentityCheckpointSupported":True,"retainedRootRestoreSupported":True,"serviceIdentityCheckpointSupported":True}
+        if action=="render-service-capture-source":return self.service_identity.capture(request)
+        if action=="render-service-source-quiesce-guard":return self.service_identity.guard(request)
+        if action=="render-service-source-stopped":return self.service_identity.stopped(request)
+        if action=="render-service-identity-export-source":return self.service_identity.export_source(request)
         if action=="render-root-capture-source":return self.root_source.capture(request)
         if action=="render-root-capture-retained":return self.root_retained.capture(request)
         if action=="render-root-authorize-retained":return self.root_retained.authorize(request)
@@ -17756,7 +18010,7 @@ case "$command" in
   operation)
     if [[ "$subcommand" == "generation" ]]; then
       case "$action" in
-        render-import|render-stage|render-activate|render-rollback|render-status|render-finalize|render-boot|render-boot-gate|render-maintenance-verify|render-maintenance-resume-source|render-root-capture-source|render-root-resume-source|render-root-replay-guard|render-root-source-quiesce-guard|render-root-quiesce-source|render-root-identity-export-source|render-root-capture-retained|render-root-authorize-retained) rendered_generation_command ;;
+        render-import|render-stage|render-activate|render-rollback|render-status|render-finalize|render-boot|render-boot-gate|render-maintenance-verify|render-maintenance-resume-source|render-service-capture-source|render-service-source-quiesce-guard|render-service-source-stopped|render-service-identity-export-source|render-root-capture-source|render-root-resume-source|render-root-replay-guard|render-root-source-quiesce-guard|render-root-quiesce-source|render-root-identity-export-source|render-root-capture-retained|render-root-authorize-retained) rendered_generation_command ;;
         *) configuration_generation ;;
       esac
     elif [[ "$subcommand" == "reservation" ]]; then
