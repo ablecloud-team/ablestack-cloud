@@ -8594,9 +8594,9 @@ PY
 apply_iscsi_targets() {
   local payload_file="$1"
 
-  if [[ -z "${ABLESTACK_STORAGE_RENDERED_REPLAY:-}" ]] && command -v systemctl >/dev/null 2>&1; then
-    systemctl enable --now target >/dev/null 2>&1 || systemctl enable --now rtslib-fb-targetctl >/dev/null 2>&1 || true
-  fi
+  # LIO is configured directly below. Starting the distro targetctl unit
+  # restores global saved state; restarting it first clears live configfs.
+  # Managed canonical state/private credentials and boot reconcile own recovery.
 
   python3 - "$payload_file" <<'PY'
 import glob
@@ -8924,14 +8924,6 @@ def ensure_iscsi_runtime_dependencies():
             + "; ".join(failures)
             + ". Rebuild and register a valid Storage Service SystemVM template."
         )
-
-def service_action(action):
-    if not command_exists("systemctl"):
-        return
-    for name in ("target", "rtslib-fb-targetctl"):
-        result = run(["systemctl", action, name], timeout=30)
-        if result.returncode == 0:
-            return
 
 def best_effort_firewall(port):
     if command_exists("firewall-cmd"):
@@ -9417,7 +9409,7 @@ else:
     skipped = len(payload.get("targets", []))
 
 if enabled and applied:
-    if not os.environ.get("ABLESTACK_STORAGE_RENDERED_REPLAY"): service_action("restart")
+    # Observe the live portals created above without a targetctl clear/restore.
     for port in required_ports:
         best_effort_firewall(port)
     for _ in range(10):
@@ -9431,10 +9423,6 @@ if enabled and applied:
 print(json.dumps({"success": True, "targets": len(payload.get("targets", [])), "applied": applied, "skipped": skipped, "ports": sorted(required_ports), "listening": all(port_listening(port) for port in required_ports), "runtimeTargets": runtime_targets}))
 PY
 
-  if [[ -z "${ABLESTACK_STORAGE_RENDERED_REPLAY:-}" ]] && command -v systemctl >/dev/null 2>&1; then
-    systemctl enable --now target >/dev/null 2>&1 || systemctl enable --now rtslib-fb-targetctl >/dev/null 2>&1 || true
-    systemctl restart target >/dev/null 2>&1 || systemctl restart rtslib-fb-targetctl >/dev/null 2>&1 || true
-  fi
 }
 
 apply_nvmeof_subsystems() {
