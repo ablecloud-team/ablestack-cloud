@@ -64,6 +64,18 @@ class StorageInlineSourcesTest(unittest.TestCase):
             self.assertEqual(["RENDERED_CONFIG_GENERATION_HANDLER"],result["supportedFeatures"]);self.assertFalse(result["fullFourProtocolActivationSupported"])
             self.assertFalse((Path(scratch)/"absent").exists())
 
+    def test_signed_ad_lifecycle_closure_matches_all_fixed_reviewed_modules(self):
+        source=CLI.read_text();actual=source.split("<<'PYADLIFECYCLE'\n",1)[1].split("\nimport sys\ntry:",1)[0]
+        modules=["posix_root_initialization","ad_authority","service_identity_cipher","samba_public_sid","ad_identity","local_sam_bootstrap","ad_winbind","ad_lifecycle"];parts=[]
+        for name in modules:
+            value=(LIB/(name+".py")).read_text()
+            if name=="ad_lifecycle":
+                begin=value.index("from ad_identity import (");end=value.index("\n",value.index("service_principal)",begin))+1;value=value[:begin]+value[end:]
+            parts.append("\n".join(line for line in value.splitlines() if not any(line.startswith("from "+item+" import ") for item in modules)))
+        self.assertEqual("\n".join(parts),actual);ast.parse(actual)
+        oldjoin=source[source.index("smb_domain_join() {"):source.index("apply_iscsi_targets() {")]
+        self.assertNotIn("%{password}",oldjoin);self.assertNotIn("kinit",oldjoin)
+
     def test_signed_iscsi_auth_matches_reviewed_ram_to_configfs_body(self):
         source=CLI.read_text()
         actual=source.split("# BEGIN EMBEDDED ISCSI AUTH\n",1)[1].split("# END EMBEDDED ISCSI AUTH",1)[0]

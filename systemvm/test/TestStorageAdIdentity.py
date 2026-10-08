@@ -178,6 +178,21 @@ class StorageAdIdentityRpcTest(unittest.TestCase):
         import uuid
         self.write(self.gen/"pending.json",{**self.scope,"operationUuid":str(uuid.uuid4())})
         with self.assertRaises(ValueError):self.rpc.inspect(self.scope)
+    def test_left_attestation_reads_existing_local_sam_and_actual_boot_without_remote_effect_or_foreign_state(self):
+        import uuid
+        left={"instanceUuid":self.scope["instanceUuid"],"joinState":"NOT_JOINED","netbiosName":"SERVER","localMachineSid":self.sids["machineSid"]}
+        self.write(self.config/"smb-domain.json",left);self.calls.clear()
+        before=(self.config/"smb-domain.json").read_bytes();result=self.rpc.inspect(self.scope)
+        self.assertEqual(self.sids["machineSid"],result["machineSid"]);self.assertEqual(str(uuid.UUID(Path("/proc/sys/kernel/random/boot_id").read_text().strip())),result["bootId"])
+        self.assertLess(abs(time.time()-result["generatedEpoch"]),5)
+        self.assertFalse(result["trustVerified"]);self.assertFalse(result["identityVerified"]);self.assertEqual([],self.calls)
+        self.assertEqual(before,(self.config/"smb-domain.json").read_bytes())
+        self.write(self.config/"smb-domain.json",{**left,"instanceUuid":str(uuid.uuid4())})
+        with patch.object(module,"samba_public_sid") as reader:
+            with self.assertRaises(ValueError):self.rpc.inspect(self.scope)
+            reader.assert_not_called()
+        self.assertEqual([],self.calls)
+
     def test_actual_signed_rpc_not_joined_is_readonly_and_foreign_pending_fails(self):
         import json,uuid
         (self.config/"smb-domain.json").unlink()
