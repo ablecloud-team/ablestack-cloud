@@ -146,6 +146,15 @@
               <a-input-password v-model:value="credentialValues[required.ruleUuid][field]" autocomplete="off" />
             </a-form-item>
           </template>
+          <template v-if="plan.adIdentityRestoreRequiresMaintenance === true">
+            <a-alert type="warning" show-icon :message="$t('message.storage.service.ad.maintenance.help')" />
+            <a-checkbox v-model:checked="restoreMaintenance">{{ $t('message.storage.template.maintenance.confirm') }}</a-checkbox>
+            <a-descriptions :column="1" bordered size="small">
+              <a-descriptions-item :label="$t('label.storage.config.identity.source.artifact')">{{ plan.adIdentitySourceDescriptor?.ownerArtifactUuid }}</a-descriptions-item>
+              <a-descriptions-item :label="$t('label.storage.config.identity.source.service')">{{ plan.adIdentitySourceDescriptor?.sourceInstanceUuid }}</a-descriptions-item>
+              <a-descriptions-item :label="$t('label.storage.config.generation.operation')">{{ plan.adIdentitySourceDescriptor?.sourceOperationUuid }}</a-descriptions-item>
+            </a-descriptions>
+          </template>
           <a-form-item :label="$t('label.storage.config.confirmation')"><a-input v-model:value="confirmation" :placeholder="plan.targetName" autocomplete="off" /></a-form-item>
         </a-form>
       </template>
@@ -165,7 +174,7 @@ export default {
   components: { CloudDownloadOutlined, UploadOutlined, DownloadOutlined, RollbackOutlined, ReloadOutlined },
   emits: ['operation-updated'],
   props: { instanceId: { type: String, required: true }, instanceName: { type: String, default: '' }, resource: { type: Object, required: true } },
-  data: () => ({ rows: [], loading: false, readFailed: false, generation: 0, busy: '', error: '', backupDialog: false, includeAdIdentity: false, backupMaintenance: false, backupConfirmation: '', includeRuntime: true, retentionHours: 168, planTarget: null, plan: null, planPhase: 'MAPPING', planToken: '', lkgPlan: false, planning: false, volumeMapping: {}, newVolumeSpecs: {}, targetVolumes: [], credentialValues: {}, confirmation: '', confirmFileExecute: false, targetMode: 'RESTORE_EXISTING', clone: { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP', backingvolumemode: 'NEW' }, initialVolumeSource: '', plannedVolume: '', cloneRuntime: '', cloneOptions: { zones: [], networks: [], offerings: [], disks: [], pools: [], bundles: [], volumes: [] } }),
+  data: () => ({ rows: [], loading: false, readFailed: false, generation: 0, busy: '', error: '', backupDialog: false, includeAdIdentity: false, backupMaintenance: false, backupConfirmation: '', includeRuntime: true, retentionHours: 168, planTarget: null, plan: null, planPhase: 'MAPPING', planToken: '', lkgPlan: false, planning: false, volumeMapping: {}, newVolumeSpecs: {}, targetVolumes: [], credentialValues: {}, confirmation: '', restoreMaintenance: false, reviewedPlan: '', confirmFileExecute: false, targetMode: 'RESTORE_EXISTING', clone: { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP', backingvolumemode: 'NEW' }, initialVolumeSource: '', plannedVolume: '', cloneRuntime: '', cloneOptions: { zones: [], networks: [], offerings: [], disks: [], pools: [], bundles: [], volumes: [] } }),
   computed: {
     identityBackupSupported () {
       const params = this.$getApiParams?.('createStorageServiceConfigBackup')
@@ -211,7 +220,9 @@ export default {
   watch: {
     instanceId () { this.generation++; this.rows = []; this.busy = ''; this.error = ''; this.closeBackupDialog(); this.closePlan(); this.refresh() },
     instanceName () { this.closeBackupDialog() },
-    includeAdIdentity (value) { if (!value) { this.backupMaintenance = false; this.backupConfirmation = '' } }
+    includeAdIdentity (value) { if (!value) { this.backupMaintenance = false; this.backupConfirmation = '' } },
+    plan: { deep: true, handler () { if (this.reviewedPlan && this.reviewedPlan !== this.restoreReviewFingerprint()) this.restoreMaintenance = false } },
+    planToken () { if (this.reviewedPlan && this.reviewedPlan !== this.restoreReviewFingerprint()) this.restoreMaintenance = false }
   },
   mounted () { this.refresh() },
   beforeUnmount () { this.generation++; this.credentialValues = {} },
@@ -260,17 +271,19 @@ export default {
       return ['AVAILABLE', 'UNAVAILABLE', 'PARTIAL', 'NOT_REQUESTED', 'UNAVAILABLE_OR_PARTIAL'].includes(status)
         ? this.$t('label.storage.config.runtime.' + status) : (status || '—')
     },
-    identityCoverageLabel (record) {
-      const metadata = record.metadata || {}
-      const descriptor = metadata.adIdentitySourceDescriptor
+    validIdentityDescriptor (descriptor) {
       const fields = ['schemaVersion', 'kind', 'ownerArtifactUuid', 'sourceInstanceUuid', 'sourceOperationUuid', 'sourceConfigurationSha256', 'ciphertextSha256', 'issuerMac']
       const uuid = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/
       const sha = /^[a-f0-9]{64}$/
-      const valid = metadata.adIdentityCoverage === 'VERIFIED_ENCRYPTED_FULL_IDENTITY' && descriptor && typeof descriptor === 'object' && !Array.isArray(descriptor) &&
+      return descriptor && typeof descriptor === 'object' && !Array.isArray(descriptor) &&
         Object.keys(descriptor).length === fields.length && fields.every(field => Object.prototype.hasOwnProperty.call(descriptor, field)) &&
         descriptor.schemaVersion === 1 && descriptor.kind === 'STORAGE_AD_SEMANTIC_SOURCE' &&
         ['ownerArtifactUuid', 'sourceInstanceUuid', 'sourceOperationUuid'].every(field => typeof descriptor[field] === 'string' && uuid.test(descriptor[field])) &&
         ['sourceConfigurationSha256', 'ciphertextSha256', 'issuerMac'].every(field => typeof descriptor[field] === 'string' && sha.test(descriptor[field]))
+    },
+    identityCoverageLabel (record) {
+      const metadata = record.metadata || {}
+      const valid = metadata.adIdentityCoverage === 'VERIFIED_ENCRYPTED_FULL_IDENTITY' && this.validIdentityDescriptor(metadata.adIdentitySourceDescriptor)
       return this.$t(valid ? 'label.storage.config.identity.preserved' : 'label.storage.config.identity.unverified')
     },
     async verifyBaseline () {
@@ -400,11 +413,11 @@ export default {
     setVolumeMapping (source) {
       if (this.volumeMapping[source] === 'NEW') this.newVolumeSpecs[source] = this.newVolumeSpecs[source] || { dataPolicy: 'PRESERVE' }
       else delete this.newVolumeSpecs[source]
-      this.planToken = ''; this.confirmation = ''
+      this.planToken = ''; this.confirmation = ''; this.restoreMaintenance = false; this.reviewedPlan = ''
     },
     async preparePlan () {
       const target = this.planTarget; const instance = this.instanceId
-      this.planning = true; this.error = ''
+      this.planning = true; this.error = ''; this.restoreMaintenance = false; this.reviewedPlan = ''
       try {
         const api = this.lkgPlan ? 'planStorageServiceLastKnownGoodRestore' : 'planStorageServiceConfigRestore'
         const mappings = { volumes: { ...this.volumeMapping }, confirmFileExecute: this.confirmFileExecute }
@@ -425,17 +438,36 @@ export default {
         if (target !== this.planTarget || instance !== this.instanceId) return
         this.plan = result.metadata.plan; this.planToken = result.planToken || ''
         this.planPhase = this.plan.blockers.length ? 'MAPPING' : 'REVIEW'
+        this.reviewedPlan = JSON.stringify({ instance: this.instanceId, artifact: this.planTarget.id, token: this.planToken, plan: this.plan })
         this.credentialValues = Object.fromEntries(this.plan.requiredCredentials.map(row => [row.ruleUuid, {}]))
       } catch (error) { if (target === this.planTarget && instance === this.instanceId) this.error = error.message } finally { if (target === this.planTarget && instance === this.instanceId) this.planning = false }
     },
-    async applyPlan () {
-      if (this.confirmation !== this.plan.targetName || !this.planToken) { this.error = this.$t('message.storage.config.confirmation.required'); return }
-      const parameters = { artifactid: this.planTarget.id, plantoken: this.planToken, confirmation: this.confirmation, credentials: JSON.stringify(this.credentialValues) }
-      const api = this.lkgPlan ? 'restoreStorageServiceLastKnownGood' : 'applyStorageServiceConfigRestore'
-      this.closePlan(); this.busy = 'RESTORE'; this.error = ''
-      try { await this.mutation(api, parameters); await this.refresh() } catch (error) { this.error = error.message } finally { this.busy = '' }
+    restoreReviewFingerprint () {
+      return JSON.stringify({ instance: this.instanceId, artifact: this.planTarget?.id, token: this.planToken, plan: this.plan })
     },
-    closePlan () { this.planTarget = null; this.plan = null; this.planToken = ''; this.planPhase = 'MAPPING'; this.volumeMapping = {}; this.newVolumeSpecs = {}; this.credentialValues = {}; this.confirmation = ''; this.lkgPlan = false; this.planning = false; this.confirmFileExecute = false; this.targetMode = 'RESTORE_EXISTING'; this.initialVolumeSource = ''; this.plannedVolume = ''; this.cloneRuntime = ''; this.clone = { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP', backingvolumemode: 'NEW' } }
+    async applyPlan () {
+      const requiresIdentity = this.plan?.adIdentityRestoreRequiresMaintenance === true
+      if (!this.plan || this.confirmation !== this.plan.targetName || typeof this.planToken !== 'string' || !this.planToken) { this.error = this.$t('message.storage.config.confirmation.required'); return }
+      if (!this.reviewedPlan || this.reviewedPlan !== this.restoreReviewFingerprint()) { this.restoreMaintenance = false; this.error = this.$t('message.storage.config.scope.changed'); return }
+      const api = this.lkgPlan ? 'restoreStorageServiceLastKnownGood' : 'applyStorageServiceConfigRestore'
+      if (!this.can(api)) { this.restoreMaintenance = false; this.error = this.$t('message.storage.service.setup.api.missing.with.name', { api }); return }
+      if ((this.plan.adIdentityRestoreRequiresMaintenance !== undefined && typeof this.plan.adIdentityRestoreRequiresMaintenance !== 'boolean') ||
+        (this.plan.adIdentitySourceDescriptor !== undefined && !requiresIdentity)) { this.restoreMaintenance = false; this.error = this.$t('message.storage.service.ad.receipt.unverified'); return }
+      if (requiresIdentity) {
+        if (!this.validIdentityDescriptor(this.plan.adIdentitySourceDescriptor) || typeof this.plan.artifactSha256 !== 'string' || !/^[a-f0-9]{64}$/.test(this.plan.artifactSha256)) { this.restoreMaintenance = false; this.error = this.$t('message.storage.service.ad.receipt.unverified'); return }
+        if (!this.$getApiParams?.(api)?.maintenancewindow || this.restoreMaintenance !== true) { this.restoreMaintenance = false; this.error = this.$t('message.storage.service.ad.maintenance.required'); return }
+      }
+      const parameters = { artifactid: this.planTarget.id, plantoken: this.planToken, confirmation: this.confirmation, credentials: JSON.stringify(this.credentialValues) }
+      if (requiresIdentity) parameters.maintenancewindow = true
+      const instance = this.instanceId
+      this.closePlan(); this.busy = 'RESTORE'; this.error = ''
+      try {
+        await this.mutation(api, parameters)
+        if (instance !== this.instanceId) throw new Error(this.$t('message.storage.config.scope.changed'))
+        await this.refresh()
+      } catch (_) { this.error = this.$t('message.storage.config.failed') } finally { parameters.credentials = ''; this.busy = '' }
+    },
+    closePlan () { this.planTarget = null; this.plan = null; this.planToken = ''; this.restoreMaintenance = false; this.reviewedPlan = ''; this.planPhase = 'MAPPING'; this.volumeMapping = {}; this.newVolumeSpecs = {}; this.credentialValues = {}; this.confirmation = ''; this.lkgPlan = false; this.planning = false; this.confirmFileExecute = false; this.targetMode = 'RESTORE_EXISTING'; this.initialVolumeSource = ''; this.plannedVolume = ''; this.cloneRuntime = ''; this.clone = { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP', backingvolumemode: 'NEW' } }
   }
 }
 </script>
