@@ -66,15 +66,21 @@ class StorageInlineSourcesTest(unittest.TestCase):
 
     def test_signed_ad_lifecycle_closure_matches_all_fixed_reviewed_modules(self):
         source=CLI.read_text();actual=source.split("<<'PYADLIFECYCLE'\n",1)[1].split("\nimport sys\ntry:",1)[0]
-        modules=["posix_root_initialization","ad_authority","service_identity_cipher","samba_public_sid","ad_identity","local_sam_bootstrap","ad_winbind","ad_lifecycle"];parts=[]
+        modules=["posix_root_initialization","ad_authority","service_identity_cipher","samba_public_sid","ad_identity","local_sam_bootstrap","semantic_ad_source","ad_winbind","ad_lifecycle"];parts=[]
         for name in modules:
             value=(LIB/(name+".py")).read_text()
+            if name=="semantic_ad_source":value=value[value.index("def semantic_new_target("):]
             if name=="ad_lifecycle":
                 begin=value.index("from ad_identity import (");end=value.index("\n",value.index("service_principal)",begin))+1;value=value[:begin]+value[end:]
             parts.append("\n".join(line for line in value.splitlines() if not any(line.startswith("from "+item+" import ") for item in modules)))
         self.assertEqual("\n".join(parts),actual);ast.parse(actual)
         oldjoin=source[source.index("smb_domain_join() {"):source.index("apply_iscsi_targets() {")]
         self.assertNotIn("%{password}",oldjoin);self.assertNotIn("kinit",oldjoin)
+
+    def test_signed_semantic_original_source_parser_matches_reviewed_crypto_consumer(self):
+        source=CLI.read_text();actual=source.split("# BEGIN EMBEDDED AD SEMANTIC SOURCE\n",1)[1].split("\n# END EMBEDDED AD SEMANTIC SOURCE",1)[0]
+        expected="\n".join(line for line in (LIB/"semantic_ad_source.py").read_text().splitlines() if not line.startswith("from identity_capsule import "))
+        self.assertEqual(expected,actual);ast.parse(actual)
 
     def test_signed_iscsi_auth_matches_reviewed_ram_to_configfs_body(self):
         source=CLI.read_text()

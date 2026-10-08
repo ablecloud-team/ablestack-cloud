@@ -70,9 +70,9 @@ class StorageAdLifecycleTest(unittest.TestCase):
             out=("2001:db8::1\n" if self.foreign_ipv6 else "") if "AAAA" in plain else (("10.10.13.240\n10.10.13.242\n" if self.foreign_dns else "10.10.13.240\n") if self.joined else "")
         elif plain[0]=="wbinfo":out="S-1-5-21-4-5-6-1001 SID_USER (1)"
         elif plain[0]=="testparm":
-            if self.invalid_machine_configuration:return subprocess.CompletedProcess(args,1,"","private diagnostic omitted")
+            if self.invalid_machine_configuration and not any("parameter-name=" in arg for arg in plain):return subprocess.CompletedProcess(args,1,"","private diagnostic omitted")
             name=plain[-1].split("=",1)[-1]
-            out="tdb" if name.endswith("backend") and "*" in name else "rid" if name.endswith("backend") else "10000-60000" if "*" in name else "1000000-1999999" if name.endswith("range") else "0" if name.endswith("base_rid") else "valid"
+            out=self.request["netbiosName"] if name=="netbios name" else "tdb" if name.endswith("backend") and "*" in name else "rid" if name.endswith("backend") else "10000-60000" if "*" in name else "1000000-1999999" if name.endswith("range") else "0" if name.endswith("base_rid") else "valid"
         else:out="Join is OK"
         return subprocess.CompletedProcess(args,0,out,"")
     def test_join_uses_sealed_credentials_preserves_source_shares_and_persists_only_verified_public_receipt(self):
@@ -94,7 +94,7 @@ class StorageAdLifecycleTest(unittest.TestCase):
             with self.assertRaises(ValueError):self.lifecycle.join({**self.request,"password":invalid})
         self.quiescent=False
         with self.assertRaises(ValueError):self.lifecycle.join(self.request)
-        self.assertFalse(self.lifecycle.machine.exists());self.assertFalse(self.lifecycle.journal.exists());self.assertFalse(self.calls)
+        self.assertFalse(self.lifecycle.machine.exists());self.assertFalse(self.lifecycle.journal.exists());self.assertFalse(any(row[0]!="testparm" for row in self.calls))
 
     def test_samevm_verified_identity_is_retained_without_remote_rejoin_or_sid_mutation(self):
         joined=self.lifecycle.join(self.request);self.calls.clear()
@@ -112,14 +112,14 @@ class StorageAdLifecycleTest(unittest.TestCase):
     def test_new_clone_name_is_new_instance_bound_and_source_identity_copy_is_rejected_before_effects(self):
         request={**self.request,"identityMode":"NEW_INSTANCE"}
         with self.assertRaises(ValueError):self.lifecycle.join(request)
-        self.assertFalse(self.lifecycle.machine.exists());self.assertFalse(self.calls)
-        request["netbiosName"]="AST"+request["instanceUuid"].replace("-","")[:12].upper()
+        self.assertFalse(self.lifecycle.machine.exists());self.assertFalse(any(row[0]!="testparm" for row in self.calls))
+        request["netbiosName"]="STOR"+request["instanceUuid"].replace("-","")[:10].upper()
         request["sourceIdentity"]={"netbiosName":request["netbiosName"],"machineSid":"S-1-5-21-1-2-3","machineAccountSid":"S-1-5-21-4-5-6-1001"}
         with self.assertRaises(ValueError):self.lifecycle.join(request)
         self.assertFalse(self.lifecycle.machine.exists());self.assertFalse(self.calls)
 
     def clone_request(self):
-        netbios="AST"+self.request["instanceUuid"].replace("-","")[:12].upper()
+        netbios="STOR"+self.request["instanceUuid"].replace("-","")[:10].upper()
         hostname=netbios.lower()+".ablestack.local"
         return {**self.request,"identityMode":"NEW_INSTANCE","netbiosName":netbios,
                 "dnsAliases":[{"hostname":hostname,"addresses":["10.10.13.240"]}],
@@ -136,6 +136,7 @@ class StorageAdLifecycleTest(unittest.TestCase):
         request=self.request;queries=[];output=["Got 1 replies\n\n"]
         def run(args,**kwargs):
             queries.append(args)
+            if args[0]=="testparm":return subprocess.CompletedProcess(args,0,self.request["netbiosName"],"")
             if args[:3]==["net","ads","search"]:return subprocess.CompletedProcess(args,0,output[0],"")
             if args[0]=="dig":return subprocess.CompletedProcess(args,0,"10.10.13.240\n","")
             raise AssertionError("mutation reached "+repr(args))
@@ -148,7 +149,7 @@ class StorageAdLifecycleTest(unittest.TestCase):
                 self.assertFalse(any("OWNED_DAEMON" in " ".join(call) for call in self.calls))
         # Source aliases are rejected before even sending a directory query.
         queries.clear()
-        with self.assertRaisesRegex(ValueError,"source AD aliases"):self.lifecycle.join({**self.clone_request(),"dnsAliases":self.request["dnsAliases"],"servicePrincipals":self.request["servicePrincipals"]})
+        with self.assertRaisesRegex(ValueError,"authenticated original authority"):self.lifecycle.join({**self.clone_request(),"dnsAliases":self.request["dnsAliases"],"servicePrincipals":self.request["servicePrincipals"]})
         self.assertEqual([],queries)
 
     def test_leave_incomplete_nullable_or_invalid_credentials_reject_before_daemon_stop_and_public_effects(self):
@@ -240,6 +241,45 @@ class StorageAdLifecycleTest(unittest.TestCase):
             self.assertNotEqual(0,result.returncode,result.stderr);self.assertEqual("AD_LIFECYCLE_REJECTED",json.loads(result.stdout)["errorCode"])
             self.assertFalse(mutation.exists());self.assertFalse(self.lifecycle.journal.exists())
             self.assertEqual(before,{str(path):path.read_bytes() for path in (self.config,self.gen) for path in path.rglob("*") if path.is_file()})
+
+    def test_new_instance_real_authenticated_original_decoder_preserves_distinct_target_sam_and_new_computer_sid(self):
+        from TestStorageAdSemanticSource import synthetic_original_source
+        original,payload,_=synthetic_original_source()
+        request=self.clone_request();request.pop("sourceIdentity");request.update(original)
+        cli=Path(__file__).resolve().parents[2]/"systemvm/debian/usr/local/bin/ablestack-storagectl"
+        self.lifecycle.cli=str(cli);self.request=request;netbios=request["netbiosName"];hostname=request["dnsAliases"][0]["hostname"]
+        frozen=self.source_proof(self.lifecycle.daemon.marker(request),True);self.lifecycle.source_provider=lambda scope,fresh:dict(frozen)
+        oldrun=self.lifecycle.run
+        def run(args,**kwargs):
+            if args[:4]==[str(cli),"identity","capsule","semantic-original"]:
+                fd=kwargs["pass_fds"][0]
+                self.assertTrue(fcntl.fcntl(fd,fcntl.F_GET_SEALS)&fcntl.F_SEAL_WRITE)
+                self.assertNotIn(original["originalSourceCredentialPrivateKey"]," ".join(args))
+                return subprocess.run(args,**kwargs)
+            result=oldrun(args,**kwargs)
+            return subprocess.CompletedProcess(args,result.returncode,result.stdout.replace("server.ablestack.local",hostname).replace("SERVER",netbios),result.stderr)
+        self.lifecycle.run=run
+        result=self.lifecycle.join(request)
+        self.assertEqual(frozen["publicLocalMachineSid"],result["identity"]["machineSid"]);self.assertNotEqual(payload["adIdentity"]["machineSid"],result["identity"]["machineSid"])
+        self.assertNotEqual(payload["adIdentity"]["machineAccountSid"],result["identity"]["machineAccountSid"])
+        state=json.loads(self.lifecycle.state.read_text());self.assertEqual(original["originalSourceAuthority"],state["semanticOriginalSourceAuthority"])
+        self.assertEqual(self.before,self.smb.read_bytes());self.assertFalse(any("setlocalsid" in row for row in self.calls))
+        for path in self.root.rglob("*"):
+            if path.is_file():self.assertNotIn(original["originalSourceCredentialPrivateKey"].encode(),path.read_bytes())
+        self.calls.clear();retry=self.lifecycle.join(request);self.assertTrue(retry["identityPreserved"]);self.assertFalse(any("join" in row for row in self.calls))
+
+    def test_join_foreign_configured_name_or_missing_exact_sam_key_rejects_before_directory_or_file_effects(self):
+        oldrun=self.lifecycle.run
+        def run(args,**kwargs):
+            if args==["testparm","-s","--parameter-name=netbios name"]:return subprocess.CompletedProcess(args,0,"FOREIGN","")
+            return oldrun(args,**kwargs)
+        self.lifecycle.run=run
+        with self.assertRaisesRegex(ValueError,"actual captured target configuration"):self.lifecycle.join(self.request)
+        self.assertFalse(self.lifecycle.machine.exists());self.assertFalse(self.lifecycle.journal.exists());self.assertEqual([],self.calls)
+        self.lifecycle.run=oldrun;self.lifecycle.sid_reader=lambda name:(_ for _ in ()).throw(ValueError("missing exact target key"))
+        with self.assertRaises(ValueError):self.lifecycle.join(self.request)
+        self.assertFalse(self.lifecycle.machine.exists());self.assertFalse(self.lifecycle.journal.exists())
+        self.assertFalse(any(row[0]!="testparm" for row in self.calls))
 
     def test_samevm_retained_identity_binds_the_machine_config_digest_inside_real_aead_before_start(self):
         from identity_capsule import encrypt,decrypt,validate_payload
