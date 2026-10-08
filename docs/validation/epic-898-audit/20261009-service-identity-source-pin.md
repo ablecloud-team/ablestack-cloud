@@ -1,0 +1,26 @@
+# SERVICE 신원 중지 전·후 캡처 native source pin
+
+27d5f65b1a3의clean6파일은candidate/staged/committed SHA와같다.
+clean103focused(새ServiceIdentity14 포함) bash/diff 실패·오류·skip0이다.
+ad_lifecycle/ad_winbind·ROOTbootstrap완화·bundleAD선언WIP는제외했다.
+코드가용성serviceIdentityCheckpointSupported=true/full4false와정상CLI
+legacyJOIN/LEAVEtypedproducer없음exit1/files0/privateoutput0을확인했다.
+
+SERVICE4 exactscope/SAMEoperation/actualFD9 exclusivewriter로source7/all4와
+공개AD/localSAM 신원을PRESTOP에서고정한다. samebootsourceunchanged와
+durableownedSTOPjournal·knownTDBholder/listener0을요구하고AFTERSTOP에서만
+RAWidentity를암호화내보낸다. ROOTscope혼합/STOP전export는collect/encrypt
+효과전에거절한다.
+
+실제CLIPYIDENTITY RSA/AES-GCM roundtrip은temp 합성SOURCE 및readonly
+public/Samba observation mock 범위다. 실제AD/host/운영비밀효과0을명시한다.
+새14회귀는partialstop/retry/foreignscope 및실제encryptedentry를검증한다.
+
+JOIN/LEAVEproducer는아직미완료다. 다음stage는AFTERSTOP-beforeJOIN
+cipher/sourceSHA/samekey와고정all4stoppedreceipt를재사용해야하며가입후
+health/TDB를OLDsourceSHA로표시하거나liveexport를우회하지않는다.
+actual13/AD/ROOT0/prodADfull4false이며최종UI1275는미착수다.
+
+sourceproof=native-service-identity-clean-e942961e1a5f/source-proof.json,
+logSHAf7929bfb0f7617c7e2f67d5a92880c48bb55501d67545d28069b92466398fef6,
+patchSHAec4bfc89dcb5aa353cf0c0533fedf073105a0eac3a78805249f8286af20ef947이다.
