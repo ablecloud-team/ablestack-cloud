@@ -159,6 +159,12 @@ public class SharedFSServiceImplTest {
 
     @Mock
     org.apache.cloudstack.storage.dataservice.dao.StorageServiceTemplateUpgradeDao storageTemplateUpgradeDao;
+    @Mock
+    org.apache.cloudstack.storage.dataservice.dao.StorageServiceOperationDao storageOperationDao;
+    @Mock
+    com.cloud.storage.dao.VolumeDetailsDao volumeDetailsDao;
+    @Mock
+    org.apache.cloudstack.storage.dataservice.dao.StorageServiceInstanceDao storageServiceInstanceDao;
 
     @Spy
     @InjectMocks
@@ -770,6 +776,7 @@ public class SharedFSServiceImplTest {
         when(cmd.isExpunge()).thenReturn(false);
 
         SharedFSVO sharedFS = getMockSharedFS();
+        ReflectionTestUtils.setField(sharedFS,"id",s_sharedFSId);
         when(sharedFSDao.findById(s_sharedFSId)).thenReturn(sharedFS);
         ReflectionTestUtils.setField(sharedFS, "state", SharedFS.State.Stopped);
 
@@ -787,6 +794,7 @@ public class SharedFSServiceImplTest {
         when(cmd.isForced()).thenReturn(false);
 
         SharedFSVO sharedFS = getMockSharedFS();
+        ReflectionTestUtils.setField(sharedFS,"id",s_sharedFSId);
         when(sharedFSDao.findById(s_sharedFSId)).thenReturn(sharedFS);
         ReflectionTestUtils.setField(sharedFS, "state", SharedFS.State.Ready);
 
@@ -814,6 +822,7 @@ public class SharedFSServiceImplTest {
     public void testDeleteSharedFS() throws NoTransitionException {
         configureRemovalCollaborators();
         SharedFSVO sharedFS = getMockSharedFS();
+        ReflectionTestUtils.setField(sharedFS,"id",s_sharedFSId);
         when(sharedFSDao.findById(s_sharedFSId)).thenReturn(sharedFS);
         ReflectionTestUtils.setField(sharedFS, "state", SharedFS.State.Destroyed);
         sharedFSServiceImpl.deleteSharedFS(s_sharedFSId);
@@ -825,6 +834,7 @@ public class SharedFSServiceImplTest {
     public void testDeleteSharedFSTransitionException() throws NoTransitionException {
         configureRemovalCollaborators();
         SharedFSVO sharedFS = getMockSharedFS();
+        ReflectionTestUtils.setField(sharedFS,"id",s_sharedFSId);
         when(sharedFSDao.findById(s_sharedFSId)).thenReturn(sharedFS);
         ReflectionTestUtils.setField(sharedFS, "state", SharedFS.State.Destroyed);
         when(_stateMachine.transitTo(sharedFS, SharedFS.Event.ExpungeOperation, null, sharedFSDao)).thenThrow(new NoTransitionException(""));
@@ -835,6 +845,7 @@ public class SharedFSServiceImplTest {
     public void testDeleteSharedFSInvalidState() {
         configureRemovalCollaborators();
         SharedFSVO sharedFS = getMockSharedFS();
+        ReflectionTestUtils.setField(sharedFS,"id",s_sharedFSId);
         when(sharedFSDao.findById(s_sharedFSId)).thenReturn(sharedFS);
         ReflectionTestUtils.setField(sharedFS, "state", SharedFS.State.Stopped);
         sharedFSServiceImpl.deleteSharedFS(s_sharedFSId);
@@ -845,6 +856,8 @@ public class SharedFSServiceImplTest {
                 .when(sharedFSServiceImpl).withSharedFSWriterLock(Mockito.any(), Mockito.any());
         Mockito.lenient().doNothing().when(sharedFSServiceImpl).auditSharedFSDeletion(Mockito.any(), Mockito.anyString());
         Mockito.lenient().when(lifeCycle.deleteSharedFS(Mockito.any(), Mockito.any(), Mockito.anySet())).thenReturn(true);
+        Mockito.lenient().when(sharedFSDao.update(Mockito.anyLong(),Mockito.any())).thenReturn(true);
+        Mockito.lenient().when(sharedFSDao.remove(Mockito.anyLong())).thenReturn(true);
         ReflectionTestUtils.setField(sharedFSServiceImpl, "storageServiceInstanceDao",
                 Mockito.mock(org.apache.cloudstack.storage.dataservice.dao.StorageServiceInstanceDao.class));
     }
@@ -953,6 +966,9 @@ public class SharedFSServiceImplTest {
     public void unauthorizedLifecycleCallsNeverProbeTheGuest() throws Exception {
         when(sharedFSDao.findById(s_sharedFSId)).thenReturn(getMockSharedFS());
         Mockito.doThrow(new PermissionDeniedException("foreign owner")).when(accountMgr).checkAccess(any(), any(), eq(false), any(SharedFS.class));
+        DestroySharedFSCmd destroy = mock(DestroySharedFSCmd.class);when(destroy.getId()).thenReturn(s_sharedFSId);
+        Assert.assertThrows(PermissionDeniedException.class, () -> sharedFSServiceImpl.destroySharedFS(destroy));
+        Assert.assertThrows(PermissionDeniedException.class, () -> sharedFSServiceImpl.deleteSharedFS(s_sharedFSId));
         ChangeSharedFSDiskOfferingCmd disk = mock(ChangeSharedFSDiskOfferingCmd.class);
         when(disk.getId()).thenReturn(s_sharedFSId);
         ChangeSharedFSServiceOfferingCmd service = mock(ChangeSharedFSServiceOfferingCmd.class);

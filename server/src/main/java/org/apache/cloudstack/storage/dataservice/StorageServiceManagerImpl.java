@@ -1107,9 +1107,15 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             if (!"IN_SYNC".equals(getJsonString(generation, "generationStatus")) || generation.has("pendingOperationUuid") && !generation.get("pendingOperationUuid").isJsonNull()
                     || !expected.get("generation").equals(generation.get("generation"))) throw new CloudRuntimeException("SMB repair cannot advance or change the original verified generation");
             JsonObject result = parseJsonObject(operation.getResultJson());result.add("native", rebound);result.add("verification", current);
+            result.remove("errorCode");
+            operation.setDiagnostic("SMB identity databases and owned listeners were verified; desired state, generation and DATA are unchanged");
             operation.setResultJson(result.toString());operation.setState("COMPLETE_NO_CONFIG_CHANGE");operation.setPhase("SMB_IDENTITY_VERIFIED");operation.setProgress(100);operation.setCompleted(new java.util.Date());operation.setHeartbeat(new java.util.Date());
             if (!storageOperationDao.update(operation.getId(), operation)) throw new CloudRuntimeException("SMB repair completion could not be persisted");
         } catch (RuntimeException failed) {
+            String failedPhase = operation.getPhase();
+            JsonObject diagnostic = parseJsonObject(operation.getResultJson());
+            diagnostic.addProperty("errorCode", "SMB_IDENTITY_REBINDING".equals(failedPhase) ? "SMB_REPAIR_READBACK_REQUIRED" : "SMB_REPAIR_PREFLIGHT_REJECTED");
+            operation.setResultJson(diagnostic.toString());
             operation.setState("RECOVERY_REQUIRED");operation.setPhase("SMB_IDENTITY_RECOVERY_REQUIRED");operation.setDiagnostic("SMB identity repair requires exact native reconciliation; passwords, desired state and DATA were not rewritten");operation.setHeartbeat(new java.util.Date());storageOperationDao.update(operation.getId(), operation);throw failed;
         } finally {endStorageWriterHeartbeat();}
     }
@@ -1596,6 +1602,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         payload.addProperty("provisioningType", volume.getProvisioningType() == null ? "UNKNOWN" : volume.getProvisioningType().name());payload.addProperty("operationId", "volume-" + volume.getUuid());
         if ("FORMAT_IF_EMPTY".equals(mode)) {
             requireNewVolumeFormatSupport(target);
+            markVolumeFormatIntent(volume);
             payload.addProperty("formatDiscardPolicy", "SKIP_DISCARD");
         }
         StorageServiceOperationVO writer = storageWriterOperation.get();
@@ -1611,6 +1618,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         JsonObject fresh = inspectConfigurationAllocation(target, allocation);
         if (!"VOLUME_SERIAL".equals(getJsonString(result, "matchedBy")) || !volume.getUuid().equals(getJsonString(result, "volumeUuid"))
                 || !java.util.Objects.equals(getJsonString(result, "filesystemUuid"), getJsonString(fresh, "filesystemUuid"))) throw new CloudRuntimeException("Clone preparation response disagrees with fresh exact DATA identity");
+        markVolumeLifecycleVerified(volume);
         return fresh;
     }
 
@@ -1846,6 +1854,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if (!existing) {
             requireSparseNewFilesystem(volume);
             requireNewVolumeFormatSupport(instance);
+            markVolumeFormatIntent(volume);
             payload.addProperty("formatDiscardPolicy", "SKIP_DISCARD");
         }
         int deadline = backingVolumeFormatDeadline(volume.getSize());payload.addProperty("formatDeadlineSeconds", deadline);
@@ -1858,6 +1867,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if (!existing) requireNewVolumeFormatEcho(observed);
         if (!Boolean.TRUE.equals(getJsonBoolean(observed, "success")) || !volume.getUuid().equals(getJsonString(observed, "volumeUuid"))
                 || StringUtils.isBlank(getJsonString(observed, "filesystemUuid"))) throw new CloudRuntimeException("New service initial filesystem identity was not verified");
+        markVolumeLifecycleVerified(volume);
     }
     protected void prepareConfigurationDirectory(StorageServiceInstanceVO instance, String volumeUuid, String relative) {
         Long volumeId = configurationVolumeId(instance, volumeUuid);VolumeVO volume = requireVolume(volumeId);
@@ -3431,17 +3441,25 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     private StorageSmbShareResponse doUpdateStorageSmbShare(final UpdateStorageSmbShareCmd cmd) {
         final StorageFileShareVO share = requireSmbShare(cmd.getId());
         final StorageServiceInstanceVO instance = requireInstance(share.getInstanceId());
+        final Long previousVolumeId = share.getVolumeId();
+        final String previousPath = share.getPath();
+        final boolean volumeChanged = cmd.getVolumeId() != null && !Objects.equals(cmd.getVolumeId(), previousVolumeId);
         if (cmd.getName() != null) {
             validateSmbShareName(cmd.getName());
             validateVisibleShareName(instance, cmd.getName(), share.getId(), StorageServiceInstance.Protocol.SMB);
             share.setName(cmd.getName());
         }
-        if (cmd.getPath() != null || cmd.getRelativePath() != null) {
-            final String path = resolveNestedSharePath(cmd.getPath(), share.getName(), cmd.getRelativePath(),
-                    cmd.getVolumeId() == null ? share.getVolumeId() : cmd.getVolumeId(), false);
-            validateSharePathForRelativeInput(path, share.getName(), cmd.getRelativePath(), false);
-            validateFileSharePathAvailable(instance, path, share.getId(), cmd.getVolumeId() == null ? share.getVolumeId() : cmd.getVolumeId(),
-                    "SMB share", Boolean.TRUE.equals(cmd.getCrossProtocol()) || cmd.getPosixPolicyId() != null || share.getPosixPolicyId() != null, cmd.getRelativePath());
+        if (cmd.getName() != null || cmd.getPath() != null || cmd.getRelativePath() != null || cmd.getVolumeId() != null) {
+            final Long effectiveVolumeId = cmd.getVolumeId() == null ? share.getVolumeId() : cmd.getVolumeId();
+            final String effectiveRelativePath = cmd.getRelativePath() == null
+                    ? getJsonString(parseJsonObject(share.getConfigJson()), "relativeSharePath") : cmd.getRelativePath();
+            final String requestedPath = cmd.getPath() == null && cmd.getRelativePath() == null ? previousPath : cmd.getPath();
+            final String path = resolveNestedSharePath(requestedPath, share.getName(), effectiveRelativePath, effectiveVolumeId, false);
+            // Changing the exported name preserves a legacy physical directory.
+            if (effectiveRelativePath == null && path.equals(previousPath)) validateFileSharePath(path, "SMB share");
+            else validateSharePathForRelativeInput(path, share.getName(), effectiveRelativePath, false);
+            validateFileSharePathAvailable(instance, path, share.getId(), effectiveVolumeId, "SMB share",
+                    Boolean.TRUE.equals(cmd.getCrossProtocol()) || cmd.getPosixPolicyId() != null || share.getPosixPolicyId() != null, effectiveRelativePath);
             share.setPath(path);
         }
         if (cmd.getVolumeId() != null) {
@@ -3465,6 +3483,15 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         configJson = GSON.toJson(SmbOwnershipPolicy.forced(parseJsonObject(configJson), cmd.getPosixOwnershipMode(), cmd.getOwnerUid(), cmd.getOwnerGid()));
         configJson = buildFileShareDirectoryConfigJson(configJson, backingVolume, importMode, cmd.getCreateDirectory());
         configJson = storeRelativeSharePath(configJson, cmd.getRelativePath());
+        if (volumeChanged || !Objects.equals(previousPath, share.getPath())) {
+            JsonObject currentConfig = parseJsonObject(configJson);
+            currentConfig.remove("backingPath");currentConfig.remove("lastInspection");currentConfig.remove("lastResize");
+            if (volumeChanged) {
+                JsonObject identity = inspectSmbReboundFilesystem(instance, backingVolume);
+                currentConfig.add("filesystemUuid", identity.get("filesystemUuid"));
+            }
+            configJson = GSON.toJson(currentConfig);
+        }
         validateJsonObjectConfigOrThrow(configJson, "SMB share " + share.getUuid());
         validateSmbOwnershipExistingAcls(share, parseJsonObject(configJson));
         preflightSmbCreationPolicy(instance, share, parseJsonObject(configJson));
@@ -3483,6 +3510,18 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             throw e;
         }
         return createSmbShareResponse(share);
+    }
+
+    protected JsonObject inspectSmbReboundFilesystem(StorageServiceInstanceVO instance, VolumeVO volume) {
+        if (instance.getVmId() == null) throw new InvalidParameterValueException("SMB volume rebinding needs fresh attached DATA observations");
+        JsonObject payload = new JsonObject();payload.addProperty("volumeUuid", volume.getUuid());
+        StorageFormatterLifecycleGate.requireIdle(rootGuest(instance, "volume operation status", payload, 5));
+        JsonObject request = new JsonObject();request.addProperty("instanceUuid", instance.getUuid());
+        request.addProperty("operationUuid", java.util.UUID.randomUUID().toString());request.addProperty("templateUpgradeUuid", java.util.UUID.randomUUID().toString());
+        JsonObject disk = new JsonObject();disk.addProperty("volumeUuid", volume.getUuid());disk.addProperty("sizeBytes", volume.getSize());disk.addProperty("kind", "FILE_DATA");
+        JsonArray volumes = new JsonArray();volumes.add(disk);request.add("volumes", volumes);
+        JsonObject observed = StorageRootDataManifest.freeze(volumes, rootGuest(instance, "operation root-data inspect", request, 5), Collections.emptyMap(), System.currentTimeMillis());
+        return observed.getAsJsonArray("volumes").get(0).getAsJsonObject();
     }
 
     @Override
@@ -3970,6 +4009,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                     || !instance.getUuid().equals(getJsonString(nativeResult,"instanceUuid")) || !operation.getUuid().equals(getJsonString(nativeResult,"managerOperationUuid"))
                     || getJsonLong(nativeResult,"revision")==null || operation.getRevision()!=getJsonLong(nativeResult,"revision"))throw new CloudRuntimeException("Native forward resume did not verify the exact existing filesystem without formatting");
             String expected=getJsonString(scope,"expectedFilesystemUuid");if(expected!=null && !expected.equals(getJsonString(nativeResult,"filesystemUuid")))throw new CloudRuntimeException("Completed filesystem UUID differs from the approved resume scope");
+            markVolumeLifecycleVerified(volume);
             JsonObject result=parseJsonObject(operation.getResultJson());result.add("native",nativeResult);result.addProperty("managedOperationUuid",operation.getUuid());result.addProperty("desiredStateChanged",false);operation.setResultJson(result.toString());operation.setState("COMPLETE_NO_CONFIG_CHANGE");operation.setPhase("EXISTING_FILESYSTEM_RECONCILED");operation.setProgress(100);operation.setCompleted(new java.util.Date());operation.setHeartbeat(new java.util.Date());if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Unable to persist verified volume resume");
         } catch(RuntimeException failed) {
             operation.setState("RECOVERY_REQUIRED");operation.setPhase("VOLUME_RESUME_RECOVERY_REQUIRED");operation.setDiagnostic("Existing filesystem resume failed; DATA preserved without mkfs");operation.setHeartbeat(new java.util.Date());storageOperationDao.update(operation.getId(),operation);throw failed;
@@ -5641,6 +5681,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if (formatting) {
             requireSparseNewFilesystem(volume);
             requireNewVolumeFormatSupport(instance);
+            markVolumeFormatIntent(volume);
             payload.addProperty("formatDiscardPolicy", "SKIP_DISCARD");
         }
         final int formatDeadline = backingVolumeFormatDeadline(volume.getSize() == null ? 0 : volume.getSize());
@@ -5668,12 +5709,23 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 || StringUtils.isBlank(observedVolumeUuid) || expectedFilesystem!=null && !expectedFilesystem.equals(actualFilesystem)) {
             throw new CloudRuntimeException("File backing reuse/preparation requires a fresh exact guest serial and filesystem identity");
         }
+        markVolumeLifecycleVerified(volume);
         resultJson.addProperty("volumeUuid", volume.getUuid());
         if (resultJson.has("filesystem") && !resultJson.get("filesystem").isJsonNull()) {
             share.setFilesystem(resultJson.get("filesystem").getAsString());
         }
         share.setConfigJson(buildFileShareAttachConfigJson(share.getConfigJson(), importMode, volume, resultJson));
         storageFileShareDao.update(share.getId(), share);
+    }
+
+    protected void markVolumeFormatIntent(VolumeVO volume) {
+        configurationVolumeDetailsDao.addDetail(volume.getId(), StorageVolumeLifecycleProtection.STATE, "UNVERIFIED_FORMAT_INTENT", false);
+    }
+    protected void markVolumeLifecycleVerified(VolumeVO volume) {
+        String receipt = StorageVolumeLifecycleProtection.identity(volume).toString();
+        if (receipt.length() > 512) throw new CloudRuntimeException("DATA lifecycle identity exceeds the persistent receipt bound");
+        configurationVolumeDetailsDao.addDetail(volume.getId(), StorageVolumeLifecycleProtection.RECEIPT, receipt, false);
+        configurationVolumeDetailsDao.addDetail(volume.getId(), StorageVolumeLifecycleProtection.STATE, "VERIFIED", false);
     }
 
     protected void requireNewVolumeFormatSupport(StorageServiceInstanceVO instance) {

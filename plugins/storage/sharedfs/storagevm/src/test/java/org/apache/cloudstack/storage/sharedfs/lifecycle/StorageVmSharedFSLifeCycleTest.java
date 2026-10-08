@@ -351,6 +351,7 @@ public class StorageVmSharedFSLifeCycleTest {
 
         VolumeVO volume = mock(VolumeVO.class);
         when(volumeDao.findById(s_volumeId)).thenReturn(volume);
+        when(volumeDao.findByIdIncludingRemoved(s_volumeId)).thenReturn(volume);
         when(volume.getVolumeType()).thenReturn(Volume.Type.DATADISK);
         when(volume.getInstanceId()).thenReturn(null);
 
@@ -368,4 +369,34 @@ public class StorageVmSharedFSLifeCycleTest {
         boolean result = lifeCycle.reDeploySharedFS(sharedFS);
         Assert.assertEquals(result, true);
     }
+    @Test public void missingReviewedDataBlocksVmExpungeAndDeletion() {
+        SharedFS fs=mock(SharedFS.class);when(fs.getVmId()).thenReturn(null);
+        Assert.assertThrows(CloudRuntimeException.class,()->lifeCycle.deleteSharedFS(fs,SharedFS.DataVolumePolicy.DELETE_VOLUMES,java.util.Set.of(42L)));
+        org.mockito.Mockito.verifyNoInteractions(userVmService,volumeApiService);
+    }
+    @Test public void externallyRemovedDataCannotClaimPreservation() {
+        SharedFS fs=mock(SharedFS.class);when(fs.getVmId()).thenReturn(null);VolumeVO removed=mock(VolumeVO.class);when(removed.getRemoved()).thenReturn(new java.util.Date());when(volumeDao.findByIdIncludingRemoved(42L)).thenReturn(removed);
+        Assert.assertThrows(CloudRuntimeException.class,()->lifeCycle.deleteSharedFS(fs,SharedFS.DataVolumePolicy.PRESERVE_VOLUMES,java.util.Set.of(42L)));
+        org.mockito.Mockito.verifyNoInteractions(userVmService,volumeApiService);
+    }
+    @Test public void secondDetachFailurePreservesVmAndRetryDetachesOnlyRemainingData() throws Exception {
+        SharedFS fs=mock(SharedFS.class);when(fs.getVmId()).thenReturn(s_vmId);when(fs.getAccountId()).thenReturn(2L);
+        UserVmVO vm=mock(UserVmVO.class);when(vm.getState()).thenReturn(com.cloud.vm.VirtualMachine.State.Stopped);when(vm.getId()).thenReturn(s_vmId);when(userVmDao.findById(s_vmId)).thenReturn(vm);
+        VolumeVO first=mock(VolumeVO.class),second=mock(VolumeVO.class);
+        java.util.concurrent.atomic.AtomicBoolean a=new java.util.concurrent.atomic.AtomicBoolean(true),b=new java.util.concurrent.atomic.AtomicBoolean(true);
+        when(first.getId()).thenReturn(42L);when(second.getId()).thenReturn(43L);
+        when(first.getVolumeType()).thenReturn(Volume.Type.DATADISK);when(second.getVolumeType()).thenReturn(Volume.Type.DATADISK);when(first.getAccountId()).thenReturn(2L);when(second.getAccountId()).thenReturn(2L);
+        when(first.getInstanceId()).thenAnswer(call->a.get()?s_vmId:null);when(second.getInstanceId()).thenAnswer(call->b.get()?s_vmId:null);
+        when(volumeDao.findByIdIncludingRemoved(42L)).thenReturn(first);when(volumeDao.findByIdIncludingRemoved(43L)).thenReturn(second);
+        when(volumeDao.findById(42L)).thenReturn(first);when(volumeDao.findById(43L)).thenReturn(second);when(volumeDao.findByInstanceAndType(s_vmId,Volume.Type.DATADISK)).thenAnswer(call->b.get()?(a.get()?List.of(first,second):List.of(second)):List.of());
+        org.mockito.Mockito.doAnswer(call->{a.set(false);return null;}).when(volumeApiService).detachVolumeViaDestroyVM(s_vmId,42L);
+        Assert.assertThrows(CloudRuntimeException.class,()->lifeCycle.deleteSharedFS(fs,SharedFS.DataVolumePolicy.PRESERVE_VOLUMES,new java.util.LinkedHashSet<>(List.of(42L,43L))));
+        org.mockito.Mockito.verify(userVmService,org.mockito.Mockito.never()).destroyVm(anyLong(),anyBoolean());
+        org.mockito.Mockito.doAnswer(call->{b.set(false);return null;}).when(volumeApiService).detachVolumeViaDestroyVM(s_vmId,43L);when(userVmService.destroyVm(s_vmId,true)).thenReturn(vm);when(userVmManager.expunge(vm)).thenReturn(true);
+        Assert.assertTrue(lifeCycle.deleteSharedFS(fs,SharedFS.DataVolumePolicy.PRESERVE_VOLUMES,new java.util.LinkedHashSet<>(List.of(42L,43L))));
+        org.mockito.Mockito.verify(volumeApiService,org.mockito.Mockito.times(1)).detachVolumeViaDestroyVM(s_vmId,42L);
+        org.mockito.Mockito.verify(volumeApiService,org.mockito.Mockito.times(2)).detachVolumeViaDestroyVM(s_vmId,43L);
+        org.mockito.Mockito.verify(volumeApiService,org.mockito.Mockito.never()).destroyVolume(anyLong(),any(),anyBoolean(),anyBoolean(),any());
+    }
+
 }
