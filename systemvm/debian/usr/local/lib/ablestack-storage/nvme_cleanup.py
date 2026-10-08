@@ -48,6 +48,47 @@ def nvme_cleanup_name(value,target=False):
     return value
 
 
+def nvme_loopback_network_request(payload,run):
+    # Loopback listeners use only an exact address already on the real lo
+    # interface. They are never sent to the service alias/MAC inventory writer.
+    fields=("endpoints","listeners","endpointAliases")
+    requested=[]
+    for key in fields:
+        if isinstance(payload.get(key),list):requested.extend(payload[key])
+    if payload.get("listenIp") or payload.get("listenip"):requested.append(payload)
+    loopbacks=set()
+    for row in requested:
+        ip=row.get("listenIp") or row.get("listenip")
+        if ip and ipaddress.IPv4Address(ip).is_loopback:loopbacks.add(str(ipaddress.IPv4Address(ip)))
+    if loopbacks:
+        observed=run(["ip","-j","-4","addr","show","dev","lo"],timeout=10)
+        if observed.returncode:raise ValueError("NVMe existing loopback address observation failed")
+        rows=json.loads(observed.stdout);owned=[]
+        if not isinstance(rows,list):raise ValueError("NVMe existing loopback address observation is malformed")
+        for row in rows:
+            if row.get("ifname")!="lo" or not {"LOOPBACK","UP"}<=set(row.get("flags") or []):continue
+            for address in row.get("addr_info") or []:
+                if address.get("family")=="inet" and address.get("scope")=="host" and type(address.get("prefixlen")) is int and 0<=address["prefixlen"]<=32:
+                    value=str(ipaddress.IPv4Address(address["local"]))
+                    if ipaddress.IPv4Address(value).is_loopback:owned.append(value)
+        if len(owned)!=len(set(owned)) or not loopbacks<=set(owned):
+            raise ValueError("NVMe requested loopback listener is not an exact existing owned address")
+    public={}
+    for key in fields:
+        if isinstance(payload.get(key),list):
+            values=[]
+            for row in payload[key]:
+                ip=row.get("listenIp") or row.get("listenip")
+                if ip and str(ipaddress.IPv4Address(ip)) in loopbacks:continue
+                values.append({name:row[name] for name in ("listenIp","listenip","port","macAddress","ipAddress","cidr","gateway","interfaceName","primaryIp","prefixlen","networkCidr","netmask") if name in row})
+            if values:public[key]=values
+    ip=payload.get("listenIp") or payload.get("listenip")
+    if ip and str(ipaddress.IPv4Address(ip)) not in loopbacks:
+        for name in ("listenIp","listenip","port","macAddress","ipAddress","cidr","gateway","interfaceName","primaryIp","prefixlen","networkCidr","netmask"):
+            if name in payload:public[name]=payload[name]
+    return public
+
+
 class NvmeManagedCleanup:
     def __init__(self,base,state,payload,sessions,writer=None,rmdir=None):
         self.base=Path(base);self.state=Path(state);self.sessions=sessions
