@@ -28,3 +28,17 @@
 원시 증거는 canonical WSL의 /root/work/epic898-preparation/ganesha-vfs-compiled-feature-probe에 있다: source-tag-proof.json, debian43-primary-package-proof.json, cmake553-proof.txt, acl-build-comparison-proof.json, acl-selftest/{source-acl,candidate-symbols,post-stat,client-read,ganesha.log}, acl-selftest43/{source-acl,original-symbols,post-stat,client-error,ganesha.log}, bookworm553-acltest.log, bookworm43-aclnegative2.log.
 
 최종 템플릿 builder에 고정 source package와 보호된 build/library/selftest attestation을 넣고 fresh guest의 실제 byte hash를 재검증하는 후속 단계가 남았다. NFS_VFS_POSIX_ACL capability는 이 검증이 설치된 candidate에서 실제로 확인될 때만 true가 되어야 한다. 기존 4.3 guest는 계속 unsupported이며 최종 single-SHA template/서명 runtime/RPM/CI 및 실제 ROOT·클라이언트 검증은 아직 완료되지 않았다.
+
+## 실제 managed service 실행 경로 추가 검증
+
+초기 private ELF 해시/selftest만으로는 Debian unit의 /usr/bin/ganesha.nfsd 선택을 증명할 수 없는 P1을 발견해 보완했다. 기본 및 managed template unit의 root-owned drop-in은 ExecStart/ExecReload를 reset하고 /opt/ablestack-ganesha/5.5.3/bin/ganesha.nfsd를 고정한다. 설치 manifest는 두 drop-in SHA를 포함한다. unknown late/instance override, legacy executable, 삭제/교체 library inode는 지원 판정을 거부한다.
+
+로컬 격리 systemd PID1 컨테이너에서 실제 inactive effective ExecStart가 private path임을 관측한 후 managed unit을 정상 시작했다. 실제 NFS mount/read가 성공했으며 active PID159/startTicks3406972, executable inode와 VFS map inode가 설치 manifest byte hash와 일치했다. 기본 nfs-ganesha.service는 masked였다. 같은 managed unit을 실제 /usr/bin/ganesha.nfsd로 override해 실행한 negative에서는 nfsVfsPosixAclSupported=false가 확인됐다. 이후 own unit과 컨테이너를 정지해 정리했다. 관리형 클러스터 변경은 0회다.
+
+최종 package SHA-256: f49210a3642a7ac39dc593adedc93d5f0292ff1ac624155b5e0d4058557bf31c
+최종 build manifest SHA-256: c53452e56a5273eb5f26a98c61cce41e1106b42f5368b9a49716ed3e89319e93
+최종 private VFS SHA-256: 91cd2ae323a156f58d129193bcd461b51564db4c1519b107e652a4a6dd81824f
+
+추가 원시 증거: systemd-effective-before.txt, systemd-inactive-cap-proof.json, systemd-active-cap-proof.json, systemd-effective-selected-legacy.txt, systemd-selected-legacy-negative.json, real-systemd-binding.log, real-systemd-selected-legacy.log. 원시 증거 경로는 위와 같은 ganesha-vfs-compiled-feature-probe 디렉터리다. 전체 fresh template 및 실제 클러스터 ROOT 변경/4protocol fault 검증은 여전히 다음 단계다.
+
+소스는 b5543adda03으로 고정했다. native124/Storage220 및 6개 실행 경로 회귀가 통과했다. 비활성 서비스는 configured binding 검증으로 지원 여부를 판정하되 activeRuntimeVfsVerified=false/activeRuntimeNotApplicable=true로 실제 active 관측이 없음을 표시한다. 실제 PID가 있을 때만 activeRuntimeVfsVerified=true이며 schemaVersion bool 값은 거부한다. 새 패키지를 13번 VM에 설치하거나 최종 템플릿을 빌드한 횟수는 아직 0이다.
