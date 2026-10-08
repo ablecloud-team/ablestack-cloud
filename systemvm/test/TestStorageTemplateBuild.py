@@ -83,6 +83,15 @@ class StorageTemplateBuildTest(unittest.TestCase):
         (self.modules / 'nvme-auth.ko').unlink()
         self.assertNotEqual(0, self.validate().returncode)
 
+    def test_new_kvm_builder_and_export_require_sparse_metadata_allocation(self):
+        recipe = json.loads((ROOT / 'tools/appliance/systemvmtemplate/template-base_x86_64-target_x86_64.json').read_text())
+        builder = next(value for value in recipe['builders'] if value['type'] == 'qemu')
+        self.assertEqual(['-o', 'preallocation=metadata'], builder['qemu_img_args']['create'])
+        self.assertEqual(['-o', 'preallocation=metadata'], builder['qemu_img_args']['convert'])
+        export = (ROOT / 'tools/appliance/build.sh').read_text()
+        self.assertIn('qemu-img convert -o compat=0.10,preallocation=metadata -f qcow2 -O qcow2', export)
+        self.assertNotIn('qemu-img convert -o compat=0.10 -f qcow2 -c -O qcow2', export)
+
     def test_release_signing_secret_absence_blocks_publication(self):
         env = dict(os.environ)
         env.pop('STORAGE_RUNTIME_SIGNING_PRIVATE_KEY', None)
