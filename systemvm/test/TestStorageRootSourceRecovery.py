@@ -174,4 +174,10 @@ class StorageRootSourceRecoveryTest(unittest.TestCase):
             with patch.dict(os.environ,{"ABLESTACK_STORAGE_ROOT_SOURCE_REPLAY":"1"}):exec(compile(ast.Module(body=guarded,type_ignores=[]),str(cli),"exec"),namespace)
         self.assertEqual(before,self.recovery.canonical_bytes())
 
+    def test_missing_canonical_files_cannot_hide_an_unprotected_or_symlinked_parent(self):
+        desired=self.config/"desired-state";desired.mkdir(mode=0o777);desired.chmod(0o777)
+        with self.assertRaisesRegex(ValueError,"parent is not protected"):self.recovery.canonical_bytes()
+        desired.rmdir();outside=self.root/"outside";outside.mkdir(mode=0o700);desired.symlink_to(outside,target_is_directory=True)
+        with self.assertRaisesRegex(ValueError,"parent is not protected"):self.recovery.canonical_bytes()
+
 if __name__=="__main__":unittest.main()
