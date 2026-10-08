@@ -1,21 +1,21 @@
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements. See the NOTICE file
+or more contributor license agreements.  See the NOTICE file
 distributed with this work for additional information
-regarding copyright ownership. The ASF licenses this file
+regarding copyright ownership.  The ASF licenses this file
 to you under the Apache License, Version 2.0 (the
 "License"); you may not use this file except in compliance
-with the License. You may obtain a copy of the License at
+with the License.  You may obtain a copy of the License at
 
   http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing,
 software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-KIND, either express or implied. See the License for the
+KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
--->
+ -->
 
 # 볼륨·스냅샷 VM 생성 개발·검증 환경 준비 결과
 
@@ -135,8 +135,8 @@ RBD probe SHA256: `028593eb9b746961e1c50b7cfa8f1fa49e61a0e5c21789bc58091f145c9dc
 ## 7. 증거와 백업
 
 - [환경/API 요약](evidence/environment-readiness.json), [RPM 무결성](evidence/environment-packages.json), [스토리지 probe](evidence/environment-storage.json), [실행 manifest](evidence/fixture-manifest.json).
-- [CLUSTER 볼륨 시안](evidence/proposed-volume-cluster-dark.png), [원본 사용 확인 시안](evidence/proposed-volume-cluster-confirm-dark.png), [설계 시안 변경 확인 4개](evidence/environment-mockup-verification.json). 이 4개는 오프라인 시안 검증이며 제품 E2E가 아니다.
-- [32번 Europa 호스트 화면](evidence/environment32-europa-hosts.png), [32번 호스트 DOM](evidence/environment32-hosts.txt), [31번 snapshot 화면](evidence/environment31-snapshot.png), [32번 snapshot 화면](evidence/environment32-snapshot.png).
+- [CLUSTER 볼륨 시안](evidence/proposed-volume-cluster-dark.jpg), [원본 사용 확인 시안](evidence/proposed-volume-cluster-confirm-dark.jpg), [설계 시안 변경 확인 4개](evidence/environment-mockup-verification.json). 이 4개는 오프라인 시안 검증이며 제품 E2E가 아니다.
+- [32번 Europa 호스트 화면](evidence/environment32-europa-hosts.jpg), [32번 호스트 DOM](evidence/environment32-hosts.txt), [31번 snapshot 화면](evidence/environment31-snapshot.jpg), [32번 snapshot 화면](evidence/environment32-snapshot.jpg).
 - WSL 원본 로그/SQL/artifact: `/home/ablecloud/work/vm-origin-environment-20261009`.
 - 32번 관리·호스트 백업: 각 서버 `/root/vm-origin-europa-upgrade-20261009/backup` (상위 디렉터리 mode 700).
 - 사전 Cloud/usage dump SHA256: `0b85560ab4fac0d39c94ad4c9219b3c187124a20afce5134805174e86c96ae59`.

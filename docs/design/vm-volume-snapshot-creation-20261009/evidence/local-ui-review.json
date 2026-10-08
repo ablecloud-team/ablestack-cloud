@@ -33,7 +33,7 @@
         "width": 1680
       },
       "label": "local-ui-volume-light-1680",
-      "screenshot": "local-ui-volume-light-1680.png",
+      "screenshot": "local-ui-volume-light-1680.jpg",
       "noPageHorizontalOverflow": true,
       "noCreationTranslationKeys": true,
       "emptyContrast": 7.557378129674007,
@@ -71,7 +71,7 @@
         "width": 1366
       },
       "label": "local-ui-volume-light-1366",
-      "screenshot": "local-ui-volume-light-1366.png",
+      "screenshot": "local-ui-volume-light-1366.jpg",
       "noPageHorizontalOverflow": true,
       "noCreationTranslationKeys": true,
       "emptyContrast": 7.557378129674007,
@@ -109,7 +109,7 @@
         "width": 390
       },
       "label": "local-ui-volume-light-390",
-      "screenshot": "local-ui-volume-light-390.png",
+      "screenshot": "local-ui-volume-light-390.jpg",
       "noPageHorizontalOverflow": true,
       "noCreationTranslationKeys": true,
       "emptyContrast": 7.557378129674007,
@@ -147,7 +147,7 @@
         "width": 1680
       },
       "label": "local-ui-snapshot-light-1680",
-      "screenshot": "local-ui-snapshot-light-1680.png",
+      "screenshot": "local-ui-snapshot-light-1680.jpg",
       "noPageHorizontalOverflow": true,
       "noCreationTranslationKeys": true,
       "emptyContrast": 7.557378129674007,
@@ -185,7 +185,7 @@
         "width": 1366
       },
       "label": "local-ui-snapshot-light-1366",
-      "screenshot": "local-ui-snapshot-light-1366.png",
+      "screenshot": "local-ui-snapshot-light-1366.jpg",
       "noPageHorizontalOverflow": true,
       "noCreationTranslationKeys": true,
       "emptyContrast": 7.557378129674007,
@@ -223,7 +223,7 @@
         "width": 390
       },
       "label": "local-ui-snapshot-light-390",
-      "screenshot": "local-ui-snapshot-light-390.png",
+      "screenshot": "local-ui-snapshot-light-390.jpg",
       "noPageHorizontalOverflow": true,
       "noCreationTranslationKeys": true,
       "emptyContrast": 7.557378129674007,
@@ -261,7 +261,7 @@
         "width": 1680
       },
       "label": "local-ui-snapshot-dark-1680",
-      "screenshot": "local-ui-snapshot-dark-1680.png",
+      "screenshot": "local-ui-snapshot-dark-1680.jpg",
       "noPageHorizontalOverflow": true,
       "noCreationTranslationKeys": true,
       "emptyContrast": 9.176047597421213,
@@ -299,7 +299,7 @@
         "width": 1366
       },
       "label": "local-ui-snapshot-dark-1366",
-      "screenshot": "local-ui-snapshot-dark-1366.png",
+      "screenshot": "local-ui-snapshot-dark-1366.jpg",
       "noPageHorizontalOverflow": true,
       "noCreationTranslationKeys": true,
       "emptyContrast": 9.176047597421213,
@@ -337,7 +337,7 @@
         "width": 390
       },
       "label": "local-ui-snapshot-dark-390",
-      "screenshot": "local-ui-snapshot-dark-390.png",
+      "screenshot": "local-ui-snapshot-dark-390.jpg",
       "noPageHorizontalOverflow": true,
       "noCreationTranslationKeys": true,
       "emptyContrast": 9.176047597421213,
@@ -375,7 +375,7 @@
         "width": 1680
       },
       "label": "local-ui-volume-dark-1680",
-      "screenshot": "local-ui-volume-dark-1680.png",
+      "screenshot": "local-ui-volume-dark-1680.jpg",
       "noPageHorizontalOverflow": true,
       "noCreationTranslationKeys": true,
       "emptyContrast": 9.176047597421213,
@@ -413,7 +413,7 @@
         "width": 1366
       },
       "label": "local-ui-volume-dark-1366",
-      "screenshot": "local-ui-volume-dark-1366.png",
+      "screenshot": "local-ui-volume-dark-1366.jpg",
       "noPageHorizontalOverflow": true,
       "noCreationTranslationKeys": true,
       "emptyContrast": 9.176047597421213,
@@ -451,7 +451,7 @@
         "width": 390
       },
       "label": "local-ui-volume-dark-390",
-      "screenshot": "local-ui-volume-dark-390.png",
+      "screenshot": "local-ui-volume-dark-390.jpg",
       "noPageHorizontalOverflow": true,
       "noCreationTranslationKeys": true,
       "emptyContrast": 9.176047597421213,

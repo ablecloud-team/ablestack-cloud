@@ -1,21 +1,21 @@
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements. See the NOTICE file
+or more contributor license agreements.  See the NOTICE file
 distributed with this work for additional information
-regarding copyright ownership. The ASF licenses this file
+regarding copyright ownership.  The ASF licenses this file
 to you under the Apache License, Version 2.0 (the
 "License"); you may not use this file except in compliance
-with the License. You may obtain a copy of the License at
+with the License.  You may obtain a copy of the License at
 
   http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing,
 software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-KIND, either express or implied. See the License for the
+KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
--->
+ -->
 
 # 볼륨·스냅샷 기반 가상머신 생성 개선 설계
 
@@ -198,10 +198,10 @@ eligibility { allowed, reasoncodes[], message, checkedat, revision }
 | snapshot target storage 확장 | P2 | [#1342](https://github.com/ablecloud-team/ablestack-cloud/issues/1342) | #1336, #1338 |
 | 실제 생성·guest boot·원본 E2E | P1 | [#1343](https://github.com/ablecloud-team/ablestack-cloud/issues/1343) | #1336~#1341 |
 
-설계안 상호작용/반응형 확인 14개는 통과했다. 이는 UI 목업 검증이며 제품 코드/실 VM 검증이 아니다. 화면: [스냅샷 다크](evidence/proposed-snapshot-dark.png), [스냅샷 라이트](evidence/proposed-snapshot-light.png), [볼륨 다크](evidence/proposed-volume-dark.png), [볼륨 확인](evidence/proposed-volume-confirm-dark.png), [모바일 확인](evidence/proposed-mobile-confirm-light.png), [부분 실패](evidence/proposed-failure-dark.png). 긴 전체 페이지 캡처 2회가 timeout되어 안정적인 viewport 캡처를 사용했다.
+설계안 상호작용/반응형 확인 14개는 통과했다. 이는 UI 목업 검증이며 제품 코드/실 VM 검증이 아니다. 화면: [스냅샷 다크](evidence/proposed-snapshot-dark.jpg), [스냅샷 라이트](evidence/proposed-snapshot-light.jpg), [볼륨 다크](evidence/proposed-volume-dark.jpg), [볼륨 확인](evidence/proposed-volume-confirm-dark.jpg), [모바일 확인](evidence/proposed-mobile-confirm-light.jpg), [부분 실패](evidence/proposed-failure-dark.jpg). 긴 전체 페이지 캡처 2회가 timeout되어 안정적인 viewport 캡처를 사용했다.
 
 Cloud 서버 변경은 WSL ext4 clone에서 변경 Maven 모듈과 필요한 의존 모듈만 빌드한다. 전체 Cloud 빌드나 GitHub Actions full build는 사용자 명시 요청이 있을 때만 실행한다. qemu/ftctl 변경이 필요해지는 경우 해당 산출물은 GitHub Actions로 빌드한다. UI 배포는 WEB-INF/META-INF 보존, /client/ 200, 활성 bundle hash/marker 확인을 포함한다.
 
 필수 성공 범위는 31번 GFS2와 32번 Ceph krbd 각각의 볼륨/스냅샷 × Linux BIOS/Windows UEFI × startvm=true/false 8개, 총 16개이다. Epic 완료는 코드/설계/단위 검증만으로 처리하지 않는다. 지정 fixture에서 생성·게스트 부팅·데이터 확인·원본 무결성·실패 후 리소스 상태를 모두 연결한 실제 증거가 필요하다.
 
-2026-10-09 지정 환경 반영: CLUSTER GFS2/RBD 원본 선택과 다른 cluster 차단 예시를 시안에 반영했다. [추가 확인 4개](evidence/environment-mockup-verification.json), [CLUSTER 볼륨 화면](evidence/proposed-volume-cluster-dark.png), [확인 화면](evidence/proposed-volume-cluster-confirm-dark.png). 기존 14개는 초기 시안 검증 기록이며 실제 제품 E2E와 구분한다.
+2026-10-09 지정 환경 반영: CLUSTER GFS2/RBD 원본 선택과 다른 cluster 차단 예시를 시안에 반영했다. [추가 확인 4개](evidence/environment-mockup-verification.json), [CLUSTER 볼륨 화면](evidence/proposed-volume-cluster-dark.jpg), [확인 화면](evidence/proposed-volume-cluster-confirm-dark.jpg). 기존 14개는 초기 시안 검증 기록이며 실제 제품 E2E와 구분한다.
