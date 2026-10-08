@@ -199,6 +199,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                             recoverInterruptedTemplateUpgrade(instance, current);
                         } else if(current!=null && instance!=null && "VOLUME_PREPARATION_RESUME".equals(current.getAction())) {
                             recoverVolumePreparation(instance,current);
+                        } else if (current != null && instance != null && "SMB_IDENTITY_REPAIR".equals(current.getAction()) && InterruptedStateChange.stale(current, System.currentTimeMillis())) {
+                            recoverSmbIdentityRepair(instance, current);
                         } else if (current != null && instance != null && InterruptedStateChange.stale(current, System.currentTimeMillis())) {
                             recoverInterruptedStorageWriter(instance, current);
                         }
@@ -227,6 +229,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 }
                 if (storageRuntimeUpgradeDao.findActiveByInstanceId(instance.getId()) != null) throw new CloudRuntimeException("Runtime upgrade is active");
                 requireNoPendingVolumeFormatter(instance);
+                requireIdentityRollbackSafe(instance, operation);
             }
             public void started(StorageServiceOperationVO row) { beginStorageWriterHeartbeat(row); }
             public void applyPrevious() {
@@ -1041,6 +1044,82 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     @Override
+    public StorageServiceRuntimeResponse repairStorageServiceSmbIdentity(
+            org.apache.cloudstack.api.command.user.storage.dataservice.RepairStorageServiceSmbIdentityCmd cmd) {
+        StorageServiceInstanceVO instance = requireInstance(cmd.getInstanceId());
+        if (!Boolean.TRUE.equals(cmd.getMaintenanceWindow()) || !instance.getName().equals(cmd.getConfirmation())) throw new InvalidParameterValueException("SMB repair requires an explicit maintenance window and exact instance-name confirmation");
+        String token = cmd.getIdempotencyKey() == null ? java.util.UUID.randomUUID().toString() : cmd.getIdempotencyKey();
+        if (!token.matches("[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}")) throw new InvalidParameterValueException("Invalid SMB repair retry key");
+        String fingerprint = StorageServiceRequestFingerprint.of(cmd);
+        com.cloud.utils.db.GlobalLock lock = com.cloud.utils.db.GlobalLock.getInternLock("StorageServiceWriter-" + instance.getId());
+        try {
+            if (!lock.lock(120)) throw new CloudRuntimeException("Storage Service writer is busy");
+            try {
+                StorageServiceOperationVO operation = storageOperationDao.findByRequest(instance.getId(), "SMB_IDENTITY_REPAIR:" + token);
+                if (operation != null) {
+                    if (operation.getCreatedBy() != org.apache.cloudstack.context.CallContext.current().getCallingUserId()
+                            || !fingerprint.equals(getJsonString(parseJsonObject(operation.getResultJson()), "_requestFingerprint"))) throw new InvalidParameterValueException("SMB repair retry key belongs to another actor or request");
+                    if ("COMPLETE_NO_CONFIG_CHANGE".equals(operation.getState())) return smbIdentityRepairResponse(instance, operation);
+                } else {
+                    requireVolumeResumeIdle(instance, null);
+                    long revision = rootDesiredRevision(instance.getId());
+                    if (cmd.getExpectedRevision() != null && cmd.getExpectedRevision() != revision) throw new InvalidParameterValueException("Desired revision changed; refresh SMB observations");
+                    operation = new StorageServiceOperationVO();operation.setInstanceId(instance.getId());operation.setAction("SMB_IDENTITY_REPAIR");
+                    operation.setRequestKey("SMB_IDENTITY_REPAIR:" + token);operation.setCreatedBy(org.apache.cloudstack.context.CallContext.current().getCallingUserId());operation.setRevision(revision + 1);
+                    operation.setState("RUNNING");operation.setPhase("SMB_IDENTITY_PREFLIGHT");
+                    JsonObject result = new JsonObject();result.addProperty("_requestFingerprint", fingerprint);result.addProperty("baseDesiredRevision", revision);result.addProperty("desiredStateChanged", false);
+                    operation.setResultJson(result.toString());operation = storageOperationDao.persist(operation);
+                }
+                recoverSmbIdentityRepair(instance, operation);
+                return smbIdentityRepairResponse(instance, operation);
+            } finally {lock.unlock();}
+        } finally {lock.releaseRef();}
+    }
+
+    protected JsonObject smbIdentityRepairScope(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
+        JsonObject result = parseJsonObject(operation.getResultJson());Long original = getJsonLong(result, "baseDesiredRevision");
+        if (original == null || original < 0) throw new CloudRuntimeException("SMB repair original revision is unavailable");
+        JsonObject scope = new JsonObject();scope.addProperty("instanceUuid", instance.getUuid());scope.addProperty("operationUuid", operation.getUuid());scope.addProperty("revision", original);
+        return scope;
+    }
+
+    protected void recoverSmbIdentityRepair(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
+        if (!"SMB_IDENTITY_REPAIR".equals(operation.getAction())) throw new InvalidParameterValueException("Not a scoped SMB identity repair");
+        requireVolumeResumeIdle(instance, operation);
+        requireNoPendingVolumeFormatter(instance);
+        beginStorageWriterHeartbeat(operation);
+        try {
+            JsonObject request = smbIdentityRepairScope(instance, operation);
+            JsonObject expected;
+            if (operation.getPreviousSnapshotJson() == null) {
+                expected = rootGuest(instance, "smb identity inspect", request, 5);
+                StorageSmbIdentityRepairProof.requirePreflight(request, expected);
+                JsonObject saved = new JsonObject();saved.add("expectedInspection", expected);
+                operation.setPreviousSnapshotJson(saved.toString());operation.setPhase("SMB_IDENTITY_SCOPE_FROZEN");
+                if (!storageOperationDao.update(operation.getId(), operation)) throw new CloudRuntimeException("SMB repair scope could not be durably frozen");
+            } else expected = parseJsonObject(operation.getPreviousSnapshotJson()).getAsJsonObject("expectedInspection");
+            request.add("expected", expected.deepCopy());operation.setState("RUNNING");operation.setPhase("SMB_IDENTITY_REBINDING");
+            if (!storageOperationDao.update(operation.getId(), operation)) throw new CloudRuntimeException("SMB repair phase could not be persisted");
+            JsonObject rebound = rootGuest(instance, "smb identity rebind", request, 120);
+            JsonObject current = rootGuest(instance, "smb identity inspect", smbIdentityRepairScope(instance, operation), 5);
+            StorageSmbIdentityRepairProof.requireVerified(expected, rebound, current);
+            JsonObject generation = nativeConfigurationGeneration(instance, null, "status");
+            if (!"IN_SYNC".equals(getJsonString(generation, "generationStatus")) || generation.has("pendingOperationUuid") && !generation.get("pendingOperationUuid").isJsonNull()
+                    || !expected.get("generation").equals(generation.get("generation"))) throw new CloudRuntimeException("SMB repair cannot advance or change the original verified generation");
+            JsonObject result = parseJsonObject(operation.getResultJson());result.add("native", rebound);result.add("verification", current);
+            operation.setResultJson(result.toString());operation.setState("COMPLETE_NO_CONFIG_CHANGE");operation.setPhase("SMB_IDENTITY_VERIFIED");operation.setProgress(100);operation.setCompleted(new java.util.Date());operation.setHeartbeat(new java.util.Date());
+            if (!storageOperationDao.update(operation.getId(), operation)) throw new CloudRuntimeException("SMB repair completion could not be persisted");
+        } catch (RuntimeException failed) {
+            operation.setState("RECOVERY_REQUIRED");operation.setPhase("SMB_IDENTITY_RECOVERY_REQUIRED");operation.setDiagnostic("SMB identity repair requires exact native reconciliation; passwords, desired state and DATA were not rewritten");operation.setHeartbeat(new java.util.Date());storageOperationDao.update(operation.getId(), operation);throw failed;
+        } finally {endStorageWriterHeartbeat();}
+    }
+
+    private StorageServiceRuntimeResponse smbIdentityRepairResponse(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
+        JsonObject result = parseJsonObject(operation.getResultJson());result.remove("_requestFingerprint");result.addProperty("managedOperationUuid", operation.getUuid());result.addProperty("managedOperationState", operation.getState());
+        return createRuntimeResponse(instance, "smb identity rebind", "COMPLETE_NO_CONFIG_CHANGE".equals(operation.getState()), operation.getState(), operation.getDiagnostic(), result.toString());
+    }
+
+    @Override
     public StorageServiceRuntimeResponse storageServiceOperationControl(
             org.apache.cloudstack.api.command.user.storage.dataservice.BaseStorageServiceOperationControlCmd cmd) {
         StorageServiceInstanceVO instance = requireInstance(cmd.getInstanceId());
@@ -1515,6 +1594,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         payload.addProperty("instanceUuid", target.getUuid());payload.addProperty("volumeUuid", volume.getUuid());payload.addProperty("volumeName", volume.getName());payload.addProperty("volumeSizeBytes", volume.getSize());
         payload.addProperty("shareUuid", volume.getUuid());payload.addProperty("filesystem", getJsonString(allocation, "filesystem"));payload.addProperty("importMode", mode);
         payload.addProperty("provisioningType", volume.getProvisioningType() == null ? "UNKNOWN" : volume.getProvisioningType().name());payload.addProperty("operationId", "volume-" + volume.getUuid());
+        if ("FORMAT_IF_EMPTY".equals(mode)) payload.addProperty("formatDiscardPolicy", "SKIP_DISCARD");
         StorageServiceOperationVO writer = storageWriterOperation.get();
         if (writer == null) throw new CloudRuntimeException("Clone preparation requires its managed writer scope");
         payload.addProperty("managerOperationUuid", writer.getUuid());payload.addProperty("managerRevision", writer.getRevision());
@@ -1759,7 +1839,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         payload.addProperty("mountPath", "/srv/ablestack-storage/volumes/" + volume.getUuid());
         payload.addProperty("importMode", existing ? "MOUNT_EXISTING" : "FORMAT_IF_EMPTY");
         if(volume.getProvisioningType()!=null)payload.addProperty("provisioningType",volume.getProvisioningType().name());
-        if(!existing)requireSparseNewFilesystem(volume);
+        if (!existing) {
+            requireSparseNewFilesystem(volume);
+            payload.addProperty("formatDiscardPolicy", "SKIP_DISCARD");
+        }
         int deadline = backingVolumeFormatDeadline(volume.getSize());payload.addProperty("formatDeadlineSeconds", deadline);
         payload.addProperty("operationId", "volume-" + volume.getUuid());
         StorageServiceOperationVO writer=storageWriterOperation.get();if(writer!=null){payload.addProperty("managerOperationUuid",writer.getUuid());payload.addProperty("managerRevision",writer.getRevision());}
@@ -1889,6 +1972,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         commands.add(ListStorageSmbAclsCmd.class);
         commands.add(JoinStorageServiceToAdDomainCmd.class);
         commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageServiceOperationControlCmd.class);
+        commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.RepairStorageServiceSmbIdentityCmd.class);
         commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.CancelStorageServiceOperationCmd.class);
         commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.DrainStorageServiceOperationCmd.class);
         commands.add(LeaveStorageServiceFromAdDomainCmd.class);
@@ -1977,9 +2061,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 final StorageServiceOperationVO operation = storageOperationDao.findById(cmd.getOperationId());
                 if (operation == null || operation.getInstanceId() != instanceId) throw new InvalidParameterValueException("Operation scope changed");
                 if ("RUNNING".equals(operation.getState()) || ("RECOVERY_REQUIRED".equals(operation.getState())
-                        && ("VOLUME_PREPARATION_RESUME".equals(operation.getAction()) || !StorageOperationReconciliation.superseded(operation, storageOperationDao.listByInstance(instanceId))))) {
+                        && ("VOLUME_PREPARATION_RESUME".equals(operation.getAction()) || "SMB_IDENTITY_REPAIR".equals(operation.getAction()) || !StorageOperationReconciliation.superseded(operation, storageOperationDao.listByInstance(instanceId))))) {
                     if (operation.getAction().startsWith("ROOT_TEMPLATE_")) recoverInterruptedTemplateUpgrade(instance, operation);
                     else if("VOLUME_PREPARATION_RESUME".equals(operation.getAction()))recoverVolumePreparation(instance,operation);
+                    else if("SMB_IDENTITY_REPAIR".equals(operation.getAction()))recoverSmbIdentityRepair(instance,operation);
                     else recoverInterruptedStorageWriter(instance, operation);
                     final org.apache.cloudstack.api.response.StorageServiceOperationResponse recovered = new org.apache.cloudstack.api.response.StorageServiceOperationResponse();
                     recovered.setId(operation.getUuid());recovered.setInstanceid(instance.getUuid());recovered.setAction(operation.getAction());
@@ -2400,6 +2485,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         JsonObject observed=rootGuest(instance,"operation writer-idle",new JsonObject(),15);
                         if(!"WRITER_IDLE".equals(getJsonString(observed,"status")))throw new CloudRuntimeException("Active or terminating native formatter preserves VM/DATA and requires forward recovery; rollback is deferred");
                         requireNoPendingVolumeFormatter(instance);
+                        requireIdentityRollbackSafe(instance, storageWriterOperation.get());
                     }
                     public void applyPrevious() {
                         StorageServiceOperationVO recovering = storageWriterOperation.get();
@@ -3822,6 +3908,15 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 || volume.getAccountId()!=instance.getAccountId() || volume.getDataCenterId()!=instance.getDataCenterId() || volume.getState()!=com.cloud.storage.Volume.State.Ready)throw new InvalidParameterValueException("Resume requires the same owned Ready DATA disk attached to the service VM");
         validateStorageServiceBackingVolume(instance,volume.getId(),"volume preparation resume");
     }
+    protected void requireIdentityRollbackSafe(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
+        if (instance.getVmId() == null || operation == null || operation.getPreviousSnapshotJson() == null) return;
+        JsonObject snapshot = parseJsonObject(operation.getPreviousSnapshotJson());
+        if (!snapshot.has("nativeIdentityCapsule")) return;
+        JsonObject scope = operationReservationScope(instance, operation);
+        JsonObject observed = rootGuest(instance, "smb identity inspect", scope, 5);
+        StorageSmbIdentityRepairProof.requireRestoreSafe(scope, observed);
+    }
+
     protected void requireNoPendingVolumeFormatter(StorageServiceInstanceVO instance) {
         for(VolumeVO volume:volumeDao.findByInstanceAndType(instance.getVmId(),com.cloud.storage.Volume.Type.DATADISK)) {
             JsonObject payload=new JsonObject();payload.addProperty("volumeUuid",volume.getUuid());
@@ -5537,7 +5632,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         final String mode = StringUtils.defaultIfBlank(importMode, "MOUNT_EXISTING").toUpperCase(java.util.Locale.ROOT);
         payload.addProperty("importMode", mode);
         final boolean formatting = "FORMAT_EMPTY".equals(mode) || "FORMAT_IF_EMPTY".equals(mode);
-        if(formatting)requireSparseNewFilesystem(volume);
+        if (formatting) {
+            requireSparseNewFilesystem(volume);
+            payload.addProperty("formatDiscardPolicy", "SKIP_DISCARD");
+        }
         final int formatDeadline = backingVolumeFormatDeadline(volume.getSize() == null ? 0 : volume.getSize());
         payload.addProperty("formatDeadlineSeconds", formatDeadline);
         payload.addProperty("operationId", "volume-" + volume.getUuid());
