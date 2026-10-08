@@ -8780,5 +8780,9 @@
   "message.storage.disk.sparse.required": "새 스토리지 디스크에는 SPARSE 또는 FAT 프로비저닝 오퍼링이 필요합니다.",
   "label.storage.tab.operations": "작업",
   "label.storage.tab.backup.restore": "백업·복원",
-  "label.storage.tab.upgrades": "업그레이드"
+  "label.storage.tab.upgrades": "업그레이드",
+  "label.storage.volume.resume": "준비 재개",
+  "message.storage.volume.resume.safe": "기존 파일 시스템의 마운트와 검증을 재개합니다. 포맷을 다시 실행하지 않습니다. 서비스 구성 적용은 별도 작업입니다.",
+  "message.storage.volume.resume.failed": "준비 재개에 실패했습니다. 작업 이력을 확인하세요.",
+  "message.storage.volume.resume.unknown": "작업 완료 여부를 확인하지 못했습니다. 다시 시도하기 전에 작업 이력을 업데이트하세요."
 }

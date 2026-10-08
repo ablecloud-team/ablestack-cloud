@@ -68,7 +68,7 @@ class="storage-service__alert"
 
       <a-tab-pane v-if="hasStorageServiceApi" :tab="$t('label.storage.tab.operations')" key="operations">
         <storage-operation-history ref="storageOperationHistory" v-if="storageService.instance && 'listStorageServiceOperations' in $store.getters.apis" :instance-id="storageService.instance.id" />
-        <storage-volume-preparation v-if="storageService.instance && 'getStorageServiceVolumePreparation' in $store.getters.apis" :instance-id="storageService.instance.id" :volumes="currentBackingVolumes" />
+        <storage-volume-preparation v-if="storageService.instance && 'getStorageServiceVolumePreparation' in $store.getters.apis" :instance-id="storageService.instance.id" :volumes="currentBackingVolumes" @operation-updated="refreshStorageOperationHistory" />
       </a-tab-pane>
       <a-tab-pane v-if="hasStorageServiceApi" :tab="$t('label.storage.tab.backup.restore')" key="backup">
         <storage-service-configuration v-if="storageService.instance && 'listStorageServiceConfigBackups' in $store.getters.apis" :instance-id="storageService.instance.id" :resource="dataResource" @operation-updated="refreshStorageOperationHistory" />
@@ -371,7 +371,7 @@ class="storage-service__alert"
                 </template>
               </a-table>
             </section>
-            <posix-directory-policies v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis" :instance-id="storageService.instance.id" :volumes="currentBackingVolumes" @refresh="fetchStorageServiceData" />
+            <posix-directory-policies ref="nfsPosixPolicies" v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis" :instance-id="storageService.instance.id" :volumes="currentBackingVolumes" @applied="nfsPolicyApplied" @refresh="fetchStorageServiceData" />
           </template>
         </div>
       </a-tab-pane>
@@ -1651,6 +1651,7 @@ wrapClassName="storage-service-action-modal"
           <section class="storage-action-section">
             <div class="storage-action-section__title">{{ $t('label.storage.service.posix.permission') }}</div>
             <nfs-permission-recommendations :form="forms.nfsExport" @patch="Object.assign(forms.nfsExport, $event)" />
+            <a-button v-if="actionModal.type === 'editNfsExport' && 'createStoragePosixDirectoryPolicy' in $store.getters.apis" @click="reviewNfsDirectoryPermissions">{{ $t('label.posix.directory.preview') }}</a-button>
             <a-row :gutter="12">
               <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.owner.uid')" :tooltip="$t('message.storage.service.owner.uid.help')" /></template><a-input-number :disabled="!!forms.nfsExport.posixpolicyid" v-model:value="forms.nfsExport.owneruid" class="storage-input-number" :min="0" :max="65535" /></a-form-item></a-col>
               <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.owner.gid')" :tooltip="$t('message.storage.service.owner.gid.help')" /></template><a-input-number :disabled="!!forms.nfsExport.posixpolicyid" v-model:value="forms.nfsExport.ownergid" class="storage-input-number" :min="0" :max="65535" /></a-form-item></a-col>
@@ -4722,6 +4723,14 @@ export default {
     this.$emit('wide-layout-change', false)
   },
   methods: {
+    reviewNfsDirectoryPermissions () {
+      const item = this.actionModal.context?.raw || this.actionModal.context
+      if (item?.id && this.$refs.nfsPosixPolicies) this.$refs.nfsPosixPolicies.openForExport(item.id, this.forms.nfsExport, this.forms.nfsExport.posixpolicyid)
+    },
+    nfsPolicyApplied ({ policy, exportid }) {
+      const item = this.actionModal.context?.raw || this.actionModal.context
+      if (this.actionModal.type === 'editNfsExport' && item?.id === exportid && policy?.id) this.forms.nfsExport.posixpolicyid = policy.id
+    },
     refreshTemplateOperationHistory (sharedFsId) {
       if (sharedFsId !== this.dataResource.id) return
       if (this.$refs.storageOperationHistory) this.$refs.storageOperationHistory.refresh()

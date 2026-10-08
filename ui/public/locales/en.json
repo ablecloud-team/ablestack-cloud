@@ -8815,5 +8815,9 @@
   "message.storage.disk.sparse.required": "New storage disks require SPARSE or FAT provisioning.",
   "label.storage.tab.operations": "Operations",
   "label.storage.tab.backup.restore": "Backup and restore",
-  "label.storage.tab.upgrades": "Upgrades"
+  "label.storage.tab.upgrades": "Upgrades",
+  "label.storage.volume.resume": "Resume preparation",
+  "message.storage.volume.resume.safe": "Resume mounting and verification of the existing filesystem. The formatter is not run again. Service configuration is applied separately.",
+  "message.storage.volume.resume.failed": "Preparation resume failed. Check the operation history.",
+  "message.storage.volume.resume.unknown": "The job is still unobserved. Refresh the operation history before retrying."
 }
