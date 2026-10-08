@@ -45,7 +45,7 @@ public class StoragePinnedRuntimeReplayTest {
         @Override protected byte[] resource(String path){return new byte[]{1};}
         @Override protected void requireRuntimeActivationSafety(StorageServiceInstanceVO instance){events.add("FORMATTER_SAFETY");if(formatterBlocked)throw new CloudRuntimeException("Incomplete formatter journal");}
         @Override protected String requireTemplateRuntimeHelper(StorageServiceInstanceVO instance){return "4bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459a";}
-        @Override protected Set<String> requiredRuntimeFeatures(StorageServiceInstanceVO instance){return Set.of();}
+        @Override protected Set<String> requiredRuntimeFeatures(StorageServiceInstanceVO instance){return runtimeDependencyService().requiredManagedOperationFeatures(instance.getId());}
         @Override protected byte[] download(String location,int limit){events.add("DOWNLOAD");return new byte[]{1};}
         @Override protected byte[] trustedKey(String key){return new byte[]{1};}
         @Override protected void ensureBootstrap(StorageServiceInstanceVO instance,StorageServiceRuntimeBundleVO bundle,String transaction){events.add("BOOTSTRAP");}
@@ -56,10 +56,10 @@ public class StoragePinnedRuntimeReplayTest {
             return result;
         }
     }
-    private Manager manager;private String operationUuid;private StorageServiceTemplateUpgradeVO root;private StorageServiceTemplateUpgradeDao roots;private StorageServiceRuntimeBundleVO bundle;
+    private Manager manager;private StorageService controls;private String operationUuid;private StorageServiceTemplateUpgradeVO root;private StorageServiceTemplateUpgradeDao roots;private StorageServiceRuntimeBundleVO bundle;
     @Before public void setup(){
         manager=new Manager();
-        StorageService controls=Mockito.mock(StorageService.class);ReflectionTestUtils.setField(manager,"operationControlService",(javax.inject.Provider<StorageService>)()->controls);
+        controls=Mockito.mock(StorageService.class);ReflectionTestUtils.setField(manager,"operationControlService",(javax.inject.Provider<StorageService>)()->controls);
 StorageServiceInstanceDao instances=Mockito.mock(StorageServiceInstanceDao.class);StorageServiceOperationDao operations=Mockito.mock(StorageServiceOperationDao.class);roots=Mockito.mock(StorageServiceTemplateUpgradeDao.class);StorageServiceRuntimeBundleDao bundles=Mockito.mock(StorageServiceRuntimeBundleDao.class);
         StorageServiceInstanceVO instance=Mockito.mock(StorageServiceInstanceVO.class);Mockito.when(instance.getId()).thenReturn(6L);Mockito.when(instance.getVmId()).thenReturn(60L);Mockito.when(instance.getPreviousRuntimeBundleId()).thenReturn(5L);Mockito.when(instance.getCurrentRuntimeBundleId()).thenReturn(5L);Mockito.when(instance.getRuntimeVerifiedAt()).thenReturn(new Date());Mockito.when(instances.findById(6L)).thenReturn(instance);
         StorageServiceOperationVO operation=Mockito.mock(StorageServiceOperationVO.class);operationUuid=UUID.randomUUID().toString();Mockito.when(operation.getId()).thenReturn(3L);Mockito.when(operation.getInstanceId()).thenReturn(6L);Mockito.when(operation.getState()).thenReturn("RUNNING");Mockito.when(operation.getAction()).thenReturn("ROOT_TEMPLATE_UPGRADE");Mockito.when(operations.findByUuid(operationUuid)).thenReturn(operation);
@@ -185,4 +185,26 @@ StorageServiceInstanceDao instances=Mockito.mock(StorageServiceInstanceDao.class
         }
     }
 
+
+    @Test public void oldSourceCheckpointDoesNotRequireVfsPackageActivationProof() {
+        Mockito.doThrow(new CloudRuntimeException("Old4.3 VFS is unsupported")).when(controls).verifyStoragePackageFeatures(6L);
+        Mockito.when(controls.requiredManagedOperationFeatures(6L)).thenReturn(Set.of("LOGICAL_RESOURCE_RESERVATION"));
+        try(MockedConstruction<StorageServiceRuntimeBundleVerifier> verified=verification()) {
+            manager.checkpointTemplateRuntime(6,operationUuid);
+            Mockito.verifyNoInteractions(controls);
+            Assert.assertFalse(manager.events.contains("ACTIVATE"));
+        }
+    }
+    @Test public void retainedUnknownVersionCannotBypassMissingReservationFeature() {
+        manager.consumer.add("templatePlatformVersion",com.google.gson.JsonNull.INSTANCE);
+        manager.consumer.addProperty("platformVersionKnown",false);
+        try(MockedConstruction<StorageServiceRuntimeBundleVerifier> verified=verification()) {
+            retainSource(manager.checkpointTemplateRuntime(6,operationUuid));
+            Mockito.when(controls.requiredManagedOperationFeatures(6L)).thenReturn(Set.of("LOGICAL_RESOURCE_RESERVATION"));
+            manager.events.clear();
+            Assert.assertThrows(CloudRuntimeException.class,()->manager.restoreTemplateRuntime(6,manager.runtimePin(bundle),operationUuid,"previous"));
+            Assert.assertFalse(manager.events.contains("BOOTSTRAP"));
+            Assert.assertFalse(manager.events.contains("ACTIVATE"));
+        }
+    }
 }

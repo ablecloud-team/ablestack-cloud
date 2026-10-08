@@ -385,7 +385,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         if (bundle.getServiceImpact()!=StorageServiceRuntimeBundleVO.ServiceImpact.NONE) throw new CloudRuntimeException("Pinned runtime requires additional template maintenance");
         byte[] archive=download(bundle.getArtifactUrl(),MAX_BUNDLE_BYTES),manifest=download(bundle.getManifestUrl(),MAX_MANIFEST_BYTES),signature=download(bundle.getSignatureUrl(),MAX_SIGNATURE_BYTES);
         JsonObject verified=new StorageServiceRuntimeBundleVerifier().verify(bundle,archive,manifest,signature,trustedKey(bundle.getSigningKeyId()));
-        requireSignedRuntimeFeatures(instance, verified.getAsJsonObject("manifest"));
+        if (activate) requireSignedRuntimeFeatures(instance, verified.getAsJsonObject("manifest"));
         JsonObject checkpoint = activate && "previous".equals(direction) ? originalRootCheckpoint(instance, bundle) : null;
         StorageRuntimeVersionCompatibility.Mode mode = checkpoint == null ? StorageRuntimeVersionCompatibility.Mode.NEW_ACTIVATION : StorageRuntimeVersionCompatibility.Mode.RETAINED_PREVIOUS_ROLLBACK;
         StorageRuntimeVersionCompatibility.RetainedPreviousEvidence evidence = checkpoint == null ? null : retainedPreviousEvidence(instance, bundle, checkpoint, null, null);
@@ -409,6 +409,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
             requireRuntimeActivationSafety(instance);invoke(instance,StorageServiceRuntimeOperation.ACTIVATE,transaction,request);
         }
         JsonObject readback = requireRuntimeReadback(invoke(instance,StorageServiceRuntimeOperation.READBACK,transaction,request),bundle);
+        if (activate) requireRuntimePackageFeatures(instance);
         if (compatibility != null) readback.add("consumerCompatibility", compatibility);return readback;
     }
 
@@ -712,11 +713,13 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
                 final JsonObject rolledBack = invoke(instance, StorageServiceRuntimeOperation.ROLLBACK,
                         upgrade.getTransactionId(), request(upgrade, bundle));
                 rolledBack.add("consumerCompatibility", rollbackCompatibility);rolledBack.add("installedPreviousReadback", verifyGenericPrevious(instance, upgrade, previous));
+                requireRuntimePackageFeatures(instance);
                 upgrade.setRollbackResultJson(rolledBack.toString());
                 control.terminal("ROLLED_BACK");
                 update(upgrade, StorageServiceRuntimeUpgradeVO.State.ROLLED_BACK, "ROLLED_BACK", 100);
                 throw new CloudRuntimeException("Runtime activation health verification failed and previous runtime was restored: " + health.getDetails());
             }
+            requireRuntimePackageFeatures(instance);
             return finishRuntimeResourceScope(control, "COMPLETE", () -> {
             final Long previous = instance.getCurrentRuntimeBundleId();
             instance.setPreviousRuntimeBundleId(previous);
@@ -765,6 +768,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         final JsonObject result = invoke(instance, StorageServiceRuntimeOperation.ROLLBACK,
                 upgrade.getTransactionId(), request(upgrade, bundle));
         result.add("consumerCompatibility", compatibility);result.add("installedPreviousReadback", verifyGenericPrevious(instance, upgrade, previous));
+        requireRuntimePackageFeatures(instance);
         return finishRuntimeResourceScope(control, "ROLLED_BACK", () -> {
         final Long current = instance.getCurrentRuntimeBundleId();
         instance.setCurrentRuntimeBundleId(instance.getPreviousRuntimeBundleId());
@@ -819,12 +823,23 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         }
         return false;
     }
+    protected StorageService runtimeDependencyService() {
+        StorageService service = operationControlService == null ? null : operationControlService.get();
+        if (service == null) throw new CloudRuntimeException("Runtime dependency service is unavailable");
+        return service;
+    }
+
+    protected void requireRuntimePackageFeatures(StorageServiceInstanceVO instance) {
+        runtimeDependencyService().verifyStoragePackageFeatures(instance.getId());
+    }
+
     protected void requireSignedRuntimeFeatures(StorageServiceInstanceVO instance, JsonObject manifest) {
         java.util.Set<String> required = requiredRuntimeFeatures(instance);
         if (required.stream().anyMatch(feature -> AD_IDENTITY_FEATURES.contains(feature) || "POSIX_AD_PRINCIPALS".equals(feature))) {
             requireNativeAdFeatures(instance, required);
         }
         StorageRuntimeFeatureCompatibility.require(manifest, required);
+        requireRuntimePackageFeatures(instance);
     }
     private static boolean trueCapability(JsonObject object, String key) {
         return object.has(key) && object.get(key).isJsonPrimitive() && object.get(key).getAsJsonPrimitive().isBoolean() && object.get(key).getAsBoolean();
@@ -878,6 +893,9 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
             JsonObject config = new JsonParser().parse(protocol.getConfigJson() == null ? "{}" : protocol.getConfigJson()).getAsJsonObject();
             if (config.has("idMappingMode") && "NUMERIC".equals(config.get("idMappingMode").getAsString())) features.add("NFS_NUMERIC_IDENTITY");
         }
+        java.util.Set<String> managed = runtimeDependencyService().requiredManagedOperationFeatures(instance.getId());
+        if (managed == null) throw new CloudRuntimeException("Managed runtime feature requirements are unavailable");
+        features.addAll(managed);
         return features;
     }
 
