@@ -265,6 +265,7 @@ import sys
 
 STATE_PATH = "/etc/ablestack-storage/network-endpoints.json"
 BINDING_RECEIPT_PATH = "/var/lib/ablestack-storage/network-endpoint-bindings.json"
+STATIC_NETWORK_STATE_PATH = "/etc/ablestack-storage/sharedfs-network.json"
 payload_path = sys.argv[1]
 binding_path = sys.argv[2] if len(sys.argv) > 2 else ""
 reconcile_mode = len(sys.argv) > 3 and sys.argv[3] == "reconcile"
@@ -412,6 +413,7 @@ def root_binding_targets(expected, requested):
         primary_owners = [link["ifname"] for link in addresses for address in link.get("addr_info", []) if address.get("local") == primary]
         if primary_owners != [iface]:
             raise ValueError("ROOT endpoint primary IP does not belong to its pinned MAC")
+        validate_endpoint_primary(primary,iface,addresses)
         owners = [(link["ifname"], int(address.get("prefixlen", -1))) for link in addresses
                   for address in link.get("addr_info", []) if address.get("local") == ip]
         if owners and owners != [(iface, prefix)]:
@@ -469,6 +471,21 @@ def protected_network_bytes(path):
         return content
     finally:
         os.close(descriptor)
+
+
+def validate_endpoint_primary(primary,iface,addresses):
+    if not primary:return
+    observed=[(link.get("ifname"),address) for link in addresses for address in link.get("addr_info",[]) if address.get("local")==primary]
+    if len(observed)!=1 or observed[0][0]!=iface:raise ValueError("Endpoint primary IP does not belong to its selected interface")
+    if observed[0][1].get("secondary") is True:raise ValueError("Endpoint primary IP is a secondary alias")
+    content=protected_network_bytes(STATIC_NETWORK_STATE_PATH)
+    if content is not None:
+        declared=json.loads(content)
+        mac=str(declared.get("macAddress") or "").lower()
+        matches=[link for link in interface_links() if link.get("ifname")==iface]
+        if len(matches)!=1:raise ValueError("Endpoint primary interface identity is ambiguous")
+        if mac and str(matches[0].get("address") or "").lower()==mac and primary!=str(declared.get("ipAddress") or ""):
+            raise ValueError("Endpoint primary IP differs from its protected STATIC declaration")
 
 
 def read_binding_receipt():
@@ -570,11 +587,14 @@ def apply_one(entry):
         verified["changed"] = not bool(existing)
         return verified
     iface, prefix = find_existing_iface(listen_ip, links)
+    primary=str(entry.get("primaryIp") or "").strip()
     if iface:
+        validate_endpoint_primary(primary,iface,links)
         return {"listenIp": listen_ip, "interface": iface, "prefixlen": prefix, "active": True, "changed": False}
     iface, prefix = find_target_iface({**entry, "listenIp": listen_ip}, links)
     if not iface:
         raise RuntimeError(f"No System VM interface can host Storage Service listen IP {listen_ip}")
+    validate_endpoint_primary(primary,iface,links)
     link_result = run(["ip", "link", "set", iface, "up"])
     if link_result.returncode != 0:
         raise RuntimeError(link_result.stderr.strip() or f"failed to bring up {iface}")
@@ -624,9 +644,12 @@ for entry in requested:
     merged[result["listenIp"]] = {**entry, "listenIp": result["listenIp"], "prefixlen": result["prefixlen"]}
     results.append(result)
 if strict_bindings is None:
+    # Validate the complete candidate binding set before replacing the cached
+    # desired state. A bad historical primary must not create another bad
+    # receipt or partially replace the canonical cache.
+    if receipt is not None:expected = observed_binding_expectations(list(merged.values()))
     write_state(list(merged.values()))
     if receipt is not None:
-        expected = observed_binding_expectations(list(merged.values()))
         receipt_proof = write_binding_receipt(expected, results)
 else:
     receipt_proof = write_binding_receipt(expected, results)
