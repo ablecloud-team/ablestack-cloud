@@ -1594,7 +1594,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         payload.addProperty("instanceUuid", target.getUuid());payload.addProperty("volumeUuid", volume.getUuid());payload.addProperty("volumeName", volume.getName());payload.addProperty("volumeSizeBytes", volume.getSize());
         payload.addProperty("shareUuid", volume.getUuid());payload.addProperty("filesystem", getJsonString(allocation, "filesystem"));payload.addProperty("importMode", mode);
         payload.addProperty("provisioningType", volume.getProvisioningType() == null ? "UNKNOWN" : volume.getProvisioningType().name());payload.addProperty("operationId", "volume-" + volume.getUuid());
-        if ("FORMAT_IF_EMPTY".equals(mode)) payload.addProperty("formatDiscardPolicy", "SKIP_DISCARD");
+        if ("FORMAT_IF_EMPTY".equals(mode)) {
+            requireNewVolumeFormatSupport(target);
+            payload.addProperty("formatDiscardPolicy", "SKIP_DISCARD");
+        }
         StorageServiceOperationVO writer = storageWriterOperation.get();
         if (writer == null) throw new CloudRuntimeException("Clone preparation requires its managed writer scope");
         payload.addProperty("managerOperationUuid", writer.getUuid());payload.addProperty("managerRevision", writer.getRevision());
@@ -1604,6 +1607,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         payload.add("config", config);
         int timeout = backingVolumeFormatDeadline(volume.getSize());payload.addProperty("formatDeadlineSeconds", timeout);
         JsonObject result = rootGuest(target, "volume attach inspect", payload, "FORMAT_IF_EMPTY".equals(mode) ? timeout + 120 : 60);
+        if ("FORMAT_IF_EMPTY".equals(mode)) requireNewVolumeFormatEcho(result);
         JsonObject fresh = inspectConfigurationAllocation(target, allocation);
         if (!"VOLUME_SERIAL".equals(getJsonString(result, "matchedBy")) || !volume.getUuid().equals(getJsonString(result, "volumeUuid"))
                 || !java.util.Objects.equals(getJsonString(result, "filesystemUuid"), getJsonString(fresh, "filesystemUuid"))) throw new CloudRuntimeException("Clone preparation response disagrees with fresh exact DATA identity");
@@ -1841,6 +1845,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if(volume.getProvisioningType()!=null)payload.addProperty("provisioningType",volume.getProvisioningType().name());
         if (!existing) {
             requireSparseNewFilesystem(volume);
+            requireNewVolumeFormatSupport(instance);
             payload.addProperty("formatDiscardPolicy", "SKIP_DISCARD");
         }
         int deadline = backingVolumeFormatDeadline(volume.getSize());payload.addProperty("formatDeadlineSeconds", deadline);
@@ -1850,6 +1855,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 "volume attach inspect", payload.toString(), Math.max(StorageServiceInstance.StorageServiceCommandTimeout.value(), deadline + 120), Collections.emptySet()));
         if (!result.isSuccess()) throw new CloudRuntimeException("New configuration service initial volume preparation failed: " + result.getDetails());
         JsonObject observed = parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));
+        if (!existing) requireNewVolumeFormatEcho(observed);
         if (!Boolean.TRUE.equals(getJsonBoolean(observed, "success")) || !volume.getUuid().equals(getJsonString(observed, "volumeUuid"))
                 || StringUtils.isBlank(getJsonString(observed, "filesystemUuid"))) throw new CloudRuntimeException("New service initial filesystem identity was not verified");
     }
@@ -5634,6 +5640,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         final boolean formatting = "FORMAT_EMPTY".equals(mode) || "FORMAT_IF_EMPTY".equals(mode);
         if (formatting) {
             requireSparseNewFilesystem(volume);
+            requireNewVolumeFormatSupport(instance);
             payload.addProperty("formatDiscardPolicy", "SKIP_DISCARD");
         }
         final int formatDeadline = backingVolumeFormatDeadline(volume.getSize() == null ? 0 : volume.getSize());
@@ -5648,6 +5655,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             throw new CloudRuntimeException("Failed to inspect attached Storage Service volume: " + result.getDetails());
         }
         final JsonObject resultJson = parseJsonObject(result.getResultJson());
+        if (formatting) requireNewVolumeFormatEcho(resultJson);
         final String observedVolumeUuid = getJsonString(resultJson, "volumeUuid");
         if (StringUtils.isNotBlank(observedVolumeUuid)
                 && !normalizeVolumeIdentity(volume.getUuid()).equals(normalizeVolumeIdentity(observedVolumeUuid))) {
@@ -5666,6 +5674,28 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
         share.setConfigJson(buildFileShareAttachConfigJson(share.getConfigJson(), importMode, volume, resultJson));
         storageFileShareDao.update(share.getId(), share);
+    }
+
+    protected void requireNewVolumeFormatSupport(StorageServiceInstanceVO instance) {
+        JsonObject capability = rootGuest(instance, "volume operation capabilities", new JsonObject(), 5);
+        boolean supported = capability.has("formatDiscardPolicies") && capability.get("formatDiscardPolicies").isJsonArray()
+                && java.util.stream.StreamSupport.stream(capability.getAsJsonArray("formatDiscardPolicies").spliterator(), false)
+                    .anyMatch(value -> value.isJsonPrimitive() && "SKIP_DISCARD".equals(value.getAsString()));
+        if (!supported || !Boolean.TRUE.equals(getJsonBoolean(capability, "sparseFormatRequired"))
+                || !Boolean.TRUE.equals(getJsonBoolean(capability, "formatterSuccessReceiptSupported"))) {
+            throw new InvalidParameterValueException("Signed native runtime does not attest SPARSE/FAT SKIP_DISCARD and successful formatter receipts; no format command was issued");
+        }
+    }
+
+    protected void requireNewVolumeFormatEcho(JsonObject result) {
+        if (!result.has("formatInvoked") || !result.get("formatInvoked").isJsonPrimitive()
+                || !result.get("formatInvoked").getAsJsonPrimitive().isBoolean()) throw new CloudRuntimeException("Native preparation did not attest whether a formatter ran");
+        if (!result.get("formatInvoked").getAsBoolean()) return; // Exact existing-FS preparation remains mount-only.
+        JsonObject operation = result.has("operation") && result.get("operation").isJsonObject() ? result.getAsJsonObject("operation") : new JsonObject();
+        if (!"SKIP_DISCARD".equals(getJsonString(operation, "formatDiscardPolicy"))
+                || !operation.has("formatterSuccessReceipt") || !operation.get("formatterSuccessReceipt").isJsonObject()) {
+            throw new CloudRuntimeException("Formatter policy/completion receipt is unverified; DATA preserved for explicit recovery");
+        }
     }
 
     protected void requireSparseNewFilesystem(VolumeVO volume) {

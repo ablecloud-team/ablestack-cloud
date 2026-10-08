@@ -31,6 +31,7 @@ public class StorageConfigInitialVolumePreparationTest {
         protected VolumeVO configurationInitialVolume(StorageServiceInstanceVO instance) { return volume; }
         protected Long configurationVolumeId(StorageServiceInstanceVO instance, String uuid) { return 45L; }
         protected int backingVolumeFormatDeadline(long bytes) { return 420; }
+        protected void requireNewVolumeFormatSupport(StorageServiceInstanceVO instance) { }
     }
     private void sparse(Manager manager) {
         Mockito.when(manager.volume.getProvisioningType()).thenReturn(com.cloud.storage.Storage.ProvisioningType.SPARSE);
@@ -50,7 +51,7 @@ public class StorageConfigInitialVolumePreparationTest {
             Assert.assertEquals("volume attach inspect",command.getOperation());Assert.assertEquals(540,command.getTimeoutSeconds());
             JsonObject payload=new JsonParser().parse(command.getPayload()).getAsJsonObject();
             Assert.assertEquals("/srv/ablestack-storage/volumes/volume",payload.get("mountPath").getAsString());
-            return new StorageServiceGuestCommandResult(true,"ok","{\"success\":true,\"volumeUuid\":\"volume\",\"filesystemUuid\":\"preserved-fs\"}");
+            return new StorageServiceGuestCommandResult(true,"ok","{\"success\":true,\"volumeUuid\":\"volume\",\"filesystemUuid\":\"preserved-fs\",\"formatInvoked\":false}");
         });
         JsonObject blueprint = new JsonObject();blueprint.addProperty("backingvolumemode","EXISTING");blueprint.addProperty("filesystem","XFS");
         manager.prepareConfigurationInitialVolume(instance,blueprint);

@@ -38,7 +38,7 @@ public final class StorageSmbIdentityRepairProof {
         require(observed.has("masters") && observed.get("masters").isJsonArray() && observed.getAsJsonArray("masters").size()>0, "Owned SMB master descriptor observations are unavailable");
         for(JsonElement value:observed.getAsJsonArray("masters")) {
             JsonObject master=value.getAsJsonObject();
-            require(number(master,"pid")>0 && number(master,"startTicks")>0 && text(master,"unit")!=null && flag(master,"lockingDatabasesAligned"), "SMB master identity or locking-database observation is unavailable");
+            require(number(master,"pid")>0 && startTicks(master)>0 && text(master,"unit")!=null && flag(master,"lockingDatabasesAligned"), "SMB master identity or locking-database observation is unavailable");
         }
         require(observed.has("ownedEndpoints") && observed.get("ownedEndpoints").isJsonArray() && observed.getAsJsonArray("ownedEndpoints").size()>0, "Owned SMB endpoint observations are unavailable");
         JsonObject sessions=object(observed,"sessions");
@@ -69,6 +69,13 @@ public final class StorageSmbIdentityRepairProof {
     private static long number(JsonObject value,String key) {
         try {require(value!=null && value.has(key) && value.get(key).isJsonPrimitive() && value.get(key).getAsJsonPrimitive().isNumber(), "Unknown SMB identity/session counter: "+key);return value.get(key).getAsBigDecimal().longValueExact();}
         catch(ArithmeticException invalid) {throw new CloudRuntimeException("Invalid SMB identity/session counter",invalid);}
+    }
+    private static long startTicks(JsonObject master) {
+        JsonElement value = master == null ? null : master.get("startTicks");
+        require(value != null && value.isJsonPrimitive(), "SMB process start ticks are unobserved");
+        if (value.getAsJsonPrimitive().isNumber()) return number(master, "startTicks");
+        require(value.getAsJsonPrimitive().isString() && value.getAsString().matches("[1-9][0-9]{0,18}"), "SMB process start ticks must be a canonical positive decimal");
+        try {return Long.parseLong(value.getAsString());}catch(NumberFormatException overflow){throw new CloudRuntimeException("SMB process start ticks overflow",overflow);}
     }
     private static boolean flag(JsonObject value,String key) {
         return value!=null && value.has(key) && value.get(key).isJsonPrimitive() && value.get(key).getAsJsonPrimitive().isBoolean() && value.get(key).getAsBoolean();
