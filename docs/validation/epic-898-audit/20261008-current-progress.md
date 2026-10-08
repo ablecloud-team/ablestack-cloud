@@ -2,9 +2,29 @@
 
 이 문서는 시간대별 과거 기록과 현재 상태를 구분하는 진행 snapshot이다. 최종 UI#1275는 마지막 착수 직전 전체 작업 중단·사용자 보고·추가 지시 대기 경계를 유지한다.
 
+## 2026-10-09 00:02 KST 후속
+
+API volume-id-only same-protocol 재바인딩은 실제 성공했다. 새 FS 5b11 · managed root · fresh inspection을 확인했고 원래 source directory/file/ACL을 보존했다. 데이터 복사는 하지 않았다. 부모 실제 UI의 parent/child 새 SPARSE volume · Ready 표시와 child 편집 기본값 7b4/managed root/기존 relative까지 확인했다. 취소 후 추가 UI 제출 · move · 삭제는 0이다. 자세한 현재 기록은 [20261009-volume-only-actual.md](20261009-volume-only-actual.md)이다.
+
+## Namespace 실제 배포 후 API·UI volume-only negative 통과
+
+2026-10-08 23:44:47 KST에 부모가 관리 모듈 175 class의 검토된 namespace 1dad 변경을 배포했다. 관리 PID 1171342 / JAR SHA e99a3ca3bea20e04635edaa7ec007f47058979aa30b39cbf6e370f55c00fc31b, backup /root/epic898-backup-20261008-234320 및 원래 Runtime 2 class 보존을 확인했다. 이 namespace 배포는 전체 614 WIP 또는 새 profile/strict Runtime 배포가 아니다.
+
+새 명시적 intent와 idempotency key로 과거와 같은 old a0b SMB 요청을 다시 생성했다. 과거 job 829c BLOCKED 증빙은 보존했다. 새 share 7ec0c41b-afa9-48ed-ba5c-fcb55ba29661 / epic898-volumeonly-ns-move10은 old a0b / FS a433 / managed /srv 경로에서 Ready이고, 기존 LOCAL_USER epic898-nested-client09의 UID 1002 ACL은 password 파라미터 없이 추가했다. 새 leaf inode 33685639 / device 2064 / 0:0 / 0770 및 named/default user 1002 ACL을 확인했다. 원래 디렉터리 재귀 변경과 포맷은 0이다.
+
+API는 id + volumeid 7b4 + crossprotocol false와 별도 idempotency key만 전송했다. name/path/relativepath/filesystem/importmode는 생략했다. Job 4bc878b4-182b-43d8-8d2a-342e7eb2aedc / operation 932c5ee0-938a-49aa-a90e-8d406a83e244는 target NFS가 이미 사용하는 같은 물리 경로를 준비 전에 거절해 code 530 / BLOCKED였다.
+
+부모 실제 UI도 현재 백킹 볼륨 7b4 선택과 cross switch OFF를 한 번 제출했다. Job 7f49383d-2564-466c-9a80-bb3c58795f80 (DB 909, actor 2, 14:51:21 UTC) / operation c67f3896-530b-4fa7-ba8c-996acd33cb8c도 같은 이유로 BLOCKED였다. UI가 기존 name/relativepath와 FORMAT_IF_EMPTY를 보냈다는 일반 파라미터를 확인했다. API의 volume-id-only 요청과 UI의 필드 유지 요청을 혼동하지 않는다. UI는 native prepare에 도달하지 않아 추가 포맷 0이다.
+
+API 직전 baseline과 UI 직후를 대조해 source 전체 config·old volume/FS/경로·leaf/ACL, target NFS 전체 config·parent/child/file inode·owner/hash, native GEN 42 / checksum 4bcac862... / canonical 7 files, 원래 sentinel·SID·boot c53·SMB PID 2548/2552·POSIX receipt mtime가 모두 같음을 확인했다. 새 target file inode 133 / SHA d810...와 original sentinel inode 16777345 / SHA fe084...도 보존됐다.
+
+따라서 서로 다른 managed volume의 같은 relative 준비와, volume-id-only가 실제 같은-volume crossprotocol 충돌을 준비 전에 막는 negative는 API·UI 실제 확인했다. 같은 프로토콜의 진짜 이동, 디렉터리/파일 보존 이동, child 삭제 및 전체 #910 인수는 아직 별도 GO 전이다. 비밀번호 reset·재포맷·자동 cleanup·원본/partial/AD OOBE 변경 0을 유지한다.
+
+증빙: 910-volume-only-1dad-cross-source-prepare.json, 910-volume-only-1dad-negative-proof.json, 910-volume-only-ui-negative-proof.json 및 각 전후 native baseline이다.
+
 ## 최신 경계 — namespace 좁은 pin과 all4 HOLD
 
-Namespace 비교 수정3hunks+신규3tests만 commit1dad2501b5cf3ee4528389ef73a7b61181cf6678로 별도 pin/push됐다. exact narrow archive의 정상 reactor는 backend owner가 진행 중이며 실제 배포0이다. 이 작은 pin을 아래 전체614 WIP의 pin으로 간주하지 않는다.
+Namespace 비교 수정3hunks+신규3tests만 commit1dad2501b5cf3ee4528389ef73a7b61181cf6678로 별도 pin/push됐다. 이 문단은 배포 전 기록이다. 이후 실제 namespace 배포와 API/UI 결과는 위 최신 section에 기록했다. 이 작은 pin을 아래 전체614 WIP의 pin으로 간주하지 않는다.
 
 **전체614 source WIP는 아직 pin0이고 실제 all4 적용은 HOLD다.** Profile callback이 저장된 snapshot의 renderedGeneration 기록을 덮어쓰는 P1과 native commit 성공→DB 저장 사이의 crash gap을 발견했다. 기존614/102 테스트 PASS는 그 당시 실행한 source 검증 기록이며 새 실패 구간의 보호·복구 검증 완료를 의미하지 않는다.
 
