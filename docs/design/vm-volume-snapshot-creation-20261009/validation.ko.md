@@ -2,9 +2,9 @@
 
 ## 검증 환경과 기본 규칙
 
-31번은 이번 읽기 전용 UI 조사의 환경이며, E2E 구현 검증의 대표 환경으로 제안한다. 실제 파괴적/장애 테스트 전에 최신 inventory와 전용 fixture를 확보하고 실행 범위를 확정한다. 운영 VM의 ROOT를 분리하여 원본을 만들지 않는다. 일반 Cloud 생성 검증과 FTCTL/DR 단계별 승인 검증은 별도 흐름이다.
+사용자가 지정한 31번 GFS2 SharedMountPoint(CLUSTER), 32번 Glue(Ceph) krbd RBD(CLUSTER)를 각각 필수 E2E 환경으로 고정한다. 32번은 Europa 관리/Agent 업그레이드를 완료했다. [환경 준비 결과](environment-20261009.ko.md)와 [실행 manifest](evidence/fixture-manifest.json)를 따른다. 실제 파괴적/장애 테스트 전에 최신 inventory와 전용 fixture를 확보하고 실행 범위를 확정한다. 운영 VM의 ROOT를 분리하여 원본을 만들지 않는다. 일반 Cloud 생성 검증과 FTCTL/DR 단계별 승인 검증은 별도 흐름이다.
 
-UI에서 생성 요청을 제출하고 API 요청/async job, Cloud DB, agent/management 로그, 실제 host domain/root device, guest 결과를 같은 test case ID로 묶는다. 실패 시 흐름을 멈추고 증거를 보존하며 원인 및 복구 방법을 보고한 다음 후속 확인을 받아 계속한다.
+UI에서 생성 요청을 제출하고 API 요청/async job, Cloud DB, agent/management 로그, 실제 host domain/root device, guest 결과를 같은 test case ID로 묶는다. 실패 시 해당 케이스를 중단하고 증거·원본을 보존한다. 원인과 복구를 확인한 뒤 새 run ID로 다시 시작하며, 중간 보정 후 계속한 결과를 전체 체인 PASS로 세지 않는다. FT/DR manual-block 검증은 별도 사용자 승인 흐름을 따른다.
 
 ## 케이스 행렬
 
@@ -15,8 +15,8 @@ UI에서 생성 요청을 제출하고 API 요청/async job, Cloud DB, agent/man
 | SRC-03 | 이름/UUID 검색·Zone·소유자·프로젝트·arch 전환 | 서버 범위와 일치; 늦은 응답 및 이전 선택값 혼입 없음 |
 | SRC-04 | 기존 화면의 volumeid/snapshotid 사전 선택 링크 | 해당 원본만 조회/선택; 삭제/권한불가 원본은 안내 |
 | SRC-05 | Creating/BackingUp/Error/Destroyed snapshot | 선택/제출 차단; provider별 복구 가능한 상태만 허용 |
-| SRC-06 | 미연결 DATADISK, template 누락, CLUSTER/HOST 범위 볼륨 | 적격성/차단 사유 일치; 일반 데이터 디스크를 OS로 오인하지 않음 |
-| VOL-01 | 전용 detached ROOT, KVM, Zone 범위, Linux BIOS | 동일 volume UUID/device0/ROOT/new instance, 디스크 부팅 및 fixture 파일 확인 |
+| SRC-06 | 미연결 DATADISK, template 누락, 지원 CLUSTER와 다른 cluster/HOST 범위 볼륨 | 적격성/차단 사유 일치; 일반 데이터 디스크를 OS로 오인하지 않음 |
+| VOL-01 | 전용 detached ROOT, KVM, 지정 CLUSTER GFS2/RBD 범위, Linux BIOS | 동일 volume UUID/device0/ROOT/new instance, 디스크 부팅 및 fixture 파일 확인 |
 | VOL-02 | 같은 조건의 Windows UEFI | 원본 boot mode/bus와 실제 XML 일치, 게스트 부팅/fixture 확인 |
 | VOL-03 | startvm=false → 상세 화면 시작 | 최초 Stopped/root mapping, 시작 뒤 guest 정상 |
 | VOL-04 | attached/non-Ready/삭제/변경된 source, owner mismatch | 서버 재검증 거절; 원본·다른 VM 변경 없음 |
@@ -28,7 +28,7 @@ UI에서 생성 요청을 제출하고 API 요청/async job, Cloud DB, agent/man
 | SNP-04 | 원본 VM 삭제/expunge, 원본 volume 제거 fixture | 유효 snapshot metadata로 복구 또는 명시적 불충분 오류; NPE/불가능한 templateId 안내 없음 |
 | SNP-05 | 같은 snapshot으로 새 VM 2개(서로 별도 요청) | 각각 독립 ROOT UUID; snapshot 유지; isolated network에서 identity 충돌 평가 |
 | SNP-06 | root-only/data snapshot/VM snapshot 구분 | root-only 범위 명확; data-only와 memory snapshot을 VM 생성 원본으로 오인하지 않음 |
-| SNP-07 | RBD/CLVM 계열/GFS2 SharedMountPoint provider | capability로 지원 여부 판정; 지원 조합만 복구 PASS, unsupported는 근거 있는 차단 |
+| SNP-07 | 지정 Ceph krbd RBD/GFS2 SharedMountPoint provider | capability로 지원 여부 판정; 지원 조합만 복구 PASS, unsupported는 근거 있는 차단 |
 | BOOT-01 | BIOS↔UEFI, root bus, metadata 누락, Secure Boot/vTPM 의존 | 검증된 상속 또는 명시적 차단; 잔존 ISO boot marker 없음 |
 | CAP-01 | 오퍼링 tags/local/encryption/IOPS/placement 불일치·용량 부족 | allocation 전 또는 시작 전 명시적 오류; 원본 소유권/용량 counter 손상 없음 |
 | CAP-02 | snapshot logical size와 physical usage가 다른 fixture | root size는 logical bytes 기준; 용량 증가/부족·자동 배치 근거 확인 |
@@ -37,7 +37,7 @@ UI에서 생성 요청을 제출하고 API 요청/async job, Cloud DB, agent/man
 | UI-02 | 라이트/다크, 1680/1366/390px, 키보드/스크롤 | 선택/차단/요약/확인/진행/오류 모두 접근 가능, 가로 overflow 없음 |
 | REG-01 | 기존 template/ISO 단일·복수 ISO, startvm=true/false | 기존 생성/부팅·추가 ISO·디스크/스토리지 동작 회귀 없음 |
 
-초기 필수 성공 행렬은 볼륨/스냅샷 × Linux BIOS/Windows UEFI × startvm=true/false의 8개 대표 시나리오이다. 지원 스토리지 유형에 대한 실제 배치/복구 증거를 추가한다. 특정 조합이 미지원이면 PASS 수에 포함하지 않고 지원 범위와 차단을 따로 보고한다.
+초기 필수 성공 행렬은 볼륨/스냅샷 × Linux BIOS/Windows UEFI × startvm=true/false의 8개를 환경별로 실행한 총 16개다. GFS2와 Ceph krbd 양쪽의 대표 성공 결과가 필요하다. CLUSTER ROOT 편입 지원(#1337, P0)을 먼저 구현한다. 지원 스토리지 유형에 대한 실제 배치/복구 증거를 추가한다. 특정 조합이 미지원이면 PASS 수에 포함하지 않고 지원 범위와 차단을 따로 보고한다.
 
 ## PASS 증거
 
@@ -57,3 +57,7 @@ UI에서 생성 요청을 제출하고 API 요청/async job, Cloud DB, agent/man
 - 개선 UI 설계안의 로컬 상호작용/화면 검증(별도 `evidence/mockup-verification.json`).
 
 실제 VM 생성, 부팅, 원본 checksum, provider restore, 실패 주입, 변경 Maven 빌드, 전체 Cloud 빌드, UI 배포는 이번 설계 단계에서 미실행이다.
+
+## 환경 준비 단계 추가 확인
+
+32번 Europa 관리/Agent 업그레이드, runtime/API/UI, VM·볼륨 보존, GFS2 공유 접근과 Ceph krbd I/O·기본 snapshot/clone을 확인했다. Windows 기준 이미지 Ready와 전용 L2 설정을 확보했다. 이는 제품의 볼륨·스냅샷 생성 E2E PASS가 아니다. 전용 seed/ROOT/Cloud snapshot과 guest checksum은 실제 검증 착수 시 만들며, 아직 존재한다고 보고하지 않는다.

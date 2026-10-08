@@ -1,0 +1,27 @@
+[
+  {
+    "cluster": 31,
+    "host": "10.10.31.1",
+    "gfs2SharedRead": true,
+    "sha256": "23ca7295959d60a5de34f36ee108b95b3611042a24c2f12338f1341641392a14"
+  },
+  {
+    "cluster": 31,
+    "host": "10.10.31.2",
+    "gfs2SharedRead": true,
+    "sha256": "23ca7295959d60a5de34f36ee108b95b3611042a24c2f12338f1341641392a14"
+  },
+  {
+    "cluster": 31,
+    "host": "10.10.31.3",
+    "gfs2SharedRead": true,
+    "sha256": "23ca7295959d60a5de34f36ee108b95b3611042a24c2f12338f1341641392a14"
+  },
+  {
+    "cluster": 32,
+    "krbdWriteRead": true,
+    "snapshotCloneCrossHostRead": true,
+    "sha256": "028593eb9b746961e1c50b7cfa8f1fa49e61a0e5c21789bc58091f145c9dc442",
+    "ownedProbeImagesRemoved": true
+  }
+]

@@ -1,0 +1,281 @@
+{
+  "epic": 1335,
+  "status": "BASE_RESOURCES_READY_SEED_FIXTURES_PENDING",
+  "sourceSha": "2871963cd43aeb592f619c1b67d8a5974846409d",
+  "cases": [
+    {
+      "id": "E1335-GFS2-VOL-LINUX-BIOS-STOP",
+      "cluster": 31,
+      "source": "VOL",
+      "os": "LINUX-BIOS",
+      "startvm": false,
+      "result": "NOT_RUN"
+    },
+    {
+      "id": "E1335-GFS2-VOL-LINUX-BIOS-START",
+      "cluster": 31,
+      "source": "VOL",
+      "os": "LINUX-BIOS",
+      "startvm": true,
+      "result": "NOT_RUN"
+    },
+    {
+      "id": "E1335-GFS2-VOL-WINDOWS-UEFI-STOP",
+      "cluster": 31,
+      "source": "VOL",
+      "os": "WINDOWS-UEFI",
+      "startvm": false,
+      "result": "NOT_RUN"
+    },
+    {
+      "id": "E1335-GFS2-VOL-WINDOWS-UEFI-START",
+      "cluster": 31,
+      "source": "VOL",
+      "os": "WINDOWS-UEFI",
+      "startvm": true,
+      "result": "NOT_RUN"
+    },
+    {
+      "id": "E1335-GFS2-SNP-LINUX-BIOS-STOP",
+      "cluster": 31,
+      "source": "SNP",
+      "os": "LINUX-BIOS",
+      "startvm": false,
+      "result": "NOT_RUN"
+    },
+    {
+      "id": "E1335-GFS2-SNP-LINUX-BIOS-START",
+      "cluster": 31,
+      "source": "SNP",
+      "os": "LINUX-BIOS",
+      "startvm": true,
+      "result": "NOT_RUN"
+    },
+    {
+      "id": "E1335-GFS2-SNP-WINDOWS-UEFI-STOP",
+      "cluster": 31,
+      "source": "SNP",
+      "os": "WINDOWS-UEFI",
+      "startvm": false,
+      "result": "NOT_RUN"
+    },
+    {
+      "id": "E1335-GFS2-SNP-WINDOWS-UEFI-START",
+      "cluster": 31,
+      "source": "SNP",
+      "os": "WINDOWS-UEFI",
+      "startvm": true,
+      "result": "NOT_RUN"
+    },
+    {
+      "id": "E1335-KRBD-VOL-LINUX-BIOS-STOP",
+      "cluster": 32,
+      "source": "VOL",
+      "os": "LINUX-BIOS",
+      "startvm": false,
+      "result": "NOT_RUN"
+    },
+    {
+      "id": "E1335-KRBD-VOL-LINUX-BIOS-START",
+      "cluster": 32,
+      "source": "VOL",
+      "os": "LINUX-BIOS",
+      "startvm": true,
+      "result": "NOT_RUN"
+    },
+    {
+      "id": "E1335-KRBD-VOL-WINDOWS-UEFI-STOP",
+      "cluster": 32,
+      "source": "VOL",
+      "os": "WINDOWS-UEFI",
+      "startvm": false,
+      "result": "NOT_RUN"
+    },
+    {
+      "id": "E1335-KRBD-VOL-WINDOWS-UEFI-START",
+      "cluster": 32,
+      "source": "VOL",
+      "os": "WINDOWS-UEFI",
+      "startvm": true,
+      "result": "NOT_RUN"
+    },
+    {
+      "id": "E1335-KRBD-SNP-LINUX-BIOS-STOP",
+      "cluster": 32,
+      "source": "SNP",
+      "os": "LINUX-BIOS",
+      "startvm": false,
+      "result": "NOT_RUN"
+    },
+    {
+      "id": "E1335-KRBD-SNP-LINUX-BIOS-START",
+      "cluster": 32,
+      "source": "SNP",
+      "os": "LINUX-BIOS",
+      "startvm": true,
+      "result": "NOT_RUN"
+    },
+    {
+      "id": "E1335-KRBD-SNP-WINDOWS-UEFI-STOP",
+      "cluster": 32,
+      "source": "SNP",
+      "os": "WINDOWS-UEFI",
+      "startvm": false,
+      "result": "NOT_RUN"
+    },
+    {
+      "id": "E1335-KRBD-SNP-WINDOWS-UEFI-START",
+      "cluster": 32,
+      "source": "SNP",
+      "os": "WINDOWS-UEFI",
+      "startvm": true,
+      "result": "NOT_RUN"
+    }
+  ],
+  "environments": [
+    {
+      "cluster": 31,
+      "storage": {
+        "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+        "name": "Primary",
+        "type": "SharedMountPoint",
+        "scope": "CLUSTER",
+        "state": "Up",
+        "path": "/mnt/glue-gfs",
+        "clusterid": "0d3d50e7-3cb5-4adf-8507-955bc81cc4a5",
+        "disksizetotal": 23998409687040,
+        "disksizeallocated": 6452250022832,
+        "disksizeused": 1078899990528
+      },
+      "network": {
+        "id": "ae274fff-3d8e-4285-ac73-26a767c1fea7",
+        "name": "E1335-VM-Origin-L2",
+        "vlan": "3135",
+        "state": "Setup",
+        "canusefordeploy": true,
+        "type": "L2"
+      },
+      "management": "10.10.31.10",
+      "sshPort": 22,
+      "serviceOfferingId": "b1bad848-428f-4973-8c2b-26df2b7cca95",
+      "linux": {
+        "template": {
+          "id": "e3d8677e-70f0-44bd-917e-6068636b97a8",
+          "name": "rocky-9-4-minimal.qcow22",
+          "isready": true,
+          "status": "Download Complete",
+          "size": 107374182400,
+          "ostypename": "Rocky Linux 9",
+          "ostypeid": "9708b6ac-b253-11f1-a895-0024814c313f",
+          "details": {
+            "rootDiskController": "osdefault"
+          },
+          "checksum": "b4c301bdc66012e1e74aefa74dcd31fda908179f5c532e70711c38083a548a4d4be6ef0b07d7bf811c2a626f4c1faa01054a777d701b95ccaf43585b26a04943"
+        },
+        "cpu": 2,
+        "memoryMB": 4096,
+        "bootType": "BIOS"
+      },
+      "windows": {
+        "template": {
+          "id": "75c45d7c-87e6-496f-bf89-a29c7780ed15",
+          "name": "Windows Server 2022 x86_64 Base Install",
+          "isready": true,
+          "status": "Download Complete",
+          "size": 107374182400,
+          "ostypename": "Windows Server 2022 (64-bit)",
+          "ostypeid": "986c7bba-b253-11f1-a895-0024814c313f",
+          "details": {
+            "cpuNumber": "4",
+            "memory": "8192",
+            "UEFI": "LEGACY",
+            "Message.ReservedCapacityFreed.Flag": "false",
+            "video.hardware": "virtio",
+            "video.ram": "16384",
+            "io.policy": "io_uring",
+            "rootdisksize": "100",
+            "tpmversion": "NONE"
+          },
+          "checksum": null
+        },
+        "cpu": 4,
+        "memoryMB": 8192,
+        "bootType": "UEFI",
+        "bootMode": "LEGACY"
+      },
+      "networkPacketVerification": "NOT_RUN",
+      "seedRootAndSnapshot": "NOT_CREATED"
+    },
+    {
+      "cluster": 32,
+      "storage": {
+        "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+        "name": "Primary",
+        "type": "RBD",
+        "scope": "CLUSTER",
+        "state": "Up",
+        "path": "rbd",
+        "clusterid": "722e6930-cfc8-4143-83b1-680b7348d1e9",
+        "disksizetotal": 13618758495754,
+        "disksizeallocated": 1841089740800,
+        "disksizeused": 131846696458
+      },
+      "network": {
+        "id": "6400f908-4315-49db-a3e1-1fa58948c303",
+        "name": "E1335-VM-Origin-L2",
+        "vlan": "3235",
+        "state": "Setup",
+        "canusefordeploy": true,
+        "type": "L2"
+      },
+      "management": "10.10.32.10",
+      "sshPort": 22,
+      "serviceOfferingId": "601d6b07-f649-4781-95a1-a522d3cd7125",
+      "linux": {
+        "template": {
+          "id": "b31d2c92-67b9-40c4-a137-4ff9778c6b0d",
+          "name": "Rocky-Linux-9-5-x86-64-Server-Cloud-Image.qcow2",
+          "isready": true,
+          "status": "Download Complete",
+          "size": 107374182400,
+          "ostypename": "Rocky Linux 9",
+          "ostypeid": "574c7ceb-b23b-11f1-990e-0024811f8935",
+          "details": {
+            "rootDiskController": "osdefault"
+          },
+          "checksum": "f9a1bb70009d262b6132f1888860e615c722012cf092fbe035ac78be9d67ff1a2fad75d355d6cd65b67f372a2e80667a733b24447d39df27ea05e8cfe0b50eb9"
+        },
+        "cpu": 2,
+        "memoryMB": 4096,
+        "bootType": "BIOS"
+      },
+      "windows": {
+        "template": {
+          "id": "67614e8c-51fe-4265-90e3-261e72c26776",
+          "name": "E1335-Windows2022-UEFI-base",
+          "isready": true,
+          "status": "Download Complete",
+          "size": 107374182400,
+          "ostypename": "Windows Server 2022 (64-bit)",
+          "ostypeid": "5aaacc7e-b23b-11f1-990e-0024811f8935",
+          "details": {
+            "cpuNumber": "4",
+            "memory": "8192",
+            "UEFI": "LEGACY",
+            "video.hardware": "virtio",
+            "video.ram": "16384",
+            "rootdisksize": "100",
+            "tpmversion": "NONE"
+          },
+          "checksum": "2ff53a1cd2c0b1f9f231a9fbd8d6e066f9d0a86c97f8d27840b5d6091ba97072"
+        },
+        "cpu": 4,
+        "memoryMB": 8192,
+        "bootType": "UEFI",
+        "bootMode": "LEGACY"
+      },
+      "networkPacketVerification": "NOT_RUN",
+      "seedRootAndSnapshot": "NOT_CREATED"
+    }
+  ]
+}

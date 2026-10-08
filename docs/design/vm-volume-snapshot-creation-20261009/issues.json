@@ -14,8 +14,8 @@
       "key": "C2",
       "number": 1337,
       "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1337",
-      "title": "[Europa][P1] 기존 볼륨 기반 VM 생성의 원본 편입·동시성·실패 보존 개선",
-      "priority": "P1",
+      "title": "[Europa][P0] CLUSTER GFS2·RBD 기존 볼륨 편입·동시성·원본 보존 개선",
+      "priority": "P0",
       "depends": [
         1336
       ]

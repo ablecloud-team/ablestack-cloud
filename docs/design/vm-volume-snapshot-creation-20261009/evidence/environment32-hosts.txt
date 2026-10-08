@@ -1,0 +1,367 @@
+- complementary:
+  - menu:
+    - menuitem "dashboard 대시보드":
+      - link "dashboard 대시보드":
+        - /url: "#/dashboard"
+        - img "dashboard":
+        - text: 대시보드
+    - img "cloud":
+    - text: 컴퓨트
+    - img "hdd":
+    - text: 스토리지
+    - img "wifi":
+    - text: 네트워크
+    - img "picture":
+    - text: 이미지
+    - img "lock":
+    - text: 키 관리
+    - menuitem "schedule 이벤트":
+      - link "schedule 이벤트":
+        - /url: "#/event"
+        - img "schedule":
+        - text: 이벤트
+    - menuitem "project 프로젝트":
+      - link "project 프로젝트":
+        - /url: "#/project"
+        - img "project":
+        - text: 프로젝트
+    - menuitem "idcard 역할":
+      - link "idcard 역할":
+        - /url: "#/role"
+        - img "idcard":
+        - text: 역할
+    - menuitem "team 계정":
+      - link "team 계정":
+        - /url: "#/account"
+        - img "team":
+        - text: 계정
+    - menuitem "block 도메인":
+      - link "block 도메인":
+        - /url: "#/domain"
+        - img "block":
+        - text: 도메인
+    - img "bank":
+    - text: 인프라스트럭쳐
+    - list:
+      - menuitem "read 요약":
+        - link "read 요약":
+          - /url: "#/infrasummary"
+          - img "read":
+          - text: 요약
+      - menuitem "global Zone":
+        - link "global Zone":
+          - /url: "#/zone"
+          - img "global":
+          - text: Zone
+      - menuitem "appstore Pod":
+        - link "appstore Pod":
+          - /url: "#/pod"
+          - img "appstore":
+          - text: Pod
+      - menuitem "cluster 클러스터":
+        - link "cluster 클러스터":
+          - /url: "#/cluster"
+          - img "cluster":
+          - text: 클러스터
+      - menuitem "database 호스트":
+        - link "database 호스트":
+          - /url: "#/host"
+          - img "database":
+          - text: 호스트
+      - menuitem "hdd 기본 스토리지":
+        - link "hdd 기본 스토리지":
+          - /url: "#/storagepool"
+          - img "hdd":
+          - text: 기본 스토리지
+      - menuitem "picture 2차 스토리지":
+        - link "picture 2차 스토리지":
+          - /url: "#/imagestore"
+          - img "picture":
+          - text: 2차 스토리지
+      - menuitem "gold Object 스토리지":
+        - link "gold Object 스토리지":
+          - /url: "#/objectstore"
+          - img "gold":
+          - text: Object 스토리지
+      - menuitem "thunderbolt 시스템 VM":
+        - link "thunderbolt 시스템 VM":
+          - /url: "#/systemvm"
+          - img "thunderbolt":
+          - text: 시스템 VM
+      - menuitem "fork 가상 라우터":
+        - link "fork 가상 라우터":
+          - /url: "#/router"
+          - img "fork":
+          - text: 가상 라우터
+      - menuitem "share-alt 내부 LB":
+        - link "share-alt 내부 LB":
+          - /url: "#/ilbvm"
+          - img "share-alt":
+          - text: 내부 LB
+      - menuitem "cloud-server 관리 서버":
+        - link "cloud-server 관리 서버":
+          - /url: "#/managementserver"
+          - img "cloud-server":
+          - text: 관리 서버
+      - menuitem "inbox CPU 소켓":
+        - link "inbox CPU 소켓":
+          - /url: "#/cpusocket"
+          - img "inbox":
+          - text: CPU 소켓
+      - menuitem "bar-chart DB/Usage 서버":
+        - link "bar-chart DB/Usage 서버":
+          - /url: "#/metric"
+          - img "bar-chart":
+          - text: DB/Usage 서버
+      - menuitem "flag 경보":
+        - link "flag 경보":
+          - /url: "#/alert"
+          - img "flag":
+          - text: 경보
+      - menuitem "sound 경보 규칙":
+        - link "sound 경보 규칙":
+          - /url: "#/alertRules"
+          - img "sound":
+          - text: 경보 규칙
+    - img "shopping":
+    - text: 서비스 오퍼링
+    - img "setting":
+    - text: 구성
+    - menuitem "appstore-add 확장":
+      - link "appstore-add 확장":
+        - /url: "#/extension"
+        - img "appstore-add":
+        - text: 확장
+    - img "tool":
+    - text: 도구
+    - menuitem "read API 문서":
+      - link "read API 문서":
+        - /url: "#/apidocs/"
+        - img "read":
+        - text: API 문서
+- generic: 페이지 스타일 설정
+- button "닫기":
+  - img "close":
+- heading "페이지 스타일 설정" [level=3]
+- radio
+- radio [checked]
+- img "check":
+- heading "테마 색상" [level=3]
+- radio
+- img "check"
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- separator
+- heading "네비게이션 설정" [level=3]
+- generic: 배경색
+- textbox [disabled]: "#ffffff"
+- generic: 텍스트 색상
+- textbox [disabled]: "#000000"
+- separator
+- alert:
+  - img "exclamation-circle":
+  - generic: "설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요."
+- button "download 세팅값 다운로드(json)":
+  - img "download":
+  - generic: 세팅값 다운로드(json)
+- button "undo 기본값으로 재설정":
+  - img "undo":
+  - generic: 기본값으로 재설정
+- img "menu-fold":
+- combobox
+- img "project":
+- text: 기본 보기
+- button "생성 down":
+  - generic: 생성
+  - img "down":
+- img "translation":
+- img "bell":
+- generic: AC
+- generic: admin cloud
+- main:
+  - link "home":
+    - /url: "#/"
+    - img "home":
+  - text: /
+  - link "호스트":
+    - /url: "#/host"
+  - link "question-circle":
+    - /url: http://docs.ablecloud.io/latest/conceptsandterminology/concepts.html#about-hosts
+    - img "question-circle":
+  - button "reload 업데이트":
+    - img "reload":
+    - generic: 업데이트
+  - combobox
+  - generic: 모두
+  - switch "메트릭":
+    - generic: 메트릭
+  - button "plus 호스트 추가":
+    - img "plus":
+    - generic: 호스트 추가
+  - button "filter":
+    - img "filter":
+  - textbox "검색"
+  - button "search":
+    - img "search":
+  - table:
+    - rowgroup:
+      - row "이름 caret-up caret-down 상태 caret-up caret-down 리소스 상태 caret-up caret-down IP 주소 caret-up caret-down CPU 아키텍처 caret-up caret-down 하이퍼바이저 caret-up caret-down 버전 caret-up caret-down HA 활성화 caret-up caret-down HA 상태 caret-up caret-down 클러스터 caret-up caret-down Zone caret-up caret-down 관리 서버 caret-up caret-down":
+        - columnheader "이름 caret-up caret-down":
+          - generic: 이름
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "상태 caret-up caret-down":
+          - generic: 상태
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "리소스 상태 caret-up caret-down":
+          - generic: 리소스 상태
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "IP 주소 caret-up caret-down":
+          - generic: IP 주소
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "CPU 아키텍처 caret-up caret-down":
+          - generic: CPU 아키텍처
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "하이퍼바이저 caret-up caret-down":
+          - generic: 하이퍼바이저
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "버전 caret-up caret-down":
+          - generic: 버전
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "HA 활성화 caret-up caret-down":
+          - generic: HA 활성화
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "HA 상태 caret-up caret-down":
+          - generic: HA 상태
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "클러스터 caret-up caret-down":
+          - generic: 클러스터
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "Zone caret-up caret-down":
+          - generic: Zone
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "관리 서버 caret-up caret-down":
+          - generic: 관리 서버
+          - img "caret-up":
+          - img "caret-down":
+    - rowgroup:
+      - row "ablecube32-1 실행 중 정상 10.10.32.1 x86_64 KVM 4.23.0.0 정상 Available Cluster Zone ccvm-mngt":
+        - cell "ablecube32-1":
+          - link "ablecube32-1":
+            - /url: "#/host/bfe795b1-8fde-4361-bd1d-af421ab2bdc5"
+        - cell "실행 중":
+          - generic: 실행 중
+        - cell "정상":
+          - generic: 정상
+        - cell "10.10.32.1":
+          - link "10.10.32.1":
+            - /url: javascript:;
+        - cell "x86_64"
+        - cell "KVM"
+        - cell "4.23.0.0"
+        - cell "정상":
+          - generic: 정상
+        - cell "Available":
+          - generic: Available
+        - cell "Cluster":
+          - link "Cluster":
+            - /url: "#/cluster/722e6930-cfc8-4143-83b1-680b7348d1e9"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/991d2f57-0f37-4445-b956-09773d064816"
+        - cell "ccvm-mngt":
+          - link "ccvm-mngt":
+            - /url: "#/managementserver/09c71016-1716-4de1-89ba-da513d7562e0"
+      - row "ablecube32-2 실행 중 정상 10.10.32.2 x86_64 KVM 4.23.0.0 정상 Available Cluster Zone ccvm-mngt":
+        - cell "ablecube32-2":
+          - link "ablecube32-2":
+            - /url: "#/host/a7b3e91f-2248-436b-affb-e3b31b36ed62"
+        - cell "실행 중":
+          - generic: 실행 중
+        - cell "정상":
+          - generic: 정상
+        - cell "10.10.32.2":
+          - link "10.10.32.2":
+            - /url: javascript:;
+        - cell "x86_64"
+        - cell "KVM"
+        - cell "4.23.0.0"
+        - cell "정상":
+          - generic: 정상
+        - cell "Available":
+          - generic: Available
+        - cell "Cluster":
+          - link "Cluster":
+            - /url: "#/cluster/722e6930-cfc8-4143-83b1-680b7348d1e9"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/991d2f57-0f37-4445-b956-09773d064816"
+        - cell "ccvm-mngt":
+          - link "ccvm-mngt":
+            - /url: "#/managementserver/09c71016-1716-4de1-89ba-da513d7562e0"
+      - row "ablecube32-3 실행 중 정상 10.10.32.3 x86_64 KVM 4.23.0.0 정상 Available Cluster Zone ccvm-mngt":
+        - cell "ablecube32-3":
+          - link "ablecube32-3":
+            - /url: "#/host/05bc1189-abf8-4ec3-9ef5-02558863b628"
+        - cell "실행 중":
+          - generic: 실행 중
+        - cell "정상":
+          - generic: 정상
+        - cell "10.10.32.3":
+          - link "10.10.32.3":
+            - /url: javascript:;
+        - cell "x86_64"
+        - cell "KVM"
+        - cell "4.23.0.0"
+        - cell "정상":
+          - generic: 정상
+        - cell "Available":
+          - generic: Available
+        - cell "Cluster":
+          - link "Cluster":
+            - /url: "#/cluster/722e6930-cfc8-4143-83b1-680b7348d1e9"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/991d2f57-0f37-4445-b956-09773d064816"
+        - cell "ccvm-mngt":
+          - link "ccvm-mngt":
+            - /url: "#/managementserver/09c71016-1716-4de1-89ba-da513d7562e0"
+  - list:
+    - listitem: 전체 3 개 항목 중 1-3 표시
+    - listitem "이전 페이지":
+      - button "left" [disabled]:
+        - img "left":
+    - listitem "1":
+      - generic: "1"
+    - listitem "다음 페이지":
+      - button "right" [disabled]:
+        - img "right":
+    - combobox
+    - generic: 20 / 쪽
+- alert:
+  - img "exclamation-circle":
+  - generic: 조치가 필요한 경보
+  - generic: (1건)
+  - generic: "-"
+  - generic: 주요 시스템에서 리소스 임계치 초과 또는 상태 변경이 감지되어 확인이 필요합니다.
+  - button "세부 경보 내용 확인":
+    - generic: 세부 경보 내용 확인
+  - button "경보 규칙으로 이동":
+    - generic: 경보 규칙으로 이동
+  - button "닫기":
+    - img "close":

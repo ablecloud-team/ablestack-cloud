@@ -1,0 +1,26 @@
+{
+  "scope": "offline design only",
+  "checks": [
+    {
+      "id": "cluster-gfs2",
+      "pass": true,
+      "evidence": "Selected GFS2 CLUSTER (31), same source volume and BIOS summary."
+    },
+    {
+      "id": "cluster-krbd",
+      "pass": true,
+      "evidence": "Selected RBD CLUSTER (32), UEFI LEGACY and 100 GiB summary."
+    },
+    {
+      "id": "foreign-cluster",
+      "pass": true,
+      "evidence": "Source in another cluster is disabled with access reason."
+    },
+    {
+      "id": "adoption-confirmation",
+      "pass": true,
+      "evidence": "Original volume use requires acknowledgement."
+    }
+  ],
+  "productE2EExecuted": false
+}

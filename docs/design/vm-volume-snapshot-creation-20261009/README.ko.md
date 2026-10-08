@@ -4,7 +4,7 @@
 - 분석 기준: 최신 `upstream/ablestack-europa`, `2871963cd43aeb592f619c1b67d8a5974846409d`
 - 소스/설계 작업: `dhslove/ablestack-cloud`, 별도 `codex/vm-volume-snapshot-design` 브랜치
 - 이슈 관리: 기존 이슈 저장소 `ablecloud-team/ablestack-cloud` (`dhslove`는 이슈 기능 비활성)
-- 현재 단계: 코드·화면 조사 및 개선 설계. 실제 생성·부팅 E2E는 미실행.
+- 현재 단계: 코드·화면 조사, 개선 설계 및 31/32 개발·검증 기반 준비 완료. 실제 생성·부팅 E2E는 미실행. 환경 준비 결과는 [별도 보고서](environment-20261009.ko.md)를 참조한다.
 - 실 화면 조사: 기존 로그인 세션의 31번 클러스터. 이번 단계는 생성 방식/후보 선택만 수행했으며 생성 요청을 제출하지 않았다.
 - Epic: [#1335](https://github.com/ablecloud-team/ablestack-cloud/issues/1335), 하위 이슈 8개 실제 연결 확인. 현재 모두 OPEN이다.
 
@@ -17,7 +17,7 @@
 | 볼륨 | 기존 볼륨의 `deviceId`, `volumeType`, `instanceId`를 갱신하여 새 VM에 연결 | 원본 볼륨을 그대로 루트 디스크로 사용한다. 복사본을 만드는 기능이 아니다. 하나의 볼륨으로 동시에 여러 VM을 생성할 수 없다. |
 | 스냅샷 | 새 볼륨 행을 할당하고 `createVolumeFromSnapshot`으로 복구 | 스냅샷 시점의 루트 디스크로 새 VM을 만든다. 원본 스냅샷과 기존 VM을 유지한다. 데이터 디스크/메모리는 자동 복구하지 않는다. |
 
-현재 API는 KVM을 지원 대상으로 검사하며, 기존 볼륨 사용은 **Zone 범위 스토리지**를 요구한다. 공유 스토리지라는 이유만으로 CLUSTER 범위 SharedMountPoint를 지원한다고 표시하면 안 된다. 스냅샷 경로에는 같은 Zone 범위 조건을 그대로 적용하지 않는다.
+현재 API는 KVM을 지원 대상으로 검사하며, 기존 볼륨 사용은 **Zone 범위 스토리지**를 요구한다. 공유 스토리지라는 이유만으로 CLUSTER 범위 SharedMountPoint를 지원한다고 표시하면 안 된다. 스냅샷 경로에는 같은 Zone 범위 조건을 그대로 적용하지 않는다. 사용자가 지정한 31번 GFS2와 32번 Ceph krbd는 모두 CLUSTER 범위이므로, 이 제한을 현재 결함으로 추적하고 #1337에서 CLUSTER ROOT 편입 지원을 P0 선행 구현한다. pool의 scope를 Zone으로 변경하여 우회하지 않는다.
 
 이 Epic의 기본 동작은 위 의미를 유지한다. 기존 볼륨 복제, 다중 디스크 전체 VM 복구, VM 메모리 스냅샷 복구, 비KVM 지원 확대는 별도 기능으로 분리한다.
 
@@ -85,6 +85,7 @@ eligibility { allowed, reasoncodes[], message, checkedat, revision }
 
 - Ready/미연결/실제 데이터 경로/Zone·소유자 일치/KVM·arch·스토리지 scope·부팅 출처·원본 메타데이터를 검사한다. 단순 type=DATADISK를 부팅 가능으로 간주하지 않는다.
 - 부팅 출처가 확인된 기존 복구 볼륨을 지원하려면 별도의 부팅 원본 메타데이터를 이용한다. 현재 ROOT와 복구된 ROOT 출처 볼륨이 1차 대상이다. 임의 데이터 디스크·업로드 이미지의 지원 확대는 이 Epic의 기본값이 아니다.
+- CLUSTER SharedMountPoint(GFS2)/RBD(krbd)는 원본 pool을 유지하고 원본 cluster에 새 VM 배치를 고정한다. 다른 cluster/접근 불가능한 host 선택을 allocation 전에 거절하며, 적격성 API와 deploy가 같은 계약을 사용한다. HOST 및 CLVM 계열 확대는 이번 두 환경 필수 범위 밖이다.
 - 사용 방식은 '기존 볼륨 사용' 하나로 고정한다. 원본 저장소/크기를 읽기 전용으로 표시하고 복사·이동·자동 크기 변경 옵션을 제공하지 않는다.
 - VM 생성 개수는 1로 고정한다. 표준 deploy API는 서버가 단일 VM을 생성하므로, 실제 다중 호출/동시 사용자에 대해서도 원본 볼륨 잠금과 재검증을 적용하여 하나만 편입되게 한다.
 - source 검사 → VM 할당 → 원본 편입 단계의 트랜잭션·락 경계를 명확히 한다. 원격 agent/storage 작업 동안 DB 락을 장시간 보유하지 않는다. 이미 연결된 동일 VM에 대한 재진입과 다른 VM의 탈취를 구분한다.
@@ -160,8 +161,8 @@ eligibility { allowed, reasoncodes[], message, checkedat, revision }
 
 ## 5. 구현 순서 및 완료 정의
 
-1. P0: 후보/적격성 공통 계약 및 목록 결함 수정.
-2. P1: 볼륨 편입 안전성, snapshot provenance/복구, 원본 부팅 환경, UI/요약, async 실패·재시도.
+1. P0: 후보/적격성 공통 계약 및 목록 결함 수정, 지정 CLUSTER GFS2/RBD 볼륨 편입 지원·안전성.
+2. P1: snapshot provenance/복구, 원본 부팅 환경, UI/요약, async 실패·재시도.
 3. P2: snapshot target storage 수동 지정 지원 확장(기본 자동 배치와 구분).
 4. P1 release gate: UI 중심 실제 생성·부팅·원본 무결성·실패 복구 E2E와 template/ISO 회귀.
 
@@ -170,7 +171,7 @@ eligibility { allowed, reasoncodes[], message, checkedat, revision }
 | 작업 | 우선순위 | 실제 하위 이슈 | 선행 작업 |
 |---|---|---|---|
 | 원본 적격성 API·목록 결함 | P0 | [#1336](https://github.com/ablecloud-team/ablestack-cloud/issues/1336) | 없음 |
-| 기존 볼륨 편입·동시성·보존 | P1 | [#1337](https://github.com/ablecloud-team/ablestack-cloud/issues/1337) | #1336 |
+| CLUSTER 기존 볼륨 편입·동시성·보존 | P0 | [#1337](https://github.com/ablecloud-team/ablestack-cloud/issues/1337) | #1336 |
 | ROOT snapshot 복구·출처·보존 | P1 | [#1338](https://github.com/ablecloud-team/ablestack-cloud/issues/1338) | #1336 |
 | OS·BIOS·UEFI·root bus 상속 | P1 | [#1339](https://github.com/ablecloud-team/ablestack-cloud/issues/1339) | #1336, #1338 |
 | 후보 표·요약·최종 확인 UI | P1 | [#1340](https://github.com/ablecloud-team/ablestack-cloud/issues/1340) | #1336~#1339 |
@@ -182,4 +183,6 @@ eligibility { allowed, reasoncodes[], message, checkedat, revision }
 
 Cloud 서버 변경은 WSL ext4 clone에서 변경 Maven 모듈과 필요한 의존 모듈만 빌드한다. 전체 Cloud 빌드나 GitHub Actions full build는 사용자 명시 요청이 있을 때만 실행한다. qemu/ftctl 변경이 필요해지는 경우 해당 산출물은 GitHub Actions로 빌드한다. UI 배포는 WEB-INF/META-INF 보존, /client/ 200, 활성 bundle hash/marker 확인을 포함한다.
 
-Epic 완료는 코드/설계/단위 검증만으로 처리하지 않는다. 지정 fixture에서 생성·게스트 부팅·데이터 확인·원본 무결성·실패 후 리소스 상태를 모두 연결한 실제 증거가 필요하다.
+필수 성공 범위는 31번 GFS2와 32번 Ceph krbd 각각의 볼륨/스냅샷 × Linux BIOS/Windows UEFI × startvm=true/false 8개, 총 16개이다. Epic 완료는 코드/설계/단위 검증만으로 처리하지 않는다. 지정 fixture에서 생성·게스트 부팅·데이터 확인·원본 무결성·실패 후 리소스 상태를 모두 연결한 실제 증거가 필요하다.
+
+2026-10-09 지정 환경 반영: CLUSTER GFS2/RBD 원본 선택과 다른 cluster 차단 예시를 시안에 반영했다. [추가 확인 4개](evidence/environment-mockup-verification.json), [CLUSTER 볼륨 화면](evidence/proposed-volume-cluster-dark.png), [확인 화면](evidence/proposed-volume-cluster-confirm-dark.png). 기존 14개는 초기 시안 검증 기록이며 실제 제품 E2E와 구분한다.
