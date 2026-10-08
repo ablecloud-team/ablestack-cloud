@@ -50,6 +50,7 @@ MOUNT_DIR="$(mktemp -d /tmp/systemvm-image-check.XXXXXX)"
 
 cleanup() {
   set +e
+  mountpoint -q "$MOUNT_DIR/boot" && umount "$MOUNT_DIR/boot"
   mountpoint -q "$MOUNT_DIR" && umount "$MOUNT_DIR"
   qemu-nbd --disconnect "$NBD_DEVICE" >/dev/null 2>&1
   rmdir "$MOUNT_DIR" >/dev/null 2>&1
@@ -118,6 +119,27 @@ resolve_link_target() {
     printf '%s' "$path"
   fi
 }
+
+# The Debian appliance recipe keeps /boot on a separate partition. Mount it
+# read-only before checking the selected kernel; checking root/boot alone would
+# incorrectly reject a healthy split-boot image.
+if [[ ! -f "$MOUNT_DIR/boot/grub/grub.cfg" ]]; then
+  for candidate in "${NBD_DEVICE}p1" "${NBD_DEVICE}p2" "${NBD_DEVICE}p3" "${NBD_DEVICE}p5"; do
+    if [[ "$candidate" == "$ROOT_PARTITION" || ! -b "$candidate" ]]; then
+      continue
+    fi
+    if mount -o ro "$candidate" "$MOUNT_DIR/boot" >/dev/null 2>&1; then
+      if [[ -f "$MOUNT_DIR/boot/grub/grub.cfg" ]]; then
+        break
+      fi
+      umount "$MOUNT_DIR/boot"
+    fi
+  done
+fi
+if [[ ! -f "$MOUNT_DIR/boot/grub/grub.cfg" ]]; then
+  echo "Unable to locate SystemVM boot partition in $IMAGE" >&2
+  exit 1
+fi
 
 assert_elf "$(resolve_link_target /usr/bin/python3)"
 assert_elf "/usr/lib/python3/dist-packages/gi/_gi.cpython-311-x86_64-linux-gnu.so"
