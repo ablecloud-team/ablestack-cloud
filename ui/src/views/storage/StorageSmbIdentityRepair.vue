@@ -69,7 +69,7 @@ export default {
           if (generation !== this.generation || instance !== this.instanceId) return
           const job = reply.queryasyncjobresultresponse
           if (job.jobstatus === 1) { done = true; break }
-          if (job.jobstatus === 2) throw new Error(job.jobresult?.errortext || this.$t('message.storage.config.failed'))
+          if (job.jobstatus === 2) { this.requestKey = ''; throw new Error(job.jobresult?.errortext || this.$t('message.storage.config.failed')) }
           await new Promise(resolve => setTimeout(resolve, 1000))
         }
         if (!done) throw new Error(this.$t('message.storage.smb.identity.repair.unknown'))
