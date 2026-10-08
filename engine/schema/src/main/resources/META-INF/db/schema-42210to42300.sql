@@ -1495,3 +1495,6 @@ CREATE TABLE IF NOT EXISTS `cloud`.`vm_process_profile` (
 -- Kubernetes Service cleanup receipts must distinguish pool IP allocation reuse.
 ALTER TABLE `cloud`.`user_ip_address` ADD COLUMN `allocation_generation` VARCHAR(36) DEFAULT NULL;
 UPDATE `cloud`.`user_ip_address` SET `allocation_generation` = UUID() WHERE `allocated` IS NOT NULL;
+
+-- Per-instance opt-in keeps unprepared legacy guests out of resource lease/control paths.
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.storage_service_instance', 'operation_control_policy_json', 'LONGTEXT DEFAULT NULL');

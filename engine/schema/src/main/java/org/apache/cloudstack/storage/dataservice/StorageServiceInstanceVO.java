@@ -72,6 +72,11 @@ public class StorageServiceInstanceVO implements StorageServiceInstance {
     @Enumerated(value = EnumType.STRING)
     private State state = State.Allocated;
 
+    @Column(name = "operation_control_policy_json", length = 16777215, columnDefinition = "LONGTEXT")
+    private String operationControlPolicyJson;
+    public String getOperationControlPolicyJson() { return operationControlPolicyJson; }
+    public void setOperationControlPolicyJson(String value) { operationControlPolicyJson = value; }
+
     @Column(name = "current_runtime_bundle_id")
     private Long currentRuntimeBundleId;
 
@@ -244,6 +249,8 @@ public class StorageServiceInstanceVO implements StorageServiceInstance {
     public Date getUpdated() {
         return updated;
     }
+
+    public void setUpdated(Date value) { updated = value; }
 
     public Date getRemoved() {
         return removed;

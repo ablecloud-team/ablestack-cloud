@@ -380,3 +380,6 @@ CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.storage_service_instance', 'previous
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.storage_service_instance', 'template_upgrade_state', 'varchar(40) DEFAULT NULL');
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.storage_service_instance', 'last_template_upgrade_id', 'bigint unsigned DEFAULT NULL');
 CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.storage_service_instance', 'template_verified_at', 'datetime DEFAULT NULL');
+
+-- Per-instance opt-in keeps unprepared legacy guests out of resource lease/control paths.
+CALL `cloud`.`IDEMPOTENT_ADD_COLUMN`('cloud.storage_service_instance', 'operation_control_policy_json', 'LONGTEXT DEFAULT NULL');

@@ -1125,6 +1125,97 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         return createRuntimeResponse(instance, "smb identity rebind", "COMPLETE_NO_CONFIG_CHANGE".equals(operation.getState()), operation.getState(), operation.getDiagnostic(), result.toString());
     }
 
+    protected JsonObject instanceControlPolicy(StorageServiceInstanceVO instance) {
+        JsonObject policy = parseJsonObject(instance.getOperationControlPolicyJson());
+        if (policy.entrySet().isEmpty()) {
+            policy.addProperty("schemaVersion", 1);policy.addProperty("instanceUuid", instance.getUuid());
+            policy.addProperty("enabled", false);policy.addProperty("revision", 0);
+        }
+        if (!instance.getUuid().equals(getJsonString(policy, "instanceUuid")) || getJsonLong(policy, "schemaVersion") == null
+                || getJsonLong(policy, "schemaVersion") != 1 || !policy.has("enabled") || !policy.get("enabled").isJsonPrimitive()
+                || !policy.get("enabled").getAsJsonPrimitive().isBoolean()) throw new CloudRuntimeException("Instance resource control policy scope is invalid");
+        return policy;
+    }
+
+    protected boolean operationControlEnabled(StorageServiceInstanceVO instance) {
+        return StorageServiceInstance.StorageServiceOperationControlEnabled.value() && instance != null
+                && instanceControlPolicy(instance).get("enabled").getAsBoolean();
+    }
+
+    @Override
+    public StorageServiceRuntimeResponse getStorageServiceControlPolicy(
+            org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageServiceControlPolicyCmd cmd) {
+        return instanceControlPolicyResponse(requireInstance(cmd.getInstanceId()));
+    }
+
+    protected StorageServiceRuntimeResponse instanceControlPolicyResponse(StorageServiceInstanceVO instance) {
+        JsonObject policy = instanceControlPolicy(instance), result = new JsonObject(), publicPolicy = policy.deepCopy();
+        for (String key : List.of("_requestFingerprint", "_requestKey", "_requestActor")) publicPolicy.remove(key);
+        boolean enabled = policy.get("enabled").getAsBoolean(), global = StorageServiceInstance.StorageServiceOperationControlEnabled.value();
+        result.addProperty("instanceUuid", instance.getUuid());result.addProperty("instanceName", instance.getName());
+        result.addProperty("policyRevision", getJsonLong(policy, "revision"));result.addProperty("enabled", enabled);result.addProperty("globalEnabled", global);
+        result.addProperty("active", enabled && global);result.addProperty("logicalReservationOnly", true);
+        result.add("nativeCapabilities", policy.has("nativeCapabilities") ? policy.get("nativeCapabilities") : new JsonObject());
+        result.add("policy", publicPolicy);JsonObject coverage = new JsonObject();
+        for (String work : List.of("CONFIGURATION", "FILESYSTEM_FORMAT", "BACKUP", "RESTORE")) coverage.addProperty(work, "LINKED");
+        for (String work : List.of("RUNTIME_UPGRADE", "ROOT_UPGRADE", "SCALE")) coverage.addProperty(work, "PENDING");
+        result.add("coverage", coverage);JsonArray blockers = new JsonArray();if (!global) blockers.add("GLOBAL_CONTROL_DISABLED");if (!enabled) blockers.add("INSTANCE_CONTROL_NOT_OPTED_IN");
+        result.add("blockers", blockers);
+        return createRuntimeResponse(instance, "operation control policy", true, "OBSERVED", "Scoped logical resource control policy", result.toString());
+    }
+
+    @Override
+    public StorageServiceRuntimeResponse configureStorageServiceControlPolicy(
+            org.apache.cloudstack.api.command.admin.storage.dataservice.ConfigureStorageServiceControlPolicyCmd cmd) {
+        requireConfigurationAdministrator();StorageServiceInstanceVO instance = requireInstance(cmd.getInstanceId());
+        if (!instance.getName().equals(cmd.getConfirmation()) || cmd.getEnabled() == null || cmd.getExpectedPolicyRevision() == null) throw new InvalidParameterValueException("Control policy requires exact instance name, explicit enabled value and policy revision");
+        String key = cmd.getIdempotencyKey() == null ? java.util.UUID.randomUUID().toString() : cmd.getIdempotencyKey();
+        if (!key.matches("[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}")) throw new InvalidParameterValueException("Invalid control policy retry key");
+        String fingerprint = StorageServiceRequestFingerprint.of(cmd);long actor = org.apache.cloudstack.context.CallContext.current().getCallingUserId();
+        com.cloud.utils.db.GlobalLock lock = com.cloud.utils.db.GlobalLock.getInternLock("StorageServiceWriter-" + instance.getId());
+        try {
+            if (!lock.lock(30)) throw new CloudRuntimeException("Storage Service writer is active");
+            try {
+                JsonObject current = instanceControlPolicy(instance);
+                if (key.equals(getJsonString(current, "_requestKey"))) {
+                    if (getJsonLong(current, "_requestActor") == null || getJsonLong(current, "_requestActor") != actor
+                            || !fingerprint.equals(getJsonString(current, "_requestFingerprint"))) throw new InvalidParameterValueException("Control policy retry belongs to another actor or request");
+                    return instanceControlPolicyResponse(instance);
+                }
+                if (!java.util.Objects.equals(cmd.getExpectedPolicyRevision(), getJsonLong(current, "revision"))) throw new InvalidParameterValueException("Control policy revision changed; refresh before retrying");
+                requireVolumeResumeIdle(instance, null);requireNoPendingVolumeFormatter(instance);
+                JsonObject capabilities = new JsonObject();
+                if (cmd.getEnabled()) {
+                    if (!StorageServiceInstance.StorageServiceOperationControlEnabled.value()) throw new InvalidParameterValueException("Resource control infrastructure is disabled");
+                    JsonObject status = rootGuest(instance, "operation reservation status", new JsonObject(), 5);
+                    JsonElement supported = status.get("reservationSupported");
+                    if (supported == null || !supported.isJsonPrimitive() || !supported.getAsJsonPrimitive().isBoolean()
+                            || !supported.getAsBoolean() || Boolean.TRUE.equals(getJsonBoolean(status, "reservationAcquired"))) throw new InvalidParameterValueException("Native scoped resource control is unavailable or another lease is active");
+                    requireFreshReservationObservation(status);
+                    JsonObject generation = nativeConfigurationGeneration(instance, null, "status");
+                    JsonObject verified = generation.has("generation") && generation.get("generation").isJsonObject() ? generation.getAsJsonObject("generation") : null;
+                    if (!"IN_SYNC".equals(getJsonString(generation, "generationStatus")) || getJsonString(generation, "pendingOperationUuid") != null
+                            || verified == null || !instance.getUuid().equals(getJsonString(verified, "instanceUuid"))) throw new InvalidParameterValueException("Verified native generation must belong to this idle instance before policy opt-in");
+                    capabilities.addProperty("reservationSupported", true);capabilities.addProperty("logicalReservationOnly", true);
+                    capabilities.addProperty("drainSupported", Boolean.TRUE.equals(getJsonBoolean(status, "drainSupported")));capabilities.addProperty("observedAtMillis", System.currentTimeMillis());
+                }
+                final JsonObject observedCapabilities = capabilities;
+                Transaction.execute((TransactionCallback<Void>) transaction -> {
+                    StorageServiceInstanceVO locked = storageServiceInstanceDao.lockRow(instance.getId(), true);
+                    if (locked == null || !instance.getUuid().equals(locked.getUuid())
+                            || !java.util.Objects.equals(cmd.getExpectedPolicyRevision(), getJsonLong(instanceControlPolicy(locked), "revision"))) throw new InvalidParameterValueException("Control policy changed during update");
+                    JsonObject updated = new JsonObject();updated.addProperty("schemaVersion", 1);updated.addProperty("instanceUuid", instance.getUuid());
+                    updated.addProperty("enabled", cmd.getEnabled());updated.addProperty("revision", cmd.getExpectedPolicyRevision() + 1);updated.addProperty("actor", actor);updated.addProperty("updatedAtMillis", System.currentTimeMillis());
+                    updated.add("nativeCapabilities", observedCapabilities);updated.addProperty("_requestKey", key);updated.addProperty("_requestActor", actor);updated.addProperty("_requestFingerprint", fingerprint);
+                    locked.setOperationControlPolicyJson(updated.toString());locked.setUpdated(new java.util.Date());
+                    if (!storageServiceInstanceDao.update(locked.getId(), locked)) throw new CloudRuntimeException("Control policy could not be persisted");
+                    instance.setOperationControlPolicyJson(updated.toString());return null;
+                });
+                return instanceControlPolicyResponse(instance);
+            } finally {lock.unlock();}
+        } finally {lock.releaseRef();}
+    }
+
     @Override
     public StorageServiceRuntimeResponse storageServiceOperationControl(
             org.apache.cloudstack.api.command.user.storage.dataservice.BaseStorageServiceOperationControlCmd cmd) {
@@ -1136,7 +1227,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             JsonObject result = operationControlJson(instance, operation, control);
             return createRuntimeResponse(instance, "operation control", true, "OBSERVED", "Operation-scoped control observation", result.toString());
         }
-        if (!StorageServiceInstance.StorageServiceOperationControlEnabled.value() || control == null) throw new InvalidParameterValueException("This operation has no native reservation/control capability");
+        if (control == null) throw new InvalidParameterValueException("This operation has no native reservation/control capability");
         StorageServiceOperationControlVO updated = Transaction.execute((TransactionCallback<StorageServiceOperationControlVO>) status -> {
             StorageServiceOperationControlVO locked = storageOperationControlDao.lockRow(control.getId(), true);
             StorageServiceOperationVO fresh = storageOperationDao.findById(operation.getId());
@@ -1168,7 +1259,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     protected JsonObject operationControlJson(StorageServiceInstanceVO instance, StorageServiceOperationVO operation,
             StorageServiceOperationControlVO control) {
         JsonObject result = new JsonObject();
-        boolean supported = StorageServiceInstance.StorageServiceOperationControlEnabled.value() && control != null;
+        boolean supported = control != null;
         result.addProperty("operationUuid", operation.getUuid());result.addProperty("state", operation.getState());result.addProperty("phase", operation.getPhase());
         result.addProperty("controlSupported", supported);result.addProperty("operationRevision", operation.getRevision());result.addProperty("desiredRevision", rootDesiredRevision(instance.getId()));
         result.addProperty("controlRevision", control == null ? 0 : control.getControlRevision());result.addProperty("cancelRequested", control != null && control.isCancelRequested());
@@ -1188,7 +1279,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
 
     protected StorageServiceOperationControlVO startOperationControl(StorageServiceInstanceVO instance, StorageServiceOperationVO operation,
             org.apache.cloudstack.api.BaseCmd command) {
-        if (!StorageServiceInstance.StorageServiceOperationControlEnabled.value()) return null;
+        if (!operationControlEnabled(instance)) return null;
         StorageServiceOperationControlVO existing = storageOperationControlDao.findByOperation(operation.getId());
         if (existing != null) return existing;
         String declaration = captureConfigurationSnapshot(instance.getId());
@@ -1240,7 +1331,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     protected void acquireOperationResourceReservation(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
-        if (!StorageServiceInstance.StorageServiceOperationControlEnabled.value() || instance.getVmId() == null) return;
+        if (!operationControlEnabled(instance) || instance.getVmId() == null) return;
         StorageServiceOperationControlVO control = storageOperationControlDao.findByOperation(operation.getId());
         if (control == null || control.getInstanceId() != instance.getId()) throw new CloudRuntimeException("Operation control budget is unavailable");
         JsonObject policy = parseJsonObject(control.getPolicyJson());JsonObject request = operationReservationScope(instance, operation);
@@ -1306,7 +1397,6 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     protected void renewOperationResourceReservation(StorageServiceOperationVO operation) {
-        if (!StorageServiceInstance.StorageServiceOperationControlEnabled.value()) return;
         StorageServiceOperationControlVO control = storageOperationControlDao.findByOperation(operation.getId());
         if (control == null || !Boolean.TRUE.equals(getJsonBoolean(parseJsonObject(control.getLeaseJson()), "reservationAcquired"))) return;
         StorageServiceInstanceVO instance = storageServiceInstanceDao.findById(operation.getInstanceId());
@@ -1324,7 +1414,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     protected void releaseOperationResourceReservation(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
-        if (!StorageServiceInstance.StorageServiceOperationControlEnabled.value() || instance.getVmId() == null || operation == null) return;
+        if (instance.getVmId() == null || operation == null) return;
         StorageServiceOperationControlVO control = storageOperationControlDao.findByOperation(operation.getId());
         if (control == null || control.getLeaseJson() == null) return;
         JsonObject lease = parseJsonObject(control.getLeaseJson());
@@ -1342,9 +1432,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
 
     protected void enterStorageMutationBoundary(StorageServiceOperationVO operation) {
         requireNoOperationCancellation(operation);
-        if (!StorageServiceInstance.StorageServiceOperationControlEnabled.value()) return;
         StorageServiceOperationControlVO control = storageOperationControlDao.findByOperation(operation.getId());
-        if (control == null) throw new CloudRuntimeException("Operation control scope is unavailable at the mutation boundary");
+        if (control == null) return;
         Transaction.execute((TransactionCallback<Void>) status -> {
             StorageServiceOperationControlVO locked = storageOperationControlDao.lockRow(control.getId(), true);
             if (locked == null || locked.getInstanceId() != operation.getInstanceId() || locked.getOperationId() != operation.getId()) throw new CloudRuntimeException("Mutation control scope changed");
@@ -1360,9 +1449,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
 
     protected void requireNoOperationCancellation(StorageServiceOperationVO operation) {
         StorageWriterHeartbeat heartbeat = storageWriterHeartbeat.get();if (heartbeat != null) heartbeat.requireAvailable();
-        if (!StorageServiceInstance.StorageServiceOperationControlEnabled.value()) return;
         StorageServiceOperationControlVO control = storageOperationControlDao.findByOperation(operation.getId());
-        if (control == null || control.getInstanceId() != operation.getInstanceId()) throw new CloudRuntimeException("Operation control record is unavailable");
+        if (control == null) return;
+        if (control.getInstanceId() != operation.getInstanceId()) throw new CloudRuntimeException("Operation control record is unavailable");
         if (control.isCancelRequested()) throw new StorageOperationCancelledException("Operator requested cancellation at a safe phase boundary");
         if ("REQUESTED".equals(control.getDrainState()) || "DRAINING".equals(control.getDrainState())) {
             throw new CloudRuntimeException("Native new-session hold and zero-session drain must be verified before activation");
@@ -2079,6 +2168,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         commands.add(ListStorageSmbAclsCmd.class);
         commands.add(JoinStorageServiceToAdDomainCmd.class);
         commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageServiceOperationControlCmd.class);
+        commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageServiceControlPolicyCmd.class);
+        commands.add(org.apache.cloudstack.api.command.admin.storage.dataservice.ConfigureStorageServiceControlPolicyCmd.class);
         commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.RepairStorageServiceSmbIdentityCmd.class);
         commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.CancelStorageServiceOperationCmd.class);
         commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.DrainStorageServiceOperationCmd.class);
