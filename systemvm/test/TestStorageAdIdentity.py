@@ -120,7 +120,7 @@ class StorageAdIdentityRpcTest(unittest.TestCase):
         self.scope={"instanceUuid":str(uuid.uuid4()),"operationUuid":str(uuid.uuid4()),"revision":2}
         self.sids={"machineSid":"S-1-5-21-1-2-3","domainSid":"S-1-5-21-4-5-6","machineAccountSid":"S-1-5-21-4-5-6-1001"}
         self.mapping={"default":{"backend":"tdb","range":[10000,60000]},"domain":{"backend":"rid","range":[1000000,1999999],"baseRid":0}}
-        self.state={"state":"JOINED","domainName":"ablestack.local","workgroup":"ABLESTACK","netbiosName":"SERVER","identityReceipt":self.sids,
+        self.state={"instanceUuid":self.scope["instanceUuid"],"state":"JOINED","domainName":"ablestack.local","workgroup":"ABLESTACK","netbiosName":"SERVER","identityReceipt":self.sids,
                     "servicePrincipals":["cifs/server.ablestack.local","host/server.ablestack.local"],"idmapPolicy":self.mapping,
                     "dnsServers":["10.10.13.100"],"dnsAliases":[{"hostname":"server.ablestack.local","addresses":["10.10.13.240","10.10.13.241"]}]}
         self.calls=[];self.foreign_dns=False;self.foreign_sid=False

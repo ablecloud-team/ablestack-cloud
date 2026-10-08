@@ -22,7 +22,7 @@ CLI=ROOT/"systemvm/debian/usr/local/bin/ablestack-storagectl"
 
 class StorageInlineSourcesTest(unittest.TestCase):
     def test_signed_rendered_entrypoint_matches_all_fixed_reviewed_library_bodies_exactly(self):
-        modules=['rendered_generation','ganesha_dbus','nvme_credentials','native_renderers','native_render_validation','native_render_runtime','rendered_network','rendered_prerequisites','rendered_credentials','posix_root_initialization','root_identity_reference','root_configuration_capsule','root_source_identity_checkpoint','root_source_recovery','root_retained_authorization','rendered_driver']
+        modules=['ad_authority','rendered_generation','ganesha_dbus','nvme_credentials','native_renderers','native_render_validation','native_render_runtime','rendered_network','rendered_prerequisites','rendered_credentials','posix_root_initialization','root_identity_reference','root_configuration_capsule','root_source_identity_checkpoint','root_source_recovery','root_retained_authorization','rendered_driver']
         expected=['import sys']
         for name in modules:
             value=(LIB/(name+'.py')).read_text()

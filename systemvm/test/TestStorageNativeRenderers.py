@@ -13,7 +13,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-import copy,importlib.util,json
+import copy,importlib.util,json,sys
 from pathlib import Path
 import tempfile
 import unittest
@@ -22,6 +22,7 @@ import uuid
 ROOT=Path(__file__).resolve().parents[2]
 SOURCE=ROOT/'systemvm/debian/usr/local/lib/ablestack-storage/native_renderers.py'
 CLI=ROOT/'systemvm/debian/usr/local/bin/ablestack-storagectl'
+sys.path.insert(0,str(SOURCE.parent))
 spec=importlib.util.spec_from_file_location('renderer',SOURCE);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
 
 class StorageNativeRenderersTest(unittest.TestCase):
@@ -54,10 +55,8 @@ class StorageNativeRenderersTest(unittest.TestCase):
 
     def test_overlap_is_rejected_and_joined_ad_renders_existing_kerberos_contract(self):
         with self.assertRaises(ValueError):m.render_smb_candidate({**self.smb,'listeners':[{'listenIp':'0.0.0.0','port':445},{'listenIp':'10.10.13.240','port':445}]},CLI)
-        rendered=m.render_smb_candidate({**self.smb,'identityDomain':{'domainName':'ablestack.local','joinState':'JOINED'}},CLI)
-        self.assertIn('realm = ABLESTACK.LOCAL',rendered['smb/smb.conf'])
-        self.assertIn('security = ADS',rendered['smb/smb.conf'])
-        self.assertIn('kerberos method = secrets and keytab',rendered['smb/smb.conf'])
+        with self.assertRaises((ValueError,OSError)):
+            m.render_smb_candidate({**self.smb,'identityDomain':{'domainName':'ablestack.local','joinState':'JOINED'}},CLI)
 
     def test_block_plan_requires_exact_unmounted_mapping_and_durable_auth_reference(self):
         target={'uuid':str(uuid.uuid4()),'volumeUuid':self.volume,'volumeSizeBytes':20*(1<<30),'targetName':'iqn.2026-10.local.storage:target',

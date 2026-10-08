@@ -6415,6 +6415,166 @@ import sys
 import tempfile
 import uuid
 
+# BEGIN EMBEDDED AD AUTHORITY
+"""Protected joined AD policy and fixed fresh principal mapping for physical ACLs."""
+import fcntl
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import stat
+import subprocess
+import time
+import uuid
+
+
+def ad_authority_read(path, exact_mode=None):
+    path=Path(path);parent=path.parent.lstat();info=path.lstat()
+    if (not stat.S_ISDIR(parent.st_mode) or parent.st_uid!=os.geteuid() or parent.st_mode&0o022
+            or not stat.S_ISREG(info.st_mode) or info.st_uid!=os.geteuid() or info.st_mode&0o022
+            or info.st_size>8*1024*1024 or exact_mode is not None and stat.S_IMODE(info.st_mode)!=exact_mode):
+        raise ValueError("AD policy authority is not protected")
+    directory=os.open(path.parent,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
+    descriptor=None
+    fields=("st_dev","st_ino","st_uid","st_gid","st_mode","st_size","st_mtime_ns","st_ctime_ns")
+    try:
+        opened_parent=os.fstat(directory)
+        if (opened_parent.st_dev,opened_parent.st_ino)!=(parent.st_dev,parent.st_ino):raise ValueError("AD policy directory changed")
+        descriptor=os.open(path.name,os.O_RDONLY|os.O_NOFOLLOW,dir_fd=directory);opened=os.fstat(descriptor)
+        if any(getattr(opened,key)!=getattr(info,key) for key in fields):raise ValueError("AD policy changed during open")
+        with os.fdopen(descriptor,"rb",closefd=False) as handle:raw=handle.read(8*1024*1024+1)
+        after=os.fstat(descriptor);named=os.stat(path.name,dir_fd=directory,follow_symlinks=False)
+        if len(raw)>8*1024*1024 or any(getattr(opened,key)!=getattr(after,key) or getattr(opened,key)!=getattr(named,key) for key in fields):
+            raise ValueError("AD policy changed during read")
+        return raw
+    finally:
+        if descriptor is not None:os.close(descriptor)
+        os.close(directory)
+
+
+def ad_qualified_name(value,domain,workgroup):
+    if not isinstance(value,str) or not value or len(value)>256 or any(ord(char)<32 for char in value):raise ValueError("AD principal is invalid")
+    if chr(92) in value:
+        pieces=value.split(chr(92))
+        if len(pieces)!=2 or pieces[0].upper()!=workgroup:raise ValueError("AD principal belongs to another domain")
+        name=pieces[1]
+    elif "@" in value:
+        pieces=value.split("@")
+        if len(pieces)!=2 or pieces[1].lower()!=domain:raise ValueError("AD principal belongs to another realm")
+        name=pieces[0]
+    else:name=value
+    if not re.fullmatch(r"[A-Za-z0-9_][A-Za-z0-9_. -]{0,127}",name) or name!=name.strip():raise ValueError("AD principal name is invalid")
+    return workgroup+chr(92)+name
+
+
+def ad_policy_lines(workgroup,policy):
+    if not re.fullmatch(r"[A-Z0-9][A-Z0-9_-]{0,14}",workgroup or ""):raise ValueError("AD workgroup authority is invalid")
+    if not isinstance(policy,dict) or set(policy)!={"default","domain"}:raise ValueError("AD policy requires exact idmap scopes")
+    lines=[];ranges=[]
+    for key,name,backend,fields in (("default","*","tdb",{"backend","range"}),("domain",workgroup,"rid",{"backend","range","baseRid"})):
+        row=policy[key];limits=row.get("range") if isinstance(row,dict) else None
+        if (not isinstance(row,dict) or set(row)!=fields or row.get("backend")!=backend or not isinstance(limits,list) or len(limits)!=2
+                or any(type(number) is not int for number in limits) or not 10000<=limits[0]<limits[1]<=2147483647 or limits[0]<=65534<=limits[1]):
+            raise ValueError("AD idmap authority has an unsafe or unsupported range")
+        if backend=="rid" and (type(row["baseRid"]) is not int or not 0<=row["baseRid"]<=2147483647):raise ValueError("AD idmap RID authority is invalid")
+        ranges.append(limits);lines.extend(["   idmap config "+name+" : backend = "+backend,"   idmap config "+name+" : range = "+str(limits[0])+"-"+str(limits[1])])
+        if backend=="rid":lines.append("   idmap config "+name+" : base_rid = "+str(row["baseRid"]))
+    if max(row[0] for row in ranges)<=min(row[1] for row in ranges):raise ValueError("AD idmap authority ranges overlap")
+    return lines
+
+
+def protected_ad_policy(instance_uuid, identity=None, netbios_name=None, configuration=None):
+    directory=Path(configuration or os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_ROOT","/etc/ablestack-storage"))
+    raw=ad_authority_read(directory/"smb-domain.json");state=json.loads(raw)
+    if (not isinstance(state,dict) or state.get("state")!="JOINED" or state.get("joinState")!="JOINED"
+            or state.get("instanceUuid")!=str(uuid.UUID(instance_uuid))):
+        raise ValueError("AD joined policy belongs to another native instance")
+    domain=state.get("domainName");realm=state.get("realm");workgroup=state.get("workgroup");netbios=state.get("netbiosName")
+    if (not isinstance(domain,str) or not re.fullmatch(r"[a-z0-9](?:[a-z0-9.-]{0,251}[a-z0-9])?",domain) or "." not in domain
+            or ".." in domain or realm!=domain.upper() or not re.fullmatch(r"[A-Z0-9][A-Z0-9_-]{0,14}",netbios or "")):
+        raise ValueError("AD joined realm/machine authority is invalid")
+    receipt=state.get("identityReceipt")
+    if not isinstance(receipt,dict) or set(receipt)!={"machineSid","domainSid","machineAccountSid"}:
+        raise ValueError("AD joined policy lacks its protected SID receipt")
+    for key in ("machineSid","domainSid"):
+        if not re.fullmatch(r"S-1-5-21(?:-[0-9]{1,10}){3}",str(receipt[key])):raise ValueError("AD joined SID authority is invalid")
+    if not re.fullmatch(re.escape(receipt["domainSid"])+r"-[0-9]{1,10}",str(receipt["machineAccountSid"])):
+        raise ValueError("AD joined computer SID authority is foreign")
+    mapping=state.get("idmapPolicy");lines=ad_policy_lines(workgroup,mapping)
+    machine=ad_authority_read(directory/"ad-machine.conf",0o600);checksum=hashlib.sha256(machine).hexdigest()
+    if state.get("machineConfigurationSha256")!=checksum:raise ValueError("AD machine policy differs from its joined receipt")
+    expected={"workgroup":workgroup,"realm":realm,"netbios name":netbios,"security":"ADS"}
+    for line in lines:
+        name,value=line.strip().split("=",1);expected[name.strip().lower()]=value.strip()
+    observed={};global_section=False
+    for line in machine.decode().splitlines():
+        stripped=line.strip()
+        if stripped.startswith("["):global_section=stripped.lower()=="[global]";continue
+        if global_section and "=" in stripped and not stripped.startswith(("#",";")):
+            name,value=stripped.split("=",1);name=name.strip().lower()
+            if name in expected:
+                if name in observed:raise ValueError("AD machine policy contains duplicate authority parameters")
+                observed[name]=value.strip()
+    if observed!=expected:raise ValueError("AD machine parameters differ from their exact joined authority")
+    if identity is not None:
+        config=identity.get("config") or {};wanted=config.get("identityReceipt")
+        stable={"domain":domain,"realm":realm,"workgroup":workgroup,"netbiosName":netbios,**receipt,
+                "idmapPolicy":mapping,"servicePrincipals":state.get("servicePrincipals"),"dnsAliases":state.get("dnsAliases")}
+        if (identity.get("joinState")!="JOINED" or str(identity.get("domainName") or "").lower()!=domain
+                or config.get("workgroup") not in (None,workgroup) or config.get("netbiosName") not in (None,netbios)
+                or not isinstance(wanted,dict) or any(wanted.get(key)!=value for key,value in stable.items())
+                or wanted.get("trustVerified") is not True or wanted.get("identityVerified") is not True):
+            raise ValueError("Desired AD identity differs from its protected joined policy")
+    if netbios_name is not None and netbios_name!=netbios:raise ValueError("SMB netbios name differs from its protected AD machine")
+    if ad_authority_read(directory/"smb-domain.json")!=raw:raise ValueError("AD joined policy changed during machine verification")
+    return {"domain":domain,"realm":realm,"workgroup":workgroup,"netbiosName":netbios,"domainSid":receipt["domainSid"],
+            "idmapPolicy":mapping,"idmapLines":lines,"machineConfigurationSha256":checksum}
+
+
+def ad_mapped_entry(entry,request,run=None,cli=None,configuration=None,generation=None,clock=None):
+    policy=protected_ad_policy(request["instanceUuid"],configuration=configuration)
+    root=Path(generation or os.environ.get("ABLESTACK_STORAGE_GENERATION_DIR","/var/lib/ablestack-storage/config-generations"))
+    path=root/"pending.json"
+    if not path.exists() and not path.is_symlink():path=root/"current.json"
+    scope=json.loads(ad_authority_read(path))
+    native={key:scope[key] for key in ("instanceUuid","operationUuid","revision")}
+    if native["instanceUuid"]!=request["instanceUuid"] or type(native["revision"]) is not int or native["revision"]<1:
+        raise ValueError("AD mapping scope belongs to another native instance")
+    if request.get("operationUuid") is not None:
+        if request.get("operationUuid")!=native["operationUuid"] or request.get("revision")!=native["revision"]:
+            raise ValueError("AD mapping requested operation/revision differs")
+    elif path.name=="pending.json":
+        if os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD")!="9":raise ValueError("AD pending mapping lacks its owned writer")
+        descriptor=os.fstat(9);named=Path(os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FILE","/run/ablestack-storage/desired-writer.lock")).lstat()
+        if (not stat.S_ISREG(descriptor.st_mode) or descriptor.st_uid!=os.geteuid() or stat.S_IMODE(descriptor.st_mode)!=0o600
+                or (descriptor.st_dev,descriptor.st_ino)!=(named.st_dev,named.st_ino)
+                or not re.search(r"lock:.*FLOCK.*WRITE",Path("/proc/self/fdinfo/9").read_text())):
+            raise ValueError("AD pending mapping writer descriptor differs")
+    kind=entry.get("principalType")
+    if kind not in ("AD_USER","AD_GROUP"):raise ValueError("AD mapping principal type is unsupported")
+    qualified=ad_qualified_name(entry.get("principal"),policy["domain"],policy["workgroup"])
+    payload={**native,"principalType":kind,"principal":entry.get("principal"),"expectedRealm":policy["realm"],"expectedDomainSid":policy["domainSid"]}
+    result=(run or subprocess.run)([str(cli or os.environ.get("ABLESTACK_STORAGECTL_SELF","/usr/local/bin/ablestack-storagectl")),"identity","principal","resolve","/dev/stdin"],
+                                 input=json.dumps(payload),capture_output=True,text=True,timeout=45)
+    if result.returncode:raise ValueError("Fresh AD principal mapping was rejected")
+    value=json.loads(result.stdout);number=value.get("numericId");sid_value=value.get("sid");now=(clock or time.time)()
+    expected_kind="u" if kind=="AD_USER" else "g";allowed={(1,"SID_USER")} if kind=="AD_USER" else {(2,"SID_DOM_GRP"),(4,"SID_ALIAS")}
+    limits=policy["idmapPolicy"]["domain"]["range"]
+    if (value.get("success") is not True or value.get("scope")!=native or value.get("principalType")!=kind
+            or value.get("mappingVerified") is not True or value.get("reverseVerified") is not True or value.get("sideEffects") is not False
+            or value.get("realm")!=policy["realm"] or value.get("workgroup")!=policy["workgroup"] or value.get("qualifiedName")!=qualified
+            or value.get("domainSid")!=policy["domainSid"] or value.get("kind")!=expected_kind
+            or type(value.get("sidType")) is not int or (value.get("sidType"),value.get("sidTypeName")) not in allowed
+            or not re.fullmatch(re.escape(policy["domainSid"])+r"-[0-9]{1,10}",str(sid_value))
+            or type(number) is not int or not limits[0]<=number<=limits[1] or number==65534
+            or value.get("bootId")!=Path("/proc/sys/kernel/random/boot_id").read_text().strip()
+            or type(value.get("generatedEpoch")) not in (int,float) or not now-60<=value["generatedEpoch"]<=now+5):
+        raise ValueError("AD principal mapping differs from its protected domain/type/reverse authority")
+    return value
+
+# END EMBEDDED AD AUTHORITY
+
 """Explicit one-inode initialization bound to an immutable NEW format receipt."""
 import hashlib
 import json
@@ -6863,8 +7023,11 @@ def resolved_entry(entry):
             raise ValueError("Invalid local POSIX principal")
         key = "u" if kind == "LOCAL_USER" else "g"
         numeric = pwd.getpwnam(principal).pw_uid if key == "u" else grp.getgrnam(principal).gr_gid
+    elif kind in ("AD_USER","AD_GROUP"):
+        mapped=ad_mapped_entry(entry,request,cli=sys.argv[3])
+        key,numeric=mapped["kind"],mapped["numericId"]
     else:
-        raise ValueError("Only numeric/local POSIX principals are supported; AD is deferred")
+        raise ValueError("POSIX principal type is unsupported")
     permission = entry.get("permission")
     if permission not in ("READ_ONLY", "READ_WRITE", "FULL_CONTROL"):
         raise ValueError("Invalid POSIX permission")
@@ -7111,6 +7274,166 @@ import subprocess
 import tempfile
 import sys
 
+# BEGIN EMBEDDED AD AUTHORITY
+"""Protected joined AD policy and fixed fresh principal mapping for physical ACLs."""
+import fcntl
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import stat
+import subprocess
+import time
+import uuid
+
+
+def ad_authority_read(path, exact_mode=None):
+    path=Path(path);parent=path.parent.lstat();info=path.lstat()
+    if (not stat.S_ISDIR(parent.st_mode) or parent.st_uid!=os.geteuid() or parent.st_mode&0o022
+            or not stat.S_ISREG(info.st_mode) or info.st_uid!=os.geteuid() or info.st_mode&0o022
+            or info.st_size>8*1024*1024 or exact_mode is not None and stat.S_IMODE(info.st_mode)!=exact_mode):
+        raise ValueError("AD policy authority is not protected")
+    directory=os.open(path.parent,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
+    descriptor=None
+    fields=("st_dev","st_ino","st_uid","st_gid","st_mode","st_size","st_mtime_ns","st_ctime_ns")
+    try:
+        opened_parent=os.fstat(directory)
+        if (opened_parent.st_dev,opened_parent.st_ino)!=(parent.st_dev,parent.st_ino):raise ValueError("AD policy directory changed")
+        descriptor=os.open(path.name,os.O_RDONLY|os.O_NOFOLLOW,dir_fd=directory);opened=os.fstat(descriptor)
+        if any(getattr(opened,key)!=getattr(info,key) for key in fields):raise ValueError("AD policy changed during open")
+        with os.fdopen(descriptor,"rb",closefd=False) as handle:raw=handle.read(8*1024*1024+1)
+        after=os.fstat(descriptor);named=os.stat(path.name,dir_fd=directory,follow_symlinks=False)
+        if len(raw)>8*1024*1024 or any(getattr(opened,key)!=getattr(after,key) or getattr(opened,key)!=getattr(named,key) for key in fields):
+            raise ValueError("AD policy changed during read")
+        return raw
+    finally:
+        if descriptor is not None:os.close(descriptor)
+        os.close(directory)
+
+
+def ad_qualified_name(value,domain,workgroup):
+    if not isinstance(value,str) or not value or len(value)>256 or any(ord(char)<32 for char in value):raise ValueError("AD principal is invalid")
+    if chr(92) in value:
+        pieces=value.split(chr(92))
+        if len(pieces)!=2 or pieces[0].upper()!=workgroup:raise ValueError("AD principal belongs to another domain")
+        name=pieces[1]
+    elif "@" in value:
+        pieces=value.split("@")
+        if len(pieces)!=2 or pieces[1].lower()!=domain:raise ValueError("AD principal belongs to another realm")
+        name=pieces[0]
+    else:name=value
+    if not re.fullmatch(r"[A-Za-z0-9_][A-Za-z0-9_. -]{0,127}",name) or name!=name.strip():raise ValueError("AD principal name is invalid")
+    return workgroup+chr(92)+name
+
+
+def ad_policy_lines(workgroup,policy):
+    if not re.fullmatch(r"[A-Z0-9][A-Z0-9_-]{0,14}",workgroup or ""):raise ValueError("AD workgroup authority is invalid")
+    if not isinstance(policy,dict) or set(policy)!={"default","domain"}:raise ValueError("AD policy requires exact idmap scopes")
+    lines=[];ranges=[]
+    for key,name,backend,fields in (("default","*","tdb",{"backend","range"}),("domain",workgroup,"rid",{"backend","range","baseRid"})):
+        row=policy[key];limits=row.get("range") if isinstance(row,dict) else None
+        if (not isinstance(row,dict) or set(row)!=fields or row.get("backend")!=backend or not isinstance(limits,list) or len(limits)!=2
+                or any(type(number) is not int for number in limits) or not 10000<=limits[0]<limits[1]<=2147483647 or limits[0]<=65534<=limits[1]):
+            raise ValueError("AD idmap authority has an unsafe or unsupported range")
+        if backend=="rid" and (type(row["baseRid"]) is not int or not 0<=row["baseRid"]<=2147483647):raise ValueError("AD idmap RID authority is invalid")
+        ranges.append(limits);lines.extend(["   idmap config "+name+" : backend = "+backend,"   idmap config "+name+" : range = "+str(limits[0])+"-"+str(limits[1])])
+        if backend=="rid":lines.append("   idmap config "+name+" : base_rid = "+str(row["baseRid"]))
+    if max(row[0] for row in ranges)<=min(row[1] for row in ranges):raise ValueError("AD idmap authority ranges overlap")
+    return lines
+
+
+def protected_ad_policy(instance_uuid, identity=None, netbios_name=None, configuration=None):
+    directory=Path(configuration or os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_ROOT","/etc/ablestack-storage"))
+    raw=ad_authority_read(directory/"smb-domain.json");state=json.loads(raw)
+    if (not isinstance(state,dict) or state.get("state")!="JOINED" or state.get("joinState")!="JOINED"
+            or state.get("instanceUuid")!=str(uuid.UUID(instance_uuid))):
+        raise ValueError("AD joined policy belongs to another native instance")
+    domain=state.get("domainName");realm=state.get("realm");workgroup=state.get("workgroup");netbios=state.get("netbiosName")
+    if (not isinstance(domain,str) or not re.fullmatch(r"[a-z0-9](?:[a-z0-9.-]{0,251}[a-z0-9])?",domain) or "." not in domain
+            or ".." in domain or realm!=domain.upper() or not re.fullmatch(r"[A-Z0-9][A-Z0-9_-]{0,14}",netbios or "")):
+        raise ValueError("AD joined realm/machine authority is invalid")
+    receipt=state.get("identityReceipt")
+    if not isinstance(receipt,dict) or set(receipt)!={"machineSid","domainSid","machineAccountSid"}:
+        raise ValueError("AD joined policy lacks its protected SID receipt")
+    for key in ("machineSid","domainSid"):
+        if not re.fullmatch(r"S-1-5-21(?:-[0-9]{1,10}){3}",str(receipt[key])):raise ValueError("AD joined SID authority is invalid")
+    if not re.fullmatch(re.escape(receipt["domainSid"])+r"-[0-9]{1,10}",str(receipt["machineAccountSid"])):
+        raise ValueError("AD joined computer SID authority is foreign")
+    mapping=state.get("idmapPolicy");lines=ad_policy_lines(workgroup,mapping)
+    machine=ad_authority_read(directory/"ad-machine.conf",0o600);checksum=hashlib.sha256(machine).hexdigest()
+    if state.get("machineConfigurationSha256")!=checksum:raise ValueError("AD machine policy differs from its joined receipt")
+    expected={"workgroup":workgroup,"realm":realm,"netbios name":netbios,"security":"ADS"}
+    for line in lines:
+        name,value=line.strip().split("=",1);expected[name.strip().lower()]=value.strip()
+    observed={};global_section=False
+    for line in machine.decode().splitlines():
+        stripped=line.strip()
+        if stripped.startswith("["):global_section=stripped.lower()=="[global]";continue
+        if global_section and "=" in stripped and not stripped.startswith(("#",";")):
+            name,value=stripped.split("=",1);name=name.strip().lower()
+            if name in expected:
+                if name in observed:raise ValueError("AD machine policy contains duplicate authority parameters")
+                observed[name]=value.strip()
+    if observed!=expected:raise ValueError("AD machine parameters differ from their exact joined authority")
+    if identity is not None:
+        config=identity.get("config") or {};wanted=config.get("identityReceipt")
+        stable={"domain":domain,"realm":realm,"workgroup":workgroup,"netbiosName":netbios,**receipt,
+                "idmapPolicy":mapping,"servicePrincipals":state.get("servicePrincipals"),"dnsAliases":state.get("dnsAliases")}
+        if (identity.get("joinState")!="JOINED" or str(identity.get("domainName") or "").lower()!=domain
+                or config.get("workgroup") not in (None,workgroup) or config.get("netbiosName") not in (None,netbios)
+                or not isinstance(wanted,dict) or any(wanted.get(key)!=value for key,value in stable.items())
+                or wanted.get("trustVerified") is not True or wanted.get("identityVerified") is not True):
+            raise ValueError("Desired AD identity differs from its protected joined policy")
+    if netbios_name is not None and netbios_name!=netbios:raise ValueError("SMB netbios name differs from its protected AD machine")
+    if ad_authority_read(directory/"smb-domain.json")!=raw:raise ValueError("AD joined policy changed during machine verification")
+    return {"domain":domain,"realm":realm,"workgroup":workgroup,"netbiosName":netbios,"domainSid":receipt["domainSid"],
+            "idmapPolicy":mapping,"idmapLines":lines,"machineConfigurationSha256":checksum}
+
+
+def ad_mapped_entry(entry,request,run=None,cli=None,configuration=None,generation=None,clock=None):
+    policy=protected_ad_policy(request["instanceUuid"],configuration=configuration)
+    root=Path(generation or os.environ.get("ABLESTACK_STORAGE_GENERATION_DIR","/var/lib/ablestack-storage/config-generations"))
+    path=root/"pending.json"
+    if not path.exists() and not path.is_symlink():path=root/"current.json"
+    scope=json.loads(ad_authority_read(path))
+    native={key:scope[key] for key in ("instanceUuid","operationUuid","revision")}
+    if native["instanceUuid"]!=request["instanceUuid"] or type(native["revision"]) is not int or native["revision"]<1:
+        raise ValueError("AD mapping scope belongs to another native instance")
+    if request.get("operationUuid") is not None:
+        if request.get("operationUuid")!=native["operationUuid"] or request.get("revision")!=native["revision"]:
+            raise ValueError("AD mapping requested operation/revision differs")
+    elif path.name=="pending.json":
+        if os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD")!="9":raise ValueError("AD pending mapping lacks its owned writer")
+        descriptor=os.fstat(9);named=Path(os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FILE","/run/ablestack-storage/desired-writer.lock")).lstat()
+        if (not stat.S_ISREG(descriptor.st_mode) or descriptor.st_uid!=os.geteuid() or stat.S_IMODE(descriptor.st_mode)!=0o600
+                or (descriptor.st_dev,descriptor.st_ino)!=(named.st_dev,named.st_ino)
+                or not re.search(r"lock:.*FLOCK.*WRITE",Path("/proc/self/fdinfo/9").read_text())):
+            raise ValueError("AD pending mapping writer descriptor differs")
+    kind=entry.get("principalType")
+    if kind not in ("AD_USER","AD_GROUP"):raise ValueError("AD mapping principal type is unsupported")
+    qualified=ad_qualified_name(entry.get("principal"),policy["domain"],policy["workgroup"])
+    payload={**native,"principalType":kind,"principal":entry.get("principal"),"expectedRealm":policy["realm"],"expectedDomainSid":policy["domainSid"]}
+    result=(run or subprocess.run)([str(cli or os.environ.get("ABLESTACK_STORAGECTL_SELF","/usr/local/bin/ablestack-storagectl")),"identity","principal","resolve","/dev/stdin"],
+                                 input=json.dumps(payload),capture_output=True,text=True,timeout=45)
+    if result.returncode:raise ValueError("Fresh AD principal mapping was rejected")
+    value=json.loads(result.stdout);number=value.get("numericId");sid_value=value.get("sid");now=(clock or time.time)()
+    expected_kind="u" if kind=="AD_USER" else "g";allowed={(1,"SID_USER")} if kind=="AD_USER" else {(2,"SID_DOM_GRP"),(4,"SID_ALIAS")}
+    limits=policy["idmapPolicy"]["domain"]["range"]
+    if (value.get("success") is not True or value.get("scope")!=native or value.get("principalType")!=kind
+            or value.get("mappingVerified") is not True or value.get("reverseVerified") is not True or value.get("sideEffects") is not False
+            or value.get("realm")!=policy["realm"] or value.get("workgroup")!=policy["workgroup"] or value.get("qualifiedName")!=qualified
+            or value.get("domainSid")!=policy["domainSid"] or value.get("kind")!=expected_kind
+            or type(value.get("sidType")) is not int or (value.get("sidType"),value.get("sidTypeName")) not in allowed
+            or not re.fullmatch(re.escape(policy["domainSid"])+r"-[0-9]{1,10}",str(sid_value))
+            or type(number) is not int or not limits[0]<=number<=limits[1] or number==65534
+            or value.get("bootId")!=Path("/proc/sys/kernel/random/boot_id").read_text().strip()
+            or type(value.get("generatedEpoch")) not in (int,float) or not now-60<=value["generatedEpoch"]<=now+5):
+        raise ValueError("AD principal mapping differs from its protected domain/type/reverse authority")
+    return value
+
+# END EMBEDDED AD AUTHORITY
+
 smb_operation_started = time.monotonic()
 smb_operation_deadline = smb_operation_started + 300
 smb_apply_deadline = smb_operation_started + 240
@@ -7127,8 +7450,7 @@ payload_path = sys.argv[1]
 with open(payload_path, "r", encoding="utf-8") as payload_fp:
     payload = json.load(payload_fp)
 
-state_dir = "/etc/ablestack-storage"
-os.makedirs(state_dir, exist_ok=True)
+state_dir = os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_ROOT","/etc/ablestack-storage")
 try:
     previous_name_result = subprocess.run(["testparm", "-s", "--parameter-name=netbios name"],
                                           stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True, timeout=10)
@@ -7472,6 +7794,8 @@ def safe_netbios_name(value, instance_uuid):
     return raw[:15].upper()
 
 def local_or_ad_name(principal_type, principal, workgroup, netbios_name):
+    if principal_type in ("AD_USER","AD_GROUP"):
+        return ad_qualified_name(principal,ad_policy["domain"],workgroup)
     value = smb_identity(principal)
     if not value or "\\" in value:
         return value
@@ -7508,28 +7832,9 @@ def resolve_account_id(principal_type, principal):
         return "u", str(pwd.getpwnam(principal).pw_uid)
     if principal_type == "LOCAL_GROUP":
         return "g", str(grp.getgrnam(principal).gr_gid)
-    if principal_type == "AD_USER":
-        for candidate in identity_candidates(principal_type, principal):
-            result = run_optional(["wbinfo", "--user-info", candidate], stdout=subprocess.PIPE, text=True)
-            if result and result.stdout:
-                parts = result.stdout.strip().split(":")
-                if len(parts) > 2 and parts[2].isdigit():
-                    return "u", parts[2]
-            try:
-                return "u", str(pwd.getpwnam(candidate).pw_uid)
-            except KeyError:
-                pass
-    if principal_type == "AD_GROUP":
-        for candidate in identity_candidates(principal_type, principal):
-            result = run_optional(["wbinfo", "--group-info", candidate], stdout=subprocess.PIPE, text=True)
-            if result and result.stdout:
-                parts = result.stdout.strip().split(":")
-                if len(parts) > 2 and parts[2].isdigit():
-                    return "g", parts[2]
-            try:
-                return "g", str(grp.getgrnam(candidate).gr_gid)
-            except KeyError:
-                pass
+    if principal_type in ("AD_USER","AD_GROUP"):
+        mapped=ad_mapped_entry({"principalType":principal_type,"principal":principal},payload)
+        return mapped["kind"],str(mapped["numericId"])
     return None, None
 
 def apply_posix_acl(path, principal_type, principal, permission):
@@ -7596,6 +7901,19 @@ join_state = identity.get("joinState")
 workgroup = derive_ad_workgroup(domain_name, identity_config.get("workgroup"))
 ad_joined = bool(domain_name and join_state == "JOINED")
 netbios_name = safe_netbios_name(payload.get("netbiosName") or identity_config.get("netbiosName"), payload.get("instanceUuid"))
+ad_policy = protected_ad_policy(payload["instanceUuid"],identity,netbios_name) if ad_joined else None
+if ad_joined:
+    if workgroup!=ad_policy["workgroup"]:raise ValueError("SMB workgroup differs from its protected AD policy")
+    # Resolve the complete proposed and previously managed AD set before any
+    # local account, Samba database or shared directory mutation.
+    for share in payload.get("shares", []):
+        for acl in share.get("acls", []):
+            if acl.get("state","Ready") not in ("Disabled","Destroyed","Error") and acl.get("principalType") in ("AD_USER","AD_GROUP"):
+                resolve_account_id(acl["principalType"],acl["principal"])
+    for previous in previous_access.values():
+        for acl in previous.get("aclSummary", []):
+            if acl.get("principalType") in ("AD_USER","AD_GROUP"):resolve_account_id(acl["principalType"],acl["principal"])
+os.makedirs(state_dir, exist_ok=True)
 listener_rows = [item for item in (payload.get("listeners") or []) if isinstance(item, dict)]
 if payload.get("enabled") is False:
     listener_rows = []
@@ -7636,9 +7954,7 @@ if ad_joined:
         "   winbind use default domain = yes",
         "   winbind enum users = yes",
         "   winbind enum groups = yes",
-        "   idmap config * : backend = tdb",
-        "   idmap config * : range = 10000-999999",
-    ])
+    ] + ad_policy["idmapLines"])
 else:
     lines.extend([
         f"   workgroup = {workgroup}",
@@ -8303,292 +8619,13 @@ PY
 }
 
 smb_domain_join() {
-  local payload_file="$1"
-
-  python3 - "$payload_file" <<'PY'
-import json
-import os
-import re
-import subprocess
-import sys
-import time
-
-payload_path = sys.argv[1]
-with open(payload_path, "r", encoding="utf-8") as payload_fp:
-    payload = json.load(payload_fp)
-
-state_dir = "/etc/ablestack-storage"
-os.makedirs(state_dir, exist_ok=True)
-state_path = os.path.join(state_dir, "smb-domain.json")
-error_path = os.path.join(state_dir, "smb-domain-error.json")
-
-def write_join_error(phase, message):
-    with open(error_path, "w", encoding="utf-8") as error_fp:
-        json.dump({
-            "state": "JOIN_FAILED",
-            "phase": phase,
-            "message": str(message),
-            "domainName": payload.get("domainName"),
-            "workgroup": payload.get("workgroup") or (payload.get("config") or {}).get("workgroup"),
-            "updatedAt": int(time.time()),
-        }, error_fp, sort_keys=True, indent=2)
-
-def command_label(args):
-    cleaned = []
-    for item in args:
-        value = str(item)
-        if "%" in value and "-U" not in value:
-            value = value.split("%", 1)[0] + "%<redacted>"
-        cleaned.append(value)
-    return " ".join(cleaned)
-
-def run_checked(phase, args, input_text=None):
-    result = subprocess.run(args, input=input_text, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    if result.returncode != 0:
-        detail = (result.stderr or result.stdout or "command failed").strip()
-        if input_text:
-            detail = detail.replace(input_text.strip(), "<redacted>")
-        if not detail:
-            detail = command_label(args) + " failed"
-        write_join_error(phase, detail)
-        raise SystemExit(detail)
-    return result
-
-def derive_ad_workgroup(domain_name, workgroup):
-    value = str(workgroup or "").strip()
-    if value and value.upper() != "WORKGROUP":
-        return re.sub(r"[^A-Za-z0-9]", "", value)[:15].upper() or "WORKGROUP"
-    domain_value = str(domain_name or "").strip()
-    if domain_value:
-        derived = re.sub(r"[^A-Za-z0-9]", "", domain_value.split(".", 1)[0])[:15].upper()
-        if derived:
-            return derived
-    return "WORKGROUP"
-
-def normalize_realm(domain_name):
-    return str(domain_name or "").strip().upper()
-
-def kerberos_principal(username, realm):
-    value = str(username or "").strip()
-    if "@" in value:
-        return value
-    if "\\" in value:
-        value = value.split("\\", 1)[1]
-    return f"{value}@{realm}"
-
-def write_smb_conf(workgroup_name):
-    lines = [
-        "[global]",
-        "   server string = ABLESTACK Storage Service",
-        f"   netbios name = {netbios_name}",
-        f"   workgroup = {workgroup_name}",
-        f"   realm = {realm}",
-        "   security = ADS",
-        "   kerberos method = secrets and keytab",
-        "   winbind use default domain = yes",
-        "   winbind enum users = yes",
-        "   winbind enum groups = yes",
-        "   idmap config * : backend = tdb",
-        "   idmap config * : range = 10000-999999",
-        "   load printers = no",
-        "   printing = bsd",
-        "   disable spoolss = yes",
-        "   map to guest = Bad User",
-    ]
-    with open("/etc/samba/smb.conf", "w", encoding="utf-8") as smb_fp:
-        smb_fp.write("\n".join(lines) + "\n")
-
-domain = payload.get("domainName")
-username = payload.get("username")
-password = payload.get("password")
-ou = payload.get("organizationalUnit")
-dns_servers = payload.get("dnsServers")
-config = payload.get("config") or {}
-realm = normalize_realm(domain)
-workgroup = derive_ad_workgroup(domain, config.get("workgroup"))
-netbios_name = re.sub(r"[^A-Za-z0-9]", "", str(payload.get("netbiosName") or config.get("netbiosName") or ""))[:15].upper()
-if not netbios_name:
-    netbios_name = "STORAGEVM"
-
-if not domain or not username or not password:
-    write_join_error("validate", "domainName, username, and password are required for SMB domain join")
-    raise SystemExit("domainName, username, and password are required for SMB domain join")
-
-if os.path.exists(error_path):
-    os.remove(error_path)
-
-if dns_servers:
-    with open(os.path.join(state_dir, "smb-dns-servers"), "w", encoding="utf-8") as dns_fp:
-        dns_fp.write(str(dns_servers) + "\n")
-    backup_path = os.path.join(state_dir, "resolv.conf.storage-backup")
-    if os.path.exists("/etc/resolv.conf") and not os.path.exists(backup_path):
-        with open("/etc/resolv.conf", "r", encoding="utf-8", errors="ignore") as source_fp, open(backup_path, "w", encoding="utf-8") as backup_fp:
-            backup_fp.write(source_fp.read())
-    with open("/etc/resolv.conf", "w", encoding="utf-8") as resolv_fp:
-        resolv_fp.write(f"search {domain}\n")
-        for server in re.split(r"[,\\s]+", str(dns_servers)):
-            if server:
-                resolv_fp.write(f"nameserver {server}\n")
-
-with open("/etc/krb5.conf", "w", encoding="utf-8") as krb_fp:
-    krb_fp.write("[libdefaults]\n")
-    krb_fp.write(f" default_realm = {realm}\n")
-    krb_fp.write(" dns_lookup_realm = false\n dns_lookup_kdc = true\n rdns = false\n")
-
-write_smb_conf(workgroup)
-run_checked("testparm", ["testparm", "-s"])
-lookup = subprocess.run(["net", "ads", "lookup", "-S", domain], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-if lookup.returncode == 0:
-    for line in lookup.stdout.splitlines():
-        if "Pre-Win2k Domain:" in line:
-            discovered = line.split(":", 1)[1].strip()
-            if discovered:
-                workgroup = derive_ad_workgroup(domain, discovered)
-                write_smb_conf(workgroup)
-            break
-
-kinit_principal = kerberos_principal(username, realm)
-run_checked("kinit", ["kinit", kinit_principal], input_text=f"{password}\n")
-
-cmd = ["net", "ads", "join", "-k"]
-if ou:
-    cmd.append(f"createcomputer={ou}")
-try:
-    run_checked("join", cmd)
-finally:
-    subprocess.run(["kdestroy"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-
-with open(state_path, "w", encoding="utf-8") as state_fp:
-    json.dump({
-        "domainName": domain,
-        "organizationalUnit": ou,
-        "dnsServers": dns_servers,
-        "workgroup": workgroup,
-        "realm": realm,
-        "netbiosName": netbios_name,
-        "state": "JOINED",
-        "trustVerified": False,
-    }, state_fp, sort_keys=True, indent=2)
-
-print(json.dumps({"success": True, "domainName": domain}))
-PY
-
-  if command -v systemctl >/dev/null 2>&1; then
-    systemctl enable --now smbd >/dev/null 2>&1 || true
-    systemctl enable --now nmbd >/dev/null 2>&1 || true
-    systemctl enable --now winbind >/dev/null 2>&1 || true
-    systemctl restart smbd >/dev/null 2>&1 || true
-    systemctl restart nmbd >/dev/null 2>&1 || true
-    systemctl restart winbind >/dev/null 2>&1 || true
-  fi
-  net cache flush >/dev/null 2>&1 || true
-
-  local verify_error=""
-  if ! verify_error="$(net ads testjoin 2>&1)"; then
-    python3 - "$verify_error" <<'PY'
-import json
-import os
-import sys
-import time
-state_dir = "/etc/ablestack-storage"
-with open(os.path.join(state_dir, "smb-domain-error.json"), "w", encoding="utf-8") as fp:
-    json.dump({"state": "JOIN_FAILED", "phase": "testjoin", "message": sys.argv[1], "updatedAt": int(time.time())}, fp, sort_keys=True, indent=2)
-PY
-    echo "$verify_error" >&2
-    return 1
-  fi
-  local verify_workgroup
-  verify_workgroup="$(python3 - <<'PY'
-import json
-import os
-state_path = "/etc/ablestack-storage/smb-domain.json"
-try:
-    with open(state_path, "r", encoding="utf-8") as fp:
-        data = json.load(fp)
-    print(data.get("workgroup") or "")
-except Exception:
-    print("")
-PY
-)"
-  if [[ -z "$verify_workgroup" ]]; then
-    verify_error="Unable to determine AD workgroup for winbind verification"
-    python3 - "$verify_error" <<'PY'
-import json
-import os
-import sys
-import time
-state_dir = "/etc/ablestack-storage"
-with open(os.path.join(state_dir, "smb-domain-error.json"), "w", encoding="utf-8") as fp:
-    json.dump({"state": "JOIN_FAILED", "phase": "wbinfo", "message": sys.argv[1], "updatedAt": int(time.time())}, fp, sort_keys=True, indent=2)
-PY
-    echo "$verify_error" >&2
-    return 1
-  fi
-  if ! verify_error="$(wbinfo --domain="$verify_workgroup" -t 2>&1)"; then
-    python3 - "$verify_error" <<'PY'
-import json
-import os
-import sys
-import time
-state_dir = "/etc/ablestack-storage"
-with open(os.path.join(state_dir, "smb-domain-error.json"), "w", encoding="utf-8") as fp:
-    json.dump({"state": "JOIN_FAILED", "phase": "wbinfo", "message": sys.argv[1], "updatedAt": int(time.time())}, fp, sort_keys=True, indent=2)
-PY
-    echo "$verify_error" >&2
-    return 1
-  fi
-  python3 - <<'PY'
-import json
-import os
-import time
-state_dir = "/etc/ablestack-storage"
-state_path = os.path.join(state_dir, "smb-domain.json")
-error_path = os.path.join(state_dir, "smb-domain-error.json")
-data = {}
-if os.path.exists(state_path):
-    with open(state_path, "r", encoding="utf-8") as fp:
-        data = json.load(fp)
-data["state"] = "JOINED"
-data["trustVerified"] = True
-data["verifiedAt"] = int(time.time())
-with open(state_path, "w", encoding="utf-8") as fp:
-    json.dump(data, fp, sort_keys=True, indent=2)
-if os.path.exists(error_path):
-    os.remove(error_path)
-PY
+  emit_error "Protected AD lifecycle producer is not available in this runtime."
+  return 1
 }
 
 smb_domain_leave() {
-  local payload_file="$1"
-
-  python3 - "$payload_file" <<'PY'
-import json
-import os
-import subprocess
-import sys
-
-payload_path = sys.argv[1]
-with open(payload_path, "r", encoding="utf-8") as payload_fp:
-    payload = json.load(payload_fp)
-
-username = payload.get("username")
-password = payload.get("password")
-cmd = ["net", "ads", "leave"]
-if username and password:
-    cmd.extend(["-U", f"{username}%{password}"])
-subprocess.run(cmd, check=True)
-
-domain_state = "/etc/ablestack-storage/smb-domain.json"
-if os.path.exists(domain_state):
-    os.remove(domain_state)
-
-print(json.dumps({"success": True}))
-PY
-
-  if command -v systemctl >/dev/null 2>&1; then
-    systemctl restart smbd >/dev/null 2>&1 || true
-    systemctl restart winbind >/dev/null 2>&1 || true
-  fi
+  emit_error "Protected AD lifecycle producer is not available in this runtime."
+  return 1
 }
 
 apply_iscsi_targets() {
@@ -11687,7 +11724,7 @@ def bounded_ad_run(arguments, capture_output=True, text=True, timeout=5, pass_fd
     until = time.monotonic() + timeout
     inherited = (9,) if os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD") == "9" else ()
     child = subprocess.Popen(arguments, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                             text=text, pass_fds=tuple(set((*inherited, *pass_fds))))
+                             text=text, env=dict(os.environ,LC_ALL="C"), pass_fds=tuple(set((*inherited, *pass_fds))))
     descriptor = None
     try:
         try: descriptor = os.pidfd_open(child.pid, 0)
@@ -11791,6 +11828,29 @@ def resolve_ad_principal(kind,principal,domain,workgroup,run=None,deadline=None,
     return {'principal':name,'sid':identity,'kind':'u' if kind=='AD_USER' else 'g','numericId':int(numeric),'sidType':int(matched.group(3)),'sidTypeName':matched.group(2),'mappingVerified':True}
 
 
+def reject_local_ad_collision(kind, numeric, account_root=None):
+    # NSS also contains winbind entries. Only the protected local account file
+    # can establish a collision with an unrelated Unix managed identity.
+    path=Path(account_root or "/etc")/("passwd" if kind=="AD_USER" else "group")
+    info=path.lstat()
+    if not stat.S_ISREG(info.st_mode) or info.st_uid!=os.geteuid() or info.st_mode&0o022 or info.st_size>8*1024*1024:
+        raise ValueError("Local account collision authority is unprotected")
+    descriptor=os.open(path,os.O_RDONLY|os.O_NOFOLLOW)
+    try:
+        opened=os.fstat(descriptor)
+        if (opened.st_dev,opened.st_ino,opened.st_size)!=(info.st_dev,info.st_ino,info.st_size):raise ValueError("Local account authority changed")
+        with os.fdopen(descriptor,"r",closefd=False) as handle:content=handle.read(8*1024*1024+1)
+        after=os.fstat(descriptor);named=path.lstat()
+        fields=("st_dev","st_ino","st_size","st_uid","st_gid","st_mode","st_mtime_ns","st_ctime_ns")
+        if len(content)>8*1024*1024 or any(getattr(opened,key)!=getattr(after,key) or getattr(opened,key)!=getattr(named,key) for key in fields):
+            raise ValueError("Local account authority changed while reading")
+        for line in content.splitlines():
+            fields=line.split(":")
+            if len(fields)<3 or not fields[2].isdigit():raise ValueError("Local account authority is malformed")
+            if int(fields[2])==numeric:raise ValueError("AD numeric mapping collides with a local managed account")
+    finally:os.close(descriptor)
+
+
 def machine_sids(output):
     """Read public SID metadata only; local machine SID and AD domain SID differ."""
     if not isinstance(output,str) or len(output)>65536:raise ValueError("AD SID metadata is oversized")
@@ -11856,16 +11916,41 @@ class AdIdentityProbe:
         if result.returncode:raise ValueError("AD identity trust or public metadata probe failed")
         return result.stdout
 
-    def verify(self,domain,required_spns,expected_sids=None):
+    def verify(self,domain,required_spns,expected_sids=None,machine_name=None):
         domain=domain_name(domain)
         self.command(["net","ads","testjoin","--machine-pass"])
         observed=machine_sids(self.command(["net","getdomainsid"]))
         if expected_sids is not None and observed!=expected_sids:raise ValueError("AD machine/domain SID differs from the protected source identity")
-        keytab=keytab_principals(self.command(["klist","-k","/etc/krb5.keytab"]),domain,required_spns)
+        keytab=keytab_principals(self.command(["klist","-k","/etc/krb5.keytab"]),domain,required_spns,machine_name)
         return {**observed,**keytab,"domain":domain,"trustVerified":True,"identityVerified":True}
 
 
-def ad_configuration(domain,workgroup,netbios,existing_smb,dns_servers):
+def ad_idmap_configuration(workgroup,value=None):
+    if not isinstance(workgroup,str) or not re.fullmatch(r"[A-Z0-9][A-Z0-9_-]{0,14}",workgroup):
+        raise ValueError("AD idmap workgroup is invalid")
+    if value is None:
+        value={"default":{"backend":"tdb","range":[10000,60000]},"domain":{"backend":"rid","range":[1000000,1999999],"baseRid":0}}
+    if not isinstance(value,dict) or set(value)!={"default","domain"}:raise ValueError("AD idmap configuration requires exact default/domain policies")
+    ranges=[];lines=[]
+    for key,name in (("default","*"),("domain",workgroup)):
+        row=value[key]
+        if (not isinstance(row,dict) or row.get("backend") not in ("tdb","rid")
+                or set(row)!=({"backend","range","baseRid"} if row["backend"]=="rid" else {"backend","range"})):
+            raise ValueError("AD idmap backend fields are unsupported")
+        limits=row["range"]
+        if (not isinstance(limits,list) or len(limits)!=2 or any(type(item) is not int for item in limits)
+                or not 1000<=limits[0]<=limits[1]<=2147483647 or limits[0]<=65534<=limits[1]):
+            raise ValueError("AD idmap configuration includes a protected or invalid identity range")
+        if row["backend"]=="rid" and (type(row["baseRid"]) is not int or not 0<=row["baseRid"]<=2147483647):
+            raise ValueError("AD idmap RID base is invalid")
+        ranges.append(limits);lines.extend(["   idmap config "+name+" : backend = "+row["backend"],
+                                          "   idmap config "+name+" : range = "+str(limits[0])+"-"+str(limits[1])])
+        if row["backend"]=="rid":lines.append("   idmap config "+name+" : base_rid = "+str(row["baseRid"]))
+    if max(row[0] for row in ranges)<=min(row[1] for row in ranges):raise ValueError("AD default/domain idmap configurations overlap")
+    return {"policy":value,"lines":lines}
+
+
+def ad_configuration(domain,workgroup,netbios,existing_smb,dns_servers,idmap_configuration=None):
     """Pure validated domain config; existing shares and private passdb settings remain."""
     domain=domain_name(domain)
     if not isinstance(workgroup,str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{0,14}",workgroup):raise ValueError("AD workgroup is invalid")
@@ -11884,13 +11969,14 @@ def ad_configuration(domain,workgroup,netbios,existing_smb,dns_servers):
             global_lines.append(line)
         elif current is not None:sections.append(line)
         elif line.strip() and not line.lstrip().startswith(('#',';')):raise ValueError("AD Samba source has content before a section")
+    mapping=ad_idmap_configuration(workgroup.upper(),idmap_configuration)
     lines=['[global]',*global_lines,'   workgroup = '+workgroup.upper(),'   realm = '+domain.upper(),'   security = ADS',
            '   kerberos method = secrets and keytab','   netbios name = '+netbios.upper(),'   winbind use default domain = no',
-           '   winbind enum users = no','   winbind enum groups = no','   idmap config * : backend = tdb','   idmap config * : range = 10000-999999']
+           '   winbind enum users = no','   winbind enum groups = no',*mapping['lines']]
     krb='[libdefaults]\n default_realm = '+domain.upper()+'\n dns_lookup_realm = false\n dns_lookup_kdc = true\n rdns = false\n'
     resolver='search '+domain+'\n'+''.join('nameserver '+address+'\n' for address in dns)
     return {'smbConfiguration':'\n'.join([*lines,*sections])+'\n','kerberosConfiguration':krb,'resolverConfiguration':resolver,
-            'domain':domain,'realm':domain.upper(),'workgroup':workgroup.upper(),'netbiosName':netbios.upper(),'dnsServers':dns}
+            'domain':domain,'realm':domain.upper(),'workgroup':workgroup.upper(),'netbiosName':netbios.upper(),'dnsServers':dns,'idmapPolicy':mapping['policy']}
 
 def credential_command(arguments,username,password,domain,run=None,deadline=None):
     """Samba auth file is a sealed memfd; no credential argv/disk/cache file."""
@@ -11998,11 +12084,11 @@ def dns_aliases(value,domain):
 
 
 class AdIdentityRpc:
-    def __init__(self,run=None,configuration=None,generation=None,clock=None):
+    def __init__(self,run=None,configuration=None,generation=None,clock=None,cli=None,account_root=None):
         self.run=run or bounded_ad_run;self.deadline=time.monotonic()+45
         self.configuration=Path(configuration or os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_ROOT","/etc/ablestack-storage"))
         self.generations=Path(generation or os.environ.get("ABLESTACK_STORAGE_GENERATION_DIR","/var/lib/ablestack-storage/config-generations"))
-        self.clock=clock or time.time
+        self.account_root=account_root;self.clock=clock or time.time;self.cli=str(cli or "/usr/local/bin/ablestack-storagectl");self.config_override=None
 
     def scope(self,request):
         scope={key:str(uuid.UUID(request[key])) for key in ("instanceUuid","operationUuid")}
@@ -12015,10 +12101,15 @@ class AdIdentityRpc:
         if pending and any(pending.get(key)!=value for key,value in scope.items()):raise ValueError("Foreign pending generation blocks AD attestation")
         return scope
 
+    def configured_run(self,args,**kwargs):
+        if self.config_override and args[0] in ("net","testparm"):
+            args=[args[0],"--configfile="+self.config_override,*args[1:]]
+        return self.run(args,**kwargs)
+
     def command(self,args):
         remaining=self.deadline-time.monotonic()
         if remaining<=0:raise TimeoutError("AD RPC total deadline expired")
-        result=self.run(args,capture_output=True,text=True,timeout=min(5,remaining))
+        result=self.configured_run(args,capture_output=True,text=True,timeout=min(5,remaining))
         if result.returncode:raise ValueError("AD public identity attestation is unavailable")
         return result.stdout.strip()
 
@@ -12026,7 +12117,22 @@ class AdIdentityRpc:
         scope=self.scope(request);state=ad_protected_json(self.configuration/"smb-domain.json",True)
         if state is None or str(state.get("joinState") or state.get("state") or "").upper()!="JOINED":
             return {"success":True,"scope":scope,"sideEffects":False,"joinState":"NOT_JOINED","trustVerified":False,"identityVerified":False,"adIdentity":False}
+        if state.get("instanceUuid")!=scope["instanceUuid"]:raise ValueError("AD joined receipt belongs to another native instance")
         config=state.get("config") or {};domain=domain_name(state.get("domainName"));realm=domain.upper()
+        machine_config=self.configuration/"ad-machine.conf"
+        if state.get("machineConfigurationSha256") is not None:
+            info=machine_config.lstat()
+            if not stat.S_ISREG(info.st_mode) or info.st_uid!=os.geteuid() or stat.S_IMODE(info.st_mode)!=0o600 or info.st_size>8*1024*1024:
+                raise ValueError("AD private machine configuration is not protected")
+            descriptor=os.open(machine_config,os.O_RDONLY|os.O_NOFOLLOW)
+            try:
+                opened=os.fstat(descriptor)
+                if (opened.st_dev,opened.st_ino,opened.st_size)!=(info.st_dev,info.st_ino,info.st_size):raise ValueError("AD machine configuration changed")
+                content=os.read(descriptor,8*1024*1024+1)
+            finally:os.close(descriptor)
+            if hashlib.sha256(content).hexdigest()!=state["machineConfigurationSha256"]:raise ValueError("AD machine configuration differs from its joined receipt")
+            self.config_override=str(machine_config)
+
         workgroup=str(state.get("workgroup") or config.get("workgroup") or "").upper()
         netbios=str(state.get("netbiosName") or config.get("netbiosName") or "").upper()
         if any(not re.fullmatch(r"[A-Z0-9][A-Z0-9_-]{0,14}",item) for item in (workgroup,netbios)):raise ValueError("AD joined state lacks its exact workgroup/machine name")
@@ -12035,7 +12141,7 @@ class AdIdentityRpc:
         aliases=dns_aliases(state.get("dnsAliases"),domain)
         expected=state.get("identityReceipt")
         if not isinstance(expected,dict) or set(expected)!={"machineSid","domainSid","machineAccountSid"}:raise ValueError("AD joined state lacks its protected SID receipt")
-        observed=AdIdentityProbe(self.run,self.deadline).verify(domain,required,{key:expected[key] for key in ("machineSid","domainSid")})
+        observed=AdIdentityProbe(self.configured_run,self.deadline).verify(domain,required,{key:expected[key] for key in ("machineSid","domainSid")},netbios)
         account=machine_account_sid(self.command(["wbinfo","--name-to-sid",workgroup+chr(92)+netbios+"$"]),observed["domainSid"])
         if account!=expected["machineAccountSid"]:raise ValueError("AD computer account differs from the protected joined receipt")
         listed=self.command(["net","ads","setspn","list","--machine-pass"])
@@ -12048,7 +12154,7 @@ class AdIdentityRpc:
                 output=self.command(["dig","+short","+time=2","+tries=1","A",alias["hostname"],"@"+server])
                 actual=sorted({str(ipaddress.IPv4Address(line)) for line in output.splitlines() if line.strip()})
                 if actual!=alias["addresses"]:raise ValueError("AD DNS alias resolution differs from its exact endpoints")
-        mapping=idmap_policy(self.run,workgroup,self.deadline)
+        mapping=idmap_policy(self.configured_run,workgroup,self.deadline)
         if state.get("idmapPolicy")!=mapping:raise ValueError("AD idmap policy differs from its protected joined receipt")
         if request.get("expectedRealm") not in (None,realm) or request.get("expectedDomainSid") not in (None,observed["domainSid"]):raise ValueError("AD caller realm/domain SID differs")
         return {"success":True,"scope":scope,"sideEffects":False,"joinState":"JOINED","domain":domain,"realm":realm,"workgroup":workgroup,"netbiosName":netbios,
@@ -12059,11 +12165,13 @@ class AdIdentityRpc:
         if not request.get("expectedRealm") or not request.get("expectedDomainSid"):raise ValueError("AD mapping requires pinned realm and domain SID")
         joined=self.inspect(request)
         if joined.get("joinState")!="JOINED" or joined.get("identityVerified") is not True:raise ValueError("AD mapping requires a freshly verified joined identity")
-        kind=request.get("principalType");resolved=resolve_ad_principal(kind,request.get("principal"),joined["domain"],joined["workgroup"],self.run,self.deadline,joined["domainSid"])
+        kind=request.get("principalType");resolved=resolve_ad_principal(kind,request.get("principal"),joined["domain"],joined["workgroup"],self.configured_run,self.deadline,joined["domainSid"])
+        limits=joined["idmapPolicy"]["domain"]["range"]
+        if not limits[0]<=resolved["numericId"]<=limits[1]:raise ValueError("AD principal numeric identity differs from its joined domain idmap range")
+        reject_local_ad_collision(kind,resolved["numericId"],self.account_root)
         return {"success":True,"scope":joined["scope"],"sideEffects":False,"qualifiedName":resolved["principal"],"sid":resolved["sid"],
                 "principalType":kind,"sidType":resolved["sidType"],"sidTypeName":resolved["sidTypeName"],"numericId":resolved["numericId"],"kind":resolved["kind"],"mappingVerified":True,"reverseVerified":True,
                 **{key:joined[key] for key in ("domainSid","realm","workgroup","bootId","generatedEpoch")}}
-
 import sys
 try:
     request=json.loads(os.fdopen(3).read() if sys.argv[3]=="/dev/stdin" else Path(sys.argv[3]).read_text())
@@ -13663,6 +13771,177 @@ import sys
 # specific language governing permissions and limitations
 # under the License.
 
+"""Protected joined AD policy and fixed fresh principal mapping for physical ACLs."""
+import fcntl
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import stat
+import subprocess
+import time
+import uuid
+
+
+def ad_authority_read(path, exact_mode=None):
+    path=Path(path);parent=path.parent.lstat();info=path.lstat()
+    if (not stat.S_ISDIR(parent.st_mode) or parent.st_uid!=os.geteuid() or parent.st_mode&0o022
+            or not stat.S_ISREG(info.st_mode) or info.st_uid!=os.geteuid() or info.st_mode&0o022
+            or info.st_size>8*1024*1024 or exact_mode is not None and stat.S_IMODE(info.st_mode)!=exact_mode):
+        raise ValueError("AD policy authority is not protected")
+    directory=os.open(path.parent,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
+    descriptor=None
+    fields=("st_dev","st_ino","st_uid","st_gid","st_mode","st_size","st_mtime_ns","st_ctime_ns")
+    try:
+        opened_parent=os.fstat(directory)
+        if (opened_parent.st_dev,opened_parent.st_ino)!=(parent.st_dev,parent.st_ino):raise ValueError("AD policy directory changed")
+        descriptor=os.open(path.name,os.O_RDONLY|os.O_NOFOLLOW,dir_fd=directory);opened=os.fstat(descriptor)
+        if any(getattr(opened,key)!=getattr(info,key) for key in fields):raise ValueError("AD policy changed during open")
+        with os.fdopen(descriptor,"rb",closefd=False) as handle:raw=handle.read(8*1024*1024+1)
+        after=os.fstat(descriptor);named=os.stat(path.name,dir_fd=directory,follow_symlinks=False)
+        if len(raw)>8*1024*1024 or any(getattr(opened,key)!=getattr(after,key) or getattr(opened,key)!=getattr(named,key) for key in fields):
+            raise ValueError("AD policy changed during read")
+        return raw
+    finally:
+        if descriptor is not None:os.close(descriptor)
+        os.close(directory)
+
+
+def ad_qualified_name(value,domain,workgroup):
+    if not isinstance(value,str) or not value or len(value)>256 or any(ord(char)<32 for char in value):raise ValueError("AD principal is invalid")
+    if chr(92) in value:
+        pieces=value.split(chr(92))
+        if len(pieces)!=2 or pieces[0].upper()!=workgroup:raise ValueError("AD principal belongs to another domain")
+        name=pieces[1]
+    elif "@" in value:
+        pieces=value.split("@")
+        if len(pieces)!=2 or pieces[1].lower()!=domain:raise ValueError("AD principal belongs to another realm")
+        name=pieces[0]
+    else:name=value
+    if not re.fullmatch(r"[A-Za-z0-9_][A-Za-z0-9_. -]{0,127}",name) or name!=name.strip():raise ValueError("AD principal name is invalid")
+    return workgroup+chr(92)+name
+
+
+def ad_policy_lines(workgroup,policy):
+    if not re.fullmatch(r"[A-Z0-9][A-Z0-9_-]{0,14}",workgroup or ""):raise ValueError("AD workgroup authority is invalid")
+    if not isinstance(policy,dict) or set(policy)!={"default","domain"}:raise ValueError("AD policy requires exact idmap scopes")
+    lines=[];ranges=[]
+    for key,name,backend,fields in (("default","*","tdb",{"backend","range"}),("domain",workgroup,"rid",{"backend","range","baseRid"})):
+        row=policy[key];limits=row.get("range") if isinstance(row,dict) else None
+        if (not isinstance(row,dict) or set(row)!=fields or row.get("backend")!=backend or not isinstance(limits,list) or len(limits)!=2
+                or any(type(number) is not int for number in limits) or not 10000<=limits[0]<limits[1]<=2147483647 or limits[0]<=65534<=limits[1]):
+            raise ValueError("AD idmap authority has an unsafe or unsupported range")
+        if backend=="rid" and (type(row["baseRid"]) is not int or not 0<=row["baseRid"]<=2147483647):raise ValueError("AD idmap RID authority is invalid")
+        ranges.append(limits);lines.extend(["   idmap config "+name+" : backend = "+backend,"   idmap config "+name+" : range = "+str(limits[0])+"-"+str(limits[1])])
+        if backend=="rid":lines.append("   idmap config "+name+" : base_rid = "+str(row["baseRid"]))
+    if max(row[0] for row in ranges)<=min(row[1] for row in ranges):raise ValueError("AD idmap authority ranges overlap")
+    return lines
+
+
+def protected_ad_policy(instance_uuid, identity=None, netbios_name=None, configuration=None):
+    directory=Path(configuration or os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_ROOT","/etc/ablestack-storage"))
+    raw=ad_authority_read(directory/"smb-domain.json");state=json.loads(raw)
+    if (not isinstance(state,dict) or state.get("state")!="JOINED" or state.get("joinState")!="JOINED"
+            or state.get("instanceUuid")!=str(uuid.UUID(instance_uuid))):
+        raise ValueError("AD joined policy belongs to another native instance")
+    domain=state.get("domainName");realm=state.get("realm");workgroup=state.get("workgroup");netbios=state.get("netbiosName")
+    if (not isinstance(domain,str) or not re.fullmatch(r"[a-z0-9](?:[a-z0-9.-]{0,251}[a-z0-9])?",domain) or "." not in domain
+            or ".." in domain or realm!=domain.upper() or not re.fullmatch(r"[A-Z0-9][A-Z0-9_-]{0,14}",netbios or "")):
+        raise ValueError("AD joined realm/machine authority is invalid")
+    receipt=state.get("identityReceipt")
+    if not isinstance(receipt,dict) or set(receipt)!={"machineSid","domainSid","machineAccountSid"}:
+        raise ValueError("AD joined policy lacks its protected SID receipt")
+    for key in ("machineSid","domainSid"):
+        if not re.fullmatch(r"S-1-5-21(?:-[0-9]{1,10}){3}",str(receipt[key])):raise ValueError("AD joined SID authority is invalid")
+    if not re.fullmatch(re.escape(receipt["domainSid"])+r"-[0-9]{1,10}",str(receipt["machineAccountSid"])):
+        raise ValueError("AD joined computer SID authority is foreign")
+    mapping=state.get("idmapPolicy");lines=ad_policy_lines(workgroup,mapping)
+    machine=ad_authority_read(directory/"ad-machine.conf",0o600);checksum=hashlib.sha256(machine).hexdigest()
+    if state.get("machineConfigurationSha256")!=checksum:raise ValueError("AD machine policy differs from its joined receipt")
+    expected={"workgroup":workgroup,"realm":realm,"netbios name":netbios,"security":"ADS"}
+    for line in lines:
+        name,value=line.strip().split("=",1);expected[name.strip().lower()]=value.strip()
+    observed={};global_section=False
+    for line in machine.decode().splitlines():
+        stripped=line.strip()
+        if stripped.startswith("["):global_section=stripped.lower()=="[global]";continue
+        if global_section and "=" in stripped and not stripped.startswith(("#",";")):
+            name,value=stripped.split("=",1);name=name.strip().lower()
+            if name in expected:
+                if name in observed:raise ValueError("AD machine policy contains duplicate authority parameters")
+                observed[name]=value.strip()
+    if observed!=expected:raise ValueError("AD machine parameters differ from their exact joined authority")
+    if identity is not None:
+        config=identity.get("config") or {};wanted=config.get("identityReceipt")
+        stable={"domain":domain,"realm":realm,"workgroup":workgroup,"netbiosName":netbios,**receipt,
+                "idmapPolicy":mapping,"servicePrincipals":state.get("servicePrincipals"),"dnsAliases":state.get("dnsAliases")}
+        if (identity.get("joinState")!="JOINED" or str(identity.get("domainName") or "").lower()!=domain
+                or config.get("workgroup") not in (None,workgroup) or config.get("netbiosName") not in (None,netbios)
+                or not isinstance(wanted,dict) or any(wanted.get(key)!=value for key,value in stable.items())
+                or wanted.get("trustVerified") is not True or wanted.get("identityVerified") is not True):
+            raise ValueError("Desired AD identity differs from its protected joined policy")
+    if netbios_name is not None and netbios_name!=netbios:raise ValueError("SMB netbios name differs from its protected AD machine")
+    if ad_authority_read(directory/"smb-domain.json")!=raw:raise ValueError("AD joined policy changed during machine verification")
+    return {"domain":domain,"realm":realm,"workgroup":workgroup,"netbiosName":netbios,"domainSid":receipt["domainSid"],
+            "idmapPolicy":mapping,"idmapLines":lines,"machineConfigurationSha256":checksum}
+
+
+def ad_mapped_entry(entry,request,run=None,cli=None,configuration=None,generation=None,clock=None):
+    policy=protected_ad_policy(request["instanceUuid"],configuration=configuration)
+    root=Path(generation or os.environ.get("ABLESTACK_STORAGE_GENERATION_DIR","/var/lib/ablestack-storage/config-generations"))
+    path=root/"pending.json"
+    if not path.exists() and not path.is_symlink():path=root/"current.json"
+    scope=json.loads(ad_authority_read(path))
+    native={key:scope[key] for key in ("instanceUuid","operationUuid","revision")}
+    if native["instanceUuid"]!=request["instanceUuid"] or type(native["revision"]) is not int or native["revision"]<1:
+        raise ValueError("AD mapping scope belongs to another native instance")
+    if request.get("operationUuid") is not None:
+        if request.get("operationUuid")!=native["operationUuid"] or request.get("revision")!=native["revision"]:
+            raise ValueError("AD mapping requested operation/revision differs")
+    elif path.name=="pending.json":
+        if os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD")!="9":raise ValueError("AD pending mapping lacks its owned writer")
+        descriptor=os.fstat(9);named=Path(os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FILE","/run/ablestack-storage/desired-writer.lock")).lstat()
+        if (not stat.S_ISREG(descriptor.st_mode) or descriptor.st_uid!=os.geteuid() or stat.S_IMODE(descriptor.st_mode)!=0o600
+                or (descriptor.st_dev,descriptor.st_ino)!=(named.st_dev,named.st_ino)
+                or not re.search(r"lock:.*FLOCK.*WRITE",Path("/proc/self/fdinfo/9").read_text())):
+            raise ValueError("AD pending mapping writer descriptor differs")
+    kind=entry.get("principalType")
+    if kind not in ("AD_USER","AD_GROUP"):raise ValueError("AD mapping principal type is unsupported")
+    qualified=ad_qualified_name(entry.get("principal"),policy["domain"],policy["workgroup"])
+    payload={**native,"principalType":kind,"principal":entry.get("principal"),"expectedRealm":policy["realm"],"expectedDomainSid":policy["domainSid"]}
+    result=(run or subprocess.run)([str(cli or os.environ.get("ABLESTACK_STORAGECTL_SELF","/usr/local/bin/ablestack-storagectl")),"identity","principal","resolve","/dev/stdin"],
+                                 input=json.dumps(payload),capture_output=True,text=True,timeout=45)
+    if result.returncode:raise ValueError("Fresh AD principal mapping was rejected")
+    value=json.loads(result.stdout);number=value.get("numericId");sid_value=value.get("sid");now=(clock or time.time)()
+    expected_kind="u" if kind=="AD_USER" else "g";allowed={(1,"SID_USER")} if kind=="AD_USER" else {(2,"SID_DOM_GRP"),(4,"SID_ALIAS")}
+    limits=policy["idmapPolicy"]["domain"]["range"]
+    if (value.get("success") is not True or value.get("scope")!=native or value.get("principalType")!=kind
+            or value.get("mappingVerified") is not True or value.get("reverseVerified") is not True or value.get("sideEffects") is not False
+            or value.get("realm")!=policy["realm"] or value.get("workgroup")!=policy["workgroup"] or value.get("qualifiedName")!=qualified
+            or value.get("domainSid")!=policy["domainSid"] or value.get("kind")!=expected_kind
+            or type(value.get("sidType")) is not int or (value.get("sidType"),value.get("sidTypeName")) not in allowed
+            or not re.fullmatch(re.escape(policy["domainSid"])+r"-[0-9]{1,10}",str(sid_value))
+            or type(number) is not int or not limits[0]<=number<=limits[1] or number==65534
+            or value.get("bootId")!=Path("/proc/sys/kernel/random/boot_id").read_text().strip()
+            or type(value.get("generatedEpoch")) not in (int,float) or not now-60<=value["generatedEpoch"]<=now+5):
+        raise ValueError("AD principal mapping differs from its protected domain/type/reverse authority")
+    return value
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements. See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership. The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
 """Immutable rendered configuration publication and verified ordered replay.
 
 Validators and runtime callbacks are fixed native adapters, never RPC-provided
@@ -14378,6 +14657,8 @@ def render_smb_candidate(payload, cli, credential_refs=None):
     ad_joined=bool(identity.get('domainName') and identity.get('joinState')=='JOINED')
     workgroup=namespace['derive_ad_workgroup'](identity.get('domainName'),identity_config.get('workgroup'))
     netbios=namespace['safe_netbios_name'](payload.get('netbiosName') or identity_config.get('netbiosName'),payload.get('instanceUuid'))
+    ad_policy=protected_ad_policy(payload['instanceUuid'],identity,netbios) if ad_joined else None
+    namespace.update(ad_policy=ad_policy,ad_qualified_name=ad_qualified_name)
     listeners=[] if payload.get('enabled') is False else (payload.get('listeners') or [{'listenIp':payload.get('listenIp') or '0.0.0.0','port':payload.get('port') or 445}])
     rows=[]
     for item in listeners:
@@ -14396,7 +14677,7 @@ def render_smb_candidate(payload, cli, credential_refs=None):
     if ad_joined:
         realm=str(identity['domainName']).upper()
         if not re.fullmatch('[A-Z0-9.-]+',realm):raise ValueError('AD rendered realm is invalid')
-        lines+=['   realm = '+realm,'   security = ADS','   kerberos method = secrets and keytab','   winbind use default domain = yes','   winbind enum users = yes','   winbind enum groups = yes','   idmap config * : backend = tdb','   idmap config * : range = 10000-999999']
+        lines+=['   realm = '+ad_policy['realm'],'   security = ADS','   kerberos method = secrets and keytab','   winbind use default domain = yes','   winbind enum users = yes','   winbind enum groups = yes']+ad_policy['idmapLines']
     else:
         lines+=['   security = user']
     files={};manifest_shares=[]
@@ -15186,6 +15467,9 @@ class RenderedPrerequisites:
                     elif kind=="NUMERIC_GID":name="group";number=int(principal)
                     elif kind=="LOCAL_USER":name="user";number=pwd.getpwnam(principal).pw_uid
                     elif kind=="LOCAL_GROUP":name="group";number=grp.getgrnam(principal).gr_gid
+                    elif kind in ("AD_USER","AD_GROUP"):
+                        mapped=ad_mapped_entry(entry,request,cli=self.runtime.cli)
+                        name="user" if mapped["kind"]=="u" else "group";number=mapped["numericId"]
                     else:raise ValueError("Rendered principal mapping needs its implemented identity adapter")
                     permission="r-x" if entry["permission"]=="READ_ONLY" else "rwx"
                     expected=("default:" if default else "")+name+":"+str(number)+":"+permission
