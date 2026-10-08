@@ -8785,5 +8785,7 @@
   "message.storage.volume.resume.safe": "기존 파일 시스템의 마운트와 검증을 재개합니다. 포맷을 다시 실행하지 않습니다. 서비스 구성 적용은 별도 작업입니다.",
   "message.storage.volume.resume.failed": "준비 재개에 실패했습니다. 작업 이력을 확인하세요.",
   "message.storage.volume.resume.unknown": "작업 완료 여부를 확인하지 못했습니다. 다시 시도하기 전에 작업 이력을 업데이트하세요.",
-  "label.storage.operation.state.COMPLETE_NO_CONFIG_CHANGE": "준비 재개 완료"
+  "label.storage.operation.state.COMPLETE_NO_CONFIG_CHANGE": "준비 재개 완료",
+  "label.storage.volume.elapsed": "경과 시간(초)",
+  "label.storage.volume.observed.at": "관측 시각(UTC)"
 }
