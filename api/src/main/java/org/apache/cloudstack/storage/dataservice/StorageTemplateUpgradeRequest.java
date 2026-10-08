@@ -18,6 +18,8 @@ package org.apache.cloudstack.storage.dataservice;
 import org.apache.cloudstack.api.BaseCmd;
 public interface StorageTemplateUpgradeRequest {
     BaseCmd getBaseCmd();
+    default String getValidationArtifactUuid() { return null; }
+    default String getValidationArtifactSha256() { return null; }
     String getTemplateAction();
     Long getSharedFileSystemId();
     Long getUpgradeId();

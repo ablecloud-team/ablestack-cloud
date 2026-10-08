@@ -27,6 +27,12 @@ public abstract class BaseStorageTemplateUpgradeReadCmd extends BaseCmd implemen
     private Long upgradeId;
     @Parameter(name="templateid", type=CommandType.UUID, entityType=org.apache.cloudstack.api.response.TemplateResponse.class)
     private Long templateId;
+    @Parameter(name="validationartifactuuid",type=CommandType.STRING,description="Protected private USER ROOT target approval artifact UUID, for PREFLIGHT only")
+    private String validationArtifactUuid;
+    @Parameter(name="validationartifactsha256",type=CommandType.STRING,description="Exact SHA-256 of the protected private ROOT target approval")
+    private String validationArtifactSha256;
+    public String getValidationArtifactUuid(){return validationArtifactUuid;}
+    public String getValidationArtifactSha256(){return validationArtifactSha256;}
     @Parameter(name="confirmation", type=CommandType.STRING, description="Exact SharedFS name approving the maintenance interruption")
     private String confirmation;
     @Parameter(name="maintenancewindow", type=CommandType.BOOLEAN, description="Explicitly authorize interrupted sessions in this maintenance window")
