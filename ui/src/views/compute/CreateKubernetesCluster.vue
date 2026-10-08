@@ -906,10 +906,10 @@ export default {
       }
       this.hypervisorLoading = true
 
-      getAPI('listHypervisors', params).then(json => {
+      return getAPI('listHypervisors', params).then(json => {
         const listResponse = json.listhypervisorsresponse.hypervisor || []
         this.selectedZoneHypervisors = listResponse.filter(hypervisor => hypervisor.name !== 'External')
-        if (!this.form.hypervisor && this.selectedZoneHypervisors.length === 1) this.form.hypervisor = this.selectedZoneHypervisors[0].name
+        if (this.form.hypervisor == null && this.selectedZoneHypervisors.length === 1) this.form.hypervisor = 0
       }).finally(() => {
         this.hypervisorLoading = false
       })
@@ -1002,7 +1002,7 @@ export default {
       if (e && e.preventDefault) e.preventDefault()
       if (this.wizardStep < 4) { this.nextWizardStep(); return }
       if (this.loading) return
-      this.formRef.value.validate().then(() => {
+      return this.formRef.value.validate().then(() => {
         const formRaw = toRaw(this.form)
         const values = this.handleRemoveFields(formRaw)
         this.loading = true
@@ -1136,7 +1136,9 @@ export default {
           this.loading = false
         })
       }).catch(error => {
-        this.formRef.value.scrollToField(error.errorFields[0].name)
+        this.loading = false
+        if (error.errorFields?.length) this.formRef.value.scrollToField(error.errorFields[0].name)
+        else this.$notifyError(error)
       })
     },
     closeAction () {
