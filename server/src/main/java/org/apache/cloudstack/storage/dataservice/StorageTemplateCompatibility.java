@@ -30,11 +30,15 @@ public final class StorageTemplateCompatibility {
     private StorageTemplateCompatibility() { }
     public static JsonObject evaluate(VMTemplateVO target,VMTemplateVO source,Map<String,String> details,
             boolean downloaded,String managerVersion,String agentVersion,boolean requiresNvmeAuth) {
+        return evaluate(target, source, details, downloaded, managerVersion, agentVersion, requiresNvmeAuth, false);
+    }
+    public static JsonObject evaluate(VMTemplateVO target,VMTemplateVO source,Map<String,String> details,
+            boolean downloaded,String managerVersion,String agentVersion,boolean requiresNvmeAuth,boolean protectedPrivateFixture) {
         List<String> blockers=new ArrayList<>();
         if (target==null || source==null) {
             blockers.add("TEMPLATE_UNAVAILABLE");
         } else {
-            if (target.getTemplateType()!=Storage.TemplateType.SYSTEM) blockers.add("TARGET_IS_NOT_SYSTEM");
+            if (target.getTemplateType()!=Storage.TemplateType.SYSTEM && !(protectedPrivateFixture && target.getTemplateType()==Storage.TemplateType.USER && !target.isPublicTemplate())) blockers.add("TARGET_IS_NOT_SYSTEM");
             if (target.getHypervisorType()!=Hypervisor.HypervisorType.KVM) blockers.add("TARGET_IS_NOT_KVM");
             if (target.getArch()==null || source.getArch()==null || target.getArch()!=source.getArch()) blockers.add("ARCHITECTURE_MISMATCH");
             if (!downloaded) blockers.add("TARGET_NOT_DOWNLOADED_IN_ZONE");
@@ -65,7 +69,7 @@ public final class StorageTemplateCompatibility {
     private static void minimum(String lower,String actual,String code,List<String> errors) {
         try {
             int[] low=version(lower);int[] current=version(actual);
-            for (int i=0;i<3;i++) {
+            for (int i=0;i<4;i++) {
                 if (current[i]<low[i]) {errors.add(code);return;}
                 if (current[i]>low[i]) return;
             }
@@ -73,8 +77,9 @@ public final class StorageTemplateCompatibility {
     }
     private static int[] version(String value) {
         if (value==null) throw new IllegalArgumentException("Version unavailable");
-        java.util.regex.Matcher match=java.util.regex.Pattern.compile("^(\\d+)\\.(\\d+)\\.(\\d+)(?:[.\\-].*)?$").matcher(value);
+        java.util.regex.Matcher match=java.util.regex.Pattern.compile("^([0-9]+)\\.([0-9]+)\\.([0-9]+)(?:\\.([0-9]+))?(?:-[A-Za-z][A-Za-z0-9_.-]*)?$").matcher(value);
         if (!match.matches()) throw new IllegalArgumentException("Version unverifiable");
-        return new int[]{Integer.parseInt(match.group(1)),Integer.parseInt(match.group(2)),Integer.parseInt(match.group(3))};
+        return new int[]{Integer.parseInt(match.group(1)),Integer.parseInt(match.group(2)),Integer.parseInt(match.group(3)),
+                match.group(4)==null?0:Integer.parseInt(match.group(4))};
     }
 }

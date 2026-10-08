@@ -154,7 +154,7 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
     }
 
     private UserVm deploySharedFSVM(Long zoneId, Account owner, List<Long> networkIds, String name, Long serviceOfferingId, Long diskOfferingId,
-            SharedFS.FileSystemType fileSystem, Long size, Long minIops, Long maxIops, SharedFS.NetworkMode networkMode, String requestedIp) throws OperationTimedoutException,
+            SharedFS.FileSystemType fileSystem, Long size, Long minIops, Long maxIops, SharedFS.NetworkMode networkMode, String requestedIp, Long explicitTemplateId) throws OperationTimedoutException,
             ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException {
         ServiceOffering serviceOffering = serviceOfferingDao.findById(serviceOfferingId);
         DataCenter zone = dataCenterDao.findById(zoneId);
@@ -178,7 +178,7 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
 
         for (final Iterator<Hypervisor.HypervisorType> iter = hypervisors.iterator(); iter.hasNext();) {
             final Hypervisor.HypervisorType hypervisor = iter.next();
-            VMTemplateVO template = templateDao.findSystemVMReadyTemplate(zoneId, hypervisor, preferredArchitecture);
+            VMTemplateVO template = explicitTemplateId == null ? templateDao.findSystemVMReadyTemplate(zoneId, hypervisor, preferredArchitecture) : templateDao.findById(explicitTemplateId);
             if (template == null && !iter.hasNext()) {
                 throw new CloudRuntimeException(String.format("Unable to find the systemvm template for %s or it was not downloaded in %s.", hypervisor.toString(), zone.toString()));
             }
@@ -186,7 +186,7 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
             if (template == null || !template.isDynamicallyScalable() || hypervisor != Hypervisor.HypervisorType.KVM) continue;
 
             LaunchPermissionVO existingPermission = launchPermissionDao.findByTemplateAndAccount(template.getId(), owner.getId());
-            if (existingPermission == null) {
+            if (existingPermission == null && explicitTemplateId == null) {
                 LaunchPermissionVO launchPermission = new LaunchPermissionVO(template.getId(), owner.getId());
                 launchPermissionDao.persist(launchPermission);
             }
@@ -257,10 +257,28 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
     }
 
     @Override
+    public void checkPrerequisites(DataCenter zone, Long serviceOfferingId, Long templateId) {
+        if (templateId == null) { checkPrerequisites(zone, serviceOfferingId); return; }
+        VMTemplateVO template=templateDao.findById(templateId);
+        boolean hypervisorReady=resourceMgr.getSupportedHypervisorTypes(zone.getId(),false,null).contains(Hypervisor.HypervisorType.KVM);
+        boolean templateReady=template!=null&&template.isDynamicallyScalable()&&template.getHypervisorType()==Hypervisor.HypervisorType.KVM;
+        List<String> reasons=org.apache.cloudstack.storage.sharedfs.SharedFSOfferingValidator.reasons(serviceOfferingDao.findById(serviceOfferingId),
+                SHAREDFSVM_MIN_CPU_COUNT.valueIn(zone.getId()),SHAREDFSVM_MIN_RAM_SIZE.valueIn(zone.getId()),zoneScalingEnabled(zone.getId()),templateReady,hypervisorReady);
+        if(!reasons.isEmpty())throw new InvalidParameterValueException("SharedFS offering constraints: "+String.join(",",reasons));
+    }
+
+    @Override
     public Pair<Long, Long> deploySharedFS(SharedFS sharedFS, Long networkId, Long diskOfferingId, Long storageId, Long size, Long minIops, Long maxIops) throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
+        return deploySharedFS(sharedFS, networkId, diskOfferingId, storageId, size, minIops, maxIops, null);
+    }
+
+    @Override
+    public Pair<Long, Long> deploySharedFS(SharedFS sharedFS, Long networkId, Long diskOfferingId, Long storageId,
+            Long size, Long minIops, Long maxIops, Long templateId) throws ResourceUnavailableException,
+            InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
         Account owner = accountMgr.getActiveAccountById(sharedFS.getAccountId());
         UserVm vm = deploySharedFSVM(sharedFS.getDataCenterId(), owner, List.of(networkId), sharedFS.getName(), sharedFS.getServiceOfferingId(), diskOfferingId,
-                sharedFS.getFsType(), size, minIops, maxIops, sharedFS.getNetworkMode(), sharedFS.getIpAddress());
+                sharedFS.getFsType(), size, minIops, maxIops, sharedFS.getNetworkMode(), sharedFS.getIpAddress(), templateId);
 
         List<VolumeVO> volumes = volumeDao.findByInstance(vm.getId());
         VolumeVO dataVol = null;
@@ -290,9 +308,15 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
 
     @Override
     public Pair<Long, Long> deployWithExistingVolume(SharedFS sharedFS, Long networkId, Long volumeId) throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
+        return deployWithExistingVolume(sharedFS, networkId, volumeId, null);
+    }
+
+    @Override
+    public Pair<Long, Long> deployWithExistingVolume(SharedFS sharedFS, Long networkId, Long volumeId, Long templateId)
+            throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
         Account owner=accountMgr.getActiveAccountById(sharedFS.getAccountId());
         UserVm vm=deploySharedFSVM(sharedFS.getDataCenterId(),owner,List.of(networkId),sharedFS.getName(),sharedFS.getServiceOfferingId(),null,
-                sharedFS.getFsType(),null,null,null,sharedFS.getNetworkMode(),sharedFS.getIpAddress());
+                sharedFS.getFsType(),null,null,null,sharedFS.getNetworkMode(),sharedFS.getIpAddress(),templateId);
         sharedFS.setVmId(vm.getId());
         try {
             Volume attached=volumeApiService.attachVolumeToVM(vm.getId(),volumeId,null,true);

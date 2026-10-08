@@ -212,6 +212,7 @@ public class SharedFSServiceImplTest {
         when(sharedFSServiceImpl.getSharedFSProvider(s_providerName)).thenReturn(provider);
         when(provider.getSharedFSLifeCycle()).thenReturn(lifeCycle);
         when(lifeCycle.stopSharedFS(any(),any())).thenReturn(true);
+        Mockito.lenient().when(sharedFSDao.update(Mockito.anyLong(),any())).thenReturn(true);
         ReflectionTestUtils.setField(sharedFSServiceImpl, "sharedFSStateMachine", _stateMachine);
         com.cloud.service.ServiceOfferingVO sparseService = mock(com.cloud.service.ServiceOfferingVO.class);
         when(sparseService.getDiskOfferingId()).thenReturn(124L);
@@ -233,6 +234,7 @@ public class SharedFSServiceImplTest {
 
     private CreateSharedFSCmd getMockCreateSharedFSCmd() {
         CreateSharedFSCmd cmd = mock(CreateSharedFSCmd.class);
+        when(cmd.getTemplateId()).thenReturn(null);
         when(cmd.getEntityOwnerId()).thenReturn(s_ownerId);
         when(cmd.getZoneId()).thenReturn(s_zoneId);
         when(cmd.getDiskOfferingId()).thenReturn(s_diskOfferingId);
@@ -1002,4 +1004,23 @@ public class SharedFSServiceImplTest {
         } finally {approved.remove();}
     }
 
+    @Test public void explicitFixtureReceiptFailureRetainsAllocatedVmDataForRecovery() throws Exception {
+        CreateSharedFSCmd cmd=getMockCreateSharedFSCmd();when(cmd.getTemplateId()).thenReturn(90L);
+        DiskOfferingVO sparseData=mock(DiskOfferingVO.class);when(sparseData.getProvisioningType()).thenReturn(com.cloud.storage.Storage.ProvisioningType.SPARSE);when(diskOfferingDao.findById(s_diskOfferingId)).thenReturn(sparseData);
+        SharedFSVO fs=getMockSharedFS();when(sharedFSDao.findById(cmd.getEntityId())).thenReturn(fs);
+        DataCenterVO zone=mock(DataCenterVO.class);when(zone.getNetworkType()).thenReturn(com.cloud.dc.DataCenter.NetworkType.Advanced);when(dataCenterDao.findById(fs.getDataCenterId())).thenReturn(zone);
+        com.cloud.storage.VMTemplateVO target=mock(com.cloud.storage.VMTemplateVO.class);when(target.getTemplateType()).thenReturn(com.cloud.storage.Storage.TemplateType.SYSTEM);
+        Mockito.doReturn(target).when(sharedFSServiceImpl).validateExplicitTemplate(cmd,owner,zone);
+        when(lifeCycle.deploySharedFS(fs,s_networkId,s_diskOfferingId,s_storageId,s_size,s_minIops,s_maxIops,90L)).thenReturn(new Pair<>(s_volumeId,s_vmId));
+        Mockito.doThrow(new CloudRuntimeException("receipt persistence failed")).when(sharedFSServiceImpl).completeExplicitTemplateFixture(cmd,fs,target);
+        CloudRuntimeException failed=Assert.assertThrows(CloudRuntimeException.class,()->sharedFSServiceImpl.deploySharedFS(cmd));Assert.assertEquals("receipt persistence failed",failed.getMessage());
+        Assert.assertEquals(Long.valueOf(s_vmId),fs.getVmId());Assert.assertEquals(Long.valueOf(s_volumeId),fs.getVolumeId());
+        verify(sharedFSDao).update(fs.getId(),fs);verify(lifeCycle,never()).deleteSharedFS(any());
+    }
+    @Test public void privateFixtureAllocatedRetryCannotCreateASecondVmOrTouchRetainedData() {
+        CreateSharedFSCmd cmd=getMockCreateSharedFSCmd();when(cmd.getValidationArtifactUuid()).thenReturn("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        SharedFSVO fs=getMockSharedFS();fs.setVmId(s_vmId);fs.setVolumeId(s_volumeId);when(sharedFSDao.findById(cmd.getEntityId())).thenReturn(fs);Mockito.clearInvocations(lifeCycle,volumeApiService);
+        CloudRuntimeException blocked=Assert.assertThrows(CloudRuntimeException.class,()->sharedFSServiceImpl.deploySharedFS(cmd));Assert.assertTrue(blocked.getMessage().contains("already has allocated"));
+        verifyNoInteractions(lifeCycle,volumeApiService);Assert.assertEquals(Long.valueOf(s_vmId),fs.getVmId());Assert.assertEquals(Long.valueOf(s_volumeId),fs.getVolumeId());
+    }
 }

@@ -98,6 +98,23 @@ public class CreateSharedFSCmd extends BaseAsyncCreateCmd implements UserCmd {
             description = "the description for the shared filesystem.")
     private String description;
 
+    @Parameter(name = ApiConstants.TEMPLATE_ID, type = CommandType.UUID,
+            entityType = org.apache.cloudstack.api.response.TemplateResponse.class,
+            description = "Explicit compatible Storage Service template; omitted uses the existing default selection")
+    private Long templateId;
+
+    @Parameter(name = "validationartifactuuid", type = CommandType.STRING,
+            description = "Protected operator precreation artifact UUID for a disposable private template fixture")
+    private String validationArtifactUuid;
+
+    @Parameter(name = "validationartifactsha256", type = CommandType.STRING,
+            description = "Exact SHA-256 of the protected precreation artifact")
+    private String validationArtifactSha256;
+
+    public Long getTemplateId() { return templateId; }
+    public String getValidationArtifactUuid() { return validationArtifactUuid; }
+    public String getValidationArtifactSha256() { return validationArtifactSha256; }
+
     @Parameter(name = ApiConstants.SIZE,
             type = CommandType.LONG,
             description = "the size of the shared filesystem in GiB")

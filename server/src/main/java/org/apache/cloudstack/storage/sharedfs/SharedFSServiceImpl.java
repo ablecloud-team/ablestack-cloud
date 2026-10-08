@@ -315,6 +315,71 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         } finally { if (held) lock.unlock(); lock.releaseRef(); }
     }
 
+    @Inject com.cloud.storage.dao.VMTemplateDao explicitTemplateDao;
+    @Inject org.apache.cloudstack.storage.datastore.db.TemplateDataStoreDao explicitTemplateStoreDao;
+    @Inject com.cloud.host.dao.HostDao explicitTemplateHostDao;
+
+    protected Set<String> existingTemplateFixtureExclusions() {
+        Set<String> excluded=new java.util.HashSet<>();for(StorageServiceInstanceVO instance:storageServiceInstanceDao.listAll())excluded.add(instance.getUuid());return excluded;
+    }
+    protected JsonObject explicitTemplateFixtureRequest(CreateSharedFSCmd cmd,Account owner,com.cloud.storage.VMTemplateVO template) {
+        com.cloud.service.ServiceOfferingVO rootService=serviceOfferingDao.findById(cmd.getServiceOfferingId());
+        DiskOfferingVO rootDisk=rootService==null||rootService.getDiskOfferingId()==null?null:diskOfferingDao.findById(rootService.getDiskOfferingId());
+        DiskOfferingVO dataDisk=cmd.getDiskOfferingId()==null?null:diskOfferingDao.findById(cmd.getDiskOfferingId());
+        if(rootDisk==null||dataDisk==null)throw new InvalidParameterValueException("Private fixture requires explicit ROOT and DATA disk offerings");
+        JsonObject request=new JsonObject();request.addProperty("name",cmd.getName());request.addProperty("accountId",owner.getId());request.addProperty("accountUuid",owner.getUuid());request.addProperty("zoneId",cmd.getZoneId());
+        request.addProperty("templateUuid",template.getUuid());request.addProperty("templateChecksum",template.getChecksum());request.addProperty("templateDetailsSha256",org.apache.cloudstack.storage.dataservice.StorageTemplateFixturePermit.detailsSha256(template));
+        request.addProperty("serviceOfferingUuid",rootService.getUuid());request.addProperty("rootDiskOfferingUuid",rootDisk.getUuid());request.addProperty("dataDiskOfferingUuid",dataDisk.getUuid());
+        request.addProperty("rootProvisioningType",rootDisk.getProvisioningType().name());request.addProperty("dataProvisioningType",dataDisk.getProvisioningType().name());
+        request.addProperty("backingVolumeMode",cmd.isExistingVolume()?"EXISTING":"NEW");request.addProperty("storagePoolId",cmd.getStorageId());request.addProperty("networkId",cmd.getNetworkId());request.addProperty("sizeGiB",cmd.getSize());request.addProperty("filesystem",cmd.getFsFormat());
+        request.addProperty("networkMode",cmd.getNetworkMode().name());request.addProperty("ipCidr",cmd.getIpCidr());request.addProperty("gateway",cmd.getGateway());request.addProperty("dns1",cmd.getDns1());request.addProperty("dns2",cmd.getDns2());return request;
+    }
+    protected com.cloud.storage.VMTemplateVO validateExplicitTemplate(CreateSharedFSCmd cmd,Account owner,DataCenter zone) {
+        if(cmd.getTemplateId()==null) {
+            if(cmd.getValidationArtifactUuid()!=null||cmd.getValidationArtifactSha256()!=null)throw new InvalidParameterValueException("Fixture artifact requires an explicit template");return null;
+        }
+        com.cloud.storage.VMTemplateVO template=explicitTemplateDao.findById(cmd.getTemplateId());
+        if(template==null||template.getRemoved()!=null||template.getState()!=com.cloud.template.VirtualMachineTemplate.State.Active||!template.isDynamicallyScalable()
+                ||template.getHypervisorType()!=com.cloud.hypervisor.Hypervisor.HypervisorType.KVM||template.getArch()==null
+                ||!template.getArch().name().equalsIgnoreCase(com.cloud.resource.ResourceManager.SystemVmPreferredArchitecture.valueIn(zone.getId())))throw new InvalidParameterValueException("Explicit template is not an active scalable KVM template for the configured architecture");
+        accountMgr.checkAccess(owner,org.apache.cloudstack.acl.SecurityChecker.AccessType.UseEntry,false,template);
+        explicitTemplateDao.loadDetails(template);
+        org.apache.cloudstack.storage.datastore.db.TemplateDataStoreVO ready=explicitTemplateStoreDao.findByTemplateZoneReady(template.getId(),zone.getId());
+        boolean downloaded=ready!=null&&ready.getDownloadState()==com.cloud.storage.VMTemplateStorageResourceAssoc.Status.DOWNLOADED&&ready.getState()==org.apache.cloudstack.engine.subsystem.api.storage.ObjectInDataStoreStateMachine.State.Ready;
+        boolean privateFixture=template.getTemplateType()==com.cloud.storage.Storage.TemplateType.USER;
+        if(privateFixture) {
+            if(StringUtils.isBlank(template.getChecksum())||template.getFormat()!=com.cloud.storage.Storage.ImageFormat.QCOW2)throw new InvalidParameterValueException("Private fixture requires a checksum-pinned QCOW2 template");
+            Account caller=CallContext.current().getCallingAccount();
+            if(!accountMgr.isRootAdmin(caller.getId())||template.isPublicTemplate()||template.getAccountId()!=owner.getId()||cmd.isExistingVolume())throw new PermissionDeniedException("Private USER template requires an owned NEW disposable fixture and root administrator");
+            JsonObject request=explicitTemplateFixtureRequest(cmd,owner,template);
+            new org.apache.cloudstack.storage.dataservice.StorageTemplateFixturePermit().approve(cmd.getValidationArtifactUuid(),cmd.getValidationArtifactSha256(),request,existingTemplateFixtureExclusions());
+        } else if(cmd.getValidationArtifactUuid()!=null||cmd.getValidationArtifactSha256()!=null)throw new InvalidParameterValueException("Private fixture artifact cannot authorize a different template type");
+        String managerVersion=com.cloud.server.ManagementServer.class.getPackage().getImplementationVersion();
+        List<com.cloud.host.HostVO> hosts=explicitTemplateHostDao.listAllHostsUpByZoneAndHypervisor(zone.getId(),com.cloud.hypervisor.Hypervisor.HypervisorType.KVM);
+        if(hosts==null||hosts.isEmpty())throw new InvalidParameterValueException("No active KVM consumer is available for explicit template validation");
+        for(com.cloud.host.HostVO host:hosts) {
+            JsonObject compatibility=org.apache.cloudstack.storage.dataservice.StorageTemplateCompatibility.evaluate(template,template,template.getDetails(),downloaded,managerVersion,host.getVersion(),false,privateFixture);
+            if(!compatibility.get("compatible").getAsBoolean())throw new InvalidParameterValueException("Explicit Storage Service template is incompatible: "+compatibility.get("blockers"));
+        }
+        return template;
+    }
+    protected JsonObject templateFixtureDisk(VolumeVO volume,long vmId) {
+        JsonObject disk=new JsonObject();disk.addProperty("volumeUuid",volume.getUuid());disk.addProperty("path",volume.getPath());disk.addProperty("poolId",volume.getPoolId());disk.addProperty("type",volume.getVolumeType().name());disk.addProperty("accountId",volume.getAccountId());disk.addProperty("zoneId",volume.getDataCenterId());disk.addProperty("sizeBytes",volume.getSize());disk.addProperty("provisioningType",volume.getProvisioningType()==null?null:volume.getProvisioningType().name());disk.addProperty("templateId",volume.getTemplateId());disk.addProperty("state",volume.getState().name());disk.addProperty("attachedToFixture",java.util.Objects.equals(volume.getInstanceId(),vmId));disk.addProperty("notRemoved",volume.getRemoved()==null);disk.addProperty("newDataWithoutBacking",volume.getTemplateId()==null&&StringUtils.isBlank(volume.getChainInfo()));return disk;
+    }
+    protected void completeExplicitTemplateFixture(CreateSharedFSCmd cmd,SharedFSVO sharedFS,com.cloud.storage.VMTemplateVO template) {
+        if(template==null||template.getTemplateType()!=com.cloud.storage.Storage.TemplateType.USER)return;
+        com.cloud.vm.VMInstanceVO vm=vmInstanceDao.findById(sharedFS.getVmId());List<VolumeVO> roots=volumeDao.findByInstanceAndType(vm.getId(),Volume.Type.ROOT);VolumeVO data=volumeDao.findById(sharedFS.getVolumeId());
+        if(vm.getTemplateId()!=template.getId()||roots.size()!=1||data==null||data.getTemplateId()!=null||StringUtils.isNotBlank(data.getChainInfo())||data.getAccountId()!=sharedFS.getAccountId()||data.getDataCenterId()!=sharedFS.getDataCenterId()
+                ||data.getInstanceId()==null||data.getInstanceId()!=vm.getId()||!java.util.Objects.equals(data.getPoolId(),cmd.getStorageId()))throw new CloudRuntimeException("Private fixture allocation identity changed before publication");
+        JsonObject request=explicitTemplateFixtureRequest(cmd,accountMgr.getActiveAccountById(sharedFS.getAccountId()),template),rootDisk=templateFixtureDisk(roots.get(0),vm.getId()),dataDisk=templateFixtureDisk(data,vm.getId());
+        JsonObject expectedRoot=rootDisk.deepCopy();expectedRoot.addProperty("accountId",sharedFS.getAccountId());expectedRoot.addProperty("zoneId",sharedFS.getDataCenterId());expectedRoot.addProperty("templateId",template.getId());expectedRoot.add("provisioningType",request.get("rootProvisioningType"));
+        JsonObject expectedData=dataDisk.deepCopy();expectedData.addProperty("type","DATADISK");expectedData.addProperty("accountId",sharedFS.getAccountId());expectedData.addProperty("zoneId",sharedFS.getDataCenterId());expectedData.addProperty("poolId",cmd.getStorageId());expectedData.add("provisioningType",request.get("dataProvisioningType"));
+        DiskOfferingVO offering=diskOfferingDao.findById(cmd.getDiskOfferingId());long size=offering.isCustomized()?Math.multiplyExact(cmd.getSize(),1L<<30):offering.getDiskSize();expectedData.addProperty("sizeBytes",size);
+        org.apache.cloudstack.storage.dataservice.StorageTemplateFixturePermit.requireAllocatedDisk(expectedRoot,rootDisk);org.apache.cloudstack.storage.dataservice.StorageTemplateFixturePermit.requireAllocatedDisk(expectedData,dataDisk);
+        JsonObject bindings=new JsonObject();bindings.addProperty("vmId",vm.getId());bindings.addProperty("vmUuid",vm.getUuid());bindings.addProperty("rootVolumeUuid",roots.get(0).getUuid());bindings.addProperty("dataVolumeUuid",data.getUuid());bindings.add("rootDisk",rootDisk);bindings.add("dataDisk",dataDisk);
+        new org.apache.cloudstack.storage.dataservice.StorageTemplateFixturePermit().complete(cmd.getValidationArtifactUuid(),cmd.getValidationArtifactSha256(),sharedFS.getUuid(),explicitTemplateFixtureRequest(cmd,accountMgr.getActiveAccountById(sharedFS.getAccountId()),template),bindings);
+    }
+
     @Inject
     com.cloud.vm.dao.VMInstanceDao vmInstanceDao;
     @Inject
@@ -690,7 +755,8 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
 
         SharedFSProvider provider = getSharedFSProvider(cmd.getSharedFSProviderName());
         SharedFSLifeCycle lifeCycle = provider.getSharedFSLifeCycle();
-        lifeCycle.checkPrerequisites(zone, cmd.getServiceOfferingId());
+        validateExplicitTemplate(cmd,owner,zone);
+        if(cmd.getTemplateId()==null)lifeCycle.checkPrerequisites(zone,cmd.getServiceOfferingId());else lifeCycle.checkPrerequisites(zone, cmd.getServiceOfferingId(),cmd.getTemplateId());
         validateSparseNewRootOffering(cmd.getServiceOfferingId());
         if(!cmd.isExistingVolume())validateSparseNewDataOffering(cmd.getDiskOfferingId());
 
@@ -747,16 +813,21 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         SharedFSLifeCycle lifeCycle = provider.getSharedFSLifeCycle();
         Pair<Long, Long> result;
         try {
+            if(cmd.getValidationArtifactUuid()!=null&&sharedFS.getVmId()!=null)throw new CloudRuntimeException("Private fixture already has allocated VM and DATA; reconcile that allocation before retrying creation");
+            Account owner=accountMgr.getActiveAccountById(sharedFS.getAccountId());
+            com.cloud.storage.VMTemplateVO explicitTemplate=cmd.getTemplateId()==null?null:validateExplicitTemplate(cmd,owner,validateAndGetZone(sharedFS.getDataCenterId()));
+            if(explicitTemplate!=null&&explicitTemplate.getTemplateType()==com.cloud.storage.Storage.TemplateType.USER)new org.apache.cloudstack.storage.dataservice.StorageTemplateFixturePermit().claim(cmd.getValidationArtifactUuid(),cmd.getValidationArtifactSha256(),sharedFS.getUuid(),explicitTemplateFixtureRequest(cmd,owner,explicitTemplate));
             validateSparseNewRootOffering(sharedFS.getServiceOfferingId());
             if(!cmd.isExistingVolume())validateSparseNewDataOffering(diskOfferingId);
             if (cmd.isExistingVolume()) {
                 validateExistingInitialVolume(cmd.getExistingVolumeId(),sharedFS.getAccountId(),sharedFS.getDataCenterId(),sharedFS.getId());
-                result=lifeCycle.deployWithExistingVolume(sharedFS,cmd.getNetworkId(),cmd.getExistingVolumeId());
-            } else result = lifeCycle.deploySharedFS(sharedFS, cmd.getNetworkId(), diskOfferingId, cmd.getStorageId(), size, minIops, maxIops);
+                result=cmd.getTemplateId()==null?lifeCycle.deployWithExistingVolume(sharedFS,cmd.getNetworkId(),cmd.getExistingVolumeId()):lifeCycle.deployWithExistingVolume(sharedFS,cmd.getNetworkId(),cmd.getExistingVolumeId(),cmd.getTemplateId());
+            } else result = cmd.getTemplateId()==null?lifeCycle.deploySharedFS(sharedFS,cmd.getNetworkId(),diskOfferingId,cmd.getStorageId(),size,minIops,maxIops):lifeCycle.deploySharedFS(sharedFS, cmd.getNetworkId(), diskOfferingId, cmd.getStorageId(), size, minIops, maxIops,cmd.getTemplateId());
             sharedFS.setVolumeId(result.first());
             sharedFS.setVmId(result.second());
+            if(!sharedFSDao.update(sharedFS.getId(), sharedFS))throw new CloudRuntimeException("Allocated SharedFS VM and DATA identities could not be recorded");
             verifySparseAllocatedRoot(result.second());
-            sharedFSDao.update(sharedFS.getId(), sharedFS);
+            completeExplicitTemplateFixture(cmd,sharedFS,explicitTemplate);
             configureStaticNetwork(sharedFSDao.findById(sharedFS.getId()));
             if (cmd.isExistingVolume()) inspectExistingInitialVolume(sharedFS);
         } catch (Exception ex) {
