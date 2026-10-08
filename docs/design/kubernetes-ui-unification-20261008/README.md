@@ -4,7 +4,7 @@
 
 - 기준 소스: `upstream/ablestack-europa`, `c169d9a203f49ce07e038297873bc3c24cd8ffb4`.
 - [통합 설계](DESIGN.md), [검증 기록](VALIDATION.md), [화면·대화상자 목록](prototype/scenes.json), [레이아웃 관측 원본](render-checks.json).
-- 11개 화면 + 32개 대화상자/분기 상태 = 43개 시나리오. 데스크톱 밝은/어두운 테마 86장, 모바일 대표 8장.
+- 11개 화면 + 35개 대화상자/분기 상태 = 46개 시나리오. 데스크톱 밝은/어두운 테마 92장, 모바일 대표 10장, 복수 페이지 비교 4장(총 106장).
 - 이미지와 목업 데이터는 예시 계정·클러스터·문서용 IP만 사용합니다. 클러스터 31의 운영 스크린샷이나 자격증명은 포함하지 않습니다.
 
 ## VM 레퍼런스의 적용 결과
@@ -628,3 +628,17 @@ npm run build
 ![ISO 등록 입력 오류 어두운 테마](images/validation-error-dark.jpg)
 
 </details>
+
+## 2026-10-08 검토 보완
+
+VM 목록의 middle/교차 행·32px 선택 열·정렬·열 선택과 하단 좌측 mini pagination을 반영했다. 상세 탭은 공통 DetailTab.scss의 좌측 아이콘 주 버튼·업데이트 텍스트 및 하단 우측 pagination을 따른다. 외부 관리형 생성은 기존 createKubernetesCluster(ExternalManaged) API를 기준으로 3단계 등록 경로를 제공한다.
+
+복수 페이지 예시: `?s=list&theme=light&sample=pages&page=3`, `?s=events&theme=light&sample=pages&page=3`. 외부 등록: `?s=create-external-basic&theme=light`. 모든 데이터는 합성이며 API 호출은 없다.
+
+### 외부 관리형 및 페이지 형식 추가 이미지
+
+- `create-external-basic`: [밝음](images/create-external-basic-light.jpg) · [어두움](images/create-external-basic-dark.jpg)
+- `create-external-options`: [밝음](images/create-external-options-light.jpg) · [어두움](images/create-external-options-dark.jpg)
+- `create-external-review`: [밝음](images/create-external-review-light.jpg) · [어두움](images/create-external-review-dark.jpg)
+- `list-pagination`: [밝음](images/list-pagination-light.jpg) · [어두움](images/list-pagination-dark.jpg)
+- `events-pagination`: [밝음](images/events-pagination-light.jpg) · [어두움](images/events-pagination-dark.jpg)

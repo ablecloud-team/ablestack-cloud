@@ -22,6 +22,7 @@ import { HomeOutlined, CloudOutlined, CloudServerOutlined, PlusOutlined, ReloadO
 import 'ant-design-vue/dist/antd.css'
 import '@/style/vars.less'
 import '@/style/index.less'
+import '@/style/components/view/DetailTab.scss'
 import App from './App.vue'
 const store = createStore({ state: { app: { device: window.innerWidth < 766 ? 'mobile' : window.innerWidth < 1280 ? 'tablet' : 'desktop' } } })
 window.addEventListener('resize', () => { store.state.app.device = window.innerWidth < 766 ? 'mobile' : window.innerWidth < 1280 ? 'tablet' : 'desktop' })

@@ -545,6 +545,93 @@
     "api": "createKubernetesCluster"
   },
   {
+    "kind": "dialog",
+    "create": true,
+    "external": true,
+    "width": 1120,
+    "source": "CreateKubernetesClusterCmd.java / KubernetesClusterManagerImpl.java",
+    "api": "createKubernetesCluster(clustertype=ExternalManaged)",
+    "id": "create-external-basic",
+    "title": "클러스터 생성 · 외부 관리형",
+    "step": 0,
+    "fields": [
+      {
+        "label": "클러스터 이름",
+        "value": "k8s-external-demo",
+        "type": "input",
+        "required": true
+      },
+      {
+        "label": "설명",
+        "value": "외부에서 운영하는 Kubernetes 클러스터",
+        "type": "input"
+      },
+      {
+        "label": "Zone",
+        "value": "Zone-A",
+        "type": "select",
+        "required": true
+      },
+      {
+        "label": "계정 / 프로젝트",
+        "value": "demo-team · 현재 계정",
+        "type": "select"
+      }
+    ],
+    "alert": "기존 Kubernetes 클러스터를 Mold에 등록합니다. 노드 VM 배포와 Kubernetes 설치는 외부 운영자가 수행합니다.",
+    "button": "다음"
+  },
+  {
+    "kind": "dialog",
+    "create": true,
+    "external": true,
+    "width": 1120,
+    "source": "CreateKubernetesClusterCmd.java / KubernetesClusterManagerImpl.java",
+    "api": "createKubernetesCluster(clustertype=ExternalManaged)",
+    "id": "create-external-options",
+    "title": "외부 관리형 · 선택 정보",
+    "step": 1,
+    "fields": [
+      {
+        "label": "Kubernetes 지원 버전 (선택)",
+        "value": "선택 안 함",
+        "type": "select"
+      },
+      {
+        "label": "기존 네트워크 (선택)",
+        "value": "선택 안 함",
+        "type": "select"
+      },
+      {
+        "label": "SSH 키 쌍 (선택)",
+        "value": "선택 안 함",
+        "type": "select"
+      }
+    ],
+    "hint": "선택 정보는 등록 메타데이터입니다. ISO를 마운트하거나 노드를 배포하지 않습니다. 기본 등록에서는 해당 API 매개변수를 생략합니다.",
+    "button": "다음"
+  },
+  {
+    "kind": "dialog",
+    "create": true,
+    "external": true,
+    "width": 1120,
+    "source": "CreateKubernetesClusterCmd.java / KubernetesClusterManagerImpl.java",
+    "api": "createKubernetesCluster(clustertype=ExternalManaged)",
+    "id": "create-external-review",
+    "title": "외부 관리형 · 등록 검토",
+    "step": 2,
+    "checks": [
+      "클러스터 이름 · Zone · 등록 소유자 확인",
+      "clustertype=ExternalManaged로 등록",
+      "ISO·컴퓨트·노드 수·ROOT·CNI·CSI·레지스트리 배포 매개변수 생략",
+      "등록 완료 후 기존 Mold VM을 별도 연결 가능",
+      "Mold 시작·중지·자동 확장·업그레이드 작업은 제공하지 않음"
+    ],
+    "alert": "등록 상태 Running은 Kubernetes API 접속이나 워크로드 건강 상태의 검증 결과가 아닙니다.",
+    "button": "외부 관리형 등록"
+  },
+  {
     "id": "start",
     "title": "클러스터 시작",
     "kind": "dialog",

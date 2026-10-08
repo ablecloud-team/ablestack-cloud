@@ -12,10 +12,13 @@ Epic #1227의 Kubernetes 전 생명주기 기능을 VM 목록·상세와 같은 
 | --- | --- | --- |
 | 전역 셸 | 기존 헤더·왼쪽 내비게이션·breadcrumb | 기존 Mold 셸 유지. 개발 정보는 제품 화면에 넣지 않음 |
 | 목록 툴바 | 업데이트 / 필터 / 프로젝트·보기 / 주요 추가 버튼 / 검색·아이콘 | 텍스트가 있는 주 버튼을 먼저 배치하고 검색·보조 아이콘을 오른쪽에 배치. 일괄 작업은 선택 후 표시 |
-| 목록 테이블 | 표준 선택·이름 링크·상태·자원·소유자·Zone·페이지 | 표준 ListView 재사용. 이름 클릭과 상세 라우팅, 선택/필터/페이지 유지 |
+| 목록 테이블 | ListView `middle`, 교차 행 배경, 선택 열 30px, 정렬·열 선택 | 이름 아이콘/링크·빠른 작업, 상태, CPU/메모리 한 줄. 실제 VM과 같은 49px 행·32px 선택 열 렌더링 |
+| 메인 목록 페이지 | AutogenView 별도 mini pagination, 하단 좌측, 위 여백 10px | 전체·표시 범위 → 이전/페이지/다음 → `20 / 쪽` → 이동하기. 기본 20, 옵션 20/50/100/200, 비 desktop은 10 추가 |
+| 상세 탭 툴바 | VM 볼륨/NIC 주 버튼과 EventsTab 업데이트 | 탭 콘텐츠 최상단 좌측, 주 버튼 `아이콘 + type=primary`, 보조 작업 뒤에 `ReloadOutlined + 업데이트`. gap 8px, 아래 여백 20px |
+| 상세 탭 페이지 | EventsTab/AnnotationsTab의 `detail-tab-pagination` | 별도 mini pagination, 하단 우측, 위 여백 20px, wrap/gap 8px. 이벤트·목록은 범위/크기/이동, 코멘트는 10개 고정·크기 선택 없음 |
 | 상세 골격 | 공통 ResourceLayout + InfoCard + 우측 탭 | desktop 7/17, tablet 8/16, gutter 12. 좁은 화면은 24/24로 쌓임. breakpoint별 실제 그리드는 공통 컴포넌트 준수 |
 | 상세 탭 | 데스크톱 세로 탭, 모바일 가로 탭 | 상세, 노드, 액세스, 부하 분산, 방화벽, 포트 포워딩, 이벤트, 코멘트. 기존 하위 기능을 얕은 탭 계층으로 정리 |
-| 생성 흐름 | 번호가 있는 VM 생성 섹션 + 지속되는 우측 요약 | 기본 → 노드·스토리지 → 네트워크·역할 → 선택 구성 → 검토. 데스크톱 폼/요약 2열, 모바일 1열 |
+| 생성 흐름 | 번호가 있는 VM 생성 섹션 + 지속되는 우측 요약 | 관리 유형에서 분기. Mold 관리형은 기존 5단계, 외부 관리형은 기본 → 선택 정보 → 검토 3단계. 데스크톱 폼/요약 2열, 모바일 1열 |
 | 대화상자 | 표준 헤더·닫기, 본문 스크롤, 고정 하단 | MoldDialog 재사용. 모든 장시간/위험 작업은 대상 요약과 명확한 동사 버튼 제공 |
 | 폼 | 공통 AForm, 툴팁, 필수 표기, 단위, 오류 위치 이동 | 기존 API 메타데이터·validation 유지. 원시 true/false 대신 사용/사용 안 함, 상태는 기존 번역 사용 |
 | 테마 | 현재 semantic CSS variables | 공통 배경·텍스트·경계·성공/경고/오류 토큰. 파괴적 주 버튼은 오류 의미 색상. 색상만으로 의미를 전달하지 않음 |
@@ -114,9 +117,40 @@ API/secret key, kubeconfig, Headlamp 토큰, registry password는 정보 카드�
 
 수용 기준: 모든 아래 시나리오가 같은 VM 레이아웃/공통 대화상자 계약을 따른다. 기존 API 인자와 상태·RBAC·스토리지·업그레이드·CSI 보호 조건을 잃지 않는다. 숫자/단위/버전/설정/관측 의미를 정확히 표시한다. 에러를 숨기거나 입력을 잃지 않고 재시도 대상을 분명히 한다. 실제 운영 기능 성공은 구현 후 #1230의 UI와 API/runtime 증거로 판정한다.
 
+### 목록·상세 보완 근거 (2026-10-08)
+
+초기 목업의 AntD 기본 테이블·우측 통합 pagination 및 우측/아이콘 전용 탭 툴바는 VM 레퍼런스와 달랐다. `ListView.vue`, `AutogenView.vue`, `VmVolumesTab.vue`, `VmNicsTab.vue`, `EventsTab.vue`, `AnnotationsTab.vue`, `DetailTab.scss`와 31번 VM 화면을 다시 대조했다. 메인 목록은 하단 좌측, 상세 목록은 하단 우측으로 구분한다. 상세 툴바는 공통 `DetailTab.scss`를 직접 재사용한다. 읽기 전용 부하 분산·이벤트·일반 상세는 업데이트를 첫 작업으로 제공하며, 지원하지 않는 추가 API를 가정하지 않는다. 권한/상태상 주 작업이 있는 탭에서는 파란 주 버튼을 먼저 제공한다.
+
+현재 VM 볼륨/NIC는 `small` 테이블 내장 pagination(pageSize 10, 한 페이지 숨김)을 사용한다. 모든 VM 하위 탭이 동일하다고 주장하지 않는다. 통합 설계에서는 실제 공통 이벤트/코멘트의 `detail-tab-pagination` 계약을 Kubernetes 내부 목록의 표준으로 사용하며 코멘트의 고정 10개 예외를 유지한다. 네트워크 inline 입력/행 작업은 후속 구현에서 기존 컴포넌트를 유지한다. 메인 목록과 상세 목록을 같은 좌측 페이지 바에 합치지 않는다.
+
+[메인 복수 페이지](images/list-pagination-light.jpg) · [상세 복수 페이지](images/events-pagination-light.jpg). 두 예시는 42개 합성 항목의 마지막 페이지(41–42)이며 운영 인벤토리가 아니다.
+
+### 외부 관리형 생성 API와 UI 분기
+
+현재 `CreateKubernetesCluster.vue`는 `clustertype: 'CloudManaged'`를 고정 전송한다. 그러나 `CreateKubernetesClusterCmd.java`는 `clustertype=ExternalManaged`를 지원하며 `KubernetesClusterManagerImpl.createUnmanagedKubernetesCluster`는 등록 행을 만들고 생성 후 시작 분기에서 노드 배포를 건너뛴다. 따라서 기존 API로 외부 관리형 등록 UI를 제공할 수 있다.
+
+| 입력/동작 | 외부 관리형 계약 |
+| --- | --- |
+| 관리 유형 | `clustertype=ExternalManaged`; 기본 선택은 기존 `CloudManaged` |
+| 필수 | `name`, `zoneid`; 공백 이름·사용 중지 Zone 거부 |
+| 선택 | `description`, `kubernetesversionid`, `networkid`, `sshkeypair`; 미선택 값은 요청에서 생략 |
+| 소유자 | 현재 계정 기본. 권한에 따라 `account` + `domainid` 또는 `projectid` 선택; 상호 배타 |
+| Zone 조건 | Edge Zone은 기존 `networkid` 필수; Zone 변경 시 네트워크·키·버전 선택을 재검증 |
+| 입력 검증 | 네트워크 존재/사용 권한, 소유 계정의 SSH 키 존재, 지원 버전 존재/조회 권한. 서버가 외부 등록 버전 Ready를 검사한다고 가정하지 않음 |
+| 자동 배포 입력 | ISO 필수·컴퓨트 오퍼링·역할별 템플릿/노드 수·ROOT·HA/etcd·CNI·CSI·레지스트리·AutoScaler 설정 숨김 및 payload 생략 |
+| API 작업 | Async create/job 완료 후 등록 UUID/유형 표시, 중복 submit 방지, 오류 단계에서 입력 유지. 모드 전환 시 관리형 전용 값을 전송하지 않음 |
+| 등록 상태 | 생성 행의 `Running`은 등록 상태이며 Kubernetes 연결·노드 Ready·워크로드 건강을 증명하지 않음 |
+| 기존 VM 연결 | 등록 완료 후 별도 `addVirtualMachinesToKubernetesCluster(id,virtualmachineids,iscontrolnode)` 작업. `removeVirtualMachinesFromKubernetesCluster`로 연결 제거. 제어/워커 선택·소유권·Zone 검증 필요 |
+| 지원하지 않는 작업 | Mold 시작/중지/scale/AutoScaler/업그레이드/역할 Affinity·자동 kubeconfig/인증 가져오기 제공 안 함. 외부 운영자가 Kubernetes를 구성/운영 |
+| 삭제 | 기존 `deleteKubernetesCluster`; 등록 제거를 기본으로 하고 cleanup/expunge는 별도 명시 선택·권한 검사 |
+
+외부 관리형 클러스터 등록, CloudManaged에 외부 노드를 추가하는 기능(`addNodesToKubernetesCluster`), HA의 외부 etcd 구성은 서로 다른 기능이다. 생성 UI에서 혼동하지 않도록 관리 유형과 적용 작업을 명시한다. 본 목업은 API 소스 계약을 반영한 설계이며 실제 외부 클러스터를 생성하거나 API 성공을 시험한 결과가 아니다.
+
+구현 수용 기준에 두 모드의 필수/선택 필드와 payload 검사, 계정/프로젝트 RBAC, Edge Zone 네트워크 조건, 모드 전환/뒤로 이동 입력 보존, 비동기 실패·재시도, 외부 상태 문구, 기존 VM 연결/해제와 삭제 보존을 추가한다.
+
 ## 화면·대화상자별 목업과 소스 매핑
 
-생성의 5단계와 HA/etcd 분기, 확장의 수동/AS/복구, 업그레이드의 빈 후보 등은 하나의 실제 기능에 대한 여러 상태 목업이다. 32개의 별개 신규 API 또는 신규 모달을 뜻하지 않는다. 네트워크·코멘트의 작은 확인창도 검토 범위에 포함한다.
+관리형 생성의 5단계, 외부 관리형 등록의 3단계와 HA/etcd 분기, 확장의 수동/AS/복구, 업그레이드의 빈 후보 등은 하나의 실제 기능에 대한 여러 상태 목업이다. 35개의 별개 신규 API 또는 신규 모달을 뜻하지 않는다. 네트워크·코멘트의 작은 확인창도 검토 범위에 포함한다.
 
 | ID | 목업 | 현재 소스 / API | 검토 이미지 |
 | --- | --- | --- | --- |
@@ -137,6 +171,9 @@ API/secret key, kubeconfig, Headlamp 토큰, registry password는 정보 카드�
 | `create-ha-etcd` | 클러스터 생성 · HA / 외부 etcd | CreateKubernetesCluster.vue / createKubernetesCluster | [밝음](images/create-ha-etcd-light.jpg) · [어두움](images/create-ha-etcd-dark.jpg) |
 | `create-addons` | 쿠버네티스 클러스터 생성 | CreateKubernetesCluster.vue / createKubernetesCluster | [밝음](images/create-addons-light.jpg) · [어두움](images/create-addons-dark.jpg) |
 | `create-review` | 쿠버네티스 클러스터 생성 | CreateKubernetesCluster.vue / createKubernetesCluster | [밝음](images/create-review-light.jpg) · [어두움](images/create-review-dark.jpg) |
+| `create-external-basic` | 외부 관리형 기본 정보 | CreateKubernetesClusterCmd.java / createKubernetesCluster(ExternalManaged) | [밝음](images/create-external-basic-light.jpg) · [어두움](images/create-external-basic-dark.jpg) |
+| `create-external-options` | 외부 관리형 선택 정보 | CreateKubernetesClusterCmd.java / createKubernetesCluster(ExternalManaged) | [밝음](images/create-external-options-light.jpg) · [어두움](images/create-external-options-dark.jpg) |
+| `create-external-review` | 외부 관리형 등록 검토 | CreateKubernetesClusterCmd.java / createKubernetesCluster(ExternalManaged) | [밝음](images/create-external-review-light.jpg) · [어두움](images/create-external-review-dark.jpg) |
 | `start` | 클러스터 시작 | compute.js / AutogenView API form / startKubernetesCluster | [밝음](images/start-light.jpg) · [어두움](images/start-dark.jpg) |
 | `stop` | 클러스터 중지 | compute.js / AutogenView API form / stopKubernetesCluster | [밝음](images/stop-light.jpg) · [어두움](images/stop-dark.jpg) |
 | `scale` | 클러스터 확장 / 축소 | ScaleKubernetesCluster.vue / scaleKubernetesCluster | [밝음](images/scale-light.jpg) · [어두움](images/scale-dark.jpg) |
@@ -167,3 +204,16 @@ API/secret key, kubeconfig, Headlamp 토큰, registry password는 정보 카드�
 소스 경로: 구성은 `ui/src/config/section/compute.js`, `image.js`; 화면은 `ui/src/views/compute/`, `views/image/`, `views/network/`; 공통은 `ui/src/components/view/`, `ui/src/layouts/ResourceLayout.vue`, `ui/src/views/AutogenView.vue`이다. VM 생성 레퍼런스는 `ui/src/views/compute/DeployVM.vue`이다.
 
 이벤트·LB·주소·AutoScaler 관측 등 서버에 없는 필드를 mock 데이터처럼 운영에서 채우지 않는다. 필요한 응답 계약이 없는 경우 기능 표시는 관측 범위를 명시하고, backend 확장 필요 여부를 기존 해당 이슈에서 관리한다.
+
+## 보완에 사용한 소스 근거
+
+- [목록 테이블](https://github.com/ablecloud-team/ablestack-cloud/blob/c169d9a203f49ce07e038297873bc3c24cd8ffb4/ui/src/components/view/ListView.vue)
+- [메인 목록 페이지](https://github.com/ablecloud-team/ablestack-cloud/blob/c169d9a203f49ce07e038297873bc3c24cd8ffb4/ui/src/views/AutogenView.vue)
+- [VM 볼륨 툴바](https://github.com/ablecloud-team/ablestack-cloud/blob/c169d9a203f49ce07e038297873bc3c24cd8ffb4/ui/src/views/compute/VmVolumesTab.vue)
+- [상세 이벤트](https://github.com/ablecloud-team/ablestack-cloud/blob/c169d9a203f49ce07e038297873bc3c24cd8ffb4/ui/src/components/view/EventsTab.vue)
+- [코멘트](https://github.com/ablecloud-team/ablestack-cloud/blob/c169d9a203f49ce07e038297873bc3c24cd8ffb4/ui/src/components/view/AnnotationsTab.vue)
+- [상세 공통 CSS](https://github.com/ablecloud-team/ablestack-cloud/blob/c169d9a203f49ce07e038297873bc3c24cd8ffb4/ui/src/style/components/view/DetailTab.scss)
+- [현재 생성 UI](https://github.com/ablecloud-team/ablestack-cloud/blob/c169d9a203f49ce07e038297873bc3c24cd8ffb4/ui/src/views/compute/CreateKubernetesCluster.vue)
+- [생성 API 정의](https://github.com/ablecloud-team/ablestack-cloud/blob/c169d9a203f49ce07e038297873bc3c24cd8ffb4/plugins/integrations/kubernetes-service/src/main/java/org/apache/cloudstack/api/command/user/kubernetes/cluster/CreateKubernetesClusterCmd.java)
+- [관리 유형별 생성·작업 제한](https://github.com/ablecloud-team/ablestack-cloud/blob/c169d9a203f49ce07e038297873bc3c24cd8ffb4/plugins/integrations/kubernetes-service/src/main/java/com/cloud/kubernetes/cluster/KubernetesClusterManagerImpl.java)
+- [외부 관리형 VM 연결 API](https://github.com/ablecloud-team/ablestack-cloud/blob/c169d9a203f49ce07e038297873bc3c24cd8ffb4/plugins/integrations/kubernetes-service/src/main/java/org/apache/cloudstack/api/command/user/kubernetes/cluster/AddVirtualMachinesToKubernetesClusterCmd.java)

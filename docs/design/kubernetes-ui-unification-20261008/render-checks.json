@@ -200,10 +200,9 @@
     },
     {
       "file": "create-basic-light.jpg",
-      "heading": "쿠버네티스 클러스터 생성",
       "modal": {
-        "bodyScrollable": true,
         "footerVisible": true,
+        "title": "쿠버네티스 클러스터 생성",
         "width": 1120
       },
       "pageOverflow": false,
@@ -214,10 +213,9 @@
     },
     {
       "file": "create-basic-dark.jpg",
-      "heading": "쿠버네티스 클러스터 생성",
       "modal": {
-        "bodyScrollable": true,
         "footerVisible": true,
+        "title": "쿠버네티스 클러스터 생성",
         "width": 1120
       },
       "pageOverflow": false,
@@ -228,10 +226,9 @@
     },
     {
       "file": "create-nodes-light.jpg",
-      "heading": "쿠버네티스 클러스터 생성",
       "modal": {
-        "bodyScrollable": true,
         "footerVisible": true,
+        "title": "쿠버네티스 클러스터 생성",
         "width": 1120
       },
       "pageOverflow": false,
@@ -242,10 +239,9 @@
     },
     {
       "file": "create-nodes-dark.jpg",
-      "heading": "쿠버네티스 클러스터 생성",
       "modal": {
-        "bodyScrollable": true,
         "footerVisible": true,
+        "title": "쿠버네티스 클러스터 생성",
         "width": 1120
       },
       "pageOverflow": false,
@@ -256,10 +252,9 @@
     },
     {
       "file": "create-advanced-light.jpg",
-      "heading": "쿠버네티스 클러스터 생성",
       "modal": {
-        "bodyScrollable": true,
         "footerVisible": true,
+        "title": "쿠버네티스 클러스터 생성",
         "width": 1120
       },
       "pageOverflow": false,
@@ -270,10 +265,9 @@
     },
     {
       "file": "create-advanced-dark.jpg",
-      "heading": "쿠버네티스 클러스터 생성",
       "modal": {
-        "bodyScrollable": true,
         "footerVisible": true,
+        "title": "쿠버네티스 클러스터 생성",
         "width": 1120
       },
       "pageOverflow": false,
@@ -284,10 +278,9 @@
     },
     {
       "file": "create-ha-etcd-light.jpg",
-      "heading": "클러스터 생성 · HA / 외부 etcd",
       "modal": {
-        "bodyScrollable": true,
         "footerVisible": true,
+        "title": "클러스터 생성 · HA / 외부 etcd",
         "width": 1120
       },
       "pageOverflow": false,
@@ -298,10 +291,9 @@
     },
     {
       "file": "create-ha-etcd-dark.jpg",
-      "heading": "클러스터 생성 · HA / 외부 etcd",
       "modal": {
-        "bodyScrollable": true,
         "footerVisible": true,
+        "title": "클러스터 생성 · HA / 외부 etcd",
         "width": 1120
       },
       "pageOverflow": false,
@@ -312,10 +304,9 @@
     },
     {
       "file": "create-addons-light.jpg",
-      "heading": "쿠버네티스 클러스터 생성",
       "modal": {
-        "bodyScrollable": true,
         "footerVisible": true,
+        "title": "쿠버네티스 클러스터 생성",
         "width": 1120
       },
       "pageOverflow": false,
@@ -326,10 +317,9 @@
     },
     {
       "file": "create-addons-dark.jpg",
-      "heading": "쿠버네티스 클러스터 생성",
       "modal": {
-        "bodyScrollable": true,
         "footerVisible": true,
+        "title": "쿠버네티스 클러스터 생성",
         "width": 1120
       },
       "pageOverflow": false,
@@ -340,10 +330,9 @@
     },
     {
       "file": "create-review-light.jpg",
-      "heading": "쿠버네티스 클러스터 생성",
       "modal": {
-        "bodyScrollable": true,
         "footerVisible": true,
+        "title": "쿠버네티스 클러스터 생성",
         "width": 1120
       },
       "pageOverflow": false,
@@ -354,10 +343,87 @@
     },
     {
       "file": "create-review-dark.jpg",
-      "heading": "쿠버네티스 클러스터 생성",
       "modal": {
-        "bodyScrollable": true,
         "footerVisible": true,
+        "title": "쿠버네티스 클러스터 생성",
+        "width": 1120
+      },
+      "pageOverflow": false,
+      "viewport": [
+        1920,
+        855
+      ]
+    },
+    {
+      "file": "create-external-basic-light.jpg",
+      "modal": {
+        "footerVisible": true,
+        "title": "클러스터 생성 · 외부 관리형",
+        "width": 1120
+      },
+      "pageOverflow": false,
+      "viewport": [
+        1920,
+        855
+      ]
+    },
+    {
+      "file": "create-external-basic-dark.jpg",
+      "modal": {
+        "footerVisible": true,
+        "title": "클러스터 생성 · 외부 관리형",
+        "width": 1120
+      },
+      "pageOverflow": false,
+      "viewport": [
+        1920,
+        855
+      ]
+    },
+    {
+      "file": "create-external-options-light.jpg",
+      "modal": {
+        "footerVisible": true,
+        "title": "외부 관리형 · 선택 정보",
+        "width": 1120
+      },
+      "pageOverflow": false,
+      "viewport": [
+        1920,
+        855
+      ]
+    },
+    {
+      "file": "create-external-options-dark.jpg",
+      "modal": {
+        "footerVisible": true,
+        "title": "외부 관리형 · 선택 정보",
+        "width": 1120
+      },
+      "pageOverflow": false,
+      "viewport": [
+        1920,
+        855
+      ]
+    },
+    {
+      "file": "create-external-review-light.jpg",
+      "modal": {
+        "footerVisible": true,
+        "title": "외부 관리형 · 등록 검토",
+        "width": 1120
+      },
+      "pageOverflow": false,
+      "viewport": [
+        1920,
+        855
+      ]
+    },
+    {
+      "file": "create-external-review-dark.jpg",
+      "modal": {
+        "footerVisible": true,
+        "title": "외부 관리형 · 등록 검토",
         "width": 1120
       },
       "pageOverflow": false,
@@ -368,10 +434,9 @@
     },
     {
       "file": "start-light.jpg",
-      "heading": "클러스터 시작",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "클러스터 시작",
         "width": 760
       },
       "pageOverflow": false,
@@ -382,10 +447,9 @@
     },
     {
       "file": "start-dark.jpg",
-      "heading": "클러스터 시작",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "클러스터 시작",
         "width": 760
       },
       "pageOverflow": false,
@@ -396,10 +460,9 @@
     },
     {
       "file": "stop-light.jpg",
-      "heading": "클러스터 중지",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "클러스터 중지",
         "width": 760
       },
       "pageOverflow": false,
@@ -410,10 +473,9 @@
     },
     {
       "file": "stop-dark.jpg",
-      "heading": "클러스터 중지",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "클러스터 중지",
         "width": 760
       },
       "pageOverflow": false,
@@ -424,10 +486,9 @@
     },
     {
       "file": "scale-light.jpg",
-      "heading": "클러스터 확장 / 축소",
       "modal": {
-        "bodyScrollable": true,
         "footerVisible": true,
+        "title": "클러스터 확장 / 축소",
         "width": 760
       },
       "pageOverflow": false,
@@ -438,10 +499,9 @@
     },
     {
       "file": "scale-dark.jpg",
-      "heading": "클러스터 확장 / 축소",
       "modal": {
-        "bodyScrollable": true,
         "footerVisible": true,
+        "title": "클러스터 확장 / 축소",
         "width": 760
       },
       "pageOverflow": false,
@@ -452,10 +512,9 @@
     },
     {
       "file": "autoscale-light.jpg",
-      "heading": "오토스케일링 설정",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "오토스케일링 설정",
         "width": 760
       },
       "pageOverflow": false,
@@ -466,10 +525,9 @@
     },
     {
       "file": "autoscale-dark.jpg",
-      "heading": "오토스케일링 설정",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "오토스케일링 설정",
         "width": 760
       },
       "pageOverflow": false,
@@ -480,10 +538,9 @@
     },
     {
       "file": "scale-recovery-light.jpg",
-      "heading": "부분 확장 복구",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "부분 확장 복구",
         "width": 760
       },
       "pageOverflow": false,
@@ -494,10 +551,9 @@
     },
     {
       "file": "scale-recovery-dark.jpg",
-      "heading": "부분 확장 복구",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "부분 확장 복구",
         "width": 760
       },
       "pageOverflow": false,
@@ -508,10 +564,9 @@
     },
     {
       "file": "upgrade-light.jpg",
-      "heading": "클러스터 업그레이드",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "클러스터 업그레이드",
         "width": 760
       },
       "pageOverflow": false,
@@ -522,10 +577,9 @@
     },
     {
       "file": "upgrade-dark.jpg",
-      "heading": "클러스터 업그레이드",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "클러스터 업그레이드",
         "width": 760
       },
       "pageOverflow": false,
@@ -536,10 +590,9 @@
     },
     {
       "file": "affinity-light.jpg",
-      "heading": "Affinity 그룹 변경",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "Affinity 그룹 변경",
         "width": 760
       },
       "pageOverflow": false,
@@ -550,10 +603,9 @@
     },
     {
       "file": "affinity-dark.jpg",
-      "heading": "Affinity 그룹 변경",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "Affinity 그룹 변경",
         "width": 760
       },
       "pageOverflow": false,
@@ -564,10 +616,9 @@
     },
     {
       "file": "add-nodes-light.jpg",
-      "heading": "외부 노드 추가",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "외부 노드 추가",
         "width": 920
       },
       "pageOverflow": false,
@@ -578,10 +629,9 @@
     },
     {
       "file": "add-nodes-dark.jpg",
-      "heading": "외부 노드 추가",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "외부 노드 추가",
         "width": 920
       },
       "pageOverflow": false,
@@ -592,10 +642,9 @@
     },
     {
       "file": "remove-nodes-light.jpg",
-      "heading": "외부 노드 연결 해제",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "외부 노드 연결 해제",
         "width": 920
       },
       "pageOverflow": false,
@@ -606,10 +655,9 @@
     },
     {
       "file": "remove-nodes-dark.jpg",
-      "heading": "외부 노드 연결 해제",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "외부 노드 연결 해제",
         "width": 920
       },
       "pageOverflow": false,
@@ -620,10 +668,9 @@
     },
     {
       "file": "delete-worker-light.jpg",
-      "heading": "워커 노드 삭제",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "워커 노드 삭제",
         "width": 760
       },
       "pageOverflow": false,
@@ -634,10 +681,9 @@
     },
     {
       "file": "delete-worker-dark.jpg",
-      "heading": "워커 노드 삭제",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "워커 노드 삭제",
         "width": 760
       },
       "pageOverflow": false,
@@ -648,10 +694,9 @@
     },
     {
       "file": "delete-cluster-light.jpg",
-      "heading": "클러스터 삭제",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "클러스터 삭제",
         "width": 760
       },
       "pageOverflow": false,
@@ -662,10 +707,9 @@
     },
     {
       "file": "delete-cluster-dark.jpg",
-      "heading": "클러스터 삭제",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "클러스터 삭제",
         "width": 760
       },
       "pageOverflow": false,
@@ -676,10 +720,9 @@
     },
     {
       "file": "delete-external-light.jpg",
-      "heading": "외부 관리형 클러스터 삭제",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "외부 관리형 클러스터 삭제",
         "width": 760
       },
       "pageOverflow": false,
@@ -690,10 +733,9 @@
     },
     {
       "file": "delete-external-dark.jpg",
-      "heading": "외부 관리형 클러스터 삭제",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "외부 관리형 클러스터 삭제",
         "width": 760
       },
       "pageOverflow": false,
@@ -704,10 +746,9 @@
     },
     {
       "file": "bulk-start-light.jpg",
-      "heading": "선택한 클러스터 시작",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "선택한 클러스터 시작",
         "width": 960
       },
       "pageOverflow": false,
@@ -718,10 +759,9 @@
     },
     {
       "file": "bulk-start-dark.jpg",
-      "heading": "선택한 클러스터 시작",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "선택한 클러스터 시작",
         "width": 960
       },
       "pageOverflow": false,
@@ -732,10 +772,9 @@
     },
     {
       "file": "bulk-stop-light.jpg",
-      "heading": "선택한 클러스터 중지",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "선택한 클러스터 중지",
         "width": 960
       },
       "pageOverflow": false,
@@ -746,10 +785,9 @@
     },
     {
       "file": "bulk-stop-dark.jpg",
-      "heading": "선택한 클러스터 중지",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "선택한 클러스터 중지",
         "width": 960
       },
       "pageOverflow": false,
@@ -760,10 +798,9 @@
     },
     {
       "file": "bulk-delete-light.jpg",
-      "heading": "선택한 클러스터 삭제",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "선택한 클러스터 삭제",
         "width": 960
       },
       "pageOverflow": false,
@@ -774,10 +811,9 @@
     },
     {
       "file": "bulk-delete-dark.jpg",
-      "heading": "선택한 클러스터 삭제",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "선택한 클러스터 삭제",
         "width": 960
       },
       "pageOverflow": false,
@@ -788,10 +824,9 @@
     },
     {
       "file": "iso-register-light.jpg",
-      "heading": "Kubernetes ISO URL 등록",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "Kubernetes ISO URL 등록",
         "width": 1000
       },
       "pageOverflow": false,
@@ -802,10 +837,9 @@
     },
     {
       "file": "iso-register-dark.jpg",
-      "heading": "Kubernetes ISO URL 등록",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "Kubernetes ISO URL 등록",
         "width": 1000
       },
       "pageOverflow": false,
@@ -816,10 +850,9 @@
     },
     {
       "file": "iso-upload-light.jpg",
-      "heading": "Kubernetes ISO 파일 업로드",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "Kubernetes ISO 파일 업로드",
         "width": 1000
       },
       "pageOverflow": false,
@@ -830,10 +863,9 @@
     },
     {
       "file": "iso-upload-dark.jpg",
-      "heading": "Kubernetes ISO 파일 업로드",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "Kubernetes ISO 파일 업로드",
         "width": 1000
       },
       "pageOverflow": false,
@@ -844,10 +876,9 @@
     },
     {
       "file": "iso-state-light.jpg",
-      "heading": "지원 버전 상태 변경",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "지원 버전 상태 변경",
         "width": 760
       },
       "pageOverflow": false,
@@ -858,10 +889,9 @@
     },
     {
       "file": "iso-state-dark.jpg",
-      "heading": "지원 버전 상태 변경",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "지원 버전 상태 변경",
         "width": 760
       },
       "pageOverflow": false,
@@ -872,10 +902,9 @@
     },
     {
       "file": "iso-delete-light.jpg",
-      "heading": "지원 버전 등록 삭제",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "지원 버전 등록 삭제",
         "width": 760
       },
       "pageOverflow": false,
@@ -886,10 +915,9 @@
     },
     {
       "file": "iso-delete-dark.jpg",
-      "heading": "지원 버전 등록 삭제",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "지원 버전 등록 삭제",
         "width": 760
       },
       "pageOverflow": false,
@@ -900,10 +928,9 @@
     },
     {
       "file": "network-tags-light.jpg",
-      "heading": "네트워크 규칙 태그 편집",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "네트워크 규칙 태그 편집",
         "width": 760
       },
       "pageOverflow": false,
@@ -914,10 +941,9 @@
     },
     {
       "file": "network-tags-dark.jpg",
-      "heading": "네트워크 규칙 태그 편집",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "네트워크 규칙 태그 편집",
         "width": 760
       },
       "pageOverflow": false,
@@ -928,10 +954,9 @@
     },
     {
       "file": "pf-vm-light.jpg",
-      "heading": "포트 포워딩 VM 선택",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "포트 포워딩 VM 선택",
         "width": 960
       },
       "pageOverflow": false,
@@ -942,10 +967,9 @@
     },
     {
       "file": "pf-vm-dark.jpg",
-      "heading": "포트 포워딩 VM 선택",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "포트 포워딩 VM 선택",
         "width": 960
       },
       "pageOverflow": false,
@@ -956,10 +980,9 @@
     },
     {
       "file": "rules-delete-light.jpg",
-      "heading": "선택한 네트워크 규칙 삭제",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "선택한 네트워크 규칙 삭제",
         "width": 920
       },
       "pageOverflow": false,
@@ -970,10 +993,9 @@
     },
     {
       "file": "rules-delete-dark.jpg",
-      "heading": "선택한 네트워크 규칙 삭제",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "선택한 네트워크 규칙 삭제",
         "width": 920
       },
       "pageOverflow": false,
@@ -984,10 +1006,9 @@
     },
     {
       "file": "comment-delete-light.jpg",
-      "heading": "코멘트 삭제",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "코멘트 삭제",
         "width": 600
       },
       "pageOverflow": false,
@@ -998,10 +1019,9 @@
     },
     {
       "file": "comment-delete-dark.jpg",
-      "heading": "코멘트 삭제",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "코멘트 삭제",
         "width": 600
       },
       "pageOverflow": false,
@@ -1012,10 +1032,9 @@
     },
     {
       "file": "comment-visibility-light.jpg",
-      "heading": "코멘트 공개 범위 변경",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "코멘트 공개 범위 변경",
         "width": 600
       },
       "pageOverflow": false,
@@ -1026,10 +1045,9 @@
     },
     {
       "file": "comment-visibility-dark.jpg",
-      "heading": "코멘트 공개 범위 변경",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "코멘트 공개 범위 변경",
         "width": 600
       },
       "pageOverflow": false,
@@ -1040,10 +1058,9 @@
     },
     {
       "file": "upgrade-empty-light.jpg",
-      "heading": "업그레이드 가능 버전 없음",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "업그레이드 가능 버전 없음",
         "width": 760
       },
       "pageOverflow": false,
@@ -1054,10 +1071,9 @@
     },
     {
       "file": "upgrade-empty-dark.jpg",
-      "heading": "업그레이드 가능 버전 없음",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "업그레이드 가능 버전 없음",
         "width": 760
       },
       "pageOverflow": false,
@@ -1068,10 +1084,9 @@
     },
     {
       "file": "validation-error-light.jpg",
-      "heading": "ISO 등록 입력 오류",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "ISO 등록 입력 오류",
         "width": 1000
       },
       "pageOverflow": false,
@@ -1082,10 +1097,9 @@
     },
     {
       "file": "validation-error-dark.jpg",
-      "heading": "ISO 등록 입력 오류",
       "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
+        "title": "ISO 등록 입력 오류",
         "width": 1000
       },
       "pageOverflow": false,
@@ -1116,9 +1130,7 @@
     },
     {
       "file": "create-ha-etcd-light-mobile.jpg",
-      "heading": "클러스터 생성 · HA / 외부 etcd",
       "modal": {
-        "bodyScrollable": true,
         "footerVisible": true,
         "width": 374
       },
@@ -1130,37 +1142,7 @@
     },
     {
       "file": "create-ha-etcd-dark-mobile.jpg",
-      "heading": "클러스터 생성 · HA / 외부 etcd",
       "modal": {
-        "bodyScrollable": true,
-        "footerVisible": true,
-        "width": 374
-      },
-      "pageOverflow": false,
-      "viewport": [
-        390,
-        844
-      ]
-    },
-    {
-      "file": "delete-cluster-light-mobile.jpg",
-      "heading": "클러스터 삭제",
-      "modal": {
-        "bodyScrollable": false,
-        "footerVisible": true,
-        "width": 374
-      },
-      "pageOverflow": false,
-      "viewport": [
-        390,
-        844
-      ]
-    },
-    {
-      "file": "delete-cluster-dark-mobile.jpg",
-      "heading": "클러스터 삭제",
-      "modal": {
-        "bodyScrollable": false,
         "footerVisible": true,
         "width": 374
       },
@@ -1172,9 +1154,7 @@
     },
     {
       "file": "iso-register-light-mobile.jpg",
-      "heading": "Kubernetes ISO URL 등록",
       "modal": {
-        "bodyScrollable": true,
         "footerVisible": true,
         "width": 374
       },
@@ -1186,9 +1166,55 @@
     },
     {
       "file": "iso-register-dark-mobile.jpg",
-      "heading": "Kubernetes ISO URL 등록",
       "modal": {
-        "bodyScrollable": true,
+        "footerVisible": true,
+        "width": 374
+      },
+      "pageOverflow": false,
+      "viewport": [
+        390,
+        844
+      ]
+    },
+    {
+      "file": "delete-cluster-light-mobile.jpg",
+      "modal": {
+        "footerVisible": true,
+        "width": 374
+      },
+      "pageOverflow": false,
+      "viewport": [
+        390,
+        844
+      ]
+    },
+    {
+      "file": "delete-cluster-dark-mobile.jpg",
+      "modal": {
+        "footerVisible": true,
+        "width": 374
+      },
+      "pageOverflow": false,
+      "viewport": [
+        390,
+        844
+      ]
+    },
+    {
+      "file": "create-external-basic-light-mobile.jpg",
+      "modal": {
+        "footerVisible": true,
+        "width": 374
+      },
+      "pageOverflow": false,
+      "viewport": [
+        390,
+        844
+      ]
+    },
+    {
+      "file": "create-external-basic-dark-mobile.jpg",
+      "modal": {
         "footerVisible": true,
         "width": 374
       },
@@ -1202,7 +1228,7 @@
   "breakpoints": [
     {
       "scene": "detail",
-      "columns": [
+      "layout": [
         {
           "width": 747,
           "x": 4,
@@ -1214,26 +1240,25 @@
           "y": 1197
         }
       ],
-      "footerVisible": true,
-      "overflow": false,
+      "pageOverflow": false,
       "viewport": [
         765,
-        844
+        855
       ]
     },
     {
       "scene": "create-ha-etcd",
-      "columns": [],
-      "footerVisible": true,
-      "overflow": false,
+      "layout": [],
+      "modalFooter": 831,
+      "pageOverflow": false,
       "viewport": [
         765,
-        844
+        855
       ]
     },
     {
       "scene": "detail",
-      "columns": [
+      "layout": [
         {
           "width": 536,
           "x": 210,
@@ -1245,26 +1270,25 @@
           "y": 1204
         }
       ],
-      "footerVisible": true,
-      "overflow": false,
+      "pageOverflow": false,
       "viewport": [
         766,
-        844
+        855
       ]
     },
     {
       "scene": "create-ha-etcd",
-      "columns": [],
-      "footerVisible": true,
-      "overflow": false,
+      "layout": [],
+      "modalFooter": 831,
+      "pageOverflow": false,
       "viewport": [
         766,
-        844
+        855
       ]
     },
     {
       "scene": "detail",
-      "columns": [
+      "layout": [
         {
           "width": 761,
           "x": 210,
@@ -1276,26 +1300,25 @@
           "y": 1204
         }
       ],
-      "footerVisible": true,
-      "overflow": false,
+      "pageOverflow": false,
       "viewport": [
         991,
-        844
+        855
       ]
     },
     {
       "scene": "create-ha-etcd",
-      "columns": [],
-      "footerVisible": true,
-      "overflow": false,
+      "layout": [],
+      "modalFooter": 831,
+      "pageOverflow": false,
       "viewport": [
         991,
-        844
+        855
       ]
     },
     {
       "scene": "detail",
-      "columns": [
+      "layout": [
         {
           "width": 254,
           "x": 210,
@@ -1307,83 +1330,80 @@
           "y": 166
         }
       ],
-      "footerVisible": true,
-      "overflow": false,
+      "pageOverflow": false,
       "viewport": [
         992,
-        844
+        855
       ]
     },
     {
       "scene": "create-ha-etcd",
-      "columns": [],
-      "footerVisible": true,
-      "overflow": false,
+      "layout": [],
+      "modalFooter": 831,
+      "pageOverflow": false,
       "viewport": [
         992,
-        844
+        855
       ]
     },
     {
       "scene": "detail",
-      "columns": [
+      "layout": [
         {
-          "width": 350,
+          "width": 349.65625,
           "x": 210,
           "y": 166
         },
         {
-          "width": 699,
-          "x": 560,
+          "width": 699.328125,
+          "x": 559.65625,
           "y": 166
         }
       ],
-      "footerVisible": true,
-      "overflow": false,
+      "pageOverflow": false,
       "viewport": [
         1279,
-        844
+        855
       ]
     },
     {
       "scene": "create-ha-etcd",
-      "columns": [],
-      "footerVisible": true,
-      "overflow": false,
+      "layout": [],
+      "modalFooter": 831,
+      "pageOverflow": false,
       "viewport": [
         1279,
-        844
+        855
       ]
     },
     {
       "scene": "detail",
-      "columns": [
+      "layout": [
         {
-          "width": 295,
+          "width": 294.578125,
           "x": 250,
           "y": 166
         },
         {
-          "width": 715,
-          "x": 545,
+          "width": 715.40625,
+          "x": 544.578125,
           "y": 166
         }
       ],
-      "footerVisible": true,
-      "overflow": false,
+      "pageOverflow": false,
       "viewport": [
         1280,
-        844
+        855
       ]
     },
     {
       "scene": "create-ha-etcd",
-      "columns": [],
-      "footerVisible": true,
-      "overflow": false,
+      "layout": [],
+      "modalFooter": 831,
+      "pageOverflow": false,
       "viewport": [
         1280,
-        844
+        855
       ]
     }
   ],
@@ -1394,5 +1414,114 @@
     "creationCancelReturnsList": true,
     "emptyUpgradeDisabled": true,
     "invalidIsoDisabled": true
-  }
+  },
+  "corrections": {
+    "reference": {
+      "vmListRowHeight": 49,
+      "vmSelectionWidth": 32,
+      "detailToolbarGap": 8,
+      "detailToolbarMarginBottom": 20,
+      "detailPaginationJustify": "flex-end",
+      "detailPaginationMarginTop": 20
+    },
+    "mainPagination": {
+      "rows": 2,
+      "selected": "3",
+      "selectionWidth": 32,
+      "text": "전체 42 개 항목 중 41-42 표시\n1\n2\n3\n20 / 쪽\n이동하기"
+    },
+    "mainPageSize": {
+      "rows": 42,
+      "text": "전체 42 개 항목 중 1-42 표시\n1\n50\n50 / 쪽"
+    },
+    "detailPagination": {
+      "justify": "flex-end",
+      "rows": 2,
+      "text": "전체 42 개 항목 중 41-42 표시\n1\n2\n3\n20 / 쪽\n이동하기",
+      "toolbar": [
+        {
+          "icon": true,
+          "text": "업데이트"
+        }
+      ]
+    },
+    "staticExternal": {
+      "externalSelected": true,
+      "fields": [
+        "관리 유형",
+        "클러스터 이름",
+        "설명",
+        "Zone",
+        "계정 / 프로젝트"
+      ],
+      "footerVisible": true,
+      "title": "클러스터 생성 · 외부 관리형",
+      "width": 1120
+    },
+    "staticDetail": {
+      "buttons": [
+        {
+          "color": "rgb(24, 144, 255)",
+          "icon": true,
+          "primary": true,
+          "text": "외부 노드 추가",
+          "x": 892.09375
+        },
+        {
+          "color": "rgb(255, 255, 255)",
+          "icon": true,
+          "primary": false,
+          "text": "업데이트",
+          "x": 1045.765625
+        }
+      ],
+      "paginationJustify": "flex-end"
+    },
+    "externalFlow": {
+      "managementRadioSwitch": true,
+      "threeSteps": true,
+      "nextAndPrevious": true,
+      "apiCalls": false
+    },
+    "externalReview": "외부 관리형 · 등록 검토\n기본 정보\n선택 정보\n3검토\n등록 상태 Running은 Kubernetes API 접속이나 워크로드 건강 상태의 검증 결과가 아닙니다.\n\n 클러스터 이름 · Zone · 등록 소유자 확인\n\n clustertype=ExternalManaged로 등록\n\n ISO·컴퓨트·노드 수·ROOT·CNI·CSI·레지스트리 배포 매개변수 생략\n\n 등록 완료 후 기존 Mold VM을 별도 연결 가능\n\n Mold 시작·중지·자동 확장·업그레이드 작업은 제공하지 않음\n\n클러스터 요약\n⎈\nk8s-external-demo\n관리 유형\n외부 관리형\nZone / 소유자\nZone-A / demo-team\nVM 자동 배포\n수행하지 않음\nKubernetes 설치·업그레이드\n외부 운영자가 수행\n기존 VM 연결\n등록 완료 후 별도 작업\n취소이전외부 관리형 등록",
+    "externalReturnedTitle": "클러스터 생성 · 외부 관리형"
+  },
+  "pagination": [
+    {
+      "file": "list-pagination-light.jpg",
+      "pageOverflow": false,
+      "text": "전체 42 개 항목 중 41-42 표시\n1\n2\n3\n20 / 쪽\n이동하기",
+      "viewport": [
+        1920,
+        855
+      ]
+    },
+    {
+      "file": "list-pagination-dark.jpg",
+      "pageOverflow": false,
+      "text": "전체 42 개 항목 중 41-42 표시\n1\n2\n3\n20 / 쪽\n이동하기",
+      "viewport": [
+        1920,
+        855
+      ]
+    },
+    {
+      "file": "events-pagination-light.jpg",
+      "pageOverflow": false,
+      "text": "전체 42 개 항목 중 41-42 표시\n1\n2\n3\n20 / 쪽\n이동하기",
+      "viewport": [
+        1920,
+        855
+      ]
+    },
+    {
+      "file": "events-pagination-dark.jpg",
+      "pageOverflow": false,
+      "text": "전체 42 개 항목 중 41-42 표시\n1\n2\n3\n20 / 쪽\n이동하기",
+      "viewport": [
+        1920,
+        855
+      ]
+    }
+  ]
 }
