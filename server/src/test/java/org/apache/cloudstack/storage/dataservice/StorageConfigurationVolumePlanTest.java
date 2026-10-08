@@ -169,4 +169,21 @@ public class StorageConfigurationVolumePlanTest {
         }
     }
 
+    @Test public void logicalNvmeSubsystemWithoutVolumeIsSkippedAndNamespaceRemainsRaw(){
+        Fixture f=new Fixture(2);f.raw(2);JsonArray block=f.rows("block-targets");JsonObject namespace=block.get(0).getAsJsonObject();namespace.addProperty("protocol","NVME_OF");namespace.add("config",json("{\"type\":\"namespace\"}"));JsonObject subsystem=json("{\"protocol\":\"NVME_OF\",\"config\":{\"type\":\"subsystem\"}}");subsystem.add("volumeUuid",com.google.gson.JsonNull.INSTANCE);block.add(subsystem);f.put("block-targets",block);
+        JsonObject plan=f.build();Assert.assertEquals(2,plan.getAsJsonArray("allocations").size());Assert.assertEquals("BLOCK_RAW",allocation(plan,1).get("usage").getAsString());Assert.assertFalse(allocation(plan,1).has("filesystem"));
+        subsystem.remove("volumeUuid");f.put("block-targets",block);Assert.assertEquals(plan,f.build());
+    }
+    @Test public void nullBackedNamespaceIscsiUnknownSubtypeAndMalformedContainerAreNeverSkipped(){
+        for(String value:new String[]{"{\"protocol\":\"NVME_OF\",\"config\":{\"type\":\"namespace\"}}","{\"protocol\":\"ISCSI\",\"config\":{\"type\":\"subsystem\"}}","{\"protocol\":\"NVME_OF\",\"config\":{\"type\":\"unknown\"}}","{\"protocol\":\"NVME_OF\",\"config\":\"subsystem\"}","{\"protocol\":\"NVME_OF\",\"config\":{\"type\":true}}"}){
+            Fixture f=new Fixture(1);JsonArray rows=new JsonArray();JsonObject row=json(value);row.add("volumeUuid",com.google.gson.JsonNull.INSTANCE);rows.add(row);f.put("block-targets",rows);blocked(f);
+        }
+    }
+    @Test public void subsystemWithUnexpectedDataBindingCannotBeSilentlyConvertedIntoRawAllocation(){
+        Fixture f=new Fixture(1);JsonArray rows=new JsonArray();JsonObject row=json("{\"protocol\":\"NVME_OF\",\"config\":{\"type\":\"subsystem\"}}");row.addProperty("volumeUuid",id(1));rows.add(row);f.put("block-targets",rows);blocked(f);
+    }
+    @Test public void logicalSubsystemDoesNotSatisfyAnUnconsumedDataInventory(){
+        Fixture f=new Fixture(1);f.put("file-shares",new JsonArray());JsonArray rows=new JsonArray();rows.add(json("{\"protocol\":\"NVME_OF\",\"config\":{\"type\":\"subsystem\"}}"));f.put("block-targets",rows);blocked(f);
+    }
+
 }

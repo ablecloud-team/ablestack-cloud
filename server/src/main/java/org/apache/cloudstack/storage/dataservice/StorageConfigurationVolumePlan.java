@@ -63,9 +63,19 @@ public final class StorageConfigurationVolumePlan {
         Map<String, String> usage = new TreeMap<>();Map<String, String> filesystems = new TreeMap<>();
         for (String kind : new String[] {"file-shares", "posix-directory-policies", "block-targets"}) {
             for (JsonElement value : rows(archive, kind)) {
-                JsonObject row = value.getAsJsonObject();String source = uuid(text(row, "volumeUuid"));
+                JsonObject row = value.getAsJsonObject();
+                if ("block-targets".equals(kind)) {
+                    String protocol = text(row, "protocol");require(Set.of("ISCSI", "NVME_OF").contains(protocol), "Unsupported raw block consumer protocol");
+                    JsonElement config = row.get("config");JsonElement subtype = config != null && config.isJsonObject() ? config.getAsJsonObject().get("type") : null;
+                    boolean logicalSubsystem = "NVME_OF".equals(protocol) && subtype != null && subtype.isJsonPrimitive()
+                            && subtype.getAsJsonPrimitive().isString() && "subsystem".equals(subtype.getAsString());
+                    if (logicalSubsystem) {
+                        require(!row.has("volumeUuid") || row.get("volumeUuid").isJsonNull(), "A logical NVMe subsystem cannot bind DATA; namespace mapping is required");
+                        continue;
+                    }
+                }
+                String source = uuid(text(row, "volumeUuid"));
                 require(sources.containsKey(source), "Consumer references an unknown DATA UUID");
-                if ("block-targets".equals(kind)) require(Set.of("ISCSI", "NVME_OF").contains(text(row, "protocol")), "Unsupported raw block consumer protocol");
                 if ("file-shares".equals(kind)) require(Set.of("NFS", "SMB").contains(text(row, "protocol")), "Unsupported FILE consumer protocol");
                 String inferred = "block-targets".equals(kind) ? "BLOCK_RAW" : "FILE";
                 String before = usage.putIfAbsent(source, inferred);
