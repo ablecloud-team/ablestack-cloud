@@ -5893,8 +5893,12 @@
   "message.create.instance.from.backup.different.zone": "Creating Instance from Backup on a different Zone. Please ensure that the backup repository is accessible in the selected Zone.",
   "message.csv.empty": "Empty CSV File",
   "message.csv.missing.headers": "Columns are missing from headers in CSV",
-  "message.template.ostype.different.from.backup": "Selected Template has a different OS type than the Backup. Please proceed with caution.",
-  "message.iso.ostype.different.from.backup": "Selected ISO has a different OS type than the Backup. Please proceed with caution.",
+  "message.template.ostype.different.from.backup": "The selected template has a different OS type from the backup. The restored OS remains unchanged; the selected hardware settings may cause boot or driver compatibility issues.",
+  "message.iso.ostype.different.from.backup": "The selected ISO has a different OS type from the backup. The restored OS remains unchanged; the selected hardware settings may cause boot or driver compatibility issues.",
+  "message.backup.instance.disk.capacity.fixed": "Root and data disks must retain their backed-up capacities. Select disk offerings with matching capacities. Disk capacity changes during restore are currently restricted.",
+  "message.backup.instance.disk.capacity.mismatch": "The selected disk capacity differs from the backup. Select a matching capacity before creating the instance; a template larger than the backed-up root disk cannot be used.",
+  "message.backup.instance.boot.mismatch": "The selected boot type or mode differs from the backup. The restored OS is not adapted to the new firmware settings and may fail to boot.",
+  "message.backup.instance.thin.allocation": "File-based QCOW2 restore may allocate the entire disk capacity even with a Thin offering. Ensure primary storage has space for the full disk capacity and temporary restore files.",
   "message.action.delete.custom.action": "Please confirm that you want to delete this custom action.",
   "message.action.delete.extension": "Please confirm that you want to delete the extension",
   "message.action.delete.gpu.card": "Please confirm that you want to delete this GPU card.",
@@ -8308,5 +8312,8 @@
   "label.jobid": "Job ID",
   "label.vmsnapshot.force.delete": "Force delete",
   "message.vmsnapshot.force.delete.impact": "Clean up residual data and metadata of the failed snapshot. Active operations or unconfirmed disk state stop recovery.",
-  "message.vmsnapshot.force.delete.unavailable": "Recovery permission or snapshot state changed. Refresh the snapshot."
+  "message.vmsnapshot.force.delete.unavailable": "Recovery permission or snapshot state changed. Refresh the snapshot.",
+  "label.backup.cancellation.pending": "Cancellation pending",
+  "message.backup.cancellation.pending": "Cancellation requested. Waiting for the backup job to stop and cleanup to complete.",
+  "message.backup.cancellation.accepted": "Backup cancellation request accepted. Completion will be shown after termination and cleanup are confirmed."
 }

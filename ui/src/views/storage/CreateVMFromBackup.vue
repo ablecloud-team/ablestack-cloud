@@ -170,6 +170,24 @@ export default {
       this.dataPreFill.allowtemplateisoselection = true
       this.dataPreFill.isoid = this.vmdetails.templateid
       this.dataPreFill.allowIpAddressesFetch = this.resource.isbackupvmexpunged
+      if (this.vmdetails.vmsettings) {
+        try {
+          const settings = JSON.parse(this.vmdetails.vmsettings)
+          this.dataPreFill.boottype = settings.UEFI ? 'UEFI' : 'BIOS'
+          this.dataPreFill.bootmode = settings.UEFI || 'LEGACY'
+          this.dataPreFill.backupBootType = this.dataPreFill.boottype
+          this.dataPreFill.backupBootMode = this.dataPreFill.bootmode
+          this.dataPreFill.iothreadsenabled = Object.prototype.hasOwnProperty.call(settings, 'iothreads') && settings.iothreads !== 'false'
+          this.dataPreFill.keyboard = settings.keyboard
+          this.dataPreFill.iodriverpolicy = settings['io.policy']
+          this.dataPreFill.nicmultiqueuenumber = settings['nic.multiqueue.number']
+          if (settings['nic.packed.virtqueues.enabled'] !== undefined) {
+            this.dataPreFill.nicpackedvirtqueuesenabled = settings['nic.packed.virtqueues.enabled'] === 'true'
+          }
+        } catch (e) {
+          // Older backups may not contain usable VM settings; retain the template defaults.
+        }
+      }
       if (this.vmdetails.nics) {
         const nics = JSON.parse(this.vmdetails.nics)
         this.dataPreFill.networkids = nics.map(nic => nic.networkid)
@@ -195,6 +213,9 @@ export default {
         type: volume.type,
         diskofferingid: volume.diskOfferingId
       })).filter(volume => volume.type === 'ROOT')
+      this.dataPreFill.backupRootDiskSize = rootdisksdetails[0].size
+      this.dataPreFill.rootdisksize = rootdisksdetails[0].size
+      this.dataPreFill.minrootdisksize = rootdisksdetails[0].size
       if (this.dataPreFill.isIso) {
         this.dataPreFill.diskofferingid = rootdisksdetails[0].diskofferingid
         this.dataPreFill.size = rootdisksdetails[0].size

@@ -2290,7 +2290,7 @@ export default {
             resolve(true)
           },
           loadingMessage: `${this.$t(action.label)} - ${resourceName}`,
-          successMessage: action.api === 'restoreBackup' ? this.$t(action.successMessage) : undefined,
+          successMessage: ['restoreBackup', 'cancelBackup'].includes(action.api) ? this.$t(action.successMessage) : undefined,
           showLoading: showLoading && !commvaultRestore,
           showSuccessMessage: !commvaultRestore,
           catchMessage: this.$t('error.fetching.async.job.result'),

@@ -31,6 +31,13 @@ public class LibvirtAblestackBackupJobStatusCommandWrapper
 
     @Override
     public Answer execute(final AblestackBackupJobStatusCommand command, final LibvirtComputingResource resource) {
+        if (command.isVerifyTermination()) {
+            final com.cloud.utils.Pair<Boolean, String> stopped = LibvirtAblestackAsyncBackupRunner.confirmJobStopped(
+                    command.getBackupJobId(), command.getVmName(), logger);
+            final BackupAnswer answer = new BackupAnswer(command, true, stopped.second());
+            answer.setSourceTerminationConfirmed(stopped.first());
+            return answer;
+        }
         BackupAnswer answer = LibvirtAblestackAsyncBackupRunner.getJobStatus(command, command.getBackupJobId(),
                 command.getEventsOffset(), command.getEventsLimit(), logger);
         logger.debug("ABLESTACK backup job status command completed. jobId=[{}], state=[{}], jobLog=[{}]",

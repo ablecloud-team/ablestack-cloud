@@ -36,6 +36,7 @@ public class BackupAnswer extends Answer {
     // (e.g. VM was stopped). Provider should record this backup as type=full.
     private Boolean incrementalFallback;
     private String state;
+    private Boolean sourceTerminationConfirmed;
     private String step;
     private Integer progress;
     private Integer volumeIndex;
@@ -60,6 +61,10 @@ public class BackupAnswer extends Answer {
     public void setVmRestoreResult(String value) { vmRestoreResult = value; }
     public String getVmRestoreResultError() { return vmRestoreResultError; }
     public void setVmRestoreResultError(String value) { vmRestoreResultError = value; }
+
+    public Boolean getSourceTerminationConfirmed() { return sourceTerminationConfirmed; }
+
+    public void setSourceTerminationConfirmed(Boolean value) { sourceTerminationConfirmed = value; }
 
     public BackupAnswer(final Command command, final boolean success, final String details) {
         super(command, success, details);

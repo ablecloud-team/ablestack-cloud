@@ -127,6 +127,7 @@ import org.apache.cloudstack.api.command.user.volume.ResizeVolumeCmd;
 import org.apache.cloudstack.backup.Backup;
 import org.apache.cloudstack.backup.BackupManager;
 import org.apache.cloudstack.backup.BackupProvider;
+import org.apache.cloudstack.backup.BackupProviderNameUtils;
 import org.apache.cloudstack.backup.BackupScheduleVO;
 import org.apache.cloudstack.backup.BackupVO;
 import org.apache.cloudstack.backup.InternalBackupService;
@@ -10503,6 +10504,39 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         }
     }
 
+    void validateAblestackInstanceDiskSizes(Backup backup, VmDiskInfo backupRoot, Long rootSize,
+            DiskOffering rootOffering, List<VmDiskInfo> dataDisks) {
+        BackupProvider provider = backupManager.getBackupProviderForOffering(backup.getBackupOfferingId());
+        if (provider == null || !(BackupProviderNameUtils.isNasFamily(provider.getName())
+                || BackupProviderNameUtils.isVeeamFamily(provider.getName())
+                || BackupProviderNameUtils.isCommvaultFamily(provider.getName())
+                || BackupProviderNameUtils.isNetBackupFamily(provider.getName()))) {
+            return;
+        }
+        final long effectiveRootSize = rootOffering != null && !rootOffering.isCustomized() && !rootOffering.isComputeOnly()
+                ? rootOffering.getDiskSize() / GiB_TO_BYTES : rootSize;
+        checkEqualRestoreDiskSize("root", effectiveRootSize, backupRoot.getSize());
+        final List<VmDiskInfo> backupDataDisks = backupManager.getDataDiskInfoListFromBackup(backup);
+        if (dataDisks.size() != backupDataDisks.size()) {
+            throw new InvalidParameterValueException("The number of data disks must match the backup.");
+        }
+        for (int index = 0; index < dataDisks.size(); index++) {
+            final VmDiskInfo disk = dataDisks.get(index);
+            final long effectiveSize = disk.getDiskOffering().isCustomized()
+                    ? disk.getSize() : disk.getDiskOffering().getDiskSize() / GiB_TO_BYTES;
+            checkEqualRestoreDiskSize("data " + (index + 1), effectiveSize, backupDataDisks.get(index).getSize());
+        }
+    }
+
+    private void checkEqualRestoreDiskSize(String disk, long requestedSize, long backupSize) {
+        if (requestedSize != backupSize) {
+            throw new InvalidParameterValueException(String.format(
+                    "Creating an Instance from an ABLESTACK backup currently requires the same disk capacity as the backup. "
+                            + "The %s disk must be %d GiB; requested %d GiB. Disk resizing during restore is not supported.",
+                    disk, backupSize, requestedSize));
+        }
+    }
+
     @Override
     public UserVm allocateVMFromBackup(CreateVMFromBackupCmd cmd) throws InsufficientCapacityException, ResourceAllocationException, ResourceUnavailableException {
         BackupVO backup = backupDao.findById(cmd.getBackupId());
@@ -10573,6 +10607,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
 
         Long diskOfferingId = cmd.getDiskOfferingId();
         boolean isIso = template.getFormat().equals(ImageFormat.ISO);
+        DiskOffering selectedRootOffering = null;
         if (diskOfferingId != null) {
             if (!isIso) {
                 throw new InvalidParameterValueException(ApiConstants.DISK_OFFERING_ID + " parameter is supported for creating instance from backup only for ISO. For creating VMs with templates, please use the parameter " + ApiConstants.DATADISKS_DETAILS);
@@ -10584,30 +10619,35 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             if (diskOffering.isComputeOnly()) {
                 throw new InvalidParameterValueException(String.format("The disk offering %s provided is directly mapped to a service offering, please provide an individual disk offering", diskOffering));
             }
+            selectedRootOffering = diskOffering;
         }
 
         Long overrideDiskOfferingId = cmd.getOverrideDiskOfferingId();
 
         VmDiskInfo rootVmDiskInfoFromBackup = backupManager.getRootDiskInfoFromBackup(backup);
+        Map<String, String> backupRootDiskDetails = new HashMap<>();
+        updateDetailsWithRootDiskAttributes(backupRootDiskDetails, rootVmDiskInfoFromBackup);
+        cmd.setBackupRootDiskDetails(backupRootDiskDetails);
 
         if (isIso) {
             if (diskOfferingId == null) {
                 diskOfferingId = rootVmDiskInfoFromBackup.getDiskOffering().getId();
-                updateDetailsWithRootDiskAttributes(cmd.getDetails(), rootVmDiskInfoFromBackup);
                 size = rootVmDiskInfoFromBackup.getSize();
+                selectedRootOffering = rootVmDiskInfoFromBackup.getDiskOffering();
             } else {
-                DiskOffering rootDiskOffering = _diskOfferingDao.findById(diskOfferingId);
-                checkRootDiskSizeAgainstBackup(size, rootDiskOffering, rootVmDiskInfoFromBackup.getSize());
+                if (size == null && selectedRootOffering.isCustomized()) {
+                    size = rootVmDiskInfoFromBackup.getSize();
+                }
+                checkRootDiskSizeAgainstBackup(size, selectedRootOffering, rootVmDiskInfoFromBackup.getSize());
             }
         } else {
             if (overrideDiskOfferingId == null) {
                 overrideDiskOfferingId = serviceOffering.getDiskOfferingId();
-                updateDetailsWithRootDiskAttributes(cmd.getDetails(), rootVmDiskInfoFromBackup);
+                selectedRootOffering = overrideDiskOfferingId == null ? null : _diskOfferingDao.findById(overrideDiskOfferingId);
             } else {
                 DiskOffering overrideDiskOffering = _diskOfferingDao.findById(overrideDiskOfferingId);
-                if (overrideDiskOffering.isComputeOnly()) {
-                    updateDetailsWithRootDiskAttributes(cmd.getDetails(), rootVmDiskInfoFromBackup);
-                } else {
+                selectedRootOffering = overrideDiskOffering;
+                if (!overrideDiskOffering.isComputeOnly()) {
                     String diskSizeFromDetails = cmd.getDetails().get(VmDetailConstants.ROOT_DISK_SIZE);
                     Long rootDiskSize = diskSizeFromDetails == null ? null : Long.parseLong(diskSizeFromDetails);
                     checkRootDiskSizeAgainstBackup(rootDiskSize, overrideDiskOffering, rootVmDiskInfoFromBackup.getSize());
@@ -10621,6 +10661,10 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         } else {
             dataDiskInfoList = backupManager.getDataDiskInfoListFromBackup(backup);
         }
+        final String requestedRootSize = cmd.getDetails().get(VmDetailConstants.ROOT_DISK_SIZE);
+        final Long selectedRootSize = isIso ? size : requestedRootSize == null
+                ? rootVmDiskInfoFromBackup.getSize() : Long.valueOf(requestedRootSize);
+        validateAblestackInstanceDiskSizes(backup, rootVmDiskInfoFromBackup, selectedRootSize, selectedRootOffering, dataDiskInfoList);
 
         List<Long> networkIds = cmd.getNetworkIds();
         Account owner = _accountService.getActiveAccountById(cmd.getEntityOwnerId());
@@ -10639,18 +10683,32 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                 networkIds, ipToNetworkMap, null, null);
 
         String vmSettingsFromBackup = backup.getDetail(ApiConstants.VM_SETTINGS);
-        if (vm != null && vmSettingsFromBackup != null) {
+        final Map<String, String> requestedDetails = cmd.getDetails();
+        if (vm != null && (vmSettingsFromBackup != null || requestedDetails.containsKey(VmDetailConstants.IOTHREADS)
+                || requestedDetails.containsKey(VmDetailConstants.NIC_PACKED_VIRTQUEUES_ENABLED)
+                || requestedDetails.containsKey(ApiConstants.BootType.BIOS.toString()))) {
             UserVmVO vmVO = _vmDao.findById(vm.getId());
             Map<String, String> details = vmInstanceDetailsDao.listDetailsKeyPairs(vm.getId());
-            vmVO.setDetails(details);
-
-            Type type = new TypeToken<Map<String, String>>(){}.getType();
-            Map<String, String> vmDetailsFromBackup = new Gson().fromJson(vmSettingsFromBackup, type);
-            for (Entry<String, String> entry : vmDetailsFromBackup.entrySet()) {
-                if (!details.containsKey(entry.getKey())) {
-                    vmVO.setDetail(entry.getKey(), entry.getValue());
+            // KVM enables IO threads by key presence. Normalize false only in the backup creation path.
+            if ("false".equalsIgnoreCase(requestedDetails.get(VmDetailConstants.IOTHREADS))) {
+                details.remove(VmDetailConstants.IOTHREADS);
+            }
+            if (requestedDetails.containsKey(ApiConstants.BootType.BIOS.toString())) {
+                details.remove(ApiConstants.BootType.UEFI.toString());
+            }
+            if (vmSettingsFromBackup != null) {
+                Type type = new TypeToken<Map<String, String>>(){}.getType();
+                Map<String, String> vmDetailsFromBackup = new Gson().fromJson(vmSettingsFromBackup, type);
+                for (Entry<String, String> entry : vmDetailsFromBackup.entrySet()) {
+                    if (requestedDetails.containsKey(entry.getKey())
+                            || (ApiConstants.BootType.UEFI.toString().equals(entry.getKey())
+                                    && requestedDetails.containsKey(ApiConstants.BootType.BIOS.toString()))) {
+                        continue;
+                    }
+                    details.putIfAbsent(entry.getKey(), entry.getValue());
                 }
             }
+            vmVO.setDetails(details);
             _vmDao.saveDetails(vmVO);
         }
 
@@ -10664,9 +10722,15 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         Map<Long, DiskOffering> diskOfferingMap = cmd.getDataDiskTemplateToDiskOfferingMap();
         Map<VirtualMachineProfile.Param, Object> additonalParams = new HashMap<>();
         additonalParams.put(VirtualMachineProfile.Param.ReturnAfterVolumePrepare, true);
+        final Long podId = cmd instanceof CreateVMFromBackupCmdByAdmin ? ((CreateVMFromBackupCmdByAdmin)cmd).getPodId() : null;
+        final Long clusterId = cmd instanceof CreateVMFromBackupCmdByAdmin ? ((CreateVMFromBackupCmdByAdmin)cmd).getClusterId() : null;
+        final BackupManager.RestoreVmStartOptions startOptions = podId != null || clusterId != null || cmd.getHostId() != null
+                || cmd.getDeploymentPlanner() != null || cmd.getBootIntoSetup() != null
+                ? new BackupManager.RestoreVmStartOptions(podId, clusterId, cmd.getHostId(), cmd.getDeploymentPlanner(), cmd.getBootIntoSetup()) : null;
 
         try {
             Pair<UserVmVO, Map<VirtualMachineProfile.Param, Object>> vmParamPair = null;
+            // Preserve provider-specific restore host selection; placement choices apply at final startup.
             vmParamPair = startVirtualMachine(vmId, null, null, null, additonalParams, null);
             vm = vmParamPair.first();
 
@@ -10684,8 +10748,9 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                 vm = resetVMSSHKeyInternal(userVm, owner, sshKeyPairNames);
             }
 
-            BackupManager.RestoreRequestStatus restoreStatus = backupManager.requestRestoreBackupToVM(
-                    cmd.getBackupId(), vmId, cmd.getQuickRestore(), cmd.getStartVm());
+            BackupManager.RestoreRequestStatus restoreStatus = startOptions == null
+                    ? backupManager.requestRestoreBackupToVM(cmd.getBackupId(), vmId, cmd.getQuickRestore(), cmd.getStartVm())
+                    : backupManager.requestRestoreBackupToVM(cmd.getBackupId(), vmId, cmd.getQuickRestore(), cmd.getStartVm(), startOptions);
             if (BackupManager.RestoreRequestStatus.ACCEPTED.equals(restoreStatus)) {
                 return _vmDao.findById(vmId);
             }
@@ -10702,14 +10767,10 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         }
 
         if (cmd.getStartVm() && !cmd.getQuickRestore()) {
-            Long podId = null;
-            Long clusterId = null;
-            if (cmd instanceof CreateVMFromBackupCmdByAdmin) {
-                CreateVMFromBackupCmdByAdmin adminCmd = (CreateVMFromBackupCmdByAdmin)cmd;
-                podId = adminCmd.getPodId();
-                clusterId = adminCmd.getClusterId();
-            }
             additonalParams.remove(VirtualMachineProfile.Param.ReturnAfterVolumePrepare);
+            if (cmd.getBootIntoSetup() != null) {
+                additonalParams.put(VirtualMachineProfile.Param.BootIntoSetup, cmd.getBootIntoSetup());
+            }
             vm = startVirtualMachine(vmId, podId, clusterId, cmd.getHostId(), diskOfferingMap, additonalParams, cmd.getDeploymentPlanner());
         }
         return vm;

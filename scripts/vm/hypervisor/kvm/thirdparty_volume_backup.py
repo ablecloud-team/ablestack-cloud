@@ -56,6 +56,8 @@ def atomic(path, value):
 
 
 def run(args, timeout=300):
+    if args[0] == "virsh":
+        timeout = min(timeout, 30)  # Control response timeout, independent of data transfer duration.
     # Never include Ceph keys or controller credentials in errors or the job log.
     result = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                             text=True, timeout=timeout, check=False, env=dict(os.environ, LC_ALL="C"))
@@ -575,13 +577,24 @@ class Backup:
         self.progress("FINALIZING", self.count, 1)
 
     def close(self):
+        thaw_error = None
+        try:
+            self.thaw_guest()
+        except Exception as exc:
+            # Keep the durable freeze ownership proof and still attempt to stop readers.
+            thaw_error = exc
         if self.success:
+            if thaw_error:
+                raise RuntimeError("Guest thaw is unconfirmed; finalization remains pending") from thaw_error
             finalize_host(self.plan, self.job, self.manifest)
             self.pull = False
             return
         if self.pull:
             try:
                 run(["virsh", "-c", "qemu:///system", "domjobabort", self.domain], 30)
+                info = run(["virsh", "-c", "qemu:///system", "domjobinfo", self.domain], 30)
+                if not re.search(r"Job type:\s+None(?:\s|$)", info):
+                    raise RuntimeError("Abort accepted but source job termination is unconfirmed")
                 self.pull = False
             except Exception:
                 print("QCOW2 backup cleanup is pending; capacity reservation is retained", flush=True)
@@ -594,6 +607,8 @@ class Backup:
                 self.pull = True
         # The final metadata acknowledgment may be delayed beyond engine exit.
         # Only controller reconciliation may decide whether to remove checkpoints.
+        if thaw_error:
+            raise RuntimeError("Guest thaw remains pending; source cleanup evidence is retained") from thaw_error
 
 
 def validate_completed_transfers(plan, manifest):
@@ -702,16 +717,28 @@ def retire_parent_snapshots(plan, job):
     return not errors
 
 
+def guest_is_off_or_absent(vm):
+    try:
+        return run(["virsh", "-c", "qemu:///system", "domstate", vm], 30).strip() == "shut off"
+    except (RuntimeError, subprocess.TimeoutExpired):
+        # A failed lookup alone must never authorize cleanup.
+        return vm not in run(["virsh", "-c", "qemu:///system", "list", "--all", "--name"], 30).splitlines()
+
+
 def thaw_owned_guest(receipt, vm):
     if not receipt.exists():
         return
     engine = json.loads(receipt.read_text())
     if engine.get("freezePending"):
-        state = json.loads(run(["virsh", "-c", "qemu:///system", "qemu-agent-command", vm,
-                                '{"execute":"guest-fsfreeze-status"}'], 30))
-        if state.get("return") != "thawed":
-            run(["virsh", "-c", "qemu:///system", "qemu-agent-command", vm,
-                 '{"execute":"guest-fsfreeze-thaw"}'], 30)
+        try:
+            state = json.loads(run(["virsh", "-c", "qemu:///system", "qemu-agent-command", vm,
+                                    '{"execute":"guest-fsfreeze-status"}'], 30))
+            if state.get("return") != "thawed":
+                run(["virsh", "-c", "qemu:///system", "qemu-agent-command", vm,
+                     '{"execute":"guest-fsfreeze-thaw"}'], 30)
+        except (RuntimeError, subprocess.TimeoutExpired):
+            if not guest_is_off_or_absent(vm):
+                raise
         engine["freezePending"] = False
         atomic(receipt, engine)
 
@@ -747,7 +774,7 @@ def cleanup_source(plan, job, receipt, keep_checkpoint=False):
         return
     domain = "DUMMY-VOLUME-" + job_id if (job / "dummy.xml").exists() else plan["vmName"]
     state = subprocess.run(["virsh", "-c", "qemu:///system", "domstate", domain], capture_output=True, text=True,
-                           env=dict(os.environ, LC_ALL="C"))
+                           timeout=30, env=dict(os.environ, LC_ALL="C"))
     if not plan["rbd"] and state.returncode == 0:
         active = state.stdout.strip().lower() != "shut off"
         if active:

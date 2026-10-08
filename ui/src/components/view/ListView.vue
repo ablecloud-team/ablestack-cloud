@@ -505,6 +505,7 @@
           :record="record"
           :statusText="text ? text : ''"
           @capabilities-change="record.capabilities = $event"
+              @cancellation-change="record.backupcancellationpending = $event"
           @restore-finished="record.restoreoperationpending = false; record.restorejobstate = $event" />
         <status
           v-else

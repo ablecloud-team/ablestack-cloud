@@ -23,6 +23,8 @@ public class AblestackBackupJobStatusCommand extends Command {
     private String backupJobId;
     private Long eventsOffset;
     private Integer eventsLimit;
+    private boolean verifyTermination;
+    private String vmName;
 
     protected AblestackBackupJobStatusCommand() {
         super();
@@ -37,6 +39,14 @@ public class AblestackBackupJobStatusCommand extends Command {
         this.eventsOffset = eventsOffset;
         this.eventsLimit = eventsLimit;
     }
+
+    public boolean isVerifyTermination() { return verifyTermination; }
+
+    public void setVerifyTermination(boolean value) { verifyTermination = value; }
+
+    public String getVmName() { return vmName; }
+
+    public void setVmName(String value) { vmName = value; }
 
     public String getBackupJobId() {
         return backupJobId;

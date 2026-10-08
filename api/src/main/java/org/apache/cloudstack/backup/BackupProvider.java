@@ -272,6 +272,11 @@ public interface BackupProvider {
         return false;
     }
 
+    /** Retry once, after common reconciliation confirms failed source and payload cleanup. */
+    default boolean retryFailedBackupAsFull(VirtualMachine vm, Backup backup, String reason) {
+        return false;
+    }
+
     /**
      * check commvault backup agent
      */

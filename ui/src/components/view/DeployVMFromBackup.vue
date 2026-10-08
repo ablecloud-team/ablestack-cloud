@@ -25,6 +25,30 @@
           </template>
         </a-alert>
         <a-card :bordered="true" :title="$t('label.configure.instance')">
+          <a-alert
+            v-if="requiresBackupDiskCapacity"
+            type="info"
+            show-icon
+            style="margin-bottom: 10px"
+            :message="$t('message.backup.instance.disk.capacity.fixed')" />
+          <a-alert
+            v-if="hasRestoreDiskSizeMismatch"
+            type="error"
+            show-icon
+            style="margin-bottom: 10px"
+            :message="$t('message.backup.instance.disk.capacity.mismatch')" />
+          <a-alert
+            v-if="hasBackupBootMismatch"
+            type="warning"
+            show-icon
+            style="margin-bottom: 10px"
+            :message="$t('message.backup.instance.boot.mismatch')" />
+          <a-alert
+            v-if="hasThinRestoreOffering"
+            type="warning"
+            show-icon
+            style="margin-bottom: 10px"
+            :message="$t('message.backup.instance.thin.allocation')" />
           <a-form
             v-ctrl-enter="handleSubmit"
             :ref="formRef"
@@ -170,6 +194,8 @@
                       @tabChange="key => onTabChange(key, 'tabKey')">
                       <a-alert
                         v-if="showOsTypeWarning && selectedTemplateIso"
+                        type="warning"
+                        show-icon
                         style="margin-bottom: 10px">
                         <template #message>
                           <div>
@@ -383,6 +409,7 @@
                               input-decorator="rootdisksize"
                               :preFillContent="dataPreFill"
                               :minDiskSize="dataPreFill.minrootdisksize"
+                              :maxDiskSize="requiresBackupDiskCapacity ? dataPreFill.backupRootDiskSize : 0"
                               :rootDiskSelected="overrideDiskOffering"
                               :isCustomized="overrideDiskOffering.iscustomized"
                               @handler-error="handlerError"
@@ -434,6 +461,8 @@
                       v-if="diskOffering && (diskOffering.iscustomized || diskOffering.iscustomizediops)"
                       input-decorator="size"
                       :preFillContent="dataPreFill"
+                      :minDiskSize="requiresBackupDiskCapacity ? dataPreFill.backupRootDiskSize : 0"
+                      :maxDiskSize="requiresBackupDiskCapacity ? dataPreFill.backupRootDiskSize : 0"
                       :diskSelected="diskSelected"
                       :isCustomized="diskOffering.iscustomized"
                       @handler-error="handlerError"
@@ -453,6 +482,7 @@
                   <div v-if="zoneSelected">
                     <volume-disk-offering-select-view
                       :items="dataPreFill.datadisksdetails"
+                      :fixedCapacity="requiresBackupDiskCapacity"
                       :zoneId="zoneId"
                       @select-volumes-disk-offering="updateVolumesDiskOffering($event)" />
                   </div>
@@ -988,6 +1018,38 @@ export default {
     }
   },
   computed: {
+    requiresBackupDiskCapacity () {
+      return isAblestackInstanceCreation(this.dataPreFill.backupprovider)
+    },
+    hasBackupBootMismatch () {
+      if (!this.requiresBackupDiskCapacity || !this.dataPreFill.backupBootType || !this.form.boottype) return false
+      return this.form.boottype !== this.dataPreFill.backupBootType ||
+        (this.form.boottype === 'UEFI' && this.form.bootmode !== this.dataPreFill.backupBootMode)
+    },
+    hasRestoreDiskSizeMismatch () {
+      if (!this.requiresBackupDiskCapacity || !this.dataPreFill.backupRootDiskSize) return false
+      const backupSize = Number(this.dataPreFill.backupRootDiskSize)
+      const rootOffering = this.tabKey === 'isoid' ? this.diskOffering : this.overrideDiskOffering
+      const configuredSize = this.tabKey === 'isoid' ? this.form.size : this.form.rootdisksize
+      const rootSize = rootOffering?.disksize > 0 && !rootOffering.iscustomized
+        ? Number(rootOffering.disksize) : Number(configuredSize || backupSize)
+      if (rootSize !== backupSize || (this.tabKey === 'templateid' && this.template?.size > backupSize * 1024 ** 3)) return true
+      return Object.values(this.form.volumesdiskoffering || {}).some(disk => {
+        const backupDisk = (this.dataPreFill.datadisksdetails || []).find(item => item.deviceid === disk.deviceid)
+        const offering = (this.options.diskOfferings || []).find(item => item.id === disk.offering)
+        const size = offering && !offering.iscustomized ? offering.disksize : disk.size
+        return backupDisk && Number(size) !== Number(backupDisk.size)
+      })
+    },
+    hasThinRestoreOffering () {
+      if (!this.requiresBackupDiskCapacity) return false
+      const rootOffering = this.tabKey === 'isoid' ? this.diskOffering : this.overrideDiskOffering
+      if (rootOffering?.provisioningtype?.toLowerCase() === 'thin') return true
+      return Object.values(this.form.volumesdiskoffering || {}).some(disk => {
+        const offering = (this.options.diskOfferings || []).find(item => item.id === disk.offering)
+        return (disk.provisioningtype || offering?.provisioningtype)?.toLowerCase() === 'thin'
+      })
+    },
     rootDiskSize () {
       return this.showRootDiskSizeChanger && this.rootDiskSizeFixed > 0
     },
@@ -1566,9 +1628,10 @@ export default {
       this.fetchInstaceGroups()
       this.fetchIoPolicyTypes()
       nextTick().then(() => {
-        ['name', 'keyboard', 'boottype', 'bootmode', 'iothreadsenabled', 'iodriverpolicy', 'nicmultiqueuenumber', 'nicpackedvirtqueues'].forEach(this.fillValue)
-        this.form.boottype = this.defaultBootType ? this.defaultBootType : this.options.bootTypes && this.options.bootTypes.length > 0 ? this.options.bootTypes[0].id : undefined
-        this.form.bootmode = this.defaultBootMode ? this.defaultBootMode : this.options.bootModes && this.options.bootModes.length > 0 ? this.options.bootModes[0].id : undefined
+        ['name', 'keyboard', 'boottype', 'bootmode', 'iothreadsenabled', 'iodriverpolicy', 'nicmultiqueuenumber', 'nicpackedvirtqueuesenabled'].forEach(this.fillValue)
+        this.form.boottype = this.form.boottype || this.defaultBootType || this.options.bootTypes?.[0]?.id
+        this.fetchBootModes(this.form.boottype)
+        this.form.bootmode = this.dataPreFill.bootmode || this.defaultBootMode || this.options.bootModes?.[0]?.id
         this.instanceConfig = toRaw(this.form)
       })
     },
@@ -1686,18 +1749,20 @@ export default {
         }
         if (template) {
           var size = template.size / (1024 * 1024 * 1024) || 0 // bytes to GB
-          this.dataPreFill.minrootdisksize = Math.ceil(size)
+          this.dataPreFill.minrootdisksize = Math.max(Math.ceil(size), this.dataPreFill.backupRootDiskSize || 0)
           this.form.dynamicscalingenabled = template.isdynamicallyscalable
-          this.defaultBootType = template.details?.UEFI ? 'UEFI' : 'BIOS'
+          const backupTemplate = template.id === this.dataPreFill.templateid
+          this.defaultBootType = (backupTemplate && this.dataPreFill.boottype) || (template.details?.UEFI ? 'UEFI' : 'BIOS')
           this.form.boottype = this.defaultBootType
           this.fetchBootModes(this.form.boottype)
-          this.defaultBootMode = template.details?.UEFI || this.options.bootModes?.[0]?.id || undefined
+          this.defaultBootMode = (backupTemplate && this.dataPreFill.bootmode) || template.details?.UEFI || this.options.bootModes?.[0]?.id || undefined
           this.form.bootmode = this.defaultBootMode
-          this.form.iothreadsenabled = template.details && Object.prototype.hasOwnProperty.call(template.details, 'iothreads')
-          this.form.iodriverpolicy = template.details?.['io.policy']
-          this.form.keyboard = template.details?.keyboard
+          this.form.iothreadsenabled = backupTemplate && this.dataPreFill.iothreadsenabled !== undefined
+            ? this.dataPreFill.iothreadsenabled : template.details && Object.prototype.hasOwnProperty.call(template.details, 'iothreads')
+          this.form.iodriverpolicy = (backupTemplate && this.dataPreFill.iodriverpolicy) || template.details?.['io.policy']
+          this.form.keyboard = (backupTemplate && this.dataPreFill.keyboard) || template.details?.keyboard
           this.showOsTypeWarning = this.dataPreFill.ostypeid && template.ostypeid !== this.dataPreFill.ostypeid
-          if (template.details['vmware-to-kvm-mac-addresses']) {
+          if (template.details?.['vmware-to-kvm-mac-addresses']) {
             this.dataPreFill.macAddressArray = JSON.parse(template.details['vmware-to-kvm-mac-addresses'])
           }
           this.selectedArchitecture = template?.arch || 'x86_64'
@@ -1844,6 +1909,13 @@ export default {
           this.$notification.error({
             message: this.$t('message.request.failed'),
             description: this.$t('message.step.2.continue')
+          })
+          return
+        }
+        if (this.hasRestoreDiskSizeMismatch) {
+          this.$notification.error({
+            message: this.$t('message.request.failed'),
+            description: this.$t('message.backup.instance.disk.capacity.mismatch')
           })
           return
         }

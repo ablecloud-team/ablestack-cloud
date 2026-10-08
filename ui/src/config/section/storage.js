@@ -57,7 +57,7 @@ const hasSubmittedCommvaultJob = (record) => {
 const isBackupOperationInProgress = (record) => {
   const restoreState = String(record?.restorejobstate || '').toLowerCase()
   const restoreFinished = ['completed', 'failed', 'canceled', 'cancelled', 'interrupted'].includes(restoreState)
-  return ['backingup', 'restoring'].includes(String(record?.status || '').toLowerCase()) ||
+  return record?.backupcancellationpending === true || ['backingup', 'restoring'].includes(String(record?.status || '').toLowerCase()) ||
     record?.restoreoperationpending === true || ['starting', 'running'].includes(restoreState) ||
     (!!record?.restorejobid && !restoreFinished)
 }
@@ -644,6 +644,7 @@ export default {
         },
         {
           api: 'updateBackupJobBandwidth',
+          disabled: record => record.backupcancellationpending === true,
           icon: 'thunderbolt-outlined',
           label: 'label.action.update.backup.bandwidth',
           dataView: true,
@@ -682,6 +683,8 @@ export default {
         },
         {
           api: 'cancelBackup',
+          successMessage: 'message.backup.cancellation.accepted',
+          disabled: record => record.backupcancellationpending === true,
           icon: 'stop-outlined',
           label: 'label.cancel',
           message: 'message.confirm.cancel.backup',

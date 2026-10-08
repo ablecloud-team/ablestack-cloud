@@ -52,6 +52,12 @@
               <span>{{ $t('label.status') }} :</span>
               <span>{{ bandwidthStatusLabel }}</span>
             </div>
+            <div v-if="isCancellationPending" class="backup-progress-tooltip-row">
+              <span>{{ $t('message.backup.cancellation.pending') }}</span>
+            </div>
+            <div v-if="cancellationDetails" class="backup-progress-tooltip-row">
+              <span>{{ cancellationDetails }}</span>
+            </div>
             <div v-if="failureDetails" class="backup-progress-tooltip-row backup-progress-tooltip-error">
               <span>{{ $t('label.failure.reason') }} :</span>
               <span>{{ failureDetails }}</span>
@@ -131,7 +137,7 @@ const POLL_INTERVAL_MS = 5000
 
 export default {
   name: 'BackupProgress',
-  emits: ['capabilities-change', 'restore-finished'],
+  emits: ['capabilities-change', 'restore-finished', 'cancellation-change'],
   components: {
     Status
   },
@@ -150,7 +156,8 @@ export default {
       timer: null,
       localStatus: String(this.record?.status || this.statusText || ''),
       progress: this.normalizeProgress(this.record?.backupjobprogress ?? this.record?.progress),
-      jobState: this.record?.restorejobstate || this.record?.backupjobstate || '',
+      jobState: this.record?.backupcancellationpending ? 'CANCEL_PENDING' : (this.record?.restorejobstate || this.record?.backupjobstate || ''),
+      cancellationDetails: this.record?.backupcancellationpending ? this.record?.backupjobdetails || '' : '',
       step: this.record?.restorejobstep || this.record?.backupjobstep || '',
       volumeIndex: null,
       volumeCount: null,
@@ -168,7 +175,11 @@ export default {
     }
   },
   computed: {
+    isCancellationPending () {
+      return !this.isRestoring && String(this.jobState || '').toUpperCase() === 'CANCEL_PENDING'
+    },
     displayStatus () {
+      if (this.isCancellationPending) return this.$t('label.backup.cancellation.pending')
       const status = this.localStatus || String(this.record?.status || this.statusText || '')
       if (this.isRestoring) {
         return 'Restoring'
@@ -177,7 +188,7 @@ export default {
     },
     isActive () {
       const status = String(this.localStatus || this.record?.status || '').toLowerCase()
-      return ['backingup', 'restoring'].includes(status) || this.hasTrackedRestoreJob
+      return this.isCancellationPending || ['backingup', 'restoring'].includes(status) || this.hasTrackedRestoreJob
     },
     isRestoring () {
       const status = String(this.localStatus || this.record?.status || '').toLowerCase()
@@ -190,7 +201,7 @@ export default {
       return this.progress !== null
     },
     showProgress () {
-      return this.hasProgress && this.isActive && !this.isRestoring &&
+      return this.hasProgress && this.isActive && !this.isRestoring && !this.isCancellationPending &&
         (this.volumeCount !== null || String(this.step || '').toUpperCase() !== 'COMMVAULT_TRANSFER')
     },
     isAwaitingBackupFinalization () {
@@ -275,7 +286,7 @@ export default {
       if (progress !== null) {
         this.progress = progress
       }
-      this.jobState = this.record?.restorejobstate || this.record?.backupjobstate || ''
+      this.jobState = this.record?.backupcancellationpending ? 'CANCEL_PENDING' : (this.record?.restorejobstate || this.record?.backupjobstate || '')
       this.stagingQueue = this.record?.stagingqueue || null
       this.step = this.record?.restorejobstep || this.record?.backupjobstep || this.step
       this.logPath = this.record?.restorejoblogpath || this.record?.backupjoblogpath || this.logPath
@@ -336,6 +347,10 @@ export default {
         this.localStatus = response.status
       }
       this.jobState = response.state || this.jobState
+      if (!wasRestoring && response.state) {
+        this.cancellationDetails = this.isCancellationPending ? (response.details || '') : ''
+        this.$emit('cancellation-change', this.isCancellationPending)
+      }
       this.stagingQueue = response.stagingqueue || null
       if (Object.prototype.hasOwnProperty.call(response, 'vmrestore')) this.vmRestore = response.vmrestore || null
       this.step = response.step || this.step

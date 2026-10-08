@@ -182,6 +182,9 @@ public class BackupManagerTest {
     VirtualMachineManager virtualMachineManager;
 
     @Mock
+    com.cloud.vm.UserVmManager userVmManager;
+
+    @Mock
     VolumeApiService volumeApiService;
 
     @Mock
@@ -1632,8 +1635,9 @@ public class BackupManagerTest {
         when(virtualMachineManager.stateTransitTo(vm, VirtualMachine.Event.RestoringRequested, hostId)).thenReturn(true);
         when(backupProvider.startRestoreBackupToVM(vm, backup, null, null, false)).thenReturn(new Pair<>(true, null));
 
+        final BackupManager.RestoreVmStartOptions startOptions = new BackupManager.RestoreVmStartOptions(10L, 20L, 30L, "FirstFitPlanner", null);
         try (MockedStatic<ActionEventUtils> ignored = Mockito.mockStatic(ActionEventUtils.class)) {
-            BackupManager.RestoreRequestStatus result = backupManager.requestRestoreBackupToVM(backupId, vmId, false, true);
+            BackupManager.RestoreRequestStatus result = backupManager.requestRestoreBackupToVM(backupId, vmId, false, true, startOptions);
 
             assertEquals(BackupManager.RestoreRequestStatus.ACCEPTED, result);
             verify(backupProvider).startRestoreBackupToVM(vm, backup, null, null, false);
@@ -1641,6 +1645,8 @@ public class BackupManagerTest {
             verify(virtualMachineManager, never()).stateTransitTo(vm, VirtualMachine.Event.RestoringSuccess, hostId);
             verify(backupDetailsDao).addDetail(backupId, AblestackBackupFrameworkUtils.RESTORE_START_VM_DETAIL, "true", false);
             verify(backupDetailsDao).addDetail(backupId, AblestackBackupFrameworkUtils.RESTORE_EVENT_ID_DETAIL, "0", false);
+            verify(backupDetailsDao).addDetail(backupId, AblestackBackupFrameworkUtils.RESTORE_VM_START_OPTIONS_DETAIL,
+                    new Gson().toJson(startOptions), false);
         }
     }
 
@@ -1666,6 +1672,29 @@ public class BackupManagerTest {
         }
 
         verify(virtualMachineManager).start("vm-uuid", Collections.emptyMap());
+    }
+
+    @Test
+    public void testFinalizeDetachedCreateInstanceUsesPersistedStartupOptions() throws Exception {
+        BackupVO backup = mock(BackupVO.class);
+        VMInstanceVO vm = mock(VMInstanceVO.class);
+        BackupOffering offering = mock(BackupOffering.class);
+        when(backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_START_VM_DETAIL)).thenReturn("true");
+        BackupManager.RestoreVmStartOptions options = new BackupManager.RestoreVmStartOptions(10L, 20L, 30L, "FirstFitPlanner", false);
+        when(backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_VM_START_OPTIONS_DETAIL)).thenReturn(new Gson().toJson(options));
+        when(vm.getId()).thenReturn(2L);
+        when(vm.getState()).thenReturn(VirtualMachine.State.Stopped);
+        when(volumeDao.findIncludingRemovedByInstanceAndType(2L, null)).thenReturn(Collections.emptyList());
+        VMInstanceVO startedVm = mock(VMInstanceVO.class);
+        when(startedVm.getState()).thenReturn(VirtualMachine.State.Running);
+        when(vmInstanceDao.findById(2L)).thenReturn(startedVm);
+        try (MockedStatic<ActionEventUtils> ignored = Mockito.mockStatic(ActionEventUtils.class)) {
+            backupManager.new BackupSyncTask(backupManager).finalizeDetachedRestoreOperation(backupProvider, offering, backup, vm,
+                    AblestackBackupFrameworkUtils.RESTORE_OPERATION_CREATE_INSTANCE);
+        }
+        verify(userVmManager).startVirtualMachine(2L, 10L, 20L, 30L,
+                Collections.singletonMap(com.cloud.vm.VirtualMachineProfile.Param.BootIntoSetup, false), "FirstFitPlanner", true);
+        verify(virtualMachineManager, never()).start(anyString(), Mockito.anyMap());
     }
 
     @Test
@@ -3405,4 +3434,123 @@ public class BackupManagerTest {
         verify(backupOfferingDao).persist(any());
         verify(backupOfferingDetailsDao, never()).saveDetails(any());
     }
+    private BackupVO recoveryBackup(boolean canceled) {
+        BackupVO backup = new BackupVO();
+        backup.setStatus(Backup.Status.Error);
+        backup.setHostId(42L);
+        Map<String, String> details = new HashMap<>();
+        details.put(AblestackBackupFrameworkUtils.BACKUP_CLEANUP_STATE_DETAIL, "WAITING");
+        details.put(AblestackBackupFrameworkUtils.BACKUP_FULL_RETRY_STATE_DETAIL, "WAITING");
+        if (canceled) details.put(AblestackBackupFrameworkUtils.BACKUP_CANCEL_REQUESTED_DETAIL, "true");
+        backup.setDetails(details);
+        when(backupProvider.getName()).thenReturn("ablestack-nas");
+        when(backupDao.findById(backup.getId())).thenReturn(backup);
+        return backup;
+    }
+
+    @Test
+    public void testRecoveryRetainsJobEvidenceWhileAbortOrCleanupUnconfirmed() {
+        BackupVO backup = recoveryBackup(false);
+        VMInstanceVO vm = mock(VMInstanceVO.class);
+        assertTrue(backupManager.reconcileAblestackBackupRecovery(backupProvider, backup, vm));
+        verify(backupProvider).cleanupCanceledBackup(vm, backup);
+        verifyNoRecoverySubmission(vm, backup);
+        verify(backupDetailsDao, never()).addDetail(anyLong(), eq(AblestackBackupFrameworkUtils.BACKUP_CLEANUP_STATE_DETAIL), eq("COMPLETED"), eq(false));
+    }
+
+    private void verifyNoRecoverySubmission(VMInstanceVO vm, BackupVO backup) {
+        verify(backupProvider, never()).retryFailedBackupAsFull(eq(vm), eq(backup), any());
+        Mockito.verifyNoInteractions(agentManager);
+    }
+
+    @Test
+    public void testRecoveryCannotStartFullWhenJobRecordCleanupFails() throws Exception {
+        BackupVO backup = recoveryBackup(false);
+        VMInstanceVO vm = mock(VMInstanceVO.class);
+        when(backupProvider.cleanupCanceledBackup(vm, backup)).thenReturn(true);
+        when(agentManager.send(eq(42L), any(AblestackBackupJobCleanupCommand.class)))
+                .thenAnswer(call -> new com.cloud.agent.api.Answer(call.getArgument(1), false, "Worker not stopped"));
+        assertTrue(backupManager.reconcileAblestackBackupRecovery(backupProvider, backup, vm));
+        verify(backupProvider, never()).retryFailedBackupAsFull(eq(vm), eq(backup), any());
+        verify(backupDetailsDao).addDetail(backup.getId(), AblestackBackupFrameworkUtils.BACKUP_CLEANUP_STATE_DETAIL, "ARTIFACTS_REMOVED", false);
+    }
+
+    @Test
+    public void testCanceledBackupDoesNotStartFullAfterCleanup() throws Exception {
+        BackupVO backup = recoveryBackup(true);
+        VMInstanceVO vm = mock(VMInstanceVO.class);
+        when(backupProvider.cleanupCanceledBackup(vm, backup)).thenReturn(true);
+        when(agentManager.send(eq(42L), any(AblestackBackupJobCleanupCommand.class)))
+                .thenAnswer(call -> new com.cloud.agent.api.Answer(call.getArgument(1), true, "Stopped and cleaned"));
+        assertTrue(backupManager.reconcileAblestackBackupRecovery(backupProvider, backup, vm));
+        assertEquals(Backup.Status.Canceled, backup.getStatus());
+        verify(backupProvider, never()).retryFailedBackupAsFull(eq(vm), eq(backup), any());
+    }
+
+    @Test
+    public void testRecoveryDoesNotChangeOtherBackupProviders() {
+        BackupVO backup = new BackupVO();
+        backup.setDetails(Collections.singletonMap(AblestackBackupFrameworkUtils.BACKUP_CLEANUP_STATE_DETAIL, "WAITING"));
+        assertFalse(backupManager.reconcileAblestackBackupRecovery(backupProvider, backup, mock(VMInstanceVO.class)));
+        verify(backupProvider, never()).cleanupCanceledBackup(any(), any());
+    }
+
+    @Test
+    public void testRecoveryAbortStillActiveWaitsAcrossFourAblestackProviders() {
+        BackupVO backup = recoveryBackup(true);
+        backup.setStatus(Backup.Status.BackingUp);
+        backup.getDetails().remove(AblestackBackupFrameworkUtils.BACKUP_CLEANUP_STATE_DETAIL);
+        backup.getDetails().remove(AblestackBackupFrameworkUtils.BACKUP_FULL_RETRY_STATE_DETAIL);
+        VMInstanceVO vm = mock(VMInstanceVO.class);
+        for (String name : List.of("ablestack-nas", "ablestack-veeam", "ablestack-commvault", "ablestack-netbackup")) {
+            when(backupProvider.getName()).thenReturn(name);
+            assertTrue(backupManager.reconcileAblestackBackupRecovery(backupProvider, backup, vm));
+            assertEquals(Backup.Status.BackingUp, backup.getStatus());
+        }
+        verify(backupProvider, times(4)).cancelBackup(vm, backup);
+        verify(backupProvider, never()).cleanupCanceledBackup(vm, backup);
+        verifyNoRecoverySubmission(vm, backup);
+    }
+
+    @Test
+    public void testRecoveryFullSubmissionIsDeferredUntilHealthyAndAttemptedOnce() {
+        BackupVO backup = recoveryBackup(false);
+        backup.getDetails().put(AblestackBackupFrameworkUtils.BACKUP_CLEANUP_STATE_DETAIL, "COMPLETED");
+        VMInstanceVO vm = mock(VMInstanceVO.class);
+        when(vm.getHostId()).thenReturn(77L);
+        com.cloud.host.HostVO host = mock(com.cloud.host.HostVO.class);
+        when(hostDao.findById(77L)).thenReturn(host);
+        when(host.getStatus()).thenReturn(com.cloud.host.Status.Down, com.cloud.host.Status.Up);
+        when(vm.getState()).thenReturn(VirtualMachine.State.Running);
+        Mockito.doAnswer(call -> {
+            backup.getDetails().put(call.getArgument(1), call.getArgument(2));
+            return null;
+        }).when(backupDetailsDao).addDetail(eq(backup.getId()), anyString(), anyString(), eq(false));
+        when(backupProvider.retryFailedBackupAsFull(eq(vm), eq(backup), any())).thenReturn(true);
+        assertTrue(backupManager.reconcileAblestackBackupRecovery(backupProvider, backup, vm));
+        verify(backupProvider, never()).retryFailedBackupAsFull(eq(vm), eq(backup), any());
+        assertTrue(backupManager.reconcileAblestackBackupRecovery(backupProvider, backup, vm));
+        assertFalse(backupManager.reconcileAblestackBackupRecovery(backupProvider, backup, vm));
+        verify(backupProvider, times(1)).retryFailedBackupAsFull(eq(vm), eq(backup), any());
+    }
+
+    @Test
+    public void testRecoveryHistoryDoesNotEvictValidRetentionChains() {
+        BackupVO valid = new BackupVO();
+        valid.setStatus(Backup.Status.BackedUp);
+        valid.setDate(new Date());
+        valid.setDetails(Collections.emptyMap());
+        BackupVO failed = new BackupVO();
+        failed.setStatus(Backup.Status.Failed);
+        failed.setDate(new Date());
+        failed.setDetails(Collections.singletonMap(AblestackBackupFrameworkUtils.BACKUP_CLEANUP_STATE_DETAIL, "COMPLETED"));
+        BackupVO pending = new BackupVO();
+        pending.setStatus(Backup.Status.Error);
+        pending.setDate(new Date());
+        pending.setDetails(Collections.singletonMap(AblestackBackupFrameworkUtils.BACKUP_CLEANUP_STATE_DETAIL, "WAITING"));
+        List<List<BackupVO>> chains = ReflectionTestUtils.invokeMethod(backupManager, "getBackupChainsForSchedule", List.of(valid, failed, pending));
+        assertEquals(1, chains.size());
+        assertEquals(Collections.singletonList(valid), chains.get(0));
+    }
+
 }

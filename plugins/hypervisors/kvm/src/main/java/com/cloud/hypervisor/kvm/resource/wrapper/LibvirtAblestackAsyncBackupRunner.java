@@ -47,6 +47,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 final class LibvirtAblestackAsyncBackupRunner {
@@ -56,6 +57,7 @@ final class LibvirtAblestackAsyncBackupRunner {
     static final String STATE_FAILED = "FAILED";
     static final String STATE_CANCELED = "CANCELED";
     static final String STATE_INTERRUPTED = "INTERRUPTED";
+    static final String STATE_CANCEL_PENDING = "CANCEL_PENDING";
     private static final Path JOB_ROOT = Path.of(AblestackBackupFrameworkUtils.ASYNC_BACKUP_JOB_ROOT);
     private static final String EXIT_CODE_FILE = "exit-code";
     private static final String LOG_FILE = "job.log";
@@ -70,6 +72,7 @@ final class LibvirtAblestackAsyncBackupRunner {
     private static final int LIVE_PROGRESS_MAXIMUM = 95;
     private static final int CANCEL_WAIT_MILLIS = 30000;
     private static final int CANCEL_POLL_MILLIS = 250;
+    private static final long CONTROL_TIMEOUT_MILLIS = 30000;
     private static final Set<String> ACTIVE_JOBS = ConcurrentHashMap.newKeySet();
 
     private LibvirtAblestackAsyncBackupRunner() {
@@ -171,6 +174,9 @@ final class LibvirtAblestackAsyncBackupRunner {
             return "UNKNOWN";
         }
         String state = properties.getProperty("state", "UNKNOWN");
+        if (isCancelRequested(properties) && !ACTIVE_JOBS.contains(jobId)) {
+            return resolveDetachedState(jobId, properties, logger);
+        }
         if (STATE_FAILED.equals(state) && !ACTIVE_JOBS.contains(jobId)) {
             try {
                 var start = LibvirtAblestackBackupStartHelper.recorded(jobId);
@@ -197,8 +203,14 @@ final class LibvirtAblestackAsyncBackupRunner {
                     "Staging queue canceled by operator");
             return STATE_CANCELED;
         }
-        if ((STATE_STARTED.equals(state) || STATE_RUNNING.equals(state)) && !ACTIVE_JOBS.contains(jobId)) {
-            String detachedState = resolveDetachedState(jobId, properties, logger);
+        if ((STATE_STARTED.equals(state) || STATE_RUNNING.equals(state) || STATE_CANCEL_PENDING.equals(state)) && !ACTIVE_JOBS.contains(jobId)) {
+            final String detachedState;
+            try {
+                detachedState = resolveDetachedState(jobId, properties, logger);
+            } catch (RuntimeException e) {
+                logger.warn("Backup worker state is unconfirmed for [{}]: {}", jobId, e.getMessage());
+                return isCancelRequested(properties) ? STATE_CANCEL_PENDING : "UNKNOWN";
+            }
             if (!STATE_INTERRUPTED.equals(detachedState)) {
                 return detachedState;
             }
@@ -362,16 +374,7 @@ final class LibvirtAblestackAsyncBackupRunner {
         final String vmName = properties != null ? properties.getProperty("vmName") : command.getVmName();
         StringBuilder details = new StringBuilder();
         if (properties == null) {
-            if (safeValue(vmName).isBlank()) {
-                return new StopBackupAnswer(command, false, "Backup job state was not found");
-            }
-            Pair<Integer, String> virshResult = executeAndCapture("virsh", "-c", "qemu:///system", "domjobabort", "--domain", vmName);
-            details.append("domjobabort rc=").append(virshResult.first()).append(" ");
-            if (!virshResult.second().isBlank()) {
-                details.append(virshResult.second()).append(" ");
-            }
-            return new StopBackupAnswer(command, virshResult.first() == 0,
-                    details.length() > 0 ? details.toString().trim() : "Backup job cancel requested");
+            return new StopBackupAnswer(command, false, "Backup worker ownership is unavailable; cancellation is unconfirmed");
         }
         final String provider = properties.getProperty("provider");
         final String backupPath = properties.getProperty("backupPath");
@@ -379,15 +382,16 @@ final class LibvirtAblestackAsyncBackupRunner {
         final String operation = properties.getProperty("operation", AblestackBackupFrameworkUtils.resolveJobOperation(backupType));
         final String unitName = properties.getProperty("unitName");
         final String state = getJobState(jobId, logger);
-        if (STATE_COMPLETED.equals(state) || STATE_FAILED.equals(state) || STATE_CANCELED.equals(state)) {
+        if (STATE_COMPLETED.equals(state)) {
             return new StopBackupAnswer(command, false, operation + " job is already " + state);
         }
-        if (!safeValue(unitName).isBlank() && !isSystemdUnitActive(unitName, logger)) {
-            final String resolvedState = resolveDetachedState(jobId, properties, logger);
-            return new StopBackupAnswer(command, false, operation + " job is already " + resolvedState);
-        }
         properties.setProperty("cancelRequested", Boolean.TRUE.toString());
+        properties.setProperty("state", STATE_CANCEL_PENDING);
+        properties.setProperty("step", STATE_CANCEL_PENDING);
         storeJobProperties(logger, jobId, properties);
+        if (safeValue(unitName).isBlank()) {
+            return new StopBackupAnswer(command, false, "Cancellation remains pending: worker ownership is unconfirmed");
+        }
         if (!safeValue(unitName).isBlank()) {
             Pair<Integer, String> unitResult = executeAndCapture("systemctl", "kill", "--signal=TERM", unitName);
             details.append("systemd unit cancel rc=").append(unitResult.first()).append(" ");
@@ -395,18 +399,26 @@ final class LibvirtAblestackAsyncBackupRunner {
                 details.append(unitResult.second()).append(" ");
             }
         }
-        if (!safeValue(vmName).isBlank()) {
-            Pair<Integer, String> virshResult = executeAndCapture("virsh", "-c", "qemu:///system", "domjobabort", "--domain", vmName);
-            details.append("domjobabort rc=").append(virshResult.first()).append(" ");
-            if (!virshResult.second().isBlank()) {
-                details.append(virshResult.second()).append(" ");
+        try {
+            if (!LibvirtAblestackBackupStartHelper.unstartedFenced(jobId) && !safeValue(vmName).isBlank()) {
+                final Pair<Integer, String> result = executeAndCapture("virsh", "-c", "qemu:///system", "domjobabort", "--domain", vmName);
+                details.append("domjobabort rc=").append(result.first()).append(" ");
             }
+            if (!safeValue(unitName).isBlank() && !waitForSystemdUnitToStop(unitName, logger)) {
+                return new StopBackupAnswer(command, false, "Cancellation remains pending: backup worker has not stopped");
+            }
+            // A stopped-VM export runs on an owned temporary domain, independently of the worker.
+            for (String domain : getBackupDomains(jobId, vmName)) {
+                if (domain.startsWith("DUMMY-") && !domain.equals(vmName)) {
+                    executeAndCapture("virsh", "-c", "qemu:///system", "domjobabort", "--domain", domain);
+                }
+            }
+        } catch (IOException | RuntimeException e) {
+            return new StopBackupAnswer(command, false, "Cancellation remains pending: " + e.getMessage());
         }
-        if (!safeValue(unitName).isBlank() && !waitForSystemdUnitToStop(unitName, logger)) {
-            properties.remove("cancelRequested");
-            storeJobProperties(logger, jobId, properties);
-            details.append("systemd unit is still active after cancellation timeout");
-            return new StopBackupAnswer(command, false, details.toString().trim());
+        final Pair<Boolean, String> stopped = confirmJobStopped(jobId, vmName, logger);
+        if (!stopped.first()) {
+            return new StopBackupAnswer(command, false, "Cancellation remains pending: " + stopped.second());
         }
         ACTIVE_JOBS.remove(jobId);
         final String message = operation + " job cancel requested";
@@ -501,6 +513,11 @@ final class LibvirtAblestackAsyncBackupRunner {
         final Path jobDirectory = getJobDirectory(jobId);
         final Path jobProperties = getJobPath(jobId);
         try {
+            final Properties job = readJob(jobId, logger);
+            if (job != null) {
+                final Pair<Boolean, String> stopped = confirmJobStopped(jobId, job.getProperty("vmName"), logger);
+                if (!stopped.first()) { return new Answer(command, false, stopped.second()); }
+            }
             Path volumePlan = jobDirectory.resolve("volume-plan.json");
             if (Files.isRegularFile(volumePlan) && !LibvirtAblestackBackupStartHelper.unstartedFenced(jobId)) {
                 // An acknowledged pre-IO fence also covers a partially written launch plan.
@@ -577,6 +594,14 @@ final class LibvirtAblestackAsyncBackupRunner {
     }
 
     private static String resolveDetachedState(final String jobId, final Properties properties, final Logger logger) {
+        if (isCancelRequested(properties)) {
+            final Pair<Boolean, String> stopped = confirmJobStopped(jobId, properties.getProperty("vmName"), logger);
+            if (!stopped.first()) { return STATE_CANCEL_PENDING; }
+            writeJobState(logger, jobId, properties.getProperty("provider"), properties.getProperty("vmName"),
+                    properties.getProperty("backupPath"), properties.getProperty("backupType"), STATE_CANCELED,
+                    "Backup cancellation and source job termination confirmed");
+            return STATE_CANCELED;
+        }
         final Path exitCodePath = getJobDirectory(jobId).resolve(EXIT_CODE_FILE);
         if (Files.exists(exitCodePath)) {
             try {
@@ -1126,12 +1151,108 @@ final class LibvirtAblestackAsyncBackupRunner {
     }
 
     private static boolean isSystemdUnitActive(final String unitName, final Logger logger) {
-        Pair<Integer, String> result = executeAndCapture("systemctl", "is-active", "--quiet", unitName);
-        if (result.first() == 0) {
-            return true;
+        Pair<Integer, String> result = executeAndCapture(5000, "systemctl", "show", "--property=ActiveState", "--value", unitName);
+        if (result.first() != 0 || result.second().isBlank()) {
+            // Transient units are collected after completion; absence must be positively queried.
+            final Pair<Integer, String> units = executeAndCapture(5000, "systemctl", "list-units", "--all", "--plain", "--no-legend", unitName);
+            if (units.first() == 0 && units.second().isBlank()) { return false; }
+            throw new CloudRuntimeException("Backup unit state is unconfirmed: " + result.second());
         }
-        logger.debug("ABLESTACK detached backup unit [{}] is not active: {}", unitName, result.second());
-        return false;
+        return !Set.of("inactive", "failed").contains(result.second().trim());
+    }
+
+    static boolean hasNoDomainJob(final Pair<Integer, String> result) {
+        return result.first() == 0 && result.second().matches("(?s).*Job type:\\s+None(?:\\s|$).*");
+    }
+
+    /** No payload or checkpoint may be deleted until both the worker and source engine stopped. */
+    static Pair<Boolean, String> confirmJobStopped(final String jobId, final String vmName, final Logger logger) {
+        try {
+            final Properties properties = readJob(jobId, logger);
+            if (properties == null) { return new Pair<>(false, "Backup worker ownership record is unavailable"); }
+            final String unit = properties.getProperty("unitName");
+            final boolean restore = AblestackBackupFrameworkUtils.OPERATION_RESTORE.equals(properties.getProperty("operation"));
+            if (!restore && safeValue(unit).isBlank() && !LibvirtAblestackBackupStartHelper.unstartedFenced(jobId)) {
+                return new Pair<>(false, "Backup worker ownership is unconfirmed");
+            }
+            if (ACTIVE_JOBS.contains(jobId) || (!safeValue(unit).isBlank() && isSystemdUnitActive(unit, logger))) {
+                return new Pair<>(false, "Backup worker has not stopped");
+            }
+            final Path directory = getJobDirectory(jobId);
+            final Path pendingFreeze = directory.resolve("guest-freeze.pending");
+            if (Files.exists(pendingFreeze)) {
+                final String guest = Files.readString(pendingFreeze).trim();
+                if (!safeValue(vmName).equals(guest) || !thawGuest(guest)) {
+                    return new Pair<>(false, "Guest filesystem thaw remains pending");
+                }
+                Files.delete(pendingFreeze);
+            }
+            final Path engineFile = directory.resolve("volume-engine.json");
+            if (Files.isRegularFile(engineFile)) {
+                final var engine = new Gson().fromJson(Files.readString(engineFile), com.google.gson.JsonObject.class);
+                if (engine.has("freezePending") && engine.get("freezePending").getAsBoolean()) {
+                    if (!thawGuest(vmName)) { return new Pair<>(false, "Volume backup guest thaw remains pending"); }
+                    engine.addProperty("freezePending", false);
+                    Files.writeString(engineFile, new Gson().toJson(engine));
+                }
+            }
+            if (LibvirtAblestackBackupStartHelper.unstartedFenced(jobId)) { return new Pair<>(true, "Source IO was fenced before start"); }
+            final Set<String> domains = getBackupDomains(jobId, vmName);
+            if (domains.isEmpty()) { return new Pair<>(false, "Source domain ownership is unconfirmed"); }
+            for (String domain : domains) {
+                if (domain.isBlank()) { return new Pair<>(false, "Backup domain ownership is unconfirmed"); }
+                if (hasNoDomainJob(executeAndCapture("virsh", "-c", "qemu:///system", "domjobinfo", domain))) { continue; }
+                final Pair<Integer, String> state = executeAndCapture("virsh", "-c", "qemu:///system", "domstate", domain);
+                if (state.first() == 0 && "shut off".equals(state.second().trim())) { continue; }
+                if (state.first() != 0) {
+                    final Pair<Integer, String> list = executeAndCapture("virsh", "-c", "qemu:///system", "list", "--all", "--name");
+                    if (list.first() == 0 && !Arrays.asList(list.second().split("\\R")).contains(domain)) { continue; }
+                }
+                return new Pair<>(false, "Source backup job termination is unconfirmed for " + domain);
+            }
+            return new Pair<>(true, "Backup worker, source job and guest thaw confirmed");
+        } catch (IOException | RuntimeException e) {
+            return new Pair<>(false, "Backup termination check failed: " + e.getMessage());
+        }
+    }
+
+    private static Set<String> getBackupDomains(final String jobId, final String vmName) throws IOException {
+        final Path directory = getJobDirectory(jobId);
+        final Set<String> domains = new java.util.LinkedHashSet<>();
+        if (!safeValue(vmName).isBlank()) { domains.add(vmName); }
+        final Path domainFile = directory.resolve("backup-domain");
+        if (Files.isRegularFile(domainFile)) { domains.add(Files.readString(domainFile).trim()); }
+        if (Files.isRegularFile(directory.resolve("dummy.xml"))) { domains.add("DUMMY-VOLUME-" + jobId); }
+        final Path commandFile = directory.resolve(BACKUP_COMMAND_FILE);
+        if (Files.isRegularFile(commandFile)) {
+            final var saved = new Gson().fromJson(Files.readString(commandFile), com.google.gson.JsonObject.class);
+            if (saved.has("checkpointName") && !saved.get("checkpointName").isJsonNull()) {
+                domains.add("DUMMY-VM-" + saved.get("checkpointName").getAsString().replace('.', '-'));
+            }
+        }
+        return domains;
+    }
+
+    private static boolean domainIsOffOrAbsent(final String vmName) {
+        final Pair<Integer, String> state = executeAndCapture("virsh", "-c", "qemu:///system", "domstate", vmName);
+        if (state.first() == 0) { return "shut off".equals(state.second().trim()); }
+        final Pair<Integer, String> list = executeAndCapture("virsh", "-c", "qemu:///system", "list", "--all", "--name");
+        return list.first() == 0 && !Arrays.asList(list.second().split("\\R")).contains(vmName);
+    }
+
+    private static boolean thawGuest(final String vmName) {
+        if (safeValue(vmName).isBlank()) { return false; }
+        final Pair<Integer, String> thaw = executeAndCapture("virsh", "-c", "qemu:///system", "qemu-agent-command", vmName,
+                "{\"execute\":\"guest-fsfreeze-thaw\"}");
+        if (thaw.first() == 0) { return true; }
+        final Pair<Integer, String> status = executeAndCapture("virsh", "-c", "qemu:///system", "qemu-agent-command", vmName,
+                "{\"execute\":\"guest-fsfreeze-status\"}");
+        if (status.first() == 0) {
+            try {
+                return "thawed".equals(new Gson().fromJson(status.second(), com.google.gson.JsonObject.class).get("return").getAsString());
+            } catch (RuntimeException ignored) { }
+        }
+        return domainIsOffOrAbsent(vmName);
     }
 
     private static String getTracePrefix(final Properties properties) {
@@ -1142,16 +1263,38 @@ final class LibvirtAblestackAsyncBackupRunner {
     }
 
     private static Pair<Integer, String> executeAndCapture(final String... command) {
+        return executeAndCapture(CONTROL_TIMEOUT_MILLIS, command);
+    }
+
+    static Pair<Integer, String> executeAndCapture(final long timeoutMillis, final String... command) {
+        Path outputPath = null;
+        Process process = null;
         try {
-            Process process = new ProcessBuilder(command).redirectErrorStream(true).start();
-            byte[] output = process.getInputStream().readAllBytes();
-            int exitCode = process.waitFor();
-            return new Pair<>(exitCode, new String(output, StandardCharsets.UTF_8).trim());
+            outputPath = Files.createTempFile("ablestack-control-", ".log");
+            ProcessBuilder builder = new ProcessBuilder(command).redirectErrorStream(true).redirectOutput(outputPath.toFile());
+            builder.environment().put("LC_ALL", "C");
+            process = builder.start();
+            if (!process.waitFor(timeoutMillis, TimeUnit.MILLISECONDS)) {
+                process.descendants().forEach(ProcessHandle::destroyForcibly);
+                process.destroyForcibly();
+                return new Pair<>(124, "Control command timed out; operation result is unconfirmed");
+            }
+            try (InputStream output = Files.newInputStream(outputPath)) {
+                return new Pair<>(process.exitValue(), new String(output.readNBytes(1048576), StandardCharsets.UTF_8).trim());
+            }
         } catch (IOException e) {
             return new Pair<>(-1, e.getMessage());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             return new Pair<>(-1, e.getMessage());
+        } finally {
+            if (process != null && process.isAlive()) {
+                process.descendants().forEach(ProcessHandle::destroyForcibly);
+                process.destroyForcibly();
+            }
+            if (outputPath != null) {
+                try { Files.deleteIfExists(outputPath); } catch (IOException ignored) { }
+            }
         }
     }
 

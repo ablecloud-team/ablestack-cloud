@@ -240,6 +240,10 @@ public class BackupResponse extends BaseResponse {
     @Param(description = "Failure details for the backup job", since = "4.23.0")
     private String backupJobDetails;
 
+    @SerializedName("backupcancellationpending")
+    @Param(description = "Whether backup cancellation is waiting for termination or cleanup confirmation")
+    private Boolean backupCancellationPending;
+
     @SerializedName(ApiConstants.RESTORE_JOB_LOG_PATH)
     @Param(description = "Host-side restore job log path for the latest tracked restore", since = "4.23.0")
     private String restoreJobLogPath;
@@ -545,6 +549,10 @@ public class BackupResponse extends BaseResponse {
 
     public String getRestoreJobDetails() {
         return restoreJobDetails;
+    }
+
+    public void setBackupCancellationPending(Boolean pending) {
+        this.backupCancellationPending = pending;
     }
 
     public void setBackupJobDetails(String backupJobDetails) {

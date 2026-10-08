@@ -6475,8 +6475,12 @@
   "message.create.instance.from.backup.different.zone": "다른 존에서 백업으로 인스턴스를 생성 중입니다. 선택한 존에서 백업 저장소에 접근할 수 있는지 확인하세요.",
   "message.csv.empty": "CSV 파일이 비어 있습니다.",
   "message.csv.missing.headers": "CSV 헤더에서 일부 열이 누락되었습니다.",
-  "message.template.ostype.different.from.backup": "선택한 템플릿의 OS 유형이 백업과 다릅니다. 주의하여 진행하세요.",
-  "message.iso.ostype.different.from.backup": "선택한 ISO의 OS 유형이 백업과 다릅니다. 주의하여 진행하세요.",
+  "message.template.ostype.different.from.backup": "선택한 템플릿의 OS 유형이 백업과 다릅니다. 백업에 저장된 OS는 그대로 복원되므로, 선택한 하드웨어 설정에 따라 부팅 또는 드라이버 호환성 문제가 발생할 수 있습니다.",
+  "message.iso.ostype.different.from.backup": "선택한 ISO의 OS 유형이 백업과 다릅니다. 백업에 저장된 OS는 그대로 복원되므로, 선택한 하드웨어 설정에 따라 부팅 또는 드라이버 호환성 문제가 발생할 수 있습니다.",
+  "message.backup.instance.disk.capacity.fixed": "루트 및 데이터 디스크 용량은 백업 당시 용량과 동일해야 합니다. 동일한 용량의 디스크 오퍼링을 선택해 주세요. 현재 복원 중 디스크 용량 변경은 제한됩니다.",
+  "message.backup.instance.disk.capacity.mismatch": "선택한 디스크 용량이 백업과 다릅니다. 백업과 동일한 용량을 선택해 주세요. 백업의 루트 디스크보다 큰 템플릿도 사용할 수 없습니다.",
+  "message.backup.instance.boot.mismatch": "선택한 부팅 유형 또는 모드가 백업과 다릅니다. 복원된 OS의 부팅 구성이 자동으로 변경되지 않으므로 부팅에 실패할 수 있습니다.",
+  "message.backup.instance.thin.allocation": "파일 기반 QCOW2 복원에서는 Thin 오퍼링을 선택해도 디스크 전체 용량이 할당될 수 있습니다. 기본 스토리지에 디스크 전체 용량과 복원 임시 파일을 위한 여유 공간이 필요합니다.",
   "message.action.delete.custom.action": "이 사용자 정의 작업을 삭제하시겠습니까?",
   "message.action.delete.extension": "이 확장을 삭제하시겠습니까?",
   "message.action.delete.gpu.card": "이 GPU 카드를 삭제하시겠습니까?",
@@ -8323,5 +8327,8 @@
   "label.jobid": "작업 ID",
   "label.vmsnapshot.force.delete": "강제 삭제",
   "message.vmsnapshot.force.delete.impact": "생성에 실패한 스냅샷의 남은 데이터와 기록을 정리합니다. 진행 중인 작업이나 확인할 수 없는 디스크 상태가 있으면 정리가 중단됩니다.",
-  "message.vmsnapshot.force.delete.unavailable": "강제 삭제 권한 또는 스냅샷 상태가 변경되었습니다. 항목을 새로 조회해 주세요."
+  "message.vmsnapshot.force.delete.unavailable": "강제 삭제 권한 또는 스냅샷 상태가 변경되었습니다. 항목을 새로 조회해 주세요.",
+  "label.backup.cancellation.pending": "취소 대기",
+  "message.backup.cancellation.pending": "취소 요청됨 · 백업 작업의 종료와 정리 완료를 확인하고 있습니다.",
+  "message.backup.cancellation.accepted": "백업 취소 요청이 접수되었습니다. 작업 종료와 정리가 확인되면 취소 완료로 표시됩니다."
 }

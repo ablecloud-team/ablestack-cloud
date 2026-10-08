@@ -45,7 +45,6 @@ import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -430,22 +429,7 @@ class LibvirtAblestackNetBackupHelper {
     }
 
     private Pair<Integer, String> runCommandWithOutput(String command) {
-        String wrappedCommand = String.format("set +e; %s 2>&1; rc=$?; echo __CMD_EXIT__=$rc", command);
-        String output = Script.runSimpleBashScriptWithFullResult(wrappedCommand, resource.getCmdsTimeout());
-        if (output == null) {
-            return new Pair<>(-1, "");
-        }
-
-        List<String> lines = new ArrayList<>(Arrays.asList(output.split("\n")));
-        int exitCode = -1;
-        if (!lines.isEmpty()) {
-            String lastLine = lines.get(lines.size() - 1).trim();
-            if (lastLine.startsWith("__CMD_EXIT__=")) {
-                exitCode = Integer.parseInt(lastLine.substring("__CMD_EXIT__=".length()));
-                lines.remove(lines.size() - 1);
-            }
-        }
-        return new Pair<>(exitCode, String.join("\n", lines).trim());
+        return LibvirtAblestackAsyncBackupRunner.executeAndCapture(30000, "bash", "-c", command);
     }
 
     private String sanitizeCommandOutput(String output) {
@@ -571,8 +555,9 @@ class LibvirtAblestackNetBackupHelper {
     }
 
     private void waitForBackup(String vmName, long timeoutMillis) throws IOException {
+        final long deadline = System.currentTimeMillis() + timeoutMillis;
         long remainingMillis = timeoutMillis;
-        while (remainingMillis > 0) {
+        while ((remainingMillis = deadline - System.currentTimeMillis()) > 0) {
             String result = checkBackupJob(vmName);
             if (result != null && result.contains("Completed") && result.contains("Backup")) {
                 return;
@@ -590,13 +575,12 @@ class LibvirtAblestackNetBackupHelper {
                 Thread.currentThread().interrupt();
                 throw new IOException(e);
             }
-            remainingMillis -= sleepMillis;
         }
         throw new IOException("Timed out waiting for backup job of dummy VM " + vmName + " after " + timeoutMillis + " milliseconds");
     }
 
     private void cancelBackupJob(String vmName) {
-        Script.runSimpleBashScriptForExitValue(String.format("virsh -c qemu:///system domjobabort --domain %s > /dev/null 2>&1", shellQuote(vmName)));
+        LibvirtAblestackAsyncBackupRunner.executeAndCapture(30000, "virsh", "-c", "qemu:///system", "domjobabort", "--domain", vmName);
     }
 
     private String checkBackupJob(String vmName) {

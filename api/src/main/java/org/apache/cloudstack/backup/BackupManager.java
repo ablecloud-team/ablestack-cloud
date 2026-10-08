@@ -70,6 +70,29 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
         COMPLETED
     }
 
+    /** Startup choices that must survive detached restore orchestration. */
+    class RestoreVmStartOptions {
+        private final Long podId;
+        private final Long clusterId;
+        private final Long hostId;
+        private final String deploymentPlanner;
+        private final Boolean bootIntoSetup;
+
+        public RestoreVmStartOptions(Long podId, Long clusterId, Long hostId, String deploymentPlanner, Boolean bootIntoSetup) {
+            this.podId = podId;
+            this.clusterId = clusterId;
+            this.hostId = hostId;
+            this.deploymentPlanner = deploymentPlanner;
+            this.bootIntoSetup = bootIntoSetup;
+        }
+
+        public Long getPodId() { return podId; }
+        public Long getClusterId() { return clusterId; }
+        public Long getHostId() { return hostId; }
+        public String getDeploymentPlanner() { return deploymentPlanner; }
+        public Boolean getBootIntoSetup() { return bootIntoSetup; }
+    }
+
     ConfigKey<Boolean> BackupFrameworkEnabled = new ConfigKey<>("Advanced", Boolean.class,
             "backup.framework.enabled",
             "false",
@@ -459,6 +482,9 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
      */
     RestoreRequestStatus requestRestoreBackupToVM(Long backupId, Long vmId, boolean quickrestore,
             boolean startVmAfterRestore) throws ResourceUnavailableException;
+
+    RestoreRequestStatus requestRestoreBackupToVM(Long backupId, Long vmId, boolean quickrestore,
+            boolean startVmAfterRestore, RestoreVmStartOptions startOptions) throws ResourceUnavailableException;
 
     /**
      * Restore a backed up volume and attach it to a VM

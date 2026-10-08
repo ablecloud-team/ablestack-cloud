@@ -35,6 +35,10 @@ public final class AblestackBackupFrameworkUtils {
     public static final String INCREMENTAL_FALLBACK_BACKUP_UUID_DETAIL = "ablestack.incremental.fallback.backup.uuid";
     public static final String BACKUP_QUIESCE_DETAIL = "ablestack.backup.quiesce";
     public static final String BACKUP_CANCELLATION_DETAIL = "ablestack.backup.cancellation.details";
+    public static final String BACKUP_CANCEL_REQUESTED_DETAIL = "ablestack.backup.cancel.requested";
+    public static final String BACKUP_CLEANUP_STATE_DETAIL = "ablestack.backup.cleanup.state";
+    public static final String BACKUP_FULL_RETRY_STATE_DETAIL = "ablestack.backup.full.retry.state";
+    public static final String BACKUP_RECOVERY_REASON_DETAIL = "ablestack.backup.recovery.reason";
     public static final String BACKUP_IN_PROGRESS_MARKER = ".backup.inprogress";
     public static final String BACKUP_COMPLETE_MARKER = ".backup.complete";
     public static final String STAGING_IN_PROGRESS_MARKER = ".staging.inprogress";
@@ -68,6 +72,7 @@ public final class AblestackBackupFrameworkUtils {
     public static final String RESTORE_TARGET_VOLUME_UUID_DETAIL = "ablestack.restore.target.volume.uuid";
     public static final String RESTORE_EVENT_ID_DETAIL = "ablestack.restore.event.id";
     public static final String RESTORE_START_VM_DETAIL = "ablestack.restore.start.vm";
+    public static final String RESTORE_VM_START_OPTIONS_DETAIL = "ablestack.restore.vm.start.options";
     public static final String RESTORE_CREATE_INSTANCE_PROGRESS_DETAIL = "ablestack.restore.create.instance.progress";
     public static final String RESTORE_ROLLBACK_REQUIRED = "RESTORE_ROLLBACK_REQUIRED:";
 

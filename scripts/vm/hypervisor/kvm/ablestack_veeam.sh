@@ -64,6 +64,7 @@ log_unhandled_error() {
 }
 
 trap 'log_unhandled_error "$LINENO"' ERR
+source "$(dirname "${BASH_SOURCE[0]}")/ablestack_backup_safety.sh"
 
 vercomp() {
   local IFS=.
@@ -100,6 +101,7 @@ sanity_checks() {
 }
 
 cleanup() {
+  ablestack_backup_cleanup_safe || exit $EXIT_CLEANUP_FAILED
   local status=0
   validate_cleanup_path || exit $EXIT_CLEANUP_FAILED
   rm -rf "$dest" || { echo "Failed to delete $dest"; status=1; }
@@ -486,22 +488,16 @@ backup_running_vm() {
   done
   echo "</disks></domaincheckpoint>" >> "$dest/checkpoint.xml"
 
-  local thaw=0
-  if [[ ${QUIESCE} == "true" ]]; then
-    if virsh -c qemu:///system qemu-agent-command "$VM" '{"execute":"guest-fsfreeze-freeze"}' > /dev/null 2>/dev/null; then
-      thaw=1
-    fi
-  fi
+  ablestack_freeze_guest || { cleanup; exit 1; }
 
   local backup_begin=0
   local backup_begin_output=""
+  ablestack_backup_job_started
   if backup_begin_output=$(virsh -c qemu:///system backup-begin --domain "$VM" --backupxml "$dest/backup.xml" --checkpointxml "$dest/checkpoint.xml" 2>&1); then
     backup_begin=1
   fi
 
-  if [[ $thaw -eq 1 ]]; then
-    virsh -c qemu:///system qemu-agent-command "$VM" '{"execute":"guest-fsfreeze-thaw"}' > /dev/null 2>&1 || true
-  fi
+  ablestack_thaw_guest || { cleanup; exit 1; }
 
   if [[ $backup_begin -ne 1 ]]; then
     log -ne "FAILED libvirt backup-begin vm=[$VM] checkpoint=[$CHECKPOINT_NAME] output=[${backup_begin_output:-Unknown error}]"
@@ -512,28 +508,11 @@ backup_running_vm() {
 
   backup_domain_information "$VM"
 
-  local wait_count=0
-  while true; do
-    status=$(virsh -c qemu:///system domjobinfo "$VM" --completed --keep-completed | awk '/Job type:/ {print $3}')
-    case "$status" in
-      Completed) break ;;
-      Failed)
-        log -ne "FAILED libvirt backup job vm=[$VM] checkpoint=[$CHECKPOINT_NAME]"
-        echo "Virsh backup job failed"; cleanup ;;
-    esac
-    wait_count=$((wait_count + 1))
-    if (( wait_count * 5 >= DATA_OPERATION_TIMEOUT_SECONDS )); then
-      log -ne "FAILED libvirt backup job timed out vm=[$VM] checkpoint=[$CHECKPOINT_NAME] timeoutSeconds=[$DATA_OPERATION_TIMEOUT_SECONDS]"
-      virsh -c qemu:///system domjobabort --domain "$VM" >> "$logFile" 2>&1 || true
-      resume_vm_if_paused
-      cleanup
-      exit 1
-    fi
-    if (( wait_count % 12 == 0 )); then
-      log -ne "WAIT libvirt backup job pending vm=[$VM] checkpoint=[$CHECKPOINT_NAME] elapsedSeconds=[$((wait_count * 5))] status=[${status:-unknown}]"
-    fi
-    sleep 5
-  done
+  if ! ablestack_wait_for_backup; then
+    resume_vm_if_paused
+    cleanup
+    exit 1
+  fi
 
   cleanup_parent_qcow2_bitmap_after_success
   dump_checkpoint_xml "$VM"

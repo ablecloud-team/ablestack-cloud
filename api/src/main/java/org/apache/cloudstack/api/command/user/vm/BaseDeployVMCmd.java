@@ -436,6 +436,14 @@ public abstract class BaseDeployVMCmd extends BaseAsyncCreateCustomIdCmd impleme
         return convertExternalDetailsToMap(externalDetails);
     }
 
+    protected Boolean getIothreadsEnabled() {
+        return iothreadsEnabled;
+    }
+
+    protected Boolean getNicPackedVirtQueues() {
+        return nicPackedVirtQueues;
+    }
+
     public ApiConstants.BootMode getBootMode() {
         if (StringUtils.isNotBlank(bootMode)) {
             try {

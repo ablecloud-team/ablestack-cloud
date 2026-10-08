@@ -148,3 +148,36 @@ test('shows Commvault restore before host data restore begins', async () => {
   expect(wrapper.vm.displayStep).toBe('RESTORE_DATA')
   wrapper.unmount()
 })
+
+test('cancellation stays pending until termination and cleanup are confirmed', async () => {
+  getAPI.mockResolvedValue({
+    getbackupjobstatusresponse: { status: 'BackingUp', state: 'CANCEL_PENDING', step: 'CANCEL_PENDING', capabilities: '', details: 'QEMU job still active' }
+  })
+  const wrapper = shallowMount(BackupProgress, {
+    props: { record: { id: 'backup-1', status: 'BackingUp', backupjobprogress: 50 } },
+    global: { mocks: { $t: key => key, $store: { getters: { apis: { getBackupJobStatus: {} } } } } }
+  })
+  for (let i = 0; i < 5; i++) await Promise.resolve()
+  expect(wrapper.vm.displayStatus).toBe('label.backup.cancellation.pending')
+  expect(wrapper.vm.cancellationDetails).toBe('QEMU job still active')
+  expect(wrapper.vm.failureDetails).toBe('')
+  expect(wrapper.vm.showProgress).toBe(false)
+  expect(wrapper.vm.shouldPoll()).toBeTruthy()
+  expect(wrapper.emitted('cancellation-change')?.[0]).toEqual([true])
+  wrapper.vm.applyStatus({ status: 'Canceled', state: 'Canceled', capabilities: '' })
+  expect(wrapper.vm.displayStatus).toBe('Canceled')
+  expect(wrapper.vm.shouldPoll()).toBe(false)
+  expect(wrapper.emitted('cancellation-change')?.[1]).toEqual([false])
+  wrapper.unmount()
+})
+
+test('reloaded cancellation remains pending while cleanup is outstanding', () => {
+  const wrapper = shallowMount(BackupProgress, {
+    props: { record: { id: 'backup-1', status: 'Canceled', backupcancellationpending: true, backupjobdetails: 'Cleanup pending' } },
+    global: { mocks: { $t: key => key, $store: { getters: { apis: {} } } } }
+  })
+  expect(wrapper.vm.displayStatus).toBe('label.backup.cancellation.pending')
+  expect(wrapper.vm.isActive).toBe(true)
+  expect(wrapper.vm.cancellationDetails).toBe('Cleanup pending')
+  wrapper.unmount()
+})
