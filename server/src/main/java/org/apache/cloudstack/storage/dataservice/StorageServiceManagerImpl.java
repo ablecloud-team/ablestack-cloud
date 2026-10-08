@@ -593,10 +593,16 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             JsonObject identity = rootIdentityCapabilities(instance);result.add("identityMigration", identity);
             if (!Boolean.TRUE.equals(getJsonBoolean(identity,"localIdentity")) || !Boolean.TRUE.equals(getJsonBoolean(identity,"protectedStdinTransport"))) blockers.add("IDENTITY_CAPSULE_UNAVAILABLE");
             try {
+                JsonObject runtimeCode=runtimeUpgradeManager.templateRuntimeCapabilities(instance.getId());result.add("runtimeCode",runtimeCode);
+                if (!Boolean.TRUE.equals(getJsonBoolean(runtimeCode,"signedRuntimeReadback")) || getJsonString(runtimeCode,"updaterSha256")==null
+                        || !java.util.Objects.equals(getJsonString(runtimeCode,"updaterSha256"),getJsonString(runtimeCode,"expectedUpdaterSha256"))) blockers.add("SIGNED_RUNTIME_READBACK_HELPER_UNAVAILABLE");
+                StorageServiceRuntimeBundleVO currentBundle=instance.getCurrentRuntimeBundleId()==null?null:storageRuntimeBundleDao.findById(instance.getCurrentRuntimeBundleId());
+                if (currentBundle==null || instance.getRuntimeVerifiedAt()==null || !currentBundle.getVersion().equals(getJsonString(runtimeCode,"currentVersion"))) blockers.add("SOURCE_SIGNED_RUNTIME_PROJECTION_UNVERIFIED");
                 JsonObject generation = nativeConfigurationGeneration(instance,null,"status");result.add("nativeGeneration",generation);
                 if (!generation.has("configurationDesiredState")) blockers.add("ROOT_DESIRED_SEED_CAPABILITY_UNAVAILABLE");
                 if (!"IN_SYNC".equals(getJsonString(generation,"generationStatus")) || generation.get("runtimeRevision").getAsLong() != rootDesiredRevision(instance.getId())) blockers.add("NATIVE_GENERATION_DRIFT");
-                verifyReconciledStorageDesiredState(instance);result.add("runtime", rootGuest(instance,"operation verify",new JsonObject(),60));
+                verifyReconciledStorageDesiredState(instance);JsonObject health=rootGuest(instance,"operation verify",new JsonObject(),60);result.add("runtime",health);
+                if (!"ok".equalsIgnoreCase(getJsonString(health,"status"))) blockers.add("CURRENT_RUNTIME_DEGRADED");
             } catch (RuntimeException drift) { blockers.add("CURRENT_RUNTIME_UNVERIFIED"); }
             JsonObject sessions=observeConfigurationRuntime(instance,"sessions");result.add("sessions",sessions);result.add("activeSessions",sessions.has("count")?sessions.get("count"):com.google.gson.JsonNull.INSTANCE);
         } else if (vm.getState() == com.cloud.vm.VirtualMachine.State.Stopped && allowStopped) result.addProperty("runtimePreflightPending",true);
@@ -714,9 +720,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
         public void checkpoint() {
             if (row.getSnapshotJson() != null) { sameTopology();return; }
+            JsonObject signedRuntime=runtimeUpgradeManager.checkpointTemplateRuntime(instance.getId(),operation.getUuid());
             checkpointConfigurationIdentity(instance);
             JsonObject previous = parseJsonObject(operation.getPreviousSnapshotJson());
-            JsonObject value = new JsonObject();value.add("topology",rootTopology(instance));value.add("identity",previous.getAsJsonObject("nativeIdentityCapsule"));
+            JsonObject value = new JsonObject();value.add("topology",rootTopology(instance));value.add("identity",previous.getAsJsonObject("nativeIdentityCapsule"));value.add("signedRuntime",signedRuntime);
             JsonObject generation=nativeConfigurationGeneration(instance,null,"status");
             value.add("sourceGeneration",generation.getAsJsonObject("generation"));
             if (!generation.has("configurationDesiredState")) throw new CloudRuntimeException("ROOT desired-state seed capability is unavailable");
@@ -733,7 +740,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         public void swapRoot() {
             sameTopology();if (currentRoot() != row.getTargetRootVolumeId()) swap.swap(instance.getVmId(),row.getPreviousRootVolumeId(),row.getTargetRootVolumeId(),row.getSourceTemplateId(),row.getTargetTemplateId(),rootUpgradeTemplateDao.findById(row.getTargetTemplateId()).getGuestOSId());sameTopology();
         }
-        public void bootTarget() { requireBinding(row.getTargetRootVolumeId(),row.getTargetTemplateId());lifecycle.startAndAwaitCapabilities(instance,operation.getUuid());sameTopology();requireBinding(row.getTargetRootVolumeId(),row.getTargetTemplateId()); }
+        public void bootTarget() { requireBinding(row.getTargetRootVolumeId(),row.getTargetTemplateId());lifecycle.startAndAwaitCapabilities(instance,operation.getUuid());sameTopology();requireBinding(row.getTargetRootVolumeId(),row.getTargetTemplateId());
+            JsonObject value=snapshot();value.add("targetRuntimeVerified",runtimeUpgradeManager.restoreTemplateRuntime(instance.getId(),value.getAsJsonObject("signedRuntime").getAsJsonObject("pin"),operation.getUuid(),"target"));persist(value); }
         public void restoreIdentity() {requireBinding(row.getTargetRootVolumeId(),row.getTargetTemplateId());sameTopology();restoreConfigurationIdentity(instance,snapshot().getAsJsonObject("identity"));}
         private void restoreMounts() {
             for (StorageServiceInstance.Protocol protocol : new StorageServiceInstance.Protocol[]{StorageServiceInstance.Protocol.NFS,StorageServiceInstance.Protocol.SMB}) {
@@ -752,7 +760,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         private void applyAll() {
             sameTopology();
             if (shared.getNetworkMode() == SharedFS.NetworkMode.STATIC) {
-                List<NicVO> nics=nicDao.listByVmId(instance.getVmId());
+                List<NicVO> nics=nicDao.listByVmId(instance.getVmId()).stream().filter(NicVO::isDefaultNic).collect(java.util.stream.Collectors.toList());
                 if (nics.size()!=1) throw new CloudRuntimeException("Static ROOT recovery requires its preserved NIC");
                 JsonObject network=new JsonObject();network.addProperty("macAddress",nics.get(0).getMacAddress());network.addProperty("ipAddress",shared.getIpAddress());network.addProperty("cidr",shared.getCidr());
                 if (StringUtils.isNotBlank(shared.getGateway())) network.addProperty("gateway",shared.getGateway());
@@ -799,10 +807,12 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             nativeConfigurationGeneration(instance,operation,"begin");
         }
         public void verify() {
-            requireBinding(row.getTargetRootVolumeId(),row.getTargetTemplateId());sameTopology();verifyReconciledStorageDesiredState(instance);JsonObject health=rootGuest(instance,"operation verify",new JsonObject(),60);
+            requireBinding(row.getTargetRootVolumeId(),row.getTargetTemplateId());sameTopology();
+            JsonObject runtimeProof=runtimeUpgradeManager.verifyTemplateRuntime(instance.getId(),snapshot().getAsJsonObject("signedRuntime").getAsJsonObject("pin"),operation.getUuid(),"target");
+            verifyReconciledStorageDesiredState(instance);JsonObject health=rootGuest(instance,"operation verify",new JsonObject(),60);
             if (!"ok".equalsIgnoreCase(getJsonString(health,"status"))) throw new CloudRuntimeException("ROOT runtime health is degraded");
             nativeConfigurationGeneration(instance,operation,"verify");nativeConfigurationGeneration(instance,operation,"commit");
-            row.setVerificationJson(health.toString());JsonObject value=snapshot();value.addProperty("serviceVerifiedAt",System.currentTimeMillis());persist(value);
+            health.add("signedRuntime",runtimeProof);row.setVerificationJson(health.toString());JsonObject value=snapshot();value.addProperty("serviceVerifiedAt",System.currentTimeMillis());persist(value);
         }
         public void commit() { complete(true); }
         private void complete(boolean target) {
@@ -811,6 +821,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             new StorageServiceConfiguration(StorageServiceManagerImpl.this,storageConfigArtifactDao,storageOperationDao).promoteVerified(instance,operation,() -> {
                 operation.setState("COMPLETE");operation.setPhase("COMPLETE");operation.setProgress(100);operation.setCompleted(new java.util.Date());operation.setHeartbeat(new java.util.Date());
                 if (!storageOperationDao.update(operation.getId(),operation)) throw new CloudRuntimeException("Unable to commit ROOT writer");
+                instance.setRuntimeState("VERIFIED");instance.setRuntimeVerifiedAt(new java.util.Date());
                 instance.setCurrentTemplateId(target ? row.getTargetTemplateId() : row.getSourceTemplateId());
                 instance.setPreviousTemplateId(target ? row.getSourceTemplateId() : row.getTargetTemplateId());
                 instance.setTemplateUpgradeState(target ? "COMPLETE" : "ROLLED_BACK");instance.setLastTemplateUpgradeId(row.getId());instance.setTemplateVerifiedAt(new java.util.Date());
@@ -823,7 +834,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         public void restorePreviousRoot() {
             if (manualRollback && !snapshot().has("manualRollbackGeneration")) {
                 lifecycle.startAndAwaitCapabilities(instance,operation.getUuid());verifyReconciledStorageDesiredState(instance);checkpointConfigurationIdentity(instance);
-                JsonObject value=snapshot();value.add("identity",parseJsonObject(operation.getPreviousSnapshotJson()).getAsJsonObject("nativeIdentityCapsule"));
+                JsonObject value=snapshot();value.add("signedRuntime",runtimeUpgradeManager.checkpointTemplateRuntime(instance.getId(),operation.getUuid()));value.add("identity",parseJsonObject(operation.getPreviousSnapshotJson()).getAsJsonObject("nativeIdentityCapsule"));
                 JsonObject observed=nativeConfigurationGeneration(instance,null,"status");JsonObject source=observed.getAsJsonObject("generation");
                 if (!observed.has("configurationDesiredState")) throw new CloudRuntimeException("Current ROOT seed capability is unavailable");
                 value.add("sourceGeneration",source);value.add("sourceDesiredState",observed.getAsJsonObject("configurationDesiredState"));value.add("manualRollbackGeneration",source);persist(value);
@@ -839,16 +850,19 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             }
             lifecycle.stop(instance.getVmId());swap.swap(instance.getVmId(),row.getTargetRootVolumeId(),row.getPreviousRootVolumeId(),row.getTargetTemplateId(),row.getSourceTemplateId(),row.getPreviousGuestOsId());sameTopology();
         }
-        public void bootPrevious() {requireBinding(row.getPreviousRootVolumeId(),row.getSourceTemplateId());lifecycle.startAndAwaitCapabilities(instance,operation.getUuid());}
+        public void bootPrevious() {requireBinding(row.getPreviousRootVolumeId(),row.getSourceTemplateId());lifecycle.startAndAwaitCapabilities(instance,operation.getUuid());
+            if (row.getSnapshotJson()!=null) {JsonObject value=snapshot();value.add("previousRuntimeVerified",runtimeUpgradeManager.restoreTemplateRuntime(instance.getId(),value.getAsJsonObject("signedRuntime").getAsJsonObject("pin"),operation.getUuid(),"previous"));persist(value);}}
         public void reconcilePrevious() {
             if (row.getSnapshotJson()==null) return;
             restoreConfigurationIdentity(instance,snapshot().getAsJsonObject("identity"));
             if (manualRollback) seedDesired();applyAll();transferGeneration(true);
         }
         public void verifyPrevious() {
-            requireBinding(row.getPreviousRootVolumeId(),row.getSourceTemplateId());verifyReconciledStorageDesiredState(instance);JsonObject health=rootGuest(instance,"operation verify",new JsonObject(),60);
+            requireBinding(row.getPreviousRootVolumeId(),row.getSourceTemplateId());
+            JsonObject runtimeProof=row.getSnapshotJson()==null?new JsonObject():runtimeUpgradeManager.verifyTemplateRuntime(instance.getId(),snapshot().getAsJsonObject("signedRuntime").getAsJsonObject("pin"),operation.getUuid(),"previous");
+            verifyReconciledStorageDesiredState(instance);JsonObject health=rootGuest(instance,"operation verify",new JsonObject(),60);
             if (!"ok".equalsIgnoreCase(getJsonString(health,"status"))) throw new CloudRuntimeException("Previous ROOT runtime health is degraded");
-            row.setRollbackResultJson(health.toString());
+            health.add("signedRuntime",runtimeProof);row.setRollbackResultJson(health.toString());
             if (row.getSnapshotJson()!=null) {JsonObject value=snapshot();value.addProperty("serviceVerifiedAt",System.currentTimeMillis());value.addProperty("rollbackServiceVerifiedAt",System.currentTimeMillis());persist(value);}
             if (manualRollback) {nativeConfigurationGeneration(instance,operation,"verify");nativeConfigurationGeneration(instance,operation,"commit");complete(false);}
         }

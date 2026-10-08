@@ -353,4 +353,27 @@ public class LibvirtGetVmIpAddressCommandWrapperTest {
                 scriptMock.close();
         }
     }
+
+    @Test public void primaryAddressIsNotOverwrittenBySecondaryIpv4OnTheSameMac() {
+        try (MockedStatic<Script> scriptMock=mockStatic(Script.class)) {
+            GetVmIpAddressCommand command=mock(GetVmIpAddressCommand.class);
+            when(command.getVmName()).thenReturn("sharedfs-vm");when(command.getMacAddress()).thenReturn("02:0c:02:f9:00:80");
+            when(command.getVmNetworkCidr()).thenReturn("10.10.0.0/16");
+            when(Script.executePipedCommands(anyList(),anyLong())).thenReturn(new Pair<>(0,
+                    "eth0 02:0c:02:f9:00:80 ipv4 10.10.13.240/16\n - - ipv4 10.10.13.241/16\n - - ipv4 10.10.13.242/16\n"));
+            Answer answer=new LibvirtGetVmIpAddressCommandWrapper().execute(command,mock(LibvirtComputingResource.class));
+            assertTrue(answer.getResult());assertEquals("10.10.13.240",answer.getDetails());
+        }
+    }
+    @Test public void firstInScopeAddressIsSelectedWithoutReturningLinkLocalOrLaterAlias() {
+        try (MockedStatic<Script> scriptMock=mockStatic(Script.class)) {
+            GetVmIpAddressCommand command=mock(GetVmIpAddressCommand.class);
+            when(command.getVmName()).thenReturn("sharedfs-vm");when(command.getMacAddress()).thenReturn("02:0c:02:f9:00:80");
+            when(command.getVmNetworkCidr()).thenReturn("10.10.0.0/16");
+            when(Script.executePipedCommands(anyList(),anyLong())).thenReturn(new Pair<>(0,
+                    "eth0 02:0c:02:f9:00:80 ipv4 169.254.1.1/16\n - - ipv4 10.10.13.240/16\n - - ipv4 10.10.13.241/16\n"));
+            Answer answer=new LibvirtGetVmIpAddressCommandWrapper().execute(command,mock(LibvirtComputingResource.class));
+            assertTrue(answer.getResult());assertEquals("10.10.13.240",answer.getDetails());
+        }
+    }
 }

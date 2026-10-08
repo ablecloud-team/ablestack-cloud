@@ -37,7 +37,7 @@ public abstract class BaseStorageTemplateUpgradeReadCmd extends BaseCmd implemen
     public String getConfirmation(){return confirmation;}
     public Boolean getMaintenanceWindow(){return maintenanceWindow;}
     public org.apache.cloudstack.api.BaseCmd getBaseCmd(){return this;}
-    public long getEntityOwnerId(){return 0;}
+    public long getEntityOwnerId(){return org.apache.cloudstack.context.CallContext.current().getCallingAccount().getId();}
     public void execute(){
         org.apache.cloudstack.api.response.StorageServiceTemplateUpgradeResponse response=storageService.storageServiceTemplateUpgrade(this);
         response.setResponseName(getCommandName());response.setObjectName("storageservicetemplateupgrade");setResponseObject(response);

@@ -104,6 +104,89 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         } finally {lock.releaseRef();}
     }
 
+    private StorageServiceInstanceVO rootRuntimeScope(long instanceId,String operationUuid) {
+        UUID.fromString(operationUuid);StorageServiceInstanceVO instance=instanceDao.findById(instanceId);
+        StorageServiceOperationVO operation=rootWriterDao.findByUuid(operationUuid);
+        StorageServiceTemplateUpgradeVO upgrade=rootUpgradeDao.findActive(instanceId);
+        if (instance==null || operation==null || operation.getInstanceId()!=instanceId || !"RUNNING".equals(operation.getState())
+                || !operation.getAction().startsWith("ROOT_TEMPLATE_") || upgrade==null || !Long.valueOf(operation.getId()).equals(upgrade.getOperationId())) {
+            throw new CloudRuntimeException("Signed runtime replay requires the reserved ROOT maintenance writer");
+        }
+        return instance;
+    }
+    protected JsonObject runtimePin(StorageServiceRuntimeBundleVO bundle) {
+        JsonObject pin=new JsonObject();pin.addProperty("bundleUuid",bundle.getUuid());pin.addProperty("bundleVersion",bundle.getVersion());
+        pin.addProperty("archiveSha256",bundle.getSha256());pin.addProperty("manifestSha256",bundle.getManifestSha256());pin.addProperty("signingKeyId",bundle.getSigningKeyId());
+        pin.addProperty("runtimeAbiVersion",bundle.getRuntimeAbiVersion());pin.addProperty("desiredStateSchemaVersion",bundle.getDesiredStateSchemaVersion());return pin;
+    }
+    private StorageServiceRuntimeBundleVO pinnedBundle(JsonObject pin) {
+        StorageServiceRuntimeBundleVO bundle=bundleDao.findByUuid(pin.get("bundleUuid").getAsString());
+        if (bundle==null || bundle.getState()!=StorageServiceRuntimeBundleVO.State.AVAILABLE || !runtimePin(bundle).equals(pin)) throw new CloudRuntimeException("Pinned ROOT runtime catalog provenance changed or was revoked");
+        return bundle;
+    }
+    @Override public JsonObject templateRuntimeCapabilities(long instanceId) {
+        StorageServiceInstanceVO instance=instanceDao.findById(instanceId);
+        if (instance==null || instance.getVmId()==null) throw new CloudRuntimeException("ROOT runtime VM is unavailable");
+        JsonObject capability=invoke(instance,StorageServiceRuntimeOperation.CAPABILITIES,"root-cap-"+UUID.randomUUID(),null);
+        capability.addProperty("expectedUpdaterSha256",sha256(resource("/storage-runtime/bootstrap/runtime_updater.py")));return capability;
+    }
+    protected String requireTemplateRuntimeHelper(StorageServiceInstanceVO instance) {
+        JsonObject capability=templateRuntimeCapabilities(instance.getId());
+        if (!capability.has("signedRuntimeReadback") || !capability.get("signedRuntimeReadback").getAsBoolean() || !capability.has("updaterSha256")
+                || !capability.get("expectedUpdaterSha256").getAsString().equals(capability.get("updaterSha256").getAsString())) throw new CloudRuntimeException("ROOT signed runtime readback helper provenance is unavailable or differs");
+        return capability.get("updaterSha256").getAsString();
+    }
+    @Override public JsonObject checkpointTemplateRuntime(long instanceId,String rootOperationUuid) {
+        StorageServiceInstanceVO instance=rootRuntimeScope(instanceId,rootOperationUuid);
+        if (instance.getCurrentRuntimeBundleId()==null || instance.getRuntimeVerifiedAt()==null) throw new CloudRuntimeException("Source ROOT has no previously verified signed runtime bundle");
+        String helperSha=requireTemplateRuntimeHelper(instance);StorageServiceRuntimeBundleVO bundle=requireBundle(instance.getCurrentRuntimeBundleId());JsonObject pin=runtimePin(bundle);
+        JsonObject result=new JsonObject();result.add("pin",pin);result.addProperty("updaterSha256",helperSha);result.add("verification",stagePinnedRuntime(instance,bundle,rootOperationUuid,"source",false));return result;
+    }
+    @Override public JsonObject restoreTemplateRuntime(long instanceId,JsonObject pin,String rootOperationUuid,String direction) {
+        StorageServiceInstanceVO instance=rootRuntimeScope(instanceId,rootOperationUuid);
+        if (!java.util.Set.of("target","previous").contains(direction)) throw new CloudRuntimeException("Invalid ROOT runtime replay direction");
+        requireTemplateRuntimeHelper(instance);return stagePinnedRuntime(instance,pinnedBundle(pin),rootOperationUuid,direction,true);
+    }
+    @Override public JsonObject verifyTemplateRuntime(long instanceId,JsonObject pin,String rootOperationUuid,String direction) {
+        StorageServiceInstanceVO instance=rootRuntimeScope(instanceId,rootOperationUuid);
+        if (!java.util.Set.of("source","target","previous").contains(direction)) throw new CloudRuntimeException("Invalid ROOT runtime readback direction");
+        String helperSha=requireTemplateRuntimeHelper(instance);StorageServiceRuntimeBundleVO bundle=pinnedBundle(pin);JsonObject request=runtimePin(bundle);
+        String transaction="root-"+direction+"-"+rootOperationUuid;request.addProperty("transactionId",transaction);
+        JsonObject observed=requireRuntimeReadback(invoke(instance,StorageServiceRuntimeOperation.READBACK,transaction,request),bundle);
+        if (!observed.has("updaterSha256") || !helperSha.equals(observed.get("updaterSha256").getAsString())) throw new CloudRuntimeException("ROOT runtime helper changed during installed-code readback");return observed;
+    }
+    protected JsonObject requireRuntimeReadback(JsonObject result,StorageServiceRuntimeBundleVO bundle) {
+        if (!result.has("success") || !result.get("success").getAsBoolean()
+                || !result.has("signedRuntimeVerified") || !result.get("signedRuntimeVerified").getAsBoolean()
+                || !result.has("installedFilesVerified") || !result.get("installedFilesVerified").getAsBoolean()
+                || !result.has("entrypointsVerified") || !result.get("entrypointsVerified").getAsBoolean()
+                || !bundle.getVersion().equals(result.has("currentVersion")?result.get("currentVersion").getAsString():null)
+                || !bundle.getSha256().equals(result.has("archiveSha256")?result.get("archiveSha256").getAsString():null)
+                || !bundle.getManifestSha256().equals(result.has("manifestSha256")?result.get("manifestSha256").getAsString():null)) {
+            throw new CloudRuntimeException("Installed ROOT runtime code differs from its pinned signed bundle");
+        }
+        return result;
+    }
+    private JsonObject stagePinnedRuntime(StorageServiceInstanceVO instance,StorageServiceRuntimeBundleVO bundle,String operationUuid,String direction,boolean activate) {
+        if (bundle.getServiceImpact()!=StorageServiceRuntimeBundleVO.ServiceImpact.NONE) throw new CloudRuntimeException("Pinned runtime requires additional template maintenance");
+        byte[] archive=download(bundle.getArtifactUrl(),MAX_BUNDLE_BYTES),manifest=download(bundle.getManifestUrl(),MAX_MANIFEST_BYTES),signature=download(bundle.getSignatureUrl(),MAX_SIGNATURE_BYTES);
+        JsonObject verified=new StorageServiceRuntimeBundleVerifier().verify(bundle,archive,manifest,signature,trustedKey(bundle.getSigningKeyId()));
+        StorageRuntimeFeatureCompatibility.require(verified.getAsJsonObject("manifest"),requiredRuntimeFeatures(instance));
+        String transaction="root-"+direction+"-"+operationUuid;ensureBootstrap(instance,bundle,transaction);
+        JsonObject request=runtimePin(bundle);request.addProperty("transactionId",transaction);request.addProperty("totalSize",archive.length);request.addProperty("manifestSize",manifest.length);request.addProperty("signatureSize",signature.length);
+        JsonObject started=invoke(instance,StorageServiceRuntimeOperation.BEGIN,transaction,request);String phase=started.has("phase")?started.get("phase").getAsString():null;
+        if (java.util.Set.of("RECEIVING","RECEIVED").contains(phase)) {
+            transfer(instance,transaction,StorageServiceRuntimeFileType.BUNDLE,null,archive,0,0,null);transfer(instance,transaction,StorageServiceRuntimeFileType.MANIFEST,null,manifest,0,0,null);transfer(instance,transaction,StorageServiceRuntimeFileType.SIGNATURE,null,signature,0,0,null);
+            invoke(instance,StorageServiceRuntimeOperation.FINALIZE,transaction,request);invoke(instance,StorageServiceRuntimeOperation.VERIFY,transaction,request);phase="VERIFIED";
+        }
+        if (activate && ("VERIFIED".equals(phase) || "PREFLIGHT_OK".equals(phase))) {
+            invoke(instance,StorageServiceRuntimeOperation.PREFLIGHT,transaction,request);invoke(instance,StorageServiceRuntimeOperation.ACTIVATE,transaction,request);
+        } else if (activate && ("ACTIVATING".equals(phase) || "COMPLETE".equals(phase))) {
+            invoke(instance,StorageServiceRuntimeOperation.ACTIVATE,transaction,request);
+        }
+        return requireRuntimeReadback(invoke(instance,StorageServiceRuntimeOperation.READBACK,transaction,request),bundle);
+    }
+
     @Override
     public StorageServiceRuntimeBundleResponse register(final RegisterStorageServiceRuntimeBundleCmd cmd) {
         requireIdentifier(cmd.getVersion(), "version");
@@ -492,7 +575,9 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
             final String transactionId) {
         final StorageServiceRuntimeHostAnswer capability = runtimeDispatcher.dispatch(instance.getVmId(), new StorageServiceRuntimeHostCommand(
                 vmName(instance), StorageServiceRuntimeOperation.CAPABILITIES, transactionId, null, timeout()));
-        if (!capability.getResult()) {
+        JsonObject observedCapability=!capability.getResult() || capability.getResultJson()==null || capability.getResultJson().isBlank()?new JsonObject():new JsonParser().parse(capability.getResultJson()).getAsJsonObject();
+        if (!capability.getResult() || !observedCapability.has("signedRuntimeReadback") || !observedCapability.get("signedRuntimeReadback").getAsBoolean()
+                || !observedCapability.has("updaterSha256") || !sha256(resource("/storage-runtime/bootstrap/runtime_updater.py")).equals(observedCapability.get("updaterSha256").getAsString())) {
             transfer(instance, transactionId, StorageServiceRuntimeFileType.UPDATER_MODULE, null,
                     resource("/storage-runtime/bootstrap/runtime_updater.py"), 0, 4, null);
             transfer(instance, transactionId, StorageServiceRuntimeFileType.UPDATER_ENTRY, null,
@@ -516,6 +601,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
             final StorageServiceRuntimeHostCommand command = new StorageServiceRuntimeHostCommand(vmName(instance), transactionId,
                     type, keyId, offset, length, sha256(chunk), Base64.getEncoder().encodeToString(chunk),
                     offset == 0, offset + length == value.length, timeout());
+            command.setFileSha256(sha256(value));
             final StorageServiceRuntimeHostAnswer answer = runtimeDispatcher.dispatch(instance.getVmId(), command);
             if (!answer.getResult()) throw new CloudRuntimeException(answer.getDetails());
             offset += length;
