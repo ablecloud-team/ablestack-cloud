@@ -41,6 +41,9 @@ public interface StorageServiceInstance extends ControlledEntity, Identity, Inte
     String StorageServiceVmType = "storageservicevm";
     String StorageServiceProviderName = "STORAGESERVICEVM";
 
+    ConfigKey<Boolean> StorageServiceOperationControlEnabled = new ConfigKey<Boolean>("Advanced", Boolean.class,
+            "storage.service.operation.control.enabled", "false",
+            "Enable native resource reservations and cooperative operation control after signed runtime capability validation", false);
     ConfigKey<Boolean> StorageServiceVerifiedConfigurationEnabled = new ConfigKey<Boolean>("Advanced", Boolean.class,
             "storage.service.verified.configuration.enabled", "false",
             "Enable configuration restore APIs and mandatory verified restore-point promotion after compatible runtimes are installed.", true,

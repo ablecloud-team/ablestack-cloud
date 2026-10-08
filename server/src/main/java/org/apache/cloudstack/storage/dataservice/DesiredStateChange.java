@@ -32,6 +32,7 @@ public final class DesiredStateChange {
         void verify();
         void applyPrevious();
         default void ensureRollbackSafe() { }
+        default void checkControl(StorageServiceOperationVO operation) { }
         default void started(StorageServiceOperationVO operation) { }
         default void finished() { }
         default void prepareNativeCheckpoint(StorageServiceOperationVO operation) { }
@@ -112,10 +113,13 @@ public final class DesiredStateChange {
                 runtime.started(operation);
                 boolean mutated = false;
                 try {
+                    runtime.checkControl(operation);
                     runtime.preflight();
+                    runtime.checkControl(operation);
                     operation.setPreviousSnapshotJson(snapshots.capture(instanceId));
                     phase(operation, "PREPARED", 15);
                     runtime.prepareNativeCheckpoint(operation);
+                    runtime.checkControl(operation);
                     mutated = true;
                     phase(operation, "APPLYING", 30);
                     T response = change.get();
@@ -149,8 +153,9 @@ public final class DesiredStateChange {
                             runtime.applyPrevious();
                             runtime.verify();
                             runtime.rollbackNativeGeneration(operation);
-                            operation.setState("ROLLED_BACK"); operation.setCompleted(new Date());
-                            phase(operation, "ROLLED_BACK", 100);
+                            String terminal = failure instanceof StorageOperationCancelledException ? "CANCELLED" : "ROLLED_BACK";
+                            operation.setState(terminal); operation.setCompleted(new Date());
+                            phase(operation, terminal, 100);
                         } catch (RuntimeException rollback) {
                             operation.setState("RECOVERY_REQUIRED");
                             operation.setDiagnostic(message(failure) + " | rollback: " + message(rollback));
@@ -159,7 +164,8 @@ public final class DesiredStateChange {
                     } else {
                         try {
                             runtime.abortNativeCheckpoint(operation);
-                            operation.setState("BLOCKED");operation.setCompleted(new Date());phase(operation, "BLOCKED", 100);
+                            String terminal = failure instanceof StorageOperationCancelledException ? "CANCELLED" : "BLOCKED";
+                            operation.setState(terminal);operation.setCompleted(new Date());phase(operation, terminal, 100);
                         } catch (RuntimeException cleanup) {
                             operation.setState("RECOVERY_REQUIRED");operation.setCompleted(new Date());
                             operation.setDiagnostic(message(failure) + " | checkpoint cleanup: " + message(cleanup));phase(operation, "RECOVERY_REQUIRED", 100);
