@@ -22,6 +22,7 @@ import os
 from pathlib import Path
 import tempfile
 import unittest
+from types import SimpleNamespace
 
 ROOT = Path(__file__).resolve().parents[2]
 CLI = ROOT / "systemvm/debian/usr/local/bin/ablestack-storagectl"
@@ -86,6 +87,51 @@ class StorageNfsOwnershipSafetyTest(unittest.TestCase):
         with self.assertRaises(OSError):
             self.ns['apply_posix_permissions'](str(link), self.config, self.creation_identity())
         self.assertEqual(before, self.path.stat())
+
+class StorageNfsFilesystemRootTest(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name) / "volume"
+        self.root.mkdir(mode=0o750)
+        source = CLI.read_text()
+        start = source.index("def verify_share_mount_boundary(path, root):")
+        end = source.index("def ensure_export_alias(export):", start)
+        self.ns = {"os": os, "run": lambda args: SimpleNamespace(returncode=0, stdout=str(self.root) + "\n")}
+        exec(compile(ast.parse(source[start:end]), str(CLI), "exec"), self.ns)
+
+    def test_existing_filesystem_root_is_accepted_without_permission_initialization(self):
+        before = self.root.stat()
+        self.ns["verify_share_mount_boundary"](str(self.root), str(self.root))
+        self.assertIsNone(self.ns["ensure_directory_below_volume"](str(self.root), str(self.root), True))
+        self.assertEqual(before, self.root.stat())
+
+    def test_only_a_new_leaf_returns_an_initialization_inode(self):
+        leaf = self.root / "new"
+        value = self.ns["ensure_directory_below_volume"](str(self.root), str(leaf), True)
+        self.assertEqual({"device": leaf.stat().st_dev, "inode": leaf.stat().st_ino}, value)
+        self.assertIsNone(self.ns["ensure_directory_below_volume"](str(self.root), str(leaf), True))
+
+    def test_symlink_root_and_outside_path_are_rejected(self):
+        alias = Path(self.temp.name) / "alias"
+        alias.symlink_to(self.root, target_is_directory=True)
+        for helper in ("verify_share_mount_boundary", "ensure_directory_below_volume"):
+            with self.assertRaises((ValueError, RuntimeError)):
+                if helper == "ensure_directory_below_volume":
+                    self.ns[helper](str(alias), str(alias), True)
+                else:
+                    self.ns[helper](str(alias), str(alias))
+        with self.assertRaises(RuntimeError):
+            self.ns["verify_share_mount_boundary"](self.temp.name, str(self.root))
+
+    def test_filesystem_root_requires_an_exact_mount(self):
+        self.ns["run"] = lambda args: SimpleNamespace(returncode=0, stdout=self.temp.name + "\n")
+        before = self.root.stat()
+        with self.assertRaises(RuntimeError):
+            self.ns["verify_share_mount_boundary"](str(self.root), str(self.root))
+        with self.assertRaises(RuntimeError):
+            self.ns["ensure_directory_below_volume"](str(self.root), str(self.root), True)
+        self.assertEqual(before, self.root.stat())
 
 if __name__ == '__main__':
     unittest.main()
