@@ -151,6 +151,9 @@ public class SharedFSServiceImplTest {
     @Mock
     private org.apache.cloudstack.storage.dataservice.dao.StorageBlockTargetDao storageBlockTargetDao;
 
+    @Mock
+    org.apache.cloudstack.storage.dataservice.dao.StorageServiceTemplateUpgradeDao storageTemplateUpgradeDao;
+
     @Spy
     @InjectMocks
     private SharedFSServiceImpl sharedFSServiceImpl;

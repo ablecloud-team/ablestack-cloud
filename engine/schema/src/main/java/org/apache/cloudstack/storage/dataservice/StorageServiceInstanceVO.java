@@ -85,6 +85,22 @@ public class StorageServiceInstanceVO implements StorageServiceInstance {
     @Temporal(value = TemporalType.TIMESTAMP)
     private Date runtimeVerifiedAt;
 
+    @Column(name="current_template_id") private Long currentTemplateId;
+    @Column(name="previous_template_id") private Long previousTemplateId;
+    @Column(name="template_upgrade_state") private String templateUpgradeState;
+    @Column(name="last_template_upgrade_id") private Long lastTemplateUpgradeId;
+    @Column(name="template_verified_at") @Temporal(TemporalType.TIMESTAMP) private Date templateVerifiedAt;
+    public Long getCurrentTemplateId(){return currentTemplateId;}
+    public void setCurrentTemplateId(Long value){currentTemplateId=value;}
+    public Long getPreviousTemplateId(){return previousTemplateId;}
+    public void setPreviousTemplateId(Long value){previousTemplateId=value;}
+    public String getTemplateUpgradeState(){return templateUpgradeState;}
+    public void setTemplateUpgradeState(String value){templateUpgradeState=value;}
+    public Long getLastTemplateUpgradeId(){return lastTemplateUpgradeId;}
+    public void setLastTemplateUpgradeId(Long value){lastTemplateUpgradeId=value;}
+    public Date getTemplateVerifiedAt(){return templateVerifiedAt;}
+    public void setTemplateVerifiedAt(Date value){templateVerifiedAt=value;}
+
     @Column(name = GenericDao.CREATED_COLUMN)
     @Temporal(value = TemporalType.TIMESTAMP)
     private Date created = new Date();

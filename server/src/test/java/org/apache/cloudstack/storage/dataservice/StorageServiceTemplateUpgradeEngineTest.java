@@ -96,4 +96,31 @@ public class StorageServiceTemplateUpgradeEngineTest {
         Assert.assertEquals("TEMPLATE_UPGRADE_CLEANUP_PENDING",row.getErrorCode());
         Mockito.verify(runtime,Mockito.never()).restorePreviousRoot();
     }
+
+    @Test public void restartReplaysOnlyTheDurablePhaseAndLaterSteps() {
+        List<String> phases=List.of("PREFLIGHT","STAGING_ROOT","SNAPSHOTTING_CONFIG","QUIESCING","SWAPPING_ROOT","BOOTING_TARGET","RESTORING_IDENTITY","RECONCILING","VERIFYING","COMMITTING");
+        for (int first=0;first<phases.size();first++) {
+            StorageServiceTemplateUpgradeVO row=new StorageServiceTemplateUpgradeVO();row.setState("RUNNING");row.setPhase(phases.get(first));
+            Runtime resumed=new Runtime(row,"");resumed.root=first>=5?2:1;
+            engine().execute(row,resumed);
+            Assert.assertEquals(phases.subList(first,phases.size()),resumed.events);Assert.assertEquals("COMPLETE",row.getState());Assert.assertEquals(2,resumed.root);
+        }
+    }
+    @Test public void interruptedRollbackCannotRestartForwardCutover() {
+        for (String phase:List.of("ROLLING_BACK_ROOT","BOOTING_PREVIOUS","RECONCILING_PREVIOUS","RECOVERY_REQUIRED")) {
+            StorageServiceTemplateUpgradeVO row=new StorageServiceTemplateUpgradeVO();row.setState("RECOVERY_REQUIRED");row.setPhase(phase);
+            Runtime resumed=new Runtime(row,"");resumed.root=2;engine().execute(row,resumed);
+            Assert.assertEquals(List.of("ROLLING_BACK_ROOT","BOOTING_PREVIOUS","RECONCILING_PREVIOUS"),resumed.events);
+            Assert.assertEquals("ROLLED_BACK",row.getState());Assert.assertEquals(1,resumed.root);
+        }
+    }
+    @Test public void unknownRecoveryPhaseCannotAllocateOrStopVm() {
+        StorageServiceTemplateUpgradeVO row=new StorageServiceTemplateUpgradeVO();row.setState("RUNNING");row.setPhase("UNRECOGNIZED");
+        Runtime runtime=new Runtime(row,"");Assert.assertThrows(CloudRuntimeException.class,()->engine().execute(row,runtime));Assert.assertTrue(runtime.events.isEmpty());
+    }
+    @Test public void blockedPreflightReleasesTheDurableWriterReservation() {
+        StorageServiceTemplateUpgradeVO row=new StorageServiceTemplateUpgradeVO();StorageServiceTemplateUpgradeEngine.Runtime runtime=Mockito.mock(StorageServiceTemplateUpgradeEngine.Runtime.class);
+        Mockito.doThrow(new CloudRuntimeException("incompatible")).when(runtime).preflight();Assert.assertThrows(CloudRuntimeException.class,()->engine().execute(row,runtime));
+        Mockito.verify(runtime).finished(false);Assert.assertEquals("BLOCKED",row.getState());
+    }
 }

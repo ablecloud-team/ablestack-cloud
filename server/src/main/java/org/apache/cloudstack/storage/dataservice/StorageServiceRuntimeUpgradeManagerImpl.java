@@ -78,6 +78,8 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
     @Inject private StorageServiceRuntimeBundleDao bundleDao;
     @Inject private StorageServiceRuntimeUpgradeDao upgradeDao;
     @Inject private StorageServiceInstanceDao instanceDao;
+    @Inject private org.apache.cloudstack.storage.dataservice.dao.StorageServiceTemplateUpgradeDao rootUpgradeDao;
+    @Inject private org.apache.cloudstack.storage.dataservice.dao.StorageServiceOperationDao rootWriterDao;
     @Inject private SharedFSDao sharedFSDao;
     @Inject private StorageServiceRuntimeHostDispatcher runtimeDispatcher;
     @Inject private StorageServiceGuestCommandDispatcher guestCommandDispatcher;
@@ -86,6 +88,21 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
     @Inject private org.apache.cloudstack.storage.dataservice.dao.StorageServiceProtocolDao protocolDao;
     @Inject private org.apache.cloudstack.storage.dataservice.dao.StorageAccessRuleDao accessRuleDao;
     @Inject private org.apache.cloudstack.storage.dataservice.dao.StoragePosixDirectoryPolicyDao posixPolicyDao;
+
+    private StorageServiceRuntimeUpgradeResponse rootSerializedRuntime(StorageServiceInstanceVO instance,
+            java.util.function.Supplier<StorageServiceRuntimeUpgradeResponse> action) {
+        final GlobalLock lock = GlobalLock.getInternLock("StorageServiceWriter-" + instance.getId());
+        try {
+            if (!lock.lock(120)) throw new CloudRuntimeException("Storage Service writer is busy");
+            try {
+                if (rootUpgradeDao.findActive(instance.getId()) != null || rootWriterDao.listByInstance(instance.getId()).stream()
+                        .anyMatch(row -> row.getAction().startsWith("ROOT_TEMPLATE_") && java.util.Set.of("RUNNING","RECOVERY_REQUIRED").contains(row.getState()))) {
+                    throw new CloudRuntimeException("ROOT template maintenance must finish or recover before runtime activation");
+                }
+                return action.get();
+            } finally {lock.unlock();}
+        } finally {lock.releaseRef();}
+    }
 
     @Override
     public StorageServiceRuntimeBundleResponse register(final RegisterStorageServiceRuntimeBundleCmd cmd) {
@@ -281,6 +298,11 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
 
     @Override
     public StorageServiceRuntimeUpgradeResponse preflight(final PreflightStorageServiceRuntimeUpgradeCmd cmd) {
+        StorageServiceInstanceVO instance = requireInstance(cmd.getSharedFileSystemId());
+        return rootSerializedRuntime(instance, () -> doPreflight(cmd));
+    }
+
+    private StorageServiceRuntimeUpgradeResponse doPreflight(final PreflightStorageServiceRuntimeUpgradeCmd cmd) {
         final StorageServiceInstanceVO instance = requireInstance(cmd.getSharedFileSystemId());
         final StorageServiceRuntimeBundleVO bundle = requireBundle(cmd.getBundleId());
         if (bundle.getServiceImpact() != StorageServiceRuntimeBundleVO.ServiceImpact.NONE) {
@@ -336,6 +358,11 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
 
     @Override
     public StorageServiceRuntimeUpgradeResponse upgrade(final UpgradeStorageServiceRuntimeCmd cmd) {
+        StorageServiceInstanceVO instance = instanceDao.findById(requireUpgrade(cmd.getUpgradeId()).getInstanceId());
+        return rootSerializedRuntime(instance, () -> doUpgrade(cmd));
+    }
+
+    private StorageServiceRuntimeUpgradeResponse doUpgrade(final UpgradeStorageServiceRuntimeCmd cmd) {
         final StorageServiceRuntimeUpgradeVO upgrade = requireUpgrade(cmd.getUpgradeId());
         if (upgrade.getState() != StorageServiceRuntimeUpgradeVO.State.PREFLIGHT_READY) {
             throw new CloudRuntimeException("Runtime upgrade is not ready for activation");
@@ -378,6 +405,11 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
 
     @Override
     public StorageServiceRuntimeUpgradeResponse rollback(final RollbackStorageServiceRuntimeUpgradeCmd cmd) {
+        StorageServiceInstanceVO instance = instanceDao.findById(requireUpgrade(cmd.getUpgradeId()).getInstanceId());
+        return rootSerializedRuntime(instance, () -> doRollback(cmd));
+    }
+
+    private StorageServiceRuntimeUpgradeResponse doRollback(final RollbackStorageServiceRuntimeUpgradeCmd cmd) {
         final StorageServiceRuntimeUpgradeVO upgrade = requireUpgrade(cmd.getUpgradeId());
         final StorageServiceInstanceVO instance = instanceDao.findById(upgrade.getInstanceId());
         final StorageServiceRuntimeBundleVO bundle = bundleDao.findById(upgrade.getBundleId());
