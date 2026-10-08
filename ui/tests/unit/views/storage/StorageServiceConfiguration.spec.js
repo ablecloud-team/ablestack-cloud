@@ -59,7 +59,7 @@ describe('Configuration backup and restore UI boundaries', () => {
     await pending; expect(vm.rows).toEqual([{ id: 'current' }])
   })
   it('closes backup confirmation before waiting for the async operation', async () => {
-    const vm = { backupDialog: true, includeRuntime: true, retentionHours: 168, refresh: jest.fn(), error: '' }
+    const vm = { backupDialog: true, includeRuntime: true, retentionHours: 168, refresh: jest.fn(), error: '', buildBackupRequest: Widget.methods.buildBackupRequest }
     vm.mutation = jest.fn(async () => { expect(vm.backupDialog).toBe(false); expect(vm.busy).toBe('BACKUP') })
     await Widget.methods.createBackup.call(vm)
     expect(vm.mutation).toHaveBeenCalledWith('createStorageServiceConfigBackup', { includeruntime: true, retentionhours: 168 })

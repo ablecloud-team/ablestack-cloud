@@ -8833,5 +8833,9 @@
   "message.storage.service.ad.maintenance.help": "AD 가입 또는 탈퇴 중 SMB 클라이언트 연결이 중단될 수 있습니다. 유지보수 중단을 승인하고 대상 서비스 이름을 정확히 입력하세요.",
   "message.storage.service.ad.maintenance.required": "유지보수 중단을 승인하고 서비스 이름을 정확히 입력하세요.",
   "message.storage.service.ad.receipt.unverified": "현재 AD 신원을 검증할 수 없습니다. 서비스 상태를 확인한 뒤 진행하세요.",
-  "message.storage.service.ad.maintenance.unsupported": "현재 API 에서는 보호된 AD 유지보수 절차를 검증할 수 없습니다."
+  "message.storage.service.ad.maintenance.unsupported": "현재 API 에서는 보호된 AD 유지보수 절차를 검증할 수 없습니다.",
+  "label.storage.config.identity.include": "SMB 신원 포함",
+  "message.storage.config.identity.backup.help": "SMB 로컬 사용자와 AD 신원도 암호화하여 보존합니다. 이 과정에서 클라이언트 연결이 중단될 수 있으므로 유지보수 중단을 승인하고 서비스 이름을 정확히 입력하세요.",
+  "label.storage.config.identity.preserved": "암호화 신원 보존",
+  "label.storage.config.identity.unverified": "신원 보존 미검증"
 }

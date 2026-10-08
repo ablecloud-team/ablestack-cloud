@@ -8868,5 +8868,9 @@
   "message.storage.service.ad.maintenance.help": "Joining or leaving AD can interrupt SMB client connections. Approve the maintenance window and enter the exact service name.",
   "message.storage.service.ad.maintenance.required": "Approve the maintenance window and enter the exact service name.",
   "message.storage.service.ad.receipt.unverified": "The current AD identity could not be verified. Review the service state before continuing.",
-  "message.storage.service.ad.maintenance.unsupported": "The current API cannot verify the protected AD maintenance workflow."
+  "message.storage.service.ad.maintenance.unsupported": "The current API cannot verify the protected AD maintenance workflow.",
+  "label.storage.config.identity.include": "Include SMB identity",
+  "message.storage.config.identity.backup.help": "Preserve encrypted local SMB users and AD identity. Client connections may be interrupted; approve the maintenance window and enter the exact service name.",
+  "label.storage.config.identity.preserved": "Encrypted identity preserved",
+  "label.storage.config.identity.unverified": "Identity preservation unverified"
 }
