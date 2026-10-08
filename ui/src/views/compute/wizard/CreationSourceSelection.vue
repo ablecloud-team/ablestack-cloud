@@ -60,7 +60,7 @@ export default {
   components: { ReloadOutlined },
   props: { imageType: { type: String, required: true }, query: { type: Object, required: true }, selected: { type: Object, default: null }, preselectedId: { type: String, default: null } },
   emits: ['select', 'change-image-type', 'loading'],
-  data () { return { sources: [], count: 0, page: 1, pageSize: 10, keyword: '', availableOnly: false, loading: false, error: '', requestSequence: 0, checkedAt: '' } },
+  data () { return { sources: [], count: 0, page: 1, pageSize: 10, keyword: '', availableOnly: false, loading: false, error: '', requestSequence: 0, checkedAt: '', preselectionUsed: false } },
   computed: {
     sourceKind () { return this.imageType === 'volumeid' ? 'volume' : 'snapshot' },
     columns () { return ['name', 'origin', 'state', 'size', 'storage', 'eligibility'].map(key => ({ key, title: this.$t('label.creation.source.column.' + key) })) },
@@ -74,7 +74,7 @@ export default {
       }
     }
   },
-  watch: { query: { deep: true, immediate: true, handler () { this.page = 1; this.$emit('select', null); this.fetchSources() } } },
+  watch: { query: { deep: true, immediate: true, handler () { this.page = 1; this.preselectionUsed = false; this.$emit('select', null); this.fetchSources() } } },
   beforeUnmount () { this.requestSequence++ },
   methods: {
     bytes (value) { return value == null ? '—' : (value / 1024 ** 3).toLocaleString(undefined, { maximumFractionDigits: 2 }) + ' GiB' },
@@ -89,7 +89,7 @@ export default {
         const args = Object.fromEntries(Object.entries({
           ...this.query,
           sourcekind: this.sourceKind,
-          id: this.preselectedId || undefined,
+          id: !this.preselectionUsed ? this.preselectedId || undefined : undefined,
           page: this.page,
           pagesize: this.pageSize,
           keyword: this.keyword,
@@ -102,10 +102,11 @@ export default {
         if (this.selected) {
           const current = this.sources.find(source => source.id === this.selected.id)
           if (current && (!current.allowed || current.revision !== this.selected.revision)) this.$emit('select', null)
-        } else if (this.preselectedId) {
+        } else if (this.preselectedId && !this.preselectionUsed) {
           const source = this.sources.find(source => source.id === this.preselectedId && source.allowed)
           if (source) this.$emit('select', source)
         }
+        this.preselectionUsed = true
       } catch (error) {
         if (sequence !== this.requestSequence) return
         this.sources = []; this.count = 0; this.error = error.response?.data?.errorresponse?.errortext || this.$t('message.creation.source.api.required'); this.$emit('select', null)

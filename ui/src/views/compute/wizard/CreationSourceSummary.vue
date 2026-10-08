@@ -21,14 +21,14 @@
     <p>{{ source.name }}<br><span class="source-meta">{{ source.id }}</span></p>
     <p>{{ $t('message.creation.source.' + source.sourcekind) }}</p>
     <p v-if="source.snapshotcreated">{{ $t('label.creation.source.restore.time') }}: {{ new Date(source.snapshotcreated).toLocaleString() }}</p>
-    <p>ROOT · {{ (source.sizebytes / 1024 ** 3).toLocaleString() }} GiB · {{ source.storage?.name || $t('label.vm.storage.auto') }}</p>
+    <p>ROOT · {{ (source.sizebytes / 1024 ** 3).toLocaleString() }} GiB · {{ source.sourcekind === 'volume' ? source.storage?.name || '—' : targetStorage.name || $t('label.vm.storage.auto') }}</p>
     <p v-if="source.sourcekind === 'volume' && source.storage?.clustername">{{ $t('label.cluster') }}: {{ source.storage.clustername }} · {{ source.storage.clusterid }}</p>
     <p>{{ source.bootprofile?.osname }} · {{ source.bootprofile?.boottype }} · {{ source.bootprofile?.bootmode }}<br>{{ $t('label.creation.source.root.bus') }}: {{ source.bootprofile?.rootbus }}</p>
     <p class="source-meta">{{ $t('message.creation.source.identity') }}</p>
     <p v-if="source.bootprofile?.provenance === 'legacy-template'" class="source-meta">{{ $t('message.creation.source.legacy') }}</p>
   </div>
 </template>
-<script>export default { props: { source: { type: Object, default: null } } }</script>
+<script>export default { props: { source: { type: Object, default: null }, targetStorage: { type: Object, default: () => ({}) } } }</script>
 <style lang="less" scoped>
 .creation-source-summary { color: var(--ui-text); margin: 16px 0; padding: 12px; border: 1px solid var(--ui-border); border-radius: 6px; background: var(--ui-bg-elevated); }
 p { margin: 8px 0; overflow-wrap: anywhere; }

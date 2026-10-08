@@ -50,6 +50,7 @@
               </a-table>
               <a-alert v-if="operation.error"  type="error" show-icon :message="operation.error" />
             </div>
+            <creation-source-operations v-model:operations="sourceOperations" :storage-key="sourceOperationsKey" />
             <a-steps direction="vertical" size="small">
               <a-step
                 v-if="!isNormalUserOrProject"
@@ -94,6 +95,7 @@
                       ref="clusterid">
                       <a-select
                         v-model:value="form.clusterid"
+                        :disabled="imageType === 'volumeid' && selectedCreationSource?.storage?.scope === 'CLUSTER'"
                         showSearch
                         optionFilterProp="label"
                         :filterOption="filterOption"
@@ -147,8 +149,21 @@
                 :status="zoneSelected ? 'process' : 'wait'">
                 <template #description>
                   <div v-if="zoneSelected" style="margin-top: 15px">
+                    <template v-if="isCreationSource">
+                      <creation-source-selection
+                        :key="imageType"
+                        :image-type="imageType"
+                        :query="creationSourceQuery"
+                        :selected="selectedCreationSource"
+                        :preselected-id="imageType === 'volumeid' ? queryVolumeId : querySnapshotId"
+                        @select="selectCreationSource"
+                        @loading="sourceLoading = $event"
+                        @change-image-type="changeImageType" />
+                      <creation-source-summary :source="selectedCreationSource" :target-storage="rootStorageSelection" />
+                      <a-alert type="info" show-icon :message="$t('message.creation.source.fixed.boot')" />
+                    </template>
                     <os-based-image-selection
-                      v-if="isModernImageSelection && !isCreationSource"
+                      v-else-if="isModernImageSelection"
                       :selectedImageType="imageType"
                       :imagePreSelected="!!this.queryTemplateId || !!this.queryIsoId"
                       :guestOsCategoriesSelectionDisallowed="guestOsCategoriesSelectionDisallowed"
@@ -1146,6 +1161,7 @@
         <div class="vm-info-card">
           <info-card :footerVisible="true" :resource="vmSummary" :title="$t('label.yourinstance')" @change-resource="(data) => resource = data">
             <template #details>
+              <creation-source-summary v-if="isCreationSource" :source="selectedCreationSource" :target-storage="rootStorageSelection" />
               <div v-if="serviceOffering?.id && !isTemplateHypervisorExternal && !isCreationSource" class="vm-storage-summary">
                 <div><strong>{{ $t('label.vm.storage.root') }}</strong><br>{{ rootStorageSelection.name || $t('label.vm.storage.auto') }} · {{ selectedRootDiskSize || '—' }} GB</div>
                 <div v-if="selectedDataDiskOffering?.id"><strong>{{ $t('label.vm.storage.data') }}</strong><br>
@@ -1169,7 +1185,7 @@
     </a-row>
     <mold-dialog v-if="sourceConfirmVisible" :title="$t('label.creation.source.confirm')" @cancel="sourceConfirmVisible = false">
       <p><strong>{{ form.name || $t('label.name.optional') }}</strong> · {{ $t(form.startvm ? 'label.launch.vm' : 'label.create.vm') }}</p>
-      <creation-source-summary :source="selectedCreationSource" />
+      <creation-source-summary :source="selectedCreationSource" :target-storage="rootStorageSelection" />
       <p v-if="imageType === 'volumeid'">{{ $t('message.creation.source.delete.policy') }}</p>
       <a-checkbox v-if="imageType === 'volumeid'" v-model:checked="sourceAcknowledged">{{ $t('label.creation.source.ack') }}</a-checkbox>
       <template #footer>
@@ -2923,7 +2939,12 @@ export default {
       this.form[this.imageType] = source.id; this.form.hypervisor = 'KVM'; this.form.vmNumber = 1
       this.form.boottype = source.bootprofile.boottype; this.form.bootmode = source.bootprofile.bootmode
       this.vm.hypervisor = 'KVM'; this.vm.guestosname = source.bootprofile.osname
-      if (source.sourcekind === 'volume') this.volume = source; else this.snapshot = source
+      if (source.sourcekind === 'volume') {
+        this.volume = source
+        if (source.storage?.scope === 'CLUSTER' && source.storage.clusterid) {
+          this.form.clusterid = source.storage.clusterid; this.form.hostid = undefined; this.onSelectClusterId(source.storage.clusterid)
+        }
+      } else this.snapshot = source
     },
     confirmCreationSource () {
       this.sourceConfirmed = true; this.sourceConfirmVisible = false; this.handleSubmit()

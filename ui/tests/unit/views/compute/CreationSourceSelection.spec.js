@@ -84,3 +84,29 @@ test('start retry requires a stopped VM and exactly one Ready ROOT disk', async 
   const operation = { status: 'failed', vmid: 'vm', created: 'run-3' }; const wrapper = mountOperations([operation])
   await wrapper.vm.retryStart(operation); expect(postAPI).not.toHaveBeenCalled(); expect(operation.retryable).toBe(false); wrapper.unmount()
 })
+
+test('lost deploy response reconciles by source UUID, VM name and creation time without reposting', async () => {
+  const operation = { sourceid: 'source-uuid', name: 'unique-fixture', status: 'unknown', created: '2026-10-09T01:00:00Z' }
+  getAPI.mockImplementation(async command => {
+    if (command === 'listVirtualMachines') {
+      return {
+        listvirtualmachinesresponse: {
+          virtualmachine: [
+            { id: 'vm', name: 'unique-fixture', created: '2026-10-09T01:00:01Z', details: { 'vm.creation.source.id': 'source-uuid' } },
+            { id: 'other', name: 'unique-fixture', created: '2026-10-09T01:00:01Z', details: { 'vm.creation.source.id': 'other-source' } }
+          ]
+        }
+      }
+    }
+    if (command === 'listAsyncJobs') return { listasyncjobsresponse: { asyncjobs: [{ jobid: 'job', jobinstanceid: 'vm', cmd: 'org.apache.cloudstack.api.command.user.vm.DeployVMCmd', created: '2026-10-09T01:00:01Z' }] } }
+    return { queryasyncjobresultresponse: { jobstatus: 1, jobresult: { virtualmachine: { id: 'vm' } } } }
+  })
+  const wrapper = mountOperations([operation]); await wrapper.vm.check(operation)
+  expect(operation).toMatchObject({ vmid: 'vm', jobid: 'job', status: 'complete' }); expect(postAPI).not.toHaveBeenCalled(); wrapper.unmount()
+})
+test('same-name unrelated VM cannot resolve an unknown source request', async () => {
+  const operation = { sourceid: 'source-uuid', name: 'unique-fixture', status: 'unknown', created: '2026-10-09T01:00:00Z' }
+  getAPI.mockResolvedValue({ listvirtualmachinesresponse: { virtualmachine: [{ id: 'unrelated', name: 'unique-fixture', created: '2026-10-09T01:00:01Z', details: { 'vm.creation.source.id': 'other-source' } }] } })
+  const wrapper = mountOperations([operation]); await wrapper.vm.check(operation)
+  expect(operation.vmid).toBeUndefined(); expect(operation.status).toBe('unknown'); expect(postAPI).not.toHaveBeenCalled(); wrapper.unmount()
+})
