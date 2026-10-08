@@ -174,8 +174,9 @@ export default {
   components: { CloudDownloadOutlined, UploadOutlined, DownloadOutlined, RollbackOutlined, ReloadOutlined },
   emits: ['operation-updated'],
   props: { instanceId: { type: String, required: true }, instanceName: { type: String, default: '' }, resource: { type: Object, required: true } },
-  data: () => ({ rows: [], loading: false, readFailed: false, generation: 0, busy: '', error: '', backupDialog: false, includeAdIdentity: false, backupMaintenance: false, backupConfirmation: '', includeRuntime: true, retentionHours: 168, planTarget: null, plan: null, planPhase: 'MAPPING', planToken: '', lkgPlan: false, planning: false, volumeMapping: {}, newVolumeSpecs: {}, targetVolumes: [], credentialValues: {}, confirmation: '', restoreMaintenance: false, reviewedPlan: '', confirmFileExecute: false, targetMode: 'RESTORE_EXISTING', clone: { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP', backingvolumemode: 'NEW' }, initialVolumeSource: '', plannedVolume: '', cloneRuntime: '', cloneOptions: { zones: [], networks: [], offerings: [], disks: [], pools: [], bundles: [], volumes: [] } }),
+  data: () => ({ rows: [], loading: false, readFailed: false, generation: 0, busy: '', error: '', backupDialog: false, includeAdIdentity: false, backupMaintenance: false, backupConfirmation: '', includeRuntime: true, retentionHours: 168, planTarget: null, plan: null, planPhase: 'MAPPING', planToken: '', lkgPlan: false, planning: false, volumeMapping: {}, newVolumeSpecs: {}, targetVolumes: [], credentialValues: {}, confirmation: '', restoreMaintenance: false, reviewedPlan: '', confirmFileExecute: false, targetMode: 'RESTORE_EXISTING', clone: { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP', backingvolumemode: 'NEW' }, initialVolumeSource: '', plannedVolume: '', cloneRuntime: '', cloneOptionToken: 0, cloneOptionScope: null, cloneOfferingRows: [], cloneOfferingLoading: false, cloneOfferingError: false, cloneOptions: { zones: [], networks: [], offerings: [], disks: [], pools: [], bundles: [], volumes: [] } }),
   computed: {
+    cloneActiveProject () { return this.$store?.getters?.project?.id },
     identityBackupSupported () {
       const params = this.$getApiParams?.('createStorageServiceConfigBackup')
       return !!this.instanceName && !!params?.includeadidentity && !!params?.maintenancewindow && !!params?.confirmation
@@ -222,10 +223,14 @@ export default {
     instanceName () { this.closeBackupDialog() },
     includeAdIdentity (value) { if (!value) { this.backupMaintenance = false; this.backupConfirmation = '' } },
     plan: { deep: true, handler () { if (this.reviewedPlan && this.reviewedPlan !== this.restoreReviewFingerprint()) this.restoreMaintenance = false } },
-    planToken () { if (this.reviewedPlan && this.reviewedPlan !== this.restoreReviewFingerprint()) this.restoreMaintenance = false }
+    planToken () { if (this.reviewedPlan && this.reviewedPlan !== this.restoreReviewFingerprint()) this.restoreMaintenance = false },
+    'resource.account' () { this.clearCloneZoneOptions() },
+    'resource.domainid' () { this.clearCloneZoneOptions() },
+    'resource.projectid' () { this.clearCloneZoneOptions() },
+    cloneActiveProject () { this.clearCloneZoneOptions() }
   },
   mounted () { this.refresh() },
-  beforeUnmount () { this.generation++; this.credentialValues = {} },
+  beforeUnmount () { this.generation++; this.cloneOptionToken++; this.cloneOptionScope = null; this.cloneOfferingRows = []; this.credentialValues = {} },
   methods: {
     can (api) { return api in this.$store.getters.apis },
     unwrap (value, api) {
@@ -392,23 +397,56 @@ export default {
         this.cloneOptions.bundles = this.options((bundles.liststorageserviceruntimebundlesresponse.storageserviceruntimebundle || []).filter(row => row.state === 'AVAILABLE' && row.serviceimpact === 'NONE'))
       } catch (error) { if (target === this.planTarget && instance === this.instanceId) this.error = error.message }
     },
+    cloneDiscoveryScope () {
+      return JSON.stringify({ instance: this.instanceId, artifact: this.planTarget?.id, zone: this.clone.zoneid, account: this.resource?.account, domain: this.resource?.domainid, project: this.resource?.projectid, activeProject: this.$store?.getters?.project?.id })
+    },
+    sparseCloneRootOffering (offering) {
+      const uuid = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/
+      return typeof offering?.id === 'string' && uuid.test(offering.id) && typeof offering.provisioningtype === 'string' &&
+        ['sparse', 'fat'].includes(offering.provisioningtype.toLowerCase()) && typeof offering.diskofferingid === 'string' && uuid.test(offering.diskofferingid)
+    },
+    clearCloneZoneOptions () {
+      this.cloneOptionToken++; this.cloneOptionScope = null; this.cloneOfferingRows = []; this.cloneOfferingLoading = false; this.cloneOfferingError = false
+      for (const key of ['networks', 'offerings', 'disks', 'pools', 'volumes']) this.cloneOptions[key] = []
+      for (const key of ['networkid', 'storageid', 'diskofferingid', 'serviceofferingid', 'existingvolumeid']) this.clone[key] = undefined
+      this.volumeMapping = {}; this.newVolumeSpecs = {}; this.restoreMaintenance = false; this.reviewedPlan = ''; this.planToken = ''; this.confirmation = ''
+    },
+    assertCloneOffering () {
+      const offering = this.cloneOfferingRows.find(row => row.id === this.clone.serviceofferingid)
+      if (this.cloneOfferingLoading || this.cloneOfferingError || this.cloneOptionScope !== this.cloneDiscoveryScope() || !this.sparseCloneRootOffering(offering) || offering.compatibility?.compatible !== true) {
+        throw new Error(this.$t('message.storage.disk.sparse.required'))
+      }
+    },
     async loadCloneZoneOptions () {
       const target = this.planTarget; const instance = this.instanceId; const zoneid = this.clone.zoneid
-      this.clone.networkid = undefined; this.clone.storageid = undefined; this.clone.diskofferingid = undefined; this.clone.serviceofferingid = undefined; this.volumeMapping = {}; this.newVolumeSpecs = {}
+      this.clearCloneZoneOptions()
+      const token = ++this.cloneOptionToken; const scope = this.cloneDiscoveryScope()
+      if (!zoneid) return
+      this.cloneOfferingLoading = true
+      const owner = this.resource?.projectid ? { projectid: this.resource.projectid } : { account: this.resource?.account, domainid: this.resource?.domainid }
       try {
         const results = await Promise.all([
-          getAPI('listNetworks', { zoneid }, { timeout: 15000, preserveOnFailure: true }),
-          getAPI('listServiceOfferings', { zoneid, issystem: false }, { timeout: 15000, preserveOnFailure: true }),
-          getAPI('listDiskOfferings', { zoneid }, { timeout: 15000, preserveOnFailure: true }),
+          getAPI('listNetworks', { zoneid, ...owner }, { timeout: 15000, preserveOnFailure: true }),
+          getAPI('listServiceOfferings', { zoneid, issystem: false, ...owner }, { timeout: 15000, preserveOnFailure: true }),
+          getAPI('listDiskOfferings', { zoneid, ...owner }, { timeout: 15000, preserveOnFailure: true }),
           getAPI('listStoragePools', { zoneid }, { timeout: 15000, preserveOnFailure: true }),
-          getAPI('listVolumes', { zoneid, type: 'DATADISK', state: 'Ready' }, { timeout: 15000, preserveOnFailure: true })])
-        if (target !== this.planTarget || instance !== this.instanceId || zoneid !== this.clone.zoneid) return
+          getAPI('listVolumes', { zoneid, type: 'DATADISK', state: 'Ready', ...owner }, { timeout: 15000, preserveOnFailure: true })])
+        if (token !== this.cloneOptionToken || target !== this.planTarget || instance !== this.instanceId || zoneid !== this.clone.zoneid || scope !== this.cloneDiscoveryScope()) return
+        const offers = results[1].listserviceofferingsresponse?.serviceoffering || []
+        const constraints = offers.length ? await getAPI('listStorageServiceOfferingConstraints', { zoneid, serviceofferingids: offers.map(row => row.id).join(',') }, { timeout: 15000, preserveOnFailure: true }) : {}
+        if (token !== this.cloneOptionToken || scope !== this.cloneDiscoveryScope()) return
+        const byId = Object.fromEntries((constraints.liststorageserviceofferingconstraintsresponse?.storageserviceofferingconstraint || []).map(row => [row.id, row]))
+        this.cloneOfferingRows = offers.map(row => ({ ...row, compatibility: byId[row.id] || null }))
+        const compatible = this.cloneOfferingRows.filter(row => this.sparseCloneRootOffering(row) && row.compatibility?.compatible === true)
         this.cloneOptions.networks = this.options(results[0].listnetworksresponse.network)
-        this.cloneOptions.offerings = this.options((results[1].listserviceofferingsresponse.serviceoffering || []).filter(supportsStorageFormatting))
+        this.cloneOptions.offerings = this.options(compatible)
         this.cloneOptions.disks = (results[2].listdiskofferingsresponse.diskoffering || []).filter(supportsStorageFormatting).map(row => ({ value: row.id, label: (row.name || row.id) + ' · ' + diskProvisioningLabel(row) + ' · ' + row.id }))
         this.cloneOptions.pools = this.options((results[3].liststoragepoolsresponse.storagepool || []).filter(row => row.state === 'Up'))
         this.cloneOptions.volumes = this.options((results[4].listvolumesresponse.volume || []).filter(row => !row.virtualmachineid))
-      } catch (error) { if (target === this.planTarget && instance === this.instanceId) this.error = error.message }
+        this.cloneOptionScope = scope
+        this.clone.serviceofferingid = compatible[0]?.id
+        if (!compatible.length) this.error = this.$t('message.storage.service.offering.no.compatible')
+      } catch (error) { if (token === this.cloneOptionToken && scope === this.cloneDiscoveryScope()) { this.cloneOfferingError = true; this.error = this.$t('message.storage.service.offering.unavailable') } } finally { if (token === this.cloneOptionToken) this.cloneOfferingLoading = false }
     },
     setVolumeMapping (source) {
       if (this.volumeMapping[source] === 'NEW') this.newVolumeSpecs[source] = this.newVolumeSpecs[source] || { dataPolicy: 'PRESERVE' }
@@ -423,6 +461,7 @@ export default {
         const mappings = { volumes: { ...this.volumeMapping }, confirmFileExecute: this.confirmFileExecute }
         if (this.targetMode === 'CREATE_NEW') {
           if (!this.initialVolumeSource || !this.cloneRuntime) throw new Error(this.$t('message.storage.config.clone.required'))
+          this.assertCloneOffering()
           const existing = this.clone.backingvolumemode === 'EXISTING'
           if (existing && !this.clone.existingvolumeid) throw new Error(this.$t('message.storage.config.clone.required'))
           mappings.volumes[this.initialVolumeSource] = existing ? this.clone.existingvolumeid : 'NEW'
@@ -467,7 +506,7 @@ export default {
         await this.refresh()
       } catch (_) { this.error = this.$t('message.storage.config.failed') } finally { parameters.credentials = ''; this.busy = '' }
     },
-    closePlan () { this.planTarget = null; this.plan = null; this.planToken = ''; this.restoreMaintenance = false; this.reviewedPlan = ''; this.planPhase = 'MAPPING'; this.volumeMapping = {}; this.newVolumeSpecs = {}; this.credentialValues = {}; this.confirmation = ''; this.lkgPlan = false; this.planning = false; this.confirmFileExecute = false; this.targetMode = 'RESTORE_EXISTING'; this.initialVolumeSource = ''; this.plannedVolume = ''; this.cloneRuntime = ''; this.clone = { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP', backingvolumemode: 'NEW' } }
+    closePlan () { this.cloneOptionToken++; this.cloneOptionScope = null; this.cloneOfferingRows = []; this.cloneOfferingLoading = false; this.cloneOfferingError = false; this.planTarget = null; this.plan = null; this.planToken = ''; this.restoreMaintenance = false; this.reviewedPlan = ''; this.planPhase = 'MAPPING'; this.volumeMapping = {}; this.newVolumeSpecs = {}; this.credentialValues = {}; this.confirmation = ''; this.lkgPlan = false; this.planning = false; this.confirmFileExecute = false; this.targetMode = 'RESTORE_EXISTING'; this.initialVolumeSource = ''; this.plannedVolume = ''; this.cloneRuntime = ''; this.clone = { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP', backingvolumemode: 'NEW' } }
   }
 }
 </script>
