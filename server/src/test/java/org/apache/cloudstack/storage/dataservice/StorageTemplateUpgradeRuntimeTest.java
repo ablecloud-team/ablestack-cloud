@@ -34,7 +34,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 public class StorageTemplateUpgradeRuntimeTest {
     private static final class Manager extends StorageServiceManagerImpl {
         JsonObject topology=new JsonObject();List<String> commands=new ArrayList<>();List<StorageServiceInstance.Protocol> protocols=new ArrayList<>();
-        boolean wrongFilesystem;boolean failQuiesce;int verified;
+        boolean wrongFilesystem;boolean foreignEndpoint;boolean failQuiesce;int verified;
         @Override protected JsonObject rootTopology(StorageServiceInstanceVO instance){return topology.deepCopy();}
         @Override protected JsonObject createFileShareVolumePayload(StorageServiceInstanceVO instance,StorageFileShareVO share,VolumeVO volume){
             JsonObject payload=new JsonObject();payload.addProperty("volumeUuid",volume.getUuid());return payload;
@@ -47,13 +47,16 @@ public class StorageTemplateUpgradeRuntimeTest {
                 Assert.assertEquals("MOUNT_EXISTING",request.get("importMode").getAsString());
                 result.add("volumeUuid",request.get("volumeUuid"));result.addProperty("filesystemUuid",wrongFilesystem?"changed":"fs-"+request.get("volumeUuid").getAsString());
             }
+            if ("network endpoints reconcile".equals(command)) {
+                JsonArray endpoints=new JsonArray();for(JsonElement entry:request.getAsJsonArray("expectedBindings")) {JsonObject endpoint=entry.getAsJsonObject().deepCopy();endpoint.addProperty("active",true);if(foreignEndpoint)endpoint.addProperty("macAddress","00:00:00:00:00:ff");endpoints.add(endpoint);}result.add("endpoints",endpoints);
+            }
             return result;
         }
         @Override protected JsonObject nativeConfigurationGeneration(StorageServiceInstanceVO instance,StorageServiceOperationVO operation,String action){
             commands.add("generation "+action);JsonObject result=new JsonObject();result.addProperty("success",true);result.add("generation",new JsonObject());return result;
         }
         @Override protected void verifyReconciledStorageDesiredState(StorageServiceInstanceVO instance){verified++;}
-        @Override protected void applyStorageServiceProtocolDesiredState(StorageServiceInstanceVO instance,StorageServiceInstance.Protocol protocol){protocols.add(protocol);}
+        @Override protected void applyStorageServiceProtocolDesiredState(StorageServiceInstanceVO instance,StorageServiceInstance.Protocol protocol){commands.add("APPLY_"+protocol.name());protocols.add(protocol);}
     }
     private Manager manager;private StorageServiceInstanceVO instance;private SharedFSVO shared;private StorageServiceTemplateUpgradeVO row;private StorageServiceOperationVO operation;
     private VolumeDao volumes;private UserVmDao vms;private VolumeService volumeService;private StorageServiceTemplateUpgradeDao upgrades;
@@ -68,7 +71,7 @@ public class StorageTemplateUpgradeRuntimeTest {
         StorageServiceProtocolDao protocols=Mockito.mock(StorageServiceProtocolDao.class);Mockito.when(protocols.listByInstanceId(6L)).thenReturn(List.of());ReflectionTestUtils.setField(manager,"storageServiceProtocolDao",protocols);
         StoragePosixDirectoryPolicyDao policies=Mockito.mock(StoragePosixDirectoryPolicyDao.class);Mockito.when(policies.listByInstance(6L)).thenReturn(List.of());ReflectionTestUtils.setField(manager,"storagePosixPolicyDao",policies);
         StorageFileShareDao shares=Mockito.mock(StorageFileShareDao.class);Mockito.when(shares.listByInstanceIdAndProtocol(Mockito.eq(6L),Mockito.any())).thenReturn(List.of());ReflectionTestUtils.setField(manager,"storageFileShareDao",shares);
-        UserVmVO targetVm=Mockito.mock(UserVmVO.class);Mockito.when(targetVm.getTemplateId()).thenReturn(99L);Mockito.when(vms.findById(7L)).thenReturn(targetVm);
+        UserVmVO targetVm=Mockito.mock(UserVmVO.class);Mockito.when(targetVm.getTemplateId()).thenReturn(99L);Mockito.when(targetVm.getUserVmType()).thenReturn(UserVmManager.SHAREDFSVM);Mockito.when(targetVm.getState()).thenReturn(VirtualMachine.State.Running);Mockito.when(vms.findById(7L)).thenReturn(targetVm);
         VolumeVO targetRoot=Mockito.mock(VolumeVO.class);Mockito.when(targetRoot.getId()).thenReturn(20L);Mockito.when(targetRoot.getTemplateId()).thenReturn(99L);Mockito.when(targetRoot.getState()).thenReturn(Volume.State.Ready);
         Mockito.when(volumes.findById(20L)).thenReturn(targetRoot);Mockito.when(volumes.findByInstanceAndType(7L,Volume.Type.ROOT)).thenReturn(List.of(targetRoot));
         Mockito.when(upgrades.update(Mockito.anyLong(),Mockito.any())).thenReturn(true);
@@ -106,5 +109,24 @@ public class StorageTemplateUpgradeRuntimeTest {
     @Test public void wrongCurrentRootCannotReceiveIdentityDesiredSeedOrGenerationCommit(){
         Mockito.when(volumes.findByInstanceAndType(7L,Volume.Type.ROOT)).thenReturn(List.of());
         Assert.assertThrows(CloudRuntimeException.class,()->runtime().reconcile());Assert.assertTrue(manager.commands.isEmpty());Assert.assertTrue(manager.protocols.isEmpty());
+    }
+
+    private void sourceSecondaryEndpoint(){
+        com.cloud.vm.dao.NicDao nics=Mockito.mock(com.cloud.vm.dao.NicDao.class);com.cloud.vm.dao.NicSecondaryIpDao aliases=Mockito.mock(com.cloud.vm.dao.NicSecondaryIpDao.class);NicVO nic=Mockito.mock(NicVO.class);com.cloud.vm.dao.NicSecondaryIpVO alias=Mockito.mock(com.cloud.vm.dao.NicSecondaryIpVO.class);
+        Mockito.when(nic.getId()).thenReturn(79L);Mockito.when(nic.getIPv4Address()).thenReturn("10.10.13.240");Mockito.when(nic.getMacAddress()).thenReturn("02:0c:02:f9:00:80");Mockito.when(nics.listByVmId(7L)).thenReturn(List.of(nic));Mockito.when(alias.getNicId()).thenReturn(79L);Mockito.when(alias.getIp4Address()).thenReturn("10.10.13.241");Mockito.when(aliases.listByVmId(7L)).thenReturn(List.of(alias));ReflectionTestUtils.setField(manager,"nicDao",nics);ReflectionTestUtils.setField(manager,"nicSecondaryIpDao",aliases);
+        JsonObject value=new JsonParser().parse(row.getSnapshotJson()).getAsJsonObject();JsonObject cache=new JsonObject();JsonArray endpoints=new JsonArray();JsonObject endpoint=new JsonObject();endpoint.addProperty("listenIp","10.10.13.241");endpoint.addProperty("primaryIp","10.10.13.240");endpoint.addProperty("prefixlen",16);endpoints.add(endpoint);cache.add("endpoints",endpoints);value.getAsJsonObject("sourceDesiredState").add("network-endpoints.json",cache);row.setSnapshotJson(value.toString());
+    }
+    @Test public void shareOnlySecondaryEndpointIsActivatedBeforeListenerReconcileOnItsPreservedMac(){
+        sourceSecondaryEndpoint();runtime().reconcile();Assert.assertTrue(manager.commands.contains("network endpoints reconcile"));Assert.assertFalse(manager.protocols.isEmpty());Assert.assertTrue(manager.commands.indexOf("network endpoints reconcile")<manager.commands.indexOf("APPLY_SMB"));
+    }
+    @Test public void foreignNicEndpointCannotProceedToProtocolApplyOrGenerationAdoption(){
+        sourceSecondaryEndpoint();manager.foreignEndpoint=true;Assert.assertThrows(CloudRuntimeException.class,()->runtime().reconcile());Assert.assertTrue(manager.protocols.isEmpty());Assert.assertFalse(manager.commands.contains("operation generation adopt"));
+    }
+
+    @Test public void targetDefaultAcceptorsAreQuiescedBeforeSignedRuntimeAndIdentityRecovery(){
+        StorageServiceGuestCommandDispatcher guest=Mockito.mock(StorageServiceGuestCommandDispatcher.class);Mockito.when(guest.dispatch(Mockito.any())).thenReturn(new StorageServiceGuestCommandResult(true,"caps","{\"success\":true,\"localIdentity\":true,\"protectedStdinTransport\":true}"));ReflectionTestUtils.setField(manager,"guestCommandDispatcher",guest);
+        StorageServiceRuntimeUpgradeManager signed=Mockito.mock(StorageServiceRuntimeUpgradeManager.class);Mockito.when(signed.restoreTemplateRuntime(Mockito.eq(6L),Mockito.any(),Mockito.anyString(),Mockito.eq("target"))).thenAnswer(call->{manager.commands.add("RESTORE_SIGNED_RUNTIME");return new JsonObject();});ReflectionTestUtils.setField(manager,"runtimeUpgradeManager",signed);
+        JsonObject value=new JsonParser().parse(row.getSnapshotJson()).getAsJsonObject();JsonObject pin=new JsonObject();pin.add("pin",new JsonObject());value.add("signedRuntime",pin);row.setSnapshotJson(value.toString());
+        runtime().bootTarget();Assert.assertTrue(manager.commands.indexOf("operation quiesce")>=0);Assert.assertTrue(manager.commands.indexOf("operation quiesce")<manager.commands.indexOf("RESTORE_SIGNED_RUNTIME"));Assert.assertFalse(manager.commands.contains("volume attach inspect"));
     }
 }
