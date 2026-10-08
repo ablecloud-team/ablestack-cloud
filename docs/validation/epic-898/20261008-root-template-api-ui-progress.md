@@ -33,3 +33,13 @@ Samba 4.17의 신규 binding을 별도 endpoint master로 추가하는 prototype
 ![변경 전 네트워크 화면](20261008-static-network-before.png)
 
 ![설정값이 표시되는 네트워크 화면](20261008-static-network-after.png)
+
+## 139개 테스트와 관리 서버·호스트 모듈 실배포
+
+bffad8295c281cfa30422d545b0c526fa410206b의 schema 4개, server 113개, KVM 22개 합계 139개 테스트가 실패·오류·skip 없이 통과했다. 관리 서버에 ROOT DAO/context/모델/API/실행 코드와 runtime bootstrap resource를 포함한 97 entry를 배포했다. 새 jar SHA-256은 06f816511a5794a5417a1c6cc75e90c36b385c86b9ddbe15005fd26cffdd545a, PID는 1085112, backup은 /root/epic898-backup-20261008-110919이다. 호스트13.1/13.2에는 API 2개·KVM 4개 변경 클래스만 적용했고 나머지 클래스/resource를 보존했다. 배포 스크립트가 zero-update schema/server jar의 marker도 갱신한 부분은 모든 클래스/resource의 동일성을 확인한 후 원본 파일 바이트로 복구했으며 이후 스크립트는 빈 업데이트를 건너뛴다.
+
+HTTP 200과 두 호스트 Up/Enabled를 확인했고, 실제 ROOT 템플릿 목록과 이력 API는 정상 응답했다. 기존 템플릿 9개는 필수 호환성 조건이 없어 모두 선택 불가이며 ROOT 이력은 0개다. 현재 SharedFS50의 템플릿 b84320d0-adb4-4d70-aee8-3f3d4070812b, ROOT 93a86081-946d-4b7f-b64e-f9d4ff39f2bf, 리비전 6, activeSessions 0을 API와 실제 Chrome 검토 대화상자에서 확인했다. 아직 ROOT 교체를 수행하지 않았다. 마지막 UI 검증은 현재 ROOT 정보 표시와 비호환 후보/실행 차단 인수이며 성공 교체를 뜻하지 않는다.
+
+![현재 ROOT 정보와 실행 차단 실제 UI](20261008-root-current-binding-ui.png)
+
+native Source ca3f3fa0e01d4728232dbb4c8053cc2ea10e9594는 보조 IP의 exact MAC/prefix 검증과 별도 protected binding receipt를 포함한다. 인터페이스 이름 변경 후 재부팅 및 캐시 파일 부재/빈 alias 경우에도 desired-state 원본 bytes를 보존하는 8개 검증을 통과했다. 새로운 signed runtime의 실제 rollout과 재부팅/서비스 API 인수는 계속 진행한다. 이 시점에는 boot maintenance gate, unique DATA identity manifest, 최신 기능 대비 보존 ROOT 호환성, rendered atomic generation, 전체 프로토콜 I/O/실패 회귀와 최종 UI가 남아 있다.
