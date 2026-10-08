@@ -114,3 +114,14 @@ AD Windows clock 정정은 부모 GO로 양쪽 VM45/47에 timezone Korea Standar
 사용자의직접Sysprep승인후Client47만SPARSE100GiB fullbackup/virtualcompare/wholeSHA/provenance를완료한뒤Sysprep1회·실제shutdown·원본boot를진행했다. ROOT/NIC API보존은확인됐지만OOBE QGA disconnected로새SID/GUID는아직미관측이다. 부모콘솔handoff후실제고유신원/join/ADauth인수를계속하며완료flags는바꾸지않는다. 상세는20261008-ad-client-generalization.md에기록했다.
 
 16:47 Client QGA재연결후새SID prefix786796763/2696268617/1721076406과MachineGuidc58fa7e3-fb62-4aed-ba5e-88dadd252c6b의고유화를실제확인했다. OOBE/약관·관리자입력은사용자handoff대기라우회·unattend·암호/DNS/hostname/join 추가변경0이다. 새hostname/DHCP DNS초기화가관측됐고완료후원래hostname/DNS.2를복원할계획이다. nativePOSIX AD/capsuleAD transfer에deferred분기가남은것도source검토에서확인해kernel/rootowner에게전달했다. AD전체완료로승격하지않는다.
+
+
+## 최신 진행 상태: 관리 서버 재배포와 AD 일반화
+
+앞선 시간대의 Sysprep 승인 대기 및 SMB AD 보류 기록은 당시 상태이다. 이후 사용자 승인을 받아 SMB-Client의 100GiB SPARSE ROOT를 별도 백업하고 논리적 디스크 비교 및 체크섬을 검증한 뒤 Sysprep을 1회 수행했다. 새 SID와 MachineGuid가 ADSvr과 다름을 실제 확인했다. 현재 사용자 OOBE 완료 대기이며, 완료 후 DNS·원래 호스트명을 복원하고 AD 가입을 재검증한다. ADSvr 및 원래 SharedFS DATA는 변경하지 않았다.
+
+작업 제어 DAO Spring 등록 누락을 수정한 0c70 관리 서버의 실제 기동과 새 로그인/API를 검증했다. 모듈 439개 및 기존 런타임과 혼합한 48개 테스트가 통과했다. 호스트 3대의 필요한 cloud-api 클래스만 순차 반영한 뒤 7개 인스턴스의 건강 조회가 모두 성공했다. 상세 증빙은 20261008-operation-control-spring-deployment.md에 기록한다. 건강 조회 성공은 SMB 실제 인증이나 partial XFS 건강을 뜻하지 않는다.
+
+신규 기능 UI는 0c70의 독립 git archive에서 생산 빌드 중이다. 작업 제어 및 SMB 인증 복구 UI의 14개 테스트가 통과했으나 실제 브라우저 복구 작업은 아직 수행하지 않았다. 기존 master의 삭제된 인증 DB 열린 파일과 세션·잠금 0 상태를 fresh 확인했다. 새로운 자원 임대 소스는 논리적 여유 임대이며 실제 RAM 예약·드레인 지원 완료로 표시하지 않는다.
+
+최종 UI 표준화 #1275는 기능 구현·검증 완료 뒤 착수 직전에 작업을 중단하고 사용자에게 보고하는 조건을 유지한다. 통합 PR #1271은 진행 중 Draft이며 이 새 기록으로 이슈를 완료 처리하지 않는다.
