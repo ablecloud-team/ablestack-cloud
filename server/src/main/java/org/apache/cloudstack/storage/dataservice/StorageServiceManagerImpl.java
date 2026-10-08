@@ -4450,6 +4450,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 parseSmbPermission(StringUtils.defaultIfBlank(cmd.getAclPermission(), "READ_WRITE")));
         if ("FORCED_UID_GID".equals(getJsonString(parseJsonObject(share.getConfigJson()), "posixOwnershipMode")))
             preflightSmbCreationPolicy(instance, share, parseJsonObject(share.getConfigJson()));
+        JsonObject initialAdPrincipal=StringUtils.isBlank(cmd.getAclPrincipal())?null:resolveStorageAdPrincipal(instance,parseSmbPrincipalType(cmd.getAclPrincipalType()),cmd.getAclPrincipal());
         share = storageFileShareDao.persist(share);
         for (SmbNetworkPolicy.Source source:initialNetworkRules) {
             storageAccessRuleDao.persist(new StorageAccessRuleVO(StorageServiceInstance.AccessResourceType.FILE_SHARE,share.getId(),source.type,source.principal,
@@ -4461,7 +4462,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             final StorageServiceInstance.PrincipalType principalType = parseSmbPrincipalType(cmd.getAclPrincipalType());
             final StorageServiceInstance.Permission permission = parseSmbPermission(StringUtils.defaultIfBlank(cmd.getAclPermission(), StorageServiceInstance.Permission.READ_WRITE.name()));
             initialAcl = new StorageAccessRuleVO(StorageServiceInstance.AccessResourceType.FILE_SHARE, share.getId(),
-                    principalType, initialPrincipal, permission, StorageServiceInstance.ResourceState.Creating, buildSmbAclConfigJson(principalType, cmd.getAclPassword()));
+                    principalType, initialAdPrincipal==null?initialPrincipal:getJsonString(initialAdPrincipal,"qualifiedName"), permission, StorageServiceInstance.ResourceState.Creating, buildBoundSmbAclConfig(principalType, cmd.getAclPassword(),initialAdPrincipal));
             initialAcl = storageAccessRuleDao.persist(initialAcl);
         }
         share.setState(StorageServiceInstance.ResourceState.Updating);
@@ -4629,14 +4630,38 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         return executeDesiredChange(cmd, StorageAccessRuleResponse.class, () -> doCreateStorageSmbAcl(cmd));
     }
 
+    protected void requireStorageAdIdentityFeatures(StorageServiceInstanceVO instance) {
+        Set<String> production=Set.of("SMB_ACTIVE_DIRECTORY","SMB_AD_IDENTITY","POSIX_AD_PRINCIPALS"),required=scopedValidatedRuntimeFeatures(instance.getId(),production);
+        if(required.equals(Set.of(StorageAdValidationFeaturePolicy.HANDLER)))return;
+        StorageServiceGuestCommandResult reply=guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),"identity domain capabilities","",15,Collections.emptySet()));JsonObject observed=reply.isSuccess()?parseJsonObject(normalizeRuntimeResultJson(reply.getResultJson())):new JsonObject();if(!Boolean.TRUE.equals(getNativeBoolean(observed,"adIdentity"))||!Boolean.TRUE.equals(getNativeBoolean(observed,"productionAdIdentityVerified"))||!observed.has("supportedFeatures")||!observed.get("supportedFeatures").isJsonArray())throw new CloudRuntimeException("Production AD identity capabilities are not verified for this instance");
+        Set<String> actual=new HashSet<>();for(JsonElement item:observed.getAsJsonArray("supportedFeatures")){if(!item.isJsonPrimitive()||!item.getAsJsonPrimitive().isString()||!actual.add(item.getAsString()))throw new CloudRuntimeException("AD capability feature receipt is malformed");}if(!actual.containsAll(production))throw new CloudRuntimeException("Production AD identity feature dependencies are unavailable");
+    }
+    protected JsonObject resolveStorageAdPrincipal(StorageServiceInstanceVO instance,StorageServiceInstance.PrincipalType type,String principal) {
+        if(type!=StorageServiceInstance.PrincipalType.AD_USER&&type!=StorageServiceInstance.PrincipalType.AD_GROUP)return null;
+        if(instance.getVmId()==null)throw new InvalidParameterValueException("AD principal requires a running joined Storage Service instance");requireStorageAdIdentityFeatures(instance);
+        StorageIdentityDomainVO domain=storageIdentityDomainDao.findByInstanceId(instance.getId());if(domain==null||domain.getJoinState()!=StorageServiceInstance.DomainJoinState.JOINED)throw new InvalidParameterValueException("AD principal requires a joined configured domain");
+        StorageServiceOperationVO operation=storageWriterOperation.get();if(operation==null)throw new CloudRuntimeException("AD principal lookup requires the reserved configuration writer scope");
+        JsonObject scope=operationReservationScope(instance,operation),configured=parseJsonObject(domain.getConfigJson()),previous=configured.has("identityReceipt")&&configured.get("identityReceipt").isJsonObject()?configured.getAsJsonObject("identityReceipt"):null;
+        if(previous==null||getJsonString(previous,"domainSid")==null||!previous.has("idmapPolicy"))throw new CloudRuntimeException("AD joined domain lacks its protected public identity receipt; re-attest the domain before editing AD ACLs");
+        JsonObject request=scope.deepCopy();String expectedSid=getJsonString(previous,"domainSid");request.addProperty("expectedDomainSid",expectedSid);request.addProperty("expectedRealm",domain.getDomainName().toUpperCase(Locale.ROOT));
+        JsonObject observed=rootGuest(instance,"identity domain inspect",request,30);JsonObject joined=StorageAdIdentityProof.joined(observed,scope,domain.getDomainName(),expectedSid,previous==null?null:previous.getAsJsonObject("idmapPolicy"),System.currentTimeMillis()/1000.0);
+        for(String field:List.of("machineSid","machineAccountSid","workgroup","netbiosName","dnsAliases","servicePrincipals"))if(!previous.has(field)||!previous.get(field).equals(joined.get(field)))throw new CloudRuntimeException("AD joined identity or service binding changed; re-attest before principal mutation");
+        request.addProperty("expectedDomainSid",getJsonString(joined,"domainSid"));request.addProperty("principalType",type.name());request.addProperty("principal",principal);JsonObject resolved=rootGuest(instance,"identity principal resolve",request,30);
+        return StorageAdIdentityProof.principal(resolved,scope,joined,type.name(),principal,System.currentTimeMillis()/1000.0);
+    }
+    protected String buildBoundSmbAclConfig(StorageServiceInstance.PrincipalType type,String password,JsonObject identity) {
+        JsonObject config=parseJsonObject(buildSmbAclConfigJson(type,password));if(identity!=null)config.add("adPrincipalReceipt",identity.deepCopy());return config.toString();
+    }
+
     private StorageAccessRuleResponse doCreateStorageSmbAcl(final CreateStorageSmbAclCmd cmd) {
         final StorageFileShareVO share = requireSmbShare(cmd.getShareId());
         final StorageServiceInstanceVO instance = requireInstance(share.getInstanceId());
         final StorageServiceInstance.PrincipalType principalType = parseSmbPrincipalType(cmd.getPrincipalType());
         final StorageServiceInstance.Permission permission = parseSmbPermission(cmd.getPermission());
         validateSmbOwnershipAccountAcl(parseJsonObject(share.getConfigJson()), permission);
+        JsonObject resolved=resolveStorageAdPrincipal(instance,principalType,cmd.getPrincipal());
         StorageAccessRuleVO rule = new StorageAccessRuleVO(StorageServiceInstance.AccessResourceType.FILE_SHARE, share.getId(),
-                principalType, cmd.getPrincipal(), permission, StorageServiceInstance.ResourceState.Creating, buildSmbAclConfigJson(principalType, cmd.getPassword()));
+                principalType, resolved==null?cmd.getPrincipal():getJsonString(resolved,"qualifiedName"), permission, StorageServiceInstance.ResourceState.Creating, buildBoundSmbAclConfig(principalType, cmd.getPassword(),resolved));
         rule = storageAccessRuleDao.persist(rule);
         rule.setState(instance.getVmId() == null ? StorageServiceInstance.ResourceState.Allocated : StorageServiceInstance.ResourceState.Ready);
         storageAccessRuleDao.update(rule.getId(), rule);
@@ -4659,14 +4684,15 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         final StorageAccessRuleVO rule = requireSmbAcl(cmd.getId());
         final StorageFileShareVO share = requireSmbShare(rule.getResourceId());
         final StorageServiceInstanceVO instance = requireInstance(share.getInstanceId());
-        if (cmd.getPrincipal() != null) {
-            rule.setPrincipal(cmd.getPrincipal());
+        String requestedPrincipal=cmd.getPrincipal()==null?rule.getPrincipal():cmd.getPrincipal();JsonObject resolved=resolveStorageAdPrincipal(instance,rule.getPrincipalType(),requestedPrincipal);
+        if (cmd.getPrincipal() != null || resolved!=null) {
+            rule.setPrincipal(resolved==null?cmd.getPrincipal():getJsonString(resolved,"qualifiedName"));
         }
         if (cmd.getPermission() != null) {
             validateSmbOwnershipAccountAcl(parseJsonObject(share.getConfigJson()), parseSmbPermission(cmd.getPermission()));
             rule.setPermission(parseSmbPermission(cmd.getPermission()));
         }
-        rule.setConfigJson(buildSmbAclConfigJson(rule.getPrincipalType(), cmd.getPassword()));
+        rule.setConfigJson(buildBoundSmbAclConfig(rule.getPrincipalType(), cmd.getPassword(),resolved));
         rule.setState(StorageServiceInstance.ResourceState.Updating);
         storageAccessRuleDao.update(rule.getId(), rule);
         try {
