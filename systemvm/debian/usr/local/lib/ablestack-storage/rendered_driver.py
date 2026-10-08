@@ -36,6 +36,8 @@ from rendered_prerequisites import RenderedPrerequisites
 from ganesha_dbus import GaneshaDbus
 from rendered_credentials import credential_json, credential_bindings, credential_recovery_key, credential_target_inputs
 from root_source_recovery import RootSourceRecovery
+from root_retained_authorization import RootRetainedAuthorization
+from root_configuration_capsule import root_configuration_sha256
 from nvme_credentials import protected_credential_json
 
 
@@ -48,6 +50,16 @@ class RenderedDriver:
         self.runtime.persist_one = self.persist_one
         self.nfs_config_root=Path("/etc/ganesha/ablestack-storage")
         self.root_source=RootSourceRecovery(self)
+        self.root_retained=RootRetainedAuthorization(self)
+
+    def retained_authority(self,request,for_stage=False):
+        reference=request.get("retainedRootAuthorization")
+        if reference is None:return None
+        record=self.root_retained.load(request,reference,for_stage)
+        desired=request.get("configurationDesiredState")
+        if desired is not None and (root_configuration_sha256(desired)!=record["latestConfigurationSha256"] or desired!=record["configurationDesiredState"]):
+            raise ValueError("Retained ROOT target seven differ from its authenticated latest source")
+        return record
 
     def verify(self,path):
         manifest=self.store.inspect(path);bindings=json.loads(rendered_read(path/"file-volumes.json"))
@@ -189,6 +201,10 @@ class RenderedDriver:
                 expected = json.loads(path.read_text())["expectedBindings"]
             else: expected = []
         root_transfer=None;initial=self.store.read_journal() or {};root_scope=initial.get("initialRootScope")
+        retained=self.retained_authority(request)
+        if retained is not None:
+            root_transfer={"rootScope":retained["scope"],"sourceConfigurationSha256":retained["latestConfigurationSha256"],
+                           "retainedRootAuthorization":request["retainedRootAuthorization"]}
         if root_scope is not None and source["posix-directory-policies.json"]!=desired["posix-directory-policies.json"]:
             maintenance=self.runtime.command(("operation","maintenance","status"))
             if (maintenance.get("bootHeld") is not True or maintenance.get("scope")!=root_scope
@@ -250,6 +266,19 @@ class RenderedDriver:
         rendered_directory(self.checkpoints, True)
         scope = self.store.scope(request)
         path = self.checkpoints / (scope["operationUuid"] + ".json")
+        retained=self.retained_authority(request)
+        if retained is not None:
+            saved=self.root_retained.identity_checkpoint(retained)
+            from cryptography.hazmat.primitives import serialization
+            try:
+                actual=serialization.load_pem_public_key(str(request.get("checkpointPublicKey") or "").encode())
+                expected=serialization.load_pem_public_key(retained["checkpointPublicKey"].encode())
+                if actual.public_numbers()!=expected.public_numbers():raise ValueError("retained wrapping key differs")
+            except Exception as invalid:raise ValueError("Retained ROOT checkpoint wrapping key differs from its authenticated latest source") from invalid
+            if path.exists() or path.is_symlink():
+                if credential_json(rendered_read(path))!=saved:raise ValueError("Retained ROOT encrypted checkpoint changed")
+            else:rendered_json(path,saved)
+            return saved
         if path.exists():
             saved = json.loads(rendered_read(path))
             if saved["scope"] != scope or saved["sourceConfigurationSha256"] != source["configurationSha256"]:
@@ -274,6 +303,8 @@ class RenderedDriver:
         return saved
 
     def credential_source(self, request):
+        retained=self.retained_authority(request)
+        if retained is not None:return {"configurationSha256":retained["latestConfigurationSha256"],"scope":retained["latestSourceGeneration"],"retainedLatestIdentitySource":True}
         scope=self.store.scope(request)
         target=self.store.inspect(self.store.generations/scope["operationUuid"])
         current=self.store.pointer();manifest=self.store.inspect(current)
@@ -496,8 +527,10 @@ class RenderedDriver:
         if result.returncode:raise ValueError("Protocol boot guards could not be loaded")
 
     def execute(self, action, request=None, unit=None):
-        if action == "render-status": return {**self.store.status(),"rootSourceIdentityCheckpointSupported":True}
+        if action == "render-status": return {**self.store.status(),"rootSourceIdentityCheckpointSupported":True,"retainedRootRestoreSupported":True}
         if action=="render-root-capture-source":return self.root_source.capture(request)
+        if action=="render-root-capture-retained":return self.root_retained.capture(request)
+        if action=="render-root-authorize-retained":return self.root_retained.authorize(request)
         if action=="render-root-quiesce-source":return self.root_source.quiesce_source(request)
         if action=="render-root-identity-export-source":return self.root_source.identity_export_source(request)
         if action=="render-root-resume-source":return self.root_source.resume(request)
@@ -573,9 +606,12 @@ class RenderedDriver:
             self.persist_desired(path)
             return {**status, "bootRuntimeVerified": verified}
         scope = self.store.scope(request)
+        retained=self.retained_authority(request,for_stage=action=="render-stage")
+        if retained is not None and action=="render-rollback":raise ValueError("Retained ROOT historical rollback is prohibited; restore its captured latest ROOT")
         source = self.generation()
         if action in ("render-import", "render-stage"):
-            if action=="render-stage":credential_bindings(self.desired(request),request.get("credentialRefs") or {},scope,source["configurationSha256"])
+            if retained is not None and action=="render-import":raise ValueError("Retained ROOT cannot borrow fresh/legacy rendered import")
+            if action=="render-stage":credential_bindings(self.desired(request),request.get("credentialRefs") or {},scope,retained["latestConfigurationSha256"] if retained is not None else source["configurationSha256"])
             if action=="render-import" and request.get("initialRootBaseline") is not True:
                 request={**request,"credentialRefs":self.baseline_credential_refs(request,source)}
             files = self.render(request)
@@ -641,13 +677,17 @@ class RenderedDriver:
                 raise ValueError("Rendered primary network change requires its separate verified transition")
             if request["configurationDesiredState"]["network-endpoints.json"]!=previous_desired["network-endpoints.json"]:
                 self.prerequisites.network.authorize(scope,require_writer=False)
-            healthy = self.verify(self.store.pointer())
-            if not all(healthy[domain] is True for domain in DOMAINS):
-                raise ValueError("Source runtime lost agreement before durable rendered staging")
+            if retained is None:
+                healthy = self.verify(self.store.pointer())
+                if not all(healthy[domain] is True for domain in DOMAINS):raise ValueError("Source runtime lost agreement before durable rendered staging")
+            elif (request.get("previousGeneration")!=retained["retainedGeneration"] or request.get("expectedCurrentRenderedSha256")!=retained["retainedRenderedSha256"] or pending.get("previous")!=retained["retainedGeneration"]):
+                raise ValueError("Retained ROOT pending.previous/old pointer differs from its protected baseline")
             checkpoint = self.checkpoint(request, source)
             manifest = self.store.stage(request, files, self.validate)
             return {"success": True, "phase": "STAGED", "scope": scope, "renderedManifestSha256": manifest["manifestSha256"], "configurationSha256": manifest["configurationSha256"],
-                    "identityCheckpointRef": {"operationUuid": scope["operationUuid"], "sha256": checkpoint["capsule"]["sha256"]}, "validators": {domain: True for domain in DOMAINS}}
+                    "sourceConfigurationSha256":source["configurationSha256"],"identityCheckpointSourceConfigurationSha256":checkpoint["sourceConfigurationSha256"],
+                    "identityCheckpointRef": {"operationUuid": scope["operationUuid"], "sha256": checkpoint["capsule"]["sha256"]}, "validators": {domain: True for domain in DOMAINS},
+                    **({"retainedRootAuthorization":request["retainedRootAuthorization"],"historicalSourceRuntimeVerified":False} if retained is not None else {})}
         if action in ("render-finalize", "render-activate", "render-rollback"):
             pin = request.get("renderedManifestSha256")
             target = self.store.inspect(self.store.generations / scope["operationUuid"])
@@ -663,6 +703,7 @@ class RenderedDriver:
         previous_restored = False
         def replay(path, domain, rollback):
             nonlocal previous_restored
+            if retained is not None and rollback:raise ValueError("Retained ROOT cannot replay historical protocols/identity/permissions; latest ROOT compensation is required")
             if rollback and not previous_restored:
                 self.restore_identity(request); previous_restored = True
             return self.runtime.replay(path, domain, rollback)
