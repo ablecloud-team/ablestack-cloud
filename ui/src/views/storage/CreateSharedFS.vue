@@ -151,9 +151,9 @@
                 <dt>{{ $t('label.storage.service.allowed.host.nqn') }}</dt>
                 <dd>{{ form.nvmehostnqn || '-' }}</dd>
                 <dt>{{ $t('label.storage.service.dhchap.enabled') }}</dt>
-                <dd>{{ nvmeDhChapCreateSupported ? (form.nvmedhchapenabled ? $t('label.yes') : $t('label.no')) : $t('label.unsupported') }}</dd>
+                <dd>{{ nvmeDhChapCreateSupported ? (form.nvmedhchapenabled ? $t('label.yes') : $t('label.no')) : nvmeAuthPreviewUnavailableLabel }}</dd>
                 <dt>{{ $t('label.storage.service.dhchap.controller.enabled') }}</dt>
-                <dd>{{ nvmeDhChapCreateSupported ? (form.nvmedhchapenabled && form.nvmedhchapctrlenabled ? $t('label.yes') : $t('label.no')) : $t('label.unsupported') }}</dd>
+                <dd>{{ nvmeDhChapCreateSupported ? (form.nvmedhchapenabled && form.nvmedhchapctrlenabled ? $t('label.yes') : $t('label.no')) : nvmeAuthPreviewUnavailableLabel }}</dd>
               </dl>
             </div>
           </section>
@@ -683,7 +683,19 @@
                   </a-form-item>
                 </a-col>
               </a-row>
+              <a-alert v-if="form.smbidentitymode === 'AD'" class="section-alert" type="warning" show-icon :message="$t('message.storage.service.ad.maintenance.help')" />
               <a-row v-if="form.smbidentitymode === 'AD'" :gutter="16">
+                <a-col :xs="24" :md="12">
+                  <a-form-item name="smbadmaintenancewindow" required>
+                    <a-checkbox v-model:checked="form.smbadmaintenancewindow">{{ $t('message.storage.template.maintenance.confirm') }}</a-checkbox>
+                  </a-form-item>
+                </a-col>
+                <a-col :xs="24" :md="12">
+                  <a-form-item name="smbadconfirmation" required>
+                    <template #label><tooltip-label :title="$t('label.storage.config.confirmation')" :tooltip="$t('message.storage.service.ad.maintenance.help')" /></template>
+                    <a-input v-model:value="form.smbadconfirmation" :placeholder="form.name" />
+                  </a-form-item>
+                </a-col>
                 <a-col :xs="24" :md="12">
                   <a-form-item name="smbaddomain" :required="form.smbidentitymode === 'AD'">
                     <template #label>
@@ -1040,6 +1052,7 @@
 <script>
 import { supportsStorageFormatting } from '@/utils/storageDiskProvisioning'
 import { storageReadDeadline } from '@/utils/storageRead'
+import { requireAdServiceApproval, readJoinedAdReceipt, supportsAdMaintenanceApi } from '@/utils/storageAdIdentity'
 
 import { ref, reactive, toRaw } from 'vue'
 import { ReloadOutlined } from '@ant-design/icons-vue'
@@ -1298,6 +1311,10 @@ export default {
       return !this.templateLoading && !this.templateReadError && this.isSelectableSystemTemplate(template, this.selectedZone?.id) &&
         template.details?.['storage.service.nvme.target.auth'] === 'true' && this.form.nvmeengine === 'KERNEL_NVMET' && this.form.nvmetransport === 'tcp'
     },
+    nvmeAuthPreviewUnavailableLabel () {
+      const template = this.systemTemplates.find(item => item.id === this.form.templateid)
+      return this.$t(template?.details?.['storage.service.nvme.target.auth'] === 'false' ? 'label.unsupported' : 'label.unknown')
+    },
     nvmeDhChapCreateMessage () {
       const template = this.systemTemplates.find(item => item.id === this.form.templateid)
       const declaredUnsupported = template?.details?.['storage.service.nvme.target.auth'] === 'false'
@@ -1400,6 +1417,8 @@ export default {
         smbaddomain: '',
         smbadusername: '',
         smbadpassword: '',
+        smbadmaintenancewindow: false,
+        smbadconfirmation: '',
         smbaddns: '',
         smbadou: '',
         smbadworkgroup: '',
@@ -1533,6 +1552,8 @@ export default {
             return Promise.resolve()
           }
         }],
+        smbadmaintenancewindow: [{ validator: this.validateInitialAdApproval, trigger: 'change' }],
+        smbadconfirmation: [{ validator: this.validateInitialAdApproval, trigger: 'change' }],
         smbadprincipal: [{
           validator: async (rule, value) => {
             if (!this.isServiceSelected('SMB') || this.form.smbidentitymode !== 'AD' || this.form.smbguestok) {
@@ -2037,6 +2058,7 @@ export default {
           return
         }
         const setupSnapshot = this.buildStorageServiceSetupSnapshot(values)
+        if (this.isSetupServiceSelected(setupSnapshot, 'SMB') && setupSnapshot.smbidentitymode === 'AD') this.requireInitialAdApi()
         this.loading = true
         postAPI('createSharedFileSystem', data).then(response => {
           const jobId = response.createsharedfilesystemresponse?.jobid
@@ -2050,11 +2072,13 @@ export default {
           this.runInitialStorageServiceSetup(jobId, setupSnapshot, notificationKey)
         }).catch(error => {
           this.clearInitialBlockSecrets(setupSnapshot)
+          this.clearInitialAdCredentials(setupSnapshot)
           this.$notifyError(error)
         }).finally(() => {
           this.loading = false
         })
       }).catch((error) => {
+        this.clearInitialAdCredentials()
         if (error?.errorFields?.[0]?.name) {
           this.formRef.value.scrollToField(error.errorFields[0].name)
         } else if (error instanceof Error) {
@@ -2077,6 +2101,7 @@ export default {
         )
       } finally {
         this.clearInitialBlockSecrets(setup)
+        this.clearInitialAdCredentials(setup)
       }
     },
     notifyStorageServiceSetup (key, type, messageKey, description, duration = 4.5) {
@@ -2101,7 +2126,7 @@ export default {
         if (!instance) {
           throw new Error(this.$t('message.storage.service.setup.instance.not.found'))
         }
-        if ((setup.nvmedhchapenabled === true || setup.nvmedhchapctrlenabled === true) &&
+        if ((setup.nvmedhchapenabled === true || setup.nvmedhchapctrlenabled === true || (this.isSetupServiceSelected(setup, 'SMB') && setup.smbidentitymode === 'AD')) &&
           (!(sharedfs.virtualmachineid || sharedfs.virtualMachineId) || instance.virtualmachineid !== (sharedfs.virtualmachineid || sharedfs.virtualMachineId))) {
           throw new Error(this.$t('message.storage.service.authentication.unknown.help'))
         }
@@ -2118,6 +2143,7 @@ export default {
         this.form.smbadpassword = ''
         this.form.smblocalpassword = ''
         this.form.smblocalpasswordconfirm = ''
+        if (setup) setup.smbadpassword = ''
         this.parentFetchData()
       }
     },
@@ -2241,6 +2267,47 @@ export default {
         })
       }
     },
+    clearInitialAdCredentials (snapshot) {
+      if (this.form) this.form.smbadpassword = ''
+      if (snapshot) snapshot.smbadpassword = ''
+    },
+    requireInitialAdApi () {
+      if (!supportsAdMaintenanceApi(api => this.$getApiParams?.(api), 'joinStorageServiceToAdDomain', true)) {
+        throw new Error(this.$t('message.storage.service.ad.maintenance.unsupported'))
+      }
+    },
+    async validateInitialAdApproval () {
+      if (!this.isServiceSelected('SMB') || this.form.smbidentitymode !== 'AD') return
+      try {
+        this.requireInitialAdApi()
+        requireAdServiceApproval({ id: 'pending-create', name: this.form.name }, { maintenancewindow: this.form.smbadmaintenancewindow, confirmation: this.form.smbadconfirmation })
+      } catch (_) {
+        return Promise.reject(this.$t('message.storage.service.ad.maintenance.required'))
+      }
+    },
+    async joinInitialAdDomain (instance, snapshot) {
+      try {
+        this.requireInitialAdApi()
+        const approval = requireAdServiceApproval(instance, { maintenancewindow: snapshot.smbadmaintenancewindow, confirmation: snapshot.smbadconfirmation })
+        await this.runStorageServiceSetup('joinStorageServiceToAdDomain', {
+          instanceid: instance.id,
+          domainname: snapshot.smbaddomain,
+          username: snapshot.smbadusername,
+          password: snapshot.smbadpassword,
+          dnsservers: snapshot.smbaddns,
+          organizationalunit: snapshot.smbadou,
+          workgroup: snapshot.smbadworkgroup || this.deriveAdWorkgroup(snapshot.smbaddomain),
+          identitymode: 'JOIN_EXISTING',
+          ...approval
+        })
+        await readJoinedAdReceipt(instance, snapshot.smbaddomain)
+      } catch (error) {
+        throw new Error(this.$t(error?.message === 'AD_SERVICE_APPROVAL_REQUIRED' ? 'message.storage.service.ad.maintenance.required' : 'message.storage.service.ad.receipt.unverified'))
+      } finally {
+        snapshot.smbadpassword = ''
+        this.form.smbadpassword = ''
+      }
+    },
     async createInitialFileServices (instance, sharedfs, snapshot = this.form) {
       const backingVolumeId = this.initialBackingVolumeId(sharedfs, snapshot)
       const setup = {}
@@ -2288,6 +2355,7 @@ export default {
         }
       }
       if (this.isSetupServiceSelected(snapshot, 'SMB')) {
+        if (snapshot.smbidentitymode === 'AD') await this.joinInitialAdDomain(instance, snapshot)
         const initialSmbAcl = this.initialSmbAclParams(snapshot)
         const shareResponse = await this.runStorageServiceSetup('createStorageSmbShare', {
           instanceid: instance.id,
@@ -2305,17 +2373,6 @@ export default {
         setup.smbShareId = this.extractCreatedId(shareResponse, 'storagesmbshare')
         if (!setup.smbShareId) {
           throw new Error(this.$t('message.storage.service.setup.verify.smb.missing'))
-        }
-        if (snapshot.smbidentitymode === 'AD') {
-          await this.runStorageServiceSetup('joinStorageServiceToAdDomain', {
-            instanceid: instance.id,
-            domainname: snapshot.smbaddomain,
-            username: snapshot.smbadusername,
-            password: snapshot.smbadpassword,
-            dnsservers: snapshot.smbaddns,
-            organizationalunit: snapshot.smbadou,
-            workgroup: snapshot.smbadworkgroup || this.deriveAdWorkgroup(snapshot.smbaddomain)
-          })
         }
       }
       return setup
@@ -2465,7 +2522,10 @@ export default {
         throw new Error(this.$t('message.storage.service.setup.api.missing.with.name', { api }))
       }
       const clean = this.cleanParams(params)
-      const response = await postAPI(api, clean)
+      let response
+      try { response = await postAPI(api, clean) } finally {
+        if (api === 'joinStorageServiceToAdDomain') { clean.password = ''; params.password = '' }
+      }
       const setupResponse = response[api.toLowerCase() + 'response'] || response
       if (setupResponse.jobid) {
         return this.pollStorageServiceSetupJob(setupResponse.jobid, api)
@@ -2508,6 +2568,7 @@ export default {
         }
         if (setup.smbidentitymode === 'AD') {
           required.add('joinStorageServiceToAdDomain')
+          required.add('listStorageServiceDomainStatus')
         }
       }
       if (this.isSetupServiceSelected(setup, 'ISCSI')) {
@@ -2537,6 +2598,7 @@ export default {
       return Array.from(required).filter(api => !(api in this.$store.getters.apis))
     },
     assertStorageServiceSetupApis (setup = this.form) {
+      if (this.isSetupServiceSelected(setup, 'SMB') && setup.smbidentitymode === 'AD') this.requireInitialAdApi()
       const missingApis = this.missingStorageServiceSetupApis(setup)
       if (missingApis.length > 0) {
         throw new Error(this.$t('message.storage.service.setup.api.missing.with.name', { api: missingApis.join(', ') }))
