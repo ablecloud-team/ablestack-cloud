@@ -68,3 +68,13 @@ NFS_VFS_POSIX_ACL는 service bundle contents에 추가했다고 주장하지 않
 새 의미 있는9개 회귀는 held/globalOFF 요구, 두 service 기능의 유지, null/service 부재, 별도 package plane, 거짓 runtime 선언으로 fresh VFS 실패 우회 금지, post-effect recovery, old4.3 source checkpoint와 UNKNOWN retained missing reservation을 다룬다. source checkpoint의 activate=false staging에서 기존 공통 feature 호출이 실제 충돌하는 회귀를 발견해 activation-only gate만 조건부로 바꿨다. crypto signature/pin/installed READBACK는 유지했다.
 
 source72 direct 기록은 runtime-resource-direct-result.log, stable4files SHA는 runtime-dependency-source-stable.json이다. 전체585/97 reactor는 backend가 수행했고 NUL source6bb6e255.../9854 files unchanged를 확인했다. 실제 lease/drain/full4protocol/AD/최종 UI 완료로 확대하지 않는다.
+
+## 읽기 전용 새 validation fixture 런타임 증명 producer
+
+freshSignedRuntimeValidationProof(instanceId,expectedCliSha256)를 Runtime 단일 owner로 구현하고14개 신규 의미 있는 회귀를 포함해 direct86 PASS를 확인했다. 아직 full reactor/live 증거로 승격하지 않는다.
+
+서버가 catalog signed manifest를 검증하고 CLI entry가 정확 하나이며 profile artifact의 expected SHA와 같음을 확인한다. 해당 instance/currentBundle의 normal upgrade COMPLETE 기존 transaction으로만 fresh native READBACK를 수행해 실제 설치 파일hash와 managed entrypoint binding을 검사한다. 새 BEGIN/TRANSFER/ACTIVATE/bootstrap/GlobalLock/resource acquire는0이다. 원래 verified transaction이 없으면 새 staging을 만들어 proof를 꾸미지 않고 정상 upgrade 필요로 거절한다.
+
+Native READBACK가 actual digest 문자열을 직접 반환하는 것은 아니다. 보호된 updater의 실제 filehash 비교와 signed manifest/pin·entrypoint 일치를 결합한 evidenceKind를 SIGNED_READBACK_FILE_HASH_AND_ENTRYPOINT_BINDING으로 명시한다. Root/host/currentBundle 전후 변동, foreign receipt, CLI/installed bytes/updater 불일치, ambiguous manifest, legacy interface 및 malformed SHA는 failclosed다. consumer/protected template UNKNOWN은 그대로 보고하며 호환으로 재분류하지 않는다.
+
+기존 Boolean helper가 문자열true를 coercion하는 것을 새 negative에서 실제 발견해 literal JSON boolean만 수용하도록 수정했다. source86은runtime-resource-direct-result.log, scopedSHA는runtime-readonly-profile-source-stable.json이다. Manager의 explicit NEW_SPARSE_ALL4_VALIDATION 범위/원본 제외/productionFour=false 및 실제 full4검증은 backend/kernel/부모 owner의 별도 gate다.

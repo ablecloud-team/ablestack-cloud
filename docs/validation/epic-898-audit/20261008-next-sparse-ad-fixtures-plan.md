@@ -77,3 +77,27 @@ host13.1/.2/.3은 공유 GFS의 같은 inode1313342를 관측했다. qcow2v3/bac
 이어 승인된 새7b4만 normal updateVolume에 path parameter를 넣지 않고 deleteProtection true→false 및 displayvolume false→true의4개 작은 intent를 실행했다. job3d6a7831/60179cd8/75a5abde/bd8db374는 각각 status1/code0이며 매번 API tuple와 DBpath/size/provisioning/owner/pool/VM NULL가 보존됐다. host qcow2 inode1313342·virtual20GiB·allocated3743744B 및 header+전체L1/L2 metadata SHAe72bc0b2...가 전후 동일이다. DATA cluster는 읽지 않았다.
 
 현재 name path-check/display=true/deleteProtection=false이다. 기존/root/attached DATA는 실제 변경하지 않고 source4조합 unit과 구분한다. 새 disk attach/format/delete는 계속0이다. 증빙1333-new20-normal-ui-rename-after-readonly.json, 1333-new20-normal-api-metadata-roundtrip.json을 기록한다.
+
+## NEW20 정규 NFS prepare 및 NN 실제 I/O
+
+부모 GO 뒤 일반 attachVolume가 SharedFS role guard로 before-effect 거절됐다(joba435a97f/code431). guard 우회/재시도 없이 정규 createStorageNfsExport 내부 attach/prepare를 사용했다. host qcow2 논리 첫1MiB의0 패턴 읽기와 actual CLI99c1/caps를 확인한 뒤 새7b4 한 개만 FORMAT_IF_EMPTY로 요청했다. 원래 a0bb와 partial021b는 포맷0이다.
+
+정규 job72a6df16은 status1/code0, NFS parent6b6dd32b-df24-40d7-aea7-9a636199991d/epic898-volumeonly-cross-parent10 Ready다. 새 /dev/sdc/serial7b4fae44e92641c9bdd5/21474836480 B를 VOLUME_SERIAL로 일치시켰고 XFS UUID5b11b028-0234-428d-99ef-0edd336ad955가 만들어졌다. mkfs.xfs PID89199/exit0/options[-f,-K]/SKIP_DISCARD/elapsed0.3197s 및 success receipt/format receipt94f3306d를 확인했다. ROOT /dev/sda6·ancestor/dev/sda와 새 sdc가 다르고, 원래 a0bbFSa433/sentinel inode16777345/UID1001:1001/mode0660/SHAfe084/bootc53는 보존됐다. 포맷 전 guest 검사는 정규 pipeline의 strict serial/size/root exclusion 코드와 receipt를 대조한 증거이며 독립 generic attach로 검사한 것으로 주장하지 않는다.
+
+부모 정상 UI가 같은 새7b4의 NFS childca41e478-ab1c-4339-a05e-574aa4d3d0dc/epic898-volumeonly-nn-child10을 relative cross-parent/child로 만들었다. 실제 normalized importMode=MOUNT_EXISTING, formatInvoked=false이며 기존 formatter PID89199/receipt94f3306d/start epoch가 그대로다. 재포맷0이다. 두 leaf 모두 owner/anon1002:1002/0770/root+allSquash/RW다.
+
+13:48:21 UTC 외부 host13.1의 정상 NFSv4 child write/fsync→parent/child 같은 파일 readback이 통과했다. 새 file new20-nn-cross-rw-20261008.txt의 inode133/UID1002:1002/mode0640/SHAd8108a34...이며 양 mount를 정상 정리했다. client idmapping Y→Y/쓰기0이다. guest13:50:33의 child directory inode132/parent33685632/device2080와 파일hash·owner를 확인하고 original sentinel도 다시 보존 확인했다.
+
+이 NN 기본 owner 시험은 기존 Ganesha4.3 named ACL mixed NS/SN 실패를 해결한 증거가 아니며 정확10TiB #974 요구를 대체하지 않는다. child delete/volume-only overlap negative·positive/symlink·bind fence는 부모 별도 stage로 남겨 두고 자의 삭제0이다. 증빙은910-new20-nfs-formal-prepare-proof.json,910-new20-nn-parent-child-after-ui-readonly.json,910-new20-nn-external-cross-client-proof.json,910-new20-nn-guest-inode-format-once-baseline.json이다.
+
+## Volume-only 준비의 before-effect BLOCKED — 아직 update 검증 전
+
+부모가 olda0b의 NEWprefix epic898-volume-only-audit-10/cross-parent/child에 SMB source를 만드는 계약을 승인했다. 정규 createStorageSmbShare(nameepic898-volumeonly-ns-move10,olda0b,MOUNT_EXISTING,crossprotocol=false,noCleanup)는 job829c6cf1/code530/opcca01fc7 BLOCKED였다. ACL/password/updateVolume-only request는0이며 재시도/경로우회/기존 directory/chown/format0이다.
+
+초기에는 native 경로 검사로 추정했으나 원문 string을 source에서 대조해 **서버 Java validateFileSharePathAvailable**의 오류임을 확인했다. normalized relative 경로와 physicalRelativeSharePath만 비교하고 volume-qualified mount root를 제외한 뒤 different-volume ancestor overlap을 거절한다. targetnew7b4 NFSparent6b의 cross-parent 때문에 sourceolda0b child가 prepare 전 거절됐다. 같은 경로 childca41의 equality branch도 volume namespace를 별도로 구분하지 않는다. native payload/resolve root/prepare는 아직 실행되기 전이다.
+
+14:06:06 UTC fresh readonly mount tree: olda0b canonical /srv root는 sdb/seriala0b/FSa433, new7b4는 sdc/serial7b/FS5b11이며 둘 다20GiB이다. /export 자체 mount행은 없고 NFS name별 subtree bind가 존재한다. olda0b NEWprefix는 완전히 없으며 targetparent33685632/child132/file133(device2080/UID1002/hashd810...) 및 originalsentinel16777345/UID1001/hashfe084는 보존됐다. nativeGEN40/8cf99f7c... IN_SYNC/pendingNULL/bootc53도 unchanged다.
+
+관리된 실제 volumeRoot+relative를 qualified physical key로 검증하고 legacy/export mountboundary 보호와 구분하는 source 수정이 필요하다. guard를 단순히 끄거나 새 경로로 시험을 우회하지 않는다. 이 BLOCKED는 안전한 before-effect 보존 증거이며 **volume-only update negative/positive 완료 증거는 아니다.** Java full reactor freeze 동안 Manager owner에게 exact request/source조건/mount topology를 전달했고 추가 실제 mutation은0이다.
+
+증거910-volume-only-old-cross-smb-prepare-proof.json,910-volume-only-blocked-mount-binding-readonly.json을 기록한다.
