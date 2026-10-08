@@ -50,3 +50,21 @@ NFS WIP는 kernel owner가 source보완중이고 live원본의daemon/IP/DATA 변
 초기 legacy-loop 실험의 SMB2회 결과를 kernel owner가 source per-protocol protectedcheckpoint로 보완했다. bootId+각savedfileSHA+APPLYING/VERIFIED/FAILED를기록하고 NFS firstfail/nextsuccess에서이미VERIFIED SMB는재apply하지않는다. 같은actualwhile-loop를stub에서실행해NFS2/SMB1/exit0 및desiredfile변경시receipt무효화unit을통과했다고보고했다. liveboot/실100export/총bootdeadline/renderedcoldreadiness 완료증거가아니므로해당후속gate는남는다.
 
 이슈 #895 scratch identityhelper는freeze/requireCurrent API와owner/domain/zone scope를포함하며13unit PASS다. prototype2파일은현재Mavenpinfreeze기간repo복사하지않았다. sharedservice wiring/persistentfmt marker 및unresolvedwriterDAOgate는Root owner가별도연결한다. helper만으로Stopped partial보호완료를주장하지않는다.
+
+## 새 NFS/Runtime 의존성 계약 — source 후속
+
+Runtime requiredRuntimeFeatures에는 기존 POSIX_DIRECTORY_POLICY/NUMERIC/AD 기능만 있어 NFS에 노출된 named/default POSIX ACL 및 SMB descendant의 VFS package 요구를 구분하지 못했다. 실제4.3의 Unix UID1002 read 성공/NFS EACCES와 연관된 OS plane 요구다. NFS_VFS_POSIX_ACL는 실제 Ganesha package/보호된 build/self-test proof로 확인하며 service bundle이 Ganesha를 포함한다고 주장하지 않는다.
+
+Backend가 exact instance DB-only requiredManagedOperationFeatures/requiredStoragePackageFeatures 및 fresh verifyStoragePackageFeatures primitive를 작성했다. LOGICAL_RESOURCE_RESERVATION는 enabled policy 또는 unresolved/held control이면 global OFF와 무관하게 필요하다. SERVICE_MAINTENANCE는 실제 유지 단계와 native proof가 선언 가능한 경우에 필요하다. Runtime 후보와 explicit/automatic rollback은 missing feature를 version UNKNOWN 예외로 우회하지 않는다.
+
+이 계약의 Runtime source 연결을 실제 구현했다. direct72 및 정상 Checkstyle reactor585 tests/97 classes PASS이며 immutable pin 전 Java freeze를 유지한다. 실제 관리의 legacy b38 Runtime family에는 아직 미포함이다. source checkpoint/GET가 old4.3의 읽기 전용 증빙을 수집하는 경로는 새 package 활성화 gate로 차단하지 않는다. NEW target/ACTIVATE 및 실제 결과 승격에는 fresh package proof를 확인해야 한다. source 계약·패키지 로컬 self-test를 실제 SharedFS mixed I/O 완료로 확대하지 않는다.
+
+## Runtime 의존성 실제 source 연결 검증
+
+requiredRuntimeFeatures가 backend exact-instance requiredManagedOperationFeatures를 병합하며 null 요구를 opt-out으로 해석하지 않는다. 후보와 explicit/automatic rollback의 signed manifest는 LOGICAL_RESOURCE_RESERVATION/SERVICE_MAINTENANCE를 잃지 않아야 한다. retained UNKNOWN 예외도 missing feature를 우회하지 않는다.
+
+NFS_VFS_POSIX_ACL는 service bundle contents에 추가했다고 주장하지 않고 OS plane verifyStoragePackageFeatures로 위임한다. activation/replay 전에 fresh package 검증을 하고 효과 후 readback/terminal 승격 전에도 재검증한다. post-effect proof 실패는 MANUAL_RECOVERY/RECOVERY_REQUIRED로 보존하며 lease를 COMPLETE로 풀지 않는다.
+
+새 의미 있는9개 회귀는 held/globalOFF 요구, 두 service 기능의 유지, null/service 부재, 별도 package plane, 거짓 runtime 선언으로 fresh VFS 실패 우회 금지, post-effect recovery, old4.3 source checkpoint와 UNKNOWN retained missing reservation을 다룬다. source checkpoint의 activate=false staging에서 기존 공통 feature 호출이 실제 충돌하는 회귀를 발견해 activation-only gate만 조건부로 바꿨다. crypto signature/pin/installed READBACK는 유지했다.
+
+source72 direct 기록은 runtime-resource-direct-result.log, stable4files SHA는 runtime-dependency-source-stable.json이다. 전체585/97 reactor는 backend가 수행했고 NUL source6bb6e255.../9854 files unchanged를 확인했다. 실제 lease/drain/full4protocol/AD/최종 UI 완료로 확대하지 않는다.
