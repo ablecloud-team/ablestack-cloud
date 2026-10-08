@@ -33,6 +33,8 @@ import com.cloud.exception.InvalidParameterValueException;
 import com.cloud.vm.VmCreationSourceService;
 
 @APICommand(name = "listVirtualMachineCreationSources", description = "Lists authorized volume and ROOT snapshot deployment sources with eligibility.",
+        authorized = {org.apache.cloudstack.acl.RoleType.Admin, org.apache.cloudstack.acl.RoleType.ResourceAdmin,
+                org.apache.cloudstack.acl.RoleType.DomainAdmin, org.apache.cloudstack.acl.RoleType.User},
         responseObject = VmCreationSourceResponse.class, requestHasSensitiveInfo = false, responseHasSensitiveInfo = false)
 public class ListVirtualMachineCreationSourcesCmd extends BaseListAccountResourcesCmd {
     @Inject protected VmCreationSourceService sourceService;

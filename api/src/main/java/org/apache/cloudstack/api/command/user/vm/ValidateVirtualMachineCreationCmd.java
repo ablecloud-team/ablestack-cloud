@@ -23,6 +23,8 @@ import org.apache.cloudstack.api.response.VmCreationSourceResponse;
 import com.cloud.exception.InvalidParameterValueException;
 
 @APICommand(name = "validateVirtualMachineCreation", description = "Revalidates a creation source without allocating resources.",
+        authorized = {org.apache.cloudstack.acl.RoleType.Admin, org.apache.cloudstack.acl.RoleType.ResourceAdmin,
+                org.apache.cloudstack.acl.RoleType.DomainAdmin, org.apache.cloudstack.acl.RoleType.User},
         responseObject = VmCreationSourceResponse.class, requestHasSensitiveInfo = false, responseHasSensitiveInfo = false)
 public class ValidateVirtualMachineCreationCmd extends ListVirtualMachineCreationSourcesCmd {
     @Override public void execute() {
