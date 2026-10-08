@@ -364,6 +364,12 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     @Inject private org.apache.cloudstack.storage.sharedfs.SharedFSService configurationSharedFsService;
     @Inject private com.cloud.storage.dao.DiskOfferingDao configurationDiskOfferingDao;
     @Inject private org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao configurationStoragePoolDao;
+    @Inject private com.cloud.projects.dao.ProjectDao configurationProjectDao;
+    @Inject private com.cloud.configuration.ConfigurationManager configurationResourceManager;
+    @Inject private com.cloud.user.ResourceLimitService configurationResourceLimits;
+    @Inject private com.cloud.storage.dao.StoragePoolTagsDao configurationPoolTagsDao;
+    @Inject private com.cloud.storage.dao.VolumeDetailsDao configurationVolumeDetailsDao;
+
 
 
     @Inject private org.apache.cloudstack.storage.dataservice.dao.StorageServiceTemplateUpgradeDao storageTemplateUpgradeDao;
@@ -832,6 +838,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             sameTopology();if (currentRoot() == row.getTargetRootVolumeId()) return;
             if (rootUpgradeVmDao.findById(instance.getVmId()).getState() == com.cloud.vm.VirtualMachine.State.Running) enterMaintenance("sourceMaintenanceScope");
             JsonObject value=snapshot();if (!value.has("quiescedAt")) {value.addProperty("quiescedAt",System.currentTimeMillis());persist(value);}
+            requireNoPendingVolumeFormatter(instance);
             lifecycle.stop(instance.getVmId());
         }
         private JsonObject scope() {JsonObject scope=new JsonObject();scope.addProperty("instanceUuid",instance.getUuid());scope.addProperty("templateUpgradeUuid",row.getUuid());scope.addProperty("operationUuid",operation.getUuid());scope.addProperty("revision",operation.getRevision());return scope;}
@@ -1062,6 +1069,313 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
         validateStorageServiceBackingVolume(instance, volume.getId(), "configuration restore");return volume.getId();
     }
+    protected JsonObject buildConfigurationVolumePlan(Map<String, byte[]> archive, JsonObject mapping,
+            StorageConfigArtifactVO artifact, String namespace, String targetUuid) {
+        JsonObject blueprint = mapping.getAsJsonObject("createNew");
+        org.apache.cloudstack.storage.sharedfs.SharedFS proposed = configurationSharedFsService.preflightSharedFS(configurationCreateCommand(blueprint));
+        JsonObject scope = new JsonObject();
+        scope.addProperty("artifactUuid", artifact.getUuid());
+        scope.addProperty("artifactSha256", artifact.getSha256());
+        scope.addProperty("allocationNamespace", namespace);
+        scope.addProperty("targetInstanceUuid", targetUuid);
+        scope.addProperty("accountId", proposed.getAccountId());
+        scope.addProperty("domainId", proposed.getDomainId());
+        scope.add("projectId", configurationProjectId(proposed.getAccountId()));
+        scope.addProperty("zoneUuid", dataCenterDao.findById(proposed.getDataCenterId()).getUuid());
+        scope.addProperty("baselineRevision", 0);
+        JsonObject catalog = configurationVolumeCatalog(mapping, blueprint, scope);
+        return StorageConfigurationVolumePlan.build(archive, mapping, blueprint, scope, catalog);
+    }
+
+    private JsonElement configurationProjectId(long accountId) {
+        com.cloud.projects.ProjectVO project = configurationProjectDao.findByProjectAccountId(accountId);
+        return project == null ? com.google.gson.JsonNull.INSTANCE : new com.google.gson.JsonPrimitive(project.getId());
+    }
+
+    protected JsonObject configurationVolumeCatalog(JsonObject mapping, JsonObject blueprint, JsonObject scope) {
+        JsonObject catalog = new JsonObject();
+        JsonObject offerings = new JsonObject(), pools = new JsonObject(), existing = new JsonObject();
+        catalog.add("offerings", offerings);catalog.add("pools", pools);catalog.add("existingVolumes", existing);
+        for (Map.Entry<String, JsonElement> item : mapping.getAsJsonObject("volumes").entrySet()) {
+            if ("NEW".equals(item.getValue().getAsString())) {
+                JsonObject specs = mapping.has("newVolumes") && mapping.getAsJsonObject("newVolumes").has(item.getKey())
+                        ? mapping.getAsJsonObject("newVolumes").getAsJsonObject(item.getKey()) : new JsonObject();
+                String offering = getJsonString(specs, "diskofferingid");
+                if (offering == null) offering = getJsonString(blueprint, "diskofferingid");
+                String pool = getJsonString(specs, "storageid");
+                if (pool == null) pool = getJsonString(blueprint, "storageid");
+                offerings.add(offering, configurationOfferingCatalog(offering, scope));
+                pools.add(pool, configurationPoolCatalog(pool, scope));
+            } else {
+                VolumeVO volume = volumeDao.findByUuid(item.getValue().getAsString());
+                if (volume == null) throw new InvalidParameterValueException("Selected clone DATA is unavailable");
+                JsonObject value = configurationVolumeProjection(volume);
+                value.addProperty("reserved", configurationVolumeReserved(volume.getId()));
+                value.addProperty("attachedVmUuid", volume.getInstanceId() == null ? null : vmInstanceDao.findById(volume.getInstanceId()).getUuid());
+                existing.add(volume.getUuid(), value);
+                pools.add(getJsonString(value, "poolUuid"), configurationPoolCatalog(getJsonString(value, "poolUuid"), scope));
+            }
+        }
+        return catalog;
+    }
+
+    protected JsonObject configurationOfferingCatalog(String uuid, JsonObject scope) {
+        com.cloud.storage.DiskOfferingVO offering = configurationDiskOfferingDao.findByUuid(uuid);
+        if (offering == null) throw new InvalidParameterValueException("Clone disk offering is unavailable");
+        com.cloud.user.AccountVO owner = accountDao.findById(scope.get("accountId").getAsLong());
+        DataCenterVO zone = dataCenterDao.findByUuid(scope.get("zoneUuid").getAsString());
+        configurationResourceManager.checkDiskOfferingAccess(owner, offering, zone);
+        JsonObject value = new JsonObject();
+        value.addProperty("uuid", uuid);
+        value.addProperty("active", offering.getRemoved() == null && "Active".equalsIgnoreCase(String.valueOf(offering.getState())) && !offering.isComputeOnly());
+        value.addProperty("accessible", true);
+        value.addProperty("customized", offering.isCustomized());
+        value.addProperty("storageType", offering.isUseLocalStorage() ? "local" : "shared");
+        value.addProperty("provisioningType", offering.getProvisioningType() == null ? "UNKNOWN" : offering.getProvisioningType().name());
+        value.addProperty("encrypted", offering.getEncrypt());
+        if (offering.isCustomized()) {
+            value.addProperty("minSizeGiB", org.apache.cloudstack.engine.orchestration.service.VolumeOrchestrationService.CustomDiskOfferingMinSize.value());
+            value.addProperty("maxSizeGiB", org.apache.cloudstack.engine.orchestration.service.VolumeOrchestrationService.CustomDiskOfferingMaxSize.value());
+        } else value.addProperty("sizeBytes", offering.getDiskSize());
+        value.addProperty("maxVolumeSizeGiB", org.apache.cloudstack.engine.orchestration.service.VolumeOrchestrationService.MaxVolumeSize.value());
+        JsonArray tags = new JsonArray();
+        for (String tag : new java.util.TreeSet<>(java.util.Arrays.asList(offering.getTagsArray()))) tags.add(tag);
+        value.add("tags", tags);
+        return value;
+    }
+
+    protected JsonObject configurationPoolCatalog(String uuid, JsonObject scope) {
+        org.apache.cloudstack.storage.datastore.db.StoragePoolVO pool = configurationStoragePoolDao.findByUuid(uuid);
+        if (pool == null || pool.getDataCenterId() != dataCenterDao.findByUuid(scope.get("zoneUuid").getAsString()).getId()) {
+            throw new InvalidParameterValueException("Clone primary storage is outside the target zone");
+        }
+        DataCenterVO zone = dataCenterDao.findById(pool.getDataCenterId());
+        configurationResourceManager.checkZoneAccess(accountDao.findById(scope.get("accountId").getAsLong()), zone);
+        JsonObject value = new JsonObject();
+        value.addProperty("uuid", uuid);
+        value.addProperty("zoneUuid", zone.getUuid());
+        value.addProperty("up", pool.getStatus() == com.cloud.storage.StoragePoolStatus.Up);
+        value.addProperty("accessible", true);
+        value.addProperty("supported", !pool.isLocal() && !pool.isManaged() && pool.getPoolType().isShared());
+        JsonArray tags = new JsonArray();
+        for (String tag : new java.util.TreeSet<>(configurationPoolTagsDao.getStoragePoolTags(pool.getId()))) tags.add(tag);
+        value.add("tags", tags);
+        return value;
+    }
+
+    protected boolean configurationVolumeReserved(long id) {
+        com.cloud.utils.db.SearchCriteria<SharedFSVO> search = sharedFSDao.createSearchCriteria();
+        search.addAnd("volumeId", com.cloud.utils.db.SearchCriteria.Op.EQ, id);
+        return !sharedFSDao.search(search, null).isEmpty();
+    }
+
+    protected JsonObject configurationVolumeProjection(VolumeVO volume) {
+        JsonObject value = new JsonObject();
+        value.addProperty("uuid", volume.getUuid());
+        value.addProperty("type", volume.getVolumeType().name());
+        value.addProperty("state", volume.getState().name());
+        value.addProperty("sizeBytes", volume.getSize());
+        value.addProperty("accountId", volume.getAccountId());
+        value.addProperty("domainId", volume.getDomainId());
+        value.add("projectId", configurationProjectId(volume.getAccountId()));
+        value.addProperty("zoneUuid", dataCenterDao.findById(volume.getDataCenterId()).getUuid());
+        org.apache.cloudstack.storage.datastore.db.StoragePoolVO pool = volume.getPoolId() == null ? null : configurationStoragePoolDao.findById(volume.getPoolId());
+        value.addProperty("poolUuid", pool == null ? null : pool.getUuid());
+        StorageServiceInstanceVO target = volume.getInstanceId() == null ? null : storageServiceInstanceDao.findByVmId(volume.getInstanceId());
+        value.addProperty("attachedInstanceUuid", target == null ? null : target.getUuid());
+        if (volume.getInstanceId() != null && target == null) value.addProperty("attachedInstanceUuid", "FOREIGN_VM");
+        value.addProperty("provisioningType", volume.getProvisioningType() == null ? "UNKNOWN" : volume.getProvisioningType().name());
+        JsonObject provenance = new JsonObject();
+        for (Map.Entry<String, String> detail : configurationVolumeDetailsDao.listDetailsKeyPairs(volume.getId()).entrySet()) {
+            if (detail.getKey().startsWith("storage.config.allocation.")) provenance.add(detail.getKey().substring("storage.config.allocation.".length()), com.google.gson.JsonParser.parseString(detail.getValue()));
+        }
+        if (!provenance.entrySet().isEmpty()) value.add("provenance", provenance);
+        return value;
+    }
+
+    protected JsonObject bindConfigurationVolumeExecution(StorageServiceInstanceVO target, StorageConfigArtifactVO artifact, JsonObject reviewed) {
+        StorageConfigArtifactVO current = storageConfigArtifactDao.findById(artifact.getId());
+        JsonObject metadata = parseJsonObject(current.getMetadataJson());
+        if (!target.getUuid().equals(getJsonString(metadata, "createdTargetInstanceUuid"))) throw new CloudRuntimeException("Clone target does not match the persisted creator receipt");
+        JsonObject actual = new JsonObject();
+        actual.addProperty("uuid", target.getUuid());actual.addProperty("accountId", target.getAccountId());actual.addProperty("domainId", target.getDomainId());actual.add("projectId", configurationProjectId(target.getAccountId()));actual.addProperty("zoneUuid", dataCenterDao.findById(target.getDataCenterId()).getUuid());
+        VolumeVO initial = configurationInitialVolume(target);
+        configurationVolumeId(target, initial.getUuid());
+        return StorageConfigurationVolumePlan.bindAdditionalExecution(reviewed, actual, configurationVolumeProjection(initial));
+    }
+
+    protected JsonObject prepareConfigurationVolumeAllocations(StorageServiceInstanceVO target,
+            StorageConfigArtifactVO artifact, JsonObject executionPlan) {
+        return StorageConfigurationVolumeAllocation.prepare(executionPlan, configurationVolumeAllocationRuntime(target, artifact));
+    }
+
+    protected StorageConfigurationVolumeAllocation.Runtime configurationVolumeAllocationRuntime(
+            StorageServiceInstanceVO target, StorageConfigArtifactVO artifact) {
+        return new StorageConfigurationVolumeAllocation.Runtime() {
+            public void validateAllocation(JsonObject allocation) {
+                StorageConfigArtifactVO current = storageConfigArtifactDao.findById(artifact.getId());
+                if (current == null || !current.getUuid().equals(getJsonString(allocation, "artifactUuid"))
+                        || !current.getSha256().equals(getJsonString(allocation, "artifactSha256"))
+                        || !target.getUuid().equals(getJsonString(allocation, "targetInstanceUuid"))) {
+                    throw new CloudRuntimeException("Clone allocation scope or artifact changed");
+                }
+                JsonObject actual = new JsonObject();
+                actual.addProperty("accountId", target.getAccountId());actual.addProperty("domainId", target.getDomainId());
+                actual.add("projectId", configurationProjectId(target.getAccountId()));
+                actual.addProperty("zoneUuid", dataCenterDao.findById(target.getDataCenterId()).getUuid());
+                StorageConfigurationVolumePlan.requireSameScope(allocation, actual);
+                JsonObject pool = configurationPoolCatalog(getJsonString(allocation, "poolUuid"), allocation);
+                if (!Boolean.TRUE.equals(getJsonBoolean(pool, "up")) || !Boolean.TRUE.equals(getJsonBoolean(pool, "supported"))) throw new CloudRuntimeException("Clone storage is no longer available");
+                if ("NEW".equals(getJsonString(allocation, "mode"))) {
+                    JsonObject offering = configurationOfferingCatalog(getJsonString(allocation, "offeringUuid"), allocation);
+                    if (!getJsonString(allocation, "offeringFingerprint").equals(StorageConfigurationVolumePlan.sha256(StorageConfigurationVolumePlan.canonical(offering)))
+                            || !getJsonString(allocation, "poolFingerprint").equals(StorageConfigurationVolumePlan.sha256(StorageConfigurationVolumePlan.canonical(pool)))) {
+                        throw new CloudRuntimeException("Clone offering or storage capabilities changed after review");
+                    }
+                    if (!Set.of("SPARSE", "FAT").contains(getJsonString(offering, "provisioningType"))) throw new CloudRuntimeException("New clone DATA must use SPARSE or FAT");
+                    if (volumeDao.findByUuid(getJsonString(allocation, "plannedUuid")) == null) {
+                        try {
+                            configurationResourceLimits.checkVolumeResourceLimit(accountDao.findById(target.getAccountId()), true,
+                                    allocation.get("sizeBytes").getAsLong(), configurationDiskOfferingDao.findByUuid(getJsonString(allocation, "offeringUuid")), Collections.emptyList());
+                        } catch (com.cloud.exception.ResourceAllocationException limit) {throw new CloudRuntimeException("Clone volume exceeds standard tenant quota", limit);}
+                    }
+                } else {
+                    VolumeVO selected = volumeDao.findByUuid(getJsonString(allocation, "plannedUuid"));
+                    if (selected == null || configurationVolumeReserved(selected.getId())) throw new CloudRuntimeException("Existing clone DATA is unavailable or reserved");
+                    validateStorageServiceBackingVolume(target, selected.getId(), "configuration clone");
+                }
+            }
+            public JsonObject loadReceipt(String uuid) {
+                StorageConfigArtifactVO current = storageConfigArtifactDao.findById(artifact.getId());
+                JsonObject metadata = parseJsonObject(current.getMetadataJson());
+                return metadata.has("receipts") && metadata.getAsJsonObject("receipts").has(uuid)
+                        ? metadata.getAsJsonObject("receipts").getAsJsonObject(uuid).deepCopy() : null;
+            }
+            public void saveReceipt(JsonObject expected, JsonObject replacement) {
+                Transaction.execute((TransactionCallback<Void>) status -> {
+                    StorageConfigArtifactVO locked = storageConfigArtifactDao.lockRow(artifact.getId(), true);
+                    configurationReceiptCompareAndSwap(locked, expected, replacement);
+                    return null;
+                });
+            }
+            public JsonObject findVolume(String uuid) {
+                VolumeVO volume = volumeDao.findByUuid(uuid);
+                return volume == null || volume.getRemoved() != null || volume.getState() == com.cloud.storage.Volume.State.Destroy ? null : configurationVolumeProjection(volume);
+            }
+            public void allocateAndRecord(JsonObject allocation, JsonObject intent, JsonObject allocated) {
+                Transaction.execute((TransactionCallback<Void>) status -> {
+                    StorageConfigArtifactVO locked = storageConfigArtifactDao.lockRow(artifact.getId(), true);
+                    JsonObject metadata = parseJsonObject(locked.getMetadataJson());
+                    String uuid = getJsonString(allocation, "plannedUuid");
+                    if (!metadata.has("receipts") || !intent.equals(metadata.getAsJsonObject("receipts").get(uuid))) throw new StorageConfigurationVolumeAllocation.ReceiptConflictException("Allocation intent changed before standard volume allocation");
+                    if (volumeDao.findByUuid(uuid) != null) throw new StorageConfigurationVolumeAllocation.ReceiptConflictException("Allocation UUID appeared before the transaction; refresh its full provenance");
+                    com.cloud.storage.DiskOfferingVO selected = configurationDiskOfferingDao.findByUuid(getJsonString(allocation, "offeringUuid"));
+                    com.cloud.storage.DiskOfferingVO lockedOffering = selected == null ? null : configurationDiskOfferingDao.lockRow(selected.getId(), true);
+                    if (lockedOffering == null || !(lockedOffering.getProvisioningType() == com.cloud.storage.Storage.ProvisioningType.SPARSE || lockedOffering.getProvisioningType() == com.cloud.storage.Storage.ProvisioningType.FAT)
+                            || !lockedOffering.getProvisioningType().name().equals(getJsonString(allocation, "provisioningType"))
+                            || !getJsonString(allocation, "offeringFingerprint").equals(StorageConfigurationVolumePlan.sha256(StorageConfigurationVolumePlan.canonical(configurationOfferingCatalog(getJsonString(allocation, "offeringUuid"), allocation))))) {
+                        throw new CloudRuntimeException("Locked clone offering changed after review; new THIN/unknown allocation is forbidden");
+                    }
+                    com.cloud.storage.Volume allocatedVolume;
+                    try {
+                        allocatedVolume = volumeApiService.allocVolume(target.getAccountId(), target.getDataCenterId(),
+                                lockedOffering.getId(), null, null,
+                                "storage-clone-" + uuid, allocation.has("cmdSizeGiB") ? allocation.get("cmdSizeGiB").getAsLong() : null,
+                                true, null, null, uuid, null);
+                    } catch (com.cloud.exception.ResourceAllocationException limit) {throw new CloudRuntimeException("Standard clone DATA allocation failed", limit);}
+                    VolumeVO volume = allocatedVolume == null ? null : volumeDao.findById(allocatedVolume.getId());
+                    if (volume == null || !uuid.equals(volume.getUuid())) throw new CloudRuntimeException("Standard allocation did not persist the planned DATA UUID");
+                    for (Map.Entry<String, JsonElement> field : allocation.entrySet()) {
+                        if (!field.getValue().isJsonPrimitive() && !field.getValue().isJsonNull()) throw new CloudRuntimeException("Allocation provenance must use exact bounded scalar fields");
+                        String value = field.getValue().toString();
+                        if (value.length() > 255) throw new CloudRuntimeException("Allocation provenance field exceeds its storage bound");
+                        configurationVolumeDetailsDao.addDetail(volume.getId(), "storage.config.allocation." + field.getKey(), value, false);
+                    }
+                    JsonObject persisted = configurationVolumeProjection(volume);
+                    if (!uuid.equals(volume.getUuid()) || !allocation.equals(persisted.get("provenance"))) throw new CloudRuntimeException("Standard volume allocation did not persist exact clone provenance");
+                    configurationReceiptCompareAndSwap(locked, intent, allocated);
+                    return null;
+                });
+            }
+            public void createPhysical(JsonObject allocation) {
+                VolumeVO volume = volumeDao.findByUuid(getJsonString(allocation, "plannedUuid"));
+                volumeApiService.createVolume(volume.getId(), null, null,
+                        configurationStoragePoolDao.findByUuid(getJsonString(allocation, "poolUuid")).getId(), true);
+            }
+            public void attach(JsonObject allocation) {
+                VolumeVO volume = volumeDao.findByUuid(getJsonString(allocation, "plannedUuid"));
+                volumeApiService.attachVolumeToVM(target.getVmId(), volume.getId(), null, true);
+            }
+            public JsonObject inspect(JsonObject allocation) {
+                return inspectConfigurationAllocation(target, allocation);
+            }
+            public JsonObject prepareFile(JsonObject allocation, String importMode) {
+                return prepareConfigurationAllocationFile(target, allocation, importMode);
+            }
+            public JsonObject cleanupSafety(JsonObject allocation) {
+                throw new CloudRuntimeException("Unpublished clone DATA cleanup is not exposed; default policy preserves all allocations");
+            }
+            public void deleteUnpublished(JsonObject allocation) {
+                throw new CloudRuntimeException("Unpublished clone DATA deletion is not authorized by the restore operation");
+            }
+        };
+    }
+
+    protected void configurationReceiptCompareAndSwap(StorageConfigArtifactVO locked, JsonObject expected, JsonObject replacement) {
+        if (locked == null) throw new StorageConfigurationVolumeAllocation.ReceiptConflictException("Configuration artifact is unavailable");
+        JsonObject metadata = parseJsonObject(locked.getMetadataJson());
+        JsonObject receipts = metadata.has("receipts") ? metadata.getAsJsonObject("receipts") : new JsonObject();
+        String uuid = getJsonString(replacement, "plannedUuid");
+        JsonElement observed = receipts.get(uuid);
+        if (expected == null ? observed != null : !expected.equals(observed)) throw new StorageConfigurationVolumeAllocation.ReceiptConflictException("Clone receipt changed during compare-and-swap");
+        receipts.add(uuid, replacement.deepCopy());metadata.add("receipts", receipts);
+        locked.setMetadataJson(metadata.toString());locked.setUpdated(new java.util.Date());
+        if (!storageConfigArtifactDao.update(locked.getId(), locked)) throw new CloudRuntimeException("Clone receipt persistence failed");
+    }
+
+    protected JsonObject inspectConfigurationAllocation(StorageServiceInstanceVO target, JsonObject allocation) {
+        JsonObject request = new JsonObject();
+        request.addProperty("instanceUuid", target.getUuid());request.addProperty("operationUuid", getJsonString(allocation, "allocationNamespace"));request.addProperty("templateUpgradeUuid", getJsonString(allocation, "artifactUuid"));
+        JsonObject disk = new JsonObject();disk.addProperty("volumeUuid", getJsonString(allocation, "plannedUuid"));disk.add("sizeBytes", allocation.get("sizeBytes"));disk.addProperty("kind", "BLOCK_RAW".equals(getJsonString(allocation, "usage")) ? "BLOCK_RAW" : "UNUSED");
+        JsonArray volumes = new JsonArray();volumes.add(disk);request.add("volumes", volumes);
+        JsonObject identities = StorageRootDataManifest.freeze(volumes, rootGuest(target, "operation root-data inspect", request, 5), Collections.emptyMap(), System.currentTimeMillis());
+        JsonObject actual = identities.getAsJsonArray("volumes").get(0).getAsJsonObject().deepCopy();
+        JsonObject payload = new JsonObject();payload.addProperty("volumeUuid", getJsonString(allocation, "plannedUuid"));
+        JsonObject history = rootGuest(target, "volume operation status", payload, 5);
+        JsonObject journal = history.has("operation") ? history.getAsJsonObject("operation") : new JsonObject();
+        boolean started = Boolean.TRUE.equals(getJsonBoolean(journal, "formatStarted"));
+        boolean active = Boolean.TRUE.equals(getJsonBoolean(history, "formatterActive"));
+        boolean pending = Boolean.TRUE.equals(getJsonBoolean(history, "terminationPending")) || Boolean.TRUE.equals(getJsonBoolean(journal, "terminationPending"));
+        boolean complete = StorageVolumePreparationProof.completionProven(history, actual);
+        if (started && (!history.has("formatterActive") || pending)) throw new CloudRuntimeException("Clone formatter status is unobserved or still terminating; DATA is preserved");
+        actual.addProperty("preparationStarted", started);actual.addProperty("preparationComplete", complete);actual.addProperty("formatterActive", active);
+        actual.addProperty("preparationVolumeUuid", getJsonString(journal, "volumeUuid"));
+        if (getJsonString(actual, "filesystemUuid") == null && !Boolean.TRUE.equals(getJsonBoolean(actual, "signatureObservationAvailable"))) actual.addProperty("blank", false);
+        return actual;
+    }
+
+    protected JsonObject prepareConfigurationAllocationFile(StorageServiceInstanceVO target, JsonObject allocation, String mode) {
+        VolumeVO volume = volumeDao.findByUuid(getJsonString(allocation, "plannedUuid"));
+        if ("FORMAT_IF_EMPTY".equals(mode)) requireSparseNewFilesystem(volume);
+        JsonObject payload = new JsonObject();
+        payload.addProperty("instanceUuid", target.getUuid());payload.addProperty("volumeUuid", volume.getUuid());payload.addProperty("volumeName", volume.getName());payload.addProperty("volumeSizeBytes", volume.getSize());
+        payload.addProperty("shareUuid", volume.getUuid());payload.addProperty("filesystem", getJsonString(allocation, "filesystem"));payload.addProperty("importMode", mode);
+        payload.addProperty("provisioningType", volume.getProvisioningType() == null ? "UNKNOWN" : volume.getProvisioningType().name());payload.addProperty("operationId", "volume-" + volume.getUuid());
+        StorageServiceOperationVO writer = storageWriterOperation.get();
+        if (writer == null) throw new CloudRuntimeException("Clone preparation requires its managed writer scope");
+        payload.addProperty("managerOperationUuid", writer.getUuid());payload.addProperty("managerRevision", writer.getRevision());
+        JsonObject config = new JsonObject();config.addProperty("volumeMountPath", "/srv/ablestack-storage/volumes/" + volume.getUuid());config.addProperty("relativeSharePath", "");config.addProperty("createDirectory", false);
+        JsonObject existing = configurationVolumeAllocationRuntime(target, storageConfigArtifactDao.findByUuid(getJsonString(allocation, "artifactUuid"))).loadReceipt(volume.getUuid());
+        if (existing != null && getJsonString(existing, "filesystemUuid") != null) config.add("filesystemUuid", existing.get("filesystemUuid"));
+        payload.add("config", config);
+        int timeout = backingVolumeFormatDeadline(volume.getSize());payload.addProperty("formatDeadlineSeconds", timeout);
+        JsonObject result = rootGuest(target, "volume attach inspect", payload, "FORMAT_IF_EMPTY".equals(mode) ? timeout + 120 : 60);
+        JsonObject fresh = inspectConfigurationAllocation(target, allocation);
+        if (!"VOLUME_SERIAL".equals(getJsonString(result, "matchedBy")) || !volume.getUuid().equals(getJsonString(result, "volumeUuid"))
+                || !java.util.Objects.equals(getJsonString(result, "filesystemUuid"), getJsonString(fresh, "filesystemUuid"))) throw new CloudRuntimeException("Clone preparation response disagrees with fresh exact DATA identity");
+        return fresh;
+    }
+
     protected void preflightConfigurationAdditionalVolumes(JsonObject blueprint, JsonObject mappings, String initialSource) {
         org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd create = configurationCreateCommand(blueprint);
         org.apache.cloudstack.storage.sharedfs.SharedFS proposed = configurationSharedFsService.preflightSharedFS(create);
@@ -1285,7 +1599,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         VolumeVO volume = configurationInitialVolume(instance);
         configurationVolumeId(instance, volume.getUuid());
         boolean existing = "EXISTING".equals(getJsonString(blueprint, "backingvolumemode"));
-        JsonObject payload = new JsonObject();payload.addProperty("shareUuid", instance.getUuid());
+        JsonObject payload = new JsonObject();payload.addProperty("shareUuid", instance.getUuid());payload.addProperty("instanceUuid", instance.getUuid());
         payload.addProperty("volumeUuid", volume.getUuid());payload.addProperty("volumeName", volume.getName());
         payload.addProperty("volumeSizeBytes", volume.getSize());payload.addProperty("filesystem", getJsonString(blueprint, "filesystem"));
         payload.addProperty("mountPath", "/srv/ablestack-storage/volumes/" + volume.getUuid());
@@ -1921,6 +2235,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         }
                     }
                     public void ensureRollbackSafe() {
+                        if (instance.getVmId() == null) return;
                         JsonObject observed=rootGuest(instance,"operation writer-idle",new JsonObject(),15);
                         if(!"WRITER_IDLE".equals(getJsonString(observed,"status")))throw new CloudRuntimeException("Active or terminating native formatter preserves VM/DATA and requires forward recovery; rollback is deferred");
                         requireNoPendingVolumeFormatter(instance);
@@ -3350,6 +3665,20 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         JsonObject idle=rootGuest(instance,"operation writer-idle",new JsonObject(),15);
         if(!"WRITER_IDLE".equals(getJsonString(idle,"status")))throw new CloudRuntimeException("A native formatter/writer is active; resume cannot run concurrently");
     }
+    protected void requireVolumeFormatterCompletion(StorageServiceInstanceVO instance, VolumeVO volume) {
+        JsonObject payload = new JsonObject();payload.addProperty("volumeUuid", volume.getUuid());
+        JsonObject history = rootGuest(instance, "volume operation status", payload, 5);
+        JsonObject request = new JsonObject();request.addProperty("instanceUuid", instance.getUuid());
+        request.addProperty("operationUuid", java.util.UUID.randomUUID().toString());
+        request.addProperty("templateUpgradeUuid", java.util.UUID.randomUUID().toString());
+        JsonObject disk = new JsonObject();disk.addProperty("volumeUuid", volume.getUuid());
+        disk.addProperty("sizeBytes", volume.getSize());disk.addProperty("kind", "UNUSED");
+        JsonArray volumes = new JsonArray();volumes.add(disk);request.add("volumes", volumes);
+        JsonObject observed = StorageRootDataManifest.freeze(volumes, rootGuest(instance, "operation root-data inspect", request, 5),
+                Collections.emptyMap(), System.currentTimeMillis());
+        StorageVolumePreparationProof.requireCompleted(history, observed.getAsJsonArray("volumes").get(0).getAsJsonObject());
+    }
+
     protected void recoverVolumePreparation(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
         if(!"VOLUME_PREPARATION_RESUME".equals(operation.getAction()))throw new InvalidParameterValueException("Not a forward volume resume operation");
         JsonObject scope=parseJsonObject(operation.getPreviousSnapshotJson());VolumeVO volume=requireVolume(getJsonLong(scope,"volumeId"));validateVolumeResumeScope(instance,volume);
@@ -3357,6 +3686,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 || !java.util.Objects.equals(getJsonString(scope,"provisioningType"),volume.getProvisioningType()==null?"UNKNOWN":volume.getProvisioningType().name()))throw new InvalidParameterValueException("Pinned resume DATA UUID or size changed");
         requireVolumeResumeIdle(instance,operation);beginStorageWriterHeartbeat(operation);
         try {
+            requireVolumeFormatterCompletion(instance, volume);
             operation.setState("RUNNING");operation.setPhase("VERIFYING_EXISTING_FILESYSTEM");operation.setProgress(20);operation.setHeartbeat(new java.util.Date());if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Unable to persist forward resume intent");
             JsonObject request=scope.deepCopy();request.addProperty("instanceUuid",instance.getUuid());request.addProperty("managerOperationUuid",operation.getUuid());request.addProperty("operationUuid",operation.getUuid());request.addProperty("revision",operation.getRevision());request.addProperty("resumeOnly",true);request.addProperty("importMode","MOUNT_EXISTING");
             JsonObject nativeResult=rootGuest(instance,"volume operation resume",request,120);
@@ -3392,6 +3722,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             JsonObject observed=StorageRootDataManifest.freeze(volumes,rootGuest(instance,"operation root-data inspect",request,5),Collections.emptyMap(),System.currentTimeMillis());
             result.add("currentIdentity",observed.getAsJsonArray("volumes").get(0));result.addProperty("currentIdentityStatus","EXACT");result.addProperty("observedEpoch",observed.get("generatedEpoch").getAsDouble());
         } catch(RuntimeException unavailable) {result.addProperty("currentIdentityStatus","UNAVAILABLE");result.addProperty("currentIdentityDiagnostic","Fresh exact serial and filesystem observation is unavailable; historical journal paths cannot be used as a resume device");}
+        StorageVolumePreparationProof.project(result, result.has("currentIdentity") ? result.getAsJsonObject("currentIdentity") : null);
         return createRuntimeResponse(instance,"volume operation status",history.isSuccess(),history.isSuccess()?"OBSERVED":"ERROR",history.getDetails(),result.toString());
     }
 

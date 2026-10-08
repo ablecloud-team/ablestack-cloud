@@ -84,6 +84,8 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
     @Inject private StorageServiceRuntimeHostDispatcher runtimeDispatcher;
     @Inject private StorageServiceGuestCommandDispatcher guestCommandDispatcher;
     @Inject private VMInstanceDao vmInstanceDao;
+    @Inject private com.cloud.host.dao.HostDao runtimeHostDao;
+    @Inject private com.cloud.storage.dao.VolumeDao runtimeVolumeDao;
     @Inject private org.apache.cloudstack.storage.dataservice.dao.StorageFileShareDao fileShareDao;
     @Inject private org.apache.cloudstack.storage.dataservice.dao.StorageServiceProtocolDao protocolDao;
     @Inject private org.apache.cloudstack.storage.dataservice.dao.StorageAccessRuleDao accessRuleDao;
@@ -124,6 +126,165 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         if (bundle==null || bundle.getState()!=StorageServiceRuntimeBundleVO.State.AVAILABLE || !runtimePin(bundle).equals(pin)) throw new CloudRuntimeException("Pinned ROOT runtime catalog provenance changed or was revoked");
         return bundle;
     }
+
+    /** Runtime mutation must not turn an incomplete/orphan formatter journal into implicit approval. */
+    protected void requireRuntimeActivationSafety(StorageServiceInstanceVO instance) {
+        for (com.cloud.storage.VolumeVO volume : runtimeVolumeDao.findByInstanceAndType(instance.getVmId(), com.cloud.storage.Volume.Type.DATADISK)) {
+            if (volume.getVolumeType() != com.cloud.storage.Volume.Type.DATADISK || volume.getState() != com.cloud.storage.Volume.State.Ready
+                    || volume.getRemoved() != null || !java.util.Objects.equals(volume.getInstanceId(), instance.getVmId())
+                    || volume.getAccountId() != instance.getAccountId() || volume.getDataCenterId() != instance.getDataCenterId()) {
+                throw new CloudRuntimeException("Attached DATA formatter scope is unavailable; preserve VM/DATA");
+            }
+            UUID.fromString(volume.getUuid());JsonObject payload = new JsonObject();payload.addProperty("volumeUuid", volume.getUuid());
+            StorageServiceGuestCommandResult status = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
+                    "volume operation status", payload.toString(), 5, Collections.emptySet()));
+            if (status == null || !status.isSuccess() || status.getResultJson() == null || status.getResultJson().isBlank()) {
+                throw new CloudRuntimeException("Formatter journal is unobserved; runtime mutation must preserve VM/DATA");
+            }
+            StorageFormatterLifecycleGate.requireIdle(JsonParser.parseString(status.getResultJson()).getAsJsonObject());
+        }
+    }
+
+    /** Only server/agent platform versions and the current protected guest manifest are observations. */
+    protected JsonObject freshConsumerObservation(StorageServiceInstanceVO instance) {
+        VMInstanceVO vm = vmInstanceDao.findById(instance.getVmId());
+        com.cloud.host.HostVO host = vm == null || vm.getHostId() == null ? null : runtimeHostDao.findById(vm.getHostId());
+        JsonObject caps = invoke(instance, StorageServiceRuntimeOperation.CAPABILITIES, "consumer-" + UUID.randomUUID(), null);
+        VMInstanceVO currentVm = vmInstanceDao.findById(instance.getVmId());
+        com.cloud.host.HostVO currentHost = currentVm == null || currentVm.getHostId() == null ? null : runtimeHostDao.findById(currentVm.getHostId());
+        if (vm == null || currentVm == null || !java.util.Objects.equals(vm.getHostId(), currentVm.getHostId())
+                || !java.util.Objects.equals(host == null ? null : host.getVersion(), currentHost == null ? null : currentHost.getVersion())) {
+            throw new CloudRuntimeException("Runtime agent binding changed during fresh consumer observation");
+        }
+        JsonObject observation = new JsonObject();
+        observation.add("managerVersion", nullableVersion(com.cloud.server.ManagementServer.class.getPackage().getImplementationVersion()));
+        observation.add("agentVersion", nullableVersion(host == null ? null : host.getVersion()));
+        boolean helperVerified = Boolean.TRUE.equals(booleanValue(caps, "signedRuntimeReadback"))
+                && sha256(resource("/storage-runtime/bootstrap/runtime_updater.py")).equals(stringValue(caps, "updaterSha256"));
+        boolean recorded = helperVerified && caps.has("platformVersionKnown") && caps.get("platformVersionKnown").isJsonPrimitive()
+                && caps.get("platformVersionKnown").getAsJsonPrimitive().isBoolean() && caps.has("platformVersion");
+        boolean claimedKnown = recorded && Boolean.TRUE.equals(booleanValue(caps, "platformVersionKnown"));
+        boolean known = claimedKnown && validDigest(stringValue(caps, "templateManifestSha256"))
+                && stringValue(caps, "platformVersion") != null
+                && java.util.Objects.equals(stringValue(caps, "platformVersion"), stringValue(caps, "productVersion"));
+        if ((claimedKnown && !known) || (recorded && !claimedKnown && !caps.get("platformVersion").isJsonNull())) recorded = false;
+        observation.add("templatePlatformVersion", nullableVersion(known ? stringValue(caps, "platformVersion") : null));
+        observation.addProperty("platformVersionKnown", known);
+        observation.addProperty("platformObservationRecorded", recorded);
+        observation.addProperty("updaterVerified", helperVerified);
+        observation.add("templateManifestSha256", nullableVersion(known ? stringValue(caps, "templateManifestSha256") : null));
+        observation.addProperty("observedAtMillis", System.currentTimeMillis());
+        return observation;
+    }
+
+    protected JsonObject sourceRootBinding(StorageServiceInstanceVO instance) {
+        VMInstanceVO vm = vmInstanceDao.findById(instance.getVmId());
+        List<com.cloud.storage.VolumeVO> roots = runtimeVolumeDao.findByInstanceAndType(instance.getVmId(), com.cloud.storage.Volume.Type.ROOT);
+        if (vm == null || roots.size() != 1) throw new CloudRuntimeException("Exactly one current ROOT is required for signed runtime provenance");
+        com.cloud.storage.VolumeVO root = roots.get(0);
+        if (root.getVolumeType() != com.cloud.storage.Volume.Type.ROOT || root.getState() != com.cloud.storage.Volume.State.Ready || root.getRemoved() != null
+                || !java.util.Objects.equals(root.getInstanceId(), instance.getVmId()) || root.getAccountId() != instance.getAccountId()
+                || root.getDataCenterId() != instance.getDataCenterId() || root.getTemplateId() == null || root.getTemplateId() != vm.getTemplateId()
+                || root.getUuid() == null || instance.getUuid() == null) throw new CloudRuntimeException("ROOT runtime provenance binding is unavailable");
+        JsonObject binding = new JsonObject();binding.addProperty("instanceUuid", instance.getUuid());binding.addProperty("vmId", vm.getId());
+        binding.addProperty("rootVolumeId", root.getId());binding.addProperty("rootVolumeUuid", root.getUuid());binding.addProperty("templateId", vm.getTemplateId());
+        binding.addProperty("accountId", instance.getAccountId());binding.addProperty("zoneId", instance.getDataCenterId());return binding;
+    }
+
+    protected JsonObject versionCompatibility(StorageServiceInstanceVO instance, JsonObject manifest,
+            StorageRuntimeVersionCompatibility.Mode mode, StorageRuntimeVersionCompatibility.RetainedPreviousEvidence evidence) {
+        JsonObject observation = freshConsumerObservation(instance);
+        JsonObject verdict = StorageRuntimeVersionCompatibility.evaluate(manifest, stringValue(observation, "managerVersion"),
+                stringValue(observation, "agentVersion"), stringValue(observation, "templatePlatformVersion"), mode, evidence);
+        verdict.add("observation", observation);StorageRuntimeVersionCompatibility.requireCompatible(verdict);return verdict;
+    }
+
+    private JsonObject signedManifest(StorageServiceRuntimeBundleVO bundle) {
+        return new StorageServiceRuntimeBundleVerifier().verify(bundle, download(bundle.getArtifactUrl(), MAX_BUNDLE_BYTES),
+                download(bundle.getManifestUrl(), MAX_MANIFEST_BYTES), download(bundle.getSignatureUrl(), MAX_SIGNATURE_BYTES),
+                trustedKey(bundle.getSigningKeyId())).getAsJsonObject("manifest");
+    }
+
+    private JsonObject installedCheckpoint(StorageServiceInstanceVO instance, StorageServiceRuntimeBundleVO bundle, String transactionScope) {
+        if (instance.getCurrentRuntimeBundleId() == null || instance.getCurrentRuntimeBundleId() != bundle.getId()
+                || instance.getRuntimeVerifiedAt() == null || instance.getRuntimeVerifiedAt().getTime() <= 0) {
+            throw new CloudRuntimeException("Installed runtime lacks its approved signed LKG receipt");
+        }
+        JsonObject binding = sourceRootBinding(instance);JsonObject observation = freshConsumerObservation(instance);
+        if (!Boolean.TRUE.equals(booleanValue(observation, "updaterVerified"))) throw new CloudRuntimeException("Fresh source platform observer provenance is unavailable");
+        if (!sourceRootBinding(instance).equals(binding)) throw new CloudRuntimeException("ROOT changed during fresh runtime observation");
+        String helper = requireTemplateRuntimeHelper(instance);
+        JsonObject verification = stagePinnedRuntime(instance, bundle, transactionScope, "source", false);
+        if (!helper.equals(stringValue(verification, "updaterSha256")) || !sourceRootBinding(instance).equals(binding)) {
+            throw new CloudRuntimeException("Source ROOT or updater changed during installed LKG checkpoint");
+        }
+        JsonObject pin = runtimePin(bundle), approved = pin.deepCopy();approved.addProperty("verifiedAtMillis", instance.getRuntimeVerifiedAt().getTime());
+        JsonObject checkpoint = new JsonObject();checkpoint.add("pin", pin);checkpoint.addProperty("updaterSha256", helper);
+        checkpoint.add("sourceRootBinding", binding);checkpoint.add("consumerObservation", observation);checkpoint.add("approvedInstalledLkg", approved);
+        checkpoint.add("verification", verification);return checkpoint;
+    }
+
+    protected StorageRuntimeVersionCompatibility.RetainedPreviousEvidence retainedPreviousEvidence(StorageServiceInstanceVO instance,
+            StorageServiceRuntimeBundleVO bundle, JsonObject checkpoint, Long expectedRootId, Long expectedTemplateId) {
+        if (checkpoint == null || !checkpoint.has("pin") || !runtimePin(bundle).equals(checkpoint.get("pin"))
+                || !checkpoint.has("sourceRootBinding") || !sourceRootBinding(instance).equals(checkpoint.get("sourceRootBinding"))) {
+            throw new CloudRuntimeException("Retained previous runtime belongs to another pin or ROOT binding");
+        }
+        JsonObject binding = checkpoint.getAsJsonObject("sourceRootBinding");
+        if ((expectedRootId != null && binding.get("rootVolumeId").getAsLong() != expectedRootId)
+                || (expectedTemplateId != null && binding.get("templateId").getAsLong() != expectedTemplateId)) {
+            throw new CloudRuntimeException("Retained previous runtime is not the original ROOT");
+        }
+        JsonObject approved = checkpoint.has("approvedInstalledLkg") ? checkpoint.getAsJsonObject("approvedInstalledLkg").deepCopy() : null;
+        if (approved == null || !approved.has("verifiedAtMillis") || approved.get("verifiedAtMillis").getAsLong() <= 0) {
+            throw new CloudRuntimeException("Retained previous runtime lacks a protected LKG approval receipt");
+        }
+        approved.remove("verifiedAtMillis");
+        if (!runtimePin(bundle).equals(approved) || !checkpoint.has("verification") || !checkpoint.has("consumerObservation")) {
+            throw new CloudRuntimeException("Retained previous runtime protected approval provenance differs");
+        }
+        JsonObject verification = requireRuntimeReadback(checkpoint.getAsJsonObject("verification"), bundle);
+        if (!validDigest(stringValue(checkpoint, "updaterSha256"))
+                || !sha256(resource("/storage-runtime/bootstrap/runtime_updater.py")).equals(stringValue(checkpoint, "updaterSha256"))
+                || !java.util.Objects.equals(stringValue(checkpoint, "updaterSha256"), stringValue(verification, "updaterSha256"))) {
+            throw new CloudRuntimeException("Retained previous runtime readback helper provenance differs");
+        }
+        JsonObject observation = checkpoint.getAsJsonObject("consumerObservation");
+        if (!observation.has("observedAtMillis") || observation.get("observedAtMillis").getAsLong() <= 0
+                || !Boolean.TRUE.equals(booleanValue(observation, "updaterVerified"))) throw new CloudRuntimeException("Retained source consumer observation is not protected");
+        boolean originalUnknown = Boolean.TRUE.equals(booleanValue(observation, "platformObservationRecorded")) && !Boolean.TRUE.equals(booleanValue(observation, "platformVersionKnown"))
+                && observation.has("templatePlatformVersion") && observation.get("templatePlatformVersion").isJsonNull();
+        return new StorageRuntimeVersionCompatibility.RetainedPreviousEvidence(bundle.getVersion(), bundle.getManifestSha256(),
+                stringValue(verification, "manifestSha256"), bundle.getSha256(), stringValue(verification, "archiveSha256"), true, true, true, true, originalUnknown);
+    }
+
+    private JsonObject originalRootCheckpoint(StorageServiceInstanceVO instance, StorageServiceRuntimeBundleVO bundle) {
+        StorageServiceTemplateUpgradeVO root = rootUpgradeDao.findActive(instance.getId());
+        if (root == null || root.getSnapshotJson() == null) throw new CloudRuntimeException("Original source ROOT runtime checkpoint is unavailable");
+        JsonObject snapshot = JsonParser.parseString(root.getSnapshotJson()).getAsJsonObject();
+        JsonObject checkpoint = snapshot.has("sourceSignedRuntime") ? snapshot.getAsJsonObject("sourceSignedRuntime") : snapshot.getAsJsonObject("signedRuntime");
+        retainedPreviousEvidence(instance, bundle, checkpoint, root.getPreviousRootVolumeId(), root.getSourceTemplateId());return checkpoint;
+    }
+    private JsonObject genericRollbackCompatibility(StorageServiceInstanceVO instance, StorageServiceRuntimeUpgradeVO upgrade,
+            StorageServiceRuntimeBundleVO previous) {
+        if (previous == null || upgrade.getPreviousBundleId() == null || upgrade.getPreviousBundleId() != previous.getId()) {
+            throw new CloudRuntimeException("Rollback destination differs from this upgrade's original previous bundle");
+        }
+        requireBundle(previous.getId());
+        JsonObject preflight = upgrade.getPreflightJson() == null ? null : JsonParser.parseString(upgrade.getPreflightJson()).getAsJsonObject();
+        JsonObject checkpoint = preflight == null ? null : preflight.getAsJsonObject("sourceSignedRuntime");
+        JsonObject manifest = signedManifest(previous);StorageRuntimeFeatureCompatibility.require(manifest, requiredRuntimeFeatures(instance));
+        StorageRuntimeVersionCompatibility.RetainedPreviousEvidence evidence = retainedPreviousEvidence(instance, previous, checkpoint, null, null);
+        return versionCompatibility(instance, manifest, StorageRuntimeVersionCompatibility.Mode.RETAINED_PREVIOUS_ROLLBACK, evidence);
+    }
+    private JsonObject verifyGenericPrevious(StorageServiceInstanceVO instance, StorageServiceRuntimeUpgradeVO upgrade, StorageServiceRuntimeBundleVO previous) {
+        String transaction = "root-source-" + upgrade.getTransactionId();JsonObject request = runtimePin(previous);request.addProperty("transactionId", transaction);
+        return requireRuntimeReadback(invoke(instance, StorageServiceRuntimeOperation.READBACK, transaction, request), previous);
+    }
+
+    private static com.google.gson.JsonElement nullableVersion(String value) {return value == null ? com.google.gson.JsonNull.INSTANCE : new com.google.gson.JsonPrimitive(value);}
+    private static boolean validDigest(String value) {return value != null && value.matches("[a-f0-9]{64}");}
+
     @Override public JsonObject templateRuntimeCapabilities(long instanceId) {
         StorageServiceInstanceVO instance=instanceDao.findById(instanceId);
         if (instance==null || instance.getVmId()==null) throw new CloudRuntimeException("ROOT runtime VM is unavailable");
@@ -139,8 +300,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
     @Override public JsonObject checkpointTemplateRuntime(long instanceId,String rootOperationUuid) {
         StorageServiceInstanceVO instance=rootRuntimeScope(instanceId,rootOperationUuid);
         if (instance.getCurrentRuntimeBundleId()==null || instance.getRuntimeVerifiedAt()==null) throw new CloudRuntimeException("Source ROOT has no previously verified signed runtime bundle");
-        String helperSha=requireTemplateRuntimeHelper(instance);StorageServiceRuntimeBundleVO bundle=requireBundle(instance.getCurrentRuntimeBundleId());JsonObject pin=runtimePin(bundle);
-        JsonObject result=new JsonObject();result.add("pin",pin);result.addProperty("updaterSha256",helperSha);result.add("verification",stagePinnedRuntime(instance,bundle,rootOperationUuid,"source",false));return result;
+        return installedCheckpoint(instance, requireBundle(instance.getCurrentRuntimeBundleId()), rootOperationUuid);
     }
     @Override public JsonObject restoreTemplateRuntime(long instanceId,JsonObject pin,String rootOperationUuid,String direction) {
         StorageServiceInstanceVO instance=rootRuntimeScope(instanceId,rootOperationUuid);
@@ -172,6 +332,11 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         byte[] archive=download(bundle.getArtifactUrl(),MAX_BUNDLE_BYTES),manifest=download(bundle.getManifestUrl(),MAX_MANIFEST_BYTES),signature=download(bundle.getSignatureUrl(),MAX_SIGNATURE_BYTES);
         JsonObject verified=new StorageServiceRuntimeBundleVerifier().verify(bundle,archive,manifest,signature,trustedKey(bundle.getSigningKeyId()));
         StorageRuntimeFeatureCompatibility.require(verified.getAsJsonObject("manifest"),requiredRuntimeFeatures(instance));
+        JsonObject checkpoint = activate && "previous".equals(direction) ? originalRootCheckpoint(instance, bundle) : null;
+        StorageRuntimeVersionCompatibility.Mode mode = checkpoint == null ? StorageRuntimeVersionCompatibility.Mode.NEW_ACTIVATION : StorageRuntimeVersionCompatibility.Mode.RETAINED_PREVIOUS_ROLLBACK;
+        StorageRuntimeVersionCompatibility.RetainedPreviousEvidence evidence = checkpoint == null ? null : retainedPreviousEvidence(instance, bundle, checkpoint, null, null);
+        JsonObject compatibility = activate ? versionCompatibility(instance, verified.getAsJsonObject("manifest"), mode, evidence) : null;
+        requireRuntimeActivationSafety(instance);
         String transaction="root-"+direction+"-"+operationUuid;ensureBootstrap(instance,bundle,transaction);
         JsonObject request=runtimePin(bundle);request.addProperty("transactionId",transaction);request.addProperty("totalSize",archive.length);request.addProperty("manifestSize",manifest.length);request.addProperty("signatureSize",signature.length);
         JsonObject started=invoke(instance,StorageServiceRuntimeOperation.BEGIN,transaction,request);String phase=started.has("phase")?started.get("phase").getAsString():null;
@@ -180,11 +345,17 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
             invoke(instance,StorageServiceRuntimeOperation.FINALIZE,transaction,request);invoke(instance,StorageServiceRuntimeOperation.VERIFY,transaction,request);phase="VERIFIED";
         }
         if (activate && ("VERIFIED".equals(phase) || "PREFLIGHT_OK".equals(phase))) {
-            invoke(instance,StorageServiceRuntimeOperation.PREFLIGHT,transaction,request);invoke(instance,StorageServiceRuntimeOperation.ACTIVATE,transaction,request);
+            invoke(instance,StorageServiceRuntimeOperation.PREFLIGHT,transaction,request);
+            pinnedBundle(runtimePin(bundle));StorageRuntimeFeatureCompatibility.require(verified.getAsJsonObject("manifest"),requiredRuntimeFeatures(instance));
+            compatibility = versionCompatibility(instance, verified.getAsJsonObject("manifest"), mode, evidence);
+            requireRuntimeActivationSafety(instance);invoke(instance,StorageServiceRuntimeOperation.ACTIVATE,transaction,request);
         } else if (activate && ("ACTIVATING".equals(phase) || "COMPLETE".equals(phase))) {
-            invoke(instance,StorageServiceRuntimeOperation.ACTIVATE,transaction,request);
+            pinnedBundle(runtimePin(bundle));StorageRuntimeFeatureCompatibility.require(verified.getAsJsonObject("manifest"),requiredRuntimeFeatures(instance));
+            compatibility = versionCompatibility(instance, verified.getAsJsonObject("manifest"), mode, evidence);
+            requireRuntimeActivationSafety(instance);invoke(instance,StorageServiceRuntimeOperation.ACTIVATE,transaction,request);
         }
-        return requireRuntimeReadback(invoke(instance,StorageServiceRuntimeOperation.READBACK,transaction,request),bundle);
+        JsonObject readback = requireRuntimeReadback(invoke(instance,StorageServiceRuntimeOperation.READBACK,transaction,request),bundle);
+        if (compatibility != null) readback.add("consumerCompatibility", compatibility);return readback;
     }
 
     @Override
@@ -357,6 +528,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
             response.setRuntimeAbiVersion(stringValue(result, "runtimeAbiVersion"));
             response.setDesiredStateSchemaVersion(stringValue(result, "desiredStateSchemaVersion"));
             response.setEntrypointsManaged(booleanValue(result, "entrypointsManaged"));
+            response.setConsumerObservation(freshConsumerObservation(instance).toString());
             response.setDetails("Runtime updater is available");
         } catch (final RuntimeException error) {
             response.setAvailable(false);
@@ -387,6 +559,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
 
     private StorageServiceRuntimeUpgradeResponse doPreflight(final PreflightStorageServiceRuntimeUpgradeCmd cmd) {
         final StorageServiceInstanceVO instance = requireInstance(cmd.getSharedFileSystemId());
+        requireRuntimeActivationSafety(instance);
         final StorageServiceRuntimeBundleVO bundle = requireBundle(cmd.getBundleId());
         if (bundle.getServiceImpact() != StorageServiceRuntimeBundleVO.ServiceImpact.NONE) {
             throw new CloudRuntimeException("Runtime bundle requires SystemVM template maintenance: " + bundle.getServiceImpact());
@@ -410,6 +583,9 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
             final JsonObject verified = new StorageServiceRuntimeBundleVerifier().verify(bundle, archive, manifest, signature,
                     trustedKey(bundle.getSigningKeyId()));
             StorageRuntimeFeatureCompatibility.require(verified.getAsJsonObject("manifest"), requiredRuntimeFeatures(instance));
+            final JsonObject consumerCompatibility = versionCompatibility(instance, verified.getAsJsonObject("manifest"), StorageRuntimeVersionCompatibility.Mode.NEW_ACTIVATION, null);
+            final JsonObject sourceCheckpoint = instance.getCurrentRuntimeBundleId() == null ? null
+                    : installedCheckpoint(instance, requireBundle(instance.getCurrentRuntimeBundleId()), transactionId);
             if (bundle.getArtifactSize() != null && bundle.getArtifactSize() != archive.length) {
                 throw new CloudRuntimeException("Runtime bundle size differs from registered metadata");
             }
@@ -430,6 +606,8 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
             update(upgrade, StorageServiceRuntimeUpgradeVO.State.RUNNING, "VERIFYING", 55);
             invoke(instance, StorageServiceRuntimeOperation.VERIFY, transactionId, request(upgrade, bundle));
             final JsonObject result = invoke(instance, StorageServiceRuntimeOperation.PREFLIGHT, transactionId, request(upgrade, bundle));
+            result.add("targetRuntimePin", runtimePin(bundle));result.add("consumerCompatibility", consumerCompatibility);
+            if (sourceCheckpoint != null) result.add("sourceSignedRuntime", sourceCheckpoint);
             upgrade.setPreflightJson(result.toString());
             update(upgrade, StorageServiceRuntimeUpgradeVO.State.PREFLIGHT_READY, "PREFLIGHT_OK", 60);
             return upgradeResponse(upgrade);
@@ -453,6 +631,17 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         final StorageServiceInstanceVO instance = instanceDao.findById(upgrade.getInstanceId());
         final StorageServiceRuntimeBundleVO bundle = requireBundle(upgrade.getBundleId());
         try {
+            JsonObject preflight = upgrade.getPreflightJson() == null ? null : JsonParser.parseString(upgrade.getPreflightJson()).getAsJsonObject();
+            if (preflight == null || !preflight.has("targetRuntimePin") || !runtimePin(bundle).equals(preflight.get("targetRuntimePin"))) {
+                throw new CloudRuntimeException("Runtime activation differs from its protected preflight pin");
+            }
+            if (preflight.has("sourceSignedRuntime") && !sourceRootBinding(instance).equals(preflight.getAsJsonObject("sourceSignedRuntime").get("sourceRootBinding"))) {
+                throw new CloudRuntimeException("Source ROOT changed after runtime preflight");
+            }
+            JsonObject manifest = signedManifest(bundle);StorageRuntimeFeatureCompatibility.require(manifest, requiredRuntimeFeatures(instance));
+            JsonObject compatibility = versionCompatibility(instance, manifest, StorageRuntimeVersionCompatibility.Mode.NEW_ACTIVATION, null);
+            pinnedBundle(runtimePin(bundle));
+            requireRuntimeActivationSafety(instance);
             update(upgrade, StorageServiceRuntimeUpgradeVO.State.RUNNING, "ACTIVATING", 70);
             final JsonObject activated = invoke(instance, StorageServiceRuntimeOperation.ACTIVATE,
                     upgrade.getTransactionId(), request(upgrade, bundle));
@@ -460,8 +649,11 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
             final StorageServiceGuestCommandResult health = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(
                     instance.getVmId(), "operation verify", "", StorageServiceInstance.StorageServiceCommandTimeout.value(), Collections.emptySet()));
             if (!runtimeHealthVerified(health)) {
+                StorageServiceRuntimeBundleVO previous = upgrade.getPreviousBundleId() == null ? null : bundleDao.findById(upgrade.getPreviousBundleId());
+                JsonObject rollbackCompatibility = genericRollbackCompatibility(instance, upgrade, previous);requireRuntimeActivationSafety(instance);
                 final JsonObject rolledBack = invoke(instance, StorageServiceRuntimeOperation.ROLLBACK,
                         upgrade.getTransactionId(), request(upgrade, bundle));
+                rolledBack.add("consumerCompatibility", rollbackCompatibility);rolledBack.add("installedPreviousReadback", verifyGenericPrevious(instance, upgrade, previous));
                 upgrade.setRollbackResultJson(rolledBack.toString());
                 update(upgrade, StorageServiceRuntimeUpgradeVO.State.ROLLED_BACK, "ROLLED_BACK", 100);
                 throw new CloudRuntimeException("Runtime activation health verification failed and previous runtime was restored: " + health.getDetails());
@@ -473,7 +665,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
             instance.setRuntimeVerifiedAt(new Date());
             instanceDao.update(instance.getId(), instance);
             final JsonObject verification = new JsonObject();
-            verification.add("activation", activated);
+            verification.add("activation", activated);verification.add("consumerCompatibility", compatibility);
             verification.addProperty("healthSuccess", true);
             verification.addProperty("healthResult", health.getResultJson());
             upgrade.setVerificationJson(verification.toString());
@@ -501,14 +693,13 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
             throw new CloudRuntimeException("Rollback destination is revoked or unavailable");
         }
         if (previous == null) throw new CloudRuntimeException("No previous runtime bundle is available");
-        final byte[] previousArchive = download(previous.getArtifactUrl(), MAX_BUNDLE_BYTES);
-        final byte[] previousManifest = download(previous.getManifestUrl(), MAX_MANIFEST_BYTES);
-        final byte[] previousSignature = download(previous.getSignatureUrl(), MAX_SIGNATURE_BYTES);
-        final JsonObject previousVerified = new StorageServiceRuntimeBundleVerifier().verify(previous, previousArchive, previousManifest, previousSignature,
-                trustedKey(previous.getSigningKeyId()));
-        StorageRuntimeFeatureCompatibility.require(previousVerified.getAsJsonObject("manifest"), requiredRuntimeFeatures(instance));
+        if (!java.util.Objects.equals(instance.getCurrentRuntimeBundleId(), bundle.getId())) {
+            throw new CloudRuntimeException("Rollback source is no longer this upgrade's active bundle");
+        }
+        final JsonObject compatibility = genericRollbackCompatibility(instance, upgrade, previous);requireRuntimeActivationSafety(instance);
         final JsonObject result = invoke(instance, StorageServiceRuntimeOperation.ROLLBACK,
                 upgrade.getTransactionId(), request(upgrade, bundle));
+        result.add("consumerCompatibility", compatibility);result.add("installedPreviousReadback", verifyGenericPrevious(instance, upgrade, previous));
         final Long current = instance.getCurrentRuntimeBundleId();
         instance.setCurrentRuntimeBundleId(instance.getPreviousRuntimeBundleId());
         instance.setPreviousRuntimeBundleId(current);
