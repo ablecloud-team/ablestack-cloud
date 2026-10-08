@@ -70,6 +70,68 @@ class StorageResourceReservationTest(unittest.TestCase):
         path.unlink();self.store.execute('acquire',self.request);self.store.record.chmod(0o666)
         with self.assertRaises(ValueError):self.store.status()
 
+    def test_fresh_root_baseline_requires_exact_protected_boot_held_marker_and_renews_under_same_scope(self):
+        (self.gen/"current.json").unlink()
+        marker=self.root/"maintenance"/"template-maintenance.json";marker.parent.mkdir(mode=0o700)
+        self.store.maintenance=marker
+        root_scope={key:self.scope[key] for key in ("instanceUuid","operationUuid","revision")}
+        root_scope["templateUpgradeUuid"]=str(uuid.uuid4())
+        request={**self.request,"templateUpgradeUuid":root_scope["templateUpgradeUuid"],"maintenanceScope":root_scope}
+        with self.assertRaises(ValueError):self.store.execute("acquire",request)
+        self.assertFalse(self.store.root.exists())
+        marker.write_text(json.dumps({"scope":root_scope}));marker.chmod(0o600)
+        result=self.store.execute("acquire",request);self.assertTrue(result["reservationAcquired"])
+        self.assertTrue(self.store.execute("renew",request)["reservationAcquired"])
+        before=self.store.record.read_bytes()
+        foreign={**root_scope,"templateUpgradeUuid":str(uuid.uuid4())};marker.write_text(json.dumps({"scope":foreign}))
+        with self.assertRaises(ValueError):self.store.execute("renew",request)
+        self.assertEqual(before,self.store.record.read_bytes())
+        marker.write_text(json.dumps({"scope":root_scope}))
+        self.assertFalse(self.store.execute("release",request)["reservationAcquired"])
+
+    def test_root_baseline_caller_proof_foreign_or_unprotected_marker_cannot_bypass_generation(self):
+        (self.gen/"current.json").unlink()
+        with self.assertRaises(ValueError):self.store.execute("acquire",self.request)
+        self.assertFalse(self.store.root.exists())
+        marker=self.root/"marker.json";self.store.maintenance=marker
+        expected={key:self.scope[key] for key in ("instanceUuid","operationUuid","revision")}
+        expected["templateUpgradeUuid"]=str(uuid.uuid4())
+        request={**self.request,"maintenanceScope":expected,"templateUpgradeUuid":expected["templateUpgradeUuid"]}
+        for replacement in ({**expected,"instanceUuid":str(uuid.uuid4())},{**expected,"operationUuid":str(uuid.uuid4())},{**expected,"revision":True}):
+            marker.write_text(json.dumps({"scope":replacement}));marker.chmod(0o600)
+            with self.assertRaises(ValueError):self.store.execute("acquire",request)
+        marker.write_text(json.dumps({"scope":expected}));marker.chmod(0o644)
+        with self.assertRaises(ValueError):self.store.execute("acquire",request)
+        self.assertFalse(self.store.root.exists())
+
+    def test_root_marker_presence_means_boot_held_and_inactive_or_false_marker_is_rejected(self):
+        (self.gen/"current.json").unlink()
+        marker=self.root/"template-maintenance.json";self.store.maintenance=marker
+        expected={key:self.scope[key] for key in ("instanceUuid","operationUuid","revision")}
+        expected["templateUpgradeUuid"]=str(uuid.uuid4())
+        request={**self.request,"maintenanceScope":expected,"templateUpgradeUuid":expected["templateUpgradeUuid"]}
+        for value in ({"scope":expected,"bootHeld":False},{"scope":expected,"phase":"INACTIVE"}):
+            marker.write_text(json.dumps(value));marker.chmod(0o600)
+            with self.assertRaises(ValueError):self.store.execute("acquire",request)
+            self.assertFalse(self.store.root.exists())
+
+    def test_actual_cli_root_baseline_acquire_renew_release_is_pinned_to_the_marker(self):
+        (self.gen/"current.json").unlink()
+        marker=self.root/"maintenance"/"template-maintenance.json";marker.parent.mkdir(mode=0o700)
+        expected={key:self.scope[key] for key in ("instanceUuid","operationUuid","revision")}
+        expected["templateUpgradeUuid"]=str(uuid.uuid4());marker.write_text(json.dumps({"scope":expected}));marker.chmod(0o600)
+        request={**self.request,"templateUpgradeUuid":expected["templateUpgradeUuid"],"maintenanceScope":expected,
+                 "requirements":{**self.requirements,"minimumMemoryAvailableBytes":0,"stagingRequiredBytes":0,"maxLoadPerCpu":100}}
+        payload=self.root/"root-request.json";payload.write_text(json.dumps(request))
+        cli=Path(__file__).resolve().parents[2]/"systemvm/debian/usr/local/bin/ablestack-storagectl"
+        environment=dict(os.environ,ABLESTACK_STORAGE_RESERVATION_DIR=str(self.root/"root-reservation"),
+                         ABLESTACK_STORAGE_GENERATION_DIR=str(self.gen),ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR=str(marker.parent))
+        for action in ("acquire","renew","release"):
+            result=subprocess.run([str(cli),"operation","reservation",action,str(payload)],capture_output=True,text=True,env=environment,timeout=10)
+            self.assertEqual(0,result.returncode,result.stdout+result.stderr)
+            self.assertEqual(expected["instanceUuid"],json.loads(result.stdout)["scope"]["instanceUuid"])
+            self.assertEqual(action!="release",json.loads(result.stdout)["reservationAcquired"])
+
     def test_actual_cli_status_and_format_capabilities_create_no_writer_or_payload_files(self):
         cli=Path(__file__).resolve().parents[2]/"systemvm/debian/usr/local/bin/ablestack-storagectl"
         environment=dict(os.environ,ABLESTACK_STORAGE_RESERVATION_DIR=str(self.root/'never-created'),ABLESTACK_STORAGE_WRITER_LOCK_FILE=str(self.root/'never-writer'/'lock'))
