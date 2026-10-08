@@ -55,7 +55,7 @@ class StorageServiceIdentitySourceTest(unittest.TestCase):
         self.runtime=type("Runtime",(),{})();self.runtime.cli="fixture";self.runtime.command=self.command
         self.store=type("Store",(),{"pointer":lambda ignored:self.pointer,"status":lambda ignored:{"bootHeld":False,"current":self.rendered,"activation":None}})()
         self.driver=type("Driver",(),{"store":self.store,"runtime":self.runtime,"generation":lambda ignored:self.actual,"verify":lambda ignored,path:{name:True for name in DOMAINS}})()
-        self.public=module.ServicePublicIdentity(self.runtime,self.config,run=self.run_command)
+        self.public=module.ServicePublicIdentity(self.runtime,self.config,run=self.run_command,sid_reader=lambda name:self.local_sid)
         self.public.owners=lambda:copy.deepcopy(self.active);self.public.holders=lambda:copy.deepcopy(self.holders);self.public.listeners_clear=self.listeners_clear
         self.source=module.ServiceIdentitySource(self.driver,self.maintenance_root,self.public,self.writer)
         self.env={"ABLESTACK_STORAGE_CONFIGURATION_ROOT":str(self.config),"ABLESTACK_STORAGE_VOLUME_OPERATIONS":str(self.root/"volume-journals")}
@@ -63,7 +63,7 @@ class StorageServiceIdentitySourceTest(unittest.TestCase):
     def writer(self):self.writer_calls+=1
     def run_command(self,args,**kwargs):
         self.calls.append(args)
-        if args==["net","getlocalsid"]:return subprocess.CompletedProcess(args,0,"SID for domain SERVER is: "+self.local_sid+"\n","")
+        if args==["testparm","-s","--parameter-name=netbios name"]:return subprocess.CompletedProcess(args,0,"SERVER\n","")
         raise AssertionError(args)
     def command(self,args,payload=None):
         if args==("operation","maintenance","status"):return self.maintenance.status()
