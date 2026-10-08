@@ -36,7 +36,7 @@ FILES = {
     "/etc/ablestack-storage/smb-managed-identities.json",
     "/etc/ablestack-storage/smb-local-account-provenance.json",
 }
-AD_FILES = {"/etc/krb5.keytab","/etc/krb5.conf","/etc/ablestack-storage/smb-domain.json","/var/lib/samba/winbindd_idmap.tdb"}
+AD_FILES = {"/etc/krb5.keytab","/etc/krb5.conf","/etc/ablestack-storage/smb-domain.json","/var/lib/samba/winbindd_idmap.tdb","/etc/ablestack-storage/ad-machine.conf"}
 PUBLIC_IDENTITY_FILES = {"/etc/ablestack-storage/smb-managed-identities.json","/etc/krb5.conf"}
 
 ACCOUNT_FILES = {"/etc/passwd", "/etc/group", "/etc/shadow", "/etc/gshadow"}
@@ -224,7 +224,7 @@ def collect(names, nvme_hosts=None,ad_identity=None,posix_policies=None):
 
 def validate_ad_identity(value):
     fields={"schemaVersion","domain","realm","workgroup","netbiosName","machineSid","domainSid","servicePrincipals","trustVerified"}
-    if not isinstance(value,dict) or set(value)-{"idmapPolicy"}!=fields or value["schemaVersion"]!=1 or value["trustVerified"] is not True:
+    if not isinstance(value,dict) or set(value)-{"idmapPolicy","machineAccountSid","dnsAliases","machineConfigurationSha256"}!=fields or type(value["schemaVersion"]) is not int or value["schemaVersion"]!=1 or value["trustVerified"] is not True:
         raise ValueError("AD capsule metadata is not a verified joined identity")
     domain=value["domain"]
     if not isinstance(domain,str) or len(domain)>253 or domain!=domain.lower() or not re.fullmatch(r"[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?",domain) or any(not label or label.startswith("-") or label.endswith("-") for label in domain.split(".")):
@@ -253,6 +253,22 @@ def validate_ad_identity(value):
                 raise ValueError("AD capsule RID base is invalid")
             ranges.append(numbers)
         if max(row[0] for row in ranges)<=min(row[1] for row in ranges):raise ValueError("AD capsule idmap ranges overlap")
+    extra={"machineAccountSid","dnsAliases","machineConfigurationSha256"}
+    if extra&set(value):
+        if not extra<=set(value) or "idmapPolicy" not in value:raise ValueError("AD full identity capsule metadata is incomplete")
+        account=value["machineAccountSid"]
+        if not isinstance(account,str) or not re.fullmatch(re.escape(value["domainSid"])+r"-[0-9]{1,10}",account):raise ValueError("AD computer account SID differs from its domain")
+        if not re.fullmatch("[0-9a-f]{64}",str(value["machineConfigurationSha256"])):raise ValueError("AD private configuration digest is invalid")
+        aliases=value["dnsAliases"]
+        if not isinstance(aliases,list) or not aliases or len(aliases)>64:raise ValueError("AD capsule DNS aliases are unavailable")
+        wanted=set()
+        for alias in aliases:
+            if not isinstance(alias,dict) or set(alias)!={"hostname","addresses"} or not alias["hostname"].endswith("."+domain) or not re.fullmatch("[a-z0-9.-]+",alias["hostname"]):raise ValueError("AD capsule DNS alias is foreign")
+            if not isinstance(alias["addresses"],list) or not alias["addresses"] or len(alias["addresses"])>16:raise ValueError("AD capsule DNS endpoint set is invalid")
+            import ipaddress
+            for address in alias["addresses"]:ipaddress.IPv4Address(address)
+            wanted.update(service+"/"+alias["hostname"] for service in ("host","cifs"))
+        if not wanted<=set(principals):raise ValueError("AD capsule aliases lack exact CIFS/HOST SPNs")
     return value
 
 
@@ -263,14 +279,25 @@ def capsule_validate_posix(records,instance):
     return validator(records,instance)
 
 
+def capsule_validate_root_configuration(value):
+    validator=globals().get("validate_root_configuration")
+    if validator is None:
+        from root_configuration_capsule import validate_root_configuration as validator
+    return validator(value)
+
+
 def validate_payload(payload):
-    if not isinstance(payload, dict) or set(payload) - {"schemaVersion", "files", "accounts", "nvmeHosts", "adIdentity", "posixPolicies", "sourceConfigurationSha256"}:
+    if not isinstance(payload, dict) or set(payload) - {"schemaVersion", "files", "accounts", "nvmeHosts", "adIdentity", "posixPolicies", "sourceConfigurationSha256", "rootSourceConfiguration"}:
         raise ValueError("Identity capsule payload shape is invalid")
     if not isinstance(payload.get("files"), dict) or not isinstance(payload.get("accounts"), dict):
         raise ValueError("Identity capsule collections are invalid")
     if type(payload.get("schemaVersion")) is not int or payload.get("schemaVersion") != 1 or set(payload.get("files", {})) - (FILES | (AD_FILES if payload.get("adIdentity") is not None else set())) or set(payload.get("accounts", {})) - ACCOUNT_FILES:
         raise ValueError("Identity capsule path allow-list mismatch")
     if payload.get("adIdentity") is not None:validate_ad_identity(payload["adIdentity"])
+    if payload.get("rootSourceConfiguration") is not None:
+        header=capsule_validate_root_configuration(payload["rootSourceConfiguration"])
+        if payload.get("sourceConfigurationSha256")!=header["sourceConfigurationSha256"]:
+            raise ValueError("Identity capsule ROOT configuration source checksum differs")
     if payload.get("posixPolicies") is not None:
         if not isinstance(payload["posixPolicies"],dict):raise ValueError("Identity capsule POSIX collection is invalid")
     if payload.get("posixPolicies"):

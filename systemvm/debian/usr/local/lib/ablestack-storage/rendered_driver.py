@@ -328,7 +328,7 @@ class RenderedDriver:
         # Decrypt the authenticated, scope-bound capsule inside this heap. Only
         # fixed reviewed codec definitions from signed CLI source are loaded.
         source = Path(self.runtime.cli).read_text().split("<<'PYIDENTITY'\n", 1)[1].split("\nPYIDENTITY", 1)[0]
-        allowed = {"decrypt", "validate_payload", "account_merge", "validate_host_nqn", "merge_nvme_identity_payload","validate_ad_identity","validate_posix_transfers","posix_row_sha256","capsule_validate_posix"}
+        allowed = {"decrypt", "validate_payload", "account_merge", "validate_host_nqn", "merge_nvme_identity_payload","validate_ad_identity","validate_posix_transfers","posix_row_sha256","capsule_validate_posix","capsule_validate_root_configuration"}
         tree = ast.parse(source)
         definitions = [item for item in tree.body if isinstance(item, ast.FunctionDef) and item.name in allowed]
         if {item.name for item in definitions} != allowed: raise ValueError("Signed identity codec differs from the fixed contract")
@@ -496,8 +496,10 @@ class RenderedDriver:
         if result.returncode:raise ValueError("Protocol boot guards could not be loaded")
 
     def execute(self, action, request=None, unit=None):
-        if action == "render-status": return self.store.status()
+        if action == "render-status": return {**self.store.status(),"rootSourceIdentityCheckpointSupported":True}
         if action=="render-root-capture-source":return self.root_source.capture(request)
+        if action=="render-root-quiesce-source":return self.root_source.quiesce_source(request)
+        if action=="render-root-identity-export-source":return self.root_source.identity_export_source(request)
         if action=="render-root-resume-source":return self.root_source.resume(request)
         if action=="render-root-replay-guard":return self.root_source.guard()
         if action=="render-root-source-quiesce-guard":

@@ -25,6 +25,7 @@ import time
 import uuid
 from rendered_generation import DESIRED_PATHS,DOMAINS,rendered_read,rendered_json,rendered_fsync
 from rendered_credentials import credential_json
+from root_source_identity_checkpoint import RootSourceIdentityCheckpoint,root_public_sha
 
 
 def root_recovery_scope(request):
@@ -47,6 +48,7 @@ class RootSourceRecovery:
         self.driver=driver;self.store=driver.store;self.runtime=driver.runtime
         self.root=Path(root or os.environ.get("ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR","/var/lib/ablestack-storage"))/"root-rendered-recovery"
         self.authorization=Path("/run/ablestack-storage/rendered-authorization")
+        self.identity=RootSourceIdentityCheckpoint(self.runtime)
 
     def path(self,scope):
         return self.root/("source-"+scope["templateUpgradeUuid"]+".json")
@@ -125,26 +127,70 @@ class RootSourceRecovery:
     def capture(self,request):
         scope=self.marker(request);actual,status=self.observation(scope);path=self.path(scope)
         if path.exists() or path.is_symlink():
-            self.validate(request)
-            return {"success":True,"scope":scope,"sourceCaptured":True,"sourceGeneration":actual["generation"],"sideEffects":False}
+            _,_,saved=self.validate(request)
+            self.identity.unchanged(scope,actual,saved["sourcePublicIdentity"])
+            return {**self.capture_receipt(scope,saved),"sideEffects":False}
         verified=self.driver.verify(self.store.pointer())
         if set(verified)!=set(DOMAINS) or any(verified[domain] is not True for domain in DOMAINS):
             raise ValueError("ROOT source baseline failed fresh all-four readback before quiesce")
         value={"schemaVersion":1,"scope":scope,"phase":"CAPTURED","sourceGeneration":actual["generation"],
                "sourceRendered":status["current"],"sourceActivation":status.get("activation"),
-               "sourceConfigurationSha256":actual["configurationSha256"],"canonicalBytes":self.canonical_bytes(),"capturedEpoch":time.time()}
+               "sourceConfigurationSha256":actual["configurationSha256"],"canonicalBytes":self.canonical_bytes(),"capturedEpoch":time.time(),
+               "sourcePublicIdentity":self.identity.freeze(scope,actual)}
         rendered_json(path,value)
-        return {"success":True,"scope":scope,"sourceCaptured":True,"sourceGeneration":value["sourceGeneration"],
-                "sourceRenderedManifestSha256":value["sourceRendered"]["manifestSha256"],"canonicalDesiredStateChanged":False}
+        return self.capture_receipt(scope,value)
+
+    def capture_receipt(self,scope,saved):
+        frozen=saved["sourcePublicIdentity"]
+        return {"success":True,"scope":scope,"sourceCaptured":True,"sourceGeneration":saved["sourceGeneration"],
+                "sourceConfigurationSha256":saved["sourceConfigurationSha256"],
+                "sourceRenderedManifestSha256":saved["sourceRendered"]["manifestSha256"],"canonicalDesiredStateChanged":False,
+                "publicAdPreStopCaptured":frozen["publicAdIdentity"] is not None,"publicAdPreStopSha256":frozen["publicAdPreStopSha256"]}
+
+    def quiesce_source(self,request):
+        scope,path,saved=self.validate(request)
+        if saved["phase"] not in ("CAPTURED","STOPPING","QUIESCED","RECOVERY_REQUIRED"):
+            raise ValueError("ROOT source quiesce phase differs")
+        actual,_=self.observation(scope)
+        self.identity.unchanged(scope,actual,saved["sourcePublicIdentity"])
+        if saved.get("sourceStoppedReceipt") is not None:
+            receipt=self.identity.stopped(scope,actual,saved["sourcePublicIdentity"],saved["sourceRendered"],saved["sourceStoppedReceipt"])
+        else:
+            if "sourceStopOwners" not in saved:
+                saved["sourceStopOwners"]=self.identity.owners()
+            saved["phase"]="STOPPING";rendered_json(path,saved)
+            try:
+                receipt=self.identity.stopped(scope,actual,saved["sourcePublicIdentity"],saved["sourceRendered"],plan=saved["sourceStopOwners"])
+            except Exception:
+                saved["phase"]="RECOVERY_REQUIRED";rendered_json(path,saved);raise
+            saved["sourceStoppedReceipt"]=receipt
+        saved["phase"]="QUIESCED";rendered_json(path,saved)
+        return {**self.capture_receipt(scope,saved),"quiesced":True,"bootHeld":True,"maintenanceSupported":True,
+                "instanceUuid":scope["instanceUuid"],"operationUuid":scope["operationUuid"],"revision":scope["revision"],
+                "domainsQuiesced":["NFS","SMB"],"stoppedUnits":[row["unit"] for row in receipt["owners"]],
+                "blockTargetsPreserved":True,"blockSessionBoundary":"NORMAL_VM_SHUTDOWN",
+                "rootSourceStoppedVerified":True,"stoppedReceiptSha256":root_public_sha(receipt)}
+
+    def identity_export_source(self,request):
+        scope,path,saved=self.validate(request)
+        receipt=saved.get("sourceStoppedReceipt")
+        if saved["phase"]!="QUIESCED" or not isinstance(receipt,dict) or receipt.get("bootId")!=Path("/proc/sys/kernel/random/boot_id").read_text().strip():
+            raise ValueError("ROOT RAW identity export requires its same-boot protected stopped source receipt")
+        actual,_=self.observation(scope)
+        self.identity.stopped(scope,actual,saved["sourcePublicIdentity"],saved["sourceRendered"],receipt)
+        frozen=saved["sourcePublicIdentity"]
+        return {**self.capture_receipt(scope,saved),"rootSourceStoppedVerified":True,"stoppedReceiptSha256":root_public_sha(receipt),
+                "adIdentity":frozen["publicAdIdentity"],"posixPolicies":frozen["sourcePosixPolicies"],
+                "rootSourceConfiguration":frozen["rootSourceConfiguration"],"sideEffects":False}
 
     def validate(self,request,require_verified=False):
         scope=self.marker(request);path=self.path(scope);saved=credential_json(rendered_read(path));actual,status=self.observation(scope)
-        fields={"schemaVersion","scope","phase","sourceGeneration","sourceRendered","sourceActivation","sourceConfigurationSha256","canonicalBytes","capturedEpoch"}
-        if not isinstance(saved,dict) or not set(saved)<=fields|{"startedDomains","verifiedEpoch"} or not fields<=set(saved):
+        fields={"schemaVersion","scope","phase","sourceGeneration","sourceRendered","sourceActivation","sourceConfigurationSha256","canonicalBytes","capturedEpoch","sourcePublicIdentity"}
+        if not isinstance(saved,dict) or not set(saved)<=fields|{"startedDomains","verifiedEpoch","sourceStopOwners","sourceStoppedReceipt"} or not fields<=set(saved):
             raise ValueError("ROOT source checkpoint fields are not exact")
         root_recovery_scope(saved["scope"])
         if (type(saved.get("schemaVersion")) is not int or saved["schemaVersion"]!=1 or saved.get("scope")!=scope
-                or saved.get("phase") not in ("CAPTURED","QUIESCED","REPLAYING","VERIFIED","RECOVERY_REQUIRED")
+                or saved.get("phase") not in ("CAPTURED","STOPPING","QUIESCED","REPLAYING","VERIFIED","RECOVERY_REQUIRED")
                 or saved.get("sourceGeneration")!=actual["generation"] or saved.get("sourceRendered")!=status["current"]
                 or saved.get("sourceActivation")!=status.get("activation") or saved.get("sourceConfigurationSha256")!=actual["configurationSha256"]
                 or saved.get("canonicalBytes")!=self.canonical_bytes()):
