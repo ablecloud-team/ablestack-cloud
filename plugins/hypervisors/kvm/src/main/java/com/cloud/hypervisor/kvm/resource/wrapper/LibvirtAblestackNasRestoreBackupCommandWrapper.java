@@ -345,12 +345,11 @@ public class LibvirtAblestackNasRestoreBackupCommandWrapper extends CommandWrapp
 
     private boolean replaceFileVolumeWithBackup(String volumePath, List<String> backupPaths, int timeout) {
         return LibvirtAblestackFileRestoreHelper.replaceFileVolumeWithBackup(RESTORE_TRACE, logger, volumePath, backupPaths, timeout,
-                "cs-nas-restore-volume-");
+                "cs-nas-restore-volume-", LibvirtAblestackNasRestoreDiagnostics.load(logger));
     }
 
     private boolean replaceFileVolumeWithBackup(String volumePath, String backupPath, int timeout) {
-        return LibvirtAblestackFileRestoreHelper.replaceFileVolumeWithBackup(RESTORE_TRACE, logger, volumePath, backupPath, timeout,
-                "cs-nas-restore-volume-");
+        return replaceFileVolumeWithBackup(volumePath, java.util.Collections.singletonList(backupPath), timeout);
     }
 
     private Path createTemporaryVolumePath(String volumePath, String prefix, QemuImg.PhysicalDiskFormat targetFormat) throws IOException {

@@ -128,14 +128,28 @@ final class LibvirtAblestackFileRestoreHelper {
 
     static boolean replaceFileVolumeWithBackup(final String trace, final Logger logger, final String volumePath,
             final List<String> backupPaths, final int timeout, final String temporaryFilePrefix) {
+        return replaceFileVolumeWithBackup(trace, logger, volumePath, backupPaths, timeout, temporaryFilePrefix, null);
+    }
+
+    static boolean replaceFileVolumeWithBackup(final String trace, final Logger logger, final String volumePath,
+            final List<String> backupPaths, final int timeout, final String temporaryFilePrefix,
+            final LibvirtAblestackNasRestoreDiagnostics diagnostics) {
         if (backupPaths == null || backupPaths.isEmpty()) {
             return false;
         }
-        return replaceFileVolumeWithBackup(trace, logger, volumePath, getRestorableFileBackupPath(backupPaths), timeout, temporaryFilePrefix);
+        return replaceFileVolumeWithBackup(trace, logger, volumePath, getRestorableFileBackupPath(backupPaths), timeout, temporaryFilePrefix,
+                backupPaths, diagnostics);
     }
 
     static boolean replaceFileVolumeWithBackup(final String trace, final Logger logger, final String volumePath,
             final String backupPath, final int timeout, final String temporaryFilePrefix) {
+        return replaceFileVolumeWithBackup(trace, logger, volumePath, backupPath, timeout, temporaryFilePrefix,
+                java.util.Collections.singletonList(backupPath), null);
+    }
+
+    private static boolean replaceFileVolumeWithBackup(final String trace, final Logger logger, final String volumePath,
+            final String backupPath, final int timeout, final String temporaryFilePrefix, final List<String> backupPaths,
+            final LibvirtAblestackNasRestoreDiagnostics diagnostics) {
         QemuImgFile srcBackupFile = null;
         Path temporaryVolumePath = null;
         Path movedAsideTarget = null;
@@ -143,13 +157,30 @@ final class LibvirtAblestackFileRestoreHelper {
             srcBackupFile = new QemuImgFile(backupPath, getBackupFileFormat(backupPath));
             final QemuImg.PhysicalDiskFormat targetFormat = getFileVolumeFormat(logger, volumePath);
             validatePrimaryStorageSpaceForFileRestore(trace, logger, backupPath, volumePath);
+            final boolean testIncrementalQcow2 = diagnostics != null && srcBackupFile.getFormat() == QemuImg.PhysicalDiskFormat.QCOW2
+                    && targetFormat == QemuImg.PhysicalDiskFormat.QCOW2 && hasBackingChain(backupPath);
+            if (testIncrementalQcow2) {
+                diagnostics.inspectSource(trace, logger, backupPath, backupPaths, timeout);
+            } else if (diagnostics != null) {
+                diagnostics.logSkipped(trace, logger, backupPath, volumePath);
+            }
             movedAsideTarget = moveExistingFileVolumeAside(trace, logger, volumePath);
             temporaryVolumePath = createTemporaryVolumePath(volumePath, temporaryFilePrefix, targetFormat);
             Files.deleteIfExists(temporaryVolumePath);
             final QemuImgFile temporaryVolumeFile = new QemuImgFile(temporaryVolumePath.toString(), targetFormat);
             logger.info("{} phase=[TEMP_TARGET_CREATED], source=[{}], target=[{}], temporaryTarget=[{}], sourceFormat=[{}], targetFormat=[{}]",
                     trace, srcBackupFile.getFileName(), volumePath, temporaryVolumeFile.getFileName(), srcBackupFile.getFormat(), targetFormat);
-            restoreFileVolumeData(trace, logger, backupPath, temporaryVolumeFile.getFileName(), srcBackupFile.getFormat(), targetFormat, timeout);
+            if (testIncrementalQcow2) {
+                convertFileVolumeWithQemuImg(trace, logger, backupPath, temporaryVolumeFile.getFileName(), srcBackupFile.getFormat(), targetFormat,
+                        timeout, diagnostics);
+                try {
+                    diagnostics.verifyTarget(trace, logger, backupPath, temporaryVolumeFile.getFileName(), timeout);
+                } catch (RuntimeException e) {
+                    throw new QemuImgException("NAS QCOW2 test validation could not complete: " + e.getMessage());
+                }
+            } else {
+                restoreFileVolumeData(trace, logger, backupPath, temporaryVolumeFile.getFileName(), srcBackupFile.getFormat(), targetFormat, timeout);
+            }
             Files.move(temporaryVolumePath, Paths.get(volumePath), StandardCopyOption.REPLACE_EXISTING);
             logger.info("{} phase=[TEMP_TARGET_PROMOTED], target=[{}], temporaryTarget=[{}]",
                     trace, volumePath, temporaryVolumePath);
@@ -304,18 +335,42 @@ final class LibvirtAblestackFileRestoreHelper {
     private static void convertFileVolumeWithQemuImg(final String trace, final Logger logger, final String backupPath,
             final String volumePath, final QemuImg.PhysicalDiskFormat backupFormat, final QemuImg.PhysicalDiskFormat volumeFormat,
             final int timeout) throws QemuImgException {
-        final String convertCommand = String.format("qemu-img convert -p -S 0 -f %s -O %s %s %s",
+        convertFileVolumeWithQemuImg(trace, logger, backupPath, volumePath, backupFormat, volumeFormat, timeout, null);
+    }
+
+    private static void convertFileVolumeWithQemuImg(final String trace, final Logger logger, final String backupPath,
+            final String volumePath, final QemuImg.PhysicalDiskFormat backupFormat, final QemuImg.PhysicalDiskFormat volumeFormat,
+            final int timeout, final LibvirtAblestackNasRestoreDiagnostics diagnostics) throws QemuImgException {
+        final String sparseSize = diagnostics == null ? "0" : diagnostics.getSparseSize();
+        final String convertCommand = String.format("qemu-img convert -p -S %s -f %s -O %s %s %s",
+                sparseSize,
                 backupFormat.toString().toLowerCase(Locale.ROOT), volumeFormat.toString().toLowerCase(Locale.ROOT),
                 quote(backupPath), quote(volumePath));
-        final Pair<Integer, String> result = runCommandWithOutput(convertCommand, timeout * 1000);
+        if (diagnostics != null) {
+            diagnostics.convertBegin(trace, logger, backupPath, volumePath);
+        }
+        final Pair<Integer, String> result;
+        try {
+            result = runCommandWithOutput(convertCommand, timeout * 1000);
+        } catch (CloudRuntimeException e) {
+            if (diagnostics == null) {
+                throw e;
+            }
+            diagnostics.convertEnd(trace, logger, backupPath, volumePath, -1);
+            throw new QemuImgException("NAS QCOW2 test convert command failed: " + e.getMessage());
+        }
+        if (diagnostics != null) {
+            diagnostics.convertEnd(trace, logger, backupPath, volumePath, result.first());
+        }
         final String output = formatTraceOutput(result.second());
+        final String commandLabel = "0".equals(sparseSize) ? "qemu-img-convert-nosparse" : "qemu-img-convert-sparse";
         if (result.first() == 0) {
-            logger.info("{} phase=[CONVERT], source=[{}], target=[{}], command=[qemu-img-convert-nosparse]",
-                    trace, backupPath, volumePath);
+            logger.info("{} phase=[CONVERT], source=[{}], target=[{}], command=[{}]",
+                    trace, backupPath, volumePath, commandLabel);
             return;
         }
-        logger.warn("{} phase=[CONVERT], source=[{}], target=[{}], command=[qemu-img-convert-nosparse], exitCode=[{}], output=[{}]",
-                trace, backupPath, volumePath, result.first(), output);
+        logger.warn("{} phase=[CONVERT], source=[{}], target=[{}], command=[{}], exitCode=[{}], output=[{}]",
+                trace, backupPath, volumePath, commandLabel, result.first(), output);
         throw new QemuImgException(String.format("qemu-img convert failed with exitCode [%s], output [%s]", result.first(), output));
     }
 
@@ -430,7 +485,7 @@ final class LibvirtAblestackFileRestoreHelper {
         }
     }
 
-    private static Pair<Integer, String> runCommandWithOutput(final String command, final int timeout) {
+    static Pair<Integer, String> runCommandWithOutput(final String command, final int timeout) {
         final String wrappedCommand = String.format("set +e; %s 2>&1; rc=$?; echo __CMD_EXIT__=$rc", command);
         final String output = Script.runSimpleBashScriptWithFullResult(wrappedCommand, timeout);
         if (output == null) {
