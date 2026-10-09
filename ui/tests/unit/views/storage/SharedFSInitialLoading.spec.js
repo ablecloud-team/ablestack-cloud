@@ -22,14 +22,16 @@ import { listRefreshMixin } from '@/utils/listRefreshMixin'
 describe('SharedFS initial runtime loading ownership', () => {
   let wrapper
   let instanceReads
+  let notifyError
   const instances = [{ id: 'instance', virtualmachineid: 'vm' }]
   beforeEach(() => {
     instanceReads = []
+    notifyError = jest.fn()
     wrapper = mount({
       mixins: [listRefreshMixin(['fetchStorageServiceData'], { active: () => false })],
       template: '<div />',
       data: () => ({
-        resource: { id: 'sharedfs', zoneid: 'zone', virtualmachineid: 'vm' },
+        resource: { id: 'sharedfs', zoneid: 'zone', virtualmachineid: 'vm', state: 'Ready' },
         vm: {},
         currentTab: 'details',
         hasStorageServiceApi: true,
@@ -38,6 +40,7 @@ describe('SharedFS initial runtime loading ownership', () => {
       }),
       methods: {
         fetchStorageServiceData: SharedFSTab.methods.fetchStorageServiceData,
+        storageReadFailureCause: SharedFSTab.methods.storageReadFailureCause,
         listApi (command) {
           if (command === 'listStorageServiceInstances') return new Promise(resolve => instanceReads.push(resolve))
           return Promise.resolve([])
@@ -45,11 +48,14 @@ describe('SharedFS initial runtime loading ownership', () => {
         fetchNvmeStorageSnapshot: () => Promise.resolve({ inventory: [], sessions: [], nvmeSubsystems: [], nvmeNamespaces: [], nvmeHostAcls: [] }),
         loadAccessRules: () => Promise.resolve({}),
         loadBackingVolumes: () => Promise.resolve([]),
-        $notifyError: jest.fn()
+        $notifyError: notifyError
       }
-    }, { global: { mocks: { $route: { fullPath: '/sharedfs/sharedfs' }, $store: { getters: {} } } } })
+    }, { global: { mocks: { $route: { fullPath: '/sharedfs/sharedfs' }, $store: { getters: {} }, $t: key => key } } })
   })
-  afterEach(() => wrapper.unmount())
+  afterEach(() => {
+    wrapper.unmount()
+    jest.useRealTimers()
+  })
 
   it.each(['vm', 'tab'])('retries an initial response invalidated by %s information', async change => {
     wrapper.vm.fetchStorageServiceData()
@@ -111,10 +117,13 @@ describe('SharedFS initial runtime loading ownership', () => {
     await first
     expect(wrapper.vm.storageService.loading).toBe(false)
     expect(wrapper.vm.storageService.readErrors).toEqual(['listStorageServiceInstances'])
+    expect(wrapper.vm.storageService.readErrorKinds).toEqual({ listStorageServiceInstances: 'TIMEOUT' })
+    expect(notifyError.mock.calls[0][0].message).toBe('message.storage.service.read.cause.timeout')
     const retry = wrapper.vm.fetchStorageServiceData()
     instanceReads[1](instances)
     await retry
     expect(wrapper.vm.storageService.readErrors).toEqual([])
+    expect(wrapper.vm.storageService.readErrorKinds).toEqual({})
     expect(wrapper.vm.storageService.loaded).toBe(true)
     jest.useRealTimers()
   })
@@ -131,6 +140,8 @@ describe('SharedFS initial runtime loading ownership', () => {
     expect(wrapper.vm.storageService.health).toEqual([{ previous: true }])
     expect(wrapper.vm.storageService.instance.id).toBe('instance')
     expect(wrapper.vm.storageService.readErrors).toEqual(['health'])
+    expect(wrapper.vm.storageService.readErrorKinds).toEqual({ health: 'READ_FAILURE' })
+    expect(wrapper.vm.resource.state).toBe('Ready')
     expect(wrapper.vm.storageService.loading).toBe(false)
   })
 
@@ -143,6 +154,40 @@ describe('SharedFS initial runtime loading ownership', () => {
     await flushPromises()
     expect(wrapper.vm.storageService.instance).toBeNull()
     expect(wrapper.vm.storageService.loading).toBe(false)
+    expect(wrapper.vm.storageService.readErrorKinds).toEqual({ listStorageServiceInstances: 'TIMEOUT' })
     jest.useRealTimers()
   })
+
+  it.each([
+    [{ code: 'ERR_NETWORK', message: 'PRIVATE_PROVIDER_CONTEXT' }, 'TRANSPORT', 'transport'],
+    [{ response: { status: 530, data: { errortext: 'PRIVATE_PROVIDER_CONTEXT' } } }, 'READ_FAILURE', 'failure']
+  ])('ends failed initial reads with a public cause and preserves Ready', async (error, kind, label) => {
+    wrapper.vm.listApi = jest.fn().mockRejectedValue(error)
+    await wrapper.vm.fetchStorageServiceData()
+    expect(wrapper.vm.storageService.loading).toBe(false)
+    expect(wrapper.vm.storageService.initialLoading).toBe(false)
+    expect(wrapper.vm.storageService.readErrorKinds).toEqual({ listStorageServiceInstances: kind })
+    expect(wrapper.vm.resource.state).toBe('Ready')
+    const notification = notifyError.mock.calls[0][0]
+    expect(notification.message).toBe(`message.storage.service.read.cause.${label}`)
+    expect(notification.response).toBeUndefined()
+    expect(notification.message).not.toContain('PRIVATE_PROVIDER_CONTEXT')
+  })
+
+  it('does not overwrite a newer public failure with a stale rejected request', async () => {
+    let rejectOld
+    wrapper.vm.listApi = jest.fn()
+      .mockImplementationOnce(() => new Promise((resolve, reject) => { rejectOld = reject }))
+      .mockRejectedValueOnce({ code: 'ERR_NETWORK', message: 'PRIVATE_NEW_CONTEXT' })
+    const oldRead = wrapper.vm.fetchStorageServiceData()
+    await wrapper.setData({ vm: { id: 'vm' } })
+    await wrapper.vm.fetchStorageServiceData()
+    rejectOld({ response: { status: 530, data: { errortext: 'PRIVATE_OLD_CONTEXT' } } })
+    await oldRead
+    expect(wrapper.vm.storageService.readErrorKinds).toEqual({ listStorageServiceInstances: 'TRANSPORT' })
+    expect(wrapper.vm.storageService.loading).toBe(false)
+    expect(notifyError).toHaveBeenCalledTimes(1)
+    expect(wrapper.vm.resource.state).toBe('Ready')
+  })
+
 })

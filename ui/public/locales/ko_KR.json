@@ -9586,5 +9586,8 @@
   "label.storage.operation.recovery.database.count": "보존할 인증 DB 수",
   "label.storage.operation.recovery.current": "현재 로컬 SMB 신원 보존 + 원본 구성 복원",
   "label.storage.operation.recovery.confirm.name": "서비스 이름 직접 입력",
-  "label.storage.operation.recovery.boot": "확인한 부팅 ID"
+  "label.storage.operation.recovery.boot": "확인한 부팅 ID",
+  "message.storage.service.read.cause.transport": "연결에 실패했습니다.",
+  "message.storage.service.read.cause.timeout": "조회 시간이 초과되었습니다.",
+  "message.storage.service.read.cause.failure": "조회를 완료하지 못했습니다."
 }

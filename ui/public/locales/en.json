@@ -9621,5 +9621,8 @@
   "label.storage.operation.recovery.database.count": "Authentication databases to retain",
   "label.storage.operation.recovery.current": "Retain current local SMB identity and restore source configuration",
   "label.storage.operation.recovery.confirm.name": "Enter the service name",
-  "label.storage.operation.recovery.boot": "Reviewed boot ID"
+  "label.storage.operation.recovery.boot": "Reviewed boot ID",
+  "message.storage.service.read.cause.transport": "Connection failed.",
+  "message.storage.service.read.cause.timeout": "Read timed out.",
+  "message.storage.service.read.cause.failure": "Read failed."
 }
