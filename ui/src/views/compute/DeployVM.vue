@@ -3122,7 +3122,7 @@ export default {
         if (this.imageType === 'templateid') {
           deployVmData.templateid = values.templateid
           values.hypervisor = null
-          if (values.templateKvdoEnable !== values.computeOfferingKvdoEnable) {
+          if (!!this.template?.kvdoenable !== !!this.serviceOffering?.kvdoenable) {
             this.$notification.error({
               message: this.$t('message.request.failed'),
               description: this.$t('message.step.3.kvdo')
