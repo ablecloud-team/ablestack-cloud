@@ -408,4 +408,31 @@ public class StorageSmbIdentityRepairRuntimeTest {
         Assert.assertEquals("RECOVERY_REQUIRED", operation.getState());Assert.assertFalse(old.has("currentReference"));
     }
 
+    private static class CurrentCanonicalManager extends CurrentManager {
+        JsonObject frozen;int rootBindings;
+        @Override protected JsonObject frozenRecoveryConfiguration(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {return frozen;}
+        @Override protected long rootDesiredRevision(long instanceId) {return 3;}
+        @Override protected JsonObject rootResourceBinding(StorageServiceInstanceVO instance) {
+            rootBindings++;throw new CloudRuntimeException("EXACT_SOURCE_ACCEPTED_ROOT_BINDING_REQUIRED");
+        }
+    }
+    @Test public void currentContextUsesActualCanonicalSevenFileSmbPathAndKeepsMissingOrConfiguredSourceClosed() {
+        CurrentCanonicalManager current = new CurrentCanonicalManager();operation.setRevision(4);current.context.addProperty("operationUuid", operation.getUuid());Mockito.when(instance.getVmId()).thenReturn(54L);
+        com.cloud.vm.dao.VMInstanceDao vms = Mockito.mock(com.cloud.vm.dao.VMInstanceDao.class);
+        Mockito.when(vms.findById(54L)).thenReturn(Mockito.mock(com.cloud.vm.VMInstanceVO.class));ReflectionTestUtils.setField(current, "vmInstanceDao", vms);
+        JsonObject source = new JsonObject();for (String path : StorageRenderedDesiredState.PATHS) source.add(path, com.google.gson.JsonNull.INSTANCE);
+        JsonObject frozen = new JsonObject();frozen.add("generation", currentContext().get("sourceGeneration").deepCopy());
+        frozen.add("configurationDesiredState", source);frozen.addProperty("configurationSha256", "a".repeat(64));current.frozen = frozen;
+        // Real canonical producer key; the old unqualified SMB basename throws NPE here.
+        Assert.assertEquals("desired-state/smb-share-apply.json", StorageRenderedDesiredState.PROTOCOL_PATHS.get(StorageServiceInstance.Protocol.SMB));
+        CloudRuntimeException accepted = Assert.assertThrows(CloudRuntimeException.class, () -> current.currentSmbRecoveryContext(instance, operation));
+        Assert.assertEquals("EXACT_SOURCE_ACCEPTED_ROOT_BINDING_REQUIRED", accepted.getMessage());Assert.assertEquals(1, current.rootBindings);
+        source.remove("desired-state/smb-share-apply.json");
+        CloudRuntimeException missing = Assert.assertThrows(CloudRuntimeException.class, () -> current.currentSmbRecoveryContext(instance, operation));
+        Assert.assertTrue(missing.getMessage().contains("original absent SMB"));Assert.assertEquals(1, current.rootBindings);
+        source.add("desired-state/smb-share-apply.json", new JsonObject());
+        CloudRuntimeException configured = Assert.assertThrows(CloudRuntimeException.class, () -> current.currentSmbRecoveryContext(instance, operation));
+        Assert.assertTrue(configured.getMessage().contains("original absent SMB"));Assert.assertEquals(1, current.rootBindings);
+    }
+
 }

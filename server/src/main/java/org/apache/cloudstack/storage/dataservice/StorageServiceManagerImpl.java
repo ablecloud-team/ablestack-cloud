@@ -1334,7 +1334,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 || rootDesiredRevision(instance.getId()) != operation.getRevision() - 1)
             throw new CloudRuntimeException("CURRENT recovery requires its immediately preceding verified SOURCE generation");
         JsonObject source = frozen.getAsJsonObject("configurationDesiredState");
-        if (!source.keySet().equals(StorageRenderedDesiredState.PATHS) || !source.get("smb-share-apply.json").isJsonNull())
+        if (!source.keySet().equals(StorageRenderedDesiredState.PATHS) || !source.get(StorageRenderedDesiredState.PROTOCOL_PATHS.get(StorageServiceInstance.Protocol.SMB)).isJsonNull())
             throw new CloudRuntimeException("CURRENT recovery requires the original absent SMB configuration");
         JsonObject current = nativeConfigurationGeneration(instance, null, "status");
         String pending = getJsonString(current, "pendingOperationUuid");
