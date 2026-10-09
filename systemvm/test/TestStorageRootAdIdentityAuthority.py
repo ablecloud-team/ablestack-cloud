@@ -118,7 +118,7 @@ class StorageRootAdIdentityAuthorityTest(unittest.TestCase):
             if args==("operation","maintenance","status"):return self.marker
             self.assertEqual(("identity","domain","retain","/dev/stdin"),args)
             return handler.retain(payload,payload["expectedIdentity"])
-        namespace={"request":request,"RootIdentityReference":RootIdentityReference,"identity_command":command,"decrypt":decrypt,"validate_payload":validate_payload,"json":json}
+        namespace={"request":request,"RootIdentityReference":RootIdentityReference,"identity_command":command,"decrypt":decrypt,"validate_payload":validate_payload,"json":json,"hashlib":hashlib,"base64":__import__("base64")}
         fresh={**self.identity,"identityVerified":True}
         with patch.dict(os.environ,{"ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR":str(f.root/"protected")}),patch("root_ad_identity_authority.samba_public_sid",return_value=self.identity["machineSid"]),patch("ad_lifecycle.AdIdentityRpc") as rpc:
             rpc.return_value.inspect.return_value=fresh
@@ -126,6 +126,10 @@ class StorageRootAdIdentityAuthorityTest(unittest.TestCase):
             with contextlib.redirect_stdout(output):exec(code,namespace)
             self.assertTrue(json.loads(output.getvalue())["identityPreserved"]);self.assertEqual(["OWNED_START"],calls)
             calls.clear();request["retainedRootAuthorization"]={**self.reference,"sha256":"f"*64}
+            with self.assertRaises(ValueError):exec(code,namespace)
+            self.assertEqual([],calls)
+            request["retainedRootAuthorization"]=self.reference
+            request["capsule"]=encrypt(f.payload,f.public,f.request["instanceUuid"]+":"+f.request["operationUuid"])
             with self.assertRaises(ValueError):exec(code,namespace)
             self.assertEqual([],calls)
         self.assertNotIn(f.private,output.getvalue())

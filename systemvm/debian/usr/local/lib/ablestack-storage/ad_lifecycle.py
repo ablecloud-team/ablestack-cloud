@@ -511,8 +511,9 @@ class AdDomainLifecycle:
         if "templateUpgradeUuid" in marker:
             status={"maintenanceKind":"ROOT","bootHeld":True,"scope":marker}
             authority=root_ad_retained_authority(self.daemon.scope(request),status,configuration=self.configuration,reference=request.get("retainedRootAuthorization"))
-            if request.get("retainedRootAuthorization") is None or expected!=authority["identity"]:
-                raise ValueError("ROOT opaque AD retain lacks its authenticated original authority")
+            if (request.get("retainedRootAuthorization") is None or expected!=authority["identity"]
+                    or any(request.get(key)!=authority.get(key) for key in ("originalCipherSha256","sourceConfigurationSha256","originalSourceScope"))):
+                raise ValueError("ROOT opaque AD retain lacks its authenticated original ciphertext authority")
         else:
             source=self.source_authority(request,fresh=False);identity=source.get("adIdentity")
             fields=("domain","realm","workgroup","netbiosName","machineSid","domainSid","machineAccountSid","servicePrincipals","idmapPolicy","dnsAliases","machineConfigurationSha256")

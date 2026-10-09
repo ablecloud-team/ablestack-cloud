@@ -50,6 +50,40 @@ class StorageRenderedIdentityInverseTest(unittest.TestCase):
         self.assertEqual(("identity","capsule","import"),arguments);self.assertEqual(self.saved["capsule"],payload["capsule"])
         self.assertEqual(["ISCSI"],payload["restoreDomains"]);self.assertTrue(payload["deferNvmeReplay"]);self.assertEqual(self.scope["instanceUuid"],payload["instanceUuid"])
         self.assertFalse(any(self.private.encode() in path.read_bytes() for path in self.root.rglob("*") if path.is_file()))
+    def test_service_smb_inverse_real_source_cipher_reaches_actual_protected_retain_and_fresh_owned_daemon(self):
+        import TestStorageAdLifecycle as life_tests
+        fixture=life_tests.StorageAdLifecycleTest("test_samevm_verified_identity_is_retained_without_remote_rejoin_or_sid_mutation")
+        fixture.setUp();self.addCleanup(fixture.doCleanups)
+        joined=fixture.lifecycle.join(fixture.request);state=json.loads(fixture.lifecycle.state.read_text())
+        fields=("domain","realm","workgroup","netbiosName","machineSid","domainSid","machineAccountSid","servicePrincipals","idmapPolicy","dnsAliases")
+        original={"schemaVersion":1,**{key:joined["identity"][key] for key in fields},"trustVerified":True,"machineConfigurationSha256":state["machineConfigurationSha256"]}
+        marker=fixture.lifecycle.daemon.marker(fixture.request);scope=fixture.lifecycle.daemon.scope(fixture.request)
+        frozen=fixture.source_proof(marker,False);fixture.lifecycle.source_provider=lambda scoped,fresh:dict(frozen)
+        self.driver.store.scope=lambda request:scope
+        self.driver.store.scoped_activation=lambda request:{"changedDomains":["SMB"],"startedDomains":["SMB"]}
+        self.driver.prerequisites=type("Prerequisites",(),{"network":type("Network",(),{"authorize":lambda ignored,request:marker})()})()
+        self.saved={"scope":scope,"sourceConfigurationSha256":"a"*64,"publicKey":self.public,"capsule":encrypt({**self.identity,"adIdentity":original},self.public,scope["instanceUuid"]+":"+scope["operationUuid"])}
+        request={**scope,"checkpointPrivateKey":self.private};fixture.calls.clear()
+        def command(args,payload=None):
+            self.calls.append((args,payload))
+            if args==("operation","quiesce"):return {"quiesced":True,"scope":marker,"domainsQuiesced":["SMB"]}
+            if args==("identity","domain","retain"):
+                self.assertEqual(marker,{key:payload[key] for key in marker})
+                self.assertEqual(original,payload["expectedIdentity"])
+                return fixture.lifecycle.retain(payload,payload["expectedIdentity"])
+            return {"success":True}
+        self.driver.runtime.command=command;self.driver.restore_identity(request)
+        self.assertEqual([("operation","quiesce"),("identity","capsule","import"),("identity","domain","retain")],[args for args,_ in self.calls])
+        self.assertIn(["OWNED_DAEMON_START"],fixture.calls)
+        self.assertFalse(any("join" in row or "setlocalsid" in row for row in fixture.calls))
+        fixture.lifecycle.machine.write_text("foreign config");self.calls.clear();fixture.calls.clear()
+        with self.assertRaises(ValueError):self.driver.restore_identity(request)
+        self.assertNotIn(["OWNED_DAEMON_START"],fixture.calls)
+        self.calls.clear()
+        self.driver.prerequisites.network.authorize=lambda scoped:{**scope,"templateUpgradeUuid":str(uuid.uuid4())}
+        with self.assertRaisesRegex(ValueError,"ROOT uses opaque"):self.driver.restore_identity(request)
+        self.assertEqual([],self.calls)
+
     def test_wrong_private_key_refuses_before_any_identity_import(self):
         wrong=rsa.generate_private_key(public_exponent=65537,key_size=2048).private_bytes(serialization.Encoding.PEM,serialization.PrivateFormat.PKCS8,serialization.NoEncryption()).decode()
         with self.assertRaises(ValueError):self.driver.restore_identity({**self.request,"checkpointPrivateKey":wrong})
