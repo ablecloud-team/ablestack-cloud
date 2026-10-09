@@ -1359,6 +1359,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         JsonObject runtime = new JsonObject();runtime.addProperty("bundleVersion", bundle.getVersion());
         runtime.addProperty("archiveSha256", bundle.getSha256());runtime.addProperty("manifestSha256", bundle.getManifestSha256());
         runtime.add("updaterSha256", readback.get("updaterSha256").deepCopy());
+        JsonElement transaction = readback.get("transactionId");
+        if (transaction == null || !transaction.isJsonPrimitive() || !transaction.getAsJsonPrimitive().isString()
+                || !transaction.getAsString().matches("[A-Za-z0-9][A-Za-z0-9._-]{0,127}"))
+            throw new CloudRuntimeException("CURRENT recovery requires its actual completed signed runtime transaction identifier");
+        runtime.add("transactionId", transaction.deepCopy());
         JsonObject context = operationReservationScope(instance, operation);context.add("sourceGeneration", frozen.get("generation").deepCopy());
         context.add("sourceConfigurationSha256", frozen.get("configurationSha256").deepCopy());context.add("rootVmBinding", binding);context.add("runtimePin", runtime);
         return context;
