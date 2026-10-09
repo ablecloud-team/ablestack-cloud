@@ -22,7 +22,7 @@ CLI=ROOT/"systemvm/debian/usr/local/bin/ablestack-storagectl"
 
 class StorageInlineSourcesTest(unittest.TestCase):
     def test_signed_rendered_entrypoint_matches_all_fixed_reviewed_library_bodies_exactly(self):
-        modules=['ad_authority','semantic_identity_alias','rendered_generation','ganesha_dbus','nvme_credentials','native_renderers','native_render_validation','native_render_runtime','rendered_network','rendered_prerequisites','rendered_credentials','posix_root_initialization','root_identity_reference','root_configuration_capsule','root_source_identity_checkpoint','root_source_recovery','samba_public_sid','service_identity_source','service_identity_cipher','template_maintenance','service_maintenance','service_identity_target','root_identity_target','root_retained_authorization','root_ad_imported_authorization','root_ad_identity_authority','rendered_driver']
+        modules=['ad_authority','semantic_identity_alias','rendered_generation','ganesha_dbus','nvme_credentials','native_renderers','native_render_validation','native_render_runtime','rendered_network','rendered_prerequisites','rendered_credentials','posix_root_initialization','root_identity_reference','root_configuration_capsule','root_source_identity_checkpoint','root_source_recovery','samba_public_sid','service_identity_source','service_identity_cipher','template_maintenance','service_maintenance','service_identity_target','root_identity_target','root_retained_authorization','root_ad_imported_authorization','root_ad_identity_authority','pending_nfs_authorization','rendered_driver']
         expected=['import sys']
         for name in modules:
             value=(LIB/(name+'.py')).read_text()
@@ -136,5 +136,15 @@ class StorageInlineSourcesTest(unittest.TestCase):
             self.assertEqual(ast.dump(wanted),ast.dump(got))
         collect=next(item for item in actual.body if isinstance(item,ast.FunctionDef) and item.name=="collect")
         self.assertNotIn("tdbbackup",ast.unparse(collect));self.assertIn("live_identity_database_holders",ast.unparse(collect))
+    def test_signed_pending_nfs_and_initial_source_closures_are_complete(self):
+        source=CLI.read_text()
+        helper=(LIB/"pending_nfs_authorization.py").read_text().rstrip()
+        embedded=source.split("# BEGIN EMBEDDED PENDING NFS AUTHORIZATION\n",1)[1].split("\n# END EMBEDDED PENDING NFS AUTHORIZATION",1)[0]
+        self.assertEqual(helper,embedded);ast.parse(embedded)
+        generation=(LIB/"config_generation.py").read_text()
+        generation=generation[generation.index('"""Durable desired-state'):].rstrip()
+        embedded=source.split("<<'PYGENERATION'\n",1)[1].split("\nimport sys\nrequest =",1)[0]
+        self.assertEqual(generation,embedded);ast.parse(embedded)
+
 
 if __name__=='__main__':unittest.main()
