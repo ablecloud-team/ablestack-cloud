@@ -87,10 +87,12 @@ public final class StorageSmbCurrentIdentityRecoveryProof {
         require(facts.has("units") && facts.get("units").isJsonArray() && facts.getAsJsonArray("units").size() > 0
                 && facts.has("publicNamespaceSids") && facts.get("publicNamespaceSids").isJsonArray()
                 && facts.getAsJsonArray("publicNamespaceSids").size() > 0, "CURRENT owned masters/namespace observations are absent");
+        Set<String> namespaces = new java.util.HashSet<>();
         for (JsonElement value : facts.getAsJsonArray("publicNamespaceSids")) {
             require(value.isJsonObject(), "CURRENT local namespace is malformed");JsonObject namespace = value.getAsJsonObject();
-            require(namespace.keySet().equals(Set.of("netbiosName", "machineSid"))
-                    && string(namespace, "netbiosName").matches("[A-Z0-9][A-Z0-9_-]{0,14}")
+            require(namespace.keySet().equals(Set.of("samNamespace", "machineSid"))
+                    && string(namespace, "samNamespace").matches("[A-Z0-9][A-Z0-9_.-]{0,62}")
+                    && namespaces.add(string(namespace, "samNamespace"))
                     && string(namespace, "machineSid").matches("S-1-5-21-[0-9]+-[0-9]+-[0-9]+"), "CURRENT local SAM namespace is unobserved");
             for (String field : string(namespace, "machineSid").substring(9).split("-")) {
                 try { require(new java.math.BigInteger(field).signum() > 0 && new java.math.BigInteger(field).bitLength() <= 32, "CURRENT SAM component is invalid"); }

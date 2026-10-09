@@ -111,7 +111,7 @@ public class StorageSmbIdentityRepairRuntimeTest {
             file.addProperty("path", "/var/lib/samba/private/" + ("PASSDB".equals(name) ? "passdb.tdb" : "secrets.tdb"));databases.add(name, file);
         }
         facts.add("databases", databases);com.google.gson.JsonArray namespaces = new com.google.gson.JsonArray();
-        JsonObject namespace = new JsonObject();namespace.addProperty("netbiosName", "SYSTEMVM");namespace.addProperty("machineSid", "S-1-5-21-1-2-3");
+        JsonObject namespace = new JsonObject();namespace.addProperty("samNamespace", "SYSTEMVM");namespace.addProperty("machineSid", "S-1-5-21-1-2-3");
         namespaces.add(namespace);facts.add("publicNamespaceSids", namespaces);
         com.google.gson.JsonArray units = new com.google.gson.JsonArray();JsonObject unit = new JsonObject();unit.addProperty("unit", "smbd.service");
         unit.addProperty("pid", 100);unit.addProperty("startTicks", "12345");unit.addProperty("cgroup", "0::/system.slice/smbd.service");
@@ -480,6 +480,40 @@ public class StorageSmbIdentityRepairRuntimeTest {
         }
         proof.remove("transactionId");Assert.assertThrows(CloudRuntimeException.class, () -> current.currentSmbRecoveryContext(instance, operation));
         Assert.assertTrue(current.calls.isEmpty());
+    }
+
+    @Test public void currentRawSamNamespacesPreserveBothDistinctExistingSidsWithoutWirePrefixCollapse() {
+        JsonObject context = currentContext(), review = currentReview(context);com.google.gson.JsonArray namespaces = review.getAsJsonObject("currentFacts").getAsJsonArray("publicNamespaceSids");
+        String raw = "EPIC898-S-B6AA-ALL4-F1-20261009-RAW-SAM-HOST-NAMESPACE52";
+        Assert.assertTrue(raw.length() > 15 && raw.length() <= 63);
+        JsonObject configured = new JsonObject();configured.addProperty("samNamespace", raw);configured.addProperty("machineSid", "S-1-5-21-111-222-333");
+        JsonObject derived = new JsonObject();derived.addProperty("samNamespace", "STOR3480BB2C99");derived.addProperty("machineSid", "S-1-5-21-444-555-666");
+        namespaces.remove(0);namespaces.add(configured);namespaces.add(derived);
+        StorageSmbCurrentIdentityRecoveryProof.review(context, review, 1000);
+        JsonObject facts = StorageSmbCurrentIdentityRecoveryProof.publicFacts(review);
+        Assert.assertTrue(StorageSmbCurrentIdentityRecoveryProof.literal(facts, "namespaceObserved", true));
+        Assert.assertTrue(StorageSmbCurrentIdentityRecoveryProof.literal(facts, "loadedDaemonSidVerified", false));
+        Assert.assertFalse(facts.toString().contains(raw));Assert.assertFalse(facts.toString().contains("S-1-5-21"));
+        Assert.assertEquals(raw, namespaces.get(0).getAsJsonObject().get("samNamespace").getAsString());
+        Assert.assertNotEquals(namespaces.get(0).getAsJsonObject().get("machineSid"), namespaces.get(1).getAsJsonObject().get("machineSid"));
+        JsonObject reordered = review.deepCopy();com.google.gson.JsonArray reverse = new com.google.gson.JsonArray();reverse.add(derived.deepCopy());reverse.add(configured.deepCopy());
+        reordered.getAsJsonObject("currentFacts").add("publicNamespaceSids", reverse);
+        StorageSmbCurrentIdentityRecoveryProof.review(context, reordered, 1000);
+        // No sorting or wire truncation occurs in this consumer; the native approval hash binds canonical order.
+        Assert.assertNotEquals(review.get("currentFacts"), reordered.get("currentFacts"));
+        for (String invalid : java.util.List.of("x".repeat(64), "ROOT/NAME", "ROOT\\\\NAME", "ROOT NAME", "ROOT" + (char) 0 + "NAME", "lowercase")) {
+            JsonObject wrong = review.deepCopy();wrong.getAsJsonObject("currentFacts").getAsJsonArray("publicNamespaceSids").get(0).getAsJsonObject().addProperty("samNamespace", invalid);
+            Assert.assertThrows(CloudRuntimeException.class, () -> StorageSmbCurrentIdentityRecoveryProof.review(context, wrong, 1000));
+        }
+        JsonObject oldWire = review.deepCopy(), oldRow = oldWire.getAsJsonObject("currentFacts").getAsJsonArray("publicNamespaceSids").get(0).getAsJsonObject();
+        oldRow.remove("samNamespace");oldRow.addProperty("netbiosName", raw.substring(0, 15));
+        Assert.assertThrows(CloudRuntimeException.class, () -> StorageSmbCurrentIdentityRecoveryProof.review(context, oldWire, 1000));
+        JsonObject duplicate = review.deepCopy();duplicate.getAsJsonObject("currentFacts").getAsJsonArray("publicNamespaceSids").add(configured.deepCopy());
+        Assert.assertThrows(CloudRuntimeException.class, () -> StorageSmbCurrentIdentityRecoveryProof.review(context, duplicate, 1000));
+        JsonObject missing = review.deepCopy();missing.getAsJsonObject("currentFacts").getAsJsonArray("publicNamespaceSids").get(0).getAsJsonObject().remove("samNamespace");
+        Assert.assertThrows(CloudRuntimeException.class, () -> StorageSmbCurrentIdentityRecoveryProof.review(context, missing, 1000));
+        JsonObject overflow = review.deepCopy();overflow.getAsJsonObject("currentFacts").getAsJsonArray("publicNamespaceSids").get(0).getAsJsonObject().addProperty("machineSid", "S-1-5-21-4294967296-222-333");
+        Assert.assertThrows(CloudRuntimeException.class, () -> StorageSmbCurrentIdentityRecoveryProof.review(context, overflow, 1000));
     }
 
 }
