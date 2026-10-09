@@ -290,6 +290,18 @@ class Generation:
         if action == "status":
             return self.status()
         request = self.request(request)
+        if action in ("commit","finish","rollback"):
+            local_root=self.root.parent/"smb-local-source-checkpoints"
+            identity=str(uuid.UUID(bytes=hashlib.md5(("local-source-checkpoint:"+request["operationUuid"]).encode()).digest(),version=3))
+            local_path=local_root/(identity+"-journal.json")
+            if os.path.lexists(local_path):
+                parent=local_root.lstat()
+                if not stat.S_ISDIR(parent.st_mode)or parent.st_uid!=os.geteuid()or stat.S_IMODE(parent.st_mode)!=0o700:
+                    raise ValueError("LOCAL checkpoint terminal directory is foreign")
+                local=read_json(local_path)
+                if (not local or local.get("scope")!={**{key:request[key]for key in("instanceUuid","operationUuid","revision")},"localCheckpointUuid":identity}
+                        or local.get("phase")!="RESUMED"or local.get("common",{}).get("expectedBootId")!=str(uuid.UUID(Path("/proc/sys/kernel/random/boot_id").read_text().strip()))):
+                    raise ValueError("LOCAL stopped/recovery checkpoint requires its owned verified resume before generation terminal")
         if action == "frozen":
             return self.frozen(request)
         if action == "frozen-initial":
