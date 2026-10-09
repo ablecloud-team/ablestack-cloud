@@ -90,7 +90,7 @@ def inspect_data(request, blockdevices, filesystems, signature_observer=inspect_
             if source == selected.get("path") or (selected.get("uuid") and mount.get("uuid") == selected["uuid"]):
                 related.append({key: mount[key] for key in ("source", "target", "fstype", "options", "uuid") if key in mount})
         signatures = signature_observer(disk_path)
-        partitioned = bool(disk.get("children")) or any(item.get("path") != disk_path and item.get("_parentDisk", {}).get("path") == disk_path for item in devices)
+        partitioned = bool(disk.get("children")) or any(item.get("path") != disk_path and (item.get("_parentDisk") or {}).get("path") == disk_path for item in devices)
         blank = bool(signatures.get("available") is True and not signatures.get("signatures") and not partitioned
                      and not disk.get("fstype") and not disk.get("uuid") and not disk.get("pttype") and not related)
         result.append({"volumeUuid": volume, "kind": kind, "mappingStatus": "EXACT", "matchedBy": mapped["matchedBy"],
