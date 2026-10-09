@@ -185,6 +185,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         JsonObject receipt;
         JsonObject stageRequest;
         JsonObject retainedRootAuthorization;
+        JsonObject importedRootAuthorization;
         String identityCheckpointSourceConfigurationSha256;
         RenderedBatch(StorageServiceOperationVO operation,JsonObject source,JsonObject manifest,java.security.KeyPair key) {this.operation=operation;this.source=source;this.previousManifest=manifest;this.key=key;}
     }
@@ -1040,6 +1041,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 JsonObject runtime=runtimeUpgradeManager.verifyTemplateRuntime(instance.getId(),value.getAsJsonObject("signedRuntime").getAsJsonObject("pin"),operation.getUuid(),"target");
                 JsonObject authorization=authorizeImportedRootAdIdentity(instance,scope(),identity,runtime);
                 value.add("targetRootAdAuthorization",authorization);persist(value);
+                bindImportedRootRenderedAuthorization(operation,rendered(),authorization,getJsonString(identity,"sourceConfigurationSha256"));
                 value.add("targetRootAdIdentity",retainRootConfigurationAdIdentity(instance,scope(),identity,authorization));persist(value);
             }
             restoreMounts();restoreRootConfigurationIdentity(instance,scope(),identity,fileBindings(),true);
@@ -1082,7 +1084,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             nativeConfigurationGeneration(instance,operation,"begin");
         }
         public void verify() {
-            if(forwardRecoveryRequired())renderedRuntime(instance,rendered()).requireCommittedAvailable();else resourceCheckpoint(false);requireBinding(row.getTargetRootVolumeId(),row.getTargetTemplateId());sameTopology();
+            if(forwardRecoveryRequired()){renderedRuntime(instance,rendered()).requireCommittedAvailable();prepareRootLkgTargetIdentity(instance,operation,rendered(),scope(),rendered().receipt);}else resourceCheckpoint(false);requireBinding(row.getTargetRootVolumeId(),row.getTargetTemplateId());sameTopology();
             JsonObject runtimeProof=runtimeUpgradeManager.verifyTemplateRuntime(instance.getId(),snapshot().getAsJsonObject("signedRuntime").getAsJsonObject("pin"),operation.getUuid(),"target");
             verifyReconciledStorageDesiredState(instance);JsonObject health=rootGuest(instance,"operation verify",new JsonObject(),60);
             if (!"ok".equalsIgnoreCase(getJsonString(health,"status"))) throw new CloudRuntimeException("ROOT runtime health is degraded");
@@ -1094,6 +1096,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 public JsonObject render(String action,JsonObject request){return base.render(action,request);}public JsonObject nativeGenerationStatus(){return base.nativeGenerationStatus();}
                 public void save(JsonObject receipt){base.save(receipt);}public void requireAvailable(){base.requireAvailable();}public void requireCommittedAvailable(){base.requireCommittedAvailable();}public void verifyAllProtocols(){base.verifyAllProtocols();}
                 public void commitGeneration(JsonObject receipt){base.commitGeneration(receipt);}public void rollbackGeneration(JsonObject receipt){base.rollbackGeneration(receipt);}
+                public void preparePromotionIdentity(JsonObject receipt){prepareRootLkgTargetIdentity(instance,operation,batch,scope(),receipt);}
                 public void releaseMaintenance(){releaseRootLease();RootUpgradeRuntime.this.releaseMaintenance(target?"targetMaintenanceScope":"sourceMaintenanceScope");}public void promote(){complete(target);}
             },operationReservationScope(instance,operation));
         }
@@ -1189,6 +1192,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             JsonObject protocols=resumed.has("protocols")&&resumed.get("protocols").isJsonObject()?resumed.getAsJsonObject("protocols"):new JsonObject();for(String domain:List.of("NFS","SMB","ISCSI","NVMEOF"))if(!Boolean.TRUE.equals(getNativeBoolean(protocols,domain)))throw new CloudRuntimeException("Previous ROOT source resume has an unverified runtime protocol");sameTopology();
         }
         public void verifyPrevious() {
+            if(manualRollback&&forwardRecoveryRequired())prepareRootLkgTargetIdentity(instance,operation,rendered(),scope(),rendered().receipt);
             requireBinding(row.getPreviousRootVolumeId(),row.getSourceTemplateId());
             JsonObject runtimeProof=row.getSnapshotJson()==null?new JsonObject():manualRollback?runtimeUpgradeManager.verifyRetainedLatestTemplateRuntime(instance.getId(),previousRuntimeApproval().getAsJsonObject("pin"),operation.getUuid(),retainedLatestRuntimeApproval()):runtimeUpgradeManager.verifyTemplateRuntime(instance.getId(),previousRuntimeApproval().getAsJsonObject("pin"),operation.getUuid(),"previous");
             verifyReconciledStorageDesiredState(instance);JsonObject health=rootGuest(instance,"operation verify",new JsonObject(),60);
@@ -1197,7 +1201,20 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             if (row.getSnapshotJson()!=null) {JsonObject value=snapshot();value.addProperty("serviceVerifiedAt",System.currentTimeMillis());value.addProperty("rollbackServiceVerifiedAt",System.currentTimeMillis());persist(value);}
             if(manualRollback&&forwardRecoveryRequired())renderedRuntime(instance,rendered()).requireCommittedAvailable();else resourceCheckpoint(false);
             if (manualRollback) {JsonObject commitState=snapshot();commitState.addProperty("renderedCommitStarted",true);persist(commitState);RenderedBatch batch=rendered();StorageRenderedGenerationCoordinator.Runtime delegate=renderedRuntime(instance,batch);new StorageRenderedGenerationCoordinator(new StorageRenderedGenerationCoordinator.Runtime(){
-                public JsonObject render(String action,JsonObject request){return delegate.render(action,request);}public void save(JsonObject receipt){delegate.save(receipt);}public void requireAvailable(){delegate.requireAvailable();}public void requireCommittedAvailable(){delegate.requireCommittedAvailable();}public void verifyAllProtocols(){delegate.verifyAllProtocols();}public JsonObject nativeGenerationStatus(){return delegate.nativeGenerationStatus();}public void commitGeneration(JsonObject receipt){delegate.commitGeneration(receipt);}public void rollbackGeneration(JsonObject receipt){throw new CloudRuntimeException("Retained ROOT historical rollback is forbidden");}public void releaseMaintenance(){releaseRootLease();RootUpgradeRuntime.this.releaseMaintenance("sourceMaintenanceScope");}public void promote(){operation.setSnapshotJson(captureConfigurationSnapshot(instance.getId()));complete(false);}
+                public JsonObject render(String action,JsonObject request){return delegate.render(action,request);
+                }public void save(JsonObject receipt){delegate.save(receipt);
+                }public void requireAvailable(){delegate.requireAvailable();
+                }public void requireCommittedAvailable(){delegate.requireCommittedAvailable();
+                }public void verifyAllProtocols(){delegate.verifyAllProtocols();
+                }public JsonObject nativeGenerationStatus(){return delegate.nativeGenerationStatus();
+                }public void commitGeneration(JsonObject receipt){delegate.commitGeneration(receipt);
+                }public void rollbackGeneration(JsonObject receipt){throw new CloudRuntimeException("Retained ROOT historical rollback is forbidden");
+                }public void preparePromotionIdentity(JsonObject receipt){prepareRootLkgTargetIdentity(instance,operation,batch,scope(),receipt);
+                }public void releaseMaintenance(){releaseRootLease();
+                RootUpgradeRuntime.this.releaseMaintenance("sourceMaintenanceScope");
+                }public void promote(){operation.setSnapshotJson(captureConfigurationSnapshot(instance.getId()));
+                complete(false);
+                }
             },operationReservationScope(instance,operation)).commit(batch.receipt,renderedActivationRequest(instance,batch));}
             else if (row.getSnapshotJson()!=null) {releaseRootLease();releaseMaintenance("sourceMaintenanceScope");}
         }
@@ -1449,9 +1466,25 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
     protected RenderedBatch createRenderedBatch(StorageServiceInstanceVO instance,StorageServiceOperationVO operation,JsonObject before,JsonObject manifest,JsonObject rootScope,JsonObject retainedAuthorization,String latestIdentitySha) {
         java.security.KeyPair key;byte[] protectedKey;
-        if(retainedAuthorization==null){key=StorageIdentityCapsule.wrappingKey();protectedKey=StorageIdentityCapsule.protectedPrivateKey(key);}else {StorageServiceTemplateUpgradeVO root=storageTemplateUpgradeDao.findActive(instance.getId());if(root==null||!Long.valueOf(operation.getId()).equals(root.getOperationId()))throw new CloudRuntimeException("Retained ROOT checkpoint key has no active protected parent");JsonObject identity=parseJsonObject(root.getSnapshotJson()).getAsJsonObject("identity");if(identity==null||!rootScope.equals(identity.get("sourceRootScope")))throw new CloudRuntimeException("Retained ROOT checkpoint key belongs to another latest source scope");StorageConfigArtifactStore identities=new StorageConfigArtifactStore(java.nio.file.Path.of(System.getProperty("cloudstack.storage.identity.path","/var/lib/cloudstack-management/storage-identity-capsules")));protectedKey=identities.read(getJsonString(identity,"keyId"),getJsonString(identity,"keySha256"));key=restoredRenderedKey(protectedKey);}
+        boolean importedRootSource=retainedAuthorization==null&&rootScope!=null&&rootScope.has("templateUpgradeUuid")&&hasJoinedStorageAdDomain(instance);
+        if(importedRootSource) {
+            JsonObject identity=getJsonObject(parseJsonObject(operation.getPreviousSnapshotJson()),"nativeIdentityCapsule");
+            if(identity==null||!rootScope.equals(identity.get("sourceRootScope"))||!operation.getUuid().equals(getJsonString(identity,"operationUuid"))||!java.util.UUID.nameUUIDFromBytes(("identity-key:"+operation.getUuid()).getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString().equals(getJsonString(identity,"keyId")))throw new CloudRuntimeException("Forward ROOT rendering requires its exact original protected identity key");
+            StorageConfigArtifactStore identities=new StorageConfigArtifactStore(java.nio.file.Path.of(System.getProperty("cloudstack.storage.identity.path","/var/lib/cloudstack-management/storage-identity-capsules")));
+            identities.read(operation.getUuid(),getJsonString(identity,"capsuleSha256"));protectedKey=identities.read(getJsonString(identity,"keyId"),getJsonString(identity,"keySha256"));key=restoredRenderedKey(protectedKey);latestIdentitySha=getJsonString(identity,"sourceConfigurationSha256");
+            if(latestIdentitySha==null||!latestIdentitySha.matches("[a-f0-9]{64}"))throw new CloudRuntimeException("Forward ROOT authenticated SOURCE configuration digest is unavailable");
+        }else if(retainedAuthorization==null){key=StorageIdentityCapsule.wrappingKey();
+        protectedKey=StorageIdentityCapsule.protectedPrivateKey(key);
+        }else {StorageServiceTemplateUpgradeVO root=storageTemplateUpgradeDao.findActive(instance.getId());
+        if(root==null||!Long.valueOf(operation.getId()).equals(root.getOperationId()))throw new CloudRuntimeException("Retained ROOT checkpoint key has no active protected parent");
+        JsonObject identity=parseJsonObject(root.getSnapshotJson()).getAsJsonObject("identity");
+        if(identity==null||!rootScope.equals(identity.get("sourceRootScope")))throw new CloudRuntimeException("Retained ROOT checkpoint key belongs to another latest source scope");
+        StorageConfigArtifactStore identities=new StorageConfigArtifactStore(java.nio.file.Path.of(System.getProperty("cloudstack.storage.identity.path","/var/lib/cloudstack-management/storage-identity-capsules")));
+        protectedKey=identities.read(getJsonString(identity,"keyId"),getJsonString(identity,"keySha256"));
+        key=restoredRenderedKey(protectedKey);
+        }
         String keyId=java.util.UUID.nameUUIDFromBytes(("rendered-key:"+operation.getUuid()).getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString();
-        if(retainedAuthorization==null)renderedKeyStore().write(keyId,protectedKey);else {try{byte[] existing=renderedKeyStore().read(keyId,StorageConfigArchive.sha256(protectedKey));if(!java.util.Arrays.equals(existing,protectedKey))throw new CloudRuntimeException("Retained ROOT encrypted checkpoint key changed");}catch(CloudRuntimeException absent){java.nio.file.Path path=java.nio.file.Path.of(System.getProperty("cloudstack.storage.rendered.keys.path","/var/lib/cloudstack-management/storage-rendered-keys")).resolve(keyId+".zip");if(java.nio.file.Files.exists(path,java.nio.file.LinkOption.NOFOLLOW_LINKS))throw absent;renderedKeyStore().write(keyId,protectedKey);}}
+        if(retainedAuthorization==null&&!importedRootSource)renderedKeyStore().write(keyId,protectedKey);else {try{byte[] existing=renderedKeyStore().read(keyId,StorageConfigArchive.sha256(protectedKey));if(!java.util.Arrays.equals(existing,protectedKey))throw new CloudRuntimeException("Retained ROOT encrypted checkpoint key changed");}catch(CloudRuntimeException absent){java.nio.file.Path path=java.nio.file.Path.of(System.getProperty("cloudstack.storage.rendered.keys.path","/var/lib/cloudstack-management/storage-rendered-keys")).resolve(keyId+".zip");if(java.nio.file.Files.exists(path,java.nio.file.LinkOption.NOFOLLOW_LINKS))throw absent;renderedKeyStore().write(keyId,protectedKey);}}
         RenderedBatch batch=new RenderedBatch(operation,before.deepCopy(),manifest.deepCopy(),key);
         JsonObject snapshot=parseJsonObject(operation.getPreviousSnapshotJson()),rendered=new JsonObject();
         rendered.addProperty("keyId",keyId);
@@ -1464,7 +1497,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         batch.identityCheckpointSourceConfigurationSha256=latestIdentitySha;
         rendered.add("retainedRootAuthorization",retainedAuthorization.deepCopy());
         rendered.addProperty("identityCheckpointSourceConfigurationSha256",latestIdentitySha);
-        }snapshot.add("renderedGeneration",rendered);
+        }if(importedRootSource){batch.identityCheckpointSourceConfigurationSha256=latestIdentitySha;rendered.addProperty("identityCheckpointSourceConfigurationSha256",latestIdentitySha);rendered.addProperty("rootOriginalIdentityKey",true);}snapshot.add("renderedGeneration",rendered);
         operation.setPreviousSnapshotJson(snapshot.toString());
         if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Rendered encrypted recovery key reference could not be persisted");
         return batch;
@@ -1526,17 +1559,25 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         return createRenderedBatch(instance,operation,before,manifest,rootScope,authorization,latestIdentitySha);
     }
 
+    protected void bindImportedRootRenderedAuthorization(StorageServiceOperationVO operation,RenderedBatch batch,JsonObject authorization,String sourceSha) {
+        requireRootAdAuthorizationReference(authorization);
+        if(batch.retainedRootAuthorization!=null||sourceSha==null||!sourceSha.matches("[a-f0-9]{64}")||!sourceSha.equals(batch.identityCheckpointSourceConfigurationSha256))throw new CloudRuntimeException("Forward ROOT authorization differs from its original source key binding");
+        JsonObject snapshot=parseJsonObject(operation.getPreviousSnapshotJson()),saved=snapshot.getAsJsonObject("renderedGeneration");
+        if(saved==null||!Boolean.TRUE.equals(getNativeBoolean(saved,"rootOriginalIdentityKey"))||!sourceSha.equals(getJsonString(saved,"identityCheckpointSourceConfigurationSha256")))throw new CloudRuntimeException("Forward ROOT cannot adopt a random or historical SOURCE checkpoint key");
+        if(saved.has("importedRootAuthorization")&&!authorization.equals(saved.get("importedRootAuthorization")))throw new CloudRuntimeException("Forward ROOT imported opaque authorization changed on retry");
+        batch.importedRootAuthorization=authorization.deepCopy();saved.add("importedRootAuthorization",authorization.deepCopy());operation.setPreviousSnapshotJson(snapshot.toString());if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Forward ROOT source authority could not be bound before staging");
+    }
     protected void stageRootRendered(StorageServiceInstanceVO instance,StorageServiceOperationVO operation,RenderedBatch batch,JsonObject canonical) {
         if(batch.receipt!=null&&batch.receipt.has("staged")) {
             String phase=getJsonString(batch.receipt,"phase");if(Set.of("VERIFIED","GENERATION_COMMITTING","GENERATION_COMMITTED","FINALIZED","RELEASED","COMPLETE").contains(phase)){verifyReconciledStorageDesiredState(instance);return;}
             renderedCoordinator(instance,batch).activate(batch.receipt,renderedActivationRequest(instance,batch));return;
         }
-        JsonObject request=renderedRequest(instance,operation,canonical,batch.source.getAsJsonObject("generation"),batch.previousManifest);request.addProperty("checkpointPublicKey",StorageIdentityCapsule.pem("PUBLIC KEY",batch.key.getPublic().getEncoded()));request.add("credentialRefs",renderedCredentialReferences(batch,canonical));if(batch.retainedRootAuthorization!=null)request.add("retainedRootAuthorization",batch.retainedRootAuthorization.deepCopy());batch.stageRequest=request;
-        StorageRenderedGenerationCoordinator coordinator=renderedCoordinator(instance,batch);batch.receipt=coordinator.stage(request);if(batch.retainedRootAuthorization!=null&&!batch.identityCheckpointSourceConfigurationSha256.equals(getJsonString(batch.receipt.getAsJsonObject("staged"),"identityCheckpointSourceConfigurationSha256")))throw new CloudRuntimeException("Retained ROOT checkpoint is not bound to authenticated latest identity");coordinator.activate(batch.receipt,renderedActivationRequest(instance,batch));
+        JsonObject request=renderedRequest(instance,operation,canonical,batch.source.getAsJsonObject("generation"),batch.previousManifest);request.addProperty("checkpointPublicKey",StorageIdentityCapsule.pem("PUBLIC KEY",batch.key.getPublic().getEncoded()));request.add("credentialRefs",renderedCredentialReferences(batch,canonical));if(batch.retainedRootAuthorization!=null)request.add("retainedRootAuthorization",batch.retainedRootAuthorization.deepCopy());if(batch.importedRootAuthorization!=null)request.add("importedRootAuthorization",batch.importedRootAuthorization.deepCopy());batch.stageRequest=request;
+        StorageRenderedGenerationCoordinator coordinator=renderedCoordinator(instance,batch);batch.receipt=coordinator.stage(request);if((batch.retainedRootAuthorization!=null||batch.importedRootAuthorization!=null)&&!batch.identityCheckpointSourceConfigurationSha256.equals(getJsonString(batch.receipt.getAsJsonObject("staged"),"identityCheckpointSourceConfigurationSha256")))throw new CloudRuntimeException("Retained ROOT checkpoint is not bound to authenticated latest identity");coordinator.activate(batch.receipt,renderedActivationRequest(instance,batch));
     }
 
     protected JsonObject renderedRollbackRequest(StorageServiceInstanceVO instance,RenderedBatch batch) {
-        if(batch.retainedRootAuthorization!=null)throw new CloudRuntimeException("Retained ROOT cannot replay historical state; recover its latest captured source ROOT");
+        if(batch.retainedRootAuthorization!=null||batch.importedRootAuthorization!=null)throw new CloudRuntimeException("Authenticated ROOT source recovery requires its physical ROOT transaction");
         return renderedCheckpointRequest(instance,batch);
     }
     private JsonObject renderedCheckpointRequest(StorageServiceInstanceVO instance,RenderedBatch batch) {
@@ -1553,7 +1594,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     protected JsonObject renderedCredentialReferences(RenderedBatch batch,JsonObject canonical) {
-        JsonObject checkpoint=new JsonObject();checkpoint.addProperty("kind","IDENTITY_CHECKPOINT");checkpoint.addProperty("operationUuid",batch.operation.getUuid());if(batch.retainedRootAuthorization==null)checkpoint.add("sourceConfigurationSha256",batch.source.get("configurationSha256").deepCopy());else checkpoint.addProperty("sourceConfigurationSha256",batch.identityCheckpointSourceConfigurationSha256);
+        JsonObject checkpoint=new JsonObject();checkpoint.addProperty("kind","IDENTITY_CHECKPOINT");checkpoint.addProperty("operationUuid",batch.operation.getUuid());if(batch.retainedRootAuthorization==null&&batch.importedRootAuthorization==null)checkpoint.add("sourceConfigurationSha256",batch.source.get("configurationSha256").deepCopy());else checkpoint.addProperty("sourceConfigurationSha256",batch.identityCheckpointSourceConfigurationSha256);
         JsonObject refs=new JsonObject();
         for(String domain:List.of("SMB","ISCSI","NVMEOF"))refs.add(domain,new JsonObject());
         JsonElement smb=canonical.get(StorageRenderedDesiredState.PROTOCOL_PATHS.get(StorageServiceInstance.Protocol.SMB));
@@ -1639,8 +1680,44 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
         JsonObject resumed=StorageAdIdentityProof.targetObservation(rootGuest(instance,"operation generation render-service-resume-target",request,120),scope,generation,targetSha,renderedSha,boot,localSid,false,true);snapshot.add("lkgTargetResumed",resumed);saveLkgTargetSnapshot(operation,snapshot);
     }
+    protected void prepareRootLkgTargetIdentity(StorageServiceInstanceVO instance,StorageServiceOperationVO operation,RenderedBatch batch,JsonObject rootScope,JsonObject receipt) {
+        if(!hasJoinedStorageAdDomain(instance))return;
+        if(batch.retainedRootAuthorization!=null&&batch.importedRootAuthorization!=null||batch.retainedRootAuthorization==null&&batch.importedRootAuthorization==null)throw new CloudRuntimeException("ROOT TARGET requires exactly one authenticated original ROOT authority");
+        JsonObject authority=batch.importedRootAuthorization==null?batch.retainedRootAuthorization:batch.importedRootAuthorization;requireRootAdAuthorizationReference(authority);
+        JsonObject status=nativeConfigurationGeneration(instance,null,"status"),generation=getJsonObject(status,"generation"),staged=receipt.getAsJsonObject("staged");String targetSha=getJsonString(staged,"configurationSha256"),renderedSha=getJsonString(staged,"renderedManifestSha256"),boot=getJsonString(status,"bootId");
+        if(!rootScope.keySet().equals(Set.of("instanceUuid","operationUuid","templateUpgradeUuid","revision"))||!scopeAsOperation(rootScope).equals(operationReservationScope(instance,operation))||!"IN_SYNC".equals(getJsonString(status,"generationStatus"))||getJsonString(status,"pendingOperationUuid")!=null
+                ||generation==null||!operation.getUuid().equals(getJsonString(generation,"operationUuid"))||!instance.getUuid().equals(getJsonString(generation,"instanceUuid"))||!Long.valueOf(operation.getRevision()).equals(getJsonLong(generation,"revision"))||targetSha==null||!targetSha.equals(getJsonString(status,"configurationSha256"))||boot==null||!boot.matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"))throw new CloudRuntimeException("ROOT TARGET identity requires its exact committed current generation and boot");
+        StorageIdentityDomainVO domain=storageIdentityDomainDao.findByInstanceId(instance.getId());JsonObject original=getJsonObject(parseJsonObject(domain.getConfigJson()),"identityReceipt");String localSid=getJsonString(original,"machineSid");
+        if(localSid==null)throw new CloudRuntimeException("ROOT TARGET has no original SAME_VM local SAM binding");
+        JsonObject snapshot=parseJsonObject(operation.getPreviousSnapshotJson()),request=rootScope.deepCopy();request.addProperty("targetConfigurationSha256",targetSha);request.add(batch.importedRootAuthorization==null?"retainedRootAuthorization":"importedRootAuthorization",authority.deepCopy());
+        if(Set.of("FINALIZED","RELEASED","COMPLETE").contains(getJsonString(receipt,"phase"))&&snapshot.has("rootLkgTargetIdentity")&&snapshot.has("rootLkgTargetResumed")){StorageAdIdentityProof.rootTargetObservation(snapshot.getAsJsonObject("rootLkgTargetResumed"),rootScope,generation,targetSha,renderedSha,boot,localSid,false,true);verifyReconciledStorageDesiredState(instance);return;}
+        if(!snapshot.has("rootLkgTargetCaptureIntent")){snapshot.add("rootLkgTargetCaptureIntent",request.deepCopy());saveLkgTargetSnapshot(operation,snapshot);}else if(!request.equals(snapshot.get("rootLkgTargetCaptureIntent")))throw new CloudRuntimeException("ROOT TARGET retry changed its durable capture intent");
+        JsonObject captured=snapshot.has("rootLkgTargetCaptured")?snapshot.getAsJsonObject("rootLkgTargetCaptured"):StorageAdIdentityProof.rootTargetObservation(rootGuest(instance,"operation generation render-root-capture-target",request,60),rootScope,generation,targetSha,renderedSha,boot,localSid,false,false);
+        StorageAdIdentityProof.rootTargetObservation(captured,rootScope,generation,targetSha,renderedSha,boot,localSid,false,false);if(!snapshot.has("rootLkgTargetCaptured")){snapshot.add("rootLkgTargetCaptured",captured);saveLkgTargetSnapshot(operation,snapshot);}
+        if(!snapshot.has("rootLkgTargetIdentity")) {
+            snapshot.addProperty("rootLkgTargetStopRequested",true);saveLkgTargetSnapshot(operation,snapshot);
+            JsonObject stopped=StorageAdIdentityProof.rootTargetObservation(rootGuest(instance,"operation generation render-root-quiesce-target",request,120),rootScope,generation,targetSha,renderedSha,boot,localSid,true,false);snapshot.add("rootLkgTargetStopped",stopped);saveLkgTargetSnapshot(operation,snapshot);
+            JsonObject export=configurationIdentityExportRequest(instance,operation.getUuid(),batch.key);for(Map.Entry<String,JsonElement> field:request.entrySet())export.add(field.getKey(),field.getValue().deepCopy());export.addProperty("includePosixPolicyReceipts",true);
+            StorageServiceGuestCommandResult result=guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),"identity capsule export-root-target",export.toString(),120,Set.of("capsule")));
+            if(!result.isSuccess())throw new CloudRuntimeException("ROOT TARGET protected RAW identity export failed");JsonObject exported=parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));if(!Boolean.TRUE.equals(getNativeBoolean(exported,"success")))throw new CloudRuntimeException("ROOT TARGET export has no literal success proof");
+            JsonObject capsule=exported.getAsJsonObject("capsule"),checkpoint=StorageAdIdentityProof.rootTargetCipherCheckpoint(getJsonObject(exported,"rootIdentityCheckpoint"),capsule,rootScope,targetSha);
+            StorageConfigArtifactStore store=new StorageConfigArtifactStore(java.nio.file.Path.of(System.getProperty("cloudstack.storage.identity.path","/var/lib/cloudstack-management/storage-identity-capsules")));String id=java.util.UUID.nameUUIDFromBytes(("identity-root-lkg-target:"+operation.getUuid()).getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString(),keyId=java.util.UUID.nameUUIDFromBytes(("identity-key-root-lkg-target:"+operation.getUuid()).getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString();byte[] bytes=capsule.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            JsonObject rendered=snapshot.getAsJsonObject("renderedGeneration");byte[] key=renderedKeyStore().read(getJsonString(rendered,"keyId"),getJsonString(rendered,"keySha256"));
+            if(store.contains(id))store.read(id,StorageConfigArchive.sha256(bytes));else store.write(id,bytes);if(store.contains(keyId))store.read(keyId,StorageConfigArchive.sha256(key));else store.write(keyId,key);
+            JsonObject reference=new JsonObject();reference.add("targetMaintenanceScope",rootScope.deepCopy());reference.addProperty("targetConfigurationSha256",targetSha);reference.addProperty("operationUuid",operation.getUuid());reference.addProperty("capsuleId",id);reference.addProperty("capsuleSha256",StorageConfigArchive.sha256(bytes));reference.addProperty("keyId",keyId);reference.addProperty("keySha256",StorageConfigArchive.sha256(key));reference.add("targetRootIdentityCheckpoint",checkpoint);snapshot.add("rootLkgTargetIdentity",reference);saveLkgTargetSnapshot(operation,snapshot);
+        }
+        JsonObject resumed=StorageAdIdentityProof.rootTargetObservation(rootGuest(instance,"operation generation render-root-resume-target",request,120),rootScope,generation,targetSha,renderedSha,boot,localSid,false,true);snapshot.add("rootLkgTargetResumed",resumed);saveLkgTargetSnapshot(operation,snapshot);
+    }
     protected JsonObject retainLkgTargetIdentity(StorageServiceInstanceVO instance,StorageServiceOperationVO operation,String ownerArtifact) {
-        JsonObject snapshot=parseJsonObject(operation.getPreviousSnapshotJson());if(!snapshot.has("lkgTargetIdentity")||!snapshot.has("lkgTargetResumed")||!Boolean.TRUE.equals(getNativeBoolean(snapshot.getAsJsonObject("lkgTargetResumed"),"targetRuntimeVerified")))throw new CloudRuntimeException("AD LKG promotion requires its distinct resumed TARGET identity");
+        JsonObject snapshot=parseJsonObject(operation.getPreviousSnapshotJson());
+        if(snapshot.has("rootLkgTargetIdentity")) {
+            if(!operation.getAction().startsWith("ROOT_TEMPLATE_")||!snapshot.has("rootLkgTargetResumed")||!Boolean.TRUE.equals(getNativeBoolean(snapshot.getAsJsonObject("rootLkgTargetResumed"),"targetRuntimeVerified")))throw new CloudRuntimeException("ROOT AD LKG promotion requires its distinct resumed ROOT TARGET identity");
+            JsonObject target=snapshot.getAsJsonObject("rootLkgTargetIdentity"),resumed=snapshot.getAsJsonObject("rootLkgTargetResumed");
+            if(!target.get("targetMaintenanceScope").equals(resumed.get("scope"))||!target.get("targetConfigurationSha256").equals(resumed.get("targetConfigurationSha256")))throw new CloudRuntimeException("ROOT LKG resumed identity does not match its exact target checkpoint");
+            RenderedBatch batch=renderedBatch.get();if(batch==null||batch.operation.getId()!=operation.getId())batch=restoreRenderedBatch(operation);
+            StorageConfigArtifactStore store=new StorageConfigArtifactStore(java.nio.file.Path.of(System.getProperty("cloudstack.storage.identity.path","/var/lib/cloudstack-management/storage-identity-capsules")));return StorageAdSemanticSource.retainRootTarget(store,ownerArtifact,instance.getUuid(),operation.getUuid(),snapshot.getAsJsonObject("rootLkgTargetIdentity"),batch.key.getPrivate());
+        }
+        if(!snapshot.has("lkgTargetIdentity")||!snapshot.has("lkgTargetResumed")||!Boolean.TRUE.equals(getNativeBoolean(snapshot.getAsJsonObject("lkgTargetResumed"),"targetRuntimeVerified")))throw new CloudRuntimeException("AD LKG promotion requires its distinct resumed TARGET identity");
         RenderedBatch batch=renderedBatch.get();if(batch==null||batch.operation.getId()!=operation.getId())throw new CloudRuntimeException("AD LKG promotion wrapping-key scope changed");
         StorageConfigArtifactStore store=new StorageConfigArtifactStore(java.nio.file.Path.of(System.getProperty("cloudstack.storage.identity.path","/var/lib/cloudstack-management/storage-identity-capsules")));return StorageAdSemanticSource.retainTarget(store,ownerArtifact,instance.getUuid(),operation.getUuid(),snapshot.getAsJsonObject("lkgTargetIdentity"),batch.key.getPrivate());
     }
@@ -1660,6 +1737,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if(saved.has("retainedRootAuthorization")){batch.retainedRootAuthorization=saved.getAsJsonObject("retainedRootAuthorization").deepCopy();
         batch.identityCheckpointSourceConfigurationSha256=getJsonString(saved,"identityCheckpointSourceConfigurationSha256");
         if(batch.identityCheckpointSourceConfigurationSha256==null||!batch.identityCheckpointSourceConfigurationSha256.matches("[a-f0-9]{64}"))throw new CloudRuntimeException("Retained ROOT latest identity checkpoint hash is unavailable");
+        }if(Boolean.TRUE.equals(getNativeBoolean(saved,"rootOriginalIdentityKey"))){
+            batch.identityCheckpointSourceConfigurationSha256=getJsonString(saved,"identityCheckpointSourceConfigurationSha256");if(batch.identityCheckpointSourceConfigurationSha256==null||!batch.identityCheckpointSourceConfigurationSha256.matches("[a-f0-9]{64}"))throw new CloudRuntimeException("Forward ROOT original SOURCE configuration digest is invalid");
+            if(saved.has("importedRootAuthorization")){batch.importedRootAuthorization=saved.getAsJsonObject("importedRootAuthorization").deepCopy();requireRootAdAuthorizationReference(batch.importedRootAuthorization);}
         }batch.receipt=saved.has("receipt")&&saved.get("receipt").isJsonObject()?saved.getAsJsonObject("receipt").deepCopy():new JsonObject();
         if(!batch.receipt.has("phase"))batch.receipt.addProperty("phase","PREPARED");
         if(!batch.receipt.has("scope"))batch.receipt.add("scope",operationReservationScope(storageServiceInstanceDao.findById(operation.getInstanceId()),operation));
@@ -1671,7 +1751,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
 
     protected void recoverRenderedStorageWriter(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
         JsonObject bootstrap=parseJsonObject(operation.getPreviousSnapshotJson());if(bootstrap.has("adSamBootstrapAttempted")&&!bootstrap.has("adSamBootstrapReceipt"))throw new CloudRuntimeException("Unresolved local SAM initialization requires its owned reconciliation before generic native rollback");
-        RenderedBatch batch=restoreRenderedBatch(operation);if(batch.retainedRootAuthorization!=null)throw new CloudRuntimeException("Retained ROOT recovery requires its latest-source ROOT compensation transaction");requiredRenderedValidationProfile(instance);
+        RenderedBatch batch=restoreRenderedBatch(operation);if(batch.retainedRootAuthorization!=null||batch.importedRootAuthorization!=null)throw new CloudRuntimeException("Authenticated ROOT recovery requires its physical ROOT compensation transaction");requiredRenderedValidationProfile(instance);
         operation.setState("RUNNING");operation.setCompleted(null);if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Rendered recovery writer could not be persisted");beginStorageWriterHeartbeat(operation);renderedBatch.set(batch);
         try {
             StorageRenderedGenerationCoordinator coordinator=renderedCoordinator(instance,batch);
