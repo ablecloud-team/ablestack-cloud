@@ -74,7 +74,7 @@ test('unconfirmed submit survives navigation and never automatically reposts dep
   wrapper.unmount()
 })
 test('rechecking a completed job records the VM and never calls deploy again', async () => {
-  getAPI.mockResolvedValue({ queryasyncjobresultresponse: { jobstatus: 1, jobresult: { virtualmachine: { id: 'new-vm' } } } })
+  getAPI.mockImplementation(async command => command === 'queryAsyncJobResult' ? { queryasyncjobresultresponse: { jobstatus: 1, jobresult: { virtualmachine: { id: 'new-vm' } } } } : command === 'listVirtualMachines' ? { listvirtualmachinesresponse: {} } : { listvolumesresponse: {} })
   const operations = [{ jobid: 'job', status: 'pending', created: 'run-2' }]
   const wrapper = mountOperations(operations); await wrapper.vm.check(operations[0])
   expect(operations[0]).toMatchObject({ vmid: 'new-vm', status: 'complete' }); expect(postAPI).not.toHaveBeenCalled(); wrapper.unmount()
@@ -98,6 +98,7 @@ test('lost deploy response reconciles by source UUID, VM name and creation time 
         }
       }
     }
+    if (command === 'listVolumes') return { listvolumesresponse: {} }
     if (command === 'listAsyncJobs') return { listasyncjobsresponse: { asyncjobs: [{ jobid: 'job', jobinstanceid: 'vm', cmd: 'org.apache.cloudstack.api.command.user.vm.DeployVMCmd', created: '2026-10-09T01:00:01Z' }] } }
     return { queryasyncjobresultresponse: { jobstatus: 1, jobresult: { virtualmachine: { id: 'vm' } } } }
   })
@@ -165,4 +166,32 @@ test('response-loss recovery bounds its lookup and leaves unmatched operations u
   expect(getAPI).toHaveBeenCalledWith('listVirtualMachines', { keyword: 'pending', details: 'all' }, { backgroundJob: true, timeout: 15000 })
   expect(op.jobid).toBeUndefined()
   expect(postAPI).not.toHaveBeenCalled()
+})
+
+const recoveredOperation = () => ({ sourceid: 'source-uuid', sourcekind: 'snapshot', name: 'unique-fixture', requiredDataDisks: 1, startvm: false, status: 'unknown', created: '2026-10-09T01:00:00Z' })
+const restoredVm = () => ({ id: 'vm', name: 'unique-fixture', state: 'Stopped', created: '2026-10-09T01:00:01Z', details: { 'vm.creation.source.id': 'source-uuid', 'vm.creation.source.kind': 'snapshot' } })
+const restoredDisks = () => [{ id: 'new-root', type: 'ROOT', deviceid: 0, state: 'Ready', virtualmachineid: 'vm' }, { id: 'data', type: 'DATADISK', deviceid: 1, state: 'Ready', virtualmachineid: 'vm' }]
+const mockFinishedRestore = (vm, volumes) => getAPI.mockImplementation(async command => command === 'listVirtualMachines' ? { listvirtualmachinesresponse: { virtualmachine: [vm] } } : command === 'listAsyncJobs' ? { listasyncjobsresponse: {} } : { listvolumesresponse: { volume: volumes } })
+test('response loss after a job leaves the pending list reconciles only matching VM and all Ready disks', async () => {
+  const operation = recoveredOperation(); mockFinishedRestore(restoredVm(), restoredDisks())
+  const wrapper = mountOperations([operation]); await wrapper.vm.check(operation)
+  expect(operation).toMatchObject({ vmid: 'vm', rootid: 'new-root', status: 'complete', reconciled: true, retryable: false })
+  expect(operation.jobid).toBeUndefined(); expect(postAPI).not.toHaveBeenCalled(); wrapper.unmount()
+})
+test.each(['missing-data', 'allocated-root', 'other-vm-root', 'old-operation-without-disk-count', 'start-not-running'])('incomplete or uncertain readback remains blocked: %s', async reason => {
+  const operation = recoveredOperation(); const volumes = restoredDisks()
+  if (reason === 'missing-data') volumes.pop()
+  if (reason === 'allocated-root') volumes[0].state = 'Allocated'
+  if (reason === 'other-vm-root') volumes[0].virtualmachineid = 'other-vm'
+  if (reason === 'old-operation-without-disk-count') delete operation.requiredDataDisks
+  if (reason === 'start-not-running') operation.startvm = true
+  mockFinishedRestore(restoredVm(), volumes)
+  const wrapper = mountOperations([operation]); await wrapper.vm.check(operation)
+  expect(operation.status).toBe('unknown'); expect(operation.reconciled).toBeUndefined(); expect(postAPI).not.toHaveBeenCalled(); wrapper.unmount()
+})
+test('retry refuses a stopped Ready ROOT that belongs to a different source', async () => {
+  const operation = { ...recoveredOperation(), vmid: 'vm', status: 'failed' }; const vm = restoredVm(); vm.details['vm.creation.source.id'] = 'other-source'
+  mockFinishedRestore(vm, restoredDisks())
+  const wrapper = mountOperations([operation]); await wrapper.vm.retryStart(operation)
+  expect(operation.retryable).toBe(false); expect(postAPI).not.toHaveBeenCalled(); wrapper.unmount()
 })

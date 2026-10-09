@@ -19,6 +19,8 @@
   <section v-for="operation in operations" :key="operation.created" class="source-operation" data-testid="creation-source-operation">
     <strong>{{ $t('label.creation.source.job') }} · {{ operation.name || operation.sourceid }}</strong>
     <p>{{ $t('message.creation.source.job.' + (operation.status === 'submitting' ? 'pending' : operation.status)) }}</p>
+    <p v-if="operation.reconciled">{{ $t('message.creation.source.job.reconciled') }}</p>
+    <p v-if="operation.rootid"><router-link :to="'/volume/' + operation.rootid">{{ $t('label.rootdisk') }} · {{ operation.rootid }}</router-link></p>
     <p v-if="operation.jobid" class="operation-meta">{{ $t('label.id') }}: {{ operation.jobid }}</p>
     <p v-if="operation.vmid"><router-link :to="'/vm/' + operation.vmid">{{ $t('label.creation.source.inspect.vm') }} · {{ operation.vmid }}</router-link></p>
     <a-alert v-if="operation.error" type="error" show-icon :message="errorMessage(operation.error)" />
@@ -57,9 +59,19 @@ export default {
     },
     async inspectVm (operation) {
       if (!operation.vmid) return
-      const vm = (await getAPI('listVirtualMachines', { id: operation.vmid }, { backgroundJob: true, timeout: 15000 })).listvirtualmachinesresponse.virtualmachine?.[0]
-      const volumes = (await getAPI('listVolumes', { virtualmachineid: operation.vmid, type: 'ROOT' }, { backgroundJob: true, timeout: 15000 })).listvolumesresponse.volume || []
-      operation.retryable = vm?.state === 'Stopped' && volumes.length === 1 && volumes[0].state === 'Ready'
+      const vm = (await getAPI('listVirtualMachines', { id: operation.vmid, details: 'all' }, { backgroundJob: true, timeout: 15000 })).listvirtualmachinesresponse.virtualmachine?.[0]
+      const volumes = (await getAPI('listVolumes', { virtualmachineid: operation.vmid }, { backgroundJob: true, timeout: 15000 })).listvolumesresponse.volume || []
+      const roots = volumes.filter(volume => volume.type === 'ROOT' && volume.deviceid === 0 && volume.virtualmachineid === operation.vmid)
+      const owned = operation.sourceid && vm?.details?.['vm.creation.source.id'] === operation.sourceid &&
+        vm.details?.['vm.creation.source.kind'] === operation.sourcekind && new Date(vm.created).getTime() >= new Date(operation.created).getTime() - 5000
+      const rootReady = owned && roots.length === 1 && roots[0].state === 'Ready' &&
+        (operation.sourcekind === 'volume' ? roots[0].id === operation.sourceid : roots[0].id !== operation.sourceid)
+      if (rootReady) operation.rootid = roots[0].id
+      const data = volumes.filter(volume => volume.type === 'DATADISK')
+      const disksReady = rootReady && Number.isSafeInteger(operation.requiredDataDisks) && data.length === operation.requiredDataDisks &&
+        data.every(volume => volume.state === 'Ready' && volume.virtualmachineid === operation.vmid)
+      operation.retryable = vm?.state === 'Stopped' && disksReady
+      return { state: vm?.state, disksReady }
     },
     async recover (operation) {
       if (!operation.name) return
@@ -68,10 +80,17 @@ export default {
         vm.details?.['vm.creation.source.id'] === operation.sourceid && new Date(vm.created).getTime() >= new Date(operation.created).getTime() - 5000)
       if (matches.length !== 1) return
       operation.vmid = matches[0].id
-      const jobs = (await getAPI('listAsyncJobs', { listall: false }, { backgroundJob: true, timeout: 15000 })).listasyncjobsresponse.asyncjobs || []
+      const jobs = (await getAPI('listAsyncJobs', { listall: false, resourceid: operation.vmid, resourcetype: 'VirtualMachine' }, { backgroundJob: true, timeout: 15000 })).listasyncjobsresponse.asyncjobs || []
       const matchingJobs = jobs.filter(job => job.jobinstanceid === operation.vmid && /DeployVMCmd/.test(job.cmd || '') &&
         new Date(job.created).getTime() >= new Date(operation.created).getTime() - 5000)
       if (matchingJobs.length === 1) operation.jobid = matchingJobs[0].jobid
+      else if (matchingJobs.length === 0) {
+        // listAsyncJobs only returns pending jobs. A lost response may outlive a completed job.
+        const vm = await this.inspectVm(operation)
+        if (vm?.disksReady && vm.state === (operation.startvm ? 'Running' : 'Stopped')) {
+          operation.status = 'complete'; operation.error = ''; operation.retryable = false; operation.reconciled = true
+        }
+      }
     },
     async check (operation) {
       if (this.checking) return
@@ -85,7 +104,7 @@ export default {
         if (vm?.id) operation.vmid = vm.id
         else if (job.jobinstancetype === 'VirtualMachine' && job.jobinstanceid) operation.vmid = job.jobinstanceid
         if (job.jobstatus === 0) operation.status = 'pending'
-        else if (job.jobstatus === 1) { operation.status = 'complete'; operation.error = ''; operation.retryable = false } else { operation.status = 'failed'; operation.error = job.jobresult?.errortext || this.$t('message.creation.source.job.failed'); await this.inspectVm(operation) }
+        else if (job.jobstatus === 1) { operation.status = 'complete'; operation.error = ''; operation.retryable = false; await this.inspectVm(operation); operation.retryable = false } else { operation.status = 'failed'; operation.error = job.jobresult?.errortext || this.$t('message.creation.source.job.failed'); await this.inspectVm(operation) }
       } catch (error) { if (this.alive) { operation.status = 'unknown'; operation.error = this.$t('message.creation.source.job.unknown') } } finally { this.checking = false; if (this.alive) { this.save(); this.schedule() } }
     },
     async retryStart (operation) {

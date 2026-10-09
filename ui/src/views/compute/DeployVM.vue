@@ -3391,6 +3391,7 @@ export default {
                   name: deployVmData.name,
                   status: 'submitting',
                   startvm: deployVmData.startvm,
+                  requiredDataDisks: this.selectedDataDiskOffering?.id ? this.selectedDataDiskCount : 0,
                   created: new Date().toISOString()
                 }
                 this.sourceOperations.push(operation); this.currentSourceOperation = this.sourceOperations[this.sourceOperations.length - 1]
