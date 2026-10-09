@@ -1,0 +1,91 @@
+{
+  "kind": "EPIC898_RUNTIME_READBACK_REQUEST_PIN_FIX_DEPLOYMENT",
+  "javaSourcePin": "1337a93e0966380457988d9befd7d21548bf4542",
+  "nativeSourcePin": "f493d77f52f5006c2ced3c8d3011e3508430b232",
+  "nativeCliSha256": "90495d2827de4127427efd9827f689e12c1ee19027a52c2a64ea8685860beb81",
+  "javaNormalTests": 888,
+  "javaSelectors": 124,
+  "nativeNormal456EvidenceReused": true,
+  "nativeSelectorsReexecuted": false,
+  "nativeBundleRebuilt": false,
+  "failuresErrorsSkipped": 0,
+  "checkstylePassed": true,
+  "wholeJava9896NulSha256": "a319303fd200136700807001afba5f8cc94e29dc600c1f83af2e22d7a4f22ada",
+  "sourceBeforeAfterIdentical": true,
+  "actualDefaultTransportNativeSignedReadbackPositive": 1,
+  "actualDefaultTransportNativeRejection": 6,
+  "readonlyTypedIssuerConsumerPositive": 6,
+  "readonlyTypedIssuerConsumerNegative": 9,
+  "immutableModuleOutputFiles": 6296,
+  "changedProductionClass": "org/apache/cloudstack/storage/dataservice/StorageServiceRuntimeUpgradeManagerImpl.class",
+  "changedProductionClassSha256": "314952704c1710def208d0d48d431292495a043ef133053965c70571d0323e22",
+  "other5245ProductionFilesUnchanged": true,
+  "actualManagementDeployment": {
+    "javaSource": "1337a93e0966380457988d9befd7d21548bf4542",
+    "nativeSource": "f493d77f52f5006c2ced3c8d3011e3508430b232",
+    "backup": "/root/epic898-readback-pin-1337-backup-20261010-022404",
+    "jarSha256": "15f361afb6b33517e37e3930e825649558a34eb65e96f821ee402fcfb6f272e8",
+    "pidBefore": "1328703",
+    "pidAfter": "1331803",
+    "classCount": 1,
+    "newClassCount": 0,
+    "otherJarEntriesPreserved": true,
+    "uiAndConfigPreserved": true,
+    "activationTime": "2026-10-10T02:25:02.861344+09:00",
+    "applicationReadinessVerified": true
+  },
+  "abiMemberReferences": 584,
+  "abiChecks": {
+    "class-signature-link": {
+      "exitCode": 0,
+      "logSha256": "2953dc381bdfc9c6cdbf3a32ec0111ecae4a373ed67e6960ce2406a2f05f418e"
+    },
+    "member-link": {
+      "exitCode": 0,
+      "logSha256": "26509998067d83414ac891f8c5c9d5ce6559bc85f474e8ec8e3cadb97e91beab"
+    }
+  },
+  "existingRuntimeCatalogReused": "f65b6499-d8ee-44d3-9c38-0681732aeff4",
+  "existingRuntimeVersion": "epic898-smb-quarantine-f493d7-20261010",
+  "existingArchiveSha256": "1e9c16bd99c48119afaa117413b90086c812ec1d9b7ea85ff22d1c59a33bd834",
+  "actualRuntimeRetryAcceptedAtManagementDeployment": false,
+  "sourceRecoveryAcceptedAtManagementDeployment": false,
+  "genericServiceHealthChanged": false,
+  "serviceAvailabilityVerifiedForPausedSource": false,
+  "ddlUiInterfaceChanged": false,
+  "finalUi1275Started": false,
+  "evidenceFiles": [
+    {
+      "relativePreparationPath": "runtime-owned-source-code-health/readback-pin-fix/final-1337/normal-source-proof.json",
+      "sha256": "2a8cef6ad9edddfca2c6105f2d9ddcf1a3920b46ab2557daf2362d6366ef939b"
+    },
+    {
+      "relativePreparationPath": "runtime-owned-source-code-health/readback-pin-fix/final-1337/immutable-issuer-java-bridge-proof.json",
+      "sha256": "fb6edd98dc590dbb88dbd967ccec9fb5c773a26dc779f0fda855ab0abd86ec6d"
+    },
+    {
+      "relativePreparationPath": "runtime-owned-source-code-health/readback-pin-fix/actual-readback-transport-bridge-proof.json",
+      "sha256": "e82a0974c96c0e7883f745457ea619394f12cd9ecb8f7831d5e2ac6f69a2e532"
+    },
+    {
+      "relativePreparationPath": "runtime-readback-pin-1337-management-review/manifest.json",
+      "sha256": "8ff45c027cd9ec53c91d1356c0be5748616a27c6ce697332178803ba4165a921"
+    },
+    {
+      "relativePreparationPath": "runtime-readback-pin-1337-management-review/deployment.json",
+      "sha256": "4b9421469e87a67a6d3b23b00db08e39b95975052b52e1be8d5f8a9c5efc0c85"
+    },
+    {
+      "relativePreparationPath": "runtime-readback-pin-1337-management-review/after-deploy-readiness.json",
+      "sha256": "1e1609a3152be74181875d0c62664d5db1eb082d30b57cceeefc3e79036cd1b5"
+    },
+    {
+      "relativePreparationPath": "actual-current-recovery-500/f493-code-rollback-nine-tuple-proof.json",
+      "sha256": "47da5e1c46be3cc842e98ac8dad690cb279539bb8c5163d3e8fffbe58db778e0"
+    },
+    {
+      "relativePreparationPath": "actual-current-recovery-500/f493-readback-missing-pin-source-proof.json",
+      "sha256": "246b324b9051a0ae718a878934ee8dd2a296574798d9b2d18d46e8118382e07e"
+    }
+  ]
+}

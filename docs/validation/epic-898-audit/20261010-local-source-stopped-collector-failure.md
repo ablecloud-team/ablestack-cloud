@@ -1,5 +1,7 @@
 # LOCAL SMB 정지 후 수집 실패의 실제 원인과 복구 경계
 
+> 이 문서는 최초 실패와 단계별 수정 이력이다. 아래의 cipher 없음·SMB 정지·미배포 표시는 각 단계의 당시 관측이다. 최신 실제 CODE COMPLETE와 native RESUMED, 관리 복구 미완료 상태는 [최신 검증](20261010-code29-source-recovery-actual.md)을 따른다.
+
 13번 클러스터 F1에서 정상 UI 복구가 소유 SMB/nmbd를 정지한 뒤 암호화 체크포인트를 만들기 전에 실패했다. 실제 설치 코드의 기본 collector 어댑터가 `posix_policies` 키워드를 받지 못하는 TypeError가 최초 오류임을 확인했다. 기존 테스트에서 collector를 교체한 fixture가 이 불일치를 가렸다. 원본 DATA·신원 자료를 보존한 상태에서 기본 어댑터를 통과하는 회귀와 최소 수정으로 복구를 진행한다.
 
 ## 실제 적용 코드와 관리 서버
@@ -44,5 +46,15 @@ boot `dc4b6429-35d3-4224-b199-3a0c6c829de0`, current generation4/구성 SHA-256 
 새 producer SHA07d033b7…을 기존 Java882 고정 출력으로 소비해6양성/9거절을 통과했다. 소스034의 CLI e7b721eb…으로 version epic898-smb-collector-03485c-20261010 번들을 RAM 테스트 키로 서명했다. archive395640B/f29c0c48…, manifest1441B/fbee7b7e…, sig64B의 공개5파일을 게시했고 기존 trust를 보존했다. 관리 서버/UI 산출물 재배포0이다. 게시 시점에는 실제 새 CODE·원 fef UI 복구·ACL/외부 SMB I/O가 아직 완료되지 않았다.
 
 [고정 소스456·기존 Java882 연동·서명 공개 게시의 증거](20261010-collector-fix-source-publication-proof.json).
+
+## 실제 034 CODE 자동 롤백과 별도 코드 검증
+
+정상 UI 카탈로그6c2e3aa3와 CODEd9c473ad/transaction runtime-d0e2c4eb의 실제 적용은 ROLLED_BACK/100으로 끝났다. 현재 CLI2dc/6bc로 돌아왔으며 previous signed/files/entrypoint readback을 확인했다. 원래 fef 복구·ACL·외부 SMB I/O는 호출하지 않았다.
+
+원인은 적용 후 일반 operation verify가 success=true/rc0이면서 status=degraded를 반환한 것이다. 설정된 SMB1은 원래 작업이 정지해 listener 없음·smbd failed·nmbd inactive이며, NFS listening/status ok와 QGA active·domain error=false는 유지됐다. 관리 서버는 이 전체 서비스 health의 status=ok만 허용해 자동 원복했다. BOOT/VM/CLI/current/pending/DB metadata/장치/mount/NFS sentinel의 전후9필드가 같았다.
+
+[실제 CODE 자동 원복·일반 health 및 보존 증거](20261010-code03485-owned-stop-health-rollback-public-proof.json).
+
+일반 health는 degraded로 유지한다. 수정 중인 runtime-only 경로는 원 DB LOCAL 복구 의도와 새로운 서명 코드가 읽기 전용으로 증명한 원 SOURCE 정지의 scope/BOOT/구성/메타데이터/cipher 부재를 함께 검증한다. 정확한 kind LOCAL_SOURCE_STOPPED_RUNTIME_QUARANTINE의 15필드를 사용하고 serviceAvailabilityVerified=false를 유지한다. 지원하지 않는 이전 코드에 새 증빙을 요구하는 사전 차단은 추가하지 않으며, 서명된 대상 활성화 후 증빙을 확인한다. 조건이 빠지거나 다른 실패가 있으면 기존 자동 롤백을 유지한다. 이 후속 수정은 아직 실제 배포되지 않았다.
 
 공개 관측은 준비 디렉터리의 `actual-current-recovery-500/stopped-collector-6bc-readonly.json` 및 `after-fef-ui-recovery-6bc-readonly.json`, 실제 CODE DTO `6bc-code-runtime-public.json`에 있다. 비밀번호·개인키·private DB 원문/SID는 기록하지 않았다. 최종 UI 표준 정리 #1275는 미착수다.
