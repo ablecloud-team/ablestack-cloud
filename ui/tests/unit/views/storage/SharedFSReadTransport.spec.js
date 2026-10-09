@@ -40,12 +40,11 @@ describe('SharedFS read transport ownership', () => {
   })
 })
 
-
 describe('SharedFS public section failure diagnostics', () => {
   it('preserves successful values and old failed section names without provider context', async () => {
     const previous = [{ status: 'ok' }]
     const result = await readStorageSections({
-      health: () => Promise.reject({ code: 'ERR_NETWORK', message: 'PRIVATE_PROVIDER_CONTEXT' }),
+      health: () => Promise.reject(Object.assign(new Error('PRIVATE_PROVIDER_CONTEXT'), { code: 'ERR_NETWORK' })),
       protocols: () => Promise.resolve(previous)
     })
     expect(result.values).toEqual({ protocols: previous })
