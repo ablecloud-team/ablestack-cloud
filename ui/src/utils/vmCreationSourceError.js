@@ -17,6 +17,7 @@
 
 export function vmCreationSourceErrorMessage (error, translate) {
   const text = typeof error === 'string' ? error : error?.message || ''
+  if (['message.creation.source.job.unknown', 'message.creation.source.job.failed'].some(key => text === translate(key))) return text
   if (/^(Network Error|timeout of [0-9]+ms exceeded)$/.test(text)) return translate('message.creation.source.job.unknown')
   if (/^Could not create volume from a snapshot/.test(text)) {
     return translate('message.creation.source.restore.failed')

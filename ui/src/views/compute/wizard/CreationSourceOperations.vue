@@ -18,7 +18,7 @@
 <template>
   <section v-for="operation in operations" :key="operation.created" class="source-operation" data-testid="creation-source-operation">
     <strong>{{ $t('label.creation.source.job') }} · {{ operation.name || operation.sourceid }}</strong>
-    <p>{{ $t('message.creation.source.job.' + (operation.status === 'submitting' ? 'pending' : operation.status)) }}</p>
+    <p>{{ $t(operation.pendingCommand === 'startVirtualMachine' && ['pending', 'submitting'].includes(operation.status) ? 'message.creation.source.start.pending' : 'message.creation.source.job.' + (operation.status === 'submitting' ? 'pending' : operation.status)) }}</p>
     <p v-if="operation.reconciled">{{ $t('message.creation.source.job.reconciled') }}</p>
     <p v-if="operation.rootid"><router-link :to="'/volume/' + operation.rootid">{{ $t('label.rootdisk') }} · {{ operation.rootid }}</router-link></p>
     <p v-if="operation.jobid" class="operation-meta">{{ $t('label.id') }}: {{ operation.jobid }}</p>

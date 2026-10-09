@@ -43,3 +43,8 @@ test('network failures show localized uncertainty while the original technical d
 test('agent start failures use localized guidance and preserve the diagnostic in the operation', () => {
   expect(vmCreationSourceErrorMessage('Unable to orchestrate the start of VM instance {uuid: vm}.', translate)).toBe('message.creation.source.request.failed')
 })
+
+test.each(['message.creation.source.job.unknown', 'message.creation.source.job.failed'])('localized operation status is not replaced with a different failure: %s', key => {
+  const translateStatus = requested => requested === key ? '\uc791\uc5c5 \uc0c1\ud0dc \uc548\ub0b4' : requested
+  expect(vmCreationSourceErrorMessage(translateStatus(key), translateStatus)).toBe(translateStatus(key))
+})
