@@ -1,8 +1,8 @@
-# 다음 all4 검증용 단일 source template · runtime · RPM 재현 계획
+# 다음 all4 검증용 단일 source module · native · runtime · template 준비
 
-이 문서는 2026-10-09 읽기 전용 준비 결과다. 아래 최종 source S 는 아직 고정되지 않았다. NVMe 정상 경로, retained ROOT, AD lifecycle · winbind · principal authority 의 필요한 native/backend 핀을 먼저 통합하고 normal 검증 뒤 새 full image 를 빌드한다. 기존 fc3e 이미지나 hybrid runtime copy 를 S 로 재라벨하지 않는다. 이 계획으로 신규 QEMU · 디스크 · template 등록 · Cloud 배포를 실행하지 않았다. 별도 승인된 로컬 NVMe 결과는 다른 문서로 관리한다.
+이 문서는 2026-10-09 읽기 전용 준비 결과다. 아래 최종 source S 는 아직 고정되지 않았다. NVMe 정상 경로, retained ROOT, AD lifecycle · winbind · principal authority 의 필요한 native/backend 핀을 먼저 통합하고 normal 검증 뒤 새 full image 를 빌드한다. 같은 S 의 Java5/UI/native/runtime/새 template 일치와 제한 배포는 필수이며 정식 RPM/SRPM publication/설치는 별도 명시 요청이 없는 packaging 재현 준비다. 기존 fc3e 이미지나 hybrid runtime copy 를 S 로 재라벨하지 않는다. 이 계획으로 신규 QEMU · 디스크 · template 등록 · Cloud 배포를 실행하지 않았다. 별도 승인된 로컬 NVMe 결과는 다른 문서로 관리한다.
 
-현재 후속 소스는 retained manual 7064edbdfd8의 normal 752/118, AD SERVICE 0e699dac326의 normal 780/123 및 원본 암호문 f0dd1962bea의 native 117까지 반영했다. NVMe run7은 실제 로컬 인증·I/O를 통과했다. 아래 표의 713/720 및 run5는 당시 provenance이며 현재 인수 결과로 재사용하지 않는다. 최종 S는 남은 typed AD·의미 복원 및 기능 입력 후속을 포함해 새로 고정한다.
+현재 후속 소스는 retained manual 7064edbdfd8의 normal 752/118, AD SERVICE 0e699dac326의 normal 780/123 및 원본 암호문 f0dd1962bea의 native 117까지 반영했다. NVMe run7은 실제 로컬 인증·I/O를 통과했다. 아래 표의 713/720 및 run5는 당시 provenance이며 현재 인수 결과로 재사용하지 않는다. 최신 source825 ec40eb3f618b 와 native163 01788c642a2, UI216 4a2a27cfbf4c 및 POSIX244 ca82d7cb9ced 는 추가로 고정됐다. ROOT/SERVICE opaque 권한·inverse 서버 소비자 및 실제 AD·ROOT 인수는 남았다. 최종 S는 이 후속을 포함해 새로 고정한다. 현재 actual MGT 는 ADE707 / old Runtime2 이며 새로운 통합 family 를 실제 배포했다고 표시하지 않는다.
 
 ## 현재 source 와 actual 구성
 
@@ -21,7 +21,7 @@ production fullFour / AD 는 전체 실제 인수 전 false 를 유지한다. ha
 
 ## source S 고정과 빌드 입력
 
-parent 가 필요한 native/backend 핀을 모두 검토한 뒤 단일 S 를 선정한다. canonical tree 의 동시 WIP 로 빌드하지 않는다. 새 isolated ext4 detached checkout 의 HEAD=S · tracked source byte 일치 · local base/upstream 0 0 · source tree hash 를 확인한다. runtime bundle · template · Java 5 modules · UI/RPM 은 같은 S 에서 만든다.
+parent 가 필요한 native/backend 핀을 모두 검토한 뒤 단일 S 를 선정한다. canonical tree 의 동시 WIP 로 빌드하지 않는다. 새 isolated ext4 detached checkout 의 HEAD=S · tracked source byte 일치 · local base/upstream 0 0 · source tree hash 를 확인한다. runtime bundle · template · Java 5 modules · UI 는 같은 S 에서 만든다. 별도로 RPM 을 재현할 경우에도 같은 S 를 사용하되 RPM 실행·publication을 기능 시작 조건으로 강제하지 않는다.
 
 POM 직접 product version 은 현재 4.23.0.0 이고 POM SHA 는 3f7946fe718a90f360ddf9574c14d5b900ab3f3ae2fcfa1a54a918d3485d3f63 이다. protected manifest 의 platformVersion/productVersion 은 POM 에서 얻고, 파일명/build suffix 또는 5-part 값을 trim 해서 추정하지 않는다. final S 에서 POM · writer · validator · builder hash 를 다시 고정한다.
 
@@ -51,8 +51,8 @@ ISO cache 는 installer 다운로드만 줄인다. 현재 kernel/Ganesha recipe 
 4. sealed RAM key wrapper → tools/build/build-systemvm-storage-release.sh → tools/appliance/build.sh → fresh ISO Packer → writer/validator 경로를 사용한다. SYSTEMVM_VERSION, BUILD_NUMBER, KEY_ID 를 manifest 에 고정한다. release helper 가 실제 HEAD 를 buildCommit 으로 기록하므로 다른 HEAD 환경에 옛 archive 를 넣지 않는다.
 5. KVM create/convert/export 의 실제 argv 가 preallocation=metadata 이상인지 기록한다. qcow2 backing-none · virtual size · L1/L2 allocation · actual allocated bytes · qemu check · compressed roundtrip 을 확인한다. THIN/COW/-c 를 사용하지 않는다. NBD7 미점유와 자기 cleanup 절대 경로를 사용 직전 확인한다.
 6. fresh image 의 kernel/auth config · boot entry · module, canonical protected template manifest · POM/source/entrypoint, signed updater/readback, Ganesha 5.5.3 selected service · binary/package/service binding hashes · named/default ACL self-test 를 독립 검사한다. old fc3e 또는 hybrid copy 를 새 이미지로 변환해 대체하지 않는다.
-7. RPM 은 isolated Rocky 9.7 container/rootfs 에서 tools/build/rocky97-rpm-build.sh 의 정상 path 를 사용한다. PACK/BRAND/PACKAGE_VERSION=4.23.0.0/RELEASE/TIMESTAMP 를 고정하고 LOCAL_FAST=false 로 전체 modules 를 포함한다. UI-only RPM 을 full RPM 으로 표시하지 않는다. helper 가 DNF repository/global config 를 수정하므로 canonical WSL 환경에서 바로 실행하지 않는다.
-8. RPM spec 은 Maven -DskipTests 로 packaging 하므로 별도 normal 테스트 gate 가 필요하다. RPM/SRPM manifest · NEVRA · dependency list · packaged JAR/entry hashes · public trusted key · generated scripts 를 추출해 앞 단계 출력과 대조한다. 아직 RPM build/install 은 0 이다.
+7. 별도 packaging 재현 계획으로 RPM 은 isolated Rocky 9.7 container/rootfs 에서 tools/build/rocky97-rpm-build.sh 의 정상 path 를 사용한다. PACK/BRAND/PACKAGE_VERSION=4.23.0.0/RELEASE/TIMESTAMP 를 고정하고 LOCAL_FAST=false 로 전체 modules 를 포함한다. UI-only RPM 을 full RPM 으로 표시하지 않는다. helper 가 DNF repository/global config 를 수정하므로 canonical WSL 환경에서 바로 실행하지 않는다.
+8. 별도 packaging 재현 계획의 RPM spec 은 Maven -DskipTests 로 packaging 하므로 별도 normal 테스트 gate 가 필요하다. RPM/SRPM manifest · NEVRA · dependency list · packaged JAR/entry hashes · public trusted key · generated scripts 를 추출해 앞 단계 출력과 대조한다. 아직 RPM build/install 은 0 이다.
 
 사용자가 승인한 Epic 구현·빌드·테스트 배포 범위에서 사용할 정규 command 형태는 아래와 같다. 필수 소스와 입력이 고정되면 불필요한 재승인 없이 진행한다. S · selector · build number · key ID · release 값은 parent 가 고정한 manifest 에서 가져오고, 아래 명령은 현재 실행하지 않는다.
 
@@ -72,7 +72,7 @@ PACK=noredist DISTRO=rocky9 PACKAGE_VERSION=4.23.0.0 \
   bash tools/build/rocky97-rpm-build.sh
 ```
 
-첫 command 는 normal test package, 두 번째는 승인된 local test-key build, 세 번째는 자기 isolated Rocky rootfs 안의 full RPM/SRPM path 다. 두 번째 command 의 SYSTEMVM_VERSION / SYSTEMVM_BUILD_NUMBER / STORAGE_RUNTIME_SIGNING_KEY_ID 는 사전에 고정한다. 정식 publication 은 require-stable true 및 CI 의 stable key path 로 별도 실행한다.
+첫 command 는 normal test package, 두 번째는 승인된 local test-key build, 세 번째는 자기 isolated Rocky rootfs 안의 full RPM/SRPM path 다. 두 번째 command 의 SYSTEMVM_VERSION / SYSTEMVM_BUILD_NUMBER / STORAGE_RUNTIME_SIGNING_KEY_ID 는 사전에 고정한다. 정식 publication 은 별도 요청 범위에서 require-stable true 및 CI stable key path 를 사용한다. 승인된 13번 기능 시험은 require-stable false 와 정확 public trust 를 쓰며 stable key provisioning/정식 RPM publication 이 기능 전체의 hard blocker 는 아니다.
 
 현재 CI 는 캐시 ISO 를 file URL 로 바꾸면서 recipe bytes 를 수정한다. buildCommit 하나만으로 이 transport delta 를 숨기지 않고 원래 recipe hash 와 파생 recipe hash · ISO checksum 을 기록해야 한다. 로컬에서는 이전 fc3e 처럼 committed URL 과 Packer verified cache 를 사용해 recipe 를 바꾸지 않는 경로가 있다. template sourceTreeSha256 가 동일하다고 추정하지 않는다.
 
@@ -97,3 +97,7 @@ local 검증은 test key 를 sealed memfd 로 생성·상속하고 공개 PEM �
 required native 핀과 새 full image 이후 실제 all4 · fault/restart · multi NEW · ROOT/retained · AD/Windows/API/UI 인수가 남는다. 한 source 의 빌드 성공이 전체 완료는 아니다. 모든 다른 gate 완료 후 최종 UI 1275 착수 직전 전체 작업을 중단하고 사용자에게 보고·추가 지시를 기다린다.
 
 읽기 전용 입력 proof: /root/work/epic898-preparation/acceptance-audit/20261009-final-single-source-build-readonly-inputs.json. source 713/actual ADE/host 0a10 provenance 와 cache 결과를 각 시점대로 유지한다.
+
+## 기능 인수와 분리할 항목
+
+이슈 #924 원문의 기능 완료 조건은 RootAdmin catalog 등록·검증·게시·중지·폐기, 실제 적용·호환·권한 및 API/UI 정합성이다. sealed RAM 시험 키와 정확 public trust 로 이 시험을 진행할 수 있다. org Actions API 403, stable key 실제 사용 0, full RPM/SRPM build/install/publication 미수행은 각 별도 사실이며 기능 완료 gate 를 임의 확대하지 않는다. unrelated CI #926 는 계속 분리한다. #1275 최종 11 탭 표준 QA 는 모든 기능 인수 뒤 사용자 경계에서만 착수한다.
