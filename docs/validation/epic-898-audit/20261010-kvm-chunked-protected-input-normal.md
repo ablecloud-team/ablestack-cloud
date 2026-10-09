@@ -18,3 +18,20 @@
 검토한 manifest de940da4의 한 클래스만 13.2 호스트에 1회 적용했다. 기존 a1cf JAR을 root0700 백업에 보존하고 fsync/atomic replace로 360a444 JAR을 적용한 뒤 mold-agent.service만 재시작했다. 새 Agent PID1799382, 클래스2eedeaf이며 다른482파일의 내용·ZIP 메타데이터·510 raw local record와 실제 libvirt/Gson/API/Logger provider를 보존했다. VM15개의 PID/start는 같고 게스트 재시작·데이터 포맷 명령은0이다. 백업 /root/epic898-chunked-input-host-wrapper-backup-20261009-220702의 시간은 UTC다.
 
 배포 뒤 F1 보호값10개·DB/mount/holders·원 key/cipher/compat/ref·GEN4/BOOT·native RESUMED·원 pending PREPARED가 같았다. MGT/UI는 HTTP200·indexe755/configd3e·서비스8 Running/호스트3 Up 및 원4작업 상태를 유지했다. 배포 proof7c957592와 보존 proofc3394c55를 리뷰한 뒤 동일 원 fef 작업의 정상 UI 복원1회를 진행하도록 했다. 이 기록의 배포 성공을 원 복원terminal이나 외부 SMB I/O 완료로 확대하지 않는다.
+
+
+## 동일 원 복원의 실제 UI·API·게스트 완료
+
+배포 뒤 원 fef/rev5를 정상 UI의 ‘원래 작업 복구’로 한 번 제출했다. job767e0132-25a1-4545-af2a-2b59097bd34e는 jobstatus1/result0이며 원 작업은 ROLLED_BACK / INTERRUPTED_WRITER_ROLLED_BACK / 100으로 완료됐다. 새 operation 생성·중복 submit·직접 API apply·manual DB/journal/terminal 수정·force·키 삭제·포맷은0이다.
+
+Native current는 원 GEN4/daf·BOOTdc4·CLI19ad·두 DATA/FS/mount·NFS sentinel을 유지했고 pending은 없어졌다. 원 scope/key/cipher/ref7ed/코드 호환 증빙도 유지했다. 신원 파일의 원자적 복원으로 DB inode/mtime/ctime와 서비스 PID930717이 바뀌었으며 이를 전후 전체 동일이라고 주장하지 않는다. 두 DB size/소유권/mode/link와 정상 holder2/deletedfalse를 확인했다. 실제 인증된 importStopped 원 byte fingerprint3파일/DB2가 일치하고 journalImported=true/RESUMED이며 보호값/SID/키 원문은 출력하지 않았다.
+
+[실제 최종 공개 증빙](../epic-898-ui-20261007/ad297-source-recovery/original-fef-recovery-final-public-proof.json)과 [실제 API terminal](../epic-898-ui-20261007/ad297-source-recovery/ad297-original-fef-recovery-terminal-public.json)을 보존했다. 아래 화면은 실제 UI이고 가로 스크롤의 좌·우 상태를 분리해 캡처했다. 시각 열의 잘림은 DOM 데이터 검증과 API terminal로 보완하며 최종 #1275 레이아웃 수정은 하지 않았다.
+
+![원 복구 확인 화면](../epic-898-ui-20261007/ad297-source-recovery/ad297-original-fef-recovery-consent.png)
+
+![원 작업 복구 완료 상태](../epic-898-ui-20261007/ad297-source-recovery/ad297-original-fef-recovery-rolled-back.png)
+
+![원 작업 복구 단계와 100 진행률](../epic-898-ui-20261007/ad297-source-recovery/ad297-original-fef-recovery-rolled-back-right.png)
+
+대용량 입력의 실제 전송 실패 재현, 제품 RAM 청크 전송 제한 배포, 동일 원 UI 복원의 완료를 연결해 확인했다. 정확한 QGA daemon 내부 실패 구간까지 확정한 것은 아니다. 이후 LOCAL ACL 및 C1/C2의 실제 SMB 인증·I/O 검증을 진행한다. 복원 완료를 전체 #892 all4 실패 인수나 #900 AD/SMB 완료로 확대하지 않고 해당 이슈는 계속 열어 둔다.

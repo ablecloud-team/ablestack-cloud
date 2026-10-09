@@ -1,0 +1,63 @@
+{
+  "kind": "NORMAL_UI_ORIGINAL_LOCAL_SOURCE_RECOVERY_ACCEPTANCE",
+  "operationUuid": "fef126a6-936a-4936-b22c-201b7e5b9b4d",
+  "jobid": "767e0132-25a1-4545-af2a-2b59097bd34e",
+  "normalUiSubmissions": 1,
+  "terminal": {
+    "id": "fef126a6-936a-4936-b22c-201b7e5b9b4d",
+    "action": "createstoragesmbaclresponse",
+    "state": "ROLLED_BACK",
+    "phase": "INTERRUPTED_WRITER_ROLLED_BACK",
+    "revision": 5,
+    "progress": 100,
+    "diagnostic": "LOCAL SOURCE owned checkpoint requires reconciliation | checkpoint cleanup: LOCAL SOURCE owned checkpoint requires reconciliation | Interrupted writer recovery failed: LOCAL SOURCE owned checkpoint requires reconciliation | Interrupted writer recovery failed: LOCAL SOURCE owned checkpoint requires reconciliation | Interrupted writer recovery failed: LOCAL SOURCE owned checkpoint requires reconciliation | Interrupted writer restored its previous configuration"
+  },
+  "jobstatus": 1,
+  "jobresultcode": 0,
+  "sourceGenerationConfigurationBootCliDataPreserved": true,
+  "preserved": {
+    "cliSha256": true,
+    "bootId": true,
+    "vmUuid": true,
+    "current": true,
+    "smbDesiredPresent": true,
+    "blockdevices": true,
+    "mounts": true,
+    "nfsSentinel": true,
+    "localSourceCheckpointPublic": true,
+    "actualLocalSourceStatus": true
+  },
+  "nativePendingCleared": true,
+  "expectedRestoreChanges": {
+    "dbMetadataChanged": true,
+    "dbProtectionAndSizesPreserved": true,
+    "currentHolderPidChanged": true,
+    "currentHolderCount": 2,
+    "deletedHolders": false
+  },
+  "authenticatedRestoredStoppedFilesIdentityProof": {
+    "actualStorageCliOrWrites": 0,
+    "compatibilityOriginalCliShaUnchanged": true,
+    "importedStoppedFileCount": 3,
+    "journalImported": true,
+    "journalPhase": "RESUMED",
+    "kind": "RESTORED_LOCAL_SOURCE_PRIVATE_METADATA_PUBLIC_REDUCTION",
+    "originalStoppedByteFingerprintsMatch": true,
+    "privateFingerprintsKeyCipherOrSidValuesPrinted": false,
+    "proofStage": "authenticated restored stopped files before owned resume; current live TDB may legitimately update",
+    "publicKeyPresentAndMatchesOriginal": true,
+    "restoredStoppedDatabaseCount": 2,
+    "scopeMatchesOriginal": true
+  },
+  "scopeRefKeyCipherCompatibilityPreserved": true,
+  "currentRuntimeOwnershipAndEmptySessions": true,
+  "all10SameClaimed": false,
+  "aclOrExternalIoPerformed": false,
+  "uiEvidenceHashes": {
+    "ad297-original-fef-recovery-terminal-public.json": "335649387d893d6d139ca316d3a4097a92774af17356e6841fd176ad9c4976db",
+    "ad297-original-fef-recovery-consent.png": "cb073873a4a088a051856e6e706a04d3e464032496b7874987b8420de5a9136e",
+    "ad297-original-fef-recovery-rolled-back.png": "5d1d49215d73c5d21ad45f6c6d5853703e1580143b7976df5ad4d1d7dd635103",
+    "ad297-original-fef-recovery-rolled-back-right.png": "a6efb6da33b39c204ccaed105808b834e19ca264b1280de16467baeae756a1bc"
+  },
+  "privateValuesPrintedOrPersisted": false
+}
