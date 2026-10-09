@@ -34,7 +34,7 @@ class PendingNfsAuthorization:
     def __init__(self, generation=None, rendered=None, maintenance=None, root=None, configuration_root=None):
         self.generation = generation or PendingNfsGeneration()
         self.rendered = rendered or RenderedGeneration()
-        self.maintenance = maintenance or Maintenance()
+        self.maintenance = maintenance
         self.root = Path(root or "/run/ablestack-storage/rendered-authorization")
         self.path = self.root / "pending-nfs.json"
         self.configuration_root = Path(configuration_root or "/etc/ganesha/ablestack-storage")
@@ -54,7 +54,7 @@ class PendingNfsAuthorization:
         if current.get("pendingOperationUuid") != scope["operationUuid"]:
             raise ValueError("Pending NFS writer changed")
         rendered = self.rendered.status()
-        maintenance = self.maintenance.status()
+        maintenance = (self.maintenance or Maintenance()).status()
         if rendered.get("current") is not None or rendered.get("activation") is not None or maintenance.get("bootHeld") is not False:
             raise ValueError("Pending NFS cannot borrow rendered/ROOT/SERVICE authority")
         return scope, pending, current["configurationSha256"]

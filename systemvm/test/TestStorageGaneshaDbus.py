@@ -1,3 +1,4 @@
+import contextlib
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements. See the NOTICE file
 # distributed with this work for additional information
@@ -177,8 +178,9 @@ class StorageGaneshaDbusTest(unittest.TestCase):
         process=SimpleNamespace(run=run,PIPE=-1,DEVNULL=-3)
         system=SimpleNamespace(**{name:getattr(os,name) for name in dir(os) if name!='path'})
         system.path=SimpleNamespace(isdir=lambda path:True,exists=lambda path:False,join=os.path.join)
+        system.environ=dict(os.environ,ABLESTACK_STORAGE_RENDERED_REPLAY='fixture-rendered')
         ns={'Path':lambda value:SimpleNamespace(exists=lambda:False),'time':SimpleNamespace(monotonic=lambda:clock[0],time=lambda:clock[0],sleep=lambda interval:None),
-            'nfs_operation_deadline':1.0,'os':system,'subprocess':process,'shutil':SimpleNamespace(which=lambda name:'/usr/bin/'+name),
+            'nfs_operation_deadline':1.0,'contextlib':contextlib,'pending_nfs':None,'os':system,'subprocess':process,'shutil':SimpleNamespace(which=lambda name:'/usr/bin/'+name),
             'rendered_ganesha_dynamic_candidates':lambda configs:{},'stop_default_ganesha_service':lambda:None,'stop_ganesha_endpoints':lambda **kwargs:None,
             'ensure_ganesha_runtime_dirs':lambda:None,'ensure_rpcbind_started':lambda:True,'ganesha_run_dir':'/unused','open':mock_open(),
             'tail_file':lambda *args:'','rendered_context':None}
