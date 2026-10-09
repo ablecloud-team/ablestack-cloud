@@ -209,6 +209,133 @@ class StorageSmbSourceCheckpointTest(unittest.TestCase):
         self.assertTrue(invoke("import-local-source",self.imported_request(result))["sourceIdentityRestored"])
         self.assertTrue(invoke("local-source-status",self.request)["sourceIdentityRestoreSupported"])
 
+    def test_real_bash_masked_stdin_status_matches_sealed_fd_and_rejects_foreign_scope(self):
+        import shlex,subprocess
+        root=self.root/'readonly-cli';root.mkdir(mode=0o700)
+        config=root/'config';config.mkdir(mode=0o700)
+        state=root/'generation';state.mkdir(mode=0o700)
+        store=generation.Generation(state,config);digest=store.digest()
+        scope={key:self.request[key]for key in module.LOCAL_SOURCE_SCOPE}
+        scope['revision']=1
+        value={**scope,'sourceGeneration':{},'sourceConfigurationSha256':digest,
+            'expectedBootId':Path('/proc/sys/kernel/random/boot_id').read_text().strip()}
+        generation.atomic_json(store.current,{})
+        generation.atomic_json(store.pending,{**{key:scope[key]for key in('instanceUuid','operationUuid','revision')},
+            'phase':'PREPARED','previous':{},'beforeSha256':digest})
+        environment={**os.environ,'ABLESTACK_STORAGE_GENERATION_DIR':str(state),
+            'ABLESTACK_STORAGE_CONFIGURATION_ROOT':str(config),'ABLESTACK_STORAGE_RENDERED_GENERATIONS':str(root/'render'),
+            'ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR':str(root/'maintenance')}
+        environment.pop('ABLESTACK_STORAGE_WRITER_LOCK_FD',None)
+        before={str(path):path.read_bytes()for path in root.rglob('*')if path.is_file()}
+        command=shlex.quote(str(fixture.CLI))+' smb identity local-source-status /dev/stdin'
+        public=subprocess.run(['bash','-lc',command],input=json.dumps(value),capture_output=True,text=True,env=environment,timeout=25)
+        self.assertEqual(0,public.returncode,public.stderr)
+        outcome=json.loads(public.stdout);self.assertTrue(outcome['success']);self.assertFalse(outcome['journalPresent'])
+        fd=os.memfd_create('public-status-fixture',os.MFD_ALLOW_SEALING|os.MFD_CLOEXEC)
+        os.write(fd,json.dumps(value).encode());os.lseek(fd,0,0)
+        fcntl.fcntl(fd,fcntl.F_ADD_SEALS,fcntl.F_SEAL_WRITE|fcntl.F_SEAL_GROW|fcntl.F_SEAL_SHRINK|fcntl.F_SEAL_SEAL)
+        safe=fcntl.fcntl(fd,fcntl.F_DUPFD_CLOEXEC,16);os.close(fd)
+        try:
+            reply=subprocess.run(['bash','-lc',shlex.quote(str(fixture.CLI))+' smb identity local-source-status /proc/self/fd/'+str(safe)],
+                capture_output=True,text=True,env=environment,pass_fds=(safe,),timeout=25)
+            self.assertEqual(0,reply.returncode,reply.stderr);self.assertEqual(outcome,json.loads(reply.stdout))
+        finally:os.close(safe)
+        foreign={**value,'sourceConfigurationSha256':'f'*64}
+        rejected=subprocess.run(['bash','-lc',command],input=json.dumps(foreign),capture_output=True,text=True,env=environment,timeout=25)
+        self.assertEqual(1,rejected.returncode);self.assertEqual('LOCAL_SOURCE_CHECKPOINT_REJECTED',json.loads(rejected.stdout)['errorCode'])
+        self.assertEqual(before,{str(path):path.read_bytes()for path in root.rglob('*')if path.is_file()})
+
+    def test_managed_bash_launcher_historical_entry_parent_and_manifest_are_bound(self):
+        runtime=self.root/'runtime';runtime.mkdir(mode=0o700);(runtime/'releases').mkdir(mode=0o700)
+        release=runtime/'releases'/'signed-old';release.mkdir(mode=0o700)
+        entry=release/'ablestack-storagectl';entry.write_text(fixture.CLI.read_text());entry.chmod(0o755)
+        manifest={'bundleVersion':'signed-old','keyId':'fixture-trusted-key','files':[{'path':'ablestack-storagectl','sha256':hashlib.sha256(entry.read_bytes()).hexdigest(),
+            'mode':'0755','owner':'root','group':'root'}]}
+        generation.atomic_json(release/'manifest.json',manifest)
+        self.native.runtime_root=runtime
+        installs=self.root/'installations';installs.mkdir(mode=0o700);tx=installs/'runtime-known';tx.mkdir(mode=0o700)
+        generation.atomic_json(tx/'manifest.json',manifest)
+        installation={'transactionId':tx.name,'bundleVersion':release.name,'releasePath':str(release),'phase':'COMPLETE',
+            'keyId':manifest['keyId'],'manifestSha256':hashlib.sha256((tx/'manifest.json').read_bytes()).hexdigest(),'archiveSha256':'a'*64}
+        generation.atomic_json(tx/'state.json',installation);self.native.installation_root=installs
+        procroot=self.root/'launcher-proc';procroot.mkdir();self.handler.process_root=procroot
+        unit='ablestack-storage-smb@'+'a'*24+'.service';parent=procroot/'111';child=procroot/'222'
+        parent.mkdir();child.mkdir();(parent/'fd').mkdir()
+        def procstat(pid,name,ppid,ticks):return str(pid)+' ('+name+') '+' '.join(['S',str(ppid)]+['0']*17+[ticks])
+        (parent/'stat').write_text(procstat(111,'bash',1,'100'));(child/'stat').write_text(procstat(222,'smbd',111,'101'))
+        (parent/'status').write_text('Uid:\t0\t0\t0\t0\n')
+        cgroup='0::/system.slice/'+unit+'\n';(parent/'cgroup').write_text(cgroup);(child/'cgroup').write_text(cgroup)
+        argv=['bash','/usr/local/bin/ablestack-storagectl','smb','endpoint-run','a'*24]
+        (parent/'cmdline').write_bytes(bytes([0]).join(x.encode()for x in argv)+bytes([0]))
+        (parent/'exe').symlink_to('/usr/bin/bash');(parent/'fd/255').symlink_to(entry)
+        original=self.native.reader;bash=Path('/usr/bin/bash').read_bytes();bashmeta=Path('/usr/bin/bash').stat()
+        self.native.reader=lambda path,*args:(bash,bashmeta)if path=='/usr/bin/bash'else((hashlib.md5(bash).hexdigest()+'  bin/bash\n').encode(),entry.stat())if path=='/var/lib/dpkg/info/bash.md5sums'else capsule.regular_file(path)
+        properties={'MainPID':'111','Slice':'system.slice','ControlGroup':'/system.slice/'+unit}
+        self.handler.run=lambda args:properties[args[3].split('=',1)[1]]
+        master={'pid':222,'startTicks':'101'}
+        good=self.native.launcher_authority(unit,master)
+        self.assertEqual(111,good['pid']);self.assertEqual('100',good['startTicks'])
+        self.assertEqual(str(entry),good['loadedScript']['path'])
+        self.assertEqual(hashlib.sha256(entry.read_bytes()).hexdigest(),good['loadedScript']['sha256'])
+        # CODE activation may advance both current and previous pointers. The
+        # already opened, installed historical ENTRY remains bound to its inode.
+        (runtime/'current').symlink_to(release);(runtime/'previous').symlink_to(release)
+        self.assertEqual(good,self.native.launcher_authority(unit,master))
+        template_slice='system-'+'ablestack-storage-smb'.replace('-','\\x2d')+'.slice'
+        nested='/system.slice/'+template_slice+'/'+unit
+        properties.update(Slice=template_slice,ControlGroup=nested)
+        (parent/'cgroup').write_text('0::'+nested+'\n');(child/'cgroup').write_text('0::'+nested+'\n')
+        self.assertEqual(template_slice,self.native.launcher_authority(unit,master)['slice'])
+        for name,value in [('Slice','foreign.slice'),('ControlGroup',nested+'/foreign'),('ControlGroup',nested.replace(unit,unit+'-lookalike'))]:
+            old=properties[name];properties[name]=value
+            with self.assertRaisesRegex(ValueError,'cgroup changed'):self.native.launcher_authority(unit,master)
+            properties[name]=old
+        properties.update(Slice='system.slice',ControlGroup='/system.slice/'+unit)
+        (parent/'cgroup').write_text(cgroup);(child/'cgroup').write_text(cgroup)
+        cases=[(parent/'cmdline',b'bash\0foreign-script\0'),(child/'stat',procstat(222,'smbd',999,'101').encode()),
+            (child/'cgroup',b'0::/system.slice/foreign.service\n'),(parent/'status',b'Uid:\t1\t1\t1\t1\n'),
+            (release/'manifest.json',json.dumps({**manifest,'bundleVersion':'foreign'}).encode()),
+            (tx/'state.json',json.dumps({**installation,'phase':'RECEIVED'}).encode()),
+            (tx/'manifest.json',json.dumps({**manifest,'keyId':'foreign-key'}).encode())]
+        for path,bad in cases:
+            saved=path.read_bytes();path.write_bytes(bad)
+            with self.subTest(path=path.name),self.assertRaises(ValueError):self.native.launcher_authority(unit,master)
+            path.write_bytes(saved)
+        receipt=tx/'state.json';hidden=tx/'hidden-state.json';receipt.rename(hidden)
+        with self.assertRaisesRegex(ValueError,'installation is absent'):self.native.launcher_authority(unit,master)
+        hidden.rename(receipt)
+        original_link=module.os.readlink
+        with patch.object(module.os,'readlink',side_effect=lambda path:str(entry)+' (deleted)'if Path(path)==parent/'fd/255'else original_link(path)):
+            with self.assertRaisesRegex(ValueError,'loaded script is foreign'):self.native.launcher_authority(unit,master)
+        replacement=self.root/'replacement-public-script';replacement.write_bytes(entry.read_bytes());replacement.chmod(0o755)
+        (parent/'fd/255').unlink();(parent/'fd/255').symlink_to(replacement)
+        with patch.object(module.os,'readlink',side_effect=lambda path:str(entry)if Path(path)==parent/'fd/255'else original_link(path)):
+            with self.assertRaisesRegex(ValueError,'script FD changed'):self.native.launcher_authority(unit,master)
+        (parent/'fd/255').unlink();(parent/'fd/255').symlink_to(entry)
+        (parent/'stat').write_text(procstat(111,'bash',1,'999'))
+        self.assertNotEqual(good,self.native.launcher_authority(unit,master))
+        (parent/'stat').write_text(procstat(111,'bash',1,'100'))
+        saved=entry.read_bytes();entry.write_bytes(saved.replace(b'os.execv(args[0], args)',b'os.execv(args[0], args) # foreign'))
+        changed={**manifest,'files':[{**manifest['files'][0],'sha256':hashlib.sha256(entry.read_bytes()).hexdigest()}]}
+        generation.atomic_json(release/'manifest.json',changed)
+        generation.atomic_json(tx/'manifest.json',changed)
+        generation.atomic_json(tx/'state.json',{**installation,'manifestSha256':hashlib.sha256((tx/'manifest.json').read_bytes()).hexdigest()})
+        with self.assertRaisesRegex(ValueError,'endpoint body changed'):self.native.launcher_authority(unit,master)
+        self.handler.run=lambda args:'222';self.assertIsNone(self.native.launcher_authority(unit,master))
+        self.assertFalse(self.signals);self.assertFalse(self.starts)
+
+    def test_post_pidfd_launcher_identity_change_is_rejected_before_signal(self):
+        unit='ablestack-storage-smb@'+'b'*24+'.service'
+        master={'unit':unit,'pid':222,'startTicks':'101','managedLauncher':{'pid':111,'startTicks':'100'}}
+        before={**self.observation(self.request),'units':[master]}
+        self.native.observe=lambda *args,**kwargs:copy.deepcopy(before)
+        proc=self.handler.process_root/str(master['pid']);proc.mkdir(parents=True,exist_ok=True)
+        (proc/'stat').write_text('222 (smbd) '+' '.join(['S','111']+['0']*17+['101']))
+        journal={'scope':{key:self.request[key]for key in module.LOCAL_SOURCE_SCOPE},'prior':before,'phase':'INTENT_DURABLE'}
+        self.native.launcher_authority=lambda *args:{'pid':111,'startTicks':'999'}
+        with self.assertRaisesRegex(ValueError,'launcher changed after pidfd pin'):self.native.stop(self.request,journal)
+        self.assertFalse(self.signals);self.assertFalse(self.starts)
+
     def test_first_empty_identity_source_remains_absent_without_sam_initialization(self):
         self.active_units.clear();self.active=False
         for path in self.private.values():path.unlink()
