@@ -23,6 +23,12 @@ F1의 cfe87d14-7b32-4b9c-999d-fcdae29dbb3d는 PREPARED/revision4/RECOVERY_REQUIR
 
 ![검토 실패 시 승인 차단](../epic-898-ui-20261007/20261009-f1-current-retain-review-error-ui.png)
 
-e935b0b3ef863c37e0f808db180806e4fd7399b1은 production1줄을 기존 PROTOCOL_PATHS[SMB]로 수정했다. 실제 context 메서드의 exact7/null SMB 수용·불완전 또는 이미 구성된 SMB 거절을 검증했다. focused35 및 정상863 tests/124 classes·Checkstyle 통과. 이전862 대비 production 차이는 Manager.class 한 개이며 API/native/UI/DDL 변경은 0이다. 이 수정의 실제 배포·복구 결과는 후속 인수에 기록한다.
+e935b0b3ef863c37e0f808db180806e4fd7399b1은 production1줄을 기존 PROTOCOL_PATHS[SMB]로 수정했다. 실제 context 메서드의 exact7/null SMB 수용·불완전 또는 이미 구성된 SMB 거절을 검증했다. focused35 및 정상863 tests/124 classes·Checkstyle 통과. 이전862 대비 production 차이는 Manager.class 한 개이며 API/native/UI/DDL 변경은 0이다. ABI2479 참조 검증 후 해당 클래스만 실제 반영했다. JAR SHA d8519b50facb292c25787d44e73eeeba851ce58fbc8174ee736af5aa9f30fcba/PID1280338, 운영 UI와 다른 JAR 항목 보존, 8서비스 Running·3호스트 Up을 확인했다.
+
+정상 UI 재검토에서 NPE는 해소됐으나 다음 native 조건이 거절됐다. 실제 설치 CLI385의 정의를 메모리에서 그대로 사용한 읽기 검사는 request 통과 뒤 root_binding에서 거절됐음을 확인했다. ROOT 조회의 PATH 열만 지정하면 lsblk JSON이 평면 목록이므로 엄격한 부모 추적이 ROOT를 찾지 못했다. 동일한 검증에 --tree를 명시하면 /dev/sdb와 예상20자리 ROOT serial을 하나만 정확히 찾았다.
+
+기존 runtime updater의 실제 인자는 readback --request /dev/stdin이다. 올바른 형식으로 동일한 pin을 비교했을 때 조합한 smb-current-cfe87… ID는 TRANSACTION_NOT_FOUND, 실제 완료된 runtime-6cb6d6ff-002c-4d26-b002-058d75481344는 서명·설치 파일·실행 경로 검증과 모든 SHA가 일치했다. 검사 전후 passdb/secrets의 inode·크기·권한·mtime·ctime은 동일했다. 새 업그레이드 작업이나 SAM을 생성하지 않았다.
+
+후속 Java420bbc861b87은 이미 READBACK 검증된 완료 작업의 transactionId를 CURRENT runtimePin의 다섯 번째 필드로 전달한다. focused36에서 실제 context 메서드의 ROOT/runtime 경로와 투영을 실행했고 ID 부재·숫자·상대 및 절대 경로·허용하지 않는 문자·길이 초과를 거절했다. native의 ROOT tree·명령 인자·실제 ID 전달 수정은 별도로 검증 중이며, 아직 이 후속 변경의 실제 정지·캡처·복구는 실행하지 않았다.
 
 기존 두 DATA의 XFS UUID와 원본 캡슐·실패 이력을 보존한다. 실제 성공 이후에도 원본 신원 복원과 현재 신원 보존을 별도로 기록한다. 최종 UI 표준 #1275는 미착수이며 시작 전 사용자 보고·추가 지시 대기를 유지한다.
