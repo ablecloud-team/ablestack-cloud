@@ -30,10 +30,10 @@ def pending_nfs_readonly_body():
         if isinstance(node,ast.Assign) or isinstance(node,ast.FunctionDef) and node.name in ("__init__","files","digest","status","request","scoped"):
             members.append("    "+ast.get_source_segment(source,node))
     limit=next(node for node in tree.body if isinstance(node,ast.Assign) and any(isinstance(item,ast.Name) and item.id=="MAX_BYTES" for item in node.targets))
-    value="import uuid\n"+ast.get_source_segment(source,limit)+"\n"+"\n\n".join(functions)+"\n\nclass Generation:\n"+"\n\n".join(members)
-    aliases={"MAX_BYTES":"PENDING_NFS_MAX_BYTES","read_json":"pending_nfs_read","redact":"pending_nfs_redact","Generation":"PendingNfsGeneration"}
+    value=ast.get_source_segment(source,limit)+"\n"+"\n\n".join(functions)+"\n\nclass Generation:\n"+"\n\n".join(members)
+    aliases={"MAX_BYTES":"PENDING_NFS_MAX_BYTES","read_json":"pending_nfs_read","redact":"pending_nfs_redact","Generation":"PendingNfsGeneration","uuid":"pending_nfs_uuid"}
     tokens=tokenize.generate_tokens(io.StringIO(value).readline)
-    return tokenize.untokenize([token._replace(string=aliases.get(token.string,token.string)) if token.type==tokenize.NAME else token for token in tokens]).rstrip()
+    return "import uuid as pending_nfs_uuid\n"+tokenize.untokenize([token._replace(string=aliases.get(token.string,token.string)) if token.type==tokenize.NAME else token for token in tokens]).rstrip()
 
 class StorageInlineSourcesTest(unittest.TestCase):
     def test_signed_rendered_entrypoint_matches_all_fixed_reviewed_library_bodies_exactly(self):
