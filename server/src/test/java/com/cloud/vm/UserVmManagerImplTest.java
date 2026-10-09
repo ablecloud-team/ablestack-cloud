@@ -70,6 +70,7 @@ import com.cloud.kubernetes.cluster.KubernetesServiceHelper;
 import com.cloud.network.NetworkService;
 import com.cloud.storage.dao.SnapshotPolicyDao;
 import com.cloud.utils.fsm.NoTransitionException;
+import com.cloud.configuration.Resource.ResourceType;
 import com.cloud.resourcelimit.CheckedReservation;
 import org.apache.cloudstack.acl.ControlledEntity;
 import org.apache.cloudstack.acl.SecurityChecker;
@@ -1714,6 +1715,54 @@ public class UserVmManagerImplTest {
         Mockito.verify(userVmManagerImpl).addCurrentDetailValueToInstanceDetailsMapIfNewValueWasNotSpecified(Mockito.any(), Mockito.any(), Mockito.eq(VmDetailConstants.CPU_SPEED), Mockito.any());
         Mockito.verify(userVmManagerImpl).addCurrentDetailValueToInstanceDetailsMapIfNewValueWasNotSpecified(Mockito.any(), Mockito.any(), Mockito.eq(VmDetailConstants.MEMORY), Mockito.any());
         Mockito.verify(userVmManagerImpl).addCurrentDetailValueToInstanceDetailsMapIfNewValueWasNotSpecified(Mockito.any(), Mockito.any(), Mockito.eq(VmDetailConstants.CPU_NUMBER), Mockito.any());
+    }
+
+    @Test
+    public void adoptedRootDoesNotReserveAlreadyChargedStorage() throws ResourceAllocationException {
+        List<Reserver> reservations = new ArrayList<>();
+        try (MockedConstruction<CheckedReservation> construction = Mockito.mockConstruction(CheckedReservation.class)) {
+            userVmManagerImpl.reserveStorageResourcesForVm(reservations, account, null, null, null, null,
+                    Mockito.mock(ServiceOfferingVO.class), 100L << 30, null, true);
+            Assert.assertEquals(0, construction.constructed().size());
+            Assert.assertTrue(reservations.isEmpty());
+        }
+    }
+
+    @Test
+    public void restoredOrTemplateRootReservesNewVolumeAndStorage() throws ResourceAllocationException {
+        List<Reserver> reservations = new ArrayList<>();
+        List<List<?>> arguments = new ArrayList<>();
+        Mockito.doReturn(Collections.emptyList()).when(userVmManagerImpl).getResourceLimitStorageTags(Mockito.anyLong());
+        try (MockedConstruction<CheckedReservation> construction = Mockito.mockConstruction(CheckedReservation.class,
+                (mock, context) -> arguments.add(context.arguments()))) {
+            userVmManagerImpl.reserveStorageResourcesForVm(reservations, account, null, null, null, 7L,
+                    Mockito.mock(ServiceOfferingVO.class), 100L << 30, null, false);
+            Assert.assertEquals(2, construction.constructed().size());
+            Assert.assertEquals(ResourceType.volume, arguments.get(0).get(1));
+            Assert.assertEquals(1L, arguments.get(0).get(3));
+            Assert.assertEquals(ResourceType.primary_storage, arguments.get(1).get(1));
+            Assert.assertEquals(100L << 30, arguments.get(1).get(3));
+        }
+    }
+
+    @Test
+    public void adoptedRootStillReservesAdditionalDataDisk() throws ResourceAllocationException {
+        List<Reserver> reservations = new ArrayList<>();
+        List<List<?>> arguments = new ArrayList<>();
+        DiskOfferingVO dataOffering = Mockito.mock(DiskOfferingVO.class);
+        Mockito.when(diskOfferingDao.findById(9L)).thenReturn(dataOffering);
+        Mockito.doReturn(Collections.emptyList()).when(userVmManagerImpl).getResourceLimitStorageTags(9L);
+        Mockito.when(dataOffering.getDiskSize()).thenReturn(10L << 30);
+        try (MockedConstruction<CheckedReservation> construction = Mockito.mockConstruction(CheckedReservation.class,
+                (mock, context) -> arguments.add(context.arguments()))) {
+            userVmManagerImpl.reserveStorageResourcesForVm(reservations, account, 9L, 10L, null, null,
+                    Mockito.mock(ServiceOfferingVO.class), 100L << 30, null, true);
+            Assert.assertEquals(2, construction.constructed().size());
+            Assert.assertEquals(ResourceType.volume, arguments.get(0).get(1));
+            Assert.assertEquals(1L, arguments.get(0).get(3));
+            Assert.assertEquals(ResourceType.primary_storage, arguments.get(1).get(1));
+            Assert.assertEquals(10L << 30, arguments.get(1).get(3));
+        }
     }
 
     @Test

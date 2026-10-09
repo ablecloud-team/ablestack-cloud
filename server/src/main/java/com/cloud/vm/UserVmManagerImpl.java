@@ -4919,18 +4919,21 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         return resourceLimitService.getResourceLimitStorageTags(diskOfferingVO);
     }
 
-    private void reserveStorageResourcesForVm(List<Reserver> checkedReservations, Account owner, Long diskOfferingId,
+    protected void reserveStorageResourcesForVm(List<Reserver> checkedReservations, Account owner, Long diskOfferingId,
                                               Long diskSize, List<VmDiskInfo> dataDiskInfoList, Long rootDiskOfferingId,
-                                              ServiceOfferingVO offering, Long rootDiskSize, String vmType) throws ResourceAllocationException {
+                                              ServiceOfferingVO offering, Long rootDiskSize, String vmType, boolean reuseRootVolume) throws ResourceAllocationException {
         if (VALIDATION_VM.equals(vmType) && !EnforceResourceLimitOnValidationVm.valueIn(owner.getAccountId())) {
             return;
         }
 
-        List<String> rootResourceLimitStorageTags = getResourceLimitStorageTags(rootDiskOfferingId != null ? rootDiskOfferingId : offering.getDiskOfferingId());
-        CheckedReservation rootVolumeReservation = new CheckedReservation(owner, ResourceType.volume, rootResourceLimitStorageTags, 1L, reservationDao, resourceLimitService);
-        checkedReservations.add(rootVolumeReservation);
-        CheckedReservation rootPrimaryStorageReservation = new CheckedReservation(owner, ResourceType.primary_storage, rootResourceLimitStorageTags, rootDiskSize, reservationDao, resourceLimitService);
-        checkedReservations.add(rootPrimaryStorageReservation);
+        // An adopted volume is already charged to the same validated owner.
+        if (!reuseRootVolume) {
+            List<String> rootResourceLimitStorageTags = getResourceLimitStorageTags(rootDiskOfferingId != null ? rootDiskOfferingId : offering.getDiskOfferingId());
+            CheckedReservation rootVolumeReservation = new CheckedReservation(owner, ResourceType.volume, rootResourceLimitStorageTags, 1L, reservationDao, resourceLimitService);
+            checkedReservations.add(rootVolumeReservation);
+            CheckedReservation rootPrimaryStorageReservation = new CheckedReservation(owner, ResourceType.primary_storage, rootResourceLimitStorageTags, rootDiskSize, reservationDao, resourceLimitService);
+            checkedReservations.add(rootPrimaryStorageReservation);
+        }
 
         if (diskOfferingId != null) {
             List<String> additionalResourceLimitStorageTags = getResourceLimitStorageTags(diskOfferingId);
@@ -4970,7 +4973,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
 
 
         try {
-            reserveStorageResourcesForVm(checkedReservations, owner, diskOfferingId, diskSize, dataDiskInfoList, rootDiskOfferingId, offering, volumesSize, vmType);
+            reserveStorageResourcesForVm(checkedReservations, owner, diskOfferingId, diskSize, dataDiskInfoList, rootDiskOfferingId, offering, volumesSize, vmType, volume != null);
 
             // verify security group ids
             if (securityGroupIdList != null) {
