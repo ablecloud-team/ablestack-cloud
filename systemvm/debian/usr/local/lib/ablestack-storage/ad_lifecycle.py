@@ -162,7 +162,7 @@ class AdDomainLifecycle:
                         raise ValueError("Fresh AD DNS alias exists or absence was not proven")
         return {"success":True,"computerAliasSpnAbsent":True,"dnsAliasesAbsent":True}
 
-    def source_authority(self,request,fresh=True):
+    def source_authority(self,request,fresh=True,inverse_target=False):
         marker=self.daemon.marker(request)
         scope=service_cipher_scope(marker)
         if any(request.get(key)!=value for key,value in scope.items()):
@@ -176,7 +176,13 @@ class AdDomainLifecycle:
                     or record.get("identityCheckpoint",{}).get("sourceConfigurationSha256")!=native["sourceConfigurationSha256"]):
                 raise ValueError("AD mutation lacks its native BEFOREJOIN encrypted source")
             observed=json.loads(self.command([self.cli,"operation","generation","status"]))
-            if (observed.get("generation")!=native["sourceGeneration"] or observed.get("configurationSha256")!=native["sourceConfigurationSha256"]
+            if inverse_target:
+                guard=self.protected_request(("operation","generation","render-ad-join-inverse-guard"),scope)
+                if (guard.get("success") is not True or guard.get("scope")!=scope or guard.get("inverseOriginalSourceVerified") is not True
+                        or guard.get("sourceConfigurationSha256")!=native["sourceConfigurationSha256"] or guard.get("bootId")!=native["bootId"]
+                        or guard.get("publicLocalMachineSid")!=native["sourcePublicIdentity"]["publicLocalMachineSid"]):
+                    raise ValueError("JOIN inverse original SOURCE boundary guard differs")
+            elif (observed.get("generation")!=native["sourceGeneration"] or observed.get("configurationSha256")!=native["sourceConfigurationSha256"]
                     or observed.get("pendingOperationUuid")!=scope["operationUuid"] or observed.get("generationStatus")!="PENDING"):
                 raise ValueError("AD mutation source generation/seven differs")
             if fresh:
@@ -343,7 +349,7 @@ class AdDomainLifecycle:
         if (not isinstance(username,str) or not re.fullmatch(r"[A-Za-z0-9_.@\\-]{1,256}",username)
                 or not isinstance(password,str) or not password or len(password)>4096 or any(c in password for c in ("\n","\r","\0"))):
             raise ValueError("Owned JOIN inverse requires complete sealed credentials")
-        source=self.source_authority(request,fresh=False);journal=ad_protected_json(self.journal);public=journal.get("publicConfiguration")
+        source=self.source_authority(request,fresh=False,inverse_target=True);journal=ad_protected_json(self.journal);public=journal.get("publicConfiguration")
         if (journal.get("scope")!=self.daemon.scope(request) or journal.get("phase") not in ("RECOVERY_REQUIRED","COMPLETE","OWNED_JOIN_INVERTED")
                 or not isinstance(public,dict) or public.get("preJoinRemoteIdentityAbsent") is not True
                 or public.get("machineAuthenticatedComputer") is not True or source.get("adIdentity") is not None
@@ -490,6 +496,29 @@ class AdDomainLifecycle:
             return {"success":True,"scope":self.daemon.scope(request),**result,"identity":fresh,"canonicalDesiredStateChanged":False}
         except Exception:
             self.snapshot(request,"RECOVERY_REQUIRED",public);raise
+
+    def root_target_resume(self,request):
+        scope=self.daemon.scope(request);marker=self.daemon.marker(request)
+        if "templateUpgradeUuid" not in marker or any(request.get(key)!=value for key,value in marker.items()):
+            raise ValueError("ROOT TARGET winbind requires exact held ROOT4")
+        root=Path(os.environ.get("ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR","/var/lib/ablestack-storage"))
+        saved=ad_protected_json(root/("root-identity-target-"+scope["operationUuid"]+".json"))
+        proof=self.protected_request(("operation","generation","render-root-target-stopped"),request)
+        if (saved.get("kind")!="ROOT_IDENTITY_TARGET" or saved.get("scope")!=marker or proof.get("scope")!=marker
+                or proof.get("rootTargetStoppedVerified") is not True or proof.get("targetConfigurationSha256")!=saved["targetConfigurationSha256"]
+                or proof.get("bootId")!=Path("/proc/sys/kernel/random/boot_id").read_text().strip()):
+            raise ValueError("ROOT TARGET winbind has no independent same-boot stopped target")
+        expected=saved["targetPublicIdentity"]["publicAdIdentity"]
+        policy=protected_ad_policy(scope["instanceUuid"],configuration=self.configuration)
+        state=ad_protected_json(self.state)
+        if (state.get("identityReceipt")!={key:expected[key] for key in ("machineSid","domainSid","machineAccountSid")}
+                or policy.get("machineConfigurationSha256")!=expected["machineConfigurationSha256"] or self.sid_reader(expected["netbiosName"])!=expected["machineSid"]):
+            raise ValueError("ROOT TARGET private identity changed before owned resume")
+        self.daemon.start(request);fresh=AdIdentityRpc(self.run,self.configuration,cli=self.cli).inspect(request)
+        fields=("domain","realm","workgroup","netbiosName","machineSid","domainSid","machineAccountSid","servicePrincipals","dnsAliases","idmapPolicy")
+        if fresh.get("identityVerified") is not True or fresh.get("bootId")!=proof["bootId"] or any(fresh.get(key)!=expected[key] for key in fields):
+            self.daemon.stop(request);raise ValueError("ROOT TARGET resumed AD trust is not freshly exact")
+        return {"success":True,"scope":scope,"targetIdentityResumed":True,"identity":fresh}
 
     def target_resume(self,request):
         scope=self.daemon.scope(request);marker=service_cipher_scope(self.daemon.marker(request))

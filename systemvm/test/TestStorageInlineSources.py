@@ -22,10 +22,11 @@ CLI=ROOT/"systemvm/debian/usr/local/bin/ablestack-storagectl"
 
 class StorageInlineSourcesTest(unittest.TestCase):
     def test_signed_rendered_entrypoint_matches_all_fixed_reviewed_library_bodies_exactly(self):
-        modules=['ad_authority','semantic_identity_alias','rendered_generation','ganesha_dbus','nvme_credentials','native_renderers','native_render_validation','native_render_runtime','rendered_network','rendered_prerequisites','rendered_credentials','posix_root_initialization','root_identity_reference','root_configuration_capsule','root_source_identity_checkpoint','root_source_recovery','samba_public_sid','service_identity_source','service_identity_cipher','template_maintenance','service_maintenance','service_identity_target','root_retained_authorization','rendered_driver']
+        modules=['ad_authority','semantic_identity_alias','rendered_generation','ganesha_dbus','nvme_credentials','native_renderers','native_render_validation','native_render_runtime','rendered_network','rendered_prerequisites','rendered_credentials','posix_root_initialization','root_identity_reference','root_configuration_capsule','root_source_identity_checkpoint','root_source_recovery','samba_public_sid','service_identity_source','service_identity_cipher','template_maintenance','service_maintenance','service_identity_target','root_identity_target','root_retained_authorization','root_ad_imported_authorization','root_ad_identity_authority','rendered_driver']
         expected=['import sys']
         for name in modules:
             value=(LIB/(name+'.py')).read_text()
+            if name=="root_ad_imported_authorization":value="import subprocess\n"+value[value.index("def root_ad_runtime_readback("):value.index("class RootAdImportedAuthorization:")].rstrip()
             expected.append('\n'.join(line for line in value.splitlines() if not any(line.startswith('from '+item+' import ') for item in modules)))
         actual=CLI.read_text().split("<<'PYRENDEREDGENERATION'\n",1)[1].split("\nPYRENDEREDGENERATION",1)[0]
         actual=actual[:actual.index('\ntry:\n    action = sys.argv[1]')]
@@ -94,6 +95,13 @@ class StorageInlineSourcesTest(unittest.TestCase):
         source=CLI.read_text();actual=source.split("# BEGIN EMBEDDED AD SEMANTIC SOURCE\n",1)[1].split("\n# END EMBEDDED AD SEMANTIC SOURCE",1)[0]
         expected="\n".join(line for line in (LIB/"semantic_ad_source.py").read_text().splitlines() if not line.startswith("from identity_capsule import "))
         self.assertEqual(expected,actual);ast.parse(actual)
+
+    def test_signed_root_target_cipher_matches_fixed_typed_publisher_and_dispatchers(self):
+        source=CLI.read_text();actual=source.split("# BEGIN EMBEDDED ROOT TARGET CIPHER\n",1)[1].split("\n# END EMBEDDED ROOT TARGET CIPHER",1)[0]
+        expected="\n".join(line for line in (LIB/"root_target_cipher.py").read_text().splitlines() if not line.startswith(("from service_target_cipher import ","from root_identity_reference import ")))
+        self.assertEqual(expected,actual);ast.parse(actual)
+        self.assertIn('elif action=="export-root-target":',source)
+        self.assertIn('|render-ad-join-inverse-guard) rendered_generation_command',source)
 
     def test_signed_target_cipher_matches_codec_only_publisher_and_exposes_no_public_retain_rpc(self):
         source=CLI.read_text();actual=source.split("# BEGIN EMBEDDED SERVICE TARGET CIPHER\n",1)[1].split("\n# END EMBEDDED SERVICE TARGET CIPHER",1)[0]

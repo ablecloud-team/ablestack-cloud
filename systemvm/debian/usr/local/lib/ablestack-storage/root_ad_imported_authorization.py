@@ -111,7 +111,8 @@ class RootAdImportedAuthorization:
                 or checkpoint.get("publicKey")!=public or decrypt(checkpoint["capsule"],request["credentialPrivateKey"],scope["instanceUuid"]+":"+scope["operationUuid"])!=payload):
             raise ValueError("Forward ROOT AD immutable encrypted checkpoint changed")
         record={"schemaVersion":1,"kind":"ROOT_AD_IMPORTED_AUTHORIZATION","scope":scope,"latestSourceRootScope":original,
-                "latestConfigurationSha256":source_sha,"latestAdIdentity":identity,"authorizedBootId":boot,
+                 "latestConfigurationSha256":source_sha,"latestSourceGeneration":payload["rootSourceConfiguration"]["sourceGeneration"],
+                "configurationDesiredState":root_configuration_authorize(payload,original,source_sha),"latestAdIdentity":identity,"authorizedBootId":boot,
                 "targetRuntimePin":pin,"targetRuntimeTransactionId":transaction,"originalCipherSha256":original_cipher["sha256"],"identityCheckpointSha256":checkpoint["capsule"]["sha256"],"checkpointPublicKey":public}
         existing=self.optional_read(record_path)
         if existing is not None and existing!=record:

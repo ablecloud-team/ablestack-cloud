@@ -72,4 +72,4 @@ def root_ad_retained_authority(common,maintenance,configuration=None,root=None,r
         raise ValueError("ROOT AD original encrypted checkpoint bytes/scope differ")
     root_ad_imported_matches(common,identity,configuration,sid_reader or samba_public_sid)
     return {"scope":scope,"identity":identity,"authorizationUuid":identifier,"authorizationSha256":hashlib.sha256(json.dumps(record,sort_keys=True,separators=(",",":")).encode()).hexdigest(),"bootId":boot,
-            "originalCipherSha256":record.get("originalCipherSha256"),"sourceConfigurationSha256":record["latestConfigurationSha256"],"originalSourceScope":record["latestSourceRootScope"]}
+            "originalCipherSha256":record.get("originalCipherSha256"),"sourceConfigurationSha256":record["latestConfigurationSha256"],"originalSourceScope":record["latestSourceRootScope"],"kind":kind,"record":record,"identityCheckpoint":identity_record}
