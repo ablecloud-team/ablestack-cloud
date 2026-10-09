@@ -186,8 +186,38 @@ class Generation:
             write(previous)
             raise
 
+    def initial_source(self, request, restoring=False):
+        allowed = {"instanceUuid", "operationUuid", "revision", "configurationDesiredState"}
+        if restoring:
+            allowed.add("previousGeneration")
+        if set(request) != allowed or restoring and request.get("previousGeneration") != {}:
+            raise ValueError("Initial source accepts only its exact nonsecret request")
+        request = self.request(request)
+        pending = self.scoped(request)
+        if (pending.get("phase") != "PREPARED" or pending.get("previous") != {}
+                or read_json(self.current) not in (None, {})):
+            raise ValueError("Initial source requires its original PREPARED writer without a generation")
+        checksum = self.canonical_desired(request["configurationDesiredState"])
+        if checksum != pending.get("beforeSha256"):
+            raise ValueError("Initial source differs from the protected pending source digest")
+        return pending, checksum
+
+    def frozen_initial(self, request):
+        pending, checksum = self.initial_source(request)
+        return {"success": True, "generationSupported": True, "frozen": True,
+                "initialSourceVerified": True, "scope": {key: pending[key] for key in ("instanceUuid", "operationUuid", "revision")},
+                "generation": {}, "configurationSha256": checksum,
+                "configurationDesiredState": request["configurationDesiredState"]}
+
     def restore(self, request):
         pending = self.scoped(request)
+        if request.get("previousGeneration") == {}:
+            pending, checksum = self.initial_source(request, restoring=True)
+            self.replace_desired(request["configurationDesiredState"])
+            return {"success": True, "generationSupported": True, "canonicalRestored": True,
+                    "configurationSha256": checksum, "generationAdvanced": False,
+                    "pendingOperationUuid": pending["operationUuid"]}
+
         previous = request.get("previousGeneration")
         if not previous or pending.get("previous") != previous:
             raise ValueError("Canonical restore previous generation changed")
@@ -262,6 +292,8 @@ class Generation:
         request = self.request(request)
         if action == "frozen":
             return self.frozen(request)
+        if action == "frozen-initial":
+            return self.frozen_initial(request)
         protected_directory(self.root)
         if action == "restore":
             return self.restore(request)

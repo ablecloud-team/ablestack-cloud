@@ -46,6 +46,7 @@ from root_retained_authorization import RootRetainedAuthorization
 from root_ad_identity_authority import root_ad_retained_authority
 from root_configuration_capsule import root_configuration_sha256
 from nvme_credentials import protected_credential_json
+from pending_nfs_authorization import PendingNfsAuthorization
 
 
 class RenderedDriver:
@@ -731,6 +732,8 @@ class RenderedDriver:
             maintenance = self.runtime.command(("operation", "maintenance", "status"))
             if action == "render-boot-gate" and self.boot_authorized(unit, maintenance):
                 return {"success": True, "bootHeld": False, "activationUnitAuthorized": unit}
+            if action == "render-boot-gate" and PendingNfsAuthorization().authorized(unit, maintenance, status):
+                return {"success": True, "bootHeld": False, "nativePendingNfsUnitAuthorized": unit}
             if status["bootHeld"] or maintenance.get("bootHeld") is not False:
                 raise ValueError("Automatic protocol exposure is held by an interrupted configuration/ROOT operation")
             actual = self.generation()
