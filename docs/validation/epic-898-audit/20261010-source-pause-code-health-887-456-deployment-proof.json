@@ -1,0 +1,126 @@
+{
+  "kind": "EPIC898_RUNTIME_CODE_VERIFICATION_DURING_AUTHENTICATED_LOCAL_SOURCE_PAUSE",
+  "sourcePin": "f493d77f52f5006c2ced3c8d3011e3508430b232",
+  "nativeCliSha256": "90495d2827de4127427efd9827f689e12c1ee19027a52c2a64ea8685860beb81",
+  "nativeTests": 456,
+  "nativeSelectors": 49,
+  "javaTests": 887,
+  "javaSelectors": 124,
+  "failuresErrorsSkipped": 0,
+  "checkstylePassed": true,
+  "java9896NulSha256": "ce0ccf85bf4eb28971950e45219d62a294e23f8a3d3677cc667ce3c8ca813c37",
+  "nativeStorage141NulSha256": "fde0d72272867d6b9bcabf60cbeb10d43469131e77ce3470ec980a536bc1ec35",
+  "productionBeforeAfterIdentical": true,
+  "immutableModuleFiles": 6295,
+  "otherProductionFilesUnchanged": 5242,
+  "typedProofFields": 15,
+  "producerConsumerPositive": 6,
+  "producerConsumerNegative": 9,
+  "producerSha256": "86e80a5f5aeb0a8201e955ae24260aa10dc7fc23877fcbb676f031bbedd106f8",
+  "producerInstallationAndSystemdProvider": "FIXTURE",
+  "providerTargetCliSha256": "e4484a99a4b404626bcb58ba3f8e9a241ca95313eabb35a0ff9e745514333d11",
+  "genericServiceHealthChanged": false,
+  "pausedServiceAvailabilityVerified": false,
+  "readerWrites": 0,
+  "actualManagementDeployment": {
+    "javaSource": "f493d77f52f5006c2ced3c8d3011e3508430b232",
+    "nativeSource": "f493d77f52f5006c2ced3c8d3011e3508430b232",
+    "backup": "/root/epic898-owned-source-f493-backup-20261010-015831",
+    "jarSha256": "2c84b10478744d125daad6da7a26f8d96acfdaded5b64be5dc63c9d62bb4a6d1",
+    "pidBefore": "1310175",
+    "pidAfter": "1328703",
+    "classCount": 4,
+    "newClassCount": 0,
+    "otherJarEntriesPreserved": true,
+    "uiAndConfigPreserved": true,
+    "activationTime": "2026-10-10T01:59:27.548822+09:00",
+    "applicationReadinessVerified": true
+  },
+  "abiMemberReferences": 620,
+  "abiChecks": {
+    "class-signature-link": {
+      "exitCode": 0,
+      "logSha256": "340155a4515b04dd5bf3bddcfa0ca1167547d082ecc1c5ec8897b23a1cb60d80"
+    },
+    "member-link": {
+      "exitCode": 0,
+      "logSha256": "38f1ac1764e9ed82640d2d9a8098fa04c6b7e3ee01c3df52184059b535616dfe"
+    }
+  },
+  "managementProductionClassDeltas": [
+    {
+      "path": "server/classes/org/apache/cloudstack/storage/dataservice/StorageLocalSourceIdentityProof.class",
+      "kind": "changed",
+      "sha256": "d822132d721dc0d43a8cc4803711acc759a71c0e73a2c2e61058fb498de253c9"
+    },
+    {
+      "path": "server/classes/org/apache/cloudstack/storage/dataservice/StorageServiceRuntimeUpgradeManagerImpl$1.class",
+      "kind": "changed",
+      "sha256": "77b3ed48c03621f3dde0b35de3ee6929eff5548c65459cb27ab56fefe4101e5d"
+    },
+    {
+      "path": "server/classes/org/apache/cloudstack/storage/dataservice/StorageServiceRuntimeUpgradeManagerImpl$RuntimeResourceScope.class",
+      "kind": "changed",
+      "sha256": "30e58ae7a92eb755e4bfbdab5aeb8422be238ff3a479eeeafb669cfa159b2523"
+    },
+    {
+      "path": "server/classes/org/apache/cloudstack/storage/dataservice/StorageServiceRuntimeUpgradeManagerImpl.class",
+      "kind": "changed",
+      "sha256": "cb88fd014a6fc77ddde6f838779fbe459d2243d00db54904bb4cb839238d36c4"
+    }
+  ],
+  "runtimeVersion": "epic898-smb-quarantine-f493d7-20261010",
+  "archiveBytes": 397087,
+  "archiveSha256": "1e9c16bd99c48119afaa117413b90086c812ec1d9b7ea85ff22d1c59a33bd834",
+  "manifestBytes": 1443,
+  "manifestSha256": "72a04d20f3d9c6b1956471391cff7a21b433dfc65a82a554f2ffb56ac38fe74a",
+  "signatureBytes": 64,
+  "signatureVerified": true,
+  "testSigningOnly": true,
+  "privateKeyFiles": 0,
+  "oldTrustPreserved": true,
+  "publicHttpFiveFileBytesVerified": true,
+  "runtimeAppliedAtManagementDeployment": false,
+  "sourceRecoveryAcceptedAtManagementDeployment": false,
+  "ddlChanges": false,
+  "uiAssetsChanged": false,
+  "finalUi1275Started": false,
+  "evidenceFiles": [
+    {
+      "relativePreparationPath": "runtime-owned-source-code-health/final-f493/normal-source-proof.json",
+      "sha256": "440c36f8de0cbadfee8db69b738c911eee039a0a97085ec4eb0ad8d5538801ca"
+    },
+    {
+      "relativePreparationPath": "runtime-owned-source-code-health/final-f493/immutable-issuer-java-bridge-proof.json",
+      "sha256": "a247b29a94c3f320d69f6921b86f436342e64c78959f3590167a882b11d62779"
+    },
+    {
+      "relativePreparationPath": "local-source-quarantine-fix/source-proof-final.json",
+      "sha256": "9f12829abb76e4f57a474b2281c1143c90236aca3b7cc7d4fcb6036ca7795735"
+    },
+    {
+      "relativePreparationPath": "runtime-owned-source-f493-management-review/manifest.json",
+      "sha256": "20e4f71f46a7c3ab1ef75cbc356a9b9a0dd6ffc459d8af481fde2ca38a4f5926"
+    },
+    {
+      "relativePreparationPath": "runtime-owned-source-f493-management-review/deployment.json",
+      "sha256": "60a0ad232bc568ea974cd265e112a423dbc9ab8052adb9e3db09442b45991491"
+    },
+    {
+      "relativePreparationPath": "runtime-owned-source-f493-management-review/after-deploy-readiness.json",
+      "sha256": "5927f4bf1db5509755416a366f4a5b90bfe86df0a2a34f414cbc8b737ccb45fd"
+    },
+    {
+      "relativePreparationPath": "runtime-smb-quarantine-f493d7/proof.json",
+      "sha256": "457588c32710fc75e32e2e808f27705bfa4cea7471839195403a4252cd228974"
+    },
+    {
+      "relativePreparationPath": "runtime-smb-quarantine-f493d7/upload-proof.json",
+      "sha256": "7e9b11e5afb38154da478a1625814a311a0edf0ab903d0de3e845ecda7db1c4c"
+    },
+    {
+      "relativePreparationPath": "runtime-smb-quarantine-f493d7/http-public-byte-proof.json",
+      "sha256": "241f34145135761a5659f8b174bc3c1b86f9f4333e287ae5c04630bce0b83009"
+    }
+  ]
+}
