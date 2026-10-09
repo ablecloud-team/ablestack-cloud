@@ -90,5 +90,44 @@
     "mgtPublicationOrTerminalChange": false,
     "proofSha256": "05a834dca19bdde06eb502cde2e07e280ae34bc4955036217fa2747f606b418d",
     "preservationProofSha256": "4069ca1569b5b39b9a80e64595d344cb774cf4d25aa53ddc9dbdc50b5e89a629"
-  }
+  },
+  "existingRunningAgentPublicProbe": {
+    "attachCalls": 1,
+    "publicQgaCalls": 1,
+    "agentPid": 985133,
+    "connectionToken": 1979218253,
+    "sameExistingPoolObjectAfter": true,
+    "poolEntries": 1,
+    "launchMillis": 2,
+    "statusMillis": 1108,
+    "totalMillis": 1160,
+    "inputBytes": 1492,
+    "outputBytes": 1518638,
+    "hostAnswerSuccess": true,
+    "eventThreadAlive": true,
+    "eventThreadDaemon": true,
+    "eventThreadState": "RUNNABLE",
+    "knownConcurrentQgaFramesAtSample": 0,
+    "connectionNewCloseResetOrClassTransformGlobalLoggingChanged": false,
+    "originalCliExecuted": false,
+    "allHostAgentVm15AndF1TenTuplePreserved": true,
+    "ownDiagnosticThreadIsNotNormalWorker": true,
+    "proofSha256": "32c2570bc37e8d451f85ef5008bf634e2be437ee494638feb06355de74489644",
+    "preservationProofSha256": "834a748431a471830a84df1c5b09d52c25e5948ec8532b2190ff14099a68497f"
+  },
+  "nextInvestigation": "actual capture already published; subsequent import carries large INPUT. Input1518638/outputtiny public JNI new-axis probe preparing, real import/source changes0.",
+  "freshActualManagementCheckpointState": {
+    "nativeIdentityCapsulePresentAndObject": true,
+    "sourceResumedPresentBooleanAndTrue": true,
+    "keyReferencePresentAndObject": true,
+    "restoredPresent": false,
+    "authReplayedPresent": false,
+    "revision": 5,
+    "state": "RECOVERY_REQUIRED",
+    "phase": "INTERRUPTED_RECOVERY_REQUIRED",
+    "rawSnapshotCipherPemKeyCredentialsOutput": false,
+    "sqlMutations": 0
+  },
+  "failureCommandFamilyNotCaptured": true,
+  "previousExportOnlyAssumptionCorrected": true
 }

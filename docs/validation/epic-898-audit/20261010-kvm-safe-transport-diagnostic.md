@@ -18,4 +18,12 @@
 
 이 성공은 분리된연결의actualproducer/fullencryptedQGA경로이며 runningAgent의공유연결·동시요청·lifecycle차이는남아있다. 관리자작업terminal을완료로바꾸거나추가UI복구를하지않았고 원실패해결로선언하지않는다.
 
+기존runningAgent PID985133의이미존재하는Connect token1979218253에서도공개1492B입력/1518638B출력1건이성공했다. 공개진단attach1회·QGA1회, launch2ms/status1108ms/전체1160ms이며같은map객체를유지했다. 연결생성/닫기/재설정·production변환·전역로그/출력변경·원CLI는0이고Agent/JAR/VM15/F1전후10개보존을확인했다. 표본의eventThread는RUNNABLE/alive/daemon이며알려진동시QGAframe은0이다. 별도diagnosticthread이므로정상worker/queue·과거동시호출실패까지입증하지않는다. 같은pool과실제cached body의조합은이기록시점에준비중이다.
+
 [고정 모듈·실제 배포의 공개 증빙](20261010-kvm-safe-transport-diagnostic-public-proof.json). 최종 UI 표준 정리 #1275는 미착수이며 착수 직전 중단·보고·추가 지시 대기 경계를 유지한다.
+
+## 실제 관리 단계의 재확인
+
+이후 exact원fef/rev5/contextscope를읽기전용JDBC1SELECT로재확인했다. nativeIdentityCapsule참조/object와sourceResumed=true는이미관리서버에기록돼있고restored/authReplayed는없었다. 따라서원캡처·출판은완료됐으며 export만실패했다고좁힌앞선해석은불완전했다. Source started:275는참조가있으면export를건너뛰고후속restore:4566에서capsule+credentialPrivateKey+COMMON7/ref/SMBdomain을import한다. LAUNCH진단7필드에는명령종류가없으므로실제실패명령을확정하기전단계로구분한다.
+
+지금까지1492B입력과1518638B출력을검증했지만큰입력은검증하지않았다. 후속import의큰protectedstdin을구별하기위해공개1518638B입력/작은출력1case를준비한다. 실제privatekey/import/STOP/상태변경은0이고추가pool-realexport진단은HOLD했다. 원snapshot·키·캡슐값은SQL조회결과나파일로출력하지않았다.
