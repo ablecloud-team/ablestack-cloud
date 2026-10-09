@@ -20,6 +20,21 @@ LIB=ROOT/"systemvm/debian/usr/local/lib/ablestack-storage"
 CLI=ROOT/"systemvm/debian/usr/local/bin/ablestack-storagectl"
 
 
+def pending_nfs_readonly_body():
+    import io,tokenize
+    source=(LIB/"config_generation.py").read_text();tree=ast.parse(source)
+    functions=[ast.get_source_segment(source,node) for node in tree.body if isinstance(node,ast.FunctionDef) and node.name in ("read_json","redact")]
+    klass=next(node for node in tree.body if isinstance(node,ast.ClassDef) and node.name=="Generation")
+    members=[]
+    for node in klass.body:
+        if isinstance(node,ast.Assign) or isinstance(node,ast.FunctionDef) and node.name in ("__init__","files","digest","status","request","scoped"):
+            members.append("    "+ast.get_source_segment(source,node))
+    limit=next(node for node in tree.body if isinstance(node,ast.Assign) and any(isinstance(item,ast.Name) and item.id=="MAX_BYTES" for item in node.targets))
+    value="import uuid\n"+ast.get_source_segment(source,limit)+"\n"+"\n\n".join(functions)+"\n\nclass Generation:\n"+"\n\n".join(members)
+    aliases={"MAX_BYTES":"PENDING_NFS_MAX_BYTES","read_json":"pending_nfs_read","redact":"pending_nfs_redact","Generation":"PendingNfsGeneration"}
+    tokens=tokenize.generate_tokens(io.StringIO(value).readline)
+    return tokenize.untokenize([token._replace(string=aliases.get(token.string,token.string)) if token.type==tokenize.NAME else token for token in tokens]).rstrip()
+
 class StorageInlineSourcesTest(unittest.TestCase):
     def test_signed_rendered_entrypoint_matches_all_fixed_reviewed_library_bodies_exactly(self):
         modules=['ad_authority','semantic_identity_alias','rendered_generation','ganesha_dbus','nvme_credentials','native_renderers','native_render_validation','native_render_runtime','rendered_network','rendered_prerequisites','rendered_credentials','posix_root_initialization','root_identity_reference','root_configuration_capsule','root_source_identity_checkpoint','root_source_recovery','samba_public_sid','service_identity_source','service_identity_cipher','template_maintenance','service_maintenance','service_identity_target','root_identity_target','root_retained_authorization','root_ad_imported_authorization','root_ad_identity_authority','pending_nfs_authorization','rendered_driver']
@@ -27,6 +42,9 @@ class StorageInlineSourcesTest(unittest.TestCase):
         for name in modules:
             value=(LIB/(name+'.py')).read_text()
             if name=="root_ad_imported_authorization":value="import subprocess\n"+value[value.index("def root_ad_runtime_readback("):value.index("class RootAdImportedAuthorization:")].rstrip()
+            if name=="pending_nfs_authorization":
+                expected.append(pending_nfs_readonly_body())
+                value=value.replace("from config_generation import Generation as PendingNfsGeneration, read_json as pending_nfs_read\n","")
             expected.append('\n'.join(line for line in value.splitlines() if not any(line.startswith('from '+item+' import ') for item in modules)))
         actual=CLI.read_text().split("<<'PYRENDEREDGENERATION'\n",1)[1].split("\nPYRENDEREDGENERATION",1)[0]
         actual=actual[:actual.index('\ntry:\n    action = sys.argv[1]')]
@@ -138,9 +156,11 @@ class StorageInlineSourcesTest(unittest.TestCase):
         self.assertNotIn("tdbbackup",ast.unparse(collect));self.assertIn("live_identity_database_holders",ast.unparse(collect))
     def test_signed_pending_nfs_and_initial_source_closures_are_complete(self):
         source=CLI.read_text()
-        helper=(LIB/"pending_nfs_authorization.py").read_text().rstrip()
+        helper=(LIB/"pending_nfs_authorization.py").read_text().replace("from config_generation import Generation as PendingNfsGeneration, read_json as pending_nfs_read\n","").rstrip()
         embedded=source.split("# BEGIN EMBEDDED PENDING NFS AUTHORIZATION\n",1)[1].split("\n# END EMBEDDED PENDING NFS AUTHORIZATION",1)[0]
         self.assertEqual(helper,embedded);ast.parse(embedded)
+        readers=source.split("# BEGIN EMBEDDED PENDING NFS READERS\n",1)[1].split("\n# END EMBEDDED PENDING NFS READERS",1)[0]
+        self.assertEqual(pending_nfs_readonly_body(),readers);ast.parse(readers)
         generation=(LIB/"config_generation.py").read_text()
         generation=generation[generation.index('"""Durable desired-state'):].rstrip()
         embedded=source.split("<<'PYGENERATION'\n",1)[1].split("\nimport sys\nrequest =",1)[0]

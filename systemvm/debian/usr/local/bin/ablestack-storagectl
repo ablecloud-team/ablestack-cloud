@@ -4299,6 +4299,90 @@ import socket
 import zlib
 import hashlib
 
+# BEGIN EMBEDDED PENDING NFS READERS
+import uuid
+PENDING_NFS_MAX_BYTES = 8 * 1024 * 1024
+def pending_nfs_read(path):
+    try:
+        info = path.lstat()
+    except FileNotFoundError:
+        return None
+    if not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid() or info.st_size > PENDING_NFS_MAX_BYTES or info.st_mode & 0o022:
+        raise ValueError("Generation input is not a protected regular file")
+    parent = path.parent.lstat()
+    if not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.geteuid() or parent.st_mode & 0o022:
+        raise ValueError("Generation parent directory is not protected")
+    parent_fd = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    try:
+        pinned_parent = os.fstat(parent_fd)
+        if (pinned_parent.st_dev, pinned_parent.st_ino, pinned_parent.st_uid, pinned_parent.st_mode) != (parent.st_dev, parent.st_ino, parent.st_uid, parent.st_mode):
+            raise ValueError("Generation parent changed while opening")
+        fd = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=parent_fd)
+    finally:
+        os.close(parent_fd)
+    try:
+        opened = os.fstat(fd)
+        if (opened.st_dev, opened.st_ino, opened.st_uid, opened.st_gid, opened.st_mode, opened.st_size) != (info.st_dev, info.st_ino, info.st_uid, info.st_gid, info.st_mode, info.st_size):
+            raise ValueError("Generation input changed while opening")
+        with os.fdopen(fd, "rb", closefd=False) as handle:
+            value = handle.read(PENDING_NFS_MAX_BYTES + 1)
+        if len(value) > PENDING_NFS_MAX_BYTES:
+            raise ValueError("Generation input exceeds its size limit")
+        return json.loads(value)
+    finally:
+        os.close(fd)
+
+def pending_nfs_redact(value):
+    if isinstance(value, dict):
+        return {key: pending_nfs_redact(item) for key, item in value.items()
+                if key not in ("lastApply", "lastApplied", "observedAt", "generatedEpoch")
+                and not any(word in key.lower() for word in ("password", "secret", "dhchapkey", "dhchapctrlkey", "privatekey", "keytab", "capsule"))}
+    if isinstance(value, list):
+        return [pending_nfs_redact(item) for item in value]
+    return value
+
+class PendingNfsGeneration:
+    paths = ("desired-state/nfs-export-apply.json", "desired-state/smb-share-apply.json",
+             "iscsi-targets.json", "nvmeof-subsystems.json", "posix-directory-policies.json",
+             "network-endpoints.json", "sharedfs-network.json")
+
+    def __init__(self, state=None, configuration=None):
+        self.root = Path(state or os.environ.get("ABLESTACK_STORAGE_GENERATION_DIR", "/var/lib/ablestack-storage/config-generations"))
+        self.config = Path(configuration or os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_ROOT", "/etc/ablestack-storage"))
+        self.current = self.root / "current.json"
+        self.pending = self.root / "pending.json"
+
+    def files(self):
+        return {name: pending_nfs_redact(pending_nfs_read(self.config / name)) for name in self.paths}
+
+    def digest(self):
+        return hashlib.sha256(json.dumps(self.files(), sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+    def status(self):
+        current = pending_nfs_read(self.current) or {}
+        pending = pending_nfs_read(self.pending)
+        digest = self.digest()
+        return {"success": True, "generationSupported": True, "runtimeRevision": current.get("revision", 0),
+                "generation": current, "pendingOperationUuid": pending.get("operationUuid") if pending else None,
+                "generationStatus": "PENDING" if pending else ("IN_SYNC" if current and current.get("configurationSha256") == digest else "UNVERIFIED"),
+                "configurationSha256": digest, "configurationDesiredState": self.files(),
+                "bootId":str(uuid.UUID(Path("/proc/sys/kernel/random/boot_id").read_text().strip()))}
+
+    def request(self, request):
+        result = dict(request)
+        result["instanceUuid"] = str(uuid.UUID(request["instanceUuid"]))
+        result["operationUuid"] = str(uuid.UUID(request["operationUuid"]))
+        revision = request["revision"]
+        if isinstance(revision, bool) or not isinstance(revision, int) or revision < 1:
+            raise ValueError("Invalid generation revision")
+        return result
+
+    def scoped(self, request):
+        pending = pending_nfs_read(self.pending)
+        if not pending or any(pending[key] != request[key] for key in ("instanceUuid", "operationUuid", "revision")):
+            raise ValueError("Generation operation scope changed")
+        return pending
+# END EMBEDDED PENDING NFS READERS
 # BEGIN EMBEDDED PENDING NFS AUTHORIZATION
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements. See the NOTICE file
@@ -4326,7 +4410,6 @@ import re
 import stat
 import sys
 sys.path.insert(0, "/usr/local/lib/ablestack-storage")
-from config_generation import Generation as PendingNfsGeneration, read_json as pending_nfs_read
 from rendered_generation import RenderedGeneration
 from template_maintenance import Maintenance
 
@@ -4336,7 +4419,7 @@ class PendingNfsAuthorization:
     def __init__(self, generation=None, rendered=None, maintenance=None, root=None, configuration_root=None):
         self.generation = generation or PendingNfsGeneration()
         self.rendered = rendered or RenderedGeneration()
-        self.maintenance = maintenance or Maintenance()
+        self.maintenance = maintenance
         self.root = Path(root or "/run/ablestack-storage/rendered-authorization")
         self.path = self.root / "pending-nfs.json"
         self.configuration_root = Path(configuration_root or "/etc/ganesha/ablestack-storage")
@@ -4356,7 +4439,7 @@ class PendingNfsAuthorization:
         if current.get("pendingOperationUuid") != scope["operationUuid"]:
             raise ValueError("Pending NFS writer changed")
         rendered = self.rendered.status()
-        maintenance = self.maintenance.status()
+        maintenance = (self.maintenance or Maintenance()).status()
         if rendered.get("current") is not None or rendered.get("activation") is not None or maintenance.get("bootHeld") is not False:
             raise ValueError("Pending NFS cannot borrow rendered/ROOT/SERVICE authority")
         return scope, pending, current["configurationSha256"]
@@ -22315,6 +22398,88 @@ def root_ad_retained_authority(common,maintenance,configuration=None,root=None,r
     root_ad_imported_matches(common,identity,configuration,sid_reader or samba_public_sid)
     return {"scope":scope,"identity":identity,"authorizationUuid":identifier,"authorizationSha256":hashlib.sha256(json.dumps(record,sort_keys=True,separators=(",",":")).encode()).hexdigest(),"bootId":boot,
             "originalCipherSha256":record.get("originalCipherSha256"),"sourceConfigurationSha256":record["latestConfigurationSha256"],"originalSourceScope":record["latestSourceRootScope"],"kind":kind,"record":record,"identityCheckpoint":identity_record}
+import uuid
+PENDING_NFS_MAX_BYTES = 8 * 1024 * 1024
+def pending_nfs_read(path):
+    try:
+        info = path.lstat()
+    except FileNotFoundError:
+        return None
+    if not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid() or info.st_size > PENDING_NFS_MAX_BYTES or info.st_mode & 0o022:
+        raise ValueError("Generation input is not a protected regular file")
+    parent = path.parent.lstat()
+    if not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.geteuid() or parent.st_mode & 0o022:
+        raise ValueError("Generation parent directory is not protected")
+    parent_fd = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    try:
+        pinned_parent = os.fstat(parent_fd)
+        if (pinned_parent.st_dev, pinned_parent.st_ino, pinned_parent.st_uid, pinned_parent.st_mode) != (parent.st_dev, parent.st_ino, parent.st_uid, parent.st_mode):
+            raise ValueError("Generation parent changed while opening")
+        fd = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=parent_fd)
+    finally:
+        os.close(parent_fd)
+    try:
+        opened = os.fstat(fd)
+        if (opened.st_dev, opened.st_ino, opened.st_uid, opened.st_gid, opened.st_mode, opened.st_size) != (info.st_dev, info.st_ino, info.st_uid, info.st_gid, info.st_mode, info.st_size):
+            raise ValueError("Generation input changed while opening")
+        with os.fdopen(fd, "rb", closefd=False) as handle:
+            value = handle.read(PENDING_NFS_MAX_BYTES + 1)
+        if len(value) > PENDING_NFS_MAX_BYTES:
+            raise ValueError("Generation input exceeds its size limit")
+        return json.loads(value)
+    finally:
+        os.close(fd)
+
+def pending_nfs_redact(value):
+    if isinstance(value, dict):
+        return {key: pending_nfs_redact(item) for key, item in value.items()
+                if key not in ("lastApply", "lastApplied", "observedAt", "generatedEpoch")
+                and not any(word in key.lower() for word in ("password", "secret", "dhchapkey", "dhchapctrlkey", "privatekey", "keytab", "capsule"))}
+    if isinstance(value, list):
+        return [pending_nfs_redact(item) for item in value]
+    return value
+
+class PendingNfsGeneration:
+    paths = ("desired-state/nfs-export-apply.json", "desired-state/smb-share-apply.json",
+             "iscsi-targets.json", "nvmeof-subsystems.json", "posix-directory-policies.json",
+             "network-endpoints.json", "sharedfs-network.json")
+
+    def __init__(self, state=None, configuration=None):
+        self.root = Path(state or os.environ.get("ABLESTACK_STORAGE_GENERATION_DIR", "/var/lib/ablestack-storage/config-generations"))
+        self.config = Path(configuration or os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_ROOT", "/etc/ablestack-storage"))
+        self.current = self.root / "current.json"
+        self.pending = self.root / "pending.json"
+
+    def files(self):
+        return {name: pending_nfs_redact(pending_nfs_read(self.config / name)) for name in self.paths}
+
+    def digest(self):
+        return hashlib.sha256(json.dumps(self.files(), sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+    def status(self):
+        current = pending_nfs_read(self.current) or {}
+        pending = pending_nfs_read(self.pending)
+        digest = self.digest()
+        return {"success": True, "generationSupported": True, "runtimeRevision": current.get("revision", 0),
+                "generation": current, "pendingOperationUuid": pending.get("operationUuid") if pending else None,
+                "generationStatus": "PENDING" if pending else ("IN_SYNC" if current and current.get("configurationSha256") == digest else "UNVERIFIED"),
+                "configurationSha256": digest, "configurationDesiredState": self.files(),
+                "bootId":str(uuid.UUID(Path("/proc/sys/kernel/random/boot_id").read_text().strip()))}
+
+    def request(self, request):
+        result = dict(request)
+        result["instanceUuid"] = str(uuid.UUID(request["instanceUuid"]))
+        result["operationUuid"] = str(uuid.UUID(request["operationUuid"]))
+        revision = request["revision"]
+        if isinstance(revision, bool) or not isinstance(revision, int) or revision < 1:
+            raise ValueError("Invalid generation revision")
+        return result
+
+    def scoped(self, request):
+        pending = pending_nfs_read(self.pending)
+        if not pending or any(pending[key] != request[key] for key in ("instanceUuid", "operationUuid", "revision")):
+            raise ValueError("Generation operation scope changed")
+        return pending
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements. See the NOTICE file
 # distributed with this work for additional information
@@ -22341,7 +22506,6 @@ import re
 import stat
 import sys
 sys.path.insert(0, "/usr/local/lib/ablestack-storage")
-from config_generation import Generation as PendingNfsGeneration, read_json as pending_nfs_read
 
 class PendingNfsAuthorization:
     mode = "NATIVE_PENDING_NFS_APPLY"
@@ -22349,7 +22513,7 @@ class PendingNfsAuthorization:
     def __init__(self, generation=None, rendered=None, maintenance=None, root=None, configuration_root=None):
         self.generation = generation or PendingNfsGeneration()
         self.rendered = rendered or RenderedGeneration()
-        self.maintenance = maintenance or Maintenance()
+        self.maintenance = maintenance
         self.root = Path(root or "/run/ablestack-storage/rendered-authorization")
         self.path = self.root / "pending-nfs.json"
         self.configuration_root = Path(configuration_root or "/etc/ganesha/ablestack-storage")
@@ -22369,7 +22533,7 @@ class PendingNfsAuthorization:
         if current.get("pendingOperationUuid") != scope["operationUuid"]:
             raise ValueError("Pending NFS writer changed")
         rendered = self.rendered.status()
-        maintenance = self.maintenance.status()
+        maintenance = (self.maintenance or Maintenance()).status()
         if rendered.get("current") is not None or rendered.get("activation") is not None or maintenance.get("bootHeld") is not False:
             raise ValueError("Pending NFS cannot borrow rendered/ROOT/SERVICE authority")
         return scope, pending, current["configurationSha256"]
