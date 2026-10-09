@@ -44,6 +44,7 @@
       <template #emptyText>{{ verified ? $t('message.vm.storage.empty') : $t('message.vm.storage.wait') }}</template>
     </a-table>
     <a-alert v-if="error" type="error" show-icon :message="$t('message.vm.storage.fetch.failed')" />
+    <a-alert v-else-if="automaticUnavailable" type="warning" show-icon :message="$t('message.vm.storage.auto.unavailable')" />
     <a-alert v-else-if="value.id && verified && !valid && !selectedSizePending" type="warning" show-icon :message="$t('message.vm.storage.reselect')" />
     <p class="storage-meta">{{ $t('message.vm.storage.capacity') }}<span v-if="updatedAt"> · {{ updatedAt }}</span></p>
   </div>
@@ -68,6 +69,9 @@ export default {
   computed: {
     // Validation updates replace selection objects. Only actual query changes trigger a fetch.
     queryKey () { return JSON.stringify(this.query) },
+    automaticUnavailable () {
+      return !this.value.id && this.verified && !this.error && !this.valid && this.pools.every(pool => pool.requiredbytes != null)
+    },
     selectedSizePending () { return this.pools.find(pool => pool.id === this.value.id)?.requiredbytes == null },
     columns () {
       return [
@@ -96,7 +100,8 @@ export default {
         clearTimeout(this.refreshTimer)
         this.requestSequence++
         this.verified = false
-        if (this.value.id) this.$emit('update:value', { ...this.value, valid: false })
+        this.valid = false
+        this.$emit('update:value', { ...this.value, valid: false })
         this.refreshTimer = setTimeout(() => this.fetchPools(), 200)
       }
     }
@@ -110,8 +115,8 @@ export default {
       return (number / 1024 ** 4).toLocaleString(undefined, { maximumFractionDigits: 2 }) + ' TiB'
     },
     select (pool) {
-      this.valid = !pool || pool.suitable === true
-      this.$emit('update:value', pool ? { id: pool.id, name: pool.name, valid: this.valid } : { valid: true })
+      this.valid = pool ? pool.suitable === true : this.verified && !this.loading && !this.error && this.pools.some(candidate => candidate.suitable === true)
+      this.$emit('update:value', pool ? { id: pool.id, name: pool.name, valid: this.valid } : { valid: this.valid })
     },
     async fetchPools () {
       if (!this.query.zoneid || (!this.query.templateid && !this.query.snapshotid) || !this.query.serviceofferingid || !this.query.hypervisor || !Number.isInteger(this.query.diskcount || 1) || (this.query.diskcount != null && this.query.diskcount < 1)) { this.loading = false; return }
@@ -128,12 +133,15 @@ export default {
           const selected = this.pools.find(pool => pool.id === this.value.id)
           this.valid = selected?.suitable === true
           this.$emit('update:value', { ...this.value, name: selected?.name || this.value.name, valid: this.valid })
-        } else this.valid = true
+        } else {
+          this.valid = this.pools.some(pool => pool.suitable === true)
+          this.$emit('update:value', { valid: this.valid })
+        }
       } catch (error) {
         if (sequence !== this.requestSequence) return
         this.error = true
-        this.valid = !this.value.id
-        if (this.value.id) this.$emit('update:value', { ...this.value, valid: false })
+        this.valid = false
+        this.$emit('update:value', { ...this.value, valid: false })
       } finally {
         if (sequence === this.requestSequence) this.loading = false
       }

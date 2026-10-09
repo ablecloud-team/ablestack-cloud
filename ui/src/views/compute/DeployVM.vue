@@ -1578,10 +1578,10 @@ export default {
       if (this.additionalIsoConfigDriveConflict) return true
       if (this.isCreationSource) {
         return !this.creationSourceOwnerReady || !this.selectedCreationSource?.allowed || this.sourceLoading || this.sourceOperationPending ||
-          (!!this.rootStorageSelection.id && !this.rootStorageSelection.valid) ||
+          (this.storageSelectionEnabled && this.rootStorageSelection.valid === false) ||
           (!!this.selectedDataDiskOffering?.id && (!(this.selectedDataDiskSize > 0) ||
             !Number.isSafeInteger(this.selectedDataDiskCount) || this.selectedDataDiskCount < 1 ||
-            (this.storageSelectionEnabled && !!this.dataStorageSelection.id && !this.dataStorageSelection.valid)))
+            (this.storageSelectionEnabled && this.dataStorageSelection.valid === false)))
       }
       if (!['templateid', 'isoid'].includes(this.imageType) || this.template?.deployasis) return false
       if (this.imageType === 'isoid' && (!this.diskOffering?.id || !(this.selectedRootDiskSize > 0))) return true
@@ -1590,8 +1590,8 @@ export default {
       if (this.showRootDiskSizeChanger && !(Number(this.form.rootdisksize) > 0)) return true
       if (this.selectedDataDiskOffering?.id && (!(this.selectedDataDiskSize > 0) || !Number.isSafeInteger(this.selectedDataDiskCount) ||
         this.selectedDataDiskCount < 1 || this.isoDataDiskSelection.invalid)) return true
-      return this.storageSelectionEnabled && (!!this.rootStorageSelection.id && !this.rootStorageSelection.valid ||
-        !!this.selectedDataDiskOffering?.id && !!this.dataStorageSelection.id && !this.dataStorageSelection.valid)
+      return this.storageSelectionEnabled && (this.rootStorageSelection.valid === false ||
+        !!this.selectedDataDiskOffering?.id && this.dataStorageSelection.valid === false)
     },
     defaultRootOfferingName () {
       const offering = this.options.diskOfferings.find(item => item.id === this.serviceOffering?.diskofferingid)
@@ -3082,8 +3082,8 @@ export default {
           return
         }
 
-        if (this.storageSelectionEnabled && ((this.rootStorageSelection.id && !this.rootStorageSelection.valid) ||
-          (this.selectedDataDiskOffering?.id && this.dataStorageSelection.id && !this.dataStorageSelection.valid))) {
+        if (this.storageSelectionEnabled && (this.rootStorageSelection.valid === false ||
+          (this.selectedDataDiskOffering?.id && this.dataStorageSelection.valid === false))) {
           this.$notification.error({ message: this.$t('message.vm.storage.reselect') })
           return
         }

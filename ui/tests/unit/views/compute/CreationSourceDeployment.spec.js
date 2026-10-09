@@ -144,3 +144,15 @@ test('switching to a project without selecting one clears the prior account sour
   expect(vm.clearCreationSource).toHaveBeenCalledTimes(1)
   expect(vm.resetData).not.toHaveBeenCalled()
 })
+
+test('source deployment blocks automatic ROOT and DATA placement after an invalid lookup', () => {
+  expect(DeployVM.computed.diskPlanIncomplete.call({ ...sourceDiskPlan(), rootStorageSelection: { valid: false } })).toBe(true)
+  expect(DeployVM.computed.diskPlanIncomplete.call({ ...sourceDiskPlan(), dataStorageSelection: { valid: false } })).toBe(true)
+  expect(DeployVM.computed.diskPlanIncomplete.call({ ...sourceDiskPlan(), storageSelectionEnabled: false, rootStorageSelection: { valid: false }, dataStorageSelection: { valid: false } })).toBe(false)
+})
+
+test.each(['templateid', 'isoid'])('%s deployment blocks an invalid automatic target and recovers after revalidation', imageType => {
+  const vm = { imageType, storageSelectionEnabled: true, rootStorageSelection: { valid: false }, selectedDataDiskOffering: null, diskOffering: { id: 'root' }, selectedRootDiskSize: 20, isoDataDiskSelection: {} }
+  expect(DeployVM.computed.diskPlanIncomplete.call(vm)).toBe(true)
+  expect(DeployVM.computed.diskPlanIncomplete.call({ ...vm, rootStorageSelection: { valid: true } })).toBe(false)
+})
