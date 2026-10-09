@@ -1461,6 +1461,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             JsonObject context = saved.getAsJsonObject("context"), review = saved.getAsJsonObject("review");
             if (!saved.has("stopped")) {
                 JsonObject material = currentSmbOriginalMaterial(instance, operation, saved.getAsJsonObject("originalReference"));
+                review = currentSmbPreStopReview(instance, operation, saved);
                 JsonObject request = context.deepCopy();request.add("expectedReview", review.deepCopy());request.addProperty("maintenanceApproved", true);
                 request.addProperty("instanceName", instance.getName());request.addProperty("confirmation", instance.getName());
                 request.add("originalCapsule", material.get("capsule"));request.add("credentialPrivateKey", material.get("credentialPrivateKey"));
@@ -1492,6 +1493,24 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             operation.setState("RECOVERY_REQUIRED");operation.setDiagnostic("Approved CURRENT local identity recovery remains pending; original capsule and CURRENT identity are preserved");
             saveCurrentSmbRecovery(operation, saved, "CURRENT_LOCAL_IDENTITY_RECOVERY_REQUIRED");throw failed;
         } finally { endStorageWriterHeartbeat(); }
+    }
+
+    protected JsonObject currentSmbPreStopReview(StorageServiceInstanceVO instance, StorageServiceOperationVO operation, JsonObject saved) {
+        JsonObject expected = saved.getAsJsonObject("review"), context = saved.getAsJsonObject("context");
+        double age = System.currentTimeMillis() / 1000.0 - expected.get("generatedEpoch").getAsDouble();
+        if (Double.isFinite(age) && age >= 0 && age <= 60) return expected;
+        JsonObject fresh;
+        try { fresh = currentSmbRecoveryGuest(instance, "current-review", context, 30); }
+        catch (RuntimeException unavailable) {
+            // An already stopped native journal can resume the original approval;
+            // without that journal native quiesce still rejects this expired epoch.
+            return expected;
+        }
+        StorageSmbCurrentIdentityRecoveryProof.review(context, fresh, System.currentTimeMillis() / 1000.0);
+        JsonObject before = expected.deepCopy(), current = fresh.deepCopy();before.remove("generatedEpoch");current.remove("generatedEpoch");
+        if (!before.equals(current)) throw new CloudRuntimeException("Expired CURRENT approval changed its stable facts or hash; new approval is required");
+        expected.add("generatedEpoch", fresh.get("generatedEpoch").deepCopy());saveCurrentSmbRecovery(operation, saved, "CURRENT_LOCAL_IDENTITY_APPROVAL_REOBSERVED");
+        return expected;
     }
 
     protected void checkpointCurrentSmbIdentity(StorageServiceInstanceVO instance, StorageServiceOperationVO operation, JsonObject saved) {

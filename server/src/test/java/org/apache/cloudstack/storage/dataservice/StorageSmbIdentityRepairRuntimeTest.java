@@ -143,7 +143,7 @@ public class StorageSmbIdentityRepairRuntimeTest {
     }
     private static class CurrentManager extends StorageServiceManagerImpl {
         final java.util.List<String> calls = new java.util.ArrayList<>();
-        boolean pending = true, responseLost, failRetention, changedData, joined, idleRejected, formatterRejected;
+        boolean pending = true, responseLost, failRetention, changedData, joined, idleRejected, formatterRejected, freshFactsChanged;
         @Override protected boolean hasJoinedStorageAdDomain(StorageServiceInstanceVO instance) {return joined;}
         @Override protected void requireVolumeResumeIdle(StorageServiceInstanceVO instance, StorageServiceOperationVO own) {
             if (idleRejected) throw new CloudRuntimeException("synthetic ROOT/SERVICE/foreign writer hold");
@@ -156,6 +156,11 @@ public class StorageSmbIdentityRepairRuntimeTest {
             JsonObject material = new JsonObject();material.add("capsule", new JsonObject());material.addProperty("credentialPrivateKey", "SYNTHETIC_SEALED_INPUT");return material;
         }
         @Override protected JsonObject currentSmbRecoveryGuest(StorageServiceInstanceVO instance, String action, JsonObject request, int timeout) {
+            if ("current-review".equals(action)) {
+                JsonObject fresh = currentReview(context);fresh.addProperty("generatedEpoch", System.currentTimeMillis() / 1000.0);
+                if (freshFactsChanged) fresh.getAsJsonObject("currentFacts").addProperty("configurationSha256", "e".repeat(64));
+                return fresh;
+            }
             calls.add(action);
             if ("current-quiesce".equals(action)) {
                 Assert.assertTrue(request.has("originalCapsule"));Assert.assertEquals("fixture", request.get("confirmation").getAsString());
@@ -388,6 +393,19 @@ public class StorageSmbIdentityRepairRuntimeTest {
         reference.addProperty("capsuleId", java.util.UUID.nameUUIDFromBytes(("smb-current-capsule:" + operation.getUuid()).getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString());
         Assert.assertThrows(CloudRuntimeException.class, () -> current.requireCurrentSmbPublishedReference(operation, saved));
         Assert.assertTrue(current.calls.isEmpty());
+    }
+
+    @Test public void agedApprovedReviewBeforeStopRefreshesOnlyEpochAndChangedStableFactsFailClosed() {
+        CurrentManager current = currentManager();JsonObject saved = currentSaved(), approved = saved.getAsJsonObject("review").deepCopy();
+        current.recoverCurrentSmbIdentity(instance, operation, saved);
+        JsonObject refreshed = saved.getAsJsonObject("review").deepCopy();
+        Assert.assertTrue(refreshed.get("generatedEpoch").getAsDouble() > 1000);
+        refreshed.remove("generatedEpoch");approved.remove("generatedEpoch");Assert.assertEquals(approved, refreshed);
+        Assert.assertEquals("ROLLED_BACK", operation.getState());Assert.assertEquals(1, java.util.Collections.frequency(current.calls, "current-quiesce"));
+        CurrentManager changed = currentManager();changed.freshFactsChanged = true;JsonObject old = currentSaved();
+        Assert.assertThrows(CloudRuntimeException.class, () -> changed.recoverCurrentSmbIdentity(instance, operation, old));
+        Assert.assertTrue(changed.calls.isEmpty());Assert.assertEquals(1000, old.getAsJsonObject("review").get("generatedEpoch").getAsDouble(), 0);
+        Assert.assertEquals("RECOVERY_REQUIRED", operation.getState());Assert.assertFalse(old.has("currentReference"));
     }
 
 }
