@@ -4752,11 +4752,8 @@ export default {
       }
     },
     nvmeDhChapSupported: function (supported) {
-      if (!supported) {
-        this.forms.nvmeHostAcl.dhchapenabled = false
-        this.forms.nvmeHostAcl.dhchapctrlenabled = false
-        this.forms.nvmeHostAcl.dhchapkey = ''
-        this.forms.nvmeHostAcl.dhchapctrlkey = ''
+      if (!supported && (this.forms.nvmeHostAcl.dhchapenabled === true || this.forms.nvmeHostAcl.dhchapctrlenabled === true)) {
+        this.$notification.warning({ message: this.$t('message.storage.service.nvme.auth.request.preserved.help') })
       }
     },
     'forms.nvmeHostAcl.dhchapenabled': function (enabled) {
@@ -7642,7 +7639,11 @@ export default {
         return
       }
       this.actionModal.loading = true
-      await action.call(this)
+      const result = await action.call(this)
+      if (result === false && ['nvmeHostAcl', 'editNvmeHostAcl'].includes(this.actionModal.type)) {
+        this.actionModal.loading = false
+        return
+      }
       this.closeActionModal()
     },
     nfsIdModeLabel (mode) {
@@ -8259,6 +8260,20 @@ export default {
       }
       return true
     },
+    validateNvmeHostAclAuthentication () {
+      const form = this.forms.nvmeHostAcl
+      const host = form.dhchapenabled === true
+      const controller = form.dhchapctrlenabled === true
+      const invalidFlag = ['dhchapenabled', 'dhchapctrlenabled'].some(field => form[field] !== undefined && typeof form[field] !== 'boolean')
+      const capability = this.nvmeCapability || {}
+      if (invalidFlag || (controller && !host) || (host && (capability.kernelTargetSupported !== true ||
+        capability.configfsHostSupported !== true || capability.dhChapSupported !== true ||
+        (controller && capability.dhChapCtrlSupported !== true)))) {
+        this.$notification.error({ message: this.$t('message.storage.service.nvme.auth.request.preserved.help') })
+        return false
+      }
+      return true
+    },
     prepareNvmeOf () {
       return this.runStorageAction('nvmePrepare', 'prepareStorageServiceNvmeOfVm', {
         instanceid: this.storageService.instance.id,
@@ -8285,11 +8300,8 @@ export default {
       if (!this.validateNvmeHostAclForm()) {
         return Promise.resolve()
       }
-      if (!this.nvmeDhChapSupported) {
-        this.forms.nvmeHostAcl.dhchapenabled = false
-        this.forms.nvmeHostAcl.dhchapctrlenabled = false
-        this.forms.nvmeHostAcl.dhchapkey = ''
-        this.forms.nvmeHostAcl.dhchapctrlkey = ''
+      if (!this.validateNvmeHostAclAuthentication()) {
+        return Promise.resolve(false)
       }
       const result = this.runStorageAction('nvmeHostAcl', 'createStorageNvmeOfHostAcl', {
         subsystemid: this.forms.nvmeHostAcl.subsystemid,
@@ -8307,11 +8319,8 @@ export default {
       if (!this.validateNvmeHostAclForm()) {
         return Promise.resolve()
       }
-      if (!this.nvmeDhChapSupported) {
-        this.forms.nvmeHostAcl.dhchapenabled = false
-        this.forms.nvmeHostAcl.dhchapctrlenabled = false
-        this.forms.nvmeHostAcl.dhchapkey = ''
-        this.forms.nvmeHostAcl.dhchapctrlkey = ''
+      if (!this.validateNvmeHostAclAuthentication()) {
+        return Promise.resolve(false)
       }
       const result = this.runStorageAction('editNvmeHostAcl', 'updateStorageNvmeOfHostAcl', {
         id: this.forms.nvmeHostAcl.id,

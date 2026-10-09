@@ -5862,6 +5862,7 @@
   "message.storage.service.block.auth.secret.sensitive": "인증 비밀값은 비동기 API 요청으로만 전달되며 UI 또는 영구 서비스 모델에 저장되지 않습니다.",
   "message.storage.service.nvme.auth.requires.host": "NVMe-oF 인증을 설정하려면 먼저 허용 호스트 NQN을 입력해야 합니다.",
   "message.storage.service.nvme.dhchap.unsupported": "현재 SystemVM 커널/configfs는 NVMe-oF DH-HMAC-CHAP 인증을 지원하지 않습니다. Host NQN ACL은 사용할 수 있지만 CHAP 인증 옵션은 비활성화됩니다.",
+  "message.storage.service.nvme.auth.request.preserved.help": "요청한 NVMe-oF 인증의 지원 여부를 확인할 수 없어 변경을 차단합니다. 인증 요청은 유지됩니다. NVMe-oF 런타임을 준비한 뒤 상태를 새로 조회하고 다시 제출하세요.",
   "message.storage.service.nvme.dhchap.unsupported.with.reason": "현재 SystemVM 커널/configfs는 NVMe-oF DH-HMAC-CHAP 인증을 지원하지 않습니다. Host NQN ACL은 사용할 수 있지만 CHAP 인증 옵션은 비활성화됩니다. 사유: {reason}",
   "message.storage.service.nvme.dhchap.unsupported.current.template": "현재 SystemVM 템플릿 커널은 NVMe-oF DH-HMAC-CHAP 인증을 지원하지 않습니다. Host NQN ACL은 생성할 수 있지만 CHAP 인증은 지원하지 않으므로 옵션을 비활성화합니다.",
   "message.storage.service.spdk.planned": "SPDK는 계획된 옵션이며 현재는 사전 조건 확인 상태로만 표시됩니다.",

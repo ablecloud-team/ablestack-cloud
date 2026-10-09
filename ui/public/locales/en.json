@@ -6436,6 +6436,7 @@
   "message.storage.service.block.auth.secret.sensitive": "Authentication secrets are sent only through the async API request and are not stored in the UI or persistent service model.",
   "message.storage.service.nvme.auth.requires.host": "Enter an allowed host NQN before configuring NVMe-oF authentication.",
   "message.storage.service.nvme.dhchap.unsupported": "The current SystemVM kernel/configfs does not support NVMe-oF DH-HMAC-CHAP authentication. Host NQN ACLs can still be used, but CHAP authentication options are disabled.",
+  "message.storage.service.nvme.auth.request.preserved.help": "The requested NVMe-oF authentication support could not be verified, so changes are blocked. Your authentication request is preserved. Prepare the NVMe-oF runtime, refresh its status, and submit again.",
   "message.storage.service.nvme.dhchap.unsupported.with.reason": "The current SystemVM kernel/configfs does not support NVMe-oF DH-HMAC-CHAP authentication. Host NQN ACLs can still be used, but CHAP authentication options are disabled. Reason: {reason}",
   "message.storage.service.nvme.dhchap.unsupported.current.template": "The current SystemVM template kernel does not support NVMe-oF DH-HMAC-CHAP authentication. Host NQN ACLs can still be created, but CHAP authentication is unsupported and disabled.",
   "message.storage.service.spdk.planned": "SPDK is a planned option and is currently prerequisite-gated.",
