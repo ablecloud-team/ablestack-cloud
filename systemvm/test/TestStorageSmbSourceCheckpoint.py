@@ -232,9 +232,16 @@ class StorageSmbSourceCheckpointTest(unittest.TestCase):
         proof_node=next(node for node in status_method.body if isinstance(node,ast.If)and any(isinstance(part,ast.Constant)and part.value=='localSourceStoppedRuntimeProof'for part in ast.walk(node)))
         proof_source='        '+ast.get_source_segment(module_text,proof_node)+'\n'
         new_status=old_status.replace('        view=self.observe(value)\n',proof_source+'        view=self.observe(value)\n')
-        old_class+=old_status
+        installed_method=next(node for node in cls.body if isinstance(node,ast.FunctionDef)and node.name=='installed_release_authority')
+        new_installed='    '+ast.get_source_segment(module_text,installed_method)+'\n'
+        old_installed=new_installed.replace("('VERIFIED','COMPLETE','ROLLED_BACK')","('VERIFIED','COMPLETE')").replace(
+            "        eligible=[row for row in matches if row['phase']in ('VERIFIED','COMPLETE')]\n"
+            "        if not eligible:raise ValueError('LOCAL historical verified installation is absent')\n        return eligible[0]",
+            "        return matches[0]")
+        self.assertNotEqual(old_installed,new_installed)
+        old_class+=old_status+'\n'+old_installed
         helpers=''.join('    def '+name+'(self):\n        pass\n\n'for name in('normalized_collector_cli','compat_entry','code_compatibility'))
-        new_class=old_class.replace('self.collector=lambda *args:collect(*args)','self.collector=lambda *args,**kwargs:collect(*args,**kwargs)').replace(old_frozen,helpers+new_frozen).replace(old_status,new_status)
+        new_class=old_class.replace('self.collector=lambda *args:collect(*args)','self.collector=lambda *args,**kwargs:collect(*args,**kwargs)').replace(old_frozen,helpers+new_frozen).replace(old_status,new_status).replace(old_installed,new_installed)
         def whole(cls):return ''.join("python3 - <<'"+marker+"'\n"+cls+'\n'+marker+'\n'for marker in('PYIDENTITY','PYRENDEREDGENERATION')).encode()
         original=whole(old_class);current=whole(new_class)
         self.assertEqual(original,self.native.normalized_collector_cli(current,original))
@@ -248,9 +255,13 @@ class StorageSmbSourceCheckpointTest(unittest.TestCase):
                 'sha256':hashlib.sha256(data).hexdigest(),'mode':'0755','owner':'root','group':'root'}]}
             generation.atomic_json(release/'manifest.json',manifest)
             tx=installs/('runtime-'+version);tx.mkdir(mode=0o700);generation.atomic_json(tx/'manifest.json',manifest)
-            generation.atomic_json(tx/'state.json',{'transactionId':tx.name,'bundleVersion':version,'releasePath':str(release),
+            installation={'transactionId':tx.name,'bundleVersion':version,'releasePath':str(release),
                 'keyId':manifest['keyId'],'phase':'COMPLETE','archiveSha256':'a'*64,
-                'manifestSha256':hashlib.sha256((tx/'manifest.json').read_bytes()).hexdigest()})
+                'manifestSha256':hashlib.sha256((tx/'manifest.json').read_bytes()).hexdigest()}
+            generation.atomic_json(tx/'state.json',installation)
+            prior=installs/('runtime-000-rolledback-'+version);prior.mkdir(mode=0o700)
+            (prior/'manifest.json').write_bytes((tx/'manifest.json').read_bytes())
+            generation.atomic_json(prior/'state.json',{**installation,'transactionId':prior.name,'phase':'ROLLED_BACK'})
         (runtime/'current').symlink_to(runtime/'releases/current-fixed')
         self.native.runtime_root=runtime;self.native.installation_root=installs
         self.native.reader=capsule.regular_file
@@ -273,6 +284,8 @@ class StorageSmbSourceCheckpointTest(unittest.TestCase):
         with self.assertRaises(ValueError):self.native.normalized_collector_cli(malformed,original)
         extra=current.replace(b'view=self.observe(value)',b'unknown_statement=1\n        view=self.observe(value)')
         with self.assertRaises(ValueError):self.native.normalized_collector_cli(extra,original)
+        broad_phase=current.replace(b"('VERIFIED','COMPLETE','ROLLED_BACK')",b"('VERIFIED','COMPLETE','ROLLED_BACK','FAILED')")
+        with self.assertRaises(ValueError):self.native.normalized_collector_cli(broad_phase,original)
         with patch.dict(os.environ,{'ABLESTACK_STORAGE_WRITER_LOCK_FD':''}):
             with self.assertRaisesRegex(ValueError,'retry key'):self.native.frozen(self.export_request,journal)
         for key,bad in [('names',['foreign']),('nvmeHosts',['foreign']),('authReplayDomains',['ISCSI'])]:
@@ -318,6 +331,65 @@ class StorageSmbSourceCheckpointTest(unittest.TestCase):
         generation.atomic_json(path,altered)
         with self.assertRaisesRegex(ValueError,'receipt changed'):self.native.frozen(self.request,journal)
         self.assertFalse(self.signals);self.assertEqual(2,len(self.starts))
+
+    def test_signed_same_version_rollback_receipts_are_validated_but_not_authority(self):
+        import subprocess
+        runtime=self.root/'receipt-runtime';runtime.mkdir(mode=0o700)
+        (runtime/'releases').mkdir(mode=0o700);(runtime/'trusted-keys').mkdir(mode=0o700)
+        release=runtime/'releases'/'signed-retry';release.mkdir(mode=0o700)
+        entry=release/'ablestack-storagectl';entry.write_bytes(fixture.CLI.read_bytes());entry.chmod(0o755)
+        manifest={'bundleVersion':release.name,'keyId':'receipt-fixture-ed25519','files':[{'path':entry.name,
+            'sha256':hashlib.sha256(entry.read_bytes()).hexdigest(),'mode':'0755','owner':'root','group':'root'}]}
+        generation.atomic_json(release/'manifest.json',manifest)
+        installations=self.root/'receipt-installations';installations.mkdir(mode=0o700)
+        observer=module.SmbSourceCheckpoint(handler=self.handler,command=self.local_command)
+        observer.runtime_root=runtime;observer.installation_root=installations
+        private=subprocess.check_output(['openssl','genpkey','-algorithm','ED25519'],stderr=subprocess.DEVNULL)
+        fd=os.memfd_create('test-receipt-signing-key',os.MFD_CLOEXEC|os.MFD_ALLOW_SEALING)
+        os.fchmod(fd,0o600);os.write(fd,private);private=None
+        fcntl.fcntl(fd,fcntl.F_ADD_SEALS,fcntl.F_SEAL_WRITE|fcntl.F_SEAL_GROW|fcntl.F_SEAL_SHRINK|fcntl.F_SEAL_SEAL)
+        safe=fcntl.fcntl(fd,fcntl.F_DUPFD_CLOEXEC,16);os.close(fd)
+        try:
+            key_path='/proc/self/fd/'+str(safe)
+            public=subprocess.check_output(['openssl','pkey','-in',key_path,'-pubout'],pass_fds=(safe,),stderr=subprocess.DEVNULL)
+            (runtime/'trusted-keys'/('receipt-fixture-ed25519.pem')).write_bytes(public)
+            states={}
+            for name,phase in [('runtime-000-prior','ROLLED_BACK'),('runtime-999-current','COMPLETE')]:
+                tx=installations/name;tx.mkdir(mode=0o700);generation.atomic_json(tx/'manifest.json',manifest)
+                state={'transactionId':name,'bundleVersion':release.name,'releasePath':str(release),'phase':phase,
+                    'keyId':manifest['keyId'],'manifestSha256':hashlib.sha256((tx/'manifest.json').read_bytes()).hexdigest(),
+                    'archiveSha256':'a'*64}
+                generation.atomic_json(tx/'state.json',state);states[name]=state
+                signature=subprocess.check_output(['openssl','pkeyutl','-sign','-inkey',key_path,'-rawin','-in',str(tx/'manifest.json')],
+                    pass_fds=(safe,),stderr=subprocess.DEVNULL)
+                (tx/'manifest.sig').write_bytes(signature)
+            before={str(path):path.read_bytes()for path in runtime.rglob('*')if path.is_file()}
+            self.assertEqual('COMPLETE',observer.installed_release_authority(release,manifest)['phase'])
+            current=installations/'runtime-999-current/state.json';saved_current=current.read_bytes()
+            current.unlink()
+            with self.assertRaisesRegex(ValueError,'verified installation is absent'):
+                observer.installed_release_authority(release,manifest)
+            current.write_bytes(saved_current);current.chmod(0o600)
+            prior=installations/'runtime-000-prior'
+            for field,bad in [('phase','RECEIVED'),('phase','FAILED'),('archiveSha256','invalid'),('archiveSha256','b'*64),
+                    ('keyId','foreign-key'),('releasePath',str(runtime/'releases'/'foreign')),('transactionId','runtime-foreign')]:
+                state={**states[prior.name],field:bad};generation.atomic_json(prior/'state.json',state)
+                with self.subTest(field=field,value=bad),self.assertRaises(ValueError):observer.installed_release_authority(release,manifest)
+                generation.atomic_json(prior/'state.json',states[prior.name])
+            for target in (prior/'manifest.json',prior/'manifest.sig'):
+                raw=target.read_bytes();target.write_bytes(raw+b' tampered')
+                with self.subTest(file=target.name),self.assertRaises(ValueError):observer.installed_release_authority(release,manifest)
+                target.write_bytes(raw)
+            state_file=prior/'state.json';state_file.chmod(0o666)
+            with self.assertRaises(ValueError):observer.installed_release_authority(release,manifest)
+            state_file.chmod(0o600)
+            os.chown(state_file,1,1)
+            try:
+                with self.assertRaises(ValueError):observer.installed_release_authority(release,manifest)
+            finally:os.chown(state_file,0,0)
+            self.assertEqual(before,{str(path):path.read_bytes()for path in runtime.rglob('*')if path.is_file()})
+            self.assertFalse(self.signals);self.assertFalse(self.starts)
+        finally:os.close(safe)
 
     def test_actual_embedded_dispatcher_export_import_and_status(self):
         import ast,io
