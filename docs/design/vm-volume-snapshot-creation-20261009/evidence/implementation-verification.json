@@ -1,8 +1,8 @@
 {
   "epic": 1335,
-  "status": "IMPLEMENTED_PENDING_DEPLOYMENT_AND_UI_E2E",
-  "managementSourceCommit": "3223a396342c39d909869b0128a60085d80ed740",
-  "managementChangedClasses": 68,
+  "status": "IN_PROGRESS_8_OF_16_UI_E2E_PASS",
+  "managementSourceCommit": "1c3c9c41341f08218afe821b8d4cb793eebe04c9",
+  "managementChangedClasses": 82,
   "changedModules": [
     "api",
     "core",
@@ -17,18 +17,18 @@
     "kvmMatcher": 1,
     "totalPassed": 154
   },
-  "uiFocusedTestsPassed": 21,
+  "uiFocusedTestsPassed": 34,
   "checkstyleErrors": 0,
   "changedModuleRat": "PASS",
   "trackedSourceRat": "PASS",
   "managementArtifacts": {
     "31": {
-      "sha256": "621afb62eaa991c7caec9f7ce8877b8f6280301b5b705340675bf74edbdd3375",
-      "status": "STAGED_ONLY"
+      "status": "DEPLOYED",
+      "sha256": "706ff0f3a853c828dfbab3a46ca7b61ab0b0cda6a07c5a42b98b7599a111be5d"
     },
     "32": {
-      "sha256": "7451c740df28e198e5778f33e558a4650c6792756354a9389edd955a271e82c0",
-      "status": "STAGED_ONLY"
+      "status": "DEPLOYED",
+      "sha256": "7c6a65eecbcdd37099eef3c13a69607f6988c215ed6d375cbdd6c8044d420551"
     }
   },
   "agentRuntimeReadOnlyChecks": {
@@ -39,10 +39,178 @@
   },
   "uiE2E": {
     "requiredRepresentativeCases": 16,
-    "passed": 0,
-    "failed": 0,
-    "notRun": 16,
-    "reason": "Management JAR activation and mold restart were rejected by automatic approval review. No detailed reason was supplied. Human approval request is pending."
+    "passed": 8,
+    "notCompleted": 8,
+    "cases": [
+      {
+        "case": "31-L-BIOS-snapshot-off",
+        "status": "PASS",
+        "vmId": "944774d1-84cf-4527-a57d-7e4c724ae9d6",
+        "jobId": "18e944a6-4944-49fb-bc70-832ded6686df",
+        "startVm": false,
+        "rootVolumeId": "1cc3ec9e-e963-4168-8704-1ed4ef34cb21",
+        "rootDeviceId": 0,
+        "rootLogicalBytes": 107374182400,
+        "sourcePreservedDetached": true,
+        "sourceSnapshotPreserved": true,
+        "guestDataSha256": "bfe00c222e9fcf100f5892036fd69b88394a5b3f4499a2133b0f4af1873bd873",
+        "uiCreateBootStop": true
+      },
+      {
+        "case": "31-L-BIOS-snapshot-on",
+        "status": "PASS",
+        "vmId": "f75b6f21-9d5f-4fa7-8a64-e424301378bb",
+        "jobId": "cb5270e3-5a98-4c52-b500-2d42ab2ef113",
+        "startVm": true,
+        "sourceSnapshotPreserved": true,
+        "sourceVolumeDetached": true,
+        "rootVolumeId": "954f886f-c024-4112-bbd0-09b0fd9703b0",
+        "rootDeviceId": 0,
+        "dataVolumeIds": [
+          "0e134401-531d-41d1-8571-55a3966027c7",
+          "5dc2d6dc-ff27-40b2-aa6b-73f42da89deb"
+        ],
+        "dataDiskCount": 2,
+        "dataDiskBytesEach": 10737418240,
+        "guestDataSha256": "bfe00c222e9fcf100f5892036fd69b88394a5b3f4499a2133b0f4af1873bd873",
+        "uiCreateBootStop": true,
+        "uiCombinedCapacityGiB": 120
+      },
+      {
+        "case": "31-L-BIOS-volume-off",
+        "status": "PASS",
+        "vmId": "e4f0c7cf-9302-4da0-87c2-268c43430367",
+        "jobId": "fcc7b0a0-4cc9-4178-8528-e2d7ce80d1de",
+        "startVm": false,
+        "rootVolumeId": "c5a6a13d-34e7-466f-8cb1-14273a6fe277",
+        "sourcePreservedDetached": true,
+        "sourceSnapshotPreserved": true,
+        "guestDataSha256": "37d6ffac5038a213b671358a113b8fe2a926a1b29085356c3821c8de9fc48bc9",
+        "uiCreateBootStopDetach": true
+      },
+      {
+        "case": "31-L-BIOS-volume-on",
+        "status": "PASS",
+        "vmId": "49f17319-2a58-4a73-9b62-15c68ffe1248",
+        "jobId": "4993834e-68f4-4715-8af4-9fbac7e8dd34",
+        "startVm": true,
+        "rootVolumeId": "c5a6a13d-34e7-466f-8cb1-14273a6fe277",
+        "rootDeviceId": 0,
+        "guestDataSha256": "37d6ffac5038a213b671358a113b8fe2a926a1b29085356c3821c8de9fc48bc9",
+        "sourcePreservedDetached": true,
+        "sourceSnapshotPreserved": true,
+        "uiCreateBootStopDetach": true
+      },
+      {
+        "status": "PASS",
+        "case": "32-L-BIOS-snapshot-off-r2",
+        "vmId": "ed3fe1e8-215d-4e67-877b-6ef6118c3133",
+        "state": "Stopped",
+        "sourceSnapshot": {
+          "id": "2bd3d2b4-cbeb-4d16-abf8-040bed08315d",
+          "state": "BackedUp"
+        },
+        "sourceVolume": {
+          "id": "1a989f91-798b-46a0-8234-25adb402f35e",
+          "state": "Ready",
+          "vmId": null
+        },
+        "rootVolumeId": "3bd384a1-96cc-4876-a04b-ec31bf889d4b",
+        "guestDataSha256": "7f74af1c640673344c8a64b9dc219a7681553951e11f966051257d8a5da1c98f",
+        "uiCreateStartStop": true
+      },
+      {
+        "case": "32-L-BIOS-snapshot-on",
+        "status": "PASS",
+        "vmId": "e400c8ba-123a-4f2c-92f1-6f1f2a1ec6af",
+        "jobId": "8fbf95f8-f140-4cee-87de-cf6c17d15a2a",
+        "startVm": true,
+        "rootVolumeId": "06006ef6-99ab-4c90-8567-bcc5e2d6ec15",
+        "deviceId": 0,
+        "logicalBytes": 107374182400,
+        "poolId": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+        "sourceSnapshotPreserved": true,
+        "sourceVolumePreservedDetached": true,
+        "guestDataSha256": "7f74af1c640673344c8a64b9dc219a7681553951e11f966051257d8a5da1c98f",
+        "uiCreateBootStop": true
+      },
+      {
+        "case": "32-L-BIOS-volume-off-r2",
+        "vmId": "4502b429-5662-4d95-a02b-61d65a3c95d7",
+        "jobId": "82864274-8184-4d4c-9c37-3407a12852f9",
+        "initialState": "Stopped",
+        "rootType": "ROOT",
+        "deviceId": 0,
+        "sourceVolumeId": "1a989f91-798b-46a0-8234-25adb402f35e",
+        "sourcePreservedDetached": true,
+        "storageId": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+        "snapshotState": "BackedUp",
+        "guestChecksum": "d86e00896f7422ddc0e3377bd282dd643d8c933738f9be3cbaf5e6840d86d306",
+        "guestBoot": "Rocky Linux 9.5 BIOS / UI console, QGA, guest SSH",
+        "result": "PASS"
+      },
+      {
+        "case": "32-L-BIOS-volume-on",
+        "status": "PASS",
+        "vmId": "d1a1337e-1da2-4fc8-bd50-226b5db1d47a",
+        "jobId": "a7ab2d01-39a9-4373-afb4-dd24abc15b0a",
+        "startVm": true,
+        "rootVolumeId": "1a989f91-798b-46a0-8234-25adb402f35e",
+        "sourcePreservedDetached": true,
+        "sourceSnapshotPreserved": true,
+        "guestDataSha256": "d86e00896f7422ddc0e3377bd282dd643d8c933738f9be3cbaf5e6840d86d306",
+        "uiCreateBootStopDetach": true
+      }
+    ],
+    "remaining": "Windows UEFI volume/snapshot startvm=false/true on both clusters; guest Administrator credentials pending",
+    "additionalBoundaryCases": [
+      {
+        "case": "31-L-BIOS-snapshot-on",
+        "status": "PASS",
+        "vmId": "f75b6f21-9d5f-4fa7-8a64-e424301378bb",
+        "jobId": "cb5270e3-5a98-4c52-b500-2d42ab2ef113",
+        "startVm": true,
+        "sourceSnapshotPreserved": true,
+        "sourceVolumeDetached": true,
+        "rootVolumeId": "954f886f-c024-4112-bbd0-09b0fd9703b0",
+        "rootDeviceId": 0,
+        "dataVolumeIds": [
+          "0e134401-531d-41d1-8571-55a3966027c7",
+          "5dc2d6dc-ff27-40b2-aa6b-73f42da89deb"
+        ],
+        "dataDiskCount": 2,
+        "dataDiskBytesEach": 10737418240,
+        "guestDataSha256": "bfe00c222e9fcf100f5892036fd69b88394a5b3f4499a2133b0f4af1873bd873",
+        "uiCreateBootStop": true,
+        "uiCombinedCapacityGiB": 120
+      },
+      {
+        "case": "32-L-BIOS-snapshot-data-two",
+        "status": "PASS",
+        "vmId": "5d455a66-bb2e-416a-abe8-9bb91af282ea",
+        "jobId": "dee88eff-d30e-4f89-8536-3c9119d0980a",
+        "sourceSnapshotPreserved": true,
+        "sourceVolumeDetached": true,
+        "rootVolumeId": "7e60f019-4e57-40ea-957e-317d671421d1",
+        "dataVolumeIds": [
+          "ca421621-2316-45eb-a660-c2116e344954",
+          "43febd4c-aace-4ca7-ad0e-2dc7f13b5eba"
+        ],
+        "dataDiskCount": 2,
+        "dataDiskBytesEach": 10737418240,
+        "guestDataSha256": "7f74af1c640673344c8a64b9dc219a7681553951e11f966051257d8a5da1c98f",
+        "uiCreateBootStop": true,
+        "uiCombinedCapacityGiB": 120
+      }
+    ],
+    "remainingBoundaryScope": [
+      "ordinary-user permissions and project-owned source creation",
+      "concurrent adoption under load",
+      "storage tags/IOPS/unavailable target",
+      "agent/management restart during pending restore",
+      "response loss and start retry",
+      "full template/ISO and additional ISO regression including template prefill mismatch"
+    ]
   },
   "localBrowserReview": {
     "sourceCommit": "04f90128924ec783a4a41838df7bac8065a8502a",
@@ -56,18 +224,105 @@
   "pr": "https://github.com/ablecloud-team/ablestack-cloud/pull/1344",
   "prDraft": true,
   "uiArtifact": {
-    "sourceCommit": "04f90128924ec783a4a41838df7bac8065a8502a",
-    "file": "ui-epic1335-04f90128924.tgz",
-    "sha256": "7d1fad3f00b9fdf52eb336b891aa76a73017f0b79fab3f223d757f6e12d69f6c",
-    "bytes": 15085157,
-    "status": "STAGED_ONLY",
-    "build": {
-      "sourceCommit": "04f90128924ec783a4a41838df7bac8065a8502a",
-      "command": "npm run build",
-      "buildVersion": "v4.23.0-Europa-20261009-RC1",
-      "exitCode": 0,
-      "status": "PASS"
-    }
+    "status": "DEPLOYED_BOTH_31_AND_32",
+    "sourceCommit": "957f61f39cf464dbfc19d1b31c4388f26b13667e",
+    "sha256": "40b22a8c52ecb28400c0ae14d4a06fa74c889fc8531f2e9c1e73f08dee15c429",
+    "productionBuild": "PASS",
+    "staticFilesHashMatched": 840,
+    "webInfMetaInfConfigPreserved": true,
+    "managementActiveAndClientHttp200": true
   },
-  "sourceClassHashesMatchFinalWorktree": true
+  "managementChangedJavaSources": 17,
+  "latestOrchestrationTests": {
+    "passed": 53,
+    "failures": 0,
+    "errors": 0,
+    "ratUnapproved": 0,
+    "checkstyleErrors": 0
+  },
+  "broaderVmManagerTests": {
+    "passed": 98,
+    "errors": 2,
+    "sameTwoErrorsOnBaseline2871963": true
+  },
+  "deployedUiReview": {
+    "evidence": "deployed-ui-review.json",
+    "sourceCommit": "957f61f39cf464dbfc19d1b31c4388f26b13667e",
+    "views": 6,
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "widths": [
+      390,
+      1366,
+      1680
+    ],
+    "sampledMinimumTextContrast": {
+      "light": 6.88,
+      "dark": 6.11
+    },
+    "scope": "SOURCE_SELECTION_SAMPLED_TEXT_AND_LAYOUT_ONLY",
+    "documentHorizontalOverflow": false,
+    "searchKeyboardTabMovesToButton": true
+  },
+  "uiBoundaryEvidence": [
+    "deployed32-owner-incomplete.json",
+    "deployed31-project-scope.json",
+    "deployed32-source-state-change.json",
+    "runtime32-source-state-change-blocked.json",
+    "runtime32-source-state-change-restored.json"
+  ],
+  "windowsSeeds": [
+    {
+      "vm": {
+        "id": "21e1d229-819e-46af-a18c-ab0856d439f0",
+        "name": "E1335-31-W-UEFI-seed-r2",
+        "state": "Stopped",
+        "boottype": "Uefi",
+        "bootmode": "legacy",
+        "hostid": null
+      },
+      "rootVolumes": [
+        {
+          "id": "15c2f8f7-54bf-4287-89fe-4717838e2d40",
+          "state": "Ready",
+          "type": "ROOT",
+          "deviceid": 0,
+          "size": 107374182400,
+          "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+        }
+      ],
+      "sourceE2ePassed": false,
+      "guestCredentialsPending": true
+    },
+    {
+      "vm": {
+        "id": "83231e10-63f3-412a-94d0-55b0fe51d83f",
+        "name": "E1335-32-W-UEFI-seed",
+        "state": "Stopped",
+        "boottype": "Uefi",
+        "bootmode": "legacy",
+        "hostid": null
+      },
+      "rootVolumes": [
+        {
+          "id": "d945a565-eb11-4240-9c64-20b9fd4e0a40",
+          "state": "Ready",
+          "type": "ROOT",
+          "deviceid": 0,
+          "size": 107374182400,
+          "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122"
+        }
+      ],
+      "sourceE2ePassed": false,
+      "guestCredentialsPending": true
+    }
+  ],
+  "templatePrefillObservation": {
+    "cluster": 31,
+    "initialAttempt": "Template deep link selected Windows2022; UI reported KVDO mismatch; API template/offering both false; no VM created",
+    "subsequentAttempt": "Explicit standard UI template selection created Windows UEFI seed-r2 and booted Windows console, then normal UI stop",
+    "prefilledTemplatePath": "NOT_RESOLVED_AS_A_FULL_REGRESSION_PASS"
+  }
 }

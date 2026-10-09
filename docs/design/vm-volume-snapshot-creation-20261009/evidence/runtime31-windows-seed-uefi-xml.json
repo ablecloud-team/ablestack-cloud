@@ -1,0 +1,67 @@
+{
+  "domain": "i-2-364-VM",
+  "domainState": "running",
+  "osType": {
+    "arch": "x86_64",
+    "machine": "pc-q35-rhel9.8.0"
+  },
+  "loader": {
+    "path": "/usr/share/edk2/ovmf/OVMF_CODE.secboot.fd",
+    "attributes": {
+      "readonly": "yes",
+      "secure": "no",
+      "type": "pflash",
+      "format": "qcow2"
+    }
+  },
+  "nvram": "/var/lib/libvirt/qemu/nvram/21e1d229-819e-46af-a18c-ab0856d439f0.fd",
+  "disks": [
+    {
+      "type": "file",
+      "device": "disk",
+      "target": {
+        "dev": "sda",
+        "bus": "scsi"
+      },
+      "driver": {
+        "name": "qemu",
+        "type": "qcow2",
+        "cache": "none",
+        "io": "io_uring",
+        "discard": "unmap"
+      },
+      "source": {
+        "file": "/mnt/glue-gfs/15c2f8f7-54bf-4287-89fe-4717838e2d40",
+        "index": "3"
+      }
+    },
+    {
+      "type": "file",
+      "device": "cdrom",
+      "target": {
+        "dev": "sdd",
+        "bus": "sata"
+      },
+      "driver": {
+        "name": "qemu"
+      },
+      "source": {}
+    },
+    {
+      "type": "file",
+      "device": "cdrom",
+      "target": {
+        "dev": "sde",
+        "bus": "sata"
+      },
+      "driver": {
+        "name": "qemu",
+        "type": "raw"
+      },
+      "source": {
+        "file": "/mnt/006ac919-7755-3e59-9cd8-9b906a9e22e8/i-2-364-VM.iso",
+        "index": "1"
+      }
+    }
+  ]
+}

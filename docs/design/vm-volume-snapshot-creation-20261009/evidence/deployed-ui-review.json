@@ -1,0 +1,874 @@
+{
+  "sourceCommit": "957f61f39cf464dbfc19d1b31c4388f26b13667e",
+  "cluster": 32,
+  "scope": "DEPLOYED_SOURCE_SELECTION_TEXT_AND_LAYOUT_ONLY",
+  "reviews": [
+    {
+      "activeTag": "INPUT",
+      "pageWidth": 1670,
+      "samples": [
+        {
+          "background": "rgb(23, 43, 61)",
+          "color": "rgb(214, 235, 255)",
+          "fontSize": "14px",
+          "text": "스냅샷 시점의 루트 디스크에서 새 디스크를 복구합니다. 원본 스냅샷과 기존 가상머신은 유지합니다. 데이터 디스크와 메모리는 자동 복구하지 않습니",
+          "contrastRatio": 11.86
+        },
+        {
+          "background": "rgb(39, 46, 54)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": ""
+        },
+        {
+          "background": "rgb(39, 46, 54)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "이름 / UUID",
+          "contrastRatio": 8.47
+        },
+        {
+          "background": "rgb(39, 46, 54)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "출처 / 운영체제",
+          "contrastRatio": 8.47
+        },
+        {
+          "background": "rgb(39, 46, 54)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "상태 / 복구 시점",
+          "contrastRatio": 8.47
+        },
+        {
+          "background": "rgb(39, 46, 54)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "논리 용량 / 부팅",
+          "contrastRatio": 8.47
+        },
+        {
+          "background": "rgb(39, 46, 54)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "저장소 / 범위",
+          "contrastRatio": 8.47
+        },
+        {
+          "background": "rgb(39, 46, 54)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "사용 가능 여부",
+          "contrastRatio": 8.47
+        },
+        {
+          "background": "rgb(38, 38, 38)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": ""
+        },
+        {
+          "background": "rgb(38, 38, 38)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "E1335-32-L-BIOS-before2bd3d2b4-cbeb-4d16-abf8-040bed08315d",
+          "contrastRatio": 9.34
+        },
+        {
+          "background": "rgb(38, 38, 38)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "E1335-32-L-BIOS-before",
+          "contrastRatio": 9.34
+        },
+        {
+          "background": "rgb(38, 38, 38)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "E1335-32-L-BIOS-seed-r2Rocky Linux 9",
+          "contrastRatio": 9.34
+        },
+        {
+          "background": "rgb(38, 38, 38)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "백업 완료2026. 10. 9. 오전 9:02:43",
+          "contrastRatio": 9.34
+        },
+        {
+          "background": "rgb(67, 67, 67)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "12px",
+          "text": "백업 완료",
+          "contrastRatio": 6.11
+        },
+        {
+          "background": "rgb(38, 38, 38)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "100 GiBBIOS · LEGACY",
+          "contrastRatio": 9.34
+        },
+        {
+          "background": "rgb(38, 38, 38)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "PrimaryRBD · CLUSTER",
+          "contrastRatio": 9.34
+        },
+        {
+          "background": "rgb(38, 38, 38)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "생성 가능",
+          "contrastRatio": 9.34
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "12px",
+          "text": "적격성 확인 시각: 오전 11:35:58",
+          "contrastRatio": 9.18
+        }
+      ],
+      "sourceWidth": 891,
+      "tableScroll": [
+        {
+          "client": 891,
+          "scroll": 891
+        }
+      ],
+      "theme": "dark-mode",
+      "viewport": [
+        1680,
+        900
+      ],
+      "minimumSampleContrastRatio": 6.11,
+      "noDocumentHorizontalOverflow": true
+    },
+    {
+      "activeTag": "INPUT",
+      "pageWidth": 1670,
+      "samples": [
+        {
+          "background": "rgb(234, 244, 255)",
+          "color": "rgb(11, 59, 102)",
+          "fontSize": "14px",
+          "text": "스냅샷 시점의 루트 디스크에서 새 디스크를 복구합니다. 원본 스냅샷과 기존 가상머신은 유지합니다. 데이터 디스크와 메모리는 자동 복구하지 않습니",
+          "contrastRatio": 10.31
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": ""
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "이름 / UUID",
+          "contrastRatio": 7.56
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "출처 / 운영체제",
+          "contrastRatio": 7.56
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "상태 / 복구 시점",
+          "contrastRatio": 7.56
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "논리 용량 / 부팅",
+          "contrastRatio": 7.56
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "저장소 / 범위",
+          "contrastRatio": 7.56
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "사용 가능 여부",
+          "contrastRatio": 7.56
+        },
+        {
+          "background": "rgb(230, 247, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": ""
+        },
+        {
+          "background": "rgb(230, 247, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "E1335-32-L-BIOS-before2bd3d2b4-cbeb-4d16-abf8-040bed08315d",
+          "contrastRatio": 6.88
+        },
+        {
+          "background": "rgb(230, 247, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "E1335-32-L-BIOS-before",
+          "contrastRatio": 6.88
+        },
+        {
+          "background": "rgb(230, 247, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "E1335-32-L-BIOS-seed-r2Rocky Linux 9",
+          "contrastRatio": 6.88
+        },
+        {
+          "background": "rgb(230, 247, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "백업 완료2026. 10. 9. 오전 9:02:43",
+          "contrastRatio": 6.88
+        },
+        {
+          "background": "rgb(246, 255, 237)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "12px",
+          "text": "백업 완료",
+          "contrastRatio": 7.36
+        },
+        {
+          "background": "rgb(230, 247, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "100 GiBBIOS · LEGACY",
+          "contrastRatio": 6.88
+        },
+        {
+          "background": "rgb(230, 247, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "PrimaryRBD · CLUSTER",
+          "contrastRatio": 6.88
+        },
+        {
+          "background": "rgb(230, 247, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "생성 가능",
+          "contrastRatio": 6.88
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "12px",
+          "text": "적격성 확인 시각: 오전 11:35:58",
+          "contrastRatio": 7.56
+        }
+      ],
+      "sourceWidth": 891,
+      "tableScroll": [
+        {
+          "client": 891,
+          "scroll": 891
+        }
+      ],
+      "theme": "",
+      "viewport": [
+        1680,
+        900
+      ],
+      "minimumSampleContrastRatio": 6.88,
+      "noDocumentHorizontalOverflow": true
+    },
+    {
+      "activeTag": "INPUT",
+      "pageWidth": 1356,
+      "samples": [
+        {
+          "background": "rgb(234, 244, 255)",
+          "color": "rgb(11, 59, 102)",
+          "fontSize": "14px",
+          "text": "스냅샷 시점의 루트 디스크에서 새 디스크를 복구합니다. 원본 스냅샷과 기존 가상머신은 유지합니다. 데이터 디스크와 메모리는 자동 복구하지 않습니",
+          "contrastRatio": 10.31
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": ""
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "이름 / UUID",
+          "contrastRatio": 7.56
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "출처 / 운영체제",
+          "contrastRatio": 7.56
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "상태 / 복구 시점",
+          "contrastRatio": 7.56
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "논리 용량 / 부팅",
+          "contrastRatio": 7.56
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "저장소 / 범위",
+          "contrastRatio": 7.56
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "사용 가능 여부",
+          "contrastRatio": 7.56
+        },
+        {
+          "background": "rgb(230, 247, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": ""
+        },
+        {
+          "background": "rgb(230, 247, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "E1335-32-L-BIOS-before2bd3d2b4-cbeb-4d16-abf8-040bed08315d",
+          "contrastRatio": 6.88
+        },
+        {
+          "background": "rgb(230, 247, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "E1335-32-L-BIOS-before",
+          "contrastRatio": 6.88
+        },
+        {
+          "background": "rgb(230, 247, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "E1335-32-L-BIOS-seed-r2Rocky Linux 9",
+          "contrastRatio": 6.88
+        },
+        {
+          "background": "rgb(230, 247, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "백업 완료2026. 10. 9. 오전 9:02:43",
+          "contrastRatio": 6.88
+        },
+        {
+          "background": "rgb(246, 255, 237)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "12px",
+          "text": "백업 완료",
+          "contrastRatio": 7.36
+        },
+        {
+          "background": "rgb(230, 247, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "100 GiBBIOS · LEGACY",
+          "contrastRatio": 6.88
+        },
+        {
+          "background": "rgb(230, 247, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "PrimaryRBD · CLUSTER",
+          "contrastRatio": 6.88
+        },
+        {
+          "background": "rgb(230, 247, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "생성 가능",
+          "contrastRatio": 6.88
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "12px",
+          "text": "적격성 확인 시각: 오전 11:35:58",
+          "contrastRatio": 7.56
+        }
+      ],
+      "sourceWidth": 669,
+      "tableScroll": [
+        {
+          "client": 669,
+          "scroll": 880
+        }
+      ],
+      "theme": "",
+      "viewport": [
+        1366,
+        900
+      ],
+      "minimumSampleContrastRatio": 6.88,
+      "noDocumentHorizontalOverflow": true
+    },
+    {
+      "activeTag": "BUTTON",
+      "pageWidth": 380,
+      "samples": [
+        {
+          "background": "rgb(234, 244, 255)",
+          "color": "rgb(11, 59, 102)",
+          "fontSize": "14px",
+          "text": "스냅샷 시점의 루트 디스크에서 새 디스크를 복구합니다. 원본 스냅샷과 기존 가상머신은 유지합니다. 데이터 디스크와 메모리는 자동 복구하지 않습니",
+          "contrastRatio": 10.31
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": ""
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "이름 / UUID",
+          "contrastRatio": 7.56
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "출처 / 운영체제",
+          "contrastRatio": 7.56
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "상태 / 복구 시점",
+          "contrastRatio": 7.56
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "논리 용량 / 부팅",
+          "contrastRatio": 7.56
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "저장소 / 범위",
+          "contrastRatio": 7.56
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "사용 가능 여부",
+          "contrastRatio": 7.56
+        },
+        {
+          "background": "rgb(230, 247, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": ""
+        },
+        {
+          "background": "rgb(230, 247, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "E1335-32-L-BIOS-before2bd3d2b4-cbeb-4d16-abf8-040bed08315d",
+          "contrastRatio": 6.88
+        },
+        {
+          "background": "rgb(230, 247, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "E1335-32-L-BIOS-before",
+          "contrastRatio": 6.88
+        },
+        {
+          "background": "rgb(230, 247, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "E1335-32-L-BIOS-seed-r2Rocky Linux 9",
+          "contrastRatio": 6.88
+        },
+        {
+          "background": "rgb(230, 247, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "백업 완료2026. 10. 9. 오전 9:02:43",
+          "contrastRatio": 6.88
+        },
+        {
+          "background": "rgb(246, 255, 237)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "12px",
+          "text": "백업 완료",
+          "contrastRatio": 7.36
+        },
+        {
+          "background": "rgb(230, 247, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "100 GiBBIOS · LEGACY",
+          "contrastRatio": 6.88
+        },
+        {
+          "background": "rgb(230, 247, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "PrimaryRBD · CLUSTER",
+          "contrastRatio": 6.88
+        },
+        {
+          "background": "rgb(230, 247, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "14px",
+          "text": "생성 가능",
+          "contrastRatio": 6.88
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "fontSize": "12px",
+          "text": "적격성 확인 시각: 오전 11:35:58",
+          "contrastRatio": 7.56
+        }
+      ],
+      "sourceWidth": 256,
+      "tableScroll": [
+        {
+          "client": 256,
+          "scroll": 880
+        }
+      ],
+      "theme": "",
+      "viewport": [
+        390,
+        844
+      ],
+      "minimumSampleContrastRatio": 6.88,
+      "noDocumentHorizontalOverflow": true
+    },
+    {
+      "activeTag": "INPUT",
+      "pageWidth": 1356,
+      "samples": [
+        {
+          "background": "rgb(23, 43, 61)",
+          "color": "rgb(214, 235, 255)",
+          "fontSize": "14px",
+          "text": "스냅샷 시점의 루트 디스크에서 새 디스크를 복구합니다. 원본 스냅샷과 기존 가상머신은 유지합니다. 데이터 디스크와 메모리는 자동 복구하지 않습니",
+          "contrastRatio": 11.86
+        },
+        {
+          "background": "rgb(39, 46, 54)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": ""
+        },
+        {
+          "background": "rgb(39, 46, 54)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "이름 / UUID",
+          "contrastRatio": 8.47
+        },
+        {
+          "background": "rgb(39, 46, 54)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "출처 / 운영체제",
+          "contrastRatio": 8.47
+        },
+        {
+          "background": "rgb(39, 46, 54)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "상태 / 복구 시점",
+          "contrastRatio": 8.47
+        },
+        {
+          "background": "rgb(39, 46, 54)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "논리 용량 / 부팅",
+          "contrastRatio": 8.47
+        },
+        {
+          "background": "rgb(39, 46, 54)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "저장소 / 범위",
+          "contrastRatio": 8.47
+        },
+        {
+          "background": "rgb(39, 46, 54)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "사용 가능 여부",
+          "contrastRatio": 8.47
+        },
+        {
+          "background": "rgb(38, 38, 38)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": ""
+        },
+        {
+          "background": "rgb(38, 38, 38)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "E1335-32-L-BIOS-before2bd3d2b4-cbeb-4d16-abf8-040bed08315d",
+          "contrastRatio": 9.34
+        },
+        {
+          "background": "rgb(38, 38, 38)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "E1335-32-L-BIOS-before",
+          "contrastRatio": 9.34
+        },
+        {
+          "background": "rgb(38, 38, 38)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "E1335-32-L-BIOS-seed-r2Rocky Linux 9",
+          "contrastRatio": 9.34
+        },
+        {
+          "background": "rgb(38, 38, 38)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "백업 완료2026. 10. 9. 오전 9:02:43",
+          "contrastRatio": 9.34
+        },
+        {
+          "background": "rgb(67, 67, 67)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "12px",
+          "text": "백업 완료",
+          "contrastRatio": 6.11
+        },
+        {
+          "background": "rgb(38, 38, 38)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "100 GiBBIOS · LEGACY",
+          "contrastRatio": 9.34
+        },
+        {
+          "background": "rgb(38, 38, 38)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "PrimaryRBD · CLUSTER",
+          "contrastRatio": 9.34
+        },
+        {
+          "background": "rgb(38, 38, 38)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "생성 가능",
+          "contrastRatio": 9.34
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "12px",
+          "text": "적격성 확인 시각: 오전 11:35:58",
+          "contrastRatio": 9.18
+        }
+      ],
+      "sourceWidth": 669,
+      "tableScroll": [
+        {
+          "client": 669,
+          "scroll": 880
+        }
+      ],
+      "theme": "dark-mode",
+      "viewport": [
+        1366,
+        900
+      ],
+      "minimumSampleContrastRatio": 6.11,
+      "noDocumentHorizontalOverflow": true
+    },
+    {
+      "activeTag": "BUTTON",
+      "pageWidth": 380,
+      "samples": [
+        {
+          "background": "rgb(23, 43, 61)",
+          "color": "rgb(214, 235, 255)",
+          "fontSize": "14px",
+          "text": "스냅샷 시점의 루트 디스크에서 새 디스크를 복구합니다. 원본 스냅샷과 기존 가상머신은 유지합니다. 데이터 디스크와 메모리는 자동 복구하지 않습니",
+          "contrastRatio": 11.86
+        },
+        {
+          "background": "rgb(39, 46, 54)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": ""
+        },
+        {
+          "background": "rgb(39, 46, 54)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "이름 / UUID",
+          "contrastRatio": 8.47
+        },
+        {
+          "background": "rgb(39, 46, 54)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "출처 / 운영체제",
+          "contrastRatio": 8.47
+        },
+        {
+          "background": "rgb(39, 46, 54)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "상태 / 복구 시점",
+          "contrastRatio": 8.47
+        },
+        {
+          "background": "rgb(39, 46, 54)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "논리 용량 / 부팅",
+          "contrastRatio": 8.47
+        },
+        {
+          "background": "rgb(39, 46, 54)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "저장소 / 범위",
+          "contrastRatio": 8.47
+        },
+        {
+          "background": "rgb(39, 46, 54)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "사용 가능 여부",
+          "contrastRatio": 8.47
+        },
+        {
+          "background": "rgb(38, 38, 38)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": ""
+        },
+        {
+          "background": "rgb(38, 38, 38)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "E1335-32-L-BIOS-before2bd3d2b4-cbeb-4d16-abf8-040bed08315d",
+          "contrastRatio": 9.34
+        },
+        {
+          "background": "rgb(38, 38, 38)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "E1335-32-L-BIOS-before",
+          "contrastRatio": 9.34
+        },
+        {
+          "background": "rgb(38, 38, 38)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "E1335-32-L-BIOS-seed-r2Rocky Linux 9",
+          "contrastRatio": 9.34
+        },
+        {
+          "background": "rgb(38, 38, 38)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "백업 완료2026. 10. 9. 오전 9:02:43",
+          "contrastRatio": 9.34
+        },
+        {
+          "background": "rgb(67, 67, 67)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "12px",
+          "text": "백업 완료",
+          "contrastRatio": 6.11
+        },
+        {
+          "background": "rgb(38, 38, 38)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "100 GiBBIOS · LEGACY",
+          "contrastRatio": 9.34
+        },
+        {
+          "background": "rgb(38, 38, 38)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "PrimaryRBD · CLUSTER",
+          "contrastRatio": 9.34
+        },
+        {
+          "background": "rgb(38, 38, 38)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "14px",
+          "text": "생성 가능",
+          "contrastRatio": 9.34
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "fontSize": "12px",
+          "text": "적격성 확인 시각: 오전 11:35:58",
+          "contrastRatio": 9.18
+        }
+      ],
+      "sourceWidth": 256,
+      "tableScroll": [
+        {
+          "client": 256,
+          "scroll": 880
+        }
+      ],
+      "theme": "dark-mode",
+      "viewport": [
+        390,
+        844
+      ],
+      "minimumSampleContrastRatio": 6.11,
+      "noDocumentHorizontalOverflow": true
+    }
+  ],
+  "status": "PASS_SAMPLED_TEXT_CONTRAST_AND_LAYOUT",
+  "keyboard": "390px light/dark: search input Tab moves focus to search button; no submission",
+  "capacityBoundary": "Previous d3c4b441f40 UI: DATA 10000GiB x2 + ROOT100GiB =>19.63TiB; available8.04TiB; both pool rows show 용량 부족; create disabled; no request submitted"
+}

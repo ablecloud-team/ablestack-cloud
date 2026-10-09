@@ -19,84 +19,65 @@ under the License.
 
 # Epic #1335 구현 및 검증 진행 상태
 
-최종 완료 기준은 배포된 UI에서 실제 생성·게스트 부팅·fixture 데이터·원본 보존을 확인하는 것이다. 단위 테스트나 Agent의 읽기 전용 검사는 이 기준을 대체하지 않는다. 새 이슈를 생성하지 않고 #1335와 #1336–#1343에서 관리한다.
+기존 Epic #1335와 #1336–#1343 안에서 구현·배포·검증을 진행한다. 대표 행렬 16개 중 **Linux BIOS 8개가 통과**했다. Windows UEFI 8개와 일부 경계·장애·기존 경로 회귀는 미완료다. PR #1344는 Draft이고 이슈를 종료하지 않았다.
 
-## 구현
+## 실제 UI 생성·게스트 검증
 
-| 기존 이슈 | 반영 내용 | 남은 실제 검증 |
-|---|---|---|
-| #1336 | 생성 원본 목록·사전 검사 API, 기본 역할 권한, 권한/출처/상태/부팅 검사, 서버 pagination 및 제출 재검증 | 배포 API·UI 검색/페이지/프로젝트/역할/상태 변경 |
-| #1337 | CLUSTER GFS2/RBD 원본 pool·cluster 유지, Agent 읽기 전용 디스크 사용 검사, 편입 잠금, 실패 시 원본 보존 | UI 편입·동시 요청·부분 실패·quota |
-| #1338 | 스냅샷 생성 시점 메타데이터, ROOT 복구 출처 보존, 논리 용량 유지, 원본 행 완전 누락 사전 차단 | 새 ROOT·시점 데이터·원본 expunge·복구 실패 |
-| #1339 | BIOS/UEFI/bootmode/디스크 버스 상속, TPM/SecureBoot 의존성 차단, ISO/userdata/키 입력 제거 | 실제 libvirt XML·Linux/Windows 게스트 부팅·기존 경로 회귀 |
-| #1340 | 후보 표·원본 요약·볼륨 편입 확인·1 VM 제한·한글 안내·테마 토큰·조회 오류 차단 | 배포 UI의 모든 상태, 라이트/다크/390·1366·1680px·키보드 |
-| #1341 | job/VM 추적, 응답 유실 수동 조회, 자동 중복 제출 금지, 안전한 시작 재시도 | UI 재진입·응답 유실·management/Agent 재시작·실패 복구 |
-| #1342 | snapshot 대상 storage 선택 API/allocator, 논리 용량 및 실제 대상 확인 | 수동/자동 배치·용량 변화·추가 디스크·태그·IOPS |
-| #1343 | 16개 대표 UI 생성·부팅 증거 수집 계획, 기존 인벤토리 보존 기록 | 아래 모든 대표 경로 및 경계·회귀 검증 |
-
-## 완료한 검증과 한계
-
-변경 Maven 모듈(API/Core/Server/Engine Orchestration/KVM)과 필요한 의존 모듈은 WSL ext4에서 빌드했다. 관련 Java 테스트 154개와 UI 테스트 21개가 통과했고, 변경 모듈 Checkstyle 오류는 0건, RAT는 PASS다. 관리 서버 패치는 `3223a396342`의 변경 클래스 68개와 Spring 등록을 반영한 파일이다. 전체 Cloud 또는 qemu/ftctl 빌드를 수동 요청하지 않았다. PR 이벤트가 자동 시작한 전체 Build/RPM 워크플로는 규칙에 따라 취소했다. 개별 테스트·빌드 로그와 배포 파일 해시는 Epic 진행 보고에 연결한다.
-
-32번 Agent 3대에 신규 읽기 전용 검사 클래스만 배포했다. 설정 해시와 실행 중 VM 목록은 유지되었으며, 각 호스트의 미사용/사용 중 디스크 검사 2개, 총 6개를 확인했다. 이는 Cloud UI를 통한 볼륨 편입·스냅샷 복구 성공을 의미하지 않는다.
-
-사용자의 배포 승인 후 32번 관리 서버에 관리 JAR와 UI를 배포했다. `/usr/share/cloudstack-management/webapp/WEB-INF`, `META-INF` 존재 시 해당 디렉터리와 기존 `config.json`을 보존했고 정적 파일 840개의 해시를 확인했다. 관리 서비스와 `/client/` HTTP 200, admin UI 로그인 및 원본 조회 API를 확인했다. 관리 재시작 후 재연결되지 않은 Agent 3개를 순서대로 재시작했으며 설정 해시와 실행 중 libvirt 도메인 목록을 보존하고 세 호스트의 Up 상태를 확인했다. 배포 전 기존 사용자 VM 13개 UUID가 유지된 것을 확인했다. 31번 배포는 아직 실행하지 않았다.
-
-32번에서 UI로 Linux BIOS fixture를 생성하고 QGA OS 응답과 실제 게스트 SSH의 한글 데이터 및 SHA256을 확인했다. 최초 테스트 VLAN 3235는 `brens1f0np0-3235` 이름이 Linux 인터페이스 길이 제한을 초과해 생성에 실패했다. 기존 네트워크를 변경하지 않고 테스트 전용 VLAN 235를 추가해 생성·정지·재시작 UI를 검증했다. ROOT 스냅샷 `2bd3d2b4-cbeb-4d16-abf8-040bed08315d`는 UI에서 백업 완료를 확인했다. 스냅샷 전/후 데이터 해시는 각각 `7f74af1c640673344c8a64b9dc219a7681553951e11f966051257d8a5da1c98f`, `d86e00896f7422ddc0e3377bd282dd643d8c933738f9be3cbaf5e6840d86d306`이다. UI에서 원본 VM을 정지하고 ROOT를 삭제 없이 분리했다.
-
-실제 볼륨 생성 폼의 사전 검사 응답에서 `VmCreationSourceResponse cannot be cast to ListResponse` 오류가 발견되었다. `BaseListCmd` 응답을 ApiServer가 목록으로 처리하는 계약에 맞춰 `count: 1, creationsource: [...]` 응답으로 수정하고 parent wizard에서도 이 envelope를 검사한다. 원본 상태 번역에서 선택적 `$te`에 의존해 알려진 Ready/BackedUp도 확인 필요로 표시되는 문제를 함께 수정한다. VM 생성 요청은 이 사전 검사 오류 때 전송되지 않았고 원본 볼륨은 분리된 Ready 상태로 보존되었다. 이 수정의 API 모듈 빌드·Checkstyle 및 API 회귀 테스트 3개는 통과했다. UI 회귀 테스트·운영 빌드·수정본 재배포 후 동일 UI 경로를 다시 검증한다.
-로컬 빌드 UI는 32번의 기존 API에 연결하여 조회 오류·한글·다크 모드 표시를 검토한다. 구 API의 Unknown API 오류는 생성 차단 상태로 보여야 하며, 이를 기능 성공으로 계산하지 않는다. 이 검토에서 발견한 스냅샷 번역 키 노출·이전 템플릿 요약 잔존·다크 모드 빈 목록 및 선택 표시 대비 문제를 수정했다. 생성 유형 전환 시 키보드 초점을 복원하는 보완도 반영했다. 실제 배포 UI의 원본 후보·요약·성공·실패·재진입 상태 검증은 여전히 남아 있다.
-
-## 대표 UI 생성·부팅 행렬
-
-| 환경 | 생성 원본 | OS/부팅 | startvm | 결과 |
+| 환경 | 볼륨 startvm=false | 볼륨 startvm=true | 스냅샷 startvm=false | 스냅샷 startvm=true |
 |---|---|---|---|---|
-| 31 GFS2 | 볼륨 | Linux BIOS | false | NOT_RUN |
-| 31 GFS2 | 볼륨 | Linux BIOS | true | NOT_RUN |
-| 31 GFS2 | 볼륨 | Windows UEFI | false | NOT_RUN |
-| 31 GFS2 | 볼륨 | Windows UEFI | true | NOT_RUN |
-| 31 GFS2 | 스냅샷 | Linux BIOS | false | NOT_RUN |
-| 31 GFS2 | 스냅샷 | Linux BIOS | true | NOT_RUN |
-| 31 GFS2 | 스냅샷 | Windows UEFI | false | NOT_RUN |
-| 31 GFS2 | 스냅샷 | Windows UEFI | true | NOT_RUN |
-| 32 krbd | 볼륨 | Linux BIOS | false | NOT_RUN |
-| 32 krbd | 볼륨 | Linux BIOS | true | NOT_RUN |
-| 32 krbd | 볼륨 | Windows UEFI | false | NOT_RUN |
-| 32 krbd | 볼륨 | Windows UEFI | true | NOT_RUN |
-| 32 krbd | 스냅샷 | Linux BIOS | false | NOT_RUN |
-| 32 krbd | 스냅샷 | Linux BIOS | true | NOT_RUN |
-| 32 krbd | 스냅샷 | Windows UEFI | false | NOT_RUN |
-| 32 krbd | 스냅샷 | Windows UEFI | true | NOT_RUN |
+| 31 GFS2 / Linux BIOS | PASS | PASS | PASS | PASS |
+| 32 Ceph krbd / Linux BIOS | PASS | PASS | PASS | PASS |
+| 31 GFS2 / Windows UEFI | 미실행 | 미실행 | 미실행 | 미실행 |
+| 32 Ceph krbd / Windows UEFI | 미실행 | 미실행 | 미실행 | 미실행 |
 
-각 행에는 UI 제출·job·새 VM UUID·ROOT UUID/device0/pool·host XML·게스트 fixture·원본 보존 증거가 모두 필요하다. startvm=false도 UI에서 중지 상태 확인 후 시작하여 게스트 부팅을 검증한다. 기능 구현이 추가되었으나 Epic의 최종 완료 조건은 아직 충족하지 않았다.
+각 PASS는 실제 UI 원본 선택·확인·제출·생성 결과·부팅·정상 정지와 연결한다. 볼륨은 같은 UUID의 ROOT/device0 편입 및 원본 분리 보존, 스냅샷은 새 ROOT/device0와 백업 시점 한글 파일 SHA256 일치 및 원본 보존을 확인했다. startvm=false는 최초 Stopped를 확인한 뒤 UI에서 시작했다. API·host XML·QGA·게스트 SSH 파일 읽기는 UI 경로의 보조 증거다. 케이스별 VM/job/ROOT/체크섬은 `evidence/case*-linux-*.json`에 기록했다.
 
-## PR CI와 로컬 검증의 구분
+추가로 두 환경에서 스냅샷 ROOT 100GiB + 새 DATA 10GiB ×2, 수동 ROOT/DATA 풀 선택, UI 합산 120GiB, device0/1/2, 실제 게스트 디스크 3개와 백업 시점 데이터 확인을 통과했다. 31번 사례는 대표 snapshot-on과 같은 VM이며 중복 집계하지 않는다.
 
-초기 PR #1344의 UI Build는 107개 suite 중 5개, 1,044개 test 중 9개가 실패했다. 실패한 기존 test 파일 5개는 이번 Epic에서 변경되지 않았다. 기존 `vmDiskDeployment.spec.js`의 Array.at 사용은 CI의 Node 14에서 오류를 냈다. 다른 실패는 NIC/게스트 IP/OAuth/Alert 관련이다. 동일 baseline 전체 CI를 다시 돌린 결과는 아니므로, 변경되지 않은 파일이라는 사실만으로 모든 원인이 baseline이라고 단정하지 않는다.
+Windows는 31·32번 seed를 실제 UI로 생성·부팅·정지하고 콘솔의 Windows 잠금 화면을 확인했다. 31번은 host XML의 q35/UEFI secure=no/NVRAM 고유 경로와 GFS2 qcow2 ROOT를 추가 확인했다. 게스트 Administrator 로그인 정보가 없어 한글 파일 작성·변경 및 복구 시점 검증을 완료하지 않았다. 콘솔 부팅을 대표 8개 PASS로 대체하지 않는다.
 
-초기 License Check에서 발견한 이번 설계 문서의 Apache 헤더 누락과 generated host transcript 처리는 보완했으며, tracked source 전체 RAT를 다시 확인했다. Lint는 Epic 밖의 기존 hook/script/문서 오류도 포함한다. 로컬 변경 모듈·관련 UI 테스트 통과는 전체 PR CI 통과를 의미하지 않는다. 최종 head의 CI 상태는 PR에서 별도로 확인한다.
+## 실환경에서 발견하고 수정한 결함
 
-## 로컬 브라우저 표시 검토
+1. 사전 검사 BaseListCmd 응답을 `count: 1, creationsource: [...]` 목록 계약과 일치시켰다.
+2. UI POST의 잘못된 API 인자 전달로 서비스 오퍼링이 빠지는 문제를 수정했다.
+3. 볼륨 편입이 legacy `details.volumeId` shortcut을 타면서 DATADISK를 ROOT/device0으로 변경하지 못하는 문제를 수정했다. 실제 public allocate 회귀 테스트 4개를 추가했다.
+4. 스냅샷 Allocated ROOT의 poolId를 미리 지정해 allocator가 스토리지를 제외하는 문제를 수정했다. 대상 풀 요구사항은 유지하고 복구 완료 때 위치를 지정한다.
+5. 복구 실패를 한글 안내와 기술 오류 상세로 제공하며 자동 재제출을 하지 않는다. 부분 생성 VM 링크를 출처 정보로 복구한다.
+6. cloud-init이 새 VM 부팅 때 호스트명·SSH 호스트 키를 재생성하는 실제 동작에 맞춰 안내를 보완했다.
+7. 추가 DATA 수량 입력과 크기/수량 검증을 보완하고, 스냅샷 DATA 조회에 snapshotid와 ROOT/DATA 동시 용량 계산을 포함했다.
+8. 프로젝트 유형만 선택하고 프로젝트는 비워 둔 상태에서 이전 계정 원본이 되살아나는 문제를 발견했다. 소유자 확정 전 조회·제출을 차단하고 오래된 응답을 무시한다.
+9. 밝은 테마의 녹색 상태 태그가 3.37:1로 표시되는 문제를 발견해 공통 텍스트 토큰으로 대비를 개선했다.
 
-운영 빌드 UI를 이전 32번 관리 API에 연결한 로컬 브라우저 검토다. 원본 조회 오류 상태에서 생성 버튼이 비활성화되고, 이전 템플릿 OS/ROOT 요약이 제거되는 것을 확인했다. 템플릿·ISO·볼륨·스냅샷 간 방향키 이동에서 초점과 선택 값이 유지된다. 원본 표의 내부 가로 스크롤도 확인했다.
+처음 실패한 VM·볼륨은 진단 증거로 남겼다. 후속 수정 결과를 이전 실패의 PASS로 합산하지 않는다. krbd 호스트에서 읽기 전용으로 사용 중인 원본은 최종 UI 검사에서 다른 VM 사용 중 사유로 차단되었다. 임시 domain/map 정리 후 기존 runtime 목록이 일치했다.
 
-볼륨·스냅샷 각각 라이트·다크 × 390/1366/1680px, 총 12개 조회 오류 화면의 한글 안내, 빈 목록, 선택 표시와 페이지 가로 넘침을 검토했다. 다크 빈 목록 텍스트 대비는 9.18:1, 선택 텍스트 대비는 5.39:1이었다. 검색 안내의 다크 대비를 4.18:1에서 9.18:1로 보완했고, 라이트 검색 안내·빈 목록 대비는 7.56:1, 선택 표시 대비는 4.64:1로 확인했다. 최종 캡처와 계산 결과는 evidence/local-ui-review.json에 기록한다.
+## 모듈·UI 검증 및 배포
 
-390px에서 기존 전역 경보 배너의 문구와 버튼이 겹치는 현상을 수정했다. 문구 줄바꿈과 모바일 세로 배치를 적용한 `78b1bce66fd` UI를 32번에 배포하고 실제 다크 화면에서 겹침이 해소된 것을 확인했다. 후보가 있는 상태·원본 요약·확인 모달·작업 성공/실패/재진입 화면과 모든 실제 생성 경로도 아직 UI PASS 처리하지 않는다.
+변경 Maven 모듈 API/Core/Server/Engine Orchestration/KVM만 WSL ext4에서 빌드했다. 초기 관련 Java 테스트 154개, 최종 orchestration 집중 테스트 53개가 통과했다. Checkstyle 0건, 모듈 RAT 미승인 0건이다. 최종 UI 집중 테스트 34개와 변경 파일 ESLint가 통과했다. 겹치는 테스트 집합은 합산하지 않는다.
 
-## 준비된 배포 산출물
+더 넓은 VirtualMachineManager 테스트 100개는 98개 통과·2개 NPE다. 같은 2개 테스트가 깨끗한 Europa 기준 `2871963`에서도 실패했다. 전체 통과로 표시하지 않는다.
 
-관리 서버 패치의 소스는 `3223a396342`, UI 운영 빌드 소스는 `04f90128924`다. 현재 작업 트리의 변경 Java 소스 16개는 관리 패치 manifest의 SHA256과 모두 일치한다. UI 빌드 버전은 `v4.23.0-Europa-20261009-RC1`이며 테스트 산출물이다. 아래 파일은 양쪽 서버 staging에 복사하고 원격 SHA256을 확인했다. 32번 관리 JAR 및 UI에는 승인 후 반영했다. 31번은 staging 상태다.
+양쪽 관리 JAR은 소스 `1c3c9c41341`의 변경 클래스 82개와 빌드 산출물 해시가 일치한다. 31번 관리 JAR SHA256은 `706ff0f3a853c828dfbab3a46ca7b61ab0b0cda6a07c5a42b98b7599a111be5d`, 32번은 `7c6a65eecbcdd37099eef3c13a69607f6988c215ed6d375cbdd6c8044d420551`다. 두 환경의 Agent 3대씩 배포되었고 설정 및 실행 domain 보존을 확인했다.
 
-| 산출물 | SHA256 | 상태 |
-|---|---|---|
-| 31 관리 패치 | `621afb62eaa991c7caec9f7ce8877b8f6280301b5b705340675bf74edbdd3375` | STAGED_ONLY |
-| 32 관리 패치 | `7451c740df28e198e5778f33e558a4650c6792756354a9389edd955a271e82c0` | DEPLOYED, 사전 검사 응답 수정 재배포 예정 |
-| 최신 UI `ui-epic1335-78b1bce66fd.tgz` | `69e1902d4d494e1a5d7a817d875f1051b60d35c5716cd811ec2cd4a3b7ed3186` | 32 DEPLOYED, 사전 검사/번역 수정 재빌드 예정 |
+최종 UI 소스 `957f61f39cf`는 소유자 미선택 차단과 상태 태그 대비 개선을 포함한다. 생산 빌드와 두 클러스터 배포를 완료했다. archive SHA256은 `40b22a8c52ecb28400c0ae14d4a06fa74c889fc8531f2e9c1e73f08dee15c429`이며, 양쪽 정적 파일 840개 해시, WEB-INF/META-INF/config.json 보존, mold active와 `/client/` 200을 확인했다. 배포별 백업과 결과는 `evidence/ui-deployment-final.json`에 있다.
 
-- [검증·빌드·산출물 상태](evidence/implementation-verification.json)
-- [로컬 UI 표시·키보드·색 대비 증거](evidence/local-ui-review.json)
-- [활성 서비스·기존 VM 보존 확인](evidence/runtime-preservation.json)
-- [초기 PR UI CI 실패와 변경 범위 확인](evidence/ci-ui-baseline-evidence.json)
+검증 후 기존 31번 VM 74개·32번 VM 13개의 UUID/상태/호스트가 그대로이며 호스트 6대 모두 Up이다. 전용 테스트 VM은 이 원본 목록과 따로 기록했다. 원본 볼륨은 Ready/미연결, 스냅샷은 BackedUp이다. 최신 읽기 전용 증거는 `evidence/final-linux-runtime-preservation-31.json`, `-32.json`이다. 예전 `runtime-preservation.json`은 배포 전 API 미지원 상태의 기록으로 최종 배포 증거가 아니다.
 
-![로컬 다크 모드 오류 상태 — 실제 VM 생성 검증 전](evidence/local-ui-snapshot-dark-1680.jpg)
+## UI 검토와 남은 조건
+
+실제 UI 후보·요약·확인·성공·복구 실패·부분 VM 링크, 한글 상태, 검색 빈 결과, 연결 중 차단을 확인했다. DATA 10000GiB ×2 + ROOT100GiB는 19.63TiB 필요/8.04TiB 추가 할당 가능으로 양쪽 풀에 용량 부족을 표시하고 생성 버튼을 비활성화했다. 요청은 제출하지 않았다.
+
+390/1366/1680px 라이트·다크 6개 실제 화면에서 문서 가로 넘침 없이 표 내부 스크롤을 확인했다. 검색 입력의 Tab 이동도 확인했다. 최신 UI에서 소유자 미선택 시 후보·요약 제거와 생성 비활성화, 유효한 계정 복구를 32번에서 확인했다. 31번 기존 프로젝트 선택에서는 admin 원본이 노출되지 않았고 계정 복귀 시 복구되었다. 최신 원본 영역의 표본 텍스트 최소 대비는 라이트 6.88:1, 다크 6.11:1이다. 문서 가로 넘침은 없었으며 모바일 표 내부 스크롤과 Tab 포커스 이동이 유지되었다. 이것은 전체 화면의 접근성 감사 완료를 의미하지 않는다. `deployed-ui-review.json`은 최신 배포의 6개 화면 기록이다. 로컬 오류 화면 검토는 `local-ui-review.json`이며 실제 생성 PASS와 구분한다.
+
+추가로 32번에서 원본 선택 후 다른 정지된 테스트 VM에 DATA/device1로 연결했다. 실제 생성 버튼의 최종 검사에서 연결 중 및 원본 변경 한글 사유로 거절되었고 새 VM은 0개였다. 이후 UI로 보존 분리했고 원본 Ready/미연결, 대상 VM Stopped, 스냅샷 BackedUp을 확인했다. `deployed32-source-state-change.json`과 runtime 증거를 연결한다.
+
+31번 Windows 템플릿 사전 선택 URL의 첫 제출은 API의 template/offering kvdoenable이 모두 false인데 UI 압축 설정 불일치로 거부되었고 VM은 생성되지 않았다. 표준 화면에서 템플릿을 명시적으로 선택한 새 run은 UEFI 부팅·정지를 통과했다. 사전 선택 URL 자체의 문제는 완료 처리하지 않고 기존 Epic 안의 회귀 확인 사항으로 남긴다.
+
+남은 범위: Windows UEFI 대표 8개, 일반 사용자 권한 및 프로젝트 소유 원본 생성, 동시 편입, 태그/IOPS/스토리지 불가, 진행 중 agent/management 재시작·응답 유실·부분 실패 재시도, template/ISO 및 추가 ISO 회귀와 템플릿 사전 선택 불일치. 단위 테스트나 API 결과만으로 이 UI 경계 검증을 완료 처리하지 않는다.
+
+## PR CI
+
+전체 Cloud 빌드는 수동 시작하지 않았다. PR push가 자동 시작한 전체 Build/RPM은 중지했다. 이전 관련 head의 License·Conflict는 통과했지만 Lint 및 UI Build 실패는 집중 모듈·UI 테스트와 별도다. UI CI 9개 실패 중 변경되지 않은 4개 suite의 8개는 깨끗한 기준에서도 재현했고, vmDiskDeployment Array.at는 CI Node14에서 실패·로컬 통과였다. 9개 전부 기준 실패 또는 전체 CI green으로 표시하지 않는다. UI Build `d3c4b441f40` head는 취소, Lint 실패, License/Conflict 통과였다. UI 코드 head `957f61f39cf`의 PR 체크는 조회 시 빈 목록이었으므로 성공으로 표시하지 않는다. 최종 문서 head 결과도 별도로 조회한다.
+
+- [Epic #1335](https://github.com/ablecloud-team/ablestack-cloud/issues/1335)
+- [Epic PR #1344](https://github.com/ablecloud-team/ablestack-cloud/pull/1344)
+- [검증 산출물](evidence/implementation-verification.json)

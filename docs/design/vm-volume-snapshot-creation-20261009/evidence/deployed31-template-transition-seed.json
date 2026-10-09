@@ -1,0 +1,8 @@
+{
+  "cluster": 31,
+  "sourceCommit": "957f61f39cf464dbfc19d1b31c4388f26b13667e",
+  "snapshotToTemplateClearedSource": true,
+  "templateSeedVmId": "21e1d229-819e-46af-a18c-ab0856d439f0",
+  "templateSeedUiConsoleWindowsBoot": true,
+  "guestDataVerification": false
+}

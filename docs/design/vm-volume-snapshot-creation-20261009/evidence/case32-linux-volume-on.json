@@ -1,0 +1,12 @@
+{
+  "case": "32-L-BIOS-volume-on",
+  "status": "PASS",
+  "vmId": "d1a1337e-1da2-4fc8-bd50-226b5db1d47a",
+  "jobId": "a7ab2d01-39a9-4373-afb4-dd24abc15b0a",
+  "startVm": true,
+  "rootVolumeId": "1a989f91-798b-46a0-8234-25adb402f35e",
+  "sourcePreservedDetached": true,
+  "sourceSnapshotPreserved": true,
+  "guestDataSha256": "d86e00896f7422ddc0e3377bd282dd643d8c933738f9be3cbaf5e6840d86d306",
+  "uiCreateBootStopDetach": true
+}
