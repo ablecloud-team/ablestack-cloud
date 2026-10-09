@@ -84,6 +84,77 @@ class StorageAdLifecycleTest(unittest.TestCase):
         for path in self.root.rglob("*"):
             if path.is_file():self.assertNotIn(self.request["password"].encode(),path.read_bytes())
         self.assertTrue(any(arg.startswith("--authentication-file=/proc/self/fd/") for call in self.calls for arg in call))
+    def partial_owned_join(self):
+        frozen=self.source_proof(self.lifecycle.daemon.marker(self.request),True)
+        self.lifecycle.source_provider=lambda scope,fresh:dict(frozen)
+        original=self.lifecycle.run
+        def fail_registration(args,**kwargs):
+            plain=[arg for arg in args if not arg.startswith(("--configfile=","--authentication-file=","--use-kerberos=","--use-krb5-ccache="))]
+            if plain[:4]==["net","ads","setspn","add"]:
+                saved=json.loads(self.lifecycle.journal.read_text())
+                self.assertTrue(saved["publicConfiguration"]["machineAuthenticatedComputer"])
+                self.assertEqual(self.remote_sid,saved["publicConfiguration"]["ownedComputerSid"])
+                return subprocess.CompletedProcess(args,1,"","private failure omitted")
+            return original(args,**kwargs)
+        self.lifecycle.run=fail_registration
+        with self.assertRaises(ValueError):self.lifecycle.join(self.request)
+        self.lifecycle.run=original
+        self.assertEqual("RECOVERY_REQUIRED",json.loads(self.lifecycle.journal.read_text())["phase"])
+        self.calls.clear()
+        return frozen
+
+    def test_owned_join_inverse_consumes_durable_machine_authenticated_sid_and_response_loss_replays_without_remote_effects(self):
+        source=self.partial_owned_join()
+        result=self.lifecycle.inverse_join(self.request)
+        self.assertTrue(result["externalJoinInverted"]);self.assertFalse(result["replayed"])
+        self.assertEqual(source["publicLocalMachineSid"],result["identity"]["machineSid"])
+        self.assertEqual("NOT_JOINED",result["identity"]["joinState"])
+        self.assertEqual(self.before,self.smb.read_bytes())
+        self.assertEqual("OWNED_JOIN_INVERTED",json.loads(self.lifecycle.journal.read_text())["phase"])
+        self.assertFalse(self.lifecycle.machine.exists());self.assertFalse((self.root/"etc/krb5.conf").exists())
+        self.calls.clear();retry=self.lifecycle.inverse_join(self.request)
+        self.assertTrue(retry["replayed"]);self.assertEqual(result["identity"]["machineSid"],retry["identity"]["machineSid"])
+        self.assertFalse(any(row[0]=="net" or row[0].startswith("OWNED_") for row in self.calls))
+        for path in self.root.rglob("*"):
+            if path.is_file():self.assertNotIn(self.request["password"].encode(),path.read_bytes())
+
+    def test_owned_join_inverse_replaced_sid_foreign_dns_or_unjournaled_artifact_refuses_remote_delete(self):
+        self.partial_owned_join();self.remote_sid="S-1-5-21-4-5-6-9999"
+        with self.assertRaisesRegex(ValueError,"computer was replaced"):self.lifecycle.inverse_join(self.request)
+        self.assertFalse(any("delete" in row or "leave" in row or "unregister" in row for row in self.calls))
+        self.remote_sid="S-1-5-21-4-5-6-1001";self.calls.clear();self.foreign_dns=True
+        with self.assertRaisesRegex(ValueError,"foreign IPv4"):self.lifecycle.inverse_join(self.request)
+        self.assertFalse(any("delete" in row or "leave" in row or "unregister" in row for row in self.calls))
+        self.foreign_dns=False;self.calls.clear()
+        foreign=self.root/"etc/krb5.keytab";foreign.write_text("SYNTHETIC_FOREIGN");foreign.chmod(0o600)
+        with self.assertRaisesRegex(ValueError,"journaled owned inode"):self.lifecycle.inverse_join(self.request)
+        self.assertFalse(any("delete" in row or "leave" in row or "unregister" in row for row in self.calls))
+        self.assertEqual("SYNTHETIC_FOREIGN",foreign.read_text())
+
+    def test_owned_join_inverse_never_recreates_destroyed_identity_or_claims_disabled_computer_absence(self):
+        self.partial_owned_join();self.disabled_present=True
+        with self.assertRaises(ValueError):self.lifecycle.inverse_join(self.request)
+        self.assertEqual("RECOVERY_REQUIRED",json.loads(self.lifecycle.journal.read_text())["phase"])
+        self.assertTrue(self.lifecycle.machine.exists());self.assertFalse(self.lifecycle.state.exists())
+        self.assertFalse(any("setlocalsid" in row or "join" in row for row in self.calls))
+        self.disabled_present=False;self.calls.clear()
+        self.lifecycle.sid_reader=lambda name:"S-1-5-21-1-2-3" if self.joined else "S-1-5-21-8-9-10"
+        with self.assertRaisesRegex(ValueError,"changed target SAM"):self.lifecycle.inverse_join(self.request)
+        self.assertEqual("RECOVERY_REQUIRED",json.loads(self.lifecycle.journal.read_text())["phase"])
+        self.assertFalse(self.lifecycle.state.exists());self.assertTrue(self.lifecycle.machine.exists())
+        self.assertFalse(any("setlocalsid" in row or "join" in row for row in self.calls))
+
+    def test_owned_join_inverse_missing_sid_or_original_membership_has_no_remote_mutation_authority(self):
+        self.partial_owned_join();source=self.lifecycle.source_provider
+        self.lifecycle.source_provider=lambda scope,fresh:{**source(scope,fresh),"adIdentity":{"machineAccountSid":self.remote_sid}}
+        with self.assertRaisesRegex(ValueError,"no exact newly-owned"):self.lifecycle.inverse_join(self.request)
+        self.assertEqual([],self.calls)
+        self.lifecycle.source_provider=source
+        journal=json.loads(self.lifecycle.journal.read_text());journal["publicConfiguration"].pop("ownedComputerSid")
+        self.lifecycle.journal.write_text(json.dumps(journal))
+        with self.assertRaisesRegex(ValueError,"no exact newly-owned"):self.lifecycle.inverse_join(self.request)
+        self.assertEqual([],self.calls)
+
     def test_join_failure_retains_recovery_receipt_stops_owned_daemon_and_never_claims_joined(self):
         self.command_failure=True
         with self.assertRaises(ValueError):self.lifecycle.join(self.request)
@@ -233,11 +304,11 @@ class StorageAdLifecycleTest(unittest.TestCase):
                   {"kind":"SERVICE","bootHeld":True,"scope":{**service,"operationUuid":str(uuid.uuid4()),"maintenanceUuid":str(uuid.uuid4())}},
                   {"kind":"SERVICE","bootHeld":True,"scope":service})
         before={str(path):path.read_bytes() for path in (self.config,self.gen) for path in path.rglob("*") if path.is_file()}
-        for value in variants:
+        for action,value in ((action,value) for action in ("leave","inverse-join") for value in variants):
             if value is None:
                 if marker.exists():marker.unlink()
             else:marker.write_text(json.dumps(value));marker.chmod(0o600)
-            result=subprocess.run(["bash",str(cli),"identity","domain","leave",str(payload)],env=env,capture_output=True,text=True,timeout=15)
+            result=subprocess.run(["bash",str(cli),"identity","domain",action,str(payload)],env=env,capture_output=True,text=True,timeout=15)
             self.assertNotEqual(0,result.returncode,result.stderr);self.assertEqual("AD_LIFECYCLE_REJECTED",json.loads(result.stdout)["errorCode"])
             self.assertFalse(mutation.exists());self.assertFalse(self.lifecycle.journal.exists())
             self.assertEqual(before,{str(path):path.read_bytes() for path in (self.config,self.gen) for path in path.rglob("*") if path.is_file()})

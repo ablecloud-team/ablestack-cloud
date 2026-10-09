@@ -160,9 +160,9 @@ class RootRetainedAuthorization:
         # Load only the fixed decrypt definition from the signed CLI already
         # selected by the caller's normal runtime attestation.
         source=Path(self.runtime.cli).read_text().split("<<'PYIDENTITY'\n",1)[1].split("\nPYIDENTITY",1)[0]
-        tree=ast.parse(source);definitions=[item for item in tree.body if isinstance(item,ast.FunctionDef) and item.name in ("decrypt","encrypt")]
-        if {item.name for item in definitions}!={"encrypt","decrypt"}:raise ValueError("Retained ROOT signed encrypted codec is not exact")
-        namespace={"base64":base64,"hashlib":hashlib,"json":json,"os":os}
+        tree=ast.parse(source);definitions=[item for item in tree.body if isinstance(item,ast.FunctionDef) and item.name in ("decrypt","encrypt","validate_ad_identity")]
+        if {item.name for item in definitions}!={"encrypt","decrypt","validate_ad_identity"}:raise ValueError("Retained ROOT signed encrypted codec is not exact")
+        namespace={"base64":base64,"hashlib":hashlib,"json":json,"os":os,"re":re}
         assignments=[item for item in tree.body if isinstance(item,ast.Assign) and any(isinstance(key,ast.Name) and key.id=="MAX_CAPSULE_BYTES" for key in item.targets)]
         if len(assignments)!=1:raise ValueError("Retained ROOT signed decrypt size bound is missing")
         value=assignments[0].value
@@ -228,6 +228,13 @@ class RootRetainedAuthorization:
             identity={"schemaVersion":1,"scope":{key:scope[key] for key in ("instanceUuid","operationUuid","revision")},
                       "sourceConfigurationSha256":record["latestConfigurationSha256"],"publicKey":public,"capsule":cipher}
             record["identityCheckpointSha256"]=cipher["sha256"]
+            ad_identity=payload.get("adIdentity")
+            if ad_identity is not None:
+                codec["validate_ad_identity"](ad_identity)
+                if not {"machineAccountSid","dnsAliases","idmapPolicy","machineConfigurationSha256"}<=set(ad_identity):
+                    raise ValueError("Retained ROOT AD source lacks its complete authenticated identity")
+            record["latestAdIdentity"]=ad_identity
+            record["authorizedBootId"]=Path("/proc/sys/kernel/random/boot_id").read_text().strip()
             no_rendered_secrets(record)
             self.unchanged(scope,saved);self.quarantine();identifier=self.identifier(scope,"authorization");path=self.path(identifier,"authorization")
             if path.exists() or path.is_symlink():
