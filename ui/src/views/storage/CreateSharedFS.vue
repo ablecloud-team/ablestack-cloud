@@ -1047,17 +1047,19 @@
       </div>
     </a-form>
     </div>
+    <storage-ad-mutation-consent :visible="adMutationConsent.visible" :title="adMutationConsent.title" :instance="adMutationConsent.instance" :scope="adMutationConsent.scope" @approve="approveAdMutation" @cancel="cancelAdMutation" />
   </a-spin>
 </template>
 <script>
 import { supportsStorageFormatting } from '@/utils/storageDiskProvisioning'
 import { storageReadDeadline } from '@/utils/storageRead'
-import { requireAdServiceApproval, readJoinedAdReceipt, supportsAdMaintenanceApi } from '@/utils/storageAdIdentity'
+import { requireAdServiceApproval, readJoinedAdReceipt, supportsAdMaintenanceApi, supportsAdMutationApi, adMutationScope, requireAdMutationApproval, requestAdMutationApproval, approveAdMutation, cancelAdMutation } from '@/utils/storageAdIdentity'
 
 import { ref, reactive, toRaw } from 'vue'
 import { ReloadOutlined } from '@ant-design/icons-vue'
 import { getAPI, postAPI } from '@/api'
 import { mixinForm } from '@/utils/mixin'
+import StorageAdMutationConsent from '@/views/storage/StorageAdMutationConsent'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import OwnershipSelection from '@/views/compute/wizard/OwnershipSelection.vue'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
@@ -1073,6 +1075,7 @@ export default {
     }
   },
   components: {
+    StorageAdMutationConsent,
     OwnershipSelection,
     ResourceIcon,
     TooltipLabel,
@@ -1081,6 +1084,9 @@ export default {
   inject: ['parentFetchData'],
   data () {
     return {
+      adMutationConsent: { visible: false, instance: {}, title: '', scope: '', resolve: null },
+      initialAdDisposed: false,
+      initialAdInteractive: false,
       owner: {
         projectid: store.getters.project?.id,
         domainid: store.getters.project?.id ? null : store.getters.userInfo.domainid,
@@ -1346,6 +1352,7 @@ export default {
     this.form.filesystem = 'XFS'
   },
   watch: {
+    form: { deep: true, handler () { this.cancelAdMutation() } },
     'form.name' (name, previousName) {
       this.syncInitialNfsPath(previousName ? `${previousName}-nfs` : '')
     },
@@ -1378,8 +1385,28 @@ export default {
       }
     }
   },
-  beforeUnmount () { this.serviceOfferingRequestToken++; this.templateRequestToken++ },
+  beforeUnmount () { this.initialAdDisposed = true; cancelAdMutation.call(this); this.serviceOfferingRequestToken++; this.templateRequestToken++ },
   methods: {
+    requestAdMutationApproval,
+    approveAdMutation,
+    cancelAdMutation,
+    async runInitialJoinedAction (instance, snapshot, api, parameters) {
+      if (this.initialAdDisposed || !supportsAdMutationApi(api => this.$getApiParams?.(api), api)) throw new Error(this.$t('message.storage.service.ad.maintenance.unsupported'))
+      const target = { ...instance }; const receipt = await readJoinedAdReceipt(target, snapshot.smbaddomain)
+      if (this.initialAdDisposed || instance.id !== target.id || instance.name !== target.name) throw new Error(this.$t('message.storage.service.ad.maintenance.required'))
+      const scope = adMutationScope(target, api, receipt, parameters)
+      const approval = await this.requestAdMutationApproval(target, api, scope)
+      if (!approval || this.initialAdDisposed) throw new Error(this.$t('message.storage.service.ad.maintenance.required'))
+      try {
+        const fresh = await readJoinedAdReceipt(target, snapshot.smbaddomain)
+        if (this.initialAdDisposed || instance.id !== target.id || instance.name !== target.name) throw new Error(this.$t('message.storage.service.ad.maintenance.required'))
+        Object.assign(parameters, requireAdMutationApproval(target, api, fresh, parameters, approval), { expectedrevision: fresh.scope.revision })
+        return await this.runStorageServiceSetup(api, parameters)
+      } finally {
+        this.cancelAdMutation()
+        for (const field of Object.keys(parameters)) if (/password|secret|credential|dhchap(?:ctrl)?key|private|keytab/i.test(field)) parameters[field] = ''
+      }
+    },
     initForm () {
       this.formRef = ref()
       this.form = reactive({
@@ -1892,6 +1919,7 @@ export default {
       })
     },
     closeModal () {
+      if (this.initialAdInteractive) { this.initialAdDisposed = true; this.cancelAdMutation(); this.clearInitialAdCredentials() }
       this.$emit('close-action')
     },
     formatVolumeOption (volume) {
@@ -2080,6 +2108,7 @@ export default {
         }
         const setupSnapshot = this.buildStorageServiceSetupSnapshot(values)
         if (this.isSetupServiceSelected(setupSnapshot, 'SMB') && setupSnapshot.smbidentitymode === 'AD') this.requireInitialAdApi()
+        this.initialAdInteractive = this.isSetupServiceSelected(setupSnapshot, 'SMB') && setupSnapshot.smbidentitymode === 'AD'
         this.loading = true
         postAPI('createSharedFileSystem', data).then(response => {
           const jobId = response.createsharedfilesystemresponse?.jobid
@@ -2088,15 +2117,19 @@ export default {
           }
           const notificationKey = `storage-service-setup-${jobId}`
           this.notifyStorageServiceSetup(notificationKey, 'info', 'message.storage.service.setup.accepted', setupSnapshot.name, 0)
-          this.loading = false
-          this.closeModal()
-          this.runInitialStorageServiceSetup(jobId, setupSnapshot, notificationKey)
+          if (this.isSetupServiceSelected(setupSnapshot, 'SMB') && setupSnapshot.smbidentitymode === 'AD') {
+            this.runInitialStorageServiceSetup(jobId, setupSnapshot, notificationKey).finally(() => { this.cancelAdMutation(); this.loading = false; if (!this.initialAdDisposed) this.closeModal() })
+          } else {
+            this.loading = false
+            this.closeModal()
+            this.runInitialStorageServiceSetup(jobId, setupSnapshot, notificationKey)
+          }
         }).catch(error => {
           this.clearInitialBlockSecrets(setupSnapshot)
           this.clearInitialAdCredentials(setupSnapshot)
           this.$notifyError(error)
         }).finally(() => {
-          this.loading = false
+          if (!(this.isSetupServiceSelected(setupSnapshot, 'SMB') && setupSnapshot.smbidentitymode === 'AD')) this.loading = false
         })
       }).catch((error) => {
         this.clearInitialAdCredentials()
@@ -2109,6 +2142,7 @@ export default {
     },
     async runInitialStorageServiceSetup (jobId, setup, notificationKey) {
       try {
+        if (this.initialAdInteractive && this.initialAdDisposed) throw new Error(this.$t('message.storage.service.ad.maintenance.required'))
         this.notifyStorageServiceSetup(notificationKey, 'info', 'message.storage.service.setup.sharedfs.running', setup.name, 0)
         const result = await this.pollStorageServiceSetupJob(jobId, 'createSharedFileSystem', 240)
         await this.configureInitialStorageServices(result, setup, notificationKey)
@@ -2293,7 +2327,7 @@ export default {
       if (snapshot) snapshot.smbadpassword = ''
     },
     requireInitialAdApi () {
-      if (!supportsAdMaintenanceApi(api => this.$getApiParams?.(api), 'joinStorageServiceToAdDomain', true)) {
+      if (!supportsAdMaintenanceApi(api => this.$getApiParams?.(api), 'joinStorageServiceToAdDomain', true) || !supportsAdMutationApi(api => this.$getApiParams?.(api), 'createStorageSmbShare')) {
         throw new Error(this.$t('message.storage.service.ad.maintenance.unsupported'))
       }
     },
@@ -2321,7 +2355,7 @@ export default {
           identitymode: 'JOIN_EXISTING',
           ...approval
         })
-        await readJoinedAdReceipt(instance, snapshot.smbaddomain)
+        return await readJoinedAdReceipt(instance, snapshot.smbaddomain)
       } catch (error) {
         throw new Error(this.$t(error?.message === 'AD_SERVICE_APPROVAL_REQUIRED' ? 'message.storage.service.ad.maintenance.required' : 'message.storage.service.ad.receipt.unverified'))
       } finally {
@@ -2376,7 +2410,15 @@ export default {
         }
       }
       if (this.isSetupServiceSelected(snapshot, 'SMB')) {
-        if (snapshot.smbidentitymode === 'AD') await this.joinInitialAdDomain(instance, snapshot)
+        let adMutationApproval = {}
+        if (snapshot.smbidentitymode === 'AD') {
+          const receipt = await this.joinInitialAdDomain(instance, snapshot)
+          const api = 'createStorageSmbShare'
+          if (!supportsAdMutationApi(api => this.$getApiParams?.(api), api)) throw new Error(this.$t('message.storage.service.ad.maintenance.unsupported'))
+          const approval = { maintenancewindow: snapshot.smbadmaintenancewindow, confirmation: snapshot.smbadconfirmation, scope: adMutationScope(instance, api, receipt) }
+          const fresh = await readJoinedAdReceipt(instance, snapshot.smbaddomain)
+          adMutationApproval = { ...requireAdMutationApproval(instance, api, fresh, {}, approval), expectedrevision: fresh.scope.revision }
+        }
         const initialSmbAcl = this.initialSmbAclParams(snapshot)
         const shareResponse = await this.runStorageServiceSetup('createStorageSmbShare', {
           instanceid: instance.id,
@@ -2389,7 +2431,8 @@ export default {
           browseable: snapshot.smbbrowseable,
           guestok: snapshot.smbguestok,
           networkprincipals: (snapshot.smbnetworkprincipals || []).join(','),
-          ...initialSmbAcl
+          ...initialSmbAcl,
+          ...adMutationApproval
         })
         setup.smbShareId = this.extractCreatedId(shareResponse, 'storagesmbshare')
         if (!setup.smbShareId) {
@@ -2447,10 +2490,12 @@ export default {
     async createInitialBlockServices (instance, sharedfs, snapshot = this.form) {
       const backingVolumeId = this.initialBackingVolumeId(sharedfs, snapshot)
       const setup = {}
+      const run = (api, parameters) => snapshot.smbidentitymode === 'AD' && this.isSetupServiceSelected(snapshot, 'SMB')
+        ? this.runInitialJoinedAction(instance, snapshot, api, parameters) : this.runStorageServiceSetup(api, parameters)
       try {
         if (this.isSetupServiceSelected(snapshot, 'NVME_OF')) {
           const auth = this.initialNvmeAuthRequest(snapshot)
-          const preparation = await this.runStorageServiceSetup('prepareStorageServiceNvmeOfVm', {
+          const preparation = await run('prepareStorageServiceNvmeOfVm', {
             instanceid: instance.id,
             engine: snapshot.nvmeengine,
             transport: snapshot.nvmetransport || 'tcp',
@@ -2465,7 +2510,7 @@ export default {
           }
         }
         if (this.isSetupServiceSelected(snapshot, 'ISCSI') && snapshot.iscsitargetname) {
-          const targetResponse = await this.runStorageServiceSetup('createStorageIscsiTarget', {
+          const targetResponse = await run('createStorageIscsiTarget', {
             instanceid: instance.id,
             targetname: snapshot.iscsitargetname,
             volumeid: backingVolumeId,
@@ -2475,7 +2520,7 @@ export default {
           const targetId = this.extractCreatedId(targetResponse, 'storageiscsitarget')
           setup.iscsiTargetId = targetId
           if (targetId && snapshot.iscsiinitiator) {
-            await this.runStorageServiceSetup('createStorageIscsiAcl', {
+            await run('createStorageIscsiAcl', {
               targetid: targetId,
               initiatoriqn: snapshot.iscsiinitiator,
               permission: snapshot.iscsipermission || 'READ_WRITE',
@@ -2490,7 +2535,7 @@ export default {
         }
         if (this.isSetupServiceSelected(snapshot, 'NVME_OF')) {
           if (snapshot.nvmesubsystemnqn) {
-            const subsystemResponse = await this.runStorageServiceSetup('createStorageNvmeOfSubsystem', {
+            const subsystemResponse = await run('createStorageNvmeOfSubsystem', {
               instanceid: instance.id,
               subsystemnqn: snapshot.nvmesubsystemnqn,
               allowanyhost: false,
@@ -2500,7 +2545,7 @@ export default {
             const subsystemId = this.extractCreatedId(subsystemResponse, 'storagenvmeofsubsystem')
             setup.nvmeSubsystemId = subsystemId
             if (subsystemId && backingVolumeId) {
-              await this.runStorageServiceSetup('createStorageNvmeOfNamespace', {
+              await run('createStorageNvmeOfNamespace', {
                 subsystemid: subsystemId,
                 namespaceid: snapshot.nvmenamespaceid || '1',
                 volumeid: backingVolumeId,
@@ -2510,7 +2555,7 @@ export default {
             if (subsystemId && snapshot.nvmehostnqn) {
               const dhChapEnabled = snapshot.nvmedhchapenabled === true
               const dhChapCtrlEnabled = snapshot.nvmedhchapctrlenabled === true
-              await this.runStorageServiceSetup('createStorageNvmeOfHostAcl', {
+              await run('createStorageNvmeOfHostAcl', {
                 subsystemid: subsystemId,
                 hostnqn: snapshot.nvmehostnqn,
                 dhchapenabled: dhChapEnabled,
@@ -2539,6 +2584,7 @@ export default {
       })
     },
     async runStorageServiceSetup (api, params) {
+      if (this.initialAdInteractive && this.initialAdDisposed) throw new Error(this.$t('message.storage.service.ad.maintenance.required'))
       if (!(api in this.$store.getters.apis)) {
         throw new Error(this.$t('message.storage.service.setup.api.missing.with.name', { api }))
       }

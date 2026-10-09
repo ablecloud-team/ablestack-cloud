@@ -24,7 +24,7 @@ jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
 const id = '11111111-1111-4111-8111-111111111111'
 const readId = '33333333-3333-4333-8333-333333333333'
 const instance = () => ({ id, name: 'owned-service', virtualmachineid: 'vm-a' })
-const params = command => command === 'listStorageServiceDomainStatus' ? { fresh: {} } : { maintenancewindow: {}, confirmation: {}, identitymode: {} }
+const params = command => command === 'listStorageServiceDomainStatus' ? { fresh: {} } : { maintenancewindow: {}, confirmation: {}, identitymode: {}, admaintenancewindow: {}, adconfirmation: {} }
 const receipt = extra => ({ success: true, sideEffects: false, joinState: 'JOINED', domain: 'example.local', realm: 'EXAMPLE.LOCAL', scope: { instanceUuid: id, operationUuid: readId, revision: 4 }, bootId: '22222222-2222-4222-8222-222222222222', generatedEpoch: Date.now() / 1000, trustVerified: true, identityVerified: true, dnsAliasesVerified: true, adSpnsVerified: true, adIdentity: true, ...extra })
 const response = (proof = receipt(), extra = {}) => ({ liststorageservicedomainstatusresponse: { storageidentitydomain: [{ instanceid: id, domainname: 'example.local', joinstate: 'JOINED', healthstate: 'OK', identityreceipt: proof, ...extra }] } })
 const setup = extra => ({ services: ['SMB'], name: 'owned-service', smbidentitymode: 'AD', smbguestok: false, smbadprincipaltype: 'AD_USER', smbadprincipal: 'EXAMPLE\\test', smbadpermission: 'READ_WRITE', smbadmaintenancewindow: true, smbadconfirmation: 'owned-service', smbadpassword: 'synthetic-input', smbadusername: 'synthetic-user', smbaddomain: 'example.local', filesystem: 'XFS', ...extra })
@@ -136,7 +136,7 @@ describe('SharedFS initial AD join precedes AD principal effects', () => {
     vm.runStorageServiceSetup.mockImplementation(async (api, request) => { order.push(api); if (api === 'joinStorageServiceToAdDomain') expect(request).toMatchObject({ instanceid: id, identitymode: 'JOIN_EXISTING', maintenancewindow: true, confirmation: 'owned-service' }); return {} })
     getAPI.mockImplementation(async () => { order.push('fresh'); return response() })
     await CreateSharedFS.methods.createInitialFileServices.call(vm, instance(), {}, captured)
-    expect(order).toEqual(['joinStorageServiceToAdDomain', 'fresh', 'createStorageSmbShare'])
+    expect(order).toEqual(['joinStorageServiceToAdDomain', 'fresh', 'fresh', 'createStorageSmbShare'])
     const share = vm.runStorageServiceSetup.mock.calls.find(call => call[0] === 'createStorageSmbShare')[1]
     expect(share.aclprincipaltype).toBe('AD_USER')
     expect(share.aclprincipal).toBe('EXAMPLE\\test')
