@@ -473,6 +473,21 @@ class SmbSourceCheckpoint:
             result.body.insert(1, ast.If(test=checksum, body=[call], orelse=[]))
             return result
 
+        KNOWN_STATUS_PROOF = "if (record is None and journal.get('phase')in ('STOPPED','RECOVERY_REQUIRED')\n                and isinstance(journal.get('stopped'),dict)and not os.path.lexists(self.path(scope,'cipher'))):\n            self.state(value,source_only=True)\n            stopped=self.stopped_observation()\n            if (stopped!=journal['stopped']or stopped['configurationSha256']!=journal['prior']['configurationSha256']):\n                raise ValueError('LOCAL runtime quarantine original STOP changed')\n            current_sha=hashlib.sha256(self.cli.read_bytes()).hexdigest()\n            current_entry=self.cli.resolve(strict=True)\n            if current_entry!=(self.runtime_root/'current'/'ablestack-storagectl').resolve(strict=True):\n                raise ValueError('LOCAL runtime quarantine current ENTRY changed')\n            self.compat_entry(current_entry,current_sha)\n            result['localSourceStoppedRuntimeProof']={'kind':'LOCAL_SOURCE_STOPPED_RUNTIME_QUARANTINE','scope':scope,\n                'sourceGeneration':value['sourceGeneration'],'sourceConfigurationSha256':value['sourceConfigurationSha256'],\n                'bootId':self.boot(),'originalCliSha256':journal['cliSha256'],'currentCliSha256':current_sha,\n                'sourceStoppedVerified':True,'stoppedMetadataVerified':True,'privateHoldersAbsent':True,'cipherAbsent':True,\n                'sourceCanonicalUnchanged':True,'originalSignedCodeVerified':True,'currentSignedCodeVerified':True,\n                'serviceAvailabilityVerified':False}"
+
+        def status_proof_span(method, old):
+            expected = copy.deepcopy(old)
+            anchors = [i for i, node in enumerate(old.body) if isinstance(node, ast.Assign)
+                and any(isinstance(target, ast.Name) and target.id == "view" for target in node.targets)
+                and isinstance(node.value, ast.Call) and isinstance(node.value.func, ast.Attribute)
+                and isinstance(node.value.func.value, ast.Name) and node.value.func.value.id == "self"
+                and node.value.func.attr == "observe"]
+            require(len(anchors) == 1, "historical status proof anchor differs")
+            index = anchors[0]
+            expected.body.insert(index, ast.parse(KNOWN_STATUS_PROOF).body[0])
+            require(ast_same(method, expected), "unknown stopped runtime status addition")
+            return method.body[index]
+
         def normalize_block(current, original, helpers):
             _, methods, lines = parsed_class(current)
             _, old, old_lines = parsed_class(original)
@@ -484,6 +499,10 @@ class SmbSourceCheckpoint:
             expected_new = ast.parse("self.collector=lambda *args,**kwargs:collect(*args,**kwargs)").body[0]
             require(ast_same(old_collector, expected_old) and ast_same(current_collector, expected_new), "unknown collector forwarding")
             edits = []
+            proof_node = status_proof_span(methods["status"], old["status"])
+            proof_start = sum(map(len, lines[:proof_node.lineno - 1]))
+            proof_end = sum(map(len, lines[:proof_node.end_lineno]))
+            edits.append((proof_start, proof_end, b""))
             for name in helpers:
                 node = methods[name]
                 require(isinstance(node, ast.FunctionDef), "unknown compatibility method type")
@@ -836,6 +855,23 @@ class SmbSourceCheckpoint:
         if journal is None:return result
         self.frozen(value,journal);record=self.read(self.path(scope,"cipher"))
         if record is not None:self.validate_record(value,record)
+        if (record is None and journal.get('phase')in ('STOPPED','RECOVERY_REQUIRED')
+                and isinstance(journal.get('stopped'),dict)and not os.path.lexists(self.path(scope,'cipher'))):
+            self.state(value,source_only=True)
+            stopped=self.stopped_observation()
+            if (stopped!=journal['stopped']or stopped['configurationSha256']!=journal['prior']['configurationSha256']):
+                raise ValueError('LOCAL runtime quarantine original STOP changed')
+            current_sha=hashlib.sha256(self.cli.read_bytes()).hexdigest()
+            current_entry=self.cli.resolve(strict=True)
+            if current_entry!=(self.runtime_root/'current'/'ablestack-storagectl').resolve(strict=True):
+                raise ValueError('LOCAL runtime quarantine current ENTRY changed')
+            self.compat_entry(current_entry,current_sha)
+            result['localSourceStoppedRuntimeProof']={'kind':'LOCAL_SOURCE_STOPPED_RUNTIME_QUARANTINE','scope':scope,
+                'sourceGeneration':value['sourceGeneration'],'sourceConfigurationSha256':value['sourceConfigurationSha256'],
+                'bootId':self.boot(),'originalCliSha256':journal['cliSha256'],'currentCliSha256':current_sha,
+                'sourceStoppedVerified':True,'stoppedMetadataVerified':True,'privateHoldersAbsent':True,'cipherAbsent':True,
+                'sourceCanonicalUnchanged':True,'originalSignedCodeVerified':True,'currentSignedCodeVerified':True,
+                'serviceAvailabilityVerified':False}
         view=self.observe(value,stopped=journal["phase"]in("STOPPED","EXPORTED"),allow_missing=True)
         verified=(actual["configurationSha256"]==value["sourceConfigurationSha256"]and journal["phase"]=="RESUMED"and record is not None
             and view["configurationSha256"]==record["sourceConfigurationFileSha256"]
