@@ -26,11 +26,12 @@ import time
 import uuid
 
 
-def ad_authority_read(path, exact_mode=None):
+def ad_authority_read(path, exact_mode=None, max_bytes=8*1024*1024):
+    if type(max_bytes) is not int or not 0<max_bytes<=12*1024*1024:raise ValueError("AD authority bound is invalid")
     path=Path(path);parent=path.parent.lstat();info=path.lstat()
     if (not stat.S_ISDIR(parent.st_mode) or parent.st_uid!=os.geteuid() or parent.st_mode&0o022
             or not stat.S_ISREG(info.st_mode) or info.st_uid!=os.geteuid() or info.st_mode&0o022
-            or info.st_size>8*1024*1024 or exact_mode is not None and stat.S_IMODE(info.st_mode)!=exact_mode):
+            or info.st_size>max_bytes or exact_mode is not None and stat.S_IMODE(info.st_mode)!=exact_mode):
         raise ValueError("AD policy authority is not protected")
     directory=os.open(path.parent,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
     descriptor=None
@@ -40,9 +41,9 @@ def ad_authority_read(path, exact_mode=None):
         if (opened_parent.st_dev,opened_parent.st_ino)!=(parent.st_dev,parent.st_ino):raise ValueError("AD policy directory changed")
         descriptor=os.open(path.name,os.O_RDONLY|os.O_NOFOLLOW,dir_fd=directory);opened=os.fstat(descriptor)
         if any(getattr(opened,key)!=getattr(info,key) for key in fields):raise ValueError("AD policy changed during open")
-        with os.fdopen(descriptor,"rb",closefd=False) as handle:raw=handle.read(8*1024*1024+1)
+        with os.fdopen(descriptor,"rb",closefd=False) as handle:raw=handle.read(max_bytes+1)
         after=os.fstat(descriptor);named=os.stat(path.name,dir_fd=directory,follow_symlinks=False)
-        if len(raw)>8*1024*1024 or any(getattr(opened,key)!=getattr(after,key) or getattr(opened,key)!=getattr(named,key) for key in fields):
+        if len(raw)>max_bytes or any(getattr(opened,key)!=getattr(after,key) or getattr(opened,key)!=getattr(named,key) for key in fields):
             raise ValueError("AD policy changed during read")
         return raw
     finally:

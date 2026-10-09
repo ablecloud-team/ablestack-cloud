@@ -45,7 +45,7 @@ class StorageServiceIdentityTargetTest(unittest.TestCase):
         f.generation={**f.generation,"operationUuid":f.operation,"revision":8,"configurationSha256":"c"*64}
         f.actual.update(generation=f.generation,configurationSha256="c"*64)
         f.rendered={**f.rendered,"scope":{key:f.scope[key] for key in ("instanceUuid","operationUuid","revision")},"configurationSha256":"c"*64,"manifestSha256":"d"*64}
-        first=next(iter(DESIRED_PATHS));f.desired[first]={"enabled":False};rendered_json(f.pointer/"desired-state.json",f.desired)
+        first="nfs-export-apply.json";f.desired[first]={"enabled":False};rendered_json(f.pointer/"desired-state.json",f.desired)
         path=f.config/first;path.parent.mkdir(parents=True,exist_ok=True,mode=0o700);rendered_json(path,f.desired[first])
         self.owners=[{"unit":"ablestack-storage-smb@"+"1"*24+".service","pid":200,"startTicks":"33","configurationPath":"/etc/samba/smb.conf","listenerEndpoints":[]}]
         f.active=copy.deepcopy(self.owners);self.calls=[]

@@ -48,8 +48,13 @@ class StorageInlineSourcesTest(unittest.TestCase):
             modules.append(value.rstrip())
         self.assertEqual("\n".join(modules),maintenance)
         ad=source.split("<<'PYADIDENTITY'\n",1)[1].split("\nimport sys\ntry:",1)[0]
-        modules=("ad_authority","root_ad_identity_authority","samba_public_sid","ad_identity")
-        expected="\n".join("\n".join(line for line in (LIB/(name+".py")).read_text().splitlines() if not any(line.startswith("from "+item+" import ") for item in modules)) for name in modules)
+        modules=("ad_authority","root_ad_imported_authorization","root_ad_identity_authority","samba_public_sid","ad_identity")
+        parts=[]
+        for name in modules:
+            value=(LIB/(name+".py")).read_text()
+            if name=="root_ad_imported_authorization":value="import subprocess\n"+value[value.index("def root_ad_runtime_readback("):value.index("class RootAdImportedAuthorization:")].rstrip()
+            parts.append("\n".join(line for line in value.splitlines() if not any(line.startswith("from "+item+" import ") for item in modules)))
+        expected="\n".join(parts)
         self.assertEqual(expected,ad.rstrip())
 
     def test_signed_root_network_and_handler_availability_are_exact_and_production_false(self):
@@ -67,14 +72,23 @@ class StorageInlineSourcesTest(unittest.TestCase):
 
     def test_signed_ad_lifecycle_closure_matches_all_fixed_reviewed_modules(self):
         source=CLI.read_text();actual=source.split("<<'PYADLIFECYCLE'\n",1)[1].split("\nimport sys\ntry:",1)[0]
-        modules=["posix_root_initialization","ad_authority","service_identity_cipher","samba_public_sid","root_ad_identity_authority","ad_identity","local_sam_bootstrap","semantic_ad_source","ad_winbind","ad_lifecycle"];parts=[]
+        modules=["posix_root_initialization","ad_authority","service_identity_cipher","samba_public_sid","root_ad_imported_authorization","root_ad_identity_authority","ad_identity","local_sam_bootstrap","semantic_ad_source","ad_winbind","ad_lifecycle"];parts=[]
         for name in modules:
             value=(LIB/(name+".py")).read_text()
             if name=="semantic_ad_source":value=value[value.index("def semantic_new_target("):]
+            if name=="root_ad_imported_authorization":value="import subprocess\n"+value[value.index("def root_ad_runtime_readback("):value.index("class RootAdImportedAuthorization:")].rstrip()
             parts.append("\n".join(line for line in value.splitlines() if not any(line.startswith("from "+item+" import ") for item in modules)))
         self.assertEqual("\n".join(parts),actual);ast.parse(actual)
         oldjoin=source[source.index("smb_domain_join() {"):source.index("apply_iscsi_targets() {")]
         self.assertNotIn("%{password}",oldjoin);self.assertNotIn("kinit",oldjoin)
+
+    def test_signed_forward_root_imported_authority_matches_closed_reviewed_crypto_runtime_body(self):
+        source=CLI.read_text();actual=source.split("# BEGIN EMBEDDED ROOT AD IMPORTED AUTHORITY\n",1)[1].split("\n# END EMBEDDED ROOT AD IMPORTED AUTHORITY",1)[0]
+        dependencies=("ad_authority","samba_public_sid","root_identity_reference","root_configuration_capsule","identity_capsule","posix_root_initialization")
+        expected="\n".join(line for line in (LIB/"root_ad_imported_authorization.py").read_text().splitlines() if not any(line.startswith("from "+name+" import ") for name in dependencies))
+        self.assertEqual(expected,actual);ast.parse(actual)
+        self.assertEqual(1,source.count("# BEGIN EMBEDDED ROOT AD IMPORTED AUTHORITY\n"))
+        self.assertIn('elif action=="ad-authorize-imported":',source)
 
     def test_signed_semantic_original_source_parser_matches_reviewed_crypto_consumer(self):
         source=CLI.read_text();actual=source.split("# BEGIN EMBEDDED AD SEMANTIC SOURCE\n",1)[1].split("\n# END EMBEDDED AD SEMANTIC SOURCE",1)[0]

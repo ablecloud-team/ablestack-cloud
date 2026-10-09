@@ -20,9 +20,11 @@ import json
 import os
 from pathlib import Path
 import re
+import subprocess
 import uuid
 from ad_authority import ad_authority_read,protected_ad_policy
 from samba_public_sid import samba_public_sid
+from root_ad_imported_authorization import root_ad_imported_matches,root_ad_runtime_verified
 
 
 def root_ad_retained_authority(common,maintenance,configuration=None,root=None,reference=None,sid_reader=None):
@@ -33,21 +35,32 @@ def root_ad_retained_authority(common,maintenance,configuration=None,root=None,r
         raise ValueError("Cold ROOT AD attestation lacks its exact held ROOT scope")
     for key in keys-{"revision"}:
         if not isinstance(scope[key],str) or str(uuid.UUID(scope[key]))!=scope[key]:raise ValueError("Cold ROOT AD scope UUID is invalid")
-    identifier=str(uuid.uuid5(uuid.UUID(scope["operationUuid"]),"ablestack-root-retained-authorization"))
-    base=Path(root or os.environ.get("ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR","/var/lib/ablestack-storage"))/"root-retained-authorizations"
+    root=Path(root or os.environ.get("ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR","/var/lib/ablestack-storage"))
+    options=[]
+    for namespace,label,kind in (("root-retained-authorizations","ablestack-root-retained-authorization","ROOT_RETAINED_AUTHORIZATION"),
+                                 ("root-ad-imported-authorizations","ablestack-root-ad-imported-authorization","ROOT_AD_IMPORTED_AUTHORIZATION")):
+        identifier=str(uuid.uuid5(uuid.UUID(scope["operationUuid"]),label));base=root/namespace
+        path=base/(identifier+"-authorization.json")
+        if path.exists() or path.is_symlink():options.append((base,identifier,kind))
+    if len(options)!=1:raise ValueError("Cold ROOT AD has no single typed imported/retained opaque authority")
+    base,identifier,kind=options[0]
     raw=ad_authority_read(base/(identifier+"-authorization.json"),0o600);record=json.loads(raw)
     if reference is not None:
         if (not isinstance(reference,dict) or set(reference)!={"authorizationUuid","sha256"} or reference.get("authorizationUuid")!=identifier
                 or reference.get("sha256")!=hashlib.sha256(json.dumps(record,sort_keys=True,separators=(",",":")).encode()).hexdigest()):
             raise ValueError("ROOT AD retained opaque reference differs")
     identity=record.get("latestAdIdentity");boot=Path("/proc/sys/kernel/random/boot_id").read_text().strip()
-    if (record.get("kind")!="ROOT_RETAINED_AUTHORIZATION" or record.get("scope")!=scope or record.get("authorizedBootId")!=boot
+    if (record.get("kind")!=kind or record.get("scope")!=scope or record.get("authorizedBootId")!=boot
             or not isinstance(identity,dict) or identity.get("trustVerified") is not True or type(identity.get("schemaVersion")) is not int or identity.get("schemaVersion")!=1
             or record.get("latestSourceRootScope",{}).get("instanceUuid")!=scope["instanceUuid"]
             or not re.fullmatch("[0-9a-f]{64}",str(record.get("identityCheckpointSha256")))
             or not re.fullmatch("[0-9a-f]{64}",str(record.get("latestConfigurationSha256")))):
         raise ValueError("ROOT AD retained AEAD source/boot authority is unavailable")
-    identity_record=json.loads(ad_authority_read(base/(identifier+"-identity.json"),0o600))
+    if kind=="ROOT_AD_IMPORTED_AUTHORIZATION":
+        transaction="root-target-"+scope["operationUuid"]
+        if record.get("targetRuntimeTransactionId")!=transaction:raise ValueError("ROOT AD forward target transaction differs")
+        root_ad_runtime_verified(record.get("targetRuntimePin"),transaction)
+    identity_record=json.loads(ad_authority_read(base/(identifier+"-identity.json"),0o600,12*1024*1024))
     if (identity_record.get("scope")!=common or identity_record.get("sourceConfigurationSha256")!=record["latestConfigurationSha256"]
             or identity_record.get("publicKey")!=record.get("checkpointPublicKey")
             or identity_record.get("capsule",{}).get("sha256")!=record["identityCheckpointSha256"]):
@@ -57,13 +70,6 @@ def root_ad_retained_authority(common,maintenance,configuration=None,root=None,r
             or capsule.get("scope")!=scope["instanceUuid"]+":"+scope["operationUuid"]
             or hashlib.sha256(ciphertext).hexdigest()!=record["identityCheckpointSha256"]):
         raise ValueError("ROOT AD original encrypted checkpoint bytes/scope differ")
-    directory=Path(configuration or os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_ROOT","/etc/ablestack-storage"))
-    policy=protected_ad_policy(scope["instanceUuid"],configuration=directory)
-    state=json.loads(ad_authority_read(directory/"smb-domain.json",0o600))
-    if (state.get("identityReceipt")!={key:identity[key] for key in ("machineSid","domainSid","machineAccountSid")}
-            or policy.get("machineConfigurationSha256")!=identity["machineConfigurationSha256"]
-            or any(policy.get(key)!=identity.get(key) for key in ("domain","realm","workgroup","netbiosName","domainSid","idmapPolicy"))
-            or any(state.get(key)!=identity.get(key) for key in ("dnsAliases","servicePrincipals"))):
-        raise ValueError("Imported ROOT AD SID/private configuration differs from encrypted original")
-    if (sid_reader or samba_public_sid)(identity["netbiosName"])!=identity["machineSid"]:raise ValueError("Imported ROOT public SAM is not the original SAME_VM identity")
-    return {"scope":scope,"identity":identity,"authorizationUuid":identifier,"authorizationSha256":hashlib.sha256(json.dumps(record,sort_keys=True,separators=(",",":")).encode()).hexdigest(),"bootId":boot}
+    root_ad_imported_matches(common,identity,configuration,sid_reader or samba_public_sid)
+    return {"scope":scope,"identity":identity,"authorizationUuid":identifier,"authorizationSha256":hashlib.sha256(json.dumps(record,sort_keys=True,separators=(",",":")).encode()).hexdigest(),"bootId":boot,
+            "originalCipherSha256":record.get("originalCipherSha256"),"sourceConfigurationSha256":record["latestConfigurationSha256"],"originalSourceScope":record["latestSourceRootScope"]}

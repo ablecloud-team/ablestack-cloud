@@ -6429,11 +6429,12 @@ import time
 import uuid
 
 
-def ad_authority_read(path, exact_mode=None):
+def ad_authority_read(path, exact_mode=None, max_bytes=8*1024*1024):
+    if type(max_bytes) is not int or not 0<max_bytes<=12*1024*1024:raise ValueError("AD authority bound is invalid")
     path=Path(path);parent=path.parent.lstat();info=path.lstat()
     if (not stat.S_ISDIR(parent.st_mode) or parent.st_uid!=os.geteuid() or parent.st_mode&0o022
             or not stat.S_ISREG(info.st_mode) or info.st_uid!=os.geteuid() or info.st_mode&0o022
-            or info.st_size>8*1024*1024 or exact_mode is not None and stat.S_IMODE(info.st_mode)!=exact_mode):
+            or info.st_size>max_bytes or exact_mode is not None and stat.S_IMODE(info.st_mode)!=exact_mode):
         raise ValueError("AD policy authority is not protected")
     directory=os.open(path.parent,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
     descriptor=None
@@ -6443,9 +6444,9 @@ def ad_authority_read(path, exact_mode=None):
         if (opened_parent.st_dev,opened_parent.st_ino)!=(parent.st_dev,parent.st_ino):raise ValueError("AD policy directory changed")
         descriptor=os.open(path.name,os.O_RDONLY|os.O_NOFOLLOW,dir_fd=directory);opened=os.fstat(descriptor)
         if any(getattr(opened,key)!=getattr(info,key) for key in fields):raise ValueError("AD policy changed during open")
-        with os.fdopen(descriptor,"rb",closefd=False) as handle:raw=handle.read(8*1024*1024+1)
+        with os.fdopen(descriptor,"rb",closefd=False) as handle:raw=handle.read(max_bytes+1)
         after=os.fstat(descriptor);named=os.stat(path.name,dir_fd=directory,follow_symlinks=False)
-        if len(raw)>8*1024*1024 or any(getattr(opened,key)!=getattr(after,key) or getattr(opened,key)!=getattr(named,key) for key in fields):
+        if len(raw)>max_bytes or any(getattr(opened,key)!=getattr(after,key) or getattr(opened,key)!=getattr(named,key) for key in fields):
             raise ValueError("AD policy changed during read")
         return raw
     finally:
@@ -7288,11 +7289,12 @@ import time
 import uuid
 
 
-def ad_authority_read(path, exact_mode=None):
+def ad_authority_read(path, exact_mode=None, max_bytes=8*1024*1024):
+    if type(max_bytes) is not int or not 0<max_bytes<=12*1024*1024:raise ValueError("AD authority bound is invalid")
     path=Path(path);parent=path.parent.lstat();info=path.lstat()
     if (not stat.S_ISDIR(parent.st_mode) or parent.st_uid!=os.geteuid() or parent.st_mode&0o022
             or not stat.S_ISREG(info.st_mode) or info.st_uid!=os.geteuid() or info.st_mode&0o022
-            or info.st_size>8*1024*1024 or exact_mode is not None and stat.S_IMODE(info.st_mode)!=exact_mode):
+            or info.st_size>max_bytes or exact_mode is not None and stat.S_IMODE(info.st_mode)!=exact_mode):
         raise ValueError("AD policy authority is not protected")
     directory=os.open(path.parent,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
     descriptor=None
@@ -7302,9 +7304,9 @@ def ad_authority_read(path, exact_mode=None):
         if (opened_parent.st_dev,opened_parent.st_ino)!=(parent.st_dev,parent.st_ino):raise ValueError("AD policy directory changed")
         descriptor=os.open(path.name,os.O_RDONLY|os.O_NOFOLLOW,dir_fd=directory);opened=os.fstat(descriptor)
         if any(getattr(opened,key)!=getattr(info,key) for key in fields):raise ValueError("AD policy changed during open")
-        with os.fdopen(descriptor,"rb",closefd=False) as handle:raw=handle.read(8*1024*1024+1)
+        with os.fdopen(descriptor,"rb",closefd=False) as handle:raw=handle.read(max_bytes+1)
         after=os.fstat(descriptor);named=os.stat(path.name,dir_fd=directory,follow_symlinks=False)
-        if len(raw)>8*1024*1024 or any(getattr(opened,key)!=getattr(after,key) or getattr(opened,key)!=getattr(named,key) for key in fields):
+        if len(raw)>max_bytes or any(getattr(opened,key)!=getattr(after,key) or getattr(opened,key)!=getattr(named,key) for key in fields):
             raise ValueError("AD policy changed during read")
         return raw
     finally:
@@ -11674,6 +11676,127 @@ import sys
 import re
 from pathlib import Path
 request = json.loads(os.fdopen(3).read() if sys.argv[2] == "/dev/stdin" else Path(sys.argv[2]).read_text())
+# BEGIN EMBEDDED ROOT AD IMPORTED AUTHORITY
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements. See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership. The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+"""Forward ROOT imported AD authority; authenticated ciphertext, immutable public reference."""
+import base64
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import subprocess
+import uuid
+from cryptography.hazmat.primitives import serialization
+
+
+def root_ad_runtime_readback(request):
+    result=subprocess.run(["/usr/local/bin/ablestack-storage-runtime-updater","readback","/dev/stdin"],
+                          input=json.dumps(request),capture_output=True,text=True,timeout=15)
+    if result.returncode:raise ValueError("Forward ROOT signed target runtime readback failed")
+    return json.loads(result.stdout)
+
+
+def root_ad_runtime_verified(pin,transaction,runtime_provider=None):
+    if (not isinstance(pin,dict) or set(pin)!={"bundleVersion","archiveSha256","manifestSha256","updaterSha256"}
+            or not isinstance(pin.get("bundleVersion"),str) or not re.fullmatch("[A-Za-z0-9][A-Za-z0-9._-]{0,127}",pin["bundleVersion"])
+            or any(not isinstance(pin.get(key),str) or not re.fullmatch("[0-9a-f]{64}",pin[key]) for key in ("archiveSha256","manifestSha256","updaterSha256"))):
+        raise ValueError("Forward ROOT signed target runtime pin is invalid")
+    observed=(runtime_provider or root_ad_runtime_readback)({"transactionId":transaction,**{key:pin[key] for key in ("bundleVersion","archiveSha256","manifestSha256")}})
+    if (not isinstance(observed,dict) or any(observed.get(key) is not True for key in ("success","signedRuntimeVerified","installedFilesVerified","entrypointsVerified"))
+            or observed.get("currentVersion")!=pin["bundleVersion"] or any(observed.get(key)!=pin[key] for key in ("archiveSha256","manifestSha256","updaterSha256"))):
+        raise ValueError("Forward ROOT target installed signed runtime differs")
+    return observed
+
+
+def root_ad_imported_matches(common,identity,configuration=None,sid_reader=None):
+    directory=Path(configuration or os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_ROOT","/etc/ablestack-storage"))
+    policy=protected_ad_policy(common["instanceUuid"],configuration=directory)
+    state=json.loads(ad_authority_read(directory/"smb-domain.json",0o600))
+    if (state.get("identityReceipt")!={key:identity[key] for key in ("machineSid","domainSid","machineAccountSid")}
+            or policy.get("machineConfigurationSha256")!=identity["machineConfigurationSha256"]
+            or any(policy.get(key)!=identity.get(key) for key in ("domain","realm","workgroup","netbiosName","domainSid","idmapPolicy"))
+            or any(state.get(key)!=identity.get(key) for key in ("dnsAliases","servicePrincipals"))):
+        raise ValueError("Imported ROOT AD identity/configuration differs from authenticated source")
+    if (sid_reader or samba_public_sid)(identity["netbiosName"])!=identity["machineSid"]:
+        raise ValueError("Imported ROOT public SAM is not original SAME_VM identity")
+    return identity
+
+
+class RootAdImportedAuthorization:
+    def __init__(self,root=None,configuration=None,sid_reader=None,quiescence=None,runtime_provider=None):
+        self.root=Path(root or os.environ.get("ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR","/var/lib/ablestack-storage"))/"root-ad-imported-authorizations"
+        self.configuration=configuration;self.sid_reader=sid_reader;self.quiescence=quiescence or require_identity_database_quiescence
+        self.runtime_provider=runtime_provider or root_ad_runtime_readback
+
+    def optional_read(self,path):
+        if not path.exists() and not path.is_symlink():return None
+        return json.loads(ad_authority_read(path,0o600,12*1024*1024))
+
+    def authorize(self,request,maintenance):
+        fields={"instanceUuid","templateUpgradeUuid","operationUuid","revision","capsule","credentialPrivateKey","originalSourceScope","sourceConfigurationSha256","targetRuntimePin"}
+        if not isinstance(request,dict) or set(request)!=fields:
+            raise ValueError("Forward ROOT AD authority requires its closed encrypted import request")
+        reference=RootIdentityReference();scope=reference.scope(request);original=reference.scope(request["originalSourceScope"])
+        if maintenance.get("maintenanceKind")!="ROOT":raise ValueError("Forward ROOT AD requires its explicit typed boot hold")
+        aad=reference.authorize(request,request["capsule"],maintenance)
+        pin=request["targetRuntimePin"];transaction="root-target-"+scope["operationUuid"]
+        root_ad_runtime_verified(pin,transaction,self.runtime_provider)
+        if (original["instanceUuid"]!=scope["instanceUuid"] or original["templateUpgradeUuid"]!=scope["templateUpgradeUuid"]
+                or original["revision"]>scope["revision"] or aad!=original["instanceUuid"]+":"+original["operationUuid"]):
+            raise ValueError("Forward ROOT AD original source scope differs")
+        original_cipher=request["capsule"];ciphertext=base64.b64decode(original_cipher["ciphertext"],validate=True)
+        if hashlib.sha256(ciphertext).hexdigest()!=original_cipher.get("sha256"):
+            raise ValueError("Forward ROOT AD original encrypted bytes differ")
+        payload=decrypt(original_cipher,request["credentialPrivateKey"],aad);validate_payload(payload)
+        source_sha=request["sourceConfigurationSha256"]
+        root_configuration_authorize(payload,original,source_sha)
+        identity=payload.get("adIdentity")
+        if not isinstance(identity,dict) or not {"machineAccountSid","dnsAliases","servicePrincipals","machineConfigurationSha256","idmapPolicy"}<=set(identity):
+            raise ValueError("Forward ROOT AD source lacks complete authenticated public identity")
+        self.quiescence(payload.get("files",{}))
+        common={key:scope[key] for key in ("instanceUuid","operationUuid","revision")}
+        root_ad_imported_matches(common,identity,self.configuration,self.sid_reader)
+        boot=Path("/proc/sys/kernel/random/boot_id").read_text().strip()
+        public=serialization.load_pem_private_key(request["credentialPrivateKey"].encode(),password=None).public_key().public_bytes(
+            serialization.Encoding.PEM,serialization.PublicFormat.SubjectPublicKeyInfo).decode()
+        identifier=str(uuid.uuid5(uuid.UUID(scope["operationUuid"]),"ablestack-root-ad-imported-authorization"))
+        identity_path=self.root/(identifier+"-identity.json");record_path=self.root/(identifier+"-authorization.json")
+        checkpoint=self.optional_read(identity_path)
+        if checkpoint is None:
+            checkpoint={"schemaVersion":1,"scope":common,"sourceConfigurationSha256":source_sha,"publicKey":public,
+                        "capsule":encrypt(payload,public,scope["instanceUuid"]+":"+scope["operationUuid"])}
+        elif (type(checkpoint.get("schemaVersion")) is not int or checkpoint.get("schemaVersion")!=1 or checkpoint.get("scope")!=common or checkpoint.get("sourceConfigurationSha256")!=source_sha
+                or checkpoint.get("publicKey")!=public or decrypt(checkpoint["capsule"],request["credentialPrivateKey"],scope["instanceUuid"]+":"+scope["operationUuid"])!=payload):
+            raise ValueError("Forward ROOT AD immutable encrypted checkpoint changed")
+        record={"schemaVersion":1,"kind":"ROOT_AD_IMPORTED_AUTHORIZATION","scope":scope,"latestSourceRootScope":original,
+                "latestConfigurationSha256":source_sha,"latestAdIdentity":identity,"authorizedBootId":boot,
+                "targetRuntimePin":pin,"targetRuntimeTransactionId":transaction,"originalCipherSha256":original_cipher["sha256"],"identityCheckpointSha256":checkpoint["capsule"]["sha256"],"checkpointPublicKey":public}
+        existing=self.optional_read(record_path)
+        if existing is not None and existing!=record:
+            raise ValueError("Forward ROOT AD published authorization cannot be replaced")
+        # Re-observe public import authority before either immutable publication.
+        root_ad_imported_matches(common,identity,self.configuration,self.sid_reader)
+        if self.optional_read(identity_path) is None:root_receipt_write(identity_path,checkpoint)
+        if existing is None:root_receipt_write(record_path,record)
+        digest=hashlib.sha256(json.dumps(record,sort_keys=True,separators=(",",":")).encode()).hexdigest()
+        return {"success":True,"scope":scope,"rootAdImportedAuthorized":True,"kind":record["kind"],"retainedRootAuthorization":{"authorizationUuid":identifier,"sha256":digest},
+                "sourceConfigurationSha256":source_sha,"bootId":boot,"identity":identity,"canonicalDesiredStateChanged":False,"dataPermissionsChanged":False}
+# END EMBEDDED ROOT AD IMPORTED AUTHORITY
 action = sys.argv[1]
 def identity_command(arguments,payload=None):
     import signal
@@ -12066,11 +12189,12 @@ def samba_public_sid(netbios,path=None,library=None):
         if descriptor is not None:os.close(descriptor)
         os.close(directory)
 
-def ad_authority_read(path, exact_mode=None):
+def ad_authority_read(path, exact_mode=None, max_bytes=8*1024*1024):
+    if type(max_bytes) is not int or not 0<max_bytes<=12*1024*1024:raise ValueError("AD authority bound is invalid")
     path=Path(path);parent=path.parent.lstat();info=path.lstat()
     if (not stat.S_ISDIR(parent.st_mode) or parent.st_uid!=os.geteuid() or parent.st_mode&0o022
             or not stat.S_ISREG(info.st_mode) or info.st_uid!=os.geteuid() or info.st_mode&0o022
-            or info.st_size>8*1024*1024 or exact_mode is not None and stat.S_IMODE(info.st_mode)!=exact_mode):
+            or info.st_size>max_bytes or exact_mode is not None and stat.S_IMODE(info.st_mode)!=exact_mode):
         raise ValueError("AD policy authority is not protected")
     directory=os.open(path.parent,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
     descriptor=None
@@ -12080,9 +12204,9 @@ def ad_authority_read(path, exact_mode=None):
         if (opened_parent.st_dev,opened_parent.st_ino)!=(parent.st_dev,parent.st_ino):raise ValueError("AD policy directory changed")
         descriptor=os.open(path.name,os.O_RDONLY|os.O_NOFOLLOW,dir_fd=directory);opened=os.fstat(descriptor)
         if any(getattr(opened,key)!=getattr(info,key) for key in fields):raise ValueError("AD policy changed during open")
-        with os.fdopen(descriptor,"rb",closefd=False) as handle:raw=handle.read(8*1024*1024+1)
+        with os.fdopen(descriptor,"rb",closefd=False) as handle:raw=handle.read(max_bytes+1)
         after=os.fstat(descriptor);named=os.stat(path.name,dir_fd=directory,follow_symlinks=False)
-        if len(raw)>8*1024*1024 or any(getattr(opened,key)!=getattr(after,key) or getattr(opened,key)!=getattr(named,key) for key in fields):
+        if len(raw)>max_bytes or any(getattr(opened,key)!=getattr(after,key) or getattr(opened,key)!=getattr(named,key) for key in fields):
             raise ValueError("AD policy changed during read")
         return raw
     finally:
@@ -12573,13 +12697,22 @@ elif action == "posix-attest":
         lambda binding:identity_command(("operation","root-data","inspect","/dev/stdin"),{**{key:request[key] for key in ("instanceUuid","templateUpgradeUuid","operationUuid","revision")},
                                       "volumes":[{"volumeUuid":binding["volumeUuid"],"sizeBytes":binding["sizeBytes"],"kind":"FILE_DATA"}]})["volumes"][0])
     print(json.dumps(result,sort_keys=True))
+elif action=="ad-authorize-imported":
+    print(json.dumps(RootAdImportedAuthorization().authorize(request,identity_command(("operation","maintenance","status"))),sort_keys=True))
 elif action=="ad-retain":
+    required={"instanceUuid","templateUpgradeUuid","operationUuid","revision","capsule","credentialPrivateKey","retainedRootAuthorization"}
+    if not required<=set(request) or not set(request)<=required|{"originalSourceScope","sourceConfigurationSha256"}:raise ValueError("ROOT AD retain request is not closed")
     capsule_scope=RootIdentityReference().authorize(request,request["capsule"],identity_command(("operation","maintenance","status")))
     payload=decrypt(request["capsule"],request["credentialPrivateKey"],capsule_scope);validate_payload(payload)
     identity=payload.get("adIdentity")
     if not isinstance(identity,dict) or not {"machineAccountSid","dnsAliases","machineConfigurationSha256","idmapPolicy"}<=set(identity):raise ValueError("SAMEVM AD capsule lacks its full source identity")
     if not isinstance(request.get("retainedRootAuthorization"),dict):raise ValueError("ROOT AD retain requires authenticated retained authorization")
-    result=identity_command(("identity","domain","retain","/dev/stdin"),{**{key:request[key] for key in ("instanceUuid","operationUuid","revision")},"expectedIdentity":identity,"retainedRootAuthorization":request["retainedRootAuthorization"]})
+    original_scope=request.get("originalSourceScope") or {key:request[key] for key in ("instanceUuid","templateUpgradeUuid","operationUuid","revision")}
+    source_sha=request.get("sourceConfigurationSha256") or payload.get("sourceConfigurationSha256")
+    if payload.get("sourceConfigurationSha256")!=source_sha:raise ValueError("ROOT AD original source seven digest differs")
+    original_sha=hashlib.sha256(base64.b64decode(request["capsule"]["ciphertext"],validate=True)).hexdigest()
+    result=identity_command(("identity","domain","retain","/dev/stdin"),{**{key:request[key] for key in ("instanceUuid","operationUuid","revision")},
+        "expectedIdentity":identity,"retainedRootAuthorization":request["retainedRootAuthorization"],"originalCipherSha256":original_sha,"sourceConfigurationSha256":source_sha,"originalSourceScope":original_scope})
     print(json.dumps(result,sort_keys=True))
 elif action == "import":
     if "templateUpgradeUuid" in request:
@@ -12638,11 +12771,12 @@ import time
 import uuid
 
 
-def ad_authority_read(path, exact_mode=None):
+def ad_authority_read(path, exact_mode=None, max_bytes=8*1024*1024):
+    if type(max_bytes) is not int or not 0<max_bytes<=12*1024*1024:raise ValueError("AD authority bound is invalid")
     path=Path(path);parent=path.parent.lstat();info=path.lstat()
     if (not stat.S_ISDIR(parent.st_mode) or parent.st_uid!=os.geteuid() or parent.st_mode&0o022
             or not stat.S_ISREG(info.st_mode) or info.st_uid!=os.geteuid() or info.st_mode&0o022
-            or info.st_size>8*1024*1024 or exact_mode is not None and stat.S_IMODE(info.st_mode)!=exact_mode):
+            or info.st_size>max_bytes or exact_mode is not None and stat.S_IMODE(info.st_mode)!=exact_mode):
         raise ValueError("AD policy authority is not protected")
     directory=os.open(path.parent,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
     descriptor=None
@@ -12652,9 +12786,9 @@ def ad_authority_read(path, exact_mode=None):
         if (opened_parent.st_dev,opened_parent.st_ino)!=(parent.st_dev,parent.st_ino):raise ValueError("AD policy directory changed")
         descriptor=os.open(path.name,os.O_RDONLY|os.O_NOFOLLOW,dir_fd=directory);opened=os.fstat(descriptor)
         if any(getattr(opened,key)!=getattr(info,key) for key in fields):raise ValueError("AD policy changed during open")
-        with os.fdopen(descriptor,"rb",closefd=False) as handle:raw=handle.read(8*1024*1024+1)
+        with os.fdopen(descriptor,"rb",closefd=False) as handle:raw=handle.read(max_bytes+1)
         after=os.fstat(descriptor);named=os.stat(path.name,dir_fd=directory,follow_symlinks=False)
-        if len(raw)>8*1024*1024 or any(getattr(opened,key)!=getattr(after,key) or getattr(opened,key)!=getattr(named,key) for key in fields):
+        if len(raw)>max_bytes or any(getattr(opened,key)!=getattr(after,key) or getattr(opened,key)!=getattr(named,key) for key in fields):
             raise ValueError("AD policy changed during read")
         return raw
     finally:
@@ -12781,6 +12915,38 @@ def ad_mapped_entry(entry,request,run=None,cli=None,configuration=None,generatio
             or type(value.get("generatedEpoch")) not in (int,float) or not now-60<=value["generatedEpoch"]<=now+5):
         raise ValueError("AD principal mapping differs from its protected domain/type/reverse authority")
     return value
+import subprocess
+def root_ad_runtime_readback(request):
+    result=subprocess.run(["/usr/local/bin/ablestack-storage-runtime-updater","readback","/dev/stdin"],
+                          input=json.dumps(request),capture_output=True,text=True,timeout=15)
+    if result.returncode:raise ValueError("Forward ROOT signed target runtime readback failed")
+    return json.loads(result.stdout)
+
+
+def root_ad_runtime_verified(pin,transaction,runtime_provider=None):
+    if (not isinstance(pin,dict) or set(pin)!={"bundleVersion","archiveSha256","manifestSha256","updaterSha256"}
+            or not isinstance(pin.get("bundleVersion"),str) or not re.fullmatch("[A-Za-z0-9][A-Za-z0-9._-]{0,127}",pin["bundleVersion"])
+            or any(not isinstance(pin.get(key),str) or not re.fullmatch("[0-9a-f]{64}",pin[key]) for key in ("archiveSha256","manifestSha256","updaterSha256"))):
+        raise ValueError("Forward ROOT signed target runtime pin is invalid")
+    observed=(runtime_provider or root_ad_runtime_readback)({"transactionId":transaction,**{key:pin[key] for key in ("bundleVersion","archiveSha256","manifestSha256")}})
+    if (not isinstance(observed,dict) or any(observed.get(key) is not True for key in ("success","signedRuntimeVerified","installedFilesVerified","entrypointsVerified"))
+            or observed.get("currentVersion")!=pin["bundleVersion"] or any(observed.get(key)!=pin[key] for key in ("archiveSha256","manifestSha256","updaterSha256"))):
+        raise ValueError("Forward ROOT target installed signed runtime differs")
+    return observed
+
+
+def root_ad_imported_matches(common,identity,configuration=None,sid_reader=None):
+    directory=Path(configuration or os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_ROOT","/etc/ablestack-storage"))
+    policy=protected_ad_policy(common["instanceUuid"],configuration=directory)
+    state=json.loads(ad_authority_read(directory/"smb-domain.json",0o600))
+    if (state.get("identityReceipt")!={key:identity[key] for key in ("machineSid","domainSid","machineAccountSid")}
+            or policy.get("machineConfigurationSha256")!=identity["machineConfigurationSha256"]
+            or any(policy.get(key)!=identity.get(key) for key in ("domain","realm","workgroup","netbiosName","domainSid","idmapPolicy"))
+            or any(state.get(key)!=identity.get(key) for key in ("dnsAliases","servicePrincipals"))):
+        raise ValueError("Imported ROOT AD identity/configuration differs from authenticated source")
+    if (sid_reader or samba_public_sid)(identity["netbiosName"])!=identity["machineSid"]:
+        raise ValueError("Imported ROOT public SAM is not original SAME_VM identity")
+    return identity
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements. See the NOTICE file
 # distributed with this work for additional information
@@ -12803,6 +12969,7 @@ import json
 import os
 from pathlib import Path
 import re
+import subprocess
 import uuid
 
 
@@ -12814,21 +12981,32 @@ def root_ad_retained_authority(common,maintenance,configuration=None,root=None,r
         raise ValueError("Cold ROOT AD attestation lacks its exact held ROOT scope")
     for key in keys-{"revision"}:
         if not isinstance(scope[key],str) or str(uuid.UUID(scope[key]))!=scope[key]:raise ValueError("Cold ROOT AD scope UUID is invalid")
-    identifier=str(uuid.uuid5(uuid.UUID(scope["operationUuid"]),"ablestack-root-retained-authorization"))
-    base=Path(root or os.environ.get("ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR","/var/lib/ablestack-storage"))/"root-retained-authorizations"
+    root=Path(root or os.environ.get("ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR","/var/lib/ablestack-storage"))
+    options=[]
+    for namespace,label,kind in (("root-retained-authorizations","ablestack-root-retained-authorization","ROOT_RETAINED_AUTHORIZATION"),
+                                 ("root-ad-imported-authorizations","ablestack-root-ad-imported-authorization","ROOT_AD_IMPORTED_AUTHORIZATION")):
+        identifier=str(uuid.uuid5(uuid.UUID(scope["operationUuid"]),label));base=root/namespace
+        path=base/(identifier+"-authorization.json")
+        if path.exists() or path.is_symlink():options.append((base,identifier,kind))
+    if len(options)!=1:raise ValueError("Cold ROOT AD has no single typed imported/retained opaque authority")
+    base,identifier,kind=options[0]
     raw=ad_authority_read(base/(identifier+"-authorization.json"),0o600);record=json.loads(raw)
     if reference is not None:
         if (not isinstance(reference,dict) or set(reference)!={"authorizationUuid","sha256"} or reference.get("authorizationUuid")!=identifier
                 or reference.get("sha256")!=hashlib.sha256(json.dumps(record,sort_keys=True,separators=(",",":")).encode()).hexdigest()):
             raise ValueError("ROOT AD retained opaque reference differs")
     identity=record.get("latestAdIdentity");boot=Path("/proc/sys/kernel/random/boot_id").read_text().strip()
-    if (record.get("kind")!="ROOT_RETAINED_AUTHORIZATION" or record.get("scope")!=scope or record.get("authorizedBootId")!=boot
+    if (record.get("kind")!=kind or record.get("scope")!=scope or record.get("authorizedBootId")!=boot
             or not isinstance(identity,dict) or identity.get("trustVerified") is not True or type(identity.get("schemaVersion")) is not int or identity.get("schemaVersion")!=1
             or record.get("latestSourceRootScope",{}).get("instanceUuid")!=scope["instanceUuid"]
             or not re.fullmatch("[0-9a-f]{64}",str(record.get("identityCheckpointSha256")))
             or not re.fullmatch("[0-9a-f]{64}",str(record.get("latestConfigurationSha256")))):
         raise ValueError("ROOT AD retained AEAD source/boot authority is unavailable")
-    identity_record=json.loads(ad_authority_read(base/(identifier+"-identity.json"),0o600))
+    if kind=="ROOT_AD_IMPORTED_AUTHORIZATION":
+        transaction="root-target-"+scope["operationUuid"]
+        if record.get("targetRuntimeTransactionId")!=transaction:raise ValueError("ROOT AD forward target transaction differs")
+        root_ad_runtime_verified(record.get("targetRuntimePin"),transaction)
+    identity_record=json.loads(ad_authority_read(base/(identifier+"-identity.json"),0o600,12*1024*1024))
     if (identity_record.get("scope")!=common or identity_record.get("sourceConfigurationSha256")!=record["latestConfigurationSha256"]
             or identity_record.get("publicKey")!=record.get("checkpointPublicKey")
             or identity_record.get("capsule",{}).get("sha256")!=record["identityCheckpointSha256"]):
@@ -12838,16 +13016,9 @@ def root_ad_retained_authority(common,maintenance,configuration=None,root=None,r
             or capsule.get("scope")!=scope["instanceUuid"]+":"+scope["operationUuid"]
             or hashlib.sha256(ciphertext).hexdigest()!=record["identityCheckpointSha256"]):
         raise ValueError("ROOT AD original encrypted checkpoint bytes/scope differ")
-    directory=Path(configuration or os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_ROOT","/etc/ablestack-storage"))
-    policy=protected_ad_policy(scope["instanceUuid"],configuration=directory)
-    state=json.loads(ad_authority_read(directory/"smb-domain.json",0o600))
-    if (state.get("identityReceipt")!={key:identity[key] for key in ("machineSid","domainSid","machineAccountSid")}
-            or policy.get("machineConfigurationSha256")!=identity["machineConfigurationSha256"]
-            or any(policy.get(key)!=identity.get(key) for key in ("domain","realm","workgroup","netbiosName","domainSid","idmapPolicy"))
-            or any(state.get(key)!=identity.get(key) for key in ("dnsAliases","servicePrincipals"))):
-        raise ValueError("Imported ROOT AD SID/private configuration differs from encrypted original")
-    if (sid_reader or samba_public_sid)(identity["netbiosName"])!=identity["machineSid"]:raise ValueError("Imported ROOT public SAM is not the original SAME_VM identity")
-    return {"scope":scope,"identity":identity,"authorizationUuid":identifier,"authorizationSha256":hashlib.sha256(json.dumps(record,sort_keys=True,separators=(",",":")).encode()).hexdigest(),"bootId":boot}
+    root_ad_imported_matches(common,identity,configuration,sid_reader or samba_public_sid)
+    return {"scope":scope,"identity":identity,"authorizationUuid":identifier,"authorizationSha256":hashlib.sha256(json.dumps(record,sort_keys=True,separators=(",",":")).encode()).hexdigest(),"bootId":boot,
+            "originalCipherSha256":record.get("originalCipherSha256"),"sourceConfigurationSha256":record["latestConfigurationSha256"],"originalSourceScope":record["latestSourceRootScope"]}
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements. See the NOTICE file
 # distributed with this work for additional information
@@ -13661,11 +13832,12 @@ import time
 import uuid
 
 
-def ad_authority_read(path, exact_mode=None):
+def ad_authority_read(path, exact_mode=None, max_bytes=8*1024*1024):
+    if type(max_bytes) is not int or not 0<max_bytes<=12*1024*1024:raise ValueError("AD authority bound is invalid")
     path=Path(path);parent=path.parent.lstat();info=path.lstat()
     if (not stat.S_ISDIR(parent.st_mode) or parent.st_uid!=os.geteuid() or parent.st_mode&0o022
             or not stat.S_ISREG(info.st_mode) or info.st_uid!=os.geteuid() or info.st_mode&0o022
-            or info.st_size>8*1024*1024 or exact_mode is not None and stat.S_IMODE(info.st_mode)!=exact_mode):
+            or info.st_size>max_bytes or exact_mode is not None and stat.S_IMODE(info.st_mode)!=exact_mode):
         raise ValueError("AD policy authority is not protected")
     directory=os.open(path.parent,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
     descriptor=None
@@ -13675,9 +13847,9 @@ def ad_authority_read(path, exact_mode=None):
         if (opened_parent.st_dev,opened_parent.st_ino)!=(parent.st_dev,parent.st_ino):raise ValueError("AD policy directory changed")
         descriptor=os.open(path.name,os.O_RDONLY|os.O_NOFOLLOW,dir_fd=directory);opened=os.fstat(descriptor)
         if any(getattr(opened,key)!=getattr(info,key) for key in fields):raise ValueError("AD policy changed during open")
-        with os.fdopen(descriptor,"rb",closefd=False) as handle:raw=handle.read(8*1024*1024+1)
+        with os.fdopen(descriptor,"rb",closefd=False) as handle:raw=handle.read(max_bytes+1)
         after=os.fstat(descriptor);named=os.stat(path.name,dir_fd=directory,follow_symlinks=False)
-        if len(raw)>8*1024*1024 or any(getattr(opened,key)!=getattr(after,key) or getattr(opened,key)!=getattr(named,key) for key in fields):
+        if len(raw)>max_bytes or any(getattr(opened,key)!=getattr(after,key) or getattr(opened,key)!=getattr(named,key) for key in fields):
             raise ValueError("AD policy changed during read")
         return raw
     finally:
@@ -14047,6 +14219,38 @@ def samba_public_sid(netbios,path=None,library=None):
         if database:lib.tdb_close(database)
         if descriptor is not None:os.close(descriptor)
         os.close(directory)
+import subprocess
+def root_ad_runtime_readback(request):
+    result=subprocess.run(["/usr/local/bin/ablestack-storage-runtime-updater","readback","/dev/stdin"],
+                          input=json.dumps(request),capture_output=True,text=True,timeout=15)
+    if result.returncode:raise ValueError("Forward ROOT signed target runtime readback failed")
+    return json.loads(result.stdout)
+
+
+def root_ad_runtime_verified(pin,transaction,runtime_provider=None):
+    if (not isinstance(pin,dict) or set(pin)!={"bundleVersion","archiveSha256","manifestSha256","updaterSha256"}
+            or not isinstance(pin.get("bundleVersion"),str) or not re.fullmatch("[A-Za-z0-9][A-Za-z0-9._-]{0,127}",pin["bundleVersion"])
+            or any(not isinstance(pin.get(key),str) or not re.fullmatch("[0-9a-f]{64}",pin[key]) for key in ("archiveSha256","manifestSha256","updaterSha256"))):
+        raise ValueError("Forward ROOT signed target runtime pin is invalid")
+    observed=(runtime_provider or root_ad_runtime_readback)({"transactionId":transaction,**{key:pin[key] for key in ("bundleVersion","archiveSha256","manifestSha256")}})
+    if (not isinstance(observed,dict) or any(observed.get(key) is not True for key in ("success","signedRuntimeVerified","installedFilesVerified","entrypointsVerified"))
+            or observed.get("currentVersion")!=pin["bundleVersion"] or any(observed.get(key)!=pin[key] for key in ("archiveSha256","manifestSha256","updaterSha256"))):
+        raise ValueError("Forward ROOT target installed signed runtime differs")
+    return observed
+
+
+def root_ad_imported_matches(common,identity,configuration=None,sid_reader=None):
+    directory=Path(configuration or os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_ROOT","/etc/ablestack-storage"))
+    policy=protected_ad_policy(common["instanceUuid"],configuration=directory)
+    state=json.loads(ad_authority_read(directory/"smb-domain.json",0o600))
+    if (state.get("identityReceipt")!={key:identity[key] for key in ("machineSid","domainSid","machineAccountSid")}
+            or policy.get("machineConfigurationSha256")!=identity["machineConfigurationSha256"]
+            or any(policy.get(key)!=identity.get(key) for key in ("domain","realm","workgroup","netbiosName","domainSid","idmapPolicy"))
+            or any(state.get(key)!=identity.get(key) for key in ("dnsAliases","servicePrincipals"))):
+        raise ValueError("Imported ROOT AD identity/configuration differs from authenticated source")
+    if (sid_reader or samba_public_sid)(identity["netbiosName"])!=identity["machineSid"]:
+        raise ValueError("Imported ROOT public SAM is not original SAME_VM identity")
+    return identity
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements. See the NOTICE file
 # distributed with this work for additional information
@@ -14069,6 +14273,7 @@ import json
 import os
 from pathlib import Path
 import re
+import subprocess
 import uuid
 
 
@@ -14080,21 +14285,32 @@ def root_ad_retained_authority(common,maintenance,configuration=None,root=None,r
         raise ValueError("Cold ROOT AD attestation lacks its exact held ROOT scope")
     for key in keys-{"revision"}:
         if not isinstance(scope[key],str) or str(uuid.UUID(scope[key]))!=scope[key]:raise ValueError("Cold ROOT AD scope UUID is invalid")
-    identifier=str(uuid.uuid5(uuid.UUID(scope["operationUuid"]),"ablestack-root-retained-authorization"))
-    base=Path(root or os.environ.get("ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR","/var/lib/ablestack-storage"))/"root-retained-authorizations"
+    root=Path(root or os.environ.get("ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR","/var/lib/ablestack-storage"))
+    options=[]
+    for namespace,label,kind in (("root-retained-authorizations","ablestack-root-retained-authorization","ROOT_RETAINED_AUTHORIZATION"),
+                                 ("root-ad-imported-authorizations","ablestack-root-ad-imported-authorization","ROOT_AD_IMPORTED_AUTHORIZATION")):
+        identifier=str(uuid.uuid5(uuid.UUID(scope["operationUuid"]),label));base=root/namespace
+        path=base/(identifier+"-authorization.json")
+        if path.exists() or path.is_symlink():options.append((base,identifier,kind))
+    if len(options)!=1:raise ValueError("Cold ROOT AD has no single typed imported/retained opaque authority")
+    base,identifier,kind=options[0]
     raw=ad_authority_read(base/(identifier+"-authorization.json"),0o600);record=json.loads(raw)
     if reference is not None:
         if (not isinstance(reference,dict) or set(reference)!={"authorizationUuid","sha256"} or reference.get("authorizationUuid")!=identifier
                 or reference.get("sha256")!=hashlib.sha256(json.dumps(record,sort_keys=True,separators=(",",":")).encode()).hexdigest()):
             raise ValueError("ROOT AD retained opaque reference differs")
     identity=record.get("latestAdIdentity");boot=Path("/proc/sys/kernel/random/boot_id").read_text().strip()
-    if (record.get("kind")!="ROOT_RETAINED_AUTHORIZATION" or record.get("scope")!=scope or record.get("authorizedBootId")!=boot
+    if (record.get("kind")!=kind or record.get("scope")!=scope or record.get("authorizedBootId")!=boot
             or not isinstance(identity,dict) or identity.get("trustVerified") is not True or type(identity.get("schemaVersion")) is not int or identity.get("schemaVersion")!=1
             or record.get("latestSourceRootScope",{}).get("instanceUuid")!=scope["instanceUuid"]
             or not re.fullmatch("[0-9a-f]{64}",str(record.get("identityCheckpointSha256")))
             or not re.fullmatch("[0-9a-f]{64}",str(record.get("latestConfigurationSha256")))):
         raise ValueError("ROOT AD retained AEAD source/boot authority is unavailable")
-    identity_record=json.loads(ad_authority_read(base/(identifier+"-identity.json"),0o600))
+    if kind=="ROOT_AD_IMPORTED_AUTHORIZATION":
+        transaction="root-target-"+scope["operationUuid"]
+        if record.get("targetRuntimeTransactionId")!=transaction:raise ValueError("ROOT AD forward target transaction differs")
+        root_ad_runtime_verified(record.get("targetRuntimePin"),transaction)
+    identity_record=json.loads(ad_authority_read(base/(identifier+"-identity.json"),0o600,12*1024*1024))
     if (identity_record.get("scope")!=common or identity_record.get("sourceConfigurationSha256")!=record["latestConfigurationSha256"]
             or identity_record.get("publicKey")!=record.get("checkpointPublicKey")
             or identity_record.get("capsule",{}).get("sha256")!=record["identityCheckpointSha256"]):
@@ -14104,16 +14320,9 @@ def root_ad_retained_authority(common,maintenance,configuration=None,root=None,r
             or capsule.get("scope")!=scope["instanceUuid"]+":"+scope["operationUuid"]
             or hashlib.sha256(ciphertext).hexdigest()!=record["identityCheckpointSha256"]):
         raise ValueError("ROOT AD original encrypted checkpoint bytes/scope differ")
-    directory=Path(configuration or os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_ROOT","/etc/ablestack-storage"))
-    policy=protected_ad_policy(scope["instanceUuid"],configuration=directory)
-    state=json.loads(ad_authority_read(directory/"smb-domain.json",0o600))
-    if (state.get("identityReceipt")!={key:identity[key] for key in ("machineSid","domainSid","machineAccountSid")}
-            or policy.get("machineConfigurationSha256")!=identity["machineConfigurationSha256"]
-            or any(policy.get(key)!=identity.get(key) for key in ("domain","realm","workgroup","netbiosName","domainSid","idmapPolicy"))
-            or any(state.get(key)!=identity.get(key) for key in ("dnsAliases","servicePrincipals"))):
-        raise ValueError("Imported ROOT AD SID/private configuration differs from encrypted original")
-    if (sid_reader or samba_public_sid)(identity["netbiosName"])!=identity["machineSid"]:raise ValueError("Imported ROOT public SAM is not the original SAME_VM identity")
-    return {"scope":scope,"identity":identity,"authorizationUuid":identifier,"authorizationSha256":hashlib.sha256(json.dumps(record,sort_keys=True,separators=(",",":")).encode()).hexdigest(),"bootId":boot}
+    root_ad_imported_matches(common,identity,configuration,sid_reader or samba_public_sid)
+    return {"scope":scope,"identity":identity,"authorizationUuid":identifier,"authorizationSha256":hashlib.sha256(json.dumps(record,sort_keys=True,separators=(",",":")).encode()).hexdigest(),"bootId":boot,
+            "originalCipherSha256":record.get("originalCipherSha256"),"sourceConfigurationSha256":record["latestConfigurationSha256"],"originalSourceScope":record["latestSourceRootScope"]}
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements. See the NOTICE file
 # distributed with this work for additional information
@@ -15443,8 +15652,9 @@ class AdDomainLifecycle:
         if "templateUpgradeUuid" in marker:
             status={"maintenanceKind":"ROOT","bootHeld":True,"scope":marker}
             authority=root_ad_retained_authority(self.daemon.scope(request),status,configuration=self.configuration,reference=request.get("retainedRootAuthorization"))
-            if request.get("retainedRootAuthorization") is None or expected!=authority["identity"]:
-                raise ValueError("ROOT opaque AD retain lacks its authenticated original authority")
+            if (request.get("retainedRootAuthorization") is None or expected!=authority["identity"]
+                    or any(request.get(key)!=authority.get(key) for key in ("originalCipherSha256","sourceConfigurationSha256","originalSourceScope"))):
+                raise ValueError("ROOT opaque AD retain lacks its authenticated original ciphertext authority")
         else:
             source=self.source_authority(request,fresh=False);identity=source.get("adIdentity")
             fields=("domain","realm","workgroup","netbiosName","machineSid","domainSid","machineAccountSid","servicePrincipals","idmapPolicy","dnsAliases","machineConfigurationSha256")
@@ -17202,11 +17412,12 @@ import time
 import uuid
 
 
-def ad_authority_read(path, exact_mode=None):
+def ad_authority_read(path, exact_mode=None, max_bytes=8*1024*1024):
+    if type(max_bytes) is not int or not 0<max_bytes<=12*1024*1024:raise ValueError("AD authority bound is invalid")
     path=Path(path);parent=path.parent.lstat();info=path.lstat()
     if (not stat.S_ISDIR(parent.st_mode) or parent.st_uid!=os.geteuid() or parent.st_mode&0o022
             or not stat.S_ISREG(info.st_mode) or info.st_uid!=os.geteuid() or info.st_mode&0o022
-            or info.st_size>8*1024*1024 or exact_mode is not None and stat.S_IMODE(info.st_mode)!=exact_mode):
+            or info.st_size>max_bytes or exact_mode is not None and stat.S_IMODE(info.st_mode)!=exact_mode):
         raise ValueError("AD policy authority is not protected")
     directory=os.open(path.parent,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
     descriptor=None
@@ -17216,9 +17427,9 @@ def ad_authority_read(path, exact_mode=None):
         if (opened_parent.st_dev,opened_parent.st_ino)!=(parent.st_dev,parent.st_ino):raise ValueError("AD policy directory changed")
         descriptor=os.open(path.name,os.O_RDONLY|os.O_NOFOLLOW,dir_fd=directory);opened=os.fstat(descriptor)
         if any(getattr(opened,key)!=getattr(info,key) for key in fields):raise ValueError("AD policy changed during open")
-        with os.fdopen(descriptor,"rb",closefd=False) as handle:raw=handle.read(8*1024*1024+1)
+        with os.fdopen(descriptor,"rb",closefd=False) as handle:raw=handle.read(max_bytes+1)
         after=os.fstat(descriptor);named=os.stat(path.name,dir_fd=directory,follow_symlinks=False)
-        if len(raw)>8*1024*1024 or any(getattr(opened,key)!=getattr(after,key) or getattr(opened,key)!=getattr(named,key) for key in fields):
+        if len(raw)>max_bytes or any(getattr(opened,key)!=getattr(after,key) or getattr(opened,key)!=getattr(named,key) for key in fields):
             raise ValueError("AD policy changed during read")
         return raw
     finally:
@@ -21532,6 +21743,7 @@ class RootRetainedAuthorization:
             identity={"schemaVersion":1,"scope":{key:scope[key] for key in ("instanceUuid","operationUuid","revision")},
                       "sourceConfigurationSha256":record["latestConfigurationSha256"],"publicKey":public,"capsule":cipher}
             record["identityCheckpointSha256"]=cipher["sha256"]
+            record["originalCipherSha256"]=request["capsule"]["sha256"]
             ad_identity=payload.get("adIdentity")
             if ad_identity is not None:
                 codec["validate_ad_identity"](ad_identity)
@@ -21958,6 +22170,8 @@ class RenderedDriver:
             # daemons before restoring the ciphertext checkpoint. Other
             # protocols continue serving their unchanged generations.
             maintenance=self.prerequisites.network.authorize(self.store.scope(request))
+            if identity.get("adIdentity") is not None and set(maintenance)!={"instanceUuid","maintenanceUuid","operationUuid","revision"}:
+                raise ValueError("AD generic rollback requires its owned SERVICE source; ROOT uses opaque recovery")
             quiesced=self.runtime.command(("operation","quiesce"),{**maintenance,"domains":["SMB"]})
             if quiesced.get("quiesced") is not True or quiesced.get("scope")!=maintenance or quiesced.get("domainsQuiesced")!=["SMB"]:
                 raise ValueError("Root SMB identity rollback lacks exact scoped quiescence")
@@ -21973,6 +22187,14 @@ class RenderedDriver:
         # unrelated live block sessions during an SMB-only rollback.
         self.runtime.command(("identity", "capsule", "import"), {**saved["scope"], "capsule": saved["capsule"],
                              "credentialPrivateKey": request["checkpointPrivateKey"], "deferNvmeReplay": True,"restoreDomains":domains})
+        if "SMB" in domains and identity.get("adIdentity") is not None:
+            # Original bytes came from the authenticated SOURCE checkpoint.
+            # Forward only the exact approved SERVICE4 already used to quiesce.
+            retained=self.runtime.command(("identity","domain","retain"),{**maintenance,"expectedIdentity":identity["adIdentity"]})
+            if (retained.get("scope")!=saved["scope"] or retained.get("identityPreserved") is not True or retained.get("rejoined") is not False
+                    or retained.get("identity",{}).get("identityVerified") is not True):
+                raise ValueError("Scoped SMB rollback did not verify its exact preserved AD identity")
+
 
     def persist_one(self, name, value):
         if name not in DESIRED_PATHS: raise ValueError("Canonical prerequisite path is outside its fixed allowlist")
