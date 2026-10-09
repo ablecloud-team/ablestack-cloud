@@ -8410,6 +8410,7 @@
   "message.creation.source.job.complete": "VM creation completed. Verify guest boot and data separately.",
   "message.creation.source.job.failed": "The job failed. Inspect the source and created VM. The creation request will not be submitted again automatically.",
   "message.creation.source.job.unknown": "The response could not be confirmed. Inspect the job and created VM before submitting another request for this source.",
+  "message.creation.source.retry.disks": "Keep the prepared ROOT disk. Retry starting the same VM to prepare any allocated data disks and attach all requested disks.",
   "message.creation.source.job.reconciled": "The job response was lost. Completion was confirmed from the matching VM and all requested disks. Verify guest boot separately.",
   "message.creation.source.job.check": "Check job status again",
   "message.creation.source.fixed.boot": "Boot settings are inherited from the source. This creation form does not reset user data or SSH keys. Verify guest initialization behavior after boot.",

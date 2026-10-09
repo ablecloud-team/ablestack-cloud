@@ -195,3 +195,26 @@ test('retry refuses a stopped Ready ROOT that belongs to a different source', as
   const wrapper = mountOperations([operation]); await wrapper.vm.retryStart(operation)
   expect(operation.retryable).toBe(false); expect(postAPI).not.toHaveBeenCalled(); wrapper.unmount()
 })
+
+const mockFailedPartialStart = status => getAPI.mockImplementation(async command => command === 'listVirtualMachines' ? { listvirtualmachinesresponse: { virtualmachine: [restoredVm()] } } : command === 'queryAsyncJobResult' ? { queryasyncjobresultresponse: { jobstatus: status } } : { listvolumesresponse: { volume: restoredDisks().map(v => v.type === 'DATADISK' ? { ...v, state: 'Allocated' } : v) } })
+test('confirmed failed start retries the same VM and preserves the Ready ROOT with its Allocated data disk', async () => {
+  const operation = { ...recoveredOperation(), vmid: 'vm', jobid: 'failed-job', status: 'failed', startvm: true }; mockFailedPartialStart(2)
+  postAPI.mockResolvedValue({ startvirtualmachineresponse: { jobid: 'retry-job' } })
+  const wrapper = mountOperations([operation]); await wrapper.vm.retryStart(operation)
+  expect(postAPI).toHaveBeenCalledTimes(1); expect(postAPI).toHaveBeenCalledWith('startVirtualMachine', { id: 'vm' }, { preserveOnFailure: true })
+  expect(operation).toMatchObject({ jobid: 'retry-job', rootid: 'new-root', status: 'pending', pendingCommand: 'startVirtualMachine' }); wrapper.unmount()
+})
+test('a start retry is blocked if its supposedly failed job is still pending', async () => {
+  const operation = { ...recoveredOperation(), vmid: 'vm', jobid: 'pending-job', status: 'failed' }; mockFailedPartialStart(0)
+  const wrapper = mountOperations([operation]); await wrapper.vm.retryStart(operation)
+  expect(postAPI).not.toHaveBeenCalled(); wrapper.unmount()
+})
+test('a lost retry response clears the old failed job and recovers the matching start job without resubmitting', async () => {
+  const operation = { ...recoveredOperation(), vmid: 'vm', jobid: 'failed-job', status: 'failed', startvm: true }; mockFailedPartialStart(2)
+  postAPI.mockRejectedValue(new Error('Network Error'))
+  const wrapper = mountOperations([operation]); await wrapper.vm.retryStart(operation)
+  expect(operation).toMatchObject({ status: 'unknown', jobid: null, retryable: false, pendingCommand: 'startVirtualMachine' })
+  getAPI.mockImplementation(async command => command === 'listVirtualMachines' ? { listvirtualmachinesresponse: { virtualmachine: [restoredVm()] } } : command === 'listAsyncJobs' ? { listasyncjobsresponse: { asyncjobs: [{ jobid: 'retry-job', jobinstanceid: 'vm', cmd: 'org.apache.cloudstack.api.command.user.vm.StartVMCmd', created: operation.retryCreated }] } } : { queryasyncjobresultresponse: { jobstatus: 0 } })
+  await wrapper.vm.check(operation)
+  expect(operation).toMatchObject({ status: 'pending', jobid: 'retry-job' }); expect(postAPI).toHaveBeenCalledTimes(1); wrapper.unmount()
+})

@@ -34,3 +34,8 @@ test('known server rejection codes are localized', () => {
 test('unknown diagnostics remain available without inventing a reason', () => {
   expect(vmCreationSourceErrorMessage('UNKNOWN_CODE: diagnostic', translate)).toBe('UNKNOWN_CODE: diagnostic')
 })
+
+test('network failures show localized uncertainty while the original technical diagnostic remains available', () => {
+  expect(vmCreationSourceErrorMessage('Network Error', key => key)).toBe('message.creation.source.job.unknown')
+  expect(vmCreationSourceErrorMessage('timeout of 15000ms exceeded', key => key)).toBe('message.creation.source.job.unknown')
+})

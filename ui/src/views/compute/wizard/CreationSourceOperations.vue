@@ -23,12 +23,13 @@
     <p v-if="operation.rootid"><router-link :to="'/volume/' + operation.rootid">{{ $t('label.rootdisk') }} · {{ operation.rootid }}</router-link></p>
     <p v-if="operation.jobid" class="operation-meta">{{ $t('label.id') }}: {{ operation.jobid }}</p>
     <p v-if="operation.vmid"><router-link :to="'/vm/' + operation.vmid">{{ $t('label.creation.source.inspect.vm') }} · {{ operation.vmid }}</router-link></p>
-    <a-alert v-if="operation.error" type="error" show-icon :message="errorMessage(operation.error)" />
+    <a-alert v-if="operation.error && errorMessage(operation.error) !== $t('message.creation.source.job.' + operation.status)" type="error" show-icon :message="errorMessage(operation.error)" />
     <details v-if="operation.error && errorMessage(operation.error) !== operation.error" class="operation-meta">
       <summary>{{ $t('label.creation.source.error.details') }}</summary>
       <pre>{{ operation.error }}</pre>
     </details>
     <a-button v-if="['pending', 'unknown', 'failed'].includes(operation.status)" :loading="checking" @click="check(operation)">{{ $t('message.creation.source.job.check') }}</a-button>
+    <p v-if="operation.status === 'failed' && operation.retryable">{{ $t('message.creation.source.retry.disks') }}</p>
     <a-button v-if="operation.status === 'failed' && operation.vmid && operation.retryable" :loading="checking" @click="retryStart(operation)">{{ $t('label.creation.source.start.retry') }}</a-button>
   </section>
 </template>
@@ -68,9 +69,10 @@ export default {
         (operation.sourcekind === 'volume' ? roots[0].id === operation.sourceid : roots[0].id !== operation.sourceid)
       if (rootReady) operation.rootid = roots[0].id
       const data = volumes.filter(volume => volume.type === 'DATADISK')
-      const disksReady = rootReady && Number.isSafeInteger(operation.requiredDataDisks) && data.length === operation.requiredDataDisks &&
-        data.every(volume => volume.state === 'Ready' && volume.virtualmachineid === operation.vmid)
-      operation.retryable = vm?.state === 'Stopped' && disksReady
+      const dataOwned = Number.isSafeInteger(operation.requiredDataDisks) && data.length === operation.requiredDataDisks &&
+        data.every(volume => volume.virtualmachineid === operation.vmid)
+      const disksReady = rootReady && dataOwned && data.every(volume => volume.state === 'Ready')
+      operation.retryable = vm?.state === 'Stopped' && rootReady && dataOwned && data.every(volume => ['Ready', 'Allocated'].includes(volume.state))
       return { state: vm?.state, disksReady }
     },
     async recover (operation) {
@@ -81,8 +83,9 @@ export default {
       if (matches.length !== 1) return
       operation.vmid = matches[0].id
       const jobs = (await getAPI('listAsyncJobs', { listall: false, resourceid: operation.vmid, resourcetype: 'VirtualMachine' }, { backgroundJob: true, timeout: 15000 })).listasyncjobsresponse.asyncjobs || []
-      const matchingJobs = jobs.filter(job => job.jobinstanceid === operation.vmid && /DeployVMCmd/.test(job.cmd || '') &&
-        new Date(job.created).getTime() >= new Date(operation.created).getTime() - 5000)
+      const command = operation.pendingCommand === 'startVirtualMachine' ? /StartVMCmd/ : /DeployVMCmd/
+      const matchingJobs = jobs.filter(job => job.jobinstanceid === operation.vmid && command.test(job.cmd || '') &&
+        new Date(job.created).getTime() >= new Date(operation.retryCreated || operation.created).getTime() - 5000)
       if (matchingJobs.length === 1) operation.jobid = matchingJobs[0].jobid
       else if (matchingJobs.length === 0) {
         // listAsyncJobs only returns pending jobs. A lost response may outlive a completed job.
@@ -109,12 +112,24 @@ export default {
     },
     async retryStart (operation) {
       this.checking = true
+      let submitted = false
+      const previousJobId = operation.jobid
       try {
         await this.inspectVm(operation)
-        if (!operation.retryable) throw new Error(this.$t('message.creation.source.job.failed'))
+        if (!operation.retryable || !previousJobId) throw new Error(this.$t('message.creation.source.job.failed'))
+        const job = (await getAPI('queryAsyncJobResult', { jobid: previousJobId }, { backgroundJob: true, timeout: 15000 })).queryasyncjobresultresponse
+        if (job.jobstatus !== 2) throw new Error(this.$t('message.creation.source.job.unknown'))
+        operation.retryCreated = new Date().toISOString(); operation.pendingCommand = 'startVirtualMachine'
+        operation.jobid = null; operation.status = 'submitting'; operation.retryable = false; this.save()
+        submitted = true
         const result = (await postAPI('startVirtualMachine', { id: operation.vmid }, { preserveOnFailure: true })).startvirtualmachineresponse
-        operation.jobid = result.jobid; operation.status = 'pending'; operation.error = ''; operation.retryable = false
-      } catch (error) { operation.error = error.response?.data?.errorresponse?.errortext || error.message } finally { this.checking = false; this.save(); this.schedule() }
+        operation.jobid = result.jobid; operation.status = result.jobid ? 'pending' : 'unknown'; operation.error = ''
+      } catch (error) {
+        const uncertain = submitted && (!error.response || error.response.status >= 500)
+        operation.status = uncertain ? 'unknown' : 'failed'; operation.retryable = false
+        if (!uncertain) operation.jobid = previousJobId
+        operation.error = uncertain ? this.$t('message.creation.source.job.unknown') : error.response?.data?.errorresponse?.errortext || error.message
+      } finally { this.checking = false; this.save(); this.schedule() }
     }
   }
 }
