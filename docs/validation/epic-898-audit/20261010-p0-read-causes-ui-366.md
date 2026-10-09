@@ -10,6 +10,6 @@
 
 실제 적용 index는 e75592ad9a85cc4de523bf05d4c8e830ada0e49b988236925ba4b1f69f4291e8, 백업은 /root/epic898-ui-p0-read-causes-dc1453-backup-20261010-044425-c54ab6, 적용 시각은2026-10-10 04:44:31 KST다. 제공된10파일을 HTTP200/정확 크기/SHA로 다시 확인했다.
 
-원래487a 공유의 기존세션·목록진입·직접URL·새로고침·빠른탭전환과 조회 상태 안내의 실제 브라우저 검증은 이 기록 시점에 진행 중이다. 정적 산출물/단위 render 성공을 실제 UI 인수로 대신하지 않으며, 실제 부분 실패 조건을 검증하지 못한 경우 미확인으로 남긴다. 이슈#1269는 아직OPEN이다.
+원래487a 공유의 기존세션·목록진입·직접URL·새로고침·빠른탭전환을 실제Chrome에서 확인했다. 정상logout/login1회 뒤 visible spinner1을 관측하고 즉시NFS/Details 왕복 후 spinner0·Ready/XFS/100GiB/NFS개요를 확인했다. light/dark 조회를 확인하고 기존dark로 복원했다. [실제 화면·관측과 한계](../epic-898-ui-20261007/p0-dc1453-actual/actual-p0-summary.md)를 기록했다. 자연부분실패는없어 실제오류/재시도와 실제requestcount/coalescing은미확인이다. 단위render·요청병합 회귀를그실제gate로대신하지않으며 이슈#1269는OPEN을유지한다.
 
 [정상 모듈·실제 제한 배포의 공개 증거](20261010-p0-read-causes-ui-366-public-proof.json). 원본 SMB 복구의 [호스트 진단과 별도 실패 경계](20261010-kvm-safe-transport-diagnostic.md)는 별도로 추적한다.

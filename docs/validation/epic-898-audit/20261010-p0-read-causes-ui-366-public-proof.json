@@ -65,7 +65,18 @@
   "scopeRetryMaximum": 2,
   "previousFieldValuesPreserved": true,
   "resourceReadyStateChanged": false,
-  "actualBrowserVerification": "IN_PROGRESS",
+  "actualBrowserVerification": {
+    "existingSessionDirect": true,
+    "listToDetails": true,
+    "refreshAndFastTabs": true,
+    "freshLogin": true,
+    "visibleInitialSpinner1Then0": true,
+    "readyXfs100GiBAndNfsOverviewPreserved": true,
+    "lightDarkReadabilityAndThemeRestore": true,
+    "realPartialFailureAndErrorRetryVerified": false,
+    "realRequestCountAndCoalescingObserved": false,
+    "originalF1OrGuestDataChanged": false
+  },
   "issue1269Closed": false,
   "finalUi1275Started": false,
   "precedingLintRepair": {
