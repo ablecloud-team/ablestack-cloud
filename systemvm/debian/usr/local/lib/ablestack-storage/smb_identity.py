@@ -197,8 +197,68 @@ class SmbIdentity:
             if os.path.exists(temporary):os.unlink(temporary)
         return value
 
+    def inspect_unconfigured(self, scope, current):
+        desired_path = self.configuration / "desired-state/smb-share-apply.json"
+        if os.path.lexists(desired_path):
+            raise ValueError("SMB unconfigured source declaration exists")
+        parent = desired_path.parent.lstat()
+        if not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.geteuid() or parent.st_mode & 0o022:
+            raise ValueError("SMB unconfigured source parent is not protected")
+        artifact = identity_json(self.generations / (current["operationUuid"] + ".json"))
+        keys = ("instanceUuid", "operationUuid", "revision", "configurationSha256", "verifiedAt")
+        if artifact.get("phase") != "VERIFIED" or any(artifact.get(key) != current.get(key) for key in keys):
+            raise ValueError("SMB unconfigured source does not match its verified native generation")
+        desired = artifact.get("desired")
+        names = {"desired-state/nfs-export-apply.json", "desired-state/smb-share-apply.json",
+                 "iscsi-targets.json", "nvmeof-subsystems.json", "posix-directory-policies.json",
+                 "network-endpoints.json", "sharedfs-network.json"}
+        if (not isinstance(desired, dict) or set(desired) != names
+                or desired["desired-state/smb-share-apply.json"] is not None
+                or hashlib.sha256(json.dumps(desired, sort_keys=True, separators=(",", ":")).encode()).hexdigest() != current["configurationSha256"]):
+            raise ValueError("SMB unconfigured source declaration lacks its original seven-file commitment")
+        pending = identity_json(self.generations / "pending.json") if (self.generations / "pending.json").exists() else None
+        if pending:
+            if pending.get("phase") != "PREPARED" or pending.get("previous") != current or pending.get("beforeSha256") != current["configurationSha256"]:
+                raise ValueError("SMB unconfigured source does not match its pending writer baseline")
+        elif scope["revision"] != current["revision"]:
+            raise ValueError("SMB unconfigured observation revision is stale")
+        databases = self.database_identity()
+        if set(databases) != set(IDENTITY_DATABASES) or any(not isinstance(value, dict) or value.get("present") is not False for value in databases.values()):
+            raise ValueError("SMB unconfigured source contains an identity database")
+        sockets = self.socket_rows(self.run(["ss", "-H", "-ltnp"]))
+        if any(row["port"] in (139, 445) for row in sockets):
+            raise ValueError("SMB unconfigured source has a foreign or unobserved acceptor")
+        for process in self.process_root.iterdir():
+            self.remaining()
+            if not process.name.isdigit():
+                continue
+            try:
+                name = (process / "comm").read_text().strip()
+            except FileNotFoundError:
+                continue
+            if name in ("smbd", "nmbd", "winbindd", "samba", "samba-dcerpcd", "samba-bgqd"):
+                raise ValueError("SMB unconfigured source still has an identity daemon")
+        if self.identity_holders():
+            raise ValueError("SMB unconfigured source still has an identity holder")
+        for unit in ("smbd.service", "nmbd.service", "winbind.service"):
+            pid = self.run(["systemctl", "show", unit, "--property=MainPID", "--value"]).strip()
+            if pid != "0":
+                raise ValueError("SMB unconfigured source has an unobserved or active identity unit")
+        sessions = {"available": True, "establishedTcpCount": 0, "synRecvTcpCount": 0, "smbSessionCount": 0,
+                    "treeConnectionCount": 0, "openFileCount": 0, "byteLockOpenFileCount": 0,
+                    "lockingDatabasesAligned": True, "safeToRebind": True, "source": "UNCONFIGURED_SMB_SOURCE_ABSENCE"}
+        return {"success": True, "smbIdentitySupported": True, "scope": scope,
+                "bootId": Path("/proc/sys/kernel/random/boot_id").read_text().strip(), "generation": current,
+                "configurationSha256": hashlib.sha256(Path("/etc/samba/smb.conf").read_bytes()).hexdigest(),
+                "identityBaselineKind": "UNCONFIGURED_SMB_SOURCE", "databases": databases,
+                "masters": [], "ownedEndpoints": [], "ownershipVerified": True, "endpointTcpReady": True,
+                "identityDatabaseAligned": True, "requiresQuiesce": False, "identityRestoreSafe": True,
+                "identityHolders": [], "generatedEpoch": time.time(), "sessions": sessions}
+
     def inspect(self,request,allow_missing=False):
         scope=self.scope(request);current=self.generation(scope)
+        if not os.path.lexists(self.configuration / "desired-state/smb-share-apply.json"):
+            return self.inspect_unconfigured(scope, current)
         endpoints=self.endpoints();databases=self.database_identity()
         sockets=self.socket_rows(self.run(["ss","-H","-ltnp"]))
         default_pid=int(self.run(["systemctl","show","smbd.service","--property=MainPID","--value"]).strip() or 0)

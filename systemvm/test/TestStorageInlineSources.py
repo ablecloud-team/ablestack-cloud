@@ -166,5 +166,16 @@ class StorageInlineSourcesTest(unittest.TestCase):
         embedded=source.split("<<'PYGENERATION'\n",1)[1].split("\nimport sys\nrequest =",1)[0]
         self.assertEqual(generation,embedded);ast.parse(embedded)
 
+    def test_signed_smb_pending_and_identity_closures_match_reviewed_bodies(self):
+        source=CLI.read_text()
+        helper=(LIB/"pending_nfs_authorization.py").read_text().replace("from config_generation import Generation as PendingNfsGeneration, read_json as pending_nfs_read\n","").rstrip()
+        actual=source.split("# BEGIN EMBEDDED PENDING SMB AUTHORIZATION\n",1)[1].split("\n# END EMBEDDED PENDING SMB AUTHORIZATION",1)[0]
+        self.assertEqual(helper,actual);ast.parse(actual)
+        readers=source.split("# BEGIN EMBEDDED PENDING SMB READERS\n",1)[1].split("\n# END EMBEDDED PENDING SMB READERS",1)[0]
+        self.assertEqual(pending_nfs_readonly_body(),readers);ast.parse(readers)
+        expected=(LIB/"smb_identity.py").read_text()
+        expected=expected[expected.index('"""Read-only identity/ownership'):].rstrip()
+        actual=source.split("<<'PYSMBIDENTITY'\n",1)[1].split("\nimport sys\ntry:",1)[0]
+        self.assertEqual(expected,actual);ast.parse(actual)
 
 if __name__=='__main__':unittest.main()
