@@ -1,0 +1,71 @@
+{
+  "cluster": 31,
+  "checkedAt": "2026-10-09T13:36:27.577346+00:00",
+  "originalVmCount": 74,
+  "originalVmUuidStateHostUnchanged": true,
+  "differences": [],
+  "taskFixtureVmCount": 15,
+  "hostStates": [
+    {
+      "name": "ablecube31-1",
+      "state": "Up"
+    },
+    {
+      "name": "ablecube31-2",
+      "state": "Up"
+    },
+    {
+      "name": "ablecube31-3",
+      "state": "Up"
+    }
+  ],
+  "windowsSourceVolume": {
+    "id": "15c2f8f7-54bf-4287-89fe-4717838e2d40",
+    "state": "Ready",
+    "type": "ROOT",
+    "deviceid": 0,
+    "virtualmachineid": "c6e11c06-0db9-4423-8429-790379edba48",
+    "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+    "size": 107374182400
+  },
+  "windowsSnapshot": {
+    "id": "0cdedaa1-9bba-41ae-856e-022322eb0f4a",
+    "state": "BackedUp",
+    "volumeid": "15c2f8f7-54bf-4287-89fe-4717838e2d40",
+    "created": "2026-10-09T22:00:45+0900",
+    "physicalsize": 9988341760,
+    "virtualsize": 107374182400
+  },
+  "windowsVms": [
+    {
+      "id": "21e1d229-819e-46af-a18c-ab0856d439f0",
+      "name": "E1335-31-W-UEFI-seed-r2",
+      "state": "Stopped",
+      "hostid": null
+    },
+    {
+      "id": "4d472e96-a267-48ea-9ff4-96b129b2e669",
+      "name": "E1335-31-W-UEFI-volume-off",
+      "state": "Stopped",
+      "hostid": null
+    },
+    {
+      "id": "c6e11c06-0db9-4423-8429-790379edba48",
+      "name": "E1335-31-W-UEFI-volume-on",
+      "state": "Stopped",
+      "hostid": null
+    },
+    {
+      "id": "5769363e-cc47-4d60-8806-5a5959b207c9",
+      "name": "E1335-31-W-UEFI-snapshot-off",
+      "state": "Stopped",
+      "hostid": null
+    },
+    {
+      "id": "bac37bfb-d130-4262-b092-58465ce662ff",
+      "name": "E1335-31-W-UEFI-snapshot-on",
+      "state": "Stopped",
+      "hostid": null
+    }
+  ]
+}

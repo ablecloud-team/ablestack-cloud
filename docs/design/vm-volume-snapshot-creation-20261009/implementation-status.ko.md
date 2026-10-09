@@ -19,7 +19,7 @@ under the License.
 
 # Epic #1335 구현 및 검증 진행 상태
 
-기존 Epic #1335와 #1336–#1343 안에서 구현·배포·검증을 진행한다. 대표 행렬 16개 중 **Linux BIOS 8개가 통과**했다. Windows UEFI 8개와 일부 경계·장애·기존 경로 회귀는 미완료다. PR #1344는 Draft이고 이슈를 종료하지 않았다.
+기존 Epic #1335와 #1336–#1343 안에서 구현·배포·검증을 진행한다. 대표 행렬 **16개 모두 실제 UI와 게스트 데이터 검증을 통과**했다. 일부 경계·장애·기존 경로 회귀는 미완료다. PR #1344는 Draft이고 이슈를 종료하지 않았다.
 
 ## 실제 UI 생성·게스트 검증
 
@@ -27,14 +27,14 @@ under the License.
 |---|---|---|---|---|
 | 31 GFS2 / Linux BIOS | PASS | PASS | PASS | PASS |
 | 32 Ceph krbd / Linux BIOS | PASS | PASS | PASS | PASS |
-| 31 GFS2 / Windows UEFI | 미실행 | 미실행 | 미실행 | 미실행 |
-| 32 Ceph krbd / Windows UEFI | 미실행 | 미실행 | 미실행 | 미실행 |
+| 31 GFS2 / Windows UEFI | PASS | PASS | PASS | PASS |
+| 32 Ceph krbd / Windows UEFI | PASS | PASS | PASS | PASS |
 
 각 PASS는 실제 UI 원본 선택·확인·제출·생성 결과·부팅·정상 정지와 연결한다. 볼륨은 같은 UUID의 ROOT/device0 편입 및 원본 분리 보존, 스냅샷은 새 ROOT/device0와 백업 시점 한글 파일 SHA256 일치 및 원본 보존을 확인했다. startvm=false는 최초 Stopped를 확인한 뒤 UI에서 시작했다. API·host XML·QGA·게스트 SSH 파일 읽기는 UI 경로의 보조 증거다. 케이스별 VM/job/ROOT/체크섬은 `evidence/case*-linux-*.json`에 기록했다.
 
 추가로 두 환경에서 스냅샷 ROOT 100GiB + 새 DATA 10GiB ×2, 수동 ROOT/DATA 풀 선택, UI 합산 120GiB, device0/1/2, 실제 게스트 디스크 3개와 백업 시점 데이터 확인을 통과했다. 31번 사례는 대표 snapshot-on과 같은 VM이며 중복 집계하지 않는다.
 
-Windows는 31·32번 seed를 실제 UI로 생성·부팅·정지하고 콘솔의 Windows 잠금 화면을 확인했다. 31번은 host XML의 q35/UEFI secure=no/NVRAM 고유 경로와 GFS2 qcow2 ROOT를 추가 확인했다. 게스트 Administrator 로그인 정보가 없어 한글 파일 작성·변경 및 복구 시점 검증을 완료하지 않았다. 콘솔 부팅을 대표 8개 PASS로 대체하지 않는다.
+Windows UEFI 8개도 실제 UI 제출, Administrator 로그인, GPT 100GiB, 한글 UTF-8 파일/Notepad, SHA256, ROOT/device0 및 정상 정지를 통과했다. 볼륨은 변경 후 파일을 같은 UUID에서 읽었고, 스냅샷은 새 UUID의 ROOT에서 변경 전 파일을 읽었다. 각 VM의 q35/UEFI secure=no와 고유 NVRAM 경로, GFS2 qcow2 파일 또는 krbd raw 블록 장치를 호스트 XML로 대조했다. 게스트 호스트명/계정은 복제된 그대로 유지되었으며 같은 환경의 Windows 테스트 VM은 한 번에 한 대만 실행했다. 비밀번호 변경·QGA 파일 주입·원격 게스트 접근 설정 없이 콘솔에서 검증했다. [Windows 상세 및 증거](windows-ui-validation.ko.md)를 연결한다.
 
 ## 실환경에서 발견하고 수정한 결함
 
@@ -61,7 +61,9 @@ Windows는 31·32번 seed를 실제 UI로 생성·부팅·정지하고 콘솔의
 
 최종 UI 소스 `24e4d7b0074`는 소유자 미선택 차단·상태 태그 대비 개선·템플릿 사전 선택 압축 검사 수정을 포함한다. 생산 빌드와 두 클러스터 배포를 완료했다. archive SHA256은 `430743ed1ebe5f914eb1b09ac976d326f20323d72538624ec4e7ab4c2e06e6f2`이며, 양쪽 정적 파일 840개 해시, WEB-INF/META-INF/config.json 보존, mold active와 `/client/` 200을 확인했다. 배포별 백업과 결과는 `evidence/ui-deployment-final.json`에 있다.
 
-검증 후 기존 31번 VM 74개·32번 VM 13개의 UUID/상태/호스트가 그대로이며 호스트 6대 모두 Up이다. 전용 테스트 VM은 31번 11개·32번 12개이며 이 원본 목록과 따로 기록했다. 동시성 실패의 Error VM과 ISO 슬롯 제한의 Stopped VM도 진단용으로 보존했다. 원본 볼륨은 Ready/미연결, 스냅샷은 BackedUp이다. 최신 읽기 전용 증거는 `evidence/final-linux-runtime-preservation-31.json`, `-32.json`이다. 예전 `runtime-preservation.json`은 배포 전 API 미지원 상태의 기록으로 최종 배포 증거가 아니다.
+검증 후 기존 31번 VM 74개·32번 VM 13개의 UUID/상태/호스트가 그대로이며 호스트 6대 모두 Up이다. Linux 검증 종료 시 전용 테스트 VM은 31번 11개·32번 12개였으며 이 원본 목록과 따로 기록했다. 동시성 실패의 Error VM과 ISO 슬롯 제한의 Stopped VM도 진단용으로 보존했다. 원본 볼륨은 Ready/미연결, 스냅샷은 BackedUp이다. 최신 읽기 전용 증거는 `evidence/final-linux-runtime-preservation-31.json`, `-32.json`이다. 예전 `runtime-preservation.json`은 배포 전 API 미지원 상태의 기록으로 최종 배포 증거가 아니다.
+
+Windows 8개 검증 후에도 기존 31번 VM 74개·32번 VM 13개의 UUID/상태/호스트가 유지되고 호스트 6대가 Up이다. 전용 테스트 VM은 31번 15개·32번 16개다. Windows seed와 생성된 VM 4개씩 모두 Stopped, 원본 볼륨은 volume-on VM에 Ready/ROOT/device0으로 보존했고 스냅샷은 BackedUp이다. volume-off VM에서는 UI 보존 분리를 수행했다. 최신 증거는 `evidence/windows-final-preservation-31.json`, `-32.json`이다.
 
 ## UI 검토와 남은 조건
 
@@ -79,7 +81,7 @@ UI 소스 `957f61f39cf`의 390/1366/1680px 라이트·다크 6개 실제 화면�
 
 별도의 ConfigDrive 네트워크 ISO run은 두 ISO로 Stopped 생성 후 시작이 슬롯 제한으로 거절되어 Stopped를 유지했다. UI에는 ConfigDrive가 두 번째 슬롯을 사용할 수 있다는 안내가 있었으며 관리 로그는 `Destination cannot accommodate the attached ISOs (cluster limit, host capability or ConfigDrive)`를 기록했다. `runtime31-iso-slot-conflict.json`에는 해당 job의 민감 값 없는 오류 줄만 저장했다. 이 run은 부팅 PASS가 아니며 ConfigDrive와 ISO 2개 조합의 시작 제한/사전 검사 개선 여지는 기존 Epic에 남긴다. 32번은 Ready 부팅 ISO가 없어 ISO 부팅 회귀를 수행하지 않았다.
 
-남은 범위: Windows UEFI 대표 8개, 일반 사용자 권한 및 프로젝트 소유 원본 생성, 다중 동시 편입 부하, 태그/IOPS/스토리지 불가, 원본 삭제 후 스냅샷 복구, 진행 중 agent/management 재시작·응답 유실·부분 실패 재시도, 32번 ISO 부팅 및 더 넓은 template/ISO 회귀, ConfigDrive+ISO 2개 조합의 사전 검사/시작 제한. 단위 테스트나 API 결과만으로 이 UI 경계 검증을 완료 처리하지 않는다.
+남은 범위: 일반 사용자 권한 및 프로젝트 소유 원본 생성, 다중 동시 편입 부하, 태그/IOPS/스토리지 불가, 원본 삭제 후 스냅샷 복구, 진행 중 agent/management 재시작·응답 유실·부분 실패 재시도, 32번 ISO 부팅 및 더 넓은 template/ISO 회귀, ConfigDrive+ISO 2개 조합의 사전 검사/시작 제한. 단위 테스트나 API 결과만으로 이 UI 경계 검증을 완료 처리하지 않는다.
 
 ## PR CI
 

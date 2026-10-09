@@ -1,0 +1,220 @@
+{
+  "screenshots": [
+    {
+      "file": "evidence/windows-ui/windows31-seed-after-hash-gpt.jpg",
+      "sha256": "9323ccbfd155022f2f829e2386a9357e6fca0d88d5efaf8eeb1670c877caf8a1"
+    },
+    {
+      "file": "evidence/windows-ui/windows31-seed-after-notepad.jpg",
+      "sha256": "30c83ecb6c5ccbc367336bf7f9c5a863cdc66dfe89d091da8ce9d1f667ac365c"
+    },
+    {
+      "file": "evidence/windows-ui/windows31-seed-before-hash-gpt.jpg",
+      "sha256": "6b73297922457686083057e49244f00d3122e8c615c0cdc59ce7a89af4421142"
+    },
+    {
+      "file": "evidence/windows-ui/windows31-seed-before-notepad.jpg",
+      "sha256": "07c03888d1fec44a169acfc5b9a2b95fe89b0c1bc64fad8a60777efd973c8293"
+    },
+    {
+      "file": "evidence/windows-ui/windows31-snapshot-backed-up.jpg",
+      "sha256": "d4d2ef3aa64c44abf739866491680b767bdfc0ade575155f50d79e176b9debc3"
+    },
+    {
+      "file": "evidence/windows-ui/windows31-snapshot-off-confirm.jpg",
+      "sha256": "1e4e04ff1d4ac9cea43ab38cc84921df470a62603cac8a633124acab8f89cba9"
+    },
+    {
+      "file": "evidence/windows-ui/windows31-snapshot-off-guest-hash.jpg",
+      "sha256": "629046d7760a08358fc954305bc3582158f0fae5e023881ef205e1e31cfe52fb"
+    },
+    {
+      "file": "evidence/windows-ui/windows31-snapshot-off-guest-notepad.jpg",
+      "sha256": "32c091f2a0e355a53fce645ea1779f69c67e9595278091fa2418b51511bca6a6"
+    },
+    {
+      "file": "evidence/windows-ui/windows31-snapshot-off-normal-stopped.jpg",
+      "sha256": "f8d9db51325023f5ff965eda29fad74be64434ef1b1e13065cadaf351588d91c"
+    },
+    {
+      "file": "evidence/windows-ui/windows31-snapshot-off-running-root.jpg",
+      "sha256": "550e583bed82b1824cf53d97e5437bc10d6329cb031dacee8e82efe74a5c3f77"
+    },
+    {
+      "file": "evidence/windows-ui/windows31-snapshot-off-stopped-created.jpg",
+      "sha256": "9c43d7747eda29a874f8df1253479b01ef0b8b2a5c33898a125f39ff96966e3d"
+    },
+    {
+      "file": "evidence/windows-ui/windows31-snapshot-on-confirm.jpg",
+      "sha256": "c74e200d9212666f1b569b74d2b4603ac444b91217097de6665ff5ead92e3c03"
+    },
+    {
+      "file": "evidence/windows-ui/windows31-snapshot-on-guest-hash.jpg",
+      "sha256": "491a701bad1aa6af114398901da28645b7b562b854072076ee841867dd6576c8"
+    },
+    {
+      "file": "evidence/windows-ui/windows31-snapshot-on-guest-notepad.jpg",
+      "sha256": "efe9806a46d6d8a3dfc2caa66d753e1dbe9913beb511d225aff9884dc11bd86c"
+    },
+    {
+      "file": "evidence/windows-ui/windows31-snapshot-on-normal-stopped.jpg",
+      "sha256": "d4b71092f29ddc10785ff5362a6012e6c3c2a52904de503799257370ffbc2d19"
+    },
+    {
+      "file": "evidence/windows-ui/windows31-snapshot-on-running-root.jpg",
+      "sha256": "60a456d40141c4a856a866ec6b30759074be3b87e7385ab40b359289d8933a04"
+    },
+    {
+      "file": "evidence/windows-ui/windows31-volume-off-confirm.jpg",
+      "sha256": "62ad96a4fef2f5b8c0ac5f913c3fe70869fa1b2db010e390d38739d32385d904"
+    },
+    {
+      "file": "evidence/windows-ui/windows31-volume-off-guest-hash.jpg",
+      "sha256": "549a83f4e6e46872ba91c6926c490b31273105bd8d16c900c8f50948ab9f6265"
+    },
+    {
+      "file": "evidence/windows-ui/windows31-volume-off-guest-notepad.jpg",
+      "sha256": "e96e2ce763deb3c161bd543250593b43b31647a071eeec92b56a11a13a11f92e"
+    },
+    {
+      "file": "evidence/windows-ui/windows31-volume-off-normal-stopped.jpg",
+      "sha256": "efde4a19b87f4e834c311e3ea8c0fca95838a9b79f2ffe06be844b4375bac1cf"
+    },
+    {
+      "file": "evidence/windows-ui/windows31-volume-off-running-root.jpg",
+      "sha256": "376631ab0b0fcce1cb12790256aabcfe07e2f7efcee089d32c69418e6ea80b66"
+    },
+    {
+      "file": "evidence/windows-ui/windows31-volume-off-stopped-created.jpg",
+      "sha256": "83d927ba8f327478f8d437868a96683faeb80f186e04a91e0b99949ece0b9e89"
+    },
+    {
+      "file": "evidence/windows-ui/windows31-volume-on-confirm.jpg",
+      "sha256": "2968fbc6becb3b6aed7c7a510ceeadc038f1e6c52bdaeb1f2a72e73376a97e2f"
+    },
+    {
+      "file": "evidence/windows-ui/windows31-volume-on-guest-hash.jpg",
+      "sha256": "20888e569e2b6a2870bbb8c2447b0f96d7ea94ac3973ad32245d1459f67abb82"
+    },
+    {
+      "file": "evidence/windows-ui/windows31-volume-on-guest-notepad.jpg",
+      "sha256": "dc2dac36a49f20b3d6c0b9b38ca1c60602ea5e43c5bbbc068ccacec6dbccab63"
+    },
+    {
+      "file": "evidence/windows-ui/windows31-volume-on-normal-stopped.jpg",
+      "sha256": "c902ce9660b43158484c2012152067470b96fe0f2ad5fc9959fc49abca794fb6"
+    },
+    {
+      "file": "evidence/windows-ui/windows31-volume-on-running-root.jpg",
+      "sha256": "e508846f02d1957d3ae1d2bfeb84af29499be52c169a580b39459a6bcead8f6f"
+    },
+    {
+      "file": "evidence/windows-ui/windows32-seed-after-hash-gpt.jpg",
+      "sha256": "f9194836a1517c2538e86c5f8dfa852caf679d5c612fa7e7e02e54bc9754e744"
+    },
+    {
+      "file": "evidence/windows-ui/windows32-seed-after-notepad.jpg",
+      "sha256": "e8848fd897317956139063fe872bfd748bc56b4cee9112366b4076b7375f0ba6"
+    },
+    {
+      "file": "evidence/windows-ui/windows32-seed-before-hash-gpt.jpg",
+      "sha256": "b96e4037fd6411e7073509544566a2dfb6596d5f905b9e4cfdf1f36c89f66755"
+    },
+    {
+      "file": "evidence/windows-ui/windows32-seed-before-notepad.jpg",
+      "sha256": "a8318c566c661e357ee6cab5a0104000b3afccce698006395c66f557b4e2c9c2"
+    },
+    {
+      "file": "evidence/windows-ui/windows32-snapshot-backed-up.jpg",
+      "sha256": "1facbd996ad392d2cad8c94f2ceec9485693ba0d68fabb4b2ba9c8b348f786e8"
+    },
+    {
+      "file": "evidence/windows-ui/windows32-snapshot-off-confirm.jpg",
+      "sha256": "1bae8d4d1ae14a45969f97c80dcfb8686fd846764eb8409672854d6519890534"
+    },
+    {
+      "file": "evidence/windows-ui/windows32-snapshot-off-guest-hash.jpg",
+      "sha256": "214621f68b3b1e7665dd11d544f87759bc35299601b04f5456b6b997853d8549"
+    },
+    {
+      "file": "evidence/windows-ui/windows32-snapshot-off-guest-notepad.jpg",
+      "sha256": "2f2ed231192caf522ba63415f013562ec7eed3e709db80d19f08bbd38195b60b"
+    },
+    {
+      "file": "evidence/windows-ui/windows32-snapshot-off-normal-stopped.jpg",
+      "sha256": "b49cdc2c308ceddd4adef1336103b7be44ecfa3f04eac1a560301dc7de38de5d"
+    },
+    {
+      "file": "evidence/windows-ui/windows32-snapshot-off-running-root.jpg",
+      "sha256": "d0d296f04aaee612b8e17a331df1a023762f8aa537e593a95979b80e7fac8f95"
+    },
+    {
+      "file": "evidence/windows-ui/windows32-snapshot-off-stopped-created.jpg",
+      "sha256": "add897e13b7e97059fd2ca86a02927d7acc9ab6dfabe69e083d156b193997795"
+    },
+    {
+      "file": "evidence/windows-ui/windows32-snapshot-on-confirm.jpg",
+      "sha256": "9a9f244d6c98a331a1538bd90b805d237440061eff1a79c81119bda97f7df68c"
+    },
+    {
+      "file": "evidence/windows-ui/windows32-snapshot-on-guest-hash.jpg",
+      "sha256": "3808934e6c9763d03ffffe20024951e4458816b80211bbd98f9c220387c8df3e"
+    },
+    {
+      "file": "evidence/windows-ui/windows32-snapshot-on-guest-notepad.jpg",
+      "sha256": "0d82f2120bb7a6da06a04d4917ecb462b899c6ed22e796485dc5e96350d05f39"
+    },
+    {
+      "file": "evidence/windows-ui/windows32-snapshot-on-normal-stopped.jpg",
+      "sha256": "de5c75b3a64b55011b0424f03a5037b5743a9dc4407ce64aeb28a141fbf41e5d"
+    },
+    {
+      "file": "evidence/windows-ui/windows32-snapshot-on-running-root.jpg",
+      "sha256": "2f58535a0deb80c4fe2eb2d5cc3fc679fae8b64cfd794b107d578bc0d8891365"
+    },
+    {
+      "file": "evidence/windows-ui/windows32-volume-off-confirm.jpg",
+      "sha256": "08ac506aa835f6e839ce17104f5055c3a152e581026e5d7c6dfe1aa87da32014"
+    },
+    {
+      "file": "evidence/windows-ui/windows32-volume-off-guest-hash.jpg",
+      "sha256": "4e665a457d12c916d33a7c8e86cf872e7194e9fbfa109f911ec972f18cd21657"
+    },
+    {
+      "file": "evidence/windows-ui/windows32-volume-off-guest-notepad.jpg",
+      "sha256": "09d722c121248331eda061dfaa46edd5b37c5875d88a231ba36665f65c954e73"
+    },
+    {
+      "file": "evidence/windows-ui/windows32-volume-off-normal-stopped.jpg",
+      "sha256": "faea6d22499811f51c5916d6f720eeeaa4a8d0575eb1f5a24a346be4d662be32"
+    },
+    {
+      "file": "evidence/windows-ui/windows32-volume-off-running-root.jpg",
+      "sha256": "23af6f5a8584c0a685a807ded29f6fdfd790057e40a3f927ec05a012bcb94b25"
+    },
+    {
+      "file": "evidence/windows-ui/windows32-volume-off-stopped-created.jpg",
+      "sha256": "908b72151e46bf6291698e099029fcb567cf632014f3cfd8f12b88154cac41bc"
+    },
+    {
+      "file": "evidence/windows-ui/windows32-volume-on-confirm.jpg",
+      "sha256": "71a3d4f66a3585c26d69c4e78bf6858b71dcda074bac88e13c5cce51a4eeef2e"
+    },
+    {
+      "file": "evidence/windows-ui/windows32-volume-on-guest-hash.jpg",
+      "sha256": "4463496c04b7af08318501d36e1697f8025e90cd6548ef0f2470fc3a4968e257"
+    },
+    {
+      "file": "evidence/windows-ui/windows32-volume-on-guest-notepad.jpg",
+      "sha256": "97f6edeb92c3925f75a68dc71c13da40a9f32abdb8ab8950b93a64f00f8b049d"
+    },
+    {
+      "file": "evidence/windows-ui/windows32-volume-on-normal-stopped.jpg",
+      "sha256": "252193025d6f521d7ce6d1983a0febcd67b5a7b725e32a89e4e4f2424a9259f8"
+    },
+    {
+      "file": "evidence/windows-ui/windows32-volume-on-running-root.jpg",
+      "sha256": "baeeaaaef433e8188facc10e92cbf0aedd08bbe54a6efc3347d884e46298954a"
+    }
+  ]
+}

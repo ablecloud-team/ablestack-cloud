@@ -1,0 +1,272 @@
+{
+  "cluster": 32,
+  "kind": "snapshot",
+  "startvm": false,
+  "vmId": "72f699ad-51ad-4de6-acf9-1a8d94888c3a",
+  "instanceName": "i-2-45-VM",
+  "sourceVolumeId": "d945a565-eb11-4240-9c64-20b9fd4e0a40",
+  "initialState": "Stopped",
+  "bootedThroughUi": true,
+  "guestLogin": true,
+  "guestHash": "e52aa62a3b7b0ce5a26ed030f9a781b35cf98c252418eb3fa9f430eaaf89202d",
+  "hashEqualsChangedSource": false,
+  "partitionStyle": "GPT",
+  "logicalBytes": 107374182400,
+  "koreanUtf8Notepad": true,
+  "normalStopThroughUi": true,
+  "finalState": "Stopped",
+  "sourcePreservingDetachThroughUi": false,
+  "runtimeRunning": {
+    "capturedAt": "2026-10-09T13:26:57.124870+00:00",
+    "cluster": 32,
+    "vms": [
+      {
+        "id": "83231e10-63f3-412a-94d0-55b0fe51d83f",
+        "name": "E1335-32-W-UEFI-seed",
+        "displayname": "E1335-32-W-UEFI-seed",
+        "instancename": "i-2-33-VM",
+        "state": "Stopped",
+        "boottype": "Uefi",
+        "bootmode": "legacy",
+        "created": "2026-10-09T09:11:42+0900",
+        "templateid": "67614e8c-51fe-4265-90e3-261e72c26776",
+        "guestosid": "5aaacc7e-b23b-11f1-990e-0024811f8935",
+        "volumes": []
+      },
+      {
+        "id": "2031e251-fd4b-4f7b-8bc6-7a8c4fab3a36",
+        "name": "E1335-32-W-UEFI-volume-off",
+        "displayname": "E1335-32-W-UEFI-volume-off",
+        "instancename": "i-2-43-VM",
+        "state": "Stopped",
+        "boottype": "Uefi",
+        "bootmode": "legacy",
+        "created": "2026-10-09T22:10:46+0900",
+        "templateid": "67614e8c-51fe-4265-90e3-261e72c26776",
+        "guestosid": "5aaacc7e-b23b-11f1-990e-0024811f8935",
+        "volumes": []
+      },
+      {
+        "id": "63008885-b08f-4d89-a162-c11c72df7bd3",
+        "name": "E1335-32-W-UEFI-volume-on",
+        "displayname": "E1335-32-W-UEFI-volume-on",
+        "instancename": "i-2-44-VM",
+        "state": "Stopped",
+        "boottype": "Uefi",
+        "bootmode": "legacy",
+        "created": "2026-10-09T22:17:32+0900",
+        "templateid": "67614e8c-51fe-4265-90e3-261e72c26776",
+        "guestosid": "5aaacc7e-b23b-11f1-990e-0024811f8935",
+        "volumes": [
+          {
+            "id": "d945a565-eb11-4240-9c64-20b9fd4e0a40",
+            "name": "ROOT-33",
+            "state": "Ready",
+            "type": "ROOT",
+            "deviceid": 0,
+            "virtualmachineid": "63008885-b08f-4d89-a162-c11c72df7bd3",
+            "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+            "storage": "Primary",
+            "size": 107374182400,
+            "created": "2026-10-09T09:11:42+0900",
+            "path": "d945a565-eb11-4240-9c64-20b9fd4e0a40",
+            "templateid": "67614e8c-51fe-4265-90e3-261e72c26776"
+          }
+        ]
+      },
+      {
+        "id": "72f699ad-51ad-4de6-acf9-1a8d94888c3a",
+        "name": "E1335-32-W-UEFI-snapshot-off",
+        "displayname": "E1335-32-W-UEFI-snapshot-off",
+        "instancename": "i-2-45-VM",
+        "state": "Running",
+        "hostid": "05bc1189-abf8-4ec3-9ef5-02558863b628",
+        "hostname": "ablecube32-3",
+        "boottype": "Uefi",
+        "bootmode": "legacy",
+        "created": "2026-10-09T22:24:41+0900",
+        "templateid": "67614e8c-51fe-4265-90e3-261e72c26776",
+        "guestosid": "5aaacc7e-b23b-11f1-990e-0024811f8935",
+        "volumes": [
+          {
+            "id": "56dedced-bb39-4f66-88d7-359d719e8b6f",
+            "name": "ROOT-45",
+            "state": "Ready",
+            "type": "ROOT",
+            "deviceid": 0,
+            "virtualmachineid": "72f699ad-51ad-4de6-acf9-1a8d94888c3a",
+            "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+            "storage": "Primary",
+            "size": 107374182400,
+            "created": "2026-10-09T22:24:41+0900",
+            "path": "d707fc65-3ca8-4dc8-a09b-fda0cc54402e",
+            "templateid": "67614e8c-51fe-4265-90e3-261e72c26776"
+          }
+        ],
+        "xml": {
+          "name": "i-2-45-VM",
+          "uuid": "72f699ad-51ad-4de6-acf9-1a8d94888c3a",
+          "machine": "pc-q35-rhel9.8.0",
+          "loader": "/usr/share/edk2/ovmf/OVMF_CODE.secboot.fd",
+          "loaderAttrs": {
+            "readonly": "yes",
+            "secure": "no",
+            "type": "pflash",
+            "format": "qcow2"
+          },
+          "nvram": "/var/lib/libvirt/qemu/nvram/72f699ad-51ad-4de6-acf9-1a8d94888c3a.fd",
+          "disks": [
+            {
+              "device": "disk",
+              "type": "block",
+              "driver": {
+                "name": "qemu",
+                "type": "raw",
+                "cache": "none",
+                "discard": "unmap"
+              },
+              "source": {
+                "dev": "/dev/rbd/rbd/d707fc65-3ca8-4dc8-a09b-fda0cc54402e",
+                "index": "3"
+              },
+              "target": {
+                "dev": "sda",
+                "bus": "scsi"
+              }
+            },
+            {
+              "device": "cdrom",
+              "type": "file",
+              "driver": {
+                "name": "qemu"
+              },
+              "source": {},
+              "target": {
+                "dev": "sdd",
+                "bus": "sata"
+              }
+            },
+            {
+              "device": "cdrom",
+              "type": "file",
+              "driver": {
+                "name": "qemu",
+                "type": "raw"
+              },
+              "source": {
+                "file": "/mnt/cd738985-7bc6-33e6-8fdb-c83e34b09161/i-2-45-VM.iso",
+                "index": "1"
+              },
+              "target": {
+                "dev": "sde",
+                "bus": "sata"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "runtimeFinal": {
+    "capturedAt": "2026-10-09T13:31:21.617446+00:00",
+    "cluster": 32,
+    "vms": [
+      {
+        "id": "83231e10-63f3-412a-94d0-55b0fe51d83f",
+        "name": "E1335-32-W-UEFI-seed",
+        "displayname": "E1335-32-W-UEFI-seed",
+        "instancename": "i-2-33-VM",
+        "state": "Stopped",
+        "boottype": "Uefi",
+        "bootmode": "legacy",
+        "created": "2026-10-09T09:11:42+0900",
+        "templateid": "67614e8c-51fe-4265-90e3-261e72c26776",
+        "guestosid": "5aaacc7e-b23b-11f1-990e-0024811f8935",
+        "volumes": []
+      },
+      {
+        "id": "2031e251-fd4b-4f7b-8bc6-7a8c4fab3a36",
+        "name": "E1335-32-W-UEFI-volume-off",
+        "displayname": "E1335-32-W-UEFI-volume-off",
+        "instancename": "i-2-43-VM",
+        "state": "Stopped",
+        "boottype": "Uefi",
+        "bootmode": "legacy",
+        "created": "2026-10-09T22:10:46+0900",
+        "templateid": "67614e8c-51fe-4265-90e3-261e72c26776",
+        "guestosid": "5aaacc7e-b23b-11f1-990e-0024811f8935",
+        "volumes": []
+      },
+      {
+        "id": "63008885-b08f-4d89-a162-c11c72df7bd3",
+        "name": "E1335-32-W-UEFI-volume-on",
+        "displayname": "E1335-32-W-UEFI-volume-on",
+        "instancename": "i-2-44-VM",
+        "state": "Stopped",
+        "boottype": "Uefi",
+        "bootmode": "legacy",
+        "created": "2026-10-09T22:17:32+0900",
+        "templateid": "67614e8c-51fe-4265-90e3-261e72c26776",
+        "guestosid": "5aaacc7e-b23b-11f1-990e-0024811f8935",
+        "volumes": [
+          {
+            "id": "d945a565-eb11-4240-9c64-20b9fd4e0a40",
+            "name": "ROOT-33",
+            "state": "Ready",
+            "type": "ROOT",
+            "deviceid": 0,
+            "virtualmachineid": "63008885-b08f-4d89-a162-c11c72df7bd3",
+            "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+            "storage": "Primary",
+            "size": 107374182400,
+            "created": "2026-10-09T09:11:42+0900",
+            "path": "d945a565-eb11-4240-9c64-20b9fd4e0a40",
+            "templateid": "67614e8c-51fe-4265-90e3-261e72c26776"
+          }
+        ]
+      },
+      {
+        "id": "72f699ad-51ad-4de6-acf9-1a8d94888c3a",
+        "name": "E1335-32-W-UEFI-snapshot-off",
+        "displayname": "E1335-32-W-UEFI-snapshot-off",
+        "instancename": "i-2-45-VM",
+        "state": "Stopped",
+        "boottype": "Uefi",
+        "bootmode": "legacy",
+        "created": "2026-10-09T22:24:41+0900",
+        "templateid": "67614e8c-51fe-4265-90e3-261e72c26776",
+        "guestosid": "5aaacc7e-b23b-11f1-990e-0024811f8935",
+        "volumes": [
+          {
+            "id": "56dedced-bb39-4f66-88d7-359d719e8b6f",
+            "name": "ROOT-45",
+            "state": "Ready",
+            "type": "ROOT",
+            "deviceid": 0,
+            "virtualmachineid": "72f699ad-51ad-4de6-acf9-1a8d94888c3a",
+            "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+            "storage": "Primary",
+            "size": 107374182400,
+            "created": "2026-10-09T22:24:41+0900",
+            "path": "d707fc65-3ca8-4dc8-a09b-fda0cc54402e",
+            "templateid": "67614e8c-51fe-4265-90e3-261e72c26776"
+          }
+        ]
+      }
+    ]
+  },
+  "jobId": "8741bb12-2613-4a82-84fc-1fee03689954",
+  "result": "PASS",
+  "evidenceScreenshots": [
+    "windows32-snapshot-off-confirm.jpg",
+    "windows32-snapshot-off-stopped-created.jpg",
+    "windows32-snapshot-off-guest-hash.jpg",
+    "windows32-snapshot-off-guest-notepad.jpg",
+    "windows32-snapshot-off-running-root.jpg",
+    "windows32-snapshot-off-normal-stopped.jpg"
+  ],
+  "sourceSnapshotId": "e635946e-43da-4828-a59e-da6bf8568926",
+  "hashEqualsSnapshotTime": true,
+  "rootVolumeId": "56dedced-bb39-4f66-88d7-359d719e8b6f",
+  "newRootVolumeVerified": true
+}
