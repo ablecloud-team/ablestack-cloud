@@ -14669,6 +14669,129 @@ class SmbSourceCheckpoint:
         self.boot=lambda:Path("/proc/sys/kernel/random/boot_id").read_text().strip()
         self.lock=lambda:PendingNfsAuthorization.lock(None,os.getpid())
         self.start_grant=self.pending_start_grant
+        self.runtime_root=Path('/opt/ablestack/storage-runtime')
+        self.installation_root=Path('/var/lib/ablestack-storage/runtime-updates')
+
+    def installed_release_authority(self,release,manifest):
+        """Read bounded public installation receipts; never mint a transaction."""
+        root=self.installation_root;info=root.lstat()
+        if not stat.S_ISDIR(info.st_mode)or info.st_uid!=0 or info.st_mode&0o022:
+            raise ValueError('LOCAL historical installation directory is foreign')
+        paths=list(root.iterdir())
+        if len(paths)>128:raise ValueError('LOCAL historical installation lookup exceeds its bound')
+        matches=[]
+        for path in sorted(paths):
+            parent=path.lstat()
+            if not stat.S_ISDIR(parent.st_mode)or not re.fullmatch('[A-Za-z0-9][A-Za-z0-9_.-]{0,127}',path.name):continue
+            if parent.st_uid!=0 or parent.st_mode&0o022:raise ValueError('LOCAL installation receipt directory is foreign')
+            header=path/'state.json'
+            if not os.path.lexists(header):continue
+            raw,header_meta=self.reader(str(header),64*1024);state=json.loads(raw)
+            if state.get('bundleVersion')!=release.name:continue
+            if (header_meta.st_mode&0o022
+                    or state.get('transactionId')!=path.name or state.get('phase')not in ('VERIFIED','COMPLETE')
+                    or state.get('releasePath')!=str(release)or state.get('keyId')!=manifest.get('keyId')
+                    or not isinstance(state.get('keyId'),str)or not re.fullmatch('[A-Za-z0-9][A-Za-z0-9_.-]{0,127}',state['keyId'])
+                    or any(not isinstance(state.get(k),str)or not re.fullmatch('[0-9a-f]{64}',state[k])
+                        for k in ('manifestSha256','archiveSha256'))):
+                raise ValueError('LOCAL historical installation receipt changed')
+            transaction_raw,transaction_meta=self.reader(str(path/'manifest.json'),64*1024)
+            if transaction_meta.st_mode&0o022 or hashlib.sha256(transaction_raw).hexdigest()!=state['manifestSha256']or json.loads(transaction_raw)!=manifest:
+                raise ValueError('LOCAL historical signed manifest differs from installation')
+            signature=path/'manifest.sig'
+            if os.path.lexists(signature):
+                self.reader(str(signature));key=self.runtime_root/'trusted-keys'/(state['keyId']+'.pem')
+                self.reader(str(key))
+                result=subprocess.run(['openssl','pkeyutl','-verify','-pubin','-inkey',str(key),'-sigfile',str(signature),
+                    '-rawin','-in',str(path/'manifest.json')],capture_output=True,timeout=self.handler.remaining(10))
+                if result.returncode:raise ValueError('LOCAL historical installation signature changed')
+            matches.append({key:state[key]for key in ('transactionId','bundleVersion','keyId','manifestSha256','archiveSha256','phase')})
+            after=path.lstat()
+            if (after.st_dev,after.st_ino,after.st_uid,after.st_mode)!=(parent.st_dev,parent.st_ino,parent.st_uid,parent.st_mode):
+                raise ValueError('LOCAL installation directory changed while reading')
+        if not matches or len({tuple(row[key]for key in ('bundleVersion','keyId','manifestSha256','archiveSha256'))for row in matches})!=1:
+            raise ValueError('LOCAL historical verified installation is absent or ambiguous')
+        return matches[0]
+
+    @staticmethod
+    def endpoint_body(source):
+        marker='smb_endpoint_run() {\n'
+        if source.count(marker)!=1:raise ValueError('LOCAL signed endpoint entry is ambiguous')
+        body=source.split(marker,1)[1].split('\n}\n',1)[0]
+        if not body or "<<'PYSMBENDPOINT'" not in body:
+            raise ValueError('LOCAL signed endpoint entry is unavailable')
+        return body
+
+    def launcher_authority(self,unit,master):
+        """Bind the signed Bash launcher to its direct, exact managed acceptor."""
+        main=int(self.handler.run(['systemctl','show',unit,'--property=MainPID','--value']).strip())
+        if main==master['pid']:return None
+        if main<=0:raise ValueError('LOCAL managed launcher is absent')
+        proc=self.handler.process_root/str(main);child=self.handler.process_root/str(master['pid'])
+        before=(proc/'stat').read_text().rpartition(')')[2].split()
+        child_stat=(child/'stat').read_text().rpartition(')')[2].split()
+        uid=next(line.split()[1:]for line in (proc/'status').read_text().splitlines()if line.startswith('Uid:'))
+        cgroup=(proc/'cgroup').read_text()
+        key=unit.removeprefix('ablestack-storage-smb@').removesuffix('.service')
+        declared_group=self.handler.run(['systemctl','show',unit,'--property=ControlGroup','--value']).strip()
+        declared_slice=self.handler.run(['systemctl','show',unit,'--property=Slice','--value']).strip()
+        default_slice='system-'+'ablestack-storage-smb'.replace('-','\\x2d')+'.slice'
+        expected_group='/system.slice/'+(declared_slice+'/'if declared_slice==default_slice else '')+unit
+        system_groups=[line.split(':',2)[-1]for line in cgroup.splitlines()
+            if len(line.split(':',2))==3 and line.split(':',2)[1]in ('','name=systemd')]
+        if (not re.fullmatch('[0-9a-f]{24}',key)or int(child_stat[1])!=main or child_stat[19]!=master['startTicks']
+                or uid!=['0']*4 or cgroup!=(child/'cgroup').read_text()
+                or declared_slice not in ('system.slice',default_slice)or declared_group!=expected_group
+                or system_groups!=[declared_group]):
+            raise ValueError('LOCAL managed launcher parent/UID/cgroup changed')
+        argv=[part.decode()for part in (proc/'cmdline').read_bytes().split(bytes([0]))if part]
+        if argv not in [[shell,'/usr/local/bin/ablestack-storagectl','smb','endpoint-run',key]
+                for shell in ('bash','/bin/bash','/usr/bin/bash')]:
+            raise ValueError('LOCAL managed launcher argv is foreign')
+        bash,bash_meta=self.reader('/usr/bin/bash');checksums,_=self.reader('/var/lib/dpkg/info/bash.md5sums')
+        matches=[line.split()[0]for line in checksums.decode().splitlines()
+            if len(line.split())==2 and line.split()[1]in ('bin/bash','usr/bin/bash')]
+        loaded=(proc/'exe').stat()
+        if (len(matches)!=1 or hashlib.md5(bash).hexdigest()!=matches[0]
+                or os.path.realpath(proc/'exe')!='/usr/bin/bash'
+                or (loaded.st_dev,loaded.st_ino)!=(bash_meta.st_dev,bash_meta.st_ino)):
+            raise ValueError('LOCAL managed launcher fixed Bash package changed')
+        fdpath=proc/'fd/255';target=os.readlink(fdpath)
+        release=Path(target).parent
+        if (target.endswith(' (deleted)')or Path(target).name!='ablestack-storagectl'
+                or release.parent!=self.runtime_root/'releases'
+                or not re.fullmatch('[A-Za-z0-9][A-Za-z0-9_.-]{0,127}',release.name)):
+            raise ValueError('LOCAL managed launcher loaded script is foreign')
+        for directory in (self.runtime_root,self.runtime_root/'releases',release):
+            info=directory.lstat()
+            if not stat.S_ISDIR(info.st_mode)or info.st_uid!=0 or info.st_mode&0o022:
+                raise ValueError('LOCAL managed launcher release directory is foreign')
+        script,meta=self.reader(target);fdmeta=fdpath.stat()
+        if ((fdmeta.st_dev,fdmeta.st_ino,fdmeta.st_size)!=(meta.st_dev,meta.st_ino,meta.st_size)
+                or meta.st_uid!=0 or stat.S_IMODE(meta.st_mode)!=0o755):
+            raise ValueError('LOCAL managed launcher script FD changed')
+        manifest_raw,_=self.reader(str(release/'manifest.json'));manifest=json.loads(manifest_raw)
+        entries=[row for row in manifest.get('files',[])if isinstance(row,dict)and row.get('path')=='ablestack-storagectl']
+        digest=hashlib.sha256(script).hexdigest()
+        if (manifest.get('bundleVersion')!=release.name or len(entries)!=1
+                or entries[0].get('sha256')!=digest or entries[0].get('mode')!='0755'
+                or entries[0].get('owner')!='root' or entries[0].get('group')!='root'):
+            raise ValueError('LOCAL managed launcher installed ENTRY manifest changed')
+        installed=self.installed_release_authority(release,manifest)
+        # Historical files are installed, protected runtime releases. Their
+        # permitted execution is narrowed to the byte-identical fixed endpoint
+        # body of the currently signed CLI; this is not current-runtime attestation.
+        body=self.endpoint_body(script.decode());signed_body=self.endpoint_body(self.cli.read_text())
+        if body!=signed_body:raise ValueError('LOCAL managed launcher endpoint body changed')
+        if ((proc/'stat').read_text().rpartition(')')[2].split()[19]!=before[19]
+                or (child/'stat').read_text().rpartition(')')[2].split()[1]!=str(main)
+                or os.readlink(fdpath)!=target or fdpath.stat().st_ino!=fdmeta.st_ino):
+            raise ValueError('LOCAL managed launcher changed during observation')
+        return {'pid':main,'startTicks':before[19],'argv':argv,'cgroup':cgroup,'controlGroup':declared_group,'slice':declared_slice,
+            'executable':{'path':'/usr/bin/bash','device':bash_meta.st_dev,'inode':bash_meta.st_ino,'sha256':hashlib.sha256(bash).hexdigest()},
+            'loadedScript':{'path':target,'device':meta.st_dev,'inode':meta.st_ino,'sha256':digest,
+                'manifestSha256':hashlib.sha256(manifest_raw).hexdigest(),'endpointBodySha256':hashlib.sha256(body.encode()).hexdigest(),
+                'verifiedInstallation':installed}}
     def pending_start_grant(self,scope,unit):
         owner=self
         class NativeStatus:
@@ -14841,8 +14964,7 @@ class SmbSourceCheckpoint:
             fragment=self.handler.run(["systemctl","show",unit,"--property=FragmentPath","--value"]).strip()
             if (fragment!=str(path)or not stat.S_ISREG(info.st_mode)or info.st_uid!=os.geteuid()or info.st_mode&0o022
                     or path.read_text()!=self.handler.managed_unit_definition()
-                    or self.handler.run(["systemctl","show",unit,"--property=DropInPaths","--value"]).strip()
-                    or int(self.handler.run(["systemctl","show",unit,"--property=MainPID","--value"]).strip())!=master["pid"]):
+                    or self.handler.run(["systemctl","show",unit,"--property=DropInPaths","--value"]).strip()):
                 raise ValueError("LOCAL managed unit definition/master is foreign")
             endpoint=next(row for row in view["ownedEndpoints"]if row["pid"]==master["pid"])
             record=self.io.read(self.handler.configuration/"smb-endpoint-listeners"/(endpoint["key"]+".json"))
@@ -14859,7 +14981,7 @@ class SmbSourceCheckpoint:
             else:expected.extend(["--option=interfaces="+endpoint["listenIp"],"--option=bind interfaces only=yes"])
             actual=[arg.decode()for arg in (proc/"cmdline").read_bytes().split(bytes([0]))if arg]
             if actual!=expected:raise ValueError("LOCAL managed source argv changed")
-            units.append({**master,"executable":binary})
+            units.append({**master,"executable":binary,'managedLauncher':self.launcher_authority(unit,master)})
         for row in units:
             master=next((item for item in masters if item["pid"]==row["pid"]),None)
             row["lockingDatabasesAligned"]=master["lockingDatabasesAligned"]if master else True
@@ -14916,7 +15038,8 @@ class SmbSourceCheckpoint:
                 else:
                     pid=int(self.handler.run(["systemctl","show",row["unit"],"--property=MainPID","--value"]).strip())
                     if pid==0:continue
-                    if pid!=row["pid"]:raise ValueError("LOCAL interrupted managed stop has a replaced master")
+                    if self.launcher_authority(row['unit'],row)!=row.get('managedLauncher'):
+                        raise ValueError("LOCAL interrupted managed stop has a replaced launcher")
                 remaining.append(row)
             if (self.handler.database_identity()!=before["databases"]
                     or hashlib.sha256(self.reader("/etc/samba/smb.conf")[0]).hexdigest()!=before["configurationSha256"]
@@ -14926,7 +15049,8 @@ class SmbSourceCheckpoint:
         else:
             before=self.observe(value)
             if not rollback and journal["prior"]!=before:raise ValueError("LOCAL source prior ownership changed")
-        handles=self.handler.open_master_handles(before["units"])
+        pinned=before['units']+[row['managedLauncher']for row in before['units']if row.get('managedLauncher')]
+        handles=self.handler.open_master_handles(pinned)
         try:
             fresh={row["unit"]:row for row in self.unit_authority.units(require_master=False)}
             for row in before["units"]:
@@ -14939,8 +15063,13 @@ class SmbSourceCheckpoint:
                     proc=self.handler.process_root/str(row["pid"])
                     if (proc/"stat").read_text().rpartition(")")[2].split()[19]!=row["startTicks"]:
                         raise ValueError("LOCAL managed master changed after pidfd pin")
+                    if self.launcher_authority(row['unit'],row)!=row.get('managedLauncher'):
+                        raise ValueError('LOCAL managed launcher changed after pidfd pin')
             journal["phase"]="QUIESCING";self.write(scope,"journal",journal)
-            for row in before["units"]:signal.pidfd_send_signal(handles[row["pid"]],signal.SIGSTOP,None,0)
+            for row in before["units"]:
+                if row['unit']not in ('smbd.service','nmbd.service')and self.launcher_authority(row['unit'],row)!=row.get('managedLauncher'):
+                    raise ValueError('LOCAL managed launcher changed before signalling')
+                signal.pidfd_send_signal(handles[row["pid"]],signal.SIGSTOP,None,0)
             # Do not call inspect here: its TCP readiness probe would create a
             # connection after SIGSTOP. Recheck source descriptors and sessions
             # directly while the exact acceptors cannot accept application I/O.
@@ -26015,6 +26144,129 @@ class SmbSourceCheckpoint:
         self.boot=lambda:Path("/proc/sys/kernel/random/boot_id").read_text().strip()
         self.lock=lambda:PendingNfsAuthorization.lock(None,os.getpid())
         self.start_grant=self.pending_start_grant
+        self.runtime_root=Path('/opt/ablestack/storage-runtime')
+        self.installation_root=Path('/var/lib/ablestack-storage/runtime-updates')
+
+    def installed_release_authority(self,release,manifest):
+        """Read bounded public installation receipts; never mint a transaction."""
+        root=self.installation_root;info=root.lstat()
+        if not stat.S_ISDIR(info.st_mode)or info.st_uid!=0 or info.st_mode&0o022:
+            raise ValueError('LOCAL historical installation directory is foreign')
+        paths=list(root.iterdir())
+        if len(paths)>128:raise ValueError('LOCAL historical installation lookup exceeds its bound')
+        matches=[]
+        for path in sorted(paths):
+            parent=path.lstat()
+            if not stat.S_ISDIR(parent.st_mode)or not re.fullmatch('[A-Za-z0-9][A-Za-z0-9_.-]{0,127}',path.name):continue
+            if parent.st_uid!=0 or parent.st_mode&0o022:raise ValueError('LOCAL installation receipt directory is foreign')
+            header=path/'state.json'
+            if not os.path.lexists(header):continue
+            raw,header_meta=self.reader(str(header),64*1024);state=json.loads(raw)
+            if state.get('bundleVersion')!=release.name:continue
+            if (header_meta.st_mode&0o022
+                    or state.get('transactionId')!=path.name or state.get('phase')not in ('VERIFIED','COMPLETE')
+                    or state.get('releasePath')!=str(release)or state.get('keyId')!=manifest.get('keyId')
+                    or not isinstance(state.get('keyId'),str)or not re.fullmatch('[A-Za-z0-9][A-Za-z0-9_.-]{0,127}',state['keyId'])
+                    or any(not isinstance(state.get(k),str)or not re.fullmatch('[0-9a-f]{64}',state[k])
+                        for k in ('manifestSha256','archiveSha256'))):
+                raise ValueError('LOCAL historical installation receipt changed')
+            transaction_raw,transaction_meta=self.reader(str(path/'manifest.json'),64*1024)
+            if transaction_meta.st_mode&0o022 or hashlib.sha256(transaction_raw).hexdigest()!=state['manifestSha256']or json.loads(transaction_raw)!=manifest:
+                raise ValueError('LOCAL historical signed manifest differs from installation')
+            signature=path/'manifest.sig'
+            if os.path.lexists(signature):
+                self.reader(str(signature));key=self.runtime_root/'trusted-keys'/(state['keyId']+'.pem')
+                self.reader(str(key))
+                result=subprocess.run(['openssl','pkeyutl','-verify','-pubin','-inkey',str(key),'-sigfile',str(signature),
+                    '-rawin','-in',str(path/'manifest.json')],capture_output=True,timeout=self.handler.remaining(10))
+                if result.returncode:raise ValueError('LOCAL historical installation signature changed')
+            matches.append({key:state[key]for key in ('transactionId','bundleVersion','keyId','manifestSha256','archiveSha256','phase')})
+            after=path.lstat()
+            if (after.st_dev,after.st_ino,after.st_uid,after.st_mode)!=(parent.st_dev,parent.st_ino,parent.st_uid,parent.st_mode):
+                raise ValueError('LOCAL installation directory changed while reading')
+        if not matches or len({tuple(row[key]for key in ('bundleVersion','keyId','manifestSha256','archiveSha256'))for row in matches})!=1:
+            raise ValueError('LOCAL historical verified installation is absent or ambiguous')
+        return matches[0]
+
+    @staticmethod
+    def endpoint_body(source):
+        marker='smb_endpoint_run() {\n'
+        if source.count(marker)!=1:raise ValueError('LOCAL signed endpoint entry is ambiguous')
+        body=source.split(marker,1)[1].split('\n}\n',1)[0]
+        if not body or "<<'PYSMBENDPOINT'" not in body:
+            raise ValueError('LOCAL signed endpoint entry is unavailable')
+        return body
+
+    def launcher_authority(self,unit,master):
+        """Bind the signed Bash launcher to its direct, exact managed acceptor."""
+        main=int(self.handler.run(['systemctl','show',unit,'--property=MainPID','--value']).strip())
+        if main==master['pid']:return None
+        if main<=0:raise ValueError('LOCAL managed launcher is absent')
+        proc=self.handler.process_root/str(main);child=self.handler.process_root/str(master['pid'])
+        before=(proc/'stat').read_text().rpartition(')')[2].split()
+        child_stat=(child/'stat').read_text().rpartition(')')[2].split()
+        uid=next(line.split()[1:]for line in (proc/'status').read_text().splitlines()if line.startswith('Uid:'))
+        cgroup=(proc/'cgroup').read_text()
+        key=unit.removeprefix('ablestack-storage-smb@').removesuffix('.service')
+        declared_group=self.handler.run(['systemctl','show',unit,'--property=ControlGroup','--value']).strip()
+        declared_slice=self.handler.run(['systemctl','show',unit,'--property=Slice','--value']).strip()
+        default_slice='system-'+'ablestack-storage-smb'.replace('-','\\x2d')+'.slice'
+        expected_group='/system.slice/'+(declared_slice+'/'if declared_slice==default_slice else '')+unit
+        system_groups=[line.split(':',2)[-1]for line in cgroup.splitlines()
+            if len(line.split(':',2))==3 and line.split(':',2)[1]in ('','name=systemd')]
+        if (not re.fullmatch('[0-9a-f]{24}',key)or int(child_stat[1])!=main or child_stat[19]!=master['startTicks']
+                or uid!=['0']*4 or cgroup!=(child/'cgroup').read_text()
+                or declared_slice not in ('system.slice',default_slice)or declared_group!=expected_group
+                or system_groups!=[declared_group]):
+            raise ValueError('LOCAL managed launcher parent/UID/cgroup changed')
+        argv=[part.decode()for part in (proc/'cmdline').read_bytes().split(bytes([0]))if part]
+        if argv not in [[shell,'/usr/local/bin/ablestack-storagectl','smb','endpoint-run',key]
+                for shell in ('bash','/bin/bash','/usr/bin/bash')]:
+            raise ValueError('LOCAL managed launcher argv is foreign')
+        bash,bash_meta=self.reader('/usr/bin/bash');checksums,_=self.reader('/var/lib/dpkg/info/bash.md5sums')
+        matches=[line.split()[0]for line in checksums.decode().splitlines()
+            if len(line.split())==2 and line.split()[1]in ('bin/bash','usr/bin/bash')]
+        loaded=(proc/'exe').stat()
+        if (len(matches)!=1 or hashlib.md5(bash).hexdigest()!=matches[0]
+                or os.path.realpath(proc/'exe')!='/usr/bin/bash'
+                or (loaded.st_dev,loaded.st_ino)!=(bash_meta.st_dev,bash_meta.st_ino)):
+            raise ValueError('LOCAL managed launcher fixed Bash package changed')
+        fdpath=proc/'fd/255';target=os.readlink(fdpath)
+        release=Path(target).parent
+        if (target.endswith(' (deleted)')or Path(target).name!='ablestack-storagectl'
+                or release.parent!=self.runtime_root/'releases'
+                or not re.fullmatch('[A-Za-z0-9][A-Za-z0-9_.-]{0,127}',release.name)):
+            raise ValueError('LOCAL managed launcher loaded script is foreign')
+        for directory in (self.runtime_root,self.runtime_root/'releases',release):
+            info=directory.lstat()
+            if not stat.S_ISDIR(info.st_mode)or info.st_uid!=0 or info.st_mode&0o022:
+                raise ValueError('LOCAL managed launcher release directory is foreign')
+        script,meta=self.reader(target);fdmeta=fdpath.stat()
+        if ((fdmeta.st_dev,fdmeta.st_ino,fdmeta.st_size)!=(meta.st_dev,meta.st_ino,meta.st_size)
+                or meta.st_uid!=0 or stat.S_IMODE(meta.st_mode)!=0o755):
+            raise ValueError('LOCAL managed launcher script FD changed')
+        manifest_raw,_=self.reader(str(release/'manifest.json'));manifest=json.loads(manifest_raw)
+        entries=[row for row in manifest.get('files',[])if isinstance(row,dict)and row.get('path')=='ablestack-storagectl']
+        digest=hashlib.sha256(script).hexdigest()
+        if (manifest.get('bundleVersion')!=release.name or len(entries)!=1
+                or entries[0].get('sha256')!=digest or entries[0].get('mode')!='0755'
+                or entries[0].get('owner')!='root' or entries[0].get('group')!='root'):
+            raise ValueError('LOCAL managed launcher installed ENTRY manifest changed')
+        installed=self.installed_release_authority(release,manifest)
+        # Historical files are installed, protected runtime releases. Their
+        # permitted execution is narrowed to the byte-identical fixed endpoint
+        # body of the currently signed CLI; this is not current-runtime attestation.
+        body=self.endpoint_body(script.decode());signed_body=self.endpoint_body(self.cli.read_text())
+        if body!=signed_body:raise ValueError('LOCAL managed launcher endpoint body changed')
+        if ((proc/'stat').read_text().rpartition(')')[2].split()[19]!=before[19]
+                or (child/'stat').read_text().rpartition(')')[2].split()[1]!=str(main)
+                or os.readlink(fdpath)!=target or fdpath.stat().st_ino!=fdmeta.st_ino):
+            raise ValueError('LOCAL managed launcher changed during observation')
+        return {'pid':main,'startTicks':before[19],'argv':argv,'cgroup':cgroup,'controlGroup':declared_group,'slice':declared_slice,
+            'executable':{'path':'/usr/bin/bash','device':bash_meta.st_dev,'inode':bash_meta.st_ino,'sha256':hashlib.sha256(bash).hexdigest()},
+            'loadedScript':{'path':target,'device':meta.st_dev,'inode':meta.st_ino,'sha256':digest,
+                'manifestSha256':hashlib.sha256(manifest_raw).hexdigest(),'endpointBodySha256':hashlib.sha256(body.encode()).hexdigest(),
+                'verifiedInstallation':installed}}
     def pending_start_grant(self,scope,unit):
         owner=self
         class NativeStatus:
@@ -26187,8 +26439,7 @@ class SmbSourceCheckpoint:
             fragment=self.handler.run(["systemctl","show",unit,"--property=FragmentPath","--value"]).strip()
             if (fragment!=str(path)or not stat.S_ISREG(info.st_mode)or info.st_uid!=os.geteuid()or info.st_mode&0o022
                     or path.read_text()!=self.handler.managed_unit_definition()
-                    or self.handler.run(["systemctl","show",unit,"--property=DropInPaths","--value"]).strip()
-                    or int(self.handler.run(["systemctl","show",unit,"--property=MainPID","--value"]).strip())!=master["pid"]):
+                    or self.handler.run(["systemctl","show",unit,"--property=DropInPaths","--value"]).strip()):
                 raise ValueError("LOCAL managed unit definition/master is foreign")
             endpoint=next(row for row in view["ownedEndpoints"]if row["pid"]==master["pid"])
             record=self.io.read(self.handler.configuration/"smb-endpoint-listeners"/(endpoint["key"]+".json"))
@@ -26205,7 +26456,7 @@ class SmbSourceCheckpoint:
             else:expected.extend(["--option=interfaces="+endpoint["listenIp"],"--option=bind interfaces only=yes"])
             actual=[arg.decode()for arg in (proc/"cmdline").read_bytes().split(bytes([0]))if arg]
             if actual!=expected:raise ValueError("LOCAL managed source argv changed")
-            units.append({**master,"executable":binary})
+            units.append({**master,"executable":binary,'managedLauncher':self.launcher_authority(unit,master)})
         for row in units:
             master=next((item for item in masters if item["pid"]==row["pid"]),None)
             row["lockingDatabasesAligned"]=master["lockingDatabasesAligned"]if master else True
@@ -26262,7 +26513,8 @@ class SmbSourceCheckpoint:
                 else:
                     pid=int(self.handler.run(["systemctl","show",row["unit"],"--property=MainPID","--value"]).strip())
                     if pid==0:continue
-                    if pid!=row["pid"]:raise ValueError("LOCAL interrupted managed stop has a replaced master")
+                    if self.launcher_authority(row['unit'],row)!=row.get('managedLauncher'):
+                        raise ValueError("LOCAL interrupted managed stop has a replaced launcher")
                 remaining.append(row)
             if (self.handler.database_identity()!=before["databases"]
                     or hashlib.sha256(self.reader("/etc/samba/smb.conf")[0]).hexdigest()!=before["configurationSha256"]
@@ -26272,7 +26524,8 @@ class SmbSourceCheckpoint:
         else:
             before=self.observe(value)
             if not rollback and journal["prior"]!=before:raise ValueError("LOCAL source prior ownership changed")
-        handles=self.handler.open_master_handles(before["units"])
+        pinned=before['units']+[row['managedLauncher']for row in before['units']if row.get('managedLauncher')]
+        handles=self.handler.open_master_handles(pinned)
         try:
             fresh={row["unit"]:row for row in self.unit_authority.units(require_master=False)}
             for row in before["units"]:
@@ -26285,8 +26538,13 @@ class SmbSourceCheckpoint:
                     proc=self.handler.process_root/str(row["pid"])
                     if (proc/"stat").read_text().rpartition(")")[2].split()[19]!=row["startTicks"]:
                         raise ValueError("LOCAL managed master changed after pidfd pin")
+                    if self.launcher_authority(row['unit'],row)!=row.get('managedLauncher'):
+                        raise ValueError('LOCAL managed launcher changed after pidfd pin')
             journal["phase"]="QUIESCING";self.write(scope,"journal",journal)
-            for row in before["units"]:signal.pidfd_send_signal(handles[row["pid"]],signal.SIGSTOP,None,0)
+            for row in before["units"]:
+                if row['unit']not in ('smbd.service','nmbd.service')and self.launcher_authority(row['unit'],row)!=row.get('managedLauncher'):
+                    raise ValueError('LOCAL managed launcher changed before signalling')
+                signal.pidfd_send_signal(handles[row["pid"]],signal.SIGSTOP,None,0)
             # Do not call inspect here: its TCP readiness probe would create a
             # connection after SIGSTOP. Recheck source descriptors and sessions
             # directly while the exact acceptors cannot accept application I/O.
@@ -27473,7 +27731,7 @@ payload="${4:-}"
 
 # Embedded Python programs use stdin for their script. A sealed memfd makes the separate
 # payload readable by all native stages without plaintext files or secret-bearing arguments.
-if [[ "$command" != "identity" && !( "$command" == "smb" && "$subcommand" == "identity" && ( "$action" == "current-review" || "$action" == "current-quiesce" || "$action" == "current-export" || "$action" == "current-retain" || "$action" == "current-verify" ) ) && "${@: -1}" == "/dev/stdin" ]]; then
+if [[ "$command" != "identity" && !( "$command" == "smb" && "$subcommand" == "identity" && ( "$action" == "local-source-status" || "$action" == "current-review" || "$action" == "current-quiesce" || "$action" == "current-export" || "$action" == "current-retain" || "$action" == "current-verify" ) ) && "${@: -1}" == "/dev/stdin" ]]; then
   materialize_stdin_payload_in_memory "$@"
   exit $?
 fi
