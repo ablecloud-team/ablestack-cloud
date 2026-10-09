@@ -1572,6 +1572,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             public void requireAvailable(){requireNoOperationCancellation(batch.operation);}
             public void requireCommittedAvailable(){StorageWriterHeartbeat heartbeat=storageWriterHeartbeat.get();if(heartbeat!=null)heartbeat.requireAvailable();renewOperationResourceReservation(batch.operation);StorageServiceOperationControlVO control=storageOperationControlDao.findByOperation(batch.operation.getId());if(control!=null&&(control.getInstanceId()!=instance.getId()||control.getOperationId()!=batch.operation.getId()))throw new CloudRuntimeException("Committed recovery control scope changed");}
             public void verifyAllProtocols(){verifyReconciledStorageDesiredState(instance);}
+            public void preparePromotionIdentity(JsonObject receipt){prepareLkgTargetIdentity(instance,batch,receipt);}
             public JsonObject nativeGenerationStatus(){return nativeConfigurationGeneration(instance,null,"status");}
             public void commitGeneration(JsonObject receipt){JsonObject status=nativeGenerationStatus();if(getJsonString(status,"pendingOperationUuid")!=null){if(!batch.operation.getUuid().equals(getJsonString(status,"pendingOperationUuid")))throw new CloudRuntimeException("Foreign native commit blocks recovery");nativeConfigurationGeneration(instance,batch.operation,"verify");nativeConfigurationGeneration(instance,batch.operation,"commit");nativeConfigurationGeneration(instance,batch.operation,"finish");}}
             public void rollbackGeneration(JsonObject receipt){if(parseJsonObject(batch.operation.getPreviousSnapshotJson()).has("adIdentityEffectPhase"))throw new CloudRuntimeException("AD domain identity effect requires verified owned inverse before rollback");JsonObject status=nativeGenerationStatus();if(getJsonString(status,"pendingOperationUuid")==null&&receipt.get("previousGeneration").equals(status.get("generation"))&&"IN_SYNC".equals(getJsonString(status,"generationStatus")))return;nativeConfigurationGeneration(instance,batch.operation,"rollback");}
@@ -1581,6 +1582,38 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         };
     }
 
+    private void saveLkgTargetSnapshot(StorageServiceOperationVO operation,JsonObject snapshot) {
+        operation.setPreviousSnapshotJson(snapshot.toString());if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("LKG TARGET identity phase could not be persisted");
+    }
+    protected void prepareLkgTargetIdentity(StorageServiceInstanceVO instance,RenderedBatch batch,JsonObject receipt) {
+        if(!hasJoinedStorageAdDomain(instance))return;
+        StorageServiceOperationVO operation=batch.operation;JsonObject scope=serviceMaintenanceScope(instance,operation),status=nativeConfigurationGeneration(instance,null,"status");
+        JsonObject generation=status.getAsJsonObject("generation"),staged=receipt.getAsJsonObject("staged");String targetSha=getJsonString(staged,"configurationSha256"),renderedSha=getJsonString(staged,"renderedManifestSha256"),boot=getJsonString(status,"bootId");
+        if(!"IN_SYNC".equals(getJsonString(status,"generationStatus"))||getJsonString(status,"pendingOperationUuid")!=null||!operation.getUuid().equals(getJsonString(generation,"operationUuid"))||!instance.getUuid().equals(getJsonString(generation,"instanceUuid"))||!Long.valueOf(operation.getRevision()).equals(getJsonLong(generation,"revision"))||!targetSha.equals(getJsonString(status,"configurationSha256")))throw new CloudRuntimeException("LKG TARGET capture requires its exact committed current generation");
+        JsonObject source=requiredAdServiceSourceIdentity(instance);String localSid=getJsonString(source,"publicLocalMachineSid");if(!boot.equals(getJsonString(source,"bootId")))throw new CloudRuntimeException("LKG TARGET boot changed after its owned SOURCE checkpoint");
+        JsonObject snapshot=parseJsonObject(operation.getPreviousSnapshotJson()),request=scope.deepCopy();request.addProperty("targetConfigurationSha256",targetSha);
+        if(Set.of("FINALIZED","RELEASED","COMPLETE").contains(getJsonString(receipt,"phase"))&&snapshot.has("lkgTargetIdentity")&&snapshot.has("lkgTargetResumed")){StorageAdIdentityProof.targetObservation(snapshot.getAsJsonObject("lkgTargetResumed"),scope,generation,targetSha,renderedSha,boot,localSid,false,true);verifyReconciledStorageDesiredState(instance);return;}
+        if(!snapshot.has("lkgTargetCaptureIntent")){snapshot.add("lkgTargetCaptureIntent",request.deepCopy());saveLkgTargetSnapshot(operation,snapshot);}else if(!request.equals(snapshot.get("lkgTargetCaptureIntent")))throw new CloudRuntimeException("LKG TARGET retry changed its durable capture intent");
+        JsonObject captured=snapshot.has("lkgTargetCaptured")?snapshot.getAsJsonObject("lkgTargetCaptured"):StorageAdIdentityProof.targetObservation(rootGuest(instance,"operation generation render-service-capture-target",request,60),scope,generation,targetSha,renderedSha,boot,localSid,false,false);
+        if(!snapshot.has("lkgTargetCaptured")){snapshot.add("lkgTargetCaptured",captured);saveLkgTargetSnapshot(operation,snapshot);}
+        StorageAdIdentityProof.targetObservation(captured,scope,generation,targetSha,renderedSha,boot,localSid,false,false);
+        if(!snapshot.has("lkgTargetIdentity")){
+            snapshot.addProperty("lkgTargetStopRequested",true);saveLkgTargetSnapshot(operation,snapshot);
+            JsonObject stopped=StorageAdIdentityProof.targetObservation(rootGuest(instance,"operation generation render-service-quiesce-target",request,120),scope,generation,targetSha,renderedSha,boot,localSid,true,false);snapshot.add("lkgTargetStopped",stopped);saveLkgTargetSnapshot(operation,snapshot);
+            JsonObject export=configurationIdentityExportRequest(instance,operation.getUuid(),batch.key);for(Map.Entry<String,JsonElement> field:request.entrySet())export.add(field.getKey(),field.getValue().deepCopy());export.addProperty("includePosixPolicyReceipts",true);export.add("identityCheckpointRef",staged.get("identityCheckpointRef").deepCopy());
+            StorageServiceGuestCommandResult result=guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),"identity capsule export-target",export.toString(),120,Set.of("capsule")));if(!result.isSuccess())throw new CloudRuntimeException("LKG TARGET protected RAW identity export failed");JsonObject exported=parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));if(!Boolean.TRUE.equals(getNativeBoolean(exported,"success")))throw new CloudRuntimeException("LKG TARGET export has no literal success proof");JsonObject capsule=exported.getAsJsonObject("capsule"),checkpoint=StorageAdIdentityProof.targetCipherCheckpoint(getJsonObject(exported,"serviceIdentityCheckpoint"),capsule,scope,targetSha);
+            StorageConfigArtifactStore store=new StorageConfigArtifactStore(java.nio.file.Path.of(System.getProperty("cloudstack.storage.identity.path","/var/lib/cloudstack-management/storage-identity-capsules")));String id=java.util.UUID.nameUUIDFromBytes(("identity-lkg-target:"+operation.getUuid()).getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString(),keyId=java.util.UUID.nameUUIDFromBytes(("identity-key-lkg-target:"+operation.getUuid()).getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString();byte[] bytes=capsule.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            JsonObject old=getJsonObject(snapshot,"nativeIdentityCapsule");byte[] key=old==null?StorageIdentityCapsule.protectedPrivateKey(batch.key):store.read(getJsonString(old,"keyId"),getJsonString(old,"keySha256"));
+            if(store.contains(id))store.read(id,StorageConfigArchive.sha256(bytes));else store.write(id,bytes);if(store.contains(keyId))store.read(keyId,StorageConfigArchive.sha256(key));else store.write(keyId,key);
+            JsonObject reference=new JsonObject();reference.add("targetMaintenanceScope",scope);reference.addProperty("targetConfigurationSha256",targetSha);reference.addProperty("operationUuid",operation.getUuid());reference.addProperty("capsuleId",id);reference.addProperty("capsuleSha256",StorageConfigArchive.sha256(bytes));reference.addProperty("keyId",keyId);reference.addProperty("keySha256",StorageConfigArchive.sha256(key));reference.add("targetServiceIdentityCheckpoint",checkpoint);snapshot.add("lkgTargetIdentity",reference);saveLkgTargetSnapshot(operation,snapshot);
+        }
+        JsonObject resumed=StorageAdIdentityProof.targetObservation(rootGuest(instance,"operation generation render-service-resume-target",request,120),scope,generation,targetSha,renderedSha,boot,localSid,false,true);snapshot.add("lkgTargetResumed",resumed);saveLkgTargetSnapshot(operation,snapshot);
+    }
+    protected JsonObject retainLkgTargetIdentity(StorageServiceInstanceVO instance,StorageServiceOperationVO operation,String ownerArtifact) {
+        JsonObject snapshot=parseJsonObject(operation.getPreviousSnapshotJson());if(!snapshot.has("lkgTargetIdentity")||!snapshot.has("lkgTargetResumed")||!Boolean.TRUE.equals(getNativeBoolean(snapshot.getAsJsonObject("lkgTargetResumed"),"targetRuntimeVerified")))throw new CloudRuntimeException("AD LKG promotion requires its distinct resumed TARGET identity");
+        RenderedBatch batch=renderedBatch.get();if(batch==null||batch.operation.getId()!=operation.getId())throw new CloudRuntimeException("AD LKG promotion wrapping-key scope changed");
+        StorageConfigArtifactStore store=new StorageConfigArtifactStore(java.nio.file.Path.of(System.getProperty("cloudstack.storage.identity.path","/var/lib/cloudstack-management/storage-identity-capsules")));return StorageAdSemanticSource.retainTarget(store,ownerArtifact,instance.getUuid(),operation.getUuid(),snapshot.getAsJsonObject("lkgTargetIdentity"),batch.key.getPrivate());
+    }
     private java.security.KeyPair restoredRenderedKey(byte[] protectedKey) {
         String pem=com.cloud.utils.crypt.DBEncryptionUtil.decrypt(new String(protectedKey,java.nio.charset.StandardCharsets.UTF_8));
         java.security.KeyPair key;
@@ -2759,7 +2792,23 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         return exportConfigurationIdentity(instance,operationUuid,key,null,null);
     }
     protected JsonObject exportConfigurationIdentity(StorageServiceInstanceVO instance,String operationUuid,java.security.KeyPair key,JsonObject rootScope,String sourceSha) {
-        requireProtectedIdentityTransport(instance, operationUuid);
+        requireProtectedIdentityTransport(instance, operationUuid);JsonObject request=configurationIdentityExportRequest(instance,operationUuid,key);
+        if(rootScope!=null){for(Map.Entry<String,JsonElement> field:rootScope.entrySet())request.add(field.getKey(),field.getValue().deepCopy());request.addProperty("sourceConfigurationSha256",sourceSha);request.addProperty("includePosixPolicyReceipts",true);}
+        StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
+                "identity capsule export", request.toString(), 60, Set.of("capsule")));
+        if (!result.isSuccess()) throw new CloudRuntimeException("Protected local identity snapshot is unavailable");
+        JsonObject observed = parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));
+        if (!Boolean.TRUE.equals(getNativeBoolean(observed, "success")) || !observed.has("capsule")||!observed.get("capsule").isJsonObject()) throw new CloudRuntimeException("Identity snapshot was not verified");
+        if(rootScope!=null&&rootScope.has("maintenanceUuid")){
+            JsonObject receipt=StorageAdIdentityProof.serviceCipherCheckpoint(getJsonObject(observed,"serviceIdentityCheckpoint"),observed.getAsJsonObject("capsule"),rootScope,sourceSha);
+            StorageServiceOperationVO operation=storageWriterOperation.get();
+            if(operation==null||!operation.getUuid().equals(operationUuid)||!serviceMaintenanceScope(instance,operation).equals(rootScope))throw new CloudRuntimeException("SERVICE identity export is outside its reserved writer");
+            JsonObject snapshot=parseJsonObject(operation.getPreviousSnapshotJson());snapshot.add("adServiceCipherCheckpoint",receipt);
+            operation.setPreviousSnapshotJson(snapshot.toString());if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("SERVICE native encrypted source receipt could not be persisted");
+        }
+        return observed.getAsJsonObject("capsule");
+    }
+    protected JsonObject configurationIdentityExportRequest(StorageServiceInstanceVO instance,String operationUuid,java.security.KeyPair key) {
         JsonArray names = new JsonArray();Set<String> unique = new HashSet<>();
         for (StorageFileShareVO share : storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(), StorageServiceInstance.Protocol.SMB)) {
             for (StorageAccessRuleVO rule : storageAccessRuleDao.listByResource(StorageServiceInstance.AccessResourceType.FILE_SHARE, share.getId())) {
@@ -2784,21 +2833,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         && hostNames.add(rule.getPrincipal())) nvmeHosts.add(rule.getPrincipal());
             }
         }
-        request.add("nvmeHosts",nvmeHosts);
-        if(rootScope!=null){for(Map.Entry<String,JsonElement> field:rootScope.entrySet())request.add(field.getKey(),field.getValue().deepCopy());request.addProperty("sourceConfigurationSha256",sourceSha);request.addProperty("includePosixPolicyReceipts",true);}
-        StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
-                "identity capsule export", request.toString(), 60, Set.of("capsule")));
-        if (!result.isSuccess()) throw new CloudRuntimeException("Protected local identity snapshot is unavailable");
-        JsonObject observed = parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));
-        if (!Boolean.TRUE.equals(getNativeBoolean(observed, "success")) || !observed.has("capsule")||!observed.get("capsule").isJsonObject()) throw new CloudRuntimeException("Identity snapshot was not verified");
-        if(rootScope!=null&&rootScope.has("maintenanceUuid")){
-            JsonObject receipt=StorageAdIdentityProof.serviceCipherCheckpoint(getJsonObject(observed,"serviceIdentityCheckpoint"),observed.getAsJsonObject("capsule"),rootScope,sourceSha);
-            StorageServiceOperationVO operation=storageWriterOperation.get();
-            if(operation==null||!operation.getUuid().equals(operationUuid)||!serviceMaintenanceScope(instance,operation).equals(rootScope))throw new CloudRuntimeException("SERVICE identity export is outside its reserved writer");
-            JsonObject snapshot=parseJsonObject(operation.getPreviousSnapshotJson());snapshot.add("adServiceCipherCheckpoint",receipt);
-            operation.setPreviousSnapshotJson(snapshot.toString());if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("SERVICE native encrypted source receipt could not be persisted");
-        }
-        return observed.getAsJsonObject("capsule");
+        request.add("nvmeHosts",nvmeHosts);return request;
     }
     protected void importConfigurationIdentity(StorageServiceInstanceVO instance, String operationUuid, JsonObject capsule, byte[] protectedKey) {
         requireProtectedIdentityTransport(instance, operationUuid);
@@ -2931,6 +2966,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         private final long instanceId;private final org.apache.cloudstack.api.BaseCmd original;
         public ConfigurationTargetCommand(long instanceId, org.apache.cloudstack.api.BaseCmd original) { this.instanceId = instanceId;this.original = original; }
         public Long getInstanceId() { return instanceId; }
+        @Override public Boolean getAdMaintenanceWindow() {return original instanceof StorageConfigRequest?((StorageConfigRequest)original).getMaintenanceWindow():original instanceof org.apache.cloudstack.api.command.user.storage.dataservice.BaseStorageServiceAsyncCmd?((org.apache.cloudstack.api.command.user.storage.dataservice.BaseStorageServiceAsyncCmd)original).getAdMaintenanceWindow():null;}
+        @Override public String getAdConfirmation() {return original instanceof StorageConfigRequest?((StorageConfigRequest)original).getConfirmation():original instanceof org.apache.cloudstack.api.command.user.storage.dataservice.BaseStorageServiceAsyncCmd?((org.apache.cloudstack.api.command.user.storage.dataservice.BaseStorageServiceAsyncCmd)original).getAdConfirmation():null;}
         public String getCommandName() { return original.getCommandName(); }
         public String getEventType() { return "STORAGE.CONFIG.RESTORE"; }
         public String getEventDescription() { return "Applying a reviewed service configuration"; }
@@ -2975,6 +3012,57 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         org.apache.cloudstack.api.command.admin.storage.dataservice.UpgradeStorageServiceRuntimeCmd.class, execute);
         JsonObject completed = parseJsonObject(GSON.toJson(runtimeUpgradeManager.upgrade(cmd)));
         if (!"COMPLETE".equals(getJsonString(completed, "state"))) throw new CloudRuntimeException("New service runtime upgrade did not complete");
+    }
+    protected JsonObject configurationCloneRuntimePin(String bundleUuid) {
+        StorageServiceRuntimeBundleVO bundle=storageRuntimeBundleDao.findByUuid(bundleUuid);if(bundle==null)throw new InvalidParameterValueException("Clone foundation runtime bundle is unavailable");
+        JsonObject verified=runtimeUpgradeManager.verifyAvailableBundle(bundle.getId());if(!Boolean.TRUE.equals(getNativeBoolean(verified,"verified")))throw new CloudRuntimeException("Clone foundation runtime signature is unverified");JsonObject manifest=verified.getAsJsonObject("manifest");String cli=null;
+        for(JsonElement item:manifest.getAsJsonArray("files")){JsonObject file=item.getAsJsonObject();if("ablestack-storagectl".equals(getJsonString(file,"path"))){if(cli!=null)throw new CloudRuntimeException("Clone signed CLI pin is ambiguous");cli=getJsonString(file,"sha256");}}
+        String commit=getJsonString(manifest,"buildCommit");if(cli==null||!cli.matches("[a-f0-9]{64}")||commit==null||!commit.matches("[a-f0-9]{40}"))throw new CloudRuntimeException("Clone runtime lacks its signed source/CLI provenance");
+        JsonObject pin=new JsonObject();pin.addProperty("bundleUuid",bundle.getUuid());pin.addProperty("bundleSha256",bundle.getSha256());pin.addProperty("manifestSha256",bundle.getManifestSha256());pin.addProperty("expectedCliSha256",cli);pin.addProperty("sourceCommit",commit);return pin;
+    }
+    protected void prepareConfigurationCloneFoundation(StorageServiceInstanceVO target,StorageConfigArtifactVO artifact,JsonObject plan) {
+        requireConfigurationAdministrator();if(!"CREATE_NEW".equals(getJsonString(plan,"targetMode"))||target.getId()==artifact.getInstanceId())throw new InvalidParameterValueException("Clone foundation cannot prepare an existing source");
+        JsonObject metadata=parseJsonObject(artifact.getMetadataJson());if(!target.getUuid().equals(getJsonString(metadata,"createdTargetInstanceUuid"))||!plan.get("runtimeBundleUuid").equals(metadata.get("runtimePreparedBundleUuid")))throw new CloudRuntimeException("Clone foundation target has no reviewed creation/runtime receipt");
+        StorageServiceRuntimeBundleVO bundle=storageRuntimeBundleDao.findByUuid(getJsonString(plan,"runtimeBundleUuid"));if(bundle==null||!Long.valueOf(bundle.getId()).equals(target.getCurrentRuntimeBundleId()))throw new CloudRuntimeException("Clone foundation installed runtime changed");
+        String key="CLONE_FOUNDATION:"+artifact.getUuid();StorageServiceOperationVO previous=storageOperationDao.findByRequest(target.getId(),key);
+        if(previous!=null){if(!"COMPLETE_NO_CONFIG_CHANGE".equals(previous.getState())||!plan.get("volumeAllocationPlan").equals(parseJsonObject(previous.getPreviousSnapshotJson()).get("volumeAllocationPlan")))throw new CloudRuntimeException("Clone foundation has durable state requiring its explicit recovery");requireNoPendingVolumeFormatter(target);return;}
+        requireNoPendingVolumeFormatter(target);StorageServiceOperationVO operation=new StorageServiceOperationVO();operation.setInstanceId(target.getId());operation.setAction("CLONE_FOUNDATION_PREPARE");operation.setRequestKey(key);operation.setRevision(rootDesiredRevision(target.getId())+1);operation.setCreatedBy(org.apache.cloudstack.context.CallContext.current().getCallingUserId());operation.setState("RUNNING");operation.setPhase("FOUNDATION_PREPARING");JsonObject intent=new JsonObject();intent.addProperty("artifactUuid",artifact.getUuid());intent.addProperty("artifactSha256",artifact.getSha256());intent.addProperty("targetInstanceUuid",target.getUuid());intent.add("volumeAllocationPlan",plan.get("volumeAllocationPlan").deepCopy());operation.setPreviousSnapshotJson(intent.toString());operation=storageOperationDao.persist(operation);beginStorageWriterHeartbeat(operation);
+        try {startOperationControl(target,operation);if(operationControlEnabled(target))acquireOperationResourceReservation(target,operation);prepareConfigurationInitialVolume(target,plan.getAsJsonObject("createNew"));prepareConfigurationVolumeAllocations(target,artifact,plan.getAsJsonObject("volumeAllocationPlan"));requireNoPendingVolumeFormatter(target);operation.setState("COMPLETE_NO_CONFIG_CHANGE");operation.setPhase("FOUNDATION_PREPARED");operation.setCompleted(new java.util.Date());if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Clone foundation completion could not be persisted");releaseOperationResourceReservation(target,operation);}
+        catch(RuntimeException failure){operation.setState("RECOVERY_REQUIRED");operation.setPhase("FOUNDATION_RECOVERY_REQUIRED");operation.setDiagnostic("Only reviewed new clone resources were prepared; explicit reconciliation is required");storageOperationDao.update(operation.getId(),operation);throw failure;}
+        finally {endStorageWriterHeartbeat();}
+    }
+    protected void requireCloneRuntimeReadback(JsonObject verified,JsonObject pin) {
+        for(String field:Set.of("readOnly","signedRuntimeVerified","nativeFileHashesVerified"))if(!Boolean.TRUE.equals(getNativeBoolean(verified,field)))throw new CloudRuntimeException("Clone foundation runtime has no literal signed normal readback");
+        JsonObject actual=getJsonObject(verified,"runtimePin");if(actual==null||!pin.get("bundleUuid").equals(actual.get("bundleUuid"))||!pin.get("bundleSha256").equals(actual.get("archiveSha256"))||!pin.get("manifestSha256").equals(actual.get("manifestSha256"))||!pin.get("expectedCliSha256").equals(verified.get("actualCliSha256"))||getJsonString(verified,"transactionId")==null||getJsonString(verified,"transactionId").isBlank())throw new CloudRuntimeException("Clone foundation runtime pin or completed transaction changed");
+    }
+    protected void requireCloneProfileDataSet(String targetUuid,JsonObject plan,JsonObject binding,String initialUuid) {
+        JsonObject allocation=plan.getAsJsonObject("volumeAllocationPlan");StorageConfigurationVolumePlan.requireFrozen(allocation);
+        if(!targetUuid.equals(getJsonString(allocation.getAsJsonObject("scope"),"targetInstanceUuid"))||!"NEW".equals(getJsonString(plan.getAsJsonObject("createNew"),"backingvolumemode")))throw new CloudRuntimeException("Clone profile cannot adopt a foreign target or reused initial DATA");
+        Set<String> expected=new HashSet<>();for(Map.Entry<String,JsonElement> item:allocation.getAsJsonObject("volumeMappings").entrySet())if(!expected.add(item.getValue().getAsString()))throw new CloudRuntimeException("Clone profile DATA mappings collide");
+        if(!expected.contains(initialUuid))throw new CloudRuntimeException("Clone profile initial DATA differs from its realized plan");
+        for(JsonElement item:allocation.getAsJsonArray("allocations"))if(!"NEW".equals(getJsonString(item.getAsJsonObject(),"mode"))||!expected.contains(getJsonString(item.getAsJsonObject(),"plannedUuid")))throw new CloudRuntimeException("Clone profile refuses reused or unplanned additional DATA");
+        Set<String> actual=new HashSet<>();for(Map.Entry<String,JsonElement> item:binding.getAsJsonObject("volumes").entrySet())if("DATADISK".equals(getJsonString(item.getValue().getAsJsonObject(),"type")))actual.add(item.getKey());if(!expected.equals(actual))throw new CloudRuntimeException("Clone profile DATA set differs from every reviewed allocation");
+    }
+    protected void authorizeConfigurationCloneProfile(StorageServiceInstanceVO target,StorageConfigArtifactVO artifact,JsonObject plan) {
+        requireConfigurationAdministrator();requireNoPendingVolumeFormatter(target);JsonObject metadata=parseJsonObject(artifact.getMetadataJson());
+        if(!"CREATE_NEW".equals(getJsonString(plan,"targetMode"))||!target.getUuid().equals(getJsonString(metadata,"createdTargetInstanceUuid"))||!plan.get("volumeAllocationPlan").equals(metadata.get("volumeExecutionPlan")))throw new CloudRuntimeException("Clone profile requires the exact protected realized plan and target");
+        JsonObject pin=configurationCloneRuntimePin(getJsonString(plan,"runtimeBundleUuid"));if(!plan.has("cloneRuntimePin")||!pin.equals(plan.get("cloneRuntimePin")))throw new CloudRuntimeException("Clone signed runtime pin changed after review");JsonObject runtime=runtimeUpgradeManager.freshSignedRuntimeValidationProof(target.getId(),getJsonString(pin,"expectedCliSha256"));requireCloneRuntimeReadback(runtime,pin);
+        JsonObject binding=renderedValidationBindings(target);requireCloneProfileDataSet(target.getUuid(),plan,binding,configurationInitialVolume(target).getUuid());
+        JsonObject approval=new JsonObject();approval.addProperty("schemaVersion",1);approval.addProperty("kind","NEW_SPARSE_ALL4_VALIDATION");approval.addProperty("instanceUuid",target.getUuid());approval.addProperty("instanceName",target.getName());approval.addProperty("newDisposableFixture",true);approval.addProperty("originalDataExcluded",true);approval.addProperty("expiresAtMillis",System.currentTimeMillis()+24L*60*60*1000-1);approval.add("expectedCliSha256",pin.get("expectedCliSha256").deepCopy());approval.add("sourceCommit",pin.get("sourceCommit").deepCopy());approval.add("bindings",binding.deepCopy());JsonArray excluded=new JsonArray();for(StorageServiceInstanceVO other:storageServiceInstanceDao.listAll())if(other.getId()!=target.getId())excluded.add(other.getUuid());approval.add("excludedInstanceUuids",excluded);
+        StorageRenderedValidationProfile.verify(approval,target.getUuid(),target.getName(),binding,System.currentTimeMillis());
+        StorageRenderedValidationProfile.requireHandler(rootGuest(target,"operation generation render-status",new JsonObject(),15));
+        String digest=StorageConfigArchive.sha256(approval.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        String id=java.util.UUID.nameUUIDFromBytes(("clone-profile:"+artifact.getUuid()+":"+target.getUuid()+":"+digest).getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString();
+        renderedValidationStore().write(id,approval.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        JsonObject policy=instanceControlPolicy(target),previous=policy.has("renderedValidationProfile")?policy.getAsJsonObject("renderedValidationProfile"):new JsonObject();
+        long revision=previous.has("revision")?previous.get("revision").getAsLong():0;
+        JsonObject profile=StorageRenderedValidationProfile.next(previous,true,revision+1);
+        profile.add("fixtureProvenance",binding.deepCopy());
+        profile.addProperty("artifactUuid",id);
+        profile.addProperty("artifactSha256",digest);
+        profile.add("runtimeProof",runtime);
+        profile.addProperty("productionCapability",false);
+        Transaction.execute((TransactionCallback<Void>)status->{StorageServiceInstanceVO locked=storageServiceInstanceDao.lockRow(target.getId(),true);JsonObject current=instanceControlPolicy(locked),old=current.has("renderedValidationProfile")?current.getAsJsonObject("renderedValidationProfile"):new JsonObject();if((old.has("revision")?old.get("revision").getAsLong():0)!=revision)throw new CloudRuntimeException("Clone profile revision changed before authorization");current.add("renderedValidationProfile",profile);locked.setOperationControlPolicyJson(current.toString());if(!storageServiceInstanceDao.update(locked.getId(),locked))throw new CloudRuntimeException("Clone profile could not be persisted");target.setOperationControlPolicyJson(current.toString());return null;});requiredRenderedValidationProfile(target);
     }
     protected void prepareConfigurationInitialVolume(StorageServiceInstanceVO instance, JsonObject blueprint) {
         VolumeVO volume = configurationInitialVolume(instance);
@@ -3533,6 +3621,15 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
     }
 
+    protected boolean hasJoinedStorageAdDomain(StorageServiceInstanceVO instance) {
+        StorageIdentityDomainVO domain=storageIdentityDomainDao==null?null:storageIdentityDomainDao.findByInstanceId(instance.getId());
+        return domain!=null&&domain.getJoinState()==StorageServiceInstance.DomainJoinState.JOINED;
+    }
+    protected void requireJoinedAdWriterApproval(StorageServiceInstanceVO instance,org.apache.cloudstack.api.BaseCmd cmd) {
+        if(!(cmd instanceof org.apache.cloudstack.api.command.user.storage.dataservice.BaseStorageServiceAsyncCmd))throw new InvalidParameterValueException("Joined AD configuration changes require their explicit scoped maintenance request");
+        org.apache.cloudstack.api.command.user.storage.dataservice.BaseStorageServiceAsyncCmd request=(org.apache.cloudstack.api.command.user.storage.dataservice.BaseStorageServiceAsyncCmd)cmd;
+        requireAdLifecycleApproval(instance,request.getAdMaintenanceWindow(),request.getAdConfirmation());
+    }
     protected <T> T executeDesiredChange(org.apache.cloudstack.api.BaseCmd cmd, Class<T> responseClass, java.util.function.Supplier<T> change) {
         final long instanceId = getStorageServiceSyncId(cmd);
         final StorageServiceInstanceVO instance = requireInstance(instanceId);
@@ -3554,7 +3651,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
         final StorageServiceInstance.Protocol protocol = operationProtocol(cmd);
         final boolean protectedConfig=protectedIdentityConfiguration.get()!=null&&Long.valueOf(instanceId).equals(protectedIdentityConfigurationInstance.get());
-        final boolean adLifecycle=cmd instanceof JoinStorageServiceToAdDomainCmd||cmd instanceof LeaveStorageServiceFromAdDomainCmd||protectedConfig;
+        final boolean joinedAdConfiguration=hasJoinedStorageAdDomain(instance);
+        final boolean adLifecycle=cmd instanceof JoinStorageServiceToAdDomainCmd||cmd instanceof LeaveStorageServiceFromAdDomainCmd||protectedConfig||joinedAdConfiguration;
         if(adLifecycle){if(cmd instanceof JoinStorageServiceToAdDomainCmd){JoinStorageServiceToAdDomainCmd join=(JoinStorageServiceToAdDomainCmd)cmd;
         requireAdLifecycleApproval(instance,join.getMaintenanceWindow(),join.getConfirmation());
         if(!Set.of("JOIN_EXISTING","NEW_INSTANCE").contains(join.getIdentityMode()))throw new InvalidParameterValueException("AD identity mode is invalid");
@@ -3569,7 +3667,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         requireAdLifecycleApproval(instance,leave.getMaintenanceWindow(),leave.getConfirmation());
         requireNoAdPrincipalReferences(instance);
         if(leave.getUsername()!=null||leave.getPassword()!=null)StorageAdLifecycleRequest.validateCredentials(leave.getUsername(),leave.getPassword());
-        }else {StorageConfigRequest request=protectedIdentityConfiguration.get();requireAdLifecycleApproval(instance,request.getMaintenanceWindow(),request.getConfirmation());}
+        }else if(protectedConfig){StorageConfigRequest request=protectedIdentityConfiguration.get();requireAdLifecycleApproval(instance,request.getMaintenanceWindow(),request.getConfirmation());}
+        else requireJoinedAdWriterApproval(instance,cmd);
         JsonObject availability=rootGuest(instance,"operation generation render-status",new JsonObject(),15);
         if(!Boolean.TRUE.equals(getNativeBoolean(availability,"serviceIdentityCheckpointSupported")))throw new CloudRuntimeException("AD lifecycle requires protected SERVICE PRESTOP identity and stopped checkpoint support");
         }

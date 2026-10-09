@@ -30,6 +30,12 @@ public abstract class BaseStorageServiceAsyncCmd extends BaseAsyncCmd {
     @Parameter(name = "expectedrevision", type = CommandType.LONG, description = "Expected last committed configuration revision")
     private Long expectedRevision;
 
+    @Parameter(name = "admaintenancewindow", type = CommandType.BOOLEAN, description = "Explicit approval for interrupted sessions when changing a joined AD service")
+    private Boolean adMaintenanceWindow;
+    @Parameter(name = "adconfirmation", type = CommandType.STRING, length = 255, description = "Exact joined Storage Service instance name approving the AD maintenance window")
+    private String adConfirmation;
+    public Boolean getAdMaintenanceWindow() { return adMaintenanceWindow; }
+    public String getAdConfirmation() { return adConfirmation; }
     public String getIdempotencyKey() { return idempotencyKey; }
     public Long getExpectedRevision() { return expectedRevision; }
     @Override public long getEntityOwnerId() { return org.apache.cloudstack.context.CallContext.current().getCallingAccount().getId(); }

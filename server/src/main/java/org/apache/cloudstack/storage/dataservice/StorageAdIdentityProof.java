@@ -77,6 +77,17 @@ public final class StorageAdIdentityProof {
                 ||!cipherSha.equals(StorageConfigArchive.sha256(cipher))||!cipherSha.equals(text(receipt,"capsuleSha256")))throw new CloudRuntimeException("SERVICE encrypted source capsule digest or cryptographic shape changed");
         return receipt.deepCopy();
     }
+    public static JsonObject targetCipherCheckpoint(JsonObject receipt,JsonObject capsule,JsonObject scope,String targetSha) {
+        if(receipt==null||!receipt.keySet().equals(Set.of("kind","scope","capsuleSha256","targetConfigurationSha256","checkpointRecordSha256"))||!"SERVICE_TARGET_IDENTITY_CHECKPOINT".equals(text(receipt,"kind"))||!targetSha.equals(text(receipt,"targetConfigurationSha256")))throw new CloudRuntimeException("LKG TARGET ciphertext has no distinct verified target receipt");
+        JsonObject structural=receipt.deepCopy();structural.addProperty("kind","SERVICE_SOURCE_IDENTITY_CHECKPOINT");structural.addProperty("sourceConfigurationSha256",targetSha);structural.remove("targetConfigurationSha256");serviceCipherCheckpoint(structural,capsule,scope,targetSha);return receipt.deepCopy();
+    }
+    public static JsonObject targetObservation(JsonObject proof,JsonObject scope,JsonObject generation,String targetSha,String renderedSha,String bootId,String localSid,boolean stopped,boolean resumed) {
+        yes(proof,"success",true);yes(proof,"targetCaptured",true);yes(proof,"canonicalDesiredStateChanged",false);sid(localSid);
+        if(!scope.equals(proof.get("scope"))||!generation.equals(proof.get("targetGeneration"))||!targetSha.equals(text(proof,"targetConfigurationSha256"))||!renderedSha.equals(text(proof,"targetRenderedManifestSha256"))||!bootId.equals(text(proof,"bootId"))||!localSid.equals(text(proof,"publicLocalMachineSid")))throw new CloudRuntimeException("LKG TARGET observation differs from its committed generation, boot or SAM");
+        if(stopped){yes(proof,"serviceTargetStoppedVerified",true);yes(proof,"bootHeld",true);yes(proof,"sideEffects",false);if(!"SERVICE".equals(text(proof,"maintenanceKind"))||!text(proof,"stoppedReceiptSha256").matches("[a-f0-9]{64}"))throw new CloudRuntimeException("LKG TARGET has no independent owned-stop receipt");}
+        if(resumed)yes(proof,"targetRuntimeVerified",true);
+        return publicFields(proof,Set.of("success","scope","targetCaptured","canonicalDesiredStateChanged","targetGeneration","targetConfigurationSha256","targetRenderedManifestSha256","bootId","publicLocalMachineSid","serviceTargetStoppedVerified","stoppedReceiptSha256","bootHeld","sideEffects","maintenanceKind","targetRuntimeVerified"));
+    }
     public static JsonObject localSamBootstrap(JsonObject proof,JsonObject scope,JsonObject generation,String configurationSha,String bootId,String netbiosName) {
         yes(proof,"success",true);yes(proof,"canonicalDesiredStateChanged",false);
         if(!scope.equals(proof.get("scope"))||!generation.equals(proof.get("generation"))||!configurationSha.equals(text(proof,"configurationSha256"))

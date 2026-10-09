@@ -186,4 +186,58 @@ public class StorageAdSemanticSourceTest {
         ApplyFixture a=applyFixture();a.imported.setKind("RESTORE_POINT");a.imported.setState("ACTIVE_LKG");org.mockito.Mockito.when(a.artifacts.listByInstance(7L)).thenReturn(java.util.List.of(a.imported));java.lang.reflect.Method adapter=StorageServiceConfiguration.class.getDeclaredMethod("lastKnownGoodRequest",StorageServiceInstanceVO.class,StorageConfigRequest.class);adapter.setAccessible(true);
         StorageConfigRequest falseApproval=(StorageConfigRequest)adapter.invoke(a.configuration,a.owner,a.request);Assert.assertEquals(Boolean.FALSE,falseApproval.getMaintenanceWindow());org.mockito.Mockito.when(a.request.getMaintenanceWindow()).thenReturn(true);StorageConfigRequest approved=(StorageConfigRequest)adapter.invoke(a.configuration,a.owner,a.request);Assert.assertEquals(Boolean.TRUE,approved.getMaintenanceWindow());Assert.assertEquals(a.imported.getId(),approved.getArtifactId().longValue());Assert.assertEquals("fixture",approved.getConfirmation());org.mockito.Mockito.verify(a.artifacts,org.mockito.Mockito.never()).update(org.mockito.Mockito.anyLong(),org.mockito.Mockito.any());
     }
+    private JsonObject targetReference(Fixture f) {
+        JsonObject target=new JsonObject();
+        target.add("targetMaintenanceScope",f.nativeRef.get("sourceMaintenanceScope").deepCopy());
+        target.add("targetConfigurationSha256",f.nativeRef.get("sourceConfigurationSha256").deepCopy());
+        target.addProperty("operationUuid",OP);
+        String id=java.util.UUID.nameUUIDFromBytes(("identity-lkg-target:"+OP).getBytes(StandardCharsets.UTF_8)).toString(),keyId=java.util.UUID.nameUUIDFromBytes(("identity-key-lkg-target:"+OP).getBytes(StandardCharsets.UTF_8)).toString();
+        byte[] cipher=f.capsule.toString().getBytes(StandardCharsets.UTF_8),key=f.store.read(f.nativeRef.get("keyId").getAsString(),f.nativeRef.get("keySha256").getAsString());
+        f.store.write(id,cipher);
+        f.store.write(keyId,key);
+        target.addProperty("capsuleId",id);
+        target.addProperty("capsuleSha256",StorageConfigArchive.sha256(cipher));
+        target.addProperty("keyId",keyId);
+        target.addProperty("keySha256",StorageConfigArchive.sha256(key));
+        JsonObject receipt=f.nativeRef.getAsJsonObject("sourceServiceIdentityCheckpoint").deepCopy();
+        receipt.addProperty("kind","SERVICE_TARGET_IDENTITY_CHECKPOINT");
+        receipt.add("targetConfigurationSha256",receipt.remove("sourceConfigurationSha256"));
+        target.add("targetServiceIdentityCheckpoint",receipt);
+        return target;
+    }
+    @Test public void lkgTargetRoleUsesIndependentVaultAndRejectsSourceReceiptOrWrappingKeySwap() throws Exception {
+        Fixture f=fixture(true);JsonObject target=targetReference(f),retained=StorageAdSemanticSource.retainTarget(f.store,"77777777-7777-4777-8777-777777777777",INSTANCE,OP,target,f.key.getPrivate());Assert.assertEquals("LKG_TARGET",retained.get("checkpointRole").getAsString());Assert.assertEquals(f.capsule,StorageAdSemanticSource.authenticate(f.store,retained.getAsJsonObject("descriptor"),retained,"b".repeat(64),"b".repeat(64),f.key.getPrivate()));
+        JsonObject wrong=target.deepCopy();wrong.add("targetServiceIdentityCheckpoint",f.nativeRef.get("sourceServiceIdentityCheckpoint").deepCopy());Assert.assertThrows(RuntimeException.class,()->StorageAdSemanticSource.retainTarget(f.store,ARTIFACT,INSTANCE,OP,wrong,f.key.getPrivate()));Assert.assertThrows(RuntimeException.class,()->StorageAdSemanticSource.retainTarget(f.store,ARTIFACT,INSTANCE,OP,target,StorageIdentityCapsule.wrappingKey().getPrivate()));
+        JsonObject mixed=retained.deepCopy();mixed.remove("checkpointRole");Assert.assertThrows(RuntimeException.class,()->StorageAdSemanticSource.authenticate(f.store,retained.getAsJsonObject("descriptor"),mixed,"b".repeat(64),"b".repeat(64),f.key.getPrivate()));Assert.assertEquals(f.capsule,StorageAdSemanticSource.authenticate(f.store,descriptor(f),f.retained,"b".repeat(64),"b".repeat(64),f.key.getPrivate()));
+    }
+    @Test public void actualCloneApplyRealizesFoundationAndProfileBeforeProtectedDomainWriter() throws Exception {
+        ApplyFixture a=applyFixture();com.cloud.user.User user=org.mockito.Mockito.mock(com.cloud.user.User.class);org.mockito.Mockito.when(user.getId()).thenReturn(11L);org.apache.cloudstack.context.CallContext.register(user,org.mockito.Mockito.mock(com.cloud.user.Account.class));String old=System.getProperty("cloudstack.storage.identity.path");System.setProperty("cloudstack.storage.identity.path",a.identity.root.toString());
+        a.plan.addProperty("targetMode","CREATE_NEW");
+        a.plan.add("createNew",new JsonObject());
+        a.plan.addProperty("runtimeBundleUuid",KEY);JsonObject pin=new JsonObject();pin.addProperty("sourceCommit","a".repeat(40));a.plan.add("cloneRuntimePin",pin);org.mockito.Mockito.when(a.manager.configurationCloneRuntimePin(KEY)).thenReturn(pin);
+        JsonObject allocation=new JsonObject();
+        allocation.addProperty("schemaVersion",1);
+        allocation.add("scope",new JsonObject());
+        allocation.add("allocations",new com.google.gson.JsonArray());
+        allocation.add("volumeMappings",new JsonObject());
+        allocation.addProperty("planSha256",StorageConfigurationVolumePlan.sha256(StorageConfigurationVolumePlan.canonical(allocation)));
+        a.plan.add("volumeAllocationPlan",allocation);
+        a.importMetadata.getAsJsonObject("planToken").addProperty("planSha256",StorageConfigArchive.sha256(a.plan.toString().getBytes(StandardCharsets.UTF_8)));
+        a.imported.setMetadataJson(a.importMetadata.toString());
+        org.mockito.Mockito.when(a.request.getMaintenanceWindow()).thenReturn(true);
+        org.mockito.Mockito.when(a.manager.captureConfigurationSnapshot(7L)).thenReturn("{}");
+        StorageServiceInstanceVO target=org.mockito.Mockito.mock(StorageServiceInstanceVO.class);
+        org.mockito.Mockito.when(target.getId()).thenReturn(13L);
+        org.mockito.Mockito.when(target.getUuid()).thenReturn("77777777-7777-4777-8777-777777777777");
+        org.mockito.Mockito.when(a.manager.createConfigurationNewService(org.mockito.Mockito.any())).thenReturn(target);
+        org.mockito.Mockito.when(a.manager.bindConfigurationVolumeExecution(org.mockito.Mockito.eq(target),org.mockito.Mockito.eq(a.imported),org.mockito.Mockito.any())).thenReturn(allocation);
+        org.mockito.Mockito.when(a.artifacts.lockRow(8L,true)).thenReturn(a.imported);
+        org.mockito.Mockito.when(a.artifacts.update(org.mockito.Mockito.anyLong(),org.mockito.Mockito.any())).thenReturn(true);
+        org.mockito.Mockito.doThrow(new com.cloud.utils.exception.CloudRuntimeException("Stop before domain mutation in the scoped test")).when(a.manager).executeProtectedIdentityConfiguration(org.mockito.Mockito.eq(target),org.mockito.Mockito.any(),org.mockito.Mockito.any(),org.mockito.Mockito.any(),org.mockito.Mockito.any());
+        try(org.mockito.MockedStatic<com.cloud.utils.db.Transaction> transactions=org.mockito.Mockito.mockStatic(com.cloud.utils.db.Transaction.class)){
+            transactions.when(()->com.cloud.utils.db.Transaction.execute(org.mockito.ArgumentMatchers.<com.cloud.utils.db.TransactionCallback<Object>>any())).thenAnswer(call->((com.cloud.utils.db.TransactionCallback<?>)call.getArgument(0)).doInTransaction(null));
+            java.lang.reflect.Method apply=StorageServiceConfiguration.class.getDeclaredMethod("applyLocked",StorageServiceInstanceVO.class,StorageConfigRequest.class);apply.setAccessible(true);Assert.assertThrows(java.lang.reflect.InvocationTargetException.class,()->apply.invoke(a.configuration,a.owner,a.request));
+            org.mockito.InOrder order=org.mockito.Mockito.inOrder(a.manager);order.verify(a.manager).createConfigurationNewService(org.mockito.Mockito.any());order.verify(a.manager).upgradeConfigurationNewServiceRuntime(target,KEY);order.verify(a.manager).bindConfigurationVolumeExecution(org.mockito.Mockito.eq(target),org.mockito.Mockito.eq(a.imported),org.mockito.Mockito.any());order.verify(a.manager).prepareConfigurationCloneFoundation(org.mockito.Mockito.eq(target),org.mockito.Mockito.eq(a.imported),org.mockito.Mockito.any());order.verify(a.manager).authorizeConfigurationCloneProfile(org.mockito.Mockito.eq(target),org.mockito.Mockito.eq(a.imported),org.mockito.Mockito.any());order.verify(a.manager).executeProtectedIdentityConfiguration(org.mockito.Mockito.eq(target),org.mockito.Mockito.any(),org.mockito.Mockito.any(),org.mockito.Mockito.any(),org.mockito.Mockito.any());
+        }finally{if(old==null)System.clearProperty("cloudstack.storage.identity.path");else System.setProperty("cloudstack.storage.identity.path",old);org.apache.cloudstack.context.CallContext.unregister();}
+    }
 }

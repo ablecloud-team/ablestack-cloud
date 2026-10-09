@@ -78,8 +78,9 @@ public final class StorageAdSemanticSource {
         if(!revision.isJsonPrimitive()||!revision.getAsJsonPrimitive().isNumber()||!revision.getAsString().matches("[0-9]+")||revision.getAsLong()<1)throw new CloudRuntimeException("AD source vault revision is not literal");
     }
     private static void ownedReference(JsonObject reference,JsonObject descriptor) {
-        if(!reference.keySet().equals(Set.of("kind","ownerArtifactUuid","sourceInstanceUuid","sourceOperationUuid","cipherId","keyId","cipherDataSha256","keyDataSha256","sourceMaintenanceScope","sourceServiceIdentityCheckpoint","descriptor","keyBlobKind"))
-                ||!KIND.equals(text(reference,"kind"))||!"MANAGEMENT_DB_ENCRYPTED_PKCS8_PRIVATE_KEY".equals(text(reference,"keyBlobKind")))throw new CloudRuntimeException("AD source private vault reference kind or fields changed");
+        Set<String> fields=new java.util.HashSet<>(Set.of("kind","ownerArtifactUuid","sourceInstanceUuid","sourceOperationUuid","cipherId","keyId","cipherDataSha256","keyDataSha256","sourceMaintenanceScope","sourceServiceIdentityCheckpoint","descriptor","keyBlobKind"));
+        if(reference.has("checkpointRole")){fields.add("checkpointRole");if(!"LKG_TARGET".equals(text(reference,"checkpointRole")))throw new CloudRuntimeException("AD source private checkpoint role is invalid");}
+        if(!reference.keySet().equals(fields)||!KIND.equals(text(reference,"kind"))||!"MANAGEMENT_DB_ENCRYPTED_PKCS8_PRIVATE_KEY".equals(text(reference,"keyBlobKind")))throw new CloudRuntimeException("AD source private vault reference kind or fields changed");
         String owner=text(reference,"ownerArtifactUuid");
         if(!identity(owner,"cipher").equals(text(reference,"cipherId"))||!identity(owner,"key").equals(text(reference,"keyId")))throw new CloudRuntimeException("AD source vault cannot select another owner's entries");
         for(String field:Set.of("cipherDataSha256","keyDataSha256"))if(!text(reference,field).matches("[a-f0-9]{64}"))throw new CloudRuntimeException("AD source vault integrity digest is invalid");
@@ -90,16 +91,25 @@ public final class StorageAdSemanticSource {
         ownedReference(reference,descriptor);return reference.deepCopy();
     }
     public static JsonObject retain(StorageConfigArtifactStore store,String ownerArtifact,String instance,String operation,JsonObject nativeReference,PrivateKey key) {
-        JsonObject scope=nativeReference.getAsJsonObject("sourceMaintenanceScope");String checksum=text(nativeReference,"sourceConfigurationSha256");
+        return retainIdentity(store,ownerArtifact,instance,operation,nativeReference,key,false);
+    }
+    public static JsonObject retainTarget(StorageConfigArtifactStore store,String ownerArtifact,String instance,String operation,JsonObject nativeReference,PrivateKey key) {
+        if(!nativeReference.keySet().equals(Set.of("targetMaintenanceScope","targetConfigurationSha256","operationUuid","capsuleId","capsuleSha256","keyId","keySha256","targetServiceIdentityCheckpoint")))throw new CloudRuntimeException("LKG TARGET native reference is not closed");
+        return retainIdentity(store,ownerArtifact,instance,operation,nativeReference,key,true);
+    }
+    private static JsonObject retainIdentity(StorageConfigArtifactStore store,String ownerArtifact,String instance,String operation,JsonObject nativeReference,PrivateKey key,boolean target) {
+        JsonObject scope=nativeReference.getAsJsonObject(target?"targetMaintenanceScope":"sourceMaintenanceScope");String checksum=text(nativeReference,target?"targetConfigurationSha256":"sourceConfigurationSha256");
         sourceScope(scope,instance,operation);
-        String expectedKey=UUID.nameUUIDFromBytes(("identity-key:"+operation).getBytes(StandardCharsets.UTF_8)).toString();
-        if(!operation.equals(text(nativeReference,"operationUuid"))||!expectedKey.equals(text(nativeReference,"keyId")))throw new CloudRuntimeException("AD backup cannot borrow another operation's native wrapping key");
-        byte[] capsuleBytes=store.read(operation,text(nativeReference,"capsuleSha256")),protectedKey=store.read(text(nativeReference,"keyId"),text(nativeReference,"keySha256"));
+        String expectedKey=UUID.nameUUIDFromBytes(((target?"identity-key-lkg-target:":"identity-key:")+operation).getBytes(StandardCharsets.UTF_8)).toString();
+        String capsuleId=target?UUID.nameUUIDFromBytes(("identity-lkg-target:"+operation).getBytes(StandardCharsets.UTF_8)).toString():operation;
+        if(!operation.equals(text(nativeReference,"operationUuid"))||!expectedKey.equals(text(nativeReference,"keyId"))||target&&!capsuleId.equals(text(nativeReference,"capsuleId")))throw new CloudRuntimeException("AD identity cannot borrow another operation's native wrapping key or role");
+        byte[] capsuleBytes=store.read(capsuleId,text(nativeReference,"capsuleSha256")),protectedKey=store.read(text(nativeReference,"keyId"),text(nativeReference,"keySha256"));
         java.security.PrivateKey actualKey=StorageIdentityCapsule.unwrapProtectedPrivateKey(protectedKey);byte[] expectedDer=key.getEncoded(),actualDer=actualKey.getEncoded();
         try {if(!MessageDigest.isEqual(expectedDer,actualDer))throw new CloudRuntimeException("AD backup issuer key differs from its exact capsule wrapping key");}
         finally {java.util.Arrays.fill(expectedDer,(byte)0);java.util.Arrays.fill(actualDer,(byte)0);}
         JsonObject capsule=JsonParser.parseString(new String(capsuleBytes,StandardCharsets.UTF_8)).getAsJsonObject();
-        StorageAdIdentityProof.serviceCipherCheckpoint(nativeReference.getAsJsonObject("sourceServiceIdentityCheckpoint"),capsule,scope,checksum);
+        JsonObject checkpoint=nativeReference.getAsJsonObject(target?"targetServiceIdentityCheckpoint":"sourceServiceIdentityCheckpoint");
+        if(target)StorageAdIdentityProof.targetCipherCheckpoint(checkpoint,capsule,scope,checksum);else StorageAdIdentityProof.serviceCipherCheckpoint(checkpoint,capsule,scope,checksum);
         JsonObject descriptor=new JsonObject();descriptor.addProperty("schemaVersion",1);descriptor.addProperty("kind",KIND);descriptor.addProperty("ownerArtifactUuid",ownerArtifact);
         descriptor.addProperty("sourceInstanceUuid",instance);descriptor.addProperty("sourceOperationUuid",operation);descriptor.addProperty("sourceConfigurationSha256",checksum);descriptor.addProperty("ciphertextSha256",text(capsule,"sha256"));
         descriptor.addProperty("issuerMac",issuerMac(descriptor,key));validateDescriptor(descriptor);
@@ -107,7 +117,7 @@ public final class StorageAdSemanticSource {
         writeSame(store,cipherId,capsuleBytes);writeSame(store,keyId,protectedKey);
         JsonObject reference=new JsonObject();reference.addProperty("kind",KIND);reference.addProperty("ownerArtifactUuid",ownerArtifact);reference.addProperty("sourceInstanceUuid",instance);reference.addProperty("sourceOperationUuid",operation);
         reference.addProperty("cipherId",cipherId);reference.addProperty("keyId",keyId);reference.addProperty("cipherDataSha256",StorageConfigArchive.sha256(capsuleBytes));reference.addProperty("keyDataSha256",StorageConfigArchive.sha256(protectedKey));
-        reference.add("sourceMaintenanceScope",scope.deepCopy());reference.add("sourceServiceIdentityCheckpoint",nativeReference.get("sourceServiceIdentityCheckpoint").deepCopy());reference.addProperty("keyBlobKind","MANAGEMENT_DB_ENCRYPTED_PKCS8_PRIVATE_KEY");reference.add("descriptor",descriptor);ownedReference(reference,descriptor);return reference;
+        reference.add("sourceMaintenanceScope",scope.deepCopy());reference.add("sourceServiceIdentityCheckpoint",checkpoint.deepCopy());if(target)reference.addProperty("checkpointRole","LKG_TARGET");reference.addProperty("keyBlobKind","MANAGEMENT_DB_ENCRYPTED_PKCS8_PRIVATE_KEY");reference.add("descriptor",descriptor);ownedReference(reference,descriptor);return reference;
     }
     public static JsonObject authenticate(StorageConfigArtifactStore store,JsonObject descriptor,JsonObject trustedReference,String archiveSha,String originalArchiveSha,PrivateKey key) {
         validateDescriptor(descriptor);
@@ -120,7 +130,8 @@ public final class StorageAdSemanticSource {
         byte[] bytes=store.read(text(trustedReference,"cipherId"),text(trustedReference,"cipherDataSha256"));
         store.read(text(trustedReference,"keyId"),text(trustedReference,"keyDataSha256"));
         JsonObject capsule=JsonParser.parseString(new String(bytes,StandardCharsets.UTF_8)).getAsJsonObject();
-        StorageAdIdentityProof.serviceCipherCheckpoint(trustedReference.getAsJsonObject("sourceServiceIdentityCheckpoint"),capsule,trustedReference.getAsJsonObject("sourceMaintenanceScope"),text(descriptor,"sourceConfigurationSha256"));
+        if(trustedReference.has("checkpointRole"))StorageAdIdentityProof.targetCipherCheckpoint(trustedReference.getAsJsonObject("sourceServiceIdentityCheckpoint"),capsule,trustedReference.getAsJsonObject("sourceMaintenanceScope"),text(descriptor,"sourceConfigurationSha256"));
+        else StorageAdIdentityProof.serviceCipherCheckpoint(trustedReference.getAsJsonObject("sourceServiceIdentityCheckpoint"),capsule,trustedReference.getAsJsonObject("sourceMaintenanceScope"),text(descriptor,"sourceConfigurationSha256"));
         if(!text(descriptor,"ciphertextSha256").equals(text(capsule,"sha256"))||!(text(descriptor,"sourceInstanceUuid")+":"+text(descriptor,"sourceOperationUuid")).equals(text(capsule,"scope")))throw new CloudRuntimeException("AD source cipher belongs to another original operation");
         return capsule;
     }
