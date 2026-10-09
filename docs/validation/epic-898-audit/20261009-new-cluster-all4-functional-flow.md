@@ -1,6 +1,6 @@
 # 새 클러스터 all4 기능 인수의 단일 실행 흐름
 
-이 문서는 final source/artifact GO 뒤 parent 가 검토해 단계별로 실행할 기능 시험 계획이다. 이 계획으로 추가 QEMU · Cloud 생성/변경은 0 이다. 이후 CreateSharedFS의 일반 SYSTEM 선택 기능만 별도 source/test 범위로 보완했으며 actual UI는 아직 미검증이다. 스타일/레이아웃 표준화는 시작하지 않았다. source-only, 로컬 실제, 기존 Cloud subset, 새 클러스터 인수를 구분한다. 최종 11탭 style/theme/button/dialog/keyboard QA #1275 는 이 흐름에 포함하지 않는다.
+이 문서는 final source/artifact GO 뒤 parent 가 검토해 단계별로 실행할 기능 시험 계획이다. 이 계획으로 추가 QEMU · Cloud 생성/변경은 0 이다. 생성 SYSTEM 선택 / ROOT SPARSE 필터와 기능 입력의 source 및 실제 부정 UI를 구분하며, 새 fixture 생성·JOINED 변경의 긍정 인수는 아직 미완료다. 스타일/레이아웃 표준화는 시작하지 않았다. source-only, 로컬 실제, 기존 Cloud subset, 새 클러스터 인수를 구분한다. 최종 11탭 style/theme/button/dialog/keyboard QA #1275 는 이 흐름에 포함하지 않는다.
 
 빌드/서명/패키지는 [단일 source 빌드 계획](20261009-final-single-source-build-plan.md), 전체 판정은 [29개 현재 원장](20261009-current-acceptance-summary.md)을 따른다. 예전 THIN cache gap은 host 0a10 보완으로, template selection은 explicit API 707 배포로 전진했지만 새 artifact의 실제 producer/consumer/cache 증거는 필요하다. 옛 fc3e 계획을 새 artifact나 실행 승인으로 읽지 않는다.
 
@@ -24,7 +24,7 @@ API 증거는 비밀 없는 request allowlist·job/code/phase·대상 UUID와 �
 
 ## 1. artifact · 배포 · capacity checkpoint
 
-AD/native/retained 필요한 핀을 통합한 S와 새 full image/runtime/RPM을 먼저 고정한다. production all4/AD flag를 임의 true로 만들지 않는다. source 760 AD 부분검증·752 retained 구현·로컬 auth PASS는 전체 시작 조건을 대신하지 않는다.
+AD/native/retained 필요한 핀을 통합한 S와 Java5/UI/native/runtime/새 template artifact 일치를 먼저 고정한다. 정식 RPM/SRPM publication/설치는 별도 재현 준비이며 기능 hard gate 를 추가하지 않는다. production all4/AD flag를 임의 true로 만들지 않는다. source 825 / 124 및 native163 부분검증·752 retained 구현·UI216+POSIX244·로컬 auth PASS는 전체 시작 조건을 대신하지 않는다.
 
 actual ADE 707/old Runtime 2는 새 profile proof를 default fail-closed 한다. 새 Runtime 3/interface/Manager/API/DTO/provider/schema와 KVM command/wrapper/QemuImg ABI를 같은 출력으로 맞춘 뒤 parent 배포 GO가 필요하다. 원래 7 VM/3 host/10 recovery rows/7 OFF policy와 strict manager/agent/template version을 대조한다. legacy filename이나 5-part trim으로 platform을 추정하지 않는다.
 
@@ -91,7 +91,7 @@ SO dynamic/shared/HA/arch/template 필터·API negative 후 실제 online scale/
 
 normal register/verify/AVAILABLE·UI catalog/preflight/apply/readback/history를 연결한다. installed/LKG/Root-retained/import reference의 revoke/delete 제약, tampered archive/signature/key·unknown/incompatible consumer·feature/package loss·wrong pin/provenance를 effect 전에 거절한다.
 
-F1 held I/O의 compatible update, 의도한 health-failure rollback/recovery, manual rollback을 필요한 조건으로 구분한다. UI100%보다 signed current bytes/source-previous receipt/terminal/data-session 보존을 본다. 기존 bridge subset은 반복하지 않는다. stable signing은 org403/key provisioning과 test key를 구분한다.
+F1 held I/O의 compatible update, 의도한 health-failure rollback/recovery, manual rollback을 필요한 조건으로 구분한다. UI100%보다 signed current bytes/source-previous receipt/terminal/data-session 보존을 본다. 기존 bridge subset은 반복하지 않는다. 승인된 sealed RAM 시험 키+정확 public trust 로 기능 catalog/upgrade 를 검증한다. org403 / stable CI key provisioning 및 정식 release publication 은 별도 사실이며 기능 전체를 막지 않는다.
 
 ## 7. backup download/import · multi NEW
 
@@ -100,6 +100,8 @@ UI backup→download→upload→validate→plan preview→apply와 정상 create
 protected private USER로 CREATE_NEW하는 F2의 template/artifact foundation은 API-only다. 일반 UI backup/download/upload/validate/preview/apply는 실제 지원하는 SYSTEM/EXISTING 경로로 별도 검증하고, private foundation apply의 UI operation/history 조회를 사용자 UI 제출 성공으로 대체하지 않는다. UI에 지원하지 않는 multi NEW 입력은 API-only gate와 남은 기능 UI gap을 표시한다.
 
 AD 신원을 포함한 일반 CREATE_NEW 사용자 UI 는 공개 SYSTEM 템플릿의 explicit UUID 선택을 추가로 요구한다. 공개 artifact coverage 와 exact descriptor 를 확인하고 Ready / scalable / KVM / x86_64 / 동일 zone / owner 문맥 및 literal seed.absent metadata 를 통과한 후보만 직접 선택한다. mapping.createNew.templateid 는 sealed planToken 에 고정되며 prepare / apply 직전 변경을 막는다. 이 기능 소스는 188 개 테스트 / 13 개 suite PASS 및 독립 운영 850 파일 PASS 이고, 실제 AD clone / 새 VM 생성은 0 이다. 내부 private USER / source artifact / key reference 는 API-only foundation 에 남는다. 일반 non-AD clone 의 templateid 기본 생략은 유지한다.
+
+CREATE_NEW F2 는 source825 의 managed foundation 으로 실제 ROOT/추가 NEW DATA 를 준비하고 완료된 normal signed transaction / exact S·CLI pin / 실제 bindings 로 target 전용 protected profile 을 확인한 뒤 DomainFIRST 에 들어간다. precreate permit 또는 F1 profile 을 대신 사용하지 않는다. 이 source 순서를 새 실제 target 의 API / UI · 응답 유실 / recovery 에서 확인한다.
 
 CREATE_NEW F2에 source4 DATA를 NEW로 매핑한다. planSHA→execution parentSHA/actual target-initial bind·추가 deterministic customID/provenance receipt/CAS를 고정한다. initial 중복 allocation0, FILE1/RAW 0, default PRESERVE다. source file copy를 주장하지 않고 새 target data의 external all4를 확인한다.
 
@@ -133,7 +135,7 @@ precommit fault는 latest source Root/data/canonical7/gen/runtime로 정상 swap
 
 OOBE 사용자 완료 회신과 actual 완료 확인 뒤만 기존 승인된 Client 47 DNS→DC.2/hostname/join/reboot를 한다. 회신이 없으면 conditional OPEN으로 남기고 다른 기능을 계속한다. 질문 반복/OOBE·약관·암호 우회는0이다.
 
-F3 isolated DHCP/route/DNS/MAC·SPARSE Root/Data·fresh handler/normal signed pin/profile을 확인한다. 새 AD test user/group/alias scope와 cleanup을 고정하고 UI/API join/leave/principal receipt, DC/DNS/SPN/NetBIOS/machineSID/keytab/idmap, Windows Kerberos/CIFS alias/AD user-group ACL positive/denied를 검증한다. source-only proof는 actual join/identity 복원이 아니다. native ordinary117 의 typed JOIN/LEAVE·SAM bootstrap 은 source / 합성 net writer 범위이며 Cloud AD0 이다. seed cleanup / absence exact8 은 WIP PIN0 / 새 image0 이므로 단일 image 를 새로 빌드한 뒤 fresh 두 guest SID 고유성을 실제 검증해야 한다.
+F3 isolated DHCP/route/DNS/MAC·SPARSE Root/Data·fresh handler/normal signed pin/profile을 확인한다. 새 AD test user/group/alias scope와 cleanup을 고정하고 UI/API join/leave/principal receipt, DC/DNS/SPN/NetBIOS/machineSID/keytab/idmap, Windows Kerberos/CIFS alias/AD user-group ACL positive/denied를 검증한다. source-only proof는 actual join/identity 복원이 아니다. native ordinary117 의 typed JOIN/LEAVE·SAM bootstrap 은 source / 합성 net writer 범위이며 Cloud AD0 이다. seed 9 fixed paths / absence 8 tests 는 b1c91c0b4910 source PIN / 새 image0 이므로 단일 image 를 새로 빌드한 뒤 fresh 두 guest SID 고유성을 실제 검증해야 한다.
 
 `#915`: 서로 다른 parent1001001:1001001/setgid2775의 AD 생성·old owner 보존·RO/invalid 거절·기본복귀. `#908`: 관리ID>=10000의 AD/local force identity·권한제거 뒤 auth-success/tree-denied·실principal audit·NFS policy 일치. `#916`: SID→UID/GID/defaultACL/protectedID/충돌을 검증한다.
 
@@ -153,7 +155,7 @@ NEW10 TiB actual metadata/identity/ROOT 제외/formatter budget/deadline·bounde
 | --- | --- | --- |
 | #911 | 6 | 기존 CLOSED 유지, 새 맥락은 #924/#920 |
 | #1269 | 2~12 | bounded consumer/권한/failed/recovery functional, 기존 null/stale PASS 재반복 없음 |
-| #924 | 1/6/10/11 | strict3consumer/catalog lifecycle/signed fault·featureloss/stablekey |
+| #924 | 1/6/10/11 | strict3consumer/RootAdmin catalog lifecycle/권한/signed fault·featureloss(API/UI); 시험키 승인범위 사용, 정식 key/release 별도 |
 | #892 | 3/7/8/10/11 | 새 all4 atomic/crash/crypto/recovery/canonical7/LKG, localauth와 별도 |
 | #897 | 8/10 | real opt-in lease/pressure/drain/cancel/restart/release-hold/activequeue |
 | #974 | 12 | 정확 SPARSE10T/resume/capacity/finally, THIN/NEW20/1T로 대체 없음 |
@@ -185,6 +187,6 @@ NEW10 TiB actual metadata/identity/ROOT 제외/formatter budget/deadline·bounde
 
 ## 최신 기능 소스와 실제 효과 경계
 
-2026-10-09 native 일반 JOIN/LEAVE 117, ROOT Create 필터 UI150, 신원 포함 백업 UI141 및 복원 승인 UI161 source 결과를 구분한다. 현재 actual MGT 는 ADE707 이며 새 AD fresh/backup/restore producer 전체 기능은 아직 실제 효과를 검증하지 않았다. UI 는 `adIdentityRestoreRequiresMaintenance === true` 에서만 명시적 중단 승인과 사용자 exact name 을 전달하고, source authorization / issuer / 원본 권한은 서버가 검증한다. UI 에 sourceauth JSON 이나 private key 를 입력하지 않는다. LKG maintenance getter / adapter 보완도 source API 정합성 체크포인트에 포함한다.
+2026-10-09 Java825/124, native ROOT AD 권한·역동작163, 공통 JOINED writer UI216 및 POSIX244/17, ROOT Create UI150, 신원 백업 UI141/복원 UI161/clone UI188 source 결과를 구분한다. native163 의 외부 관찰은 합성이고 ROOT/SERVICE opaque 소비자와 actual 검증은 남는다. 현재 actual MGT 는 ADE707 이며 새 AD fresh/backup/restore producer 전체 기능은 아직 실제 효과를 검증하지 않았다. UI 는 `adIdentityRestoreRequiresMaintenance === true` 에서만 명시적 중단 승인과 사용자 exact name 을 전달하고, source authorization / issuer / 원본 권한은 서버가 검증한다. UI 에 sourceauth JSON 이나 private key 를 입력하지 않는다. LKG maintenance getter / adapter 보완도 source API 정합성 체크포인트에 포함한다.
 
 seed8 proof 는 `/root/work/epic898-preparation/template-identity-seed-eight-proof.json` 이다. 기존 fc3e 공개 SAM seed 보존 증거를 새 sanitized image 성공으로 재표시하지 않는다. 실제 새 VM / template 등록 / AD / ROOT 효과와 최종 UI #1275 착수는 각각 별도 gate 로 유지한다.
