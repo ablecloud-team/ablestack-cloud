@@ -92,6 +92,10 @@ public class StorageTemplateUpgradeRuntimeTest {
             }
             return result;
         }
+        boolean joinedSource,failAdAuthority,failAdRetain;
+        @Override protected boolean hasJoinedStorageAdDomain(StorageServiceInstanceVO instance){return joinedSource;}
+        @Override protected JsonObject authorizeImportedRootAdIdentity(StorageServiceInstanceVO instance,JsonObject scope,JsonObject reference,JsonObject runtime){commands.add("AUTHORIZE_FORWARD_AD");if(failAdAuthority)throw new CloudRuntimeException("Signed target authority failed");JsonObject ref=new JsonObject();ref.addProperty("authorizationUuid",UUID.randomUUID().toString());ref.addProperty("sha256","c".repeat(64));return ref;}
+        @Override protected JsonObject retainRootConfigurationAdIdentity(StorageServiceInstanceVO instance,JsonObject scope,JsonObject reference,JsonObject auth){commands.add("RETAIN_AD_FRESH_TRUST");if(failAdRetain)throw new CloudRuntimeException("Fresh original trust failed");Assert.assertEquals(java.util.Set.of("authorizationUuid","sha256"),auth.keySet());return new JsonObject();}
         @Override protected void restoreRootConfigurationIdentity(StorageServiceInstanceVO instance,JsonObject scope,JsonObject reference,JsonArray files,boolean attest){commands.add(attest?"ATTEST_LATEST_POSIX":"IMPORT_LATEST_IDENTITY");}
         @Override protected JsonObject captureRetainedRootBaseline(StorageServiceInstanceVO instance,JsonObject scope){commands.add("CAPTURE_RETAINED_OLD_BASELINE");JsonObject baseline=new JsonObject();baseline.add("generation",new JsonObject());return baseline;}
         @Override protected JsonObject authorizeRetainedRoot(StorageServiceInstanceVO instance,JsonObject scope,JsonObject baseline,JsonObject reference,JsonArray bindings){commands.add("AUTHORIZE_RETAINED_LATEST");JsonObject auth=new JsonObject();auth.addProperty("authorizationUuid",UUID.randomUUID().toString());auth.addProperty("sha256","d".repeat(64));return auth;}
@@ -260,5 +264,24 @@ public class StorageTemplateUpgradeRuntimeTest {
         JsonObject value=new JsonParser().parse(row.getSnapshotJson()).getAsJsonObject();value.addProperty("manualSourceRootVolumeId",20);value.addProperty("manualSourceTemplateId",99);JsonObject sourceRuntime=new JsonObject(),binding=new JsonObject();binding.addProperty("rootVolumeId",20);sourceRuntime.add("sourceRootBinding",binding);sourceRuntime.add("pin",new JsonObject());value.add("manualSourceSignedRuntime",sourceRuntime);value.add("manualSourceValidationProfile",new JsonObject());row.setSnapshotJson(value.toString());
         StorageServiceRuntimeUpgradeManager runtime=Mockito.mock(StorageServiceRuntimeUpgradeManager.class);Mockito.when(runtime.restoreRetainedLatestTemplateRuntime(Mockito.eq(6L),Mockito.any(),Mockito.eq(operation.getUuid()),Mockito.any())).thenAnswer(call->{manager.commands.add("RESTORE_RETAINED_LATEST_SIGNED");JsonObject approved=call.getArgument(3);Assert.assertEquals(20,approved.get("sourceRootVolumeId").getAsInt());Assert.assertEquals(10,approved.get("targetRootVolumeId").getAsInt());Assert.assertEquals(sourceRuntime,approved.get("sourceRuntime"));Assert.assertEquals(maintenanceScope(operation.getUuid(),operation.getRevision()),approved.get("rootScope"));return new JsonObject();});ReflectionTestUtils.setField(manager,"runtimeUpgradeManager",runtime);
         manager.new RootUpgradeRuntime(instance,shared,row,operation,true).bootPrevious();Assert.assertTrue(manager.commands.indexOf("RESTORE_RETAINED_LATEST_SIGNED")<manager.commands.indexOf("CAPTURE_RETAINED_OLD_BASELINE"));Assert.assertFalse(manager.commands.contains("IMPORT_LATEST_IDENTITY"));Mockito.verify(runtime,Mockito.never()).restoreTemplateRuntime(Mockito.anyLong(),Mockito.any(),Mockito.anyString(),Mockito.anyString());
+    }
+    @Test public void forwardAdAuthorityAndFreshTrustPrecedeMountAndPosixAttestation(){
+        manager.joinedSource=true;JsonObject value=JsonParser.parseString(row.getSnapshotJson()).getAsJsonObject(),signed=new JsonObject();signed.add("pin",new JsonObject());value.add("signedRuntime",signed);row.setSnapshotJson(value.toString());
+        ReflectionTestUtils.setField(manager,"runtimeUpgradeManager",Mockito.mock(StorageServiceRuntimeUpgradeManager.class));
+        runtime().restoreIdentity();
+        Assert.assertTrue(manager.commands.indexOf("IMPORT_LATEST_IDENTITY")<manager.commands.indexOf("AUTHORIZE_FORWARD_AD"));
+        Assert.assertTrue(manager.commands.indexOf("AUTHORIZE_FORWARD_AD")<manager.commands.indexOf("RETAIN_AD_FRESH_TRUST"));
+        Assert.assertTrue(manager.commands.indexOf("RETAIN_AD_FRESH_TRUST")<manager.commands.indexOf("ATTEST_LATEST_POSIX"));
+        Assert.assertTrue(JsonParser.parseString(row.getSnapshotJson()).getAsJsonObject().has("targetRootAdAuthorization"));
+    }
+    @Test public void failedForwardAuthorityOrTrustCannotAttestPermissionsOrStageAnyProtocol(){
+        for(boolean authority:List.of(true,false)){
+            setup();manager.joinedSource=true;manager.failAdAuthority=authority;manager.failAdRetain=!authority;
+            JsonObject value=JsonParser.parseString(row.getSnapshotJson()).getAsJsonObject(),signed=new JsonObject();signed.add("pin",new JsonObject());value.add("signedRuntime",signed);row.setSnapshotJson(value.toString());
+            ReflectionTestUtils.setField(manager,"runtimeUpgradeManager",Mockito.mock(StorageServiceRuntimeUpgradeManager.class));
+            Assert.assertThrows(CloudRuntimeException.class,()->runtime().restoreIdentity());
+            Assert.assertFalse(manager.commands.contains("ATTEST_LATEST_POSIX"));Assert.assertFalse(manager.commands.contains("ROOT_RENDER_STAGE"));
+            if(authority)Assert.assertFalse(manager.commands.contains("RETAIN_AD_FRESH_TRUST"));
+        }
     }
 }
