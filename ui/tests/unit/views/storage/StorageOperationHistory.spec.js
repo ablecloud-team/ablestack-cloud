@@ -15,12 +15,55 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import fs from 'fs'
+import path from 'path'
+import { shallowMount } from '@vue/test-utils'
 import Widget from '@/views/storage/StorageOperationHistory'
 import { getAPI, postAPI } from '@/api'
 jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
 
 describe('Configuration operation recovery history', () => {
   beforeEach(() => { getAPI.mockReset(); postAPI.mockReset() })
+  it.each([
+    ['ko_KR', ['보존된 원본 설정', '후속 정상 리비전', 'DATA는 포맷하지 않습니다']],
+    ['en', ['preserved source configuration', 'later verified revision', 'DATA volumes are not formatted']]
+  ])('shows both recovery outcomes in the actual %s confirmation dialog', async (locale, requiredInformation) => {
+    const messages = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../../../public/locales', locale + '.json'), 'utf8'))
+    getAPI.mockResolvedValue({ liststorageserviceoperationsresponse: { storageserviceoperation: [] } })
+    const wrapper = shallowMount(Widget, {
+      props: { instanceId: 'a' },
+      global: {
+        mocks: { $t: key => messages[key] || key, $store: { getters: { apis: { reconcileStorageServiceOperation: {} } } } },
+        stubs: {
+          'a-modal': { props: ['visible'], template: '<div v-if="visible" class="recovery-dialog"><slot /></div>' },
+          'a-alert': { props: ['message'], template: '<p>{{ message }}</p>' }
+        }
+      }
+    })
+    await wrapper.setData({ reconcileTarget: { id: 'failed', state: 'RECOVERY_REQUIRED', diagnostic: 'original cause' } })
+    const explanation = wrapper.find('.recovery-dialog').text()
+    requiredInformation.forEach(information => expect(explanation).toContain(information))
+    expect(explanation).toContain('original cause')
+    expect(postAPI).not.toHaveBeenCalled()
+    wrapper.unmount()
+  })
+
+  it.each(['ROLLED_BACK', 'RECONCILED_SUPERSEDED'])('lets the server resolve %s without client recovery flags', async state => {
+    const verified = { id: 'failed', state, diagnostic: 'original cause' }
+    postAPI.mockResolvedValue({ reconcilestorageserviceoperationresponse: { jobid: 'job' } })
+    getAPI.mockImplementation(command => Promise.resolve(command === 'queryAsyncJobResult'
+      ? { queryasyncjobresultresponse: { jobstatus: 1, jobresult: { storageserviceoperation: verified } } }
+      : { liststorageserviceoperationsresponse: { storageserviceoperation: [verified] } }))
+    const vm = { canReconcile: true, instanceId: 'a', reconcileTarget: { id: 'failed', state: 'RECOVERY_REQUIRED' }, saving: '', generation: 0, rows: [] }
+    vm.refresh = jest.fn(() => Widget.methods.refresh.call(vm))
+    await Widget.methods.reconcile.call(vm)
+    expect(postAPI).toHaveBeenCalledTimes(1)
+    expect(postAPI).toHaveBeenCalledWith('reconcileStorageServiceOperation', { operationid: 'failed' })
+    expect(vm.rows).toEqual([verified])
+    expect(vm.refresh).toHaveBeenCalledTimes(1)
+    expect(vm.saving).toBe('')
+  })
+
   it('preserves known diagnostics when a history refresh fails', async () => {
     const vm = { instanceId: 'a', generation: 0, rows: [{ id: 'failed', diagnostic: 'original cause' }], loading: false, readError: false }
     getAPI.mockRejectedValue(new Error('timeout')); await Widget.methods.refresh.call(vm)

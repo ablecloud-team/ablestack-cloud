@@ -8664,7 +8664,7 @@
   "label.smb.ownership.mode": "POSIX file-operation identity",
   "message.smb.ownership.forced.help": "Authentication and account ACLs still use the original session user. File operations then use the managed fixed UID/GID and must pass its POSIX permissions. Existing child owners remain unchanged; NFS sees the same numeric ownership. Guest, ADMIN and parent-owner inheritance combinations are unsupported. Shared paths must match the common owner policy.",
   "label.smb.ownership.forced": "Fixed UID/GID for file operations",
-  "message.storage.operation.reconcile.help": "A later verified revision is preserved. The server verifies current runtime and desired state, then records the previous failed operation as superseded without applying its older snapshot. Original diagnostics remain in the audit history.",
+  "message.storage.operation.reconcile.help": "The server checks the operation type and any later verified revision. When recovery is needed, it restores the preserved source configuration. When a later verified revision supersedes the operation, it verifies the current configuration and retains the original diagnostic and supersession history. DATA volumes are not formatted.",
   "label.storage.operation.state.RUNNING": "Applying",
   "message.storage.operation.reconcile.running": "Verifying the current configuration. Progress appears in operation history.",
   "label.storage.operation.history": "Configuration operation history",

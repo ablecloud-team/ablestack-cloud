@@ -8629,7 +8629,7 @@
   "label.smb.ownership.mode": "POSIX 파일 작업 identity",
   "message.smb.ownership.forced.help": "인증과 계정 ACL은 원래 세션 사용자로 판정한 뒤, 파일 작업은 관리된 고정 UID/GID의 POSIX 권한을 사용합니다. 기존 하위 항목 소유권은 유지하며 NFS에서도 같은 숫자 소유권을 표시합니다. 게스트·ADMIN·부모 소유권 상속 조합은 지원하지 않습니다. 공통 경로는 공통 소유권 정책과 일치해야 합니다.",
   "label.smb.ownership.forced": "고정 UID/GID로 파일 작업",
-  "message.storage.operation.reconcile.help": "이후 검증된 정상 revision을 유지합니다. 현재 runtime과 desired state를 검증한 뒤, 이전 실패 작업을 새 정상 구성으로 대체됐다고 기록하며 옛 snapshot을 적용하지 않습니다. 원래 진단은 감사 이력에 유지합니다.",
+  "message.storage.operation.reconcile.help": "현재 작업 유형과 후속 정상 리비전을 확인합니다. 복구가 필요한 경우 보존된 원본 설정으로 복구하고, 후속 정상 리비전으로 대체된 경우 현재 구성을 검증해 원래 진단과 대체 이력을 남깁니다. DATA는 포맷하지 않습니다.",
   "label.storage.operation.state.RUNNING": "적용 중",
   "message.storage.operation.reconcile.running": "현재 구성을 재검증하고 있습니다. 작업 이력에서 진행 상태를 확인할 수 있습니다.",
   "label.storage.operation.history": "설정 변경 작업 이력",
