@@ -26,7 +26,8 @@ import subprocess
 import time
 import uuid
 from smb_identity import SmbIdentity, identity_json, IDENTITY_DATABASES
-from samba_public_sid import samba_public_sid, SambaPublicSidMissing
+from samba_public_sid import SambaPublicSidMissing
+from samba_current_public_sid import samba_current_public_sid
 from pending_nfs_authorization import PendingNfsAuthorization
 from identity_capsule import collect, encrypt, decrypt, validate_payload, regular_file
 from service_identity_cipher import ServiceIdentityCipher
@@ -47,7 +48,7 @@ class SmbCurrentRetention:
         self.handler = handler or SmbIdentity(self.cli)
         self.root = self.handler.generations.parent / "smb-current-retention"
         self.command = command or self.native_command
-        self.sid_reader = samba_public_sid
+        self.sid_reader = samba_current_public_sid
         self.reader = lambda *args: regular_file(*args)
         self.encryptor = lambda *args: encrypt(*args)
         self.decryptor = lambda *args: decrypt(*args)
@@ -184,19 +185,22 @@ class SmbCurrentRetention:
             raise ValueError("CURRENT identity installed signed runtime changed")
 
     def namespaces(self, request):
+        before_config = hashlib.sha256(self.reader("/etc/samba/smb.conf")[0]).hexdigest()
         configured = self.handler.run(["testparm", "-s", "--parameter-name=netbios name", "/etc/samba/smb.conf"]).strip().upper()
         target = "STOR"+request["instanceUuid"].replace("-", "")[:10].upper()
-        if not re.fullmatch("[A-Z0-9][A-Z0-9_-]{0,14}", configured):
+        if not re.fullmatch("[A-Z0-9][A-Z0-9_.-]{0,62}", configured):
             raise ValueError("CURRENT identity configured namespace is invalid")
         result = []
         for name in sorted({configured, target}):
             try:
-                sid = self.sid_reader(name)
+                sid = self.sid_reader(name, configured, request["instanceUuid"])
             except SambaPublicSidMissing:
                 continue
-            result.append({"netbiosName": name, "machineSid": sid})
+            result.append({"samNamespace": name, "machineSid": sid})
         if not result:
             raise ValueError("CURRENT identity has no existing allowed public SAM namespace")
+        if hashlib.sha256(self.reader("/etc/samba/smb.conf")[0]).hexdigest() != before_config:
+            raise ValueError("CURRENT public namespace configuration changed during observation")
         return result
 
     def package_file(self, path):
