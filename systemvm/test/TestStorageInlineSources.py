@@ -52,13 +52,14 @@ def current_smb_reviewed_bodies():
         return tokenize.untokenize([token._replace(string=mapping.get(token.string,token.string)) if token.type==tokenize.NAME else token for token in tokens]).rstrip()
     lock=subset("pending_nfs_authorization","PendingNfsAuthorization",{"lock"},"CurrentSmbWriterLock")
     current=body("smb_current_retention")
-    dependencies=("smb_identity","samba_public_sid","pending_nfs_authorization","identity_capsule","service_identity_cipher")
+    dependencies=("smb_identity","samba_public_sid","pending_nfs_authorization","identity_capsule","service_identity_cipher","samba_current_public_sid")
     current="\n".join(line for line in current.splitlines() if not any(line.startswith("from "+name+" import ") for name in dependencies))
     current=aliases(current,{"PendingNfsAuthorization":"CurrentSmbWriterLock"})
     smb=body("smb_identity").replace("            from smb_current_retention import SmbCurrentRetention\n","")
-    codec=lock+"\n\n"+smb+"\n\n"+current
+    raw_sid=body("samba_current_public_sid").replace("from samba_public_sid import PublicSidTdbData, SambaPublicSidMissing, samba_sid_bytes\n","")
+    codec=lock+"\n\n"+smb+"\n\n"+raw_sid+"\n\n"+current
     files=subset("service_identity_cipher","ServiceIdentityCipher",{"__init__","read","write"},"CurrentSmbCipherFiles")
-    plain="\n\n".join((smb,body("samba_public_sid"),"MAX_CAPSULE_BYTES = 8*1024*1024\n"+function("identity_capsule","regular_file"),
+    plain="\n\n".join((smb,body("samba_public_sid"),raw_sid,"MAX_CAPSULE_BYTES = 8*1024*1024\n"+function("identity_capsule","regular_file"),
         function("service_identity_cipher","service_cipher_json"),files,lock,aliases(current,{"ServiceIdentityCipher":"CurrentSmbCipherFiles"})))
     return codec,plain
 

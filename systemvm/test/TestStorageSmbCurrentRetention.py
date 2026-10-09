@@ -34,6 +34,7 @@ import smb_identity
 import smb_current_retention as module
 import identity_capsule as capsule
 import samba_public_sid as sid_module
+import samba_current_public_sid as current_sid_module
 
 CLI = Path(__file__).resolve().parents[2]/"systemvm/debian/usr/local/bin/ablestack-storagectl"
 
@@ -77,7 +78,7 @@ class StorageSmbCurrentRetentionTest(unittest.TestCase):
         self.private["PASSDB"].write_bytes(b"PUBLIC_ONLY_SYNTHETIC_PASSDB"); self.private["PASSDB"].chmod(0o600)
         self.create_sid(self.private["SECRETS"])
         self.native.reader = self.read
-        self.native.sid_reader = lambda name: sid_module.samba_public_sid(name, self.private["SECRETS"])
+        self.native.sid_reader = lambda name, configured, instance: current_sid_module.samba_current_public_sid(name, configured, instance, self.private["SECRETS"])
         self.handler.database_identity = self.databases
         self.handler.identity_holders = lambda: []
         self.handler.sessions = lambda *args: {"available": True, "establishedTcpCount": 0, "synRecvTcpCount": 0,
@@ -119,6 +120,23 @@ class StorageSmbCurrentRetentionTest(unittest.TestCase):
         self.assertEqual(0, lib.tdb_store(db, sid_module.PublicSidTdbData(ctypes.cast(key, ctypes.c_void_p), len(name)),
                                        sid_module.PublicSidTdbData(ctypes.cast(value, ctypes.c_void_p), len(raw)), 1))
         lib.tdb_close(db); path.chmod(0o600)
+
+    def add_long_distinct_namespace(self):
+        name="CURRENT-RAW-SAM-"+"X"*36
+        self.assertEqual(52,len(name))
+        lib=ctypes.CDLL("libtdb.so.1")
+        lib.tdb_open.argtypes=[ctypes.c_char_p,ctypes.c_int,ctypes.c_int,ctypes.c_int,ctypes.c_uint];lib.tdb_open.restype=ctypes.c_void_p
+        lib.tdb_store.argtypes=[ctypes.c_void_p,sid_module.PublicSidTdbData,sid_module.PublicSidTdbData,ctypes.c_int]
+        lib.tdb_close.argtypes=[ctypes.c_void_p]
+        db=lib.tdb_open(os.fsencode(self.private["SECRETS"]),0,0,os.O_RDWR,0)
+        key=("SECRETS/SID/"+name).encode();raw=bytes([1,4,0,0,0,0,0,5])+struct.pack("<15I",21,44,55,66,*([0]*11))
+        k=ctypes.create_string_buffer(key);v=ctypes.create_string_buffer(raw)
+        try:
+            self.assertEqual(0,lib.tdb_store(db,sid_module.PublicSidTdbData(ctypes.cast(k,ctypes.c_void_p),len(key)),sid_module.PublicSidTdbData(ctypes.cast(v,ctypes.c_void_p),len(raw)),1))
+        finally:lib.tdb_close(db)
+        self.configured_raw=name
+        self.raw_before={label:path.read_bytes() for label,path in self.private.items()}
+        return name
 
     def public(self, key):
         return key.public_key().public_bytes(serialization.Encoding.PEM, serialization.PublicFormat.SubjectPublicKeyInfo).decode()
@@ -170,7 +188,7 @@ class StorageSmbCurrentRetentionTest(unittest.TestCase):
     def run_command(self, args):
         self.calls.append(args)
         if args[:2] == ["testparm", "-s"]:
-            return "SERVER"
+            return getattr(self,"configured_raw","SERVER")
         if args[:3] == ["ss", "-H", "-ltnp"]:
             return 'LISTEN 0 0 0.0.0.0:445 0.0.0.0:* users:(("smbd",pid=111,fd=30))' if self.active else ""
         if args[:3] == ["ss", "-H", "-ntp"]:
@@ -402,6 +420,7 @@ class StorageSmbCurrentRetentionTest(unittest.TestCase):
 
 
     def test_actual_embedded_codec_dispatcher_positive_review_stop_crypto_retain_and_terminal(self):
+        self.add_long_distinct_namespace()
         import ast,io
         from contextlib import redirect_stdout
         program=CLI.read_text().split("<<'PYIDENTITY'\n",1)[1].split("\nPYIDENTITY",1)[0]
@@ -415,7 +434,7 @@ class StorageSmbCurrentRetentionTest(unittest.TestCase):
         exec(compile(ast.Module(body=definitions,type_ignores=[]),"<actual-PYIDENTITY-definitions>","exec"),namespace)
         cls=namespace["SmbCurrentRetention"];embedded=cls(CLI,command=self.command,handler=self.handler)
         embedded.__dict__.update(self.native.__dict__)
-        embedded.sid_reader=lambda name: namespace["samba_public_sid"](name,self.private["SECRETS"])
+        embedded.sid_reader=lambda name, configured, instance: namespace["samba_current_public_sid"](name,configured,instance,self.private["SECRETS"])
         embedded.encryptor=namespace["encrypt"];embedded.decryptor=namespace["decrypt"];embedded.validator=namespace["validate_payload"]
         namespace["SmbCurrentRetention"]=lambda *args,**kwargs:embedded
         dispatch=next(node for node in tree.body if isinstance(node,ast.If) and isinstance(node.test,ast.Compare)
@@ -427,6 +446,9 @@ class StorageSmbCurrentRetentionTest(unittest.TestCase):
                 exec(compile(ast.Module(body=[dispatch],type_ignores=[]),"<actual-PYIDENTITY-dispatch>","exec"),namespace)
             return json.loads(output.getvalue())
         review=invoke("current-review",self.request)
+        self.assertEqual(2,len(review["currentFacts"]["publicNamespaceSids"]))
+        self.assertEqual(2,len({row["machineSid"] for row in review["currentFacts"]["publicNamespaceSids"]}))
+        self.assertEqual({52,14},{len(row["samNamespace"]) for row in review["currentFacts"]["publicNamespaceSids"]})
         stop_request={**self.approval(),"expectedReview":review}
         with patch.object(self.handler,"open_master_handles",return_value={111:os.open("/dev/null",os.O_RDONLY),222:os.open("/dev/null",os.O_RDONLY)}),patch.object(module.signal,"pidfd_send_signal"):
             stopped=invoke("current-quiesce",stop_request)
@@ -542,4 +564,42 @@ class StorageSmbCurrentRetentionTest(unittest.TestCase):
             self.assertTrue(all(observed[key] is True for key in ("success","signedRuntimeVerified","installedFilesVerified","entrypointsVerified")))
         finally:
             runtime.tearDown()
+
+
+    def test_raw_configured_and_stor_distinct_keys_survive_cipher_retain_and_next_baseline(self):
+        name=self.add_long_distinct_namespace()
+        rows=self.native.review(self.request)["currentFacts"]["publicNamespaceSids"]
+        self.assertEqual(2,len(rows));self.assertEqual(2,len({row["machineSid"] for row in rows}))
+        self.assertTrue(all(set(row)=={"samNamespace","machineSid"} for row in rows))
+        with self.assertRaises(ValueError):sid_module.samba_public_sid(name,self.private["SECRETS"])
+        with self.assertRaises(sid_module.SambaPublicSidMissing):sid_module.samba_public_sid(name[:15],self.private["SECRETS"])
+        for forbidden in (name[:15],"FOREIGN",name+"/OTHER",name+"\\\\OTHER"):
+            with patch.object(current_sid_module.ctypes,"CDLL") as library:
+                with self.assertRaises(ValueError):current_sid_module.samba_current_public_sid(forbidden,name,self.scope["instanceUuid"],self.private["SECRETS"])
+                library.assert_not_called()
+        approval,request,exported=self.exported()
+        aad=self.scope["instanceUuid"]+":"+self.scope["operationUuid"]+":CURRENT_LOCAL_AFTERSTOP"
+        decoded=capsule.decrypt(exported["capsule"],self.pem(self.newkey),aad)
+        self.assertEqual(rows,decoded["publicNamespaceSids"])
+        retain={**self.request,"currentReviewHash":request["currentReviewHash"],"currentIdentityReference":exported["currentIdentityReference"]}
+        self.native.retain(retain);self.gen.execute("rollback",self.scope);self.native.retain(retain,terminal=True)
+        observed=self.native.inspect_retained({**self.scope,"revision":3},self.current)
+        self.assertEqual(rows,observed["publicNamespaceSids"])
+        self.assertEqual(self.raw_before,{label:path.read_bytes() for label,path in self.private.items()})
+
+    def test_raw_known_key_reader_preserves_global_guard_and_identical_protected_io(self):
+        name=self.add_long_distinct_namespace();before=self.private["SECRETS"].read_bytes();info=self.private["SECRETS"].stat()
+        rows=self.native.namespaces(self.request)
+        self.assertEqual(2,len(rows))
+        self.assertEqual(before,self.private["SECRETS"].read_bytes());self.assertEqual(info.st_mtime_ns,self.private["SECRETS"].stat().st_mtime_ns)
+        self.private["SECRETS"].chmod(0o644)
+        with self.assertRaises(ValueError):current_sid_module.samba_current_public_sid(name,name,self.scope["instanceUuid"],self.private["SECRETS"])
+        self.private["SECRETS"].chmod(0o600);alias=self.root/"linked-secrets";alias.symlink_to(self.private["SECRETS"])
+        with self.assertRaises(ValueError):current_sid_module.samba_current_public_sid(name,name,self.scope["instanceUuid"],alias)
+        missing=self.root/"absent-secrets"
+        with self.assertRaises(FileNotFoundError):current_sid_module.samba_current_public_sid(name,name,self.scope["instanceUuid"],missing)
+        self.assertFalse(missing.exists())
+        lib=(LIB/"samba_public_sid.py").read_text();raw=(LIB/"samba_current_public_sid.py").read_text()
+        marker='    path=Path(path or "/var/lib/samba/private/secrets.tdb")'
+        self.assertEqual(lib[lib.index(marker):].rstrip(),raw[raw.index(marker):].rstrip())
 
