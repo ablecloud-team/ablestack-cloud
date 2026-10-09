@@ -124,10 +124,16 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
     @Override
     public Answer execute(final StorageServiceHostCommand command, final LibvirtComputingResource libvirtComputingResource) {
         Domain domain = null;
+        final long started = System.nanoTime();
+        int connectionToken = 0;
+        String stage = "VALIDATE";
         try {
             validateOperation(command.getOperation());
+            stage = "CONNECT";
             final LibvirtUtilitiesHelper libvirtUtilitiesHelper = libvirtComputingResource.getLibvirtUtilitiesHelper();
             final Connect connect = libvirtUtilitiesHelper.getConnection();
+            connectionToken = System.identityHashCode(connect);
+            stage = "DOMAIN";
             domain = libvirtComputingResource.getDomain(connect, command.getVmName());
             if (domain == null) {
                 return new StorageServiceHostAnswer(command, false, "Storage Service System VM was not found: " + command.getVmName(), null);
@@ -136,11 +142,15 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
                 return new StorageServiceHostAnswer(command, false, "Storage Service System VM is not running: " + command.getVmName(), null);
             }
 
+            stage = "LAUNCH";
             final long pid = executeGuestCommand(domain, command);
+            stage = "STATUS";
             return waitForGuestCommand(command, domain, pid);
         } catch (final RuntimeException e) {
+            logSafeTransportFailure(stage, e, started, connectionToken);
             return new StorageServiceHostAnswer(command, false, commandExceptionDetails(command,e.getMessage()), null);
         } catch (final LibvirtException e) {
+            logSafeTransportFailure(stage, e, started, connectionToken);
             return new StorageServiceHostAnswer(command, false, commandExceptionDetails(command,"Failed to execute Storage Service QGA command: " + e.getMessage()), null);
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -150,10 +160,51 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
                 try {
                     domain.free();
                 } catch (final LibvirtException e) {
-                    logger.trace("Ignoring libvirt domain free error", e);
+                    logger.trace("Ignoring libvirt domain free error");
                 }
             }
         }
+    }
+
+    private void logSafeTransportFailure(String stage, Exception failure, long started, int connectionToken) {
+        try {
+            logger.warn("Storage Service safe transport failure {}", safeTransportFailure(stage, failure,
+                    Math.max(0, (System.nanoTime() - started) / 1_000_000L), connectionToken).toString());
+        } catch (RuntimeException diagnosticUnavailable) {
+            // Optional diagnostics must never replace the original masked answer.
+        }
+    }
+
+    protected JsonObject safeTransportFailure(String stage, Exception failure, long elapsedMillis, int connectionToken) {
+        String fixedStage = stage != null && java.util.Set.of("VALIDATE", "CONNECT", "DOMAIN", "LAUNCH", "STATUS", "DECODE").contains(stage) ? stage : "UNKNOWN";
+        for (StackTraceElement frame : failure.getStackTrace()) {
+            if (!LibvirtStorageServiceHostCommandWrapper.class.getName().equals(frame.getClassName())) continue;
+            if ("decodeGuestData".equals(frame.getMethodName())) {fixedStage = "DECODE";break;}
+            if ("executeGuestCommand".equals(frame.getMethodName())) {fixedStage = "LAUNCH";break;}
+            if ("waitForGuestCommand".equals(frame.getMethodName())) {fixedStage = "STATUS";break;}
+        }
+        String category = failure instanceof LibvirtException ? "LIBVIRT"
+                : failure instanceof com.google.gson.JsonParseException ? "JSON"
+                : failure instanceof NullPointerException ? "NULL_REFERENCE"
+                : failure instanceof IllegalArgumentException ? "ARGUMENT"
+                : failure instanceof IllegalStateException ? "STATE" : "RUNTIME_OTHER";
+        JsonObject value = new JsonObject();
+        value.addProperty("kind", "STORAGE_GUEST_TRANSPORT_EXCEPTION");value.addProperty("stage", fixedStage);
+        value.addProperty("exceptionClass", category);value.addProperty("elapsedMillis", Math.max(0, elapsedMillis));
+        value.addProperty("connectionToken", connectionToken);
+        value.add("libvirtCode", com.google.gson.JsonNull.INSTANCE);value.add("libvirtDomain", com.google.gson.JsonNull.INSTANCE);
+        if (failure instanceof LibvirtException) {
+            // libvirt-java maps native code/domain by enum array index; UNKNOWN
+            // is a fallback and cannot be reported as the original numeric ABI.
+            org.libvirt.Error error = ((LibvirtException) failure).getError();
+            if (error != null) {
+                org.libvirt.Error.ErrorNumber code = error.getCode();
+                org.libvirt.Error.ErrorDomain domain = error.getDomain();
+                if (code != null && code != org.libvirt.Error.ErrorNumber.VIR_ERR_UNKNOWN) value.addProperty("libvirtCode", code.ordinal());
+                if (domain != null && domain != org.libvirt.Error.ErrorDomain.VIR_FROM_UNKNOWN) value.addProperty("libvirtDomain", domain.ordinal());
+            }
+        }
+        return value;
     }
 
     protected long executeGuestCommand(final Domain domain, final StorageServiceHostCommand command) throws LibvirtException {
