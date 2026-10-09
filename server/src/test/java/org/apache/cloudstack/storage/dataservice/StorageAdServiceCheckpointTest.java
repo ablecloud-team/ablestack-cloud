@@ -200,4 +200,82 @@ public class StorageAdServiceCheckpointTest {
         }
     }
 
+    private static class RootTargetManager extends StorageServiceManagerImpl {
+        List<String> events=new ArrayList<>();JsonObject status,scope;boolean failResume,wrongBoot,wrongStop,wrongCipherKind;
+        @Override protected boolean hasJoinedStorageAdDomain(StorageServiceInstanceVO instance){return true;}
+        @Override protected JsonObject nativeConfigurationGeneration(StorageServiceInstanceVO instance,StorageServiceOperationVO operation,String action){return status.deepCopy();}
+        @Override protected void verifyReconciledStorageDesiredState(StorageServiceInstanceVO instance){events.add("ALL4_AFTER_RELEASE_VERIFY");}
+        @Override protected JsonObject configurationIdentityExportRequest(StorageServiceInstanceVO instance,String operation,java.security.KeyPair key){JsonObject value=StorageIdentityCapsule.exportRequest(instance.getUuid(),operation,key,new com.google.gson.JsonArray());value.add("nvmeHosts",new com.google.gson.JsonArray());return value;}
+        @Override protected JsonObject rootGuest(StorageServiceInstanceVO instance,String command,JsonObject request,int timeout){events.add(command);org.junit.Assert.assertTrue(request.has("templateUpgradeUuid"));org.junit.Assert.assertFalse(request.has("maintenanceUuid"));org.junit.Assert.assertEquals(java.util.Set.of("instanceUuid","operationUuid","revision","templateUpgradeUuid","targetConfigurationSha256","importedRootAuthorization"),request.keySet());
+            if(command.endsWith("resume-target")&&failResume)throw new com.cloud.utils.exception.CloudRuntimeException("Target resume response lost");JsonObject proof=new JsonObject();proof.addProperty("success",true);proof.add("scope",scope.deepCopy());proof.addProperty("targetCaptured",true);proof.addProperty("canonicalDesiredStateChanged",false);proof.add("targetGeneration",status.get("generation").deepCopy());proof.addProperty("targetConfigurationSha256","b".repeat(64));proof.addProperty("targetRenderedManifestSha256","c".repeat(64));proof.add("bootId",status.get("bootId").deepCopy());proof.addProperty("publicLocalMachineSid","S-1-5-21-1-2-3");if(wrongBoot)proof.addProperty("bootId","55555555-5555-5555-5555-555555555555");
+            if(command.endsWith("quiesce-target")){proof.addProperty("rootTargetStoppedVerified",!wrongStop);proof.addProperty("maintenanceKind","ROOT");proof.addProperty("stoppedReceiptSha256","d".repeat(64));proof.addProperty("bootHeld",true);proof.addProperty("sideEffects",false);}if(command.endsWith("resume-target"))proof.addProperty("targetRuntimeVerified",true);return proof;
+        }
+    }
+    @Test public void rootTargetStopCipherResumeAndPromotionHaveIndependentRoleAndRetryWithoutReexport() throws Exception {
+        java.nio.file.Path identities=java.nio.file.Files.createTempDirectory("root-target-identity-"),keys=java.nio.file.Files.createTempDirectory("root-target-key-");for(java.nio.file.Path path:List.of(identities,keys))java.nio.file.Files.setPosixFilePermissions(path,java.nio.file.attribute.PosixFilePermissions.fromString("rwx------"));String oldIdentity=System.getProperty("cloudstack.storage.identity.path"),oldKeys=System.getProperty("cloudstack.storage.rendered.keys.path");System.setProperty("cloudstack.storage.identity.path",identities.toString());System.setProperty("cloudstack.storage.rendered.keys.path",keys.toString());
+        try(org.mockito.MockedStatic<com.cloud.utils.crypt.DBEncryptionUtil> crypto=Mockito.mockStatic(com.cloud.utils.crypt.DBEncryptionUtil.class)) {
+            RootTargetManager m=new RootTargetManager();StorageServiceOperationVO op=new StorageServiceOperationVO();op.setAction("ROOT_TEMPLATE_UPGRADE");op.setRevision(4);StorageServiceInstanceVO instance=Mockito.mock(StorageServiceInstanceVO.class);Mockito.when(instance.getUuid()).thenReturn("11111111-1111-1111-1111-111111111111");Mockito.when(instance.getId()).thenReturn(6L);Mockito.when(instance.getVmId()).thenReturn(7L);
+            m.scope=new JsonObject();m.scope.addProperty("instanceUuid",instance.getUuid());m.scope.addProperty("operationUuid",op.getUuid());m.scope.addProperty("templateUpgradeUuid","22222222-2222-2222-2222-222222222222");m.scope.addProperty("revision",4);JsonObject common=m.scope.deepCopy();common.remove("templateUpgradeUuid");m.status=new JsonObject();m.status.addProperty("generationStatus","IN_SYNC");m.status.add("generation",common);m.status.addProperty("configurationSha256","b".repeat(64));m.status.addProperty("bootId","33333333-3333-3333-3333-333333333333");
+            java.security.KeyPair pair=StorageIdentityCapsule.wrappingKey();crypto.when(()->com.cloud.utils.crypt.DBEncryptionUtil.decrypt("opaque-key")).thenReturn(StorageIdentityCapsule.pem("PRIVATE KEY",pair.getPrivate().getEncoded()));byte[] protectedKey="opaque-key".getBytes(java.nio.charset.StandardCharsets.UTF_8);String keyId="44444444-4444-4444-4444-444444444444";new StorageConfigArtifactStore(keys).write(keyId,protectedKey);JsonObject rendered=new JsonObject();rendered.addProperty("keyId",keyId);rendered.addProperty("keySha256",StorageConfigArchive.sha256(protectedKey));
+            JsonObject snapshot=new JsonObject();snapshot.add("renderedGeneration",rendered);JsonObject original=new JsonObject();original.addProperty("capsuleSha256","e".repeat(64));snapshot.add("nativeIdentityCapsule",original);op.setPreviousSnapshotJson(snapshot.toString());org.apache.cloudstack.storage.dataservice.dao.StorageServiceOperationDao operations=Mockito.mock(org.apache.cloudstack.storage.dataservice.dao.StorageServiceOperationDao.class);Mockito.when(operations.update(Mockito.anyLong(),Mockito.any())).thenReturn(true);ReflectionTestUtils.setField(m,"storageOperationDao",operations);
+            org.apache.cloudstack.storage.dataservice.dao.StorageIdentityDomainDao domains=Mockito.mock(org.apache.cloudstack.storage.dataservice.dao.StorageIdentityDomainDao.class);StorageIdentityDomainVO domain=Mockito.mock(StorageIdentityDomainVO.class);Mockito.when(domain.getConfigJson()).thenReturn("{\"identityReceipt\":{\"machineSid\":\"S-1-5-21-1-2-3\"}}");Mockito.when(domains.findByInstanceId(6L)).thenReturn(domain);ReflectionTestUtils.setField(m,"storageIdentityDomainDao",domains);
+            StorageServiceManagerImpl.RenderedBatch batch=new StorageServiceManagerImpl.RenderedBatch(op,new JsonObject(),new JsonObject(),pair);batch.importedRootAuthorization=new JsonObject();batch.importedRootAuthorization.addProperty("authorizationUuid","66666666-6666-6666-6666-666666666666");batch.importedRootAuthorization.addProperty("sha256","f".repeat(64));JsonObject receipt=new JsonObject(),staged=new JsonObject();receipt.addProperty("phase","GENERATION_COMMITTED");staged.addProperty("configurationSha256","b".repeat(64));staged.addProperty("renderedManifestSha256","c".repeat(64));receipt.add("staged",staged);batch.receipt=receipt;
+            StorageServiceGuestCommandDispatcher guest=Mockito.mock(StorageServiceGuestCommandDispatcher.class);
+            Mockito.when(guest.dispatch(Mockito.any())).thenAnswer(call->{StorageServiceGuestCommand command=call.getArgument(0);
+            m.events.add(command.getOperation());
+            Assert.assertEquals("identity capsule export-root-target",command.getOperation());
+            Assert.assertEquals(java.util.Set.of("capsule"),command.getMaskedFields());
+            JsonObject frame=com.google.gson.JsonParser.parseString(command.getPayload()).getAsJsonObject();
+            Assert.assertTrue(frame.has("importedRootAuthorization"));
+            Assert.assertFalse(frame.has("retainedRootAuthorization"));
+            Assert.assertTrue(frame.get("includePosixPolicyReceipts").getAsBoolean());
+            JsonObject cipher=cipher(m.scope),checkpoint=new JsonObject();
+            checkpoint.addProperty("kind",m.wrongCipherKind?"SERVICE_SOURCE_IDENTITY_CHECKPOINT":"ROOT_TARGET_IDENTITY_CHECKPOINT");
+            checkpoint.add("scope",m.scope.deepCopy());
+            checkpoint.add("capsuleSha256",cipher.get("sha256"));
+            checkpoint.addProperty("targetConfigurationSha256","b".repeat(64));
+            checkpoint.addProperty("checkpointRecordSha256","a".repeat(64));
+            JsonObject result=new JsonObject();
+            result.addProperty("success",true);
+            result.add("capsule",cipher);
+            result.add("rootIdentityCheckpoint",m.wrongCipherKind?checkpoint:actualNativeRootTargetCheckpoint(frame,cipher));
+            return new StorageServiceGuestCommandResult(true,"cipher",result.toString());
+            });
+            ReflectionTestUtils.setField(m,"guestCommandDispatcher",guest);
+            for(String fault:List.of("pendingGeneration","changedBoot","failedStop","twoAuthorities","sourceAsTarget")) {
+                op.setPreviousSnapshotJson(snapshot.toString());m.events.clear();m.status.remove("pendingOperationUuid");m.wrongBoot=false;m.wrongStop=false;m.wrongCipherKind=false;batch.retainedRootAuthorization=null;Mockito.clearInvocations(guest);
+                if(fault.equals("pendingGeneration"))m.status.addProperty("pendingOperationUuid",op.getUuid());if(fault.equals("changedBoot"))m.wrongBoot=true;if(fault.equals("failedStop"))m.wrongStop=true;if(fault.equals("twoAuthorities"))batch.retainedRootAuthorization=batch.importedRootAuthorization.deepCopy();if(fault.equals("sourceAsTarget"))m.wrongCipherKind=true;
+                Assert.assertThrows(fault,RuntimeException.class,()->m.prepareRootLkgTargetIdentity(instance,op,batch,m.scope,receipt));JsonObject rejected=com.google.gson.JsonParser.parseString(op.getPreviousSnapshotJson()).getAsJsonObject();Assert.assertFalse(rejected.has("rootLkgTargetIdentity"));Assert.assertEquals(original,rejected.get("nativeIdentityCapsule"));if(!fault.equals("sourceAsTarget"))Mockito.verifyNoInteractions(guest);if(fault.equals("pendingGeneration")||fault.equals("twoAuthorities"))Assert.assertTrue(m.events.isEmpty());
+            }
+            op.setPreviousSnapshotJson(snapshot.toString());m.events.clear();m.status.remove("pendingOperationUuid");m.wrongBoot=false;m.wrongStop=false;m.wrongCipherKind=false;batch.retainedRootAuthorization=null;Mockito.clearInvocations(guest);
+            m.failResume=true;Assert.assertThrows(RuntimeException.class,()->m.prepareRootLkgTargetIdentity(instance,op,batch,m.scope,receipt));JsonObject stopped=com.google.gson.JsonParser.parseString(op.getPreviousSnapshotJson()).getAsJsonObject();Assert.assertTrue(stopped.has("rootLkgTargetIdentity"));Assert.assertFalse(stopped.has("rootLkgTargetResumed"));Assert.assertEquals(original,stopped.get("nativeIdentityCapsule"));Assert.assertThrows(RuntimeException.class,()->m.retainLkgTargetIdentity(instance,op,"77777777-7777-7777-7777-777777777777"));
+            m.failResume=false;m.prepareRootLkgTargetIdentity(instance,op,batch,m.scope,receipt);Mockito.verify(guest,Mockito.times(1)).dispatch(Mockito.any());Assert.assertEquals(1,m.events.stream().filter(x->x.endsWith("quiesce-target")).count());Assert.assertTrue(m.events.indexOf("operation generation render-root-quiesce-target")<m.events.indexOf("identity capsule export-root-target"));Assert.assertTrue(m.events.indexOf("identity capsule export-root-target")<m.events.indexOf("operation generation render-root-resume-target"));
+            ThreadLocal<StorageServiceManagerImpl.RenderedBatch> batches=(ThreadLocal<StorageServiceManagerImpl.RenderedBatch>)ReflectionTestUtils.getField(m,"renderedBatch");batches.set(batch);Assert.assertEquals("ROOT_LKG_TARGET",m.retainLkgTargetIdentity(instance,op,"77777777-7777-7777-7777-777777777777").get("checkpointRole").getAsString());
+            receipt.addProperty("phase","RELEASED");m.events.clear();m.prepareRootLkgTargetIdentity(instance,op,batch,m.scope,receipt);Assert.assertEquals(List.of("ALL4_AFTER_RELEASE_VERIFY"),m.events);
+        }finally {if(oldIdentity==null)System.clearProperty("cloudstack.storage.identity.path");else System.setProperty("cloudstack.storage.identity.path",oldIdentity);if(oldKeys==null)System.clearProperty("cloudstack.storage.rendered.keys.path");else System.setProperty("cloudstack.storage.rendered.keys.path",oldKeys);}
+    }
+    private static JsonObject actualNativeRootTargetCheckpoint(JsonObject request,JsonObject capsule) throws Exception {
+        java.nio.file.Path root=java.nio.file.Path.of(System.getProperty("user.dir")).toAbsolutePath();while(!java.nio.file.Files.exists(root.resolve("systemvm/debian/usr/local/bin/ablestack-storagectl")))root=root.getParent();String cli=System.getProperty("cloudstack.storage.ad.proof.cli",root.resolve("systemvm/debian/usr/local/bin/ablestack-storagectl").toString());
+        String code=String.join("\n",
+                "import ast,base64,hashlib,json,os,sys,tempfile,uuid",
+                "from pathlib import Path",
+                "from types import SimpleNamespace",
+                "source=Path(sys.argv[1]).read_text().split(\"<<'PYIDENTITY'\\n\",1)[1].split(\"\\nPYIDENTITY\",1)[0]",
+                "names={'ServiceTargetCipher','RootTargetCipher','RootIdentityReference','service_cipher_digest'}",
+                "definitions=[n for n in ast.parse(source).body if isinstance(n,(ast.FunctionDef,ast.ClassDef)) and n.name in names]",
+                "assert {n.name for n in definitions}==names",
+                "namespace={'Path':Path,'os':os,'json':json,'hashlib':hashlib,'base64':base64,'uuid':uuid}",
+                "exec(compile(ast.Module(body=definitions,type_ignores=[]),sys.argv[1],'exec'),namespace)",
+                "data=json.load(sys.stdin);request=data['request'];scope={k:request[k] for k in ('instanceUuid','templateUpgradeUuid','operationUuid','revision')}",
+                "digest=namespace['service_cipher_digest'];generation={k:scope[k] for k in ('instanceUuid','operationUuid','revision')}",
+                "stop={'scope':scope,'bootId':'33333333-3333-3333-3333-333333333333','stopped':True}",
+                "saved={'kind':'ROOT_IDENTITY_TARGET','scope':scope,'phase':'STOPPED','targetGeneration':generation,'targetConfigurationSha256':request['targetConfigurationSha256'],'targetStoppedReceipt':stop,'bootId':stop['bootId']}",
+                "target={'scope':scope,'rootTargetStoppedVerified':True,'targetGeneration':generation,'targetConfigurationSha256':saved['targetConfigurationSha256'],'stoppedReceiptSha256':digest(stop)}",
+                "key={'scope':scope,'targetWrappingKeyVerified':True,'originalCapsuleSha256':'e'*64}",
+                "with tempfile.TemporaryDirectory() as directory:",
+                " publisher=namespace['RootTargetCipher'].__new__(namespace['RootTargetCipher']);publisher.root=Path(directory);publisher.files=SimpleNamespace(read=lambda path:saved,write=lambda path,value:None)",
+                " result=publisher.retain(request,data['capsule'],target,key)",
+                " print(json.dumps(result,sort_keys=True))");
+        Process process=new ProcessBuilder("python3","-c",code,cli).start();JsonObject payload=new JsonObject();payload.add("request",request.deepCopy());payload.add("capsule",capsule.deepCopy());try(java.io.OutputStream stream=process.getOutputStream()){stream.write(payload.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));}String output=new String(process.getInputStream().readAllBytes(),java.nio.charset.StandardCharsets.UTF_8),error=new String(process.getErrorStream().readAllBytes(),java.nio.charset.StandardCharsets.UTF_8);Assert.assertTrue(error.isEmpty());Assert.assertEquals(0,process.waitFor());return com.google.gson.JsonParser.parseString(output).getAsJsonObject();
+    }
 }
