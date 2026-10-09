@@ -6616,7 +6616,13 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             return;
         }
 
-        final JsonObject payload = buildSmbDesiredPayload(instance,rulePasswords);
+        final JsonObject payload = buildSmbDesiredPayload(instance,rulePasswords).deepCopy();
+        final StorageServiceOperationVO writer = storageWriterOperation.get();
+        if (writer != null) {
+            if (writer.getInstanceId() != instance.getId()) throw new CloudRuntimeException("SMB writer targets a foreign instance");
+            // Transport authority is never part of canonical SMB desired state or credentials.
+            payload.add("operationScope", operationReservationScope(instance, writer));
+        }
 
         final StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
                 "smb share apply", GSON.toJson(payload), StorageServiceInstance.StorageServiceCommandTimeout.value(), Collections.singleton("password")));
