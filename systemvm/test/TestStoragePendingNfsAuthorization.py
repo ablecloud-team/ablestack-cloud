@@ -108,6 +108,67 @@ class PendingNfsAuthorizationTest(unittest.TestCase):
    self.assertFalse(auth.authorized('smbd.service',self.maintenance.status(),self.rendered.status()))
    self.assertEqual(export_uuid,fixed['uuid'])
   self.assertFalse(auth.path.exists());self.assertEqual(pending,read_json(self.g.pending));self.assertEqual(digest,self.g.digest())
+ def test_smb_owned_registry_unit_and_fixed_auxiliary_grants_are_protocol_closed(self):
+  import hashlib
+  registry=self.root/'smb-registry';registry.mkdir(mode=0o700)
+  ip='10.10.13.243';port=445;key=hashlib.sha256((ip+':'+str(port)).encode()).hexdigest()[:24]
+  atomic_json(registry/(key+'.json'),{'listenIp':ip,'port':port})
+  configuration=self.root/'samba';configuration.mkdir(mode=0o700);(configuration/'smb.conf').write_text('[global]\nnetbios name = STOR1234567890\n')
+  auth=PendingNfsAuthorization(self.g,self.rendered,self.maintenance,self.root/'smb-auth',configuration,protocol='SMB',registry=registry)
+  unit='ablestack-storage-smb@'+key+'.service'
+  source=self.g.files()
+  for selected in (unit,'smbd.service','nmbd.service'):
+   with auth.grant(self.payload,selected):
+    self.assertTrue(auth.authorized(selected,self.maintenance.status(),self.rendered.status()))
+    self.assertFalse(auth.authorized(self.unit,self.maintenance.status(),self.rendered.status()))
+    self.assertFalse(auth.authorized('winbind.service',self.maintenance.status(),self.rendered.status()))
+   self.assertFalse(auth.path.exists())
+  self.assertEqual(source,self.g.files())
+ def test_smb_foreign_registry_changed_config_and_unknown_protocol_deny(self):
+  import hashlib
+  registry=self.root/'registry';registry.mkdir(mode=0o700)
+  key=hashlib.sha256(b'10.10.13.243:445').hexdigest()[:24]
+  atomic_json(registry/(key+'.json'),{'listenIp':'10.10.13.244','port':445})
+  conf=self.root/'samba';conf.mkdir(mode=0o700);(conf/'smb.conf').write_text('[global]\n')
+  auth=PendingNfsAuthorization(self.g,self.rendered,self.maintenance,self.root/'auth-smb',conf,protocol='SMB',registry=registry)
+  with self.assertRaises(ValueError):
+   with auth.grant(self.payload,'ablestack-storage-smb@'+key+'.service'):self.fail('Foreign registry granted')
+  self.assertFalse(auth.path.exists())
+  with self.assertRaises(ValueError):PendingNfsAuthorization(protocol='ALL')
+  atomic_json(registry/(key+'.json'),{'listenIp':'10.10.13.243','port':445})
+  with auth.grant(self.payload,'ablestack-storage-smb@'+key+'.service'):
+   (conf/'smb.conf').write_text('[global]\nchanged=true\n')
+   self.assertFalse(auth.authorized('ablestack-storage-smb@'+key+'.service',self.maintenance.status(),self.rendered.status()))
+ def test_actual_smb_main_fixed_start_uses_embedded_held_scope_and_cleans_grant(self):
+  import hashlib
+  cli=LIB.parents[1]/'bin/ablestack-storagectl';source=cli.read_text()
+  program=next(value for value in re.findall(r"<<'PY'\n(.*?)\nPY",source,re.S) if 'def reconcile_smb_endpoint_units(' in value)
+  readers=program.split('# BEGIN EMBEDDED PENDING SMB READERS\n',1)[1].split('\n# END EMBEDDED PENDING SMB READERS',1)[0]
+  helper=program.split('# BEGIN EMBEDDED PENDING SMB AUTHORIZATION\n',1)[1].split('\n# END EMBEDDED PENDING SMB AUTHORIZATION',1)[0]
+  start=next(node for node in ast.parse(program).body if isinstance(node,ast.FunctionDef) and node.name=='pending_smb_service_start')
+  ns={};exec('import hashlib,json,os,stat,subprocess\nfrom pathlib import Path\n'+readers+'\n'+helper,ns)
+  registry=self.root/'main-smb-registry';registry.mkdir(mode=0o700)
+  key=hashlib.sha256(b'10.10.13.243:445').hexdigest()[:24]
+  atomic_json(registry/(key+'.json'),{'listenIp':'10.10.13.243','port':445})
+  conf=self.root/'main-samba';conf.mkdir(mode=0o700);(conf/'smb.conf').write_text('[global]\nnetbios name=STOR1234567890\n')
+  reader=ns['PendingNfsGeneration'](self.g.root,self.g.config)
+  auth=ns['PendingNfsAuthorization'](reader,self.rendered,self.maintenance,self.root/'main-smb-auth',conf,protocol='SMB',registry=registry)
+  calls=[]
+  def systemctl_only(args,**kwargs):
+   self.assertEqual('systemctl',args[0]);unit=args[-1]
+   self.assertTrue(auth.authorized(unit,self.maintenance.status(),self.rendered.status()))
+   calls.append(args)
+  ns.update(payload=self.payload,pending_smb=auth,run=systemctl_only)
+  exec(compile(ast.Module(body=[start],type_ignores=[]),str(cli),'exec'),ns)
+  before=self.g.files();pending=read_json(self.g.pending)
+  unit='ablestack-storage-smb@'+key+'.service'
+  ns['pending_smb_service_start'](unit)
+  ns['pending_smb_service_start']('nmbd',enable=True)
+  ns['pending_smb_service_start']('smbd.service',restart=True)
+  self.assertEqual(['start','enable','restart'],[row[1] for row in calls])
+  self.assertFalse(auth.path.exists());self.assertEqual(before,self.g.files());self.assertEqual(pending,read_json(self.g.pending))
+  with self.assertRaises(ValueError):ns['pending_smb_service_start']('winbind.service')
+  self.assertEqual(3,len(calls))
  def test_replaced_grant_preserved_and_rejected(self):
   with self.assertRaisesRegex(ValueError,'replaced'):
    with self.auth.grant(self.payload,self.unit):

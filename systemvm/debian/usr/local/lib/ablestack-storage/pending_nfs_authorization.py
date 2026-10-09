@@ -17,6 +17,7 @@
 import contextlib
 import fcntl
 import hashlib
+import ipaddress
 import json
 import os
 from pathlib import Path
@@ -31,13 +32,18 @@ from template_maintenance import Maintenance
 class PendingNfsAuthorization:
     mode = "NATIVE_PENDING_NFS_APPLY"
 
-    def __init__(self, generation=None, rendered=None, maintenance=None, root=None, configuration_root=None):
+    def __init__(self, generation=None, rendered=None, maintenance=None, root=None, configuration_root=None, protocol="NFS", registry=None):
+        if protocol not in ("NFS", "SMB"):
+            raise ValueError("Pending unit authorization protocol is not closed")
+        self.protocol = protocol
+        self.mode = {"NFS": "NATIVE_PENDING_NFS_APPLY", "SMB": "NATIVE_PENDING_SMB_APPLY"}[protocol]
         self.generation = generation or PendingNfsGeneration()
         self.rendered = rendered or RenderedGeneration()
         self.maintenance = maintenance
         self.root = Path(root or "/run/ablestack-storage/rendered-authorization")
-        self.path = self.root / "pending-nfs.json"
-        self.configuration_root = Path(configuration_root or "/etc/ganesha/ablestack-storage")
+        self.path = self.root / ("pending-" + protocol.lower() + ".json")
+        self.configuration_root = Path(configuration_root or ("/etc/ganesha/ablestack-storage" if protocol == "NFS" else "/etc/samba"))
+        self.registry = Path(registry or "/etc/ablestack-storage/smb-endpoint-listeners")
 
     def state(self, scope):
         if not isinstance(scope, dict) or set(scope) != {"instanceUuid", "operationUuid", "revision"}:
@@ -84,9 +90,28 @@ class PendingNfsAuthorization:
         return opened, ticks
 
     def configuration(self, unit):
-        if not isinstance(unit, str) or not re.fullmatch(r"ablestack-storage-ganesha@[A-Za-z0-9_.-]+\.service", unit):
-            raise ValueError("Pending NFS unit name is not closed")
-        key = unit.split("@", 1)[1][:-8]
+        registry_identity = None
+        if self.protocol == "NFS":
+            if not isinstance(unit, str) or not re.fullmatch(r"ablestack-storage-ganesha@[A-Za-z0-9_.-]+\.service", unit):
+                raise ValueError("Pending NFS unit name is not closed")
+            key = unit.split("@", 1)[1][:-8]
+        else:
+            if unit not in ("smbd.service", "nmbd.service"):
+                if not isinstance(unit, str) or not re.fullmatch(r"ablestack-storage-smb@[0-9a-f]{24}\.service", unit):
+                    raise ValueError("Pending SMB unit name is not closed")
+                key = unit.split("@", 1)[1][:-8]
+                record_path = self.registry / (key + ".json")
+                row = pending_nfs_read(record_path)
+                if (not isinstance(row, dict) or set(row) != {"listenIp", "port"} or type(row["port"]) is not int
+                        or not 1 <= row["port"] <= 65535 or not isinstance(row["listenIp"], str)):
+                    raise ValueError("Pending SMB endpoint registry is not exact")
+                address = str(ipaddress.ip_address(row["listenIp"]))
+                if address != row["listenIp"] or hashlib.sha256((address + ":" + str(row["port"])).encode()).hexdigest()[:24] != key:
+                    raise ValueError("Pending SMB endpoint unit differs from its protected registry")
+                info = record_path.lstat()
+                registry_identity = [info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns,
+                                     hashlib.sha256(json.dumps(row, sort_keys=True, separators=(",", ":")).encode()).hexdigest()]
+            key = "smb"
         parent = self.configuration_root.lstat()
         if not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.geteuid() or parent.st_mode & 0o022:
             raise ValueError("Pending NFS endpoint parent is not protected")
@@ -103,7 +128,10 @@ class PendingNfsAuthorization:
             data = os.read(descriptor, 8 * 1024 * 1024 + 1)
             if any(getattr(os.fstat(descriptor), k) != getattr(opened, k) for k in fields):
                 raise ValueError("Pending NFS endpoint changed while reading")
-            return hashlib.sha256(data).hexdigest(), [opened.st_dev, opened.st_ino, opened.st_size, opened.st_mtime_ns, opened.st_ctime_ns]
+            identity = [opened.st_dev, opened.st_ino, opened.st_size, opened.st_mtime_ns, opened.st_ctime_ns]
+            if self.protocol == "SMB":
+                identity.append(registry_identity)
+            return hashlib.sha256(data).hexdigest(), identity
         finally:
             os.close(descriptor)
 
