@@ -173,4 +173,153 @@ public class LibvirtStorageServiceHostCommandWrapperTest {
         Assert.assertFalse(answer.getResult());Assert.assertEquals("Timed out waiting for Storage Service QGA command", answer.getDetails());Assert.assertNull(answer.getResultJson());
     }
 
+
+    private org.libvirt.Domain chunkDomain(java.util.List<String> events, java.io.ByteArrayOutputStream captured, String failure) throws Exception {
+        org.libvirt.Domain domain = org.mockito.Mockito.mock(org.libvirt.Domain.class);
+        final int[] observer = {0};
+        org.mockito.Mockito.when(domain.qemuAgentCommand(org.mockito.Mockito.anyString(), org.mockito.Mockito.anyInt(), org.mockito.Mockito.eq(0)))
+                .thenAnswer(invocation -> {
+                    com.google.gson.JsonObject qga = com.google.gson.JsonParser.parseString(invocation.getArgument(0)).getAsJsonObject();
+                    String method = qga.get("execute").getAsString();com.google.gson.JsonObject arguments = qga.getAsJsonObject("arguments");
+                    events.add(method);
+                    com.google.gson.JsonObject response = new com.google.gson.JsonObject();
+                    if ("guest-info".equals(method)) {
+                        com.google.gson.JsonArray capabilities = new com.google.gson.JsonArray();
+                        for (String name : new String[]{"guest-file-open", "guest-file-write", "guest-file-flush", "guest-file-close", "guest-exec", "guest-exec-status"}) {
+                            if ("unsupported".equals(failure) && "guest-file-write".equals(name)) continue;
+                            com.google.gson.JsonObject row = new com.google.gson.JsonObject();row.addProperty("name", name);row.addProperty("enabled", true);capabilities.add(row);
+                        }
+                        com.google.gson.JsonObject info = new com.google.gson.JsonObject();info.add("supported_commands", capabilities);response.add("return", info);
+                    } else if ("guest-exec".equals(method)) {
+                        Assert.assertFalse(arguments.toString().contains("PRIVATE_SENTINEL"));
+                        Assert.assertFalse(arguments.has("input-data"));
+                        if (observer[0] == 0) Assert.assertTrue(arguments.getAsJsonArray("arg").get(4).getAsInt() <= 300);
+                        com.google.gson.JsonObject pid = new com.google.gson.JsonObject();pid.addProperty("pid", observer[0]++ == 0 ? 17 : 20);response.add("return", pid);
+                    } else if ("guest-exec-status".equals(method)) {
+                        com.google.gson.JsonObject owner = new com.google.gson.JsonObject();owner.addProperty("ready", true);owner.addProperty("rootOwned", true);
+                        owner.addProperty("receiverScriptVerified", true);owner.addProperty("pid", 17);owner.addProperty("startTicks", 99);
+                        owner.addProperty("dataInode", "ownership".equals(failure) && observer[0] > 2 ? 44 : 33);owner.addProperty("controlInode", 34);
+                        com.google.gson.JsonObject status = new com.google.gson.JsonObject();status.addProperty("exited", true);status.addProperty("exitcode", 0);
+                        status.addProperty("out-data", java.util.Base64.getEncoder().encodeToString(owner.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+                        response.add("return", status);
+                    } else if ("guest-file-open".equals(method)) {
+                        response.addProperty("return", arguments.get("path").getAsString().endsWith("/16") ? 1 : 2);
+                    } else if ("guest-file-write".equals(method)) {
+                        byte[] bytes = java.util.Base64.getDecoder().decode(arguments.get("buf-b64").getAsString());
+                        int handle = arguments.get("handle").getAsInt();
+                        if (handle == 1) {
+                            Assert.assertTrue(bytes.length <= 32768);captured.write(bytes);
+                        } else {Assert.assertArrayEquals(new byte[]{1}, bytes);events.add("COMMIT");}
+                        com.google.gson.JsonObject count = new com.google.gson.JsonObject();count.addProperty("count", bytes.length - ("short".equals(failure) && handle == 1 ? 1 : 0));
+                        response.add("return", count);
+                    } else if ("guest-file-close".equals(method)) {
+                        int handle = arguments.get("handle").getAsInt();events.add("CLOSE" + handle);
+                        if ("close".equals(failure) && handle == 1 || "commit-close".equals(failure) && handle == 2) response.add("return", com.google.gson.JsonNull.INSTANCE);
+                        else response.add("return", new com.google.gson.JsonObject());
+                    } else if ("guest-file-flush".equals(method)) response.add("return", new com.google.gson.JsonObject());
+                    else throw new AssertionError(method);
+                    return response.toString();
+                });
+        return domain;
+    }
+
+    @Test public void largeProtectedInputUsesActualDefaultSenderAndObserverWithBoundedChunksAndCloseBeforeCommit() throws Exception {
+        java.util.List<String> events = new java.util.ArrayList<>();java.io.ByteArrayOutputStream captured = new java.io.ByteArrayOutputStream();
+        org.libvirt.Domain domain = chunkDomain(events, captured, "");
+        String payload = "PRIVATE_SENTINEL" + "X".repeat(1518638 - "PRIVATE_SENTINEL".length());
+        StorageServiceHostCommand command = new StorageServiceHostCommand("same-vm", "identity capsule import-local-source", payload, 120, Collections.singleton("credentialPrivateKey"));
+        Assert.assertEquals(17, wrapper.executeGuestCommand(domain, command));
+        Assert.assertArrayEquals(payload.getBytes(java.nio.charset.StandardCharsets.UTF_8), captured.toByteArray());
+        Assert.assertEquals(48, events.stream().filter("guest-file-write"::equals).count());
+        Assert.assertTrue(events.indexOf("CLOSE1") < events.indexOf("COMMIT"));Assert.assertTrue(events.contains("CLOSE2"));
+    }
+
+    @Test public void shortUploadAndUnverifiedDataCloseNeverSendCommitAndCloseDataOnce() throws Exception {
+        for (String failure : new String[]{"short", "close"}) {
+            java.util.List<String> events = new java.util.ArrayList<>();
+            org.libvirt.Domain domain = chunkDomain(events, new java.io.ByteArrayOutputStream(), failure);
+            StorageServiceHostCommand command = new StorageServiceHostCommand("same-vm", "identity capsule import-local-source", "X".repeat(40000), 120, Collections.singleton("capsule"));
+            try {wrapper.executeGuestCommand(domain, command);Assert.fail();}
+            catch (IllegalStateException expected) {Assert.assertFalse(expected.getMessage().contains("PRIVATE"));}
+            Assert.assertFalse(events.contains("COMMIT"));Assert.assertEquals(1, events.stream().filter("CLOSE1"::equals).count());
+        }
+    }
+
+    @Test public void receiverOwnershipChangeRejectsBeforeCommitAndDoesNotReplayProducer() throws Exception {
+        java.util.List<String> events = new java.util.ArrayList<>();
+        org.libvirt.Domain domain = chunkDomain(events, new java.io.ByteArrayOutputStream(), "ownership");
+        StorageServiceHostCommand command = new StorageServiceHostCommand("same-vm", "identity capsule import-local-source", "X".repeat(40000), 120, Collections.singleton("capsule"));
+        try {wrapper.executeGuestCommand(domain, command);Assert.fail();}
+        catch (IllegalStateException expected) {Assert.assertTrue(expected.getMessage().contains("identity changed"));}
+        Assert.assertFalse(events.contains("COMMIT"));Assert.assertEquals(3, events.stream().filter("guest-exec"::equals).count());
+    }
+
+    @Test public void afterCommitCloseFailureIsUnknownAndNeverClaimsNoCliOrRetries() throws Exception {
+        java.util.List<String> events = new java.util.ArrayList<>();
+        org.libvirt.Domain domain = chunkDomain(events, new java.io.ByteArrayOutputStream(), "commit-close");
+        StorageServiceHostCommand command = new StorageServiceHostCommand("same-vm", "identity capsule import-local-source", "X".repeat(40000), 120, Collections.singleton("capsule"));
+        try {wrapper.executeGuestCommand(domain, command);Assert.fail();}
+        catch (IllegalStateException expected) {Assert.assertTrue(expected.getMessage().contains("unknown"));}
+        Assert.assertEquals(1, events.stream().filter("COMMIT"::equals).count());Assert.assertEquals(1, events.stream().filter("CLOSE2"::equals).count());
+    }
+
+    @Test public void unsupportedChunkApisOrInsufficientBudgetRejectBeforeReceiverOrPrivateUpload() throws Exception {
+        java.util.List<String> events = new java.util.ArrayList<>();
+        org.libvirt.Domain domain = chunkDomain(events, new java.io.ByteArrayOutputStream(), "unsupported");
+        StorageServiceHostCommand command = new StorageServiceHostCommand("same-vm", "identity capsule import-local-source", "X".repeat(40000), 120, Collections.singleton("capsule"));
+        try {wrapper.executeGuestCommand(domain, command);Assert.fail();} catch (IllegalStateException expected) { }
+        Assert.assertEquals(Collections.singletonList("guest-info"), events);
+        org.mockito.Mockito.clearInvocations(domain);events.clear();
+        command = new StorageServiceHostCommand("same-vm", "identity capsule import-local-source", "X".repeat(40000), 2, Collections.singleton("capsule"));
+        try {wrapper.executeGuestCommand(domain, command);Assert.fail();} catch (IllegalArgumentException expected) { }
+        org.mockito.Mockito.verifyNoInteractions(domain);
+        java.util.List<String> longEvents = new java.util.ArrayList<>();
+        org.libvirt.Domain longDomain = chunkDomain(longEvents, new java.io.ByteArrayOutputStream(), "");
+        command = new StorageServiceHostCommand("same-vm", "operation generation render-stage", "X".repeat(40000), 600, Collections.singleton("capsule"));
+        Assert.assertEquals(17, wrapper.executeGuestCommand(longDomain, command));
+        Assert.assertTrue(longEvents.contains("COMMIT"));
+    }
+
+    @Test public void largeProtectedStatusUsesRemainingBudgetAndStopsBeforeSubsecondRpc() throws Exception {
+        java.lang.reflect.Field field = LibvirtStorageServiceHostCommandWrapper.class.getDeclaredField("protectedStdinDeadline");field.setAccessible(true);
+        @SuppressWarnings("unchecked") ThreadLocal<Long> deadline = (ThreadLocal<Long>) field.get(wrapper);
+        org.libvirt.Domain domain = org.mockito.Mockito.mock(org.libvirt.Domain.class);
+        org.mockito.Mockito.when(domain.qemuAgentCommand(org.mockito.Mockito.anyString(), org.mockito.Mockito.anyInt(), org.mockito.Mockito.eq(0)))
+                .thenReturn("{\"return\":{\"exited\":true,\"exitcode\":0,\"out-data\":\"e30=\"}}");
+        StorageServiceHostCommand command = new StorageServiceHostCommand("same-vm", "identity capsule import-local-source", "{}", 120, Collections.singleton("capsule"));
+        try {
+            deadline.set(System.currentTimeMillis() + 3500);
+            Assert.assertTrue(wrapper.waitForGuestCommand(command, domain, 17).getResult());
+            org.mockito.ArgumentCaptor<Integer> timeout = org.mockito.ArgumentCaptor.forClass(Integer.class);
+            org.mockito.Mockito.verify(domain).qemuAgentCommand(org.mockito.Mockito.anyString(), timeout.capture(), org.mockito.Mockito.eq(0));
+            Assert.assertTrue(timeout.getValue() >= 1 && timeout.getValue() <= 3);
+            org.mockito.Mockito.clearInvocations(domain);deadline.set(System.currentTimeMillis() + 500);
+            Assert.assertFalse(wrapper.waitForGuestCommand(command, domain, 17).getResult());org.mockito.Mockito.verifyNoInteractions(domain);
+        } finally {deadline.remove();}
+    }
+
+    @Test public void smallProtectedInputKeepsOriginalSingleGuestExecStdinShape() throws Exception {
+        org.libvirt.Domain domain = org.mockito.Mockito.mock(org.libvirt.Domain.class);
+        org.mockito.Mockito.when(domain.qemuAgentCommand(org.mockito.Mockito.anyString(), org.mockito.Mockito.eq(120), org.mockito.Mockito.eq(0)))
+                .thenReturn("{\"return\":{\"pid\":21}}");
+        String payload = "{\"credentialPrivateKey\":\"PRIVATE_SENTINEL\"}";
+        StorageServiceHostCommand command = new StorageServiceHostCommand("same-vm", "identity capsule import-local-source", payload, 120, Collections.singleton("credentialPrivateKey"));
+        Assert.assertEquals(21, wrapper.executeGuestCommand(domain, command));
+        org.mockito.ArgumentCaptor<String> request = org.mockito.ArgumentCaptor.forClass(String.class);
+        org.mockito.Mockito.verify(domain).qemuAgentCommand(request.capture(), org.mockito.Mockito.eq(120), org.mockito.Mockito.eq(0));
+        com.google.gson.JsonObject arguments = com.google.gson.JsonParser.parseString(request.getValue()).getAsJsonObject().getAsJsonObject("arguments");
+        Assert.assertEquals(payload, new String(java.util.Base64.getDecoder().decode(arguments.get("input-data").getAsString()), java.nio.charset.StandardCharsets.UTF_8));
+        Assert.assertFalse(arguments.get("arg").toString().contains("PRIVATE_SENTINEL"));
+    }
+
+    @Test public void chunkByteBudgetsAreExplicitCapabilityMetadataAndNoDiskFallbackIsAdvertised() {
+        StorageServiceHostCommand command = new StorageServiceHostCommand("same-vm", "identity capsule capabilities", "{}", 30, Collections.emptySet());
+        com.google.gson.JsonObject capability = com.google.gson.JsonParser.parseString(wrapper.identityTransportObservation(command, "{\"success\":true}")).getAsJsonObject();
+        Assert.assertEquals(32768, LibvirtStorageServiceHostCommandWrapper.DIRECT_PROTECTED_STDIN_MAX_BYTES);
+        Assert.assertEquals(32768, LibvirtStorageServiceHostCommandWrapper.PROTECTED_STDIN_CHUNK_BYTES);
+        Assert.assertEquals(64 * 1024 * 1024, LibvirtStorageServiceHostCommandWrapper.PROTECTED_STDIN_MAX_BYTES);
+        Assert.assertFalse(capability.has("protectedStdinChunkBytes"));Assert.assertFalse(capability.has("protectedStdinMaxBytes"));
+        Assert.assertFalse(capability.toString().contains("disk"));
+    }
+
 }
