@@ -23,6 +23,7 @@ import org.apache.cloudstack.api.APICommand;
 import org.apache.cloudstack.api.Parameter;
 import org.apache.cloudstack.api.command.user.UserCmd;
 import org.apache.cloudstack.api.response.StorageServiceInstanceResponse;
+import org.apache.cloudstack.api.response.StorageServiceOperationResponse;
 import org.apache.cloudstack.api.response.StorageServiceRuntimeResponse;
 import org.apache.cloudstack.storage.dataservice.StorageService;
 
@@ -37,6 +38,18 @@ public class RepairStorageServiceSmbIdentityCmd extends BaseStorageServiceAsyncC
     private String confirmation;
     @Parameter(name = "maintenancewindow", type = CommandType.BOOLEAN, required = true, description = "Explicit maintenance-window acknowledgment; repair still requires independently verified zero sessions")
     private Boolean maintenanceWindow;
+    @Parameter(name = "operationid", type = CommandType.UUID, entityType = StorageServiceOperationResponse.class,
+            description = "Original failed SMB writer for explicitly approved CURRENT local identity retention")
+    private Long operationId;
+    @Parameter(name = "recoverymode", type = CommandType.STRING,
+            description = "Explicit RETAIN_CURRENT_LOCAL_IDENTITY_RESTORE_SOURCE_CONFIG mode; ordinary rebind remains the default")
+    private String recoveryMode;
+    @Parameter(name = "currentreviewhash", type = CommandType.STRING,
+            description = "Exact fresh public CURRENT identity review hash")
+    private String currentReviewHash;
+    public Long getOperationId() { return operationId; }
+    public String getRecoveryMode() { return recoveryMode; }
+    public String getCurrentReviewHash() { return currentReviewHash; }
     public Long getInstanceId() { return instanceId; }
     public String getConfirmation() { return confirmation; }
     public Boolean getMaintenanceWindow() { return maintenanceWindow; }

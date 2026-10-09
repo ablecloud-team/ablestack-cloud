@@ -114,6 +114,7 @@ public interface StorageService {
     void finishManagedOperationControl(String operationUuid, String terminalState);
 
     StorageServiceRuntimeResponse repairStorageServiceSmbIdentity(org.apache.cloudstack.api.command.user.storage.dataservice.RepairStorageServiceSmbIdentityCmd cmd);
+    StorageServiceRuntimeResponse reviewStorageServiceSmbIdentityRecovery(org.apache.cloudstack.api.command.user.storage.dataservice.ReviewStorageServiceSmbIdentityRecoveryCmd cmd);
     StorageServiceRuntimeResponse storageServiceOperationControl(org.apache.cloudstack.api.command.user.storage.dataservice.BaseStorageServiceOperationControlCmd cmd);
     org.apache.cloudstack.api.response.StorageServiceTemplateUpgradeResponse storageServiceTemplateUpgrade(StorageTemplateUpgradeRequest request);
 
