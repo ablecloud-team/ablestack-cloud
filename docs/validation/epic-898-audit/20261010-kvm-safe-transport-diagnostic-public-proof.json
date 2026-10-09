@@ -115,7 +115,7 @@
     "proofSha256": "32c2570bc37e8d451f85ef5008bf634e2be437ee494638feb06355de74489644",
     "preservationProofSha256": "834a748431a471830a84df1c5b09d52c25e5948ec8532b2190ff14099a68497f"
   },
-  "nextInvestigation": "actual capture already published; subsequent import carries large INPUT. Input1518638/outputtiny public JNI new-axis probe preparing, real import/source changes0.",
+  "nextInvestigation": "Minimal production KVM large protected input transport; fixed commit normal module checks, ABI, limited deployment, normal UI original recovery",
   "freshActualManagementCheckpointState": {
     "nativeIdentityCapsulePresentAndObject": true,
     "sourceResumedPresentBooleanAndTrue": true,
@@ -129,5 +129,67 @@
     "sqlMutations": 0
   },
   "failureCommandFamilyNotCaptured": true,
-  "previousExportOnlyAssumptionCorrected": true
+  "previousExportOnlyAssumptionCorrected": true,
+  "actualLargePublicInputNewAxis": {
+    "publicCases": 1,
+    "inputBytes": 1518638,
+    "inputBase64Characters": 2024852,
+    "qgaLaunchWireBytes": 2025392,
+    "stage": "guest-launch",
+    "exceptionCategory": "LIBVIRT",
+    "sdkCode": "VIR_ERR_UNKNOWN",
+    "sdkDomain": "VIR_FROM_QEMU",
+    "elapsedMillis": 120574,
+    "pidReturned": false,
+    "statusEntered": false,
+    "originalCliCipherPrivateKeyImportOrStopExecuted": false,
+    "allF1TenTupleAndVm15Preserved": true,
+    "repeatOrKill": false,
+    "proofSha256": "8503db9f3cdb3df0c00fc4ac57c3a23a807ee8447b84229a92bd44126d2d5dce",
+    "preservationProofSha256": "9f3c36fa44de338ce1ee31a3134f51d9bbc9e9de051b6d44f4089b43c83b1da5"
+  },
+  "actualVersionsAndMarkerReadOnly": {
+    "guestQgaPackage": "1:7.2+dfsg-7+deb12u18+b3",
+    "hostLibvirtNumeric": 11010000,
+    "qgaPid": 621,
+    "qgaStartTicks": 370,
+    "exactFailedPublicHelperPresent": false,
+    "processSignalsOrConfigServiceWrites": 0,
+    "allF1TenTuplePreserved": true,
+    "firstScratchFinalizationFailedSeparately": true,
+    "correctedReaderResultVerified": true,
+    "hostLibvirtDecoded": "11.10.0",
+    "previous11_1InterpretationCorrected": true
+  },
+  "storedSourceDefaultCapsuleFileStat": {
+    "bytes": 1517462,
+    "bodyOrKeyRead": false,
+    "defaultPathOnly": true,
+    "runtimeOverrideVerified": false,
+    "owner": [
+      985,
+      985
+    ],
+    "mode600": true,
+    "directory700": true,
+    "sourceImportAdditionalPemContextOverhead": true
+  },
+  "publicChunkedMemfdPrototype": {
+    "status": "PASS",
+    "publicInputBytes": 1518638,
+    "chunks": 47,
+    "chunkBytes": 32768,
+    "dataCloseAcknowledged": true,
+    "commitSent": true,
+    "afterCommitUnknown": false,
+    "elapsedSeconds": 3.109,
+    "publicSinkExitCode": 0,
+    "stdoutBytes": 50,
+    "provider": "isolated Python libvirt C binding",
+    "productionJavaOrOriginalImportVerified": false,
+    "f1All10AndHostVm15Preserved": true,
+    "globalHandleEnumerationPerformed": false,
+    "proofSha256": "8ad5eb1f4676fc87345b0324cd215e65e61bec68f96e9c4ede3e616c4d9e21f9",
+    "preservationSha256": "7ce00c81403306180a8aa8a4def0f921ddcb1059cedd696b4f5f4ceff7ece691"
+  }
 }
