@@ -14660,7 +14660,7 @@ class SmbSourceCheckpoint:
         self.handler=handler or SmbIdentity(cli);self.cli=self.handler.cli
         self.root=Path(root or self.handler.generations.parent/"smb-local-source-checkpoints")
         self.io=ServiceIdentityCipher();self.command=command or self.native_command
-        self.collector=lambda *args:collect(*args);self.encryptor=lambda *args:encrypt(*args)
+        self.collector=lambda *args,**kwargs:collect(*args,**kwargs);self.encryptor=lambda *args:encrypt(*args)
         self.decryptor=lambda *args:decrypt(*args);self.validator=lambda *args:validate_payload(*args)
         self.importer=lambda value:restore(select_restore_domains(value,["SMB"]))
         self.posix_collector=lambda desired,instance:PosixReceiptTransfer().collect(desired,instance,
@@ -15014,10 +15014,195 @@ class SmbSourceCheckpoint:
             "ownedEndpoints":view["ownedEndpoints"],"sessionsVerifiedEmpty":view["sessions"]["safeToRebind"]is True,
             "configurationSha256":view["configurationSha256"]}
 
+    def compat_entry(self,path,expected_sha):
+        release=path.parent
+        if (release.parent!=self.runtime_root/'releases' or path.name!='ablestack-storagectl'
+                or not re.fullmatch('[A-Za-z0-9][A-Za-z0-9_.-]{0,127}',release.name)):
+            raise ValueError('LOCAL compatibility ENTRY path is foreign')
+        for folder in (self.runtime_root,self.runtime_root/'releases',release):
+            meta=folder.lstat()
+            if not stat.S_ISDIR(meta.st_mode)or meta.st_uid!=0 or meta.st_mode&0o022:
+                raise ValueError('LOCAL compatibility installation directory is foreign')
+        raw,meta=self.reader(str(path))
+        if meta.st_uid!=0 or stat.S_IMODE(meta.st_mode)!=0o755 or hashlib.sha256(raw).hexdigest()!=expected_sha:
+            raise ValueError('LOCAL compatibility ENTRY identity changed')
+        manifest_raw,manifest_meta=self.reader(str(release/'manifest.json'),64*1024)
+        manifest=json.loads(manifest_raw)
+        entries=[row for row in manifest.get('files',[])if isinstance(row,dict)and row.get('path')=='ablestack-storagectl']
+        if (manifest_meta.st_mode&0o022 or manifest.get('bundleVersion')!=release.name or len(entries)!=1
+                or entries[0].get('sha256')!=expected_sha or entries[0].get('mode')!='0755'
+                or entries[0].get('owner')!='root' or entries[0].get('group')!='root'):
+            raise ValueError('LOCAL compatibility installed manifest changed')
+        self.installed_release_authority(release,manifest)
+        return raw
+
+    def normalized_collector_cli(self,data,original):
+        """Pure byte normalization for one explicitly authorized LOCAL collector repair."""
+        import ast
+        import copy
+        import hashlib
+        import re
+
+        SECTIONS = ("PYIDENTITY", "PYRENDEREDGENERATION")
+        KNOWN_HELPERS = frozenset(("normalized_collector_cli", "compat_entry", "code_compatibility"))
+
+        class Rejected(ValueError):
+            pass
+
+        def require(value, reason):
+            if not value:
+                raise Rejected(reason)
+
+        def span(lines, node):
+            start = sum(map(len, lines[:node.lineno - 1])) + node.col_offset
+            end = sum(map(len, lines[:node.end_lineno - 1])) + node.end_col_offset
+            return start, end
+
+        def section(data, label):
+            opener = ("<<'" + label + "'\n").encode()
+            closer = ("\n" + label + "\n").encode()
+            require(data.count(opener) == 1 and data.count(closer) == 1, "section occurrence differs")
+            start = data.index(opener) + len(opener)
+            end = data.index(closer, start)
+            return start, end, data[start:end]
+
+        def parsed_class(block):
+            try:
+                tree = ast.parse(block.decode("utf-8"))
+            except (SyntaxError, UnicodeError) as invalid:
+                raise Rejected("inline Python cannot be parsed") from invalid
+            classes = [node for node in ast.walk(tree) if isinstance(node, ast.ClassDef) and node.name == "SmbSourceCheckpoint"]
+            require(len(classes) == 1 and classes[0] in tree.body, "LOCAL class occurrence differs")
+            cls = classes[0]
+            methods = [node for node in cls.body if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))]
+            require(len({node.name for node in methods}) == len(methods), "duplicate LOCAL method")
+            return cls, {node.name: node for node in methods}, block.splitlines(keepends=True)
+
+        def ast_same(left, right):
+            return ast.dump(left, include_attributes=False) == ast.dump(right, include_attributes=False)
+
+        def collector_assignment(method):
+            nodes = [node for node in ast.walk(method) if isinstance(node, ast.Assign)
+                     and len(node.targets) == 1 and isinstance(node.targets[0], ast.Attribute)
+                     and isinstance(node.targets[0].value, ast.Name) and node.targets[0].value.id == "self"
+                     and node.targets[0].attr == "collector"]
+            require(len(nodes) == 1, "collector assignment occurrence differs")
+            return nodes[0]
+
+        def expected_frozen(old):
+            require(isinstance(old, ast.FunctionDef) and len(old.body) == 2
+                    and isinstance(old.body[0], ast.If) and isinstance(old.body[1], ast.Return)
+                    and isinstance(old.body[0].test, ast.BoolOp) and isinstance(old.body[0].test.op, ast.Or)
+                    and len(old.body[0].test.values) == 3 and not old.body[0].orelse,
+                    "historical frozen shape differs")
+            result = copy.deepcopy(old)
+            checksum = copy.deepcopy(result.body[0].test.values[-1])
+            result.body[0].test.values = result.body[0].test.values[:2]
+            call = ast.parse("self.code_compatibility(value,journal)").body[0]
+            result.body.insert(1, ast.If(test=checksum, body=[call], orelse=[]))
+            return result
+
+        def normalize_block(current, original, helpers):
+            _, methods, lines = parsed_class(current)
+            _, old, old_lines = parsed_class(original)
+            require(set(methods) == set(old) | helpers and not (set(old) & helpers), "unknown or missing LOCAL method")
+            require(ast_same(methods["frozen"], expected_frozen(old["frozen"])), "unknown frozen body/signature")
+            current_collector = collector_assignment(methods["__init__"])
+            old_collector = collector_assignment(old["__init__"])
+            expected_old = ast.parse("self.collector=lambda *args:collect(*args)").body[0]
+            expected_new = ast.parse("self.collector=lambda *args,**kwargs:collect(*args,**kwargs)").body[0]
+            require(ast_same(old_collector, expected_old) and ast_same(current_collector, expected_new), "unknown collector forwarding")
+            edits = []
+            for name in helpers:
+                node = methods[name]
+                require(isinstance(node, ast.FunctionDef), "unknown compatibility method type")
+                first = min([node.lineno] + [decorator.lineno for decorator in node.decorator_list])
+                start = sum(map(len, lines[:first - 1]))
+                end = sum(map(len, lines[:node.end_lineno]))
+                require(node.end_lineno < len(lines) and lines[node.end_lineno] == b"\n", "helper trailing separator differs")
+                edits.append((start, end + 1, b""))
+            first, last = span(lines, methods["frozen"])
+            a, b = span(old_lines, old["frozen"])
+            edits.append((first, last, original[a:b]))
+            first, last = span(lines, current_collector)
+            a, b = span(old_lines, old_collector)
+            edits.append((first, last, original[a:b]))
+            ordered = sorted(edits)
+            require(all(left[1] <= right[0] for left, right in zip(ordered, ordered[1:])), "overlapping normalization edits")
+            normalized = current
+            for first, last, replacement in reversed(ordered):
+                normalized = normalized[:first] + replacement + normalized[last:]
+            require(normalized == original, "non-permitted inline bytes changed")
+            return normalized
+
+        def normalize_cli(current, original, helper_names):
+            helpers = frozenset(helper_names)
+            require(helpers == KNOWN_HELPERS and len(tuple(helper_names)) == 3, "helper allowlist differs")
+            require(current.count(("class " + "SmbSourceCheckpoint" + ":").encode()) == 2 and original.count(("class " + "SmbSourceCheckpoint" + ":").encode()) == 2,
+                    "unexpected LOCAL class outside sections")
+            edits = []
+            for label in SECTIONS:
+                start, end, block = section(current, label)
+                _, _, old_block = section(original, label)
+                edits.append((start, end, normalize_block(block, old_block, helpers)))
+            normalized = current
+            for first, last, replacement in reversed(sorted(edits)):
+                normalized = normalized[:first] + replacement + normalized[last:]
+            require(normalized == original, "non-permitted whole CLI bytes changed")
+            return normalized
+        return normalize_cli(data,original,("normalized_collector_cli","compat_entry","code_compatibility"))
+
+    def code_compatibility(self,value,journal):
+        old_sha=journal.get('cliSha256');current=self.cli.read_bytes();new_sha=hashlib.sha256(current).hexdigest()
+        if not isinstance(old_sha,str)or not re.fullmatch('[0-9a-f]{64}',old_sha):
+            raise ValueError('LOCAL original STOP code pin is malformed')
+        current_entry=self.cli.resolve(strict=True)
+        active=(self.runtime_root/'current'/'ablestack-storagectl').resolve(strict=True)
+        if current_entry!=active:raise ValueError('LOCAL current compatibility ENTRY is not installed')
+        self.compat_entry(current_entry,new_sha)
+        releases=self.runtime_root/'releases';paths=list(releases.iterdir())
+        if len(paths)>128:raise ValueError('LOCAL historical code lookup exceeds its bound')
+        old=[]
+        for directory in sorted(paths):
+            meta=directory.lstat()
+            if not stat.S_ISDIR(meta.st_mode):continue
+            candidate=directory/'ablestack-storagectl'
+            if not os.path.lexists(candidate):continue
+            raw,_=self.reader(str(candidate))
+            if hashlib.sha256(raw).hexdigest()==old_sha:old.append(self.compat_entry(candidate,old_sha))
+        if len(old)!=1 or self.normalized_collector_cli(current,old[0])!=old[0]:
+            raise ValueError('LOCAL collector retry differs from its complete original signed code')
+        scope={key:value[key]for key in LOCAL_SOURCE_SCOPE}
+        path=self.path(scope,'code-compatibility');receipt=self.read(path)
+        stable={'schemaVersion':1,'kind':'LOCAL_SOURCE_COLLECTOR_CODE_COMPATIBILITY','scope':scope,'common':self.common(value),
+            'originalCliSha256':old_sha,'currentCliSha256':new_sha,'publicKeySha256':hashlib.sha256(journal['publicKey'].encode()).hexdigest(),
+            'names':journal['names'],'nvmeHosts':journal['nvmeHosts'],'authReplayDomains':journal['authReplayDomains']}
+        if receipt is not None:
+            if set(receipt)!=set(stable)|{'originalStoppedMetadata'}or any(receipt.get(key)!=item for key,item in stable.items()):
+                raise ValueError('LOCAL immutable compatibility receipt changed')
+            if not journal.get('imported')and receipt['originalStoppedMetadata']!=journal.get('stopped'):
+                raise ValueError('LOCAL original STOP compatibility metadata changed')
+            return
+        if (journal.get('phase')not in ('RECOVERY_REQUIRED','STOPPED')or os.path.lexists(self.path(scope,'cipher'))
+                or not isinstance(journal.get('stopped'),dict)or self.stopped_observation()!=journal['stopped']):
+            raise ValueError('LOCAL compatibility needs its original stopped source and no ciphertext')
+        export_fields=LOCAL_SOURCE_COMMON|{'publicKey','names','nvmeHosts','authReplayDomains'}
+        if set(value)==export_fields:
+            if (os.environ.get('ABLESTACK_STORAGE_WRITER_LOCK_FD')!='9'
+                    or any(value[key]!=journal[key]for key in ('publicKey','names','nvmeHosts','authReplayDomains'))):
+                raise ValueError('LOCAL compatibility retry key or collection changed')
+            self.lock()
+            self.write(scope,'code-compatibility',{**stable,'originalStoppedMetadata':journal['stopped']},immutable=True)
+        elif set(value)!=LOCAL_SOURCE_COMMON:
+            raise ValueError('LOCAL compatibility receipt is required for restoration')
+        # A first status observes eligibility only; no mutable authority is minted.
+        return
+
     def frozen(self,value,journal):
-        if (journal.get("scope")!={key:value[key]for key in LOCAL_SOURCE_SCOPE}or journal.get("common")!=self.common(value)
-                or journal.get("cliSha256")!=hashlib.sha256(self.cli.read_bytes()).hexdigest()):
+        if (journal.get("scope")!={key:value[key]for key in LOCAL_SOURCE_SCOPE}or journal.get("common")!=self.common(value)):
             raise ValueError("LOCAL source journal/command authority changed")
+        if journal.get('cliSha256')!=hashlib.sha256(self.cli.read_bytes()).hexdigest():
+            self.code_compatibility(value,journal)
         return journal
 
     def stop(self,value,journal,rollback=False):
@@ -26135,7 +26320,7 @@ class SmbSourceCheckpoint:
         self.handler=handler or SmbIdentity(cli);self.cli=self.handler.cli
         self.root=Path(root or self.handler.generations.parent/"smb-local-source-checkpoints")
         self.io=ServiceIdentityCipher();self.command=command or self.native_command
-        self.collector=lambda *args:collect(*args);self.encryptor=lambda *args:encrypt(*args)
+        self.collector=lambda *args,**kwargs:collect(*args,**kwargs);self.encryptor=lambda *args:encrypt(*args)
         self.decryptor=lambda *args:decrypt(*args);self.validator=lambda *args:validate_payload(*args)
         self.importer=lambda value:restore(select_restore_domains(value,["SMB"]))
         self.posix_collector=lambda desired,instance:PosixReceiptTransfer().collect(desired,instance,
@@ -26489,10 +26674,195 @@ class SmbSourceCheckpoint:
             "ownedEndpoints":view["ownedEndpoints"],"sessionsVerifiedEmpty":view["sessions"]["safeToRebind"]is True,
             "configurationSha256":view["configurationSha256"]}
 
+    def compat_entry(self,path,expected_sha):
+        release=path.parent
+        if (release.parent!=self.runtime_root/'releases' or path.name!='ablestack-storagectl'
+                or not re.fullmatch('[A-Za-z0-9][A-Za-z0-9_.-]{0,127}',release.name)):
+            raise ValueError('LOCAL compatibility ENTRY path is foreign')
+        for folder in (self.runtime_root,self.runtime_root/'releases',release):
+            meta=folder.lstat()
+            if not stat.S_ISDIR(meta.st_mode)or meta.st_uid!=0 or meta.st_mode&0o022:
+                raise ValueError('LOCAL compatibility installation directory is foreign')
+        raw,meta=self.reader(str(path))
+        if meta.st_uid!=0 or stat.S_IMODE(meta.st_mode)!=0o755 or hashlib.sha256(raw).hexdigest()!=expected_sha:
+            raise ValueError('LOCAL compatibility ENTRY identity changed')
+        manifest_raw,manifest_meta=self.reader(str(release/'manifest.json'),64*1024)
+        manifest=json.loads(manifest_raw)
+        entries=[row for row in manifest.get('files',[])if isinstance(row,dict)and row.get('path')=='ablestack-storagectl']
+        if (manifest_meta.st_mode&0o022 or manifest.get('bundleVersion')!=release.name or len(entries)!=1
+                or entries[0].get('sha256')!=expected_sha or entries[0].get('mode')!='0755'
+                or entries[0].get('owner')!='root' or entries[0].get('group')!='root'):
+            raise ValueError('LOCAL compatibility installed manifest changed')
+        self.installed_release_authority(release,manifest)
+        return raw
+
+    def normalized_collector_cli(self,data,original):
+        """Pure byte normalization for one explicitly authorized LOCAL collector repair."""
+        import ast
+        import copy
+        import hashlib
+        import re
+
+        SECTIONS = ("PYIDENTITY", "PYRENDEREDGENERATION")
+        KNOWN_HELPERS = frozenset(("normalized_collector_cli", "compat_entry", "code_compatibility"))
+
+        class Rejected(ValueError):
+            pass
+
+        def require(value, reason):
+            if not value:
+                raise Rejected(reason)
+
+        def span(lines, node):
+            start = sum(map(len, lines[:node.lineno - 1])) + node.col_offset
+            end = sum(map(len, lines[:node.end_lineno - 1])) + node.end_col_offset
+            return start, end
+
+        def section(data, label):
+            opener = ("<<'" + label + "'\n").encode()
+            closer = ("\n" + label + "\n").encode()
+            require(data.count(opener) == 1 and data.count(closer) == 1, "section occurrence differs")
+            start = data.index(opener) + len(opener)
+            end = data.index(closer, start)
+            return start, end, data[start:end]
+
+        def parsed_class(block):
+            try:
+                tree = ast.parse(block.decode("utf-8"))
+            except (SyntaxError, UnicodeError) as invalid:
+                raise Rejected("inline Python cannot be parsed") from invalid
+            classes = [node for node in ast.walk(tree) if isinstance(node, ast.ClassDef) and node.name == "SmbSourceCheckpoint"]
+            require(len(classes) == 1 and classes[0] in tree.body, "LOCAL class occurrence differs")
+            cls = classes[0]
+            methods = [node for node in cls.body if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))]
+            require(len({node.name for node in methods}) == len(methods), "duplicate LOCAL method")
+            return cls, {node.name: node for node in methods}, block.splitlines(keepends=True)
+
+        def ast_same(left, right):
+            return ast.dump(left, include_attributes=False) == ast.dump(right, include_attributes=False)
+
+        def collector_assignment(method):
+            nodes = [node for node in ast.walk(method) if isinstance(node, ast.Assign)
+                     and len(node.targets) == 1 and isinstance(node.targets[0], ast.Attribute)
+                     and isinstance(node.targets[0].value, ast.Name) and node.targets[0].value.id == "self"
+                     and node.targets[0].attr == "collector"]
+            require(len(nodes) == 1, "collector assignment occurrence differs")
+            return nodes[0]
+
+        def expected_frozen(old):
+            require(isinstance(old, ast.FunctionDef) and len(old.body) == 2
+                    and isinstance(old.body[0], ast.If) and isinstance(old.body[1], ast.Return)
+                    and isinstance(old.body[0].test, ast.BoolOp) and isinstance(old.body[0].test.op, ast.Or)
+                    and len(old.body[0].test.values) == 3 and not old.body[0].orelse,
+                    "historical frozen shape differs")
+            result = copy.deepcopy(old)
+            checksum = copy.deepcopy(result.body[0].test.values[-1])
+            result.body[0].test.values = result.body[0].test.values[:2]
+            call = ast.parse("self.code_compatibility(value,journal)").body[0]
+            result.body.insert(1, ast.If(test=checksum, body=[call], orelse=[]))
+            return result
+
+        def normalize_block(current, original, helpers):
+            _, methods, lines = parsed_class(current)
+            _, old, old_lines = parsed_class(original)
+            require(set(methods) == set(old) | helpers and not (set(old) & helpers), "unknown or missing LOCAL method")
+            require(ast_same(methods["frozen"], expected_frozen(old["frozen"])), "unknown frozen body/signature")
+            current_collector = collector_assignment(methods["__init__"])
+            old_collector = collector_assignment(old["__init__"])
+            expected_old = ast.parse("self.collector=lambda *args:collect(*args)").body[0]
+            expected_new = ast.parse("self.collector=lambda *args,**kwargs:collect(*args,**kwargs)").body[0]
+            require(ast_same(old_collector, expected_old) and ast_same(current_collector, expected_new), "unknown collector forwarding")
+            edits = []
+            for name in helpers:
+                node = methods[name]
+                require(isinstance(node, ast.FunctionDef), "unknown compatibility method type")
+                first = min([node.lineno] + [decorator.lineno for decorator in node.decorator_list])
+                start = sum(map(len, lines[:first - 1]))
+                end = sum(map(len, lines[:node.end_lineno]))
+                require(node.end_lineno < len(lines) and lines[node.end_lineno] == b"\n", "helper trailing separator differs")
+                edits.append((start, end + 1, b""))
+            first, last = span(lines, methods["frozen"])
+            a, b = span(old_lines, old["frozen"])
+            edits.append((first, last, original[a:b]))
+            first, last = span(lines, current_collector)
+            a, b = span(old_lines, old_collector)
+            edits.append((first, last, original[a:b]))
+            ordered = sorted(edits)
+            require(all(left[1] <= right[0] for left, right in zip(ordered, ordered[1:])), "overlapping normalization edits")
+            normalized = current
+            for first, last, replacement in reversed(ordered):
+                normalized = normalized[:first] + replacement + normalized[last:]
+            require(normalized == original, "non-permitted inline bytes changed")
+            return normalized
+
+        def normalize_cli(current, original, helper_names):
+            helpers = frozenset(helper_names)
+            require(helpers == KNOWN_HELPERS and len(tuple(helper_names)) == 3, "helper allowlist differs")
+            require(current.count(("class " + "SmbSourceCheckpoint" + ":").encode()) == 2 and original.count(("class " + "SmbSourceCheckpoint" + ":").encode()) == 2,
+                    "unexpected LOCAL class outside sections")
+            edits = []
+            for label in SECTIONS:
+                start, end, block = section(current, label)
+                _, _, old_block = section(original, label)
+                edits.append((start, end, normalize_block(block, old_block, helpers)))
+            normalized = current
+            for first, last, replacement in reversed(sorted(edits)):
+                normalized = normalized[:first] + replacement + normalized[last:]
+            require(normalized == original, "non-permitted whole CLI bytes changed")
+            return normalized
+        return normalize_cli(data,original,("normalized_collector_cli","compat_entry","code_compatibility"))
+
+    def code_compatibility(self,value,journal):
+        old_sha=journal.get('cliSha256');current=self.cli.read_bytes();new_sha=hashlib.sha256(current).hexdigest()
+        if not isinstance(old_sha,str)or not re.fullmatch('[0-9a-f]{64}',old_sha):
+            raise ValueError('LOCAL original STOP code pin is malformed')
+        current_entry=self.cli.resolve(strict=True)
+        active=(self.runtime_root/'current'/'ablestack-storagectl').resolve(strict=True)
+        if current_entry!=active:raise ValueError('LOCAL current compatibility ENTRY is not installed')
+        self.compat_entry(current_entry,new_sha)
+        releases=self.runtime_root/'releases';paths=list(releases.iterdir())
+        if len(paths)>128:raise ValueError('LOCAL historical code lookup exceeds its bound')
+        old=[]
+        for directory in sorted(paths):
+            meta=directory.lstat()
+            if not stat.S_ISDIR(meta.st_mode):continue
+            candidate=directory/'ablestack-storagectl'
+            if not os.path.lexists(candidate):continue
+            raw,_=self.reader(str(candidate))
+            if hashlib.sha256(raw).hexdigest()==old_sha:old.append(self.compat_entry(candidate,old_sha))
+        if len(old)!=1 or self.normalized_collector_cli(current,old[0])!=old[0]:
+            raise ValueError('LOCAL collector retry differs from its complete original signed code')
+        scope={key:value[key]for key in LOCAL_SOURCE_SCOPE}
+        path=self.path(scope,'code-compatibility');receipt=self.read(path)
+        stable={'schemaVersion':1,'kind':'LOCAL_SOURCE_COLLECTOR_CODE_COMPATIBILITY','scope':scope,'common':self.common(value),
+            'originalCliSha256':old_sha,'currentCliSha256':new_sha,'publicKeySha256':hashlib.sha256(journal['publicKey'].encode()).hexdigest(),
+            'names':journal['names'],'nvmeHosts':journal['nvmeHosts'],'authReplayDomains':journal['authReplayDomains']}
+        if receipt is not None:
+            if set(receipt)!=set(stable)|{'originalStoppedMetadata'}or any(receipt.get(key)!=item for key,item in stable.items()):
+                raise ValueError('LOCAL immutable compatibility receipt changed')
+            if not journal.get('imported')and receipt['originalStoppedMetadata']!=journal.get('stopped'):
+                raise ValueError('LOCAL original STOP compatibility metadata changed')
+            return
+        if (journal.get('phase')not in ('RECOVERY_REQUIRED','STOPPED')or os.path.lexists(self.path(scope,'cipher'))
+                or not isinstance(journal.get('stopped'),dict)or self.stopped_observation()!=journal['stopped']):
+            raise ValueError('LOCAL compatibility needs its original stopped source and no ciphertext')
+        export_fields=LOCAL_SOURCE_COMMON|{'publicKey','names','nvmeHosts','authReplayDomains'}
+        if set(value)==export_fields:
+            if (os.environ.get('ABLESTACK_STORAGE_WRITER_LOCK_FD')!='9'
+                    or any(value[key]!=journal[key]for key in ('publicKey','names','nvmeHosts','authReplayDomains'))):
+                raise ValueError('LOCAL compatibility retry key or collection changed')
+            self.lock()
+            self.write(scope,'code-compatibility',{**stable,'originalStoppedMetadata':journal['stopped']},immutable=True)
+        elif set(value)!=LOCAL_SOURCE_COMMON:
+            raise ValueError('LOCAL compatibility receipt is required for restoration')
+        # A first status observes eligibility only; no mutable authority is minted.
+        return
+
     def frozen(self,value,journal):
-        if (journal.get("scope")!={key:value[key]for key in LOCAL_SOURCE_SCOPE}or journal.get("common")!=self.common(value)
-                or journal.get("cliSha256")!=hashlib.sha256(self.cli.read_bytes()).hexdigest()):
+        if (journal.get("scope")!={key:value[key]for key in LOCAL_SOURCE_SCOPE}or journal.get("common")!=self.common(value)):
             raise ValueError("LOCAL source journal/command authority changed")
+        if journal.get('cliSha256')!=hashlib.sha256(self.cli.read_bytes()).hexdigest():
+            self.code_compatibility(value,journal)
         return journal
 
     def stop(self,value,journal,rollback=False):

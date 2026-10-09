@@ -182,6 +182,124 @@ class StorageSmbSourceCheckpointTest(unittest.TestCase):
         request["nvmeDesired"]={}
         with self.assertRaises(ValueError):self.native.request(request,"replay-local-source-auth")
 
+    def test_default_collector_keyword_reaches_real_generic_collect_and_crypto(self):
+        fresh=module.SmbSourceCheckpoint(handler=self.handler,command=self.local_command,root=self.native.root)
+        fresh.__dict__.update({key:value for key,value in self.native.__dict__.items()if key not in ('collector','posix_collector')})
+        # Keep the production collector adapter intact. Only filesystem locations
+        # and unit observations are fixtures; the generic body and RSA/AEAD run.
+        accounts=self.root/'controlled-accounts';accounts.mkdir()
+        account_files={}
+        for name in ('passwd','shadow','group','gshadow'):
+            path=accounts/name;path.write_text('');path.chmod(0o600);account_files['/etc/'+name]=path
+        regular=capsule.regular_file
+        def controlled(path,*args):return regular(account_files.get(str(path),path),*args)
+        with patch.object(capsule,'FILES',{str(path)for path in self.private.values()}),\
+                patch.object(capsule,'regular_file',side_effect=controlled),\
+                patch.object(module,'collect',wraps=capsule.collect)as observed:
+            result=fresh.export(self.export_request)
+            self.assertEqual({},observed.call_args.kwargs['posix_policies'])
+            decoded=capsule.decrypt(result['capsule'],self.pem(self.newkey),self.scope['instanceUuid']+':'+self.scope['operationUuid'])
+            self.assertEqual({},decoded['identity']['posixPolicies'])
+            self.assertEqual({str(path)for path in self.private.values()},set(decoded['identity']['files']))
+            self.assertTrue(result['sourceSmbResumed']);self.assertTrue(result['sourceRuntimeVerified'])
+            with self.assertRaisesRegex(ValueError,'Invalid managed account'):fresh.collector(['root'],[],posix_policies={})
+            with self.assertRaises(TypeError):fresh.collector([],[],unexpected_keyword={})
+            private=next(iter(self.private.values()));backup=private.with_suffix('.original');private.rename(backup);private.symlink_to(backup)
+            try:
+                with self.assertRaisesRegex(ValueError,'protected regular file'):fresh.collector([],[],posix_policies={})
+            finally:private.unlink();backup.rename(private)
+
+    def test_exact_original_stop_code_compatibility_status_export_and_receipt_guards(self):
+        old_frozen='''    def frozen(self,value,journal):
+        if (journal.get("scope")!={key:value[key]for key in LOCAL_SOURCE_SCOPE}or journal.get("common")!=self.common(value)
+                or journal.get("cliSha256")!=hashlib.sha256(self.cli.read_bytes()).hexdigest()):
+            raise ValueError("LOCAL source journal/command authority changed")
+        return journal
+'''
+        new_frozen='''    def frozen(self,value,journal):
+        if (journal.get("scope")!={key:value[key]for key in LOCAL_SOURCE_SCOPE}or journal.get("common")!=self.common(value)):
+            raise ValueError("LOCAL source journal/command authority changed")
+        if journal.get('cliSha256')!=hashlib.sha256(self.cli.read_bytes()).hexdigest():
+            self.code_compatibility(value,journal)
+        return journal
+'''
+        old_class='class SmbSourceCheckpoint:\n    def __init__(self):\n        self.collector=lambda *args:collect(*args)\n\n'+old_frozen
+        helpers=''.join('    def '+name+'(self):\n        pass\n\n'for name in('normalized_collector_cli','compat_entry','code_compatibility'))
+        new_class=old_class.replace('self.collector=lambda *args:collect(*args)','self.collector=lambda *args,**kwargs:collect(*args,**kwargs)').replace(old_frozen,helpers+new_frozen)
+        def whole(cls):return ''.join("python3 - <<'"+marker+"'\n"+cls+'\n'+marker+'\n'for marker in('PYIDENTITY','PYRENDEREDGENERATION')).encode()
+        original=whole(old_class);current=whole(new_class)
+        self.assertEqual(original,self.native.normalized_collector_cli(current,original))
+        with self.assertRaises(ValueError):self.native.normalized_collector_cli(current+b'\n# foreign shell code\n',original)
+        runtime=self.root/'compat-runtime';runtime.mkdir(mode=0o700);(runtime/'releases').mkdir(mode=0o700)
+        installs=self.root/'compat-installs';installs.mkdir(mode=0o700)
+        for version,data in (('original-stop',original),('current-fixed',current)):
+            release=runtime/'releases'/version;release.mkdir(mode=0o700)
+            entry=release/'ablestack-storagectl';entry.write_bytes(data);entry.chmod(0o755)
+            manifest={'bundleVersion':version,'keyId':'controlled-public-fixture','files':[{'path':'ablestack-storagectl',
+                'sha256':hashlib.sha256(data).hexdigest(),'mode':'0755','owner':'root','group':'root'}]}
+            generation.atomic_json(release/'manifest.json',manifest)
+            tx=installs/('runtime-'+version);tx.mkdir(mode=0o700);generation.atomic_json(tx/'manifest.json',manifest)
+            generation.atomic_json(tx/'state.json',{'transactionId':tx.name,'bundleVersion':version,'releasePath':str(release),
+                'keyId':manifest['keyId'],'phase':'COMPLETE','archiveSha256':'a'*64,
+                'manifestSha256':hashlib.sha256((tx/'manifest.json').read_bytes()).hexdigest()})
+        (runtime/'current').symlink_to(runtime/'releases/current-fixed')
+        self.native.runtime_root=runtime;self.native.installation_root=installs
+        self.native.reader=capsule.regular_file
+        self.native.cli=runtime/'releases/current-fixed/ablestack-storagectl'
+        prior=self.observation(self.request);self.active_units.clear()
+        stopped=self.native.stopped_observation()
+        journal={'schemaVersion':1,'scope':{k:self.request[k]for k in module.LOCAL_SOURCE_SCOPE},'common':self.request,
+            'cliSha256':hashlib.sha256(original).hexdigest(),'phase':'RECOVERY_REQUIRED','prior':prior,'stopped':stopped,
+            'publicKey':self.export_request['publicKey'],'names':[],'nvmeHosts':[],'authReplayDomains':[],
+            'sourceDesiredState':self.gen.files()}
+        path=self.native.path(self.request,'code-compatibility')
+        self.native.frozen(self.request,journal);self.assertFalse(path.exists())
+        with patch.dict(os.environ,{'ABLESTACK_STORAGE_WRITER_LOCK_FD':''}):
+            with self.assertRaisesRegex(ValueError,'retry key'):self.native.frozen(self.export_request,journal)
+        for key,bad in [('names',['foreign']),('nvmeHosts',['foreign']),('authReplayDomains',['ISCSI'])]:
+            with self.subTest(field=key),self.assertRaisesRegex(ValueError,'retry key'):
+                self.native.frozen({**self.export_request,key:bad},journal)
+        source_observation=self.native.stopped_observation
+        self.native.stopped_observation=lambda:{**stopped,'configurationSha256':'b'*64}
+        with self.assertRaisesRegex(ValueError,'original stopped'):self.native.frozen(self.export_request,journal)
+        self.native.stopped_observation=source_observation
+        self.native.root.mkdir(mode=0o700,exist_ok=True)
+        cipher_path=self.native.path(self.request,'cipher');self.native.io.write(cipher_path,{'untrusted':True})
+        with self.assertRaisesRegex(ValueError,'original stopped'):self.native.frozen(self.export_request,journal)
+        cipher_path.unlink()
+        old_receipt=installs/'runtime-original-stop/state.json';hidden=old_receipt.with_name('hidden-state.json');old_receipt.rename(hidden)
+        with self.assertRaisesRegex(ValueError,'installation is absent'):self.native.frozen(self.request,journal)
+        hidden.rename(old_receipt)
+        old_entry=runtime/'releases/original-stop/ablestack-storagectl';saved_old=old_entry.read_bytes();old_entry.write_bytes(saved_old+b'\n# altered ENTRY\n')
+        with self.assertRaisesRegex(ValueError,'complete original signed code'):self.native.frozen(self.request,journal)
+        old_entry.write_bytes(saved_old)
+        self.assertFalse(path.exists())
+        wrong={**self.export_request,'publicKey':self.export_request['publicKey']+'\n'}
+        with self.assertRaisesRegex(ValueError,'retry key'):self.native.frozen(wrong,journal)
+        self.assertFalse(path.exists())
+        self.native.frozen(self.export_request,journal);receipt=self.native.read(path)
+        self.assertEqual(journal['cliSha256'],receipt['originalCliSha256'])
+        self.assertEqual(stopped,receipt['originalStoppedMetadata'])
+        self.assertEqual(hashlib.sha256(original).hexdigest(),journal['cliSha256'])
+        before_receipt=path.read_bytes()
+        self.native.reader=lambda path,*args:self.read(str(path))
+        self.native.write(self.request,'journal',journal)
+        exported=self.native.export(self.export_request)
+        self.assertTrue(exported['sourceSmbResumed']);self.assertTrue(exported['sourceRuntimeVerified'])
+        self.assertEqual(before_receipt,path.read_bytes())
+        self.assertEqual(journal['cliSha256'],self.native.read(self.native.path(self.request,'journal'))['cliSha256'])
+        self.assertTrue(self.native.status(self.request)['sourceIdentityRestoreSupported'])
+        journal['phase']='RESUMED';self.native.frozen(self.request,journal)
+        saved=path.read_bytes();path.unlink()
+        with self.assertRaisesRegex(ValueError,'original stopped'):self.native.frozen(self.request,journal)
+        path.write_bytes(saved);path.chmod(0o600)
+        with self.assertRaisesRegex(ValueError,'journal/command'):self.native.frozen({**self.request,'expectedBootId':str(uuid.uuid4())},journal)
+        altered={**receipt,'currentCliSha256':'f'*64}
+        with self.assertRaises(FileExistsError):self.native.io.write(path,altered)
+        generation.atomic_json(path,altered)
+        with self.assertRaisesRegex(ValueError,'receipt changed'):self.native.frozen(self.request,journal)
+        self.assertFalse(self.signals);self.assertEqual(2,len(self.starts))
+
     def test_actual_embedded_dispatcher_export_import_and_status(self):
         import ast,io
         from contextlib import redirect_stdout
