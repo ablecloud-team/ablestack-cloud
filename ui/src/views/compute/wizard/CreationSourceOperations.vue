@@ -21,13 +21,18 @@
     <p>{{ $t('message.creation.source.job.' + (operation.status === 'submitting' ? 'pending' : operation.status)) }}</p>
     <p v-if="operation.jobid" class="operation-meta">{{ $t('label.id') }}: {{ operation.jobid }}</p>
     <p v-if="operation.vmid"><router-link :to="'/vm/' + operation.vmid">{{ $t('label.creation.source.inspect.vm') }} · {{ operation.vmid }}</router-link></p>
-    <a-alert v-if="operation.error" type="error" show-icon :message="operation.error" />
+    <a-alert v-if="operation.error" type="error" show-icon :message="errorMessage(operation.error)" />
+    <details v-if="operation.error && errorMessage(operation.error) !== operation.error" class="operation-meta">
+      <summary>{{ $t('label.creation.source.error.details') }}</summary>
+      <pre>{{ operation.error }}</pre>
+    </details>
     <a-button v-if="['pending', 'unknown', 'failed'].includes(operation.status)" :loading="checking" @click="check(operation)">{{ $t('message.creation.source.job.check') }}</a-button>
     <a-button v-if="operation.status === 'failed' && operation.vmid && operation.retryable" :loading="checking" @click="retryStart(operation)">{{ $t('label.creation.source.start.retry') }}</a-button>
   </section>
 </template>
 <script>
 import { getAPI, postAPI } from '@/api'
+import { vmCreationSourceErrorMessage } from '@/utils/vmCreationSourceError'
 export default {
   props: { operations: { type: Array, default: () => [] }, storageKey: { type: String, required: true } },
   emits: ['update:operations'],
@@ -43,6 +48,7 @@ export default {
   },
   beforeUnmount () { this.alive = false; clearTimeout(this.timer); this.save() },
   methods: {
+    errorMessage (error) { return vmCreationSourceErrorMessage(error, this.$t) },
     save () { sessionStorage.setItem(this.storageKey, JSON.stringify(this.operations)) },
     schedule () {
       clearTimeout(this.timer)
@@ -97,5 +103,6 @@ export default {
 <style lang="less" scoped>
 .source-operation { border: 1px solid var(--ui-border); border-radius: 6px; padding: 16px; margin-bottom: 16px; color: var(--ui-text); background: var(--ui-bg-elevated); }
 .operation-meta { color: var(--ui-text-secondary); overflow-wrap: anywhere; }
+pre { white-space: pre-wrap; overflow-wrap: anywhere; color: var(--ui-text-secondary); }
 .ant-button { margin: 10px 10px 0 0; }
 </style>

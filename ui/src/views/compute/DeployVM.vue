@@ -1206,6 +1206,7 @@ import AdditionalIsoSelection from './AdditionalIsoSelection.vue'
 import CreationSourceSelection from './wizard/CreationSourceSelection.vue'
 import CreationSourceSummary from './wizard/CreationSourceSummary.vue'
 import CreationSourceOperations from './wizard/CreationSourceOperations.vue'
+import { vmCreationSourceErrorMessage } from '@/utils/vmCreationSourceError'
 import MoldDialog from '@/components/view/MoldDialog.vue'
 import { ref, reactive, toRaw, nextTick, h } from 'vue'
 import { ReloadOutlined } from '@ant-design/icons-vue'
@@ -3445,7 +3446,9 @@ export default {
                 this.currentSourceOperation.error = failure?.errortext || error.message
                 sessionStorage.setItem(this.sourceOperationsKey, JSON.stringify(this.sourceOperations))
               }
-              if (error.message !== undefined) {
+              if (this.isCreationSource && this.currentSourceOperation) {
+                this.$notification.error({ message: this.$t('message.request.failed'), description: vmCreationSourceErrorMessage(this.currentSourceOperation.error, this.$t) })
+              } else if (error.message !== undefined) {
                 await this.$notifyError(error)
               }
               this.loading.deploy = false

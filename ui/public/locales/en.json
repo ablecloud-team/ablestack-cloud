@@ -8457,5 +8457,7 @@
   "message.creation.source.reason.SOURCE_IN_USE": "Another active VM is using this disk on a host.",
   "message.creation.source.reason.SOURCE_RUNTIME_UNKNOWN": "Cannot verify disk consumers on all source storage hosts. Check host and Agent availability.",
   "message.creation.source.reason.SOURCE_VOLUME_METADATA_MISSING": "Retained source volume metadata is missing, so storage restore cannot be prepared. Ask an administrator to recover the source metadata.",
-  "label.creation.source.state.unknown": "Needs review"
+  "label.creation.source.state.unknown": "Needs review",
+  "message.creation.source.restore.failed": "The ROOT disk could not be restored from the snapshot. Check the target storage and the created VM state. Inspect the source before submitting the same request again.",
+  "label.creation.source.error.details": "Technical error details"
 }
