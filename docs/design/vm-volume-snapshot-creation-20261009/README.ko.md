@@ -19,6 +19,8 @@ under the License.
 
 # 볼륨·스냅샷 기반 가상머신 생성 개선 설계
 
+**최종 상태(2026-10-10):** 기존 #1335 및 #1336–#1343의 구현·변경 모듈 빌드·31/32 배포·지정 UI 검증을 완료했고 PR #1344는 검토·병합 단계다. [최종 장애·회귀·배포 보고](resilience-ui-validation.ko.md)에서 응답 유실, 재시작, 동일 VM/ROOT/DATA 복구, 20GiB 해시와 검증 한계를 확인할 수 있다. 아래 버전별 기록은 당시 증거로 유지한다.
+
 - 작성일: 2026-10-09 (한국 시간)
 - 분석 기준: 최신 `upstream/ablestack-europa`, `2871963cd43aeb592f619c1b67d8a5974846409d`
 - 소스/설계 작업: `dhslove/ablestack-cloud`, 별도 `codex/vm-volume-snapshot-design` 브랜치

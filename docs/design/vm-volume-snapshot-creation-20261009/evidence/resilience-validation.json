@@ -1,0 +1,588 @@
+{
+  "checkedAt": "2026-10-09T17:43:15.499020+00:00",
+  "implementationScope": "Epic #1335, #1336-#1343; no new issues",
+  "uiArtifact": {
+    "sourceHead": "03e16ae2a68a85327d21269e51285b6b3000c33c",
+    "archive": "ui-epic1335-03e16ae2a68.tgz",
+    "archiveSha256": "993453ebadd1b4e83573ad5505f4d9aecdcd5862e043b9f03b00d82ffadd912f",
+    "indexSha256": "11524ac3936e5c9ecdad9c746a6a738fe0f02bc5c6f050e4d737fef80d21952b",
+    "staticFiles": 840,
+    "testSuites": 6,
+    "tests": 92,
+    "buildExit": 0,
+    "lintExit": 0
+  },
+  "moduleTests": {
+    "serverFocused": 16,
+    "kvmStorageProcessorExisting": 48,
+    "kvmRbdRetryNew": 10,
+    "kvmFocusedTotal": 58,
+    "uiFocused": 92,
+    "aggregateAcrossPreviousRuns": false,
+    "fullCloudBuildManuallyRequestedOrRun": false
+  },
+  "deployments": {
+    "management": [
+      {
+        "cluster": 31,
+        "exit": 0,
+        "verified": {
+          "managementJar": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0-Mold.Europa-202609222315.jar",
+          "jarSha256": "a221e3ac835ca0e4d7300d2af370d98ec0fab112475e621f85f825a7eed7200a",
+          "userVmManagerClassSha256": "3297dd6468ecb66307c9da8d0bdba8b4cbffd069babbf7f74fc3fcaf0870d800",
+          "webInfPresent": true,
+          "metaInfPresent": false,
+          "configSha256": "b54d18abc5a143c64e2dec3441af0a45619ec20f110647119e6b8d2e199ff453",
+          "indexSha256": "11524ac3936e5c9ecdad9c746a6a738fe0f02bc5c6f050e4d737fef80d21952b",
+          "clientHttp": 200,
+          "management": "active"
+        }
+      },
+      {
+        "cluster": 32,
+        "exit": 0,
+        "verified": {
+          "managementJar": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0.jar",
+          "jarSha256": "e2483942a9ff90fb53168ab4798490521b71f89cf70f6800a43458b4f87cf289",
+          "userVmManagerClassSha256": "3297dd6468ecb66307c9da8d0bdba8b4cbffd069babbf7f74fc3fcaf0870d800",
+          "webInfPresent": true,
+          "metaInfPresent": false,
+          "configSha256": "23e7b986c2178c56aca96e7ef86cc193b69edbf731c7af4239a12481d9a292d8",
+          "indexSha256": "11524ac3936e5c9ecdad9c746a6a738fe0f02bc5c6f050e4d737fef80d21952b",
+          "clientHttp": 200,
+          "management": "active"
+        }
+      }
+    ],
+    "agents": [
+      {
+        "host": "10.10.31.1",
+        "exit": 0,
+        "checkedAt": "2026-10-09T17:32:37.083637+00:00",
+        "verified": {
+          "jar": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202609222315.jar",
+          "jarSha256": "1cc4a4770db5749936324fc5fc1618b0d6acddb2996f1651cf451b3def16352c",
+          "classes": {
+            "com/cloud/hypervisor/kvm/storage/KVMStorageProcessor.class": "6cdbc40d9fc5b6c243c6676e2edaf342704fcd1058f29aaaddbb0712f32b8e45",
+            "com/cloud/hypervisor/kvm/storage/KVMStorageProcessor$1.class": "4a0da4a479a69a8eae8783d79aac9460f069bbb682dbdafdc4940b52d0ef4e4a"
+          },
+          "agent": "active",
+          "agentPropertiesSha256": "3e2d86eb025ba286ee27c799f1813b9f64755675736db1734d735e29321dbae2",
+          "temporaryGuestCheckAddressAbsent": true,
+          "runningDomainCount": 33
+        }
+      },
+      {
+        "host": "10.10.31.2",
+        "exit": 0,
+        "checkedAt": "2026-10-09T17:32:37.070841+00:00",
+        "verified": {
+          "jar": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202609222315.jar",
+          "jarSha256": "ecdfeecdb72e6a9cf023291276e1b5f1f3111bbdbefada07bb2c0d521396066a",
+          "classes": {
+            "com/cloud/hypervisor/kvm/storage/KVMStorageProcessor.class": "6cdbc40d9fc5b6c243c6676e2edaf342704fcd1058f29aaaddbb0712f32b8e45",
+            "com/cloud/hypervisor/kvm/storage/KVMStorageProcessor$1.class": "4a0da4a479a69a8eae8783d79aac9460f069bbb682dbdafdc4940b52d0ef4e4a"
+          },
+          "agent": "active",
+          "agentPropertiesSha256": "5eb0bc4a2f8d568743f2df0382ac50d306d3ffbd4ca2b0c3b11cf6f04d287bc8",
+          "temporaryGuestCheckAddressAbsent": true,
+          "runningDomainCount": 25
+        }
+      },
+      {
+        "host": "10.10.31.3",
+        "exit": 0,
+        "checkedAt": "2026-10-09T17:32:37.106399+00:00",
+        "verified": {
+          "jar": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202609222315.jar",
+          "jarSha256": "edd1fe27ef5107cbc5ad2d94a87cd9aabee561eaa5551b182622e3d91d1946d7",
+          "classes": {
+            "com/cloud/hypervisor/kvm/storage/KVMStorageProcessor.class": "6cdbc40d9fc5b6c243c6676e2edaf342704fcd1058f29aaaddbb0712f32b8e45",
+            "com/cloud/hypervisor/kvm/storage/KVMStorageProcessor$1.class": "4a0da4a479a69a8eae8783d79aac9460f069bbb682dbdafdc4940b52d0ef4e4a"
+          },
+          "agent": "active",
+          "agentPropertiesSha256": "98f1227b1f8fbf30340c87e50ad4f2907b69bba0d1483491a3860a31b7d6b29d",
+          "temporaryGuestCheckAddressAbsent": true,
+          "runningDomainCount": 28
+        }
+      },
+      {
+        "host": "10.10.32.1",
+        "exit": 0,
+        "checkedAt": "2026-10-09T17:32:37.377334+00:00",
+        "verified": {
+          "jar": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0.jar",
+          "jarSha256": "2aa98005c70df61861aff9e411039f9a787bb4437887c391be37496e28e54e48",
+          "classes": {
+            "com/cloud/hypervisor/kvm/storage/KVMStorageProcessor.class": "6cdbc40d9fc5b6c243c6676e2edaf342704fcd1058f29aaaddbb0712f32b8e45",
+            "com/cloud/hypervisor/kvm/storage/KVMStorageProcessor$1.class": "4a0da4a479a69a8eae8783d79aac9460f069bbb682dbdafdc4940b52d0ef4e4a"
+          },
+          "agent": "active",
+          "agentPropertiesSha256": "5ecc037e2ec3074658a79367637c5322f3c2754246dcf75f3d1a7551ac2bdb19",
+          "temporaryGuestCheckAddressAbsent": true,
+          "runningDomainCount": 5
+        }
+      },
+      {
+        "host": "10.10.32.2",
+        "exit": 0,
+        "checkedAt": "2026-10-09T17:32:37.356220+00:00",
+        "verified": {
+          "jar": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0.jar",
+          "jarSha256": "9b006a6636bd18c2eebe19e22dd2400582f17ec3b242069d3582bbeb5f8e5f5e",
+          "classes": {
+            "com/cloud/hypervisor/kvm/storage/KVMStorageProcessor.class": "6cdbc40d9fc5b6c243c6676e2edaf342704fcd1058f29aaaddbb0712f32b8e45",
+            "com/cloud/hypervisor/kvm/storage/KVMStorageProcessor$1.class": "4a0da4a479a69a8eae8783d79aac9460f069bbb682dbdafdc4940b52d0ef4e4a"
+          },
+          "agent": "active",
+          "agentPropertiesSha256": "b9d0dd84ff31dc4efdd9e3e5db9dfbb8719fdf441d18acef9d3ae8d90712cb91",
+          "temporaryGuestCheckAddressAbsent": true,
+          "runningDomainCount": 3
+        }
+      },
+      {
+        "host": "10.10.32.3",
+        "exit": 0,
+        "checkedAt": "2026-10-09T17:32:37.339554+00:00",
+        "verified": {
+          "jar": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0.jar",
+          "jarSha256": "f47d1ac7aa1d92fcc372b2583a334ab12e0e904fe28c27a309f65dbfaef3ce4d",
+          "classes": {
+            "com/cloud/hypervisor/kvm/storage/KVMStorageProcessor.class": "6cdbc40d9fc5b6c243c6676e2edaf342704fcd1058f29aaaddbb0712f32b8e45",
+            "com/cloud/hypervisor/kvm/storage/KVMStorageProcessor$1.class": "4a0da4a479a69a8eae8783d79aac9460f069bbb682dbdafdc4940b52d0ef4e4a"
+          },
+          "agent": "active",
+          "agentPropertiesSha256": "6fdc44510632530d9c7629639ae407306d248d70362897d754663d57b3ba3fad",
+          "temporaryGuestCheckAddressAbsent": true,
+          "runningDomainCount": 5
+        }
+      }
+    ],
+    "ui": [
+      {
+        "cluster": 31,
+        "sourceHead": "03e16ae2a68a85327d21269e51285b6b3000c33c",
+        "archiveSha256": "993453ebadd1b4e83573ad5505f4d9aecdcd5862e043b9f03b00d82ffadd912f",
+        "checkedAt": "2026-10-09T17:38:42.855616+00:00",
+        "exit": 0,
+        "out": "/home/ablecloud/epic1335-stage/ui-epic1335-03e16ae2a68.tgz: OK\nSTATIC_HASHES_PASS 840\n/usr/share/cloudstack-management/webapp/config.json: OK\nactive\nCLIENT_HTTP 200\nBACKUP /root/epic1335-completion-ui-20261010-023843\n",
+        "err": "/usr/lib64/python3.9/tarfile.py:2288: RuntimeWarning: The default behavior of tarfile extraction has been changed to disallow common exploits (including CVE-2007-4559). By default, absolute/parent paths are disallowed and some mode bits are cleared. See https://access.redhat.com/articles/7004769 for more details.\n  warnings.warn(\n"
+      },
+      {
+        "cluster": 32,
+        "sourceHead": "03e16ae2a68a85327d21269e51285b6b3000c33c",
+        "archiveSha256": "993453ebadd1b4e83573ad5505f4d9aecdcd5862e043b9f03b00d82ffadd912f",
+        "checkedAt": "2026-10-09T17:38:45.156948+00:00",
+        "exit": 0,
+        "out": "/home/ablecloud/epic1335-stage/ui-epic1335-03e16ae2a68.tgz: OK\nSTATIC_HASHES_PASS 840\n/usr/share/cloudstack-management/webapp/config.json: OK\nactive\nCLIENT_HTTP 200\nBACKUP /root/epic1335-completion-ui-20261010-023845\n",
+        "err": "/usr/lib64/python3.9/tarfile.py:2288: RuntimeWarning: The default behavior of tarfile extraction has been changed to disallow common exploits (including CVE-2007-4559). By default, absolute/parent paths are disallowed and some mode bits are cleared. See https://access.redhat.com/articles/7004769 for more details.\n  warnings.warn(\n"
+      }
+    ]
+  },
+  "faultRecovery": [
+    {
+      "cluster": 31,
+      "baselineVmCount": 74,
+      "baselineUuidStateHostPreserved": true,
+      "hostStates": [
+        {
+          "ip": "10.10.31.1",
+          "state": "Up",
+          "version": "4.23.0.0-Mold.Europa-202609222315"
+        },
+        {
+          "ip": "10.10.31.2",
+          "state": "Up",
+          "version": "4.23.0.0-Mold.Europa-202609222315"
+        },
+        {
+          "ip": "10.10.31.3",
+          "state": "Up",
+          "version": "4.23.0.0-Mold.Europa-202609222315"
+        }
+      ],
+      "vm": {
+        "id": "c6d83045-4156-4118-a4a8-0198a4a9837b",
+        "name": "E1335-31-fault-management-qos-r2",
+        "instancename": "i-2-383-VM",
+        "state": "Stopped",
+        "hostid": null
+      },
+      "volumes": [
+        {
+          "id": "835fab91-488e-408c-b88a-69f3d92a46d1",
+          "type": "ROOT",
+          "state": "Ready",
+          "size": 107374182400,
+          "deviceid": 0,
+          "miniops": null,
+          "maxiops": null,
+          "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+        },
+        {
+          "id": "94e7feaa-176a-48e5-ac10-bad5ea6767d5",
+          "type": "DATADISK",
+          "state": "Ready",
+          "size": 10737418240,
+          "deviceid": 1,
+          "miniops": 500,
+          "maxiops": 1000,
+          "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+        }
+      ],
+      "source": {
+        "id": "764b72b0-983b-4fb8-b58d-87f8ae2de86a",
+        "state": "BackedUp"
+      },
+      "pool": {
+        "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+        "type": "SharedMountPoint",
+        "scope": "CLUSTER",
+        "state": "Up",
+        "capacityiops": null,
+        "allocatediops": null,
+        "disksizetotal": 23998409687040,
+        "disksizeallocated": 8041388120560
+      },
+      "initialAgentJobStatus": 2,
+      "recoveryStartJobId": "e01538ff-cc46-4527-9c05-dc8ff5cbb00c",
+      "recoveryStartJobStatus": 1
+    },
+    {
+      "cluster": 32,
+      "baselineVmCount": 13,
+      "baselineUuidStateHostPreserved": true,
+      "hostStates": [
+        {
+          "ip": "10.10.32.1",
+          "state": "Up",
+          "version": "4.23.0.0"
+        },
+        {
+          "ip": "10.10.32.2",
+          "state": "Up",
+          "version": "4.23.0.0"
+        },
+        {
+          "ip": "10.10.32.3",
+          "state": "Up",
+          "version": "4.23.0.0"
+        }
+      ],
+      "vm": {
+        "id": "06a15a87-21ad-467d-82e4-95db344fedc0",
+        "name": "E1335-32-fault-management-qos",
+        "instancename": "i-2-59-VM",
+        "state": "Stopped",
+        "hostid": null
+      },
+      "volumes": [
+        {
+          "id": "d7d646bd-bbb3-4cf7-a8cd-ae716ef8e548",
+          "type": "ROOT",
+          "state": "Ready",
+          "size": 107374182400,
+          "deviceid": 0,
+          "miniops": null,
+          "maxiops": null,
+          "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122"
+        },
+        {
+          "id": "caf4e79d-b529-44ea-9c4f-1a3f71135a6f",
+          "type": "DATADISK",
+          "state": "Ready",
+          "size": 10737418240,
+          "deviceid": 1,
+          "miniops": 500,
+          "maxiops": 1000,
+          "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122"
+        }
+      ],
+      "source": {
+        "id": "58fe24bf-4e72-4a63-b326-63acfbd4cd87",
+        "state": "BackedUp"
+      },
+      "pool": {
+        "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+        "type": "RBD",
+        "scope": "CLUSTER",
+        "state": "Up",
+        "capacityiops": null,
+        "allocatediops": null,
+        "disksizetotal": 13510230255860,
+        "disksizeallocated": 3934886297600
+      },
+      "initialAgentJobStatus": 2,
+      "recoveryStartJobId": "89461b22-74db-4680-845a-8789fc1c6d3a",
+      "recoveryStartJobStatus": 1
+    }
+  ],
+  "postRepair31": {
+    "runId": "E1335-R31-post-repair-start",
+    "sourceHead": "03e16ae2a68a85327d21269e51285b6b3000c33c",
+    "checkedAt": "2026-10-09T17:40:10.595372+00:00",
+    "jobId": "e01538ff-cc46-4527-9c05-dc8ff5cbb00c",
+    "jobStatus": 1,
+    "vm": {
+      "id": "c6d83045-4156-4118-a4a8-0198a4a9837b",
+      "name": "E1335-31-fault-management-qos-r2",
+      "instancename": "i-2-383-VM",
+      "state": "Running",
+      "hostid": "384871b9-7c75-4717-a673-e96a76abeb71"
+    },
+    "volumes": [
+      {
+        "id": "835fab91-488e-408c-b88a-69f3d92a46d1",
+        "type": "ROOT",
+        "state": "Ready",
+        "deviceid": 0,
+        "size": 107374182400,
+        "miniops": null,
+        "maxiops": null
+      },
+      {
+        "id": "94e7feaa-176a-48e5-ac10-bad5ea6767d5",
+        "type": "DATADISK",
+        "state": "Ready",
+        "deviceid": 1,
+        "size": 10737418240,
+        "miniops": 500,
+        "maxiops": 1000
+      }
+    ],
+    "sourceSnapshotId": "764b72b0-983b-4fb8-b58d-87f8ae2de86a",
+    "sourceState": "BackedUp",
+    "sameVmAndVolumeIds": true
+  },
+  "guestChecks": {
+    "31": {
+      "payload.txt": {
+        "bytes": 72,
+        "sha256": "bfe00c222e9fcf100f5892036fd69b88394a5b3f4499a2133b0f4af1873bd873"
+      },
+      "fault-copy-payload.bin": {
+        "bytes": 21474836480,
+        "sha256": "db9f210eeaabed04c7cc4fde4f256f5d3fc5e0c3b5a6efcd9fa0d672bffec7a6"
+      },
+      "hangulUtf8": true,
+      "disks": {
+        "blockdevices": [
+          {
+            "name": "sda",
+            "size": 107374182400,
+            "type": "disk",
+            "children": [
+              {
+                "name": "sda1",
+                "size": 1073741824,
+                "type": "part"
+              },
+              {
+                "name": "sda2",
+                "size": 106299392000,
+                "type": "part",
+                "children": [
+                  {
+                    "name": "rl-root",
+                    "size": 102055804928,
+                    "type": "lvm"
+                  },
+                  {
+                    "name": "rl-swap",
+                    "size": 4240441344,
+                    "type": "lvm"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "sdb",
+            "size": 10737418240,
+            "type": "disk"
+          },
+          {
+            "name": "sr0",
+            "size": 1073741312,
+            "type": "rom"
+          },
+          {
+            "name": "sr1",
+            "size": 409600,
+            "type": "rom"
+          }
+        ]
+      }
+    },
+    "32": {
+      "payload.txt": {
+        "bytes": 72,
+        "sha256": "7f74af1c640673344c8a64b9dc219a7681553951e11f966051257d8a5da1c98f"
+      },
+      "fault-copy-payload.bin": {
+        "bytes": 21474836480,
+        "sha256": "2b525e9a8c7899823f64abe3c61101aa91b7e607d373e624932496f896debb07"
+      },
+      "hangulUtf8": true,
+      "disks": {
+        "blockdevices": [
+          {
+            "name": "sda",
+            "size": 107374182400,
+            "type": "disk",
+            "children": [
+              {
+                "name": "sda1",
+                "size": 1073741824,
+                "type": "part"
+              },
+              {
+                "name": "sda2",
+                "size": 106299392000,
+                "type": "part",
+                "children": [
+                  {
+                    "name": "rl-root",
+                    "size": 97710505984,
+                    "type": "lvm"
+                  },
+                  {
+                    "name": "rl-swap",
+                    "size": 8585740288,
+                    "type": "lvm"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "sdb",
+            "size": 10737418240,
+            "type": "disk"
+          },
+          {
+            "name": "sr0",
+            "size": 1073741312,
+            "type": "rom"
+          },
+          {
+            "name": "sr1",
+            "size": 409600,
+            "type": "rom"
+          }
+        ]
+      }
+    }
+  },
+  "responseLoss32": {
+    "cluster": 32,
+    "name": "E1335-32-response-loss-snapshot-r3",
+    "deployRequestCount": 1,
+    "events": [
+      {
+        "at": "2026-10-09T16:31:04.696677+00:00",
+        "command": "deployVirtualMachine",
+        "name": "E1335-32-response-loss-snapshot-r3",
+        "status": 200,
+        "jobId": "69db2c93-4f53-4520-96ee-bcfee60de250",
+        "vmId": "752ece3c-3d54-42c6-b8e2-a06181b20946",
+        "responseIntentionallyLost": true
+      }
+    ],
+    "jobStatus": 1,
+    "vmState": "Stopped",
+    "vmCount": 1,
+    "rootCount": 1,
+    "rootId": "791af122-3379-4afa-b8cc-ff07e8417e59",
+    "rootReady": true,
+    "uiUnknownPreservedLogin": true,
+    "uiDuplicateSubmitBlocked": true,
+    "uiManualReadbackReconciledCompletedVmAndAllDisks": true,
+    "uiDidNotInventMissingJobId": true,
+    "sourceSnapshotPreserved": true,
+    "sourceCommit": "8bff9e6a06cc8156765358093e0e550a413fbd5d"
+  },
+  "rbdDataRecovery": {
+    "imageId": "4a91bf129d196e",
+    "size": 10737418240,
+    "createTimestamp": "Sat Oct 10 01:56:55 2026",
+    "sameImageIdSizeAndCreateTimestamp": true,
+    "recoveryStartJobId": "89461b22-74db-4680-845a-8789fc1c6d3a",
+    "recoveryStartJobStatus": 1
+  },
+  "pagination31": {
+    "realCandidateCount": 19,
+    "page1": 10,
+    "page2": 9,
+    "overlap": 0,
+    "returnToPage1Matched": true,
+    "exactUuidSearchRows": 1
+  },
+  "finalSourceUi32": {
+    "at": "2026-10-09T17:43:40.936Z",
+    "sourceHead": "03e16ae2a68a85327d21269e51285b6b3000c33c",
+    "row": "\tE1335-32-permission-user-snapshot\n6eaaaf04-99cb-4140-86ba-ab14b6f0e107\n\tE1335-32-permission-user-seed\nRocky Linux 9\n\t백업 완료\n2026. 10. 10. 오전 12:00:50\n\t100 GiB\nBIOS · LEGACY\n\t—\t생성 가능",
+    "colors": [
+      {
+        "background": "rgb(38, 38, 38)",
+        "color": "rgb(197, 204, 212)",
+        "text": "6eaaaf04-99cb-4140-86ba-ab14b6f0e107"
+      },
+      {
+        "background": "rgb(38, 38, 38)",
+        "color": "rgb(197, 204, 212)",
+        "text": "Rocky Linux 9"
+      },
+      {
+        "background": "rgb(38, 38, 38)",
+        "color": "rgb(197, 204, 212)",
+        "text": "2026. 10. 10. 오전 12:00:50"
+      },
+      {
+        "background": "rgb(38, 38, 38)",
+        "color": "rgb(197, 204, 212)",
+        "text": "BIOS · LEGACY"
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgb(197, 204, 212)",
+        "text": "적격성 확인 시각: 오전 2:42:51"
+      }
+    ],
+    "horizontalOverflow": false,
+    "sampleMetadataContrastRatios": [
+      9.34,
+      9.34,
+      9.34,
+      9.34,
+      9.18
+    ]
+  },
+  "missingBootUi31": {
+    "sourceId": "0452f681-6f14-4a95-a0e8-10da8c17a771",
+    "bootCell": "—",
+    "createDisabled": true
+  },
+  "templateBoot31": {
+    "vmId": "5dbc658d-f6a3-46d4-9afd-3dd9768a3880",
+    "uiStart": true,
+    "windowsLockedDesktopConsole": true,
+    "uiNormalStop": true
+  },
+  "limits": {
+    "agent31InitialUnassistedRunPassed": false,
+    "agent31ObservedPendingSeconds": 600,
+    "agent31SupportedManagementRepairRequired": true,
+    "agent31RecoveryIsSeparateRun": true,
+    "agent31FirstHostDeploymentGuardPassed": false,
+    "agent31FirstHostGuardOriginalDomainListRetained": false,
+    "agent31FirstHostGuardFailureCauseConfirmed": false,
+    "allSixFinalAgentClassServiceAndBaselineChecksPassed": true,
+    "aggregateIopsExhaustion": "not applicable; capacityIops unset on both pools",
+    "physicalStorageOutageTested": false,
+    "runtimeMinMaxIopsThrottlingGuaranteed": false,
+    "qgaDisabledGuestCommandsEnabled": false,
+    "sshHostKeyCheckingDisabled": false,
+    "fullCloudCiPassed": false
+  }
+}

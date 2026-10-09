@@ -19,7 +19,7 @@ under the License.
 
 # Windows UEFI 실제 UI 검증
 
-**최신 상태(2026-10-10):** 일반 사용자·프로젝트 생성 8건, 한도 중복 예약 수정, 삭제 원본 스냅샷 복구, 자동 스토리지·ConfigDrive·32번 ISO 회귀 결과는 [추가 UI 경계 검증](edge-ui-validation.ko.md)에 기록했다. 아래 버전별 기존 검증은 당시 증거로 유지한다.
+**최종 상태(2026-10-10):** 기존 #1335 및 #1336–#1343의 구현·변경 모듈 빌드·31/32 배포·지정 UI 검증을 완료했고 PR #1344는 검토·병합 단계다. [최종 장애·회귀·배포 보고](resilience-ui-validation.ko.md)에서 응답 유실, 재시작, 동일 VM/ROOT/DATA 복구, 20GiB 해시와 검증 한계를 확인할 수 있다. 아래 버전별 기록은 당시 증거로 유지한다.
 
 관리/Agent 코드 `1c3c9c41341`, UI `24e4d7b0074`가 배포된 31 GFS2와 32 Ceph krbd에서 Windows Server 2022 UEFI LEGACY 대표 경로 8개를 통과했다. Linux 8개와 합쳐 대표 16개 모두 PASS다. Epic 전체 경계·장애 조건 완료와 구분한다.
 
