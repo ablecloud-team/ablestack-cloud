@@ -27,7 +27,7 @@ role="status"
 class="storage-service__alert"
       :message="$t('message.storage.service.read.partial')">
       <template #description>
-        <ul><li v-for="section in storageReadErrors" :key="section">{{ section }}</li></ul>
+        <ul><li v-for="section in storageReadErrors" :key="section">{{ section }}: {{ storageReadFailureCause(section) }}</li></ul>
         <a-button :loading="storageService.refreshing" @click="fetchData">
           <template #icon><ReloadOutlined /></template>{{ $t('label.refresh') }}
         </a-button>
@@ -2338,7 +2338,7 @@ wrapClassName="storage-service-action-modal"
 </template>
 <script>
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
-import { readStorageSections, storageReadDeadline } from '@/utils/storageRead'
+import { readStorageSections, storageReadDeadline, storageReadFailureKind } from '@/utils/storageRead'
 import { requireAdServiceApproval, readJoinedAdReceipt, supportsAdMaintenanceApi, supportsAdMutationApi, adMutationScope, requireAdMutationApproval, requestAdMutationApproval, approveAdMutation, cancelAdMutation } from '@/utils/storageAdIdentity'
 import { createScopedStorageReads } from '@/utils/scopedStorageReads'
 
@@ -2646,6 +2646,7 @@ export default {
         refreshing: false,
         loaded: false,
         readErrors: [],
+        readErrorKinds: {},
         resourceId: null,
         instance: null,
         health: [],
@@ -5025,6 +5026,13 @@ export default {
       }
       return ports[protocol] || null
     },
+    storageReadFailureCause (section) {
+      const kind = this.storageService.readErrorKinds?.[section]
+      const key = kind === 'TIMEOUT' ? 'message.storage.service.read.cause.timeout'
+        : kind === 'TRANSPORT' ? 'message.storage.service.read.cause.transport'
+          : 'message.storage.service.read.cause.failure'
+      return this.$t(key)
+    },
     async fetchStorageServiceData (scopeRetries = 0) {
       scopeRetries = Number.isInteger(scopeRetries) ? scopeRetries : 0
       if (!this.hasStorageServiceApi) {
@@ -5038,6 +5046,7 @@ export default {
       }
       this.storageService.resourceId = this.resource.id
       this.storageService.readErrors = []
+      this.storageService.readErrorKinds = {}
       const initialLoad = !this.storageService.loaded
       this.storageService.loading = true
       this.storageService.initialLoading = initialLoad
@@ -5121,6 +5130,7 @@ export default {
           ...accessRules,
           backingVolumes,
           readErrors: [...sections.errors, ...related.errors],
+          readErrorKinds: { ...sections.errorKinds, ...related.errorKinds },
           loaded: true
         })
         if (this.storageService.readErrors.length) {
@@ -5132,7 +5142,8 @@ export default {
         request.failed = true
         this.listRefreshFailed = true
         this.storageService.readErrors = ['listStorageServiceInstances']
-        if (initialLoad) this.$notifyError(error)
+        this.storageService.readErrorKinds = { listStorageServiceInstances: storageReadFailureKind(error) }
+        if (initialLoad) this.$notifyError(new Error(this.storageReadFailureCause('listStorageServiceInstances')))
       } finally {
         if (!this.listRefreshDisposed && refreshGeneration === this.storageRefreshGeneration) {
           const retryCurrentScope = !this.isListRequestCurrent('fetchStorageServiceData', request)
@@ -5142,6 +5153,7 @@ export default {
           if (retryCurrentScope && scopeRetries < 2) this.fetchStorageServiceData(scopeRetries + 1)
           else if (retryCurrentScope) {
             this.storageService.readErrors = ['scopeChanged']
+            this.storageService.readErrorKinds = { scopeChanged: 'READ_FAILURE' }
             this.listRefreshFailed = true
           }
         }

@@ -21,18 +21,36 @@ export function storageReadDeadline (promise, milliseconds = 15000) {
   return Promise.race([
     promise,
     new Promise((resolve, reject) => {
-      timer = setTimeout(() => reject(new Error('Storage service read deadline exceeded')), milliseconds)
+      timer = setTimeout(() => {
+        const error = new Error('Storage service read deadline exceeded')
+        error.code = 'STORAGE_READ_TIMEOUT'
+        reject(error)
+      }, milliseconds)
     })
   ]).finally(() => clearTimeout(timer))
+}
+
+// Expose only fixed public causes; provider messages and request context stay private.
+export function storageReadFailureKind (error) {
+  try {
+    const code = error && typeof error === 'object' ? error.code : null
+    if (['STORAGE_READ_TIMEOUT', 'ECONNABORTED', 'ETIMEDOUT'].includes(code)) return 'TIMEOUT'
+    if (code === 'ERR_NETWORK' || code === 'ECONNRESET' ||
+      (error && typeof error === 'object' && error.request && !error.response && code !== 'ERR_CANCELED')) return 'TRANSPORT'
+  } catch (_) {
+    return 'READ_FAILURE'
+  }
+  return 'READ_FAILURE'
 }
 
 export async function readStorageSections (readers) {
   const names = Object.keys(readers)
   const results = await Promise.all(names.map(async name => {
-    try { return { name, value: await storageReadDeadline(Promise.resolve().then(readers[name])) } } catch (_) { return { name, failed: true } }
+    try { return { name, value: await storageReadDeadline(Promise.resolve().then(readers[name])) } } catch (error) { return { name, failed: true, failureKind: storageReadFailureKind(error) } }
   }))
   return {
     values: Object.fromEntries(results.filter(result => !result.failed).map(result => [result.name, result.value])),
-    errors: results.filter(result => result.failed).map(result => result.name)
+    errors: results.filter(result => result.failed).map(result => result.name),
+    errorKinds: Object.fromEntries(results.filter(result => result.failed).map(result => [result.name, result.failureKind]))
   }
 }
