@@ -8402,6 +8402,7 @@
   "message.creation.source.fetch.failed": "Failed to list creation sources. Refresh and try again.",
   "message.creation.source.api.required": "The creation source API is unavailable. Check the management server version and API permissions.",
   "message.creation.source.empty": "No creation sources match these filters.",
+  "message.creation.source.owner.required": "Select an owner account and domain or a project before loading creation sources.",
   "message.creation.source.required": "Select an available creation source and validate its eligibility.",
   "message.creation.source.delete.policy": "After creation, deleting this VM also applies the normal VM deletion policy to its adopted root volume.",
   "message.creation.source.job.pending": "The request is being processed. Wait for volume adoption or snapshot restoration to finish.",

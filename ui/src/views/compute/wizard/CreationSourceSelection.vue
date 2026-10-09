@@ -48,7 +48,7 @@ size="small"
           <div v-for="reason in record.reasoncodes" :key="reason" class="source-reason">{{ $t('message.creation.source.reason.' + reason) }}</div>
         </template>
       </template>
-      <template #emptyText>{{ $t(error ? 'message.creation.source.fetch.failed' : 'message.creation.source.empty') }}</template>
+      <template #emptyText>{{ $t(!ownerReady ? 'message.creation.source.owner.required' : error ? 'message.creation.source.fetch.failed' : 'message.creation.source.empty') }}</template>
     </a-table>
     <p v-if="checkedAt" class="source-meta">{{ $t('label.creation.source.checked') }}: {{ checkedAt }}</p>
   </section>
@@ -58,7 +58,7 @@ import { ReloadOutlined } from '@ant-design/icons-vue'
 import { getAPI } from '@/api'
 export default {
   components: { ReloadOutlined },
-  props: { imageType: { type: String, required: true }, query: { type: Object, required: true }, selected: { type: Object, default: null }, preselectedId: { type: String, default: null } },
+  props: { ownerReady: { type: Boolean, default: true }, imageType: { type: String, required: true }, query: { type: Object, required: true }, selected: { type: Object, default: null }, preselectedId: { type: String, default: null } },
   emits: ['select', 'change-image-type', 'loading'],
   data () { return { sources: [], count: 0, page: 1, pageSize: 10, keyword: '', availableOnly: false, loading: false, error: '', requestSequence: 0, checkedAt: '', preselectionUsed: false } },
   computed: {
@@ -89,7 +89,7 @@ export default {
     async fetchSources () {
       const sequence = ++this.requestSequence
       this.loading = true; this.error = ''; this.$emit('loading', true)
-      if (!this.query.zoneid) { this.loading = false; this.$emit('loading', false); return }
+      if (!this.query.zoneid) { this.sources = []; this.count = 0; this.checkedAt = ''; this.loading = false; this.$emit('loading', false); return }
       try {
         const args = Object.fromEntries(Object.entries({
           ...this.query,

@@ -155,6 +155,7 @@
                         :key="imageType"
                         :image-type="imageType"
                         :query="creationSourceQuery"
+                        :owner-ready="creationSourceOwnerReady"
                         :selected="selectedCreationSource"
                         :preselected-id="imageType === 'volumeid' ? queryVolumeId : querySnapshotId"
                         @select="selectCreationSource"
@@ -1491,10 +1492,13 @@ export default {
   computed: {
     isCreationSource () { return ['volumeid', 'snapshotid'].includes(this.imageType) },
     sourceOperationsKey () { return 'vm-creation-source-' + this.$store.getters.userInfo.id + '-' + (this.$store.getters.project?.id || '') },
+    creationSourceOwnerReady () {
+      return !!(store.getters.project?.id || this.owner.projectid || (this.owner.account && this.owner.domainid))
+    },
     creationSourceQuery () {
       return {
         sourcekind: this.imageType === 'volumeid' ? 'volume' : 'snapshot',
-        zoneid: this.form.zoneid,
+        zoneid: this.creationSourceOwnerReady ? this.form.zoneid : undefined,
         account: store.getters.project?.id ? undefined : this.owner.account,
         domainid: store.getters.project?.id ? undefined : this.owner.domainid,
         projectid: store.getters.project?.id || this.owner.projectid,
@@ -1558,7 +1562,7 @@ export default {
     },
     diskPlanIncomplete () {
       if (this.isCreationSource) {
-        return !this.selectedCreationSource?.allowed || this.sourceLoading || this.sourceOperationPending ||
+        return !this.creationSourceOwnerReady || !this.selectedCreationSource?.allowed || this.sourceLoading || this.sourceOperationPending ||
           (!!this.rootStorageSelection.id && !this.rootStorageSelection.valid) ||
           (!!this.selectedDataDiskOffering?.id && (!(this.selectedDataDiskSize > 0) ||
             !Number.isSafeInteger(this.selectedDataDiskCount) || this.selectedDataDiskCount < 1 ||
@@ -2976,6 +2980,7 @@ export default {
       this.sourceConfirmed = true; this.sourceConfirmVisible = false; this.handleSubmit()
     },
     async validateCreationSource () {
+      if (!this.creationSourceOwnerReady) throw new Error(this.$t('message.creation.source.owner.required'))
       if (!this.selectedCreationSource?.allowed || this.sourceLoading || this.sourceOperationPending) throw new Error(this.$t('message.creation.source.required'))
       const args = Object.fromEntries(Object.entries({
         ...this.creationSourceQuery,
@@ -3532,13 +3537,12 @@ export default {
       })
     },
     fetchOwnerOptions (OwnerOptions) {
-      this.owner = {
-        projectid: null,
-        domainid: store.getters.userInfo.domainid,
-        account: store.getters.userInfo.account
-      }
+      this.owner = this.isCreationSource
+        ? { projectid: null, domainid: null, account: null }
+        : { projectid: null, domainid: store.getters.userInfo.domainid, account: store.getters.userInfo.account }
       if (OwnerOptions.selectedAccountType === 'Account') {
         if (!OwnerOptions.selectedAccount) {
+          if (this.isCreationSource) this.clearCreationSource()
           return
         }
         this.owner.account = OwnerOptions.selectedAccount
@@ -3546,6 +3550,7 @@ export default {
         this.owner.projectid = null
       } else if (OwnerOptions.selectedAccountType === 'Project') {
         if (!OwnerOptions.selectedProject) {
+          if (this.isCreationSource) this.clearCreationSource()
           return
         }
         this.owner.account = null

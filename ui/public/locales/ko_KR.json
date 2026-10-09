@@ -8367,6 +8367,7 @@
   "message.creation.source.fetch.failed": "생성 원본을 조회하지 못했습니다. 새로 고침하여 다시 확인하세요.",
   "message.creation.source.api.required": "서버의 생성 원본 API를 확인할 수 없습니다. 관리 서버 버전과 API 권한을 확인하세요.",
   "message.creation.source.empty": "현재 조건에 맞는 생성 원본이 없습니다.",
+  "message.creation.source.owner.required": "생성 원본을 조회하려면 소유자 계정과 도메인 또는 프로젝트를 먼저 선택하세요.",
   "message.creation.source.required": "사용 가능한 생성 원본을 선택하고 적격성을 확인하세요.",
   "message.creation.source.delete.policy": "생성 후 이 가상머신을 삭제하면 해당 루트 볼륨에도 일반 가상머신 삭제 정책이 적용됩니다.",
   "message.creation.source.job.pending": "생성 요청을 처리하고 있습니다. 원본 편입 또는 스냅샷 복구가 끝날 때까지 기다려 주세요.",

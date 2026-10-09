@@ -128,3 +128,20 @@ test('known source states translate without an injected translation-existence he
   expect(wrapper.vm.stateLabel('Unexpected')).toBe('확인 필요')
   wrapper.unmount()
 })
+
+test('removing the owner clears candidates and ignores a late prior-owner response', async () => {
+  let resolveOld
+  getAPI.mockImplementationOnce(() => new Promise(resolve => { resolveOld = resolve }))
+  const wrapper = mountSelection({ preselectedId: 'source-uuid' })
+  await wrapper.setProps({ query: { zoneid: undefined, projectid: undefined }, ownerReady: false })
+  await flushPromises()
+  expect(wrapper.vm.sources).toEqual([])
+  expect(wrapper.vm.count).toBe(0)
+  expect(wrapper.vm.loading).toBe(false)
+  expect(getAPI).toHaveBeenCalledTimes(1)
+  resolveOld({ listvirtualmachinecreationsourcesresponse: { count: 1, creationsource: [source()] } })
+  await flushPromises()
+  expect(wrapper.vm.sources).toEqual([])
+  expect(wrapper.emitted('select')[wrapper.emitted('select').length - 1][0]).toBe(null)
+  wrapper.unmount()
+})

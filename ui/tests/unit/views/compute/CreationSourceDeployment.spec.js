@@ -20,6 +20,7 @@ import { getAPI, postAPI } from '@/api'
 jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
 jest.mock('@/store', () => ({ getters: {} }))
 const context = () => ({
+  creationSourceOwnerReady: true,
   selectedCreationSource: { id: 'source-uuid', revision: 'revision-1', allowed: true },
   sourceLoading: false,
   sourceOperationPending: false,
@@ -61,6 +62,7 @@ test('legacy volume deployment uses the same two-argument POST contract', async 
 
 const sourceDiskPlan = () => ({
   isCreationSource: true,
+  creationSourceOwnerReady: true,
   selectedCreationSource: { allowed: true },
   sourceLoading: false,
   sourceOperationPending: false,
@@ -121,4 +123,24 @@ test('snapshot DATA query supplies the source image and both pool capacity requi
     otherrequiredbytes: 100 * 1024 ** 3
   })
   expect(DeployVM.computed.rootStorageQuery.call({ ...vm, form: { zoneid: 'zone', computeofferingid: 'compute' }, dataStorageSelection: { id: 'data-pool' } })).toMatchObject({ otherstorageid: 'data-pool' })
+})
+
+test.each([{ projectid: 'project' }, { account: 'account', domainid: 'domain' }])('creation sources require an explicit owner (%s)', owner => {
+  expect(DeployVM.computed.creationSourceOwnerReady.call({ owner })).toBe(true)
+})
+test.each([{}, { account: 'account' }, { domainid: 'domain' }])('an incomplete owner cannot query or submit an inherited source (%s)', async owner => {
+  const vm = { ...context(), ...sourceDiskPlan(), owner }
+  vm.creationSourceOwnerReady = DeployVM.computed.creationSourceOwnerReady.call(vm)
+  expect(vm.creationSourceOwnerReady).toBe(false)
+  expect(DeployVM.computed.diskPlanIncomplete.call(vm)).toBe(true)
+  expect(DeployVM.computed.creationSourceQuery.call(vm).zoneid).toBeUndefined()
+  await expect(DeployVM.methods.validateCreationSource.call(vm)).rejects.toThrow('message.creation.source.owner.required')
+  expect(getAPI).not.toHaveBeenCalled()
+})
+test('switching to a project without selecting one clears the prior account source', () => {
+  const vm = { isCreationSource: true, owner: { account: 'admin', domainid: 'ROOT' }, clearCreationSource: jest.fn(), resetData: jest.fn() }
+  DeployVM.methods.fetchOwnerOptions.call(vm, { selectedAccountType: 'Project', initialized: true })
+  expect(vm.owner).toEqual({ account: null, domainid: null, projectid: null })
+  expect(vm.clearCreationSource).toHaveBeenCalledTimes(1)
+  expect(vm.resetData).not.toHaveBeenCalled()
 })
