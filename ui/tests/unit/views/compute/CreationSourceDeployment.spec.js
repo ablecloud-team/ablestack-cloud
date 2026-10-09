@@ -58,3 +58,38 @@ test('legacy volume deployment uses the same two-argument POST contract', async 
   await expect(DeployVM.methods.deployVirtualMachineForVolume.call({}, params)).resolves.toBe('job')
   expect(postAPI).toHaveBeenCalledWith('deployVirtualMachineForVolume', params)
 })
+
+const sourceDiskPlan = () => ({
+  isCreationSource: true,
+  selectedCreationSource: { allowed: true },
+  sourceLoading: false,
+  sourceOperationPending: false,
+  rootStorageSelection: {},
+  selectedDataDiskOffering: { id: 'custom-data', iscustomized: true },
+  selectedDataDiskSize: 20,
+  selectedDataDiskCount: 2,
+  storageSelectionEnabled: true,
+  dataStorageSelection: {}
+})
+test.each([0, undefined, -1])('source wizard blocks an additional data disk without a positive size (%s)', size => {
+  const vm = { ...sourceDiskPlan(), selectedDataDiskSize: size }
+  expect(DeployVM.computed.diskPlanIncomplete.call(vm)).toBe(true)
+})
+test('source wizard validates additional disk count and a changed manual data target', () => {
+  expect(DeployVM.computed.diskPlanIncomplete.call({ ...sourceDiskPlan(), selectedDataDiskCount: 0 })).toBe(true)
+  expect(DeployVM.computed.diskPlanIncomplete.call({ ...sourceDiskPlan(), selectedDataDiskCount: 1.5 })).toBe(true)
+  expect(DeployVM.computed.diskPlanIncomplete.call({ ...sourceDiskPlan(), dataStorageSelection: { id: 'pool', valid: false } })).toBe(true)
+  expect(DeployVM.computed.diskPlanIncomplete.call(sourceDiskPlan())).toBe(false)
+  expect(DeployVM.computed.diskPlanIncomplete.call({ ...sourceDiskPlan(), selectedDataDiskOffering: null, selectedDataDiskSize: 0 })).toBe(false)
+})
+test('snapshot ROOT capacity query accounts for the requested additional data disks', () => {
+  const vm = { ...sourceDiskPlan(), imageType: 'snapshotid', selectedCreationSource: { id: 'snapshot' }, form: { zoneid: 'zone', computeofferingid: 'compute', hostid: 'host' }, diskIOpsMin: 100 }
+  expect(DeployVM.computed.rootStorageQuery.call(vm)).toMatchObject({
+    snapshotid: 'snapshot',
+    rootdisk: true,
+    diskcount: 1,
+    vmcount: 1,
+    otherrequiredbytes: 40 * 1024 ** 3,
+    otherrequirediops: 200
+  })
+})

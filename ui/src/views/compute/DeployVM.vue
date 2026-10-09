@@ -595,7 +595,7 @@
                       @update-iops-value="updateIOPSValue"
                       @update-data-kms-key="updateDataKmsKey"/>
                     <a-form-item class="form-item-hidden"><a-input v-model:value="form.size"/></a-form-item>
-                    <template v-if="imageType === 'templateid' && diskOffering?.id && diskOffering.id !== '0'">
+                    <template v-if="(imageType === 'templateid' || isCreationSource) && diskOffering?.id && diskOffering.id !== '0'">
                       <disk-quantity-selection
                         :offering="diskOffering"
                         v-model:size="form.size"
@@ -1559,7 +1559,10 @@ export default {
     diskPlanIncomplete () {
       if (this.isCreationSource) {
         return !this.selectedCreationSource?.allowed || this.sourceLoading || this.sourceOperationPending ||
-        (!!this.rootStorageSelection.id && !this.rootStorageSelection.valid)
+          (!!this.rootStorageSelection.id && !this.rootStorageSelection.valid) ||
+          (!!this.selectedDataDiskOffering?.id && (!(this.selectedDataDiskSize > 0) ||
+            !Number.isSafeInteger(this.selectedDataDiskCount) || this.selectedDataDiskCount < 1 ||
+            (this.storageSelectionEnabled && !!this.dataStorageSelection.id && !this.dataStorageSelection.valid)))
       }
       if (!['templateid', 'isoid'].includes(this.imageType) || this.template?.deployasis) return false
       if (this.imageType === 'isoid' && (!this.diskOffering?.id || !(this.selectedRootDiskSize > 0))) return true
@@ -1602,6 +1605,8 @@ export default {
           rootdisk: true,
           diskcount: 1,
           vmcount: 1,
+          otherrequiredbytes: this.selectedDataDiskSize * this.selectedDataDiskCount * 1024 ** 3,
+          otherrequirediops: (this.diskIOpsMin || this.selectedDataDiskOffering?.miniops || 0) * this.selectedDataDiskCount,
           hostid: this.form.hostid,
           clusterid: this.form.clusterid,
           podid: this.form.podid
