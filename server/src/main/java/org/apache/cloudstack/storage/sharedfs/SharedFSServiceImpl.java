@@ -341,7 +341,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         com.cloud.storage.VMTemplateVO template=explicitTemplateDao.findById(cmd.getTemplateId());
         if(template==null||template.getRemoved()!=null||template.getState()!=com.cloud.template.VirtualMachineTemplate.State.Active||!template.isDynamicallyScalable()
                 ||template.getHypervisorType()!=com.cloud.hypervisor.Hypervisor.HypervisorType.KVM||template.getArch()==null
-                ||!template.getArch().name().equalsIgnoreCase(com.cloud.resource.ResourceManager.SystemVmPreferredArchitecture.valueIn(zone.getId())))throw new InvalidParameterValueException("Explicit template is not an active scalable KVM template for the configured architecture");
+                ||!template.getArch().getType().equalsIgnoreCase(com.cloud.resource.ResourceManager.SystemVmPreferredArchitecture.valueIn(zone.getId())))throw new InvalidParameterValueException("Explicit template is not an active scalable KVM template for the configured architecture");
         accountMgr.checkAccess(owner,org.apache.cloudstack.acl.SecurityChecker.AccessType.UseEntry,false,template);
         explicitTemplateDao.loadDetails(template);
         org.apache.cloudstack.storage.datastore.db.TemplateDataStoreVO ready=explicitTemplateStoreDao.findByTemplateZoneReady(template.getId(),zone.getId());
