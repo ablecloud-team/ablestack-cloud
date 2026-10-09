@@ -14689,7 +14689,7 @@ class SmbSourceCheckpoint:
             raw,header_meta=self.reader(str(header),64*1024);state=json.loads(raw)
             if state.get('bundleVersion')!=release.name:continue
             if (header_meta.st_mode&0o022
-                    or state.get('transactionId')!=path.name or state.get('phase')not in ('VERIFIED','COMPLETE')
+                    or state.get('transactionId')!=path.name or state.get('phase')not in ('VERIFIED','COMPLETE','ROLLED_BACK')
                     or state.get('releasePath')!=str(release)or state.get('keyId')!=manifest.get('keyId')
                     or not isinstance(state.get('keyId'),str)or not re.fullmatch('[A-Za-z0-9][A-Za-z0-9_.-]{0,127}',state['keyId'])
                     or any(not isinstance(state.get(k),str)or not re.fullmatch('[0-9a-f]{64}',state[k])
@@ -14711,7 +14711,9 @@ class SmbSourceCheckpoint:
                 raise ValueError('LOCAL installation directory changed while reading')
         if not matches or len({tuple(row[key]for key in ('bundleVersion','keyId','manifestSha256','archiveSha256'))for row in matches})!=1:
             raise ValueError('LOCAL historical verified installation is absent or ambiguous')
-        return matches[0]
+        eligible=[row for row in matches if row['phase']in ('VERIFIED','COMPLETE')]
+        if not eligible:raise ValueError('LOCAL historical verified installation is absent')
+        return eligible[0]
 
     @staticmethod
     def endpoint_body(source):
@@ -15117,11 +15119,24 @@ class SmbSourceCheckpoint:
             require(ast_same(method, expected), "unknown stopped runtime status addition")
             return method.body[index]
 
+        def expected_installation_authority(old):
+            result = copy.deepcopy(old)
+            phase = ast.parse("state.get('phase')not in ('VERIFIED','COMPLETE')", mode="eval").body
+            guards = [node for node in ast.walk(result) if ast_same(node, phase)]
+            require(len(guards) == 1 and ast_same(result.body[-1], ast.parse("return matches[0]").body[0]),
+                    "historical installation phase/return differs")
+            guards[0].comparators[0] = ast.parse("('VERIFIED','COMPLETE','ROLLED_BACK')", mode="eval").body
+            result.body[-1:] = ast.parse("eligible=[row for row in matches if row['phase']in ('VERIFIED','COMPLETE')]\n"
+                "if not eligible:raise ValueError('LOCAL historical verified installation is absent')\nreturn eligible[0]").body
+            return result
+
         def normalize_block(current, original, helpers):
             _, methods, lines = parsed_class(current)
             _, old, old_lines = parsed_class(original)
             require(set(methods) == set(old) | helpers and not (set(old) & helpers), "unknown or missing LOCAL method")
             require(ast_same(methods["frozen"], expected_frozen(old["frozen"])), "unknown frozen body/signature")
+            require(ast_same(methods["installed_release_authority"], expected_installation_authority(old["installed_release_authority"])),
+                    "unknown historical installation authority change")
             current_collector = collector_assignment(methods["__init__"])
             old_collector = collector_assignment(old["__init__"])
             expected_old = ast.parse("self.collector=lambda *args:collect(*args)").body[0]
@@ -15142,6 +15157,9 @@ class SmbSourceCheckpoint:
                 edits.append((start, end + 1, b""))
             first, last = span(lines, methods["frozen"])
             a, b = span(old_lines, old["frozen"])
+            edits.append((first, last, original[a:b]))
+            first, last = span(lines, methods["installed_release_authority"])
+            a, b = span(old_lines, old["installed_release_authority"])
             edits.append((first, last, original[a:b]))
             first, last = span(lines, current_collector)
             a, b = span(old_lines, old_collector)
@@ -26385,7 +26403,7 @@ class SmbSourceCheckpoint:
             raw,header_meta=self.reader(str(header),64*1024);state=json.loads(raw)
             if state.get('bundleVersion')!=release.name:continue
             if (header_meta.st_mode&0o022
-                    or state.get('transactionId')!=path.name or state.get('phase')not in ('VERIFIED','COMPLETE')
+                    or state.get('transactionId')!=path.name or state.get('phase')not in ('VERIFIED','COMPLETE','ROLLED_BACK')
                     or state.get('releasePath')!=str(release)or state.get('keyId')!=manifest.get('keyId')
                     or not isinstance(state.get('keyId'),str)or not re.fullmatch('[A-Za-z0-9][A-Za-z0-9_.-]{0,127}',state['keyId'])
                     or any(not isinstance(state.get(k),str)or not re.fullmatch('[0-9a-f]{64}',state[k])
@@ -26407,7 +26425,9 @@ class SmbSourceCheckpoint:
                 raise ValueError('LOCAL installation directory changed while reading')
         if not matches or len({tuple(row[key]for key in ('bundleVersion','keyId','manifestSha256','archiveSha256'))for row in matches})!=1:
             raise ValueError('LOCAL historical verified installation is absent or ambiguous')
-        return matches[0]
+        eligible=[row for row in matches if row['phase']in ('VERIFIED','COMPLETE')]
+        if not eligible:raise ValueError('LOCAL historical verified installation is absent')
+        return eligible[0]
 
     @staticmethod
     def endpoint_body(source):
@@ -26813,11 +26833,24 @@ class SmbSourceCheckpoint:
             require(ast_same(method, expected), "unknown stopped runtime status addition")
             return method.body[index]
 
+        def expected_installation_authority(old):
+            result = copy.deepcopy(old)
+            phase = ast.parse("state.get('phase')not in ('VERIFIED','COMPLETE')", mode="eval").body
+            guards = [node for node in ast.walk(result) if ast_same(node, phase)]
+            require(len(guards) == 1 and ast_same(result.body[-1], ast.parse("return matches[0]").body[0]),
+                    "historical installation phase/return differs")
+            guards[0].comparators[0] = ast.parse("('VERIFIED','COMPLETE','ROLLED_BACK')", mode="eval").body
+            result.body[-1:] = ast.parse("eligible=[row for row in matches if row['phase']in ('VERIFIED','COMPLETE')]\n"
+                "if not eligible:raise ValueError('LOCAL historical verified installation is absent')\nreturn eligible[0]").body
+            return result
+
         def normalize_block(current, original, helpers):
             _, methods, lines = parsed_class(current)
             _, old, old_lines = parsed_class(original)
             require(set(methods) == set(old) | helpers and not (set(old) & helpers), "unknown or missing LOCAL method")
             require(ast_same(methods["frozen"], expected_frozen(old["frozen"])), "unknown frozen body/signature")
+            require(ast_same(methods["installed_release_authority"], expected_installation_authority(old["installed_release_authority"])),
+                    "unknown historical installation authority change")
             current_collector = collector_assignment(methods["__init__"])
             old_collector = collector_assignment(old["__init__"])
             expected_old = ast.parse("self.collector=lambda *args:collect(*args)").body[0]
@@ -26838,6 +26871,9 @@ class SmbSourceCheckpoint:
                 edits.append((start, end + 1, b""))
             first, last = span(lines, methods["frozen"])
             a, b = span(old_lines, old["frozen"])
+            edits.append((first, last, original[a:b]))
+            first, last = span(lines, methods["installed_release_authority"])
+            a, b = span(old_lines, old["installed_release_authority"])
             edits.append((first, last, original[a:b]))
             first, last = span(lines, current_collector)
             a, b = span(old_lines, old_collector)
