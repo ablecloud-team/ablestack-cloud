@@ -31,6 +31,7 @@ public final class StorageRenderedGenerationCoordinator {
         void requireAvailable();
         default void requireCommittedAvailable() {requireAvailable();}
         void verifyAllProtocols();
+        default void preparePromotionIdentity(JsonObject receipt) { }
         void commitGeneration(JsonObject receipt);
         void rollbackGeneration(JsonObject receipt);
         void releaseMaintenance();
@@ -71,11 +72,12 @@ public final class StorageRenderedGenerationCoordinator {
     public void commit(JsonObject receipt,JsonObject finalizeRequest) {
         StorageRenderedRecoveryState.Decision decision=recoveryDecision(receipt);String phase=text(receipt,"phase");
         if(decision!=StorageRenderedRecoveryState.Decision.COMMITTED&&!java.util.Set.of("VERIFIED","GENERATION_COMMITTING").contains(phase))throw new CloudRuntimeException("Rendered commit requires all four verified runtime domains");
-        if(decision==StorageRenderedRecoveryState.Decision.COMMITTED)runtime.requireCommittedAvailable();else runtime.requireAvailable();runtime.verifyAllProtocols();
+        if(decision==StorageRenderedRecoveryState.Decision.COMMITTED){runtime.requireCommittedAvailable();runtime.preparePromotionIdentity(receipt);}else runtime.requireAvailable();runtime.verifyAllProtocols();
         if(!java.util.Set.of("FINALIZED","RELEASED").contains(phase)) {
             if(decision!=StorageRenderedRecoveryState.Decision.COMMITTED){receipt.addProperty("phase","GENERATION_COMMITTING");runtime.save(receipt);}
             runtime.commitGeneration(receipt);receipt.addProperty("phase","GENERATION_COMMITTED");runtime.save(receipt);
         }
+        if(decision!=StorageRenderedRecoveryState.Decision.COMMITTED)runtime.preparePromotionIdentity(receipt);
         JsonObject finalized=java.util.Set.of("FINALIZED","RELEASED").contains(phase)?receipt.getAsJsonObject("finalized"):runtime.render("finalize",finalizeRequest);
         JsonObject activation=finalized.has("activation")&&finalized.get("activation").isJsonObject()?finalized.getAsJsonObject("activation"):null;
         JsonObject current=finalized.has("current")&&finalized.get("current").isJsonObject()?finalized.getAsJsonObject("current"):null;

@@ -177,8 +177,9 @@ public final class StorageServiceConfiguration {
         byte[] encoded=archive.get(StorageAdSemanticSource.ZIP_ENTRY);if(encoded==null)return null;
         JsonObject descriptor=StorageAdSemanticSource.validateDescriptor(StorageConfigArchive.json(encoded).getAsJsonObject());
         StorageConfigArtifactVO original=artifacts.findByUuid(descriptor.get("ownerArtifactUuid").getAsString());
-        if(original==null||!"BACKUP".equals(original.getKind())||!Set.of("COMPLETE","PARTIAL").contains(original.getState())
-                ||original.getExpires()==null||!original.getExpires().after(new Date())||!original.getSha256().equals(imported.getSha256()))throw new InvalidParameterValueException("AD identity source is not an available original managed backup archive");
+        boolean backup=original!=null&&"BACKUP".equals(original.getKind())&&Set.of("COMPLETE","PARTIAL").contains(original.getState());
+        boolean point=original!=null&&"RESTORE_POINT".equals(original.getKind())&&Set.of("ACTIVE_LKG","SUPERSEDED").contains(original.getState());
+        if(original==null||!(backup||point)||original.getExpires()!=null&&!original.getExpires().after(new Date())||backup&&original.getExpires()==null||point&&"SUPERSEDED".equals(original.getState())&&original.getExpires()==null||!original.getSha256().equals(imported.getSha256()))throw new InvalidParameterValueException("AD identity source is not an available original managed backup archive");
         StorageServiceInstanceVO owner=manager.requireInstance(original.getInstanceId());JsonObject originalMetadata=metadata(original);
         if(!owner.getUuid().equals(descriptor.get("sourceInstanceUuid").getAsString())||!"VERIFIED_ENCRYPTED_FULL_IDENTITY".equals(originalMetadata.has("adIdentityCoverage")?originalMetadata.get("adIdentityCoverage").getAsString():null)
                 ||!descriptor.equals(originalMetadata.get("adIdentitySourceDescriptor"))||!originalMetadata.has("adIdentityCipherReference"))throw new InvalidParameterValueException("AD identity backup issuer, service owner or coverage changed");
@@ -424,6 +425,7 @@ public final class StorageServiceConfiguration {
             plan.add("runtimeBundleUuid", mappings.get("runtimeBundleUuid").deepCopy());
             plan.add("initialVolumeSourceUuid", mappings.get("initialVolumeSourceUuid").deepCopy());
             plan.add("volumeAllocationPlan", allocationPlan.deepCopy());
+            plan.add("cloneRuntimePin",manager.configurationCloneRuntimePin(mappings.get("runtimeBundleUuid").getAsString()));
         }
         if(sourceAuthority!=null){
             JsonObject descriptor=sourceAuthority.getAsJsonObject("descriptor");
@@ -506,6 +508,7 @@ public final class StorageServiceConfiguration {
             if(sourceAuthority==null||!plan.get("adIdentitySourceDescriptor").equals(sourceAuthority.get("descriptor"))||!Boolean.TRUE.equals(request.getMaintenanceWindow()))throw new InvalidParameterValueException("AD restore source authority or explicit maintenance approval changed after planning");
         } else if(sourceAuthority!=null)throw new InvalidParameterValueException("AD source requires a newly reviewed protected restore plan");
         boolean createNew="CREATE_NEW".equals(plan.get("targetMode").getAsString());
+        if(createNew&&(!plan.has("cloneRuntimePin")||!manager.configurationCloneRuntimePin(plan.get("runtimeBundleUuid").getAsString()).equals(plan.get("cloneRuntimePin"))))throw new InvalidParameterValueException("Clone signed source/runtime pin changed before capability consumption");
         if(createNew&&sourceAuthority!=null)manager.requireFreshStorageIdentityTemplateBlueprint(plan.getAsJsonObject("createNew"));
         final StorageServiceInstanceVO existingTarget=createNew?null:manager.configurationInstanceByUuid(plan.get("targetInstanceUuid").getAsString());
         JsonObject credentials = request.getCredentials() == null ? new JsonObject() : new com.google.gson.JsonParser().parse(request.getCredentials()).getAsJsonObject();
@@ -545,15 +548,12 @@ public final class StorageServiceConfiguration {
             metadata.addProperty("restoreState", "TARGET_PREPARED");update(row, metadata, row.getState());
         }
         final StorageServiceInstanceVO target = selectedTarget;final JsonObject reviewed = executionPlan;
+        if(createNew){manager.prepareConfigurationCloneFoundation(target,row,reviewed);manager.authorizeConfigurationCloneProfile(target,row,reviewed);}
             java.util.function.Supplier<StorageServiceConfigArtifactResponse> change=() -> {
             String current = manager.captureConfigurationSnapshot(target.getId());
             if (!createNew && (revision(target.getId()) != plan.get("expectedRevision").getAsLong()
                     || !capability.get("baselineSha256").getAsString().equals(StorageConfigArchive.sha256(current.getBytes(StandardCharsets.UTF_8))))) {
                 throw new InvalidParameterValueException("Configuration changed after planning; a new dry-run is required");
-            }
-            if (createNew) {
-                manager.prepareConfigurationInitialVolume(target, reviewed.getAsJsonObject("createNew"));
-                manager.prepareConfigurationVolumeAllocations(target, row, reviewed.getAsJsonObject("volumeAllocationPlan"));
             }
             if(sourceAuthority==null)manager.checkpointConfigurationIdentity(target);
             metadata.remove("planToken");metadata.addProperty("restoreState", "APPLYING");update(row, metadata, row.getState());
@@ -627,8 +627,12 @@ public final class StorageServiceConfiguration {
         metadata.addProperty("runtimeStatus", "AVAILABLE");JsonArray required = requiredCredentials(entries);
         metadata.add("requiredCredentials", required);metadata.addProperty("credentialCoverage", required.size() == 0 ? "FULL" : "REQUIRES_REENTRY");
         versionMetadata(metadata, instance);
-        byte[] archive = StorageConfigArchive.create(entries, metadata);
-        StorageConfigArtifactVO candidate = new StorageConfigArtifactVO();candidate.setInstanceId(instance.getId());candidate.setKind("RESTORE_POINT");
+        StorageConfigArtifactVO candidate = new StorageConfigArtifactVO();
+        if(manager.hasJoinedStorageAdDomain(instance)){
+            JsonObject retained=manager.retainLkgTargetIdentity(instance,operation,candidate.getUuid());metadata.addProperty("adIdentityCoverage","VERIFIED_ENCRYPTED_FULL_IDENTITY");metadata.add("adIdentitySourceDescriptor",retained.get("descriptor").deepCopy());metadata.add("adIdentityCipherReference",retained);entries.put(StorageAdSemanticSource.ZIP_ENTRY,retained.get("descriptor").toString().getBytes(StandardCharsets.UTF_8));
+        }
+        JsonObject publicMetadata=metadata.deepCopy();publicMetadata.remove("adIdentityCipherReference");byte[] archive = StorageConfigArchive.create(entries, publicMetadata);
+        candidate.setInstanceId(instance.getId());candidate.setKind("RESTORE_POINT");
         candidate.setState("CANDIDATE");candidate.setDesiredRevision(operation.getRevision());candidate.setSourceOperationId(operation.getId());
         candidate.setCreatedBy(operation.getCreatedBy());candidate.setMetadataJson(metadata.toString());candidate.setSha256(StorageConfigArchive.sha256(archive));
         candidate.setSize(archive.length);candidate = artifacts.persist(candidate);
@@ -669,7 +673,7 @@ public final class StorageServiceConfiguration {
         if(original==null)throw new CloudRuntimeException("Semantic identity source disappeared before reservation");
         com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<Void>) status->{
             StorageConfigArtifactVO locked=artifacts.lockRow(original.getId(),true);JsonObject value=locked==null?null:metadata(locked);
-            if(locked==null||!Set.of("COMPLETE","PARTIAL").contains(locked.getState())||locked.getExpires()==null||!locked.getExpires().after(new Date())||!descriptor.equals(value.get("adIdentitySourceDescriptor"))||!authority.get("reference").equals(value.get("adIdentityCipherReference")))throw new CloudRuntimeException("Original semantic identity authority expired or changed before effects");
+            if(locked==null||!("BACKUP".equals(locked.getKind())&&Set.of("COMPLETE","PARTIAL").contains(locked.getState())||"RESTORE_POINT".equals(locked.getKind())&&Set.of("ACTIVE_LKG","SUPERSEDED").contains(locked.getState()))||locked.getExpires()!=null&&!locked.getExpires().after(new Date())||"BACKUP".equals(locked.getKind())&&locked.getExpires()==null||!descriptor.equals(value.get("adIdentitySourceDescriptor"))||!authority.get("reference").equals(value.get("adIdentityCipherReference")))throw new CloudRuntimeException("Original semantic identity authority expired or changed before effects");
             JsonObject usages=value.has("adIdentitySourceUsages")?value.getAsJsonObject("adIdentitySourceUsages"):new JsonObject(),scope=new JsonObject();scope.addProperty("targetInstanceId",target.getId());scope.addProperty("targetInstanceUuid",target.getUuid());scope.addProperty("operationUuid",operation.getUuid());scope.addProperty("revision",operation.getRevision());
             if(usages.has(operation.getUuid())&&!scope.equals(usages.get(operation.getUuid())))throw new CloudRuntimeException("Semantic source recovery reservation changed scope");
             usages.add(operation.getUuid(),scope);value.add("adIdentitySourceUsages",usages);locked.setMetadataJson(value.toString());
