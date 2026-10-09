@@ -7817,6 +7817,7 @@
   "label.additional.iso.connect": "Connect an additional ISO",
   "label.additional.iso": "Additional non-bootable ISO",
   "message.additional.iso.unsupported": "Requires a server supporting additional ISO deployment and KVM.",
+  "message.additional.iso.configdrive.conflict": "ConfigDrive reserves the second CD-ROM slot on the selected network. Disconnect the additional ISO or select a network without ConfigDrive before creating the Instance.",
   "message.additional.iso.boot": "Boot from the installation ISO with a driver ISO connected. The destination must support two ISO slots; ConfigDrive may reserve the second slot.",
   "message.additional.iso.empty": "No non-bootable ISO is available. Register a non-bootable driver ISO in this zone.",
   "message.additional.iso.load.failed": "Unable to load additional ISOs. Turn this option off or retry.",

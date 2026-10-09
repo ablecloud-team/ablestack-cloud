@@ -4689,4 +4689,29 @@ public class UserVmManagerImplTest {
         userVmManagerImpl.validateAdditionalDeployIsos(cmd, image, account);
         Mockito.verify(accountManager).checkAccess(account, null, false, driver);
     }
+
+    @Test
+    public void additionalIsoRejectsConfigDriveBeforeAllocation() {
+        DeployVMCmd cmd = Mockito.mock(DeployVMCmd.class);
+        when(cmd.getAdditionalIsoIds()).thenReturn(Collections.singletonList(2L));
+        when(networkModel.isProviderForNetwork(Network.Provider.ConfigDrive, 42L)).thenReturn(true);
+        assertThrows(InvalidParameterValueException.class,
+                () -> userVmManagerImpl.validateAdditionalDeployIsoNetworks(cmd, Arrays.asList(41L, 42L)));
+    }
+
+    @Test
+    public void additionalIsoAllowsNetworksWithoutConfigDrive() {
+        DeployVMCmd cmd = Mockito.mock(DeployVMCmd.class);
+        when(cmd.getAdditionalIsoIds()).thenReturn(Collections.singletonList(2L));
+        userVmManagerImpl.validateAdditionalDeployIsoNetworks(cmd, Collections.singletonList(41L));
+        Mockito.verify(networkModel).isProviderForNetwork(Network.Provider.ConfigDrive, 41L);
+    }
+
+    @Test
+    public void primaryIsoOnlyPreservesConfigDriveDeployment() {
+        DeployVMCmd cmd = Mockito.mock(DeployVMCmd.class);
+        when(cmd.getAdditionalIsoIds()).thenReturn(Collections.emptyList());
+        userVmManagerImpl.validateAdditionalDeployIsoNetworks(cmd, Collections.singletonList(42L));
+        Mockito.verify(networkModel, Mockito.never()).isProviderForNetwork(Mockito.any(), Mockito.anyLong());
+    }
 }

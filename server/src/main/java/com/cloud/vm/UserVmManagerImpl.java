@@ -572,6 +572,17 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         }
     }
 
+    protected void validateAdditionalDeployIsoNetworks(DeployVMCmd cmd, List<Long> networkIds) {
+        if (cmd.getAdditionalIsoIds().isEmpty() || CollectionUtils.isEmpty(networkIds)) {
+            return;
+        }
+        for (Long networkId : networkIds) {
+            if (_networkModel.isProviderForNetwork(Network.Provider.ConfigDrive, networkId)) {
+                throw new InvalidParameterValueException("ConfigDrive reserves the second CD-ROM slot; remove the additional ISO or select a network without ConfigDrive before deployment");
+            }
+        }
+    }
+
     @Inject
     private VolumeDao _volsDao;
     @Inject
@@ -7237,6 +7248,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             throw new InvalidParameterValueException("The compute offering requires its mapped ISO root disk offering");
         }
         validateAdditionalDeployIsos(cmd, template, owner);
+        validateAdditionalDeployIsoNetworks(cmd, networkIds);
         // Request-scoped, validated data; never read ISO IDs from user VM details.
         java.util.Map<Long, Long> selectedStorage = storageSelectionService.prepare(cmd, zone, owner, serviceOffering, template);
         Object previousStorageSelection = CallContext.current().getContextParameter(com.cloud.storage.VmStorageSelectionManager.Selection.class);

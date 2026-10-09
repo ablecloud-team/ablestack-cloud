@@ -665,6 +665,12 @@
                         @handler-error="($event) => hasError = $event"
                         @select-default-network-item="($event) => updateDefaultNetworks($event)"
                       ></network-configuration>
+                      <a-alert
+                        v-if="additionalIsoConfigDriveConflict"
+                        type="error"
+                        show-icon
+                        :message="$t('message.additional.iso.configdrive.conflict')"
+                        style="margin-top: 12px" />
                     </div>
                   </div>
                 </template>
@@ -1231,7 +1237,7 @@ import DiskOfferingSelection from '@views/compute/wizard/DiskOfferingSelection'
 import DeploymentStorageSelection from '@views/compute/wizard/DeploymentStorageSelection'
 import IsoAdditionalDataDisks from '@views/compute/wizard/IsoAdditionalDataDisks'
 import DiskQuantitySelection from './wizard/DiskQuantitySelection'
-import { deploymentStorageQuery, dataDiskRequest, dataDiskDeviceIds, completeIsoDiskDeployment } from '@/utils/vmDiskDeployment'
+import { deploymentStorageQuery, dataDiskRequest, dataDiskDeviceIds, completeIsoDiskDeployment, additionalIsoConfigDriveConflict } from '@/utils/vmDiskDeployment'
 import DiskSizeSelection from '@views/compute/wizard/DiskSizeSelection'
 import MultiDiskSelection from '@views/compute/wizard/MultiDiskSelection'
 import TemplateIsoSelection from '@views/compute/wizard/TemplateIsoSelection'
@@ -1560,7 +1566,16 @@ export default {
       const count = this.imageType === 'isoid' ? this.isoDataDiskSelection.count : this.form.datadiskcount
       return count === undefined ? 1 : Number(count)
     },
+    additionalIsoConfigDriveConflict () {
+      return additionalIsoConfigDriveConflict({
+        imageType: this.imageType,
+        additionalIsoSelection: this.additionalIsoSelection,
+        networks: this.options.networks,
+        networkIds: this.form.networkids || []
+      })
+    },
     diskPlanIncomplete () {
+      if (this.additionalIsoConfigDriveConflict) return true
       if (this.isCreationSource) {
         return !this.creationSourceOwnerReady || !this.selectedCreationSource?.allowed || this.sourceLoading || this.sourceOperationPending ||
           (!!this.rootStorageSelection.id && !this.rootStorageSelection.valid) ||
@@ -3019,6 +3034,10 @@ export default {
       if (this.loading.deploy) return
       this.formRef.value.validate().then(async () => {
         const values = toRaw(this.form)
+        if (this.additionalIsoConfigDriveConflict) {
+          this.$notification.error({ message: this.$t('message.request.failed'), description: this.$t('message.additional.iso.configdrive.conflict') })
+          return
+        }
         if (this.isCreationSource) {
           try {
             await this.validateCreationSource()

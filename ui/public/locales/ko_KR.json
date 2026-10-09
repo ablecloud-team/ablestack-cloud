@@ -7776,6 +7776,7 @@
   "label.additional.iso.connect": "추가 ISO 연결",
   "label.additional.iso": "추가 비부팅 ISO",
   "message.additional.iso.unsupported": "추가 ISO 생성 기능을 지원하는 서버와 KVM이 필요합니다.",
+  "message.additional.iso.configdrive.conflict": "선택한 네트워크의 ConfigDrive가 두 번째 CD-ROM 슬롯을 사용합니다. 추가 ISO 연결을 해제하거나 ConfigDrive가 없는 네트워크를 선택한 뒤 가상머신을 생성하세요.",
   "message.additional.iso.boot": "설치 ISO로 부팅하며 드라이버 ISO를 함께 연결합니다. 대상은 ISO 슬롯 2개를 지원해야 하며, ConfigDrive가 두 번째 슬롯을 점유할 수 있습니다.",
   "message.additional.iso.empty": "사용 가능한 비부팅 ISO가 없습니다. 이 Zone에 비부팅 드라이버 ISO를 등록하세요.",
   "message.additional.iso.load.failed": "추가 ISO를 불러오지 못했습니다. 옵션을 해제하거나 다시 시도하세요.",
