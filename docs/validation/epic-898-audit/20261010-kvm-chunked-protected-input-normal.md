@@ -10,4 +10,11 @@
 
 정상 산출물3050개를 별도 고정했다. 직전 immutable61과의 제품 차이는 Wrapper 클래스1개(SHA2eedeaf9)이고 API 및 다른 제품2665파일은 같다. 기존 public/protected14개 name·descriptor·visibility를 유지했다. checked InterruptedException 추가는 JVM descriptor를 바꾸지 않는다. fresh 실제 호스트5 JAR/12 class 및 JDK17에 대해 추가 member52/52를 해결했고 누락0이다.
 
-[공개 검증 증빙](20261010-kvm-chunked-protected-input-normal-public-proof.json). 이 기록 시점에는 새 제품의 실제 호스트 배포·원 SOURCE의 정상 UI 복원·외부 LOCAL SMB 인증/I/O는 아직 수행 전이다. Native CLI·관리 서버·UI는 이번 수정에서 변경하지 않아 기존457/888/366 검증을 재사용한다. 최종 UI 표준 정리 #1275는 미착수이며 시작 전에 전체 작업을 중단·보고한다.
+[공개 검증 증빙](20261010-kvm-chunked-protected-input-normal-public-proof.json). 아래 제한 배포를 마쳤으며 원 SOURCE의 정상 UI 복원 결과와 외부 LOCAL SMB 인증/I/O는 아직 검증 전이다. Native CLI·관리 서버·UI는 이번 수정에서 변경하지 않아 기존457/888/366 검증을 재사용한다. 최종 UI 표준 정리 #1275는 미착수이며 시작 전에 전체 작업을 중단·보고한다.
+
+
+## 제한 배포와 원 자료 보존
+
+검토한 manifest de940da4의 한 클래스만 13.2 호스트에 1회 적용했다. 기존 a1cf JAR을 root0700 백업에 보존하고 fsync/atomic replace로 360a444 JAR을 적용한 뒤 mold-agent.service만 재시작했다. 새 Agent PID1799382, 클래스2eedeaf이며 다른482파일의 내용·ZIP 메타데이터·510 raw local record와 실제 libvirt/Gson/API/Logger provider를 보존했다. VM15개의 PID/start는 같고 게스트 재시작·데이터 포맷 명령은0이다. 백업 /root/epic898-chunked-input-host-wrapper-backup-20261009-220702의 시간은 UTC다.
+
+배포 뒤 F1 보호값10개·DB/mount/holders·원 key/cipher/compat/ref·GEN4/BOOT·native RESUMED·원 pending PREPARED가 같았다. MGT/UI는 HTTP200·indexe755/configd3e·서비스8 Running/호스트3 Up 및 원4작업 상태를 유지했다. 배포 proof7c957592와 보존 proofc3394c55를 리뷰한 뒤 동일 원 fef 작업의 정상 UI 복원1회를 진행하도록 했다. 이 기록의 배포 성공을 원 복원terminal이나 외부 SMB I/O 완료로 확대하지 않는다.
