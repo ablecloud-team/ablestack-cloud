@@ -1222,8 +1222,9 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
             if (!preflight.has("sourceSignedRuntime") || !before.equals(preflight.getAsJsonObject("sourceSignedRuntime").get("sourceRootBinding")))
                 throw new CloudRuntimeException("Runtime code quarantine ROOT changed after preflight");
             validationStage = "DBintent";JsonObject context = runtimeStoppedSourceContext(instance);
-            validationStage = "readback";JsonObject readback = invoke(instance, StorageServiceRuntimeOperation.READBACK,
-                    upgrade.getTransactionId(), request(upgrade, bundle));
+            validationStage = "readback";JsonObject readbackRequest = runtimePin(bundle);
+            readbackRequest.addProperty("transactionId", upgrade.getTransactionId());
+            JsonObject readback = invoke(instance, StorageServiceRuntimeOperation.READBACK, upgrade.getTransactionId(), readbackRequest);
             for (String field : java.util.Set.of("success", "signedRuntimeVerified", "installedFilesVerified", "entrypointsVerified"))
                 if (!Boolean.TRUE.equals(booleanValue(readback, field))) throw new CloudRuntimeException("Runtime code quarantine has no fresh signed target readback");
             if (!bundle.getVersion().equals(stringValue(readback, "currentVersion")) || !bundle.getSha256().equals(stringValue(readback, "archiveSha256"))

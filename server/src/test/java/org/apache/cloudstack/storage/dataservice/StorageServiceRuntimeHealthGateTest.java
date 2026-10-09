@@ -129,6 +129,55 @@ public class StorageServiceRuntimeHealthGateTest {
         paused.formatterBusy = false;paused.rootChanged = true;Assert.assertNull(paused.runtimeStoppedSourceCodeProof(instance, upgrade, bundle, manifest, health));
     }
 
+    @Test public void pausedCodeReadbackUsesDefaultInvokeAndExactPinnedRequestRatherThanAnInventedSuccessfulReply() {
+        StorageServiceRuntimeUpgradeManagerImpl actual = new StorageServiceRuntimeUpgradeManagerImpl() {
+            @Override protected void requireRuntimeActivationSafety(StorageServiceInstanceVO instance) { }
+            @Override protected com.google.gson.JsonObject sourceRootBinding(StorageServiceInstanceVO instance) {
+                return com.google.gson.JsonParser.parseString("{\"rootVolumeUuid\":\"own\"}").getAsJsonObject();
+            }
+            @Override protected com.google.gson.JsonObject runtimeStoppedSourceContext(StorageServiceInstanceVO instance) {return pausedContext();}
+        };
+        StorageServiceInstanceVO instance = org.mockito.Mockito.mock(StorageServiceInstanceVO.class);org.mockito.Mockito.when(instance.getVmId()).thenReturn(7L);
+        com.cloud.vm.VMInstanceVO vm = org.mockito.Mockito.mock(com.cloud.vm.VMInstanceVO.class);org.mockito.Mockito.when(vm.getInstanceName()).thenReturn("controlled-vm");
+        com.cloud.vm.dao.VMInstanceDao vmDao = org.mockito.Mockito.mock(com.cloud.vm.dao.VMInstanceDao.class);
+        org.mockito.Mockito.when(vmDao.findById(7L)).thenReturn(vm);org.springframework.test.util.ReflectionTestUtils.setField(actual, "vmInstanceDao", vmDao);
+        StorageServiceRuntimeUpgradeVO upgrade = org.mockito.Mockito.mock(StorageServiceRuntimeUpgradeVO.class);org.mockito.Mockito.when(upgrade.getTransactionId()).thenReturn("verified-tx");
+        org.mockito.Mockito.when(upgrade.getPreflightJson()).thenReturn("{\"sourceSignedRuntime\":{\"sourceRootBinding\":{\"rootVolumeUuid\":\"own\"}}}");
+        StorageServiceRuntimeBundleVO bundle = org.mockito.Mockito.mock(StorageServiceRuntimeBundleVO.class);
+        org.mockito.Mockito.when(bundle.getVersion()).thenReturn("signed-target");org.mockito.Mockito.when(bundle.getSha256()).thenReturn("d".repeat(64));
+        org.mockito.Mockito.when(bundle.getManifestSha256()).thenReturn("e".repeat(64));
+        java.util.concurrent.atomic.AtomicReference<com.google.gson.JsonObject> transported = new java.util.concurrent.atomic.AtomicReference<>();
+        StorageServiceRuntimeHostDispatcher runtime = org.mockito.Mockito.mock(StorageServiceRuntimeHostDispatcher.class);
+        org.mockito.Mockito.when(runtime.dispatch(org.mockito.Mockito.eq(7L), org.mockito.Mockito.any())).thenAnswer(call -> {
+            com.cloud.agent.api.StorageServiceRuntimeHostCommand command = call.getArgument(1);
+            Assert.assertEquals(com.cloud.agent.api.StorageServiceRuntimeOperation.READBACK, command.getOperation());
+            com.google.gson.JsonObject request = com.google.gson.JsonParser.parseString(command.getRequestJson()).getAsJsonObject();transported.set(request);
+            boolean same = "verified-tx".equals(command.getTransactionId()) && request.has("transactionId") && "verified-tx".equals(request.get("transactionId").getAsString())
+                    && request.has("bundleVersion") && "signed-target".equals(request.get("bundleVersion").getAsString())
+                    && request.has("archiveSha256") && "d".repeat(64).equals(request.get("archiveSha256").getAsString())
+                    && request.has("manifestSha256") && "e".repeat(64).equals(request.get("manifestSha256").getAsString());
+            String reply = "{\"success\":true,\"signedRuntimeVerified\":true,\"installedFilesVerified\":true,\"entrypointsVerified\":true,"
+                    + "\"currentVersion\":\"signed-target\",\"archiveSha256\":\"" + "d".repeat(64) + "\",\"manifestSha256\":\"" + "e".repeat(64) + "\"}";
+            return new com.cloud.agent.api.StorageServiceRuntimeHostAnswer(command, same, same ? "public readback" : "READBACK_PIN_REJECTED", same ? reply : null);
+        });
+        org.springframework.test.util.ReflectionTestUtils.setField(actual, "runtimeDispatcher", runtime);
+        StorageServiceGuestCommandDispatcher guest = org.mockito.Mockito.mock(StorageServiceGuestCommandDispatcher.class);
+        org.mockito.Mockito.when(guest.dispatch(org.mockito.Mockito.any())).thenReturn(new StorageServiceGuestCommandResult(true, "public", stoppedStatus().toString()));
+        org.springframework.test.util.ReflectionTestUtils.setField(actual, "guestCommandDispatcher", guest);
+        com.google.gson.JsonObject manifest = com.google.gson.JsonParser.parseString("{\"files\":[{\"path\":\"ablestack-storagectl\",\"sha256\":\"" + "b".repeat(64)
+                + "\",\"mode\":\"0755\",\"owner\":\"root\",\"group\":\"root\"}]}").getAsJsonObject();
+        StorageServiceGuestCommandResult health = new StorageServiceGuestCommandResult(true, "public", pausedHealth().toString());
+        Assert.assertNotNull(actual.runtimeStoppedSourceCodeProof(instance, upgrade, bundle, manifest, health));
+        Assert.assertEquals(java.util.Set.of("bundleUuid", "bundleVersion", "archiveSha256", "manifestSha256", "signingKeyId",
+                "runtimeAbiVersion", "desiredStateSchemaVersion", "transactionId"), transported.get().keySet());
+        org.mockito.Mockito.when(bundle.getSha256()).thenReturn(null);Assert.assertNull(actual.runtimeStoppedSourceCodeProof(instance, upgrade, bundle, manifest, health));
+        org.mockito.Mockito.when(bundle.getSha256()).thenReturn("0".repeat(64));Assert.assertNull(actual.runtimeStoppedSourceCodeProof(instance, upgrade, bundle, manifest, health));
+        org.mockito.Mockito.when(bundle.getSha256()).thenReturn("d".repeat(64));org.mockito.Mockito.when(bundle.getManifestSha256()).thenReturn(null);
+        Assert.assertNull(actual.runtimeStoppedSourceCodeProof(instance, upgrade, bundle, manifest, health));
+        org.mockito.Mockito.when(bundle.getManifestSha256()).thenReturn("e".repeat(64));org.mockito.Mockito.when(upgrade.getTransactionId()).thenReturn("foreign-tx");
+        Assert.assertNull(actual.runtimeStoppedSourceCodeProof(instance, upgrade, bundle, manifest, health));
+    }
+
     private static class SourceContextManager extends StorageServiceRuntimeUpgradeManagerImpl {
         @Override protected java.util.Set<String> requiredRuntimeFeatures(StorageServiceInstanceVO instance) {return java.util.Collections.emptySet();}
     }
