@@ -516,4 +516,384 @@ public class StorageSmbIdentityRepairRuntimeTest {
         Assert.assertThrows(CloudRuntimeException.class, () -> StorageSmbCurrentIdentityRecoveryProof.review(context, overflow, 1000));
     }
 
+
+    static JsonObject localSourceBefore() {
+        JsonObject before = new JsonObject();before.addProperty("success", true);before.addProperty("generationSupported", true);
+        before.addProperty("generationStatus", "IN_SYNC");before.addProperty("configurationSha256", "a".repeat(64));
+        before.addProperty("bootId", "0fce7e4a-7f46-4b33-9a6e-0137cdbcf8da");
+        JsonObject generation = currentContext().getAsJsonObject("sourceGeneration").deepCopy();before.add("generation", generation);
+        JsonObject files = new JsonObject();for (String path : StorageRenderedDesiredState.PATHS) files.add(path, com.google.gson.JsonNull.INSTANCE);
+        JsonObject smb = new JsonObject();smb.addProperty("enabled", true);smb.add("shares", new com.google.gson.JsonArray());
+        files.add(StorageRenderedDesiredState.PROTOCOL_PATHS.get(StorageServiceInstance.Protocol.SMB), smb);before.add("configurationDesiredState", files);return before;
+    }
+
+    static JsonObject localSourceExport(JsonObject context) {
+        JsonObject result = new JsonObject();result.addProperty("success", true);result.add("scope", StorageLocalSourceIdentityProof.scope(context));
+        for (String flag : java.util.Set.of("sourceSmbResumed", "sourceRuntimeVerified", "sourceIdentityCheckpointCaptured")) result.addProperty(flag, true);
+        result.addProperty("canonicalDesiredStateChanged", false);
+        JsonObject capsule = new JsonObject();capsule.addProperty("schemaVersion", 1);
+        capsule.addProperty("scope", context.get("instanceUuid").getAsString() + ":" + context.get("operationUuid").getAsString());
+        byte[] cipher = new byte[32];capsule.addProperty("ciphertext", java.util.Base64.getEncoder().encodeToString(cipher));
+        capsule.addProperty("nonce", java.util.Base64.getEncoder().encodeToString(new byte[12]));
+        capsule.addProperty("wrappedKey", java.util.Base64.getEncoder().encodeToString(new byte[256]));capsule.addProperty("sha256", StorageConfigArchive.sha256(cipher));
+        JsonObject checkpoint = new JsonObject();checkpoint.addProperty("kind", StorageLocalSourceIdentityProof.KIND);
+        checkpoint.add("scope", StorageLocalSourceIdentityProof.scope(context));checkpoint.add("capsuleSha256", capsule.get("sha256").deepCopy());
+        checkpoint.add("sourceConfigurationSha256", context.get("sourceConfigurationSha256").deepCopy());checkpoint.addProperty("checkpointRecordSha256", "c".repeat(64));
+        result.add("capsule", capsule);result.add("localSourceIdentityCheckpoint", checkpoint);return result;
+    }
+
+    private static class LocalSourceManager extends StorageServiceManagerImpl {
+        JsonObject before = localSourceBefore(), observed = before.deepCopy(), cached;
+        StorageServiceOperationVO writer;java.nio.file.Path vault;boolean render, failExport, unsafeResume, unsupported, lostJournal, canonicalWrong;
+        com.google.gson.JsonElement capabilityValue;
+        final java.util.List<String> calls = new java.util.ArrayList<>();int rawExports;String originalPublicKey;
+        @Override protected boolean renderedValidationEnabled(StorageServiceInstanceVO instance) {return render;}
+        @Override protected boolean hasJoinedStorageAdDomain(StorageServiceInstanceVO instance) {return false;}
+        @Override protected void requireNoPendingVolumeFormatter(StorageServiceInstanceVO instance) { }
+        @Override protected void requireProtectedIdentityTransport(StorageServiceInstanceVO instance, String operationUuid) { }
+        @Override protected StorageConfigArtifactStore localSourceIdentityStore() {return new StorageConfigArtifactStore(vault.resolve("identity"));}
+        @Override protected JsonObject nativeConfigurationGeneration(StorageServiceInstanceVO instance, StorageServiceOperationVO operation, String action) {
+            if ("status".equals(action)) return observed.deepCopy();
+            Assert.assertEquals("begin", action);calls.add("begin");
+            JsonObject snapshot = com.google.gson.JsonParser.parseString(writer.getPreviousSnapshotJson()).getAsJsonObject();
+            Assert.assertTrue(snapshot.has("nativeDesiredState"));Assert.assertEquals(before.get("generation"), snapshot.getAsJsonObject("nativeGeneration").get("previous"));
+            JsonObject key = snapshot.getAsJsonObject("localCheckpointIntent").getAsJsonObject("keyReference");
+            Assert.assertTrue(localSourceIdentityStore().contains(key.get("keyId").getAsString()));
+            observed.addProperty("pendingOperationUuid", writer.getUuid());observed.addProperty("generationStatus", "PENDING");
+            JsonObject result = new JsonObject();result.add("previous", before.get("generation").deepCopy());return result;
+        }
+        @Override protected void prepareRenderedBatch(StorageServiceInstanceVO instance, StorageServiceOperationVO operation, JsonObject source) {
+            calls.add("render-prepare");
+            if (render) {
+                JsonObject manifest = new JsonObject();manifest.addProperty("configurationSha256", "a".repeat(64));
+                RenderedBatch batch = createRenderedBatch(instance, operation, source, manifest, null);
+                originalPublicKey = StorageIdentityCapsule.pem("PUBLIC KEY", batch.key.getPublic().getEncoded());
+            }
+        }
+        @Override protected JsonObject configurationIdentityExportRequest(StorageServiceInstanceVO instance, String operationUuid, java.security.KeyPair key) {
+            JsonObject request = StorageIdentityCapsule.exportRequest(instance.getUuid(), operationUuid, key, new com.google.gson.JsonArray());
+            request.add("nvmeHosts", new com.google.gson.JsonArray());return request;
+        }
+        @Override protected JsonObject rootGuest(StorageServiceInstanceVO instance, String command, JsonObject request, int timeout) {
+            if ("operation generation render-status".equals(command)) {
+                JsonObject capability = new JsonObject();
+                if (capabilityValue != null) capability.add("localSourceIdentityCheckpointSupported", capabilityValue);
+                else capability.addProperty("localSourceIdentityCheckpointSupported", !unsupported);return capability;
+            }
+            Assert.assertEquals("operation generation restore", command);calls.add("source7-restore");
+            Assert.assertEquals(before.get("generation"), request.get("previousGeneration"));Assert.assertEquals(before.get("configurationDesiredState"), request.get("configurationDesiredState"));
+            JsonObject response = new JsonObject();response.addProperty("canonicalRestored", true);response.addProperty("generationAdvanced", false);
+            response.addProperty("pendingOperationUuid", writer.getUuid());response.addProperty("configurationSha256", (canonicalWrong ? "b" : "a").repeat(64));return response;
+        }
+        @Override protected JsonObject frozenRecoveryConfiguration(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {return before.deepCopy();}
+        @Override protected JsonObject localSourceGuest(StorageServiceInstanceVO instance, String action, JsonObject request) {
+            JsonObject saved = com.google.gson.JsonParser.parseString(writer.getPreviousSnapshotJson()).getAsJsonObject();
+            JsonObject context = saved.getAsJsonObject("localCheckpointIntent").getAsJsonObject("context");
+            if ("local-source-status".equals(action)) {
+                JsonObject status = new JsonObject();status.addProperty("success", true);status.addProperty("checkpointSupported", true);status.addProperty("journalPresent", cached != null && !lostJournal);
+                status.add("scope", StorageLocalSourceIdentityProof.scope(context));status.add("sourceGeneration", context.get("sourceGeneration").deepCopy());
+                status.add("sourceConfigurationSha256", context.get("sourceConfigurationSha256").deepCopy());status.add("bootId", context.get("expectedBootId").deepCopy());
+                status.addProperty("phase", unsafeResume ? "RECOVERY_REQUIRED" : "RESUMED");
+                for (String flag : java.util.Set.of("sourceSmbResumed", "sourceRuntimeVerified", "sourceIdentityRestoreSupported", "currentRuntimeOwnershipVerified", "currentSessionsVerifiedEmpty")) status.addProperty(flag, !unsafeResume);
+                status.addProperty("canonicalDesiredStateChanged", false);status.addProperty("currentConfigurationSha256", "b".repeat(64));status.addProperty("currentSmbConfigurationSha256", "d".repeat(64));
+                if (cached != null) status.add("localSourceCheckpointReference", StorageLocalSourceIdentityProof.reference(cached.getAsJsonObject("localSourceIdentityCheckpoint")));return status;
+            }
+            calls.add(action);
+            if ("export-local-source".equals(action)) {
+                Assert.assertTrue(saved.getAsJsonObject("localCheckpointIntent").get("exportAttempted").getAsBoolean());
+                JsonObject key = saved.getAsJsonObject("localCheckpointIntent").getAsJsonObject("keyReference");
+                Assert.assertEquals(key.get("publicKey"), request.get("publicKey"));
+                Assert.assertTrue(localSourceIdentityStore().contains(key.get("keyId").getAsString()));
+                Assert.assertEquals(context.get("localCheckpointUuid"), request.get("localCheckpointUuid"));
+                Assert.assertEquals(saved.getAsJsonObject("localCheckpointIntent").get("authReplayDomains"), request.get("authReplayDomains"));
+                if (originalPublicKey != null) Assert.assertEquals(originalPublicKey, request.get("publicKey").getAsString());
+                if (cached == null) {cached = localSourceExport(context);rawExports++;}
+                if (failExport) throw new CloudRuntimeException("synthetic after-export response loss");return cached.deepCopy();
+            }
+            if ("replay-local-source-auth".equals(action)) {
+                Assert.assertEquals("import-local-source", calls.get(calls.size() - 2));
+                Assert.assertEquals(cached.get("capsule"), request.get("capsule"));
+                Assert.assertTrue(request.has("credentialPrivateKey"));Assert.assertFalse(request.has("deferNvmeReplay"));
+                Assert.assertEquals(saved.getAsJsonObject("localCheckpointIntent").get("authReplayDomains"), request.get("restoreDomains"));
+                JsonObject replay = new JsonObject();replay.addProperty("success", true);replay.add("scope", StorageLocalSourceIdentityProof.scope(context));
+                replay.addProperty("sourceAuthReplayed", true);replay.addProperty("canonicalDesiredStateChanged", false);replay.addProperty("smbIdentityChanged", false);
+                replay.add("replayedDomains", request.get("restoreDomains").deepCopy());replay.add("sourceConfigurationSha256", context.get("sourceConfigurationSha256").deepCopy());
+                replay.add("localSourceCheckpointReference", request.get("localSourceCheckpointReference").deepCopy());
+                boolean nvme = request.getAsJsonArray("restoreDomains").contains(new com.google.gson.JsonPrimitive("NVMEOF"));
+                if (nvme) {
+                    Assert.assertEquals(before.getAsJsonObject("configurationDesiredState").get(StorageRenderedDesiredState.PROTOCOL_PATHS.get(StorageServiceInstance.Protocol.NVME_OF)), request.get("nvmeDesired"));
+                    replay.addProperty("nvmeRestored", true);
+                } else Assert.assertFalse(request.has("nvmeDesired"));return replay;
+            }
+            Assert.assertEquals("import-local-source", action);Assert.assertEquals("source7-restore", calls.get(calls.size() - 2));
+            Assert.assertEquals(java.util.Set.of("SMB"), java.util.Set.of(request.getAsJsonArray("restoreDomains").get(0).getAsString()));
+            Assert.assertTrue(request.get("deferNvmeReplay").getAsJsonPrimitive().isBoolean());Assert.assertTrue(request.get("deferNvmeReplay").getAsBoolean());
+            Assert.assertFalse(request.has("nvmeDesired"));Assert.assertTrue(request.has("credentialPrivateKey"));
+            JsonObject imported = cached.deepCopy();imported.remove("capsule");imported.remove("localSourceIdentityCheckpoint");imported.remove("sourceIdentityCheckpointCaptured");
+            imported.addProperty("sourceIdentityRestored", true);return imported;
+        }
+    }
+
+    private final class LocalFixture implements AutoCloseable {
+        final LocalSourceManager local = new LocalSourceManager();
+        final String renderedPath = System.getProperty("cloudstack.storage.rendered.keys.path");
+        final Object depot = ReflectionTestUtils.getField(org.apache.cloudstack.framework.config.ConfigKey.class, "s_depot");
+        final Object encryptor = ReflectionTestUtils.getField(com.cloud.utils.crypt.DBEncryptionUtil.class, "s_encryptor");
+        final Object checker = ReflectionTestUtils.getField(com.cloud.utils.crypt.EncryptionSecretKeyChecker.class, "s_encryptor");
+        final Object use = ReflectionTestUtils.getField(com.cloud.utils.crypt.EncryptionSecretKeyChecker.class, "s_useEncryption");
+        LocalFixture() throws Exception {
+            local.vault = java.nio.file.Files.createTempDirectory("local-source-regression-");local.writer = operation;
+            System.setProperty("cloudstack.storage.rendered.keys.path", local.vault.resolve("rendered").toString());
+            operation.setRevision(4);operation.setPreviousSnapshotJson("{}");operation.setState("RUNNING");
+            Mockito.when(instance.getUuid()).thenReturn(currentContext().get("instanceUuid").getAsString());Mockito.when(instance.getVmId()).thenReturn(7L);
+            ReflectionTestUtils.setField(local, "storageOperationDao", operations);
+            ((ThreadLocal<StorageServiceOperationVO>) ReflectionTestUtils.getField(local, "storageWriterOperation")).set(operation);
+            org.apache.cloudstack.framework.config.impl.ConfigDepotImpl enabled = Mockito.mock(org.apache.cloudstack.framework.config.impl.ConfigDepotImpl.class);
+            Mockito.when(enabled.getConfigStringValue(Mockito.eq(StorageServiceInstance.StorageServiceVerifiedConfigurationEnabled.key()), Mockito.any(), Mockito.isNull())).thenReturn("true");
+            ReflectionTestUtils.setField(org.apache.cloudstack.framework.config.ConfigKey.class, "s_depot", enabled);
+            com.cloud.utils.crypt.EncryptionSecretKeyChecker.initEncryptor("ephemeral-local-source-test-master");
+            ReflectionTestUtils.setField(com.cloud.utils.crypt.DBEncryptionUtil.class, "s_encryptor",
+                    new com.cloud.utils.crypt.CloudStackEncryptor("ephemeral-local-source-test-master", null, com.cloud.utils.crypt.DBEncryptionUtil.class));
+        }
+        public void close() throws Exception {
+            if (renderedPath == null) System.clearProperty("cloudstack.storage.rendered.keys.path");else System.setProperty("cloudstack.storage.rendered.keys.path", renderedPath);
+            ReflectionTestUtils.setField(org.apache.cloudstack.framework.config.ConfigKey.class, "s_depot", depot);
+            ReflectionTestUtils.setField(com.cloud.utils.crypt.DBEncryptionUtil.class, "s_encryptor", encryptor);
+            ReflectionTestUtils.setField(com.cloud.utils.crypt.EncryptionSecretKeyChecker.class, "s_encryptor", checker);
+            ReflectionTestUtils.setField(com.cloud.utils.crypt.EncryptionSecretKeyChecker.class, "s_useEncryption", use);
+            try (java.util.stream.Stream<java.nio.file.Path> paths = java.nio.file.Files.walk(local.vault)) {
+                for (java.nio.file.Path path : paths.sorted(java.util.Comparator.reverseOrder()).collect(java.util.stream.Collectors.toList())) java.nio.file.Files.delete(path);
+            }
+        }
+    }
+
+    @Test public void localCheckpointPersistsKeyAndSourceBeforeBeginStopAndMutationAndReusesRenderedRsa() throws Exception {
+        try (LocalFixture fixture = new LocalFixture()) {
+            fixture.local.render = true;fixture.local.prepareLocalDesiredStateNativeCheckpoint(instance, operation, StorageServiceInstance.Protocol.SMB);
+            Assert.assertEquals(java.util.List.of("render-prepare", "begin", "export-local-source"), fixture.local.calls);
+            JsonObject saved = com.google.gson.JsonParser.parseString(operation.getPreviousSnapshotJson()).getAsJsonObject();
+            Assert.assertTrue(saved.has("nativeIdentityCapsule"));Assert.assertFalse(saved.getAsJsonObject("localCheckpointIntent").has("pendingProtectedKeyPublication"));
+            JsonObject stage = new JsonObject();fixture.local.bindLocalSourceRenderedRequest(operation, stage);
+            Assert.assertEquals(2, stage.getAsJsonObject("localSourceCheckpointReference").size());Assert.assertEquals(1, fixture.local.rawExports);
+        }
+    }
+    @Test public void localCheckpointSourceClassificationCoversMixedBlockAndNullWritersWithoutChangingNfsOnlySource() {
+        LocalSourceManager local = new LocalSourceManager();
+        for (StorageServiceInstance.Protocol protocol : StorageServiceInstance.Protocol.values())
+            Assert.assertEquals(protocol != StorageServiceInstance.Protocol.NFS, local.localSourceCheckpointRequired(protocol, local.before, false));
+        Assert.assertTrue(local.localSourceCheckpointRequired(null, local.before, false));
+        local.before.getAsJsonObject("configurationDesiredState").add(StorageRenderedDesiredState.PROTOCOL_PATHS.get(StorageServiceInstance.Protocol.SMB), com.google.gson.JsonNull.INSTANCE);
+        Assert.assertFalse(local.localSourceCheckpointRequired(StorageServiceInstance.Protocol.NFS, local.before, false));
+        Assert.assertTrue(local.localSourceCheckpointRequired(StorageServiceInstance.Protocol.NFS, local.before, true));
+        Assert.assertTrue(local.localSourceCheckpointRequired(StorageServiceInstance.Protocol.ISCSI, local.before, false));
+    }
+    @Test public void localCheckpointResponseLossReusesDurableKeyAndImmutableCipherAndIgnoresObservationEpoch() throws Exception {
+        try (LocalFixture fixture = new LocalFixture()) {
+            fixture.local.failExport = true;
+            Assert.assertThrows(CloudRuntimeException.class, () -> fixture.local.prepareLocalDesiredStateNativeCheckpoint(instance, operation, StorageServiceInstance.Protocol.SMB));
+            JsonObject first = com.google.gson.JsonParser.parseString(operation.getPreviousSnapshotJson()).getAsJsonObject().getAsJsonObject("localCheckpointIntent").getAsJsonObject("keyReference").deepCopy();
+            fixture.local.observed.addProperty("generatedEpoch", 1001);fixture.local.observed.addProperty("runtimeProbeEpoch", 1002);fixture.local.failExport = false;
+            fixture.local.prepareLocalDesiredStateNativeCheckpoint(instance, operation, StorageServiceInstance.Protocol.SMB);
+            JsonObject saved = com.google.gson.JsonParser.parseString(operation.getPreviousSnapshotJson()).getAsJsonObject();
+            Assert.assertEquals(first, saved.getAsJsonObject("localCheckpointIntent").get("keyReference"));Assert.assertEquals(1, fixture.local.rawExports);
+            fixture.local.checkpointLocalSourceIdentity(instance, operation);Assert.assertEquals(1, fixture.local.rawExports);
+            int requests = fixture.local.calls.size();fixture.local.checkpointConfigurationIdentity(instance);
+            Assert.assertEquals(requests, fixture.local.calls.size());Assert.assertEquals(1, fixture.local.rawExports);
+        }
+    }
+    @Test public void localCheckpointRefPublicationLossCanRetrySameCipherWithoutNewRawCapture() throws Exception {
+        try (LocalFixture fixture = new LocalFixture()) {
+            final boolean[] failed = {false};Mockito.when(operations.update(Mockito.anyLong(), Mockito.any())).thenAnswer(call -> {
+                JsonObject snapshot = com.google.gson.JsonParser.parseString(operation.getPreviousSnapshotJson()).getAsJsonObject();
+                if (snapshot.has("nativeIdentityCapsule") && !failed[0]) {failed[0] = true;return false;}return true;
+            });
+            Assert.assertThrows(CloudRuntimeException.class, () -> fixture.local.prepareLocalDesiredStateNativeCheckpoint(instance, operation, StorageServiceInstance.Protocol.SMB));
+            fixture.local.checkpointLocalSourceIdentity(instance, operation);Assert.assertEquals(1, fixture.local.rawExports);
+        }
+    }
+    @Test public void localCheckpointResumeFailureCannotAuthorizeAbortOrDatabaseRollback() throws Exception {
+        try (LocalFixture fixture = new LocalFixture()) {
+            fixture.local.failExport = true;
+            Assert.assertThrows(CloudRuntimeException.class, () -> fixture.local.prepareLocalDesiredStateNativeCheckpoint(instance, operation, StorageServiceInstance.Protocol.SMB));
+            fixture.local.unsafeResume = true;
+            Assert.assertThrows(CloudRuntimeException.class, () -> fixture.local.requireLocalSourceResumedBeforeAbort(instance, operation));
+            Assert.assertTrue(fixture.local.localSourceIdentityStore().contains(operation.getUuid()) == false);
+            operation.setState("RECOVERY_REQUIRED");fixture.local.cleanupConfigurationIdentityCheckpoint(operation);
+            JsonObject intent = com.google.gson.JsonParser.parseString(operation.getPreviousSnapshotJson()).getAsJsonObject().getAsJsonObject("localCheckpointIntent");
+            Assert.assertTrue(fixture.local.localSourceIdentityStore().contains(intent.getAsJsonObject("keyReference").get("keyId").getAsString()));
+        }
+    }
+    @Test public void localCheckpointRollbackRestoresCanonicalSourceBeforeSmbOnlyOwnedImport() throws Exception {
+        try (LocalFixture fixture = new LocalFixture()) {
+            fixture.local.prepareLocalDesiredStateNativeCheckpoint(instance, operation, StorageServiceInstance.Protocol.SMB);
+            fixture.local.requireLocalSourceRollbackSafe(instance, operation);
+            JsonObject saved = com.google.gson.JsonParser.parseString(operation.getPreviousSnapshotJson()).getAsJsonObject();
+            fixture.local.restoreConfigurationIdentity(instance, saved.getAsJsonObject("nativeIdentityCapsule"));
+            Assert.assertEquals(java.util.List.of("render-prepare", "begin", "export-local-source", "source7-restore", "import-local-source"), fixture.local.calls);
+        }
+    }
+    @Test public void localCheckpointRejectsWrongSourceBootForeignPendingStringFlagsAndRoleSubstitution() throws Exception {
+        try (LocalFixture fixture = new LocalFixture()) {
+            JsonObject writer = new JsonObject();writer.addProperty("instanceUuid", instance.getUuid());writer.addProperty("operationUuid", operation.getUuid());writer.addProperty("revision", operation.getRevision());
+            JsonObject context = StorageLocalSourceIdentityProof.context(writer, fixture.local.before);
+            for (String field : java.util.Set.of("configurationSha256", "bootId", "pendingOperationUuid")) {
+                JsonObject changed = fixture.local.before.deepCopy();changed.addProperty(field, "pendingOperationUuid".equals(field) ? java.util.UUID.randomUUID().toString() : "b".repeat(64));
+                Assert.assertThrows(CloudRuntimeException.class, () -> StorageLocalSourceIdentityProof.sameSourceObservation(context, fixture.local.before, changed));
+            }
+            JsonObject result = localSourceExport(context);result.addProperty("sourceSmbResumed", "true");
+            Assert.assertThrows(CloudRuntimeException.class, () -> StorageLocalSourceIdentityProof.exported(context, result));
+            JsonObject substituted = localSourceExport(context);substituted.getAsJsonObject("localSourceIdentityCheckpoint").addProperty("kind", "SERVICE_SOURCE_IDENTITY_CHECKPOINT");
+            Assert.assertThrows(CloudRuntimeException.class, () -> StorageLocalSourceIdentityProof.exported(context, substituted));
+            JsonObject unknown = localSourceExport(context);unknown.getAsJsonObject("localSourceIdentityCheckpoint").addProperty("maintenanceUuid", operation.getUuid());
+            Assert.assertThrows(CloudRuntimeException.class, () -> StorageLocalSourceIdentityProof.exported(context, unknown));
+        }
+    }
+    @Test public void localCheckpointUnsupportedCapabilityAndPrestopKeyPublicationFailureDoNotBeginAndCanCleanTerminalKey() throws Exception {
+        try (LocalFixture fixture = new LocalFixture()) {
+            fixture.local.unsupported = true;
+            Assert.assertThrows(CloudRuntimeException.class, () -> fixture.local.prepareLocalDesiredStateNativeCheckpoint(instance, operation, StorageServiceInstance.Protocol.SMB));
+            Assert.assertTrue(fixture.local.calls.isEmpty());Assert.assertEquals("{}", operation.getPreviousSnapshotJson());fixture.local.unsupported = false;
+            Mockito.when(operations.update(Mockito.anyLong(), Mockito.any())).thenReturn(false);
+            Assert.assertThrows(CloudRuntimeException.class, () -> fixture.local.prepareLocalDesiredStateNativeCheckpoint(instance, operation, StorageServiceInstance.Protocol.SMB));
+            Assert.assertTrue(fixture.local.calls.isEmpty());Mockito.when(operations.update(Mockito.anyLong(), Mockito.any())).thenReturn(true);
+            operation.setState("BLOCKED");fixture.local.cleanupConfigurationIdentityCheckpoint(operation);
+            JsonObject saved = com.google.gson.JsonParser.parseString(operation.getPreviousSnapshotJson()).getAsJsonObject();
+            Assert.assertEquals("CLEANED", saved.getAsJsonObject("localCheckpointIntent").get("cleanupState").getAsString());
+        }
+    }
+
+    @Test public void localCheckpointNeverTreatsMissingNativeJournalAfterExportAttemptAsSafeTerminalAbort() throws Exception {
+        try (LocalFixture fixture = new LocalFixture()) {
+            fixture.local.failExport = true;
+            Assert.assertThrows(CloudRuntimeException.class, () -> fixture.local.prepareLocalDesiredStateNativeCheckpoint(instance, operation, StorageServiceInstance.Protocol.SMB));
+            fixture.local.lostJournal = true;
+            Assert.assertThrows(CloudRuntimeException.class, () -> fixture.local.requireLocalSourceResumedBeforeAbort(instance, operation));
+            operation.setState("RECOVERY_REQUIRED");fixture.local.cleanupConfigurationIdentityCheckpoint(operation);
+            Assert.assertTrue(com.google.gson.JsonParser.parseString(operation.getPreviousSnapshotJson()).getAsJsonObject().has("localCheckpointIntent"));
+        }
+    }
+    @Test public void localCheckpointOldRuntimeStringNumericAndMissingCapabilityBlockBeforeKeyOrNativeBegin() throws Exception {
+        try (LocalFixture fixture = new LocalFixture()) {
+            for (com.google.gson.JsonElement capability : java.util.List.of(new com.google.gson.JsonPrimitive("true"), new com.google.gson.JsonPrimitive(1), com.google.gson.JsonNull.INSTANCE)) {
+                fixture.local.capabilityValue = capability;
+                Assert.assertThrows(CloudRuntimeException.class, () -> fixture.local.prepareLocalDesiredStateNativeCheckpoint(instance, operation, StorageServiceInstance.Protocol.SMB));
+                Assert.assertTrue(fixture.local.calls.isEmpty());Assert.assertEquals("{}", operation.getPreviousSnapshotJson());
+            }
+        }
+    }
+    @Test public void localCheckpointRejectsForeignReservedWriterAndWrongWrappingKeyPurposeBeforeRawCapture() throws Exception {
+        try (LocalFixture fixture = new LocalFixture()) {
+            operation.setInstanceId(999);
+            Assert.assertThrows(CloudRuntimeException.class, () -> fixture.local.prepareLocalDesiredStateNativeCheckpoint(instance, operation, StorageServiceInstance.Protocol.SMB));
+            Assert.assertTrue(fixture.local.calls.isEmpty());operation.setInstanceId(instance.getId());
+            fixture.local.prepareLocalDesiredStateNativeCheckpoint(instance, operation, StorageServiceInstance.Protocol.SMB);
+            JsonObject reference = com.google.gson.JsonParser.parseString(operation.getPreviousSnapshotJson()).getAsJsonObject().getAsJsonObject("localCheckpointIntent").getAsJsonObject("keyReference").deepCopy();
+            byte[] bytes = fixture.local.localSourceIdentityStore().read(reference.get("keyId").getAsString(), reference.get("keySha256").getAsString());
+            try {
+                reference.addProperty("keyId", java.util.UUID.nameUUIDFromBytes(("identity-key:" + operation.getUuid()).getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString());
+                Assert.assertThrows(CloudRuntimeException.class, () -> fixture.local.localSourceWrappingKey(operation, reference, bytes));
+            } finally {java.util.Arrays.fill(bytes, (byte) 0);}
+        }
+    }
+    @Test public void localCheckpointCanonicalMismatchRejectsBeforeAnyOpaqueSmbImport() throws Exception {
+        try (LocalFixture fixture = new LocalFixture()) {
+            fixture.local.prepareLocalDesiredStateNativeCheckpoint(instance, operation, StorageServiceInstance.Protocol.SMB);fixture.local.canonicalWrong = true;
+            JsonObject reference = com.google.gson.JsonParser.parseString(operation.getPreviousSnapshotJson()).getAsJsonObject().getAsJsonObject("nativeIdentityCapsule");
+            Assert.assertThrows(CloudRuntimeException.class, () -> fixture.local.restoreConfigurationIdentity(instance, reference));
+            Assert.assertFalse(fixture.local.calls.contains("import-local-source"));
+        }
+    }
+    @Test public void localCheckpointFailedResumeKeepsDesiredStateEngineInRecoveryWhileVerifiedResumeAllowsBlocked() throws Exception {
+        try (LocalFixture fixture = new LocalFixture()) {
+            com.cloud.user.User user = Mockito.mock(com.cloud.user.User.class);com.cloud.user.Account account = Mockito.mock(com.cloud.user.Account.class);
+            Mockito.when(user.getId()).thenReturn(1L);Mockito.when(account.getId()).thenReturn(2L);org.apache.cloudstack.context.CallContext.register(user, account);
+            try {
+                for (boolean unresolved : java.util.List.of(true, false)) {
+                    fixture.local.cached = null;fixture.local.calls.clear();fixture.local.observed = fixture.local.before.deepCopy();fixture.local.failExport = true;fixture.local.unsafeResume = unresolved;
+                    StorageServiceOperationVO previous = new StorageServiceOperationVO();previous.setRevision(3);previous.setState("COMPLETE");previous.setInstanceId(instance.getId());
+                    Mockito.when(operations.listByInstance(instance.getId())).thenReturn(java.util.List.of(previous));
+                    Mockito.when(operations.persist(Mockito.any())).thenAnswer(call -> {
+                        StorageServiceOperationVO active = call.getArgument(0);fixture.local.writer = active;
+                        ((ThreadLocal<StorageServiceOperationVO>) ReflectionTestUtils.getField(fixture.local, "storageWriterOperation")).set(active);return active;
+                    });
+                    StorageServiceDesiredSnapshot snapshots = Mockito.mock(StorageServiceDesiredSnapshot.class);Mockito.when(snapshots.capture(instance.getId())).thenReturn("{}");
+                    DesiredStateChange engine = new DesiredStateChange(operations, snapshots, id -> new DesiredStateChange.WriterLock() {
+                        public boolean lock(int seconds) {return true;}public void unlock() { }public void releaseRef() { }
+                    });
+                    DesiredStateChange.Runtime runtime = new DesiredStateChange.Runtime() {
+                        public void preflight() { }public void prepareNativeCheckpoint(StorageServiceOperationVO active) {
+                            fixture.local.prepareLocalDesiredStateNativeCheckpoint(instance, active, StorageServiceInstance.Protocol.SMB);
+                        }
+                        public void abortNativeCheckpoint(StorageServiceOperationVO active) {fixture.local.requireLocalSourceResumedBeforeAbort(instance, active);}
+                        public void applyPrevious() {throw new AssertionError("No desired DB mutation occurred");}public void verify() { }
+                    };
+                    Assert.assertThrows(CloudRuntimeException.class, () -> engine.execute(instance.getId(), "local-source", "explicit-retry-" + unresolved, 3L,
+                            String.class, () -> {throw new AssertionError("Unverified checkpoint must not reach mutation");}, runtime));
+                    Assert.assertEquals(unresolved ? "RECOVERY_REQUIRED" : "BLOCKED", fixture.local.writer.getState());
+                    Mockito.verify(snapshots, Mockito.never()).restore(Mockito.anyLong(), Mockito.anyString());
+                }
+            } finally {org.apache.cloudstack.context.CallContext.unregister();}
+        }
+    }
+
+    @Test public void localCheckpointAttemptedWithoutPublishedCapsulePreservesKeyEvenAfterTerminalStateWasRecorded() throws Exception {
+        try (LocalFixture fixture = new LocalFixture()) {
+            fixture.local.failExport = true;
+            Assert.assertThrows(CloudRuntimeException.class, () -> fixture.local.prepareLocalDesiredStateNativeCheckpoint(instance, operation, StorageServiceInstance.Protocol.SMB));
+            operation.setState("BLOCKED");fixture.local.cleanupConfigurationIdentityCheckpoint(operation);
+            JsonObject intent = com.google.gson.JsonParser.parseString(operation.getPreviousSnapshotJson()).getAsJsonObject().getAsJsonObject("localCheckpointIntent");
+            Assert.assertEquals("PRESERVED_STOP_ATTEMPT_UNPUBLISHED", intent.get("cleanupState").getAsString());
+            Assert.assertTrue(fixture.local.localSourceIdentityStore().contains(intent.getAsJsonObject("keyReference").get("keyId").getAsString()));
+        }
+    }
+
+    @Test public void localSourceRollbackReplaysOnlyOriginalBlockAuthDomainsAndUsesExactFrozenNvmeDesired() throws Exception {
+        for (StorageServiceInstance.Protocol protocol : new StorageServiceInstance.Protocol[] {StorageServiceInstance.Protocol.ISCSI, StorageServiceInstance.Protocol.NVME_OF, null}) {
+            try (LocalFixture fixture = new LocalFixture()) {
+                JsonObject nvme = new JsonObject();nvme.addProperty("enabled", true);nvme.add("subsystems", new com.google.gson.JsonArray());
+                fixture.local.before.getAsJsonObject("configurationDesiredState").add(StorageRenderedDesiredState.PROTOCOL_PATHS.get(StorageServiceInstance.Protocol.NVME_OF), nvme);
+                fixture.local.observed = fixture.local.before.deepCopy();
+                fixture.local.prepareLocalDesiredStateNativeCheckpoint(instance, operation, protocol);
+                JsonObject reference = com.google.gson.JsonParser.parseString(operation.getPreviousSnapshotJson()).getAsJsonObject().getAsJsonObject("nativeIdentityCapsule");
+                fixture.local.restoreConfigurationIdentity(instance, reference);
+                Assert.assertEquals(1, fixture.local.rawExports);
+                Assert.assertEquals("replay-local-source-auth", fixture.local.calls.get(fixture.local.calls.size() - 1));
+                JsonObject intent = com.google.gson.JsonParser.parseString(operation.getPreviousSnapshotJson()).getAsJsonObject().getAsJsonObject("localCheckpointIntent");
+                Assert.assertEquals(fixture.local.localSourceAuthReplayDomains(protocol), intent.get("authReplayDomains"));
+                ThreadLocal<Boolean> flag = (ThreadLocal<Boolean>) ReflectionTestUtils.getField(fixture.local, "configurationNativeNvmeReplayed");
+                Assert.assertEquals(protocol == null || protocol == StorageServiceInstance.Protocol.NVME_OF, Boolean.TRUE.equals(flag.get()));
+            }
+        }
+    }
+    @Test public void localSourceAuthDomainExpansionIsRejectedBeforeCanonicalRestoreOrSmbIdentityImport() throws Exception {
+        try (LocalFixture fixture = new LocalFixture()) {
+            fixture.local.prepareLocalDesiredStateNativeCheckpoint(instance, operation, StorageServiceInstance.Protocol.SMB);
+            JsonObject snapshot = com.google.gson.JsonParser.parseString(operation.getPreviousSnapshotJson()).getAsJsonObject();
+            com.google.gson.JsonArray expanded = new com.google.gson.JsonArray();expanded.add("ISCSI");
+            snapshot.getAsJsonObject("localCheckpointIntent").add("authReplayDomains", expanded);operation.setPreviousSnapshotJson(snapshot.toString());
+            Assert.assertThrows(CloudRuntimeException.class, () -> fixture.local.restoreConfigurationIdentity(instance, snapshot.getAsJsonObject("nativeIdentityCapsule")));
+            Assert.assertFalse(fixture.local.calls.contains("source7-restore"));Assert.assertFalse(fixture.local.calls.contains("import-local-source"));
+        }
+    }
+    @Test public void localSourceAuthReplyCannotClaimNvmeReplayFromStringFlagsWrongDomainsOrForeignSource() throws Exception {
+        try (LocalFixture fixture = new LocalFixture()) {
+            fixture.local.prepareLocalDesiredStateNativeCheckpoint(instance, operation, StorageServiceInstance.Protocol.NVME_OF);
+            JsonObject snapshot = com.google.gson.JsonParser.parseString(operation.getPreviousSnapshotJson()).getAsJsonObject(), context = snapshot.getAsJsonObject("localCheckpointIntent").getAsJsonObject("context");
+            JsonObject ref = StorageLocalSourceIdentityProof.reference(snapshot.getAsJsonObject("nativeIdentityCapsule").getAsJsonObject("sourceLocalIdentityCheckpoint"));
+            com.google.gson.JsonArray domains = fixture.local.localSourceAuthReplayDomains(StorageServiceInstance.Protocol.NVME_OF);
+            JsonObject request = context.deepCopy();request.add("restoreDomains", domains);request.add("capsule", fixture.local.cached.get("capsule").deepCopy());
+            request.add("localSourceCheckpointReference", ref);request.addProperty("credentialPrivateKey", "SYNTHETIC_ONLY");
+            request.add("nvmeDesired", fixture.local.before.getAsJsonObject("configurationDesiredState").get(StorageRenderedDesiredState.PROTOCOL_PATHS.get(StorageServiceInstance.Protocol.NVME_OF)).deepCopy());
+            fixture.local.calls.add("import-local-source");
+            JsonObject reply = fixture.local.localSourceGuest(instance, "replay-local-source-auth", request);
+            StorageLocalSourceIdentityProof.authReplayed(context, ref, domains, reply);
+            for (String field : java.util.Set.of("nvmeRestored", "sourceAuthReplayed", "sourceConfigurationSha256")) {
+                JsonObject bad = reply.deepCopy();bad.addProperty(field, "sourceConfigurationSha256".equals(field) ? "b".repeat(64) : "true");
+                Assert.assertThrows(CloudRuntimeException.class, () -> StorageLocalSourceIdentityProof.authReplayed(context, ref, domains, bad));
+            }
+            JsonObject bad = reply.deepCopy();com.google.gson.JsonArray broad = domains.deepCopy();broad.add("ISCSI");bad.add("replayedDomains", broad);
+            Assert.assertThrows(CloudRuntimeException.class, () -> StorageLocalSourceIdentityProof.authReplayed(context, ref, domains, bad));
+        }
+    }
+
 }

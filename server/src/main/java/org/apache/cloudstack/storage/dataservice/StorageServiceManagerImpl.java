@@ -268,7 +268,14 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 requireNoPendingVolumeFormatter(instance);
                 requireIdentityRollbackSafe(instance, operation);
             }
-            public void started(StorageServiceOperationVO row) { beginStorageWriterHeartbeat(row); }
+            public void started(StorageServiceOperationVO row) {
+                beginStorageWriterHeartbeat(row);
+                try {
+                    JsonObject snapshot = parseJsonObject(row.getPreviousSnapshotJson());
+                    if (snapshot.has("localCheckpointIntent") && !snapshot.has("nativeIdentityCapsule")) checkpointLocalSourceIdentity(instance, row);
+                    if (snapshot.has("localCheckpointIntent")) requireLocalSourceRollbackSafe(instance, row);
+                } catch (RuntimeException pending) {endStorageWriterHeartbeat();throw pending;}
+            }
             public void applyPrevious() {
                 configurationRecoverySource.set(frozenRecoveryConfiguration(instance, operation));
                 reconcileRecoveryNetwork(instance, operation);
@@ -1824,6 +1831,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             StorageConfigArtifactStore identities=new StorageConfigArtifactStore(java.nio.file.Path.of(System.getProperty("cloudstack.storage.identity.path","/var/lib/cloudstack-management/storage-identity-capsules")));
             identities.read(operation.getUuid(),getJsonString(identity,"capsuleSha256"));protectedKey=identities.read(getJsonString(identity,"keyId"),getJsonString(identity,"keySha256"));key=restoredRenderedKey(protectedKey);latestIdentitySha=getJsonString(identity,"sourceConfigurationSha256");
             if(latestIdentitySha==null||!latestIdentitySha.matches("[a-f0-9]{64}"))throw new CloudRuntimeException("Forward ROOT authenticated SOURCE configuration digest is unavailable");
+        }else if (rootScope == null && parseJsonObject(operation.getPreviousSnapshotJson()).has("localCheckpointIntent")) {
+            JsonObject reference = parseJsonObject(operation.getPreviousSnapshotJson()).getAsJsonObject("localCheckpointIntent").getAsJsonObject("keyReference");
+            protectedKey = localSourceIdentityStore().read(getJsonString(reference, "keyId"), getJsonString(reference, "keySha256"));
+            key = localSourceWrappingKey(operation, reference, protectedKey);
         }else if(retainedAuthorization==null){key=StorageIdentityCapsule.wrappingKey();
         protectedKey=StorageIdentityCapsule.protectedPrivateKey(key);
         }else {StorageServiceTemplateUpgradeVO root=storageTemplateUpgradeDao.findActive(instance.getId());
@@ -1932,7 +1943,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         return renderedCheckpointRequest(instance,batch);
     }
     private JsonObject renderedCheckpointRequest(StorageServiceInstanceVO instance,RenderedBatch batch) {
-        JsonObject request=operationReservationScope(instance,batch.operation);JsonObject staged=batch.receipt.getAsJsonObject("staged");request.add("renderedManifestSha256",staged.get("renderedManifestSha256"));request.add("identityCheckpointRef",staged.get("identityCheckpointRef").deepCopy());request.addProperty("checkpointPrivateKey",StorageIdentityCapsule.pem("PRIVATE KEY",batch.key.getPrivate().getEncoded()));return request;
+        JsonObject request=operationReservationScope(instance,batch.operation);JsonObject staged=batch.receipt.getAsJsonObject("staged");request.add("renderedManifestSha256",staged.get("renderedManifestSha256"));request.add("identityCheckpointRef",staged.get("identityCheckpointRef").deepCopy());request.addProperty("checkpointPrivateKey",StorageIdentityCapsule.pem("PRIVATE KEY",batch.key.getPrivate().getEncoded()));bindLocalSourceRenderedRequest(batch.operation, request);return request;
     }
     protected JsonObject renderedActivationRequest(StorageServiceInstanceVO instance,RenderedBatch batch) {
         JsonObject request=renderedCheckpointRequest(instance,batch);
@@ -2129,7 +2140,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             JsonObject network=canonical.get("network-endpoints.json").isJsonObject()?canonical.getAsJsonObject("network-endpoints.json").deepCopy():new JsonObject();JsonArray endpoints=network.has("endpoints")?network.getAsJsonArray("endpoints"):new JsonArray();
             for(Map.Entry<String,JsonElement> entry:batch.plannedEndpoints.entrySet()){for(int i=endpoints.size()-1;i>=0;i--)if(entry.getKey().equals(getJsonString(endpoints.get(i).getAsJsonObject(),"listenIp")))endpoints.remove(i);endpoints.add(entry.getValue().deepCopy());}network.add("endpoints",endpoints);canonical.add("network-endpoints.json",network);
         }
-        JsonObject request=renderedRequest(instance,operation,canonical,batch.source.getAsJsonObject("generation"),batch.previousManifest);request.addProperty("checkpointPublicKey",StorageIdentityCapsule.pem("PUBLIC KEY",batch.key.getPublic().getEncoded()));request.add("credentialRefs",renderedCredentialReferences(batch,canonical));batch.stageRequest=request;
+        JsonObject request=renderedRequest(instance,operation,canonical,batch.source.getAsJsonObject("generation"),batch.previousManifest);request.addProperty("checkpointPublicKey",StorageIdentityCapsule.pem("PUBLIC KEY",batch.key.getPublic().getEncoded()));request.add("credentialRefs",renderedCredentialReferences(batch,canonical));bindLocalSourceRenderedRequest(batch.operation, request);batch.stageRequest=request;
         StorageRenderedGenerationCoordinator coordinator=renderedCoordinator(instance,batch);batch.receipt=coordinator.stage(request);coordinator.activate(batch.receipt,renderedActivationRequest(instance,batch));
         for(Map.Entry<Long,JsonObject> planned:batch.posixApplyRequests.entrySet()) {
             JsonObject inspected=dispatchPosixDirectoryCommand(instance,"inspect",planned.getValue());if(!Boolean.TRUE.equals(getJsonBoolean(inspected,"postApplyReceiptVerified")))throw new CloudRuntimeException("Rendered POSIX post-apply receipt is not verified");
@@ -3314,6 +3325,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     protected void checkpointConfigurationIdentity(StorageServiceInstanceVO instance,JsonObject rootScope,String sourceSha) {
         StorageServiceOperationVO operation = storageWriterOperation.get();
         if (operation == null || operation.getPreviousSnapshotJson() == null) throw new CloudRuntimeException("Configuration operation snapshot is unavailable");
+        if (rootScope == null && parseJsonObject(operation.getPreviousSnapshotJson()).has("localCheckpointIntent")) {
+            requireLocalSourcePublishedReference(instance, operation);return;
+        }
         RenderedBatch serviceBatch=rootScope!=null&&rootScope.has("maintenanceUuid")?renderedBatch.get():null;
         if(rootScope!=null&&rootScope.has("maintenanceUuid")&&(serviceBatch==null||serviceBatch.operation.getId()!=operation.getId()))throw new CloudRuntimeException("SERVICE identity source requires the exact pre-created rendered checkpoint key");
         java.security.KeyPair key = serviceBatch==null?StorageIdentityCapsule.wrappingKey():serviceBatch.key;
@@ -3337,6 +3351,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         operation.setPreviousSnapshotJson(snapshot.toString());if(!storageOperationDao.update(operation.getId(), operation))throw new CloudRuntimeException("Encrypted identity capsule reference could not be persisted");
     }
     protected void restoreConfigurationIdentity(StorageServiceInstanceVO instance, JsonObject reference) {
+        if (reference.has("sourceLocalScope")) {restoreLocalSourceIdentity(instance, reference);return;}
         String operationUuid = getJsonString(reference, "operationUuid");
         StorageConfigArtifactStore store = new StorageConfigArtifactStore(java.nio.file.Path.of(System.getProperty("cloudstack.storage.identity.path",
                 "/var/lib/cloudstack-management/storage-identity-capsules")));
@@ -3403,7 +3418,21 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if (operation == null || !Set.of("COMPLETE", "BLOCKED", "CANCELLED", "ROLLED_BACK", "RECONCILED_SUPERSEDED").contains(operation.getState())
                 || operation.getPreviousSnapshotJson() == null) return;
         JsonObject snapshot = parseJsonObject(operation.getPreviousSnapshotJson());
-        if (!snapshot.has("nativeIdentityCapsule")) return;
+        if (!snapshot.has("nativeIdentityCapsule")) {
+            JsonObject local = getJsonObject(snapshot, "localCheckpointIntent");
+            if (local != null && local.has("keyReference")) {
+                JsonObject key = local.getAsJsonObject("keyReference");
+                if (!localSourceKeyId(operation).equals(getJsonString(key, "keyId"))) throw new CloudRuntimeException("LOCAL cleanup key purpose is foreign");
+                if (local.has("exportAttempted") && !Boolean.FALSE.equals(getNativeBoolean(local, "exportAttempted"))) {
+                    local.addProperty("cleanupState", "PRESERVED_STOP_ATTEMPT_UNPUBLISHED");
+                    operation.setPreviousSnapshotJson(snapshot.toString());storageOperationDao.update(operation.getId(), operation);return;
+                }
+                try {localSourceIdentityStore().remove(getJsonString(key, "keyId"));local.remove("pendingProtectedKeyPublication");local.addProperty("cleanupState", "CLEANED");}
+                catch (RuntimeException retry) {local.addProperty("cleanupState", "PENDING");}
+                operation.setPreviousSnapshotJson(snapshot.toString());storageOperationDao.update(operation.getId(), operation);
+            }
+            return;
+        }
         JsonObject reference = snapshot.getAsJsonObject("nativeIdentityCapsule");
         try {
             StorageConfigArtifactStore store = new StorageConfigArtifactStore(java.nio.file.Path.of(System.getProperty("cloudstack.storage.identity.path",
@@ -4189,7 +4218,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                                 catch (RuntimeException pending) { logger.warn("Native generation finalization remains pending for operation {}", operation.getUuid()); }
                             }
                             cleanupConfigurationIdentityCheckpoint(operation);
-                            if(operation==null||!"RECOVERY_REQUIRED".equals(operation.getState())||!(parseJsonObject(operation.getPreviousSnapshotJson()).has("adServiceSource")||parseJsonObject(operation.getPreviousSnapshotJson()).has("adSamBootstrapAttempted")))releaseOperationResourceReservation(instance, operation);
+                            if(operation==null||!"RECOVERY_REQUIRED".equals(operation.getState())||!(parseJsonObject(operation.getPreviousSnapshotJson()).has("adServiceSource")||parseJsonObject(operation.getPreviousSnapshotJson()).has("adSamBootstrapAttempted")||parseJsonObject(operation.getPreviousSnapshotJson()).has("localCheckpointIntent")))releaseOperationResourceReservation(instance, operation);
                         }
                         finally { endStorageWriterHeartbeat();renderedBatch.remove();configurationNativeNvmeReplayed.remove();configurationRecoverySource.remove();configurationRecoveryBindings.remove();adJoinRecoveryCredentials.remove(); }
                     }
@@ -4219,10 +4248,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                     }
                     public void prepareNativeCheckpoint(StorageServiceOperationVO operation) {
                         if(adLifecycle){prepareAdServiceCheckpoint(instance,operation);return;}
-                        if (StorageServiceInstance.StorageServiceVerifiedConfigurationEnabled.value() && instance.getVmId() != null
-                                && (protocol == StorageServiceInstance.Protocol.SMB || protocol == StorageServiceInstance.Protocol.ISCSI
-                                    || protocol == StorageServiceInstance.Protocol.NVME_OF)) checkpointConfigurationIdentity(instance);
-                        prepareDesiredStateNativeCheckpoint(instance,operation);
+                        prepareLocalDesiredStateNativeCheckpoint(instance, operation, protocol);
                     }
                     public void stageAndActivate(StorageServiceOperationVO operation){stageAndActivateRendered(instance,operation);}
                     public void verifyNativeGeneration(StorageServiceOperationVO operation) {
@@ -4237,6 +4263,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         rollbackNativeConfigurationGeneration(instance, operation);
                     }
                     public void abortNativeCheckpoint(StorageServiceOperationVO operation) {
+                        requireLocalSourceResumedBeforeAbort(instance, operation);
                         rollbackNativeConfigurationGeneration(instance, operation);
                     }
                     public void promoteVerifiedConfiguration(StorageServiceOperationVO operation) {
@@ -4288,6 +4315,266 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         restoreNativePosixOperation(cmd, instance, false);
                     }
                 });
+    }
+
+    protected void bindLocalSourceRenderedRequest(StorageServiceOperationVO operation, JsonObject request) {
+        JsonObject snapshot = parseJsonObject(operation.getPreviousSnapshotJson());
+        if (!snapshot.has("localCheckpointIntent")) return;
+        JsonObject reference = getJsonObject(snapshot, "nativeIdentityCapsule"), context = snapshot.getAsJsonObject("localCheckpointIntent").getAsJsonObject("context");
+        if (reference == null || !reference.has("sourceLocalIdentityCheckpoint")
+                || !operation.getUuid().equals(getJsonString(reference, "operationUuid"))
+                || !StorageLocalSourceIdentityProof.scope(context).equals(reference.get("sourceLocalScope"))
+                || !context.get("sourceConfigurationSha256").equals(reference.get("sourceConfigurationSha256")))
+            throw new CloudRuntimeException("Rendered LOCAL source has no bound published stopped checkpoint");
+        request.add("localSourceCheckpointReference", StorageLocalSourceIdentityProof.reference(reference.getAsJsonObject("sourceLocalIdentityCheckpoint")));
+    }
+
+    protected void saveLocalCheckpointSnapshot(StorageServiceOperationVO operation, JsonObject snapshot) {
+        operation.setPreviousSnapshotJson(snapshot.toString());
+        if (!storageOperationDao.update(operation.getId(), operation)) throw new CloudRuntimeException("LOCAL SOURCE checkpoint intent could not be persisted");
+    }
+
+    protected StorageConfigArtifactStore localSourceIdentityStore() {
+        return new StorageConfigArtifactStore(java.nio.file.Path.of(System.getProperty("cloudstack.storage.identity.path",
+                "/var/lib/cloudstack-management/storage-identity-capsules")));
+    }
+
+    protected void requireLocalSourceWriter(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
+        StorageServiceOperationVO active = storageWriterOperation.get();
+        if (active == null || operation == null || !active.getUuid().equals(operation.getUuid())
+                || active.getInstanceId() != instance.getId() || operation.getInstanceId() != instance.getId()
+                || !Set.of("RUNNING", "RECOVERY_REQUIRED").contains(operation.getState()))
+            throw new CloudRuntimeException("LOCAL SOURCE checkpoint is outside its reserved long-lived writer");
+    }
+
+    protected boolean localSourceCheckpointRequired(StorageServiceInstance.Protocol protocol, JsonObject before, boolean rendered) {
+        // Legacy NFS-only changes never mutate SMB identity; keep active SMB and its sessions untouched.
+        return rendered || protocol != StorageServiceInstance.Protocol.NFS;
+    }
+
+    protected void prepareLocalDesiredStateNativeCheckpoint(StorageServiceInstanceVO instance, StorageServiceOperationVO operation,
+            StorageServiceInstance.Protocol protocol) {
+        if (!StorageServiceInstance.StorageServiceVerifiedConfigurationEnabled.value() || instance.getVmId() == null) return;
+        requireLocalSourceWriter(instance, operation);
+        JsonObject observed = nativeConfigurationGeneration(instance, null, "status");
+        JsonObject snapshot = parseJsonObject(operation.getPreviousSnapshotJson()), intent = getJsonObject(snapshot, "localCheckpointIntent");
+        JsonObject before = intent == null ? observed : intent.getAsJsonObject("source");
+        if (intent == null && !localSourceCheckpointRequired(protocol, before, renderedValidationEnabled(instance))) {
+            prepareDesiredStateNativeCheckpoint(instance, operation);return;
+        }
+        JsonObject capability = rootGuest(instance, "operation generation render-status", new JsonObject(), 15);
+        if (!Boolean.TRUE.equals(getNativeBoolean(capability, "localSourceIdentityCheckpointSupported")))
+            throw new CloudRuntimeException("LOCAL stopped-source identity checkpoint is not supported by the installed runtime");
+        requireNoPendingVolumeFormatter(instance);
+        JsonObject context = StorageLocalSourceIdentityProof.context(operationReservationScope(instance, operation), before);
+        if (intent != null) StorageLocalSourceIdentityProof.sameSourceObservation(context, before, observed);
+        if (intent == null) {
+            intent = new JsonObject();intent.add("context", context);intent.add("source", before.deepCopy());
+            intent.addProperty("sourceProtocol", protocol == null ? "MIXED" : protocol.name());
+            intent.add("authReplayDomains", localSourceAuthReplayDomains(protocol));
+            java.security.KeyPair key = StorageIdentityCapsule.wrappingKey();byte[] protectedKey = StorageIdentityCapsule.protectedPrivateKey(key);
+            try {
+                JsonObject keyReference = new JsonObject();keyReference.addProperty("keyId", localSourceKeyId(operation));
+                keyReference.addProperty("keySha256", StorageConfigArchive.sha256(protectedKey));
+                keyReference.addProperty("publicKey", StorageIdentityCapsule.pem("PUBLIC KEY", key.getPublic().getEncoded()));
+                intent.add("keyReference", keyReference);
+                // The journal contains only the at-rest encrypted publication, never a plaintext wrapping key.
+                intent.addProperty("pendingProtectedKeyPublication", new String(protectedKey, java.nio.charset.StandardCharsets.UTF_8));
+                snapshot.add("localCheckpointIntent", intent);saveLocalCheckpointSnapshot(operation, snapshot);
+            } finally {java.util.Arrays.fill(protectedKey, (byte) 0);}
+        } else if (!context.equals(intent.get("context"))
+                || !localSourceAuthReplayDomains(protocol).equals(intent.get("authReplayDomains"))
+                || !(protocol == null ? "MIXED" : protocol.name()).equals(getJsonString(intent, "sourceProtocol"))) {
+            throw new CloudRuntimeException("LOCAL SOURCE checkpoint retry changed its source or operation");
+        }
+        publishLocalSourceKey(operation, snapshot, intent);
+        if (snapshot.has("renderedGeneration")) renderedBatch.set(restoreRenderedBatch(operation));
+        else prepareRenderedBatch(instance, operation, before);
+        snapshot = parseJsonObject(operation.getPreviousSnapshotJson());
+        snapshot.add("nativeDesiredState", before.get("configurationDesiredState").deepCopy());
+        JsonObject previous = new JsonObject();previous.add("previous", before.get("generation").deepCopy());
+        snapshot.add("nativeGeneration", previous);saveLocalCheckpointSnapshot(operation, snapshot);
+        JsonObject begun = nativeConfigurationGeneration(instance, operation, "begin");
+        snapshot = parseJsonObject(operation.getPreviousSnapshotJson());snapshot.add("nativeGeneration", begun);saveLocalCheckpointSnapshot(operation, snapshot);
+        checkpointLocalSourceIdentity(instance, operation);
+    }
+
+    private String localSourceKeyId(StorageServiceOperationVO operation) {
+        return java.util.UUID.nameUUIDFromBytes(("local-source-key:" + operation.getUuid()).getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString();
+    }
+
+    protected JsonArray localSourceAuthReplayDomains(StorageServiceInstance.Protocol protocol) {
+        JsonArray domains = new JsonArray();
+        if (protocol == null || protocol == StorageServiceInstance.Protocol.ISCSI) domains.add("ISCSI");
+        if (protocol == null || protocol == StorageServiceInstance.Protocol.NVME_OF) domains.add("NVMEOF");
+        return domains;
+    }
+
+    private JsonArray requireLocalSourceAuthReplayDomains(JsonObject intent) {
+        String protocolName = getJsonString(intent, "sourceProtocol");StorageServiceInstance.Protocol protocol;
+        try {protocol = "MIXED".equals(protocolName) ? null : StorageServiceInstance.Protocol.valueOf(protocolName);}
+        catch (IllegalArgumentException | NullPointerException invalid) {throw new CloudRuntimeException("LOCAL source protocol authority is unavailable", invalid);}
+        JsonArray domains = localSourceAuthReplayDomains(protocol);
+        if (!domains.equals(intent.get("authReplayDomains"))) throw new CloudRuntimeException("LOCAL original authentication replay domains changed");
+        return domains;
+    }
+
+    protected void publishLocalSourceKey(StorageServiceOperationVO operation, JsonObject snapshot, JsonObject intent) {
+        JsonObject reference = intent.getAsJsonObject("keyReference");
+        if (intent.has("pendingProtectedKeyPublication")) {
+            byte[] bytes = intent.get("pendingProtectedKeyPublication").getAsString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            try {
+                StorageConfigArtifactStore store = localSourceIdentityStore();String id = getJsonString(reference, "keyId");
+                if (store.contains(id)) {
+                    if (!java.util.Arrays.equals(bytes, store.read(id, getJsonString(reference, "keySha256"))))
+                        throw new CloudRuntimeException("LOCAL SOURCE encrypted key publication changed");
+                } else store.write(id, bytes);
+            }
+            finally {java.util.Arrays.fill(bytes, (byte) 0);}
+            intent.remove("pendingProtectedKeyPublication");saveLocalCheckpointSnapshot(operation, snapshot);
+        }
+        byte[] bytes = localSourceIdentityStore().read(getJsonString(reference, "keyId"), getJsonString(reference, "keySha256"));
+        try {localSourceWrappingKey(operation, reference, bytes);}
+        finally {java.util.Arrays.fill(bytes, (byte) 0);}
+    }
+
+    protected java.security.KeyPair localSourceWrappingKey(StorageServiceOperationVO operation, JsonObject reference, byte[] protectedKey) {
+        if (!reference.keySet().equals(Set.of("keyId", "keySha256", "publicKey"))
+                || !localSourceKeyId(operation).equals(getJsonString(reference, "keyId"))
+                || !StorageConfigArchive.sha256(protectedKey).equals(getJsonString(reference, "keySha256")))
+            throw new CloudRuntimeException("LOCAL SOURCE wrapping key purpose or checksum changed");
+        StorageIdentityCapsule.unwrapProtectedPrivateKey(protectedKey);
+        java.security.KeyPair key = restoredRenderedKey(protectedKey);
+        if (!StorageIdentityCapsule.pem("PUBLIC KEY", key.getPublic().getEncoded()).equals(getJsonString(reference, "publicKey")))
+            throw new CloudRuntimeException("LOCAL SOURCE wrapping key differs from its durable public key");
+        return key;
+    }
+
+    protected JsonObject localSourceGuest(StorageServiceInstanceVO instance, String action, JsonObject request) {
+        String command = "local-source-status".equals(action) ? "smb identity local-source-status" : "identity capsule " + action;
+        StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(), command,
+                request.toString(), "local-source-status".equals(action) ? 15 : 120, Set.of("capsule", "credentialPrivateKey")));
+        if (!result.isSuccess()) throw new CloudRuntimeException("LOCAL SOURCE owned checkpoint requires reconciliation");
+        return parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));
+    }
+
+    protected void checkpointLocalSourceIdentity(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
+        requireLocalSourceWriter(instance, operation);requireProtectedIdentityTransport(instance, operation.getUuid());
+        JsonObject snapshot = parseJsonObject(operation.getPreviousSnapshotJson()), intent = snapshot.getAsJsonObject("localCheckpointIntent");
+        JsonObject context = intent.getAsJsonObject("context"), keyReference = intent.getAsJsonObject("keyReference");
+        StorageLocalSourceIdentityProof.requireContext(operationReservationScope(instance, operation), context, intent.getAsJsonObject("source"));
+        byte[] protectedKey = localSourceIdentityStore().read(getJsonString(keyReference, "keyId"), getJsonString(keyReference, "keySha256"));
+        try {
+            java.security.KeyPair key = localSourceWrappingKey(operation, keyReference, protectedKey);
+            JsonObject request = configurationIdentityExportRequest(instance, operation.getUuid(), key);
+            for (Map.Entry<String, JsonElement> field : context.entrySet()) request.add(field.getKey(), field.getValue().deepCopy());
+            request.add("authReplayDomains", requireLocalSourceAuthReplayDomains(intent));
+            intent.addProperty("exportAttempted", true);saveLocalCheckpointSnapshot(operation, snapshot);
+            JsonObject exported = localSourceGuest(instance, "export-local-source", request);
+            JsonObject checkpoint = StorageLocalSourceIdentityProof.exported(context, exported);
+            byte[] data = exported.getAsJsonObject("capsule").toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            StorageConfigArtifactStore store = localSourceIdentityStore();
+            if (store.contains(operation.getUuid())) {
+                if (!java.util.Arrays.equals(data, store.read(operation.getUuid(), StorageConfigArchive.sha256(data))))
+                    throw new CloudRuntimeException("LOCAL SOURCE immutable cipher publication changed");
+            } else store.write(operation.getUuid(), data);
+            JsonObject reference = new JsonObject();reference.addProperty("operationUuid", operation.getUuid());
+            reference.add("keyId", keyReference.get("keyId").deepCopy());reference.add("keySha256", keyReference.get("keySha256").deepCopy());
+            reference.addProperty("capsuleSha256", StorageConfigArchive.sha256(data));reference.add("sourceLocalScope", StorageLocalSourceIdentityProof.scope(context));
+            reference.add("sourceConfigurationSha256", context.get("sourceConfigurationSha256").deepCopy());
+            reference.add("sourceLocalIdentityCheckpoint", checkpoint);
+            snapshot.add("nativeIdentityCapsule", reference);intent.addProperty("sourceResumed", true);saveLocalCheckpointSnapshot(operation, snapshot);
+        } finally {java.util.Arrays.fill(protectedKey, (byte) 0);}
+    }
+
+    protected void requireLocalSourcePublishedReference(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
+        requireLocalSourceWriter(instance, operation);
+        JsonObject snapshot = parseJsonObject(operation.getPreviousSnapshotJson()), intent = snapshot.getAsJsonObject("localCheckpointIntent");
+        JsonObject context = intent.getAsJsonObject("context"), keyReference = intent.getAsJsonObject("keyReference"), reference = getJsonObject(snapshot, "nativeIdentityCapsule");
+        StorageLocalSourceIdentityProof.requireContext(operationReservationScope(instance, operation), context, intent.getAsJsonObject("source"));
+        if (reference == null || !reference.keySet().equals(Set.of("operationUuid", "keyId", "keySha256", "capsuleSha256",
+                "sourceLocalScope", "sourceConfigurationSha256", "sourceLocalIdentityCheckpoint"))
+                || !operation.getUuid().equals(getJsonString(reference, "operationUuid"))
+                || !keyReference.get("keyId").equals(reference.get("keyId")) || !keyReference.get("keySha256").equals(reference.get("keySha256"))
+                || !StorageLocalSourceIdentityProof.scope(context).equals(reference.get("sourceLocalScope"))
+                || !context.get("sourceConfigurationSha256").equals(reference.get("sourceConfigurationSha256")))
+            throw new CloudRuntimeException("LOCAL SOURCE encrypted publication is missing or foreign");
+        byte[] key = localSourceIdentityStore().read(getJsonString(reference, "keyId"), getJsonString(reference, "keySha256"));
+        byte[] bytes = localSourceIdentityStore().read(operation.getUuid(), getJsonString(reference, "capsuleSha256"));
+        try {
+            localSourceWrappingKey(operation, keyReference, key);
+            StorageLocalSourceIdentityProof.checkpoint(context, parseJsonObject(new String(bytes, java.nio.charset.StandardCharsets.UTF_8)),
+                    reference.getAsJsonObject("sourceLocalIdentityCheckpoint"));
+        } finally {java.util.Arrays.fill(key, (byte) 0);java.util.Arrays.fill(bytes, (byte) 0);}
+    }
+
+    protected void requireLocalSourceResumedBeforeAbort(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
+        JsonObject intent = getJsonObject(parseJsonObject(operation.getPreviousSnapshotJson()), "localCheckpointIntent");
+        if (intent == null || !Boolean.TRUE.equals(getNativeBoolean(intent, "exportAttempted"))) return;
+        JsonObject observed = localSourceGuest(instance, "local-source-status", intent.getAsJsonObject("context"));
+        StorageLocalSourceIdentityProof.resumed(intent.getAsJsonObject("context"), observed);
+    }
+
+    protected void requireLocalSourceRollbackSafe(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
+        JsonObject snapshot = parseJsonObject(operation.getPreviousSnapshotJson()), intent = snapshot.getAsJsonObject("localCheckpointIntent");
+        JsonObject observed = localSourceGuest(instance, "local-source-status", intent.getAsJsonObject("context"));
+        if (!snapshot.has("nativeIdentityCapsule")) {
+            // Read-only eligibility only. The started recovery callback must finish
+            // the same durable publication before restoring any desired DB row.
+            StorageLocalSourceIdentityProof.status(intent.getAsJsonObject("context"), observed);return;
+        }
+        StorageLocalSourceIdentityProof.restoreSafe(intent.getAsJsonObject("context"),
+                StorageLocalSourceIdentityProof.reference(snapshot.getAsJsonObject("nativeIdentityCapsule").getAsJsonObject("sourceLocalIdentityCheckpoint")), observed);
+    }
+
+    protected void restoreLocalSourceIdentity(StorageServiceInstanceVO instance, JsonObject reference) {
+        StorageServiceOperationVO operation = storageWriterOperation.get();
+        if (operation == null || !operation.getUuid().equals(getJsonString(reference, "operationUuid")))
+            throw new CloudRuntimeException("LOCAL SOURCE import is outside the reserved writer");
+        JsonObject snapshot = parseJsonObject(operation.getPreviousSnapshotJson()), intent = snapshot.getAsJsonObject("localCheckpointIntent");
+        JsonObject context = intent.getAsJsonObject("context"), keyReference = intent.getAsJsonObject("keyReference");
+        StorageLocalSourceIdentityProof.requireContext(operationReservationScope(instance, operation), context, intent.getAsJsonObject("source"));
+        if (!reference.equals(snapshot.get("nativeIdentityCapsule")) || !StorageLocalSourceIdentityProof.scope(context).equals(reference.get("sourceLocalScope"))
+                || !keyReference.get("keyId").equals(reference.get("keyId")) || !keyReference.get("keySha256").equals(reference.get("keySha256")))
+            throw new CloudRuntimeException("LOCAL SOURCE encrypted reference is foreign");
+        JsonArray authDomains = requireLocalSourceAuthReplayDomains(intent);
+        JsonObject frozen = frozenRecoveryConfiguration(instance, operation);
+        if (frozen == null || !context.get("sourceGeneration").equals(frozen.get("generation"))
+                || !context.get("sourceConfigurationSha256").equals(frozen.get("configurationSha256"))
+                || !intent.getAsJsonObject("source").get("configurationDesiredState").equals(frozen.get("configurationDesiredState")))
+            throw new CloudRuntimeException("LOCAL SOURCE canonical rollback authority changed");
+        JsonObject canonicalRequest = operationReservationScope(instance, operation);
+        canonicalRequest.add("previousGeneration", frozen.get("generation").deepCopy());canonicalRequest.add("configurationDesiredState", frozen.get("configurationDesiredState").deepCopy());
+        JsonObject canonical = rootGuest(instance, "operation generation restore", canonicalRequest, 30);
+        if (!Boolean.TRUE.equals(getNativeBoolean(canonical, "canonicalRestored"))
+                || !Boolean.FALSE.equals(getNativeBoolean(canonical, "generationAdvanced"))
+                || !operation.getUuid().equals(getJsonString(canonical, "pendingOperationUuid"))
+                || !context.get("sourceConfigurationSha256").equals(canonical.get("configurationSha256")))
+            throw new CloudRuntimeException("LOCAL SOURCE canonical declaration was not restored before opaque SMB import");
+        byte[] key = localSourceIdentityStore().read(getJsonString(reference, "keyId"), getJsonString(reference, "keySha256"));
+        byte[] data = localSourceIdentityStore().read(operation.getUuid(), getJsonString(reference, "capsuleSha256"));
+        try {
+            localSourceWrappingKey(operation, keyReference, key);
+            JsonObject capsule = parseJsonObject(new String(data, java.nio.charset.StandardCharsets.UTF_8));
+            JsonObject checkpoint = reference.getAsJsonObject("sourceLocalIdentityCheckpoint");
+            StorageLocalSourceIdentityProof.checkpoint(context, capsule, checkpoint);
+            JsonObject request = StorageIdentityCapsule.importRequest(instance.getUuid(), operation.getUuid(), capsule, key);
+            for (Map.Entry<String, JsonElement> field : context.entrySet()) request.add(field.getKey(), field.getValue().deepCopy());
+            request.add("localSourceCheckpointReference", StorageLocalSourceIdentityProof.reference(checkpoint));
+            request.addProperty("deferNvmeReplay", true);com.google.gson.JsonArray domains = new com.google.gson.JsonArray();domains.add("SMB");request.add("restoreDomains", domains);
+            requireProtectedIdentityTransport(instance, operation.getUuid());
+            JsonObject imported = localSourceGuest(instance, "import-local-source", request);StorageLocalSourceIdentityProof.imported(context, imported);
+            intent.add("restored", imported);saveLocalCheckpointSnapshot(operation, snapshot);
+            if (authDomains.size() != 0) {
+                JsonObject authRequest = request.deepCopy();authRequest.remove("deferNvmeReplay");authRequest.add("restoreDomains", authDomains.deepCopy());
+                if (authDomains.contains(new com.google.gson.JsonPrimitive("NVMEOF")))
+                    authRequest.add("nvmeDesired", frozen.getAsJsonObject("configurationDesiredState").get(StorageRenderedDesiredState.PROTOCOL_PATHS.get(StorageServiceInstance.Protocol.NVME_OF)).deepCopy());
+                JsonObject replayed = localSourceGuest(instance, "replay-local-source-auth", authRequest);
+                StorageLocalSourceIdentityProof.authReplayed(context, request.getAsJsonObject("localSourceCheckpointReference"), authDomains, replayed);
+                if (authDomains.contains(new com.google.gson.JsonPrimitive("NVMEOF"))) configurationNativeNvmeReplayed.set(true);
+                intent.add("authReplayed", replayed);saveLocalCheckpointSnapshot(operation, snapshot);
+            }
+        } finally {java.util.Arrays.fill(key, (byte) 0);java.util.Arrays.fill(data, (byte) 0);}
     }
 
     protected void prepareDesiredStateNativeCheckpoint(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
@@ -5858,6 +6145,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     protected void requireIdentityRollbackSafe(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
         if (instance.getVmId() == null || operation == null || operation.getPreviousSnapshotJson() == null) return;
         JsonObject snapshot = parseJsonObject(operation.getPreviousSnapshotJson());
+        if (snapshot.has("localCheckpointIntent")) {requireLocalSourceRollbackSafe(instance, operation);return;}
         if (!snapshot.has("nativeIdentityCapsule")) return;
         JsonObject scope = operationReservationScope(instance, operation);
         JsonObject observed = rootGuest(instance, "smb identity inspect", scope, 5);
