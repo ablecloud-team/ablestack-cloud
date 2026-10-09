@@ -16,7 +16,7 @@
 // under the License.
 
 import DeployVM from '@/views/compute/DeployVM.vue'
-import { getAPI } from '@/api'
+import { getAPI, postAPI } from '@/api'
 jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
 jest.mock('@/store', () => ({ getters: {} }))
 const context = () => ({
@@ -42,4 +42,19 @@ test('parent deployment rejects blocked and malformed source responses before al
   await expect(DeployVM.methods.validateCreationSource.call(context())).rejects.toThrow('message.creation.source.reason.SOURCE_ATTACHED')
   getAPI.mockResolvedValue({ validatevirtualmachinecreationresponse: { count: 0 } })
   await expect(DeployVM.methods.validateCreationSource.call(context())).rejects.toThrow('message.creation.source.required')
+})
+
+test.each(['volumeid', 'snapshotid'])('parent deployment posts all %s source, placement and compute parameters using the API contract', async sourceKey => {
+  const params = { [sourceKey]: 'source-uuid', sourcerevision: 'revision-1', zoneid: 'zone', serviceofferingid: 'offering', clusterid: 'cluster', startvm: false, 'details[0].cpuNumber': 2, 'details[0].memory': 2048 }
+  const operation = { status: 'submitting' }
+  postAPI.mockResolvedValue({ deployvirtualmachineresponse: { jobid: 'job', id: 'vm' } })
+  await expect(DeployVM.methods.deployVM.call({ currentSourceOperation: operation }, params)).resolves.toBe('job')
+  expect(postAPI).toHaveBeenCalledWith('deployVirtualMachine', params)
+  expect(operation.vmid).toBe('vm')
+})
+test('legacy volume deployment uses the same two-argument POST contract', async () => {
+  const params = { volumeid: 'volume', serviceofferingid: 'offering' }
+  postAPI.mockResolvedValue({ deployvirtualmachineforvolumeresponse: { jobid: 'job' } })
+  await expect(DeployVM.methods.deployVirtualMachineForVolume.call({}, params)).resolves.toBe('job')
+  expect(postAPI).toHaveBeenCalledWith('deployVirtualMachineForVolume', params)
 })

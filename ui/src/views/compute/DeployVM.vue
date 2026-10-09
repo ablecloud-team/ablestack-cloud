@@ -3327,13 +3327,10 @@ export default {
           for (const key of ['templateid', 'additionalisoids', 'userdata', 'userdataid', 'keypairs', 'rootdisksize', 'rootdiskkmskeyid', 'overridediskofferingid', 'diskofferingid', 'size', 'bootintosetup', 'machinecompatibility', 'tpmversion', 'tpmmodel', 'extraconfig', 'details[0].rootdisksize']) delete deployVmData[key]
           for (const key of Object.keys(deployVmData)) if (/^(userdatadetails|datadiskofferinglist|datadiskofferings|properties)|^details\[\d+\]\.(UEFI|tpm|kvm.guest.os.machine.type)/i.test(key)) delete deployVmData[key]
         }
-        const httpMethod = this.isCreationSource || deployVmData.userdata ? 'POST' : 'GET'
 
         if (values.vmNumber) {
           let anySuccess = false
           for (var num = 1; num <= Number(values.vmNumber); num++) {
-            let args = ''
-            let data = ''
             if (values.name) {
               if (values.vmNumber === 1) {
                 deployVmData.name = values.name
@@ -3351,8 +3348,6 @@ export default {
                 deployVmData.displayname = values.name + '-' + num
               }
             }
-            args = httpMethod === 'POST' ? {} : deployVmData
-            data = httpMethod === 'POST' ? deployVmData : {}
             try {
               if (this.isCreationSource) {
                 const operation = {
@@ -3368,9 +3363,9 @@ export default {
               }
               let jobId
               if (values.volumeId) {
-                jobId = await this.deployVirtualMachineForVolume(args, httpMethod, data)
+                jobId = await this.deployVirtualMachineForVolume(deployVmData)
               } else {
-                jobId = await this.deployVM(args, httpMethod, data)
+                jobId = await this.deployVM(deployVmData)
               }
               if (this.imageType === 'isoid' && this.selectedDataDiskOffering?.id) {
                 const offering = { ...this.selectedDataDiskOffering }
@@ -3444,8 +3439,10 @@ export default {
               }
             } catch (error) {
               if (this.isCreationSource && this.currentSourceOperation) {
-                this.currentSourceOperation.status = error.response?.data?.errorresponse ? 'failed' : 'unknown'
-                this.currentSourceOperation.error = error.response?.data?.errorresponse?.errortext || error.message
+                const response = error.response?.data
+                const failure = response?.errorresponse || response?.deployvirtualmachineresponse || response?.deployvirtualmachineforvolumeresponse
+                this.currentSourceOperation.status = failure?.errortext ? 'failed' : 'unknown'
+                this.currentSourceOperation.error = failure?.errortext || error.message
                 sessionStorage.setItem(this.sourceOperationsKey, JSON.stringify(this.sourceOperations))
               }
               if (error.message !== undefined) {
@@ -3500,9 +3497,9 @@ export default {
         this.$notifyError(error)
       } finally { this.loading.deploy = false }
     },
-    deployVM (args, httpMethod, data) {
+    deployVM (params) {
       return new Promise((resolve, reject) => {
-        postAPI('deployVirtualMachine', args, httpMethod, data).then(json => {
+        postAPI('deployVirtualMachine', params).then(json => {
           const jobId = json.deployvirtualmachineresponse.jobid
           if (this.currentSourceOperation?.status === 'submitting') this.currentSourceOperation.vmid = json.deployvirtualmachineresponse.id
           return resolve(jobId)
@@ -3511,9 +3508,9 @@ export default {
         })
       })
     },
-    deployVirtualMachineForVolume (args, httpMethod, data) {
+    deployVirtualMachineForVolume (params) {
       return new Promise((resolve, reject) => {
-        postAPI('deployVirtualMachineForVolume', args, httpMethod, data).then(json => {
+        postAPI('deployVirtualMachineForVolume', params).then(json => {
           const jobId = json.deployvirtualmachineforvolumeresponse.jobid
           return resolve(jobId)
         }).catch(error => {
