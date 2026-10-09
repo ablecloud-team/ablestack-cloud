@@ -48,7 +48,7 @@
   "sourceNativeManagementUiChanged": false,
   "management888Native457Ui366Rebuilt": false,
   "productionHostDeploymentCompleted": true,
-  "originalUiRecoveryCompleted": false,
+  "originalUiRecoveryCompleted": true,
   "externalLocalSmbAuthIoCompleted": false,
   "finalUi1275Started": false,
   "actualDeployment": {
@@ -71,5 +71,28 @@
     "managementNativeUiDeploymentChanges": false,
     "vmRestartCommandsIssued": false
   },
-  "originalUiRecoveryState": "Normal same original UI recovery1 authorized after post proof; result pending"
+  "originalUiRecoveryState": "ROLLED_BACK / INTERRUPTED_WRITER_ROLLED_BACK / 100",
+  "originalUiRecovery": {
+    "operationUuid": "fef126a6-936a-4936-b22c-201b7e5b9b4d",
+    "revision": 5,
+    "normalUiSubmits": 1,
+    "newOperationOrDuplicateSubmit": false,
+    "jobid": "767e0132-25a1-4545-af2a-2b59097bd34e",
+    "jobstatus": 1,
+    "jobresultcode": 0,
+    "generation4CanonicalBootCliDataNfsPreserved": true,
+    "nativePendingCleared": true,
+    "dbInodeAndDaemonPidChangedAsExpectedForRestore": true,
+    "dbSizesModeOwnerPreserved": true,
+    "authenticatedStoppedOriginalFingerprintsMatchedFiles": 3,
+    "restoredStoppedDatabases": 2,
+    "sourceKeyCipherRefCompatibilityPreserved": true,
+    "currentOwnedSmbPid": 930717,
+    "currentHolderCount": 2,
+    "deletedHolders": false,
+    "currentRuntimeOwnershipAndEmptySessions": true,
+    "exactDaemonTransportFailureSubstageEstablished": false,
+    "finalPublicProofSha256": "2c0299c8303601dc1a78d342acbfff34f787ebd7041fd049babce3aa6c2fb708",
+    "originalJournalImportPublicProofSha256": "f7f802d059001a2b61e1eaf7521f9058251b1691f76e04061a39d98db0ab4c4a"
+  }
 }
