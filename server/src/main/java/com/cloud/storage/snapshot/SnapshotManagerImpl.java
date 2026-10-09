@@ -1061,15 +1061,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
         sc.setParameters("statusNEQ", Snapshot.State.Destroyed);
 
         if (volumeId != null) {
-            VolumeVO vol = _volsDao.findById(volumeId);
-            List<VolumeVO> sharedList = _volsDao.findBySharedVolume(vol.getPoolId(), vol.getPath());
-            List<Long> sharedVolume = new ArrayList<Long>();
-            for (VolumeVO shared : sharedList) {
-                sharedVolume.add(shared.getId());
-            }
-            if (!sharedVolume.isEmpty()) {
-                sc.setParameters("volumeId", sharedVolume.toArray());
-            }
+            sc.setParameters("volumeId", SnapshotVolumeFilter.forVolume(_volsDao, volumeId));
         }
 
         if (tags != null && !tags.isEmpty()) {
