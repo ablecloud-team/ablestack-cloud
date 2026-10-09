@@ -17,6 +17,12 @@
 package org.apache.cloudstack.api.command.user.vm;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import org.apache.cloudstack.api.response.ListResponse;
+import org.apache.cloudstack.api.response.VmCreationSourceResponse;
+import com.cloud.vm.VmCreationSourceService;
 import java.util.Arrays;
 import org.apache.cloudstack.acl.RoleType;
 import org.apache.cloudstack.api.APICommand;
@@ -30,5 +36,20 @@ public class VmCreationSourceApiContractTest {
     @Test public void sourceValidationIsRegisteredForStandardOwnerRoles() {
         APICommand annotation = ValidateVirtualMachineCreationCmd.class.getAnnotation(APICommand.class);
         assertTrue(Arrays.asList(annotation.authorized()).containsAll(Arrays.asList(RoleType.Admin, RoleType.DomainAdmin, RoleType.ResourceAdmin, RoleType.User)));
+    }
+    @Test public void preflightResponseSupportsApiServerListCommandEnrichment() {
+        ValidateVirtualMachineCreationCmd cmd = new ValidateVirtualMachineCreationCmd() {
+            @Override public String getId() { return "source-uuid"; }
+        };
+        cmd.sourceService = mock(VmCreationSourceService.class);
+        VmCreationSourceResponse source = new VmCreationSourceResponse();
+        source.id = "source-uuid"; source.allowed = true;
+        when(cmd.sourceService.validate(cmd)).thenReturn(source);
+        cmd.execute();
+        // ApiServer.buildAsyncListResponse casts every BaseListCmd response before serialization.
+        ListResponse<?> response = (ListResponse<?>) cmd.getResponseObject();
+        assertEquals(Integer.valueOf(1), response.getCount());
+        assertEquals(source, response.getResponses().get(0));
+        assertEquals(cmd.getCommandName(), response.getResponseName());
     }
 }

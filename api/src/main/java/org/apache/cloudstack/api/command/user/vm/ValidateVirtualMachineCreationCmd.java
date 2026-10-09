@@ -19,6 +19,7 @@
 package org.apache.cloudstack.api.command.user.vm;
 
 import org.apache.cloudstack.api.APICommand;
+import org.apache.cloudstack.api.response.ListResponse;
 import org.apache.cloudstack.api.response.VmCreationSourceResponse;
 import com.cloud.exception.InvalidParameterValueException;
 
@@ -30,6 +31,9 @@ public class ValidateVirtualMachineCreationCmd extends ListVirtualMachineCreatio
     @Override public void execute() {
         if (getId() == null) { throw new InvalidParameterValueException("id is required for source validation"); }
         VmCreationSourceResponse response = sourceService.validate(this);
-        response.setResponseName(getCommandName()); setResponseObject(response);
+        // List commands are enriched by ApiServer as ListResponse, including single-source preflight.
+        ListResponse<VmCreationSourceResponse> result = new ListResponse<>();
+        result.setResponses(java.util.Collections.singletonList(response), 1);
+        result.setResponseName(getCommandName()); setResponseObject(result);
     }
 }

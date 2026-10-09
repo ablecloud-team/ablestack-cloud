@@ -81,7 +81,7 @@ under the License.
 
 ### 3.1 서버가 판정하는 생성 원본
 
-읽기 전용 `listVirtualMachineCreationSources`와 `validateVirtualMachineCreation` API를 신설하는 안을 채택한다. 두 API와 실제 deploy는 공통 `VmCreationSourceValidator`를 사용한다. 사전 조회는 용량 예약이나 생성 작업을 수행하지 않으며, deploy 시 반드시 다시 검증한다.
+읽기 전용 `listVirtualMachineCreationSources`와 `validateVirtualMachineCreation` API를 신설하는 안을 채택한다. 두 API와 실제 deploy는 공통 `VmCreationSourceValidator`를 사용한다. 사전 조회는 용량 예약이나 생성 작업을 수행하지 않으며, deploy 시 반드시 다시 검증한다. 단일 원본 검사인 `validateVirtualMachineCreation`도 Cloud 목록 명령 처리 계약에 맞춰 `count: 1, creationsource: [원본]` envelope로 응답한다. UI는 정확히 한 개의 검사 결과가 있어야 제출을 허용한다.
 
 목록 입력: sourcekind(volume/snapshot), zoneid, account/domainid/projectid, arch, keyword, state, id, page/pagesize, includeunavailable. 서비스 오퍼링 등 배치 조건은 validate API에서 검사한다. 기존 API/SDK의 `volumeid`/`snapshotid` 계약은 유지한다. 새 UI가 새 API를 사용할 수 없는 서버에서는 보수적 조회/선택 재조회 및 미지원 안내를 제공하고, 복구되지 않은 정보로 생성 가능 상태를 만들지 않는다.
 

@@ -44,13 +44,13 @@ test('snapshot deep link is sent to the server and auto selects only an eligible
   getAPI.mockResolvedValue({ listvirtualmachinecreationsourcesresponse: { count: 1, creationsource: [source()] } })
   const wrapper = mountSelection({ preselectedId: 'source-uuid' }); await flushPromises()
   expect(getAPI).toHaveBeenLastCalledWith('listVirtualMachineCreationSources', expect.objectContaining({ id: 'source-uuid', sourcekind: 'snapshot' }))
-  expect(wrapper.emitted('select').at(-1)[0].id).toBe('source-uuid'); wrapper.unmount()
+  expect(wrapper.emitted('select')[wrapper.emitted('select').length - 1][0].id).toBe('source-uuid'); wrapper.unmount()
 })
 test('a blocked row is disabled and a changed selected source is cleared', async () => {
   getAPI.mockResolvedValue({ listvirtualmachinecreationsourcesresponse: { count: 1, creationsource: [source('source-uuid', false)] } })
   const wrapper = mountSelection({ selected: source() }); await flushPromises()
   expect(wrapper.vm.rowSelection.getCheckboxProps(wrapper.vm.sources[0]).disabled).toBe(true)
-  expect(wrapper.emitted('select').at(-1)[0]).toBe(null); wrapper.unmount()
+  expect(wrapper.emitted('select')[wrapper.emitted('select').length - 1][0]).toBe(null); wrapper.unmount()
 })
 test('a delayed old zone response cannot overwrite the latest zone', async () => {
   let resolveOld
@@ -63,7 +63,7 @@ test('a delayed old zone response cannot overwrite the latest zone', async () =>
 test('API failure clears sources and eligibility rather than leaving an enabled old selection', async () => {
   getAPI.mockRejectedValue(new Error('offline'))
   const wrapper = mountSelection({ selected: source() }); await flushPromises()
-  expect(wrapper.vm.sources).toEqual([]); expect(wrapper.vm.error).toBeTruthy(); expect(wrapper.emitted('select').at(-1)[0]).toBe(null)
+  expect(wrapper.vm.sources).toEqual([]); expect(wrapper.vm.error).toBeTruthy(); expect(wrapper.emitted('select')[wrapper.emitted('select').length - 1][0]).toBe(null)
   wrapper.unmount()
 })
 const mountOperations = operations => shallowMount(Operations, { props: { operations, storageKey: 'source-jobs' }, global: { mocks: { $t: key => key } } })
@@ -116,4 +116,15 @@ test('unavailable server command displays a localized version and permission act
   const wrapper = mountSelection(); await flushPromises()
   expect(wrapper.vm.error).toBe('message.creation.source.api.required')
   expect(wrapper.vm.sources).toEqual([]); wrapper.unmount()
+})
+
+test('known source states translate without an injected translation-existence helper', async () => {
+  getAPI.mockResolvedValue({ listvirtualmachinecreationsourcesresponse: { count: 0 } })
+  const translated = { 'label.creation.source.state.Ready': '사용 가능', 'label.creation.source.state.BackedUp': '백업 됨', 'label.creation.source.state.unknown': '확인 필요' }
+  const wrapper = shallowMount(Selection, { props: { imageType: 'volumeid', query: { zoneid: 'zone' } }, global: { mocks: { $t: key => translated[key] || key } } })
+  await flushPromises()
+  expect(wrapper.vm.stateLabel('Ready')).toBe('사용 가능')
+  expect(wrapper.vm.stateLabel('BackedUp')).toBe('백업 됨')
+  expect(wrapper.vm.stateLabel('Unexpected')).toBe('확인 필요')
+  wrapper.unmount()
 })

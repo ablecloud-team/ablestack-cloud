@@ -2975,7 +2975,8 @@ export default {
         hostid: this.form.hostid,
         rootstorageid: this.rootStorageSelection.id
       }).filter(([, value]) => value != null && value !== ''))
-      const result = (await getAPI('validateVirtualMachineCreation', args)).validatevirtualmachinecreationresponse
+      const response = (await getAPI('validateVirtualMachineCreation', args)).validatevirtualmachinecreationresponse
+      const result = response?.count === 1 ? response.creationsource?.[0] : null
       if (!result?.allowed) throw new Error((result?.reasoncodes || []).map(reason => this.$t('message.creation.source.reason.' + reason)).join(' ') || this.$t('message.creation.source.required'))
       return result
     },
@@ -3007,7 +3008,7 @@ export default {
             await this.validateCreationSource()
             if (!this.sourceConfirmed) { this.sourceAcknowledged = false; this.sourceConfirmVisible = true; return }
             this.sourceConfirmed = false
-          } catch (error) { this.$notification.error({ message: this.$t('message.request.failed'), description: error.message }); return }
+          } catch (error) { this.$notification.error({ message: this.$t('message.request.failed'), description: error.message || error.response?.data?.validatevirtualmachinecreationresponse?.errortext || error.response?.data?.errorresponse?.errortext || this.$t('message.creation.source.required') }); return }
           values.vmNumber = 1
           values.stayonpage = true
         }

@@ -79,7 +79,8 @@ export default {
   methods: {
     stateLabel (state) {
       const key = 'label.creation.source.state.' + state
-      return this.$te?.(key) ? this.$t(key) : this.$t('label.creation.source.state.unknown')
+      const translated = this.$t(key)
+      return translated === key ? this.$t('label.creation.source.state.unknown') : translated
     },
     bytes (value) { return value == null ? '—' : (value / 1024 ** 3).toLocaleString(undefined, { maximumFractionDigits: 2 }) + ' GiB' },
     date (value) { return new Date(value).toLocaleString() },
