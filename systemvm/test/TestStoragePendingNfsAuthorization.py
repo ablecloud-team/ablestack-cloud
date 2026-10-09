@@ -1,5 +1,5 @@
 from pathlib import Path
-import copy,fcntl,json,os,sys,tempfile,unittest,uuid
+import ast,copy,fcntl,json,os,re,sys,tempfile,unittest,uuid
 LIB=Path(__file__).resolve().parents[1]/'debian/usr/local/lib/ablestack-storage'
 sys.path.insert(0,str(LIB))
 from config_generation import Generation,atomic_json,read_json
@@ -78,6 +78,36 @@ class PendingNfsAuthorizationTest(unittest.TestCase):
   with self.assertRaisesRegex(RuntimeError,'unit start failed'):
    with self.auth.grant(self.payload,self.unit):raise RuntimeError('unit start failed')
   self.assertFalse(self.auth.path.exists());self.assertEqual(before,read_json(self.g.pending));self.assertEqual(source,self.g.files())
+ def test_actual_nfs_main_export_uuid_then_embedded_grant_preserves_module_identity(self):
+  cli=LIB.parents[1]/'bin/ablestack-storagectl';source=cli.read_text()
+  program=next(value for value in re.findall(r"<<'PY'\n(.*?)\nPY",source,re.S) if 'def start_ganesha_endpoints(' in value)
+  tree=ast.parse(program)
+  parser=next(node for node in tree.body if isinstance(node,ast.FunctionDef) and node.name=='safe_uuid')
+  export_loop=next(node for node in tree.body if isinstance(node,ast.For) and isinstance(node.target,ast.Name) and node.target.id=='export' and isinstance(node.body[0],ast.Assign) and any(isinstance(item,ast.Name) and item.id=='uuid' for item in node.body[0].targets))
+  readers=source.split('# BEGIN EMBEDDED PENDING NFS READERS\n',1)[1].split('\n# END EMBEDDED PENDING NFS READERS',1)[0]
+  helper=source.split('# BEGIN EMBEDDED PENDING NFS AUTHORIZATION\n',1)[1].split('\n# END EMBEDDED PENDING NFS AUTHORIZATION',1)[0]
+  export_uuid=str(uuid.uuid4());exports=self.root/'parsed-exports';exports.mkdir(mode=0o700)
+  def namespace(body):
+   ns={};exec('import hashlib,json,os,stat\nfrom pathlib import Path\n'+body+'\n'+helper,ns)
+   ns.update(payload={**self.payload,'exports':[{'uuid':export_uuid,'state':'Disabled'}]},exports_dir=str(exports),managed_files=set(),enabled=False)
+   # Execute the actual whole legacy export loop, including its real private
+   # export-file creation. Disabled rows avoid mounts, DATA or network effects.
+   exec(compile(ast.Module(body=[parser,export_loop],type_ignores=[]),str(cli),'exec'),ns)
+   self.assertEqual(export_uuid,ns['uuid']);return ns
+  broken=namespace(readers.replace('import uuid as pending_nfs_uuid','import uuid').replace('pending_nfs_uuid.UUID','uuid.UUID'))
+  broken_reader=broken['PendingNfsGeneration'](self.g.root,self.g.config)
+  old=broken['PendingNfsAuthorization'](broken_reader,self.rendered,self.maintenance,self.root/'old-uuid-grant',self.conf)
+  with self.assertRaisesRegex(AttributeError,'UUID'):
+   with old.grant(broken['payload'],self.unit):self.fail('Prior UUID collision passed')
+  self.assertFalse(old.path.exists())
+  fixed=namespace(readers);reader=fixed['PendingNfsGeneration'](self.g.root,self.g.config)
+  auth=fixed['PendingNfsAuthorization'](reader,self.rendered,self.maintenance,self.root/'fixed-uuid-grant',self.conf)
+  pending=read_json(self.g.pending);digest=self.g.digest()
+  with auth.grant(fixed['payload'],self.unit):
+   self.assertTrue(auth.authorized(self.unit,self.maintenance.status(),self.rendered.status()))
+   self.assertFalse(auth.authorized('smbd.service',self.maintenance.status(),self.rendered.status()))
+   self.assertEqual(export_uuid,fixed['uuid'])
+  self.assertFalse(auth.path.exists());self.assertEqual(pending,read_json(self.g.pending));self.assertEqual(digest,self.g.digest())
  def test_replaced_grant_preserved_and_rejected(self):
   with self.assertRaisesRegex(ValueError,'replaced'):
    with self.auth.grant(self.payload,self.unit):

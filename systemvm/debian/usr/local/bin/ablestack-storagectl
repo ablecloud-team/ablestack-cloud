@@ -4300,7 +4300,7 @@ import zlib
 import hashlib
 
 # BEGIN EMBEDDED PENDING NFS READERS
-import uuid
+import uuid as pending_nfs_uuid
 PENDING_NFS_MAX_BYTES = 8 * 1024 * 1024
 def pending_nfs_read(path):
     try:
@@ -4366,12 +4366,12 @@ class PendingNfsGeneration:
                 "generation": current, "pendingOperationUuid": pending.get("operationUuid") if pending else None,
                 "generationStatus": "PENDING" if pending else ("IN_SYNC" if current and current.get("configurationSha256") == digest else "UNVERIFIED"),
                 "configurationSha256": digest, "configurationDesiredState": self.files(),
-                "bootId":str(uuid.UUID(Path("/proc/sys/kernel/random/boot_id").read_text().strip()))}
+                "bootId":str(pending_nfs_uuid.UUID(Path("/proc/sys/kernel/random/boot_id").read_text().strip()))}
 
     def request(self, request):
         result = dict(request)
-        result["instanceUuid"] = str(uuid.UUID(request["instanceUuid"]))
-        result["operationUuid"] = str(uuid.UUID(request["operationUuid"]))
+        result["instanceUuid"] = str(pending_nfs_uuid.UUID(request["instanceUuid"]))
+        result["operationUuid"] = str(pending_nfs_uuid.UUID(request["operationUuid"]))
         revision = request["revision"]
         if isinstance(revision, bool) or not isinstance(revision, int) or revision < 1:
             raise ValueError("Invalid generation revision")
@@ -22398,7 +22398,7 @@ def root_ad_retained_authority(common,maintenance,configuration=None,root=None,r
     root_ad_imported_matches(common,identity,configuration,sid_reader or samba_public_sid)
     return {"scope":scope,"identity":identity,"authorizationUuid":identifier,"authorizationSha256":hashlib.sha256(json.dumps(record,sort_keys=True,separators=(",",":")).encode()).hexdigest(),"bootId":boot,
             "originalCipherSha256":record.get("originalCipherSha256"),"sourceConfigurationSha256":record["latestConfigurationSha256"],"originalSourceScope":record["latestSourceRootScope"],"kind":kind,"record":record,"identityCheckpoint":identity_record}
-import uuid
+import uuid as pending_nfs_uuid
 PENDING_NFS_MAX_BYTES = 8 * 1024 * 1024
 def pending_nfs_read(path):
     try:
@@ -22464,12 +22464,12 @@ class PendingNfsGeneration:
                 "generation": current, "pendingOperationUuid": pending.get("operationUuid") if pending else None,
                 "generationStatus": "PENDING" if pending else ("IN_SYNC" if current and current.get("configurationSha256") == digest else "UNVERIFIED"),
                 "configurationSha256": digest, "configurationDesiredState": self.files(),
-                "bootId":str(uuid.UUID(Path("/proc/sys/kernel/random/boot_id").read_text().strip()))}
+                "bootId":str(pending_nfs_uuid.UUID(Path("/proc/sys/kernel/random/boot_id").read_text().strip()))}
 
     def request(self, request):
         result = dict(request)
-        result["instanceUuid"] = str(uuid.UUID(request["instanceUuid"]))
-        result["operationUuid"] = str(uuid.UUID(request["operationUuid"]))
+        result["instanceUuid"] = str(pending_nfs_uuid.UUID(request["instanceUuid"]))
+        result["operationUuid"] = str(pending_nfs_uuid.UUID(request["operationUuid"]))
         revision = request["revision"]
         if isinstance(revision, bool) or not isinstance(revision, int) or revision < 1:
             raise ValueError("Invalid generation revision")
