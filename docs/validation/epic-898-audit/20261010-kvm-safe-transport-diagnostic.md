@@ -27,3 +27,23 @@
 이후 exact원fef/rev5/contextscope를읽기전용JDBC1SELECT로재확인했다. nativeIdentityCapsule참조/object와sourceResumed=true는이미관리서버에기록돼있고restored/authReplayed는없었다. 따라서원캡처·출판은완료됐으며 export만실패했다고좁힌앞선해석은불완전했다. Source started:275는참조가있으면export를건너뛰고후속restore:4566에서capsule+credentialPrivateKey+COMMON7/ref/SMBdomain을import한다. LAUNCH진단7필드에는명령종류가없으므로실제실패명령을확정하기전단계로구분한다.
 
 지금까지1492B입력과1518638B출력을검증했지만큰입력은검증하지않았다. 후속import의큰protectedstdin을구별하기위해공개1518638B입력/작은출력1case를준비한다. 실제privatekey/import/STOP/상태변경은0이고추가pool-realexport진단은HOLD했다. 원snapshot·키·캡슐값은SQL조회결과나파일로출력하지않았다.
+
+## 큰 입력 방향의 실제 재현
+
+공개1518638B입력(Base642024852/QGA요청2025392B)·작은출력시험1회가 실제guest-launch에서120574ms뒤LIBVIRT/UNKNOWN/QEMU로실패했고PID가없어status조회에진입하지않았다. 원CLI·cipher·privatekey·import·서비스중지를사용하지않은재현이며전후F1상태10개/DB/마운트/VM15를보존했다. 반복·kill은0이다.
+
+관리서버default원capsule파일은내용읽기없는stat에서1517462B였다. Source import는여기에PEM/context를추가하므로큰입력하한의근거다. 현재runtimepathoverride를이stat만으로증명하지않는다. 실제QGA패키지1:7.2+dfsg-7+deb12u18+b3·호스트libvirt버전숫자11010000(11.10.0)을읽기메타로확인했다. 앞선11.1해석을정정한다. 첫scratch종료API오류로소실된버전조회와교정된성공을분리했다.
+
+[QEMU7.2 inputwatch 소스](https://github.com/qemu/qemu/blob/v7.2.0/qga/commands.c)는nonblocking입력감시를사용하고[JSON streamer](https://github.com/qemu/qemu/blob/v7.2.0/qobject/json-streamer.c)의기본한도는64MiB다. [참고 libvirt11.1 agent 소스](https://github.com/libvirt/libvirt/blob/v11.1.0/src/qemu/qemu_agent.c)의send/reply timeout으로큰요청이실패한세부구간을이관측만으로확정하지않는다. 단순stdin블록이나기본64MiB초과로단정하지않는다.
+
+수정 후보는 작은 guest-file RPC로 root 소유의 anonymous memfd에 청크를 전달하고 DATA close ACK, COMMIT, 길이·해시·봉인 검증을 거쳐 기존 CLI stdin에 연결하는 방식이다. 개인 입력의 정규 파일·원문 argv·로그와 신원 가드 변경은 허용하지 않는다. 아래 공개 시제품 성공 후 KVM 제품 코드 구현을 진행 중이며, 실제 import와 새 제품 코드 배포는 아직 하지 않았다.
+
+호스트버전11010000은11.10.0이며참고11.1소스태그와실환경을혼합하지않는다. API버전은major×1000000+minor×1000+micro로해석한다. 실제11.10소스대조는후속검토다.
+
+## 공개 청크 전송 시제품 검증
+
+동일 1,518,638B의 공개 입력을 32KiB씩 47개 청크로 전송한 실제 클러스터 시제품 1회가 3.109초에 성공했다. DATA close ACK 뒤 COMMIT을 보내고 receiver에서 길이·SHA-256·전체 memfd seals를 확인한 후 공개 sink가 종료 코드0과 작은 응답50B를 반환했다. 고정 FD16~18과 충돌하지 않도록 먼저 19 이상의 안전한 복제 FD로 옮기는 처리도 검증했다.
+
+이 실행은 분리된 Python libvirt C binding을 사용한 공개 시제품이다. 제품 Java wrapper, 실제 private capsule/import 또는 정상 관리 UI 복원 성공으로 승격하지 않는다. 원 CLI·원 SOURCE·키/cipher/호환 증빙·GEN4/BOOT·DB/DATA/NFS와 pending을 보존했고 호스트 Agent/JAR 및 VM15개의 PID/start도 동일했다. 전역 QGA handle 열거는 하지 않았다. 성공 경로의 소유 handle close ACK와 검토한 receiver 코드로 정리를 확인했다.
+
+공개 시제품 증빙의 SHA-256은 8ad5eb1f4676fc87345b0324cd215e65e61bec68f96e9c4ede3e616c4d9e21f9이며 보존 증빙은 7ce00c81403306180a8aa8a4def0f921ddcb1059cedd696b4f5f4ceff7ece691이다. 다음 단계는 작은 입력의 direct 호환을 유지하는 KVM wrapper 구현, 고정 커밋의 정상 모듈 검사, 실제 라이브러리 ABI 확인과 제한 배포, 이후 동일 원 작업의 정상 UI 복원 검증이다. #1275는 계속 미착수다.
