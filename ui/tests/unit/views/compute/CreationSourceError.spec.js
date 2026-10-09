@@ -31,11 +31,15 @@ test('known server rejection codes are localized', () => {
   expect(vmCreationSourceErrorMessage('SOURCE_NOT_READY: unavailable', translate)).toBe('원본이 준비되지 않았습니다')
 })
 
-test('unknown diagnostics remain available without inventing a reason', () => {
-  expect(vmCreationSourceErrorMessage('UNKNOWN_CODE: diagnostic', translate)).toBe('UNKNOWN_CODE: diagnostic')
+test('unknown diagnostics use localized guidance without inventing a reason', () => {
+  expect(vmCreationSourceErrorMessage('UNKNOWN_CODE: diagnostic', translate)).toBe('message.creation.source.request.failed')
 })
 
 test('network failures show localized uncertainty while the original technical diagnostic remains available', () => {
   expect(vmCreationSourceErrorMessage('Network Error', key => key)).toBe('message.creation.source.job.unknown')
   expect(vmCreationSourceErrorMessage('timeout of 15000ms exceeded', key => key)).toBe('message.creation.source.job.unknown')
+})
+
+test('agent start failures use localized guidance and preserve the diagnostic in the operation', () => {
+  expect(vmCreationSourceErrorMessage('Unable to orchestrate the start of VM instance {uuid: vm}.', translate)).toBe('message.creation.source.request.failed')
 })

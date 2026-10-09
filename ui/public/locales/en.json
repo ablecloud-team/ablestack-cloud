@@ -8464,5 +8464,6 @@
   "label.creation.source.state.unknown": "Needs review",
   "message.creation.source.restore.failed": "The ROOT disk could not be restored from the snapshot. Check the target storage and the created VM state. Inspect the source before submitting the same request again.",
   "label.creation.source.error.details": "Technical error details",
-  "message.vm.storage.auto.unavailable": "No primary storage can place the disks under the current conditions. Review the offering, deployment infrastructure and disk sizes, or refresh the storage list."
+  "message.vm.storage.auto.unavailable": "No primary storage can place the disks under the current conditions. Review the offering, deployment infrastructure and disk sizes, or refresh the storage list.",
+  "message.creation.source.request.failed": "The request failed. Inspect the source and the existing VM before trying again. Open the technical details for the server diagnostic."
 }

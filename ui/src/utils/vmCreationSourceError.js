@@ -27,5 +27,5 @@ export function vmCreationSourceErrorMessage (error, translate) {
     const message = translate(key)
     if (message !== key) return message
   }
-  return text
+  return text ? translate('message.creation.source.request.failed') : ''
 }

@@ -8429,5 +8429,6 @@
   "label.creation.source.state.unknown": "확인 필요",
   "message.creation.source.restore.failed": "스냅샷에서 루트 디스크를 복구하지 못했습니다. 대상 저장소와 생성된 가상머신 상태를 확인하세요. 원본을 확인하기 전에는 같은 요청을 다시 제출하지 마세요.",
   "label.creation.source.error.details": "기술 오류 상세",
-  "message.vm.storage.auto.unavailable": "현재 조건으로 자동 배치할 수 있는 기본 스토리지가 없습니다. 오퍼링·배포 환경·디스크 용량을 확인하거나 스토리지 목록을 새로고침하세요."
+  "message.vm.storage.auto.unavailable": "현재 조건으로 자동 배치할 수 있는 기본 스토리지가 없습니다. 오퍼링·배포 환경·디스크 용량을 확인하거나 스토리지 목록을 새로고침하세요.",
+  "message.creation.source.request.failed": "요청을 처리하지 못했습니다. 다시 시도하기 전에 원본과 생성된 가상머신을 확인하세요. 서버의 오류 원문은 기술 오류 상세에서 볼 수 있습니다."
 }
