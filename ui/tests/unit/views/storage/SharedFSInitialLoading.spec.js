@@ -189,5 +189,4 @@ describe('SharedFS initial runtime loading ownership', () => {
     expect(notifyError).toHaveBeenCalledTimes(1)
     expect(wrapper.vm.resource.state).toBe('Ready')
   })
-
 })
