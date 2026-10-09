@@ -45,6 +45,8 @@ public class StorageRenderedGenerationCoordinatorTest {
         public void rollbackGeneration(JsonObject receipt){events.add("generation:rollback");committed=false;}
         public void resumeUnchangedMaintenance(){events.add("source-maintenance-resume");}
         public void releaseMaintenance(){events.add("release");if(releaseFailure)throw new CloudRuntimeException("release held");}
+        public boolean targetFailure;
+        public void preparePromotionIdentity(JsonObject receipt){events.add("target:capture-stop-export-resume");if(targetFailure)throw new CloudRuntimeException("Target resume failed");}
         public void promote(){events.add("DB:LKG-COMPLETE");}
     }
     private static JsonObject previousScope(){JsonObject s=scope();s.addProperty("operationUuid","source");s.addProperty("revision",1);return s;}
@@ -83,5 +85,8 @@ public class StorageRenderedGenerationCoordinatorTest {
     }
     @Test public void cancellationAfterDurableCommitStillFinalizesAndReleasesBeforeTargetPromotion() {
         Runtime r=new Runtime();StorageRenderedGenerationCoordinator c=new StorageRenderedGenerationCoordinator(r,scope());JsonObject receipt=c.stage(request());c.activate(receipt,scope());r.finalizeFailure=true;Assert.assertThrows(CloudRuntimeException.class,()->c.commit(receipt,scope()));r.finalizeFailure=false;r.cancelled=true;c.commit(receipt,scope());Assert.assertEquals("COMPLETE",receipt.get("phase").getAsString());Assert.assertTrue(r.events.contains("release"));Assert.assertFalse(r.events.contains("rollback"));
+    }
+    @Test public void targetIdentityIsCapturedAfterGenerationCommitBeforeReleaseAndResumeFaultCannotPromote() {
+        Runtime r=new Runtime();StorageRenderedGenerationCoordinator c=new StorageRenderedGenerationCoordinator(r,scope());JsonObject receipt=c.stage(request());c.activate(receipt,scope());r.targetFailure=true;Assert.assertThrows(CloudRuntimeException.class,()->c.commit(receipt,scope()));Assert.assertTrue(r.events.indexOf("generation:verify-commit-finish")<r.events.indexOf("target:capture-stop-export-resume"));Assert.assertFalse(r.events.contains("finalize"));Assert.assertFalse(r.events.contains("release"));Assert.assertFalse(r.events.contains("DB:LKG-COMPLETE"));r.targetFailure=false;c.commit(receipt,scope());Assert.assertTrue(r.events.indexOf("target:capture-stop-export-resume")<r.events.indexOf("release"));Assert.assertEquals("COMPLETE",receipt.get("phase").getAsString());
     }
 }
