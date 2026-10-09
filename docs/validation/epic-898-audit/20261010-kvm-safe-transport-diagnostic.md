@@ -14,4 +14,8 @@
 
 별도 공개 cross-probe는 같은Bash/입력1492B/EOF 읽기2건 및 실제JavaJNI wrapperb468 경로의 입력1492B+출력1518638B 조합1건을 통과했다. 원CLI/실제capsule/서비스·DATA 효과와 정리 신호는0이다. 입력/출력 조합만의 결함을 재현하지 못했으며 standalone connection과 실제agent 공유 연결·실제cached producer 차이는 남는다.
 
+이후 같은원작업의원공개키 지문9fbb·원참조/GEN4/BOOT/소유권/세션없음·realFD9/hold/formatter사전조건으로 실제cached CLI를1회 검사했다. GuestRAM reducer경로는1.464초/원stdout1518638B를소비해805B공개metadata만반환했고 재수집·STOP·암호화·원자료변경은없었다. 다음samekey/cipher fullresponse isolatedJNI1회는 실제protectedBuilder와원CLI 그대로 launch1ms/status2137ms/전체2580ms에성공했다. 원response1518638B를호스트RAM에만두고capsule/ref/PUB/typedflags를검증했으며 원문·키·SID를출력/저장하지않았다. 전후10개상태·마운트·DBholders·native status가동일했다.
+
+이 성공은 분리된연결의actualproducer/fullencryptedQGA경로이며 runningAgent의공유연결·동시요청·lifecycle차이는남아있다. 관리자작업terminal을완료로바꾸거나추가UI복구를하지않았고 원실패해결로선언하지않는다.
+
 [고정 모듈·실제 배포의 공개 증빙](20261010-kvm-safe-transport-diagnostic-public-proof.json). 최종 UI 표준 정리 #1275는 미착수이며 착수 직전 중단·보고·추가 지시 대기 경계를 유지한다.
