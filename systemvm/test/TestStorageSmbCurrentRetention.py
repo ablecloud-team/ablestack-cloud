@@ -63,7 +63,7 @@ class StorageSmbCurrentRetentionTest(unittest.TestCase):
         self.boot = str(uuid.uuid4()); self.native.boot = lambda: self.boot
         self.request = {**self.scope, "sourceGeneration": self.current, "sourceConfigurationSha256": self.current["configurationSha256"],
                         "rootVmBinding": {"vmUuid": str(uuid.uuid4()), "rootVolumeUuid": str(uuid.uuid4())},
-                        "runtimePin": {"bundleVersion": "fixture", "archiveSha256": "a"*64, "manifestSha256": "b"*64, "updaterSha256": "c"*64}}
+                        "runtimePin": {"bundleVersion": "fixture", "archiveSha256": "a"*64, "manifestSha256": "b"*64, "updaterSha256": "c"*64, "transactionId": "runtime-existing-fixture"}}
         self.active = True; self.units_value = [{"unit": "smbd.service", "pid": 111, "startTicks": "101"},
                                                {"unit": "nmbd.service", "pid": 222, "startTicks": "102"}]
         for row in self.units_value:
@@ -469,4 +469,77 @@ class StorageSmbCurrentRetentionTest(unittest.TestCase):
         with self.assertRaises(ValueError):self.native.retain(retain,terminal=True)
         with self.assertRaises(ValueError):self.native.inspect_retained({**self.scope,"revision":3},self.current)
         self.assertEqual(self.raw_before,{name:path.read_bytes() for name,path in self.private.items()})
+
+
+    def test_root_binding_requests_explicit_tree_and_preserves_exact_serial_guards(self):
+        binding=self.request["rootVmBinding"];token=binding["rootVolumeUuid"].replace("-","")
+        disk={"path":"/dev/sdb","type":"disk","serial":token[:20],"mountpoints":[None],
+              "children":[{"path":"/dev/sdb6","type":"part","mountpoints":["/"]}]}
+        flat=[{key:value for key,value in disk.items() if key!="children"},disk["children"][0]]
+        calls=[]
+        def observed(args):
+            calls.append(args)
+            return json.dumps({"blockdevices":[disk] if "--tree" in args else flat})
+        self.handler.run=observed
+        real=Path.read_text
+        def dmi(path,*args,**kwargs):
+            return binding["vmUuid"] if str(path)=="/sys/class/dmi/id/product_uuid" else real(path,*args,**kwargs)
+        with patch.object(module.Path,"read_text",new=dmi):
+            module.SmbCurrentRetention.root_binding(self.native,binding)
+            self.assertIn("--tree",calls[-1])
+            disk["serial"]=token[:19]
+            with self.assertRaises(ValueError):module.SmbCurrentRetention.root_binding(self.native,binding)
+            disk["serial"]=token
+            module.SmbCurrentRetention.root_binding(self.native,binding)
+            disk["children"].append({"path":"/dev/sdb7","type":"part","mountpoints":["/"]})
+            with self.assertRaises(ValueError):module.SmbCurrentRetention.root_binding(self.native,binding)
+
+    def test_existing_runtime_transaction_identifier_is_closed_and_never_inferred(self):
+        original=copy.deepcopy(self.request["runtimePin"])
+        for value in (None,True,7,"", "-foreign","../runtime","runtime/foo","x"*129,"runtime:foreign"):
+            request=copy.deepcopy(self.request);request["runtimePin"]["transactionId"]=value
+            with self.subTest(value=value):
+                with self.assertRaises(ValueError):self.native.request(request,"current-review")
+        request=copy.deepcopy(self.request);del request["runtimePin"]["transactionId"]
+        with self.assertRaises(ValueError):self.native.request(request,"current-review")
+        self.assertEqual(original,self.request["runtimePin"])
+
+    def test_runtime_binding_uses_real_parser_existing_signed_transaction_and_rejects_foreign_missing(self):
+        from systemvm.test import TestStorageRuntimeUpdater as suite
+        runtime=suite.StorageRuntimeUpdaterTest()
+        runtime.setUp()
+        try:
+            existing=runtime.activate_signed()
+            request={**self.request,"runtimePin":{key:existing[key] for key in ("bundleVersion","archiveSha256","manifestSha256","transactionId")}}
+            request["runtimePin"]["updaterSha256"]=hashlib.sha256(suite.UPDATER.read_bytes()).hexdigest()
+            # Only substitute the executable location and its isolated paths;
+            # parser, transaction state, crypto, file and entrypoint validators
+            # are the real committed updater. No response values are mocked.
+            actual_run=subprocess.run;calls=[]
+            def transport(args,**kwargs):
+                self.assertEqual(["/usr/local/bin/ablestack-storage-runtime-updater","readback","--request","/dev/stdin"],args)
+                value=json.loads(kwargs["input"]);calls.append(value)
+                return actual_run([sys.executable,str(suite.UPDATER),*args[1:]],env=runtime.env,**kwargs)
+            before=(runtime.state_root/existing["transactionId"]/"state.json").read_bytes()
+            pointer=os.readlink(runtime.runtime_root/"current")
+            with patch.object(module.subprocess,"run",side_effect=transport):
+                module.SmbCurrentRetention.runtime_binding(self.native,request)
+                self.assertEqual(existing["transactionId"],calls[-1]["transactionId"])
+                missing=copy.deepcopy(request);missing["runtimePin"]["transactionId"]="smb-current-"+self.scope["operationUuid"]
+                with self.assertRaises(ValueError):module.SmbCurrentRetention.runtime_binding(self.native,missing)
+            self.assertFalse((runtime.state_root/missing["runtimePin"]["transactionId"]).exists())
+            self.assertEqual(before,(runtime.state_root/existing["transactionId"]/"state.json").read_bytes())
+            self.assertEqual(pointer,os.readlink(runtime.runtime_root/"current"))
+            foreign=runtime.stage_transaction("tx-other-bundle","v3")
+            changed=copy.deepcopy(request);changed["runtimePin"]["transactionId"]=foreign["transactionId"]
+            with patch.object(module.subprocess,"run",side_effect=transport):
+                with self.assertRaises(ValueError):module.SmbCurrentRetention.runtime_binding(self.native,changed)
+            wrong=actual_run([sys.executable,str(suite.UPDATER),"readback","/dev/stdin"],input=json.dumps(existing),capture_output=True,text=True,env=runtime.env)
+            self.assertEqual(2,wrong.returncode)
+            correct=actual_run([sys.executable,str(suite.UPDATER),"readback","--request","/dev/stdin"],input=json.dumps(existing),capture_output=True,text=True,env=runtime.env)
+            observed=json.loads(correct.stdout)
+            self.assertEqual(0,correct.returncode)
+            self.assertTrue(all(observed[key] is True for key in ("success","signedRuntimeVerified","installedFilesVerified","entrypointsVerified")))
+        finally:
+            runtime.tearDown()
 

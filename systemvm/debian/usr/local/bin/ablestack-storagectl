@@ -13746,9 +13746,11 @@ class SmbCurrentRetention:
             if not isinstance(value, str) or str(uuid.UUID(value)) != value:
                 raise ValueError("CURRENT identity ROOT binding is invalid")
         pin = request["runtimePin"]
-        if (not isinstance(pin, dict) or set(pin) != {"bundleVersion", "archiveSha256", "manifestSha256", "updaterSha256"}
+        if (not isinstance(pin, dict) or set(pin) != {"bundleVersion", "archiveSha256", "manifestSha256", "updaterSha256", "transactionId"}
                 or not re.fullmatch("[A-Za-z0-9][A-Za-z0-9._-]{0,127}", str(pin.get("bundleVersion")))
-                or any(not re.fullmatch("[0-9a-f]{64}", str(pin.get(key))) for key in pin if key != "bundleVersion")):
+                or not isinstance(pin.get("transactionId"), str)
+                or not re.fullmatch("[A-Za-z0-9][A-Za-z0-9._-]{0,127}", pin["transactionId"])
+                or any(not re.fullmatch("[0-9a-f]{64}", str(pin.get(key))) for key in ("archiveSha256", "manifestSha256", "updaterSha256"))):
             raise ValueError("CURRENT identity signed runtime pin is invalid")
         return scope
 
@@ -13813,7 +13815,7 @@ class SmbCurrentRetention:
         actual = Path("/sys/class/dmi/id/product_uuid").read_text().strip().lower()
         if actual != expected["vmUuid"]:
             raise ValueError("CURRENT identity guest UUID changed")
-        rows = json.loads(self.handler.run(["lsblk", "-J", "-b", "-o", "PATH,TYPE,SERIAL,MOUNTPOINTS"]))["blockdevices"]
+        rows = json.loads(self.handler.run(["lsblk", "--tree", "-J", "-b", "-o", "PATH,TYPE,SERIAL,MOUNTPOINTS"]))["blockdevices"]
         roots = []
         def descend(node, parent=None):
             disk = node if node.get("type") == "disk" else parent
@@ -13829,8 +13831,8 @@ class SmbCurrentRetention:
 
     def runtime_binding(self, request):
         pin = request["runtimePin"]
-        result = subprocess.run(["/usr/local/bin/ablestack-storage-runtime-updater", "readback", "/dev/stdin"],
-                                input=json.dumps({"transactionId": "smb-current-"+request["operationUuid"],
+        result = subprocess.run(["/usr/local/bin/ablestack-storage-runtime-updater", "readback", "--request", "/dev/stdin"],
+                                input=json.dumps({"transactionId": pin["transactionId"],
                                                   **{key: pin[key] for key in ("bundleVersion", "archiveSha256", "manifestSha256")}}),
                                 capture_output=True, text=True, timeout=self.handler.remaining(15))
         observed = json.loads(result.stdout) if not result.returncode else {}
@@ -18919,9 +18921,11 @@ class SmbCurrentRetention:
             if not isinstance(value, str) or str(uuid.UUID(value)) != value:
                 raise ValueError("CURRENT identity ROOT binding is invalid")
         pin = request["runtimePin"]
-        if (not isinstance(pin, dict) or set(pin) != {"bundleVersion", "archiveSha256", "manifestSha256", "updaterSha256"}
+        if (not isinstance(pin, dict) or set(pin) != {"bundleVersion", "archiveSha256", "manifestSha256", "updaterSha256", "transactionId"}
                 or not re.fullmatch("[A-Za-z0-9][A-Za-z0-9._-]{0,127}", str(pin.get("bundleVersion")))
-                or any(not re.fullmatch("[0-9a-f]{64}", str(pin.get(key))) for key in pin if key != "bundleVersion")):
+                or not isinstance(pin.get("transactionId"), str)
+                or not re.fullmatch("[A-Za-z0-9][A-Za-z0-9._-]{0,127}", pin["transactionId"])
+                or any(not re.fullmatch("[0-9a-f]{64}", str(pin.get(key))) for key in ("archiveSha256", "manifestSha256", "updaterSha256"))):
             raise ValueError("CURRENT identity signed runtime pin is invalid")
         return scope
 
@@ -18986,7 +18990,7 @@ class SmbCurrentRetention:
         actual = Path("/sys/class/dmi/id/product_uuid").read_text().strip().lower()
         if actual != expected["vmUuid"]:
             raise ValueError("CURRENT identity guest UUID changed")
-        rows = json.loads(self.handler.run(["lsblk", "-J", "-b", "-o", "PATH,TYPE,SERIAL,MOUNTPOINTS"]))["blockdevices"]
+        rows = json.loads(self.handler.run(["lsblk", "--tree", "-J", "-b", "-o", "PATH,TYPE,SERIAL,MOUNTPOINTS"]))["blockdevices"]
         roots = []
         def descend(node, parent=None):
             disk = node if node.get("type") == "disk" else parent
@@ -19002,8 +19006,8 @@ class SmbCurrentRetention:
 
     def runtime_binding(self, request):
         pin = request["runtimePin"]
-        result = subprocess.run(["/usr/local/bin/ablestack-storage-runtime-updater", "readback", "/dev/stdin"],
-                                input=json.dumps({"transactionId": "smb-current-"+request["operationUuid"],
+        result = subprocess.run(["/usr/local/bin/ablestack-storage-runtime-updater", "readback", "--request", "/dev/stdin"],
+                                input=json.dumps({"transactionId": pin["transactionId"],
                                                   **{key: pin[key] for key in ("bundleVersion", "archiveSha256", "manifestSha256")}}),
                                 capture_output=True, text=True, timeout=self.handler.remaining(15))
         observed = json.loads(result.stdout) if not result.returncode else {}
