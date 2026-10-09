@@ -40,7 +40,7 @@ size="small"
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'name'"><strong>{{ record.name }}</strong><div class="source-meta">{{ record.id }}</div></template>
         <template v-else-if="column.key === 'origin'">{{ record.sourcevm?.displayname || record.sourcevm?.name || $t('label.creation.source.origin.unknown') }}<div class="source-meta">{{ record.bootprofile?.osname || '—' }}</div></template>
-        <template v-else-if="column.key === 'state'"><a-tag :color="record.allowed ? 'green' : 'default'">{{ stateLabel(record.state) }}</a-tag><div v-if="record.snapshotcreated" class="source-meta">{{ date(record.snapshotcreated) }}</div></template>
+        <template v-else-if="column.key === 'state'"><a-tag class="source-state" :color="record.allowed ? 'green' : 'default'">{{ stateLabel(record.state) }}</a-tag><div v-if="record.snapshotcreated" class="source-meta">{{ date(record.snapshotcreated) }}</div></template>
         <template v-else-if="column.key === 'size'">{{ bytes(record.sizebytes) }}<div class="source-meta">{{ record.bootprofile?.boottype }} · {{ record.bootprofile?.bootmode }}</div></template>
         <template v-else-if="column.key === 'storage'">{{ record.storage?.name || '—' }}<div class="source-meta">{{ record.storage?.type }} · {{ record.storage?.scope }}</div></template>
         <template v-else-if="column.key === 'eligibility'">
@@ -133,6 +133,7 @@ export default {
 :deep(.ant-input::placeholder) { color: var(--ui-text-secondary) !important; opacity: 1; }
 .ant-alert { margin-top: 12px; }
 .source-meta { color: var(--ui-text-secondary); font-size: 12px; overflow-wrap: anywhere; margin-top: 4px; }
+.source-state { color: var(--ui-text) !important; }
 .source-reason { color: var(--ui-text-secondary); overflow-wrap: anywhere; }
 :deep(.ant-table-thead > tr > th) { background: var(--ui-bg-elevated) !important; color: var(--ui-text-secondary) !important; border-color: var(--ui-border); }
 :deep(.ant-table-placeholder > td), :deep(.ant-empty-description) { color: var(--ui-text-secondary) !important; }
