@@ -271,3 +271,132 @@ describe('Explicit CURRENT local SMB recovery consent', () => {
     expect(vm.refresh).toHaveBeenCalledTimes(1); expect(vm.reconcileTarget).toBe(null)
   })
 })
+
+// Public HTTP response captured from the signed 500 runtime; clock is fixed to its observation epoch.
+const signed500HttpReviewResponse = () => ({
+  reviewstorageservicesmbidentityrecoveryresponse: {
+    storageserviceruntime: {
+      id: '3480bb2c-99ee-42f2-91cf-715ded5dd35f',
+      operation: 'smb identity current-review',
+      success: true,
+      status: 'OBSERVED',
+      details: 'Current local identity may be retained only with explicit maintenance approval; original identity restoration is false',
+      resultjson: '{"schemaVersion":1,"kind":"CURRENT_LOCAL_SMB_IDENTITY_RECOVERY_REVIEW","success":true,"sideEffects":false,"scope":{"revision":4,"operationUuid":"cfe87d14-7b32-4b9c-999d-fcdae29dbb3d","instanceUuid":"3480bb2c-99ee-42f2-91cf-715ded5dd35f"},"currentReviewHash":"9ce63eb4dc517d768cc88fe4e2ba9158b43d6904365e3533c7b5eb953fefed00","sourceConfigurationSha256":"3f20d0533dab73092aa11b9005a7c15501c2056a2b026c5dd572eb16b3cb87bd","committedRevision":3,"generatedEpoch":1.791542657791E9,"maintenanceRequired":true,"publicFacts":{"bootId":"dc4b6429-35d3-4224-b199-3a0c6c829de0","databaseCount":2,"ownedMasterCount":2,"sessionsVerifiedEmpty":true,"namespaceObserved":true,"loadedDaemonSidVerified":false},"approvalStored":false,"resumeAllowed":false,"recoveryPhase":"RECOVERY_REQUIRED"}'
+    }
+  }
+})
+const signed500PublicReview = () => JSON.parse(signed500HttpReviewResponse().reviewstorageservicesmbidentityrecoveryresponse.storageserviceruntime.resultjson)
+const signed500Vm = () => {
+  const vm = makeCurrentVm(); const review = signed500PublicReview()
+  vm.instanceId = review.scope.instanceUuid
+  vm.instanceName = 'epic898-s-b6aa-all4-f1-20261009'
+  vm.openRecovery({ id: review.scope.operationUuid, revision: review.scope.revision, state: 'RECOVERY_REQUIRED' })
+  vm.recoveryMode = SMB_CURRENT_RETAIN_MODE
+  return vm
+}
+
+describe('CURRENT recovery actual HTTP runtime envelopes', () => {
+  beforeEach(() => {
+    getAPI.mockReset(); postAPI.mockReset()
+    jest.spyOn(Date, 'now').mockReturnValue((signed500PublicReview().generatedEpoch + 1) * 1000)
+  })
+  afterEach(() => jest.restoreAllMocks())
+
+  it('loads the actual nested review into the production dialog approval state without posting', async () => {
+    const vm = signed500Vm(); const review = signed500PublicReview()
+    getAPI.mockResolvedValue(signed500HttpReviewResponse())
+    await vm.readCurrentRecoveryReview()
+    expect(getAPI).toHaveBeenCalledWith('reviewStorageServiceSmbIdentityRecovery', {
+      instanceid: review.scope.instanceUuid, operationid: review.scope.operationUuid
+    }, { preserveOnFailure: true, timeout: 60000 })
+    expect(vm.currentReview).toEqual(review)
+    expect(vm.currentReview.publicFacts).toEqual({ bootId: 'dc4b6429-35d3-4224-b199-3a0c6c829de0', databaseCount: 2, ownedMasterCount: 2, sessionsVerifiedEmpty: true, namespaceObserved: true, loadedDaemonSidVerified: false })
+    expect(vm.currentRecoveryCanSubmit).toBe(false)
+    vm.currentMaintenanceApproved = true; vm.currentConfirmation = 'other-instance'
+    expect(vm.currentRecoveryCanSubmit).toBe(false)
+    vm.currentConfirmation = vm.instanceName
+    expect(vm.currentRecoveryCanSubmit).toBe(true)
+    expect(postAPI).not.toHaveBeenCalled()
+  })
+
+  it('keeps nested null/type/error and stale/foreign review guards closed without using parent or cached review fields', async () => {
+    const row = signed500HttpReviewResponse().reviewstorageservicesmbidentityrecoveryresponse.storageserviceruntime
+    const review = signed500PublicReview()
+    const runtimeResponses = [
+      null, [row], { ...row, success: 'true' }, { ...row, status: 'RECOVERY_REQUIRED' }, { ...row, resultjson: '{' },
+      ...[
+        { scope: { ...review.scope, operationUuid: currentOperation } },
+        { generatedEpoch: review.generatedEpoch - 61 }, { generatedEpoch: String(review.generatedEpoch) },
+        { sourceConfigurationSha256: 'invalid' }, { sideEffects: 'false' },
+        { publicFacts: { ...review.publicFacts, loadedDaemonSidVerified: true } }
+      ].map(fields => ({ ...row, resultjson: JSON.stringify({ ...review, ...fields }) }))
+    ]
+    const responses = runtimeResponses.map(value => ({ reviewstorageservicesmbidentityrecoveryresponse: { ...row, storageserviceruntime: value } }))
+    responses.push({ errorresponse: { errorcode: 530, errortext: 'synthetic-error-must-not-display' } })
+    for (const response of responses) {
+      const vm = signed500Vm(); vm.currentReview = review; vm.currentMaintenanceApproved = true; vm.currentConfirmation = vm.instanceName
+      getAPI.mockResolvedValue(response)
+      await vm.readCurrentRecoveryReview()
+      expect(vm.currentReview).toBe(null)
+      expect(vm.currentRecoveryCanSubmit).toBe(false)
+      expect(vm.currentMaintenanceApproved).toBe(false)
+      expect(vm.currentConfirmation).toBe('')
+      expect(vm.error).toBe('message.storage.operation.recovery.review.failed')
+      expect(vm.recoveryMode).toBe(SMB_CURRENT_RETAIN_MODE)
+    }
+    expect(postAPI).not.toHaveBeenCalled()
+  })
+
+  it.each([false, true])('verifies the production immediate/job=%s wrapped repair result before closing the dialog', async job => {
+    const vm = signed500Vm(); const review = signed500PublicReview()
+    vm.currentReview = review; vm.currentMaintenanceApproved = true; vm.currentConfirmation = vm.instanceName
+    const terminal = { id: vm.instanceId, success: true, status: 'ROLLED_BACK', resultjson: JSON.stringify(retainedResult({ scope: review.scope, currentReviewHash: review.currentReviewHash })) }
+    getAPI.mockImplementation(command => Promise.resolve(command === 'queryAsyncJobResult'
+      ? { queryasyncjobresultresponse: { jobstatus: 1, jobresult: { storageserviceruntime: terminal } } } : signed500HttpReviewResponse()))
+    postAPI.mockResolvedValue({ repairstorageservicesmbidentityresponse: job ? { jobid: 'repair-job' } : { storageserviceruntime: terminal } })
+    await vm.reconcile()
+    expect(postAPI).toHaveBeenCalledTimes(1)
+    expect(postAPI).toHaveBeenCalledWith('repairStorageServiceSmbIdentity', {
+      instanceid: review.scope.instanceUuid,
+      operationid: review.scope.operationUuid,
+      recoverymode: SMB_CURRENT_RETAIN_MODE,
+      currentreviewhash: review.currentReviewHash,
+      maintenancewindow: true,
+      confirmation: 'epic898-s-b6aa-all4-f1-20261009',
+      expectedrevision: 3,
+      idempotencykey: 'smb-current-retain:' + review.scope.operationUuid + ':' + review.currentReviewHash
+    })
+    expect(getAPI.mock.calls.some(([command]) => command === 'queryAsyncJobResult')).toBe(job)
+    expect(vm.refresh).toHaveBeenCalledTimes(1)
+    expect(vm.reconcileTarget).toBe(null)
+    expect(vm.error).toBe('')
+  })
+
+  it.each([false, true])('rejects immediate/job=%s bad typed rows or terminal flags without original-reconcile fallback', async job => {
+    const review = signed500PublicReview()
+    const result = retainedResult({ scope: review.scope, currentReviewHash: review.currentReviewHash })
+    const terminal = { success: true, status: 'ROLLED_BACK', resultjson: JSON.stringify(result) }
+    const invalidRows = [
+      null, [terminal], { ...terminal, success: 'true' }, { ...terminal, status: 'OBSERVED' },
+      ...[
+        { currentIdentityRetained: 'true' }, { originalIdentityRestored: true }, { dataChanged: true },
+        { scope: { ...review.scope, operationUuid: currentOperation } }, { currentReviewHash: 'c'.repeat(64) }
+      ].map(fields => ({ ...terminal, resultjson: JSON.stringify({ ...result, ...fields }) }))
+    ]
+    for (const invalid of invalidRows) {
+      getAPI.mockReset(); postAPI.mockReset()
+      const vm = signed500Vm(); vm.currentReview = review; vm.currentMaintenanceApproved = true; vm.currentConfirmation = vm.instanceName
+      const wrapped = { ...terminal, storageserviceruntime: invalid }
+      getAPI.mockImplementation(command => Promise.resolve(command === 'queryAsyncJobResult'
+        ? { queryasyncjobresultresponse: { jobstatus: 1, jobresult: wrapped } } : signed500HttpReviewResponse()))
+      postAPI.mockResolvedValue({ repairstorageservicesmbidentityresponse: job ? { jobid: 'repair-job' } : wrapped })
+      await vm.reconcile()
+      expect(postAPI).toHaveBeenCalledTimes(1)
+      expect(postAPI.mock.calls[0][0]).toBe('repairStorageServiceSmbIdentity')
+      expect(vm.refresh).not.toHaveBeenCalled()
+      expect(vm.reconcileTarget.id).toBe(review.scope.operationUuid)
+      expect(vm.recoveryMode).toBe(SMB_CURRENT_RETAIN_MODE)
+      expect(vm.error).toBe('message.storage.operation.recovery.current.failed')
+    }
+  })
+})
