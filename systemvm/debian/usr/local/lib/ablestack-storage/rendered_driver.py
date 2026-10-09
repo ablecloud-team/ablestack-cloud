@@ -38,6 +38,7 @@ from rendered_credentials import credential_json, credential_bindings, credentia
 from root_source_recovery import RootSourceRecovery
 from service_identity_source import ServiceIdentitySource
 from service_identity_cipher import ServiceIdentityCipher,service_cipher_scope,service_cipher_digest
+from smb_source_checkpoint import SmbSourceCheckpoint
 from template_maintenance import Maintenance
 from service_maintenance import ServiceMaintenance
 from service_identity_target import ServiceIdentityTarget
@@ -327,6 +328,15 @@ class RenderedDriver:
     def checkpoint(self, request, source):
         scope = self.store.scope(request)
         path = self.checkpoints / (scope["operationUuid"] + ".json")
+        if request.get("localSourceCheckpointReference") is not None:
+            if any(request.get(key) is not None for key in ("templateUpgradeUuid","maintenanceUuid","retainedRootAuthorization","importedRootAuthorization")):
+                raise ValueError("LOCAL rendered source authority is mixed with ROOT/SERVICE")
+            saved=SmbSourceCheckpoint.for_renderer(self.runtime.cli).rendered_checkpoint(request,source)
+            rendered_directory(self.checkpoints,True)
+            if path.exists() or path.is_symlink():
+                if credential_json(rendered_read(path))!=saved:raise ValueError("LOCAL rendered immutable source checkpoint changed")
+            else:rendered_json(path,saved)
+            return saved
         service_cipher=ServiceIdentityCipher()
         if service_cipher.source_path(scope).exists() or service_cipher.source_path(scope).is_symlink():
             marker=self.runtime.command(("operation","maintenance","status"))
@@ -457,9 +467,13 @@ class RenderedDriver:
                 else:namespace[item.targets[0].id] = ast.literal_eval(item.value)
         exec(compile(ast.Module(body=definitions, type_ignores=[]), self.runtime.cli, "exec"), namespace)
         capsule_scope = saved["scope"]["instanceUuid"] + ":" + saved["scope"]["operationUuid"]
-        identity = namespace["decrypt"](saved["capsule"], request["checkpointPrivateKey"], capsule_scope)
+        local_ref=request.get("localSourceCheckpointReference")
+        local_reader=SmbSourceCheckpoint.for_renderer(self.runtime.cli)if local_ref is not None else None
+        if local_reader is not None:
+            identity=local_reader.renderer_identity(saved,request["checkpointPrivateKey"],local_ref,namespace["decrypt"],namespace["validate_payload"])
+        else:identity = namespace["decrypt"](saved["capsule"], request["checkpointPrivateKey"], capsule_scope)
         namespace["validate_payload"](identity)
-        if "SMB" in domains:
+        if "SMB" in domains and local_reader is None:
             # LIVE TDB replacement remains prohibited. Only an already-approved
             # exact Root maintenance operation can stop its owned identity
             # daemons before restoring the ciphertext checkpoint. Other
@@ -480,7 +494,23 @@ class RenderedDriver:
         # File/account restoration is separate from kernel replay. The ordered
         # adapter restores NVMe only if that domain was affected, preserving
         # unrelated live block sessions during an SMB-only rollback.
-        self.runtime.command(("identity", "capsule", "import"), {**saved["scope"], "capsule": saved["capsule"],
+        if local_reader is not None:
+            local_scope={**saved["scope"],"localCheckpointUuid":local_ref["localCheckpointUuid"]}
+            record=local_reader.read(local_reader.path(local_scope,"cipher"))
+            common=record["common"]
+            # Both manifests/checkpoint/key were authenticated before this
+            # canonical SOURCE restoration. No current TARGET is called SOURCE.
+            self.persist_desired(previous)
+            local_request={**common,"capsule":saved["capsule"],"credentialPrivateKey":request["checkpointPrivateKey"],
+                "localSourceCheckpointReference":local_ref,"renderedManifestSha256":request["renderedManifestSha256"]}
+            restored=self.runtime.command(("identity","capsule","import-local-source"),{**local_request,"deferNvmeReplay":True,"restoreDomains":["SMB"]})
+            if restored.get("sourceIdentityRestored")is not True or restored.get("sourceSmbResumed")is not True:
+                raise ValueError("LOCAL rendered original identity did not resume")
+            auth=[domain for domain in("ISCSI","NVMEOF")if domain in domains]
+            if auth:
+                self.runtime.command(("identity","capsule","replay-local-source-auth"),{**local_request,"restoreDomains":auth,
+                    **({"nvmeDesired":desired}if "NVMEOF"in auth else {})})
+        else:self.runtime.command(("identity", "capsule", "import"), {**saved["scope"], "capsule": saved["capsule"],
                              "credentialPrivateKey": request["checkpointPrivateKey"], "deferNvmeReplay": True,"restoreDomains":domains})
         if "SMB" in domains and identity.get("adIdentity") is not None:
             # Original bytes came from the authenticated SOURCE checkpoint.
@@ -668,7 +698,7 @@ class RenderedDriver:
             original=target.wrapping_key(request)
             return {"success":True,"scope":target.scope({key:value for key,value in request.items() if key not in ("publicKey","identityCheckpointRef")}),
                     "targetWrappingKeyVerified":True,"originalCapsuleSha256":original["sha256"]}
-        if action == "render-status": return {**self.store.status(),"rootSourceIdentityCheckpointSupported":True,"retainedRootRestoreSupported":True,"serviceIdentityCheckpointSupported":True}
+        if action == "render-status": return {**self.store.status(),"rootSourceIdentityCheckpointSupported":True,"retainedRootRestoreSupported":True,"serviceIdentityCheckpointSupported":True,"localSourceIdentityCheckpointSupported":callable(SmbSourceCheckpoint.export)}
         if action=="render-service-capture-source":return self.service_identity.capture(request)
         if action=="render-service-source-quiesce-guard":return self.service_identity.guard(request)
         if action=="render-service-source-stopped":return self.service_identity.stopped(request)

@@ -63,6 +63,11 @@ def current_smb_reviewed_bodies():
         function("service_identity_cipher","service_cipher_json"),files,lock,aliases(current,{"ServiceIdentityCipher":"CurrentSmbCipherFiles"})))
     return codec,plain
 
+def local_source_reviewed_body():
+    value=(LIB/"smb_source_checkpoint.py").read_text();value=value[value.index('"""'):]
+    dependencies=("smb_identity","smb_current_retention","pending_nfs_authorization","identity_capsule","service_identity_cipher","posix_receipt_transfer")
+    return "\n".join(line for line in value.splitlines()if not any(line.lstrip().startswith("from "+name+" import ")for name in dependencies)).rstrip()
+
 class StorageInlineSourcesTest(unittest.TestCase):
     def test_signed_rendered_entrypoint_matches_all_fixed_reviewed_library_bodies_exactly(self):
         modules=['ad_authority','semantic_identity_alias','rendered_generation','ganesha_dbus','nvme_credentials','native_renderers','native_render_validation','native_render_runtime','rendered_network','rendered_prerequisites','rendered_credentials','posix_root_initialization','root_identity_reference','root_configuration_capsule','root_source_identity_checkpoint','root_source_recovery','samba_public_sid','service_identity_source','service_identity_cipher','template_maintenance','service_maintenance','service_identity_target','root_identity_target','root_retained_authorization','root_ad_imported_authorization','root_ad_identity_authority','pending_nfs_authorization','rendered_driver']
@@ -76,7 +81,9 @@ class StorageInlineSourcesTest(unittest.TestCase):
             expected.append('\n'.join(line for line in value.splitlines() if not any(line.startswith('from '+item+' import ') for item in modules)))
         actual=CLI.read_text().split("<<'PYRENDEREDGENERATION'\n",1)[1].split("\nPYRENDEREDGENERATION",1)[0]
         actual=actual[:actual.index('\ntry:\n    action = sys.argv[1]')]
-        self.assertEqual('\n'.join(expected),actual)
+        expected='\n'.join(expected).replace("from smb_source_checkpoint import SmbSourceCheckpoint\n","")
+        expected=expected.replace("class RenderedDriver:",local_source_reviewed_body()+"\n\nclass RenderedDriver:")
+        self.assertEqual(expected,actual)
         ast.parse(actual)
 
     def test_signed_nfs_dbus_and_nvme_store_closures_match_reviewed_bodies(self):
@@ -215,5 +222,18 @@ class StorageInlineSourcesTest(unittest.TestCase):
         for action in ("current-review","current-quiesce","current-export","current-retain","current-verify"):
             self.assertIn('"'+action+'"',source)
         self.assertIn(":CURRENT_LOCAL_AFTERSTOP",actual)
+
+    def test_local_source_codec_closure_includes_real_lock_grant_and_exact_producer_body(self):
+        source=CLI.read_text()
+        pending=(LIB/"pending_nfs_authorization.py").read_text();pending=pending[pending.index('"""'):]
+        pending="\n".join(line for line in pending.splitlines()if not line.startswith("sys.path.insert(")
+            and not any(line.startswith("from "+name+" import ")for name in ("config_generation","rendered_generation","template_maintenance"))).rstrip()
+        expected=pending_nfs_readonly_body()+"\n\n"+pending+"\n\n"+local_source_reviewed_body()
+        actual=source.split("# BEGIN EMBEDDED LOCAL SOURCE CHECKPOINT\n",1)[1].split("\n# END EMBEDDED LOCAL SOURCE CHECKPOINT",1)[0]
+        self.assertEqual(expected,actual);ast.parse(actual)
+        self.assertIn('smb:identity:local-source-status|',source)
+        for action in("export-local-source","import-local-source","replay-local-source-auth"):
+            self.assertIn('"'+action+'"',source)
+        self.assertIn('localSourceIdentityCheckpointSupported',source)
 
 if __name__=='__main__':unittest.main()
