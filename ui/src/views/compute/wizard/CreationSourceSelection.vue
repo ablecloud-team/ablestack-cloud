@@ -41,7 +41,7 @@ size="small"
         <template v-if="column.key === 'name'"><strong>{{ record.name }}</strong><div class="source-meta">{{ record.id }}</div></template>
         <template v-else-if="column.key === 'origin'">{{ record.sourcevm?.displayname || record.sourcevm?.name || $t('label.creation.source.origin.unknown') }}<div class="source-meta">{{ record.bootprofile?.osname || '—' }}</div></template>
         <template v-else-if="column.key === 'state'"><a-tag class="source-state" :color="record.allowed ? 'green' : 'default'">{{ stateLabel(record.state) }}</a-tag><div v-if="record.snapshotcreated" class="source-meta">{{ date(record.snapshotcreated) }}</div></template>
-        <template v-else-if="column.key === 'size'">{{ bytes(record.sizebytes) }}<div class="source-meta">{{ record.bootprofile?.boottype }} · {{ record.bootprofile?.bootmode }}</div></template>
+        <template v-else-if="column.key === 'size'">{{ bytes(record.sizebytes) }}<div class="source-meta">{{ [record.bootprofile?.boottype, record.bootprofile?.bootmode].filter(Boolean).join(' · ') || '—' }}</div></template>
         <template v-else-if="column.key === 'storage'">{{ record.storage?.name || '—' }}<div v-if="record.storage?.type || record.storage?.scope" class="source-meta">{{ [record.storage?.type, record.storage?.scope].filter(Boolean).join(' · ') }}</div></template>
         <template v-else-if="column.key === 'eligibility'">
           <span v-if="record.allowed">{{ $t('label.creation.source.available') }}</span>
