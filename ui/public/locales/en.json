@@ -1,4 +1,7 @@
 {
+  "message.storage.service.read.cause.transport": "Connection failed.",
+  "message.storage.service.read.cause.timeout": "Read timed out.",
+  "message.storage.service.read.cause.failure": "Read failed.",
   "message.storage.operation.recovery.sessions.empty": "Verified empty",
   "message.storage.operation.recovery.review.failed": "The current identity review could not be verified. Approval and recovery submission are blocked.",
   "message.storage.operation.recovery.review.changed": "The operation scope or public review has changed. Review it and confirm approval again.",
