@@ -369,7 +369,8 @@ class SmbCurrentRetention:
             raise ValueError("CURRENT identity stopped authority changed")
         facts = self.facts(request, stopped=True)
         if (facts["publicNamespaceSids"] != journal["review"]["currentFacts"]["publicNamespaceSids"]
-                or facts["databases"] != journal["review"]["currentFacts"]["databases"]):
+                or facts["databases"] != journal["review"]["currentFacts"]["databases"]
+                or facts["configurationSha256"] != journal["review"]["currentFacts"]["configurationSha256"]):
             raise ValueError("CURRENT identity namespace/database inode changed after stop")
         return facts
 
@@ -621,7 +622,8 @@ class SmbCurrentRetention:
                 or status.get("generation") != current or status.get("configurationSha256") != current["configurationSha256"]):
             raise ValueError("CURRENT retained baseline canonical/maintenance changed")
         facts = self.facts(request, stopped=True)
-        if facts["publicNamespaceSids"] != record["publicNamespaceSids"]:
+        if (facts["publicNamespaceSids"] != record["publicNamespaceSids"]
+                or facts["configurationSha256"] != journal["review"]["currentFacts"]["configurationSha256"]):
             raise ValueError("CURRENT retained public namespace changed")
         self.match_private(record)
         return {"success": True, "smbIdentitySupported": True, "scope": scope, "bootId": self.boot(), "generation": current,

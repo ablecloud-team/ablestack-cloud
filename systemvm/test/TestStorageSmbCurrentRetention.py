@@ -451,3 +451,22 @@ class StorageSmbCurrentRetentionTest(unittest.TestCase):
             send.assert_not_called()
         self.assertFalse(any(row[:2]==["systemctl","stop"] for row in self.calls))
 
+
+    def test_afterstop_public_config_change_blocks_export_retain_and_terminal_baseline(self):
+        approval=self.stop();stable_reader=self.native.reader
+        request={**self.request,"currentReviewHash":approval["expectedReview"]["currentReviewHash"],"publicKey":self.public(self.newkey)}
+        def changed(path):
+            return (b"FOREIGN PUBLIC CONFIG SAME NAMESPACE",self.private["PASSDB"].stat()) if path=="/etc/samba/smb.conf" else stable_reader(path)
+        self.native.reader=changed
+        with self.assertRaises(ValueError):self.native.export(request)
+        self.assertFalse(self.native.path(self.scope,"cipher").exists());self.assertEqual(0,self.counter)
+        self.native.reader=stable_reader;exported=self.native.export(request)
+        retain={**self.request,"currentReviewHash":request["currentReviewHash"],"currentIdentityReference":exported["currentIdentityReference"]}
+        self.native.reader=changed
+        with self.assertRaises(ValueError):self.native.retain(retain)
+        self.native.reader=stable_reader;self.native.retain(retain);self.gen.execute("rollback",self.scope)
+        self.native.reader=changed
+        with self.assertRaises(ValueError):self.native.retain(retain,terminal=True)
+        with self.assertRaises(ValueError):self.native.inspect_retained({**self.scope,"revision":3},self.current)
+        self.assertEqual(self.raw_before,{name:path.read_bytes() for name,path in self.private.items()})
+
