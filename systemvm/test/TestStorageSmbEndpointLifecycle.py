@@ -19,6 +19,7 @@
 
 import ast
 import contextlib
+import copy
 import hashlib
 import ipaddress
 import json
@@ -126,6 +127,64 @@ class StorageSmbEndpointLifecycleTest(unittest.TestCase):
 
     def apply(self,rows=None):
         return self.ns['reconcile_smb_endpoint_units'](self.rows if rows is None else rows)
+
+    def startup_statement(self):
+        body=next(value for value in re.findall(r"<<'PY'\n(.*?)\nPY",SOURCE.read_text(),re.S) if "def reconcile_smb_endpoint_units(" in value)
+        return next(node for node in ast.parse(body).body if isinstance(node,ast.If)
+                    and "previous_netbios_name" in (ast.get_source_segment(body,node) or "")
+                    and "shutil.which" in (ast.get_source_segment(body,node.test) or ""))
+
+    def run_startup(self, statement, active=False, changed=True):
+        calls=[]
+        def status(args,**kwargs):
+            self.assertEqual(['systemctl','is-active','--quiet'],args[:3])
+            return SimpleNamespace(returncode=0 if args[-1]=='smbd.service' and active else 3)
+        def service(unit,**kwargs):
+            calls.append((unit,dict(kwargs)))
+            if unit=='smbd.service':
+                self.legacy={('0.0.0.0',445),('::',445)}
+        namespace={'shutil':SimpleNamespace(which=lambda name:'/usr/bin/'+name),
+                   'subprocess':SimpleNamespace(run=status,DEVNULL=-3),
+                   'pending_smb_service_start':service,'previous_netbios_name':'SYSTEMVM',
+                   'netbios_name':'STOR1234567890' if changed else 'SYSTEMVM',
+                   'run':lambda args,**kwargs:calls.append(('reload',{'args':args})),
+                   'smb_budget':lambda maximum:maximum}
+        exec(compile(ast.Module(body=[statement],type_ignores=[]),str(SOURCE),'exec'),namespace)
+        return calls
+
+    def test_actual_cold_rename_previous_default_start_reproduces_ipv6_stale_guard_before_registry(self):
+        statement=copy.deepcopy(self.startup_statement())
+        rename=next(node for node in statement.body if isinstance(node,ast.If)
+                    and isinstance(node.test,ast.BoolOp))
+        guard=next(node for node in rename.body if isinstance(node,ast.If))
+        # Reconstruct only the prior unconditional restart body from the actual
+        # fixed startup statement; the real endpoint guard remains unchanged.
+        rename.body=guard.body
+        self.legacy=set()
+        calls=self.run_startup(statement,active=False)
+        self.assertTrue(any(unit=='smbd.service' for unit,kwargs in calls))
+        self.assertEqual({('0.0.0.0',445),('::',445)},self.legacy)
+        with self.assertRaisesRegex(RuntimeError,'Shared legacy SMB acceptor endpoint removal requires explicit maintenance drain'):
+            self.apply([{'listenIp':'0.0.0.0','port':445}])
+        self.assertFalse((self.state/'smb-endpoint-listeners').exists())
+
+    def test_actual_cold_rename_keeps_default_stopped_and_starts_managed_wildcard_only(self):
+        self.legacy=set()
+        calls=self.run_startup(self.startup_statement(),active=False)
+        self.assertEqual([('nmbd',{'enable':True})],calls)
+        rows=[{'listenIp':'0.0.0.0','port':445}]
+        self.apply(rows)
+        self.assertEqual(set(),self.legacy)
+        starts=[args for args in self.calls if args[:2]==['systemctl','start']]
+        self.assertEqual(1,len(starts));self.assertIn('ablestack-storage-smb@',starts[0][2])
+
+    def test_actual_active_default_rename_restart_and_unchanged_name_reload_are_retained(self):
+        calls=self.run_startup(self.startup_statement(),active=True)
+        self.assertIn(('smbd.service',{'restart':True}),calls)
+        self.assertIn(('nmbd.service',{'restart':True}),calls)
+        calls=self.run_startup(self.startup_statement(),active=False,changed=False)
+        self.assertTrue(any(unit=='reload' for unit,kwargs in calls))
+        self.assertFalse(any(unit=='smbd.service' for unit,kwargs in calls))
 
     def test_add_b_preserves_legacy_a_and_same_request_does_not_restart_either(self):
         self.apply()

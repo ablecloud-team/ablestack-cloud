@@ -9297,9 +9297,14 @@ if shutil.which("systemctl"):
     if not shutil.which("smbcontrol"):
         raise RuntimeError("SMB reload command is unavailable")
     if previous_netbios_name and previous_netbios_name != netbios_name:
-        # Samba keeps the local machine identity in daemon state; ordinary policy edits only reload.
-        for unit in ("smbd.service", "nmbd.service"):
-            pending_smb_service_start(unit, restart=True)
+        # A running master caches its machine name. A cold default must remain
+        # stopped: the managed endpoint is the only initial file acceptor.
+        default_active = subprocess.run(["systemctl", "is-active", "--quiet", "smbd.service"],
+                                        check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                                        timeout=smb_budget(10)).returncode == 0
+        if default_active:
+            for unit in ("smbd.service", "nmbd.service"):
+                pending_smb_service_start(unit, restart=True)
     else:
         run(["smbcontrol", "all", "reload-config"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 runtime_endpoints = reconcile_smb_endpoint_units(listener_rows)
