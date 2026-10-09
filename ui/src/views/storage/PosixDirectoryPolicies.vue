@@ -76,19 +76,24 @@
       <a-alert type="warning" show-icon :message="$t('message.posix.directory.delete.preserve')" />
       <p>{{ deleteTarget?.relativepath }}</p>
     </a-modal>
+    <storage-ad-mutation-consent :visible="adMutationConsent.visible" :title="$t('label.posix.directory.apply')" :instance="adMutationConsent.instance" :scope="adMutationConsent.scope" @approve="approveAdMutation" @cancel="cancelAdMutation" />
   </section>
 </template>
 <script>
 import { getAPI, postAPI } from '@/api'
+import StorageAdMutationConsent from '@/views/storage/StorageAdMutationConsent'
+import { readJoinedAdReceipt, supportsAdMutationApi, adMutationScope, requireAdMutationApproval, requestAdMutationApproval, approveAdMutation, cancelAdMutation } from '@/utils/storageAdIdentity'
 import { PlusOutlined, ReloadOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons-vue'
 const parse = value => { try { return typeof value === 'string' ? JSON.parse(value) : (value || {}) } catch (error) { return {} } }
 export default {
   name: 'PosixDirectoryPolicies',
-  components: { PlusOutlined, ReloadOutlined, EditOutlined, DeleteOutlined },
-  props: { instanceId: { type: String, required: true }, volumes: { type: Array, default: () => [] } },
+  components: { StorageAdMutationConsent, PlusOutlined, ReloadOutlined, EditOutlined, DeleteOutlined },
+  props: { instanceId: { type: String, required: true }, instanceName: { type: String, default: '' }, domainStatus: { type: Object, default: () => ({}) }, volumes: { type: Array, default: () => [] } },
   emits: ['refresh', 'applied'],
   data () {
     return {
+      adMutationConsent: { visible: false, instance: {}, scope: '', resolve: null },
+      adDisposed: false,
       policies: [],
       loading: false,
       readError: false,
@@ -154,10 +159,20 @@ export default {
         { title: this.$t('label.actions'), key: 'actions', fixed: 'right', width: 260, align: 'right' }]
     }
   },
-  watch: { instanceId () { this.generation++; this.policies = []; this.editing = false; this.deleteTarget = null; this.saving = false; this.clearPreview(); this.refresh() } },
+  watch: {
+    instanceName () { this.cancelAdMutation() },
+    domainStatus: { deep: true, handler () { this.cancelAdMutation() } },
+    formToken () { this.cancelAdMutation() },
+    editing () { this.cancelAdMutation() },
+    deleteTarget () { this.cancelAdMutation() },
+    instanceId () { cancelAdMutation.call(this); this.generation++; this.policies = []; this.editing = false; this.deleteTarget = null; this.saving = false; this.clearPreview(); this.refresh() }
+  },
   mounted () { this.refresh() },
-  beforeUnmount () { this.generation++; this.previewGeneration++ },
+  beforeUnmount () { this.adDisposed = true; cancelAdMutation.call(this); this.generation++; this.previewGeneration++ },
   methods: {
+    requestAdMutationApproval,
+    approveAdMutation,
+    cancelAdMutation,
     clearPreview () { this.previewGeneration++; this.previewing = false; this.preview = null; this.previewError = ''; this.previewToken = ''; this.confirmed = false },
     async refresh () {
       const token = ++this.generation; const instance = this.instanceId
@@ -216,21 +231,38 @@ export default {
       }
     },
     async resolved (command, params) {
-      let result
-      try { result = await postAPI(command, params) } catch (error) {
+      const joined = params.preview !== true && this.domainStatus?.joinstate === 'JOINED'
+      const target = { id: this.instanceId, name: this.instanceName }
+      const parameters = { ...params }; let result
+      try {
+        if (joined) {
+          if (this.adDisposed || this.domainStatus.instanceid !== target.id || (parameters.instanceid !== undefined && parameters.instanceid !== target.id) || !target.name || !supportsAdMutationApi(api => this.$getApiParams?.(api), command)) throw new Error('AD_SERVICE_APPROVAL_REQUIRED')
+          const receipt = await readJoinedAdReceipt(target, this.domainStatus.domainname)
+          if (this.adDisposed || this.instanceId !== target.id || this.instanceName !== target.name) throw new Error('AD_SERVICE_APPROVAL_REQUIRED')
+          const review = adMutationScope(target, command, receipt, parameters)
+          const approved = await this.requestAdMutationApproval(target, command, review)
+          if (!approved || this.adDisposed) throw new Error('AD_SERVICE_APPROVAL_REQUIRED')
+          const fresh = await readJoinedAdReceipt(target, this.domainStatus.domainname)
+          if (this.adDisposed || this.instanceId !== target.id || this.instanceName !== target.name || (params.previewtoken && (!this.validPreview() || params.previewtoken !== this.previewV2.previewToken))) throw new Error('AD_SERVICE_APPROVAL_REQUIRED')
+          if (parameters.expectedrevision !== undefined && parameters.expectedrevision !== fresh.scope.revision) throw new Error('AD_SERVICE_APPROVAL_REQUIRED')
+          Object.assign(parameters, requireAdMutationApproval(target, command, fresh, parameters, approved), { expectedrevision: fresh.scope.revision })
+        }
+        result = await postAPI(command, parameters)
+        const payload = result[command.toLowerCase() + 'response'] || result
+        if (!payload.jobid) return payload.storageposixdirectorypolicy || payload
+        for (let i = 0; i < 60; i++) {
+          result = await getAPI('queryAsyncJobResult', { jobid: payload.jobid }, { preserveOnFailure: true, timeout: 15000 }); const job = result.queryasyncjobresultresponse
+          if (job.jobstatus === 1) return job.jobresult.storageposixdirectorypolicy || job.jobresult
+          if (job.jobstatus === 2) throw new Error(job.jobresult?.errortext || 'Operation failed')
+          await new Promise(resolve => setTimeout(resolve, 1000))
+        }
+        throw new Error(this.$t('message.posix.directory.timeout'))
+      } catch (error) {
+        if (joined) throw new Error(this.$t(error?.message === 'AD_SERVICE_APPROVAL_REQUIRED' ? 'message.storage.service.ad.maintenance.required' : 'message.storage.service.ad.receipt.unverified'))
         const response = error.response?.data
         const body = response?.[command.toLowerCase() + 'response'] || response?.errorresponse
         throw new Error(typeof body?.errortext === 'string' ? body.errortext : error.message)
-      }
-      const payload = result[command.toLowerCase() + 'response'] || result
-      if (!payload.jobid) return payload.storageposixdirectorypolicy || payload
-      for (let i = 0; i < 60; i++) {
-        result = await getAPI('queryAsyncJobResult', { jobid: payload.jobid }, { preserveOnFailure: true, timeout: 15000 }); const job = result.queryasyncjobresultresponse
-        if (job.jobstatus === 1) return job.jobresult.storageposixdirectorypolicy || job.jobresult
-        if (job.jobstatus === 2) throw new Error(job.jobresult?.errortext || 'Operation failed')
-        await new Promise(resolve => setTimeout(resolve, 1000))
-      }
-      throw new Error(this.$t('message.posix.directory.timeout'))
+      } finally { if (joined) this.cancelAdMutation() }
     },
     validPreview () {
       const expiry = typeof this.previewV2.expiresAt === 'number' ? this.previewV2.expiresAt : Date.parse(this.previewV2.expiresAt)

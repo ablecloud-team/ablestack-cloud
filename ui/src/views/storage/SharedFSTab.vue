@@ -372,7 +372,15 @@ class="storage-service__alert"
                 </template>
               </a-table>
             </section>
-            <posix-directory-policies ref="nfsPosixPolicies" v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis" :instance-id="storageService.instance.id" :volumes="currentBackingVolumes" @applied="nfsPolicyApplied" @refresh="fetchStorageServiceData" />
+            <posix-directory-policies
+ref="nfsPosixPolicies"
+v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis"
+:instance-id="storageService.instance.id"
+:instance-name="storageService.instance.name"
+:domain-status="smbDomainStatus"
+:volumes="currentBackingVolumes"
+@applied="nfsPolicyApplied"
+@refresh="fetchStorageServiceData" />
           </template>
         </div>
       </a-tab-pane>
@@ -593,7 +601,7 @@ class="storage-service__alert"
               </a-table>
             </section>
 
-            <posix-directory-policies v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis" :instance-id="storageService.instance.id" :volumes="currentBackingVolumes" @refresh="fetchStorageServiceData" />
+            <posix-directory-policies v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis" :instance-id="storageService.instance.id" :instance-name="storageService.instance.name" :domain-status="smbDomainStatus" :volumes="currentBackingVolumes" @refresh="fetchStorageServiceData" />
             <smb-network-access v-if="'listStorageSmbNetworkAcls' in $store.getters.apis" :instance-id="storageService.instance.id" :shares="storageService.smbShares" :runtime="parsedInventory.smbAccess || {}" @refresh="fetchStorageServiceData" />
 
             <section class="storage-table-section">
