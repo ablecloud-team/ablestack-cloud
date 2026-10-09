@@ -68,14 +68,24 @@ public final class StorageAdIdentityProof {
         for(String key:Set.of("instanceUuid","operationUuid","maintenanceUuid"))if(!text(scope,key).matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"))throw new CloudRuntimeException("SERVICE encrypted source checkpoint UUID is invalid");
         if(integer(scope,"revision")<1||sourceSha==null||!sourceSha.matches("[a-f0-9]{64}")||!sourceSha.equals(text(receipt,"sourceConfigurationSha256"))
                 ||!text(receipt,"checkpointRecordSha256").matches("[a-f0-9]{64}"))throw new CloudRuntimeException("SERVICE encrypted source checkpoint configuration proof is invalid");
+        encryptedCapsuleShape(capsule,scope,text(receipt,"capsuleSha256"));
+        return receipt.deepCopy();
+    }
+    private static void encryptedCapsuleShape(JsonObject capsule,JsonObject scope,String receiptCipherSha) {
         if(capsule==null||!capsule.keySet().equals(Set.of("schemaVersion","scope","wrappedKey","nonce","ciphertext","sha256"))||integer(capsule,"schemaVersion")!=1
                 ||!(text(scope,"instanceUuid")+":"+text(scope,"operationUuid")).equals(text(capsule,"scope")))throw new CloudRuntimeException("SERVICE encrypted source capsule shape or scope is invalid");
         String cipherSha=text(capsule,"sha256");byte[] cipher,nonce,wrapped;
         try {cipher=java.util.Base64.getDecoder().decode(text(capsule,"ciphertext"));nonce=java.util.Base64.getDecoder().decode(text(capsule,"nonce"));wrapped=java.util.Base64.getDecoder().decode(text(capsule,"wrappedKey"));}
         catch(IllegalArgumentException invalid){throw new CloudRuntimeException("SERVICE source cipher encoding is invalid",invalid);}
         if(cipher.length<16||cipher.length>16*1024*1024||nonce.length!=12||wrapped.length<256||wrapped.length>1024||!cipherSha.matches("[a-f0-9]{64}")
-                ||!cipherSha.equals(StorageConfigArchive.sha256(cipher))||!cipherSha.equals(text(receipt,"capsuleSha256")))throw new CloudRuntimeException("SERVICE encrypted source capsule digest or cryptographic shape changed");
-        return receipt.deepCopy();
+                ||!cipherSha.equals(StorageConfigArchive.sha256(cipher))||!cipherSha.equals(receiptCipherSha))throw new CloudRuntimeException("SERVICE encrypted source capsule digest or cryptographic shape changed");
+    }
+    public static JsonObject rootTargetCipherCheckpoint(JsonObject receipt,JsonObject capsule,JsonObject scope,String targetSha) {
+        if(scope==null||!scope.keySet().equals(Set.of("instanceUuid","operationUuid","templateUpgradeUuid","revision")))throw new CloudRuntimeException("ROOT TARGET encrypted checkpoint requires its exact ROOT scope");
+        for(String field:Set.of("instanceUuid","operationUuid","templateUpgradeUuid"))canonicalUuid(text(scope,field));
+        if(integer(scope,"revision")<1||targetSha==null||!targetSha.matches("[a-f0-9]{64}")||receipt==null||!receipt.keySet().equals(Set.of("kind","scope","capsuleSha256","targetConfigurationSha256","checkpointRecordSha256"))
+                ||!"ROOT_TARGET_IDENTITY_CHECKPOINT".equals(text(receipt,"kind"))||!scope.equals(receipt.get("scope"))||!targetSha.equals(text(receipt,"targetConfigurationSha256"))||!text(receipt,"checkpointRecordSha256").matches("[a-f0-9]{64}"))throw new CloudRuntimeException("ROOT TARGET encrypted checkpoint is not bound to its independent native target receipt");
+        encryptedCapsuleShape(capsule,scope,text(receipt,"capsuleSha256"));return receipt.deepCopy();
     }
     public static JsonObject targetCipherCheckpoint(JsonObject receipt,JsonObject capsule,JsonObject scope,String targetSha) {
         if(receipt==null||!receipt.keySet().equals(Set.of("kind","scope","capsuleSha256","targetConfigurationSha256","checkpointRecordSha256"))||!"SERVICE_TARGET_IDENTITY_CHECKPOINT".equals(text(receipt,"kind"))||!targetSha.equals(text(receipt,"targetConfigurationSha256")))throw new CloudRuntimeException("LKG TARGET ciphertext has no distinct verified target receipt");
@@ -87,6 +97,15 @@ public final class StorageAdIdentityProof {
         if(stopped){yes(proof,"serviceTargetStoppedVerified",true);yes(proof,"bootHeld",true);yes(proof,"sideEffects",false);if(!"SERVICE".equals(text(proof,"maintenanceKind"))||!text(proof,"stoppedReceiptSha256").matches("[a-f0-9]{64}"))throw new CloudRuntimeException("LKG TARGET has no independent owned-stop receipt");}
         if(resumed)yes(proof,"targetRuntimeVerified",true);
         return publicFields(proof,Set.of("success","scope","targetCaptured","canonicalDesiredStateChanged","targetGeneration","targetConfigurationSha256","targetRenderedManifestSha256","bootId","publicLocalMachineSid","serviceTargetStoppedVerified","stoppedReceiptSha256","bootHeld","sideEffects","maintenanceKind","targetRuntimeVerified"));
+    }
+    public static JsonObject rootTargetObservation(JsonObject proof,JsonObject scope,JsonObject generation,String targetSha,String renderedSha,String bootId,String localSid,boolean stopped,boolean resumed) {
+        if(scope==null||!scope.keySet().equals(Set.of("instanceUuid","operationUuid","templateUpgradeUuid","revision")))throw new CloudRuntimeException("ROOT TARGET observation requires its typed ROOT scope");
+        for(String field:Set.of("instanceUuid","operationUuid","templateUpgradeUuid"))canonicalUuid(text(scope,field));if(integer(scope,"revision")<1)throw new CloudRuntimeException("ROOT TARGET observation revision is invalid");
+        yes(proof,"success",true);yes(proof,"targetCaptured",true);yes(proof,"canonicalDesiredStateChanged",false);sid(localSid);
+        if(!scope.equals(proof.get("scope"))||!generation.equals(proof.get("targetGeneration"))||!targetSha.equals(text(proof,"targetConfigurationSha256"))||!renderedSha.equals(text(proof,"targetRenderedManifestSha256"))||!bootId.equals(text(proof,"bootId"))||!localSid.equals(text(proof,"publicLocalMachineSid")))throw new CloudRuntimeException("ROOT TARGET observation differs from its committed generation, boot or SAM");
+        if(stopped){yes(proof,"rootTargetStoppedVerified",true);yes(proof,"bootHeld",true);yes(proof,"sideEffects",false);if(!"ROOT".equals(text(proof,"maintenanceKind"))||!text(proof,"stoppedReceiptSha256").matches("[a-f0-9]{64}"))throw new CloudRuntimeException("ROOT TARGET has no independent owned-stop receipt");}
+        if(resumed)yes(proof,"targetRuntimeVerified",true);
+        return publicFields(proof,Set.of("success","scope","targetCaptured","canonicalDesiredStateChanged","targetGeneration","targetConfigurationSha256","targetRenderedManifestSha256","bootId","publicLocalMachineSid","rootTargetStoppedVerified","stoppedReceiptSha256","bootHeld","sideEffects","maintenanceKind","targetRuntimeVerified"));
     }
     public static JsonObject localSamBootstrap(JsonObject proof,JsonObject scope,JsonObject generation,String configurationSha,String bootId,String netbiosName) {
         yes(proof,"success",true);yes(proof,"canonicalDesiredStateChanged",false);

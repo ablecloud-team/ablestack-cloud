@@ -94,6 +94,7 @@ public class StorageTemplateUpgradeRuntimeTest {
         }
         boolean joinedSource,failAdAuthority,failAdRetain;
         @Override protected boolean hasJoinedStorageAdDomain(StorageServiceInstanceVO instance){return joinedSource;}
+        @Override protected void bindImportedRootRenderedAuthorization(StorageServiceOperationVO operation,RenderedBatch batch,JsonObject auth,String sourceSha){commands.add("BIND_FORWARD_ORIGINAL_KEY");batch.importedRootAuthorization=auth.deepCopy();}
         @Override protected JsonObject authorizeImportedRootAdIdentity(StorageServiceInstanceVO instance,JsonObject scope,JsonObject reference,JsonObject runtime){commands.add("AUTHORIZE_FORWARD_AD");if(failAdAuthority)throw new CloudRuntimeException("Signed target authority failed");JsonObject ref=new JsonObject();ref.addProperty("authorizationUuid",UUID.randomUUID().toString());ref.addProperty("sha256","c".repeat(64));return ref;}
         @Override protected JsonObject retainRootConfigurationAdIdentity(StorageServiceInstanceVO instance,JsonObject scope,JsonObject reference,JsonObject auth){commands.add("RETAIN_AD_FRESH_TRUST");if(failAdRetain)throw new CloudRuntimeException("Fresh original trust failed");Assert.assertEquals(java.util.Set.of("authorizationUuid","sha256"),auth.keySet());return new JsonObject();}
         @Override protected void restoreRootConfigurationIdentity(StorageServiceInstanceVO instance,JsonObject scope,JsonObject reference,JsonArray files,boolean attest){commands.add(attest?"ATTEST_LATEST_POSIX":"IMPORT_LATEST_IDENTITY");}
