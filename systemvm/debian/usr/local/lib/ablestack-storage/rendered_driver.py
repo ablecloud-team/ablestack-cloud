@@ -37,11 +37,13 @@ from ganesha_dbus import GaneshaDbus
 from rendered_credentials import credential_json, credential_bindings, credential_recovery_key, credential_target_inputs
 from root_source_recovery import RootSourceRecovery
 from service_identity_source import ServiceIdentitySource
-from service_identity_cipher import ServiceIdentityCipher
+from service_identity_cipher import ServiceIdentityCipher,service_cipher_scope,service_cipher_digest
 from template_maintenance import Maintenance
 from service_maintenance import ServiceMaintenance
 from service_identity_target import ServiceIdentityTarget
+from root_identity_target import RootIdentityTarget
 from root_retained_authorization import RootRetainedAuthorization
+from root_ad_identity_authority import root_ad_retained_authority
 from root_configuration_capsule import root_configuration_sha256
 from nvme_credentials import protected_credential_json
 
@@ -66,6 +68,59 @@ class RenderedDriver:
         if desired is not None and (root_configuration_sha256(desired)!=record["latestConfigurationSha256"] or desired!=record["configurationDesiredState"]):
             raise ValueError("Retained ROOT target seven differ from its authenticated latest source")
         return record
+
+    def imported_root_authority(self,request):
+        reference=request.get("importedRootAuthorization")
+        if reference is None:return None
+        if request.get("retainedRootAuthorization") is not None:raise ValueError("ROOT source authorization roles are mixed")
+        scope=self.store.scope(request);marker=self.runtime.command(("operation","maintenance","status"))
+        value=root_ad_retained_authority(scope,marker,reference=reference)
+        if value["kind"]!="ROOT_AD_IMPORTED_AUTHORIZATION":raise ValueError("Forward ROOT cannot borrow retained historical generation authority")
+        initial=self.store.read_journal() or {}
+        if initial.get("initialRootScope")!=value["scope"]:
+            checkpoint=credential_json(rendered_read(self.checkpoints/(scope["operationUuid"]+".json")))
+            if checkpoint.get("importedRootScope")!=value["scope"] or checkpoint.get("importedRootAuthorization")!=reference:
+                raise ValueError("Forward ROOT source has no exact initial approved ROOT checkpoint")
+        desired=request.get("configurationDesiredState")
+        if desired is not None and (root_configuration_sha256(desired)!=value["sourceConfigurationSha256"] or desired!=value["record"]["configurationDesiredState"]):
+            raise ValueError("Forward ROOT target differs from its authenticated original source seven")
+        return value
+
+    def ad_join_inverse_source_guard(self,request):
+        scope=service_cipher_scope(request);common={key:scope[key] for key in ("instanceUuid","operationUuid","revision")}
+        marker=self.runtime.command(("operation","maintenance","status"))
+        if marker.get("maintenanceKind")!="SERVICE" or marker.get("bootHeld") is not True or marker.get("scope")!=scope:
+            raise ValueError("JOIN inverse boundary has no exact held SERVICE4")
+        files=ServiceIdentityCipher();native=files.source(scope);record=files.read(files.path(scope))
+        original=record.get("identityCheckpoint",{})
+        if (record.get("kind")!="SERVICE_SOURCE_IDENTITY_CHECKPOINT" or record.get("serviceScope")!=scope
+                or record.get("sourceRecordSha256")!=service_cipher_digest(native)
+                or original.get("scope")!=common or original.get("sourceConfigurationSha256")!=native["sourceConfigurationSha256"]):
+            raise ValueError("JOIN inverse original SOURCE record/cipher authority differs")
+        actual=self.generation()
+        if (actual.get("generation")!=native["sourceGeneration"] or actual.get("pendingOperationUuid")!=scope["operationUuid"]
+                or actual.get("generationStatus")!="PENDING"):
+            raise ValueError("JOIN inverse native generation/pending source is foreign")
+        boundary="ORIGINAL_SOURCE"
+        if actual["configurationSha256"]!=native["sourceConfigurationSha256"]:
+            journal=self.store.scoped_activation(common);target=self.store.inspect(self.store.generations/scope["operationUuid"])
+            previous=self.store.inspect(self.store.generations/journal["previousOperationUuid"])
+            checkpoint=credential_json(rendered_read(self.checkpoints/(scope["operationUuid"]+".json")))
+            if (journal.get("phase") not in ("ACTIVATING","RECOVERY_REQUIRED","VERIFIED")
+                    or journal.get("targetSha256")!=target["manifestSha256"] or journal.get("previousSha256")!=previous["manifestSha256"]
+                    or target.get("scope")!=common or target.get("previousRenderedSha256")!=previous["manifestSha256"]
+                    or previous["manifestSha256"]!=native["sourceRendered"]["manifestSha256"]
+                    or previous["configurationSha256"]!=native["sourceConfigurationSha256"] or checkpoint!=original
+                    or actual["configurationSha256"]!=target["configurationSha256"]
+                    or actual.get("configurationDesiredState")!=credential_json(rendered_read(self.store.generations/scope["operationUuid"]/"desired-state.json"))):
+                raise ValueError("JOIN inverse current TARGET has no protected original previous/source/key authority")
+            current=self.store.inspect(self.store.pointer())
+            if current["manifestSha256"] not in (previous["manifestSha256"],target["manifestSha256"]):
+                raise ValueError("JOIN inverse active rendered pointer is foreign")
+            boundary="OWNED_ACTIVATION_TARGET"
+        return {"success":True,"scope":scope,"inverseOriginalSourceVerified":True,"currentBoundary":boundary,
+                "sourceConfigurationSha256":native["sourceConfigurationSha256"],"currentConfigurationSha256":actual["configurationSha256"],
+                "bootId":native["bootId"],"publicLocalMachineSid":native["sourcePublicIdentity"]["publicLocalMachineSid"]}
 
     def verify(self,path):
         manifest=self.store.inspect(path);bindings=json.loads(rendered_read(path/"file-volumes.json"))
@@ -281,6 +336,17 @@ class RenderedDriver:
             else:rendered_json(path,saved)
             return saved
         rendered_directory(self.checkpoints, True)
+        imported=self.imported_root_authority(request)
+        if imported is not None:
+            saved={**imported["identityCheckpoint"],"importedRootScope":imported["scope"],"importedRootAuthorization":request["importedRootAuthorization"]}
+            from cryptography.hazmat.primitives import serialization
+            public=serialization.load_pem_public_key(str(request.get("checkpointPublicKey") or "").encode())
+            expected=serialization.load_pem_public_key(saved["publicKey"].encode())
+            if public.public_numbers()!=expected.public_numbers():raise ValueError("Forward ROOT checkpoint key differs from authenticated SOURCE")
+            if path.exists() or path.is_symlink():
+                if credential_json(rendered_read(path))!=saved:raise ValueError("Forward ROOT immutable original checkpoint changed")
+            else:rendered_json(path,saved)
+            return saved
         retained=self.retained_authority(request)
         if retained is not None:
             saved=self.root_retained.identity_checkpoint(retained)
@@ -318,6 +384,8 @@ class RenderedDriver:
         return saved
 
     def credential_source(self, request):
+        imported=self.imported_root_authority(request)
+        if imported is not None:return {"configurationSha256":imported["sourceConfigurationSha256"],"scope":imported["record"]["latestSourceGeneration"],"importedRootIdentitySource":True}
         retained=self.retained_authority(request)
         if retained is not None:return {"configurationSha256":retained["latestConfigurationSha256"],"scope":retained["latestSourceGeneration"],"retainedLatestIdentitySource":True}
         scope=self.store.scope(request)
@@ -561,14 +629,40 @@ class RenderedDriver:
         controller=ServiceMaintenance(Maintenance(generation=lambda:self.generation()),runtime.cli)
         return ServiceIdentityTarget(self,controller,winbind=bridge)
 
+    def root_target_identity_handler(self,request):
+        runtime=self.runtime
+        bridge=type("RootTargetWinbindResume",(),{"start":lambda ignored,scope:runtime.command(("identity","domain","root-target-resume"),request)})()
+        controller=ServiceMaintenance(Maintenance(generation=lambda:self.generation()),runtime.cli)
+        return RootIdentityTarget(self,controller,winbind=bridge)
+
     def execute(self, action, request=None, unit=None):
+        if action=="render-ad-join-inverse-guard":return self.ad_join_inverse_source_guard(request)
+        if action in ("render-root-capture-target","render-root-quiesce-target","render-root-target-stopped","render-root-identity-export-target","render-root-target-key-guard","render-root-target-cached-cipher","render-root-resume-target"):
+            target=self.root_target_identity_handler(request)
+            if action=="render-root-capture-target":return target.capture(request)
+            if action=="render-root-quiesce-target":return target.quiesce(request)
+            if action=="render-root-target-stopped":return target.stopped(request)
+            if action=="render-root-identity-export-target":return target.export_target(request)
+            if action=="render-root-resume-target":
+                common={key:request[key] for key in ("instanceUuid","operationUuid","revision")}
+                proof=self.authorize_units(common)
+                try:return target.resume(request)
+                finally:proof.unlink(missing_ok=True);rendered_fsync(proof.parent)
+            if action=="render-root-target-cached-cipher":return {"success":True,"cachedTarget":target.cached_cipher(request)}
+            original=target.wrapping_key(request)
+            return {"success":True,"scope":target.scope({key:value for key,value in request.items() if key not in ("publicKey","identityCheckpointRef")}),
+                    "targetWrappingKeyVerified":True,"originalCapsuleSha256":original["sha256"]}
         if action in ("render-service-capture-target","render-service-quiesce-target","render-service-target-stopped","render-service-identity-export-target","render-service-target-key-guard","render-service-target-cached-cipher","render-service-resume-target"):
             target=self.target_identity_handler()
             if action=="render-service-capture-target":return target.capture(request)
             if action=="render-service-quiesce-target":return target.quiesce(request)
             if action=="render-service-target-stopped":return target.stopped(request)
             if action=="render-service-identity-export-target":return target.export_target(request)
-            if action=="render-service-resume-target":return target.resume(request)
+            if action=="render-service-resume-target":
+                common={key:request[key] for key in ("instanceUuid","operationUuid","revision")}
+                proof=self.authorize_units(common)
+                try:return target.resume(request)
+                finally:proof.unlink(missing_ok=True);rendered_fsync(proof.parent)
             if action=="render-service-target-cached-cipher":return {"success":True,"cachedTarget":target.cached_cipher(request)}
             original=target.wrapping_key(request)
             return {"success":True,"scope":target.scope({key:value for key,value in request.items() if key not in ("publicKey","identityCheckpointRef")}),
@@ -736,10 +830,10 @@ class RenderedDriver:
                 # Do not re-observe a joined target identity as the old source.
                 marker=self.runtime.command(("operation","maintenance","status"))
                 service_cipher.authorize(request,source,marker,self.root_source.canonical_bytes())
-            elif retained is None:
+            elif retained is None and self.imported_root_authority(request) is None:
                 healthy = self.verify(self.store.pointer())
                 if not all(healthy[domain] is True for domain in DOMAINS):raise ValueError("Source runtime lost agreement before durable rendered staging")
-            elif (request.get("previousGeneration")!=retained["retainedGeneration"] or request.get("expectedCurrentRenderedSha256")!=retained["retainedRenderedSha256"] or pending.get("previous")!=retained["retainedGeneration"]):
+            elif retained is not None and (request.get("previousGeneration")!=retained["retainedGeneration"] or request.get("expectedCurrentRenderedSha256")!=retained["retainedRenderedSha256"] or pending.get("previous")!=retained["retainedGeneration"]):
                 raise ValueError("Retained ROOT pending.previous/old pointer differs from its protected baseline")
             checkpoint = self.checkpoint(request, source)
             manifest = self.store.stage(request, files, self.validate)

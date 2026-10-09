@@ -21,12 +21,17 @@ from pathlib import Path
 from service_identity_cipher import ServiceIdentityCipher,service_cipher_digest,service_cipher_scope
 
 class ServiceTargetCipher:
+    prefix="service-identity-target"
+    capture_kind="SERVICE_IDENTITY_TARGET"
+    cipher_kind="SERVICE_TARGET_IDENTITY_CHECKPOINT"
+    stopped_flag="serviceTargetStoppedVerified"
+    def scope(self,request):return service_cipher_scope(request)
     def __init__(self,root=None):self.root=Path(root or os.environ.get("ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR","/var/lib/ablestack-storage"));self.files=ServiceIdentityCipher(self.root)
-    def path(self,scope):return self.root/("service-identity-target-cipher-"+scope["operationUuid"]+".json")
+    def path(self,scope):return self.root/(self.prefix+"-cipher-"+scope["operationUuid"]+".json")
     def retain(self,request,capsule,target,key_proof):
-        scope=service_cipher_scope(request);saved=self.files.read(self.root/("service-identity-target-"+scope["operationUuid"]+".json"))
-        if (saved.get("kind")!="SERVICE_IDENTITY_TARGET" or saved.get("scope")!=scope or saved.get("phase")!="STOPPED"
-                or target.get("scope")!=scope or target.get("serviceTargetStoppedVerified") is not True
+        scope=self.scope(request);saved=self.files.read(self.root/(self.prefix+"-"+scope["operationUuid"]+".json"))
+        if (saved.get("kind")!=self.capture_kind or saved.get("scope")!=scope or saved.get("phase")!="STOPPED"
+                or target.get("scope")!=scope or target.get(self.stopped_flag) is not True
                 or target.get("targetGeneration")!=saved["targetGeneration"] or target.get("targetConfigurationSha256")!=saved["targetConfigurationSha256"]
                 or target.get("stoppedReceiptSha256")!=service_cipher_digest(saved["targetStoppedReceipt"])
                 or key_proof.get("scope")!=scope or key_proof.get("targetWrappingKeyVerified") is not True
@@ -40,12 +45,12 @@ class ServiceTargetCipher:
         from cryptography.hazmat.primitives.asymmetric import rsa
         public=serialization.load_pem_public_key(request["publicKey"].encode())
         if not isinstance(public,rsa.RSAPublicKey) or public.key_size<2048:raise ValueError("TARGET wrapping RSA key is invalid")
-        record={"schemaVersion":1,"kind":"SERVICE_TARGET_IDENTITY_CHECKPOINT","scope":scope,"targetConfigurationSha256":saved["targetConfigurationSha256"],
+        record={"schemaVersion":1,"kind":self.cipher_kind,"scope":scope,"targetConfigurationSha256":saved["targetConfigurationSha256"],
                 "targetRecordSha256":service_cipher_digest(saved),"stoppedReceiptSha256":service_cipher_digest(saved["targetStoppedReceipt"]),
                 "publicKey":request["publicKey"],"capsule":capsule,"bootId":saved["bootId"]}
         path=self.path(scope)
         if path.exists() or path.is_symlink():
             if self.files.read(path)!=record:raise ValueError("TARGET original ciphertext publication changed")
         else:self.files.write(path,record)
-        return {"kind":"SERVICE_TARGET_IDENTITY_CHECKPOINT","scope":scope,"capsuleSha256":capsule["sha256"],
+        return {"kind":self.cipher_kind,"scope":scope,"capsuleSha256":capsule["sha256"],
                 "targetConfigurationSha256":saved["targetConfigurationSha256"],"checkpointRecordSha256":service_cipher_digest(record)}

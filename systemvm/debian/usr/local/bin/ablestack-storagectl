@@ -11676,6 +11676,7 @@ import sys
 import re
 from pathlib import Path
 request = json.loads(os.fdopen(3).read() if sys.argv[2] == "/dev/stdin" else Path(sys.argv[2]).read_text())
+
 # BEGIN EMBEDDED ROOT AD IMPORTED AUTHORITY
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements. See the NOTICE file
@@ -11784,7 +11785,8 @@ class RootAdImportedAuthorization:
                 or checkpoint.get("publicKey")!=public or decrypt(checkpoint["capsule"],request["credentialPrivateKey"],scope["instanceUuid"]+":"+scope["operationUuid"])!=payload):
             raise ValueError("Forward ROOT AD immutable encrypted checkpoint changed")
         record={"schemaVersion":1,"kind":"ROOT_AD_IMPORTED_AUTHORIZATION","scope":scope,"latestSourceRootScope":original,
-                "latestConfigurationSha256":source_sha,"latestAdIdentity":identity,"authorizedBootId":boot,
+                 "latestConfigurationSha256":source_sha,"latestSourceGeneration":payload["rootSourceConfiguration"]["sourceGeneration"],
+                "configurationDesiredState":root_configuration_authorize(payload,original,source_sha),"latestAdIdentity":identity,"authorizedBootId":boot,
                 "targetRuntimePin":pin,"targetRuntimeTransactionId":transaction,"originalCipherSha256":original_cipher["sha256"],"identityCheckpointSha256":checkpoint["capsule"]["sha256"],"checkpointPublicKey":public}
         existing=self.optional_read(record_path)
         if existing is not None and existing!=record:
@@ -12543,12 +12545,17 @@ import os
 from pathlib import Path
 
 class ServiceTargetCipher:
+    prefix="service-identity-target"
+    capture_kind="SERVICE_IDENTITY_TARGET"
+    cipher_kind="SERVICE_TARGET_IDENTITY_CHECKPOINT"
+    stopped_flag="serviceTargetStoppedVerified"
+    def scope(self,request):return service_cipher_scope(request)
     def __init__(self,root=None):self.root=Path(root or os.environ.get("ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR","/var/lib/ablestack-storage"));self.files=ServiceIdentityCipher(self.root)
-    def path(self,scope):return self.root/("service-identity-target-cipher-"+scope["operationUuid"]+".json")
+    def path(self,scope):return self.root/(self.prefix+"-cipher-"+scope["operationUuid"]+".json")
     def retain(self,request,capsule,target,key_proof):
-        scope=service_cipher_scope(request);saved=self.files.read(self.root/("service-identity-target-"+scope["operationUuid"]+".json"))
-        if (saved.get("kind")!="SERVICE_IDENTITY_TARGET" or saved.get("scope")!=scope or saved.get("phase")!="STOPPED"
-                or target.get("scope")!=scope or target.get("serviceTargetStoppedVerified") is not True
+        scope=self.scope(request);saved=self.files.read(self.root/(self.prefix+"-"+scope["operationUuid"]+".json"))
+        if (saved.get("kind")!=self.capture_kind or saved.get("scope")!=scope or saved.get("phase")!="STOPPED"
+                or target.get("scope")!=scope or target.get(self.stopped_flag) is not True
                 or target.get("targetGeneration")!=saved["targetGeneration"] or target.get("targetConfigurationSha256")!=saved["targetConfigurationSha256"]
                 or target.get("stoppedReceiptSha256")!=service_cipher_digest(saved["targetStoppedReceipt"])
                 or key_proof.get("scope")!=scope or key_proof.get("targetWrappingKeyVerified") is not True
@@ -12562,16 +12569,43 @@ class ServiceTargetCipher:
         from cryptography.hazmat.primitives.asymmetric import rsa
         public=serialization.load_pem_public_key(request["publicKey"].encode())
         if not isinstance(public,rsa.RSAPublicKey) or public.key_size<2048:raise ValueError("TARGET wrapping RSA key is invalid")
-        record={"schemaVersion":1,"kind":"SERVICE_TARGET_IDENTITY_CHECKPOINT","scope":scope,"targetConfigurationSha256":saved["targetConfigurationSha256"],
+        record={"schemaVersion":1,"kind":self.cipher_kind,"scope":scope,"targetConfigurationSha256":saved["targetConfigurationSha256"],
                 "targetRecordSha256":service_cipher_digest(saved),"stoppedReceiptSha256":service_cipher_digest(saved["targetStoppedReceipt"]),
                 "publicKey":request["publicKey"],"capsule":capsule,"bootId":saved["bootId"]}
         path=self.path(scope)
         if path.exists() or path.is_symlink():
             if self.files.read(path)!=record:raise ValueError("TARGET original ciphertext publication changed")
         else:self.files.write(path,record)
-        return {"kind":"SERVICE_TARGET_IDENTITY_CHECKPOINT","scope":scope,"capsuleSha256":capsule["sha256"],
+        return {"kind":self.cipher_kind,"scope":scope,"capsuleSha256":capsule["sha256"],
                 "targetConfigurationSha256":saved["targetConfigurationSha256"],"checkpointRecordSha256":service_cipher_digest(record)}
 # END EMBEDDED SERVICE TARGET CIPHER
+# BEGIN EMBEDDED ROOT TARGET CIPHER
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements. See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership. The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+"""ROOT codec-only TARGET publication; uses the same closed cipher validation."""
+
+class RootTargetCipher(ServiceTargetCipher):
+    prefix="root-identity-target"
+    capture_kind="ROOT_IDENTITY_TARGET"
+    cipher_kind="ROOT_TARGET_IDENTITY_CHECKPOINT"
+    stopped_flag="rootTargetStoppedVerified"
+    def scope(self,request):
+        if "maintenanceUuid" in request:raise ValueError("ROOT TARGET cannot borrow SERVICE scope")
+        return RootIdentityReference().scope(request)
+# END EMBEDDED ROOT TARGET CIPHER
 
 scope = str(request.get("instanceUuid") or "") + ":" + str(request.get("operationUuid") or "")
 if not re.fullmatch(r"[0-9a-fA-F-]{36}:[0-9a-fA-F-]{36}", scope):
@@ -12697,6 +12731,29 @@ elif action == "posix-attest":
         lambda binding:identity_command(("operation","root-data","inspect","/dev/stdin"),{**{key:request[key] for key in ("instanceUuid","templateUpgradeUuid","operationUuid","revision")},
                                       "volumes":[{"volumeUuid":binding["volumeUuid"],"sizeBytes":binding["sizeBytes"],"kind":"FILE_DATA"}]})["volumes"][0])
     print(json.dumps(result,sort_keys=True))
+elif action=="export-root-target":
+    controls={key:request[key] for key in ("instanceUuid","templateUpgradeUuid","operationUuid","revision","targetConfigurationSha256")}
+    roles=[key for key in ("importedRootAuthorization","retainedRootAuthorization") if key in request]
+    if len(roles)!=1:raise ValueError("ROOT TARGET has no single opaque SOURCE role")
+    controls[roles[0]]=request[roles[0]]
+    if not set(request)<=set(controls)|{"publicKey","names","nvmeHosts","includePosixPolicyReceipts"} or request.get("includePosixPolicyReceipts") is not True:
+        raise ValueError("ROOT TARGET RAW request contains unsupported or incomplete fields")
+    cached=identity_command(("operation","generation","render-root-target-cached-cipher","/dev/stdin"),{**controls,"publicKey":request["publicKey"]}).get("cachedTarget")
+    if cached is not None:
+        print(json.dumps({"success":True,**cached},sort_keys=True))
+    else:
+        target=identity_command(("operation","generation","render-root-identity-export-target","/dev/stdin"),controls)
+        key_proof=identity_command(("operation","generation","render-root-target-key-guard","/dev/stdin"),{**controls,"publicKey":request["publicKey"]})
+        if target.get("rootTargetStoppedVerified") is not True or target.get("scope")!={key:controls[key] for key in ("instanceUuid","templateUpgradeUuid","operationUuid","revision")}:raise ValueError("ROOT TARGET lacks actual stopped authority")
+        payload=collect(request.get("names") or [],request.get("nvmeHosts") or [])
+        payload["sourceConfigurationSha256"]=target["targetConfigurationSha256"];payload["adIdentity"]=target["adIdentity"]
+        payload["posixPolicies"]=target["posixPolicies"];payload["rootSourceConfiguration"]=target["rootSourceConfiguration"]
+        validate_payload(payload)
+        final=identity_command(("operation","generation","render-root-identity-export-target","/dev/stdin"),controls)
+        if final!=target:raise ValueError("ROOT TARGET public stopped bytes changed during RAW collection")
+        capsule=encrypt(payload,request["publicKey"],controls["instanceUuid"]+":"+controls["operationUuid"])
+        checkpoint=RootTargetCipher().retain(request,capsule,target,key_proof)
+        print(json.dumps({"success":True,"capsule":capsule,"rootIdentityCheckpoint":checkpoint},sort_keys=True))
 elif action=="ad-authorize-imported":
     print(json.dumps(RootAdImportedAuthorization().authorize(request,identity_command(("operation","maintenance","status"))),sort_keys=True))
 elif action=="ad-retain":
@@ -13018,7 +13075,7 @@ def root_ad_retained_authority(common,maintenance,configuration=None,root=None,r
         raise ValueError("ROOT AD original encrypted checkpoint bytes/scope differ")
     root_ad_imported_matches(common,identity,configuration,sid_reader or samba_public_sid)
     return {"scope":scope,"identity":identity,"authorizationUuid":identifier,"authorizationSha256":hashlib.sha256(json.dumps(record,sort_keys=True,separators=(",",":")).encode()).hexdigest(),"bootId":boot,
-            "originalCipherSha256":record.get("originalCipherSha256"),"sourceConfigurationSha256":record["latestConfigurationSha256"],"originalSourceScope":record["latestSourceRootScope"]}
+            "originalCipherSha256":record.get("originalCipherSha256"),"sourceConfigurationSha256":record["latestConfigurationSha256"],"originalSourceScope":record["latestSourceRootScope"],"kind":kind,"record":record,"identityCheckpoint":identity_record}
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements. See the NOTICE file
 # distributed with this work for additional information
@@ -14322,7 +14379,7 @@ def root_ad_retained_authority(common,maintenance,configuration=None,root=None,r
         raise ValueError("ROOT AD original encrypted checkpoint bytes/scope differ")
     root_ad_imported_matches(common,identity,configuration,sid_reader or samba_public_sid)
     return {"scope":scope,"identity":identity,"authorizationUuid":identifier,"authorizationSha256":hashlib.sha256(json.dumps(record,sort_keys=True,separators=(",",":")).encode()).hexdigest(),"bootId":boot,
-            "originalCipherSha256":record.get("originalCipherSha256"),"sourceConfigurationSha256":record["latestConfigurationSha256"],"originalSourceScope":record["latestSourceRootScope"]}
+            "originalCipherSha256":record.get("originalCipherSha256"),"sourceConfigurationSha256":record["latestConfigurationSha256"],"originalSourceScope":record["latestSourceRootScope"],"kind":kind,"record":record,"identityCheckpoint":identity_record}
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements. See the NOTICE file
 # distributed with this work for additional information
@@ -15303,7 +15360,7 @@ class AdDomainLifecycle:
                         raise ValueError("Fresh AD DNS alias exists or absence was not proven")
         return {"success":True,"computerAliasSpnAbsent":True,"dnsAliasesAbsent":True}
 
-    def source_authority(self,request,fresh=True):
+    def source_authority(self,request,fresh=True,inverse_target=False):
         marker=self.daemon.marker(request)
         scope=service_cipher_scope(marker)
         if any(request.get(key)!=value for key,value in scope.items()):
@@ -15317,7 +15374,13 @@ class AdDomainLifecycle:
                     or record.get("identityCheckpoint",{}).get("sourceConfigurationSha256")!=native["sourceConfigurationSha256"]):
                 raise ValueError("AD mutation lacks its native BEFOREJOIN encrypted source")
             observed=json.loads(self.command([self.cli,"operation","generation","status"]))
-            if (observed.get("generation")!=native["sourceGeneration"] or observed.get("configurationSha256")!=native["sourceConfigurationSha256"]
+            if inverse_target:
+                guard=self.protected_request(("operation","generation","render-ad-join-inverse-guard"),scope)
+                if (guard.get("success") is not True or guard.get("scope")!=scope or guard.get("inverseOriginalSourceVerified") is not True
+                        or guard.get("sourceConfigurationSha256")!=native["sourceConfigurationSha256"] or guard.get("bootId")!=native["bootId"]
+                        or guard.get("publicLocalMachineSid")!=native["sourcePublicIdentity"]["publicLocalMachineSid"]):
+                    raise ValueError("JOIN inverse original SOURCE boundary guard differs")
+            elif (observed.get("generation")!=native["sourceGeneration"] or observed.get("configurationSha256")!=native["sourceConfigurationSha256"]
                     or observed.get("pendingOperationUuid")!=scope["operationUuid"] or observed.get("generationStatus")!="PENDING"):
                 raise ValueError("AD mutation source generation/seven differs")
             if fresh:
@@ -15484,7 +15547,7 @@ class AdDomainLifecycle:
         if (not isinstance(username,str) or not re.fullmatch(r"[A-Za-z0-9_.@\\-]{1,256}",username)
                 or not isinstance(password,str) or not password or len(password)>4096 or any(c in password for c in ("\n","\r","\0"))):
             raise ValueError("Owned JOIN inverse requires complete sealed credentials")
-        source=self.source_authority(request,fresh=False);journal=ad_protected_json(self.journal);public=journal.get("publicConfiguration")
+        source=self.source_authority(request,fresh=False,inverse_target=True);journal=ad_protected_json(self.journal);public=journal.get("publicConfiguration")
         if (journal.get("scope")!=self.daemon.scope(request) or journal.get("phase") not in ("RECOVERY_REQUIRED","COMPLETE","OWNED_JOIN_INVERTED")
                 or not isinstance(public,dict) or public.get("preJoinRemoteIdentityAbsent") is not True
                 or public.get("machineAuthenticatedComputer") is not True or source.get("adIdentity") is not None
@@ -15631,6 +15694,29 @@ class AdDomainLifecycle:
             return {"success":True,"scope":self.daemon.scope(request),**result,"identity":fresh,"canonicalDesiredStateChanged":False}
         except Exception:
             self.snapshot(request,"RECOVERY_REQUIRED",public);raise
+
+    def root_target_resume(self,request):
+        scope=self.daemon.scope(request);marker=self.daemon.marker(request)
+        if "templateUpgradeUuid" not in marker or any(request.get(key)!=value for key,value in marker.items()):
+            raise ValueError("ROOT TARGET winbind requires exact held ROOT4")
+        root=Path(os.environ.get("ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR","/var/lib/ablestack-storage"))
+        saved=ad_protected_json(root/("root-identity-target-"+scope["operationUuid"]+".json"))
+        proof=self.protected_request(("operation","generation","render-root-target-stopped"),request)
+        if (saved.get("kind")!="ROOT_IDENTITY_TARGET" or saved.get("scope")!=marker or proof.get("scope")!=marker
+                or proof.get("rootTargetStoppedVerified") is not True or proof.get("targetConfigurationSha256")!=saved["targetConfigurationSha256"]
+                or proof.get("bootId")!=Path("/proc/sys/kernel/random/boot_id").read_text().strip()):
+            raise ValueError("ROOT TARGET winbind has no independent same-boot stopped target")
+        expected=saved["targetPublicIdentity"]["publicAdIdentity"]
+        policy=protected_ad_policy(scope["instanceUuid"],configuration=self.configuration)
+        state=ad_protected_json(self.state)
+        if (state.get("identityReceipt")!={key:expected[key] for key in ("machineSid","domainSid","machineAccountSid")}
+                or policy.get("machineConfigurationSha256")!=expected["machineConfigurationSha256"] or self.sid_reader(expected["netbiosName"])!=expected["machineSid"]):
+            raise ValueError("ROOT TARGET private identity changed before owned resume")
+        self.daemon.start(request);fresh=AdIdentityRpc(self.run,self.configuration,cli=self.cli).inspect(request)
+        fields=("domain","realm","workgroup","netbiosName","machineSid","domainSid","machineAccountSid","servicePrincipals","dnsAliases","idmapPolicy")
+        if fresh.get("identityVerified") is not True or fresh.get("bootId")!=proof["bootId"] or any(fresh.get(key)!=expected[key] for key in fields):
+            self.daemon.stop(request);raise ValueError("ROOT TARGET resumed AD trust is not freshly exact")
+        return {"success":True,"scope":scope,"targetIdentityResumed":True,"identity":fresh}
 
     def target_resume(self,request):
         scope=self.daemon.scope(request);marker=service_cipher_scope(self.daemon.marker(request))
@@ -15782,6 +15868,7 @@ try:
     elif action=="semantic-local-restore":result=handler.semantic_local_restore(request)
     elif action=="semantic-local-guard":result=handler.semantic_local_guard(request)
     elif action=="target-resume":result=handler.target_resume(request)
+    elif action=="root-target-resume":result=handler.root_target_resume(request)
     elif action=="retain":result=handler.retain(request,request["expectedIdentity"])
     elif action=="daemon-gate":result=handler.daemon.gate()
     elif action=="quiesce":result=handler.daemon.stop(request)
@@ -21328,11 +21415,20 @@ import time
 
 
 class ServiceIdentityTarget:
+    capture_kind="SERVICE_IDENTITY_TARGET"
+    stop_kind="SERVICE_TARGET_STOP_JOURNAL"
+    stopped_kind="SERVICE_TARGET_STOPPED"
+    cipher_kind="SERVICE_TARGET_IDENTITY_CHECKPOINT"
+    prefix="service-identity-target"
+    stopped_flag="serviceTargetStoppedVerified"
+    maintenance_kind="SERVICE"
     def __init__(self,driver,controller,root=None,identity=None,writer=None,winbind=None):
         self.source=ServiceIdentitySource(driver,root,identity,writer)
         self.driver=driver;self.store=driver.store;self.runtime=driver.runtime;self.root=self.source.root
         self.identity=self.source.identity;self.controller=controller;self.writer=self.source.writer
         self.winbind=winbind
+    checkpoint_field="serviceIdentityCheckpoint"
+    def local_sid(self,saved):return saved["targetPublicIdentity"]["publicLocalMachineSid"]
     def scope(self,request):
         if not isinstance(request,dict) or set(request)!={"instanceUuid","maintenanceUuid","operationUuid","revision","targetConfigurationSha256"}:
             raise ValueError("TARGET capture request is mixed or incomplete")
@@ -21341,9 +21437,9 @@ class ServiceIdentityTarget:
         if not isinstance(digest,str) or len(digest)!=64 or any(c not in "0123456789abcdef" for c in digest):
             raise ValueError("TARGET configuration checksum is invalid")
         return scope
-    def path(self,scope):return self.root/("service-identity-target-"+scope["operationUuid"]+".json")
-    def stop_path(self,scope):return self.root/("service-identity-target-stop-"+scope["operationUuid"]+".json")
-    def cipher_path(self,scope):return self.root/("service-identity-target-cipher-"+scope["operationUuid"]+".json")
+    def path(self,scope):return self.root/(self.prefix+"-"+scope["operationUuid"]+".json")
+    def stop_path(self,scope):return self.root/(self.prefix+"-stop-"+scope["operationUuid"]+".json")
+    def cipher_path(self,scope):return self.root/(self.prefix+"-cipher-"+scope["operationUuid"]+".json")
     def observation(self,request):
         scope=self.scope(request);self.writer();self.source.held(scope)
         actual,status=self.source.observation(scope)
@@ -21361,7 +21457,7 @@ class ServiceIdentityTarget:
         frozen=self.identity.freeze(scope,actual);owners=self.identity.owners()
         if (frozen["publicAdIdentity"] is not None)!=any(row["unit"]=="ablestack-storage-winbind.service" for row in owners):
             raise ValueError("LKG TARGET AD differs from its owned winbind")
-        saved={"schemaVersion":1,"kind":"SERVICE_IDENTITY_TARGET","scope":scope,"phase":"CAPTURED","targetGeneration":actual["generation"],
+        saved={"schemaVersion":1,"kind":self.capture_kind,"scope":scope,"phase":"CAPTURED","targetGeneration":actual["generation"],
                "targetRendered":status["current"],"targetActivation":status.get("activation"),"targetConfigurationSha256":actual["configurationSha256"],
                "targetPublicIdentity":frozen,"targetOwners":owners,"canonicalBytes":self.source.canonical_bytes(),
                "bootId":Path("/proc/sys/kernel/random/boot_id").read_text().strip(),"capturedEpoch":time.time()}
@@ -21369,13 +21465,13 @@ class ServiceIdentityTarget:
     def receipt(self,saved):
         value={"success":True,"scope":saved["scope"],"targetCaptured":True,"targetGeneration":saved["targetGeneration"],
                "targetConfigurationSha256":saved["targetConfigurationSha256"],"targetRenderedManifestSha256":saved["targetRendered"]["manifestSha256"],
-               "bootId":saved["bootId"],"publicLocalMachineSid":saved["targetPublicIdentity"]["publicLocalMachineSid"],"canonicalDesiredStateChanged":False}
+               "bootId":saved["bootId"],"publicLocalMachineSid":self.local_sid(saved),"canonicalDesiredStateChanged":False}
         if saved.get("targetStoppedReceipt") is not None:
-            value.update(serviceTargetStoppedVerified=True,stoppedReceiptSha256=root_public_sha(saved["targetStoppedReceipt"]))
+            value.update({self.stopped_flag:True,"stoppedReceiptSha256":root_public_sha(saved["targetStoppedReceipt"])})
         return value
     def validate(self,request):
         scope,actual,status=self.observation(request);saved=credential_json(rendered_read(self.path(scope)))
-        if (type(saved.get("schemaVersion")) is not int or saved["schemaVersion"]!=1 or saved.get("kind")!="SERVICE_IDENTITY_TARGET" or saved.get("scope")!=scope
+        if (type(saved.get("schemaVersion")) is not int or saved["schemaVersion"]!=1 or saved.get("kind")!=self.capture_kind or saved.get("scope")!=scope
                 or saved.get("targetGeneration")!=actual["generation"] or saved.get("targetRendered")!=status["current"]
                 or saved.get("targetActivation")!=status.get("activation") or saved.get("targetConfigurationSha256")!=actual["configurationSha256"]
                 or saved.get("canonicalBytes")!=self.source.canonical_bytes() or saved.get("bootId")!=Path("/proc/sys/kernel/random/boot_id").read_text().strip()):
@@ -21387,7 +21483,7 @@ class ServiceIdentityTarget:
         if saved.get("phase")=="STOPPED":return self.stopped(request)
         if self.identity.owners()!=owners:raise ValueError("LKG TARGET owners changed before stop")
         if not time.time()-180<=saved["capturedEpoch"]<=time.time()+5:raise ValueError("LKG TARGET PRESTOP capture expired")
-        journal={"kind":"SERVICE_TARGET_STOP_JOURNAL","scope":scope,"phase":"STOPPING","targetGeneration":saved["targetGeneration"],
+        journal={"kind":self.stop_kind,"scope":scope,"phase":"STOPPING","targetGeneration":saved["targetGeneration"],
                  "targetConfigurationSha256":saved["targetConfigurationSha256"],"owners":owners,"stoppedUnits":[],"bootId":saved["bootId"]}
         rendered_json(journal_path,journal)
         try:
@@ -21402,20 +21498,20 @@ class ServiceIdentityTarget:
             journal["phase"]="RECOVERY_REQUIRED";rendered_json(journal_path,journal);raise
     def stopped(self,request):
         scope,saved,actual=self.validate(request);journal=credential_json(rendered_read(self.stop_path(scope)));owners=saved["targetOwners"]
-        if (journal.get("kind")!="SERVICE_TARGET_STOP_JOURNAL" or journal.get("scope")!=scope or journal.get("phase") not in ("HELD","RECOVERY_REQUIRED")
+        if (journal.get("kind")!=self.stop_kind or journal.get("scope")!=scope or journal.get("phase") not in ("HELD","RECOVERY_REQUIRED")
                 or journal.get("targetGeneration")!=saved["targetGeneration"] or journal.get("targetConfigurationSha256")!=saved["targetConfigurationSha256"]
                 or journal.get("owners")!=owners or len(journal.get("stoppedUnits",[]))!=len(owners)
                 or set(journal["stoppedUnits"])!={row["unit"] for row in owners} or self.identity.owners()):
             raise ValueError("LKG TARGET lacks its exact independent owned-stop receipt")
         self.identity.listeners_clear(owners)
         if self.identity.holders():raise ValueError("LKG TARGET private TDB holders remain")
-        receipt={"schemaVersion":1,"kind":"SERVICE_TARGET_STOPPED","scope":scope,"targetGeneration":saved["targetGeneration"],
+        receipt={"schemaVersion":1,"kind":self.stopped_kind,"scope":scope,"targetGeneration":saved["targetGeneration"],
                  "targetConfigurationSha256":saved["targetConfigurationSha256"],"owners":owners,"knownIdentityDatabaseHolders":0,
-                 "holderObservationScope":ROOT_IDENTITY_HOLDER_SCOPE,"bootId":saved["bootId"],"publicLocalMachineSid":saved["targetPublicIdentity"]["publicLocalMachineSid"]}
+                 "holderObservationScope":ROOT_IDENTITY_HOLDER_SCOPE,"bootId":saved["bootId"],"publicLocalMachineSid":self.local_sid(saved)}
         if saved.get("targetStoppedReceipt") not in (None,receipt):raise ValueError("LKG TARGET stopped receipt changed")
         if saved.get("targetStoppedReceipt") is None:
             saved["targetStoppedReceipt"]=receipt;saved["phase"]="STOPPED";rendered_json(self.path(scope),saved)
-        return {**self.receipt(saved),"bootHeld":True,"maintenanceKind":"SERVICE","sideEffects":False}
+        return {**self.receipt(saved),"bootHeld":True,"maintenanceKind":self.maintenance_kind,"sideEffects":False}
     def export_target(self,request):
         self.stopped(request);scope,saved,actual=self.validate(request)
         if saved["phase"]!="STOPPED":raise ValueError("LKG RAW TARGET export requires its own AFTERSTOP receipt")
@@ -21456,13 +21552,13 @@ class ServiceIdentityTarget:
         raw=base64.b64decode(capsule["ciphertext"],validate=True)
         if capsule.get("scope")!=scope["instanceUuid"]+":"+scope["operationUuid"] or hashlib.sha256(raw).hexdigest()!=capsule.get("sha256"):
             raise ValueError("LKG TARGET ciphertext differs from its exact scope/digest")
-        record={"schemaVersion":1,"kind":"SERVICE_TARGET_IDENTITY_CHECKPOINT","scope":scope,"targetConfigurationSha256":saved["targetConfigurationSha256"],
+        record={"schemaVersion":1,"kind":self.cipher_kind,"scope":scope,"targetConfigurationSha256":saved["targetConfigurationSha256"],
                 "targetRecordSha256":service_cipher_digest(saved),"stoppedReceiptSha256":root_public_sha(saved["targetStoppedReceipt"]),
                 "publicKey":request["publicKey"],"capsule":capsule,"bootId":saved["bootId"]}
         if path.exists() or path.is_symlink():
             if cipher.read(path)!=record:raise ValueError("LKG TARGET cannot replace its original independent ciphertext")
         else:cipher.write(path,record)
-        return {"kind":"SERVICE_TARGET_IDENTITY_CHECKPOINT","scope":scope,"capsuleSha256":capsule["sha256"],
+        return {"kind":self.cipher_kind,"scope":scope,"capsuleSha256":capsule["sha256"],
                 "targetConfigurationSha256":saved["targetConfigurationSha256"],"checkpointRecordSha256":service_cipher_digest(record)}
     def cached_cipher(self,request):
         scope=self.scope({key:value for key,value in request.items() if key not in ("publicKey","identityCheckpointRef")})
@@ -21473,7 +21569,7 @@ class ServiceIdentityTarget:
         if journal.get("phase") in ("RESUMED","RESUMING"):self.verify_resumed(scope,saved,actual)
         else:self.stopped(plain)
         record=ServiceIdentityCipher(self.root).read(path)
-        if (record.get("kind")!="SERVICE_TARGET_IDENTITY_CHECKPOINT" or record.get("scope")!=scope
+        if (record.get("kind")!=self.cipher_kind or record.get("scope")!=scope
                 or record.get("targetRecordSha256")!=service_cipher_digest(saved) or record.get("bootId")!=saved["bootId"]
                 or record.get("stoppedReceiptSha256")!=root_public_sha(saved["targetStoppedReceipt"])
                 or record.get("targetConfigurationSha256")!=saved["targetConfigurationSha256"]):
@@ -21481,7 +21577,7 @@ class ServiceIdentityTarget:
         capsule=record["capsule"];raw=base64.b64decode(capsule["ciphertext"],validate=True)
         if capsule["scope"]!=scope["instanceUuid"]+":"+scope["operationUuid"] or hashlib.sha256(raw).hexdigest()!=capsule["sha256"]:
             raise ValueError("LKG TARGET cached ciphertext scope/digest differs")
-        return {"capsule":capsule,"serviceIdentityCheckpoint":{"kind":"SERVICE_TARGET_IDENTITY_CHECKPOINT","scope":scope,"capsuleSha256":capsule["sha256"],
+        return {"capsule":capsule,self.checkpoint_field:{"kind":self.cipher_kind,"scope":scope,"capsuleSha256":capsule["sha256"],
                 "targetConfigurationSha256":saved["targetConfigurationSha256"],"checkpointRecordSha256":service_cipher_digest(record)}}
 
     def verify_resumed(self,scope,saved,actual):
@@ -21519,6 +21615,92 @@ class ServiceIdentityTarget:
             return {**self.receipt(saved),"targetRuntimeVerified":True,"canonicalDesiredStateChanged":False}
         except Exception:
             journal=credential_json(rendered_read(self.stop_path(scope)));journal["phase"]="RECOVERY_REQUIRED";rendered_json(self.stop_path(scope),journal);raise
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements. See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership. The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+"""Typed ROOT TARGET LKG; independent CURRENT target and authenticated SOURCE key."""
+from pathlib import Path
+import os
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
+
+
+class RootIdentityTarget(ServiceIdentityTarget):
+    capture_kind="ROOT_IDENTITY_TARGET"
+    stop_kind="ROOT_TARGET_STOP_JOURNAL"
+    stopped_kind="ROOT_TARGET_STOPPED"
+    cipher_kind="ROOT_TARGET_IDENTITY_CHECKPOINT"
+    prefix="root-identity-target"
+    stopped_flag="rootTargetStoppedVerified"
+    maintenance_kind="ROOT"
+    checkpoint_field="rootIdentityCheckpoint"
+    def __init__(self,driver,controller,root=None,identity=None,writer=None,winbind=None):
+        original=RootSourceRecovery(driver,root)
+        self.source=original;self.driver=driver;self.store=driver.store;self.runtime=driver.runtime
+        self.root=Path(root or os.environ.get("ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR","/var/lib/ablestack-storage"))
+        self.identity=identity or RootSourceIdentityCheckpoint(self.runtime)
+        self.controller=controller;self.writer=writer or service_identity_writer;self.winbind=winbind
+        # Existing public observation/canonical reader is reused without writing
+        # its ROOT SOURCE namespace.
+        self.source.held=self.source.marker
+    def scope(self,request):
+        base={"instanceUuid","templateUpgradeUuid","operationUuid","revision","targetConfigurationSha256"}
+        extras=set(request)-base if isinstance(request,dict) else set()
+        if extras not in ({"importedRootAuthorization"},{"retainedRootAuthorization"}) or set(request)!=base|extras:
+            raise ValueError("ROOT TARGET requires exact ROOT4/target SHA and one opaque SOURCE role")
+        scope=root_recovery_scope({key:request[key] for key in base-{"targetConfigurationSha256"}})
+        digest=request["targetConfigurationSha256"]
+        if not isinstance(digest,str) or len(digest)!=64 or any(c not in "0123456789abcdef" for c in digest):
+            raise ValueError("ROOT TARGET checksum is invalid")
+        self.authority(request)
+        return scope
+    def observation(self,request):
+        scope=self.scope(request);self.writer();self.source.held(scope)
+        actual=self.driver.generation();status=self.store.status();current=status.get("current");activation=status.get("activation")
+        common={key:scope[key] for key in ("instanceUuid","operationUuid","revision")};generation=actual.get("generation") or {}
+        if (actual.get("generationStatus")!="IN_SYNC" or actual.get("pendingOperationUuid") is not None
+                or any(generation.get(key)!=value for key,value in common.items()) or generation.get("configurationSha256")!=request["targetConfigurationSha256"]
+                or actual.get("configurationSha256")!=request["targetConfigurationSha256"] or not isinstance(current,dict) or current.get("scope")!=common
+                or current.get("configurationSha256")!=request["targetConfigurationSha256"]
+                or not isinstance(activation,dict) or activation.get("scope")!=common or activation.get("phase") not in ("VERIFIED","COMPLETE")
+                or activation.get("targetSha256")!=current["manifestSha256"] or type(status.get("bootHeld")) is not bool
+                or status["bootHeld"]!=(activation["phase"]=="VERIFIED")
+                or actual.get("configurationDesiredState")!=credential_json(rendered_read(self.store.pointer()/"desired-state.json"))):
+            raise ValueError("ROOT TARGET must be its actual committed current target before/after rendered finalize")
+        return scope,actual,status
+    def authority(self,request):
+        role="importedRootAuthorization" if "importedRootAuthorization" in request else "retainedRootAuthorization"
+        common={key:request[key] for key in ("instanceUuid","operationUuid","revision")}
+        marker=self.runtime.command(("operation","maintenance","status"))
+        value=root_ad_retained_authority(common,marker,reference=request[role])
+        expected="ROOT_AD_IMPORTED_AUTHORIZATION" if role=="importedRootAuthorization" else "ROOT_RETAINED_AUTHORIZATION"
+        if value["kind"]!=expected:raise ValueError("ROOT TARGET source opaque role differs")
+        return value
+    def local_sid(self,saved):return saved["targetPublicIdentity"]["publicAdIdentity"]["machineSid"]
+    def export_target(self,request):
+        result=super().export_target(request)
+        _,saved,_=self.validate(request)
+        return {**result,"rootSourceConfiguration":saved["targetPublicIdentity"]["rootSourceConfiguration"],"maintenanceKind":"ROOT","bootHeld":True,"sideEffects":False}
+    def wrapping_key(self,request):
+        controls={key:value for key,value in request.items() if key not in ("publicKey","identityCheckpointRef")}
+        self.scope(controls);authority=self.authority(controls);checkpoint=authority["identityCheckpoint"]
+        actual=serialization.load_pem_public_key(str(request.get("publicKey") or "").encode())
+        expected=serialization.load_pem_public_key(checkpoint["publicKey"].encode())
+        if not isinstance(actual,rsa.RSAPublicKey) or actual.key_size<2048 or actual.public_numbers()!=expected.public_numbers():
+            raise ValueError("ROOT TARGET wrapping key is not authenticated original SOURCE key")
+        return checkpoint["capsule"]
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements. See the NOTICE file
 # distributed with this work for additional information
@@ -21788,6 +21970,110 @@ class RootRetainedAuthorization:
                 or saved.get("publicKey")!=record["checkpointPublicKey"] or saved.get("capsule",{}).get("sha256")!=record["identityCheckpointSha256"]):
             raise ValueError("Retained ROOT latest encrypted checkpoint differs from its authorization")
         return saved
+import subprocess
+def root_ad_runtime_readback(request):
+    result=subprocess.run(["/usr/local/bin/ablestack-storage-runtime-updater","readback","/dev/stdin"],
+                          input=json.dumps(request),capture_output=True,text=True,timeout=15)
+    if result.returncode:raise ValueError("Forward ROOT signed target runtime readback failed")
+    return json.loads(result.stdout)
+
+
+def root_ad_runtime_verified(pin,transaction,runtime_provider=None):
+    if (not isinstance(pin,dict) or set(pin)!={"bundleVersion","archiveSha256","manifestSha256","updaterSha256"}
+            or not isinstance(pin.get("bundleVersion"),str) or not re.fullmatch("[A-Za-z0-9][A-Za-z0-9._-]{0,127}",pin["bundleVersion"])
+            or any(not isinstance(pin.get(key),str) or not re.fullmatch("[0-9a-f]{64}",pin[key]) for key in ("archiveSha256","manifestSha256","updaterSha256"))):
+        raise ValueError("Forward ROOT signed target runtime pin is invalid")
+    observed=(runtime_provider or root_ad_runtime_readback)({"transactionId":transaction,**{key:pin[key] for key in ("bundleVersion","archiveSha256","manifestSha256")}})
+    if (not isinstance(observed,dict) or any(observed.get(key) is not True for key in ("success","signedRuntimeVerified","installedFilesVerified","entrypointsVerified"))
+            or observed.get("currentVersion")!=pin["bundleVersion"] or any(observed.get(key)!=pin[key] for key in ("archiveSha256","manifestSha256","updaterSha256"))):
+        raise ValueError("Forward ROOT target installed signed runtime differs")
+    return observed
+
+
+def root_ad_imported_matches(common,identity,configuration=None,sid_reader=None):
+    directory=Path(configuration or os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_ROOT","/etc/ablestack-storage"))
+    policy=protected_ad_policy(common["instanceUuid"],configuration=directory)
+    state=json.loads(ad_authority_read(directory/"smb-domain.json",0o600))
+    if (state.get("identityReceipt")!={key:identity[key] for key in ("machineSid","domainSid","machineAccountSid")}
+            or policy.get("machineConfigurationSha256")!=identity["machineConfigurationSha256"]
+            or any(policy.get(key)!=identity.get(key) for key in ("domain","realm","workgroup","netbiosName","domainSid","idmapPolicy"))
+            or any(state.get(key)!=identity.get(key) for key in ("dnsAliases","servicePrincipals"))):
+        raise ValueError("Imported ROOT AD identity/configuration differs from authenticated source")
+    if (sid_reader or samba_public_sid)(identity["netbiosName"])!=identity["machineSid"]:
+        raise ValueError("Imported ROOT public SAM is not original SAME_VM identity")
+    return identity
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements. See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership. The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+"""Read-only cold ROOT AD scope requires authenticated retained source metadata."""
+import hashlib
+import base64
+import json
+import os
+from pathlib import Path
+import re
+import subprocess
+import uuid
+
+
+def root_ad_retained_authority(common,maintenance,configuration=None,root=None,reference=None,sid_reader=None):
+    scope=maintenance.get("scope")
+    keys={"instanceUuid","templateUpgradeUuid","operationUuid","revision"}
+    if (maintenance.get("bootHeld") is not True or maintenance.get("maintenanceKind")!="ROOT" or not isinstance(scope,dict) or set(scope)!=keys
+            or any(scope.get(key)!=value for key,value in common.items()) or type(scope.get("revision")) is not int or scope["revision"]<1):
+        raise ValueError("Cold ROOT AD attestation lacks its exact held ROOT scope")
+    for key in keys-{"revision"}:
+        if not isinstance(scope[key],str) or str(uuid.UUID(scope[key]))!=scope[key]:raise ValueError("Cold ROOT AD scope UUID is invalid")
+    root=Path(root or os.environ.get("ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR","/var/lib/ablestack-storage"))
+    options=[]
+    for namespace,label,kind in (("root-retained-authorizations","ablestack-root-retained-authorization","ROOT_RETAINED_AUTHORIZATION"),
+                                 ("root-ad-imported-authorizations","ablestack-root-ad-imported-authorization","ROOT_AD_IMPORTED_AUTHORIZATION")):
+        identifier=str(uuid.uuid5(uuid.UUID(scope["operationUuid"]),label));base=root/namespace
+        path=base/(identifier+"-authorization.json")
+        if path.exists() or path.is_symlink():options.append((base,identifier,kind))
+    if len(options)!=1:raise ValueError("Cold ROOT AD has no single typed imported/retained opaque authority")
+    base,identifier,kind=options[0]
+    raw=ad_authority_read(base/(identifier+"-authorization.json"),0o600);record=json.loads(raw)
+    if reference is not None:
+        if (not isinstance(reference,dict) or set(reference)!={"authorizationUuid","sha256"} or reference.get("authorizationUuid")!=identifier
+                or reference.get("sha256")!=hashlib.sha256(json.dumps(record,sort_keys=True,separators=(",",":")).encode()).hexdigest()):
+            raise ValueError("ROOT AD retained opaque reference differs")
+    identity=record.get("latestAdIdentity");boot=Path("/proc/sys/kernel/random/boot_id").read_text().strip()
+    if (record.get("kind")!=kind or record.get("scope")!=scope or record.get("authorizedBootId")!=boot
+            or not isinstance(identity,dict) or identity.get("trustVerified") is not True or type(identity.get("schemaVersion")) is not int or identity.get("schemaVersion")!=1
+            or record.get("latestSourceRootScope",{}).get("instanceUuid")!=scope["instanceUuid"]
+            or not re.fullmatch("[0-9a-f]{64}",str(record.get("identityCheckpointSha256")))
+            or not re.fullmatch("[0-9a-f]{64}",str(record.get("latestConfigurationSha256")))):
+        raise ValueError("ROOT AD retained AEAD source/boot authority is unavailable")
+    if kind=="ROOT_AD_IMPORTED_AUTHORIZATION":
+        transaction="root-target-"+scope["operationUuid"]
+        if record.get("targetRuntimeTransactionId")!=transaction:raise ValueError("ROOT AD forward target transaction differs")
+        root_ad_runtime_verified(record.get("targetRuntimePin"),transaction)
+    identity_record=json.loads(ad_authority_read(base/(identifier+"-identity.json"),0o600,12*1024*1024))
+    if (identity_record.get("scope")!=common or identity_record.get("sourceConfigurationSha256")!=record["latestConfigurationSha256"]
+            or identity_record.get("publicKey")!=record.get("checkpointPublicKey")
+            or identity_record.get("capsule",{}).get("sha256")!=record["identityCheckpointSha256"]):
+        raise ValueError("ROOT AD opaque encrypted source checkpoint differs")
+    capsule=identity_record["capsule"];ciphertext=base64.b64decode(capsule["ciphertext"],validate=True)
+    if (type(capsule.get("schemaVersion")) is not int or capsule["schemaVersion"]!=1 or not 0<len(ciphertext)<=8*1024*1024+16
+            or capsule.get("scope")!=scope["instanceUuid"]+":"+scope["operationUuid"]
+            or hashlib.sha256(ciphertext).hexdigest()!=record["identityCheckpointSha256"]):
+        raise ValueError("ROOT AD original encrypted checkpoint bytes/scope differ")
+    root_ad_imported_matches(common,identity,configuration,sid_reader or samba_public_sid)
+    return {"scope":scope,"identity":identity,"authorizationUuid":identifier,"authorizationSha256":hashlib.sha256(json.dumps(record,sort_keys=True,separators=(",",":")).encode()).hexdigest(),"bootId":boot,
+            "originalCipherSha256":record.get("originalCipherSha256"),"sourceConfigurationSha256":record["latestConfigurationSha256"],"originalSourceScope":record["latestSourceRootScope"],"kind":kind,"record":record,"identityCheckpoint":identity_record}
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements. See the NOTICE file
 # distributed with this work for additional information
@@ -21840,6 +22126,59 @@ class RenderedDriver:
         if desired is not None and (root_configuration_sha256(desired)!=record["latestConfigurationSha256"] or desired!=record["configurationDesiredState"]):
             raise ValueError("Retained ROOT target seven differ from its authenticated latest source")
         return record
+
+    def imported_root_authority(self,request):
+        reference=request.get("importedRootAuthorization")
+        if reference is None:return None
+        if request.get("retainedRootAuthorization") is not None:raise ValueError("ROOT source authorization roles are mixed")
+        scope=self.store.scope(request);marker=self.runtime.command(("operation","maintenance","status"))
+        value=root_ad_retained_authority(scope,marker,reference=reference)
+        if value["kind"]!="ROOT_AD_IMPORTED_AUTHORIZATION":raise ValueError("Forward ROOT cannot borrow retained historical generation authority")
+        initial=self.store.read_journal() or {}
+        if initial.get("initialRootScope")!=value["scope"]:
+            checkpoint=credential_json(rendered_read(self.checkpoints/(scope["operationUuid"]+".json")))
+            if checkpoint.get("importedRootScope")!=value["scope"] or checkpoint.get("importedRootAuthorization")!=reference:
+                raise ValueError("Forward ROOT source has no exact initial approved ROOT checkpoint")
+        desired=request.get("configurationDesiredState")
+        if desired is not None and (root_configuration_sha256(desired)!=value["sourceConfigurationSha256"] or desired!=value["record"]["configurationDesiredState"]):
+            raise ValueError("Forward ROOT target differs from its authenticated original source seven")
+        return value
+
+    def ad_join_inverse_source_guard(self,request):
+        scope=service_cipher_scope(request);common={key:scope[key] for key in ("instanceUuid","operationUuid","revision")}
+        marker=self.runtime.command(("operation","maintenance","status"))
+        if marker.get("maintenanceKind")!="SERVICE" or marker.get("bootHeld") is not True or marker.get("scope")!=scope:
+            raise ValueError("JOIN inverse boundary has no exact held SERVICE4")
+        files=ServiceIdentityCipher();native=files.source(scope);record=files.read(files.path(scope))
+        original=record.get("identityCheckpoint",{})
+        if (record.get("kind")!="SERVICE_SOURCE_IDENTITY_CHECKPOINT" or record.get("serviceScope")!=scope
+                or record.get("sourceRecordSha256")!=service_cipher_digest(native)
+                or original.get("scope")!=common or original.get("sourceConfigurationSha256")!=native["sourceConfigurationSha256"]):
+            raise ValueError("JOIN inverse original SOURCE record/cipher authority differs")
+        actual=self.generation()
+        if (actual.get("generation")!=native["sourceGeneration"] or actual.get("pendingOperationUuid")!=scope["operationUuid"]
+                or actual.get("generationStatus")!="PENDING"):
+            raise ValueError("JOIN inverse native generation/pending source is foreign")
+        boundary="ORIGINAL_SOURCE"
+        if actual["configurationSha256"]!=native["sourceConfigurationSha256"]:
+            journal=self.store.scoped_activation(common);target=self.store.inspect(self.store.generations/scope["operationUuid"])
+            previous=self.store.inspect(self.store.generations/journal["previousOperationUuid"])
+            checkpoint=credential_json(rendered_read(self.checkpoints/(scope["operationUuid"]+".json")))
+            if (journal.get("phase") not in ("ACTIVATING","RECOVERY_REQUIRED","VERIFIED")
+                    or journal.get("targetSha256")!=target["manifestSha256"] or journal.get("previousSha256")!=previous["manifestSha256"]
+                    or target.get("scope")!=common or target.get("previousRenderedSha256")!=previous["manifestSha256"]
+                    or previous["manifestSha256"]!=native["sourceRendered"]["manifestSha256"]
+                    or previous["configurationSha256"]!=native["sourceConfigurationSha256"] or checkpoint!=original
+                    or actual["configurationSha256"]!=target["configurationSha256"]
+                    or actual.get("configurationDesiredState")!=credential_json(rendered_read(self.store.generations/scope["operationUuid"]/"desired-state.json"))):
+                raise ValueError("JOIN inverse current TARGET has no protected original previous/source/key authority")
+            current=self.store.inspect(self.store.pointer())
+            if current["manifestSha256"] not in (previous["manifestSha256"],target["manifestSha256"]):
+                raise ValueError("JOIN inverse active rendered pointer is foreign")
+            boundary="OWNED_ACTIVATION_TARGET"
+        return {"success":True,"scope":scope,"inverseOriginalSourceVerified":True,"currentBoundary":boundary,
+                "sourceConfigurationSha256":native["sourceConfigurationSha256"],"currentConfigurationSha256":actual["configurationSha256"],
+                "bootId":native["bootId"],"publicLocalMachineSid":native["sourcePublicIdentity"]["publicLocalMachineSid"]}
 
     def verify(self,path):
         manifest=self.store.inspect(path);bindings=json.loads(rendered_read(path/"file-volumes.json"))
@@ -22055,6 +22394,17 @@ class RenderedDriver:
             else:rendered_json(path,saved)
             return saved
         rendered_directory(self.checkpoints, True)
+        imported=self.imported_root_authority(request)
+        if imported is not None:
+            saved={**imported["identityCheckpoint"],"importedRootScope":imported["scope"],"importedRootAuthorization":request["importedRootAuthorization"]}
+            from cryptography.hazmat.primitives import serialization
+            public=serialization.load_pem_public_key(str(request.get("checkpointPublicKey") or "").encode())
+            expected=serialization.load_pem_public_key(saved["publicKey"].encode())
+            if public.public_numbers()!=expected.public_numbers():raise ValueError("Forward ROOT checkpoint key differs from authenticated SOURCE")
+            if path.exists() or path.is_symlink():
+                if credential_json(rendered_read(path))!=saved:raise ValueError("Forward ROOT immutable original checkpoint changed")
+            else:rendered_json(path,saved)
+            return saved
         retained=self.retained_authority(request)
         if retained is not None:
             saved=self.root_retained.identity_checkpoint(retained)
@@ -22092,6 +22442,8 @@ class RenderedDriver:
         return saved
 
     def credential_source(self, request):
+        imported=self.imported_root_authority(request)
+        if imported is not None:return {"configurationSha256":imported["sourceConfigurationSha256"],"scope":imported["record"]["latestSourceGeneration"],"importedRootIdentitySource":True}
         retained=self.retained_authority(request)
         if retained is not None:return {"configurationSha256":retained["latestConfigurationSha256"],"scope":retained["latestSourceGeneration"],"retainedLatestIdentitySource":True}
         scope=self.store.scope(request)
@@ -22335,14 +22687,40 @@ class RenderedDriver:
         controller=ServiceMaintenance(Maintenance(generation=lambda:self.generation()),runtime.cli)
         return ServiceIdentityTarget(self,controller,winbind=bridge)
 
+    def root_target_identity_handler(self,request):
+        runtime=self.runtime
+        bridge=type("RootTargetWinbindResume",(),{"start":lambda ignored,scope:runtime.command(("identity","domain","root-target-resume"),request)})()
+        controller=ServiceMaintenance(Maintenance(generation=lambda:self.generation()),runtime.cli)
+        return RootIdentityTarget(self,controller,winbind=bridge)
+
     def execute(self, action, request=None, unit=None):
+        if action=="render-ad-join-inverse-guard":return self.ad_join_inverse_source_guard(request)
+        if action in ("render-root-capture-target","render-root-quiesce-target","render-root-target-stopped","render-root-identity-export-target","render-root-target-key-guard","render-root-target-cached-cipher","render-root-resume-target"):
+            target=self.root_target_identity_handler(request)
+            if action=="render-root-capture-target":return target.capture(request)
+            if action=="render-root-quiesce-target":return target.quiesce(request)
+            if action=="render-root-target-stopped":return target.stopped(request)
+            if action=="render-root-identity-export-target":return target.export_target(request)
+            if action=="render-root-resume-target":
+                common={key:request[key] for key in ("instanceUuid","operationUuid","revision")}
+                proof=self.authorize_units(common)
+                try:return target.resume(request)
+                finally:proof.unlink(missing_ok=True);rendered_fsync(proof.parent)
+            if action=="render-root-target-cached-cipher":return {"success":True,"cachedTarget":target.cached_cipher(request)}
+            original=target.wrapping_key(request)
+            return {"success":True,"scope":target.scope({key:value for key,value in request.items() if key not in ("publicKey","identityCheckpointRef")}),
+                    "targetWrappingKeyVerified":True,"originalCapsuleSha256":original["sha256"]}
         if action in ("render-service-capture-target","render-service-quiesce-target","render-service-target-stopped","render-service-identity-export-target","render-service-target-key-guard","render-service-target-cached-cipher","render-service-resume-target"):
             target=self.target_identity_handler()
             if action=="render-service-capture-target":return target.capture(request)
             if action=="render-service-quiesce-target":return target.quiesce(request)
             if action=="render-service-target-stopped":return target.stopped(request)
             if action=="render-service-identity-export-target":return target.export_target(request)
-            if action=="render-service-resume-target":return target.resume(request)
+            if action=="render-service-resume-target":
+                common={key:request[key] for key in ("instanceUuid","operationUuid","revision")}
+                proof=self.authorize_units(common)
+                try:return target.resume(request)
+                finally:proof.unlink(missing_ok=True);rendered_fsync(proof.parent)
             if action=="render-service-target-cached-cipher":return {"success":True,"cachedTarget":target.cached_cipher(request)}
             original=target.wrapping_key(request)
             return {"success":True,"scope":target.scope({key:value for key,value in request.items() if key not in ("publicKey","identityCheckpointRef")}),
@@ -22510,10 +22888,10 @@ class RenderedDriver:
                 # Do not re-observe a joined target identity as the old source.
                 marker=self.runtime.command(("operation","maintenance","status"))
                 service_cipher.authorize(request,source,marker,self.root_source.canonical_bytes())
-            elif retained is None:
+            elif retained is None and self.imported_root_authority(request) is None:
                 healthy = self.verify(self.store.pointer())
                 if not all(healthy[domain] is True for domain in DOMAINS):raise ValueError("Source runtime lost agreement before durable rendered staging")
-            elif (request.get("previousGeneration")!=retained["retainedGeneration"] or request.get("expectedCurrentRenderedSha256")!=retained["retainedRenderedSha256"] or pending.get("previous")!=retained["retainedGeneration"]):
+            elif retained is not None and (request.get("previousGeneration")!=retained["retainedGeneration"] or request.get("expectedCurrentRenderedSha256")!=retained["retainedRenderedSha256"] or pending.get("previous")!=retained["retainedGeneration"]):
                 raise ValueError("Retained ROOT pending.previous/old pointer differs from its protected baseline")
             checkpoint = self.checkpoint(request, source)
             manifest = self.store.stage(request, files, self.validate)
@@ -22561,7 +22939,7 @@ try:
     action = sys.argv[1]
     request = json.loads(Path(sys.argv[2]).read_text()) if action not in ("render-status", "render-boot", "render-boot-gate", "render-root-replay-guard") else None
     if request is not None:
-        allowed = {"instanceUuid", "operationUuid", "revision", "expectedCurrentRenderedSha256", "renderedManifestSha256", "previousGeneration", "configurationDesiredState", "protocolDesiredState", "credentialRefs", "checkpointPublicKey", "checkpointPrivateKey", "transientCredentials", "expectedBindings", "initialRootBaseline", "fileVolumeBindings", "identityCheckpointRef", "targetCredentialArtifact", "templateUpgradeUuid", "maintenanceUuid", "verifiedGeneration", "expectedRetainedGeneration", "expectedRetainedRenderedSha256", "baselineRef", "capsule", "credentialPrivateKey", "originalSourceScope", "sourceConfigurationSha256", "retainedRootAuthorization", "targetConfigurationSha256", "publicKey"}
+        allowed = {"instanceUuid", "operationUuid", "revision", "expectedCurrentRenderedSha256", "renderedManifestSha256", "previousGeneration", "configurationDesiredState", "protocolDesiredState", "credentialRefs", "checkpointPublicKey", "checkpointPrivateKey", "transientCredentials", "expectedBindings", "initialRootBaseline", "fileVolumeBindings", "identityCheckpointRef", "targetCredentialArtifact", "templateUpgradeUuid", "maintenanceUuid", "verifiedGeneration", "expectedRetainedGeneration", "expectedRetainedRenderedSha256", "baselineRef", "capsule", "credentialPrivateKey", "originalSourceScope", "sourceConfigurationSha256", "retainedRootAuthorization", "importedRootAuthorization", "targetConfigurationSha256", "publicKey"}
         if not isinstance(request, dict) or not set(request) <= allowed:
             raise ValueError("Rendered RPC contains an unknown input field")
         if request.get("checkpointPrivateKey") or request.get("credentialPrivateKey") or request.get("transientCredentials") or request.get("targetCredentialArtifact"):
@@ -22633,7 +23011,7 @@ PYADHANDLERCAP
       identity_ad_lifecycle_command "local-sam-bootstrap" "$payload"
       exit $?
     fi
-    if [[ "$subcommand" == "domain" && ( "$action" == "join" || "$action" == "leave" || "$action" == "daemon-gate" || "$action" == "quiesce" || "$action" == "semantic-local-restore" || "$action" == "semantic-local-guard" || "$action" == "target-resume" || "$action" == "retain" || "$action" == "inverse-join" ) ]]; then
+    if [[ "$subcommand" == "domain" && ( "$action" == "join" || "$action" == "leave" || "$action" == "daemon-gate" || "$action" == "quiesce" || "$action" == "semantic-local-restore" || "$action" == "semantic-local-guard" || "$action" == "target-resume" || "$action" == "retain" || "$action" == "inverse-join" || "$action" == "root-target-resume" ) ]]; then
       identity_ad_lifecycle_command "$action" "$payload"
       exit $?
     fi
@@ -22660,7 +23038,7 @@ PYADHANDLERCAP
   operation)
     if [[ "$subcommand" == "generation" ]]; then
       case "$action" in
-        render-import|render-stage|render-activate|render-rollback|render-status|render-finalize|render-boot|render-boot-gate|render-maintenance-verify|render-maintenance-resume-source|render-service-capture-source|render-service-source-quiesce-guard|render-service-source-stopped|render-service-identity-export-source|render-root-capture-source|render-root-resume-source|render-root-replay-guard|render-root-source-quiesce-guard|render-root-quiesce-source|render-root-identity-export-source|render-root-capture-retained|render-root-authorize-retained|render-service-capture-target|render-service-quiesce-target|render-service-target-stopped|render-service-identity-export-target|render-service-target-key-guard|render-service-target-cached-cipher|render-service-resume-target) rendered_generation_command ;;
+        render-import|render-stage|render-activate|render-rollback|render-status|render-finalize|render-boot|render-boot-gate|render-maintenance-verify|render-maintenance-resume-source|render-service-capture-source|render-service-source-quiesce-guard|render-service-source-stopped|render-service-identity-export-source|render-root-capture-source|render-root-resume-source|render-root-replay-guard|render-root-source-quiesce-guard|render-root-quiesce-source|render-root-identity-export-source|render-root-capture-retained|render-root-authorize-retained|render-service-capture-target|render-service-quiesce-target|render-service-target-stopped|render-service-identity-export-target|render-service-target-key-guard|render-service-target-cached-cipher|render-service-resume-target|render-root-capture-target|render-root-quiesce-target|render-root-target-stopped|render-root-identity-export-target|render-root-target-key-guard|render-root-target-cached-cipher|render-root-resume-target|render-ad-join-inverse-guard) rendered_generation_command ;;
         *) configuration_generation ;;
       esac
     elif [[ "$subcommand" == "reservation" ]]; then

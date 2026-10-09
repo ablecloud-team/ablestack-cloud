@@ -28,11 +28,20 @@ from root_source_identity_checkpoint import root_public_sha,ROOT_IDENTITY_HOLDER
 
 
 class ServiceIdentityTarget:
+    capture_kind="SERVICE_IDENTITY_TARGET"
+    stop_kind="SERVICE_TARGET_STOP_JOURNAL"
+    stopped_kind="SERVICE_TARGET_STOPPED"
+    cipher_kind="SERVICE_TARGET_IDENTITY_CHECKPOINT"
+    prefix="service-identity-target"
+    stopped_flag="serviceTargetStoppedVerified"
+    maintenance_kind="SERVICE"
     def __init__(self,driver,controller,root=None,identity=None,writer=None,winbind=None):
         self.source=ServiceIdentitySource(driver,root,identity,writer)
         self.driver=driver;self.store=driver.store;self.runtime=driver.runtime;self.root=self.source.root
         self.identity=self.source.identity;self.controller=controller;self.writer=self.source.writer
         self.winbind=winbind
+    checkpoint_field="serviceIdentityCheckpoint"
+    def local_sid(self,saved):return saved["targetPublicIdentity"]["publicLocalMachineSid"]
     def scope(self,request):
         if not isinstance(request,dict) or set(request)!={"instanceUuid","maintenanceUuid","operationUuid","revision","targetConfigurationSha256"}:
             raise ValueError("TARGET capture request is mixed or incomplete")
@@ -41,9 +50,9 @@ class ServiceIdentityTarget:
         if not isinstance(digest,str) or len(digest)!=64 or any(c not in "0123456789abcdef" for c in digest):
             raise ValueError("TARGET configuration checksum is invalid")
         return scope
-    def path(self,scope):return self.root/("service-identity-target-"+scope["operationUuid"]+".json")
-    def stop_path(self,scope):return self.root/("service-identity-target-stop-"+scope["operationUuid"]+".json")
-    def cipher_path(self,scope):return self.root/("service-identity-target-cipher-"+scope["operationUuid"]+".json")
+    def path(self,scope):return self.root/(self.prefix+"-"+scope["operationUuid"]+".json")
+    def stop_path(self,scope):return self.root/(self.prefix+"-stop-"+scope["operationUuid"]+".json")
+    def cipher_path(self,scope):return self.root/(self.prefix+"-cipher-"+scope["operationUuid"]+".json")
     def observation(self,request):
         scope=self.scope(request);self.writer();self.source.held(scope)
         actual,status=self.source.observation(scope)
@@ -61,7 +70,7 @@ class ServiceIdentityTarget:
         frozen=self.identity.freeze(scope,actual);owners=self.identity.owners()
         if (frozen["publicAdIdentity"] is not None)!=any(row["unit"]=="ablestack-storage-winbind.service" for row in owners):
             raise ValueError("LKG TARGET AD differs from its owned winbind")
-        saved={"schemaVersion":1,"kind":"SERVICE_IDENTITY_TARGET","scope":scope,"phase":"CAPTURED","targetGeneration":actual["generation"],
+        saved={"schemaVersion":1,"kind":self.capture_kind,"scope":scope,"phase":"CAPTURED","targetGeneration":actual["generation"],
                "targetRendered":status["current"],"targetActivation":status.get("activation"),"targetConfigurationSha256":actual["configurationSha256"],
                "targetPublicIdentity":frozen,"targetOwners":owners,"canonicalBytes":self.source.canonical_bytes(),
                "bootId":Path("/proc/sys/kernel/random/boot_id").read_text().strip(),"capturedEpoch":time.time()}
@@ -69,13 +78,13 @@ class ServiceIdentityTarget:
     def receipt(self,saved):
         value={"success":True,"scope":saved["scope"],"targetCaptured":True,"targetGeneration":saved["targetGeneration"],
                "targetConfigurationSha256":saved["targetConfigurationSha256"],"targetRenderedManifestSha256":saved["targetRendered"]["manifestSha256"],
-               "bootId":saved["bootId"],"publicLocalMachineSid":saved["targetPublicIdentity"]["publicLocalMachineSid"],"canonicalDesiredStateChanged":False}
+               "bootId":saved["bootId"],"publicLocalMachineSid":self.local_sid(saved),"canonicalDesiredStateChanged":False}
         if saved.get("targetStoppedReceipt") is not None:
-            value.update(serviceTargetStoppedVerified=True,stoppedReceiptSha256=root_public_sha(saved["targetStoppedReceipt"]))
+            value.update({self.stopped_flag:True,"stoppedReceiptSha256":root_public_sha(saved["targetStoppedReceipt"])})
         return value
     def validate(self,request):
         scope,actual,status=self.observation(request);saved=credential_json(rendered_read(self.path(scope)))
-        if (type(saved.get("schemaVersion")) is not int or saved["schemaVersion"]!=1 or saved.get("kind")!="SERVICE_IDENTITY_TARGET" or saved.get("scope")!=scope
+        if (type(saved.get("schemaVersion")) is not int or saved["schemaVersion"]!=1 or saved.get("kind")!=self.capture_kind or saved.get("scope")!=scope
                 or saved.get("targetGeneration")!=actual["generation"] or saved.get("targetRendered")!=status["current"]
                 or saved.get("targetActivation")!=status.get("activation") or saved.get("targetConfigurationSha256")!=actual["configurationSha256"]
                 or saved.get("canonicalBytes")!=self.source.canonical_bytes() or saved.get("bootId")!=Path("/proc/sys/kernel/random/boot_id").read_text().strip()):
@@ -87,7 +96,7 @@ class ServiceIdentityTarget:
         if saved.get("phase")=="STOPPED":return self.stopped(request)
         if self.identity.owners()!=owners:raise ValueError("LKG TARGET owners changed before stop")
         if not time.time()-180<=saved["capturedEpoch"]<=time.time()+5:raise ValueError("LKG TARGET PRESTOP capture expired")
-        journal={"kind":"SERVICE_TARGET_STOP_JOURNAL","scope":scope,"phase":"STOPPING","targetGeneration":saved["targetGeneration"],
+        journal={"kind":self.stop_kind,"scope":scope,"phase":"STOPPING","targetGeneration":saved["targetGeneration"],
                  "targetConfigurationSha256":saved["targetConfigurationSha256"],"owners":owners,"stoppedUnits":[],"bootId":saved["bootId"]}
         rendered_json(journal_path,journal)
         try:
@@ -102,20 +111,20 @@ class ServiceIdentityTarget:
             journal["phase"]="RECOVERY_REQUIRED";rendered_json(journal_path,journal);raise
     def stopped(self,request):
         scope,saved,actual=self.validate(request);journal=credential_json(rendered_read(self.stop_path(scope)));owners=saved["targetOwners"]
-        if (journal.get("kind")!="SERVICE_TARGET_STOP_JOURNAL" or journal.get("scope")!=scope or journal.get("phase") not in ("HELD","RECOVERY_REQUIRED")
+        if (journal.get("kind")!=self.stop_kind or journal.get("scope")!=scope or journal.get("phase") not in ("HELD","RECOVERY_REQUIRED")
                 or journal.get("targetGeneration")!=saved["targetGeneration"] or journal.get("targetConfigurationSha256")!=saved["targetConfigurationSha256"]
                 or journal.get("owners")!=owners or len(journal.get("stoppedUnits",[]))!=len(owners)
                 or set(journal["stoppedUnits"])!={row["unit"] for row in owners} or self.identity.owners()):
             raise ValueError("LKG TARGET lacks its exact independent owned-stop receipt")
         self.identity.listeners_clear(owners)
         if self.identity.holders():raise ValueError("LKG TARGET private TDB holders remain")
-        receipt={"schemaVersion":1,"kind":"SERVICE_TARGET_STOPPED","scope":scope,"targetGeneration":saved["targetGeneration"],
+        receipt={"schemaVersion":1,"kind":self.stopped_kind,"scope":scope,"targetGeneration":saved["targetGeneration"],
                  "targetConfigurationSha256":saved["targetConfigurationSha256"],"owners":owners,"knownIdentityDatabaseHolders":0,
-                 "holderObservationScope":ROOT_IDENTITY_HOLDER_SCOPE,"bootId":saved["bootId"],"publicLocalMachineSid":saved["targetPublicIdentity"]["publicLocalMachineSid"]}
+                 "holderObservationScope":ROOT_IDENTITY_HOLDER_SCOPE,"bootId":saved["bootId"],"publicLocalMachineSid":self.local_sid(saved)}
         if saved.get("targetStoppedReceipt") not in (None,receipt):raise ValueError("LKG TARGET stopped receipt changed")
         if saved.get("targetStoppedReceipt") is None:
             saved["targetStoppedReceipt"]=receipt;saved["phase"]="STOPPED";rendered_json(self.path(scope),saved)
-        return {**self.receipt(saved),"bootHeld":True,"maintenanceKind":"SERVICE","sideEffects":False}
+        return {**self.receipt(saved),"bootHeld":True,"maintenanceKind":self.maintenance_kind,"sideEffects":False}
     def export_target(self,request):
         self.stopped(request);scope,saved,actual=self.validate(request)
         if saved["phase"]!="STOPPED":raise ValueError("LKG RAW TARGET export requires its own AFTERSTOP receipt")
@@ -156,13 +165,13 @@ class ServiceIdentityTarget:
         raw=base64.b64decode(capsule["ciphertext"],validate=True)
         if capsule.get("scope")!=scope["instanceUuid"]+":"+scope["operationUuid"] or hashlib.sha256(raw).hexdigest()!=capsule.get("sha256"):
             raise ValueError("LKG TARGET ciphertext differs from its exact scope/digest")
-        record={"schemaVersion":1,"kind":"SERVICE_TARGET_IDENTITY_CHECKPOINT","scope":scope,"targetConfigurationSha256":saved["targetConfigurationSha256"],
+        record={"schemaVersion":1,"kind":self.cipher_kind,"scope":scope,"targetConfigurationSha256":saved["targetConfigurationSha256"],
                 "targetRecordSha256":service_cipher_digest(saved),"stoppedReceiptSha256":root_public_sha(saved["targetStoppedReceipt"]),
                 "publicKey":request["publicKey"],"capsule":capsule,"bootId":saved["bootId"]}
         if path.exists() or path.is_symlink():
             if cipher.read(path)!=record:raise ValueError("LKG TARGET cannot replace its original independent ciphertext")
         else:cipher.write(path,record)
-        return {"kind":"SERVICE_TARGET_IDENTITY_CHECKPOINT","scope":scope,"capsuleSha256":capsule["sha256"],
+        return {"kind":self.cipher_kind,"scope":scope,"capsuleSha256":capsule["sha256"],
                 "targetConfigurationSha256":saved["targetConfigurationSha256"],"checkpointRecordSha256":service_cipher_digest(record)}
     def cached_cipher(self,request):
         scope=self.scope({key:value for key,value in request.items() if key not in ("publicKey","identityCheckpointRef")})
@@ -173,7 +182,7 @@ class ServiceIdentityTarget:
         if journal.get("phase") in ("RESUMED","RESUMING"):self.verify_resumed(scope,saved,actual)
         else:self.stopped(plain)
         record=ServiceIdentityCipher(self.root).read(path)
-        if (record.get("kind")!="SERVICE_TARGET_IDENTITY_CHECKPOINT" or record.get("scope")!=scope
+        if (record.get("kind")!=self.cipher_kind or record.get("scope")!=scope
                 or record.get("targetRecordSha256")!=service_cipher_digest(saved) or record.get("bootId")!=saved["bootId"]
                 or record.get("stoppedReceiptSha256")!=root_public_sha(saved["targetStoppedReceipt"])
                 or record.get("targetConfigurationSha256")!=saved["targetConfigurationSha256"]):
@@ -181,7 +190,7 @@ class ServiceIdentityTarget:
         capsule=record["capsule"];raw=base64.b64decode(capsule["ciphertext"],validate=True)
         if capsule["scope"]!=scope["instanceUuid"]+":"+scope["operationUuid"] or hashlib.sha256(raw).hexdigest()!=capsule["sha256"]:
             raise ValueError("LKG TARGET cached ciphertext scope/digest differs")
-        return {"capsule":capsule,"serviceIdentityCheckpoint":{"kind":"SERVICE_TARGET_IDENTITY_CHECKPOINT","scope":scope,"capsuleSha256":capsule["sha256"],
+        return {"capsule":capsule,self.checkpoint_field:{"kind":self.cipher_kind,"scope":scope,"capsuleSha256":capsule["sha256"],
                 "targetConfigurationSha256":saved["targetConfigurationSha256"],"checkpointRecordSha256":service_cipher_digest(record)}}
 
     def verify_resumed(self,scope,saved,actual):
