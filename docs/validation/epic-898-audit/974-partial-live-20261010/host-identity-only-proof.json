@@ -1,0 +1,10 @@
+{
+  "success": true,
+  "phase": "HOST_VM51_IDENTITY_ONLY",
+  "domain": "i-2-51-VM",
+  "vmUuid": "e38ab665-a5db-44a0-90f6-5ed06ee5df9f",
+  "libvirtState": 1,
+  "qgaCalls": 0,
+  "diskWrites": 0,
+  "guardSignals": 0
+}
