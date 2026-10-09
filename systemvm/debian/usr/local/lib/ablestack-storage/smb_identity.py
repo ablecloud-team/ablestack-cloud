@@ -258,6 +258,10 @@ class SmbIdentity:
     def inspect(self,request,allow_missing=False):
         scope=self.scope(request);current=self.generation(scope)
         if not os.path.lexists(self.configuration / "desired-state/smb-share-apply.json"):
+            from smb_current_retention import SmbCurrentRetention
+            retained = SmbCurrentRetention(self.cli, handler=self).inspect_retained(scope, current)
+            if retained is not None:
+                return retained
             return self.inspect_unconfigured(scope, current)
         endpoints=self.endpoints();databases=self.database_identity()
         sockets=self.socket_rows(self.run(["ss","-H","-ltnp"]))

@@ -35,6 +35,33 @@ def pending_nfs_readonly_body():
     tokens=tokenize.generate_tokens(io.StringIO(value).readline)
     return "import uuid as pending_nfs_uuid\n"+tokenize.untokenize([token._replace(string=aliases.get(token.string,token.string)) if token.type==tokenize.NAME else token for token in tokens]).rstrip()
 
+def current_smb_reviewed_bodies():
+    import io,tokenize
+    def body(name):
+        value=(LIB/(name+".py")).read_text()
+        return value[value.index(chr(34)*3):].rstrip()
+    def subset(name,klass,methods,alias):
+        value=(LIB/(name+".py")).read_text();tree=ast.parse(value)
+        chosen=next(node for node in tree.body if isinstance(node,ast.ClassDef) and node.name==klass)
+        return "class "+alias+":\n"+"\n\n".join("    "+ast.get_source_segment(value,node) for node in chosen.body if isinstance(node,ast.FunctionDef) and node.name in methods)
+    def function(name,fn):
+        value=(LIB/(name+".py")).read_text()
+        return ast.get_source_segment(value,next(node for node in ast.parse(value).body if isinstance(node,ast.FunctionDef) and node.name==fn))
+    def aliases(value,mapping):
+        tokens=tokenize.generate_tokens(io.StringIO(value).readline)
+        return tokenize.untokenize([token._replace(string=mapping.get(token.string,token.string)) if token.type==tokenize.NAME else token for token in tokens]).rstrip()
+    lock=subset("pending_nfs_authorization","PendingNfsAuthorization",{"lock"},"CurrentSmbWriterLock")
+    current=body("smb_current_retention")
+    dependencies=("smb_identity","samba_public_sid","pending_nfs_authorization","identity_capsule","service_identity_cipher")
+    current="\n".join(line for line in current.splitlines() if not any(line.startswith("from "+name+" import ") for name in dependencies))
+    current=aliases(current,{"PendingNfsAuthorization":"CurrentSmbWriterLock"})
+    smb=body("smb_identity").replace("            from smb_current_retention import SmbCurrentRetention\n","")
+    codec=lock+"\n\n"+smb+"\n\n"+current
+    files=subset("service_identity_cipher","ServiceIdentityCipher",{"__init__","read","write"},"CurrentSmbCipherFiles")
+    plain="\n\n".join((smb,body("samba_public_sid"),"MAX_CAPSULE_BYTES = 8*1024*1024\n"+function("identity_capsule","regular_file"),
+        function("service_identity_cipher","service_cipher_json"),files,lock,aliases(current,{"ServiceIdentityCipher":"CurrentSmbCipherFiles"})))
+    return codec,plain
+
 class StorageInlineSourcesTest(unittest.TestCase):
     def test_signed_rendered_entrypoint_matches_all_fixed_reviewed_library_bodies_exactly(self):
         modules=['ad_authority','semantic_identity_alias','rendered_generation','ganesha_dbus','nvme_credentials','native_renderers','native_render_validation','native_render_runtime','rendered_network','rendered_prerequisites','rendered_credentials','posix_root_initialization','root_identity_reference','root_configuration_capsule','root_source_identity_checkpoint','root_source_recovery','samba_public_sid','service_identity_source','service_identity_cipher','template_maintenance','service_maintenance','service_identity_target','root_identity_target','root_retained_authorization','root_ad_imported_authorization','root_ad_identity_authority','pending_nfs_authorization','rendered_driver']
@@ -173,9 +200,19 @@ class StorageInlineSourcesTest(unittest.TestCase):
         self.assertEqual(helper,actual);ast.parse(actual)
         readers=source.split("# BEGIN EMBEDDED PENDING SMB READERS\n",1)[1].split("\n# END EMBEDDED PENDING SMB READERS",1)[0]
         self.assertEqual(pending_nfs_readonly_body(),readers);ast.parse(readers)
-        expected=(LIB/"smb_identity.py").read_text()
-        expected=expected[expected.index('"""Read-only identity/ownership'):].rstrip()
+        _,expected=current_smb_reviewed_bodies()
         actual=source.split("<<'PYSMBIDENTITY'\n",1)[1].split("\nimport sys\ntry:",1)[0]
         self.assertEqual(expected,actual);ast.parse(actual)
+
+    def test_signed_current_smb_retention_codec_body_and_readonly_dependency_subsets_are_exact(self):
+        source=CLI.read_text();expected,_=current_smb_reviewed_bodies()
+        actual=source.split("# BEGIN EMBEDDED SMB CURRENT RETENTION\n",1)[1].split("\n# END EMBEDDED SMB CURRENT RETENTION",1)[0]
+        self.assertEqual(expected,actual);ast.parse(actual)
+        codec=source.split("<<'PYIDENTITY'\n",1)[1].split("\nPYIDENTITY",1)[0]
+        self.assertEqual(1,len([node for node in ast.parse(codec).body if isinstance(node,ast.FunctionDef) and node.name=="encrypt"]))
+        self.assertEqual(1,len([node for node in ast.parse(codec).body if isinstance(node,ast.FunctionDef) and node.name=="decrypt"]))
+        for action in ("current-review","current-quiesce","current-export","current-retain","current-verify"):
+            self.assertIn('"'+action+'"',source)
+        self.assertIn(":CURRENT_LOCAL_AFTERSTOP",actual)
 
 if __name__=='__main__':unittest.main()
