@@ -1,0 +1,144 @@
+{
+  "kind": "OWN_LOCAL_USER_CREDENTIAL_REFRESH_AND_UI_CONTROLLED_SMB_CASES",
+  "username": "epic898_smb_ad297",
+  "aclId": "65bb49a4-8b1a-49d6-b6ad-72658bf9c0fc",
+  "browserPasswordEntry": false,
+  "credentialRefreshCount": 1,
+  "duplicateCreates": 0,
+  "cases": [
+    {
+      "client": "C1",
+      "case": "RO_WRITE_DENY",
+      "privateOutputSuppressed": true,
+      "credentialFilesOrArgv": false,
+      "mountsCreated": 0,
+      "exitCode": 1,
+      "ntStatus": [
+        "NT_STATUS_ACCESS_DENIED"
+      ],
+      "dataIoBytes": 0,
+      "success": true
+    },
+    {
+      "client": "C1",
+      "case": "RW_WRITE_READ",
+      "privateOutputSuppressed": true,
+      "credentialFilesOrArgv": false,
+      "mountsCreated": 0,
+      "write": {
+        "exitCode": 0,
+        "ntStatus": [],
+        "privateOutputSuppressed": true
+      },
+      "read0": {
+        "exitCode": 0,
+        "ntStatus": [],
+        "privateOutputSuppressed": true
+      },
+      "read1": {
+        "exitCode": 0,
+        "ntStatus": [],
+        "privateOutputSuppressed": true
+      },
+      "success": true,
+      "bytes": 4096,
+      "sha256": "65ea0e1ddd48fc6690d1772282d3edd5e0843da33bbea1c60848db3dfb4cc9c0",
+      "freshSha256": "65ea0e1ddd48fc6690d1772282d3edd5e0843da33bbea1c60848db3dfb4cc9c0",
+      "freshReconnect": true
+    },
+    {
+      "client": "C2",
+      "case": "CIDR_READ_DENY",
+      "privateOutputSuppressed": true,
+      "credentialFilesOrArgv": false,
+      "mountsCreated": 0,
+      "exitCode": 1,
+      "ntStatus": [
+        "NT_STATUS_ACCESS_DENIED"
+      ],
+      "dataIoBytes": 0,
+      "success": true
+    },
+    {
+      "client": "C1",
+      "case": "CIDR_ALLOW",
+      "privateOutputSuppressed": true,
+      "credentialFilesOrArgv": false,
+      "mountsCreated": 0,
+      "read0": {
+        "exitCode": 0,
+        "ntStatus": [],
+        "privateOutputSuppressed": true
+      },
+      "read1": {
+        "exitCode": 0,
+        "ntStatus": [],
+        "privateOutputSuppressed": true
+      },
+      "success": true,
+      "bytes": 4096,
+      "sha256": "65ea0e1ddd48fc6690d1772282d3edd5e0843da33bbea1c60848db3dfb4cc9c0",
+      "freshSha256": "65ea0e1ddd48fc6690d1772282d3edd5e0843da33bbea1c60848db3dfb4cc9c0",
+      "freshReconnect": true
+    },
+    {
+      "client": "C2",
+      "case": "CIDR_ALLOW",
+      "privateOutputSuppressed": true,
+      "credentialFilesOrArgv": false,
+      "mountsCreated": 0,
+      "read0": {
+        "exitCode": 0,
+        "ntStatus": [],
+        "privateOutputSuppressed": true
+      },
+      "read1": {
+        "exitCode": 0,
+        "ntStatus": [],
+        "privateOutputSuppressed": true
+      },
+      "success": true,
+      "bytes": 4096,
+      "sha256": "65ea0e1ddd48fc6690d1772282d3edd5e0843da33bbea1c60848db3dfb4cc9c0",
+      "freshSha256": "65ea0e1ddd48fc6690d1772282d3edd5e0843da33bbea1c60848db3dfb4cc9c0",
+      "freshReconnect": true
+    },
+    {
+      "client": "C1",
+      "case": "NO_CREDENTIAL",
+      "privateOutputSuppressed": true,
+      "credentialFilesOrArgv": false,
+      "mountsCreated": 0,
+      "exitCode": 1,
+      "ntStatus": [
+        "NT_STATUS_ACCESS_DENIED"
+      ],
+      "dataIoBytes": 0,
+      "success": true
+    },
+    {
+      "client": "C2",
+      "case": "NO_CREDENTIAL",
+      "privateOutputSuppressed": true,
+      "credentialFilesOrArgv": false,
+      "mountsCreated": 0,
+      "exitCode": 1,
+      "ntStatus": [
+        "NT_STATUS_ACCESS_DENIED"
+      ],
+      "dataIoBytes": 0,
+      "success": true
+    }
+  ],
+  "credentialsPersisted": false,
+  "refreshJobId": "ebf51055-520a-4b2d-b650-0fce6ef57cf6",
+  "refreshJobStatus": 1,
+  "refreshPublicResult": {
+    "id": "65bb49a4-8b1a-49d6-b6ad-72658bf9c0fc",
+    "state": "Ready",
+    "principal": "epic898_smb_ad297",
+    "principaltype": "LOCAL_USER",
+    "permission": "READ_WRITE"
+  },
+  "completedWithoutClientFailure": true
+}

@@ -35,3 +35,10 @@ Native current는 원 GEN4/daf·BOOTdc4·CLI19ad·두 DATA/FS/mount·NFS sentine
 ![원 작업 복구 단계와 100 진행률](../epic-898-ui-20261007/ad297-source-recovery/ad297-original-fef-recovery-rolled-back-right.png)
 
 대용량 입력의 실제 전송 실패 재현, 제품 RAM 청크 전송 제한 배포, 동일 원 UI 복원의 완료를 연결해 확인했다. 정확한 QGA daemon 내부 실패 구간까지 확정한 것은 아니다. 이후 LOCAL ACL 및 C1/C2의 실제 SMB 인증·I/O 검증을 진행한다. 복원 완료를 전체 #892 all4 실패 인수나 #900 AD/SMB 완료로 확대하지 않고 해당 이슈는 계속 열어 둔다.
+
+
+## 13번 클러스터의 나머지 호스트 정렬
+
+13.2에서 원 UI 복원 성공을 확인한 뒤 13.1→13.3 순서로 같은 Wrapper2eedeaf만 적용했다. 각 실제 baseline과 ABI13/추가참조73/73을 검증해 전체 JAR을 교체하지 않았다. 13.1 JAR54ced30e/PID1351441/VM10와 다른482파일, 13.3 JAR7f7ee1ee/PID1622051/VM2/DC와 다른474파일을 보존했다. 두 호스트의 ZIP 수치가 달라 각 baseline을 사용했다. root0700 백업·fsync atomic·mold-agent-only restart·실패 rollback 정책을 유지했고 guest/VM 재시작은0이다.
+
+Root의 정상 read-only API로 순서별 Host Up을 확인했으며 최종13.1/13.2/13.3 모두Up/HTTP200이다. [호스트별 실제 제한 배포·API readiness 공개 요약](20261010-kvm-all13-hosts-rollout-public-proof.json). LOCAL SMB의 후속 실제 UI/외부 접속 결과는 [별도 core 검증](20261010-local-smb-core-ui-io.md)에 기록한다.
