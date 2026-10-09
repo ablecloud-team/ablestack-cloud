@@ -4027,6 +4027,24 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             previous=status.getAsJsonObject("generation");
             if(previous!=null && previous.has("revision") && previous.get("revision").getAsLong()>=operation.getRevision())throw new CloudRuntimeException("Recovery source cannot be a newer native generation");
         }
+        if (previous != null && previous.size() == 0) {
+            JsonElement original = snapshot.get("nativeDesiredState");
+            if (original == null || !original.isJsonObject() || !original.getAsJsonObject().keySet().equals(StorageRenderedDesiredState.PATHS)) {
+                throw new CloudRuntimeException("Initial recovery lacks its complete pre-mutation canonical desired state");
+            }
+            JsonObject scope = operationReservationScope(instance, operation), request = scope.deepCopy();
+            request.add("configurationDesiredState", original.deepCopy());
+            JsonObject initial = rootGuest(instance, "operation generation frozen-initial", request, 30);
+            String checksum = getJsonString(initial, "configurationSha256");
+            if (!Boolean.TRUE.equals(getNativeBoolean(initial, "success")) || !Boolean.TRUE.equals(getNativeBoolean(initial, "generationSupported"))
+                    || !Boolean.TRUE.equals(getNativeBoolean(initial, "frozen")) || !Boolean.TRUE.equals(getNativeBoolean(initial, "initialSourceVerified"))
+                    || !scope.equals(initial.get("scope")) || !initial.has("generation") || !initial.get("generation").isJsonObject()
+                    || initial.getAsJsonObject("generation").size() != 0 || checksum == null || !checksum.matches("[a-f0-9]{64}")
+                    || !original.equals(initial.get("configurationDesiredState"))) {
+                throw new CloudRuntimeException("Initial recovery source is not the native pending writer's exact before configuration");
+            }
+            return initial;
+        }
         if (previous == null || !previous.has("operationUuid")) return null;
         JsonObject frozen = rootGuest(instance, "operation generation frozen", previous, 30);
         if (!Boolean.TRUE.equals(getJsonBoolean(frozen,"frozen")) || !previous.equals(frozen.get("generation"))
@@ -6411,7 +6429,13 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
 
         requireNfsNamedPolicyCapability(instance);
-        final JsonObject payload = buildNfsDesiredPayload(instance,removeListenIp,includeAllocatedResources);
+        final JsonObject payload = buildNfsDesiredPayload(instance,removeListenIp,includeAllocatedResources).deepCopy();
+        final StorageServiceOperationVO writer = storageWriterOperation.get();
+        if (writer != null) {
+            if (writer.getInstanceId() != instance.getId()) throw new CloudRuntimeException("NFS writer targets a foreign instance");
+            // Transport authority is never part of canonical NFS desired state.
+            payload.add("operationScope", operationReservationScope(instance, writer));
+        }
         final int requestedExportCount = payload.getAsJsonArray("exports").size();
 
         final StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),

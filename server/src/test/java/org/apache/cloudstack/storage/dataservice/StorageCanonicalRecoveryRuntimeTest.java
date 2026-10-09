@@ -43,7 +43,7 @@ public class StorageCanonicalRecoveryRuntimeTest {
         JsonObject frozen,live;boolean healthFailure,foreignMac,badReceipt;List<String> commands=new ArrayList<>();
         @Override protected JsonObject nativeConfigurationGeneration(StorageServiceInstanceVO instance,StorageServiceOperationVO operation,String action){commands.add(action);return live.deepCopy();}
         @Override protected void verifyReconciledStorageDesiredState(StorageServiceInstanceVO instance){commands.add("verify-runtime");if(healthFailure)throw new CloudRuntimeException("Runtime differs from restored DB desired state");}
-        @Override protected JsonObject rootGuest(StorageServiceInstanceVO instance,String command,JsonObject request,int timeout){commands.add(command);if(command.endsWith("frozen"))return frozen.deepCopy();JsonObject result=new JsonObject();result.addProperty("success",true);
+        @Override protected JsonObject rootGuest(StorageServiceInstanceVO instance,String command,JsonObject request,int timeout){commands.add(command);if(command.endsWith("frozen") || command.endsWith("frozen-initial"))return frozen.deepCopy();JsonObject result=new JsonObject();result.addProperty("success",true);
             if(command.endsWith("restore")){Assert.assertEquals(frozen.get("generation"),request.get("previousGeneration"));Assert.assertEquals(frozen.get("configurationDesiredState"),request.get("configurationDesiredState"));result.addProperty("canonicalRestored",true);result.add("configurationSha256",frozen.get("configurationSha256"));result.add("pendingOperationUuid",request.get("operationUuid"));live.add("configurationDesiredState",frozen.get("configurationDesiredState").deepCopy());live.add("configurationSha256",frozen.get("configurationSha256"));}
             if(command.equals("network endpoints reconcile")){JsonArray endpoints=request.getAsJsonArray("expectedBindings").deepCopy();for(JsonElement value:endpoints){value.getAsJsonObject().addProperty("active",true);if(foreignMac)value.getAsJsonObject().addProperty("macAddress","foreign");}result.add("endpoints",endpoints);result.addProperty("bindingReceiptVerified",!badReceipt);result.addProperty("desiredStatePresent",true);result.addProperty("bindingReceiptDesiredStatePresent",true);result.addProperty("desiredStateSha256","a".repeat(64));result.addProperty("bindingReceiptDesiredStateSha256",badReceipt?"b".repeat(64):"a".repeat(64));}return result;}
     }
@@ -89,4 +89,53 @@ public class StorageCanonicalRecoveryRuntimeTest {
     @Test public void changedGuestMacCannotNormalizeOrRestoreCache(){staleCachePrimary("10.10.13.241");manager.foreignMac=true;Assert.assertThrows(CloudRuntimeException.class,()->ReflectionTestUtils.invokeMethod(manager,"rollbackNativeConfigurationGeneration",instance,operation));Assert.assertFalse(manager.commands.contains("operation generation restore"));}
     @Test public void unverifiedNewCacheReceiptKeepsNativePendingAndNeverRollsBack(){staleCachePrimary("10.10.13.241");manager.badReceipt=true;Assert.assertThrows(CloudRuntimeException.class,()->ReflectionTestUtils.invokeMethod(manager,"rollbackNativeConfigurationGeneration",instance,operation));Assert.assertTrue(manager.commands.contains("operation generation restore"));Assert.assertFalse(manager.commands.contains("rollback"));}
 
+    private void initialPendingSource() {
+        JsonObject snapshot=new JsonObject(),nativeState=new JsonObject();
+        nativeState.add("previous",new JsonObject());snapshot.add("nativeGeneration",nativeState);
+        snapshot.add("nativeDesiredState",manager.frozen.get("configurationDesiredState").deepCopy());
+        operation.setPreviousSnapshotJson(snapshot.toString());
+        manager.frozen.add("generation",new JsonObject());manager.frozen.add("scope",manager.operationReservationScope(instance,operation));
+        manager.frozen.addProperty("success",true);manager.frozen.addProperty("generationSupported",true);
+        manager.frozen.addProperty("initialSourceVerified",true);manager.frozen.addProperty("configurationSha256","a".repeat(64));
+        manager.live.add("generation",new JsonObject());
+    }
+    @Test public void firstPendingWriterRestoresAbsentNfsOnlyAfterSourceAndRuntimeVerification() {
+        initialPendingSource();JsonObject empty=new JsonObject();empty.addProperty("enabled",true);empty.add("exports",new JsonArray());
+        manager.live.getAsJsonObject("configurationDesiredState").add("desired-state/nfs-export-apply.json",empty);
+        manager.live.addProperty("configurationSha256","b".repeat(64));
+        JsonObject source=manager.frozenRecoveryConfiguration(instance,operation);
+        Assert.assertEquals(new JsonObject(),source.get("generation"));Assert.assertTrue(source.get("initialSourceVerified").getAsBoolean());
+        ((ThreadLocal<JsonObject>)ReflectionTestUtils.getField(manager,"configurationRecoverySource")).set(source);
+        ReflectionTestUtils.invokeMethod(manager,"rollbackNativeConfigurationGeneration",instance,operation);
+        Assert.assertTrue(manager.commands.indexOf("operation generation frozen-initial")<manager.commands.indexOf("verify-runtime"));
+        Assert.assertTrue(manager.commands.indexOf("verify-runtime")<manager.commands.indexOf("operation generation restore"));
+        Assert.assertTrue(manager.commands.indexOf("operation generation restore")<manager.commands.indexOf("rollback"));
+        Assert.assertTrue(manager.live.getAsJsonObject("configurationDesiredState").get("desired-state/nfs-export-apply.json").isJsonNull());
+        Assert.assertEquals("a".repeat(64),manager.live.get("configurationSha256").getAsString());
+    }
+    @Test public void initialSourceProofCannotInventScopeGenerationOrSourceBytes() {
+        for(String field:List.of("initialSourceVerified","success","scope","generation","configurationDesiredState","configurationSha256")) {
+            initialPendingSource();manager.commands.clear();JsonObject valid=manager.frozen.deepCopy();
+            if(field.equals("initialSourceVerified") || field.equals("success"))manager.frozen.addProperty(field,"true");
+            else if(field.equals("scope"))manager.frozen.getAsJsonObject(field).addProperty("operationUuid",UUID.randomUUID().toString());
+            else if(field.equals("generation"))manager.frozen.getAsJsonObject(field).addProperty("revision",1);
+            else if(field.equals("configurationDesiredState"))manager.frozen.getAsJsonObject(field).add("unknown.json",new JsonObject());
+            else manager.frozen.addProperty(field,"unverified");
+            Assert.assertThrows(field,CloudRuntimeException.class,()->manager.frozenRecoveryConfiguration(instance,operation));
+            Assert.assertFalse(manager.commands.contains("operation generation restore"));Assert.assertFalse(manager.commands.contains("rollback"));
+            manager.frozen=valid;
+        }
+    }
+    @Test public void incompleteOrUnknownInitialSourceFilesCannotReachTheNativeRestore() {
+        initialPendingSource();JsonObject valid=com.google.gson.JsonParser.parseString(operation.getPreviousSnapshotJson()).getAsJsonObject();
+        for(String mode:List.of("missing","partial","unknown")) {
+            JsonObject snapshot=valid.deepCopy();
+            if(mode.equals("missing"))snapshot.remove("nativeDesiredState");
+            else if(mode.equals("partial"))snapshot.getAsJsonObject("nativeDesiredState").remove("network-endpoints.json");
+            else snapshot.getAsJsonObject("nativeDesiredState").add("foreign.json",new JsonObject());
+            operation.setPreviousSnapshotJson(snapshot.toString());manager.commands.clear();
+            Assert.assertThrows(mode,CloudRuntimeException.class,()->manager.frozenRecoveryConfiguration(instance,operation));
+            Assert.assertTrue(manager.commands.isEmpty());
+        }
+    }
 }
