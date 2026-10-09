@@ -72,7 +72,7 @@
 </template>
 <script>
 import { getAPI, postAPI } from '@/api'
-import { SMB_CURRENT_RETAIN_MODE, supportsSmbCurrentRecovery, readSmbCurrentRecoveryReview, smbCurrentRecoveryParameters, requireSmbCurrentRecoveryResult } from '@/utils/storageSmbCurrentIdentityRecovery'
+import { SMB_CURRENT_RETAIN_MODE, supportsSmbCurrentRecovery, readSmbCurrentRecoveryReview, smbCurrentRecoveryRuntimeRow, smbCurrentRecoveryParameters, requireSmbCurrentRecoveryResult } from '@/utils/storageSmbCurrentIdentityRecovery'
 import StorageOperationControl from '@/views/storage/StorageOperationControl'
 import { ReloadOutlined } from '@ant-design/icons-vue'
 export default {
@@ -155,14 +155,14 @@ export default {
         this.currentApprovedParameters = parameters
         let response = await postAPI('repairStorageServiceSmbIdentity', parameters)
         const job = response.repairstorageservicesmbidentityresponse?.jobid
-        let value = response.repairstorageservicesmbidentityresponse
+        let value = smbCurrentRecoveryRuntimeRow(response.repairstorageservicesmbidentityresponse)
         if (job) {
           let done = false
           for (let i = 0; i < 120; i++) {
             if (!this.currentRecoveryScopeMatches(expected, token)) return
             response = await getAPI('queryAsyncJobResult', { jobid: job }, { preserveOnFailure: true, timeout: 15000 })
             const result = response.queryasyncjobresultresponse
-            if (result?.jobstatus === 1) { done = true; value = result.jobresult?.storageserviceruntime || result.jobresult; break }
+            if (result?.jobstatus === 1) { done = true; value = smbCurrentRecoveryRuntimeRow(result.jobresult); break }
             if (result?.jobstatus === 2) throw new Error(this.$t('message.storage.operation.recovery.current.failed'))
             await new Promise(resolve => setTimeout(resolve, 1000))
           }

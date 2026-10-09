@@ -50,8 +50,14 @@ export function requireSmbCurrentRecoveryReview (value, expected, now = Date.now
   return value
 }
 
+export function smbCurrentRecoveryRuntimeRow (value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null
+  const row = Object.prototype.hasOwnProperty.call(value, 'storageserviceruntime') ? value.storageserviceruntime : value
+  return row && typeof row === 'object' && !Array.isArray(row) ? row : null
+}
+
 export function smbCurrentRecoveryReviewPayload (response) {
-  const row = response?.reviewstorageservicesmbidentityrecoveryresponse
+  const row = smbCurrentRecoveryRuntimeRow(response?.reviewstorageservicesmbidentityrecoveryresponse)
   if (!row || row.success !== true || row.status !== 'OBSERVED') throw new Error('SMB_CURRENT_RECOVERY_REVIEW_UNVERIFIED')
   try {
     return typeof row.resultjson === 'string' ? JSON.parse(row.resultjson) : row.resultjson
