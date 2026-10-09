@@ -146,6 +146,46 @@ public final class StorageLocalSourceIdentityProof {
             require(literal(response, "nvmeRestored", true), "LOCAL original NVMe authentication was not restored");
     }
 
+    static JsonObject runtimeQuarantine(JsonObject context, String expectedCliSha, JsonObject status) {
+        status(context, status);require(literal(status, "journalPresent", true), "Runtime quarantine has no original stopped journal");
+        JsonObject proof = object(status, "localSourceStoppedRuntimeProof");
+        require(proof.keySet().equals(Set.of("kind", "scope", "sourceGeneration", "sourceConfigurationSha256", "bootId",
+                "originalCliSha256", "currentCliSha256", "sourceStoppedVerified", "stoppedMetadataVerified", "privateHoldersAbsent",
+                "cipherAbsent", "sourceCanonicalUnchanged", "originalSignedCodeVerified", "currentSignedCodeVerified", "serviceAvailabilityVerified"))
+                && "LOCAL_SOURCE_STOPPED_RUNTIME_QUARANTINE".equals(string(proof, "kind")) && scope(context).equals(proof.get("scope"))
+                && context.get("sourceGeneration").equals(proof.get("sourceGeneration"))
+                && context.get("sourceConfigurationSha256").equals(proof.get("sourceConfigurationSha256"))
+                && string(context, "expectedBootId").equals(uuid(proof, "bootId"))
+                && expectedCliSha.equals(hash(proof, "currentCliSha256")), "Runtime quarantine changed its source or signed target CLI");
+        hash(proof, "originalCliSha256");
+        for (String flag : Set.of("sourceStoppedVerified", "stoppedMetadataVerified", "privateHoldersAbsent", "cipherAbsent",
+                "sourceCanonicalUnchanged", "originalSignedCodeVerified", "currentSignedCodeVerified"))
+            require(literal(proof, flag, true), "Runtime quarantine lacks literal source/code verification");
+        require(literal(proof, "serviceAvailabilityVerified", false), "Runtime code verification cannot claim live service availability");
+        return proof.deepCopy();
+    }
+
+    static void requireOnlyStoppedSmbHealth(StorageServiceGuestCommandResult result) {
+        require(result != null && result.isSuccess() && result.getResultJson() != null, "Runtime code health observation failed");
+        JsonObject health = com.google.gson.JsonParser.parseString(result.getResultJson()).getAsJsonObject();
+        require(literal(health, "success", true) && "degraded".equals(string(health, "status")), "Runtime code quarantine requires the original degraded workload observation");
+        JsonObject services = object(health, "services"), smb = object(health, "smbRuntime"), nfs = object(health, "nfsGanesha");
+        require("active".equals(string(services, "qemuGuestAgent")) && "failed".equals(string(services, "smbd"))
+                && number(smb, "configured") > 0 && literal(smb, "available", true) && literal(smb, "listening", false)
+                && number(nfs, "configured") >= 0 && number(nfs, "active") >= number(nfs, "configured")
+                && (number(nfs, "configured") == 0 || literal(nfs, "listening", true)), "Runtime code quarantine cannot cover another stopped workload");
+        JsonObject ports = object(health, "listenPorts"), desired = object(health, "desiredState");
+        for (String field : Set.of("iscsiTargets", "nvmeofSubsystems", "smbDomain", "smbDomainError"))
+            require(literal(desired, field, true) || literal(desired, field, false), "Runtime code quarantine desired feature presence is untyped");
+        for (String field : Set.of("nfs", "smb", "iscsi", "nvmeof"))
+            require(literal(ports, field, true) || literal(ports, field, false), "Runtime code quarantine listener observation is untyped");
+        require((number(nfs, "configured") == 0 || literal(ports, "nfs", true))
+                && (!literal(desired, "iscsiTargets", true) || literal(ports, "iscsi", true))
+                && (!literal(desired, "nvmeofSubsystems", true) || literal(ports, "nvmeof", true))
+                && literal(ports, "smb", false) && literal(desired, "smbDomain", false) && literal(desired, "smbDomainError", false),
+                "Runtime code quarantine has an unrelated protocol or identity failure");
+    }
+
     private static void runtime(JsonObject response) {
         require(literal(response, "sourceSmbResumed", true) && literal(response, "sourceRuntimeVerified", true)
                 && literal(response, "canonicalDesiredStateChanged", false), "LOCAL checkpoint has no verified owned source resume");
