@@ -435,4 +435,51 @@ public class StorageSmbIdentityRepairRuntimeTest {
         Assert.assertTrue(configured.getMessage().contains("original absent SMB"));Assert.assertEquals(1, current.rootBindings);
     }
 
+    private static class CurrentRuntimeContextManager extends CurrentManager {
+        JsonObject frozen, root, pin;
+        @Override protected JsonObject frozenRecoveryConfiguration(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {return frozen;}
+        @Override protected long rootDesiredRevision(long instanceId) {return 3;}
+        @Override protected JsonObject rootResourceBinding(StorageServiceInstanceVO instance) {return root;}
+        @Override protected JsonObject configurationCloneRuntimePin(String bundleUuid) {return pin;}
+    }
+    @Test public void actualCurrentContextProjectsCompletedReadbackTransactionAndRejectsMissingNonstringOrPathIdentifier() {
+        CurrentRuntimeContextManager current = new CurrentRuntimeContextManager();operation.setRevision(4);current.context.addProperty("operationUuid", operation.getUuid());
+        Mockito.when(instance.getId()).thenReturn(7L);Mockito.when(instance.getVmId()).thenReturn(54L);Mockito.when(instance.getAccountId()).thenReturn(2L);
+        Mockito.when(instance.getCurrentRuntimeBundleId()).thenReturn(88L);
+        JsonObject source = new JsonObject();for (String path : StorageRenderedDesiredState.PATHS) source.add(path, com.google.gson.JsonNull.INSTANCE);
+        current.frozen = new JsonObject();current.frozen.add("generation", current.context.get("sourceGeneration").deepCopy());
+        current.frozen.add("configurationDesiredState", source);current.frozen.addProperty("configurationSha256", "a".repeat(64));
+        current.root = new JsonObject();current.root.addProperty("rootVolumeId", 99);current.root.addProperty("rootVolumeUuid", "f24d1253-cbe3-46d7-8b77-055bd17ed1bc");
+        com.cloud.vm.dao.VMInstanceDao vms = Mockito.mock(com.cloud.vm.dao.VMInstanceDao.class);com.cloud.vm.VMInstanceVO vm = Mockito.mock(com.cloud.vm.VMInstanceVO.class);
+        Mockito.when(vm.getState()).thenReturn(com.cloud.vm.VirtualMachine.State.Running);Mockito.when(vm.getAccountId()).thenReturn(2L);
+        Mockito.when(vm.getUuid()).thenReturn("9e57d31b-bb68-4ba3-a377-b0acbc89c22d");Mockito.when(vms.findById(54L)).thenReturn(vm);ReflectionTestUtils.setField(current, "vmInstanceDao", vms);
+        com.cloud.storage.dao.VolumeDao volumes = Mockito.mock(com.cloud.storage.dao.VolumeDao.class);com.cloud.storage.VolumeVO root = Mockito.mock(com.cloud.storage.VolumeVO.class);
+        Mockito.when(root.getAccountId()).thenReturn(2L);Mockito.when(root.getInstanceId()).thenReturn(54L);Mockito.when(root.getState()).thenReturn(com.cloud.storage.Volume.State.Ready);
+        Mockito.when(volumes.findById(99L)).thenReturn(root);ReflectionTestUtils.setField(current, "volumeDao", volumes);
+        org.apache.cloudstack.storage.sharedfs.dao.SharedFSDao shared = Mockito.mock(org.apache.cloudstack.storage.sharedfs.dao.SharedFSDao.class);
+        Mockito.when(shared.findByVm(54L)).thenReturn(Mockito.mock(org.apache.cloudstack.storage.sharedfs.SharedFSVO.class));ReflectionTestUtils.setField(current, "sharedFSDao", shared);
+        org.apache.cloudstack.storage.dataservice.dao.StorageServiceRuntimeBundleDao bundles = Mockito.mock(org.apache.cloudstack.storage.dataservice.dao.StorageServiceRuntimeBundleDao.class);
+        StorageServiceRuntimeBundleVO bundle = Mockito.mock(StorageServiceRuntimeBundleVO.class);Mockito.when(bundle.getUuid()).thenReturn("runtime-bundle-fixture");
+        Mockito.when(bundle.getVersion()).thenReturn("actual-completed-runtime-fixture");Mockito.when(bundle.getSha256()).thenReturn("b".repeat(64));Mockito.when(bundle.getManifestSha256()).thenReturn("c".repeat(64));
+        Mockito.when(bundles.findById(88L)).thenReturn(bundle);ReflectionTestUtils.setField(current, "storageRuntimeBundleDao", bundles);
+        current.pin = new JsonObject();current.pin.addProperty("bundleUuid", bundle.getUuid());current.pin.addProperty("bundleSha256", bundle.getSha256());
+        current.pin.addProperty("manifestSha256", bundle.getManifestSha256());current.pin.addProperty("expectedCliSha256", "d".repeat(64));
+        JsonObject proof = new JsonObject();for (String field : java.util.Set.of("readOnly", "signedRuntimeVerified", "nativeFileHashesVerified")) proof.addProperty(field, true);
+        JsonObject readbackPin = new JsonObject();readbackPin.addProperty("bundleUuid", bundle.getUuid());readbackPin.addProperty("archiveSha256", bundle.getSha256());
+        readbackPin.addProperty("manifestSha256", bundle.getManifestSha256());proof.add("runtimePin", readbackPin);proof.addProperty("actualCliSha256", "d".repeat(64));
+        proof.addProperty("updaterSha256", "e".repeat(64));proof.addProperty("transactionId", "runtime-61f56d8c-4afb-47f4-83b9-22af32672684");
+        StorageServiceRuntimeUpgradeManager runtime = Mockito.mock(StorageServiceRuntimeUpgradeManager.class);
+        Mockito.when(runtime.freshSignedRuntimeValidationProof(7L, "d".repeat(64))).thenAnswer(invocation -> proof.deepCopy());ReflectionTestUtils.setField(current, "runtimeUpgradeManager", runtime);
+        JsonObject context = current.currentSmbRecoveryContext(instance, operation);
+        Assert.assertEquals(java.util.Set.of("bundleVersion", "archiveSha256", "manifestSha256", "updaterSha256", "transactionId"), context.getAsJsonObject("runtimePin").keySet());
+        Assert.assertEquals(proof.get("transactionId"), context.getAsJsonObject("runtimePin").get("transactionId"));
+        Assert.assertFalse(context.getAsJsonObject("runtimePin").get("transactionId").getAsString().equals("smb-current-" + operation.getUuid()));
+        for (com.google.gson.JsonElement invalid : java.util.List.of(new com.google.gson.JsonPrimitive(123), new com.google.gson.JsonPrimitive("../state"),
+                new com.google.gson.JsonPrimitive("/runtime/path"), new com.google.gson.JsonPrimitive("runtime:wrong"), new com.google.gson.JsonPrimitive("x".repeat(129)))) {
+            proof.add("transactionId", invalid);Assert.assertThrows(CloudRuntimeException.class, () -> current.currentSmbRecoveryContext(instance, operation));
+        }
+        proof.remove("transactionId");Assert.assertThrows(CloudRuntimeException.class, () -> current.currentSmbRecoveryContext(instance, operation));
+        Assert.assertTrue(current.calls.isEmpty());
+    }
+
 }
