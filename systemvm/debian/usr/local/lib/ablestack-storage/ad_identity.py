@@ -27,6 +27,7 @@ import subprocess
 import signal
 import time
 from samba_public_sid import samba_public_sid
+from root_ad_identity_authority import root_ad_retained_authority
 
 
 def bounded_ad_run(arguments, capture_output=True, text=True, timeout=5, pass_fds=()):
@@ -406,8 +407,14 @@ class AdIdentityRpc:
         scope={key:str(uuid.UUID(request[key])) for key in ("instanceUuid","operationUuid")}
         if type(request.get("revision")) is not int or request["revision"]<1:raise ValueError("AD RPC revision is invalid")
         scope["revision"]=request["revision"]
-        current=ad_protected_json(self.generations/"current.json")
+        current=ad_protected_json(self.generations/"current.json",True)
         pending=ad_protected_json(self.generations/"pending.json",True)
+        if current is None:
+            response=self.run([self.cli,"operation","maintenance","status"],capture_output=True,text=True,timeout=5)
+            if response.returncode:raise ValueError("Cold ROOT AD marker is unavailable")
+            if pending:raise ValueError("Cold ROOT AD cannot borrow a pending generation")
+            root_ad_retained_authority(scope,json.loads(response.stdout),configuration=self.configuration)
+            return scope
         if current.get("instanceUuid")!=scope["instanceUuid"] or type(current.get("revision")) is not int or current["revision"]>scope["revision"]:
             raise ValueError("AD RPC native instance/revision differs")
         if pending and any(pending.get(key)!=value for key,value in scope.items()):raise ValueError("Foreign pending generation blocks AD attestation")

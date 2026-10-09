@@ -27,7 +27,7 @@ import stat
 import tempfile
 import time
 import uuid
-from ad_identity import (AdIdentityRpc,AdIdentityProbe,ad_configuration,ad_protected_json,bounded_ad_run,credential_command,dns_aliases,domain_name,idmap_policy,machine_account_sid,service_principal)
+from ad_identity import (AdIdentityRpc,AdIdentityProbe,ad_configuration,ad_protected_json,bounded_ad_run,credential_command,dns_aliases,domain_name,idmap_policy,machine_account_sid,service_principal,machine_sids)
 from ad_winbind import AdWinbind,AD_WINBIND_CONFIGURATION
 from posix_root_initialization import root_receipt_write
 from service_identity_cipher import ServiceIdentityCipher,service_cipher_digest,service_cipher_scope
@@ -35,6 +35,7 @@ from samba_public_sid import samba_public_sid
 from semantic_ad_source import semantic_new_target,semantic_same_target
 from local_sam_bootstrap import LocalSamBootstrap
 from ad_authority import protected_ad_policy
+from root_ad_identity_authority import root_ad_retained_authority
 
 
 class AdDomainLifecycle:
@@ -154,10 +155,11 @@ class AdDomainLifecycle:
             for server in public["dnsServers"]:
                 remaining=self.deadline-time.monotonic()
                 if remaining<=0:raise TimeoutError("Fresh AD identity collision observation deadline expired")
-                result=self.run(["dig","+short","+time=2","+tries=1","A",alias["hostname"],"@"+server],
-                                capture_output=True,text=True,timeout=min(5,remaining))
-                if result.returncode or result.stdout.strip():
-                    raise ValueError("Fresh AD DNS alias exists or absence was not proven")
+                for kind in ("A","AAAA"):
+                    result=self.run(["dig","+short","+time=2","+tries=1",kind,alias["hostname"],"@"+server],
+                                    capture_output=True,text=True,timeout=min(5,remaining))
+                    if result.returncode or result.stdout.strip():
+                        raise ValueError("Fresh AD DNS alias exists or absence was not proven")
         return {"success":True,"computerAliasSpnAbsent":True,"dnsAliasesAbsent":True}
 
     def source_authority(self,request,fresh=True):
@@ -266,7 +268,12 @@ class AdDomainLifecycle:
             if path.exists() or path.is_symlink():raise ValueError("AD first join refuses preexisting foreign identity artifacts")
         self.quiescence()
         backups={"krb5.conf":self.public_backup(self.system_root/"etc/krb5.conf"),"resolv.conf":self.public_backup(self.system_root/"etc/resolv.conf")}
+        public["inversePublicConfiguration"]=backups
+        public["inverseOwnedPublicSha256"]={"krb5.conf":hashlib.sha256(pure["kerberosConfiguration"].encode()).hexdigest(),"resolv.conf":hashlib.sha256(pure["resolverConfiguration"].encode()).hexdigest()}
+        public["inverseSource"]={"scope":source["scope"],"bootId":source["bootId"],"publicLocalMachineSid":source["publicLocalMachineSid"],"sourceConfigurationSha256":source["sourceConfigurationSha256"]}
+        public["inverseCreatedArtifacts"]={}
         self.new_identity_clear(request,public)
+        public["preJoinRemoteIdentityAbsent"]=True
         self.snapshot(request,"PREPARING",public)
         try:
             # This private config carries existing share definitions; canonical SMB
@@ -275,17 +282,35 @@ class AdDomainLifecycle:
             self.write_public(self.system_root/"etc/krb5.conf",pure["kerberosConfiguration"])
             self.write_public(self.system_root/"etc/resolv.conf",pure["resolverConfiguration"])
             self.command(["testparm","-s"])
+            public["createdMachineConfigurationSha256"]=hashlib.sha256(self.machine.read_bytes()).hexdigest()
             self.snapshot(request,"JOINING",public)
             args=["net","ads","join"]
             if request.get("organizationalUnit"):args.append("createcomputer="+request["organizationalUnit"])
             credential_command(args,request["username"],request["password"],public["domain"],self.configured_run,self.deadline)
+            self.command(["net","ads","testjoin","--machine-pass"])
+            local=machine_sids(self.command(["net","getdomainsid"]))
+            if local["machineSid"]!=source["publicLocalMachineSid"]:raise ValueError("JOIN machine-auth receipt changed target SAM")
+            output=self.command(["net","ads","search","(sAMAccountName="+public["netbiosName"]+"$)","objectSid","--machine-pass"])
+            matches=re.findall(r"(?mi)^\s*objectSid:\s*(S-[0-9-]+)\s*$",output)
+            if not re.match(r"^Got 1 replies\s",output) or len(matches)!=1 or not re.fullmatch(re.escape(local["domainSid"])+r"-[0-9]{1,10}",matches[0]):
+                raise ValueError("JOIN has no machine-authenticated owned computer SID")
+            public["ownedComputerSid"]=matches[0];public["ownedDomainSid"]=local["domainSid"];public["machineAuthenticatedComputer"]=True
+            self.snapshot(request,"OWNED_COMPUTER_CREATED",public)
             self.snapshot(request,"REGISTERING",public)
             for principal in public["servicePrincipals"]:
                 credential_command(["net","ads","setspn","add",public["netbiosName"],principal],request["username"],request["password"],public["domain"],self.configured_run,self.deadline)
             for alias in public["dnsAliases"]:
                 credential_command(["net","ads","dns","register",alias["hostname"],*alias["addresses"]],request["username"],request["password"],public["domain"],self.configured_run,self.deadline)
             self.command(["net","ads","keytab","create","--machine-pass"])
+            for name,path in (("krb5.keytab",self.system_root/"etc/krb5.keytab"),):
+                if path.exists():
+                    info=path.lstat();public["inverseCreatedArtifacts"][name]={key:getattr(info,key) for key in ("st_dev","st_ino","st_uid","st_gid","st_mode","st_size","st_mtime_ns")}
+            self.snapshot(request,"KEYTAB_CREATED",public)
             self.daemon.start(request)
+            idmap=self.system_root/"var/lib/samba/winbindd_idmap.tdb"
+            if idmap.exists():
+                info=idmap.lstat();public["inverseCreatedArtifacts"]["winbindd_idmap.tdb"]={key:getattr(info,key) for key in ("st_dev","st_ino","st_uid","st_gid","st_mode","st_size","st_mtime_ns")}
+            self.snapshot(request,"OWNED_DAEMON_STARTED",public)
             self.snapshot(request,"VERIFYING",public)
             probe=AdIdentityProbe(self.configured_run,self.deadline).verify(public["domain"],public["servicePrincipals"],machine_name=public["netbiosName"])
             account=machine_account_sid(self.command(["wbinfo","--name-to-sid",public["workgroup"]+chr(92)+public["netbiosName"]+"$"]),probe["domainSid"])
@@ -312,6 +337,106 @@ class AdDomainLifecycle:
             try:self.daemon.stop(request)
             finally:self.snapshot(request,"RECOVERY_REQUIRED",public)
             raise
+
+    def inverse_join(self,request):
+        username=request.get("username");password=request.get("password")
+        if (not isinstance(username,str) or not re.fullmatch(r"[A-Za-z0-9_.@\\-]{1,256}",username)
+                or not isinstance(password,str) or not password or len(password)>4096 or any(c in password for c in ("\n","\r","\0"))):
+            raise ValueError("Owned JOIN inverse requires complete sealed credentials")
+        source=self.source_authority(request,fresh=False);journal=ad_protected_json(self.journal);public=journal.get("publicConfiguration")
+        if (journal.get("scope")!=self.daemon.scope(request) or journal.get("phase") not in ("RECOVERY_REQUIRED","COMPLETE","OWNED_JOIN_INVERTED")
+                or not isinstance(public,dict) or public.get("preJoinRemoteIdentityAbsent") is not True
+                or public.get("machineAuthenticatedComputer") is not True or source.get("adIdentity") is not None
+                or public.get("inverseSource")!={key:source[key] for key in ("scope","bootId","publicLocalMachineSid","sourceConfigurationSha256")}
+                or not re.fullmatch(re.escape(str(public.get("ownedDomainSid")))+r"-[0-9]{1,10}",str(public.get("ownedComputerSid")))
+                or self.sid_reader(public["netbiosName"])!=source["publicLocalMachineSid"]):
+            raise ValueError("JOIN inverse has no exact newly-owned machine-authenticated computer/source receipt")
+        if journal["phase"]=="OWNED_JOIN_INVERTED":
+            for path in (self.machine,self.system_root/"etc/krb5.keytab",self.system_root/"var/lib/samba/winbindd_idmap.tdb"):
+                if path.exists() or path.is_symlink():raise ValueError("JOIN inverse replay found a replacement AD artifact")
+            for name,backup in public["inversePublicConfiguration"].items():
+                path=self.system_root/"etc"/name
+                if backup.get("absent") is True:
+                    if path.exists() or path.is_symlink():raise ValueError("JOIN inverse replay original public absence changed")
+                elif path.is_symlink() or not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest()!=backup.get("sha256"):
+                    raise ValueError("JOIN inverse replay original public configuration changed")
+            fresh=AdIdentityRpc(self.run,self.configuration,cli=self.cli).inspect(request)
+            if fresh.get("machineSid")!=source["publicLocalMachineSid"] or fresh.get("joinState")!="NOT_JOINED" or fresh.get("bootId")!=source["bootId"]:
+                raise ValueError("JOIN inverse replay has no fresh preserved local identity")
+            return self.inverse_receipt(request,fresh,replayed=True)
+        if hashlib.sha256(self.machine.read_bytes()).hexdigest()!=public.get("createdMachineConfigurationSha256"):
+            raise ValueError("JOIN inverse private machine configuration was replaced")
+        backups=public.get("inversePublicConfiguration");owned=public.get("inverseOwnedPublicSha256")
+        if not isinstance(backups,dict) or set(backups)!={"krb5.conf","resolv.conf"} or not isinstance(owned,dict) or set(owned)!=set(backups):
+            raise ValueError("JOIN inverse public original ownership is unavailable")
+        for name in backups:
+            path=self.system_root/"etc"/name
+            if path.is_symlink() or hashlib.sha256(path.read_bytes()).hexdigest()!=owned[name]:raise ValueError("JOIN inverse public configuration was replaced")
+        self.daemon.stop(request);self.quiescence()
+        artifacts={"krb5.keytab":self.system_root/"etc/krb5.keytab","winbindd_idmap.tdb":self.system_root/"var/lib/samba/winbindd_idmap.tdb"}
+        for name,path in artifacts.items():
+            if path.exists() or path.is_symlink():
+                binding=public.get("inverseCreatedArtifacts",{}).get(name);info=path.lstat()
+                if (not isinstance(binding,dict) or not stat.S_ISREG(info.st_mode)
+                        or any(getattr(info,key)!=binding[key] for key in ("st_dev","st_ino","st_uid","st_gid","st_mode"))):
+                    raise ValueError("JOIN inverse artifact is not the journaled owned inode")
+        self.command(["net","ads","testjoin","--machine-pass"])
+        observed=self.command(["net","ads","search","(sAMAccountName="+public["netbiosName"]+"$)","objectSid","--machine-pass"])
+        sids=re.findall(r"(?mi)^\s*objectSid:\s*(S-[0-9-]+)\s*$",observed)
+        if not re.match(r"^Got 1 replies\s",observed) or sids!=[public["ownedComputerSid"]]:
+            raise ValueError("JOIN inverse computer was replaced or machine trust is unproven")
+        spns=[]
+        for principal in public["servicePrincipals"]:
+            output=[None]
+            def capture(args,**kwargs):
+                result=self.run(args,**kwargs)
+                if result.returncode==0:output[0]=result.stdout
+                return result
+            credential_command(["net","ads","search","(servicePrincipalName="+principal+")","objectSid","--realm="+public["realm"],"--workgroup="+public["workgroup"],"--option=security=ADS"],
+                               username,password,public["domain"],capture,self.deadline)
+            if re.fullmatch(r"Got 0 replies\s*",output[0] or ""):continue
+            matches=re.findall(r"(?mi)^\s*objectSid:\s*(S-[0-9-]+)\s*$",output[0] or "")
+            if not re.match(r"^Got 1 replies\s",output[0] or "") or matches!=[public["ownedComputerSid"]]:raise ValueError("JOIN inverse SPN belongs to a foreign object")
+            spns.append(principal)
+        aliases=[]
+        for alias in public["dnsAliases"]:
+            values=[]
+            for server in public["dnsServers"]:
+                for kind in ("A","AAAA"):
+                    result=self.run(["dig","+short","+time=2","+tries=1",kind,alias["hostname"],"@"+server],capture_output=True,text=True,timeout=min(5,self.deadline-time.monotonic()))
+                    if result.returncode:raise ValueError("JOIN inverse DNS ownership is unobservable")
+                    lines=sorted(set(result.stdout.split()))
+                    if kind=="AAAA" and lines:raise ValueError("JOIN inverse DNS has foreign IPv6 addresses")
+                    if kind=="A":
+                        if lines and lines!=alias["addresses"]:raise ValueError("JOIN inverse DNS has foreign IPv4 addresses")
+                        values.append(lines)
+            if any(values):
+                if any(value!=alias["addresses"] for value in values) or not {"host/"+alias["hostname"],"cifs/"+alias["hostname"]}<=set(spns):
+                    raise ValueError("JOIN inverse DNS lacks exact owned computer/SPN binding")
+                aliases.append(alias)
+        self.snapshot(request,"INVERTING_OWNED_JOIN",public)
+        try:
+            for principal in spns:credential_command(["net","ads","setspn","delete",public["netbiosName"],principal],username,password,public["domain"],self.configured_run,self.deadline)
+            for alias in aliases:credential_command(["net","ads","dns","unregister",alias["hostname"]],username,password,public["domain"],self.configured_run,self.deadline)
+            credential_command(["net","ads","leave"],username,password,public["domain"],self.configured_run,self.deadline)
+            self.new_identity_clear(request,public)
+            if self.sid_reader(public["netbiosName"])!=source["publicLocalMachineSid"]:raise ValueError("JOIN inverse changed target SAM")
+            for path in artifacts.values():
+                if path.exists():path.unlink()
+            self.machine.unlink()
+            for name in backups:self.restore_public(self.system_root/"etc"/name,backups[name],owned[name])
+            self.write_public(self.state,json.dumps({"state":"NOT_JOINED","joinState":"NOT_JOINED","instanceUuid":request["instanceUuid"],"netbiosName":public["netbiosName"],"localMachineSid":source["publicLocalMachineSid"]},sort_keys=True))
+            fresh=AdIdentityRpc(self.run,self.configuration,cli=self.cli).inspect(request)
+            if fresh.get("machineSid")!=source["publicLocalMachineSid"] or fresh.get("joinState")!="NOT_JOINED" or fresh.get("bootId")!=source["bootId"]:
+                raise ValueError("JOIN inverse final preserved local identity is not fresh")
+            self.snapshot(request,"OWNED_JOIN_INVERTED",public)
+            return self.inverse_receipt(request,fresh)
+        except Exception:
+            self.snapshot(request,"RECOVERY_REQUIRED",public);raise
+
+    def inverse_receipt(self,request,fresh,replayed=False):
+        return {"success":True,"scope":self.daemon.scope(request),"externalJoinInverted":True,"localMachineSidPreserved":True,"adOwnedArtifactsRemoved":True,
+                "computerAliasSpnAbsent":True,"dnsAliasesAbsent":True,"publicConfigurationRestored":True,"canonicalDesiredStateChanged":False,"identity":fresh,"replayed":replayed}
 
     def semantic_local_authority(self,request):
         # Reuse protected SOURCE/cipher and the exact owned writer; public
@@ -382,7 +507,18 @@ class AdDomainLifecycle:
         return {**started,"scope":scope,"targetDaemonResumed":True}
 
     def retain(self,request,expected):
-        self.daemon.marker(request);state=ad_protected_json(self.state)
+        marker=self.daemon.marker(request)
+        if "templateUpgradeUuid" in marker:
+            status={"maintenanceKind":"ROOT","bootHeld":True,"scope":marker}
+            authority=root_ad_retained_authority(self.daemon.scope(request),status,configuration=self.configuration,reference=request.get("retainedRootAuthorization"))
+            if request.get("retainedRootAuthorization") is None or expected!=authority["identity"]:
+                raise ValueError("ROOT opaque AD retain lacks its authenticated original authority")
+        else:
+            source=self.source_authority(request,fresh=False);identity=source.get("adIdentity")
+            fields=("domain","realm","workgroup","netbiosName","machineSid","domainSid","machineAccountSid","servicePrincipals","idmapPolicy","dnsAliases","machineConfigurationSha256")
+            if not isinstance(identity,dict) or any(expected.get(key)!=identity.get(key) for key in fields):
+                raise ValueError("SERVICE AD retain differs from protected BEFOREJOIN source")
+        state=ad_protected_json(self.state)
         if not isinstance(expected,dict) or state.get("identityReceipt")!={key:expected.get(key) for key in ("machineSid","domainSid","machineAccountSid")}:
             raise ValueError("SAMEVM AD restore differs from its encrypted source identity")
         info=self.machine.lstat()

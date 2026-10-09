@@ -48,7 +48,8 @@ class StorageInlineSourcesTest(unittest.TestCase):
             modules.append(value.rstrip())
         self.assertEqual("\n".join(modules),maintenance)
         ad=source.split("<<'PYADIDENTITY'\n",1)[1].split("\nimport sys\ntry:",1)[0]
-        expected="\n".join((LIB/(name+".py")).read_text().rstrip().replace("from samba_public_sid import samba_public_sid\n","") for name in ("samba_public_sid","ad_identity"))
+        modules=("ad_authority","root_ad_identity_authority","samba_public_sid","ad_identity")
+        expected="\n".join("\n".join(line for line in (LIB/(name+".py")).read_text().splitlines() if not any(line.startswith("from "+item+" import ") for item in modules)) for name in modules)
         self.assertEqual(expected,ad.rstrip())
 
     def test_signed_root_network_and_handler_availability_are_exact_and_production_false(self):
@@ -66,12 +67,10 @@ class StorageInlineSourcesTest(unittest.TestCase):
 
     def test_signed_ad_lifecycle_closure_matches_all_fixed_reviewed_modules(self):
         source=CLI.read_text();actual=source.split("<<'PYADLIFECYCLE'\n",1)[1].split("\nimport sys\ntry:",1)[0]
-        modules=["posix_root_initialization","ad_authority","service_identity_cipher","samba_public_sid","ad_identity","local_sam_bootstrap","semantic_ad_source","ad_winbind","ad_lifecycle"];parts=[]
+        modules=["posix_root_initialization","ad_authority","service_identity_cipher","samba_public_sid","root_ad_identity_authority","ad_identity","local_sam_bootstrap","semantic_ad_source","ad_winbind","ad_lifecycle"];parts=[]
         for name in modules:
             value=(LIB/(name+".py")).read_text()
             if name=="semantic_ad_source":value=value[value.index("def semantic_new_target("):]
-            if name=="ad_lifecycle":
-                begin=value.index("from ad_identity import (");end=value.index("\n",value.index("service_principal)",begin))+1;value=value[:begin]+value[end:]
             parts.append("\n".join(line for line in value.splitlines() if not any(line.startswith("from "+item+" import ") for item in modules)))
         self.assertEqual("\n".join(parts),actual);ast.parse(actual)
         oldjoin=source[source.index("smb_domain_join() {"):source.index("apply_iscsi_targets() {")]
