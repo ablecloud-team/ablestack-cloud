@@ -2325,12 +2325,13 @@ wrapClassName="storage-service-action-modal"
         </div>
       </div>
     </a-modal>
+    <storage-ad-mutation-consent :visible="adMutationConsent.visible" :title="adMutationConsent.title" :instance="adMutationConsent.instance" :scope="adMutationConsent.scope" @approve="approveAdMutation" @cancel="cancelAdMutation" />
   </a-spin>
 </template>
 <script>
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 import { readStorageSections, storageReadDeadline } from '@/utils/storageRead'
-import { requireAdServiceApproval, readJoinedAdReceipt, supportsAdMaintenanceApi } from '@/utils/storageAdIdentity'
+import { requireAdServiceApproval, readJoinedAdReceipt, supportsAdMaintenanceApi, supportsAdMutationApi, adMutationScope, requireAdMutationApproval, requestAdMutationApproval, approveAdMutation, cancelAdMutation } from '@/utils/storageAdIdentity'
 import { createScopedStorageReads } from '@/utils/scopedStorageReads'
 
 import { h, resolveComponent } from 'vue'
@@ -2348,6 +2349,7 @@ import SmbCreationOptions from '@/views/storage/SmbCreationOptions'
 import { supportsStorageFormatting, diskProvisioningLabel } from '@/utils/storageDiskProvisioning'
 import StorageServiceRuntimeUpgrade from '@/views/storage/StorageServiceRuntimeUpgrade'
 import StorageVolumePreparation from '@/views/storage/StorageVolumePreparation'
+import StorageAdMutationConsent from '@/views/storage/StorageAdMutationConsent'
 import StorageSmbIdentityRepair from '@/views/storage/StorageSmbIdentityRepair'
 import PosixDirectoryPolicies from '@/views/storage/PosixDirectoryPolicies'
 import PosixPolicyInheritance from '@/views/storage/PosixPolicyInheritance'
@@ -2575,6 +2577,7 @@ export default {
     StorageServiceRuntimeUpgrade,
     StorageVolumePreparation,
     StorageSmbIdentityRepair,
+    StorageAdMutationConsent,
     PosixDirectoryPolicies,
     PosixPolicyInheritance,
     NfsPermissionRecommendations,
@@ -2663,6 +2666,7 @@ export default {
         loading: false
       },
       actionLoading: {},
+      adMutationConsent: { visible: false, instance: {}, title: '', scope: '', resolve: null },
       identityRepair: {
         visible: false,
         loading: false,
@@ -4669,7 +4673,13 @@ export default {
       self.setCurrentTab()
     })
   },
+  beforeUnmount () { this.cancelAdMutation() },
   watch: {
+    'storageService.instance': { deep: true, handler () { this.cancelAdMutation() } },
+    'storageService.domains': { deep: true, handler () { this.cancelAdMutation() } },
+    forms: { deep: true, handler () { this.cancelAdMutation() } },
+    'actionModal.type' () { this.cancelAdMutation() },
+    'actionModal.visible' () { this.cancelAdMutation() },
     resource: {
       deep: true,
       handler (newData, oldData) {
@@ -5487,35 +5497,57 @@ export default {
       const mask = prefix === 0 ? 0 : (0xffffffff << (32 - prefix)) >>> 0
       return (this.ipv4ToNumber(ip) & mask) === (this.ipv4ToNumber(baseIp) & mask)
     },
+    requestAdMutationApproval,
+    approveAdMutation,
+    cancelAdMutation,
     async runStorageAction (key, api, params, title) {
-      if (!this.storageService.instance || this.actionLoading[key]) {
-        return
-      }
-      const actionTab = this.currentTab
-      const actionWideLayout = this.protocolWideLayout
+      if (!this.storageService.instance || this.actionLoading[key]) return
+      const actionTab = this.currentTab; const actionWideLayout = this.protocolWideLayout
+      const instance = { ...this.storageService.instance }; const parameters = this.cleanParams({ ...params })
+      const domain = this.storageService.domains?.find(row => row.joinstate === 'JOINED')
+      const joined = !!domain || (this.isSmbAdConfigured === true && this.isSmbAdJoined === true)
       this.actionLoading[key] = true
       try {
-        const response = await postAPI(api, this.cleanParams(params))
+        if (joined) {
+          if (!supportsAdMutationApi(api => this.$getApiParams?.(api), api)) throw new Error('AD_MUTATION_API_UNSUPPORTED')
+          if (!domain || domain.instanceid !== instance.id || (parameters.instanceid !== undefined && parameters.instanceid !== instance.id)) throw new Error('AD_SERVICE_APPROVAL_REQUIRED')
+          const receipt = await readJoinedAdReceipt(instance, domain.domainname)
+          const scope = adMutationScope(instance, api, receipt, parameters)
+          if (this.storageService.instance.id !== instance.id || this.storageService.instance.name !== instance.name) throw new Error('AD_SERVICE_APPROVAL_REQUIRED')
+          const approval = await this.requestAdMutationApproval(instance, title, scope)
+          if (!approval) return
+          const fresh = await readJoinedAdReceipt(instance, domain.domainname)
+          if (this.storageService.instance.id !== instance.id || this.storageService.instance.name !== instance.name) throw new Error('AD_SERVICE_APPROVAL_REQUIRED')
+          Object.assign(parameters, requireAdMutationApproval(instance, api, fresh, parameters, approval))
+          if (parameters.expectedrevision !== undefined && parameters.expectedrevision !== fresh.scope.revision) throw new Error('AD_SERVICE_APPROVAL_REQUIRED')
+          parameters.expectedrevision = fresh.scope.revision
+        }
+        const response = await postAPI(api, parameters)
         const result = response[api.toLowerCase() + 'response'] || {}
         if (result.jobid) {
-          this.$pollJob({
+          const tracked = this.$pollJob({
             jobId: result.jobid,
             title,
-            description: this.storageService.instance.name || this.resource.name,
+            description: instance.name || this.resource.name,
             successMessage: this.$t('label.success'),
             errorMessage: this.$t('label.error'),
             loadingMessage: this.$t('label.loading') + '...',
             catchMessage: this.$t('error.fetching.async.job.result'),
             action: { isFetchData: false },
             originalPage: this.$route.path,
-            successMethod: () => this.refreshAfterStorageAction(key, actionTab, actionWideLayout)
+            successMethod: joined ? undefined : () => this.refreshAfterStorageAction(key, actionTab, actionWideLayout)
           })
-        } else {
-          await this.refreshAfterStorageAction(key, actionTab, actionWideLayout)
-        }
+          if (joined) {
+            const completed = await tracked
+            if (completed?.jobstatus !== 1 || this.storageService.instance.id !== instance.id || this.storageService.instance.name !== instance.name) throw new Error('AD_SERVICE_APPROVAL_REQUIRED')
+            await this.refreshAfterStorageAction(key, actionTab, actionWideLayout)
+          }
+        } else await this.refreshAfterStorageAction(key, actionTab, actionWideLayout)
       } catch (error) {
-        this.$notifyError(error)
+        if (joined) this.$message.error(this.$t(error?.message === 'AD_MUTATION_API_UNSUPPORTED' ? 'message.storage.service.ad.maintenance.unsupported' : error?.message === 'AD_SERVICE_APPROVAL_REQUIRED' ? 'message.storage.service.ad.maintenance.required' : 'message.storage.service.ad.receipt.unverified'))
+        else this.$notifyError(error)
       } finally {
+        if (joined) { this.cancelAdMutation(); for (const field of Object.keys(parameters)) if (/password|secret|credential|dhchap(?:ctrl)?key|private|keytab/i.test(field)) parameters[field] = '' }
         this.actionLoading[key] = false
       }
     },

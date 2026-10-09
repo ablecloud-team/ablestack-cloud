@@ -55,3 +55,45 @@ export function supportsAdMaintenanceApi (getParams, command, needsFresh = false
   return !!params?.maintenancewindow && !!params?.confirmation && (command !== 'joinStorageServiceToAdDomain' || !!params?.identitymode) &&
     (!needsFresh || !!getParams?.('listStorageServiceDomainStatus')?.fresh)
 }
+
+export function supportsAdMutationApi (getParams, command) {
+  const params = getParams?.(command)
+  return !!params?.admaintenancewindow && !!params?.adconfirmation && !!getParams?.('listStorageServiceDomainStatus')?.fresh
+}
+
+export function adMutationScope (instance, action, receipt, parameters = {}) {
+  if (!instance?.id || !instance.name || !action || receipt?.scope?.instanceUuid !== instance.id) throw new Error('AD_IDENTITY_RECEIPT_UNVERIFIED')
+  const publicParameters = Object.fromEntries(Object.entries(parameters).filter(([key]) => !/password|secret|credential|dhchap(?:ctrl)?key|private|keytab/i.test(key)).sort(([a], [b]) => a.localeCompare(b)))
+  return JSON.stringify({
+    instanceId: instance.id,
+    name: instance.name,
+    action,
+    parameters: publicParameters,
+    identity: { revision: receipt.scope.revision, bootId: receipt.bootId, domain: receipt.domain, realm: receipt.realm, netbiosName: receipt.netbiosName, domainSid: receipt.domainSid, machineSid: receipt.machineSid, idmapPolicy: receipt.idmapPolicy }
+  })
+}
+
+export function requireAdMutationApproval (instance, action, receipt, parameters, approval) {
+  const scope = adMutationScope(instance, action, receipt, parameters)
+  const approved = requireAdServiceApproval(instance, approval)
+  if (approval.scope !== scope) throw new Error('AD_SERVICE_APPROVAL_REQUIRED')
+  return { admaintenancewindow: approved.maintenancewindow, adconfirmation: approved.confirmation }
+}
+
+export function requestAdMutationApproval (instance, title, scope) {
+  if (this.adMutationConsent.visible) throw new Error('AD_SERVICE_APPROVAL_REQUIRED')
+  return new Promise(resolve => { this.adMutationConsent = { visible: true, instance: { ...instance }, title, scope, resolve } })
+}
+
+export function approveAdMutation (approval) {
+  const current = this.adMutationConsent
+  this.adMutationConsent = { visible: false, instance: {}, title: '', scope: '', resolve: null }
+  if (current.resolve) current.resolve(approval)
+}
+
+export function cancelAdMutation () {
+  if (!this.adMutationConsent) return
+  const current = this.adMutationConsent
+  this.adMutationConsent = { visible: false, instance: {}, title: '', scope: '', resolve: null }
+  if (current.resolve) current.resolve(null)
+}
