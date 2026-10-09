@@ -35,4 +35,14 @@ native 관측 집합136개는 NUL 경로/바이트 SHA-256 `f97bf94f509c7aceada6
 
 version `epic898-smb-source-b9c91b-20261009`, key ID `epic898-test-smb-source-b9c91b`, CLI SHA-256 `d505e629644f8be0263eb7d2e50de6d725341a1b62d23d4b97a228b641569ff9`이다. archive384568B/SHA883b5e86…·manifest1435B/SHA801d7ffb…·sig64B·public113B를 확인하고 `/client/epic898-runtime-smb-source-b9c91b/`에 공개5파일을 게시했다. 기존 trust 키는 보존했다. private key 파일은0이다.
 
-이 기록 시점의 F1 guest는 아직 CODE500이고 새 bundle의 정상 UI 카탈로그 등록/검증/게시·CODE 적용·LOCAL ACL·외부 SMB I/O 인수는 후속이다. 단일 actor만 F1을 변경하고 기존 SOURCE/CURRENT 참조·두 XFS·NFS sentinel·boot·ROOT·DATA를 보존한다. 준비된 RAW2/all4·백업/ROOT/AD/작업 제어 인수는 별도이며 최종 UI #1275는 미착수이다.
+## 실제 정상 UI 카탈로그와 CODE 적용
+
+카탈로그 `9d82d0d5-51ca-4307-abd4-b45d7c6b655b`를 정상 UI에서 등록·검증·AVAILABLE로 게시했다. F1 CODE 작업 `8f688f2f-5d22-4d4d-a3f6-b7d6929e9b22`는 COMPLETE/100, 정상 transaction `runtime-6401a37f-b66d-4396-a52a-e69060546f29`이다. 2026-10-09 23:06:58→23:07:23 KST, healthSuccess/consumerCompatible=true를 확인했다.
+
+실제 CLI는 d505e629…로 전환됐다. 적용 전후 공개 관측 JSON은 CLI SHA 한 필드만 달라졌으며, boot dc4b·generation4/SHA dafecb…·pending 없음·private DB 메타데이터/holder·두 XFS/장치/mount·NFS4096바이트 sentinel·VM/ROOT는 동일했다. image b6aa를 새 전체 이미지로 표시하지 않았다.
+
+![카탈로그 사용 가능](../epic-898-ui-20261007/20261009-b9c-catalog-available.jpg)
+
+![정상 UI CODE 적용 완료](../epic-898-ui-20261007/20261009-b9c-code-complete.jpg)
+
+LOCAL ACL·외부 SMB I/O 인수는 이 CODE 적용 후 별도로 진행한다. 단일 actor만 F1을 변경하고 기존 SOURCE/CURRENT 참조·DATA와 실패 이력을 보존한다. 준비된 RAW2/all4·백업/ROOT/AD/작업 제어 인수는 별도이며 최종 UI #1275는 미착수이다.
