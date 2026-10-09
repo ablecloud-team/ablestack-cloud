@@ -66,5 +66,29 @@
   "managementDeltaMillis": 41,
   "actualFailureBoundary": "guest-exec RPC before PID response",
   "stdoutDecodeOrJsonParserCauseEstablished": false,
-  "isolatedProtectedStdinCrossProbesPending": true
+  "isolatedProtectedStdinCrossProbesPending": false,
+  "realCachedProducerReducerProbe": {
+    "calls": 1,
+    "nativeSeconds": 1.464,
+    "stdoutConsumedOnlyGuestRam": 1518638,
+    "qgaReducedPublicBytes": 805,
+    "originalLiteralRefCapsuleMatched": true,
+    "all10TuplePreserved": true
+  },
+  "realFullCachedResponseIsolatedJniProbe": {
+    "calls": 1,
+    "launchMillis": 1,
+    "statusMillis": 2137,
+    "totalMillis": 2580,
+    "realStdoutBytes": 1518638,
+    "actualDeployedProtectedBuilderUnchanged": true,
+    "originalPubSourceBootReferenceCapsuleDigestLiteralFlagsMatched": true,
+    "all10TupleMountHolderNativeStatusPreserved": true,
+    "realRequestAndResponseOnlyRam": true,
+    "valuesPrintedOrStored": false,
+    "runningAgentPoolEquivalent": false,
+    "mgtPublicationOrTerminalChange": false,
+    "proofSha256": "05a834dca19bdde06eb502cde2e07e280ae34bc4955036217fa2747f606b418d",
+    "preservationProofSha256": "4069ca1569b5b39b9a80e64595d344cb774cf4d25aa53ddc9dbdc50b5e89a629"
+  }
 }
