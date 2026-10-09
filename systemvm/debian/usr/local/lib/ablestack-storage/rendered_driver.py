@@ -732,8 +732,10 @@ class RenderedDriver:
             maintenance = self.runtime.command(("operation", "maintenance", "status"))
             if action == "render-boot-gate" and self.boot_authorized(unit, maintenance):
                 return {"success": True, "bootHeld": False, "activationUnitAuthorized": unit}
-            if action == "render-boot-gate" and PendingNfsAuthorization().authorized(unit, maintenance, status):
-                return {"success": True, "bootHeld": False, "nativePendingNfsUnitAuthorized": unit}
+            if action == "render-boot-gate":
+                for protocol, field in (("NFS", "nativePendingNfsUnitAuthorized"), ("SMB", "nativePendingSmbUnitAuthorized")):
+                    if PendingNfsAuthorization(protocol=protocol).authorized(unit, maintenance, status):
+                        return {"success": True, "bootHeld": False, field: unit}
             if status["bootHeld"] or maintenance.get("bootHeld") is not False:
                 raise ValueError("Automatic protocol exposure is held by an interrupted configuration/ROOT operation")
             actual = self.generation()

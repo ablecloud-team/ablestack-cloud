@@ -147,6 +147,7 @@ import sys
 source, target = sys.argv[1], sys.argv[2]
 with open(source, "r", encoding="utf-8") as source_fp:
     payload = json.load(source_fp)
+payload.pop("operationScope", None)
 for share in payload.get("shares", []):
     for acl in share.get("acls", []):
         acl.pop("password", None)
@@ -4403,6 +4404,7 @@ class PendingNfsGeneration:
 import contextlib
 import fcntl
 import hashlib
+import ipaddress
 import json
 import os
 from pathlib import Path
@@ -4416,13 +4418,18 @@ from template_maintenance import Maintenance
 class PendingNfsAuthorization:
     mode = "NATIVE_PENDING_NFS_APPLY"
 
-    def __init__(self, generation=None, rendered=None, maintenance=None, root=None, configuration_root=None):
+    def __init__(self, generation=None, rendered=None, maintenance=None, root=None, configuration_root=None, protocol="NFS", registry=None):
+        if protocol not in ("NFS", "SMB"):
+            raise ValueError("Pending unit authorization protocol is not closed")
+        self.protocol = protocol
+        self.mode = {"NFS": "NATIVE_PENDING_NFS_APPLY", "SMB": "NATIVE_PENDING_SMB_APPLY"}[protocol]
         self.generation = generation or PendingNfsGeneration()
         self.rendered = rendered or RenderedGeneration()
         self.maintenance = maintenance
         self.root = Path(root or "/run/ablestack-storage/rendered-authorization")
-        self.path = self.root / "pending-nfs.json"
-        self.configuration_root = Path(configuration_root or "/etc/ganesha/ablestack-storage")
+        self.path = self.root / ("pending-" + protocol.lower() + ".json")
+        self.configuration_root = Path(configuration_root or ("/etc/ganesha/ablestack-storage" if protocol == "NFS" else "/etc/samba"))
+        self.registry = Path(registry or "/etc/ablestack-storage/smb-endpoint-listeners")
 
     def state(self, scope):
         if not isinstance(scope, dict) or set(scope) != {"instanceUuid", "operationUuid", "revision"}:
@@ -4469,9 +4476,28 @@ class PendingNfsAuthorization:
         return opened, ticks
 
     def configuration(self, unit):
-        if not isinstance(unit, str) or not re.fullmatch(r"ablestack-storage-ganesha@[A-Za-z0-9_.-]+\.service", unit):
-            raise ValueError("Pending NFS unit name is not closed")
-        key = unit.split("@", 1)[1][:-8]
+        registry_identity = None
+        if self.protocol == "NFS":
+            if not isinstance(unit, str) or not re.fullmatch(r"ablestack-storage-ganesha@[A-Za-z0-9_.-]+\.service", unit):
+                raise ValueError("Pending NFS unit name is not closed")
+            key = unit.split("@", 1)[1][:-8]
+        else:
+            if unit not in ("smbd.service", "nmbd.service"):
+                if not isinstance(unit, str) or not re.fullmatch(r"ablestack-storage-smb@[0-9a-f]{24}\.service", unit):
+                    raise ValueError("Pending SMB unit name is not closed")
+                key = unit.split("@", 1)[1][:-8]
+                record_path = self.registry / (key + ".json")
+                row = pending_nfs_read(record_path)
+                if (not isinstance(row, dict) or set(row) != {"listenIp", "port"} or type(row["port"]) is not int
+                        or not 1 <= row["port"] <= 65535 or not isinstance(row["listenIp"], str)):
+                    raise ValueError("Pending SMB endpoint registry is not exact")
+                address = str(ipaddress.ip_address(row["listenIp"]))
+                if address != row["listenIp"] or hashlib.sha256((address + ":" + str(row["port"])).encode()).hexdigest()[:24] != key:
+                    raise ValueError("Pending SMB endpoint unit differs from its protected registry")
+                info = record_path.lstat()
+                registry_identity = [info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns,
+                                     hashlib.sha256(json.dumps(row, sort_keys=True, separators=(",", ":")).encode()).hexdigest()]
+            key = "smb"
         parent = self.configuration_root.lstat()
         if not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.geteuid() or parent.st_mode & 0o022:
             raise ValueError("Pending NFS endpoint parent is not protected")
@@ -4488,7 +4514,10 @@ class PendingNfsAuthorization:
             data = os.read(descriptor, 8 * 1024 * 1024 + 1)
             if any(getattr(os.fstat(descriptor), k) != getattr(opened, k) for k in fields):
                 raise ValueError("Pending NFS endpoint changed while reading")
-            return hashlib.sha256(data).hexdigest(), [opened.st_dev, opened.st_ino, opened.st_size, opened.st_mtime_ns, opened.st_ctime_ns]
+            identity = [opened.st_dev, opened.st_ino, opened.st_size, opened.st_mtime_ns, opened.st_ctime_ns]
+            if self.protocol == "SMB":
+                identity.append(registry_identity)
+            return hashlib.sha256(data).hexdigest(), identity
         finally:
             os.close(descriptor)
 
@@ -7567,6 +7596,308 @@ import subprocess
 import tempfile
 import sys
 
+# BEGIN EMBEDDED PENDING SMB READERS
+import uuid as pending_nfs_uuid
+PENDING_NFS_MAX_BYTES = 8 * 1024 * 1024
+def pending_nfs_read(path):
+    try:
+        info = path.lstat()
+    except FileNotFoundError:
+        return None
+    if not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid() or info.st_size > PENDING_NFS_MAX_BYTES or info.st_mode & 0o022:
+        raise ValueError("Generation input is not a protected regular file")
+    parent = path.parent.lstat()
+    if not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.geteuid() or parent.st_mode & 0o022:
+        raise ValueError("Generation parent directory is not protected")
+    parent_fd = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    try:
+        pinned_parent = os.fstat(parent_fd)
+        if (pinned_parent.st_dev, pinned_parent.st_ino, pinned_parent.st_uid, pinned_parent.st_mode) != (parent.st_dev, parent.st_ino, parent.st_uid, parent.st_mode):
+            raise ValueError("Generation parent changed while opening")
+        fd = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=parent_fd)
+    finally:
+        os.close(parent_fd)
+    try:
+        opened = os.fstat(fd)
+        if (opened.st_dev, opened.st_ino, opened.st_uid, opened.st_gid, opened.st_mode, opened.st_size) != (info.st_dev, info.st_ino, info.st_uid, info.st_gid, info.st_mode, info.st_size):
+            raise ValueError("Generation input changed while opening")
+        with os.fdopen(fd, "rb", closefd=False) as handle:
+            value = handle.read(PENDING_NFS_MAX_BYTES + 1)
+        if len(value) > PENDING_NFS_MAX_BYTES:
+            raise ValueError("Generation input exceeds its size limit")
+        return json.loads(value)
+    finally:
+        os.close(fd)
+
+def pending_nfs_redact(value):
+    if isinstance(value, dict):
+        return {key: pending_nfs_redact(item) for key, item in value.items()
+                if key not in ("lastApply", "lastApplied", "observedAt", "generatedEpoch")
+                and not any(word in key.lower() for word in ("password", "secret", "dhchapkey", "dhchapctrlkey", "privatekey", "keytab", "capsule"))}
+    if isinstance(value, list):
+        return [pending_nfs_redact(item) for item in value]
+    return value
+
+class PendingNfsGeneration:
+    paths = ("desired-state/nfs-export-apply.json", "desired-state/smb-share-apply.json",
+             "iscsi-targets.json", "nvmeof-subsystems.json", "posix-directory-policies.json",
+             "network-endpoints.json", "sharedfs-network.json")
+
+    def __init__(self, state=None, configuration=None):
+        self.root = Path(state or os.environ.get("ABLESTACK_STORAGE_GENERATION_DIR", "/var/lib/ablestack-storage/config-generations"))
+        self.config = Path(configuration or os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_ROOT", "/etc/ablestack-storage"))
+        self.current = self.root / "current.json"
+        self.pending = self.root / "pending.json"
+
+    def files(self):
+        return {name: pending_nfs_redact(pending_nfs_read(self.config / name)) for name in self.paths}
+
+    def digest(self):
+        return hashlib.sha256(json.dumps(self.files(), sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+    def status(self):
+        current = pending_nfs_read(self.current) or {}
+        pending = pending_nfs_read(self.pending)
+        digest = self.digest()
+        return {"success": True, "generationSupported": True, "runtimeRevision": current.get("revision", 0),
+                "generation": current, "pendingOperationUuid": pending.get("operationUuid") if pending else None,
+                "generationStatus": "PENDING" if pending else ("IN_SYNC" if current and current.get("configurationSha256") == digest else "UNVERIFIED"),
+                "configurationSha256": digest, "configurationDesiredState": self.files(),
+                "bootId":str(pending_nfs_uuid.UUID(Path("/proc/sys/kernel/random/boot_id").read_text().strip()))}
+
+    def request(self, request):
+        result = dict(request)
+        result["instanceUuid"] = str(pending_nfs_uuid.UUID(request["instanceUuid"]))
+        result["operationUuid"] = str(pending_nfs_uuid.UUID(request["operationUuid"]))
+        revision = request["revision"]
+        if isinstance(revision, bool) or not isinstance(revision, int) or revision < 1:
+            raise ValueError("Invalid generation revision")
+        return result
+
+    def scoped(self, request):
+        pending = pending_nfs_read(self.pending)
+        if not pending or any(pending[key] != request[key] for key in ("instanceUuid", "operationUuid", "revision")):
+            raise ValueError("Generation operation scope changed")
+        return pending
+# END EMBEDDED PENDING SMB READERS
+# BEGIN EMBEDDED PENDING SMB AUTHORIZATION
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements. See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership. The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+"""A temporary NFS-unit grant for the exact live legacy configuration writer."""
+import contextlib
+import fcntl
+import hashlib
+import ipaddress
+import json
+import os
+from pathlib import Path
+import re
+import stat
+import sys
+sys.path.insert(0, "/usr/local/lib/ablestack-storage")
+from rendered_generation import RenderedGeneration
+from template_maintenance import Maintenance
+
+class PendingNfsAuthorization:
+    mode = "NATIVE_PENDING_NFS_APPLY"
+
+    def __init__(self, generation=None, rendered=None, maintenance=None, root=None, configuration_root=None, protocol="NFS", registry=None):
+        if protocol not in ("NFS", "SMB"):
+            raise ValueError("Pending unit authorization protocol is not closed")
+        self.protocol = protocol
+        self.mode = {"NFS": "NATIVE_PENDING_NFS_APPLY", "SMB": "NATIVE_PENDING_SMB_APPLY"}[protocol]
+        self.generation = generation or PendingNfsGeneration()
+        self.rendered = rendered or RenderedGeneration()
+        self.maintenance = maintenance
+        self.root = Path(root or "/run/ablestack-storage/rendered-authorization")
+        self.path = self.root / ("pending-" + protocol.lower() + ".json")
+        self.configuration_root = Path(configuration_root or ("/etc/ganesha/ablestack-storage" if protocol == "NFS" else "/etc/samba"))
+        self.registry = Path(registry or "/etc/ablestack-storage/smb-endpoint-listeners")
+
+    def state(self, scope):
+        if not isinstance(scope, dict) or set(scope) != {"instanceUuid", "operationUuid", "revision"}:
+            raise ValueError("Pending NFS operation scope is not exact")
+        scope = self.generation.request(scope)
+        pending = self.generation.scoped(scope)
+        info = self.generation.pending.lstat()
+        if stat.S_IMODE(info.st_mode) != 0o600 or pending.get("phase") != "PREPARED":
+            raise ValueError("Pending NFS writer is not protected PREPARED")
+        before = pending.get("beforeSha256")
+        if not isinstance(before, str) or not re.fullmatch("[0-9a-f]{64}", before):
+            raise ValueError("Pending NFS source digest is absent")
+        current = self.generation.status()
+        if current.get("pendingOperationUuid") != scope["operationUuid"]:
+            raise ValueError("Pending NFS writer changed")
+        rendered = self.rendered.status()
+        maintenance = (self.maintenance or Maintenance()).status()
+        if rendered.get("current") is not None or rendered.get("activation") is not None or maintenance.get("bootHeld") is not False:
+            raise ValueError("Pending NFS cannot borrow rendered/ROOT/SERVICE authority")
+        return scope, pending, current["configurationSha256"]
+
+    def lock(self, pid):
+        path = Path("/proc") / str(pid)
+        fd = path / "fd/9"
+        lock_path = Path(os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FILE", "/run/ablestack-storage/desired-writer.lock"))
+        if lock_path.is_symlink() or lock_path.parent.is_symlink():
+            raise ValueError("Pending NFS writer lock is linked")
+        named = lock_path.lstat()
+        opened = fd.stat()
+        if (not stat.S_ISREG(named.st_mode) or named.st_uid != os.geteuid()
+                or stat.S_IMODE(named.st_mode) != 0o600
+                or (opened.st_dev, opened.st_ino) != (named.st_dev, named.st_ino)
+                or os.readlink(fd) != str(lock_path)):
+            raise ValueError("Pending NFS inherited lock changed")
+        locks = (path / "fdinfo/9").read_text()
+        matched = False
+        for line in locks.splitlines():
+            value = re.search(r"FLOCK\s+ADVISORY\s+WRITE\s+[0-9]+\s+([0-9a-f]+):([0-9a-f]+):([0-9]+)\s+0\s+EOF", line, re.I)
+            if value and (int(value[1], 16), int(value[2], 16), int(value[3])) == (os.major(opened.st_dev), os.minor(opened.st_dev), opened.st_ino):
+                matched = True
+        if not matched:
+            raise ValueError("Pending NFS FD9 does not hold its actual FLOCK")
+        ticks = (path / "stat").read_text().rpartition(")")[2].split()[19]
+        return opened, ticks
+
+    def configuration(self, unit):
+        registry_identity = None
+        if self.protocol == "NFS":
+            if not isinstance(unit, str) or not re.fullmatch(r"ablestack-storage-ganesha@[A-Za-z0-9_.-]+\.service", unit):
+                raise ValueError("Pending NFS unit name is not closed")
+            key = unit.split("@", 1)[1][:-8]
+        else:
+            if unit not in ("smbd.service", "nmbd.service"):
+                if not isinstance(unit, str) or not re.fullmatch(r"ablestack-storage-smb@[0-9a-f]{24}\.service", unit):
+                    raise ValueError("Pending SMB unit name is not closed")
+                key = unit.split("@", 1)[1][:-8]
+                record_path = self.registry / (key + ".json")
+                row = pending_nfs_read(record_path)
+                if (not isinstance(row, dict) or set(row) != {"listenIp", "port"} or type(row["port"]) is not int
+                        or not 1 <= row["port"] <= 65535 or not isinstance(row["listenIp"], str)):
+                    raise ValueError("Pending SMB endpoint registry is not exact")
+                address = str(ipaddress.ip_address(row["listenIp"]))
+                if address != row["listenIp"] or hashlib.sha256((address + ":" + str(row["port"])).encode()).hexdigest()[:24] != key:
+                    raise ValueError("Pending SMB endpoint unit differs from its protected registry")
+                info = record_path.lstat()
+                registry_identity = [info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns,
+                                     hashlib.sha256(json.dumps(row, sort_keys=True, separators=(",", ":")).encode()).hexdigest()]
+            key = "smb"
+        parent = self.configuration_root.lstat()
+        if not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.geteuid() or parent.st_mode & 0o022:
+            raise ValueError("Pending NFS endpoint parent is not protected")
+        path = self.configuration_root / (key + ".conf")
+        info = path.lstat()
+        if not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid() or info.st_mode & 0o022 or info.st_size > 8 * 1024 * 1024:
+            raise ValueError("Pending NFS endpoint configuration is not protected")
+        descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
+        try:
+            opened = os.fstat(descriptor)
+            fields = ("st_dev", "st_ino", "st_mode", "st_size", "st_mtime_ns", "st_ctime_ns")
+            if any(getattr(opened, k) != getattr(info, k) for k in fields):
+                raise ValueError("Pending NFS endpoint changed while opening")
+            data = os.read(descriptor, 8 * 1024 * 1024 + 1)
+            if any(getattr(os.fstat(descriptor), k) != getattr(opened, k) for k in fields):
+                raise ValueError("Pending NFS endpoint changed while reading")
+            identity = [opened.st_dev, opened.st_ino, opened.st_size, opened.st_mtime_ns, opened.st_ctime_ns]
+            if self.protocol == "SMB":
+                identity.append(registry_identity)
+            return hashlib.sha256(data).hexdigest(), identity
+        finally:
+            os.close(descriptor)
+
+    def validate_payload(self, payload):
+        if "operationScope" not in payload:
+            if self.generation.status().get("pendingOperationUuid"):
+                raise ValueError("Pending NFS writer requires its explicit operation scope")
+            return False
+        scope = payload["operationScope"]
+        if not isinstance(scope, dict) or payload.get("instanceUuid") != scope.get("instanceUuid"):
+            raise ValueError("Pending NFS payload instance differs from its writer")
+        self.state(scope)
+        if os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD") != "9":
+            raise ValueError("Pending NFS requires its inherited FD9")
+        self.lock(os.getpid())
+        return True
+
+    @contextlib.contextmanager
+    def grant(self, payload, unit):
+        if not self.validate_payload(payload):
+            yield
+            return
+        scope = payload["operationScope"]
+        scope, pending, digest = self.state(scope)
+        if os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD") != "9":
+            raise ValueError("Pending NFS requires its inherited FD9")
+        opened, ticks = self.lock(os.getpid())
+        self.root.mkdir(mode=0o700, parents=True, exist_ok=True)
+        directory = self.root.lstat()
+        if not stat.S_ISDIR(directory.st_mode) or directory.st_uid != os.geteuid() or stat.S_IMODE(directory.st_mode) != 0o700:
+            raise ValueError("Pending NFS grant directory is not protected")
+        configuration_sha, configuration_identity = self.configuration(unit)
+        proof = {"mode": self.mode, "scope": scope, "beforeSha256": pending["beforeSha256"],
+                 "configurationSha256": digest, "unit": unit, "configurationFileSha256": configuration_sha, "configurationFileIdentity": configuration_identity,
+                 "pid": os.getpid(), "startTicks": ticks, "bootId": Path("/proc/sys/kernel/random/boot_id").read_text().strip(),
+                 "lockDevice": opened.st_dev, "lockInode": opened.st_ino}
+        raw_fd = os.open(self.path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+        try:
+            fd = fcntl.fcntl(raw_fd, fcntl.F_DUPFD_CLOEXEC, 16)
+        finally:
+            os.close(raw_fd)
+        identity = os.fstat(fd)
+        try:
+            with os.fdopen(fd, "w", closefd=False) as handle:
+                json.dump(proof, handle, sort_keys=True); handle.flush(); os.fsync(handle.fileno())
+            yield
+        finally:
+            try:
+                current = self.path.lstat()
+                if (current.st_dev, current.st_ino) != (identity.st_dev, identity.st_ino) or pending_nfs_read(self.path) != proof:
+                    raise ValueError("Pending NFS grant was replaced; preserving it")
+                self.path.unlink()
+            except FileNotFoundError:
+                raise ValueError("Pending NFS grant disappeared")
+            finally:
+                os.close(fd)
+
+    def authorized(self, unit, maintenance, rendered):
+        try:
+            if maintenance.get("bootHeld") is not False or rendered.get("current") is not None or rendered.get("activation") is not None:
+                return False
+            directory = self.root.lstat()
+            record = self.path.lstat()
+            if (not stat.S_ISDIR(directory.st_mode) or directory.st_uid != os.geteuid() or stat.S_IMODE(directory.st_mode) != 0o700
+                    or not stat.S_ISREG(record.st_mode) or record.st_uid != os.geteuid() or stat.S_IMODE(record.st_mode) != 0o600):
+                return False
+            proof = pending_nfs_read(self.path)
+            if not isinstance(proof, dict) or set(proof) != {"mode", "scope", "beforeSha256", "configurationSha256", "unit", "configurationFileSha256", "configurationFileIdentity", "pid", "startTicks", "bootId", "lockDevice", "lockInode"}:
+                return False
+            if proof["mode"] != self.mode or proof["unit"] != unit or type(proof["pid"]) is not int or proof["pid"] < 1:
+                return False
+            scope, pending, digest = self.state(proof["scope"])
+            configuration_sha, configuration_identity = self.configuration(unit)
+            if (proof["beforeSha256"] != pending["beforeSha256"] or proof["configurationSha256"] != digest
+                    or proof["bootId"] != Path("/proc/sys/kernel/random/boot_id").read_text().strip()
+                    or proof["configurationFileSha256"] != configuration_sha
+                    or proof["configurationFileIdentity"] != configuration_identity):
+                return False
+            opened, ticks = self.lock(proof["pid"])
+            return (ticks, opened.st_dev, opened.st_ino) == (proof["startTicks"], proof["lockDevice"], proof["lockInode"])
+        except (OSError, ValueError, KeyError, IndexError, TypeError):
+            return False
+# END EMBEDDED PENDING SMB AUTHORIZATION
+
 # BEGIN EMBEDDED AD AUTHORITY
 """Protected joined AD policy and fixed fresh principal mapping for physical ACLs."""
 import fcntl
@@ -7743,6 +8074,21 @@ def smb_budget(maximum=30):
 payload_path = sys.argv[1]
 with open(payload_path, "r", encoding="utf-8") as payload_fp:
     payload = json.load(payload_fp)
+pending_smb = PendingNfsAuthorization(protocol="SMB")
+if not os.environ.get("ABLESTACK_STORAGE_RENDERED_REPLAY"):
+    pending_smb.validate_payload(payload)
+elif "operationScope" in payload:
+    raise ValueError("Rendered SMB replay cannot carry a legacy operation scope")
+
+def pending_smb_service_start(unit, restart=False, enable=False):
+    canonical = unit if unit.endswith(".service") else unit + ".service"
+    command = ["systemctl", "restart" if restart else "start", canonical]
+    if enable:
+        command = ["systemctl", "enable", "--now", canonical]
+    authorization = contextlib.nullcontext() if os.environ.get("ABLESTACK_STORAGE_RENDERED_REPLAY") else pending_smb.grant(payload, canonical)
+    with authorization:
+        return run(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=20)
+
 
 state_dir = os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_ROOT","/etc/ablestack-storage")
 try:
@@ -8805,7 +9151,7 @@ WantedBy=multi-user.target
             unit = "ablestack-storage-smb@" + key + ".service"
             if (endpoint["listenIp"], endpoint["port"]) not in current_sockets:
                 started.append(key)
-                run(["systemctl", "start", unit], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=20)
+                pending_smb_service_start(unit)
         for key in previous.keys() - wanted.keys():
             old = json.loads(previous[key])
             if smb_endpoint_connections(old["listenIp"], old["port"]):
@@ -8850,10 +9196,9 @@ WantedBy=multi-user.target
                 elif os.path.lexists(path):
                     raise RuntimeError("Previous absent SMB configuration was not restored")
             if legacy_stopped:
-                run(["systemctl", "start", "smbd.service"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=20)
+                pending_smb_service_start("smbd.service")
             for key in set(stopped) | (set(started) & previous_active):
-                run(["systemctl", "start", "ablestack-storage-smb@" + key + ".service"],
-                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=20)
+                pending_smb_service_start("ablestack-storage-smb@" + key + ".service")
             if default_disabled and default_enabled:
                 run(["systemctl", "enable", "smbd.service"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=10)
             if shutil.which("smbcontrol"):
@@ -8948,12 +9293,13 @@ run(["testparm", "-s"], stdout=subprocess.DEVNULL)
 if shutil.which("systemctl"):
     for unit in ("nmbd",):
         if subprocess.run(["systemctl", "is-active", "--quiet", unit], check=False).returncode != 0:
-            run(["systemctl", "enable", "--now", unit], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            pending_smb_service_start(unit, enable=True)
     if not shutil.which("smbcontrol"):
         raise RuntimeError("SMB reload command is unavailable")
     if previous_netbios_name and previous_netbios_name != netbios_name:
         # Samba keeps the local machine identity in daemon state; ordinary policy edits only reload.
-        run(["systemctl", "restart", "smbd", "nmbd"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        for unit in ("smbd.service", "nmbd.service"):
+            pending_smb_service_start(unit, restart=True)
     else:
         run(["smbcontrol", "all", "reload-config"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 runtime_endpoints = reconcile_smb_endpoint_units(listener_rows)
@@ -16874,21 +17220,6 @@ PYROOTDATA
 
 smb_identity_command() {
   python3 - "$action" "$payload" "$0" <<'PYSMBIDENTITY'
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements. See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership. The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License. You may obtain a copy of the License at
-# http://www.apache.org/licenses/LICENSE-2.0
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied. See the License for the
-# specific language governing permissions and limitations
-# under the License.
-
 """Read-only identity/ownership evidence and scoped maintenance acceptor rebind."""
 import hashlib
 import ast
@@ -17073,8 +17404,68 @@ class SmbIdentity:
             if os.path.exists(temporary):os.unlink(temporary)
         return value
 
+    def inspect_unconfigured(self, scope, current):
+        desired_path = self.configuration / "desired-state/smb-share-apply.json"
+        if os.path.lexists(desired_path):
+            raise ValueError("SMB unconfigured source declaration exists")
+        parent = desired_path.parent.lstat()
+        if not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.geteuid() or parent.st_mode & 0o022:
+            raise ValueError("SMB unconfigured source parent is not protected")
+        artifact = identity_json(self.generations / (current["operationUuid"] + ".json"))
+        keys = ("instanceUuid", "operationUuid", "revision", "configurationSha256", "verifiedAt")
+        if artifact.get("phase") != "VERIFIED" or any(artifact.get(key) != current.get(key) for key in keys):
+            raise ValueError("SMB unconfigured source does not match its verified native generation")
+        desired = artifact.get("desired")
+        names = {"desired-state/nfs-export-apply.json", "desired-state/smb-share-apply.json",
+                 "iscsi-targets.json", "nvmeof-subsystems.json", "posix-directory-policies.json",
+                 "network-endpoints.json", "sharedfs-network.json"}
+        if (not isinstance(desired, dict) or set(desired) != names
+                or desired["desired-state/smb-share-apply.json"] is not None
+                or hashlib.sha256(json.dumps(desired, sort_keys=True, separators=(",", ":")).encode()).hexdigest() != current["configurationSha256"]):
+            raise ValueError("SMB unconfigured source declaration lacks its original seven-file commitment")
+        pending = identity_json(self.generations / "pending.json") if (self.generations / "pending.json").exists() else None
+        if pending:
+            if pending.get("phase") != "PREPARED" or pending.get("previous") != current or pending.get("beforeSha256") != current["configurationSha256"]:
+                raise ValueError("SMB unconfigured source does not match its pending writer baseline")
+        elif scope["revision"] != current["revision"]:
+            raise ValueError("SMB unconfigured observation revision is stale")
+        databases = self.database_identity()
+        if set(databases) != set(IDENTITY_DATABASES) or any(not isinstance(value, dict) or value.get("present") is not False for value in databases.values()):
+            raise ValueError("SMB unconfigured source contains an identity database")
+        sockets = self.socket_rows(self.run(["ss", "-H", "-ltnp"]))
+        if any(row["port"] in (139, 445) for row in sockets):
+            raise ValueError("SMB unconfigured source has a foreign or unobserved acceptor")
+        for process in self.process_root.iterdir():
+            self.remaining()
+            if not process.name.isdigit():
+                continue
+            try:
+                name = (process / "comm").read_text().strip()
+            except FileNotFoundError:
+                continue
+            if name in ("smbd", "nmbd", "winbindd", "samba", "samba-dcerpcd", "samba-bgqd"):
+                raise ValueError("SMB unconfigured source still has an identity daemon")
+        if self.identity_holders():
+            raise ValueError("SMB unconfigured source still has an identity holder")
+        for unit in ("smbd.service", "nmbd.service", "winbind.service"):
+            pid = self.run(["systemctl", "show", unit, "--property=MainPID", "--value"]).strip()
+            if pid != "0":
+                raise ValueError("SMB unconfigured source has an unobserved or active identity unit")
+        sessions = {"available": True, "establishedTcpCount": 0, "synRecvTcpCount": 0, "smbSessionCount": 0,
+                    "treeConnectionCount": 0, "openFileCount": 0, "byteLockOpenFileCount": 0,
+                    "lockingDatabasesAligned": True, "safeToRebind": True, "source": "UNCONFIGURED_SMB_SOURCE_ABSENCE"}
+        return {"success": True, "smbIdentitySupported": True, "scope": scope,
+                "bootId": Path("/proc/sys/kernel/random/boot_id").read_text().strip(), "generation": current,
+                "configurationSha256": hashlib.sha256(Path("/etc/samba/smb.conf").read_bytes()).hexdigest(),
+                "identityBaselineKind": "UNCONFIGURED_SMB_SOURCE", "databases": databases,
+                "masters": [], "ownedEndpoints": [], "ownershipVerified": True, "endpointTcpReady": True,
+                "identityDatabaseAligned": True, "requiresQuiesce": False, "identityRestoreSafe": True,
+                "identityHolders": [], "generatedEpoch": time.time(), "sessions": sessions}
+
     def inspect(self,request,allow_missing=False):
         scope=self.scope(request);current=self.generation(scope)
+        if not os.path.lexists(self.configuration / "desired-state/smb-share-apply.json"):
+            return self.inspect_unconfigured(scope, current)
         endpoints=self.endpoints();databases=self.database_identity()
         sockets=self.socket_rows(self.run(["ss","-H","-ltnp"]))
         default_pid=int(self.run(["systemctl","show","smbd.service","--property=MainPID","--value"]).strip() or 0)
@@ -17225,7 +17616,6 @@ class SmbIdentity:
                 try:signal.pidfd_send_signal(handles[pid],signal.SIGCONT,None,0)
                 except ProcessLookupError:pass
             for descriptor in handles.values():os.close(descriptor)
-
 import sys
 try:
     request=json.loads(Path(sys.argv[2]).read_text())
@@ -22499,6 +22889,7 @@ class PendingNfsGeneration:
 import contextlib
 import fcntl
 import hashlib
+import ipaddress
 import json
 import os
 from pathlib import Path
@@ -22510,13 +22901,18 @@ sys.path.insert(0, "/usr/local/lib/ablestack-storage")
 class PendingNfsAuthorization:
     mode = "NATIVE_PENDING_NFS_APPLY"
 
-    def __init__(self, generation=None, rendered=None, maintenance=None, root=None, configuration_root=None):
+    def __init__(self, generation=None, rendered=None, maintenance=None, root=None, configuration_root=None, protocol="NFS", registry=None):
+        if protocol not in ("NFS", "SMB"):
+            raise ValueError("Pending unit authorization protocol is not closed")
+        self.protocol = protocol
+        self.mode = {"NFS": "NATIVE_PENDING_NFS_APPLY", "SMB": "NATIVE_PENDING_SMB_APPLY"}[protocol]
         self.generation = generation or PendingNfsGeneration()
         self.rendered = rendered or RenderedGeneration()
         self.maintenance = maintenance
         self.root = Path(root or "/run/ablestack-storage/rendered-authorization")
-        self.path = self.root / "pending-nfs.json"
-        self.configuration_root = Path(configuration_root or "/etc/ganesha/ablestack-storage")
+        self.path = self.root / ("pending-" + protocol.lower() + ".json")
+        self.configuration_root = Path(configuration_root or ("/etc/ganesha/ablestack-storage" if protocol == "NFS" else "/etc/samba"))
+        self.registry = Path(registry or "/etc/ablestack-storage/smb-endpoint-listeners")
 
     def state(self, scope):
         if not isinstance(scope, dict) or set(scope) != {"instanceUuid", "operationUuid", "revision"}:
@@ -22563,9 +22959,28 @@ class PendingNfsAuthorization:
         return opened, ticks
 
     def configuration(self, unit):
-        if not isinstance(unit, str) or not re.fullmatch(r"ablestack-storage-ganesha@[A-Za-z0-9_.-]+\.service", unit):
-            raise ValueError("Pending NFS unit name is not closed")
-        key = unit.split("@", 1)[1][:-8]
+        registry_identity = None
+        if self.protocol == "NFS":
+            if not isinstance(unit, str) or not re.fullmatch(r"ablestack-storage-ganesha@[A-Za-z0-9_.-]+\.service", unit):
+                raise ValueError("Pending NFS unit name is not closed")
+            key = unit.split("@", 1)[1][:-8]
+        else:
+            if unit not in ("smbd.service", "nmbd.service"):
+                if not isinstance(unit, str) or not re.fullmatch(r"ablestack-storage-smb@[0-9a-f]{24}\.service", unit):
+                    raise ValueError("Pending SMB unit name is not closed")
+                key = unit.split("@", 1)[1][:-8]
+                record_path = self.registry / (key + ".json")
+                row = pending_nfs_read(record_path)
+                if (not isinstance(row, dict) or set(row) != {"listenIp", "port"} or type(row["port"]) is not int
+                        or not 1 <= row["port"] <= 65535 or not isinstance(row["listenIp"], str)):
+                    raise ValueError("Pending SMB endpoint registry is not exact")
+                address = str(ipaddress.ip_address(row["listenIp"]))
+                if address != row["listenIp"] or hashlib.sha256((address + ":" + str(row["port"])).encode()).hexdigest()[:24] != key:
+                    raise ValueError("Pending SMB endpoint unit differs from its protected registry")
+                info = record_path.lstat()
+                registry_identity = [info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns,
+                                     hashlib.sha256(json.dumps(row, sort_keys=True, separators=(",", ":")).encode()).hexdigest()]
+            key = "smb"
         parent = self.configuration_root.lstat()
         if not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.geteuid() or parent.st_mode & 0o022:
             raise ValueError("Pending NFS endpoint parent is not protected")
@@ -22582,7 +22997,10 @@ class PendingNfsAuthorization:
             data = os.read(descriptor, 8 * 1024 * 1024 + 1)
             if any(getattr(os.fstat(descriptor), k) != getattr(opened, k) for k in fields):
                 raise ValueError("Pending NFS endpoint changed while reading")
-            return hashlib.sha256(data).hexdigest(), [opened.st_dev, opened.st_ino, opened.st_size, opened.st_mtime_ns, opened.st_ctime_ns]
+            identity = [opened.st_dev, opened.st_ino, opened.st_size, opened.st_mtime_ns, opened.st_ctime_ns]
+            if self.protocol == "SMB":
+                identity.append(registry_identity)
+            return hashlib.sha256(data).hexdigest(), identity
         finally:
             os.close(descriptor)
 
@@ -23380,8 +23798,10 @@ class RenderedDriver:
             maintenance = self.runtime.command(("operation", "maintenance", "status"))
             if action == "render-boot-gate" and self.boot_authorized(unit, maintenance):
                 return {"success": True, "bootHeld": False, "activationUnitAuthorized": unit}
-            if action == "render-boot-gate" and PendingNfsAuthorization().authorized(unit, maintenance, status):
-                return {"success": True, "bootHeld": False, "nativePendingNfsUnitAuthorized": unit}
+            if action == "render-boot-gate":
+                for protocol, field in (("NFS", "nativePendingNfsUnitAuthorized"), ("SMB", "nativePendingSmbUnitAuthorized")):
+                    if PendingNfsAuthorization(protocol=protocol).authorized(unit, maintenance, status):
+                        return {"success": True, "bootHeld": False, field: unit}
             if status["bootHeld"] or maintenance.get("bootHeld") is not False:
                 raise ValueError("Automatic protocol exposure is held by an interrupted configuration/ROOT operation")
             actual = self.generation()

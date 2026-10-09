@@ -203,4 +203,63 @@ class StorageSmbIdentityTest(unittest.TestCase):
             with self.assertRaises(TimeoutError):self.handler.wait_for_ready(self.scope,frozen)
             send.assert_not_called();run.assert_not_called()
 
+
+    def unconfigured_fixture(self):
+        import hashlib
+        self.handler.configuration=Path(self.temp.name)/'configuration'
+        (self.handler.configuration/'desired-state').mkdir(parents=True,mode=0o700)
+        self.handler.process_root=Path(self.temp.name)/'proc';self.handler.process_root.mkdir(mode=0o700)
+        self.scope['revision']=10;self.current['verifiedAt']=1.0
+        desired={name:None for name in ('desired-state/nfs-export-apply.json','desired-state/smb-share-apply.json','iscsi-targets.json','nvmeof-subsystems.json','posix-directory-policies.json','network-endpoints.json','sharedfs-network.json')}
+        self.current['configurationSha256']=hashlib.sha256(json.dumps(desired,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+        def write(path,value):path.write_text(json.dumps(value));path.chmod(0o600)
+        write(self.handler.generations/'current.json',self.current)
+        write(self.handler.generations/(self.current['operationUuid']+'.json'),{**self.current,'phase':'VERIFIED','desired':desired})
+        write(self.handler.generations/'pending.json',{**self.scope,'phase':'PREPARED','previous':self.current,'beforeSha256':self.current['configurationSha256']})
+        self.handler.database_identity=lambda:{name:{'path':path,'present':False} for name,path in module.IDENTITY_DATABASES.items()}
+        self.handler.identity_holders=lambda:[]
+        commands=[]
+        def run(args):
+            commands.append(args)
+            if args[:3]==['ss','-H','-ltnp']:return ''
+            if args[0]=='systemctl':return '0\n'
+            self.fail('Unconfigured observer invoked identity or service mutation command')
+        self.handler.run=run
+        configuration=Path(self.temp.name)/'smb.conf';configuration.write_text('[global]\n')
+        original=Path
+        def paths(value):return configuration if str(value)=='/etc/samba/smb.conf' else original(value)
+        return write,desired,commands,patch.object(module,'Path',paths)
+
+    def test_verified_unconfigured_source_absence_receipt_is_restore_safe_without_creating_sam(self):
+        write,desired,commands,paths=self.unconfigured_fixture()
+        pending=(self.handler.generations/'pending.json').read_bytes()
+        with paths:result=self.handler.inspect(self.scope)
+        self.assertEqual('UNCONFIGURED_SMB_SOURCE',result['identityBaselineKind'])
+        for field in ('success','ownershipVerified','identityRestoreSafe'):self.assertIs(result[field],True)
+        self.assertEqual(self.scope,result['scope']);self.assertEqual([],result['ownedEndpoints'])
+        self.assertEqual([],result['masters']);self.assertIs(result['sessions']['safeToRebind'],True)
+        self.assertTrue(all(row['present'] is False for row in result['databases'].values()))
+        self.assertEqual(pending,(self.handler.generations/'pending.json').read_bytes())
+        self.assertFalse((self.handler.configuration/'desired-state/smb-share-apply.json').exists())
+        self.assertFalse(any(args[0] in ('net','pdbedit','smbstatus') for args in commands))
+
+    def test_unconfigured_source_rejects_changed_original_or_nonabsent_database(self):
+        write,desired,commands,paths=self.unconfigured_fixture()
+        artifact=self.handler.generations/(self.current['operationUuid']+'.json')
+        original=json.loads(artifact.read_text());changed=copy.deepcopy(original);changed['desired']['desired-state/smb-share-apply.json']={'enabled':False,'shares':[]};write(artifact,changed)
+        with paths,self.assertRaises(ValueError):self.handler.inspect(self.scope)
+        write(artifact,original);self.handler.database_identity=lambda:{'PASSDB':{'present':True}}
+        with paths,self.assertRaises(ValueError):self.handler.inspect(self.scope)
+
+    def test_unconfigured_source_rejects_foreign_acceptor_daemon_or_pending_scope(self):
+        write,desired,commands,paths=self.unconfigured_fixture()
+        self.handler.run=lambda args:'LISTEN 0 128 0.0.0.0:445 0.0.0.0:* users:(("foreign",pid=200,fd=3))\n' if args[0]=='ss' else '0\n'
+        with paths,self.assertRaises(ValueError):self.handler.inspect(self.scope)
+        self.handler.run=lambda args:'' if args[0]=='ss' else '0\n'
+        process=self.handler.process_root/'200';process.mkdir();(process/'comm').write_text('smbd\n')
+        with paths,self.assertRaises(ValueError):self.handler.inspect(self.scope)
+        (process/'comm').unlink();process.rmdir()
+        pending=json.loads((self.handler.generations/'pending.json').read_text());pending['operationUuid']=str(uuid.uuid4());write(self.handler.generations/'pending.json',pending)
+        with paths,self.assertRaises(ValueError):self.handler.inspect(self.scope)
+
 if __name__=='__main__':unittest.main()

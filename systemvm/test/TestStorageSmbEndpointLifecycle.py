@@ -18,6 +18,7 @@
 # under the License.
 
 import ast
+import contextlib
 import hashlib
 import ipaddress
 import json
@@ -59,6 +60,7 @@ class StorageSmbEndpointLifecycleTest(unittest.TestCase):
         proxy = SimpleNamespace(**{name:getattr(os,name) for name in ('makedirs','geteuid','fdopen','fsync','fchmod','listdir','unlink')})
         proxy.replace = lambda source,target: os.replace(mapped(source),mapped(target))
         proxy.path = proxy_path
+        proxy.environ = dict(os.environ,ABLESTACK_STORAGE_RENDERED_REPLAY="fixture-rendered")
         proxy.lstat = lambda path: os.lstat(mapped(path))
         proxy.chmod = lambda path, mode: os.chmod(mapped(path),mode)
         def run(args, **kwargs):
@@ -86,7 +88,7 @@ class StorageSmbEndpointLifecycleTest(unittest.TestCase):
             assert all((row['listenIp'],row['port']) in sockets() for row in rows)
             return [{'success':True} for row in rows]
         self.ns = dict(hashlib=hashlib,ipaddress=ipaddress,json=json,os=proxy,stat=stat,re=re,
-                       state_dir=str(self.state),
+                       state_dir=str(self.state),contextlib=contextlib,pending_smb=None,payload={},
                        tempfile=SimpleNamespace(mkstemp=lambda **kwargs:tempfile.mkstemp(**{**kwargs,'dir':str(self.root) if kwargs.get('dir')=='/etc/systemd/system' else kwargs.get('dir')})),run=run,
                        subprocess=SimpleNamespace(run=run,DEVNULL=-3),
                        open=lambda path,*args,**kwargs:open(mapped(path),*args,**kwargs),
@@ -99,6 +101,10 @@ class StorageSmbEndpointLifecycleTest(unittest.TestCase):
                        smb_endpoint_connections=lambda ip,port:int((ip,port) in self.busy),
                        smb_unit_active=lambda unit: unit.split('@')[1].split('.')[0] in self.active)
         source = SOURCE.read_text()
+        main=next(value for value in re.findall(r"<<'PY'\n(.*?)\nPY",source,re.S) if "def reconcile_smb_endpoint_units(" in value)
+        start_function=next(node for node in ast.parse(main).body if isinstance(node,ast.FunctionDef) and node.name=="pending_smb_service_start")
+        exec(compile(ast.Module(body=[start_function],type_ignores=[]),str(SOURCE),"exec"),self.ns)
+
         start=source.index('def reconcile_smb_endpoint_units(')
         end=source.index('def install_validated_smb_config(',start)
         exec(compile(ast.parse(source[start:end]),str(SOURCE),'exec'),self.ns)
