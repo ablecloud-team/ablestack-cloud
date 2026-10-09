@@ -41,6 +41,117 @@ import com.google.gson.JsonPrimitive;
 @ResourceWrapper(handles = StorageServiceHostCommand.class)
 public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrapper<StorageServiceHostCommand, Answer, LibvirtComputingResource> {
     private static final int QGA_POLL_INTERVAL_MILLIS = 1000;
+    static final int DIRECT_PROTECTED_STDIN_MAX_BYTES = 32768;
+    static final int PROTECTED_STDIN_CHUNK_BYTES = 32768;
+    static final int PROTECTED_STDIN_MAX_BYTES = 64 * 1024 * 1024;
+    private static final int PROTECTED_STDIN_CLEANUP_SECONDS = 2;
+    private final ThreadLocal<Long> protectedStdinDeadline = new ThreadLocal<>();
+    private static final String PROTECTED_STDIN_RECEIVER = String.join("\n",
+            "\"\"\"Protected input stays in anonymous RAM; no body or key is printed.\"\"\"",
+            "import fcntl,hashlib,os,re,select,stat,sys,time",
+            "DATA_FD,CONTROL_READ_FD,CONTROL_WRITE_FD=16,17,18",
+            "MAX_BYTES=64*1024*1024",
+            "SEALS=fcntl.F_SEAL_SEAL|fcntl.F_SEAL_SHRINK|fcntl.F_SEAL_GROW|fcntl.F_SEAL_WRITE",
+            "",
+            "NAME='ablestack-protected-input'",
+            "def require(value):",
+            "    if not value:raise ValueError()",
+            "def setup():",
+            "    require(os.geteuid()==0)",
+            "    for fd in (DATA_FD,CONTROL_READ_FD,CONTROL_WRITE_FD):",
+            "        try:fcntl.fcntl(fd,fcntl.F_GETFD)",
+            "        except OSError as error:require(error.errno==9)",
+            "        else:raise ValueError()",
+            "    originals=[];safe=[]",
+            "    try:",
+            "        data=os.memfd_create(NAME,os.MFD_CLOEXEC|os.MFD_ALLOW_SEALING);originals.append(data)",
+            "        control_read,control_write=os.pipe2(os.O_CLOEXEC);originals.extend((control_read,control_write))",
+            "        for fd in originals:safe.append(fcntl.fcntl(fd,fcntl.F_DUPFD_CLOEXEC,19))",
+            "        for fd in originals:os.close(fd)",
+            "        originals=[]",
+            "        for source,target in zip(safe,(DATA_FD,CONTROL_READ_FD,CONTROL_WRITE_FD)):",
+            "            os.dup2(source,target,inheritable=False)",
+            "        os.fchmod(DATA_FD,0o600);os.fchmod(CONTROL_WRITE_FD,0o600)",
+            "    finally:",
+            "        for fd in originals+safe:os.close(fd)",
+            "def close_owned():",
+            "    for fd in (DATA_FD,CONTROL_READ_FD,CONTROL_WRITE_FD):",
+            "        try:os.close(fd)",
+            "        except OSError:pass",
+            "def seal_and_verify(fd,expected_bytes,expected_sha256):",
+            "    require(type(expected_bytes)is int and 0<expected_bytes<=MAX_BYTES)",
+            "    require(type(expected_sha256)is str and len(expected_sha256)==64 and all(x in '0123456789abcdef'for x in expected_sha256))",
+            "    before=os.fstat(fd)",
+            "    require(stat.S_ISREG(before.st_mode)and before.st_uid==0 and stat.S_IMODE(before.st_mode)==0o600 and before.st_size==expected_bytes)",
+            "    fcntl.fcntl(fd,fcntl.F_ADD_SEALS,SEALS)",
+            "    require(fcntl.fcntl(fd,fcntl.F_GET_SEALS)==SEALS)",
+            "    digest=hashlib.sha256();offset=0",
+            "    while offset<expected_bytes:",
+            "        raw=os.pread(fd,min(65536,expected_bytes-offset),offset)",
+            "        require(bool(raw));digest.update(raw);offset+=len(raw)",
+            "    require(digest.hexdigest()==expected_sha256)",
+            "    after=os.fstat(fd);require((before.st_dev,before.st_ino,before.st_size)==(after.st_dev,after.st_ino,after.st_size))",
+            "    os.fchmod(fd,0o400);os.lseek(fd,0,os.SEEK_SET)",
+            "def wait_commit(seconds):",
+            "    require(type(seconds)in(int,float)and 0<seconds<=300)",
+            "    ready,_,_=select.select([CONTROL_READ_FD],[],[],seconds)",
+            "    require(ready and os.read(CONTROL_READ_FD,1)==b'\\x01')",
+            "def run(expected_bytes,expected_sha256,seconds,operation):",
+            "    require(type(operation)is str and re.fullmatch(r'[A-Za-z0-9 ._-]+',operation) is not None)",
+            "    setup()",
+            "    try:",
+            "        wait_commit(seconds)",
+            "        seal_and_verify(DATA_FD,expected_bytes,expected_sha256)",
+            "        os.dup2(DATA_FD,0,inheritable=True)",
+            "        close_owned()",
+            "        # Original CLI receives the same bytes on /dev/stdin; no native authority changes.",
+            "        os.execv('/usr/local/bin/ablestack-storagectl',['/usr/local/bin/ablestack-storagectl',*operation.split(),'/dev/stdin'])",
+            "    finally:close_owned()",
+            "def main():",
+            "    stage='arguments'",
+            "    try:",
+            "        require(len(sys.argv)==5)",
+            "        expected_bytes=int(sys.argv[1]);expected_sha256=sys.argv[2];seconds=float(sys.argv[3]);operation=sys.argv[4]",
+            "        require(type(operation)is str and re.fullmatch(r'[A-Za-z0-9 ._-]+',operation) is not None)",
+            "        require(0<expected_bytes<=MAX_BYTES and 0<seconds<=300)",
+            "        stage='receive-seal-exec';run(expected_bytes,expected_sha256,seconds,operation)",
+            "    except BaseException:",
+            "        # Never emit exception message, arguments, digest, payload or traceback.",
+            "        sys.stderr.write('PROTECTED_RAM_INPUT_REJECTED\\n');return 1",
+            "    return 0",
+            "if __name__=='__main__':raise SystemExit(main())",
+            "");
+    private static final String PROTECTED_STDIN_OBSERVER = String.join("\n",
+            "",
+            "import hashlib,os,stat",
+            "def observe(pid,expected_argv,expected_start=None):",
+            "    if type(pid)is not int or pid<=0:raise ValueError()",
+            "    root=f'/proc/{pid}'",
+            "    before=os.stat(root)",
+            "    if before.st_uid!=0:raise ValueError()",
+            "    with open(root+'/stat','rb')as stream:record=stream.read(4096)",
+            "    start=int(record[record.rfind(b')')+2:].split()[19])",
+            "    with open(root+'/cmdline','rb')as stream:argv=stream.read(32769).rstrip(b'\\0').decode().split('\\0')",
+            "    if argv!=expected_argv or expected_start is not None and start!=expected_start:raise ValueError()",
+            "    executable=os.readlink(root+'/exe')",
+            "    if executable not in ('/usr/bin/python3.9','/usr/bin/python3.11','/usr/bin/python3.12'):raise ValueError()",
+            "    binary=os.stat(root+'/exe')",
+            "    if not stat.S_ISREG(binary.st_mode)or binary.st_uid!=0 or binary.st_mode&0o022:raise ValueError()",
+            "    a=os.stat(root+'/fd/16');b=os.stat(root+'/fd/18')",
+            "    if os.readlink(root+'/fd/16')!='/memfd:ablestack-protected-input (deleted)'or not stat.S_ISREG(a.st_mode)or a.st_uid!=0 or stat.S_IMODE(a.st_mode)!=0o600:raise ValueError()",
+            "    if not stat.S_ISFIFO(b.st_mode)or b.st_uid!=0 or stat.S_IMODE(b.st_mode)!=0o600:raise ValueError()",
+            "    with open(root+'/stat','rb')as stream:after=stream.read(4096)",
+            "    if int(after[after.rfind(b')')+2:].split()[19])!=start:raise ValueError()",
+            "    return {'ready':True,'rootOwned':True,'receiverScriptVerified':True,'pid':pid,'startTicks':start,'dataInode':a.st_ino,'controlInode':b.st_ino}",
+            "",
+            "import base64,json,sys",
+            "try:",
+            "    value=observe(int(sys.argv[1]),json.loads(base64.b64decode(sys.argv[2])))",
+            "    print(json.dumps(value,separators=(',',':')))",
+            "except BaseException:",
+            "    sys.stderr.write('PROTECTED_RAM_RECEIVER_REJECTED\\n');raise SystemExit(1)",
+            "");
+
     private static final String CONFIGURE_SHAREDFS_STATIC_NETWORK = "configure-sharedfs-static-network";
     private static final String SHAREDFS_NETWORK_STATE = "/etc/ablestack-storage/sharedfs-network.json";
     private static final String SHAREDFS_NETWORK_HELPER = "/usr/local/sbin/ablestack-sharedfs-network";
@@ -156,6 +267,7 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
             Thread.currentThread().interrupt();
             return new StorageServiceHostAnswer(command, false, "Interrupted while waiting for Storage Service QGA command", null);
         } finally {
+            protectedStdinDeadline.remove();
             if (domain != null) {
                 try {
                     domain.free();
@@ -207,26 +319,38 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
         return value;
     }
 
-    protected long executeGuestCommand(final Domain domain, final StorageServiceHostCommand command) throws LibvirtException {
-        final String qgaCommand = buildGuestExecCommand(command);
-        final String result = domain.qemuAgentCommand(qgaCommand, command.getTimeoutSeconds(), 0);
-        final JsonObject response = new JsonParser().parse(result).getAsJsonObject();
-        if (!response.has("return") || !response.getAsJsonObject("return").has("pid")) {
-            throw new IllegalStateException("QGA guest-exec did not return a pid: " + result);
+    protected long executeGuestCommand(final Domain domain, final StorageServiceHostCommand command) throws LibvirtException, InterruptedException {
+        final byte[] protectedPayload = usesProtectedStdin(command) && command.getPayload() != null
+                ? command.getPayload().getBytes(StandardCharsets.UTF_8) : null;
+        try {
+            if (protectedPayload != null && protectedPayload.length > DIRECT_PROTECTED_STDIN_MAX_BYTES)
+                return executeLargeProtectedInput(domain, command, protectedPayload);
+            final String qgaCommand = buildGuestExecCommand(command);
+            final String result = domain.qemuAgentCommand(qgaCommand, command.getTimeoutSeconds(), 0);
+            final JsonObject response = new JsonParser().parse(result).getAsJsonObject();
+            if (!response.has("return") || !response.getAsJsonObject("return").has("pid"))
+                throw new IllegalStateException("QGA guest-exec did not return a pid: " + result);
+            return response.getAsJsonObject("return").get("pid").getAsLong();
+        } finally {
+            if (protectedPayload != null) java.util.Arrays.fill(protectedPayload, (byte) 0);
         }
-        return response.getAsJsonObject("return").get("pid").getAsLong();
     }
 
     protected Answer waitForGuestCommand(final StorageServiceHostCommand command, final Domain domain, final long pid)
             throws LibvirtException, InterruptedException {
-        final long deadline = System.currentTimeMillis() + command.getTimeoutSeconds() * 1000L;
+        final Long protectedDeadline = protectedStdinDeadline.get();
+        final long deadline = protectedDeadline == null ? System.currentTimeMillis() + command.getTimeoutSeconds() * 1000L : protectedDeadline;
         while (System.currentTimeMillis() < deadline) {
             final JsonObject arguments = new JsonObject();
             arguments.addProperty("pid", pid);
             final JsonObject statusCommand = new JsonObject();
             statusCommand.addProperty("execute", "guest-exec-status");
             statusCommand.add("arguments", arguments);
-            final String result = domain.qemuAgentCommand(statusCommand.toString(), Math.max(command.getTimeoutSeconds(), 1), 0);
+            final long remaining = deadline - System.currentTimeMillis();
+            if (protectedDeadline != null && remaining < 1000) break;
+            final int statusTimeout = protectedDeadline == null ? Math.max(command.getTimeoutSeconds(), 1)
+                    : (int) Math.max(1, remaining / 1000);
+            final String result = domain.qemuAgentCommand(statusCommand.toString(), statusTimeout, 0);
             final JsonObject response = new JsonParser().parse(result).getAsJsonObject().getAsJsonObject("return");
             if (response != null && response.has("exited") && response.get("exited").getAsBoolean()) {
                 final int exitCode = response.has("exitcode") ? response.get("exitcode").getAsInt() : 1;
@@ -236,7 +360,8 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
                         commandFailureDetails(command, exitCode, stdout, stderr);
                 return new StorageServiceHostAnswer(command, exitCode == 0, details, identityTransportObservation(command, stdout));
             }
-            Thread.sleep(QGA_POLL_INTERVAL_MILLIS);
+            Thread.sleep(protectedDeadline == null ? QGA_POLL_INTERVAL_MILLIS
+                    : Math.min(QGA_POLL_INTERVAL_MILLIS, Math.max(1, deadline - System.currentTimeMillis())));
         }
         return new StorageServiceHostAnswer(command, false, "Timed out waiting for Storage Service QGA command", null);
     }
@@ -246,7 +371,8 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
         try {
             JsonObject capability = new JsonParser().parse(stdout).getAsJsonObject();
             if (capability.has("success") && capability.get("success").getAsBoolean()) {
-                capability.addProperty("protectedStdinTransport", true);return capability.toString();
+                capability.addProperty("protectedStdinTransport", true);
+                return capability.toString();
             }
         } catch (RuntimeException unavailable) { /* Do not advertise transport when the native probe failed. */ }
         return stdout;
@@ -340,6 +466,166 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
             return null;
         }
         return new String(Base64.getDecoder().decode(response.get(field).getAsString()), StandardCharsets.UTF_8);
+    }
+
+
+    protected JsonObject protectedInputQga(Domain domain, JsonObject request, long deadline) throws LibvirtException {
+        long remaining = deadline - System.currentTimeMillis();
+        if (remaining <= 0) throw new IllegalStateException("Protected stdin deadline expired");
+        int timeout = (int) Math.max(1, Math.min(Integer.MAX_VALUE, remaining / 1000));
+        JsonObject response = JsonParser.parseString(domain.qemuAgentCommand(request.toString(), timeout, 0)).getAsJsonObject();
+        if (response.has("error") || !response.has("return")) throw new IllegalStateException("Protected stdin QGA operation failed");
+        return response;
+    }
+
+    private JsonObject protectedInputCommand(String action, JsonObject arguments) {
+        JsonObject request = new JsonObject();request.addProperty("execute", action);request.add("arguments", arguments);return request;
+    }
+
+    private long protectedInputInteger(JsonObject value, String field) {
+        if (!value.has(field) || !value.get(field).isJsonPrimitive() || !value.getAsJsonPrimitive(field).isNumber())
+            throw new IllegalStateException("Protected stdin numeric observation is missing");
+        try {
+            long number = new java.math.BigDecimal(value.get(field).getAsString()).longValueExact();
+            if (number < 0) throw new IllegalStateException("Protected stdin numeric observation is invalid");
+            return number;
+        } catch (NumberFormatException | ArithmeticException invalid) {
+            throw new IllegalStateException("Protected stdin numeric observation is invalid");
+        }
+    }
+
+    private JsonObject protectedInputExec(String program, JsonArray arguments) {
+        JsonArray argv = new JsonArray();argv.add("-c");argv.add(program);
+        for (com.google.gson.JsonElement argument : arguments) argv.add(argument.deepCopy());
+        JsonObject request = new JsonObject();request.addProperty("path", "/usr/bin/python3");
+        request.add("arg", argv);request.addProperty("capture-output", true);
+        return protectedInputCommand("guest-exec", request);
+    }
+
+    protected JsonObject observeProtectedInputReceiver(Domain domain, long pid, JsonArray expectedArgv, long deadline)
+            throws LibvirtException, InterruptedException {
+        JsonArray arguments = new JsonArray();arguments.add(Long.toString(pid));
+        arguments.add(Base64.getEncoder().encodeToString(expectedArgv.toString().getBytes(StandardCharsets.UTF_8)));
+        long observerPid = protectedInputInteger(protectedInputQga(domain, protectedInputExec(PROTECTED_STDIN_OBSERVER, arguments), deadline)
+                .getAsJsonObject("return"), "pid");
+        while (System.currentTimeMillis() < deadline) {
+            JsonObject statusArgs = new JsonObject();statusArgs.addProperty("pid", observerPid);
+            JsonObject status = protectedInputQga(domain, protectedInputCommand("guest-exec-status", statusArgs), deadline).getAsJsonObject("return");
+            if (status.has("exited") && status.getAsJsonPrimitive("exited").isBoolean() && status.get("exited").getAsBoolean()) {
+                if (protectedInputInteger(status, "exitcode") != 0 || status.has("out-truncated") && status.get("out-truncated").getAsBoolean())
+                    throw new IllegalStateException("Protected stdin receiver ownership is unavailable");
+                return JsonParser.parseString(decodeGuestData(status, "out-data")).getAsJsonObject();
+            }
+            Thread.sleep(Math.min(QGA_POLL_INTERVAL_MILLIS, Math.max(1, deadline - System.currentTimeMillis())));
+        }
+        throw new IllegalStateException("Protected stdin receiver ownership deadline expired");
+    }
+
+    private void requireProtectedInputOwner(JsonObject value, long pid) {
+        for (String field : new String[]{"ready", "rootOwned", "receiverScriptVerified"}) {
+            if (!value.has(field) || !value.get(field).isJsonPrimitive() || !value.getAsJsonPrimitive(field).isBoolean()
+                    || !value.get(field).getAsBoolean()) throw new IllegalStateException("Protected stdin receiver ownership changed");
+        }
+        if (protectedInputInteger(value, "pid") != pid || protectedInputInteger(value, "startTicks") == 0
+                || protectedInputInteger(value, "dataInode") == 0 || protectedInputInteger(value, "controlInode") == 0)
+            throw new IllegalStateException("Protected stdin receiver ownership changed");
+    }
+
+    private long openProtectedInputHandle(Domain domain, long pid, int fd, long deadline) throws LibvirtException {
+        JsonObject arguments = new JsonObject();arguments.addProperty("path", "/proc/" + pid + "/fd/" + fd);arguments.addProperty("mode", "w");
+        JsonObject response = protectedInputQga(domain, protectedInputCommand("guest-file-open", arguments), deadline);
+        if (!response.get("return").isJsonPrimitive() || !response.getAsJsonPrimitive("return").isNumber())
+            throw new IllegalStateException("Protected stdin handle is unavailable");
+        try {
+            long handle = new java.math.BigDecimal(response.get("return").getAsString()).longValueExact();
+            if (handle < 0) throw new IllegalStateException("Protected stdin handle is invalid");return handle;
+        } catch (NumberFormatException | ArithmeticException invalid) {throw new IllegalStateException("Protected stdin handle is invalid");}
+    }
+
+    private void writeProtectedInputChunk(Domain domain, long handle, byte[] bytes, long deadline) throws LibvirtException {
+        JsonObject arguments = new JsonObject();arguments.addProperty("handle", handle);
+        arguments.addProperty("buf-b64", Base64.getEncoder().encodeToString(bytes));arguments.addProperty("count", bytes.length);
+        JsonObject response = protectedInputQga(domain, protectedInputCommand("guest-file-write", arguments), deadline).getAsJsonObject("return");
+        if (protectedInputInteger(response, "count") != bytes.length) throw new IllegalStateException("Protected stdin upload was partial");
+    }
+
+    private void flushProtectedInputHandle(Domain domain, long handle, long deadline) throws LibvirtException {
+        JsonObject arguments = new JsonObject();arguments.addProperty("handle", handle);
+        protectedInputQga(domain, protectedInputCommand("guest-file-flush", arguments), deadline);
+    }
+
+    private boolean closeProtectedInputHandle(Domain domain, long handle, long deadline) {
+        try {
+            JsonObject arguments = new JsonObject();arguments.addProperty("handle", handle);
+            JsonObject response = protectedInputQga(domain, protectedInputCommand("guest-file-close", arguments),
+                    Math.max(deadline, System.currentTimeMillis() + 1000));
+            return response.get("return").isJsonObject() && response.getAsJsonObject("return").size() == 0;
+        } catch (RuntimeException | LibvirtException unknown) {return false;}
+    }
+
+    protected long executeLargeProtectedInput(Domain domain, StorageServiceHostCommand command, byte[] payload)
+            throws LibvirtException, InterruptedException {
+        if (payload.length > PROTECTED_STDIN_MAX_BYTES || command.getTimeoutSeconds() <= PROTECTED_STDIN_CLEANUP_SECONDS)
+            throw new IllegalArgumentException("Protected stdin payload or deadline exceeds budget");
+        validateOperation(command.getOperation());
+        final long started = System.currentTimeMillis();
+        final long deadline = started + command.getTimeoutSeconds() * 1000L;
+        final int receiverBudget = Math.min(command.getTimeoutSeconds(), 300);
+        final long cleanupDeadline = Math.min(deadline, started + receiverBudget * 1000L);
+        final long transferDeadline = cleanupDeadline - PROTECTED_STDIN_CLEANUP_SECONDS * 1000L;
+        protectedStdinDeadline.set(deadline);
+        JsonObject information = protectedInputQga(domain, protectedInputCommand("guest-info", new JsonObject()), transferDeadline).getAsJsonObject("return");
+        java.util.Set<String> available = new java.util.HashSet<>();
+        if (information.has("supported_commands") && information.get("supported_commands").isJsonArray()) {
+            for (com.google.gson.JsonElement row : information.getAsJsonArray("supported_commands")) {
+                if (row.isJsonObject()) {
+                    JsonObject capability = row.getAsJsonObject();
+                    if (capability.has("name") && capability.get("name").isJsonPrimitive() && capability.getAsJsonPrimitive("name").isString()
+                            && capability.has("enabled") && capability.get("enabled").isJsonPrimitive()
+                            && capability.getAsJsonPrimitive("enabled").isBoolean() && capability.get("enabled").getAsBoolean())
+                        available.add(capability.get("name").getAsString());
+                }
+            }
+        }
+        if (!available.containsAll(java.util.Set.of("guest-file-open", "guest-file-write", "guest-file-flush", "guest-file-close",
+                "guest-exec", "guest-exec-status"))) throw new IllegalStateException("Protected stdin chunk transport is unavailable");
+        String checksum;
+        try {
+            StringBuilder hex = new StringBuilder();
+            for (byte part : java.security.MessageDigest.getInstance("SHA-256").digest(payload)) hex.append(String.format("%02x", part));
+            checksum = hex.toString();
+        } catch (java.security.NoSuchAlgorithmException unavailable) {throw new IllegalStateException("Protected stdin checksum is unavailable");}
+        JsonArray metadata = new JsonArray();metadata.add(Integer.toString(payload.length));metadata.add(checksum);
+        metadata.add(Integer.toString(receiverBudget));metadata.add(command.getOperation());
+        long pid = protectedInputInteger(protectedInputQga(domain, protectedInputExec(PROTECTED_STDIN_RECEIVER, metadata), transferDeadline)
+                .getAsJsonObject("return"), "pid");
+        if (pid == 0) throw new IllegalStateException("Protected stdin receiver PID is unavailable");
+        JsonArray expectedArgv = new JsonArray();expectedArgv.add("/usr/bin/python3");expectedArgv.add("-c");expectedArgv.add(PROTECTED_STDIN_RECEIVER);
+        for (com.google.gson.JsonElement value : metadata) expectedArgv.add(value.deepCopy());
+        JsonObject owner = observeProtectedInputReceiver(domain, pid, expectedArgv, transferDeadline);requireProtectedInputOwner(owner, pid);
+        Long handle = null;Long control = null;
+        try {
+            handle = openProtectedInputHandle(domain, pid, 16, transferDeadline);
+            for (int offset = 0; offset < payload.length; offset += PROTECTED_STDIN_CHUNK_BYTES) {
+                byte[] chunk = java.util.Arrays.copyOfRange(payload, offset, Math.min(payload.length, offset + PROTECTED_STDIN_CHUNK_BYTES));
+                try {writeProtectedInputChunk(domain, handle, chunk, transferDeadline);}
+                finally {java.util.Arrays.fill(chunk, (byte) 0);}
+            }
+            flushProtectedInputHandle(domain, handle, transferDeadline);
+            boolean closed = closeProtectedInputHandle(domain, handle, cleanupDeadline);handle = null;
+            if (!closed) throw new IllegalStateException("Protected stdin data close is unverified");
+            JsonObject after = observeProtectedInputReceiver(domain, pid, expectedArgv, transferDeadline);requireProtectedInputOwner(after, pid);
+            if (!owner.equals(after)) throw new IllegalStateException("Protected stdin receiver identity changed");
+            control = openProtectedInputHandle(domain, pid, 18, transferDeadline);
+            writeProtectedInputChunk(domain, control, new byte[]{1}, transferDeadline);
+            flushProtectedInputHandle(domain, control, transferDeadline);
+            boolean controlClosed = closeProtectedInputHandle(domain, control, cleanupDeadline);control = null;
+            if (!controlClosed) throw new IllegalStateException("Protected stdin commit completion is unknown");
+            return pid;
+        } finally {
+            if (handle != null) closeProtectedInputHandle(domain, handle, cleanupDeadline);
+            if (control != null) closeProtectedInputHandle(domain, control, cleanupDeadline);
+        }
     }
 
     protected void validateOperation(final String operation) {
