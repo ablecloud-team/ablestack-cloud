@@ -1023,4 +1023,39 @@ public class SharedFSServiceImplTest {
         CloudRuntimeException blocked=Assert.assertThrows(CloudRuntimeException.class,()->sharedFSServiceImpl.deploySharedFS(cmd));Assert.assertTrue(blocked.getMessage().contains("already has allocated"));
         verifyNoInteractions(lifeCycle,volumeApiService);Assert.assertEquals(Long.valueOf(s_vmId),fs.getVmId());Assert.assertEquals(Long.valueOf(s_volumeId),fs.getVolumeId());
     }
+    @Test public void explicitTemplateUsesActualArchitectureTypeAtConfiguredZoneBoundary() {
+        Object previous=ReflectionTestUtils.getField(org.apache.cloudstack.framework.config.ConfigKey.class,"s_depot");
+        org.apache.cloudstack.framework.config.impl.ConfigDepotImpl depot=mock(org.apache.cloudstack.framework.config.impl.ConfigDepotImpl.class);
+        ReflectionTestUtils.setField(org.apache.cloudstack.framework.config.ConfigKey.class,"s_depot",depot);
+        try (MockedStatic<org.apache.cloudstack.storage.dataservice.StorageTemplateCompatibility> compatibility=mockStatic(org.apache.cloudstack.storage.dataservice.StorageTemplateCompatibility.class)) {
+            CreateSharedFSCmd cmd=mock(CreateSharedFSCmd.class);when(cmd.getTemplateId()).thenReturn(214L);DataCenterVO zone=mock(DataCenterVO.class);when(zone.getId()).thenReturn(s_zoneId);
+            com.cloud.storage.dao.VMTemplateDao templates=mock(com.cloud.storage.dao.VMTemplateDao.class);org.apache.cloudstack.storage.datastore.db.TemplateDataStoreDao stores=mock(org.apache.cloudstack.storage.datastore.db.TemplateDataStoreDao.class);com.cloud.host.dao.HostDao hosts=mock(com.cloud.host.dao.HostDao.class);
+            ReflectionTestUtils.setField(sharedFSServiceImpl,"explicitTemplateDao",templates);ReflectionTestUtils.setField(sharedFSServiceImpl,"explicitTemplateStoreDao",stores);ReflectionTestUtils.setField(sharedFSServiceImpl,"explicitTemplateHostDao",hosts);
+            com.cloud.storage.VMTemplateVO template=mock(com.cloud.storage.VMTemplateVO.class);when(templates.findById(214L)).thenReturn(template);when(template.getId()).thenReturn(214L);when(template.getState()).thenReturn(com.cloud.template.VirtualMachineTemplate.State.Active);when(template.isDynamicallyScalable()).thenReturn(true);when(template.getHypervisorType()).thenReturn(com.cloud.hypervisor.Hypervisor.HypervisorType.KVM);when(template.getTemplateType()).thenReturn(com.cloud.storage.Storage.TemplateType.SYSTEM);
+            org.apache.cloudstack.storage.datastore.db.TemplateDataStoreVO ready=mock(org.apache.cloudstack.storage.datastore.db.TemplateDataStoreVO.class);when(stores.findByTemplateZoneReady(214L,s_zoneId)).thenReturn(ready);when(ready.getDownloadState()).thenReturn(com.cloud.storage.VMTemplateStorageResourceAssoc.Status.DOWNLOADED);when(ready.getState()).thenReturn(org.apache.cloudstack.engine.subsystem.api.storage.ObjectInDataStoreStateMachine.State.Ready);com.cloud.host.HostVO host=mock(com.cloud.host.HostVO.class);when(hosts.listAllHostsUpByZoneAndHypervisor(s_zoneId,com.cloud.hypervisor.Hypervisor.HypervisorType.KVM)).thenReturn(List.of(host));
+            com.google.gson.JsonObject supported=new com.google.gson.JsonObject();supported.addProperty("compatible",true);compatibility.when(()->org.apache.cloudstack.storage.dataservice.StorageTemplateCompatibility.evaluate(eq(template),eq(template),any(),eq(true),any(),any(),eq(false),eq(false))).thenReturn(supported);
+            Assert.assertEquals("amd64",com.cloud.cpu.CPU.CPUArch.amd64.name());Assert.assertEquals("x86_64",com.cloud.cpu.CPU.CPUArch.amd64.getType());
+            for(com.cloud.cpu.CPU.CPUArch architecture:List.of(com.cloud.cpu.CPU.CPUArch.amd64,com.cloud.cpu.CPU.CPUArch.arm64)) {
+                when(template.getArch()).thenReturn(architecture);when(depot.getConfigStringValue(eq("system.vm.preferred.architecture"),any(),eq(s_zoneId))).thenReturn(architecture.getType());
+                Assert.assertSame(template,sharedFSServiceImpl.validateExplicitTemplate(cmd,owner,zone));
+                when(depot.getConfigStringValue(eq("system.vm.preferred.architecture"),any(),eq(s_zoneId))).thenReturn(architecture==com.cloud.cpu.CPU.CPUArch.amd64?"aarch64":"x86_64");
+                Assert.assertThrows(InvalidParameterValueException.class,()->sharedFSServiceImpl.validateExplicitTemplate(cmd,owner,zone));
+            }
+            verifyNoInteractions(lifeCycle,volumeApiService,guestCommandDispatcher);
+        } finally {ReflectionTestUtils.setField(org.apache.cloudstack.framework.config.ConfigKey.class,"s_depot",previous);}
+    }
+    @Test public void architectureTypeFixKeepsInactiveRemovedNonScalableAndNonKvmTemplateBlockedBeforeAllocation() {
+        Object previous=ReflectionTestUtils.getField(org.apache.cloudstack.framework.config.ConfigKey.class,"s_depot");org.apache.cloudstack.framework.config.impl.ConfigDepotImpl depot=mock(org.apache.cloudstack.framework.config.impl.ConfigDepotImpl.class);ReflectionTestUtils.setField(org.apache.cloudstack.framework.config.ConfigKey.class,"s_depot",depot);
+        try {
+            CreateSharedFSCmd cmd=mock(CreateSharedFSCmd.class);when(cmd.getTemplateId()).thenReturn(214L);DataCenterVO zone=mock(DataCenterVO.class);when(zone.getId()).thenReturn(s_zoneId);when(depot.getConfigStringValue(eq("system.vm.preferred.architecture"),any(),eq(s_zoneId))).thenReturn("x86_64");
+            com.cloud.storage.dao.VMTemplateDao templates=mock(com.cloud.storage.dao.VMTemplateDao.class);ReflectionTestUtils.setField(sharedFSServiceImpl,"explicitTemplateDao",templates);
+            for(String fault:List.of("removed","inactive","notScalable","notKvm","nullArch","wrongArch")) {
+                com.cloud.storage.VMTemplateVO template=mock(com.cloud.storage.VMTemplateVO.class);when(templates.findById(214L)).thenReturn(template);
+                Mockito.lenient().when(template.getState()).thenReturn(com.cloud.template.VirtualMachineTemplate.State.Active);Mockito.lenient().when(template.isDynamicallyScalable()).thenReturn(true);Mockito.lenient().when(template.getHypervisorType()).thenReturn(com.cloud.hypervisor.Hypervisor.HypervisorType.KVM);Mockito.lenient().when(template.getArch()).thenReturn(com.cloud.cpu.CPU.CPUArch.amd64);
+                if(fault.equals("removed"))when(template.getRemoved()).thenReturn(new Date());if(fault.equals("inactive"))when(template.getState()).thenReturn(com.cloud.template.VirtualMachineTemplate.State.Inactive);if(fault.equals("notScalable"))when(template.isDynamicallyScalable()).thenReturn(false);if(fault.equals("notKvm"))when(template.getHypervisorType()).thenReturn(com.cloud.hypervisor.Hypervisor.HypervisorType.VMware);if(fault.equals("nullArch"))when(template.getArch()).thenReturn(null);if(fault.equals("wrongArch"))when(template.getArch()).thenReturn(com.cloud.cpu.CPU.CPUArch.arm64);
+                Assert.assertThrows(fault,InvalidParameterValueException.class,()->sharedFSServiceImpl.validateExplicitTemplate(cmd,owner,zone));
+            }
+            verifyNoInteractions(lifeCycle,volumeApiService,guestCommandDispatcher);
+        } finally {ReflectionTestUtils.setField(org.apache.cloudstack.framework.config.ConfigKey.class,"s_depot",previous);}
+    }
 }
