@@ -250,6 +250,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     protected void recoverInterruptedStorageWriter(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
+        if (parseJsonObject(operation.getResultJson()).has("_currentLocalIdentityRecovery"))
+            throw new CloudRuntimeException("Approved CURRENT identity recovery requires its exact explicit retry; original identity import is forbidden");
         new InterruptedStateChange(storageOperationDao, new StorageServiceDesiredSnapshot()).recover(operation,
                 storageOperationDao.listByInstance(instance.getId()), new InterruptedStateChange.Runtime() {
             public void idle() {
@@ -1245,6 +1247,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     public StorageServiceRuntimeResponse repairStorageServiceSmbIdentity(
             org.apache.cloudstack.api.command.user.storage.dataservice.RepairStorageServiceSmbIdentityCmd cmd) {
         StorageServiceInstanceVO instance = requireInstance(cmd.getInstanceId());
+        if (cmd.getRecoveryMode() != null || cmd.getOperationId() != null || cmd.getCurrentReviewHash() != null) {
+            if (!StorageSmbCurrentIdentityRecoveryProof.MODE.equals(cmd.getRecoveryMode())) throw new InvalidParameterValueException("Unsupported SMB recovery mode");
+            return repairCurrentSmbIdentity(instance, cmd);
+        }
         if (!Boolean.TRUE.equals(cmd.getMaintenanceWindow()) || !instance.getName().equals(cmd.getConfirmation())) throw new InvalidParameterValueException("SMB repair requires an explicit maintenance window and exact instance-name confirmation");
         String token = cmd.getIdempotencyKey() == null ? java.util.UUID.randomUUID().toString() : cmd.getIdempotencyKey();
         if (!token.matches("[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}")) throw new InvalidParameterValueException("Invalid SMB repair retry key");
@@ -1272,6 +1278,327 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 return smbIdentityRepairResponse(instance, operation);
             } finally {lock.unlock();}
         } finally {lock.releaseRef();}
+    }
+
+    @Override
+    public StorageServiceRuntimeResponse reviewStorageServiceSmbIdentityRecovery(
+            org.apache.cloudstack.api.command.user.storage.dataservice.ReviewStorageServiceSmbIdentityRecoveryCmd cmd) {
+        StorageServiceInstanceVO instance = requireInstance(cmd.getInstanceId());
+        StorageServiceOperationVO operation = requireCurrentSmbRecoveryOperation(instance, cmd.getOperationId());
+        JsonObject saved = getJsonObject(parseJsonObject(operation.getResultJson()), "_currentLocalIdentityRecovery");
+        JsonObject context = currentSmbRecoveryContext(instance, operation);
+        JsonObject review;
+        if (saved == null) {
+            review = currentSmbRecoveryGuest(instance, "current-review", context, 30);
+            StorageSmbCurrentIdentityRecoveryProof.review(context, review, System.currentTimeMillis() / 1000.0);
+        } else {
+            if (!context.equals(saved.get("context"))) throw new CloudRuntimeException("Approved CURRENT recovery SOURCE, ROOT or signed runtime changed");
+            review = saved.getAsJsonObject("review").deepCopy();
+        }
+        JsonObject publicResult = currentSmbReviewPublic(context, review);
+        publicResult.addProperty("approvalStored", saved != null);publicResult.addProperty("resumeAllowed", saved != null);
+        publicResult.addProperty("recoveryPhase", operation.getPhase());
+        return createRuntimeResponse(instance, "smb identity current-review", true, "OBSERVED",
+                "Current local identity may be retained only with explicit maintenance approval; original identity restoration is false", publicResult.toString());
+    }
+
+    protected StorageServiceOperationVO requireCurrentSmbRecoveryOperation(StorageServiceInstanceVO instance, Long operationId) {
+        StorageServiceOperationVO operation = operationId == null ? null : storageOperationDao.findById(operationId);
+        if (operation == null || operation.getInstanceId() != instance.getId() || !"createstoragesmbshareresponse".equals(operation.getAction())
+                || instance.getAccountId() != org.apache.cloudstack.context.CallContext.current().getCallingAccount().getId()
+                || operation.getCreatedBy() != org.apache.cloudstack.context.CallContext.current().getCallingUserId())
+            throw new InvalidParameterValueException("CURRENT recovery requires the same owner's failed first SMB operation");
+        JsonObject snapshot = parseJsonObject(operation.getPreviousSnapshotJson());
+        boolean approved = parseJsonObject(operation.getResultJson()).has("_currentLocalIdentityRecovery");
+        if (!"RECOVERY_REQUIRED".equals(operation.getState()) && !(approved && "ROLLED_BACK".equals(operation.getState())))
+            throw new InvalidParameterValueException("CURRENT recovery requires its unresolved or approved terminal operation");
+        if (snapshot.has("renderedGeneration") || snapshot.has("adServiceMaintenanceScope") || snapshot.has("sourceRootScope")
+                || snapshot.has("adIdentityEffectPhase") || hasJoinedStorageAdDomain(instance))
+            throw new CloudRuntimeException("CURRENT local recovery cannot adopt AD, ROOT, SERVICE or rendered recovery");
+        JsonObject original = getJsonObject(snapshot, "nativeIdentityCapsule");
+        if (original == null || !operation.getUuid().equals(getJsonString(original, "operationUuid")))
+            throw new CloudRuntimeException("CURRENT recovery original encrypted identity reference is unavailable");
+        for (String field : Set.of("capsuleSha256", "keySha256")) {
+            String hash = getJsonString(original, field);
+            if (hash == null || !hash.matches("[a-f0-9]{64}")) throw new CloudRuntimeException("CURRENT recovery original encrypted reference is malformed");
+        }
+        String keyId = java.util.UUID.nameUUIDFromBytes(("identity-key:" + operation.getUuid()).getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString();
+        if (!keyId.equals(getJsonString(original, "keyId"))) throw new CloudRuntimeException("CURRENT recovery original wrapping-key owner is foreign");
+        requireVolumeResumeIdle(instance, operation);requireNoPendingVolumeFormatter(instance);return operation;
+    }
+
+    protected JsonObject currentSmbRecoveryContext(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
+        JsonObject frozen = frozenRecoveryConfiguration(instance, operation);
+        if (frozen == null || frozen.getAsJsonObject("generation").size() == 0
+                || operation.getRevision() != getJsonLong(frozen.getAsJsonObject("generation"), "revision") + 1
+                || rootDesiredRevision(instance.getId()) != operation.getRevision() - 1)
+            throw new CloudRuntimeException("CURRENT recovery requires its immediately preceding verified SOURCE generation");
+        JsonObject source = frozen.getAsJsonObject("configurationDesiredState");
+        if (!source.keySet().equals(StorageRenderedDesiredState.PATHS) || !source.get("smb-share-apply.json").isJsonNull())
+            throw new CloudRuntimeException("CURRENT recovery requires the original absent SMB configuration");
+        JsonObject current = nativeConfigurationGeneration(instance, null, "status");
+        String pending = getJsonString(current, "pendingOperationUuid");
+        if ((pending != null && !operation.getUuid().equals(pending)) || !frozen.get("generation").equals(current.get("generation")))
+            throw new CloudRuntimeException("CURRENT recovery native pending/current generation is foreign");
+        if (pending == null && !parseJsonObject(operation.getResultJson()).has("_currentLocalIdentityRecovery"))
+            throw new CloudRuntimeException("CURRENT recovery cannot approve a writer without its original pending scope");
+        VMInstanceVO vm = vmInstanceDao.findById(instance.getVmId());
+        JsonObject root = rootResourceBinding(instance);
+        VolumeVO rootVolume = volumeDao.findById(getJsonLong(root, "rootVolumeId"));
+        if (rootVolume == null || rootVolume.getAccountId() != instance.getAccountId() || rootVolume.getDataCenterId() != instance.getDataCenterId()
+                || !instance.getVmId().equals(rootVolume.getInstanceId()) || rootVolume.getState() != com.cloud.storage.Volume.State.Ready)
+            throw new CloudRuntimeException("CURRENT recovery ROOT is foreign or detached");
+        if (vm == null || vm.getState() != com.cloud.vm.VirtualMachine.State.Running || vm.getAccountId() != instance.getAccountId() || sharedFSDao.findByVm(instance.getVmId()) == null)
+            throw new CloudRuntimeException("CURRENT recovery dedicated owned SystemVM binding is unavailable");
+        JsonObject binding = new JsonObject();binding.addProperty("vmUuid", vm.getUuid());binding.add("rootVolumeUuid", root.get("rootVolumeUuid").deepCopy());
+        StorageServiceRuntimeBundleVO bundle = instance.getCurrentRuntimeBundleId() == null ? null : storageRuntimeBundleDao.findById(instance.getCurrentRuntimeBundleId());
+        if (bundle == null) throw new CloudRuntimeException("CURRENT recovery requires an installed normal signed runtime");
+        JsonObject pin = configurationCloneRuntimePin(bundle.getUuid());
+        JsonObject readback = runtimeUpgradeManager.freshSignedRuntimeValidationProof(instance.getId(), getJsonString(pin, "expectedCliSha256"));
+        requireCloneRuntimeReadback(readback, pin);
+        JsonObject runtime = new JsonObject();runtime.addProperty("bundleVersion", bundle.getVersion());
+        runtime.addProperty("archiveSha256", bundle.getSha256());runtime.addProperty("manifestSha256", bundle.getManifestSha256());
+        runtime.add("updaterSha256", readback.get("updaterSha256").deepCopy());
+        JsonObject context = operationReservationScope(instance, operation);context.add("sourceGeneration", frozen.get("generation").deepCopy());
+        context.add("sourceConfigurationSha256", frozen.get("configurationSha256").deepCopy());context.add("rootVmBinding", binding);context.add("runtimePin", runtime);
+        return context;
+    }
+
+    protected JsonObject currentSmbReviewPublic(JsonObject context, JsonObject review) {
+        JsonObject result = new JsonObject();result.addProperty("schemaVersion", 1);result.addProperty("kind", StorageSmbCurrentIdentityRecoveryProof.REVIEW);
+        result.addProperty("success", true);result.addProperty("sideEffects", false);result.add("scope", StorageSmbCurrentIdentityRecoveryProof.scope(context));
+        result.add("currentReviewHash", review.get("currentReviewHash").deepCopy());result.add("sourceConfigurationSha256", context.get("sourceConfigurationSha256").deepCopy());
+        result.addProperty("committedRevision", context.getAsJsonObject("sourceGeneration").get("revision").getAsLong());
+        result.addProperty("generatedEpoch", System.currentTimeMillis() / 1000.0);result.addProperty("maintenanceRequired", true);
+        result.add("publicFacts", StorageSmbCurrentIdentityRecoveryProof.publicFacts(review));return result;
+    }
+
+    protected JsonObject currentSmbRecoveryGuest(StorageServiceInstanceVO instance, String action, JsonObject request, int timeout) {
+        requireProtectedIdentityTransport(instance, getJsonString(request, "operationUuid"));
+        StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
+                "smb identity " + action, request.toString(), timeout, Set.of("originalCapsule", "credentialPrivateKey", "capsule")));
+        JsonObject response = parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));
+        if (!result.isSuccess() || !Boolean.TRUE.equals(getNativeBoolean(response, "success")))
+            throw new CloudRuntimeException("CURRENT local identity recovery requires exact native reconciliation");
+        return response;
+    }
+
+    protected void saveCurrentSmbRecovery(StorageServiceOperationVO operation, JsonObject saved, String phase) {
+        JsonObject result = parseJsonObject(operation.getResultJson());result.add("_currentLocalIdentityRecovery", saved.deepCopy());
+        operation.setResultJson(result.toString());operation.setPhase(phase);operation.setHeartbeat(new java.util.Date());
+        if (!storageOperationDao.update(operation.getId(), operation)) throw new CloudRuntimeException("CURRENT recovery intent or substage could not be durably saved");
+    }
+
+    protected StorageConfigArtifactStore currentSmbIdentityStore() {
+        return new StorageConfigArtifactStore(java.nio.file.Path.of(System.getProperty("cloudstack.storage.identity.path",
+                "/var/lib/cloudstack-management/storage-identity-capsules")));
+    }
+
+    protected StorageServiceRuntimeResponse repairCurrentSmbIdentity(StorageServiceInstanceVO instance,
+            org.apache.cloudstack.api.command.user.storage.dataservice.RepairStorageServiceSmbIdentityCmd cmd) {
+        if (!Boolean.TRUE.equals(cmd.getMaintenanceWindow()) || !instance.getName().equals(cmd.getConfirmation())
+                || cmd.getCurrentReviewHash() == null || !cmd.getCurrentReviewHash().matches("[a-f0-9]{64}")
+                || cmd.getIdempotencyKey() == null || !cmd.getIdempotencyKey().matches("[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}")
+                || cmd.getExpectedRevision() == null) throw new InvalidParameterValueException("CURRENT recovery requires explicit approval, exact service name, review digest and retry key");
+        com.cloud.utils.db.GlobalLock lock = com.cloud.utils.db.GlobalLock.getInternLock("StorageServiceWriter-" + instance.getId());
+        try {
+            if (!lock.lock(120)) throw new CloudRuntimeException("Storage Service writer is busy");
+            try {
+                StorageServiceOperationVO operation = requireCurrentSmbRecoveryOperation(instance, cmd.getOperationId());
+                JsonObject context = currentSmbRecoveryContext(instance, operation);
+                if (cmd.getExpectedRevision() != context.getAsJsonObject("sourceGeneration").get("revision").getAsLong())
+                    throw new InvalidParameterValueException("CURRENT recovery SOURCE revision changed");
+                String fingerprint = StorageServiceRequestFingerprint.of(cmd);
+                JsonObject saved = getJsonObject(parseJsonObject(operation.getResultJson()), "_currentLocalIdentityRecovery");
+                if (saved == null) {
+                    JsonObject review = currentSmbRecoveryGuest(instance, "current-review", context, 30);
+                    StorageSmbCurrentIdentityRecoveryProof.review(context, review, System.currentTimeMillis() / 1000.0);
+                    if (!cmd.getCurrentReviewHash().equals(getJsonString(review, "currentReviewHash"))) throw new CloudRuntimeException("CURRENT identity review changed before approval");
+                    saved = new JsonObject();saved.add("context", context.deepCopy());saved.add("review", review.deepCopy());
+                    saved.addProperty("requestFingerprint", fingerprint);saved.addProperty("retryKey", cmd.getIdempotencyKey());
+                    saved.add("originalReference", parseJsonObject(operation.getPreviousSnapshotJson()).get("nativeIdentityCapsule").deepCopy());
+                    saved.add("dataIdentity", currentSmbDataIdentity(instance, operation));
+                    saveCurrentSmbRecovery(operation, saved, "CURRENT_LOCAL_IDENTITY_APPROVED");
+                } else if (!context.equals(saved.get("context")) || !fingerprint.equals(getJsonString(saved, "requestFingerprint"))
+                        || !cmd.getIdempotencyKey().equals(getJsonString(saved, "retryKey"))
+                        || !cmd.getCurrentReviewHash().equals(getJsonString(saved.getAsJsonObject("review"), "currentReviewHash"))
+                        || !saved.get("originalReference").equals(parseJsonObject(operation.getPreviousSnapshotJson()).get("nativeIdentityCapsule")))
+                    throw new InvalidParameterValueException("CURRENT recovery retry belongs to another request, SOURCE or review");
+                if (!"ROLLED_BACK".equals(operation.getState())) recoverCurrentSmbIdentity(instance, operation, saved);
+                else {
+                    requireCurrentSmbPublishedReference(operation, saved);
+                    JsonObject verify = context.deepCopy();verify.add("currentReviewHash", saved.getAsJsonObject("review").get("currentReviewHash").deepCopy());
+                    verify.add("currentIdentityReference", saved.getAsJsonObject("currentReference").get("nativeReference").deepCopy());
+                    StorageSmbCurrentIdentityRecoveryProof.retained(context, verify.getAsJsonObject("currentIdentityReference"),
+                            currentSmbRecoveryGuest(instance, "current-verify", verify, 30));
+                    StorageRootDataManifest.requireSame(saved.getAsJsonObject("dataIdentity"), currentSmbDataIdentity(instance, operation));
+                }
+                if (!Boolean.TRUE.equals(getNativeBoolean(saved, "dataIdentityUnchanged")))
+                    throw new CloudRuntimeException("CURRENT recovery has no verified unchanged DATA identity");
+                JsonObject output = new JsonObject();output.addProperty("success", true);output.add("scope", StorageSmbCurrentIdentityRecoveryProof.scope(context));
+                output.addProperty("currentIdentityRetained", true);output.addProperty("originalIdentityRestored", false);
+                output.addProperty("originalConfigurationSourceRestored", true);output.addProperty("dataChanged", false);
+                output.addProperty("phase", StorageSmbCurrentIdentityRecoveryProof.PHASE);output.add("currentReviewHash", saved.getAsJsonObject("review").get("currentReviewHash").deepCopy());
+                return createRuntimeResponse(instance, "smb identity current-retain", true, operation.getState(),
+                        "SOURCE configuration restored; CURRENT local identity retained; original identity was not restored; DATA unchanged", output.toString());
+            } finally { lock.unlock(); }
+        } finally { lock.releaseRef(); }
+    }
+
+    protected JsonObject currentSmbOriginalMaterial(StorageServiceInstanceVO instance, StorageServiceOperationVO operation, JsonObject reference) {
+        StorageConfigArtifactStore store = currentSmbIdentityStore();
+        byte[] bytes = store.read(getJsonString(reference, "operationUuid"), getJsonString(reference, "capsuleSha256"));
+        byte[] key = store.read(getJsonString(reference, "keyId"), getJsonString(reference, "keySha256"));
+        try {
+            return StorageIdentityCapsule.importRequest(instance.getUuid(), operation.getUuid(),
+                    parseJsonObject(new String(bytes, java.nio.charset.StandardCharsets.UTF_8)), key);
+        } finally { java.util.Arrays.fill(bytes, (byte) 0);java.util.Arrays.fill(key, (byte) 0); }
+    }
+
+    protected void recoverCurrentSmbIdentity(StorageServiceInstanceVO instance, StorageServiceOperationVO operation, JsonObject saved) {
+        beginStorageWriterHeartbeat(operation);
+        try {
+            JsonObject context = saved.getAsJsonObject("context"), review = saved.getAsJsonObject("review");
+            if (!saved.has("stopped")) {
+                JsonObject material = currentSmbOriginalMaterial(instance, operation, saved.getAsJsonObject("originalReference"));
+                JsonObject request = context.deepCopy();request.add("expectedReview", review.deepCopy());request.addProperty("maintenanceApproved", true);
+                request.addProperty("instanceName", instance.getName());request.addProperty("confirmation", instance.getName());
+                request.add("originalCapsule", material.get("capsule"));request.add("credentialPrivateKey", material.get("credentialPrivateKey"));
+                saveCurrentSmbRecovery(operation, saved, "CURRENT_LOCAL_IDENTITY_QUIESCING");
+                JsonObject stopped = currentSmbRecoveryGuest(instance, "current-quiesce", request, 120);
+                StorageSmbCurrentIdentityRecoveryProof.stopped(context, review, stopped);saved.add("stopped", stopped);
+                saveCurrentSmbRecovery(operation, saved, "CURRENT_LOCAL_IDENTITY_STOPPED");
+            }
+            checkpointCurrentSmbIdentity(instance, operation, saved);
+            restoreCurrentSmbSourceConfiguration(instance, operation, saved);
+            JsonObject request = context.deepCopy();request.add("currentReviewHash", review.get("currentReviewHash").deepCopy());
+            request.add("currentIdentityReference", saved.getAsJsonObject("currentReference").get("nativeReference").deepCopy());
+            JsonObject status = nativeConfigurationGeneration(instance, null, "status");
+            if (getJsonString(status, "pendingOperationUuid") != null) {
+                JsonObject retained = currentSmbRecoveryGuest(instance, "current-retain", request, 120);
+                StorageSmbCurrentIdentityRecoveryProof.retained(context, request.getAsJsonObject("currentIdentityReference"), retained);
+                saved.add("retained", retained);saveCurrentSmbRecovery(operation, saved, "CURRENT_LOCAL_IDENTITY_RETAINED");
+                nativeConfigurationGeneration(instance, operation, "rollback");
+            }
+            JsonObject verified = currentSmbRecoveryGuest(instance, "current-verify", request, 30);
+            StorageSmbCurrentIdentityRecoveryProof.retained(context, request.getAsJsonObject("currentIdentityReference"), verified);
+            saved.add("verified", verified);
+            StorageRootDataManifest.requireSame(saved.getAsJsonObject("dataIdentity"), currentSmbDataIdentity(instance, operation));
+            saved.addProperty("dataIdentityUnchanged", true);
+            operation.setState("ROLLED_BACK");operation.setProgress(100);operation.setCompleted(new java.util.Date());
+            operation.setDiagnostic("Original configuration restored while CURRENT local identity was explicitly retained; original identity restoration=false; DATA unchanged");
+            saveCurrentSmbRecovery(operation, saved, StorageSmbCurrentIdentityRecoveryProof.PHASE);
+        } catch (RuntimeException failed) {
+            operation.setState("RECOVERY_REQUIRED");operation.setDiagnostic("Approved CURRENT local identity recovery remains pending; original capsule and CURRENT identity are preserved");
+            saveCurrentSmbRecovery(operation, saved, "CURRENT_LOCAL_IDENTITY_RECOVERY_REQUIRED");throw failed;
+        } finally { endStorageWriterHeartbeat(); }
+    }
+
+    protected void checkpointCurrentSmbIdentity(StorageServiceInstanceVO instance, StorageServiceOperationVO operation, JsonObject saved) {
+        if (saved.has("currentReference")) {
+            requireCurrentSmbPublishedReference(operation, saved);return;
+        }
+        StorageConfigArtifactStore store = currentSmbIdentityStore();JsonObject keyReference = getJsonObject(saved, "currentKeyReference");
+        if (keyReference == null) {
+            java.security.KeyPair key = StorageIdentityCapsule.wrappingKey();byte[] protectedKey = StorageIdentityCapsule.protectedPrivateKey(key);
+            try {
+                String keyId = java.util.UUID.nameUUIDFromBytes(("smb-current-key:" + operation.getUuid()).getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString();
+                keyReference = new JsonObject();keyReference.addProperty("keyId", keyId);keyReference.addProperty("keySha256", StorageConfigArchive.sha256(protectedKey));
+                keyReference.addProperty("publicKey", StorageIdentityCapsule.pem("PUBLIC KEY", key.getPublic().getEncoded()));
+                saved.add("currentKeyReference", keyReference);saved.addProperty("pendingProtectedKeyPublication", new String(protectedKey, java.nio.charset.StandardCharsets.UTF_8));
+                // Only the at-rest encrypted key is temporarily journaled before immutable vault publication.
+                saveCurrentSmbRecovery(operation, saved, "CURRENT_LOCAL_IDENTITY_KEY_PUBLICATION");
+            } finally { java.util.Arrays.fill(protectedKey, (byte) 0); }
+        }
+        if (saved.has("pendingProtectedKeyPublication")) {
+            byte[] key = saved.get("pendingProtectedKeyPublication").getAsString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            try { store.write(getJsonString(keyReference, "keyId"), key); }
+            finally { java.util.Arrays.fill(key, (byte) 0); }
+            saved.remove("pendingProtectedKeyPublication");saveCurrentSmbRecovery(operation, saved, "CURRENT_LOCAL_IDENTITY_EXPORTING");
+        }
+        byte[] protectedKey = store.read(getJsonString(keyReference, "keyId"), getJsonString(keyReference, "keySha256"));
+        try { requireCurrentSmbWrappingKey(operation, keyReference, protectedKey); }
+        finally { java.util.Arrays.fill(protectedKey, (byte) 0); }
+        JsonObject context = saved.getAsJsonObject("context"), request = context.deepCopy();
+        request.add("currentReviewHash", saved.getAsJsonObject("review").get("currentReviewHash").deepCopy());request.add("publicKey", keyReference.get("publicKey").deepCopy());
+        JsonObject exported = currentSmbRecoveryGuest(instance, "current-export", request, 120);StorageSmbCurrentIdentityRecoveryProof.exported(context, exported);
+        byte[] data = exported.getAsJsonObject("capsule").toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        String capsuleId = java.util.UUID.nameUUIDFromBytes(("smb-current-capsule:" + operation.getUuid()).getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString();
+        store.write(capsuleId, data);
+        JsonObject reference = keyReference.deepCopy();reference.addProperty("capsuleId", capsuleId);reference.addProperty("capsuleFileSha256", StorageConfigArchive.sha256(data));
+        reference.add("nativeReference", exported.get("currentIdentityReference").deepCopy());reference.add("checkpoint", exported.get("currentIdentityCheckpoint").deepCopy());
+        saved.add("currentReference", reference);saveCurrentSmbRecovery(operation, saved, "CURRENT_LOCAL_IDENTITY_EXPORTED");
+    }
+
+    protected void requireCurrentSmbWrappingKey(StorageServiceOperationVO operation, JsonObject reference, byte[] protectedKey) {
+        String expected = java.util.UUID.nameUUIDFromBytes(("smb-current-key:" + operation.getUuid()).getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString();
+        if (!expected.equals(getJsonString(reference, "keyId")) || !StorageConfigArchive.sha256(protectedKey).equals(getJsonString(reference, "keySha256")))
+            throw new CloudRuntimeException("CURRENT wrapping key purpose or checksum is foreign");
+        java.security.PrivateKey key = StorageIdentityCapsule.unwrapProtectedPrivateKey(protectedKey);
+        if (!(key instanceof java.security.interfaces.RSAPrivateCrtKey)) throw new CloudRuntimeException("CURRENT wrapping key cannot recover its public identity");
+        java.security.interfaces.RSAPrivateCrtKey rsa = (java.security.interfaces.RSAPrivateCrtKey) key;
+        try {
+            java.security.PublicKey publicKey = java.security.KeyFactory.getInstance("RSA").generatePublic(new java.security.spec.RSAPublicKeySpec(rsa.getModulus(), rsa.getPublicExponent()));
+            if (!StorageIdentityCapsule.pem("PUBLIC KEY", publicKey.getEncoded()).equals(getJsonString(reference, "publicKey")))
+                throw new CloudRuntimeException("CURRENT private wrapping key differs from the exported public key");
+        } catch (java.security.GeneralSecurityException failed) { throw new CloudRuntimeException("CURRENT wrapping public key is unavailable", failed); }
+    }
+
+    protected void requireCurrentSmbPublishedReference(StorageServiceOperationVO operation, JsonObject saved) {
+        JsonObject reference = saved.getAsJsonObject("currentReference"), context = saved.getAsJsonObject("context");
+        String expected = java.util.UUID.nameUUIDFromBytes(("smb-current-capsule:" + operation.getUuid()).getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString();
+        if (!expected.equals(getJsonString(reference, "capsuleId")) || !reference.keySet().equals(Set.of("keyId", "keySha256", "publicKey",
+                "capsuleId", "capsuleFileSha256", "nativeReference", "checkpoint")))
+            throw new CloudRuntimeException("CURRENT capsule purpose or reference fields are foreign");
+        StorageConfigArtifactStore store = currentSmbIdentityStore();
+        byte[] key = store.read(getJsonString(reference, "keyId"), getJsonString(reference, "keySha256"));
+        byte[] capsule = store.read(expected, getJsonString(reference, "capsuleFileSha256"));
+        try {
+            requireCurrentSmbWrappingKey(operation, reference, key);
+            JsonObject exported = new JsonObject();exported.addProperty("success", true);exported.add("scope", StorageSmbCurrentIdentityRecoveryProof.scope(context));
+            exported.add("capsule", parseJsonObject(new String(capsule, java.nio.charset.StandardCharsets.UTF_8)));
+            exported.add("currentIdentityReference", reference.get("nativeReference").deepCopy());exported.add("currentIdentityCheckpoint", reference.get("checkpoint").deepCopy());
+            StorageSmbCurrentIdentityRecoveryProof.exported(context, exported);
+        } finally {java.util.Arrays.fill(key, (byte) 0);java.util.Arrays.fill(capsule, (byte) 0);}
+    }
+
+    protected void restoreCurrentSmbSourceConfiguration(StorageServiceInstanceVO instance, StorageServiceOperationVO operation, JsonObject saved) {
+        JsonObject context = saved.getAsJsonObject("context"), frozen = frozenRecoveryConfiguration(instance, operation);
+        if (!context.get("sourceGeneration").equals(frozen.get("generation"))
+                || !context.get("sourceConfigurationSha256").equals(frozen.get("configurationSha256")))
+            throw new CloudRuntimeException("CURRENT recovery original SOURCE changed");
+        // Reversible configuration tables and canonical seven files only; never import the absent SOURCE identity.
+        new StorageServiceDesiredSnapshot().restore(instance.getId(), operation.getPreviousSnapshotJson());
+        JsonObject status = nativeConfigurationGeneration(instance, null, "status");
+        if (getJsonString(status, "pendingOperationUuid") != null) {
+            JsonObject request = StorageSmbCurrentIdentityRecoveryProof.scope(context);
+            request.add("previousGeneration", frozen.get("generation").deepCopy());request.add("configurationDesiredState", frozen.get("configurationDesiredState").deepCopy());
+            JsonObject restored = rootGuest(instance, "operation generation restore", request, 30);
+            if (!Boolean.TRUE.equals(getNativeBoolean(restored, "canonicalRestored"))
+                    || !context.get("sourceConfigurationSha256").equals(restored.get("configurationSha256")))
+                throw new CloudRuntimeException("CURRENT recovery SOURCE configuration was not restored");
+        }
+        JsonObject exact = nativeConfigurationGeneration(instance, null, "status");
+        if (!context.get("sourceGeneration").equals(exact.get("generation"))
+                || !context.get("sourceConfigurationSha256").equals(exact.get("configurationSha256"))
+                || !frozen.get("configurationDesiredState").equals(exact.get("configurationDesiredState")))
+            throw new CloudRuntimeException("CURRENT recovery SOURCE configuration bytes changed");
+        saved.addProperty("sourceConfigurationRestored", true);saveCurrentSmbRecovery(operation, saved, "CURRENT_LOCAL_IDENTITY_SOURCE_CONFIG_RESTORED");
+    }
+
+    protected JsonObject currentSmbDataIdentity(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
+        JsonArray requested = new JsonArray();
+        for (VolumeVO volume : volumeDao.findByInstanceAndType(instance.getVmId(), com.cloud.storage.Volume.Type.DATADISK)) {
+            validateVolumeResumeScope(instance, volume);JsonObject disk = new JsonObject();
+            disk.addProperty("volumeUuid", volume.getUuid());disk.addProperty("sizeBytes", volume.getSize());
+            Set<StorageServiceInstance.Protocol> protocols = findProtocolsForBackingVolume(instance, volume.getId());
+            disk.addProperty("kind", protocols.contains(StorageServiceInstance.Protocol.NFS) || protocols.contains(StorageServiceInstance.Protocol.SMB)
+                    ? "FILE_DATA" : protocols.isEmpty() ? "UNUSED" : "BLOCK_RAW");requested.add(disk);
+        }
+        if (requested.size() == 0) throw new CloudRuntimeException("CURRENT recovery has no attached owned DATA identity");
+        JsonObject request = operationReservationScope(instance, operation);request.addProperty("templateUpgradeUuid", operation.getUuid());
+        request.add("volumes", requested);
+        return StorageRootDataManifest.freeze(requested, rootGuest(instance, "operation root-data inspect", request, 15), Collections.emptyMap(), System.currentTimeMillis());
     }
 
     protected JsonObject smbIdentityRepairScope(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
@@ -3408,6 +3735,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         commands.add(DeleteStorageNvmeOfHostAclCmd.class);
         commands.add(ListStorageNvmeOfHostAclsCmd.class);
         commands.add(RepairStorageServiceNicIdentityCmd.class);
+        commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.ReviewStorageServiceSmbIdentityRecoveryCmd.class);
         commands.add(RegisterStorageServiceRuntimeBundleCmd.class);
         commands.add(UpdateStorageServiceRuntimeBundleCmd.class);
         commands.add(DeleteStorageServiceRuntimeBundleCmd.class);
