@@ -224,8 +224,17 @@ class StorageSmbSourceCheckpointTest(unittest.TestCase):
         return journal
 '''
         old_class='class SmbSourceCheckpoint:\n    def __init__(self):\n        self.collector=lambda *args:collect(*args)\n\n'+old_frozen
+        old_status='\n    def status(self,value):\n        view=self.observe(value)\n        return view\n'
+        import ast
+        module_text=Path(module.__file__).read_text()
+        cls=next(node for node in ast.parse(module_text).body if isinstance(node,ast.ClassDef)and node.name=='SmbSourceCheckpoint')
+        status_method=next(node for node in cls.body if isinstance(node,ast.FunctionDef)and node.name=='status')
+        proof_node=next(node for node in status_method.body if isinstance(node,ast.If)and any(isinstance(part,ast.Constant)and part.value=='localSourceStoppedRuntimeProof'for part in ast.walk(node)))
+        proof_source='        '+ast.get_source_segment(module_text,proof_node)+'\n'
+        new_status=old_status.replace('        view=self.observe(value)\n',proof_source+'        view=self.observe(value)\n')
+        old_class+=old_status
         helpers=''.join('    def '+name+'(self):\n        pass\n\n'for name in('normalized_collector_cli','compat_entry','code_compatibility'))
-        new_class=old_class.replace('self.collector=lambda *args:collect(*args)','self.collector=lambda *args,**kwargs:collect(*args,**kwargs)').replace(old_frozen,helpers+new_frozen)
+        new_class=old_class.replace('self.collector=lambda *args:collect(*args)','self.collector=lambda *args,**kwargs:collect(*args,**kwargs)').replace(old_frozen,helpers+new_frozen).replace(old_status,new_status)
         def whole(cls):return ''.join("python3 - <<'"+marker+"'\n"+cls+'\n'+marker+'\n'for marker in('PYIDENTITY','PYRENDEREDGENERATION')).encode()
         original=whole(old_class);current=whole(new_class)
         self.assertEqual(original,self.native.normalized_collector_cli(current,original))
@@ -254,6 +263,16 @@ class StorageSmbSourceCheckpointTest(unittest.TestCase):
             'sourceDesiredState':self.gen.files()}
         path=self.native.path(self.request,'code-compatibility')
         self.native.frozen(self.request,journal);self.assertFalse(path.exists())
+        self.native.write(self.request,'journal',journal)
+        readonly_before={str(p):p.read_bytes()for p in self.native.root.glob('*.json')}
+        status_proof=self.native.status(self.request)['localSourceStoppedRuntimeProof']
+        self.assertEqual(15,len(status_proof));self.assertFalse(status_proof['serviceAvailabilityVerified'])
+        self.assertTrue(status_proof['sourceStoppedVerified']);self.assertTrue(status_proof['currentSignedCodeVerified'])
+        self.assertEqual(readonly_before,{str(p):p.read_bytes()for p in self.native.root.glob('*.json')})
+        malformed=current.replace(b"'serviceAvailabilityVerified':False",b"'serviceAvailabilityVerified':True")
+        with self.assertRaises(ValueError):self.native.normalized_collector_cli(malformed,original)
+        extra=current.replace(b'view=self.observe(value)',b'unknown_statement=1\n        view=self.observe(value)')
+        with self.assertRaises(ValueError):self.native.normalized_collector_cli(extra,original)
         with patch.dict(os.environ,{'ABLESTACK_STORAGE_WRITER_LOCK_FD':''}):
             with self.assertRaisesRegex(ValueError,'retry key'):self.native.frozen(self.export_request,journal)
         for key,bad in [('names',['foreign']),('nvmeHosts',['foreign']),('authReplayDomains',['ISCSI'])]:

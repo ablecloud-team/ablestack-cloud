@@ -19,6 +19,7 @@ package org.apache.cloudstack.storage.dataservice;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
@@ -66,6 +67,8 @@ import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.vm.VMInstanceVO;
 import com.cloud.vm.dao.VMInstanceDao;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
+import org.apache.commons.lang3.StringUtils;
 import com.google.gson.JsonParser;
 
 public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase implements StorageServiceRuntimeUpgradeManager {
@@ -948,7 +951,9 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
             update(upgrade, StorageServiceRuntimeUpgradeVO.State.RUNNING, "VERIFYING", 85);
             final StorageServiceGuestCommandResult health = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(
                     instance.getVmId(), "operation verify", "", StorageServiceInstance.StorageServiceCommandTimeout.value(), Collections.emptySet()));
-            if (!runtimeHealthVerified(health)) {
+            final boolean liveHealthVerified = runtimeHealthVerified(health);
+            final JsonObject stoppedCodeProof = liveHealthVerified ? null : runtimeStoppedSourceCodeProof(instance, upgrade, bundle, manifest, health);
+            if (!liveHealthVerified && stoppedCodeProof == null) {
                 StorageServiceRuntimeBundleVO previous = upgrade.getPreviousBundleId() == null ? null : bundleDao.findById(upgrade.getPreviousBundleId());
                 JsonObject rollbackCompatibility = genericRollbackCompatibility(instance, upgrade, previous);requireRuntimeActivationSafety(instance);
                 control.beforeEffect();
@@ -971,7 +976,10 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
             if (!instanceDao.update(instance.getId(), instance)) throw new CloudRuntimeException("Verified runtime projection could not be persisted");
             final JsonObject verification = new JsonObject();
             verification.add("activation", activated);verification.add("consumerCompatibility", compatibility);
-            verification.addProperty("healthSuccess", true);
+            verification.addProperty("healthSuccess", liveHealthVerified);
+            verification.addProperty("serviceAvailabilityVerified", liveHealthVerified);
+            verification.addProperty("runtimeCodeVerified", true);
+            if (stoppedCodeProof != null) verification.add("localSourceStoppedRuntimeProof", stoppedCodeProof.deepCopy());
             verification.addProperty("healthResult", health.getResultJson());
             upgrade.setVerificationJson(verification.toString());
             upgrade.setCompleted(new Date());
@@ -1160,6 +1168,95 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         if (managed == null) throw new CloudRuntimeException("Managed runtime feature requirements are unavailable");
         features.addAll(managed);
         return features;
+    }
+
+    protected JsonObject runtimeStoppedSourceContext(StorageServiceInstanceVO instance) {
+        StorageServiceOperationVO selected = null;
+        for (StorageServiceOperationVO row : rootWriterDao.listByInstance(instance.getId())) {
+            if (!"RECOVERY_REQUIRED".equals(row.getState())) continue;
+            if (selected != null || row.getInstanceId() != instance.getId() || row.getAction() == null
+                    || row.getAction().startsWith("ROOT_") || row.getAction().startsWith("RUNTIME_")
+                    || row.getAction().contains("SERVICE_MAINTENANCE")) throw new CloudRuntimeException("Runtime code quarantine has another recovery purpose");
+            selected = row;
+        }
+        if (selected == null || selected.getPreviousSnapshotJson() == null) throw new CloudRuntimeException("Runtime code quarantine has no original recovery writer");
+        JsonObject snapshot = JsonParser.parseString(selected.getPreviousSnapshotJson()).getAsJsonObject();
+        if (!snapshot.has("localCheckpointIntent") || !snapshot.get("localCheckpointIntent").isJsonObject()
+                || snapshot.has("nativeIdentityCapsule") || snapshot.has("adServiceSource") || snapshot.has("adIdentityEffectPhase")
+                || snapshot.has("adSamBootstrapAttempted") || snapshot.has("adServiceMaintenanceScope") || snapshot.has("rootScope")
+                || JsonParser.parseString(selected.getResultJson() == null ? "{}" : selected.getResultJson()).getAsJsonObject().has("_currentLocalIdentityRecovery"))
+            throw new CloudRuntimeException("Runtime code quarantine cannot borrow another identity authority");
+        if (snapshot.has("renderedGeneration") && !snapshot.get("renderedGeneration").isJsonNull()) {
+            if (!snapshot.get("renderedGeneration").isJsonObject()) throw new CloudRuntimeException("Runtime source rendered snapshot is untyped");
+            JsonObject rendered = snapshot.getAsJsonObject("renderedGeneration");
+            if (rendered.has("rootScope") || rendered.has("importedRootAuthorization") || rendered.has("retainedRootAuthorization")
+                    || rendered.has("receipt") && !rendered.get("receipt").isJsonNull())
+                throw new CloudRuntimeException("Runtime code quarantine cannot borrow rendered activation authority");
+        }
+        JsonObject intent = snapshot.getAsJsonObject("localCheckpointIntent");
+        if (!Boolean.TRUE.equals(booleanValue(intent, "exportAttempted")) || !intent.has("keyReference") || !intent.get("keyReference").isJsonObject())
+            throw new CloudRuntimeException("Runtime code quarantine has no durable original source key intent");
+        JsonObject key = intent.getAsJsonObject("keyReference");String purpose = UUID.nameUUIDFromBytes(("local-source-key:" + selected.getUuid()).getBytes(StandardCharsets.UTF_8)).toString();
+        if (!key.keySet().equals(java.util.Set.of("keyId", "keySha256", "publicKey")) || !purpose.equals(stringValue(key, "keyId"))
+                || !SHA256_PATTERN.matcher(StringUtils.defaultString(stringValue(key, "keySha256"))).matches()
+                || !StringUtils.defaultString(stringValue(key, "publicKey")).startsWith("-----BEGIN PUBLIC KEY-----"))
+            throw new CloudRuntimeException("Runtime code quarantine source key purpose is invalid");
+        JsonObject writer = new JsonObject();writer.addProperty("instanceUuid", instance.getUuid());writer.addProperty("operationUuid", selected.getUuid());writer.addProperty("revision", selected.getRevision());
+        JsonObject context = intent.getAsJsonObject("context");
+        StorageLocalSourceIdentityProof.requireContext(writer, context, intent.getAsJsonObject("source"));
+        if (snapshot.has("nativeDesiredState") && !snapshot.get("nativeDesiredState").equals(intent.getAsJsonObject("source").get("configurationDesiredState")))
+            throw new CloudRuntimeException("Runtime code quarantine differs from its original seven files");
+        if (requiredRuntimeFeatures(instance).stream().anyMatch(value -> value.contains("AD")))
+            throw new CloudRuntimeException("Runtime code quarantine is limited to original local identity");
+        return context.deepCopy();
+    }
+
+    protected JsonObject runtimeStoppedSourceCodeProof(StorageServiceInstanceVO instance, StorageServiceRuntimeUpgradeVO upgrade,
+            StorageServiceRuntimeBundleVO bundle, JsonObject manifest, StorageServiceGuestCommandResult health) {
+        String validationStage = "health";
+        try {
+            StorageLocalSourceIdentityProof.requireOnlyStoppedSmbHealth(health);
+            requireRuntimeActivationSafety(instance);
+            JsonObject before = sourceRootBinding(instance);
+            JsonObject preflight = JsonParser.parseString(upgrade.getPreflightJson()).getAsJsonObject();
+            if (!preflight.has("sourceSignedRuntime") || !before.equals(preflight.getAsJsonObject("sourceSignedRuntime").get("sourceRootBinding")))
+                throw new CloudRuntimeException("Runtime code quarantine ROOT changed after preflight");
+            validationStage = "DBintent";JsonObject context = runtimeStoppedSourceContext(instance);
+            validationStage = "readback";JsonObject readback = invoke(instance, StorageServiceRuntimeOperation.READBACK,
+                    upgrade.getTransactionId(), request(upgrade, bundle));
+            for (String field : java.util.Set.of("success", "signedRuntimeVerified", "installedFilesVerified", "entrypointsVerified"))
+                if (!Boolean.TRUE.equals(booleanValue(readback, field))) throw new CloudRuntimeException("Runtime code quarantine has no fresh signed target readback");
+            if (!bundle.getVersion().equals(stringValue(readback, "currentVersion")) || !bundle.getSha256().equals(stringValue(readback, "archiveSha256"))
+                    || !bundle.getManifestSha256().equals(stringValue(readback, "manifestSha256"))) throw new CloudRuntimeException("Runtime code quarantine readback target pin changed");
+            validationStage = "CLI";String cliSha = null;
+            for (JsonElement entry : manifest.getAsJsonArray("files")) {
+                JsonObject file = entry.getAsJsonObject();
+                if (!"ablestack-storagectl".equals(stringValue(file, "path"))) continue;
+                if (cliSha != null || !"0755".equals(stringValue(file, "mode")) || !"root".equals(stringValue(file, "owner")) || !"root".equals(stringValue(file, "group")))
+                    throw new CloudRuntimeException("Runtime code quarantine signed CLI entry is ambiguous");
+                cliSha = stringValue(file, "sha256");
+            }
+            if (cliSha == null || !SHA256_PATTERN.matcher(cliSha).matches()) throw new CloudRuntimeException("Runtime code quarantine signed CLI digest is unavailable");
+            validationStage = "native-status";StorageServiceGuestCommandResult observed = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
+                    "smb identity local-source-status", context.toString(), 30, java.util.Set.of("capsule", "credentialPrivateKey")));
+            if (!observed.isSuccess()) throw new CloudRuntimeException("Runtime code quarantine cannot observe its stopped source");
+            JsonObject status = JsonParser.parseString(observed.getResultJson()).getAsJsonObject();
+            validationStage = "proof";JsonObject proof = StorageLocalSourceIdentityProof.runtimeQuarantine(context, cliSha, status);
+            validationStage = "freshscope";
+            if (!context.equals(runtimeStoppedSourceContext(instance)) || !before.equals(sourceRootBinding(instance)))
+                throw new CloudRuntimeException("Runtime code quarantine source scope changed during validation");
+            return proof;
+        } catch (RuntimeException unavailable) {
+            // The existing automatic rollback remains authoritative if the new
+            // signed code lacks this exact read-only proof or any guard fails.
+            JsonObject diagnostic = new JsonObject();diagnostic.addProperty("kind", "LOCAL_SOURCE_RUNTIME_CODE_ADMISSION_REJECTED");
+            diagnostic.addProperty("validationStage", validationStage);diagnostic.addProperty("exceptionType", unavailable.getClass().getSimpleName());
+            JsonObject verification = new JsonObject();
+            try {if (upgrade.getVerificationJson() != null) verification = JsonParser.parseString(upgrade.getVerificationJson()).getAsJsonObject();}
+            catch (RuntimeException malformed) {verification = new JsonObject();}
+            verification.add("stoppedSourceCodeAdmission", diagnostic);upgrade.setVerificationJson(verification.toString());
+            return null;
+        }
     }
 
     protected boolean runtimeHealthVerified(StorageServiceGuestCommandResult result) {
