@@ -57,18 +57,18 @@ export default {
     },
     async inspectVm (operation) {
       if (!operation.vmid) return
-      const vm = (await getAPI('listVirtualMachines', { id: operation.vmid })).listvirtualmachinesresponse.virtualmachine?.[0]
-      const volumes = (await getAPI('listVolumes', { virtualmachineid: operation.vmid, type: 'ROOT' })).listvolumesresponse.volume || []
+      const vm = (await getAPI('listVirtualMachines', { id: operation.vmid }, { backgroundJob: true, timeout: 15000 })).listvirtualmachinesresponse.virtualmachine?.[0]
+      const volumes = (await getAPI('listVolumes', { virtualmachineid: operation.vmid, type: 'ROOT' }, { backgroundJob: true, timeout: 15000 })).listvolumesresponse.volume || []
       operation.retryable = vm?.state === 'Stopped' && volumes.length === 1 && volumes[0].state === 'Ready'
     },
     async recover (operation) {
       if (!operation.name) return
-      const result = (await getAPI('listVirtualMachines', { keyword: operation.name, details: 'all' })).listvirtualmachinesresponse
+      const result = (await getAPI('listVirtualMachines', { keyword: operation.name, details: 'all' }, { backgroundJob: true, timeout: 15000 })).listvirtualmachinesresponse
       const matches = (result.virtualmachine || []).filter(vm => (vm.name === operation.name || vm.displayname === operation.name) &&
         vm.details?.['vm.creation.source.id'] === operation.sourceid && new Date(vm.created).getTime() >= new Date(operation.created).getTime() - 5000)
       if (matches.length !== 1) return
       operation.vmid = matches[0].id
-      const jobs = (await getAPI('listAsyncJobs', { listall: false })).listasyncjobsresponse.asyncjobs || []
+      const jobs = (await getAPI('listAsyncJobs', { listall: false }, { backgroundJob: true, timeout: 15000 })).listasyncjobsresponse.asyncjobs || []
       const matchingJobs = jobs.filter(job => job.jobinstanceid === operation.vmid && /DeployVMCmd/.test(job.cmd || '') &&
         new Date(job.created).getTime() >= new Date(operation.created).getTime() - 5000)
       if (matchingJobs.length === 1) operation.jobid = matchingJobs[0].jobid
@@ -79,7 +79,7 @@ export default {
       try {
         if (!operation.jobid) await this.recover(operation)
         if (!operation.jobid) return
-        const job = (await getAPI('queryAsyncJobResult', { jobid: operation.jobid })).queryasyncjobresultresponse
+        const job = (await getAPI('queryAsyncJobResult', { jobid: operation.jobid }, { backgroundJob: true, timeout: 15000 })).queryasyncjobresultresponse
         if (!this.alive) return
         const vm = job.jobresult?.virtualmachine
         if (vm?.id) operation.vmid = vm.id
@@ -93,7 +93,7 @@ export default {
       try {
         await this.inspectVm(operation)
         if (!operation.retryable) throw new Error(this.$t('message.creation.source.job.failed'))
-        const result = (await postAPI('startVirtualMachine', { id: operation.vmid })).startvirtualmachineresponse
+        const result = (await postAPI('startVirtualMachine', { id: operation.vmid }, { preserveOnFailure: true })).startvirtualmachineresponse
         operation.jobid = result.jobid; operation.status = 'pending'; operation.error = ''; operation.retryable = false
       } catch (error) { operation.error = error.response?.data?.errorresponse?.errortext || error.message } finally { this.checking = false; this.save(); this.schedule() }
     }

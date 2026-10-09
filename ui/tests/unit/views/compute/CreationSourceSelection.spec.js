@@ -145,3 +145,24 @@ test('removing the owner clears candidates and ignores a late prior-owner respon
   expect(wrapper.emitted('select')[wrapper.emitted('select').length - 1][0]).toBe(null)
   wrapper.unmount()
 })
+
+test('a management transport failure makes an existing source job uncertain without submitting another VM', async () => {
+  const op = { jobid: 'existing-job', status: 'pending' }
+  const vm = { checking: false, alive: true, $t: key => key, save: jest.fn(), schedule: jest.fn() }
+  getAPI.mockRejectedValue(new Error('management unavailable'))
+  await Operations.methods.check.call(vm, op)
+  expect(op.status).toBe('unknown')
+  expect(op.jobid).toBe('existing-job')
+  expect(getAPI).toHaveBeenCalledWith('queryAsyncJobResult', { jobid: 'existing-job' }, { backgroundJob: true, timeout: 15000 })
+  expect(vm.save).toHaveBeenCalled()
+  expect(postAPI).not.toHaveBeenCalled()
+})
+
+test('response-loss recovery bounds its lookup and leaves unmatched operations uncertain', async () => {
+  const op = { name: 'pending', sourceid: 'snapshot', created: new Date().toISOString() }
+  getAPI.mockResolvedValue({ listvirtualmachinesresponse: {} })
+  await Operations.methods.recover.call({}, op)
+  expect(getAPI).toHaveBeenCalledWith('listVirtualMachines', { keyword: 'pending', details: 'all' }, { backgroundJob: true, timeout: 15000 })
+  expect(op.jobid).toBeUndefined()
+  expect(postAPI).not.toHaveBeenCalled()
+})
