@@ -21,6 +21,8 @@
 - AD는 사용자 환경 준비와 승인 이후 계속 진행 중이다. Client SID 일반화와 시각 정정은 실제 확인했으나 OOBE 사용자 완료 회신과 정상 domain join 및 AD SMB/POSIX 인수는 아직 필요하다. AD를 완료나 정지 상태로 묶지 않는다.
 - 최종 UI `#1275`는 마지막 착수 직전 전체 작업 중단·사용자 보고·추가 지시 대기 경계다. 최종 11탭 style/theme/button/dialog/keyboard QA는 0이며 기능 UI와 구분한다.
 
+- 최종 같은S UI849static파일(생성config제외)을 실제13번에 반영했다. indexea159349…/실제configd3e285…symlink/WEB-INF1파일/PID1189913/JARADE를 보존했고, Chrome reload에서원래487a 상세Ready/XFS100GiB·로딩종료 및 카탈로그조회/등록폼취소를 확인했다. [최종UI실제배포](../epic-898-ui-20261007/20261009-final-s-ui-deployment.md). 신규등록/VM/DATA/ROOT/AD효과0이며 #1275는미착수다.
+
 ## 최신 실제 완료 및 실패
 
 1. `#910` volume-only API/UI crossprotocol OFF negative, same-protocol 재바인딩 및 source file/ACL 보존을 실제 확인했다. 원본 파일을 복사했다고 주장하지 않는다. NEW20 NFS child 삭제 API 1회, parent 같은 held FD 596회 write/fsync/read·오류0, 실제 Ganesha restart 및 parent Export_Id 보존, removed pseudo fresh mount ENOENT, 기존 file/data/sentinel 보존도 확인했다.
