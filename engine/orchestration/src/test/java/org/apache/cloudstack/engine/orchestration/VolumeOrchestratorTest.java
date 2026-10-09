@@ -987,4 +987,50 @@ public class VolumeOrchestratorTest {
         volumeOrchestrator.resolveRootVolumeSize("test-root", null, null, 200L, snapshot);
     }
 
+    @Test
+    public void snapshotTargetSelectionDoesNotPretendAllocatedRootIsCreated() throws Exception {
+        com.cloud.storage.dao.VolumeDetailsDao details = Mockito.mock(com.cloud.storage.dao.VolumeDetailsDao.class);
+        com.cloud.vm.dao.UserVmDao userVms = Mockito.mock(com.cloud.vm.dao.UserVmDao.class);
+        org.springframework.test.util.ReflectionTestUtils.setField(volumeOrchestrator, "_volDetailDao", details);
+        org.springframework.test.util.ReflectionTestUtils.setField(volumeOrchestrator, "_userVmDao", userVms);
+        com.cloud.vm.UserVmVO vm = Mockito.mock(com.cloud.vm.UserVmVO.class);
+        Mockito.when(vm.getType()).thenReturn(VirtualMachine.Type.User);
+        Mockito.when(vm.getId()).thenReturn(36L);
+        Mockito.when(userVms.findById(36L)).thenReturn(vm);
+        com.cloud.storage.SnapshotVO snapshot = Mockito.mock(com.cloud.storage.SnapshotVO.class);
+        Mockito.when(snapshot.getSize()).thenReturn(100L * 1024 * 1024 * 1024);
+        com.cloud.template.VirtualMachineTemplate template = Mockito.mock(com.cloud.template.VirtualMachineTemplate.class);
+        Mockito.when(template.getFormat()).thenReturn(Storage.ImageFormat.QCOW2);
+        Mockito.when(template.getHypervisorType()).thenReturn(Hypervisor.HypervisorType.KVM);
+        DiskOffering offering = Mockito.mock(DiskOffering.class);
+        Mockito.when(offering.getProvisioningType()).thenReturn(Storage.ProvisioningType.THIN);
+        Account owner = Mockito.mock(Account.class);
+        StoragePoolVO selected = Mockito.mock(StoragePoolVO.class);
+        Mockito.when(selected.getUuid()).thenReturn("selected-pool");
+        Mockito.when(storagePoolDao.findById(3L)).thenReturn(selected);
+        Mockito.when(volumeDao.persist(Mockito.any(VolumeVO.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        Mockito.doNothing().when(volumeOrchestrator).saveVolumeDetails(Mockito.anyLong(), Mockito.anyLong());
+        Mockito.doReturn(Mockito.mock(com.cloud.vm.DiskProfile.class)).when(volumeOrchestrator)
+                .toDiskProfile(Mockito.any(Volume.class), Mockito.eq(offering));
+        Mockito.doAnswer(invocation -> {
+            Volume root = invocation.getArgument(0);
+            Assert.assertNull("An Allocated restore target must not claim an existing pool", root.getPoolId());
+            Assert.assertEquals(Volume.State.Allocated, root.getState());
+            Assert.assertEquals(Volume.Type.ROOT, root.getVolumeType());
+            Assert.assertEquals(Long.valueOf(0), root.getDeviceId());
+            Assert.assertEquals(100L * 1024 * 1024 * 1024, root.getSize().longValue());
+            return Mockito.mock(VolumeInfo.class);
+        }).when(volumeOrchestrator).createVolumeFromSnapshot(Mockito.any(Volume.class), Mockito.eq(snapshot), Mockito.eq(vm));
+        org.apache.cloudstack.context.CallContext context = org.apache.cloudstack.context.CallContext.register(Mockito.mock(com.cloud.user.User.class), owner);
+        context.putContextParameter("vm.creation.snapshot.targetpool", 3L);
+        try (org.mockito.MockedStatic<com.cloud.event.UsageEventUtils> events = Mockito.mockStatic(com.cloud.event.UsageEventUtils.class)) {
+            org.springframework.test.util.ReflectionTestUtils.invokeMethod(volumeOrchestrator, "allocateTemplatedVolume",
+                    Type.ROOT, "ROOT-36", offering, 200L, null, null, template, vm, owner, 0L, null, null, null, snapshot);
+            Mockito.verify(details).addDetail(Mockito.anyLong(), Mockito.eq(com.cloud.storage.VmStorageSelectionService.REQUIRED_POOL), Mockito.eq("selected-pool"), Mockito.eq(false));
+            Mockito.verify(volumeDao, Mockito.never()).update(Mockito.any(Long.class), Mockito.any(VolumeVO.class));
+        } finally {
+            org.apache.cloudstack.context.CallContext.unregister();
+        }
+    }
+
 }

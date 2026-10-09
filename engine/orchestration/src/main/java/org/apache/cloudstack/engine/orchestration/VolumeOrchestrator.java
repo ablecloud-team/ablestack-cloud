@@ -1333,7 +1333,8 @@ public class VolumeOrchestrator extends ManagerBase implements VolumeOrchestrati
                 StoragePoolVO selected = _storagePoolDao.findById(target);
                 if (selected == null) { throw new CloudRuntimeException("Selected snapshot storage no longer exists"); }
                 _volDetailDao.addDetail(vol.getId(), com.cloud.storage.VmStorageSelectionService.REQUIRED_POOL, selected.getUuid(), false);
-                vol.setPoolId(target); _volsDao.update(vol.getId(), vol);
+                // Keep Allocated volumes unassigned until the provider creates them. A premature
+                // poolId makes storage compatibility validation treat this as a non-Ready existing disk.
             }
             UserVmVO userVmVO = _userVmDao.findById(vm.getId());
             try {
