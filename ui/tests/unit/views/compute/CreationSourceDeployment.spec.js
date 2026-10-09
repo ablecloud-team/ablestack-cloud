@@ -93,3 +93,32 @@ test('snapshot ROOT capacity query accounts for the requested additional data di
     otherrequirediops: 200
   })
 })
+test('snapshot DATA query supplies the source image and both pool capacity requirements', () => {
+  const vm = {
+    ...sourceDiskPlan(),
+    imageType: 'snapshotid',
+    selectedCreationSource: { id: 'snapshot' },
+    storageQuery: { zoneid: 'zone', templateid: 'stale-template', serviceofferingid: 'compute', hostid: 'host', vmcount: 5 },
+    selectedRootDiskSize: 100,
+    form: { vmNumber: 1 },
+    diskIOpsMin: 100,
+    rootStorageSelection: { id: 'root-pool' }
+  }
+  expect(DeployVM.computed.dataStorageQuery.call(vm)).toMatchObject({
+    zoneid: 'zone',
+    templateid: undefined,
+    snapshotid: 'snapshot',
+    hypervisor: 'KVM',
+    serviceofferingid: 'compute',
+    hostid: 'host',
+    rootdisk: false,
+    diskofferingid: 'custom-data',
+    size: 20,
+    diskcount: 2,
+    vmcount: 1,
+    miniops: 100,
+    otherstorageid: 'root-pool',
+    otherrequiredbytes: 100 * 1024 ** 3
+  })
+  expect(DeployVM.computed.rootStorageQuery.call({ ...vm, form: { zoneid: 'zone', computeofferingid: 'compute' }, dataStorageSelection: { id: 'data-pool' } })).toMatchObject({ otherstorageid: 'data-pool' })
+})

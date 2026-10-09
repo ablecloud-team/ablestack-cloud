@@ -1605,6 +1605,7 @@ export default {
           rootdisk: true,
           diskcount: 1,
           vmcount: 1,
+          otherstorageid: this.selectedDataDiskOffering?.id ? this.dataStorageSelection.id : undefined,
           otherrequiredbytes: this.selectedDataDiskSize * this.selectedDataDiskCount * 1024 ** 3,
           otherrequirediops: (this.diskIOpsMin || this.selectedDataDiskOffering?.miniops || 0) * this.selectedDataDiskCount,
           hostid: this.form.hostid,
@@ -1625,8 +1626,12 @@ export default {
       }
     },
     dataStorageQuery () {
+      const sourceImage = this.imageType === 'snapshotid'
+        ? { templateid: undefined, snapshotid: this.selectedCreationSource?.id, hypervisor: 'KVM', vmcount: 1 }
+        : {}
       return {
         ...this.storageQuery,
+        ...sourceImage,
         rootdisk: false,
         diskcount: this.selectedDataDiskCount,
         diskofferingid: this.selectedDataDiskOffering?.id,
