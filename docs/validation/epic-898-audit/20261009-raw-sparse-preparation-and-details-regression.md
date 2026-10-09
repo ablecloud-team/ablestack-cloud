@@ -19,6 +19,16 @@
 
 ![NVMe 시험 볼륨의 SPARSE 상세](../epic-898-ui-20261007/20261009-raw-nvme-sparse20-ready.jpg)
 
+## #1333 메타데이터 변경의 경로 보존
+
+새 미연결 iSCSI 시험 볼륨 db3de2b7만 정상 API로 name 변경/displayvolume=false/deleteprotection=true를 적용하고 원래 name/displayvolume=true/deleteprotection=false로 복원했다. 두 요청 모두 path를 생략했다. 각 단계의 path·pool·size·SPARSE·offering·owner/domain/zone·format/KVM·미연결 바인딩이 동일했고 원래 설정 복원을 확인했다. 실제 Chrome 상세에서도 원래 이름·사용 가능·20GiB·sparse·path UUID·삭제 보호=false를 확인했다.
+
+첫 시험은 기본 display 필터가 숨긴 볼륨을 조회하지 못해 실패했다. finally에서 원래 메타데이터를 복원·검증했고, admin의 명시 display 필터로 교정한 재시험은 PASS이다. 이 시험 실패는 소스 경로 보존 실패로 표시하지 않는다. 공개 proof SHA-256은 `4a4bbb695bc1e64e76609e030e48edb3fe1634682e50b218d948fcf1915bb9df`이다.
+
+이 추가 인수는 API/UI 메타데이터 및 바인딩 범위이며 물리 QCOW2 내용 검증으로 확대하지 않는다. 이전 #1333의 정상515 tests/Checkstyle·Volume family13 ABI 배포 및 원래7b4fae44의 물리 파일 보존 증거와 구분한다. F1·원본·partial DATA 호출/연결/포맷/삭제·신규 THIN 생성은0이다.
+
+![메타데이터 변경 뒤 원래 경로·SPARSE·이름 복원](../epic-898-ui-20261007/20261009-issue1333-metadata-restored-path-preserved.jpg)
+
 ## 사용자 원래 상세 주소 회귀
 
 UI3df730e74a06/정상334 tests/18 suites·lint·production 배포 후 원래 `487a3d3b-b583-4499-be02-c40b45a7e6b1?tab=details`를 Chrome로 직접 열었다. 초기 조회가 종료되고 nfs-test/Ready/XFS/100.00GiB/활성NFS 정보를 확인했다. NFS→상세 탭 왕복 후 동일 정보가 유지되고 로딩 표시가 사라졌다. 실제 확인 시각은2026-10-09T11:46:02Z이다.
