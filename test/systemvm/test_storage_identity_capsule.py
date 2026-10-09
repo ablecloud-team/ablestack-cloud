@@ -18,6 +18,8 @@
 
 """Exercise encrypted local-identity transport without reading real credential files."""
 import importlib.util
+import os
+import fcntl
 import sys
 from pathlib import Path
 import unittest
@@ -157,8 +159,22 @@ class IdentityCapsuleTest(unittest.TestCase):
         function = runtime[start:end]
         request = {"instanceUuid": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
                    "operationUuid": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"}
-        result = subprocess.run(["bash", "-c", function + "\nidentity_capsule_command capabilities /dev/stdin"],
-                                input=json.dumps(request), text=True, capture_output=True, check=True)
+        # Large signed closures must not become one argv entry (Linux E2BIG).
+        # Keep the script in sealed RAM and leave stdin for the actual payload.
+        original_fd = os.memfd_create("identity-capsule-test-script", os.MFD_CLOEXEC | os.MFD_ALLOW_SEALING)
+        script_fd = fcntl.fcntl(original_fd, fcntl.F_DUPFD_CLOEXEC, 16)
+        os.close(original_fd)
+        try:
+            os.fchmod(script_fd, 0o600)
+            fd_check = "\npython3 -c 'import os; os.fstat(9)' || exit $?\n" if os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD") == "9" else ""
+            os.write(script_fd, (function + fd_check + "\nidentity_capsule_command capabilities /dev/stdin\n").encode())
+            os.lseek(script_fd, 0, os.SEEK_SET)
+            fcntl.fcntl(script_fd, fcntl.F_ADD_SEALS, fcntl.F_SEAL_WRITE | fcntl.F_SEAL_GROW | fcntl.F_SEAL_SHRINK | fcntl.F_SEAL_SEAL)
+            inherited = (script_fd, 9) if os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD") == "9" else (script_fd,)
+            result = subprocess.run(["bash", "/proc/self/fd/" + str(script_fd)], pass_fds=inherited,
+                                    input=json.dumps(request), text=True, capture_output=True, check=True)
+        finally:
+            os.close(script_fd)
         response = json.loads(result.stdout)
         self.assertTrue(response["success"])
         self.assertFalse(response["adIdentity"])
