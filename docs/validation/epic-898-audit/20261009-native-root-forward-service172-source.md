@@ -8,6 +8,6 @@ SERVICE 역복원은 decoded original SOURCE의 real RSA/AEAD와 현재 SERVICE4
 
 큰 encrypted checkpoint의 재시도가 POSIX 소형 receipt256KiB 상한에 막히는 것을 확인해 이 전용 encrypted reader만12MiB로 보완했다. 기존 AD policy 기본8MiB guard는 유지한다. embedded 본문 일치/마지막 newline/기존 TARGET fixture의 frozenset 선택 불안정으로 최초3회 실패 로그를 보존했고, guard 완화 없이 marker 동기화와 고정 NFS fixture로 교정했다. 일시 heredoc 경계 손상은 실행 전 검출해01788의 제한 경계만 복원했으며 외부 효과0이다.
 
-bash -n·고유 heredoc4·기존 LOCAL NFS3/SMB4의7개 출력 bytes 동일 및 synthetic sealed RAM 서명 번들 검증을 통과했다. private key 파일/실제 AD/ROOT swap/production all4·AD 활성화는0이다. canonical의 제외된 과거 CLI delta는 별도 검토 중이며 최종 S와 실제 bridge는 이 committed 후보만 사용한다.
+bash -n·고유 heredoc4·기존 LOCAL NFS3/SMB4의7개 출력 bytes 동일 및 synthetic sealed RAM 서명 번들 검증을 통과했다. private key 파일/실제 AD/ROOT swap/production all4·AD 활성화는0이다. canonical의 제외된 과거 CLI3 hunks는 별도 snapshot/diff로 보존했다. SERVICE가 기존 typed quiesce에서 owned Winbind를 중지하고 ROOT는 전용 경로를 쓰는 근거를 확인해 CLI만 committed4aba/mode0755로 정리했다. other11 source 동일·bash -n·coupled172(hashseed77) 재통과, 외부 효과0이다. 최종 S와 실제 bridge는 이 committed 후보만 사용한다.
 
 source-proof/parent-pin-proof: /root/work/epic898-preparation/native-forward-service-clean-13e687bb8edd/. 남은 서버의 exact ref/원본scope/digest 전달·외부 JOIN inverse 완료 소비자 정상 빌드, 같은 S 이미지와 실제13번 API/UI/I/O 인수를 계속한다. 이슈 OPEN·최종 UI#1275 미착수다.
