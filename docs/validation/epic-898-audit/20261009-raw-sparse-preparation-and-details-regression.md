@@ -15,6 +15,10 @@
 
 이 단계는 후속 RAW 시험의 준비이다. F1 호출·VM 연결·포맷·타겟/namespace 생성·외부 block I/O는0이며 물리 qcow2/backing/실제 게스트 RAW signature는 연결 전후 별도로 검증한다. all4 profile 완료로 표시하지 않는다. 기존 DATA·10TiB 부분 포맷 볼륨·다른 VM을 변경하지 않았다.
 
+후속 호스트13.2의 읽기 전용 `qemu-img info`에서 두 파일은 각각 QCOW2/virtual21474836480B/file21478375424B/allocated3743744B, backing 없음/chain1을 확인했다. `/mnt/glue-gfs`의 정확한 두 UUID 파일만 조회했고 inode는12387094/4077953이다. 조회 전후 inode·size·mtime·ctime이 동일했다. 공개 proof SHA-256은 `6efde918b3bea9a38c91f04709988a9e510d8d196a77b0fc12796d3e0b740d93`이다. 게스트 장치 serial/RAW signature·연결과 실제 타겟 I/O는 여전히 후속 게이트이다.
+
+첫 SSH 조회 연결이 응답하지 않아 정확히 해당 로컬 SSH 클라이언트만 종료했다. 추가 연결 라이브러리 부재는 실행 전 확인했고 설치하지 않았다. 표준 PTY의 기존 암호 RAM 입력/strict known host/ssh -n 경로로 성공한 결과를 보존했다. VM 프로세스·QGA·호스트 설정·디스크를 변경하지 않았다.
+
 ![iSCSI 시험 볼륨의 SPARSE 상세](../epic-898-ui-20261007/20261009-raw-iscsi-sparse20-ready.jpg)
 
 ![NVMe 시험 볼륨의 SPARSE 상세](../epic-898-ui-20261007/20261009-raw-nvme-sparse20-ready.jpg)
