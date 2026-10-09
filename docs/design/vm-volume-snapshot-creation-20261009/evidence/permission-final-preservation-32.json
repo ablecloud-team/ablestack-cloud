@@ -1,0 +1,30 @@
+{
+  "cluster": 32,
+  "source": "921f970f97c278535e720a339fa8c3309f59a33f",
+  "originalVMCount": 13,
+  "originalUUIDStateHostUnchanged": true,
+  "originalChanges": [],
+  "taskVMCountDefaultScope": 21,
+  "taskProjectVMCount": 3,
+  "routingHosts": [
+    {
+      "id": "bfe795b1-8fde-4361-bd1d-af421ab2bdc5",
+      "ipaddress": "10.10.32.1",
+      "state": "Up",
+      "version": "4.23.0.0"
+    },
+    {
+      "id": "a7b3e91f-2248-436b-affb-e3b31b36ed62",
+      "ipaddress": "10.10.32.2",
+      "state": "Up",
+      "version": "4.23.0.0"
+    },
+    {
+      "id": "05bc1189-abf8-4ec3-9ef5-02558863b628",
+      "ipaddress": "10.10.32.3",
+      "state": "Up",
+      "version": "4.23.0.0"
+    }
+  ],
+  "checkedAt": "2026-10-09T15:31:32.158925+00:00"
+}

@@ -1,0 +1,11 @@
+{
+  "cluster": 32,
+  "scope": "project",
+  "uiSubmitted": true,
+  "outcome": "REJECTED_BEFORE_VM_ALLOCATION",
+  "reason": "volume quota 2 used / 2 limit; requested 1",
+  "matchingNewVMs": 0,
+  "automaticRedeployObserved": false,
+  "observedProjectVMCount": 3,
+  "checkedAt": "2026-10-09T15:31:31.900160+00:00"
+}

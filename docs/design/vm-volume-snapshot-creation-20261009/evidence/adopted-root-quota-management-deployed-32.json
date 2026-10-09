@@ -1,0 +1,22 @@
+{
+  "cluster": 32,
+  "source": "921f970f97c278535e720a339fa8c3309f59a33f",
+  "baseSha256": "a645eeb4e4119db975494d929de8a461a081f6ea22514fda4524868e38c78395",
+  "patchedSha256": "e2483942a9ff90fb53168ab4798490521b71f89cf70f6800a43458b4f87cf289",
+  "activePath": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0.jar",
+  "stageFile": "management-32-adopted-root-quota-921f970f97c.jar",
+  "classes": [
+    {
+      "file": "com/cloud/vm/UserVmManagerImpl.class",
+      "sha256": "3297dd6468ecb66307c9da8d0bdba8b4cbffd069babbf7f74fc3fcaf0870d800"
+    }
+  ],
+  "backup": "/root/epic1335-adopted-root-quota-20261010-002452",
+  "oldManagementPid": "596004",
+  "managementPid": "598714",
+  "service": "active",
+  "clientHttp": 200,
+  "webInfPreserved": true,
+  "indexAndConfigPreserved": true,
+  "completedAt": "2026-10-09T15:25:34.116311+00:00"
+}

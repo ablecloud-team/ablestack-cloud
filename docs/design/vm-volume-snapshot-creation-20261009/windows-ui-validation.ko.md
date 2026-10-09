@@ -19,6 +19,8 @@ under the License.
 
 # Windows UEFI 실제 UI 검증
 
+**최신 상태(2026-10-10):** 일반 사용자·프로젝트 생성 8건, 한도 중복 예약 수정, 삭제 원본 스냅샷 복구, 자동 스토리지·ConfigDrive·32번 ISO 회귀 결과는 [추가 UI 경계 검증](edge-ui-validation.ko.md)에 기록했다. 아래 버전별 기존 검증은 당시 증거로 유지한다.
+
 관리/Agent 코드 `1c3c9c41341`, UI `24e4d7b0074`가 배포된 31 GFS2와 32 Ceph krbd에서 Windows Server 2022 UEFI LEGACY 대표 경로 8개를 통과했다. Linux 8개와 합쳐 대표 16개 모두 PASS다. Epic 전체 경계·장애 조건 완료와 구분한다.
 
 UI에서 원본 선택·CPU/메모리·격리된 L2 네트워크·시작 옵션·확인·제출·VM 결과를 검증했다. false는 최초 Stopped 후 UI 시작, true는 자동 Running을 확인했다. 게스트 기존 Administrator 로그인 후 파일 SHA256, GPT/100GiB, 호스트명/계정과 Notepad 한글 표시를 검증하고 UI 정상 정지했다. 정상 정지 대화상자의 강제 옵션은 사용하지 않았다.
@@ -34,7 +36,7 @@ UI에서 원본 선택·CPU/메모리·격리된 L2 네트워크·시작 옵션�
 | 32 | snapshot | false | `i-2-45-VM` / `72f699ad-51ad-4de6-acf9-1a8d94888c3a` | `56dedced-bb39-4f66-88d7-359d719e8b6f` | PASS |
 | 32 | snapshot | true | `i-2-46-VM` / `5870f38f-a68e-44b4-9016-30b604acc0ea` | `46896a3a-df13-4ee6-a7de-fce471738a73` | PASS |
 
-원본 seed에서 UTF-8/BOM 없음/LF 파일 `C:\epic1335\payload.txt`를 작성한 뒤 정상 정지하고 볼륨 스냅샷 BackedUp을 확인했다. 다시 seed를 시작해 파일을 변경하고 해시/한글을 확인한 뒤 정상 정지 및 ROOT 보존 분리했다. 볼륨 사례는 변경 후 해시, 스냅샷 사례는 변경 전 해시와 일치한다. 각 파일의 정확한 내용은 `evidence/windows31-fixture-before.txt`, `-after.txt`와 32번 파일에 있다.
+원본 seed에서 UTF-8/BOM 없음/LF 파일 `C:\epic1335\payload.txt`를 작성한 뒤 정상 정지하고 볼륨 스냅샷 BackedUp을 확인했다. 다시 seed를 시작해 파일을 변경하고 해시/한글을 확인한 뒤 정상 정지 및 ROOT 보존 분리했다. 볼륨 사례는 변경 후 해시, 스냅샷 사례는 변경 전 해시와 일치한다. 각 파일의 정확한 내용은 `evidence/windows31-fixture-before.json`, `-after.json`와 32번 파일에 있다.
 
 | 환경 | 스냅샷 시점 SHA256 | 변경 후 SHA256 |
 |---|---|---|

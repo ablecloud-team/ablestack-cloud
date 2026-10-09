@@ -1,0 +1,39 @@
+{
+  "cluster": 31,
+  "scope": "user",
+  "uiSubmitted": true,
+  "creationResult": "PASS",
+  "source": "921f970f97c278535e720a339fa8c3309f59a33f",
+  "vm": {
+    "id": "6b87c13f-20c5-4dba-9e2a-3dbb308c7c5f",
+    "name": "E1335-31-permission-user-volume-create-r2",
+    "instancename": "i-31-380-VM",
+    "state": "Stopped",
+    "account": "epic1335-user31",
+    "projectid": null,
+    "project": null,
+    "hostid": null
+  },
+  "volumes": [
+    {
+      "id": "2b6a2be0-331e-49c2-bca5-db1eca16f733",
+      "name": "ROOT-376",
+      "state": "Ready",
+      "type": "ROOT",
+      "deviceid": 0,
+      "size": 107374182400,
+      "virtualmachineid": "6b87c13f-20c5-4dba-9e2a-3dbb308c7c5f",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    }
+  ],
+  "guestBootVerifiedThisCase": false,
+  "checkedAt": "2026-10-09T15:28:44.933370+00:00",
+  "jobId": "b77e1e57-9628-4132-bbb9-a4ba20ff576b",
+  "accountUsage": {
+    "name": "epic1335-user31",
+    "volumelimit": "2",
+    "volumetotal": 2,
+    "primarystoragelimit": "200",
+    "primarystoragetotal": 200
+  }
+}

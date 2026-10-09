@@ -1,2 +1,0 @@
-Epic 1335 / krbd / Windows UEFI
-스냅샷 생성 후 변경한 한글 데이터

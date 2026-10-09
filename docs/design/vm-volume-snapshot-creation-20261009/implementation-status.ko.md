@@ -19,6 +19,8 @@ under the License.
 
 # Epic #1335 구현 및 검증 진행 상태
 
+**최신 상태(2026-10-10):** 일반 사용자·프로젝트 생성 8건, 한도 중복 예약 수정, 삭제 원본 스냅샷 복구, 자동 스토리지·ConfigDrive·32번 ISO 회귀 결과는 [추가 UI 경계 검증](edge-ui-validation.ko.md)에 기록했다. 아래 버전별 기존 검증은 당시 증거로 유지한다.
+
 기존 Epic #1335와 #1336–#1343 안에서 구현·배포·검증을 진행한다. 대표 행렬 **16개 모두 실제 UI와 게스트 데이터 검증을 통과**했다. 일부 경계·장애·기존 경로 회귀는 미완료다. PR #1344는 Draft이고 이슈를 종료하지 않았다.
 
 ## 실제 UI 생성·게스트 검증
@@ -57,9 +59,9 @@ Windows UEFI 8개도 실제 UI 제출, Administrator 로그인, GPT 100GiB, 한�
 
 더 넓은 VirtualMachineManager 테스트 100개는 98개 통과·2개 NPE다. 같은 2개 테스트가 깨끗한 Europa 기준 `2871963`에서도 실패했다. 전체 통과로 표시하지 않는다.
 
-양쪽 관리 JAR은 소스 `1c3c9c41341`의 변경 클래스 82개와 빌드 산출물 해시가 일치한다. 31번 관리 JAR SHA256은 `706ff0f3a853c828dfbab3a46ca7b61ab0b0cda6a07c5a42b98b7599a111be5d`, 32번은 `7c6a65eecbcdd37099eef3c13a69607f6988c215ed6d375cbdd6c8044d420551`다. 두 환경의 Agent 3대씩 배포되었고 설정 및 실행 domain 보존을 확인했다.
+앞선 배포 당시 양쪽 관리 JAR은 소스 `1c3c9c41341`의 변경 클래스 82개와 빌드 산출물 해시가 일치한다. 31번 관리 JAR SHA256은 `706ff0f3a853c828dfbab3a46ca7b61ab0b0cda6a07c5a42b98b7599a111be5d`, 32번은 `7c6a65eecbcdd37099eef3c13a69607f6988c215ed6d375cbdd6c8044d420551`다. 두 환경의 Agent 3대씩 배포되었고 설정 및 실행 domain 보존을 확인했다.
 
-최종 UI 소스 `24e4d7b0074`는 소유자 미선택 차단·상태 태그 대비 개선·템플릿 사전 선택 압축 검사 수정을 포함한다. 생산 빌드와 두 클러스터 배포를 완료했다. archive SHA256은 `430743ed1ebe5f914eb1b09ac976d326f20323d72538624ec4e7ab4c2e06e6f2`이며, 양쪽 정적 파일 840개 해시, WEB-INF/META-INF/config.json 보존, mold active와 `/client/` 200을 확인했다. 배포별 백업과 결과는 `evidence/ui-deployment-final.json`에 있다.
+앞선 UI 검증 소스 `24e4d7b0074`는 소유자 미선택 차단·상태 태그 대비 개선·템플릿 사전 선택 압축 검사 수정을 포함한다. 생산 빌드와 두 클러스터 배포를 완료했다. archive SHA256은 `430743ed1ebe5f914eb1b09ac976d326f20323d72538624ec4e7ab4c2e06e6f2`이며, 양쪽 정적 파일 840개 해시, WEB-INF/META-INF/config.json 보존, mold active와 `/client/` 200을 확인했다. 배포별 백업과 결과는 `evidence/ui-deployment-final.json`에 있다.
 
 검증 후 기존 31번 VM 74개·32번 VM 13개의 UUID/상태/호스트가 그대로이며 호스트 6대 모두 Up이다. Linux 검증 종료 시 전용 테스트 VM은 31번 11개·32번 12개였으며 이 원본 목록과 따로 기록했다. 동시성 실패의 Error VM과 ISO 슬롯 제한의 Stopped VM도 진단용으로 보존했다. 원본 볼륨은 Ready/미연결, 스냅샷은 BackedUp이다. 최신 읽기 전용 증거는 `evidence/final-linux-runtime-preservation-31.json`, `-32.json`이다. 예전 `runtime-preservation.json`은 배포 전 API 미지원 상태의 기록으로 최종 배포 증거가 아니다.
 
@@ -81,11 +83,11 @@ UI 소스 `957f61f39cf`의 390/1366/1680px 라이트·다크 6개 실제 화면�
 
 별도의 ConfigDrive 네트워크 ISO run은 두 ISO로 Stopped 생성 후 시작이 슬롯 제한으로 거절되어 Stopped를 유지했다. UI에는 ConfigDrive가 두 번째 슬롯을 사용할 수 있다는 안내가 있었으며 관리 로그는 `Destination cannot accommodate the attached ISOs (cluster limit, host capability or ConfigDrive)`를 기록했다. `runtime31-iso-slot-conflict.json`에는 해당 job의 민감 값 없는 오류 줄만 저장했다. 이 run은 부팅 PASS가 아니며 ConfigDrive와 ISO 2개 조합의 시작 제한/사전 검사 개선 여지는 기존 Epic에 남긴다. 32번은 Ready 부팅 ISO가 없어 ISO 부팅 회귀를 수행하지 않았다.
 
-남은 범위: 일반 사용자 권한 및 프로젝트 소유 원본 생성, 다중 동시 편입 부하, 태그/IOPS/스토리지 불가, 원본 삭제 후 스냅샷 복구, 진행 중 agent/management 재시작·응답 유실·부분 실패 재시도, 32번 ISO 부팅 및 더 넓은 template/ISO 회귀, ConfigDrive+ISO 2개 조합의 사전 검사/시작 제한. 단위 테스트나 API 결과만으로 이 UI 경계 검증을 완료 처리하지 않는다.
+남은 범위: 진행 중 Agent/management 재시작·응답 유실·중복 제출 방지·재진입, IOPS/스토리지 불가, 실패 후 안전한 재시도와 더 넓은 template 회귀. 일반 사용자·프로젝트 생성, 태그 불일치, 삭제 원본 복구, 32번 ISO, ConfigDrive 사전 검사 완료 증거는 추가 UI 경계 검증 보고서에 있다.
 
 ## PR CI
 
-전체 Cloud 빌드는 수동 시작하지 않았다. PR push가 자동 시작한 전체 Build/RPM은 중지했다. 이전 관련 head의 License·Conflict는 통과했지만 Lint 및 UI Build 실패는 집중 모듈·UI 테스트와 별도다. UI CI 9개 실패 중 변경되지 않은 4개 suite의 8개는 깨끗한 기준에서도 재현했고, vmDiskDeployment Array.at는 CI Node14에서 실패·로컬 통과였다. 9개 전부 기준 실패 또는 전체 CI green으로 표시하지 않는다. UI Build `d3c4b441f40` head는 취소, Lint 실패, License/Conflict 통과였다. 최종 UI 코드 head `24e4d7b0074`의 Actions/PR 체크는 조회 시 빈 목록이었으므로 성공으로 표시하지 않는다. 최종 문서 head 결과도 별도로 조회한다.
+전체 Cloud 빌드는 수동 시작하지 않았다. PR push가 자동 시작한 전체 Build/RPM은 중지했다. 이전 관련 head의 License·Conflict는 통과했지만 Lint 및 UI Build 실패는 집중 모듈·UI 테스트와 별도다. UI CI 9개 실패 중 변경되지 않은 4개 suite의 8개는 깨끗한 기준에서도 재현했고, vmDiskDeployment Array.at는 CI Node14에서 실패·로컬 통과였다. 9개 전부 기준 실패 또는 전체 CI green으로 표시하지 않는다. UI Build `d3c4b441f40` head는 취소, Lint 실패, License/Conflict 통과였다. 앞선 UI 코드 head `24e4d7b0074`의 Actions/PR 체크는 조회 시 빈 목록이었으므로 성공으로 표시하지 않는다. 최종 문서 head 결과도 별도로 조회한다.
 
 - [Epic #1335](https://github.com/ablecloud-team/ablestack-cloud/issues/1335)
 - [Epic PR #1344](https://github.com/ablecloud-team/ablestack-cloud/pull/1344)

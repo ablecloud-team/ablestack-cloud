@@ -1,0 +1,30 @@
+{
+  "cluster": 31,
+  "case": "general-user-snapshot",
+  "sourceSnapshot": "a60ae85a-d551-4e2e-9faa-7fd44dd44995",
+  "sourceCommit": "47191c5b447",
+  "uiCommit": "7bbefd84f0b",
+  "uiSubmitted": true,
+  "jobId": "37ad2f81-04e1-4084-aef5-64a1fbb68418",
+  "vm": {
+    "id": "fd7ec902-03da-4ea8-80d4-07fc7cc0de5a",
+    "name": "E1335-31-permission-user-snapshot-create",
+    "state": "Stopped",
+    "account": "epic1335-user31",
+    "projectid": null,
+    "instancename": "i-31-378-VM"
+  },
+  "volumes": [
+    {
+      "id": "90fffa76-e42d-49eb-8946-2e7c73661255",
+      "type": "ROOT",
+      "deviceid": 0,
+      "state": "Ready",
+      "size": 107374182400,
+      "account": "epic1335-user31",
+      "projectid": null
+    }
+  ],
+  "creationResult": "PASS",
+  "guestBootVerifiedThisCase": false
+}

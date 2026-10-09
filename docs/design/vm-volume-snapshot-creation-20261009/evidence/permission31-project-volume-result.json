@@ -1,0 +1,41 @@
+{
+  "cluster": 31,
+  "scope": "project",
+  "uiSubmitted": true,
+  "creationResult": "PASS",
+  "source": "921f970f97c278535e720a339fa8c3309f59a33f",
+  "vm": {
+    "id": "dd95a008-fadf-4ed4-bb60-7a6d12337843",
+    "name": "E1335-31-permission-project-volume-create",
+    "instancename": "i-32-381-VM",
+    "state": "Stopped",
+    "account": null,
+    "projectid": "94bc0ded-ace2-4dd8-b1d6-dab52fe07af5",
+    "project": "E1335-Permission-31",
+    "hostid": null
+  },
+  "volumes": [
+    {
+      "id": "ff49a513-baa1-476f-bb91-c969f9c4fb64",
+      "name": "ROOT-377",
+      "state": "Ready",
+      "type": "ROOT",
+      "deviceid": 0,
+      "size": 107374182400,
+      "virtualmachineid": "dd95a008-fadf-4ed4-bb60-7a6d12337843",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    }
+  ],
+  "guestBootVerifiedThisCase": false,
+  "checkedAt": "2026-10-09T15:28:44.980819+00:00",
+  "jobId": "f26c7c58-c6f3-4bd2-9a80-7cef107793fa",
+  "projectUsage": {
+    "id": "94bc0ded-ace2-4dd8-b1d6-dab52fe07af5",
+    "name": "E1335-Permission-31",
+    "primarystoragelimit": "200",
+    "primarystoragetotal": 200,
+    "vmtotal": 3,
+    "volumelimit": "2",
+    "volumetotal": 2
+  }
+}

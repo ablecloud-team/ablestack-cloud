@@ -1,0 +1,93 @@
+{
+  "capturedAt": "2026-10-09T14:22:01.299504+00:00",
+  "cluster": 32,
+  "sourceCommit": "6e802176178f649c312519ac3c3c2ecfbd55be7f",
+  "vm": {
+    "id": "a77141f0-a23e-40d9-9c4b-6be33b139da8",
+    "name": "E1335-32-ISO-two-plain-r2",
+    "state": "Running",
+    "instancename": "i-2-47-VM",
+    "hostid": "05bc1189-abf8-4ec3-9ef5-02558863b628",
+    "hostname": "ablecube32-3",
+    "boottype": "Uefi",
+    "bootmode": "legacy"
+  },
+  "volumes": [
+    {
+      "id": "4eed4089-f899-4052-a14e-e6614270c6f7",
+      "name": "ROOT-47",
+      "state": "Ready",
+      "size": 21474836480,
+      "type": "ROOT",
+      "deviceid": 0,
+      "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+      "storage": "Primary",
+      "virtualmachineid": "a77141f0-a23e-40d9-9c4b-6be33b139da8"
+    }
+  ],
+  "machine": "pc-q35-rhel9.8.0",
+  "loader": "/usr/share/edk2/ovmf/OVMF_CODE.secboot.fd",
+  "nvram": "/var/lib/libvirt/qemu/nvram/a77141f0-a23e-40d9-9c4b-6be33b139da8.fd",
+  "disks": [
+    {
+      "device": "disk",
+      "type": "block",
+      "driver": {
+        "name": "qemu",
+        "type": "raw",
+        "cache": "none",
+        "discard": "unmap"
+      },
+      "source": {
+        "dev": "/dev/rbd/rbd/4eed4089-f899-4052-a14e-e6614270c6f7",
+        "index": "3"
+      },
+      "target": {
+        "dev": "sda",
+        "bus": "scsi"
+      }
+    },
+    {
+      "device": "cdrom",
+      "type": "file",
+      "driver": {
+        "name": "qemu",
+        "type": "raw"
+      },
+      "source": {
+        "file": "/mnt/ab1e8756-db67-3ce0-a724-980d3975260b/212-2-e616c488-600e-38d8-bfcc-6b55ca0221f5.iso",
+        "index": "2"
+      },
+      "target": {
+        "dev": "sdd",
+        "bus": "sata"
+      }
+    },
+    {
+      "device": "cdrom",
+      "type": "file",
+      "driver": {
+        "name": "qemu",
+        "type": "raw"
+      },
+      "source": {
+        "file": "/mnt/da25f7c1-2ed1-31d5-ad9c-bf16757cbf21/213-2-8b5d80ac-4eb9-3ce9-9750-b8638e96956b.iso",
+        "index": "1"
+      },
+      "target": {
+        "dev": "sde",
+        "bus": "sata"
+      }
+    }
+  ],
+  "guestInstallerUiPending": false,
+  "normalUiStopPending": false,
+  "result": "PASS",
+  "uiCreatedInitiallyStopped": true,
+  "uiStarted": true,
+  "guestInstaller": "Rocky Linux 9.8 Korean welcome screen",
+  "uiNormalStop": true,
+  "osInstalled": false,
+  "finalState": "Stopped",
+  "finishedAt": "2026-10-09T14:26:37.324496+00:00"
+}
