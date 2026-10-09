@@ -1,0 +1,58 @@
+{
+  "kind": "LOCAL_SMB_CORE_FUNCTIONAL_ACTUAL_PRESERVATION",
+  "preserved": {
+    "bootId": true,
+    "cliSha256": true,
+    "vmUuid": true,
+    "blockdevices": true,
+    "mounts": true,
+    "nfsSentinel": true
+  },
+  "preservedAll": true,
+  "currentGeneration": {
+    "configurationSha256": "10d361deafdb00298a9e16e6923a671839bdcf2fae3e62c2ce71b5c6af87f569",
+    "instanceUuid": "3480bb2c-99ee-42f2-91cf-715ded5dd35f",
+    "operationUuid": "e4f4325b-8a61-481a-86fb-1194ca7e8a33",
+    "revision": 10,
+    "verifiedAt": 1791585753.3807228
+  },
+  "nativePendingAbsent": true,
+  "liveHolders": {
+    "anyDeleted": false,
+    "count": 2,
+    "databaseLabels": [
+      "passdb.tdb",
+      "secrets.tdb"
+    ],
+    "observedByActualInstalledGuard": true,
+    "pids": [
+      963645
+    ]
+  },
+  "originalSourceAuthority": {
+    "cipherBytes": 1529418,
+    "compatBytes": 1623,
+    "imported": true,
+    "journalPhase": "RESUMED",
+    "oldCliPinSame": true,
+    "originalStoppedImportedFingerprintsSame": true,
+    "publicKeyPresentAndSame": true,
+    "sourceScopeSame": true
+  },
+  "accountUid": 1001,
+  "accountGid": 1001,
+  "ownTestFile": {
+    "bytes": 4096,
+    "gid": 1001,
+    "links": 1,
+    "mode": 432,
+    "sha256": "65ea0e1ddd48fc6690d1772282d3edd5e0843da33bbea1c60848db3dfb4cc9c0",
+    "uid": 1001
+  },
+  "roDeniedFileAbsent": true,
+  "loadedWireSidVerified": false,
+  "noNewFormattingOrDisks": true,
+  "runtimeCredentialDiscardedAfterTests": true,
+  "baselineProofPath": "/root/work/epic898-preparation/actual-current-recovery-500/smb-local-external-client-ad297-proof.json",
+  "uiClientCasesProofPath": "/root/work/epic898-preparation/actual-current-recovery-500/smb-ui-negative-controller-ad297-proof.json"
+}
