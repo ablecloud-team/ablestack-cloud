@@ -1,0 +1,158 @@
+{
+  "kind": "EPIC898_ACTUAL_STOPPED_DEFAULT_COLLECTOR_FAILURE",
+  "installedNativeSource": "6bc43598bc01f7ab1ed57a5fbb9196f479801782",
+  "cliSha256": "2dc47c3a31ac5f1e7250281e52bce50e10e428d541252b099f3cb8a539548c38",
+  "instanceUuid": "3480bb2c-99ee-42f2-91cf-715ded5dd35f",
+  "operationUuid": "fef126a6-936a-4936-b22c-201b7e5b9b4d",
+  "revision": 5,
+  "localCheckpointUuid": "5a7319c4-d43f-3f1d-a941-ec40f6c81dec",
+  "phase": "RECOVERY_REQUIRED",
+  "ownedSmbAndNmbdStopped": true,
+  "liveIdentityHoldersCount": 0,
+  "cipherPresent": false,
+  "sourceSmbCanonicalPresent": true,
+  "stages": [
+    {
+      "stage": "sourceAuthority",
+      "success": true
+    },
+    {
+      "holders": 0,
+      "stage": "stoppedOwnershipAndMetadata",
+      "success": true
+    },
+    {
+      "recordCount": 0,
+      "stage": "posixCollector",
+      "success": true
+    },
+    {
+      "exception": "TypeError",
+      "publicFrames": [
+        {
+          "function": "<module>",
+          "line": 50
+        }
+      ],
+      "reason": "SmbSourceCheckpoint.__init__.<locals>.<lambda>() got an unexpected keyword argument 'posix_policies'",
+      "stage": "nextStageRejected",
+      "success": false
+    }
+  ],
+  "diagnosticEffects": {
+    "encrypt": 0,
+    "export": 0,
+    "importIdentity": 0,
+    "resume": 0,
+    "privateBytesPrinted": 0
+  },
+  "preservedFields": [
+    "vmUuid",
+    "bootId",
+    "cliSha256",
+    "current",
+    "pending",
+    "databases",
+    "blockdevices",
+    "mounts",
+    "nfsSentinel"
+  ],
+  "current": {
+    "configurationSha256": "dafecb8bd68c29c0abd2b6e5ff31422361bb325768a54c77de7e305f24db544a",
+    "instanceUuid": "3480bb2c-99ee-42f2-91cf-715ded5dd35f",
+    "operationUuid": "219b09d5-fe32-40b0-befa-d919c6c964fe",
+    "revision": 4,
+    "verifiedAt": 1791545310.741826
+  },
+  "bootId": "dc4b6429-35d3-4224-b199-3a0c6c829de0",
+  "nfsSentinel": {
+    "gid": 65534,
+    "sha256": "9ba0b0280276cad982cfa3df6e6821f2b4b8ea04761b905cc1d089cbd72c4c8a",
+    "sizeBytes": 4096,
+    "uid": 65534
+  },
+  "data": [
+    {
+      "fstype": "xfs",
+      "mountpoints": [
+        "/export/f1-nfs",
+        "/srv/ablestack-storage/volumes/abfa15d5-a916-475f-9b9f-22b0483cc698"
+      ],
+      "path": "/dev/sda",
+      "serial": "abfa15d5a916475f9b9f",
+      "size": 21474836480,
+      "type": "disk",
+      "uuid": "b54f3304-3ab3-4be7-a63a-a324bee2255b"
+    },
+    {
+      "fstype": "xfs",
+      "mountpoints": [
+        "/srv/ablestack-storage/volumes/ceaee4ff-0dc6-4c4f-ac5d-e28e658906a7"
+      ],
+      "path": "/dev/sdc",
+      "serial": "ceaee4ff0dc64c4fac5d",
+      "size": 21474836480,
+      "type": "disk",
+      "uuid": "6ff9399c-fc78-4ef3-a598-85ad87586ccf"
+    }
+  ],
+  "firstDiagnosticCanonicalFalseCorrected": "abbreviated key was incorrect; full SOURCE7 key is present",
+  "evidenceFiles": [
+    {
+      "name": "after-fef-ui-recovery-6bc-readonly.json",
+      "sha256": "6f528036b22cafbcedd7c4bcd83a5084572a813608fa8d1f4c5efdb63a71c551"
+    },
+    {
+      "name": "stopped-collector-6bc-readonly.json",
+      "sha256": "3f0e8a1bc7cf9e24c0910601a874a1edc56fa79b75d24fd8f4a503258a085889"
+    }
+  ],
+  "finalUi1275Started": false,
+  "sourceFixImplementedAndAccepted": false,
+  "unsignedDefaultCollectorReadOnlyPreflight": {
+    "installedCodeChanged": false,
+    "candidateModuleSha256": "56a499469ac53e38f27db133c120726a8f6e64460603cb9a27c3d24df8a043f2",
+    "stages": [
+      {
+        "stage": "sourceAuthority",
+        "success": true
+      },
+      {
+        "holders": 0,
+        "stage": "stoppedOwnershipAndMetadata",
+        "success": true
+      },
+      {
+        "recordCount": 0,
+        "stage": "posixCollector",
+        "success": true
+      },
+      {
+        "accountFileCount": 4,
+        "fileCount": 7,
+        "stage": "defaultCollector",
+        "success": true
+      },
+      {
+        "stage": "validator",
+        "success": true
+      }
+    ],
+    "preservedFieldsSame": [
+      "vmUuid",
+      "bootId",
+      "cliSha256",
+      "current",
+      "pending",
+      "databases",
+      "blockdevices",
+      "mounts",
+      "nfsSentinel"
+    ],
+    "cipherStillAbsent": true,
+    "encryptExportImportResumeInvoked": false,
+    "evidenceFile": "stopped-collector-adapter-candidate-readonly.json",
+    "evidenceSha256": "36afd21d3eace1ca8d3d2c4a0746202ac3f1e352c9ff980aeb42a2595bc0548a",
+    "productionRecoveryOrFullFinalCandidateCompatibilityAcceptance": false
+  }
+}
