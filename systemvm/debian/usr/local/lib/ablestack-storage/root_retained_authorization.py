@@ -228,6 +228,7 @@ class RootRetainedAuthorization:
             identity={"schemaVersion":1,"scope":{key:scope[key] for key in ("instanceUuid","operationUuid","revision")},
                       "sourceConfigurationSha256":record["latestConfigurationSha256"],"publicKey":public,"capsule":cipher}
             record["identityCheckpointSha256"]=cipher["sha256"]
+            record["originalCipherSha256"]=request["capsule"]["sha256"]
             ad_identity=payload.get("adIdentity")
             if ad_identity is not None:
                 codec["validate_ad_identity"](ad_identity)

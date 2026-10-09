@@ -396,6 +396,8 @@ class RenderedDriver:
             # daemons before restoring the ciphertext checkpoint. Other
             # protocols continue serving their unchanged generations.
             maintenance=self.prerequisites.network.authorize(self.store.scope(request))
+            if identity.get("adIdentity") is not None and set(maintenance)!={"instanceUuid","maintenanceUuid","operationUuid","revision"}:
+                raise ValueError("AD generic rollback requires its owned SERVICE source; ROOT uses opaque recovery")
             quiesced=self.runtime.command(("operation","quiesce"),{**maintenance,"domains":["SMB"]})
             if quiesced.get("quiesced") is not True or quiesced.get("scope")!=maintenance or quiesced.get("domainsQuiesced")!=["SMB"]:
                 raise ValueError("Root SMB identity rollback lacks exact scoped quiescence")
@@ -411,6 +413,14 @@ class RenderedDriver:
         # unrelated live block sessions during an SMB-only rollback.
         self.runtime.command(("identity", "capsule", "import"), {**saved["scope"], "capsule": saved["capsule"],
                              "credentialPrivateKey": request["checkpointPrivateKey"], "deferNvmeReplay": True,"restoreDomains":domains})
+        if "SMB" in domains and identity.get("adIdentity") is not None:
+            # Original bytes came from the authenticated SOURCE checkpoint.
+            # Forward only the exact approved SERVICE4 already used to quiesce.
+            retained=self.runtime.command(("identity","domain","retain"),{**maintenance,"expectedIdentity":identity["adIdentity"]})
+            if (retained.get("scope")!=saved["scope"] or retained.get("identityPreserved") is not True or retained.get("rejoined") is not False
+                    or retained.get("identity",{}).get("identityVerified") is not True):
+                raise ValueError("Scoped SMB rollback did not verify its exact preserved AD identity")
+
 
     def persist_one(self, name, value):
         if name not in DESIRED_PATHS: raise ValueError("Canonical prerequisite path is outside its fixed allowlist")
