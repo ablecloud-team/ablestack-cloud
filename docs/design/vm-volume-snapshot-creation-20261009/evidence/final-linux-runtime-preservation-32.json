@@ -1,11 +1,11 @@
 {
   "cluster": 32,
-  "checkedAt": "2026-10-09T02:55:46.760372+00:00",
+  "checkedAt": "2026-10-09T03:43:07.234368+00:00",
   "scope": "FINAL_READ_ONLY_ORIGINAL_VM_PRESERVATION_EXCLUDING_TASK_FIXTURES",
   "originalVmCount": 13,
   "originalVmUuidStateHostUnchanged": true,
   "differences": [],
-  "taskFixtureVmCount": 10,
+  "taskFixtureVmCount": 12,
   "hostStates": [
     {
       "name": "ablecube32-1",

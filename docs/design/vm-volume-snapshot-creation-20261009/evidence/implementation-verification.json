@@ -205,11 +205,13 @@
     ],
     "remainingBoundaryScope": [
       "ordinary-user permissions and project-owned source creation",
-      "concurrent adoption under load",
+      "multi-request adoption load stress beyond tested two-way race",
       "storage tags/IOPS/unavailable target",
+      "snapshot restore after deleting source",
       "agent/management restart during pending restore",
       "response loss and start retry",
-      "full template/ISO and additional ISO regression including template prefill mismatch"
+      "cluster32 bootable ISO unavailable; broader template/ISO regression",
+      "ConfigDrive with two ISOs start limitation and preflight improvement"
     ]
   },
   "localBrowserReview": {
@@ -225,8 +227,8 @@
   "prDraft": true,
   "uiArtifact": {
     "status": "DEPLOYED_BOTH_31_AND_32",
-    "sourceCommit": "957f61f39cf464dbfc19d1b31c4388f26b13667e",
-    "sha256": "40b22a8c52ecb28400c0ae14d4a06fa74c889fc8531f2e9c1e73f08dee15c429",
+    "sourceCommit": "24e4d7b007453919e725e0b90c976d840a453541",
+    "sha256": "430743ed1ebe5f914eb1b09ac976d326f20323d72538624ec4e7ab4c2e06e6f2",
     "productionBuild": "PASS",
     "staticFilesHashMatched": 840,
     "webInfMetaInfConfigPreserved": true,
@@ -271,7 +273,20 @@
     "deployed31-project-scope.json",
     "deployed32-source-state-change.json",
     "runtime32-source-state-change-blocked.json",
-    "runtime32-source-state-change-restored.json"
+    "runtime32-source-state-change-restored.json",
+    "deployed31-concurrent-adoption.json",
+    "deployed32-concurrent-adoption.json",
+    "runtime31-concurrent-adoption-attempt.json",
+    "runtime32-concurrent-adoption-attempt.json",
+    "deployed31-template-prefill-regression.json",
+    "runtime31-template-prefill-regression.json",
+    "deployed32-latest-source-spotcheck.json",
+    "deployed31-iso-compatible.json",
+    "runtime31-iso-compatible-initial.json",
+    "runtime31-iso-compatible-xml.json",
+    "runtime31-iso-compatible-final.json",
+    "deployed31-iso-two-media-regression.json",
+    "runtime31-iso-slot-conflict.json"
   ],
   "windowsSeeds": [
     {
@@ -323,6 +338,63 @@
     "cluster": 31,
     "initialAttempt": "Template deep link selected Windows2022; UI reported KVDO mismatch; API template/offering both false; no VM created",
     "subsequentAttempt": "Explicit standard UI template selection created Windows UEFI seed-r2 and booted Windows console, then normal UI stop",
-    "prefilledTemplatePath": "NOT_RESOLVED_AS_A_FULL_REGRESSION_PASS"
+    "prefilledTemplatePath": "PASS_ACTUAL_UI_CREATE_STOPPED_ROOT_DEVICE0_100GIB_WITHOUT_RESELECT",
+    "fixSourceCommit": "24e4d7b007453919e725e0b90c976d840a453541",
+    "vmId": "5dbc658d-f6a3-46d4-9afd-3dd9768a3880",
+    "guestBootVerified": false,
+    "evidence": "deployed31-template-prefill-regression.json"
+  },
+  "latestUiSpotCheck": {
+    "evidence": "deployed32-latest-source-spotcheck.json",
+    "sourceCommit": "24e4d7b007453919e725e0b90c976d840a453541",
+    "scope": "POST_TEMPLATE_GUARD_DARK_DESKTOP_SOURCE_SELECTION_SPOT_CHECK",
+    "sixViewReviewSourceRemains": "957f61f39cf464dbfc19d1b31c4388f26b13667e"
+  },
+  "concurrentAdoption": [
+    {
+      "cluster": 31,
+      "scope": "TWO_API_REQUESTS_SYNCHRONIZED_FINAL_UI_RESULT_AND_PRESERVING_DETACH",
+      "status": "PASS",
+      "uiSubmissionOnly": false,
+      "guestBootVerified": false,
+      "duplicateRootOwner": false,
+      "evidence": "runtime31-concurrent-adoption-attempt.json",
+      "uiEvidence": "deployed31-concurrent-adoption.json"
+    },
+    {
+      "cluster": 32,
+      "scope": "TWO_API_REQUESTS_SYNCHRONIZED_FINAL_UI_RESULT_AND_PRESERVING_DETACH",
+      "status": "PASS",
+      "uiSubmissionOnly": false,
+      "guestBootVerified": false,
+      "duplicateRootOwner": false,
+      "evidence": "runtime32-concurrent-adoption-attempt.json",
+      "uiEvidence": "deployed32-concurrent-adoption.json"
+    }
+  ],
+  "isoRegression": {
+    "31": {
+      "status": "PASS_UI_CREATE_STOPPED_TWO_ISOS_START_INSTALLER_BOOT_NORMAL_STOP",
+      "vmId": "2c0cc0bd-1a16-4d17-aaff-2820780304d8",
+      "osInstalled": false,
+      "representativeMatrixCase": false,
+      "networkConfigDrive": false,
+      "evidence": "deployed31-iso-compatible.json",
+      "configDriveAttempt": {
+        "status": "START_BLOCKED_BY_KNOWN_ISO_SLOT_LIMIT_NOT_A_BOOT_PASS",
+        "vmId": "79748c3a-b0ce-40b9-8537-7c4c8b599ae9",
+        "evidence": "runtime31-iso-slot-conflict.json"
+      }
+    },
+    "32": {
+      "status": "NOT_RUN_READY_BOOTABLE_ISO_UNAVAILABLE"
+    }
+  },
+  "uiFocusedTestsEvidence": {
+    "sourceCommit": "24e4d7b007453919e725e0b90c976d840a453541",
+    "passed": 34,
+    "eslint": "PASS",
+    "productionBuild": "PASS",
+    "privateLog": "ui-template-prefill-guard-tests.log"
   }
 }

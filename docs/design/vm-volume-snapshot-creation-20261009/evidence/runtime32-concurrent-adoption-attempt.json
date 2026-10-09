@@ -1,0 +1,69 @@
+{
+  "cluster": 32,
+  "scope": "CONCURRENT_API_SUBMISSIONS_WITH_REQUIRED_FINAL_UI_RESOURCE_VERIFICATION",
+  "startedAt": "2026-10-09T03:12:00.079676+00:00",
+  "sourceVolumeId": "1a989f91-798b-46a0-8234-25adb402f35e",
+  "sourceRevision": "5dd54c986bf252f7a47bbdeb6cfe4dd43c116a210a56874b6d22c4d25c956296",
+  "requests": [
+    {
+      "name": "E1335-32-concurrent-adopt-a",
+      "accepted": true,
+      "response": {
+        "id": "46757bcc-987a-4ced-953e-16694d4040e7",
+        "jobid": "88a78c5d-63f5-4714-8117-79520a21cf82"
+      },
+      "startedEpoch": 1791515519.748859,
+      "elapsedSeconds": 0.309,
+      "job": {
+        "status": 1,
+        "resultVmId": "46757bcc-987a-4ced-953e-16694d4040e7"
+      }
+    },
+    {
+      "name": "E1335-32-concurrent-adopt-b",
+      "accepted": false,
+      "error": "SOURCE_ATTACHED: another VM has claimed this volume",
+      "startedEpoch": 1791515519.7482228,
+      "elapsedSeconds": 0.317
+    }
+  ],
+  "volumeAfterSubmit": {
+    "id": "1a989f91-798b-46a0-8234-25adb402f35e",
+    "state": "Ready",
+    "type": "ROOT",
+    "virtualmachineid": "46757bcc-987a-4ced-953e-16694d4040e7",
+    "deviceid": 0
+  },
+  "finalUiVerified": true,
+  "vmRows": [
+    {
+      "id": "46757bcc-987a-4ced-953e-16694d4040e7",
+      "name": "E1335-32-concurrent-adopt-a",
+      "state": "Stopped",
+      "volumes": [
+        {
+          "id": "1a989f91-798b-46a0-8234-25adb402f35e",
+          "state": "Ready",
+          "type": "ROOT",
+          "deviceid": 0,
+          "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122"
+        }
+      ]
+    },
+    {
+      "id": "c3146ff4-e72a-4b40-a523-a67b681213db",
+      "name": "E1335-32-concurrent-adopt-b",
+      "state": "Error",
+      "volumes": []
+    }
+  ],
+  "singleSourceRootOwner": true,
+  "sourcePreservingDetachVerified": {
+    "state": "Ready",
+    "type": "DATADISK",
+    "virtualmachineid": null,
+    "deviceid": null,
+    "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122"
+  },
+  "result": "PASS_ONE_ROOT_OWNER_LOSER_REJECTED_AND_UI_PRESERVING_DETACH"
+}

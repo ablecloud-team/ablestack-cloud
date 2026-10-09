@@ -1,0 +1,128 @@
+{
+  "activeTag": "BODY",
+  "pageWidth": 1670,
+  "samples": [
+    {
+      "background": "rgb(23, 43, 61)",
+      "color": "rgb(214, 235, 255)",
+      "fontSize": "14px",
+      "text": "기존 볼륨을 그대로 루트 디스크로 사용합니다. 복사본을 만들지 않습니다. 원본 저장소와 크기를 유지합니다."
+    },
+    {
+      "background": "rgb(39, 46, 54)",
+      "color": "rgb(197, 204, 212)",
+      "fontSize": "14px",
+      "text": ""
+    },
+    {
+      "background": "rgb(39, 46, 54)",
+      "color": "rgb(197, 204, 212)",
+      "fontSize": "14px",
+      "text": "이름 / UUID"
+    },
+    {
+      "background": "rgb(39, 46, 54)",
+      "color": "rgb(197, 204, 212)",
+      "fontSize": "14px",
+      "text": "출처 / 운영체제"
+    },
+    {
+      "background": "rgb(39, 46, 54)",
+      "color": "rgb(197, 204, 212)",
+      "fontSize": "14px",
+      "text": "상태 / 복구 시점"
+    },
+    {
+      "background": "rgb(39, 46, 54)",
+      "color": "rgb(197, 204, 212)",
+      "fontSize": "14px",
+      "text": "논리 용량 / 부팅"
+    },
+    {
+      "background": "rgb(39, 46, 54)",
+      "color": "rgb(197, 204, 212)",
+      "fontSize": "14px",
+      "text": "저장소 / 범위"
+    },
+    {
+      "background": "rgb(39, 46, 54)",
+      "color": "rgb(197, 204, 212)",
+      "fontSize": "14px",
+      "text": "사용 가능 여부"
+    },
+    {
+      "background": "rgb(38, 38, 38)",
+      "color": "rgb(197, 204, 212)",
+      "fontSize": "14px",
+      "text": ""
+    },
+    {
+      "background": "rgb(38, 38, 38)",
+      "color": "rgb(197, 204, 212)",
+      "fontSize": "14px",
+      "text": "ROOT-321a989f91-798b-46a0-8234-25adb402f35e"
+    },
+    {
+      "background": "rgb(38, 38, 38)",
+      "color": "rgb(197, 204, 212)",
+      "fontSize": "14px",
+      "text": "ROOT-32"
+    },
+    {
+      "background": "rgb(38, 38, 38)",
+      "color": "rgb(197, 204, 212)",
+      "fontSize": "14px",
+      "text": "E1335-32-concurrent-adopt-aRocky Linux 9"
+    },
+    {
+      "background": "rgb(38, 38, 38)",
+      "color": "rgb(197, 204, 212)",
+      "fontSize": "14px",
+      "text": "준비 완료"
+    },
+    {
+      "background": "rgb(67, 67, 67)",
+      "color": "rgb(197, 204, 212)",
+      "fontSize": "12px",
+      "text": "준비 완료"
+    },
+    {
+      "background": "rgb(38, 38, 38)",
+      "color": "rgb(197, 204, 212)",
+      "fontSize": "14px",
+      "text": "100 GiBBIOS · LEGACY"
+    },
+    {
+      "background": "rgb(38, 38, 38)",
+      "color": "rgb(197, 204, 212)",
+      "fontSize": "14px",
+      "text": "PrimaryRBD · CLUSTER"
+    },
+    {
+      "background": "rgb(38, 38, 38)",
+      "color": "rgb(197, 204, 212)",
+      "fontSize": "14px",
+      "text": "생성 가능"
+    },
+    {
+      "background": "rgb(34, 40, 47)",
+      "color": "rgb(197, 204, 212)",
+      "fontSize": "12px",
+      "text": "적격성 확인 시각: 오후 12:24:52"
+    }
+  ],
+  "sourceWidth": 891,
+  "tableScroll": [
+    {
+      "client": 891,
+      "scroll": 891
+    }
+  ],
+  "theme": "dark-mode",
+  "viewport": [
+    1680,
+    763
+  ],
+  "sourceCommit": "24e4d7b007453919e725e0b90c976d840a453541",
+  "scope": "POST_RC11_DARK_DESKTOP_SOURCE_SELECTION_SPOT_CHECK"
+}

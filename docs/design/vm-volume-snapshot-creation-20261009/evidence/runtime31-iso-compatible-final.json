@@ -1,0 +1,36 @@
+{
+  "vm": {
+    "id": "2c0cc0bd-1a16-4d17-aaff-2820780304d8",
+    "name": "E1335-31-ISO-two-media-no-configdrive",
+    "state": "Stopped",
+    "boottype": "Uefi",
+    "bootmode": "legacy",
+    "hostid": null
+  },
+  "volumes": [
+    {
+      "id": "f0364599-6555-429c-8b9d-b1c6c5d4780c",
+      "state": "Ready",
+      "type": "ROOT",
+      "deviceid": 0,
+      "size": 21474836480,
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    }
+  ],
+  "isos": [
+    {
+      "id": "3b5703ae-681e-4fa1-8191-7222cd2f6a5b",
+      "name": "Rocky Linux 9.8 x86_64 DVD",
+      "displaytext": "Rocky Linux 9.8 x86_64 DVD",
+      "deviceseq": 3,
+      "bootable": true
+    },
+    {
+      "id": "9ba4cfde-6a3a-409b-a01c-ea8f22b3561f",
+      "name": "Virtio Windows Driver 0.1.302",
+      "displaytext": "Virtio Windows Driver 0.1.302",
+      "deviceseq": 4,
+      "bootable": false
+    }
+  ]
+}

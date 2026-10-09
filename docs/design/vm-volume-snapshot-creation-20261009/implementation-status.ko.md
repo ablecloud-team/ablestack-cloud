@@ -47,6 +47,7 @@ Windows는 31·32번 seed를 실제 UI로 생성·부팅·정지하고 콘솔의
 7. 추가 DATA 수량 입력과 크기/수량 검증을 보완하고, 스냅샷 DATA 조회에 snapshotid와 ROOT/DATA 동시 용량 계산을 포함했다.
 8. 프로젝트 유형만 선택하고 프로젝트는 비워 둔 상태에서 이전 계정 원본이 되살아나는 문제를 발견했다. 소유자 확정 전 조회·제출을 차단하고 오래된 응답을 무시한다.
 9. 밝은 테마의 녹색 상태 태그가 3.37:1로 표시되는 문제를 발견해 공통 텍스트 토큰으로 대비를 개선했다.
+10. 템플릿 사전 선택 URL에서 폼의 미설정 압축 값 때문에 비활성 템플릿/오퍼링을 불일치로 거절하는 문제를 수정했다. 리소스의 실제 kvdoenable을 비교하고, 템플릿을 다시 선택하지 않은 실제 UI 제출로 Stopped VM과 ROOT/device0 100GiB 생성을 확인했다.
 
 처음 실패한 VM·볼륨은 진단 증거로 남겼다. 후속 수정 결과를 이전 실패의 PASS로 합산하지 않는다. krbd 호스트에서 읽기 전용으로 사용 중인 원본은 최종 UI 검사에서 다른 VM 사용 중 사유로 차단되었다. 임시 domain/map 정리 후 기존 runtime 목록이 일치했다.
 
@@ -58,25 +59,31 @@ Windows는 31·32번 seed를 실제 UI로 생성·부팅·정지하고 콘솔의
 
 양쪽 관리 JAR은 소스 `1c3c9c41341`의 변경 클래스 82개와 빌드 산출물 해시가 일치한다. 31번 관리 JAR SHA256은 `706ff0f3a853c828dfbab3a46ca7b61ab0b0cda6a07c5a42b98b7599a111be5d`, 32번은 `7c6a65eecbcdd37099eef3c13a69607f6988c215ed6d375cbdd6c8044d420551`다. 두 환경의 Agent 3대씩 배포되었고 설정 및 실행 domain 보존을 확인했다.
 
-최종 UI 소스 `957f61f39cf`는 소유자 미선택 차단과 상태 태그 대비 개선을 포함한다. 생산 빌드와 두 클러스터 배포를 완료했다. archive SHA256은 `40b22a8c52ecb28400c0ae14d4a06fa74c889fc8531f2e9c1e73f08dee15c429`이며, 양쪽 정적 파일 840개 해시, WEB-INF/META-INF/config.json 보존, mold active와 `/client/` 200을 확인했다. 배포별 백업과 결과는 `evidence/ui-deployment-final.json`에 있다.
+최종 UI 소스 `24e4d7b0074`는 소유자 미선택 차단·상태 태그 대비 개선·템플릿 사전 선택 압축 검사 수정을 포함한다. 생산 빌드와 두 클러스터 배포를 완료했다. archive SHA256은 `430743ed1ebe5f914eb1b09ac976d326f20323d72538624ec4e7ab4c2e06e6f2`이며, 양쪽 정적 파일 840개 해시, WEB-INF/META-INF/config.json 보존, mold active와 `/client/` 200을 확인했다. 배포별 백업과 결과는 `evidence/ui-deployment-final.json`에 있다.
 
-검증 후 기존 31번 VM 74개·32번 VM 13개의 UUID/상태/호스트가 그대로이며 호스트 6대 모두 Up이다. 전용 테스트 VM은 이 원본 목록과 따로 기록했다. 원본 볼륨은 Ready/미연결, 스냅샷은 BackedUp이다. 최신 읽기 전용 증거는 `evidence/final-linux-runtime-preservation-31.json`, `-32.json`이다. 예전 `runtime-preservation.json`은 배포 전 API 미지원 상태의 기록으로 최종 배포 증거가 아니다.
+검증 후 기존 31번 VM 74개·32번 VM 13개의 UUID/상태/호스트가 그대로이며 호스트 6대 모두 Up이다. 전용 테스트 VM은 31번 11개·32번 12개이며 이 원본 목록과 따로 기록했다. 동시성 실패의 Error VM과 ISO 슬롯 제한의 Stopped VM도 진단용으로 보존했다. 원본 볼륨은 Ready/미연결, 스냅샷은 BackedUp이다. 최신 읽기 전용 증거는 `evidence/final-linux-runtime-preservation-31.json`, `-32.json`이다. 예전 `runtime-preservation.json`은 배포 전 API 미지원 상태의 기록으로 최종 배포 증거가 아니다.
 
 ## UI 검토와 남은 조건
 
 실제 UI 후보·요약·확인·성공·복구 실패·부분 VM 링크, 한글 상태, 검색 빈 결과, 연결 중 차단을 확인했다. DATA 10000GiB ×2 + ROOT100GiB는 19.63TiB 필요/8.04TiB 추가 할당 가능으로 양쪽 풀에 용량 부족을 표시하고 생성 버튼을 비활성화했다. 요청은 제출하지 않았다.
 
-390/1366/1680px 라이트·다크 6개 실제 화면에서 문서 가로 넘침 없이 표 내부 스크롤을 확인했다. 검색 입력의 Tab 이동도 확인했다. 최신 UI에서 소유자 미선택 시 후보·요약 제거와 생성 비활성화, 유효한 계정 복구를 32번에서 확인했다. 31번 기존 프로젝트 선택에서는 admin 원본이 노출되지 않았고 계정 복귀 시 복구되었다. 최신 원본 영역의 표본 텍스트 최소 대비는 라이트 6.88:1, 다크 6.11:1이다. 문서 가로 넘침은 없었으며 모바일 표 내부 스크롤과 Tab 포커스 이동이 유지되었다. 이것은 전체 화면의 접근성 감사 완료를 의미하지 않는다. `deployed-ui-review.json`은 최신 배포의 6개 화면 기록이다. 로컬 오류 화면 검토는 `local-ui-review.json`이며 실제 생성 PASS와 구분한다.
+UI 소스 `957f61f39cf`의 390/1366/1680px 라이트·다크 6개 실제 화면에서 문서 가로 넘침 없이 표 내부 스크롤을 확인했다. 검색 입력의 Tab 이동도 확인했다. 최신 UI에서 소유자 미선택 시 후보·요약 제거와 생성 비활성화, 유효한 계정 복구를 32번에서 확인했다. 31번 기존 프로젝트 선택에서는 admin 원본이 노출되지 않았고 계정 복귀 시 복구되었다. 최신 원본 영역의 표본 텍스트 최소 대비는 라이트 6.88:1, 다크 6.11:1이다. 문서 가로 넘침은 없었으며 모바일 표 내부 스크롤과 Tab 포커스 이동이 유지되었다. 이것은 전체 화면의 접근성 감사 완료를 의미하지 않는다. `deployed-ui-review.json`은 소스 `957f61f39cf`의 6개 화면 기록이다. 최종 `24e4d7b0074`는 템플릿 검사만 바꾸고 해당 화면 구조/스타일은 유지했다. 최종 배포의 32번 다크 데스크톱 원본 선택도 별도 `deployed32-latest-source-spotcheck.json`으로 확인했다. 6개 기존 증거의 소스 버전을 최종 소스로 바꾸어 기록하지 않는다. 로컬 오류 화면 검토는 `local-ui-review.json`이며 실제 생성 PASS와 구분한다.
 
 추가로 32번에서 원본 선택 후 다른 정지된 테스트 VM에 DATA/device1로 연결했다. 실제 생성 버튼의 최종 검사에서 연결 중 및 원본 변경 한글 사유로 거절되었고 새 VM은 0개였다. 이후 UI로 보존 분리했고 원본 Ready/미연결, 대상 VM Stopped, 스냅샷 BackedUp을 확인했다. `deployed32-source-state-change.json`과 runtime 증거를 연결한다.
 
-31번 Windows 템플릿 사전 선택 URL의 첫 제출은 API의 template/offering kvdoenable이 모두 false인데 UI 압축 설정 불일치로 거부되었고 VM은 생성되지 않았다. 표준 화면에서 템플릿을 명시적으로 선택한 새 run은 UEFI 부팅·정지를 통과했다. 사전 선택 URL 자체의 문제는 완료 처리하지 않고 기존 Epic 안의 회귀 확인 사항으로 남긴다.
+31번 템플릿 사전 선택 URL의 첫 압축 설정 불일치 거절은 소스 `24e4d7b0074`에서 수정했다. 동일 템플릿을 다시 선택하지 않고 실제 UI로 `E1335-31-template-prefill-r3`를 생성했으며 VM `5dbc658d-f6a3-46d4-9afd-3dd9768a3880`의 최초 Stopped와 ROOT/device0 100GiB를 확인했다. 템플릿의 startvm=false ROOT는 최초 부팅 전 Allocated 상태였으며 생성 검증에 한정한다. 기존 명시적 선택 seed는 UEFI 콘솔 부팅·정지를 통과했지만 이 사전 선택 run의 게스트 부팅 또는 Windows 대표 원본 경로를 통과했다고 표시하지 않는다. `deployed31-template-prefill-regression.json`과 runtime 증거를 연결한다.
 
-남은 범위: Windows UEFI 대표 8개, 일반 사용자 권한 및 프로젝트 소유 원본 생성, 동시 편입, 태그/IOPS/스토리지 불가, 진행 중 agent/management 재시작·응답 유실·부분 실패 재시도, template/ISO 및 추가 ISO 회귀와 템플릿 사전 선택 불일치. 단위 테스트나 API 결과만으로 이 UI 경계 검증을 완료 처리하지 않는다.
+양쪽 환경에서 같은 볼륨에 대한 요청 2개를 1ms 이내에 동시에 제출했다. 한 요청만 동일 UUID를 ROOT/device0으로 편입했고 다른 요청은 `SOURCE_ATTACHED`로 거절되었다. 실제 UI에서 승자 Stopped/ROOT 1개, 실패 VM Error/볼륨 0개를 확인하고 UI로 원본을 보존 분리해 Ready/DATADISK/미연결로 복구했다. `runtime31-concurrent-adoption-attempt.json`, `runtime32-concurrent-adoption-attempt.json`과 UI JSON·사진을 연결한다. 동시성 주입은 API로 수행했고 최종 결과/분리는 UI로 검증했다. 다중 부하 스트레스·게스트 부팅 또는 UI만으로 동시 제출한 테스트로 확대 해석하지 않는다.
+
+31번 기존 ISO 경로는 부팅 ISO+추가 드라이버 ISO, ROOT20GiB, ConfigDrive 없는 기존 L2-Test 네트워크로 실제 UI 생성(최초 Stopped)·시작·Rocky Linux 9.8 한국어 설치 화면 부팅·정상 정지를 통과했다. ISO 두 개의 슬롯 3/4와 호스트 XML의 SATA CD-ROM 2개, 최종 Ready ROOT/device0 20GiB를 확인했다. OS 설치는 진행하지 않았다. `deployed31-iso-compatible.json`과 콘솔·정지 사진 및 runtime 증거를 연결한다.
+
+별도의 ConfigDrive 네트워크 ISO run은 두 ISO로 Stopped 생성 후 시작이 슬롯 제한으로 거절되어 Stopped를 유지했다. UI에는 ConfigDrive가 두 번째 슬롯을 사용할 수 있다는 안내가 있었으며 관리 로그는 `Destination cannot accommodate the attached ISOs (cluster limit, host capability or ConfigDrive)`를 기록했다. `runtime31-iso-slot-conflict.json`에는 해당 job의 민감 값 없는 오류 줄만 저장했다. 이 run은 부팅 PASS가 아니며 ConfigDrive와 ISO 2개 조합의 시작 제한/사전 검사 개선 여지는 기존 Epic에 남긴다. 32번은 Ready 부팅 ISO가 없어 ISO 부팅 회귀를 수행하지 않았다.
+
+남은 범위: Windows UEFI 대표 8개, 일반 사용자 권한 및 프로젝트 소유 원본 생성, 다중 동시 편입 부하, 태그/IOPS/스토리지 불가, 원본 삭제 후 스냅샷 복구, 진행 중 agent/management 재시작·응답 유실·부분 실패 재시도, 32번 ISO 부팅 및 더 넓은 template/ISO 회귀, ConfigDrive+ISO 2개 조합의 사전 검사/시작 제한. 단위 테스트나 API 결과만으로 이 UI 경계 검증을 완료 처리하지 않는다.
 
 ## PR CI
 
-전체 Cloud 빌드는 수동 시작하지 않았다. PR push가 자동 시작한 전체 Build/RPM은 중지했다. 이전 관련 head의 License·Conflict는 통과했지만 Lint 및 UI Build 실패는 집중 모듈·UI 테스트와 별도다. UI CI 9개 실패 중 변경되지 않은 4개 suite의 8개는 깨끗한 기준에서도 재현했고, vmDiskDeployment Array.at는 CI Node14에서 실패·로컬 통과였다. 9개 전부 기준 실패 또는 전체 CI green으로 표시하지 않는다. UI Build `d3c4b441f40` head는 취소, Lint 실패, License/Conflict 통과였다. UI 코드 head `957f61f39cf`의 PR 체크는 조회 시 빈 목록이었으므로 성공으로 표시하지 않는다. 최종 문서 head 결과도 별도로 조회한다.
+전체 Cloud 빌드는 수동 시작하지 않았다. PR push가 자동 시작한 전체 Build/RPM은 중지했다. 이전 관련 head의 License·Conflict는 통과했지만 Lint 및 UI Build 실패는 집중 모듈·UI 테스트와 별도다. UI CI 9개 실패 중 변경되지 않은 4개 suite의 8개는 깨끗한 기준에서도 재현했고, vmDiskDeployment Array.at는 CI Node14에서 실패·로컬 통과였다. 9개 전부 기준 실패 또는 전체 CI green으로 표시하지 않는다. UI Build `d3c4b441f40` head는 취소, Lint 실패, License/Conflict 통과였다. 최종 UI 코드 head `24e4d7b0074`의 Actions/PR 체크는 조회 시 빈 목록이었으므로 성공으로 표시하지 않는다. 최종 문서 head 결과도 별도로 조회한다.
 
 - [Epic #1335](https://github.com/ablecloud-team/ablestack-cloud/issues/1335)
 - [Epic PR #1344](https://github.com/ablecloud-team/ablestack-cloud/pull/1344)
