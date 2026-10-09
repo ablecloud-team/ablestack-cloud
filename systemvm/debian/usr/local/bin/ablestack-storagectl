@@ -12573,6 +12573,14 @@ elif action == "posix-attest":
         lambda binding:identity_command(("operation","root-data","inspect","/dev/stdin"),{**{key:request[key] for key in ("instanceUuid","templateUpgradeUuid","operationUuid","revision")},
                                       "volumes":[{"volumeUuid":binding["volumeUuid"],"sizeBytes":binding["sizeBytes"],"kind":"FILE_DATA"}]})["volumes"][0])
     print(json.dumps(result,sort_keys=True))
+elif action=="ad-retain":
+    capsule_scope=RootIdentityReference().authorize(request,request["capsule"],identity_command(("operation","maintenance","status")))
+    payload=decrypt(request["capsule"],request["credentialPrivateKey"],capsule_scope);validate_payload(payload)
+    identity=payload.get("adIdentity")
+    if not isinstance(identity,dict) or not {"machineAccountSid","dnsAliases","machineConfigurationSha256","idmapPolicy"}<=set(identity):raise ValueError("SAMEVM AD capsule lacks its full source identity")
+    if not isinstance(request.get("retainedRootAuthorization"),dict):raise ValueError("ROOT AD retain requires authenticated retained authorization")
+    result=identity_command(("identity","domain","retain","/dev/stdin"),{**{key:request[key] for key in ("instanceUuid","operationUuid","revision")},"expectedIdentity":identity,"retainedRootAuthorization":request["retainedRootAuthorization"]})
+    print(json.dumps(result,sort_keys=True))
 elif action == "import":
     if "templateUpgradeUuid" in request:
         scope=RootIdentityReference().authorize(request,request["capsule"],identity_command(("operation","maintenance","status")))
@@ -12602,6 +12610,244 @@ PYIDENTITY
 
 identity_metadata_command() {
   python3 - "$subcommand" "$action" "$payload" 3<&0 <<'PYADIDENTITY'
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements. See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership. The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+"""Protected joined AD policy and fixed fresh principal mapping for physical ACLs."""
+import fcntl
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import stat
+import subprocess
+import time
+import uuid
+
+
+def ad_authority_read(path, exact_mode=None):
+    path=Path(path);parent=path.parent.lstat();info=path.lstat()
+    if (not stat.S_ISDIR(parent.st_mode) or parent.st_uid!=os.geteuid() or parent.st_mode&0o022
+            or not stat.S_ISREG(info.st_mode) or info.st_uid!=os.geteuid() or info.st_mode&0o022
+            or info.st_size>8*1024*1024 or exact_mode is not None and stat.S_IMODE(info.st_mode)!=exact_mode):
+        raise ValueError("AD policy authority is not protected")
+    directory=os.open(path.parent,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
+    descriptor=None
+    fields=("st_dev","st_ino","st_uid","st_gid","st_mode","st_size","st_mtime_ns","st_ctime_ns")
+    try:
+        opened_parent=os.fstat(directory)
+        if (opened_parent.st_dev,opened_parent.st_ino)!=(parent.st_dev,parent.st_ino):raise ValueError("AD policy directory changed")
+        descriptor=os.open(path.name,os.O_RDONLY|os.O_NOFOLLOW,dir_fd=directory);opened=os.fstat(descriptor)
+        if any(getattr(opened,key)!=getattr(info,key) for key in fields):raise ValueError("AD policy changed during open")
+        with os.fdopen(descriptor,"rb",closefd=False) as handle:raw=handle.read(8*1024*1024+1)
+        after=os.fstat(descriptor);named=os.stat(path.name,dir_fd=directory,follow_symlinks=False)
+        if len(raw)>8*1024*1024 or any(getattr(opened,key)!=getattr(after,key) or getattr(opened,key)!=getattr(named,key) for key in fields):
+            raise ValueError("AD policy changed during read")
+        return raw
+    finally:
+        if descriptor is not None:os.close(descriptor)
+        os.close(directory)
+
+
+def ad_qualified_name(value,domain,workgroup):
+    if not isinstance(value,str) or not value or len(value)>256 or any(ord(char)<32 for char in value):raise ValueError("AD principal is invalid")
+    if chr(92) in value:
+        pieces=value.split(chr(92))
+        if len(pieces)!=2 or pieces[0].upper()!=workgroup:raise ValueError("AD principal belongs to another domain")
+        name=pieces[1]
+    elif "@" in value:
+        pieces=value.split("@")
+        if len(pieces)!=2 or pieces[1].lower()!=domain:raise ValueError("AD principal belongs to another realm")
+        name=pieces[0]
+    else:name=value
+    if not re.fullmatch(r"[A-Za-z0-9_][A-Za-z0-9_. -]{0,127}",name) or name!=name.strip():raise ValueError("AD principal name is invalid")
+    return workgroup+chr(92)+name
+
+
+def ad_policy_lines(workgroup,policy):
+    if not re.fullmatch(r"[A-Z0-9][A-Z0-9_-]{0,14}",workgroup or ""):raise ValueError("AD workgroup authority is invalid")
+    if not isinstance(policy,dict) or set(policy)!={"default","domain"}:raise ValueError("AD policy requires exact idmap scopes")
+    lines=[];ranges=[]
+    for key,name,backend,fields in (("default","*","tdb",{"backend","range"}),("domain",workgroup,"rid",{"backend","range","baseRid"})):
+        row=policy[key];limits=row.get("range") if isinstance(row,dict) else None
+        if (not isinstance(row,dict) or set(row)!=fields or row.get("backend")!=backend or not isinstance(limits,list) or len(limits)!=2
+                or any(type(number) is not int for number in limits) or not 10000<=limits[0]<limits[1]<=2147483647 or limits[0]<=65534<=limits[1]):
+            raise ValueError("AD idmap authority has an unsafe or unsupported range")
+        if backend=="rid" and (type(row["baseRid"]) is not int or not 0<=row["baseRid"]<=2147483647):raise ValueError("AD idmap RID authority is invalid")
+        ranges.append(limits);lines.extend(["   idmap config "+name+" : backend = "+backend,"   idmap config "+name+" : range = "+str(limits[0])+"-"+str(limits[1])])
+        if backend=="rid":lines.append("   idmap config "+name+" : base_rid = "+str(row["baseRid"]))
+    if max(row[0] for row in ranges)<=min(row[1] for row in ranges):raise ValueError("AD idmap authority ranges overlap")
+    return lines
+
+
+def protected_ad_policy(instance_uuid, identity=None, netbios_name=None, configuration=None):
+    directory=Path(configuration or os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_ROOT","/etc/ablestack-storage"))
+    raw=ad_authority_read(directory/"smb-domain.json");state=json.loads(raw)
+    if (not isinstance(state,dict) or state.get("state")!="JOINED" or state.get("joinState")!="JOINED"
+            or state.get("instanceUuid")!=str(uuid.UUID(instance_uuid))):
+        raise ValueError("AD joined policy belongs to another native instance")
+    domain=state.get("domainName");realm=state.get("realm");workgroup=state.get("workgroup");netbios=state.get("netbiosName")
+    if (not isinstance(domain,str) or not re.fullmatch(r"[a-z0-9](?:[a-z0-9.-]{0,251}[a-z0-9])?",domain) or "." not in domain
+            or ".." in domain or realm!=domain.upper() or not re.fullmatch(r"[A-Z0-9][A-Z0-9_-]{0,14}",netbios or "")):
+        raise ValueError("AD joined realm/machine authority is invalid")
+    receipt=state.get("identityReceipt")
+    if not isinstance(receipt,dict) or set(receipt)!={"machineSid","domainSid","machineAccountSid"}:
+        raise ValueError("AD joined policy lacks its protected SID receipt")
+    for key in ("machineSid","domainSid"):
+        if not re.fullmatch(r"S-1-5-21(?:-[0-9]{1,10}){3}",str(receipt[key])):raise ValueError("AD joined SID authority is invalid")
+    if not re.fullmatch(re.escape(receipt["domainSid"])+r"-[0-9]{1,10}",str(receipt["machineAccountSid"])):
+        raise ValueError("AD joined computer SID authority is foreign")
+    mapping=state.get("idmapPolicy");lines=ad_policy_lines(workgroup,mapping)
+    machine=ad_authority_read(directory/"ad-machine.conf",0o600);checksum=hashlib.sha256(machine).hexdigest()
+    if state.get("machineConfigurationSha256")!=checksum:raise ValueError("AD machine policy differs from its joined receipt")
+    expected={"workgroup":workgroup,"realm":realm,"netbios name":netbios,"security":"ADS"}
+    for line in lines:
+        name,value=line.strip().split("=",1);expected[name.strip().lower()]=value.strip()
+    observed={};global_section=False
+    for line in machine.decode().splitlines():
+        stripped=line.strip()
+        if stripped.startswith("["):global_section=stripped.lower()=="[global]";continue
+        if global_section and "=" in stripped and not stripped.startswith(("#",";")):
+            name,value=stripped.split("=",1);name=name.strip().lower()
+            if name in expected:
+                if name in observed:raise ValueError("AD machine policy contains duplicate authority parameters")
+                observed[name]=value.strip()
+    if observed!=expected:raise ValueError("AD machine parameters differ from their exact joined authority")
+    if identity is not None:
+        config=identity.get("config") or {};wanted=config.get("identityReceipt")
+        stable={"domain":domain,"realm":realm,"workgroup":workgroup,"netbiosName":netbios,**receipt,
+                "idmapPolicy":mapping,"servicePrincipals":state.get("servicePrincipals"),"dnsAliases":state.get("dnsAliases")}
+        if (identity.get("joinState")!="JOINED" or str(identity.get("domainName") or "").lower()!=domain
+                or config.get("workgroup") not in (None,workgroup) or config.get("netbiosName") not in (None,netbios)
+                or not isinstance(wanted,dict) or any(wanted.get(key)!=value for key,value in stable.items())
+                or wanted.get("trustVerified") is not True or wanted.get("identityVerified") is not True):
+            raise ValueError("Desired AD identity differs from its protected joined policy")
+    if netbios_name is not None and netbios_name!=netbios:raise ValueError("SMB netbios name differs from its protected AD machine")
+    if ad_authority_read(directory/"smb-domain.json")!=raw:raise ValueError("AD joined policy changed during machine verification")
+    return {"domain":domain,"realm":realm,"workgroup":workgroup,"netbiosName":netbios,"domainSid":receipt["domainSid"],
+            "idmapPolicy":mapping,"idmapLines":lines,"machineConfigurationSha256":checksum}
+
+
+def ad_mapped_entry(entry,request,run=None,cli=None,configuration=None,generation=None,clock=None):
+    policy=protected_ad_policy(request["instanceUuid"],configuration=configuration)
+    root=Path(generation or os.environ.get("ABLESTACK_STORAGE_GENERATION_DIR","/var/lib/ablestack-storage/config-generations"))
+    path=root/"pending.json"
+    if not path.exists() and not path.is_symlink():path=root/"current.json"
+    scope=json.loads(ad_authority_read(path))
+    native={key:scope[key] for key in ("instanceUuid","operationUuid","revision")}
+    if native["instanceUuid"]!=request["instanceUuid"] or type(native["revision"]) is not int or native["revision"]<1:
+        raise ValueError("AD mapping scope belongs to another native instance")
+    if request.get("operationUuid") is not None:
+        if request.get("operationUuid")!=native["operationUuid"] or request.get("revision")!=native["revision"]:
+            raise ValueError("AD mapping requested operation/revision differs")
+    elif path.name=="pending.json":
+        if os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD")!="9":raise ValueError("AD pending mapping lacks its owned writer")
+        descriptor=os.fstat(9);named=Path(os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FILE","/run/ablestack-storage/desired-writer.lock")).lstat()
+        if (not stat.S_ISREG(descriptor.st_mode) or descriptor.st_uid!=os.geteuid() or stat.S_IMODE(descriptor.st_mode)!=0o600
+                or (descriptor.st_dev,descriptor.st_ino)!=(named.st_dev,named.st_ino)
+                or not re.search(r"lock:.*FLOCK.*WRITE",Path("/proc/self/fdinfo/9").read_text())):
+            raise ValueError("AD pending mapping writer descriptor differs")
+    kind=entry.get("principalType")
+    if kind not in ("AD_USER","AD_GROUP"):raise ValueError("AD mapping principal type is unsupported")
+    qualified=ad_qualified_name(entry.get("principal"),policy["domain"],policy["workgroup"])
+    payload={**native,"principalType":kind,"principal":entry.get("principal"),"expectedRealm":policy["realm"],"expectedDomainSid":policy["domainSid"]}
+    result=(run or subprocess.run)([str(cli or os.environ.get("ABLESTACK_STORAGECTL_SELF","/usr/local/bin/ablestack-storagectl")),"identity","principal","resolve","/dev/stdin"],
+                                 input=json.dumps(payload),capture_output=True,text=True,timeout=45)
+    if result.returncode:raise ValueError("Fresh AD principal mapping was rejected")
+    value=json.loads(result.stdout);number=value.get("numericId");sid_value=value.get("sid");now=(clock or time.time)()
+    expected_kind="u" if kind=="AD_USER" else "g";allowed={(1,"SID_USER")} if kind=="AD_USER" else {(2,"SID_DOM_GRP"),(4,"SID_ALIAS")}
+    limits=policy["idmapPolicy"]["domain"]["range"]
+    if (value.get("success") is not True or value.get("scope")!=native or value.get("principalType")!=kind
+            or value.get("mappingVerified") is not True or value.get("reverseVerified") is not True or value.get("sideEffects") is not False
+            or value.get("realm")!=policy["realm"] or value.get("workgroup")!=policy["workgroup"] or value.get("qualifiedName")!=qualified
+            or value.get("domainSid")!=policy["domainSid"] or value.get("kind")!=expected_kind
+            or type(value.get("sidType")) is not int or (value.get("sidType"),value.get("sidTypeName")) not in allowed
+            or not re.fullmatch(re.escape(policy["domainSid"])+r"-[0-9]{1,10}",str(sid_value))
+            or type(number) is not int or not limits[0]<=number<=limits[1] or number==65534
+            or value.get("bootId")!=Path("/proc/sys/kernel/random/boot_id").read_text().strip()
+            or type(value.get("generatedEpoch")) not in (int,float) or not now-60<=value["generatedEpoch"]<=now+5):
+        raise ValueError("AD principal mapping differs from its protected domain/type/reverse authority")
+    return value
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements. See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership. The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+"""Read-only cold ROOT AD scope requires authenticated retained source metadata."""
+import hashlib
+import base64
+import json
+import os
+from pathlib import Path
+import re
+import uuid
+
+
+def root_ad_retained_authority(common,maintenance,configuration=None,root=None,reference=None,sid_reader=None):
+    scope=maintenance.get("scope")
+    keys={"instanceUuid","templateUpgradeUuid","operationUuid","revision"}
+    if (maintenance.get("bootHeld") is not True or maintenance.get("maintenanceKind")!="ROOT" or not isinstance(scope,dict) or set(scope)!=keys
+            or any(scope.get(key)!=value for key,value in common.items()) or type(scope.get("revision")) is not int or scope["revision"]<1):
+        raise ValueError("Cold ROOT AD attestation lacks its exact held ROOT scope")
+    for key in keys-{"revision"}:
+        if not isinstance(scope[key],str) or str(uuid.UUID(scope[key]))!=scope[key]:raise ValueError("Cold ROOT AD scope UUID is invalid")
+    identifier=str(uuid.uuid5(uuid.UUID(scope["operationUuid"]),"ablestack-root-retained-authorization"))
+    base=Path(root or os.environ.get("ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR","/var/lib/ablestack-storage"))/"root-retained-authorizations"
+    raw=ad_authority_read(base/(identifier+"-authorization.json"),0o600);record=json.loads(raw)
+    if reference is not None:
+        if (not isinstance(reference,dict) or set(reference)!={"authorizationUuid","sha256"} or reference.get("authorizationUuid")!=identifier
+                or reference.get("sha256")!=hashlib.sha256(json.dumps(record,sort_keys=True,separators=(",",":")).encode()).hexdigest()):
+            raise ValueError("ROOT AD retained opaque reference differs")
+    identity=record.get("latestAdIdentity");boot=Path("/proc/sys/kernel/random/boot_id").read_text().strip()
+    if (record.get("kind")!="ROOT_RETAINED_AUTHORIZATION" or record.get("scope")!=scope or record.get("authorizedBootId")!=boot
+            or not isinstance(identity,dict) or identity.get("trustVerified") is not True or type(identity.get("schemaVersion")) is not int or identity.get("schemaVersion")!=1
+            or record.get("latestSourceRootScope",{}).get("instanceUuid")!=scope["instanceUuid"]
+            or not re.fullmatch("[0-9a-f]{64}",str(record.get("identityCheckpointSha256")))
+            or not re.fullmatch("[0-9a-f]{64}",str(record.get("latestConfigurationSha256")))):
+        raise ValueError("ROOT AD retained AEAD source/boot authority is unavailable")
+    identity_record=json.loads(ad_authority_read(base/(identifier+"-identity.json"),0o600))
+    if (identity_record.get("scope")!=common or identity_record.get("sourceConfigurationSha256")!=record["latestConfigurationSha256"]
+            or identity_record.get("publicKey")!=record.get("checkpointPublicKey")
+            or identity_record.get("capsule",{}).get("sha256")!=record["identityCheckpointSha256"]):
+        raise ValueError("ROOT AD opaque encrypted source checkpoint differs")
+    capsule=identity_record["capsule"];ciphertext=base64.b64decode(capsule["ciphertext"],validate=True)
+    if (type(capsule.get("schemaVersion")) is not int or capsule["schemaVersion"]!=1 or not 0<len(ciphertext)<=8*1024*1024+16
+            or capsule.get("scope")!=scope["instanceUuid"]+":"+scope["operationUuid"]
+            or hashlib.sha256(ciphertext).hexdigest()!=record["identityCheckpointSha256"]):
+        raise ValueError("ROOT AD original encrypted checkpoint bytes/scope differ")
+    directory=Path(configuration or os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_ROOT","/etc/ablestack-storage"))
+    policy=protected_ad_policy(scope["instanceUuid"],configuration=directory)
+    state=json.loads(ad_authority_read(directory/"smb-domain.json",0o600))
+    if (state.get("identityReceipt")!={key:identity[key] for key in ("machineSid","domainSid","machineAccountSid")}
+            or policy.get("machineConfigurationSha256")!=identity["machineConfigurationSha256"]
+            or any(policy.get(key)!=identity.get(key) for key in ("domain","realm","workgroup","netbiosName","domainSid","idmapPolicy"))
+            or any(state.get(key)!=identity.get(key) for key in ("dnsAliases","servicePrincipals"))):
+        raise ValueError("Imported ROOT AD SID/private configuration differs from encrypted original")
+    if (sid_reader or samba_public_sid)(identity["netbiosName"])!=identity["machineSid"]:raise ValueError("Imported ROOT public SAM is not the original SAME_VM identity")
+    return {"scope":scope,"identity":identity,"authorizationUuid":identifier,"authorizationSha256":hashlib.sha256(json.dumps(record,sort_keys=True,separators=(",",":")).encode()).hexdigest(),"bootId":boot}
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements. See the NOTICE file
 # distributed with this work for additional information
@@ -13090,8 +13336,14 @@ class AdIdentityRpc:
         scope={key:str(uuid.UUID(request[key])) for key in ("instanceUuid","operationUuid")}
         if type(request.get("revision")) is not int or request["revision"]<1:raise ValueError("AD RPC revision is invalid")
         scope["revision"]=request["revision"]
-        current=ad_protected_json(self.generations/"current.json")
+        current=ad_protected_json(self.generations/"current.json",True)
         pending=ad_protected_json(self.generations/"pending.json",True)
+        if current is None:
+            response=self.run([self.cli,"operation","maintenance","status"],capture_output=True,text=True,timeout=5)
+            if response.returncode:raise ValueError("Cold ROOT AD marker is unavailable")
+            if pending:raise ValueError("Cold ROOT AD cannot borrow a pending generation")
+            root_ad_retained_authority(scope,json.loads(response.stdout),configuration=self.configuration)
+            return scope
         if current.get("instanceUuid")!=scope["instanceUuid"] or type(current.get("revision")) is not int or current["revision"]>scope["revision"]:
             raise ValueError("AD RPC native instance/revision differs")
         if pending and any(pending.get(key)!=value for key,value in scope.items()):raise ValueError("Foreign pending generation blocks AD attestation")
@@ -13810,6 +14062,73 @@ def samba_public_sid(netbios,path=None,library=None):
 # specific language governing permissions and limitations
 # under the License.
 
+"""Read-only cold ROOT AD scope requires authenticated retained source metadata."""
+import hashlib
+import base64
+import json
+import os
+from pathlib import Path
+import re
+import uuid
+
+
+def root_ad_retained_authority(common,maintenance,configuration=None,root=None,reference=None,sid_reader=None):
+    scope=maintenance.get("scope")
+    keys={"instanceUuid","templateUpgradeUuid","operationUuid","revision"}
+    if (maintenance.get("bootHeld") is not True or maintenance.get("maintenanceKind")!="ROOT" or not isinstance(scope,dict) or set(scope)!=keys
+            or any(scope.get(key)!=value for key,value in common.items()) or type(scope.get("revision")) is not int or scope["revision"]<1):
+        raise ValueError("Cold ROOT AD attestation lacks its exact held ROOT scope")
+    for key in keys-{"revision"}:
+        if not isinstance(scope[key],str) or str(uuid.UUID(scope[key]))!=scope[key]:raise ValueError("Cold ROOT AD scope UUID is invalid")
+    identifier=str(uuid.uuid5(uuid.UUID(scope["operationUuid"]),"ablestack-root-retained-authorization"))
+    base=Path(root or os.environ.get("ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR","/var/lib/ablestack-storage"))/"root-retained-authorizations"
+    raw=ad_authority_read(base/(identifier+"-authorization.json"),0o600);record=json.loads(raw)
+    if reference is not None:
+        if (not isinstance(reference,dict) or set(reference)!={"authorizationUuid","sha256"} or reference.get("authorizationUuid")!=identifier
+                or reference.get("sha256")!=hashlib.sha256(json.dumps(record,sort_keys=True,separators=(",",":")).encode()).hexdigest()):
+            raise ValueError("ROOT AD retained opaque reference differs")
+    identity=record.get("latestAdIdentity");boot=Path("/proc/sys/kernel/random/boot_id").read_text().strip()
+    if (record.get("kind")!="ROOT_RETAINED_AUTHORIZATION" or record.get("scope")!=scope or record.get("authorizedBootId")!=boot
+            or not isinstance(identity,dict) or identity.get("trustVerified") is not True or type(identity.get("schemaVersion")) is not int or identity.get("schemaVersion")!=1
+            or record.get("latestSourceRootScope",{}).get("instanceUuid")!=scope["instanceUuid"]
+            or not re.fullmatch("[0-9a-f]{64}",str(record.get("identityCheckpointSha256")))
+            or not re.fullmatch("[0-9a-f]{64}",str(record.get("latestConfigurationSha256")))):
+        raise ValueError("ROOT AD retained AEAD source/boot authority is unavailable")
+    identity_record=json.loads(ad_authority_read(base/(identifier+"-identity.json"),0o600))
+    if (identity_record.get("scope")!=common or identity_record.get("sourceConfigurationSha256")!=record["latestConfigurationSha256"]
+            or identity_record.get("publicKey")!=record.get("checkpointPublicKey")
+            or identity_record.get("capsule",{}).get("sha256")!=record["identityCheckpointSha256"]):
+        raise ValueError("ROOT AD opaque encrypted source checkpoint differs")
+    capsule=identity_record["capsule"];ciphertext=base64.b64decode(capsule["ciphertext"],validate=True)
+    if (type(capsule.get("schemaVersion")) is not int or capsule["schemaVersion"]!=1 or not 0<len(ciphertext)<=8*1024*1024+16
+            or capsule.get("scope")!=scope["instanceUuid"]+":"+scope["operationUuid"]
+            or hashlib.sha256(ciphertext).hexdigest()!=record["identityCheckpointSha256"]):
+        raise ValueError("ROOT AD original encrypted checkpoint bytes/scope differ")
+    directory=Path(configuration or os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_ROOT","/etc/ablestack-storage"))
+    policy=protected_ad_policy(scope["instanceUuid"],configuration=directory)
+    state=json.loads(ad_authority_read(directory/"smb-domain.json",0o600))
+    if (state.get("identityReceipt")!={key:identity[key] for key in ("machineSid","domainSid","machineAccountSid")}
+            or policy.get("machineConfigurationSha256")!=identity["machineConfigurationSha256"]
+            or any(policy.get(key)!=identity.get(key) for key in ("domain","realm","workgroup","netbiosName","domainSid","idmapPolicy"))
+            or any(state.get(key)!=identity.get(key) for key in ("dnsAliases","servicePrincipals"))):
+        raise ValueError("Imported ROOT AD SID/private configuration differs from encrypted original")
+    if (sid_reader or samba_public_sid)(identity["netbiosName"])!=identity["machineSid"]:raise ValueError("Imported ROOT public SAM is not the original SAME_VM identity")
+    return {"scope":scope,"identity":identity,"authorizationUuid":identifier,"authorizationSha256":hashlib.sha256(json.dumps(record,sort_keys=True,separators=(",",":")).encode()).hexdigest(),"bootId":boot}
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements. See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership. The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
 """Bounded AD input and principal mapping helpers; no implicit trust attestation."""
 import fcntl
 import hashlib
@@ -14202,8 +14521,14 @@ class AdIdentityRpc:
         scope={key:str(uuid.UUID(request[key])) for key in ("instanceUuid","operationUuid")}
         if type(request.get("revision")) is not int or request["revision"]<1:raise ValueError("AD RPC revision is invalid")
         scope["revision"]=request["revision"]
-        current=ad_protected_json(self.generations/"current.json")
+        current=ad_protected_json(self.generations/"current.json",True)
         pending=ad_protected_json(self.generations/"pending.json",True)
+        if current is None:
+            response=self.run([self.cli,"operation","maintenance","status"],capture_output=True,text=True,timeout=5)
+            if response.returncode:raise ValueError("Cold ROOT AD marker is unavailable")
+            if pending:raise ValueError("Cold ROOT AD cannot borrow a pending generation")
+            root_ad_retained_authority(scope,json.loads(response.stdout),configuration=self.configuration)
+            return scope
         if current.get("instanceUuid")!=scope["instanceUuid"] or type(current.get("revision")) is not int or current["revision"]>scope["revision"]:
             raise ValueError("AD RPC native instance/revision differs")
         if pending and any(pending.get(key)!=value for key,value in scope.items()):raise ValueError("Foreign pending generation blocks AD attestation")
@@ -14762,10 +15087,11 @@ class AdDomainLifecycle:
             for server in public["dnsServers"]:
                 remaining=self.deadline-time.monotonic()
                 if remaining<=0:raise TimeoutError("Fresh AD identity collision observation deadline expired")
-                result=self.run(["dig","+short","+time=2","+tries=1","A",alias["hostname"],"@"+server],
-                                capture_output=True,text=True,timeout=min(5,remaining))
-                if result.returncode or result.stdout.strip():
-                    raise ValueError("Fresh AD DNS alias exists or absence was not proven")
+                for kind in ("A","AAAA"):
+                    result=self.run(["dig","+short","+time=2","+tries=1",kind,alias["hostname"],"@"+server],
+                                    capture_output=True,text=True,timeout=min(5,remaining))
+                    if result.returncode or result.stdout.strip():
+                        raise ValueError("Fresh AD DNS alias exists or absence was not proven")
         return {"success":True,"computerAliasSpnAbsent":True,"dnsAliasesAbsent":True}
 
     def source_authority(self,request,fresh=True):
@@ -14874,7 +15200,12 @@ class AdDomainLifecycle:
             if path.exists() or path.is_symlink():raise ValueError("AD first join refuses preexisting foreign identity artifacts")
         self.quiescence()
         backups={"krb5.conf":self.public_backup(self.system_root/"etc/krb5.conf"),"resolv.conf":self.public_backup(self.system_root/"etc/resolv.conf")}
+        public["inversePublicConfiguration"]=backups
+        public["inverseOwnedPublicSha256"]={"krb5.conf":hashlib.sha256(pure["kerberosConfiguration"].encode()).hexdigest(),"resolv.conf":hashlib.sha256(pure["resolverConfiguration"].encode()).hexdigest()}
+        public["inverseSource"]={"scope":source["scope"],"bootId":source["bootId"],"publicLocalMachineSid":source["publicLocalMachineSid"],"sourceConfigurationSha256":source["sourceConfigurationSha256"]}
+        public["inverseCreatedArtifacts"]={}
         self.new_identity_clear(request,public)
+        public["preJoinRemoteIdentityAbsent"]=True
         self.snapshot(request,"PREPARING",public)
         try:
             # This private config carries existing share definitions; canonical SMB
@@ -14883,17 +15214,35 @@ class AdDomainLifecycle:
             self.write_public(self.system_root/"etc/krb5.conf",pure["kerberosConfiguration"])
             self.write_public(self.system_root/"etc/resolv.conf",pure["resolverConfiguration"])
             self.command(["testparm","-s"])
+            public["createdMachineConfigurationSha256"]=hashlib.sha256(self.machine.read_bytes()).hexdigest()
             self.snapshot(request,"JOINING",public)
             args=["net","ads","join"]
             if request.get("organizationalUnit"):args.append("createcomputer="+request["organizationalUnit"])
             credential_command(args,request["username"],request["password"],public["domain"],self.configured_run,self.deadline)
+            self.command(["net","ads","testjoin","--machine-pass"])
+            local=machine_sids(self.command(["net","getdomainsid"]))
+            if local["machineSid"]!=source["publicLocalMachineSid"]:raise ValueError("JOIN machine-auth receipt changed target SAM")
+            output=self.command(["net","ads","search","(sAMAccountName="+public["netbiosName"]+"$)","objectSid","--machine-pass"])
+            matches=re.findall(r"(?mi)^\s*objectSid:\s*(S-[0-9-]+)\s*$",output)
+            if not re.match(r"^Got 1 replies\s",output) or len(matches)!=1 or not re.fullmatch(re.escape(local["domainSid"])+r"-[0-9]{1,10}",matches[0]):
+                raise ValueError("JOIN has no machine-authenticated owned computer SID")
+            public["ownedComputerSid"]=matches[0];public["ownedDomainSid"]=local["domainSid"];public["machineAuthenticatedComputer"]=True
+            self.snapshot(request,"OWNED_COMPUTER_CREATED",public)
             self.snapshot(request,"REGISTERING",public)
             for principal in public["servicePrincipals"]:
                 credential_command(["net","ads","setspn","add",public["netbiosName"],principal],request["username"],request["password"],public["domain"],self.configured_run,self.deadline)
             for alias in public["dnsAliases"]:
                 credential_command(["net","ads","dns","register",alias["hostname"],*alias["addresses"]],request["username"],request["password"],public["domain"],self.configured_run,self.deadline)
             self.command(["net","ads","keytab","create","--machine-pass"])
+            for name,path in (("krb5.keytab",self.system_root/"etc/krb5.keytab"),):
+                if path.exists():
+                    info=path.lstat();public["inverseCreatedArtifacts"][name]={key:getattr(info,key) for key in ("st_dev","st_ino","st_uid","st_gid","st_mode","st_size","st_mtime_ns")}
+            self.snapshot(request,"KEYTAB_CREATED",public)
             self.daemon.start(request)
+            idmap=self.system_root/"var/lib/samba/winbindd_idmap.tdb"
+            if idmap.exists():
+                info=idmap.lstat();public["inverseCreatedArtifacts"]["winbindd_idmap.tdb"]={key:getattr(info,key) for key in ("st_dev","st_ino","st_uid","st_gid","st_mode","st_size","st_mtime_ns")}
+            self.snapshot(request,"OWNED_DAEMON_STARTED",public)
             self.snapshot(request,"VERIFYING",public)
             probe=AdIdentityProbe(self.configured_run,self.deadline).verify(public["domain"],public["servicePrincipals"],machine_name=public["netbiosName"])
             account=machine_account_sid(self.command(["wbinfo","--name-to-sid",public["workgroup"]+chr(92)+public["netbiosName"]+"$"]),probe["domainSid"])
@@ -14920,6 +15269,106 @@ class AdDomainLifecycle:
             try:self.daemon.stop(request)
             finally:self.snapshot(request,"RECOVERY_REQUIRED",public)
             raise
+
+    def inverse_join(self,request):
+        username=request.get("username");password=request.get("password")
+        if (not isinstance(username,str) or not re.fullmatch(r"[A-Za-z0-9_.@\\-]{1,256}",username)
+                or not isinstance(password,str) or not password or len(password)>4096 or any(c in password for c in ("\n","\r","\0"))):
+            raise ValueError("Owned JOIN inverse requires complete sealed credentials")
+        source=self.source_authority(request,fresh=False);journal=ad_protected_json(self.journal);public=journal.get("publicConfiguration")
+        if (journal.get("scope")!=self.daemon.scope(request) or journal.get("phase") not in ("RECOVERY_REQUIRED","COMPLETE","OWNED_JOIN_INVERTED")
+                or not isinstance(public,dict) or public.get("preJoinRemoteIdentityAbsent") is not True
+                or public.get("machineAuthenticatedComputer") is not True or source.get("adIdentity") is not None
+                or public.get("inverseSource")!={key:source[key] for key in ("scope","bootId","publicLocalMachineSid","sourceConfigurationSha256")}
+                or not re.fullmatch(re.escape(str(public.get("ownedDomainSid")))+r"-[0-9]{1,10}",str(public.get("ownedComputerSid")))
+                or self.sid_reader(public["netbiosName"])!=source["publicLocalMachineSid"]):
+            raise ValueError("JOIN inverse has no exact newly-owned machine-authenticated computer/source receipt")
+        if journal["phase"]=="OWNED_JOIN_INVERTED":
+            for path in (self.machine,self.system_root/"etc/krb5.keytab",self.system_root/"var/lib/samba/winbindd_idmap.tdb"):
+                if path.exists() or path.is_symlink():raise ValueError("JOIN inverse replay found a replacement AD artifact")
+            for name,backup in public["inversePublicConfiguration"].items():
+                path=self.system_root/"etc"/name
+                if backup.get("absent") is True:
+                    if path.exists() or path.is_symlink():raise ValueError("JOIN inverse replay original public absence changed")
+                elif path.is_symlink() or not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest()!=backup.get("sha256"):
+                    raise ValueError("JOIN inverse replay original public configuration changed")
+            fresh=AdIdentityRpc(self.run,self.configuration,cli=self.cli).inspect(request)
+            if fresh.get("machineSid")!=source["publicLocalMachineSid"] or fresh.get("joinState")!="NOT_JOINED" or fresh.get("bootId")!=source["bootId"]:
+                raise ValueError("JOIN inverse replay has no fresh preserved local identity")
+            return self.inverse_receipt(request,fresh,replayed=True)
+        if hashlib.sha256(self.machine.read_bytes()).hexdigest()!=public.get("createdMachineConfigurationSha256"):
+            raise ValueError("JOIN inverse private machine configuration was replaced")
+        backups=public.get("inversePublicConfiguration");owned=public.get("inverseOwnedPublicSha256")
+        if not isinstance(backups,dict) or set(backups)!={"krb5.conf","resolv.conf"} or not isinstance(owned,dict) or set(owned)!=set(backups):
+            raise ValueError("JOIN inverse public original ownership is unavailable")
+        for name in backups:
+            path=self.system_root/"etc"/name
+            if path.is_symlink() or hashlib.sha256(path.read_bytes()).hexdigest()!=owned[name]:raise ValueError("JOIN inverse public configuration was replaced")
+        self.daemon.stop(request);self.quiescence()
+        artifacts={"krb5.keytab":self.system_root/"etc/krb5.keytab","winbindd_idmap.tdb":self.system_root/"var/lib/samba/winbindd_idmap.tdb"}
+        for name,path in artifacts.items():
+            if path.exists() or path.is_symlink():
+                binding=public.get("inverseCreatedArtifacts",{}).get(name);info=path.lstat()
+                if (not isinstance(binding,dict) or not stat.S_ISREG(info.st_mode)
+                        or any(getattr(info,key)!=binding[key] for key in ("st_dev","st_ino","st_uid","st_gid","st_mode"))):
+                    raise ValueError("JOIN inverse artifact is not the journaled owned inode")
+        self.command(["net","ads","testjoin","--machine-pass"])
+        observed=self.command(["net","ads","search","(sAMAccountName="+public["netbiosName"]+"$)","objectSid","--machine-pass"])
+        sids=re.findall(r"(?mi)^\s*objectSid:\s*(S-[0-9-]+)\s*$",observed)
+        if not re.match(r"^Got 1 replies\s",observed) or sids!=[public["ownedComputerSid"]]:
+            raise ValueError("JOIN inverse computer was replaced or machine trust is unproven")
+        spns=[]
+        for principal in public["servicePrincipals"]:
+            output=[None]
+            def capture(args,**kwargs):
+                result=self.run(args,**kwargs)
+                if result.returncode==0:output[0]=result.stdout
+                return result
+            credential_command(["net","ads","search","(servicePrincipalName="+principal+")","objectSid","--realm="+public["realm"],"--workgroup="+public["workgroup"],"--option=security=ADS"],
+                               username,password,public["domain"],capture,self.deadline)
+            if re.fullmatch(r"Got 0 replies\s*",output[0] or ""):continue
+            matches=re.findall(r"(?mi)^\s*objectSid:\s*(S-[0-9-]+)\s*$",output[0] or "")
+            if not re.match(r"^Got 1 replies\s",output[0] or "") or matches!=[public["ownedComputerSid"]]:raise ValueError("JOIN inverse SPN belongs to a foreign object")
+            spns.append(principal)
+        aliases=[]
+        for alias in public["dnsAliases"]:
+            values=[]
+            for server in public["dnsServers"]:
+                for kind in ("A","AAAA"):
+                    result=self.run(["dig","+short","+time=2","+tries=1",kind,alias["hostname"],"@"+server],capture_output=True,text=True,timeout=min(5,self.deadline-time.monotonic()))
+                    if result.returncode:raise ValueError("JOIN inverse DNS ownership is unobservable")
+                    lines=sorted(set(result.stdout.split()))
+                    if kind=="AAAA" and lines:raise ValueError("JOIN inverse DNS has foreign IPv6 addresses")
+                    if kind=="A":
+                        if lines and lines!=alias["addresses"]:raise ValueError("JOIN inverse DNS has foreign IPv4 addresses")
+                        values.append(lines)
+            if any(values):
+                if any(value!=alias["addresses"] for value in values) or not {"host/"+alias["hostname"],"cifs/"+alias["hostname"]}<=set(spns):
+                    raise ValueError("JOIN inverse DNS lacks exact owned computer/SPN binding")
+                aliases.append(alias)
+        self.snapshot(request,"INVERTING_OWNED_JOIN",public)
+        try:
+            for principal in spns:credential_command(["net","ads","setspn","delete",public["netbiosName"],principal],username,password,public["domain"],self.configured_run,self.deadline)
+            for alias in aliases:credential_command(["net","ads","dns","unregister",alias["hostname"]],username,password,public["domain"],self.configured_run,self.deadline)
+            credential_command(["net","ads","leave"],username,password,public["domain"],self.configured_run,self.deadline)
+            self.new_identity_clear(request,public)
+            if self.sid_reader(public["netbiosName"])!=source["publicLocalMachineSid"]:raise ValueError("JOIN inverse changed target SAM")
+            for path in artifacts.values():
+                if path.exists():path.unlink()
+            self.machine.unlink()
+            for name in backups:self.restore_public(self.system_root/"etc"/name,backups[name],owned[name])
+            self.write_public(self.state,json.dumps({"state":"NOT_JOINED","joinState":"NOT_JOINED","instanceUuid":request["instanceUuid"],"netbiosName":public["netbiosName"],"localMachineSid":source["publicLocalMachineSid"]},sort_keys=True))
+            fresh=AdIdentityRpc(self.run,self.configuration,cli=self.cli).inspect(request)
+            if fresh.get("machineSid")!=source["publicLocalMachineSid"] or fresh.get("joinState")!="NOT_JOINED" or fresh.get("bootId")!=source["bootId"]:
+                raise ValueError("JOIN inverse final preserved local identity is not fresh")
+            self.snapshot(request,"OWNED_JOIN_INVERTED",public)
+            return self.inverse_receipt(request,fresh)
+        except Exception:
+            self.snapshot(request,"RECOVERY_REQUIRED",public);raise
+
+    def inverse_receipt(self,request,fresh,replayed=False):
+        return {"success":True,"scope":self.daemon.scope(request),"externalJoinInverted":True,"localMachineSidPreserved":True,"adOwnedArtifactsRemoved":True,
+                "computerAliasSpnAbsent":True,"dnsAliasesAbsent":True,"publicConfigurationRestored":True,"canonicalDesiredStateChanged":False,"identity":fresh,"replayed":replayed}
 
     def semantic_local_authority(self,request):
         # Reuse protected SOURCE/cipher and the exact owned writer; public
@@ -14990,7 +15439,18 @@ class AdDomainLifecycle:
         return {**started,"scope":scope,"targetDaemonResumed":True}
 
     def retain(self,request,expected):
-        self.daemon.marker(request);state=ad_protected_json(self.state)
+        marker=self.daemon.marker(request)
+        if "templateUpgradeUuid" in marker:
+            status={"maintenanceKind":"ROOT","bootHeld":True,"scope":marker}
+            authority=root_ad_retained_authority(self.daemon.scope(request),status,configuration=self.configuration,reference=request.get("retainedRootAuthorization"))
+            if request.get("retainedRootAuthorization") is None or expected!=authority["identity"]:
+                raise ValueError("ROOT opaque AD retain lacks its authenticated original authority")
+        else:
+            source=self.source_authority(request,fresh=False);identity=source.get("adIdentity")
+            fields=("domain","realm","workgroup","netbiosName","machineSid","domainSid","machineAccountSid","servicePrincipals","idmapPolicy","dnsAliases","machineConfigurationSha256")
+            if not isinstance(identity,dict) or any(expected.get(key)!=identity.get(key) for key in fields):
+                raise ValueError("SERVICE AD retain differs from protected BEFOREJOIN source")
+        state=ad_protected_json(self.state)
         if not isinstance(expected,dict) or state.get("identityReceipt")!={key:expected.get(key) for key in ("machineSid","domainSid","machineAccountSid")}:
             raise ValueError("SAMEVM AD restore differs from its encrypted source identity")
         info=self.machine.lstat()
@@ -15108,6 +15568,7 @@ try:
     if action=="local-sam-bootstrap":result=LocalSamBootstrap(sys.argv[3]).initialize(request)
     elif action=="join":result=handler.join(request)
     elif action=="leave":result=handler.leave(request)
+    elif action=="inverse-join":result=handler.inverse_join(request)
     elif action=="semantic-local-restore":result=handler.semantic_local_restore(request)
     elif action=="semantic-local-guard":result=handler.semantic_local_guard(request)
     elif action=="target-resume":result=handler.target_resume(request)
@@ -21003,9 +21464,9 @@ class RootRetainedAuthorization:
         # Load only the fixed decrypt definition from the signed CLI already
         # selected by the caller's normal runtime attestation.
         source=Path(self.runtime.cli).read_text().split("<<'PYIDENTITY'\n",1)[1].split("\nPYIDENTITY",1)[0]
-        tree=ast.parse(source);definitions=[item for item in tree.body if isinstance(item,ast.FunctionDef) and item.name in ("decrypt","encrypt")]
-        if {item.name for item in definitions}!={"encrypt","decrypt"}:raise ValueError("Retained ROOT signed encrypted codec is not exact")
-        namespace={"base64":base64,"hashlib":hashlib,"json":json,"os":os}
+        tree=ast.parse(source);definitions=[item for item in tree.body if isinstance(item,ast.FunctionDef) and item.name in ("decrypt","encrypt","validate_ad_identity")]
+        if {item.name for item in definitions}!={"encrypt","decrypt","validate_ad_identity"}:raise ValueError("Retained ROOT signed encrypted codec is not exact")
+        namespace={"base64":base64,"hashlib":hashlib,"json":json,"os":os,"re":re}
         assignments=[item for item in tree.body if isinstance(item,ast.Assign) and any(isinstance(key,ast.Name) and key.id=="MAX_CAPSULE_BYTES" for key in item.targets)]
         if len(assignments)!=1:raise ValueError("Retained ROOT signed decrypt size bound is missing")
         value=assignments[0].value
@@ -21071,6 +21532,13 @@ class RootRetainedAuthorization:
             identity={"schemaVersion":1,"scope":{key:scope[key] for key in ("instanceUuid","operationUuid","revision")},
                       "sourceConfigurationSha256":record["latestConfigurationSha256"],"publicKey":public,"capsule":cipher}
             record["identityCheckpointSha256"]=cipher["sha256"]
+            ad_identity=payload.get("adIdentity")
+            if ad_identity is not None:
+                codec["validate_ad_identity"](ad_identity)
+                if not {"machineAccountSid","dnsAliases","idmapPolicy","machineConfigurationSha256"}<=set(ad_identity):
+                    raise ValueError("Retained ROOT AD source lacks its complete authenticated identity")
+            record["latestAdIdentity"]=ad_identity
+            record["authorizedBootId"]=Path("/proc/sys/kernel/random/boot_id").read_text().strip()
             no_rendered_secrets(record)
             self.unchanged(scope,saved);self.quarantine();identifier=self.identifier(scope,"authorization");path=self.path(identifier,"authorization")
             if path.exists() or path.is_symlink():
@@ -21943,7 +22411,7 @@ PYADHANDLERCAP
       identity_ad_lifecycle_command "local-sam-bootstrap" "$payload"
       exit $?
     fi
-    if [[ "$subcommand" == "domain" && ( "$action" == "join" || "$action" == "leave" || "$action" == "daemon-gate" || "$action" == "quiesce" || "$action" == "semantic-local-restore" || "$action" == "semantic-local-guard" || "$action" == "target-resume" ) ]]; then
+    if [[ "$subcommand" == "domain" && ( "$action" == "join" || "$action" == "leave" || "$action" == "daemon-gate" || "$action" == "quiesce" || "$action" == "semantic-local-restore" || "$action" == "semantic-local-guard" || "$action" == "target-resume" || "$action" == "retain" || "$action" == "inverse-join" ) ]]; then
       identity_ad_lifecycle_command "$action" "$payload"
       exit $?
     fi
