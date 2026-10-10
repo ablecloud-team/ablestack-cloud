@@ -1,0 +1,35 @@
+{
+  "kind": "MANAGEMENT_SIX_UPLOAD_VERIFY_ONLY",
+  "observedAtUtc": "2026-10-10T01:46:43.308755+00:00",
+  "uploadSuccess": true,
+  "stage": "/var/tmp/epic898-f2-template-pin-6b37a166",
+  "stageUid": 0,
+  "stageGid": 0,
+  "stageMode": "0700",
+  "fileMode": "0600",
+  "uploadedFileCount": 4,
+  "archiveSha256": "5c618a9c5d05b1571de70e600cd7e5928a77d90ff4b8ec0a48143766162c194a",
+  "fileSha256": {
+    "management-review-payload.zip": "f935001a0908007d0378a7338d9926520e1798b92569852f54c62f062ca8816a",
+    "deployment-manifest.json": "525ca2d3fd0e357c9860726a9c28d33b3e9010d73e658a25a6fc1f50ddcd68f8",
+    "deploy-management-six.py": "966156832893161f9d6ce596d820e7d8a33954d329985376a20e3b88533ac096",
+    "rollback-management-six.py": "365fef2059dd05da29839f2532a6bd62ffa01c31fde5b2f49cc509cd2c7ed43a"
+  },
+  "verifyExitCode": 0,
+  "verifySuccess": true,
+  "verifyPublicResult": {
+    "success": true,
+    "phase": "READ_ONLY_BASELINE_VERIFIED",
+    "managementPid": 1331803,
+    "managementJarSha256": "15f361afb6b33517e37e3930e825649558a34eb65e96f821ee402fcfb6f272e8",
+    "deploymentInvocations": 0,
+    "restartInvocations": 0
+  },
+  "applyInvocations": 0,
+  "restartInvocations": 0,
+  "guestInvocations": 0,
+  "finalUi1275Started": false,
+  "normalSshKnownHostStrict": true,
+  "archiveSentBytes": 609660,
+  "operatorCredentialsPersisted": false
+}
