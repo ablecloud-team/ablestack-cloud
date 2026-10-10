@@ -41,4 +41,61 @@ public class StorageRenderedValidationProfileTest {
     @Test public void fixedHandlerAttestationDoesNotRequireOrSynthesizeProductionFullFourCapability() {
         JsonObject observed=new JsonObject();observed.addProperty("success",true);observed.addProperty("schemaVersion",1);observed.addProperty("renderedGenerationSupported",true);observed.addProperty("fullFourProtocolActivationSupported",false);com.google.gson.JsonArray features=new com.google.gson.JsonArray();features.add("RENDERED_CONFIG_GENERATION_HANDLER");observed.add("supportedFeatures",features);StorageRenderedValidationProfile.requireHandler(observed);Assert.assertFalse(observed.get("fullFourProtocolActivationSupported").getAsBoolean());observed.addProperty("renderedGenerationSupported","true");Assert.assertThrows(CloudRuntimeException.class,()->StorageRenderedValidationProfile.requireHandler(observed));observed.addProperty("renderedGenerationSupported",true);observed.remove("supportedFeatures");Assert.assertThrows(CloudRuntimeException.class,()->StorageRenderedValidationProfile.requireHandler(observed));
     }
+    private JsonObject ownedArtifact(JsonObject binding) {
+        JsonObject artifact=artifact();
+        artifact.addProperty("kind","OWNED_SPARSE_ALL4_VALIDATION");
+        artifact.remove("newDisposableFixture");
+        artifact.addProperty("ownedDisposableFixture",true);
+        artifact.add("bindings",binding);
+        return artifact;
+    }
+
+    @Test public void ownedOldDisposableDataDoesNotForgeNewOrigin() {
+        JsonObject binding=bindings();
+        binding.getAsJsonObject("volumes").getAsJsonObject("DATADISK").addProperty("newDataWithoutBacking",false);
+        StorageRenderedValidationProfile.verify(ownedArtifact(binding),"new-disposable","exact-name",binding,System.currentTimeMillis());
+        Assert.assertFalse(binding.getAsJsonObject("volumes").getAsJsonObject("DATADISK").get("newDataWithoutBacking").getAsBoolean());
+        JsonObject strict=artifact();strict.add("bindings",binding);
+        Assert.assertThrows(CloudRuntimeException.class,()->StorageRenderedValidationProfile.verify(strict,"new-disposable","exact-name",binding,System.currentTimeMillis()));
+    }
+
+    @Test public void ownedKindRequiresLiteralClaimAndProtectedExclusions() {
+        JsonObject binding=bindings();
+        for (String field:new String[]{"ownedDisposableFixture","originalDataExcluded"}) {
+            JsonObject artifact=ownedArtifact(binding);artifact.addProperty(field,"true");
+            Assert.assertThrows(CloudRuntimeException.class,()->StorageRenderedValidationProfile.verify(artifact,"new-disposable","exact-name",binding,System.currentTimeMillis()));
+        }
+        JsonObject missing=ownedArtifact(binding);missing.remove("excludedInstanceUuids");
+        Assert.assertThrows(CloudRuntimeException.class,()->StorageRenderedValidationProfile.verify(missing,"new-disposable","exact-name",binding,System.currentTimeMillis()));
+        JsonObject unknown=ownedArtifact(binding);unknown.addProperty("kind","ANY_OWNED_VALIDATION");
+        Assert.assertThrows(CloudRuntimeException.class,()->StorageRenderedValidationProfile.verify(unknown,"new-disposable","exact-name",binding,System.currentTimeMillis()));
+    }
+
+    @Test public void ownedPolicyStillRejectsThinForeignOrDetachedDisksAndBindingDrift() {
+        for (String field:new String[]{"provisioningType","attachedToFixture","ownerAndZoneVerified"}) {
+            JsonObject binding=bindings();JsonObject disk=binding.getAsJsonObject("volumes").getAsJsonObject("DATADISK");
+            if ("provisioningType".equals(field)) {disk.addProperty(field,"THIN");} else {disk.addProperty(field,false);}
+            JsonObject artifact=ownedArtifact(binding);
+            Assert.assertThrows(CloudRuntimeException.class,()->StorageRenderedValidationProfile.verify(artifact,"new-disposable","exact-name",binding,System.currentTimeMillis()));
+        }
+        JsonObject binding=bindings(),artifact=ownedArtifact(binding.deepCopy());binding.addProperty("vmId",99);
+        Assert.assertThrows(CloudRuntimeException.class,()->StorageRenderedValidationProfile.verify(artifact,"new-disposable","exact-name",binding,System.currentTimeMillis()));
+    }
+
+    @Test public void ownedKindContinuityKeepsImportedDisableGuard() {
+        JsonObject previous=new JsonObject();previous.addProperty("kind","OWNED_SPARSE_ALL4_VALIDATION");previous.addProperty("baselineImported",true);
+        JsonObject renewed=StorageRenderedValidationProfile.next(previous,true,8);
+        Assert.assertEquals("OWNED_SPARSE_ALL4_VALIDATION",renewed.get("kind").getAsString());
+        Assert.assertTrue(renewed.get("baselineImported").getAsBoolean());
+        Assert.assertThrows(CloudRuntimeException.class,()->StorageRenderedValidationProfile.next(renewed,false,9));
+    }
+
+    @Test public void nullProvisioningFailsWithFixedRejectionForBothKinds() {
+        JsonObject binding=bindings();binding.getAsJsonObject("volumes").getAsJsonObject("DATADISK").add("provisioningType",com.google.gson.JsonNull.INSTANCE);
+        for (String kind:new String[]{"NEW_SPARSE_ALL4_VALIDATION","OWNED_SPARSE_ALL4_VALIDATION"}) {
+            JsonObject artifact=ownedArtifact(binding);artifact.addProperty("kind",kind);artifact.addProperty("newDisposableFixture",true);
+            Assert.assertThrows(CloudRuntimeException.class,()->StorageRenderedValidationProfile.verify(artifact,"new-disposable","exact-name",binding,System.currentTimeMillis()));
+        }
+    }
+
 }

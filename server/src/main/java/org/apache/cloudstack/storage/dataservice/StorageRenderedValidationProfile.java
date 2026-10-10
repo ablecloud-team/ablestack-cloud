@@ -17,7 +17,6 @@
 
 package org.apache.cloudstack.storage.dataservice;
 
-import java.util.Set;
 import java.util.List;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonElement;
@@ -36,14 +35,18 @@ public final class StorageRenderedValidationProfile {
         if(approved==null||!yes(approved,"newDataWithoutBacking")||!"DATADISK".equals(text(current,"type")))return false;
         JsonObject fresh=current.deepCopy(),previous=approved.deepCopy();fresh.remove("newDataWithoutBacking");previous.remove("newDataWithoutBacking");return fresh.equals(previous);
     }
+    public static boolean owned(JsonObject artifact) {
+        return "OWNED_SPARSE_ALL4_VALIDATION".equals(text(artifact,"kind"));
+    }
     public static JsonObject next(JsonObject previous,boolean enabled,long revision) {
         if(!enabled&&yes(previous,"baselineImported"))throw new CloudRuntimeException("Imported rendered fixture remains guarded until verified retirement");
-        JsonObject profile=new JsonObject();profile.addProperty("enabled",enabled);profile.addProperty("revision",revision);profile.addProperty("kind","NEW_SPARSE_ALL4_VALIDATION");
+        JsonObject profile=new JsonObject();profile.addProperty("enabled",enabled);profile.addProperty("revision",revision);profile.addProperty("kind",previous.has("kind")?text(previous,"kind"):"NEW_SPARSE_ALL4_VALIDATION");
         for(String field:List.of("baselineImported","baselineManifest","fixtureProvenance"))if(previous.has(field))profile.add(field,previous.get(field).deepCopy());return profile;
     }
     public static void verify(JsonObject artifact,String instanceUuid,String name,JsonObject actualBindings,long now) {
-        if(!"NEW_SPARSE_ALL4_VALIDATION".equals(text(artifact,"kind")) || !instanceUuid.equals(text(artifact,"instanceUuid")) || !name.equals(text(artifact,"instanceName"))
-                || !artifact.has("schemaVersion") || artifact.get("schemaVersion").getAsInt()!=1 || !yes(artifact,"newDisposableFixture") || !yes(artifact,"originalDataExcluded"))throw new CloudRuntimeException("Rendered validation artifact does not authorize this disposable fixture");
+        boolean owned=owned(artifact);
+        if((!owned&&!"NEW_SPARSE_ALL4_VALIDATION".equals(text(artifact,"kind"))) || !instanceUuid.equals(text(artifact,"instanceUuid")) || !name.equals(text(artifact,"instanceName"))
+                || !artifact.has("schemaVersion") || artifact.get("schemaVersion").getAsInt()!=1 || !yes(artifact,owned?"ownedDisposableFixture":"newDisposableFixture") || !yes(artifact,"originalDataExcluded"))throw new CloudRuntimeException("Rendered validation artifact does not authorize this disposable fixture");
         if(!artifact.has("expiresAtMillis") || artifact.get("expiresAtMillis").getAsLong()<=now || artifact.get("expiresAtMillis").getAsLong()>now+24L*60*60*1000)throw new CloudRuntimeException("Rendered validation artifact expired or exceeds its one-day scope");
         for(String field:List.of("expectedCliSha256","sourceCommit")) {
             String value=text(artifact,field);if(value==null || !value.matches(field.equals("sourceCommit")?"[a-f0-9]{40}":"[a-f0-9]{64}"))throw new CloudRuntimeException("Rendered validation source pin is unavailable");
@@ -56,8 +59,8 @@ public final class StorageRenderedValidationProfile {
         int roots=0;
         for(java.util.Map.Entry<String,JsonElement> entry:volumes.entrySet()) {
             JsonObject volume=entry.getValue().getAsJsonObject();
-            if(!Set.of("SPARSE","FAT").contains(text(volume,"provisioningType")) || !yes(volume,"attachedToFixture") || !yes(volume,"ownerAndZoneVerified"))throw new CloudRuntimeException("Rendered validation requires SPARSE/FAT owned fixture disks");
-            if("ROOT".equals(text(volume,"type")))roots++;else if(!"DATADISK".equals(text(volume,"type")) || !yes(volume,"newDataWithoutBacking"))throw new CloudRuntimeException("Rendered validation rejects reused, cloned or unknown DATA backing");
+            if(!("SPARSE".equals(text(volume,"provisioningType"))||"FAT".equals(text(volume,"provisioningType"))) || !yes(volume,"attachedToFixture") || !yes(volume,"ownerAndZoneVerified"))throw new CloudRuntimeException("Rendered validation requires SPARSE/FAT owned fixture disks");
+            if("ROOT".equals(text(volume,"type")))roots++;else if(!"DATADISK".equals(text(volume,"type")) || (!owned&&!yes(volume,"newDataWithoutBacking")))throw new CloudRuntimeException("Rendered validation rejects reused, cloned or unknown DATA backing");
         }
         if(roots!=1)throw new CloudRuntimeException("Rendered validation ROOT identity is ambiguous");
     }
