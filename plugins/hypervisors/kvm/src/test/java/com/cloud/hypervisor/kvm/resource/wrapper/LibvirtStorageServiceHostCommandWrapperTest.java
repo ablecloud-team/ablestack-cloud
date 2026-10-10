@@ -322,4 +322,76 @@ public class LibvirtStorageServiceHostCommandWrapperTest {
         Assert.assertFalse(capability.toString().contains("disk"));
     }
 
+    private StorageServiceHostCommand iscsiSensitiveCommand(String operation) {
+        return new StorageServiceHostCommand("public-test-vm", operation, "{}", 120, java.util.Set.of("chapSecret", "mutualChapSecret"));
+    }
+
+    private String fixedIscsiFailure() {
+        return "{\"success\":false,\"kind\":\"ISCSI_TARGETCLI_COMMAND_FAILED\",\"stage\":\"TARGET_CREATE\",\"returnCode\":1,\"category\":\"TYPE_ERROR\"}";
+    }
+
+    @Test
+    public void testClosedIscsiFailureAddsOnlyFixedPublicDetails() {
+        final String secret = "SYNTHETIC_PRIVATE_CREDENTIAL";
+        final StorageServiceHostCommand command = iscsiSensitiveCommand("iscsi target apply");
+        final String masked = "Sensitive Storage Service command failed with exit code 1; secret-bearing output omitted";
+        Assert.assertEquals(masked + " [ISCSI stage=TARGET_CREATE; returnCode=1; category=TYPE_ERROR]",
+                wrapper.commandFailureDetails(command, 1, fixedIscsiFailure(), secret));
+        Assert.assertEquals(masked, wrapper.commandFailureDetails(iscsiSensitiveCommand("smb share apply"), 1, fixedIscsiFailure(), secret));
+        Assert.assertFalse(wrapper.commandFailureDetails(command, 1, fixedIscsiFailure(), secret).contains(secret));
+        Assert.assertEquals(masked + " [ISCSI stage=TARGET_CREATE; returnCode=UNAVAILABLE; category=TIMEOUT]",
+                wrapper.commandFailureDetails(command, 1, fixedIscsiFailure().replace("\"returnCode\":1", "\"returnCode\":null").replace("\"TYPE_ERROR\"", "\"TIMEOUT\""), secret));
+    }
+
+    @Test
+    public void testInvalidIscsiDiagnosticKeepsOriginalMaskedFailure() {
+        final StorageServiceHostCommand command = iscsiSensitiveCommand("iscsi target apply");
+        final String fixed = fixedIscsiFailure();
+        final String masked = "Sensitive Storage Service command failed with exit code 1; secret-bearing output omitted";
+        final java.util.List<String> rejected = new java.util.ArrayList<>();
+        rejected.add(fixed.replace("\"success\":false", "\"success\":true"));
+        rejected.add(fixed.replace("\"success\":false", "\"success\":\"false\""));
+        rejected.add(fixed.replace("\"TARGET_CREATE\"", "\"PRIVATE_STAGE\""));
+        rejected.add(fixed.replace("\"TYPE_ERROR\"", "\"PRIVATE_CATEGORY\""));
+        rejected.add(fixed.replace("\"TYPE_ERROR\"", "\"TIMEOUT\""));
+        rejected.add(fixed.replace("\"TYPE_ERROR\"", "\"SPAWN_FAILURE\""));
+        rejected.add(fixed.replace("\"returnCode\":1", "\"returnCode\":null"));
+        for (String code : new String[]{"0", "-65", "256", "1.0", "1e0", "\"1\"", "true"}) {
+            rejected.add(fixed.replace("\"returnCode\":1", "\"returnCode\":" + code));
+        }
+        rejected.add(fixed.replace("\"success\":false", "\"success\":false,\"success\":false"));
+        rejected.add(fixed.replace("\"success\":false", "\"success\":false,\"\\u0073uccess\":false"));
+        rejected.add(fixed.substring(0, fixed.length() - 1) + ",\"message\":\"SYNTHETIC_PRIVATE_CREDENTIAL\"}");
+        rejected.add(fixed + "\n" + fixed);
+        rejected.add(fixed + fixed);
+        rejected.add(fixed + " trailing");
+        rejected.add(fixed.replace(",\"stage\"", ",\n\"stage\""));
+        rejected.add("{\"success\":false}");
+        rejected.add("SYNTHETIC_PRIVATE_CREDENTIAL");
+        for (String value : rejected) {
+            Assert.assertEquals(masked, wrapper.commandFailureDetails(command, 1, value, "SYNTHETIC_PRIVATE_CREDENTIAL"));
+        }
+    }
+
+    @Test
+    public void testIscsiNonzeroGuestAnswerKeepsFailureAndCarriesPublicResult() throws Exception {
+        final StorageServiceHostCommand command = iscsiSensitiveCommand("iscsi target apply");
+        final org.libvirt.Domain domain = org.mockito.Mockito.mock(org.libvirt.Domain.class);
+        final com.google.gson.JsonObject status = new com.google.gson.JsonObject();
+        status.addProperty("exited", true);
+        status.addProperty("exitcode", 1);
+        status.addProperty("out-data", java.util.Base64.getEncoder().encodeToString(fixedIscsiFailure().getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+        status.addProperty("err-data", java.util.Base64.getEncoder().encodeToString("SYNTHETIC_PRIVATE_CREDENTIAL".getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+        final com.google.gson.JsonObject response = new com.google.gson.JsonObject();
+        response.add("return", status);
+        org.mockito.Mockito.when(domain.qemuAgentCommand(org.mockito.Mockito.anyString(), org.mockito.Mockito.anyInt(), org.mockito.Mockito.eq(0)))
+                .thenReturn(response.toString());
+        final com.cloud.agent.api.StorageServiceHostAnswer answer =
+                (com.cloud.agent.api.StorageServiceHostAnswer) wrapper.waitForGuestCommand(command, domain, 17);
+        Assert.assertFalse(answer.getResult());
+        Assert.assertEquals(fixedIscsiFailure(), answer.getResultJson());
+        Assert.assertTrue(answer.getDetails().contains("ISCSI stage=TARGET_CREATE; returnCode=1; category=TYPE_ERROR"));
+        Assert.assertFalse(answer.getDetails().contains("SYNTHETIC_PRIVATE_CREDENTIAL"));
+    }
+
 }

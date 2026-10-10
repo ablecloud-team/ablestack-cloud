@@ -9642,17 +9642,54 @@ if os.environ.get("ABLESTACK_STORAGE_ROOT_SOURCE_REPLAY")!="1":
 def run(args, timeout=20):
     return subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=timeout)
 
-def run_targetcli(*args):
-    return run(["targetcli", *args])
+ISCSI_DIAGNOSTIC_STAGES = {"CLEANUP", "TARGET_CREATE", "PORTAL_CREATE", "BACKSTORE_CREATE", "LUN_CREATE", "ACL_CREATE", "AUTH_POLICY"}
+ISCSI_DIAGNOSTIC_CATEGORIES = {"UNCLASSIFIED", "ATTRIBUTE_ERROR", "TYPE_ERROR", "IMPORT_ERROR", "PERMISSION_ERROR", "WWN_REJECTED", "CONFIGFS_ERROR", "TIMEOUT", "SPAWN_FAILURE"}
+first_targetcli_failure = None
+
+def targetcli_error_category(result):
+    # Inspect only fixed vendor tokens in RAM; never return arbitrary text.
+    categories = set()
+    classes = {"AttributeError": "ATTRIBUTE_ERROR", "TypeError": "TYPE_ERROR",
+               "ImportError": "IMPORT_ERROR", "ModuleNotFoundError": "IMPORT_ERROR",
+               "PermissionError": "PERMISSION_ERROR"}
+    for line in ((result.stderr or "") + "\n" + (result.stdout or "")).splitlines():
+        match = re.match(r"^(AttributeError|TypeError|ImportError|ModuleNotFoundError|PermissionError)(?::|$)", line.strip())
+        if match: categories.add(classes[match.group(1)])
+        if line.strip() == "WWN not valid as: iqn": categories.add("WWN_REJECTED")
+        if line.strip() == "Could not create Target in configFS": categories.add("CONFIGFS_ERROR")
+    return next(iter(categories)) if len(categories) == 1 else "UNCLASSIFIED"
+
+class IscsiTargetcliFailure(SystemExit):
+    def __init__(self, stage, return_code, category):
+        global first_targetcli_failure
+        if stage not in ISCSI_DIAGNOSTIC_STAGES or category not in ISCSI_DIAGNOSTIC_CATEGORIES:
+            raise ValueError("Invalid fixed iSCSI diagnostic")
+        if return_code is not None and (type(return_code) is not int or return_code == 0 or not -64 <= return_code <= 255):
+            raise ValueError("Invalid fixed iSCSI return code")
+        if (return_code is None) != (category in ("TIMEOUT", "SPAWN_FAILURE")):
+            raise ValueError("Unavailable iSCSI return code")
+        if first_targetcli_failure is None:
+            first_targetcli_failure = {"success": False, "kind": "ISCSI_TARGETCLI_COMMAND_FAILED",
+                                       "stage": stage, "returnCode": return_code, "category": category}
+            print(json.dumps(first_targetcli_failure, separators=(",", ":")), flush=True)
+        super().__init__("iSCSI targetcli command failed; private diagnostics omitted")
+
+def run_targetcli(*args, stage="CLEANUP"):
+    try:
+        return run(["targetcli", *args])
+    except subprocess.TimeoutExpired:
+        raise IscsiTargetcliFailure(stage, None, "TIMEOUT") from None
+    except OSError:
+        raise IscsiTargetcliFailure(stage, None, "SPAWN_FAILURE") from None
 
 def ok_or_exists(result):
     text = f"{result.stdout}\n{result.stderr}".lower()
     return result.returncode == 0 or "exists" in text or "already" in text
 
-def require_targetcli(*args):
-    result = run_targetcli(*args)
+def require_targetcli(*args, stage):
+    result = run_targetcli(*args, stage=stage)
     if not ok_or_exists(result):
-        raise SystemExit((result.stderr or result.stdout or f"targetcli failed: {' '.join(args)}").strip())
+        raise IscsiTargetcliFailure(stage, result.returncode, targetcli_error_category(result)) from None
     return result
 
 def command_exists(name):
@@ -9868,7 +9905,7 @@ def resolve_backstore(target, backstore_name):
     if mountpoint:
         raise SystemExit(f"backing device {path} is mounted at {mountpoint}; refusing iSCSI BLOCK backstore")
     validate_block_backstore_device(path)
-    require_targetcli("/backstores/block", "create", backstore_name, path)
+    require_targetcli("/backstores/block", "create", backstore_name, path, stage="BACKSTORE_CREATE")
     return f"/backstores/block/{backstore_name}", path, "block"
 
 def port_listening(port):
@@ -9976,14 +10013,14 @@ def create_iscsi_portal(iqn, listen_ip, port):
         return
     if listen_ip not in ("0.0.0.0", "::") and iscsi_portal_exists(iqn, "0.0.0.0", port):
         return
-    result = run_targetcli(f"/iscsi/{iqn}/tpg1/portals", "create", listen_ip, str(port))
+    result = run_targetcli(f"/iscsi/{iqn}/tpg1/portals", "create", listen_ip, str(port), stage="PORTAL_CREATE")
     if ok_or_exists(result):
         return
     if listen_ip not in ("0.0.0.0", "::") and iscsi_portal_exists(iqn, "0.0.0.0", port):
         return
     if iscsi_portal_exists(iqn, listen_ip, port):
         return
-    raise SystemExit((result.stderr or result.stdout or f"targetcli failed to create portal {listen_ip}:{port}").strip())
+    raise IscsiTargetcliFailure("PORTAL_CREATE", result.returncode, targetcli_error_category(result)) from None
 
 def iscsi_acl_chap_signature(acl):
     config = acl.get("config") or {}
@@ -10129,7 +10166,7 @@ if command_exists("targetcli"):
             run_targetcli("/iscsi", "delete", iqn)
             for target in group_targets:
                 run_targetcli("/backstores/block", "delete", f"ablestack-{target.get('uuid')}")
-            require_targetcli("/iscsi", "create", iqn)
+            require_targetcli("/iscsi", "create", iqn, stage="TARGET_CREATE")
             created_iqns.append(iqn)
             run_targetcli(f"/iscsi/{iqn}/tpg1/portals", "delete", "0.0.0.0", "3260")
             group_listeners = merged_listeners_for_targets(group_targets, listeners)
@@ -10141,7 +10178,7 @@ if command_exists("targetcli"):
                 backstore = f"ablestack-{target.get('uuid')}"
                 backstore_path, backing_path, backstore_type = resolve_backstore(target, backstore)
                 created_backstores.append(backstore)
-                require_targetcli(f"/iscsi/{iqn}/tpg1/luns", "create", backstore_path, lun)
+                require_targetcli(f"/iscsi/{iqn}/tpg1/luns", "create", backstore_path, lun, stage="LUN_CREATE")
                 applied += 1
                 runtime_targets.append({
                     "uuid": target.get("uuid"),
@@ -10160,7 +10197,7 @@ if command_exists("targetcli"):
             chap_required = False
             for acl in merged_acls_for_targets(group_targets):
                 initiator = acl.get("principal")
-                require_targetcli(f"/iscsi/{iqn}/tpg1/acls", "create", initiator)
+                require_targetcli(f"/iscsi/{iqn}/tpg1/acls", "create", initiator, stage="ACL_CREATE")
                 acl_config = acl.get("config") or {}
                 secrets = acl.get("secrets") or {}
                 old_auth = previous_auth.get(initiator, {})
@@ -10177,7 +10214,7 @@ if command_exists("targetcli"):
                     mutual_password = require_chap_value("mutualChapSecret", mutual_password, iqn, initiator)
                     secrets["mutualChapSecret"] = mutual_password
                 ConfigfsIscsiAuth().apply(iqn,initiator,acl_config,secrets)
-            require_targetcli(f"/iscsi/{iqn}/tpg1", "set", "attribute", f"authentication={1 if chap_required else 0}")
+            require_targetcli(f"/iscsi/{iqn}/tpg1", "set", "attribute", f"authentication={1 if chap_required else 0}", stage="AUTH_POLICY")
     except BaseException:
         rollback_created(created_iqns, created_backstores)
         raise

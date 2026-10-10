@@ -19,6 +19,7 @@
 
 package com.cloud.hypervisor.kvm.resource.wrapper;
 
+import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
@@ -37,6 +38,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 
 @ResourceWrapper(handles = StorageServiceHostCommand.class)
 public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrapper<StorageServiceHostCommand, Answer, LibvirtComputingResource> {
@@ -390,7 +393,9 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
 
     protected String commandFailureDetails(StorageServiceHostCommand command, int exitCode, String stdout, String stderr) {
         if (hasSensitivePayload(command)) {
-            return "Sensitive Storage Service command failed with exit code " + exitCode + "; secret-bearing output omitted";
+            final String masked = "Sensitive Storage Service command failed with exit code " + exitCode + "; secret-bearing output omitted";
+            final String fixed = "iscsi target apply".equals(command.getOperation()) ? fixedIscsiFailureDiagnostic(stdout) : null;
+            return fixed == null ? masked : masked + " [" + fixed + "]";
         }
         String diagnostic=stderr;
         if (diagnostic == null || diagnostic.trim().isEmpty()) {
@@ -402,6 +407,66 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
         }
         if (diagnostic == null || diagnostic.trim().isEmpty()) diagnostic="No guest diagnostic";
         return "Storage Service command failed with exit code " + exitCode + ": " + diagnostic.substring(0,Math.min(diagnostic.length(),2048));
+    }
+
+    private String fixedIscsiFailureDiagnostic(String stdout) {
+        if (stdout == null || stdout.length() > 4096) return null;
+        final String value = stdout.trim();
+        if (value.indexOf('\n') >= 0 || value.indexOf('\r') >= 0) return null;
+        final java.util.Set<String> fields = java.util.Set.of("success", "kind", "stage", "returnCode", "category");
+        final java.util.Set<String> stages = java.util.Set.of("CLEANUP", "TARGET_CREATE", "PORTAL_CREATE", "BACKSTORE_CREATE", "LUN_CREATE", "ACL_CREATE", "AUTH_POLICY");
+        final java.util.Set<String> categories = java.util.Set.of("UNCLASSIFIED", "ATTRIBUTE_ERROR", "TYPE_ERROR", "IMPORT_ERROR", "PERMISSION_ERROR", "WWN_REJECTED", "CONFIGFS_ERROR", "TIMEOUT", "SPAWN_FAILURE");
+        final java.util.Set<String> seen = new java.util.HashSet<>();
+        String stage = null;
+        String category = null;
+        Integer code = null;
+        boolean nullCode = false;
+        try (JsonReader reader = new JsonReader(new StringReader(value))) {
+            reader.setLenient(false);
+            reader.beginObject();
+            while (reader.hasNext()) {
+                final String name = reader.nextName();
+                if (!fields.contains(name) || !seen.add(name)) return null;
+                switch (name) {
+                    case "success":
+                        if (reader.peek() != JsonToken.BOOLEAN || reader.nextBoolean()) return null;
+                        break;
+                    case "kind":
+                        if (reader.peek() != JsonToken.STRING || !"ISCSI_TARGETCLI_COMMAND_FAILED".equals(reader.nextString())) return null;
+                        break;
+                    case "stage":
+                        if (reader.peek() != JsonToken.STRING) return null;
+                        stage = reader.nextString();
+                        if (!stages.contains(stage)) return null;
+                        break;
+                    case "category":
+                        if (reader.peek() != JsonToken.STRING) return null;
+                        category = reader.nextString();
+                        if (!categories.contains(category)) return null;
+                        break;
+                    case "returnCode":
+                        if (reader.peek() == JsonToken.NULL) {
+                            reader.nextNull();
+                            nullCode = true;
+                        } else {
+                            if (reader.peek() != JsonToken.NUMBER) return null;
+                            final String rawCode = reader.nextString();
+                            if (!rawCode.matches("-?(?:0|[1-9][0-9]{0,2})")) return null;
+                            code = Integer.valueOf(rawCode);
+                            if (code == 0 || code < -64 || code > 255) return null;
+                        }
+                        break;
+                    default:
+                        return null;
+                }
+            }
+            reader.endObject();
+            if (reader.peek() != JsonToken.END_DOCUMENT || !seen.equals(fields)) return null;
+            if (nullCode != java.util.Set.of("TIMEOUT", "SPAWN_FAILURE").contains(category)) return null;
+            return "ISCSI stage=" + stage + "; returnCode=" + (nullCode ? "UNAVAILABLE" : code) + "; category=" + category;
+        } catch (java.io.IOException | RuntimeException unavailable) {
+            return null;
+        }
     }
 
     private boolean usesProtectedStdin(StorageServiceHostCommand command) {
