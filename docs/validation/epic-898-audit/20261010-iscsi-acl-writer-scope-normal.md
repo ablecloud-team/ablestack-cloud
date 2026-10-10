@@ -15,3 +15,15 @@
 실제 배포 및 같은 ACL 재적용·읽기 전용 클라이언트 거절은 후속이다. #892는 열린 상태이고 최종 UI 표준 #1275는 미착수다.
 
 [핵심 검증](iscsi-acl-writer-scope/focused-final-proof.json), [독립 검토](iscsi-acl-writer-scope/independent-peer-public.json), [정상 모듈](iscsi-acl-writer-scope/manager-normal-core-proof.json), [최종 소스·산출물](iscsi-acl-writer-scope/final-normal-source-proof.json), [클래스 차분](iscsi-acl-writer-scope/production-class-delta-vs-ff1.json).
+
+## 실제 제한 반영 및 사후 검증
+
+내부 $4/$5는 기존 실배포 및 정상 ff1/6f830 클래스의 실행 코드·descriptor·참조가 같아 재사용한다. 본체는 기존 ABI를 모두 보존하고 새 멤버 추가 없이 2603개 참조 및 클래스 링크를 해결했다. 호환성 proof5a776f를 확인한 본체 CDE7 한 개만 반영했다.
+
+현재 관리 기준값9bd643 및 정상 API287f, 게스트 기준fb576924와 업로드 검증b9f5를 확인한 뒤 한 번 반영·mold 재기동했다. 새 JAR SHA-256은 1909d30c4ea4297508a4a11ec9cd7ed5286f7acbc4cb6350877059707425e934, PID1413104이며 백업은 /root/epic898-acl-writer-scope-6f830e4b-backup-20261010-162214이다.
+
+사후 SSH4e4b92 및 정상 APIebb28ed는 호스트3 Up/서비스8 Running, FS8/VM21/volume33/F1operation22와 기존 카탈로그3개 및 CODEaf2 COMPLETE, 전체 참조 집합이 유지됨을 확인했다. Runtime3·재사용 클래스·라이브러리9개·UI3495파일·config·신뢰 키53개와 선택 iSCSI 공개 파일15개를 보존했다. 추가 반영·재시작·게스트 코드 교체는 없었다.
+
+같은 ACL 두 개의 정상 재적용과 native WP0/1 및 실제 C2 쓰기 거절은 다음 검증이다. 이 제한 배포 완료를 전체 이슈 인수 완료로 표시하지 않는다.
+
+[제한 본체 호환성](iscsi-acl-writer-scope/outer-one-runtime-abi-review.json), [실제 반영](iscsi-acl-writer-scope/apply-once-public-result.json), [정상 API 사후 보존](iscsi-acl-writer-scope/post-resolver-normal-api-readiness-public-proof.json).
