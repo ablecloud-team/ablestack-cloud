@@ -167,3 +167,13 @@ test('normal VM prefill behavior is preserved and disabled radio selection is ig
   const ctx = offeringContext({ autoscale: false, value: 'dynamic' }); ctx.selectInitialRow(); expect(ctx.selectedRowKeys).toEqual(['dynamic'])
   Offering.methods.onSelectRow.call(ctx, ['dynamic']); expect(ctx.$emit).not.toHaveBeenCalled()
 })
+
+test.each(['scaleup', 'scaledown'])('policy inputs validate the selected policy model (%s)', async direction => {
+  const ctx = context()
+  const key = direction === 'scaleup' ? 'selectedScaleUpPolicy' : 'selectedScaleDownPolicy'
+  ctx[key] = { [`${direction}duration`]: '30', [`${direction}quiettime`]: '0' }
+  await expect(ctx.validateNumber({ field: `${direction}duration` }, undefined)).resolves.toBeUndefined()
+  await expect(ctx.validateNumber({ field: `${direction}quiettime` }, undefined)).resolves.toBeUndefined()
+  ctx[key][`${direction}duration`] = '0.5'
+  await expect(ctx.validateNumber({ field: `${direction}duration` }, undefined)).rejects.toBeDefined()
+})

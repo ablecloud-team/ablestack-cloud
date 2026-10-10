@@ -19,7 +19,7 @@
   <div>
     <a-alert v-if="!hasRequiredCreationApis" type="error" show-icon :message="$t('message.autoscale.apis.required')" style="margin-bottom: 16px" />
     <a-alert v-if="userDataLookupFailed" type="error" show-icon :message="$t('message.autoscale.userdata.unavailable')" style="margin-bottom: 16px">
-      <template #action><a-button size="small" @click="retryUserDataLookup">{{ $t('label.retry') }}</a-button></template>
+      <template #description><a-button size="small" @click="retryUserDataLookup">{{ $t('label.retry') }}</a-button></template>
     </a-alert>
     <a-row v-if="hasRequiredCreationApis" :gutter="12">
       <a-col :md="24" :lg="17">
@@ -2136,8 +2136,13 @@ export default {
       this.securitygroupids = securitygroupids || []
     },
     async validateNumber (rule, value) {
-      const minimum = rule.field === 'expungevmgraceperiod' ? 0 : 1
-      if (autoScaleInteger(value, minimum, 2147483647) === null) {
+      // Policy inputs belong to the selected policy, not the group form model.
+      const policy = rule.field?.startsWith('scaleup')
+        ? this.selectedScaleUpPolicy
+        : rule.field?.startsWith('scaledown') ? this.selectedScaleDownPolicy : null
+      const input = policy ? policy[rule.field] : value
+      const minimum = rule.field === 'expungevmgraceperiod' || rule.field?.endsWith('quiettime') ? 0 : 1
+      if (autoScaleInteger(input, minimum, 2147483647) === null) {
         return Promise.reject(this.$t('message.autoscale.integer.required'))
       }
       return Promise.resolve()
@@ -2627,7 +2632,8 @@ export default {
             })
             return
           }
-          if (!policy.scaleupduration || parseInt(policy.scaleupduration) <= 0) {
+          if (autoScaleInteger(policy.scaleupduration, 1, 2147483647) === null ||
+              autoScaleInteger(policy.scaleupquiettime, 0, 2147483647) === null) {
             this.$notification.error({
               message: this.$t('message.request.failed'),
               description: this.$t('message.scaleup.policy.duration.continue')
@@ -2665,7 +2671,8 @@ export default {
             })
             return
           }
-          if (!policy.scaledownduration || parseInt(policy.scaledownduration) <= 0) {
+          if (autoScaleInteger(policy.scaledownduration, 1, 2147483647) === null ||
+              autoScaleInteger(policy.scaledownquiettime, 0, 2147483647) === null) {
             this.$notification.error({
               message: this.$t('message.request.failed'),
               description: this.$t('message.scaledown.policy.duration.continue')
