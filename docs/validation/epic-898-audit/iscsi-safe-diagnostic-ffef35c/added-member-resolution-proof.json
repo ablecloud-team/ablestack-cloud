@@ -1,0 +1,232 @@
+{
+  "references": 27,
+  "resolved": 27,
+  "missing": 0,
+  "results": [
+    {
+      "kind": "Fieldref",
+      "owner": "com.google.gson.stream.JsonToken",
+      "name": "BOOLEAN",
+      "descriptor": "Lcom/google/gson/stream/JsonToken;",
+      "resolved": true,
+      "failureCategory": "NONE"
+    },
+    {
+      "kind": "Fieldref",
+      "owner": "com.google.gson.stream.JsonToken",
+      "name": "END_DOCUMENT",
+      "descriptor": "Lcom/google/gson/stream/JsonToken;",
+      "resolved": true,
+      "failureCategory": "NONE"
+    },
+    {
+      "kind": "Fieldref",
+      "owner": "com.google.gson.stream.JsonToken",
+      "name": "NULL",
+      "descriptor": "Lcom/google/gson/stream/JsonToken;",
+      "resolved": true,
+      "failureCategory": "NONE"
+    },
+    {
+      "kind": "Fieldref",
+      "owner": "com.google.gson.stream.JsonToken",
+      "name": "NUMBER",
+      "descriptor": "Lcom/google/gson/stream/JsonToken;",
+      "resolved": true,
+      "failureCategory": "NONE"
+    },
+    {
+      "kind": "Fieldref",
+      "owner": "com.google.gson.stream.JsonToken",
+      "name": "STRING",
+      "descriptor": "Lcom/google/gson/stream/JsonToken;",
+      "resolved": true,
+      "failureCategory": "NONE"
+    },
+    {
+      "kind": "InterfaceMethodref",
+      "owner": "java.util.Set",
+      "name": "equals",
+      "descriptor": "(Ljava/lang/Object;)Z",
+      "resolved": true,
+      "failureCategory": "NONE"
+    },
+    {
+      "kind": "InterfaceMethodref",
+      "owner": "java.util.Set",
+      "name": "of",
+      "descriptor": "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/util/Set;",
+      "resolved": true,
+      "failureCategory": "NONE"
+    },
+    {
+      "kind": "InterfaceMethodref",
+      "owner": "java.util.Set",
+      "name": "of",
+      "descriptor": "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/util/Set;",
+      "resolved": true,
+      "failureCategory": "NONE"
+    },
+    {
+      "kind": "InterfaceMethodref",
+      "owner": "java.util.Set",
+      "name": "of",
+      "descriptor": "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/util/Set;",
+      "resolved": true,
+      "failureCategory": "NONE"
+    },
+    {
+      "kind": "Methodref",
+      "owner": "com.google.gson.stream.JsonReader",
+      "name": "<init>",
+      "descriptor": "(Ljava/io/Reader;)V",
+      "resolved": true,
+      "failureCategory": "NONE"
+    },
+    {
+      "kind": "Methodref",
+      "owner": "com.google.gson.stream.JsonReader",
+      "name": "beginObject",
+      "descriptor": "()V",
+      "resolved": true,
+      "failureCategory": "NONE"
+    },
+    {
+      "kind": "Methodref",
+      "owner": "com.google.gson.stream.JsonReader",
+      "name": "close",
+      "descriptor": "()V",
+      "resolved": true,
+      "failureCategory": "NONE"
+    },
+    {
+      "kind": "Methodref",
+      "owner": "com.google.gson.stream.JsonReader",
+      "name": "endObject",
+      "descriptor": "()V",
+      "resolved": true,
+      "failureCategory": "NONE"
+    },
+    {
+      "kind": "Methodref",
+      "owner": "com.google.gson.stream.JsonReader",
+      "name": "hasNext",
+      "descriptor": "()Z",
+      "resolved": true,
+      "failureCategory": "NONE"
+    },
+    {
+      "kind": "Methodref",
+      "owner": "com.google.gson.stream.JsonReader",
+      "name": "nextBoolean",
+      "descriptor": "()Z",
+      "resolved": true,
+      "failureCategory": "NONE"
+    },
+    {
+      "kind": "Methodref",
+      "owner": "com.google.gson.stream.JsonReader",
+      "name": "nextName",
+      "descriptor": "()Ljava/lang/String;",
+      "resolved": true,
+      "failureCategory": "NONE"
+    },
+    {
+      "kind": "Methodref",
+      "owner": "com.google.gson.stream.JsonReader",
+      "name": "nextNull",
+      "descriptor": "()V",
+      "resolved": true,
+      "failureCategory": "NONE"
+    },
+    {
+      "kind": "Methodref",
+      "owner": "com.google.gson.stream.JsonReader",
+      "name": "nextString",
+      "descriptor": "()Ljava/lang/String;",
+      "resolved": true,
+      "failureCategory": "NONE"
+    },
+    {
+      "kind": "Methodref",
+      "owner": "com.google.gson.stream.JsonReader",
+      "name": "peek",
+      "descriptor": "()Lcom/google/gson/stream/JsonToken;",
+      "resolved": true,
+      "failureCategory": "NONE"
+    },
+    {
+      "kind": "Methodref",
+      "owner": "com.google.gson.stream.JsonReader",
+      "name": "setLenient",
+      "descriptor": "(Z)V",
+      "resolved": true,
+      "failureCategory": "NONE"
+    },
+    {
+      "kind": "Methodref",
+      "owner": "java.io.StringReader",
+      "name": "<init>",
+      "descriptor": "(Ljava/lang/String;)V",
+      "resolved": true,
+      "failureCategory": "NONE"
+    },
+    {
+      "kind": "Methodref",
+      "owner": "java.lang.Integer",
+      "name": "intValue",
+      "descriptor": "()I",
+      "resolved": true,
+      "failureCategory": "NONE"
+    },
+    {
+      "kind": "Methodref",
+      "owner": "java.lang.Integer",
+      "name": "valueOf",
+      "descriptor": "(Ljava/lang/String;)Ljava/lang/Integer;",
+      "resolved": true,
+      "failureCategory": "NONE"
+    },
+    {
+      "kind": "Methodref",
+      "owner": "java.lang.String",
+      "name": "hashCode",
+      "descriptor": "()I",
+      "resolved": true,
+      "failureCategory": "NONE"
+    },
+    {
+      "kind": "Methodref",
+      "owner": "java.lang.String",
+      "name": "indexOf",
+      "descriptor": "(I)I",
+      "resolved": true,
+      "failureCategory": "NONE"
+    },
+    {
+      "kind": "Methodref",
+      "owner": "java.lang.String",
+      "name": "valueOf",
+      "descriptor": "(Ljava/lang/Object;)Ljava/lang/String;",
+      "resolved": true,
+      "failureCategory": "NONE"
+    },
+    {
+      "kind": "Methodref",
+      "owner": "java.lang.Throwable",
+      "name": "addSuppressed",
+      "descriptor": "(Ljava/lang/Throwable;)V",
+      "resolved": true,
+      "failureCategory": "NONE"
+    }
+  ],
+  "classInitializationRequested": false,
+  "actualCalls": 0,
+  "providerCacheManifest": "/root/work/epic898-preparation/qga-host-chunked-transport-deployment-preparation/fresh-runtime-public-cache-manifest.json",
+  "providerCacheManifestSha256": "cf48d4ce673e4c0acb37676a246f3fdb7a63099c83f226a7104c01abf9d2ce41",
+  "providerJarHashesExact": true,
+  "existingRuntimeProviderBytesPreservedByPriorOneClassRollout": true,
+  "cacheIsPriorReadonlyAcquisitionNotNewSsh": true,
+  "sourcePin": "ffef35c4986fa140609e89e392295ced6e6b8a0b",
+  "candidateClassSha256": "45e4173eadecf0f525eff2e4e6f3e98ca15e1e26e9ccd48dad62151193229851"
+}
