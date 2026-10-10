@@ -1,0 +1,39 @@
+{
+  "kind": "LOCAL_FF1_ONE_CLASS_DELIVERY_PREPARATION",
+  "sourcePin": "ff1aa74eeda6fffba46c97d6f56c678cbdc2bf33",
+  "manifestSha256": "8728fc69e64fb0a37122ff2f7f9ef2bab20ddf95d4073dc81377182cacbf2d31",
+  "payloadSha256": "c24ee25947063ff7a25045da6e00ca9913a9f55852e00f39c3adbafeb6e68e9b",
+  "archiveSha256": "36542905ef5ccd50c83aa7ab43188c502c2c7607b3567620a20210b29ecac26c",
+  "helperSha256": "b73710e3496fef61c7d978ae7172a02c4caea15d048246c3e65f6b89808c31c7",
+  "stageFileSha256": {
+    "management-one-review-payload.zip": {
+      "sha256": "c24ee25947063ff7a25045da6e00ca9913a9f55852e00f39c3adbafeb6e68e9b",
+      "size": 269529
+    },
+    "deployment-manifest.json": {
+      "sha256": "8728fc69e64fb0a37122ff2f7f9ef2bab20ddf95d4073dc81377182cacbf2d31",
+      "size": 392965
+    },
+    "deploy-management-one.py": {
+      "sha256": "b73710e3496fef61c7d978ae7172a02c4caea15d048246c3e65f6b89808c31c7",
+      "size": 9023
+    },
+    "rollback-management-one.py": {
+      "sha256": "ae42057c4cedfe9d9794256acac02bbd79d0505317348a94b9ed122a0d5441f4",
+      "size": 1407
+    }
+  },
+  "transportScriptSha256": {
+    "remote-upload-verify-only.py": "37384f80556e889d78f6e1bbd83e498a84d15dce82109c6b8a77e0e719bd875e",
+    "upload-and-verify-only.py": "468e2f84f5f276ae62c33e232a476249c692501d59701a43b274ce3a83f44406",
+    "remote-apply-once.py": "bd1af6bc8685835b5b1de521a04755ac25938eed2fd3b258bdb4e9e2183b9ccd",
+    "apply-once-ssh.py": "2cfcffee00502effd99ce7fc674d3ef95d004354ebc83d6f112f2998c0cad417"
+  },
+  "syntaxPass": true,
+  "publicTrustCount": 52,
+  "managementClassCount": 1,
+  "networkCalls": 0,
+  "uploadCalls": 0,
+  "restartCalls": 0,
+  "credentialsUsed": false
+}

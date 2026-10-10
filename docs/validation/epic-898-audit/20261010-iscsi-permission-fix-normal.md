@@ -17,3 +17,13 @@ Patch SHA-256 171b02f722db8e3616afda8d12c71abe8fde220b36687fc3f22ff5f5d2a8a19a, 
 정상 native는 480개 테스트 / 51개 그룹, 관리 모듈은 972개 테스트 / 128개 그룹에서 실패·오류·skip 0, Checkstyle 및 빌드 성공이다. Native552 및 관리 관련 소스5040의 전후 일치와 exact archive를 확인했고 별도 immutable 산출물을 보존했다. 정상 바이트 차이는 Manager 본체와 내부 $5의 2개 클래스였으나, $5의 실행 코드·descriptor·참조는 기존 실배포 클래스와 같으므로 재사용한다. 기존 공개/보호 ABI를 보존하고 권한 검증 protected 메서드 1개를 추가했다. 후보 본체의 2603개 멤버 참조 및 클래스 링크는 모두 해결했다. 실제 관리 클래스와 서명 CODE 배포는 후속이다. 실제 C2 쓰기 거절은 아직 완료로 판정하지 않는다. #892는 열려 있고 최종 UI 정리 #1275는 미착수다.
 
 [핵심 회귀 proof](iscsi-permission-fix/focused-source-proof.json), [독립 검토](iscsi-permission-fix/independent-final-peer-public.json), [정상 native](iscsi-permission-fix/native-normal-source-proof.json), [정상 관리 모듈](iscsi-permission-fix/manager-normal-core-proof.json), [소스 및 산출물 최종 proof](iscsi-permission-fix/final-normal-source-proof.json), [제한 클래스 호환성](iscsi-permission-fix/outer-one-runtime-abi-review.json).
+
+## 실제 관리 클래스 반영
+
+실제 SSH 기준값 03db24d3, 정상 API 자원 기준값 178e74a0 및 게스트 기준 관측 cd992c2a를 확인한 뒤 정확한 배포 묶음 4개를 업로드·검증했다. 기존 GEN13, pending 없음, writer idle, 빈 세션 및 시험 파일·RAW 제한 구간을 보존했다.
+
+관리 본체 클래스 1개를 한 번 반영했고 mold를 한 번 재기동했다. 새 JAR SHA-256은 ed3a6be2492af27d2c57072959e25db232050fecd7715154695244f6c5d424bf, PID는 1408330이며 백업은 /root/epic898-whole-iqn-ro-ff1aa74e-backup-20261010-153548이다. 다른 논리 JAR entry, 런타임 3개 클래스, 재사용 클래스와 라이브러리, UI 및 config를 보존했다. 게스트 호출은 0이며 게스트 코드와 실제 권한 적용은 후속이다.
+
+사후 SSH에서 새 JAR/PID/94b3 본체와 기존 Runtime·라이브러리·UI3490/config/trust52 일치를 확인했다. 정상 API의 전체 자원 비교는 아직 proof 저장을 마무리하는 중이므로 이 문서에서 완료로 확대하지 않는다. 추가 재시작은 없다.
+
+[업로드 검증](iscsi-permission-fix/upload-verify-only-public-result.json), [실제 반영 결과](iscsi-permission-fix/apply-once-public-result.json), [정확한 배포 묶음 검증](iscsi-permission-fix/local-delivery-proof.json).
