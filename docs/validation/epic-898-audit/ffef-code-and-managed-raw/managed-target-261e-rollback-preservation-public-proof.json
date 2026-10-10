@@ -1,0 +1,30 @@
+{
+  "kind": "MANAGED_ISCSI_261E_NORMAL_ROLLBACK_PRESERVATION",
+  "operationUuid": "261e9d81-91c5-4e81-a9b8-2bf23ad53912",
+  "samePublicFields": {
+    "cliSha256": true,
+    "bootId": true,
+    "vmUuid": true,
+    "current": true,
+    "pending": true,
+    "blockdevices": true,
+    "mounts": true,
+    "nfsSentinel": true,
+    "ownSmbFile": true,
+    "ownRawBlank": true
+  },
+  "dbProtectionOwnerLinksSizeSame": {
+    "PASSDB": true,
+    "SECRETS": true
+  },
+  "dbInodeMetadataExpectedChanged": {
+    "PASSDB": true,
+    "SECRETS": true
+  },
+  "ownedHolderCountAfter": 2,
+  "anyDeleted": false,
+  "writerIdle": true,
+  "pendingNull": true,
+  "sourceDiagnosticCause": "UNCONFIRMED",
+  "extraTargetRecoveryOrIoCalls": 0
+}
