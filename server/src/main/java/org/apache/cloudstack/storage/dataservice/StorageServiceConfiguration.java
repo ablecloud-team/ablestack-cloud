@@ -120,6 +120,8 @@ public final class StorageServiceConfiguration {
             JsonObject current = metadata(locked);
             // Allocation receipts are independently CAS-updated. A stale phase snapshot cannot erase them.
             if (current.has("receipts")) metadata.add("receipts", current.get("receipts").deepCopy());
+            if (current.has("cloneAllocation")) metadata.add("cloneAllocation", current.get("cloneAllocation").deepCopy());
+            if (current.has("cloneAllocationRealizations")) metadata.add("cloneAllocationRealizations", current.get("cloneAllocationRealizations").deepCopy());
             locked.setMetadataJson(metadata.toString());locked.setState(state);locked.setUpdated(new Date());
             if (!artifacts.update(locked.getId(), locked)) throw new CloudRuntimeException("Configuration artifact metadata update failed");
             row.setMetadataJson(locked.getMetadataJson());row.setState(state);row.setUpdated(locked.getUpdated());
@@ -387,7 +389,7 @@ public final class StorageServiceConfiguration {
             if (!mappings.has("createNew") || !mappings.get("createNew").isJsonObject()) throw new InvalidParameterValueException("New-service blueprint requires explicit zone/network/offering/storage mapping");
             // Keep the caller mapping unchanged; only the server-owned blueprint receives a resolved template ID.
             blueprint = mappings.getAsJsonObject("createNew").deepCopy();
-            if (metadata.has("createdTargetInstanceUuid") && sourceAuthority != null)
+            if ((metadata.has("createdTargetInstanceUuid") || metadata.has("cloneAllocation")) && sourceAuthority != null)
                 manager.requireFreshStorageIdentityTemplateBlueprint(blueprint);
             for (String field : new String[] {"createNew", "volumes", "newVolumes", "initialVolumeSourceUuid", "runtimeBundleUuid"}) {
                 if (mappings.has(field)) requestedVolumeMapping.add(field, mappings.get(field).deepCopy());
@@ -409,6 +411,17 @@ public final class StorageServiceConfiguration {
                         throw new InvalidParameterValueException("Clone realized ROOT binding changed before review");
                 } else recoveredTemplateReview = manager.reviewConfigurationCloneFailedTemplateBinding(created, cloneTemplatePin,
                         metadata.has("createdTargetTemplateBindingFailure") ? metadata.getAsJsonObject("createdTargetTemplateBindingFailure") : null, row.getUuid());
+                allocationPlan = previous.getAsJsonObject("volumeAllocationPlan").deepCopy();
+                StorageConfigurationVolumePlan.requireFrozen(allocationPlan);
+                targetUuid = previous.get("targetInstanceUuid").getAsString();
+            } else if (metadata.has("cloneAllocation")) {
+                JsonObject previous = metadata.getAsJsonObject("plan");
+                if (!requestedVolumeMapping.equals(metadata.get("requestedVolumeMapping")) || !previous.has("volumeAllocationPlan"))
+                    throw new InvalidParameterValueException("Recorded clone must retain its exact creation mapping");
+                blueprint = previous.getAsJsonObject("createNew").deepCopy();
+                cloneTemplatePin = previous.getAsJsonObject("cloneTemplatePin").deepCopy();
+                manager.requireConfigurationCloneAllocationPin(blueprint, cloneTemplatePin, row, previous,
+                        metadata.getAsJsonObject("cloneAllocation"));
                 allocationPlan = previous.getAsJsonObject("volumeAllocationPlan").deepCopy();
                 StorageConfigurationVolumePlan.requireFrozen(allocationPlan);
                 targetUuid = previous.get("targetInstanceUuid").getAsString();
@@ -539,7 +552,10 @@ public final class StorageServiceConfiguration {
             StorageServiceInstanceVO created = metadata.has("createdTargetInstanceUuid")
                     ? manager.configurationInstanceByUuid(metadata.get("createdTargetInstanceUuid").getAsString()) : null;
             JsonObject templatePin = plan.has("cloneTemplatePin") ? plan.getAsJsonObject("cloneTemplatePin") : null;
-            manager.requireConfigurationCloneTemplatePin(plan.getAsJsonObject("createNew"), templatePin, created);
+            if (created == null && metadata.has("cloneAllocation")) {
+                manager.requireConfigurationCloneAllocationPin(plan.getAsJsonObject("createNew"), templatePin, row, plan,
+                        metadata.getAsJsonObject("cloneAllocation"));
+            } else manager.requireConfigurationCloneTemplatePin(plan.getAsJsonObject("createNew"), templatePin, created);
             if (created != null) {
                 if (metadata.has("createdTargetTemplateBinding")) {
                     if (!metadata.get("createdTargetTemplateBinding").equals(manager.configurationCloneCreatedTemplateBinding(created, templatePin)))
@@ -573,8 +589,12 @@ public final class StorageServiceConfiguration {
             StorageConfigurationVolumePlan.requireFrozen(plan.getAsJsonObject("volumeAllocationPlan"));
             if (metadata.has("createdTargetInstanceUuid")) selectedTarget = manager.configurationInstanceByUuid(metadata.get("createdTargetInstanceUuid").getAsString());
             else {
-                manager.requireConfigurationCloneTemplatePin(plan.getAsJsonObject("createNew"), plan.getAsJsonObject("cloneTemplatePin"), null);
-                selectedTarget = manager.createConfigurationNewService(plan.getAsJsonObject("createNew"));
+                if (metadata.has("cloneAllocation")) {
+                    manager.requireConfigurationCloneAllocationPin(plan.getAsJsonObject("createNew"), plan.getAsJsonObject("cloneTemplatePin"),
+                            row, plan, metadata.getAsJsonObject("cloneAllocation"));
+                } else manager.requireConfigurationCloneTemplatePin(plan.getAsJsonObject("createNew"), plan.getAsJsonObject("cloneTemplatePin"), null);
+                selectedTarget = manager.createConfigurationNewService(plan.getAsJsonObject("createNew"), plan, row);
+                metadata.add("cloneAllocation", metadata(row).get("cloneAllocation").deepCopy());
                 JsonObject realizedTemplate;
                 try { realizedTemplate = manager.configurationCloneCreatedTemplateBinding(selectedTarget, plan.getAsJsonObject("cloneTemplatePin")); }
                 catch (RuntimeException bindingFailure) {

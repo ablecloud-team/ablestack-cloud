@@ -175,6 +175,8 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
 
     @Inject
     NetworkDao networkDao;
+    @Inject
+    org.apache.cloudstack.engine.orchestration.service.NetworkOrchestrationService recordedNetworkOrchestration;
 
     @Inject
     NetworkModel networkModel;
@@ -732,6 +734,96 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
 
     @Override
     public SharedFS preflightSharedFS(CreateSharedFSCmd cmd) {
+        return preflightSharedFSInternal(cmd, null);
+    }
+
+    @Override
+    public SharedFS preflightSharedFS(CreateSharedFSCmd cmd, long retainedSharedFsId) {
+        SharedFSVO retained = sharedFSDao.findById(retainedSharedFsId);
+        if (retained == null || Set.of(State.Destroyed, State.Expunging, State.Expunged).contains(retained.getState()))
+            throw new InvalidParameterValueException("Recorded SharedFS is unavailable");
+        SharedFS expected = preflightSharedFSInternal(cmd, retainedSharedFsId);
+        if (retained.getAccountId() != expected.getAccountId() || retained.getDomainId() != expected.getDomainId()
+                || retained.getDataCenterId() != expected.getDataCenterId()
+                || !java.util.Objects.equals(retained.getName(), expected.getName())
+                || !java.util.Objects.equals(retained.getFsProviderName(), expected.getFsProviderName())
+                || retained.getFsType() != expected.getFsType() || retained.getProtocol() != expected.getProtocol()
+                || !java.util.Objects.equals(retained.getServiceOfferingId(), expected.getServiceOfferingId())
+                || retained.getBackingVolumeMode() != expected.getBackingVolumeMode()
+                || retained.getNetworkMode() != expected.getNetworkMode()
+                || !java.util.Objects.equals(retained.getIpAddress(), expected.getIpAddress())
+                || !java.util.Objects.equals(retained.getCidr(), expected.getCidr())
+                || !java.util.Objects.equals(retained.getGateway(), expected.getGateway())
+                || !java.util.Objects.equals(retained.getDns1(), expected.getDns1())
+                || !java.util.Objects.equals(retained.getDns2(), expected.getDns2()))
+            throw new InvalidParameterValueException("Recorded SharedFS differs from its frozen creation scope");
+        requireRecordedAllocationNetwork(cmd.getNetworkId());requireRecordedFormatPools(cmd);
+        return retained;
+    }
+
+    protected void requireRecordedAllocationNetwork(Long networkId) {
+        NetworkVO network = networkDao.findById(networkId);
+        if (network == null || network.getGuruName() == null || recordedNetworkOrchestration == null)
+            throw new InvalidParameterValueException("Recorded network guru is unavailable");
+        com.cloud.network.guru.NetworkGuru guru = com.cloud.utils.component.AdapterBase.getAdapterByName(
+                recordedNetworkOrchestration.getNetworkGurus(), network.getGuruName());
+        Class<?> expected = "ExternalGuestNetworkGuru".equals(network.getGuruName()) ? com.cloud.network.guru.ExternalGuestNetworkGuru.class
+                : "DirectNetworkGuru".equals(network.getGuruName()) ? com.cloud.network.guru.DirectNetworkGuru.class : null;
+        if (guru == null || expected == null || !recordedGuruImplementation(guru, expected)
+                || expected == com.cloud.network.guru.ExternalGuestNetworkGuru.class
+                        && networkModel.networkIsConfiguredForExternalNetworking(network.getDataCenterId(), networkId))
+            throw new InvalidParameterValueException("Recorded allocation requires the exact audited network guru implementation");
+    }
+
+    private boolean recordedGuruImplementation(com.cloud.network.guru.NetworkGuru guru, Class<?> expected) {
+        if (guru.getClass() == expected) return true;
+        // Accept only CloudStack's source-defined component enhancer with its DB-only dispatcher.
+        if (!net.sf.cglib.proxy.Enhancer.isEnhanced(guru.getClass()) || guru.getClass().getSuperclass() != expected
+                || !(guru instanceof net.sf.cglib.proxy.Factory)) return false;
+        net.sf.cglib.proxy.Callback[] callbacks = ((net.sf.cglib.proxy.Factory) guru).getCallbacks();
+        if (callbacks.length != 2 || callbacks[0] != net.sf.cglib.proxy.NoOp.INSTANCE || callbacks[1] == null
+                || !callbacks[1].getClass().getName().equals("com.cloud.utils.component.ComponentInstantiationPostProcessor$InterceptorDispatcher"))
+            return false;
+        try {
+            java.lang.reflect.Field ownerField = callbacks[1].getClass().getDeclaredField("this$0");ownerField.setAccessible(true);
+            Object owner = ownerField.get(callbacks[1]);
+            if (owner == null || owner.getClass() != com.cloud.utils.component.ComponentInstantiationPostProcessor.class) return false;
+            for (com.cloud.utils.component.ComponentMethodInterceptor interceptor :
+                    ((com.cloud.utils.component.ComponentInstantiationPostProcessor) owner).getInterceptors()) {
+                if (interceptor == null || interceptor.getClass() != com.cloud.utils.db.TransactionContextBuilder.class) return false;
+            }
+            return true;
+        } catch (ReflectiveOperationException | RuntimeException failure) {
+            return false;
+        }
+    }
+
+    protected void requireRecordedFormatPools(CreateSharedFSCmd cmd) {
+        StoragePoolVO data = storagePoolDao.findById(cmd.getStorageId());
+        if (!recordedFormatPool(data, cmd.getZoneId()))
+            throw new InvalidParameterValueException("Recorded DATA pool has no supported KVM format policy");
+        com.cloud.service.ServiceOfferingVO service = serviceOfferingDao.findById(cmd.getServiceOfferingId());
+        DiskOfferingVO root = service == null || service.getDiskOfferingId() == null ? null : diskOfferingDao.findById(service.getDiskOfferingId());
+        if (root == null) throw new InvalidParameterValueException("Recorded ROOT offering is unavailable");
+        boolean eligible = false;
+        for (StoragePoolVO pool : storagePoolDao.listByStatusInZone(cmd.getZoneId(), com.cloud.storage.StoragePoolStatus.Up)) {
+            if (pool.getPoolType() == null) throw new InvalidParameterValueException("Recorded ROOT pool type is unavailable");
+            if (root.isUseLocalStorage() == pool.isShared() || !volumeApiService.doesStoragePoolSupportDiskOffering(pool, root)) continue;
+            eligible = true;
+            if (!recordedFormatPool(pool, cmd.getZoneId()))
+                throw new InvalidParameterValueException("Recorded ROOT placement includes an unsupported KVM format transition");
+        }
+        if (!eligible) throw new InvalidParameterValueException("Recorded ROOT has no supported placement candidate");
+    }
+
+    private boolean recordedFormatPool(StoragePoolVO pool, long zoneId) {
+        return pool != null && pool.getDataCenterId() == zoneId && pool.getStatus() == com.cloud.storage.StoragePoolStatus.Up
+                && pool.getPoolType() != null && Set.of(com.cloud.storage.Storage.StoragePoolType.Filesystem,
+                        com.cloud.storage.Storage.StoragePoolType.NetworkFilesystem, com.cloud.storage.Storage.StoragePoolType.SharedMountPoint,
+                        com.cloud.storage.Storage.StoragePoolType.RBD).contains(pool.getPoolType());
+    }
+
+    private SharedFS preflightSharedFSInternal(CreateSharedFSCmd cmd, Long retainedSharedFsId) {
         Account caller = CallContext.current().getCallingAccount();
 
         long ownerId = cmd.getEntityOwnerId();
@@ -781,7 +873,8 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
             throw new InvalidParameterValueException("Invalid File system format specified. Supported formats are EXT4 and XFS");
         }
 
-        if (sharedFSDao.findSharedFSByNameAccountDomain(cmd.getName(), owner.getAccountId(), cmd.getDomainId()) != null) {
+        SharedFSVO sameName = sharedFSDao.findSharedFSByNameAccountDomain(cmd.getName(), owner.getAccountId(), cmd.getDomainId());
+        if (sameName != null && (retainedSharedFsId == null || sameName.getId() != retainedSharedFsId)) {
             throw new InvalidParameterValueException("There already exists a Shared FileSystem with this name for the given account and domain.");
         }
 
@@ -804,6 +897,20 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_SHAREDFS_CREATE, eventDescription = "Deploying Shared FileSystem", async = true)
     public SharedFS deploySharedFS(CreateSharedFSCmd cmd) throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
+        return deploySharedFSInternal(cmd, null);
+    }
+
+    @Override
+    public SharedFS deploySharedFS(CreateSharedFSCmd cmd, java.util.function.Consumer<SharedFS> allocatedRecorder)
+            throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
+        if (allocatedRecorder == null || cmd.isExistingVolume())
+            throw new InvalidParameterValueException("Recorded CREATE_NEW requires a recorder and new DATA");
+        preflightSharedFS(cmd, cmd.getEntityId());
+        return deploySharedFSInternal(cmd, allocatedRecorder);
+    }
+
+    private SharedFS deploySharedFSInternal(CreateSharedFSCmd cmd, java.util.function.Consumer<SharedFS> allocatedRecorder)
+            throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
         SharedFSVO sharedFS = sharedFSDao.findById(cmd.getEntityId());
         Long diskOfferingId = cmd.getDiskOfferingId();
         Long size = cmd.getSize();
@@ -813,7 +920,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         SharedFSLifeCycle lifeCycle = provider.getSharedFSLifeCycle();
         Pair<Long, Long> result;
         try {
-            if(cmd.getValidationArtifactUuid()!=null&&sharedFS.getVmId()!=null)throw new CloudRuntimeException("Private fixture already has allocated VM and DATA; reconcile that allocation before retrying creation");
+            if(allocatedRecorder==null&&cmd.getValidationArtifactUuid()!=null&&sharedFS.getVmId()!=null)throw new CloudRuntimeException("Private fixture already has allocated VM and DATA; reconcile that allocation before retrying creation");
             Account owner=accountMgr.getActiveAccountById(sharedFS.getAccountId());
             com.cloud.storage.VMTemplateVO explicitTemplate=cmd.getTemplateId()==null?null:validateExplicitTemplate(cmd,owner,validateAndGetZone(sharedFS.getDataCenterId()));
             if(explicitTemplate!=null&&explicitTemplate.getTemplateType()==com.cloud.storage.Storage.TemplateType.USER)new org.apache.cloudstack.storage.dataservice.StorageTemplateFixturePermit().claim(cmd.getValidationArtifactUuid(),cmd.getValidationArtifactSha256(),sharedFS.getUuid(),explicitTemplateFixtureRequest(cmd,owner,explicitTemplate));
@@ -822,6 +929,35 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
             if (cmd.isExistingVolume()) {
                 validateExistingInitialVolume(cmd.getExistingVolumeId(),sharedFS.getAccountId(),sharedFS.getDataCenterId(),sharedFS.getId());
                 result=cmd.getTemplateId()==null?lifeCycle.deployWithExistingVolume(sharedFS,cmd.getNetworkId(),cmd.getExistingVolumeId()):lifeCycle.deployWithExistingVolume(sharedFS,cmd.getNetworkId(),cmd.getExistingVolumeId(),cmd.getTemplateId());
+            } else if (allocatedRecorder != null) {
+                if (cmd.getTemplateId() == null)
+                    throw new InvalidParameterValueException("Recorded allocation requires the reviewed explicit template ID");
+                if (sharedFS.getVmId() != null) {
+                    // Revalidate durable identities before any existing VM start.
+                    allocatedRecorder.accept(sharedFS);
+                    if (sharedFS.getState() == State.Error || sharedFS.getState() == State.Stopped) {
+                        if (!sharedFSDao.updateState(sharedFS.getState(), Event.StartRequested, State.Starting, sharedFS, null))
+                            throw new CloudRuntimeException("Recorded SharedFS resume state publication failed");
+                    }
+                }
+                result = lifeCycle.deploySharedFS(sharedFS, cmd.getNetworkId(), diskOfferingId, cmd.getStorageId(),
+                        size, minIops, maxIops, cmd.getTemplateId(), vmId -> {
+                            List<VolumeVO> roots = volumeDao.findByInstanceAndType(vmId, Volume.Type.ROOT);
+                            List<VolumeVO> data = volumeDao.findByInstanceAndType(vmId, Volume.Type.DATADISK);
+                            if (roots.size() != 1 || data.size() != 1 || roots.get(0).getRemoved() != null || data.get(0).getRemoved() != null
+                                    || sharedFS.getVmId() != null && !java.util.Objects.equals(sharedFS.getVmId(), vmId)
+                                    || sharedFS.getVolumeId() != null && sharedFS.getVolumeId() != data.get(0).getId())
+                                throw new CloudRuntimeException("Recorded VM allocation has ambiguous disk or SharedFS binding");
+                            if (sharedFS.getVmId() == null) {
+                                sharedFS.setVmId(vmId);sharedFS.setVolumeId(data.get(0).getId());
+                                if (!sharedFSDao.update(sharedFS.getId(), sharedFS))
+                                    throw new CloudRuntimeException("Recorded VM and DATA publication failed");
+                            }
+                            allocatedRecorder.accept(sharedFS);
+                        });
+                if (!java.util.Objects.equals(sharedFS.getVmId(), result.second())
+                        || !java.util.Objects.equals(sharedFS.getVolumeId(), result.first()))
+                    throw new CloudRuntimeException("Recorded provider changed VM or DATA identity");
             } else result = cmd.getTemplateId()==null?lifeCycle.deploySharedFS(sharedFS,cmd.getNetworkId(),diskOfferingId,cmd.getStorageId(),size,minIops,maxIops):lifeCycle.deploySharedFS(sharedFS, cmd.getNetworkId(), diskOfferingId, cmd.getStorageId(), size, minIops, maxIops,cmd.getTemplateId());
             sharedFS.setVolumeId(result.first());
             sharedFS.setVmId(result.second());
@@ -832,10 +968,15 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
             if (cmd.isExistingVolume()) inspectExistingInitialVolume(sharedFS);
         } catch (Exception ex) {
             if (cmd.isExistingVolume()) cleanupFailedInitialVolume(sharedFS,lifeCycle,ex);
-            if (!cmd.isExistingVolume() || sharedFSDao.findById(sharedFS.getId())!=null) stateTransitTo(sharedFS, Event.OperationFailed);
+            if (!cmd.isExistingVolume() || sharedFSDao.findById(sharedFS.getId())!=null) stateTransitTo(allocatedRecorder == null ? sharedFS : sharedFSDao.findById(sharedFS.getId()), Event.OperationFailed);
             throw ex;
         }
-        stateTransitTo(sharedFS, Event.OperationSucceeded);
+        if (allocatedRecorder == null) stateTransitTo(sharedFS, Event.OperationSucceeded);
+        else {
+            SharedFSVO completed = sharedFSDao.findById(sharedFS.getId());
+            if (completed.getState() != State.Ready && !stateTransitTo(completed, Event.OperationSucceeded))
+                throw new CloudRuntimeException("Recorded SharedFS completion state changed");
+        }
         syncSharedFSToStorageService(sharedFSDao.findById(sharedFS.getId()));
         return sharedFS;
     }

@@ -3689,6 +3689,366 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     protected void preflightConfigurationNewService(JsonObject blueprint) {
         configurationSharedFsService.preflightSharedFS(configurationCreateCommand(blueprint));
     }
+    private long configurationAllocationId(JsonObject value, String key) {
+        JsonElement number = value.get(key);
+        if (number == null || !number.isJsonPrimitive() || !number.getAsJsonPrimitive().isNumber()
+                || !number.getAsString().matches("[0-9]+"))
+            throw new InvalidParameterValueException("Clone allocation integer type changed");
+        long id;
+        try { id = Long.parseLong(number.getAsString()); }
+        catch (NumberFormatException invalid) { throw new InvalidParameterValueException("Clone allocation integer range changed"); }
+        if (id < 1) throw new InvalidParameterValueException("Clone allocation ID is unavailable");
+        return id;
+    }
+
+    protected JsonObject configurationCloneAllocationScope(StorageConfigArtifactVO artifact, JsonObject plan) {
+        if (!"CREATE_NEW".equals(getJsonString(plan, "targetMode")) || !artifact.getSha256().equals(getJsonString(plan, "artifactSha256")))
+            throw new InvalidParameterValueException("Clone allocation plan scope changed");
+        JsonObject metadata = parseJsonObject(artifact.getMetadataJson());
+        JsonObject scope = new JsonObject();
+        scope.addProperty("artifactUuid", artifact.getUuid());scope.addProperty("artifactSha256", artifact.getSha256());
+        scope.addProperty("sourceInstanceUuid", requireInstance(artifact.getInstanceId()).getUuid());
+        scope.add("allocationNamespace", metadata.get("allocationNamespace").deepCopy());
+        scope.add("plannedTargetInstanceUuid", metadata.get("plannedTargetInstanceUuid").deepCopy());
+        for (String field : Set.of("createNew", "cloneTemplatePin", "cloneRuntimePin", "volumeAllocationPlan", "runtimeBundleUuid"))
+            scope.add(field, plan.get(field).deepCopy());
+        return scope;
+    }
+
+    protected JsonObject configurationCloneSharedFsBinding(org.apache.cloudstack.storage.sharedfs.SharedFS shared) {
+        JsonObject binding = new JsonObject();
+        binding.addProperty("id", shared.getId());binding.addProperty("uuid", shared.getUuid());
+        binding.addProperty("accountId", shared.getAccountId());binding.addProperty("domainId", shared.getDomainId());
+        binding.addProperty("zoneId", shared.getDataCenterId());binding.addProperty("name", shared.getName());
+        binding.addProperty("serviceOfferingId", shared.getServiceOfferingId());
+        binding.addProperty("filesystem", shared.getFsType().name());binding.addProperty("provider", shared.getFsProviderName());
+        binding.addProperty("backingVolumeMode", shared.getBackingVolumeMode().name());
+        return binding;
+    }
+
+    protected JsonObject configurationCloneVmBinding(org.apache.cloudstack.storage.sharedfs.SharedFS shared, JsonObject plan) {
+        return configurationCloneVmBinding(shared, plan, null);
+    }
+
+    private JsonObject configurationCloneVmBinding(org.apache.cloudstack.storage.sharedfs.SharedFS shared, JsonObject plan, JsonObject previous) {
+        if (shared.getVmId() == null || shared.getVolumeId() == null)
+            throw new InvalidParameterValueException("Clone VM allocation binding is unavailable");
+        com.cloud.vm.UserVmVO vm = rootUpgradeVmDao.findById(shared.getVmId());
+        com.cloud.storage.VMTemplateVO template = rootUpgradeTemplateDao.findByUuid(getJsonString(plan.getAsJsonObject("cloneTemplatePin"), "templateUuid"));
+        List<VolumeVO> roots = volumeDao.findByInstanceAndType(shared.getVmId(), com.cloud.storage.Volume.Type.ROOT);
+        List<VolumeVO> data = volumeDao.findByInstanceAndType(shared.getVmId(), com.cloud.storage.Volume.Type.DATADISK);
+        List<NicVO> nics = nicDao.listByVmId(shared.getVmId());
+        org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd cmd = configurationCreateCommand(plan.getAsJsonObject("createNew"));
+        if (vm == null || template == null || vm.getRemoved() != null || vm.getAccountId() != shared.getAccountId()
+                || vm.getDataCenterId() != shared.getDataCenterId() || vm.getTemplateId() != template.getId()
+                || !com.cloud.vm.UserVmManager.SHAREDFSVM.equals(vm.getUserVmType())
+                || roots.size() != 1 || data.size() != 1 || data.get(0).getId() != shared.getVolumeId()
+                || nics.size() != 1 || nics.get(0).getNetworkId() != cmd.getNetworkId()
+                || roots.get(0).getRemoved() != null || data.get(0).getRemoved() != null)
+            throw new InvalidParameterValueException("Clone VM disk or network allocation identity changed");
+        JsonObject binding = new JsonObject();
+        binding.addProperty("vmId", vm.getId());binding.addProperty("vmUuid", vm.getUuid());
+        binding.addProperty("templateId", template.getId());binding.addProperty("templateUuid", template.getUuid());
+        binding.addProperty("networkId", nics.get(0).getNetworkId());binding.addProperty("nicId", nics.get(0).getId());
+        binding.addProperty("nicUuid", nics.get(0).getUuid());
+        binding.add("nic", configurationCloneNicBinding(nics.get(0), previous == null ? null : previous.getAsJsonObject("nic")));
+        binding.add("root", configurationCloneDiskBinding(roots.get(0), vm, true, previous == null ? null : previous.getAsJsonObject("root"), cmd.getStorageId()));
+        binding.add("data", configurationCloneDiskBinding(data.get(0), vm, false, previous == null ? null : previous.getAsJsonObject("data"), cmd.getStorageId()));
+        return binding;
+    }
+
+    private JsonObject configurationCloneNicBinding(NicVO nic, JsonObject previous) {
+        NetworkVO network = networkDao.findById(nic.getNetworkId());
+        if (network == null) throw new InvalidParameterValueException("Clone NIC network is unavailable");
+        JsonObject binding = new JsonObject();
+        binding.addProperty("macAddress", nic.getMacAddress());binding.addProperty("defaultNic", nic.isDefaultNic());
+        binding.addProperty("deviceId", nic.getDeviceId());binding.addProperty("mode", nic.getMode() == null ? null : nic.getMode().name());
+        binding.addProperty("addressFormat", nic.getAddressFormat() == null ? null : nic.getAddressFormat().name());
+        binding.addProperty("ipv4Address", nic.getIPv4Address());binding.addProperty("ipv6Address", nic.getIPv6Address());
+        binding.addProperty("guruName", network.getGuruName());
+        binding.addProperty("networkCidr", network.getCidr());binding.addProperty("networkGateway", network.getGateway());
+        binding.addProperty("networkIpv6Cidr", network.getIp6Cidr());binding.addProperty("networkIpv6Gateway", network.getIp6Gateway());
+        boolean nullableDirect = previous == null
+                ? "DirectNetworkGuru".equals(network.getGuruName()) && nic.getIPv4Address() == null && nic.getIPv6Address() == null
+                : "DIRECT_NULL_TO_ASSIGNED_ONCE".equals(getJsonString(previous, "addressPolicy"));
+        binding.addProperty("addressPolicy", nullableDirect ? "DIRECT_NULL_TO_ASSIGNED_ONCE" : "ALLOCATED_ADDRESSES_EXACT");
+        if (previous != null && nullableDirect) {
+            for (String field : Set.of("ipv4Address", "ipv6Address", "addressFormat")) {
+                if (previous.get(field) != null && previous.get(field).isJsonNull())
+                    binding.add(field, previous.get(field).deepCopy());
+            }
+        }
+        return binding;
+    }
+
+    private JsonObject configurationCloneRealizedDisk(VolumeVO disk, com.cloud.vm.UserVmVO vm, boolean root, JsonObject plan) {
+        if (disk.getState() != com.cloud.storage.Volume.State.Ready) return null;
+        org.apache.cloudstack.storage.datastore.db.StoragePoolVO pool = disk.getPoolId() == null ? null : configurationStoragePoolDao.findById(disk.getPoolId());
+        org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd cmd = configurationCreateCommand(plan.getAsJsonObject("createNew"));
+        com.cloud.storage.DiskOfferingVO offering = configurationDiskOfferingDao.findById(disk.getDiskOfferingId());
+        if (pool == null || offering == null || pool.getDataCenterId() != vm.getDataCenterId()
+                || pool.getStatus() != com.cloud.storage.StoragePoolStatus.Up || disk.getFormat() == null
+                || StringUtils.isBlank(disk.getPath()) || root && offering.isUseLocalStorage() == pool.isShared()
+                || !root && !java.util.Objects.equals(disk.getPoolId(), cmd.getStorageId()))
+            throw new InvalidParameterValueException("Clone Ready disk placement is unavailable or changed");
+        // Use the existing offering/tag checker before accepting the first ROOT placement.
+        if (!volumeApiService.doesStoragePoolSupportDiskOffering(pool, offering))
+            throw new InvalidParameterValueException("Clone Ready pool does not match its original offering");
+        JsonObject realized = new JsonObject();
+        realized.addProperty("volumeId", disk.getId());realized.addProperty("volumeUuid", disk.getUuid());
+        realized.addProperty("poolId", pool.getId());realized.addProperty("poolUuid", pool.getUuid());
+        realized.addProperty("poolType", pool.getPoolType().name());realized.addProperty("zoneId", pool.getDataCenterId());
+        realized.addProperty("path", disk.getPath());realized.addProperty("imageFormat", disk.getFormat().name());
+        realized.addProperty("offeringId", disk.getDiskOfferingId());realized.addProperty("sizeBytes", disk.getSize());
+        realized.addProperty("provisioningType", disk.getProvisioningType().name());realized.addProperty("instanceId", vm.getId());
+        return realized;
+    }
+
+    private void configurationPinCloneRealizations(StorageConfigArtifactVO artifact, JsonObject plan,
+            org.apache.cloudstack.storage.sharedfs.SharedFS shared, JsonObject allocation) {
+        com.cloud.vm.UserVmVO vm = rootUpgradeVmDao.findById(shared.getVmId());
+        JsonObject observed = new JsonObject();
+        for (String role : Set.of("root", "data")) {
+            com.cloud.storage.Volume.Type type = "root".equals(role) ? com.cloud.storage.Volume.Type.ROOT : com.cloud.storage.Volume.Type.DATADISK;
+            List<VolumeVO> volumes = volumeDao.findByInstanceAndType(vm.getId(), type);
+            if (volumes.size() != 1) throw new InvalidParameterValueException("Clone realization disk set changed");
+            JsonObject realized = configurationCloneRealizedDisk(volumes.get(0), vm, "root".equals(role), plan);
+            if (realized != null) observed.add(role, realized);
+        }
+        NicVO nic = nicDao.listByVmId(vm.getId()).get(0);
+        JsonObject initial = allocation.getAsJsonObject("vm").getAsJsonObject("nic");
+        if ("DIRECT_NULL_TO_ASSIGNED_ONCE".equals(getJsonString(initial, "addressPolicy"))
+                && (nic.getIPv4Address() != null || nic.getIPv6Address() != null)) {
+            JsonObject assigned = new JsonObject();
+            assigned.addProperty("nicId", nic.getId());assigned.addProperty("nicUuid", nic.getUuid());
+            assigned.addProperty("ipv4Address", nic.getIPv4Address());assigned.addProperty("ipv6Address", nic.getIPv6Address());
+            assigned.addProperty("addressFormat", nic.getAddressFormat() == null ? null : nic.getAddressFormat().name());
+            observed.add("nic", assigned);
+        }
+        configurationSaveCloneRealizations(artifact, allocation, observed, true);
+    }
+
+    private void configurationSaveCloneRealizations(StorageConfigArtifactVO artifact, JsonObject allocation, JsonObject observed, boolean fullObservation) {
+        Transaction.execute((TransactionCallback<Void>) status -> {
+            StorageConfigArtifactVO locked = storageConfigArtifactDao.lockRow(artifact.getId(), true);
+            if (locked == null) throw new CloudRuntimeException("Clone artifact disappeared before realization publication");
+            JsonObject metadata = parseJsonObject(locked.getMetadataJson());
+            if (!allocation.equals(metadata.get("cloneAllocation")))
+                throw new CloudRuntimeException("Clone original allocation changed before realization CAS");
+            JsonObject saved = metadata.has("cloneAllocationRealizations") ? metadata.getAsJsonObject("cloneAllocationRealizations") : new JsonObject();
+            if (!Set.of("root", "data", "nic").containsAll(saved.keySet()))
+                throw new InvalidParameterValueException("Clone realization fields changed");
+            JsonObject replacement = saved.deepCopy();boolean changed = false;
+            for (String role : Set.of("root", "data", "nic")) {
+                if (saved.has(role) && (fullObservation || observed.has(role))) {
+                    if (!observed.has(role) || !saved.get(role).equals(observed.get(role)))
+                        throw new InvalidParameterValueException("Clone realized placement or address drifted");
+                } else if (observed.has(role)) {
+                    replacement.add(role, observed.get(role).deepCopy());changed = true;
+                }
+            }
+            if (changed) {
+                metadata.add("cloneAllocationRealizations", replacement);locked.setMetadataJson(metadata.toString());
+                locked.setUpdated(new java.util.Date());
+                if (!storageConfigArtifactDao.update(locked.getId(), locked))
+                    throw new CloudRuntimeException("Clone realization CAS could not be saved");
+            }
+            artifact.setMetadataJson(locked.getMetadataJson());return null;
+        });
+    }
+
+    private JsonObject configurationCloneDiskBinding(VolumeVO volume, com.cloud.vm.UserVmVO vm, boolean root, JsonObject previous, Long selectedDataPool) {
+        final String formatPolicy = "KVM_ALLOCATION_QCOW2_READY_RBD_RAW";
+        boolean rawTransition = volume.getFormat() == com.cloud.storage.Storage.ImageFormat.RAW;
+        if (rawTransition) {
+            org.apache.cloudstack.storage.datastore.db.StoragePoolVO pool = volume.getPoolId() == null ? null : configurationStoragePoolDao.findById(volume.getPoolId());
+            if (previous == null || !"QCOW2".equals(getJsonString(previous, "imageFormat"))
+                    || !formatPolicy.equals(getJsonString(previous, "formatPolicy")) || volume.getState() != com.cloud.storage.Volume.State.Ready
+                    || pool == null || pool.getPoolType() != com.cloud.storage.Storage.StoragePoolType.RBD
+                    || pool.getDataCenterId() != vm.getDataCenterId() || pool.getStatus() != com.cloud.storage.StoragePoolStatus.Up
+                    || !root && !java.util.Objects.equals(volume.getPoolId(), selectedDataPool))
+                throw new InvalidParameterValueException("Clone RAW realization has no exact original QCOW2/RBD authority");
+        }
+        if (volume.getAccountId() != vm.getAccountId() || volume.getDataCenterId() != vm.getDataCenterId()
+                || volume.getState() == null || !Set.of(com.cloud.storage.Volume.State.Allocated, com.cloud.storage.Volume.State.Ready).contains(volume.getState())
+                || volume.getFormat() != com.cloud.storage.Storage.ImageFormat.QCOW2 && !rawTransition
+                || !java.util.Objects.equals(volume.getInstanceId(), vm.getId())
+                || volume.getProvisioningType() == null || !Set.of(com.cloud.storage.Storage.ProvisioningType.SPARSE,
+                        com.cloud.storage.Storage.ProvisioningType.FAT).contains(volume.getProvisioningType())
+                || root && !java.util.Objects.equals(volume.getTemplateId(), vm.getTemplateId())
+                || !root && (volume.getTemplateId() != null || StringUtils.isNotBlank(volume.getChainInfo())))
+            throw new InvalidParameterValueException("Clone disk source or provisioning changed");
+        JsonObject binding = new JsonObject();
+        binding.addProperty("id", volume.getId());binding.addProperty("uuid", volume.getUuid());
+        binding.addProperty("offeringId", volume.getDiskOfferingId());binding.addProperty("sizeBytes", volume.getSize());
+        binding.addProperty("provisioningType", volume.getProvisioningType().name());binding.addProperty("imageFormat", "QCOW2");binding.addProperty("formatPolicy", formatPolicy);
+        return binding;
+    }
+
+    protected org.apache.cloudstack.storage.sharedfs.SharedFS requireConfigurationCloneAllocation(
+            StorageConfigArtifactVO artifact, JsonObject plan, JsonObject receipt) {
+        Set<String> fields = new HashSet<>(Set.of("schemaVersion", "kind", "scope", "sharedFs"));
+        if (receipt != null && receipt.has("vm")) fields.add("vm");
+        if (receipt == null || !receipt.keySet().equals(fields)
+                || !receipt.get("schemaVersion").isJsonPrimitive() || !receipt.get("schemaVersion").getAsJsonPrimitive().isNumber()
+                || !"1".equals(receipt.get("schemaVersion").getAsString())
+                || !"CONFIGURATION_CLONE_ALLOCATION".equals(getJsonString(receipt, "kind"))
+                || !configurationCloneAllocationScope(artifact, plan).equals(receipt.get("scope")))
+            throw new InvalidParameterValueException("Clone allocation receipt scope changed");
+        JsonObject sharedBinding = receipt.getAsJsonObject("sharedFs");
+        for (String field : Set.of("id", "accountId", "domainId", "zoneId", "serviceOfferingId"))
+            configurationAllocationId(sharedBinding, field);
+        long id = configurationAllocationId(sharedBinding, "id");
+        org.apache.cloudstack.storage.sharedfs.SharedFS shared = configurationSharedFsService.getSharedFSByUuid(getJsonString(sharedBinding, "uuid"));
+        if (shared == null || shared.getId() != id || !configurationCloneSharedFsBinding(shared).equals(sharedBinding))
+            throw new InvalidParameterValueException("Recorded SharedFS identity changed");
+        if (receipt.has("vm")) {
+            JsonObject recordedVm = receipt.getAsJsonObject("vm");
+            for (String field : Set.of("vmId", "templateId", "networkId", "nicId")) configurationAllocationId(recordedVm, field);
+            for (String role : Set.of("root", "data")) {
+                JsonObject disk = recordedVm.getAsJsonObject(role);
+                for (String field : Set.of("id", "offeringId", "sizeBytes")) configurationAllocationId(disk, field);
+            }
+            if (configurationAllocationId(recordedVm, "vmId") != (shared.getVmId() == null ? 0 : shared.getVmId())
+                    || !configurationCloneVmBinding(shared, plan, recordedVm).equals(recordedVm))
+                throw new InvalidParameterValueException("Recorded VM ROOT or DATA identity changed");
+            configurationPinCloneRealizations(artifact, plan, shared, receipt);
+        } else if (shared.getVmId() != null || shared.getVolumeId() != null) {
+            throw new InvalidParameterValueException("Unpublished VM allocation requires reconciliation");
+        }
+        return shared;
+    }
+
+    protected void requireConfigurationCloneAllocationPin(JsonObject blueprint, JsonObject pin,
+            StorageConfigArtifactVO artifact, JsonObject plan, JsonObject receipt) {
+        requireConfigurationAdministrator();requireConfigurationCloneTemplatePinSchema(pin);
+        if (!java.util.Objects.equals(getJsonString(blueprint, "templateid"), getJsonString(pin, "templateUuid")))
+            throw new InvalidParameterValueException("Clone requires its exact retained template pin");
+        org.apache.cloudstack.storage.sharedfs.SharedFS shared = requireConfigurationCloneAllocation(artifact, plan, receipt);
+        DataCenterVO zone = dataCenterDao.findByUuid(getJsonString(blueprint, "zoneid"));
+        if (zone == null) throw new InvalidParameterValueException("Clone zone is unavailable");
+        if (!receipt.has("vm") && "DEFAULT_SYSTEM".equals(getJsonString(pin, "selectionMode"))) {
+            com.cloud.storage.VMTemplateVO current = rootUpgradeTemplateDao.findSystemVMReadyTemplate(zone.getId(),
+                    com.cloud.hypervisor.Hypervisor.HypervisorType.KVM, com.cloud.resource.ResourceManager.SystemVmPreferredArchitecture.valueIn(zone.getId()));
+            if (current == null || !current.getUuid().equals(getJsonString(pin, "templateUuid")))
+                throw new InvalidParameterValueException("Clone default template changed before VM allocation");
+        }
+        com.cloud.storage.VMTemplateVO template = rootUpgradeTemplateDao.findByUuid(getJsonString(pin, "templateUuid"));
+        if (template != null) rootUpgradeTemplateDao.loadDetails(template);
+        if (!pin.equals(configurationCloneTemplatePin(blueprint, template, getJsonString(pin, "selectionMode"))))
+            throw new InvalidParameterValueException("Clone retained template checksum or metadata changed");
+        configurationSharedFsService.preflightSharedFS(configurationCreateCommand(blueprint), shared.getId());
+    }
+
+    private void configurationObserveFailedCloneReadyRoot(StorageConfigArtifactVO artifact, JsonObject plan) {
+        StorageConfigArtifactVO current = storageConfigArtifactDao.findById(artifact.getId());
+        if (current == null) throw new CloudRuntimeException("Clone artifact disappeared after start failure");
+        JsonObject metadata = parseJsonObject(current.getMetadataJson());
+        if (!metadata.has("cloneAllocation")) return;
+        JsonObject allocation = metadata.getAsJsonObject("cloneAllocation");
+        if (!allocation.has("vm")) return;
+        if (!configurationCloneAllocationScope(current, plan).equals(allocation.get("scope")))
+            throw new InvalidParameterValueException("Failed clone original allocation scope changed");
+        JsonObject sharedBinding = allocation.getAsJsonObject("sharedFs");
+        org.apache.cloudstack.storage.sharedfs.SharedFS shared = configurationSharedFsService.getSharedFSByUuid(getJsonString(sharedBinding, "uuid"));
+        if (shared == null || shared.getId() != configurationAllocationId(sharedBinding, "id")
+                || !configurationCloneSharedFsBinding(shared).equals(sharedBinding))
+            throw new InvalidParameterValueException("Failed clone SharedFS ownership changed");
+        JsonObject originalVm = allocation.getAsJsonObject("vm");
+        com.cloud.vm.UserVmVO vm = rootUpgradeVmDao.findById(configurationAllocationId(originalVm, "vmId"));
+        if (vm == null || vm.getRemoved() != null || !java.util.Objects.equals(shared.getVmId(), vm.getId())
+                || !vm.getUuid().equals(getJsonString(originalVm, "vmUuid")) || vm.getTemplateId() != configurationAllocationId(originalVm, "templateId")
+                || vm.getAccountId() != shared.getAccountId() || vm.getDataCenterId() != shared.getDataCenterId())
+            throw new InvalidParameterValueException("Failed clone original VM source changed");
+        List<VolumeVO> roots = volumeDao.findByInstanceAndType(vm.getId(), com.cloud.storage.Volume.Type.ROOT);
+        if (roots.size() != 1) throw new InvalidParameterValueException("Failed clone original ROOT is ambiguous");
+        VolumeVO root = roots.get(0);
+        if (root.getState() != com.cloud.storage.Volume.State.Ready) return;
+        JsonObject originalRoot = originalVm.getAsJsonObject("root");
+        org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd cmd = configurationCreateCommand(plan.getAsJsonObject("createNew"));
+        if (!originalRoot.equals(configurationCloneDiskBinding(root, vm, true, originalRoot, cmd.getStorageId())))
+            throw new InvalidParameterValueException("Failed clone Ready ROOT differs from its original allocation");
+        JsonObject observed = new JsonObject();observed.add("root", configurationCloneRealizedDisk(root, vm, true, plan));
+        // DATA may still be Creating/Allocated; preserve only the verified first observed Ready ROOT.
+        configurationSaveCloneRealizations(current, allocation, observed, false);
+        artifact.setMetadataJson(current.getMetadataJson());
+    }
+
+    protected void configurationSaveCloneAllocation(StorageConfigArtifactVO artifact, JsonObject expected, JsonObject replacement) {
+        Transaction.execute((TransactionCallback<Void>) status -> {
+            StorageConfigArtifactVO locked = storageConfigArtifactDao.lockRow(artifact.getId(), true);
+            if (locked == null) throw new CloudRuntimeException("Clone artifact disappeared before allocation publication");
+            JsonObject metadata = parseJsonObject(locked.getMetadataJson());JsonElement observed = metadata.get("cloneAllocation");
+            if (expected == null ? observed != null : !expected.equals(observed))
+                throw new CloudRuntimeException("Clone allocation receipt changed during publication");
+            metadata.add("cloneAllocation", replacement.deepCopy());locked.setMetadataJson(metadata.toString());
+            locked.setUpdated(new java.util.Date());
+            if (!storageConfigArtifactDao.update(locked.getId(), locked))
+                throw new CloudRuntimeException("Clone allocation provenance could not be saved");
+            artifact.setMetadataJson(locked.getMetadataJson());artifact.setUpdated(locked.getUpdated());
+            return null;
+        });
+    }
+
+    protected StorageServiceInstanceVO createConfigurationNewService(JsonObject blueprint, JsonObject plan, StorageConfigArtifactVO artifact) {
+        requireConfigurationAdministrator();
+        org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd cmd = configurationCreateCommand(blueprint);
+        org.apache.cloudstack.storage.sharedfs.SharedFS shared = Transaction.execute((TransactionCallback<org.apache.cloudstack.storage.sharedfs.SharedFS>) status -> {
+            StorageConfigArtifactVO locked = storageConfigArtifactDao.lockRow(artifact.getId(), true);
+            if (locked == null) throw new CloudRuntimeException("Clone artifact is unavailable");
+            artifact.setMetadataJson(locked.getMetadataJson());JsonObject metadata = parseJsonObject(locked.getMetadataJson());
+            if (metadata.has("cloneAllocation")) {
+                JsonObject receipt = metadata.getAsJsonObject("cloneAllocation");
+                requireConfigurationCloneAllocationPin(blueprint, plan.getAsJsonObject("cloneTemplatePin"), artifact, plan, receipt);
+                return requireConfigurationCloneAllocation(artifact, plan, receipt);
+            }
+            requireConfigurationCloneTemplatePin(blueprint, plan.getAsJsonObject("cloneTemplatePin"), null);
+            org.apache.cloudstack.storage.sharedfs.SharedFS allocated = configurationSharedFsService.allocSharedFS(cmd);
+            // Network-guru/own-row preflight is inside this transaction; rejection rolls back the SharedFS row.
+            configurationSharedFsService.preflightSharedFS(cmd, allocated.getId());
+            JsonObject receipt = new JsonObject();receipt.addProperty("schemaVersion", 1);
+            receipt.addProperty("kind", "CONFIGURATION_CLONE_ALLOCATION");
+            receipt.add("scope", configurationCloneAllocationScope(artifact, plan));
+            receipt.add("sharedFs", configurationCloneSharedFsBinding(allocated));
+            configurationSaveCloneAllocation(artifact, null, receipt);
+            return allocated;
+        });
+        cmd.setEntityId(shared.getId());cmd.setEntityUuid(shared.getUuid());
+        try {
+            shared = configurationSharedFsService.deploySharedFS(cmd, allocated -> {
+                JsonObject metadata = parseJsonObject(storageConfigArtifactDao.findById(artifact.getId()).getMetadataJson());
+                JsonObject previous = metadata.getAsJsonObject("cloneAllocation");
+                if (!configurationCloneAllocationScope(artifact, plan).equals(previous.get("scope"))
+                        || !configurationCloneSharedFsBinding(allocated).equals(previous.get("sharedFs")))
+                    throw new InvalidParameterValueException("Clone allocation owner or plan changed before VM publication");
+                JsonObject binding = configurationCloneVmBinding(allocated, plan, previous.has("vm") ? previous.getAsJsonObject("vm") : null);
+                if (previous.has("vm")) {
+                    if (!binding.equals(previous.get("vm")))
+                        throw new InvalidParameterValueException("Retained VM allocation differs from its immutable receipt");
+                    configurationPinCloneRealizations(artifact, plan, allocated, previous);
+                } else {
+                    JsonObject replacement = previous.deepCopy();replacement.add("vm", binding);
+                    configurationSaveCloneAllocation(artifact, previous, replacement);
+                }
+            });
+        } catch (Exception failure) {
+            try { configurationObserveFailedCloneReadyRoot(artifact, plan); }
+            catch (RuntimeException evidenceFailure) { failure.addSuppressed(evidenceFailure); }
+            artifact.setMetadataJson(storageConfigArtifactDao.findById(artifact.getId()).getMetadataJson());
+            throw new CloudRuntimeException("Recorded clone deployment requires exact allocation recovery", failure);
+        }
+        artifact.setMetadataJson(storageConfigArtifactDao.findById(artifact.getId()).getMetadataJson());
+        requireConfigurationCloneAllocation(artifact, plan, parseJsonObject(artifact.getMetadataJson()).getAsJsonObject("cloneAllocation"));
+        JsonObject finalMetadata = parseJsonObject(artifact.getMetadataJson());
+        JsonObject realized = finalMetadata.has("cloneAllocationRealizations") ? finalMetadata.getAsJsonObject("cloneAllocationRealizations") : new JsonObject();
+        if (!realized.has("root") || !realized.has("data"))
+            throw new CloudRuntimeException("Clone Ready ROOT and DATA placement publication is incomplete");
+        org.apache.cloudstack.storage.sharedfs.SharedFSVO current = sharedFSDao.findById(shared.getId());
+        StorageServiceInstanceVO instance = current == null || current.getVmId() == null ? null : storageServiceInstanceDao.findByVmId(current.getVmId());
+        if (instance == null) throw new CloudRuntimeException("Recorded clone instance reconciliation did not complete");
+        return instance;
+    }
+
     protected StorageServiceInstanceVO createConfigurationNewService(JsonObject blueprint) {
         org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd cmd = configurationCreateCommand(blueprint);
         org.apache.cloudstack.storage.sharedfs.SharedFS shared = configurationSharedFsService.allocSharedFS(cmd);
