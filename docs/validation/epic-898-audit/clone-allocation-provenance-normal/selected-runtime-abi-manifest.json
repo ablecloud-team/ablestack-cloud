@@ -1,0 +1,297 @@
+{
+  "kind": "CLONE_ALLOCATION_SELECTED_RUNTIME_ABI_INITIAL_REVIEW",
+  "sourcePin": "8a47201908e94faacf32c3dc7876480eb2938f20",
+  "normalTests": 959,
+  "normalSuites": 127,
+  "compileBaselinePin": "053070da1d57c06cd1a8ddb71610ff4b54158df7",
+  "normalSourceProofSha256": "39a70d640abf4003b8939ec3271b1377aa2fbf8a6f70b6d72612e170cfce02b3",
+  "moduleOutputManifestSha256": "0a625d5e3cd36d7576a0af21a7f87c463f1c46bf32d28c44043e86011e447ce9",
+  "actualObservedManagementJarSha256": "0cf93b6a4d9652d976c8df4a3f894556c3ba2b26fc303d45d48b565a018db2cf",
+  "actualObservedManagementPid": 1382861,
+  "actualPostcheckProofSha256": "1d9f105201a476f5dab6ed6092c11f6d530d570a587f725b988267c9e1ca257d",
+  "previousSelectedManifestSha256": "87261d1d1cd47395eef91c8963804dbf932d20582e0cdb3d5124b732d2de94e9",
+  "cachedLibraryJars": [
+    {
+      "name": "bcpkix-jdk18on-1.83.jar",
+      "path": "/root/work/epic898-preparation/management-source792-review/deployed-libs/bcpkix-jdk18on-1.83.jar",
+      "sha256": "d3c4c6b700c74ef8164bb15e549d939721b8f14fc0ff89fe19b220243bcfcbd8",
+      "freshCurrentFullManagementJar": false
+    },
+    {
+      "name": "bcprov-jdk18on-1.83.jar",
+      "path": "/root/work/epic898-preparation/management-source792-review/deployed-libs/bcprov-jdk18on-1.83.jar",
+      "sha256": "82cf3a2af766c3bc874f6d36b9f20a8b99a8f09762dc776e8a227a45d8daaafb",
+      "freshCurrentFullManagementJar": false
+    },
+    {
+      "name": "bctls-jdk18on-1.83.jar",
+      "path": "/root/work/epic898-preparation/management-source792-review/deployed-libs/bctls-jdk18on-1.83.jar",
+      "sha256": "0d1fd6b6fba6c44d4594d8be3f6888b00e2f1a00a3a6ee64b65b9be1e8291266",
+      "freshCurrentFullManagementJar": false
+    },
+    {
+      "name": "bcutil-jdk18on-1.83.jar",
+      "path": "/root/work/epic898-preparation/management-source792-review/deployed-libs/bcutil-jdk18on-1.83.jar",
+      "sha256": "ee7d0eb4e74de70a735f7fb36b604dd5c6ad35720d50b914604db042114a0185",
+      "freshCurrentFullManagementJar": false
+    },
+    {
+      "name": "cloud-plugin-storage-volume-linstor-4.23.0.0-Mold.Europa-202610011115.jar",
+      "path": "/root/work/epic898-preparation/management-source792-review/deployed-libs/cloud-plugin-storage-volume-linstor-4.23.0.0-Mold.Europa-202610011115.jar",
+      "sha256": "48168dbcdf6e40f15fae6ff37fd0b31af4943c6ea6db22b942b820245b04e893",
+      "freshCurrentFullManagementJar": false
+    },
+    {
+      "name": "cloud-plugin-storage-volume-storpool-4.23.0.0-Mold.Europa-202610011115.jar",
+      "path": "/root/work/epic898-preparation/management-source792-review/deployed-libs/cloud-plugin-storage-volume-storpool-4.23.0.0-Mold.Europa-202610011115.jar",
+      "sha256": "cfb0d309db1549df6e0ac550604e85f326b49d2e62c355ff63542d7513376c17",
+      "freshCurrentFullManagementJar": false
+    },
+    {
+      "name": "cloudstack-4.23.0.0-Mold.Europa-202610011115.jar",
+      "path": "/root/work/epic898-preparation/management-source792-review/deployed-libs/cloudstack-4.23.0.0-Mold.Europa-202610011115.jar",
+      "sha256": "ade51548bcdce95d6f9783458da009432c6f7f0904618b742000176c6f6443e5",
+      "freshCurrentFullManagementJar": false
+    },
+    {
+      "name": "java-linstor-0.7.0.jar",
+      "path": "/root/work/epic898-preparation/management-source792-review/deployed-libs/java-linstor-0.7.0.jar",
+      "sha256": "2e391ab05ff261c3d1540ffb920fada129b94614cb0eb4bc12cafeca5c98b8e3",
+      "freshCurrentFullManagementJar": false
+    },
+    {
+      "name": "mysql-connector-j-8.4.0.jar",
+      "path": "/root/work/epic898-preparation/management-source792-review/deployed-libs/mysql-connector-j-8.4.0.jar",
+      "sha256": "d77962877d010777cff997015da90ee689f0f4bb76848340e1488f2b83332af5",
+      "freshCurrentFullManagementJar": false
+    }
+  ],
+  "actual0cfFullJarCacheClaimed": false,
+  "baselineMethod": "Source-selected214 chain plus proven6b overlays plus053070 outer1; postcheck binds current0cf outer/oldinner13/runtime3. Original deployed-libs uberjar is a provider baseline, not full0cf bytes.",
+  "semanticClassCount": 6,
+  "byteDeltaCount": 12,
+  "additionalProductionClasses": 0,
+  "removedProductionClasses": 0,
+  "candidateClasses": [
+    {
+      "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceConfiguration.class",
+      "module": "server",
+      "baselineSha256": "1a067a4143182d58c0ac4d18def11d89fa1548a6980f14353a0b893a64ffeadf",
+      "candidateSha256": "f22657b40897a7bb3f44b4fd8890ebe9d15e8c6d421f7d83219a0ee17e6e3192"
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class",
+      "module": "server",
+      "baselineSha256": "a25b5a23c0a6c26c3391cdfeba7d64a023f3814b41ee647c9b822499487f7652",
+      "candidateSha256": "8fb2ed1e9c0ce6eb59c6fd2fea00b930446c6290c929c5e9f98fdadcad2ae829"
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/sharedfs/SharedFSLifeCycle.class",
+      "module": "api",
+      "baselineSha256": "f43eb763016958e7152e303f999dd0a3af3b7bf3205eed17e307f25e178e8511",
+      "candidateSha256": "2a83c6373053ffb3842ff92eb6a47655bd3b17c578f26f59c31dd011e93de44c"
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/sharedfs/SharedFSService.class",
+      "module": "api",
+      "baselineSha256": "475a5e523a2003fd501ba8d7885e543e94e6fef32b9c55e380f0e485d2afe13e",
+      "candidateSha256": "2aa0edf8b7e9108cbc1200ebc0db96e2f3ea3d65734539219a154f6251b283bb"
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/sharedfs/SharedFSServiceImpl.class",
+      "module": "server",
+      "baselineSha256": "d4f9acdf581731ca971ba8300bc671dc0249ed8d20ee2904b81e74d798bf5d70",
+      "candidateSha256": "7c5a8c1c1dc0f5104a2aee0c4e8b6e3dade6b30b19904067d601e56671c07474"
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/sharedfs/lifecycle/StorageVmSharedFSLifeCycle.class",
+      "module": "plugins/storage/sharedfs/storagevm",
+      "baselineSha256": "70c3ab34f9e3a09117ac5dffc67d3e4f8be446a6175d8dee49e001eeb8308352",
+      "candidateSha256": "4c5cb5993039529cbcaad9b785dbc34c6b92e36934187911428c11ba41c9efbc"
+    }
+  ],
+  "allOriginalPublicProtectedSymbolsPreserved": true,
+  "abi": [
+    {
+      "entry": "org/apache/cloudstack/storage/sharedfs/SharedFSLifeCycle.class",
+      "originalPublicProtectedSymbolsAndHierarchyPreserved": true,
+      "addedPublicProtectedSymbols": [
+        [
+          "METHOD",
+          "deploySharedFS",
+          "(Lorg/apache/cloudstack/storage/sharedfs/SharedFS;Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Ljava/util/function/LongConsumer;)Lcom/cloud/utils/Pair;",
+          1
+        ]
+      ]
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/sharedfs/SharedFSService.class",
+      "originalPublicProtectedSymbolsAndHierarchyPreserved": true,
+      "addedPublicProtectedSymbols": [
+        [
+          "METHOD",
+          "deploySharedFS",
+          "(Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;Ljava/util/function/Consumer;)Lorg/apache/cloudstack/storage/sharedfs/SharedFS;",
+          1
+        ],
+        [
+          "METHOD",
+          "preflightSharedFS",
+          "(Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;J)Lorg/apache/cloudstack/storage/sharedfs/SharedFS;",
+          1
+        ]
+      ]
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/sharedfs/lifecycle/StorageVmSharedFSLifeCycle.class",
+      "originalPublicProtectedSymbolsAndHierarchyPreserved": true,
+      "addedPublicProtectedSymbols": [
+        [
+          "METHOD",
+          "deploySharedFS",
+          "(Lorg/apache/cloudstack/storage/sharedfs/SharedFS;Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Ljava/util/function/LongConsumer;)Lcom/cloud/utils/Pair;",
+          1
+        ]
+      ]
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceConfiguration$1.class",
+      "originalPublicProtectedSymbolsAndHierarchyPreserved": true,
+      "addedPublicProtectedSymbols": []
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceConfiguration.class",
+      "originalPublicProtectedSymbolsAndHierarchyPreserved": true,
+      "addedPublicProtectedSymbols": []
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$4.class",
+      "originalPublicProtectedSymbolsAndHierarchyPreserved": true,
+      "addedPublicProtectedSymbols": []
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$5.class",
+      "originalPublicProtectedSymbolsAndHierarchyPreserved": true,
+      "addedPublicProtectedSymbols": []
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ConfigurationTargetCommand.class",
+      "originalPublicProtectedSymbolsAndHierarchyPreserved": true,
+      "addedPublicProtectedSymbols": []
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class",
+      "originalPublicProtectedSymbolsAndHierarchyPreserved": true,
+      "addedPublicProtectedSymbols": [
+        [
+          "METHOD",
+          "configurationCloneAllocationScope",
+          "(Lorg/apache/cloudstack/storage/dataservice/StorageConfigArtifactVO;Lcom/google/gson/JsonObject;)Lcom/google/gson/JsonObject;",
+          4
+        ],
+        [
+          "METHOD",
+          "configurationCloneSharedFsBinding",
+          "(Lorg/apache/cloudstack/storage/sharedfs/SharedFS;)Lcom/google/gson/JsonObject;",
+          4
+        ],
+        [
+          "METHOD",
+          "configurationCloneVmBinding",
+          "(Lorg/apache/cloudstack/storage/sharedfs/SharedFS;Lcom/google/gson/JsonObject;)Lcom/google/gson/JsonObject;",
+          4
+        ],
+        [
+          "METHOD",
+          "configurationSaveCloneAllocation",
+          "(Lorg/apache/cloudstack/storage/dataservice/StorageConfigArtifactVO;Lcom/google/gson/JsonObject;Lcom/google/gson/JsonObject;)V",
+          4
+        ],
+        [
+          "METHOD",
+          "createConfigurationNewService",
+          "(Lcom/google/gson/JsonObject;Lcom/google/gson/JsonObject;Lorg/apache/cloudstack/storage/dataservice/StorageConfigArtifactVO;)Lorg/apache/cloudstack/storage/dataservice/StorageServiceInstanceVO;",
+          4
+        ],
+        [
+          "METHOD",
+          "requireConfigurationCloneAllocation",
+          "(Lorg/apache/cloudstack/storage/dataservice/StorageConfigArtifactVO;Lcom/google/gson/JsonObject;Lcom/google/gson/JsonObject;)Lorg/apache/cloudstack/storage/sharedfs/SharedFS;",
+          4
+        ],
+        [
+          "METHOD",
+          "requireConfigurationCloneAllocationPin",
+          "(Lcom/google/gson/JsonObject;Lcom/google/gson/JsonObject;Lorg/apache/cloudstack/storage/dataservice/StorageConfigArtifactVO;Lcom/google/gson/JsonObject;Lcom/google/gson/JsonObject;)V",
+          4
+        ]
+      ]
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/sharedfs/SharedFSServiceImpl$1.class",
+      "originalPublicProtectedSymbolsAndHierarchyPreserved": true,
+      "addedPublicProtectedSymbols": []
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/sharedfs/SharedFSServiceImpl$SharedFSGarbageCollector.class",
+      "originalPublicProtectedSymbolsAndHierarchyPreserved": true,
+      "addedPublicProtectedSymbols": []
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/sharedfs/SharedFSServiceImpl.class",
+      "originalPublicProtectedSymbolsAndHierarchyPreserved": true,
+      "addedPublicProtectedSymbols": [
+        [
+          "METHOD",
+          "deploySharedFS",
+          "(Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;Ljava/util/function/Consumer;)Lorg/apache/cloudstack/storage/sharedfs/SharedFS;",
+          1
+        ],
+        [
+          "METHOD",
+          "preflightSharedFS",
+          "(Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;J)Lorg/apache/cloudstack/storage/sharedfs/SharedFS;",
+          1
+        ],
+        [
+          "METHOD",
+          "requireRecordedAllocationNetwork",
+          "(Ljava/lang/Long;)V",
+          4
+        ],
+        [
+          "METHOD",
+          "requireRecordedFormatPools",
+          "(Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;)V",
+          4
+        ]
+      ]
+    }
+  ],
+  "constantPoolMemberReferences": 3239,
+  "checks": {
+    "class-signature-link": {
+      "exitCode": 0,
+      "logSha256": "4b269cdb90df0c66ae99dc31b4ac2331d99a828a8cc9a554e9aceabc77c33098",
+      "summary": [
+        "CLASS_SIGNATURE_LINK_PASS 6"
+      ]
+    },
+    "member-link": {
+      "exitCode": 0,
+      "logSha256": "4d2a7c786414964c377420eae47e1335981677b5b46a14b9d4f04275b0919053",
+      "summary": [
+        "RESOLVED 3239 FAILED 0"
+      ]
+    }
+  },
+  "semanticDeltaProofSha256": "f73ea83b27b5383fb323b7b9192488adac15b17c679d0c9f483b15301afae664",
+  "ddlChanges": false,
+  "httpApiFieldChanges": false,
+  "guestCalls": 0,
+  "actualDeployment": false,
+  "uiMapCurrentUnchangedClaimed": false,
+  "reviewPayloadSha256": "c176531a8e752f0a43e65ed5d2adb53c19cee859730f2d9f177d09c4817a20c1",
+  "internalInterfaceTypesChanged": 2,
+  "internalDefaultOverloadMethodsAdded": 3
+}
