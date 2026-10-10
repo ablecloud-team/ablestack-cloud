@@ -1,0 +1,29 @@
+{
+  "cluster": 31,
+  "restoredVM": {
+    "id": "34c37d16-70ae-48ac-b2d0-32020e9ae57a",
+    "name": "E1335-31-L-BIOS-deleted-source-restore",
+    "instancename": "i-2-375-VM",
+    "state": "Stopped",
+    "hostid": null
+  },
+  "restoredVolumes": [
+    {
+      "id": "2f44e12e-bf27-448e-9128-ce2e72b55e5c",
+      "name": "ROOT-375",
+      "state": "Ready",
+      "type": "ROOT",
+      "deviceid": 0,
+      "size": 107374182400,
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    }
+  ],
+  "guestExpectedSha256": "bfe00c222e9fcf100f5892036fd69b88394a5b3f4499a2133b0f4af1873bd873",
+  "guestVerificationExitCode": 0,
+  "temporaryTestBridgeAddressRemoved": true,
+  "uiCreatedAndStarted": true,
+  "uiNormalStop": true,
+  "sourceVMAndRootExpungedByApprovedUI": true,
+  "snapshotListFilterUiVerifiedAfterFix": true,
+  "checkedAt": "2026-10-09T15:38:19.340747+00:00"
+}

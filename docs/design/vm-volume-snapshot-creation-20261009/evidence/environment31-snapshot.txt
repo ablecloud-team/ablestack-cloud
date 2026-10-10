@@ -1,0 +1,189 @@
+1
+다른 계정에 가상머신 할당
+생성할 가상머신을 특정 계정에 할당할 수 있습니다.
+소유자 유형
+계정
+도메인
+ ROOT
+계정
+ admin
+2
+배포 인프라 선택
+Zone은 원래 단일 데이터 센터에 해당합니다. 다수의 Zone을 설정하고 물리적으로 분리하는 방법으로 클라우드의 신뢰성을 높일 수 있습니다.
+
+Zone
+ Zone
+Pod
+클러스터
+호스트
+3
+이미지
+유형
+템플릿
+ISO
+볼륨
+스냅샷
+ROOT 디스크로 생성할 스냅샷입니다.
+필터링 기준
+   tj-test_ROOT-122_20261002003444
+   Ubuntu26-Snapshot
+   epic1216-ui-extracted
+   Ubuntu24-Base-Install
+   Ubuntu 22.04 Base Install
+   Windows Server 2025 x86_64 Base Install
+   Windows Server 2022 Base Install
+   Windows Server 2022 Base Install
+   Windows Server 2019 Base Install
+   CLVM-NG-TEST-VM_ROOT-6_20260917165240
+전체 14 개 항목
+1
+2
+10 / 쪽
+4
+컴퓨트 오퍼링
+	컴퓨트 오퍼링	 CPU	 메모리	 압축/중복제거	 스토리지 태그
+
+
+
+
+
+
+
+
+
+
+
+
+
+	1C1GB-TO-64C128GB-FR-GFS	1-64 CPU x 2.00 Ghz	1024-131072 MB	비활성화	glue-gfs
+
+	1C1GB-TO-64C128GB-FR-CLVM	1-64 CPU x 2.00 Ghz	1024-131072 MB	비활성화	clvm
+
+	1C1GB-TO-64C128GB-FR-CLVM-NG	1-64 CPU x 2.00 Ghz	1024-131072 MB	비활성화	clvm-ng
+
+	8Core-16GB-Fixed-Offering	8 CPU x 2.00 Ghz	16384 MB	비활성화	glue-gfs
+
+	4Core 8GB	4 CPU x 2.00 Ghz	8192 MB	비활성화
+
+	2Core 2GB	2 CPU x 2.00 Ghz	2048 MB	비활성화	glue-gfs
+
+	2C-4GB-GFS	2 CPU x 2.00 Ghz	4096 MB	비활성화	glue-gfs
+
+	RT1230-GFS2-4C8G	4 CPU x 2.00 Ghz	8192 MB	비활성화	glue-gfs
+
+	RT1230-GFS2-4C8G-Strict	4 CPU x 2.00 Ghz	8192 MB	비활성화	glue-gfs
+
+	RT1230-GFS2-2C4G-Strict	2 CPU x 2.00 Ghz	4096 MB	비활성화	glue-gfs
+전체 10 개 항목
+1
+10 / 쪽
+CPU 코어
+메모리(MB)
+5
+데이터 디스크
+	디스크 오퍼링	 디스크 크기(GB 단위)	 최소 IOPS/최대 IOPS
+
+
+
+
+
+
+
+
+
+	설정 안함
+-
+	-
+
+	FTCTL Internal Root Disk
+사용자지정 디스크 크기
+	-
+
+	FTCTL Internal Data Disk
+사용자지정 디스크 크기
+	-
+
+	Custom-GFS-Thin
+사용자지정 디스크 크기
+	-
+
+	Custom-CLVM
+사용자지정 디스크 크기
+	-
+
+	Custom-CLVM-NG
+사용자지정 디스크 크기
+	-
+
+	Custom-GFS-Sparse
+사용자지정 디스크 크기
+	-
+전체 6 개 항목
+1
+10 / 쪽
+6
+네트워크
+인스턴스를 연결할 네트워크를 하나 이상 선택하세요. 여기에서 새 네트워크를 만들 수도 있습니다. 여기에서 새 네트워크를 생성할 수도 있습니다.
+
+	네트워크	게스트 유형	VPC	VM 오토스케일링 지원
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	 E1335-VM-Origin-L2	L2		No
+
+
+	 k8s-ui1330-gfs2-net	Isolated		No
+
+
+	 Admin-Isoloated-Net	Isolated		Yes
+
+
+	 L2-Test	L2		No
+
+
+	 ADMIN-L2-Network	L2		No
+전체 5 개 항목
+1
+10 / 쪽
+7
+SSH 키 쌍
+	SSH 키 쌍	 계정	 도메인
+
+
+
+
+
+
+
+
+
+	k1230-20261006	admin	ROOT
+
+	k8s-1	admin	ROOT
+전체 2 개 항목
+1
+10 / 쪽
+8
+확장 모드
+고급 설정 표시
+9
+상세
+가상머신을 생성하기 전에 다음 설정을 확인해 주세요.
+이름(옵션)
+그룹(옵션)
+키보드 언어
+생성할 가상머신 수
+가상머신 생성 후 바로 시작
+
+가상머신을 생성하고 중지 상태로 유지합니다. 생성 후 상세 화면에서 시작할 수 있습니다.

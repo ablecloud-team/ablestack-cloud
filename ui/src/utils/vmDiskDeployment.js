@@ -28,6 +28,12 @@ export function deploymentStorageQuery ({ form = {}, imageType, hypervisor, temp
   }
 }
 
+export function additionalIsoConfigDriveConflict ({ imageType, additionalIsoSelection = {}, networks = [], networkIds = [] }) {
+  return imageType === 'isoid' && additionalIsoSelection.enabled && additionalIsoSelection.ids?.length > 0 &&
+    networks.some(network => networkIds.includes(network.id) && network.service?.some(service =>
+      service.provider?.some(provider => provider.name === 'ConfigDrive')))
+}
+
 export function dataDiskDeviceIds (count) {
   if (!Number.isSafeInteger(count) || count < 1) throw new Error('Invalid disk count')
   return Array.from({ length: count }, (_, index) => index < 2 ? index + 1 : index + 2)

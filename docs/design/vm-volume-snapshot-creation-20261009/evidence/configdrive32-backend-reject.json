@@ -1,0 +1,11 @@
+{
+  "capturedAt": "2026-10-09T14:17:24.877340+00:00",
+  "cluster": 32,
+  "sourceCommit": "6e802176178f649c312519ac3c3c2ecfbd55be7f",
+  "result": "PASS",
+  "message": "ConfigDrive reserves the second CD-ROM slot; remove the additional ISO or select a network without ConfigDrive before deployment",
+  "preAllocationRejected": true,
+  "vmIdsUnchanged": true,
+  "vmCountBefore": 29,
+  "vmCountAfter": 29
+}

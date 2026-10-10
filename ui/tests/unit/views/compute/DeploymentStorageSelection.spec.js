@@ -115,3 +115,88 @@ test('mounted offering selector retains the selected root offering across filter
   expect(wrapper.vm.rowSelection.selectedRowKeys).toEqual(['0'])
   wrapper.unmount()
 })
+
+test('automatic placement becomes valid only after a suitable pool is returned', async () => {
+  const wrapper = mount()
+  expect(wrapper.emitted('update:value').slice(-1)[0][0]).toEqual({ valid: false })
+  jest.advanceTimersByTime(200)
+  await flushPromises()
+  expect(wrapper.emitted('update:value').slice(-1)[0][0]).toEqual({ valid: true })
+  wrapper.unmount()
+})
+
+test('no eligible pools blocks automatic placement and exposes a recovery notice', async () => {
+  getAPI.mockResolvedValue({ listdeploymentstoragepoolsresponse: {} })
+  const wrapper = mount()
+  jest.advanceTimersByTime(200)
+  await flushPromises()
+  expect(wrapper.emitted('update:value').slice(-1)[0][0]).toEqual({ valid: false })
+  expect(wrapper.vm.automaticUnavailable).toBe(true)
+  expect(wrapper.find('a-alert-stub[type="warning"]').attributes('message')).toBe('message.vm.storage.auto.unavailable')
+  wrapper.unmount()
+})
+
+test('known capacity or IOPS shortage blocks automatic placement', async () => {
+  getAPI.mockResolvedValue({ listdeploymentstoragepoolsresponse: { deploymentstoragepool: [{ ...pool, suitable: false, unsuitablereason: 'iops' }] } })
+  const wrapper = mount()
+  jest.advanceTimersByTime(200)
+  await flushPromises()
+  wrapper.vm.select(null)
+  expect(wrapper.emitted('update:value').slice(-1)[0][0]).toEqual({ valid: false })
+  expect(wrapper.vm.automaticUnavailable).toBe(true)
+  wrapper.unmount()
+})
+
+test('unknown required capacity remains pending rather than declaring no capacity', async () => {
+  getAPI.mockResolvedValue({ listdeploymentstoragepoolsresponse: { deploymentstoragepool: [{ ...pool, suitable: false, requiredbytes: null }] } })
+  const wrapper = mount()
+  jest.advanceTimersByTime(200)
+  await flushPromises()
+  expect(wrapper.emitted('update:value').slice(-1)[0][0]).toEqual({ valid: false })
+  expect(wrapper.vm.automaticUnavailable).toBe(false)
+  wrapper.unmount()
+})
+
+test('failed storage lookup blocks automatic placement and a refresh recovers it', async () => {
+  getAPI.mockRejectedValueOnce(new Error('storage lookup failed'))
+  const wrapper = mount()
+  jest.advanceTimersByTime(200)
+  await flushPromises()
+  expect(wrapper.emitted('update:value').slice(-1)[0][0]).toEqual({ valid: false })
+  expect(wrapper.find('a-alert-stub[type="error"]').exists()).toBe(true)
+  await wrapper.vm.fetchPools()
+  expect(wrapper.emitted('update:value').slice(-1)[0][0]).toEqual({ valid: true })
+  expect(wrapper.vm.error).toBe(false)
+  wrapper.unmount()
+})
+
+test('changed conditions invalidate automatic placement until the new lookup finishes', async () => {
+  const wrapper = mount()
+  jest.advanceTimersByTime(200)
+  await flushPromises()
+  let finish
+  getAPI.mockImplementationOnce(() => new Promise(resolve => { finish = resolve }))
+  await wrapper.setProps({ query: { ...query, size: 23 } })
+  expect(wrapper.emitted('update:value').slice(-1)[0][0]).toEqual({ valid: false })
+  jest.advanceTimersByTime(200)
+  await nextTick()
+  expect(wrapper.vm.pools).toEqual([pool])
+  finish({ listdeploymentstoragepoolsresponse: { deploymentstoragepool: [pool] } })
+  await flushPromises()
+  expect(wrapper.emitted('update:value').slice(-1)[0][0]).toEqual({ valid: true })
+  wrapper.unmount()
+})
+
+test.each(['volumeid', 'snapshotid'])('%s without a template fetches pools and enables automatic or explicit placement', async sourceKey => {
+  const wrapper = mount()
+  const sourceQuery = { ...query, templateid: undefined, [sourceKey]: 'source' }
+  await wrapper.setProps({ query: sourceQuery })
+  jest.advanceTimersByTime(200)
+  await flushPromises()
+  expect(getAPI).toHaveBeenCalledWith('listDeploymentStoragePools', expect.objectContaining({ [sourceKey]: 'source' }))
+  expect(wrapper.vm.verified).toBe(true)
+  expect(wrapper.emitted('update:value').slice(-1)[0][0]).toEqual({ valid: true })
+  wrapper.vm.select(pool)
+  expect(wrapper.emitted('update:value').slice(-1)[0][0]).toEqual({ id: 'pool', name: 'Primary', valid: true })
+  wrapper.unmount()
+})

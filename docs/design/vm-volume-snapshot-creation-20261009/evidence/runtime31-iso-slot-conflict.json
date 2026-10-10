@@ -1,0 +1,16 @@
+{
+  "vmId": "79748c3a-b0ce-40b9-8537-7c4c8b599ae9",
+  "startJobId": "cc89169c-4b49-4510-9ea1-1ead7c384cfc",
+  "result": "START_BLOCKED_BY_KNOWN_ISO_SLOT_LIMIT_NOT_A_BOOT_PASS",
+  "uiCreationStoppedTwoMedia": true,
+  "guestBootPassed": false,
+  "sourceCommit": "24e4d7b007453919e725e0b90c976d840a453541",
+  "cause": "Two attached ISOs plus ConfigDrive exceed two ISO slots",
+  "sanitizedRuntimeEvidence": [
+    "2026-10-09 12:29:41,018 DEBUG [c.c.a.m.ClusteredAgentManagerImpl] (Work-Job-Executor-20:[ctx-5f934b54, job-10366/job-10367, ctx-a599ef1b]) (logid:cc89169c) Details from executing class com.cloud.agent.api.HandleConfigDriveIsoCommand: Successfully saved config drive at secondary storage",
+    "2026-10-09 12:29:41,157 WARN  [c.c.v.ClusteredVirtualMachineManagerImpl] (Work-Job-Executor-20:[ctx-5f934b54, job-10366/job-10367, ctx-a599ef1b]) (logid:cc89169c) Insufficient capacity com.cloud.exception.InsufficientServerCapacityException: Destination cannot accommodate the attached ISOs (cluster limit, host capability or ConfigDrive)Scope=interface com.cloud.host.Host; id=5",
+    "2026-10-09 12:29:41,158 DEBUG [c.c.d.D.ExcludeList] (Work-Job-Executor-20:[ctx-5f934b54, job-10366/job-10367, ctx-a599ef1b]) (logid:cc89169c) Adding Host [5] to the avoid set due to [Destination cannot accommodate the attached ISOs (cluster limit, host capability or ConfigDrive)].",
+    "2026-10-09 12:29:41,345 DEBUG [c.c.v.ClusteredVirtualMachineManagerImpl] (Work-Job-Executor-20:[ctx-5f934b54, job-10366/job-10367, ctx-a599ef1b]) (logid:cc89169c) Instance start attempt #2",
+    "2026-10-09 12:29:41,358 DEBUG [c.c.c.CapacityManagerImpl] (Work-Job-Executor-20:[ctx-5f934b54, job-10366/job-10367, ctx-a599ef1b]) (logid:cc89169c) VM instance {\"id\":368,\"instanceName\":\"i-2-368-VM\",\"state\":\"Stopped\",\"type\":\"User\",\"uuid\":\"79748c3a-b0ce-40b9-8537-7c4c8b599ae9\"} state transited from [Starting] to [Stopped] with event [OperationFailed]. VM's original host: null, new host: null, host before state transition: Host {\"id\":5,\"name\":\"ablecube31-3\",\"type\":\"Routing\",\"uuid\":\"384871b9-7c75-4717-a673-e96a76abeb71\"}"
+  ]
+}

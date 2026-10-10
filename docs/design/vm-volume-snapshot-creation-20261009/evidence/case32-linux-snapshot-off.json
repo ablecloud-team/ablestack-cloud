@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "case": "32-L-BIOS-snapshot-off-r2",
+  "vmId": "ed3fe1e8-215d-4e67-877b-6ef6118c3133",
+  "state": "Stopped",
+  "sourceSnapshot": {
+    "id": "2bd3d2b4-cbeb-4d16-abf8-040bed08315d",
+    "state": "BackedUp"
+  },
+  "sourceVolume": {
+    "id": "1a989f91-798b-46a0-8234-25adb402f35e",
+    "state": "Ready",
+    "vmId": null
+  },
+  "rootVolumeId": "3bd384a1-96cc-4876-a04b-ec31bf889d4b",
+  "guestDataSha256": "7f74af1c640673344c8a64b9dc219a7681553951e11f966051257d8a5da1c98f",
+  "uiCreateStartStop": true
+}

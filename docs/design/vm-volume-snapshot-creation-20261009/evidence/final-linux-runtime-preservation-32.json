@@ -1,0 +1,61 @@
+{
+  "cluster": 32,
+  "checkedAt": "2026-10-09T03:43:07.234368+00:00",
+  "scope": "FINAL_READ_ONLY_ORIGINAL_VM_PRESERVATION_EXCLUDING_TASK_FIXTURES",
+  "originalVmCount": 13,
+  "originalVmUuidStateHostUnchanged": true,
+  "differences": [],
+  "taskFixtureVmCount": 12,
+  "hostStates": [
+    {
+      "name": "ablecube32-1",
+      "state": "Up",
+      "version": "4.23.0.0"
+    },
+    {
+      "name": "ablecube32-2",
+      "state": "Up",
+      "version": "4.23.0.0"
+    },
+    {
+      "name": "ablecube32-3",
+      "state": "Up",
+      "version": "4.23.0.0"
+    }
+  ],
+  "volume": {
+    "id": "1a989f91-798b-46a0-8234-25adb402f35e",
+    "state": "Ready",
+    "type": "DATADISK",
+    "virtualmachineid": null,
+    "size": 107374182400,
+    "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122"
+  },
+  "snapshot": {
+    "id": "2bd3d2b4-cbeb-4d16-abf8-040bed08315d",
+    "state": "BackedUp",
+    "volumeid": "1a989f91-798b-46a0-8234-25adb402f35e"
+  },
+  "windowsSeed": {
+    "vm": {
+      "id": "83231e10-63f3-412a-94d0-55b0fe51d83f",
+      "name": "E1335-32-W-UEFI-seed",
+      "state": "Stopped",
+      "boottype": "Uefi",
+      "bootmode": "legacy",
+      "hostid": null
+    },
+    "rootVolumes": [
+      {
+        "id": "d945a565-eb11-4240-9c64-20b9fd4e0a40",
+        "state": "Ready",
+        "type": "ROOT",
+        "deviceid": 0,
+        "size": 107374182400,
+        "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122"
+      }
+    ],
+    "sourceE2ePassed": false,
+    "guestCredentialsPending": true
+  }
+}

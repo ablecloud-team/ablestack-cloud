@@ -17,6 +17,16 @@
 
 <template>
   <div class="form-layout">
+    <a-alert v-if="uploadError" type="error" show-icon :message="uploadError.message" style="margin-bottom: 16px">
+      <template #description>
+        <a-collapse ghost>
+          <a-collapse-panel key="diagnostic" :header="$t('label.creation.source.error.details')">
+            <div style="white-space: pre-wrap; overflow-wrap: anywhere">{{ uploadError.detail }}</div>
+          </a-collapse-panel>
+        </a-collapse>
+      </template>
+    </a-alert>
+
     <span v-if="uploading">
       <loading-outlined />
       {{ $t('message.upload.file.processing') }}
@@ -86,7 +96,7 @@
         </a-form-item>
         <a-form-item name="diskofferingid" ref="diskofferingid">
           <template #label>
-            <tooltip-label :title="$t('label.diskofferingid')" :tooltip="apiParams.diskofferingid.description"/>
+            <tooltip-label :title="$t('label.diskofferingid')" :tooltip="$t('message.creation.source.upload.offering')"/>
           </template>
           <infinite-scroll-select
             v-model:value="form.diskofferingid"
@@ -98,7 +108,7 @@
             defaultIcon="hdd-outlined"
             :defaultOption="{ id: null, displaytext: ''}"
             allowClear="true"
-            :placeholder="apiParams.diskofferingid.description"
+            :placeholder="$t('message.creation.source.upload.offering')"
             @change-option="onChangeDiskOffering" />
         </a-form-item>
         <a-form-item ref="format" name="format">
@@ -169,6 +179,7 @@
 
 <script>
 import { ref, reactive, toRaw } from 'vue'
+import { volumeUploadError } from '@/utils/volumeUploadError'
 import { getAPI } from '@/api'
 import { axios } from '../../utils/request'
 import { mixinForm } from '@/utils/mixin'
@@ -188,6 +199,7 @@ export default {
   data () {
     return {
       fileList: [],
+      uploadError: null,
       formats: ['RAW', 'VHD', 'VHDX', 'OVA', 'QCOW2'],
       domainId: null,
       account: null,
@@ -335,11 +347,7 @@ export default {
         })
         this.closeAction()
       }).catch(e => {
-        this.$notification.error({
-          message: this.$t('message.upload.failed'),
-          description: `${this.$t('message.upload.volume.failed')} -  ${e}`,
-          duration: 0
-        })
+        this.showUploadError(e)
       }).finally(() => {
         this.uploading = false
         this.loading = false
@@ -348,6 +356,7 @@ export default {
     handleSubmit (e) {
       e.preventDefault()
       if (this.loading) return
+      this.uploadError = null
       this.formRef.value.validate().then(() => {
         const formRaw = toRaw(this.form)
         const values = this.handleRemoveFields(formRaw)
@@ -374,15 +383,15 @@ export default {
           }
           this.handleUpload()
         }).catch(e => {
-          this.$notification.error({
-            message: this.$t('message.upload.failed'),
-            description: `${this.$t('message.upload.volume.failed')} -  ${e?.response?.data?.postuploadvolumeresponse?.errortext || e}`,
-            duration: 0
-          })
+          this.showUploadError(e)
         }).finally(() => {
           this.loading = false
         })
       })
+    },
+    showUploadError (error) {
+      this.uploadError = volumeUploadError(error, key => this.$t(key))
+      this.$notification.error({ message: this.$t('message.upload.failed'), description: this.uploadError.message, duration: 0 })
     },
     closeAction () {
       this.$emit('close-action')

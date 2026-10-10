@@ -1,0 +1,22 @@
+{
+  "scope": "PREFILLED_TEMPLATE_UI_CREATE_STOPPED_NO_GUEST_DATA_VALIDATION",
+  "vm": {
+    "id": "5dbc658d-f6a3-46d4-9afd-3dd9768a3880",
+    "name": "E1335-31-template-prefill-r3",
+    "state": "Stopped",
+    "boottype": "Uefi",
+    "bootmode": "legacy",
+    "templateid": "75c45d7c-87e6-496f-bf89-a29c7780ed15",
+    "cpunumber": 4,
+    "memory": 8192
+  },
+  "volumes": [
+    {
+      "id": "1a12f0a5-eb5f-4977-8503-ce4da44c575a",
+      "state": "Allocated",
+      "type": "ROOT",
+      "deviceid": 0,
+      "size": 107374182400
+    }
+  ]
+}

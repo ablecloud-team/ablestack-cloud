@@ -1,0 +1,25 @@
+{
+  "sourceCommit": "24e4d7b007453919e725e0b90c976d840a453541",
+  "sha256": "430743ed1ebe5f914eb1b09ac976d326f20323d72538624ec4e7ab4c2e06e6f2",
+  "build": {
+    "sourceCommit": "24e4d7b007453919e725e0b90c976d840a453541",
+    "exitCode": 0,
+    "status": "PASS"
+  },
+  "deployments": {
+    "31": {
+      "code": 0,
+      "sourceCommit": "24e4d7b007453919e725e0b90c976d840a453541",
+      "sha256": "430743ed1ebe5f914eb1b09ac976d326f20323d72538624ec4e7ab4c2e06e6f2",
+      "output": "/home/ablecloud/epic1335-stage/ui-epic1335-24e4d7b0074.tgz: OK\nSTATIC_HASHES_PASS 840\n/usr/share/cloudstack-management/webapp/config.json: OK\nactive\nCLIENT_HTTP 200\nBACKUP /root/epic1335-template-prefill-guard-ui-20261009-122151\n",
+      "error": "/usr/lib64/python3.9/tarfile.py:2288: RuntimeWarning: The default behavior of tarfile extraction has been changed to disallow common exploits (including CVE-2007-4559). By default, absolute/parent paths are disallowed and some mode bits are cleared. See https://access.redhat.com/articles/7004769 for more details.\n  warnings.warn(\n"
+    },
+    "32": {
+      "code": 0,
+      "sourceCommit": "24e4d7b007453919e725e0b90c976d840a453541",
+      "sha256": "430743ed1ebe5f914eb1b09ac976d326f20323d72538624ec4e7ab4c2e06e6f2",
+      "output": "/home/ablecloud/epic1335-stage/ui-epic1335-24e4d7b0074.tgz: OK\nSTATIC_HASHES_PASS 840\n/usr/share/cloudstack-management/webapp/config.json: OK\nactive\nCLIENT_HTTP 200\nBACKUP /root/epic1335-template-prefill-guard-ui-20261009-122148\n",
+      "error": "/usr/lib64/python3.9/tarfile.py:2288: RuntimeWarning: The default behavior of tarfile extraction has been changed to disallow common exploits (including CVE-2007-4559). By default, absolute/parent paths are disallowed and some mode bits are cleared. See https://access.redhat.com/articles/7004769 for more details.\n  warnings.warn(\n"
+    }
+  }
+}

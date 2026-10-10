@@ -1,0 +1,373 @@
+{
+  "asOfKST": "2026-10-09T02:29:38.1199722+09:00",
+  "environments": [
+    {
+      "cluster": 31,
+      "login": true,
+      "hosts": [
+        {
+          "name": "ablecube31-1",
+          "ipaddress": "10.10.31.1",
+          "state": "Up",
+          "version": "4.23.0.0-Mold.Europa-202609222315",
+          "hostha": {
+            "haenable": false,
+            "hastate": "Disabled"
+          },
+          "ueficapability": true
+        },
+        {
+          "name": "ablecube31-2",
+          "ipaddress": "10.10.31.2",
+          "state": "Up",
+          "version": "4.23.0.0-Mold.Europa-202609222315",
+          "hostha": {
+            "haenable": false,
+            "hastate": "Disabled"
+          },
+          "ueficapability": true
+        },
+        {
+          "name": "ablecube31-3",
+          "ipaddress": "10.10.31.3",
+          "state": "Up",
+          "version": "4.23.0.0-Mold.Europa-202609222315",
+          "hostha": {
+            "haenable": false,
+            "hastate": "Disabled"
+          },
+          "ueficapability": true
+        }
+      ],
+      "pools": [
+        {
+          "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+          "name": "Primary",
+          "type": "SharedMountPoint",
+          "scope": "CLUSTER",
+          "state": "Up",
+          "path": "/mnt/glue-gfs",
+          "clusterid": "0d3d50e7-3cb5-4adf-8507-955bc81cc4a5",
+          "disksizetotal": 23998409687040,
+          "disksizeallocated": 6452250022832,
+          "disksizeused": 1078899990528
+        }
+      ],
+      "vmCount": 74,
+      "vmStates": {
+        "Destroyed": 2,
+        "Running": 69,
+        "Stopped": 3
+      },
+      "templates": [
+        {
+          "id": "e3d8677e-70f0-44bd-917e-6068636b97a8",
+          "name": "rocky-9-4-minimal.qcow22",
+          "isready": true,
+          "status": "Download Complete",
+          "size": 107374182400,
+          "ostypename": "Rocky Linux 9",
+          "ostypeid": "9708b6ac-b253-11f1-a895-0024814c313f",
+          "details": {
+            "rootDiskController": "osdefault"
+          },
+          "checksum": "b4c301bdc66012e1e74aefa74dcd31fda908179f5c532e70711c38083a548a4d4be6ef0b07d7bf811c2a626f4c1faa01054a777d701b95ccaf43585b26a04943"
+        },
+        {
+          "id": "c86d655a-e460-4c24-9589-f435934d71c4",
+          "name": "Ubuntu 26.04 Server x86_64 Base Install",
+          "isready": true,
+          "status": "Download Complete",
+          "size": 107374182400,
+          "ostypename": "Ubuntu 26.04 (64-bit)",
+          "ostypeid": "5cd7da3d-ba5f-486c-82af-cf4fdfe39134",
+          "details": {
+            "cpuNumber": "2",
+            "memory": "4096",
+            "UEFI": "LEGACY",
+            "Message.ReservedCapacityFreed.Flag": "false",
+            "video.hardware": "virtio",
+            "video.ram": "16384",
+            "io.policy": "io_uring",
+            "rootdisksize": "100",
+            "tpmversion": "NONE"
+          },
+          "checksum": null
+        },
+        {
+          "id": "9787502f-23bf-411b-89db-6be1f66ec625",
+          "name": "Ubuntu 24.04 Server x86_64 Base Install",
+          "isready": true,
+          "status": "Download Complete",
+          "size": 107374182400,
+          "ostypename": "Ubuntu 24.04 LTS",
+          "ostypeid": "9b0a775a-b253-11f1-a895-0024814c313f",
+          "details": {
+            "cpuNumber": "2",
+            "memory": "4096",
+            "UEFI": "LEGACY",
+            "video.hardware": "virtio",
+            "video.ram": "16384",
+            "io.policy": "io_uring",
+            "rootdisksize": "100",
+            "tpmversion": "NONE"
+          },
+          "checksum": null
+        },
+        {
+          "id": "972bbc22-e568-44d3-8991-27f425ac2fad",
+          "name": "Ubuntu 22.04 Server x86_64 Base Install",
+          "isready": true,
+          "status": "Download Complete",
+          "size": 107374182400,
+          "ostypename": "Ubuntu 22.04 LTS",
+          "ostypeid": "4bd96e12-4ef1-4914-becf-c759ec14d6b1",
+          "details": {
+            "cpuNumber": "2",
+            "memory": "4096",
+            "UEFI": "LEGACY",
+            "video.hardware": "virtio",
+            "video.ram": "16384",
+            "io.policy": "io_uring",
+            "rootdisksize": "100",
+            "tpmversion": "NONE"
+          },
+          "checksum": null
+        },
+        {
+          "id": "a133562a-a1ba-41dc-8a64-da3a5b6b7679",
+          "name": "Windows Server 2025 x86_64 Base Install",
+          "isready": true,
+          "status": "Download Complete",
+          "size": 107374182400,
+          "ostypename": "Windows Server 2025 (64-bit)",
+          "ostypeid": "9d9ed195-b253-11f1-a895-0024814c313f",
+          "details": {
+            "cpuNumber": "4",
+            "memory": "8192",
+            "UEFI": "LEGACY",
+            "Message.ReservedCapacityFreed.Flag": "false",
+            "video.hardware": "virtio",
+            "video.ram": "16384",
+            "io.policy": "io_uring",
+            "rootdisksize": "100",
+            "tpmversion": "NONE"
+          },
+          "checksum": null
+        },
+        {
+          "id": "75c45d7c-87e6-496f-bf89-a29c7780ed15",
+          "name": "Windows Server 2022 x86_64 Base Install",
+          "isready": true,
+          "status": "Download Complete",
+          "size": 107374182400,
+          "ostypename": "Windows Server 2022 (64-bit)",
+          "ostypeid": "986c7bba-b253-11f1-a895-0024814c313f",
+          "details": {
+            "cpuNumber": "4",
+            "memory": "8192",
+            "UEFI": "LEGACY",
+            "Message.ReservedCapacityFreed.Flag": "false",
+            "video.hardware": "virtio",
+            "video.ram": "16384",
+            "io.policy": "io_uring",
+            "rootdisksize": "100",
+            "tpmversion": "NONE"
+          },
+          "checksum": null
+        },
+        {
+          "id": "ac49cbbb-761e-42aa-8b7f-cf47c61a8e53",
+          "name": "RT1230-CKS-node-1251-prepared-v1",
+          "isready": true,
+          "status": "Download Complete",
+          "size": 5242880000,
+          "ostypename": "Debian GNU/Linux 12 (64-bit)",
+          "ostypeid": "cccecd82-b3f8-4a9e-ba0d-556e8aa0c1a8",
+          "details": {},
+          "checksum": "aadf61999a58051e38507b007c00f43f5a29951bcdc157f2fe64cc7d7317338c"
+        }
+      ],
+      "snapshotCount": 16,
+      "testNetworks": [
+        {
+          "id": "ae274fff-3d8e-4285-ac73-26a767c1fea7",
+          "name": "E1335-VM-Origin-L2",
+          "vlan": "3135",
+          "state": "Setup",
+          "canusefordeploy": true,
+          "type": "L2"
+        }
+      ]
+    },
+    {
+      "cluster": 32,
+      "login": true,
+      "hosts": [
+        {
+          "name": "ablecube32-1",
+          "ipaddress": "10.10.32.1",
+          "state": "Up",
+          "version": "4.23.0.0",
+          "hostha": {
+            "haenable": true,
+            "hastate": "Available",
+            "haprovider": "kvmhaprovider"
+          },
+          "ueficapability": true
+        },
+        {
+          "name": "ablecube32-2",
+          "ipaddress": "10.10.32.2",
+          "state": "Up",
+          "version": "4.23.0.0",
+          "hostha": {
+            "haenable": true,
+            "hastate": "Available",
+            "haprovider": "kvmhaprovider"
+          },
+          "ueficapability": true
+        },
+        {
+          "name": "ablecube32-3",
+          "ipaddress": "10.10.32.3",
+          "state": "Up",
+          "version": "4.23.0.0",
+          "hostha": {
+            "haenable": true,
+            "hastate": "Available",
+            "haprovider": "kvmhaprovider"
+          },
+          "ueficapability": true
+        }
+      ],
+      "pools": [
+        {
+          "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+          "name": "Primary",
+          "type": "RBD",
+          "scope": "CLUSTER",
+          "state": "Up",
+          "path": "rbd",
+          "clusterid": "722e6930-cfc8-4143-83b1-680b7348d1e9",
+          "disksizetotal": 13618758495754,
+          "disksizeallocated": 1841089740800,
+          "disksizeused": 131846696458
+        }
+      ],
+      "vmCount": 13,
+      "vmStates": {
+        "Running": 7,
+        "Stopped": 6
+      },
+      "templates": [
+        {
+          "id": "ca2075df-12e9-4110-94c7-bd11068b621c",
+          "name": "nginx-lb-test.qcow2",
+          "isready": true,
+          "status": "Download Complete",
+          "size": 107374182400,
+          "ostypename": "Rocky Linux 9",
+          "ostypeid": "574c7ceb-b23b-11f1-990e-0024811f8935",
+          "details": {
+            "rootDiskController": "scsi"
+          },
+          "checksum": null
+        },
+        {
+          "id": "b31d2c92-67b9-40c4-a137-4ff9778c6b0d",
+          "name": "Rocky-Linux-9-5-x86-64-Server-Cloud-Image.qcow2",
+          "isready": true,
+          "status": "Download Complete",
+          "size": 107374182400,
+          "ostypename": "Rocky Linux 9",
+          "ostypeid": "574c7ceb-b23b-11f1-990e-0024811f8935",
+          "details": {
+            "rootDiskController": "osdefault"
+          },
+          "checksum": "f9a1bb70009d262b6132f1888860e615c722012cf092fbe035ac78be9d67ff1a2fad75d355d6cd65b67f372a2e80667a733b24447d39df27ea05e8cfe0b50eb9"
+        },
+        {
+          "id": "67614e8c-51fe-4265-90e3-261e72c26776",
+          "name": "E1335-Windows2022-UEFI-base",
+          "isready": true,
+          "status": "Download Complete",
+          "size": 107374182400,
+          "ostypename": "Windows Server 2022 (64-bit)",
+          "ostypeid": "5aaacc7e-b23b-11f1-990e-0024811f8935",
+          "details": {
+            "cpuNumber": "4",
+            "memory": "8192",
+            "UEFI": "LEGACY",
+            "video.hardware": "virtio",
+            "video.ram": "16384",
+            "rootdisksize": "100",
+            "tpmversion": "NONE"
+          },
+          "checksum": "2ff53a1cd2c0b1f9f231a9fbd8d6e066f9d0a86c97f8d27840b5d6091ba97072"
+        }
+      ],
+      "snapshotCount": 1,
+      "testNetworks": [
+        {
+          "id": "6400f908-4315-49db-a3e1-1fa58948c303",
+          "name": "E1335-VM-Origin-L2",
+          "vlan": "3235",
+          "state": "Setup",
+          "canusefordeploy": true,
+          "type": "L2"
+        }
+      ]
+    }
+  ],
+  "sourceSha": "2871963cd43aeb592f619c1b67d8a5974846409d",
+  "upgrade32": {
+    "managementAndAgents": "4.23.0.0-1",
+    "cloudDbVersion": "4.23.0.0",
+    "jarRevision": "2871963cd43aeb592f619c1b67d8a5974846409d",
+    "clientHttp": 200,
+    "webInfPreserved": true,
+    "staticAssetsVerified": 840,
+    "existingCloudVmsPreserved": 15,
+    "existingActiveVolumesPreserved": 17,
+    "userVmState": {
+      "Running": 7,
+      "Stopped": 6
+    },
+    "hostRunningDomains": [
+      5,
+      3,
+      5
+    ],
+    "agentConfigSemanticDiffCount": [
+      0,
+      0,
+      0
+    ],
+    "krbdMappingsPreserved": true,
+    "temporaryRuntimeMasksRemoved": true,
+    "canonicalDiploPrerequisitesRepaired": true,
+    "vmDetailsRowsPreserved": 155,
+    "postUpgradeFullDbDumpVerified": true,
+    "systemVmGuestImageReplaced": false
+  },
+  "workflow": {
+    "runId": 37803365591,
+    "conclusion": "failure",
+    "rpmProductionCompleted": true,
+    "reason": "post-build management-only verification expected a host-only network namespace wrapper",
+    "fullCiPass": false,
+    "newFullBuildRequested": false,
+    "packageUnionSchemaAndJavaSmokePass": true
+  },
+  "featureGate": {
+    "existingVolumeClusterScope": "IMPLEMENTATION_REQUIRED_1337_P0",
+    "vmCreationE2E": "NOT_RUN",
+    "requiredRepresentativeCases": 16
+  },
+  "knownBaselineAlerts": [
+    "31 existing VR webserver checks",
+    "32.3 existing device sensor alert"
+  ],
+  "temporaryTemplateDownloadEndpointRemoved": true
+}

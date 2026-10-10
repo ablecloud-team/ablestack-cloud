@@ -1,0 +1,8 @@
+{
+  "winnerVmId": "46757bcc-987a-4ced-953e-16694d4040e7",
+  "loserVmId": "c3146ff4-e72a-4b40-a523-a67b681213db",
+  "winnerUi": "  - generic: 정지된 상태\n        - row \"hdd ROOT-32 thin Ready ROOT 0 100.00 GB Primary 디스크 분리 작업\":",
+  "loserUi": "  - generic: 오류\n        - row \"데이터 없음\":",
+  "preservedDetachUi": "대시보드\n컴퓨트\n가상머신\nVM 스냅샷\n쿠버네티스\n오토스케일 VM 그룹\n가상머신 그룹\nSSH 키 쌍\n사용자 데이터 라이브러리\nCNI 구성\nAffinity 그룹\n스토리지\n네트워크\n이미지\n키 관리\n이벤트\n프로젝트\n역할\n계정\n도메인\n인프라스트럭쳐\n서비스 오퍼링\n구성\n확장\n도구\nAPI 문서\n페이지 스타일 설정\n페이지 스타일 설정\n테마 색상\n네비게이션 설정\n배경색\n텍스트 색상\n설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요.\n세팅값 다운로드(json)기본값으로 재설정\n기본 보기\n생성\n\n9\n\nAC\nadmin cloud\n/가상머신/E1335-32-concurrent-adopt-a업데이트\n작업\nE1335-32-concurrent-adopt-a\ni-2-41-VM\nx86_64\nKVM\nHA 활성화\n동적으로 확장 가능\n상태\n정지된 상태\n아이디\n46757bcc-987a-4ced-953e-16694d4040e7 \nCPU\n2 CPU x 2.00 GHz \nx86_64\n메모리\n2048 MB 메모리\n네트워크\n1 NIC(s)\neth0     기본\n      E1335-VM-Origin-L2-235\n템플릿\nRocky-Linux-9-5-x86-64-Server-Cloud-Image.qcow2\n컴퓨트 오퍼링\n1C1GB-TO-64C128GB-FR\nZone\nZone\n계정\nadmin\n도메인\nROOT\n생성일\n2026. 10. 9. 오후 12:12:02\n태그\n 새 태그\n\n\n상세\nIP 구성\n메트릭\n프로세스\n스케줄\nISO\n볼륨\nNIC\n설정\n호스트 장치\nVM 스냅샷\n이벤트\n코멘트\n생성 및 연결\n기존 볼륨 연결\n업데이트\n볼륨 작업 상태: 완료\n이름\t상태\t유형\t볼륨 번호 (Device ID)\t크기\t스토리지\tKMS 키\t작업\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n\n\n데이터 없음\n\n조치가 필요한 경보\n(1건)\n-\n주요 시스템에서 리소스 임계치 초과 또는 상태 변경이 감지되어 확인이 필요합니다.\n세부 경보 내용 확인\n경보 규칙으로 이동\n볼륨 작업 상태\n\nE1335-32-concurrent-adopt-a / ROOT-32\n\n볼륨 연결 해제\n완료\n닫기",
+  "finalUiVerified": true
+}

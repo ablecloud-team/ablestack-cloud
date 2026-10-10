@@ -50,6 +50,7 @@
           </a-col>
         </template>
           <a-col>
+            <a-button v-if="resourceType === 'PrimaryStorage' && resource.hypervisor === 'KVM' && ['SharedMountPoint', 'RBD', 'NetworkFilesystem'].includes(resource.type) && 'importVolume' in $store.getters.apis" type="primary" style="margin-left: 12px" @click="openVolumeImport('')">{{ $t('label.creation.source.import') }}</a-button>
             <a-tooltip placement="bottom">
               <template #title>{{ $t('label.refresh') }}</template>
               <a-button
@@ -87,6 +88,10 @@
           <CreateRbdImage :resource="resource" @close-action="closeModals" />
       </a-modal>
     </a-card>
+
+    <a-modal :visible="showImportVolumeModal" :title="$t('label.creation.source.import')" :footer="null" :mask-closable="false" @cancel="showImportVolumeModal = false">
+      <import-storage-volume v-if="showImportVolumeModal" :key="importVolumePath" :resource="resource" :initial-path="importVolumePath" @close-action="showImportVolumeModal = false" />
+    </a-modal>
 
     <a-modal
       :title="$t('message.data.migration')"
@@ -197,7 +202,7 @@
                   type="primary"
                   size="medium"
                   shape="circle"
-                  @click="showAddTyModal(record.name, record.size)"
+                  @click="openVolumeImport(`${browserPath}${record.name}`)"
                   :loading="loading">
                 <template #icon><plus-outlined /></template>
               </a-button>
@@ -268,6 +273,7 @@ import InfoCard from '@/components/view/InfoCard'
 import TooltipButton from '@/components/widgets/TooltipButton'
 import MigrateImageStoreResource from '@/views/storage/MigrateImageStoreResource'
 import CreateRbdImage from '@/views/storage/CreateRbdImage'
+import ImportStorageVolume from '@/views/storage/ImportStorageVolume'
 
 export default {
   mixins: [listRefreshMixin(['fetchImageStoreObjects', 'fetchPrimaryStoreObjects'], { interval: 60000, select: vm => vm.resourceType === 'ImageStore' ? ['fetchImageStoreObjects'] : vm.resourceType === 'PrimaryStorage' ? ['fetchPrimaryStoreObjects'] : [] })],
@@ -276,7 +282,8 @@ export default {
     InfoCard,
     MigrateImageStoreResource,
     TooltipButton,
-    CreateRbdImage
+    CreateRbdImage,
+    ImportStorageVolume
   },
   props: {
     resource: {
@@ -332,6 +339,8 @@ export default {
       templateIdsToMigrate: [],
       snapshotIdsToMigrate: [],
       showAddVolumeModal: false,
+      showImportVolumeModal: false,
+      importVolumePath: '',
       showAddTypeModal: false,
       rootSwitch: true,
       dataDiskSwitch: false,
@@ -357,6 +366,7 @@ export default {
     this.fetchData()
   },
   methods: {
+    openVolumeImport (path) { this.importVolumePath = path; this.showImportVolumeModal = true },
     initForm () {
       this.formRef = ref()
       this.form = reactive({

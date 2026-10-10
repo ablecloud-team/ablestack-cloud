@@ -1,0 +1,21 @@
+{
+  "id": "2c0cc0bd-1a16-4d17-aaff-2820780304d8",
+  "instancename": "i-2-369-VM",
+  "state": "Stopped",
+  "isos": [
+    {
+      "id": "3b5703ae-681e-4fa1-8191-7222cd2f6a5b",
+      "name": "Rocky Linux 9.8 x86_64 DVD",
+      "displaytext": "Rocky Linux 9.8 x86_64 DVD",
+      "deviceseq": 3,
+      "bootable": true
+    },
+    {
+      "id": "9ba4cfde-6a3a-409b-a01c-ea8f22b3561f",
+      "name": "Virtio Windows Driver 0.1.302",
+      "displaytext": "Virtio Windows Driver 0.1.302",
+      "deviceseq": 4,
+      "bootable": false
+    }
+  ]
+}

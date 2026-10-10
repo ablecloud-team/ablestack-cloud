@@ -1,0 +1,15 @@
+{
+  "case": "32-L-BIOS-volume-off-r2",
+  "vmId": "4502b429-5662-4d95-a02b-61d65a3c95d7",
+  "jobId": "82864274-8184-4d4c-9c37-3407a12852f9",
+  "initialState": "Stopped",
+  "rootType": "ROOT",
+  "deviceId": 0,
+  "sourceVolumeId": "1a989f91-798b-46a0-8234-25adb402f35e",
+  "sourcePreservedDetached": true,
+  "storageId": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+  "snapshotState": "BackedUp",
+  "guestChecksum": "d86e00896f7422ddc0e3377bd282dd643d8c933738f9be3cbaf5e6840d86d306",
+  "guestBoot": "Rocky Linux 9.5 BIOS / UI console, QGA, guest SSH",
+  "result": "PASS"
+}

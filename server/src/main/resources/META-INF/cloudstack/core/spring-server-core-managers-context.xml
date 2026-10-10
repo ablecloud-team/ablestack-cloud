@@ -84,6 +84,8 @@
 
     <bean id="storageManagerImpl" class="com.cloud.storage.StorageManagerImpl" />
 
+    <bean id="vmCreationSourceValidator" class="com.cloud.vm.VmCreationSourceValidator" />
+
     <bean id="vmStorageSelectionManager" class="com.cloud.storage.VmStorageSelectionManager">
         <property name="storagePoolAllocators" value="#{storagePoolAllocatorsRegistry.registered}" />
     </bean>

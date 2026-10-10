@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { deploymentStorageQuery, dataDiskDeviceIds, dataDiskRequest, completeIsoDiskDeployment } from '@/utils/vmDiskDeployment'
+import { deploymentStorageQuery, dataDiskDeviceIds, dataDiskRequest, completeIsoDiskDeployment, additionalIsoConfigDriveConflict } from '@/utils/vmDiskDeployment'
 
 const record = (start = false) => ({
   deployJobId: 'deploy',
@@ -140,4 +140,17 @@ test('ISO storage queries use the selected form hypervisor before derived state 
 test('storage queries are safe before the form is initialized', () => {
   expect(deploymentStorageQuery({ imageType: 'isoid' }).zoneid).toBeUndefined()
   expect(deploymentStorageQuery({ imageType: 'isoid' }).templateid).toBeUndefined()
+})
+
+const configDriveNetwork = { id: 'config-drive', service: [{ name: 'UserData', provider: [{ name: 'ConfigDrive' }] }] }
+const extraIso = { enabled: true, ids: ['driver'] }
+test('two ISOs conflict only with a selected ConfigDrive network and recover when the selection changes', () => {
+  const selection = { imageType: 'isoid', additionalIsoSelection: extraIso, networks: [configDriveNetwork, { id: 'plain' }], networkIds: ['config-drive'] }
+  expect(additionalIsoConfigDriveConflict(selection)).toBe(true)
+  expect(additionalIsoConfigDriveConflict({ ...selection, networkIds: ['plain'] })).toBe(false)
+  expect(additionalIsoConfigDriveConflict({ ...selection, additionalIsoSelection: { enabled: false, ids: [] } })).toBe(false)
+  expect(additionalIsoConfigDriveConflict({ ...selection, additionalIsoSelection: { enabled: true, ids: [] } })).toBe(false)
+})
+test.each(['templateid', 'volumeid', 'snapshotid'])('ConfigDrive check preserves %s creation', imageType => {
+  expect(additionalIsoConfigDriveConflict({ imageType, additionalIsoSelection: extraIso, networks: [configDriveNetwork], networkIds: ['config-drive'] })).toBe(false)
 })

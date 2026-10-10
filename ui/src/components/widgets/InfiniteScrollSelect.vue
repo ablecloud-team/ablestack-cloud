@@ -62,7 +62,7 @@
     :loading="loading"
     show-search
     :allowClear="allowClear"
-    placeholder="Select"
+    :placeholder="$t('label.select')"
     @search="onSearchTimed"
     @popupScroll="onScroll"
     @change="onChange"

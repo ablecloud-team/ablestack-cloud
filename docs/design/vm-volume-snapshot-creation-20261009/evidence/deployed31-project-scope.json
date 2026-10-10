@@ -1,0 +1,11 @@
+{
+  "cluster": 31,
+  "sourceCommit": "957f61f39cf464dbfc19d1b31c4388f26b13667e",
+  "sourceText": "템플릿\nISO\n볼륨\n스냅샷\n스냅샷 시점의 루트 디스크에서 새 디스크를 복구합니다. 원본 스냅샷과 기존 가상머신은 유지합니다. 데이터 디스크와 메모리는 자동 복구하지 않습니다.\n사용 가능한 원본만 보기\n업데이트\n\t이름 / UUID\t출처 / 운영체제\t상태 / 복구 시점\t논리 용량 / 부팅\t저장소 / 범위\t사용 가능 여부\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n\n현재 조건에 맞는 생성 원본이 없습니다.\n\n적격성 확인 시각: 오전 11:39:41",
+  "summaryCount": 0,
+  "createEnabled": false,
+  "scope": "EXISTING_PROJECT_DOES_NOT_REUSE_ADMIN_SOURCE",
+  "selectedProject": "rt1230-vpc-project-r26",
+  "accountRecovered": true,
+  "summaryRecovered": 2
+}

@@ -279,7 +279,7 @@ export default {
   emits: ['change-image-type', 'change-guest-os-category', 'update-image', 'handle-image-search-filter', 'change-root-disk-override-checked', 'update-disk-size', 'change-iso-hypervisor'],
   methods: {
     emitChangeImageType () {
-      this.$emit('change-image-type', this.localSelectedImageType)
+      this.$emit('change-image-type', this.localSelectedImageType, true)
     },
     handleGuestOsCategoryChange (value) {
       this.localSelectedGuestOsCategoryId = value

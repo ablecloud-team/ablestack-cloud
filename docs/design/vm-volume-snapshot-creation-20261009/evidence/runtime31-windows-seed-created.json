@@ -1,0 +1,36 @@
+{
+  "cluster": 31,
+  "scope": "TEMPLATE_UI_WINDOWS_SEED_ONLY_NOT_SOURCE_E2E_PASS",
+  "vm": {
+    "id": "21e1d229-819e-46af-a18c-ab0856d439f0",
+    "name": "E1335-31-W-UEFI-seed-r2",
+    "instancename": "i-2-364-VM",
+    "state": "Stopped",
+    "templateid": "75c45d7c-87e6-496f-bf89-a29c7780ed15",
+    "hostid": null,
+    "details": {
+      "cpuNumber": "4",
+      "deployvm": "true",
+      "memory": "8192",
+      "UEFI": "LEGACY",
+      "Message.ReservedCapacityFreed.Flag": "false",
+      "video.hardware": "virtio",
+      "video.ram": "16384",
+      "io.policy": "io_uring",
+      "rootdisksize": "100",
+      "tpmversion": "NONE"
+    },
+    "boottype": "Uefi",
+    "bootmode": "legacy"
+  },
+  "volumes": [
+    {
+      "id": "15c2f8f7-54bf-4287-89fe-4717838e2d40",
+      "type": "ROOT",
+      "state": "Allocated",
+      "deviceid": 0,
+      "size": 107374182400,
+      "storageid": null
+    }
+  ]
+}

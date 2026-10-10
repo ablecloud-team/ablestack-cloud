@@ -1,0 +1,187 @@
+{
+  "cluster": 32,
+  "at": "2026-10-10T12:52:30.740747+00:00",
+  "baselineVmCount": 41,
+  "unchanged": 41,
+  "differences": [],
+  "hosts": [
+    {
+      "id": "bfe795b1-8fde-4361-bd1d-af421ab2bdc5",
+      "name": "ablecube32-1",
+      "state": "Up"
+    },
+    {
+      "id": "a7b3e91f-2248-436b-affb-e3b31b36ed62",
+      "name": "ablecube32-2",
+      "state": "Up"
+    },
+    {
+      "id": "05bc1189-abf8-4ec3-9ef5-02558863b628",
+      "name": "ablecube32-3",
+      "state": "Up"
+    }
+  ],
+  "cases": [
+    {
+      "vm": {
+        "id": "7fe75646-6ba9-4bca-9f8c-f9399746173d",
+        "name": "E1345-32-local-off",
+        "state": "Stopped",
+        "hostid": null,
+        "projectid": null,
+        "account": "admin",
+        "osdisplayname": "Other (64-bit)",
+        "boottype": "Bios",
+        "bootmode": "legacy"
+      },
+      "root": {
+        "id": "dfe19a9a-f925-45d4-9423-8207895e9c99",
+        "name": "E1345-32-local-nonboot",
+        "type": "ROOT",
+        "state": "Ready",
+        "deviceid": 0,
+        "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+        "storage": "Primary",
+        "size": 1073741824
+      }
+    },
+    {
+      "vm": {
+        "id": "be04ea93-c0ce-4d98-a256-36bfb1e6ea5c",
+        "name": "E1345-32-url-on",
+        "state": "Running",
+        "hostid": "bfe795b1-8fde-4361-bd1d-af421ab2bdc5",
+        "projectid": null,
+        "account": "admin",
+        "osdisplayname": "Other (64-bit)",
+        "boottype": "Bios",
+        "bootmode": "legacy"
+      },
+      "root": {
+        "id": "e7ecfae2-9c31-44ea-a67f-acb71e53a7cd",
+        "name": "E1345-32-url-nonboot",
+        "type": "ROOT",
+        "state": "Ready",
+        "deviceid": 0,
+        "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+        "storage": "Primary",
+        "size": 1073741824
+      }
+    },
+    {
+      "vm": {
+        "id": "38ba8098-562a-4596-aa8c-557f8bc7b20e",
+        "name": "E1345-32-file-boot-on",
+        "state": "Running",
+        "hostid": "05bc1189-abf8-4ec3-9ef5-02558863b628",
+        "projectid": null,
+        "account": "admin",
+        "osdisplayname": "Windows Server 2022 (64-bit)",
+        "boottype": "Uefi",
+        "bootmode": "legacy"
+      },
+      "root": {
+        "id": "7aba5eb3-16a5-4a8c-9388-9059fb5c3748",
+        "name": "E1345-32-file-boot",
+        "type": "ROOT",
+        "state": "Ready",
+        "deviceid": 0,
+        "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+        "storage": "Primary",
+        "size": 107374182400
+      }
+    },
+    {
+      "vm": {
+        "id": "42fa5f69-a98b-4c3a-ac68-e2eac582ab66",
+        "name": "E1345-32-generic-snapshot-off",
+        "state": "Stopped",
+        "hostid": null,
+        "projectid": null,
+        "account": "admin",
+        "osdisplayname": "Other (64-bit)",
+        "boottype": "Bios",
+        "bootmode": "legacy"
+      },
+      "root": {
+        "id": "9351043e-3d8b-423c-9435-a6b260bf783d",
+        "name": "ROOT-62",
+        "type": "ROOT",
+        "state": "Ready",
+        "deviceid": 0,
+        "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+        "storage": "Primary",
+        "size": 1073741824
+      }
+    },
+    {
+      "vm": {
+        "id": "7e2a62e6-5c83-4876-8c8f-b1376c83e0c5",
+        "name": "E1345-32-project-generic-off",
+        "state": "Stopped",
+        "hostid": null,
+        "projectid": "a8c89140-8cd3-41c8-b799-ccd4f348af9d",
+        "account": null,
+        "osdisplayname": "Other (64-bit)",
+        "boottype": "Bios",
+        "bootmode": "legacy"
+      },
+      "root": {
+        "id": "ef79a090-75d6-420f-8e15-3be5663cb306",
+        "name": "E1345-32-project-generic-DATA",
+        "type": "ROOT",
+        "state": "Ready",
+        "deviceid": 0,
+        "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+        "storage": "Primary",
+        "size": 1073741824
+      }
+    },
+    {
+      "vm": {
+        "id": "692145c3-07fb-40c0-aff5-2bde2776b7a2",
+        "name": "E1345-32-file-start-retry",
+        "state": "Running",
+        "hostid": "05bc1189-abf8-4ec3-9ef5-02558863b628",
+        "projectid": null,
+        "account": "admin",
+        "osdisplayname": "Other (64-bit)",
+        "boottype": "Bios",
+        "bootmode": "legacy"
+      },
+      "root": {
+        "id": "f5dc33f5-a83f-4fee-9f22-9259e1526d1e",
+        "name": "E1345-32-snapshot-DATA",
+        "type": "ROOT",
+        "state": "Ready",
+        "deviceid": 0,
+        "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+        "storage": "Primary",
+        "size": 1073741824
+      }
+    },
+    {
+      "vm": {
+        "id": "21d16fe1-6677-452b-ae9e-6544ba679a58",
+        "name": "E1345-32-response-loss-generic",
+        "state": "Stopped",
+        "hostid": null,
+        "projectid": null,
+        "account": "admin",
+        "osdisplayname": "Other (64-bit)",
+        "boottype": "Bios",
+        "bootmode": "legacy"
+      },
+      "root": {
+        "id": "d3790ff5-83f9-458c-958a-d7b200b3a6e6",
+        "name": "ROOT-67",
+        "type": "ROOT",
+        "state": "Ready",
+        "deviceid": 0,
+        "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+        "storage": "Primary",
+        "size": 1073741824
+      }
+    }
+  ]
+}

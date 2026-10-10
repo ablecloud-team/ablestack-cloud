@@ -61,6 +61,8 @@ public class VmStorageSelectionManagerTest {
     @Test public void automaticDeploymentNeedsNoAdministratorOverride() {
         DeployVMCmd cmd = mock(DeployVMCmd.class);
         when(cmd.getRootStorageId()).thenReturn(null);
+        when(cmd.getVolumeId()).thenReturn(null);
+        when(cmd.getSnapshotId()).thenReturn(null);
         assertTrue(manager.prepare(cmd, null, null, null, null).isEmpty());
     }
     @Test public void dataDiskPoolCannotBypassAdministratorPermission() {
@@ -69,8 +71,77 @@ public class VmStorageSelectionManagerTest {
         when(disk.getStoragePoolId()).thenReturn(9L);
         when(disk.getDeviceId()).thenReturn(1L);
         when(cmd.getRootStorageId()).thenReturn(null);
+        when(cmd.getVolumeId()).thenReturn(null);
+        when(cmd.getSnapshotId()).thenReturn(null);
         when(cmd.getDataDiskInfoList()).thenReturn(Collections.singletonList(disk));
         assertThrows(PermissionDeniedException.class, () -> manager.prepare(cmd, mock(DataCenter.class), account, mock(ServiceOffering.class), mock(VirtualMachineTemplate.class)));
+    }
+    private VmStorageSelectionManager uploadedManager(DeployVMCmd cmd) {
+        VmStorageSelectionManager automatic = org.mockito.Mockito.spy(manager);
+        com.cloud.storage.dao.VolumeDao volumes = mock(com.cloud.storage.dao.VolumeDao.class);
+        com.cloud.storage.dao.DiskOfferingDao offerings = mock(com.cloud.storage.dao.DiskOfferingDao.class);
+        com.cloud.storage.dao.VMTemplateDao templates = mock(com.cloud.storage.dao.VMTemplateDao.class);
+        ReflectionTestUtils.setField(automatic, "volumeDao", volumes);
+        ReflectionTestUtils.setField(automatic, "offeringDao", offerings);
+        ReflectionTestUtils.setField(automatic, "templateDao", templates);
+        ReflectionTestUtils.setField(automatic, "configurationManager", mock(com.cloud.configuration.ConfigurationManager.class));
+        StorageManager storage = mock(StorageManager.class);
+        ReflectionTestUtils.setField(automatic, "storageManager", storage);
+        VolumeVO source = mock(VolumeVO.class);
+        when(source.getState()).thenReturn(Volume.State.Uploaded);
+        when(source.getSize()).thenReturn(1073741824L);
+        when(source.getDiskOfferingId()).thenReturn(7L);
+        when(cmd.getVolumeId()).thenReturn(4L);
+        when(cmd.getRootStorageId()).thenReturn(null);
+        when(cmd.getSnapshotId()).thenReturn(null);
+        when(cmd.getDetails()).thenReturn(new java.util.HashMap<>());
+        when(volumes.findById(4L)).thenReturn(source);
+        DiskOfferingVO offering = mock(DiskOfferingVO.class);
+        when(offering.isCustomized()).thenReturn(true);
+        when(offerings.findById(7L)).thenReturn(offering);
+        VMTemplateVO template = mock(VMTemplateVO.class);
+        when(template.getId()).thenReturn(5L);
+        when(template.getFormat()).thenReturn(Storage.ImageFormat.QCOW2);
+        when(template.getHypervisorType()).thenReturn(com.cloud.hypervisor.Hypervisor.HypervisorType.KVM);
+        when(templates.findByIdIncludingRemoved(5L)).thenReturn(template);
+        StoragePoolVO pool = mock(StoragePoolVO.class);
+        when(pool.getStatus()).thenReturn(StoragePoolStatus.Up);
+        when(pools.findById(9L)).thenReturn(pool);
+        when(storage.storagePoolHasEnoughSpace(org.mockito.ArgumentMatchers.anyLong(), org.mockito.ArgumentMatchers.any())).thenReturn(true);
+        when(storage.storagePoolHasEnoughIops(org.mockito.ArgumentMatchers.anyLong(), org.mockito.ArgumentMatchers.any())).thenReturn(true);
+        org.mockito.Mockito.doReturn(java.util.Map.of(9L, java.util.Set.of("host"))).when(automatic).candidates(
+                org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any(),
+                org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
+        return automatic;
+    }
+    private java.util.Map<Long, Long> prepareUploaded(VmStorageSelectionManager automatic, DeployVMCmd cmd) {
+        VirtualMachineTemplate template = mock(VirtualMachineTemplate.class); when(template.getId()).thenReturn(5L);
+        return automatic.prepare(cmd, mock(DataCenter.class), account, mock(ServiceOffering.class), template);
+    }
+    @Test public void uploadedAutomaticPlacementWorksWithoutAdministratorOrPodOverride() {
+        DeployVMCmd cmd = mock(DeployVMCmd.class);
+        VmStorageSelectionManager automatic = uploadedManager(cmd);
+        assertEquals(java.util.Map.of(0L, 9L), prepareUploaded(automatic, cmd));
+    }
+    @Test public void uploadedAutomaticPlacementIncludesDataDiskCapacity() {
+        DeployVMCmd cmd = mock(DeployVMCmd.class);
+        VmStorageSelectionManager automatic = uploadedManager(cmd);
+        DiskOfferingVO offering = mock(DiskOfferingVO.class); when(offering.isCustomized()).thenReturn(true);
+        when(cmd.getDataDiskInfoList()).thenReturn(java.util.List.of(new com.cloud.vm.VmDiskInfo(offering, 1L, null, null, 1L)));
+        StorageManager storage = (StorageManager) ReflectionTestUtils.getField(automatic, "storageManager");
+        when(storage.storagePoolHasEnoughSpace(org.mockito.ArgumentMatchers.anyLong(), org.mockito.ArgumentMatchers.any()))
+                .thenAnswer(call -> (Long) call.getArgument(0) <= 1073741824L);
+        assertThrows(InvalidParameterValueException.class, () -> prepareUploaded(automatic, cmd));
+        verifyNoInteractions(details);
+    }
+    @Test public void uploadedAutomaticPlacementRejectsMissingCompatibleHost() {
+        DeployVMCmd cmd = mock(DeployVMCmd.class);
+        VmStorageSelectionManager automatic = uploadedManager(cmd);
+        org.mockito.Mockito.doReturn(Collections.emptyMap()).when(automatic).candidates(
+                org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any(),
+                org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
+        assertThrows(InvalidParameterValueException.class, () -> prepareUploaded(automatic, cmd));
+        verifyNoInteractions(details);
     }
     @Test public void selectedPoolSurvivesMetadataOnlyFirstStart() {
         Volume volume = mock(Volume.class);
@@ -112,7 +183,11 @@ public class VmStorageSelectionManagerTest {
     @Test public void existingRootVolumeCannotBeRetargetedByDeployParameter() {
         DeployVMCmd cmd = mock(DeployVMCmd.class);
         when(cmd.getRootStorageId()).thenReturn(9L);
-        when(cmd.isVolumeOrSnapshotProvided()).thenReturn(true);
+        when(cmd.getVolumeId()).thenReturn(4L);
+        com.cloud.storage.dao.VolumeDao volumes = mock(com.cloud.storage.dao.VolumeDao.class);
+        org.springframework.test.util.ReflectionTestUtils.setField(manager, "volumeDao", volumes);
+        VolumeVO source = mock(VolumeVO.class); when(source.getState()).thenReturn(Volume.State.Ready);
+        when(volumes.findById(4L)).thenReturn(source);
         when(accounts.isRootAdmin(2L)).thenReturn(true);
         assertThrows(InvalidParameterValueException.class, () -> manager.prepare(cmd, null, account, null, null));
     }

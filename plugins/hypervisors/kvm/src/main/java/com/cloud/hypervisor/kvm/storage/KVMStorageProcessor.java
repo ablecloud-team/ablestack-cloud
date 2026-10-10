@@ -2198,8 +2198,7 @@ public class KVMStorageProcessor implements StorageProcessor {
                     vol = createFullCloneVolume(migrationOptions, volume, primaryPool, format);
                 }
             } else {
-                vol = primaryPool.createPhysicalDisk(volume.getUuid(), format,
-                        volume.getProvisioningType(), disksize, volume.getUsableSize(), volume.getPassphrase());
+                vol = createBlankVolume(volume, primaryPool, format, disksize);
             }
 
             final VolumeObjectTO newVol = new VolumeObjectTO();
@@ -2225,6 +2224,42 @@ public class KVMStorageProcessor implements StorageProcessor {
             return new CreateObjectAnswer(e.toString());
         } finally {
             volume.clearPassphrase();
+        }
+    }
+
+    KVMPhysicalDisk createBlankVolume(VolumeObjectTO volume, KVMStoragePool pool, PhysicalDiskFormat format, long size) {
+        try {
+            return pool.createPhysicalDisk(volume.getUuid(), format, volume.getProvisioningType(),
+                    size, volume.getUsableSize(), volume.getPassphrase());
+        } catch (CloudRuntimeException createFailure) {
+            // An interrupted libvirt RBD create can leave the exact DATA image behind
+            // before Cloud receives its answer. Never recreate, resize or delete that image.
+            Map<String, String> details = pool.getDetails();
+            boolean recoverable = pool.getType() == StoragePoolType.RBD && format == PhysicalDiskFormat.RAW &&
+                    (details == null || StringUtils.isBlank(details.get(KVMPhysicalDisk.RBD_DEFAULT_DATA_POOL))) &&
+                    volume.getVolumeType() == Volume.Type.DATADISK && volume.getVolumeId() != null && volume.getVolumeId() > 0 &&
+                    volume.getDeviceId() != null && volume.getDeviceId() > 0 && size > 0 &&
+                    StringUtils.isNotBlank(volume.getVmName()) && volume.getVmName().matches("i-[0-9]+-[0-9]+-VM") &&
+                    volume.getUuid() != null && volume.getUuid().matches("[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}") &&
+                    !volume.requiresEncryption() && StringUtils.isBlank(volume.getEncryptFormat()) && volume.getMigrationOptions() == null;
+            if (!recoverable) {
+                throw createFailure;
+            }
+            KVMPhysicalDisk existing;
+            try {
+                existing = pool.getPhysicalDisk(volume.getUuid());
+            } catch (CloudRuntimeException lookupFailure) {
+                createFailure.addSuppressed(lookupFailure);
+                throw createFailure;
+            }
+            if (existing == null || !volume.getUuid().equals(existing.getName()) || existing.getPool() == null ||
+                    !pool.getUuid().equals(existing.getPool().getUuid()) ||
+                    !(pool.getSourceDir() + "/" + volume.getUuid()).equals(existing.getPath()) || existing.getFormat() != PhysicalDiskFormat.RAW ||
+                    existing.getVirtualSize() != size || existing.getQemuEncryptFormat() != null) {
+                throw new CloudRuntimeException("Existing RBD DATA image does not match the requested identity, format or capacity", createFailure);
+            }
+            logger.info("Recovered existing RBD DATA volume {} in pool {} after an interrupted create", volume.getUuid(), pool.getUuid());
+            return existing;
         }
     }
 

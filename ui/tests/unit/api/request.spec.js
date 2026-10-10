@@ -157,3 +157,27 @@ describe('snapshot read failure isolation', () => {
     expect(store.dispatch).not.toHaveBeenCalled()
   })
 })
+
+describe('source creation submission transport failure', () => {
+  const prepareRequest = service.interceptors.request.handlers[0].fulfilled
+  beforeEach(() => jest.clearAllMocks())
+
+  it('rejects a lost submission response to the caller without logging out or navigating away', async () => {
+    const config = prepareRequest({ preserveOnFailure: true, data: new URLSearchParams({ command: 'deployVirtualMachine', snapshotid: 'snapshot' }) })
+    const error = new axios.AxiosError('Network Error', 'ERR_NETWORK', config)
+    await expect(rejectResponse(error)).rejects.toBe(error)
+    expect(store.dispatch).not.toHaveBeenCalled()
+    expect(router.push).not.toHaveBeenCalled()
+    expect(notification.error).not.toHaveBeenCalled()
+    expect(config.data.has('preserveOnFailure')).toBe(false)
+  })
+
+  it('still expires a current session on a real authentication failure', async () => {
+    const config = prepareRequest({ preserveOnFailure: true, data: new URLSearchParams({ command: 'deployVirtualMachine', volumeid: 'volume' }) })
+    const error = new axios.AxiosError('Session expired', 'ERR_BAD_REQUEST', config)
+    error.response = { status: 401, data: { errorresponse: { errortext: 'Session expired' } } }
+    await expect(rejectResponse(error)).rejects.toBe(error)
+    expect(store.dispatch).toHaveBeenCalledWith('Logout')
+    expect(router.push).toHaveBeenCalled()
+  })
+})

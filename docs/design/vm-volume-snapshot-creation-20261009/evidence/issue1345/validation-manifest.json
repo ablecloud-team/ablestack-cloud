@@ -1,0 +1,163 @@
+{
+  "moduleBuild": {
+    "head": "7b68e0457f736128852829a338dbe4c71677ae87",
+    "modules": [
+      {
+        "path": "api/target/cloud-api-4.23.0.0.jar",
+        "sha256": "5bc29496f69bd7cc8ff23d2f15fc594b71369921aa13ac679718f3b00c297dc2"
+      },
+      {
+        "path": "server/target/cloud-server-4.23.0.0.jar",
+        "sha256": "9bcc01d22c6cfded319a223bf48f279e5b44e6bbc34d1b1b0c3455f3cc7b3c20"
+      },
+      {
+        "path": "engine/orchestration/target/cloud-engine-orchestration-4.23.0.0.jar",
+        "sha256": "68512a7ac76f2433aa431e44741254d9282740b7bc8ac4d099bd740d5091a2e5"
+      }
+    ],
+    "managementClassCount": 45,
+    "mismatches": []
+  },
+  "managementArtifacts": [
+    {
+      "cluster": 31,
+      "path": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0-Mold.Europa-202609222315.jar",
+      "sha256": "32a79b7dbc62690259375dfed31bd86c2da551aaf31bb542feca70d17d1a2d6c",
+      "changedClasses": 45
+    },
+    {
+      "cluster": 32,
+      "path": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0.jar",
+      "sha256": "e49f520aaaf0c17239fedc23aa079c68db5bd267ca348c9f235333fa490a71b8",
+      "changedClasses": 45
+    }
+  ],
+  "responseLoss": {
+    "cluster": 32,
+    "name": "E1345-32-response-loss-generic",
+    "deployRequestCount": 1,
+    "events": [
+      {
+        "at": "2026-10-10T12:37:45.330852+00:00",
+        "command": "deployVirtualMachine",
+        "name": "E1345-32-response-loss-generic",
+        "status": 200,
+        "jobId": "1ee298ae-9330-4c07-bf6e-def9e72c232f",
+        "vmId": "21d16fe1-6677-452b-ae9e-6544ba679a58",
+        "responseIntentionallyLost": true
+      }
+    ]
+  },
+  "scope": "Dedicated test clusters; no credentials, session keys or VNC tokens included.",
+  "baseline31": {
+    "cluster": 31,
+    "baselineVmCount": 99,
+    "unchanged": 99,
+    "differences": [],
+    "hostStates": [
+      {
+        "id": "159baf9a-89ad-4a94-91dc-e7395a670bf4",
+        "name": "ablecube31-1",
+        "state": "Up"
+      },
+      {
+        "id": "3fb147f3-aea4-4f65-b8c6-e7192ea26138",
+        "name": "ablecube31-2",
+        "state": "Up"
+      },
+      {
+        "id": "384871b9-7c75-4717-a673-e96a76abeb71",
+        "name": "ablecube31-3",
+        "state": "Up"
+      }
+    ],
+    "projectSpecificReads": [
+      {
+        "id": "d70149c4-23bf-4e46-8eff-2f1290971ca2",
+        "projectid": "73cac73e-ab37-417c-91dd-793de797e8f4",
+        "state": "Running",
+        "hostid": "384871b9-7c75-4717-a673-e96a76abeb71"
+      },
+      {
+        "id": "f1164c56-f00d-43c7-a675-a7657b01d923",
+        "projectid": "94bc0ded-ace2-4dd8-b1d6-dab52fe07af5",
+        "state": "Stopped",
+        "hostid": null
+      },
+      {
+        "id": "6aee3315-0212-476a-b08e-b593a7e7e707",
+        "projectid": "94bc0ded-ace2-4dd8-b1d6-dab52fe07af5",
+        "state": "Stopped",
+        "hostid": null
+      },
+      {
+        "id": "dd95a008-fadf-4ed4-bb60-7a6d12337843",
+        "projectid": "94bc0ded-ace2-4dd8-b1d6-dab52fe07af5",
+        "state": "Stopped",
+        "hostid": null
+      }
+    ]
+  },
+  "baseline32": {
+    "cluster": 32,
+    "baselineVmCount": 41,
+    "unchanged": 41,
+    "differences": [],
+    "hostStates": [
+      {
+        "id": "bfe795b1-8fde-4361-bd1d-af421ab2bdc5",
+        "name": "ablecube32-1",
+        "state": "Up"
+      },
+      {
+        "id": "a7b3e91f-2248-436b-affb-e3b31b36ed62",
+        "name": "ablecube32-2",
+        "state": "Up"
+      },
+      {
+        "id": "05bc1189-abf8-4ec3-9ef5-02558863b628",
+        "name": "ablecube32-3",
+        "state": "Up"
+      }
+    ],
+    "projectSpecificReads": [
+      {
+        "id": "728cf1dc-c19f-4faa-b6fc-0e3b469335c9",
+        "projectid": "a8c89140-8cd3-41c8-b799-ccd4f348af9d",
+        "state": "Stopped",
+        "hostid": null
+      },
+      {
+        "id": "9f28c102-36ac-45a9-a06b-fd2dac33344b",
+        "projectid": "a8c89140-8cd3-41c8-b799-ccd4f348af9d",
+        "state": "Stopped",
+        "hostid": null
+      },
+      {
+        "id": "2c5c80c2-629c-4fda-95ed-42f9f361b822",
+        "projectid": "a8c89140-8cd3-41c8-b799-ccd4f348af9d",
+        "state": "Stopped",
+        "hostid": null
+      }
+    ]
+  },
+  "finalUi": {
+    "sourceHead": "558024bd897c501798477402561cc8749befc8d7",
+    "sha256": "29d7b4a8451c235ca12e4b6771dce38a5ad98215025edbca7ba5ab3bd61740b5",
+    "build": {
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    "staticFileHashesPerCluster": 840,
+    "cluster31Backup": "/root/epic1345-mold-ui-20261010-215740",
+    "cluster32Backup": "/root/epic1345-mold-ui-20261010-215742"
+  },
+  "verifiedUpstream": "2871963cd43aeb592f619c1b67d8a5974846409d",
+  "focusedTests": {
+    "backend": 126,
+    "uiPreviousSuites": 111,
+    "uiUploadRegistration": 3,
+    "uiUnique": 114,
+    "fullCloudCI": "not run"
+  }
+}

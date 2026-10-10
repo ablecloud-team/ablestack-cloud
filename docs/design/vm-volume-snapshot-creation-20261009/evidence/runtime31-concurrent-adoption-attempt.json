@@ -1,0 +1,70 @@
+{
+  "cluster": 31,
+  "scope": "CONCURRENT_API_SUBMISSIONS_WITH_REQUIRED_FINAL_UI_RESOURCE_VERIFICATION",
+  "startedAt": "2026-10-09T03:24:10.519050+00:00",
+  "sourceVolumeId": "c5a6a13d-34e7-466f-8cb1-14273a6fe277",
+  "sourceRevision": "29c01adda9c4c8f1af1a3de42fec20842241c58aa245340e0d6fcdc480697495",
+  "requests": [
+    {
+      "name": "E1335-31-concurrent-adopt-a",
+      "accepted": true,
+      "response": {
+        "id": "44f52be4-0c5c-46c7-9121-69490162a712",
+        "jobid": "f247b4dc-be8c-4caa-b99d-9791ee9d3bc3"
+      },
+      "startedEpoch": 1791516250.345112,
+      "elapsedSeconds": 0.173,
+      "job": {
+        "status": 1,
+        "resultVmId": "44f52be4-0c5c-46c7-9121-69490162a712"
+      }
+    },
+    {
+      "name": "E1335-31-concurrent-adopt-b",
+      "accepted": false,
+      "error": "SOURCE_ATTACHED: another VM has claimed this volume",
+      "startedEpoch": 1791516250.344255,
+      "elapsedSeconds": 0.166
+    }
+  ],
+  "finalUiVerified": true,
+  "volumeAfterSubmit": {
+    "id": "c5a6a13d-34e7-466f-8cb1-14273a6fe277",
+    "state": "Ready",
+    "type": "ROOT",
+    "virtualmachineid": "44f52be4-0c5c-46c7-9121-69490162a712",
+    "deviceid": 0,
+    "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+  },
+  "vmRows": [
+    {
+      "id": "44f52be4-0c5c-46c7-9121-69490162a712",
+      "name": "E1335-31-concurrent-adopt-a",
+      "state": "Stopped",
+      "volumes": [
+        {
+          "id": "c5a6a13d-34e7-466f-8cb1-14273a6fe277",
+          "state": "Ready",
+          "type": "ROOT",
+          "deviceid": 0,
+          "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+        }
+      ]
+    },
+    {
+      "id": "620a600b-b74c-4fcb-aa49-a83ca0495757",
+      "name": "E1335-31-concurrent-adopt-b",
+      "state": "Error",
+      "volumes": []
+    }
+  ],
+  "singleSourceRootOwner": true,
+  "sourcePreservingDetachVerified": {
+    "state": "Ready",
+    "type": "DATADISK",
+    "virtualmachineid": null,
+    "deviceid": null,
+    "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+  },
+  "result": "PASS_ONE_ROOT_OWNER_LOSER_REJECTED_AND_UI_PRESERVING_DETACH"
+}

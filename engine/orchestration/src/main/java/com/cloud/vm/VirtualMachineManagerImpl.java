@@ -588,7 +588,11 @@ public class VirtualMachineManagerImpl extends ManagerBase implements VirtualMac
 
             logger.debug("Allocating disks for {}",  persistedVm);
 
-            if (!MapUtils.isEmpty(customParameters) && customParameters.containsKey("volumeId")){
+            if (volume != null || snapshot != null) {
+                // Source creation must use the locked ROOT adoption/restore path. The API also
+                // supplies volumeId in custom parameters, which must not select the legacy shortcut.
+                allocateRootVolume(persistedVm, template, rootDiskOfferingInfo, owner, rootDiskSizeFinal, volume, snapshot);
+            } else if (!MapUtils.isEmpty(customParameters) && customParameters.containsKey("volumeId")) {
                 VolumeVO volVO =_volsDao.findById(Long.parseLong(customParameters.get("volumeId")));
                 volVO.setInstanceId(vm.getId());
                 _volsDao.update(volVO.getId(), volVO);

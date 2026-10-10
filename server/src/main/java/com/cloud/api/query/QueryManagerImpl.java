@@ -50,6 +50,7 @@ import com.cloud.dc.Pod;
 import com.cloud.dc.dao.HostPodDao;
 import com.cloud.org.Cluster;
 import com.cloud.server.ManagementService;
+import com.cloud.storage.snapshot.SnapshotVolumeFilter;
 import com.cloud.storage.dao.StoragePoolAndAccessGroupMapDao;
 import com.cloud.cluster.ManagementServerHostPeerJoinVO;
 
@@ -6328,15 +6329,7 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
         }
 
         if (volumeId != null) {
-            VolumeVO vol = volumeDao.findById(volumeId);
-            List<VolumeVO> sharedList = volumeDao.findBySharedVolume(vol.getPoolId(), vol.getPath());
-            List<Long> sharedVolume = new ArrayList<Long>();
-            for (VolumeVO shared : sharedList) {
-                sharedVolume.add(shared.getId());
-            }
-            if (!sharedVolume.isEmpty()) {
-                sc.setParameters("volumeId", sharedVolume.toArray());
-            }
+            sc.setParameters("volumeId", SnapshotVolumeFilter.forVolume(volumeDao, volumeId));
         }
 
         if (tags != null && !tags.isEmpty()) {

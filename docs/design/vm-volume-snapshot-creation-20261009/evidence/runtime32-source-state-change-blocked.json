@@ -1,0 +1,10 @@
+{
+  "sourceVolume": {
+    "id": "1a989f91-798b-46a0-8234-25adb402f35e",
+    "type": "DATADISK",
+    "state": "Ready",
+    "virtualmachineid": "ed3fe1e8-215d-4e67-877b-6ef6118c3133",
+    "deviceid": 1
+  },
+  "rejectedRequestVmCount": 0
+}

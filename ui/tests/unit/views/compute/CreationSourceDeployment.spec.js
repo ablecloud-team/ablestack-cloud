@@ -1,0 +1,174 @@
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
+import DeployVM from '@/views/compute/DeployVM.vue'
+import { getAPI, postAPI } from '@/api'
+jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
+jest.mock('@/store', () => ({ getters: {} }))
+const context = () => ({
+  creationSourceOwnerReady: true,
+  selectedCreationSource: { id: 'source-uuid', revision: 'revision-1', allowed: true },
+  sourceLoading: false,
+  sourceOperationPending: false,
+  creationSourceQuery: { zoneid: 'zone', sourcekind: 'volume' },
+  form: { computeofferingid: 'offering', clusterid: 'cluster' },
+  rootStorageSelection: {},
+  $t: key => key
+})
+beforeEach(() => jest.clearAllMocks())
+test('parent deployment consumes the API single-source list envelope and preserves inspection parameters', async () => {
+  const source = { id: 'source-uuid', allowed: true, revision: 'revision-1' }
+  getAPI.mockResolvedValue({ validatevirtualmachinecreationresponse: { count: 1, creationsource: [source] } })
+  await expect(DeployVM.methods.validateCreationSource.call(context())).resolves.toEqual(source)
+  expect(getAPI).toHaveBeenCalledWith('validateVirtualMachineCreation', {
+    zoneid: 'zone', sourcekind: 'volume', id: 'source-uuid', sourcerevision: 'revision-1', serviceofferingid: 'offering', clusterid: 'cluster'
+  })
+})
+test('parent deployment rejects blocked and malformed source responses before allocation', async () => {
+  getAPI.mockResolvedValue({ validatevirtualmachinecreationresponse: { count: 1, creationsource: [{ allowed: false, reasoncodes: ['SOURCE_ATTACHED'] }] } })
+  await expect(DeployVM.methods.validateCreationSource.call(context())).rejects.toThrow('message.creation.source.reason.SOURCE_ATTACHED')
+  getAPI.mockResolvedValue({ validatevirtualmachinecreationresponse: { count: 0 } })
+  await expect(DeployVM.methods.validateCreationSource.call(context())).rejects.toThrow('message.creation.source.required')
+})
+
+test.each(['volumeid', 'snapshotid'])('parent deployment posts all %s source, placement and compute parameters using the API contract', async sourceKey => {
+  const params = { [sourceKey]: 'source-uuid', sourcerevision: 'revision-1', zoneid: 'zone', serviceofferingid: 'offering', clusterid: 'cluster', startvm: false, 'details[0].cpuNumber': 2, 'details[0].memory': 2048 }
+  const operation = { status: 'submitting' }
+  postAPI.mockResolvedValue({ deployvirtualmachineresponse: { jobid: 'job', id: 'vm' } })
+  await expect(DeployVM.methods.deployVM.call({ currentSourceOperation: operation }, params)).resolves.toBe('job')
+  expect(postAPI).toHaveBeenCalledWith('deployVirtualMachine', params)
+  expect(operation.vmid).toBe('vm')
+})
+test('legacy volume deployment uses the same two-argument POST contract', async () => {
+  const params = { volumeid: 'volume', serviceofferingid: 'offering' }
+  postAPI.mockResolvedValue({ deployvirtualmachineforvolumeresponse: { jobid: 'job' } })
+  await expect(DeployVM.methods.deployVirtualMachineForVolume.call({}, params)).resolves.toBe('job')
+  expect(postAPI).toHaveBeenCalledWith('deployVirtualMachineForVolume', params)
+})
+
+const sourceDiskPlan = () => ({
+  isCreationSource: true,
+  creationSourceOwnerReady: true,
+  selectedCreationSource: { allowed: true },
+  sourceLoading: false,
+  sourceOperationPending: false,
+  rootStorageSelection: {},
+  selectedDataDiskOffering: { id: 'custom-data', iscustomized: true },
+  selectedDataDiskSize: 20,
+  selectedDataDiskCount: 2,
+  storageSelectionEnabled: true,
+  dataStorageSelection: {}
+})
+test.each([0, undefined, -1])('source wizard blocks an additional data disk without a positive size (%s)', size => {
+  const vm = { ...sourceDiskPlan(), selectedDataDiskSize: size }
+  expect(DeployVM.computed.diskPlanIncomplete.call(vm)).toBe(true)
+})
+test('source wizard validates additional disk count and a changed manual data target', () => {
+  expect(DeployVM.computed.diskPlanIncomplete.call({ ...sourceDiskPlan(), selectedDataDiskCount: 0 })).toBe(true)
+  expect(DeployVM.computed.diskPlanIncomplete.call({ ...sourceDiskPlan(), selectedDataDiskCount: 1.5 })).toBe(true)
+  expect(DeployVM.computed.diskPlanIncomplete.call({ ...sourceDiskPlan(), dataStorageSelection: { id: 'pool', valid: false } })).toBe(true)
+  expect(DeployVM.computed.diskPlanIncomplete.call(sourceDiskPlan())).toBe(false)
+  expect(DeployVM.computed.diskPlanIncomplete.call({ ...sourceDiskPlan(), selectedDataDiskOffering: null, selectedDataDiskSize: 0 })).toBe(false)
+})
+test('snapshot ROOT capacity query accounts for the requested additional data disks', () => {
+  const vm = { ...sourceDiskPlan(), imageType: 'snapshotid', selectedCreationSource: { id: 'snapshot' }, form: { zoneid: 'zone', computeofferingid: 'compute', hostid: 'host' }, diskIOpsMin: 100 }
+  expect(DeployVM.computed.rootStorageQuery.call(vm)).toMatchObject({
+    snapshotid: 'snapshot',
+    rootdisk: true,
+    diskcount: 1,
+    vmcount: 1,
+    otherrequiredbytes: 40 * 1024 ** 3,
+    otherrequirediops: 200
+  })
+})
+test('snapshot DATA query supplies the source image and both pool capacity requirements', () => {
+  const vm = {
+    ...sourceDiskPlan(),
+    imageType: 'snapshotid',
+    selectedCreationSource: { id: 'snapshot' },
+    storageQuery: { zoneid: 'zone', templateid: 'stale-template', serviceofferingid: 'compute', hostid: 'host', vmcount: 5 },
+    selectedRootDiskSize: 100,
+    form: { vmNumber: 1 },
+    diskIOpsMin: 100,
+    rootStorageSelection: { id: 'root-pool' }
+  }
+  expect(DeployVM.computed.dataStorageQuery.call(vm)).toMatchObject({
+    zoneid: 'zone',
+    templateid: undefined,
+    snapshotid: 'snapshot',
+    hypervisor: 'KVM',
+    serviceofferingid: 'compute',
+    hostid: 'host',
+    rootdisk: false,
+    diskofferingid: 'custom-data',
+    size: 20,
+    diskcount: 2,
+    vmcount: 1,
+    miniops: 100,
+    otherstorageid: 'root-pool',
+    otherrequiredbytes: 100 * 1024 ** 3
+  })
+  expect(DeployVM.computed.rootStorageQuery.call({ ...vm, form: { zoneid: 'zone', computeofferingid: 'compute' }, dataStorageSelection: { id: 'data-pool' } })).toMatchObject({ otherstorageid: 'data-pool' })
+})
+
+test.each([{ projectid: 'project' }, { account: 'account', domainid: 'domain' }])('creation sources require an explicit owner (%s)', owner => {
+  expect(DeployVM.computed.creationSourceOwnerReady.call({ owner })).toBe(true)
+})
+test.each([{}, { account: 'account' }, { domainid: 'domain' }])('an incomplete owner cannot query or submit an inherited source (%s)', async owner => {
+  const vm = { ...context(), ...sourceDiskPlan(), owner }
+  vm.creationSourceOwnerReady = DeployVM.computed.creationSourceOwnerReady.call(vm)
+  expect(vm.creationSourceOwnerReady).toBe(false)
+  expect(DeployVM.computed.diskPlanIncomplete.call(vm)).toBe(true)
+  expect(DeployVM.computed.creationSourceQuery.call(vm).zoneid).toBeUndefined()
+  await expect(DeployVM.methods.validateCreationSource.call(vm)).rejects.toThrow('message.creation.source.owner.required')
+  expect(getAPI).not.toHaveBeenCalled()
+})
+test('switching to a project without selecting one clears the prior account source', () => {
+  const vm = { isCreationSource: true, owner: { account: 'admin', domainid: 'ROOT' }, clearCreationSource: jest.fn(), resetData: jest.fn() }
+  DeployVM.methods.fetchOwnerOptions.call(vm, { selectedAccountType: 'Project', initialized: true })
+  expect(vm.owner).toEqual({ account: null, domainid: null, projectid: null })
+  expect(vm.clearCreationSource).toHaveBeenCalledTimes(1)
+  expect(vm.resetData).not.toHaveBeenCalled()
+})
+
+test('source deployment blocks automatic ROOT and DATA placement after an invalid lookup', () => {
+  expect(DeployVM.computed.diskPlanIncomplete.call({ ...sourceDiskPlan(), rootStorageSelection: { valid: false } })).toBe(true)
+  expect(DeployVM.computed.diskPlanIncomplete.call({ ...sourceDiskPlan(), dataStorageSelection: { valid: false } })).toBe(true)
+  expect(DeployVM.computed.diskPlanIncomplete.call({ ...sourceDiskPlan(), storageSelectionEnabled: false, rootStorageSelection: { valid: false }, dataStorageSelection: { valid: false } })).toBe(false)
+})
+
+test.each(['templateid', 'isoid'])('%s deployment blocks an invalid automatic target and recovers after revalidation', imageType => {
+  const vm = { imageType, storageSelectionEnabled: true, rootStorageSelection: { valid: false }, selectedDataDiskOffering: null, diskOffering: { id: 'root' }, selectedRootDiskSize: 20, isoDataDiskSelection: {} }
+  expect(DeployVM.computed.diskPlanIncomplete.call(vm)).toBe(true)
+  expect(DeployVM.computed.diskPlanIncomplete.call({ ...vm, rootStorageSelection: { valid: true } })).toBe(false)
+})
+
+test('uploaded volume ROOT placement supplies volumeid and actual source size without a template', () => {
+  const vm = { ...sourceDiskPlan(), isCreationSource: true, imageType: 'volumeid', selectedCreationSource: { id: 'upload', sourceusage: 'stage-and-adopt' }, form: { zoneid: 'zone', computeofferingid: 'compute' } }
+  expect(DeployVM.computed.rootStorageQuery.call(vm)).toMatchObject({ volumeid: 'upload', snapshotid: undefined, hypervisor: 'KVM', rootdisk: true, vmcount: 1 })
+})
+test('unspecified manual OS passes execution settings without manufacturing an OS record', () => {
+  const vm = { sourceConfiguration: { mode: 'manual', boottype: 'UEFI', bootmode: 'LEGACY', rootbus: 'virtio' } }
+  expect(DeployVM.computed.creationSourceConfigurationArgs.call(vm)).toEqual({ sourceconfiguration: 'manual', sourceostypeid: undefined, boottype: 'UEFI', bootmode: 'LEGACY', sourcerootcontroller: 'virtio' })
+  expect(DeployVM.computed.creationSourceExecutionProfile.call({ ...vm, $t: key => key })).toMatchObject({ osname: 'label.creation.source.os.unspecified' })
+})
+test('manual declared OS settings reach preflight with unchanged source revision', async () => {
+  const vm = { ...context(), creationSourceConfigurationArgs: { sourceconfiguration: 'manual', sourceostypeid: 'os', boottype: 'BIOS', bootmode: 'LEGACY', sourcerootcontroller: 'scsi' } }
+  getAPI.mockResolvedValue({ validatevirtualmachinecreationresponse: { count: 1, creationsource: [{ allowed: true }] } })
+  await DeployVM.methods.validateCreationSource.call(vm)
+  expect(getAPI.mock.calls[0][1]).toMatchObject({ ...vm.creationSourceConfigurationArgs, sourcerevision: 'revision-1' })
+})

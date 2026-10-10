@@ -277,14 +277,14 @@
                 </div>
               </div>
             </div>
-        <div class="resource-detail-item" v-if="resource.ostypename && resource.ostypeid">
+        <div class="resource-detail-item" v-if="executionOsName && resource.ostypeid">
           <div class="resource-detail-item__label">{{ $t('label.ostypename') }}</div>
           <div class="resource-detail-item__details">
             <span v-if="resource.icon && resource.icon.base64image || images.template || images.iso">
               <resource-icon :image="getImage(images.template || images.iso)" size="1x" style="margin-right: 5px"/>
             </span>
-            <os-logo v-else :osId="resource.ostypeid" :osName="resource.ostypename" size="lg" style="margin-left: -1px" />
-            <span style="margin-left: 8px">{{ resource.ostypename }}</span>
+            <os-logo v-else :osId="resource.ostypeid" :osName="executionOsName" size="lg" style="margin-left: -1px" />
+            <span style="margin-left: 8px">{{ executionOsName }}</span>
           </div>
         </div>
         <div class="resource-detail-item" v-if="resource.ipaddress">
@@ -1165,6 +1165,7 @@
 </template>
 
 <script>
+import { creationVmOsName } from '@/utils/creationVmPresentation'
 import { attachedIsos } from '@/utils/vmIsoActions'
 import { getAPI, postAPI } from '@/api'
 import axios from 'axios'
@@ -1298,6 +1299,7 @@ export default {
     this.updateResourceAdditionalData()
   },
   computed: {
+    executionOsName () { return creationVmOsName(this.resource, this.$t) },
     kubernetesNodeTemplates () {
       if (this.$route.meta.name !== 'kubernetes') return []
       return ['control', 'worker', 'etcd'].map(role => ({

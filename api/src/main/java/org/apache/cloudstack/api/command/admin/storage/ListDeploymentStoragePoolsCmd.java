@@ -42,7 +42,7 @@ public class ListDeploymentStoragePoolsCmd extends BaseListCmd {
     @Inject private VmStorageSelectionService selectionService;
     @Parameter(name = ApiConstants.ZONE_ID, type = CommandType.UUID, entityType = ZoneResponse.class, required = true, description = "Deployment zone") private Long zoneId;
     @Parameter(name = ApiConstants.SERVICE_OFFERING_ID, type = CommandType.UUID, entityType = ServiceOfferingResponse.class, required = true, description = "Compute offering") private Long serviceOfferingId;
-    @Parameter(name = ApiConstants.TEMPLATE_ID, type = CommandType.UUID, entityType = TemplateResponse.class, required = true, description = "Template or installation ISO") private Long templateId;
+    @Parameter(name = ApiConstants.TEMPLATE_ID, type = CommandType.UUID, entityType = TemplateResponse.class, description = "Template or installation ISO (exclusive with snapshotid)") private Long templateId;
     @Parameter(name = ApiConstants.DISK_OFFERING_ID, type = CommandType.UUID, entityType = DiskOfferingResponse.class, description = "Effective disk offering; omitted for the compute root offering") private Long diskOfferingId;
     @Parameter(name = ApiConstants.HYPERVISOR, type = CommandType.STRING, description = "Hypervisor for an ISO") private String hypervisor;
     @Parameter(name = ApiConstants.SIZE, type = CommandType.LONG, description = "Requested size in GiB; omit while a custom ISO root size is not entered") private Long size;
@@ -57,6 +57,10 @@ public class ListDeploymentStoragePoolsCmd extends BaseListCmd {
     @Parameter(name = ApiConstants.MIN_IOPS, type = CommandType.LONG, description = "Per-disk minimum IOPS") private Long minIops;
     @Parameter(name = "otherrequirediops", type = CommandType.LONG, description = "Minimum IOPS requested in the other selected pool") private Long otherRequiredIops;
     public long getOtherRequiredIops() { return otherRequiredIops == null ? 0 : otherRequiredIops; }
+    @Parameter(name = ApiConstants.SNAPSHOT_ID, type = CommandType.UUID, entityType = org.apache.cloudstack.api.response.SnapshotResponse.class, description = "ROOT snapshot restore source") private Long snapshotId;
+    @Parameter(name = ApiConstants.VOLUME_ID, type = CommandType.UUID, entityType = org.apache.cloudstack.api.response.VolumeResponse.class, description = "Uploaded volume staging source") private Long volumeId;
+    public Long getVolumeId() { return volumeId; }
+    public Long getSnapshotId() { return snapshotId; }
     public Long getZoneId() { return zoneId; }
     public Long getServiceOfferingId() { return serviceOfferingId; }
     public Long getTemplateId() { return templateId; }

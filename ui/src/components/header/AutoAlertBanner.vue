@@ -3161,6 +3161,38 @@ export default {
   white-space: nowrap;
 }
 
+/* Keep the alert and its actions readable above the VM form on narrow screens. */
+@media (max-width: 768px) {
+  .summary-modern {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .summary-modern-left {
+    width: 100%;
+  }
+
+  .summary-modern-title {
+    flex-wrap: wrap;
+  }
+
+  .summary-modern-title-text,
+  .summary-desc-text,
+  .summary-modern-actions {
+    white-space: normal;
+  }
+
+  .summary-desc-text {
+    overflow-wrap: anywhere;
+  }
+
+  .summary-modern-actions :deep(.ant-space) {
+    max-width: 100%;
+    flex-wrap: wrap;
+  }
+}
+
 /* ===== Drawer Theme ===== */
 
 .drawer-title {

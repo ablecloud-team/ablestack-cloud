@@ -1,0 +1,109 @@
+{
+  "repository": "ablecloud-team/ablestack-cloud",
+  "epic": {
+    "number": 1335,
+    "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1335",
+    "title": "[Europa][Epic] 볼륨·스냅샷 기반 가상머신 생성 검증 및 기능·UI 개선",
+    "body": "## 목적\n템플릿·ISO에 이어, 가상머신 생성 화면에서 **볼륨·스냅샷 기반 생성의 실제 동작을 검증**하고 원본 선택·부팅·디스크 처리·실패 복구·UI를 개선한다.\n\n## 분석 기준과 검증 상태\n- 최신 `ablestack-europa`: `2871963cd43aeb592f619c1b67d8a5974846409d` (2026-10-09).\n- 31번 클러스터에서 생성 방식/후보 선택을 읽기 전용으로 확인했다. 생성 요청은 제출하지 않았다.\n- 현재 목록 메서드를 실제 source에서 추출하고 fake API 응답으로 실행하여 6개 관측을 재현했다. **실 VM 생성·부팅 PASS를 의미하지 않는다.**\n- 기존 #1085에는 볼륨/스냅샷 startvm=true/false 실제 생성·디스크 부팅 회귀가 미완료다. 이 Epic이 해당 비ISO 작업을 구체화한다. Windows 설치/ISO 후속 검증은 #1085에서 유지한다.\n\n## 현재 동작과 문제\n1. `volumeid`는 기존 볼륨을 새 VM의 ROOT/device 0으로 **편입**한다. 복사본을 만드는 기능이 아니며, 기존 볼륨은 KVM·Zone 범위 스토리지 조건을 요구한다.\n2. `snapshotid`는 ROOT 출처 볼륨 스냅샷에서 **새 ROOT 볼륨**을 만든다. VM 메모리/전체 데이터 디스크 복구와 다르다.\n3. UI 후보는 volume=Ready/미연결, snapshot=ROOT 검사에 머문다. 부팅 출처, 스토리지 scope, restore 상태, metadata 불충분 사유가 보이지 않는다.\n4. page=2/pagesize=10/후보25개에서 15개 반환; 배열 생략 시 undefined.forEach; Creating snapshot 후보 포함; route snapshotid 요청 미반영을 source harness로 확인했다.\n5. 생성 방식 전환 후 이전 템플릿 요약·부팅 설정이 남는다. 후보와 요약에 원본 이름/시점/처리 방식이 부족하다.\n6. 원본 volume/template 누락, snapshot provenance, 동시 편입, 중복 제출 및 실패 정리 범위는 단위·실물 증거를 보완해야 한다. 아직 실물 장애를 재현한 것으로 주장하지 않는다.\n7. 현재 직접 storage 선택은 volume/snapshot에 서버가 거절한다. UI만 활성화해 지원할 수 없다.\n\n## 개선 방향\n- 읽기 전용 원본 목록/사전 검사 API와 공통 validator를 설계하고 deploy 시 재검증한다. 기존 deployVirtualMachine(volumeid | snapshotid) 계약은 유지한다.\n- 원본 권한·소유자·Zone·arch·KVM·Ready/restore 상태·root provenance·storage scope·OS/boot metadata를 서버가 판정하고 UI에 이유를 전달한다.\n- 볼륨: 원본 사용 의미 안내, 1 VM 제한, 동시 편입 방지, 실패 시 source 삭제 금지.\n- 스냅샷: 복구 시점 ROOT metadata, 원본 VM/volume 삭제 이후의 유효 복구, 새 root만 정리, 원본 보존.\n- BIOS/UEFI·bootmode·disk bus 상속, guest IP/기존 계정 정보와 root-only 범위 안내.\n- Mold 기존 단계 폼/우측 요약을 유지하며 후보 표·차단 사유·조회/빈 상태·설정 초기화·최종 확인·작업/부분 실패 화면 개선.\n- snapshot 수동 target storage는 서버 계약/allocator 검증 후 제공하는 P2 확장으로 분리한다.\n\n## 하위 작업\n- [ ] [#1336](https://github.com/ablecloud-team/ablestack-cloud/issues/1336) **P0** — VM 생성 원본 적격성 API와 볼륨·스냅샷 후보 조회 결함 개선\n- [ ] [#1337](https://github.com/ablecloud-team/ablestack-cloud/issues/1337) **P0** — CLUSTER GFS2/RBD 기존 볼륨 편입·동시성·원본 보존 개선 (선행: #1336)\n- [ ] [#1338](https://github.com/ablecloud-team/ablestack-cloud/issues/1338) **P1** — ROOT 스냅샷 기반 VM 복구의 출처 메타데이터·원본 보존 개선 (선행: #1336)\n- [ ] [#1339](https://github.com/ablecloud-team/ablestack-cloud/issues/1339) **P1** — 볼륨·스냅샷 생성의 OS·BIOS·UEFI·디스크 부팅 환경 상속 개선 (선행: #1336, #1338)\n- [ ] [#1340](https://github.com/ablecloud-team/ablestack-cloud/issues/1340) **P1** — 볼륨·스냅샷 VM 생성의 후보 표·원본 요약·최종 확인 개선 (선행: #1336, #1337, #1338, #1339)\n- [ ] [#1341](https://github.com/ablecloud-team/ablestack-cloud/issues/1341) **P1** — 볼륨·스냅샷 VM 생성의 비동기 작업·부분 실패·재시도 상태 개선 (선행: #1337, #1338, #1340)\n- [ ] [#1342](https://github.com/ablecloud-team/ablestack-cloud/issues/1342) **P2** — 스냅샷 VM 생성의 대상 스토리지 선택·용량 사전 검사 확장 (선행: #1336, #1338)\n- [ ] [#1343](https://github.com/ablecloud-team/ablestack-cloud/issues/1343) **P1** — 볼륨·스냅샷 VM 생성·게스트 부팅·원본 무결성 E2E 검증 (선행: #1336, #1337, #1338, #1339, #1340, #1341)\n\n## 실제 완료 기준\n- 31번 GFS2와 32번 Ceph krbd 각각의 볼륨/스냅샷 × Linux BIOS/Windows UEFI × startvm=true/false 8개, 총 16개 대표 생성·부팅 경로.\n- source UUID와 소유권, 기존 volume 재사용 또는 새 ROOT UUID, device0, guest boot 및 fixture 데이터, snapshot 시점 데이터와 원본 보존을 같은 case로 연결.\n- 0개/누락 배열/페이지/검색/프로젝트/권한/상태변경/중복·동시 호출/용량·스토리지 불가/agent·management 재시작/부분 실패·재시도.\n- template/ISO 및 추가 ISO 회귀, 라이트/다크/390·1366·1680px, 키보드/스크롤.\n- 미지원 조합은 지원불가 근거와 차단으로 기록하고 성공 케이스로 계산하지 않는다.\n- 단위 검증, UI 설계, job 접수, DB row 또는 Running만으로 E2E PASS 처리하지 않는다.\n\n## 지정 개발·검증 환경과 선행 개선 (2026-10-09)\n- 31번: GFS2 SharedMountPoint / CLUSTER / 기존 Europa 4.23 유지. 공유 파일 접근 확인.\n- 32번: Glue(Ceph) krbd RBD / CLUSTER. 관리 서버·Agent 3대 Diplo→Europa 4.23 업그레이드 완료. 선행 스키마 누락 보완과 실제 로그인/API/UI 확인.\n- 32번의 기존 Cloud VM 15개·볼륨 17개·host 실행 domain·krbd 매핑 보존. Ceph HEALTH_OK, 호스트 3대 Up/4.23/HA Available.\n- Linux BIOS와 Windows UEFI Ready 기준 이미지, 전용 L2 VLAN 3135/3235를 준비했다. 전용 seed/ROOT/새 Cloud snapshot과 16개 E2E는 아직 실행하지 않았다. VLAN의 실제 NIC/패킷 확인도 실행 시작 단계에 포함한다.\n- 두 환경 모두 CLUSTER여서 기존 volumeid의 Zone-only 조건은 필수 테스트를 막는다. #1337을 P0으로 올려 원본 pool 유지·원본 cluster 고정·외부 cluster/접근 불가 host 거절을 구현한다. DB scope 변경으로 우회하지 않는다.\n- 사용한 기존 Actions run 37803365591의 전체 결과는 failure다. RPM/source/schema/runtime를 별도로 확인했으며, 전체 CI PASS 또는 전체 자동 Diplo 업그레이드 PASS를 주장하지 않는다.\n- 세부 결과·백업·제약: [환경 준비 보고서](https://github.com/dhslove/ablestack-cloud/blob/codex/vm-volume-snapshot-design/docs/design/vm-volume-snapshot-creation-20261009/environment-20261009.ko.md).\n\n## 빌드·배포 규칙\nCloud 변경 Maven 모듈만 WSL ext4 clone에서 빌드한다. 전체 Cloud 빌드는 사용자 명시 요청 시 GitHub Actions로만 실행한다. qemu/ftctl 변경이 필요하면 GitHub Actions 산출물을 사용한다. UI 배포는 활성 webapp의 WEB-INF/META-INF를 보존하고 /client/ 200 및 bundle hash를 검증한다. 조사·Epic 등록·설계와 두 환경의 개발·검증 기반 준비를 완료했다. 실제 볼륨/스냅샷 생성·부팅 E2E와 기능 구현은 미완료다.\n\n## 설계 산출물\n- [기능·UI 설계서](https://github.com/dhslove/ablestack-cloud/blob/codex/vm-volume-snapshot-design/docs/design/vm-volume-snapshot-creation-20261009/README.ko.md)\n- [실제 생성·부팅 검증 계획](https://github.com/dhslove/ablestack-cloud/blob/codex/vm-volume-snapshot-design/docs/design/vm-volume-snapshot-creation-20261009/validation.ko.md)\n- [상호작용 가능한 오프라인 화면 시안](https://github.com/dhslove/ablestack-cloud/blob/codex/vm-volume-snapshot-design/docs/design/vm-volume-snapshot-creation-20261009/mockup.html)\n- [source 재현 기록](https://github.com/dhslove/ablestack-cloud/blob/codex/vm-volume-snapshot-design/docs/design/vm-volume-snapshot-creation-20261009/evidence/source-observations.json)\n- [화면 시안 검증 14개 기록](https://github.com/dhslove/ablestack-cloud/blob/codex/vm-volume-snapshot-design/docs/design/vm-volume-snapshot-creation-20261009/evidence/mockup-verification.json)\n\n설계안은 기존 Mold 토큰/로고를 사용한다. 라이트·다크 및 390/1366/1680px에서 목업 상호작용 14개를 확인했으며, 제품 E2E와 구분한다.\n\n<details>\n<summary>스냅샷·볼륨 확인·모바일 화면 시안</summary>\n\n![스냅샷 생성 화면 시안](https://raw.githubusercontent.com/dhslove/ablestack-cloud/76a17b6f226061730191d8334d9bf4126cc73ded/docs/design/vm-volume-snapshot-creation-20261009/evidence/proposed-snapshot-dark.jpg)\n\n![기존 볼륨 사용 확인 시안](https://raw.githubusercontent.com/dhslove/ablestack-cloud/76a17b6f226061730191d8334d9bf4126cc73ded/docs/design/vm-volume-snapshot-creation-20261009/evidence/proposed-volume-confirm-dark.jpg)\n\n![모바일 확인 시안](https://raw.githubusercontent.com/dhslove/ablestack-cloud/76a17b6f226061730191d8334d9bf4126cc73ded/docs/design/vm-volume-snapshot-creation-20261009/evidence/proposed-mobile-confirm-light.jpg)\n\n</details>\n"
+  },
+  "children": [
+    {
+      "key": "C1",
+      "priority": "P0",
+      "title": "[Europa][P0] VM 생성 원본 적격성 API와 볼륨·스냅샷 후보 조회 결함 개선",
+      "depends": [],
+      "body": "상위 Epic: #1335\n선행 작업: 없음\n설계: [기능·UI 설계서](https://github.com/dhslove/ablestack-cloud/blob/codex/vm-volume-snapshot-design/docs/design/vm-volume-snapshot-creation-20261009/README.ko.md)\n\n## 범위\n읽기 전용 listVirtualMachineCreationSources/validateVirtualMachineCreation와 공통 VmCreationSourceValidator 설계·구현. 기존 deployVirtualMachine의 volumeid/snapshotid 입력과 source 권한 검사를 유지하고 실제 제출 시 재검증한다.\n\n## 확인된 결함\n현재 DeployVM 목록 메서드의 fake API 재현: 후보25개 page2/pagesize10에서15개; 생략 배열의 forEach 오류; Creating ROOT snapshot 후보; route snapshotid 미전달. 부팅 출처·storage scope·template metadata 불충분 사유도 표시하지 않는다.\n\n## 요구사항\n서버 pagination/count, 이름/UUID/원본 VM 검색, Zone/account/domain/project/arch/id 범위. 허용된 원본의 sizebytes·state·storage scope·sourceusage·snapshotcreated·bootprofile·eligibility(reasoncodes/revision/checkedat) 응답. 기존 RBAC에 맞춰 원본 권한과 상세정보 노출 범위를 재사용한다.\n\n## 완료 조건\n- [ ] 배열 없는0개·25/30개 page1/2/3 및 pagesize10/20에서 중복/누락/오류 없음.\n- [ ] Ready/미연결만으로 부팅 가능 판정하지 않음; ROOT 출처와 provider restore capability 포함.\n- [ ] snapshotid/volumeid 사전 선택 링크, 프로젝트/Zone/소유자/arch 전환 및 늦은 응답 검증.\n- [ ] 권한 내 후보만 응답; 생성 시 source 변경 재검증과 안정적 차단 사유.\n- [ ] 기존 deploy API 호환성·template/ISO 목록 회귀.\n이번 source harness는 실제 생성/부팅 검증이 아니다.\n\n## 지정 스토리지 계약\n필수 환경은 31번 GFS2 SharedMountPoint(CLUSTER), 32번 Ceph krbd RBD(CLUSTER)다. 적격성 조회와 deploy가 원본 pool/cluster 배치 제약을 같이 검사한다. #1337의 CLUSTER 지원 전에는 실제 API가 지원하지 않는 후보를 생성 가능으로 표시하지 않는다. 다른 cluster/접근 불가 host, HOST scope는 명확한 사유로 차단한다.\n\n환경 준비: [보고서](https://github.com/dhslove/ablestack-cloud/blob/codex/vm-volume-snapshot-design/docs/design/vm-volume-snapshot-creation-20261009/environment-20261009.ko.md). 환경 기반 확인과 실제 VM 생성/guest boot PASS를 구분한다.\n",
+      "number": 1336,
+      "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1336"
+    },
+    {
+      "key": "C2",
+      "priority": "P0",
+      "title": "[Europa][P0] CLUSTER GFS2·RBD 기존 볼륨 편입·동시성·원본 보존 개선",
+      "depends": [
+        1336
+      ],
+      "body": "상위 Epic: #1335\n선행 작업: #1336\n설계: [기능·UI 설계서](https://github.com/dhslove/ablestack-cloud/blob/codex/vm-volume-snapshot-design/docs/design/vm-volume-snapshot-creation-20261009/README.ko.md)\n\n## 현재 동작\nvolumeid는 VolumeOrchestrator.attachExistingVolumeToVm에서 기존 볼륨을 ROOT/device0/new instance로 편입한다. 복제본 생성 기능이 아니다. 현재 KVM·Zone 범위만 허용하는 조건 때문에 지정된 두 CLUSTER 환경에서 생성이 막힌다. KVM 지원과 원본 사용 의미는 유지하되 CLUSTER GFS2/RBD를 지원하도록 확장한다.\n\n## P0 선행 계약\n- [ ] 31번 SharedMountPoint(GFS2)와 32번 RBD(krbd) CLUSTER ROOT 사용 지원.\n- [ ] 원본 pool 유지, 원본 cluster 배치 고정. 외부 cluster/접근 불가 host 선택은 allocation 전에 거절.\n- [ ] DB pool scope를 Zone으로 변경하여 우회하지 않음. HOST/비KVM/CLVM 확대는 기본 범위 밖.\n- [ ] 적격성 API와 deploy의 공통 검사, 실제 host 디스크/RBD 소비 상태와 동시 원본 사용 방지.\n\n## 구현 범위\n원본 Ready/미연결/owner/Zone/arch/provenance/template/path/storage·offering 적합성 재검증. 원본 잠금·동시 요청 및 편입 트랜잭션 경계 보완. UI 개수1 고정. source ownership/provenance를 실패 정리와 연결하고 원본 expunge/delete 금지.\n\n## 완료 조건\n- [ ] 전용 detached ROOT/복구ROOT 출처에서 동일 UUID/typeROOT/device0/new instance 확인.\n- [ ] 임의 DATADISK·attached·nonReady·unsupported scope와 선택 후 변경은 명시적 차단.\n- [ ] 동시 두 요청에서 최대 한 VM만 편입; 단일 deploy 재진입과 다른 VM 연결을 구분.\n- [ ] VM 할당 전/편입 후/시작 실패에서 source 데이터와 안전한 연결 상태 보존, 필요 복구 상태 명시.\n- [ ] 원본을 임시생성 볼륨으로 오인하여 정리하지 않음; quota/counter 및 기존 VM 불변 검증.\n- [ ] startvm=true/false 및 게스트 fixture는 최종E2E 작업과 연결.\n기존 볼륨의 복사 방식 추가/비KVM 지원 확대는 제외한다.\n\n환경 준비: [보고서](https://github.com/dhslove/ablestack-cloud/blob/codex/vm-volume-snapshot-design/docs/design/vm-volume-snapshot-creation-20261009/environment-20261009.ko.md). 환경 기반 확인과 실제 VM 생성/guest boot PASS를 구분한다.\n",
+      "number": 1337,
+      "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1337"
+    },
+    {
+      "key": "C3",
+      "priority": "P1",
+      "title": "[Europa][P1] ROOT 스냅샷 기반 VM 복구의 출처 메타데이터·원본 보존 개선",
+      "depends": [
+        1336
+      ],
+      "body": "상위 Epic: #1335\n선행 작업: #1336\n설계: [기능·UI 설계서](https://github.com/dhslove/ablestack-cloud/blob/codex/vm-volume-snapshot-design/docs/design/vm-volume-snapshot-creation-20261009/README.ko.md)\n\n## 현재 동작과 보완점\nsnapshotid는 새ROOT를 생성한다. 원본 volume/template 추론 및 제거된volume의 크기 조회에 의존한다. 원본 누락 시 templateId를 요구하는 오류는 templateid/snapshotid 배타성과 충돌한다.\n\n## 구현 범위\nROOT 출처 volume snapshot과 provider별 복구 가능한 상태/저장데이터를 검사. snapshot 생성 시점 OS/template/arch/logicalsize/boot metadata를 저장·해석. 원본 VM/volume 삭제 이후에도 유효한 snapshot은 복구하며 불충분한 legacy metadata는 명시적 보완 절차로 안내. 불가능한 templateid+snapshotid 입력을 요구하지 않는다.\n새VM/새ROOT/job 소유권을 연결하고 실패 시 이번 요청이 만든 객체만 정리. source snapshot/원본VM/원본volume는 보존한다.\n\n## 완료 조건\n- [ ] 새ROOT UUID/device0 생성, 원본snapshot 유지, snapshot 시점 데이터 확인.\n- [ ] Creating/BackingUp/Error/Destroyed 및 provider 미지원 restore는 생성 가능으로 표시하지 않음.\n- [ ] 원본VM expunge/volume 제거의 전용fixture: 유효복구 또는 설명가능한 metadata 부족 오류; NPE 없음.\n- [ ] snapshot의 logicalsize와 physical usage 구분; root 최소크기 보존.\n- [ ] 같은snapshot의 별도 요청이 독립ROOT로 복구; root-only 범위와 VM메모리복구 구분.\n- [ ] restore 실패/재진입에서 원본 삭제 및 타요청 객체 정리 없음.\n기본 범위는 ROOT volume snapshot이다. 전체 데이터디스크·메모리복구는 별도 기능이다.\n\n필수 대상은 31번 GFS2 SharedMountPoint(CLUSTER)와 32번 Ceph krbd RBD(CLUSTER)다. 두 환경의 계약과 검증 계획은 갱신된 설계서를 따른다. CLVM/HOST 지원 확대는 이 필수 검증 범위에 포함하지 않는다.\n\n환경 준비: [보고서](https://github.com/dhslove/ablestack-cloud/blob/codex/vm-volume-snapshot-design/docs/design/vm-volume-snapshot-creation-20261009/environment-20261009.ko.md). 환경 기반 확인과 실제 VM 생성/guest boot PASS를 구분한다.\n",
+      "number": 1338,
+      "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1338"
+    },
+    {
+      "key": "C4",
+      "priority": "P1",
+      "title": "[Europa][P1] 볼륨·스냅샷 생성의 OS·BIOS·UEFI·디스크 부팅 환경 상속 개선",
+      "depends": [
+        1336,
+        1338
+      ],
+      "body": "상위 Epic: #1335\n선행 작업: #1336, #1338\n설계: [기능·UI 설계서](https://github.com/dhslove/ablestack-cloud/blob/codex/vm-volume-snapshot-design/docs/design/vm-volume-snapshot-creation-20261009/README.ko.md)\n\n## 문제\n현재 원본 선택 메서드는 template/ISO에서 설정한 BIOS/UEFI·bootmode를 volume/snapshot 기준으로 초기화하지 않는다. 원본과 불일치하는 디스크부팅을 사전 판정해야 한다.\n\n## 범위\nbootprofile provenance/completeness 계약, snapshot 생성시점 OS/arch/hypervisor/boottype/bootmode/rootbus 상속, volume 원본정보, 선택변경 초기화. HDD 부팅과 additionalisoids/설치ISO marker 제거. legacy 정보누락·UEFI NVRAM·SecureBoot·vTPM 의존성을 지원범위로 판정.\nguest 고정IP/hostname/SID/암호/SSH키가 자동 초기화되는 것으로 안내하지 않는다. Cloud NIC 새MAC/IP와 OS 내부identity를 구분한다.\n\n## 완료 조건\n- [ ] LinuxBIOS/WindowsUEFI에서 libvirtXML·rootbus·guestboot 정합성.\n- [ ] snapshot은 현재원본VM이 아닌 snapshot 시점 정보를 사용.\n- [ ] 원본정보 불충분/부팅의존성 미지원은 명확한 확인필요·차단.\n- [ ] template→ISO→volume→snapshot 전환에 boot/TPM/userdata/ISO 잔존없음.\n- [ ] 기존 template/ISO·ConfigDrive·추가ISO 회귀.\nSecureBoot/NVRAM/vTPM 지원은 실제 증거 전까지 성공으로 간주하지 않는다.\n\n필수 대상은 31번 GFS2 SharedMountPoint(CLUSTER)와 32번 Ceph krbd RBD(CLUSTER)다. 두 환경의 계약과 검증 계획은 갱신된 설계서를 따른다. CLVM/HOST 지원 확대는 이 필수 검증 범위에 포함하지 않는다.\n\n환경 준비: [보고서](https://github.com/dhslove/ablestack-cloud/blob/codex/vm-volume-snapshot-design/docs/design/vm-volume-snapshot-creation-20261009/environment-20261009.ko.md). 환경 기반 확인과 실제 VM 생성/guest boot PASS를 구분한다.\n",
+      "number": 1339,
+      "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1339"
+    },
+    {
+      "key": "C5",
+      "priority": "P1",
+      "title": "[Europa][P1][UI] 볼륨·스냅샷 VM 생성의 후보 표·원본 요약·최종 확인 개선",
+      "depends": [
+        1336,
+        1337,
+        1338,
+        1339
+      ],
+      "body": "상위 Epic: #1335\n선행 작업: #1336, #1337, #1338, #1339\n설계: [기능·UI 설계서](https://github.com/dhslove/ablestack-cloud/blob/codex/vm-volume-snapshot-design/docs/design/vm-volume-snapshot-creation-20261009/README.ko.md)\n\n## UI 설계\n현재DeployVM의 단계폼/우측요약과 Mold 공통 표·상태·피드백·스크롤을 유지하고 CreationSourceSelection/selectedCreationSource 모델을 추가한다.\n- volume: 이름UUID·ROOT출처/OS·상태/연결·logicalsize·storage/scope·적격성/사유.\n- snapshot: 이름UUID·원본VM/volume·생성시각·상태·ROOT크기·복구가능/사유.\n- 템플릿추천/공개분류를 제거하고 원본검색/사용가능/상태필터를 제공.\n- 기존볼륨사용/새ROOT복구 차이, snapshot root-only, 기존guestidentity/credentials 의미를 기본노출.\n- 원본선택/조건변경/조회중/실패/차단을 생성버튼 상태와 연결. 원본·OS/boot·rootsize·ISO·userdata·TPM·오류·요약을 함께 초기화한다.\n- MoldDialog 확인: source/새VM·사용방식·disk범위·boot·start. 볼륨편입은 별도확인 체크.\n\n## 완료 조건\n- [ ] 원본 이름/시점/size/scope/boot와 요약 일치, 이전template 잔존없음.\n- [ ] 조회오류/빈목록/부적격 사유 구분, disabled 사유를 행/버튼 가까이 표시.\n- [ ] UUID선택·사전선택링크·pagination·늦은응답·재진입 정확.\n- [ ] 기존볼륨 개수1과 source삭제정책 영향 안내.\n- [ ] light/dark,390/1366/1680px,키보드/독립스크롤 검증.\n목업은 예시data 설계안이며 실제API/생성증거와 구분한다.\n\n필수 대상은 31번 GFS2 SharedMountPoint(CLUSTER)와 32번 Ceph krbd RBD(CLUSTER)다. 두 환경의 계약과 검증 계획은 갱신된 설계서를 따른다. CLVM/HOST 지원 확대는 이 필수 검증 범위에 포함하지 않는다.\n\n환경 준비: [보고서](https://github.com/dhslove/ablestack-cloud/blob/codex/vm-volume-snapshot-design/docs/design/vm-volume-snapshot-creation-20261009/environment-20261009.ko.md). 환경 기반 확인과 실제 VM 생성/guest boot PASS를 구분한다.\n",
+      "number": 1340,
+      "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1340"
+    },
+    {
+      "key": "C6",
+      "priority": "P1",
+      "title": "[Europa][P1] 볼륨·스냅샷 VM 생성의 비동기 작업·부분 실패·재시도 상태 개선",
+      "depends": [
+        1337,
+        1338,
+        1340
+      ],
+      "body": "상위 Epic: #1335\n선행 작업: #1337, #1338, #1340\n설계: [기능·UI 설계서](https://github.com/dhslove/ablestack-cloud/blob/codex/vm-volume-snapshot-design/docs/design/vm-volume-snapshot-creation-20261009/README.ko.md)\n\n## 범위\njob 접수→root편입/복구→VM준비→선택시start→완료 단계 및 job/entity/source ownership 연결. 실제 서버progress만 표시, 숫자가 없으면 단계로 표시. 화면재진입·응답유실·관리/agent재시작 시 jobid/entityid로 이어조회.\nstartvm=false는 ROOT준비/편입완료 및Stopped 확인, startvm=true는 실제시작결과와연결. APIjob성공과guestboot검증은 구분한다.\n\n## 완료 조건\n- [ ] jobid반환만으로 성공토스트/종료 처리하지 않음.\n- [ ] 중복클릭/timeout/응답유실에서 자동deploy 재송신 없음.\n- [ ] 확인필요/실패확정/생성완료·시작실패 구분, 생성VM/ROOT를 보여줌.\n- [ ] source를 정리대상에서 제외하고 해당요청 소유자원만 안전한복구동작 제시.\n- [ ] 재시도는 실제job·소유권·원본revision 재검증 후; 불명상태 자동분리없음.\n- [ ] agent/management재시작·UI재진입·restore실패·start실패 증거.\n관리/host 상태와 guest 결과까지 확인하는 최종E2E와 연결한다.\n\n필수 대상은 31번 GFS2 SharedMountPoint(CLUSTER)와 32번 Ceph krbd RBD(CLUSTER)다. 두 환경의 계약과 검증 계획은 갱신된 설계서를 따른다. CLVM/HOST 지원 확대는 이 필수 검증 범위에 포함하지 않는다.\n\n환경 준비: [보고서](https://github.com/dhslove/ablestack-cloud/blob/codex/vm-volume-snapshot-design/docs/design/vm-volume-snapshot-creation-20261009/environment-20261009.ko.md). 환경 기반 확인과 실제 VM 생성/guest boot PASS를 구분한다.\n",
+      "number": 1341,
+      "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1341"
+    },
+    {
+      "key": "C7",
+      "priority": "P2",
+      "title": "[Europa][P2] 스냅샷 VM 생성의 대상 스토리지 선택·용량 사전 검사 확장",
+      "depends": [
+        1336,
+        1338
+      ],
+      "body": "상위 Epic: #1335\n선행 작업: #1336, #1338\n설계: [기능·UI 설계서](https://github.com/dhslove/ablestack-cloud/blob/codex/vm-volume-snapshot-design/docs/design/vm-volume-snapshot-creation-20261009/README.ko.md)\n\n## 기본 범위와 확장\nvolume는 원본스토리지/크기를 그대로 사용하고 snapshot은 기존allocator 자동배치를 기본으로 유지한다. 현재VmStorageSelectionManager는 volume/snapshot directselection을 거절하므로 UI만 열어서는 지원할 수 없다.\nP2는 snapshot target storage 명시지원과 source-aware capacity/placement 검사를 별도로 확장한다. 기존 volume의 이동·복사방식은 이 범위에 넣지 않는다.\n\n## 완료 조건\n- [ ] snapshot-aware API/allocator/prepare/start/실패재진입 경로가 같은pool 계약사용.\n- [ ] Zone/cluster/hostscope,offeringtags/local/encryption/IOPS,providerrestore·arch·권한·capacity 확인.\n- [ ] logicalbytes/예약allocated/physicalfree/overprovisioning 구분;확인불가를 충분또는0으로표시하지않음.\n- [ ] start시점 실제배치에서 재검증,capacity변경/부족/저장소down 명시적오류.\n- [ ] 새root/지원추가disk 전체필요량 합산 및원본보존.\n- [ ] 자동배치/template/ISO 및 기존directstorage API 회귀.\nEpic의 1차지원은 자동배치이며 이 하위이슈를 미구현으로 남기면 Epic은 미완료로 관리하거나 명시적으로후속Epic으로범위이관해야한다.\n\n필수 대상은 31번 GFS2 SharedMountPoint(CLUSTER)와 32번 Ceph krbd RBD(CLUSTER)다. 두 환경의 계약과 검증 계획은 갱신된 설계서를 따른다. CLVM/HOST 지원 확대는 이 필수 검증 범위에 포함하지 않는다.\n\n환경 준비: [보고서](https://github.com/dhslove/ablestack-cloud/blob/codex/vm-volume-snapshot-design/docs/design/vm-volume-snapshot-creation-20261009/environment-20261009.ko.md). 환경 기반 확인과 실제 VM 생성/guest boot PASS를 구분한다.\n",
+      "number": 1342,
+      "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1342"
+    },
+    {
+      "key": "C8",
+      "priority": "P1",
+      "title": "[Europa][P1][검증] 볼륨·스냅샷 VM 생성·게스트 부팅·원본 무결성 E2E 검증",
+      "depends": [
+        1336,
+        1337,
+        1338,
+        1339,
+        1340,
+        1341
+      ],
+      "body": "상위 Epic: #1335\n선행 작업: #1336, #1337, #1338, #1339, #1340, #1341\n설계: [기능·UI 설계서](https://github.com/dhslove/ablestack-cloud/blob/codex/vm-volume-snapshot-design/docs/design/vm-volume-snapshot-creation-20261009/README.ko.md)\n\n## 범위\n필수 환경은 31번 GFS2 SharedMountPoint(CLUSTER), 32번 Glue(Ceph) krbd RBD(CLUSTER)로 고정한다. 32번 관리/Agent Europa 업그레이드와 기준 이미지 준비를 완료했다. 실제실행전 freshinventory·전용fixture·격리network를확보한다. 운영VM ROOT를분리하여테스트source로쓰지않는다. #1085 비ISO검증의최종증거를연결한다.\n\n## 필수 행렬\n2환경 × volume/snapshot × Linux BIOS/Windows UEFI × startvm=true/false = 총 16개 필수 대표 경로. GFS2와 Ceph krbd 양쪽의 실제 restore/adopt와 guest boot 증거가 필요하다. #1337의 CLUSTER 지원을 선행 구현한다. CLVM/HOST 확대는 이번 필수 성공 범위 밖이다. 미지원조합은근거있는차단으로따로기록.\n\n## PASS 기준\n- [ ] UI선택/요약/확인/제출→정제요청→asyncjob→CloudDB→hostdomain/rootdevice→guestboot/fixturefile 연결.\n- [ ] volume는동일UUID/ROOT/device0/newinstance, snapshot는새ROOTUUID와snapshot시점데이터·원본snapshot보존.\n- [ ] source파일checksum/원본VM·볼륨inventory/소유권·quota 확인;정상guest쓰기와예기치않은변경구분.\n- [ ] 0개/배열누락/검색/페이지/사전선택/프로젝트/권한/상태변경·동시편입·metadata부족·원본삭제·용량/배치불가.\n- [ ] restore/start실패,agent/management재시작,응답유실,부분실패·재시도·소유자원정리.\n- [ ] template/ISO+추가ISO 회귀와light/dark/390·1366·1680px·키보드.\n- [ ] 실제증거가없으면단위성공·DB행·job접수·Running만으로PASS하지않음.\n실패하면 해당 케이스를 중단하고 증거/원본을 보존한다. 원인·복구 확인 후 새 run ID로 시작하며, 중간 보정 후 계속한 결과를 전체 체인 PASS로 세지 않는다. FT/DR manual-block 검증은 별도 사용자 승인 흐름을 따른다. 전체Cloud빌드는명시요청시GitHubActions만,변경Maven모듈은WSLext4에서만빌드한다.\n\n환경 준비: [보고서](https://github.com/dhslove/ablestack-cloud/blob/codex/vm-volume-snapshot-design/docs/design/vm-volume-snapshot-creation-20261009/environment-20261009.ko.md). 환경 기반 확인과 실제 VM 생성/guest boot PASS를 구분한다.\n",
+      "number": 1343,
+      "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1343"
+    }
+  ]
+}

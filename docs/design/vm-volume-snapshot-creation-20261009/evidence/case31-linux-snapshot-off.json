@@ -1,0 +1,14 @@
+{
+  "case": "31-L-BIOS-snapshot-off",
+  "status": "PASS",
+  "vmId": "944774d1-84cf-4527-a57d-7e4c724ae9d6",
+  "jobId": "18e944a6-4944-49fb-bc70-832ded6686df",
+  "startVm": false,
+  "rootVolumeId": "1cc3ec9e-e963-4168-8704-1ed4ef34cb21",
+  "rootDeviceId": 0,
+  "rootLogicalBytes": 107374182400,
+  "sourcePreservedDetached": true,
+  "sourceSnapshotPreserved": true,
+  "guestDataSha256": "bfe00c222e9fcf100f5892036fd69b88394a5b3f4499a2133b0f4af1873bd873",
+  "uiCreateBootStop": true
+}

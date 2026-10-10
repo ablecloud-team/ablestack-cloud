@@ -1,0 +1,15 @@
+{
+  "cluster": 32,
+  "uiSource": "7bbefd84f0bf468ab1cd55ba73554dba92e88764",
+  "oversizedDataDisksGiB": [
+    10000,
+    10000
+  ],
+  "rootGiB": 100,
+  "automaticPlacementInsufficientCapacityDisabledCreate": true,
+  "tagMismatchDisabledCreate": true,
+  "validOfferingOrDiskSizeRestoredEnabledCreate": true,
+  "tagMismatchOffering": "E1335-No-Matching-Storage-Tag",
+  "uiOnlyNegativeNoDeploySubmitted": true,
+  "physicalFailureOrIopsVerified": false
+}

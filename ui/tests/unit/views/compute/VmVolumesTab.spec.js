@@ -187,3 +187,12 @@ test('backup protection appearing after creation preserves the disk and retries 
   expect(postAPI.mock.calls.map(call => call[0])).toEqual(['createVolume', 'attachVolume'])
   wrapper.unmount()
 })
+
+test('project VM ROOT and snapshot reads use the VM project even from the default view', async () => {
+  const wrapper = mount(); await flush()
+  await wrapper.setProps({ resource: { ...vm, projectid: 'project' } })
+  await wrapper.vm.fetchData(); await flush()
+  expect(getAPI).toHaveBeenCalledWith('listVolumes', expect.objectContaining({ virtualmachineid: 'vm', projectid: 'project' }))
+  expect(getAPI).toHaveBeenCalledWith('listVMSnapshot', expect.objectContaining({ virtualmachineid: 'vm', projectid: 'project' }))
+  wrapper.unmount()
+})

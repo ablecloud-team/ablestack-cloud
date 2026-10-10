@@ -149,6 +149,15 @@ export default {
           case 'connecting':
             state = this.$t('state.connecting')
             break
+          case 'uploaded':
+            state = this.$t('label.creation.source.state.Uploaded')
+            break
+          case 'uploading':
+            state = this.$t('label.creation.source.state.Uploading')
+            break
+          case 'uploaderror':
+            state = this.$t('label.creation.source.state.UploadError')
+            break
           case 'ready':
             state = this.$t('state.ready')
             break

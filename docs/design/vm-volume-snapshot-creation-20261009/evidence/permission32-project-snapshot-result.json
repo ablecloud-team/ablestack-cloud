@@ -1,0 +1,30 @@
+{
+  "cluster": 32,
+  "case": "project-member-snapshot",
+  "sourceSnapshot": "48fd5f79-7c3a-46fd-992e-105441ebc46c",
+  "sourceCommit": "47191c5b447",
+  "uiCommit": "7bbefd84f0b",
+  "uiSubmitted": true,
+  "jobId": "ecf3d1c9-458b-4c22-919c-fc83a7d94f75",
+  "vm": {
+    "id": "9f28c102-36ac-45a9-a06b-fd2dac33344b",
+    "name": "E1335-32-permission-project-snapshot-create",
+    "state": "Stopped",
+    "account": null,
+    "projectid": "a8c89140-8cd3-41c8-b799-ccd4f348af9d",
+    "instancename": "i-5-53-VM"
+  },
+  "volumes": [
+    {
+      "id": "55338ff5-e935-46ab-af03-b4da00e8395c",
+      "type": "ROOT",
+      "deviceid": 0,
+      "state": "Ready",
+      "size": 107374182400,
+      "account": null,
+      "projectid": "a8c89140-8cd3-41c8-b799-ccd4f348af9d"
+    }
+  ],
+  "creationResult": "PASS",
+  "guestBootVerifiedThisCase": false
+}

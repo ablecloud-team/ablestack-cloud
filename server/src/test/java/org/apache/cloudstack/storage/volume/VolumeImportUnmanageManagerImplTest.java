@@ -119,6 +119,8 @@ public class VolumeImportUnmanageManagerImplTest {
     @Mock
     private VolumeDao volumeDao;
     @Mock
+    private com.cloud.storage.dao.VolumeDetailsDao volumeDetailsDao;
+    @Mock
     private PrimaryDataStoreDao primaryDataStoreDao;
     @Mock
     private StoragePoolHostDao storagePoolHostDao;
@@ -288,6 +290,15 @@ public class VolumeImportUnmanageManagerImplTest {
             VolumeResponse result = volumeImportUnmanageManager.importVolume(cmd);
             Assert.assertEquals(response, result);
         }
+    }
+
+    @Test
+    public void rawKvmRegistrationPreservesInspectedFormatAndProvenance() throws ResourceAllocationException {
+        hypervisorType = Hypervisor.HypervisorType.KVM;
+        format = "raw";
+        testImportVolumeAllGood();
+        verify(volumeVO).setFormat(com.cloud.storage.Storage.ImageFormat.RAW);
+        verify(volumeDetailsDao).addDetail(volumeId, com.cloud.vm.VmCreationSourceService.PREFIX + "formatorigin", "driver-inspected", false);
     }
 
     @Test

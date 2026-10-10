@@ -72,4 +72,24 @@ public class DeployVMCmdByAdminTest {
         assertNotNull(obj);
         assertFalse((boolean)obj);
     }
+    @Test
+    public void sourcePreflightUsesTheAdminDeploymentCluster() {
+        cmd.setClusterId(77L);
+        org.junit.Assert.assertEquals(Long.valueOf(77L), cmd.getSourceClusterId());
+    }
+
+    @Test
+    public void deploymentClusterIsExposedOnceAcrossTheApiClassHierarchy() {
+        int definitions = 0;
+        for (Class<?> type = cmd.getClass(); type != null; type = type.getSuperclass()) {
+            for (java.lang.reflect.Field field : type.getDeclaredFields()) {
+                org.apache.cloudstack.api.Parameter parameter = field.getAnnotation(org.apache.cloudstack.api.Parameter.class);
+                if (parameter != null && org.apache.cloudstack.api.ApiConstants.CLUSTER_ID.equals(parameter.name())) {
+                    definitions++;
+                }
+            }
+        }
+        org.junit.Assert.assertEquals(1, definitions);
+    }
+
 }

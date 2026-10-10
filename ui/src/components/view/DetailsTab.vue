@@ -346,6 +346,7 @@
 </template>
 
 <script>
+import { creationVmDetails } from '@/utils/creationVmPresentation'
 import DedicateData from './DedicateData'
 import HostInfo from '@/views/infra/HostInfo'
 import VmwareData from './VmwareData'
@@ -542,7 +543,7 @@ export default {
     }
   },
   created () {
-    this.dataResource = this.resource
+    this.dataResource = creationVmDetails(this.resource, this.$t)
     this.dedicatedSectionActive = this.dedicatedRoutes.includes(this.$route.meta.name)
     if (['host'].includes(this.$route.meta.name)) {
       this.fetchLicenseInfo()
@@ -555,7 +556,7 @@ export default {
     resource: {
       deep: true,
       handler (newVal) {
-        this.dataResource = newVal
+        this.dataResource = creationVmDetails(newVal, this.$t)
         if ('account' in this.dataResource && this.dataResource.account.startsWith('PrjAcct-')) {
           this.projectname = this.dataResource.account.substring(this.dataResource.account.indexOf('-') + 1, this.dataResource.account.lastIndexOf('-'))
           this.dataResource.projectname = this.projectname

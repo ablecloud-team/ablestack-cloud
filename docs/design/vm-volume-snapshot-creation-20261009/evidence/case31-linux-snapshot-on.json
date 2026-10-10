@@ -1,0 +1,20 @@
+{
+  "case": "31-L-BIOS-snapshot-on",
+  "status": "PASS",
+  "vmId": "f75b6f21-9d5f-4fa7-8a64-e424301378bb",
+  "jobId": "cb5270e3-5a98-4c52-b500-2d42ab2ef113",
+  "startVm": true,
+  "sourceSnapshotPreserved": true,
+  "sourceVolumeDetached": true,
+  "rootVolumeId": "954f886f-c024-4112-bbd0-09b0fd9703b0",
+  "rootDeviceId": 0,
+  "dataVolumeIds": [
+    "0e134401-531d-41d1-8571-55a3966027c7",
+    "5dc2d6dc-ff27-40b2-aa6b-73f42da89deb"
+  ],
+  "dataDiskCount": 2,
+  "dataDiskBytesEach": 10737418240,
+  "guestDataSha256": "bfe00c222e9fcf100f5892036fd69b88394a5b3f4499a2133b0f4af1873bd873",
+  "uiCreateBootStop": true,
+  "uiCombinedCapacityGiB": 120
+}

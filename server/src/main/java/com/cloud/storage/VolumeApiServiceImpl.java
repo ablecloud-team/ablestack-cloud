@@ -1263,6 +1263,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
 
         createdVolume = _volumeMgr.createVolumeFromSnapshot(volume, snapshot, vm);
         VolumeVO volumeVo = _volsDao.findById(createdVolume.getId());
+        creationSourceService.captureRestoredVolume(snapshot, volumeVo);
         UsageEventUtils.publishUsageEvent(EventTypes.EVENT_VOLUME_CREATE, createdVolume.getAccountId(), createdVolume.getDataCenterId(), createdVolume.getId(), createdVolume.getName(),
                 createdVolume.getDiskOfferingId(), null, createdVolume.getSize(), Volume.class.getName(), createdVolume.getUuid(), volume.getInstanceId(), volumeVo.isDisplayVolume());
 
@@ -3644,6 +3645,8 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         return orchestrateDetachVolumeFromVM(vmId, volumeId);
     }
 
+    @Inject private com.cloud.vm.VmCreationSourceService creationSourceService;
+
     private Volume orchestrateDetachVolumeFromVM(long vmId, long volumeId) {
         try (org.apache.cloudstack.backup.BackupVolumeGuard.Lease guard = backupVolumeGuard.acquire(vmId)) {
             backupVolumeGuard.checkWorker(vmId);
@@ -3699,6 +3702,8 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
             }
 
             if (!sendCommand || (answer != null && answer.getResult())) {
+                // Capture ROOT boot provenance while its original VM is still connected.
+                creationSourceService.captureVolume(volume);
                 // Mark the volume as detached
                 _volsDao.detachVolume(volume.getId());
 

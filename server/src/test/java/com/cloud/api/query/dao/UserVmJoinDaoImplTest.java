@@ -231,4 +231,43 @@ public class UserVmJoinDaoImplTest extends GenericDaoBaseWithTagInformationBaseT
         Mockito.when(detail.getValue()).thenReturn("1");
         Assert.assertEquals(1, _userVmJoinDaoImpl.effectiveCdromMaxCount(userVm));
     }
+    @Test
+    public void sourceInternalProfileIsNotAdvertisedAsOriginalTemplate() {
+        Mockito.when(userVmMock.getTemplateName()).thenReturn(com.cloud.vm.VirtualMachineManager.KVM_BLANK_VM_TEMPLATE_NAME);
+        Mockito.when(userVmMock.getId()).thenReturn(vmId);
+        Mockito.when(_vmInstanceDetailsDao.findDetail(vmId, "vm.creation.source")).thenReturn(
+                new com.cloud.vm.VMInstanceDetailVO(vmId, "vm.creation.source", "true", false));
+        Assert.assertTrue(_userVmJoinDaoImpl.isInternalCreationProfile(userVmMock));
+    }
+
+    @Test
+    public void ordinaryBlankInstanceRetainsItsTemplateResponse() {
+        Mockito.when(userVmMock.getTemplateName()).thenReturn(com.cloud.vm.VirtualMachineManager.KVM_BLANK_VM_TEMPLATE_NAME);
+        Assert.assertFalse(_userVmJoinDaoImpl.isInternalCreationProfile(userVmMock));
+    }
+
+    @Test
+    public void recordedSourceTemplateRemainsVisible() {
+        Mockito.when(userVmMock.getTemplateName()).thenReturn("original-admin-image");
+        Assert.assertFalse(_userVmJoinDaoImpl.isInternalCreationProfile(userVmMock));
+        Mockito.verifyNoInteractions(_vmInstanceDetailsDao);
+    }
+
+    @Test
+    public void sourceFirmwareIsReturnedEvenWhenNonFirmwareDetailsExist() {
+        prepareNewUserVmResponseForVnfAppliance();
+        com.cloud.vm.VMInstanceDetailVO source = new com.cloud.vm.VMInstanceDetailVO(vmId, "vm.creation.source", "true", true);
+        Mockito.when(_vmInstanceDetailsDao.listDetails(vmId, true)).thenReturn(Collections.singletonList(source));
+        UserVmResponse bios = _userVmJoinDaoImpl.newUserVmResponse(ResponseObject.ResponseView.Full, "virtualmachine", userVmMock,
+                EnumSet.of(ApiConstants.VMDetails.all), null, null, caller);
+        Assert.assertEquals("Bios", bios.getBootType());
+        Assert.assertEquals("legacy", bios.getBootMode());
+        Mockito.when(_vmInstanceDetailsDao.listDetails(vmId, true)).thenReturn(Arrays.asList(source,
+                new com.cloud.vm.VMInstanceDetailVO(vmId, "UEFI", "LEGACY", true)));
+        UserVmResponse uefi = _userVmJoinDaoImpl.newUserVmResponse(ResponseObject.ResponseView.Full, "virtualmachine", userVmMock,
+                EnumSet.of(ApiConstants.VMDetails.all), null, null, caller);
+        Assert.assertEquals("Uefi", uefi.getBootType());
+        Assert.assertEquals("legacy", uefi.getBootMode());
+    }
+
 }

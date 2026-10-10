@@ -1,0 +1,38 @@
+[
+  {
+    "name": "cloudstack-common",
+    "nevra": "cloudstack-common 4.23.0.0-1 x86_64",
+    "sha256": "c9104b3947bd2e87285c5afda3dbc7138f46dae363be3c66443fd9cbb6d4c4a9",
+    "integrityExit": 0
+  },
+  {
+    "name": "cloudstack-management",
+    "nevra": "cloudstack-management 4.23.0.0-1 x86_64",
+    "sha256": "7248b3ee1fa711522d2dda0197268fa22920c9f1334012c456925589af581540",
+    "integrityExit": 0
+  },
+  {
+    "name": "cloudstack-ui",
+    "nevra": "cloudstack-ui 4.23.0.0-1 x86_64",
+    "sha256": "696a95f7f982891b8b0e61afbd1c1f40a012d4f59d255d1d1080316425c64d57",
+    "integrityExit": 0
+  },
+  {
+    "name": "cloudstack-usage",
+    "nevra": "cloudstack-usage 4.23.0.0-1 x86_64",
+    "sha256": "10f6acb3281c8c252c653d5ef4634e4878a6c41a19cebe24336c67bb21366204",
+    "integrityExit": 0
+  },
+  {
+    "name": "cloudstack-agent",
+    "nevra": "cloudstack-agent 4.23.0.0-1 x86_64",
+    "sha256": "d95ed341bec4bdc9553ac319a25473abcde22e3daba14f2b728d12ba82ca4c08",
+    "integrityExit": 0
+  },
+  {
+    "name": "cloudstack-network-runtime",
+    "nevra": "cloudstack-network-runtime 1.0.0-2.el9 noarch",
+    "sha256": "907bac639c7c4b7b6799e6c32411c7a99f86089d048e7ca13b9a8c9f87c41f2a",
+    "integrityExit": 0
+  }
+]

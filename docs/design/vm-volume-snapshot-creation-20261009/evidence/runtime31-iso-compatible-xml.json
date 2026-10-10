@@ -1,0 +1,53 @@
+{
+  "vmId": "2c0cc0bd-1a16-4d17-aaff-2820780304d8",
+  "domain": "i-2-369-VM",
+  "uuid": "2c0cc0bd-1a16-4d17-aaff-2820780304d8",
+  "machine": "pc-q35-rhel9.8.0",
+  "loader": {
+    "readonly": "yes",
+    "secure": "no",
+    "type": "pflash",
+    "format": "qcow2"
+  },
+  "disks": [
+    {
+      "device": "disk",
+      "type": "file",
+      "source": {
+        "file": "/mnt/glue-gfs/f0364599-6555-429c-8b9d-b1c6c5d4780c",
+        "index": "3"
+      },
+      "target": {
+        "dev": "sda",
+        "bus": "scsi"
+      },
+      "readonly": false
+    },
+    {
+      "device": "cdrom",
+      "type": "file",
+      "source": {
+        "file": "/mnt/a209b675-5af9-354e-8c59-6a85a0a32044/218-2-a13484f3-169e-3830-ac87-8587dbe9547f.iso",
+        "index": "2"
+      },
+      "target": {
+        "dev": "sdd",
+        "bus": "sata"
+      },
+      "readonly": true
+    },
+    {
+      "device": "cdrom",
+      "type": "file",
+      "source": {
+        "file": "/mnt/edd4c935-8331-35af-b93c-0099d4d698b0/216-2-68bcbd07-6f6f-3248-906a-cc4889c9741d.iso",
+        "index": "1"
+      },
+      "target": {
+        "dev": "sde",
+        "bus": "sata"
+      },
+      "readonly": true
+    }
+  ]
+}
