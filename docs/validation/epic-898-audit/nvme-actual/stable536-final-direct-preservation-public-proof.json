@@ -1,0 +1,622 @@
+{
+  "actualReadonlyGuardCalls": 1,
+  "guestExitCode": 0,
+  "kind": "CHAP_C2_RO_WRITE_DEFECT_READONLY",
+  "observation": {
+    "authValuesOrHashesExported": false,
+    "blockdevices": {
+      "blockdevices": [
+        {
+          "fstype": "xfs",
+          "mountpoints": [
+            "/export/f1-nfs",
+            "/srv/ablestack-storage/volumes/abfa15d5-a916-475f-9b9f-22b0483cc698"
+          ],
+          "path": "/dev/sda",
+          "serial": "abfa15d5a916475f9b9f",
+          "size": 21474836480,
+          "type": "disk",
+          "uuid": "b54f3304-3ab3-4be7-a63a-a324bee2255b"
+        },
+        {
+          "children": [
+            {
+              "fstype": "ext2",
+              "mountpoints": [
+                "/boot"
+              ],
+              "path": "/dev/sdb1",
+              "serial": null,
+              "size": 398458880,
+              "type": "part",
+              "uuid": "f2f66c5f-27bc-45e7-a985-0812a9e76d33"
+            },
+            {
+              "fstype": null,
+              "mountpoints": [
+                null
+              ],
+              "path": "/dev/sdb2",
+              "serial": null,
+              "size": 1024,
+              "type": "part",
+              "uuid": null
+            },
+            {
+              "fstype": "swap",
+              "mountpoints": [
+                null
+              ],
+              "path": "/dev/sdb5",
+              "serial": null,
+              "size": 510656512,
+              "type": "part",
+              "uuid": "61fbcdef-1e2a-4a13-aa3f-f6bd6d9e2b95"
+            },
+            {
+              "fstype": "ext4",
+              "mountpoints": [
+                "/"
+              ],
+              "path": "/dev/sdb6",
+              "serial": null,
+              "size": 4329570304,
+              "type": "part",
+              "uuid": "747bc2c6-6135-4554-b0b6-2649e1298727"
+            }
+          ],
+          "fstype": null,
+          "mountpoints": [
+            null
+          ],
+          "path": "/dev/sdb",
+          "serial": "f24d1253cbe346d78b77",
+          "size": 5242880000,
+          "type": "disk",
+          "uuid": null
+        },
+        {
+          "fstype": "xfs",
+          "mountpoints": [
+            "/srv/ablestack-storage/volumes/ceaee4ff-0dc6-4c4f-ac5d-e28e658906a7"
+          ],
+          "path": "/dev/sdc",
+          "serial": "ceaee4ff0dc64c4fac5d",
+          "size": 21474836480,
+          "type": "disk",
+          "uuid": "6ff9399c-fc78-4ef3-a598-85ad87586ccf"
+        },
+        {
+          "fstype": null,
+          "mountpoints": [
+            null
+          ],
+          "path": "/dev/sdd",
+          "serial": "db3de2b75fcb4cb5a0aa",
+          "size": 21474836480,
+          "type": "disk",
+          "uuid": null
+        },
+        {
+          "fstype": null,
+          "mountpoints": [
+            null
+          ],
+          "path": "/dev/sde",
+          "serial": "ec92d6c62fde4f359d31",
+          "size": 21474836480,
+          "type": "disk",
+          "uuid": null
+        },
+        {
+          "fstype": null,
+          "mountpoints": [
+            null
+          ],
+          "path": "/dev/sr0",
+          "serial": "QM00003",
+          "size": 1073741312,
+          "type": "rom",
+          "uuid": null
+        },
+        {
+          "fstype": null,
+          "mountpoints": [
+            null
+          ],
+          "path": "/dev/sr1",
+          "serial": "QM00004",
+          "size": 1073741312,
+          "type": "rom",
+          "uuid": null
+        }
+      ]
+    },
+    "bootId": "dc4b6429-35d3-4224-b199-3a0c6c829de0",
+    "cliSha256": "9b1a9836cd2f8ded28d0e8fab7a97a9da1a95b986f3faa445e2f0c0b708760a0",
+    "codeSourceOrDiskWriterCalls": 0,
+    "current": {
+      "configurationSha256": "498d87b174bb4fa16b86660d946d01a3a19017bb4e89564ec614fb74e6ed6871",
+      "instanceUuid": "3480bb2c-99ee-42f2-91cf-715ded5dd35f",
+      "operationUuid": "1df2f5a8-e563-40a4-8e45-639889b874d8",
+      "revision": 30,
+      "verifiedAt": 1791624699.162511
+    },
+    "currentGenericSmbOwnership": {
+      "endpointTcpReady": true,
+      "identityDatabaseAligned": true,
+      "ownershipVerified": true,
+      "safeToRebind": null,
+      "success": true
+    },
+    "currentSmbSessions": {
+      "available": true,
+      "byteLockOpenFileCount": 0,
+      "establishedTcpCount": 0,
+      "lockingDatabasesAligned": true,
+      "openFileCount": 0,
+      "safeToRebind": true,
+      "smbSessionCount": 0,
+      "synRecvTcpCount": 0,
+      "treeConnectionCount": 0
+    },
+    "databases": {
+      "PASSDB": {
+        "ctimeNs": 1791607648003961872,
+        "device": 2070,
+        "gid": 0,
+        "inode": 2206,
+        "links": 1,
+        "mode": 384,
+        "mtimeNs": 1791607647999961815,
+        "present": true,
+        "size": 421888,
+        "uid": 0
+      },
+      "SECRETS": {
+        "ctimeNs": 1791607648003961872,
+        "device": 2070,
+        "gid": 0,
+        "inode": 2219,
+        "links": 1,
+        "mode": 384,
+        "mtimeNs": 1791607648003961872,
+        "present": true,
+        "size": 430080,
+        "uid": 0
+      }
+    },
+    "guardianPurpose": "AFTER_STABLE536_READ_FINAL_PRESERVATION",
+    "historicalJournalOrCipherBodyReads": 0,
+    "historicalLocalStatusImportOrSourceExportInvoked": false,
+    "liveIdentityHolders": {
+      "anyDeleted": false,
+      "count": 2,
+      "databaseLabels": [
+        "passdb.tdb",
+        "secrets.tdb"
+      ],
+      "observedByActualInstalledGuard": true,
+      "pids": [
+        1511438
+      ]
+    },
+    "managementPrivateKeyPresenceFreshRead": false,
+    "mounts": {
+      "filesystems": [
+        {
+          "children": [
+            {
+              "children": [
+                {
+                  "fstype": "securityfs",
+                  "source": "securityfs",
+                  "target": "/sys/kernel/security",
+                  "uuid": null
+                },
+                {
+                  "fstype": "cgroup2",
+                  "source": "cgroup2",
+                  "target": "/sys/fs/cgroup",
+                  "uuid": null
+                },
+                {
+                  "fstype": "pstore",
+                  "source": "pstore",
+                  "target": "/sys/fs/pstore",
+                  "uuid": null
+                },
+                {
+                  "fstype": "bpf",
+                  "source": "bpf",
+                  "target": "/sys/fs/bpf",
+                  "uuid": null
+                },
+                {
+                  "fstype": "debugfs",
+                  "source": "debugfs",
+                  "target": "/sys/kernel/debug",
+                  "uuid": null
+                },
+                {
+                  "fstype": "tracefs",
+                  "source": "tracefs",
+                  "target": "/sys/kernel/tracing",
+                  "uuid": null
+                },
+                {
+                  "fstype": "fusectl",
+                  "source": "fusectl",
+                  "target": "/sys/fs/fuse/connections",
+                  "uuid": null
+                },
+                {
+                  "fstype": "configfs",
+                  "source": "configfs",
+                  "target": "/sys/kernel/config",
+                  "uuid": null
+                }
+              ],
+              "fstype": "sysfs",
+              "source": "sysfs",
+              "target": "/sys",
+              "uuid": null
+            },
+            {
+              "children": [
+                {
+                  "children": [
+                    {
+                      "fstype": "binfmt_misc",
+                      "source": "binfmt_misc",
+                      "target": "/proc/sys/fs/binfmt_misc",
+                      "uuid": null
+                    }
+                  ],
+                  "fstype": "autofs",
+                  "source": "systemd-1",
+                  "target": "/proc/sys/fs/binfmt_misc",
+                  "uuid": null
+                }
+              ],
+              "fstype": "proc",
+              "source": "proc",
+              "target": "/proc",
+              "uuid": null
+            },
+            {
+              "children": [
+                {
+                  "fstype": "devpts",
+                  "source": "devpts",
+                  "target": "/dev/pts",
+                  "uuid": null
+                },
+                {
+                  "fstype": "tmpfs",
+                  "source": "tmpfs",
+                  "target": "/dev/shm",
+                  "uuid": null
+                },
+                {
+                  "fstype": "hugetlbfs",
+                  "source": "hugetlbfs",
+                  "target": "/dev/hugepages",
+                  "uuid": null
+                },
+                {
+                  "fstype": "mqueue",
+                  "source": "mqueue",
+                  "target": "/dev/mqueue",
+                  "uuid": null
+                }
+              ],
+              "fstype": "devtmpfs",
+              "source": "udev",
+              "target": "/dev",
+              "uuid": null
+            },
+            {
+              "children": [
+                {
+                  "fstype": "tmpfs",
+                  "source": "tmpfs",
+                  "target": "/run/lock",
+                  "uuid": null
+                },
+                {
+                  "fstype": "rpc_pipefs",
+                  "source": "sunrpc",
+                  "target": "/run/rpc_pipefs",
+                  "uuid": null
+                },
+                {
+                  "fstype": "ramfs",
+                  "source": "ramfs",
+                  "target": "/run/credentials/systemd-sysusers.service",
+                  "uuid": null
+                },
+                {
+                  "fstype": "ramfs",
+                  "source": "ramfs",
+                  "target": "/run/credentials/systemd-sysctl.service",
+                  "uuid": null
+                },
+                {
+                  "fstype": "ramfs",
+                  "source": "ramfs",
+                  "target": "/run/credentials/systemd-tmpfiles-setup-dev.service",
+                  "uuid": null
+                },
+                {
+                  "fstype": "ramfs",
+                  "source": "ramfs",
+                  "target": "/run/credentials/systemd-tmpfiles-setup.service",
+                  "uuid": null
+                }
+              ],
+              "fstype": "tmpfs",
+              "source": "tmpfs",
+              "target": "/run",
+              "uuid": null
+            },
+            {
+              "fstype": "ext2",
+              "source": "/dev/sdb1",
+              "target": "/boot",
+              "uuid": "f2f66c5f-27bc-45e7-a985-0812a9e76d33"
+            },
+            {
+              "fstype": "xfs",
+              "source": "/dev/sda",
+              "target": "/srv/ablestack-storage/volumes/abfa15d5-a916-475f-9b9f-22b0483cc698",
+              "uuid": "b54f3304-3ab3-4be7-a63a-a324bee2255b"
+            },
+            {
+              "fstype": "xfs",
+              "source": "/dev/sda[/export/f1-nfs]",
+              "target": "/export/f1-nfs",
+              "uuid": "b54f3304-3ab3-4be7-a63a-a324bee2255b"
+            },
+            {
+              "fstype": "xfs",
+              "source": "/dev/sdc",
+              "target": "/srv/ablestack-storage/volumes/ceaee4ff-0dc6-4c4f-ac5d-e28e658906a7",
+              "uuid": "6ff9399c-fc78-4ef3-a598-85ad87586ccf"
+            }
+          ],
+          "fstype": "ext4",
+          "source": "/dev/sdb6",
+          "target": "/",
+          "uuid": "747bc2c6-6135-4554-b0b6-2649e1298727"
+        }
+      ]
+    },
+    "nfsSentinel": {
+      "gid": 65534,
+      "sha256": "9ba0b0280276cad982cfa3df6e6821f2b4b8ea04761b905cc1d089cbd72c4c8a",
+      "sizeBytes": 4096,
+      "uid": 65534
+    },
+    "nvmeCapabilityFromActualConfiguredHostAttributes": {
+      "configfsHostSupported": true,
+      "dhChapCtrlSupported": true,
+      "dhChapSupported": true,
+      "kernelTargetSupported": true
+    },
+    "nvmeCredentialValuesOrHashesExported": false,
+    "observedAtUtc": "2026-10-10T09:34:40Z",
+    "ownIscsiAuthentication": {
+      "clients": {
+        "C1": {
+          "passwordPresent": true,
+          "password_mutualPresent": true,
+          "useridPresent": true,
+          "userid_mutualPresent": true
+        },
+        "C2": {
+          "passwordPresent": true,
+          "password_mutualPresent": true,
+          "useridPresent": true,
+          "userid_mutualPresent": true
+        }
+      },
+      "tpgAuthenticationEnabled": true
+    },
+    "ownIscsiClientCleanup": {
+      "contextSignalsOrManualSessionDeletion": 0,
+      "ownAclNoActiveSession": {
+        "C1": true,
+        "C2": true
+      },
+      "ownedTcpCounts": {
+        "established": 0,
+        "synRecv": 0
+      }
+    },
+    "ownIscsiConfigfs": {
+      "backingDevice": "/dev/sdd",
+      "backingSerial": "db3de2b75fcb4cb5a0aa",
+      "backingSizeBytes": 21474836480,
+      "backstore": {
+        "mode": 493,
+        "present": true,
+        "uid": 0
+      },
+      "backstoreNameMatchesTargetUuid": true,
+      "backstoreType": "block",
+      "configfsWrites": 0,
+      "iqn": "iqn.2026-05.local.storage:epic898-s-b6aa-all4-f1-20261009-0732",
+      "lun": 0,
+      "lunMetadata": {
+        "mode": 493,
+        "present": true,
+        "uid": 0
+      },
+      "lunSymlinkCount": 1,
+      "portal": {
+        "mode": 493,
+        "present": true,
+        "uid": 0
+      },
+      "portalCount": 1,
+      "portalListenIp": "0.0.0.0",
+      "portalPort": 3260,
+      "rootExcluded": true,
+      "target": {
+        "mode": 493,
+        "present": true,
+        "uid": 0
+      },
+      "targetUuid": "0393e4f7-56a2-4e91-9e2e-efa76c300dcb",
+      "targetcliOrRtslibCalls": 0,
+      "tpg": {
+        "mode": 493,
+        "present": true,
+        "uid": 0
+      },
+      "tpgEnabled": true
+    },
+    "ownMappedLunWriteProtect": {
+      "C1": {
+        "authSecretReads": 0,
+        "initiatorIqn": "iqn.2026-10.local.epic898:cf6-chap-c1-7993a840",
+        "mappedLun": 0,
+        "mapsExactOwnTargetLun0": true,
+        "writeProtect": 0
+      },
+      "C2": {
+        "authSecretReads": 0,
+        "initiatorIqn": "iqn.2026-10.local.epic898:cf6-chap-c2-0d8c6895",
+        "mappedLun": 0,
+        "mapsExactOwnTargetLun0": true,
+        "writeProtect": 1
+      }
+    },
+    "ownNvmeHostAuthentication": {
+      "C1": {
+        "allowedHostLinkMatches": true,
+        "dhChapCtrlKeyAttributePresent": true,
+        "dhChapKeyAttributePresent": true,
+        "dhchap_ctrl_keyConfigured": true,
+        "dhchap_ctrl_keyKnownFormat": true,
+        "dhchap_keyConfigured": true,
+        "dhchap_keyKnownFormat": true
+      },
+      "C2": {
+        "allowedHostLinkMatches": true,
+        "dhChapCtrlKeyAttributePresent": true,
+        "dhChapKeyAttributePresent": true,
+        "dhchap_ctrl_keyConfigured": true,
+        "dhchap_ctrl_keyKnownFormat": true,
+        "dhchap_keyConfigured": true,
+        "dhchap_keyKnownFormat": true
+      }
+    },
+    "ownNvmeNamespace": {
+      "adjacentAfter4096AllZero": true,
+      "adjacentBefore4096AllZero": true,
+      "allowAnyHost": false,
+      "allowedHostCount": 2,
+      "backingDevice": "/dev/sde",
+      "backingSerial": "ec92d6c62fde4f359d31",
+      "backingVolumeUuid": "ec92d6c6-2fde-4f35-9d31-e8a7efd69c63",
+      "cacheFlushOrDropCalls": 0,
+      "configfsWrites": 0,
+      "dataWrites": 0,
+      "enabled": true,
+      "expectedPatternSha256": "31a8ca181e7ede2835efbb11dbe9f00baa1deeec0862655cbb1709f2999bd98b",
+      "header64KiBAllZero": true,
+      "linkedPorts": [
+        {
+          "exactSubsystemLinked": true,
+          "listenIp": "0.0.0.0",
+          "port": 4420,
+          "portId": 1,
+          "transport": "tcp"
+        }
+      ],
+      "logicalBlockSize": 512,
+      "namespaceId": 1,
+      "namespaceUuid": "13fe7ca1-8321-47c2-96f3-32d535700754",
+      "nqn": "nqn.2026-06.local.storage:epic898-s-b6aa-all4-f1-20261009",
+      "nvmetcliCalls": 0,
+      "readMethod": "O_DIRECT_ALIGNED_PREADV",
+      "rootAndOtherDataExcluded": true,
+      "sizeBytes": 21474836480,
+      "subsystemUuid": "a5280d24-cacf-48f9-ac95-ebd5e730c6b5",
+      "unmountedNoFilesystemNoPartitions": true,
+      "windowAllZero": false,
+      "windowExpectedPatternMatched": true,
+      "windowLengthBytes": 4096,
+      "windowOffsetBytes": 1048576,
+      "windowSha256": "31a8ca181e7ede2835efbb11dbe9f00baa1deeec0862655cbb1709f2999bd98b"
+    },
+    "ownNvmeTransportCleanup": {
+      "ownedTcpCounts": {
+        "established": 0,
+        "synRecv": 0
+      },
+      "serverKernelControllerCountDirectlyObserved": false,
+      "signalsOrManualServerSessionDeletion": 0
+    },
+    "ownRawAfterIoWindow": {
+      "adjacentAfter4096AllZero": true,
+      "adjacentBefore4096AllZero": true,
+      "expectedPatternMatched": true,
+      "fullOutsideWindowHashClaimed": false,
+      "header64KiBAllZero": true,
+      "windowLengthBytes": 4096,
+      "windowOffsetBytes": 1048576,
+      "windowSha256": "40804e47bb6a66d3a0dbfe20fc9ed3f32bfabcad0680d047f741d5be7f357e6a",
+      "writes": 0
+    },
+    "ownRawBlank": {
+      "device": "/dev/sdd",
+      "first64KiBAllZero": true,
+      "logicalBlockSize": 512,
+      "rootExcluded": true,
+      "serial": "db3de2b75fcb4cb5a0aa",
+      "sizeBytes": 21474836480,
+      "unmountedNoFilesystemNoPartitions": true,
+      "windowAllZero": false,
+      "windowLengthBytes": 4096,
+      "windowOffsetBytes": 1048576,
+      "writes": 0
+    },
+    "ownSmbFile": {
+      "gid": 1001,
+      "mode": 432,
+      "sha256": "65ea0e1ddd48fc6690d1772282d3edd5e0843da33bbea1c60848db3dfb4cc9c0",
+      "sizeBytes": 4096,
+      "uid": 1001
+    },
+    "ownedHolderProcessStates": [
+      {
+        "parentPid": 1511435,
+        "paused": false,
+        "pid": 1511438,
+        "startTicks": 10653948,
+        "state": "S",
+        "uid": 0
+      }
+    ],
+    "pending": null,
+    "reservedNvmeGuestSerialAbsent": false,
+    "rootDataOrConfigWrites": 0,
+    "signedUpdaterReadbackCalls": 0,
+    "smbDesiredPresent": true,
+    "sourceDiagnosticReason": "UNOBSERVED",
+    "sourceDiagnosticReasonObserved": false,
+    "vmUuid": "9e57d31b-bb68-4ba3-a377-b0acbc89c22d",
+    "writerIdle": {
+      "bootChildActive": false,
+      "bootRecoveryRequired": false,
+      "status": "WRITER_IDLE",
+      "success": true,
+      "writerIdle": true,
+      "writerLockSupported": true
+    }
+  },
+  "stdoutBytes": 11731
+}
