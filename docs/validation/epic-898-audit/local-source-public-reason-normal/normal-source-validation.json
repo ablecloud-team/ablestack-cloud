@@ -1,0 +1,74 @@
+{
+  "sourcePin": "053070da1d57c06cd1a8ddb71610ff4b54158df7",
+  "normalExitCode": 0,
+  "normalCheckstyle": true,
+  "normalCommandSha256": "dc6c74b15ac30479b7ba96027fdf46371ced1c34819934d7b999db147b3260bc",
+  "normalBuildLogSha256": "dc3cc6da001082af295ff749f56ddebf4713b21c0ac8af3af13d31fb041cdeba",
+  "javaSourceUnchanged": true,
+  "allTrackedSourceUnchanged": true,
+  "archiveMissingAndDifferent": [],
+  "actualTests": {
+    "tests": 931,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "suites": 126
+  },
+  "requestedSelectors": 126,
+  "missingSelectors": [],
+  "immutableOutputFiles": 6315,
+  "moduleOutputManifestSha256": "c3cd68726d377ccaae4efab52c0027cde8b89fc3590a0c634a5784eb3f17fbc5",
+  "actualDeployment": false,
+  "sourceBefore": {
+    "sourcePin": "053070da1d57c06cd1a8ddb71610ff4b54158df7",
+    "buildHeadAtStart": "dc6a690b688d96b4a12286f1225ae52316fe7cad",
+    "atUtc": "2026-10-10T02:14:02.860707+00:00",
+    "javaFiles": 9905,
+    "javaPathNulBytesNulSha256": "f095fe33431aeb582b6cceba7afa9db930ae54ee22395c4f16720d2f0b506171",
+    "trackedFiles": 15544,
+    "trackedPathNulBytesNulSha256": "1c37089b4cb4a395edc0381186b68a85a06ed16e08f0455c1a65750324b80c80",
+    "archiveResults": {
+      "code-pin": {
+        "regularFilesAndSymlinks": 15538,
+        "directories": 5191,
+        "symlinks": 3,
+        "different": [],
+        "sha256": "86c03db1afcdf1779b32da9d31c337154df50f1b45bbc77728103420097c494a"
+      },
+      "build-head": {
+        "regularFilesAndSymlinks": 15544,
+        "directories": 5192,
+        "symlinks": 3,
+        "different": [],
+        "sha256": "5d40ee4b566cf49e932fd0daac70882cac8a978fff30711577a58853ce15db47"
+      }
+    },
+    "headOnlyDiagnosticsDocs": [
+      "docs/validation/epic-898-audit/20261010-df11-original-import-readonly.md",
+      "docs/validation/epic-898-audit/df11-original-import-readonly/exact-owned-readiness-endpoint.json",
+      "docs/validation/epic-898-audit/df11-original-import-readonly/existing-fixed-reason-log-proof.json",
+      "docs/validation/epic-898-audit/df11-original-import-readonly/original-loopback-prewrite-proof.json",
+      "docs/validation/epic-898-audit/df11-original-import-readonly/stop-prewrite-tcp-skipped-proof.json",
+      "docs/validation/epic-898-audit/df11-original-import-readonly/tcp-first-address-guard-rejection.json"
+    ],
+    "codePinAndHeadCodeBytesIdentical": true,
+    "selectorCountRequested": 126,
+    "ownedSourceSha256": {
+      "server/src/main/java/org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.java": "57ab25fb608d033a78b31be96633b056352276d2b7bb39dce53787c8c67fef53",
+      "server/src/test/java/org/apache/cloudstack/storage/dataservice/StorageLocalSourceFailureReasonTest.java": "61f89463d54edb3eaa4f57032c9c036c5e297ce69da5b30fc631d0269cb8f7bd"
+    }
+  },
+  "sourceAfter": {
+    "sourcePin": "053070da1d57c06cd1a8ddb71610ff4b54158df7",
+    "buildHeadAtStart": "dc6a690b688d96b4a12286f1225ae52316fe7cad",
+    "atUtc": "2026-10-10T02:17:24.160452+00:00",
+    "javaFiles": 9905,
+    "javaPathNulBytesNulSha256": "f095fe33431aeb582b6cceba7afa9db930ae54ee22395c4f16720d2f0b506171",
+    "trackedFiles": 15544,
+    "trackedPathNulBytesNulSha256": "1c37089b4cb4a395edc0381186b68a85a06ed16e08f0455c1a65750324b80c80",
+    "ownedSourceSha256": {
+      "server/src/main/java/org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.java": "57ab25fb608d033a78b31be96633b056352276d2b7bb39dce53787c8c67fef53",
+      "server/src/test/java/org/apache/cloudstack/storage/dataservice/StorageLocalSourceFailureReasonTest.java": "61f89463d54edb3eaa4f57032c9c036c5e297ce69da5b30fc631d0269cb8f7bd"
+    }
+  }
+}
