@@ -1,0 +1,33 @@
+{
+  "kind": "OWN_CURRENT_ISCSI_ACL_IDENTIFIER_READONLY",
+  "targetUuid": "0393e4f7-56a2-4e91-9e2e-efa76c300dcb",
+  "rowCount": 2,
+  "responseCount": 2,
+  "rows": [
+    {
+      "id": "bd76c8ab-e784-44ca-824c-8d70e32e4d6d",
+      "principal": "iqn.2026-10.local.epic898:cf6-chap-c1-7993a840",
+      "principaltype": "ISCSI_INITIATOR_IQN",
+      "permission": "READ_WRITE",
+      "state": "Ready",
+      "resourcetype": "BLOCK_TARGET",
+      "resourceid": "0393e4f7-56a2-4e91-9e2e-efa76c300dcb",
+      "targetname": "iqn.2026-05.local.storage:epic898-s-b6aa-all4-f1-20261009-0732"
+    },
+    {
+      "id": "c3866dde-4b7b-4ba5-a898-2fe6d6be5e70",
+      "principal": "iqn.2026-10.local.epic898:cf6-chap-c2-0d8c6895",
+      "principaltype": "ISCSI_INITIATOR_IQN",
+      "permission": "READ_ONLY",
+      "state": "Ready",
+      "resourcetype": "BLOCK_TARGET",
+      "resourceid": "0393e4f7-56a2-4e91-9e2e-efa76c300dcb",
+      "targetname": "iqn.2026-05.local.storage:epic898-s-b6aa-all4-f1-20261009-0732"
+    }
+  ],
+  "oldC1UuidPresent": true,
+  "oldC2UuidPresent": true,
+  "configOrSecretsExported": false,
+  "businessWrites": 0,
+  "guestCalls": 0
+}

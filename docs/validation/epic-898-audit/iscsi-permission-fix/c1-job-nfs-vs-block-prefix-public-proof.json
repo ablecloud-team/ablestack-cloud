@@ -1,0 +1,23 @@
+{
+  "kind": "EXACT_C1_ROTATION_FAILED_JOB_FIXED_WORD_CLASSIFICATION",
+  "jobId": "f0216e93-8642-406e-a957-71394e007b59",
+  "jobStatus": 2,
+  "jobResultCode": 431,
+  "fixedKnownWordSequence": [],
+  "messagePresent": true,
+  "nfsAclLookupPrefix": true,
+  "blockAclLookupPrefix": false,
+  "knownResultFieldPresence": {
+    "errorcode": true,
+    "errortext": true,
+    "cserrorcode": false
+  },
+  "checkpointCodePresent": false,
+  "apiValidationClassPresent": false,
+  "unknownTokensStored": false,
+  "rawMessageStored": false,
+  "privateValuesOrHashesStored": false,
+  "queryCount": 1,
+  "businessWrites": 0,
+  "guestCalls": 0
+}

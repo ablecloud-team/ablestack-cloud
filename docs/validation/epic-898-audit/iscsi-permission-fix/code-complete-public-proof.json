@@ -1,0 +1,62 @@
+{
+  "kind": "PERMISSION_FF1_NORMAL_UI_CODE_COMPLETE_PUBLIC_PROOF",
+  "sourcePin": "ff1aa74eeda6fffba46c97d6f56c678cbdc2bf33",
+  "nativeCliSha256": "9b1a9836cd2f8ded28d0e8fab7a97a9da1a95b986f3faa445e2f0c0b708760a0",
+  "catalogId": "f14582e9-9912-4dfa-8489-de5cca0a203f",
+  "preflightJob": {
+    "id": "48efd41b-3aa2-449c-8f69-6138916eb90f",
+    "status": 1,
+    "resultcode": 0
+  },
+  "applyJob": {
+    "id": "5e14f915-abb4-43d6-995e-7f81abe38e3f",
+    "status": 1,
+    "resultcode": 0
+  },
+  "operation": {
+    "id": "af2b6a99-ad8c-4657-970a-be5e5404c08f",
+    "instanceid": "3480bb2c-99ee-42f2-91cf-715ded5dd35f",
+    "bundleid": "f14582e9-9912-4dfa-8489-de5cca0a203f",
+    "bundleversion": "epic898-iscsi-permission-ff1aa7-20261010",
+    "state": "COMPLETE",
+    "phase": "COMPLETE",
+    "progress": 100,
+    "transactionid": "runtime-2b1938a1-321d-43b5-8c4b-558200c6b7a3",
+    "started": "2026-10-10T15:52:04+0900",
+    "completed": "2026-10-10T15:53:23+0900"
+  },
+  "verification": {
+    "runtimeCodeVerified": true,
+    "healthSuccess": true,
+    "serviceAvailabilityVerified": true,
+    "activation": {
+      "success": true,
+      "phase": "COMPLETE",
+      "transactionId": "runtime-2b1938a1-321d-43b5-8c4b-558200c6b7a3",
+      "bundleVersion": "epic898-iscsi-permission-ff1aa7-20261010",
+      "currentVersion": "epic898-iscsi-permission-ff1aa7-20261010",
+      "previousVersion": "epic898-iscsi-guard-8de98e-20261010",
+      "archiveSha256": "194e81a61ab7b1d5df27a2137522fb5e574115ede9a4a71689aa991d7926267f",
+      "manifestSha256": "5d41b3509f1f7e6738a8a7f4c3938ae5423f379daca541a46e83d8a49de14fe8",
+      "keyId": "epic898-test-iscsi-permission-ff1aa7"
+    }
+  },
+  "targetRuntimePin": {
+    "bundleUuid": "f14582e9-9912-4dfa-8489-de5cca0a203f",
+    "bundleVersion": "epic898-iscsi-permission-ff1aa7-20261010",
+    "archiveSha256": "194e81a61ab7b1d5df27a2137522fb5e574115ede9a4a71689aa991d7926267f",
+    "manifestSha256": "5d41b3509f1f7e6738a8a7f4c3938ae5423f379daca541a46e83d8a49de14fe8",
+    "signingKeyId": "epic898-test-iscsi-permission-ff1aa7",
+    "runtimeAbiVersion": "1",
+    "desiredStateSchemaVersion": "1"
+  },
+  "normalUiPreflightInvocations": 1,
+  "normalUiApplyInvocations": 1,
+  "initialApplyJobResponseObserved": true,
+  "afterGuardianProofSha256": "40dfacf3699d140d7e1f887ef8e2dcab3ec5c0005861cfe808ee1acd854dd600",
+  "generationAfterCode": 13,
+  "permissionRemappingClaimedByCodeSwap": false,
+  "clientCasesAfterCode": 0,
+  "secretValuesIncluded": false,
+  "ui1275": "UNSTARTED"
+}
