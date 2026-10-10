@@ -1,0 +1,86 @@
+{
+  "kind": "ISCSI_WHOLE_IQN_PERMISSION_INDEPENDENT_READONLY_FINAL_PEER",
+  "schemaVersion": 1,
+  "observedAtUtc": "2026-10-10T06:11:43.680243+00:00",
+  "canonicalHeadAtReview": "5e17e5576868e8306daa472cf8316a10710585c0",
+  "candidateFileSha256": {
+    "systemvm/debian/usr/local/bin/ablestack-storagectl": "9b1a9836cd2f8ded28d0e8fab7a97a9da1a95b986f3faa445e2f0c0b708760a0",
+    "systemvm/debian/usr/local/lib/ablestack-storage/iscsi_auth.py": "9cbe0edd48d52472036e20dba6a2daa7b2a7908bc648d89536798acb9843137d",
+    "server/src/main/java/org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.java": "40e2c906c01182adc4329d57b52e0773754781833fcc64e6a320df3ad4401a58",
+    "systemvm/test/TestStorageIscsiLifecycle.py": "8db8ffbc5999e2bb0cc8baadd6f931f697328f256f34a9b21817df0beadec655",
+    "systemvm/test/TestStorageIscsiLunPermissions.py": "742eb662a4c1f91bea81e30b205e3876649ac1494387eeac18a8e3aab6506199",
+    "server/src/test/java/org/apache/cloudstack/storage/dataservice/StorageProtocolDefaultListenerTest.java": "ba88296ee66cb29f1d4c0f0ec35068a416bb87af37521b31ee62f74a20bda934"
+  },
+  "sourceStableDuringRead": true,
+  "issueScope": {
+    "number": 892,
+    "title": "[SharedFS] 설정 변경 실패 시 원자적 롤백과 상태 복구 지원",
+    "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/892",
+    "newPerLunAclApiRequiredByBody": false,
+    "selectedProductContract": "WHOLE_IQN_CONSISTENT_PERMISSION",
+    "nativeMixedPerLunFixtureIsEndToEndClaim": false
+  },
+  "readOnlyChecks": {
+    "explicitFalseAutoMapForLunAndAclCreate": true,
+    "activeGrantPlanBeforePrivateVaultDesiredAndTargetDelete": true,
+    "roOneRwZeroExactMap": true,
+    "disabledMissingGrantNoMapping": true,
+    "exactMappedSetRecheckedAfterReadback": true,
+    "aclAndMappedNodeNamedIdentityRechecked": true,
+    "exactSymlinkRecheckedAfterReadback": true,
+    "allOwnedFdsClosedOnSuccessFailure": true,
+    "managerCreateConflictBeforePersist": true,
+    "managerUpdateConflictBeforeRowMutationDaoUpdate": true,
+    "managerSerializerActiveWholeIqnUnionAndConflictRejected": true,
+    "actualManagerPayloadToCandidatePythonFixtureCoveredInOwnerTests": true,
+    "normalFixtureDefaultPathCorrect": true,
+    "focusedExplicitCandidatePathSupported": true,
+    "newBridgeChildTimeoutCleanupPresent": true,
+    "outsideIscsiApplyCliBytesSame": true,
+    "localSourceThreeFieldStopPinReplayContractsUntouched": true
+  },
+  "vendorFacts": {
+    "cachePath": "/root/work/epic898-preparation/actual-current-recovery-500/iscsi-vendor-public-source-cache",
+    "rtslibTargetSha256": "0c5faad121aa29407e46f6c67f16cc8f5b2b64bec947031eb1e55d32bff5e858",
+    "mappedLunMax": 255,
+    "mappedContractLines": [
+      1063,
+      1112,
+      1113
+    ],
+    "tpgLunMax": 65535,
+    "tpgContractLine": 467,
+    "blanketKernel255Claim": false,
+    "sameIndexMappingScope": true
+  },
+  "resolvedFindings": [
+    "mapped ACL/node identity post readback",
+    "exact symlink post readback",
+    "mapped grant set addition during readback",
+    "new Java bridge process cleanup"
+  ],
+  "remainingActionableProductionMismatch": [],
+  "ownerFocusedResultsReportedByRoot": {
+    "nativePermissionCases": 10,
+    "nativeLifecycleCases": 13,
+    "javaClassCases": 10,
+    "independentPeerReranTests": false
+  },
+  "nextNormalSelectors": {
+    "native": 51,
+    "manager": 128,
+    "changedLifecycleOccurrences": 1,
+    "changedJavaClassOccurrences": 1,
+    "expectedTestCountsInferred": false
+  },
+  "effects": {
+    "candidateEdits": 0,
+    "canonicalEdits": 0,
+    "testRuns": 0,
+    "buildRuns": 0,
+    "actualGuestUiApi": 0,
+    "gitIndexCommitPush": 0,
+    "githubWrites": 0,
+    "finalUi1275Started": false
+  }
+}
