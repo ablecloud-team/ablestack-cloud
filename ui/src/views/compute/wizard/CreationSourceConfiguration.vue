@@ -77,6 +77,7 @@ export default {
 <style lang="less" scoped>
 .creation-source-configuration { margin: 16px 0; color: var(--ui-text); background: var(--ui-bg-elevated); border-color: var(--ui-border); }
 :deep(.ant-card-head), :deep(.ant-form-item-label > label), :deep(.ant-radio-wrapper) { color: var(--ui-text); }
+:deep(.ant-radio-disabled + span) { color: var(--ui-text-secondary); }
 :deep(.ant-select) { width: 100%; }
 .source-meta { color: var(--ui-text-secondary); font-size: 12px; margin-top: 8px; overflow-wrap: anywhere; }
 </style>
