@@ -53,3 +53,17 @@ Patch SHA-256 171b02f722db8e3616afda8d12c71abe8fde220b36687fc3f22ff5f5d2a8a19a, 
 원 오류의 NFS ACL 조회 실패 접두어=true, block ACL 접두어=false를 확인했다. 소스의 getStorageServiceSyncId가 모든 ACL에 FILE_SHARE 전용 requireAcl을 호출하는 경계와 일치한다. 블록 ACL 처리 분기에 도달하지 못하는 공통 범위 계산 결함으로, 새 권한 validator의 거절로 표시하지 않는다. 해당 관리 서버 분기 수정과 정상 검증·배포 후 실제 RO 거절을 이어간다.
 
 [CODE 완료 및 정확한 pin](iscsi-permission-fix/code-complete-public-proof.json), [설치 코드·데이터 보존](iscsi-permission-fix/after-ff1-code-proven-85288-guardian-public-proof.json), [첫 ACL 실패](iscsi-permission-fix/retry-iscsi-chap-ram-controller-public-proof.json), [NFS 조회 오류 접두어](iscsi-permission-fix/c1-job-nfs-vs-block-prefix-public-proof.json), [현재 ACL 목록](iscsi-permission-fix/own-current-iscsi-acl-identifiers-public-proof.json), [실패 후 보존](iscsi-permission-fix/after-c1-rotation-failure-proven-85288-guardian-public-proof.json).
+
+## 실제 권한 재시험 완료
+
+공통 범위 수정 뒤 같은 ACL 재적용 C1 job9072ff0a-dac5-45d3-81f4-66ed40075d49 및 C2 job3796c2c1-2f6d-4e10-b0e9-43e37ff2262b가 status1/result0/Ready를 확인했다. actual GEN15/opdc9af8a1-a5ea-45b8-855e-150f492e475c/configd358에서 같은 own LUN의 C1 write_protect=0 / C2=1이다.
+
+실제 C1/C2의 자격 없음·잘못된 비밀 4개 LOGIN_ONLY 접속은 authenticationRejected=true/loginAccepted=false/dataWrites0이었다. 정상 C1/C2 즉시·재접속 읽기와 C2 거절 후 읽기는 모두 기존 40804e 해시와 일치했다. C1 추가 쓰기는 없다.
+
+C2의 한 번의 RO_WRITE는 실제 taskPresent=true/status2/senseValid=true/senseKey7/ASC39(0x27)/ASCQ0, 즉 CHECK_CONDITION·DATA_PROTECTION·WRITE_PROTECTED로 거절됐다. dataWrites0/bytesWritten0이다. 최초 쓰기4096 성공 결함과 별도 재검증이며 일반 오류·타임아웃을 권한 거절로 해석하지 않았다.
+
+정리 관측 cc7fe971은 own ACL NoActiveSession=true 및 3260 ESTABLISHED/SYN_RECV 0, GEN15/pending 없음/writer idle·WP0/1·ROOT/FILE·NFS/SMB 시험 파일·RAW 제한 구간을 보존했다. 전체 구간 외 디스크 해시를 검증했다고 확대하지 않는다.
+
+상호 CHAP 첫 요청은 HTTPError로 job응답 전에 끝났고 controller가 RAM 자격을 폐기했다. 추가 상호 요청·클라이언트 시험은 0이며 HTTP 상태와 요청 처리 경계를 조사한다. 이 후속 오류는 기본 인증·읽기 전용 인수 통과와 구분한다. #892 전체 조건은 아직 미완료다.
+
+[실제 LUN 권한 적용](iscsi-permission-fix/after-resolver-rotation-native-wp-public-proof.json), [기본 실제 클라이언트 결과 및 상호 첫 HTTP 오류](iscsi-permission-fix/resolver-fixed-iscsi-chap-ram-controller-public-proof.json), [정리 및 데이터 보존](iscsi-permission-fix/after-basic-strict-ro-cleanup-public-proof.json).
