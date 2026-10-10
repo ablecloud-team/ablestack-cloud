@@ -1,0 +1,52 @@
+{
+  "kind": "MUTUAL_CHAP_HTTP_FIXED_LOG_CLASSIFICATION",
+  "sinceKst": "2026-10-10 16:37:07",
+  "untilKst": "2026-10-10 16:38:07",
+  "files": [
+    {
+      "path": "/var/log/cloudstack/management/management-server.log",
+      "exists": true,
+      "tailBytes": 8388608,
+      "intervalRows": 465,
+      "sameOpenedIdentity": true,
+      "ownerUid": 985
+    },
+    {
+      "path": "/var/log/cloudstack/management/api-server.log",
+      "exists": false
+    }
+  ],
+  "events": [
+    {
+      "timeKst": "2026-10-10 16:37:37",
+      "fixedLabels": [
+        "API_UPDATE_ISCSI_ACL"
+      ],
+      "fixedAuthWords": [
+        "updatestorageiscsiacl"
+      ]
+    },
+    {
+      "timeKst": "2026-10-10 16:37:37",
+      "fixedLabels": [
+        "AUTH_SESSION_EXPIRED"
+      ],
+      "fixedAuthWords": [
+        "expired",
+        "session"
+      ]
+    },
+    {
+      "timeKst": "2026-10-10 16:37:37",
+      "fixedLabels": [
+        "API_UPDATE_ISCSI_ACL"
+      ],
+      "fixedAuthWords": [
+        "updatestorageiscsiacl"
+      ]
+    }
+  ],
+  "rawLogOrPayloadPrinted": false,
+  "stateWrites": 0,
+  "guestCalls": 0
+}
