@@ -1,0 +1,10 @@
+{
+  "sourcePin": "ffef35c4986fa140609e89e392295ced6e6b8a0b",
+  "candidateManifestPath": "/root/work/epic898-preparation/iscsi-safe-failure-diagnostics/final-ffef35c/review-candidate-manifest.json",
+  "candidateManifestSha256": "ec6f09e0a11496909ba402a5d5c16e3fcfa7674b7724b23e4ab39a75d149d138",
+  "kvmPlan": "Reuse reviewed one-class raw ZIP patch, preserve every other member/metadata/raw local record, root0700 backup/fsync atomic replacement/mold-agent-only restart/rollback; fresh exact live baseline after Root GO. Never replace whole newer module JAR.",
+  "nativePlan": "Current19ad df11 normal UI source recovery must reach terminal/pendingnull before new diagnostic CLI install. Preserve original SOURCE/BOOT/key/ref; no journal rehash or compatibility waiver. New signed CODE uses same pin/runtime only after Native49 and KVM normal PASS.",
+  "retryPlan": "After explicit deployment GO and readonly preservation, normal UI iSCSI retry once only. Failure uses first required step/category/returnCode, no raw target/credential output. Unknown or partial state holds further effects; no automatic reapply.",
+  "managedPrefixMismatch": "custom local.epic898 versus managed local.storage remains a separate future auth/cleanup ownership concern; no guard relaxation or first-failure cause claim.",
+  "actualCalls": 0
+}

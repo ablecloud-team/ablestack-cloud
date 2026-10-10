@@ -1,0 +1,93 @@
+{
+  "kind": "ISCSI_SAFE_FAILURE_DIAGNOSTIC_PINNED_NORMAL_SOURCE_PROOF",
+  "sourcePin": "ffef35c4986fa140609e89e392295ced6e6b8a0b",
+  "maven": {
+    "exitCode": 0,
+    "elapsedSeconds": 68.766,
+    "sourcePin": "ffef35c4986fa140609e89e392295ced6e6b8a0b",
+    "kind": "maven"
+  },
+  "tests": {
+    "tests": 72,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "selectors": 7,
+  "checkstylePassed": true,
+  "native": {
+    "selectorCount": 49,
+    "tests": 457,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reportedSeconds": 107.005,
+    "exit": {
+      "exitCode": 0,
+      "elapsedSeconds": 107.549,
+      "sourcePin": "ffef35c4986fa140609e89e392295ced6e6b8a0b",
+      "kind": "native"
+    },
+    "changedLifecycleFocusedTests": 6,
+    "changedLifecycleSeparateFrom49": true
+  },
+  "sourceBeforeAfterEqual": true,
+  "sourceGroupCounts": {
+    "java": 9903,
+    "native": 586,
+    "ui": 719
+  },
+  "sourceNulSha256": {
+    "java": "58584aa36a11cddc5145d4860ab94ad26f9e03a458e8ced6a97a83c66fd7cf0e",
+    "native": "f849763dd583086b766be844aab1a1a587f33dd28b02af364845c2be53a9a848",
+    "ui": "3d6aadb2ec97663461a1b23f86480b2abc2f335a0fdf5bb4b0cc391343eb112b"
+  },
+  "archivePinComparison": {
+    "sourcePin": "ffef35c4986fa140609e89e392295ced6e6b8a0b",
+    "comparedTrackedFiles": 11208,
+    "matched": 11208,
+    "missing": 0,
+    "mismatch": 0,
+    "archiveWrittenToDisk": false,
+    "actualEffects": 0
+  },
+  "immutableRoot": "/root/work/epic898-preparation/iscsi-safe-failure-diagnostics/final-ffef35c/immutable-72/module-outputs",
+  "immutableFileCount": 3054,
+  "immutableManifestSha256": "d67e5a1224448c295e65385a58fb924c4507f210c7273b44c3e8bb7e73c7f074",
+  "productionDeltas": {
+    "api": [],
+    "plugins/hypervisors/kvm": [
+      {
+        "classPath": "com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapper.class",
+        "oldSha256": "2eedeaf9515e5916c1669a40e10a92732c05550f54968c1a36ce10020787a4c4",
+        "newSha256": "45e4173eadecf0f525eff2e4e6f3e98ca15e1e26e9ccd48dad62151193229851"
+      }
+    ]
+  },
+  "wrapperClass": "/root/work/epic898-preparation/iscsi-safe-failure-diagnostics/final-ffef35c/immutable-72/module-outputs/plugins/hypervisors/kvm/classes/com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapper.class",
+  "wrapperClassSha256": "45e4173eadecf0f525eff2e4e6f3e98ca15e1e26e9ccd48dad62151193229851",
+  "abi": {
+    "sourcePin": "ffef35c4986fa140609e89e392295ced6e6b8a0b",
+    "candidateClass": "/root/work/epic898-preparation/iscsi-safe-failure-diagnostics/final-ffef35c/immutable-72/module-outputs/plugins/hypervisors/kvm/classes/com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapper.class",
+    "candidateSha256": "45e4173eadecf0f525eff2e4e6f3e98ca15e1e26e9ccd48dad62151193229851",
+    "baselineClass": "/root/work/epic898-preparation/qga-chunked-memfd-transport/final-ad297/immutable-69/module-outputs/plugins/hypervisors/kvm/classes/com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapper.class",
+    "baselineSha256": "2eedeaf9515e5916c1669a40e10a92732c05550f54968c1a36ce10020787a4c4",
+    "oldProtectedPublicDescriptors": 17,
+    "preserved": 17,
+    "missingDescriptors": 0,
+    "addedPublicProtectedDescriptors": [],
+    "additionalProductionClasses": 0,
+    "addedExternalReferences": 27,
+    "resolvedReferences": 27,
+    "missingReferences": 0,
+    "refProof": "/root/work/epic898-preparation/iscsi-safe-failure-diagnostics/final-ffef35c/added-member-resolution-proof.json",
+    "refProofSha256": "65acef4fa9543736c1720db92b87895cb145448e96be3de14cf9a2fc8258acb4",
+    "actualCalls": 0
+  },
+  "normalLogSha256": "b4e85b46b6556deaefbe71e0e8459620d75be4496000ce33f711e91cdc08f66e",
+  "nativeLogSha256": "e222553b469edca1dc96766a922a60650ede14a215cf33505bb98107dacfd8a6",
+  "mgtApiUiDdlChanged": false,
+  "actualDeploymentOrGuestCalls": 0,
+  "privateFieldsReturned": false,
+  "sourcePreservedAfterNormal": true
+}
