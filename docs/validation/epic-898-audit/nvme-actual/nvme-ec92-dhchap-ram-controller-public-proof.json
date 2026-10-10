@@ -1,0 +1,227 @@
+{
+  "kind": "NVME_EC92_MUTUAL_DHCHAP_RAM_CONTROLLER",
+  "subsystemUuid": "a5280d24-cacf-48f9-ac95-ebd5e730c6b5",
+  "namespaceUuid": "13fe7ca1-8321-47c2-96f3-32d535700754",
+  "nqn": "nqn.2026-06.local.storage:epic898-s-b6aa-all4-f1-20261009",
+  "volumeUuid": "ec92d6c6-2fde-4f35-9d31-e8a7efd69c63",
+  "freshCapabilityProofSha256": "15fe302796d2ac641355de55109e7c9bc6dbf4420372554459684045c8e1321f",
+  "namespaceBindingProofSha256": "e6200ed0664e0c71c851a3d1867e901469a9aa9b729c3f6058efa9067b156ce4",
+  "clients": {
+    "C1": {
+      "hostNqn": "nqn.2014-08.org.nvmexpress:uuid:32d13615-abb8-4c3c-abe9-9adfc12bb512",
+      "hostId": "32d13615-abb8-4c3c-abe9-9adfc12bb512",
+      "jobId": "0a6e913e-edee-40b7-9539-8aeb49a95341",
+      "jobStatus": 1,
+      "jobResultCode": 0,
+      "dhChapEnabledRequested": true,
+      "dhChapCtrlEnabledRequested": true,
+      "keyFormat": "DHHC-1:01",
+      "keyMaterialBytes": 32,
+      "aclId": "f8934dc5-f7ea-4b86-b1e2-53d194d49236",
+      "aclPublic": {
+        "id": "f8934dc5-f7ea-4b86-b1e2-53d194d49236",
+        "state": "Ready",
+        "principal": "nqn.2014-08.org.nvmexpress:uuid:32d13615-abb8-4c3c-abe9-9adfc12bb512",
+        "principaltype": "NVME_HOST_NQN",
+        "permission": "READ_WRITE",
+        "resourceid": "a5280d24-cacf-48f9-ac95-ebd5e730c6b5"
+      }
+    },
+    "C2": {
+      "hostNqn": "nqn.2014-08.org.nvmexpress:uuid:bebeea6f-87ec-4653-8aa3-7ce4c47fa93a",
+      "hostId": "bebeea6f-87ec-4653-8aa3-7ce4c47fa93a",
+      "jobId": "be0dd911-c2bb-4150-b2c9-0b075e841f79",
+      "jobStatus": 1,
+      "jobResultCode": 0,
+      "dhChapEnabledRequested": true,
+      "dhChapCtrlEnabledRequested": true,
+      "keyFormat": "DHHC-1:01",
+      "keyMaterialBytes": 32,
+      "aclId": "2f155fac-4ece-4358-9dac-a4d45850d5a0",
+      "aclPublic": {
+        "id": "2f155fac-4ece-4358-9dac-a4d45850d5a0",
+        "state": "Ready",
+        "principal": "nqn.2014-08.org.nvmexpress:uuid:bebeea6f-87ec-4653-8aa3-7ce4c47fa93a",
+        "principaltype": "NVME_HOST_NQN",
+        "permission": "READ_WRITE",
+        "resourceid": "a5280d24-cacf-48f9-ac95-ebd5e730c6b5"
+      }
+    }
+  },
+  "stages": {
+    "C1": {
+      "success": true,
+      "apiReady": true,
+      "stdinOnly": true,
+      "secretArgv": false,
+      "sessionCount": 0,
+      "dataWrites": 0,
+      "publicHashesVerified": true,
+      "publicFileCount": 2,
+      "nvmeFabricsPresent": true,
+      "loadedModules": {
+        "nvme_tcp": false,
+        "nvme_core": true,
+        "nvme_auth": true
+      },
+      "existingControllerCount": 0,
+      "existingNamespaceCount": 0,
+      "targetConnections": 0
+    },
+    "C2": {
+      "success": true,
+      "apiReady": true,
+      "stdinOnly": true,
+      "secretArgv": false,
+      "sessionCount": 0,
+      "dataWrites": 0,
+      "publicHashesVerified": true,
+      "publicFileCount": 2,
+      "nvmeFabricsPresent": true,
+      "loadedModules": {
+        "nvme_tcp": false,
+        "nvme_core": true,
+        "nvme_auth": true
+      },
+      "existingControllerCount": 0,
+      "existingNamespaceCount": 0,
+      "targetConnections": 0
+    }
+  },
+  "cases": [
+    {
+      "client": "C1",
+      "case": "NONE",
+      "result": {
+        "success": false,
+        "loginAccepted": false,
+        "dataWrites": 0,
+        "bytesWritten": 0,
+        "secretArgv": false,
+        "controllerDeleted": false,
+        "safeErrorClass": "OSError",
+        "errno": 126
+      }
+    },
+    {
+      "client": "C1",
+      "case": "WRONG_HOST",
+      "result": {
+        "success": false,
+        "loginAccepted": false,
+        "dataWrites": 0,
+        "bytesWritten": 0,
+        "secretArgv": false,
+        "controllerDeleted": false,
+        "safeErrorClass": "OSError",
+        "errno": 129
+      }
+    },
+    {
+      "client": "C1",
+      "case": "WRONG_CTRL",
+      "result": {
+        "success": false,
+        "loginAccepted": false,
+        "dataWrites": 0,
+        "bytesWritten": 0,
+        "secretArgv": false,
+        "controllerDeleted": false,
+        "safeErrorClass": "OSError",
+        "errno": 129
+      }
+    },
+    {
+      "client": "C1",
+      "case": "WRITE",
+      "result": {
+        "success": true,
+        "loginAccepted": true,
+        "dataWrites": 1,
+        "bytesWritten": 4096,
+        "secretArgv": false,
+        "controllerDeleted": true,
+        "publicationWaitSeconds": 0.05161980200500693,
+        "namespaceId": 1,
+        "namespaceBytes": 21474836480,
+        "protocolFlushVerified": true,
+        "patternReadVerified": true,
+        "readSha256": "31a8ca181e7ede2835efbb11dbe9f00baa1deeec0862655cbb1709f2999bd98b",
+        "expectedPatternSha256": "31a8ca181e7ede2835efbb11dbe9f00baa1deeec0862655cbb1709f2999bd98b",
+        "windowOffsetBytes": 1048576,
+        "windowLengthBytes": 4096,
+        "oldControllerAndDeviceFullyRemoved": true,
+        "freshReconnectReadVerified": true,
+        "freshReadSha256": "31a8ca181e7ede2835efbb11dbe9f00baa1deeec0862655cbb1709f2999bd98b",
+        "freshShaMatched": true,
+        "reconnectControllerDeleted": true,
+        "reconnectLoginAccepted": true
+      }
+    },
+    {
+      "client": "C2",
+      "case": "NONE",
+      "result": {
+        "success": false,
+        "loginAccepted": false,
+        "dataWrites": 0,
+        "bytesWritten": 0,
+        "secretArgv": false,
+        "controllerDeleted": false,
+        "safeErrorClass": "OSError",
+        "errno": 126
+      }
+    },
+    {
+      "client": "C2",
+      "case": "WRONG_HOST",
+      "result": {
+        "success": false,
+        "loginAccepted": false,
+        "dataWrites": 0,
+        "bytesWritten": 0,
+        "secretArgv": false,
+        "controllerDeleted": false,
+        "safeErrorClass": "OSError",
+        "errno": 129
+      }
+    },
+    {
+      "client": "C2",
+      "case": "WRONG_CTRL",
+      "result": {
+        "success": false,
+        "loginAccepted": false,
+        "dataWrites": 0,
+        "bytesWritten": 0,
+        "secretArgv": false,
+        "controllerDeleted": false,
+        "safeErrorClass": "OSError",
+        "errno": 129
+      }
+    },
+    {
+      "client": "C2",
+      "case": "READ",
+      "result": {
+        "success": false,
+        "loginAccepted": true,
+        "dataWrites": 0,
+        "bytesWritten": 0,
+        "secretArgv": false,
+        "controllerDeleted": true,
+        "safeErrorClass": "ValueError",
+        "oldControllerAndDeviceFullyRemoved": true
+      }
+    }
+  ],
+  "newGuiSecretEntries": 0,
+  "privateFilesOrArgv": 0,
+  "newVolumeOrFormatCalls": 0,
+  "clientReadOnlyPolicyClaimed": false,
+  "firstFailedCase": {
+    "client": "C2",
+    "case": "READ"
+  },
+  "credentialsDiscardedAtControllerEnd": true
+}

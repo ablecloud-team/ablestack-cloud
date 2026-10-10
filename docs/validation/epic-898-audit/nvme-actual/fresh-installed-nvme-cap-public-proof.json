@@ -1,0 +1,46 @@
+{
+  "actualReadonlyGuardCalls": 1,
+  "guestExitCode": 0,
+  "kind": "DF11_READONLY_SOURCE_RECOVERY_GUARD_PROVIDER",
+  "observation": {
+    "actualCapCalls": 1,
+    "allRequiredCapabilitiesLiteralTrue": true,
+    "bootId": "dc4b6429-35d3-4224-b199-3a0c6c829de0",
+    "capabilities": {
+      "configfsHostSupported": true,
+      "dhChapCtrlSupported": true,
+      "dhChapSupported": true,
+      "kernelTargetSupported": true
+    },
+    "cliSha256": "9b1a9836cd2f8ded28d0e8fab7a97a9da1a95b986f3faa445e2f0c0b708760a0",
+    "current": {
+      "configurationSha256": "63b67be91630d62f0bb7404be1bd4bc533844872771108afa54b1b11117cf0b7",
+      "instanceUuid": "3480bb2c-99ee-42f2-91cf-715ded5dd35f",
+      "operationUuid": "3186610b-9b73-4aea-9f08-ec04aa408f68",
+      "revision": 21,
+      "verifiedAt": 1791618823.0347116
+    },
+    "currentGenerationUnchanged": true,
+    "fixedReason": null,
+    "hostsPresentBefore": true,
+    "kernel": "6.12.95+deb12-amd64",
+    "kind": "FRESH_INSTALLED_NVME_CAPABILITY_REVERSIBLE_SAMPLE_PROBE",
+    "loadedModules": {
+      "configfs": true,
+      "nvmet": true,
+      "nvmet_tcp": true
+    },
+    "newTargetOrNamespaceCalls": 0,
+    "observedAtEpoch": 1791619433.6969738,
+    "pendingAbsentAfter": true,
+    "privateKeyCipherReads": 0,
+    "rootPresentBefore": true,
+    "sampleAbsentAfter": true,
+    "sampleAbsentBefore": true,
+    "sourceWriterCalls": 0,
+    "stage": "OBSERVATION_COMPLETE",
+    "temporarySampleDirectoryProbeAuthorized": true,
+    "zeroEffectsClaimed": false
+  },
+  "stdoutBytes": 1198
+}

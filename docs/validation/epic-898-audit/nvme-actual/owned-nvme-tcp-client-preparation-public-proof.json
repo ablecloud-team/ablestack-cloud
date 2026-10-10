@@ -1,0 +1,61 @@
+{
+  "kind": "OWN_C1_C2_NVME_TCP_MODULE_PREPARATION",
+  "targetConnections": 0,
+  "dataWrites": 0,
+  "clients": {
+    "C1": {
+      "kind": "OWN_NVME_TCP_CLIENT_MODULE_PREPARATION",
+      "targetConnections": 0,
+      "dataWrites": 0,
+      "credentialFiles": 0,
+      "moduleLoadEffectAuthorized": true,
+      "zeroEffectsClaimed": false,
+      "nvmeTcpLoadedBefore": false,
+      "modprobeAttempts": 1,
+      "modprobeReturnCode": 0,
+      "loadedModules": {
+        "nvme_tcp": true,
+        "nvme_core": true,
+        "nvme_auth": true
+      },
+      "nvmeFabrics": {
+        "present": true,
+        "rootOwner": true,
+        "mode": 384,
+        "characterDevice": true,
+        "major": 10,
+        "minor": 260
+      },
+      "existingControllerCount": 0,
+      "existingNamespaceCount": 0,
+      "success": true
+    },
+    "C2": {
+      "kind": "OWN_NVME_TCP_CLIENT_MODULE_PREPARATION",
+      "targetConnections": 0,
+      "dataWrites": 0,
+      "credentialFiles": 0,
+      "moduleLoadEffectAuthorized": true,
+      "zeroEffectsClaimed": false,
+      "nvmeTcpLoadedBefore": false,
+      "modprobeAttempts": 1,
+      "modprobeReturnCode": 0,
+      "loadedModules": {
+        "nvme_tcp": true,
+        "nvme_core": true,
+        "nvme_auth": true
+      },
+      "nvmeFabrics": {
+        "present": true,
+        "rootOwner": true,
+        "mode": 384,
+        "characterDevice": true,
+        "major": 10,
+        "minor": 260
+      },
+      "existingControllerCount": 0,
+      "existingNamespaceCount": 0,
+      "success": true
+    }
+  }
+}
