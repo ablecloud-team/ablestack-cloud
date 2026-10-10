@@ -1,0 +1,75 @@
+{
+  "kind": "ISCSI_WHOLE_IQN_NATIVE_NORMAL_SOURCE_PROOF",
+  "schemaVersion": 1,
+  "sourcePin": "ff1aa74eeda6fffba46c97d6f56c678cbdc2bf33",
+  "selectorCount": 51,
+  "actualTests": 480,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "exitCode": 0,
+  "unittestElapsedSeconds": 106.557,
+  "processElapsedSeconds": 107.164,
+  "nativeTrackedPaths": 552,
+  "sourceBeforeAfterSame": true,
+  "archiveMatchesCanonical": true,
+  "nativePathNulBytesNulSha256": "c76d09af970aa0af12c5ed47b066fae9051add240090c03cbeaf395bf02d136b",
+  "immutableEntries": [
+    {
+      "path": "systemvm/debian/usr/local/bin/ablestack-storagectl",
+      "sha256": "9b1a9836cd2f8ded28d0e8fab7a97a9da1a95b986f3faa445e2f0c0b708760a0",
+      "immutablePath": "/root/work/epic898-preparation/iscsi-readonly-lun-prep/normal-native-preparation/immutable-native-entrypoints-and-iscsi/systemvm/debian/usr/local/bin/ablestack-storagectl"
+    },
+    {
+      "path": "systemvm/debian/usr/local/bin/ablestack-storage-boot-reconcile",
+      "sha256": "f2926ebd58ae8889589e926e406e19ac10e4fd15b5a70eb0f24d80d3ce97682b",
+      "immutablePath": "/root/work/epic898-preparation/iscsi-readonly-lun-prep/normal-native-preparation/immutable-native-entrypoints-and-iscsi/systemvm/debian/usr/local/bin/ablestack-storage-boot-reconcile"
+    },
+    {
+      "path": "systemvm/debian/usr/local/bin/ablestack-storage-monitor",
+      "sha256": "af923d10c4591078b70b22904b62c07fced0479f2a773481214cb519d403f2f7",
+      "immutablePath": "/root/work/epic898-preparation/iscsi-readonly-lun-prep/normal-native-preparation/immutable-native-entrypoints-and-iscsi/systemvm/debian/usr/local/bin/ablestack-storage-monitor"
+    },
+    {
+      "path": "systemvm/debian/usr/local/lib/ablestack-storage/iscsi_auth.py",
+      "sha256": "9cbe0edd48d52472036e20dba6a2daa7b2a7908bc648d89536798acb9843137d",
+      "immutablePath": "/root/work/epic898-preparation/iscsi-readonly-lun-prep/normal-native-preparation/immutable-native-entrypoints-and-iscsi/systemvm/debian/usr/local/lib/ablestack-storage/iscsi_auth.py"
+    }
+  ],
+  "runtimeBundleContract": {
+    "runtimeAbiVersion": 1,
+    "desiredStateSchemaVersion": 1,
+    "sameIndexMappedLunMax": 255,
+    "blanketKernel255Claim": false,
+    "productPermissionContract": "WHOLE_IQN_CONSISTENT_PERMISSION",
+    "newPrivilegeOrAuthorityWaiver": false
+  },
+  "evidence": {
+    "source-before.json": {
+      "path": "/root/work/epic898-preparation/iscsi-readonly-lun-prep/normal-native-preparation/source-before.json",
+      "sha256": "036f9d4353bb0833aee8937b7ecd828cf750fd9575caf8fdbd7dedbfbf88d917"
+    },
+    "source-after.json": {
+      "path": "/root/work/epic898-preparation/iscsi-readonly-lun-prep/normal-native-preparation/source-after.json",
+      "sha256": "fa56854c2596176f7f05549101e483ad0ad0e4538aa94be927920d477abe550f"
+    },
+    "native-normal-process.json": {
+      "path": "/root/work/epic898-preparation/iscsi-readonly-lun-prep/normal-native-preparation/native-normal-process.json",
+      "sha256": "d596bcc9c49b79118edc6e0b9c814bc92b244044c6a30d6338405df92d76a1ce"
+    },
+    "native-normal.log": {
+      "path": "/root/work/epic898-preparation/iscsi-readonly-lun-prep/normal-native-preparation/native-normal.log",
+      "sha256": "371f4dfabae81909029af0284838fdab4e5083a608ee927177f7054289c6f203"
+    },
+    "native-actual-command-proof.json": {
+      "path": "/root/work/epic898-preparation/iscsi-readonly-lun-prep/normal-native-preparation/native-actual-command-proof.json",
+      "sha256": "947146e4f5cc2d617097213dd3d56b2647c472884bbf9cecdf1ceacfcb007bd6"
+    }
+  },
+  "collectorFirstRegexFailureWasMetadataOnly": true,
+  "nativeTestRerun": false,
+  "actualCalls": 0,
+  "signedPayloadCreatedByAudit": false,
+  "productionPermissionIoAccepted": false,
+  "finalUi1275Started": false
+}

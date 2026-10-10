@@ -1,0 +1,38 @@
+{
+  "sourcePin": "ff1aa74eeda6fffba46c97d6f56c678cbdc2bf33",
+  "baselineNormalPin": "cf6baa4851265dbe7a85179eabb48fac0a5ee043",
+  "baselineNormalIsNotWholeLiveJar": true,
+  "modules": {
+    "api": {
+      "changed": [],
+      "added": [],
+      "removed": []
+    },
+    "server": {
+      "changed": [
+        {
+          "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$5.class",
+          "oldSha256": "31077f8f39eb39e9232e8a38dd35e80301d9ddd9eab033287e41c77f373bee20",
+          "newSha256": "17209d6c36364443560bdbf9b336a48da2c2834673187e3ffd26a3c059330b51"
+        },
+        {
+          "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class",
+          "oldSha256": "0b307ad083d9a04849479dfa54fb6d2fd79987a8c4f83b73b82398011046b4aa",
+          "newSha256": "94b3c3a8ad818849e5e6077b28cc923fc59cc35406e33187b7426dbf9677069c"
+        }
+      ],
+      "added": [],
+      "removed": []
+    },
+    "plugins/hypervisors/kvm": {
+      "changed": [],
+      "added": [],
+      "removed": []
+    },
+    "plugins/storage/sharedfs/storagevm": {
+      "changed": [],
+      "added": [],
+      "removed": []
+    }
+  }
+}

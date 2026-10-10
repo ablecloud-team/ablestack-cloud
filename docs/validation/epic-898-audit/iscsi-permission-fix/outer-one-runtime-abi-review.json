@@ -1,0 +1,86 @@
+{
+  "kind": "FF1_WHOLE_IQN_RO_OUTER1_SELECTED_RUNTIME_ABI_REVIEW",
+  "sourcePin": "ff1aa74eeda6fffba46c97d6f56c678cbdc2bf33",
+  "normalCoreProofSha256": "2aa38bcbb790abdabeb564f88564d5e8d16687f6ff03ad1361dd54dcf412cfc0",
+  "moduleOutputManifestSha256": "b882bdd52e2fdc661f66ba84e2891b1dd569ed4ae71821c1490f06d5b267e7f1",
+  "normalDeltaSha256": "a412d9f95339956f04e37707eea987e542f1d83c45a9eaae86323c338dec1bfe",
+  "normalByteDeltaCount": 2,
+  "candidateManagerSha256": "94b3c3a8ad818849e5e6077b28cc923fc59cc35406e33187b7426dbf9677069c",
+  "previousManagerSha256": "0b307ad083d9a04849479dfa54fb6d2fd79987a8c4f83b73b82398011046b4aa",
+  "semanticClassCount": 1,
+  "newClassCount": 0,
+  "apiDeltaCount": 0,
+  "kvmDeltaCount": 0,
+  "providerDeltaCount": 0,
+  "existingPublicProtectedAbiPreserved": true,
+  "descriptorVisibilityHierarchyPreserved": true,
+  "addedExportedMembers": [
+    [
+      "METHOD",
+      "validateIscsiAclPermissionScope",
+      "(Lorg/apache/cloudstack/storage/dataservice/StorageBlockTargetVO;Ljava/lang/Long;Ljava/lang/String;Lorg/apache/cloudstack/storage/dataservice/StorageServiceInstance$Permission;)V",
+      4
+    ]
+  ],
+  "constantPoolMemberReferences": 2603,
+  "addedReferences": [
+    [
+      "10",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl",
+      "isActiveIscsiGrantState",
+      "(Lorg/apache/cloudstack/storage/dataservice/StorageServiceInstance$ResourceState;)Z"
+    ],
+    [
+      "10",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl",
+      "validateIscsiAclPermissionScope",
+      "(Lorg/apache/cloudstack/storage/dataservice/StorageBlockTargetVO;Ljava/lang/Long;Ljava/lang/String;Lorg/apache/cloudstack/storage/dataservice/StorageServiceInstance$Permission;)V"
+    ]
+  ],
+  "allReferencesResolved": true,
+  "checks": {
+    "member-link": {
+      "exitCode": 0,
+      "summary": [
+        "RESOLVED 2603 FAILED 0"
+      ],
+      "logSha256": "4621c2e9c5de1f1558c9b85c8197e2573c109f5b97acdbb2dcb78f7ca8f629c2"
+    },
+    "class-link": {
+      "exitCode": 0,
+      "summary": [
+        "CLASS_SIGNATURE_LINK_PASS 1"
+      ],
+      "logSha256": "2953dc381bdfc9c6cdbf3a32ec0111ecae4a373ed67e6960ce2406a2f05f418e"
+    }
+  },
+  "reusedInner": {
+    "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$5.class",
+    "normalOldSha256": "31077f8f39eb39e9232e8a38dd35e80301d9ddd9eab033287e41c77f373bee20",
+    "normalNewSha256": "17209d6c36364443560bdbf9b336a48da2c2834673187e3ffd26a3c059330b51",
+    "actualLogicalOldSha256": "9b3b37f958eacd6e493a442cd8e6b8c6a988739fb063fea48f885506d5bf935d",
+    "javapCodePrivateFieldsDescriptorsIdentical": true,
+    "constantPoolReferencesIdentical": true
+  },
+  "actualBaselineJarSha256": "935408703611ec4c53b455b9c453f53d4be3a94bc6d52efe222147cb9e5f4cc7",
+  "actualBaselinePid": 1400221,
+  "actualBaselinePostcheckSha256": "24a2824473a7e7ee73b2fd44d6b962bb85ca6cfa6b5c7ba8dd649628118d513a",
+  "previousSelectedAbiManifestSha256": "5dc76be92d9b1f39e15f4188d08e99fb2532e64aea6cac03c7f5510b1ad567aa",
+  "libraryHashes": {
+    "bcpkix-jdk18on-1.83.jar": "d3c4c6b700c74ef8164bb15e549d939721b8f14fc0ff89fe19b220243bcfcbd8",
+    "bcprov-jdk18on-1.83.jar": "82cf3a2af766c3bc874f6d36b9f20a8b99a8f09762dc776e8a227a45d8daaafb",
+    "bctls-jdk18on-1.83.jar": "0d1fd6b6fba6c44d4594d8be3f6888b00e2f1a00a3a6ee64b65b9be1e8291266",
+    "bcutil-jdk18on-1.83.jar": "ee7d0eb4e74de70a735f7fb36b604dd5c6ad35720d50b914604db042114a0185",
+    "cloud-plugin-storage-volume-linstor-4.23.0.0-Mold.Europa-202610011115.jar": "48168dbcdf6e40f15fae6ff37fd0b31af4943c6ea6db22b942b820245b04e893",
+    "cloud-plugin-storage-volume-storpool-4.23.0.0-Mold.Europa-202610011115.jar": "cfb0d309db1549df6e0ac550604e85f326b49d2e62c355ff63542d7513376c17",
+    "cloudstack-4.23.0.0-Mold.Europa-202610011115.jar": "ade51548bcdce95d6f9783458da009432c6f7f0904618b742000176c6f6443e5",
+    "java-linstor-0.7.0.jar": "2e391ab05ff261c3d1540ffb920fada129b94614cb0eb4bc12cafeca5c98b8e3",
+    "mysql-connector-j-8.4.0.jar": "d77962877d010777cff997015da90ee689f0f4bb76848340e1488f2b83332af5"
+  },
+  "historicalCachedUberJarIsNotWholeCurrentJar": true,
+  "actual9354WholeJarBytesClaimed": false,
+  "method": "cf6 selected logical classspace tied to deployed9354 postcheck; candidate outer only; existing compiled non-initializing reflection probes; remaining8 library hashes same.",
+  "scratchInitialEqualityAssertFailedOnLegitimateAddedProtectedMethod": true,
+  "actualCalls": 0,
+  "sourceEdits": 0
+}
