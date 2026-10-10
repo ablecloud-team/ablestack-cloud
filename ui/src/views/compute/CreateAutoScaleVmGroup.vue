@@ -963,7 +963,7 @@
         </a-card>
       </a-col>
       <a-col :md="24" :lg="7" v-if="!isMobile()">
-        <a-affix :offsetTop="75" class="vm-info-card">
+        <div class="vm-info-card">
           <info-card :footerVisible="true" :resource="vm" :title="$t('label.your.autoscale.vmgroup')" @change-resource="(data) => resource = data">
             <template #footer-content>
               <deploy-buttons
@@ -973,7 +973,7 @@
                 @handle-deploy="handleSubmit" />
             </template>
           </info-card>
-        </a-affix>
+        </div>
       </a-col>
     </a-row>
   </div>
@@ -3400,8 +3400,11 @@ export default {
   }
 
   .vm-info-card {
+    position: sticky;
+    top: 16px;
+
     :deep(.card-body) {
-      height: calc(100vh - 120px);
+      height: calc(100vh - 180px);
       min-height: 250px;
     }
 
