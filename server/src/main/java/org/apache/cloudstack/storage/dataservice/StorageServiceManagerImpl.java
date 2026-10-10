@@ -17,6 +17,7 @@
 
 package org.apache.cloudstack.storage.dataservice;
 
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -159,6 +160,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 
 public class StorageServiceManagerImpl extends ManagerBase implements StorageService, PluggableService, Configurable {
     private java.util.concurrent.ScheduledExecutorService interruptedWriterExecutor;
@@ -4666,8 +4669,46 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         String command = "local-source-status".equals(action) ? "smb identity local-source-status" : "identity capsule " + action;
         StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(), command,
                 request.toString(), "local-source-status".equals(action) ? 15 : 120, Set.of("capsule", "credentialPrivateKey")));
-        if (!result.isSuccess()) throw new CloudRuntimeException("LOCAL SOURCE owned checkpoint requires reconciliation");
+        if (!result.isSuccess()) {
+            String nativeReason = localSourceFailureReason(action, result.getResultJson());
+            throw new CloudRuntimeException("LOCAL SOURCE owned checkpoint requires reconciliation"
+                    + (nativeReason == null ? "" : " [nativeReason=" + nativeReason + "]"));
+        }
         return parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));
+    }
+
+    private static String localSourceFailureReason(String action, String resultJson) {
+        if (action == null || !Set.of("export-local-source", "import-local-source", "local-source-status", "replay-local-source-auth").contains(action)
+                || resultJson == null || resultJson.length() > 512) return null;
+        // Gson accepts uppercase keywords; require the native producer's literal false before parsing its closed object.
+        if (!Pattern.compile("\"success\"\\s*:\\s*false\\s*(?=[,}])").matcher(resultJson).find()) return null;
+        Set<String> fields = Set.of("success", "errorCode", "reason");
+        Set<String> classes = Set.of("ValueError", "TypeError", "KeyError", "AttributeError", "ImportError", "ModuleNotFoundError",
+                "PermissionError", "FileNotFoundError", "NotADirectoryError", "IsADirectoryError", "FileExistsError", "OSError",
+                "RuntimeError", "TimeoutError", "JSONDecodeError", "CalledProcessError", "UnicodeDecodeError", "UnicodeEncodeError", "InvalidTag");
+        Set<String> seen = new HashSet<>();String reason = null;
+        try (JsonReader reader = new JsonReader(new StringReader(resultJson))) {
+            reader.setLenient(false);reader.beginObject();
+            while (reader.hasNext()) {
+                String name = reader.nextName();
+                if (!fields.contains(name) || !seen.add(name)) return null;
+                switch (name) {
+                    case "success":
+                        if (reader.peek() != JsonToken.BOOLEAN || reader.nextBoolean()) return null;
+                        break;
+                    case "errorCode":
+                        if (reader.peek() != JsonToken.STRING || !"LOCAL_SOURCE_CHECKPOINT_REJECTED".equals(reader.nextString())) return null;
+                        break;
+                    case "reason":
+                        if (reader.peek() != JsonToken.STRING) return null;
+                        reason = reader.nextString();if (!classes.contains(reason)) return null;
+                        break;
+                    default: return null;
+                }
+            }
+            reader.endObject();
+            return seen.equals(fields) && reader.peek() == JsonToken.END_DOCUMENT ? reason : null;
+        } catch (java.io.IOException | RuntimeException rejected) { return null; }
     }
 
     protected void checkpointLocalSourceIdentity(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
