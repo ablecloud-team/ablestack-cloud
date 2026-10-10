@@ -218,3 +218,21 @@ test('a lost retry response clears the old failed job and recovers the matching 
   await wrapper.vm.check(operation)
   expect(operation).toMatchObject({ status: 'pending', jobid: 'retry-job' }); expect(postAPI).toHaveBeenCalledTimes(1); wrapper.unmount()
 })
+
+test('project response loss recovers within the requested project and reads its ROOT without a global project selection', async () => {
+  const operation = { ...recoveredOperation(), projectid: 'project' }
+  mockFinishedRestore({ ...restoredVm(), projectid: 'project' }, restoredDisks())
+  const wrapper = mountOperations([operation]); await wrapper.vm.check(operation)
+  expect(getAPI).toHaveBeenCalledWith('listVirtualMachines', expect.objectContaining({ keyword: operation.name, projectid: 'project' }), expect.any(Object))
+  expect(getAPI).toHaveBeenCalledWith('listVolumes', { virtualmachineid: 'vm', projectid: 'project' }, expect.any(Object))
+  expect(operation).toMatchObject({ rootid: 'new-root', status: 'complete', reconciled: true })
+  expect(postAPI).not.toHaveBeenCalled(); wrapper.unmount()
+})
+
+test('older project operation records discover the VM project before reading ROOT', async () => {
+  const operation = { ...recoveredOperation(), vmid: 'vm' }
+  mockFinishedRestore({ ...restoredVm(), projectid: 'project' }, restoredDisks())
+  const wrapper = mountOperations([operation]); await wrapper.vm.inspectVm(operation)
+  expect(getAPI).toHaveBeenCalledWith('listVolumes', { virtualmachineid: 'vm', projectid: 'project' }, expect.any(Object))
+  expect(operation).toMatchObject({ projectid: 'project', rootid: 'new-root' }); wrapper.unmount()
+})

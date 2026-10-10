@@ -3430,6 +3430,7 @@ export default {
                   sourceid: this.selectedCreationSource.id,
                   sourcekind: this.selectedCreationSource.sourcekind,
                   name: deployVmData.name,
+                  projectid: deployVmData.projectid,
                   status: 'submitting',
                   startvm: deployVmData.startvm,
                   requiredDataDisks: this.selectedDataDiskOffering?.id ? this.selectedDataDiskCount : 0,

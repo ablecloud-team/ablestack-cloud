@@ -60,8 +60,9 @@ export default {
     },
     async inspectVm (operation) {
       if (!operation.vmid) return
-      const vm = (await getAPI('listVirtualMachines', { id: operation.vmid, details: 'all' }, { backgroundJob: true, timeout: 15000 })).listvirtualmachinesresponse.virtualmachine?.[0]
-      const volumes = (await getAPI('listVolumes', { virtualmachineid: operation.vmid }, { backgroundJob: true, timeout: 15000 })).listvolumesresponse.volume || []
+      const vm = (await getAPI('listVirtualMachines', { id: operation.vmid, details: 'all', ...(operation.projectid ? { projectid: operation.projectid } : {}) }, { backgroundJob: true, timeout: 15000 })).listvirtualmachinesresponse.virtualmachine?.[0]
+      if (vm?.projectid) operation.projectid = vm.projectid
+      const volumes = (await getAPI('listVolumes', { virtualmachineid: operation.vmid, ...(operation.projectid ? { projectid: operation.projectid } : {}) }, { backgroundJob: true, timeout: 15000 })).listvolumesresponse.volume || []
       const roots = volumes.filter(volume => volume.type === 'ROOT' && volume.deviceid === 0 && volume.virtualmachineid === operation.vmid)
       const owned = operation.sourceid && vm?.details?.['vm.creation.source.id'] === operation.sourceid &&
         vm.details?.['vm.creation.source.kind'] === operation.sourcekind && new Date(vm.created).getTime() >= new Date(operation.created).getTime() - 5000
@@ -77,7 +78,7 @@ export default {
     },
     async recover (operation) {
       if (!operation.name) return
-      const result = (await getAPI('listVirtualMachines', { keyword: operation.name, details: 'all' }, { backgroundJob: true, timeout: 15000 })).listvirtualmachinesresponse
+      const result = (await getAPI('listVirtualMachines', { keyword: operation.name, details: 'all', ...(operation.projectid ? { projectid: operation.projectid } : {}) }, { backgroundJob: true, timeout: 15000 })).listvirtualmachinesresponse
       const matches = (result.virtualmachine || []).filter(vm => (vm.name === operation.name || vm.displayname === operation.name) &&
         vm.details?.['vm.creation.source.id'] === operation.sourceid && new Date(vm.created).getTime() >= new Date(operation.created).getTime() - 5000)
       if (matches.length !== 1) return

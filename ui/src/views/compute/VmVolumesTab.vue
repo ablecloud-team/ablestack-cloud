@@ -137,7 +137,7 @@ export default {
         const vmResponse = await getAPI('listVirtualMachines', { id: vmId })
         backupReason = volumeBackupReason(vmResponse.listvirtualmachinesresponse?.virtualmachine?.find(vm => vm.id === vmId))
         if (this.allowed('listVMSnapshot')) {
-          const response = await getAPI('listVMSnapshot', { virtualmachineid: vmId, page: 1, pagesize: 1, listall: true })
+          const response = await getAPI('listVMSnapshot', { virtualmachineid: vmId, ...(this.resource.projectid ? { projectid: this.resource.projectid } : {}), page: 1, pagesize: 1, listall: true })
           const data = response.listvmsnapshotresponse
           if (data) count = Math.max(Number(data.count || 0), data.vmSnapshot?.length || 0)
           if (!Number.isFinite(count)) count = null
@@ -164,7 +164,7 @@ export default {
       const snapshots = this.refreshSnapshots()
       const request = this.listRequestToken('fetchData'); this.loading = !request.loaded
       try {
-        const response = await getAPI('listVolumes', { virtualmachineid: this.resource.id, listall: true, listsystemvms: true })
+        const response = await getAPI('listVolumes', { virtualmachineid: this.resource.id, ...(this.resource.projectid ? { projectid: this.resource.projectid } : {}), listall: true, listsystemvms: true })
         if (!this.isListRequestCurrent('fetchData', request)) return
         const rows = (response.listvolumesresponse.volume || []).filter(row => row.virtualmachineid === this.resource.id).sort((a, b) => a.deviceid - b.deviceid)
         if (JSON.stringify(rows) !== JSON.stringify(this.rows)) this.rows = rows
@@ -212,9 +212,9 @@ export default {
           const response = await getAPI('listVirtualMachines', { id: vm.id })
           const freshVm = response.listvirtualmachinesresponse.virtualmachine?.find(item => item.id === vm.id)
           let freshVolume = operation.volume
-          if (freshVolume?.id) { const result = await getAPI('listVolumes', { id: freshVolume.id, listall: true }); freshVolume = result.listvolumesresponse.volume?.find(item => item.id === freshVolume.id) }
+          if (freshVolume?.id) { const result = await getAPI('listVolumes', { id: freshVolume.id, ...(vm.projectid ? { projectid: vm.projectid } : {}), listall: true }); freshVolume = result.listvolumesresponse.volume?.find(item => item.id === freshVolume.id) }
           if (['createVolume', 'attachVolume'].includes(api) && operation.deviceId !== undefined && operation.deviceId !== null && operation.deviceId !== '') {
-            const attached = await getAPI('listVolumes', { virtualmachineid: vm.id, listall: true })
+            const attached = await getAPI('listVolumes', { virtualmachineid: vm.id, ...(vm.projectid ? { projectid: vm.projectid } : {}), listall: true })
             const deviceReason = volumeDeviceIdReason(operation.deviceId, attached.listvolumesresponse.volume || [])
             if (deviceReason) throw new Error(this.$t(deviceReason))
           }
