@@ -41,3 +41,15 @@ Patch SHA-256 171b02f722db8e3616afda8d12c71abe8fde220b36687fc3f22ff5f5d2a8a19a, 
 ![실제 런타임 카탈로그 사용 가능 상태](iscsi-permission-fix/catalog-available.jpg)
 
 [로컬 서명 proof](iscsi-permission-fix/local-signed-payload-proof.json), [공개 신뢰 키·파일 게시](iscsi-permission-fix/actual-public-trust-publication-proof.json), [정상 UI 카탈로그 AVAILABLE proof](iscsi-permission-fix/catalog-available-public-proof.json).
+
+## 정상 UI CODE 적용 및 후속 ACL 조회 실패
+
+정상 UI preflight job48efd41b-3aa2-449c-8f69-6138916eb90f는 status1/result0/PREFLIGHT_READY였다. 동일 operation af2b6a99-ad8c-4657-970a-be5e5404c08f / transaction runtime-2b1938a1-321d-43b5-8c4b-558200c6b7a3의 적용 job5e14f915-abb4-43d6-995e-7f81abe38e3f는 status1/result0/COMPLETE100으로 완료했다. 설치 CLI9b1 및 runtimeCodeVerified·healthSuccess·serviceAvailabilityVerified=true를 확인했다. BOOT·GEN13·기존 데이터와 빈 세션은 보존됐다. CODE 교체만으로 LUN 권한을 다시 적용하지 않았으므로 이 시점의 C2 write_protect=0은 후속 구성 적용 대상으로 구분한다.
+
+![실제 CODE 적용 COMPLETE100](iscsi-permission-fix/code-complete.jpg)
+
+같은 C1 ACL을 재적용하는 첫 API jobf0216e93-8642-406e-a957-71394e007b59가 status2/result431로 실패했다. 다음 C2 호출·클라이언트 시험은 0이며 RAM 자격을 폐기했다. 실제 C1/C2 ACL은 같은 UUID로 Ready/BLOCK_TARGET 및 RW/RO를 유지했다. 실패 후 구성·데이터·빈 세션·기존 WP0/0도 동일했다.
+
+원 오류의 NFS ACL 조회 실패 접두어=true, block ACL 접두어=false를 확인했다. 소스의 getStorageServiceSyncId가 모든 ACL에 FILE_SHARE 전용 requireAcl을 호출하는 경계와 일치한다. 블록 ACL 처리 분기에 도달하지 못하는 공통 범위 계산 결함으로, 새 권한 validator의 거절로 표시하지 않는다. 해당 관리 서버 분기 수정과 정상 검증·배포 후 실제 RO 거절을 이어간다.
+
+[CODE 완료 및 정확한 pin](iscsi-permission-fix/code-complete-public-proof.json), [설치 코드·데이터 보존](iscsi-permission-fix/after-ff1-code-proven-85288-guardian-public-proof.json), [첫 ACL 실패](iscsi-permission-fix/retry-iscsi-chap-ram-controller-public-proof.json), [NFS 조회 오류 접두어](iscsi-permission-fix/c1-job-nfs-vs-block-prefix-public-proof.json), [현재 ACL 목록](iscsi-permission-fix/own-current-iscsi-acl-identifiers-public-proof.json), [실패 후 보존](iscsi-permission-fix/after-c1-rotation-failure-proven-85288-guardian-public-proof.json).
