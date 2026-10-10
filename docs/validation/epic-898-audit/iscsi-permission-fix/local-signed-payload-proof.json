@@ -1,0 +1,87 @@
+{
+  "kind": "PERMISSION_FF1_FROZEN_TEST_CODE_LOCAL_RAM_SIGNED_PAYLOAD",
+  "sourcePin": "ff1aa74eeda6fffba46c97d6f56c678cbdc2bf33",
+  "normalProofSha256": "15840325c46f42657cd934afebd7436c44e83deaca5dc7f7bf3e99e58a0bca8c",
+  "nativeTests": 480,
+  "nativeSelectors": 51,
+  "nativeNormalSourcePin": "ff1aa74eeda6fffba46c97d6f56c678cbdc2bf33",
+  "managerNormalRequiredBeforeProductionApply": true,
+  "kvmRuntimeUnchanged": true,
+  "version": "epic898-iscsi-permission-ff1aa7-20261010",
+  "keyId": "epic898-test-iscsi-permission-ff1aa7",
+  "builderSha256": "4fcc1bc3b7aa3a940a29f6bbcaed362eb3476770f39c0aa67cace38f0f698522",
+  "signerSourceSha256": "4939abd5dd81d9f08856e047f32e5f86558cdb0906e22123ff718aade78fff52",
+  "entrySha256": {
+    "ablestack-storagectl": "9b1a9836cd2f8ded28d0e8fab7a97a9da1a95b986f3faa445e2f0c0b708760a0",
+    "ablestack-storage-boot-reconcile": "f2926ebd58ae8889589e926e406e19ac10e4fd15b5a70eb0f24d80d3ce97682b",
+    "ablestack-storage-monitor": "af923d10c4591078b70b22904b62c07fced0479f2a773481214cb519d403f2f7"
+  },
+  "archiveEntries": [
+    {
+      "path": "ablestack-storagectl",
+      "mode": "0755",
+      "uid": 0,
+      "gid": 0,
+      "bytes": 1803166,
+      "sha256": "9b1a9836cd2f8ded28d0e8fab7a97a9da1a95b986f3faa445e2f0c0b708760a0"
+    },
+    {
+      "path": "ablestack-storage-boot-reconcile",
+      "mode": "0755",
+      "uid": 0,
+      "gid": 0,
+      "bytes": 16804,
+      "sha256": "f2926ebd58ae8889589e926e406e19ac10e4fd15b5a70eb0f24d80d3ce97682b"
+    },
+    {
+      "path": "ablestack-storage-monitor",
+      "mode": "0755",
+      "uid": 0,
+      "gid": 0,
+      "bytes": 6893,
+      "sha256": "af923d10c4591078b70b22904b62c07fced0479f2a773481214cb519d403f2f7"
+    }
+  ],
+  "entrySourceBeforeAfterSame": true,
+  "signatureVerifiedWithExactNewPublicKey": true,
+  "signatureBytes": 64,
+  "privateKeyRegularFiles": 0,
+  "privateKeyBytesInArgvOrEnvOrStdout": false,
+  "privateDescriptorWasFullSealedOwner0600AndAtLeast16": true,
+  "privateDescriptorClosedAndInputBytearrayWiped": true,
+  "wholeHeapErasureClaimed": false,
+  "newDistinctTestPublicTrustLabel": true,
+  "oldTrustChanged": false,
+  "oldSignedPublicFiveBeforeAfterSame": true,
+  "files": {
+    "ablestack-storage-runtime-epic898-iscsi-permission-ff1aa7-20261010.tar.gz": {
+      "path": "/root/work/epic898-preparation/iscsi-ro-sense-harness-preparation/permission-ff1aa74-local-preparation/signed-runtime/ablestack-storage-runtime-epic898-iscsi-permission-ff1aa7-20261010.tar.gz",
+      "bytes": 400676,
+      "sha256": "194e81a61ab7b1d5df27a2137522fb5e574115ede9a4a71689aa991d7926267f"
+    },
+    "manifest.json": {
+      "path": "/root/work/epic898-preparation/iscsi-ro-sense-harness-preparation/permission-ff1aa74-local-preparation/signed-runtime/manifest.json",
+      "bytes": 1447,
+      "sha256": "5d41b3509f1f7e6738a8a7f4c3938ae5423f379daca541a46e83d8a49de14fe8"
+    },
+    "manifest.sig": {
+      "path": "/root/work/epic898-preparation/iscsi-ro-sense-harness-preparation/permission-ff1aa74-local-preparation/signed-runtime/manifest.sig",
+      "bytes": 64,
+      "sha256": "4367bcc2a7ac16b1229be24c0014dbac12d2c1200d7df09bc7da770bd131e14c"
+    },
+    "epic898-test-iscsi-permission-ff1aa7.pem": {
+      "path": "/root/work/epic898-preparation/iscsi-ro-sense-harness-preparation/permission-ff1aa74-local-preparation/signed-runtime/epic898-test-iscsi-permission-ff1aa7.pem",
+      "bytes": 113,
+      "sha256": "b546a683920dbf66146b9acb64871adf72572107c7eacb63664230218286fc57"
+    },
+    "SHA256SUMS": {
+      "path": "/root/work/epic898-preparation/iscsi-ro-sense-harness-preparation/permission-ff1aa74-local-preparation/signed-runtime/SHA256SUMS",
+      "bytes": 299,
+      "sha256": "8ec7b6a1cce3ffb21f284d2c5c3fe0c446bfe31a961bbde75ea05138f745fc99"
+    }
+  },
+  "catalogTrustRemotePublicationOrCodeApplyCalls": 0,
+  "actualHostGuestCalls": 0,
+  "systemAWholeImageOrOriginalSourceRoleChanged": false,
+  "ui1275": "UNSTARTED"
+}
