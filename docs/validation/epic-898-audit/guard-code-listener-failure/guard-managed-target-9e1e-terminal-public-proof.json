@@ -1,0 +1,57 @@
+{
+  "kind": "GUARD_8DE_MANAGED_TARGET_ONE_NORMAL_UI_FAILURE_PUBLIC_PROOF",
+  "sourcePin": "8de98e253660f406f6f0b276a6ace1aa53e9637d",
+  "installedNativeCliSha256": "c2655694946b7e1ec630940233ba59fb64724593a74a6c569674269727734f12",
+  "codeAfterProofSha256": "799d5b526355a69334e90bd9aff9148b8d32e753d66d7db733e78dc8c53e0595",
+  "submittedAtUtc": "2026-10-10T04:46:58.376Z",
+  "request": {
+    "command": "createStorageIscsiTarget",
+    "instanceid": "3480bb2c-99ee-42f2-91cf-715ded5dd35f",
+    "targetname": "iqn.2026-05.local.storage:epic898-s-b6aa-all4-f1-20261009-9657",
+    "lun": "0",
+    "volumeid": "db3de2b7-5fcb-4cb5-a0aa-7ac41a161ffa",
+    "endpointmode": "LISTENER_GROUP",
+    "listenerports": "3260",
+    "cleanupvolumeonfailure": "false"
+  },
+  "normalUiTargetCreateSubmits": 1,
+  "networkEnabledImmediatelyBeforeSubmit": true,
+  "beforeUiCounts": {
+    "target": 0,
+    "listenerGroup": 0,
+    "acl": 0,
+    "session": 0
+  },
+  "selectedBackingMode": "CURRENT",
+  "selectedRawSizeBytes": 21474836480,
+  "rootExcludedBefore": true,
+  "job": {
+    "id": "771f4418-21b5-4ce4-8840-5f1f42eb3a3f",
+    "status": 2,
+    "resultcode": 530,
+    "errorcode": 530
+  },
+  "operation": {
+    "id": "9e1eac30-07b8-47d5-9d23-861f6464cd32",
+    "state": "ROLLED_BACK"
+  },
+  "nativeFixedDiagnostic": {
+    "family": "ISCSI_GUARD_PROJECTION",
+    "guard": "LISTENER",
+    "returnCode": null,
+    "category": "SYSTEM_EXIT",
+    "observed": true
+  },
+  "genericNativeExitCode": 1,
+  "kindLiteralNotPrintedByWrapperProjection": true,
+  "extractorHistory": "Initial kind literal check and restrictive category punctuation boundary did not match; existing RAM was reused for exact reviewed projection enum extraction.",
+  "newTargetCreatedOrReadyClaimed": false,
+  "rawErrorTextPayloadCredentialsPrintedOrSaved": false,
+  "additionalTargetSubmits": 0,
+  "recoverySubmits": 0,
+  "chapAclCalls": 0,
+  "rawWriteCalls": 0,
+  "nvmeCalls": 0,
+  "oldSourceStatusImportExportActions": 0,
+  "ui1275": "UNSTARTED"
+}
