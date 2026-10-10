@@ -24,6 +24,8 @@ Patch SHA-256 171b02f722db8e3616afda8d12c71abe8fde220b36687fc3f22ff5f5d2a8a19a, 
 
 관리 본체 클래스 1개를 한 번 반영했고 mold를 한 번 재기동했다. 새 JAR SHA-256은 ed3a6be2492af27d2c57072959e25db232050fecd7715154695244f6c5d424bf, PID는 1408330이며 백업은 /root/epic898-whole-iqn-ro-ff1aa74e-backup-20261010-153548이다. 다른 논리 JAR entry, 런타임 3개 클래스, 재사용 클래스와 라이브러리, UI 및 config를 보존했다. 게스트 호출은 0이며 게스트 코드와 실제 권한 적용은 후속이다.
 
-사후 SSH에서 새 JAR/PID/94b3 본체와 기존 Runtime·라이브러리·UI3490/config/trust52 일치를 확인했다. 정상 API의 전체 자원 비교는 아직 proof 저장을 마무리하는 중이므로 이 문서에서 완료로 확대하지 않는다. 추가 재시작은 없다.
+사후 SSH에서 새 JAR/PID/94b3 본체와 기존 Runtime·라이브러리·UI3490/config/trust52 일치를 확인했다. 정상 API의 사후 비교도 완료했다. 호스트 3대 Up, 서비스 8개 Running, FS 8개·VM 21개·볼륨 33개·F1 operation 22개와 기존 카탈로그 두 개의 UUID 및 pin을 포함한 7개 참조 집합이 모두 유지됐다. 정상 로그인도 성공했다. 첫 사후 수집의 로컬 파일명 오류는 별도 보존했고 관리 장애로 해석하지 않았다. 추가 재시작은 없다.
 
 [업로드 검증](iscsi-permission-fix/upload-verify-only-public-result.json), [실제 반영 결과](iscsi-permission-fix/apply-once-public-result.json), [정확한 배포 묶음 검증](iscsi-permission-fix/local-delivery-proof.json).
+
+[정상 API 사후 자원 보존 proof](iscsi-permission-fix/post-ff1-normal-api-readiness-public-proof.json) SHA-256 e15abe4a3a58b78e7940b04068b0af82b02d51a1d6865d7e69b93035592af4dc. SSH 사후 proof SHA-256 a4f8fb57935b4352c93e5334136addb1eae2cec5364390417a353e74ca85fefe.
