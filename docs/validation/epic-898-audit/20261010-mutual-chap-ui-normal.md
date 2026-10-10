@@ -36,3 +36,11 @@
 Index를 마지막에 atomic 교체했고 config d3e의 symlink, WEB-INF, color.less, 기존 해시 자산, 런타임 공개 파일 및 다른 모든 웹 파일을 보존했다. 관리 JAR 935408/PID 1400221, 라이브러리 9개, 공개 신뢰 키 52개는 동일하며 재시작은 수행하지 않았다. 실제 브라우저 입력·검증 결과는 후속이다. 이 정적 배포 완료는 실제 상호 CHAP 인증 완료를 의미하지 않는다.
 
 [실제 선택 6개 자산 배포 proof](mutual-chap-ui-normal/actual-ui-mutual-six-apply-public-proof.json) SHA-256 a33ec55e89ce99b268632e410f90b2011ffee9d7652780708d586487ca17dcc9.
+
+## 실제 브라우저 확인
+
+새 UI에서 기존 C2 ACL의 READ_ONLY, CHAP 활성화 및 사용자 이름이 유지되고 비밀 필드는 비어 있음을 확인했다. 상호 CHAP 스위치를 켜면 사용자 이름과 비밀 입력이 실제 표시됐다. 새 비밀 입력 없이 확인하면 기본 CHAP 자격 누락 메시지로 차단됐고 ACL 변경 API 호출은 0이었다. 기본 검증이 먼저 동작했으므로 실제 상호 CHAP 전용 오류를 검증한 것으로 확대하지 않는다. 폼을 취소했으며 실제 상호 CHAP 인증과 추가 클라이언트 쓰기는 수행하지 않았다.
+
+![실제 상호 CHAP 입력 표시](mutual-chap-ui-normal/actual-mutual-ui-fields.jpg)
+
+[브라우저 표시 및 제출 차단 proof](mutual-chap-ui-normal/actual-mutual-ui-controls-public-proof.json).

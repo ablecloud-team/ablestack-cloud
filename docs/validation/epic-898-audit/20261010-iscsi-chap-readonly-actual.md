@@ -33,3 +33,5 @@ RAW 시험 구간은 동일한 패턴을 유지했고 헤더 64 KiB 및 구간 �
 - 기본 CHAP controller proof와 실제 UI 이미지는 후속 증거 묶음에 포함한다.
 
 [실제 CHAP controller 결과](iscsi-chap-readonly-actual/basic-iscsi-chap-ram-controller-public-proof.json), [권한 결함과 제한 보존 관측](iscsi-chap-readonly-actual/chap-c2-ro-write-defect-readonly-public-proof.json), [대상 실제 매핑](iscsi-chap-readonly-actual/portfix-own-target-ready-public-readback.json).
+
+![실제 C2 읽기 전용 ACL 표시](iscsi-chap-readonly-actual/actual-c2-read-only-ui.jpg)

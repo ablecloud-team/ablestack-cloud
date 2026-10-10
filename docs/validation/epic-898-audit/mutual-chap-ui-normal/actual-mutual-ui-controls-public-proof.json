@@ -1,0 +1,25 @@
+{
+  "kind": "ACTUAL_UI_MUTUAL_FIELDS_AND_MISSING_CREDENTIAL_READONLY_VALIDATION",
+  "uiSourcePin": "20a3c7c7e7e4144c128ccbe2ec527d2a322e223d",
+  "deploymentProofSha256": "a33ec55e89ce99b268632e410f90b2011ffee9d7652780708d586487ca17dcc9",
+  "existingAclUuid": "c3866dde-4b7b-4ba5-a898-2fe6d6be5e70",
+  "existingPopulation": {
+    "permission": "READ_ONLY",
+    "chapEnabled": true,
+    "chapUsername": "epic898cf6c2",
+    "mutualChapEnabled": false
+  },
+  "mutualFieldsObserved": [
+    "상호 CHAP 사용",
+    "상호 CHAP 사용자 이름",
+    "상호 CHAP 비밀값"
+  ],
+  "mutualToggleFormOnly": true,
+  "secretValuesEntered": 0,
+  "observedMissingCredentialMessage": "CHAP 사용자 이름과 비밀 키를 모두 입력하세요.",
+  "aclApiWrites": 0,
+  "mutualSpecificMissingMessageClaimed": false,
+  "actualMutualConfigured": false,
+  "actualClientWrites": 0,
+  "finalUi1275Started": false
+}
