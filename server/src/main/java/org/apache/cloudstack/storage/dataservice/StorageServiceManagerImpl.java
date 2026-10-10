@@ -11984,7 +11984,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 findProtocolEndpoint(instance.getId(), protocolType, null, defaultProtocolPort(protocolType)) :
                 storageServiceProtocolDao.findByInstanceIdAndProtocol(instance.getId(), protocolType);
         if (protocol == null) {
-            protocol = new StorageServiceProtocolVO(instance.getId(), protocolType, true, null, isEndpointProtocol(protocolType) ? 2049 : null);
+            protocol = new StorageServiceProtocolVO(instance.getId(), protocolType, true, null, isEndpointProtocol(protocolType) ? defaultProtocolPort(protocolType) : null);
             protocol.setState(StorageServiceInstance.ResourceState.Ready);
             storageServiceProtocolDao.persist(protocol);
         } else if (!protocol.isEnabled()) {
