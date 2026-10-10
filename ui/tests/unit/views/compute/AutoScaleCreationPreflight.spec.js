@@ -17,6 +17,7 @@
 
 import Wizard from '@/views/compute/CreateAutoScaleVmGroup.vue'
 import Offering from '@/views/compute/wizard/ComputeOfferingSelection.vue'
+import NetworkConfiguration from '@/views/compute/wizard/NetworkConfiguration.vue'
 import { autoScaleInteger } from '@/utils/autoscaleValidation'
 import { getAPI } from '@/api'
 jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
@@ -176,4 +177,23 @@ test.each(['scaleup', 'scaledown'])('policy inputs validate the selected policy 
   await expect(ctx.validateNumber({ field: `${direction}quiettime` }, undefined)).resolves.toBeUndefined()
   ctx[key][`${direction}duration`] = '0.5'
   await expect(ctx.validateNumber({ field: `${direction}duration` }, undefined)).rejects.toBeDefined()
+})
+
+test.each([
+  ['fetchAvailableGuestIps', 'listAvailableGuestIps'],
+  ['fetchPublicIps', 'listPublicIpAddresses']
+])('optional IP query is skipped without permission (%s)', async (method, api) => {
+  const ctx = { $store: { getters: { apis: {} } }, ipOptions: {}, ipOptionsLoading: {} }
+  await NetworkConfiguration.methods[method].call(ctx, { id: 'network' })
+  expect(getAPI).not.toHaveBeenCalled()
+  expect(ctx.ipOptions.network).toEqual([])
+  expect(ctx.ipOptionsLoading.network).toBe(false)
+})
+test('authorized available-IP query retains network and finishes loading on empty response', async () => {
+  const ctx = { $store: { getters: { apis: { listAvailableGuestIps: {} } } }, ipOptions: {}, ipOptionsLoading: {}, $notifyError: jest.fn() }
+  getAPI.mockResolvedValue({})
+  await NetworkConfiguration.methods.fetchAvailableGuestIps.call(ctx, { id: 'network' })
+  expect(getAPI).toHaveBeenCalledWith('listAvailableGuestIps', { networkid: 'network', pagesize: -1 })
+  expect(ctx.ipOptionsLoading.network).toBe(false)
+  expect(ctx.$notifyError).not.toHaveBeenCalled()
 })

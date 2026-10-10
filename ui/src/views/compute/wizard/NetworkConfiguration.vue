@@ -260,29 +260,35 @@ export default {
       })
     },
     fetchPublicIps (network) {
-      this.ipOptionsLoading[network.id] = true
       this.ipOptions[network.id] = []
-      getAPI('listPublicIpAddresses', {
+      this.ipOptionsLoading[network.id] = false
+      if (!this.$store.getters.apis.listPublicIpAddresses) return Promise.resolve()
+      this.ipOptionsLoading[network.id] = true
+      return getAPI('listPublicIpAddresses', {
         networkid: network.id,
         allocatedonly: false,
         forvirtualnetwork: false
       }).then(json => {
-        const listPublicIps = json.listpublicipaddressesresponse.publicipaddress || []
+        const listPublicIps = json.listpublicipaddressesresponse?.publicipaddress || []
         this.ipOptions[network.id] = listPublicIps
           .filter(item => item.state === 'Free')
           .map(item => ({ ipaddress: item.ipaddress }))
+      }).catch(error => {
+        this.$notifyError(error)
       }).finally(() => {
         this.ipOptionsLoading[network.id] = false
       })
     },
     fetchAvailableGuestIps (network) {
-      this.ipOptionsLoading[network.id] = true
       this.ipOptions[network.id] = []
-      getAPI('listAvailableGuestIps', {
+      this.ipOptionsLoading[network.id] = false
+      if (!this.$store.getters.apis.listAvailableGuestIps) return Promise.resolve()
+      this.ipOptionsLoading[network.id] = true
+      return getAPI('listAvailableGuestIps', {
         networkid: network.id,
         pagesize: -1
       }).then(json => {
-        const listAvailableGuestIps = json.listavailableguestipsresponse.availableguestip || []
+        const listAvailableGuestIps = json.listavailableguestipsresponse?.availableguestip || []
         this.ipOptions[network.id] = listAvailableGuestIps.map(item => ({ ipaddress: item.ipaddress }))
       }).catch(error => {
         this.$notifyError(error)
