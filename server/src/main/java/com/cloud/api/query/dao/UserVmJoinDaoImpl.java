@@ -585,7 +585,7 @@ public class UserVmJoinDaoImpl extends GenericDaoBaseWithTagInformation<UserVmJo
 
                 }
             }
-            if (vmDetails.size() == 0) {
+            if (vmDetails.size() == 0 || (resourceDetails.containsKey("vm.creation.source") && !resourceDetails.containsKey(ApiConstants.BootType.UEFI.toString()))) {
                 userVmResponse.setBootType("Bios");
                 userVmResponse.setBootMode("legacy");
             }

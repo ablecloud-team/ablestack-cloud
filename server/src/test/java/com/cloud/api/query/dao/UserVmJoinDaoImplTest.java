@@ -253,4 +253,21 @@ public class UserVmJoinDaoImplTest extends GenericDaoBaseWithTagInformationBaseT
         Mockito.verifyNoInteractions(_vmInstanceDetailsDao);
     }
 
+    @Test
+    public void sourceFirmwareIsReturnedEvenWhenNonFirmwareDetailsExist() {
+        prepareNewUserVmResponseForVnfAppliance();
+        com.cloud.vm.VMInstanceDetailVO source = new com.cloud.vm.VMInstanceDetailVO(vmId, "vm.creation.source", "true", true);
+        Mockito.when(_vmInstanceDetailsDao.listDetails(vmId, true)).thenReturn(Collections.singletonList(source));
+        UserVmResponse bios = _userVmJoinDaoImpl.newUserVmResponse(ResponseObject.ResponseView.Full, "virtualmachine", userVmMock,
+                EnumSet.of(ApiConstants.VMDetails.all), null, null, caller);
+        Assert.assertEquals("Bios", bios.getBootType());
+        Assert.assertEquals("legacy", bios.getBootMode());
+        Mockito.when(_vmInstanceDetailsDao.listDetails(vmId, true)).thenReturn(Arrays.asList(source,
+                new com.cloud.vm.VMInstanceDetailVO(vmId, "UEFI", "LEGACY", true)));
+        UserVmResponse uefi = _userVmJoinDaoImpl.newUserVmResponse(ResponseObject.ResponseView.Full, "virtualmachine", userVmMock,
+                EnumSet.of(ApiConstants.VMDetails.all), null, null, caller);
+        Assert.assertEquals("Uefi", uefi.getBootType());
+        Assert.assertEquals("legacy", uefi.getBootMode());
+    }
+
 }
