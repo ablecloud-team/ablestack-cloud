@@ -152,8 +152,9 @@
 
 <script>
 import { ref, reactive, toRaw } from 'vue'
-import { volumeUploadError } from '@/utils/volumeUploadError'
-import { postAPI } from '@/api'
+import { volumeUploadError, resolveVolumeUpload } from '@/utils/volumeUploadError'
+import { getAPI, postAPI } from '@/api'
+import { createJobTracker } from '@/utils/jobTracker'
 import { mixinForm } from '@/utils/mixin'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
@@ -215,6 +216,14 @@ export default {
   },
   created () {
     this.initForm()
+    this.uploadTracker = createJobTracker({
+      query: jobId => getAPI('queryAsyncJobResult', { jobid: jobId }, { backgroundJob: true, preserveOnFailure: true }).then(json => json.queryasyncjobresultresponse),
+      onState: () => {}
+    })
+  },
+  beforeUnmount () {
+    this.uploadDisposed = true
+    this.uploadTracker.clear()
   },
   methods: {
     initForm () {
@@ -268,7 +277,8 @@ export default {
         }
         params.domainId = this.domainId
         this.loading = true
-        postAPI('uploadVolume', params).then(json => {
+        postAPI('uploadVolume', params, { preserveOnFailure: true }).then(json => resolveVolumeUpload(json.uploadvolumeresponse, jobId => this.uploadTracker.track(jobId))).then(() => {
+          if (this.uploadDisposed) return
           this.$notification.success({
             message: this.$t('message.success.upload'),
             description: this.$t('message.success.upload.volume.description')
@@ -276,7 +286,7 @@ export default {
           this.closeAction()
           this.$emit('refresh-data')
         }).catch(error => {
-          this.showUploadError(error)
+          if (!this.uploadDisposed) this.showUploadError(error)
         }).finally(() => {
           this.loading = false
         })

@@ -22,3 +22,14 @@ export function volumeUploadError (error, translate) {
   const quota = /ResourceAllocationException|resource limit|maximum number of volumes|exceeds? (?:the )?(?:limit|quota)/i.test(detail)
   return { detail, message: translate(quota ? 'message.creation.source.upload.quota' : 'message.upload.volume.failed') }
 }
+
+// An async upload response only confirms acceptance. Registration may still fail.
+export async function resolveVolumeUpload (response, trackJob) {
+  if (!response?.jobid) return response
+  const job = await trackJob(response.jobid)
+  if (job.jobstatus === 1) return job.jobresult?.volume
+  if (job.jobstatus === 2) {
+    throw { response: { data: { uploadvolumeresponse: job.jobresult } } } // eslint-disable-line no-throw-literal
+  }
+  throw new Error('Upload registration result is unknown; check the volume list before submitting again.')
+}
