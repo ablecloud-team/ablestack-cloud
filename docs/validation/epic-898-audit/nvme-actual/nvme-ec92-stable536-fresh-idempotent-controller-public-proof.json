@@ -1,0 +1,130 @@
+{
+  "kind": "NVME_EC92_STABLE536_READONLY_RAM_CONTROLLER",
+  "subsystemUuid": "a5280d24-cacf-48f9-ac95-ebd5e730c6b5",
+  "namespaceUuid": "13fe7ca1-8321-47c2-96f3-32d535700754",
+  "nqn": "nqn.2026-06.local.storage:epic898-s-b6aa-all4-f1-20261009",
+  "volumeUuid": "ec92d6c6-2fde-4f35-9d31-e8a7efd69c63",
+  "freshCapabilityProofSha256": "15fe302796d2ac641355de55109e7c9bc6dbf4420372554459684045c8e1321f",
+  "namespaceBindingProofSha256": "e6200ed0664e0c71c851a3d1867e901469a9aa9b729c3f6058efa9067b156ce4",
+  "clients": {
+    "C1": {
+      "expectedCommittedRevision": 28,
+      "freshIdempotencyKey": "e818a4c3-f743-41b0-925c-c0728822d594",
+      "hostNqn": "nqn.2014-08.org.nvmexpress:uuid:32d13615-abb8-4c3c-abe9-9adfc12bb512",
+      "hostId": "32d13615-abb8-4c3c-abe9-9adfc12bb512",
+      "jobId": "a8870ad7-4552-41dc-9f97-69d9d52478c8",
+      "jobStatus": 1,
+      "jobResultCode": 0,
+      "dhChapEnabledRequested": true,
+      "dhChapCtrlEnabledRequested": true,
+      "keyFormat": "DHHC-1:01",
+      "keyMaterialBytes": 32,
+      "aclId": "f8934dc5-f7ea-4b86-b1e2-53d194d49236",
+      "aclPublic": {
+        "id": "f8934dc5-f7ea-4b86-b1e2-53d194d49236",
+        "state": "Ready",
+        "principal": "nqn.2014-08.org.nvmexpress:uuid:32d13615-abb8-4c3c-abe9-9adfc12bb512",
+        "principaltype": "NVME_HOST_NQN",
+        "permission": "READ_WRITE",
+        "resourceid": "a5280d24-cacf-48f9-ac95-ebd5e730c6b5"
+      }
+    },
+    "C2": {
+      "expectedCommittedRevision": 29,
+      "freshIdempotencyKey": "456bfc88-8444-465c-9efa-c04f656eecc1",
+      "hostNqn": "nqn.2014-08.org.nvmexpress:uuid:bebeea6f-87ec-4653-8aa3-7ce4c47fa93a",
+      "hostId": "bebeea6f-87ec-4653-8aa3-7ce4c47fa93a",
+      "jobId": "d5fbd065-d071-4678-bd16-8444cac84e52",
+      "jobStatus": 1,
+      "jobResultCode": 0,
+      "dhChapEnabledRequested": true,
+      "dhChapCtrlEnabledRequested": true,
+      "keyFormat": "DHHC-1:01",
+      "keyMaterialBytes": 32,
+      "aclId": "2f155fac-4ece-4358-9dac-a4d45850d5a0",
+      "aclPublic": {
+        "id": "2f155fac-4ece-4358-9dac-a4d45850d5a0",
+        "state": "Ready",
+        "principal": "nqn.2014-08.org.nvmexpress:uuid:bebeea6f-87ec-4653-8aa3-7ce4c47fa93a",
+        "principaltype": "NVME_HOST_NQN",
+        "permission": "READ_WRITE",
+        "resourceid": "a5280d24-cacf-48f9-ac95-ebd5e730c6b5"
+      }
+    }
+  },
+  "stages": {
+    "C1": {
+      "success": true,
+      "apiReady": true,
+      "stdinOnly": true,
+      "secretArgv": false,
+      "sessionCount": 0,
+      "dataWrites": 0,
+      "publicHashesVerified": true,
+      "publicFileCount": 2,
+      "nvmeFabricsPresent": true,
+      "loadedModules": {
+        "nvme_tcp": true,
+        "nvme_core": true,
+        "nvme_auth": true
+      },
+      "existingControllerCount": 0,
+      "existingNamespaceCount": 0,
+      "targetConnections": 0
+    },
+    "C2": {
+      "success": true,
+      "apiReady": true,
+      "stdinOnly": true,
+      "secretArgv": false,
+      "sessionCount": 0,
+      "dataWrites": 0,
+      "publicHashesVerified": true,
+      "publicFileCount": 2,
+      "nvmeFabricsPresent": true,
+      "loadedModules": {
+        "nvme_tcp": true,
+        "nvme_core": true,
+        "nvme_auth": true
+      },
+      "existingControllerCount": 0,
+      "existingNamespaceCount": 0,
+      "targetConnections": 0
+    }
+  },
+  "cases": [
+    {
+      "client": "C2",
+      "case": "READ",
+      "result": {
+        "success": true,
+        "loginAccepted": true,
+        "dataWrites": 0,
+        "bytesWritten": 0,
+        "secretArgv": false,
+        "controllerDeleted": true,
+        "publicationWaitSeconds": 0.053005198991741054,
+        "namespaceId": 1,
+        "namespaceBytes": 21474836480,
+        "patternReadVerified": true,
+        "readSha256": "31a8ca181e7ede2835efbb11dbe9f00baa1deeec0862655cbb1709f2999bd98b",
+        "expectedPatternSha256": "31a8ca181e7ede2835efbb11dbe9f00baa1deeec0862655cbb1709f2999bd98b",
+        "windowOffsetBytes": 1048576,
+        "windowLengthBytes": 4096,
+        "oldControllerAndDeviceFullyRemoved": true,
+        "freshReconnectReadVerified": true,
+        "freshReadSha256": "31a8ca181e7ede2835efbb11dbe9f00baa1deeec0862655cbb1709f2999bd98b",
+        "freshShaMatched": true,
+        "reconnectControllerDeleted": true,
+        "reconnectLoginAccepted": true
+      }
+    }
+  ],
+  "newGuiSecretEntries": 0,
+  "privateFilesOrArgv": 0,
+  "newVolumeOrFormatCalls": 0,
+  "clientReadOnlyPolicyClaimed": false,
+  "freshStageProofSha256": "119416c3c61d9f6d636f8d188b957992876d3dd4198ae9e11309451543cdfede",
+  "freshStageProofPath": "/root/work/epic898-preparation/iscsi-ro-sense-harness-preparation/stable536-public-stage-selftest-public-proof.json",
+  "credentialsDiscardedAtControllerEnd": true
+}

@@ -1,0 +1,56 @@
+{
+  "actualReadonlyGuardCalls": 1,
+  "guestExitCode": 0,
+  "kind": "DF11_READONLY_SOURCE_RECOVERY_GUARD_PROVIDER",
+  "observation": {
+    "configfsWrites": 0,
+    "current": {
+      "configurationSha256": "f78c6e3c6be3323345812c6151bd3ad88549d0ed87e527b0708ebf08ace8aa4d",
+      "instanceUuid": "3480bb2c-99ee-42f2-91cf-715ded5dd35f",
+      "operationUuid": "2afdfdad-f422-47f3-9b21-358fdf0ef376",
+      "revision": 23,
+      "verifiedAt": 1791619726.5107698
+    },
+    "dataWrites": 0,
+    "kind": "OWN_NVME_NAMESPACE_V2_READONLY_PROJECTION",
+    "oldDataPreservationProofReused": "82b5308f3cd0c8019a5145bfce37ce4ed39b8e8f5a753905b0c36243adc56e85",
+    "ownNvmeNamespace": {
+      "adjacentAfter4096AllZero": true,
+      "adjacentBefore4096AllZero": true,
+      "allowAnyHost": false,
+      "allowedHostCount": 0,
+      "backingDevice": "/dev/sde",
+      "backingSerial": "ec92d6c62fde4f359d31",
+      "backingVolumeUuid": "ec92d6c6-2fde-4f35-9d31-e8a7efd69c63",
+      "configfsWrites": 0,
+      "dataWrites": 0,
+      "enabled": true,
+      "header64KiBAllZero": true,
+      "linkedPorts": [
+        {
+          "exactSubsystemLinked": true,
+          "listenIp": "0.0.0.0",
+          "port": 4420,
+          "portId": 1,
+          "transport": "tcp"
+        }
+      ],
+      "logicalBlockSize": 512,
+      "namespaceId": 1,
+      "namespaceUuid": "13fe7ca1-8321-47c2-96f3-32d535700754",
+      "nqn": "nqn.2026-06.local.storage:epic898-s-b6aa-all4-f1-20261009",
+      "nvmetcliCalls": 0,
+      "rootAndOtherDataExcluded": true,
+      "sizeBytes": 21474836480,
+      "subsystemUuid": "a5280d24-cacf-48f9-ac95-ebd5e730c6b5",
+      "unmountedNoFilesystemNoPartitions": true,
+      "windowAllZero": true,
+      "windowLengthBytes": 4096,
+      "windowOffsetBytes": 1048576,
+      "windowSha256": "ad7facb2586fc6e966c004d7d1d16b024f5805ff7cb47c7a85dabd8b48892ca7"
+    },
+    "pending": null,
+    "sourceWrites": 0
+  },
+  "stdoutBytes": 1479
+}
