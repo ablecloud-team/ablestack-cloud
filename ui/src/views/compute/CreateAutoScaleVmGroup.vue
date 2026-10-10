@@ -3400,11 +3400,19 @@ export default {
   }
 
   .vm-info-card {
-    .ant-card-body {
+    :deep(.card-body) {
+      height: calc(100vh - 120px);
       min-height: 250px;
-      max-height: calc(100vh - 250px);
-      overflow-y: auto;
+    }
+
+    :deep(.card-content) {
+      min-height: 0;
+      flex: 1 1 auto;
       scroll-behavior: smooth;
+    }
+
+    :deep(.card-footer) {
+      flex: 0 0 auto;
     }
 
     .resource-detail-item__label {
