@@ -1,0 +1,72 @@
+{
+  "method": "Cached actual class space from reviewed 1337 deployment; no new live runtime probe.",
+  "managementChangedEntryBaselines": [
+    {
+      "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceConfiguration$1.class",
+      "cachedActualEntryPresent": true,
+      "cachedActualSha256": "2c77d23879acc8a55f76ae3204fa6fa26475bebacdcfc203f16b7970dfd1700a",
+      "oldImmutable888Sha256": "2c77d23879acc8a55f76ae3204fa6fa26475bebacdcfc203f16b7970dfd1700a",
+      "matchesActiveBaseline": true
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceConfiguration.class",
+      "cachedActualEntryPresent": true,
+      "cachedActualSha256": "7ca1c17e227820a2ebf047a5ab527f702a7dfc58d2f4c2006d50bf8519ebe902",
+      "oldImmutable888Sha256": "7ca1c17e227820a2ebf047a5ab527f702a7dfc58d2f4c2006d50bf8519ebe902",
+      "matchesActiveBaseline": true
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$4.class",
+      "cachedActualEntryPresent": true,
+      "cachedActualSha256": "8dd43f4aad5155c929016b1711ee8fd9305f6c694c2531425ae91e3e7a5d96c5",
+      "oldImmutable888Sha256": "8dd43f4aad5155c929016b1711ee8fd9305f6c694c2531425ae91e3e7a5d96c5",
+      "matchesActiveBaseline": true
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$5.class",
+      "cachedActualEntryPresent": true,
+      "cachedActualSha256": "6a8508fb4ea7e655d92a1a40f8286e8843f156bea960615d044976ec385a382c",
+      "oldImmutable888Sha256": "6a8508fb4ea7e655d92a1a40f8286e8843f156bea960615d044976ec385a382c",
+      "matchesActiveBaseline": true
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ConfigurationTargetCommand.class",
+      "cachedActualEntryPresent": true,
+      "cachedActualSha256": "984d66dbeea858536a3a059023a21209e03a1604904c6ed9b667362016006db8",
+      "oldImmutable888Sha256": "984d66dbeea858536a3a059023a21209e03a1604904c6ed9b667362016006db8",
+      "matchesActiveBaseline": true
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class",
+      "cachedActualEntryPresent": true,
+      "cachedActualSha256": "2b2f24e46f989e6f2896f721427c68e372697dd6f3422314701c76fcac4c84f3",
+      "oldImmutable888Sha256": "2b2f24e46f989e6f2896f721427c68e372697dd6f3422314701c76fcac4c84f3",
+      "matchesActiveBaseline": true
+    }
+  ],
+  "runtimeFamilyInformational": [
+    {
+      "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceRuntimeUpgradeManagerImpl$1.class",
+      "cachedActivePresent": true,
+      "cachedActiveSha256": "77b3ed48c03621f3dde0b35de3ee6929eff5548c65459cb27ab56fefe4101e5d",
+      "newImmutableSha256": "77b3ed48c03621f3dde0b35de3ee6929eff5548c65459cb27ab56fefe4101e5d",
+      "sameAsNewImmutable": true
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceRuntimeUpgradeManagerImpl$RuntimeResourceScope.class",
+      "cachedActivePresent": true,
+      "cachedActiveSha256": "30e58ae7a92eb755e4bfbdab5aeb8422be238ff3a479eeeafb669cfa159b2523",
+      "newImmutableSha256": "30e58ae7a92eb755e4bfbdab5aeb8422be238ff3a479eeeafb669cfa159b2523",
+      "sameAsNewImmutable": true
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceRuntimeUpgradeManagerImpl.class",
+      "cachedActivePresent": true,
+      "cachedActiveSha256": "314952704c1710def208d0d48d431292495a043ef133053965c70571d0323e22",
+      "newImmutableSha256": "314952704c1710def208d0d48d431292495a043ef133053965c70571d0323e22",
+      "sameAsNewImmutable": true
+    }
+  ],
+  "actualDeployment": false,
+  "liveJarMatchStillRequiredBeforeParentDeployment": true
+}

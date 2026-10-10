@@ -1,0 +1,48 @@
+{
+  "validatedAtUtc": "2026-10-10T01:08:00.312471+00:00",
+  "sourceOnly": true,
+  "frozen": true,
+  "ownedPaths": [
+    {
+      "path": "server/src/main/java/org/apache/cloudstack/storage/dataservice/StorageServiceConfiguration.java",
+      "sha256": "49966d1c99d0a760c477c4843d60244235e52e4fe7c8924dfeeeac61eb35118c"
+    },
+    {
+      "path": "server/src/main/java/org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.java",
+      "sha256": "624b8506a20bb0fe0c293f7acd37ff57df3fe7c3fa1e43c6887258ef34c8eafd"
+    },
+    {
+      "path": "server/src/test/java/org/apache/cloudstack/storage/dataservice/StorageConfigCloneTemplatePinTest.java",
+      "sha256": "0b983767982dd172a1acb7a40e8b2a63ee083db92ceadfbfcaf7a073e055b24e"
+    }
+  ],
+  "focusedCompile": "PASS",
+  "focusedJUnit": "PASS",
+  "tests": 79,
+  "newTests": 17,
+  "relatedTests": 62,
+  "suites": [
+    "StorageConfigCloneTemplatePinTest",
+    "StorageConfigPreparedRuntimeTest",
+    "StorageConfigMaintenancePlanValidationTest",
+    "StorageTemplateFixturePermitTest",
+    "StorageConfigInitialVolumePreparationTest",
+    "StorageConfigurationVolumePlanTest",
+    "StorageConfigurationVolumeAllocationTest",
+    "StorageConfigurationVolumeAdapterTest",
+    "StorageConfigCommandBindingTest"
+  ],
+  "sourceBeforeAfterSame": true,
+  "compileLogSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "testLogSha256": "0114c06ca22408715d4134deefcbd63ee679a2edbfb39f3be6889895b1cd57fa",
+  "initialFailures": "17 nested Mockito stub setup errors; subsequent 5 missing mocked lockRow errors. Both fixture-only corrected; immutable logs retained",
+  "dependencyClasspathAttempt": "standalone dependency goal failed on not-installed reactor artifacts; actual javac/JUnit used existing normal Surefire classpath",
+  "adExplicitGuardBeforeDefaultNormalization": true,
+  "unknownConsumerCompatibilityAcceptanceClaimed": false,
+  "existingDeployBeforeRecordGapResolved": false,
+  "normalLargeMgtRun": 0,
+  "gitCommitPush": 0,
+  "githubWrite": 0,
+  "actualDeployVmApiUi": 0,
+  "ui1275": "UNSTARTED"
+}
