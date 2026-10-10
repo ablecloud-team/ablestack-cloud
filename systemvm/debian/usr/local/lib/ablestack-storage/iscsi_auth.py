@@ -64,6 +64,9 @@ def iscsi_auth_values(config,values):
     return result
 
 
+# rtslib-fb 2.1.75 MappedLUN.MAX_LUN, not a claim of the kernel limit.
+ISCSI_MAPPED_LUN_MAX = 255
+
 class ConfigfsIscsiAuth:
     def __init__(self,root=None,writer=None,write=None):
         self.root=Path(root or "/sys/kernel/config/target/iscsi")
@@ -134,6 +137,69 @@ class ConfigfsIscsiAuth:
         finally:
             for descriptor,info in attributes.values():os.close(descriptor)
             os.close(directory)
+
+
+    def verify_lun_access(self,target,initiator,expected):
+        """Read only the exact NodeACL mapped-LUN links and public protection bits."""
+        iscsi_auth_name(target,True);iscsi_auth_name(initiator);self.writer()
+        if not isinstance(expected,dict) or any(not re.fullmatch(r"[0-9]+",str(lun))
+                or not 0<=int(lun)<=ISCSI_MAPPED_LUN_MAX or type(value)is not int or value not in (0,1) for lun,value in expected.items()):
+            raise ValueError("iSCSI LUN permission plan is invalid")
+        descriptors=[]
+        def directory(parts):
+            path=self.root;parent=None
+            for part in (None,*parts):
+                if part is None:
+                    opened=os.open(path,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
+                    named=path.lstat()
+                else:
+                    opened=os.open(part,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW,dir_fd=parent)
+                    named=os.stat(part,dir_fd=parent,follow_symlinks=False);path=path/part
+                descriptors.append(opened);info=os.fstat(opened)
+                if (not stat.S_ISDIR(named.st_mode) or named.st_uid!=os.geteuid() or named.st_mode&0o022
+                        or self.identity(named)!=self.identity(info)):
+                    raise ValueError("iSCSI LUN permission directory is foreign or replaced")
+                parent=opened
+            return parent,path
+        try:
+            acl,path=directory((target,"tpgt_1","acls",initiator))
+            mapped={name for name in os.listdir(acl) if re.fullmatch(r"lun_[0-9]+",name)}
+            if mapped!={"lun_"+str(lun) for lun in expected}:
+                raise ValueError("iSCSI mapped LUN grant set differs")
+            for lun,protect in expected.items():
+                iteration_start=len(descriptors)
+                node,nodepath=directory((target,"tpgt_1","acls",initiator,"lun_"+str(lun)))
+                tpg,tpgpath=directory((target,"tpgt_1","lun","lun_"+str(lun)))
+                links=[name for name in os.listdir(node) if stat.S_ISLNK(os.stat(name,dir_fd=node,follow_symlinks=False).st_mode)]
+                if len(links)!=1 or (nodepath/os.readlink(links[0],dir_fd=node)).resolve(strict=True)!=tpgpath:
+                    raise ValueError("iSCSI mapped LUN points outside its exact target")
+                before=os.fstat(tpg);before_acl=os.fstat(acl);before_node=os.fstat(node)
+                if self.identity(before_acl)!=self.identity(path.lstat()) or self.identity(before_node)!=self.identity(nodepath.lstat()):
+                    raise ValueError("iSCSI mapped ACL directory changed before readback")
+                descriptor=os.open("write_protect",os.O_RDONLY|os.O_NOFOLLOW,dir_fd=node);descriptors.append(descriptor)
+                info=os.fstat(descriptor)
+                if (not stat.S_ISREG(info.st_mode) or info.st_uid!=os.geteuid() or info.st_mode&0o022 or info.st_nlink!=1
+                        or self.identity(info)!=self.identity(os.stat("write_protect",dir_fd=node,follow_symlinks=False))):
+                    raise ValueError("iSCSI mapped LUN protection attribute is foreign or replaced")
+                observed=os.read(descriptor,16).strip()
+                if observed!=str(protect).encode() or self.identity(before)!=self.identity(tpgpath.lstat()):
+                    raise ValueError("iSCSI mapped LUN protection readback differs")
+                if (self.identity(info)!=self.identity(os.stat("write_protect",dir_fd=node,follow_symlinks=False))
+                        or self.identity(before_acl)!=self.identity(path.lstat()) or self.identity(before_node)!=self.identity(nodepath.lstat())
+                        or [name for name in os.listdir(node) if stat.S_ISLNK(os.stat(name,dir_fd=node,follow_symlinks=False).st_mode)]!=links
+                        or (nodepath/os.readlink(links[0],dir_fd=node)).resolve(strict=True)!=tpgpath):
+                    raise ValueError("iSCSI mapped LUN protection or ACL changed during readback")
+                for opened in reversed(descriptors[iteration_start:]):os.close(opened)
+                del descriptors[iteration_start:]
+            if (self.identity(os.fstat(acl))!=self.identity(path.lstat())
+                    or {name for name in os.listdir(acl) if re.fullmatch(r"lun_[0-9]+",name)}!={"lun_"+str(lun) for lun in expected}):
+                raise ValueError("iSCSI mapped LUN grant set changed during readback")
+            return {"success":True,"mappedLunPermissionsVerified":True,"mappedLunCount":len(expected)}
+        except OSError:
+            raise ValueError("iSCSI mapped LUN permissions are unavailable") from None
+        finally:
+            for descriptor in reversed(descriptors):os.close(descriptor)
+
 
 
 def iscsi_private_vault(path):
