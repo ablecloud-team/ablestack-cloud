@@ -44,3 +44,13 @@ Index를 마지막에 atomic 교체했고 config d3e의 symlink, WEB-INF, color.
 ![실제 상호 CHAP 입력 표시](mutual-chap-ui-normal/actual-mutual-ui-fields.jpg)
 
 [브라우저 표시 및 제출 차단 proof](mutual-chap-ui-normal/actual-mutual-ui-controls-public-proof.json).
+
+## 실제 상호 CHAP 설정 후 UI 조회
+
+정상 API로 같은 C1/C2 ACL의 상호 CHAP을 설정한 뒤 두 UI 행의 사용 상태와 기존 대화상자의 상호 CHAP 체크, 사용자 이름 유지 및 두 비밀 필드 공란을 확인했다. 새 GUI 비밀 입력은 없었다. 이 API 설정과 UI 조회를 구분한다. 상호 CHAP 전용 누락 경고는 실제 UI에서 입증하지 않았으며 기존 기본 CHAP 누락 경고와 API0 결과를 그 검증으로 확대하지 않는다.
+
+![C1 기존 상호 CHAP 사용자 및 빈 비밀 입력](mutual-chap-ui-normal/actual-mutual-c1-populated.jpg)
+
+![C2 기존 상호 CHAP 사용자 및 빈 비밀 입력](mutual-chap-ui-normal/actual-mutual-c2-populated.jpg)
+
+[실제 UI 조회 proof](mutual-chap-ui-normal/actual-mutual-chap-ui-readback-public-proof.json) SHA-256 9fcfb13a0866a813c43b2a10d1697a44f05cb6f28cf88821c12a44921e71a9fd.
