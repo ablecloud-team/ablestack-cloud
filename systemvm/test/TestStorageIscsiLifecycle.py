@@ -13,7 +13,12 @@
 # specific language governing permissions and limitations
 # under the License.
 """Exercise the signed apply function around direct LIO configuration."""
+import ast
+import contextlib
+import io
+import json
 import os
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -97,6 +102,87 @@ exec(compile(ast.Module(body=helpers+readiness,type_ignores=[]),"<signed-iscsi-r
         self.assertIn("did not listen on TCP port(s): 3260",result.stderr)
         self.assertEqual("FOREIGN_CONFIGFS",self.foreign.read_text())
         self.assertFalse(self.calls.exists())
+
+    def diagnostic_namespace(self):
+        begin = self.function.index("<<'PY'\n") + len("<<'PY'\n")
+        source = self.function[begin:self.function.rindex("\nPY")]
+        names = {"run", "run_targetcli", "ok_or_exists", "require_targetcli",
+                 "targetcli_error_category", "rollback_created"}
+        constants = {"ISCSI_DIAGNOSTIC_STAGES", "ISCSI_DIAGNOSTIC_CATEGORIES", "first_targetcli_failure"}
+        nodes = []
+        for node in ast.parse(source).body:
+            if isinstance(node, ast.FunctionDef) and node.name in names:
+                nodes.append(node)
+            elif isinstance(node, ast.ClassDef) and node.name == "IscsiTargetcliFailure":
+                nodes.append(node)
+            elif isinstance(node, ast.Assign) and any(isinstance(item, ast.Name) and item.id in constants for item in node.targets):
+                nodes.append(node)
+        space = {"subprocess": subprocess, "json": json, "re": re}
+        exec(compile(ast.Module(body=nodes, type_ignores=[]), "<actual-signed-iscsi-diagnostics>", "exec"), space)
+        return space
+
+    def test_default_subprocess_failure_and_cleanup_spawn_failure_preserve_first_public_diagnostic(self):
+        self.executable("targetcli", f"""#!{sys.executable}
+import sys
+print("SYNTHETIC_PRIVATE_CREDENTIAL in stdout")
+print("TypeError: SYNTHETIC_PRIVATE_CREDENTIAL in stderr", file=sys.stderr)
+sys.exit(1)
+""")
+        previous = os.environ.get("PATH")
+        os.environ["PATH"] = self.env["PATH"]
+        self.addCleanup(lambda: os.environ.__setitem__("PATH", previous))
+        space = self.diagnostic_namespace()
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            with self.assertRaises(space["IscsiTargetcliFailure"]) as failed:
+                space["require_targetcli"]("/iscsi", "create", "iqn.public", stage="TARGET_CREATE")
+            self.assertNotIn("SYNTHETIC_PRIVATE_CREDENTIAL", str(failed.exception))
+            (self.bin / "targetcli").unlink()
+            with self.assertRaises(space["IscsiTargetcliFailure"]):
+                space["rollback_created"](["iqn.public"], [])
+        self.assertEqual(1, len(output.getvalue().splitlines()))
+        value = json.loads(output.getvalue())
+        self.assertEqual({"success": False, "kind": "ISCSI_TARGETCLI_COMMAND_FAILED",
+                          "stage": "TARGET_CREATE", "returnCode": 1, "category": "TYPE_ERROR"}, value)
+        self.assertNotIn("SYNTHETIC_PRIVATE_CREDENTIAL", output.getvalue())
+
+    def test_best_effort_nonzero_cleanup_stays_best_effort_without_failure_publication(self):
+        self.executable("targetcli", f"""#!{sys.executable}
+import sys
+print("SYNTHETIC_PRIVATE_CREDENTIAL", file=sys.stderr)
+sys.exit(1)
+""")
+        previous = os.environ.get("PATH")
+        os.environ["PATH"] = self.env["PATH"]
+        self.addCleanup(lambda: os.environ.__setitem__("PATH", previous))
+        space = self.diagnostic_namespace()
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            space["rollback_created"](["iqn.public"], ["ablestack-public"])
+        self.assertEqual("", output.getvalue())
+        self.assertIsNone(space["first_targetcli_failure"])
+
+    def test_ambiguous_private_error_buffer_is_unclassified_and_timeout_has_no_raw_command(self):
+        space = self.diagnostic_namespace()
+        result = subprocess.CompletedProcess(["private-command"], 1,
+                                             "TypeError: SYNTHETIC_PRIVATE_CREDENTIAL",
+                                             "PermissionError: SYNTHETIC_PRIVATE_CREDENTIAL")
+        self.assertEqual("UNCLASSIFIED", space["targetcli_error_category"](result))
+        for category in ("TIMEOUT", "SPAWN_FAILURE"):
+            with self.assertRaises(ValueError):
+                space["IscsiTargetcliFailure"]("TARGET_CREATE", 1, category)
+        def timed_out(args, timeout=20):
+            raise subprocess.TimeoutExpired(["SYNTHETIC_PRIVATE_CREDENTIAL"], timeout,
+                                            output="SYNTHETIC_PRIVATE_CREDENTIAL")
+        space["run"] = timed_out
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            with self.assertRaises(space["IscsiTargetcliFailure"]) as failed:
+                space["run_targetcli"]("/iscsi", "create", "iqn.public", stage="TARGET_CREATE")
+        self.assertNotIn("SYNTHETIC_PRIVATE_CREDENTIAL", str(failed.exception))
+        self.assertEqual({"success": False, "kind": "ISCSI_TARGETCLI_COMMAND_FAILED",
+                          "stage": "TARGET_CREATE", "returnCode": None, "category": "TIMEOUT"},
+                         json.loads(output.getvalue()))
 
 
 if __name__=="__main__":unittest.main()
