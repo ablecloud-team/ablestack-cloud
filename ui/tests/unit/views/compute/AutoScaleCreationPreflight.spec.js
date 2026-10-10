@@ -28,12 +28,12 @@ const context = () => {
     form: {},
     hasRequiredCreationApis: true,
     isUserAllowedToListUserDatas: true,
-    userDataLookupFailed: false,
     $t: key => key,
     $notification: { error: jest.fn() },
     $store: { getters: { project: null, userInfo: { account: 'owner', domainid: 'domain' } } }
   }
   for (const [name, method] of Object.entries(Wizard.methods)) ctx[name] = method.bind(ctx)
+  Object.defineProperty(ctx, 'userDataLookupFailed', { get: () => Wizard.computed.userDataLookupFailed.call(ctx) })
   return ctx
 }
 beforeEach(() => { jest.clearAllMocks() })
@@ -98,6 +98,25 @@ test('eligible resources are rechecked with owner scope and zero condition remai
   const ctx = preflight(); expect(await ctx.validateCreationEligibility(values)).toBe(true)
   expect(getAPI).toHaveBeenCalledWith('listNetworks', expect.objectContaining({ account: 'owner', domainid: 'domain', id: 'network' }))
   expect(ctx.checkingEligibility).toBe(false)
+})
+test('submission waits for the selected UserData lookup and catches deletion before resource preflight', async () => {
+  const ctx = preflight({ listUserData: { listuserdataresponse: {} } })
+  expect(await ctx.validateCreationEligibility({ ...values, userdataid: 'deleted' })).toBe(false)
+  expect(getAPI.mock.calls.map(call => call[0])).toEqual(['listUserData'])
+  expect(ctx.$notification.error).toHaveBeenCalledWith(expect.objectContaining({ description: 'message.autoscale.userdata.unavailable' }))
+  expect(ctx.checkingEligibility).toBe(false)
+})
+test('changed UserData parameter definitions stop submission so the form can be reviewed', async () => {
+  const ctx = preflight({ listUserData: { listuserdataresponse: { userdata: [{ id: 'id', params: 'new' }] } } })
+  expect(await ctx.validateCreationEligibility({ ...values, userdataid: 'id' })).toBe(false)
+  expect(ctx.userDataParams.map(item => item.key)).toEqual(['new'])
+  expect(getAPI.mock.calls.map(call => call[0])).toEqual(['listUserData'])
+})
+test('unchanged UserData parameters retain entered values and pass the fresh preflight', async () => {
+  const ctx = preflight({ listUserData: { listuserdataresponse: { userdata: [{ id: 'id', params: 'key' }] } } })
+  ctx.userDataParams = [{ key: 'key' }]; ctx.userDataValues = { key: 'entered' }
+  expect(await ctx.validateCreationEligibility({ ...values, userdataid: 'id' })).toBe(true)
+  expect(ctx.userDataValues).toEqual({ key: 'entered' })
 })
 test('project scope does not send account/domain selectors', async () => {
   const ctx = preflight(); ctx.$store.getters.project = { id: 'project' }; expect(await ctx.validateCreationEligibility(values)).toBe(true)

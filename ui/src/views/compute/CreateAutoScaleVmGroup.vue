@@ -2286,6 +2286,18 @@ export default {
       const projectid = this.$store.getters.project?.id
       const scope = projectid ? { projectid } : { account: this.$store.getters.userInfo.account, domainid: this.$store.getters.userInfo.domainid }
       try {
+        if (values.userdataid || this.template?.userdataid) {
+          const parameterKeys = JSON.stringify([this.userDataParams.map(item => item.key), this.templateUserDataParams.map(item => item.key)])
+          await Promise.all([
+            this.loadUserDataParams(values.userdataid, 'userDataParams'),
+            this.loadUserDataParams(this.template?.userdataid, 'templateUserDataParams')
+          ])
+          if (this.userDataLookupFailed) {
+            this.$notification.error({ message: this.$t('message.request.failed'), description: this.$t('message.autoscale.userdata.unavailable') })
+            return false
+          }
+          if (parameterKeys !== JSON.stringify([this.userDataParams.map(item => item.key), this.templateUserDataParams.map(item => item.key)])) throw new Error('changed UserData parameters')
+        }
         const [templates, offerings, networks, rules, instances, groups] = await Promise.all([
           getAPI('listTemplates', { ...scope, id: values.templateid, zoneid: values.zoneid, templatefilter: 'executable', isready: true }),
           getAPI('listServiceOfferings', { ...scope, id: values.computeofferingid, zoneid: values.zoneid, issystem: false }),
