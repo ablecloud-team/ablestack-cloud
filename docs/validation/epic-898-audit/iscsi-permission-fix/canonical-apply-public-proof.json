@@ -1,0 +1,45 @@
+{
+  "kind": "CANONICAL_ISCSI_WHOLE_IQN_PERMISSION_FIX_APPLIED",
+  "baselineHead": "5e17e5576868e8306daa472cf8316a10710585c0",
+  "files": [
+    {
+      "path": "systemvm/debian/usr/local/bin/ablestack-storagectl",
+      "baselineSha256": "c2655694946b7e1ec630940233ba59fb64724593a74a6c569674269727734f12",
+      "candidateSha256": "9b1a9836cd2f8ded28d0e8fab7a97a9da1a95b986f3faa445e2f0c0b708760a0",
+      "new": false
+    },
+    {
+      "path": "systemvm/debian/usr/local/lib/ablestack-storage/iscsi_auth.py",
+      "baselineSha256": "4125ab3775a078de99b0ef071683ae0f6a1d76f594ee0f0e18cbfd960911a560",
+      "candidateSha256": "9cbe0edd48d52472036e20dba6a2daa7b2a7908bc648d89536798acb9843137d",
+      "new": false
+    },
+    {
+      "path": "server/src/main/java/org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.java",
+      "baselineSha256": "dbdec647e23401dce85321e2abbab234328b9b0202e779e2a6e89df3a83a9b63",
+      "candidateSha256": "40e2c906c01182adc4329d57b52e0773754781833fcc64e6a320df3ad4401a58",
+      "new": false
+    },
+    {
+      "path": "systemvm/test/TestStorageIscsiLunPermissions.py",
+      "baselineSha256": null,
+      "candidateSha256": "742eb662a4c1f91bea81e30b205e3876649ac1494387eeac18a8e3aab6506199",
+      "new": true
+    },
+    {
+      "path": "systemvm/test/TestStorageIscsiLifecycle.py",
+      "baselineSha256": "f807144c6e32959737ea583f0d516b18b206f7e093abd0bb8ad64f17944bf029",
+      "candidateSha256": "8db8ffbc5999e2bb0cc8baadd6f931f697328f256f34a9b21817df0beadec655",
+      "new": false
+    },
+    {
+      "path": "server/src/test/java/org/apache/cloudstack/storage/dataservice/StorageProtocolDefaultListenerTest.java",
+      "baselineSha256": "1631b005961613eb1a81d95ce011fc4ff50709c8cd624c33f2db3f430b913e6b",
+      "candidateSha256": "ba88296ee66cb29f1d4c0f0ec35068a416bb87af37521b31ee62f74a20bda934",
+      "new": false
+    }
+  ],
+  "patchSha256": "171b02f722db8e3616afda8d12c71abe8fde220b36687fc3f22ff5f5d2a8a19a",
+  "peerProofSha256": "ff7f88dc1f60d727f6b080dbf5d08ff191880ee0afa9e84358cdd79460eb91da",
+  "actualCalls": 0
+}
