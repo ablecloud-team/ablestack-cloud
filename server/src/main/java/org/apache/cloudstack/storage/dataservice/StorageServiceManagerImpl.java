@@ -7313,6 +7313,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         final String configJson = buildIscsiAclConfigJson(null, cmd.getChapEnabled(), cmd.getChapUsername(), cmd.getMutualChapEnabled(), cmd.getMutualChapUsername(),
                 cmd.getChapSecret(), cmd.getMutualChapSecret());
         validateIscsiAclTargetScope(target, null, cmd.getInitiatorIqn(), parseJsonObject(configJson));
+        validateIscsiAclPermissionScope(target, null, cmd.getInitiatorIqn(), permission);
         StorageAccessRuleVO rule = new StorageAccessRuleVO(StorageServiceInstance.AccessResourceType.BLOCK_TARGET, target.getId(),
                 StorageServiceInstance.PrincipalType.ISCSI_INITIATOR_IQN, cmd.getInitiatorIqn(), permission, StorageServiceInstance.ResourceState.Creating,
                 configJson);
@@ -7332,16 +7333,16 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         final StorageAccessRuleVO rule = requireBlockAcl(cmd.getId(), StorageServiceInstance.Protocol.ISCSI);
         final StorageBlockTargetVO target = requireBlockTarget(rule.getResourceId(), StorageServiceInstance.Protocol.ISCSI);
         final StorageServiceInstanceVO instance = requireInstance(target.getInstanceId());
-        if (cmd.getInitiatorIqn() != null) {
-            rule.setPrincipal(cmd.getInitiatorIqn());
-        }
-        if (cmd.getPermission() != null) {
-            rule.setPermission(parseBlockPermission(cmd.getPermission()));
-        }
+        final String requestedPrincipal = cmd.getInitiatorIqn() == null ? rule.getPrincipal() : cmd.getInitiatorIqn();
+        final StorageServiceInstance.Permission requestedPermission = cmd.getPermission() == null
+                ? rule.getPermission() : parseBlockPermission(cmd.getPermission());
         validateIscsiChapCredentialRequest(cmd.getChapEnabled(), cmd.getChapUsername(), cmd.getChapSecret(), cmd.getMutualChapEnabled(), cmd.getMutualChapUsername(), cmd.getMutualChapSecret());
         final String configJson = buildIscsiAclConfigJson(rule.getConfigJson(), cmd.getChapEnabled(), cmd.getChapUsername(), cmd.getMutualChapEnabled(), cmd.getMutualChapUsername(),
                 cmd.getChapSecret(), cmd.getMutualChapSecret());
-        validateIscsiAclTargetScope(target, rule.getId(), rule.getPrincipal(), parseJsonObject(configJson));
+        validateIscsiAclTargetScope(target, rule.getId(), requestedPrincipal, parseJsonObject(configJson));
+        validateIscsiAclPermissionScope(target, rule.getId(), requestedPrincipal, requestedPermission);
+        rule.setPrincipal(requestedPrincipal);
+        rule.setPermission(requestedPermission);
         rule.setConfigJson(configJson);
         rule.setState(StorageServiceInstance.ResourceState.Updating);
         storageAccessRuleDao.update(rule.getId(), rule);
@@ -9058,10 +9059,25 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         final JsonArray acls = new JsonArray();
         final Map<String, JsonObject> aclByPrincipal = new HashMap<>();
         final Map<String, String> chapSignatureByPrincipal = new HashMap<>();
+        final Map<String, StorageServiceInstance.Permission> permissionByPrincipal = new HashMap<>();
         for (final StorageBlockTargetVO candidate : listBlockTargetGroup(target)) {
+            if (!isActiveIscsiGrantState(candidate.getState())) {
+                continue;
+            }
             for (final StorageAccessRuleVO rule : storageAccessRuleDao.listByResource(StorageServiceInstance.AccessResourceType.BLOCK_TARGET, candidate.getId())) {
+                if (!isActiveIscsiGrantState(rule.getState())) {
+                    continue;
+                }
                 if (rule.getPrincipalType() != StorageServiceInstance.PrincipalType.ISCSI_INITIATOR_IQN || StringUtils.isBlank(rule.getPrincipal())) {
                     continue;
+                }
+                final StorageServiceInstance.Permission permission = rule.getPermission();
+                if (permission != StorageServiceInstance.Permission.READ_ONLY && permission != StorageServiceInstance.Permission.READ_WRITE) {
+                    throw new CloudRuntimeException("Invalid active iSCSI target permission");
+                }
+                final StorageServiceInstance.Permission previousPermission = permissionByPrincipal.putIfAbsent(rule.getPrincipal(), permission);
+                if (previousPermission != null && previousPermission != permission) {
+                    throw new CloudRuntimeException("Conflicting iSCSI permissions for the same target initiator");
                 }
                 final JsonObject config = parseJsonObject(rule.getConfigJson());
                 final String signature = iscsiAclChapSignature(config);
@@ -9103,6 +9119,35 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 if (!requestedSignature.equals(existingSignature)) {
                     throw new InvalidParameterValueException("iSCSI CHAP settings are target-scoped. The same initiator already has different CHAP settings on target "
                             + target.getTargetName() + "; update the existing ACL or use consistent CHAP settings across all LUNs.");
+                }
+            }
+        }
+    }
+
+    private boolean isActiveIscsiGrantState(final StorageServiceInstance.ResourceState state) {
+        return state != StorageServiceInstance.ResourceState.Disabled && state != StorageServiceInstance.ResourceState.Destroyed
+                && state != StorageServiceInstance.ResourceState.Error;
+    }
+
+    protected void validateIscsiAclPermissionScope(final StorageBlockTargetVO target, final Long currentRuleId, final String principal,
+            final StorageServiceInstance.Permission permission) {
+        if (permission != StorageServiceInstance.Permission.READ_ONLY && permission != StorageServiceInstance.Permission.READ_WRITE) {
+            throw new InvalidParameterValueException("Block ACL permission is invalid");
+        }
+        if (target == null || target.getProtocol() != StorageServiceInstance.Protocol.ISCSI || StringUtils.isBlank(principal)) {
+            return;
+        }
+        for (final StorageBlockTargetVO candidate : listBlockTargetGroup(target)) {
+            if (!isActiveIscsiGrantState(candidate.getState())) {
+                continue;
+            }
+            for (final StorageAccessRuleVO rule : storageAccessRuleDao.listByResource(StorageServiceInstance.AccessResourceType.BLOCK_TARGET, candidate.getId())) {
+                if (!isActiveIscsiGrantState(rule.getState()) || currentRuleId != null && currentRuleId.equals(rule.getId())
+                        || rule.getPrincipalType() != StorageServiceInstance.PrincipalType.ISCSI_INITIATOR_IQN || !principal.equals(rule.getPrincipal())) {
+                    continue;
+                }
+                if (rule.getPermission() != permission) {
+                    throw new InvalidParameterValueException("iSCSI permissions are target-scoped; use one consistent permission for an initiator across all LUNs");
                 }
             }
         }

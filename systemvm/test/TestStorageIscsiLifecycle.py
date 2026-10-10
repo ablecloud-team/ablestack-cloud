@@ -206,7 +206,7 @@ class IscsiGuardEntryFixture:
                                     "lunOrNamespace": "0", "volumeSizeBytes": 65536, "acls": []}]}
             if scenario == "disabled-null":
                 payload["enabled"]=False;payload["targets"][0]["state"]="Disabled";payload["targets"][0]["acls"]=None
-            if scenario == "auth":payload["targets"][0]["acls"]=[{"principal":"iqn.2026-05.example.client:fixture","config":{},"state":"Ready"}]
+            if scenario == "auth":payload["targets"][0]["acls"]=[{"principal":"iqn.2026-05.example.client:fixture","permission":"READ_WRITE","config":{},"state":"Ready"}]
             path = root / "payload.json";path.write_text(json.dumps(payload))
             if scenario == "early-input": path.write_text('{"' + self.SECRET)
             if scenario == "early-vault":

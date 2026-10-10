@@ -245,4 +245,181 @@ public class StorageProtocolDefaultListenerTest {
         missingGroup.getAsJsonObject("config").add("listenerGroupPorts", missing);
         Assert.assertFalse(actualNativeSelection(payload, missingGroup).get("accepted").getAsBoolean());
     }
+    private static class PermissionManager extends StorageServiceManagerImpl {
+        private final Map<Long, StorageBlockTargetVO> targetRows = new java.util.HashMap<>();
+        private final Map<Long, StorageAccessRuleVO> aclRows = new java.util.HashMap<>();
+        private StorageServiceInstanceVO instance;
+        private int applied;
+
+        @Override
+        protected <T> T executeDesiredChange(BaseCmd cmd, Class<T> response, Supplier<T> change) {
+            return change.get(); // Outer checkpoint is unchanged and outside this fixture.
+        }
+        @Override
+        protected StorageBlockTargetVO requireBlockTarget(Long id, StorageServiceInstance.Protocol protocol) {
+            return targetRows.get(id);
+        }
+        @Override
+        protected StorageAccessRuleVO requireBlockAcl(Long id, StorageServiceInstance.Protocol protocol) {
+            return aclRows.get(id);
+        }
+        @Override
+        protected StorageServiceInstanceVO requireInstance(Long id) {
+            return instance;
+        }
+        @Override
+        protected void applyIscsiDesiredState(StorageServiceInstanceVO instance, Map<Long, JsonObject> secrets) {
+            applied++;
+        }
+    }
+
+    private static class PermissionFixture {
+        private final PermissionManager manager = new PermissionManager();
+        private final org.apache.cloudstack.storage.dataservice.dao.StorageAccessRuleDao acls =
+                Mockito.mock(org.apache.cloudstack.storage.dataservice.dao.StorageAccessRuleDao.class);
+        private final StorageBlockTargetDao targets = Mockito.mock(StorageBlockTargetDao.class);
+        private final Map<Long, List<StorageAccessRuleVO>> rules = new java.util.HashMap<>();
+        private final StorageBlockTargetVO first;
+        private final StorageBlockTargetVO second;
+        private final String iqn = "iqn.2026-10.local.storage:permissions";
+        private final String c1 = "iqn.2026-10.example.client:one";
+        private final String c2 = "iqn.2026-10.example.client:two";
+
+        PermissionFixture() {
+            manager.instance = Mockito.mock(StorageServiceInstanceVO.class);
+            Mockito.when(manager.instance.getId()).thenReturn(INSTANCE_ID);
+            first = new StorageBlockTargetVO(INSTANCE_ID, StorageServiceInstance.Protocol.ISCSI, iqn, "0", 1L,
+                    StorageServiceInstance.ResourceState.Ready, "{}");
+            second = new StorageBlockTargetVO(INSTANCE_ID, StorageServiceInstance.Protocol.ISCSI, iqn, "1", 2L,
+                    StorageServiceInstance.ResourceState.Ready, "{}");
+            ReflectionTestUtils.setField(first, "id", 101L);
+            ReflectionTestUtils.setField(second, "id", 102L);
+            manager.targetRows.put(101L, first);
+            manager.targetRows.put(102L, second);
+            ReflectionTestUtils.setField(manager, "storageBlockTargetDao", targets);
+            ReflectionTestUtils.setField(manager, "storageAccessRuleDao", acls);
+            Mockito.when(targets.listByInstanceIdAndProtocol(INSTANCE_ID, StorageServiceInstance.Protocol.ISCSI))
+                    .thenReturn(java.util.Arrays.asList(first, second));
+            Mockito.when(acls.listByResource(Mockito.eq(StorageServiceInstance.AccessResourceType.BLOCK_TARGET), Mockito.anyLong()))
+                    .thenAnswer(call -> rules.getOrDefault(call.getArgument(1), java.util.Collections.emptyList()));
+        }
+
+        StorageAccessRuleVO add(long id, long target, String principal, StorageServiceInstance.Permission permission,
+                StorageServiceInstance.ResourceState state) {
+            StorageAccessRuleVO row = new StorageAccessRuleVO(StorageServiceInstance.AccessResourceType.BLOCK_TARGET, target,
+                    StorageServiceInstance.PrincipalType.ISCSI_INITIATOR_IQN, principal, permission, state, "{}");
+            ReflectionTestUtils.setField(row, "id", id);
+            manager.aclRows.put(id, row);
+            rules.computeIfAbsent(target, key -> new ArrayList<>()).add(row);
+            return row;
+        }
+    }
+
+    @Test
+    public void wholeIqnActualManagerPayloadEnforcesRwAndRoOnEveryLun() throws Exception {
+        PermissionFixture f = new PermissionFixture();
+        f.add(201, 101, f.c1, StorageServiceInstance.Permission.READ_WRITE, StorageServiceInstance.ResourceState.Ready);
+        f.add(202, 102, f.c2, StorageServiceInstance.Permission.READ_ONLY, StorageServiceInstance.ResourceState.Ready);
+        JsonArray values = new JsonArray();
+        for (StorageBlockTargetVO row : java.util.Arrays.asList(f.first, f.second)) {
+            JsonObject target = new JsonObject();
+            target.addProperty("uuid", row.getUuid());
+            target.addProperty("targetName", row.getTargetName());
+            target.addProperty("lunOrNamespace", row.getLunOrNamespace());
+            target.addProperty("volumeUuid", "fixture-serial");
+            target.addProperty("volumeName", "fixture-serial");
+            target.addProperty("volumeSizeBytes", 65536);
+            target.add("acls", f.manager.createIscsiTargetAclJson(row, null));
+            Assert.assertEquals(2, target.getAsJsonArray("acls").size());
+            values.add(target);
+        }
+        JsonObject request = new JsonObject();
+        request.add("targets", values);
+        String explicit = System.getProperty("cloudstack.storage.iscsi.permission.fixture");
+        Path fixture = explicit == null ? actualCli().getParent().getParent().getParent().getParent().getParent().resolve("test/TestStorageIscsiLunPermissions.py")
+                : new File(explicit).toPath();
+        Process process = new ProcessBuilder("python3", fixture.toString(), "--manager-payload").start();
+        try (java.io.OutputStream input = process.getOutputStream()) {
+            input.write(request.toString().getBytes(StandardCharsets.UTF_8));
+        }
+        if (!process.waitFor(15, TimeUnit.SECONDS)) {
+            process.destroyForcibly();
+            process.waitFor(5, TimeUnit.SECONDS);
+            Assert.fail("Manager permission producer exceeded its bounded deadline");
+        }
+        byte[] output = process.getInputStream().readAllBytes();
+        byte[] errors = process.getErrorStream().readAllBytes();
+        Assert.assertEquals(0, process.exitValue());
+        Assert.assertEquals(0, errors.length);
+        JsonObject result = JsonParser.parseString(new String(output, StandardCharsets.UTF_8)).getAsJsonObject();
+        Assert.assertTrue(result.get("success").getAsBoolean());
+        Assert.assertEquals(4, result.getAsJsonArray("mappings").size());
+        for (com.google.gson.JsonElement element : result.getAsJsonArray("mappings")) {
+            JsonObject mapping = element.getAsJsonObject();
+            Assert.assertEquals(f.c2.equals(mapping.get("principal").getAsString()) ? 1 : 0,
+                    mapping.get("writeProtect").getAsInt());
+        }
+    }
+
+    @Test
+    public void conflictingPermissionSerializerAndCreateRejectBeforePersistenceOrApply() {
+        PermissionFixture f = new PermissionFixture();
+        f.add(201, 101, f.c1, StorageServiceInstance.Permission.READ_ONLY, StorageServiceInstance.ResourceState.Ready);
+        f.add(202, 102, f.c1, StorageServiceInstance.Permission.READ_WRITE, StorageServiceInstance.ResourceState.Ready);
+        try {
+            f.manager.createIscsiTargetAclJson(f.first, null);
+            Assert.fail("Conflicting merged permission was accepted");
+        } catch (com.cloud.utils.exception.CloudRuntimeException expected) {
+            Assert.assertTrue(expected.getMessage().contains("permissions"));
+        }
+        org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageIscsiAclCmd command =
+                Mockito.mock(org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageIscsiAclCmd.class);
+        Mockito.when(command.getTargetId()).thenReturn(102L);
+        Mockito.when(command.getInitiatorIqn()).thenReturn(f.c1);
+        Mockito.when(command.getPermission()).thenReturn("READ_WRITE");
+        try {
+            f.manager.createStorageIscsiAcl(command);
+            Assert.fail("Conflicting create was accepted");
+        } catch (InvalidParameterValueException expected) {
+            Assert.assertTrue(expected.getMessage().contains("permissions"));
+        }
+        Mockito.verify(f.acls, Mockito.never()).persist(Mockito.any());
+        Assert.assertEquals(0, f.manager.applied);
+    }
+
+    @Test
+    public void conflictingUpdateLeavesOriginalRuleAndDaoUnchanged() {
+        PermissionFixture f = new PermissionFixture();
+        f.add(201, 101, f.c1, StorageServiceInstance.Permission.READ_ONLY, StorageServiceInstance.ResourceState.Ready);
+        StorageAccessRuleVO current = f.add(202, 102, f.c2, StorageServiceInstance.Permission.READ_ONLY, StorageServiceInstance.ResourceState.Ready);
+        org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageIscsiAclCmd command =
+                Mockito.mock(org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageIscsiAclCmd.class);
+        Mockito.when(command.getId()).thenReturn(202L);
+        Mockito.when(command.getInitiatorIqn()).thenReturn(f.c1);
+        Mockito.when(command.getPermission()).thenReturn("READ_WRITE");
+        try {
+            f.manager.updateStorageIscsiAcl(command);
+            Assert.fail("Conflicting update was accepted");
+        } catch (InvalidParameterValueException expected) {
+            Assert.assertTrue(expected.getMessage().contains("permissions"));
+        }
+        Assert.assertEquals(f.c2, current.getPrincipal());
+        Assert.assertEquals(StorageServiceInstance.Permission.READ_ONLY, current.getPermission());
+        Mockito.verify(f.acls, Mockito.never()).update(Mockito.anyLong(), Mockito.any());
+        Assert.assertEquals(0, f.manager.applied);
+    }
+
+    @Test
+    public void inactiveSiblingCannotDenyOrLeakAnActiveWholeIqnGrant() {
+        PermissionFixture f = new PermissionFixture();
+        f.add(201, 101, f.c1, StorageServiceInstance.Permission.READ_WRITE, StorageServiceInstance.ResourceState.Disabled);
+        f.add(202, 102, f.c1, StorageServiceInstance.Permission.READ_ONLY, StorageServiceInstance.ResourceState.Ready);
+        f.manager.validateIscsiAclPermissionScope(f.second, null, f.c1, StorageServiceInstance.Permission.READ_ONLY);
+        JsonArray result = f.manager.createIscsiTargetAclJson(f.first, null);
+        Assert.assertEquals(1, result.size());
+        Assert.assertEquals("READ_ONLY", result.get(0).getAsJsonObject().get("permission").getAsString());
+        f.second.setState(StorageServiceInstance.ResourceState.Disabled);
+        Assert.assertEquals(0, f.manager.createIscsiTargetAclJson(f.first, null).size());
+    }
+
 }
