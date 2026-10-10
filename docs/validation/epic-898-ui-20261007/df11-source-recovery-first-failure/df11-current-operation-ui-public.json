@@ -1,0 +1,10 @@
+{
+  "operationUuid": "df1641b6-c42a-443c-8521-a47fa6dc8c4f",
+  "revision": 11,
+  "state": "RECOVERY_REQUIRED",
+  "phase": "INTERRUPTED_RECOVERY_REQUIRED",
+  "progress100": true,
+  "observedVia": "SUPPORTED_UI_DOM",
+  "currentApiResponseBodyUnavailableInEventBuffer": true,
+  "normalUiSubmissions": 1
+}

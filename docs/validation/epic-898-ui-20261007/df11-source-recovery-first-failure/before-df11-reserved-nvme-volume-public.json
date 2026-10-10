@@ -1,0 +1,11 @@
+{
+  "kind": "DF11_BEFORE_RECOVERY_RESERVED_NVME_VOLUME_PUBLIC",
+  "id": "ec92d6c6-2fde-4f35-9d31-e8a7efd69c63",
+  "name": "epic898-f1-nvme-sparse20-20261009",
+  "state": "Ready",
+  "size": 21474836480,
+  "provisioningtype": "sparse",
+  "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+  "virtualmachineid": null,
+  "deviceid": null
+}

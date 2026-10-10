@@ -23,3 +23,13 @@ Java9903/Native tracked footprint586/UI719의 source before/after가 같고 고�
 새 진단 CLI를 먼저 설치하면 원 체크포인트의 frozen code 검증을 깨뜨릴 수 있어 아직 배포하지 않았다. 원 작업의 실제 내부 실패 위치를 확인하고 현재 코드에서 정상 복구를 완료한 뒤 새 CODE/KVM 배포·정상 UI 재시험을 진행한다. 강제 terminal·journal 재해시·호환 면제·추가 복구 제출·포맷·RAW I/O는0이다. 최종 UI 표준 #1275는 미착수다.
 
 [모듈 검증](iscsi-safe-diagnostic-ffef35c/normal-source-proof.json), [producer→consumer](iscsi-safe-diagnostic-ffef35c/focused-producer-consumer-proof.json), [기존 작업 복구 실패 보존](iscsi-safe-diagnostic-ffef35c/df11-normal-ui-recovery-failure-preservation-public-proof.json).
+
+## 실제 UI 확인
+
+원 df11의 원래 작업 복구 선택과 실패 화면을 실제 브라우저에서 캡처했고 부모가 두 이미지를 확인했다. job 실패 API와 현재 UI DOM을 구분하며 해당 operation의 최신 API row 본문을 확보했다고 주장하지 않는다. UI progress100은 성공을 뜻하지 않고 RECOVERY_REQUIRED/INTERRUPTED_RECOVERY_REQUIRED다. 복구 전 blank 직접 읽기와 이후 장치 바인딩 보존은 확인했으나 복구 후 RAW blank를 직접 다시 읽지는 않았다. owned 프로세스 stateS/Ttfalse와 active/running은 현재 paused 아님만 뜻하며 외부 SMB 서비스 가용성 완료로 확대하지 않는다.
+
+![원래 작업 복구 선택](../epic-898-ui-20261007/df11-source-recovery-first-failure/df11-original-source-recovery-consent.png)
+
+![정상 UI 복구 첫 실패](../epic-898-ui-20261007/df11-source-recovery-first-failure/df11-source-recovery-first-failure.png)
+
+[UI·API·과정 상태의 공개 manifest](../epic-898-ui-20261007/df11-source-recovery-first-failure/public-evidence-manifest.json)에 선택된 공개 파일과 로컬 before/after 관측의 SHA anchor를 구분했다. 최종 UI 표준 정리 작업은 시작하지 않았다.
