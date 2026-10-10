@@ -10085,6 +10085,10 @@ def iscsi_acl_chap_signature(acl):
         str(config.get("mutualChapUsername") or ""),
     ])
 
+def apply_iscsi_auth(iqn, initiator, acl_config, secrets):
+    ConfigfsIscsiAuth().apply(iqn,initiator,acl_config,secrets)
+
+
 def merged_acls_for_targets(group_targets):
     merged = []
     seen = {}
@@ -10267,7 +10271,7 @@ if command_exists("targetcli"):
                     mutual_password = secrets.get("mutualChapSecret") or old_auth.get("mutual_password")
                     mutual_password = require_chap_value("mutualChapSecret", mutual_password, iqn, initiator)
                     secrets["mutualChapSecret"] = mutual_password
-                iscsi_guard("AUTH", ConfigfsIscsiAuth().apply, iqn, initiator, acl_config, secrets)
+                iscsi_guard("AUTH", apply_iscsi_auth, iqn, initiator, acl_config, secrets)
             require_targetcli(f"/iscsi/{iqn}/tpg1", "set", "attribute", f"authentication={1 if chap_required else 0}", stage="AUTH_POLICY")
     except BaseException:
         rollback_created(created_iqns, created_backstores)
