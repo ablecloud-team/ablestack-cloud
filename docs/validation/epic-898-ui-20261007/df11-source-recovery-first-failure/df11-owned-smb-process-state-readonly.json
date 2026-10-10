@@ -1,0 +1,61 @@
+{
+  "actualReadonlyMetadataCalls": 1,
+  "exitCode": 0,
+  "hostLibvirtVersionNumeric": 11010000,
+  "kind": "READONLY_QGA_VERSION_MARKER_PROVIDER",
+  "metadata": {
+    "anyObservedStoppedTOrLowerT": false,
+    "argvEnvironmentOrPrivateValuesPrinted": false,
+    "bootId": "dc4b6429-35d3-4224-b199-3a0c6c829de0",
+    "journalPhase": "RECOVERY_REQUIRED",
+    "kind": "DF11_OWNED_SMB_PROCESS_STATE_READONLY",
+    "processes": [
+      {
+        "commEnum": "OTHER",
+        "parentPid": 1,
+        "pid": 978598,
+        "present": true,
+        "rootUid": true,
+        "startTicks": 6850092,
+        "stateEnum": "S",
+        "stoppedTOrLowerT": false
+      },
+      {
+        "commEnum": "SMBD",
+        "parentPid": 978598,
+        "pid": 978600,
+        "present": true,
+        "rootUid": true,
+        "startTicks": 6850095,
+        "stateEnum": "S",
+        "stoppedTOrLowerT": false
+      },
+      {
+        "commEnum": "NMBD",
+        "parentPid": 1,
+        "pid": 978619,
+        "present": true,
+        "rootUid": true,
+        "startTicks": 6850168,
+        "stateEnum": "S",
+        "stoppedTOrLowerT": false
+      }
+    ],
+    "signalStopResumeWriterOrImportCalls": 0,
+    "units": [
+      {
+        "activeState": "active",
+        "mainPid": 978598,
+        "subStateRunning": true,
+        "unitClass": "MANAGED_SMB_ENDPOINT"
+      },
+      {
+        "activeState": "active",
+        "mainPid": 978619,
+        "subStateRunning": true,
+        "unitClass": "KNOWN_DEFAULT_SMB"
+      }
+    ]
+  },
+  "unknownAttemptRetriedOrKilled": false
+}
