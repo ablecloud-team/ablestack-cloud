@@ -22,7 +22,7 @@
 | #1333 생략된 볼륨 경로 보존 | CLOSED. 해당 범위의 수정·검증 완료 | 없음 |
 | #1269 상세 무한 로딩 | 초기 지연·오류 종료/재시도·정합성 보완, 실제 로그인·목록/직접상세·새로고침·light/dark 확인 | 실제 부분 실패·request coalescing 등 미확인 인수 조건 |
 | #892 원자적 롤백·상태 복구 | 원 SOURCE 정상 원복, 프로토콜 생성/인증·데이터 보존, 실제 iSCSI 권한/ACL 범위 수정, NVMe 실I/O, OWNED profile 지원 | 최초 rendered all4/LKG 승격, 네 프로토콜 create/update/delete 실패·응답 유실·원복 전체 인수 |
-| #900 SMB endpoint / #907 IP·CIDR | LOCAL SMB 인증·RW/RO·CIDR·fresh I/O subset 검증 | 두 IP 독립 I/O/삭제·cold 및 남은 조합 |
+| #901 NFS 리스너 목록 / #900 SMB endpoint / #907 IP·CIDR | NFS 리스너와 LOCAL SMB 인증·RW/RO·CIDR·fresh I/O subset 검증 | 리스너 목록의 전체 인수, 두 IP 독립 I/O/삭제·cold 및 남은 조합 |
 | #894 squash / #903 POSIX / #906 숫자 UID / #910 중첩 공유 / #915 상속 / #916 하위 ACL / #919 mask / #908 force UID | 기능 코드·모듈 회귀 및 NFS/LOCAL SMB 기본 subset 있음 | all4 기반 실제 정책 조합·소유권·상속·mask·symlink/bind·cold·연속성 인수 |
 | #891 온라인 scale / #896 offering / #904 기존 볼륨 초기 생성 / #905 고유 용량 | 제약·선택·SPARSE/기존 볼륨·용량 구현/회귀 및 실제 재사용 subset | 실제 scale/안내·전체 볼륨 용량·NEW/EXISTING 초기 생성 요구 전체 |
 | #913 게이트웨이 / #914 다수 Export / #918 제한 probe | 소스·정상 회귀 및 NFS 실제 subset | 재기동 지속성·export1/10/100·probe 실패 격리·부하/연속성 |
