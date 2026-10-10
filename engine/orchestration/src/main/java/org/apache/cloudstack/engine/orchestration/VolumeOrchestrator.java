@@ -793,6 +793,12 @@ public class VolumeOrchestrator extends ManagerBase implements VolumeOrchestrati
 
     protected DiskProfile createDiskCharacteristics(VolumeInfo volumeInfo, VirtualMachineTemplate template, DataCenter dc, DiskOffering diskOffering) {
         boolean requiresEncryption = diskOffering.getEncrypt() || volumeInfo.getPassphraseId() != null || volumeInfo.getKmsKeyId() != null;
+        if (volumeInfo.getState() == Volume.State.Uploaded) {
+            // Uploaded disks already contain their image; an internal VM profile is not
+            // a downloadable source template and must not determine ROOT size.
+            return new DiskProfile(volumeInfo.getId(), volumeInfo.getVolumeType(), volumeInfo.getName(), diskOffering.getId(), volumeInfo.getSize(),
+                    diskOffering.getTagsArray(), diskOffering.isUseLocalStorage(), diskOffering.isRecreatable(), null, requiresEncryption);
+        }
         if (volumeInfo.getVolumeType() == Type.ROOT && Storage.ImageFormat.ISO != template.getFormat()) {
             String templateToString = getReflectOnlySelectedFields(template);
             String zoneToString = getReflectOnlySelectedFields(dc);

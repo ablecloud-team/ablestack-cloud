@@ -31,7 +31,8 @@ resource-type="diskoffering"
 option-value-key="id"
 option-label-key="displaytext"
 default-icon="hdd-outlined"
-allow-clear="true" />
+:allow-clear="true"
+:placeholder="$t('label.diskoffering')" />
     </a-form-item>
     <div class="action-button">
       <a-button :disabled="loading" @click="$emit('close-action')">{{ $t('label.cancel') }}</a-button>

@@ -4596,7 +4596,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         _accountMgr.checkAccess(owner, diskOffering, zone);
 
         List<HypervisorType> vpcSupportedHTypes = _vpcMgr.getSupportedVpcHypervisors();
-        if (_itMgr.isBlankInstance(template)) {
+        if (_itMgr.isBlankInstance(template) && volume == null && snapshot == null) {
             logger.debug("Template is a dummy template for hypervisor {}, skipping network allocation in an advanced zone", hypervisor);
         } else if (networkIdList == null || networkIdList.isEmpty()) {
             NetworkVO defaultNetwork = getDefaultNetwork(zone, owner, false);
@@ -5178,7 +5178,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             // by Agent Manager in order to configure default
             // gateway for the vm
             if (defaultNetworkNumber == 0) {
-                if (_itMgr.isBlankInstance(template)) {
+                if (_itMgr.isBlankInstance(template) && volume == null && snapshot == null) {
                     logger.debug("Template is a dummy template for hypervisor {}, vm can be created without a default network", hypervisorType);
                 } else {
                     throw new InvalidParameterValueException("At least 1 default network has to be specified for the vm");

@@ -146,6 +146,20 @@ public class VolumeOrchestratorTest {
         }).when(resourceLimitMgr).decrementResourceCount(Mockito.anyLong(), Mockito.any(Resource.ResourceType.class), Mockito.anyBoolean(), Mockito.anyLong());
     }
 
+    @Test
+    public void uploadedRootProfileUsesImageSizeWithoutDownloadableTemplate() {
+        VolumeInfo uploaded = Mockito.mock(VolumeInfo.class);
+        com.cloud.template.VirtualMachineTemplate internalProfile = Mockito.mock(com.cloud.template.VirtualMachineTemplate.class);
+        DiskOffering offering = Mockito.mock(DiskOffering.class);
+        Mockito.when(uploaded.getState()).thenReturn(Volume.State.Uploaded);
+        Mockito.when(uploaded.getVolumeType()).thenReturn(Type.ROOT);
+        Mockito.when(uploaded.getSize()).thenReturn(1073741824L);
+        com.cloud.vm.DiskProfile profile = volumeOrchestrator.createDiskCharacteristics(uploaded, internalProfile,
+                Mockito.mock(com.cloud.dc.DataCenter.class), offering);
+        Assert.assertEquals(1073741824L, profile.getSize());
+        Mockito.verifyNoInteractions(internalProfile);
+    }
+
     private void runCheckAndUpdateVolumeAccountResourceCountTest(Long originalSize, Long newSize) {
         VolumeVO v1 = Mockito.mock(VolumeVO.class);
         Mockito.when(v1.getSize()).thenReturn(originalSize);

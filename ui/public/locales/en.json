@@ -8396,7 +8396,7 @@
   "label.creation.source.job": "Volume and snapshot creation jobs",
   "label.creation.source.start.retry": "Retry starting the created VM",
   "label.creation.source.inspect.vm": "Inspect the created VM",
-  "message.creation.source.volume": "Use the existing volume as the root disk. No copy is made; storage and size are preserved.",
+  "message.creation.source.volume": "Primary-storage volumes are adopted as ROOT in their existing pool. Uploaded volumes are prepared on primary storage and attached using the same volume UUID.",
   "message.creation.source.snapshot": "Restore a new root disk from the snapshot. The source snapshot and VM are preserved. Data disks and memory are not restored.",
   "message.creation.source.identity": "Existing guest IP, hostname, accounts, passwords and SSH key settings can be retained or copied with the disk. Guest initialization tools such as cloud-init can regenerate some settings on boot. Verify data and network settings on an isolated network.",
   "message.creation.source.legacy": "Boot information for this legacy snapshot was inferred from its original template. Verify any boot settings changed before the snapshot.",
