@@ -1,0 +1,42 @@
+{
+  "kind": "ACL_WRITER_SYNC_RESOLVER_INDEPENDENT_PEER",
+  "schemaVersion": 1,
+  "sourceBaseHead": "628b859af17311d0684b10f28cf16800a832bb05",
+  "candidateFileSha256": {
+    "server/src/main/java/org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.java": "8d5960ec8430ec4cb63c125246658ce67385005f8245b69df0f1e5df86070b5a",
+    "server/src/test/java/org/apache/cloudstack/storage/dataservice/StorageServiceRuntimeQueueScopeTest.java": "74beda660abaa07d1987603731afadd6076e6e65346710e5ffb4dd974217d9ec"
+  },
+  "checks": {
+    "fileOnlyRequireAclBypassedOnlyInGenericSyncResolver": true,
+    "actualAclIdLookedUpFirst": true,
+    "fileShareResolvedFromRuleResourceId": true,
+    "blockTargetResolvedFromRuleResourceId": true,
+    "missingAclMissingResourceUnknownTypeRejectWithoutIdFallback": true,
+    "bothRoutesRetainRequireInstanceUseEntryAndOperateEntry": true,
+    "mutationProtocolSpecificValidatorsUnchanged": true,
+    "wrongProtocolDoesNotGrantOwnershipBypass": true,
+    "actualEightUpdateDeleteApiCmdClassesTestedBySpecDesign": true,
+    "securityManagerCallNotManagerOverride": true,
+    "foreignOperateEntryExceptionPropagates": true,
+    "restOfManagerBytesUnchanged": true
+  },
+  "normalSelection": {
+    "baselineCount": 128,
+    "existingJavaClassNotAlreadySelected": true,
+    "addClass": "StorageServiceRuntimeQueueScopeTest",
+    "newUniqueCount": 129,
+    "native480ProofReused": true,
+    "uiKvmRetest": false
+  },
+  "remainingActionableMismatch": [],
+  "focusedTestStatus": "OWNER_COMPILING_NOT_RERUN_BY_PEER",
+  "effects": {
+    "candidateEdit": 0,
+    "canonicalEdit": 0,
+    "tests": 0,
+    "build": 0,
+    "apiSshQgaBrowser": 0,
+    "gitGhWrite": 0,
+    "finalUi1275Started": false
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "kind": "ACL_SYNC_RESOLVER_NORMAL_FINAL_SOURCE_OUTPUT_PROOF",
+  "schemaVersion": 1,
+  "sourcePin": "6f830e4b6d04528d01eed50133bf9d37a4f66dd2",
+  "tests": 979,
+  "suites": 129,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "checkstylePassed": true,
+  "sourceBeforeAfterSame": true,
+  "archiveMatchesCanonical": true,
+  "sourceScopePaths": 5040,
+  "sourceNulSha256": "646ba7050a956b9a3402d8eba4082cc993cd4ccf497cf2c50591e58966da6113",
+  "immutableProductionFiles": 3898,
+  "managerOuter": {
+    "path": "/root/work/epic898-preparation/iscsi-acl-writer-scope-resolver-prep/normal-preparation/immutable-module-outputs/server/classes/org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class",
+    "sha256": "cde7bbe3f6cef4c07084d35b4ef25a8c9098abb936d5c4fff63f509d243fad68"
+  },
+  "actualProductionDeltaCounts": {
+    "api": 0,
+    "server": 3,
+    "plugins/hypervisors/kvm": 0,
+    "plugins/storage/sharedfs/storagevm": 0
+  },
+  "engineSchemaImmutableFiles": 1370,
+  "coreProofSha256": "15637e7a8e359f0110324908cc918687b72fe78a32a0f3534e99c16cf654c384",
+  "outputManifestSha256": "e368f0d5c44f53c023e75a8b6073ade00e138232de2deef581aaf2f53c5d935b",
+  "classDeltaSha256": "ead639735a84eb551fb2dc137f734a022449ca0b8224e21cac5d62df6f44a726",
+  "engineSchemaManifestSha256": "f23351371bd00b57ce031cb36f716ca66eedaee97b609749c7b0ccb07c5fa8c5",
+  "evidence": {
+    "manager-source-before.json": {
+      "path": "/root/work/epic898-preparation/iscsi-acl-writer-scope-resolver-prep/normal-preparation/manager-source-before.json",
+      "sha256": "2d886a08926c37e6a16a6b36f710c667edb14f4d251aa3abb8f252a0586ee595"
+    },
+    "manager-source-after.json": {
+      "path": "/root/work/epic898-preparation/iscsi-acl-writer-scope-resolver-prep/normal-preparation/manager-source-after.json",
+      "sha256": "4df1591470585cf76913af54651c26a921f5ccfeeac7afd7a38f5126936c262c"
+    },
+    "manager-normal-process.json": {
+      "path": "/root/work/epic898-preparation/iscsi-acl-writer-scope-resolver-prep/normal-preparation/manager-normal-process.json",
+      "sha256": "e8cab341224a96b2b069e63652bf61195fd7899212d55a0c467ffac7d3a4ce6e"
+    },
+    "manager-normal.log": {
+      "path": "/root/work/epic898-preparation/iscsi-acl-writer-scope-resolver-prep/normal-preparation/manager-normal.log",
+      "sha256": "596311b3062839914d7dc2a1ed787622dd623e0379b45b15c5d26331a415033d"
+    },
+    "manager-reports-proof.json": {
+      "path": "/root/work/epic898-preparation/iscsi-acl-writer-scope-resolver-prep/normal-preparation/manager-reports-proof.json",
+      "sha256": "c398b36417bc29108644764c3f8ca89de3d3d22a2c74b6876dc25a9aa02df143"
+    },
+    "manager-actual-command-proof.json": {
+      "path": "/root/work/epic898-preparation/iscsi-acl-writer-scope-resolver-prep/normal-preparation/manager-actual-command-proof.json",
+      "sha256": "23831d9f9a1b782994760a7415e7fd28cdc01fd36f0de6b423dfcb185ce3d9ff"
+    },
+    "module-output-manifest.json": {
+      "path": "/root/work/epic898-preparation/iscsi-acl-writer-scope-resolver-prep/normal-preparation/module-output-manifest.json",
+      "sha256": "e368f0d5c44f53c023e75a8b6073ade00e138232de2deef581aaf2f53c5d935b"
+    },
+    "production-class-delta-vs-ff1.json": {
+      "path": "/root/work/epic898-preparation/iscsi-acl-writer-scope-resolver-prep/normal-preparation/production-class-delta-vs-ff1.json",
+      "sha256": "ead639735a84eb551fb2dc137f734a022449ca0b8224e21cac5d62df6f44a726"
+    },
+    "engine-schema-output-manifest.json": {
+      "path": "/root/work/epic898-preparation/iscsi-acl-writer-scope-resolver-prep/normal-preparation/engine-schema-output-manifest.json",
+      "sha256": "f23351371bd00b57ce031cb36f716ca66eedaee97b609749c7b0ccb07c5fa8c5"
+    }
+  },
+  "canonicalFreezeReleased": true,
+  "externalAbiReviewBackendOwns": true,
+  "native480Ui373Reused": true,
+  "newStandaloneKvmTest": 0,
+  "testsRepeated": 0,
+  "buildInvocations": 1,
+  "actualDeployment": false,
+  "actualApiSshQgaBrowser": 0,
+  "finalUi1275Started": false
+}

@@ -1,0 +1,9 @@
+{
+  "classpathFromActualNormalReport": "/root/work/epic898-preparation/iscsi-readonly-lun-prep/normal-native-preparation/immutable-current-manager-reports/server/TEST-org.apache.cloudstack.storage.dataservice.StorageProtocolDefaultListenerTest.xml",
+  "reportSha256": "3ca0e21dac5d1644f50ef83d593812199b4b740036f2017a5c98aedbf6dd980c",
+  "classpathEntries": 182,
+  "junit": "4.13.2",
+  "mockito": "5.16.1",
+  "legacyAllM2ClassPathRejected": true,
+  "canonicalClassFilesWritten": false
+}

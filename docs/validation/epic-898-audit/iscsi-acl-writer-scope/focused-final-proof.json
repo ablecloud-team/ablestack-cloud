@@ -1,0 +1,53 @@
+{
+  "kind": "ACL_WRITER_SCOPE_RESOLVER_FOCUSED_FINAL",
+  "sourceProductBasePin": "ff1aa74eeda6fffba46c97d6f56c678cbdc2bf33",
+  "productionFiles": 1,
+  "testFiles": 1,
+  "candidateFileSha256": {
+    "server/src/main/java/org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.java": "8d5960ec8430ec4cb63c125246658ce67385005f8245b69df0f1e5df86070b5a",
+    "server/src/test/java/org/apache/cloudstack/storage/dataservice/StorageServiceRuntimeQueueScopeTest.java": "74beda660abaa07d1987603731afadd6076e6e65346710e5ffb4dd974217d9ec"
+  },
+  "baselineFileSha256": {
+    "server/src/main/java/org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.java": "40e2c906c01182adc4329d57b52e0773754781833fcc64e6a320df3ad4401a58",
+    "server/src/test/java/org/apache/cloudstack/storage/dataservice/StorageServiceRuntimeQueueScopeTest.java": "44992df7e4e9e812cd401991e2e27116cdb486b582fecca4ff47ac8d20e956fe"
+  },
+  "patchPath": "/root/work/epic898-preparation/iscsi-acl-writer-scope-resolver-prep/acl-writer-scope-resolver-prep.patch",
+  "patchSha256": "2f4f48462396d47c39405a3914312c0eeff125d6a8d9e52b10b7d3e966542862",
+  "tests": 7,
+  "failures": 0,
+  "errors": 0,
+  "junitElapsedSeconds": 4.539,
+  "javacExitCode": 0,
+  "junitExitCode": 0,
+  "classpathProofSha256": "3b4c6346abf49beb367597d02bc13699bcae09c1f1ba2cdaf852e90c2210b2da",
+  "logSha256": {
+    "javac": "237aaea9ebecf827f9bed4ee26ea4f44854209f7abd86112648af952f2fe24a0",
+    "junit": "149a63f890fac2fedc1a03573485918931d0d5a66b72f476455a926ed26e845f"
+  },
+  "initialLegacyClasspathFailurePreserved": true,
+  "initialFailureWasDependencySelectionNotProductSource": true,
+  "patchApplyCheckExitCode": 0,
+  "patchApplyCheckLogSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "independentPeerProofSha256": "32c109590dbb2b84d7daf73c1509e9638c2bef5aa8c2d26e8fe3aa51655ece26",
+  "normalExistingSelectors": 128,
+  "normalAddedSelector": "StorageServiceRuntimeQueueScopeTest",
+  "normalRequestedSelectors": 129,
+  "cases": [
+    "real eight Update/Delete iSCSI/NVMe/NFS/SMB commands -> same exact scope with UseEntry and OperateEntry",
+    "missing ACL rejects before resource/access lookup",
+    "missing block/file resource cannot adopt same numeric target ID",
+    "unknown/null ACL resource type rejects without fallback",
+    "foreign account denied at OperateEntry"
+  ],
+  "actualCauseProofSha256": "1785471a1d5241ef9351b9c27fba6dda29395ddc69c22b32c27a45b4cea0f603",
+  "actualPublicErrorPrefixConfirmed": "Unable to find NFS ACL with id ",
+  "actualStackframeCollected": false,
+  "canonicalSourceEdits": 0,
+  "mavenRuns": 0,
+  "gitRefIndexCommitChanges": 0,
+  "actualCalls": 0,
+  "nativeChanged": false,
+  "ui1275Started": false,
+  "sourceFrozen": true,
+  "pendingEdits": false
+}
