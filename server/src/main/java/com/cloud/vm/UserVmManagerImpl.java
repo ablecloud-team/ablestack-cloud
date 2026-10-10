@@ -3111,6 +3111,11 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         UserVmVO vm = _vmDao.findById(vmId);
 
         if (vm != null) {
+            _vmDao.loadDetails(vm);
+            if ("true".equals(vm.getDetail("vm.creation.source"))) {
+                logger.warn("Preserving source-created VM [{}] and its disks after a start failure; retry the same VM", vm.getUuid());
+                return;
+            }
             if (vm.getState().equals(State.Stopped)) {
                 HostVO host = _hostDao.findById(hostId);
                 logger.debug("Destroying VM [{}] as it was unable to be deployed on Host: {}.", vm, host);
@@ -7270,7 +7275,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             } else {
                 CallContext.current().removeContextParameter(DeployIsoSelection.class);
             }
-            CallContext.current().putContextParameter("vm.creation.snapshot.targetpool", !cmd.isVolumeOrSnapshotProvided() ? null : cmd.getRootStorageId());
+            CallContext.current().putContextParameter("vm.creation.snapshot.targetpool", !cmd.isVolumeOrSnapshotProvided() ? null : selectedStorage.get(0L));
             return createVirtualMachine(cmd, zone, owner, serviceOffering, template, cmd.getHypervisor(), diskOfferingId, cmd.getSize(), overrideDiskOfferingId, dataDiskInfoList,
                     networkIds, cmd.getIpToNetworkMap(), volume, snapshot);
         } finally {
