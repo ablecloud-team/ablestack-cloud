@@ -43,6 +43,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.apache.cloudstack.storage.datastore.db.TemplateDataStoreDao;
+import org.apache.cloudstack.storage.datastore.db.TemplateDataStoreVO;
+import org.apache.cloudstack.acl.SecurityChecker.AccessType;
+import com.cloud.storage.Storage.ImageFormat;
+import com.cloud.storage.Storage.TemplateType;
 import org.apache.cloudstack.affinity.AffinityGroupVO;
 import org.apache.cloudstack.affinity.dao.AffinityGroupDao;
 import org.apache.cloudstack.annotation.AnnotationService;
@@ -373,6 +378,8 @@ public class AutoScaleManagerImplTest {
     @Mock
     DiskOfferingVO diskOfferingMock;
     @Mock
+    TemplateDataStoreDao autoScaleTemplateStoreDao;
+    @Mock
     VMTemplateVO templateMock;
     @Mock
     NetworkVO networkMock;
@@ -443,6 +450,9 @@ public class AutoScaleManagerImplTest {
         Mockito.doReturn(userDataFinal).when(userVmMgr).finalizeUserData(any(), any(), any());
         Mockito.doReturn(userDataFinal).when(userDataMgr).validateUserData(eq(userDataFinal), nullable(BaseCmd.HTTPMethod.class));
 
+        when(templateMock.getState()).thenReturn(VirtualMachineTemplate.State.Active);
+        when(autoScaleTemplateStoreDao.findByTemplateZoneReady(anyLong(), any())).thenReturn(Mockito.mock(TemplateDataStoreVO.class));
+        when(asVmProfileMock.getZoneId()).thenReturn(zoneId);
         when(templateMock.getGuestOSId()).thenReturn(100L);
         GuestOSVO guestOSMock = Mockito.mock(GuestOSVO.class);
         when(guestOSDao.findById(anyLong())).thenReturn(guestOSMock);
@@ -2578,4 +2588,108 @@ public class AutoScaleManagerImplTest {
     public void testValidateMinMaxMembersInvalidRange() {
         autoScaleManagerImplSpy.validateMinMaxMembers(5, 1);
     }
+
+    @Test
+    public void testNewProfileChecksOwnerOfferingZoneAndTemplateUseAccess() {
+        autoScaleManagerImplSpy.validateNewAutoScaleProfileSources(account, zoneMock, serviceOfferingMock, templateMock);
+        Mockito.verify(accountManager).checkAccess(account, serviceOfferingMock, zoneMock);
+        Mockito.verify(accountManager).checkAccess(account, AccessType.UseEntry, false, templateMock);
+    }
+
+    @Test(expected = InvalidParameterValueException.class)
+    public void testNewProfileRejectsDynamicOfferingBeforePersistence() {
+        when(serviceOfferingMock.isDynamic()).thenReturn(true);
+        autoScaleManagerImplSpy.validateNewAutoScaleProfileSources(account, zoneMock, serviceOfferingMock, templateMock);
+    }
+
+    @Test(expected = InvalidParameterValueException.class)
+    public void testNewProfileRejectsRemovedOffering() {
+        when(serviceOfferingMock.getRemoved()).thenReturn(new Date());
+        autoScaleManagerImplSpy.validateNewAutoScaleProfileSources(account, zoneMock, serviceOfferingMock, templateMock);
+    }
+
+    @Test(expected = InvalidParameterValueException.class)
+    public void testNewProfileRejectsInactiveOffering() {
+        when(serviceOfferingMock.getState()).thenReturn(ServiceOffering.State.Inactive);
+        autoScaleManagerImplSpy.validateNewAutoScaleProfileSources(account, zoneMock, serviceOfferingMock, templateMock);
+    }
+
+    @Test(expected = InvalidParameterValueException.class)
+    public void testNewProfileRejectsIso() {
+        when(templateMock.getFormat()).thenReturn(ImageFormat.ISO);
+        autoScaleManagerImplSpy.validateNewAutoScaleProfileSources(account, zoneMock, serviceOfferingMock, templateMock);
+    }
+
+    @Test(expected = InvalidParameterValueException.class)
+    public void testNewProfileRejectsSystemTemplate() {
+        when(templateMock.getTemplateType()).thenReturn(TemplateType.SYSTEM);
+        autoScaleManagerImplSpy.validateNewAutoScaleProfileSources(account, zoneMock, serviceOfferingMock, templateMock);
+    }
+
+    @Test(expected = InvalidParameterValueException.class)
+    public void testNewProfileRejectsUnreadyTemplateInZone() {
+        when(autoScaleTemplateStoreDao.findByTemplateZoneReady(anyLong(), any())).thenReturn(null);
+        autoScaleManagerImplSpy.validateNewAutoScaleProfileSources(account, zoneMock, serviceOfferingMock, templateMock);
+    }
+
+    @Test
+    public void testNewProfileKeepsDirectDownloadTemplatesEligible() {
+        when(templateMock.isDirectDownload()).thenReturn(true);
+        autoScaleManagerImplSpy.validateNewAutoScaleProfileSources(account, zoneMock, serviceOfferingMock, templateMock);
+        Mockito.verify(autoScaleTemplateStoreDao, never()).findByTemplateZoneReady(anyLong(), any());
+    }
+
+    @Test(expected = InvalidParameterValueException.class)
+    public void testNewProfileRejectsInactiveTemplate() {
+        when(templateMock.getState()).thenReturn(VirtualMachineTemplate.State.Inactive);
+        autoScaleManagerImplSpy.validateNewAutoScaleProfileSources(account, zoneMock, serviceOfferingMock, templateMock);
+    }
+
+    @Test(expected = com.cloud.exception.PermissionDeniedException.class)
+    public void testNewProfileRejectsOwnerWithoutTemplateUseAccess() {
+        Mockito.doThrow(new com.cloud.exception.PermissionDeniedException("not allowed"))
+                .when(accountManager).checkAccess(account, AccessType.UseEntry, false, templateMock);
+        autoScaleManagerImplSpy.validateNewAutoScaleProfileSources(account, zoneMock, serviceOfferingMock, templateMock);
+    }
+
+    @Test
+    public void testZeroThresholdIsAccepted() {
+        CreateConditionCmd cmd = new CreateConditionCmd();
+        ReflectionTestUtils.setField(cmd, "counterId", counterId);
+        ReflectionTestUtils.setField(cmd, "relationalOperator", "GT");
+        ReflectionTestUtils.setField(cmd, "threshold", 0L);
+        autoScaleManagerImplSpy.createCondition(cmd);
+        Mockito.verify(conditionDao).persist(any(ConditionVO.class));
+    }
+
+    @Test(expected = InvalidParameterValueException.class)
+    public void testZeroMinMembersIsRejected() {
+        autoScaleManagerImplSpy.validateMinMaxMembers(0, 1);
+    }
+
+    @Test(expected = InvalidParameterValueException.class)
+    public void testZeroMaxMembersIsRejected() {
+        autoScaleManagerImplSpy.validateMinMaxMembers(1, 0);
+    }
+    @Test(expected = InvalidParameterValueException.class)
+    public void testCreateGroupRejectsDifferentProfileZoneBeforePersistence() {
+        CreateAutoScaleVmGroupCmd cmd = new CreateAutoScaleVmGroupCmd();
+        ReflectionTestUtils.setField(cmd, "lbRuleId", loadBalancerId);
+        ReflectionTestUtils.setField(cmd, "name", vmGroupName);
+        ReflectionTestUtils.setField(cmd, "minMembers", minMembers);
+        ReflectionTestUtils.setField(cmd, "maxMembers", maxMembers);
+        ReflectionTestUtils.setField(cmd, "profileId", vmProfileId);
+        when(lbDao.findById(loadBalancerId)).thenReturn(loadBalancerMock);
+        when(loadBalancerMock.getSourceIpAddressId()).thenReturn(ipAddressId);
+        when(ipAddressDao.findById(ipAddressId)).thenReturn(ipAddressMock);
+        when(ipAddressMock.getDataCenterId()).thenReturn(zoneId);
+        when(autoScaleVmProfileDao.findById(vmProfileId)).thenReturn(asVmProfileMock);
+        when(asVmProfileMock.getZoneId()).thenReturn(zoneId + 1);
+        try {
+            autoScaleManagerImplSpy.createAutoScaleVmGroup(cmd);
+        } finally {
+            Mockito.verify(autoScaleVmGroupDao, never()).persist(any());
+        }
+    }
+
 }
