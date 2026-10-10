@@ -18,7 +18,7 @@ LUN 바인딩은 서버의 일련번호, IQN/LUN 및 READ CAPACITY 결과로 확
 
 C2의 RO_WRITE 시험이 예상과 달리 성공했고 4096바이트 쓰기가 보고됐다. 시험 시점의 실제 관리 API 및 UI는 READ_ONLY였고, 이후 한 번의 native 관측에서 같은 ACL의 mapped LUN 0 write_protect는 0이었다. 이는 읽기 전용 거절 성공이 아니라 실제 권한 결함이다.
 
-실패 후 추가 클라이언트 쓰기, 상호 CHAP 및 NVMe 실제 작업을 중단했다. 소스에서 ACL 생성과 인증 설정만 수행하며 LUN별 permission을 적용하지 않는 경로를 확인했다. 설치된 targetcli는 기본 ACL 생성 시 모든 TPG LUN을 write_protect=False로 자동 매핑하므로, 수정은 자동 매핑을 끄고 각 활성 ACL의 허용 LUN만 명시적으로 RO/RW 매핑하는 방식으로 준비한다. 같은 IQN의 서로 다른 LUN 권한을 하나로 합치지 않는다.
+실패 후 추가 클라이언트 쓰기, 상호 CHAP 및 NVMe 실제 작업을 중단했다. 소스에서 ACL 생성과 인증 설정만 수행하며 LUN별 permission을 적용하지 않는 경로를 확인했다. 설치된 targetcli는 기본 ACL 생성 시 모든 TPG LUN을 write_protect=False로 자동 매핑하므로, 기존 관리 서버 계약은 같은 IQN의 초기자 ACL을 합쳐 모든 LUN에 적용하는 방식이다. 수정은 이 계약을 유지하면서 자동 매핑을 끄고 관리 payload의 활성 ACL 권한을 각 LUN에 명시적으로 RO/RW 매핑하는 방식으로 준비한다. 같은 초기자의 상충하는 권한은 관리 서버에서 변경 전에 거절하고 설정 생성 단계에서도 검증한다. Native만의 서로 다른 LUN 권한 fixture를 전체 관리 API의 지원 정책으로 확대하지 않는다.
 
 사후 실제 상태는 generation 13, operation 39bb9e03-236a-41c1-a87a-d693b9915ff5, configuration SHA-256 9d678db9bf8779d520530f97dede0b98b736589eb6d4325d51c8edf5ff165542다. Pending 없음, writer idle, 모든 프로토콜 세션 0을 확인했다.
 
