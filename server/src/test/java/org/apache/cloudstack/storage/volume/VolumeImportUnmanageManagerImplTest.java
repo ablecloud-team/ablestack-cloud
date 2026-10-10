@@ -293,6 +293,15 @@ public class VolumeImportUnmanageManagerImplTest {
     }
 
     @Test
+    public void rawKvmRegistrationPreservesInspectedFormatAndProvenance() throws ResourceAllocationException {
+        hypervisorType = Hypervisor.HypervisorType.KVM;
+        format = "raw";
+        testImportVolumeAllGood();
+        verify(volumeVO).setFormat(com.cloud.storage.Storage.ImageFormat.RAW);
+        verify(volumeDetailsDao).addDetail(volumeId, com.cloud.vm.VmCreationSourceService.PREFIX + "formatorigin", "driver-inspected", false);
+    }
+
+    @Test
     public void testListVolumesForImportInternal() {
         Pair<HostVO, String> hostAndLocalPath = mock(Pair.class);
         doReturn(hostAndLocalPath).when(volumeImportUnmanageManager).findHostAndLocalPathForVolumeImport(storagePoolVO);
