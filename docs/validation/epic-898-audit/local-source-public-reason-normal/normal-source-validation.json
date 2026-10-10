@@ -4,21 +4,8 @@
   "normalCheckstyle": true,
   "normalCommandSha256": "dc6c74b15ac30479b7ba96027fdf46371ced1c34819934d7b999db147b3260bc",
   "normalBuildLogSha256": "dc3cc6da001082af295ff749f56ddebf4713b21c0ac8af3af13d31fb041cdeba",
-  "javaSourceUnchanged": true,
-  "allTrackedSourceUnchanged": true,
-  "archiveMissingAndDifferent": [],
-  "actualTests": {
-    "tests": 931,
-    "failures": 0,
-    "errors": 0,
-    "skipped": 0,
-    "suites": 126
-  },
-  "requestedSelectors": 126,
-  "missingSelectors": [],
-  "immutableOutputFiles": 6315,
-  "moduleOutputManifestSha256": "c3cd68726d377ccaae4efab52c0027cde8b89fc3590a0c634a5784eb3f17fbc5",
-  "actualDeployment": false,
+  "startedAtUtc": "2026-10-10T02:14:25.516721+00:00",
+  "endedAtUtc": "2026-10-10T02:16:54.360842+00:00",
   "sourceBefore": {
     "sourcePin": "053070da1d57c06cd1a8ddb71610ff4b54158df7",
     "buildHeadAtStart": "dc6a690b688d96b4a12286f1225ae52316fe7cad",
@@ -70,5 +57,41 @@
       "server/src/main/java/org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.java": "57ab25fb608d033a78b31be96633b056352276d2b7bb39dce53787c8c67fef53",
       "server/src/test/java/org/apache/cloudstack/storage/dataservice/StorageLocalSourceFailureReasonTest.java": "61f89463d54edb3eaa4f57032c9c036c5e297ce69da5b30fc631d0269cb8f7bd"
     }
-  }
+  },
+  "javaSourceUnchanged": true,
+  "allTrackedSourceUnchanged": true,
+  "archiveMissingAndDifferent": [],
+  "actualTests": {
+    "tests": 931,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "suites": 126
+  },
+  "requestedSelectors": 126,
+  "missingSelectors": [],
+  "immutableOutputFiles": 6315,
+  "moduleOutputManifestSha256": "c3cd68726d377ccaae4efab52c0027cde8b89fc3590a0c634a5784eb3f17fbc5",
+  "actualDeployment": false,
+  "buildHeadAtValidation": "dc6a690b688d96b4a12286f1225ae52316fe7cad",
+  "priorFailureHistoryRelatedTo6bOnly": [
+    "02b0eb8db5dc AD positive fixture",
+    "8ca00abe4eb6 Checkstyle before test"
+  ],
+  "failedNormalAttemptsForThisCodePin": 0,
+  "codeArchiveComparedToBuildHead": true,
+  "headOnlyDiagnosticsDocs": [
+    "docs/validation/epic-898-audit/20261010-df11-original-import-readonly.md",
+    "docs/validation/epic-898-audit/df11-original-import-readonly/exact-owned-readiness-endpoint.json",
+    "docs/validation/epic-898-audit/df11-original-import-readonly/existing-fixed-reason-log-proof.json",
+    "docs/validation/epic-898-audit/df11-original-import-readonly/original-loopback-prewrite-proof.json",
+    "docs/validation/epic-898-audit/df11-original-import-readonly/stop-prewrite-tcp-skipped-proof.json",
+    "docs/validation/epic-898-audit/df11-original-import-readonly/tcp-first-address-guard-rejection.json"
+  ],
+  "full14AbiProofSha256": "f42e45598b600c67923f6a8437af6f3d94b11bed450d61a581619dc8d38c424f",
+  "semanticDeltaProofSha256": "65ba0980377c455ebf080dfb06dc3fb8e02a6884538363663e9a154f1fe466d1",
+  "selectedOuterAbiProofSha256": "87261d1d1cd47395eef91c8963804dbf932d20582e0cdb3d5124b732d2de94e9",
+  "selectedDeploymentClassCount": 1,
+  "newRegressionTests": 11,
+  "normalValidationActualUiApiVmEffects": false
 }
