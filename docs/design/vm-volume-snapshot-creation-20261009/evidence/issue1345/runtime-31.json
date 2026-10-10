@@ -1,0 +1,210 @@
+{
+  "cluster": 31,
+  "at": "2026-10-10T12:52:30.864898+00:00",
+  "baselineVmCount": 99,
+  "unchanged": 99,
+  "differences": [],
+  "hosts": [
+    {
+      "id": "159baf9a-89ad-4a94-91dc-e7395a670bf4",
+      "name": "ablecube31-1",
+      "state": "Up"
+    },
+    {
+      "id": "3fb147f3-aea4-4f65-b8c6-e7192ea26138",
+      "name": "ablecube31-2",
+      "state": "Up"
+    },
+    {
+      "id": "384871b9-7c75-4717-a673-e96a76abeb71",
+      "name": "ablecube31-3",
+      "state": "Up"
+    }
+  ],
+  "cases": [
+    {
+      "vm": {
+        "id": "4f39826d-de7c-4316-ab2e-4d28ed5e2907",
+        "name": "E1345-31-local-off-r3",
+        "state": "Stopped",
+        "hostid": null,
+        "projectid": null,
+        "account": "admin",
+        "osdisplayname": "Other (64-bit)",
+        "boottype": "Bios",
+        "bootmode": "legacy"
+      },
+      "root": {
+        "id": "876a602e-0128-4c4b-aaf0-80d0688b2c84",
+        "name": "E1345-31-local-nonboot",
+        "type": "ROOT",
+        "state": "Ready",
+        "deviceid": 0,
+        "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+        "storage": "Primary",
+        "size": 1073741824
+      }
+    },
+    {
+      "vm": {
+        "id": "a795afba-36dc-4a37-b1e4-e4942d72d613",
+        "name": "E1345-31-url-on",
+        "state": "Running",
+        "hostid": "384871b9-7c75-4717-a673-e96a76abeb71",
+        "projectid": null,
+        "account": "admin",
+        "osdisplayname": "Other (64-bit)",
+        "boottype": "Bios",
+        "bootmode": "legacy"
+      },
+      "root": {
+        "id": "144f28ad-682e-48c7-b8d2-cb509c069873",
+        "name": "E1345-31-url-nonboot",
+        "type": "ROOT",
+        "state": "Ready",
+        "deviceid": 0,
+        "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+        "storage": "Primary",
+        "size": 1073741824
+      }
+    },
+    {
+      "vm": {
+        "id": "a40721ed-8267-49d0-8861-820a919851c5",
+        "name": "E1345-31-file-on",
+        "state": "Running",
+        "hostid": "159baf9a-89ad-4a94-91dc-e7395a670bf4",
+        "projectid": null,
+        "account": "admin",
+        "osdisplayname": "Other (64-bit)",
+        "boottype": "Bios",
+        "bootmode": "legacy"
+      },
+      "root": {
+        "id": "16dc8a47-d8ec-4f63-ab0a-a457b3ddec82",
+        "name": "E1345-31-file-nonboot",
+        "type": "ROOT",
+        "state": "Ready",
+        "deviceid": 0,
+        "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+        "storage": "Primary",
+        "size": 1073741824
+      }
+    },
+    {
+      "vm": {
+        "id": "be399161-fde8-49f0-af32-0e24daa6a80d",
+        "name": "E1345-31-file-boot-on",
+        "state": "Running",
+        "hostid": "384871b9-7c75-4717-a673-e96a76abeb71",
+        "projectid": null,
+        "account": "admin",
+        "osdisplayname": "Rocky Linux 9",
+        "boottype": "Bios",
+        "bootmode": "legacy"
+      },
+      "root": {
+        "id": "30bd3283-f84f-47ce-b181-b52d7e8d639d",
+        "name": "E1345-31-file-boot",
+        "type": "ROOT",
+        "state": "Ready",
+        "deviceid": 0,
+        "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+        "storage": "Primary",
+        "size": 107374182400
+      }
+    },
+    {
+      "vm": {
+        "id": "01b08f41-e8d2-48d2-82a3-18e68ea6f666",
+        "name": "E1345-31-generic-snapshot-off",
+        "state": "Stopped",
+        "hostid": null,
+        "projectid": null,
+        "account": "admin",
+        "osdisplayname": "Other (64-bit)",
+        "boottype": "Bios",
+        "bootmode": "legacy"
+      },
+      "root": {
+        "id": "b9e03fcc-c04e-4c1d-942d-47712a8a05f6",
+        "name": "ROOT-388",
+        "type": "ROOT",
+        "state": "Ready",
+        "deviceid": 0,
+        "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+        "storage": "Primary",
+        "size": 1073741824
+      }
+    },
+    {
+      "vm": {
+        "id": "661829fb-df0f-4da4-8ffb-fe39860a2be9",
+        "name": "E1345-31-user-upload-off",
+        "state": "Stopped",
+        "hostid": null,
+        "projectid": null,
+        "account": "epic1335-user31",
+        "osdisplayname": "Other (64-bit)",
+        "boottype": "Bios",
+        "bootmode": "legacy"
+      },
+      "root": {
+        "id": "76a05d7c-b9d4-4be0-a586-30ce235ec341",
+        "name": "E1345-31-user-url-nonboot",
+        "type": "ROOT",
+        "state": "Ready",
+        "deviceid": 0,
+        "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+        "storage": "Primary",
+        "size": 1073741824
+      }
+    },
+    {
+      "vm": {
+        "id": "be5a4012-27e0-4484-b9df-108607ee3114",
+        "name": "E1345-31-project-generic-off",
+        "state": "Stopped",
+        "hostid": null,
+        "projectid": "94bc0ded-ace2-4dd8-b1d6-dab52fe07af5",
+        "account": null,
+        "osdisplayname": "Other (64-bit)",
+        "boottype": "Bios",
+        "bootmode": "legacy"
+      },
+      "root": {
+        "id": "1c7c2247-c0fc-485b-af33-ef7fa5741181",
+        "name": "E1345-31-project-generic-DATA",
+        "type": "ROOT",
+        "state": "Ready",
+        "deviceid": 0,
+        "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+        "storage": "Primary",
+        "size": 1073741824
+      }
+    },
+    {
+      "vm": {
+        "id": "bc35e1a5-5433-441d-b038-6bdc64d514ed",
+        "name": "E1345-31-concurrent-B",
+        "state": "Stopped",
+        "hostid": null,
+        "projectid": null,
+        "account": "admin",
+        "osdisplayname": "Other (64-bit)",
+        "boottype": "Bios",
+        "bootmode": "legacy"
+      },
+      "root": {
+        "id": "a8ea590a-ae15-4582-a873-5908fd7f7141",
+        "name": "E1345-31-snapshot-DATA",
+        "type": "ROOT",
+        "state": "Ready",
+        "deviceid": 0,
+        "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+        "storage": "Primary",
+        "size": 1073741824
+      }
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "at": "2026-10-10T13:00:37.251750+00:00",
+  "quotaAttemptVolumes": 0,
+  "registered": [
+    {
+      "id": "7d77c2c2-70f8-46a4-b5e6-0ab124adec8b",
+      "name": "E1345-31-url-registration-final",
+      "state": "Uploaded",
+      "type": "DATADISK",
+      "account": "admin",
+      "size": 1073741824,
+      "status": null
+    }
+  ]
+}

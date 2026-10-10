@@ -207,3 +207,7 @@ Cloud 서버 변경은 WSL ext4 clone에서 변경 Maven 모듈과 필요한 의
 필수 성공 범위는 31번 GFS2와 32번 Ceph krbd 각각의 볼륨/스냅샷 × Linux BIOS/Windows UEFI × startvm=true/false 8개, 총 16개이다. Epic 완료는 코드/설계/단위 검증만으로 처리하지 않는다. 지정 fixture에서 생성·게스트 부팅·데이터 확인·원본 무결성·실패 후 리소스 상태를 모두 연결한 실제 증거가 필요하다.
 
 2026-10-09 지정 환경 반영: CLUSTER GFS2/RBD 원본 선택과 다른 cluster 차단 예시를 시안에 반영했다. [추가 확인 4개](evidence/environment-mockup-verification.json), [CLUSTER 볼륨 화면](evidence/proposed-volume-cluster-dark.jpg), [확인 화면](evidence/proposed-volume-cluster-confirm-dark.jpg). 기존 14개는 초기 시안 검증 기록이며 실제 제품 E2E와 구분한다.
+
+## 일반 업로드·파일 등록 추가 구현 (#1345)
+
+현재 Mold UI에서 일반 Uploaded/DATADISK 및 DATA 스냅샷으로 VM을 생성하는 추가 범위는 [실환경 최종 보고](external-volume-validation.ko.md)를 확인한다. OS/펌웨어/ROOT 버스 직접 지정, 출처 표시, 두 스토리지 배치, 실제 콘솔·권한·동시 편입·시작 재시도·응답 유실 증거를 기존 ROOT 행렬과 구분했다.
