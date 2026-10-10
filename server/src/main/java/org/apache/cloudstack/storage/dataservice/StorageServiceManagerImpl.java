@@ -4683,12 +4683,21 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             return writableStorageInstanceId(policy.getInstanceId());
         }
         if (id != null && type.contains("Acl")) {
-            final StorageAccessRuleVO rule = requireAcl(id);
+            final StorageAccessRuleVO rule = storageAccessRuleDao.findById(id);
+            if (rule == null) {
+                throw new InvalidParameterValueException("Unable to find ACL with id " + id);
+            }
             if (rule.getResourceType() == StorageServiceInstance.AccessResourceType.FILE_SHARE) {
                 return writableStorageInstanceId(requireFileShare(rule.getResourceId()).getInstanceId());
             }
-            final StorageBlockTargetVO target = storageBlockTargetDao.findById(rule.getResourceId());
-            if (target != null) return writableStorageInstanceId(target.getInstanceId());
+            if (rule.getResourceType() == StorageServiceInstance.AccessResourceType.BLOCK_TARGET) {
+                final StorageBlockTargetVO target = storageBlockTargetDao.findById(rule.getResourceId());
+                if (target == null) {
+                    throw new InvalidParameterValueException("Storage Service block resource is unavailable");
+                }
+                return writableStorageInstanceId(target.getInstanceId());
+            }
+            throw new InvalidParameterValueException("Unsupported Storage Service ACL resource type");
         }
         if (id != null && (type.contains("NfsExport") || type.contains("SmbShare") || type.contains("FileShare"))) {
             return writableStorageInstanceId(requireFileShare(id).getInstanceId());
