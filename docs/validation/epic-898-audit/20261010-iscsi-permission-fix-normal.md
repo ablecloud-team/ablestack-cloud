@@ -67,3 +67,17 @@ C2의 한 번의 RO_WRITE는 실제 taskPresent=true/status2/senseValid=true/sen
 상호 CHAP 첫 요청은 HTTPError로 job응답 전에 끝났고 controller가 RAM 자격을 폐기했다. 추가 상호 요청·클라이언트 시험은 0이며 HTTP 상태와 요청 처리 경계를 조사한다. 이 후속 오류는 기본 인증·읽기 전용 인수 통과와 구분한다. #892 전체 조건은 아직 미완료다.
 
 [실제 LUN 권한 적용](iscsi-permission-fix/after-resolver-rotation-native-wp-public-proof.json), [기본 실제 클라이언트 결과 및 상호 첫 HTTP 오류](iscsi-permission-fix/resolver-fixed-iscsi-chap-ram-controller-public-proof.json), [정리 및 데이터 보존](iscsi-permission-fix/after-basic-strict-ro-cleanup-public-proof.json).
+
+## 실제 상호 CHAP 인수
+
+최초 상호 설정 요청의 HTTPError는 정확 시각의 관리 로그에서 expired/session 단어와 같은 API 명령을 확인하고 현재 ACL 상호 플래그가 false임을 확인했다. HTTP 상태값은 보존되지 않아 특정 상태 코드를 주장하지 않는다. 시험 도구를 상호 요청 직전 정상 재로그인하도록 보완했고 제품 변경 없이 정상 설정했다.
+
+첫 MUTUAL_NONE 시험은 올바른 initiator 자격만 보내 서버 인증을 요청하지 않아 접속이 수락됐다. 원 관측과 틀렸던 거절 기대값을 보존했다. [RFC7143 §12.1.3](https://www.rfc-editor.org/rfc/rfc7143.html#section-12.1.3)에 따라 target 인증은 initiator가 요청한다. Cached libiscsi1.20.0은 target_user가 있을 때 CHAP_I/C를 보내고, 요청한 target 응답의 digest가 틀리거나 필요한 N/R가 없으면 거절한다. 이 단방향 수락을 제품의 상호 인증 결함으로 표시하지 않는다.
+
+새 시험은 같은 두 ACL에 직접 mutualtrue로 RAM 비밀을 갱신했다. C1 job059147a5-2ed7-4e98-8062-fed537eb8435 및 C2 jobb0a091da-1e10-4a34-a799-1719b3883df6는 status1/result0/Ready다. GEN21에서 두 ACL의 단방향·상호 자격 존재, target authentication, WP0/1 및 데이터 보존을 확인했다. UI 두 폼의 상호 사용·기존 사용자 유지·비밀 필드 공란은 별도 실제 화면으로 검증했다.
+
+실제 corrected6 cases가 통과했다. 정상 initiator 자격과 정상 target 사용자명에 잘못된 target 비밀을 넣은 C1/C2 requested LOGIN_ONLY는 인증 거절과 I/O0이었다. 정상 상호 자격 C1/C2 READ와 새 연결 READ는 기존40804e 해시다. C2의 한 RO_WRITE는 정확 status2/key7/ASC39/ASCQ0으로 거절됐고 거절 후 새 연결 READ도 같은 해시였다. C1 추가 쓰기 및 MUTUAL_NONE 반복은 없다.
+
+DONE으로 controller를 종료하고 자격을 폐기했다. 정리 후 GEN21/pending 없음/writer idle, own iSCSI TCP와 활성 세션0, WP0/1·ROOT/FILE/NFS/SMB/RAW 시험 구간을 유지했다. 전체 에픽과 #892의 모든 실패·롤백 요구 완료로 확대하지 않는다.
+
+[실제 corrected6 cases](iscsi-permission-fix/mutual-requested-chap-ram-controller-public-proof.json) SHA be028fa2fb4bef0cf5f67a7cd636eb9ddbc67bdf4756093433f25fa956586bb7, [최종 정리·보존](iscsi-permission-fix/after-mutual-requested-final-cleanup-public-proof.json) SHA a23b7c91e4764b6c6281687493b188c3c7a4c41b42e3d3fd271787da1e969f38, [native 인증·권한](iscsi-permission-fix/after-mutual-requested-secret-rotation-native-public-proof.json), [세션 만료 단어 관측](iscsi-permission-fix/mutual-session-expired-fixed-words-public-proof.json).
