@@ -1727,11 +1727,45 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         binding.add("volumes",disks);return binding;
     }
 
+    protected void requireRenderedValidationArtifact(StorageServiceInstanceVO instance,JsonObject artifact) {
+        JsonObject binding=renderedValidationBindings(instance);
+        StorageRenderedValidationProfile.verify(artifact,instance.getUuid(),instance.getName(),binding,System.currentTimeMillis());
+        if (!StorageRenderedValidationProfile.owned(artifact)) {
+            return;
+        }
+        java.util.Set<String> expected=new HashSet<>();
+        for (java.util.Map.Entry<String,JsonElement> entry:binding.getAsJsonObject("volumes").entrySet()) {
+            if ("DATADISK".equals(getJsonString(entry.getValue().getAsJsonObject(),"type"))) {
+                expected.add(entry.getKey());
+            }
+        }
+        java.util.Set<String> actual=new HashSet<>();
+        for (VolumeVO volume:volumeDao.findByInstanceAndType(instance.getVmId(),com.cloud.storage.Volume.Type.DATADISK)) {
+            if (volume.getVolumeType()!=com.cloud.storage.Volume.Type.DATADISK || volume.getTemplateId()!=null
+                    || !StringUtils.isBlank(volume.getChainInfo()) || volume.getUuid()==null || !actual.add(volume.getUuid())
+                    || !java.util.Objects.equals(volume.getInstanceId(),instance.getVmId()) || volume.getAccountId()!=instance.getAccountId()
+                    || volume.getDataCenterId()!=instance.getDataCenterId() || volume.getRemoved()!=null
+                    || volume.getState()!=com.cloud.storage.Volume.State.Ready
+                    || volume.getProvisioningType()==null
+                    || !Set.of(com.cloud.storage.Storage.ProvisioningType.SPARSE,com.cloud.storage.Storage.ProvisioningType.FAT).contains(volume.getProvisioningType())) {
+                throw new CloudRuntimeException("Owned rendered validation requires exact unbacked disposable DATA");
+            }
+        }
+        if (expected.isEmpty() || !expected.equals(actual)) {
+            throw new CloudRuntimeException("Owned rendered validation DATA set changed");
+        }
+    }
+
     protected JsonObject requiredRenderedValidationProfile(StorageServiceInstanceVO instance) {
         JsonObject policy=instanceControlPolicy(instance);JsonObject profile=policy.has("renderedValidationProfile")&&policy.get("renderedValidationProfile").isJsonObject()?policy.getAsJsonObject("renderedValidationProfile"):null;
         if(profile==null || !Boolean.TRUE.equals(getJsonBoolean(profile,"enabled")))throw new CloudRuntimeException("Four-protocol candidate validation is not authorized for this instance");
         JsonObject artifact=parseJsonObject(new String(renderedValidationStore().read(getJsonString(profile,"artifactUuid"),getJsonString(profile,"artifactSha256")),java.nio.charset.StandardCharsets.UTF_8));
-        StorageRenderedValidationProfile.verify(artifact,instance.getUuid(),instance.getName(),renderedValidationBindings(instance),System.currentTimeMillis());
+        String profileKind=getJsonString(profile,"kind");
+        if ((!"NEW_SPARSE_ALL4_VALIDATION".equals(profileKind)&&!"OWNED_SPARSE_ALL4_VALIDATION".equals(profileKind))
+                || !java.util.Objects.equals(profileKind,getJsonString(artifact,"kind"))) {
+            throw new CloudRuntimeException("Rendered validation profile kind changed");
+        }
+        requireRenderedValidationArtifact(instance,artifact);
         runtimeUpgradeManager.freshSignedRuntimeValidationProof(instance.getId(),getJsonString(artifact,"expectedCliSha256"));StorageRenderedValidationProfile.requireHandler(rootGuest(instance,"operation generation render-status",new JsonObject(),15));return profile;
     }
 
@@ -1750,17 +1784,38 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 if(cmd.getEnabled()) {
                     if(cmd.getArtifactUuid()==null || !StringUtils.defaultString(cmd.getArtifactSha256()).matches("[a-f0-9]{64}"))throw new InvalidParameterValueException("Protected rendered validation artifact identity is required");
                     JsonObject artifact=parseJsonObject(new String(renderedValidationStore().read(cmd.getArtifactUuid(),cmd.getArtifactSha256()),java.nio.charset.StandardCharsets.UTF_8));
-                    StorageRenderedValidationProfile.verify(artifact,instance.getUuid(),instance.getName(),renderedValidationBindings(instance),System.currentTimeMillis());
+                    requireRenderedValidationArtifact(instance,artifact);
                     java.util.Set<String> excluded=new HashSet<>();for(JsonElement id:artifact.getAsJsonArray("excludedInstanceUuids"))excluded.add(id.getAsString());
                     for(StorageServiceInstanceVO other:storageServiceInstanceDao.listAll())if(other.getId()!=instance.getId()&&!excluded.contains(other.getUuid()))throw new CloudRuntimeException("Protected validation artifact must exclude every other existing instance");
                     JsonObject runtime=runtimeUpgradeManager.freshSignedRuntimeValidationProof(instance.getId(),getJsonString(artifact,"expectedCliSha256"));
                     JsonObject nativeStatus=rootGuest(instance,"operation generation render-status",new JsonObject(),15);
                     StorageRenderedValidationProfile.requireHandler(nativeStatus);
                     if(Boolean.TRUE.equals(getJsonBoolean(nativeStatus,"bootHeld"))){if(recovery==null)throw new CloudRuntimeException("Rendered held writer requires exact scoped recovery authorization");RenderedBatch batch=restoreRenderedBatch(recovery);StorageRenderedRecoveryState.observe(operationReservationScope(instance,recovery),batch.receipt,nativeConfigurationGeneration(instance,null,"status"),nativeStatus);}
+                    profile.addProperty("kind",getJsonString(artifact,"kind"));
                     profile.add("fixtureProvenance",artifact.get("bindings").deepCopy());
                     profile.addProperty("artifactUuid",cmd.getArtifactUuid());profile.addProperty("artifactSha256",cmd.getArtifactSha256());profile.add("runtimeProof",runtime);profile.addProperty("productionCapability",false);
                 } else if(Boolean.TRUE.equals(getJsonBoolean(previous,"baselineImported")))throw new CloudRuntimeException("Imported rendered fixture remains guarded until its verified profile retirement");
-                Transaction.execute((TransactionCallback<Void>)status->{StorageServiceInstanceVO locked=storageServiceInstanceDao.lockRow(instance.getId(),true);JsonObject current=instanceControlPolicy(locked);JsonObject old=current.has("renderedValidationProfile")?current.getAsJsonObject("renderedValidationProfile"):new JsonObject();long actual=old.has("revision")?old.get("revision").getAsLong():0;if(actual!=revision)throw new CloudRuntimeException("Rendered profile revision changed before persistence");current.add("renderedValidationProfile",profile);locked.setOperationControlPolicyJson(current.toString());if(!storageServiceInstanceDao.update(locked.getId(),locked))throw new CloudRuntimeException("Rendered validation profile could not be saved");instance.setOperationControlPolicyJson(current.toString());return null;});
+                Transaction.execute((TransactionCallback<Void>)status->{
+                    StorageServiceInstanceVO locked=storageServiceInstanceDao.lockRow(instance.getId(),true);
+                    JsonObject current=instanceControlPolicy(locked);
+                    JsonObject old=current.has("renderedValidationProfile")?current.getAsJsonObject("renderedValidationProfile"):new JsonObject();
+                    long actual=old.has("revision")?old.get("revision").getAsLong():0;
+                    if (actual!=revision||!previous.equals(old)) {
+                        throw new CloudRuntimeException("Rendered profile revision changed before persistence");
+                    }
+                    if (cmd.getEnabled()) {
+                        JsonObject approved=parseJsonObject(new String(renderedValidationStore().read(cmd.getArtifactUuid(),cmd.getArtifactSha256()),
+                                java.nio.charset.StandardCharsets.UTF_8));
+                        requireRenderedValidationArtifact(locked,approved);
+                    }
+                    current.add("renderedValidationProfile",profile);
+                    locked.setOperationControlPolicyJson(current.toString());
+                    if (!storageServiceInstanceDao.update(locked.getId(),locked)) {
+                        throw new CloudRuntimeException("Rendered validation profile could not be saved");
+                    }
+                    instance.setOperationControlPolicyJson(current.toString());
+                    return null;
+                });
                 return createRuntimeResponse(instance,"rendered validation profile",true,"CONFIGURED","Scoped disposable validation; production capability remains false",profile.toString());
             } finally {lock.unlock();}
         } finally {lock.releaseRef();}
