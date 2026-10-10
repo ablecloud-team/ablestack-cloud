@@ -34,7 +34,7 @@
         <a-form-item :label="$t('label.name')" name="name" ref="name">
           <a-input
             v-model:value="form.name"
-            :placeholder="apiParams.name.description"
+            :placeholder="$t('label.snapshot.name')"
             v-focus="true" />
         </a-form-item>
         <a-form-item ref="zoneids" name="zoneids" :required="(!isAdmin && form.useStorageReplication)">

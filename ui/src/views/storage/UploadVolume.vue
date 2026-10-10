@@ -17,6 +17,16 @@
 
 <template>
   <div class="form-layout" v-ctrl-enter="handleSubmit">
+    <a-alert v-if="uploadError" type="error" show-icon :message="uploadError.message" style="margin-bottom: 16px">
+      <template #description>
+        <a-collapse ghost>
+          <a-collapse-panel key="diagnostic" :header="$t('label.creation.source.error.details')">
+            <div style="white-space: pre-wrap; overflow-wrap: anywhere">{{ uploadError.detail }}</div>
+          </a-collapse-panel>
+        </a-collapse>
+      </template>
+    </a-alert>
+
     <span v-if="uploadPercentage > 0">
       <loading-outlined />
       {{ $t('message.upload.file.processing') }}
@@ -142,6 +152,7 @@
 
 <script>
 import { ref, reactive, toRaw } from 'vue'
+import { volumeUploadError } from '@/utils/volumeUploadError'
 import { postAPI } from '@/api'
 import { mixinForm } from '@/utils/mixin'
 import ResourceIcon from '@/components/view/ResourceIcon'
@@ -158,6 +169,7 @@ export default {
   },
   data () {
     return {
+      uploadError: null,
       formats: ['RAW', 'VHD', 'VHDX', 'OVA', 'QCOW2'],
       zoneSelected: '',
       selectedDiskOfferingId: null,
@@ -242,6 +254,7 @@ export default {
     handleSubmit (e) {
       e.preventDefault()
       if (this.loading) return
+      this.uploadError = null
       this.formRef.value.validate().then(() => {
         const formRaw = toRaw(this.form)
         const values = this.handleRemoveFields(formRaw)
@@ -263,13 +276,17 @@ export default {
           this.closeAction()
           this.$emit('refresh-data')
         }).catch(error => {
-          this.$notifyError(error)
+          this.showUploadError(error)
         }).finally(() => {
           this.loading = false
         })
       }).catch((error) => {
         this.formRef.value.scrollToField(error.errorFields[0].name)
       })
+    },
+    showUploadError (error) {
+      this.uploadError = volumeUploadError(error, key => this.$t(key))
+      this.$notification.error({ message: this.$t('message.upload.failed'), description: this.uploadError.message, duration: 0 })
     },
     closeAction () {
       this.$emit('close-action')
