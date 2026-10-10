@@ -1,0 +1,39 @@
+{
+  "kind": "FFEF_ONE_NORMAL_UI_MANAGED_ISCSI_TARGET_ROLLED_BACK",
+  "submittedAtUtc": "2026-10-10T03:43:04.975Z",
+  "normalUiSubmits": 1,
+  "automaticManagedIqn": "iqn.2026-05.local.storage:epic898-s-b6aa-all4-f1-20261009-9506",
+  "iqnEdited": false,
+  "volumeId": "db3de2b7-5fcb-4cb5-a0aa-7ac41a161ffa",
+  "volumeMode": "CURRENT",
+  "lun": 0,
+  "sizeBytes": 21474836480,
+  "defaultPort": 3260,
+  "beforeNormalUiList": {
+    "observedAtUtc": "2026-10-10T03:41:39.002Z",
+    "targetRows": 0,
+    "listenerGroups": 0,
+    "aclRows": 0,
+    "sessionRows": 0,
+    "normalUiListObserved": true,
+    "originalFailedOperationPreservedSeparately": true
+  },
+  "job": {
+    "jobid": "50f85ef3-6950-4592-90ac-58df15f71fa0",
+    "jobstatus": 2,
+    "jobresultcode": 530,
+    "errorcode": 530,
+    "operationUuid": "261e9d81-91c5-4e81-a9b8-2bf23ad53912",
+    "rolledBackToken": true,
+    "hostExitNonzero1": true,
+    "knownNativeTokens": [],
+    "nativeStageCategoryReturnCodeObserved": false
+  },
+  "uiOperationState": "ROLLED_BACK",
+  "nativeStageCategoryReturnCodeObserved": false,
+  "originalCustomDf11FailureMergedWithNewManagedFailure": false,
+  "extraTargetWriterOrRecoverySubmits": 0,
+  "chapAclRawWriteOrNvmeCalls": 0,
+  "ui1275": "UNSTARTED",
+  "screenshotPath": "C:/Users/ablecloud/.codex/artifacts/epic898-current-500/ffef-managed-iscsi-target-261e-rolled-back.jpg"
+}

@@ -1,0 +1,32 @@
+{
+  "kind": "FFEF_ONE_NORMAL_UI_CODE_COMPLETE",
+  "catalogId": "051be815-6ff9-4552-a4cf-bd0abd728c33",
+  "sourcePin": "ffef35c4986fa140609e89e392295ced6e6b8a0b",
+  "operationId": "dc6b3b5a-040d-4ce6-a511-b28850fa8afd",
+  "instanceId": "3480bb2c-99ee-42f2-91cf-715ded5dd35f",
+  "version": "epic898-iscsi-safe-ffef35c-20261010",
+  "state": "COMPLETE",
+  "phase": "COMPLETE",
+  "progress": 100,
+  "transactionId": "runtime-5bd46c64-123e-4eca-a8f3-6d68063f2b3b",
+  "job": {
+    "jobid": "3b37db85-48fa-44cc-ba71-228b663cb19d",
+    "jobstatus": 1,
+    "jobresultcode": 0
+  },
+  "appliedAtUtc": "2026-10-10T03:32:59.757Z",
+  "normalUiApplyCalls": 1,
+  "runtimeCodeVerified": true,
+  "healthSuccess": true,
+  "serviceAvailabilityVerified": true,
+  "activationPins": {
+    "archiveSha256": "493b68b8077fb6c44f055de4be4ba02fa31237ae3d99570b0b4d9023b16e1a35",
+    "manifestSha256": "cff12f8adc2355f30e01bf2038858a71d5377b7f27eaf01fe1aa230d11ccba98",
+    "keyId": "epic898-test-iscsi-safe-ffef35c",
+    "bundleVersion": "epic898-iscsi-safe-ffef35c-20261010",
+    "transactionId": "runtime-5bd46c64-123e-4eca-a8f3-6d68063f2b3b",
+    "success": true
+  },
+  "rawIoOrAuthSetupCalls": 0,
+  "ui1275": "UNSTARTED"
+}
