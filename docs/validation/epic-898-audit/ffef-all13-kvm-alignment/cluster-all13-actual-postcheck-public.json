@@ -1,0 +1,88 @@
+{
+  "kind": "ALL_HOST13_FFEF_SINGLE_DIAGNOSTIC_WRAPPER_ALIGNED",
+  "sourcePin": "ffef35c4986fa140609e89e392295ced6e6b8a0b",
+  "normalTestsReused": "72/7 KVM +457/49 native; no rerun",
+  "actualSequence": [
+    "13.1 apply1",
+    "13.1 post/API3Up preservation PASS",
+    "13.3 apply1",
+    "13.3 post/API3Up preservation PASS"
+  ],
+  "newlyAppliedHosts": [
+    {
+      "host": "10.10.13.1",
+      "sourcePin": "ffef35c4986fa140609e89e392295ced6e6b8a0b",
+      "applyInvocations": 1,
+      "oldPid": 1351441,
+      "newPid": 2340049,
+      "newAgentStartTicks": "78127797",
+      "oldJarSha256": "54ced30eb71896c990e5ec3fb0f5eeaa8662dc4a014591e995db1d0fa65a0fa4",
+      "newJarSha256": "66a7b108266748d665d1527b182d7ef5528e2c88c97eeeb77a72f2f6a719cda3",
+      "newClassSha256": "45e4173eadecf0f525eff2e4e6f3e98ca15e1e26e9ccd48dad62151193229851",
+      "backup": "/root/epic898-iscsi-safe-ffef35c-host1-backup-20261010-122752",
+      "vmPidRows": 10,
+      "providerJarCount": 4,
+      "checks": {
+        "hosts": true,
+        "storageServiceInstances": true,
+        "sharedFileSystems": true,
+        "vms": true,
+        "volumes": true,
+        "f1Operations": true,
+        "vmPidStartTicks": true,
+        "providerJarSha256": true
+      },
+      "actualProofSha256": {
+        "apply-once-public-result.json": "d4b5ca472e7b62d8ef4eb12f77a2629a5b49b259c79bff7e66567ce74b917ba2",
+        "postdeploy-host-readonly.json": "924c03d62515128d64d775e650aea651122076b3ffb4e0e5e32a9a8f384010ef",
+        "postdeploy-api-readiness.json": "ea1ff2bb439ddb4604cfb9599c8fbe388e8b6f51eaea04dc63a17f8a18a58abe"
+      },
+      "rollbackReapplyGuestCodeRawIoVmRestartCalls": 0
+    },
+    {
+      "host": "10.10.13.3",
+      "sourcePin": "ffef35c4986fa140609e89e392295ced6e6b8a0b",
+      "applyInvocations": 1,
+      "oldPid": 1622051,
+      "newPid": 1963274,
+      "newAgentStartTicks": "78129994",
+      "oldJarSha256": "7f7ee1ee5187fec2c6477a8778784ab8bb48fa2fa5e2db50759de2de8851c0a6",
+      "newJarSha256": "cf01e9867ffbcba642007ab1c64333fa2b62cc1d7bf47ada8b34d28400908c23",
+      "newClassSha256": "45e4173eadecf0f525eff2e4e6f3e98ca15e1e26e9ccd48dad62151193229851",
+      "backup": "/root/epic898-iscsi-safe-ffef35c-host3-backup-20261010-122942",
+      "vmPidRows": 2,
+      "providerJarCount": 4,
+      "checks": {
+        "hosts": true,
+        "storageServiceInstances": true,
+        "sharedFileSystems": true,
+        "vms": true,
+        "volumes": true,
+        "f1Operations": true,
+        "vmPidStartTicks": true,
+        "providerJarSha256": true
+      },
+      "actualProofSha256": {
+        "apply-once-public-result.json": "1da2b1b818f30c679765fbc71b82f35ab00cea1652ba8190199e7baf4e1bd8ea",
+        "postdeploy-host-readonly.json": "a7be3b90a8e4db253837685573f97d8034bf187183e3f346af712988ea5c802b",
+        "postdeploy-api-readiness.json": "f75d2b384aae7ff0065bda68ecc8a9b6c477e321082c10ee6acc5f561753359a"
+      },
+      "rollbackReapplyGuestCodeRawIoVmRestartCalls": 0
+    }
+  ],
+  "previousHost13_2Alignment": {
+    "proofPath": "/root/work/epic898-preparation/iscsi-safe-failure-diagnostics/deployment-preparation-ffef35c/kvm-one-actual-postcheck-public.json",
+    "proofSha256": "8788f54d0b4dd3ab18b6e13061e50b3fd7c1ecf58b7bb6b06657c5d35dd187c2",
+    "pid": 3074124,
+    "jarSha256": "4758ef3f4152dd5010f333089ba04ce1ca6d746d09c403e907e202628f8d2a5b",
+    "classSha256": "45e4173eadecf0f525eff2e4e6f3e98ca15e1e26e9ccd48dad62151193229851",
+    "basis": "Prior actual13.2 postcheck reused, not a new simultaneous .2 probe."
+  },
+  "allThreeWrapperSha256": "45e4173eadecf0f525eff2e4e6f3e98ca15e1e26e9ccd48dad62151193229851",
+  "normalApiRoutingHosts3UpEnabled": true,
+  "all8Services21Vms33Volumes8SharedFs17F1OpsPublicRefsPreserved": true,
+  "mgtUiDdlChanged": false,
+  "guestF1WindowsAdSvrCodeRawIoVmRestartChanges": false,
+  "iScsiOrAll4AcceptanceClaim": false,
+  "finalUi1275Started": false
+}
