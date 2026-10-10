@@ -237,6 +237,12 @@ public class UserVmJoinDaoImpl extends GenericDaoBaseWithTagInformation<UserVmJo
         return listBy(sc);
     }
 
+    boolean isInternalCreationProfile(UserVmJoinVO vm) {
+        if (!com.cloud.vm.VirtualMachineManager.KVM_BLANK_VM_TEMPLATE_NAME.equals(vm.getTemplateName())) { return false; }
+        VMInstanceDetailVO source = _vmInstanceDetailsDao.findDetail(vm.getId(), "vm.creation.source");
+        return source != null && "true".equals(source.getValue());
+    }
+
     @Override
     public UserVmResponse newUserVmResponse(ResponseView view, String objectName, UserVmJoinVO userVm, Set<VMDetails> details, Boolean accumulateStats, Boolean showUserData,
             Account caller) {
@@ -326,7 +332,7 @@ public class UserVmJoinDaoImpl extends GenericDaoBaseWithTagInformation<UserVmJo
             userVmResponse.setHostControlState(ControlState.getControlState(userVm.getHostStatus(), userVm.getHostResourceState()).toString());
         }
 
-        if (details.contains(VMDetails.all) || details.contains(VMDetails.tmpl)) {
+        if ((details.contains(VMDetails.all) || details.contains(VMDetails.tmpl)) && !isInternalCreationProfile(userVm)) {
             userVmResponse.setTemplateId(userVm.getTemplateUuid());
             userVmResponse.setTemplateName(userVm.getTemplateName());
             userVmResponse.setTemplateDisplayText(userVm.getTemplateDisplayText());

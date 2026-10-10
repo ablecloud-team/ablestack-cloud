@@ -231,4 +231,26 @@ public class UserVmJoinDaoImplTest extends GenericDaoBaseWithTagInformationBaseT
         Mockito.when(detail.getValue()).thenReturn("1");
         Assert.assertEquals(1, _userVmJoinDaoImpl.effectiveCdromMaxCount(userVm));
     }
+    @Test
+    public void sourceInternalProfileIsNotAdvertisedAsOriginalTemplate() {
+        Mockito.when(userVmMock.getTemplateName()).thenReturn(com.cloud.vm.VirtualMachineManager.KVM_BLANK_VM_TEMPLATE_NAME);
+        Mockito.when(userVmMock.getId()).thenReturn(vmId);
+        Mockito.when(_vmInstanceDetailsDao.findDetail(vmId, "vm.creation.source")).thenReturn(
+                new com.cloud.vm.VMInstanceDetailVO(vmId, "vm.creation.source", "true", false));
+        Assert.assertTrue(_userVmJoinDaoImpl.isInternalCreationProfile(userVmMock));
+    }
+
+    @Test
+    public void ordinaryBlankInstanceRetainsItsTemplateResponse() {
+        Mockito.when(userVmMock.getTemplateName()).thenReturn(com.cloud.vm.VirtualMachineManager.KVM_BLANK_VM_TEMPLATE_NAME);
+        Assert.assertFalse(_userVmJoinDaoImpl.isInternalCreationProfile(userVmMock));
+    }
+
+    @Test
+    public void recordedSourceTemplateRemainsVisible() {
+        Mockito.when(userVmMock.getTemplateName()).thenReturn("original-admin-image");
+        Assert.assertFalse(_userVmJoinDaoImpl.isInternalCreationProfile(userVmMock));
+        Mockito.verifyNoInteractions(_vmInstanceDetailsDao);
+    }
+
 }
