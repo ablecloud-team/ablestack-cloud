@@ -17,7 +17,11 @@
 
 <template>
   <div>
-    <a-row :gutter="12">
+    <a-alert v-if="!hasRequiredCreationApis" type="error" show-icon :message="$t('message.autoscale.apis.required')" style="margin-bottom: 16px" />
+    <a-alert v-if="userDataLookupFailed" type="error" show-icon :message="$t('message.autoscale.userdata.unavailable')" style="margin-bottom: 16px">
+      <template #description><a-button size="small" @click="retryUserDataLookup">{{ $t('label.retry') }}</a-button></template>
+    </a-alert>
+    <a-row v-if="hasRequiredCreationApis" :gutter="12">
       <a-col :md="24" :lg="17">
         <a-card :bordered="true" :title="$t('label.new.autoscale.vmgroup')">
           <a-form
@@ -959,7 +963,7 @@
         </a-card>
       </a-col>
       <a-col :md="24" :lg="7" v-if="!isMobile()">
-        <a-affix :offsetTop="75" class="vm-info-card">
+        <div class="vm-info-card">
           <info-card :footerVisible="true" :resource="vm" :title="$t('label.your.autoscale.vmgroup')" @change-resource="(data) => resource = data">
             <template #footer-content>
               <deploy-buttons
@@ -969,7 +973,7 @@
                 @handle-deploy="handleSubmit" />
             </template>
           </info-card>
-        </a-affix>
+        </div>
       </a-col>
     </a-row>
   </div>
@@ -1036,6 +1040,7 @@ import _ from 'lodash'
 import { mixin, mixinDevice } from '@/utils/mixin.js'
 import store from '@/store'
 import eventBus from '@/config/eventBus'
+import { autoScaleInteger, autoScaleOfferingEligible, autoScaleCreationApis } from '@/utils/autoscaleValidation'
 
 import InfoCard from '@/components/view/InfoCard'
 import DeployButtons from '@views/compute/wizard/DeployButtons'
@@ -1100,6 +1105,9 @@ export default {
   mixins: [mixin, mixinDevice],
   data () {
     return {
+      checkingEligibility: false,
+      userDataLookupErrors: { userDataParams: false, templateUserDataParams: false },
+      userDataLookupVersions: { userDataParams: 0, templateUserDataParams: 0 },
       steps: [],
       currentStep: 0,
       processStatus: null,
@@ -1297,6 +1305,12 @@ export default {
     }
   },
   computed: {
+    hasRequiredCreationApis () {
+      return autoScaleCreationApis.every(name => Boolean(this.$store.getters.apis[name]))
+    },
+    userDataLookupFailed () {
+      return Object.values(this.userDataLookupErrors).some(Boolean)
+    },
     rootDiskSize () {
       return this.showRootDiskSizeChanger && this.rootDiskSizeFixed > 0
     },
@@ -1623,29 +1637,15 @@ export default {
     }
   },
   beforeCreate () {
-    this.createConditionApi = this.$store.getters.apis.createCondition || {}
-    this.createConditionApiParams = {}
-    this.createConditionApi.params.forEach(param => {
-      this.createConditionApiParams[param.name] = param
-    })
-    this.createAutoScalePolicyApi = this.$store.getters.apis.createAutoScalePolicy || {}
-    this.createAutoScalePolicyApiParams = {}
-    this.createAutoScalePolicyApi.params.forEach(param => {
-      this.createAutoScalePolicyApiParams[param.name] = param
-    })
-    this.createAutoScaleVmGroupApi = this.$store.getters.apis.createAutoScaleVmGroup || {}
-    this.createAutoScaleVmGroupApiParams = {}
-    this.createAutoScaleVmGroupApi.params.forEach(param => {
-      this.createAutoScaleVmGroupApiParams[param.name] = param
-    })
-    this.createAutoScaleVmProfileApi = this.$store.getters.apis.createAutoScaleVmProfile || {}
-    this.createAutoScaleVmProfileApiParams = {}
-    this.createAutoScaleVmProfileApi.params.forEach(param => {
-      this.createAutoScaleVmProfileApiParams[param.name] = param
-    })
+    for (const name of ['createCondition', 'createAutoScalePolicy', 'createAutoScaleVmGroup', 'createAutoScaleVmProfile']) {
+      const api = this.$store.getters.apis[name] || {}
+      this[`${name}Api`] = api
+      this[`${name}ApiParams`] = Object.fromEntries((api.params || []).map(param => [param.name, param]))
+    }
   },
   created () {
     this.initForm()
+    if (!this.hasRequiredCreationApis) return
     this.dataPreFill = this.preFillContent && Object.keys(this.preFillContent).length > 0 ? this.preFillContent : {}
     this.fetchData()
   },
@@ -1967,14 +1967,15 @@ export default {
         listAll: true,
         id: this.defaultNetworkId
       }).then(response => {
-        const services = response.listnetworksresponse?.network?.[0]?.service
+        const services = response.listnetworksresponse?.network?.[0]?.service || []
         const index = services.map(svc => { return svc.name }).indexOf('Lb')
         if (index === -1) {
           this.selectedLbProdiver = null
           this.countersList = []
           return
         }
-        this.selectedLbProdiver = services[index].provider[0].name
+        this.selectedLbProdiver = services[index].provider?.[0]?.name
+        if (!this.selectedLbProdiver) { this.countersList = []; return }
         getAPI('listCounters', {
           listAll: true,
           provider: this.selectedLbProdiver
@@ -2135,16 +2136,19 @@ export default {
       this.securitygroupids = securitygroupids || []
     },
     async validateNumber (rule, value) {
-      if (value && (isNaN(value) || value <= 0)) {
-        return Promise.reject(this.$t('message.error.number'))
+      // Policy inputs belong to the selected policy, not the group form model.
+      const policy = rule.field?.startsWith('scaleup')
+        ? this.selectedScaleUpPolicy
+        : rule.field?.startsWith('scaledown') ? this.selectedScaleDownPolicy : null
+      const input = policy ? policy[rule.field] : value
+      const minimum = rule.field === 'expungevmgraceperiod' || rule.field?.endsWith('quiettime') ? 0 : 1
+      if (autoScaleInteger(input, minimum, 2147483647) === null) {
+        return Promise.reject(this.$t('message.autoscale.integer.required'))
       }
       return Promise.resolve()
     },
     isNumber (value) {
-      if (value && (isNaN(value) || value < 0)) {
-        return false
-      }
-      return true
+      return autoScaleInteger(value) !== null
     },
     getOperator (val) {
       if (val === 'GT' || val === 'gt') return this.$t('label.operator.greater')
@@ -2167,13 +2171,13 @@ export default {
         this.$refs.newScaleUpConditionRelationalOperator.classList.remove('error')
       }
 
-      if (!this.newScaleUpCondition.threshold || !this.isNumber(this.newScaleUpCondition.threshold)) {
+      if (!this.isNumber(this.newScaleUpCondition.threshold)) {
         this.$refs.newScaleUpConditionThreshold.classList.add('error')
       } else {
         this.$refs.newScaleUpConditionThreshold.classList.remove('error')
       }
 
-      if (!this.newScaleUpCondition.counterid || !this.newScaleUpCondition.relationaloperator || !this.newScaleUpCondition.threshold) {
+      if (!this.newScaleUpCondition.counterid || !this.newScaleUpCondition.relationaloperator || !this.isNumber(this.newScaleUpCondition.threshold)) {
         return
       }
       const countername = this.countersList.filter(counter => counter.id === this.newScaleUpCondition.counterid).map(counter => { return counter.name }).join(',')
@@ -2183,7 +2187,7 @@ export default {
         counterid: this.newScaleUpCondition.counterid,
         countername: countername,
         relationaloperator: this.newScaleUpCondition.relationaloperator,
-        threshold: this.newScaleUpCondition.threshold
+        threshold: autoScaleInteger(this.newScaleUpCondition.threshold)
       })
       this.selectedScaleUpPolicy.conditions = this.scaleUpConditions
 
@@ -2210,13 +2214,13 @@ export default {
         this.$refs.newScaleDownConditionRelationalOperator.classList.remove('error')
       }
 
-      if (!this.newScaleDownCondition.threshold || !this.isNumber(this.newScaleDownCondition.threshold)) {
+      if (!this.isNumber(this.newScaleDownCondition.threshold)) {
         this.$refs.newScaleDownConditionThreshold.classList.add('error')
       } else {
         this.$refs.newScaleDownConditionThreshold.classList.remove('error')
       }
 
-      if (!this.newScaleDownCondition.counterid || !this.newScaleDownCondition.relationaloperator || !this.newScaleDownCondition.threshold) {
+      if (!this.newScaleDownCondition.counterid || !this.newScaleDownCondition.relationaloperator || !this.isNumber(this.newScaleDownCondition.threshold)) {
         return
       }
       const countername = this.countersList.filter(counter => counter.id === this.newScaleDownCondition.counterid).map(counter => { return counter.name }).join(',')
@@ -2226,7 +2230,7 @@ export default {
         counterid: this.newScaleDownCondition.counterid,
         countername: countername,
         relationaloperator: this.newScaleDownCondition.relationaloperator,
-        threshold: this.newScaleDownCondition.threshold
+        threshold: autoScaleInteger(this.newScaleDownCondition.threshold)
       })
       this.selectedScaleDownPolicy.conditions = this.scaleDownConditions
 
@@ -2245,54 +2249,92 @@ export default {
       this.sshKeyPairs = names.map((sshKeyPair) => { return sshKeyPair.name })
     },
     updateUserData (id) {
-      if (id === '0') {
-        this.form.userdataid = undefined
-        return
-      }
-      this.form.userdataid = id
-      this.userDataParams = []
-      getAPI('listUserData', { id: id }).then(json => {
-        const resp = json?.listuserdataresponse?.userdata || []
-        if (resp) {
-          var params = resp[0].params
-          if (params) {
-            var dataParams = params.split(',')
-          }
-          var that = this
-          dataParams.forEach(function (val, index) {
-            that.userDataParams.push({
-              id: index,
-              key: val
-            })
-          })
-        }
-      })
+      this.form.userdataid = id && id !== '0' ? id : undefined
+      return this.loadUserDataParams(this.form.userdataid, 'userDataParams')
     },
     updateTemplateLinkedUserData (id) {
-      if (id === '0') {
+      return this.loadUserDataParams(id, 'templateUserDataParams')
+    },
+    retryUserDataLookup () {
+      this.updateUserData(this.form.userdataid)
+      this.updateTemplateLinkedUserData(this.template?.userdataid)
+    },
+    async loadUserDataParams (id, property) {
+      const version = ++this.userDataLookupVersions[property]
+      this[property] = []
+      this.userDataLookupErrors[property] = false
+      if (!id || id === '0') return
+      if (!this.isUserAllowedToListUserDatas) {
+        this.userDataLookupErrors[property] = true
         return
       }
-      this.templateUserDataParams = []
-
-      getAPI('listUserData', { id: id }).then(json => {
-        const resp = json?.listuserdataresponse?.userdata || []
-        if (resp) {
-          var params = resp[0].params
-          if (params) {
-            var dataParams = params.split(',')
-          }
-          var that = this
-          that.templateUserDataParams = []
-          if (dataParams) {
-            dataParams.forEach(function (val, index) {
-              that.templateUserDataParams.push({
-                id: index,
-                key: val
-              })
-            })
-          }
+      try {
+        const json = await getAPI('listUserData', { id })
+        if (version !== this.userDataLookupVersions[property]) return
+        const item = json?.listuserdataresponse?.userdata?.find(item => item.id === id)
+        if (!item) {
+          this.userDataLookupErrors[property] = true
+          return
         }
-      })
+        const params = typeof item.params === 'string' ? item.params.split(',').map(key => key.trim()).filter(Boolean) : []
+        this[property] = params.map((key, index) => ({ id: index, key }))
+      } catch (error) {
+        if (version === this.userDataLookupVersions[property]) this.userDataLookupErrors[property] = true
+      }
+    },
+    async validateCreationEligibility (values) {
+      if (!this.hasRequiredCreationApis || this.userDataLookupFailed) {
+        this.$notification.error({ message: this.$t('message.request.failed'), description: this.$t(this.userDataLookupFailed ? 'message.autoscale.userdata.unavailable' : 'message.autoscale.apis.required') })
+        return false
+      }
+      this.checkingEligibility = true
+      const projectid = this.$store.getters.project?.id
+      const scope = projectid ? { projectid } : { account: this.$store.getters.userInfo.account, domainid: this.$store.getters.userInfo.domainid }
+      try {
+        if (values.userdataid || this.template?.userdataid) {
+          const parameterKeys = JSON.stringify([this.userDataParams.map(item => item.key), this.templateUserDataParams.map(item => item.key)])
+          await Promise.all([
+            this.loadUserDataParams(values.userdataid, 'userDataParams'),
+            this.loadUserDataParams(this.template?.userdataid, 'templateUserDataParams')
+          ])
+          if (this.userDataLookupFailed) {
+            this.$notification.error({ message: this.$t('message.request.failed'), description: this.$t('message.autoscale.userdata.unavailable') })
+            return false
+          }
+          if (parameterKeys !== JSON.stringify([this.userDataParams.map(item => item.key), this.templateUserDataParams.map(item => item.key)])) throw new Error('changed UserData parameters')
+        }
+        const [templates, offerings, networks, rules, instances, groups] = await Promise.all([
+          getAPI('listTemplates', { ...scope, id: values.templateid, zoneid: values.zoneid, templatefilter: 'executable', isready: true }),
+          getAPI('listServiceOfferings', { ...scope, id: values.computeofferingid, zoneid: values.zoneid, issystem: false }),
+          getAPI('listNetworks', { ...scope, id: this.defaultNetworkId, canusefordeploy: true }),
+          getAPI('listLoadBalancerRules', { ...scope, id: values.loadbalancerid, networkid: this.defaultNetworkId }),
+          getAPI('listLoadBalancerRuleInstances', { ...scope, id: values.loadbalancerid }),
+          getAPI('listAutoScaleVmGroups', { ...scope, lbruleid: values.loadbalancerid })
+        ])
+        const template = templates.listtemplatesresponse?.template?.find(item => item.id === values.templateid)
+        const offering = offerings.listserviceofferingsresponse?.serviceoffering?.find(item => item.id === values.computeofferingid)
+        const network = networks.listnetworksresponse?.network?.find(item => item.id === this.defaultNetworkId)
+        const rule = rules.listloadbalancerrulesresponse?.loadbalancerrule?.find(item => item.id === values.loadbalancerid)
+        const provider = network?.service?.find(service => service.name === 'Lb')?.provider?.[0]?.name
+        const attached = instances.listloadbalancerruleinstancesresponse
+        const existing = groups.listautoscalevmgroupsresponse
+        const valid = template?.isready === true && template.hypervisor !== 'External' && autoScaleOfferingEligible(offering) &&
+          network?.supportsvmautoscaling === true && provider && rule && (!rule.networkid || rule.networkid === network.id) &&
+          attached && !(attached.count > 0 || attached.loadbalancerruleinstance?.length > 0) &&
+          existing && !(existing.count > 0 || existing.autoscalevmgroup?.length > 0)
+        if (!valid) throw new Error('ineligible')
+        const counters = await getAPI('listCounters', { provider })
+        const available = new Set((counters.counterresponse?.counter || []).map(counter => counter.id))
+        for (const policy of [...this.scaleUpPolicies, ...this.scaleDownPolicies]) {
+          if (policy.conditions.some(condition => !available.has(condition.counterid) || !['GT', 'GE', 'LT', 'LE', 'EQ'].includes(condition.relationaloperator) || autoScaleInteger(condition.threshold) === null)) throw new Error('ineligible')
+        }
+        return true
+      } catch (error) {
+        this.$notification.error({ message: this.$t('message.request.failed'), description: this.$t('message.autoscale.selection.recheck.failed') })
+        return false
+      } finally {
+        this.checkingEligibility = false
+      }
     },
     updateAffinityGroups (ids) {
       this.form.affinitygroupids = ids
@@ -2514,7 +2556,7 @@ export default {
     async handleSubmit (e) {
       console.log('wizard submit')
       e.preventDefault()
-      if (this.loading.deploy) return
+      if (this.loading.deploy || this.checkingEligibility) return
       this.formRef.value.validate().then(async () => {
         const values = toRaw(this.form)
 
@@ -2542,7 +2584,7 @@ export default {
         }
 
         const defaultNetwork = this.networks.filter(network => network.id === this.defaultNetworkId)[0]
-        if (defaultNetwork.supportsvmautoscaling !== true) {
+        if (defaultNetwork?.supportsvmautoscaling !== true) {
           this.$notification.error({
             message: this.$t('message.request.failed'),
             description: this.$t('message.error.select.network.supports.vm.autoscaling')
@@ -2590,7 +2632,8 @@ export default {
             })
             return
           }
-          if (!policy.scaleupduration || parseInt(policy.scaleupduration) <= 0) {
+          if (autoScaleInteger(policy.scaleupduration, 1, 2147483647) === null ||
+              autoScaleInteger(policy.scaleupquiettime, 0, 2147483647) === null) {
             this.$notification.error({
               message: this.$t('message.request.failed'),
               description: this.$t('message.scaleup.policy.duration.continue')
@@ -2628,7 +2671,8 @@ export default {
             })
             return
           }
-          if (!policy.scaledownduration || parseInt(policy.scaledownduration) <= 0) {
+          if (autoScaleInteger(policy.scaledownduration, 1, 2147483647) === null ||
+              autoScaleInteger(policy.scaledownquiettime, 0, 2147483647) === null) {
             this.$notification.error({
               message: this.$t('message.request.failed'),
               description: this.$t('message.scaledown.policy.duration.continue')
@@ -2658,6 +2702,8 @@ export default {
           })
           return
         }
+
+        if (!await this.validateCreationEligibility(values)) return
 
         this.loading.deploy = true
 
@@ -3354,11 +3400,22 @@ export default {
   }
 
   .vm-info-card {
-    .ant-card-body {
+    position: sticky;
+    top: 16px;
+
+    :deep(.card-body) {
+      height: calc(100vh - 180px);
       min-height: 250px;
-      max-height: calc(100vh - 250px);
-      overflow-y: auto;
+    }
+
+    :deep(.card-content) {
+      min-height: 0;
+      flex: 1 1 auto;
       scroll-behavior: smooth;
+    }
+
+    :deep(.card-footer) {
+      flex: 0 0 auto;
     }
 
     .resource-detail-item__label {

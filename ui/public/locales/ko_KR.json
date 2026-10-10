@@ -8464,5 +8464,11 @@
   "label.creation.source.import": "파일을 볼륨으로 등록",
   "message.creation.source.import": "스토리지 파일을 검사하여 DATADISK 볼륨으로 등록합니다. 파일 내용은 변경하지 않습니다. 등록 후 VM 생성 화면에서 ROOT로 사용할 수 있으며, OS 부팅은 관리자가 확인해야 합니다.",
   "message.creation.source.import.path": "스토리지의 디스크 파일 경로 또는 RBD 이미지 이름",
-  "message.creation.source.upload.quota": "계정 또는 도메인의 볼륨·스토리지 할당량을 초과했습니다. 관리자가 제한과 사용량을 확인한 뒤 다시 시도하세요."
+  "message.creation.source.upload.quota": "계정 또는 도메인의 볼륨·스토리지 할당량을 초과했습니다. 관리자가 제한과 사용량을 확인한 뒤 다시 시도하세요.",
+  "label.retry": "재시도",
+  "message.autoscale.apis.required": "현재 역할에 오토스케일 생성 및 사전 조회 API 권한이 필요합니다. 관리자에게 문의하세요.",
+  "message.autoscale.userdata.unavailable": "선택한 사용자 데이터를 조회할 수 없습니다. 접근 권한을 확인하거나 다른 항목을 선택한 뒤 다시 시도하세요.",
+  "message.autoscale.fixed.offering.required": "오토스케일은 고정 컴퓨트 오퍼링을 사용합니다. 사용자 지정 오퍼링은 선택할 수 없습니다.",
+  "message.autoscale.integer.required": "허용 범위의 정수를 입력하세요.",
+  "message.autoscale.selection.recheck.failed": "생성 조건을 확인할 수 없습니다. 준비된 템플릿, 고정 오퍼링, 지원 네트워크, 연결된 VM이나 그룹이 없는 로드밸런서 및 권한을 확인한 뒤 다시 시도하세요."
 }

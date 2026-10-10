@@ -8499,5 +8499,11 @@
   "label.creation.source.import": "Register file as volume",
   "message.creation.source.import": "Inspect the storage file and register a DATADISK volume without changing its contents. Use it as ROOT in the VM creation wizard; administrators verify guest boot.",
   "message.creation.source.import.path": "Storage disk file path or RBD image name",
-  "message.creation.source.upload.quota": "The account or domain volume/storage resource limit was exceeded. Ask an administrator to review the limit and usage before retrying."
+  "message.creation.source.upload.quota": "The account or domain volume/storage resource limit was exceeded. Ask an administrator to review the limit and usage before retrying.",
+  "label.retry": "Retry",
+  "message.autoscale.apis.required": "Your role must allow all AutoScale creation and prerequisite query APIs. Contact an administrator.",
+  "message.autoscale.userdata.unavailable": "Selected User Data is unavailable. Check access or select another item, then retry.",
+  "message.autoscale.fixed.offering.required": "AutoScale requires a fixed compute offering. Customized offerings cannot be selected.",
+  "message.autoscale.integer.required": "Enter an integer in the supported range.",
+  "message.autoscale.selection.recheck.failed": "Creation prerequisites could not be verified. Check the ready template, fixed offering, supported network, empty load balancer and permissions, then retry."
 }

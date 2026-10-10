@@ -46,6 +46,8 @@ import org.apache.cloudstack.affinity.dao.AffinityGroupDao;
 import org.apache.cloudstack.annotation.AnnotationService;
 import org.apache.cloudstack.annotation.dao.AnnotationDao;
 import org.apache.cloudstack.api.ApiCommandResourceType;
+import org.apache.cloudstack.acl.SecurityChecker.AccessType;
+import org.apache.cloudstack.storage.datastore.db.TemplateDataStoreDao;
 import org.apache.cloudstack.api.ApiConstants;
 import org.apache.cloudstack.api.ApiErrorCode;
 import org.apache.cloudstack.api.BaseCmd.HTTPMethod;
@@ -151,6 +153,9 @@ import com.cloud.service.dao.ServiceOfferingDao;
 import com.cloud.storage.GuestOSVO;
 import com.cloud.storage.dao.DiskOfferingDao;
 import com.cloud.storage.dao.GuestOSDao;
+import com.cloud.storage.VMTemplateVO;
+import com.cloud.storage.Storage.ImageFormat;
+import com.cloud.storage.Storage.TemplateType;
 import com.cloud.template.TemplateManager;
 import com.cloud.template.VirtualMachineTemplate;
 import com.cloud.user.Account;
@@ -210,6 +215,8 @@ public class AutoScaleManagerImpl extends ManagerBase implements AutoScaleManage
     ConfigurationManager configMgr;
     @Inject
     TemplateManager templateMgr;
+    @Inject
+    TemplateDataStoreDao autoScaleTemplateStoreDao;
     @Inject
     LoadBalancingRulesManager lbRulesMgr;
     @Inject
@@ -530,6 +537,25 @@ public class AutoScaleManagerImpl extends ManagerBase implements AutoScaleManage
 
         ApiServiceConfiguration.validateEndpointUrl();
     }
+    protected void validateNewAutoScaleProfileSources(Account owner, DataCenter zone,
+            ServiceOffering offering, VirtualMachineTemplate template) {
+        if (offering.isDynamic() || offering.getRemoved() != null || offering.getState() == ServiceOffering.State.Inactive) {
+            throw new InvalidParameterValueException("AutoScale requires an active fixed service offering");
+        }
+        if (template.getState() != VirtualMachineTemplate.State.Active || template.getFormat() == ImageFormat.ISO
+                || template.getTemplateType() == TemplateType.SYSTEM || template.getTemplateType() == TemplateType.ROUTING
+                || template.getTemplateType() == TemplateType.DATADISK || template.getTemplateType() == TemplateType.ISODISK) {
+            throw new InvalidParameterValueException("AutoScale requires a user VM template, not an ISO or system VM template");
+        }
+        accountMgr.checkAccess(owner, offering, zone);
+        accountMgr.checkAccess(owner, AccessType.UseEntry, false, template);
+        boolean directDownload = template instanceof VMTemplateVO && ((VMTemplateVO)template).isDirectDownload();
+        if (!directDownload && template.getTemplateType() != TemplateType.PERHOST
+                && autoScaleTemplateStoreDao.findByTemplateZoneReady(template.getId(), zone.getId()) == null) {
+            throw new InvalidParameterValueException("AutoScale template is not ready in the selected zone");
+        }
+    }
+
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_AUTOSCALEVMPROFILE_CREATE, eventDescription = "creating autoscale vm profile", create = true)
     public AutoScaleVmProfile createAutoScaleVmProfile(CreateAutoScaleVmProfileCmd cmd) {
@@ -561,6 +587,8 @@ public class AutoScaleManagerImpl extends ManagerBase implements AutoScaleManage
             logger.error("Cannot create AutoScale Vm Profile with {} as it is an {} hypervisor template", template, HypervisorType.External);
             throw new InvalidParameterValueException(String.format("Unable to create AutoScale Vm Profile with template: %s", template.getName()));
         }
+
+        validateNewAutoScaleProfileSources(owner, zone, serviceOffering, template);
 
         // validations
         HashMap<String, String> deployParams = cmd.getDeployParamMap();
@@ -1056,6 +1084,11 @@ public class AutoScaleManagerImpl extends ManagerBase implements AutoScaleManage
             vmGroupVO.setDisplay(forDisplay);
         }
 
+        AutoScaleVmProfileVO profile = getEntityInDatabase(CallContext.current().getCallingAccount(), ApiConstants.VMPROFILE_ID,
+                cmd.getProfileId(), autoScaleVmProfileDao);
+        if (profile.getZoneId() != zoneId) {
+            throw new InvalidParameterValueException("AutoScale VM profile and load balancer must belong to the same zone");
+        }
         vmGroupVO = checkValidityAndPersist(vmGroupVO, cmd.getScaleUpPolicyIds(), cmd.getScaleDownPolicyIds());
         logger.info("Successfully created Autoscale Vm Group: {}", vmGroupVO);
 
