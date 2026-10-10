@@ -29,15 +29,24 @@ Epic: [#1346](https://github.com/ablecloud-team/ablestack-cloud/issues/1346). �
 |---|---|---|---|---|---|
 | AS-01 | [#1347](https://github.com/ablecloud-team/ablestack-cloud/issues/1347) | P0 | 생성 사전 검증·입력·권한 | 없음 | Open / 계획 |
 | AS-02 | [#1348](https://github.com/ablecloud-team/ablestack-cloud/issues/1348) | P0 | 다단계 생성·비동기 종료·실패 보상 | [#1347](https://github.com/ablecloud-team/ablestack-cloud/issues/1347) | Open / 계획 |
-| AS-03 | [#1349](https://github.com/ablecloud-team/ablestack-cloud/issues/1349) | P1 | 카운터·기간·쿨다운·정책 평가 | [#1347](https://github.com/ablecloud-team/ablestack-cloud/issues/1347) | Open / 계획 |
 | AS-04 | [#1350](https://github.com/ablecloud-team/ablestack-cloud/issues/1350) | P0 | 동시성·중지 경쟁·재시작 복구 | [#1348](https://github.com/ablecloud-team/ablestack-cloud/issues/1348) | Open / 계획 |
+| AS-03 | [#1349](https://github.com/ablecloud-team/ablestack-cloud/issues/1349) | P1 | 카운터·기간·쿨다운·정책 평가 | [#1347](https://github.com/ablecloud-team/ablestack-cloud/issues/1347) | Open / 계획 |
 | AS-05 | [#1351](https://github.com/ablecloud-team/ablestack-cloud/issues/1351) | P0 | VM/LB 수명주기·드레인·삭제 보상 | [#1349](https://github.com/ablecloud-team/ablestack-cloud/issues/1349), [#1350](https://github.com/ablecloud-team/ablestack-cloud/issues/1350) | Open / 계획 |
 | AS-06 | [#1352](https://github.com/ablecloud-team/ablestack-cloud/issues/1352) | P1 | 정책·프로필·예약 변경 계약 | [#1349](https://github.com/ablecloud-team/ablestack-cloud/issues/1349), [#1350](https://github.com/ablecloud-team/ablestack-cloud/issues/1350) | Open / 계획 |
 | AS-07 | [#1353](https://github.com/ablecloud-team/ablestack-cloud/issues/1353) | P1 | 멤버·최근 평가·실패 운영 가시성 | [#1348](https://github.com/ablecloud-team/ablestack-cloud/issues/1348), [#1349](https://github.com/ablecloud-team/ablestack-cloud/issues/1349), [#1351](https://github.com/ablecloud-team/ablestack-cloud/issues/1351) | Open / 계획 |
 | AS-09 | [#1355](https://github.com/ablecloud-team/ablestack-cloud/issues/1355) | P1 | 마지막 구현 단계: 현재 Mold VM UI 표준 통합 | [#1352](https://github.com/ablecloud-team/ablestack-cloud/issues/1352), [#1353](https://github.com/ablecloud-team/ablestack-cloud/issues/1353) | Open / 계획 |
 | AS-08 | [#1354](https://github.com/ablecloud-team/ablestack-cloud/issues/1354) | P1 | GFS2/krbd 최종 UI E2E·프로덕션 판정 | [#1355](https://github.com/ablecloud-team/ablestack-cloud/issues/1355) | Open / 계획 |
 
-직접 선행 관계 13개로 전이 선행 작업을 포함한 전체 순서를 관리한다. AS-08 환경 준비는 먼저 시작할 수 있으며 최종 프로덕션 판정은 AS-09 UI 통합 이후 수행한다. 각 이슈에 문제 근거·개선 방향·검증 범위·완료 체크리스트를 기록했다.
+직접 선행 관계 13개로 전이 선행 작업을 포함한 전체 순서를 관리한다. 실제 작업은 아래 단일 이슈 절차를 따르며 AS-08 최종 기능 검증은 AS-09 UI 통합 이후, 장시간 운영 확인은 모든 기능 검증 통과 이후 수행한다. 각 이슈에 문제 근거·개선 방향·검증 범위·완료 체크리스트를 기록했다.
+
+## 진행 절차 변경 (2026-10-10 사용자 지시)
+
+- 한 번에 이슈 하나만 구현·빌드·배포·해당 범위 UI 검증을 진행한다. 다음 이슈의 구현이나 검증을 병행 착수하지 않는다.
+- 이슈 완료 보고에는 완료 범위, 빌드/배포/실제 UI 증거, 남은 제한, 다음 진행 대상 이슈를 기록한다. 완료 보고 후 사용자 지시를 기다리고 다음 이슈를 자동 착수하지 않는다.
+- 장시간 운영 확인은 모든 기능 구현·기능 검증·최종 UI 통합 및 통합 기능 검증을 완료한 뒤 #1354의 마지막 단계에서만 수행한다. 앞선 개별 이슈의 완료 조건에 장시간 운영을 요구하지 않는다.
+- 장시간 단계는 이미 검증한 기능의 안정성 관찰 및 잔여 자원·인원 범위·반복 오류 확인을 수행한다. 장애 주입·경쟁·재시작·반복 확장/축소 기능 테스트는 그 전에 완료한다. 제안 24시간의 실제 관찰 기간은 최종 실행 계획에 명시한다.
+- 우선순위와 선행 관계에 따른 권장 단일 진행 순서는 **#1347 → #1348 → #1350 → #1349 → #1351 → #1352 → #1353 → #1355 → #1354**다. #1351(P0)은 #1349의 정책 평가 검증이 필요하므로 이를 먼저 완료한다.
+- 현재 첫 진행 대상은 #1347이며, 해당 이슈 완료 후 다음 후보는 #1348이다. 이번 절차 반영 단계에서는 기능 구현을 시작하지 않았다.
 
 ## 실제 확인 범위
 
@@ -81,10 +90,10 @@ Mold UI → Cloud API → AutoScaleManagerImpl → 상태/프로필/정책/통�
 ## 실행 순서와 이슈 관리
 
 1. AS-01 사전 조건과 입력/권한을 보완하고 AS-02에서 생성 실패를 종료·추적한다.
-2. AS-03 수집/정책 정확성과 AS-04 경쟁/재시작, AS-05 VM/LB 실패 보상을 구현·장애 재현한다.
+2. AS-04 경쟁/재시작, AS-03 수집/정책 정확성, AS-05 VM/LB 실패 보상을 순서대로 각각 구현·장애 재현한다.
 3. AS-06 프로필/정책/예약 계약, AS-07 운영 조회/상태를 정리한다.
 4. 기능 검증 결과를 바탕으로 **마지막 구현 단계 AS-09에서 현재 Mold VM UI 표준을 통합**한다.
-5. AS-08은 사전 환경 준비부터 진행하되, 모든 기능 및 AS-09 완료 후 최종 UI 통합 E2E와 프로덕션 판정을 수행한다.
+5. AS-08은 모든 기능 및 AS-09 완료 후 최종 UI 통합 기능 E2E를 수행한다. 그 결과가 모두 통과한 뒤 마지막으로 장시간 운영 상태를 확인하고 프로덕션 판정을 수행한다.
 
 각 이슈는 준비 → 구현 → 집중 테스트 → 변경 모듈 빌드 → 테스트 배포 → UI 검증 → PR/완료 보고 순으로 기존 이슈 본문/댓글을 갱신한다. 미재현 항목은 먼저 재현하거나 계약 테스트로 위험을 입증하고, 확인된 문제를 보완한다. 범위 밖 기능이나 미보유 provider를 검증 완료로 확대하지 않는다.
 
@@ -134,7 +143,7 @@ Mold UI → Cloud API → AutoScaleManagerImpl → 상태/프로필/정책/통�
 | MET-08 | 확장·축소 쿨다운과 다중 정책 | 각 정책 및 그룹 계약에 따른 진동 방지 |
 | MET-09 | 오래된/비활성/더미/부족한 샘플 | 불확실한 값으로 작업하지 않고 UI에 원인 표시 |
 | MET-10 | 시간 상한/오버플로·poll보다 짧은 duration | 범위 거부 또는 명시적 동작, 음수 기간 없음 |
-| LIF-01 | min=1/max=3 최초 수렴·최대 확장 | 실제/준비 중 VM 포함 계약대로 인원 제한 |
+| LIF-01 |min=1/max=3 최초 수렴·최대 확장 · GFS2/krbd 각각 10회 왕복 반복| 실제/준비 중 VM 포함 계약대로 인원 제한 |
 | LIF-02 | CPU 상승으로 1→2→3, 추가 부하 | max 초과 VM/ROOT/LB 생성 없음 |
 | LIF-03 | 부하 하락으로 3→2→1 | min 미만 축소 없음 |
 | LIF-04 | VM 시작 실패·quota·스토리지 부족 | 오류 멤버 추적, 자원 누수 없음, 실패 가시화 |
@@ -153,7 +162,7 @@ Mold UI → Cloud API → AutoScaleManagerImpl → 상태/프로필/정책/통�
 | OPS-07 | 정책·조건 추가/편집/삭제와 모든 연산자 | 검증·공유 의존성·기존 값 보존 |
 | OPS-08 | 프로젝트/사용자 컨텍스트 전환 및 quota 경계 | 프로젝트 id·소유권·한도 일관, 이전 응답 혼입 없음 |
 | OPS-09 | 최근 평가/실패/이벤트/작업 id·실제 LB HTTP 응답 | UI·API·런타임·서비스의 서로 다른 성공 기준 명확 |
-| OPS-10 | GFS2/krbd 각 10회 왕복 및 제안 24시간 관찰 | 잔여 자원·메모리/스레드/통계 누수·인원 이탈 없음 |
+| OPS-10 | 모든 구현·기능/UI 검증 통과 후 마지막 운영 상태 관찰 (제안 24시간) | 추가 기능 시험 없이 인원 범위·잔여 자원·반복 오류·메모리/스레드/통계 누수 확인. 최종 운영 확인 결과 기록 |
 | UI-01 | 공통 목록·검색·필터·정렬·페이지·프로젝트 | 현재 Mold VM 패턴 유지 및 값/집계 의미 정확 |
 | UI-02 | ResourceLayout 요약·멤버/정책/프로필/LB/스케줄 탭 | 표준 공통 컴포넌트, 정보 출처 및 링크 정확 |
 | UI-03 | 주 버튼/아이콘 순서·상태/권한/작업 중 제어 | 주 동작 앞, 보조 아이콘 오른쪽 뒤, 비활성 사유 표시 |
