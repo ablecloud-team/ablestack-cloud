@@ -1,0 +1,163 @@
+{
+  "kind": "EPIC898_CF6_DEFAULT_PROTOCOL_LISTENER_OUTER_ONE_ACTUAL_POSTCHECK",
+  "schemaVersion": 1,
+  "observedAtUtc": "2026-10-10T05:23:17.440489+00:00",
+  "success": true,
+  "sourcePin": "cf6baa4851265dbe7a85179eabb48fac0a5ee043",
+  "normalValidation": {
+    "tests": 968,
+    "suites": 128,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "checkstyle": true,
+    "sourceProofSha256": "0e29413819d423d7aa0d0377d074c336a20c4bc1fc6ec33869637a37adabb3ab",
+    "memberReferences": 2601,
+    "newExternalReferences": 0
+  },
+  "deployment": {
+    "host": "10.10.13.10",
+    "service": "mold",
+    "applyAttempts": 1,
+    "managementRestartCount": 1,
+    "rollbackCount": 0,
+    "backup": "/root/epic898-default-listener-cf6baa48-backup-20261010-142009",
+    "backupRootOwned0700Verified": true,
+    "beforePid": 1388662,
+    "afterPid": 1400221,
+    "beforeJarSha256": "09e63fdc07561d9a5d5af1e2ba0a3b17d90ee48914880e150563c159155ccd15",
+    "afterJarSha256": "935408703611ec4c53b455b9c453f53d4be3a94bc6d52efe222147cb9e5f4cc7",
+    "changedClassCount": 1,
+    "changedEntrySha256": {
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class": "0b307ad083d9a04849479dfa54fb6d2fd79987a8c4f83b73b82398011046b4aa"
+    },
+    "newClassCount": 0,
+    "activationAt": "2026-10-10T14:21:20.807663+09:00",
+    "otherJarEntryContentsPreserved": true,
+    "exactWholeNormalModuleJarClaimed": false
+  },
+  "readiness": {
+    "normalLogin": true,
+    "hostsUpEnabled": 3,
+    "runningStorageServices": 8,
+    "sharedFileSystems": 8,
+    "vms": 21,
+    "volumes": 33,
+    "f1Operations": 19,
+    "referencePreservation": {
+      "hosts": true,
+      "storageServiceInstances": true,
+      "sharedFileSystems": true,
+      "vms": true,
+      "volumes": true,
+      "f1Operations": true,
+      "runtimeBundles": true
+    },
+    "runtimeBundles": [
+      {
+        "id": "051be815-6ff9-4552-a4cf-bd0abd728c33",
+        "version": "epic898-iscsi-safe-ffef35c-20261010",
+        "runtimeabiversion": "1",
+        "desiredstateschemaversion": "1",
+        "serviceimpact": "NONE",
+        "artifactsize": 398313,
+        "sha256": "493b68b8077fb6c44f055de4be4ba02fa31237ae3d99570b0b4d9023b16e1a35",
+        "manifestsha256": "cff12f8adc2355f30e01bf2038858a71d5377b7f27eaf01fe1aa230d11ccba98",
+        "signingkeyid": "epic898-test-iscsi-safe-ffef35c",
+        "state": "AVAILABLE"
+      },
+      {
+        "id": "e069857e-0f35-4f3b-9525-5444febbbe78",
+        "version": "epic898-iscsi-guard-8de98e-20261010",
+        "runtimeabiversion": "1",
+        "desiredstateschemaversion": "1",
+        "serviceimpact": "NONE",
+        "artifactsize": 399287,
+        "sha256": "cb41ade95acc852d453b750679ea54287fc5f479d3e1ff5105f2848e12d37240",
+        "manifestsha256": "ee849b8721f2aa5375f8f85b3231f6c77d901394e025dba985515781f59d2cc2",
+        "signingkeyid": "epic898-test-iscsi-guard-8de98e",
+        "state": "AVAILABLE"
+      }
+    ],
+    "applicationReadinessVerified": true,
+    "initialPostApiConnectionRefused": true,
+    "initialConnectionRefusalWasNotCompletedLogin": true,
+    "additionalApplyOrRestartAfterInitialRefusal": 0
+  },
+  "runtimeUiPreservation": {
+    "runtimeFamilySha256": {
+      "org/apache/cloudstack/storage/dataservice/StorageServiceRuntimeUpgradeManagerImpl$1.class": "77b3ed48c03621f3dde0b35de3ee6929eff5548c65459cb27ab56fefe4101e5d",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceRuntimeUpgradeManagerImpl$RuntimeResourceScope.class": "30e58ae7a92eb755e4bfbdab5aeb8422be238ff3a479eeeafb669cfa159b2523",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceRuntimeUpgradeManagerImpl.class": "314952704c1710def208d0d48d431292495a043ef133053965c70571d0323e22"
+    },
+    "otherLibraryCount": 8,
+    "allLibraryFileCount": 9,
+    "otherLibraryFilesPreserved": true,
+    "remainingJarEntriesSha256": "e64961fc450b826a931b091a3d8ce6ad199801adb48f8a733d6ad6c793b68848",
+    "uiPathCount": 3485,
+    "uiExactCurrentMapPreserved": true,
+    "uiIndexSha256": "e75592ad9a85cc4de523bf05d4c8e830ada0e49b988236925ba4b1f69f4291e8",
+    "configSha256": "d3e285317289b4eb4034141b63e4604ffd014d8bc1385aa28a007a4317c397f5",
+    "configSymlink": "/etc/cloudstack/management/config.json",
+    "webInfCount": 1,
+    "publicTrustCount": 52,
+    "publicTrustSha256": "02315d4e4bea9b5884871ab0214bd67e1f246c93ac734dc6e6928322a9960598",
+    "publicTrustPreserved": true
+  },
+  "effectBoundary": {
+    "guestCalls": 0,
+    "nativeCliChanged": false,
+    "kvmChanged": false,
+    "httpApiSchemaChanged": false,
+    "ddlChanged": false,
+    "uiFilesChanged": false,
+    "vmRestarts": 0,
+    "rootDataChanges": 0,
+    "df11RecoveryCalls": 0,
+    "newDiskOrVm": 0,
+    "gitActions": 0,
+    "githubActions": 0,
+    "finalUi1275Started": false,
+    "iscsiActualRetestPerformed": false,
+    "allFourAccepted": false,
+    "latestFailurePayload2049DirectlyObserved": false
+  },
+  "evidence": {
+    "deployment-manifest.json": {
+      "path": "/root/work/epic898-preparation/iscsi-safe-failure-diagnostics/listener-default-normal-cf6baa485126/management-one-deployment-preparation/deployment-manifest.json",
+      "sha256": "e363bea96e8e459fa8464dc35be0c36cf222aba90a0d4c6d339e18169c448e45"
+    },
+    "deploy-management-one.py": {
+      "path": "/root/work/epic898-preparation/iscsi-safe-failure-diagnostics/listener-default-normal-cf6baa485126/management-one-deployment-preparation/deploy-management-one.py",
+      "sha256": "66a18397e73988307adbbeac12ca950d650f02b3ff274d4dbf31d626361372b7"
+    },
+    "management-one-review-payload.zip": {
+      "path": "/root/work/epic898-preparation/iscsi-safe-failure-diagnostics/listener-default-normal-cf6baa485126/management-one-deployment-preparation/management-one-review-payload.zip",
+      "sha256": "bdfad659abd452d7cba72ae2f210301451a713aa9a10fd9a0192f6e37f6f4ae7"
+    },
+    "upload-verify-only-public-result.json": {
+      "path": "/root/work/epic898-preparation/iscsi-safe-failure-diagnostics/listener-default-normal-cf6baa485126/management-one-deployment-preparation/upload-verify-only-public-result.json",
+      "sha256": "ffaccacca280e0ba294e6029b430c650fedfe6ec24e2da90978b54ea464b0ac5"
+    },
+    "apply-once-public-result.json": {
+      "path": "/root/work/epic898-preparation/iscsi-safe-failure-diagnostics/listener-default-normal-cf6baa485126/management-one-deployment-preparation/apply-once-public-result.json",
+      "sha256": "fa6a43d54e278caebc1767182e4ca39c0a22498f726f5599b90a321e058b0505"
+    },
+    "post-management-ssh-readonly.json": {
+      "path": "/root/work/epic898-preparation/iscsi-safe-failure-diagnostics/listener-default-normal-cf6baa485126/management-one-deployment-preparation/post-management-ssh-readonly.json",
+      "sha256": "24a2824473a7e7ee73b2fd44d6b962bb85ca6cfa6b5c7ba8dd649628118d513a"
+    },
+    "post-management-api-readiness.json": {
+      "path": "/root/work/epic898-preparation/iscsi-safe-failure-diagnostics/listener-default-normal-cf6baa485126/management-one-deployment-preparation/post-management-api-readiness.json",
+      "sha256": "392ec7b65f46f842ee9a21556049bc19bc0d47f7eb2bce08573684eadbe85cc6"
+    },
+    "post-api-initial-startup-observation.json": {
+      "path": "/root/work/epic898-preparation/iscsi-safe-failure-diagnostics/listener-default-normal-cf6baa485126/management-one-deployment-preparation/post-api-initial-startup-observation.json",
+      "sha256": "b0bbdd223a9098a9710afa502e3b0cf158c80307af72abd82508e11788dca549"
+    },
+    "post-api-startup-readiness-public.json": {
+      "path": "/root/work/epic898-preparation/iscsi-safe-failure-diagnostics/listener-default-normal-cf6baa485126/management-one-deployment-preparation/post-api-startup-readiness-public.json",
+      "sha256": "4b91440050c5ec9d2d6c36d340185dafef148e5309d6dc70755505528b7e644c"
+    }
+  }
+}
