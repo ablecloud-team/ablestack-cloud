@@ -394,4 +394,111 @@ public class LibvirtStorageServiceHostCommandWrapperTest {
         Assert.assertFalse(answer.getDetails().contains("SYNTHETIC_PRIVATE_CREDENTIAL"));
     }
 
+
+    private String fixedIscsiGuardFailure() {
+        return "{\"success\":false,\"kind\":\"ISCSI_APPLY_GUARD_FAILED\",\"stage\":\"DEVICE\",\"returnCode\":null,\"category\":\"SYSTEM_EXIT\"}";
+    }
+
+    @Test
+    public void testClosedGuardPhasesAndCategoriesKeepExactNullCodeContract() {
+        final StorageServiceHostCommand command = iscsiSensitiveCommand("iscsi target apply");
+        for (String phase : new String[]{"INPUT", "VAULT_STATE", "DEPENDENCY", "LISTENER", "DEVICE", "AUTH", "READINESS"}) {
+            for (String category : new String[]{"VALUE_ERROR", "TYPE_ERROR", "RUNTIME_ERROR", "OS_ERROR", "TIMEOUT", "SYSTEM_EXIT", "LOOKUP_ERROR", "ATTRIBUTE_ERROR", "ASSERTION_ERROR"}) {
+                String value = fixedIscsiGuardFailure().replace("\"DEVICE\"", "\"" + phase + "\"")
+                        .replace("\"SYSTEM_EXIT\"", "\"" + category + "\"");
+                Assert.assertTrue(wrapper.commandFailureDetails(command, 1, value, "SYNTHETIC_PRIVATE_CREDENTIAL")
+                        .contains("ISCSI guard=" + phase + "; returnCode=UNAVAILABLE; category=" + category));
+            }
+        }
+        String reordered = "{\"stage\":\"DEVICE\",\"returnCode\":null,\"category\":\"SYSTEM_EXIT\",\"success\":false,\"kind\":\"ISCSI_APPLY_GUARD_FAILED\"}";
+        Assert.assertTrue(wrapper.commandFailureDetails(command, 1, reordered, null).contains("ISCSI guard=DEVICE"));
+    }
+
+    @Test
+    public void testMalformedGuardShapeNeverExposesSyntheticPrivateOutput() {
+        final StorageServiceHostCommand command = iscsiSensitiveCommand("iscsi target apply");
+        final String fixed = fixedIscsiGuardFailure();
+        final String masked = "Sensitive Storage Service command failed with exit code 1; secret-bearing output omitted";
+        final java.util.List<String> rejected = new java.util.ArrayList<>();
+        rejected.add(fixed.replace("\"success\":false", "\"success\":true"));
+        rejected.add(fixed.replace("\"success\":false", "\"success\":\"false\""));
+        rejected.add(fixed.replace("\"success\":false", "\"success\":{\"value\":false}"));
+        rejected.add(fixed.replace("\"success\":false", "\"success\":false,\"success\":false"));
+        rejected.add(fixed.replace("\"success\":false", "\"success\":false,\"\\u0073uccess\":false"));
+        rejected.add(fixed.replace("\"DEVICE\"", "\"TARGET_CREATE\""));
+        rejected.add(fixed.replace("\"SYSTEM_EXIT\"", "\"SPAWN_FAILURE\""));
+        rejected.add(fixed.replace("\"ISCSI_APPLY_GUARD_FAILED\"", "\"OTHER_GUARD\""));
+        for (String code : new String[]{"0", "1", "-1", "1.0", "\"null\"", "false"}) {
+            rejected.add(fixed.replace("\"returnCode\":null", "\"returnCode\":" + code));
+        }
+        rejected.add(fixed.replace(",\"category\":\"SYSTEM_EXIT\"", ""));
+        rejected.add(fixed.substring(0, fixed.length() - 1) + ",\"message\":\"SYNTHETIC_PRIVATE_CREDENTIAL\"}");
+        rejected.add("[" + fixed + "]");
+        rejected.add(fixed + "\n" + fixed);
+        rejected.add(fixed + fixed);
+        rejected.add(fixed + " trailing");
+        rejected.add(fixed.replace(",\"stage\"", ",\n\"stage\""));
+        rejected.add("{\"success\":false,\"errorCode\":\"LOCAL_SOURCE_CHECKPOINT_REJECTED\",\"reason\":\"ValueError\"}");
+        for (String value : rejected) {
+            Assert.assertEquals(masked, wrapper.commandFailureDetails(command, 1, value, "SYNTHETIC_PRIVATE_CREDENTIAL"));
+        }
+        Assert.assertEquals(masked, wrapper.commandFailureDetails(iscsiSensitiveCommand("smb share apply"), 1, fixed, null));
+    }
+
+    private java.nio.file.Path iscsiGuardProducerFixture() {
+        String explicit = System.getProperty("cloudstack.storage.iscsi.guard.fixture");
+        if (explicit != null) return java.nio.file.Paths.get(explicit);
+        java.nio.file.Path directory = java.nio.file.Paths.get(System.getProperty("user.dir")).toAbsolutePath();
+        while (directory != null) {
+            java.nio.file.Path candidate = directory.resolve("systemvm/test/TestStorageIscsiLifecycle.py");
+            if (java.nio.file.Files.isRegularFile(candidate)) return candidate;
+            directory = directory.getParent();
+        }
+        throw new AssertionError("Actual native guard fixture is unavailable");
+    }
+
+    @Test
+    public void testActualPythonProducerFlowsThroughCompiledGuestAnswerConsumer() throws Exception {
+        final Process process = new ProcessBuilder("python3", iscsiGuardProducerFixture().toString(), "--guard-consumer-fixtures").start();
+        Assert.assertTrue("Actual producer fixture exceeded its bounded deadline", process.waitFor(30, java.util.concurrent.TimeUnit.SECONDS));
+        final byte[] bytes = process.getInputStream().readAllBytes();
+        final byte[] errors = process.getErrorStream().readAllBytes();
+        Assert.assertEquals("Actual producer fixture failed", 0, process.exitValue());
+        Assert.assertEquals("Actual producer fixture emitted unexpected stderr", 0, errors.length);
+        final com.google.gson.JsonArray fixtures = new com.google.gson.JsonParser()
+                .parse(new String(bytes, java.nio.charset.StandardCharsets.UTF_8)).getAsJsonArray();
+        Assert.assertEquals(11, fixtures.size());
+        final java.util.Set<String> observed = new java.util.HashSet<>();
+        for (com.google.gson.JsonElement element : fixtures) {
+            final com.google.gson.JsonObject fixture = element.getAsJsonObject();
+            final String nativeOutput = fixture.get("stdout").getAsString();
+            final String scenario = fixture.get("scenario").getAsString();
+            observed.add(scenario);
+            final org.libvirt.Domain domain = org.mockito.Mockito.mock(org.libvirt.Domain.class);
+            final com.google.gson.JsonObject status = new com.google.gson.JsonObject();
+            status.addProperty("exited", true);status.addProperty("exitcode", fixture.get("exitCode").getAsInt());
+            status.addProperty("out-data", java.util.Base64.getEncoder().encodeToString(nativeOutput.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+            status.addProperty("err-data", java.util.Base64.getEncoder().encodeToString("SYNTHETIC_PRIVATE_CREDENTIAL".getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+            final com.google.gson.JsonObject response = new com.google.gson.JsonObject();response.add("return", status);
+            org.mockito.Mockito.when(domain.qemuAgentCommand(org.mockito.Mockito.anyString(), org.mockito.Mockito.anyInt(), org.mockito.Mockito.eq(0)))
+                    .thenReturn(response.toString());
+            final com.cloud.agent.api.StorageServiceHostAnswer answer = (com.cloud.agent.api.StorageServiceHostAnswer)
+                    wrapper.waitForGuestCommand(iscsiSensitiveCommand("iscsi target apply"), domain, 17);
+            Assert.assertFalse(answer.getResult());
+            Assert.assertEquals(nativeOutput, answer.getResultJson());
+            Assert.assertFalse(answer.getDetails().contains("SYNTHETIC_PRIVATE"));
+            if (scenario.startsWith("unknown")) {
+                Assert.assertEquals("", nativeOutput);
+                Assert.assertEquals("Sensitive Storage Service command failed with exit code 1; secret-bearing output omitted", answer.getDetails());
+            } else {
+                final com.google.gson.JsonObject nativeRecord = new com.google.gson.JsonParser().parse(nativeOutput).getAsJsonObject();
+                Assert.assertFalse(nativeRecord.get("success").getAsBoolean());
+                Assert.assertTrue(answer.getDetails().contains(nativeRecord.get("stage").getAsString()));
+                Assert.assertTrue(answer.getDetails().contains(nativeRecord.get("category").getAsString()));
+                Assert.assertTrue(answer.getDetails().contains("targetcli-first".equals(scenario) ? "ISCSI stage=LUN_CREATE" : "ISCSI guard="));
+            }
+        }
+        Assert.assertEquals(java.util.Set.of("early-input", "early-vault", "mid-device-cleanup", "readiness", "auth", "lookup", "attribute", "assertion", "targetcli-first", "unknown", "unknown-mid"), observed);
+    }
+
 }

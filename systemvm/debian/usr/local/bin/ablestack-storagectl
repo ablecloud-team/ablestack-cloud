@@ -9557,12 +9557,112 @@ def iscsi_private_vault(path):
     return value
 # END EMBEDDED ISCSI AUTH
 
+ISCSI_DIAGNOSTIC_STAGES = {"CLEANUP", "TARGET_CREATE", "PORTAL_CREATE", "BACKSTORE_CREATE", "LUN_CREATE", "ACL_CREATE", "AUTH_POLICY"}
+ISCSI_DIAGNOSTIC_CATEGORIES = {"UNCLASSIFIED", "ATTRIBUTE_ERROR", "TYPE_ERROR", "IMPORT_ERROR", "PERMISSION_ERROR", "WWN_REJECTED", "CONFIGFS_ERROR", "TIMEOUT", "SPAWN_FAILURE"}
+first_iscsi_failure = None
+ISCSI_GUARD_STAGES = {"INPUT", "VAULT_STATE", "DEPENDENCY", "LISTENER", "DEVICE", "AUTH", "READINESS"}
+ISCSI_GUARD_CATEGORIES = {"VALUE_ERROR", "TYPE_ERROR", "RUNTIME_ERROR", "OS_ERROR", "TIMEOUT", "SYSTEM_EXIT", "LOOKUP_ERROR", "ATTRIBUTE_ERROR", "ASSERTION_ERROR"}
+
+def targetcli_error_category(result):
+    # Inspect only fixed vendor tokens in RAM; never return arbitrary text.
+    categories = set()
+    classes = {"AttributeError": "ATTRIBUTE_ERROR", "TypeError": "TYPE_ERROR",
+               "ImportError": "IMPORT_ERROR", "ModuleNotFoundError": "IMPORT_ERROR",
+               "PermissionError": "PERMISSION_ERROR"}
+    for line in ((result.stderr or "") + "\n" + (result.stdout or "")).splitlines():
+        match = re.match(r"^(AttributeError|TypeError|ImportError|ModuleNotFoundError|PermissionError)(?::|$)", line.strip())
+        if match: categories.add(classes[match.group(1)])
+        if line.strip() == "WWN not valid as: iqn": categories.add("WWN_REJECTED")
+        if line.strip() == "Could not create Target in configFS": categories.add("CONFIGFS_ERROR")
+    return next(iter(categories)) if len(categories) == 1 else "UNCLASSIFIED"
+
+def emit_iscsi_failure(kind, stage, return_code, category):
+    global first_iscsi_failure
+    if first_iscsi_failure is None:
+        first_iscsi_failure = {"success": False, "kind": kind, "stage": stage,
+                               "returnCode": return_code, "category": category}
+        print(json.dumps(first_iscsi_failure, separators=(",", ":")), flush=True)
+
+
+class IscsiTargetcliFailure(SystemExit):
+    def __init__(self, stage, return_code, category):
+        if stage not in ISCSI_DIAGNOSTIC_STAGES or category not in ISCSI_DIAGNOSTIC_CATEGORIES:
+            raise ValueError("Invalid fixed iSCSI diagnostic")
+        if return_code is not None and (type(return_code) is not int or return_code == 0 or not -64 <= return_code <= 255):
+            raise ValueError("Invalid fixed iSCSI return code")
+        if (return_code is None) != (category in ("TIMEOUT", "SPAWN_FAILURE")):
+            raise ValueError("Unavailable iSCSI return code")
+        emit_iscsi_failure("ISCSI_TARGETCLI_COMMAND_FAILED", stage, return_code, category)
+        super().__init__("iSCSI targetcli command failed; private diagnostics omitted")
+
+def run_targetcli(*args, stage="CLEANUP"):
+    try:
+        return run(["targetcli", *args])
+    except subprocess.TimeoutExpired:
+        raise IscsiTargetcliFailure(stage, None, "TIMEOUT") from None
+    except OSError:
+        raise IscsiTargetcliFailure(stage, None, "SPAWN_FAILURE") from None
+
+def ok_or_exists(result):
+    text = f"{result.stdout}\n{result.stderr}".lower()
+    return result.returncode == 0 or "exists" in text or "already" in text
+
+def require_targetcli(*args, stage):
+    result = run_targetcli(*args, stage=stage)
+    if not ok_or_exists(result):
+        raise IscsiTargetcliFailure(stage, result.returncode, targetcli_error_category(result)) from None
+    return result
+
+
+def iscsi_guard(stage, action, *args, **kwargs):
+    global first_iscsi_failure
+    if stage not in ISCSI_GUARD_STAGES:
+        raise ValueError("Unknown iSCSI guard phase")
+    try:
+        return action(*args, **kwargs)
+    except IscsiTargetcliFailure:
+        raise
+    except BaseException as failure:
+        if isinstance(failure, SystemExit) and failure.code in (None, 0):
+            raise
+        category = None
+        if isinstance(failure, subprocess.TimeoutExpired):
+            category = "TIMEOUT"
+        elif isinstance(failure, OSError):
+            category = "OS_ERROR"
+        elif isinstance(failure, LookupError):
+            category = "LOOKUP_ERROR"
+        elif isinstance(failure, AttributeError):
+            category = "ATTRIBUTE_ERROR"
+        elif isinstance(failure, AssertionError):
+            category = "ASSERTION_ERROR"
+        elif isinstance(failure, ValueError):
+            category = "VALUE_ERROR"
+        elif isinstance(failure, TypeError):
+            category = "TYPE_ERROR"
+        elif isinstance(failure, RuntimeError):
+            category = "RUNTIME_ERROR"
+        elif isinstance(failure, SystemExit):
+            category = "SYSTEM_EXIT"
+        if category in ISCSI_GUARD_CATEGORIES:
+            emit_iscsi_failure("ISCSI_APPLY_GUARD_FAILED", stage, None, category)
+        elif first_iscsi_failure is None:
+            # Reserve the first failure without inventing a public classification.
+            first_iscsi_failure = False
+        # Neither known nor unknown failures expose private messages/tracebacks.
+        raise SystemExit("iSCSI apply failed; private diagnostics omitted") from None
+
+
+def load_iscsi_payload(path):
+    with open(path, "r", encoding="utf-8") as stream:
+        return json.load(stream)
+
+
 payload_path = sys.argv[1]
-with open(payload_path, "r", encoding="utf-8") as payload_fp:
-    payload = json.load(payload_fp)
+payload = iscsi_guard("INPUT", load_iscsi_payload, payload_path)
 
 state_dir = "/etc/ablestack-storage"
-os.makedirs(state_dir, exist_ok=True)
+iscsi_guard("VAULT_STATE", os.makedirs, state_dir, exist_ok=True)
 state_file = os.path.join(state_dir, "iscsi-targets.json")
 secret_dir = os.path.join(state_dir, "secrets")
 secret_file = os.path.join(secret_dir, "iscsi-acl-secrets.json")
@@ -9626,7 +9726,7 @@ def merge_and_persist_iscsi_secrets(value):
             iscsi_auth_values(acl.get("config") or {},secrets)
     write_secret_store(next_store)
 
-merge_and_persist_iscsi_secrets(payload)
+iscsi_guard("VAULT_STATE", merge_and_persist_iscsi_secrets, payload)
 
 def sanitized(value):
     if isinstance(value, dict):
@@ -9635,62 +9735,16 @@ def sanitized(value):
         return [sanitized(v) for v in value]
     return value
 
-if os.environ.get("ABLESTACK_STORAGE_ROOT_SOURCE_REPLAY")!="1":
-    with open(state_file, "w", encoding="utf-8") as state_fp:
-        json.dump(sanitized(payload), state_fp, sort_keys=True, indent=2)
+def persist_iscsi_payload():
+    if os.environ.get("ABLESTACK_STORAGE_ROOT_SOURCE_REPLAY")!="1":
+        with open(state_file, "w", encoding="utf-8") as state_fp:
+            json.dump(sanitized(payload), state_fp, sort_keys=True, indent=2)
+
+iscsi_guard("VAULT_STATE", persist_iscsi_payload)
 
 def run(args, timeout=20):
     return subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=timeout)
 
-ISCSI_DIAGNOSTIC_STAGES = {"CLEANUP", "TARGET_CREATE", "PORTAL_CREATE", "BACKSTORE_CREATE", "LUN_CREATE", "ACL_CREATE", "AUTH_POLICY"}
-ISCSI_DIAGNOSTIC_CATEGORIES = {"UNCLASSIFIED", "ATTRIBUTE_ERROR", "TYPE_ERROR", "IMPORT_ERROR", "PERMISSION_ERROR", "WWN_REJECTED", "CONFIGFS_ERROR", "TIMEOUT", "SPAWN_FAILURE"}
-first_targetcli_failure = None
-
-def targetcli_error_category(result):
-    # Inspect only fixed vendor tokens in RAM; never return arbitrary text.
-    categories = set()
-    classes = {"AttributeError": "ATTRIBUTE_ERROR", "TypeError": "TYPE_ERROR",
-               "ImportError": "IMPORT_ERROR", "ModuleNotFoundError": "IMPORT_ERROR",
-               "PermissionError": "PERMISSION_ERROR"}
-    for line in ((result.stderr or "") + "\n" + (result.stdout or "")).splitlines():
-        match = re.match(r"^(AttributeError|TypeError|ImportError|ModuleNotFoundError|PermissionError)(?::|$)", line.strip())
-        if match: categories.add(classes[match.group(1)])
-        if line.strip() == "WWN not valid as: iqn": categories.add("WWN_REJECTED")
-        if line.strip() == "Could not create Target in configFS": categories.add("CONFIGFS_ERROR")
-    return next(iter(categories)) if len(categories) == 1 else "UNCLASSIFIED"
-
-class IscsiTargetcliFailure(SystemExit):
-    def __init__(self, stage, return_code, category):
-        global first_targetcli_failure
-        if stage not in ISCSI_DIAGNOSTIC_STAGES or category not in ISCSI_DIAGNOSTIC_CATEGORIES:
-            raise ValueError("Invalid fixed iSCSI diagnostic")
-        if return_code is not None and (type(return_code) is not int or return_code == 0 or not -64 <= return_code <= 255):
-            raise ValueError("Invalid fixed iSCSI return code")
-        if (return_code is None) != (category in ("TIMEOUT", "SPAWN_FAILURE")):
-            raise ValueError("Unavailable iSCSI return code")
-        if first_targetcli_failure is None:
-            first_targetcli_failure = {"success": False, "kind": "ISCSI_TARGETCLI_COMMAND_FAILED",
-                                       "stage": stage, "returnCode": return_code, "category": category}
-            print(json.dumps(first_targetcli_failure, separators=(",", ":")), flush=True)
-        super().__init__("iSCSI targetcli command failed; private diagnostics omitted")
-
-def run_targetcli(*args, stage="CLEANUP"):
-    try:
-        return run(["targetcli", *args])
-    except subprocess.TimeoutExpired:
-        raise IscsiTargetcliFailure(stage, None, "TIMEOUT") from None
-    except OSError:
-        raise IscsiTargetcliFailure(stage, None, "SPAWN_FAILURE") from None
-
-def ok_or_exists(result):
-    text = f"{result.stdout}\n{result.stderr}".lower()
-    return result.returncode == 0 or "exists" in text or "already" in text
-
-def require_targetcli(*args, stage):
-    result = run_targetcli(*args, stage=stage)
-    if not ok_or_exists(result):
-        raise IscsiTargetcliFailure(stage, result.returncode, targetcli_error_category(result)) from None
-    return result
 
 def command_exists(name):
     return shutil.which(name) is not None
@@ -9970,7 +10024,7 @@ def selected_listeners_for_target(target, listeners):
         raise SystemExit(f"no iSCSI listener port group is enabled for target {target.get('targetName') or target.get('uuid')}: {sorted(ports)}")
     return selected
 
-listeners = configured_listeners()
+listeners = iscsi_guard("LISTENER", configured_listeners)
 required_ports = set()
 
 enabled = bool(payload.get("enabled", True))
@@ -10148,9 +10202,9 @@ def rollback_created(created_iqns, created_backstores):
         run_targetcli("/backstores/block", "delete", name)
 
 if enabled and targets:
-    ensure_iscsi_runtime_dependencies()
+    iscsi_guard("DEPENDENCY", ensure_iscsi_runtime_dependencies)
 if command_exists("targetcli"):
-    desired_iqns = set(active_targets_by_iqn(targets).keys())
+    desired_iqns = set(iscsi_guard("INPUT", active_targets_by_iqn, targets).keys())
     if os.environ.get("ABLESTACK_STORAGE_ISCSI_AUTHORITATIVE_REBUILD") == "1":
         clear_managed_iscsi_runtime()
     cleanup_stale_managed_targets(desired_iqns)
@@ -10161,7 +10215,7 @@ if command_exists("targetcli"):
             continue
         skipped += 1
     try:
-        for iqn, group_targets in active_targets_by_iqn(targets).items():
+        for iqn, group_targets in iscsi_guard("INPUT", active_targets_by_iqn, targets).items():
             previous_auth = previous_acl_auth_map(iqn)
             run_targetcli("/iscsi", "delete", iqn)
             for target in group_targets:
@@ -10169,14 +10223,14 @@ if command_exists("targetcli"):
             require_targetcli("/iscsi", "create", iqn, stage="TARGET_CREATE")
             created_iqns.append(iqn)
             run_targetcli(f"/iscsi/{iqn}/tpg1/portals", "delete", "0.0.0.0", "3260")
-            group_listeners = merged_listeners_for_targets(group_targets, listeners)
+            group_listeners = iscsi_guard("LISTENER", merged_listeners_for_targets, group_targets, listeners)
             required_ports.update({item["port"] for item in group_listeners})
             for listener in group_listeners:
-                create_iscsi_portal(iqn, listener["listenIp"], listener["port"])
+                iscsi_guard("LISTENER", create_iscsi_portal, iqn, listener["listenIp"], listener["port"])
             for target in group_targets:
                 lun = str(target.get("lunOrNamespace") or "0")
                 backstore = f"ablestack-{target.get('uuid')}"
-                backstore_path, backing_path, backstore_type = resolve_backstore(target, backstore)
+                backstore_path, backing_path, backstore_type = iscsi_guard("DEVICE", resolve_backstore, target, backstore)
                 created_backstores.append(backstore)
                 require_targetcli(f"/iscsi/{iqn}/tpg1/luns", "create", backstore_path, lun, stage="LUN_CREATE")
                 applied += 1
@@ -10188,7 +10242,7 @@ if command_exists("targetcli"):
                     "volumeName": target.get("volumeName"),
                     "volumeSizeBytes": target.get("volumeSizeBytes"),
                     "lunSizeBytes": target.get("lunSizeBytes") or (target.get("config") or {}).get("lunSizeBytes"),
-                    "effectiveSizeBytes": target_size_bytes(target, backing_path),
+                    "effectiveSizeBytes": iscsi_guard("DEVICE", target_size_bytes, target, backing_path),
                     "backingPath": backing_path,
                     "backstoreType": backstore_type,
                     "listenerPorts": sorted({item["port"] for item in group_listeners}),
@@ -10213,28 +10267,31 @@ if command_exists("targetcli"):
                     mutual_password = secrets.get("mutualChapSecret") or old_auth.get("mutual_password")
                     mutual_password = require_chap_value("mutualChapSecret", mutual_password, iqn, initiator)
                     secrets["mutualChapSecret"] = mutual_password
-                ConfigfsIscsiAuth().apply(iqn,initiator,acl_config,secrets)
+                iscsi_guard("AUTH", ConfigfsIscsiAuth().apply, iqn, initiator, acl_config, secrets)
             require_targetcli(f"/iscsi/{iqn}/tpg1", "set", "attribute", f"authentication={1 if chap_required else 0}", stage="AUTH_POLICY")
     except BaseException:
         rollback_created(created_iqns, created_backstores)
         raise
-    merge_and_persist_iscsi_secrets(payload)
+    iscsi_guard("VAULT_STATE", merge_and_persist_iscsi_secrets, payload)
     # Canonical state plus the protected private vault own reboot recovery.
     # A generic targetcli saveconfig would dump plaintext CHAP outside that vault.
 else:
     skipped = len(payload.get("targets", []))
 
-if enabled and applied:
-    # Observe the live portals created above without a targetctl clear/restore.
-    for port in required_ports:
-        best_effort_firewall(port)
-    for _ in range(10):
-        if all(port_listening(port) for port in required_ports):
-            break
-        time.sleep(0.5)
-    missing_ports = [port for port in sorted(required_ports) if not port_listening(port)]
-    if missing_ports:
-        raise SystemExit(f"iSCSI target service did not listen on TCP port(s): {', '.join(str(port) for port in missing_ports)}")
+def verify_iscsi_readiness():
+    if enabled and applied:
+        # Observe the live portals created above without a targetctl clear/restore.
+        for port in required_ports:
+            best_effort_firewall(port)
+        for _ in range(10):
+            if all(port_listening(port) for port in required_ports):
+                break
+            time.sleep(0.5)
+        missing_ports = [port for port in sorted(required_ports) if not port_listening(port)]
+        if missing_ports:
+            raise SystemExit(f"iSCSI target service did not listen on TCP port(s): {', '.join(str(port) for port in missing_ports)}")
+
+iscsi_guard("READINESS", verify_iscsi_readiness)
 
 print(json.dumps({"success": True, "targets": len(payload.get("targets", [])), "applied": applied, "skipped": skipped, "ports": sorted(required_ports), "listening": all(port_listening(port) for port in required_ports), "runtimeTargets": runtime_targets}))
 PY

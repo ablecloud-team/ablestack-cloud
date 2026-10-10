@@ -416,7 +416,10 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
         final java.util.Set<String> fields = java.util.Set.of("success", "kind", "stage", "returnCode", "category");
         final java.util.Set<String> stages = java.util.Set.of("CLEANUP", "TARGET_CREATE", "PORTAL_CREATE", "BACKSTORE_CREATE", "LUN_CREATE", "ACL_CREATE", "AUTH_POLICY");
         final java.util.Set<String> categories = java.util.Set.of("UNCLASSIFIED", "ATTRIBUTE_ERROR", "TYPE_ERROR", "IMPORT_ERROR", "PERMISSION_ERROR", "WWN_REJECTED", "CONFIGFS_ERROR", "TIMEOUT", "SPAWN_FAILURE");
+        final java.util.Set<String> guardStages = java.util.Set.of("INPUT", "VAULT_STATE", "DEPENDENCY", "LISTENER", "DEVICE", "AUTH", "READINESS");
+        final java.util.Set<String> guardCategories = java.util.Set.of("VALUE_ERROR", "TYPE_ERROR", "RUNTIME_ERROR", "OS_ERROR", "TIMEOUT", "SYSTEM_EXIT", "LOOKUP_ERROR", "ATTRIBUTE_ERROR", "ASSERTION_ERROR");
         final java.util.Set<String> seen = new java.util.HashSet<>();
+        String kind = null;
         String stage = null;
         String category = null;
         Integer code = null;
@@ -432,17 +435,17 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
                         if (reader.peek() != JsonToken.BOOLEAN || reader.nextBoolean()) return null;
                         break;
                     case "kind":
-                        if (reader.peek() != JsonToken.STRING || !"ISCSI_TARGETCLI_COMMAND_FAILED".equals(reader.nextString())) return null;
+                        if (reader.peek() != JsonToken.STRING) return null;
+                        kind = reader.nextString();
+                        if (!java.util.Set.of("ISCSI_TARGETCLI_COMMAND_FAILED", "ISCSI_APPLY_GUARD_FAILED").contains(kind)) return null;
                         break;
                     case "stage":
                         if (reader.peek() != JsonToken.STRING) return null;
                         stage = reader.nextString();
-                        if (!stages.contains(stage)) return null;
                         break;
                     case "category":
                         if (reader.peek() != JsonToken.STRING) return null;
                         category = reader.nextString();
-                        if (!categories.contains(category)) return null;
                         break;
                     case "returnCode":
                         if (reader.peek() == JsonToken.NULL) {
@@ -462,7 +465,12 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
             }
             reader.endObject();
             if (reader.peek() != JsonToken.END_DOCUMENT || !seen.equals(fields)) return null;
-            if (nullCode != java.util.Set.of("TIMEOUT", "SPAWN_FAILURE").contains(category)) return null;
+            if ("ISCSI_APPLY_GUARD_FAILED".equals(kind)) {
+                if (!nullCode || !guardStages.contains(stage) || !guardCategories.contains(category)) return null;
+                return "ISCSI guard=" + stage + "; returnCode=UNAVAILABLE; category=" + category;
+            }
+            if (!stages.contains(stage) || !categories.contains(category)
+                    || nullCode != java.util.Set.of("TIMEOUT", "SPAWN_FAILURE").contains(category)) return null;
             return "ISCSI stage=" + stage + "; returnCode=" + (nullCode ? "UNAVAILABLE" : code) + "; category=" + category;
         } catch (java.io.IOException | RuntimeException unavailable) {
             return null;
