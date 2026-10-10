@@ -3471,6 +3471,218 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if(template==null)throw new InvalidParameterValueException("AD clone identity template is unavailable");rootUpgradeTemplateDao.loadDetails(template);
         if(template.getDetails()==null||!"true".equals(template.getDetails().get("storage.service.local.identity.seed.absent")))throw new InvalidParameterValueException("AD clone template has no verified absence of local SAM/passdb seeds");
     }
+    protected JsonObject pinConfigurationCloneTemplate(JsonObject blueprint) {
+        requireConfigurationAdministrator();
+        DataCenterVO zone = dataCenterDao.findByUuid(getJsonString(blueprint, "zoneid"));
+        if (zone == null) throw new InvalidParameterValueException("Clone template zone is unavailable");
+        String selected = getJsonString(blueprint, "templateid");
+        boolean defaultSelection = selected == null;
+        com.cloud.storage.VMTemplateVO template = defaultSelection
+                ? rootUpgradeTemplateDao.findSystemVMReadyTemplate(zone.getId(), com.cloud.hypervisor.Hypervisor.HypervisorType.KVM,
+                        com.cloud.resource.ResourceManager.SystemVmPreferredArchitecture.valueIn(zone.getId()))
+                : rootUpgradeTemplateDao.findByUuid(selected);
+        if (template == null) throw new InvalidParameterValueException("Clone template is unavailable");
+        String mode = defaultSelection ? "DEFAULT_SYSTEM"
+                : template.getTemplateType() == com.cloud.storage.Storage.TemplateType.USER ? "PRIVATE_USER" : "EXPLICIT_SYSTEM";
+        if (defaultSelection && template.getTemplateType() != com.cloud.storage.Storage.TemplateType.SYSTEM)
+            throw new InvalidParameterValueException("Clone default template is not SYSTEM");
+        JsonObject normalized = blueprint.deepCopy();
+        normalized.addProperty("templateid", template.getUuid());
+        preflightConfigurationNewService(normalized);
+        rootUpgradeTemplateDao.loadDetails(template);
+        JsonObject pin = configurationCloneTemplatePin(normalized, template, mode);
+        blueprint.addProperty("templateid", template.getUuid());
+        return pin;
+    }
+
+    private JsonObject configurationCloneTemplatePin(JsonObject blueprint, com.cloud.storage.VMTemplateVO template, String mode) {
+        if (template == null || template.getRemoved() != null
+                || template.getState() != com.cloud.template.VirtualMachineTemplate.State.Active
+                || !template.isDynamicallyScalable() || template.getFormat() != com.cloud.storage.Storage.ImageFormat.QCOW2
+                || template.getHypervisorType() != com.cloud.hypervisor.Hypervisor.HypervisorType.KVM
+                || template.getArch() == null || StringUtils.isBlank(template.getChecksum()))
+            throw new InvalidParameterValueException("Clone template readiness or checksum changed");
+        boolean privateUser = "PRIVATE_USER".equals(mode);
+        if (privateUser && template.isPublicTemplate())
+            throw new InvalidParameterValueException("Clone private template visibility changed");
+        if (mode == null || !Set.of("DEFAULT_SYSTEM", "EXPLICIT_SYSTEM", "PRIVATE_USER").contains(mode)
+                || template.getTemplateType() != (privateUser ? com.cloud.storage.Storage.TemplateType.USER
+                        : com.cloud.storage.Storage.TemplateType.SYSTEM))
+            throw new InvalidParameterValueException("Clone template selection mode changed");
+        JsonObject pin = new JsonObject();
+        pin.addProperty("schemaVersion", 1);
+        pin.addProperty("selectionMode", mode);
+        pin.addProperty("templateUuid", template.getUuid());
+        pin.addProperty("templateChecksum", template.getChecksum());
+        pin.addProperty("templateDetailsSha256", StorageTemplateFixturePermit.detailsSha256(template));
+        pin.addProperty("zoneUuid", getJsonString(blueprint, "zoneid"));
+        pin.addProperty("hypervisor", template.getHypervisorType().name());
+        pin.addProperty("architecture", template.getArch().getType());
+        if (privateUser) {
+            String artifact = getJsonString(blueprint, "validationartifactuuid");
+            String digest = getJsonString(blueprint, "validationartifactsha256");
+            if (artifact == null || !artifact.matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}")
+                    || digest == null || !digest.matches("[a-f0-9]{64}"))
+                throw new InvalidParameterValueException("Clone private template approval is unavailable");
+            pin.addProperty("validationArtifactUuid", artifact);
+            pin.addProperty("validationArtifactSha256", digest);
+        }
+        return pin;
+    }
+
+    private void requireConfigurationCloneTemplatePinSchema(JsonObject pin) {
+        if (pin == null || !pin.has("schemaVersion") || !pin.get("schemaVersion").isJsonPrimitive()
+                || !pin.get("schemaVersion").getAsJsonPrimitive().isNumber() || !"1".equals(pin.get("schemaVersion").getAsString()))
+            throw new InvalidParameterValueException("Clone template pin requires server integer schema one");
+        Set<String> fields = new HashSet<>(Set.of("schemaVersion", "selectionMode", "templateUuid", "templateChecksum",
+                "templateDetailsSha256", "zoneUuid", "hypervisor", "architecture"));
+        JsonElement modeValue = pin.get("selectionMode");
+        if (modeValue == null || !modeValue.isJsonPrimitive() || !modeValue.getAsJsonPrimitive().isString())
+            throw new InvalidParameterValueException("Clone template pin selection mode type is invalid");
+        String mode = modeValue.getAsString();
+        if (!Set.of("DEFAULT_SYSTEM", "EXPLICIT_SYSTEM", "PRIVATE_USER").contains(mode))
+            throw new InvalidParameterValueException("Clone template pin selection mode is invalid");
+        if ("PRIVATE_USER".equals(mode)) fields.addAll(Set.of("validationArtifactUuid", "validationArtifactSha256"));
+        if (!pin.keySet().equals(fields)) throw new InvalidParameterValueException("Clone template pin fields changed");
+        for (String field : fields) if (!"schemaVersion".equals(field)) {
+            JsonElement value = pin.get(field);
+            if (value == null || !value.isJsonPrimitive() || !value.getAsJsonPrimitive().isString() || value.getAsString().isBlank())
+                throw new InvalidParameterValueException("Clone template pin field type is invalid");
+        }
+        String uuidPattern = "[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}";
+        if (!getJsonString(pin, "templateUuid").matches(uuidPattern) || !getJsonString(pin, "zoneUuid").matches(uuidPattern)
+                || !getJsonString(pin, "templateDetailsSha256").matches("[a-f0-9]{64}")
+                || !"KVM".equals(getJsonString(pin, "hypervisor"))
+                || "PRIVATE_USER".equals(mode) && (!getJsonString(pin, "validationArtifactUuid").matches(uuidPattern)
+                        || !getJsonString(pin, "validationArtifactSha256").matches("[a-f0-9]{64}")))
+            throw new InvalidParameterValueException("Clone template pin identity or digest is invalid");
+    }
+
+    protected void requireConfigurationCloneTemplatePin(JsonObject blueprint, JsonObject pin, StorageServiceInstanceVO createdTarget) {
+        requireConfigurationAdministrator();
+        requireConfigurationCloneTemplatePinSchema(pin);
+        if (!java.util.Objects.equals(getJsonString(blueprint, "templateid"), getJsonString(pin, "templateUuid")))
+            throw new InvalidParameterValueException("Clone requires its reviewed template pin");
+        DataCenterVO zone = dataCenterDao.findByUuid(getJsonString(blueprint, "zoneid"));
+        if (zone == null) throw new InvalidParameterValueException("Clone template zone is unavailable");
+        String mode = getJsonString(pin, "selectionMode");
+        if (createdTarget == null && "DEFAULT_SYSTEM".equals(mode)) {
+            com.cloud.storage.VMTemplateVO current = rootUpgradeTemplateDao.findSystemVMReadyTemplate(zone.getId(),
+                    com.cloud.hypervisor.Hypervisor.HypervisorType.KVM,
+                    com.cloud.resource.ResourceManager.SystemVmPreferredArchitecture.valueIn(zone.getId()));
+            if (current == null || !java.util.Objects.equals(current.getUuid(), getJsonString(pin, "templateUuid")))
+                throw new InvalidParameterValueException("Clone default template changed after planning; a new dry-run is required");
+        }
+        com.cloud.storage.VMTemplateVO template = rootUpgradeTemplateDao.findByUuid(getJsonString(pin, "templateUuid"));
+        if (template != null) rootUpgradeTemplateDao.loadDetails(template);
+        if (!pin.equals(configurationCloneTemplatePin(blueprint, template, mode)))
+            throw new InvalidParameterValueException("Clone template checksum or metadata changed after planning");
+        if (createdTarget == null) preflightConfigurationNewService(blueprint);
+        else configurationCloneCreatedTemplateBinding(createdTarget, pin);
+    }
+
+    protected JsonObject configurationCloneCreatedTemplateBinding(StorageServiceInstanceVO target, JsonObject pin) {
+        if (target == null || target.getVmId() == null)
+            throw new InvalidParameterValueException("Clone realized VM is unavailable");
+        com.cloud.storage.VMTemplateVO template = rootUpgradeTemplateDao.findByUuid(getJsonString(pin, "templateUuid"));
+        com.cloud.vm.UserVmVO vm = rootUpgradeVmDao.findById(target.getVmId());
+        org.apache.cloudstack.storage.sharedfs.SharedFSVO shared = sharedFSDao.findByVm(target.getVmId());
+        List<VolumeVO> roots = volumeDao.findByInstanceAndType(target.getVmId(), com.cloud.storage.Volume.Type.ROOT).stream()
+                .filter(volume -> volume.getRemoved() == null).collect(java.util.stream.Collectors.toList());
+        if (template == null || vm == null || shared == null || roots.size() != 1
+                || vm.getRemoved() != null || vm.getId() != target.getVmId() || vm.getTemplateId() != template.getId()
+                || vm.getAccountId() != target.getAccountId() || vm.getDataCenterId() != target.getDataCenterId()
+                || shared.getAccountId() != target.getAccountId() || shared.getDataCenterId() != target.getDataCenterId()
+                || !java.util.Objects.equals(shared.getVmId(), target.getVmId()))
+            throw new InvalidParameterValueException("Clone realized VM or template binding changed");
+        VolumeVO root = roots.get(0);
+        if (root.getState() != com.cloud.storage.Volume.State.Ready
+                || !java.util.Objects.equals(root.getInstanceId(), target.getVmId())
+                || !java.util.Objects.equals(root.getTemplateId(), template.getId())
+                || root.getAccountId() != target.getAccountId() || root.getDataCenterId() != target.getDataCenterId()
+                || "PRIVATE_USER".equals(getJsonString(pin, "selectionMode")) && template.getAccountId() != target.getAccountId())
+            throw new InvalidParameterValueException("Clone realized ROOT ownership or template changed");
+        JsonObject binding = new JsonObject();
+        binding.addProperty("targetInstanceUuid", target.getUuid());
+        binding.addProperty("vmUuid", vm.getUuid());
+        binding.addProperty("rootVolumeUuid", root.getUuid());
+        binding.addProperty("accountId", target.getAccountId());
+        binding.addProperty("zoneId", target.getDataCenterId());
+        binding.add("templatePin", pin.deepCopy());
+        return binding;
+    }
+
+    protected JsonObject configurationCloneFailedTemplateProvenance(StorageServiceInstanceVO target, JsonObject pin, String artifactUuid) {
+        JsonObject provenance = new JsonObject();
+        provenance.addProperty("schemaVersion", 1);
+        provenance.addProperty("kind", "CLONE_TEMPLATE_BINDING_FAILURE_PROVENANCE");
+        provenance.addProperty("artifactUuid", artifactUuid);
+        provenance.addProperty("targetInstanceUuid", target.getUuid());
+        provenance.addProperty("vmId", target.getVmId());
+        provenance.addProperty("accountId", target.getAccountId());
+        provenance.addProperty("zoneId", target.getDataCenterId());
+        provenance.add("templatePin", pin.deepCopy());
+        provenance.addProperty("rootIdentityCaptured", false);
+        if (target.getVmId() == null) return provenance;
+        try {
+            com.cloud.vm.UserVmVO vm = rootUpgradeVmDao.findById(target.getVmId());
+            org.apache.cloudstack.storage.sharedfs.SharedFSVO shared = sharedFSDao.findByVm(target.getVmId());
+            List<VolumeVO> roots = volumeDao.findByInstanceAndType(target.getVmId(), com.cloud.storage.Volume.Type.ROOT).stream()
+                    .filter(volume -> volume.getRemoved() == null).collect(java.util.stream.Collectors.toList());
+            if (vm == null || shared == null || roots.size() != 1 || vm.getRemoved() != null
+                    || vm.getId() != target.getVmId() || vm.getAccountId() != target.getAccountId()
+                    || vm.getDataCenterId() != target.getDataCenterId() || shared.getAccountId() != target.getAccountId()
+                    || shared.getDataCenterId() != target.getDataCenterId() || !java.util.Objects.equals(shared.getVmId(), target.getVmId())) return provenance;
+            VolumeVO root = roots.get(0);
+            if (!java.util.Objects.equals(root.getInstanceId(), target.getVmId()) || root.getTemplateId() == null
+                    || root.getAccountId() != target.getAccountId() || root.getDataCenterId() != target.getDataCenterId()
+                    || StringUtils.isBlank(vm.getUuid()) || StringUtils.isBlank(root.getUuid())) return provenance;
+            provenance.addProperty("rootIdentityCaptured", true);
+            provenance.addProperty("vmUuid", vm.getUuid());
+            provenance.addProperty("rootVolumeUuid", root.getUuid());
+            provenance.addProperty("vmTemplateId", vm.getTemplateId());
+            provenance.addProperty("rootTemplateId", root.getTemplateId());
+        } catch (RuntimeException unavailable) {
+            provenance.addProperty("rootIdentityCaptured", false);
+            for (String field : Set.of("vmUuid", "rootVolumeUuid", "vmTemplateId", "rootTemplateId")) provenance.remove(field);
+            // Preserve target provenance even when the failed binding observation itself is unavailable.
+        }
+        return provenance;
+    }
+
+    protected JsonObject reviewConfigurationCloneFailedTemplateBinding(StorageServiceInstanceVO target, JsonObject pin,
+            JsonObject provenance, String artifactUuid) {
+        requireConfigurationAdministrator();
+        requireConfigurationCloneTemplatePinSchema(pin);
+        Set<String> fields = Set.of("schemaVersion", "kind", "artifactUuid", "targetInstanceUuid", "vmId", "accountId", "zoneId",
+                "templatePin", "rootIdentityCaptured", "vmUuid", "rootVolumeUuid", "vmTemplateId", "rootTemplateId");
+        if (provenance == null || !provenance.keySet().equals(fields)
+                || !provenance.get("schemaVersion").isJsonPrimitive() || !provenance.get("schemaVersion").getAsJsonPrimitive().isNumber()
+                || !"1".equals(provenance.get("schemaVersion").getAsString())
+                || !"CLONE_TEMPLATE_BINDING_FAILURE_PROVENANCE".equals(getJsonString(provenance, "kind"))
+                || !artifactUuid.equals(getJsonString(provenance, "artifactUuid"))
+                || !target.getUuid().equals(getJsonString(provenance, "targetInstanceUuid"))
+                || !pin.equals(provenance.get("templatePin")) || !Boolean.TRUE.equals(getNativeBoolean(provenance, "rootIdentityCaptured")))
+            throw new InvalidParameterValueException("Clone binding recovery lacks its original creation provenance");
+        for (String field : Set.of("vmId", "accountId", "zoneId", "vmTemplateId", "rootTemplateId")) {
+            JsonElement value = provenance.get(field);
+            if (!value.isJsonPrimitive() || !value.getAsJsonPrimitive().isNumber() || !value.getAsString().matches("[1-9][0-9]*"))
+                throw new InvalidParameterValueException("Clone binding recovery provenance type changed");
+        }
+        if (provenance.get("vmId").getAsLong() != target.getVmId()
+                || provenance.get("accountId").getAsLong() != target.getAccountId()
+                || provenance.get("zoneId").getAsLong() != target.getDataCenterId())
+            throw new InvalidParameterValueException("Clone binding recovery target scope changed");
+        JsonObject binding = configurationCloneCreatedTemplateBinding(target, pin);
+        com.cloud.storage.VMTemplateVO template = rootUpgradeTemplateDao.findByUuid(getJsonString(pin, "templateUuid"));
+        if (!java.util.Objects.equals(binding.get("vmUuid"), provenance.get("vmUuid"))
+                || !java.util.Objects.equals(binding.get("rootVolumeUuid"), provenance.get("rootVolumeUuid"))
+                || provenance.get("vmTemplateId").getAsLong() != template.getId()
+                || provenance.get("rootTemplateId").getAsLong() != template.getId())
+            throw new InvalidParameterValueException("Clone binding recovery cannot adopt another ROOT or template");
+        return binding;
+    }
+
     protected void preflightConfigurationNewService(JsonObject blueprint) {
         configurationSharedFsService.preflightSharedFS(configurationCreateCommand(blueprint));
     }

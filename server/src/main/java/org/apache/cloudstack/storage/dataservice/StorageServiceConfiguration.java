@@ -362,6 +362,10 @@ public final class StorageServiceConfiguration {
         }
         return response(result, row.getUuid());
     }
+    private JsonObject pinRequestedConfigurationCloneTemplate(JsonObject blueprint, boolean adSource) {
+        if (adSource) manager.requireFreshStorageIdentityTemplateBlueprint(blueprint);
+        return manager.pinConfigurationCloneTemplate(blueprint);
+    }
     private StorageServiceConfigArtifactResponse plan(StorageServiceInstanceVO source, StorageConfigRequest request) {
         StorageConfigArtifactVO row = row(source, request);
         if (!Set.of("BACKUP", "IMPORT", "RESTORE_POINT").contains(row.getKind())
@@ -376,14 +380,15 @@ public final class StorageServiceConfiguration {
         String snapshot = manager.captureConfigurationSnapshot(target.getId());
         Map<String, byte[]> current = StorageConfigSemantic.export(snapshot, manager.configurationInstanceMetadata(target), manager.configurationVolumeMetadata(snapshot));
         long revision = revision(target.getId());String targetUuid = target.getUuid();JsonObject blueprint = null;
-        JsonObject allocationPlan = null;
+        JsonObject allocationPlan = null;JsonObject cloneTemplatePin = null;JsonObject recoveredTemplateReview = null;
         JsonObject metadata = metadata(row);
         JsonObject requestedVolumeMapping = new JsonObject();
         if ("CREATE_NEW".equals(mode)) {
             if (!mappings.has("createNew") || !mappings.get("createNew").isJsonObject()) throw new InvalidParameterValueException("New-service blueprint requires explicit zone/network/offering/storage mapping");
-            blueprint = mappings.getAsJsonObject("createNew");
-            if(sourceAuthority!=null)manager.requireFreshStorageIdentityTemplateBlueprint(blueprint);
-            if (!metadata.has("createdTargetInstanceUuid")) manager.preflightConfigurationNewService(blueprint);
+            // Keep the caller mapping unchanged; only the server-owned blueprint receives a resolved template ID.
+            blueprint = mappings.getAsJsonObject("createNew").deepCopy();
+            if (metadata.has("createdTargetInstanceUuid") && sourceAuthority != null)
+                manager.requireFreshStorageIdentityTemplateBlueprint(blueprint);
             for (String field : new String[] {"createNew", "volumes", "newVolumes", "initialVolumeSourceUuid", "runtimeBundleUuid"}) {
                 if (mappings.has(field)) requestedVolumeMapping.add(field, mappings.get(field).deepCopy());
             }
@@ -395,10 +400,20 @@ public final class StorageServiceConfiguration {
                 if (!requestedVolumeMapping.equals(metadata.get("requestedVolumeMapping")) || !previous.has("volumeAllocationPlan")) {
                     throw new InvalidParameterValueException("A partially created clone must retain its exact reviewed allocation scope and mapping");
                 }
+                blueprint = previous.getAsJsonObject("createNew").deepCopy();
+                cloneTemplatePin = previous.has("cloneTemplatePin") ? previous.getAsJsonObject("cloneTemplatePin").deepCopy() : null;
+                StorageServiceInstanceVO created = manager.configurationInstanceByUuid(metadata.get("createdTargetInstanceUuid").getAsString());
+                manager.requireConfigurationCloneTemplatePin(blueprint, cloneTemplatePin, created);
+                if (metadata.has("createdTargetTemplateBinding")) {
+                    if (!metadata.get("createdTargetTemplateBinding").equals(manager.configurationCloneCreatedTemplateBinding(created, cloneTemplatePin)))
+                        throw new InvalidParameterValueException("Clone realized ROOT binding changed before review");
+                } else recoveredTemplateReview = manager.reviewConfigurationCloneFailedTemplateBinding(created, cloneTemplatePin,
+                        metadata.has("createdTargetTemplateBindingFailure") ? metadata.getAsJsonObject("createdTargetTemplateBindingFailure") : null, row.getUuid());
                 allocationPlan = previous.getAsJsonObject("volumeAllocationPlan").deepCopy();
                 StorageConfigurationVolumePlan.requireFrozen(allocationPlan);
                 targetUuid = previous.get("targetInstanceUuid").getAsString();
             } else {
+                cloneTemplatePin = pinRequestedConfigurationCloneTemplate(blueprint, sourceAuthority != null);
                 String namespace = metadata.has("allocationNamespace") ? metadata.get("allocationNamespace").getAsString() : UUID.randomUUID().toString();
                 targetUuid = metadata.has("plannedTargetInstanceUuid") ? metadata.get("plannedTargetInstanceUuid").getAsString() : UUID.randomUUID().toString();
                 allocationPlan = manager.buildConfigurationVolumePlan(archive, mappings, row, namespace, targetUuid);
@@ -426,6 +441,7 @@ public final class StorageServiceConfiguration {
             plan.add("initialVolumeSourceUuid", mappings.get("initialVolumeSourceUuid").deepCopy());
             plan.add("volumeAllocationPlan", allocationPlan.deepCopy());
             plan.add("cloneRuntimePin",manager.configurationCloneRuntimePin(mappings.get("runtimeBundleUuid").getAsString()));
+            plan.add("cloneTemplatePin", cloneTemplatePin.deepCopy());
         }
         if(sourceAuthority!=null){
             JsonObject descriptor=sourceAuthority.getAsJsonObject("descriptor");
@@ -458,6 +474,7 @@ public final class StorageServiceConfiguration {
         if (metadata.has("createdTargetInstanceUuid")) {
             // Repeat review retains domain identities too; partially created resources cannot be rebound by a new plan.
             plan = metadata.getAsJsonObject("plan").deepCopy();
+            if (recoveredTemplateReview != null) plan.add("reviewedCreatedTargetTemplateBinding", recoveredTemplateReview.deepCopy());
         }
         metadata.add("plan", plan);
         String token = UUID.randomUUID().toString() + UUID.randomUUID().toString();JsonObject capability = new JsonObject();
@@ -509,13 +526,39 @@ public final class StorageServiceConfiguration {
         } else if(sourceAuthority!=null)throw new InvalidParameterValueException("AD source requires a newly reviewed protected restore plan");
         boolean createNew="CREATE_NEW".equals(plan.get("targetMode").getAsString());
         if(createNew&&(!plan.has("cloneRuntimePin")||!manager.configurationCloneRuntimePin(plan.get("runtimeBundleUuid").getAsString()).equals(plan.get("cloneRuntimePin"))))throw new InvalidParameterValueException("Clone signed source/runtime pin changed before capability consumption");
-        if(createNew&&sourceAuthority!=null)manager.requireFreshStorageIdentityTemplateBlueprint(plan.getAsJsonObject("createNew"));
+        if (createNew && sourceAuthority != null) {
+            manager.requireFreshStorageIdentityTemplateBlueprint(plan.getAsJsonObject("createNew"));
+            if (!plan.has("cloneTemplatePin") || "DEFAULT_SYSTEM".equals(plan.getAsJsonObject("cloneTemplatePin").get("selectionMode").getAsString()))
+                throw new InvalidParameterValueException("AD clone requires its explicitly reviewed fresh identity template");
+        }
         final StorageServiceInstanceVO existingTarget=createNew?null:manager.configurationInstanceByUuid(plan.get("targetInstanceUuid").getAsString());
         JsonObject credentials = request.getCredentials() == null ? new JsonObject() : new com.google.gson.JsonParser().parse(request.getCredentials()).getAsJsonObject();
         StorageConfigRestorePlan.requireCredentials(plan.getAsJsonArray("requiredCredentials"), credentials);
+        JsonObject recoveredTemplateBinding = null;
+        if (createNew) {
+            StorageServiceInstanceVO created = metadata.has("createdTargetInstanceUuid")
+                    ? manager.configurationInstanceByUuid(metadata.get("createdTargetInstanceUuid").getAsString()) : null;
+            JsonObject templatePin = plan.has("cloneTemplatePin") ? plan.getAsJsonObject("cloneTemplatePin") : null;
+            manager.requireConfigurationCloneTemplatePin(plan.getAsJsonObject("createNew"), templatePin, created);
+            if (created != null) {
+                if (metadata.has("createdTargetTemplateBinding")) {
+                    if (!metadata.get("createdTargetTemplateBinding").equals(manager.configurationCloneCreatedTemplateBinding(created, templatePin)))
+                        throw new InvalidParameterValueException("Clone realized ROOT binding changed before capability consumption");
+                } else {
+                    recoveredTemplateBinding = manager.reviewConfigurationCloneFailedTemplateBinding(created, templatePin,
+                            metadata.has("createdTargetTemplateBindingFailure") ? metadata.getAsJsonObject("createdTargetTemplateBindingFailure") : null, row.getUuid());
+                    if (!plan.has("reviewedCreatedTargetTemplateBinding") || !recoveredTemplateBinding.equals(plan.get("reviewedCreatedTargetTemplateBinding")))
+                        throw new InvalidParameterValueException("Clone binding recovery requires a fresh explicit reviewed plan");
+                }
+            }
+        }
         // Consume the capability under the artifact lock BEFORE allocating any Cloud resource.
         // A failed preparation retains its explicit target provenance and requires a fresh review.
         metadata.remove("planToken");metadata.addProperty("planState", "CONSUMED");
+        if (recoveredTemplateBinding != null) {
+            metadata.add("createdTargetTemplateBinding", recoveredTemplateBinding.deepCopy());
+            metadata.addProperty("createdTargetTemplateBindingRecoveredByReviewedPlan", true);
+        }
         metadata.addProperty("restoreState", "PREPARING");update(row, metadata, row.getState());
         try {
         StorageServiceInstanceVO selectedTarget = existingTarget;
@@ -530,10 +573,25 @@ public final class StorageServiceConfiguration {
             StorageConfigurationVolumePlan.requireFrozen(plan.getAsJsonObject("volumeAllocationPlan"));
             if (metadata.has("createdTargetInstanceUuid")) selectedTarget = manager.configurationInstanceByUuid(metadata.get("createdTargetInstanceUuid").getAsString());
             else {
-                manager.preflightConfigurationNewService(plan.getAsJsonObject("createNew"));
+                manager.requireConfigurationCloneTemplatePin(plan.getAsJsonObject("createNew"), plan.getAsJsonObject("cloneTemplatePin"), null);
                 selectedTarget = manager.createConfigurationNewService(plan.getAsJsonObject("createNew"));
-                metadata.addProperty("createdTargetInstanceUuid", selectedTarget.getUuid());metadata.addProperty("restoreState", "TARGET_CREATED");update(row, metadata, row.getState());
+                JsonObject realizedTemplate;
+                try { realizedTemplate = manager.configurationCloneCreatedTemplateBinding(selectedTarget, plan.getAsJsonObject("cloneTemplatePin")); }
+                catch (RuntimeException bindingFailure) {
+                    metadata.addProperty("createdTargetInstanceUuid", selectedTarget.getUuid());
+                    metadata.add("createdTargetTemplateBindingFailure", manager.configurationCloneFailedTemplateProvenance(
+                            selectedTarget, plan.getAsJsonObject("cloneTemplatePin"), row.getUuid()));
+                    metadata.addProperty("restoreState", "TARGET_TEMPLATE_BINDING_RECOVERY_REQUIRED");update(row, metadata, row.getState());
+                    throw bindingFailure;
+                }
+                // Publish the target UUID and verified binding atomically in the same artifact metadata update.
+                metadata.addProperty("createdTargetInstanceUuid", selectedTarget.getUuid());
+                metadata.add("createdTargetTemplateBinding", realizedTemplate.deepCopy());
+                metadata.addProperty("restoreState", "TARGET_CREATED");update(row, metadata, row.getState());
             }
+            JsonObject realizedTemplate = manager.configurationCloneCreatedTemplateBinding(selectedTarget, plan.getAsJsonObject("cloneTemplatePin"));
+            if (!metadata.has("createdTargetTemplateBinding") || !realizedTemplate.equals(metadata.get("createdTargetTemplateBinding")))
+                throw new InvalidParameterValueException("Clone realized ROOT or template differs from its preserved target");
             if (!plan.get("runtimeBundleUuid").getAsString().equals(metadata.has("runtimePreparedBundleUuid") ? metadata.get("runtimePreparedBundleUuid").getAsString() : null)) {
                 manager.upgradeConfigurationNewServiceRuntime(selectedTarget, plan.get("runtimeBundleUuid").getAsString());
                 metadata.add("runtimePreparedBundleUuid", plan.get("runtimeBundleUuid").deepCopy());
@@ -567,7 +625,8 @@ public final class StorageServiceConfiguration {
             metadata.addProperty("restoreState", "COMPLETE");metadata.addProperty("restoredAt", System.currentTimeMillis());
             updateRestoredArtifact(row, metadata);return response(compactRow(row), row.getUuid());
         } catch (RuntimeException failure) {
-            metadata.addProperty("restoreState", "FAILED");
+            metadata.addProperty("restoreState", metadata.has("createdTargetInstanceUuid") && !metadata.has("createdTargetTemplateBinding")
+                    ? "TARGET_TEMPLATE_BINDING_RECOVERY_REQUIRED" : "FAILED");
             metadata.addProperty("errorCode", "CONFIG_RESTORE_FAILED");
             update(row, metadata, row.getState());
             throw failure;
