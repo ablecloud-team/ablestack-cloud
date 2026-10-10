@@ -186,3 +186,17 @@ test('changed conditions invalidate automatic placement until the new lookup fin
   expect(wrapper.emitted('update:value').slice(-1)[0][0]).toEqual({ valid: true })
   wrapper.unmount()
 })
+
+test.each(['volumeid', 'snapshotid'])('%s without a template fetches pools and enables automatic or explicit placement', async sourceKey => {
+  const wrapper = mount()
+  const sourceQuery = { ...query, templateid: undefined, [sourceKey]: 'source' }
+  await wrapper.setProps({ query: sourceQuery })
+  jest.advanceTimersByTime(200)
+  await flushPromises()
+  expect(getAPI).toHaveBeenCalledWith('listDeploymentStoragePools', expect.objectContaining({ [sourceKey]: 'source' }))
+  expect(wrapper.vm.verified).toBe(true)
+  expect(wrapper.emitted('update:value').slice(-1)[0][0]).toEqual({ valid: true })
+  wrapper.vm.select(pool)
+  expect(wrapper.emitted('update:value').slice(-1)[0][0]).toEqual({ id: 'pool', name: 'Primary', valid: true })
+  wrapper.unmount()
+})
