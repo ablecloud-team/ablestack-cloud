@@ -1,0 +1,28 @@
+{
+  "sourceHead": "f817a1691acc7257644c163a9a8cfde309c7cbf4",
+  "sourceSha256": {
+    "systemvm/debian/usr/local/bin/ablestack-storagectl": "f9a2d5db19c7a4c45a94e9e6072cba598c4e913012cce0697087e34f5098b962",
+    "systemvm/test/TestStorageIscsiLifecycle.py": "b8b34adab47e0ffc8f1f16544bf3f867a03965c8e781c0a2bdad25e60d580507",
+    "plugins/hypervisors/kvm/src/main/java/com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapper.java": "148c36593c9bdaea005bbdde2d8040e9156e0a77155ccca78f23bc1207968f92",
+    "plugins/hypervisors/kvm/src/test/java/com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapperTest.java": "2245235f3912d3c82f66b22f1936d23762d645cf0a8220622ceff7229ca30130"
+  },
+  "ownedPaths": [
+    "systemvm/debian/usr/local/bin/ablestack-storagectl",
+    "systemvm/test/TestStorageIscsiLifecycle.py",
+    "plugins/hypervisors/kvm/src/main/java/com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapper.java",
+    "plugins/hypervisors/kvm/src/test/java/com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapperTest.java"
+  ],
+  "sourceBeforeAfterEqual": true,
+  "focusedNativeTests": 6,
+  "focusedKvmTests": 22,
+  "focusedFES": 0,
+  "bashSyntaxPassed": true,
+  "producerConsumerProof": "/root/work/epic898-preparation/iscsi-safe-failure-diagnostics/focused-producer-consumer-proof.json",
+  "producerConsumerProofSha256": "1f9c49d2c8cfd50972b2d7c1b1e7de49be0feca8854e499da006c590aeb30cb5",
+  "productionFiles": 2,
+  "existingTestFiles": 2,
+  "mgtUiApiDdlChanged": false,
+  "actualEffects": 0,
+  "normalRunsPendingParentSourcePin": true,
+  "initialFocusedClasspathArgmaxError": "Repaired with public javac/java argument files; no source changes"
+}

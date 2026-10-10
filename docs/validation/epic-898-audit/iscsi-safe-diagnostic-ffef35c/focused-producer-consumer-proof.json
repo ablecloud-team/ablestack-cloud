@@ -1,0 +1,13 @@
+{
+  "producerConsumerPassed": true,
+  "privateOutputLeaked": false,
+  "guestEffects": 0,
+  "kind": "ISCSI_FAILURE_ACTUAL_SOURCE_COMPILED_CONSUMER_BRIDGE",
+  "nativeCliSourceSha256": "f9a2d5db19c7a4c45a94e9e6072cba598c4e913012cce0697087e34f5098b962",
+  "kvmSourceSha256": "148c36593c9bdaea005bbdde2d8040e9156e0a77155ccca78f23bc1207968f92",
+  "producerFixtureSha256": "7b68d594571b6fdaf5785873c6069bf0447fc6d0c69114930eda6727f7e0c287",
+  "compiledWrapperSha256": "2cd530e317b7e0b789e6b639b37ac62b2f2a03d51d7719b913a9517dabff7474",
+  "actualDefaultSubprocessAdapterUsed": true,
+  "syntheticTargetcliExecutable": true,
+  "actualClusterEffects": 0
+}
