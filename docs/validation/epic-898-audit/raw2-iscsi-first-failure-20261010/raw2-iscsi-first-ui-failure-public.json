@@ -1,0 +1,16 @@
+{
+  "kind": "FIRST_RAW2_ISCSI_NORMAL_UI_FAILURE",
+  "jobid": "5df6d362-60e4-471a-8ea8-31cf5dc59519",
+  "jobstatus": 2,
+  "jobresultcode": 530,
+  "operationUuid": "df1641b6-c42a-443c-8521-a47fa6dc8c4f",
+  "state": "RECOVERY_REQUIRED",
+  "iqn": "iqn.2026-10.local.epic898:f1-iscsi-raw20",
+  "lun": 0,
+  "existingVolumeUuid": "db3de2b7-5fcb-4cb5-a0aa-7ac41a161ffa",
+  "normalUiSubmissions": 1,
+  "chapAclSetupCalls": 0,
+  "rawIoCalls": 0,
+  "nvmeCalls": 0,
+  "maskedNativeError": "Failed to apply iSCSI desired state: Sensitive Storage Service command exit1; secret-bearing output omitted"
+}

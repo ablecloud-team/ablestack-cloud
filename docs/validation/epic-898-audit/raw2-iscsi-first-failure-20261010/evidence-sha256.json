@@ -1,0 +1,12 @@
+{
+  "actual-guarded-exact-create-public-proof.json": "30efcd6dc2491e7d8b79070e6ebfd6bed06a8dbf710c3d0fae39099f5112cffe",
+  "actual-guarded-ram-initializer-public-proof.json": "b65a697aa0c30198ee838473963866dd4f29ba54068f30bf684ea04fa54d8877",
+  "actual-selected-prefs-projection-public-proof.json": "3f83e7bbe62d8196aed790190e6187be414e41fe45dab211e82736aa7fbb8d56",
+  "iscsi-initializer-public-preconditions-v3.json": "a174f89482fe6f78becaeb6f7a3b29c54ed577b9a19c5227b58fa3019057a666",
+  "raw2-iscsi-existing-stored-reason-public.json": "1a8a5b52fb038150cd4ba0ecfb3b3e12c00158165f732fac82b436b33dbde436",
+  "raw2-iscsi-first-failure-blank-binding-public.json": "c30a4c3dd954004c53901a613edbdac6b8f9673d0929c3665f023e96bb80dd7e",
+  "raw2-iscsi-first-failure-preservation-public-proof.json": "e5a178cde438a36fc2beca7eddd376de79a4867e25c2949e1fa37c719c001a9b",
+  "raw2-iscsi-first-ui-failure-public.json": "5a468077d3d6b37f30af12627f730e6f8fcdff3e44f769ae0f7ee44263a63d47",
+  "raw2-iscsi-vendor-predicates-public.json": "dc265a58e72e4b7790a23fa73d6d75c1de8ba36a838dbabfc5b262185a69ca64",
+  "raw2-iscsi-vendor-stage-metadata-public.json": "295ac9eea83aa07b03d43b00013e10ccd200a30ea34c588f444cbe242fa594ba"
+}

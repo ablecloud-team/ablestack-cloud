@@ -1,0 +1,141 @@
+{
+  "actualReadonlyMetadataCalls": 1,
+  "exitCode": 0,
+  "hostLibvirtVersionNumeric": 11010000,
+  "kind": "READONLY_QGA_VERSION_MARKER_PROVIDER",
+  "metadata": {
+    "canonicalPublicProjection": {
+      "present": false
+    },
+    "constructorTargetcliApplyRollbackCalls": 0,
+    "importSpecPresence": {
+      "configshell_fb": true,
+      "gi": true,
+      "pyparsing": true,
+      "rtslib_fb": true,
+      "six": true,
+      "targetcli": true
+    },
+    "kernelRelease": "6.12.95+deb12-amd64",
+    "kind": "RAW2_ISCSI_VENDOR_STAGE_READONLY_METADATA",
+    "knownLogMetadata": [
+      {
+        "iscsiApplyCommandTimestampOnly": [
+          "2026-10-09T22:57:39+00:00",
+          "2026-10-09T22:57:40+00:00"
+        ],
+        "label": "storagectl",
+        "mtimeNs": 1791587845731449339,
+        "present": true,
+        "regularFile": true,
+        "rootOwned": true,
+        "sizeBytes": 1780572
+      },
+      {
+        "knownExceptionTokenCounts": {
+          "AttributeError": 0,
+          "ImportError": 0,
+          "ModuleNotFoundError": 0,
+          "PermissionError": 0,
+          "RTSLibBrokenLink": 0,
+          "RTSLibError": 0,
+          "TypeError": 0
+        },
+        "label": "targetcli",
+        "mtimeNs": 1791587845895451676,
+        "present": true,
+        "regularFile": true,
+        "rootOwned": true,
+        "sizeBytes": 29752434
+      }
+    ],
+    "modulePresence": {
+      "configfs": true,
+      "iscsi_target_mod": true,
+      "target_core_iblock": false,
+      "target_core_mod": true
+    },
+    "vendorCommandSignatures": [
+      {
+        "class": "UILUNs",
+        "fixedRaiseLiteralCount": 2,
+        "line": 1091,
+        "method": "ui_command_create",
+        "parameters": [
+          "self",
+          "storage_object",
+          "lun",
+          "add_mapped_luns"
+        ],
+        "source": "targetcli/ui_target.py",
+        "sourceSha256": "ce865bbb22b7346f2b9861b76d00ce83483b7e65cb1a4d310e636bb6ced91893"
+      },
+      {
+        "class": "UIBlockBackstore",
+        "fixedRaiseLiteralCount": 0,
+        "line": 558,
+        "method": "ui_command_create",
+        "parameters": [
+          "self",
+          "name",
+          "dev",
+          "readonly",
+          "wwn"
+        ],
+        "source": "targetcli/ui_backstore.py",
+        "sourceSha256": "a2608364bf4268e326107e77293c92ff97e144aaa7d1c079812f4a8d34f1b07b"
+      },
+      {
+        "class": "",
+        "fixedRaiseLiteralCount": 2,
+        "line": 378,
+        "method": "normalize_wwn",
+        "parameters": [
+          "wwn_types",
+          "wwn"
+        ],
+        "source": "rtslib_fb/utils.py",
+        "sourceSha256": "932295793387fe2844441aced6960e3ab27a2e74543f14a8c5f403fb21761fb1"
+      },
+      {
+        "class": "",
+        "fixedRaiseLiteralCount": 1,
+        "line": 415,
+        "method": "modprobe",
+        "parameters": [
+          "module"
+        ],
+        "source": "rtslib_fb/utils.py",
+        "sourceSha256": "932295793387fe2844441aced6960e3ab27a2e74543f14a8c5f403fb21761fb1"
+      },
+      {
+        "class": "Log",
+        "fixedRaiseLiteralCount": 0,
+        "line": 44,
+        "method": "__init__",
+        "parameters": [
+          "self",
+          "console_level",
+          "logfile",
+          "file_level"
+        ],
+        "source": "configshell_fb/log.py",
+        "sourceSha256": "c3402c8190da458f70764b54164e02f351a07b69fb80f3d21fe46849bdcca2d3"
+      },
+      {
+        "class": "Log",
+        "fixedRaiseLiteralCount": 0,
+        "line": 166,
+        "method": "error",
+        "parameters": [
+          "self",
+          "msg"
+        ],
+        "source": "configshell_fb/log.py",
+        "sourceSha256": "c3402c8190da458f70764b54164e02f351a07b69fb80f3d21fe46849bdcca2d3"
+      }
+    ],
+    "writesSignalsPrivateOutput": 0
+  },
+  "unknownAttemptRetriedOrKilled": false
+}
