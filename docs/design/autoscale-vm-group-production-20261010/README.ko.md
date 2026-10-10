@@ -19,15 +19,15 @@ under the License.
 
 # 오토스케일 VM 그룹 검토·테스트·프로덕션 보완 계획
 
-검토일: 2026-10-10. 기준 소스: `b274443dadefd9d802f42d136ef04fc85b1c1a25` (최신 upstream/ablestack-europa). 현재 단계는 **현황 검토 및 Epic/하위 이슈 계획 등록**이며 구현·배포·운영 인증은 아직 수행하지 않았다.
+검토일: 2026-10-10. 기준 소스: `b274443dadefd9d802f42d136ef04fc85b1c1a25` (최신 upstream/ablestack-europa). 2026-10-11 AS-01(#1347)의 구현·변경 모듈 빌드·31/32 배포·해당 범위 UI 검증을 완료했다. [검증 기록](AS-01-validation.ko.md)에 실제 환경·해시·제한을 기록했다. Epic 전체 프로덕션 판정은 후속 이슈 완료 후 수행한다.
 
 ## Epic 및 하위 이슈 추적
 
-Epic: [#1346](https://github.com/ablecloud-team/ablestack-cloud/issues/1346). 하위 이슈 9개는 모두 Open이며 GitHub의 실제 부모/하위 이슈 및 blocked-by 관계를 연결했다. 이 문서는 현재 이슈 범위를 기준으로 구현·검증 결과를 갱신하는 계획이다.
+Epic: [#1346](https://github.com/ablecloud-team/ablestack-cloud/issues/1346). 하위 이슈 9개에 GitHub의 실제 부모/하위 이슈 및 blocked-by 관계를 연결했다. AS-01은 완료했으며 나머지 8개는 Open이다. 이 문서는 현재 이슈 범위를 기준으로 구현·검증 결과를 갱신하는 계획이다.
 
 | 순서/키 | 이슈 | 우선순위 | 범위 | 직접 선행 이슈 | 상태 |
 |---|---|---|---|---|---|
-| AS-01 | [#1347](https://github.com/ablecloud-team/ablestack-cloud/issues/1347) | P0 | 생성 사전 검증·입력·권한 | 없음 | Open / 계획 |
+| AS-01 | [#1347](https://github.com/ablecloud-team/ablestack-cloud/issues/1347) | P0 | 생성 사전 검증·입력·권한 | 없음 | 완료 / 검증 기록 참조 |
 | AS-02 | [#1348](https://github.com/ablecloud-team/ablestack-cloud/issues/1348) | P0 | 다단계 생성·비동기 종료·실패 보상 | [#1347](https://github.com/ablecloud-team/ablestack-cloud/issues/1347) | Open / 계획 |
 | AS-04 | [#1350](https://github.com/ablecloud-team/ablestack-cloud/issues/1350) | P0 | 동시성·중지 경쟁·재시작 복구 | [#1348](https://github.com/ablecloud-team/ablestack-cloud/issues/1348) | Open / 계획 |
 | AS-03 | [#1349](https://github.com/ablecloud-team/ablestack-cloud/issues/1349) | P1 | 카운터·기간·쿨다운·정책 평가 | [#1347](https://github.com/ablecloud-team/ablestack-cloud/issues/1347) | Open / 계획 |
@@ -46,9 +46,9 @@ Epic: [#1346](https://github.com/ablecloud-team/ablestack-cloud/issues/1346). �
 - 장시간 운영 확인은 모든 기능 구현·기능 검증·최종 UI 통합 및 통합 기능 검증을 완료한 뒤 #1354의 마지막 단계에서만 수행한다. 앞선 개별 이슈의 완료 조건에 장시간 운영을 요구하지 않는다.
 - 장시간 단계는 이미 검증한 기능의 안정성 관찰 및 잔여 자원·인원 범위·반복 오류 확인을 수행한다. 장애 주입·경쟁·재시작·반복 확장/축소 기능 테스트는 그 전에 완료한다. 제안 24시간의 실제 관찰 기간은 최종 실행 계획에 명시한다.
 - 우선순위와 선행 관계에 따른 권장 단일 진행 순서는 **#1347 → #1348 → #1350 → #1349 → #1351 → #1352 → #1353 → #1355 → #1354**다. #1351(P0)은 #1349의 정책 평가 검증이 필요하므로 이를 먼저 완료한다.
-- 현재 첫 진행 대상은 #1347이며, 해당 이슈 완료 후 다음 후보는 #1348이다. 이번 절차 반영 단계에서는 기능 구현을 시작하지 않았다.
+- 현재 완료 대상은 #1347이며 다음 진행 대상은 #1348이다. 다음 이슈는 사용자 지시까지 대기한다.
 
-## 실제 확인 범위
+## 초기 검토 시 실제 확인 범위 (2026-10-10)
 
 - 31번 실제 Mold UI에서 한국어/다크 모드 목록, 저장하지 않은 생성 폼, 네트워크·카운터 조회, 임계값 0/-1 입력을 검토했다. 그룹 생성·기존 VM/LB 변경·삭제·호스트 재시작은 수행하지 않았다.
 - 31/32 관리자 기본 API 조회에서 그룹 0개, 각각 라우팅 호스트 3/3 Up, CLUSTER 풀 Up. 31 SharedMountPoint, 32 RBD다. 기존 승인 테스트 환경은 각각 GFS2/krbd이며 다음 실검증에서 실제 디스크 경로/드라이버와 pool 선택을 다시 대조한다.
@@ -191,7 +191,7 @@ Mold UI → Cloud API → AutoScaleManagerImpl → 상태/프로필/정책/통�
 - P0 전부 및 필수 기능/최종 UI 테스트 통과, 고아 자원/권한 우회/인원 범위 이탈/실패 은폐 0건. 지원 환경·미검증 provider·관찰 기간을 명시한다.
 - 수정한 Maven 모듈은 WSL ext4 소스에서 집중 테스트·패키징·필수 Checkstyle/RAT를 수행한다. UI 집중 테스트/린트/프로덕션 번들을 검증한다. 전체 Cloud 빌드/RPM은 명시 요청이 있을 때만 Actions로 수행하고 그 전에는 전체 CI 성공으로 보고하지 않는다.
 - 관리 JAR/필요 Agent 모듈과 UI는 검증한 동일 소스로 빌드한다. UI는 `/usr/share/cloudstack-management/webapp` 정적 자산만 갱신하며 WEB-INF/META-INF/config와 rollback 백업을 보존한다. 전후 서비스/HTTP200·hash·실제 브라우저 경로를 확인한다.
-- Epic은 UI 통합 및 최종 E2E까지 완료한 뒤 닫는다. 이번 단계는 계획 완료이며 Epic/하위 이슈는 Open으로 관리한다.
+- Epic은 UI 통합 및 최종 E2E까지 완료한 뒤 닫는다. 현재 AS-01만 완료했으며 Epic 및 나머지 하위 이슈는 Open으로 관리한다.
 
 ## 참고 근거
 
