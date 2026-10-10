@@ -1,0 +1,62 @@
+{
+  "kind": "PERMISSION_FF1_APPROVED_PUBLIC_TRUST_AND_PUBLICATION",
+  "localPayloadProofSha256": "b68ab9b490e3fb2b032ec3b42483dd26b4dac4290a9d49516ca32e5d82a5c305",
+  "management": {
+    "kind": "PERMISSION_FF1_MANAGEMENT_PUBLIC_TRUST_AND_PUBLICATION",
+    "managementJarAndUiIndexConfigPreserved": true,
+    "newKeyId": "epic898-test-iscsi-permission-ff1aa7",
+    "newTrustCount": 53,
+    "oldPublicTrustEntriesPreserved": true,
+    "oldTrustCount": 52,
+    "publicDirectory": "/usr/share/cloudstack-management/webapp/epic898-runtime-iscsi-permission-ff1aa7",
+    "publicFileCount": 5,
+    "publicSha256": "b546a683920dbf66146b9acb64871adf72572107c7eacb63664230218286fc57",
+    "restartCalls": 0,
+    "signatureVerified": true,
+    "success": true
+  },
+  "guest": {
+    "guestExitCode": 0,
+    "guestLaunches": 1,
+    "kind": "PERMISSION_FF1_F1_PUBLIC_TRUST_ISOLATED_PROVIDER",
+    "observation": {
+      "cliBootGen13AndPendingNoneVerified": true,
+      "kind": "PERMISSION_FF1_F1_PUBLIC_RUNTIME_TRUST_ADD",
+      "newTrustCount": 15,
+      "oldTrustCount": 14,
+      "oldTrustEntriesPreserved": true,
+      "publicSha256": "b546a683920dbf66146b9acb64871adf72572107c7eacb63664230218286fc57",
+      "sourceDataOrServiceActions": 0,
+      "success": true
+    }
+  },
+  "publicHttpFiveFiles": {
+    "ablestack-storage-runtime-epic898-iscsi-permission-ff1aa7-20261010.tar.gz": {
+      "status": 200,
+      "bytes": 400676,
+      "sha256": "194e81a61ab7b1d5df27a2137522fb5e574115ede9a4a71689aa991d7926267f"
+    },
+    "manifest.json": {
+      "status": 200,
+      "bytes": 1447,
+      "sha256": "5d41b3509f1f7e6738a8a7f4c3938ae5423f379daca541a46e83d8a49de14fe8"
+    },
+    "manifest.sig": {
+      "status": 200,
+      "bytes": 64,
+      "sha256": "4367bcc2a7ac16b1229be24c0014dbac12d2c1200d7df09bc7da770bd131e14c"
+    },
+    "epic898-test-iscsi-permission-ff1aa7.pem": {
+      "status": 200,
+      "bytes": 113,
+      "sha256": "b546a683920dbf66146b9acb64871adf72572107c7eacb63664230218286fc57"
+    },
+    "SHA256SUMS": {
+      "status": 200,
+      "bytes": 299,
+      "sha256": "8ec7b6a1cce3ffb21f284d2c5c3fe0c446bfe31a961bbde75ea05138f745fc99"
+    }
+  },
+  "catalogOrCodeApplyCalls": 0,
+  "privateKeyRegularFiles": 0
+}
