@@ -29,3 +29,15 @@ Patch SHA-256 171b02f722db8e3616afda8d12c71abe8fde220b36687fc3f22ff5f5d2a8a19a, 
 [업로드 검증](iscsi-permission-fix/upload-verify-only-public-result.json), [실제 반영 결과](iscsi-permission-fix/apply-once-public-result.json), [정확한 배포 묶음 검증](iscsi-permission-fix/local-delivery-proof.json).
 
 [정상 API 사후 자원 보존 proof](iscsi-permission-fix/post-ff1-normal-api-readiness-public-proof.json) SHA-256 e15abe4a3a58b78e7940b04068b0af82b02d51a1d6865d7e69b93035592af4dc. SSH 사후 proof SHA-256 a4f8fb57935b4352c93e5334136addb1eae2cec5364390417a353e74ca85fefe.
+
+## 서명 런타임 카탈로그
+
+정상 native480 소스·immutable와 일치하는 ENTRY3를 RAM 내 시험 키로 서명했다. 공개 archive SHA-256은 194e81a61ab7b1d5df27a2137522fb5e574115ede9a4a71689aa991d7926267f, manifest는 5d41b3509f1f7e6738a8a7f4c3938ae5423f379daca541a46e83d8a49de14fe8, 공개 키는 b546a683920dbf66146b9acb64871adf72572107c7eacb63664230218286fc57이다. 개인키의 일반 파일·argv·env·공개 출력 저장은 없고 descriptor를 닫았다.
+
+공개 파일 5개와 시험 공개 키만 추가해 관리 trust52→53, F1 trust14→15가 됐으며 모든 기존 키와 관리 JAR/UI/config 및 F1 c265/GEN13/BOOT를 보존했다. HTTP 200, 크기·해시 및 서명을 확인했다.
+
+실제 카탈로그 UI에서 f14582e9-9912-4dfa-8489-de5cca0a203f를 등록하고 VERIFIED 및 AVAILABLE로 전환했다. 검증 job95a44503-58d9-42b0-8726-b0ea88490428과 게시 jobc4740df4-4ac1-426c-812b-b7640b04d696은 모두 status1/result0이다. ABI1/schema1/serviceImpact NONE 및 공개 pin이 일치한다. 게스트 CODE 적용과 실제 권한 재시험은 후속이다.
+
+![실제 런타임 카탈로그 사용 가능 상태](iscsi-permission-fix/catalog-available.jpg)
+
+[로컬 서명 proof](iscsi-permission-fix/local-signed-payload-proof.json), [공개 신뢰 키·파일 게시](iscsi-permission-fix/actual-public-trust-publication-proof.json), [정상 UI 카탈로그 AVAILABLE proof](iscsi-permission-fix/catalog-available-public-proof.json).
