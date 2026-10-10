@@ -25,3 +25,11 @@ OWNED는 보호 artifact의 ownedDisposableFixture literaltrue·정확한 instan
 사후 SSH558bc와 정상 API22066은 클래스2와 모든 보존 기준, 호스트3Up·서비스8Running/FS8·VM21·volume33·F1operation40·카탈로그3·CODEaf2 COMPLETE 및 기존 참조 일치를 확인했다. 보호 artifact upload와 정상 프로필 configure는 후속이다. 실제 all4 writer는 아직 수행하지 않았다.
 
 [실제 두 클래스 반영](owned-all4-profile/apply-once-public-result.json), [정상 API 사후 자원 보존](owned-all4-profile/post-normal-api-readiness-public-proof.json).
+
+## 사용자 요청에 따른 현재 건 종료·중단
+
+기존 parentroot0755와 oldstores를 유지하고 새 보호 store leaf만 serviceUID985/GID 소유0700으로 준비했다. 제품StorageConfigArtifactStore.write/read의 b252 artifact2108B/0600 및 SHA 일치를 확인했다. 정상configure job4bd3fffe-8d63-4981-b114-72690df55ea7는 status2/result530, Fresh installed rendered generation handler proof is unavailable로 실패했다. CONFIGURED/profileRev1 성공을 주장하지 않는다. CAS 전 failure이므로 profile absent/revision0 유지 여부는 소스 추론으로 구분하며 추가DAO 확인하지 않았다.
+
+사용자가 현재 건 완료 후 중단을 요청해 재제출·추가 코드 진단·all4 verify·reconcile·다음 기능을 시작하지 않았다. 마지막 실제 읽기8b1b7417은 GEN30/9b1/BOOT·pending 없음·writer idle·모든 own 세션0·NVMe direct31a8/iSCSI4080·ROOT/FILE/NFS/SMB 및 제한 외구간 보존을 확인했다. 모든 실행 세션과 RAM 인증FD를 종료했다. #1275는 미착수다.
+
+[설정 실패](owned-all4-profile/normal-owned-b252-profile-configure-public-proof.json), [마지막 보존 확인](owned-all4-profile/after-profile-configure-preservation-public-proof.json), [에픽 중단 보고](20261010-epic898-stop-report.md).
