@@ -1,0 +1,25 @@
+{
+  "kind": "NORMAL_OWNED_PROFILE_CONFIGURE_ONCE",
+  "success": false,
+  "publicRequest": {
+    "command": "configureStorageRenderedValidationProfile",
+    "instanceid": "3480bb2c-99ee-42f2-91cf-715ded5dd35f",
+    "enabled": true,
+    "expectedprofilerevision": 0,
+    "confirmation": "epic898-s-b6aa-all4-f1-20261009",
+    "profileartifactuuid": "5f8eb0b5-c4e9-40af-bebc-103cc60a744f",
+    "profileartifactsha256": "b252aa1216bfde439be7891dbfa78d88e8b4d55b274045d5df00aa35ccf78533"
+  },
+  "dispatches": 1,
+  "verifyBaselineWriterCalls": 0,
+  "directPolicyDbWrites": 0,
+  "rawResponseOrErrorPrinted": false,
+  "startedAtKst": "2026-10-10T19:24:57.388541+09:00",
+  "jobId": "4bd3fffe-8d63-4981-b114-72690df55ea7",
+  "jobStatus": 2,
+  "jobResultCode": 530,
+  "safeErrorCode": 530,
+  "fixedReason": "Fresh installed rendered generation handler proof is unavailable",
+  "failureRawRetained": false,
+  "completedAtKst": "2026-10-10T19:25:30.803982+09:00"
+}
