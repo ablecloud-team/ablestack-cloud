@@ -18,10 +18,10 @@
 <template>
   <a-form layout="vertical" @submit.prevent="submit">
     <a-alert type="info" show-icon :message="$t('message.creation.source.import')" style="margin-bottom: 16px" />
-    <a-form-item :label="$t('label.path')" required>
-      <a-input v-model:value="path" :placeholder="$t('message.creation.source.import.path')" :disabled="loading" />
+    <a-form-item :label="$t('label.path')" html-for="import-volume-path" required>
+      <a-input id="import-volume-path" v-model:value="path" :placeholder="$t('message.creation.source.import.path')" :disabled="loading" />
     </a-form-item>
-    <a-form-item :label="$t('label.name')"><a-input v-model:value="name" :disabled="loading" /></a-form-item>
+    <a-form-item :label="$t('label.name')" html-for="import-volume-name"><a-input id="import-volume-name" v-model:value="name" :disabled="loading" /></a-form-item>
     <a-form-item :label="$t('label.diskoffering')">
       <infinite-scroll-select
 v-model:value="offering"

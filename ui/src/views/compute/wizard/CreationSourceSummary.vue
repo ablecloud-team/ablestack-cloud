@@ -23,7 +23,8 @@
     <p v-if="source.snapshotcreated">{{ $t('label.creation.source.restore.time') }}: {{ new Date(source.snapshotcreated).toLocaleString() }}</p>
     <p>ROOT · {{ (source.sizebytes / 1024 ** 3).toLocaleString() }} GiB · {{ source.sourceusage === 'adopt-existing' ? source.storage?.name || '—' : targetStorage.name || $t('label.vm.storage.auto') }}</p>
     <p v-if="source.sourceusage === 'adopt-existing' && source.storage?.clustername">{{ $t('label.cluster') }}: {{ source.storage.clustername }} · {{ source.storage.clusterid }}</p>
-    <p>{{ executionProfile.osname || $t('label.creation.source.os.unspecified') }} · {{ executionProfile.boottype || 'BIOS' }} · {{ executionProfile.bootmode || 'LEGACY' }}<br>{{ $t('label.creation.source.root.bus') }}: {{ executionProfile.rootbus || 'os-default' }}</p>
+    <p>{{ $t(executionProfile.mode === 'manual' ? 'label.creation.source.configuration.manual' : 'label.creation.source.configuration.inherit') }}</p>
+    <p>{{ executionProfile.osname || $t('label.creation.source.os.unspecified') }} · {{ executionProfile.boottype || 'BIOS' }} · {{ executionProfile.bootmode || 'LEGACY' }}<br>{{ $t('label.creation.source.root.bus') }}: {{ !executionProfile.rootbus || executionProfile.rootbus === 'os-default' ? $t('label.creation.source.controller.default') : executionProfile.rootbus }}</p>
     <p>{{ $t('label.creation.source.image.format') }}: {{ source.imageformat || '—' }} · {{ $t('label.creation.source.format.origin.' + (source.formatorigin || 'cloud-record')) }}</p>
     <p class="source-meta">{{ $t('message.creation.source.identity') }}</p>
     <p v-if="source.bootprofile?.provenance === 'legacy-template'" class="source-meta">{{ $t('message.creation.source.legacy') }}</p>

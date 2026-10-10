@@ -390,7 +390,7 @@
                   </div>
                 </template>
               </a-step>
-              <a-step v-if="imageType === 'snapshotid' && storageSelectionEnabled" :title="$t('label.vm.storage.root')" status="process">
+              <a-step v-if="(imageType === 'snapshotid' || selectedCreationSource?.sourceusage === 'stage-and-adopt') && storageSelectionEnabled" :title="$t('label.vm.storage.root')" status="process">
                 <template #description>
                   <deployment-storage-selection :title="$t('label.vm.storage.root')" v-model:value="rootStorageSelection" :query="rootStorageQuery" />
                 </template>
@@ -1503,7 +1503,7 @@ export default {
     creationSourceExecutionProfile () {
       return this.sourceConfiguration.mode === 'manual'
         ? { ...this.sourceConfiguration, osname: this.sourceConfiguration.osname || this.$t('label.creation.source.os.unspecified') }
-        : this.selectedCreationSource?.bootprofile || {}
+        : { ...this.selectedCreationSource?.bootprofile, mode: 'inherit' }
     },
     creationSourceConfigurationArgs () {
       if (!this.sourceConfiguration.mode) return {}

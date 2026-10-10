@@ -24,8 +24,8 @@
       </a-radio-group>
     </a-form-item>
     <template v-if="value.mode === 'manual'">
-      <a-form-item :label="$t('label.creation.source.os.declared')">
-        <a-select :value="value.ostypeid || ''" show-search :loading="loading" :filter-option="filterOs" @change="selectOs" :aria-label="$t('label.creation.source.os.declared')">
+      <a-form-item :label="$t('label.creation.source.os.declared')" html-for="creation-source-os">
+        <a-select id="creation-source-os" :value="value.ostypeid || ''" show-search :loading="loading" :filter-option="filterOs" @change="selectOs" :aria-label="$t('label.creation.source.os.declared')">
           <a-select-option value="">{{ $t('label.creation.source.os.unspecified') }}</a-select-option>
           <a-select-option v-for="os in operatingSystems" :key="os.id" :value="os.id">{{ os.description }}</a-select-option>
         </a-select>
@@ -38,8 +38,8 @@
         </a-radio-group>
       </a-form-item>
       <a-form-item v-if="value.boottype === 'UEFI'" :label="$t('label.bootmode')"><a-tag>LEGACY</a-tag></a-form-item>
-      <a-form-item :label="$t('label.creation.source.root.bus')">
-        <a-select :value="value.rootbus" @change="update({ rootbus: $event })" :aria-label="$t('label.creation.source.root.bus')">
+      <a-form-item :label="$t('label.creation.source.root.bus')" html-for="creation-source-root-bus">
+        <a-select id="creation-source-root-bus" :value="value.rootbus" @change="update({ rootbus: $event })" :aria-label="$t('label.creation.source.root.bus')">
           <a-select-option v-for="bus in ['os-default', 'virtio', 'scsi', 'sata', 'ide']" :key="bus" :value="bus">{{ bus === 'os-default' ? $t('label.creation.source.controller.default') : bus }}</a-select-option>
         </a-select>
       </a-form-item>
