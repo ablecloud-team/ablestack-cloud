@@ -28,3 +28,11 @@
 
 
 [정상 검증 proof](mutual-chap-ui-normal/normal-proof.json), [제한 자산 검토](mutual-chap-ui-normal/narrow-static-deploy-review.json), [배포 준비 proof](mutual-chap-ui-normal/deployment-preparation-proof.json).
+
+## 실제 UI 모듈 배포
+
+필요한 자산 6개를 한 번 반영했고 각 HTTP 응답 200, 크기 및 SHA-256 일치를 확인했다. 새 index SHA-256은 3dc40c928b5f1a3d52f721c97fa33567348702e1f2a92fdec1c3e46384a9fddd이며 백업은 /root/epic898-ui-mutual-chap-20a3c7c7-backup-20261010-145411-955ac3이다.
+
+Index를 마지막에 atomic 교체했고 config d3e의 symlink, WEB-INF, color.less, 기존 해시 자산, 런타임 공개 파일 및 다른 모든 웹 파일을 보존했다. 관리 JAR 935408/PID 1400221, 라이브러리 9개, 공개 신뢰 키 52개는 동일하며 재시작은 수행하지 않았다. 실제 브라우저 입력·검증 결과는 후속이다. 이 정적 배포 완료는 실제 상호 CHAP 인증 완료를 의미하지 않는다.
+
+[실제 선택 6개 자산 배포 proof](mutual-chap-ui-normal/actual-ui-mutual-six-apply-public-proof.json) SHA-256 a33ec55e89ce99b268632e410f90b2011ffee9d7652780708d586487ca17dcc9.
