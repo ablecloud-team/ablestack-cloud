@@ -1,0 +1,32 @@
+{
+  "kind": "FFEF_NORMAL_UI_CODE_CATALOG_AVAILABLE",
+  "registeredViaNormalUi": 1,
+  "verifiedViaNormalUi": 1,
+  "publishedAvailableViaNormalUi": 1,
+  "registeredAtUtc": "2026-10-10T03:07:34.710Z",
+  "observedAtUtc": "2026-10-10T03:11:28.273Z",
+  "actualUiApiReadback": {
+    "id": "051be815-6ff9-4552-a4cf-bd0abd728c33",
+    "version": "epic898-iscsi-safe-ffef35c-20261010",
+    "state": "AVAILABLE",
+    "sha256": "493b68b8077fb6c44f055de4be4ba02fa31237ae3d99570b0b4d9023b16e1a35",
+    "manifestsha256": "cff12f8adc2355f30e01bf2038858a71d5377b7f27eaf01fe1aa230d11ccba98",
+    "signingkeyid": "epic898-test-iscsi-safe-ffef35c",
+    "runtimeabiversion": "1",
+    "desiredstateschemaversion": "1",
+    "serviceimpact": "NONE",
+    "artifactsize": 398313,
+    "created": "2026-10-10T12:07:35+0900",
+    "catalogFieldNames": []
+  },
+  "localSignedPayloadProofSha256": "6a715607a13ff2ec6c8cf24b3739910a21bd74c2fc202148be32017b5e3ee961",
+  "actualTrustPublicationProofSha256": "5bb35899f4da71ff2412d20b50d94e7f10117aa5f5bd763ef0a0b8f993a50c11",
+  "sourcePin": "ffef35c4986fa140609e89e392295ced6e6b8a0b",
+  "sourceCliSha256": "f9a2d5db19c7a4c45a94e9e6072cba598c4e913012cce0697087e34f5098b962",
+  "installedF1CliStill19ad": true,
+  "codeApplyCalls": 0,
+  "sourceDataRootServiceOrIoActions": 0,
+  "systemAImageRegistrationCalls": 0,
+  "ui1275": "UNSTARTED",
+  "screenshotPath": "C:/Users/ablecloud/.codex/artifacts/epic898-current-500/ffef-code-catalog-available.jpg"
+}
