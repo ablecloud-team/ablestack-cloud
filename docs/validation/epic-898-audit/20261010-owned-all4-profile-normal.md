@@ -15,3 +15,13 @@ OWNED는 보호 artifact의 ownedDisposableFixture literaltrue·정확한 instan
 최종 UI 표준 #1275는 미착수다.
 
 [핵심22개](owned-all4-profile/focused-proof.json), [독립 검토](owned-all4-profile/independent-peer-final-public-proof.json), [정상994/130](owned-all4-profile/manager-normal-core-proof.json), [최종 소스·산출물](owned-all4-profile/final-normal-source-proof.json), [실제 의미2 클래스 호환성](owned-all4-profile/two-class-runtime-abi-review.json).
+
+## 실제 두 클래스 반영 및 사후 검증
+
+실제 현재 기준 f286/a5e 및 F1 guardian edbd의 GEN30·9b1·BOOT·pending 없음·writer idle·빈 세션과 direct31a8/iSCSI4080/기존 FILE을 확인했다. 배포 파일4개 업로드 검증620913 뒤 두 클래스를 한 번 반영하고 mold를 한 번 재기동했다.
+
+새 JAR SHA-256 fa751f36d1452a15ab84f56410554f29947412a8714ee64aa42c2dbbe32bb9db/PID1430252, 백업 /root/epic898-owned-all4-profile-978ec10a-backup-20261010-191630이다. changed2/new0이며 내부5·다른 논리 entry·Runtime3·라이브러리9·UI3495·config·trust53을 유지했다. 추가 반영·재시작·guest/CODE 변경은 없다.
+
+사후 SSH558bc와 정상 API22066은 클래스2와 모든 보존 기준, 호스트3Up·서비스8Running/FS8·VM21·volume33·F1operation40·카탈로그3·CODEaf2 COMPLETE 및 기존 참조 일치를 확인했다. 보호 artifact upload와 정상 프로필 configure는 후속이다. 실제 all4 writer는 아직 수행하지 않았다.
+
+[실제 두 클래스 반영](owned-all4-profile/apply-once-public-result.json), [정상 API 사후 자원 보존](owned-all4-profile/post-normal-api-readiness-public-proof.json).
