@@ -1,0 +1,49 @@
+{
+  "kind": "NORMAL_OWNED_PROFILE_PRIMARY_CORE",
+  "sourcePin": "978ec10a93af2e1176df6b7fe13bee19bc7e0f4f",
+  "processExitCode": 0,
+  "buildSuccess": true,
+  "actualXml": {
+    "tests": 994,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "suiteCount": 130,
+  "uniqueSelectors": 130,
+  "xmlFreshForCurrentRun": true,
+  "sourcePaths": 5041,
+  "sourceNulSha256": "08746010ab33d300e7c4d2a22914ae9da34ac1e4a9862fe527ca1ef922ad3cc0",
+  "sourceBeforeAfterSame": true,
+  "checkstylePassed": true,
+  "checkstyleEvidence": "normal reactor succeeded without skip; logs retained",
+  "immutablePrimaryClasses": [
+    {
+      "path": "/root/work/epic898-preparation/all4-owned-sparse-profile-prep/normal-preparation/immutable-module-outputs/server/classes/org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class",
+      "sha256": "7bbf1d6502b6a8b8467c16d54dd43221cf1791df2f2c85ec5a2144d7507b6792",
+      "bytes": 677907
+    },
+    {
+      "path": "/root/work/epic898-preparation/all4-owned-sparse-profile-prep/normal-preparation/immutable-module-outputs/server/classes/org/apache/cloudstack/storage/dataservice/StorageRenderedValidationProfile.class",
+      "sha256": "b21681e864541eb6d33353bb4479e42cde1202097b6c9aa65bf06a42bbc038a5",
+      "bytes": 6982
+    }
+  ],
+  "primaryManifestSha256": "d9912a76519dd4ddf8d755813f4296452d191436c84b443bbc882ef5b94fa5a7",
+  "immutableOutputRoot": "/root/work/epic898-preparation/all4-owned-sparse-profile-prep/normal-preparation/immutable-module-outputs",
+  "fullProductionOutputsPending": false,
+  "actualCalls": 0,
+  "nativeUiStandaloneReruns": 0,
+  "immutableProductionFiles": 3884,
+  "outputManifest": "/root/work/epic898-preparation/all4-owned-sparse-profile-prep/normal-preparation/module-output-manifest.json",
+  "outputManifestSha256": "5a05c6c74a810b354868de97781a0b61351dd5fb6c47a71cae5e2092b5e01d5f",
+  "productionDelta": "/root/work/epic898-preparation/all4-owned-sparse-profile-prep/normal-preparation/production-class-delta-vs-6f830.json",
+  "productionDeltaSha256": "3cb2aa8bbcad900ec6c589cd946d600629f189b30ba9433c5824d0d298ce8037",
+  "deltaCounts": {
+    "api": 0,
+    "server": 7,
+    "plugins/hypervisors/kvm": 0,
+    "plugins/storage/sharedfs/storagevm": 0
+  },
+  "outputScope": "4selectedmodule production classes+exact4.23 jars; old4.21/4.22 target jars excluded; no testclasses"
+}

@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "sourceHead": "77edbae2ed138336165792875d8eec43c7e7a593",
+  "candidateFiles": [
+    {
+      "relativePath": "server/src/main/java/org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.java",
+      "path": "/root/work/epic898-preparation/all4-owned-sparse-profile-prep/candidate/server/src/main/java/org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.java",
+      "sha256": "d37d24d27d235fbca500600d2c2645d4e9c16ea42e18ec3f1976e2f36da2197c",
+      "newFile": false
+    },
+    {
+      "relativePath": "server/src/main/java/org/apache/cloudstack/storage/dataservice/StorageRenderedValidationProfile.java",
+      "path": "/root/work/epic898-preparation/all4-owned-sparse-profile-prep/candidate/server/src/main/java/org/apache/cloudstack/storage/dataservice/StorageRenderedValidationProfile.java",
+      "sha256": "ed2e86457a3bc61331a986e4606b9c0ad1bccceabd0086272bda2f34880d8ff3",
+      "newFile": false
+    },
+    {
+      "relativePath": "server/src/test/java/org/apache/cloudstack/storage/dataservice/StorageRenderedValidationProfileTest.java",
+      "path": "/root/work/epic898-preparation/all4-owned-sparse-profile-prep/candidate/server/src/test/java/org/apache/cloudstack/storage/dataservice/StorageRenderedValidationProfileTest.java",
+      "sha256": "ae77eddabb558ea69861b61d5889a92b349e782f0ad1aede8764395f8c2026cb",
+      "newFile": false
+    },
+    {
+      "relativePath": "server/src/test/java/org/apache/cloudstack/storage/dataservice/StorageRenderedValidationAdmissionTest.java",
+      "path": "/root/work/epic898-preparation/all4-owned-sparse-profile-prep/candidate/server/src/test/java/org/apache/cloudstack/storage/dataservice/StorageRenderedValidationAdmissionTest.java",
+      "sha256": "e6a50146725a2d2e287421aef21e038189009d1aed3326f76d29c65dcab5533b",
+      "newFile": true
+    }
+  ],
+  "patchPath": "/root/work/epic898-preparation/all4-owned-sparse-profile-prep/owned-sparse-profile.patch",
+  "patchSha256": "21fb5b5499eb9a3dee75da5c5e18c6abda8f12047da1dcf5f35f47cda859a7dd"
+}

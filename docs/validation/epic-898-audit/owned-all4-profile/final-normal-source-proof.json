@@ -1,0 +1,155 @@
+{
+  "kind": "NORMAL_MANAGEMENT_OWNED_ALL4_PROFILE_VALIDATION",
+  "schemaVersion": 1,
+  "sourcePin": "978ec10a93af2e1176df6b7fe13bee19bc7e0f4f",
+  "buildRuns": 1,
+  "exitCode": 0,
+  "buildSuccess": true,
+  "elapsedSeconds": 156.625,
+  "checkstylePassed": true,
+  "selectors": 130,
+  "suites": 130,
+  "actualXml": {
+    "tests": 994,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "changedSuiteReports": [
+    {
+      "suite": "org.apache.cloudstack.storage.dataservice.StorageRenderedValidationProfileTest",
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "383e0400cc44cdee1c71ebd5b59beff966b561b4fdf804dda1d262f6bf4890cc"
+    },
+    {
+      "suite": "org.apache.cloudstack.storage.dataservice.StorageRenderedValidationAdmissionTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "25a2ca3b824bb4e8a0693754e1095f86a8f31f8c0c02a21bda960ef1dc27b26c"
+    }
+  ],
+  "xmlCurrentAndImmutable": true,
+  "sourceScope": [
+    "api",
+    "server",
+    "engine/schema",
+    "plugins/hypervisors/kvm",
+    "plugins/storage/sharedfs/storagevm",
+    "pom.xml"
+  ],
+  "sourceTrackedFiles": 5041,
+  "sourceNulSha256": "08746010ab33d300e7c4d2a22914ae9da34ac1e4a9862fe527ca1ef922ad3cc0",
+  "sourceBeforeAfterSame": true,
+  "archiveMatchesSource": true,
+  "archiveSha256": "1d1f72b3c6c2f85d7d074b636517e669b041a42c6ba5b6b250efa60a3142a278",
+  "source4": [
+    {
+      "path": "server/src/main/java/org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.java",
+      "sha256": "d37d24d27d235fbca500600d2c2645d4e9c16ea42e18ec3f1976e2f36da2197c",
+      "equalsFrozenCandidate": true
+    },
+    {
+      "path": "server/src/main/java/org/apache/cloudstack/storage/dataservice/StorageRenderedValidationProfile.java",
+      "sha256": "ed2e86457a3bc61331a986e4606b9c0ad1bccceabd0086272bda2f34880d8ff3",
+      "equalsFrozenCandidate": true
+    },
+    {
+      "path": "server/src/test/java/org/apache/cloudstack/storage/dataservice/StorageRenderedValidationProfileTest.java",
+      "sha256": "ae77eddabb558ea69861b61d5889a92b349e782f0ad1aede8764395f8c2026cb",
+      "equalsFrozenCandidate": true
+    },
+    {
+      "path": "server/src/test/java/org/apache/cloudstack/storage/dataservice/StorageRenderedValidationAdmissionTest.java",
+      "sha256": "e6a50146725a2d2e287421aef21e038189009d1aed3326f76d29c65dcab5533b",
+      "equalsFrozenCandidate": true
+    }
+  ],
+  "immutableRoot": "/root/work/epic898-preparation/all4-owned-sparse-profile-prep/normal-preparation/immutable-module-outputs",
+  "productionOutputFiles4Modules": 3884,
+  "productionManifestSha256": "5a05c6c74a810b354868de97781a0b61351dd5fb6c47a71cae5e2092b5e01d5f",
+  "primaryClasses": [
+    {
+      "path": "/root/work/epic898-preparation/all4-owned-sparse-profile-prep/normal-preparation/immutable-module-outputs/server/classes/org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class",
+      "sha256": "7bbf1d6502b6a8b8467c16d54dd43221cf1791df2f2c85ec5a2144d7507b6792",
+      "bytes": 677907
+    },
+    {
+      "path": "/root/work/epic898-preparation/all4-owned-sparse-profile-prep/normal-preparation/immutable-module-outputs/server/classes/org/apache/cloudstack/storage/dataservice/StorageRenderedValidationProfile.class",
+      "sha256": "b21681e864541eb6d33353bb4479e42cde1202097b6c9aa65bf06a42bbc038a5",
+      "bytes": 6982
+    }
+  ],
+  "classDeltaCounts": {
+    "api": 0,
+    "server": 7,
+    "plugins/hypervisors/kvm": 0,
+    "plugins/storage/sharedfs/storagevm": 0
+  },
+  "classDeltaSha256": "3cb2aa8bbcad900ec6c589cd946d600629f189b30ba9433c5824d0d298ce8037",
+  "engineSchemaImmutableFiles": 1367,
+  "engineSchemaManifestSha256": "68c7ebc022d91ae0ddda689faf6c02649b9c6d8f53652d7e502d77364b6c11c8",
+  "outputCountScope": "4module current production classes+exact4.23 mainjars; oldtarget/testjars excluded. Engine/schema1366classes+1currentmainjar separately counted",
+  "apiKvmStoragevmProductionClassDelta": 0,
+  "abiAndSemanticSelectedDeploymentOwner": "Backend; immutable classspace supplied, no duplicate Audit review",
+  "liveBaselineForBackend": "6f830 live1909/PID1413104 current ManagerCDE7+oldProfile; freshmetadataf286/APIa5e owned by Native/Backend",
+  "normalNativeTestsReused": 480,
+  "normalUiTestsReused": 373,
+  "standaloneNativeUiKvmReexecution": 0,
+  "actualCalls": 0,
+  "actualDeploy": 0,
+  "finalUi1275Started": false,
+  "sourceFreezeReleased": true,
+  "proofFiles": {
+    "manager-normal-process.json": {
+      "path": "/root/work/epic898-preparation/all4-owned-sparse-profile-prep/normal-preparation/manager-normal-process.json",
+      "sha256": "117f0d8bfe896dabc614d1bf622ff1009867595a170698d41d31de0547c62d0b"
+    },
+    "manager-normal.log": {
+      "path": "/root/work/epic898-preparation/all4-owned-sparse-profile-prep/normal-preparation/manager-normal.log",
+      "sha256": "5e4f988c1cd469dbd75f7a928d302139335ee67c7137ef65ebb82ce078f6df10"
+    },
+    "manager-source-before.json": {
+      "path": "/root/work/epic898-preparation/all4-owned-sparse-profile-prep/normal-preparation/manager-source-before.json",
+      "sha256": "82c56cb8091c72eccffc8ac31709faa112526d8e395c89e891e7f89ca70d8059"
+    },
+    "manager-source-after.json": {
+      "path": "/root/work/epic898-preparation/all4-owned-sparse-profile-prep/normal-preparation/manager-source-after.json",
+      "sha256": "3d94ce6bf85745b77d2d84cc9477ca4b4d2b31133b1589b1c2c9951a5146c39c"
+    },
+    "manager-reports-proof.json": {
+      "path": "/root/work/epic898-preparation/all4-owned-sparse-profile-prep/normal-preparation/manager-reports-proof.json",
+      "sha256": "ac216e4f9e0bb099c6dc926778b61cb220a551909a9f5f795ae568d3c66992d1"
+    },
+    "manager-normal-core-proof.json": {
+      "path": "/root/work/epic898-preparation/all4-owned-sparse-profile-prep/normal-preparation/manager-normal-core-proof.json",
+      "sha256": "9c19ca9ba514716060cb32c7a982e0ce62f3aaed3f99ce57ebe74f48d544cf62"
+    },
+    "module-output-manifest.json": {
+      "path": "/root/work/epic898-preparation/all4-owned-sparse-profile-prep/normal-preparation/module-output-manifest.json",
+      "sha256": "5a05c6c74a810b354868de97781a0b61351dd5fb6c47a71cae5e2092b5e01d5f"
+    },
+    "production-class-delta-vs-6f830.json": {
+      "path": "/root/work/epic898-preparation/all4-owned-sparse-profile-prep/normal-preparation/production-class-delta-vs-6f830.json",
+      "sha256": "3cb2aa8bbcad900ec6c589cd946d600629f189b30ba9433c5824d0d298ce8037"
+    },
+    "engine-schema-output-manifest.json": {
+      "path": "/root/work/epic898-preparation/all4-owned-sparse-profile-prep/normal-preparation/engine-schema-output-manifest.json",
+      "sha256": "68c7ebc022d91ae0ddda689faf6c02649b9c6d8f53652d7e502d77364b6c11c8"
+    },
+    "manager-actual-command-proof.json": {
+      "path": "/root/work/epic898-preparation/all4-owned-sparse-profile-prep/normal-preparation/manager-actual-command-proof.json",
+      "sha256": "af62ace8091be40eb80eaebddc56e55f16d26a27f50cf16d6e28f2420a0ddd78"
+    },
+    "immutable-primary-classes.json": {
+      "path": "/root/work/epic898-preparation/all4-owned-sparse-profile-prep/normal-preparation/immutable-primary-classes.json",
+      "sha256": "d9912a76519dd4ddf8d755813f4296452d191436c84b443bbc882ef5b94fa5a7"
+    }
+  },
+  "engineSchemaClassesFiles": 1366,
+  "engineSchemaCurrentMainJars": 1
+}
