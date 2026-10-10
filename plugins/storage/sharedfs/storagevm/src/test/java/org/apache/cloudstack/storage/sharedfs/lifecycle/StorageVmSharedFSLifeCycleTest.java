@@ -17,6 +17,10 @@
 
 package org.apache.cloudstack.storage.sharedfs.lifecycle;
 
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verifyNoInteractions;
+
 import org.mockito.Mockito;
 
 import com.cloud.dc.DataCenter;
@@ -116,6 +120,8 @@ public class StorageVmSharedFSLifeCycleTest {
 
     @Mock
     private UserVmDao userVmDao;
+    @Mock
+    private org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao recordedStoragePoolDao;
 
     @Mock
     NicDao nicDao;
@@ -440,6 +446,161 @@ public class StorageVmSharedFSLifeCycleTest {
         org.mockito.Mockito.verify(volumeApiService,org.mockito.Mockito.times(1)).detachVolumeViaDestroyVM(s_vmId,42L);
         org.mockito.Mockito.verify(volumeApiService,org.mockito.Mockito.times(2)).detachVolumeViaDestroyVM(s_vmId,43L);
         org.mockito.Mockito.verify(volumeApiService,org.mockito.Mockito.never()).destroyVolume(anyLong(),any(),anyBoolean(),anyBoolean(),any());
+    }
+    private SharedFS prepareRecordedExistingVm(com.cloud.vm.VirtualMachine.State state) {
+        SharedFS shared = mock(SharedFS.class);
+        when(shared.getVmId()).thenReturn(s_vmId);when(shared.getVolumeId()).thenReturn(s_volumeId);
+        when(shared.getBackingVolumeMode()).thenReturn(SharedFS.BackingVolumeMode.NEW);
+        when(shared.getAccountId()).thenReturn(s_ownerId);when(shared.getDataCenterId()).thenReturn(s_zoneId);
+        UserVmVO vm = mock(UserVmVO.class);when(userVmDao.findById(s_vmId)).thenReturn(vm);
+        when(vm.getId()).thenReturn(s_vmId);when(vm.getAccountId()).thenReturn(s_ownerId);when(vm.getDataCenterId()).thenReturn(s_zoneId);
+        when(vm.getTemplateId()).thenReturn(s_templateId);when(vm.getUserVmType()).thenReturn(UserVmManager.SHAREDFSVM);
+        when(vm.getState()).thenReturn(state);
+        VolumeVO root = mock(VolumeVO.class);VolumeVO data = mock(VolumeVO.class);
+        when(root.getId()).thenReturn(21L);when(root.getVolumeType()).thenReturn(Volume.Type.ROOT);when(data.getVolumeType()).thenReturn(Volume.Type.DATADISK);
+        for (VolumeVO disk : List.of(root, data)) {
+            when(disk.getAccountId()).thenReturn(s_ownerId);when(disk.getDataCenterId()).thenReturn(s_zoneId);
+            when(disk.getInstanceId()).thenReturn(s_vmId);when(disk.getState()).thenReturn(Volume.State.Allocated);
+            when(disk.getProvisioningType()).thenReturn(com.cloud.storage.Storage.ProvisioningType.SPARSE);
+            when(disk.getFormat()).thenReturn(com.cloud.storage.Storage.ImageFormat.QCOW2);
+        }
+        when(root.getTemplateId()).thenReturn(s_templateId);when(root.getPoolId()).thenReturn(null);when(data.getTemplateId()).thenReturn(null);
+        org.apache.cloudstack.storage.datastore.db.StoragePoolVO pool = mock(org.apache.cloudstack.storage.datastore.db.StoragePoolVO.class);
+        when(pool.getDataCenterId()).thenReturn(s_zoneId);when(pool.getStatus()).thenReturn(com.cloud.storage.StoragePoolStatus.Up);
+        when(pool.getPoolType()).thenReturn(com.cloud.storage.Storage.StoragePoolType.SharedMountPoint);when(recordedStoragePoolDao.findById(s_storageId)).thenReturn(pool);
+        when(data.getId()).thenReturn(s_volumeId);when(data.getPoolId()).thenReturn(s_storageId);
+        when(volumeDao.findByInstanceAndType(s_vmId, Volume.Type.ROOT)).thenReturn(List.of(root));
+        when(volumeDao.findByInstanceAndType(s_vmId, Volume.Type.DATADISK)).thenReturn(List.of(data));
+        when(volumeDao.findByInstance(s_vmId)).thenReturn(List.of());
+        return shared;
+    }
+
+    @Test public void recordedRunningVmResumeUsesExactIdsWithoutNewAllocationOrStart() throws Exception {
+        SharedFS shared = prepareRecordedExistingVm(com.cloud.vm.VirtualMachine.State.Running);
+        Pair<Long, Long> result = lifeCycle.deploySharedFS(shared, s_networkId, s_diskOfferingId, s_storageId,
+                s_size, s_minIops, s_maxIops, s_templateId, value -> Assert.assertEquals(s_vmId, value));
+        Assert.assertEquals(Long.valueOf(s_vmId), result.second());Assert.assertEquals(Long.valueOf(s_volumeId), result.first());
+        verifyNoInteractions(userVmService);verify(userVmManager, never()).expunge(any());
+    }
+
+    @Test public void recordedStoppedVmResumeStartsSameVmAndUnknownStateDoesNotStart() throws Exception {
+        SharedFS shared = prepareRecordedExistingVm(com.cloud.vm.VirtualMachine.State.Stopped);
+        lifeCycle.deploySharedFS(shared, s_networkId, s_diskOfferingId, s_storageId,
+                s_size, s_minIops, s_maxIops, s_templateId, value -> Assert.assertEquals(s_vmId, value));
+        verify(userVmService).startVirtualMachine(userVmDao.findById(s_vmId), null);
+        Mockito.clearInvocations(userVmService);
+        when(userVmDao.findById(s_vmId).getState()).thenReturn(com.cloud.vm.VirtualMachine.State.Starting);
+        Assert.assertThrows(CloudRuntimeException.class, () -> lifeCycle.deploySharedFS(shared, s_networkId, s_diskOfferingId,
+                s_storageId, s_size, s_minIops, s_maxIops, s_templateId, value -> Assert.assertEquals(s_vmId, value)));
+        verifyNoInteractions(userVmService);verify(userVmManager, never()).expunge(any());
+    }
+
+    @Test public void recordedAllocationPublishesAndCommitsBeforeStartAndPreservesFailedStart() throws Exception {
+        SharedFS shared = prepareDeploySharedFS();when(shared.getVmId()).thenReturn(null);
+        when(shared.getBackingVolumeMode()).thenReturn(SharedFS.BackingVolumeMode.NEW);
+        Account owner = mock(Account.class);when(owner.getId()).thenReturn(s_ownerId);
+        when(accountMgr.getActiveAccountById(s_ownerId)).thenReturn(owner);
+        VMTemplateVO template = mock(VMTemplateVO.class);when(templateDao.findById(s_templateId)).thenReturn(template);
+        when(template.isDynamicallyScalable()).thenReturn(true);
+        UserVm vm = mock(UserVm.class);when(vm.getId()).thenReturn(s_vmId);
+        java.util.List<String> order = new java.util.ArrayList<>();
+        when(userVmService.createAdvancedVirtualMachine(
+                any(DataCenter.class), any(ServiceOffering.class), any(VirtualMachineTemplate.class), anyList(), any(Account.class), anyString(),
+                anyString(), anyLong(), anyLong(), any(), isNull(), any(Hypervisor.HypervisorType.class), any(BaseCmd.HTTPMethod.class), anyString(),
+                isNull(), isNull(), anyList(), isNull(), any(Network.IpAddresses.class), isNull(), isNull(), isNull(),
+                anyMap(), isNull(), isNull(), isNull(), isNull(), anyBoolean(), anyString(), isNull(), isNull(), isNull(), isNull()))
+                .thenAnswer(call -> { order.add("ALLOCATE");return vm; });
+        org.mockito.Mockito.doAnswer(call -> { order.add("START");throw new com.cloud.exception.ResourceUnavailableException("Controlled response loss", UserVm.class, s_vmId); })
+                .when(userVmService).startVirtualMachine(vm, null);
+        com.cloud.utils.db.TransactionLegacy transaction = mock(com.cloud.utils.db.TransactionLegacy.class);
+        org.mockito.Mockito.doAnswer(call -> { order.add("COMMIT");return true; }).when(transaction).commit();
+        try (org.mockito.MockedStatic<com.cloud.utils.db.TransactionLegacy> transactions = mockStatic(com.cloud.utils.db.TransactionLegacy.class)) {
+            transactions.when(() -> com.cloud.utils.db.TransactionLegacy.open("RecordedSharedFSVmAllocation")).thenReturn(transaction);
+            Assert.assertThrows(com.cloud.exception.ResourceUnavailableException.class, () -> lifeCycle.deploySharedFS(shared,
+                    s_networkId, s_diskOfferingId, s_storageId, s_size, s_minIops, s_maxIops, s_templateId,
+                    value -> { Assert.assertEquals(s_vmId, value);order.add("RECORD"); }));
+        }
+        Assert.assertEquals(List.of("ALLOCATE", "RECORD", "COMMIT", "START"), order);
+        order.clear();Mockito.clearInvocations(userVmService);
+        when(transaction.commit()).thenReturn(false);
+        try (org.mockito.MockedStatic<com.cloud.utils.db.TransactionLegacy> transactions = mockStatic(com.cloud.utils.db.TransactionLegacy.class)) {
+            transactions.when(() -> com.cloud.utils.db.TransactionLegacy.open("RecordedSharedFSVmAllocation")).thenReturn(transaction);
+            Assert.assertThrows(CloudRuntimeException.class, () -> lifeCycle.deploySharedFS(shared, s_networkId, s_diskOfferingId,
+                    s_storageId, s_size, s_minIops, s_maxIops, s_templateId, value -> order.add("RECORD")));
+        }
+        Assert.assertFalse(order.contains("START"));
+        verify(userVmService, never()).startVirtualMachine(any(UserVm.class), any());
+        verify(userVmManager, never()).expunge(any());verify(userVmService, never()).destroyVm(anyLong(), anyBoolean());
+    }
+
+    @Test public void recordedCallbackFailureDoesNotCommitStartOrExpunge() throws Exception {
+        SharedFS shared = prepareDeploySharedFS();when(shared.getVmId()).thenReturn(null);when(shared.getBackingVolumeMode()).thenReturn(SharedFS.BackingVolumeMode.NEW);
+        Account owner = mock(Account.class);when(owner.getId()).thenReturn(s_ownerId);when(accountMgr.getActiveAccountById(s_ownerId)).thenReturn(owner);
+        VMTemplateVO template = mock(VMTemplateVO.class);when(templateDao.findById(s_templateId)).thenReturn(template);
+        when(template.isDynamicallyScalable()).thenReturn(true);
+        UserVm vm = mock(UserVm.class);when(vm.getId()).thenReturn(s_vmId);
+        when(userVmService.createAdvancedVirtualMachine(
+                any(DataCenter.class), any(ServiceOffering.class), any(VirtualMachineTemplate.class), anyList(), any(Account.class), anyString(),
+                anyString(), anyLong(), anyLong(), any(), isNull(), any(Hypervisor.HypervisorType.class), any(BaseCmd.HTTPMethod.class), anyString(),
+                isNull(), isNull(), anyList(), isNull(), any(Network.IpAddresses.class), isNull(), isNull(), isNull(),
+                anyMap(), isNull(), isNull(), isNull(), isNull(), anyBoolean(), anyString(), isNull(), isNull(), isNull(), isNull())).thenReturn(vm);
+        com.cloud.utils.db.TransactionLegacy transaction = mock(com.cloud.utils.db.TransactionLegacy.class);
+        try (org.mockito.MockedStatic<com.cloud.utils.db.TransactionLegacy> transactions = mockStatic(com.cloud.utils.db.TransactionLegacy.class)) {
+            transactions.when(() -> com.cloud.utils.db.TransactionLegacy.open("RecordedSharedFSVmAllocation")).thenReturn(transaction);
+            Assert.assertThrows(CloudRuntimeException.class, () -> lifeCycle.deploySharedFS(shared, s_networkId, s_diskOfferingId,
+                    s_storageId, s_size, s_minIops, s_maxIops, s_templateId, value -> { throw new CloudRuntimeException("Controlled record failure"); }));
+        }
+        verify(transaction, never()).commit();verify(userVmService, never()).startVirtualMachine(any(UserVm.class), any());
+        verify(userVmManager, never()).expunge(any());
+    }
+    @Test public void changedRetainedDisksRejectBeforeStartCreateAndExpunge() throws Exception {
+        SharedFS shared = prepareRecordedExistingVm(com.cloud.vm.VirtualMachine.State.Stopped);
+        VolumeVO root = volumeDao.findByInstanceAndType(s_vmId, Volume.Type.ROOT).get(0);
+        VolumeVO data = volumeDao.findByInstanceAndType(s_vmId, Volume.Type.DATADISK).get(0);
+        java.util.function.LongConsumer authority = value -> {
+            if (volumeDao.findByInstanceAndType(value, Volume.Type.ROOT).get(0).getId() != 21L)
+                throw new CloudRuntimeException("Controlled immutable ROOT receipt changed");
+        };
+        when(root.getState()).thenReturn(Volume.State.Destroy);
+        Assert.assertThrows(CloudRuntimeException.class, () -> lifeCycle.deploySharedFS(shared, s_networkId, s_diskOfferingId,
+                s_storageId, s_size, s_minIops, s_maxIops, s_templateId, authority));
+        when(root.getState()).thenReturn(Volume.State.Allocated);when(root.getProvisioningType()).thenReturn(com.cloud.storage.Storage.ProvisioningType.THIN);
+        Assert.assertThrows(CloudRuntimeException.class, () -> lifeCycle.deploySharedFS(shared, s_networkId, s_diskOfferingId,
+                s_storageId, s_size, s_minIops, s_maxIops, s_templateId, authority));
+        when(root.getProvisioningType()).thenReturn(com.cloud.storage.Storage.ProvisioningType.SPARSE);when(data.getId()).thenReturn(999L);
+        Assert.assertThrows(CloudRuntimeException.class, () -> lifeCycle.deploySharedFS(shared, s_networkId, s_diskOfferingId,
+                s_storageId, s_size, s_minIops, s_maxIops, s_templateId, authority));
+        when(data.getId()).thenReturn(s_volumeId);when(root.getId()).thenReturn(22L);
+        Assert.assertThrows(CloudRuntimeException.class, () -> lifeCycle.deploySharedFS(shared, s_networkId, s_diskOfferingId,
+                s_storageId, s_size, s_minIops, s_maxIops, s_templateId, authority));
+        verifyNoInteractions(userVmService);verify(userVmManager, never()).expunge(any());
+    }
+    @Test public void providerPrestartAcceptsReadyRbdOnlyAfterOriginalReceiptAuthority() throws Exception {
+        SharedFS shared = prepareRecordedExistingVm(com.cloud.vm.VirtualMachine.State.Stopped);
+        VolumeVO root = volumeDao.findByInstanceAndType(s_vmId, Volume.Type.ROOT).get(0);
+        VolumeVO data = volumeDao.findByInstanceAndType(s_vmId, Volume.Type.DATADISK).get(0);
+        org.apache.cloudstack.storage.datastore.db.StoragePoolVO pool = recordedStoragePoolDao.findById(s_storageId);
+        for (VolumeVO disk : List.of(root, data)) {
+            when(disk.getState()).thenReturn(Volume.State.Ready);when(disk.getPoolId()).thenReturn(s_storageId);
+            when(disk.getFormat()).thenReturn(com.cloud.storage.Storage.ImageFormat.RAW);
+        }
+        when(pool.getPoolType()).thenReturn(com.cloud.storage.Storage.StoragePoolType.RBD);
+        java.util.concurrent.atomic.AtomicInteger authorized = new java.util.concurrent.atomic.AtomicInteger();
+        lifeCycle.deploySharedFS(shared, s_networkId, s_diskOfferingId, s_storageId, s_size, s_minIops, s_maxIops, s_templateId,
+                value -> { Assert.assertEquals(s_vmId, value);authorized.incrementAndGet(); });
+        Assert.assertEquals(1, authorized.get());verify(userVmService).startVirtualMachine(userVmDao.findById(s_vmId), null);
+        Mockito.clearInvocations(userVmService);
+        Assert.assertThrows(CloudRuntimeException.class, () -> lifeCycle.deploySharedFS(shared, s_networkId, s_diskOfferingId,
+                s_storageId, s_size, s_minIops, s_maxIops, s_templateId,
+                value -> { throw new CloudRuntimeException("Controlled original QCOW2 receipt is absent"); }));
+        when(pool.getPoolType()).thenReturn(com.cloud.storage.Storage.StoragePoolType.SharedMountPoint);
+        Assert.assertThrows(CloudRuntimeException.class, () -> lifeCycle.deploySharedFS(shared, s_networkId, s_diskOfferingId,
+                s_storageId, s_size, s_minIops, s_maxIops, s_templateId, value -> Assert.fail("Unsupported file RAW")));
+        when(pool.getPoolType()).thenReturn(com.cloud.storage.Storage.StoragePoolType.RBD);
+        when(root.getState()).thenReturn(Volume.State.Allocated);
+        Assert.assertThrows(CloudRuntimeException.class, () -> lifeCycle.deploySharedFS(shared, s_networkId, s_diskOfferingId,
+                s_storageId, s_size, s_minIops, s_maxIops, s_templateId, value -> Assert.fail("Unsupported Allocated RAW")));
+        verifyNoInteractions(userVmService);verify(userVmManager, never()).expunge(any());
     }
 
 }

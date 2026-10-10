@@ -130,6 +130,8 @@ public class SharedFSServiceImplTest {
 
     @Mock
     NetworkDao networkDao;
+    @Mock
+    org.apache.cloudstack.engine.orchestration.service.NetworkOrchestrationService recordedNetworkOrchestration;
 
     @Mock
     NetworkModel networkModel;
@@ -1057,5 +1059,93 @@ public class SharedFSServiceImplTest {
             }
             verifyNoInteractions(lifeCycle,volumeApiService,guestCommandDispatcher);
         } finally {ReflectionTestUtils.setField(org.apache.cloudstack.framework.config.ConfigKey.class,"s_depot",previous);}
+    }    @Test
+    public void recordedAllocationNetworkGuruIsClosedWithoutChangingOrdinaryAllocation() throws Exception {
+        NetworkVO network = mock(NetworkVO.class);when(networkDao.findById(s_networkId)).thenReturn(network);
+        when(network.getGuruName()).thenReturn("ExternalGuestNetworkGuru");
+        com.cloud.network.guru.ExternalGuestNetworkGuru guest = mock(com.cloud.network.guru.ExternalGuestNetworkGuru.class);
+        when(guest.getName()).thenReturn("ExternalGuestNetworkGuru");when(recordedNetworkOrchestration.getNetworkGurus()).thenReturn(java.util.List.of(guest));
+        sharedFSServiceImpl.requireRecordedAllocationNetwork(s_networkId);
+        when(network.getGuruName()).thenReturn("DirectNetworkGuru");
+        com.cloud.network.guru.DirectNetworkGuru direct = mock(com.cloud.network.guru.DirectNetworkGuru.class);
+        when(direct.getName()).thenReturn("DirectNetworkGuru");when(recordedNetworkOrchestration.getNetworkGurus()).thenReturn(java.util.List.of(direct));
+        sharedFSServiceImpl.requireRecordedAllocationNetwork(s_networkId);
+        for (String name : java.util.Arrays.asList(null, "ExternalGuru", "GuestNetworkGuruSuffix")) {
+            when(network.getGuruName()).thenReturn(name);
+            Assert.assertThrows(InvalidParameterValueException.class, () -> sharedFSServiceImpl.requireRecordedAllocationNetwork(s_networkId));
+        }
+        verify(sharedFSDao, never()).persist(any());verify(lifeCycle, never()).startSharedFS(any());
     }
+
+    @Test
+    public void recordedPreflightExcludesOnlyItsExactReservedNameAndRetainsOwnerAndFormatGuards() throws Exception {
+        CreateSharedFSCmd cmd = getMockCreateSharedFSCmd();when(cmd.getName()).thenReturn(s_name);
+        when(owner.getDomainId()).thenReturn(s_domainId);when(owner.getAccountId()).thenReturn(s_ownerId);
+        DataCenterVO zone = mock(DataCenterVO.class);when(dataCenterDao.findById(s_zoneId)).thenReturn(zone);
+        when(zone.getId()).thenReturn(s_zoneId);when(zone.getAllocationState()).thenReturn(Grouping.AllocationState.Enabled);
+        DiskOfferingVO offering = mock(DiskOfferingVO.class);
+        when(offering.getProvisioningType()).thenReturn(com.cloud.storage.Storage.ProvisioningType.SPARSE);
+        when(offering.isCustomized()).thenReturn(true);when(offering.isCustomizedIops()).thenReturn(true);
+        when(diskOfferingDao.findById(s_diskOfferingId)).thenReturn(offering);
+        StoragePoolVO pool = mock(StoragePoolVO.class);when(storagePoolDao.findById(s_storageId)).thenReturn(pool);
+        when(pool.getDataCenterId()).thenReturn(s_zoneId);when(volumeApiService.doesStoragePoolSupportDiskOffering(pool, offering)).thenReturn(true);
+        when(pool.getStatus()).thenReturn(com.cloud.storage.StoragePoolStatus.Up);when(pool.getPoolType()).thenReturn(com.cloud.storage.Storage.StoragePoolType.SharedMountPoint);
+        when(pool.isShared()).thenReturn(true);when(storagePoolDao.listByStatusInZone(s_zoneId, com.cloud.storage.StoragePoolStatus.Up)).thenReturn(java.util.List.of(pool));
+        when(volumeApiService.doesStoragePoolSupportDiskOffering(pool, diskOfferingDao.findById(124L))).thenReturn(true);
+        NetworkVO network = mock(NetworkVO.class);when(networkDao.findById(s_networkId)).thenReturn(network);
+        when(network.getId()).thenReturn(s_networkId);when(network.getGuestType()).thenReturn(Network.GuestType.Isolated);
+        when(network.getGuruName()).thenReturn("ExternalGuestNetworkGuru");
+        com.cloud.network.guru.ExternalGuestNetworkGuru guest = mock(com.cloud.network.guru.ExternalGuestNetworkGuru.class);
+        when(guest.getName()).thenReturn("ExternalGuestNetworkGuru");when(recordedNetworkOrchestration.getNetworkGurus()).thenReturn(java.util.List.of(guest));
+        when(networkModel.areServicesSupportedInNetwork(s_networkId, Network.Service.UserData)).thenReturn(true);
+        SharedFSVO retained = getMockSharedFS();ReflectionTestUtils.setField(retained, "id", s_sharedFSId);
+        retained.setNetworkMode(SharedFS.NetworkMode.DHCP);
+        when(sharedFSDao.findById(s_sharedFSId)).thenReturn(retained);
+        when(sharedFSDao.findSharedFSByNameAccountDomain(s_name, s_ownerId, cmd.getDomainId())).thenReturn(retained);
+        Assert.assertSame(retained, sharedFSServiceImpl.preflightSharedFS(cmd, s_sharedFSId));
+        Assert.assertThrows(InvalidParameterValueException.class, () -> sharedFSServiceImpl.preflightSharedFS(cmd));
+        ReflectionTestUtils.setField(retained, "accountId", 999L);
+        Assert.assertThrows(InvalidParameterValueException.class, () -> sharedFSServiceImpl.preflightSharedFS(cmd, s_sharedFSId));
+        verify(sharedFSDao, never()).persist(any());verify(lifeCycle, never()).startSharedFS(any());
+    }
+    @Test public void recordedPoolPolicyKeepsRbdAndRejectsUnsupportedRootCandidateBeforeAllocation() {
+        CreateSharedFSCmd cmd = getMockCreateSharedFSCmd();
+        StoragePoolVO pool = mock(StoragePoolVO.class);when(storagePoolDao.findById(s_storageId)).thenReturn(pool);
+        when(pool.getDataCenterId()).thenReturn(s_zoneId);when(pool.getStatus()).thenReturn(com.cloud.storage.StoragePoolStatus.Up);
+        when(pool.getPoolType()).thenReturn(com.cloud.storage.Storage.StoragePoolType.RBD);when(pool.isShared()).thenReturn(true);
+        when(storagePoolDao.listByStatusInZone(s_zoneId, com.cloud.storage.StoragePoolStatus.Up)).thenReturn(java.util.List.of(pool));
+        when(volumeApiService.doesStoragePoolSupportDiskOffering(pool, diskOfferingDao.findById(124L))).thenReturn(true);
+        sharedFSServiceImpl.requireRecordedFormatPools(cmd);
+        when(pool.getPoolType()).thenReturn(com.cloud.storage.Storage.StoragePoolType.Linstor);
+        Assert.assertThrows(InvalidParameterValueException.class, () -> sharedFSServiceImpl.requireRecordedFormatPools(cmd));
+        verify(sharedFSDao, never()).persist(any());
+    }
+    private static class ForeignNamedGuestGuru extends com.cloud.network.guru.ExternalGuestNetworkGuru { }
+
+    @Test public void allowedGuruLabelWithForeignConcreteImplementationIsRejected() {
+        NetworkVO network = mock(NetworkVO.class);when(networkDao.findById(s_networkId)).thenReturn(network);
+        when(network.getGuruName()).thenReturn("ExternalGuestNetworkGuru");
+        ForeignNamedGuestGuru foreign = mock(ForeignNamedGuestGuru.class);when(foreign.getName()).thenReturn("ExternalGuestNetworkGuru");
+        when(recordedNetworkOrchestration.getNetworkGurus()).thenReturn(java.util.List.of(foreign));
+        Assert.assertThrows(InvalidParameterValueException.class, () -> sharedFSServiceImpl.requireRecordedAllocationNetwork(s_networkId));
+        verify(sharedFSDao, never()).persist(any());
+    }
+    @Test public void sourceDefinedDbOnlyComponentProxyIsAcceptedAndUnknownInterceptorRejects() {
+        NetworkVO network = mock(NetworkVO.class);when(networkDao.findById(s_networkId)).thenReturn(network);
+        when(network.getGuruName()).thenReturn("ExternalGuestNetworkGuru");
+        com.cloud.utils.component.ComponentInstantiationPostProcessor processor = new com.cloud.utils.component.ComponentInstantiationPostProcessor();
+        processor.setInterceptors(java.util.List.of(new com.cloud.utils.db.TransactionContextBuilder()));
+        com.cloud.network.guru.ExternalGuestNetworkGuru proxy = (com.cloud.network.guru.ExternalGuestNetworkGuru)
+                processor.postProcessBeforeInstantiation(com.cloud.network.guru.ExternalGuestNetworkGuru.class, "public-proxy");
+        proxy.setName("ExternalGuestNetworkGuru");when(recordedNetworkOrchestration.getNetworkGurus()).thenReturn(java.util.List.of(proxy));
+        sharedFSServiceImpl.requireRecordedAllocationNetwork(s_networkId);
+        com.cloud.utils.component.ComponentMethodInterceptor foreign = mock(com.cloud.utils.component.ComponentMethodInterceptor.class);
+        processor.setInterceptors(java.util.List.of(foreign));
+        Assert.assertThrows(InvalidParameterValueException.class, () -> sharedFSServiceImpl.requireRecordedAllocationNetwork(s_networkId));
+        processor.setInterceptors(java.util.List.of(new com.cloud.utils.db.TransactionContextBuilder()));
+        when(networkModel.networkIsConfiguredForExternalNetworking(network.getDataCenterId(), s_networkId)).thenReturn(true);
+        Assert.assertThrows(InvalidParameterValueException.class, () -> sharedFSServiceImpl.requireRecordedAllocationNetwork(s_networkId));
+        verify(sharedFSDao, never()).persist(any());
+    }
+
 }
