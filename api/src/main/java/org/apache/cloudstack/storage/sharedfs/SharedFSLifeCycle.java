@@ -55,6 +55,15 @@ public interface SharedFSLifeCycle {
         throw new UnsupportedOperationException("Provider does not support preserved initial volumes");
     }
 
+    /** The callback publishes fresh VM DB allocation or verifies the original immutable binding
+     * before retained-VM start. RAW realization requires the original QCOW2 receipt.
+     */
+    default Pair<Long, Long> deploySharedFS(SharedFS sharedFS, Long networkId, Long diskOfferingId, Long storageId,
+            Long size, Long minIops, Long maxIops, Long templateId, java.util.function.LongConsumer allocatedRecorder)
+            throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
+        throw new UnsupportedOperationException("Provider has no recorded SharedFS allocation");
+    }
+
     void startSharedFS(SharedFS sharedFS) throws OperationTimedoutException, ResourceUnavailableException, InsufficientCapacityException;
 
     boolean stopSharedFS(SharedFS sharedFS, Boolean forced);

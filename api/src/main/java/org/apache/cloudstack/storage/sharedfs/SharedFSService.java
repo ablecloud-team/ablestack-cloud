@@ -52,6 +52,16 @@ public interface SharedFSService {
 
     SharedFS deploySharedFS(CreateSharedFSCmd cmd) throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException;
 
+    /** Internal CREATE_NEW recovery contract; unsupported implementations cannot allocate. */
+    default SharedFS preflightSharedFS(CreateSharedFSCmd cmd, long retainedSharedFsId) {
+        throw new UnsupportedOperationException("Provider has no recorded SharedFS preflight");
+    }
+
+    default SharedFS deploySharedFS(CreateSharedFSCmd cmd, java.util.function.Consumer<SharedFS> allocatedRecorder)
+            throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
+        throw new UnsupportedOperationException("Provider has no recorded SharedFS deployment");
+    }
+
     SharedFS startSharedFS(Long sharedFSId) throws OperationTimedoutException, ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException;
 
     SharedFS stopSharedFS(Long sharedFSId, Boolean forced);

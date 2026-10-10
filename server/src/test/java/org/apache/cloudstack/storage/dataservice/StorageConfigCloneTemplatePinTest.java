@@ -88,8 +88,10 @@ public class StorageConfigCloneTemplatePinTest {
             }
             return (CreateSharedFSCmd) StorageConfigCommandBinding.bind(CreateSharedFSCmd.class, numeric);
         }
-        @Override protected StorageServiceInstanceVO createConfigurationNewService(JsonObject blueprint) {
+        @Override protected StorageServiceInstanceVO createConfigurationNewService(JsonObject blueprint, JsonObject plan, StorageConfigArtifactVO artifact) {
             cloudCreates++;
+            JsonObject metadata = com.google.gson.JsonParser.parseString(artifact.getMetadataJson()).getAsJsonObject();
+            metadata.add("cloneAllocation", new JsonObject());artifact.setMetadataJson(metadata.toString());
             return target;
         }
         @Override protected void upgradeConfigurationNewServiceRuntime(StorageServiceInstanceVO instance, String bundleUuid) {

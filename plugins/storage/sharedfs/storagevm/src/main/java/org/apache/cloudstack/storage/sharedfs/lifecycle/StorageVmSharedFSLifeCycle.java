@@ -110,6 +110,9 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
     private UserVmDao userVmDao;
 
     @Inject
+    private org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao recordedStoragePoolDao;
+
+    @Inject
     NicDao nicDao;
 
     @Inject
@@ -156,6 +159,13 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
     private UserVm deploySharedFSVM(Long zoneId, Account owner, List<Long> networkIds, String name, Long serviceOfferingId, Long diskOfferingId,
             SharedFS.FileSystemType fileSystem, Long size, Long minIops, Long maxIops, SharedFS.NetworkMode networkMode, String requestedIp, Long explicitTemplateId) throws OperationTimedoutException,
             ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException {
+        return deploySharedFSVM(zoneId, owner, networkIds, name, serviceOfferingId, diskOfferingId,
+                fileSystem, size, minIops, maxIops, networkMode, requestedIp, explicitTemplateId, null);
+    }
+
+    private UserVm deploySharedFSVM(Long zoneId, Account owner, List<Long> networkIds, String name, Long serviceOfferingId, Long diskOfferingId,
+            SharedFS.FileSystemType fileSystem, Long size, Long minIops, Long maxIops, SharedFS.NetworkMode networkMode, String requestedIp, Long explicitTemplateId, java.util.function.LongConsumer allocatedRecorder) throws OperationTimedoutException,
+            ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException {
         ServiceOffering serviceOffering = serviceOfferingDao.findById(serviceOfferingId);
         DataCenter zone = dataCenterDao.findById(zoneId);
 
@@ -199,14 +209,31 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
             }
             CallContext vmContext = CallContext.register(CallContext.current(), ApiCommandResourceType.VirtualMachine);
             try {
+                if (allocatedRecorder == null) {
                 vm = userVmService.createAdvancedVirtualMachine(zone, serviceOffering, template, networkIds, owner, hostName, hostName,
                         diskOfferingId, size, null, null, Hypervisor.HypervisorType.None, BaseCmd.HTTPMethod.POST, base64UserData,
                         null, null, keypairs, null, addrs, null, null, null,
                         customParameterMap, null, null, null, null,
                         true, UserVmManager.SHAREDFSVM, null, null, null, null);
+                } else {
+                    // Same-thread Cloud DB transactions below join this outer allocation transaction.
+                    try (com.cloud.utils.db.TransactionLegacy transaction =
+                            com.cloud.utils.db.TransactionLegacy.open("RecordedSharedFSVmAllocation")) {
+                        transaction.start();
+                vm = userVmService.createAdvancedVirtualMachine(zone, serviceOffering, template, networkIds, owner, hostName, hostName,
+                        diskOfferingId, size, null, null, Hypervisor.HypervisorType.None, BaseCmd.HTTPMethod.POST, base64UserData,
+                        null, null, keypairs, null, addrs, null, null, null,
+                        customParameterMap, null, null, null, null,
+                        true, UserVmManager.SHAREDFSVM, null, null, null, null);
+                        allocatedRecorder.accept(vm.getId());
+                        if (!transaction.commit())
+                            throw new CloudRuntimeException("Recorded VM allocation must own its commit before start");
+                    }
+                }
                 vmContext.setEventResourceId(vm.getId());
                 userVmService.startVirtualMachine(vm, null);
             } catch (InsufficientCapacityException ex) {
+                if (allocatedRecorder != null) throw ex;
                 if (vm != null) {
                     expungeVm(vm.getId());
                 }
@@ -304,6 +331,90 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
 
     public Pair<Long, Long> deploySharedFS(SharedFS sharedFS, Long networkId, Long diskOfferingId, Long size, Long minIops, Long maxIops) throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
         return deploySharedFS(sharedFS, networkId, diskOfferingId, null, size, minIops, maxIops);
+    }
+
+    @Override
+    public Pair<Long, Long> deploySharedFS(SharedFS sharedFS, Long networkId, Long diskOfferingId, Long storageId,
+            Long size, Long minIops, Long maxIops, Long templateId, java.util.function.LongConsumer allocatedRecorder)
+            throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
+        if (templateId == null || allocatedRecorder == null || sharedFS.getBackingVolumeMode() != SharedFS.BackingVolumeMode.NEW)
+            throw new InvalidParameterValueException("Recorded deployment requires a pinned template and new DATA");
+        UserVm vm;
+        if (sharedFS.getVmId() == null) {
+            Account owner = accountMgr.getActiveAccountById(sharedFS.getAccountId());
+            vm = deploySharedFSVM(sharedFS.getDataCenterId(), owner, List.of(networkId), sharedFS.getName(),
+                    sharedFS.getServiceOfferingId(), diskOfferingId, sharedFS.getFsType(), size, minIops, maxIops,
+                    sharedFS.getNetworkMode(), sharedFS.getIpAddress(), templateId, allocatedRecorder);
+        } else {
+            UserVmVO retained = userVmDao.findById(sharedFS.getVmId());
+            if (retained == null || retained.getRemoved() != null || retained.getAccountId() != sharedFS.getAccountId()
+                    || retained.getDataCenterId() != sharedFS.getDataCenterId() || retained.getTemplateId() != templateId
+                    || !UserVmManager.SHAREDFSVM.equals(retained.getUserVmType()))
+                throw new CloudRuntimeException("Recorded VM ownership or template changed");
+            List<VolumeVO> retainedRoots = volumeDao.findByInstanceAndType(retained.getId(), com.cloud.storage.Volume.Type.ROOT);
+            List<VolumeVO> retainedData = volumeDao.findByInstanceAndType(retained.getId(), com.cloud.storage.Volume.Type.DATADISK);
+            if (retainedRoots.size() != 1 || retainedData.size() != 1 || sharedFS.getVolumeId() == null
+                    || sharedFS.getVolumeId() != retainedData.get(0).getId())
+                throw new CloudRuntimeException("Recorded VM has replaced or ambiguous disks before start");
+            requireRetainedDisk(retainedRoots.get(0), retained, true, storageId);
+            requireRetainedDisk(retainedData.get(0), retained, false, storageId);
+            // Re-observe the immutable ROOT UUID/size receipt at this last provider boundary.
+            allocatedRecorder.accept(retained.getId());
+            if (retained.getState() == com.cloud.vm.VirtualMachine.State.Stopped) {
+                userVmService.startVirtualMachine(retained, null);
+            } else if (retained.getState() != com.cloud.vm.VirtualMachine.State.Running) {
+                throw new CloudRuntimeException("Recorded VM start has an unresolved state; new allocation is forbidden");
+            }
+            vm = retained;
+        }
+        List<VolumeVO> roots = volumeDao.findByInstanceAndType(vm.getId(), com.cloud.storage.Volume.Type.ROOT);
+        List<VolumeVO> data = volumeDao.findByInstanceAndType(vm.getId(), com.cloud.storage.Volume.Type.DATADISK);
+        if (roots.size() != 1 || data.size() != 1 || sharedFS.getVolumeId() == null
+                || sharedFS.getVolumeId() != data.get(0).getId() || roots.get(0).getRemoved() != null
+                || data.get(0).getRemoved() != null)
+            throw new CloudRuntimeException("Recorded VM disk identity changed");
+        if (storageId != null && !storageId.equals(data.get(0).getPoolId()))
+            throw new CloudRuntimeException("Recorded DATA is not on the selected pool; allocation is preserved");
+        for (VolumeVO volume : volumeDao.findByInstance(vm.getId())) {
+            if (!volume.getName().startsWith(SharedFSVmNamePrefix + "-")) {
+                volume.setName(SharedFSVmNamePrefix + "-" + volume.getName());
+                if (!volumeDao.update(volume.getId(), volume))
+                    throw new CloudRuntimeException("Recorded disk metadata update failed");
+            }
+        }
+        return new Pair<>(data.get(0).getId(), vm.getId());
+    }
+
+    private void requireRetainedDisk(VolumeVO disk, UserVmVO vm, boolean root, Long selectedDataPool) {
+        if (disk.getRemoved() != null || disk.getAccountId() != vm.getAccountId() || disk.getDataCenterId() != vm.getDataCenterId()
+                || !java.util.Objects.equals(disk.getInstanceId(), vm.getId())
+                || disk.getVolumeType() != (root ? com.cloud.storage.Volume.Type.ROOT : com.cloud.storage.Volume.Type.DATADISK)
+                || disk.getState() == null || !java.util.Set.of(com.cloud.storage.Volume.State.Allocated, com.cloud.storage.Volume.State.Ready).contains(disk.getState())
+                || disk.getProvisioningType() == null || !java.util.Set.of(com.cloud.storage.Storage.ProvisioningType.SPARSE,
+                        com.cloud.storage.Storage.ProvisioningType.FAT).contains(disk.getProvisioningType())
+                || root && !java.util.Objects.equals(disk.getTemplateId(), vm.getTemplateId())
+                || !root && (disk.getTemplateId() != null || org.apache.commons.lang3.StringUtils.isNotBlank(disk.getChainInfo())))
+            throw new CloudRuntimeException("Recorded disk ownership source state or provisioning changed before start");
+        Long poolId = disk.getPoolId();
+        if (!root && (poolId == null && disk.getState() != com.cloud.storage.Volume.State.Allocated
+                || poolId != null && !java.util.Objects.equals(poolId, selectedDataPool)))
+            throw new CloudRuntimeException("Recorded DATA pool changed before start");
+        if (poolId != null) {
+            org.apache.cloudstack.storage.datastore.db.StoragePoolVO pool = recordedStoragePoolDao.findById(poolId);
+            if (pool == null || pool.getDataCenterId() != vm.getDataCenterId() || pool.getStatus() != com.cloud.storage.StoragePoolStatus.Up
+                    || pool.getPoolType() == null || !java.util.Set.of(com.cloud.storage.Storage.StoragePoolType.Filesystem,
+                            com.cloud.storage.Storage.StoragePoolType.NetworkFilesystem, com.cloud.storage.Storage.StoragePoolType.SharedMountPoint,
+                            com.cloud.storage.Storage.StoragePoolType.RBD).contains(pool.getPoolType()))
+                throw new CloudRuntimeException("Recorded disk pool has no supported format policy");
+            if (disk.getFormat() == com.cloud.storage.Storage.ImageFormat.RAW
+                    && (disk.getState() != com.cloud.storage.Volume.State.Ready || pool.getPoolType() != com.cloud.storage.Storage.StoragePoolType.RBD))
+                throw new CloudRuntimeException("Recorded RAW disk is not an exact Ready RBD realization");
+        } else if (disk.getState() != com.cloud.storage.Volume.State.Allocated) {
+            throw new CloudRuntimeException("Recorded Ready disk pool is unavailable");
+        }
+        if (disk.getFormat() != com.cloud.storage.Storage.ImageFormat.QCOW2
+                && (disk.getFormat() != com.cloud.storage.Storage.ImageFormat.RAW || poolId == null))
+            throw new CloudRuntimeException("Recorded disk image format is unsupported before start");
     }
 
     @Override
