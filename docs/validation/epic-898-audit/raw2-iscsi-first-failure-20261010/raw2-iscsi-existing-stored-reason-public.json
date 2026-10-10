@@ -1,0 +1,31 @@
+{
+  "actualReadonlyMetadataCalls": 1,
+  "exitCode": 0,
+  "hostLibvirtVersionNumeric": 11010000,
+  "kind": "READONLY_QGA_VERSION_MARKER_PROVIDER",
+  "metadata": {
+    "applyRollbackProducerCalls": 0,
+    "errorMessageBodyReadOrPrinted": false,
+    "kind": "RAW2_ISCSI_EXISTING_STORED_REASON_METADATA",
+    "localCheckpointUuid": "09845f87-bfbb-3bdd-b395-7a447b093701",
+    "operationUuid": "df1641b6-c42a-443c-8521-a47fa6dc8c4f",
+    "records": [
+      {
+        "fixedReasonFields": [],
+        "kind": "GENERATION_PENDING",
+        "phase": "PREPARED",
+        "present": true
+      },
+      {
+        "fixedReasonFields": [],
+        "kind": "LOCAL_SOURCE_CHECKPOINT_JOURNAL",
+        "phase": "RESUMED",
+        "present": true
+      }
+    ],
+    "revision": 11,
+    "storedFixedReasonPresent": false,
+    "writesSignalsOrServiceChanges": 0
+  },
+  "unknownAttemptRetriedOrKilled": false
+}

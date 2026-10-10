@@ -1,0 +1,38 @@
+{
+  "kind": "FIRST_RAW2_ISCSI_UI_FAILURE_READONLY_PRESERVATION",
+  "operationUuid": "df1641b6-c42a-443c-8521-a47fa6dc8c4f",
+  "jobid": "5df6d362-60e4-471a-8ea8-31cf5dc59519",
+  "rawIoOrChapNvmeCalls": 0,
+  "preserved": {
+    "cliSha256": true,
+    "bootId": true,
+    "vmUuid": true,
+    "current": true,
+    "databases": true,
+    "smbDesiredPresent": true,
+    "mounts": true,
+    "nfsSentinel": true,
+    "liveIdentityHolders": false
+  },
+  "rootAndOldFileDisksPreserved": true,
+  "expectedNewAttachedDiskOnly": true,
+  "expectedPendingPrepared": true,
+  "exactNewRawBinding": {
+    "actualWrites": 0,
+    "device": "/dev/sdd",
+    "first64KiBAllZero": true,
+    "kind": "EXACT_OWN_RAW2_ISCSI_READONLY_BLANK_BINDING",
+    "logicalBlockSize": 512,
+    "networkOrTargetIo": 0,
+    "partialOrRootReadWrites": 0,
+    "rootDiskExcluded": true,
+    "serial": "db3de2b75fcb4cb5a0aa",
+    "sizeBytes": 21474836480,
+    "unmountedNoPartitionsNoFilesystem": true,
+    "windowAllZero": true,
+    "windowLengthBytes": 4096,
+    "windowOffsetBytes": 1048576
+  },
+  "sourceEditOrApplyRecalled": false,
+  "firstNativeReason": "unavailable beyond masked native iSCSI apply exit1; readonly source/provider investigation pending"
+}

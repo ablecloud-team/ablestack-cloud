@@ -1,0 +1,120 @@
+{
+  "actualReadonlyMetadataCalls": 1,
+  "exitCode": 0,
+  "hostLibvirtVersionNumeric": 11010000,
+  "kind": "READONLY_QGA_VERSION_MARKER_PROVIDER",
+  "metadata": {
+    "applyRollbackCalls": 0,
+    "blockGuard": {
+      "installedReadOnlyBlockGuardPassed": true
+    },
+    "configfs": {
+      "managedBackstoreCount": 0,
+      "ownIqnPresent": false,
+      "ownLun0Present": false,
+      "ownPortalPresent": false,
+      "ownTpgPresent": false,
+      "targetConfigfsMounted": true
+    },
+    "dependencyPredicates": {
+      "dpkgStatusPrefix": true,
+      "giElf": true,
+      "giImportExitCode": 0,
+      "libmagicElf": true,
+      "pythonElf": true,
+      "targetcliCommandExists": true
+    },
+    "installedCliSha256": "19adfa998ab568b2e16e89002d239a1d5d121444f6a4510e180d7a638e5388f4",
+    "kind": "RAW2_ISCSI_VENDOR_READONLY_PREDICATES",
+    "packages": {
+      "libmagic1": {
+        "exitCode": 0,
+        "version": "1:5.44-3"
+      },
+      "python3-gi": {
+        "exitCode": 0,
+        "version": "3.42.2-3+b1"
+      },
+      "python3-rtslib-fb": {
+        "exitCode": 0,
+        "version": "2.1.75-2.1"
+      },
+      "targetcli-fb": {
+        "exitCode": 0,
+        "version": "1:2.1.53-1.1"
+      }
+    },
+    "privateStdoutOrRawErrorPrinted": false,
+    "targetcliOrRtslibConstructionCalls": 0,
+    "vendorSourceSignatures": [
+      {
+        "class": "Target",
+        "constructorLine": 50,
+        "constructorParameters": [
+          "self",
+          "fabric_module",
+          "wwn",
+          "mode"
+        ],
+        "present": true,
+        "source": "rtslib_fb/target.py",
+        "sourceSha256": "0c5faad121aa29407e46f6c67f16cc8f5b2b64bec947031eb1e55d32bff5e858"
+      },
+      {
+        "class": "TPG",
+        "constructorLine": 157,
+        "constructorParameters": [
+          "self",
+          "parent_target",
+          "tag",
+          "mode"
+        ],
+        "present": true,
+        "source": "rtslib_fb/target.py",
+        "sourceSha256": "0c5faad121aa29407e46f6c67f16cc8f5b2b64bec947031eb1e55d32bff5e858"
+      },
+      {
+        "class": "NetworkPortal",
+        "constructorLine": 715,
+        "constructorParameters": [
+          "self",
+          "parent_tpg",
+          "ip_address",
+          "port",
+          "mode"
+        ],
+        "present": true,
+        "source": "rtslib_fb/target.py",
+        "sourceSha256": "0c5faad121aa29407e46f6c67f16cc8f5b2b64bec947031eb1e55d32bff5e858"
+      },
+      {
+        "class": "BlockStorageObject",
+        "constructorLine": 713,
+        "constructorParameters": [
+          "self",
+          "name",
+          "dev",
+          "wwn",
+          "readonly",
+          "write_back",
+          "index"
+        ],
+        "present": true,
+        "source": "rtslib_fb/tcm.py",
+        "sourceSha256": "c3af366a32ca0fe6e6cc9bc40d9d52b7695800b739153a4d6612a0ed23ef90ce"
+      },
+      {
+        "class": "RTSRoot",
+        "constructorLine": 70,
+        "constructorParameters": [
+          "self"
+        ],
+        "present": true,
+        "source": "rtslib_fb/root.py",
+        "sourceSha256": "b4d14267d4e1b1af7ca89f355e3ed05c908133048317caa2ada69a346be0578e"
+      }
+    ],
+    "writesSignalsOrServiceChanges": 0
+  },
+  "unknownAttemptRetriedOrKilled": false
+}

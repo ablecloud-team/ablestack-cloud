@@ -1,0 +1,49 @@
+{
+  "actualGuestLaunches": 1,
+  "guestExitCode": 0,
+  "kind": "F1_GUARDED_RAM_INITIALIZER_PROVIDER",
+  "observation": {
+    "actualInitializerCalls": 1,
+    "allObservedMetadataUnchanged": true,
+    "fixedBeforeContextMatched": true,
+    "guestCodeFileWrites": 0,
+    "initializer": {
+      "actualTargetChanges": 0,
+      "anonymousLockOnly": true,
+      "childrenCount": 5,
+      "dispatchCalled": false,
+      "kind": "ISCSI_VENDOR_GUARDED_RAM_INITIALIZER",
+      "mainCalled": false,
+      "mutatingAttemptsBlocked": 0,
+      "prefHistoryLogLockFilesystemWrites": 0,
+      "ramPrefsOnly": true,
+      "refreshChecked": true,
+      "runtimeRootInitializerChecked": true,
+      "stage": "INITIALIZER_COMPLETE_BEFORE_DISPATCH",
+      "success": true,
+      "targetCreationCalled": false
+    },
+    "kind": "F1_GUARDED_RAM_INITIALIZER_OBSERVATION",
+    "originalMainPrefsAndLockUsed": false,
+    "originalMaskedExit1CauseProven": false,
+    "ownedAnonymousLockClosed": true,
+    "preservation": {
+      "bootId": true,
+      "cliSha256": true,
+      "current": true,
+      "databaseMetadata": true,
+      "mountMetadata": true,
+      "nfsSentinel": true,
+      "ownIqnPresent": true,
+      "pending": true,
+      "vmUuid": true
+    },
+    "productApplyRollbackOrCreationCalls": 0,
+    "stage": "OBSERVATION_COMPLETE"
+  },
+  "provider": "ISOLATED_PYTHON_LIBVIRT_C_BINDING",
+  "runningAgentWorkerQueueUsed": false,
+  "stage": "PUBLIC_JSON_PARSED",
+  "stderrBytes": 0,
+  "stdoutBytes": 1001
+}
