@@ -2082,6 +2082,20 @@ wrapClassName="storage-service-action-modal"
                 <template #label><tooltip-label :title="$t('label.storage.service.chap.secret')" :tooltip="$t('message.storage.service.chap.secret.help')" /></template>
                 <a-input-password v-model:value="forms.iscsiAcl.chapsecret" autocomplete="new-password" />
               </a-form-item>
+              <a-form-item>
+                <template #label><tooltip-label :title="$t('label.storage.service.mutual.chap.enabled')" :tooltip="$t('message.storage.service.mutual.chap.enabled.help')" /></template>
+                <a-switch v-model:checked="forms.iscsiAcl.mutualchapenabled" />
+              </a-form-item>
+              <template v-if="forms.iscsiAcl.mutualchapenabled">
+                <a-form-item required>
+                  <template #label><tooltip-label :title="$t('label.storage.service.mutual.chap.username')" :tooltip="$t('message.storage.service.mutual.chap.username.help')" /></template>
+                  <a-input v-model:value="forms.iscsiAcl.mutualchapusername" />
+                </a-form-item>
+                <a-form-item required>
+                  <template #label><tooltip-label :title="$t('label.storage.service.mutual.chap.secret')" :tooltip="$t('message.storage.service.mutual.chap.secret.help')" /></template>
+                  <a-input-password v-model:value="forms.iscsiAcl.mutualchapsecret" autocomplete="new-password" />
+                </a-form-item>
+              </template>
             </template>
           </section>
         </div>
