@@ -1,0 +1,47 @@
+{
+  "kind": "ACTUAL_EXISTING_MUTUAL_CHAP_UI_READBACK",
+  "targetUuid": "0393e4f7-56a2-4e91-9e2e-efa76c300dcb",
+  "existingOwnAclIds": [
+    "bd76c8ab-e784-44ca-824c-8d70e32e4d6d",
+    "c3866dde-4b7b-4ba5-a898-2fe6d6be5e70"
+  ],
+  "bothMutualEnabledInActualListAndForm": true,
+  "permissionsReadBack": [
+    "READ_WRITE",
+    "READ_ONLY"
+  ],
+  "newGuiSecretEntries": 0,
+  "guiCredentialCreationClaimed": false,
+  "normalApiCredentialSetupSeparate": true,
+  "bothExistingChapAndMutualUsernamesPopulated": true,
+  "chapAndMutualSecretInputsEmpty": true,
+  "missingMutualSpecificValidationWarningProven": false,
+  "earlierUiValidationAttempt": {
+    "selectorTimeout": true,
+    "dialogAbsentAfterObservation": true,
+    "observedUpdateStorageIscsiAclRequests": 0,
+    "networkEventsTruncated": false,
+    "warningNotCaptured": true,
+    "validationSuccessClaimed": false
+  },
+  "images": [
+    {
+      "client": "C1",
+      "windowsPath": "C:/Users/ablecloud/.codex/artifacts/epic898-current-500/iscsi-mutual-c1-fields-actual-visible.jpg",
+      "path": "/root/work/epic898-preparation/iscsi-ro-sense-harness-preparation/iscsi-mutual-c1-fields-actual-visible.jpg",
+      "sha256": "d47533bf2a18d2afe93151cac29806682ddb7ba2e8ff2c1ca6da432f3349ae55",
+      "visuallyReviewed": true,
+      "mutualToggleAndExistingUsernameVisible": true,
+      "secretFieldsBlank": true
+    },
+    {
+      "client": "C2",
+      "windowsPath": "C:/Users/ablecloud/.codex/artifacts/epic898-current-500/iscsi-mutual-c2-fields-actual-visible.jpg",
+      "path": "/root/work/epic898-preparation/iscsi-ro-sense-harness-preparation/iscsi-mutual-c2-fields-actual-visible.jpg",
+      "sha256": "6ac7a29853b33a01578fe5a6b5943195bcb913076341b3ec0474238b5023f2ea",
+      "visuallyReviewed": true,
+      "mutualToggleAndExistingUsernameVisible": true,
+      "secretFieldsBlank": true
+    }
+  ]
+}
