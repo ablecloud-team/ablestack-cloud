@@ -280,8 +280,8 @@ export default {
         postAPI('uploadVolume', params, { preserveOnFailure: true }).then(json => resolveVolumeUpload(json.uploadvolumeresponse, jobId => this.uploadTracker.track(jobId))).then(() => {
           if (this.uploadDisposed) return
           this.$notification.success({
-            message: this.$t('message.success.upload'),
-            description: this.$t('message.success.upload.volume.description')
+            message: this.$t('message.creation.source.upload.registered'),
+            description: this.$t('message.creation.source.upload.registration.complete')
           })
           this.closeAction()
           this.$emit('refresh-data')
