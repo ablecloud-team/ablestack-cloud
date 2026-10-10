@@ -1,0 +1,128 @@
+{
+  "kind": "OWNED_978EC_SELECTED_TWO_CLASS_RUNTIME_ABI_REVIEW",
+  "sourcePin": "978ec10a93af2e1176df6b7fe13bee19bc7e0f4f",
+  "normalCoreProofSha256": "9c19ca9ba514716060cb32c7a982e0ce62f3aaed3f99ce57ebe74f48d544cf62",
+  "moduleOutputManifestSha256": "5a05c6c74a810b354868de97781a0b61351dd5fb6c47a71cae5e2092b5e01d5f",
+  "normalDeltaSha256": "3cb2aa8bbcad900ec6c589cd946d600629f189b30ba9433c5824d0d298ce8037",
+  "normalByteDeltaCount": 7,
+  "semanticClassCount": 2,
+  "newClassCount": 0,
+  "candidateClassSha256": {
+    "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class": "7bbf1d6502b6a8b8467c16d54dd43221cf1791df2f2c85ec5a2144d7507b6792",
+    "org/apache/cloudstack/storage/dataservice/StorageRenderedValidationProfile.class": "b21681e864541eb6d33353bb4479e42cde1202097b6c9aa65bf06a42bbc038a5"
+  },
+  "previousClassSha256": {
+    "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class": "cde7bbe3f6cef4c07084d35b4ef25a8c9098abb936d5c4fff63f509d243fad68",
+    "org/apache/cloudstack/storage/dataservice/StorageRenderedValidationProfile.class": "44f3bb8835fee500731bf349e95ce731485532f42d024f83e7b3b674600de4d8"
+  },
+  "existingPublicProtectedAbiPreserved": true,
+  "addedExportedMembers": {
+    "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class": [
+      [
+        "protected void requireRenderedValidationArtifact(org.apache.cloudstack.storage.dataservice.StorageServiceInstanceVO, com.google.gson.JsonObject);",
+        "descriptor: (Lorg/apache/cloudstack/storage/dataservice/StorageServiceInstanceVO;Lcom/google/gson/JsonObject;)V"
+      ]
+    ],
+    "org/apache/cloudstack/storage/dataservice/StorageRenderedValidationProfile.class": [
+      [
+        "public static boolean owned(com.google.gson.JsonObject);",
+        "descriptor: (Lcom/google/gson/JsonObject;)Z"
+      ]
+    ]
+  },
+  "constantPoolMemberReferences": 2607,
+  "addedReferences": [
+    [
+      10,
+      "org/apache/cloudstack/storage/dataservice/StorageRenderedValidationProfile",
+      "owned",
+      "(Lcom/google/gson/JsonObject;)Z"
+    ],
+    [
+      10,
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl",
+      "lambda$configureStorageRenderedValidationProfile$14",
+      "(Lorg/apache/cloudstack/storage/dataservice/StorageServiceInstanceVO;JLcom/google/gson/JsonObject;Lorg/apache/cloudstack/api/command/admin/storage/dataservice/ConfigureStorageRenderedValidationProfileCmd;Lcom/google/gson/JsonObject;Lcom/cloud/utils/db/TransactionStatus;)Ljava/lang/Void;"
+    ],
+    [
+      10,
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl",
+      "requireRenderedValidationArtifact",
+      "(Lorg/apache/cloudstack/storage/dataservice/StorageServiceInstanceVO;Lcom/google/gson/JsonObject;)V"
+    ]
+  ],
+  "allReferencesResolved": true,
+  "checks": {
+    "member-link": {
+      "exitCode": 0,
+      "summary": [
+        "RESOLVED 2607 FAILED 0"
+      ],
+      "logSha256": "c3ece2776284313a955ce46ea1466526b203c943e233cf399309ea2cb1d248dc"
+    },
+    "class-link": {
+      "exitCode": 0,
+      "summary": [
+        "CLASS_SIGNATURE_LINK_PASS 2"
+      ],
+      "logSha256": "1127f768f6c9e488063d45a2de95c42a4a0d31861850d6d9146c3e8000e2fd3a"
+    }
+  },
+  "reusedInners": [
+    {
+      "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$2.class",
+      "normalBeforeSha256": "b426b5f4ee6181100432a7fd95f86e7e0918b2461145421eb86f496e31e13942",
+      "normalAfterSha256": "feb453ce846cf67107ab227a0b50848c294176a10c3f039b47e6b14bd8ce4c95",
+      "deployedPreservedSha256": "ae6185e6517dc13fcd3f1914e55b013c0797d07b6419c26ab745a810d851ed0e",
+      "codeFieldsDescriptorsReferencesEqual": true
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$3.class",
+      "normalBeforeSha256": "00617546288aa88a8f50c4850c049c0e59b45591dbe0450d02ab6c3a878f4602",
+      "normalAfterSha256": "3b88beb07863202a00969bbf95cc2436a9df6dabc5a3679973d6c4dc8ffe8e40",
+      "deployedPreservedSha256": "da6199fa51a7c6bd5c127d8337261046231da82d821814cf7e7ea1a9c4ab3c4b",
+      "codeFieldsDescriptorsReferencesEqual": true
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$4.class",
+      "normalBeforeSha256": "475550676f420177b4a7ed591eb50264287efef41148c6add3edacc1e23a1187",
+      "normalAfterSha256": "b581808f44a19ff3af4a2a49e0d48881003f746f5a369f58297a57a7420e341a",
+      "deployedPreservedSha256": "678a93dfc8d38fb1ab073ff5675425accc26fc0138e9274c8de0350edf16761f",
+      "codeFieldsDescriptorsReferencesEqual": true
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$5.class",
+      "normalBeforeSha256": "15627355dfbbd3369b4253dc41a7c6d78aeda4bad52e7907e5c5148c74e206d2",
+      "normalAfterSha256": "e7ad9b7635be25b1ec1b0983e83bc07fd642fbef45ee9ddf8a1a0790b88d943c",
+      "deployedPreservedSha256": "9b3b37f958eacd6e493a442cd8e6b8c6a988739fb063fea48f885506d5bf935d",
+      "codeFieldsDescriptorsReferencesEqual": true
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ConfigurationTargetCommand.class",
+      "normalBeforeSha256": "e34da2fb1a4b1973838913dd485362586903c63e97ed0c4561193ca2ee8f7191",
+      "normalAfterSha256": "557aff06c3fe5f89165629b8d3f4772b60e7edef2e2ee4c620ea1f43ed492c40",
+      "deployedPreservedSha256": "63bb74984471c96e34ff2b3ab8f0cb0917a6d2d87ee90c8627bf75690acc57d5",
+      "codeFieldsDescriptorsReferencesEqual": true
+    }
+  ],
+  "actualFreshBaselineSha256": "f2867eff580aa69354405d907b0b77d09b5c90cc90cc587f1b446d00da4b13cd",
+  "actualBaselineJarSha256": "1909d30c4ea4297508a4a11ec9cd7ed5286f7acbc4cb6350877059707425e934",
+  "actualBaselinePid": 1413104,
+  "previousSelectedAbiManifestSha256": "5a776f120fa11e4c2c4a98bdd2e1257ad02df892309e5f0697ea336235106e5e",
+  "historicalCachedUberJarIsNotWholeCurrentJar": true,
+  "actualWholeJarBytesClaimed": false,
+  "method": "Exact fresh deployed Manager/Profile hashes match proven logical classspace; selected-two overlay with reflection linkage without class initialization; provider cached bytes unchanged except separately proven management JAR overlay chain.",
+  "libraryHashes": {
+    "bcpkix-jdk18on-1.83.jar": "d3c4c6b700c74ef8164bb15e549d939721b8f14fc0ff89fe19b220243bcfcbd8",
+    "bcprov-jdk18on-1.83.jar": "82cf3a2af766c3bc874f6d36b9f20a8b99a8f09762dc776e8a227a45d8daaafb",
+    "bctls-jdk18on-1.83.jar": "0d1fd6b6fba6c44d4594d8be3f6888b00e2f1a00a3a6ee64b65b9be1e8291266",
+    "bcutil-jdk18on-1.83.jar": "ee7d0eb4e74de70a735f7fb36b604dd5c6ad35720d50b914604db042114a0185",
+    "cloud-plugin-storage-volume-linstor-4.23.0.0-Mold.Europa-202610011115.jar": "48168dbcdf6e40f15fae6ff37fd0b31af4943c6ea6db22b942b820245b04e893",
+    "cloud-plugin-storage-volume-storpool-4.23.0.0-Mold.Europa-202610011115.jar": "cfb0d309db1549df6e0ac550604e85f326b49d2e62c355ff63542d7513376c17",
+    "cloudstack-4.23.0.0-Mold.Europa-202610011115.jar": "1909d30c4ea4297508a4a11ec9cd7ed5286f7acbc4cb6350877059707425e934",
+    "java-linstor-0.7.0.jar": "2e391ab05ff261c3d1540ffb920fada129b94614cb0eb4bc12cafeca5c98b8e3",
+    "mysql-connector-j-8.4.0.jar": "d77962877d010777cff997015da90ee689f0f4bb76848340e1488f2b83332af5"
+  },
+  "actualCalls": 0,
+  "canonicalSourceEdits": 0
+}

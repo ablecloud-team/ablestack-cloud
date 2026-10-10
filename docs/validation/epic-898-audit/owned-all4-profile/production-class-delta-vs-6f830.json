@@ -1,0 +1,67 @@
+{
+  "sourcePin": "978ec10a93af2e1176df6b7fe13bee19bc7e0f4f",
+  "baselineNormalPin": "6f830e4b6d04528d01eed50133bf9d37a4f66dd2",
+  "baselineCurrentHybridMgt": "live1909/PID1413104; Backend handles actualABI/semanticselection",
+  "fullLiveJarEqualityClaim": false,
+  "modules": {
+    "api": {
+      "count": 0,
+      "changes": []
+    },
+    "server": {
+      "count": 7,
+      "changes": [
+        {
+          "path": "server/classes/org/apache/cloudstack/storage/dataservice/StorageRenderedValidationProfile.class",
+          "beforeSha256": "44f3bb8835fee500731bf349e95ce731485532f42d024f83e7b3b674600de4d8",
+          "afterSha256": "b21681e864541eb6d33353bb4479e42cde1202097b6c9aa65bf06a42bbc038a5",
+          "change": "CHANGED"
+        },
+        {
+          "path": "server/classes/org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$2.class",
+          "beforeSha256": "b426b5f4ee6181100432a7fd95f86e7e0918b2461145421eb86f496e31e13942",
+          "afterSha256": "feb453ce846cf67107ab227a0b50848c294176a10c3f039b47e6b14bd8ce4c95",
+          "change": "CHANGED"
+        },
+        {
+          "path": "server/classes/org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$3.class",
+          "beforeSha256": "00617546288aa88a8f50c4850c049c0e59b45591dbe0450d02ab6c3a878f4602",
+          "afterSha256": "3b88beb07863202a00969bbf95cc2436a9df6dabc5a3679973d6c4dc8ffe8e40",
+          "change": "CHANGED"
+        },
+        {
+          "path": "server/classes/org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$4.class",
+          "beforeSha256": "475550676f420177b4a7ed591eb50264287efef41148c6add3edacc1e23a1187",
+          "afterSha256": "b581808f44a19ff3af4a2a49e0d48881003f746f5a369f58297a57a7420e341a",
+          "change": "CHANGED"
+        },
+        {
+          "path": "server/classes/org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$5.class",
+          "beforeSha256": "15627355dfbbd3369b4253dc41a7c6d78aeda4bad52e7907e5c5148c74e206d2",
+          "afterSha256": "e7ad9b7635be25b1ec1b0983e83bc07fd642fbef45ee9ddf8a1a0790b88d943c",
+          "change": "CHANGED"
+        },
+        {
+          "path": "server/classes/org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ConfigurationTargetCommand.class",
+          "beforeSha256": "e34da2fb1a4b1973838913dd485362586903c63e97ed0c4561193ca2ee8f7191",
+          "afterSha256": "557aff06c3fe5f89165629b8d3f4772b60e7edef2e2ee4c620ea1f43ed492c40",
+          "change": "CHANGED"
+        },
+        {
+          "path": "server/classes/org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class",
+          "beforeSha256": "cde7bbe3f6cef4c07084d35b4ef25a8c9098abb936d5c4fff63f509d243fad68",
+          "afterSha256": "7bbf1d6502b6a8b8467c16d54dd43221cf1791df2f2c85ec5a2144d7507b6792",
+          "change": "CHANGED"
+        }
+      ]
+    },
+    "plugins/hypervisors/kvm": {
+      "count": 0,
+      "changes": []
+    },
+    "plugins/storage/sharedfs/storagevm": {
+      "count": 0,
+      "changes": []
+    }
+  }
+}
