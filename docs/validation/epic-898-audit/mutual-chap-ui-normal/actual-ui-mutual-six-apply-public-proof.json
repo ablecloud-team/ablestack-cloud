@@ -1,0 +1,72 @@
+{
+  "success": true,
+  "applyInvocations": 1,
+  "dryRunPassed": true,
+  "public": {
+    "success": true,
+    "uiSourcePin": "20a3c7c7e7e4144c128ccbe2ec527d2a322e223d",
+    "normalTests": 373,
+    "normalSuites": 22,
+    "productionFiles": 850,
+    "selectedFileCount": 6,
+    "deployedFiles": [
+      "css/chunk-46259edb.d9cfad05.css",
+      "index.html",
+      "js/app.93a2cf42.js",
+      "js/app.93a2cf42.js.map",
+      "js/chunk-46259edb.eb0ddf16.js",
+      "js/chunk-46259edb.eb0ddf16.js.map"
+    ],
+    "backup": "/root/epic898-ui-mutual-chap-20a3c7c7-backup-20261010-145411-955ac3",
+    "indexSha256": "3dc40c928b5f1a3d52f721c97fa33567348702e1f2a92fdec1c3e46384a9fddd",
+    "configSha256": "d3e285317289b4eb4034141b63e4604ffd014d8bc1385aa28a007a4317c397f5",
+    "configSymlink": "/etc/cloudstack/management/config.json",
+    "webInfPreserved": true,
+    "colorLessPreserved": true,
+    "allOtherWebFilesPreserved": true,
+    "oldHashedAssetsPreserved": true,
+    "managementJarSha256": "935408703611ec4c53b455b9c453f53d4be3a94bc6d52efe222147cb9e5f4cc7",
+    "managementPid": "1400221",
+    "managementJarAndPidPreserved": true,
+    "runtimeFamilyPreservedByWholeJarSha": true,
+    "allNineLibraryFilesPreserved": true,
+    "publicTrust52Preserved": true,
+    "indexCommittedLastAtomically": true,
+    "restartInvoked": false,
+    "actualBrowserVerified": false,
+    "finalUi1275Started": false,
+    "activationTime": "2026-10-10T14:54:18.933676+09:00"
+  },
+  "httpExactSelectedSix": {
+    "css/chunk-46259edb.d9cfad05.css": {
+      "status": 200,
+      "bytes": 22240,
+      "sha256": "45b8d57d46d65d5eb1662a1c6a814cf2144454176221ffef207a8f63792e78c0"
+    },
+    "index.html": {
+      "status": 200,
+      "bytes": 32571,
+      "sha256": "3dc40c928b5f1a3d52f721c97fa33567348702e1f2a92fdec1c3e46384a9fddd"
+    },
+    "js/app.93a2cf42.js": {
+      "status": 200,
+      "bytes": 1270943,
+      "sha256": "a474074c7e3a1db94eb1d0fbb5d41da98787819fb1d095dad4a4672e92101bbd"
+    },
+    "js/app.93a2cf42.js.map": {
+      "status": 200,
+      "bytes": 2574391,
+      "sha256": "f6bc491583aa20ba42042aa9e03b01e3dbe307a406233620becf51f9811b693d"
+    },
+    "js/chunk-46259edb.eb0ddf16.js": {
+      "status": 200,
+      "bytes": 730881,
+      "sha256": "151dfe5cafe6d6f9ada700e47ead4a3e349f959ab6b0c7abfd64ab363348c78d"
+    },
+    "js/chunk-46259edb.eb0ddf16.js.map": {
+      "status": 200,
+      "bytes": 1233292,
+      "sha256": "17804d7e2616ba81026d3bbae4fd51e0acc4e12e14e84d869388ef1ef16817a5"
+    }
+  }
+}

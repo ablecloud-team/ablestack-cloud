@@ -1,0 +1,27 @@
+# retained ROOT native 승인·전송 source pin
+
+4ee52d253ff의 clean6파일은 수정후candidate SHA와 committed bytes가 같다.
+95focused tests/bashedsyntax/diff가 통과했고 actual13/ROOT/AD 효과0이다.
+ADlifecycle WIP는 제외했다. 전체native suite 재실행으로표시하지않는다.
+
+Root4와actualOLDnativegeneration/pointer/raw7을protected baseline으로잡고,
+same-op import ref의최신identity capsule+sealedprivatekey+FILEserial/FS증빙을
+실제RSA/AEAD로검증한다. stage는opaque authorization ref만받고target7 전체가
+인증된LATEST7과같아야한다. OLDnativeSHA와LATESTidentitySHA를분리하고
+keypair equality를검사한다. callerplaintext/foreignscope/mixedtarget은
+효과전에거절하며historical liveverify/rollback과과거POSIXinverse를막는다.
+Transfer-only plan과제거된과거policy의DATA변경0을유지한다.
+
+코드검토에서 iSCSI 기본discovery_auth 디렉터리를blocktarget으로오판하는
+결함을찾아그정확한이름의protected directdir만metadata로허용했다.
+auth값은읽지않는다. 새기본디렉터리fixturepositive와실target/unknownentry
+beforewrite negative를최종95검증에포함했다.
+
+수정전로그/patch를같은경로에재생성해원본raw파일은보존하지못했다.
+별도before-discovery-fix-proof에이전hash/timestamp를기록했고기존raw로그가
+남아있다고주장하지않는다. 최종logSHA df091c05935024e895af856265a46f7418b584dc86872846609c6a985fa811ae,
+patchSHA f04a2d6f8180cff14c63b0ca2f51a4e7d4e1eeab66ffb58ad564832cd4521931이다.
+
+retainedRootRestoreSupported는코드가용성literal이며productionFullFour/
+ADverifiedfalse다. 현재Java전용Runtime/수동복원연결의combinednormal검증을
+진행하고실제ROOT인수는후속이다. 최종UI1275는미착수다.

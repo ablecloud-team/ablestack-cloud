@@ -1,0 +1,59 @@
+{
+  "kind": "ISCSI_WHOLE_IQN_NORMAL_FINAL_SOURCE_AND_OUTPUT_PROOF",
+  "schemaVersion": 1,
+  "sourcePin": "ff1aa74eeda6fffba46c97d6f56c678cbdc2bf33",
+  "native": {
+    "tests": 480,
+    "selectors": 51,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "sourcePaths": 552,
+    "sourceBeforeAfterSame": true,
+    "proofSha256": "15840325c46f42657cd934afebd7436c44e83deaca5dc7f7bf3e99e58a0bca8c",
+    "immutableEntryCount": 4
+  },
+  "manager": {
+    "tests": 972,
+    "suites": 128,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "checkstyle": true,
+    "sourcePaths": 5040,
+    "sourceBeforeAfterSame": true,
+    "coreProofSha256": "2aa38bcbb790abdabeb564f88564d5e8d16687f6ff03ad1361dd54dcf412cfc0",
+    "immutableProductionFiles": 3898,
+    "outputManifestSha256": "b882bdd52e2fdc661f66ba84e2891b1dd569ed4ae71821c1490f06d5b267e7f1",
+    "currentImmutableScope": "four modules production classes/resources and top-level jars; test-classes excluded",
+    "prior4864Meaning": "prior cf6 manifest also included test-classes",
+    "priorOmittedCategoryCounts": {
+      "test-classes": 979
+    },
+    "classDeltaSha256": "a412d9f95339956f04e37707eea987e542f1d83c45a9eaae86323c338dec1bfe",
+    "actualProductionDeltaCounts": {
+      "api": 0,
+      "server": 2,
+      "plugins/hypervisors/kvm": 0,
+      "plugins/storage/sharedfs/storagevm": 0
+    }
+  },
+  "engineSchema": {
+    "sourceIncludedIn5040Snapshot": true,
+    "immutableOutputFiles": 1370,
+    "manifestPath": "/root/work/epic898-preparation/iscsi-readonly-lun-prep/normal-native-preparation/engine-schema-output-manifest.json",
+    "manifestSha256": "ea04ffc168d123dabca969876f5b626c6ed7b08344ca77d983ef65d28680ddec",
+    "sourceAndNormalCheckstyleCovered": true,
+    "actualDdlEffects": 0
+  },
+  "canonicalFreezeReleased": true,
+  "abiComparisonDelegatedToBackend": true,
+  "ownMavenRuns": 1,
+  "ownNativeNormalRuns": 1,
+  "uiRuns": 0,
+  "standaloneKvmRuns": 0,
+  "actualCalls": 0,
+  "deploy": 0,
+  "gitActions": 0,
+  "finalUi1275Started": false
+}

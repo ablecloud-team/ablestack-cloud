@@ -1,0 +1,11 @@
+{
+  "operationUuid": "df1641b6-c42a-443c-8521-a47fa6dc8c4f",
+  "revision": 11,
+  "normalUiSubmissions": 1,
+  "jobid": "227ca3ee-3044-4e66-9c7f-bfce6a34cb32",
+  "jobstatus": 2,
+  "jobresultcode": 530,
+  "errorcode": 530,
+  "errortext": "Interrupted Storage Service writer requires recovery: df1641b6-c42a-443c-8521-a47fa6dc8c4f",
+  "additionalWriterOrIoCalls": 0
+}

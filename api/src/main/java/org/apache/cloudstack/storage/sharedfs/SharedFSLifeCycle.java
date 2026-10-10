@@ -27,15 +27,52 @@ import com.cloud.exception.VirtualMachineMigrationException;
 import com.cloud.utils.Pair;
 
 public interface SharedFSLifeCycle {
+    java.util.List<org.apache.cloudstack.api.response.StorageServiceOfferingConstraintResponse> evaluateOfferings(DataCenter zone, java.util.List<Long> serviceOfferingIds);
+
     void checkPrerequisites(DataCenter zone, Long serviceOfferingId);
 
     Pair<Long, Long> deploySharedFS(SharedFS sharedFS, Long networkId, Long diskOfferingId, Long storageId, Long size, Long minIops, Long maxIops) throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException;
+
+    default void checkPrerequisites(DataCenter zone, Long serviceOfferingId, Long templateId) {
+        if (templateId != null) throw new UnsupportedOperationException("Provider does not support explicit Storage Service templates");
+        checkPrerequisites(zone, serviceOfferingId);
+    }
+
+    default Pair<Long, Long> deploySharedFS(SharedFS sharedFS, Long networkId, Long diskOfferingId, Long storageId,
+            Long size, Long minIops, Long maxIops, Long templateId) throws ResourceUnavailableException,
+            InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
+        if (templateId != null) throw new UnsupportedOperationException("Provider does not support explicit Storage Service templates");
+        return deploySharedFS(sharedFS, networkId, diskOfferingId, storageId, size, minIops, maxIops);
+    }
+
+    default Pair<Long, Long> deployWithExistingVolume(SharedFS sharedFS, Long networkId, Long volumeId, Long templateId)
+            throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
+        if (templateId != null) throw new UnsupportedOperationException("Provider does not support explicit Storage Service templates");
+        return deployWithExistingVolume(sharedFS, networkId, volumeId);
+    }
+
+    default Pair<Long, Long> deployWithExistingVolume(SharedFS sharedFS, Long networkId, Long volumeId) throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
+        throw new UnsupportedOperationException("Provider does not support preserved initial volumes");
+    }
+
+    /** The callback publishes fresh VM DB allocation or verifies the original immutable binding
+     * before retained-VM start. RAW realization requires the original QCOW2 receipt.
+     */
+    default Pair<Long, Long> deploySharedFS(SharedFS sharedFS, Long networkId, Long diskOfferingId, Long storageId,
+            Long size, Long minIops, Long maxIops, Long templateId, java.util.function.LongConsumer allocatedRecorder)
+            throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
+        throw new UnsupportedOperationException("Provider has no recorded SharedFS allocation");
+    }
 
     void startSharedFS(SharedFS sharedFS) throws OperationTimedoutException, ResourceUnavailableException, InsufficientCapacityException;
 
     boolean stopSharedFS(SharedFS sharedFS, Boolean forced);
 
     boolean deleteSharedFS(SharedFS sharedFS);
+
+    default boolean deleteSharedFS(SharedFS sharedFS, SharedFS.DataVolumePolicy policy, java.util.Set<Long> volumeIds) {
+        throw new UnsupportedOperationException("Provider does not support explicit data-volume retention");
+    }
 
     boolean reDeploySharedFS(SharedFS sharedFS) throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException;
 

@@ -39,6 +39,13 @@ mkdir cloud_scripts
 mkdir -p cloud_scripts/opt/cloudstack
 cp -r ${CLOUDSTACK_DIR}/systemvm/debian/* cloud_scripts/
 
+if [[ -n "${SYSTEMVM_STORAGE_TEMPLATE_VERSION:-}" ]]; then
+  python3 "${CLOUDSTACK_DIR}/tools/appliance/scripts/write_storage_template_manifest.py" \
+    --source-root "$CLOUDSTACK_DIR" --image-root "$TEMP_DIR/cloud_scripts" \
+    --version "$SYSTEMVM_STORAGE_TEMPLATE_VERSION" \
+    --runtime-version "$SYSTEMVM_STORAGE_RUNTIME_VERSION"
+fi
+
 mkdir -p cloud_scripts/usr/share/cloud
 cd ${CLOUDSTACK_DIR}/systemvm/debian
 tar -cf ${TEMP_DIR}/cloud_scripts/usr/share/cloud/cloud-scripts.tar *

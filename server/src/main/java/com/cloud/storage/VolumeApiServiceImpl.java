@@ -3376,8 +3376,6 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
                 }
             }
             volume.setPath(path);
-        } else {
-            volume.setPath(path);
         }
 
         if (chainInfo != null) {

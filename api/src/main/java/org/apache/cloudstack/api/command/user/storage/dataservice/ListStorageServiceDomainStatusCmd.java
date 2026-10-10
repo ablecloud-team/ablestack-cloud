@@ -43,6 +43,10 @@ public class ListStorageServiceDomainStatusCmd extends BaseListCmd implements Us
     @Parameter(name = "instanceid", type = CommandType.UUID, entityType = StorageServiceInstanceResponse.class, description = "Storage Service instance ID")
     private Long instanceId;
 
+    @Parameter(name = "fresh", type = CommandType.BOOLEAN, description = "Return a new read-only joined identity receipt for one settled Storage Service instance")
+    private Boolean fresh;
+    public Boolean getFresh() { return fresh; }
+
     public Long getInstanceId() {
         return instanceId;
     }

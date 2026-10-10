@@ -1,0 +1,181 @@
+{
+  "sourcePin": "dc1453cc782eeeee294d005871768ea57c4788b4",
+  "ownTabId": "1588257759",
+  "originalTargetUuid": "487a3d3b-b583-4499-be02-c40b45a7e6b1",
+  "initialTheme": "dark-mode",
+  "finalTheme": "dark-mode",
+  "themeRestored": true,
+  "events": [
+    {
+      "case": "existing-session-direct",
+      "atUtc": "2026-10-09T19:49:41.318Z",
+      "ownTabId": "1588257759",
+      "ready": true,
+      "xfs": true,
+      "size100GiB": true,
+      "activeNfs": true,
+      "body": "아이디\n\n487a3d3b-b583-4499-be02-c40b45a7e6b1\n이름\n\nnfs-test\n상태\n\nReady\n파일 시스템\n\nXFS\n디스크 오퍼링\n\nFTCTL internal hidden disk offering\n크기\n\n100.00 GiB\n프로비저닝 유형\n\nthin\n이용\n\n0.0%\n디스크 읽기 (KiB)\n\n6558\n디스크 쓰기 (KiB)\n\n68087\n디스크 읽기(IO)\n\n376\n디스크 쓰기(IO)\n\n79\n계정\n\nadmin\n도메인\n\nROOT\n스토리지 서비스 개요\n활성 서비스\nNFS",
+      "scriptPaths": [
+        "/client/js/chunk-f5d2a56c.c4904255.js",
+        "/client/js/chunk-4fd56e87.fe76b65f.js",
+        "/client/js/chunk-7d2a7a2f.149155ef.js",
+        "/client/js/less.min.js",
+        "/client/js/vendors.920146e2.js",
+        "/client/js/app.8fa0f943.js"
+      ],
+      "theme": "dark-mode"
+    },
+    {
+      "case": "reload-fast-nfs-details",
+      "atUtc": "2026-10-09T19:50:38.922Z",
+      "elapsedMs": 3568,
+      "initialVisible": {
+        "visibleSpinners": 0
+      },
+      "returnedToDetails": true,
+      "ready": true,
+      "size100GiB": true
+    },
+    {
+      "case": "list-to-original-details",
+      "atUtc": "2026-10-09T19:51:11.298Z",
+      "ready": true,
+      "size100GiB": true,
+      "exactTarget": true
+    },
+    {
+      "case": "consecutive-refresh-ui-flow",
+      "atUtc": "2026-10-09T19:52:01.760Z",
+      "ready": true,
+      "size100GiB": true,
+      "requestCountObserved": false,
+      "coalescingProvenByUiOnly": false
+    },
+    {
+      "case": "light-details-complete",
+      "atUtc": "2026-10-09T19:54:23.402Z",
+      "theme": "",
+      "ready": true,
+      "size100GiB": true,
+      "partialFailureObserved": false
+    },
+    {
+      "case": "light-refresh",
+      "atUtc": "2026-10-09T19:54:45.495Z",
+      "ready": true,
+      "size100GiB": true,
+      "partialFailureObserved": false
+    },
+    {
+      "case": "restore-original-dark",
+      "atUtc": "2026-10-09T19:56:51.528Z",
+      "presentation": {
+        "bodyClass": "dark-mode",
+        "darkChecked": true,
+        "partialMessageVisible": false,
+        "visibleSpinners": 0
+      },
+      "ready": true,
+      "size100GiB": true
+    }
+  ],
+  "screenshots": [
+    "01-dark-existing-session-direct.png",
+    "02-light-details-complete.png",
+    "03-dark-restored-details-complete.png"
+  ],
+  "naturalPartialFailureObserved": false,
+  "realPartialFailureGateVerified": false,
+  "initialInFlightObserved": true,
+  "requestCountObserved": false,
+  "actualCoalescingGateVerified": false,
+  "existingLoginSessionReused": true,
+  "freshLoginPerformed": true,
+  "sharedLogoutPerformed": true,
+  "hiddenVueOrPageInternalApi": false,
+  "networkInterception": false,
+  "injectedFault": false,
+  "nativeF1TabTouched": false,
+  "nativeF1TabIdExcluded": "1588257748",
+  "resourceServiceVmDataChanges": 0,
+  "uiReadActionsOnly": false,
+  "globalThemeTemporaryChange": true,
+  "finalUi1275Started": false,
+  "savedAtUtc": "2026-10-09T19:59:08.937830+00:00",
+  "ownTabClosed": true,
+  "servedSourceLink": [
+    {
+      "domSrcPath": "/client/js/chunk-7d2a7a2f.149155ef.js",
+      "servedPath": "js/chunk-7d2a7a2f.149155ef.js",
+      "path": "js/chunk-7d2a7a2f.149155ef.js",
+      "http200": true,
+      "bytes": 729169,
+      "sha256": "41a6c9bd7a2345b6dcadea0b0b6d3bf7f914da5b686abf2028210182d84ca4d4"
+    },
+    {
+      "domSrcPath": "/client/js/app.8fa0f943.js",
+      "servedPath": "js/app.8fa0f943.js",
+      "path": "js/app.8fa0f943.js",
+      "http200": true,
+      "bytes": 1270943,
+      "sha256": "a646131eb559f165d7837c1bf74a80f6a7646d0a27bff84e36d9b8e70f5cf0c9"
+    }
+  ],
+  "servedProofSha256": "b2ddf04d883f16ed78a3f796872a09d7ba786982553000324df2dc80939bca0b",
+  "deploymentProofSha256": "474eb164d66ff1b79b76c3c4a6246aef8bfd8def726843cd215d164c2b93fde2",
+  "deployedIndexSha256": "e75592ad9a85cc4de523bf05d4c8e830ada0e49b988236925ba4b1f69f4291e8",
+  "deployedSource": "dc1453cc782eeeee294d005871768ea57c4788b4",
+  "managementJarAndPidPreserved": true,
+  "screenshotsSha256": {
+    "01-dark-existing-session-direct.png": "799ff57fcd77b412fa0de5c6275afcd178fecaf13686840e8bf5c8563a2af045",
+    "02-light-details-complete.png": "393d60f9fc3f37a66dd9e5d259e7c7341acf15293c5c430b65312eec7bdb9ea5",
+    "03-dark-restored-details-complete.png": "a9a646da85a1f1db0d11679684130e68f41f035be200f2a40c082364e75d5fa8"
+  },
+  "freshAuthenticationSupplement": {
+    "sourcePin": "dc1453cc782eeeee294d005871768ea57c4788b4",
+    "ownTabId": "1588257763",
+    "originalTargetUuid": "487a3d3b-b583-4499-be02-c40b45a7e6b1",
+    "logoutCount": 1,
+    "loginCount": 1,
+    "credentialsStored": false,
+    "authFieldSnapshotSaved": false,
+    "loginDestination": "http://10.10.13.10:8080/client/",
+    "freshAuthenticationSucceeded": true,
+    "initialVisibleSpinners": 1,
+    "fastNfsDetailsClicksCompleted": true,
+    "initialRequestEndpointObserved": false,
+    "finalPresentation": {
+      "bodyClass": "dark-mode",
+      "partialFailureVisible": false,
+      "scripts": [
+        "/client/js/chunk-f5d2a56c.c4904255.js",
+        "/client/js/chunk-4fd56e87.fe76b65f.js",
+        "/client/js/chunk-7d2a7a2f.149155ef.js",
+        "/client/js/auth.9e983940.js",
+        "/client/js/chunk-80b94526.ee0d0ff5.js",
+        "/client/js/chunk-2d02c28c.8393dea2.js",
+        "/client/js/less.min.js",
+        "/client/js/vendors.920146e2.js",
+        "/client/js/app.8fa0f943.js"
+      ],
+      "visibleSpinners": 0
+    },
+    "ready": true,
+    "xfs": true,
+    "size100GiB": true,
+    "activeNfs": true,
+    "detailsBody": "아이디\n\n487a3d3b-b583-4499-be02-c40b45a7e6b1\n이름\n\nnfs-test\n상태\n\nReady\n파일 시스템\n\nXFS\n디스크 오퍼링\n\nFTCTL internal hidden disk offering\n크기\n\n100.00 GiB\n프로비저닝 유형\n\nthin\n이용\n\n0.0%\n디스크 읽기 (KiB)\n\n6558\n디스크 쓰기 (KiB)\n\n68087\n디스크 읽기(IO)\n\n376\n디스크 쓰기(IO)\n\n79\n계정\n\nadmin\n도메인\n\nROOT\n스토리지 서비스 개요\n활성 서비스\nNFS",
+    "partialFailureActualVerified": false,
+    "requestCountObserved": false,
+    "actualCoalescingVerified": false,
+    "nativeF1TabTouched": false,
+    "resourceVmDataAccountSettingsChanged": false,
+    "finalUi1275Started": false,
+    "checkedAtUtc": "2026-10-09T20:03:11.308Z"
+  },
+  "logoutPerformedAfterParentNativeIdleAuthorization": true,
+  "initialVisibleSpinnerCount": 1,
+  "initialRequestEndpointObserved": false,
+  "freshLoginScreenshotSha256": "41d0cf248f31a71897efcb554671d1bb949b36a1a3ce5d753bbdfd00447ed3a2",
+  "uiChangesLimitedToApprovedTemporaryThemeAndAuth": true
+}

@@ -71,6 +71,16 @@ PY
 }
 
 reconcile_network_endpoints() {
+  local maintenance
+  maintenance="$($STORAGECTL operation maintenance status 2>/dev/null)" || return 0
+  if ! printf '%s' "$maintenance" | python3 -c 'import json,sys; value=json.load(sys.stdin); raise SystemExit(0 if value.get("success") and not value.get("bootHeld") else 1)' >/dev/null 2>&1; then
+    return 0
+  fi
+  local rendered
+  rendered="$($STORAGECTL operation generation render-status 2>/dev/null)" || return 0
+  if ! printf '%s' "$rendered" | python3 -c 'import json,sys; value=json.load(sys.stdin); raise SystemExit(0 if value.get("success") and not value.get("bootHeld") else 1)' >/dev/null 2>&1; then
+    return 0
+  fi
   "$STORAGECTL" network endpoints reconcile >/dev/null 2>&1 || true
 }
 

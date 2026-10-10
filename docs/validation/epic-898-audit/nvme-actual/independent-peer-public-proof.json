@@ -1,0 +1,75 @@
+{
+  "kind": "INDEPENDENT_LOCAL_READONLY_PUBLICATION_PEER",
+  "atUtc": "2026-10-10T09:00:22.055407+00:00",
+  "candidatePath": "/root/work/epic898-preparation/nvme-publication-stable-snapshot-prep/candidate/ram_nvme_external.py",
+  "candidateSha256": "5364473a62f28547ef0b197e0cb75ec43b60299ac8f2ac333a12cfba85ca0336",
+  "originalPath": "/root/work/epic898-preparation/raw2-initiator-readonly-design/candidate/ram_nvme_external.py",
+  "originalSha256": "95529a74c9dc0fa5c7b41b653c71f51fd602b6311376f8ae2ef676ba20609ac6",
+  "reviewedPatchSha256": "a7aa1534bf427ddcd955a6fec1062da1bbe319a5e610953bc84cf0a767eb789c",
+  "reviewedFocusedProofSha256": "790736bed81b36e45fb26d6418b21cf8f0e19cabaa4453c6bea3c2f476eeb4cf",
+  "reviewedTestSha256": "55285ecaf3b71d22345502c774977baf2c1f9f56ace9c135651809013b719bf9",
+  "reportedFocusedTests": 10,
+  "reportedFocusedFailures": 0,
+  "reportedFocusedErrors": 0,
+  "peerTestRuns": 0,
+  "sourceEdits": 0,
+  "actualEffects": 0,
+  "outsideFunctionPrefixAndSuffixByteSame": true,
+  "review": "NO_ACTIONABLE_MISMATCH",
+  "sourceBoundaries": [
+    {
+      "path": "/root/work/epic898-preparation/nvme-publication-stable-snapshot-prep/candidate/ram_nvme_external.py",
+      "line": 10,
+      "condition": "controller stat identity is pinned on first observed sample and replacement rejects even while incomplete"
+    },
+    {
+      "path": "/root/work/epic898-preparation/nvme-publication-stable-snapshot-prep/candidate/ram_nvme_external.py",
+      "line": 17,
+      "condition": "present NQN/host/cntlid/NSID/size and block/rdev/type/path checks remain strict before pinning"
+    },
+    {
+      "path": "/root/work/epic898-preparation/nvme-publication-stable-snapshot-prep/candidate/ram_nvme_external.py",
+      "line": 35,
+      "condition": "after first complete candidate namespace inode/device inode+rdev/device path/sysfs path stay pinned through missing samples; replacement rejects"
+    },
+    {
+      "path": "/root/work/epic898-preparation/nvme-publication-stable-snapshot-prep/candidate/ram_nvme_external.py",
+      "line": 47,
+      "condition": "two consecutive live complete snapshots require exact expected binding; incomplete sample resets streak only"
+    },
+    {
+      "path": "/root/work/epic898-preparation/nvme-publication-stable-snapshot-prep/candidate/ram_nvme_external.py",
+      "line": 63,
+      "condition": "original shared deadline and at most50ms pauses retained; no connect retry"
+    },
+    {
+      "path": "/root/work/epic898-preparation/nvme-publication-stable-snapshot-prep/candidate/ram_nvme_external.py",
+      "line": 261,
+      "condition": "caller checks shared deadline before device I/O; original alarm retained"
+    },
+    {
+      "path": "/root/work/epic898-preparation/nvme-publication-stable-snapshot-prep/candidate/ram_nvme_external.py",
+      "line": 273,
+      "condition": "opened descriptor/named devnode and sysfs namespace identity rechecked before any RAW I/O"
+    },
+    {
+      "path": "/root/work/epic898-preparation/nvme-publication-stable-snapshot-prep/candidate/ram_nvme_external.py",
+      "line": 303,
+      "condition": "finally retains exact own controller deletion/removal; cleanupPending blocks later fresh context"
+    }
+  ],
+  "fixturesReviewed": [
+    "partial path/inode transition before first complete succeeds only with same expected/controller binding",
+    "complete namespace replacement rejects",
+    "partial controller replacement and foreign fields reject",
+    "devtype/rdev and post-pin device/sysfs paths reject",
+    "missing resets consecutive samples without dropping pin",
+    "two complete samples fit deadline; dead controller rejects"
+  ],
+  "limitations": [
+    "Actual C2 error NAMESPACE_REPLACED is known, but exact before/after path transition was not recorded; no actual candidate success claim",
+    "First partial path cache used only for failure cleanup remains original code; successful return replaces cache with fully validated final snapshot",
+    "Read-only peer does not replay focused tests or make new transport/I/O calls"
+  ],
+  "ui1275": "UNSTARTED"
+}

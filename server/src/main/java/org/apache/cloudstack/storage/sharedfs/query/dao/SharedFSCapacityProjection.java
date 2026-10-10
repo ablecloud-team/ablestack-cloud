@@ -1,0 +1,88 @@
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
+package org.apache.cloudstack.storage.sharedfs.query.dao;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.Collections;
+import com.cloud.utils.db.TransactionLegacy;
+import com.cloud.utils.exception.CloudRuntimeException;
+
+/** Page-scoped DB projection: all attached, distinct DATA volumes including unreferenced preparation volumes. No guest reads. */
+public final class SharedFSCapacityProjection {
+    private SharedFSCapacityProjection() { }
+
+    public static final class Capacity {
+        private final Set<Long> volumes = new HashSet<>();
+        private long total;
+        private boolean unknown;
+        private boolean transitioning;
+        private long observedUsed;
+        private long oldestObservation=Long.MAX_VALUE;
+        private int observedVolumes;
+        private boolean staleUsage;
+        public void add(final long volumeId, final Long size, final String state) {
+            if (!volumes.add(volumeId)) return;
+            if (size == null || size < 0) unknown = true;
+            else total = Math.addExact(total, size);
+            if (!"Ready".equals(state)) transitioning = true;
+        }
+        public void observe(final SharedFSCapacityCache.Usage usage, final long now) {
+            if (usage==null) return;
+            observedVolumes++;observedUsed=Math.addExact(observedUsed,usage.usedBytes);
+            oldestObservation=Math.min(oldestObservation,usage.observedEpoch);
+            if (!usage.fresh(now)) staleUsage=true;
+        }
+        public Long getUsed() { return observedVolumes==volumes.size() && observedVolumes>0 ? observedUsed : null; }
+        public String getObservedAt() { return oldestObservation==Long.MAX_VALUE ? null : SharedFSCapacityCache.observedAt(oldestObservation); }
+        public Long getTotal() { return unknown ? null : total; }
+        public int getCount() { return volumes.size(); }
+        public String getState() { return unknown ? "UNAVAILABLE" : transitioning ? "TRANSITIONING" : staleUsage ? "USAGE_STALE" : observedVolumes==0 ? "PROVISIONED_USAGE_UNOBSERVED" : observedVolumes<volumes.size() ? "USAGE_PARTIAL" : "FRESH"; }
+    }
+
+    public static Map<Long, Capacity> load(final Long[] ids) {
+        final Map<Long, Capacity> result = new HashMap<>();
+        if (ids.length == 0) return result;
+        for (Long id : ids) result.put(id, new Capacity());
+        final String slots = String.join(",", Collections.nCopies(ids.length, "?"));
+        final String query = "SELECT sf.id, v.id, v.size, v.state, sf.vm_id, v.uuid FROM shared_filesystem sf "
+                + "JOIN volumes v ON v.instance_id=sf.vm_id AND v.volume_type='DATADISK' "
+                + "WHERE sf.id IN (" + slots + ") AND v.removed IS NULL "
+                + "AND v.state NOT IN ('Destroy','Destroying','Expunging','Expunged')";
+        try (PreparedStatement statement = TransactionLegacy.currentTxn().prepareAutoCloseStatement(query)) {
+            for (int i=0; i<ids.length; i++) statement.setLong(i+1, ids[i]);
+            try (ResultSet rows = statement.executeQuery()) {
+                while (rows.next()) {
+                    long size = rows.getLong(3);
+                    Long bytes = rows.wasNull() ? null : size;
+                    Capacity capacity=result.computeIfAbsent(rows.getLong(1), key -> new Capacity());
+                    capacity.add(rows.getLong(2), bytes, rows.getString(4));
+                    capacity.observe(SharedFSCapacityCache.get(rows.getLong(5),rows.getString(6)),System.currentTimeMillis()/1000);
+                }
+            }
+        } catch (SQLException e) {
+            throw new CloudRuntimeException("Unable to load SharedFS backing volume capacity projection", e);
+        }
+        return result;
+    }
+}

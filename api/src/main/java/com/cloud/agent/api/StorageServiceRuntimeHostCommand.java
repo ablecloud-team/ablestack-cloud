@@ -28,6 +28,7 @@ public class StorageServiceRuntimeHostCommand extends Command {
     private long offset;
     private int rawLength;
     private String chunkSha256;
+    private String fileSha256;
     private String chunkBase64;
     private boolean truncate;
     private boolean finalChunk;
@@ -90,6 +91,9 @@ public class StorageServiceRuntimeHostCommand extends Command {
         return rawLength;
     }
 
+    public String getFileSha256() { return fileSha256; }
+    public void setFileSha256(String value) { fileSha256=value; }
+
     public String getChunkSha256() {
         return chunkSha256;
     }
@@ -116,6 +120,7 @@ public class StorageServiceRuntimeHostCommand extends Command {
 
     @Override
     public boolean executeInSequence() {
-        return true;
+        return operation!=StorageServiceRuntimeOperation.CAPABILITIES && operation!=StorageServiceRuntimeOperation.STATUS
+                && operation!=StorageServiceRuntimeOperation.READBACK;
     }
 }

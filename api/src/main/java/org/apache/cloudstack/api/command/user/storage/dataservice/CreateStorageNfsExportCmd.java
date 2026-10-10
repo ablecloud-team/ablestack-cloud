@@ -22,7 +22,6 @@ import javax.inject.Inject;
 import org.apache.cloudstack.acl.RoleType;
 import org.apache.cloudstack.api.APICommand;
 import org.apache.cloudstack.api.ApiConstants;
-import org.apache.cloudstack.api.BaseAsyncCmd;
 import org.apache.cloudstack.api.Parameter;
 import org.apache.cloudstack.api.ServerApiException;
 import org.apache.cloudstack.api.ApiErrorCode;
@@ -39,7 +38,7 @@ import org.apache.cloudstack.storage.dataservice.StorageService;
         responseHasSensitiveInfo = false,
         since = "4.21.0",
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
-public class CreateStorageNfsExportCmd extends BaseAsyncCmd implements UserCmd {
+public class CreateStorageNfsExportCmd extends BaseStorageServiceAsyncCmd implements UserCmd {
     @Inject
     StorageService storageService;
 
@@ -125,6 +124,12 @@ public class CreateStorageNfsExportCmd extends BaseAsyncCmd implements UserCmd {
     @Parameter(name = "deferapply", type = CommandType.BOOLEAN,
             description = "defer applying the NFS desired state until a later API call completes the initial export policy")
     private Boolean deferApply;
+
+    @Parameter(name = "posixpolicyid", type = CommandType.UUID, entityType = org.apache.cloudstack.api.response.StoragePosixDirectoryPolicyResponse.class,
+            description = "Common directory policy to inherit; protocol-local owner and mode must match it")
+    private Long posixPolicyId;
+
+    public Long getPosixPolicyId() { return posixPolicyId; }
 
     public Long getInstanceId() {
         return instanceId;
@@ -230,10 +235,7 @@ public class CreateStorageNfsExportCmd extends BaseAsyncCmd implements UserCmd {
         return deferApply;
     }
 
-    @Override
-    public long getEntityOwnerId() {
-        return 0;
-    }
+
 
     @Override
     public String getEventType() {

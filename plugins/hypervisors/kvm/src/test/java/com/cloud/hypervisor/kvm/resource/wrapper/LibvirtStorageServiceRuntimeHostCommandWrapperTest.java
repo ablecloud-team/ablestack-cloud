@@ -110,4 +110,29 @@ public class LibvirtStorageServiceRuntimeHostCommandWrapperTest {
         }
         return result.toString();
     }
+
+    @org.junit.Test public void protectedBootstrapIsInstalledAtomicallyOnlyAfterItsCompleteHashMatches() throws Exception {
+        java.nio.file.Path dir=java.nio.file.Files.createTempDirectory("runtime-bootstrap-atomic");java.nio.file.Path live=dir.resolve("updater.py"),incoming=dir.resolve("updater.py.incoming");
+        boolean systemVmRoot=((Number)java.nio.file.Files.getAttribute(dir,"unix:uid")).intValue()==0;
+        if (!systemVmRoot) java.nio.file.Files.delete(dir);
+        org.junit.Assume.assumeTrue("Bootstrap installation validates the SystemVM root-owned file contract",systemVmRoot);
+        java.nio.file.Files.writeString(live,"working-old-helper");byte[] next="verified-new-helper".getBytes(java.nio.charset.StandardCharsets.UTF_8);java.nio.file.Files.write(incoming,next);
+        com.cloud.agent.api.StorageServiceRuntimeHostCommand command=new com.cloud.agent.api.StorageServiceRuntimeHostCommand("same-vm","root-op",com.cloud.agent.api.StorageServiceRuntimeFileType.UPDATER_MODULE,null,0,next.length,"0".repeat(64),"",true,true,30);
+        String digest=org.apache.commons.codec.digest.DigestUtils.sha256Hex(next);command.setFileSha256("0".repeat(64));
+        LibvirtStorageServiceRuntimeHostCommandWrapper wrapper=new LibvirtStorageServiceRuntimeHostCommandWrapper();
+        com.google.gson.JsonArray arguments=wrapper.bootstrapInstallArguments(command,incoming.toString(),live.toString());
+        java.util.List<String> process=new java.util.ArrayList<>();process.add("python3");for(com.google.gson.JsonElement item:arguments) process.add(item.getAsString());
+        Process bad=new ProcessBuilder(process).redirectErrorStream(true).start();bad.getInputStream().readAllBytes();org.junit.Assert.assertNotEquals(0,bad.waitFor());org.junit.Assert.assertEquals("working-old-helper",java.nio.file.Files.readString(live));
+        command.setFileSha256(digest);arguments=wrapper.bootstrapInstallArguments(command,incoming.toString(),live.toString());process=new java.util.ArrayList<>();process.add("python3");for(com.google.gson.JsonElement item:arguments) process.add(item.getAsString());
+        Process good=new ProcessBuilder(process).redirectErrorStream(true).start();String output=new String(good.getInputStream().readAllBytes(),java.nio.charset.StandardCharsets.UTF_8);org.junit.Assert.assertEquals(output,0,good.waitFor());org.junit.Assert.assertArrayEquals(next,java.nio.file.Files.readAllBytes(live));org.junit.Assert.assertFalse(java.nio.file.Files.exists(incoming));
+        java.nio.file.Files.delete(live);java.nio.file.Files.delete(dir);
+    }
+    @org.junit.Test public void protectedBootstrapCannotFollowAnIncomingSymlinkIntoAnExistingFile() throws Exception {
+        java.nio.file.Path dir=java.nio.file.Files.createTempDirectory("runtime-bootstrap-symlink");java.nio.file.Path live=dir.resolve("updater.py"),incoming=dir.resolve("updater.py.incoming");
+        java.nio.file.Files.writeString(live,"preserved-helper");java.nio.file.Files.createSymbolicLink(incoming,live);
+        com.cloud.agent.api.StorageServiceRuntimeHostCommand command=new com.cloud.agent.api.StorageServiceRuntimeHostCommand("same-vm","root-op",com.cloud.agent.api.StorageServiceRuntimeFileType.UPDATER_MODULE,null,0,1,"0".repeat(64),"",true,true,30);command.setFileSha256("0".repeat(64));
+        com.google.gson.JsonArray arguments=new LibvirtStorageServiceRuntimeHostCommandWrapper().bootstrapPrepareArguments(command,incoming.toString());java.util.List<String> process=new java.util.ArrayList<>();process.add("python3");for(com.google.gson.JsonElement item:arguments) process.add(item.getAsString());
+        Process bad=new ProcessBuilder(process).redirectErrorStream(true).start();bad.getInputStream().readAllBytes();org.junit.Assert.assertNotEquals(0,bad.waitFor());org.junit.Assert.assertEquals("preserved-helper",java.nio.file.Files.readString(live));
+        java.nio.file.Files.delete(incoming);java.nio.file.Files.delete(live);java.nio.file.Files.delete(dir);
+    }
 }

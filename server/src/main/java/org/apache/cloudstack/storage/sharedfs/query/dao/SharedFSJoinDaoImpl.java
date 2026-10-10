@@ -79,6 +79,15 @@ public class SharedFSJoinDaoImpl extends GenericDaoBase<SharedFSJoinVO, Long> im
 
     @Override
     public SharedFSResponse newSharedFSResponse(ResponseObject.ResponseView view, SharedFSJoinVO sharedFS) {
+        SharedFSResponse response=newSharedFSResponseBase(view,sharedFS);
+        SharedFSCapacityProjection.Capacity capacity=SharedFS.SharedFSFeatureEnabled.value()
+                ? SharedFSCapacityProjection.load(new Long[] {sharedFS.getId()}).get(sharedFS.getId()) : null;
+        applyCapacity(response,capacity);
+        if (SharedFS.SharedFSFeatureEnabled.value()) applyInitialVolume(response,SharedFSInitialVolumeProjection.load(new Long[] {sharedFS.getId()}).get(sharedFS.getId()));
+        return response;
+    }
+
+    protected SharedFSResponse newSharedFSResponseBase(ResponseObject.ResponseView view, SharedFSJoinVO sharedFS) {
         SharedFSResponse response = new SharedFSResponse();
         response.setId(sharedFS.getUuid());
         response.setName(sharedFS.getName());
@@ -150,6 +159,7 @@ public class SharedFSJoinDaoImpl extends GenericDaoBase<SharedFSJoinVO, Long> im
             response.setSize(sharedFS.getDiskOfferingSize());
         }
         response.setSizeGB(sharedFS.getSize());
+        response.setInitialVolumeBytes(sharedFS.getSize());
 
         response.setServiceOfferingId(sharedFS.getServiceOfferingUuid());
         response.setServiceOfferingName(sharedFS.getServiceOfferingName());
@@ -190,10 +200,30 @@ public class SharedFSJoinDaoImpl extends GenericDaoBase<SharedFSJoinVO, Long> im
     public List<SharedFSResponse> createSharedFSResponses(ResponseObject.ResponseView view, SharedFSJoinVO... sharedFSs) {
         List<SharedFSResponse> sharedFSRespons = new ArrayList<>();
 
+        final Long[] ids = java.util.Arrays.stream(sharedFSs).map(SharedFSJoinVO::getId).toArray(Long[]::new);
+        final java.util.Map<Long, SharedFSCapacityProjection.Capacity> capacities = SharedFS.SharedFSFeatureEnabled.value()
+                ? SharedFSCapacityProjection.load(ids) : java.util.Collections.emptyMap();
+        final java.util.Map<Long,SharedFSInitialVolumeProjection.Metadata> metadata=SharedFS.SharedFSFeatureEnabled.value()
+                ? SharedFSInitialVolumeProjection.load(ids) : java.util.Collections.emptyMap();
         for (SharedFSJoinVO sharedFS : sharedFSs) {
-            sharedFSRespons.add(newSharedFSResponse(view, sharedFS));
+            final SharedFSResponse response = newSharedFSResponseBase(view, sharedFS);
+            final SharedFSCapacityProjection.Capacity capacity = capacities.get(sharedFS.getId());
+            applyCapacity(response,capacity);
+            applyInitialVolume(response,metadata.get(sharedFS.getId()));
+            sharedFSRespons.add(response);
         }
         return sharedFSRespons;
+    }
+
+    protected void applyInitialVolume(SharedFSResponse response,SharedFSInitialVolumeProjection.Metadata metadata) {
+        if (metadata==null) return;
+        response.setBackingVolumeMode(metadata.mode);response.setInitialImportState(metadata.state);
+    }
+
+    protected void applyCapacity(SharedFSResponse response, SharedFSCapacityProjection.Capacity capacity) {
+        if (capacity==null) { response.setCapacityState("UNAVAILABLE");return; }
+        response.setTotalProvisionedBytes(capacity.getTotal());response.setBackingVolumeCount(capacity.getCount());
+        response.setCapacityState(capacity.getState());response.setUsedBytes(capacity.getUsed());response.setCapacityObservedAt(capacity.getObservedAt());
     }
 
     @Override

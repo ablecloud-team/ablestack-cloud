@@ -58,6 +58,12 @@ public class StorageFileShareVO implements StorageFileShare {
     @Column(name = "path")
     private String path;
 
+    @Column(name = "posix_policy_id")
+    private Long posixPolicyId;
+
+    public Long getPosixPolicyId() { return posixPolicyId; }
+    public void setPosixPolicyId(Long value) { posixPolicyId = value; }
+
     @Column(name = "volume_id")
     private Long volumeId;
 
@@ -99,6 +105,11 @@ public class StorageFileShareVO implements StorageFileShare {
         return id;
     }
 
+    /** Only a reviewed private configuration batch may choose an unpersisted share identity. */
+    public void setConfigurationRestoreUuid(String value) {
+        if(id!=0||state!=StorageServiceInstance.ResourceState.Creating||value==null||!value.matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"))throw new IllegalArgumentException("Invalid unpersisted configuration share identity");
+        uuid=value;
+    }
     public String getUuid() {
         return uuid;
     }

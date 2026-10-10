@@ -1,0 +1,136 @@
+{
+  "kind": "ISCSI_GUARD_DIAGNOSTIC_NORMAL_SOURCE_VALIDATION",
+  "sourcePin": "8de98e253660f406f6f0b276a6ace1aa53e9637d",
+  "sourceFreezeCanRelease": true,
+  "sourceBeforeAfterSame": true,
+  "allTrackedFilesAndSymlinks": 15574,
+  "allTrackedNulSha256": "e190e3cb056c4d060683edf07027bbd3fbed93175b078a43c14846ef0730f50e",
+  "archiveComparison": {
+    "sourcePin": "8de98e253660f406f6f0b276a6ace1aa53e9637d",
+    "method": "Reuse exact354d archive/tree comparison for unchanged entries; verify sole changed8de CLI blob bytes against before/after",
+    "trackedFilesAndSymlinks": 15574,
+    "matched": 15574,
+    "missing": 0,
+    "mismatch": 0,
+    "changedEntries": [
+      "systemvm/debian/usr/local/bin/ablestack-storagectl"
+    ],
+    "baseArchiveProof": "/root/work/epic898-preparation/iscsi-safe-failure-diagnostics/guard-normal-354d920ff1a1/archive-source-comparison.json",
+    "archiveRegenerated": false
+  },
+  "maven": {
+    "buildSourcePin": "354d920ff1a1970e56d80e7116b6be944e23d266",
+    "compatibleCodePin": "8de98e253660f406f6f0b276a6ace1aa53e9637d",
+    "cliOnlyCallbackChangeMavenReused": true,
+    "tests": 75,
+    "suites": 7,
+    "FES": [
+      0,
+      0,
+      0
+    ],
+    "checkstylePassed": true,
+    "exit": {
+      "sourcePin": "354d920ff1a1970e56d80e7116b6be944e23d266",
+      "kind": "maven",
+      "exitCode": 0,
+      "elapsedSeconds": 84.987
+    },
+    "xmlProof": "/root/work/epic898-preparation/iscsi-safe-failure-diagnostics/guard-normal-354d920ff1a1/scoped-seven-xml-summary.json"
+  },
+  "native": {
+    "sourcePin": "8de98e253660f406f6f0b276a6ace1aa53e9637d",
+    "selectors": 50,
+    "changedLifecycleIncludedOnce": true,
+    "tests": 470,
+    "FES": [
+      0,
+      0,
+      0
+    ],
+    "reportedSeconds": 100.362,
+    "exit": {
+      "sourcePin": "8de98e253660f406f6f0b276a6ace1aa53e9637d",
+      "exitCode": 0,
+      "elapsedSeconds": 100.868
+    },
+    "PYTHONPATH": "systemvm/test"
+  },
+  "failedHistory": {
+    "sourcePin": "354d920ff1a1970e56d80e7116b6be944e23d266",
+    "tests": 411,
+    "failures": 1,
+    "errors": 10,
+    "proof": "/root/work/epic898-preparation/iscsi-safe-failure-diagnostics/guard-normal-354d920ff1a1/failed-native-original-354d-public-proof.json",
+    "normalPassNotAssignedToFailedRun": true
+  },
+  "callbackFocused": {
+    "tests": 29,
+    "Lifecycle": 13,
+    "InlineSources": 16,
+    "exitCode": 0
+  },
+  "immutable": {
+    "root": "/root/work/epic898-preparation/iscsi-safe-failure-diagnostics/guard-final-8de98e253660/immutable-kvm75-source354d/module-outputs",
+    "manifestSha256": "0696fcc72019be312bcee261f85e635611b76e298757fdaec09d879ccd0a91c7",
+    "files": 3046,
+    "compilerBuildSourcePin": "354d920ff1a1970e56d80e7116b6be944e23d266",
+    "notRelabeledAs8deRecompile": true
+  },
+  "classDeltaVsFfef": {
+    "api": [
+      {
+        "classPath": "org/apache/cloudstack/storage/sharedfs/SharedFSLifeCycle.class",
+        "oldSha256": "f43eb763016958e7152e303f999dd0a3af3b7bf3205eed17e307f25e178e8511",
+        "newSha256": "2a83c6373053ffb3842ff92eb6a47655bd3b17c578f26f59c31dd011e93de44c"
+      },
+      {
+        "classPath": "org/apache/cloudstack/storage/sharedfs/SharedFSService.class",
+        "oldSha256": "475a5e523a2003fd501ba8d7885e543e94e6fef32b9c55e380f0e485d2afe13e",
+        "newSha256": "2aa0edf8b7e9108cbc1200ebc0db96e2f3ea3d65734539219a154f6251b283bb"
+      }
+    ],
+    "plugins/hypervisors/kvm": [
+      {
+        "classPath": "com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapper.class",
+        "oldSha256": "45e4173eadecf0f525eff2e4e6f3e98ca15e1e26e9ccd48dad62151193229851",
+        "newSha256": "95c5223d981bb4a56b1dafef09b6c9684d6426a613cdc0beef931470d8daecbd"
+      }
+    ]
+  },
+  "thisDiagnosticApiSourceDelta": 0,
+  "apiDeployIncluded": false,
+  "apiHistoricalTwoDelta": "Earlier8a allocation SharedFSLifeCycle/SharedFSService; outside this diagnostic unit",
+  "wrapperClassCount": 1,
+  "wrapperClassSha256": "95c5223d981bb4a56b1dafef09b6c9684d6426a613cdc0beef931470d8daecbd",
+  "publicProtectedAbiSame": true,
+  "addedExternalMemberReferences": 0,
+  "actual45eProvidersReferenceReuse": {
+    "path": "/root/work/epic898-preparation/iscsi-safe-failure-diagnostics/final-ffef35c/added-member-resolution-proof.json",
+    "sha256": "65acef4fa9543736c1720db92b87895cb145448e96be3de14cf9a2fc8258acb4",
+    "reason": "ABI same/no added refs vs exact actual45e wrapper; previous provider4/refs27 resolution remains valid; no fresh guest probe"
+  },
+  "nativeEntries": {
+    "cli": {
+      "sourcePath": "systemvm/debian/usr/local/bin/ablestack-storagectl",
+      "sha256": "c2655694946b7e1ec630940233ba59fb64724593a74a6c569674269727734f12"
+    },
+    "boot": {
+      "sourcePath": "systemvm/debian/usr/local/bin/ablestack-storage-boot-reconcile",
+      "sha256": "f2926ebd58ae8889589e926e406e19ac10e4fd15b5a70eb0f24d80d3ce97682b"
+    },
+    "monitor": {
+      "sourcePath": "systemvm/debian/usr/local/bin/ablestack-storage-monitor",
+      "sha256": "af923d10c4591078b70b22904b62c07fced0479f2a773481214cb519d403f2f7"
+    }
+  },
+  "actualFailureCause": "UNKNOWN",
+  "remainingGenericDirectChapGuardLimit": true,
+  "effects": {
+    "mavenRepeatAfter8de": 0,
+    "actualDeploy": 0,
+    "guestCalls": 0,
+    "signingKeyAccess": 0
+  },
+  "ui1275": "UNSTARTED"
+}

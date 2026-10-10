@@ -1,0 +1,19 @@
+{
+  "kind": "NORMAL_UI_ORIGINAL_FEF_SOURCE_RECOVERY_TERMINAL",
+  "instanceUuid": "3480bb2c-99ee-42f2-91cf-715ded5dd35f",
+  "jobid": "767e0132-25a1-4545-af2a-2b59097bd34e",
+  "jobstatus": 1,
+  "jobresultcode": 0,
+  "operation": {
+    "id": "fef126a6-936a-4936-b22c-201b7e5b9b4d",
+    "action": "createstoragesmbaclresponse",
+    "state": "ROLLED_BACK",
+    "phase": "INTERRUPTED_WRITER_ROLLED_BACK",
+    "revision": 5,
+    "progress": 100,
+    "diagnostic": "LOCAL SOURCE owned checkpoint requires reconciliation | checkpoint cleanup: LOCAL SOURCE owned checkpoint requires reconciliation | Interrupted writer recovery failed: LOCAL SOURCE owned checkpoint requires reconciliation | Interrupted writer recovery failed: LOCAL SOURCE owned checkpoint requires reconciliation | Interrupted writer recovery failed: LOCAL SOURCE owned checkpoint requires reconciliation | Interrupted writer restored its previous configuration"
+  },
+  "normalUiConfirmSubmissions": 1,
+  "directApiApply": false,
+  "aclOrExternalIoCalls": 0
+}

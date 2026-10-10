@@ -17,6 +17,7 @@
 
 package com.cloud.agent.api;
 
+@LogLevel(LogLevel.Log4jLevel.Off)
 public class StorageServiceHostAnswer extends Answer {
     private String resultJson;
 

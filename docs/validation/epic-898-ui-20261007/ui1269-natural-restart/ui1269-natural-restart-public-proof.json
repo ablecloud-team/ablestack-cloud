@@ -1,0 +1,460 @@
+{
+  "kind": "UI1269_NATURAL_RESTART_AUTH_REDIRECT_AND_READONLY_RECOVERY",
+  "sharedFsId": "487a3d3b-b583-4499-be02-c40b45a7e6b1",
+  "name": "nfs-test",
+  "ownedChromeTabId": "1588257748",
+  "normalBaselineUpdateClicks": 1,
+  "restartSignalEarlyUpdate": {
+    "clickUtc": "2026-10-10T01:49:07.260Z",
+    "protectedRequest": [
+      {
+        "command": "listSharedFileSystems",
+        "method": "GET",
+        "protectedResourceIdMatched": true,
+        "status": 200,
+        "terminal": "FINISHED"
+      }
+    ]
+  },
+  "naturalRestartObservation": {
+    "networkLoadingFailedEvents": 13,
+    "exactFailureWasProtectedReadRequest": false,
+    "loginRedirectObserved": true,
+    "http401Observed": false,
+    "downWindowUpdateLocatorNoMatch": true,
+    "downWindowUpdateClicks": 0,
+    "partialReadWarningObserved": false,
+    "partialReadFailureFiniteSpinnerAndWarningRetry": "미검증; 로그인 전환으로 해당 구간을 놓침"
+  },
+  "normalLogin": {
+    "submissions": 1,
+    "existingCredentialUsedWithoutChange": true,
+    "credentialPersistence": false,
+    "submittedAtUtc": "2026-10-10T01:52:30.395Z",
+    "sameProtectedDirectRedirectReturned": true,
+    "postLoginSpinnerEnded": true
+  },
+  "normalManualUpdateAfterLogin": {
+    "submissions": 1,
+    "clickUtc": "2026-10-10T01:52:46.860Z",
+    "observedAtUtc": "2026-10-10T01:53:25.626Z",
+    "truncated": false,
+    "hasMore": false,
+    "requests": [
+      {
+        "command": "readyForShutdown",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listSharedFileSystems",
+        "method": "GET",
+        "protectedResourceIdMatched": true,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listStorageServiceInstances",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listResourceIcon",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listResourceIcon",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listAccounts",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listVirtualMachines",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listVolumes",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listVolumes",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listDiskOfferings",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listStoragePools",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listStorageServiceHealth",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listStorageServiceProtocols",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listStorageServiceDomainStatus",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listStorageNfsExports",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listStorageSmbShares",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listStorageIscsiTargets",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listStorageServiceInventory",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listStorageServiceSessions",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listStorageNvmeOfSubsystems",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listStorageNvmeOfNamespaces",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listStorageNfsAcls",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listVolumes",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listVolumes",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listVolumes",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "readyForShutdown",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "readyForShutdown",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listWallAlertRules",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "readyForShutdown",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listSharedFileSystems",
+        "method": "GET",
+        "protectedResourceIdMatched": true,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listStorageServiceInstances",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listResourceIcon",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listResourceIcon",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listAccounts",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listVirtualMachines",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listVolumes",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listVolumes",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listDiskOfferings",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listStoragePools",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listStorageServiceHealth",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listStorageServiceProtocols",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listStorageServiceDomainStatus",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listStorageNfsExports",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listStorageSmbShares",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listStorageIscsiTargets",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listStorageServiceInventory",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listStorageServiceSessions",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listStorageNvmeOfSubsystems",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listStorageNvmeOfNamespaces",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listStorageNfsAcls",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listVolumes",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listVolumes",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "listVolumes",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "readyForShutdown",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "readyForShutdown",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "readyForShutdown",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      },
+      {
+        "command": "readyForShutdown",
+        "method": "GET",
+        "protectedResourceIdMatched": false,
+        "status": 200,
+        "terminal": "FINISHED"
+      }
+    ],
+    "visibleState": "Ready",
+    "filesystem": "XFS",
+    "capacity": "100.00 GiB",
+    "activeService": "NFS",
+    "spinnerEnded": true
+  },
+  "coalescingConclusion": "미검증; background polling 전체수로 판단하지 않음",
+  "extraManagementRestarts": 0,
+  "dataConfigurationGuestF1RecoveryOrWriterActions": 0,
+  "hiddenVueNetworkInjectionTimeoutFakeOrDomMutation": false,
+  "ui1275": "UNSTARTED",
+  "screenshots": {
+    "baseline": "C:/Users/ablecloud/.codex/artifacts/epic898-current-500/ui1269-protected487-readonly-baseline.jpg",
+    "redirect": "C:/Users/ablecloud/.codex/artifacts/epic898-current-500/ui1269-natural-restart-login-redirect.jpg",
+    "recovered": "C:/Users/ablecloud/.codex/artifacts/epic898-current-500/ui1269-normal-login-protected487-update-recovered.jpg"
+  }
+}

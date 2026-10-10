@@ -1,0 +1,52 @@
+{
+  "kind": "STABLE536_SEPARATE_PUBLIC_CLIENT_STAGE_SELFTEST",
+  "runtimeFileHashes": {
+    "external_public.py": "1d544bc3645bce501b53989131c382735dc200159cf62de4f96ac67962b6cce5",
+    "ram_nvme_external.py": "5364473a62f28547ef0b197e0cb75ec43b60299ac8f2ac333a12cfba85ca0336"
+  },
+  "stage": "/run/epic898-nvme-ec92-stable536-13fe",
+  "old955StageOverwrites": 0,
+  "keyUpdates": 0,
+  "targetConnections": 0,
+  "dataWrites": 0,
+  "clients": {
+    "C1": {
+      "success": true,
+      "apiReady": true,
+      "stdinOnly": true,
+      "secretArgv": false,
+      "sessionCount": 0,
+      "dataWrites": 0,
+      "publicHashesVerified": true,
+      "publicFileCount": 2,
+      "nvmeFabricsPresent": true,
+      "loadedModules": {
+        "nvme_tcp": true,
+        "nvme_core": true,
+        "nvme_auth": true
+      },
+      "existingControllerCount": 0,
+      "existingNamespaceCount": 0,
+      "targetConnections": 0
+    },
+    "C2": {
+      "success": true,
+      "apiReady": true,
+      "stdinOnly": true,
+      "secretArgv": false,
+      "sessionCount": 0,
+      "dataWrites": 0,
+      "publicHashesVerified": true,
+      "publicFileCount": 2,
+      "nvmeFabricsPresent": true,
+      "loadedModules": {
+        "nvme_tcp": true,
+        "nvme_core": true,
+        "nvme_auth": true
+      },
+      "existingControllerCount": 0,
+      "existingNamespaceCount": 0,
+      "targetConnections": 0
+    }
+  }
+}

@@ -1,0 +1,22 @@
+# AD native producer 형식 정합성 모듈 후속
+
+50bc58bc07e1dcd89f89a30f3f005f12182646f2의4Java파일을exactSHA로pin했다.
+normalCheckstyle120suites/762tests와direct121 실패·오류·skip0이다.
+Java9887 NULSHA60ce54fd572056299f805c4b8aec1a379fff9fb20fd7dac32534281869a67111
+및producer2SHA가전후같고DDL/bootstrap0이다.
+출력은ad-native-shape-final-762/module-outputs에보관했다.
+
+native keytab_principals는host/name·cifs/name으로정규화하고realm을별도로
+반환하지만source760은SPN의@REALM을요구해정상신원을거절했다.
+producer형식을실제순수Python함수→Javareceipt로검증해수정했고
+가입된SMB이름은검증된receipt의AST/STOR를사용한다. 미가입기본STOR는
+유지하며가입receipt없을때blindregenerate로우회하지않는다.
+
+Java실행시nativewholefilebeforehash를기록하지않아그전후안정성을
+증명했다고표시하지않는다. 별도검토에서domain_name/service_principal/
+keytab_principals 함수SHA가committedHEAD와일치하고전체ADWIP가불필요함을
+확인했다. ad-native-shape-committed-producer-proof.json과
+producer-function-proof.json에기록했다.
+
+actualAD/관리반영0,JOIN/LEAVEproducer미완성/semanticdefer유지/prodADfalse다.
+최종UI1275는미착수다.

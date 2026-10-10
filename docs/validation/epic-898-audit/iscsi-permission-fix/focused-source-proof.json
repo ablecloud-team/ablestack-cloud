@@ -1,0 +1,89 @@
+{
+  "kind": "WHOLE_IQN_READ_ONLY_MAPPING_SOURCE_PREP_FROZEN",
+  "patchPath": "/root/work/epic898-preparation/iscsi-readonly-lun-prep/whole-iqn-lun-permission-prep.patch",
+  "patchSha256": "171b02f722db8e3616afda8d12c71abe8fde220b36687fc3f22ff5f5d2a8a19a",
+  "files": [
+    {
+      "path": "systemvm/debian/usr/local/bin/ablestack-storagectl",
+      "baselineSha256": "c2655694946b7e1ec630940233ba59fb64724593a74a6c569674269727734f12",
+      "candidateSha256": "9b1a9836cd2f8ded28d0e8fab7a97a9da1a95b986f3faa445e2f0c0b708760a0",
+      "new": false
+    },
+    {
+      "path": "systemvm/debian/usr/local/lib/ablestack-storage/iscsi_auth.py",
+      "baselineSha256": "4125ab3775a078de99b0ef071683ae0f6a1d76f594ee0f0e18cbfd960911a560",
+      "candidateSha256": "9cbe0edd48d52472036e20dba6a2daa7b2a7908bc648d89536798acb9843137d",
+      "new": false
+    },
+    {
+      "path": "server/src/main/java/org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.java",
+      "baselineSha256": "dbdec647e23401dce85321e2abbab234328b9b0202e779e2a6e89df3a83a9b63",
+      "candidateSha256": "40e2c906c01182adc4329d57b52e0773754781833fcc64e6a320df3ad4401a58",
+      "new": false
+    },
+    {
+      "path": "systemvm/test/TestStorageIscsiLunPermissions.py",
+      "baselineSha256": null,
+      "candidateSha256": "742eb662a4c1f91bea81e30b205e3876649ac1494387eeac18a8e3aab6506199",
+      "new": true
+    },
+    {
+      "path": "systemvm/test/TestStorageIscsiLifecycle.py",
+      "baselineSha256": "f807144c6e32959737ea583f0d516b18b206f7e093abd0bb8ad64f17944bf029",
+      "candidateSha256": "8db8ffbc5999e2bb0cc8baadd6f931f697328f256f34a9b21817df0beadec655",
+      "new": false
+    },
+    {
+      "path": "server/src/test/java/org/apache/cloudstack/storage/dataservice/StorageProtocolDefaultListenerTest.java",
+      "baselineSha256": "1631b005961613eb1a81d95ce011fc4ff50709c8cd624c33f2db3f430b913e6b",
+      "candidateSha256": "ba88296ee66cb29f1d4c0f0ec35068a416bb87af37521b31ee62f74a20bda934",
+      "new": false
+    }
+  ],
+  "productionFiles": 3,
+  "testFiles": 3,
+  "focused": {
+    "managerTests": 10,
+    "newNativePermissionTests": 10,
+    "existingLifecycleTests": 13,
+    "failuresErrors": 0,
+    "managerSeconds": 6.387,
+    "newNativeSeconds": 0.756,
+    "lifecycleSeconds": 1.842
+  },
+  "logs": {
+    "javac.log": "192e2e04bead73276773caa84b36356388bb3ca7c31c93e604e8ebf732b7c4b7",
+    "javac-test-final.log": "008df24e139dfa2a20f1df65669cba0e8f40210e2b36f0c883d0e9fce2c4d566",
+    "focused-manager-final.log": "8ed83deb9e99371f9c5920582bb7c68ed006c0282aa04015b3f75f9771b1fc02",
+    "focused-permissions-final.log": "cccc0e9518091fa87d4efe7193ae9f4e0703f19a8755533be4698a65370b5510",
+    "focused-lifecycle-final.log": "34647f150311aba13f3b9cb963af9d615598377eed4511c24591048c67a28f3f",
+    "patch-dry-run.log": "51079651b7dff1f29bb08bd05e36f70103f438fcfd2bcd57f09118becee5f3cb"
+  },
+  "installedVendorContractProofSha256": "73f5de337ed248b5c9190352887bd863f6d04dc678f3e0b0105662e914cb5d7a",
+  "inlineAuthModuleExact": true,
+  "originalAuthWriterMethodsAstIdentical": true,
+  "protectedLocalSourceBodies": {
+    "PYIDENTITY": {
+      "bytesIdentical": true,
+      "sha256": [
+        "07cc6100244ac3186cd838bb7181d25d9438e4835678ecc37ec7b59b35b5ec58"
+      ]
+    },
+    "PYRENDEREDGENERATION": {
+      "bytesIdentical": true,
+      "sha256": [
+        "238fa898d358e1555e7201473c9a00ad6f4275c2ed9a2d5ec95acd4fce570795"
+      ]
+    }
+  },
+  "policy": "Existing whole-IQN ACL union; one active permission per initiator applies every LUN; mixed per-LUN fixture is native-only capability, not public API policy",
+  "managerActualPayloadToNativeApply": true,
+  "managerActivePermissionConflictsBeforePersistApply": true,
+  "updateRejectLeavesOriginalRuleUnchanged": true,
+  "readbackExactGrantLinkNodeAclAndBits": true,
+  "privateKeySecretArgvOrOutputIntroduced": false,
+  "canonicalEdits": 0,
+  "mavenOrActualCalls": 0,
+  "uiApiDdlKvmChanges": false,
+  "actualWriteDenyAcceptanceClaimed": false
+}

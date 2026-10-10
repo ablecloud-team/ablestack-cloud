@@ -33,8 +33,33 @@ public interface StorageServiceInstance extends ControlledEntity, Identity, Inte
             true,
             SharedFS.SharedFSFeatureEnabled.key());
 
+    ConfigKey<Integer> StorageServiceTemplateRollbackRetentionHours = new ConfigKey<Integer>("Advanced", Integer.class,
+            "storage.service.template.rollback.retention.hours", "168",
+            "Hours to retain a verified previous SharedFS ROOT before explicit finalize (1 to 1440).", true,
+            SharedFS.SharedFSFeatureEnabled.key());
+
     String StorageServiceVmType = "storageservicevm";
     String StorageServiceProviderName = "STORAGESERVICEVM";
+
+    ConfigKey<Boolean> StorageServiceOperationControlEnabled = new ConfigKey<Boolean>("Advanced", Boolean.class,
+            "storage.service.operation.control.enabled", "false",
+            "Enable resource control infrastructure; each compatible instance still requires explicit per-instance opt-in", false);
+    ConfigKey<Boolean> StorageServiceVerifiedConfigurationEnabled = new ConfigKey<Boolean>("Advanced", Boolean.class,
+            "storage.service.verified.configuration.enabled", "false",
+            "Enable configuration restore APIs and mandatory verified restore-point promotion after compatible runtimes are installed.", true,
+            SharedFS.SharedFSFeatureEnabled.key());
+
+    ConfigKey<Integer> StorageServiceFormatMinimumTimeout = new ConfigKey<Integer>("Advanced", Integer.class,
+            "storage.service.format.timeout.minimum", "300", "Minimum new backing-volume format deadline in seconds.", true);
+    ConfigKey<Integer> StorageServiceFormatSecondsPerTiB = new ConfigKey<Integer>("Advanced", Integer.class,
+            "storage.service.format.timeout.seconds.per.tib", "120", "Additional format deadline per provisioned TiB.", true);
+    ConfigKey<Integer> StorageServiceFormatMaximumTimeout = new ConfigKey<Integer>("Advanced", Integer.class,
+            "storage.service.format.timeout.maximum", "7200", "Maximum new backing-volume format deadline in seconds.", true);
+
+    ConfigKey<String> StorageServiceRuntimeTrustedKeyDirectory = new ConfigKey<String>("Advanced", String.class,
+            "storage.service.runtime.trusted.keys.directory", "/etc/cloudstack/management/storage-runtime/trusted-keys",
+            "Operator-managed public verification keys for Storage Service runtime bundles; private keys are never accepted.", true,
+            SharedFS.SharedFSFeatureEnabled.key());
 
     enum State {
         Allocated,
@@ -80,6 +105,7 @@ public interface StorageServiceInstance extends ControlledEntity, Identity, Inte
     }
 
     enum Permission {
+        CONNECT,
         READ_ONLY,
         READ_WRITE,
         ADMIN

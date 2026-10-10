@@ -89,8 +89,15 @@ public final class LibvirtStorageServiceRuntimeHostCommandWrapper extends Comman
     protected Answer writeChunk(final StorageServiceRuntimeHostCommand command, final Domain domain)
             throws LibvirtException, InterruptedException {
         final byte[] chunk = validateChunk(command);
-        final String path = resolveGuestFile(command);
+        final String target = resolveGuestFile(command);
+        final boolean bootstrap = command.getFileType()==StorageServiceRuntimeFileType.UPDATER_MODULE || command.getFileType()==StorageServiceRuntimeFileType.UPDATER_ENTRY || command.getFileType()==StorageServiceRuntimeFileType.TRUSTED_KEY;
+        if (bootstrap) requireIdentifier(command.getTransactionId(),"transactionId");
+        final String path = bootstrap ? target+"."+command.getTransactionId()+".incoming" : target;
         ensureDirectory(domain, parentPath(path), command.getTimeoutSeconds());
+        if (bootstrap) {
+            GuestExecResult prepared=executeGuest(domain,"/usr/bin/python3",bootstrapPrepareArguments(command,path),command.getTimeoutSeconds());
+            if (prepared.exitCode!=0) throw new IllegalStateException("Protected runtime incoming file is not a regular root-owned staging file");
+        }
         final long handle = openGuestFile(domain, path, command.isTruncate() ? "w+b" : "r+b", command.getTimeoutSeconds());
         try {
             seekGuestFile(domain, handle, command.getOffset(), command.getTimeoutSeconds());
@@ -103,7 +110,10 @@ public final class LibvirtStorageServiceRuntimeHostCommandWrapper extends Comman
             closeGuestFile(domain, handle, command.getTimeoutSeconds());
         }
         if (command.isFinalChunk()) {
-            chmodFile(domain, path, fileMode(command.getFileType()), command.getTimeoutSeconds());
+            if (bootstrap) {
+                final GuestExecResult installed=executeGuest(domain,"/usr/bin/python3",bootstrapInstallArguments(command,path,target),command.getTimeoutSeconds());
+                if (installed.exitCode!=0) throw new IllegalStateException("Protected runtime bootstrap file did not pass full checksum and atomic installation");
+            } else chmodFile(domain, path, fileMode(command.getFileType()), command.getTimeoutSeconds());
         }
         final JsonObject result = new JsonObject();
         result.addProperty("transactionId", command.getTransactionId());
@@ -114,6 +124,45 @@ public final class LibvirtStorageServiceRuntimeHostCommandWrapper extends Comman
         result.addProperty("chunkSha256", command.getChunkSha256().toLowerCase(Locale.ROOT));
         result.addProperty("complete", command.isFinalChunk());
         return answer(command, true, "Storage Service runtime chunk written", result.toString());
+    }
+
+    protected JsonArray bootstrapPrepareArguments(StorageServiceRuntimeHostCommand command,String staged) {
+        JsonArray args=new JsonArray();args.add(new JsonPrimitive("-c"));
+        args.add(new JsonPrimitive(String.join("\n","import os,sys,stat","p,tr=sys.argv[1:]",
+                "flags=os.O_RDWR|os.O_NOFOLLOW","if tr=='true': flags|=os.O_CREAT|os.O_TRUNC",
+                "f=os.open(p,flags,0o600)","try:"," s=os.fstat(f)",
+                " if not stat.S_ISREG(s.st_mode) or s.st_uid!=0 or s.st_mode&0o022: raise ValueError('unprotected incoming file')",
+                " os.fchmod(f,0o600)","finally: os.close(f)")));
+        args.add(new JsonPrimitive(staged));args.add(new JsonPrimitive(Boolean.toString(command.isTruncate())));return args;
+    }
+
+    protected JsonArray bootstrapInstallArguments(StorageServiceRuntimeHostCommand command,String staged,String target) {
+        hexToBytes(command.getFileSha256());
+        JsonArray args=new JsonArray();args.add(new JsonPrimitive("-c"));
+        args.add(new JsonPrimitive(String.join("\n",
+                "import os,sys,stat,hashlib",
+                "p,t,h,m=sys.argv[1:]",
+                "f=os.open(p,os.O_RDONLY|os.O_NOFOLLOW)",
+                "try:",
+                " s=os.fstat(f)",
+                " if not stat.S_ISREG(s.st_mode) or s.st_uid!=0: raise ValueError('unprotected bootstrap file')",
+                " d=hashlib.sha256(); total=0",
+                " while True:",
+                "  data=os.read(f,65536)",
+                "  if not data: break",
+                "  total+=len(data)",
+                "  if total>64*1024*1024: raise ValueError('bootstrap too large')",
+                "  d.update(data)",
+                " if d.hexdigest()!=h: raise ValueError('bootstrap checksum mismatch')",
+                " z=os.lstat(p)",
+                " if (z.st_dev,z.st_ino)!=(s.st_dev,s.st_ino): raise ValueError('bootstrap identity changed')",
+                " os.fchmod(f,int(m,8)); os.fsync(f)",
+                "finally: os.close(f)",
+                "os.replace(p,t)",
+                "q=os.open(os.path.dirname(t),os.O_RDONLY|os.O_DIRECTORY)",
+                "try: os.fsync(q)",
+                "finally: os.close(q)")));
+        args.add(new JsonPrimitive(staged));args.add(new JsonPrimitive(target));args.add(new JsonPrimitive(command.getFileSha256().toLowerCase(Locale.ROOT)));args.add(new JsonPrimitive(fileMode(command.getFileType())));return args;
     }
 
     protected Answer executeUpdater(final StorageServiceRuntimeHostCommand command, final Domain domain)

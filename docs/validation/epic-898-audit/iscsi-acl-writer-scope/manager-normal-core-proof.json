@@ -1,0 +1,39 @@
+{
+  "kind": "ACL_WRITER_SYNC_RESOLVER_MANAGER_NORMAL_CORE",
+  "schemaVersion": 1,
+  "sourcePin": "6f830e4b6d04528d01eed50133bf9d37a4f66dd2",
+  "actualXml": {
+    "tests": 979,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "suiteCount": 129,
+  "selectors": 129,
+  "exitCode": 0,
+  "checkstylePassed": true,
+  "xmlFreshForCurrentRun": true,
+  "sourcePaths": 5040,
+  "sourceNulSha256": "646ba7050a956b9a3402d8eba4082cc993cd4ccf497cf2c50591e58966da6113",
+  "sourceBeforeAfterSame": true,
+  "immutableOutputRoot": "/root/work/epic898-preparation/iscsi-acl-writer-scope-resolver-prep/normal-preparation/immutable-module-outputs",
+  "immutableProductionFiles": 3898,
+  "outputManifest": "/root/work/epic898-preparation/iscsi-acl-writer-scope-resolver-prep/normal-preparation/module-output-manifest.json",
+  "outputManifestSha256": "e368f0d5c44f53c023e75a8b6073ade00e138232de2deef581aaf2f53c5d935b",
+  "managerOuter": {
+    "path": "/root/work/epic898-preparation/iscsi-acl-writer-scope-resolver-prep/normal-preparation/immutable-module-outputs/server/classes/org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class",
+    "sha256": "cde7bbe3f6cef4c07084d35b4ef25a8c9098abb936d5c4fff63f509d243fad68"
+  },
+  "productionDelta": "/root/work/epic898-preparation/iscsi-acl-writer-scope-resolver-prep/normal-preparation/production-class-delta-vs-ff1.json",
+  "productionDeltaSha256": "ead639735a84eb551fb2dc137f734a022449ca0b8224e21cac5d62df6f44a726",
+  "deltaCounts": {
+    "api": 0,
+    "server": 3,
+    "plugins/hypervisors/kvm": 0,
+    "plugins/storage/sharedfs/storagevm": 0
+  },
+  "native480Ui373ReusedWithoutRerun": true,
+  "standaloneKvmRerun": false,
+  "actualCalls": 0,
+  "finalUi1275Started": false
+}

@@ -1,0 +1,13 @@
+# 명시 템플릿 아키텍처 비교의 실제 생성 오류 수정
+
+같은S verifiedUSER템플릿0dc1으로새F1생성을normalAPI로검증했을때Active/Ready/KVM/x86_64/scalable조건이정상인데도할당전에431로거절됐다. actualDB/config를읽어CPUArch.amd64.name()은amd64지만getType()은x86_64임을확정했다. SharedFSServiceImpl의명시템플릿조건한곳이enum이름을설정의API표기와비교했다.
+
+da24467a08a의production1줄은getType()비교로수정했다. 실제CPUArchenum을사용한zonepreferredpositive및ARM/crossarchitecture·removed/inactive/nonScalable/nonKVM/nullArch거절을테스트했다. focused60및정상Maven839tests/124classes·Checkstyle가failure/error/skip0으로통과했다. 다른StorageTemplateCompatibility의enum자체비교는정상이므로변경하지않았다.
+
+Java2파일의exactSHA와전체Java9893NUL SHA6d930b5f2f08eefca89f42e05f49c6aa51e9d33b8b72cff477b000887b418e40를고정했다. native35및이미지producer310/UI963소스SHA는같다. productionclassfamily4중SharedFSServiceImpl.class1개만변경됐고nested3개byte는동일하다. 새classSHAd4f9acdf581731ca971ba8300bc671dc0249ed8d20ee2904b81e74d798bf5d70다.
+
+이미지/runtime/UI의sourceb6aa를새Java핀으로재표시하지않는다. producer310/UI963가같아기존검증artifact를그대로재사용하며관리1class만제한반영한다. 기존protectedpermit의imageSource도b6aa그대로다. 실제반영/새F1생성결과는별도후속proof로확인한다. source/unit통과만으로생성완료를주장하지않는다.
+
+처음F1요청1회는할당전거절로VM/DATA0이고실패기록을보존한다. protectedstore cloud0700/0600 immutable artifact7e4f(원래8instances제외)를검증했고같은scope의정상retry는수정class기동확인후진행한다. 원본데이터/partial10TiB보존, #1275최종UI작업미착수경계를유지한다.
+
+proof: f1-template-architecture-source-validation.json, f1-template-architecture-final-839/module-outputs, component-source-alignment-b6aa-java-repair-plan.json, final-s-f1-template-gate-db-readonly.txt, f1-arch-narrow-deployment/manifest.json.

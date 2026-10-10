@@ -1,0 +1,54 @@
+{
+  "actualGuestLaunches": 1,
+  "guestExitCode": 0,
+  "kind": "F1_SELECTED_PREFS_READONLY_PROVIDER",
+  "observation": {
+    "actualSelectedPrefsReadCalls": 1,
+    "allObservedMetadataUnchanged": true,
+    "fixedBeforeContextMatched": true,
+    "guestCodeFileWrites": 0,
+    "kind": "F1_SELECTED_PREFS_READONLY_OBSERVATION",
+    "originalMaskedExit1CauseProven": false,
+    "pickleExecution": false,
+    "preservation": {
+      "bootId": true,
+      "cliSha256": true,
+      "current": true,
+      "databaseMetadata": true,
+      "mountMetadata": true,
+      "nfsSentinel": true,
+      "ownIqnPresent": true,
+      "pending": true,
+      "vmUuid": true
+    },
+    "productApplyRollbackOrCreationCalls": 0,
+    "selectedPreferences": {
+      "defaultHomeBindingVerified": true,
+      "kind": "TARGETCLI_SELECTED_PREF_BOOLEAN_PROJECTION",
+      "pickleExecution": false,
+      "projection": {
+        "autoUseDaemonLiteralBoolean": true,
+        "autoUseDaemonPresent": true,
+        "autoUseDaemonTrue": false,
+        "consoleLevelPresent": true,
+        "consoleLevelString": true,
+        "consoleLevelSupported": true,
+        "fileLevelPresent": true,
+        "fileLevelString": true,
+        "fileLevelSupported": true
+      },
+      "rootOwnedFileBindingVerified": true,
+      "success": true,
+      "targetcliConstructors": 0,
+      "writes": 0
+    },
+    "selectedPrefsFdClosed": true,
+    "stage": "OBSERVATION_COMPLETE",
+    "targetcliInitializerOrDispatchCalls": 0
+  },
+  "provider": "ISOLATED_PYTHON_LIBVIRT_C_BINDING",
+  "runningAgentWorkerQueueUsed": false,
+  "stage": "PUBLIC_JSON_PARSED",
+  "stderrBytes": 0,
+  "stdoutBytes": 1111
+}

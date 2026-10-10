@@ -171,6 +171,36 @@ describe('SharedFSTab operational evidence', () => {
     expect(rows[0].authVerificationLabel).toBe('label.storage.service.authentication.unknown')
   })
 
+  it('verifies fresh NIC identity after repair without treating a stale protocol view as failure', async () => {
+    const context = {
+      resource: { id: 'shared' },
+      identityRepair: { eligible: true, runtimePrimaryIp: '10.10.13.240', aliases: ['10.10.13.241'], loading: false, visible: true },
+      storageIdentityDrift: true,
+      callStorageIdentityRepair: jest.fn().mockResolvedValueOnce({}).mockResolvedValueOnce({ resultjson: { reason: 'ALREADY_CONSISTENT', persistedPrimaryIp: '10.10.13.240', runtimePrimaryIp: '10.10.13.240', aliases: ['10.10.13.241'] } }),
+      parseIdentityRepairEvidence: SharedFSTab.methods.parseIdentityRepairEvidence,
+      fetchStorageServiceData: jest.fn().mockResolvedValue(),
+      $t: value => value,
+      $message: { success: jest.fn(), error: jest.fn() }
+    }
+    await SharedFSTab.methods.applyStorageIdentityRepair.call(context)
+    expect(context.callStorageIdentityRepair.mock.calls).toEqual([[false, '10.10.13.240'], [true]])
+    expect(context.identityRepair.visible).toBe(false)
+    expect(context.$message.success).toHaveBeenCalled()
+    expect(context.$message.error).not.toHaveBeenCalled()
+  })
+  it('does not publish repaired NIC evidence after switching to another SharedFS', async () => {
+    const context = {
+      resource: { id: 'shared' },
+      identityRepair: { eligible: true, runtimePrimaryIp: '10.10.13.240', aliases: [], loading: false, visible: true },
+      callStorageIdentityRepair: jest.fn().mockImplementation(async () => { context.resource.id = 'other'; return {} }),
+      fetchStorageServiceData: jest.fn(),
+      $message: { success: jest.fn(), error: jest.fn() }
+    }
+    await SharedFSTab.methods.applyStorageIdentityRepair.call(context)
+    expect(context.callStorageIdentityRepair).toHaveBeenCalledTimes(1)
+    expect(context.fetchStorageServiceData).not.toHaveBeenCalled()
+    expect(context.$message.success).not.toHaveBeenCalled()
+  })
   it('shows the guarded NIC repair only when drift and API capability are both present', () => {
     const visible = SharedFSTab.computed.canRepairStorageIdentity.call({
       storageIdentityDrift: true,
@@ -312,5 +342,295 @@ describe('SharedFSTab protocol-scoped presentation', () => {
       .toBe('label.storage.service.volume.mapping.unavailable')
     expect(SharedFSTab.methods.fileShareVolumeMappingStatusLabel.call(context, 'UNMAPPED'))
       .toBe('label.storage.service.volume.mapping.unmapped')
+  })
+})
+
+describe('SharedFS service-wide NFS owner mapping', () => {
+  it('reads desired policy from the root detail component and preserves the legacy default', () => {
+    expect(SharedFSTab.computed.nfsDesiredIdMode.call({
+      storageService: { protocols: [{ protocol: 'NFS', enabled: true, idmappingmode: 'NUMERIC' }] }
+    })).toBe('NUMERIC')
+    expect(SharedFSTab.computed.nfsDesiredIdMode.call({ storageService: { protocols: [] } })).toBe('NAME_DOMAIN')
+  })
+  it('does not assume a runtime mode without an observed endpoint', () => {
+    expect(SharedFSTab.computed.nfsRuntimeIdMode.call({ parsedHealth: {} })).toBe('UNKNOWN')
+    expect(SharedFSTab.computed.nfsIdModeDrift.call({ nfsRuntimeIdMode: 'UNKNOWN', nfsDesiredIdMode: 'NUMERIC' })).toBe('UNKNOWN')
+  })
+  it('reports a mode mismatch instead of treating desired policy as runtime evidence', () => {
+    expect(SharedFSTab.computed.nfsIdModeDrift.call({ nfsRuntimeIdMode: 'NAME_DOMAIN', nfsDesiredIdMode: 'NUMERIC' })).toBe('DRIFT')
+    expect(SharedFSTab.computed.nfsIdModeDrift.call({ nfsRuntimeIdMode: 'NUMERIC', nfsDesiredIdMode: 'NUMERIC' })).toBe('CONSISTENT')
+  })
+})
+
+describe('SharedFS nested backing paths', () => {
+  it('allows explicit nested paths while rejecting traversal and absolute input', () => {
+    const context = { $message: { error: jest.fn() }, $t: key => key }
+    expect(SharedFSTab.methods.validateNestedSharePath.call(context, 'share/project-a')).toBe(true)
+    for (const path of ['/share', '../share', 'share/../other', 'share/./other', 'share//other', '']) {
+      expect(SharedFSTab.methods.validateNestedSharePath.call(context, path)).toBe(false)
+    }
+    expect(context.$message.error).toHaveBeenCalledTimes(6)
+  })
+
+  it('preserves the legacy name rule and permits independent names with explicit backing paths', () => {
+    const context = {
+      forms: { nfsExport: { name: 'project-a', path: '/export/share/project-a', relativepath: 'share/project-a' } },
+      isValidNfsExportName: SharedFSTab.methods.isValidNfsExportName,
+      validateNestedSharePath: SharedFSTab.methods.validateNestedSharePath,
+      $message: { error: jest.fn() },
+      $t: key => key
+    }
+    expect(SharedFSTab.methods.validateNfsExportNameAndPath.call(context)).toBe(true)
+    context.forms.nfsExport.relativepath = ''
+    expect(SharedFSTab.methods.validateNfsExportNameAndPath.call(context)).toBe(false)
+    context.forms.nfsExport.path = '/export/project-a'
+    expect(SharedFSTab.methods.validateNfsExportNameAndPath.call(context)).toBe(true)
+  })
+})
+
+describe('SharedFS nested path choices', () => {
+  it('limits suggestions to the selected volume and retains physical legacy paths', () => {
+    const context = {
+      storageService: {
+        nfsExports: [{ volumeid: 'v1', name: 'parent', config: JSON.stringify({ volumeMountPath: '/srv/v1', backingPath: '/srv/v1/export/parent' }) }],
+        smbShares: [{ volumeid: 'v1', name: 'child', volumerelativepath: 'export/parent/child' }, { volumeid: 'v2', name: 'unrelated', volumerelativepath: 'private' }]
+      },
+      parseStorageConfig: value => value ? JSON.parse(value) : {},
+      defaultCurrentBackingVolumeId: () => 'v1'
+    }
+    const options = SharedFSTab.methods.nestedBackingPathOptions.call(context, { volumemode: 'CURRENT' })
+    expect(options.map(option => option.value)).toEqual(['export/parent', 'export/parent/child'])
+    expect(SharedFSTab.methods.nestedBackingPathOptions.call(context, { volumemode: 'EXISTING', volumeid: '' })).toEqual([])
+  })
+})
+
+describe('SharedFS hidden backing volume scope', () => {
+  it('loads a hidden UUID only after the visible UUID lookup is empty', async () => {
+    const vm = { $store: { getters: { userInfo: { roletype: 'Admin' } } }, listApi: jest.fn().mockResolvedValueOnce([]).mockResolvedValueOnce([{ id: 'hidden', size: 10995116277760 }]) }
+    const rows = await SharedFSTab.methods.listScopedBackingVolumes.call(vm, { id: 'hidden', listall: true, listsystemvms: true })
+    expect(rows[0].size).toBe(10995116277760)
+    expect(vm.listApi.mock.calls[1]).toEqual(['listVolumes', { id: 'hidden', listall: true, listsystemvms: true, displayvolume: false }, 'volume'])
+  })
+  it('includes hidden volumes beside visible volumes within the same service VM', async () => {
+    const vm = { $store: { getters: { userInfo: { roletype: 'Admin' } } }, listApi: jest.fn().mockResolvedValueOnce([{ id: 'visible' }]).mockResolvedValueOnce([{ id: 'hidden' }]) }
+    expect(await SharedFSTab.methods.listScopedBackingVolumes.call(vm, { virtualmachineid: 'service-vm' })).toEqual([{ id: 'visible' }, { id: 'hidden' }])
+  })
+  it('does not request root-only hidden data for a regular user or an unscoped list', async () => {
+    const vm = { $store: { getters: { userInfo: { roletype: 'User' } } }, listApi: jest.fn().mockResolvedValue([]) }
+    await SharedFSTab.methods.listScopedBackingVolumes.call(vm, { id: 'known' })
+    expect(vm.listApi).toHaveBeenCalledTimes(1)
+    await expect(SharedFSTab.methods.listScopedBackingVolumes.call(vm, {})).rejects.toThrow('scope')
+    expect(vm.listApi).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('SharedFS workflow tabs', () => {
+  it('loads current service data for work tabs and limits wide view to protocols', () => {
+    const vm = { protocolWideLayout: true, runtimeUpgradeVisible: true, fetchStorageServiceData: jest.fn(), isStorageProtocolTab: () => false, updateRouteQuery: jest.fn(), emitWideLayout: jest.fn() }
+    SharedFSTab.methods.handleChangeTab.call(vm, 'operations')
+    expect(vm.currentTab).toBe('operations')
+    expect(vm.fetchStorageServiceData).toHaveBeenCalledTimes(1)
+    expect(vm.protocolWideLayout).toBe(false)
+    expect(vm.runtimeUpgradeVisible).toBe(false)
+    expect(vm.updateRouteQuery).toHaveBeenCalledWith('operations')
+  })
+})
+
+describe('SharedFS SMB backing volume references', () => {
+  function rows (shares) {
+    const volumes = {
+      'volume-a': { id: 'volume-a', name: 'Sparse A', size: 20, provisioningtype: 'SPARSE' },
+      'volume-b': { id: 'volume-b', name: 'Sparse B', size: 30, provisioningtype: 'SPARSE' }
+    }
+    const context = {
+      storageService: { smbShares: shares },
+      volumeForShare: share => volumes[share.volumeid || share.volumeId] || {},
+      clientVisibleName: name => name,
+      backingVolumeActionFields: () => ({}),
+      formatCapacityValue: value => value,
+      displayBackingVolumeFilesystem: () => 'xfs',
+      fileShareVolumeMappingStatusLabel: value => value
+    }
+    return SharedFSTab.computed.smbVolumeRows.call(context)
+  }
+
+  it('shows all parent and child references once while keeping one capacity row per volume', () => {
+    const result = rows([
+      { id: 'parent', name: 'parent', volumeid: 'volume-a' },
+      { id: 'child', name: 'child', volumeId: 'volume-a' },
+      { id: 'child', name: 'child', volumeid: 'volume-a' }
+    ])
+    expect(result).toHaveLength(1)
+    expect(result[0]).toMatchObject({ id: 'volume-a', size: 20, shareName: 'parent, child', shareId: 'parent' })
+  })
+
+  it('does not merge the same share name on different backing volume identities', () => {
+    const result = rows([
+      { id: 'a', name: 'same-relative', volumeid: 'volume-a' },
+      { id: 'b', name: 'same-relative', volumeid: 'volume-b' },
+      { id: 'b-child', name: 'child', volumeid: 'volume-b' }
+    ])
+    expect(result).toHaveLength(2)
+    expect(result[0]).toMatchObject({ id: 'volume-a', shareName: 'same-relative', size: 20 })
+    expect(result[1]).toMatchObject({ id: 'volume-b', shareName: 'same-relative, child', size: 30 })
+  })
+})
+
+describe('SharedFS NVMe ACL authentication request preservation', () => {
+  const supported = { kernelTargetSupported: true, configfsHostSupported: true, dhChapSupported: true, dhChapCtrlSupported: true }
+  const actions = [
+    ['createNvmeHostAcl', 'nvmeHostAcl', 'createStorageNvmeOfHostAcl', { subsystemid: 'subsystem-a' }],
+    ['updateNvmeHostAcl', 'editNvmeHostAcl', 'updateStorageNvmeOfHostAcl', { id: 'acl-a' }]
+  ]
+  function context (capability = supported, fields = {}) {
+    const vm = {
+      forms: { nvmeHostAcl: { id: 'acl-a', subsystemid: 'subsystem-a', hostnqn: 'nqn.2014-08.org.nvmexpress:host-a', dhchapenabled: true, dhchapctrlenabled: true, dhchapkey: 'synthetic-host-input', dhchapctrlkey: 'synthetic-controller-input', ...fields } },
+      nvmeCapability: capability,
+      selectedNvmeHostAclAllowsAnyHost: false,
+      $t: key => key,
+      $notification: { error: jest.fn(), warning: jest.fn() },
+      runStorageAction: jest.fn().mockResolvedValue({})
+    }
+    vm.validateNvmeHostAclForm = SharedFSTab.methods.validateNvmeHostAclForm
+    vm.validateNvmeHostAclAuthentication = SharedFSTab.methods.validateNvmeHostAclAuthentication
+    return vm
+  }
+
+  describe.each(actions)('%s boundary', (method, action, api, scope) => {
+    it.each([
+      ['unsupported host', { ...supported, dhChapSupported: false }],
+      ['unknown capability', {}],
+      ['string truthy capability', { ...supported, dhChapSupported: 'true' }],
+      ['unprepared configfs', { ...supported, configfsHostSupported: false }],
+      ['unsupported mutual authentication', { ...supported, dhChapCtrlSupported: false }]
+    ])('preserves the requested authentication and sends no API for %s', async (_, capability) => {
+      const vm = context(capability)
+      const request = { ...vm.forms.nvmeHostAcl }
+      await SharedFSTab.methods[method].call(vm)
+      expect(vm.runStorageAction).not.toHaveBeenCalled()
+      expect(vm.forms.nvmeHostAcl).toEqual(request)
+      expect(vm.$notification.error).toHaveBeenCalledWith({ message: 'message.storage.service.nvme.auth.request.preserved.help' })
+    })
+
+    it.each([
+      ['controller without host', { dhchapenabled: false }],
+      ['string host flag', { dhchapenabled: 'true' }],
+      ['numeric controller flag', { dhchapctrlenabled: 1 }]
+    ])('blocks %s without silently weakening the request', async (_, fields) => {
+      const vm = context(supported, fields)
+      const request = { ...vm.forms.nvmeHostAcl }
+      await SharedFSTab.methods[method].call(vm)
+      expect(vm.runStorageAction).not.toHaveBeenCalled()
+      expect(vm.forms.nvmeHostAcl).toEqual(request)
+    })
+
+    it.each([false, true])('passes exact supported host/mutual=%s values to the existing API and clears submitted key references', async controller => {
+      const vm = context({ ...supported, dhChapCtrlSupported: controller }, { dhchapctrlenabled: controller })
+      await SharedFSTab.methods[method].call(vm)
+      expect(vm.runStorageAction).toHaveBeenCalledTimes(1)
+      expect(vm.runStorageAction).toHaveBeenCalledWith(action, api, {
+        ...scope,
+        hostnqn: 'nqn.2014-08.org.nvmexpress:host-a',
+        dhchapenabled: true,
+        dhchapkey: 'synthetic-host-input',
+        dhchapctrlenabled: controller,
+        dhchapctrlkey: controller ? 'synthetic-controller-input' : ''
+      }, expect.any(String))
+      expect(vm.forms.nvmeHostAcl.dhchapenabled).toBe(true)
+      expect(vm.forms.nvmeHostAcl.dhchapctrlenabled).toBe(controller)
+      expect(vm.forms.nvmeHostAcl.dhchapkey).toBe('')
+      expect(vm.forms.nvmeHostAcl.dhchapctrlkey).toBe('')
+    })
+
+    it.each([{}, { ...supported, dhChapSupported: false }])('keeps an explicit unauthenticated request available without authentication capability', async capability => {
+      const vm = context(capability, { dhchapenabled: false, dhchapctrlenabled: false, dhchapkey: '', dhchapctrlkey: '' })
+      await SharedFSTab.methods[method].call(vm)
+      expect(vm.runStorageAction).toHaveBeenCalledTimes(1)
+      expect(vm.runStorageAction).toHaveBeenCalledWith(action, api, {
+        ...scope, hostnqn: 'nqn.2014-08.org.nvmexpress:host-a', dhchapenabled: false, dhchapkey: '', dhchapctrlenabled: false, dhchapctrlkey: ''
+      }, expect.any(String))
+      expect(vm.$notification.error).not.toHaveBeenCalled()
+    })
+
+    it('retains the existing invalid-scope and allow-any-host rejection before transport', async () => {
+      for (const fields of [{ subsystemid: '' }, { hostnqn: '' }]) {
+        const vm = context(supported, fields)
+        await SharedFSTab.methods[method].call(vm)
+        expect(vm.runStorageAction).not.toHaveBeenCalled()
+      }
+      const vm = context()
+      vm.selectedNvmeHostAclAllowsAnyHost = true
+      await SharedFSTab.methods[method].call(vm)
+      expect(vm.runStorageAction).not.toHaveBeenCalled()
+      expect(vm.forms.nvmeHostAcl.dhchapenabled).toBe(true)
+    })
+
+    it('preserves an active request on capability loss and blocks its subsequent submission', async () => {
+      const vm = context({})
+      const request = { ...vm.forms.nvmeHostAcl }
+      SharedFSTab.watch.nvmeDhChapSupported.call(vm, false)
+      expect(vm.forms.nvmeHostAcl).toEqual(request)
+      expect(vm.$notification.warning).toHaveBeenCalledWith({ message: 'message.storage.service.nvme.auth.request.preserved.help' })
+      await SharedFSTab.methods[method].call(vm)
+      expect(vm.runStorageAction).not.toHaveBeenCalled()
+      expect(vm.forms.nvmeHostAcl).toEqual(request)
+    })
+  })
+
+  describe.each(actions)('%s modal submission', (method, action) => {
+    function modalContext (capability) {
+      const vm = context(capability)
+      vm.actionModal = { visible: true, type: action, loading: false, context: {} }
+      vm[method] = SharedFSTab.methods[method]
+      vm.closeActionModal = jest.fn(function () { SharedFSTab.methods.closeActionModal.call(this) })
+      return vm
+    }
+
+    it('keeps the actual submission dialog and requested form available after a capability rejection', async () => {
+      const vm = modalContext({})
+      const request = { ...vm.forms.nvmeHostAcl }
+      await SharedFSTab.methods.submitActionModal.call(vm)
+      expect(vm.runStorageAction).not.toHaveBeenCalled()
+      expect(vm.closeActionModal).not.toHaveBeenCalled()
+      expect(vm.actionModal).toMatchObject({ visible: true, type: action, loading: false })
+      expect(vm.forms.nvmeHostAcl).toEqual(request)
+    })
+
+    it('keeps the existing successful submission close behavior', async () => {
+      const vm = modalContext(supported)
+      await SharedFSTab.methods.submitActionModal.call(vm)
+      expect(vm.runStorageAction).toHaveBeenCalledTimes(1)
+      expect(vm.closeActionModal).toHaveBeenCalledTimes(1)
+      expect(vm.actionModal.visible).toBe(false)
+    })
+  })
+
+  it('does not change the existing close behavior of other action types', async () => {
+    const vm = context()
+    vm.actionModal = { visible: true, type: 'enableProtocol', loading: false, context: {} }
+    vm.enableProtocol = jest.fn().mockResolvedValue(false)
+    vm.closeActionModal = jest.fn(function () { SharedFSTab.methods.closeActionModal.call(this) })
+    await SharedFSTab.methods.submitActionModal.call(vm)
+    expect(vm.enableProtocol).toHaveBeenCalledTimes(1)
+    expect(vm.closeActionModal).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not warn or alter an explicit noauth request when capability changes', () => {
+    const vm = context({}, { dhchapenabled: false, dhchapctrlenabled: false, dhchapkey: '', dhchapctrlkey: '' })
+    const request = { ...vm.forms.nvmeHostAcl }
+    SharedFSTab.watch.nvmeDhChapSupported.call(vm, false)
+    expect(vm.forms.nvmeHostAcl).toEqual(request)
+    expect(vm.$notification.warning).not.toHaveBeenCalled()
+  })
+
+  it('retains explicit user-off cleanup without using capability loss to trigger it', () => {
+    const vm = context()
+    vm.forms.nvmeHostAcl.dhchapenabled = false
+    SharedFSTab.watch['forms.nvmeHostAcl.dhchapenabled'].call(vm, false)
+    expect(vm.forms.nvmeHostAcl.dhchapenabled).toBe(false)
+    expect(vm.forms.nvmeHostAcl.dhchapctrlenabled).toBe(false)
+    expect(vm.forms.nvmeHostAcl.dhchapkey).toBe('')
+    expect(vm.forms.nvmeHostAcl.dhchapctrlkey).toBe('')
+    expect(vm.runStorageAction).not.toHaveBeenCalled()
   })
 })

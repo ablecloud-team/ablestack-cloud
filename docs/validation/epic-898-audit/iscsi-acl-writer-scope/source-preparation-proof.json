@@ -1,0 +1,29 @@
+{
+  "kind": "LOCAL_ACL_WRITER_SCOPE_RESOLVER_CANDIDATE",
+  "baseProductPin": "ff1aa74eeda6fffba46c97d6f56c678cbdc2bf33",
+  "productionFiles": 1,
+  "testFiles": 1,
+  "patchSha256": "2f4f48462396d47c39405a3914312c0eeff125d6a8d9e52b10b7d3e966542862",
+  "actualFailureNfsPrefixProofSha256": "1785471a1d5241ef9351b9c27fba6dda29395ddc69c22b32c27a45b4cea0f603",
+  "actualAclReadyBlockProofReference": "7e127",
+  "candidateFiles": {
+    "server/src/main/java/org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.java": "8d5960ec8430ec4cb63c125246658ce67385005f8245b69df0f1e5df86070b5a",
+    "server/src/test/java/org/apache/cloudstack/storage/dataservice/StorageServiceRuntimeQueueScopeTest.java": "74beda660abaa07d1987603731afadd6076e6e65346710e5ffb4dd974217d9ec"
+  },
+  "baselineFiles": {
+    "server/src/main/java/org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.java": "40e2c906c01182adc4329d57b52e0773754781833fcc64e6a320df3ad4401a58",
+    "server/src/test/java/org/apache/cloudstack/storage/dataservice/StorageServiceRuntimeQueueScopeTest.java": "44992df7e4e9e812cd401991e2e27116cdb486b582fecca4ff47ac8d20e956fe"
+  },
+  "testClass": "StorageServiceRuntimeQueueScopeTest",
+  "existingTests": 2,
+  "addedTests": 5,
+  "executedTests": 0,
+  "unknownOrMissingResourceDoesNotFallThroughToSameNumericTarget": true,
+  "writableInstanceUseAndOperateAccessChecksPreserved": true,
+  "protocolOrPermissionGuardChanged": false,
+  "nativeCliChanged": false,
+  "canonicalChanges": 0,
+  "mavenRuns": 0,
+  "actualCalls": 0,
+  "ui1275Started": false
+}

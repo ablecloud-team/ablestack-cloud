@@ -1,0 +1,43 @@
+{
+  "sourcePin": "cf6baa4851265dbe7a85179eabb48fac0a5ee043",
+  "process": {
+    "sourcePin": "cf6baa4851265dbe7a85179eabb48fac0a5ee043",
+    "startedAtUtc": "2026-10-10T05:05:11.186106+00:00",
+    "exitCode": 0,
+    "elapsedSeconds": 152.867,
+    "endedAtUtc": "2026-10-10T05:07:44.053535+00:00"
+  },
+  "actualTests": {
+    "tests": 968,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "suiteCount": 128,
+  "checkstylePassed": true,
+  "sourceBeforeAfterSame": true,
+  "allTrackedCount": 15586,
+  "allTrackedNulSha256": "622feac0f7e632bdd0d597f59ad79d3a001f089ffdaeb388ce87044a5d6cd6c3",
+  "immutableOutputFiles": 4864,
+  "immutableManifestSha256": "d85df6f6a412127b8bb5ef0e6a7c4c2d850085afed10b1c9b1c49151963013d7",
+  "productionDeltas": {
+    "api": [],
+    "server": [
+      {
+        "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class",
+        "oldSha256": "8fb2ed1e9c0ce6eb59c6fd2fea00b930446c6290c929c5e9f98fdadcad2ae829",
+        "newSha256": "0b307ad083d9a04849479dfa54fb6d2fd79987a8c4f83b73b82398011046b4aa"
+      }
+    ],
+    "plugins/hypervisors/kvm": [
+      {
+        "entry": "com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapper.class",
+        "oldSha256": "45e4173eadecf0f525eff2e4e6f3e98ca15e1e26e9ccd48dad62151193229851",
+        "newSha256": "95c5223d981bb4a56b1dafef09b6c9684d6426a613cdc0beef931470d8daecbd"
+      }
+    ],
+    "plugins/storage/sharedfs/storagevm": []
+  },
+  "nativeTestsRepeated": 0,
+  "actualDeploy": false
+}

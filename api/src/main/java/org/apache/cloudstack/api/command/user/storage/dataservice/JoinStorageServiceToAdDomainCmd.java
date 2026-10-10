@@ -21,7 +21,6 @@ import javax.inject.Inject;
 
 import org.apache.cloudstack.acl.RoleType;
 import org.apache.cloudstack.api.APICommand;
-import org.apache.cloudstack.api.BaseAsyncCmd;
 import org.apache.cloudstack.api.Parameter;
 import org.apache.cloudstack.api.ServerApiException;
 import org.apache.cloudstack.api.ApiErrorCode;
@@ -37,7 +36,7 @@ import org.apache.cloudstack.storage.dataservice.StorageService;
         responseHasSensitiveInfo = false,
         since = "4.21.0",
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
-public class JoinStorageServiceToAdDomainCmd extends BaseAsyncCmd implements UserCmd {
+public class JoinStorageServiceToAdDomainCmd extends BaseStorageServiceAsyncCmd implements UserCmd {
     @Inject
     StorageService storageService;
 
@@ -61,6 +60,17 @@ public class JoinStorageServiceToAdDomainCmd extends BaseAsyncCmd implements Use
 
     @Parameter(name = "workgroup", type = CommandType.STRING, description = "NetBIOS workgroup")
     private String workgroup;
+
+    @Parameter(name = "maintenancewindow", type = CommandType.BOOLEAN, description = "Explicit approval to stop owned SMB and winbind services during this identity change")
+    private Boolean maintenanceWindow;
+    @Parameter(name = "confirmation", type = CommandType.STRING, description = "Exact Storage Service instance name approving the maintenance window")
+    private String confirmation;
+    public Boolean getMaintenanceWindow() { return maintenanceWindow; }
+    public String getConfirmation() { return confirmation; }
+
+    @Parameter(name = "identitymode", type = CommandType.STRING, description = "JOIN_EXISTING preserves this machine identity; NEW_INSTANCE is limited to an approved disposable new instance restore")
+    private String identityMode;
+    public String getIdentityMode() { return identityMode == null ? "JOIN_EXISTING" : identityMode; }
 
     public Long getInstanceId() {
         return instanceId;
@@ -92,7 +102,7 @@ public class JoinStorageServiceToAdDomainCmd extends BaseAsyncCmd implements Use
 
     @Override
     public long getEntityOwnerId() {
-        return 0;
+        return org.apache.cloudstack.context.CallContext.current().getCallingAccount().getId();
     }
 
     @Override

@@ -70,6 +70,13 @@ export default {
       component: () => import('@/views/infra/UsageRecords.vue')
     },
     {
+      name: 'storageruntimebundles',
+      title: 'label.storage.runtime.catalog',
+      icon: 'code-outlined',
+      permission: ['updateStorageServiceRuntimeBundle'],
+      component: () => import('@/views/tools/StorageServiceRuntimeBundles.vue')
+    },
+    {
       name: 'manageinstances',
       title: 'label.action.import.export.instances',
       icon: 'interaction-outlined',

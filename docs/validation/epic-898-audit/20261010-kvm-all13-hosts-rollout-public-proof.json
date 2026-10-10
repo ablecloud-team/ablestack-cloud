@@ -1,0 +1,75 @@
+{
+  "kind": "HOST13_CLUSTER_LIMITED_WRAPPER_ALIGNMENT_ROLLOUT",
+  "sourcePin": "ad29797bef84b890e641ebdc606417037ddd7469",
+  "normalGate": {
+    "tests": 69,
+    "selectors": 7,
+    "failuresErrorsSkips": 0,
+    "checkstylePass": true
+  },
+  "executionSequence": [
+    "10.10.13.1",
+    "Root normal API Up check",
+    "10.10.13.3",
+    "Root normal API Up check"
+  ],
+  "hosts": [
+    {
+      "host": "10.10.13.1",
+      "deploymentProofPath": "/root/work/epic898-preparation/qga-chunked-memfd-transport/cluster-hosts-readonly/1/actual-deployment-proof.json",
+      "deploymentProofSha256": "c44480077f80e28026923823f566534d5a37c8652b366adb5e0c6d5794432d0f",
+      "approvedManifestSha256": "ca7eb7791f59aaddcafa662a4312d2105e19b36773841b84b11903c60d37606a",
+      "success": true,
+      "newAgentPid": 1351441,
+      "backupDirectory": "/root/epic898-chunked-input-host-wrapper-1-backup-20261009-224017",
+      "oldJarSha256": "10fccce60dd077721ea4a633a9baec9d6ca273f6adb913aec73e93f912ce9890",
+      "newJarSha256": "54ced30eb71896c990e5ec3fb0f5eeaa8662dc4a014591e995db1d0fa65a0fa4",
+      "newWrapperSha256": "2eedeaf9515e5916c1669a40e10a92732c05550f54968c1a36ce10020787a4c4",
+      "runtimeProviderJarsPreserved": true,
+      "libvirtJarSha256": "52cc298d193da4a1bb3d1e9c404ef528ed65b017cd0763956a2fee20e2de3fd2",
+      "vmProcessesPreserved": true,
+      "vmProcessCount": 10,
+      "remainingOriginalFiles": 482,
+      "remainingOriginalFilesNulSha256": "9ee9c8b458f3f061bcc4161d36f81d6d9751bb63d060b162c0ebcb3ea94401f7",
+      "rootApiReadinessPath": "/root/work/epic898-preparation/host13-1-post-deploy-api-readiness.json",
+      "rootApiReadinessSha256": "133f637ff36da1376495ed76d8c126557e781a4972c0cdcee6c633e8f6a6b81e",
+      "rootConfirmedHostUp": true,
+      "guestCommandsIssued": false,
+      "vmRestartCommandsIssued": false,
+      "managementOrUiChanged": false
+    },
+    {
+      "host": "10.10.13.3",
+      "deploymentProofPath": "/root/work/epic898-preparation/qga-chunked-memfd-transport/cluster-hosts-readonly/3/actual-deployment-proof.json",
+      "deploymentProofSha256": "8093b2aa0064219fa54301135cd74040fdaea003814daac35e37b98dc6821acd",
+      "approvedManifestSha256": "d32165eeb9dc3fc2d4a3f26095a554089e83c8b0962ab0d8994a7d4e80b00b27",
+      "success": true,
+      "newAgentPid": 1622051,
+      "backupDirectory": "/root/epic898-chunked-input-host-wrapper-3-backup-20261009-224448",
+      "oldJarSha256": "f26b5d03cef2297fb692e496b0b558dd1d9a848a971bd90a5a0d56c9700eb339",
+      "newJarSha256": "7f7ee1ee5187fec2c6477a8778784ab8bb48fa2fa5e2db50759de2de8851c0a6",
+      "newWrapperSha256": "2eedeaf9515e5916c1669a40e10a92732c05550f54968c1a36ce10020787a4c4",
+      "runtimeProviderJarsPreserved": true,
+      "libvirtJarSha256": "52cc298d193da4a1bb3d1e9c404ef528ed65b017cd0763956a2fee20e2de3fd2",
+      "vmProcessesPreserved": true,
+      "vmProcessCount": 2,
+      "remainingOriginalFiles": 474,
+      "remainingOriginalFilesNulSha256": "2c0407e0fd30491fd8861b8b55875cb2a86dbd6fb513bc90a06021b965b02ed9",
+      "rootApiReadinessPath": "/root/work/epic898-preparation/host13-3-post-deploy-api-readiness.json",
+      "rootApiReadinessSha256": "ba1f839dfa472c5772521435ec8e36eb6e6a3de2dde1b5af0275bb107749a722",
+      "rootConfirmedHostUp": true,
+      "guestCommandsIssued": false,
+      "vmRestartCommandsIssued": false,
+      "managementOrUiChanged": false
+    }
+  ],
+  "rootFinalApiConfirmedAllRoutingHostsUp": [
+    "10.10.13.1",
+    "10.10.13.2",
+    "10.10.13.3"
+  ],
+  "scope": "one Wrapper class per host; mold-agent restart only; source/nativeCLI/template/guest/VM/DATA/UI untouched",
+  "additionalReadExecuteOrRestartAfterFinalGate": 0,
+  "credentialValuesSessionKeysPersistedOrPrinted": false,
+  "overallSharedFsFeatureAcceptanceClaimed": false
+}

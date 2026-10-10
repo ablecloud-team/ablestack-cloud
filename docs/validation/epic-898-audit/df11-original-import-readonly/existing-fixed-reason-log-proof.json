@@ -1,0 +1,42 @@
+{
+  "kind": "DF11_REVIEWED_EXISTING_FIXED_NATIVE_REASON_LOG_READ",
+  "readerSha256": "d29be54f324fc43ed12030b73e1e9e8db3645d40d1af5ba718127670941adf88",
+  "operationUuid": "df1641b6-c42a-443c-8521-a47fa6dc8c4f",
+  "managementReadAttempts": 1,
+  "agentReadAttempts": 0,
+  "guestCalls": 0,
+  "stateMutations": 0,
+  "rawLogsPayloadsOrSecretsPrintedOrPersisted": false,
+  "management": {
+    "transport": "PUBLIC_PROJECTION_DECODED",
+    "sshExitCode": 0,
+    "stderrBytes": 0,
+    "projection": {
+      "ambiguousCandidateRejectedCount": 0,
+      "directOperationSequenceAnchors": [],
+      "events": [],
+      "fileMayHaveAppended": false,
+      "fixedThreeFieldJsonCount": 0,
+      "guestCallsOrStateMutations": 0,
+      "intervalTimestampRows": 401,
+      "kind": "DF11_EXISTING_FIXED_NATIVE_REASON_LOG_PROJECTION",
+      "knownLogPath": "/var/log/cloudstack/management/management-server.log",
+      "managementAnchorsSupplied": [],
+      "managementUnitMainPidAndUserUidVerified": true,
+      "nonAnswerOrMalformedResultJsonRejectedCount": 0,
+      "operationUuid": "df1641b6-c42a-443c-8521-a47fa6dc8c4f",
+      "oversizedRowsSkipped": 0,
+      "ownerRootOrExactVerifiedServiceUid": true,
+      "rawLogMessagePayloadOrSecretPrintedOrPersisted": false,
+      "role": "management",
+      "sameOpenedFileIdentityProtection": true,
+      "sinceKst": "2026-10-10 09:25:13",
+      "status": "UNKNOWN",
+      "tailBytesInspected": 16777184,
+      "uncorrelatedFixedJsonCount": 0,
+      "unknownReasonRejectedCount": 0,
+      "untilKst": "2026-10-10 09:25:27"
+    }
+  },
+  "agentSkipped": "NO_VERIFIED_DIRECT_MANAGEMENT_OPERATION_SEQUENCE_ANCHOR"
+}

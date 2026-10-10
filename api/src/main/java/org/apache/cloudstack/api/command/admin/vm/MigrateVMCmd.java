@@ -197,11 +197,14 @@ public class MigrateVMCmd extends BaseAsyncCmd {
 
     @Override
     public String getSyncObjType() {
+        if (getStorageVmSyncObjId() != null) return "StorageServiceInstance";
         return (getSyncObjId() != null) ? BaseAsyncCmd.migrationSyncObject : null;
     }
 
     @Override
     public Long getSyncObjId() {
+        Long storageScope = getStorageVmSyncObjId();
+        if (storageScope != null) return storageScope;
         if (getStoragePoolId() != null) {
             return getStoragePoolId();
         }

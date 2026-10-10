@@ -34,7 +34,7 @@ final class ApiSensitiveParamUtils {
     private static final Set<String> SENSITIVE_FIELDS = new HashSet<>(Arrays.asList(
             "password", "secretkey", "apikey", "token",
             "sessionkey", "accesskey", "signature",
-            "authorization", "credential", "secret"
+            "authorization", "credential", "secret", "configurationpayload"
     ));
 
     private ApiSensitiveParamUtils() {

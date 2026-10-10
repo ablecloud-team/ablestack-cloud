@@ -1,0 +1,33 @@
+{
+  "kind": "MANAGEMENT_OWNED_PROFILE_TWO_APPLY",
+  "observedAtUtc": "2026-10-10T10:17:42.798285+00:00",
+  "helperExitCode": 0,
+  "helperPublicResult": {
+    "success": true,
+    "javaSourceCommit": "978ec10a93af2e1176df6b7fe13bee19bc7e0f4f",
+    "normalTests": 994,
+    "normalSelectors": 130,
+    "backup": "/root/epic898-owned-all4-profile-978ec10a-backup-20261010-191630",
+    "beforeJarSha256": "1909d30c4ea4297508a4a11ec9cd7ed5286f7acbc4cb6350877059707425e934",
+    "afterJarSha256": "fa751f36d1452a15ab84f56410554f29947412a8714ee64aa42c2dbbe32bb9db",
+    "beforePid": 1413104,
+    "afterPid": 1430252,
+    "changedClassCount": 2,
+    "newClassCount": 0,
+    "otherJarEntryContentsPreserved": true,
+    "otherLibraryFilesPreserved": true,
+    "runtimeFamilyPreserved": true,
+    "uiConfigWebInfAssetsPreserved": true,
+    "activationAt": "2026-10-10T19:17:42.691074+09:00",
+    "applicationReadinessVerified": false,
+    "guestInvocations": 0,
+    "df11ReconcileInvocations": 0,
+    "finalUi1275Started": false
+  },
+  "applyInvocations": 1,
+  "rawErrorStored": false,
+  "rawErrorPrinted": false,
+  "safeFailureClass": null,
+  "applicationReadinessVerified": false,
+  "finalUi1275Started": false
+}

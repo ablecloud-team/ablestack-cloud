@@ -1,0 +1,43 @@
+{
+  "validatedAtUtc": "2026-10-10T01:21:05.203019+00:00",
+  "existingAdPositiveFixtureUpdatedOnly": true,
+  "productionSourceUnchangedSincePin02b": true,
+  "focusedCompile": "PASS",
+  "focusedTests": 96,
+  "focusedSuites": 10,
+  "focusedFailures": 0,
+  "focusedSourceBeforeAfterSame": true,
+  "sourceFrozen": [
+    {
+      "path": "server/src/main/java/org/apache/cloudstack/storage/dataservice/StorageServiceConfiguration.java",
+      "sha256": "49966d1c99d0a760c477c4843d60244235e52e4fe7c8924dfeeeac61eb35118c"
+    },
+    {
+      "path": "server/src/main/java/org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.java",
+      "sha256": "624b8506a20bb0fe0c293f7acd37ff57df3fe7c3fa1e43c6887258ef34c8eafd"
+    },
+    {
+      "path": "server/src/test/java/org/apache/cloudstack/storage/dataservice/StorageConfigCloneTemplatePinTest.java",
+      "sha256": "0b983767982dd172a1acb7a40e8b2a63ee083db92ceadfbfcaf7a073e055b24e"
+    },
+    {
+      "path": "server/src/test/java/org/apache/cloudstack/storage/dataservice/StorageAdSemanticSourceTest.java",
+      "sha256": "7641536347682fa4dfbc9c9b0aac17af358f380262a3e7712f5ca8288e1d6ba8"
+    }
+  ],
+  "testLogSha256": "72cbd2dbceb9361472d8fec2589d9db252f7ad7651467612d4788809784545f7",
+  "failedNormalHistorical": {
+    "pin": "02b0eb8db5dc013c3f5979201549b4e2321d989a",
+    "reports": 117,
+    "tests": 818,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0,
+    "exitCode": 1,
+    "path": "/root/work/epic898-preparation/acceptance-audit/f2-template-pin-normal-02b0eb8db5dc/failed-02b0eb8-evidence"
+  },
+  "normalRerun": 0,
+  "actualDeploy": 0,
+  "gitCommitPush": 0,
+  "ui1275": "UNSTARTED"
+}

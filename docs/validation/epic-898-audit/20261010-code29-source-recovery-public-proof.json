@@ -1,0 +1,292 @@
+{
+  "preparedAtUtc": "2026-10-09T18:33:50.597938+00:00",
+  "plannedRepositoryMarkdown": "docs/validation/epic-898-audit/20261010-code29-source-resume-transport-actual.md",
+  "sourceOfFinalRetryResult": "cached retry public terminal/preservation files; parent confirms original fef operation phase",
+  "finalCacheRecoveryResultPending": false,
+  "management": {
+    "source": "1337a93e0966380457988d9befd7d21548bf4542",
+    "normalTests": 888,
+    "normalSelectors": 124,
+    "jarSha256": "15f361afb6b33517e37e3930e825649558a34eb65e96f821ee402fcfb6f272e8",
+    "pid": 1331803
+  },
+  "nativeSource": "29cab7746b1d48eadd22bf88c0a85bdc73db2a4d",
+  "nativeTests": 457,
+  "nativeSelectors": 49,
+  "ui": {
+    "source": "3df730e74a0682cb1322575e7226ad12f2035a76",
+    "normalTests": 334,
+    "indexSha256": "4595c74ee9cacf57aa625e8906023451a76d39aec4bc9358603da3164bb7cdc1",
+    "configSha256": "d3e285317289b4eb4034141b63e4604ffd014d8bc1385aa28a007a4317c397f5"
+  },
+  "uiSuites": 18,
+  "uiOutputFiles": 850,
+  "code": {
+    "operationUuid": "c90bfcc9-1260-41b8-a89e-d0c2f2002f94",
+    "transactionId": "runtime-131023b0-6e48-421b-9c1b-c2fcec0e40fa",
+    "catalogUuid": "596b3573-1910-476d-9796-943e578efc1c",
+    "state": "COMPLETE",
+    "phase": "COMPLETE",
+    "progress": 100
+  },
+  "codeFlags": {
+    "runtimeCodeVerified": true,
+    "healthSuccess": false,
+    "serviceAvailabilityVerified": false
+  },
+  "stoppedProofFieldCount": 15,
+  "nativeStatus": {
+    "success": true,
+    "phase": "RESUMED",
+    "sourceRuntimeVerified": true,
+    "sourceSmbResumed": true,
+    "currentRuntimeOwnershipVerified": true,
+    "currentSessionsVerifiedEmpty": true,
+    "exitCode": 0
+  },
+  "managerOperation": {
+    "operationUuid": "fef126a6-936a-4936-b22c-201b7e5b9b4d",
+    "state": "RECOVERY_REQUIRED",
+    "phase": "INTERRUPTED_RECOVERY_REQUIRED",
+    "revision": 5,
+    "progress": 100,
+    "recoveryJobUuid": "e7d16a74-fe31-4184-b26d-33b758568319",
+    "additionalSubmit": false
+  },
+  "installedCliSha256": "19adfa998ab568b2e16e89002d239a1d5d121444f6a4510e180d7a638e5388f4",
+  "sourceJournalPinUnchanged": true,
+  "sourceDataPreserved": true,
+  "protectedArtifactPresentRoot0600": true,
+  "ownedDbHolderCount": 2,
+  "ownedSmbPid": 756716,
+  "publicCBindingProbes": {
+    "provider": "actual F1 host13.2 Python libvirt C binding, not deployed Java/JNI HostWrapper",
+    "originalNativeExportInvoked": false,
+    "probes": [
+      {
+        "label": "tiny-baseline",
+        "decodedStdoutBytes": 25,
+        "elapsedSeconds": 0.253,
+        "exitCode": 0,
+        "publicJsonParsed": true,
+        "outTruncated": false,
+        "errTruncated": false,
+        "actualJavaWrapperInvoked": false,
+        "parseStage": "complete"
+      },
+      {
+        "label": "matching-public-large",
+        "decodedStdoutBytes": 1518638,
+        "elapsedSeconds": 0.359,
+        "exitCode": 0,
+        "publicJsonParsed": true,
+        "outTruncated": false,
+        "errTruncated": false,
+        "actualJavaWrapperInvoked": false,
+        "parseStage": "complete"
+      }
+    ]
+  },
+  "publicJavaProbes": {
+    "provider": "actual host13.2 deployed production classpath and reflected HostWrapper waitForGuestCommand",
+    "originalNativeExportInvoked": false,
+    "sourceOrServiceChanged": false,
+    "probes": [
+      {
+        "expectedPublicStdoutBytes": 25,
+        "decodedStdoutBytes": 25,
+        "elapsedMillis": 464,
+        "hostAnswerSuccess": true,
+        "hostExitCode": 0,
+        "loadedWrapperBytesMatch": true,
+        "publicShapeVerified": true,
+        "syntheticPublicOutputOnly": true,
+        "originalCliExecuted": false,
+        "parseStage": "complete",
+        "timeoutSeconds": 120,
+        "truncationFlagsExposedByDeployedWrapper": false,
+        "outTruncated": null,
+        "errTruncated": null
+      },
+      {
+        "expectedPublicStdoutBytes": 1518638,
+        "decodedStdoutBytes": 1518638,
+        "elapsedMillis": 1610,
+        "hostAnswerSuccess": true,
+        "hostExitCode": 0,
+        "loadedWrapperBytesMatch": true,
+        "publicShapeVerified": true,
+        "syntheticPublicOutputOnly": true,
+        "originalCliExecuted": false,
+        "parseStage": "complete",
+        "timeoutSeconds": 120,
+        "truncationFlagsExposedByDeployedWrapper": false,
+        "outTruncated": null,
+        "errTruncated": null
+      }
+    ]
+  },
+  "publicTiming": {
+    "clockBasisDifferenceSeconds": 0.983,
+    "clockTicksPerSecond": 100,
+    "estimatedClockResolutionSeconds": 1,
+    "eventTimingDoesNotAssertFailureCause": true,
+    "hostExceptionKst": "2026-10-10T02:51:39+09:00",
+    "kernelBtimeEpoch": 1791518155,
+    "kernelUptimeSeconds": 51886.31,
+    "observedKst": "2026-10-10T03:20:42.292557+09:00",
+    "originalFilesContentsOrPrivateHashesRead": false,
+    "processStartCoarseBtimeKst": "2026-10-10T02:49:30.710000+09:00",
+    "processStartEstimatedKst": "2026-10-10T02:49:31.692557+09:00",
+    "processStartSecondsAfterSubmit": 9.693,
+    "processStartSecondsBeforeHostException": 127.307,
+    "smbPid": 756716,
+    "sourceCacheExportOrSignalsInvoked": false,
+    "startTicks": "5001571",
+    "submitKst": "2026-10-10T02:49:22+09:00"
+  },
+  "artifactTimingOnly": {
+    "cipher": {
+      "mtimeKst": "2026-10-10T02:49:30.457828+09:00",
+      "mtimeSecondsAfterSubmit": 8.458,
+      "mtimeSecondsBeforeHostException": 128.542
+    },
+    "code-compatibility": {
+      "mtimeKst": "2026-10-10T02:49:30.177824+09:00",
+      "mtimeSecondsAfterSubmit": 8.178,
+      "mtimeSecondsBeforeHostException": 128.822
+    },
+    "journal": {
+      "mtimeKst": "2026-10-10T02:49:32.673859+09:00",
+      "mtimeSecondsAfterSubmit": 10.674,
+      "mtimeSecondsBeforeHostException": 126.326
+    }
+  },
+  "rootCauseKnown": false,
+  "externalSmbAuthIoVerified": false,
+  "issues": {
+    "primaryCount": 29,
+    "extra": [
+      1333
+    ],
+    "uniqueCount": 30,
+    "openCount": 29,
+    "historicallyClosed": [
+      911
+    ],
+    "newClose": 0,
+    "freshGitHubReadThisTask": false
+  },
+  "finalUi1275Started": false,
+  "inputs": {
+    "receipt29-code-complete-public.json": "beabc24f79f0c4e75be7643c289e89c1d78505bc9078594554563ba4b5cd0f16",
+    "receipt29-code-preservation-proof.json": "de5a92cac34027f5f8b660177e3314253fbd0cae5ba423570c58674a3ad8bb8b",
+    "receipt29-fef-recovery-required-public.json": "f8a327a270f6ccc1cff9580adacda8f57ff8dfefa1415b176163c2451ca4454b",
+    "receipt29-fef-failure-preservation-proof.json": "540b2c942d75a615b91504db57f0f5b67fa7b35827a6c8cdb81362747f68f686",
+    "receipt29-fef-terminal-status-readonly.json": "6753beb20f2894c71ee0e9066efc2d49f06e08c69871101d7154b5e7ee0d45c4",
+    "receipt29-management-host-failure-classification.json": "0dc92145d32584cea1b8b8a079577a58b5808531581add8d7074818e6fee8731",
+    "receipt29-public-qga-response-size-proof.json": "b623f7935f87dcf58b11f84361aede7f3be090031be2dea5d5d4909a9da235fb",
+    "receipt29-public-qga-jvm-probe-proof.json": "081f9730f06fc59fed2e1545325bef6ad497d830553c265a33c77e6b59547423",
+    "receipt29-source-resume-timing-readonly.json": "d8dc52f1fe3cc289f85100ed6b182fcda8844346d7ab7e98ccd7e6a98166c2ae",
+    "receipt29-fef-cached-retry-before-readonly.json": "6753beb20f2894c71ee0e9066efc2d49f06e08c69871101d7154b5e7ee0d45c4",
+    "receipt29-fef-cached-retry-job-public.json": "0a2e5cacbea64ae9d64bee461c99aaf1cda64e778479b1e4b429629a6ff43dca",
+    "receipt29-fef-cached-retry-preservation-proof.json": "2b6f93c9666ff0d50e99ebe991732cb18430ead7d10df392ba90cc503ae951ae",
+    "receipt29-fef-cached-retry-after-readonly.json": "6753beb20f2894c71ee0e9066efc2d49f06e08c69871101d7154b5e7ee0d45c4",
+    "receipt29-cached-retry-management-host-failure-classification.json": "c1cb01ff130b40bfee0ae3305f5289e5814f8b685d98b02b8d64c82ae0288c35"
+  },
+  "originalPrBodySha256": "5deb5043cdd41c0fd0e494f0b5d5aef33900c1ad152a8099abf59f73952f507e",
+  "effects": {
+    "source": 0,
+    "git": 0,
+    "gh": 0,
+    "ui": 0,
+    "api": 0,
+    "ssh": 0,
+    "qga": 0,
+    "vm": 0
+  },
+  "pendingCacheRecoveryAttempt": {
+    "jobUuid": "d8d3c47c-199d-42dc-a2a4-b61013275a87",
+    "createdKst": "2026-10-10T03:31:07+09:00",
+    "originalOperationUuid": "fef126a6-936a-4936-b22c-201b7e5b9b4d",
+    "parentReportedPreflightNineTupleSame": true,
+    "parentReportedSourceAndCurrentSessionFlags": true,
+    "terminalResultPending": false,
+    "source": "parent message; no API query by this audit"
+  },
+  "cachedRecoveryTerminal": {
+    "jobUuid": "d8d3c47c-199d-42dc-a2a4-b61013275a87",
+    "createdKst": "2026-10-10T03:31:07+09:00",
+    "completedKst": "2026-10-10T03:33:18+09:00",
+    "durationSeconds": 131.0,
+    "jobStatus": 2,
+    "jobResultCode": 530,
+    "errorCode": 530,
+    "operationUuid": "fef126a6-936a-4936-b22c-201b7e5b9b4d",
+    "operationState": "RECOVERY_REQUIRED",
+    "operationPhase": "INTERRUPTED_RECOVERY_REQUIRED",
+    "operationProgress": 100,
+    "operationStateSource": "parent-confirmed terminal; public job is status2/error530",
+    "additionalSubmit": false,
+    "additionalRetry": false,
+    "actualAuthOrDataIo": false,
+    "allPreserved": true,
+    "preservationFields": {
+      "cliSha256": true,
+      "bootId": true,
+      "vmUuid": true,
+      "current": true,
+      "pending": true,
+      "databases": true,
+      "smbDesiredPresent": true,
+      "blockdevices": true,
+      "nfsSentinel": true,
+      "localSourceCheckpointPublic": true
+    },
+    "nativeStatus": {
+      "success": true,
+      "phase": "RESUMED",
+      "exitCode": 0,
+      "sourceIdentityRestoreSupported": true,
+      "sourceRuntimeVerified": true,
+      "sourceSmbResumed": true,
+      "currentRuntimeOwnershipVerified": true,
+      "currentSessionsVerifiedEmpty": true
+    },
+    "sourceJournalCliPinUnchanged": true,
+    "protectedArtifactMetadata": {
+      "cipher": {
+        "present": true,
+        "mode": 384,
+        "uid": 0
+      },
+      "codeCompatibility": {
+        "present": true,
+        "mode": 384,
+        "uid": 0
+      }
+    },
+    "rawLogPrinted": false,
+    "classifiedPublicEvents": [
+      {
+        "time": "02:28:27,125",
+        "category": "HOST_NONZERO",
+        "sourceMatchedKnownPublicDiagnostic": true,
+        "exitCode": 1
+      },
+      {
+        "time": "02:51:39,337",
+        "category": "HOST_EXCEPTION",
+        "sourceMatchedKnownPublicDiagnostic": true
+      },
+      {
+        "time": "03:33:18,907",
+        "category": "HOST_EXCEPTION",
+        "sourceMatchedKnownPublicDiagnostic": true
+      }
+    ],
+    "rootCauseKnown": false,
+    "privateValuesOrCipherHashesStored": false
+  },
+  "updatedAtUtc": "2026-10-09T18:38:47.166953+00:00"
+}

@@ -1,0 +1,198 @@
+{
+  "kind": "BASIC_ISCSI_CHAP_RAM_CONTROLLER_CF6",
+  "targetUuid": "0393e4f7-56a2-4e91-9e2e-efa76c300dcb",
+  "targetIqn": "iqn.2026-05.local.storage:epic898-s-b6aa-all4-f1-20261009-0732",
+  "credentialSetupViaNormalApi": true,
+  "newCredentialGuiEntry": false,
+  "secretRegularFilesOrArgv": 0,
+  "clients": {
+    "C1": {
+      "initiatorIqn": "iqn.2026-10.local.epic898:cf6-chap-c1-7993a840",
+      "permission": "READ_WRITE",
+      "chapEnabledRequested": true,
+      "secretLength": 16,
+      "secretAscii": true,
+      "jobId": "9a573d0d-78c1-4eef-9389-fc3ec77ccfb8",
+      "jobStatus": 1,
+      "jobResultCode": 0,
+      "aclPublic": {
+        "id": "bd76c8ab-e784-44ca-824c-8d70e32e4d6d",
+        "state": "Ready",
+        "principal": "iqn.2026-10.local.epic898:cf6-chap-c1-7993a840",
+        "principaltype": "ISCSI_INITIATOR_IQN",
+        "permission": "READ_WRITE"
+      }
+    },
+    "C2": {
+      "initiatorIqn": "iqn.2026-10.local.epic898:cf6-chap-c2-0d8c6895",
+      "permission": "READ_ONLY",
+      "chapEnabledRequested": true,
+      "secretLength": 16,
+      "secretAscii": true,
+      "jobId": "7f763ddc-73cd-4d8b-8a7e-91e1d354874a",
+      "jobStatus": 1,
+      "jobResultCode": 0,
+      "aclPublic": {
+        "id": "c3866dde-4b7b-4ba5-a898-2fe6d6be5e70",
+        "state": "Ready",
+        "principal": "iqn.2026-10.local.epic898:cf6-chap-c2-0d8c6895",
+        "principaltype": "ISCSI_INITIATOR_IQN",
+        "permission": "READ_ONLY"
+      }
+    }
+  },
+  "cases": [
+    {
+      "client": "C1",
+      "case": "STAGE",
+      "result": {
+        "success": true,
+        "publicHashesVerified": true,
+        "publicFileCount": 3,
+        "privateFiles": 0
+      }
+    },
+    {
+      "client": "C2",
+      "case": "STAGE",
+      "result": {
+        "success": true,
+        "publicHashesVerified": true,
+        "publicFileCount": 3,
+        "privateFiles": 0
+      }
+    },
+    {
+      "client": "C1",
+      "case": "SELFTEST",
+      "result": {
+        "success": true,
+        "apiReady": true,
+        "stdinOnly": true,
+        "secretArgv": false,
+        "sessionCount": 0
+      }
+    },
+    {
+      "client": "C1",
+      "case": "NONE",
+      "result": {
+        "success": false,
+        "loginAccepted": false,
+        "authenticationRejected": true,
+        "dataWrites": 0,
+        "safeError": "LOGIN_REJECTED_OR_UNAVAILABLE"
+      }
+    },
+    {
+      "client": "C1",
+      "case": "WRONG",
+      "result": {
+        "success": false,
+        "loginAccepted": false,
+        "authenticationRejected": true,
+        "dataWrites": 0,
+        "safeError": "LOGIN_REJECTED_OR_UNAVAILABLE"
+      }
+    },
+    {
+      "client": "C1",
+      "case": "WRITE",
+      "result": {
+        "success": true,
+        "loginAccepted": true,
+        "dataWrites": 1,
+        "bytesWritten": 4096,
+        "syncVerified": true,
+        "readPatternVerified": true,
+        "freshReconnectReadVerified": true,
+        "secretArgv": false,
+        "writeFuaRequested": true,
+        "protocolSyncVerified": true,
+        "windowOffsetBytes": 1048576,
+        "windowLengthBytes": 4096,
+        "readSha256": "40804e47bb6a66d3a0dbfe20fc9ed3f32bfabcad0680d047f741d5be7f357e6a",
+        "freshReadSha256": "40804e47bb6a66d3a0dbfe20fc9ed3f32bfabcad0680d047f741d5be7f357e6a",
+        "expectedPatternSha256": "40804e47bb6a66d3a0dbfe20fc9ed3f32bfabcad0680d047f741d5be7f357e6a",
+        "freshShaMatched": true
+      }
+    },
+    {
+      "client": "C2",
+      "case": "NONE",
+      "result": {
+        "success": false,
+        "loginAccepted": false,
+        "authenticationRejected": true,
+        "dataWrites": 0,
+        "safeError": "LOGIN_REJECTED_OR_UNAVAILABLE"
+      }
+    },
+    {
+      "client": "C2",
+      "case": "WRONG",
+      "result": {
+        "success": false,
+        "loginAccepted": false,
+        "authenticationRejected": true,
+        "dataWrites": 0,
+        "safeError": "LOGIN_REJECTED_OR_UNAVAILABLE"
+      }
+    },
+    {
+      "client": "C2",
+      "case": "READ",
+      "result": {
+        "success": true,
+        "loginAccepted": true,
+        "dataWrites": 0,
+        "bytesWritten": 0,
+        "syncVerified": true,
+        "readPatternVerified": true,
+        "freshReconnectReadVerified": true,
+        "secretArgv": false,
+        "writeFuaRequested": false,
+        "protocolSyncVerified": false,
+        "windowOffsetBytes": 1048576,
+        "windowLengthBytes": 4096,
+        "readSha256": "40804e47bb6a66d3a0dbfe20fc9ed3f32bfabcad0680d047f741d5be7f357e6a",
+        "freshReadSha256": "40804e47bb6a66d3a0dbfe20fc9ed3f32bfabcad0680d047f741d5be7f357e6a",
+        "expectedPatternSha256": "40804e47bb6a66d3a0dbfe20fc9ed3f32bfabcad0680d047f741d5be7f357e6a",
+        "freshShaMatched": true
+      }
+    },
+    {
+      "client": "C2",
+      "case": "RO_WRITE",
+      "result": {
+        "success": true,
+        "loginAccepted": true,
+        "dataWrites": 1,
+        "bytesWritten": 4096,
+        "syncVerified": true,
+        "readPatternVerified": true,
+        "freshReconnectReadVerified": true,
+        "secretArgv": false,
+        "writeFuaRequested": true,
+        "protocolSyncVerified": true,
+        "windowOffsetBytes": 1048576,
+        "windowLengthBytes": 4096,
+        "readSha256": "40804e47bb6a66d3a0dbfe20fc9ed3f32bfabcad0680d047f741d5be7f357e6a",
+        "freshReadSha256": "40804e47bb6a66d3a0dbfe20fc9ed3f32bfabcad0680d047f741d5be7f357e6a",
+        "expectedPatternSha256": "40804e47bb6a66d3a0dbfe20fc9ed3f32bfabcad0680d047f741d5be7f357e6a",
+        "freshShaMatched": true
+      },
+      "permissionDenialProven": false,
+      "failedWriteWithZeroReportedBytes": false
+    }
+  ],
+  "newVolumeOrFormatCalls": 0,
+  "nvmeCalls": 0,
+  "networkVpdSerialClaimed": false,
+  "serverSerialReadbackProofSha256": "390c648944ae5ae8d9c1eb92ae35f9965a94c1b37c324af572804c5f49cf83af",
+  "firstFailedCase": {
+    "client": "C2",
+    "case": "RO_WRITE"
+  },
+  "credentialsDiscardedAtControllerEnd": true
+}

@@ -37,6 +37,8 @@ import com.cloud.exception.VirtualMachineMigrationException;
 
 public interface SharedFSService {
 
+    ListResponse<org.apache.cloudstack.api.response.StorageServiceOfferingConstraintResponse> listOfferingConstraints(Long zoneId, List<Long> serviceOfferingIds);
+
     List<SharedFSProvider> getSharedFSProviders();
 
     boolean stateTransitTo(SharedFS sharedFS, SharedFS.Event event);
@@ -46,8 +48,19 @@ public interface SharedFSService {
     SharedFSProvider getSharedFSProvider(String sharedFSProviderName);
 
     SharedFS allocSharedFS(CreateSharedFSCmd cmd);
+    SharedFS preflightSharedFS(CreateSharedFSCmd cmd);
 
     SharedFS deploySharedFS(CreateSharedFSCmd cmd) throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException;
+
+    /** Internal CREATE_NEW recovery contract; unsupported implementations cannot allocate. */
+    default SharedFS preflightSharedFS(CreateSharedFSCmd cmd, long retainedSharedFsId) {
+        throw new UnsupportedOperationException("Provider has no recorded SharedFS preflight");
+    }
+
+    default SharedFS deploySharedFS(CreateSharedFSCmd cmd, java.util.function.Consumer<SharedFS> allocatedRecorder)
+            throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
+        throw new UnsupportedOperationException("Provider has no recorded SharedFS deployment");
+    }
 
     SharedFS startSharedFS(Long sharedFSId) throws OperationTimedoutException, ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException;
 
@@ -67,11 +80,24 @@ public interface SharedFSService {
 
     SharedFS recoverSharedFS(Long sharedFSId);
 
+    org.apache.cloudstack.api.response.StorageServiceRuntimeResponse getSharedFSScalingReadiness(Long id);
+
     void deleteSharedFS(Long sharedFSId);
+
+    void deleteSharedFS(Long sharedFSId, String policy, String confirmation, String expectedPlanHash);
+
+    org.apache.cloudstack.api.response.StorageServiceDeletionPlanResponse previewSharedFSDeletion(Long sharedFSId, String policy);
+
+    org.apache.cloudstack.api.response.ListResponse<org.apache.cloudstack.api.response.SharedFSDeletionAuditResponse> listSharedFSDeletionAudits(String uuid);
 
     SharedFS getSharedFSByUuid(String uuid);
 
     SharedFS getSharedFSForVmId(long vmId);
+
+    /** Internal VM lifecycle entrypoints must preserve pending SharedFS DATA recovery. */
+    void requireVmLifecycleSafety(long vmId, String operation);
+
+    Long getVmStorageServiceSyncId(long vmId);
 
     SharedFS updateSharedFSPostRestore(long sharedFsId, long volumeId);
 }

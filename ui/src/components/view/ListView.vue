@@ -434,6 +434,19 @@
       <template v-if="$route.meta.name === 'buckets' && column.key === 'quota' && text !== undefined && text !== null">
         <span>{{ text }} GiB</span>
       </template>
+      <template v-if="$route.meta.name === 'sharedfs' && column.key === 'totalprovisionedbytes'">
+        <a-tooltip>
+          <template #title>
+            {{ $t('label.initialvolumebytes') }}: {{ record.initialvolumebytes === undefined ? '-' : $bytesToHumanReadableSize(record.initialvolumebytes) }};
+            {{ $t('label.usedbytes') }}: {{ record.usedbytes === undefined || record.usedbytes === null ? $t('label.storage.service.capacity.unobserved') : $bytesToHumanReadableSize(record.usedbytes) }};
+            {{ record.capacityobservedat || $t('label.storage.service.capacity.unobserved') }} · {{ record.capacitystate || 'UNAVAILABLE' }}
+          </template>
+          <span>{{ text === undefined || text === null ? '-' : $bytesToHumanReadableSize(text) }}</span>
+        </a-tooltip>
+      </template>
+      <template v-if="$route.meta.name === 'sharedfs' && column.key === 'backingvolumecount'">
+        <span>{{ text === undefined || text === null ? '-' : text }}</span>
+      </template>
       <template v-if="column.key === 'physicalsize'">
         <span v-if="text">
           {{ isNaN(text) ? text : (parseFloat(parseFloat(text) / 1024.0 / 1024.0 / 1024.0).toFixed(2) + ' GiB') }}

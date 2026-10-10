@@ -1,0 +1,56 @@
+{
+  "actualReadonlyMetadataCalls": 1,
+  "guestExitCode": 0,
+  "kind": "ISCSI_INITIALIZER_READONLY_PROVIDER_V3",
+  "metadata": {
+    "actualReadonlyGuestCalls": 1,
+    "dbroot": {
+      "metadataUnchangedDuringRead": true,
+      "present": true,
+      "valueEnum": "PREFERRED"
+    },
+    "defaultDirectory": {
+      "present": false
+    },
+    "defaultTargetcliHome": {
+      "effectiveRootAccessWrite": true,
+      "expectedFileType": true,
+      "gid": 0,
+      "mode": 493,
+      "ownerWriteBit": true,
+      "present": true,
+      "rootOwned": true,
+      "symlink": false,
+      "uid": 0
+    },
+    "importsConstructorsDispatchTargetcliCalls": 0,
+    "kind": "ISCSI_INSTALLED_INITIALIZER_PUBLIC_PRECONDITIONS",
+    "preferredDirectory": {
+      "effectiveRootAccessWrite": true,
+      "expectedFileType": true,
+      "gid": 0,
+      "mode": 493,
+      "ownerWriteBit": true,
+      "present": true,
+      "rootOwned": true,
+      "symlink": false,
+      "uid": 0
+    },
+    "prefsHistoryLogSaveconfigContentsRead": 0,
+    "targetcliLock": {
+      "effectiveRootAccessWrite": true,
+      "expectedFileType": true,
+      "gid": 0,
+      "mode": 420,
+      "ownerWriteBit": true,
+      "present": true,
+      "rootOwned": true,
+      "symlink": false,
+      "uid": 0
+    },
+    "unknownDbrootValuePrintedOrHashed": false,
+    "writesSignalsServiceChanges": 0
+  },
+  "stderrBytes": 0,
+  "stdoutBytes": 973
+}

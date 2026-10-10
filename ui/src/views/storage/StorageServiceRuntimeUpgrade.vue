@@ -68,6 +68,7 @@
             </a-select>
           </a-form-item>
         </a-form>
+        <storage-runtime-compatibility v-if="selectedBundleId" :manifest="selectedBundleVerification.manifest || {}" :verified="selectedBundleVerification.verified === true" :observation="consumerObservation" />
         <a-empty
           v-if="!loading && bundles.length === 0"
           :description="$t('message.storage.service.runtime.bundle.empty')" />
@@ -142,16 +143,18 @@
 
 <script>
 import { getAPI, postAPI } from '@/api'
+import StorageRuntimeCompatibility from '@/views/storage/StorageRuntimeCompatibility'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 
 export default {
   name: 'StorageServiceRuntimeUpgrade',
-  components: { TooltipLabel },
+  components: { TooltipLabel, StorageRuntimeCompatibility },
   props: {
     resource: { type: Object, required: true }
   },
   data () {
     return {
+      generation: 0,
       loading: false,
       submitting: false,
       activeAction: '',
@@ -162,6 +165,16 @@ export default {
     }
   },
   computed: {
+    consumerObservation () {
+      try {
+        const value = this.capability.consumerobservation
+        const parsed = typeof value === 'string' ? JSON.parse(value) : value
+        return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {}
+      } catch (error) { return {} }
+    },
+    selectedBundleVerification () {
+      try { return JSON.parse(this.bundles.find(bundle => bundle.id === this.selectedBundleId)?.catalog || '{}').verification || {} } catch (error) { return {} }
+    },
     latestUpgrade () {
       return this.upgrades.length > 0 ? this.upgrades[0] : null
     },
@@ -170,7 +183,7 @@ export default {
         (!this.latestUpgrade || !['RUNNING', 'PREFLIGHT_READY'].includes(this.latestUpgrade.state))
     },
     canUpgrade () {
-      return !this.loading && !this.submitting && this.latestUpgrade?.state === 'PREFLIGHT_READY'
+      return !this.loading && !this.submitting && this.latestUpgrade?.state === 'PREFLIGHT_READY' && this.latestUpgrade.bundleid === this.selectedBundleId
     },
     canRollback () {
       return !this.loading && !this.submitting && this.latestUpgrade?.state === 'COMPLETE' &&
@@ -189,25 +202,38 @@ export default {
   created () {
     this.fetchData()
   },
+  watch: {
+    'resource.id' () {
+      this.generation++; this.loading = false; this.submitting = false; this.activeAction = ''
+      this.capability = {}; this.bundles = []; this.upgrades = []; this.selectedBundleId = undefined
+      this.fetchData()
+    }
+  },
+  beforeUnmount () { this.generation++ },
   methods: {
     async fetchData () {
       if (this.loading) return
+      const token = ++this.generation; const resourceId = this.resource.id
       this.loading = true
       try {
         const responses = await Promise.all([
-          getAPI('getStorageServiceRuntimeUpgradeCapabilities', { sharedfilesystemid: this.resource.id }),
-          getAPI('listStorageServiceRuntimeBundles', { listall: true }),
-          getAPI('listStorageServiceRuntimeUpgrades', { sharedfilesystemid: this.resource.id, listall: true })
+          getAPI('getStorageServiceRuntimeUpgradeCapabilities', { sharedfilesystemid: resourceId }, { timeout: 15000, preserveOnFailure: true }),
+          getAPI('listStorageServiceRuntimeBundles', { listall: true }, { timeout: 15000, preserveOnFailure: true }),
+          getAPI('listStorageServiceRuntimeUpgrades', { sharedfilesystemid: resourceId, listall: true }, { timeout: 15000, preserveOnFailure: true })
         ])
+        if (token !== this.generation || resourceId !== this.resource.id) return
         this.capability = responses[0].getstorageserviceruntimeupgradecapabilitiesresponse?.storageserviceruntimecapability || {}
         this.bundles = responses[1].liststorageserviceruntimebundlesresponse?.storageserviceruntimebundle || []
         this.upgrades = (responses[2].liststorageserviceruntimeupgradesresponse?.storageserviceruntimeupgrade || [])
           .sort((left, right) => String(right.started || '').localeCompare(String(left.started || '')))
-        if (!this.selectedBundleId && this.bundles.length > 0) this.selectedBundleId = this.bundles[0].id
+        if (!this.selectedBundleId && this.bundles.length > 0) {
+          this.selectedBundleId = this.upgrades[0]?.state === 'PREFLIGHT_READY' && this.bundles.some(bundle => bundle.id === this.upgrades[0].bundleid)
+            ? this.upgrades[0].bundleid : this.bundles.find(bundle => bundle.state === 'AVAILABLE')?.id
+        }
       } catch (error) {
-        this.$notifyError(error)
+        if (token === this.generation && resourceId === this.resource.id) this.$notifyError(error)
       } finally {
-        this.loading = false
+        if (token === this.generation) this.loading = false
       }
     },
     runPreflight () {
@@ -217,6 +243,7 @@ export default {
       })
     },
     runUpgrade () {
+      if (!this.canUpgrade) return
       this.startAsync('upgrade', 'upgradeStorageServiceRuntime', { upgradeid: this.latestUpgrade.id })
     },
     runRollback () {
@@ -224,9 +251,12 @@ export default {
     },
     startAsync (action, api, params) {
       if (this.submitting) return
+      const token = this.generation; const resourceId = this.resource.id
+      const current = () => token === this.generation && resourceId === this.resource.id
       this.submitting = true
       this.activeAction = action
       postAPI(api, params).then(response => {
+        if (!current()) return
         const root = response[`${api.toLowerCase()}response`] || response[Object.keys(response)[0]] || {}
         this.$pollJob({
           jobId: root.jobid,
@@ -235,12 +265,13 @@ export default {
           showLoading: false,
           successMessage: this.$t(`message.storage.service.runtime.${action}.success`),
           errorMessage: this.$t(`message.storage.service.runtime.${action}.failed`),
-          successMethod: () => { this.submitting = false; this.activeAction = ''; this.fetchData() },
-          errorMethod: () => { this.submitting = false; this.activeAction = ''; this.fetchData() },
-          catchMethod: () => { this.submitting = false; this.activeAction = '' },
-          resourceId: this.resource.id
+          successMethod: () => { if (!current()) return; this.submitting = false; this.activeAction = ''; this.fetchData() },
+          errorMethod: () => { if (!current()) return; this.submitting = false; this.activeAction = ''; this.fetchData() },
+          catchMethod: () => { if (!current()) return; this.submitting = false; this.activeAction = '' },
+          resourceId
         })
       }).catch(error => {
+        if (!current()) return
         this.$notifyError(error)
         this.submitting = false
         this.activeAction = ''

@@ -1,0 +1,95 @@
+{
+  "kind": "DF11_SINGLE_NORMAL_UI_SOURCE_RECOVERY_FAILURE_PUBLIC_EVIDENCE",
+  "operationUuid": "df1641b6-c42a-443c-8521-a47fa6dc8c4f",
+  "revision": 11,
+  "jobid": "227ca3ee-3044-4e66-9c7f-bfce6a34cb32",
+  "jobCreatedKst": "2026-10-10T09:25:13+0900",
+  "jobCompletedKst": "2026-10-10T09:25:27+0900",
+  "normalUiSubmissions": 1,
+  "jobstatus": 2,
+  "errorcode": 530,
+  "currentUiState": "RECOVERY_REQUIRED",
+  "currentUiPhase": "INTERRUPTED_RECOVERY_REQUIRED",
+  "currentUiProgress": 100,
+  "sourceGen": 10,
+  "sourceConfigurationSha256": "10d361deafdb00298a9e16e6923a671839bdcf2fae3e62c2ce71b5c6af87f569",
+  "installedCliSha256": "19adfa998ab568b2e16e89002d239a1d5d121444f6a4510e180d7a638e5388f4",
+  "pendingPreparedPreserved": true,
+  "observedPreservationFields10Same": true,
+  "ownedHolderCountBeforeAfter": [
+    2,
+    2
+  ],
+  "ownedObservedProcessesPausedTOrLowerT": false,
+  "fullServiceAvailabilityClaimed": false,
+  "localJournalPhaseBeforeAfter": [
+    "RESUMED",
+    "RECOVERY_REQUIRED"
+  ],
+  "nativeImported": false,
+  "cipherRefScopeAndPinPreserved": true,
+  "checkpointUuid": "09845f87-bfbb-3bdd-b395-7a447b093701",
+  "firstConfirmedCurrentFailureBoundary": "Manager.restoreLocalSourceIdentity:4566 import-local-source dispatch/ACK returned false; HOST_NONZERO exit1",
+  "nativeOrReceiverInnerCauseConfirmed": false,
+  "originalIscsiTargetApplyFailureMergedWithCurrentRecoveryFailure": false,
+  "currentApiOperationBodyCaptured": false,
+  "apiJobFailureAndCurrentUiDomCaptured": true,
+  "originalSnapshotProtocolCountsObserved": false,
+  "rawBlankFreshReadBeforeSubmit": true,
+  "afterRawDeviceBindingSame": true,
+  "afterRawBlankDirectReread": false,
+  "reservedNvmeReadySparse20UnattachedBeforeSubmit": true,
+  "afterGuestNvmeAbsentAndVolumePathNoMutations": true,
+  "manualSignalResumeStopDeleteOrExtraSubmit": 0,
+  "targetOrRawIoOrCredentialSetupCalls": 0,
+  "newNativeCodeDeployed": false,
+  "ui1275": "UNSTARTED",
+  "files": [
+    {
+      "name": "df11-original-source-recovery-consent.png",
+      "sha256": "395a2391dc0d891def7a74b0ffb6486f96e22228d3c47460978fc5f87171bd3f",
+      "bytes": 65711
+    },
+    {
+      "name": "df11-source-recovery-first-failure.png",
+      "sha256": "d31799e83e54469c7a314e7f425962e9d853aa2153469316d62c00790ad4a8f2",
+      "bytes": 62021
+    },
+    {
+      "name": "df11-normal-source-recovery-failed-public.json",
+      "sha256": "08fb378ac5c8f5cd2e61f85c2cd6f381c6846fc8968a59cb019e5a25e72b571f",
+      "bytes": 363
+    },
+    {
+      "name": "df11-current-operation-ui-public.json",
+      "sha256": "6378600e1aa6ae4f1671f57da3cf0b7ff6af2321a969d8c4b6380a3a03f64e66",
+      "bytes": 301
+    },
+    {
+      "name": "df11-owned-smb-process-state-readonly.json",
+      "sha256": "8638e78492037adb90c4b8d48c3057f51a9d6c28e9303782673912aee4b83060",
+      "bytes": 1553
+    },
+    {
+      "name": "before-df11-ui-recovery-own-raw-blank-public.json",
+      "sha256": "c30a4c3dd954004c53901a613edbdac6b8f9673d0929c3665f023e96bb80dd7e",
+      "bytes": 676
+    },
+    {
+      "name": "before-df11-reserved-nvme-volume-public.json",
+      "sha256": "be760e9ba387ba2f11706db422ba5acbcbc02690b68c6c94d28d3584285e0cc0",
+      "bytes": 337
+    }
+  ],
+  "privacy": "Only public scopes/flags/counts/metadata/fixed Java stack class-method-line; no credential/key/SID/TDB/capsule bodies or raw logs.",
+  "sourceLocalManifestSha256": "47fea28ffa1527740a7eb1c3038ba7d129fbfb5cccd69c690cb7595b61a7c989",
+  "localObservationSha256": {
+    "before-df11-normal-ui-recovery-readonly.json": "59b6084969fd6d5fdf0bae27883a541bd47724a777f0ba96fb968a4f9084cc82",
+    "after-df11-normal-ui-recovery-readonly.json": "117c9c4d653f9b5e8eb5a887fe760e06ae89e8dc0434933990df4e0ffcc37bc4"
+  },
+  "existingCompactProofRefs": [
+    "../../epic-898-audit/iscsi-safe-diagnostic-ffef35c/df11-normal-ui-recovery-failure-preservation-public-proof.json",
+    "../../epic-898-audit/iscsi-safe-diagnostic-ffef35c/df11-first-ui-recovery-management-public-stack.json"
+  ],
+  "parentVisualReview": "Both actual UI PNGs reviewed; original df11 selected and masked failure visible; no credential or final UI layout changes"
+}

@@ -73,12 +73,17 @@ public abstract class BaseAsyncCmd extends BaseCmd {
         this.startEventId = startEventId;
     }
 
+    protected Long getStorageVmSyncObjId() {
+        if (getApiResourceType() != ApiCommandResourceType.VirtualMachine || getApiResourceId() == null) return null;
+        return _userVmService.getStorageServiceSyncIdForVm(getApiResourceId());
+    }
+
     public String getSyncObjType() {
-        return null;
+        return getStorageVmSyncObjId() == null ? null : "StorageServiceInstance";
     }
 
     public Long getSyncObjId() {
-        return null;
+        return getStorageVmSyncObjId();
     }
 
     public Object getJob() {

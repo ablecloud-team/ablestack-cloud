@@ -51,4 +51,12 @@ public class ApiSensitiveParamUtilsTest {
         Assert.assertEquals("secret", encrypted.get("password"));
         Assert.assertEquals("https://10.10.132.100:9440", encrypted.get("host"));
     }
+    @Test public void configurationPayloadAndCredentialMappingNeverAppearInAuditValues() {
+        Map<String, String> values = new LinkedHashMap<>();values.put("configurationpayload", "synthetic-archive");
+        values.put("credentials", "synthetic-credentials");values.put("plantoken", "synthetic-token");values.put("artifactid", "public-artifact");
+        Map<String, String> redacted = ApiSensitiveParamUtils.redactValues(values);
+        Assert.assertEquals("******", redacted.get("configurationpayload"));Assert.assertEquals("******", redacted.get("credentials"));
+        Assert.assertEquals("******", redacted.get("plantoken"));Assert.assertEquals("public-artifact", redacted.get("artifactid"));
+    }
+
 }

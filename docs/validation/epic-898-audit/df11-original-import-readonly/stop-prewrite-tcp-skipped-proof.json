@@ -1,0 +1,58 @@
+{
+  "actualGuestLaunches": 1,
+  "guestExitCode": 0,
+  "kind": "DF11_ORIGINAL_STOP_PREFLIGHT_ISOLATED_QGA",
+  "observation": {
+    "allObservedMetadataUnchanged": true,
+    "cipherContentsRead": false,
+    "fixedBeforeContextMatched": true,
+    "freshOriginalObserver": {
+      "currentSessionsVerifiedEmpty": true,
+      "originalObserveReturned": true
+    },
+    "kind": "DF11_ORIGINAL_STOP_PREFLIGHT_PROVIDER_OBSERVATION",
+    "preflight": {
+      "currentObservationOnly": true,
+      "guardStage": "BEFORE_JOURNAL_WRITE",
+      "importOrDecrypt": false,
+      "journalDiskWrites": 0,
+      "kind": "LOCAL_SOURCE_ROLLBACK_STOP_PREFLIGHT_READONLY",
+      "originalError": null,
+      "originalJournalObjectUnchanged": true,
+      "originalPidfdCapability": true,
+      "outcome": "BEFORE_QUIESCING_WRITE",
+      "ownedPidfdsClosed": 3,
+      "ownedPidfdsOpened": 3,
+      "ownedPidfdsRemaining": 0,
+      "signals": 0,
+      "success": true,
+      "tcpProbeSkipped": true,
+      "tcpReadinessVerified": false
+    },
+    "preservation": {
+      "bootId": true,
+      "cipherMetadata": true,
+      "cliSha256": true,
+      "current": true,
+      "databases": true,
+      "diskMetadata": true,
+      "journalMetadata": true,
+      "mounts": true,
+      "nfsSentinel": true,
+      "pending": true,
+      "processes": true,
+      "vmUuid": true
+    },
+    "priorVerifiedRefSha256": "a6d984679ad38f9302fd294611ecfd69e6a9b91e0a9f1402b610545501d5ef54",
+    "probeCalls": 1,
+    "refContentRevalidatedInThisProbe": false,
+    "signedDefinitionNamespaceSame": true,
+    "stage": "OBSERVATION_COMPLETE",
+    "writesSignalsImportOrDecrypt": 0
+  },
+  "provider": "ISOLATED_PYTHON_LIBVIRT_C_BINDING",
+  "runningAgentWorkerQueueUsed": false,
+  "stage": "PUBLIC_JSON_PARSED",
+  "stderrBytes": 0,
+  "stdoutBytes": 1259
+}

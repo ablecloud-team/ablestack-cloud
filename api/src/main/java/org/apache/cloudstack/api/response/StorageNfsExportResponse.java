@@ -27,6 +27,11 @@ import com.google.gson.annotations.SerializedName;
 
 @EntityReference(value = StorageFileShare.class)
 public class StorageNfsExportResponse extends BaseResponse {
+    @SerializedName("posixpolicyid")
+    @Param(description = "Common protocol-neutral POSIX directory policy UUID")
+    private String posixPolicyId;
+    public void setPosixPolicyId(String value) { posixPolicyId = value; }
+
     @SerializedName(ApiConstants.ID)
     @Param(description = "ID of the NFS export")
     private String id;
@@ -118,6 +123,17 @@ public class StorageNfsExportResponse extends BaseResponse {
     @SerializedName("configerror")
     @Param(description = "stored NFS export configuration error when configvalid is false")
     private String configError;
+
+    @SerializedName("volumerelativepath")
+    @Param(description = "directory relative to the managed backing volume root")
+    private String volumeRelativePath;
+
+    @SerializedName("backingpath")
+    @Param(description = "physical backing directory resolved by the Storage Service runtime")
+    private String backingPath;
+
+    public void setVolumeRelativePath(final String value) { this.volumeRelativePath = value; }
+    public void setBackingPath(final String value) { this.backingPath = value; }
 
     public void setId(String id) {
         this.id = id;

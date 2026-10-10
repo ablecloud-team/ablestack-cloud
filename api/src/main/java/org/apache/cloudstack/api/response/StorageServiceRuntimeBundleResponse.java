@@ -36,6 +36,10 @@ public class StorageServiceRuntimeBundleResponse extends BaseResponse {
     @SerializedName("state") @Param(description = "runtime bundle state") private String state;
     @SerializedName(ApiConstants.CREATED) @Param(description = "creation time") private Date created;
 
+    @SerializedName("catalog") @Param(description = "verification, compatibility and lifecycle audit metadata") private String catalog;
+    @SerializedName("instances") @Param(description = "UUIDs of instances using this runtime bundle") private java.util.List<String> instances;
+    public void setCatalog(String value) { catalog = value; }
+    public void setInstances(java.util.List<String> value) { instances = value; }
     public void setId(final String value) { id = value; }
     public void setVersion(final String value) { version = value; }
     public void setRuntimeAbiVersion(final String value) { runtimeAbiVersion = value; }

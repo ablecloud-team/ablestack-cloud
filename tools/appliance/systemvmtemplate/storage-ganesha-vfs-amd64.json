@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "version": "5.5.3",
+  "architecture": "amd64",
+  "source": {
+    "commit": "2a57b6d53295426247b200cd100ba0741b12aff9",
+    "url": "https://codeload.github.com/nfs-ganesha/nfs-ganesha/tar.gz/2a57b6d53295426247b200cd100ba0741b12aff9",
+    "sha256": "8dbd579e24a4113ffbea16cd9487978002d9834c5d5d1ac87e8f9f8ccf147528"
+  },
+  "ntirpc": {
+    "commit": "bf7fd0259c33ce95f5f2bf22817a8912f7fe5188",
+    "url": "https://codeload.github.com/nfs-ganesha/ntirpc/tar.gz/bf7fd0259c33ce95f5f2bf22817a8912f7fe5188",
+    "sha256": "32f129907769c0779555057d46be09d1a6fb30f613cc41d473642cffc7084bdd"
+  },
+  "prefix": "/opt/ablestack-ganesha/5.5.3",
+  "packageName": "ablestack-nfs-ganesha-vfs-acl",
+  "requiredCmakeFlags": {
+    "USE_FSAL_VFS": "ON",
+    "ENABLE_VFS_POSIX_ACL": "ON",
+    "ENABLE_VFS_DEBUG_ACL": "OFF",
+    "USE_DBUS": "ON"
+  }
+}

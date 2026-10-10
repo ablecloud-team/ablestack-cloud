@@ -1,0 +1,69 @@
+{
+  "kind": "NORMAL_UI_NVME_RUNTIME_PREPARE_AND_EXISTING_NAMESPACE",
+  "instanceUuid": "3480bb2c-99ee-42f2-91cf-715ded5dd35f",
+  "prepare": {
+    "jobId": "a8c3abf0-ae18-4a14-ba45-b215d3f7b8f0",
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "engine": "KERNEL_NVMET",
+    "transport": "tcp",
+    "validateOnly": false,
+    "status": "ok",
+    "modules": {
+      "configfs": true,
+      "nvmet": true
+    },
+    "commands": {
+      "nvme": true,
+      "nvmetcli": false
+    }
+  },
+  "freshCapabilityProofSha256": "15fe302796d2ac641355de55109e7c9bc6dbf4420372554459684045c8e1321f",
+  "normalUiDhChapSupported": true,
+  "subsystem": {
+    "jobId": "57d2e243-5009-490d-bac1-a299a934099e",
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "id": "a5280d24-cacf-48f9-ac95-ebd5e730c6b5",
+    "nqn": "nqn.2026-06.local.storage:epic898-s-b6aa-all4-f1-20261009",
+    "allowAnyHostRequested": false,
+    "state": "Ready"
+  },
+  "existingVolume": {
+    "id": "ec92d6c6-2fde-4f35-9d31-e8a7efd69c63",
+    "name": "epic898-f1-nvme-sparse20-20261009",
+    "type": "DATADISK",
+    "state": "Ready",
+    "size": 21474836480,
+    "provisioningtype": "sparse",
+    "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+    "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+  },
+  "existingVolumeUnattachedInNormalApi": true,
+  "pool": {
+    "id": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+    "state": "Up",
+    "totalBytes": 4079912058880,
+    "usedBytes": 273318809600,
+    "allocatedBytes": 12689741921568,
+    "overprovisionFactor": "4.0"
+  },
+  "namespace": {
+    "jobId": "b4b1958b-f322-4b5f-b4c4-a70f54cc0121",
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "id": "13fe7ca1-8321-47c2-96f3-32d535700754",
+    "state": "Ready",
+    "namespaceId": 1,
+    "volumeid": "ec92d6c6-2fde-4f35-9d31-e8a7efd69c63",
+    "subsystemid": "a5280d24-cacf-48f9-ac95-ebd5e730c6b5",
+    "listenerports": "4420",
+    "cleanupvolumeonfailure": "false",
+    "backingpathAbsent": true,
+    "normalUiExistingSelected": true,
+    "explicitApiVolumeModeParameterSent": false
+  },
+  "newVolumeOrFormatCalls": 0,
+  "hostAclWrites": 0,
+  "clientCalls": 0
+}

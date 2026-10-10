@@ -1,0 +1,54 @@
+{
+  "actualGuestLaunches": 1,
+  "guestExitCode": 0,
+  "kind": "F1_GUARDED_EXACT_CREATE_PROVIDER",
+  "observation": {
+    "actualGuardedCreateProbeCalls": 1,
+    "actualTargetCreationSucceeded": false,
+    "allObservedMetadataUnchanged": true,
+    "createDiagnostic": {
+      "actualCreateSucceeded": false,
+      "actualTargetChanges": 0,
+      "diagnosticOutcome": "COMPATIBLE_THROUGH_CREATION_BOUNDARY_ONLY",
+      "exactCommandAdmittedCount": 1,
+      "exactDispatchAdmittedCount": 1,
+      "exceptionCategory": "RTSLibError",
+      "expectedCreationGuard": true,
+      "guardCategories": [
+        "CONFIGFS_TARGET_CREATE"
+      ],
+      "kind": "ISCSI_VENDOR_GUARDED_EXACT_CREATE_DIAGNOSTIC",
+      "mainCalled": false,
+      "mutatingAttemptsBlocked": 1,
+      "prefHistoryLogLockFilesystemWrites": 0,
+      "rootTargetCreated": false,
+      "runtimeInitializerSucceeded": true,
+      "stage": "FIRST_CONFIGFS_TARGET_CREATE",
+      "success": true
+    },
+    "fixedBeforeContextMatched": true,
+    "guestCodeFileWrites": 0,
+    "kind": "F1_GUARDED_EXACT_CREATE_OBSERVATION",
+    "nativeApplyRollbackCalls": 0,
+    "originalMainPrefsAndLockUsed": false,
+    "originalMaskedExit1CauseProven": false,
+    "ownedAnonymousLockClosed": true,
+    "preservation": {
+      "bootId": true,
+      "cliSha256": true,
+      "current": true,
+      "databaseMetadata": true,
+      "mountMetadata": true,
+      "nfsSentinel": true,
+      "ownIqnPresent": true,
+      "pending": true,
+      "vmUuid": true
+    },
+    "stage": "OBSERVATION_COMPLETE"
+  },
+  "provider": "ISOLATED_PYTHON_LIBVIRT_C_BINDING",
+  "runningAgentWorkerQueueUsed": false,
+  "stage": "PUBLIC_JSON_PARSED",
+  "stderrBytes": 0,
+  "stdoutBytes": 1193
+}

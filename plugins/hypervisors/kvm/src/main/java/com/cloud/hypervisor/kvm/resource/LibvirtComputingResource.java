@@ -6127,38 +6127,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                 try {
                     result = KvmVmOperationGuard.guestCommand(dm, QemuCommand.buildQemuCommand(QemuCommand.AGENT_GET_FSINFO, null), 2);
                     if (StringUtils.isNotBlank(result) && !(result.startsWith("error"))) {
-                        JsonArray arrData = (JsonArray) new JsonParser().parse(result).getAsJsonObject().get("return");
-
-                        for (JsonElement je : arrData) {
-                            JsonObject jsonObj = je.getAsJsonObject();
-                            JsonElement diskInfo = jsonObj.get("disk");
-
-                            if (diskInfo != null && diskInfo.isJsonArray()) {
-                                for (JsonElement diskElement : diskInfo.getAsJsonArray()) {
-                                    // Capacity used by disk file system
-                                    JsonObject diskObj = diskElement.getAsJsonObject();
-
-                                    JsonElement serialElement = diskObj.get("serial");
-                                    JsonElement usedFsBytesElement = jsonObj.get("used-bytes");
-                                    if (serialElement == null || serialElement.isJsonNull() || usedFsBytesElement == null || usedFsBytesElement.isJsonNull()) {
-                                        continue;
-                                    }
-
-                                    String serial = diskObj.get("serial").getAsString();
-                                    long usedFsBytes = usedFsBytesElement.getAsLong();
-                                    if (serial.length() >= 20) {
-                                        // serial to half path uuid
-                                        String serialVal = serial.substring(serial.length() - 20);
-                                        String serialUuid = serialVal.substring(0, 8) + "-"
-                                                + serialVal.substring(8, 12) + "-"
-                                                + serialVal.substring(12, 16) + "-"
-                                                + serialVal.substring(16, 20);
-                                        serial = serialUuid;
-                                    }
-                                    fsUsageMap.put(serial, fsUsageMap.getOrDefault(serial, 0L) + usedFsBytes);
-                                }
-                            }
-                        }
+                        fsUsageMap.putAll(parseQemuGuestFilesystemUsage(result));
                         metrics.setFsUsageMap(fsUsageMap);
                     }
                 } catch (Exception e) {
@@ -6172,6 +6141,69 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                 dm.free();
             }
         }
+    }
+
+    /** Bind mounts are repeated observations of one filesystem, while partitions remain distinct. */
+    protected static Map<String, Long> parseQemuGuestFilesystemUsage(final String result) {
+        Map<String, Map<String, Long>> filesystems = new HashMap<>();
+        JsonArray rows = JsonParser.parseString(result).getAsJsonObject().getAsJsonArray("return");
+        for (JsonElement item : rows) {
+            if (!item.isJsonObject()) continue;
+            JsonObject filesystem = item.getAsJsonObject();
+            try {
+                JsonElement usedValue = filesystem.get("used-bytes");
+                if (usedValue == null || !usedValue.isJsonPrimitive() || !usedValue.getAsJsonPrimitive().isNumber()) continue;
+                long used = usedValue.getAsBigDecimal().longValueExact();
+                if (used < 0 || !filesystem.has("disk") || !filesystem.get("disk").isJsonArray()) continue;
+                String name = filesystem.has("name") && !filesystem.get("name").isJsonNull() ? filesystem.get("name").getAsString() : null;
+                String type = filesystem.has("type") && !filesystem.get("type").isJsonNull() ? filesystem.get("type").getAsString() : null;
+                if (StringUtils.isBlank(name) || StringUtils.isBlank(type)) continue;
+                Set<String> serials = new HashSet<>();
+                List<String> devices = new ArrayList<>();
+                for (JsonElement diskValue : filesystem.getAsJsonArray("disk")) {
+                    if (!diskValue.isJsonObject()) continue;
+                    JsonObject disk = diskValue.getAsJsonObject();
+                    if (!disk.has("serial") || disk.get("serial").isJsonNull()) continue;
+                    String serial = disk.get("serial").getAsString();
+                    if (StringUtils.isBlank(serial)) continue;
+                    JsonObject identity = new JsonObject();
+                    for (String field : List.of("serial", "dev", "bus-type", "bus", "target", "unit")) {
+                        if (disk.has(field)) identity.add(field, disk.get(field));
+                    }
+                    if (disk.has("pci-controller") && disk.get("pci-controller").isJsonObject()) {
+                        JsonObject pci = new JsonObject();
+                        for (String field : List.of("domain", "bus", "slot", "function")) {
+                            if (disk.getAsJsonObject("pci-controller").has(field)) pci.add(field, disk.getAsJsonObject("pci-controller").get(field));
+                        }
+                        identity.add("pci-controller", pci);
+                    }
+                    devices.add(identity.toString());
+                    if (serial.length() >= 20) {
+                        String suffix = serial.substring(serial.length() - 20);
+                        serial = suffix.substring(0, 8) + "-" + suffix.substring(8, 12) + "-" + suffix.substring(12, 16) + "-" + suffix.substring(16, 20);
+                    }
+                    serials.add(serial);
+                }
+                Collections.sort(devices);
+                JsonObject key = new JsonObject();key.addProperty("name", name);key.addProperty("type", type);
+                JsonArray addresses = new JsonArray();devices.stream().distinct().forEach(addresses::add);key.add("devices", addresses);
+                // Mount paths and changing counters are deliberately excluded from filesystem identity.
+                for (String serial : serials) filesystems.computeIfAbsent(serial, ignored -> new HashMap<>()).merge(key.toString(), used, Math::max);
+            } catch (RuntimeException malformed) {
+                // An incomplete filesystem observation cannot become an authoritative used-byte sample.
+            }
+        }
+        Map<String, Long> usage = new HashMap<>();
+        for (Map.Entry<String, Map<String, Long>> disk : filesystems.entrySet()) {
+            try {
+                long total = 0;
+                for (long bytes : disk.getValue().values()) total = Math.addExact(total, bytes);
+                usage.put(disk.getKey(), total);
+            } catch (ArithmeticException overflow) {
+                // Keep this disk unavailable rather than overflowing to a plausible usage value.
+            }
+        }
+        return usage;
     }
 
     /**

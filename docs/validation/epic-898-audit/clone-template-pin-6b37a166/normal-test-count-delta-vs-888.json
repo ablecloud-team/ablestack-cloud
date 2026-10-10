@@ -1,0 +1,22 @@
+{
+  "baselineLogSha256": "f6f6b71fcc66a7ac2a5a5dd966be34b9e108d282e2ea105b64d8396e937acbc8",
+  "baselineSuiteCountFromLog": 124,
+  "baselineTestsFromLog": 888,
+  "currentTests": 920,
+  "currentSuites": 125,
+  "changedSuiteCounts": [
+    {
+      "suite": "com.cloud.hypervisor.kvm.resource.wrapper.LibvirtStorageServiceHostCommandWrapperTest",
+      "oldNormal888Tests": 7,
+      "newNormalTests": 22,
+      "delta": 15
+    },
+    {
+      "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneTemplatePinTest",
+      "oldNormal888Tests": null,
+      "newNormalTests": 17,
+      "delta": 17
+    }
+  ],
+  "explanation": "Counts use fresh XML for current PIN and prior immutable normal log. KVM wrapper follow-up source tests already existed at this PIN and are separately counted; not attributed to template pin feature."
+}

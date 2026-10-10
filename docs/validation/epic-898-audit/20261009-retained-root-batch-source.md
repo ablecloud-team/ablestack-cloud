@@ -1,0 +1,25 @@
+# retained ROOT의 old baseline·latest identity batch 분리 source
+
+615da8f96a234780dc39f8a18a863bd72eefe26f의Manager/helper+newBatchTest3파일을
+exactSHA로pin했다. 정상Checkstyle117suites/724tests 실패·오류·skip0,
+direct100을통과했다. Java9883 NULSHAfb139e5be64ba0997a81f965941cc7a361b385ebbb89ec650a050e75d76fb42a
+및producer2SHA가전후같고DDL/bootstrap0이다. immutable5module출력은
+retained-root-batch-final-724/module-outputs에보관했다.
+
+첫normaltest는unused Set import로실패했다. 해당import만제거하고새sourcehash/
+fullreactor로확인했고처음실패로그를보존했다. 정상검사를skip하지않았다.
+
+Retainedbatch는실제OLD nativegeneration/pointer/sourceSHA를유지하고
+checkpointcredentialSourceSHA는authenticatedLATEST7의SHA로별도취급한다.
+target7 전체가AEAD latest7과같아야하고 stage는opaque authorization2ref만
+추가한다. nativeidentity checkpointsourceSHA readback이맞아야activate한다.
+잘못된authorization/scope는key효과전에거절하고암호batch snapshot/recovery에
+authref+latestSHA+keyRef를같은상태로보관한다.
+
+forwardactivation과historicalrollback을분리했다. retainedrenderRollback/
+generic DBrestore가과거POSIXinverse등효과를일으키기전에차단하고현재
+sourceROOT로보상복구해야한다. 새4meaningful회귀가이분리를확인한다.
+
+이단위는manualretainedphase 연결과native specialstage가아직미완료다.
+실제ROOTswap/retainedauthorize0,productionFour/ADfalse이며관리실제배포0이다.
+현재ADE/source707/oldRuntime2와구분한다. 최종UI1275는미착수다.

@@ -1,0 +1,34 @@
+# 수동 retained ROOT·전용 런타임 통합 모듈 source pin
+
+7064edbdfd849d04f8389118b71234f0e1182df2의backend5+Runtime3 총8Java를
+exactSHA로pin했다. 정상CheckstyleAPI/server/KVM/storagevm-am118suites/
+752tests 실패·오류·skip0이며backenddirect111/Runtime36도통과했다.
+Java9884 NULSHA7921193e6bf3fd5b67ce925fa24f3952bd770c19b450f00a090c51b443a79d15
+및producer2SHA가전후같고DDL/bootstrap0이다. immutable5module출력은
+retained-manual-full-final-752/module-outputs에보관했다.
+
+수동복원은CURRENTlatestROOT preparedsnapshot→Root4marker/capture/quiesce/
+AFTERSTOP암호export→retainedROOTboot→전용signedruntime NEW_ACTIVATION→
+actualOLDbaselinecapture→latestidentityimport/mount/attest→authorize→special
+latest7stage/verify/commit/finalize→lease-before-marker/LKG 순서다.
+genericScope3liveTDBexport와historicalPOSIXinverse를사용하지않는다.
+실패는원래LATESTroot/sourcecapturedscope로보상하며nativecommit뒤에는
+forwardrecovery만허용한다.
+
+새회귀에서localstartstamp없을때nativecommitted에도보상복구를선택하던
+실제predicatebug를잡아alwaysfreshforwardclassifier로고쳤다.
+이전rawfailurelog는래너재실행으로덮여보존되지않았고 별도failureledger와
+tooloutput만남았음을명시한다. 최종111log와752normal을검증근거로사용한다.
+또새키를만들던retainedfactory를originalcapsule의보호keyId/SHA/Root4와
+같은encryptedprivateblob으로맞추고actualRSAequality/noPrivatePEM회귀를
+통과했다.
+
+전용Runtime2method는activeROOT_TEMPLATE_ROLLBACK row·tenant/VM/Root4·
+전체frozenruntime/profile·sourceROOT20→actualretainedROOT10·signedLKG/
+updater/OS/feature/consumer조건을효과전과ACTIVATE전에검사한다.
+previous/UNKNOWN예외나일반after-swapnormalproof를재사용하지않는다.
+신규17+기존19의Runtime36direct가이경계를확인한다.
+
+native4ee95는별도freshproof다. 실제관리반영/ROOTswap/retainedauthorize0,
+ADsemanticrestore/전체liveROOTacceptancefalse다. 현재ADE/source707/oldRuntime2
+actual을최신752전체로표시하지않는다. 최종UI1275는미착수다.

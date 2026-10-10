@@ -1,0 +1,228 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements. See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership. The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+import json
+import hashlib
+import os
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
+import unittest
+import uuid
+from unittest.mock import patch
+
+ROOT=Path(__file__).resolve().parents[2]
+LIB=ROOT/"systemvm/debian/usr/local/lib/ablestack-storage"
+sys.path.insert(0,str(LIB))
+from rendered_driver import RenderedDriver
+from rendered_generation import RenderedGeneration
+
+
+class StorageRenderedDriverTest(unittest.TestCase):
+    def setUp(self):
+        self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup)
+        self.root=Path(self.temp.name)
+        self.cli=ROOT/"systemvm/debian/usr/local/bin/ablestack-storagectl"
+        self.environment=dict(os.environ,ABLESTACK_STORAGE_RENDERED_GENERATIONS=str(self.root/"render"),
+                              ABLESTACK_STORAGE_GENERATION_DIR=str(self.root/"generation"),
+                              ABLESTACK_STORAGE_CONFIGURATION_ROOT=str(self.root/"config"),
+                              ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR=str(self.root/"maintenance"),
+                              ABLESTACK_STORAGE_WRITER_LOCK_FILE=str(self.root/"lock"/"writer.lock"))
+
+    def test_embedded_status_is_readonly_and_runs_without_new_external_helpers_on_legacy_template(self):
+        result=subprocess.run([self.cli,"operation","generation","render-status"],capture_output=True,text=True,env=self.environment,timeout=10)
+        self.assertEqual(0,result.returncode,result.stderr)
+        value=json.loads(result.stdout);self.assertTrue(value['success']);self.assertFalse(value['bootHeld']);self.assertIsNone(value['current'])
+        self.assertEqual([],list(self.root.iterdir()))
+
+    def test_embedded_boot_gate_is_readonly_with_no_existing_generation_or_maintenance_marker(self):
+        result=subprocess.run([self.cli,"operation","generation","render-boot-gate","smbd.service"],capture_output=True,text=True,env=self.environment,timeout=10)
+        self.assertEqual(0,result.returncode,result.stderr);self.assertTrue(json.loads(result.stdout)['success'])
+        self.assertEqual([],list(self.root.iterdir()))
+
+    def test_pending_native_writer_blocks_boot_before_any_protocol_or_mount_action(self):
+        store=RenderedGeneration(self.root/"render");driver=RenderedDriver(self.cli,store)
+        store.status=lambda:{"success":True,"bootHeld":False,"current":{"scope":{}},"activation":None}
+        driver.runtime.command=lambda args:({'success':True,'bootHeld':False,'scope':None} if args[1]=='maintenance' else {'pendingOperationUuid':'pending'})
+        with self.assertRaisesRegex(ValueError,'pending native'):driver.execute('render-boot-gate',unit='smbd.service')
+        self.assertEqual([],list(self.root.iterdir()))
+
+    def test_rpc_does_not_accept_rendered_bytes_arbitrary_paths_or_executable_callbacks(self):
+        request=self.root/'request.json';request.write_text(json.dumps({'instanceUuid':'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','operationUuid':'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb','revision':1,'callback':'/tmp/foreign-program'}))
+        result=subprocess.run([self.cli,'operation','generation','render-stage',str(request)],capture_output=True,text=True,env=self.environment,timeout=10)
+        self.assertNotEqual(0,result.returncode);self.assertIn('unknown input field',json.loads(result.stdout)['reason'])
+        self.assertFalse((self.root/'render').exists())
+
+    def test_nfs_only_rollback_preserves_all_unaffected_identity_material_without_import(self):
+        store=RenderedGeneration(self.root/'render');driver=RenderedDriver(self.cli,store)
+        store.scoped_activation=lambda request:{'changedDomains':['NFS','SMB'],'startedDomains':['NFS']}
+        driver.runtime.command=lambda *args,**kwargs:(_ for _ in ()).throw(AssertionError('identity import/read was attempted'))
+        driver.recovery_key=lambda request:(_ for _ in ()).throw(AssertionError('unaffected identity decrypt was attempted'))
+        result=driver.restore_identity({})
+        self.assertTrue(result['unaffectedIdentityPreserved']);self.assertFalse(result['identityRestored'])
+
+    def test_legacy_nfs_import_retains_exact_source_bytes_and_rejects_policy_or_path_difference(self):
+        driver=RenderedDriver(self.cli,RenderedGeneration(self.root/'render'))
+        driver.nfs_config_root=self.root/'configs';driver.nfs_config_root.mkdir()
+        config='NFS_Core_Param {\n NFS_Port = 2049;\n Protocols = 4;\n}\nEXPORT {\n Export_Id = 1001;\n Path = "/export/share";\n Pseudo = "/share";\n Access_Type = RO;\n FSAL {\n Name = VFS;\n }\n}\n'
+        actual=driver.nfs_config_root/'known.conf';actual.write_text(config);actual.chmod(0o600)
+        generated=config.replace(' Protocols',' Dbus_Name_Prefix = "org.ablestack.storage.ganesha.e'+'a'*24+'";\n Protocols')
+        files={'nfs/manifest.json':json.dumps({'endpoints':[{'legacyUnitKey':'known','configurationPath':'nfs/ganesha/generated.conf'}]}),'nfs/ganesha/generated.conf':generated}
+        self.assertEqual(config,driver.retain_legacy_nfs_baseline(dict(files))['nfs/ganesha/generated.conf'])
+        for foreign in (config.replace('RO','RW'),config.replace('/export/share','/export/foreign')):
+            actual.write_text(foreign)
+            with self.assertRaisesRegex(ValueError,'source bytes differ'):driver.retain_legacy_nfs_baseline(dict(files))
+
+    def test_native_pending_writer_blocks_legacy_boot_even_before_first_rendered_baseline(self):
+        store=RenderedGeneration(self.root/'render');driver=RenderedDriver(self.cli,store)
+        store.status=lambda:{'success':True,'bootHeld':False,'current':None,'activation':None}
+        driver.runtime.command=lambda args:({'success':True,'bootHeld':False,'scope':None} if args[1]=='maintenance' else {'pendingOperationUuid':'legacy-pending'})
+        with self.assertRaisesRegex(ValueError,'pending native'):driver.execute('render-boot-gate',unit='smbd.service')
+        self.assertEqual([],list(self.root.iterdir()))
+
+    def test_file_stage_requires_fresh_exact_serial_size_filesystem_and_mount_with_stable_device_independence(self):
+        driver=RenderedDriver(self.cli,RenderedGeneration(self.root/'render'))
+        volume=str(uuid.uuid4());filesystem=str(uuid.uuid4());mount='/srv/ablestack-storage/volumes/'+volume
+        request={'instanceUuid':str(uuid.uuid4()),'operationUuid':str(uuid.uuid4()),'revision':2,'fileVolumeBindings':[{'volumeUuid':volume,'sizeBytes':1024,'filesystemUuid':filesystem}]}
+        files={'nfs/manifest.json':json.dumps({'aliases':{'export':{'volumeMountPath':mount,'backingPath':mount+'/share'}}}),
+               'smb/manifest.json':json.dumps({'shares':[{'path':mount+'/share'}]})}
+        good={'mappingStatus':'EXACT','matchedBy':'VOLUME_SERIAL','sizeBytes':1024,'filesystemUuid':filesystem,'observedDevicePath':'/dev/sdb','mounts':[{'target':mount}]}
+        driver.runtime.command=lambda *args,**kwargs:{'volumes':[good]}
+        verified=driver.file_bindings(request,files)
+        self.assertNotIn('observedDevicePath',json.dumps(verified));self.assertEqual(mount,verified['volumes'][0]['mountPath'])
+        for change in ({'matchedBy':'FILESYSTEM_UUID'},{'filesystemUuid':str(uuid.uuid4())},{'sizeBytes':2048},{'mounts':[]}):
+            driver.runtime.command=lambda *args,**kwargs:{'volumes':[{**good,**change}]}
+            with self.assertRaises(ValueError):driver.file_bindings(request,files)
+        with self.assertRaises(ValueError):driver.file_bindings({**request,'fileVolumeBindings':[]},files)
+
+    def test_quarantined_new_root_import_keeps_proven_bootstrap_network_without_fabricating_native_generation(self):
+        from rendered_generation import DESIRED_PATHS,REQUIRED,DOMAINS
+        store=RenderedGeneration(self.root/'render');driver=RenderedDriver(self.cli,store)
+        scope={'instanceUuid':str(uuid.uuid4()),'operationUuid':str(uuid.uuid4()),'revision':10}
+        desired={name:None for name in DESIRED_PATHS};desired['sharedfs-network.json']={'mode':'STATIC','primaryIp':'10.10.13.240'}
+        checksum=hashlib.sha256(json.dumps(desired,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+        source={'generation':None,'pendingOperationUuid':None,'generationStatus':'UNVERIFIED','configurationDesiredState':desired,'configurationSha256':checksum}
+        request={**scope,'initialRootBaseline':True,'configurationDesiredState':desired}
+        files={name:'{}' for name in REQUIRED};files['desired-state.json']=json.dumps(desired)
+        driver.render=lambda request:dict(files);driver.validate=lambda *args:{name:True for name in DOMAINS};driver.verify=lambda path:{name:True for name in DOMAINS};driver.install_boot_guards=lambda:None;driver.generation=lambda:source
+        driver.runtime.command=lambda args:{'success':True,'bootHeld':True,'scope':{**scope,'templateUpgradeUuid':str(uuid.uuid4())}}
+        result=driver.execute('render-import',request)
+        self.assertEqual(0,result['current']['scope']['revision']);self.assertFalse(result['bootHeld']);self.assertEqual(checksum,result['current']['configurationSha256'])
+        self.assertIsNone(source['generation']);self.assertEqual(desired,json.loads((store.pointer()/'desired-state.json').read_text()))
+        self.assertIn('initialRootScope',result['activation'])
+
+    def test_service_release_verifies_forward_or_only_exact_protected_rollback_source(self):
+        from rendered_generation import DOMAINS,rendered_json
+        service={"instanceUuid":str(uuid.uuid4()),"operationUuid":str(uuid.uuid4()),"revision":4};service["maintenanceUuid"]=service["operationUuid"]
+        old={"instanceUuid":service["instanceUuid"],"operationUuid":str(uuid.uuid4()),"revision":3,"configurationSha256":"a"*64}
+        new={**{key:service[key] for key in ("instanceUuid","operationUuid","revision")},"configurationSha256":"b"*64}
+        store=RenderedGeneration(self.root/"render");driver=RenderedDriver(self.cli,store)
+        source={"scope":{key:old[key] for key in ("instanceUuid","operationUuid","revision")},"configurationSha256":"a"*64,"manifestSha256":"c"*64}
+        current={"scope":{key:new[key] for key in ("instanceUuid","operationUuid","revision")},"configurationSha256":"b"*64,"manifestSha256":"d"*64}
+        activation={"scope":{key:service[key] for key in ("instanceUuid","operationUuid","revision")},"phase":"COMPLETE"}
+        generation=new;verified={domain:True for domain in DOMAINS}
+        store.status=lambda:{"bootHeld":False,"current":current,"activation":activation};store.pointer=lambda:self.root/"known"
+        driver.generation=lambda:{"generation":generation,"configurationSha256":generation["configurationSha256"],"generationStatus":"IN_SYNC","pendingOperationUuid":None}
+        driver.runtime.command=lambda args:{"bootHeld":True,"scope":service,"maintenanceKind":"SERVICE"}
+        driver.verify=lambda path:verified
+        self.assertFalse(driver.execute("render-maintenance-verify",{**service,"verifiedGeneration":new})["rollbackVerified"])
+        checkpoint=self.root/"maintenance";checkpoint.mkdir(mode=0o700)
+        rendered_json(checkpoint/"service-maintenance.json",{"scope":service,"phase":"HELD","sourceGeneration":old,"sourceRendered":source,"sourceActivation":None})
+        generation=old;current=source;activation={**activation,"phase":"ROLLED_BACK"}
+        with patch.dict(os.environ,{"ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR":str(checkpoint)}):
+            self.assertTrue(driver.execute("render-maintenance-verify",{**service,"verifiedGeneration":old})["rollbackVerified"])
+            current={**source,"manifestSha256":"f"*64}
+            with self.assertRaises(ValueError):driver.execute("render-maintenance-verify",{**service,"verifiedGeneration":old})
+            current=source;activation={**activation,"phase":"COMPLETE"}
+            with self.assertRaises(ValueError):driver.execute("render-maintenance-verify",{**service,"verifiedGeneration":old})
+            activation={**activation,"phase":"ROLLED_BACK"};verified={**verified,"NFS":False}
+            with self.assertRaisesRegex(ValueError,"all-four"):driver.execute("render-maintenance-verify",{**service,"verifiedGeneration":old})
+
+    def test_service_cancel_before_activation_resumes_only_captured_file_domains_and_marks_source_unchanged(self):
+        from rendered_generation import DOMAINS,rendered_json
+        service={"instanceUuid":str(uuid.uuid4()),"operationUuid":str(uuid.uuid4()),"revision":4};service["maintenanceUuid"]=service["operationUuid"]
+        old={"instanceUuid":service["instanceUuid"],"operationUuid":str(uuid.uuid4()),"revision":3,"configurationSha256":"a"*64}
+        manifest={"scope":{key:old[key] for key in ("instanceUuid","operationUuid","revision")},"configurationSha256":"a"*64,"manifestSha256":"c"*64}
+        checkpoint_root=self.root/"maintenance";checkpoint_root.mkdir(mode=0o700)
+        checkpoint={"scope":service,"phase":"HELD","sourceGeneration":old,"sourceRendered":manifest,"sourceActivation":None,
+                    "stoppedUnits":["ablestack-storage-ganesha@known.service","ablestack-storage-smb@"+"d"*24+".service"]}
+        record=checkpoint_root/"service-maintenance.json";rendered_json(record,checkpoint)
+        store=RenderedGeneration(self.root/"render");driver=RenderedDriver(self.cli,store);status={"bootHeld":False,"current":manifest,"activation":None}
+        store.status=lambda:status;store.pointer=lambda:self.root/"source"
+        driver.runtime.command=lambda args:{"bootHeld":True,"scope":service,"maintenanceKind":"SERVICE"}
+        driver.generation=lambda:{"generation":old,"configurationSha256":"a"*64,"generationStatus":"IN_SYNC","pendingOperationUuid":None}
+        driver.verify=lambda path:{domain:True for domain in DOMAINS};replayed=[];driver.runtime.replay=lambda path,domain:replayed.append(domain)
+        authorization=self.root/"authorization";authorization.mkdir(mode=0o700);writer=authorization/"writer.json"
+        def authorize(request,source_only=False):
+            self.assertTrue(source_only);rendered_json(writer,{"scope":service});return writer
+        driver.authorize_units=authorize
+        with patch.dict(os.environ,{"ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR":str(checkpoint_root)}):
+            with self.assertRaises(ValueError):driver.execute("render-maintenance-verify",{**service,"verifiedGeneration":old})
+            resumed=driver.execute("render-maintenance-resume-source",service)
+            self.assertEqual(["NFS","SMB"],replayed);self.assertTrue(resumed["blockTargetsPreserved"]);self.assertFalse(resumed["generationAdvanced"])
+            verified=driver.execute("render-maintenance-verify",{**service,"verifiedGeneration":old})
+            self.assertTrue(verified["sourceUnchangedVerified"]);self.assertFalse(verified["rollbackVerified"]);self.assertFalse(verified["activationOccurred"])
+            self.assertFalse(writer.exists());self.assertEqual("VERIFIED",json.loads(record.read_text())["sourceResumePhase"])
+            status["activation"]={"scope":{key:service[key] for key in ("instanceUuid","operationUuid","revision")},"phase":"ACTIVATING"}
+            with self.assertRaises(ValueError):driver.execute("render-maintenance-resume-source",service)
+            self.assertEqual(["NFS","SMB"],replayed)
+
+    def baseline_private_fixture(self):
+        from nvme_credentials import NvmeCredentialStore
+        from rendered_generation import DESIRED_PATHS
+        scope={"instanceUuid":str(uuid.uuid4()),"operationUuid":str(uuid.uuid4()),"revision":4}
+        desired={name:None for name in DESIRED_PATHS};share=str(uuid.uuid4());local=str(uuid.uuid4());chap=str(uuid.uuid4());host=str(uuid.uuid4())
+        iqn="iqn.2026-10.local.storage:source";initiator="iqn.2026-10.example:client";nqn="nqn.2026-10.local.storage:source";client="nqn.2026-10.example:client"
+        desired["desired-state/smb-share-apply.json"]={"shares":[{"uuid":share,"acls":[{"uuid":local,"principal":"testuser","principalType":"LOCAL_USER"}]}]}
+        desired["iscsi-targets.json"]={"targets":[{"uuid":str(uuid.uuid4()),"targetName":iqn,"acls":[{"uuid":chap,"principal":initiator,"config":{"chapEnabled":True}}]}]}
+        desired["nvmeof-subsystems.json"]={"subsystems":[{"uuid":str(uuid.uuid4()),"targetName":nqn,"hosts":[{"uuid":host,"principal":client,"config":{"dhChapEnabled":True}}]}]}
+        current={**scope,"configurationSha256":"a"*64};source={"generation":current,"pendingOperationUuid":None,"generationStatus":"IN_SYNC","configurationSha256":"a"*64,"configurationDesiredState":desired}
+        request={**scope,"previousGeneration":current,"configurationDesiredState":desired,"credentialRefs":{}}
+        driver=RenderedDriver(self.cli,RenderedGeneration(self.root/"render"));private=self.root/"secrets";private.mkdir(mode=0o700)
+        driver.runtime.iscsi_credentials_path=private/"iscsi.json";driver.runtime.iscsi_credentials_path.write_text(json.dumps({iqn+"|"+initiator:{"chapSecret":"SYNTHETIC_SOURCE_ONLY"}}));driver.runtime.iscsi_credentials_path.chmod(0o600)
+        driver.runtime.nvme_credentials=NvmeCredentialStore(private/"nvme.json");driver.runtime.nvme_credentials.persist({"schemaVersion":1,"instanceUuid":scope["instanceUuid"],"hosts":{client:{"dhChapKey":"DHHC-1:SYNTHETIC_SOURCE_ONLY"}}})
+        driver.runtime.command=lambda *args:{"success":True,"scope":scope,"ownershipVerified":True,"identityDatabaseAligned":True}
+        return driver,request,source
+
+    def test_native_baseline_derives_current_vault_refs_only_from_pinned_source_slots_and_aligned_live_passdb(self):
+        driver,request,source=self.baseline_private_fixture()
+        public_lookup=subprocess.CompletedProcess(["pdbedit","-L","-u","testuser"],0,"testuser:1001:Public account\n","")
+        with patch("rendered_driver.subprocess.run",return_value=public_lookup) as observed:
+            refs=driver.baseline_credential_refs(request,source)
+        self.assertEqual(["pdbedit","-L","-u","testuser"],observed.call_args.args[0])
+        self.assertEqual({"SMB","ISCSI","NVMEOF"},set(refs))
+        for resources in refs.values():
+            for ref in resources.values():
+                self.assertEqual("CURRENT_PRIVATE_VAULT",ref["kind"]);self.assertEqual(request["operationUuid"],ref["operationUuid"])
+                self.assertEqual(source["configurationSha256"],ref["sourceConfigurationSha256"])
+        self.assertNotIn("SYNTHETIC",json.dumps(refs));self.assertNotIn("authenticated",json.dumps(refs))
+
+    def test_native_baseline_refuses_caller_refs_missing_private_slots_foreign_nvme_instance_and_deleted_passdb_alignment(self):
+        driver,request,source=self.baseline_private_fixture()
+        public_lookup=subprocess.CompletedProcess([],0,"testuser:1001:Public account\n","")
+        with patch("rendered_driver.subprocess.run",return_value=public_lookup):
+            with self.assertRaises(ValueError):driver.baseline_credential_refs({**request,"credentialRefs":{"SMB":{}}},source)
+            with self.assertRaises(ValueError):driver.baseline_credential_refs(request,{**source,"pendingOperationUuid":str(uuid.uuid4())})
+            driver.runtime.command=lambda *args:{"success":True,"scope":{key:request[key] for key in ("instanceUuid","operationUuid","revision")},"ownershipVerified":True,"identityDatabaseAligned":False}
+            with self.assertRaisesRegex(ValueError,"aligned"):driver.baseline_credential_refs(request,source)
+            driver.runtime.command=lambda *args:{"success":True,"scope":{key:request[key] for key in ("instanceUuid","operationUuid","revision")},"ownershipVerified":True,"identityDatabaseAligned":True}
+            driver.runtime.iscsi_credentials_path.unlink()
+            with self.assertRaisesRegex(ValueError,"private vault slot"):driver.baseline_credential_refs(request,source)
+            driver.runtime.iscsi_credentials_path.write_text(json.dumps({next(iter(source["configurationDesiredState"]["iscsi-targets.json"]["targets"]))["targetName"]+"|iqn.2026-10.example:client":{"chapSecret":"SYNTHETIC_SOURCE_ONLY"}}));driver.runtime.iscsi_credentials_path.chmod(0o600)
+            record=driver.runtime.nvme_credentials.read();record["instanceUuid"]=str(uuid.uuid4());driver.runtime.nvme_credentials.persist(record)
+            with self.assertRaisesRegex(ValueError,"another source instance"):driver.baseline_credential_refs(request,source)
+
+if __name__=='__main__':unittest.main()

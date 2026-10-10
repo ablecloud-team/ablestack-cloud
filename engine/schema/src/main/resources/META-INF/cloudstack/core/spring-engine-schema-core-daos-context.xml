@@ -328,11 +328,16 @@
   <bean id="StorageServiceInstanceDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageServiceInstanceDaoImpl" />
   <bean id="StorageServiceProtocolDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageServiceProtocolDaoImpl" />
   <bean id="StorageFileShareDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageFileShareDaoImpl" />
+  <bean id="StoragePosixDirectoryPolicyDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StoragePosixDirectoryPolicyDaoImpl" />
   <bean id="StorageBlockTargetDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageBlockTargetDaoImpl" />
   <bean id="StorageAccessRuleDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageAccessRuleDaoImpl" />
   <bean id="StorageIdentityDomainDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageIdentityDomainDaoImpl" />
+  <bean id="StorageConfigArtifactDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageConfigArtifactDaoImpl" />
+  <bean id="StorageServiceOperationDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageServiceOperationDaoImpl" />
+  <bean id="StorageServiceOperationControlDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageServiceOperationControlDaoImpl" />
   <bean id="StorageServiceRuntimeBundleDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageServiceRuntimeBundleDaoImpl" />
   <bean id="StorageServiceRuntimeUpgradeDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageServiceRuntimeUpgradeDaoImpl" />
+  <bean id="StorageServiceTemplateUpgradeDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageServiceTemplateUpgradeDaoImpl" />
   <bean id="kmsKeyDaoImpl" class="org.apache.cloudstack.kms.dao.KMSKeyDaoImpl" />
   <bean id="kmsKekVersionDaoImpl" class="org.apache.cloudstack.kms.dao.KMSKekVersionDaoImpl" />
   <bean id="hsmProfileDaoImpl" class="org.apache.cloudstack.kms.dao.HSMProfileDaoImpl" />

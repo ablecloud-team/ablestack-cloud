@@ -1,0 +1,27 @@
+# AD native 보호 정책·principal authority source pin
+
+bc85feb2f45의clean9파일을candidate/staged/committed SHA로확인했다.
+clean57focused(Authority13/Identity13/Inline6/Renderers6/Prerequisites6/Driver13),
+bash/diff가실패·오류·skip0으로통과했다. canonicalWIP48과다른결과이며
+untracked lifecycle/winbind·ROOTscope완화·bundleADhandler선언은제외했다.
+
+protected smb-domain의instance/SIDreceipt/idmap와ad-machine.conf SHA,
+실제globalidmap정책을검증하여순수·물리SMB renderer가같은정책을쓴다.
+ADprincipal은qualifieddomain/realm/SIDkind·numericdomainrange/reverseSID와
+currentboot/freshepoch/literalbool을묶고NSSfallback/localpasswd-group충돌을
+거부한다. staleconfig는SMB파일0변경으로,wrongreverse는chown/chmod/setfacl0
+으로거절하는실제signed/physicalentry회귀를포함한다.
+
+typed lifecycleproducer미포함candidate에서정상CLIJOIN/LEAVE는dependency
+없음fixedreason으로효과전에거절한다. 공개/계정파일·privateoutput0을
+확인했고committedbase의LOCALSMB+NFS모든출력파일SHA가동일했다.
+독립authoritypin을실제join/leave성공으로확대하지않는다.
+
+actual13/AD/ROOT0,productionAD/fullFourfalse다. SERVICE4 publicPRE→ownedSTOP
+receipt→AFTERSTOP암호checkpoint와JOIN/LEAVEfreshproducer·정리증빙·semantic
+restore는다음단계다. 운영비밀/추가TDB복제나callerUIDfallback으로우회하지
+않는다. 최종UI1275는미착수다.
+
+proof=native-ad-authority-clean-451922ab45ef/source-proof.json,
+logSHA347dd1db65a2785106a925e8726298706adcd16a9e2917c838d2ba142cce19c5,
+patchSHAb34656ec3943d7ebb4a3adb45e9a27c2981a89ed3eece6a01ba8498a1eacf581이다.

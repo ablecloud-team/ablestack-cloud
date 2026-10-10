@@ -1,0 +1,243 @@
+{
+  "bootId": "a28296fa-26d3-46a9-bde8-2f978e413f68",
+  "configurationSha256": "0706a2e8a95411256cbd9ec179e0af9cd80f0ed01961969e4472358755c5768c",
+  "databases": {
+    "PASSDB": {
+      "device": 2054,
+      "gid": 0,
+      "inode": 1381,
+      "mode": "0600",
+      "path": "/var/lib/samba/private/passdb.tdb",
+      "present": true,
+      "uid": 0
+    },
+    "SECRETS": {
+      "device": 2054,
+      "gid": 0,
+      "inode": 1421,
+      "mode": "0600",
+      "path": "/var/lib/samba/private/secrets.tdb",
+      "present": true,
+      "uid": 0
+    }
+  },
+  "endpointTcpReady": true,
+  "generatedEpoch": 1791446561.0016198,
+  "generation": {
+    "configurationSha256": "b3268049ec2e7257860c46af005ffcddd066b05bbaebeda4884579dbc71b62c8",
+    "instanceUuid": "b54a3c04-fe88-4bde-9ae3-1c67e0998030",
+    "operationUuid": "94387f8e-beb5-42e9-849a-edfce390b165",
+    "revision": 11,
+    "verifiedAt": 1791442267.9973722
+  },
+  "identityDatabaseAligned": false,
+  "identityHolders": [
+    {
+      "deleted": true,
+      "device": 2054,
+      "fd": 4,
+      "inode": 3850,
+      "path": "/var/lib/samba/private/secrets.tdb",
+      "pid": 1291
+    },
+    {
+      "deleted": true,
+      "device": 2054,
+      "fd": 27,
+      "inode": 3858,
+      "path": "/var/lib/samba/private/passdb.tdb",
+      "pid": 1291
+    },
+    {
+      "deleted": true,
+      "device": 2054,
+      "fd": 4,
+      "inode": 3850,
+      "path": "/var/lib/samba/private/secrets.tdb",
+      "pid": 67681
+    },
+    {
+      "deleted": true,
+      "device": 2054,
+      "fd": 27,
+      "inode": 3858,
+      "path": "/var/lib/samba/private/passdb.tdb",
+      "pid": 67681
+    }
+  ],
+  "identityRestoreSafe": false,
+  "masters": [
+    {
+      "configurationPath": "/etc/samba/smb.conf",
+      "databaseDescriptors": [
+        {
+          "deleted": true,
+          "device": 2054,
+          "fd": 4,
+          "inode": 3850,
+          "matchesCurrentPathInode": false,
+          "path": "/var/lib/samba/private/secrets.tdb"
+        },
+        {
+          "deleted": false,
+          "device": 23,
+          "fd": 18,
+          "inode": 1560,
+          "matchesCurrentPathInode": true,
+          "path": "/run/samba/smbXsrv_session_global.tdb"
+        },
+        {
+          "deleted": false,
+          "device": 23,
+          "fd": 19,
+          "inode": 1561,
+          "matchesCurrentPathInode": true,
+          "path": "/run/samba/smbXsrv_tcon_global.tdb"
+        },
+        {
+          "deleted": false,
+          "device": 23,
+          "fd": 20,
+          "inode": 1562,
+          "matchesCurrentPathInode": true,
+          "path": "/run/samba/brlock.tdb"
+        },
+        {
+          "deleted": false,
+          "device": 23,
+          "fd": 21,
+          "inode": 1563,
+          "matchesCurrentPathInode": true,
+          "path": "/run/samba/locking.tdb"
+        },
+        {
+          "deleted": true,
+          "device": 2054,
+          "fd": 27,
+          "inode": 3858,
+          "matchesCurrentPathInode": false,
+          "path": "/var/lib/samba/private/passdb.tdb"
+        },
+        {
+          "deleted": false,
+          "device": 23,
+          "fd": 28,
+          "inode": 1578,
+          "matchesCurrentPathInode": true,
+          "path": "/run/samba/smbXsrv_open_global.tdb"
+        }
+      ],
+      "lockingDatabasesAligned": true,
+      "pid": 1291,
+      "startTicks": "694",
+      "unit": "smbd.service"
+    },
+    {
+      "configurationPath": "/etc/samba/smb.conf",
+      "databaseDescriptors": [
+        {
+          "deleted": true,
+          "device": 2054,
+          "fd": 4,
+          "inode": 3850,
+          "matchesCurrentPathInode": false,
+          "path": "/var/lib/samba/private/secrets.tdb"
+        },
+        {
+          "deleted": false,
+          "device": 23,
+          "fd": 18,
+          "inode": 1560,
+          "matchesCurrentPathInode": true,
+          "path": "/run/samba/smbXsrv_session_global.tdb"
+        },
+        {
+          "deleted": false,
+          "device": 23,
+          "fd": 19,
+          "inode": 1561,
+          "matchesCurrentPathInode": true,
+          "path": "/run/samba/smbXsrv_tcon_global.tdb"
+        },
+        {
+          "deleted": false,
+          "device": 23,
+          "fd": 20,
+          "inode": 1562,
+          "matchesCurrentPathInode": true,
+          "path": "/run/samba/brlock.tdb"
+        },
+        {
+          "deleted": false,
+          "device": 23,
+          "fd": 21,
+          "inode": 1563,
+          "matchesCurrentPathInode": true,
+          "path": "/run/samba/locking.tdb"
+        },
+        {
+          "deleted": true,
+          "device": 2054,
+          "fd": 27,
+          "inode": 3858,
+          "matchesCurrentPathInode": false,
+          "path": "/var/lib/samba/private/passdb.tdb"
+        },
+        {
+          "deleted": false,
+          "device": 23,
+          "fd": 28,
+          "inode": 1578,
+          "matchesCurrentPathInode": true,
+          "path": "/run/samba/smbXsrv_open_global.tdb"
+        }
+      ],
+      "lockingDatabasesAligned": true,
+      "pid": 67681,
+      "startTicks": "612321",
+      "unit": "ablestack-storage-smb@0b460d35bf98268a586b8e69.service"
+    }
+  ],
+  "ownedEndpoints": [
+    {
+      "key": "31580ccbdaf629ef28d8b205",
+      "listenIp": "10.10.13.240",
+      "listenerOwned": true,
+      "listening": true,
+      "pid": 1291,
+      "port": 445,
+      "tcpReady": true,
+      "unit": "ablestack-storage-smb@31580ccbdaf629ef28d8b205.service"
+    },
+    {
+      "key": "0b460d35bf98268a586b8e69",
+      "listenIp": "10.10.13.241",
+      "listenerOwned": true,
+      "listening": true,
+      "pid": 67681,
+      "port": 445,
+      "tcpReady": true,
+      "unit": "ablestack-storage-smb@0b460d35bf98268a586b8e69.service"
+    }
+  ],
+  "ownershipVerified": true,
+  "requiresQuiesce": true,
+  "scope": {
+    "instanceUuid": "b54a3c04-fe88-4bde-9ae3-1c67e0998030",
+    "operationUuid": "a6774dca-19a0-47a1-95c8-ef756ab8208b",
+    "revision": 11
+  },
+  "sessions": {
+    "available": true,
+    "byteLockOpenFileCount": 0,
+    "establishedTcpCount": 0,
+    "lockingDatabasesAligned": true,
+    "openFileCount": 0,
+    "safeToRebind": true,
+    "smbSessionCount": 0,
+    "synRecvTcpCount": 0,
+    "treeConnectionCount": 0
+  },
+  "smbIdentitySupported": true,
+  "success": true
+}
