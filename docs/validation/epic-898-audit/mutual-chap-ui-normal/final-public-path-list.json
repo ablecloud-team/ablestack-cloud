@@ -1,0 +1,59 @@
+{
+  "sourcePin": "20a3c7c7e7e4144c128ccbe2ec527d2a322e223d",
+  "success": true,
+  "tests": 373,
+  "suites": 22,
+  "failed": 0,
+  "errorSuites": 0,
+  "skipped": 0,
+  "lintPassed": true,
+  "productionBuildCount": 1,
+  "productionFiles": 850,
+  "selectedPayloadFiles": 6,
+  "source965BeforeAfterSame": true,
+  "canonicalFreezeReleased": true,
+  "paths": {
+    "normalProof": {
+      "path": "/root/work/epic898-preparation/ui-mutual-chap-20a3c7c7/normal-proof.json",
+      "sha256": "75fa8d14fef1f0ac174347d7ad12fca57601f2d0048d3b67856902c66aa7bf62"
+    },
+    "sourceManifest": {
+      "path": "/root/work/epic898-preparation/ui-mutual-chap-20a3c7c7/full-ui-source-manifest.json",
+      "sha256": "2f0e27fca25d0d37c90c54c97e3bd8f81c65b92d30f686c070d4241008e82d7e"
+    },
+    "immutableManifest": {
+      "path": "/root/work/epic898-preparation/ui-mutual-chap-20a3c7c7/immutable-output-manifest.json",
+      "sha256": "106fd45a0ac36f3c099470cff69053042e7d6143874a21a709938413a2e87a81"
+    },
+    "outputManifest": {
+      "path": "/root/work/epic898-preparation/ui-mutual-chap-20a3c7c7/output-manifest.json",
+      "sha256": "dd08017a22cfc75008dee79f39358761279fb12f466ee4743fa04815c99ef771"
+    },
+    "cssScopeProof": {
+      "path": "/root/work/epic898-preparation/ui-mutual-chap-20a3c7c7/compiled-css-scope-identity-proof.json",
+      "sha256": "bca0be6e95de39da853bf94080fa15cd2a4907191952a382d98f42ef7f2a2115"
+    },
+    "staticReview": {
+      "path": "/root/work/epic898-preparation/ui-mutual-chap-20a3c7c7/narrow-static-deploy-review.json",
+      "sha256": "f37546d6bbd3460b58c1e8d2a0a3130d2c0b0488305ab4f1fd17db15f918e6bb"
+    },
+    "reviewArchive": {
+      "path": "/root/work/epic898-preparation/ui-mutual-chap-20a3c7c7/review-ui-mutual-chap-20a3c7c7.tar.gz",
+      "sha256": "fd4fa1eb79c7a5ab9c2415c968d77627e912eb464f093ef586ea37d9def306eb"
+    },
+    "deployHelper": {
+      "path": "/root/work/epic898-preparation/ui-mutual-chap-20a3c7c7/deployment-preparation/deploy-ui-mutual-chap.py",
+      "sha256": "64a4e10710950ae949749128cc2ac94ddf940541c8dc4253538463a9718aaf89"
+    },
+    "deploymentPrep": {
+      "path": "/root/work/epic898-preparation/ui-mutual-chap-20a3c7c7/deployment-preparation/deployment-preparation-proof.json",
+      "sha256": "b58383937559702691065ab5043976675a14a71a9e028bf72e390f9e87731ce9"
+    },
+    "normalMarkdown": {
+      "path": "/root/work/epic898-preparation/ui-mutual-chap-20a3c7c7/normal-validation-ko.md",
+      "sha256": "49a8259646c1ab995dc4adfe98512a464f2762fdf4ca9c9840248d721d6f20d0"
+    }
+  },
+  "actualEffects": 0,
+  "finalUi1275Started": false
+}
