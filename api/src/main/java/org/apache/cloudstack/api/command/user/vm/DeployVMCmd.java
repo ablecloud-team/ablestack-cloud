@@ -95,6 +95,13 @@ public class DeployVMCmd extends BaseDeployVMCmd {
     @Parameter(name = "sourcerevision", type = CommandType.STRING, description = "Previously validated volume/snapshot revision")
     private String sourceRevision;
 
+    @Parameter(name = "sourceconfiguration", type = CommandType.STRING, description = "inherit or manual guest execution settings; no guest boot guarantee") private String sourceConfiguration;
+    @Parameter(name = "sourceostypeid", type = CommandType.UUID, entityType = org.apache.cloudstack.api.response.GuestOSResponse.class, description = "Administrator-declared OS; omitted for generic settings") private Long sourceOsTypeId;
+    @Parameter(name = "sourcerootcontroller", type = CommandType.STRING, description = "Administrator-declared ROOT controller: virtio, scsi, sata or ide") private String sourceRootController;
+    public String getSourceConfiguration() { return sourceConfiguration; }
+    public Long getSourceOsTypeId() { return sourceOsTypeId; }
+    public String getSourceRootController() { return sourceRootController; }
+
     private Map<String, String> sourceBootProfile = new java.util.HashMap<>();
 
     public String getSourceRevision() { return sourceRevision; }
@@ -104,7 +111,9 @@ public class DeployVMCmd extends BaseDeployVMCmd {
         sourceBootProfile.put("vm.creation.source", "true");
         sourceBootProfile.put("vm.creation.source.id", profile.get("sourceid"));
         sourceBootProfile.put("vm.creation.source.kind", profile.get("sourcekind"));
-        sourceBootProfile.put("vm.creation.source.osuuid", profile.get("ostypeid"));
+        if (profile.get("ostypeid") != null) { sourceBootProfile.put("vm.creation.source.osuuid", profile.get("ostypeid")); }
+        sourceBootProfile.put("vm.creation.source.configuration", profile.getOrDefault("configurationorigin", "cloud-record"));
+        sourceBootProfile.put("vm.creation.source.arch", profile.getOrDefault("arch", "x86_64"));
         sourceBootProfile.put(com.cloud.vm.VmDetailConstants.TPM_VERSION, "NONE");
         for (String key : java.util.Arrays.asList("rootDiskController", "kvm.guest.os.machine.type", "video.hardware", "video.ram")) {
             if (profile.containsKey(key)) { sourceBootProfile.put(key, profile.get(key)); }

@@ -32,7 +32,7 @@
         <a-form-item name="url" ref="url" :label="$t('label.url')">
           <a-input
             v-model:value="form.url"
-            :placeholder="apiParams.url.description"/>
+            :placeholder="$t('message.creation.source.upload.url')"/>
         </a-form-item>
         <a-form-item name="name" ref="name">
           <template #label>
@@ -76,7 +76,7 @@
         </a-form-item>
         <a-form-item name="diskofferingid" ref="diskofferingid">
           <template #label>
-            <tooltip-label :title="$t('label.diskofferingid')" :tooltip="apiParams.diskofferingid.description || $t('label.diskoffering')"/>
+            <tooltip-label :title="$t('label.diskofferingid')" :tooltip="$t('message.creation.source.upload.offering')"/>
           </template>
           <infinite-scroll-select
             v-model:value="form.diskofferingid"

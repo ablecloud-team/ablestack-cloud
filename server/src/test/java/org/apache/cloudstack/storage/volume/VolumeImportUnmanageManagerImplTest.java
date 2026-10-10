@@ -119,6 +119,8 @@ public class VolumeImportUnmanageManagerImplTest {
     @Mock
     private VolumeDao volumeDao;
     @Mock
+    private com.cloud.storage.dao.VolumeDetailsDao volumeDetailsDao;
+    @Mock
     private PrimaryDataStoreDao primaryDataStoreDao;
     @Mock
     private StoragePoolHostDao storagePoolHostDao;

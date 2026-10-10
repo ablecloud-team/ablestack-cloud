@@ -104,12 +104,24 @@ public class VmStorageSelectionManager extends ManagerBase implements VmStorageS
         allocators = values;
     }
 
+    private VMTemplateVO executionTemplate() {
+        VMTemplateVO profile = VMTemplateVO.createSystemIso(-1L, com.cloud.vm.VirtualMachineManager.KVM_BLANK_VM_TEMPLATE_NAME,
+                "Generic volume execution profile", true, "", true, 64, Account.ACCOUNT_ID_SYSTEM, "", "Volume execution profile", false, 1);
+        profile.setFormat(ImageFormat.QCOW2); profile.setHypervisorType(HypervisorType.KVM); profile.setDetails(new HashMap<>());
+        return profile;
+    }
+
     @Override
     public List<DeploymentStoragePoolResponse> listPools(ListDeploymentStoragePoolsCmd cmd) {
         DataCenter zone = zoneDao.findById(cmd.getZoneId());
         ServiceOffering compute = computeDao.findById(cmd.getServiceOfferingId());
-        if ((cmd.getTemplateId() == null) == (cmd.getSnapshotId() == null)) {
-            throw new InvalidParameterValueException("Specify exactly one templateid or snapshotid");
+        if ((cmd.getTemplateId() == null ? 0 : 1) + (cmd.getSnapshotId() == null ? 0 : 1) + (cmd.getVolumeId() == null ? 0 : 1) != 1) {
+            throw new InvalidParameterValueException("Specify exactly one templateid, snapshotid or volumeid");
+        }
+        VolumeVO sourceVolume = cmd.getVolumeId() == null ? null : volumeDao.findById(cmd.getVolumeId());
+        if (cmd.getVolumeId() != null) {
+            if (sourceVolume == null || sourceVolume.getDataCenterId() != cmd.getZoneId()) { throw new InvalidParameterValueException("Invalid creation volume"); }
+            accountManager.checkAccess(CallContext.current().getCallingAccount(), null, true, sourceVolume);
         }
         SnapshotVO sourceSnapshot = cmd.getSnapshotId() == null ? null : snapshots.findById(cmd.getSnapshotId());
         Long sourceTemplateId = cmd.getTemplateId();
@@ -121,11 +133,12 @@ public class VmStorageSelectionManager extends ManagerBase implements VmStorageS
             sourceTemplateId = recorded == null ? original == null ? null : original.getTemplateId() : Long.valueOf(recorded.getValue());
         }
         com.cloud.storage.VMTemplateVO template = sourceTemplateId == null ? null : templateDao.findByIdIncludingRemoved(sourceTemplateId);
+        if (template == null && (sourceVolume != null || sourceSnapshot != null)) { template = executionTemplate(); }
         if (zone == null || compute == null || template == null) {
             throw new InvalidParameterValueException("Invalid zone, compute offering or image");
         }
         configurationManager.checkZoneAccess(CallContext.current().getCallingAccount(), zone);
-        templateDao.loadDetails(template);
+        if (template.getId() > 0) { templateDao.loadDetails(template); }
         Long offeringId = cmd.getDiskOfferingId() == null ? compute.getDiskOfferingId() : cmd.getDiskOfferingId();
         DiskOffering offering = offeringDao.findById(offeringId);
         if (offering == null) { throw new InvalidParameterValueException("Invalid disk offering"); }
@@ -137,7 +150,7 @@ public class VmStorageSelectionManager extends ManagerBase implements VmStorageS
             throw new InvalidParameterValueException("Invalid disk or VM count / requested capacity");
         }
         HypervisorType hypervisor = hypervisor(template, cmd.getHypervisor());
-        Long size = sourceSnapshot != null && cmd.isRootDisk() ? sourceSnapshot.getSize() : requestedSize(offering, template, cmd.isRootDisk(), cmd.getSize());
+        Long size = sourceVolume != null && cmd.isRootDisk() ? sourceVolume.getSize() : sourceSnapshot != null && cmd.isRootDisk() ? sourceSnapshot.getSize() : requestedSize(offering, template, cmd.isRootDisk(), cmd.getSize());
         Long required = size == null ? null : multiply(size, (long) cmd.getDiskCount() * cmd.getVmCount());
         DiskProfile disk = profile(offering, cmd.isRootDisk(), 1, hypervisor, template.getId(), cmd.getMinIops());
         VirtualMachineProfile vm = vmProfile(zone, compute, template, hypervisor, CallContext.current().getCallingAccount());
@@ -272,7 +285,10 @@ public class VmStorageSelectionManager extends ManagerBase implements VmStorageS
         }
         org.apache.cloudstack.api.command.user.vm.DeployVMCmd sourceCmd = cmd instanceof org.apache.cloudstack.api.command.user.vm.DeployVMCmd
                 ? (org.apache.cloudstack.api.command.user.vm.DeployVMCmd) cmd : null;
-        if (sourceCmd != null && sourceCmd.getVolumeId() != null) { throw new InvalidParameterValueException("Existing ROOT volume storage is fixed"); }
+        VolumeVO adopting = sourceCmd == null || sourceCmd.getVolumeId() == null ? null : volumeDao.findById(sourceCmd.getVolumeId());
+        if (adopting != null && adopting.getState() != Volume.State.Uploaded && selections.containsKey(0L)) {
+            throw new InvalidParameterValueException("Existing primary volume storage is fixed");
+        }
         SnapshotVO restoring = sourceCmd == null || sourceCmd.getSnapshotId() == null ? null : snapshots.findById(sourceCmd.getSnapshotId());
         configurationManager.checkZoneAccess(owner, zone);
         for (Long id : selections.values()) {
@@ -305,7 +321,7 @@ public class VmStorageSelectionManager extends ManagerBase implements VmStorageS
             }
             if (offering == null) { throw new InvalidParameterValueException("Invalid selected disk offering"); }
             configurationManager.checkDiskOfferingAccess(owner, offering, zone);
-            Long bytes = restoring != null && root ? restoring.getSize() : requestedSize(offering, storedTemplate, root, sizeGb);
+            Long bytes = adopting != null && root ? adopting.getSize() : restoring != null && root ? restoring.getSize() : requestedSize(offering, storedTemplate, root, sizeGb);
             if (bytes == null || bytes <= 0) { throw new InvalidParameterValueException("Disk size must be specified before selecting storage"); }
             DiskProfile disk = profile(offering, root, bytes, type, storedTemplate.getId(), null);
             Set<String> eligible = candidates(disk, vmProfile, null, null, cmd.getHostId()).get(choice.getValue());

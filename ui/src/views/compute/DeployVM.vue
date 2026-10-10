@@ -161,8 +161,9 @@
                         @select="selectCreationSource"
                         @loading="sourceLoading = $event"
                         @change-image-type="changeImageType" />
-                      <creation-source-summary :source="selectedCreationSource" :target-storage="rootStorageSelection" />
-                      <a-alert type="info" show-icon :message="$t('message.creation.source.fixed.boot')" />
+                      <creation-source-summary :source="selectedCreationSource" :target-storage="rootStorageSelection" :execution-profile="creationSourceExecutionProfile" />
+                      <creation-source-configuration v-if="selectedCreationSource" :source="selectedCreationSource" :value="sourceConfiguration" @update:value="sourceConfiguration = $event" />
+                      <a-alert type="info" show-icon :message="$t('message.creation.source.responsibility')" />
                     </template>
                     <os-based-image-selection
                       ref="imageSelection"
@@ -1171,7 +1172,7 @@
         <div class="vm-info-card">
           <info-card :footerVisible="true" :resource="vmSummary" :title="$t('label.yourinstance')" @change-resource="(data) => resource = data">
             <template #details>
-              <creation-source-summary v-if="isCreationSource" :source="selectedCreationSource" :target-storage="rootStorageSelection" />
+              <creation-source-summary v-if="isCreationSource" :source="selectedCreationSource" :target-storage="rootStorageSelection" :execution-profile="creationSourceExecutionProfile" />
               <div v-if="serviceOffering?.id && !isTemplateHypervisorExternal && !isCreationSource" class="vm-storage-summary">
                 <div><strong>{{ $t('label.vm.storage.root') }}</strong><br>{{ rootStorageSelection.name || $t('label.vm.storage.auto') }} · {{ selectedRootDiskSize || '—' }} GB</div>
                 <div v-if="selectedDataDiskOffering?.id"><strong>{{ $t('label.vm.storage.data') }}</strong><br>
@@ -1195,7 +1196,7 @@
     </a-row>
     <mold-dialog v-if="sourceConfirmVisible" :title="$t('label.creation.source.confirm')" @cancel="sourceConfirmVisible = false">
       <p><strong>{{ form.name || $t('label.name.optional') }}</strong> · {{ $t(form.startvm ? 'label.launch.vm' : 'label.create.vm') }}</p>
-      <creation-source-summary :source="selectedCreationSource" :target-storage="rootStorageSelection" />
+      <creation-source-summary :source="selectedCreationSource" :target-storage="rootStorageSelection" :execution-profile="creationSourceExecutionProfile" />
       <p v-if="imageType === 'volumeid'">{{ $t('message.creation.source.delete.policy') }}</p>
       <a-checkbox v-if="imageType === 'volumeid'" v-model:checked="sourceAcknowledged">{{ $t('label.creation.source.ack') }}</a-checkbox>
       <template #footer>
@@ -1212,6 +1213,7 @@ import { deploymentTpmParams } from '@/utils/tpm'
 import AdditionalIsoSelection from './AdditionalIsoSelection.vue'
 import CreationSourceSelection from './wizard/CreationSourceSelection.vue'
 import CreationSourceSummary from './wizard/CreationSourceSummary.vue'
+import CreationSourceConfiguration from './wizard/CreationSourceConfiguration.vue'
 import CreationSourceOperations from './wizard/CreationSourceOperations.vue'
 import { vmCreationSourceErrorMessage } from '@/utils/vmCreationSourceError'
 import MoldDialog from '@/components/view/MoldDialog.vue'
@@ -1260,6 +1262,7 @@ export default {
     AdditionalIsoSelection,
     CreationSourceSelection,
     CreationSourceSummary,
+    CreationSourceConfiguration,
     CreationSourceOperations,
     MoldDialog,
     OwnershipSelection,
@@ -1315,6 +1318,7 @@ export default {
       isoDataDiskSelection: { count: 1 },
       isoDataOperations: [],
       selectedCreationSource: null,
+      sourceConfiguration: {},
       sourceLoading: false,
       sourceConfirmVisible: false,
       sourceConfirmed: false,
@@ -1496,6 +1500,23 @@ export default {
     }
   },
   computed: {
+    creationSourceExecutionProfile () {
+      return this.sourceConfiguration.mode === 'manual'
+        ? { ...this.sourceConfiguration, osname: this.sourceConfiguration.osname || this.$t('label.creation.source.os.unspecified') }
+        : this.selectedCreationSource?.bootprofile || {}
+    },
+    creationSourceConfigurationArgs () {
+      if (!this.sourceConfiguration.mode) return {}
+      return this.sourceConfiguration.mode === 'manual'
+        ? {
+          sourceconfiguration: 'manual',
+          sourceostypeid: this.sourceConfiguration.ostypeid || undefined,
+          sourcerootcontroller: this.sourceConfiguration.rootbus,
+          boottype: this.sourceConfiguration.boottype,
+          bootmode: this.sourceConfiguration.bootmode
+        }
+        : { sourceconfiguration: 'inherit' }
+    },
     isCreationSource () { return ['volumeid', 'snapshotid'].includes(this.imageType) },
     sourceOperationsKey () { return 'vm-creation-source-' + this.$store.getters.userInfo.id + '-' + (this.$store.getters.project?.id || '') },
     creationSourceOwnerReady () {
@@ -1517,8 +1538,8 @@ export default {
       return {
         ...this.vm,
         ...(this.isCreationSource ? {
-          ostypeid: this.selectedCreationSource?.bootprofile?.ostypeid,
-          ostypename: this.selectedCreationSource?.bootprofile?.osname,
+          ostypeid: this.creationSourceExecutionProfile?.ostypeid,
+          ostypename: this.creationSourceExecutionProfile?.osname,
           templateformat: undefined,
           templateid: undefined,
           isoid: undefined
@@ -1551,7 +1572,7 @@ export default {
     },
     storageSelectionEnabled () {
       return isAdmin() && 'listDeploymentStoragePools' in this.$store.getters.apis && !this.isTemplateHypervisorExternal &&
-        ['templateid', 'isoid', 'snapshotid'].includes(this.imageType) && !!this.serviceOffering?.id && !!(this.template?.id || this.iso?.id || this.selectedCreationSource?.id)
+        (['templateid', 'isoid', 'snapshotid'].includes(this.imageType) || this.selectedCreationSource?.sourceusage === 'stage-and-adopt') && !!this.serviceOffering?.id && !!(this.template?.id || this.iso?.id || this.selectedCreationSource?.id)
     },
     selectedDataDiskOffering () {
       return this.imageType === 'isoid'
@@ -1615,10 +1636,11 @@ export default {
       })
     },
     rootStorageQuery () {
-      if (this.imageType === 'snapshotid') {
+      if (this.isCreationSource || this.imageType === 'snapshotid') {
         return {
           zoneid: this.form.zoneid,
-          snapshotid: this.selectedCreationSource?.id,
+          snapshotid: this.imageType === 'snapshotid' ? this.selectedCreationSource?.id : undefined,
+          volumeid: this.imageType === 'volumeid' ? this.selectedCreationSource?.id : undefined,
           serviceofferingid: this.form.computeofferingid,
           hypervisor: 'KVM',
           rootdisk: true,
@@ -1645,8 +1667,14 @@ export default {
       }
     },
     dataStorageQuery () {
-      const sourceImage = this.imageType === 'snapshotid'
-        ? { templateid: undefined, snapshotid: this.selectedCreationSource?.id, hypervisor: 'KVM', vmcount: 1 }
+      const sourceImage = this.isCreationSource || this.imageType === 'snapshotid'
+        ? {
+          templateid: undefined,
+          snapshotid: this.imageType === 'snapshotid' ? this.selectedCreationSource?.id : undefined,
+          volumeid: this.imageType === 'volumeid' ? this.selectedCreationSource?.id : undefined,
+          hypervisor: 'KVM',
+          vmcount: 1
+        }
         : {}
       return {
         ...this.storageQuery,
@@ -2060,6 +2088,7 @@ export default {
     }
   },
   watch: {
+    sourceConfiguration: { deep: true, handler () { this.sourceConfirmed = false; this.sourceAcknowledged = false } },
     templateStrictCustomRoot (required) {
       if (!required) return
       this.showRootDiskSizeChanger = true
@@ -2969,7 +2998,7 @@ export default {
       this.updateImages()
     },
     clearCreationSource () {
-      this.selectedCreationSource = null; this.sourceConfirmed = false; this.sourceConfirmVisible = false; this.sourceAcknowledged = false
+      this.selectedCreationSource = null; this.sourceConfiguration = {}; this.sourceConfirmed = false; this.sourceConfirmVisible = false; this.sourceAcknowledged = false
       this.template = null; this.iso = null; this.volume = null; this.snapshot = null
       for (const key of ['templateid', 'isoid', 'volumeid', 'snapshotid', 'boottype', 'bootmode', 'rootdisksize', 'rootkmskeyid', 'datakmskeyid', 'userdata', 'userdataid', 'overridediskofferingid']) this.form[key] = undefined
       for (const key of ['templateid', 'templatename', 'templatedisplaytext', 'isoid', 'isoname', 'isodisplaytext', 'guestosname', 'ostypeid', 'ostypename']) this.vm[key] = undefined
@@ -2981,12 +3010,20 @@ export default {
       this.clearCreationSource()
       if (!source?.allowed) return
       this.selectedCreationSource = source
+      this.sourceConfiguration = {
+        mode: source.requiresconfiguration ? 'manual' : 'inherit',
+        boottype: source.bootprofile?.boottype || 'BIOS',
+        bootmode: 'LEGACY',
+        rootbus: source.bootprofile?.rootbus || 'os-default',
+        ostypeid: undefined,
+        osname: undefined
+      }
       this.form[this.imageType] = source.id; this.form.hypervisor = 'KVM'; this.form.vmNumber = 1
       this.form.boottype = source.bootprofile.boottype; this.form.bootmode = source.bootprofile.bootmode
       this.vm.hypervisor = 'KVM'; this.vm.guestosname = source.bootprofile.osname; this.vm.ostypeid = source.bootprofile.ostypeid; this.vm.ostypename = source.bootprofile.osname
       if (source.sourcekind === 'volume') {
         this.volume = source
-        if (source.storage?.scope === 'CLUSTER' && source.storage.clusterid) {
+        if (source.sourceusage === 'adopt-existing' && source.storage?.scope === 'CLUSTER' && source.storage.clusterid) {
           this.form.clusterid = source.storage.clusterid; this.form.hostid = undefined; this.onSelectClusterId(source.storage.clusterid)
         }
       } else this.snapshot = source
@@ -2999,6 +3036,7 @@ export default {
       if (!this.selectedCreationSource?.allowed || this.sourceLoading || this.sourceOperationPending) throw new Error(this.$t('message.creation.source.required'))
       const args = Object.fromEntries(Object.entries({
         ...this.creationSourceQuery,
+        ...this.creationSourceConfigurationArgs,
         id: this.selectedCreationSource.id,
         sourcerevision: this.selectedCreationSource.revision,
         serviceofferingid: this.form.computeofferingid,
@@ -3171,7 +3209,10 @@ export default {
         }
 
         deployVmData.startvm = values.startvm === true
-        if (this.isCreationSource) deployVmData.sourcerevision = this.selectedCreationSource.revision
+        if (this.isCreationSource) {
+          deployVmData.sourcerevision = this.selectedCreationSource.revision
+          Object.assign(deployVmData, this.creationSourceConfigurationArgs)
+        }
         if (this.rootStorageSelection.id && this.storageSelectionEnabled) deployVmData.rootstorageid = this.rootStorageSelection.id
 
         // step 3: select service offering

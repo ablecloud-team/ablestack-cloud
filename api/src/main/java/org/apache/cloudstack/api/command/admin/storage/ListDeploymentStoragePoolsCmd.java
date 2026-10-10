@@ -58,6 +58,8 @@ public class ListDeploymentStoragePoolsCmd extends BaseListCmd {
     @Parameter(name = "otherrequirediops", type = CommandType.LONG, description = "Minimum IOPS requested in the other selected pool") private Long otherRequiredIops;
     public long getOtherRequiredIops() { return otherRequiredIops == null ? 0 : otherRequiredIops; }
     @Parameter(name = ApiConstants.SNAPSHOT_ID, type = CommandType.UUID, entityType = org.apache.cloudstack.api.response.SnapshotResponse.class, description = "ROOT snapshot restore source") private Long snapshotId;
+    @Parameter(name = ApiConstants.VOLUME_ID, type = CommandType.UUID, entityType = org.apache.cloudstack.api.response.VolumeResponse.class, description = "Uploaded volume staging source") private Long volumeId;
+    public Long getVolumeId() { return volumeId; }
     public Long getSnapshotId() { return snapshotId; }
     public Long getZoneId() { return zoneId; }
     public Long getServiceOfferingId() { return serviceOfferingId; }

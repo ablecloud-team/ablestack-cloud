@@ -1268,7 +1268,24 @@ public class VolumeOrchestrator extends ManagerBase implements VolumeOrchestrati
         assert (template.getFormat() != ImageFormat.ISO) : "ISO is not a template.";
 
         if (volume != null) {
+            Type originalType = volume.getVolumeType();
             volume = attachExistingVolumeToVm(vm, deviceId, volume, type);
+            if (volume.getState() == Volume.State.Uploaded) {
+                Object target = org.apache.cloudstack.context.CallContext.current().getContextParameter("vm.creation.snapshot.targetpool");
+                StoragePoolVO pool = target instanceof Long ? _storagePoolDao.findById((Long) target) : null;
+                if (pool != null) { _volDetailDao.addDetail(volume.getId(), com.cloud.storage.VmStorageSelectionService.REQUIRED_POOL, pool.getUuid(), false); }
+                try {
+                    volume = createVolumeOnPrimaryStorage(vm, volFactory.getVolume(volume.getId(), DataStoreRole.Image), vm.getHypervisorType(), pool,
+                            pool == null ? null : pool.getClusterId(), pool == null ? vm.getPodIdToDeployIn() : pool.getPodId());
+                } catch (NoTransitionException | RuntimeException ex) {
+                    VolumeVO preserved = _volumeDao.findById(volume.getId());
+                    if (preserved != null && java.util.Objects.equals(preserved.getInstanceId(), vm.getId())) {
+                        preserved.setInstanceId(null); preserved.setDeviceId(null); preserved.setVolumeType(originalType);
+                        _volumeDao.update(preserved.getId(), preserved);
+                    }
+                    throw new CloudRuntimeException("Could not prepare uploaded ROOT volume; source preserved", ex);
+                }
+            }
             provideVmInfoToTheStorageVolume(vm, volume);
             return toDiskProfile(volume, offering);
         }
@@ -1391,7 +1408,7 @@ public class VolumeOrchestrator extends ManagerBase implements VolumeOrchestrati
     private Volume attachExistingVolumeToVm(VirtualMachine vm, long deviceId, Volume volume, Type type) {
         return Transaction.execute((TransactionCallback<VolumeVO>) status -> {
             VolumeVO current = _volumeDao.lockRow(volume.getId(), true);
-            if (current == null || current.getState() != Volume.State.Ready || current.getRemoved() != null) {
+            if (current == null || (current.getState() != Volume.State.Ready && current.getState() != Volume.State.Uploaded) || current.getRemoved() != null) {
                 throw new CloudRuntimeException("SOURCE_NOT_READY: volume changed before ROOT adoption");
             }
             if (current.getInstanceId() != null && (vm == null || !current.getInstanceId().equals(vm.getId()))) {
@@ -1548,7 +1565,9 @@ public class VolumeOrchestrator extends ManagerBase implements VolumeOrchestrati
 
     private boolean isSupportedImageFormatForCluster(VolumeInfo volume, HypervisorType rootDiskHyperType) {
         ImageFormat volumeFormat = volume.getFormat();
-        if (rootDiskHyperType == HypervisorType.Hyperv) {
+        if (rootDiskHyperType == HypervisorType.KVM) {
+            return volumeFormat == ImageFormat.QCOW2 || volumeFormat == ImageFormat.RAW;
+        } else if (rootDiskHyperType == HypervisorType.Hyperv) {
             if (volumeFormat.equals(ImageFormat.VHDX) || volumeFormat.equals(ImageFormat.VHD)) {
                 return true;
             } else {
@@ -1568,7 +1587,7 @@ public class VolumeOrchestrator extends ManagerBase implements VolumeOrchestrati
                     volumeToString, vm, volumeInfo.getFormat().getFileExtension(), rootDiskHyperType.toString()));
         }
 
-        return copyVolumeFromSecToPrimary(volumeInfo, vm, rootDiskTmplt, dcVO, pod, rootDiskPool.getClusterId(), svo, diskVO, new ArrayList<StoragePool>(), volumeInfo.getSize(),
+        return copyVolumeFromSecToPrimary(volumeInfo, vm, rootDiskTmplt, dcVO, pod, rootDiskPool == null ? null : rootDiskPool.getClusterId(), svo, diskVO, new ArrayList<StoragePool>(), volumeInfo.getSize(),
                 rootDiskHyperType);
     }
 

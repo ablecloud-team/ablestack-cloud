@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
 import javax.inject.Inject;
-import org.apache.cloudstack.api.ApiConstants;
 import org.apache.cloudstack.api.command.user.vm.DeployVMCmd;
 import org.apache.cloudstack.api.command.user.vm.ListVirtualMachineCreationSourcesCmd;
 import org.apache.cloudstack.api.response.ListResponse;
@@ -98,6 +97,8 @@ public class VmCreationSourceValidator extends ManagerBase implements VmCreation
     @Inject ServiceOfferingDao offerings;
     @Inject com.cloud.storage.dao.DiskOfferingDao diskOfferings;
     @Inject StorageManager storageManager;
+    @Inject org.apache.cloudstack.engine.subsystem.api.storage.VolumeDataFactory volumeFactory;
+    @Inject org.apache.cloudstack.storage.datastore.db.VolumeDataStoreDao volumeStoreDao;
     @Inject SnapshotDataFactory snapshotFactory;
     @Inject SnapshotHelper snapshotHelper;
     static final List<String> BOOT_KEYS = Arrays.asList("UEFI", VmDetailConstants.ROOT_DISK_CONTROLLER,
@@ -159,6 +160,7 @@ public class VmCreationSourceValidator extends ManagerBase implements VmCreation
         if (found.size() != 1) { throw new InvalidParameterValueException("Creation source not found or unavailable to this account"); }
         VmCreationSourceResponse source = found.get(0);
         deploymentConstraints(source, cmd.getServiceOfferingId(), cmd.getClusterId(), cmd.getHostId(), cmd.getRootStorageId(), cmd.getSourceRevision());
+        configure(source, cmd.getSourceConfiguration(), cmd.getSourceOsTypeId(), cmd.getBootTypeValue(), cmd.getBootModeValue(), cmd.getSourceRootController());
         if (source.allowed) { validateRuntime(source); }
         return source;
     }
@@ -166,7 +168,7 @@ public class VmCreationSourceValidator extends ManagerBase implements VmCreation
     VmCreationSourceResponse inspect(VolumeVO volume, SnapshotVO snapshot, Long zoneId, String arch) {
         VmCreationSourceResponse out = new VmCreationSourceResponse(); out.allowed = true;
         out.sourcekind = snapshot == null ? "volume" : "snapshot";
-        out.sourceusage = snapshot == null ? "adopt-existing" : "restore-new";
+        out.sourceusage = snapshot == null ? volume.getState() == Volume.State.Uploaded ? "stage-and-adopt" : "adopt-existing" : "restore-new";
         out.id = snapshot == null ? volume.getUuid() : snapshot.getUuid();
         out.name = snapshot == null ? volume.getName() : snapshot.getName();
         out.state = snapshot == null ? volume.getState().name() : snapshot.getState().name();
@@ -183,7 +185,6 @@ public class VmCreationSourceValidator extends ManagerBase implements VmCreation
         }
         out.bootprofile.putAll(saved);
         out.volumetype = saved.getOrDefault("volumetype", volume == null ? "UNKNOWN" : volume.getVolumeType().name());
-        if (!"ROOT".equals(out.volumetype)) { out.reject("ROOT_PROVENANCE_UNKNOWN"); }
         // Existing storage drivers still need the retained VolumeVO to resolve snapshot restore context.
         // Expunged volumes are found IncludingRemoved; a physically missing row must fail before allocation.
         if (snapshot != null && volume == null) { out.reject("SOURCE_VOLUME_METADATA_MISSING"); }
@@ -191,26 +192,29 @@ public class VmCreationSourceValidator extends ManagerBase implements VmCreation
         out.sizebytes = longValue(saved.get("sizebytes"), snapshot == null ? volume.getSize() : snapshot.getSize());
         Long templateId = longValue(saved.get("templateid"), volume == null ? null : volume.getTemplateId());
         VMTemplateVO template = templateId == null ? null : templates.findByIdIncludingRemoved(templateId);
-        if (template == null) { out.reject("SOURCE_TEMPLATE_MISSING"); }
-        else {
-            out.templateid = template.getUuid();
-            out.arch = saved.getOrDefault("arch", template.getArch() == null ? "x86_64" : template.getArch().toString());
-            out.hypervisor = snapshot == null ? template.getHypervisorType().name() : snapshot.getHypervisorType().name();
-            if (!HypervisorType.KVM.name().equals(out.hypervisor)) { out.reject("HYPERVISOR_UNSUPPORTED"); }
-            if (arch != null && !arch.equalsIgnoreCase(out.arch)) { out.reject("ARCH_MISMATCH"); }
-        }
-        if (out.sizebytes == null || out.sizebytes <= 0 || !saved.containsKey("ostypeid") || !saved.containsKey("boottype")) {
-            out.reject("BOOT_PROFILE_INCOMPLETE");
-        }
+        if (template != null) { out.templateid = template.getUuid(); }
+        out.arch = saved.getOrDefault("arch", template == null || template.getArch() == null ? "x86_64" : template.getArch().toString());
+        out.hypervisor = snapshot != null ? snapshot.getHypervisorType().name()
+                : saved.getOrDefault("hypervisor", template == null ? "KVM" : template.getHypervisorType().name());
+        if (!HypervisorType.KVM.name().equals(out.hypervisor)) { out.reject("HYPERVISOR_UNSUPPORTED"); }
+        if (arch != null && !arch.equalsIgnoreCase(out.arch)) { out.reject("ARCH_MISMATCH"); }
+        if (out.sizebytes == null || out.sizebytes <= 0) { out.reject("SOURCE_SIZE_INVALID"); }
+        out.requiresconfiguration = !saved.containsKey("ostypeid") || !saved.containsKey("boottype");
+        out.configurationorigin = out.requiresconfiguration ? "unspecified" : "cloud-record";
+        out.imageformat = saved.getOrDefault("imageformat", volume == null || volume.getFormat() == null ? null : volume.getFormat().name());
+        out.formatorigin = saved.getOrDefault("formatorigin", "stage-and-adopt".equals(out.sourceusage) ? "upload-declared" : "cloud-record");
+        if (!"QCOW2".equals(out.imageformat) && !"RAW".equals(out.imageformat)) { out.reject("IMAGE_FORMAT_UNSUPPORTED"); }
         if (!"NONE".equalsIgnoreCase(saved.getOrDefault(VmDetailConstants.TPM_VERSION, "NONE"))) { out.reject("TPM_STATE_UNSUPPORTED"); }
         if ("SECURE".equalsIgnoreCase(saved.get("bootmode"))) { out.reject("SECURE_BOOT_STATE_UNSUPPORTED"); }
         if (snapshot == null) {
             if (volume.getInstanceId() != null) { out.reject("SOURCE_ATTACHED"); }
-            if (volume.getState() != Volume.State.Ready || StringUtils.isBlank(volume.getPath())) { out.reject("SOURCE_NOT_READY"); }
+            if (volume.getState() == Volume.State.Uploaded) {
+                if (!uploadedObjectReady(volume)) { out.reject("SOURCE_NOT_READY"); }
+            } else if (volume.getState() != Volume.State.Ready || StringUtils.isBlank(volume.getPath())) { out.reject("SOURCE_NOT_READY"); }
         } else if (!restorable(snapshot)) { out.reject("SNAPSHOT_NOT_RESTORABLE"); }
         StoragePoolVO pool = volume == null || volume.getPoolId() == null ? null : pools.findByIdIncludingRemoved(volume.getPoolId());
-        if (snapshot == null && (pool == null || pool.getStatus() != StoragePoolStatus.Up || pool.getRemoved() != null)) { out.reject("STORAGE_UNAVAILABLE"); }
-        if (snapshot == null && pool != null && !supportedPool(pool)) { out.reject("STORAGE_SCOPE_UNSUPPORTED"); }
+        if ("adopt-existing".equals(out.sourceusage) && (pool == null || pool.getStatus() != StoragePoolStatus.Up || pool.getRemoved() != null)) { out.reject("STORAGE_UNAVAILABLE"); }
+        if ("adopt-existing".equals(out.sourceusage) && pool != null && !supportedPool(pool)) { out.reject("STORAGE_SCOPE_UNSUPPORTED"); }
         if (pool != null && accounts.isRootAdmin(CallContext.current().getCallingAccount().getId())) {
             out.storage.put("id", pool.getUuid()); out.storage.put("name", pool.getName());
             out.storage.put("type", pool.getPoolType().name()); out.storage.put("scope", pool.getScope().name());
@@ -270,7 +274,7 @@ public class VmCreationSourceValidator extends ManagerBase implements VmCreation
             if (volume != null && offering != null && Boolean.TRUE.equals(offering.getDiskOfferingStrictness())
                     && !Objects.equals(offering.getDiskOfferingId(), volume.getDiskOfferingId())) { source.reject("OFFERING_INCOMPATIBLE"); }
         }
-        if (rootStorageId != null && volume == null) {
+        if (rootStorageId != null && (volume == null || volume.getState() == Volume.State.Uploaded)) {
             if (!accounts.isRootAdmin(CallContext.current().getCallingAccount().getId())) { throw new PermissionDeniedException("Direct storage selection requires administrator permission"); }
             StoragePoolVO target = pools.findById(rootStorageId);
             if (target == null || target.getStatus() != StoragePoolStatus.Up || !zones.findById(target.getDataCenterId()).getUuid().equals(source.zoneid)) { source.reject("STORAGE_UNAVAILABLE"); }
@@ -293,14 +297,10 @@ public class VmCreationSourceValidator extends ManagerBase implements VmCreation
         if (sourceOwner != cmd.getEntityOwnerId()) { throw new InvalidParameterValueException("SOURCE_OWNER_MISMATCH: source and VM must have the same owner"); }
         VmCreationSourceResponse source = inspect(volume, snapshot, cmd.getZoneId(), null);
         deploymentConstraints(source, cmd.getServiceOfferingId(), cmd.getSourceClusterId(), cmd.getHostId(), cmd.getRootStorageId(), cmd.getSourceRevision());
+        configure(source, cmd.getSourceConfiguration(), cmd.getSourceOsTypeId(), cmd.getBootType() == null ? null : cmd.getBootType().name(),
+                cmd.getBootMode() == null ? null : cmd.getBootMode().name(), cmd.getSourceRootController());
         if (source.allowed) { validateRuntime(source); }
         if (!source.allowed) { throw new InvalidParameterValueException("Creation source unavailable: " + String.join(",", source.reasoncodes)); }
-        if (cmd.getBootType() != null && !cmd.getBootType().name().equals(source.bootprofile.get("boottype"))) {
-            throw new InvalidParameterValueException("BOOT_PROFILE_MISMATCH: boot type must match the source");
-        }
-        if (cmd.getBootType() == ApiConstants.BootType.UEFI && !cmd.getBootMode().name().equals(source.bootprofile.get("bootmode"))) {
-            throw new InvalidParameterValueException("BOOT_PROFILE_MISMATCH: boot mode must match the source");
-        }
         if (!cmd.getAdditionalIsoIds().isEmpty() || cmd.getUserData() != null || cmd.getUserdataId() != null
                 || cmd.getSSHKeyPairNames() != null && !cmd.getSSHKeyPairNames().isEmpty() || cmd.getRootDiskKmsKeyId() != null || cmd.getDetails().containsKey(VmDetailConstants.ROOT_DISK_SIZE)
                 || cmd.getOverrideDiskOfferingId() != null || StringUtils.isNotBlank(cmd.getExtraConfig())) {
@@ -314,6 +314,7 @@ public class VmCreationSourceValidator extends ManagerBase implements VmCreation
     void validateRuntime(VmCreationSourceResponse source) {
         if (!"volume".equals(source.sourcekind)) { return; }
         VolumeVO volume = volumes.findByUuid(source.id);
+        if (volume.getState() == Volume.State.Uploaded) { return; }
         StoragePoolVO pool = pools.findById(volume.getPoolId());
         int checked = 0;
         for (HostVO host : hosts.listAllRoutingHostsByZoneAndHypervisorType(volume.getDataCenterId(), HypervisorType.KVM)) {
@@ -333,25 +334,68 @@ public class VmCreationSourceValidator extends ManagerBase implements VmCreation
         details.forEach((key, value) -> { if (key.startsWith(PREFIX)) { result.put(key.substring(PREFIX.length()), value); } });
         return result;
     }
+    boolean uploadedObjectReady(VolumeVO volume) {
+        try {
+            org.apache.cloudstack.engine.subsystem.api.storage.VolumeInfo info = volumeFactory.getVolume(volume.getId(), com.cloud.storage.DataStoreRole.Image);
+            return info != null && info.getDataStore() != null && StringUtils.isNotBlank(info.getPath())
+                    && volumeStoreDao.findByVolume(volume.getId()) != null
+                    && volumeStoreDao.findByVolume(volume.getId()).getState() == org.apache.cloudstack.engine.subsystem.api.storage.ObjectInDataStoreStateMachine.State.Ready;
+        } catch (RuntimeException unavailable) { return false; }
+    }
+
+    void configure(VmCreationSourceResponse source, String mode, Long osId, String bootType, String bootMode, String controller) {
+        String configuration = mode == null ? source.requiresconfiguration ? "manual" : "inherit" : mode;
+        if (!Arrays.asList("manual", "inherit").contains(configuration)) { source.reject("SOURCE_CONFIGURATION_INVALID"); return; }
+        if ("inherit".equals(configuration)) {
+            if (source.requiresconfiguration) { source.reject("SOURCE_CONFIGURATION_REQUIRED"); return; }
+            if (osId != null || controller != null || bootType != null && !bootType.equalsIgnoreCase(source.bootprofile.get("boottype"))
+                    || "UEFI".equals(source.bootprofile.get("boottype")) && bootMode != null && !bootMode.equalsIgnoreCase(source.bootprofile.get("bootmode"))) {
+                source.reject("BOOT_PROFILE_MISMATCH");
+            }
+        } else {
+            source.bootprofile.keySet().removeAll(BOOT_KEYS);
+            source.bootprofile.remove("ostypeid"); source.bootprofile.remove("osname");
+            GuestOSVO os = osId == null ? null : guestOs.findById(osId);
+            if (osId != null && os == null) { source.reject("SOURCE_OS_INVALID"); }
+            if (os != null) { source.bootprofile.put("ostypeid", os.getUuid()); source.bootprofile.put("osname", os.getDisplayName()); }
+            String firmware = StringUtils.defaultIfBlank(bootType, "BIOS").toUpperCase(Locale.ROOT);
+            String firmwareMode = StringUtils.defaultIfBlank(bootMode, "LEGACY").toUpperCase(Locale.ROOT);
+            String bus = StringUtils.defaultIfBlank(controller, "os-default").toLowerCase(Locale.ROOT);
+            if (!Arrays.asList("BIOS", "UEFI").contains(firmware) || !"LEGACY".equals(firmwareMode)
+                    || !Arrays.asList("os-default", "virtio", "scsi", "sata", "ide").contains(bus)) { source.reject("SOURCE_CONFIGURATION_INVALID"); }
+            source.bootprofile.put("boottype", firmware); source.bootprofile.put("bootmode", firmwareMode); source.bootprofile.put("rootbus", bus);
+            if (!"os-default".equals(bus)) { source.bootprofile.put(VmDetailConstants.ROOT_DISK_CONTROLLER, bus); }
+            source.configurationorigin = os == null ? "unspecified" : "administrator";
+        }
+        source.bootprofile.put("configurationorigin", source.configurationorigin);
+        source.bootprofile.put("arch", source.arch);
+    }
+
     Map<String, String> profile(Volume volume, boolean captureVm) {
         Map<String, String> profile = new LinkedHashMap<>();
         profile.put("volumetype", volume.getVolumeType().name()); profile.put("sizebytes", String.valueOf(volume.getSize()));
         profile.put("sourcevolumeid", volume.getUuid());
+        if (volume.getFormat() != null) { profile.put("imageformat", volume.getFormat().name()); }
         VMTemplateVO template = volume.getTemplateId() == null ? null : templates.findByIdIncludingRemoved(volume.getTemplateId());
-        if (template == null) { return profile; }
-        templates.loadDetails(template);
-        profile.put("templateid", String.valueOf(template.getId()));
-        profile.put("arch", template.getArch() == null ? "x86_64" : template.getArch().toString());
-        Map<String, String> boot = new LinkedHashMap<>(template.getDetails() == null ? Collections.emptyMap() : template.getDetails());
-        long osId = template.getGuestOSId();
         VMInstanceVO vm = captureVm && volume.getInstanceId() != null ? vms.findByIdIncludingRemoved(volume.getInstanceId()) : null;
+        if (template == null && vm == null) { return profile; }
+        Map<String, String> boot = Collections.emptyMap();
+        Long osId = null;
+        if (template != null) {
+            templates.loadDetails(template);
+            profile.put("templateid", String.valueOf(template.getId()));
+            profile.put("arch", template.getArch() == null ? "x86_64" : template.getArch().toString());
+            profile.put("hypervisor", template.getHypervisorType().name());
+            boot = template.getDetails() == null ? Collections.emptyMap() : template.getDetails(); osId = template.getGuestOSId();
+        }
         if (vm != null) {
             boot = vmDetails.listDetailsKeyPairs(vm.getId()); osId = vm.getGuestOSId();
-            profile.put("sourcevmid", String.valueOf(vm.getId()));
+            profile.put("sourcevmid", String.valueOf(vm.getId())); profile.put("hypervisor", vm.getHypervisorType().name());
+            profile.put("arch", boot.getOrDefault(PREFIX + "arch", profile.getOrDefault("arch", "x86_64")));
         }
         for (String key : BOOT_KEYS) { if (boot.containsKey(key)) { profile.put(key, boot.get(key)); } }
-        GuestOSVO os = guestOs.findById(osId);
-        if (os != null) { profile.put("ostypeid", os.getUuid()); profile.put("osname", os.getDisplayName()); }
+        GuestOSVO os = osId == null ? null : guestOs.findById(osId);
+        if (os != null && !"unspecified".equals(boot.get(PREFIX + "configuration"))) { profile.put("ostypeid", os.getUuid()); profile.put("osname", os.getDisplayName()); }
         profile.put("boottype", boot.containsKey("UEFI") ? "UEFI" : "BIOS");
         profile.put("bootmode", boot.getOrDefault("UEFI", "LEGACY"));
         profile.put("rootbus", boot.getOrDefault(VmDetailConstants.ROOT_DISK_CONTROLLER, "os-default"));
@@ -368,7 +412,6 @@ public class VmCreationSourceValidator extends ManagerBase implements VmCreation
             if (original == null) { return; }
             saved = profile(original, false); saved.put("provenance", "legacy-template");
         }
-        if (!"ROOT".equals(saved.get("volumetype"))) { return; }
         saved.forEach((key, value) -> volumeDetails.addDetail(volume.getId(), PREFIX + key, value, false));
     }
     @Override public void captureVolume(Volume volume) {

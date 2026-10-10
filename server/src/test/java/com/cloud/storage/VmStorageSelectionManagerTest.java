@@ -113,6 +113,10 @@ public class VmStorageSelectionManagerTest {
         DeployVMCmd cmd = mock(DeployVMCmd.class);
         when(cmd.getRootStorageId()).thenReturn(9L);
         when(cmd.getVolumeId()).thenReturn(4L);
+        com.cloud.storage.dao.VolumeDao volumes = mock(com.cloud.storage.dao.VolumeDao.class);
+        org.springframework.test.util.ReflectionTestUtils.setField(manager, "volumeDao", volumes);
+        VolumeVO source = mock(VolumeVO.class); when(source.getState()).thenReturn(Volume.State.Ready);
+        when(volumes.findById(4L)).thenReturn(source);
         when(accounts.isRootAdmin(2L)).thenReturn(true);
         assertThrows(InvalidParameterValueException.class, () -> manager.prepare(cmd, null, account, null, null));
     }

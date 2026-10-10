@@ -45,6 +45,10 @@ public class VmCreationSourceResponse extends BaseResponse {
     @SerializedName("sourcevm") @Param(description = "Authorized source VM identity") public Map<String, String> sourcevm = new LinkedHashMap<>();
     @SerializedName("storage") @Param(description = "Storage within caller visibility") public Map<String, String> storage = new LinkedHashMap<>();
     @SerializedName("bootprofile") @Param(description = "Captured boot environment") public Map<String, String> bootprofile = new LinkedHashMap<>();
+    @SerializedName("requiresconfiguration") @Param(description = "Guest execution settings need administrator input; not a bootability verdict") public boolean requiresconfiguration;
+    @SerializedName("configurationorigin") @Param(description = "cloud-record, administrator or unspecified") public String configurationorigin;
+    @SerializedName("imageformat") @Param(description = "Registered disk image format") public String imageformat;
+    @SerializedName("formatorigin") @Param(description = "upload-declared or driver-inspected") public String formatorigin;
     @SerializedName("allowed") @Param(description = "Can be used for deployment") public boolean allowed;
     @SerializedName("reasoncodes") @Param(description = "Stable eligibility reasons") public List<String> reasoncodes = new ArrayList<>();
     @SerializedName("checkedat") @Param(description = "Inspection time") public Date checkedat = new Date();

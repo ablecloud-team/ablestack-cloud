@@ -105,6 +105,8 @@ public class VolumeImportUnmanageManagerImpl implements VolumeImportUnmanageServ
     @Inject
     private VolumeDao volumeDao;
     @Inject
+    private com.cloud.storage.dao.VolumeDetailsDao volumeDetailsDao;
+    @Inject
     private PrimaryDataStoreDao primaryDataStoreDao;
     @Inject
     private StoragePoolHostDao storagePoolHostDao;
@@ -462,7 +464,16 @@ public class VolumeImportUnmanageManagerImpl implements VolumeImportUnmanageServ
         DiskProfile diskProfile = volumeManager.importVolume(Volume.Type.DATADISK, volumeName, diskOffering,
                 volume.getVirtualSize(), null, null, pool.getDataCenterId(), volume.getHypervisorType(), null, null,
                 owner, null, pool.getId(), pool.getPoolType(), volume.getPath(), null);
-        return volumeDao.findById(diskProfile.getVolumeId());
+        VolumeVO imported = volumeDao.findById(diskProfile.getVolumeId());
+        if (Hypervisor.HypervisorType.KVM.equals(volume.getHypervisorType())) {
+            com.cloud.storage.Storage.ImageFormat format = com.cloud.storage.Storage.ImageFormat.valueOf(volume.getFormat().toUpperCase(java.util.Locale.ROOT));
+            if (format != com.cloud.storage.Storage.ImageFormat.QCOW2 && format != com.cloud.storage.Storage.ImageFormat.RAW) {
+                throw new com.cloud.exception.InvalidParameterValueException("Unsupported KVM import image format");
+            }
+            imported.setFormat(format); volumeDao.update(imported.getId(), imported);
+            volumeDetailsDao.addDetail(imported.getId(), com.cloud.vm.VmCreationSourceService.PREFIX + "formatorigin", "driver-inspected", false);
+        }
+        return imported;
     }
 
     protected void checkResourceLimitForImportVolume(Account owner, VolumeOnStorageTO volume, DiskOfferingVO diskOffering, List<Reserver> reservations) {

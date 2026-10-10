@@ -83,9 +83,11 @@ public class VmCreationSourceValidatorTest {
         validator.snapshotFactory = mock(SnapshotDataFactory.class); validator.snapshotHelper = mock(SnapshotHelper.class);
         Account caller = mock(Account.class); when(caller.getId()).thenReturn(2L); CallContext.register(mock(User.class), caller);
         when(validator.accounts.isRootAdmin(2L)).thenReturn(true);
+        validator.volumeStoreDao = mock(org.apache.cloudstack.storage.datastore.db.VolumeDataStoreDao.class);
+        validator.volumeFactory = mock(org.apache.cloudstack.engine.subsystem.api.storage.VolumeDataFactory.class);
         volume = mock(VolumeVO.class); when(volume.getInstanceId()).thenReturn(null); when(volume.getId()).thenReturn(101L); when(volume.getUuid()).thenReturn("root-uuid");
         when(volume.getName()).thenReturn("ROOT-test"); when(volume.getDataCenterId()).thenReturn(1L);
-        when(volume.getVolumeType()).thenReturn(Volume.Type.ROOT); when(volume.getState()).thenReturn(Volume.State.Ready);
+        when(volume.getFormat()).thenReturn(Storage.ImageFormat.QCOW2); when(volume.getVolumeType()).thenReturn(Volume.Type.ROOT); when(volume.getState()).thenReturn(Volume.State.Ready);
         when(volume.getPath()).thenReturn("root-data"); when(volume.getTemplateId()).thenReturn(201L);
         when(volume.getSize()).thenReturn(64L << 30); when(volume.getPoolId()).thenReturn(301L);
         when(validator.volumeDetails.listDetailsKeyPairs(101L)).thenReturn(Collections.emptyMap());
@@ -120,18 +122,52 @@ public class VmCreationSourceValidatorTest {
         when(pool.getPoolType()).thenReturn(Storage.StoragePoolType.RBD); assertTrue(validator.inspect(volume, null, 1L, null).allowed);
         when(pool.getScope()).thenReturn(ScopeType.HOST); assertTrue(validator.inspect(volume, null, 1L, null).reasoncodes.contains("STORAGE_SCOPE_UNSUPPORTED"));
     }
-    @Test public void arbitraryDataDiskCannotBecomeBootable() {
-        when(volume.getVolumeType()).thenReturn(Volume.Type.DATADISK);
-        assertTrue(validator.inspect(volume, null, 1L, null).reasoncodes.contains("ROOT_PROVENANCE_UNKNOWN"));
+    @Test public void externalDataDiskWithoutOsOrTemplateCanBeUsedWithGenericExecutionSettings() {
+        when(volume.getVolumeType()).thenReturn(Volume.Type.DATADISK); when(volume.getTemplateId()).thenReturn(null);
+        VmCreationSourceResponse source = validator.inspect(volume, null, 1L, null);
+        assertTrue(source.reasoncodes.toString(), source.allowed); assertTrue(source.requiresconfiguration);
+        validator.configure(source, "manual", null, "UEFI", "LEGACY", "virtio");
+        assertTrue(source.allowed); assertEquals("unspecified", source.configurationorigin);
+        assertEquals("UEFI", source.bootprofile.get("boottype")); assertTrue(!source.bootprofile.containsKey("ostypeid"));
+    }
+    @Test public void uploadedImageRequiresCompletedStoredObjectRatherThanPrimaryPool() {
+        when(volume.getTemplateId()).thenReturn(null); when(volume.getPoolId()).thenReturn(null);
+        when(volume.getState()).thenReturn(Volume.State.Uploaded);
+        org.apache.cloudstack.engine.subsystem.api.storage.VolumeInfo image = mock(org.apache.cloudstack.engine.subsystem.api.storage.VolumeInfo.class);
+        when(validator.volumeFactory.getVolume(101L, DataStoreRole.Image)).thenReturn(image);
+        when(image.getPath()).thenReturn("uploaded-image"); when(image.getDataStore()).thenReturn(mock(org.apache.cloudstack.engine.subsystem.api.storage.DataStore.class));
+        org.apache.cloudstack.storage.datastore.db.VolumeDataStoreVO stored = mock(org.apache.cloudstack.storage.datastore.db.VolumeDataStoreVO.class);
+        when(validator.volumeStoreDao.findByVolume(101L)).thenReturn(stored);
+        when(stored.getState()).thenReturn(ObjectInDataStoreStateMachine.State.Ready);
+        VmCreationSourceResponse source = validator.inspect(volume, null, 1L, null);
+        assertTrue(source.reasoncodes.toString(), source.allowed); assertEquals("stage-and-adopt", source.sourceusage);
+        validator.validateRuntime(source); verifyNoInteractions(validator.agents);
+        when(stored.getState()).thenReturn(ObjectInDataStoreStateMachine.State.Creating);
+        assertTrue(validator.inspect(volume, null, 1L, null).reasoncodes.contains("SOURCE_NOT_READY"));
+    }
+    @Test public void manualOsIsDeclaredAndDoesNotModifySourceRegistration() {
+        VmCreationSourceResponse source = validator.inspect(volume, null, 1L, null);
+        validator.configure(source, "manual", 401L, "BIOS", "LEGACY", "scsi");
+        assertTrue(source.allowed); assertEquals("administrator", source.configurationorigin); assertEquals("os-uuid", source.bootprofile.get("ostypeid"));
+        verify(validator.volumeDetails, never()).addDetail(org.mockito.ArgumentMatchers.anyLong(), org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.anyBoolean());
+    }
+    @Test public void unsupportedManualEnumsAndIncompleteInheritanceAreRejected() {
+        when(volume.getTemplateId()).thenReturn(null);
+        VmCreationSourceResponse source = validator.inspect(volume, null, 1L, null);
+        validator.configure(source, "inherit", null, null, null, null);
+        assertTrue(source.reasoncodes.contains("SOURCE_CONFIGURATION_REQUIRED"));
+        source = validator.inspect(volume, null, 1L, null); validator.configure(source, "manual", null, "UEFI", "SECURE", "invalid");
+        assertTrue(source.reasoncodes.contains("SOURCE_CONFIGURATION_INVALID"));
     }
     @Test public void attachedAndNonReadySourcesAreBlocked() {
         when(volume.getInstanceId()).thenReturn(77L); when(volume.getState()).thenReturn(Volume.State.Creating);
         VmCreationSourceResponse source = validator.inspect(volume, null, 1L, null);
         assertTrue(source.reasoncodes.contains("SOURCE_ATTACHED")); assertTrue(source.reasoncodes.contains("SOURCE_NOT_READY"));
     }
-    @Test public void missingTemplateHasStableReasonInsteadOfNullDereference() {
+    @Test public void missingTemplateSnapshotAcceptsAdministratorExecutionSettings() {
         when(validator.templates.findByIdIncludingRemoved(201L)).thenReturn(null);
-        assertTrue(validator.inspect(volume, snapshot, 1L, null).reasoncodes.contains("SOURCE_TEMPLATE_MISSING"));
+        VmCreationSourceResponse source = validator.inspect(volume, snapshot, 1L, null);
+        assertTrue(source.reasoncodes.toString(), source.allowed); assertTrue(source.requiresconfiguration);
     }
     @Test public void creatingSnapshotAndMissingStoredObjectAreNotRestorable() {
         when(snapshot.getState()).thenReturn(Snapshot.State.Creating);

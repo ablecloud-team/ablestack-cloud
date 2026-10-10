@@ -4974,6 +4974,10 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
 
         try {
             reserveStorageResourcesForVm(checkedReservations, owner, diskOfferingId, diskSize, dataDiskInfoList, rootDiskOfferingId, offering, volumesSize, vmType, volume != null);
+            if (volume != null && volume.getState() == Volume.State.Uploaded) {
+                List<String> tags = getResourceLimitStorageTags(volume.getDiskOfferingId());
+                checkedReservations.add(new CheckedReservation(owner, ResourceType.primary_storage, tags, volume.getSize(), reservationDao, resourceLimitService));
+            }
 
             // verify security group ids
             if (securityGroupIdList != null) {
@@ -5471,8 +5475,9 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                                   List<VmDiskInfo> dataDiskInfoList, Volume volume, Snapshot snapshot) throws InsufficientCapacityException {
         Long creationSourceOsId = guestOsId;
         if ("true".equals(customParameters.get("vm.creation.source"))) {
-            GuestOSVO recordedOs = _guestOSDao.findByUuidIncludingRemoved(customParameters.get("vm.creation.source.osuuid"));
-            if (recordedOs == null) { throw new InvalidParameterValueException("BOOT_PROFILE_INCOMPLETE: original operating system no longer exists"); }
+            String osUuid = customParameters.get("vm.creation.source.osuuid");
+            GuestOSVO recordedOs = osUuid == null ? _guestOSDao.findOneByDisplayName("Other (64-bit)") : _guestOSDao.findByUuidIncludingRemoved(osUuid);
+            if (recordedOs == null) { throw new InvalidParameterValueException("SOURCE_OS_INVALID: execution OS profile does not exist"); }
             creationSourceOsId = recordedOs.getId();
         }
         long selectedGuestOsId = creationSourceOsId != null ? creationSourceOsId : template.getGuestOSId();
@@ -7189,7 +7194,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
 
         if (cmd.isVolumeOrSnapshotProvided()) {
             org.apache.cloudstack.api.response.VmCreationSourceResponse source = creationSourceService.validateDeployment(cmd);
-            VMTemplateVO sourceTemplate = _templateDao.findByUuidIncludingRemoved(source.templateid);
+            VMTemplateVO sourceTemplate = source.templateid == null ? getBlankInstanceTemplate() : _templateDao.findByUuidIncludingRemoved(source.templateid);
             templateId = sourceTemplate.getId();
             if (cmd.getVolumeId() != null) { volume = volFactory.getVolume(cmd.getVolumeId()); }
             else { snapshot = _snapshotDao.findById(cmd.getSnapshotId()); }
@@ -7265,7 +7270,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             } else {
                 CallContext.current().removeContextParameter(DeployIsoSelection.class);
             }
-            CallContext.current().putContextParameter("vm.creation.snapshot.targetpool", cmd.getSnapshotId() == null ? null : cmd.getRootStorageId());
+            CallContext.current().putContextParameter("vm.creation.snapshot.targetpool", !cmd.isVolumeOrSnapshotProvided() ? null : cmd.getRootStorageId());
             return createVirtualMachine(cmd, zone, owner, serviceOffering, template, cmd.getHypervisor(), diskOfferingId, cmd.getSize(), overrideDiskOfferingId, dataDiskInfoList,
                     networkIds, cmd.getIpToNetworkMap(), volume, snapshot);
         } finally {
@@ -13425,6 +13430,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                 "Blank Template for KVM VM", false, 1);
         template.setState(VirtualMachineTemplate.State.Active);
         template.setFormat(ImageFormat.QCOW2);
+        template.setHypervisorType(HypervisorType.KVM);
         template = _templateDao.persist(template);
         return template;
     }

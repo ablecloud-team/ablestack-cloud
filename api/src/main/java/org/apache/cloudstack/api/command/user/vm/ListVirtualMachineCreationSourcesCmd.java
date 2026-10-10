@@ -49,6 +49,16 @@ public class ListVirtualMachineCreationSourcesCmd extends BaseListAccountResourc
     @Parameter(name = ApiConstants.HOST_ID, type = CommandType.UUID, entityType = HostResponse.class, description = "Required host") private Long hostId;
     @Parameter(name = "rootstorageid", type = CommandType.UUID, entityType = StoragePoolResponse.class, description = "Snapshot restore target") private Long rootStorageId;
     @Parameter(name = "sourcerevision", type = CommandType.STRING, description = "Previously inspected source revision") private String revision;
+    @Parameter(name = "sourceconfiguration", type = CommandType.STRING, description = "inherit or manual guest execution settings; no guest boot guarantee") private String sourceConfiguration;
+    @Parameter(name = "sourceostypeid", type = CommandType.UUID, entityType = org.apache.cloudstack.api.response.GuestOSResponse.class, description = "Administrator-declared OS; omitted for generic settings") private Long sourceOsTypeId;
+    @Parameter(name = "sourcerootcontroller", type = CommandType.STRING, description = "Administrator-declared ROOT controller: virtio, scsi, sata or ide") private String sourceRootController;
+    public String getSourceConfiguration() { return sourceConfiguration; }
+    public Long getSourceOsTypeId() { return sourceOsTypeId; }
+    public String getSourceRootController() { return sourceRootController; }
+    @Parameter(name = ApiConstants.BOOT_TYPE, type = CommandType.STRING, description = "BIOS or UEFI for manual execution settings") private String bootType;
+    @Parameter(name = ApiConstants.BOOT_MODE, type = CommandType.STRING, description = "Supported UEFI mode") private String bootMode;
+    public String getBootTypeValue() { return bootType; }
+    public String getBootModeValue() { return bootMode; }
     public String getSourceKind() {
         if (!"volume".equals(sourcekind) && !"snapshot".equals(sourcekind)) { throw new InvalidParameterValueException("sourcekind must be volume or snapshot"); }
         return sourcekind;

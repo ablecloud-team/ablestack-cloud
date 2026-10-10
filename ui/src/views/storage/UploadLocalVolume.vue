@@ -86,7 +86,7 @@
         </a-form-item>
         <a-form-item name="diskofferingid" ref="diskofferingid">
           <template #label>
-            <tooltip-label :title="$t('label.diskofferingid')" :tooltip="apiParams.diskofferingid.description"/>
+            <tooltip-label :title="$t('label.diskofferingid')" :tooltip="$t('message.creation.source.upload.offering')"/>
           </template>
           <infinite-scroll-select
             v-model:value="form.diskofferingid"
@@ -98,7 +98,7 @@
             defaultIcon="hdd-outlined"
             :defaultOption="{ id: null, displaytext: ''}"
             allowClear="true"
-            :placeholder="apiParams.diskofferingid.description"
+            :placeholder="$t('message.creation.source.upload.offering')"
             @change-option="onChangeDiskOffering" />
         </a-form-item>
         <a-form-item ref="format" name="format">

@@ -156,3 +156,19 @@ test.each(['templateid', 'isoid'])('%s deployment blocks an invalid automatic ta
   expect(DeployVM.computed.diskPlanIncomplete.call(vm)).toBe(true)
   expect(DeployVM.computed.diskPlanIncomplete.call({ ...vm, rootStorageSelection: { valid: true } })).toBe(false)
 })
+
+test('uploaded volume ROOT placement supplies volumeid and actual source size without a template', () => {
+  const vm = { ...sourceDiskPlan(), isCreationSource: true, imageType: 'volumeid', selectedCreationSource: { id: 'upload', sourceusage: 'stage-and-adopt' }, form: { zoneid: 'zone', computeofferingid: 'compute' } }
+  expect(DeployVM.computed.rootStorageQuery.call(vm)).toMatchObject({ volumeid: 'upload', snapshotid: undefined, hypervisor: 'KVM', rootdisk: true, vmcount: 1 })
+})
+test('unspecified manual OS passes execution settings without manufacturing an OS record', () => {
+  const vm = { sourceConfiguration: { mode: 'manual', boottype: 'UEFI', bootmode: 'LEGACY', rootbus: 'virtio' } }
+  expect(DeployVM.computed.creationSourceConfigurationArgs.call(vm)).toEqual({ sourceconfiguration: 'manual', sourceostypeid: undefined, boottype: 'UEFI', bootmode: 'LEGACY', sourcerootcontroller: 'virtio' })
+  expect(DeployVM.computed.creationSourceExecutionProfile.call({ ...vm, $t: key => key })).toMatchObject({ osname: 'label.creation.source.os.unspecified' })
+})
+test('manual declared OS settings reach preflight with unchanged source revision', async () => {
+  const vm = { ...context(), creationSourceConfigurationArgs: { sourceconfiguration: 'manual', sourceostypeid: 'os', boottype: 'BIOS', bootmode: 'LEGACY', sourcerootcontroller: 'scsi' } }
+  getAPI.mockResolvedValue({ validatevirtualmachinecreationresponse: { count: 1, creationsource: [{ allowed: true }] } })
+  await DeployVM.methods.validateCreationSource.call(vm)
+  expect(getAPI.mock.calls[0][1]).toMatchObject({ ...vm.creationSourceConfigurationArgs, sourcerevision: 'revision-1' })
+})
