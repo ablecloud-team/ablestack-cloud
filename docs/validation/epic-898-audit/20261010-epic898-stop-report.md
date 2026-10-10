@@ -44,7 +44,8 @@
 4. **native begin530:** 원op0ac827/rev29BLOCKED의 정확 native 원인은INFO 로그에 남지 않아 미확정이다. current28/pendingnull/idle/데이터 보존을 확인하고 새 idempotency+expectedrevision의 정상 writer29/30은 성공했다. 원 실패 audit은 보존되며 정상 superseded reconcile은 아직 미실행이다.
 5. **all4 시험 profile24h:** 두 FILE이24h경과했고 추가FILE NEW 생성job조회0으로, NEW 출처를 주장하지 않았다. 기존 NEW조건을 유지하고 protected OWNED시험profile+매 사용 DAOnoBacking/범위/CAS 검증을 구현·994개정상검증·실제2클래스반영했다.
 6. **보호 store 미준비:** defaultleaf absent/root0755parent에service985생성권한없음과 호환되는 store거절을 확인했다. 부모/기존stores를 변경하지 않고 새전용leaf service-owned0700을 provision하고 정상 제품write/readback을 완료했다.
-7. **현재 직접 차단:** OWNED profile 설정이 Fresh installed rendered generation handler proof is unavailable로 거절됐다. CLI9b1 CODE 인수와 rendered handler 선언·응답 소비 조건은 별도이며 아직 원인 추가분석을 하지 않았다. 사용자 중단 지시에 따라 코드 변경·재제출·all4 검증을 시작하지 않는다.\n8. **사용자 개입 조건:** Windows SMB-Client OOBE의 약관·Administrator 암호 직접입력, 정확 신규SPARSE10TiB의 pool/factor/headroom 선택이 남아 있다. 지금 중단 요청에 따라 반복 질문하지 않는다.
+7. **현재 직접 차단:** OWNED profile 설정이 Fresh installed rendered generation handler proof is unavailable로 거절됐다. CLI9b1 CODE 인수와 rendered handler 선언·응답 소비 조건은 별도이며 아직 원인 추가분석을 하지 않았다. 사용자 중단 지시에 따라 코드 변경·재제출·all4 검증을 시작하지 않는다.
+8. **사용자 개입 조건:** Windows SMB-Client OOBE의 약관·Administrator 암호 직접입력, 정확 신규SPARSE10TiB의 pool/factor/headroom 선택이 남아 있다. 지금 중단 요청에 따라 반복 질문하지 않는다.
 9. **현재는 사용자 요청에 따른 중단:** all4기준검증·정책/원복/cold·backup/F2/SYSTEM/ROOT/AD·작업제어/대용량 및 #1275는 후속 미실행 상태다. 위 미확정native원인과 human조건을 전체 작업의 완료로 숨기지 않는다.
 
 ## 중단 시점 및 산출물
