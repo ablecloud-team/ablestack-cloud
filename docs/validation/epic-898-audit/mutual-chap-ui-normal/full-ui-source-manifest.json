@@ -1,0 +1,4837 @@
+{
+  "pin": "20a3c7c7e7e4144c128ccbe2ec527d2a322e223d",
+  "pathCount": 965,
+  "files": [
+    {
+      "path": "ui/.babelrc",
+      "sha256": "b702afbaea32e5643c15933e514c9d30f86b01625d1132741e3ab15677dd5802",
+      "sizeBytes": 197
+    },
+    {
+      "path": "ui/.editorconfig",
+      "sha256": "5940ed6fdcd9d5b5cb6940401b14ea2736d61abd383886aeb16e90fa65d9f3f1",
+      "sizeBytes": 658
+    },
+    {
+      "path": "ui/.env.local.example",
+      "sha256": "ec6480eccc8f706cd946cda422af7ea0a9fa1fbbb376c79556e512c1ce256b79",
+      "sizeBytes": 29
+    },
+    {
+      "path": "ui/.env.local.https.example",
+      "sha256": "cd2c6116a1913a4418cfd661c427265a856592b32600b16fcb6752dae1d2f77e",
+      "sizeBytes": 290
+    },
+    {
+      "path": "ui/.env.primate-qa",
+      "sha256": "0e8dd29d0ada2e5c7a59de0c422157df46c06db814b6788a777255cddbbb9820",
+      "sizeBytes": 36
+    },
+    {
+      "path": "ui/.gitattributes",
+      "sha256": "79bfdac76b32743ac8e2affbbf17cb4afb109ff75f6aa48ac53980f563adf51f",
+      "sizeBytes": 27
+    },
+    {
+      "path": "ui/.gitignore",
+      "sha256": "c592a24b5790fccdb2646b292cbee1cedeac23516a8418856c7096967a98033f",
+      "sizeBytes": 1023
+    },
+    {
+      "path": "ui/.prettierrc",
+      "sha256": "2201d761a6bdc7464f56e258547be45e41d4ea1d5593f886ac91a294ff8ddf44",
+      "sizeBytes": 64
+    },
+    {
+      "path": "ui/Dockerfile",
+      "sha256": "69e3bd8d4be37ff6916d447c80de10bce3138839ea016dfbf0f8a2a51d79c395",
+      "sizeBytes": 1915
+    },
+    {
+      "path": "ui/LICENSE",
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "sizeBytes": 11357
+    },
+    {
+      "path": "ui/README.md",
+      "sha256": "2f37727c085b00f8945fbc9ffaead73d58113cba5e02b4e024c5c853ec1d2216",
+      "sizeBytes": 6707
+    },
+    {
+      "path": "ui/babel.config.js",
+      "sha256": "86c8ad63adb4cd82fd9743cc6a0ac7a1e893f2f7e964a13edb1b6c5e6a318bae",
+      "sizeBytes": 1207
+    },
+    {
+      "path": "ui/build.js",
+      "sha256": "3c9007a3b38cebf96ae7cdd8412980bba11f403d58d39ce016337ccf20308d5d",
+      "sizeBytes": 1989
+    },
+    {
+      "path": "ui/docker.sh",
+      "sha256": "aba427302d4bd9ff2cbd75c234e876d1b40b1161db024ac1faedc4ecb3c911ae",
+      "sizeBytes": 1683
+    },
+    {
+      "path": "ui/docs/customize.md",
+      "sha256": "94cb15bb94c02e85c2314021bf1cfaff539f56eb43b948c50fe8108ff9160dd8",
+      "sizeBytes": 4978
+    },
+    {
+      "path": "ui/docs/development.md",
+      "sha256": "214f3d96d29f958bcb7e9f759ab9d196430c46c8b7b772c4bc554040e1963f8a",
+      "sizeBytes": 9819
+    },
+    {
+      "path": "ui/docs/full-test-plan.template.md",
+      "sha256": "8e3a3f9ceffd13748daf82f649cfa1c7bbbb331ca0ff0180359c04f866ecc62e",
+      "sizeBytes": 13674
+    },
+    {
+      "path": "ui/docs/screenshot-dashboard.png",
+      "sha256": "a14df348094f26443dba096c264a4bb17f5eae4c68f3c125e64b9c5d9e7466c3",
+      "sizeBytes": 205830
+    },
+    {
+      "path": "ui/docs/smoke-test-plan.template.md",
+      "sha256": "1eb30a1de2a5cac27b5b6c41e92e37e3aaa6f121b0484559b7e70f497f56a59d",
+      "sizeBytes": 4954
+    },
+    {
+      "path": "ui/index.html",
+      "sha256": "9a5ac8e967b723d7a85780a86aef3bf84ce90ea15c7406694e225240d05f0908",
+      "sizeBytes": 1135
+    },
+    {
+      "path": "ui/jest.config.js",
+      "sha256": "01f1a1803ed5858c9e2485083a224bdceded0460c8d41d89873be4ee5a45d4e1",
+      "sizeBytes": 1889
+    },
+    {
+      "path": "ui/jsconfig.json",
+      "sha256": "356b867a5243c306901cfb50fa87c695b7f2cfcc01badd1cbbe21082fc1943da",
+      "sizeBytes": 182
+    },
+    {
+      "path": "ui/nginx/default.conf",
+      "sha256": "daa9c5b0cb18920ca2e13c0c5e161e3e2d4b7a2b9855193cb03a06a61be14d29",
+      "sizeBytes": 1116
+    },
+    {
+      "path": "ui/package-lock.json",
+      "sha256": "23379939285231d360907e8d7242206efd5359654b9903614788040680133ffc",
+      "sizeBytes": 1023368
+    },
+    {
+      "path": "ui/package.json",
+      "sha256": "00ba576b003ff9ec17cddb8abc7025f37592735a787f37c061d093fae3fe2add",
+      "sizeBytes": 5877
+    },
+    {
+      "path": "ui/postbuild.sh",
+      "sha256": "101f9da5e327625d8822cc276c291baea16c3adcbf8fa1522f2f8e410f857449",
+      "sizeBytes": 1384
+    },
+    {
+      "path": "ui/prebuild.sh",
+      "sha256": "c4290b8f23ce4e0397d3ae6486a8c614aba88ea1445d3c729a8c0c36b46b5cbd",
+      "sizeBytes": 1491
+    },
+    {
+      "path": "ui/public/assets/403.png",
+      "sha256": "fdba5f5e04e44330987e23d1798f8cc1a59cba2a5cbe2c25ad340192b1d73a37",
+      "sizeBytes": 27688
+    },
+    {
+      "path": "ui/public/assets/404.png",
+      "sha256": "d0f56f8e6b1d814ca02168a9a4fd1f43a9df4ccac0731ddceb256c78cc048eee",
+      "sizeBytes": 22689
+    },
+    {
+      "path": "ui/public/assets/500.png",
+      "sha256": "b99114ddab1753b69c18428bfca157c7d3c0f8aca3fe18e49bbcd15a442eea5c",
+      "sizeBytes": 20340
+    },
+    {
+      "path": "ui/public/assets/ablestack-favicon.png",
+      "sha256": "45bcc19d29f7ae15154c7cdff46be9d10d2a97ab178727972a35d45d84064526",
+      "sizeBytes": 2081
+    },
+    {
+      "path": "ui/public/assets/asf-logo.svg",
+      "sha256": "b10a6a2b0593cdb2280f245f95dab4a40ddb4a026a2045d29610a2da4e64a0c8",
+      "sizeBytes": 19657
+    },
+    {
+      "path": "ui/public/assets/banner.svg",
+      "sha256": "242bd54a6dc632c92443103abfb67e469b49ddf35b0fe20606e21b14029b9f16",
+      "sizeBytes": 48020
+    },
+    {
+      "path": "ui/public/assets/bg-what-is-ablestack.png",
+      "sha256": "d49014d7842a9821619f13ee23a17e1e93f5ab3dabc04b2f50ad115884549d2f",
+      "sizeBytes": 42471
+    },
+    {
+      "path": "ui/public/assets/bg-what-is-cloudstack.png",
+      "sha256": "cd0d0f8892b049c7e03457cfd3b03040b4e5e9154767781ff69c6e46d168ebc5",
+      "sizeBytes": 27854
+    },
+    {
+      "path": "ui/public/assets/error.png",
+      "sha256": "531125278533a01f772caff0ce8164c8a46c3f8ed66965546c58be59cbb4ee5e",
+      "sizeBytes": 18884
+    },
+    {
+      "path": "ui/public/assets/feather.svg",
+      "sha256": "99a05621758e33ec16303d6789d329d143332eaa705d9a08eac7468bd7444f27",
+      "sizeBytes": 12210
+    },
+    {
+      "path": "ui/public/assets/github.svg",
+      "sha256": "685cf73ec995f8eafe802bf1eaf28a69aadd7f89bc52cf4eec3f9aff4e565e66",
+      "sizeBytes": 1427
+    },
+    {
+      "path": "ui/public/assets/google.svg",
+      "sha256": "ce39c2c01100115d80faca286286be1a600da024da0fc929e893967dd35cdc1e",
+      "sizeBytes": 980
+    },
+    {
+      "path": "ui/public/assets/keycloak.svg",
+      "sha256": "8d59646b79576fbc1428ef1f9a69d6a9555fff31addd3c4814c01f3780ab1b96",
+      "sizeBytes": 3960
+    },
+    {
+      "path": "ui/public/assets/login-logo-ablestack.png",
+      "sha256": "e88bde82b7241921719e7fbc0642243fa18be6e02d57cbe4ab97739dc8672672",
+      "sizeBytes": 21742
+    },
+    {
+      "path": "ui/public/assets/login-logo-clostack.png",
+      "sha256": "322c2be7cba27411e3ad486e99f2f1e131e30dade4e02da6626a2886ac8015cf",
+      "sizeBytes": 18020
+    },
+    {
+      "path": "ui/public/assets/login-logo-hv.png",
+      "sha256": "9773041e2cf3e7be3bcce0b608f36c065c0eaa689e8d513f8ed7a1ddcd5c02e8",
+      "sizeBytes": 15863
+    },
+    {
+      "path": "ui/public/assets/logo-ablestack.png",
+      "sha256": "7d2dd6d98462d37b31990f1a0e493903411cc4377e0afdb5e9f6ddedb8a96b6d",
+      "sizeBytes": 21338
+    },
+    {
+      "path": "ui/public/assets/logo-clostack.png",
+      "sha256": "322c2be7cba27411e3ad486e99f2f1e131e30dade4e02da6626a2886ac8015cf",
+      "sizeBytes": 18020
+    },
+    {
+      "path": "ui/public/assets/logo-hv.png",
+      "sha256": "f547217c04591267c25bec8b46f437d3e64f7d11bec10e3ffa62074b81d3f275",
+      "sizeBytes": 11060
+    },
+    {
+      "path": "ui/public/assets/logo.svg",
+      "sha256": "85dc9a33270d57131b07db0b2c2861e728ad4236a4d7428da8919343741fa2ee",
+      "sizeBytes": 49302
+    },
+    {
+      "path": "ui/public/assets/mini-logo-ablestack.png",
+      "sha256": "1165ad732bc56863a3d8e319f515deaf3b467476539dcb148f8bfd390eff6b97",
+      "sizeBytes": 8894
+    },
+    {
+      "path": "ui/public/assets/mini-logo-clostack.png",
+      "sha256": "1165ad732bc56863a3d8e319f515deaf3b467476539dcb148f8bfd390eff6b97",
+      "sizeBytes": 8894
+    },
+    {
+      "path": "ui/public/assets/mini-logo-hv.png",
+      "sha256": "64cdd68147d37d3ada80d9d34a0e69b6dc993eef5cbaccb4089b5a3e9f1f620d",
+      "sizeBytes": 2052
+    },
+    {
+      "path": "ui/public/assets/mini-logo.svg",
+      "sha256": "ac16e4617f663c47a6d017a331f18b94bc150250ef595cf58a865d4de0d14c5f",
+      "sizeBytes": 58130
+    },
+    {
+      "path": "ui/public/assets/success.png",
+      "sha256": "3b23cd3aba13cabe5f22459a2b81e258fc8ee840101cdf4a6b78145e72fd2580",
+      "sizeBytes": 11590
+    },
+    {
+      "path": "ui/public/assets/white-logo-ablestack.png",
+      "sha256": "b77c660abc2d282a0656cb24c15554df7824d4d85d3313dc912a72cb3301e984",
+      "sizeBytes": 14712
+    },
+    {
+      "path": "ui/public/assets/white-logo-clostack.png",
+      "sha256": "322c2be7cba27411e3ad486e99f2f1e131e30dade4e02da6626a2886ac8015cf",
+      "sizeBytes": 18020
+    },
+    {
+      "path": "ui/public/assets/white-logo-hv.png",
+      "sha256": "f547217c04591267c25bec8b46f437d3e64f7d11bec10e3ffa62074b81d3f275",
+      "sizeBytes": 11060
+    },
+    {
+      "path": "ui/public/cloud-image-templates.json",
+      "sha256": "63e1a3c3556e678b4a6298046e68328febc2a37e3f5b05dcce0b5abd62c43b74",
+      "sizeBytes": 3798
+    },
+    {
+      "path": "ui/public/cloud.ico",
+      "sha256": "7d56cd078605b98b4888f2e51649044390284ed2c9983059b1d94e8b48cbf013",
+      "sizeBytes": 14318
+    },
+    {
+      "path": "ui/public/color.less",
+      "sha256": "ee603a5bad35ce5773a5b8c0d49ff36774bbfd41d958cb19bfbb0b59a566056e",
+      "sizeBytes": 239632
+    },
+    {
+      "path": "ui/public/config.json",
+      "sha256": "44d080ee12cd291185d65c81a605e71e455dada1a295b46d51e7de86c877b860",
+      "sizeBytes": 3963
+    },
+    {
+      "path": "ui/public/css/apache-theme.css",
+      "sha256": "30257ea673e3b22bac21014903d0de5dc4d9155def2366919ea3403cfe531258",
+      "sizeBytes": 30242
+    },
+    {
+      "path": "ui/public/css/dark-theme.css",
+      "sha256": "8b511c6896c1958bb8d3c53c34b7e69162ce15a25a68b581865f9a204e39117b",
+      "sizeBytes": 43049
+    },
+    {
+      "path": "ui/public/error.html",
+      "sha256": "c3c736055fe87885d6af4d9e44091a814dc4cad81da1e3935d70aa2f51c7daa3",
+      "sizeBytes": 1228
+    },
+    {
+      "path": "ui/public/example.html",
+      "sha256": "ddd025fed41e9b647fd4bcb9b5c5dfef7aa81361ad6c8415708d6b141241fac1",
+      "sizeBytes": 1220
+    },
+    {
+      "path": "ui/public/index.html",
+      "sha256": "bab8e3d4899a1d59e568050d9050c9685a58d2a78b9a7b292638955a1174dcb2",
+      "sizeBytes": 2825
+    },
+    {
+      "path": "ui/public/js/less.min.js",
+      "sha256": "2dda5306b20a89556c4b85c23ef074e796cbf47bbb547baf21611ca9ebdf1f74",
+      "sizeBytes": 143622
+    },
+    {
+      "path": "ui/public/locales/ar.json",
+      "sha256": "8098caab2e4c9ab43251b10247645949fe5b2a5ba2d5e3486aa1d6ba5a230f84",
+      "sizeBytes": 359586
+    },
+    {
+      "path": "ui/public/locales/ca.json",
+      "sha256": "170b314f5257170882cf93a71d26965e0f45ec85cb8e6e718c0014b6cbcca4ca",
+      "sizeBytes": 357111
+    },
+    {
+      "path": "ui/public/locales/de_DE.json",
+      "sha256": "d7dc7e8b26e0dca98aa8dd655313e9a720476c3efebb5dab5fc7c1c79e115564",
+      "sizeBytes": 369002
+    },
+    {
+      "path": "ui/public/locales/el_GR.json",
+      "sha256": "85eafea29d8a28e67836debc7347d9b22f1f1d887e18e19b2ae84041b2dab3f1",
+      "sizeBytes": 463623
+    },
+    {
+      "path": "ui/public/locales/en.json",
+      "sha256": "6a2737f37c37b46f2a7bf6f3a3779ed9b25cefa9e53a19c3f9f4fe65e852f4d9",
+      "sizeBytes": 630689
+    },
+    {
+      "path": "ui/public/locales/es.json",
+      "sha256": "633d8b87cb42441a93604809b76ee84178b8f2af4b85a2d1f28e3d0559e27666",
+      "sizeBytes": 362455
+    },
+    {
+      "path": "ui/public/locales/fr_FR.json",
+      "sha256": "1326ed1cbdb644546ea19492948c2ab2214ec6c249a6aaa32f88871184ddf086",
+      "sizeBytes": 361839
+    },
+    {
+      "path": "ui/public/locales/hi.json",
+      "sha256": "a2de5099c51333c47822f2f386f694de16e097c389d89e6dd729d532cf656bc4",
+      "sizeBytes": 364830
+    },
+    {
+      "path": "ui/public/locales/hu.json",
+      "sha256": "601956580e2cd333608dd2bdeff2aafd6966282b5b4ae4d07adcfed425044395",
+      "sizeBytes": 362271
+    },
+    {
+      "path": "ui/public/locales/it_IT.json",
+      "sha256": "ff41e53dd0bcbdd9060a65bd846852954ad031d8c6381d83b77aaf37c9ab175c",
+      "sizeBytes": 360067
+    },
+    {
+      "path": "ui/public/locales/ja_JP.json",
+      "sha256": "de6fcd9577dda047cea37c01ba645bea4e38caebc5b3a9175b0f788d2b542881",
+      "sizeBytes": 463931
+    },
+    {
+      "path": "ui/public/locales/ko_KR.json",
+      "sha256": "2f0eed0459a7116a64f8416aaac2c4d3fa1b71c2889c5fa2ff5a51930e1125e9",
+      "sizeBytes": 694861
+    },
+    {
+      "path": "ui/public/locales/nb_NO.json",
+      "sha256": "e792395bbe86c49a67ef03ca2eaf04490d78d1bc3bc1274943eace2c718e199a",
+      "sizeBytes": 358655
+    },
+    {
+      "path": "ui/public/locales/nl_NL.json",
+      "sha256": "a748ac76d8945b8d5f2c9a7ea1609600cd108b3fe6b1a2f17eb884bccc4d998c",
+      "sizeBytes": 359451
+    },
+    {
+      "path": "ui/public/locales/pl.json",
+      "sha256": "77daf4a46344bac5cf8ee491c91e9b7d4c4e22c628dd5849f17c612dfd84bd4e",
+      "sizeBytes": 357186
+    },
+    {
+      "path": "ui/public/locales/pt_BR.json",
+      "sha256": "641b88683d9829eab2673b04cf839cf00a61d7a3f1a2d22828fc67904a24b0df",
+      "sizeBytes": 383413
+    },
+    {
+      "path": "ui/public/locales/ru_RU.json",
+      "sha256": "2340b0ab3edf61554556c994fe481dbf045c5d88b4fa75b7c8bd2f48291e40d5",
+      "sizeBytes": 382555
+    },
+    {
+      "path": "ui/public/locales/te.json",
+      "sha256": "0c5a211fefc97d4dd6b34c58537703bcaa629ff329f37a29ea60dacd400411a4",
+      "sizeBytes": 559807
+    },
+    {
+      "path": "ui/public/locales/zh_CN.json",
+      "sha256": "9f2113c83498c8961af6fb2417644c464b944070cca644182f7573492bf55d72",
+      "sizeBytes": 402187
+    },
+    {
+      "path": "ui/src/App.vue",
+      "sha256": "716e2255a4816cbbbd229e87657bed470943c8d8d68cea959294f2bb50af5b3d",
+      "sizeBytes": 1710
+    },
+    {
+      "path": "ui/src/api/dr.js",
+      "sha256": "f6d9287944f4e647466dd5919c70359e4554b67276774a487f3805c68f6e2199",
+      "sizeBytes": 13652
+    },
+    {
+      "path": "ui/src/api/index.js",
+      "sha256": "38c0493f3310f50119186794cb8b51615de765b67423b5b556ac71f7944a4f8d",
+      "sizeBytes": 5077
+    },
+    {
+      "path": "ui/src/assets/icons/cloudian.svg",
+      "sha256": "c2b8d02a757265a6aabcd5c534ad3b7be1e185ef57f85e111bd057eaa281ca02",
+      "sizeBytes": 2773
+    },
+    {
+      "path": "ui/src/assets/icons/dark.svg",
+      "sha256": "51b9a09856d156afbbc1f989a1358a5696833e612ddecf825157e65a20f5e080",
+      "sizeBytes": 2586
+    },
+    {
+      "path": "ui/src/assets/icons/kubernetes.svg",
+      "sha256": "3ddb0b74f12b3060f04c90d6d7bb80ca23b7ddde08ff11858a79b84e57ae4800",
+      "sizeBytes": 10599
+    },
+    {
+      "path": "ui/src/assets/icons/light.svg",
+      "sha256": "96ab7007bc59ab1eeb200924897ef377ec1b68375eed0e806b9cc2076fbc5061",
+      "sizeBytes": 2652
+    },
+    {
+      "path": "ui/src/assets/icons/tungsten.svg",
+      "sha256": "9120ea092b1fe733f87808438a94b8c1632e2dd397f2cc3648c0fb71e01ae9b9",
+      "sizeBytes": 1504
+    },
+    {
+      "path": "ui/src/components/CheckBoxInputPair.vue",
+      "sha256": "8b2d6c1672abc2edb36f3a07ce8976781c6f4bc6f79690da4a072d43ebf091a4",
+      "sizeBytes": 3104
+    },
+    {
+      "path": "ui/src/components/CheckBoxSelectPair.vue",
+      "sha256": "ee6b0ce92d49da6b1e80aebebd003f82c173d6febf920ba3d00d1ed0e9bec137",
+      "sizeBytes": 4751
+    },
+    {
+      "path": "ui/src/components/KeyValuePairInput.vue",
+      "sha256": "7f0f77f7b0e46818d60b8c998d96a06dd1f5f019864af2b376a699e8fe34cd1c",
+      "sizeBytes": 2608
+    },
+    {
+      "path": "ui/src/components/dr/DrActionMenuContent.vue",
+      "sha256": "d8583501d948eca0a6333ad49519bf5b3f526ea8fbaa03ced9c9835b27b5fac6",
+      "sizeBytes": 4426
+    },
+    {
+      "path": "ui/src/components/dr/DrActionToolbar.vue",
+      "sha256": "142af877a7810cb5d4d1ee8d8d29ff74e88158aa23ad640f7aaa25873668cbe7",
+      "sizeBytes": 5019
+    },
+    {
+      "path": "ui/src/components/dr/DrCheckpointManager.vue",
+      "sha256": "3d77ea879359236d75bfc1c67b23e8f62f50addbc3f63244fe806843f29e6aca",
+      "sizeBytes": 8021
+    },
+    {
+      "path": "ui/src/components/dr/DrFormModal.vue",
+      "sha256": "dc3cf03e8c696c6dd6d9835bd68b6a97c97af10add80d0633411159d109223f2",
+      "sizeBytes": 2323
+    },
+    {
+      "path": "ui/src/components/dr/DrResourceActionMenu.vue",
+      "sha256": "0a0de471a9edc26ab555dafd4627eb276ed2e57fe14a757a5db1e28e96488a17",
+      "sizeBytes": 2132
+    },
+    {
+      "path": "ui/src/components/dr/DrResourceContextMenu.vue",
+      "sha256": "473895f4b8ae0703ab3d1f1a4eaafbd7c91a81281277dbde855412de0f9f2b80",
+      "sizeBytes": 3489
+    },
+    {
+      "path": "ui/src/components/dr/DrResourceDetailsTab.vue",
+      "sha256": "ea9fbb1ab123038cd57178d99cbd6cdfdce59ee1e09139170f9af27a4356d7cc",
+      "sizeBytes": 1949
+    },
+    {
+      "path": "ui/src/components/dr/DrResourceInfoCard.vue",
+      "sha256": "542b807de9ad872cc7c7738eea3fb57cdd434e298094b67b8c4c5d5ce012704d",
+      "sizeBytes": 5741
+    },
+    {
+      "path": "ui/src/components/dr/DrRpoKpi.vue",
+      "sha256": "ccbed22f4660b058189b307feaa5f576aa20c9dccc1d24fb7455db3100282e52",
+      "sizeBytes": 4318
+    },
+    {
+      "path": "ui/src/components/dr/DrRunProgress.vue",
+      "sha256": "acd257b6d89f45d70351d5d6f29be3e003743985b31d0bdcc73b6402e840eaa2",
+      "sizeBytes": 21886
+    },
+    {
+      "path": "ui/src/components/dr/DrStatusPill.vue",
+      "sha256": "efaa0326dc4e50ab7912c7e3901107a2228d68ee0dc3904fe2ad61a4df84e8bc",
+      "sizeBytes": 5452
+    },
+    {
+      "path": "ui/src/components/dr/DrTopology.vue",
+      "sha256": "e3f584641a2baaa436b4e751f2680b5e0a725e9b9b31005ab0c8f4ad8b80dc3d",
+      "sizeBytes": 4077
+    },
+    {
+      "path": "ui/src/components/header/AnnouncementBanner.vue",
+      "sha256": "ec3f51c5a43934aaca0ac39161a2506e2819373586414ef19b1f964a8365b37a",
+      "sizeBytes": 4578
+    },
+    {
+      "path": "ui/src/components/header/AutoAlertBanner.vue",
+      "sha256": "36da981e115935b99ee6ffdb145a20e62a4866b82dd5276129c015e1e9bdfdd9",
+      "sizeBytes": 129492
+    },
+    {
+      "path": "ui/src/components/header/CreateEvents.vue",
+      "sha256": "2a876abfc27145dc1e0f0221c739e2f5b34e4c754b403f3de49fc89c78946eb5",
+      "sizeBytes": 2673
+    },
+    {
+      "path": "ui/src/components/header/CreateMenu.vue",
+      "sha256": "117365d6cec602862d0eb25ff82ae1f4903a7fb61813572dd9c1ec7954b470f2",
+      "sizeBytes": 3918
+    },
+    {
+      "path": "ui/src/components/header/ExternalLink.vue",
+      "sha256": "bb2c344ca77b18a3e1b682874f048e56a82629e8046be5ceac2bc31030da1090",
+      "sizeBytes": 2420
+    },
+    {
+      "path": "ui/src/components/header/HeaderNotice.vue",
+      "sha256": "bc18fe4a9814a7405b0069f833685d505de1b075c6af6b676be1e8b1215bf53a",
+      "sizeBytes": 6258
+    },
+    {
+      "path": "ui/src/components/header/Logo.vue",
+      "sha256": "07be9d13f700a4b311b12f7e1950555656d00044bf988f0f71fd3b3ae6bb04f0",
+      "sizeBytes": 3260
+    },
+    {
+      "path": "ui/src/components/header/ProjectMenu.vue",
+      "sha256": "e9c8b0964cc00b9a5b64bbfbdd23d14506580f4a70554e31679c491ea68b7eae",
+      "sizeBytes": 3206
+    },
+    {
+      "path": "ui/src/components/header/SamlDomainSwitcher.vue",
+      "sha256": "8f91f56ed34ec135fb192aee1c7c356f8d42ff7946bd8c1f4f22677939b590db",
+      "sizeBytes": 4654
+    },
+    {
+      "path": "ui/src/components/header/TranslationMenu.vue",
+      "sha256": "02cd85d09b324251e313a201eaeb52644a228e405c701e78c7b84046533710fc",
+      "sizeBytes": 3372
+    },
+    {
+      "path": "ui/src/components/header/UserMenu.vue",
+      "sha256": "0c5483317a210b0f95240552082b18d2693607b91d40ff5d7bd202b19ee8ecc6",
+      "sizeBytes": 12992
+    },
+    {
+      "path": "ui/src/components/menu/SMenu.vue",
+      "sha256": "b37f83129357307a5cf2153ccac70340a8019f70e10757bd07dd47fa792b89a2",
+      "sizeBytes": 5490
+    },
+    {
+      "path": "ui/src/components/menu/SideMenu.vue",
+      "sha256": "79026419b2aa4fc3ecdc3624729d1d7c633e81817d54eeb9a26db1a8f78c639a",
+      "sizeBytes": 3577
+    },
+    {
+      "path": "ui/src/components/menu/index.js",
+      "sha256": "2906a5361d8298cfcefc2e6abfbcdfd5628a3722ee6cdf720f625f687878496b",
+      "sizeBytes": 855
+    },
+    {
+      "path": "ui/src/components/menu/menu.render.js",
+      "sha256": "e4671f5d1d9f11a3323cb3261d1d8ad1d7c274ab65fe91f27364b2eba32aa526",
+      "sizeBytes": 4919
+    },
+    {
+      "path": "ui/src/components/multitab/MultiTab.vue",
+      "sha256": "f231918e2cdfe2b26306bd9bc0a24e3743761b90f79e1445850b71cdd2e16301",
+      "sizeBytes": 6075
+    },
+    {
+      "path": "ui/src/components/multitab/index.js",
+      "sha256": "3e77fee4dfc080d9a2f0b94342bcad6a633b55aecb92ce03176c1121b8d532df",
+      "sizeBytes": 883
+    },
+    {
+      "path": "ui/src/components/multitab/index.less",
+      "sha256": "e11184ca4642f49e0d50456138bbfdffc5e374c6d3dad64c2371547be20d1bdc",
+      "sizeBytes": 1141
+    },
+    {
+      "path": "ui/src/components/offering/ComputeOfferingForm.vue",
+      "sha256": "36145d142ff79cbfd85e95d0007a3a1d9a91ab67771764a78575d7a7164a98f5",
+      "sizeBytes": 40206
+    },
+    {
+      "path": "ui/src/components/offering/DiskOfferingForm.vue",
+      "sha256": "b010ca33128842ea89ddad73e7e0fbd3feacdc11346a53d84ea85bef5651d07c",
+      "sizeBytes": 23015
+    },
+    {
+      "path": "ui/src/components/page/GlobalFooter.vue",
+      "sha256": "c58707630900af46abcf5a2f19a221435d3997b96bc12530ea5ee4365c8776ac",
+      "sizeBytes": 2425
+    },
+    {
+      "path": "ui/src/components/page/GlobalHeader.vue",
+      "sha256": "9dd969e911ce6e53923dae7648d41c33a957b2630425cf85b0567056fa33efb4",
+      "sizeBytes": 4249
+    },
+    {
+      "path": "ui/src/components/page/GlobalLayout.vue",
+      "sha256": "fcfc1930378ba03c0e9f08e406db4356afec220704bd369256a2420c1970f6fe",
+      "sizeBytes": 20253
+    },
+    {
+      "path": "ui/src/components/page/PageHeader.vue",
+      "sha256": "3e24af1ed922c5e4e6aa6292bc5f09a07be7098983185f0cc8c22cdcd2df1374",
+      "sizeBytes": 5085
+    },
+    {
+      "path": "ui/src/components/page/PageLayout.vue",
+      "sha256": "cd35c7ec745dff102a4b505f5538e156bbd7641be43169b2a209dff263827059",
+      "sizeBytes": 3872
+    },
+    {
+      "path": "ui/src/components/page/SHeaderNotice.vue",
+      "sha256": "70101431b1f21ad530d167e4eb9aa55dc1f16bcd633f30b25f5bf6bfa6611757",
+      "sizeBytes": 1928
+    },
+    {
+      "path": "ui/src/components/view/ActionButton.vue",
+      "sha256": "1d1b5206a34b7afbbd0aab99facd07054ce7f883bb9be3fe9994df4bbe759394",
+      "sizeBytes": 18998
+    },
+    {
+      "path": "ui/src/components/view/AdvisoriesView.vue",
+      "sha256": "f12d38b97820fbfe63904bce0bec0dd00a5db6fb16b1d9bb0d64230ded979d7d",
+      "sizeBytes": 5526
+    },
+    {
+      "path": "ui/src/components/view/AnnotationsTab.vue",
+      "sha256": "ed91a5291c5d810d7e90baec8bbd1812c7af251109c53025744282ecb07a457d",
+      "sizeBytes": 11984
+    },
+    {
+      "path": "ui/src/components/view/ApiKeyPairsTab.vue",
+      "sha256": "0c7709de8ef8534f8468702d173c02085fcf4ac44cfb1c37f0316b5b571ce49d",
+      "sizeBytes": 12386
+    },
+    {
+      "path": "ui/src/components/view/BackupMetadata.vue",
+      "sha256": "bbb8e52cd700589cfc1faaf9ee6cd873052e9b8e94aef87a27e8f8d143130b19",
+      "sizeBytes": 4738
+    },
+    {
+      "path": "ui/src/components/view/BulkActionProgress.vue",
+      "sha256": "4f7cf4c1a3f628c1de9603eea36806c98a21206b0dffb0ac91e063b3b984d636",
+      "sizeBytes": 6983
+    },
+    {
+      "path": "ui/src/components/view/BulkActionView.vue",
+      "sha256": "9fbe2f2edaeb77d480c87106e3960081faf34d45b194d17325d6e6b5bb34855f",
+      "sizeBytes": 6150
+    },
+    {
+      "path": "ui/src/components/view/DateTimeFilter.vue",
+      "sha256": "acd2ca04625d77ce9627880b09c3f2ab71d2f330194c2ee20f0738d63b841588",
+      "sizeBytes": 5514
+    },
+    {
+      "path": "ui/src/components/view/DedicateData.vue",
+      "sha256": "da367293e197aa4a72615b3e8fad0a75447baa0530770d7600bfa0c28b07631a",
+      "sizeBytes": 12596
+    },
+    {
+      "path": "ui/src/components/view/DedicateDomain.vue",
+      "sha256": "25f6ee2838557a8ea6d8c92a5224502b358d004c633b1950412a7d9d5bc81ac3",
+      "sizeBytes": 3381
+    },
+    {
+      "path": "ui/src/components/view/DedicateModal.vue",
+      "sha256": "079bd085d3b939e35e1088dc76aea5659ad292e47581d642edde6904da394e7e",
+      "sizeBytes": 8657
+    },
+    {
+      "path": "ui/src/components/view/DeployVMFromBackup.vue",
+      "sha256": "285fe4a1d629402790405494d36c01cde55d517ac83fee44b2c9d6a31fab35d4",
+      "sizeBytes": 114612
+    },
+    {
+      "path": "ui/src/components/view/DetailSettings.vue",
+      "sha256": "36501504c8925f5301b6a928006a6fd7672a086d63d0a4f3ec1c6ecbae68111e",
+      "sizeBytes": 21264
+    },
+    {
+      "path": "ui/src/components/view/DetailsTab.vue",
+      "sha256": "8b4dc7777523dc8e49a0fa52f7f50ec1d4d7241369bcfd63b6764efbb13e4e33",
+      "sizeBytes": 37403
+    },
+    {
+      "path": "ui/src/components/view/DomainDeleteConfirm.vue",
+      "sha256": "44f1d5400648fcba08ede65838a54dc1596d2f3cdf7cb0ae621a4da4e97037e1",
+      "sizeBytes": 4249
+    },
+    {
+      "path": "ui/src/components/view/EventSidebar.vue",
+      "sha256": "d9cda569418fb91847057b4749208c22891383ef98662dbaa1e8a20cb6a9e159",
+      "sizeBytes": 16008
+    },
+    {
+      "path": "ui/src/components/view/EventsTab.vue",
+      "sha256": "800afeb82a2a4cac72a29a1902d865971fe5d679be615f94831f7efe217ea171",
+      "sizeBytes": 7508
+    },
+    {
+      "path": "ui/src/components/view/GPUDevicesTab.vue",
+      "sha256": "c08120bab5aad390930d691b07a21f8679a77b02a50920eebaca1bca33872c34",
+      "sizeBytes": 29031
+    },
+    {
+      "path": "ui/src/components/view/GPUSummaryTab.vue",
+      "sha256": "6964cd54cf325246dba36e60a5f22a08ca95e076ab1d490544ea93774f955982",
+      "sizeBytes": 8875
+    },
+    {
+      "path": "ui/src/components/view/GPUTab.vue",
+      "sha256": "d656ee46a0ff347047260af3a8a0118d51553987db4f4a8f6c0bb2d90c2deb5e",
+      "sizeBytes": 13212
+    },
+    {
+      "path": "ui/src/components/view/GuestNetworkSummary.vue",
+      "sha256": "9fe5c701bf8c514f85d94f80ee9d6245db1f8775fe4f1de369931f1afe79ce4c",
+      "sizeBytes": 7953
+    },
+    {
+      "path": "ui/src/components/view/ImageDeployInstanceButton.vue",
+      "sha256": "6e1def0e981ee45c009ecf59c7c0a07d901e89e502724f835e66b392c70c4989",
+      "sizeBytes": 4400
+    },
+    {
+      "path": "ui/src/components/view/ImageStoreSelectView.vue",
+      "sha256": "11c33f42862ab002775ac06d3b8e343f18aea8d75e8f097b97eb370d60af7607",
+      "sizeBytes": 5624
+    },
+    {
+      "path": "ui/src/components/view/InfoCard.vue",
+      "sha256": "4fd2e4ec30b06f73f2bb092af03c9f9e470c5b4dad0af5a6c9b9dd2c8892d976",
+      "sizeBytes": 92470
+    },
+    {
+      "path": "ui/src/components/view/InstanceNicsNetworkSelectListView.vue",
+      "sha256": "c3ecbe151071c2df9b6c7733f76798248fb9d533e94667c80bcc4355bcaaf6ab",
+      "sizeBytes": 4246
+    },
+    {
+      "path": "ui/src/components/view/InstanceVolumesStoragePoolSelectListView.vue",
+      "sha256": "786a877366dc788064fef4783de4975ba8926ef1a515d4008b1990e5b0bd5757",
+      "sizeBytes": 8304
+    },
+    {
+      "path": "ui/src/components/view/KubernetesCreateReview.vue",
+      "sha256": "2dd9c6ceeeb2e5a5d28e78f4aba2b9fc1f64aec2b6217ea22637b3bb07305997",
+      "sizeBytes": 1195
+    },
+    {
+      "path": "ui/src/components/view/KubernetesCreateSummary.vue",
+      "sha256": "9520f0a7a3a181070a7c4f2307f2faf899ccdb8b0af1d2ecea54ffeeb6f0b052",
+      "sizeBytes": 1663
+    },
+    {
+      "path": "ui/src/components/view/KubernetesDialogContext.vue",
+      "sha256": "6595010ec655a0176d426a80e810bdf1d37e66bfd91ac1da86a8827b1b6cde37",
+      "sizeBytes": 1857
+    },
+    {
+      "path": "ui/src/components/view/ListResourceTable.vue",
+      "sha256": "36429137cbade17794b63ce5f03324e47ecdb2a0d1f52c73c7f82f25163a5945",
+      "sizeBytes": 7062
+    },
+    {
+      "path": "ui/src/components/view/ListView.vue",
+      "sha256": "b9adcbf88dac6e65719784221a093f3931c86d284b34260b2f9e3fa609476b12",
+      "sizeBytes": 84330
+    },
+    {
+      "path": "ui/src/components/view/MoldDialog.vue",
+      "sha256": "e9e15511c69463e8dbb269f276422dd163d8f7c8bad3587694b9efd1d3d3556f",
+      "sizeBytes": 1333
+    },
+    {
+      "path": "ui/src/components/view/NetworkRuleContext.vue",
+      "sha256": "3f496e7030ce7785ceb187c0b114e404329dfdc82455a1087a2e5bfede8ffed2",
+      "sizeBytes": 2239
+    },
+    {
+      "path": "ui/src/components/view/NetworkRulesToolbar.vue",
+      "sha256": "7d2e016f31402efd96050e82e4c696c4d1caaa386941de6b547298b32472cf81",
+      "sizeBytes": 1393
+    },
+    {
+      "path": "ui/src/components/view/NicNetworkSelectForm.vue",
+      "sha256": "81e28fb13ce7b5124c0a20b9c99f6f298ae1a1ce769570c46e42d094e888f5b6",
+      "sizeBytes": 6134
+    },
+    {
+      "path": "ui/src/components/view/ObjectListTable.vue",
+      "sha256": "dc8edae6d0b3964ebd7e78598d18d169b055cf0dc7ff444732ac47d5de7bab99",
+      "sizeBytes": 2234
+    },
+    {
+      "path": "ui/src/components/view/ObjectStoreBrowser.vue",
+      "sha256": "d5c557bbc6b4a8c112cb4c6242a5e0721882a2bcf4053d8a4c8baeae0bb4f2b3",
+      "sizeBytes": 33285
+    },
+    {
+      "path": "ui/src/components/view/QuickView.vue",
+      "sha256": "9d6a90fe8c2c19e644131a03df72407edb20d58b4e10c8b2fc5570010d98638e",
+      "sizeBytes": 3118
+    },
+    {
+      "path": "ui/src/components/view/ResourceActionMenu.vue",
+      "sha256": "8fe02fd8ad0e74197a141fc59b27755307b9897adad0a4b10e733e0f04ac181c",
+      "sizeBytes": 2772
+    },
+    {
+      "path": "ui/src/components/view/ResourceContextMenu.vue",
+      "sha256": "f4f49a712b9b2a917233a77323ac22ca74e3da302c0537e15827ec5fdfe16722",
+      "sizeBytes": 3992
+    },
+    {
+      "path": "ui/src/components/view/ResourceCountUsage.vue",
+      "sha256": "983084d845434b9212450652e2aa453a758e2e6b546d4ac79ff4a889889a4385",
+      "sizeBytes": 7287
+    },
+    {
+      "path": "ui/src/components/view/ResourceIcon.vue",
+      "sha256": "e2f6b71d18cfa1080a2d4a8a84ba6aa1b56796ed328f3fde5e39d5cd4d183c56",
+      "sizeBytes": 1863
+    },
+    {
+      "path": "ui/src/components/view/ResourceLimitTab.vue",
+      "sha256": "a44ca0e6da4b25accd9e415a2c351b47d9a1cd3bddf662203249b402d45b22c1",
+      "sizeBytes": 9429
+    },
+    {
+      "path": "ui/src/components/view/ResourceView.vue",
+      "sha256": "5ce70c76728706982459997c45751796a65906c02f1f72f1b6c7af66a3dfe7cf",
+      "sizeBytes": 6222
+    },
+    {
+      "path": "ui/src/components/view/SearchFilter.vue",
+      "sha256": "7f0bb046531cbcc1d7389c134afb0920e08142716c76ccc539e435c04096d0da",
+      "sizeBytes": 18345
+    },
+    {
+      "path": "ui/src/components/view/SearchView.vue",
+      "sha256": "41b90db226304dbb2db186408452cbe571f29a19073c3e54af3dca9040bc374c",
+      "sizeBytes": 64455
+    },
+    {
+      "path": "ui/src/components/view/Setting.vue",
+      "sha256": "bb6654ebd24c4b0203cda618f17028abc2dffd35d443e1b2512a6834b3da0123",
+      "sizeBytes": 9904
+    },
+    {
+      "path": "ui/src/components/view/SettingItem.vue",
+      "sha256": "c2f66f10989ad58f2c1cfdf747ef07f5ef5ecaabf76995527ae48bb244bab899",
+      "sizeBytes": 4272
+    },
+    {
+      "path": "ui/src/components/view/SettingsTab.vue",
+      "sha256": "1c7da4305baf72058f453d488b8b63ff5aca3bcbe505cbb68cb932abf1e36170",
+      "sizeBytes": 6679
+    },
+    {
+      "path": "ui/src/components/view/StatsTab.vue",
+      "sha256": "fc4dbfffa64596a08f1a9115b63e529a3f7793a36b2e473431016f381236a844",
+      "sizeBytes": 32774
+    },
+    {
+      "path": "ui/src/components/view/StoragePoolSelectView.vue",
+      "sha256": "eee36907dc659890659046d5c3ca50441a3a6d03ffab76547d4eca73a67e5799",
+      "sizeBytes": 8425
+    },
+    {
+      "path": "ui/src/components/view/TestWebhookDeliveryView.vue",
+      "sha256": "5e632692eb13d8cd236b2073511826455603c64db095744c0cb9a53087bf4801",
+      "sizeBytes": 8442
+    },
+    {
+      "path": "ui/src/components/view/TreeView.vue",
+      "sha256": "11dd7d0c259e54365b76d5490c4bf1ea755c9b59cf2f1fb4b957d0567e046af1",
+      "sizeBytes": 22202
+    },
+    {
+      "path": "ui/src/components/view/UploadResourceIcon.vue",
+      "sha256": "757309182652d623dd971aafe0d17f9f02d6bbc49a48cb45f0f90fac5e4ca2eb",
+      "sizeBytes": 10248
+    },
+    {
+      "path": "ui/src/components/view/VgpuProfilesTab.vue",
+      "sha256": "fd80debe3de82d60cc6172cbf917ae2a23d1e88cd8d99f38303f4b6d4440e8ac",
+      "sizeBytes": 12606
+    },
+    {
+      "path": "ui/src/components/view/VmSnapshotSummary.vue",
+      "sha256": "281dad0f505d9149e006f5632fa23618dba527893e041fbe874d609a55634c8d",
+      "sizeBytes": 2216
+    },
+    {
+      "path": "ui/src/components/view/VmwareData.vue",
+      "sha256": "e454e5e05345d68785fecceb58cba4ef06913ac7231dd4c1fd6c725462568ff1",
+      "sizeBytes": 2703
+    },
+    {
+      "path": "ui/src/components/view/VolumeStoragePoolSelectForm.vue",
+      "sha256": "fa3db4b719be4959d41d325ddc16338d88198631ad04f7407492e16ae880150f",
+      "sizeBytes": 3379
+    },
+    {
+      "path": "ui/src/components/view/VolumesTab.vue",
+      "sha256": "4eb125296242302c44403aae49fc9e4997e4771305401c2187f7af4124da1af9",
+      "sizeBytes": 4670
+    },
+    {
+      "path": "ui/src/components/view/WebhookDeliveriesTab.vue",
+      "sha256": "4ec8e36b24bea26a9b4fcf160ed704f320d82086e622384da435d24075050f66",
+      "sizeBytes": 17365
+    },
+    {
+      "path": "ui/src/components/view/WebhookFiltersTab.vue",
+      "sha256": "aaa99f8f8d936f546b8f9105cb55fe9b8bf9f24af92859aa5d7057357bad18ee",
+      "sizeBytes": 13676
+    },
+    {
+      "path": "ui/src/components/view/buttons/ExportToCsvButton.vue",
+      "sha256": "29aca8eb5d111763088feed58764bc8d43a4c41d75201c77e93ea2dc46e9648e",
+      "sizeBytes": 1254
+    },
+    {
+      "path": "ui/src/components/view/charts/BarChart.vue",
+      "sha256": "f9554b11b0e9d5eaf79e6b8bd20aa6ed46cdc5bc5766bf3eefbfe1819e0b386a",
+      "sizeBytes": 1587
+    },
+    {
+      "path": "ui/src/components/view/stats/ResourceStatsInfo.vue",
+      "sha256": "4ac775248fad6b2650f26feab95683a15db497600fffd81e22133c2d2b7750c2",
+      "sizeBytes": 2662
+    },
+    {
+      "path": "ui/src/components/view/stats/ResourceStatsLineChart.vue",
+      "sha256": "04523c2506a678fc61eb693debea91073cefe7580ab7aeec1ed3f3ae77ea53a9",
+      "sizeBytes": 7643
+    },
+    {
+      "path": "ui/src/components/widgets/BlockRadioGroupSelect.vue",
+      "sha256": "8cb147e696dd8abb0627c6567f22ef99fed9ef80ed566a054b121177eae73b57",
+      "sizeBytes": 3764
+    },
+    {
+      "path": "ui/src/components/widgets/Breadcrumb.vue",
+      "sha256": "e99594ad40dc85a4477f4363fbcce579dee8c1c2195d6e3dfc5cd3181a16f28b",
+      "sizeBytes": 4122
+    },
+    {
+      "path": "ui/src/components/widgets/ChartCard.vue",
+      "sha256": "7761ae1c7061a17c04a37f262e22edd26215abd53a6e5f8d978c828802abbd59",
+      "sizeBytes": 3007
+    },
+    {
+      "path": "ui/src/components/widgets/CloneFlattenControl.vue",
+      "sha256": "24ef2af679b856a40ffdfe5b9055619d2a598f08ac221323eab81bbb647204d5",
+      "sizeBytes": 14330
+    },
+    {
+      "path": "ui/src/components/widgets/Console.vue",
+      "sha256": "a54af33bc707ca71d2a52238d3687316ff78da906327839c34d34b911b7c2932",
+      "sizeBytes": 3683
+    },
+    {
+      "path": "ui/src/components/widgets/CopyLabel.vue",
+      "sha256": "58afc5201967f42191477a091d83e4f7861d0f71d1133474f98ca89d3e14f251",
+      "sizeBytes": 1642
+    },
+    {
+      "path": "ui/src/components/widgets/DetailsInput.vue",
+      "sha256": "e0c017946b806c0da4de8b09a9faa7ec07f6fc375bd0944d317efe2924e2c45b",
+      "sizeBytes": 5878
+    },
+    {
+      "path": "ui/src/components/widgets/Drawer.vue",
+      "sha256": "3388df3d8719f2b168c5d1b681212fb5ffc88a55b791722feec3bfebb2caf2a1",
+      "sizeBytes": 4490
+    },
+    {
+      "path": "ui/src/components/widgets/GenieUrl.vue",
+      "sha256": "1049b26f6a0de742c7728d96f9fae02668effd55c24d322fc04a63fcb4b528de",
+      "sizeBytes": 1461
+    },
+    {
+      "path": "ui/src/components/widgets/InfiniteScrollSelect.vue",
+      "sha256": "57a94c82489e5699485cb70f4bcf3ee8572ac3570e490324326ad7c5c17d47cf",
+      "sizeBytes": 12869
+    },
+    {
+      "path": "ui/src/components/widgets/OobmCubeUrl.vue",
+      "sha256": "c5890f9e43e27873301e47965b0e3988094238961ce7c0ac705f9313269d3d17",
+      "sizeBytes": 1994
+    },
+    {
+      "path": "ui/src/components/widgets/OsLogo.vue",
+      "sha256": "767e6bca8a7d7d2b3845dcc5912534dc3f7a94fedcdbcf5c006d7a28fa3b2f4f",
+      "sizeBytes": 3929
+    },
+    {
+      "path": "ui/src/components/widgets/ResourceLabel.vue",
+      "sha256": "1863094cc65f79e4dcd37ce99273daf8d2f2b6da71804825e58a92898f803dcd",
+      "sizeBytes": 2621
+    },
+    {
+      "path": "ui/src/components/widgets/Status.vue",
+      "sha256": "0f713e04af0c8d0d24f0587fd7004ff3ebf422288f81ad9eb42c5b6c99d28891",
+      "sizeBytes": 11896
+    },
+    {
+      "path": "ui/src/components/widgets/TooltipButton.vue",
+      "sha256": "d8fa7e3353f855156a699e9afe6257d3dea25794f7d1e7ecb089bbf68f563cf4",
+      "sizeBytes": 3121
+    },
+    {
+      "path": "ui/src/components/widgets/TooltipLabel.vue",
+      "sha256": "2e61525f28c738b8fee8c426585843adfa4d79c0727ed33fa24edfdca09c6d9f",
+      "sizeBytes": 1484
+    },
+    {
+      "path": "ui/src/components/widgets/WallLinkUrl.vue",
+      "sha256": "b6d4282bef6ceabd3c51556d6260be9695660d4f1d7b8a6c67ce5b682dad5478",
+      "sizeBytes": 2946
+    },
+    {
+      "path": "ui/src/components/widgets/WorksAdminUrl.vue",
+      "sha256": "50b2fee219a3a601b5faa62f68c6d1d9c36bfeaded0b788acfb3db14fb7013e6",
+      "sizeBytes": 1489
+    },
+    {
+      "path": "ui/src/components/widgets/WorksUrl.vue",
+      "sha256": "01f6da827de278282812599b75f261af81bdc2185645fd8707c9014f47091522",
+      "sizeBytes": 1468
+    },
+    {
+      "path": "ui/src/composables/useServiceCapabilityParams.js",
+      "sha256": "e2c763408eb48dbb8456314ca885e63fc3587dee6d31463304345599786592de",
+      "sizeBytes": 8620
+    },
+    {
+      "path": "ui/src/config/eventBus.js",
+      "sha256": "28009bbc4efd6c1ef153a25345cae9cef9727fc89dd5b46a047756fe3786a683",
+      "sizeBytes": 848
+    },
+    {
+      "path": "ui/src/config/router.js",
+      "sha256": "363b21ea73ba88b405f0e90e9fb390f9a2f9b7b12d6815aebeeff95e26dcb9fd",
+      "sizeBytes": 11959
+    },
+    {
+      "path": "ui/src/config/section/account.js",
+      "sha256": "d0836c3eecbf2e8d883e96140beada4d62fa9367844c8029b8f45d10c109250e",
+      "sizeBytes": 7783
+    },
+    {
+      "path": "ui/src/config/section/automation.js",
+      "sha256": "2371dc77846a6ad8d1ba5467801283b13795a7b36dcea1069924ed183bc757f8",
+      "sizeBytes": 5320
+    },
+    {
+      "path": "ui/src/config/section/compute.js",
+      "sha256": "e9c6a79bb2567924e6ee927abb78c08c94177142a4a4f9212c05b2c331a4b7e3",
+      "sizeBytes": 72390
+    },
+    {
+      "path": "ui/src/config/section/config.js",
+      "sha256": "097b70f7009c842dff63a8c7127f888b95a4057a45fdee585c27c483240a93f5",
+      "sizeBytes": 13651
+    },
+    {
+      "path": "ui/src/config/section/desktop.js",
+      "sha256": "70cb316bbd4c032751feeef5379b5b6b0ee0f232e3bca6b0a48edd6c9d9fea54",
+      "sizeBytes": 6062
+    },
+    {
+      "path": "ui/src/config/section/disasterRecovery.js",
+      "sha256": "c2ef55efa729c62a742cede5eaeecf8fb164f293e4c301c316e551e339f79a3b",
+      "sizeBytes": 1066
+    },
+    {
+      "path": "ui/src/config/section/domain.js",
+      "sha256": "f999739313c28b075162a89a9330f5146e130514a85d55f6453ff592715135d3",
+      "sizeBytes": 5900
+    },
+    {
+      "path": "ui/src/config/section/event.js",
+      "sha256": "89139c87843e91523e5464896af1f57d5dcae49f483d3c1a6169239b1af97672",
+      "sizeBytes": 3383
+    },
+    {
+      "path": "ui/src/config/section/extension.js",
+      "sha256": "37d4769d497c834db6cf712720179d6ed5b522b269ceabf95e97756655311d9e",
+      "sizeBytes": 4736
+    },
+    {
+      "path": "ui/src/config/section/extension/customaction.js",
+      "sha256": "5067efbba2782f86d4d7445dc23d784ca9055372f3b2ce3ad617165120259ee5",
+      "sizeBytes": 3514
+    },
+    {
+      "path": "ui/src/config/section/image.js",
+      "sha256": "199c79d72a8d0f53e7fb9b745e42a7e522d8cd66d14f75649b263ec1efc67f26",
+      "sizeBytes": 18992
+    },
+    {
+      "path": "ui/src/config/section/infra.js",
+      "sha256": "c31110c6bb3b6263074dc5ace015ac1fe1851528fbe307b17d5898dd4469e67e",
+      "sizeBytes": 5046
+    },
+    {
+      "path": "ui/src/config/section/infra/alertRules.js",
+      "sha256": "09414f1961f234bc419b1fe99a24976fae3c19f8de89faa783bcce819c12e5d7",
+      "sizeBytes": 6827
+    },
+    {
+      "path": "ui/src/config/section/infra/backupRepositories.js",
+      "sha256": "41d8e29890f4fd44765400b8f04d5f3a134024ea60d36b0188a55ad3f4e9e978",
+      "sizeBytes": 2151
+    },
+    {
+      "path": "ui/src/config/section/infra/clusters.js",
+      "sha256": "aaa72ffc3286da249f3c476b4d7d77206449d7bd4de30d9e553de4629f3096f5",
+      "sizeBytes": 9241
+    },
+    {
+      "path": "ui/src/config/section/infra/disasterRecovery.js",
+      "sha256": "7289b8f2342e8d37ec1939cadfc612d89f40a1bc058e337d9c4b7410b2a055e6",
+      "sizeBytes": 5084
+    },
+    {
+      "path": "ui/src/config/section/infra/drPlan.js",
+      "sha256": "4d4f4b745afa763fdbd14e38874a41d330f75434d1a319285bfa62b4a5d4b7a0",
+      "sizeBytes": 1012
+    },
+    {
+      "path": "ui/src/config/section/infra/drSite.js",
+      "sha256": "d13f0dbfff7cabb0b8eb0daeef9ef87d2a4a9dc0defbb742eae0ceff8c07faad",
+      "sizeBytes": 1010
+    },
+    {
+      "path": "ui/src/config/section/infra/hosts.js",
+      "sha256": "112ddbabaf0c2f04d74cc1a3b378bfc00b5244914504042e0fdaf6caf2e9a3e5",
+      "sizeBytes": 12988
+    },
+    {
+      "path": "ui/src/config/section/infra/ilbvms.js",
+      "sha256": "73a2cc57a8c2bbe1186858ddb562c8822caf6793f27d36ce114103eac315e6fb",
+      "sizeBytes": 3658
+    },
+    {
+      "path": "ui/src/config/section/infra/managementServers.js",
+      "sha256": "fa7cbfd690048b0c3d3a177c9904ecaa7d7d669d2a5fb9948092d289912ab5b7",
+      "sizeBytes": 6428
+    },
+    {
+      "path": "ui/src/config/section/infra/nsp.js",
+      "sha256": "91dca43a4860dc8c4afcd0f5e60e7013d1fc91a4aa6a9903254dfa0de3efb0fd",
+      "sizeBytes": 2170
+    },
+    {
+      "path": "ui/src/config/section/infra/objectStorages.js",
+      "sha256": "5ff8867f7264f58aab47d76dc30f70f197ed64e1d21ea44f62d0250133dc154c",
+      "sizeBytes": 2674
+    },
+    {
+      "path": "ui/src/config/section/infra/phynetworks.js",
+      "sha256": "694ad979112e8d75ee46003bd0a5a68aa859e0bcf8ab83a607cbee9cc4aff34c",
+      "sizeBytes": 4591
+    },
+    {
+      "path": "ui/src/config/section/infra/pods.js",
+      "sha256": "1d772168ff610d1d1d834d174f5df8a7c47174572305a6948c13ec282fa7b694",
+      "sizeBytes": 4197
+    },
+    {
+      "path": "ui/src/config/section/infra/primaryStorages.js",
+      "sha256": "23b47efa0ed194d47ab80064f3c325e938f10c5b71a7d94fed3b327a0d9f0465",
+      "sizeBytes": 6368
+    },
+    {
+      "path": "ui/src/config/section/infra/routers.js",
+      "sha256": "8080cbd1933b67f1b026782146880d200491d42002644f21fed40f8aa92c10e2",
+      "sizeBytes": 10073
+    },
+    {
+      "path": "ui/src/config/section/infra/secondaryStorages.js",
+      "sha256": "1a2ca2c48f173a486a93518d2ed362cdcd87e0010a8f05bc47bb603a4b3f26ec",
+      "sizeBytes": 3919
+    },
+    {
+      "path": "ui/src/config/section/infra/systemVms.js",
+      "sha256": "a334969dfd9132f8c0e18388bd50d90d1560dc1a341a212208dd12fd02caa602",
+      "sizeBytes": 7682
+    },
+    {
+      "path": "ui/src/config/section/infra/zones.js",
+      "sha256": "6ec2827054095edb9d31d9494c3c96659bafc833947caa7fdde30d95b3f38cf0",
+      "sizeBytes": 9460
+    },
+    {
+      "path": "ui/src/config/section/keypair.js",
+      "sha256": "60b9aae9e9671040a8fab7dc33172b61997aa6e0fd030e925179077ad16e55aa",
+      "sizeBytes": 2325
+    },
+    {
+      "path": "ui/src/config/section/kms.js",
+      "sha256": "4a281afe447efe7472b25c1964e4f58235014fa9d5ad7f2a32c169c10e2c0d6b",
+      "sizeBytes": 9040
+    },
+    {
+      "path": "ui/src/config/section/network.js",
+      "sha256": "ea5bb297233e979062895deb180b456458137c130467771070849e353775d9fa",
+      "sizeBytes": 70740
+    },
+    {
+      "path": "ui/src/config/section/offering.js",
+      "sha256": "21288dd8a81419e541f0ded284131afec255590de3761aa210513030efc8595a",
+      "sizeBytes": 27474
+    },
+    {
+      "path": "ui/src/config/section/plugin/cloudian.js",
+      "sha256": "8fdfd86a3b77af9cc3d7958db988f749bb5cdb09218075e9d7224137c8e38274",
+      "sizeBytes": 1188
+    },
+    {
+      "path": "ui/src/config/section/plugin/quota.js",
+      "sha256": "67f5a3a0e03574990f2a75120695ce48cf4af6d596365c784e64c030e1aa0d09",
+      "sizeBytes": 6578
+    },
+    {
+      "path": "ui/src/config/section/project.js",
+      "sha256": "5ba207207a30342fedc13bf6d983657350f95f557b82a94f11a605600bb77a3f",
+      "sizeBytes": 6804
+    },
+    {
+      "path": "ui/src/config/section/role.js",
+      "sha256": "0a992b41ec8861c6ef53b664e6252df50e3e44e1c055baba81900a9ae3ac6884",
+      "sizeBytes": 3432
+    },
+    {
+      "path": "ui/src/config/section/storage.js",
+      "sha256": "2a6de5b5b75832ee663cf3bb04b9804c51c14e24a37cd8d308c002d722dca065",
+      "sizeBytes": 37832
+    },
+    {
+      "path": "ui/src/config/section/tools.js",
+      "sha256": "2e1fedc5c7c97c512d433db2f72ff74ffb0ddd843ab4518f7ce02fed675bf502",
+      "sizeBytes": 9072
+    },
+    {
+      "path": "ui/src/config/section/user.js",
+      "sha256": "0a5cdbc2351021d5e248104b9f16d279818e0233aad5e19085bdfc0366863957",
+      "sizeBytes": 7861
+    },
+    {
+      "path": "ui/src/config/section/zone.js",
+      "sha256": "322d0f14535c5e3ac46ecf8e5c8c8e4b661d0a13b26a0450337215c4f151e224",
+      "sizeBytes": 1666
+    },
+    {
+      "path": "ui/src/config/settings.js",
+      "sha256": "792cf50c5f7b42d5d7e3713105d44f776c13960abd75c058fef7aa94fe18b2e5",
+      "sizeBytes": 1654
+    },
+    {
+      "path": "ui/src/core/bootstrap.js",
+      "sha256": "4bb97eb4316dfb906571fd81080c353c7d95163d4e17900aff835c6808fc015f",
+      "sizeBytes": 2809
+    },
+    {
+      "path": "ui/src/core/ext.js",
+      "sha256": "c3255a1eff38aa208bfb8cd6f12ea8b37d3da830f38f27ea6a9fae06351c1024",
+      "sizeBytes": 1496
+    },
+    {
+      "path": "ui/src/core/lazy_lib/components_use.js",
+      "sha256": "ba5dfbc947cd133a28b5bc6e45fe9ca46e8c8ffe21eb6359fb2b42d76bd76393",
+      "sizeBytes": 3080
+    },
+    {
+      "path": "ui/src/core/lazy_lib/icons_use.js",
+      "sha256": "61d4e35f9ee1672ca5b91e02a33bebbef9f8acd74968eaabb771f0f93dde78f9",
+      "sizeBytes": 14952
+    },
+    {
+      "path": "ui/src/core/lazy_use.js",
+      "sha256": "baedef1f6141c3884dbc21570a3aac3d58659a4ff784a2d99ffe3ff12198a290",
+      "sizeBytes": 1524
+    },
+    {
+      "path": "ui/src/layouts/BasicLayout.vue",
+      "sha256": "f53470b42650b2d80a41a6fb789d25d5fadc495d6b6610120ac28378f6fed332",
+      "sizeBytes": 1885
+    },
+    {
+      "path": "ui/src/layouts/BlankLayout.vue",
+      "sha256": "a38801daa32647a20d2bbfdf9b60e922c48fd31a7c984426ca051638b064a563",
+      "sizeBytes": 950
+    },
+    {
+      "path": "ui/src/layouts/PageView.vue",
+      "sha256": "948ffc101085e14129b08d8fa7b0d6a25faba1cdb65ef95f1cf75195ce2752e0",
+      "sizeBytes": 3781
+    },
+    {
+      "path": "ui/src/layouts/ResourceLayout.vue",
+      "sha256": "0be02f1511ba10ed27a6b103178681fa0f950384d419ba53403a132352d7f20a",
+      "sizeBytes": 1762
+    },
+    {
+      "path": "ui/src/layouts/RouteView.vue",
+      "sha256": "fef49e5992d5c67253d2184173f64055321158e80209c74426db31316255be11",
+      "sizeBytes": 1196
+    },
+    {
+      "path": "ui/src/layouts/UserLayout.vue",
+      "sha256": "cdf2a0f3ee816ec83ab2ce60bb8444932f37b2d0715ca5538aa229e79e3cf5ce",
+      "sizeBytes": 4938
+    },
+    {
+      "path": "ui/src/layouts/index.js",
+      "sha256": "1f9029aae90c5cf1aa50625400f7185019b7d315339e69a18a14e1781a98069e",
+      "sizeBytes": 1060
+    },
+    {
+      "path": "ui/src/locales/index.js",
+      "sha256": "28e2c293e01715fca7c959ff415e2e098c75c475e4cb0768356966c6ef354a4f",
+      "sizeBytes": 2407
+    },
+    {
+      "path": "ui/src/main.js",
+      "sha256": "148b57e7bab7d7c544f86cb0ce10d971d29b69da7354a6d0ef94722ed5f579fb",
+      "sizeBytes": 4305
+    },
+    {
+      "path": "ui/src/permission.js",
+      "sha256": "41ffdc66a49c4015cab18ba795397f376b479361c918cae85c900aed57434014",
+      "sizeBytes": 9142
+    },
+    {
+      "path": "ui/src/role/index.js",
+      "sha256": "bf9a6cb29bd92c7927c79d4241a9941a88be9c83ee06cd81a3133fa2ff41d3cb",
+      "sizeBytes": 1044
+    },
+    {
+      "path": "ui/src/router/index.js",
+      "sha256": "1c83c300587513a2c816bcb7b2335df34c07ea9826a3bbec0a85605ada3f2783",
+      "sizeBytes": 1096
+    },
+    {
+      "path": "ui/src/store/getters.js",
+      "sha256": "0712f8a343082140569080b4591961bfdd65b90a409485105736df57ed482aad",
+      "sizeBytes": 2864
+    },
+    {
+      "path": "ui/src/store/index.js",
+      "sha256": "ce2be3d01f46ec1eb1c96bac26e1fbb85ccc288704dfdc55207edcfcba2d2e8a",
+      "sizeBytes": 1134
+    },
+    {
+      "path": "ui/src/store/modules/app.js",
+      "sha256": "5b70de40420aaf1988d9b97873ac9dbe4ce15ccc927c2f0b5b50030fab20ba4a",
+      "sizeBytes": 7439
+    },
+    {
+      "path": "ui/src/store/modules/permission.js",
+      "sha256": "6ef83adc20336df4176c6e339743293ea7928e8523b0e7c2f9632e90afee5e11",
+      "sizeBytes": 2428
+    },
+    {
+      "path": "ui/src/store/modules/user.js",
+      "sha256": "d5299388bd1fa8ae96099bbe1b6b4493ca011134a22d4bb753bb68dd94978ae3",
+      "sizeBytes": 27301
+    },
+    {
+      "path": "ui/src/store/mutation-types.js",
+      "sha256": "8fc754fe75ea177cbb30a70a88710df977bd732b8211f2d8721c3ba5a1148ee2",
+      "sizeBytes": 2447
+    },
+    {
+      "path": "ui/src/style/README.md",
+      "sha256": "485187a497fd0c2a3c6d6e8ae46c1a49dd538c280f9f19b8bacfe941f6fec7a3",
+      "sizeBytes": 2644
+    },
+    {
+      "path": "ui/src/style/ant-overwrite/ant-form.less",
+      "sha256": "416fdb76a1f5eacad96b11500d56c1b1d75c48cfa60a60ea02bd5552379d9e95",
+      "sizeBytes": 1066
+    },
+    {
+      "path": "ui/src/style/ant-overwrite/ant-layout-header.less",
+      "sha256": "ad782f092e4acfa11d592ec1731770f5d576c49389d68d84c753d3fc97f40591",
+      "sizeBytes": 1288
+    },
+    {
+      "path": "ui/src/style/ant-overwrite/ant-progress.less",
+      "sha256": "ecfcd371be35bace999746b1177f5350b42171a8a0840d4f41a7e0cc98b57c6d",
+      "sizeBytes": 865
+    },
+    {
+      "path": "ui/src/style/common/common.less",
+      "sha256": "ff6ad7ad574e1a7e6087bf0e9e35e483eb91a5c9da8d2988c618a743849f4190",
+      "sizeBytes": 831
+    },
+    {
+      "path": "ui/src/style/common/common.scss",
+      "sha256": "688685699ceb4f617931c2e79d17f8dd8f0af1fa94d8c07270fb0d909ab78d6e",
+      "sizeBytes": 1005
+    },
+    {
+      "path": "ui/src/style/common/function.less",
+      "sha256": "6bea03ad012bdba5254d69386c4eba2a5cbfb3c4b6e833d465000017319a2527",
+      "sizeBytes": 43536
+    },
+    {
+      "path": "ui/src/style/components/dashboard.less",
+      "sha256": "e55a9479b0c245aa6f74a7bcfd67eaaffe7df43f0849086eda99fadc97a91264",
+      "sizeBytes": 1216
+    },
+    {
+      "path": "ui/src/style/components/view/DetailTab.scss",
+      "sha256": "7c586cbea7e844e8a6847fec17514fa81f9994e9b52f94876604ff9f8f1f33da",
+      "sizeBytes": 1097
+    },
+    {
+      "path": "ui/src/style/components/view/StatsTab.scss",
+      "sha256": "d10665de51911f7dbd376ce5382379d58bb1ae32d61c7b05b07652c6cea7be9f",
+      "sizeBytes": 2304
+    },
+    {
+      "path": "ui/src/style/components/view/mold-dialog.less",
+      "sha256": "5231da442ffa001d7e692f7094539260b8b437afc4aeef5e31121a26c6751dfa",
+      "sizeBytes": 11614
+    },
+    {
+      "path": "ui/src/style/components/view/resource-context-menu.less",
+      "sha256": "66456aff963f0ba72a6edc3b8c3cbcd7d3f2b83c0b6d050613745a86f9be4057",
+      "sizeBytes": 3767
+    },
+    {
+      "path": "ui/src/style/cross-dr.less",
+      "sha256": "a683ed05aef62bdfcb8b6c87abee6ad24410f90eefe0bb345c7db692cab97dd1",
+      "sizeBytes": 28944
+    },
+    {
+      "path": "ui/src/style/dark-mode.less",
+      "sha256": "3b3d8900afcf3be74ecf67403bfb17e432647201dced2e9fcc8a902f3be85f7c",
+      "sizeBytes": 40920
+    },
+    {
+      "path": "ui/src/style/frame/content.less",
+      "sha256": "fd0625f3be9499c6d7b374d661759b8d7339f269641abf131a80cf52926005b2",
+      "sizeBytes": 910
+    },
+    {
+      "path": "ui/src/style/frame/search.less",
+      "sha256": "9b95dc2e7380b5d31141a7ab385614ce98c795f0bcd683889cd93f9ed41e99f2",
+      "sizeBytes": 1406
+    },
+    {
+      "path": "ui/src/style/frame/sider.less",
+      "sha256": "85fb4e643b3cb0778d866fa6e734e7268d1c52d3bdbc94bdd7fc41942e301c32",
+      "sizeBytes": 1953
+    },
+    {
+      "path": "ui/src/style/frame/top-menu.less",
+      "sha256": "622193e3cdf603cb0a702c1a59ac63b950c50f91da5937150ae97edd62506d16",
+      "sizeBytes": 890
+    },
+    {
+      "path": "ui/src/style/index.less",
+      "sha256": "346ecbb0f6e16c2ba32990bb37eba40711199ed4e24a4d79a2de6df728afb9a4",
+      "sizeBytes": 2336
+    },
+    {
+      "path": "ui/src/style/layout/ant.less",
+      "sha256": "5a03bc2f4f26f376260e55bbb9adbc6ae9602e728ea4f453da4eb07ce4b4bb53",
+      "sizeBytes": 6098
+    },
+    {
+      "path": "ui/src/style/layout/inverted-mode.less",
+      "sha256": "4eb5759f42938e9ac48d8fc0fab76db0a3387e48299fd6563950046fa6b0d862",
+      "sizeBytes": 855
+    },
+    {
+      "path": "ui/src/style/objects/form.scss",
+      "sha256": "6f8910fc5b82d80378781da8d58f80e42fc5c2f66e2e3d18e8cf42220971e27b",
+      "sizeBytes": 1130
+    },
+    {
+      "path": "ui/src/style/objects/table.less",
+      "sha256": "bad96595b202250e96541ff1aeb966e9e1a6b26e2dfbe8f72172ab7d60689865",
+      "sizeBytes": 842
+    },
+    {
+      "path": "ui/src/style/theme/base.less",
+      "sha256": "d5d903fde7cf3068d74268bb4b7f32053fff959a8c1d84df9cc2efc5ddc278a4",
+      "sizeBytes": 1614
+    },
+    {
+      "path": "ui/src/style/theme/components.less",
+      "sha256": "587498abeccbac03c75458138fe3c6612c7af9acd60577470e373f7dca65f454",
+      "sizeBytes": 5668
+    },
+    {
+      "path": "ui/src/style/theme/feedback.less",
+      "sha256": "4d48b25e13799263adbeca607a5ea270742fcf2dbe04f3ae055bd0bf52173874",
+      "sizeBytes": 3547
+    },
+    {
+      "path": "ui/src/style/theme/scrollbar.less",
+      "sha256": "0da96cfd6cedbe41cd633bab82f321282e0132a8d45ff329f0d3295b7fa21396",
+      "sizeBytes": 1401
+    },
+    {
+      "path": "ui/src/style/theme/tokens.less",
+      "sha256": "7bc98a760e8477d676f6c6dad9513a44b0285bbfa8b1884e15a406265ad76051",
+      "sizeBytes": 3238
+    },
+    {
+      "path": "ui/src/style/variables/prefixes.less",
+      "sha256": "d5f9c67e4031a8062b9ae06e2a7f4cd895202b9471b46aa1405f2ae1ea9e4b24",
+      "sizeBytes": 895
+    },
+    {
+      "path": "ui/src/style/vars.less",
+      "sha256": "2ff8aa800bd0a1c9be1ba43f6e879ef47e96a8ccaa28016dfc44d9622bbbf657",
+      "sizeBytes": 12145
+    },
+    {
+      "path": "ui/src/utils/acsrepo/index.js",
+      "sha256": "bd1670c037a8aea5369c9b79521c81e364c7c9a112730d7f0f3932027a6642db",
+      "sizeBytes": 2891
+    },
+    {
+      "path": "ui/src/utils/actionMenu.js",
+      "sha256": "281af4dfe2014f938981eba86d89cb46ce023f2d9efdea6a92f4f543b4c31feb",
+      "sizeBytes": 3012
+    },
+    {
+      "path": "ui/src/utils/auth.js",
+      "sha256": "8e8d2280d2bb560750fab0f338ef0dda570cf0d71d9b30379250d1b2dd02a94b",
+      "sizeBytes": 1148
+    },
+    {
+      "path": "ui/src/utils/axios.js",
+      "sha256": "a6b95fc225179d3083e6b52ef528ef534ab3bd841f92da8f089ab6a088a86d94",
+      "sizeBytes": 1437
+    },
+    {
+      "path": "ui/src/utils/bulkAction.js",
+      "sha256": "1323e80b58f441a8655874b62f9e325a3d2e0bdd6b1eeccfcf1a117e382f6765",
+      "sizeBytes": 1256
+    },
+    {
+      "path": "ui/src/utils/chart.js",
+      "sha256": "16f056138487cff6823934bf44b1e64781b80d20bbcfa8330f2114d76ce0dbb4",
+      "sizeBytes": 1894
+    },
+    {
+      "path": "ui/src/utils/date.js",
+      "sha256": "4a6da63ee7ee80f35a83b2b2fbab3d11f063219fda3b3b7dd480b691bcbaab0e",
+      "sizeBytes": 4008
+    },
+    {
+      "path": "ui/src/utils/detachIsoBatch.js",
+      "sha256": "df1084da2f678bc3184b42f77e7c715ee49e005790aea41c23d9b531172424d9",
+      "sizeBytes": 1840
+    },
+    {
+      "path": "ui/src/utils/device.js",
+      "sha256": "cf789553b440197679bced6cb0b3c3a4e1af02922f21a0da13b8b2d0b83379a9",
+      "sizeBytes": 1507
+    },
+    {
+      "path": "ui/src/utils/directives.js",
+      "sha256": "fc2111ffd0c5c2ed3d0c4c96b1c6cbdcbc5c4e5196c66889fe87b3c6da062c0d",
+      "sizeBytes": 1818
+    },
+    {
+      "path": "ui/src/utils/domUtil.js",
+      "sha256": "e4c145f9224dd6040e19a6342f1f25970be8aea1bff80080e47e4c306de2d41b",
+      "sizeBytes": 1280
+    },
+    {
+      "path": "ui/src/utils/dr/actionAvailability.js",
+      "sha256": "05dfa519a641267221a35c074cf9be675e7b7717a8cf14f4387c4599edb61f11",
+      "sizeBytes": 6255
+    },
+    {
+      "path": "ui/src/utils/dr/planDialogSections.js",
+      "sha256": "b9ed2e748f1b557792cc494161e7adc0f2215b4e8b63efa7408860a7d046a053",
+      "sizeBytes": 4374
+    },
+    {
+      "path": "ui/src/utils/dr/planForm.js",
+      "sha256": "78fe0b87d38d6447aa022cb8df54373e8983fab14f32243af02fef911695f3a4",
+      "sizeBytes": 5897
+    },
+    {
+      "path": "ui/src/utils/dr/planState.js",
+      "sha256": "ae39c336baa4eec5e8df49b347a81e54c7f4489721a8723ec3651f6d72afd9cd",
+      "sizeBytes": 10846
+    },
+    {
+      "path": "ui/src/utils/dr/resourceActions.js",
+      "sha256": "f43ac9b157547145c63bdf7bff5a361c949a1e32be52cd85485dbb1ebd55b97c",
+      "sizeBytes": 6072
+    },
+    {
+      "path": "ui/src/utils/drProgress.js",
+      "sha256": "ab398ffd948d3a1d1cc204b9bc84398e9b1e4793e0ea2725d4cad6a6efca283c",
+      "sizeBytes": 2984
+    },
+    {
+      "path": "ui/src/utils/extension.js",
+      "sha256": "30bdbfb22db68852813540827ff00d9d32162ce968d919fede89a84b7f69246b",
+      "sizeBytes": 1166
+    },
+    {
+      "path": "ui/src/utils/fastClone.js",
+      "sha256": "5f5cbe112b34ff853431b4f78e573fbc4eaafc0c57f57813dd9b218f7e85761f",
+      "sizeBytes": 3558
+    },
+    {
+      "path": "ui/src/utils/filter.js",
+      "sha256": "7cd50ecc5a3317be4d2a5d79d2055c45bf9d226c5edc6a7d46b3c893fea47662",
+      "sizeBytes": 1338
+    },
+    {
+      "path": "ui/src/utils/guiTheme.js",
+      "sha256": "847694b778b05af425c7aa7adb54602ef8ad5acdd0c7c71f3d6f88a50daed9b0",
+      "sizeBytes": 4238
+    },
+    {
+      "path": "ui/src/utils/helper/permission.js",
+      "sha256": "d3fb0513e2b3a7f473117ed258fe76ef5cd35e82953a754f1be500cb7e015445",
+      "sizeBytes": 1849
+    },
+    {
+      "path": "ui/src/utils/icons.js",
+      "sha256": "9dda27dac93ae11abf410f841434882b6ccf1e2332f573b1c5622c3710fea807",
+      "sizeBytes": 1235
+    },
+    {
+      "path": "ui/src/utils/jobTracker.js",
+      "sha256": "4127dab9276382c25c143763b9495c215f1f0f8a683f79f5effa1e8a71061f9f",
+      "sizeBytes": 3027
+    },
+    {
+      "path": "ui/src/utils/kubernetesClusterActions.js",
+      "sha256": "835d802d0001d0e124c55f7ef9e63c1d03097a69443411d47048c3f67da1fc74",
+      "sizeBytes": 2104
+    },
+    {
+      "path": "ui/src/utils/kubernetesLoadBalancers.js",
+      "sha256": "517305469351f93521a2ad93d1469cf9068f6c6e44799de39cdda673c5e92f01",
+      "sizeBytes": 3516
+    },
+    {
+      "path": "ui/src/utils/kubernetesPorts.js",
+      "sha256": "38b3c7ffd7feb9c57dddec465a0a21dc2343582240cd3d40a03d8877907f52b8",
+      "sizeBytes": 3070
+    },
+    {
+      "path": "ui/src/utils/kubernetesScaleRecovery.js",
+      "sha256": "b48ad6daefc744e02c7a8c4b2f7d5db9467a37c067ca55e49e4133c3835824d4",
+      "sizeBytes": 1547
+    },
+    {
+      "path": "ui/src/utils/kubernetesUpgrade.js",
+      "sha256": "054e36f3960a0316f4f59fee1dc80eb3de1d8ca756b2f2de89d329f0aeee19f5",
+      "sizeBytes": 1442
+    },
+    {
+      "path": "ui/src/utils/links.js",
+      "sha256": "8dcdc5e98dbf25ab6642c8398e66356b1d50677820fb5b1461669b8cca016ccc",
+      "sizeBytes": 3426
+    },
+    {
+      "path": "ui/src/utils/listRefresh.js",
+      "sha256": "9ff1f3efd18dc80c4eca8cec3ddcfd17954e4472b7acaf62b91791801d270d6a",
+      "sizeBytes": 3448
+    },
+    {
+      "path": "ui/src/utils/listRefreshMixin.js",
+      "sha256": "1216d2c6f3c6e0ca51999a1ccdf7a2b76a5b5bf1712fca1a1f7775f77cc31aa7",
+      "sizeBytes": 4466
+    },
+    {
+      "path": "ui/src/utils/mixin.js",
+      "sha256": "9f8b283cb16637f14bf4af85b94b5ea87687c38ed42b727173928405b66ebbbf",
+      "sizeBytes": 3271
+    },
+    {
+      "path": "ui/src/utils/network.js",
+      "sha256": "eae8fe762fdc5c77d436d1523cc1760b4511a95659839439c1cea43c21afbc58",
+      "sizeBytes": 1680
+    },
+    {
+      "path": "ui/src/utils/networkRuleForm.js",
+      "sha256": "4e685d6a9080effb150b59586ba47b47877ea4e139c1421bf2a6581f7c67ccbf",
+      "sizeBytes": 1971
+    },
+    {
+      "path": "ui/src/utils/optionalDiscovery.js",
+      "sha256": "39cef66475fd8a648d4c785c6f6b9fe9df9dfe80599886caff0b252a4c9a3c51",
+      "sizeBytes": 1272
+    },
+    {
+      "path": "ui/src/utils/permissions.js",
+      "sha256": "f6345ce394f9f987724f96bf0a0618d2a43b19d282177b043276d50937c21849",
+      "sizeBytes": 946
+    },
+    {
+      "path": "ui/src/utils/plugins.js",
+      "sha256": "f986583fa0f5edba2df0f314a42ecd2053f45bbae393e733be716ec2fa778a84",
+      "sizeBytes": 18762
+    },
+    {
+      "path": "ui/src/utils/quota.js",
+      "sha256": "25bdbe77a5e236c7783fab6e00380bc7016b66625ff132a53b315f4416468ca5",
+      "sizeBytes": 2918
+    },
+    {
+      "path": "ui/src/utils/renderIcon.js",
+      "sha256": "304fcdbd19065d1f788d19f981da18e08789c33babaf61b51c917fd57e68316c",
+      "sizeBytes": 1683
+    },
+    {
+      "path": "ui/src/utils/request.js",
+      "sha256": "921ab36479b9007714a115cf28e9c6c06dbf52e10a043dde3536acda1057bc0d",
+      "sizeBytes": 10618
+    },
+    {
+      "path": "ui/src/utils/scopedStorageReads.js",
+      "sha256": "22859ffc1f1ae54424cae5978e29b50d86c8e27552ff35c648302c39f5b4617d",
+      "sizeBytes": 2146
+    },
+    {
+      "path": "ui/src/utils/sharedfsCapacity.js",
+      "sha256": "46739ff3aac7524a53c763438887ef07d903e81ed70c227e996884f7fd8f73bb",
+      "sizeBytes": 1030
+    },
+    {
+      "path": "ui/src/utils/sort.js",
+      "sha256": "ff860cd539be99f67a4049d6a338aaf522726f50ffcca3672f9ea359e9c569ab",
+      "sizeBytes": 4516
+    },
+    {
+      "path": "ui/src/utils/ssvmProbe.js",
+      "sha256": "384489f528dd23ac67cb8939e177567dbb2f1888359419c9a198a25c669f036f",
+      "sizeBytes": 1200
+    },
+    {
+      "path": "ui/src/utils/storage.js",
+      "sha256": "774cf10aee255f9917b5c5d58e787ba2b056d439c27bd8f5502aff9c4898b449",
+      "sizeBytes": 2132
+    },
+    {
+      "path": "ui/src/utils/storageAdIdentity.js",
+      "sha256": "0369aafdfc8da3e835bb407aec20b4cb53b0d302ec993740a9b57737b0334359",
+      "sizeBytes": 5870
+    },
+    {
+      "path": "ui/src/utils/storageDiskProvisioning.js",
+      "sha256": "a2e6b0e02d8fc1c71c7f52e2041685ca969d105d372ae39935a7aa2e718ab5ad",
+      "sizeBytes": 1158
+    },
+    {
+      "path": "ui/src/utils/storageNfsPermissions.js",
+      "sha256": "13f87ac35e45cd01a91acf15a3cd42d3f5ad2ec0f1a78a19c733fe16daf4d66d",
+      "sizeBytes": 2325
+    },
+    {
+      "path": "ui/src/utils/storagePoolCapacity.js",
+      "sha256": "b611e0b065e4412827a1b7de7a5066dfcd8561bb4d85d70767b0adff2611d646",
+      "sizeBytes": 2282
+    },
+    {
+      "path": "ui/src/utils/storageRead.js",
+      "sha256": "b375952782f82dcd3613cd2daab58705982d8ea06d386e8a2f7253a88889c2f6",
+      "sizeBytes": 2555
+    },
+    {
+      "path": "ui/src/utils/storageSmbCurrentIdentityRecovery.js",
+      "sha256": "9722b126ca7a0cdfc0399aab5c0a0ec4fc905c471198757703ecd714aef7bc79",
+      "sizeBytes": 6374
+    },
+    {
+      "path": "ui/src/utils/templateRootDisk.js",
+      "sha256": "6d8deb07fa596cad205bb30abb33825e1d2b8bfb7eb901d0495badb85e7e2c6a",
+      "sizeBytes": 1251
+    },
+    {
+      "path": "ui/src/utils/timezone/index.js",
+      "sha256": "45fbd30fa6f8180b0437e571ce7e7289027385ecf0ff33adc77089b1c9160e03",
+      "sizeBytes": 2172
+    },
+    {
+      "path": "ui/src/utils/timezone/timezone.json",
+      "sha256": "e5a9cd906996fa4c40c74b87a6271907dfaec84164b99ada9ff9242836a20d48",
+      "sizeBytes": 36730
+    },
+    {
+      "path": "ui/src/utils/tpm.js",
+      "sha256": "62cd5a0b500c10ba5062d1df5a665a3a3e6359eb73eae76f524c93f6ff88c0a7",
+      "sizeBytes": 1348
+    },
+    {
+      "path": "ui/src/utils/units.js",
+      "sha256": "1bf0a691d06768b5e608360e5bf0b18b2dbfd718e79c9a1f040a104423ddc7b7",
+      "sizeBytes": 1078
+    },
+    {
+      "path": "ui/src/utils/util.js",
+      "sha256": "3e1152ef413cbbcb3ba04d6858841bb72ad129b0c82cc1199bef0972e456915b",
+      "sizeBytes": 4644
+    },
+    {
+      "path": "ui/src/utils/vbmc.js",
+      "sha256": "1937aeb5163029aa988ee8106572981cb414a8a0dae56fbab72109dbe512f619",
+      "sizeBytes": 2963
+    },
+    {
+      "path": "ui/src/utils/vmClone.js",
+      "sha256": "537b367ca1bf9d431d1b92dd7949a0004a0e330b8563b3102693d227df1bf604",
+      "sizeBytes": 1862
+    },
+    {
+      "path": "ui/src/utils/vmDevices.js",
+      "sha256": "a71be81b02bf8e4ee35e57b130f4f56686f83331acef32890b47b4f32cb30411",
+      "sizeBytes": 5589
+    },
+    {
+      "path": "ui/src/utils/vmDiskDeployment.js",
+      "sha256": "335f9553c2b69d9d8d31b8b47cf5e4a1251c35677eefd1f959f3ae1283764135",
+      "sizeBytes": 6158
+    },
+    {
+      "path": "ui/src/utils/vmIsoActions.js",
+      "sha256": "009ee443ce80202fc016b4b36c80e66714602ff7edaab374ae6b383ce499c197",
+      "sizeBytes": 4907
+    },
+    {
+      "path": "ui/src/utils/vmNicActions.js",
+      "sha256": "ffc868ab18fc198a3412ed433d140f01fa53bf87638a61652650e21291bf87f3",
+      "sizeBytes": 6463
+    },
+    {
+      "path": "ui/src/utils/vmProtectionTabs.js",
+      "sha256": "abfb53d520f633d31c442775d492999d0fa9fad8d51fd6f4cac534529451cefb",
+      "sizeBytes": 5690
+    },
+    {
+      "path": "ui/src/utils/vmSettings.js",
+      "sha256": "cbaee68f2855d8052d2ab332060cfac887e5f7ec098cdf69a9e09c5f55920905",
+      "sizeBytes": 4089
+    },
+    {
+      "path": "ui/src/utils/vmSnapshotActions.js",
+      "sha256": "914492032982eff96fa3468a60d19ecd731aaeb39edb2d1018190f3d6e38d309",
+      "sizeBytes": 3375
+    },
+    {
+      "path": "ui/src/utils/vmSnapshotList.js",
+      "sha256": "2661a017e117d1ebb75562eac3ffae19a31851392ea720b883cd23aaebe12e92",
+      "sizeBytes": 5765
+    },
+    {
+      "path": "ui/src/utils/vmVolumeActions.js",
+      "sha256": "f1065dacfb350faf113bf15827813397575a27f54c2a98281c5c3d6076843798",
+      "sizeBytes": 6479
+    },
+    {
+      "path": "ui/src/utils/wallAvailability.js",
+      "sha256": "1bac62ed06b48f2b64de545107a400f0bcfee7500497006d23974ae95f648d54",
+      "sizeBytes": 1860
+    },
+    {
+      "path": "ui/src/utils/zone.js",
+      "sha256": "b6781abcf7442ede9f8602a23d3929ab4edd5e473680ed8d714ad50e13c412c7",
+      "sizeBytes": 969
+    },
+    {
+      "path": "ui/src/views/AutogenView.vue",
+      "sha256": "3a203cd7dbdba86db0dd1c09911d25530d7320a1c26621e068dcfc00291adb7e",
+      "sizeBytes": 124263
+    },
+    {
+      "path": "ui/src/views/auth/ForgotPassword.vue",
+      "sha256": "7b6af1dea78aeb95c8093d73fb9fca1be2733e70041d42b2dde7e178e3832ec7",
+      "sizeBytes": 7242
+    },
+    {
+      "path": "ui/src/views/auth/Login.vue",
+      "sha256": "2ecadefd2e9bc1021c9543d9312a0313f3c029b10732e456cbc98aa3bf83da17",
+      "sizeBytes": 29646
+    },
+    {
+      "path": "ui/src/views/auth/ResetPassword.vue",
+      "sha256": "2809bb565d301ffcb91f466f5a31668eb99ea3b9f18548aa4d7cf9eaf6ea905e",
+      "sizeBytes": 8842
+    },
+    {
+      "path": "ui/src/views/automation/AddAutomationController.vue",
+      "sha256": "c6e81ab072dd3bb982cd0e9d39ae20bfa73d08ba25793499bca3748b0df4f647",
+      "sizeBytes": 13274
+    },
+    {
+      "path": "ui/src/views/automation/AddAutomationControllerVersion.vue",
+      "sha256": "7733e7726d1f53422672b9abe8ad4b495e73ba49a746a2cf9b41c37bda422ba9",
+      "sizeBytes": 18755
+    },
+    {
+      "path": "ui/src/views/automation/AutomationControllerTab.vue",
+      "sha256": "aad8a2d614c340ea2ed883c960784434152ae92a3aea5f5a340fa92ecffd82a2",
+      "sizeBytes": 8783
+    },
+    {
+      "path": "ui/src/views/automation/DeployedResourceTab.vue",
+      "sha256": "1e6af59e14b91a4ebcaa98b0218bdcbffbe1365fc57504822a4d6bc07494d734",
+      "sizeBytes": 6744
+    },
+    {
+      "path": "ui/src/views/automation/UpdateAutomationControllerVersion.vue",
+      "sha256": "9d2b4571164ed96a0656c636bf390f573b0291a0db4f463bc7541f52f6f7e26e",
+      "sizeBytes": 4854
+    },
+    {
+      "path": "ui/src/views/compute/AdditionalIsoSelection.vue",
+      "sha256": "46166c1dc9573f0a68d5ad1905ad9795491c259155aafee45711d9c70141f87f",
+      "sizeBytes": 3772
+    },
+    {
+      "path": "ui/src/views/compute/AssignInstance.vue",
+      "sha256": "0d61f29480e488f614bd10a412177fb6a7c59767a46bf8b395d3d2896d8a0933",
+      "sizeBytes": 6205
+    },
+    {
+      "path": "ui/src/views/compute/AttachIso.vue",
+      "sha256": "09e709bfb3d00c3ee96fe73f386519510192120723b7379c4729fd6883bb935b",
+      "sizeBytes": 7478
+    },
+    {
+      "path": "ui/src/views/compute/AutoScaleDownPolicyTab.vue",
+      "sha256": "62128844f3c71ef64771385bed435cd3962baac30350ce698ae4dc0513621906",
+      "sizeBytes": 32575
+    },
+    {
+      "path": "ui/src/views/compute/AutoScaleLoadBalancing.vue",
+      "sha256": "f17f3a2a5ca597a74bf461f2f52dcacab136fcd4340751affc43c9c8e0c89dce",
+      "sizeBytes": 37248
+    },
+    {
+      "path": "ui/src/views/compute/AutoScaleUpPolicyTab.vue",
+      "sha256": "2b6d1ca555604558499082271a4f7655e49c7cb437b1b25c85ad7ced37dc5f71",
+      "sizeBytes": 32652
+    },
+    {
+      "path": "ui/src/views/compute/AutoScaleVmProfile.vue",
+      "sha256": "376159ccd9bac293f4dbdfe77d087c6b1e2a2c9c209d1b098bef78d0800e8cc5",
+      "sizeBytes": 24569
+    },
+    {
+      "path": "ui/src/views/compute/BackupScheduleWizard.vue",
+      "sha256": "70cf1c3a9cc7e3dbc635d9ca2c63b8defd30526865c77be5ad1a9e54c84e2daf",
+      "sizeBytes": 4737
+    },
+    {
+      "path": "ui/src/views/compute/ChangeAffinity.vue",
+      "sha256": "cb9861d95e23c81541b704a117f56e610fcb2b849b86dab5af3d04eb34084b69",
+      "sizeBytes": 4913
+    },
+    {
+      "path": "ui/src/views/compute/ChangeKubernetesClusterAffinity.vue",
+      "sha256": "4e6dcc552b8deba8b25813ccaeef8d82d1040360fcd1479a1b2fbca23f20606e",
+      "sizeBytes": 7506
+    },
+    {
+      "path": "ui/src/views/compute/CloneVM.vue",
+      "sha256": "f89e6b787396d82ab101bc783bc2353b12a6c70a6bf02d2ab805af0fd0d66dd6",
+      "sizeBytes": 6467
+    },
+    {
+      "path": "ui/src/views/compute/CreateAffinityGroup.vue",
+      "sha256": "f9b16859d28d03c565e67cf2aa522637bcba88e7822c3288db7c3bf9a8b15a88",
+      "sizeBytes": 5699
+    },
+    {
+      "path": "ui/src/views/compute/CreateAutoScaleVmGroup.vue",
+      "sha256": "090a0d258d0bb751efc19d2a1f6f2ee2519bf9e3d82bb7defea9cf1e7c2aaad2",
+      "sizeBytes": 143003
+    },
+    {
+      "path": "ui/src/views/compute/CreateKubernetesCluster.vue",
+      "sha256": "d29dfe120a7190ee5efede957052c2d886c6130075fb59a9bb1261dda7f46389",
+      "sizeBytes": 54296
+    },
+    {
+      "path": "ui/src/views/compute/CreateSSHKeyPair.vue",
+      "sha256": "57de9393c344ef42962fa96299bd2345a937ea500b8adbb2b3bf3a3611f93871",
+      "sizeBytes": 8800
+    },
+    {
+      "path": "ui/src/views/compute/CreateSnapshotWizard.vue",
+      "sha256": "c1f69c36a2579b49172d0921a9f76bda083f24e8565e02b1471813b3dd3e01b0",
+      "sizeBytes": 7026
+    },
+    {
+      "path": "ui/src/views/compute/DeployVM.vue",
+      "sha256": "af1378614ff172fe4f2d239a7eb029fac208e0e167a291555cf3958fce652713",
+      "sizeBytes": 198168
+    },
+    {
+      "path": "ui/src/views/compute/DeployVnfAppliance.vue",
+      "sha256": "cd933c2bf0f8fadfc42dc7fd0677bf3b78a09516345e87350255864e5604051a",
+      "sizeBytes": 127210
+    },
+    {
+      "path": "ui/src/views/compute/DestroyVM.vue",
+      "sha256": "27fffd06cff9741582fa70c27611198ac24fcc7d80c5536cae0768d134a548a2",
+      "sizeBytes": 16077
+    },
+    {
+      "path": "ui/src/views/compute/EditVM.vue",
+      "sha256": "1010413fe2e67096c8fed966765dda62bbd62e2b0024b9d27b0802122e5c76e5",
+      "sizeBytes": 18535
+    },
+    {
+      "path": "ui/src/views/compute/ExternalKubernetesCluster.vue",
+      "sha256": "055904747a3de79e266f787758c5315c1ee5567ca51e888394652c970ed5cf9b",
+      "sizeBytes": 9853
+    },
+    {
+      "path": "ui/src/views/compute/ExternalKubernetesNodes.vue",
+      "sha256": "73cea77ea0ce7c8c179f25b77039ef6be1da8e46dc4fa7cc7883d0d0183ac417",
+      "sizeBytes": 5711
+    },
+    {
+      "path": "ui/src/views/compute/FtctlTab.vue",
+      "sha256": "5aa3bfbd2abba5260e75261da4ff6b0095ac2c8745afa16e37f16c12b9b9d4fe",
+      "sizeBytes": 102959
+    },
+    {
+      "path": "ui/src/views/compute/GuestNetworkTab.vue",
+      "sha256": "5c3a6026639dba077e2a1dba75417738fda58c5d343bacca2448a0c79dd23b9d",
+      "sizeBytes": 26441
+    },
+    {
+      "path": "ui/src/views/compute/InstanceTab.vue",
+      "sha256": "ad442bda4994bec75690d45af9b8548d3b8aea1482ff65bc47b7f6cfc7d92d8e",
+      "sizeBytes": 21910
+    },
+    {
+      "path": "ui/src/views/compute/KubernetesAddNodes.vue",
+      "sha256": "e600c666a7b3bb91924777062d250348494318236c262165305457f7f08c4bd7",
+      "sizeBytes": 6972
+    },
+    {
+      "path": "ui/src/views/compute/KubernetesLoadBalancers.vue",
+      "sha256": "9af91a542a112574406cf3c1bb3d38ec165dcae2acb66fde41b9db561e27f4ac",
+      "sizeBytes": 9467
+    },
+    {
+      "path": "ui/src/views/compute/KubernetesNodeNotice.vue",
+      "sha256": "4d4912ebe5dd91db9fe13310332ef34cff3f1e139ecb2537dd8c8ecdb187278b",
+      "sizeBytes": 2677
+    },
+    {
+      "path": "ui/src/views/compute/KubernetesRemoveNodes.vue",
+      "sha256": "950ea3b01238a168f2ffc7fd8b4a5df026fea4d15b4791ac2777604bb3e27fc8",
+      "sizeBytes": 5633
+    },
+    {
+      "path": "ui/src/views/compute/KubernetesServiceTab.vue",
+      "sha256": "39aac693c9e2e260fb5c9f4a23784d00398573aa8bb426f9bb59b4276ac95cb7",
+      "sizeBytes": 28334
+    },
+    {
+      "path": "ui/src/views/compute/KubernetesStoragePreflight.vue",
+      "sha256": "64347acd50afe0f67a7567760be31c1cd9522e3c52a259bed81117220a83553b",
+      "sizeBytes": 5892
+    },
+    {
+      "path": "ui/src/views/compute/MigrateVMStorage.vue",
+      "sha256": "a2ec85e3f62b4350543f2107f71ccb1927450380298d60a0a21afd886a6fbc4f",
+      "sizeBytes": 6907
+    },
+    {
+      "path": "ui/src/views/compute/MigrateWizard.vue",
+      "sha256": "1d89001869863ea37248d0ce6f24792252ffefbd4062791348734ecfe58b4b16",
+      "sizeBytes": 14597
+    },
+    {
+      "path": "ui/src/views/compute/RegisterFtctlProtection.vue",
+      "sha256": "4f074a88d3e1063abae4b25fcaf8b482a4441a26a732884cce9e188ec40b3622",
+      "sizeBytes": 56017
+    },
+    {
+      "path": "ui/src/views/compute/RegisterUserData.vue",
+      "sha256": "96bc3525fb42e45aac8b25a6977f4f632beba1a342e1bea013046d6c033eacbe",
+      "sizeBytes": 9995
+    },
+    {
+      "path": "ui/src/views/compute/ReinstallVm.vue",
+      "sha256": "49ebd572363c0b2da1cf86d3388cc70d6814971fdfd42274eef792b06658829e",
+      "sizeBytes": 14031
+    },
+    {
+      "path": "ui/src/views/compute/ResetSshKeyPair.vue",
+      "sha256": "51868e0057e37f4cff71da34f4ee4fb6c2b02ae17733ef592809976134c7f1d5",
+      "sizeBytes": 5177
+    },
+    {
+      "path": "ui/src/views/compute/ResetUserData.vue",
+      "sha256": "c32b345004fee9ad11f48575aecda30c20eab50351ba603d7abe79a27b58ca0d",
+      "sizeBytes": 13056
+    },
+    {
+      "path": "ui/src/views/compute/ResourceSchedules.vue",
+      "sha256": "8e6f587aad10440be2847045ae22c6c5431f9f26721b613a8ebea5fb5c31b721",
+      "sizeBytes": 20692
+    },
+    {
+      "path": "ui/src/views/compute/ScaleKubernetesCluster.vue",
+      "sha256": "91852bb74c2cae9aa806710f84035b1558135c70b9e773ea5305e1890cae4841",
+      "sizeBytes": 21407
+    },
+    {
+      "path": "ui/src/views/compute/ScaleVM.vue",
+      "sha256": "a2c3a5f0c1459d219d7ecb569adaed9fc7eeff96d70e21443b16122b54970492",
+      "sizeBytes": 9973
+    },
+    {
+      "path": "ui/src/views/compute/StartBackup.vue",
+      "sha256": "28f7072b2d5218a5cb87fce9cb0f60daf634e81acd832764a84f5ab64f71c746",
+      "sizeBytes": 5754
+    },
+    {
+      "path": "ui/src/views/compute/StartVirtualMachine.vue",
+      "sha256": "3a662b668e3e0478432f3840994d842ea777b48182ccffd18591eb8751087819",
+      "sizeBytes": 9765
+    },
+    {
+      "path": "ui/src/views/compute/UpgradeKubernetesCluster.vue",
+      "sha256": "37a6808bcc6db9ef1bd86df5c247782a7d32e4c51165d543f7770280e180cc0b",
+      "sizeBytes": 7501
+    },
+    {
+      "path": "ui/src/views/compute/VmBackupsTab.vue",
+      "sha256": "a29d4d640ddb05655e78771bbd988d005d1a85fc1cfae59f43c844b40ccfe032",
+      "sizeBytes": 19057
+    },
+    {
+      "path": "ui/src/views/compute/VmDevicesTab.vue",
+      "sha256": "8ce521a5b15467161090a8c863980d43f75e43e537ffc869241df684fb22cc9b",
+      "sizeBytes": 30054
+    },
+    {
+      "path": "ui/src/views/compute/VmIsoManager.vue",
+      "sha256": "d7ade0d246c341d802341360f3ee8d2945a1c1d74b2a9346efc9a314af228b4b",
+      "sizeBytes": 20524
+    },
+    {
+      "path": "ui/src/views/compute/VmIsoTab.vue",
+      "sha256": "2c766b41756ad895261c9fed2206327eee77975680fcbbab86f81e2538b9c801",
+      "sizeBytes": 993
+    },
+    {
+      "path": "ui/src/views/compute/VmNicsTab.vue",
+      "sha256": "b28f7057346ab1f005b81de478fc0c6accc4ca6ac6f3ca9e2a8754f58bcc9b3c",
+      "sizeBytes": 30543
+    },
+    {
+      "path": "ui/src/views/compute/VmProcessProfilesDialog.vue",
+      "sha256": "ee65212d0ce464656e00867d7ed92f108cbcb061c40c768a21f3dbaca66b1414",
+      "sizeBytes": 8690
+    },
+    {
+      "path": "ui/src/views/compute/VmProcessToolsDialog.vue",
+      "sha256": "66e467e7b8f75a871131f4319d1358704958f7dabea82b9c070726eff411bc51",
+      "sizeBytes": 15907
+    },
+    {
+      "path": "ui/src/views/compute/VmProcessesTab.vue",
+      "sha256": "25d919571d1793f7d1944d42d48bb0b29a2f8f76c75a5453d862863fa5083d7d",
+      "sizeBytes": 34875
+    },
+    {
+      "path": "ui/src/views/compute/VmSchedulesTab.vue",
+      "sha256": "b607f232e1372554a6e08986bfb9c13962659d9ca93b7e94bbed17fbcc84b401",
+      "sizeBytes": 23837
+    },
+    {
+      "path": "ui/src/views/compute/VmSettingsTab.vue",
+      "sha256": "a817c7e5a485ee83a46b614912c3d755be2b548ffc49a2f4812acbb0ff6d571f",
+      "sizeBytes": 16307
+    },
+    {
+      "path": "ui/src/views/compute/VmSnapshotDialog.vue",
+      "sha256": "d66886d71bc13bcb45fe6b6f4b1d30af3070abe1552dd158f1d1e2d03ef00292",
+      "sizeBytes": 18986
+    },
+    {
+      "path": "ui/src/views/compute/VmSnapshotsTab.vue",
+      "sha256": "807647d24b51a277a999b8f4563412171dd17c9abdb6c5d936acd5bb9a1ee394",
+      "sizeBytes": 16139
+    },
+    {
+      "path": "ui/src/views/compute/VmVbmcManager.vue",
+      "sha256": "52b2c5b90189a09a04b2c45382fc999877a0469c6e7954a0eb43fa3482dbc1a3",
+      "sizeBytes": 12905
+    },
+    {
+      "path": "ui/src/views/compute/VmVolumesTab.vue",
+      "sha256": "05a2168a729f357666aded1921bb7043f6d49642353159e40c5300fff487c947",
+      "sizeBytes": 25137
+    },
+    {
+      "path": "ui/src/views/compute/backup/BackupSchedule.vue",
+      "sha256": "98e7a88bba09edf469736b80cd3cd8b46385d10c281ff8d838798248afd6eb11",
+      "sizeBytes": 7384
+    },
+    {
+      "path": "ui/src/views/compute/backup/CreateBackupSchedule.vue",
+      "sha256": "077f75ee8ec6a505e605c12ea1746127c4192cfbd5d2f337b91ab1bc9870105c",
+      "sizeBytes": 4297
+    },
+    {
+      "path": "ui/src/views/compute/backup/FormSchedule.vue",
+      "sha256": "3cf06825b966604f81c673c2017022a80dabc7111f7a303648db02763c2bf7e5",
+      "sizeBytes": 19326
+    },
+    {
+      "path": "ui/src/views/compute/dr/DRMirroringVMAdd.vue",
+      "sha256": "23ba5538a8fe38419e621986723d4bb8094894593c401979693e3c2a22976be0",
+      "sizeBytes": 19310
+    },
+    {
+      "path": "ui/src/views/compute/dr/DRMirroringVMRemove.vue",
+      "sha256": "b5f9f2a3fbfc788b519d79c28fc66cbdd9df2463c378cbcc97ce34614a87b0aa",
+      "sizeBytes": 5237
+    },
+    {
+      "path": "ui/src/views/compute/dr/DRTable.vue",
+      "sha256": "b6b9644e4c08071ecfb847053354a1f9023b1b7755ac2c7697f902c61f2143ef",
+      "sizeBytes": 6076
+    },
+    {
+      "path": "ui/src/views/compute/dr/DRsimulationTestModal.vue",
+      "sha256": "1f180df8fb942126067dcb521213444aef6a7afc94a703f566fe0ea59c145df4",
+      "sizeBytes": 4987
+    },
+    {
+      "path": "ui/src/views/compute/dr/DrPlanVmTab.vue",
+      "sha256": "927670c16859291b8656ac9f6d9e6a3b7a92549327f07265ee402a57dd244e84",
+      "sizeBytes": 10837
+    },
+    {
+      "path": "ui/src/views/compute/dr/DrWizardEndStep.vue",
+      "sha256": "0856ecc8b31b7136005d3797376709b4eec5a8fd17d26095056d67f27bbf83b9",
+      "sizeBytes": 2608
+    },
+    {
+      "path": "ui/src/views/compute/dr/DrWizardRunningStep.vue",
+      "sha256": "c1666ee865752901f0794519ae8d8b80fa6c422d38184eebaf70c5e2d9f14ff8",
+      "sizeBytes": 14134
+    },
+    {
+      "path": "ui/src/views/compute/dr/DrWizardStartStep.vue",
+      "sha256": "38b4156e53bf2034c0eec5a69256e1c43545827b2c4103e83eb850d7fbff9586",
+      "sizeBytes": 2605
+    },
+    {
+      "path": "ui/src/views/compute/vmProcessDisplay.js",
+      "sha256": "5f71c43d4ddf618e1f6d86a2b33287a70a716c669a9a515c0718c29218eb1538",
+      "sizeBytes": 2655
+    },
+    {
+      "path": "ui/src/views/compute/vmProcessToolsChecksum.js",
+      "sha256": "1ec2ee7c34c08556e2141b3c9516356dc891fc99ae36bbbe462723d7a7c71ced",
+      "sizeBytes": 1297
+    },
+    {
+      "path": "ui/src/views/compute/wizard/AffinityGroupSelection.vue",
+      "sha256": "4e0d380b5a2e95069b7f294540eea8207bbadaad9d914e0a8b59b82b0eb3622c",
+      "sizeBytes": 4585
+    },
+    {
+      "path": "ui/src/views/compute/wizard/ComputeOfferingSelection.vue",
+      "sha256": "66fc67d4aa0c91a5d948a923e1a52afc063f6494c6ead04aad86894bcce42395",
+      "sizeBytes": 14670
+    },
+    {
+      "path": "ui/src/views/compute/wizard/ComputeSelection.vue",
+      "sha256": "712a5d7904c7de1a3f2a5402f5f5245361772cfdf2bb0bc68892e447a234d392",
+      "sizeBytes": 10089
+    },
+    {
+      "path": "ui/src/views/compute/wizard/DeployButtons.vue",
+      "sha256": "5566784d4200ae918e82fb65ee12bcc1b411747b55928c809fe750b6d4c57dc8",
+      "sizeBytes": 3502
+    },
+    {
+      "path": "ui/src/views/compute/wizard/DeployInstanceBackupSelection.vue",
+      "sha256": "13db23937e375e9afed8ac63ad9bfe009837a7d2b32e0e9b32885e9953a31ed2",
+      "sizeBytes": 4637
+    },
+    {
+      "path": "ui/src/views/compute/wizard/DeploymentStorageSelection.vue",
+      "sha256": "a0cf7e155522592d9e46582760321e0dd95a38ab1c12ea7fdc7af393979894f6",
+      "sizeBytes": 7583
+    },
+    {
+      "path": "ui/src/views/compute/wizard/DiskOfferingSelection.vue",
+      "sha256": "44bfee3012dcce4b749975ca9d0c5a5e79b14d334abfdf50373ffbd6b99ff2b5",
+      "sizeBytes": 8704
+    },
+    {
+      "path": "ui/src/views/compute/wizard/DiskQuantitySelection.vue",
+      "sha256": "a0c73da3aad9a29fd739afa41eb73f8fe5d1ffe116496d3d3249d6a2dd88e4b9",
+      "sizeBytes": 2540
+    },
+    {
+      "path": "ui/src/views/compute/wizard/DiskSizeSelection.vue",
+      "sha256": "af6d957f246531b13c31daaa8caf9840d8c6b571fd2233c4230ffdc61a5d1a2c",
+      "sizeBytes": 7658
+    },
+    {
+      "path": "ui/src/views/compute/wizard/IsoAdditionalDataDisks.vue",
+      "sha256": "aeaa457306edb03e83ef69c02ed3b3e790ab14e18fcea561c7020583d7c36a60",
+      "sizeBytes": 3232
+    },
+    {
+      "path": "ui/src/views/compute/wizard/LoadBalancerSelection.vue",
+      "sha256": "5fd3d9db0610de09a949709ca7a380db7fb127578124fa87a35da6d6617e8fbc",
+      "sizeBytes": 5895
+    },
+    {
+      "path": "ui/src/views/compute/wizard/MultiDiskSelection.vue",
+      "sha256": "f382627f28407090f3405a60d61c78e98aa62507aa9d7d172538f25cd73963d2",
+      "sizeBytes": 7325
+    },
+    {
+      "path": "ui/src/views/compute/wizard/MultiNetworkSelection.vue",
+      "sha256": "8f1077ac76b1eee49307960f5339687d7d9a8aabf9238f66b1ea67fbf998546e",
+      "sizeBytes": 10037
+    },
+    {
+      "path": "ui/src/views/compute/wizard/NetworkConfiguration.vue",
+      "sha256": "0d881df927ed5fbcae48bca4c25f0174732cdbe95faec6258cb4e538db250cb4",
+      "sizeBytes": 15693
+    },
+    {
+      "path": "ui/src/views/compute/wizard/NetworkSelection.vue",
+      "sha256": "807ced2e39c0d01a871e7d50b7c2f0885d31c07d862e8fc9b7cdcaa112dc46e0",
+      "sizeBytes": 12063
+    },
+    {
+      "path": "ui/src/views/compute/wizard/OsBasedImageRadioGroup.vue",
+      "sha256": "c3a4f002be6c53bafc85e6cdaba3490b6d60f85329667cbd52c211d1d1c97870",
+      "sizeBytes": 6282
+    },
+    {
+      "path": "ui/src/views/compute/wizard/OsBasedImageSelection.vue",
+      "sha256": "c4e61b13be702154a909af6125589b4f48b5cbe75a1ead9889ef5a0e1b4415fa",
+      "sizeBytes": 12188
+    },
+    {
+      "path": "ui/src/views/compute/wizard/OsBasedImageSelectionSearchView.vue",
+      "sha256": "f6427a28c4a3e21da1620c3c8deb990da212be4cc3f837faac0a502c84ce50c4",
+      "sizeBytes": 3250
+    },
+    {
+      "path": "ui/src/views/compute/wizard/OwnershipSelection.vue",
+      "sha256": "13a6369020135fe1df94e3533e22fc6c8cd87fd7a424cdae32bbe7c83b6729fa",
+      "sizeBytes": 8996
+    },
+    {
+      "path": "ui/src/views/compute/wizard/SecurityGroupSelection.vue",
+      "sha256": "d99508bb2042140883ffccfd1b90a95672f638957496e79671af68778d85d6e9",
+      "sizeBytes": 6045
+    },
+    {
+      "path": "ui/src/views/compute/wizard/SshKeyPairSelection.vue",
+      "sha256": "0599e8d00c21075d1f7954b0beb74ec14bf9af3976ac89a6c97249ddbcf7983f",
+      "sizeBytes": 4772
+    },
+    {
+      "path": "ui/src/views/compute/wizard/StorageRbdImageSelection.vue",
+      "sha256": "68c03becf93789314b9e1c091bd359d4244d062c1532c25327f449e0e6b1ddbc",
+      "sizeBytes": 6854
+    },
+    {
+      "path": "ui/src/views/compute/wizard/TemplateIsoRadioGroup.vue",
+      "sha256": "145b458155829636a1b51c5a2a8dec31b8217786e2f8369a50f3a2dc5ebc266d",
+      "sizeBytes": 5848
+    },
+    {
+      "path": "ui/src/views/compute/wizard/TemplateIsoSelection.vue",
+      "sha256": "e2033278fc10c8b8e9f4df8efb9f8cf8e687ee93d7fdd8ba7b2c6e74ec20162b",
+      "sizeBytes": 5049
+    },
+    {
+      "path": "ui/src/views/compute/wizard/UserDataSelection.vue",
+      "sha256": "ccfcd2824e290b822b2ee55636702b2deff0541a9c5e90e999bf0f4d079aaf01",
+      "sizeBytes": 5271
+    },
+    {
+      "path": "ui/src/views/compute/wizard/VnfNicsSelection.vue",
+      "sha256": "f0e9487ce91c994143c22b5cd6e26232b514f102ce4b27d45925a8660ca1051f",
+      "sizeBytes": 4763
+    },
+    {
+      "path": "ui/src/views/compute/wizard/VolumeDiskOfferingSelectView.vue",
+      "sha256": "8923616fa9b47f15fab4d8b71a5e6b1251946fee82ee1aedbeeb863315302af0",
+      "sizeBytes": 8676
+    },
+    {
+      "path": "ui/src/views/compute/wizard/ZoneBlockRadioGroupSelect.vue",
+      "sha256": "0a91d70951ec031fd49f4d0fe889c2335c0697a5ba7a936628cb5fcb0725a82f",
+      "sizeBytes": 1764
+    },
+    {
+      "path": "ui/src/views/dashboard/CapacityDashboard.vue",
+      "sha256": "a55dcc28f005a6e528b42d66b969e0c03a218315f1e36fc674f734d95cf58c32",
+      "sizeBytes": 25103
+    },
+    {
+      "path": "ui/src/views/dashboard/Dashboard.vue",
+      "sha256": "c9081e0e65e20909651799f343633243758970015a80f1ef21cabbad63f8c481",
+      "sizeBytes": 2748
+    },
+    {
+      "path": "ui/src/views/dashboard/FirstLogin.vue",
+      "sha256": "796c3cd503a7c277c34e1a7cfd2ca865cdd527e68078087b107c5d8488683be4",
+      "sizeBytes": 7332
+    },
+    {
+      "path": "ui/src/views/dashboard/OnboardingDashboard.vue",
+      "sha256": "bfae5055d0084605d1e9d32f006eb5ec107da08033316f458093bd35445197b9",
+      "sizeBytes": 3165
+    },
+    {
+      "path": "ui/src/views/dashboard/SetupTwoFaAtLogin.vue",
+      "sha256": "f0dcc02ef59666e6b515dd9c6ac5d626d184f9510a2665b9b5567fa7e7337c07",
+      "sizeBytes": 11323
+    },
+    {
+      "path": "ui/src/views/dashboard/UsageDashboard.vue",
+      "sha256": "3f66a29d527b2fe4db58d2a3838a972cb123aada6611dd0b060458c18a7ae66f",
+      "sizeBytes": 25921
+    },
+    {
+      "path": "ui/src/views/dashboard/UsageDashboardChart.vue",
+      "sha256": "16c24ea03d176fa0abe72e5004d55a41ea3b4046f210a6e3bae179baa0a45fc0",
+      "sizeBytes": 1919
+    },
+    {
+      "path": "ui/src/views/dashboard/VerifyOauth.vue",
+      "sha256": "4f88c8bc7a12eb437565961c7758936ae54a3ac01a3f8f74bbae190ad72d9b1c",
+      "sizeBytes": 3446
+    },
+    {
+      "path": "ui/src/views/dashboard/VerifyTwoFa.vue",
+      "sha256": "0b31dce565cd0260cbc7d6d00a109d8dc4a8ad376e8f3c8b8365cefc97671c4e",
+      "sizeBytes": 5468
+    },
+    {
+      "path": "ui/src/views/desktop/AddDesktopControllerVersion.vue",
+      "sha256": "297f87a071e9b4175a7ad2d8f896900985363603045506b76d3afec3acef48f9",
+      "sizeBytes": 22331
+    },
+    {
+      "path": "ui/src/views/desktop/AddDesktopMasterVersion.vue",
+      "sha256": "6edaf536d894ce92b6a86428f56ad7fdcbe69f5ae006299a1f0bbc6fbd2d4ad7",
+      "sizeBytes": 20418
+    },
+    {
+      "path": "ui/src/views/desktop/DeployCluster.vue",
+      "sha256": "dcbf43a1c9ea4a5746d121e5b92d7f3e6959de39d31f72ec334756fc0b890edc",
+      "sizeBytes": 21207
+    },
+    {
+      "path": "ui/src/views/desktop/DesktopTab.vue",
+      "sha256": "a5e9f60ce60ed903445d7bad0f3ec3deb7e58fea9949b76e957d5e91124a27a8",
+      "sizeBytes": 15943
+    },
+    {
+      "path": "ui/src/views/desktop/UpdateDesktopControllerVersion.vue",
+      "sha256": "c60d2d6e91617a872a74622e7c33c765ab446ce1970b5c921aa3b90b3021a5ba",
+      "sizeBytes": 4842
+    },
+    {
+      "path": "ui/src/views/desktop/UpdateDesktopMasterVersion.vue",
+      "sha256": "f3c286ec385400ac7270b433b46ef21378491c2c8f117f710fea9d139d40996c",
+      "sizeBytes": 4834
+    },
+    {
+      "path": "ui/src/views/event/EventDownload.vue",
+      "sha256": "b8044b80f0b5c0b031c95381211c6b6315f8a7fde7c201dc8fa0de673210296a",
+      "sizeBytes": 69398
+    },
+    {
+      "path": "ui/src/views/exception/403.vue",
+      "sha256": "05f1a127bde5cb16f027ab08c19b27809cc00fe501e8422f5540cf4720efbac1",
+      "sizeBytes": 1005
+    },
+    {
+      "path": "ui/src/views/exception/404.vue",
+      "sha256": "8614352f181ecc3def0e4bd248b3ffa2453af2cb072dac2b8c80a01d7a994e30",
+      "sizeBytes": 1005
+    },
+    {
+      "path": "ui/src/views/exception/500.vue",
+      "sha256": "5711baf9d8510942fb06ec92af9bcf68487f094451384a28419055aef2940626",
+      "sizeBytes": 1005
+    },
+    {
+      "path": "ui/src/views/exception/ExceptionPage.vue",
+      "sha256": "d2ec8752f767b54ade092379e39567afc413c016306daf580f60b9711b4de466",
+      "sizeBytes": 3007
+    },
+    {
+      "path": "ui/src/views/exception/type.js",
+      "sha256": "1d7e6aab3787285c33d5c506fda7a5bde395b42b139040f951665ca45b9da629",
+      "sizeBytes": 1025
+    },
+    {
+      "path": "ui/src/views/extension/AddCustomAction.vue",
+      "sha256": "7dd50cfafe91e66f79c8d1b7b2b97de5cca236205c271dd2678f552ff8a10921",
+      "sizeBytes": 10488
+    },
+    {
+      "path": "ui/src/views/extension/CreateExtension.vue",
+      "sha256": "d7288efd24a2820455318400999bc607911e7fe9c6db52ca1201057d6e03b505",
+      "sizeBytes": 8770
+    },
+    {
+      "path": "ui/src/views/extension/ExtensionCustomActionsTab.vue",
+      "sha256": "465f7f172dd32b06f7fcdf7d61a2c0c2215ac74a2608453846e9de66691e7d21",
+      "sizeBytes": 9352
+    },
+    {
+      "path": "ui/src/views/extension/ExtensionResourcesTab.vue",
+      "sha256": "583e75bd8ea65cda337237e9ededf4f56d1c92cef33403b4d45fd2b6fcd1624f",
+      "sizeBytes": 5474
+    },
+    {
+      "path": "ui/src/views/extension/ExternalConfigurationDetails.vue",
+      "sha256": "c9ec66953de008f5cee8ba80f7c5075141470b764d7bbd9bae95f8573124783d",
+      "sizeBytes": 3398
+    },
+    {
+      "path": "ui/src/views/extension/JsonViewer.vue",
+      "sha256": "66dcef04538129a54f198f5734d7ab4166a913d322458e7848345566e251aa29",
+      "sizeBytes": 8552
+    },
+    {
+      "path": "ui/src/views/extension/ParametersInput.vue",
+      "sha256": "99863fa4f6dcdba58ceadb5ab0909b434b95f6a070b571d5f8da948d4b721055",
+      "sizeBytes": 10700
+    },
+    {
+      "path": "ui/src/views/extension/RegisterExtension.vue",
+      "sha256": "0cdc6c1f2e4efc24a6229eb6e4f1cbc4395a68776477da3bca3214f242dd3b40",
+      "sizeBytes": 6574
+    },
+    {
+      "path": "ui/src/views/extension/RunCustomAction.vue",
+      "sha256": "f6af87e5c8aa8a2939e5e417ab2f72980cbc3f9e292d27f1dab57b0bf910d861",
+      "sizeBytes": 14974
+    },
+    {
+      "path": "ui/src/views/extension/UpdateCustomAction.vue",
+      "sha256": "f6eddd48ee11759c1f0f39a4d4bc7853cbd68cf072f8ec0891656e7da54344b2",
+      "sizeBytes": 8118
+    },
+    {
+      "path": "ui/src/views/extension/UpdateExtension.vue",
+      "sha256": "4a2786cfc3bf96dc9d3f3fc8f907264e031b65914ae57aa39e4c86644c431aa8",
+      "sizeBytes": 5919
+    },
+    {
+      "path": "ui/src/views/extension/UpdateRegisteredExtension.vue",
+      "sha256": "b08c833e9a35e0303fe880b37324d404beec59630a0121746e27f575e3f75337",
+      "sizeBytes": 4045
+    },
+    {
+      "path": "ui/src/views/iam/AddAccount.vue",
+      "sha256": "e0e4222bea219582298399668cec078c6dbef73d8acb128aa515655fde103da6",
+      "sizeBytes": 17667
+    },
+    {
+      "path": "ui/src/views/iam/AddLdapAccount.vue",
+      "sha256": "bad6dabc461355ed33866aa5083107ebe97de1280bf2588ddfc120731fa7f4f8",
+      "sizeBytes": 17455
+    },
+    {
+      "path": "ui/src/views/iam/AddUser.vue",
+      "sha256": "1bbd48ad2c76c6e8dcdd7663301192f634ca10cbc974c3f627730afb98c265ae",
+      "sizeBytes": 15294
+    },
+    {
+      "path": "ui/src/views/iam/ApiKeyPairPermissionTable.vue",
+      "sha256": "22973d30122c89eb1c670bafa3d0cd13777f4b047c325600f413a4fd912c95e9",
+      "sizeBytes": 14099
+    },
+    {
+      "path": "ui/src/views/iam/ChangeUserPassword.vue",
+      "sha256": "2546bdf707096ba7c1cce60593b6e7ab66d24c48a08e5e1dfe1e0a2a08bed79f",
+      "sizeBytes": 6200
+    },
+    {
+      "path": "ui/src/views/iam/ConfigureSamlSsoAuth.vue",
+      "sha256": "fbd4cc53df96d47a84d75110b118bfcf6f98e0af9cb12de508ae0500b41b22b0",
+      "sizeBytes": 4611
+    },
+    {
+      "path": "ui/src/views/iam/CreateRole.vue",
+      "sha256": "697e710008e4214126c2310a429a200fbc34908e716ea35bc4dc2da7888314ed",
+      "sizeBytes": 7427
+    },
+    {
+      "path": "ui/src/views/iam/DeleteAccount.vue",
+      "sha256": "04666f81314ac9a663bf2ca659268f344916a40dbe1c436576ca3582973e6d59",
+      "sizeBytes": 5586
+    },
+    {
+      "path": "ui/src/views/iam/DeleteAccountWrapper.vue",
+      "sha256": "6f0344da5bf17e179fbb8b4eb2106d60a860cdf35c6f502fcb9c3b127a075b3a",
+      "sizeBytes": 1983
+    },
+    {
+      "path": "ui/src/views/iam/DomainActionForm.vue",
+      "sha256": "dcf4829f41bf753001a49b9c435bdfdfb79d8b608ddd10781eadb5c31d1bab44",
+      "sizeBytes": 13802
+    },
+    {
+      "path": "ui/src/views/iam/DomainView.vue",
+      "sha256": "d69dbfd731ba22a9dfa6e96aec0180565515244e4999b5a5acf5447cc6756b34",
+      "sizeBytes": 14421
+    },
+    {
+      "path": "ui/src/views/iam/EditAccount.vue",
+      "sha256": "44464d5e390cbfa2a6912b52fa178e03b933f41ff5a479cd35be3cf77cf8bb62",
+      "sizeBytes": 6383
+    },
+    {
+      "path": "ui/src/views/iam/EditUser.vue",
+      "sha256": "11ebcf9e6f47f8052fd59ba14a16d98298ed98008194a102a6d8c46e9bf27644",
+      "sizeBytes": 8379
+    },
+    {
+      "path": "ui/src/views/iam/ForceChangePassword.vue",
+      "sha256": "7daf3c1e65a6a49dfbb24409fb335ac8b3f7f91769f1d779eda00f5e1046e500",
+      "sizeBytes": 8172
+    },
+    {
+      "path": "ui/src/views/iam/GenerateApiKeyPair.vue",
+      "sha256": "b539860150f80dd75f2addb1f82e5b43e10137cc488787431bceeffc55af8fd4",
+      "sizeBytes": 7103
+    },
+    {
+      "path": "ui/src/views/iam/ImportRole.vue",
+      "sha256": "d380b3a55dbb4e299a20f550d0784dd02a398c90283a3983c1bbba55b829a885",
+      "sizeBytes": 10523
+    },
+    {
+      "path": "ui/src/views/iam/PermissionEditable.vue",
+      "sha256": "178134e3f724051bc6e4e3f3574b13d71f7d3cb86ea30f4ad5b14ec13207d6fb",
+      "sizeBytes": 1683
+    },
+    {
+      "path": "ui/src/views/iam/RolePermissionTab.vue",
+      "sha256": "7a7eb7048e38641d5219fd0d187bdddbc3a2c78b3cf039c141a67b487c398872",
+      "sizeBytes": 12414
+    },
+    {
+      "path": "ui/src/views/iam/RuleDelete.vue",
+      "sha256": "7eaef0c47781be3c7ff3f34981257e6bc66acfc41de86ef77f197c1cf8c8814f",
+      "sizeBytes": 1667
+    },
+    {
+      "path": "ui/src/views/iam/SSLCertificateTab.vue",
+      "sha256": "648826ed1537bd807444b16e7008bb94dbf13a8961cf55438dff0ca6e38a6018",
+      "sizeBytes": 13322
+    },
+    {
+      "path": "ui/src/views/iam/SetupTwoFaAtUserProfile.vue",
+      "sha256": "b005c59a5de4a5f471cbf3af1cfefd5729c7e6a6e801bb179b3aaedd3afbea29",
+      "sizeBytes": 10573
+    },
+    {
+      "path": "ui/src/views/image/AddKubernetesSupportedVersion.vue",
+      "sha256": "dc27c997a01a426712613ad50f3ae8d1813858d1171c5712c1fad39ac5a89177",
+      "sizeBytes": 14983
+    },
+    {
+      "path": "ui/src/views/image/IsoZones.vue",
+      "sha256": "c87ddffa287de509d798b126e361bb6bdefd99fc348e21a738261edfbabeec83",
+      "sizeBytes": 22276
+    },
+    {
+      "path": "ui/src/views/image/RegisterOrUploadIso.vue",
+      "sha256": "2adcf49725e21b16f9f417169b4fe5a3f3dde7fa621183c49cb7e3102460ac7a",
+      "sizeBytes": 25928
+    },
+    {
+      "path": "ui/src/views/image/RegisterOrUploadTemplate.vue",
+      "sha256": "a33d8de0617636d6dc7d4c11bf85220e3ebbc45f05e3ca73daa7991af7e658d7",
+      "sizeBytes": 48140
+    },
+    {
+      "path": "ui/src/views/image/TemplateVnfSettings.vue",
+      "sha256": "2cdc6ccd32770ba9dcef8947602919c8cbea0b3f96fad56025ece1f02df19b05",
+      "sizeBytes": 29996
+    },
+    {
+      "path": "ui/src/views/image/TemplateZones.vue",
+      "sha256": "37cc2c2057b60b296f07678446f9c1a5a54deb2865734af09a52164b890e1824",
+      "sizeBytes": 25624
+    },
+    {
+      "path": "ui/src/views/image/UpdateISO.vue",
+      "sha256": "5bec612ff7ff15b8fa0e1788193962fd897dbe585fdff190ffddb63c0a6e13b4",
+      "sizeBytes": 12352
+    },
+    {
+      "path": "ui/src/views/image/UpdateKubernetesSupportedVersion.vue",
+      "sha256": "8327ddfb4555c3d1847bee98ae96597422f95119bb0fac166d1cb260fda4584c",
+      "sizeBytes": 4827
+    },
+    {
+      "path": "ui/src/views/image/UpdateTemplate.vue",
+      "sha256": "6ad4f5cd0ecc84c65ae605660b4a8f456eaf26e69dbfe05059d7b186946261a9",
+      "sizeBytes": 21008
+    },
+    {
+      "path": "ui/src/views/image/UpdateTemplateIsoPermissions.vue",
+      "sha256": "a3f57ea04206860a7fac310b77d38a70c3b170e1b1ddb0a0a792f7682ebbbcba",
+      "sizeBytes": 11083
+    },
+    {
+      "path": "ui/src/views/infra/AddObjectStorage.vue",
+      "sha256": "7c4a310d180b55fa32209dbeab1dba10e31728f224903c9306c347cbf959d61a",
+      "sizeBytes": 8267
+    },
+    {
+      "path": "ui/src/views/infra/AddPrimaryStorage.vue",
+      "sha256": "562fb91f022e11c4631c45c2cbd7dedc1b27331b1471658c976aa45815bc80a8",
+      "sizeBytes": 50196
+    },
+    {
+      "path": "ui/src/views/infra/AddSecondaryStorage.vue",
+      "sha256": "cac40fb43729bc86b8550c082a15b729c20c9e171a6011fbb2baa458df69aa19",
+      "sizeBytes": 19015
+    },
+    {
+      "path": "ui/src/views/infra/AsyncJobsTab.vue",
+      "sha256": "e273974a8fbd8f0a28a61109ab93f021d7a8bd4dca20826c629dab03448d3dac",
+      "sizeBytes": 3234
+    },
+    {
+      "path": "ui/src/views/infra/ChangeHostPassword.vue",
+      "sha256": "c3421b049d98729add795ae073e8fc540e28df7cbb2e6b92e3504a3414745446",
+      "sizeBytes": 4798
+    },
+    {
+      "path": "ui/src/views/infra/ChangeStoragePoolScope.vue",
+      "sha256": "5088eeb4fcd14904da4511f9af3272b5383734eae7684a3d3bc7705f38aa1f19",
+      "sizeBytes": 6612
+    },
+    {
+      "path": "ui/src/views/infra/ClusterAdd.vue",
+      "sha256": "df9627e5cf1dffec31b8083ebd4701f3d7aa15875abc771c1bd2354fddf37f4f",
+      "sizeBytes": 17433
+    },
+    {
+      "path": "ui/src/views/infra/ClusterDRSTab.vue",
+      "sha256": "891a61eae1b628bfbd554e1c4a07318767ead690d66217946d5b37a750902285",
+      "sizeBytes": 10080
+    },
+    {
+      "path": "ui/src/views/infra/ClusterUpdate.vue",
+      "sha256": "135067ea6fde8f533c974d2b334bdbd9c68b9ef194d2a059869e1c80f6814525",
+      "sizeBytes": 9128
+    },
+    {
+      "path": "ui/src/views/infra/ConfigureHostOOBM.vue",
+      "sha256": "5fe0693282ae9bc03a137549bfdce0b80db80dcfce7f4280879e65d8a4c3a768",
+      "sizeBytes": 7138
+    },
+    {
+      "path": "ui/src/views/infra/Confirmation.vue",
+      "sha256": "dd3174d708378a5a76d5aeedc9bce21bad92616a5079236bd577487bbd3ccd2b",
+      "sizeBytes": 5301
+    },
+    {
+      "path": "ui/src/views/infra/ConnectedAgentsTab.vue",
+      "sha256": "49823ec4e2b47c87a627194644c9093a8a8b10354bc3eb3d59b9b90e257f02b0",
+      "sizeBytes": 2790
+    },
+    {
+      "path": "ui/src/views/infra/CpuSockets.vue",
+      "sha256": "e8534f26e74c9535bf488aacdaad650e7c84ffbca8b64665c57affe657ec5948",
+      "sizeBytes": 4869
+    },
+    {
+      "path": "ui/src/views/infra/DisasterRecoveryClusterAdd.vue",
+      "sha256": "8126e26cec2b7d79e2f13621cdb7cd7a498c7e9db90dd8c2219311997e1acc1f",
+      "sizeBytes": 10243
+    },
+    {
+      "path": "ui/src/views/infra/DisasterRecoveryClusterDisable.vue",
+      "sha256": "18e3daa3d3daf9679d614390e135f5ebe3534f9f2625f48e478e199e4abe696b",
+      "sizeBytes": 4963
+    },
+    {
+      "path": "ui/src/views/infra/DisasterRecoveryClusterVmTab.vue",
+      "sha256": "27b3b93d47aebf07bd5f517c4eab5b885ebef016cd599627205c7f5abb8c7a79",
+      "sizeBytes": 16366
+    },
+    {
+      "path": "ui/src/views/infra/HostAdd.vue",
+      "sha256": "15534b3d0d04fda8ee90c9c4abbbc83299f64354c04a93d65c348f2b264b681e",
+      "sizeBytes": 21153
+    },
+    {
+      "path": "ui/src/views/infra/HostEnableDisable.vue",
+      "sha256": "c2daa8affa0ba6b53898c647ab355997db32f4cbc38f3cace9f371a139f63f23",
+      "sizeBytes": 4369
+    },
+    {
+      "path": "ui/src/views/infra/HostInfo.vue",
+      "sha256": "9b19399d5c373ff3bb89cd5ebe75ba2f1838ef053a19204b7afc0247618bba46",
+      "sizeBytes": 9261
+    },
+    {
+      "path": "ui/src/views/infra/HostRedfishTab.vue",
+      "sha256": "c9a223ae109884dac3a60f243e0ddac749eb6477b9debfcedc44fde66f147a4a",
+      "sizeBytes": 32565
+    },
+    {
+      "path": "ui/src/views/infra/HostUpdate.vue",
+      "sha256": "612f5ac4107508ec19bd7c2c507b6313c1be1ef78193e89678fbe43ad621d15b",
+      "sizeBytes": 11569
+    },
+    {
+      "path": "ui/src/views/infra/InfraSummary.vue",
+      "sha256": "b467793ce418dbccf107703bd435712e24b5e9fbd37b8839c2f4a3dadb86991e",
+      "sizeBytes": 20337
+    },
+    {
+      "path": "ui/src/views/infra/IntegrityVerificationTab.vue",
+      "sha256": "69eb716c603ef28c29c223724fa8ccdc08c73db3a1a4289a09393ee9bf02956f",
+      "sizeBytes": 14557
+    },
+    {
+      "path": "ui/src/views/infra/ListHostDevicesTab.vue",
+      "sha256": "75cca4820f9b688f6e494d21bf5b4cce5ccf5f1f83d3a10bdad6d28a02671cd5",
+      "sizeBytes": 154291
+    },
+    {
+      "path": "ui/src/views/infra/ManagementServerPeerTab.vue",
+      "sha256": "fdec37e02bb80dc3dfff9b1cc7dac96df55aa13282a738ce50159689233a2143",
+      "sizeBytes": 3534
+    },
+    {
+      "path": "ui/src/views/infra/Metrics.vue",
+      "sha256": "125d5a336c742b65e960366c3f61385891ff0203425c207a89c515ee2b9b0d38",
+      "sizeBytes": 6784
+    },
+    {
+      "path": "ui/src/views/infra/MigrateData.vue",
+      "sha256": "50416b27a5a8a68d414e7ad94f6bf942a736d09bcb04a8fb0e515b1421fd2268",
+      "sizeBytes": 7483
+    },
+    {
+      "path": "ui/src/views/infra/OobmTab.vue",
+      "sha256": "8edd4e54e4eccec92b5288daf07d1d91b0f2e3dbd17141c5049a82beb1301aa9",
+      "sizeBytes": 4822
+    },
+    {
+      "path": "ui/src/views/infra/PodAdd.vue",
+      "sha256": "e087eec3896eae40c30b871427341ae0925c7490e25f8cec4e61011adce8f4e2",
+      "sizeBytes": 8665
+    },
+    {
+      "path": "ui/src/views/infra/PodUpdate.vue",
+      "sha256": "5f2696e7ab9b33c054e7b8ea47e4f13d59663fc3f0040b48038d612d0becef6b",
+      "sizeBytes": 6933
+    },
+    {
+      "path": "ui/src/views/infra/Resources.vue",
+      "sha256": "40c464cd5a40479b4c5e9a8711db11bdb5d4502c2c351941c2629f664322dcee",
+      "sizeBytes": 8479
+    },
+    {
+      "path": "ui/src/views/infra/RulePauseModal.vue",
+      "sha256": "b802c167913d2f4655283ccaedd34cc7d47818275b5839f0949e2939ba21fac7",
+      "sizeBytes": 5404
+    },
+    {
+      "path": "ui/src/views/infra/RuleSilenceModal.vue",
+      "sha256": "656324cf975d93c4e501c1992335f6c4dc70e24b0b660458f84cec81b5bd7c28",
+      "sizeBytes": 8927
+    },
+    {
+      "path": "ui/src/views/infra/SecurityCheckTab.vue",
+      "sha256": "1569b50b8b2848e07bc4ddd8681f9bde5b6d725c76817f69f243de4630421e4c",
+      "sizeBytes": 3549
+    },
+    {
+      "path": "ui/src/views/infra/StorageBrowser.vue",
+      "sha256": "9f1d2960068a1db43a7e6bb51c5de705b51deeab4f057d5cdd98a1760e6538c4",
+      "sizeBytes": 21156
+    },
+    {
+      "path": "ui/src/views/infra/UpdatePrimaryStorage.vue",
+      "sha256": "f620e3229a33ee63b5f6a3d2ffd153131cf7c1a2712b4ef5248b05a718592e44",
+      "sizeBytes": 9397
+    },
+    {
+      "path": "ui/src/views/infra/UsageRecords.vue",
+      "sha256": "40db65b88b78b47b7cc15602d0346fee7dffd298def624aca9421cf102e138c4",
+      "sizeBytes": 28520
+    },
+    {
+      "path": "ui/src/views/infra/WallAlertSilenceTab.vue",
+      "sha256": "3428c535ef81c65e3eeff1d38e9f3f6c7c73a4753b386163712555d954bb464b",
+      "sizeBytes": 16385
+    },
+    {
+      "path": "ui/src/views/infra/WallAlertSolutionTab.vue",
+      "sha256": "10439e6bca19c90827ad0c204ed85105dbf17a76487992abada485599105b5a4",
+      "sizeBytes": 18515
+    },
+    {
+      "path": "ui/src/views/infra/WallThresholdEditor.vue",
+      "sha256": "43554bd9257691632088a0f2c40bd0fa8339c694b446460da7c99831e058162c",
+      "sizeBytes": 17554
+    },
+    {
+      "path": "ui/src/views/infra/ZoneUpdate.vue",
+      "sha256": "86e5a561128461b87b64fc966b8726994ada40f0f160920fbc3345e6b2f571d6",
+      "sizeBytes": 9092
+    },
+    {
+      "path": "ui/src/views/infra/dr/DrEventsTab.vue",
+      "sha256": "4dad8cc580a88261ebdd8cf150c8ffe9d74dbdbdf6220f03dc68354d10696a8b",
+      "sizeBytes": 4646
+    },
+    {
+      "path": "ui/src/views/infra/dr/DrPlanHistoryTab.vue",
+      "sha256": "69e06b7ebf92e5902f176e77d8c10af32aa743b04db7795ac736d2339476db8b",
+      "sizeBytes": 2061
+    },
+    {
+      "path": "ui/src/views/infra/dr/DrPlanList.vue",
+      "sha256": "a692fc47877a4facf9de895af992e8fc8cc75660440b1785b0ac17ba4eec2545",
+      "sizeBytes": 174757
+    },
+    {
+      "path": "ui/src/views/infra/dr/DrPlanOverview.vue",
+      "sha256": "2657e68ab39e5d5b4410bc58466191c516656932ea42054f9776e099c76d49b8",
+      "sizeBytes": 16857
+    },
+    {
+      "path": "ui/src/views/infra/dr/DrPlanTopologyTab.vue",
+      "sha256": "c36c6f3ab477487d5bf061770ceb8870fe3e297206f757d317b60e86f179a3ba",
+      "sizeBytes": 1354
+    },
+    {
+      "path": "ui/src/views/infra/dr/DrProtectionInfoTab.vue",
+      "sha256": "2e123041775b2b9aa513fe55fbe0fa3d8d7973026ef81cdd287e4a9588d5ce77",
+      "sizeBytes": 37201
+    },
+    {
+      "path": "ui/src/views/infra/dr/DrReplicaTab.vue",
+      "sha256": "512e630bb678e6e3b507171b708dc38258241f81f9454c7eb5284c7d9dc74e30",
+      "sizeBytes": 4013
+    },
+    {
+      "path": "ui/src/views/infra/dr/DrRestorePointsTab.vue",
+      "sha256": "e8b64a31fa423299573844a6d2147dedd489af491cd9f385d1b347466e6f0cf1",
+      "sizeBytes": 4334
+    },
+    {
+      "path": "ui/src/views/infra/dr/DrRunsTab.vue",
+      "sha256": "01fd1de92bc7f1e51f58a8fda98bdc0c4290d30d2f001a5fa1cc2daa92ea9bb3",
+      "sizeBytes": 4944
+    },
+    {
+      "path": "ui/src/views/infra/dr/DrSiteList.vue",
+      "sha256": "4232257b7bb1d7f257a9d0735551f9e99a12d813fc30bc283b50680cf8b75ecc",
+      "sizeBytes": 59300
+    },
+    {
+      "path": "ui/src/views/infra/dr/DrSyncCheckpointsTab.vue",
+      "sha256": "9c8ea78925e8f9d3185ca3685c67bf485de0b89ff135ec6058ad4c134e5a4f5c",
+      "sizeBytes": 8300
+    },
+    {
+      "path": "ui/src/views/infra/network/DedicatedVLANTab.vue",
+      "sha256": "904a032d5affe6d1e8803f3b34218fe75933120dc084b2b2026b57b9688baad9",
+      "sizeBytes": 15316
+    },
+    {
+      "path": "ui/src/views/infra/network/EditTrafficLabel.vue",
+      "sha256": "2ee18c097dcc610642275233085ba254e311695dbdaed1fe1becc96371cfefb4",
+      "sizeBytes": 8030
+    },
+    {
+      "path": "ui/src/views/infra/network/IpRangesTab.vue",
+      "sha256": "24e98d6c12da74054ae588835b436f23676e5b52d7008c559f7f62e86604beb5",
+      "sizeBytes": 1452
+    },
+    {
+      "path": "ui/src/views/infra/network/IpRangesTabGuest.vue",
+      "sha256": "a35cdc863370cb9fbf952674ab98d4cb0656b436e4ca22890aed5c18e35c589e",
+      "sizeBytes": 11806
+    },
+    {
+      "path": "ui/src/views/infra/network/IpRangesTabManagement.vue",
+      "sha256": "020ab2ab80ec92ddb7bf29541cd90b10162f6a8404d71bbc5053126dec0edf11",
+      "sizeBytes": 13369
+    },
+    {
+      "path": "ui/src/views/infra/network/IpRangesTabPublic.vue",
+      "sha256": "eb4680a8c7db1d96b6224ccac7d12b1698f5df8648cfb6afb0a72c521a177559",
+      "sizeBytes": 29555
+    },
+    {
+      "path": "ui/src/views/infra/network/IpRangesTabStorage.vue",
+      "sha256": "6fe23e01477e4e5ed6cd2f816448cc6ea16f75a47d8b2463cbdff75d7c746dad",
+      "sizeBytes": 12508
+    },
+    {
+      "path": "ui/src/views/infra/network/ServiceProvidersTab.vue",
+      "sha256": "a302fe8863d983ffcf3e0580bf3e2c5f4bc47c6a9c64de63e87b0ff769663847",
+      "sizeBytes": 50862
+    },
+    {
+      "path": "ui/src/views/infra/network/TrafficTypesTab.vue",
+      "sha256": "e071bd20ce16f20f473d7b1be80f785a0fa9f07eb75726fca270a2536eb9196e",
+      "sizeBytes": 7935
+    },
+    {
+      "path": "ui/src/views/infra/network/providers/AddF5LoadBalancer.vue",
+      "sha256": "b9bcf4d88cb921bcc0cdb3a1b7f754247c9aef64f3826bd643de38af7016808c",
+      "sizeBytes": 10445
+    },
+    {
+      "path": "ui/src/views/infra/network/providers/AddNetscalerLoadBalancer.vue",
+      "sha256": "6942da1135680c55e64841302a231c6fb4e417e77a79b2e408ac12497982b36f",
+      "sizeBytes": 12120
+    },
+    {
+      "path": "ui/src/views/infra/network/providers/AddNiciraNvpDevice.vue",
+      "sha256": "dc5bffca6f72008fc66b8733908bb9a263caf89b31cbded93fac36580d0c6743",
+      "sizeBytes": 7809
+    },
+    {
+      "path": "ui/src/views/infra/network/providers/AddPaloAltoFirewall.vue",
+      "sha256": "88afc123472d40f7b4a252c990fddc286e046543130e655bfc0d689088f69f27",
+      "sizeBytes": 14746
+    },
+    {
+      "path": "ui/src/views/infra/network/providers/ProviderDetail.vue",
+      "sha256": "509b909cfe8e97789eee6f62c9035aa493b50a27b301bf63566adaac7266ad4b",
+      "sizeBytes": 1763
+    },
+    {
+      "path": "ui/src/views/infra/network/providers/ProviderItem.vue",
+      "sha256": "416e6b7fd0e888017f94f6b510f85e168408b68b0386cc85a50d6382a2a01db6",
+      "sizeBytes": 7547
+    },
+    {
+      "path": "ui/src/views/infra/network/providers/ProviderListView.vue",
+      "sha256": "2b981e02086c85e61f2ed95fe2b790fd742c2a8113092048f4e42675f458943b",
+      "sizeBytes": 13450
+    },
+    {
+      "path": "ui/src/views/infra/routers/RouterHealthCheck.vue",
+      "sha256": "45a69f591d5c0a9a07d519a7776fef8d0c01c02947e5c128bda4140b9bae2588",
+      "sizeBytes": 7725
+    },
+    {
+      "path": "ui/src/views/infra/zone/AdvancedGuestTrafficForm.vue",
+      "sha256": "7c477ce2bc3430af65b4e89c2ffbb3785cb643ac8b64bd742b57b522e9d5b5a0",
+      "sizeBytes": 7307
+    },
+    {
+      "path": "ui/src/views/infra/zone/AsNumbersTab.vue",
+      "sha256": "e8ffa4c0a90e2047a2793762e764ef4c5fb03653be7483af18317eded1814b13",
+      "sizeBytes": 7755
+    },
+    {
+      "path": "ui/src/views/infra/zone/BgpPeersTab.vue",
+      "sha256": "12ef72fdf73d612eb0f620120ffe9ef6dd4d22c8dd866b837e7e8f456d295a1b",
+      "sizeBytes": 27105
+    },
+    {
+      "path": "ui/src/views/infra/zone/IpAddressRangeForm.vue",
+      "sha256": "bda81ed7f83134b70d751fb5b9393db4500df288db854ff491c35e012d9c9479",
+      "sizeBytes": 11569
+    },
+    {
+      "path": "ui/src/views/infra/zone/Ipv4GuestSubnetsTab.vue",
+      "sha256": "36330742d9a617442b668b133b30f4c2ffd07e7462495ee87537d1490a87dcc5",
+      "sizeBytes": 23785
+    },
+    {
+      "path": "ui/src/views/infra/zone/PhysicalNetworksTab.vue",
+      "sha256": "1380a636db5814cf09ad0b9912c196a574db16632812c1efd063251558e8c12a",
+      "sizeBytes": 10893
+    },
+    {
+      "path": "ui/src/views/infra/zone/RackDiagramTab.vue",
+      "sha256": "7ae2779c7b585da5bfd64cf8d8742b3663fb1f6fa26e2dd870035b02a09bf3d0",
+      "sizeBytes": 256666
+    },
+    {
+      "path": "ui/src/views/infra/zone/StaticInputsForm.vue",
+      "sha256": "b963fb700c144567b812470e152f064bc8cfad1ae6f67762a6dd5d698734bc43",
+      "sizeBytes": 11482
+    },
+    {
+      "path": "ui/src/views/infra/zone/SystemVmsTab.vue",
+      "sha256": "021e8ca0b596a1eceed2160a377b125116e1cd621c5fbb4a2725b402b7b60c61",
+      "sizeBytes": 4929
+    },
+    {
+      "path": "ui/src/views/infra/zone/ZoneWizard.vue",
+      "sha256": "96e445660430e779e4eb70c0db57b3840a8de01ada7eb7d96f6bc612924f8c30",
+      "sizeBytes": 9735
+    },
+    {
+      "path": "ui/src/views/infra/zone/ZoneWizardAddResources.vue",
+      "sha256": "d2ccfb33539128e3885d7489e72c264c87789a18a9cdbffa4cf8354b90f177eb",
+      "sizeBytes": 39446
+    },
+    {
+      "path": "ui/src/views/infra/zone/ZoneWizardCoreZoneTypeStep.vue",
+      "sha256": "c798c3d3d186f382efd51f7735730359bdb1287b727816310cc2ce00bc38e524",
+      "sizeBytes": 5750
+    },
+    {
+      "path": "ui/src/views/infra/zone/ZoneWizardLaunchZone.vue",
+      "sha256": "948c975fa480b00a8c51562b939b21e2fad99320277f1a490ff587274299ffd8",
+      "sizeBytes": 96260
+    },
+    {
+      "path": "ui/src/views/infra/zone/ZoneWizardNetworkSetupStep.vue",
+      "sha256": "140f01183bf613d13256742e08f2c77cf5b0d9a7fc91fb2c126ad8b3c0a286ca",
+      "sizeBytes": 23123
+    },
+    {
+      "path": "ui/src/views/infra/zone/ZoneWizardPhysicalNetworkSetupStep.vue",
+      "sha256": "226561d6f2826a0111fab02c93dae9e71486343b304da22cc2a8fd747bbcb33b",
+      "sizeBytes": 25233
+    },
+    {
+      "path": "ui/src/views/infra/zone/ZoneWizardRegisterTemplate.vue",
+      "sha256": "e328b1c1893a58e3ac6a5583a70298ff15e6e0091a7366dcba40f4da3ac33bee",
+      "sizeBytes": 9106
+    },
+    {
+      "path": "ui/src/views/infra/zone/ZoneWizardZoneDetailsStep.vue",
+      "sha256": "a27c752043046ef429365dcd99a005c06eaa265ebd4952f6de9e4ef1a3cb6b00",
+      "sizeBytes": 22073
+    },
+    {
+      "path": "ui/src/views/infra/zone/ZoneWizardZoneTypeStep.vue",
+      "sha256": "bbc23036c5e486ff4284d6f0236be898be1e1995ec0c202b1ac595b7dcf1943b",
+      "sizeBytes": 4186
+    },
+    {
+      "path": "ui/src/views/infra/zone/components/RackListCardIcon.vue",
+      "sha256": "bccab3e7c2831cb1f65f012f8e5fde0c03a1b564c8ea9160c11524ce43f606ff",
+      "sizeBytes": 3254
+    },
+    {
+      "path": "ui/src/views/network/AclRulesTab.vue",
+      "sha256": "15f27e205c3b3bbdf121abc6e27540cd6af79889b47ecc255ea9737bc511f35e",
+      "sizeBytes": 30731
+    },
+    {
+      "path": "ui/src/views/network/ChangeBgpPeerForNetwork.vue",
+      "sha256": "be3015cc53257fd670cd09e70225c6597b931a9c22a70fa62f320296278d4d0d",
+      "sizeBytes": 5373
+    },
+    {
+      "path": "ui/src/views/network/ChangeBgpPeerForVpc.vue",
+      "sha256": "a541d035fd791126ede6f62bb3b363a1315d34c305d24249ca9ddb35f0c90bb7",
+      "sizeBytes": 5357
+    },
+    {
+      "path": "ui/src/views/network/CreateIpv4SubnetForNetwork.vue",
+      "sha256": "1755a0ae9cdddf86698a65a7152b6142d417f5df4c48dde03e93b03a5a0947dd",
+      "sizeBytes": 7403
+    },
+    {
+      "path": "ui/src/views/network/CreateIsolatedNetworkForm.vue",
+      "sha256": "1ddd1043406a4af306f673457395499084d1e11a53f9ffc578b60661efdbdd3c",
+      "sizeBytes": 28878
+    },
+    {
+      "path": "ui/src/views/network/CreateL2NetworkForm.vue",
+      "sha256": "41023e841228c722b067c99bd24fefe9ea0c164bc71ef075712fe88fa1692416",
+      "sizeBytes": 16855
+    },
+    {
+      "path": "ui/src/views/network/CreateNetwork.vue",
+      "sha256": "06066e76a54e5b122b432238e87f841899083f3aee4260fe236a18ecdd697d56",
+      "sizeBytes": 4553
+    },
+    {
+      "path": "ui/src/views/network/CreateNetworkPermission.vue",
+      "sha256": "e5b0168abadd9ca3711e3066708d5d5c2071bba6e057c775e740269c26a6a71f",
+      "sizeBytes": 5901
+    },
+    {
+      "path": "ui/src/views/network/CreateSharedNetworkForm.vue",
+      "sha256": "c931676d5cb648bf20ee6a5327d652bcb4ea72b17f9037c1f4c7e9856aa47f29",
+      "sizeBytes": 46788
+    },
+    {
+      "path": "ui/src/views/network/CreateVlanIpRange.vue",
+      "sha256": "4f57da2d0e119532ed3892b2388d5d1d7f5f79c675949cdd3e968b2e52d6f180",
+      "sizeBytes": 11591
+    },
+    {
+      "path": "ui/src/views/network/CreateVpc.vue",
+      "sha256": "f785057c6e1dffe62908869b4ecb3af4ab323045a42711a2ab9073ab5782f38e",
+      "sizeBytes": 20858
+    },
+    {
+      "path": "ui/src/views/network/CreateVpnCustomerGateway.vue",
+      "sha256": "f2acc6f1cb8e942387852a6e277a13f870ab1a1536e2bc72d58b87db6996e772",
+      "sizeBytes": 2530
+    },
+    {
+      "path": "ui/src/views/network/DesktopNicsTable.vue",
+      "sha256": "1665cf3ed474f44551fb2c689d39484d0ae8f0dcb7dbf509bd96f5890a368405",
+      "sizeBytes": 4130
+    },
+    {
+      "path": "ui/src/views/network/EgressRulesTab.vue",
+      "sha256": "505cea785a87c147e2fe3aee710c2ac346b1fda6dbfb0b68f79a33478fe583e7",
+      "sizeBytes": 18404
+    },
+    {
+      "path": "ui/src/views/network/EnableStaticNat.vue",
+      "sha256": "57d4c764152550e3c65b5494474a531e5e3e282a86f67b5902ad9f4b55ada76f",
+      "sizeBytes": 10171
+    },
+    {
+      "path": "ui/src/views/network/FirewallRules.vue",
+      "sha256": "5519938f8a16fdb784e6a1daceafea3b7b0e1f30b7a8f27a48570e226b6d98c7",
+      "sizeBytes": 29577
+    },
+    {
+      "path": "ui/src/views/network/GuestIpRanges.vue",
+      "sha256": "cd7ae2cdbfaf431b6c852d92b301a371fa01770d897e5310828bfb5127f5b9b9",
+      "sizeBytes": 10224
+    },
+    {
+      "path": "ui/src/views/network/GuestVlanNetworksTab.vue",
+      "sha256": "a49bcc492faf33eb0c4dcb36de9b3fc4b09b4fa05058c74e05281f9529d4869e",
+      "sizeBytes": 4196
+    },
+    {
+      "path": "ui/src/views/network/ImportNetworkACL.vue",
+      "sha256": "9dcb29159091064b4b81bd3d95875f4816bb72fde602d28a93013e27d561f65a",
+      "sizeBytes": 11692
+    },
+    {
+      "path": "ui/src/views/network/IngressEgressRuleConfigure.vue",
+      "sha256": "0daa5d00f42bd5dc898b81ac4df5c14e4f1357a351869e6c45ba5e9c081d7d6e",
+      "sizeBytes": 21912
+    },
+    {
+      "path": "ui/src/views/network/InternalLBAssignVmForm.vue",
+      "sha256": "54feb58773708470f96e8ff60c8e8442c33dc88af3bc5a70234e7bac6b0f2a6c",
+      "sizeBytes": 9056
+    },
+    {
+      "path": "ui/src/views/network/InternalLBAssignedVmTab.vue",
+      "sha256": "4c7ba1c36dff42a5603777390c747203014097c144fc00befc8a1e902fda8ffb",
+      "sizeBytes": 5993
+    },
+    {
+      "path": "ui/src/views/network/IpAddressesTab.vue",
+      "sha256": "db82592153f6c6f79c38520e6f53cfc9e9af3c830e1cc72927ee4d548713c600",
+      "sizeBytes": 22625
+    },
+    {
+      "path": "ui/src/views/network/Ipv6FirewallRulesTab.vue",
+      "sha256": "25bdaae547308df56775987857713ffc9503df0f1612e435490f9a1b73de9338",
+      "sizeBytes": 17204
+    },
+    {
+      "path": "ui/src/views/network/LoadBalancing.vue",
+      "sha256": "7a9ff26e9c6f254f99de029f762d8c853d35a374caeae8a442cb0ea1977ff0d4",
+      "sizeBytes": 98388
+    },
+    {
+      "path": "ui/src/views/network/NetworkPermissions.vue",
+      "sha256": "95477f4b3df4d5b3616157493197ae049c19221017b8b796f129955b4da1ac24",
+      "sizeBytes": 6880
+    },
+    {
+      "path": "ui/src/views/network/NicsTab.vue",
+      "sha256": "f3df4f7c61da7855a6573d56693e3d930ea6d3684a63a82b8d85fee101b40791",
+      "sizeBytes": 29418
+    },
+    {
+      "path": "ui/src/views/network/NicsTable.vue",
+      "sha256": "efdf1f4802e7d8541258691c71381024b0147ffb2a7edce15d7cb15ada2897fe",
+      "sizeBytes": 6975
+    },
+    {
+      "path": "ui/src/views/network/PortForwarding.vue",
+      "sha256": "a2d05a7edc06ba3f6f14011a0c13c19fd91594de9f6218acf83ae702a2311231",
+      "sizeBytes": 37986
+    },
+    {
+      "path": "ui/src/views/network/PublicIpResource.vue",
+      "sha256": "e2cd55f22741c7075c47d3df9fd87fc88a23403755a59ab7586218b2556f6092",
+      "sizeBytes": 9538
+    },
+    {
+      "path": "ui/src/views/network/ReservePublicIP.vue",
+      "sha256": "f2513b7d9fd5875fd5da89b90c4016f0620db97b56f0df6447260f94ec5286ad",
+      "sizeBytes": 9693
+    },
+    {
+      "path": "ui/src/views/network/RoutersTab.vue",
+      "sha256": "ea51080fdcfa70618d4f601891414cd9013552cbc547a6d8790e64c9af7a67c7",
+      "sizeBytes": 4642
+    },
+    {
+      "path": "ui/src/views/network/RoutingFirewallRulesTab.vue",
+      "sha256": "bb727996c17aaebf5380ed9899585591c6ba3f8294173ad86b61380c49411939",
+      "sizeBytes": 17830
+    },
+    {
+      "path": "ui/src/views/network/StaticRoutesTab.vue",
+      "sha256": "a368c985e2617ab10a339560d447ebd57668cd559087827266bce7ef5a4d754a",
+      "sizeBytes": 13844
+    },
+    {
+      "path": "ui/src/views/network/UpdateNetwork.vue",
+      "sha256": "1171c56c5274c60744d40544b1d14fa92666ec119e7e77bb5d634efa724816a9",
+      "sizeBytes": 18229
+    },
+    {
+      "path": "ui/src/views/network/UpdateVpnCustomerGateway.vue",
+      "sha256": "42d7e4a8b7d1d5154931e4c3e2cd249071473e6d28be51ca6a85c870ef60eb3f",
+      "sizeBytes": 4535
+    },
+    {
+      "path": "ui/src/views/network/VnfAppliancesTab.vue",
+      "sha256": "821d31619bd6cebbdfd7378b70ab4b9c8ac6fdeab9a0754ce8b167955bd136a5",
+      "sizeBytes": 5050
+    },
+    {
+      "path": "ui/src/views/network/VpcTab.vue",
+      "sha256": "f6c04f99cdacac700643a3ef7b7edb18c3bd68b4a1a4ad9161a2a4e9a2eb05b0",
+      "sizeBytes": 39426
+    },
+    {
+      "path": "ui/src/views/network/VpcTiersTab.vue",
+      "sha256": "37ddef1bf0cb1b520717aee08dd15b5e0090d38a39b27b5c3f9327fa799229bd",
+      "sizeBytes": 35718
+    },
+    {
+      "path": "ui/src/views/network/VpnCustomerGateway.vue",
+      "sha256": "89b5e5318122e39ad52cbee60f36e17a1cbcae4ae9a074f5ed7af9691704c69e",
+      "sizeBytes": 23688
+    },
+    {
+      "path": "ui/src/views/network/VpnDetails.vue",
+      "sha256": "ef64e99954e8d16d34b9a55bdae8ed6d15fc184234785fd1bcb1a791d612d1de",
+      "sizeBytes": 12231
+    },
+    {
+      "path": "ui/src/views/network/dns/AddDnsServer.vue",
+      "sha256": "8fe269007f9a18af75cb4b36da1a688d90d8095bd5f63dc39c722de4a137e021",
+      "sizeBytes": 12404
+    },
+    {
+      "path": "ui/src/views/network/dns/AssociateDnsZone.vue",
+      "sha256": "9f2165015dc6ef839a6c6667bf64924a8605c007e582121a6c5945de2531df57",
+      "sizeBytes": 5331
+    },
+    {
+      "path": "ui/src/views/network/dns/CreateDnsRecord.vue",
+      "sha256": "0724f0305f17025f2650cd2c5eec6eefb8bd0e51d0b7db7a4bb561b7f13c2258",
+      "sizeBytes": 6068
+    },
+    {
+      "path": "ui/src/views/network/dns/CreateDnsZone.vue",
+      "sha256": "552718ec4ae8d3034eaf41389ae2174f9a3aa4583f9ae7129c4d771fba389029",
+      "sizeBytes": 6732
+    },
+    {
+      "path": "ui/src/views/network/dns/DeleteDnsServer.vue",
+      "sha256": "b2d1ad851ba172dd9827424052ac76f063373279fc5a5b41cfa2b04f43bf2647",
+      "sizeBytes": 7179
+    },
+    {
+      "path": "ui/src/views/network/dns/DeleteDnsZone.vue",
+      "sha256": "9121d6a6cba8297288e15862e421438588652dfe04d3fc71bf5cc82b9ec72e33",
+      "sizeBytes": 5330
+    },
+    {
+      "path": "ui/src/views/network/dns/DnsRecordsTab.vue",
+      "sha256": "7c20d7c92bccb2397a26e603b098a012f51c59e83c4984c231a31c837de43e78",
+      "sizeBytes": 8775
+    },
+    {
+      "path": "ui/src/views/network/dns/UpdateDnsServer.vue",
+      "sha256": "c12d943a1bea3b48d84675cc2667011ea524026040c8f98fa851916c813a3efc",
+      "sizeBytes": 9893
+    },
+    {
+      "path": "ui/src/views/network/dns/UpdateDnsZone.vue",
+      "sha256": "1bc435aad0a3b407b2fbd764f77b716dd196c63ccd4741816a75d9f76b14555a",
+      "sizeBytes": 4103
+    },
+    {
+      "path": "ui/src/views/network/tungsten/FirewallPolicyTab.vue",
+      "sha256": "82b2323ab180f2457f11a38b71516f9b64bb04adcf444582362dfe1d173043bb",
+      "sizeBytes": 10989
+    },
+    {
+      "path": "ui/src/views/network/tungsten/FirewallRuleTab.vue",
+      "sha256": "24c6579c822dab1aa9b49e761f2b757a3aab0d30b92f05cbf6779ed537f54fc3",
+      "sizeBytes": 25526
+    },
+    {
+      "path": "ui/src/views/network/tungsten/FirewallTagTab.vue",
+      "sha256": "edd9f8589e683ab2f5b45499790c1429e24abc0d7ba4916a3b0a13f623db5e08",
+      "sizeBytes": 10572
+    },
+    {
+      "path": "ui/src/views/network/tungsten/LogicalRouterTab.vue",
+      "sha256": "084a793b9a725149e413712b3e0920b79ef3f056c3202e1e11069a78fb0904f1",
+      "sizeBytes": 8477
+    },
+    {
+      "path": "ui/src/views/network/tungsten/NetworkPolicyTab.vue",
+      "sha256": "63ab45de58a3b8980773adf5722ea035b9e275558daadcdbf065607f5fef5295",
+      "sizeBytes": 12039
+    },
+    {
+      "path": "ui/src/views/network/tungsten/TungstenFabric.vue",
+      "sha256": "9a04f77ddd930293bb78ff2c88717ef939915c2e69ec8e42c9cdd1311ecfe3dd",
+      "sizeBytes": 14741
+    },
+    {
+      "path": "ui/src/views/network/tungsten/TungstenFabricPolicyRule.vue",
+      "sha256": "e0f22a211b95f79889285f4e769affec7be703befb6a413bf5d941da5f04e67b",
+      "sizeBytes": 18063
+    },
+    {
+      "path": "ui/src/views/network/tungsten/TungstenFabricPolicyTag.vue",
+      "sha256": "c11407c0e58aaa6bd96e33b3ae6576701c62e892f6528128c0cffafa5735c57c",
+      "sizeBytes": 10906
+    },
+    {
+      "path": "ui/src/views/network/tungsten/TungstenFabricTableView.vue",
+      "sha256": "94a98c4de65af95296dda30e4ec9d8b9b4917e71e69889739026bf0a4642a641",
+      "sizeBytes": 14680
+    },
+    {
+      "path": "ui/src/views/network/tungsten/TungstenNetworkAction.vue",
+      "sha256": "1d8c45e9edc6d20ba6b9e152b83ff72e2f1dd036b1c89a76bb59e6c8582edcce",
+      "sizeBytes": 2074
+    },
+    {
+      "path": "ui/src/views/network/tungsten/TungstenNetworkTable.vue",
+      "sha256": "ede042a32f5dd8ff823625d7cd6c77f8ebcb1769f3bac27b4d8bca4ec2235530",
+      "sizeBytes": 6777
+    },
+    {
+      "path": "ui/src/views/offering/AddComputeOffering.vue",
+      "sha256": "9e0d5269a0437e89c3277dddb4de28ce64ccc8f9fa8519cd85af60c69e40bce4",
+      "sizeBytes": 19460
+    },
+    {
+      "path": "ui/src/views/offering/AddDiskOffering.vue",
+      "sha256": "7c1c28aa5ed937c6fb72d58f51b3a07159eeda549b3e6d303204cb835858a429",
+      "sizeBytes": 6717
+    },
+    {
+      "path": "ui/src/views/offering/AddNetworkOffering.vue",
+      "sha256": "907f80961405760c4b8c0ae2900ff7d4d553f817b2c7326fd7896371aebe263d",
+      "sizeBytes": 53956
+    },
+    {
+      "path": "ui/src/views/offering/AddVpcOffering.vue",
+      "sha256": "870cb4842bb3a4794fb6796348c2d8d5f388ab872e172f832d7b85473786b177",
+      "sizeBytes": 29553
+    },
+    {
+      "path": "ui/src/views/offering/CloneBackupOffering.vue",
+      "sha256": "87b5048244960e956d4c85ac57539abbe9c3f04a207594e4a871b2ba5872fc78",
+      "sizeBytes": 15972
+    },
+    {
+      "path": "ui/src/views/offering/CloneComputeOffering.vue",
+      "sha256": "bee012179712fc45c493b2c6681383393f3dfa8a7a4b7abb1ae4917c7f620fbe",
+      "sizeBytes": 26357
+    },
+    {
+      "path": "ui/src/views/offering/CloneDiskOffering.vue",
+      "sha256": "67ecfa099e4906a7d9aac894626bc5bdebfca42f392ae6664c6ee12c236a855b",
+      "sizeBytes": 11183
+    },
+    {
+      "path": "ui/src/views/offering/CloneNetworkOffering.vue",
+      "sha256": "dde92f1ba01009bd59b2f1eaae7049119d5f8be49603b5085beda9db4ad0f9c0",
+      "sizeBytes": 57522
+    },
+    {
+      "path": "ui/src/views/offering/CloneVpcOffering.vue",
+      "sha256": "78d7560f290eabe11c1daafad0212ab22ad1f6f8718da5cf13546ddffeeb976e",
+      "sizeBytes": 33249
+    },
+    {
+      "path": "ui/src/views/offering/CreateBackupOffering.vue",
+      "sha256": "2178f45109293904d1fd8db303ad034c088a979232194a6e62f509f7f388042f",
+      "sizeBytes": 10771
+    },
+    {
+      "path": "ui/src/views/offering/ImportBackupOffering.vue",
+      "sha256": "08548b415306e270cc3bd1d9d926d6b986039cf564b243843051b1322a084165",
+      "sizeBytes": 17219
+    },
+    {
+      "path": "ui/src/views/offering/UpdateBackupOffering.vue",
+      "sha256": "d17c3f8cc4d7ba95951ecdd23e171f91804d65433daff3e5bf1e24be8618bcd3",
+      "sizeBytes": 7146
+    },
+    {
+      "path": "ui/src/views/offering/UpdateOfferingAccess.vue",
+      "sha256": "fd26167a80705d124d8066dcea97b30e3b55c25bf482becb0df6d2fba1bff2d6",
+      "sizeBytes": 10541
+    },
+    {
+      "path": "ui/src/views/plugins/ApiDocsPlugin.vue",
+      "sha256": "ec423e90a83e4092bca19b8dcf06044a39cf95616aacecc15247b96be46bfdd4",
+      "sizeBytes": 9270
+    },
+    {
+      "path": "ui/src/views/plugins/CloudianPlugin.vue",
+      "sha256": "ac35e687ce6dba8ff1a30d83eabe102e59c9e8a5bb8324c4305893b206176cc3",
+      "sizeBytes": 1741
+    },
+    {
+      "path": "ui/src/views/plugins/IFramePlugin.vue",
+      "sha256": "c02890614e7c1efe074ae79f18394f9dbeee4ec1da97ee627537c2c807f4d63c",
+      "sizeBytes": 1006
+    },
+    {
+      "path": "ui/src/views/plugins/IFrameWall.vue",
+      "sha256": "2ad19ebe2987f484fbb6e2215e7379eebb51ea298cffc25b17c89d3cfbe79f01",
+      "sizeBytes": 2601
+    },
+    {
+      "path": "ui/src/views/plugins/quota/AddQuotaCredit.vue",
+      "sha256": "dc5a386c85d5748e5b23528e7ab0254c383cf613d968947a02f7e9d74c605af2",
+      "sizeBytes": 6026
+    },
+    {
+      "path": "ui/src/views/plugins/quota/CreateQuotaTariff.vue",
+      "sha256": "476210e4ed930f9e6190cea28d39333b53e13344890917337c85d98d81283de8",
+      "sizeBytes": 8634
+    },
+    {
+      "path": "ui/src/views/plugins/quota/EditQuotaTariff.vue",
+      "sha256": "3b9cfd0891254177eac067be16ec0454e05d98a840b1111ae6a5cc7fe68602c7",
+      "sizeBytes": 8121
+    },
+    {
+      "path": "ui/src/views/plugins/quota/EmailTemplateDetails.vue",
+      "sha256": "442252fdd26cb04e02bc94a0c5d2828f2cfa37185844f84bcc661618078e13a3",
+      "sizeBytes": 3318
+    },
+    {
+      "path": "ui/src/views/plugins/quota/FilterQuotaDataByPeriodView.vue",
+      "sha256": "a3ed3736629dcc1a427a4c324b372423d679a20ac3b7a190ef8e9cfbcb851139",
+      "sizeBytes": 5273
+    },
+    {
+      "path": "ui/src/views/plugins/quota/QuotaBalanceTab.vue",
+      "sha256": "201a466d608e81032dee2c4da34f2859f8f2741f6cf18a04e67c31ab6b85f867",
+      "sizeBytes": 7074
+    },
+    {
+      "path": "ui/src/views/plugins/quota/QuotaCreditTab.vue",
+      "sha256": "2dcfd5f8806da1beeaff83e88e0431fc324b4a312d2a93d4bacf14dad749414c",
+      "sizeBytes": 7704
+    },
+    {
+      "path": "ui/src/views/plugins/quota/QuotaUsageTab.vue",
+      "sha256": "e9410d65ac92fd00b842b9992c076f711714fa575bd6984bf77540646e5928e0",
+      "sizeBytes": 27223
+    },
+    {
+      "path": "ui/src/views/project/AccountsTab.vue",
+      "sha256": "e224ff1c07e60be73d1763adaddcc95956e3a9ff7edb7c0c1807a5162bc497e6",
+      "sizeBytes": 13215
+    },
+    {
+      "path": "ui/src/views/project/AddAccountOrUserToProject.vue",
+      "sha256": "2ab3d28194eb864a66416874fd231b8310a5da00e60ae41c78230c659799bb32",
+      "sizeBytes": 14610
+    },
+    {
+      "path": "ui/src/views/project/InvitationTokenTemplate.vue",
+      "sha256": "8b35a41c1049e551950e34187fb0e608e6fd38ef48d42a9a7fe6f83978c76443",
+      "sizeBytes": 4002
+    },
+    {
+      "path": "ui/src/views/project/InvitationsTemplate.vue",
+      "sha256": "8ae1dd4c6040527a572560565e2a04e22d001653ef52c5a8e8f01f1f0898661b",
+      "sizeBytes": 10597
+    },
+    {
+      "path": "ui/src/views/project/ProjectDetailsTab.vue",
+      "sha256": "8d1068878376d1aed35d4b0635858f4c27b57614c14cf7774f4daadd2f7e92e1",
+      "sizeBytes": 2128
+    },
+    {
+      "path": "ui/src/views/project/iam/ProjectRolePermissionTab.vue",
+      "sha256": "a4aa72642dd478ece1b8cb65d3ed69cf6771b504b12f7b0f355605c230c8e427",
+      "sizeBytes": 10523
+    },
+    {
+      "path": "ui/src/views/project/iam/ProjectRoleTab.vue",
+      "sha256": "99aa40750629e7374190e3d34c935868e4df3be696851e5c2c079eba6eee912f",
+      "sizeBytes": 10470
+    },
+    {
+      "path": "ui/src/views/setting/ConfigurationHierarchy.vue",
+      "sha256": "21592ed22c34b184e025a9dd7ee99260485b65443cff517ad75dd97c68c3e512",
+      "sizeBytes": 2658
+    },
+    {
+      "path": "ui/src/views/setting/ConfigurationTab.vue",
+      "sha256": "ab6260cbddedfa4f201f59698877089f7462b5e53db03e8bf08da650c54eff71",
+      "sizeBytes": 13107
+    },
+    {
+      "path": "ui/src/views/setting/ConfigurationTable.vue",
+      "sha256": "74fdb1a47e75034fd0b57863edd72fe3e2be16c6c75b2f287440f0e9f7a4d234",
+      "sizeBytes": 4854
+    },
+    {
+      "path": "ui/src/views/setting/ConfigurationValue.vue",
+      "sha256": "60b678586c03f1d742e5058bc74990c7d96018dc6c0900c24bcabc98e1b843a3",
+      "sizeBytes": 15916
+    },
+    {
+      "path": "ui/src/views/storage/AttachVolume.vue",
+      "sha256": "6ec5293ef32b667c54c08cf631fc89ab669203dd90724d38f365dcfc436060b4",
+      "sizeBytes": 7860
+    },
+    {
+      "path": "ui/src/views/storage/ChangeOfferingForVolume.vue",
+      "sha256": "d36e5da708113367862beb6e13dd1c30afe3ea919e878499dd6872403d86685f",
+      "sizeBytes": 9253
+    },
+    {
+      "path": "ui/src/views/storage/ChangeSharedFSServiceOffering.vue",
+      "sha256": "a03e1ff2a554db3094b3458594c840701c07f6b611a4dd567ed906d13ab5d904",
+      "sizeBytes": 11914
+    },
+    {
+      "path": "ui/src/views/storage/CreateBucket.vue",
+      "sha256": "13c814799750265747e9f223cf1193aab79f812410d1da64fc9e17de19a167a7",
+      "sizeBytes": 6723
+    },
+    {
+      "path": "ui/src/views/storage/CreateRbdImage.vue",
+      "sha256": "a0fd2b16a5b881a79e96ceb405daefe89d6d4730bc40cc12a0a6cec2704356cc",
+      "sizeBytes": 3956
+    },
+    {
+      "path": "ui/src/views/storage/CreateSharedFS.vue",
+      "sha256": "c398740665bd5fde864520473864f9c4912f53c0858c66159c9aaf42c2d81069",
+      "sizeBytes": 153943
+    },
+    {
+      "path": "ui/src/views/storage/CreateSnapshotFromVMSnapshot.vue",
+      "sha256": "7058f6ca40816f090c8f595837d75a71a0c7b7a917f828e83b077b7b1b5d30db",
+      "sizeBytes": 6761
+    },
+    {
+      "path": "ui/src/views/storage/CreateTemplate.vue",
+      "sha256": "599eed0b20e4663876057e6cd65eea491226f0488ae48973bb6d2d979cb511fd",
+      "sizeBytes": 13121
+    },
+    {
+      "path": "ui/src/views/storage/CreateVMFromBackup.vue",
+      "sha256": "fcd392eda955a416e84f7099e7a9ef2958a39b75ed57d8724942b88ac15f0fff",
+      "sizeBytes": 15055
+    },
+    {
+      "path": "ui/src/views/storage/CreateVolume.vue",
+      "sha256": "8de5e6578a4830e294a7b56f864d9aca53143a6bb7e527f90b8e0b5721b36d79",
+      "sizeBytes": 26639
+    },
+    {
+      "path": "ui/src/views/storage/FormSchedule.vue",
+      "sha256": "f9c589027e24f4bf10a9ab1345cd68b6a409b068c46a42888690a19408aae427",
+      "sizeBytes": 22310
+    },
+    {
+      "path": "ui/src/views/storage/HostDevicesTransfer.vue",
+      "sha256": "283bd028679dd49ee00e71bcc47c79749ef4adaf87795abf0c4fff6e8dfa5fdc",
+      "sizeBytes": 10037
+    },
+    {
+      "path": "ui/src/views/storage/HostHbaDevicesTransfer.vue",
+      "sha256": "36a19e696b0b1618b4e30fa177d93d8ee3ef32a35bf749d3e4661d572a90306e",
+      "sizeBytes": 20550
+    },
+    {
+      "path": "ui/src/views/storage/HostLunDevicesTransfer.vue",
+      "sha256": "c8837d4ede0b8f0d73d2fea114503706f1f465c835e7301d38ffd817fbc2efcd",
+      "sizeBytes": 23948
+    },
+    {
+      "path": "ui/src/views/storage/HostScsiDevicesTransfer.vue",
+      "sha256": "4b6126670d8133a19210d90f8a94e6e6d49632b9decad8d8fe6f5ee0b8f6a50c",
+      "sizeBytes": 14983
+    },
+    {
+      "path": "ui/src/views/storage/HostUsbDevicesTransfer.vue",
+      "sha256": "c24f345884fd5e04913a0aa1d5903203e7640e22445251a3b24d1e0f31cc6fcb",
+      "sizeBytes": 15217
+    },
+    {
+      "path": "ui/src/views/storage/HostVhbaDevicesTransfer.vue",
+      "sha256": "b8519d67f48394e93d373558e3209c547103d36061a3747ff54794d7db1df966",
+      "sizeBytes": 16999
+    },
+    {
+      "path": "ui/src/views/storage/MigrateImageStoreResource.vue",
+      "sha256": "c049d3206e0f6d6e2f36f77edd8600cf7bf7ed885646c3577dec9bd55ad7b0a1",
+      "sizeBytes": 4952
+    },
+    {
+      "path": "ui/src/views/storage/MigrateVolume.vue",
+      "sha256": "fb724a2a5100b9f0134666ab0fceb5c609f602f5d269c11928fcdb5878e4ab9a",
+      "sizeBytes": 7796
+    },
+    {
+      "path": "ui/src/views/storage/NfsPermissionRecommendations.vue",
+      "sha256": "a3542c82122a4c1e45b8d9e298df281a24d607fe2d02c3b124d687b40b1aa757",
+      "sizeBytes": 2465
+    },
+    {
+      "path": "ui/src/views/storage/PosixDirectoryPolicies.vue",
+      "sha256": "0e24f1fa8179cf017f86afd6296af8371329aff0186520d4667507fbc3b5ceee",
+      "sizeBytes": 21862
+    },
+    {
+      "path": "ui/src/views/storage/PosixPolicyInheritance.vue",
+      "sha256": "8866327dc313986c008886cf5c7a95e1c61cbd7179b75dfca35e1ba7b0bcae08",
+      "sizeBytes": 3802
+    },
+    {
+      "path": "ui/src/views/storage/RecurringSnapshotVolume.vue",
+      "sha256": "b7b80f002be0697a1b20e2039dffdbaef0fd0ff141abcf684a288b962bd88e9c",
+      "sizeBytes": 6653
+    },
+    {
+      "path": "ui/src/views/storage/ResizeVolume.vue",
+      "sha256": "0ce487fcc14cfb47ec0b441b515aea210759673ebafd87e1667f0b55d9a8717e",
+      "sizeBytes": 5873
+    },
+    {
+      "path": "ui/src/views/storage/RestoreAttachBackupVolume.vue",
+      "sha256": "d5c327f0327cb39755da0f0fc2082483dc713b32e7cbed59d47a5abb57a22908",
+      "sizeBytes": 8460
+    },
+    {
+      "path": "ui/src/views/storage/ScheduledSnapshots.vue",
+      "sha256": "bcc852add1e7b1e9c069a15770ca8b4a0c2592272e18c1aa340640f7e7b2bcc9",
+      "sizeBytes": 6647
+    },
+    {
+      "path": "ui/src/views/storage/SharedFSRemoval.vue",
+      "sha256": "c430cc332b1a53b287ac4c368fc1bf2f8eec076b7b8fbcca9b375d0eb5a43e36",
+      "sizeBytes": 7101
+    },
+    {
+      "path": "ui/src/views/storage/SharedFSTab.vue",
+      "sha256": "9729f7d57a8c086b50fdccf36019e6e34f56da870e564013af316a3ddaa7f7c1",
+      "sizeBytes": 471164
+    },
+    {
+      "path": "ui/src/views/storage/SmbCreationOptions.vue",
+      "sha256": "8e4450ddb02dbdfe66476c6a6ab906a597a3610401b720426eb318ac850e9817",
+      "sizeBytes": 5609
+    },
+    {
+      "path": "ui/src/views/storage/SmbNetworkAccess.vue",
+      "sha256": "4cdd98bf0030381b9920b96c753bcb6a891fc9831924dfc65f41f2b14c5b6d24",
+      "sizeBytes": 9215
+    },
+    {
+      "path": "ui/src/views/storage/SnapshotZones.vue",
+      "sha256": "39dc136890572f1bf71bd499d190977700ce3be8ab63cc2cebef91f8753c73db",
+      "sizeBytes": 22873
+    },
+    {
+      "path": "ui/src/views/storage/StorageAdMutationConsent.vue",
+      "sha256": "2ffed9b54c94f0a127f2b4d1511ad5584a33911cc498ab84027362e330a424ec",
+      "sizeBytes": 2507
+    },
+    {
+      "path": "ui/src/views/storage/StorageControlPolicy.vue",
+      "sha256": "6a26e11c2973c10d5c7a719523f61ddc9dbbf5c8848909823b678f398e00cb62",
+      "sizeBytes": 9437
+    },
+    {
+      "path": "ui/src/views/storage/StorageOperationControl.vue",
+      "sha256": "75a6ea9ec904c7da9dcea1046decdb61bc4cb8b9a9a9a1c825a2d949fb26255e",
+      "sizeBytes": 8095
+    },
+    {
+      "path": "ui/src/views/storage/StorageOperationHistory.vue",
+      "sha256": "830f7976e3b7c029e25a93fcb8db61b997505b8d44d248709445035ed5a46200",
+      "sizeBytes": 16577
+    },
+    {
+      "path": "ui/src/views/storage/StoragePoolCapacity.vue",
+      "sha256": "f3063ffb78de422616c56d8a0ac24eb4197f31c0cf9ed1efd8a89cf3ce0bdeb9",
+      "sizeBytes": 3121
+    },
+    {
+      "path": "ui/src/views/storage/StorageRuntimeCompatibility.vue",
+      "sha256": "c5e289d8b6a334bf12b7d16f70748b8abeafe7c99869f03da2ade7d50ae3ed25",
+      "sizeBytes": 3091
+    },
+    {
+      "path": "ui/src/views/storage/StorageServiceConfiguration.vue",
+      "sha256": "d8f16053ebc5581099cb24fbcd2ecc907e605ebf5475342b924fd2e1ae1588b6",
+      "sizeBytes": 50734
+    },
+    {
+      "path": "ui/src/views/storage/StorageServiceRuntimeUpgrade.vue",
+      "sha256": "1c51baec08528af38fd8e5d3dbff7a36802d882d19a993cbdb90e13a1085fd66",
+      "sizeBytes": 16849
+    },
+    {
+      "path": "ui/src/views/storage/StorageServiceSystemVmTemplateUpgrade.vue",
+      "sha256": "39d8a099f69e1c1ed256d08965a6a87367ed2cac937bbdfbe7724e3ef435735a",
+      "sizeBytes": 11630
+    },
+    {
+      "path": "ui/src/views/storage/StorageServiceTemplateUpgradeHistory.vue",
+      "sha256": "193680cfa25d6e57cc2144588442e272bdc05113f4a39c0da593851f6d978590",
+      "sizeBytes": 10329
+    },
+    {
+      "path": "ui/src/views/storage/StorageSmbIdentityRepair.vue",
+      "sha256": "b1fb98b837d2d3a5da021938dd9452cbf477b0e6c48a811abe6ce86d0d84174c",
+      "sizeBytes": 5037
+    },
+    {
+      "path": "ui/src/views/storage/StorageVolumePreparation.vue",
+      "sha256": "131ad5c36ca40d068220b7e036bf31ed91e2fb1007241428649e786650e2df43",
+      "sizeBytes": 11797
+    },
+    {
+      "path": "ui/src/views/storage/TakeSnapshot.vue",
+      "sha256": "3879bc83805e6bf4abaa4ae68d876bd02b5abc4002edc2fb1057a822ffe686fc",
+      "sizeBytes": 13594
+    },
+    {
+      "path": "ui/src/views/storage/UpdateBucket.vue",
+      "sha256": "ac4ad9dd2b6bd355fb39e6c21e932262e3bba24854ba2fdff8e79ca32e5675b0",
+      "sizeBytes": 5549
+    },
+    {
+      "path": "ui/src/views/storage/UpdateCompressDedup.vue",
+      "sha256": "64a156aac0739c3079e986f48101a6581f1416061e963ce3f6b4402c66b013fc",
+      "sizeBytes": 4531
+    },
+    {
+      "path": "ui/src/views/storage/UpdateSharedFS.vue",
+      "sha256": "6ff5363db206d5f31c077dd247acd854fd2183957264d62d8d093618c7596774",
+      "sizeBytes": 4187
+    },
+    {
+      "path": "ui/src/views/storage/UpdateVolume.vue",
+      "sha256": "709d49a2c771c10fe73e4bcdfb981166af91b4a08a5a7aee899303a0d200632a",
+      "sizeBytes": 5357
+    },
+    {
+      "path": "ui/src/views/storage/UploadLocalVolume.vue",
+      "sha256": "502516e65ce326f280424f555f777e0a637e2c4b62ac6e9264e34f187d43a55f",
+      "sizeBytes": 13639
+    },
+    {
+      "path": "ui/src/views/storage/UploadVolume.vue",
+      "sha256": "b88d72c807c3606a069c3557a16a96e274e8597a3e8fb31f8d3f95aaca4f1ec5",
+      "sizeBytes": 9719
+    },
+    {
+      "path": "ui/src/views/tools/CreateWebhook.vue",
+      "sha256": "98e4241392e11b60619801fa388151c08e24d5eb09a268862a527a129b7f972a",
+      "sizeBytes": 11072
+    },
+    {
+      "path": "ui/src/views/tools/ImportUnmanagedInstance.vue",
+      "sha256": "4f52d83a8dfca2f627fa7b26b0bc956791e27f3f2277edfd39a3c295c79a660f",
+      "sizeBytes": 86066
+    },
+    {
+      "path": "ui/src/views/tools/ImportVmTasks.vue",
+      "sha256": "b17f334c389eaa5423ca956ad1fd79a5ec20ffa579be8268c492714e64f1ab77",
+      "sizeBytes": 37707
+    },
+    {
+      "path": "ui/src/views/tools/ManageInstances.vue",
+      "sha256": "7476a1b8a1eeeba4dc21be87441c6faa8b7573022c44366bf6b4a0140ca8522b",
+      "sizeBytes": 74494
+    },
+    {
+      "path": "ui/src/views/tools/ManageVolumes.vue",
+      "sha256": "9f32dbf25a00bfb7304671354ace5ad9b97399842a44a00b2eee4d4b3312407b",
+      "sizeBytes": 47652
+    },
+    {
+      "path": "ui/src/views/tools/SelectVmwareVcenter.vue",
+      "sha256": "86f9e2f67d71c6d80d7c94ec0e354ecc186db6f2c2d98934a25b48ac1bc8363b",
+      "sizeBytes": 11638
+    },
+    {
+      "path": "ui/src/views/tools/StorageServiceRuntimeBundles.vue",
+      "sha256": "151241e74cd0955c5e7035a209a83a5124d1e488edeefb2fb73f69f6b9c0d21b",
+      "sizeBytes": 12719
+    },
+    {
+      "path": "ui/src/views/tools/TestWebhookDelivery.vue",
+      "sha256": "146d2b4cf25de82afc4e1b4adb9f3e5479296b248e8a66b7d912f0b7592c34d1",
+      "sizeBytes": 4555
+    },
+    {
+      "path": "ui/src/vue-app.js",
+      "sha256": "c7a780a22e62ee284fb168daf1cfe967de0070f9d637eab1e879adceaa8a2121",
+      "sizeBytes": 1035
+    },
+    {
+      "path": "ui/tests/.eslintrc.js",
+      "sha256": "1016f27236c207316488f8783c7f2de150af154b1d0ede280ee864a8716bef77",
+      "sizeBytes": 851
+    },
+    {
+      "path": "ui/tests/common/index.js",
+      "sha256": "1190ac92fab449eb1f8d7459d19cec9962a4aa375bdfab1f9be4d2d86cea67e8",
+      "sizeBytes": 2880
+    },
+    {
+      "path": "ui/tests/e2e/helpers/env.js",
+      "sha256": "39da70c9ccd1e85bd4e1fc6ec18c32bfd0e9d3bca5faedde832d5c4e64e4f6e3",
+      "sizeBytes": 1119
+    },
+    {
+      "path": "ui/tests/e2e/helpers/ftctl-ui-driver.js",
+      "sha256": "35c57a2d14a89357a68d8b3a31685fb5eb20c73b0c2d00e88b5ee7594e17907b",
+      "sizeBytes": 2338
+    },
+    {
+      "path": "ui/tests/e2e/helpers/selectors.js",
+      "sha256": "8eaedec56094ab339d430b01f8ae7e01881d20ebe309bacb71d8c81e21cbc8f3",
+      "sizeBytes": 1695
+    },
+    {
+      "path": "ui/tests/e2e/playwright.config.js",
+      "sha256": "7800b60a0589a83248fb26b256824d4bf53efe26d029d4b253500d15a0868e2c",
+      "sizeBytes": 2061
+    },
+    {
+      "path": "ui/tests/e2e/specs/ftctl-ui-detail.spec.js",
+      "sha256": "5609ec03db8f9f1d3f0f155b7657d5ae720f175664b0372f365c8048163545d9",
+      "sizeBytes": 10808
+    },
+    {
+      "path": "ui/tests/e2e/specs/ftctl-ui-modal.spec.js",
+      "sha256": "1d92e1cf3f0567d159b9f25ee0e752036174e71509c8ec4ae35cd7b5a4999fbd",
+      "sizeBytes": 7087
+    },
+    {
+      "path": "ui/tests/e2e/specs/ftctl-ui-pause-resume.spec.js",
+      "sha256": "a88ea561b89d4995c26a6f6e89403ca09a509a6ec56cdd0950df6fa8b2ed9fbd",
+      "sizeBytes": 10792
+    },
+    {
+      "path": "ui/tests/e2e/specs/ftctl-ui-register-save.spec.js",
+      "sha256": "f09041624090d8f80162ff7c3469dcfde0a99ec9645975b89a6b12d64b64c267",
+      "sizeBytes": 8797
+    },
+    {
+      "path": "ui/tests/e2e/specs/ftctl-ui-register.spec.js",
+      "sha256": "45ef7148ba6557984f5e595ec0d41bc40c45b9eece1b70fe01100a354c5afd9b",
+      "sizeBytes": 1610
+    },
+    {
+      "path": "ui/tests/e2e/specs/ftctl-ui-smoke.spec.js",
+      "sha256": "ed1c91f36a2f85a6e1325be0079c58ef556b3860ce0ab2786c57eb739888b04c",
+      "sizeBytes": 3577
+    },
+    {
+      "path": "ui/tests/fixtures/optional_discovery_server.py",
+      "sha256": "90175c1965db5b11972b9a1df700f506ef431551b46d4ca554d6319f0bd3d506",
+      "sizeBytes": 6548
+    },
+    {
+      "path": "ui/tests/mock/mockAxios.js",
+      "sha256": "db069c138dfbe274b35379a762c51366a297353dcd7defbccdc5f32ff682dd87",
+      "sizeBytes": 923
+    },
+    {
+      "path": "ui/tests/mock/mockI18n.js",
+      "sha256": "d84df675dab2a09fd05c59ac63da09496f57a8a9416047ca3f0de33b38962bd0",
+      "sizeBytes": 1013
+    },
+    {
+      "path": "ui/tests/mock/mockRouter.js",
+      "sha256": "e6b839a580bcef7403440426ae91879b06158581d47a06141dc5f3be6f553906",
+      "sizeBytes": 2383
+    },
+    {
+      "path": "ui/tests/mock/mockStore.js",
+      "sha256": "7033548f405e07542ec86e369c787ef1b910afd350f72548e63a9b9959b23ca4",
+      "sizeBytes": 2004
+    },
+    {
+      "path": "ui/tests/mockData/ActionButton.mock.json",
+      "sha256": "f31963a606321ffed6646207daab400fdaa5484b9ebaecb42d58007c5e2a3863",
+      "sizeBytes": 660
+    },
+    {
+      "path": "ui/tests/mockData/AutogenView.mock.json",
+      "sha256": "b0e6ec683f02d395b1bc8040242c1dcda1e2325e50137c5cd2b67827cb2134e4",
+      "sizeBytes": 15758
+    },
+    {
+      "path": "ui/tests/mockData/MigrateWizard.mock.json",
+      "sha256": "88e9e716cb3e74379e6144cf73b88fda7bc674d5106d378bc824c1bff675369e",
+      "sizeBytes": 3252
+    },
+    {
+      "path": "ui/tests/mockData/Status.mock.json",
+      "sha256": "7f0e29ecfce3a4f1336d3084f9cb250febf98d2f6486a65599553f260141ff41",
+      "sizeBytes": 6863
+    },
+    {
+      "path": "ui/tests/setup.js",
+      "sha256": "a2f831fa962e188d90104bf5d0e0e688d339ed840676593b76b59c83eb25bcde",
+      "sizeBytes": 1465
+    },
+    {
+      "path": "ui/tests/unit/Permission.spec.js",
+      "sha256": "9e2cc097d2a2280c6c3c9f4635db39775b0254f3ea9cd54e7227760e157240e1",
+      "sizeBytes": 2071
+    },
+    {
+      "path": "ui/tests/unit/api/dr.spec.js",
+      "sha256": "3e20930dd2f880cfd6caed0ec725aae973f46b26c2db2ff4d8cb5106218985e7",
+      "sizeBytes": 5542
+    },
+    {
+      "path": "ui/tests/unit/api/index.spec.js",
+      "sha256": "f5a78ac9d2abd871d7ed3f02ca9b582f282302c7f054b18b5a65f0ccd2cb47ec",
+      "sizeBytes": 1372
+    },
+    {
+      "path": "ui/tests/unit/api/jobRequest.spec.js",
+      "sha256": "0d05b9a536e06e2a5ca6b868d41f62793191d6f928bcf5d05300728d6123112f",
+      "sizeBytes": 3070
+    },
+    {
+      "path": "ui/tests/unit/api/optionalRequest.spec.js",
+      "sha256": "54f07939937d2f697a9711a7d5b64e83b48ac70eaae5ca7a8735cc24c65cc679",
+      "sizeBytes": 2110
+    },
+    {
+      "path": "ui/tests/unit/api/request.spec.js",
+      "sha256": "b2f7ff85af6f1990595197181f0be4a4c68d4b21c9fa85e6c71788418a23ed4e",
+      "sizeBytes": 7987
+    },
+    {
+      "path": "ui/tests/unit/autoAlertDiscovery.spec.js",
+      "sha256": "5a974fa1396125546fa656209d787015336e05cdd1930455fe109460e6a094ca",
+      "sizeBytes": 2811
+    },
+    {
+      "path": "ui/tests/unit/components/BulkActionProgress.spec.js",
+      "sha256": "601f5192e589b311062aeb793569e1eecab4bad568772b689e4a56cbf7dabc3d",
+      "sizeBytes": 4478
+    },
+    {
+      "path": "ui/tests/unit/components/GuestNetworkSummary.spec.js",
+      "sha256": "35d43345e35d73e68d56d63a790e07c960c66d8940a5d5228db5db06d1155875",
+      "sizeBytes": 4943
+    },
+    {
+      "path": "ui/tests/unit/components/SharedDetailTabs.spec.js",
+      "sha256": "e23f25d0200d044246a89b838970b1b17eed70713fdf76e0df5d2353dfe9a434",
+      "sizeBytes": 6468
+    },
+    {
+      "path": "ui/tests/unit/components/dr/DrCheckpointManager.spec.js",
+      "sha256": "e1612f27494b9211082f69daa7bece1f221390d0ed7efebd943871c7126ed346",
+      "sizeBytes": 3342
+    },
+    {
+      "path": "ui/tests/unit/components/dr/DrProtectionInfoTab.spec.js",
+      "sha256": "0fd9c359fd967f18f713107f50902172b269b87e344c2b0175f572e42f0b5266",
+      "sizeBytes": 6433
+    },
+    {
+      "path": "ui/tests/unit/components/dr/DrRpoKpi.spec.js",
+      "sha256": "309ea113ce67fc9a067175ef7c081119b4cc58ff17f63548660066838c28c9c3",
+      "sizeBytes": 1728
+    },
+    {
+      "path": "ui/tests/unit/components/dr/DrRunProgress.spec.js",
+      "sha256": "40cce7e4e10549486b8a8e83b7d62e6f9594dd144f877b061c85ba65637feef0",
+      "sizeBytes": 11099
+    },
+    {
+      "path": "ui/tests/unit/components/header/ActivityNavigation.spec.js",
+      "sha256": "3e1bb0c5f496534644a56e7cf336d947697920d078c1457b02de17e4f0df69f3",
+      "sizeBytes": 2954
+    },
+    {
+      "path": "ui/tests/unit/components/view/ActionButton.spec.js",
+      "sha256": "598027c6b7748f97132cc2b209342554d56846a24cb42cacdd61870f02442579",
+      "sizeBytes": 11473
+    },
+    {
+      "path": "ui/tests/unit/components/view/EventSidebar.spec.js",
+      "sha256": "6a4e57c93f166c3f2e942a5d7c5463fe15a6c44bca5f2e96edb2adb6452f940d",
+      "sizeBytes": 4046
+    },
+    {
+      "path": "ui/tests/unit/components/view/ImageDeployInstanceButton.spec.js",
+      "sha256": "4b0a56904b640f09be009b53cfe323b470bdf3a07b1a82343735a584f18b59e1",
+      "sizeBytes": 2516
+    },
+    {
+      "path": "ui/tests/unit/components/view/KubernetesContextKeyboard.spec.js",
+      "sha256": "01c7675f053511adfffe5ee93e6b0e670165fc8f307ca3176efbd9bbbf2ac2c7",
+      "sizeBytes": 2666
+    },
+    {
+      "path": "ui/tests/unit/components/view/ListViewAccounts.spec.js",
+      "sha256": "cdcf9a9f5790e4f6a34e1ee516522e60f174b3f6afed0b427806bee0251da88d",
+      "sizeBytes": 3035
+    },
+    {
+      "path": "ui/tests/unit/components/view/ListViewDiskOffering.spec.js",
+      "sha256": "260b8da0a3d8364c908914d90ddccf219d0cda91fe556c16430ca3be89ba4931",
+      "sizeBytes": 2671
+    },
+    {
+      "path": "ui/tests/unit/components/view/ListViewSnapshotContext.spec.js",
+      "sha256": "0fc520e8965e3dc3b4c30ca2894c4cd64cd476b84dc9d9600541c700d6091600",
+      "sizeBytes": 8682
+    },
+    {
+      "path": "ui/tests/unit/components/view/ResourceContextMenu.spec.js",
+      "sha256": "3bb5415223d7ccf860424c3cd90ca8bbd7a6a454ccd1cc3f3b4a63cfd412452f",
+      "sizeBytes": 1876
+    },
+    {
+      "path": "ui/tests/unit/components/view/ResourceView.spec.js",
+      "sha256": "d2cea90a7320c8dc4bdde18558cf61017d4d66af2a395892eab8ab6d1fc2b566",
+      "sizeBytes": 9118
+    },
+    {
+      "path": "ui/tests/unit/components/widgets/Status.spec.js",
+      "sha256": "07479313e3453dc3dbd7f2ed7a11a0f0d13ca754622627d9a608e111bd3aa675",
+      "sizeBytes": 12266
+    },
+    {
+      "path": "ui/tests/unit/locales/DrLocaleKeys.spec.js",
+      "sha256": "e23f9e28a92ca7770800b08151e5c2ee2bc1403b95327b3c444c300bc9c412d3",
+      "sizeBytes": 1545
+    },
+    {
+      "path": "ui/tests/unit/optionalDiscovery.spec.js",
+      "sha256": "d5f19b3807cc0dc71a71868a029afe974c6906c10309e470ff81389d9ba47b97",
+      "sizeBytes": 8642
+    },
+    {
+      "path": "ui/tests/unit/utils/GuiTheme.spec.js",
+      "sha256": "40d0dfcf1af1139b29d63a219427f8094f69e8630639c2fa24f572b95df7bc97",
+      "sizeBytes": 4507
+    },
+    {
+      "path": "ui/tests/unit/utils/KubernetesPorts.spec.js",
+      "sha256": "34e1676e28cdd88d030a68cf82842797e8d4fa95a3d26c9c922421dba7e3ed78",
+      "sizeBytes": 4093
+    },
+    {
+      "path": "ui/tests/unit/utils/KubernetesScaleRecovery.spec.js",
+      "sha256": "43af5994e59c0965f53ec797cd1c9e8f1a240ab2cdbaeefe30580b4f66293be3",
+      "sizeBytes": 1845
+    },
+    {
+      "path": "ui/tests/unit/utils/KubernetesUiActions.spec.js",
+      "sha256": "4b9d42f2545f5dafde35a9c185df20d434f8c9798e6c43d85b9c95bfc0cd5fd7",
+      "sizeBytes": 4163
+    },
+    {
+      "path": "ui/tests/unit/utils/KubernetesUpgrade.spec.js",
+      "sha256": "45ade8ef6596a2f266ae9488ec8caa33b14696d6eae6822843322ded11eec5d2",
+      "sizeBytes": 1546
+    },
+    {
+      "path": "ui/tests/unit/utils/TemplateRootDisk.spec.js",
+      "sha256": "c054f319582fcb71ea954148942aedc699bbe19c518dd211331ba88bb63485bf",
+      "sizeBytes": 3462
+    },
+    {
+      "path": "ui/tests/unit/utils/actionMenu.spec.js",
+      "sha256": "f2bb1ae3f522a6c9e78ec745aa280e66a62612936e87e27e2c3aa15ceba2f6ae",
+      "sizeBytes": 1995
+    },
+    {
+      "path": "ui/tests/unit/utils/detachIsoBatch.spec.js",
+      "sha256": "5d2690c611bd06fdfc8c772f74ebde2f7f286d096277c135c186b9357ee06fe7",
+      "sizeBytes": 2511
+    },
+    {
+      "path": "ui/tests/unit/utils/dr/actionAvailability.spec.js",
+      "sha256": "743ae61321ca703ed49115f9c5ffb70288b2525b6a1c5e0657ff778bc295c86e",
+      "sizeBytes": 4715
+    },
+    {
+      "path": "ui/tests/unit/utils/dr/planForm.spec.js",
+      "sha256": "c364cb6964298797b21c620d9d20fd4eaf6ebb16b8f6846dc52e2da2e1553d21",
+      "sizeBytes": 7576
+    },
+    {
+      "path": "ui/tests/unit/utils/dr/planState.spec.js",
+      "sha256": "53dc8da68af3792754aef7d10868b7be71a0acfd9b522a9e928eb27d72f18890",
+      "sizeBytes": 11680
+    },
+    {
+      "path": "ui/tests/unit/utils/dr/resourceActions.spec.js",
+      "sha256": "9a43050cc57f4fd172c589f059a1eb5f707696f1c5998cca1521acafe6040cdc",
+      "sizeBytes": 5140
+    },
+    {
+      "path": "ui/tests/unit/utils/drProgress.spec.js",
+      "sha256": "19f9044d878d04372b6b902616318f299008bfc884de64bdbcbc09fa7460568a",
+      "sizeBytes": 1613
+    },
+    {
+      "path": "ui/tests/unit/utils/jobTracker.spec.js",
+      "sha256": "7e9af2488ae8c313a36673184ac5dc447097e12be2141bf3129908ca13194362",
+      "sizeBytes": 3822
+    },
+    {
+      "path": "ui/tests/unit/utils/kubernetesLoadBalancers.spec.js",
+      "sha256": "c439b0bea576f6fc2bb1616cbba193f8974969e73a73649af55ea54ec00d7f50",
+      "sizeBytes": 4311
+    },
+    {
+      "path": "ui/tests/unit/utils/links.spec.js",
+      "sha256": "6345edf7379b9a5c16ac82f704323036fd2120fd09299529296d95a40e238a5b",
+      "sizeBytes": 2550
+    },
+    {
+      "path": "ui/tests/unit/utils/listRefresh.spec.js",
+      "sha256": "71babce8a5c76999b8d9d2a5c8f68ec474621cd8aa97ca31876516681c0539d3",
+      "sizeBytes": 4699
+    },
+    {
+      "path": "ui/tests/unit/utils/listRefreshMixin.spec.js",
+      "sha256": "3da5ffc784019cc0ee41c47b3c49f282a28b58ab301ebebf94e13f3da802a416",
+      "sizeBytes": 3235
+    },
+    {
+      "path": "ui/tests/unit/utils/pollJobPlugin.spec.js",
+      "sha256": "8f36bed83dcdef59c774f4ebc6f26052e5159f3f285c9ca6959b6cd148e58b37",
+      "sizeBytes": 4150
+    },
+    {
+      "path": "ui/tests/unit/utils/scopedStorageReads.spec.js",
+      "sha256": "4dab1b9d301fa5c9943dece3f0f1d0fef0e4b950983c3b58ce5095ecfc88e2c1",
+      "sizeBytes": 3531
+    },
+    {
+      "path": "ui/tests/unit/utils/sharedfsCapacity.spec.js",
+      "sha256": "19f7dca1ba6f018e9424471f06e061684a51374eab134db867f5d06dd1d17113",
+      "sizeBytes": 1518
+    },
+    {
+      "path": "ui/tests/unit/utils/storageDiskProvisioning.spec.js",
+      "sha256": "b48c78dd2245d70f19ec61b01d208a6f6b29c779011319c323116ce88cbc36a0",
+      "sizeBytes": 1538
+    },
+    {
+      "path": "ui/tests/unit/utils/storageNfsPermissions.spec.js",
+      "sha256": "69ae08102f318650aee34c4c0970401737410f5f9f379f0f1643df2cbdc05311",
+      "sizeBytes": 2641
+    },
+    {
+      "path": "ui/tests/unit/utils/tpm.spec.js",
+      "sha256": "041832d1b73a08642292474475f6cfc57fd008ddca96529fb7a4925239f6b7ef",
+      "sizeBytes": 2238
+    },
+    {
+      "path": "ui/tests/unit/utils/vbmc.spec.js",
+      "sha256": "6e508b3aa1876e33abe667372d35c0a99fe202dc2714b5f650dfdc6a1d75dd38",
+      "sizeBytes": 3420
+    },
+    {
+      "path": "ui/tests/unit/utils/vmDiskDeployment.spec.js",
+      "sha256": "3665f5b8854980f63928fd95c2818e9c8c4a7bcb1a4da4c44237a8fbd3e30160",
+      "sizeBytes": 7210
+    },
+    {
+      "path": "ui/tests/unit/utils/vmIsoActions.spec.js",
+      "sha256": "dbca43f64b6fe4214cb6f2463d381c8a8aa00c5fb02e090fb83bafcdae5ed02d",
+      "sizeBytes": 4841
+    },
+    {
+      "path": "ui/tests/unit/utils/vmNicActions.spec.js",
+      "sha256": "493f7cc419125dbeb6f32cb1b99acddc41e367e63fe46ea967325acdef7de517",
+      "sizeBytes": 9383
+    },
+    {
+      "path": "ui/tests/unit/utils/vmSnapshotActions.spec.js",
+      "sha256": "7831157183c2b4b61285000b3a59c9520ffa4d20ac05c6e7529f0afeeff52aa2",
+      "sizeBytes": 3042
+    },
+    {
+      "path": "ui/tests/unit/utils/vmSnapshotList.spec.js",
+      "sha256": "e0173e261eedf3c96d4f02a9b265be89130b039373d2d154f58c9f9599a5c50b",
+      "sizeBytes": 6027
+    },
+    {
+      "path": "ui/tests/unit/utils/vmVolumeActions.spec.js",
+      "sha256": "b36af00a342a8688a3c0583bd32b62d1fc160f9a689ee5a3904f8c47da8f08df",
+      "sizeBytes": 7364
+    },
+    {
+      "path": "ui/tests/unit/utils/wallAvailability.spec.js",
+      "sha256": "ce29b3d5b2f5487868240252a2a02b0e6cbbdf63d5debb82aa6906d6559b1ca5",
+      "sizeBytes": 3240
+    },
+    {
+      "path": "ui/tests/unit/views/AutogenActionFocus.spec.js",
+      "sha256": "2dc99759c2518750352e60fd3d4e20a84587393924f2673da5c40e95c9c7559b",
+      "sizeBytes": 4024
+    },
+    {
+      "path": "ui/tests/unit/views/AutogenSnapshotActions.spec.js",
+      "sha256": "b2ec17c9cd4035e7459a6cbaa12ad49ab5b50a43f64d829d626eed1ce3be8d4b",
+      "sizeBytes": 4925
+    },
+    {
+      "path": "ui/tests/unit/views/AutogenSnapshotFilters.spec.js",
+      "sha256": "660a5b16b9697805fdbbd79c7fecaeddf3d2ea281071ee9d6912e3660c790c52",
+      "sizeBytes": 8836
+    },
+    {
+      "path": "ui/tests/unit/views/AutogenView.spec.js",
+      "sha256": "476d608cf462e1dad5c24cef9210b17533c440ed2d243ead5acbf460bd287188",
+      "sizeBytes": 113588
+    },
+    {
+      "path": "ui/tests/unit/views/BulkActionLifecycle.spec.js",
+      "sha256": "dc336d79c3f49d6c51217d656d32fbd1d1748494b84c8c5b88a79c41a4453af3",
+      "sizeBytes": 2349
+    },
+    {
+      "path": "ui/tests/unit/views/DetailSettings.spec.js",
+      "sha256": "da50066c56c49824c999ebc85535080127251f6aec03e5e1e47835245971be77",
+      "sizeBytes": 4596
+    },
+    {
+      "path": "ui/tests/unit/views/GuestNetworkTab.spec.js",
+      "sha256": "a4d7a01f249aaf15e39186073289590717476d443d51d06cf04b3149f9043c67",
+      "sizeBytes": 3518
+    },
+    {
+      "path": "ui/tests/unit/views/OAuthActionSchema.spec.js",
+      "sha256": "c78018f5b3b384a2482db2c25ed5b67ee0b2e1a510b3e63d35139a1b784c250a",
+      "sizeBytes": 3831
+    },
+    {
+      "path": "ui/tests/unit/views/VmSettings.spec.js",
+      "sha256": "3e1c18c1b29a152d7bb062dcfe2144e2461851559ed863ead0066e58102db4e0",
+      "sizeBytes": 14678
+    },
+    {
+      "path": "ui/tests/unit/views/compute/AdditionalIsoSelection.spec.js",
+      "sha256": "e5c4bb37d2a496da99ae8cfed5e370bf0d6b06e7c6276d4a3e3a0a6520a2eb93",
+      "sizeBytes": 3918
+    },
+    {
+      "path": "ui/tests/unit/views/compute/ComputeSelection.spec.js",
+      "sha256": "8e31faa6e17cc36c92b9e3729973e1dd4b461eb4d3db794328dbdc8ddba9e9e0",
+      "sizeBytes": 2805
+    },
+    {
+      "path": "ui/tests/unit/views/compute/CreateKubernetesCluster.spec.js",
+      "sha256": "fe8f6b65c757b4be9ff418330d0d436bb9fb6c69679fb59fff1d49d7ccb55b61",
+      "sizeBytes": 6544
+    },
+    {
+      "path": "ui/tests/unit/views/compute/DeploymentStorageSelection.spec.js",
+      "sha256": "ec769ffca66623301168f50a2354e13bfb8ff507b37657c703e1c640c5885ec7",
+      "sizeBytes": 5433
+    },
+    {
+      "path": "ui/tests/unit/views/compute/DestroyVM.spec.js",
+      "sha256": "831ae8224049da524b0bb8ac16d975ca5446cc2a0f19afc53dc18aceb07edd0a",
+      "sizeBytes": 5216
+    },
+    {
+      "path": "ui/tests/unit/views/compute/DrPlanVmTab.spec.js",
+      "sha256": "a6a28786294d61dac92c2bd1b2996e6ed4cb92c73311a8041ac9e87703c2d0d9",
+      "sizeBytes": 4147
+    },
+    {
+      "path": "ui/tests/unit/views/compute/ExternalKubernetesUi.spec.js",
+      "sha256": "5e828330988152856f8061cf287f5d3769b0d12313b4009a0bcbc8afbae6f058",
+      "sizeBytes": 4525
+    },
+    {
+      "path": "ui/tests/unit/views/compute/FtctlTab.spec.js",
+      "sha256": "f033e11ba3e80f158ddc6c11d263eeebfb70c57c537bcf9001e0f605e3b29014",
+      "sizeBytes": 32042
+    },
+    {
+      "path": "ui/tests/unit/views/compute/KubernetesLifecyclePreflight.spec.js",
+      "sha256": "e1ac8c4e1fe2cea31dc46574f58556af49365534b4c4eff540b2af70a06c0dc9",
+      "sizeBytes": 5060
+    },
+    {
+      "path": "ui/tests/unit/views/compute/KubernetesNodeJobs.spec.js",
+      "sha256": "db580b7257bab59b55136b87c45f38689c9bdd4f787f7c67a8c4db1cc9f39122",
+      "sizeBytes": 2467
+    },
+    {
+      "path": "ui/tests/unit/views/compute/KubernetesServiceTab.spec.js",
+      "sha256": "e44add7010fa2ca9a81b7464060537171cfc88e77209299843e0b1d27a3b6bfa",
+      "sizeBytes": 6055
+    },
+    {
+      "path": "ui/tests/unit/views/compute/MigrateWizard.spec.js",
+      "sha256": "dd2c899354a8e167ea2ec677afb08336145d14e8624f15decddfe12d782dd2e2",
+      "sizeBytes": 19904
+    },
+    {
+      "path": "ui/tests/unit/views/compute/RegisterFtctlProtection.spec.js",
+      "sha256": "aba6e69a9e6079af2422c910e4c46277ae70d9c8070def465fcb2714b414612e",
+      "sizeBytes": 18073
+    },
+    {
+      "path": "ui/tests/unit/views/compute/UpgradeKubernetesCluster.spec.js",
+      "sha256": "e9634c631b9b7d22ff73b57dc3095db269eef376071c846f72da26f5cc776898",
+      "sizeBytes": 3473
+    },
+    {
+      "path": "ui/tests/unit/views/compute/VmBackupsTab.spec.js",
+      "sha256": "970fe218348bc3bfc762173bfdf8ec4bd7c0dcebb29935c39786aaeafb183103",
+      "sizeBytes": 8432
+    },
+    {
+      "path": "ui/tests/unit/views/compute/VmDevices.spec.js",
+      "sha256": "cf70b5d455220adba2c698f6fb402a10cc78a9c265125cd56498b884463e2cdb",
+      "sizeBytes": 4881
+    },
+    {
+      "path": "ui/tests/unit/views/compute/VmDevicesTab.spec.js",
+      "sha256": "bfb2078085701b4825b224e8cace73c5e936c1ea607ff9a545eec3f28cc20339",
+      "sizeBytes": 7186
+    },
+    {
+      "path": "ui/tests/unit/views/compute/VmIsoManager.spec.js",
+      "sha256": "04f46c7e5d860b6bb151e01b21ce6fccee9ef5016d28a95ba8fc24dc48950158",
+      "sizeBytes": 3892
+    },
+    {
+      "path": "ui/tests/unit/views/compute/VmIsoTab.spec.js",
+      "sha256": "adb35c7cefb8b34d71f01b752233c9d05c4c77bfd566355f3d5004448f52becd",
+      "sizeBytes": 2801
+    },
+    {
+      "path": "ui/tests/unit/views/compute/VmNicsLocale.spec.js",
+      "sha256": "03d38e9005b55a94afb260605bbc3f5b229b82aa3ffbca2d1d496679be6b934a",
+      "sizeBytes": 1630
+    },
+    {
+      "path": "ui/tests/unit/views/compute/VmNicsTab.spec.js",
+      "sha256": "ad4f213d1052e3f73563ce8bcdb0c01e6ee2f9d5f80dd0c5c02b3b9a1c6695ad",
+      "sizeBytes": 5585
+    },
+    {
+      "path": "ui/tests/unit/views/compute/VmProcessToolsDialog.spec.js",
+      "sha256": "debefb2d33134db66ad951d8b82de1958e3464585c3e711618665616203844c0",
+      "sizeBytes": 10733
+    },
+    {
+      "path": "ui/tests/unit/views/compute/VmProcessesTab.spec.js",
+      "sha256": "3888e7e3aa81e3637e911ff9bccd6570e9248de07afdd15c1896cd3d5d06391a",
+      "sizeBytes": 12732
+    },
+    {
+      "path": "ui/tests/unit/views/compute/VmProtectionTabs.spec.js",
+      "sha256": "3d935af0fd2a090b215cd70e65803d7fb06626fdddc972ebbbd1da696e7e4f23",
+      "sizeBytes": 7975
+    },
+    {
+      "path": "ui/tests/unit/views/compute/VmSchedulesTab.spec.js",
+      "sha256": "015000913dad75afd673ae7297f14c93058b028980c63f5314e128162419c371",
+      "sizeBytes": 5819
+    },
+    {
+      "path": "ui/tests/unit/views/compute/VmSnapshotDialog.spec.js",
+      "sha256": "4eefca712d19f925be08206b327655970acdd747eaca5eab58127ea0d80880d8",
+      "sizeBytes": 13088
+    },
+    {
+      "path": "ui/tests/unit/views/compute/VmSnapshotsTab.spec.js",
+      "sha256": "0f2f92e1de752d3d1f186bb95629774a35e830d2c3ecf86adcdc319c7f90ef35",
+      "sizeBytes": 6130
+    },
+    {
+      "path": "ui/tests/unit/views/compute/VmVolumesTab.spec.js",
+      "sha256": "ee4c3ab4ac44a02114f83dd8c30c3dbc93c3e60ecbdde9c2cb245d072036c1bb",
+      "sizeBytes": 13387
+    },
+    {
+      "path": "ui/tests/unit/views/compute/vmProcessDisplay.spec.js",
+      "sha256": "0e9fb6b86c6e2f5e855b6c293eebc8a1e4748e28c78267710d5e4a0301378037",
+      "sizeBytes": 3066
+    },
+    {
+      "path": "ui/tests/unit/views/compute/vmProcessToolsChecksum.spec.js",
+      "sha256": "c0d870ed110dad1fc25bf242fcf808b0dab5cd8d639b144424f5f9638191670d",
+      "sizeBytes": 1739
+    },
+    {
+      "path": "ui/tests/unit/views/iam/GenerateApiKeyPair.spec.js",
+      "sha256": "5fe9a2a4be357ebbb8afe7d764bc17ad402dc4eed1d15f078c2e4ceb84618967",
+      "sizeBytes": 2714
+    },
+    {
+      "path": "ui/tests/unit/views/infra/dr/DrPlanOverview.spec.js",
+      "sha256": "6e8958933b1056b81b0730feecb6234f7da4fb8660361a7b9a8484a17c275b97",
+      "sizeBytes": 4616
+    },
+    {
+      "path": "ui/tests/unit/views/infra/dr/DrSiteList.spec.js",
+      "sha256": "279cb6b7619aa65e6439e2fe5810024118709ae912c5fdaf4554cb5e42b8b6e5",
+      "sizeBytes": 1931
+    },
+    {
+      "path": "ui/tests/unit/views/network/KubernetesManagementPorts.spec.js",
+      "sha256": "cfd235a257ee57cc4c2c7a3918b95a98270982be1e9ef25a6ce1838cc67b8c8c",
+      "sizeBytes": 4416
+    },
+    {
+      "path": "ui/tests/unit/views/network/KubernetesNetworkUi.spec.js",
+      "sha256": "700c5cec7ca93513769a1930dc1114b9456fefb023676415185f8465029dd415",
+      "sizeBytes": 10607
+    },
+    {
+      "path": "ui/tests/unit/views/network/VpnCustomerGateway.spec.js",
+      "sha256": "9dcacc8e3c2c129c105335f6ca49088596e627acbd7e07b7ed5327290ff6c01e",
+      "sizeBytes": 3063
+    },
+    {
+      "path": "ui/tests/unit/views/plugins/QuotaCredit.spec.js",
+      "sha256": "d8076e2bff6a05335127262eb43d97f8f1f3876842b8ef2adea38d02fd2f70a2",
+      "sizeBytes": 4083
+    },
+    {
+      "path": "ui/tests/unit/views/storage/ChangeSharedFSScaling.spec.js",
+      "sha256": "64409a10a33630a2dc6a5758561db5710aaee20f788437bad8b6485f07af9576",
+      "sizeBytes": 5016
+    },
+    {
+      "path": "ui/tests/unit/views/storage/CreateSharedFS.spec.js",
+      "sha256": "c4c00a6cd270c6e1a8efc6148ef528f8e537f8b7281f487909fa9162222a967d",
+      "sizeBytes": 5137
+    },
+    {
+      "path": "ui/tests/unit/views/storage/CreateSharedFSNvmeAuth.spec.js",
+      "sha256": "cf3e0885ece4d1dca863862f339430f9c22312cb60c00e0e0a0a38773bb388ed",
+      "sizeBytes": 15685
+    },
+    {
+      "path": "ui/tests/unit/views/storage/CreateSharedFSOfferingConstraints.spec.js",
+      "sha256": "eab3f511bce489cb023ad006a408e094b1c06ff50a9419b2a72c177d002c5c80",
+      "sizeBytes": 10782
+    },
+    {
+      "path": "ui/tests/unit/views/storage/CreateSharedFSTemplateSelection.spec.js",
+      "sha256": "a0921091636b455bc22213921a786502dd5a870e8a997512ba7a2e8225983944",
+      "sizeBytes": 8281
+    },
+    {
+      "path": "ui/tests/unit/views/storage/CreateSnapshotFromVMSnapshot.spec.js",
+      "sha256": "aa6f0873452d9cdf89e46bb0a9dd5a6ec1a63e61665cbdf3b2600e974ab69af4",
+      "sizeBytes": 4122
+    },
+    {
+      "path": "ui/tests/unit/views/storage/PosixAdMutationConsent.spec.js",
+      "sha256": "1b7be73100615c53579f043f25910443a9a48e6e4a25e28a65e3d8f0677074da",
+      "sizeBytes": 8397
+    },
+    {
+      "path": "ui/tests/unit/views/storage/PosixDirectoryPolicies.spec.js",
+      "sha256": "3db01c2ae3fdba68ded411af92da8bd4f6950f3a709d12500f505eb3ad80414d",
+      "sizeBytes": 6055
+    },
+    {
+      "path": "ui/tests/unit/views/storage/PosixPolicyInheritance.spec.js",
+      "sha256": "17f326073b45ed4304d1d4024ddffa0836394d909f5c73b4ecbf753b4af3af9b",
+      "sizeBytes": 3122
+    },
+    {
+      "path": "ui/tests/unit/views/storage/SharedFSInitialLoading.spec.js",
+      "sha256": "f521b162aad6c0ab7da534064fdae27727fb2efc6828f0d5a7cd247adae17af4",
+      "sizeBytes": 8817
+    },
+    {
+      "path": "ui/tests/unit/views/storage/SharedFSLocale.spec.js",
+      "sha256": "48c78a743e478ac4a64216958c951d89dbc6d5628ede26adee13ab236b78b4fe",
+      "sizeBytes": 2981
+    },
+    {
+      "path": "ui/tests/unit/views/storage/SharedFSReadTransport.spec.js",
+      "sha256": "b9f5f864a439d6c1c6a34b97c157bdfc8880a67c0c347a6b292865a29067d184",
+      "sizeBytes": 6856
+    },
+    {
+      "path": "ui/tests/unit/views/storage/SharedFSRemoval.spec.js",
+      "sha256": "b4b7009a9124586f8b7bf46ce92815e167184f3320d5963144df925bd5d38d05",
+      "sizeBytes": 4120
+    },
+    {
+      "path": "ui/tests/unit/views/storage/SharedFSTab.spec.js",
+      "sha256": "8cc59f6ceb9012f5cd944e95f97196be0d0749a1e3037e6eecb320f6a8eb7891",
+      "sizeBytes": 29740
+    },
+    {
+      "path": "ui/tests/unit/views/storage/SharedFSTabIscsiChap.spec.js",
+      "sha256": "0cf8174e9973fe1d9c8ee8ef9d95ed878d899748af7429904e51676b4d5d552a",
+      "sizeBytes": 9441
+    },
+    {
+      "path": "ui/tests/unit/views/storage/SmbCreationOptions.spec.js",
+      "sha256": "026a40b1844c9fcd6b967512ecd39add086a89b4eb0e6dc5fa922f934b79f3ea",
+      "sizeBytes": 2615
+    },
+    {
+      "path": "ui/tests/unit/views/storage/SmbNetworkAccess.spec.js",
+      "sha256": "52f264a877799036047d8e01b935af97d929f5b953189935d896ac56e2927026",
+      "sizeBytes": 2744
+    },
+    {
+      "path": "ui/tests/unit/views/storage/StorageAdMaintenance.spec.js",
+      "sha256": "8482b45f89a8fce3b1cd173bbe595ed03626d3bb013b886fff6b50218190f5f1",
+      "sizeBytes": 16990
+    },
+    {
+      "path": "ui/tests/unit/views/storage/StorageAdMutationConsent.spec.js",
+      "sha256": "c3bb4438e7cf9c134cf0eaf68c19361821b46a55f71686590d3cf9f8974ec7c7",
+      "sizeBytes": 19848
+    },
+    {
+      "path": "ui/tests/unit/views/storage/StorageCloneIdentityTemplate.spec.js",
+      "sha256": "1d117ba3604a56fe217a79c92287d57b4b6a1a237ddd7224cfb569ae2a20f0ff",
+      "sizeBytes": 12527
+    },
+    {
+      "path": "ui/tests/unit/views/storage/StorageCloneOffering.spec.js",
+      "sha256": "3e5604de5511ea99ae6fc077429cdf0ca6391119d746973f82e15f0ad2f61fa2",
+      "sizeBytes": 9219
+    },
+    {
+      "path": "ui/tests/unit/views/storage/StorageControlPolicy.spec.js",
+      "sha256": "721d46d1545491f343a01ac6d10bfad074aa8bf81fec5da0d561526c532f1fd3",
+      "sizeBytes": 5502
+    },
+    {
+      "path": "ui/tests/unit/views/storage/StorageIdentityBackup.spec.js",
+      "sha256": "75fa8e68b1be403a287645edbda776f737b9b1ccdd1fe0740909bdf9621fc028",
+      "sizeBytes": 9551
+    },
+    {
+      "path": "ui/tests/unit/views/storage/StorageIdentityRestore.spec.js",
+      "sha256": "f17ca76552ad4b79ffbef4c01c5e505d9918d51cf9c5b4a07a39d259db03ca8c",
+      "sizeBytes": 7567
+    },
+    {
+      "path": "ui/tests/unit/views/storage/StorageOperationControl.spec.js",
+      "sha256": "96632487cb44dac37bbad938490090b5b4162725b3a3a353f65ab0679197fb6d",
+      "sizeBytes": 5451
+    },
+    {
+      "path": "ui/tests/unit/views/storage/StorageOperationHistory.spec.js",
+      "sha256": "2294150ae0d502830a4122b7512d4bbaae07a9e8cc73c068b83ade5d34e129eb",
+      "sizeBytes": 27980
+    },
+    {
+      "path": "ui/tests/unit/views/storage/StoragePoolCapacity.spec.js",
+      "sha256": "52e555f15072522c6398f54039d67ad511476a97e553b789714bb15c33f4226a",
+      "sizeBytes": 6333
+    },
+    {
+      "path": "ui/tests/unit/views/storage/StorageRuntimeObservation.spec.js",
+      "sha256": "5c868325d43f5869a499d351ca03cc3bd8cb94652ed3e0bacc1ac4473663a785",
+      "sizeBytes": 5507
+    },
+    {
+      "path": "ui/tests/unit/views/storage/StorageServiceConfiguration.spec.js",
+      "sha256": "dd0e4a34880b44495a3eb53fc1738760dd2cd9ab342daa1e6ccb9ae15a7b5b38",
+      "sizeBytes": 16229
+    },
+    {
+      "path": "ui/tests/unit/views/storage/StorageServiceSystemVmTemplateUpgrade.spec.js",
+      "sha256": "f1012ffa4a635e011b077ae34a04b9d2601166c99e933cc3aee7a896a805a07a",
+      "sizeBytes": 7837
+    },
+    {
+      "path": "ui/tests/unit/views/storage/StorageSmbIdentityRepair.spec.js",
+      "sha256": "f1c8dffc9e324db020bfcbd9d44e36a279f5dfcdeb38bc8f06a9083c57009f30",
+      "sizeBytes": 4447
+    },
+    {
+      "path": "ui/tests/unit/views/storage/StorageVolumePreparation.spec.js",
+      "sha256": "f431b99a5e38ed716c92e31b7f5970edf15dd0d25cc4440d542a32d2d1458052",
+      "sizeBytes": 7700
+    },
+    {
+      "path": "ui/theme.config.js",
+      "sha256": "6513530e54c76b5c5dc15ccf550aaca33a30be097691c8aa1a889f96851b5cab",
+      "sizeBytes": 2208
+    },
+    {
+      "path": "ui/vue.config.js",
+      "sha256": "e5946e8b9ff32fc6f0313c4044a25e94e3bd45238195ec767254de669412440d",
+      "sizeBytes": 4960
+    },
+    {
+      "path": "ui/webstorm.config.js",
+      "sha256": "578fc2a04d44224175c885f4316809202768b086ab1b081a6b1291a14f550865",
+      "sizeBytes": 1234
+    }
+  ],
+  "pathNulBytesNulSha256": "28e93c97ae276405a336753af14545ff99327cb05fdc7417518839d3b6dbcf8f",
+  "archiveSha256": "8c15e796e049bd5f5b492043c0fec35feccd7cf6944fc7efb559e5e6c2932e2e",
+  "archivePathsExactCanonical": true,
+  "cachePackageLockSha256": "23379939285231d360907e8d7242206efd5359654b9903614788040680133ffc",
+  "cachePackageJsonSha256": "00ba576b003ff9ec17cddb8abc7025f37592735a787f37c061d093fae3fe2add",
+  "cacheReuse": "/root/work/ablestack-cloud/ui/node_modules"
+}
