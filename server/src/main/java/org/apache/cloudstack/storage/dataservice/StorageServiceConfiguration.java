@@ -247,12 +247,104 @@ public final class StorageServiceConfiguration {
             versionMetadata(metadata, instance);
             JsonObject publicManifest=metadata.deepCopy();publicManifest.remove("adIdentityCipherReference");
             byte[] archive = StorageConfigArchive.create(entries, publicManifest);
-            row.setSha256(StorageConfigArchive.sha256(archive));row.setSize(archive.length);row.setDesiredRevision(before);store.write(row.getUuid(), archive);
-            update(row, metadata, "AVAILABLE".equals(runtimeStatus) ? "COMPLETE" : "PARTIAL");return response(compactRow(row), row.getUuid());
+            String archiveSha256=StorageConfigArchive.sha256(archive);store.write(row.getUuid(),archive);
+            completeBackupArchive(row,metadata,archiveSha256,archive.length,before,"AVAILABLE".equals(runtimeStatus) ? "COMPLETE" : "PARTIAL");
+            return response(compactRow(row), row.getUuid());
         } catch (RuntimeException failure) {
             metadata.addProperty("phase", "EXPORT_FAILED");metadata.addProperty("errorCode", "CONFIG_EXPORT_FAILED");update(row, metadata, "FAILED");throw failure;
         }
     }
+    private void completeBackupArchive(StorageConfigArtifactVO row,JsonObject metadata,String checksum,long size,long sourceRevision,String state) {
+        if(!Set.of("COMPLETE","PARTIAL").contains(state)||!checksum.matches("[a-f0-9]{64}")||size<=0||size>StorageConfigArchive.MAX_ARCHIVE_BYTES
+                ||store.read(row.getUuid(),checksum).length!=size)throw new CloudRuntimeException("Completed backup archive integrity is unavailable");
+        com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<Void>) transaction -> {
+            StorageConfigArtifactVO locked=artifacts.lockRow(row.getId(),true);
+            if(locked==null||!row.getUuid().equals(locked.getUuid())||locked.getInstanceId()!=row.getInstanceId()
+                    ||!"BACKUP".equals(locked.getKind())||!"BACKUP".equals(row.getKind())||!"CREATING".equals(locked.getState())
+                    ||locked.getDesiredRevision()!=sourceRevision||locked.getCreatedBy()!=row.getCreatedBy()
+                    ||locked.getSha256()!=null||locked.getSize()!=0)throw new CloudRuntimeException("Backup archive publication scope changed");
+            JsonObject current=metadata(locked);
+            for(String key:java.util.List.of("receipts","cloneAllocation","cloneAllocationRealizations"))
+                if(current.has(key))metadata.add(key,current.get(key).deepCopy());
+            locked.setSha256(checksum);locked.setSize(size);locked.setDesiredRevision(sourceRevision);
+            locked.setMetadataJson(metadata.toString());locked.setState(state);locked.setUpdated(new Date());
+            if(!artifacts.update(locked.getId(),locked))throw new CloudRuntimeException("Backup archive integrity and completion could not be persisted");
+            row.setSha256(locked.getSha256());row.setSize(locked.getSize());row.setDesiredRevision(locked.getDesiredRevision());
+            row.setMetadataJson(locked.getMetadataJson());row.setState(locked.getState());row.setUpdated(locked.getUpdated());return null;
+        });
+    }
+
+    /** Only the same recovery writer's freshly verified unchanged SOURCE can reconcile a missing producer receipt. */
+    void bindReadOnlyArtifact(StorageServiceOperationVO operation,String currentSnapshot,JsonObject currentBindings,JsonObject nativeStatus) {
+        StorageOperationReconciliation.requireReadOnlySource(operation,currentSnapshot,currentBindings,nativeStatus);
+        JsonObject envelope=new JsonParser().parse(operation.getResultJson()).getAsJsonObject();
+        JsonObject response=envelope.getAsJsonObject("_response");
+        String uuid=readOnlyArtifactString(response,"id");
+        JsonObject dto=new JsonParser().parse(readOnlyArtifactString(response,"result")).getAsJsonObject();
+        StorageConfigArtifactVO artifact=artifacts.findByUuid(uuid);
+        if(artifact!=null&&artifact.getSha256()==null&&artifact.getSize()==0)
+            reconcileMissingReadOnlyArchiveIntegrity(operation,artifact,dto);
+        else if(artifact==null||!readOnlyArtifactString(dto,"id").equals(artifact.getUuid())
+                ||!"BACKUP".equals(readOnlyArtifactString(dto,"kind"))||!readOnlyArtifactString(dto,"state").equals(artifact.getState())
+                ||readOnlyArtifactWhole(dto,"desiredRevision")!=artifact.getDesiredRevision()
+                ||!readOnlyArtifactString(dto,"sha256").equals(artifact.getSha256())||readOnlyArtifactWhole(dto,"size")!=artifact.getSize())
+            throw new CloudRuntimeException("Existing backup integrity differs from its durable response and cannot be replaced");
+        bindReadOnlyArtifact(operation);
+    }
+
+    private void reconcileMissingReadOnlyArchiveIntegrity(StorageServiceOperationVO operation,StorageConfigArtifactVO artifact,JsonObject dto) {
+        if(!"RECOVERY_REQUIRED".equals(operation.getState())&&!InterruptedStateChange.stale(operation,System.currentTimeMillis()))
+            throw new CloudRuntimeException("Missing backup integrity requires an inactive same-operation recovery");
+        String instanceUuid=manager.requireInstance(operation.getInstanceId()).getUuid();
+        String checksum=readOnlyArtifactString(dto,"sha256");long size=readOnlyArtifactWhole(dto,"size");
+        if(!checksum.matches("[a-f0-9]{64}")||size<=0||size>StorageConfigArchive.MAX_ARCHIVE_BYTES)
+            throw new CloudRuntimeException("Durable backup response integrity is unavailable");
+        requireMissingReadOnlyArchiveScope(operation,artifact,dto,instanceUuid);
+        byte[] archive=store.read(artifact.getUuid(),checksum);
+        if(archive.length!=size)throw new CloudRuntimeException("Durable backup response size differs from its protected archive");
+        JsonObject manifest=StorageConfigArchive.json(StorageConfigArchive.validate(archive).get("manifest.json")).getAsJsonObject();
+        JsonObject record=metadata(artifact);
+        for(String key:java.util.List.of("sourceInstanceUuid","desiredRevision","phase","runtimeStatus","credentialCoverage"))
+            if(!record.has(key)||!record.get(key).equals(manifest.get(key)))throw new CloudRuntimeException("Protected backup manifest differs from its exact SOURCE metadata");
+        com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<Void>) transaction -> {
+            StorageConfigArtifactVO locked=artifacts.lockRow(artifact.getId(),true);
+            requireMissingReadOnlyArchiveScope(operation,locked,dto,instanceUuid);
+            JsonObject latest=metadata(locked);
+            for(String key:java.util.List.of("sourceInstanceUuid","desiredRevision","phase","runtimeStatus","credentialCoverage"))
+                if(!record.get(key).equals(latest.get(key)))throw new CloudRuntimeException("Backup SOURCE metadata changed before integrity recovery");
+            locked.setSha256(checksum);locked.setSize(size);locked.setUpdated(new Date());
+            if(!artifacts.update(locked.getId(),locked))throw new CloudRuntimeException("Missing backup integrity could not be persisted");
+            return null;
+        });
+    }
+
+    private void requireMissingReadOnlyArchiveScope(StorageServiceOperationVO operation,StorageConfigArtifactVO artifact,JsonObject dto,String instanceUuid) {
+        if(artifact==null||artifact.getInstanceId()!=operation.getInstanceId()||!artifact.getUuid().equals(readOnlyArtifactString(dto,"id"))
+                ||!"BACKUP".equals(artifact.getKind())||!"BACKUP".equals(readOnlyArtifactString(dto,"kind"))
+                ||!Set.of("COMPLETE","PARTIAL").contains(artifact.getState())||!artifact.getState().equals(readOnlyArtifactString(dto,"state"))
+                ||artifact.getDesiredRevision()!=operation.getRevision()-1||readOnlyArtifactWhole(dto,"desiredRevision")!=artifact.getDesiredRevision()
+                ||artifact.getCreatedBy()!=operation.getCreatedBy()||artifact.getRemoved()!=null||artifact.getExpires()==null||!artifact.getExpires().after(new Date())
+                ||artifact.getSha256()!=null||artifact.getSize()!=0)throw new CloudRuntimeException("Missing backup integrity is outside its exact same-operation artifact");
+        JsonObject stored=metadata(artifact);
+        if(!instanceUuid.equals(readOnlyArtifactString(stored,"sourceInstanceUuid"))
+                ||readOnlyArtifactWhole(stored,"desiredRevision")!=artifact.getDesiredRevision()
+                ||!"COMPLETE".equals(readOnlyArtifactString(stored,"phase")))
+            throw new CloudRuntimeException("Missing backup integrity has no exact completed SOURCE metadata");
+    }
+
+    private String readOnlyArtifactString(JsonObject value,String key) {
+        JsonElement item=value==null?null:value.get(key);
+        if(item==null||!item.isJsonPrimitive()||!item.getAsJsonPrimitive().isString())throw new CloudRuntimeException("Durable backup string metadata is unavailable");
+        return item.getAsString();
+    }
+    private long readOnlyArtifactWhole(JsonObject value,String key) {
+        JsonElement item=value==null?null:value.get(key);
+        if(item==null||!item.isJsonPrimitive()||!item.getAsJsonPrimitive().isNumber()||!item.getAsString().matches("0|[1-9][0-9]*"))
+            throw new CloudRuntimeException("Durable backup numeric metadata is unavailable");
+        try{return Long.parseLong(item.getAsString());}
+        catch(NumberFormatException invalid){throw new CloudRuntimeException("Durable backup numeric metadata exceeds range");}
+    }
+
     void bindReadOnlyArtifact(StorageServiceOperationVO operation) {
         JsonObject result = new JsonParser().parse(operation.getResultJson()).getAsJsonObject();
         String uuid = result.getAsJsonObject("_response").get("id").getAsString();

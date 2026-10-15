@@ -310,9 +310,18 @@ public class StorageOperationControlTest {
         manager.finalizationWitnessValid=true;status.getAsJsonObject("scope").addProperty("operationUuid","foreign");
         Mockito.when(guest.dispatch(Mockito.any())).thenReturn(new StorageServiceGuestCommandResult(true,"public",status.toString()));
         Assert.assertThrows(RuntimeException.class,()->manager.finalizeOperationResourceReservation(manager.instance,operation));
-        status=cleanupStatus(false,true,false);Mockito.when(guest.dispatch(Mockito.any())).thenReturn(new StorageServiceGuestCommandResult(true,"public",status.toString()));
+        status=cleanupStatus(false,true,false);JsonObject ack=nativeReleaseAck(),absent=cleanupStatus(false,false,true);
+        java.util.List<String> cleanupCalls=new java.util.ArrayList<>();
+        java.util.concurrent.atomic.AtomicInteger step=new java.util.concurrent.atomic.AtomicInteger();
+        String[] replies={status.toString(),ack.toString(),absent.toString()};
+        Mockito.when(guest.dispatch(Mockito.any())).thenAnswer(call->{
+            StorageServiceGuestCommand command=call.getArgument(0);cleanupCalls.add(command.getOperation());
+            return new StorageServiceGuestCommandResult(true,"public",replies[step.getAndIncrement()]);
+        });
         try(MockedStatic<Transaction> ignored=transaction()) {manager.finalizeOperationResourceReservation(manager.instance,operation);}
-        Mockito.verify(guest,Mockito.times(2)).dispatch(Mockito.any());
+        Assert.assertEquals(List.of("operation reservation status","operation reservation release","operation reservation status"),cleanupCalls);
+        Assert.assertFalse(ack.has("observed"));
+        Mockito.verify(guest,Mockito.times(4)).dispatch(Mockito.any());
     }
     @Test public void cleanupIntentAndReceiptPersistenceFailuresCannotPublishSuccess() {
         Mockito.when(manager.instance.getVmId()).thenReturn(7L);control.setLeaseJson(lease().toString());operation.setResultJson("{\"_response\":\"done\"}");
