@@ -1388,8 +1388,8 @@ wrapClassName="storage-service-action-modal"
       <div class="storage-modal-body">
         <a-alert v-if="actionModal.error" type="error" show-icon :message="actionModal.error" />
         <a-alert v-if="storageMutationBlocked && storageService.instance" class="storage-service-inline-alert" :type="storageRecoveryGate.blocker?.state === 'RECOVERY_REQUIRED' ? 'error' : 'warning'" show-icon role="status" :message="storageRecoveryGateMessage">
-          <template #description><span v-if="storageRecoveryGate.blocker">{{ storageRecoveryGate.blocker.id }} · {{ storageRecoveryGate.blocker.revision }}</span></template>
-          <template #action>
+          <template #description>
+            <span v-if="storageRecoveryGate.blocker">{{ storageRecoveryGate.blocker.id }} · {{ storageRecoveryGate.blocker.revision }}</span>
             <a-button :loading="storageOperationGate.status === 'LOADING'" :disabled="!storageOperationReadSupported || storageMutationPending" @click="refreshStorageModalOperationGate">
               <template #icon><ReloadOutlined /></template>{{ $t('label.refresh') }}
             </a-button>

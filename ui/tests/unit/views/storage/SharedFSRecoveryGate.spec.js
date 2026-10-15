@@ -3,6 +3,7 @@
 // distributed with this work for additional information.
 import { shallowMount, flushPromises } from '@vue/test-utils'
 import { reactive } from 'vue'
+import { Alert } from 'ant-design-vue'
 import SharedFSTab from '@/views/storage/SharedFSTab'
 import History from '@/views/storage/StorageOperationHistory'
 import { getAPI, postAPI } from '@/api'
@@ -324,6 +325,7 @@ describe('modal operation-state requery', () => {
     const wrapper = shallowMount(Widget, {
       props: { resource: { id: 'fs-a', name: 'owned-a' } },
       global: {
+        components: { AAlert: Alert },
         provide: { parentFetchData: jest.fn() },
         mocks: {
           $store: store,
@@ -337,7 +339,7 @@ describe('modal operation-state requery', () => {
           'a-tabs': true,
           'a-modal': { props: ['visible', 'okButtonProps'], template: '<section v-if="visible" class="operation-gate-test-modal"><slot /><button class="test-confirm" :disabled="okButtonProps && okButtonProps.disabled">confirm</button></section>' },
           'a-form': { template: '<div><slot /></div>' },
-          'a-alert': { props: ['message'], template: '<div class="test-alert"><span>{{ message }}</span><slot name="description" /><slot name="action" /></div>' },
+          'a-alert': false,
           'a-button': { props: ['disabled', 'loading'], template: '<button :disabled="disabled || loading"><slot name="icon" /><slot /></button>' }
         }
       }
@@ -356,6 +358,7 @@ describe('modal operation-state requery', () => {
     return wrapper
   }
   const refreshButton = wrapper => {
+    expect(wrapper.findAllComponents(Alert).some(alert => alert.element.closest('.operation-gate-test-modal'))).toBe(true)
     const button = wrapper.find('.operation-gate-test-modal').findAll('button').find(item => item.text() === 'label.refresh')
     expect(button).toBeDefined()
     return button
