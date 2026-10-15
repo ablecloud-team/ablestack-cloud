@@ -1,0 +1,27 @@
+{
+  "related": {
+    "sourcePin": "c8c3125e43855b12ce2e21680295d7916de7cdee",
+    "tests": 336,
+    "groups": 14,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "sourceUnchangedDuringTests": true
+  },
+  "wide": {
+    "sourcePin": "91e3f5115089c58e5affdc9e0503591b03995a4a056f45c77966f525aec03052",
+    "tests": 722,
+    "failures": 1,
+    "errors": 1,
+    "skipped": 0,
+    "success": false,
+    "noNewFailures": true
+  },
+  "independentBaseline": {
+    "baselineHead": "591f461226d1bb0575a0fb5c16216de2bd501b7a",
+    "sameTwoFailuresAtHeadAndCurrent": true,
+    "sharedRepositoryOverwritten": false
+  },
+  "overlappingCountsAdded": false,
+  "wideAllGreen": false
+}

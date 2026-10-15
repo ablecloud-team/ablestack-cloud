@@ -1,0 +1,37 @@
+{
+  "pass": true,
+  "stage": "DELETE_CONFIRMED_ORIGINAL5_PRESERVED",
+  "scope": {
+    "instanceUuid": "3480bb2c-99ee-42f2-91cf-715ded5dd35f",
+    "vmUuid": "9e57d31b-bb68-4ba3-a377-b0acbc89c22d",
+    "volumeUuid": "550c8e51-1c93-49d4-aea8-7684ab0ed60b"
+  },
+  "unreferenced": {
+    "apiVolumeReferences": 0,
+    "nativeVolumeReferences": 0,
+    "ownUiRowsRemaining": 0
+  },
+  "approvedBindingsBeforeCount": 6,
+  "approvedBindingsAfterCount": 5,
+  "postDeleteApiVolumeCount": 0,
+  "detach": {
+    "command": "detachStorageServiceBackingVolume",
+    "delivery": "ASYNC",
+    "jobId": "34f9c70b-04f9-48bd-86d3-3da75574383e"
+  },
+  "deleteCommand": "deleteVolume",
+  "preflightProofSha256": "bb84b79195272eec362389cc4de990bc83c0d356698b2c64676e695b7a95095e",
+  "uiProofSha256": "0bc0a2a9aaec8ae52598ffa14bb5bdc508dc3c6203e4e4854f08190dd59ea192",
+  "rootProofSha256": "7043b646c43f7df5f8a2771de314b04bd5d1a7deeed1d22530457fd3730af977",
+  "bindingTransitionAllowed": true,
+  "approvedBindings": {
+    "abfa15d5a916475f9b9f": 21474836480,
+    "f24d1253cbe346d78b77": 5242880000,
+    "ceaee4ff0dc64c4fac5d": 21474836480,
+    "db3de2b75fcb4cb5a0aa": 21474836480,
+    "ec92d6c62fde4f359d31": 21474836480
+  },
+  "own550DetachedAndDeleted": true,
+  "originalFiveAndNative13Preserved": true,
+  "nextRootAction": null
+}
