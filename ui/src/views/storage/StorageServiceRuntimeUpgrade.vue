@@ -126,7 +126,7 @@
       <a-button
         type="primary"
         :loading="submitting && activeAction === 'upgrade'"
-        :disabled="!canUpgrade"
+        :disabled="storageMutationDisabled || (!canUpgrade)"
         @click="runUpgrade">
         {{ $t('label.storage.service.runtime.upgrade') }}
       </a-button>
@@ -142,11 +142,13 @@
 </template>
 
 <script>
+import { storageMutationGateMixin, requireStorageMutationAllowed } from '@/utils/storageRecoveryGate'
 import { getAPI, postAPI } from '@/api'
 import StorageRuntimeCompatibility from '@/views/storage/StorageRuntimeCompatibility'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 
 export default {
+  mixins: [storageMutationGateMixin],
   name: 'StorageServiceRuntimeUpgrade',
   components: { TooltipLabel, StorageRuntimeCompatibility },
   props: {
@@ -251,6 +253,7 @@ export default {
     },
     startAsync (action, api, params) {
       if (this.submitting) return
+      try { requireStorageMutationAllowed(this, api) } catch (error) { this.$notifyError(error); return false }
       const token = this.generation; const resourceId = this.resource.id
       const current = () => token === this.generation && resourceId === this.resource.id
       this.submitting = true

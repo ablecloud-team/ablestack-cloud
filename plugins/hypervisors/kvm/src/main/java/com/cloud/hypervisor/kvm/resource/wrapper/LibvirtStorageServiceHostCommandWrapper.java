@@ -69,12 +69,12 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
             "    try:",
             "        data=os.memfd_create(NAME,os.MFD_CLOEXEC|os.MFD_ALLOW_SEALING);originals.append(data)",
             "        control_read,control_write=os.pipe2(os.O_CLOEXEC);originals.extend((control_read,control_write))",
+            "        os.fchmod(data,0o600);os.fchmod(control_write,0o600)",
             "        for fd in originals:safe.append(fcntl.fcntl(fd,fcntl.F_DUPFD_CLOEXEC,19))",
             "        for fd in originals:os.close(fd)",
             "        originals=[]",
             "        for source,target in zip(safe,(DATA_FD,CONTROL_READ_FD,CONTROL_WRITE_FD)):",
             "            os.dup2(source,target,inheritable=False)",
-            "        os.fchmod(DATA_FD,0o600);os.fchmod(CONTROL_WRITE_FD,0o600)",
             "    finally:",
             "        for fd in originals+safe:os.close(fd)",
             "def close_owned():",
@@ -99,7 +99,8 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
             "    require(type(seconds)in(int,float)and 0<seconds<=300)",
             "    ready,_,_=select.select([CONTROL_READ_FD],[],[],seconds)",
             "    require(ready and os.read(CONTROL_READ_FD,1)==b'\\x01')",
-            "def run(expected_bytes,expected_sha256,seconds,operation):",
+            "def run(expected_bytes,expected_sha256,seconds,operation,nonce):",
+            "    require(type(nonce)is str and re.fullmatch(r'[0-9a-f]{32}',nonce)is not None)",
             "    require(type(operation)is str and re.fullmatch(r'[A-Za-z0-9 ._-]+',operation) is not None)",
             "    setup()",
             "    try:",
@@ -113,47 +114,77 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
             "def main():",
             "    stage='arguments'",
             "    try:",
-            "        require(len(sys.argv)==5)",
-            "        expected_bytes=int(sys.argv[1]);expected_sha256=sys.argv[2];seconds=float(sys.argv[3]);operation=sys.argv[4]",
+            "        require(len(sys.argv)==6)",
+            "        expected_bytes=int(sys.argv[1]);expected_sha256=sys.argv[2];seconds=float(sys.argv[3]);operation=sys.argv[4];nonce=sys.argv[5]",
             "        require(type(operation)is str and re.fullmatch(r'[A-Za-z0-9 ._-]+',operation) is not None)",
             "        require(0<expected_bytes<=MAX_BYTES and 0<seconds<=300)",
-            "        stage='receive-seal-exec';run(expected_bytes,expected_sha256,seconds,operation)",
+            "        stage='receive-seal-exec';run(expected_bytes,expected_sha256,seconds,operation,nonce)",
             "    except BaseException:",
             "        # Never emit exception message, arguments, digest, payload or traceback.",
             "        sys.stderr.write('PROTECTED_RAM_INPUT_REJECTED\\n');return 1",
             "    return 0",
-            "if __name__=='__main__':raise SystemExit(main())",
-            "");
+            "if __name__=='__main__':raise SystemExit(main())");
+
     private static final String PROTECTED_STDIN_OBSERVER = String.join("\n",
-            "",
-            "import hashlib,os,stat",
-            "def observe(pid,expected_argv,expected_start=None):",
-            "    if type(pid)is not int or pid<=0:raise ValueError()",
+            "import hashlib,os,re,stat",
+            "def observe(pid,expected_argv,expected_start=None,expected_nonce=None,expected_data_inode=None,expected_control_inode=None,expected_executable=None,expected_binary_device=None,expected_binary_inode=None):",
+            "    if type(pid)is not int or pid<=0 or not isinstance(expected_argv,list)or not expected_argv:raise ValueError()",
+            "    nonce=expected_argv[-1]if expected_nonce is None else expected_nonce",
+            "    if type(nonce)is not str or re.fullmatch('[0-9a-f]{32}',nonce)is None or expected_argv[-1]!=nonce:raise ValueError()",
+            "    if any(type(value)is not int or value<=0 for value in(expected_start,expected_data_inode,expected_control_inode)if value is not None):raise ValueError()",
+            "    if expected_binary_device is not None and(type(expected_binary_device)is not int or expected_binary_device<0):raise ValueError()",
+            "    if expected_binary_inode is not None and(type(expected_binary_inode)is not int or expected_binary_inode<=0):raise ValueError()",
             "    root=f'/proc/{pid}'",
-            "    before=os.stat(root)",
-            "    if before.st_uid!=0:raise ValueError()",
-            "    with open(root+'/stat','rb')as stream:record=stream.read(4096)",
-            "    start=int(record[record.rfind(b')')+2:].split()[19])",
-            "    with open(root+'/cmdline','rb')as stream:argv=stream.read(32769).rstrip(b'\\0').decode().split('\\0')",
-            "    if argv!=expected_argv or expected_start is not None and start!=expected_start:raise ValueError()",
-            "    executable=os.readlink(root+'/exe')",
-            "    if executable not in ('/usr/bin/python3.9','/usr/bin/python3.11','/usr/bin/python3.12'):raise ValueError()",
-            "    binary=os.stat(root+'/exe')",
-            "    if not stat.S_ISREG(binary.st_mode)or binary.st_uid!=0 or binary.st_mode&0o022:raise ValueError()",
-            "    a=os.stat(root+'/fd/16');b=os.stat(root+'/fd/18')",
-            "    if os.readlink(root+'/fd/16')!='/memfd:ablestack-protected-input (deleted)'or not stat.S_ISREG(a.st_mode)or a.st_uid!=0 or stat.S_IMODE(a.st_mode)!=0o600:raise ValueError()",
-            "    if not stat.S_ISFIFO(b.st_mode)or b.st_uid!=0 or stat.S_IMODE(b.st_mode)!=0o600:raise ValueError()",
-            "    with open(root+'/stat','rb')as stream:after=stream.read(4096)",
-            "    if int(after[after.rfind(b')')+2:].split()[19])!=start:raise ValueError()",
-            "    return {'ready':True,'rootOwned':True,'receiverScriptVerified':True,'pid':pid,'startTicks':start,'dataInode':a.st_ino,'controlInode':b.st_ino}",
+            "    def identity():",
+            "        before=os.stat(root)",
+            "        if before.st_uid!=0:raise ValueError()",
+            "        with open(root+'/stat','rb')as stream:record=stream.read(4096)",
+            "        fields=record[record.rfind(b')')+2:].split()",
+            "        if fields[0]in(b'Z',b'X',b'x'):raise ValueError()",
+            "        start=int(fields[19])",
+            "        if start<=0 or expected_start is not None and start!=expected_start:raise ValueError()",
+            "        with open(root+'/cmdline','rb')as stream:raw=stream.read(32769)",
+            "        if len(raw)>32768:raise ValueError()",
+            "        argv=raw.rstrip(b'\\0').decode().split('\\0')",
+            "        if argv!=expected_argv:raise ValueError()",
+            "        executable=os.readlink(root+'/exe')",
+            "        if executable not in('/usr/bin/python3.9','/usr/bin/python3.11','/usr/bin/python3.12'):raise ValueError()",
+            "        if expected_executable is not None and executable!=expected_executable:raise ValueError()",
+            "        binary=os.stat(root+'/exe')",
+            "        if not stat.S_ISREG(binary.st_mode)or binary.st_uid!=0 or binary.st_mode&0o022:raise ValueError()",
+            "        if expected_binary_device is not None and binary.st_dev!=expected_binary_device:raise ValueError()",
+            "        if expected_binary_inode is not None and binary.st_ino!=expected_binary_inode:raise ValueError()",
+            "        return start,executable,binary.st_dev,binary.st_ino",
+            "    before=identity()",
+            "    def descriptor(number,expected_inode):",
+            "        path=root+'/fd/'+str(number)",
+            "        try:meta=os.stat(path)",
+            "        except FileNotFoundError:",
+            "            if expected_inode is not None:raise ValueError()",
+            "            return None",
+            "        if meta.st_uid!=0 or stat.S_IMODE(meta.st_mode)!=0o600 or meta.st_ino<=0:raise ValueError()",
+            "        target=os.readlink(path)",
+            "        if number==16:",
+            "            if not stat.S_ISREG(meta.st_mode)or target!='/memfd:ablestack-protected-input (deleted)':raise ValueError()",
+            "        elif not stat.S_ISFIFO(meta.st_mode)or re.fullmatch(r'pipe:\\[\\d+\\]',target)is None:raise ValueError()",
+            "        if expected_inode is not None and meta.st_ino!=expected_inode:raise ValueError()",
+            "        return meta.st_ino",
+            "    data_inode=descriptor(16,expected_data_inode);control_inode=descriptor(18,expected_control_inode)",
+            "    if identity()!=before:raise ValueError()",
+            "    ready=data_inode is not None and control_inode is not None",
+            "    return {'ready':ready,'status':'READY'if ready else'NOT_READY','rootOwned':True,'receiverScriptVerified':True,",
+            "        'pid':pid,'startTicks':before[0],'launchNonce':nonce,'dataInode':data_inode,'controlInode':control_inode,",
+            "        'executablePath':before[1],'binaryDevice':before[2],'binaryInode':before[3]}",
             "",
             "import base64,json,sys",
             "try:",
-            "    value=observe(int(sys.argv[1]),json.loads(base64.b64decode(sys.argv[2])))",
+            "    if len(sys.argv)!=10:raise ValueError()",
+            "    value=observe(int(sys.argv[1]),json.loads(base64.b64decode(sys.argv[2])),int(sys.argv[3])or None,",
+            "        sys.argv[4],int(sys.argv[5])or None,int(sys.argv[6])or None,sys.argv[7]or None,",
+            "        int(sys.argv[8])if sys.argv[8]else None,int(sys.argv[9])if sys.argv[9]else None)",
             "    print(json.dumps(value,separators=(',',':')))",
             "except BaseException:",
-            "    sys.stderr.write('PROTECTED_RAM_RECEIVER_REJECTED\\n');raise SystemExit(1)",
-            "");
+            "    sys.stderr.write('PROTECTED_RAM_RECEIVER_REJECTED\\n');raise SystemExit(1)");
 
     private static final String CONFIGURE_SHAREDFS_STATIC_NETWORK = "configure-sharedfs-static-network";
     private static final String SHAREDFS_NETWORK_STATE = "/etc/ablestack-storage/sharedfs-network.json";
@@ -577,21 +608,109 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
 
     protected JsonObject observeProtectedInputReceiver(Domain domain, long pid, JsonArray expectedArgv, long deadline)
             throws LibvirtException, InterruptedException {
-        JsonArray arguments = new JsonArray();arguments.add(Long.toString(pid));
-        arguments.add(Base64.getEncoder().encodeToString(expectedArgv.toString().getBytes(StandardCharsets.UTF_8)));
-        long observerPid = protectedInputInteger(protectedInputQga(domain, protectedInputExec(PROTECTED_STDIN_OBSERVER, arguments), deadline)
-                .getAsJsonObject("return"), "pid");
+        return observeProtectedInputReceiver(domain, pid, expectedArgv, deadline, null);
+    }
+
+    private JsonObject observeProtectedInputReceiver(Domain domain, long pid, JsonArray expectedArgv, long deadline, JsonObject previous)
+            throws LibvirtException, InterruptedException {
+        if (System.currentTimeMillis() >= deadline) throw new IllegalStateException("Protected stdin receiver ownership deadline expired");
+        if (expectedArgv == null || expectedArgv.size() == 0) throw new IllegalStateException("Protected stdin receiver nonce is unavailable");
+        String nonce = expectedArgv.get(expectedArgv.size() - 1).getAsString();
+        if (!nonce.matches("[0-9a-f]{32}")) throw new IllegalStateException("Protected stdin receiver nonce is unavailable");
+        JsonObject pins = new JsonObject();
+        if (previous != null) {
+            requireProtectedInputOwner(previous, pid);
+            for (String name : new String[]{"startTicks", "dataInode", "controlInode", "executablePath", "binaryDevice", "binaryInode"}) pins.add(name, previous.get(name));
+        }
         while (System.currentTimeMillis() < deadline) {
-            JsonObject statusArgs = new JsonObject();statusArgs.addProperty("pid", observerPid);
-            JsonObject status = protectedInputQga(domain, protectedInputCommand("guest-exec-status", statusArgs), deadline).getAsJsonObject("return");
-            if (status.has("exited") && status.getAsJsonPrimitive("exited").isBoolean() && status.get("exited").getAsBoolean()) {
-                if (protectedInputInteger(status, "exitcode") != 0 || status.has("out-truncated") && status.get("out-truncated").getAsBoolean())
-                    throw new IllegalStateException("Protected stdin receiver ownership is unavailable");
-                return JsonParser.parseString(decodeGuestData(status, "out-data")).getAsJsonObject();
+            JsonArray arguments = new JsonArray();arguments.add(Long.toString(pid));
+            arguments.add(Base64.getEncoder().encodeToString(expectedArgv.toString().getBytes(StandardCharsets.UTF_8)));
+            arguments.add(pins.has("startTicks") ? pins.get("startTicks").getAsString() : "0");arguments.add(nonce);
+            arguments.add(pins.has("dataInode") ? pins.get("dataInode").getAsString() : "0");
+            arguments.add(pins.has("controlInode") ? pins.get("controlInode").getAsString() : "0");
+            arguments.add(pins.has("executablePath") ? pins.get("executablePath").getAsString() : "");
+            arguments.add(pins.has("binaryDevice") ? pins.get("binaryDevice").getAsString() : "");
+            arguments.add(pins.has("binaryInode") ? pins.get("binaryInode").getAsString() : "");
+            long observerPid = protectedInputInteger(protectedInputQga(domain, protectedInputExec(PROTECTED_STDIN_OBSERVER, arguments), deadline)
+                    .getAsJsonObject("return"), "pid");
+            JsonObject observation = null;
+            while (System.currentTimeMillis() < deadline) {
+                JsonObject statusArgs = new JsonObject();statusArgs.addProperty("pid", observerPid);
+                JsonObject status = protectedInputQga(domain, protectedInputCommand("guest-exec-status", statusArgs), deadline).getAsJsonObject("return");
+                if (System.currentTimeMillis() >= deadline) throw new IllegalStateException("Protected stdin receiver ownership deadline expired");
+                if (status.has("exited") && status.getAsJsonPrimitive("exited").isBoolean() && status.get("exited").getAsBoolean()) {
+                    if (protectedInputInteger(status, "exitcode") != 0 || status.has("out-truncated") && status.get("out-truncated").getAsBoolean())
+                        throw new IllegalStateException("Protected stdin receiver ownership is unavailable");
+                    observation = protectedInputObservation(decodeGuestData(status, "out-data"));
+                    if (protectedInputInteger(observation, "pid") != pid || !nonce.equals(observation.get("launchNonce").getAsString()))
+                        throw new IllegalStateException("Protected stdin receiver identity changed");
+                    for (String name : new String[]{"startTicks", "dataInode", "controlInode", "executablePath", "binaryDevice", "binaryInode"}) {
+                        if (pins.has(name) && (observation.get(name).isJsonNull() || !pins.get(name).equals(observation.get(name))))
+                            throw new IllegalStateException("Protected stdin receiver identity changed");
+                        if (!observation.get(name).isJsonNull()) pins.add(name, observation.get(name));
+                    }
+                    if (observation.get("ready").getAsBoolean()) {
+                        if (System.currentTimeMillis() >= deadline) throw new IllegalStateException("Protected stdin receiver ownership deadline expired");
+                        return observation;
+                    }
+                    break;
+                }
+                long innerWait = deadline - System.currentTimeMillis();
+                if (innerWait <= 0) break;
+                Thread.sleep(Math.min(QGA_POLL_INTERVAL_MILLIS, innerWait));
             }
-            Thread.sleep(Math.min(QGA_POLL_INTERVAL_MILLIS, Math.max(1, deadline - System.currentTimeMillis())));
+            if (observation == null) break;
+            // Only a successful closed NOT_READY proof reaches another observation.
+            long retryWait = deadline - System.currentTimeMillis();
+            if (retryWait <= 0) break;
+            Thread.sleep(Math.min(QGA_POLL_INTERVAL_MILLIS, retryWait));
         }
         throw new IllegalStateException("Protected stdin receiver ownership deadline expired");
+    }
+
+    private JsonObject protectedInputObservation(String value) {
+        if (value == null || value.length() > 4096) throw new IllegalStateException("Protected stdin receiver ownership is unavailable");
+        for (String field : new String[]{"ready", "rootOwned", "receiverScriptVerified"}) {
+            if (!java.util.regex.Pattern.compile("\"" + field + "\"\\s*:\\s*(true|false)\\s*(?=[,}])").matcher(value).find())
+                throw new IllegalStateException("Protected stdin receiver ownership is unavailable");
+        }
+        java.util.Set<String> fields = java.util.Set.of("ready", "status", "rootOwned", "receiverScriptVerified", "pid", "startTicks",
+                "launchNonce", "dataInode", "controlInode", "executablePath", "binaryDevice", "binaryInode");
+        JsonObject result = new JsonObject();
+        try (JsonReader reader = new JsonReader(new StringReader(value))) {
+            reader.setLenient(false);reader.beginObject();
+            while (reader.hasNext()) {
+                String name = reader.nextName();
+                if (!fields.contains(name) || result.has(name)) throw new IllegalStateException("Protected stdin receiver ownership is unavailable");
+                if (java.util.Set.of("ready", "rootOwned", "receiverScriptVerified").contains(name)) {
+                    if (reader.peek() != JsonToken.BOOLEAN) throw new IllegalStateException("Protected stdin receiver ownership is unavailable");
+                    result.addProperty(name, reader.nextBoolean());
+                } else if ("status".equals(name) || "launchNonce".equals(name) || "executablePath".equals(name)) {
+                    if (reader.peek() != JsonToken.STRING) throw new IllegalStateException("Protected stdin receiver ownership is unavailable");
+                    result.addProperty(name, reader.nextString());
+                } else if (reader.peek() == JsonToken.NULL && ("dataInode".equals(name) || "controlInode".equals(name))) {
+                    reader.nextNull();result.add(name, com.google.gson.JsonNull.INSTANCE);
+                } else {
+                    if (reader.peek() != JsonToken.NUMBER) throw new IllegalStateException("Protected stdin receiver ownership is unavailable");
+                    long number = new java.math.BigDecimal(reader.nextString()).longValueExact();
+                    if (number < 0 || number == 0 && !"binaryDevice".equals(name)) throw new IllegalStateException("Protected stdin receiver ownership is unavailable");
+                    result.addProperty(name, number);
+                }
+            }
+            reader.endObject();
+            if (!result.keySet().equals(fields) || reader.peek() != JsonToken.END_DOCUMENT)
+                throw new IllegalStateException("Protected stdin receiver ownership is unavailable");
+        } catch (java.io.IOException | NumberFormatException | ArithmeticException invalid) {
+            throw new IllegalStateException("Protected stdin receiver ownership is unavailable");
+        }
+        boolean ready = result.get("ready").getAsBoolean();
+        if (!result.get("rootOwned").getAsBoolean() || !result.get("receiverScriptVerified").getAsBoolean()
+                || !result.get("launchNonce").getAsString().matches("[0-9a-f]{32}")
+                || !java.util.Set.of("/usr/bin/python3.9", "/usr/bin/python3.11", "/usr/bin/python3.12").contains(result.get("executablePath").getAsString())
+                || !(ready ? "READY" : "NOT_READY").equals(result.get("status").getAsString())
+                || ready != (!result.get("dataInode").isJsonNull() && !result.get("controlInode").isJsonNull()))
+            throw new IllegalStateException("Protected stdin receiver ownership is unavailable");
+        return result;
     }
 
     private void requireProtectedInputOwner(JsonObject value, long pid) {
@@ -670,6 +789,7 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
         } catch (java.security.NoSuchAlgorithmException unavailable) {throw new IllegalStateException("Protected stdin checksum is unavailable");}
         JsonArray metadata = new JsonArray();metadata.add(Integer.toString(payload.length));metadata.add(checksum);
         metadata.add(Integer.toString(receiverBudget));metadata.add(command.getOperation());
+        metadata.add(java.util.UUID.randomUUID().toString().replace("-", ""));
         long pid = protectedInputInteger(protectedInputQga(domain, protectedInputExec(PROTECTED_STDIN_RECEIVER, metadata), transferDeadline)
                 .getAsJsonObject("return"), "pid");
         if (pid == 0) throw new IllegalStateException("Protected stdin receiver PID is unavailable");
@@ -687,7 +807,7 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
             flushProtectedInputHandle(domain, handle, transferDeadline);
             boolean closed = closeProtectedInputHandle(domain, handle, cleanupDeadline);handle = null;
             if (!closed) throw new IllegalStateException("Protected stdin data close is unverified");
-            JsonObject after = observeProtectedInputReceiver(domain, pid, expectedArgv, transferDeadline);requireProtectedInputOwner(after, pid);
+            JsonObject after = observeProtectedInputReceiver(domain, pid, expectedArgv, transferDeadline, owner);requireProtectedInputOwner(after, pid);
             if (!owner.equals(after)) throw new IllegalStateException("Protected stdin receiver identity changed");
             control = openProtectedInputHandle(domain, pid, 18, transferDeadline);
             writeProtectedInputChunk(domain, control, new byte[]{1}, transferDeadline);

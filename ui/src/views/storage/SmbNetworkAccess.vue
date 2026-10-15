@@ -20,7 +20,7 @@
     <h4>{{ $t('label.smb.network.access') }}</h4>
     <p>{{ $t('message.smb.network.access.help') }}</p>
     <a-space class="network-actions" wrap>
-      <a-button v-if="canCreate" type="primary" :disabled="!shares.length" @click="openEditor()"><template #icon><PlusOutlined /></template>{{ $t('label.smb.network.create') }}</a-button>
+      <a-button v-if="canCreate" type="primary" :disabled="storageMutationDisabled || (!shares.length)" @click="openEditor()"><template #icon><PlusOutlined /></template>{{ $t('label.smb.network.create') }}</a-button>
       <a-button :loading="loading" @click="refresh"><template #icon><ReloadOutlined /></template>{{ $t('label.refresh') }}</a-button>
     </a-space>
     <a-alert v-if="readError" type="warning" show-icon :message="$t('message.smb.network.read.failed')" />
@@ -28,12 +28,12 @@
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'state'"><a-tag>{{ record.state }}</a-tag></template>
         <template v-else-if="column.key === 'actions'">
-          <a-space><a-button v-if="canUpdate" size="small" @click="openEditor(record)"><template #icon><EditOutlined /></template>{{ $t('label.edit') }}</a-button><a-button v-if="canDelete" size="small" danger @click="deleteTarget = record"><template #icon><DeleteOutlined /></template>{{ $t('label.delete') }}</a-button></a-space>
+          <a-space><a-button v-if="canUpdate" size="small" @click="openEditor(record)" :disabled="storageMutationDisabled"><template #icon><EditOutlined /></template>{{ $t('label.edit') }}</a-button><a-button v-if="canDelete" size="small" danger @click="deleteTarget = record" :disabled="storageMutationDisabled"><template #icon><DeleteOutlined /></template>{{ $t('label.delete') }}</a-button></a-space>
         </template>
       </template>
     </a-table>
     <a-table size="small" row-key="id" :columns="summaryColumns" :data-source="summaries" :pagination="false" :scroll="{ x: 700 }" class="network-summary" />
-    <a-modal v-model:visible="editing" :title="$t(editId ? 'label.smb.network.edit' : 'label.smb.network.create')" :confirm-loading="saving" :ok-button-props="{ disabled: !form.shareid || !form.sources.length }" :body-style="{ maxHeight: '65vh', overflowY: 'auto' }" @ok="save">
+    <a-modal v-model:visible="editing" :title="$t(editId ? 'label.smb.network.edit' : 'label.smb.network.create')" :confirm-loading="saving" :ok-button-props="{ disabled: storageMutationDisabled || !form.shareid || !form.sources.length }" :body-style="{ maxHeight: '65vh', overflowY: 'auto' }" @ok="save">
       <a-form layout="vertical">
         <a-form-item :label="$t('label.share')" required>
           <a-select v-model:value="form.shareid" :disabled="!!editId"><a-select-option v-for="share in shares" :key="share.id" :value="share.id">{{ share.name }}</a-select-option></a-select>
@@ -44,16 +44,18 @@
         <a-alert type="info" show-icon :message="$t('message.smb.network.account.and.source')" />
       </a-form>
     </a-modal>
-    <a-modal :visible="!!deleteTarget" :title="$t('label.smb.network.delete')" :confirm-loading="saving" :body-style="{ maxHeight: '65vh', overflowY: 'auto' }" @cancel="deleteTarget = null" @ok="remove">
+    <a-modal :visible="!!deleteTarget" :title="$t('label.smb.network.delete')" :confirm-loading="saving" :ok-button-props="{ disabled: storageMutationDisabled }" :body-style="{ maxHeight: '65vh', overflowY: 'auto' }" @cancel="deleteTarget = null" @ok="remove">
       <a-alert :type="isLastRule ? 'warning' : 'info'" show-icon :message="$t(isLastRule ? 'message.smb.network.last.delete' : 'message.smb.network.delete.confirm')" />
       <p>{{ deleteTarget?.principal }}</p>
     </a-modal>
   </section>
 </template>
 <script>
+import { storageMutationGateMixin, requireStorageMutationAllowed } from '@/utils/storageRecoveryGate'
 import { getAPI, postAPI } from '@/api'
 import { PlusOutlined, ReloadOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons-vue'
 export default {
+  mixins: [storageMutationGateMixin],
   name: 'SmbNetworkAccess',
   components: { PlusOutlined, ReloadOutlined, EditOutlined, DeleteOutlined },
   props: {
@@ -108,6 +110,7 @@ export default {
       this.editing = true
     },
     async mutate (command, params) {
+      requireStorageMutationAllowed(this, command)
       const result = await postAPI(command, params)
       const payload = result[command.toLowerCase() + 'response'] || result
       if (payload.jobid) {

@@ -72,11 +72,13 @@
 </template>
 <script>
 import { getAPI, postAPI } from '@/api'
+import { storageOperationRows } from '@/utils/storageRecoveryGate'
 import { SMB_CURRENT_RETAIN_MODE, supportsSmbCurrentRecovery, readSmbCurrentRecoveryReview, smbCurrentRecoveryRuntimeRow, smbCurrentRecoveryParameters, requireSmbCurrentRecoveryResult } from '@/utils/storageSmbCurrentIdentityRecovery'
 import StorageOperationControl from '@/views/storage/StorageOperationControl'
 import { ReloadOutlined } from '@ant-design/icons-vue'
 export default {
   name: 'StorageOperationHistory',
+  emits: ['read-started', 'read-complete'],
   components: { ReloadOutlined, StorageOperationControl },
   props: { instanceId: { type: String, required: true }, instanceName: { type: String, default: '' } },
   data: () => ({ rows: [], loading: false, readError: false, generation: 0, reconcileTarget: null, saving: '', error: '', recoveryMode: 'ORIGINAL_OPERATION', currentRecoveryMode: SMB_CURRENT_RETAIN_MODE, currentReview: null, currentReviewLoading: false, currentMaintenanceApproved: false, currentConfirmation: '', currentApprovedParameters: null, recoveryToken: 0, recoveryDisposed: false }),
@@ -184,11 +186,13 @@ export default {
     color (state) { return state === 'COMPLETE' || state === 'COMPLETE_NO_CONFIG_CHANGE' || state === 'RECONCILED_SUPERSEDED' ? 'green' : (state === 'RECOVERY_REQUIRED' ? 'red' : (state === 'RUNNING' ? 'blue' : 'orange')) },
     async refresh () {
       const token = ++this.generation; const instance = this.instanceId; this.loading = true
+      if (this.$emit) this.$emit('read-started', { instanceId: instance, generation: token })
       try {
         const result = await getAPI('listStorageServiceOperations', { instanceid: instance }, { preserveOnFailure: true, timeout: 15000 })
         if (token !== this.generation || instance !== this.instanceId) return
-        this.rows = result.liststorageserviceoperationsresponse?.storageserviceoperation || []; this.readError = false
-      } catch (error) { if (token === this.generation) this.readError = true } finally { if (token === this.generation) this.loading = false }
+        this.rows = storageOperationRows(result); this.readError = false
+        if (this.$emit) this.$emit('read-complete', { instanceId: instance, generation: token, rows: this.rows, readError: false })
+      } catch (error) { if (token === this.generation && instance === this.instanceId) { this.readError = true; if (this.$emit) this.$emit('read-complete', { instanceId: instance, generation: token, rows: this.rows, readError: true }) } } finally { if (token === this.generation) this.loading = false }
     },
     async reconcile () {
       if (this.recoveryMode === SMB_CURRENT_RETAIN_MODE) return this.retainCurrentIdentity()

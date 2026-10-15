@@ -57,7 +57,7 @@
       </a-form>
     </div>
     <div class="template-upgrade-footer">
-      <a-button type="primary" :loading="submitting" :disabled="!canSubmit" @click="plan ? upgrade() : preflightPlan()">
+      <a-button type="primary" :loading="submitting" :disabled="(!!plan && storageMutationDisabled) || !canSubmit" @click="plan ? upgrade() : preflightPlan()">
         {{ $t(plan ? 'label.storage.template.execute' : 'label.storage.template.preflight') }}
       </a-button>
       <a-button :disabled="submitting" @click="$emit('close-action')">{{ $t('label.cancel') }}</a-button>
@@ -67,10 +67,12 @@
   </div>
 </template>
 <script>
+import { storageMutationGateMixin, requireStorageMutationAllowed } from '@/utils/storageRecoveryGate'
 import { getAPI, postAPI } from '@/api'
 import { ReloadOutlined } from '@ant-design/icons-vue'
 
 export default {
+  mixins: [storageMutationGateMixin],
   name: 'StorageServiceSystemVmTemplateUpgrade',
   components: { ReloadOutlined },
   props: { resource: { type: Object, required: true }, pollJob: { type: Boolean, default: true } },
@@ -133,6 +135,7 @@ export default {
       const token = this.scope; const id = this.resource.id; const name = this.resource.name; this.submitting = true; this.error = ''
       try {
         const api = 'upgradeStorageServiceSystemVmTemplate'
+        requireStorageMutationAllowed(this, api)
         const result = await postAPI(api, { sharedfilesystemid: id, upgradeid: this.plan.id, templateid: this.targetTemplate, expectedrevision: this.plan.revision, maintenancewindow: true, confirmation: name })
         if (token !== this.scope || id !== this.resource.id) return
         const body = result[api.toLowerCase() + 'response'] || result

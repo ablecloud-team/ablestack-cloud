@@ -20,7 +20,7 @@
     <h4>{{ $t('label.posix.directory.policy') }}</h4>
     <p>{{ $t('message.posix.directory.policy.help') }}</p>
     <a-space wrap class="policy-actions">
-      <a-button v-if="canCreate" type="primary" @click="openEditor()"><template #icon><PlusOutlined /></template>{{ $t('label.posix.directory.create') }}</a-button>
+      <a-button v-if="canCreate" type="primary" @click="openEditor()" :disabled="storageMutationDisabled"><template #icon><PlusOutlined /></template>{{ $t('label.posix.directory.create') }}</a-button>
       <a-button :loading="loading" @click="refresh"><template #icon><ReloadOutlined /></template>{{ $t('label.refresh') }}</a-button>
     </a-space>
     <a-alert v-if="readError" type="warning" show-icon :message="$t('message.posix.directory.read.failed')" />
@@ -28,15 +28,15 @@
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'actions'">
           <a-space>
-            <a-button v-if="canUpdate" size="small" @click="openEditor(record)"><template #icon><EditOutlined /></template>{{ $t('label.edit') }}</a-button>
-            <a-button v-if="canApply" size="small" @click="openEditor(record, true)">{{ $t('label.posix.directory.apply') }}</a-button>
-            <a-button v-if="canDelete" size="small" danger @click="deleteTarget=record"><template #icon><DeleteOutlined /></template>{{ $t('label.delete') }}</a-button>
+            <a-button v-if="canUpdate" size="small" @click="openEditor(record)" :disabled="storageMutationDisabled"><template #icon><EditOutlined /></template>{{ $t('label.edit') }}</a-button>
+            <a-button v-if="canApply" size="small" @click="openEditor(record, true)" :disabled="storageMutationDisabled">{{ $t('label.posix.directory.apply') }}</a-button>
+            <a-button v-if="canDelete" size="small" danger :disabled="storageMutationDisabled" @click="deleteTarget=record"><template #icon><DeleteOutlined /></template>{{ $t('label.delete') }}</a-button>
           </a-space>
         </template>
         <template v-else>{{ record[column.dataIndex] }}</template>
       </template>
     </a-table>
-    <a-modal v-model:visible="editing" :title="$t(editId ? 'label.posix.directory.edit' : 'label.posix.directory.create')" :confirm-loading="saving" :body-style="{ maxHeight: '65vh', overflowY: 'auto' }" :ok-button-props="{ disabled: !canSavePreview }" @ok="save" @cancel="clearPreview">
+    <a-modal v-model:visible="editing" :title="$t(editId ? 'label.posix.directory.edit' : 'label.posix.directory.create')" :confirm-loading="saving" :body-style="{ maxHeight: '65vh', overflowY: 'auto' }" :ok-button-props="{ disabled: storageMutationDisabled || !canSavePreview }" @ok="save" @cancel="clearPreview">
       <a-form layout="vertical" :disabled="applyOnly">
         <a-form-item :label="$t('label.storage.service.backing.volume')" required>
           <a-select v-model:value="form.volumeid" :disabled="!!editId"><a-select-option v-for="volume in volumes" :key="volume.id" :value="volume.id">{{ volume.name || volume.id }}</a-select-option></a-select>
@@ -72,7 +72,7 @@
       <a-alert v-if="previewV2.readonlyTraversalOK === false" type="warning" show-icon :message="$t('message.storage.posix.read.traverse')" />
       <a-checkbox v-if="previewV2.previewToken" v-model:checked="confirmed">{{ $t('message.storage.posix.confirm.inode') }}</a-checkbox>
     </a-modal>
-    <a-modal :visible="!!deleteTarget" :title="$t('label.delete')" :confirm-loading="saving" @cancel="deleteTarget=null" @ok="remove">
+    <a-modal :visible="!!deleteTarget" :title="$t('label.delete')" :confirm-loading="saving" :ok-button-props="{ disabled: storageMutationDisabled }" @cancel="deleteTarget=null" @ok="remove">
       <a-alert type="warning" show-icon :message="$t('message.posix.directory.delete.preserve')" />
       <p>{{ deleteTarget?.relativepath }}</p>
     </a-modal>
@@ -80,12 +80,14 @@
   </section>
 </template>
 <script>
+import { storageMutationGateMixin, requireStorageMutationAllowed } from '@/utils/storageRecoveryGate'
 import { getAPI, postAPI } from '@/api'
 import StorageAdMutationConsent from '@/views/storage/StorageAdMutationConsent'
 import { readJoinedAdReceipt, supportsAdMutationApi, adMutationScope, requireAdMutationApproval, requestAdMutationApproval, approveAdMutation, cancelAdMutation } from '@/utils/storageAdIdentity'
 import { PlusOutlined, ReloadOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons-vue'
 const parse = value => { try { return typeof value === 'string' ? JSON.parse(value) : (value || {}) } catch (error) { return {} } }
 export default {
+  mixins: [storageMutationGateMixin],
   name: 'PosixDirectoryPolicies',
   components: { StorageAdMutationConsent, PlusOutlined, ReloadOutlined, EditOutlined, DeleteOutlined },
   props: { instanceId: { type: String, required: true }, instanceName: { type: String, default: '' }, domainStatus: { type: Object, default: () => ({}) }, volumes: { type: Array, default: () => [] } },
@@ -231,6 +233,7 @@ export default {
       }
     },
     async resolved (command, params) {
+      if (params.preview !== true) requireStorageMutationAllowed(this, command)
       const joined = params.preview !== true && this.domainStatus?.joinstate === 'JOINED'
       const target = { id: this.instanceId, name: this.instanceName }
       const parameters = { ...params }; let result
@@ -247,6 +250,7 @@ export default {
           if (parameters.expectedrevision !== undefined && parameters.expectedrevision !== fresh.scope.revision) throw new Error('AD_SERVICE_APPROVAL_REQUIRED')
           Object.assign(parameters, requireAdMutationApproval(target, command, fresh, parameters, approved), { expectedrevision: fresh.scope.revision })
         }
+        if (params.preview !== true) requireStorageMutationAllowed(this, command)
         result = await postAPI(command, parameters)
         const payload = result[command.toLowerCase() + 'response'] || result
         if (!payload.jobid) return payload.storageposixdirectorypolicy || payload
