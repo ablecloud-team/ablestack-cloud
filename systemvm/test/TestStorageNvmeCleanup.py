@@ -44,7 +44,8 @@ class StorageNvmeCleanupTest(unittest.TestCase):
         self.host="nqn.2026-10.example:client";self.removed=[];self.observations=0
         self.idle={"status":"ok","sessionSchemaVersion":2,"observedNvmeofTcpCount":0,"warnings":[],"sessions":[]}
         self.payload={"instanceUuid":self.instance,"enabled":True,"subsystems":[{"uuid":str(uuid.uuid4()),"targetName":self.nqn,
-                      "namespaces":[{"uuid":str(uuid.uuid4()),"lunOrNamespace":1}],"hosts":[{"uuid":str(uuid.uuid4()),"principal":self.host}]}]}
+                      "namespaces":[{"uuid":str(uuid.uuid4()),"lunOrNamespace":1,
+                                     "volumeUuid":str(uuid.uuid4()),"volumeSizeBytes":21474836480}],"hosts":[{"uuid":str(uuid.uuid4()),"principal":self.host}]}]}
         self.empty={"instanceUuid":self.instance,"enabled":False,"subsystems":[]}
         self.state.write_text(json.dumps(self.payload));self.state.chmod(0o600)
         self.make_subsystem(self.nqn,self.host);self.make_port("1",self.nqn)
@@ -149,6 +150,29 @@ class StorageNvmeCleanupTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,"exclusive lock"):self.cleanup()
         self.assertEqual([],self.removed);self.assertEqual("1",(self.base/"subsystems"/self.nqn/"namespaces/1/enable").read_text())
 
+    def test_optional_ownership_callback_rejects_before_effects_and_keeps_source_record_immutable(self):
+        original=copy.deepcopy(self.payload);calls=[]
+        def reject(cleanup,payload):
+            calls.append(payload["instanceUuid"])
+            self.assertEqual(original,cleanup.previous)
+            cleanup.guard()
+            raise ValueError("SYNTHETIC_SCOPED_AUTHORITY_REJECTED")
+        with self.assertRaisesRegex(ValueError,"SCOPED_AUTHORITY"):
+            NvmeManagedCleanup(self.base,self.state,self.empty,self.sessions,
+                               rmdir=self.rmdir_configfs_model,ownership=reject)
+        self.assertEqual([self.instance],calls)
+        self.assertEqual(original,json.loads(self.state.read_text()))
+        self.assertEqual([],self.removed)
+        self.assertEqual("1",(self.base/"subsystems"/self.nqn/"namespaces/1/enable").read_text())
+
+    def test_optional_ownership_callback_cannot_borrow_another_instance(self):
+        with self.assertRaisesRegex(ValueError,"authority is foreign"):
+            NvmeManagedCleanup(self.base,self.state,self.empty,self.sessions,
+                rmdir=self.rmdir_configfs_model,
+                ownership=lambda cleanup,payload:{"instanceUuid":str(uuid.uuid4()),"subsystems":[]})
+        self.assertEqual([],self.removed)
+        self.assertEqual(self.before,self.raw.read_bytes())
+
     def test_exact_signed_normal_cli_tail_cleans_without_replay_env_and_keeps_shared_vault_slot(self):
         self.make_subsystem(self.foreign,self.host)
         (self.base/"ports/1/subsystems"/self.foreign).symlink_to(self.base/"subsystems"/self.foreign,target_is_directory=True)
@@ -217,7 +241,8 @@ class StorageNvmeCleanupTest(unittest.TestCase):
             def visit_Constant(inner,node):
                 if isinstance(node.value,str):
                     swaps={"/etc/ablestack-storage":str(state),"/sys/kernel/config/nvmet":str(base),
-                           "/etc/ablestack-storage/secrets/nvmeof-acl-secrets.json":str(state/"secrets/nvmeof-acl-secrets.json")}
+                           "/etc/ablestack-storage/secrets/nvmeof-acl-secrets.json":str(state/"secrets/nvmeof-acl-secrets.json"),
+                           "/var/lib/ablestack-storage/config-generations":str(root/"generations")}
                     if node.value in swaps:return ast.copy_location(ast.Constant(swaps[node.value]),node)
                 return node
         program=ast.fix_missing_locations(Paths().visit(ast.Module(body=tree.body[:boundary],type_ignores=[])))

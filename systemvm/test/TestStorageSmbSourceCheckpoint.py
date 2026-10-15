@@ -839,6 +839,140 @@ class StorageSmbSourceCheckpointTest(unittest.TestCase):
                 self.native.replay_auth({**request,"restoreDomains":["ISCSI"]})
             applied.assert_not_called();activation.clear();activation.update(old)
 
+    def absent_nvme_target_replay(self):
+        self.export_request["authReplayDomains"]=["NVMEOF"]
+        captured=self.native.export(self.export_request)
+        self.native.import_source(self.imported_request(captured))
+        request={**self.request,"capsule":captured["capsule"],"credentialPrivateKey":self.pem(self.newkey),
+            "localSourceCheckpointReference":captured["localSourceCheckpointReference"],"restoreDomains":["NVMEOF"],"nvmeDesired":None}
+        runtime=self.root/"absent-source-nvmet";(runtime/"subsystems").mkdir(parents=True);(runtime/"ports").mkdir()
+        target=runtime/"subsystems"/"nqn.2026-10.test:new-target";target.mkdir()
+        scope={key:self.request[key]for key in("instanceUuid","operationUuid","revision")}
+        empty={"subsystems":[],"namespaces":[],"hosts":[]}
+        receipt={"schemaVersion":1,"kind":"NVMEOF_SOURCE_RUNTIME_IDENTITY","scope":scope,"bootId":self.boot,
+            "sourceGeneration":self.current,"sourceConfigurationSha256":self.request["sourceConfigurationSha256"],
+            "sourceBindings":empty,"targetBindings":{**empty,"subsystems":[{"uuid":str(uuid.uuid4()),"nqn":target.name}]},"identities":[]}
+        receipt["checkpointSha256"]=hashlib.sha256(json.dumps(receipt,sort_keys=True,separators=(",",":"),allow_nan=False).encode()).hexdigest()
+        pending=generation.read_json(self.gen.pending);generation.atomic_json(self.gen.pending,{**pending,"nvmeRuntimeIdentity":receipt})
+        patched=patch.object(module,"LOCAL_SOURCE_NVME_ROOT",runtime,create=True);patched.start();self.addCleanup(patched.stop)
+        actual_path=module.Path
+        def mapped_path(*args,**kwargs):
+            if args and str(args[0]) in ("/sys/kernel/config/nvmet/subsystems","/sys/kernel/config/nvmet/ports"):
+                return runtime/actual_path(args[0]).name
+            return actual_path(*args,**kwargs)
+        path_patch=patch.object(module,"Path",side_effect=mapped_path);path_patch.start();self.addCleanup(path_patch.stop)
+        calls=[];plain=self.native.command
+        def command(args,payload=None):
+            if args==("nvmeof","subsystem","apply","/dev/stdin"):
+                self.assertEqual({"instanceUuid":self.scope["instanceUuid"],"enabled":False,"subsystems":[]},payload)
+                calls.append("empty-apply");target.rmdir()
+                generation.atomic_json(self.gen.config/"nvmeof-subsystems.json",payload)
+                return {"success":True}
+            if args==("operation","generation","restore","/dev/stdin"):
+                calls.append("source-restore")
+                return self.gen.execute("restore",payload)
+            return plain(args,payload)
+        self.native.command=command
+        return request,runtime,target,calls
+
+    def test_first_nvme_target_failure_restores_absent_source_without_auth_erasure(self):
+        request,runtime,target,calls=self.absent_nvme_target_replay()
+        with patch.object(module,"restore_protected",return_value={"success":True})as protected:
+            result=self.native.replay_auth(request)
+        self.assertTrue(result["nvmeRestored"]);self.assertTrue(result["sourceAuthReplayed"])
+        self.assertFalse(result["canonicalDesiredStateChanged"])
+        self.assertEqual(["empty-apply","source-restore"],calls)
+        self.assertFalse(target.exists());self.assertFalse((self.gen.config/"nvmeof-subsystems.json").exists())
+        self.assertEqual(self.current["configurationSha256"],self.gen.digest())
+        self.assertEqual(self.raw_before,{name:path.read_bytes()for name,path in self.private.items()})
+        protected.assert_called_once()
+
+    def test_absent_nvme_source_without_target_receipt_keeps_original_rejection(self):
+        request,runtime,target,calls=self.absent_nvme_target_replay()
+        pending=generation.read_json(self.gen.pending);pending.pop("nvmeRuntimeIdentity")
+        generation.atomic_json(self.gen.pending,pending)
+        with patch.object(module,"restore_protected")as protected,self.assertRaises(ValueError):
+            self.native.replay_auth(request)
+        self.assertEqual([],calls);self.assertTrue(target.exists());protected.assert_not_called()
+
+    def test_absent_nvme_source_rejects_foreign_receipt_scope_boot_hash_and_source(self):
+        request,runtime,target,calls=self.absent_nvme_target_replay()
+        original=generation.read_json(self.gen.pending)
+        for change in ({"scope":{**self.scope,"operationUuid":str(uuid.uuid4())}},{"bootId":str(uuid.uuid4())},
+                       {"sourceConfigurationSha256":"0"*64},{"sourceBindings":{"subsystems":[{"uuid":str(uuid.uuid4())}],"namespaces":[],"hosts":[]}},
+                       {"checkpointSha256":"0"*64}):
+            pending=copy.deepcopy(original);pending["nvmeRuntimeIdentity"].update(change)
+            generation.atomic_json(self.gen.pending,pending)
+            with self.subTest(change=change),patch.object(module,"restore_protected")as protected,self.assertRaises(ValueError):
+                self.native.replay_auth(request)
+            self.assertEqual([],calls);self.assertTrue(target.exists());protected.assert_not_called()
+
+    def test_absent_nvme_new_private_vault_blocks_before_any_cleanup(self):
+        request,runtime,target,calls=self.absent_nvme_target_replay()
+        exists=os.path.lexists
+        def present(path):
+            return True if str(path)=="/etc/ablestack-storage/secrets/nvmeof-acl-secrets.json"else exists(path)
+        with patch.object(module.os.path,"lexists",side_effect=present),patch.object(module,"restore_protected")as protected,self.assertRaises(ValueError):
+            self.native.replay_auth(request)
+        self.assertEqual([],calls);self.assertTrue(target.exists());protected.assert_not_called()
+
+    def test_absent_nvme_callback_failure_or_foreign_runtime_is_not_success(self):
+        request,runtime,target,calls=self.absent_nvme_target_replay()
+        plain=self.native.command
+        def refuse(args,payload=None):
+            if args==("nvmeof","subsystem","apply","/dev/stdin"):
+                calls.append("rejected-validation");raise ValueError("fixture exact TARGET ownership rejected")
+            return plain(args,payload)
+        self.native.command=refuse
+        with patch.object(module,"restore_protected")as protected,self.assertRaises(ValueError):
+            self.native.replay_auth(request)
+        self.assertEqual(["rejected-validation"],calls);self.assertTrue(target.exists());protected.assert_not_called()
+        calls.clear();self.native.command=plain
+        (runtime/"subsystems"/"nqn.2026-10.test:foreign").mkdir()
+        with patch.object(module,"restore_protected")as protected,self.assertRaises(ValueError):
+            self.native.replay_auth(request)
+        self.assertEqual(["empty-apply","source-restore"],calls);protected.assert_not_called()
+
+    def test_verified_source_export_cannot_mint_a_new_opaque_identity_checkpoint(self):
+        self.gen.execute("verify",self.scope)
+        with self.assertRaises(ValueError):self.native.export(self.export_request)
+        self.assertEqual([],self.signals);self.assertEqual(0,self.counter)
+        self.assertEqual(self.raw_before,{name:path.read_bytes()for name,path in self.private.items()})
+
+    def test_verified_original_import_resumes_through_real_local_start_consumer(self):
+        from pending_nfs_authorization import PendingNfsAuthorization as RealAuthorization
+        self.boot=Path("/proc/sys/kernel/random/boot_id").read_text().strip()
+        self.request["expectedBootId"]=self.boot;self.export_request.update(self.request)
+        self.native.root=self.gen.root.parent/"smb-local-source-checkpoints"
+        captured=self.native.export(self.export_request)
+        conf=self.root/"verified-resume-samba";conf.mkdir(mode=0o700)
+        (conf/"smb.conf").write_bytes(b"PUBLIC FIXTURE CONFIG")
+        grants=[];started=[];plain=self.handler.run
+        def factory(*args,**kwargs):
+            kwargs.update(root=self.root/"verified-source-grant",configuration_root=conf)
+            auth=RealAuthorization(*args,**kwargs);grants.append(auth);return auth
+        def run(args):
+            if args[:2]==["systemctl","start"]:
+                auth=grants[-1]
+                self.assertTrue(auth.authorized(args[2],{"bootHeld":False},{"current":None,"activation":None}))
+                started.append(args[2])
+            return plain(args)
+        self.handler.run=run;self.native.start_grant=self.native.pending_start_grant
+        self.gen.execute("verify",self.scope)
+        with patch.object(module,"PendingNfsGeneration",return_value=self.gen),patch.object(module,"PendingNfsAuthorization",side_effect=factory):
+            result=self.native.import_source(self.imported_request(captured))
+        self.assertTrue(result["sourceSmbResumed"]);self.assertTrue(result["sourceIdentityRestored"])
+        self.assertTrue(started);self.assertEqual(1,self.counter)
+        self.assertEqual("VERIFIED",generation.read_json(self.gen.pending)["phase"])
+        self.assertTrue(all(not auth.path.exists()for auth in grants))
+
+    def test_committed_target_never_consumes_local_original_import(self):
+        captured=self.native.export(self.export_request)
+        self.gen.execute("verify",self.scope);self.gen.execute("commit",self.scope)
+        effects=(len(self.signals),len(self.starts))
+        with self.assertRaises(ValueError):self.native.import_source(self.imported_request(captured))
+        self.assertEqual(effects,(len(self.signals),len(self.starts)))
+
     def test_original_iscsi_and_nvme_auth_real_crypto_restore_and_bounded_replay(self):
         host="nqn.2026-10.test:source-host"
         desired={"subsystems":[{"uuid":str(uuid.uuid4()),"nqn":"nqn.2026-10.test:source-target","hosts":[{

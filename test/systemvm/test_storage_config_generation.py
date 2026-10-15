@@ -244,6 +244,109 @@ class GenerationTest(unittest.TestCase):
         recovered.execute("rollback", request)
         self.assertEqual("IN_SYNC", recovered.status()["generationStatus"])
 
+    def target_iscsi(self, request):
+        identity = "1e24abb8-ad7a-4128-a1b9-d97292b77890"
+        value = {"instanceUuid": request["instanceUuid"], "targets": [{"uuid": identity,
+                 "targetName": "iqn.2026-10.local.epic898:target", "config": {"backstoreType": "BLOCK"},
+                 "secrets": {"chapSecret": "SYNTHETIC_PRIVATE_CHAP"}}]}
+        module.atomic_json(self.config / "iscsi-targets.json", value)
+        return value
+
+    def test_restore_preserves_only_target_binding_authority_before_source_is_replaced(self):
+        request = self.pending_restore_request();target = self.target_iscsi(request)
+        result = self.generation.execute("restore", request)
+        self.assertTrue(result["canonicalRestored"])
+        pending = module.read_json(self.generation.pending)
+        receipt = pending["iscsiCleanupOwnership"]
+        self.assertEqual({key: request[key] for key in ("instanceUuid","operationUuid","revision")}, receipt["scope"])
+        self.assertEqual(request["previousGeneration"]["configurationSha256"], receipt["beforeSha256"])
+        self.assertEqual([{"uuid": target["targets"][0]["uuid"], "targetName": target["targets"][0]["targetName"], "lunOrNamespace":"0"}], receipt["targets"])
+        self.assertNotIn("SYNTHETIC", self.generation.pending.read_text())
+        first = self.generation.pending.read_bytes()
+        self.generation.execute("restore", request)
+        self.assertEqual(first, self.generation.pending.read_bytes())
+        self.assertIsNone(self.generation.files()["iscsi-targets.json"])
+
+    def test_cleanup_receipt_publication_preserves_other_protocol_pending_fields(self):
+        request=self.pending_restore_request();self.target_iscsi(request)
+        validate=module.iscsi_cleanup_receipt;injected=[False]
+        def add_other(value,pending,boot):
+            if not injected[0]:
+                injected[0]=True
+                latest=module.read_json(self.generation.pending)
+                module.atomic_json(self.generation.pending,{**latest,"nvmeRuntimeIdentity":{"publicFixture":True}})
+            return validate(value,pending,boot)
+        with patch.object(module,"iscsi_cleanup_receipt",side_effect=add_other):
+            self.generation.execute("restore",request)
+        pending=module.read_json(self.generation.pending)
+        self.assertEqual({"publicFixture":True},pending["nvmeRuntimeIdentity"])
+        self.assertIn("iscsiCleanupOwnership",pending)
+
+    def test_verified_uncommitted_restore_keeps_source_and_captures_target_cleanup(self):
+        request=self.pending_restore_request();target=self.target_iscsi(request)
+        source=module.read_json(self.generation.current)
+        self.generation.execute("verify",request)
+        self.assertEqual("VERIFIED",module.read_json(self.generation.pending)["phase"])
+        self.generation.execute("restore",request)
+        self.assertEqual(source,module.read_json(self.generation.current))
+        pending=module.read_json(self.generation.pending)
+        self.assertEqual("VERIFIED",pending["phase"])
+        self.assertEqual(target["targets"][0]["uuid"],pending["iscsiCleanupOwnership"]["targets"][0]["uuid"])
+        self.assertEqual(request["previousGeneration"]["configurationSha256"],self.generation.digest())
+
+    def test_committed_target_and_foreign_verified_source_cannot_restore(self):
+        request=self.pending_restore_request();self.target_iscsi(request)
+        self.generation.execute("verify",request)
+        wrong=json.loads(json.dumps(request));wrong["configurationDesiredState"]["iscsi-targets.json"]={}
+        before=self.generation.files()
+        with self.assertRaises(ValueError):self.generation.execute("restore",wrong)
+        self.assertEqual(before,self.generation.files())
+        self.generation.execute("commit",request)
+        target=module.read_json(self.generation.current)
+        with self.assertRaises(ValueError):self.generation.execute("restore",request)
+        self.assertEqual(before,self.generation.files());self.assertEqual(target,module.read_json(self.generation.current))
+
+    def test_verified_initial_restore_consumes_source_without_minting_new_initial_checkpoint(self):
+        source=self.generation.files();self.generation.execute("begin",self.request)
+        self.put({"shares":[{"name":"target"}]});self.generation.execute("verify",self.request)
+        with self.assertRaises(ValueError):
+            self.generation.execute("frozen-initial",{**self.request,"configurationDesiredState":source})
+        self.generation.execute("restore",{**self.request,"previousGeneration":{},"configurationDesiredState":source})
+        self.assertEqual(source,self.generation.files());self.assertFalse(self.generation.current.exists())
+
+    def test_restore_target_receipt_failure_prevents_canonical_replacement(self):
+        request = self.pending_restore_request();self.target_iscsi(request)
+        before = self.generation.files();original = module.atomic_json
+        def refuse_receipt(path, value):
+            if path == self.generation.pending:raise OSError("synthetic receipt persistence failure")
+            return original(path, value)
+        with patch.object(module,"atomic_json",side_effect=refuse_receipt):
+            with self.assertRaises(OSError):self.generation.execute("restore", request)
+        self.assertEqual(before, self.generation.files())
+
+    def test_restore_rejects_changed_receipt_scope_boot_hash_or_closed_schema(self):
+        request = self.pending_restore_request();self.target_iscsi(request)
+        self.generation.execute("restore", request)
+        original = module.read_json(self.generation.pending)
+        for changes in ({"scope": {**original["iscsiCleanupOwnership"]["scope"], "operationUuid": str(uuid.uuid4())}},
+                        {"bootId": str(uuid.uuid4())}, {"beforeSha256": "0"*64},
+                        {"bindingsSha256": "0"*64}, {"privateUnknown": "SYNTHETIC_PRIVATE"}):
+            pending = json.loads(json.dumps(original));pending["iscsiCleanupOwnership"].update(changes)
+            module.atomic_json(self.generation.pending,pending)
+            before = self.generation.files()
+            with self.assertRaises(ValueError):self.generation.execute("restore", request)
+            self.assertEqual(before,self.generation.files())
+
+    def test_restore_rejects_malformed_target_binding_without_mutation(self):
+        request = self.pending_restore_request()
+        for bad in ({"uuid":"not-a-uuid"}, {"targetName":"../../foreign"}, {"config":{"backstoreType":"FILEIO"}}):
+            with self.subTest(bad=bad):
+                value = self.target_iscsi(request);value["targets"][0].update(bad)
+                module.atomic_json(self.config/"iscsi-targets.json",value)
+                before = self.generation.files()
+                with self.assertRaises(ValueError):self.generation.execute("restore",request)
+                self.assertEqual(before,self.generation.files())
+
     def test_restore_rejects_foreign_previous_arbitrary_paths_or_secret_payload_without_mutation(self):
         request = self.pending_restore_request()
         self.put({"shares": [{"name": "new"}]})

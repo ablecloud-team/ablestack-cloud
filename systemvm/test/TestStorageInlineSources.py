@@ -201,6 +201,16 @@ class StorageInlineSourcesTest(unittest.TestCase):
         embedded=source.split("<<'PYGENERATION'\n",1)[1].split("\nimport sys\nrequest =",1)[0]
         self.assertEqual(generation,embedded);ast.parse(embedded)
 
+    def test_signed_iscsi_cleanup_reuses_exact_protected_generation_readers_and_receipt_validation(self):
+        source=CLI.read_text()
+        readers=source.split("# BEGIN EMBEDDED ISCSI CLEANUP GENERATION READERS\n",1)[1].split("\n# END EMBEDDED ISCSI CLEANUP GENERATION READERS",1)[0]
+        self.assertEqual(pending_nfs_readonly_body(),readers)
+        generation=(LIB/"config_generation.py").read_text()
+        helpers="\n\n".join(ast.get_source_segment(generation,node) for node in ast.parse(generation).body
+                            if isinstance(node,ast.FunctionDef) and node.name in ("protected_directory","atomic_json","iscsi_cleanup_lun","iscsi_cleanup_bindings","iscsi_cleanup_receipt"))
+        actual=source.split("# BEGIN EMBEDDED ISCSI CLEANUP BINDINGS\n",1)[1].split("\n# END EMBEDDED ISCSI CLEANUP BINDINGS",1)[0]
+        self.assertEqual(helpers,actual);ast.parse(actual)
+
     def test_signed_smb_pending_and_identity_closures_match_reviewed_bodies(self):
         source=CLI.read_text()
         helper=(LIB/"pending_nfs_authorization.py").read_text().replace("from config_generation import Generation as PendingNfsGeneration, read_json as pending_nfs_read\n","").rstrip()
@@ -235,5 +245,20 @@ class StorageInlineSourcesTest(unittest.TestCase):
         for action in("export-local-source","import-local-source","replay-local-source-auth"):
             self.assertIn('"'+action+'"',source)
         self.assertIn('localSourceIdentityCheckpointSupported',source)
+
+    def test_signed_nvme_runtime_identity_is_closed_and_restored_before_exposure(self):
+        source=CLI.read_text()
+        begin="# BEGIN EMBEDDED NVME RUNTIME IDENTITY\n";end="\n# END EMBEDDED NVME RUNTIME IDENTITY"
+        self.assertEqual(1,source.count(begin));self.assertEqual(1,source.count(end))
+        actual=source.split(begin,1)[1].split(end,1)[0]
+        self.assertEqual((LIB/"nvme_runtime_identity.py").read_text().rstrip(),actual);ast.parse(actual)
+        block=source.split("apply_nvmeof_subsystems() {",1)[1].split("identity_capsule_command() {",1)[0]
+        self.assertIn("ownership=NvmeRuntimeIdentity.cleanup_authority",block)
+        capture=block.index("runtime_identity=NvmeRuntimeIdentity(cleanup,payload)")
+        self.assertLess(capture,block.index("public_network=nvme_loopback_network_request"))
+        self.assertLess(capture,block.index('subprocess.run(["modprobe", "nvmet"]'))
+        self.assertIn("ensure_dir(subsystem_dir)\n        runtime_identity.restore_subsystem(subsystem)",block)
+        self.assertLess(block.index("runtime_identity.restore_namespace(subsystem,namespace,backing_path)"),
+                        block.index('write_if_changed(os.path.join(ns_dir, "enable"), "1")'))
 
 if __name__=='__main__':unittest.main()

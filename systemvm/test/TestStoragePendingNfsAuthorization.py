@@ -1,5 +1,5 @@
 from pathlib import Path
-import ast,copy,fcntl,json,os,re,sys,tempfile,unittest,uuid
+import ast,copy,fcntl,hashlib,json,os,re,sys,tempfile,unittest,uuid
 LIB=Path(__file__).resolve().parents[1]/'debian/usr/local/lib/ablestack-storage'
 sys.path.insert(0,str(LIB))
 from config_generation import Generation,atomic_json,read_json
@@ -30,6 +30,89 @@ class PendingNfsAuthorizationTest(unittest.TestCase):
   if self.saved is not None:os.dup2(self.saved,9);os.close(self.saved)
   os.environ.clear();os.environ.update(self.env);self.tmp.cleanup()
  def authorized(self,unit=None):return self.auth.authorized(unit or self.unit,self.maintenance.status(),self.rendered.status())
+ def local_source_authority(self, phase="VERIFIED"):
+  conf=self.root/"local-source-samba";conf.mkdir(mode=0o700)
+  raw=b"[global]\nnetbios name=SOURCE\n";(conf/"smb.conf").write_bytes(raw)
+  auth=PendingNfsAuthorization(self.g,self.rendered,self.maintenance,self.root/"local-source-auth",conf,protocol="SMB")
+  pending=read_json(self.g.pending);pending["phase"]=phase;atomic_json(self.g.pending,pending)
+  identity=str(uuid.UUID(bytes=hashlib.md5(("local-source-checkpoint:"+self.scope["operationUuid"]).encode()).digest(),version=3))
+  local={**self.scope,"localCheckpointUuid":identity}
+  common={**local,"sourceGeneration":{},"sourceConfigurationSha256":pending["beforeSha256"],
+          "expectedBootId":Path("/proc/sys/kernel/random/boot_id").read_text().strip()}
+  record={"schemaVersion":1,"kind":"LOCAL_SOURCE_IDENTITY_CHECKPOINT","scope":local,"common":common,
+          "sourceDesiredState":self.source,"sourceConfigurationFileSha256":hashlib.sha256(raw).hexdigest(),
+          "capsule":{"fixture":"opaque-prior-import"}}
+  digest=lambda value:hashlib.sha256(json.dumps(value,sort_keys=True,separators=(",",":"),allow_nan=False).encode()).hexdigest()
+  journal={"scope":local,"common":common,"phase":"RESUMING","imported":True,"importedFingerprints":{},
+           "importedStoppedDatabases":{},"importedCheckpointSha256":digest(record),
+           "prior":{"units":[{"unit":"smbd.service"}],"configurationSha256":record["sourceConfigurationFileSha256"]}}
+  root=self.g.root.parent/"smb-local-source-checkpoints";root.mkdir(mode=0o700)
+  cipher=root/(identity+"-cipher.json");header=root/(identity+"-journal.json")
+  atomic_json(cipher,record);atomic_json(header,journal)
+  return auth,cipher,header,digest
+
+ def test_verified_only_original_local_resume_grant_reaches_same_closed_consumer(self):
+  auth,cipher,header,digest=self.local_source_authority()
+  with self.assertRaises(ValueError):
+   with auth.grant(self.payload,"smbd.service"):self.fail("Forward VERIFIED grant")
+  with auth.local_source_grant(self.scope,"smbd.service"):
+   self.assertTrue(auth.authorized("smbd.service",self.maintenance.status(),self.rendered.status()))
+   self.assertFalse(auth.authorized("nmbd.service",self.maintenance.status(),self.rendered.status()))
+   proof=read_json(auth.path);self.assertEqual("NATIVE_PENDING_SMB_LOCAL_SOURCE_RESUME",proof["mode"])
+  self.assertFalse(auth.path.exists())
+
+ def test_local_resume_rejects_new_import_foreign_scope_boot_reference_and_committed(self):
+  auth,cipher,header,digest=self.local_source_authority()
+  original=read_json(header);original_pending=read_json(self.g.pending)
+  for changes in ({"imported":False},{"phase":"STOPPED"},{"importedCheckpointSha256":"0"*64},
+                  {"common":{**original["common"],"expectedBootId":str(uuid.uuid4())}},
+                  {"scope":{**original["scope"],"operationUuid":str(uuid.uuid4())}}):
+   atomic_json(header,{**original,**changes})
+   with self.subTest(changes=changes),self.assertRaises(ValueError):
+    with auth.local_source_grant(self.scope,"smbd.service"):self.fail("Foreign local grant")
+   self.assertFalse(auth.path.exists())
+  atomic_json(header,original);atomic_json(self.g.pending,{**original_pending,"phase":"COMMITTED"})
+  with self.assertRaises(ValueError):
+   with auth.local_source_grant(self.scope,"smbd.service"):self.fail("Committed local grant")
+
+ def test_local_consumer_rechecks_checkpoint_reference_and_current_source(self):
+  auth,cipher,header,digest=self.local_source_authority()
+  with auth.local_source_grant(self.scope,"smbd.service"):
+   saved=cipher.read_bytes();record=read_json(cipher);record["capsule"]={"fixture":"changed-opaque-record"}
+   atomic_json(cipher,record)
+   self.assertFalse(auth.authorized("smbd.service",self.maintenance.status(),self.rendered.status()))
+   cipher.write_bytes(saved)
+   self.assertTrue(auth.authorized("smbd.service",self.maintenance.status(),self.rendered.status()))
+   atomic_json(self.g.config/"network-endpoints.json",{"foreign":True})
+   self.assertFalse(auth.authorized("smbd.service",self.maintenance.status(),self.rendered.status()))
+
+ def test_local_reader_preserves_service_sixteen_mib_bound_and_duplicate_rejection(self):
+  from pending_nfs_authorization import pending_local_source_read
+  path=self.root/"local-large.json";atomic_json(path,{"opaque":"x"*(8*1024*1024+1)})
+  self.assertEqual(8*1024*1024+1,len(pending_local_source_read(path)["opaque"]))
+  path.write_bytes(b'{"opaque":"'+b"x"*(16*1024*1024)+b'"}')
+  with self.assertRaises(ValueError):pending_local_source_read(path)
+  path.write_text('{"scope":1,"scope":2}')
+  with self.assertRaises(ValueError):pending_local_source_read(path)
+
+ def test_local_reader_bodies_match_reviewed_service_cipher_exactly(self):
+  reviewed=ast.parse((LIB/"service_identity_cipher.py").read_text())
+  actual=ast.parse((LIB/"pending_nfs_authorization.py").read_text())
+  klass=next(n for n in reviewed.body if isinstance(n,ast.ClassDef)and n.name=="ServiceIdentityCipher")
+  source=copy.deepcopy(next(n for n in klass.body if isinstance(n,ast.FunctionDef)and n.name=="read"))
+  class Alias(ast.NodeTransformer):
+   def visit_Name(self,node):
+    if node.id=="service_cipher_json":node.id="pending_local_source_json"
+    return node
+  source=Alias().visit(source)
+  target=next(n for n in actual.body if isinstance(n,ast.FunctionDef)and n.name=="pending_local_source_read")
+  self.assertEqual(ast.dump(ast.Module(body=source.body,type_ignores=[]),include_attributes=False),
+                   ast.dump(ast.Module(body=target.body,type_ignores=[]),include_attributes=False))
+  source=next(n for n in reviewed.body if isinstance(n,ast.FunctionDef)and n.name=="service_cipher_json")
+  target=next(n for n in actual.body if isinstance(n,ast.FunctionDef)and n.name=="pending_local_source_json")
+  self.assertEqual(ast.dump(ast.Module(body=source.body,type_ignores=[]),include_attributes=False),
+                   ast.dump(ast.Module(body=target.body,type_ignores=[]),include_attributes=False))
+
  def test_real_held_fd9_own_pending_unit_and_finally_cleanup(self):
   before=read_json(self.g.pending);digest=self.g.digest()
   with self.auth.grant(self.payload,self.unit):

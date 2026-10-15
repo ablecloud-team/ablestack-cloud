@@ -1,4 +1,5 @@
 # Preparation-only regression using the actual candidate apply heredoc.
+import uuid
 import ast,contextlib,io,json,os,fcntl,shutil,subprocess,sys,tempfile,unittest
 from pathlib import Path
 from unittest import mock
@@ -7,7 +8,7 @@ IQN="iqn.2026-10.local.storage:permissions"
 C1="iqn.2026-10.example.client:one"
 C2="iqn.2026-10.example.client:two"
 def target(lun,acls):
- return {"uuid":"fixture-"+str(lun),"targetName":IQN,"lunOrNamespace":str(lun),"volumeUuid":"fixture-serial","volumeName":"fixture-serial","volumeSizeBytes":65536,"acls":acls}
+ return {"uuid":str(uuid.UUID(int=int(lun)+1)),"targetName":IQN,"lunOrNamespace":str(lun),"volumeUuid":"abcdef22-2222-4222-8222-222222222222","volumeName":"abcdef22222242228222","volumeSizeBytes":65536,"acls":acls}
 def grant(principal,permission="READ_ONLY",state="Ready"):
  return {"principal":principal,"permission":permission,"state":state,"config":{}}
 class Fixture:
@@ -23,6 +24,7 @@ class Fixture:
     def visit_Constant(self,node):
      if isinstance(node.value,str):
       if node.value=="/etc/ablestack-storage":return ast.copy_location(ast.Constant(str(state)),node)
+      if node.value=="/dev/":return ast.copy_location(ast.Constant(str(root)+"/"),node)
       if node.value.startswith("/sys/kernel/config/target/"):
        return ast.copy_location(ast.Constant(str(root/"configfs"/node.value.removeprefix("/sys/kernel/config/target/"))),node)
      return node
@@ -36,6 +38,11 @@ class Fixture:
     calls.append(command)
     if command[0]=="targetcli":
      path=command[1];op=command[2] if len(command)>2 else ""
+     if path=="/backstores/block" and op=="create":
+      obj=root/"configfs/core/iblock_0"/command[3];(obj/"wwn").mkdir(parents=True,exist_ok=True)
+      serial=next((x.split("=",1)[1] for x in command if x.startswith("wwn=")),"33333333-3333-4333-8333-333333333333")
+      (obj/"wwn/vpd_unit_serial").write_text("T10 VPD Unit Serial Number: "+serial+"\n")
+      (obj/"udev_path").write_text(str(raw))
      if path=="/iscsi" and op=="create":
       for x in ["lun","acls","np"]:(tpg/x).mkdir(parents=True,exist_ok=True)
      elif path=="/iscsi" and op=="delete":
@@ -56,7 +63,7 @@ class Fixture:
      return subprocess.CompletedProcess(command,0,"","")
     if command[0]=="lsblk":
      if "-J" in command:
-      return subprocess.CompletedProcess(command,0,json.dumps({"blockdevices":[{"name":"fixture","path":str(raw),"type":"disk","serial":"fixture-serial","size":65536,"mountpoint":None,"children":[]}]}),"")
+      return subprocess.CompletedProcess(command,0,json.dumps({"blockdevices":[{"name":"fixture","path":str(raw),"type":"disk","serial":"abcdef22222242228222","size":65536,"mountpoint":None,"children":[]}]}),"")
      return subprocess.CompletedProcess(command,0,"65536\n","")
     if command[0]=="findmnt":return subprocess.CompletedProcess(command,1,"","")
     if command[0]=="ss":return subprocess.CompletedProcess(command,0,"LISTEN 0 1 127.0.0.1:3260 *:*\n","")
