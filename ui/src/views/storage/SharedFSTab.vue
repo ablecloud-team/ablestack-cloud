@@ -4688,15 +4688,16 @@ export default {
     }
   },
   created () {
-    const self = this
     this.dataResource = this.resource
     this.initStorageDefaults()
     this.fetchData()
-    window.addEventListener('popstate', function () {
-      self.setCurrentTab()
-    })
+    this.storagePopStateHandler = () => this.setCurrentTab()
+    window.addEventListener('popstate', this.storagePopStateHandler)
   },
-  beforeUnmount () { this.cancelAdMutation() },
+  beforeUnmount () {
+    window.removeEventListener('popstate', this.storagePopStateHandler)
+    this.cancelAdMutation()
+  },
   watch: {
     'storageService.instance': { deep: true, handler () { this.cancelAdMutation() } },
     'storageService.domains': { deep: true, handler () { this.cancelAdMutation() } },
