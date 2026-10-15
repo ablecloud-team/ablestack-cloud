@@ -1,0 +1,36 @@
+  ● SharedFS history listener lifecycle › stops history callbacks as soon as the detail view unmounts
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 1
+    Received number of calls: 2
+
+      47 |     wrapper.unmount()
+      48 |     window.dispatchEvent(new PopStateEvent('popstate'))
+    > 49 |     expect(setCurrentTab).toHaveBeenCalledTimes(1)
+         |                           ^
+      50 |     expect(cancelAdMutation).toHaveBeenCalledTimes(1)
+      51 |   })
+      52 |
+
+      at Object.<anonymous> (tests/unit/views/storage/SharedFSHistoryLifecycle.spec.js:49:27)
+
+  ● SharedFS history listener lifecycle › keeps only the current detail view subscribed after navigation
+
+    expect(jest.fn()).not.toHaveBeenCalled()
+
+    Expected number of calls: 0
+    Received number of calls: 1
+
+    1: called with 0 arguments
+
+      56 |     const current = create()
+      57 |     window.dispatchEvent(new PopStateEvent('popstate'))
+    > 58 |     expect(previous.setCurrentTab).not.toHaveBeenCalled()
+         |                                        ^
+      59 |     expect(current.setCurrentTab).toHaveBeenCalledTimes(1)
+      60 |   })
+      61 | })
+
+      at Object.<anonymous> (tests/unit/views/storage/SharedFSHistoryLifecycle.spec.js:58:40)
+

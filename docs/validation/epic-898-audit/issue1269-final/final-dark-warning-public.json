@@ -1,0 +1,168 @@
+{
+  "sourcePin": "77b222a8d8c531c984ab1e2db274fcb2fc64172a",
+  "routeInterceptionInstalled": true,
+  "observations": [
+    {
+      "name": "theme-ui-selected",
+      "time": "2026-10-15T01:47:58.640Z",
+      "theme": "dark",
+      "closeMethod": "drawer header button"
+    },
+    {
+      "name": "25-dark-normal-before-fault",
+      "time": "2026-10-15T01:47:58.679Z",
+      "url": "http://10.10.13.10:8080/client/#/sharedfs/487a3d3b-b583-4499-be02-c40b45a7e6b1?tab=nfs",
+      "timeOrigin": 1792028860535.4,
+      "available": true,
+      "ready": true,
+      "xfs": false,
+      "capacity100": true,
+      "nfsExport": true,
+      "spinners": 0,
+      "partialAlerts": [],
+      "activeTab": [
+        "NFS"
+      ],
+      "darkRadio": true,
+      "lightRadio": false,
+      "scriptPaths": [
+        "/client/js/auth.516ad1c5.js",
+        "/client/js/chunk-152e16dc.899ea26f.js",
+        "/client/js/chunk-c43e1aa6.f6137aa9.js",
+        "/client/js/chunk-fa55581a.216f05cb.js",
+        "/client/js/chunk-55b22fea.0412054d.js",
+        "/client/js/chunk-17f3a61d.2b78220b.js",
+        "/client/js/less.min.js",
+        "/client/js/vendors.ce3def06.js",
+        "/client/js/app.3f294902.js"
+      ]
+    },
+    {
+      "name": "25-dark-browser-only-health-fault",
+      "time": "2026-10-15T01:47:58.924Z",
+      "command": "listStorageServiceHealth",
+      "method": "GET",
+      "status": 530,
+      "remaining": 0
+    },
+    {
+      "name": "25-dark-health-observed-response",
+      "time": "2026-10-15T01:47:58.943Z",
+      "command": "listStorageServiceHealth",
+      "status": 530
+    },
+    {
+      "name": "25-dark-warning-visible-preserved",
+      "time": "2026-10-15T01:48:01.301Z",
+      "timeOrigin": 1792028860535.4,
+      "available": true,
+      "ready": true,
+      "nfsExport": true,
+      "originalUuid": true,
+      "spinners": 0,
+      "darkRadio": true,
+      "publicWarning": "일부 상세 정보를 조회하지 못했습니다. 이전 조회값을 유지합니다. 업데이트 버튼으로 다시 조회할 수 있습니다.\nhealth: 조회를 완료하지 못했습니다.\n업데이트",
+      "faultGets": 1
+    },
+    {
+      "name": "25-dark-health530-partial-screenshot",
+      "time": "2026-10-15T01:48:01.565Z",
+      "path": "25-dark-health530-partial.png"
+    },
+    {
+      "name": "25-dark-UI-retry-recovered",
+      "time": "2026-10-15T01:48:02.420Z",
+      "url": "http://10.10.13.10:8080/client/#/sharedfs/487a3d3b-b583-4499-be02-c40b45a7e6b1?tab=nfs",
+      "timeOrigin": 1792028860535.4,
+      "available": true,
+      "ready": true,
+      "xfs": false,
+      "capacity100": true,
+      "nfsExport": true,
+      "spinners": 0,
+      "partialAlerts": [],
+      "activeTab": [
+        "NFS"
+      ],
+      "darkRadio": true,
+      "lightRadio": false,
+      "scriptPaths": [
+        "/client/js/auth.516ad1c5.js",
+        "/client/js/chunk-152e16dc.899ea26f.js",
+        "/client/js/chunk-c43e1aa6.f6137aa9.js",
+        "/client/js/chunk-fa55581a.216f05cb.js",
+        "/client/js/chunk-55b22fea.0412054d.js",
+        "/client/js/chunk-17f3a61d.2b78220b.js",
+        "/client/js/less.min.js",
+        "/client/js/vendors.ce3def06.js",
+        "/client/js/app.3f294902.js"
+      ]
+    },
+    {
+      "name": "25-dark-health530-ui-retry-screenshot",
+      "time": "2026-10-15T01:48:02.626Z",
+      "path": "25-dark-health530-ui-retry.png"
+    },
+    {
+      "name": "25-dark-health-observed-response",
+      "time": "2026-10-15T01:48:02.832Z",
+      "command": "listStorageServiceHealth",
+      "status": 200
+    },
+    {
+      "name": "theme-ui-selected",
+      "time": "2026-10-15T01:48:06.636Z",
+      "theme": "light",
+      "closeMethod": "drawer header button"
+    },
+    {
+      "name": "25-light-restored-after-dark-warning",
+      "time": "2026-10-15T01:48:07.359Z",
+      "url": "http://10.10.13.10:8080/client/#/sharedfs/487a3d3b-b583-4499-be02-c40b45a7e6b1?tab=nfs",
+      "timeOrigin": 1792028860535.4,
+      "available": true,
+      "ready": true,
+      "xfs": false,
+      "capacity100": true,
+      "nfsExport": true,
+      "spinners": 0,
+      "partialAlerts": [],
+      "activeTab": [
+        "NFS"
+      ],
+      "darkRadio": false,
+      "lightRadio": true,
+      "scriptPaths": [
+        "/client/js/auth.516ad1c5.js",
+        "/client/js/chunk-152e16dc.899ea26f.js",
+        "/client/js/chunk-c43e1aa6.f6137aa9.js",
+        "/client/js/chunk-fa55581a.216f05cb.js",
+        "/client/js/chunk-55b22fea.0412054d.js",
+        "/client/js/chunk-17f3a61d.2b78220b.js",
+        "/client/js/less.min.js",
+        "/client/js/vendors.ce3def06.js",
+        "/client/js/app.3f294902.js"
+      ]
+    },
+    {
+      "name": "25-fault-cleanup",
+      "time": "2026-10-15T01:48:07.366Z",
+      "faultGets": 1,
+      "remaining": 0,
+      "interceptionRemoved": true
+    },
+    {
+      "name": "25-auth-cleanup",
+      "time": "2026-10-15T01:48:07.435Z",
+      "logoutHttpStatus": 200
+    },
+    {
+      "name": "25-complete",
+      "time": "2026-10-15T01:48:07.593Z",
+      "darkWarningAndUiRetryPassed": true,
+      "lightRestored": true,
+      "ownContextClosed": true,
+      "credentialsPersisted": false
+    }
+  ]
+}

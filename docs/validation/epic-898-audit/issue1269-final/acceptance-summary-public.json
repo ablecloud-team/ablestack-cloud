@@ -1,0 +1,307 @@
+{
+  "issue": 1269,
+  "sourcePin": "77b222a8d8c531c984ab1e2db274fcb2fc64172a",
+  "verdict": "PASS",
+  "checkedAtUtc": "2026-10-15T01:49:48.329148+00:00",
+  "actualBrowser": "Playwright 1.48.2 Chromium 1140 on RockyLinux-9.7",
+  "target": "http://10.10.13.10:8080/client/",
+  "gates": [
+    {
+      "gate": "direct-existing-new-login-refresh-rapid-tabs",
+      "passed": true,
+      "evidence": [
+        "01-new-deploy-existing-session-nfs",
+        "02-new-login-original-details",
+        "12-rapid-tabs-final-details"
+      ]
+    },
+    {
+      "gate": "loaded-assets-source-pin",
+      "passed": true,
+      "evidence": [
+        "03-final-controller-loaded-assets"
+      ],
+      "detail": "All 9 observed script HTTP SHA-256 values match source 77b222a8d8c manifest."
+    },
+    {
+      "gate": "health-530-transport-timeout-preservation-and-UI-retry",
+      "passed": true,
+      "evidence": [
+        "05-health530-partial",
+        "07-health-transport-preservation",
+        "09-isolated-timeout-preservation",
+        "09-isolated-late-route-preservation",
+        "09-isolated-timeout-ui-retry"
+      ]
+    },
+    {
+      "gate": "initial-details-instances-failure-and-reference-VM-retry",
+      "passed": true,
+      "evidence": [
+        "14-initial-details-Ready-no-spinner",
+        "14-initial-details-ui-retry",
+        "11-reference-vm-failure-public-cause",
+        "11-reference-vm-ui-retry"
+      ]
+    },
+    {
+      "gate": "overlap-request-coalescing",
+      "passed": true,
+      "evidence": [
+        "network-public.json",
+        "13-overlap-start",
+        "13-overlap-end"
+      ],
+      "detail": {
+        "start": "2026-10-15T01:33:32.599Z",
+        "end": "2026-10-15T01:33:41.830Z",
+        "childInstancesGets": 1,
+        "parentSharedFsGets": 2,
+        "parentTrailingQueueExpected": true
+      }
+    },
+    {
+      "gate": "same-document-SPA-unmount-back-forward-no-listener-growth",
+      "passed": true,
+      "evidence": [
+        "15-before-SPA-stale-origin",
+        "15-SPA-list-unmounted",
+        "16-SPA-other-FS-before-old-release",
+        "16-SPA-other-FS-after-old-release",
+        "17-back-list-cycle1",
+        "17-forward-detail-cycle1",
+        "17-back-list-cycle2",
+        "17-original-detail-cycle2",
+        "17-popstate-observed-trace"
+      ],
+      "detail": {
+        "timeOrigin": 1792028064887.8,
+        "popstateTrace": [
+          3,
+          1,
+          3,
+          1,
+          3
+        ],
+        "detailAddsResourceViewAndSharedFSTab": 2,
+        "oldNavigationRequestWasCanceled": true
+      }
+    },
+    {
+      "gate": "actual-older-HTTP200-cannot-clear-newer-failure",
+      "passed": true,
+      "evidence": [
+        "18b-newer-SMB-health-failure",
+        "18b-old-success-cannot-clear-newer-failure",
+        "18b-real-old-200-newer-SMB-preserved"
+      ],
+      "detail": {
+        "oldHeldBeforeNew530": true,
+        "newWarningTime": "2026-10-15T01:38:26.974Z",
+        "oldHealth200Time": "2026-10-15T01:38:28.053Z",
+        "assertTime": "2026-10-15T01:38:29.033Z"
+      }
+    },
+    {
+      "gate": "light-dark-healthy-warning-and-UI-retry",
+      "passed": true,
+      "evidence": [
+        "20-dark-NFS",
+        "20-dark-details",
+        "20-light-details",
+        "25-dark-warning-visible-preserved",
+        "25-dark-UI-retry-recovered",
+        "25-light-restored-after-dark-warning"
+      ]
+    },
+    {
+      "gate": "unrouted-normal-reload-twice-with-HTTP-cache",
+      "passed": true,
+      "evidence": [
+        "22-unrouted-same-session-reload-1",
+        "22-unrouted-same-session-reload-2",
+        "22-cache-observations-1",
+        "22-cache-observations-2"
+      ],
+      "detail": {
+        "cacheObserved": [
+          true,
+          true
+        ],
+        "routingInstalled": false
+      }
+    },
+    {
+      "gate": "direct-API-positive-and-identity-state-preserved",
+      "passed": true,
+      "evidence": [
+        "05-before-api-fs-complete",
+        "24-after-cache-all-FS",
+        "03-before-api-original-vm",
+        "24-after-cache-original-VM",
+        "03-before-api-original-volumes",
+        "24-after-cache-original-volumes",
+        "21-after-api-original-health",
+        "21-after-api-original-protocols"
+      ],
+      "detail": {
+        "FS": 8,
+        "instances": 8,
+        "originalVM": 1,
+        "originalVolumes": 2,
+        "originalVmState": "Running",
+        "originalVolumesState": "Ready",
+        "health": "ok",
+        "enabledNFS": "Ready",
+        "F1VisibleSparseVolumes": 5
+      }
+    },
+    {
+      "gate": "cleanup-and-no-uncontrolled-browser-errors",
+      "passed": true,
+      "evidence": [
+        "22-final-browser-errors",
+        "23-auth-cleanup",
+        "23-final-complete",
+        "25-auth-cleanup",
+        "25-complete"
+      ]
+    }
+  ],
+  "resourceWrites": 0,
+  "newDisks": 0,
+  "existingThinResourceOnly": true,
+  "infrastructureAlertsUnchanged": true,
+  "lateNavigationCancellationAndLateSuccessfulResponseKeptDistinct": true,
+  "harnessCorrections": [
+    "Initial route glob missed trailing slash: no injected failure was counted.",
+    "First timeout follow-up saw automatic recovery before manual retry; isolated timeout/manual retry passed separately.",
+    "First stale attempt held the newer request; only successful 18b temporal proof was counted.",
+    "Optional hidden-volume empty response omitted array; exact count 0 and count-only envelope validated separately. Positive FS/VM/volume array assertions were retained.",
+    "Initial NFS literal Ready predicate false had no runtime table; explicit details Ready/available/error/spinner/retry case passed.",
+    "Ephemeral error notifications obstructed settings entry; final clean context used standard UI settings."
+  ],
+  "artifacts": [
+    {
+      "path": "observations-public.json",
+      "bytes": 561682,
+      "sha256": "965f72a9143e7c673d2788b0aa339266a9ae24ad9e4f31b8d01420da8ac133f4"
+    },
+    {
+      "path": "network-public.json",
+      "bytes": 161190,
+      "sha256": "eaa0382b6bba5ebc9b73c0164120f1182dd0c3f6695bd4510a2208fcc213de7c"
+    },
+    {
+      "path": "final-theme-api-public.json",
+      "bytes": 17148,
+      "sha256": "f181948bbe0e875bd4ae458264899fa1ab39aaf2fc4cf10da827879859bc61f6"
+    },
+    {
+      "path": "final-cache-public.json",
+      "bytes": 15256,
+      "sha256": "4a6b5a866ca0b2ffa4701f8a7776c182257f2f292a2ac2b3ee6d5f842a5a3a21"
+    },
+    {
+      "path": "final-dark-warning-public.json",
+      "bytes": 5163,
+      "sha256": "bd1d9788d0df19f94b2bacc570a04e5ea647d08a94d2c707bd07e2f5502cb7e5"
+    },
+    {
+      "path": "cleanup-privacy-public.json",
+      "bytes": 173,
+      "sha256": "7869cb4ec03d56af1026f83244df832c21a3d7e1239fc891af99d00d9955f2c1"
+    }
+  ],
+  "images": [
+    {
+      "path": "02-new-login-original-details.png",
+      "bytes": 146152,
+      "sha256": "16dfbb7ff707b94e521c1bba6387d72944ac4c200395dc1fe09f20de0efedade"
+    },
+    {
+      "path": "05-health530-partial.png",
+      "bytes": 207879,
+      "sha256": "5af41cfceeef087789222952e40ae2f53316e398531939982a4c4214b441330f"
+    },
+    {
+      "path": "07-health-transport-partial.png",
+      "bytes": 207216,
+      "sha256": "8590384991430a87cc358df2de3a2de02db9f765a3515a74f9639e298c08bbd0"
+    },
+    {
+      "path": "09-isolated-timeout-partial.png",
+      "bytes": 207319,
+      "sha256": "54abe6d16b70b4a39d18c03e49caf382f22eee77884703d9e4d8ad6042481bb1"
+    },
+    {
+      "path": "09-isolated-timeout-ui-retry.png",
+      "bytes": 213711,
+      "sha256": "c98758d5b273c45de095d5d03151b061743cbad7279b9ae848d0c135b7d2c17a"
+    },
+    {
+      "path": "11-reference-vm-failure.png",
+      "bytes": 207006,
+      "sha256": "39271674f3d35385f70f426304b4a0b3ebd3f0d488573b11f677322b2001b84f"
+    },
+    {
+      "path": "14-initial-details-failure-Ready.png",
+      "bytes": 160481,
+      "sha256": "aaafea95037a90627ea169e7a8e2de1f8c30f9ea349de0e8645aff266dafc165"
+    },
+    {
+      "path": "16-SPA-other-FS-after-old-release.png",
+      "bytes": 153923,
+      "sha256": "82005b173e0e0095c4891fbf49dd280eaaf30fd520747588e4a523f363dda947"
+    },
+    {
+      "path": "18b-stale-success-newer-error-preserved.png",
+      "bytes": 202285,
+      "sha256": "cf010fca1a2ebaf09f42870a837148c6355619f9ad5bf49ba7682eaae98cc578"
+    },
+    {
+      "path": "20-dark-NFS.png",
+      "bytes": 216396,
+      "sha256": "951efc663b5c632c52e00af7275c5c00c87fb64dfbef35b5a739a318c7576520"
+    },
+    {
+      "path": "20-dark-details.png",
+      "bytes": 149179,
+      "sha256": "a0fc94f50947faec350afd997679772df07d15b3c590b17285d4fc75209e5482"
+    },
+    {
+      "path": "20-light-details.png",
+      "bytes": 146268,
+      "sha256": "b68d03135e7565ccd224d150f16c3de9de5186ce38a1f69b4b753baeb4737295"
+    },
+    {
+      "path": "22-unrouted-same-session-reload-1.png",
+      "bytes": 145745,
+      "sha256": "de97e97ccf15df37d446557bbea47a3c845dbf113ff9deec4f48d339f702ed5d"
+    },
+    {
+      "path": "22-unrouted-same-session-reload-2.png",
+      "bytes": 145745,
+      "sha256": "de97e97ccf15df37d446557bbea47a3c845dbf113ff9deec4f48d339f702ed5d"
+    },
+    {
+      "path": "25-dark-health530-partial.png",
+      "bytes": 211512,
+      "sha256": "48662fefc6e0b5b7e608f235332625f8f3abbabf114ac68881c141b8c01eaa79"
+    },
+    {
+      "path": "25-dark-health530-ui-retry.png",
+      "bytes": 216212,
+      "sha256": "d6046c76c12d35e2e89e47b4c224527555c024ae4d01c452dab13db679bd0416"
+    }
+  ],
+  "privacy": {
+    "credentialsPersisted": false,
+    "cookiesPersisted": false,
+    "storageStatePersisted": false,
+    "HARPersisted": false,
+    "rawApiBodiesPersisted": false,
+    "rawApiUrlQueriesPersisted": false,
+    "APIValuesPublicAllowlistOnly": true
+  }
+}

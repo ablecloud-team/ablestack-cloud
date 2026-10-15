@@ -1,0 +1,39 @@
+{
+  "sourcePin": "77b222a8d8c531c984ab1e2db274fcb2fc64172a",
+  "regressionBeforeFix": {
+    "failed": 2,
+    "log": "history-before-fix.log"
+  },
+  "normalUnit": {
+    "tests": 286,
+    "passed": 286,
+    "failures": 0,
+    "skipped": 0,
+    "suites": 11,
+    "selectors": [
+      "SharedFSHistoryLifecycle.spec.js",
+      "AutogenView.spec.js",
+      "SharedFSReadTransport.spec.js",
+      "SharedFSTab.spec.js",
+      "SharedFSInitialLoading.spec.js",
+      "request.spec.js",
+      "SharedFSLocale.spec.js",
+      "listRefreshMixin.spec.js",
+      "scopedStorageReads.spec.js",
+      "optionalRequest.spec.js",
+      "AutogenVmGroupQuery.spec.js"
+    ]
+  },
+  "lint": {
+    "passed": true,
+    "mode": "--no-fix",
+    "paths": [
+      "SharedFSTab.vue",
+      "AutogenView.vue",
+      "api/index.js",
+      "SharedFSHistoryLifecycle.spec.js"
+    ]
+  },
+  "actualUiAcceptance": "pending post-deployment actor proof",
+  "productionBuild": "pending"
+}
