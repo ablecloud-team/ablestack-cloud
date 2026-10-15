@@ -9624,5 +9624,12 @@
   "label.storage.operation.recovery.boot": "Reviewed boot ID",
   "message.storage.service.read.cause.transport": "Connection failed.",
   "message.storage.service.read.cause.timeout": "Read timed out.",
-  "message.storage.service.read.cause.failure": "Read failed."
+  "message.storage.service.read.cause.failure": "Read failed.",
+  "message.storage.operation.tcp.connections.only": "This count includes TCP connections only. It does not verify NFS open files, SMB locks or completed session draining.",
+  "message.storage.operation.maintenance.plan.required": "Use an approved maintenance plan for this instance. A reviewed plan, exact service name, maintenance window and supported signed runtime profile are required.",
+  "message.storage.operation.drain.unsupported": "This runtime does not support session draining. A drain request cannot be submitted.",
+  "message.storage.operation.control.unsupported": "Operation control is unavailable for this operation.",
+  "message.storage.operation.control.result.unknown": "The control request result is unknown. Refresh its state before submitting another request.",
+  "label.storage.operation.resource.tcp.connections": "Active TCP connections",
+  "label.storage.operation.observed.at": "Last observed"
 }

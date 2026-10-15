@@ -17,7 +17,8 @@
 
 import fs from 'fs'
 import path from 'path'
-import { shallowMount } from '@vue/test-utils'
+import { mount, shallowMount } from '@vue/test-utils'
+import { reactive } from 'vue'
 import Widget from '@/views/storage/StorageOperationHistory'
 import { getAPI, postAPI } from '@/api'
 import { SMB_CURRENT_RETAIN_MODE, requireSmbCurrentRecoveryReview, requireSmbCurrentRecoveryResult } from '@/utils/storageSmbCurrentIdentityRecovery'
@@ -398,5 +399,78 @@ describe('CURRENT recovery actual HTTP runtime envelopes', () => {
       expect(vm.recoveryMode).toBe(SMB_CURRENT_RETAIN_MODE)
       expect(vm.error).toBe('message.storage.operation.recovery.current.failed')
     }
+  })
+})
+
+describe('Background operation progress and scope ownership', () => {
+  const rows = (state = 'RUNNING', id = 'progress-op') => ({ liststorageserviceoperationsresponse: { count: 1, storageserviceoperation: [{ id, instanceid: 'a', revision: 4, state, phase: state === 'RUNNING' ? 'APPLYING' : 'COMPLETE', progress: 37, created: '2026-10-16T00:00:00Z', heartbeat: '2026-10-16T00:00:05Z', completed: state === 'RUNNING' ? null : '2026-10-16T00:00:10Z' }] } })
+  const flush = async () => { for (let i = 0; i < 10; i++) await Promise.resolve() }
+  const options = (getters = { apis: {} }) => ({ props: { instanceId: 'a', instanceName: 'owned-a' }, global: { mocks: { $store: { getters }, $t: key => key }, stubs: { StorageOperationControl: true } } })
+  beforeEach(() => { getAPI.mockReset(); postAPI.mockReset() })
+  afterEach(() => { jest.useRealTimers() })
+  it('renders progress and the actual public lifecycle timestamps using the installed table', async () => {
+    getAPI.mockResolvedValue(rows('COMPLETE'))
+    const wrapper = mount(Widget, options())
+    await flush(); await wrapper.vm.$nextTick()
+    expect(wrapper.text()).toContain('label.lastheartbeat')
+    expect(wrapper.text()).toContain('label.created')
+    expect(wrapper.text()).toContain('label.completed')
+    expect(wrapper.text()).toContain('37%')
+    expect(wrapper.text()).toContain('2026')
+    wrapper.unmount()
+  })
+  it('observes visible RUNNING work with bounded reads and stops reading after terminal and unmount', async () => {
+    jest.useFakeTimers(); Object.defineProperty(document, 'hidden', { configurable: true, value: false })
+    getAPI.mockResolvedValueOnce(rows()).mockResolvedValue(rows('COMPLETE'))
+    const wrapper = shallowMount(Widget, options())
+    wrapper.element.getClientRects = () => [{ width: 100, height: 100 }]
+    await flush()
+    jest.advanceTimersByTime(5000); await flush()
+    expect(getAPI).toHaveBeenCalledTimes(2)
+    expect(wrapper.vm.rows[0].state).toBe('COMPLETE')
+    jest.advanceTimersByTime(30000); await flush()
+    expect(getAPI).toHaveBeenCalledTimes(2)
+    wrapper.unmount(); jest.advanceTimersByTime(30000); await flush()
+    expect(getAPI).toHaveBeenCalledTimes(2)
+  })
+  it('does not publish an old user snapshot in the same instance', async () => {
+    let finish
+    const getters = reactive({ apis: {}, userInfo: { id: 'first-user' }, project: { id: 'project' } })
+    getAPI.mockImplementationOnce(() => new Promise(resolve => { finish = resolve })).mockResolvedValue(rows('COMPLETE', 'new-owner'))
+    const wrapper = shallowMount(Widget, options(getters))
+    getters.userInfo.id = 'second-user'; await wrapper.vm.$nextTick()
+    finish(rows('RUNNING', 'old-owner')); await flush()
+    expect(wrapper.vm.rows[0].id).toBe('new-owner')
+    wrapper.unmount()
+  })
+  it('does not close a new recovery dialog after navigating A to B to A while an old POST is pending', async () => {
+    let finish
+    getAPI.mockResolvedValue({ liststorageserviceoperationsresponse: { count: 0, storageserviceoperation: [] } })
+    postAPI.mockImplementation(() => new Promise(resolve => { finish = resolve }))
+    const wrapper = shallowMount(Widget, options({ apis: { reconcileStorageServiceOperation: {} } }))
+    await flush()
+    wrapper.vm.openRecovery({ id: 'old-op', state: 'RECOVERY_REQUIRED' })
+    const pending = wrapper.vm.reconcile()
+    await wrapper.setProps({ instanceId: 'b' }); await wrapper.setProps({ instanceId: 'a' })
+    wrapper.vm.openRecovery({ id: 'new-op', state: 'RECOVERY_REQUIRED' })
+    finish({ reconcilestorageserviceoperationresponse: { jobid: 'old-job' } })
+    await pending
+    expect(wrapper.vm.reconcileTarget?.id).toBe('new-op')
+    expect(getAPI.mock.calls.filter(([command]) => command === 'queryAsyncJobResult')).toHaveLength(0)
+    wrapper.unmount()
+  })
+  it('does not close a replacement recovery dialog in the same instance after cancelling the first dialog', async () => {
+    let finish
+    getAPI.mockResolvedValue({ liststorageserviceoperationsresponse: { count: 0, storageserviceoperation: [] } })
+    postAPI.mockImplementation(() => new Promise(resolve => { finish = resolve }))
+    const wrapper = shallowMount(Widget, options({ apis: { reconcileStorageServiceOperation: {} } }))
+    await flush()
+    wrapper.vm.openRecovery({ id: 'old-op', state: 'RECOVERY_REQUIRED' })
+    const pending = wrapper.vm.reconcile()
+    wrapper.vm.cancelRecovery(); wrapper.vm.openRecovery({ id: 'replacement-op', state: 'RECOVERY_REQUIRED' })
+    finish({ reconcilestorageserviceoperationresponse: { jobid: 'old-job' } })
+    await pending
+    expect(wrapper.vm.reconcileTarget?.id).toBe('replacement-op')
+    wrapper.unmount()
   })
 })

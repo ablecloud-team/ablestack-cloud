@@ -18,8 +18,8 @@
 <template>
   <section v-if="supported">
     <a-space wrap>
-      <a-button :loading="loading" @click="refresh"><template #icon><ReloadOutlined /></template>{{ $t('label.refresh') }}</a-button>
-      <a-button v-if="canConfigure" :disabled="storageMutationDisabled || (!writable)" @click="open">{{ $t('label.storage.control.policy.configure') }}</a-button>
+      <a-button :loading="loading" :disabled="saving" @click="refresh"><template #icon><ReloadOutlined /></template>{{ $t('label.refresh') }}</a-button>
+      <a-button v-if="canConfigure" :disabled="!canOpen" @click="open">{{ $t('label.storage.control.policy.configure') }}</a-button>
     </a-space>
     <a-alert v-if="error" type="warning" show-icon :message="error" />
     <a-descriptions v-if="policy" bordered size="small" :column="2">
@@ -35,7 +35,7 @@
 :visible="visible"
 :title="$t('label.storage.control.policy.configure')"
 :confirm-loading="saving"
-:ok-button-props="{ disabled: storageMutationDisabled || !confirmed || saving }"
+:ok-button-props="{ disabled: !confirmed || saving }"
 :cancel-button-props="{ disabled: saving }"
 :body-style="{ maxHeight: '65vh', overflowY: 'auto' }"
 @ok="save"
@@ -54,27 +54,51 @@
 import { storageMutationGateMixin, requireStorageMutationAllowed } from '@/utils/storageRecoveryGate'
 import { getAPI, postAPI } from '@/api'
 import { ReloadOutlined } from '@ant-design/icons-vue'
+
+const securityScope = vm => [vm.$store?.getters?.userInfo?.id || '', vm.$store?.getters?.project?.id || ''].join('|')
 export default {
   mixins: [storageMutationGateMixin],
   name: 'StorageControlPolicy',
   components: { ReloadOutlined },
   props: { instanceId: { type: String, required: true }, instanceName: { type: String, required: true } },
   emits: ['operation-updated'],
-  data: () => ({ generation: 0, loading: false, saving: false, policy: null, error: '', visible: false, desiredEnabled: false, confirmation: '', requestKey: '', requestIntent: null, saveError: '', jobId: '' }),
+  data: () => ({ generation: 0, readSequence: 0, disposed: false, requestAttempted: false, loading: false, saving: false, policy: null, error: '', visible: false, desiredEnabled: false, confirmation: '', requestKey: '', requestIntent: null, saveError: '', jobId: '' }),
   computed: {
     supported () { return 'getStorageServiceControlPolicy' in (this.$store?.getters?.apis || {}) },
     canConfigure () { return 'configureStorageServiceControlPolicy' in (this.$store?.getters?.apis || {}) },
-    writable () { return this.canConfigure && !this.loading && !this.saving && !this.error && this.policy?.instanceUuid === this.instanceId && Number.isSafeInteger(this.policy.policyRevision) && this.policy.policyRevision >= 0 },
-    confirmed () { return this.writable && !!this.instanceName && this.confirmation === this.instanceName && this.desiredEnabled !== this.policy.enabled },
+    operationSecurityScope () { return securityScope(this) },
+    writable () { return !this.disposed && this.canConfigure && !this.loading && !this.saving && !this.error && this.policy?.instanceUuid === this.instanceId && Number.isSafeInteger(this.policy.policyRevision) && this.policy.policyRevision >= 0 },
+    retainedRequest () {
+      const intent = this.requestIntent
+      return !this.disposed && this.requestAttempted && !!this.requestKey && intent?.idempotencykey === this.requestKey && intent.instanceid === this.instanceId &&
+        intent.confirmation === this.instanceName && typeof intent.enabled === 'boolean' && Number.isSafeInteger(intent.expectedpolicyrevision) && intent.expectedpolicyrevision >= 0
+    },
+    canOpen () {
+      const knownRead = this.retainedRequest && !!this.jobId && this.canConfigure && !this.disposed && !this.loading && !this.saving
+      return (this.writable || knownRead) && (!this.storageMutationDisabled || this.retainedRequest)
+    },
+    confirmed () {
+      const retained = this.retainedRequest && this.desiredEnabled === this.requestIntent.enabled
+      const knownRead = retained && !!this.jobId && this.canConfigure && !this.disposed && !this.loading && !this.saving
+      return (this.writable || knownRead) && !!this.instanceName && this.confirmation === this.instanceName &&
+        (this.requestIntent ? retained : this.desiredEnabled !== this.policy?.enabled) && (!this.storageMutationDisabled || retained)
+    },
     columns () { return [{ title: this.$t('label.type'), dataIndex: 'label' }, { title: this.$t('label.state'), dataIndex: 'state' }] },
     coverage () { return Object.entries(this.policy?.coverage || {}).map(([action, state]) => ({ action, label: this.$t('label.storage.control.policy.action.' + action), state: this.$t('label.storage.control.policy.coverage.' + state) })) }
   },
   watch: {
-    instanceId () { this.generation++; this.policy = null; this.loading = false; this.saving = false; this.visible = false; this.error = ''; this.requestKey = ''; this.requestIntent = null; this.refresh() }
+    instanceId () { this.invalidate(); this.refresh() },
+    operationSecurityScope () { this.invalidate(); this.refresh() },
+    '$store.state.user.token' (token) { this.invalidate(); if (token) this.refresh() }
   },
   mounted () { this.refresh() },
-  beforeUnmount () { this.generation++ },
+  beforeUnmount () { this.disposed = true; this.generation++; this.readSequence++ },
   methods: {
+    invalidate () {
+      this.generation++; this.readSequence++; this.policy = null; this.loading = false; this.saving = false; this.visible = false
+      this.error = ''; this.saveError = ''; this.confirmation = ''; this.desiredEnabled = false; this.clearRequest()
+    },
+    clearRequest () { this.requestKey = ''; this.requestIntent = null; this.jobId = ''; this.requestAttempted = false },
     evidence (response, command, instance) {
       const root = response[command.toLowerCase() + 'response']?.storageserviceruntime || response.storageserviceruntime || response
       if (root.success !== true) throw new Error(root.errortext || root.details || this.$t('message.storage.control.policy.read.failed'))
@@ -83,55 +107,71 @@ export default {
       return value
     },
     async refresh () {
-      if (!this.supported || this.loading) return
-      const generation = this.generation; const instance = this.instanceId
+      if (this.disposed || !this.supported || this.loading || this.saving) return
+      const generation = this.generation; const sequence = ++this.readSequence; const instance = this.instanceId; const security = securityScope(this)
+      const current = () => !this.disposed && generation === this.generation && sequence === this.readSequence && instance === this.instanceId && security === securityScope(this)
       this.loading = true
       try {
         const result = await getAPI('getStorageServiceControlPolicy', { instanceid: instance }, { timeout: 15000, preserveOnFailure: true })
-        if (generation !== this.generation || instance !== this.instanceId) return
-        this.policy = this.evidence(result, 'getStorageServiceControlPolicy', instance); this.error = ''
-      } catch (error) { if (generation === this.generation) this.error = error.message } finally { if (generation === this.generation) this.loading = false }
+        if (!current()) return
+        const policy = this.evidence(result, 'getStorageServiceControlPolicy', instance)
+        if (this.policy && policy.policyRevision < this.policy.policyRevision) throw new Error(this.$t('message.storage.control.policy.read.failed'))
+        this.policy = policy; this.error = ''
+      } catch (error) { if (current()) this.error = error.message } finally { if (current()) this.loading = false }
     },
     open () {
-      if (!this.writable) return
-      this.visible = true; this.desiredEnabled = this.requestIntent ? this.requestIntent.enabled : this.policy.enabled; this.confirmation = ''; this.saveError = ''; this.jobId = ''
-      if (!this.requestKey) this.requestKey = 'control-policy-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2)
+      if (!this.canOpen) return
+      this.visible = true; this.desiredEnabled = this.retainedRequest ? this.requestIntent.enabled : this.policy.enabled; this.confirmation = ''; this.saveError = ''
+      if (!this.retainedRequest) this.clearRequest()
     },
-    close () { if (!this.saving) this.visible = false },
+    close () { if (!this.saving) { this.visible = false; if (!this.requestAttempted) this.clearRequest() } },
     async save () {
       if (!this.confirmed || this.saving) return
-      const generation = this.generation; const instance = this.instanceId
-      this.saving = true; this.saveError = ''
+      const generation = this.generation; const instance = this.instanceId; const security = securityScope(this)
+      const current = () => !this.disposed && generation === this.generation && instance === this.instanceId && security === securityScope(this)
+      const retained = this.retainedRequest
+      let refreshAfter = false
+      this.readSequence++; this.saving = true; this.saveError = ''
       try {
-        const intent = this.requestIntent || { instanceid: instance, enabled: this.desiredEnabled, expectedpolicyrevision: this.policy.policyRevision, confirmation: this.confirmation, idempotencykey: this.requestKey }
-        if (intent.instanceid !== instance || intent.confirmation !== this.confirmation || intent.enabled !== this.desiredEnabled) throw new Error(this.$t('message.storage.control.policy.unknown'))
-        this.requestIntent = intent
-        requireStorageMutationAllowed(this, 'configureStorageServiceControlPolicy')
-        const response = await postAPI('configureStorageServiceControlPolicy', intent, { timeout: 15000 })
-        if (generation !== this.generation || instance !== this.instanceId) return
-        this.jobId = response.configurestorageservicecontrolpolicyresponse?.jobid || ''
-        if (!this.jobId) throw new Error(this.$t('message.storage.control.policy.unknown'))
+        // Only an already attempted exact intent may replay; a known job is READ-only.
+        if (!this.jobId) {
+          if (!retained) {
+            requireStorageMutationAllowed(this, 'configureStorageServiceControlPolicy')
+            if (!this.requestKey) this.requestKey = 'control-policy-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2)
+            this.requestIntent = { instanceid: instance, enabled: this.desiredEnabled, expectedpolicyrevision: this.policy.policyRevision, confirmation: this.confirmation, idempotencykey: this.requestKey }
+          }
+          this.requestAttempted = true
+          const response = await postAPI('configureStorageServiceControlPolicy', this.requestIntent, { timeout: 15000, preserveOnFailure: true })
+          if (!current()) return
+          this.jobId = response.configurestorageservicecontrolpolicyresponse?.jobid || ''
+          if (!this.jobId) throw new Error(this.$t('message.storage.control.policy.unknown'))
+        }
+        const jobId = this.jobId
         let verified = false
         for (let attempt = 0; attempt < 90; attempt++) {
-          const response = await getAPI('queryAsyncJobResult', { jobid: this.jobId }, { timeout: 15000, preserveOnFailure: true })
-          if (generation !== this.generation || instance !== this.instanceId) return
+          if (!current()) return
+          const response = await getAPI('queryAsyncJobResult', { jobid: jobId }, { timeout: 15000, preserveOnFailure: true })
+          if (!current()) return
           const job = response.queryasyncjobresultresponse
-          if (job.jobstatus === 2) { this.requestKey = ''; this.requestIntent = null; throw new Error(job.jobresult?.errortext || this.$t('message.storage.config.failed')) }
-          if (job.jobstatus === 1) {
+          if (job?.jobstatus === 2) { this.clearRequest(); throw new Error(job.jobresult?.errortext || this.$t('message.storage.config.failed')) }
+          if (job?.jobstatus === 1) {
             const result = this.evidence(job.jobresult, 'configureStorageServiceControlPolicy', instance)
-            if (result.enabled !== this.desiredEnabled) throw new Error(this.$t('message.storage.control.policy.unknown'))
+            if (result.enabled !== this.requestIntent.enabled) throw new Error(this.$t('message.storage.control.policy.unknown'))
             this.policy = result; verified = true; break
           }
+          if (job?.jobstatus !== 0) throw new Error(this.$t('message.storage.control.policy.unknown'))
           await new Promise(resolve => setTimeout(resolve, 1000))
         }
         if (!verified) throw new Error(this.$t('message.storage.control.policy.unknown'))
-        this.visible = false; this.requestKey = ''; this.requestIntent = null; this.$emit('operation-updated', instance); await this.refresh()
+        this.visible = false; this.clearRequest(); this.error = ''; this.$emit('operation-updated', instance); refreshAfter = true
       } catch (error) {
-        if (generation === this.generation) {
+        if (current()) {
           const root = error.response?.data?.configurestorageservicecontrolpolicyresponse || error.response?.data?.errorresponse
           this.saveError = root?.errortext || error.message
         }
-      } finally { if (generation === this.generation) this.saving = false }
+      } finally {
+        if (current()) { this.saving = false; if (refreshAfter) await this.refresh() }
+      }
     }
   }
 }

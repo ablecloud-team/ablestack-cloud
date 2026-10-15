@@ -11,7 +11,11 @@ function storageRevision (value) {
 
 export function storageOperationRows (response) {
   const body = response?.liststorageserviceoperationsresponse
-  if (!body || body.errorcode || (!Array.isArray(body.storageserviceoperation) && body.count !== 0 && body.count !== '0')) throw new Error('STORAGE_OPERATION_STATE_UNVERIFIED')
+  if (!body || typeof body !== 'object' || Object.getPrototypeOf(body) !== Object.prototype || Object.prototype.hasOwnProperty.call(body, 'errorcode')) throw new Error('STORAGE_OPERATION_STATE_UNVERIFIED')
+  // ApiResponseSerializer emits exactly {} for a successful zero-count ListResponse.
+  if (Object.keys(body).length === 0) return []
+  if ((body.storageserviceoperation !== undefined && !Array.isArray(body.storageserviceoperation)) ||
+      (!Array.isArray(body.storageserviceoperation) && body.count !== 0 && body.count !== '0')) throw new Error('STORAGE_OPERATION_STATE_UNVERIFIED')
   const rows = body.storageserviceoperation || []
   if (body.count !== undefined && (storageRevision(body.count) !== rows.length)) throw new Error('STORAGE_OPERATION_STATE_UNVERIFIED')
   return rows
