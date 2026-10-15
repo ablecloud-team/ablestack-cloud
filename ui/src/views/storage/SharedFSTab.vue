@@ -4955,7 +4955,7 @@ export default {
     emitWideLayout () {
       this.$emit('wide-layout-change', this.isStorageProtocolTab(this.currentTab) && this.protocolWideLayout)
     },
-    updateRouteQuery (tab) {
+    updateRouteQuery (tab, replace = false) {
       const query = Object.assign({}, this.$route.query)
       query.tab = tab
       if (this.isStorageProtocolTab(tab) && this.protocolWideLayout) {
@@ -4968,19 +4968,15 @@ export default {
           encodeURIComponent(key) + '=' + encodeURIComponent(query[key])
         )
       }).join('&')
-      history.pushState({}, null, '#' + this.$route.path + (queryString ? '?' + queryString : ''))
+      const url = '#' + this.$route.path + (queryString ? '?' + queryString : '')
+      if (replace) history.replaceState(history.state, null, url)
+      else history.pushState({}, null, url)
     },
     preserveCurrentProtocolRoute () {
-      if (!this.isStorageProtocolTab(this.currentTab)) {
-        return
-      }
-      const query = Object.assign({}, this.$route.query, { tab: this.currentTab })
-      if (this.protocolWideLayout) {
-        query.wide = 'true'
-      } else {
-        delete query.wide
-      }
-      this.$router.replace({ path: this.$route.path, query }).catch(() => {})
+      if (!this.isStorageProtocolTab(this.currentTab)) return
+      // Inner tabs use History API state. Router navigation here changes the
+      // parent's resource scope and destroys a still-owned failed form.
+      this.updateRouteQuery(this.currentTab, true)
     },
     referenceRead (key, command, params, apply) {
       if (!this.referenceReader) {
@@ -5632,6 +5628,7 @@ export default {
             loadingMessage: this.$t('label.loading') + '...',
             catchMessage: this.$t('error.fetching.async.job.result'),
             action: { isFetchData: false },
+            refreshOnComplete: false,
             originalPage: this.$route.path
           })
           terminal = completed?.jobstatus === 1 || completed?.jobstatus === 2
