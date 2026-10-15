@@ -1385,7 +1385,17 @@ v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis"
 wrapClassName="storage-service-action-modal"
 @ok="submitActionModal"
 @cancel="closeActionModal">
-      <div class="storage-modal-body"><a-alert v-if="actionModal.error" type="error" show-icon :message="actionModal.error" /><a-form layout="vertical">
+      <div class="storage-modal-body">
+        <a-alert v-if="actionModal.error" type="error" show-icon :message="actionModal.error" />
+        <a-alert v-if="storageMutationBlocked && storageService.instance" class="storage-service-inline-alert" :type="storageRecoveryGate.blocker?.state === 'RECOVERY_REQUIRED' ? 'error' : 'warning'" show-icon role="status" :message="storageRecoveryGateMessage">
+          <template #description><span v-if="storageRecoveryGate.blocker">{{ storageRecoveryGate.blocker.id }} · {{ storageRecoveryGate.blocker.revision }}</span></template>
+          <template #action>
+            <a-button :loading="storageOperationGate.status === 'LOADING'" :disabled="!storageOperationReadSupported || storageMutationPending" @click="refreshStorageModalOperationGate">
+              <template #icon><ReloadOutlined /></template>{{ $t('label.refresh') }}
+            </a-button>
+          </template>
+        </a-alert>
+        <a-form layout="vertical">
         <div v-if="actionModal.type === 'nfsServiceSettings'" class="storage-action-form storage-action-form--vertical">
           <a-form-item :label="$t('label.storage.service.nfs.idmapping')" required>
             <a-select v-model:value="forms.nfsServiceSettings.idmappingmode">
@@ -4646,6 +4656,9 @@ export default {
       return this.storageLabel('message.storage.operation.change.read.loading', '현재 작업 상태를 확인하는 동안 설정 변경을 잠시 기다려 주세요.')
     },
     storageModalCanResumeIntent () {
+      // The private RAM map is not reactive; job completion must invalidate a
+      // computed value which was first evaluated before an intent existed.
+      if (this.storageMutationPending) return false
       return [...(storageMutationIntents.get(this)?.values() || [])].some(intent => storageIntentCanResume(this, intent))
     },
     storageMutationSecurityScope () { return storageSecurityScope(this) },
@@ -4901,6 +4914,17 @@ export default {
         if (token.sequence === this.storageOperationReadSequence && this.storageOperationGate.status === 'ERROR') throw new Error('STORAGE_OPERATION_STATE_UNVERIFIED')
         return rows
       } catch (error) { this.acceptStorageOperationRead(token, [], true); throw error }
+    },
+    async refreshStorageModalOperationGate () {
+      const instanceId = this.storageService.instance?.id
+      if (!this.actionModal.visible || !instanceId || this.storageMutationDisposed || this.storageMutationPending ||
+        !this.storageOperationReadSupported || this.storageOperationGate.status === 'LOADING') return false
+      const scope = storageMutationScope(this); const modal = this.actionModal; const epoch = this.storageModalEpoch || 0
+      try {
+        await this.fetchStorageOperationGate(instanceId)
+        return storageMutationScopeMatches(this, scope) && this.actionModal === modal && modal.visible &&
+          (this.storageModalEpoch || 0) === epoch && !this.storageMutationBlocked
+      } catch (error) { return false }
     },
     storageOperationHistoryStarted ({ instanceId, generation }) {
       if (instanceId !== this.storageService.instance?.id) return

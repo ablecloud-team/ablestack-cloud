@@ -1,6 +1,8 @@
 // Licensed to the Apache Software Foundation (ASF) under one
 // or more contributor license agreements. See the NOTICE file
 // distributed with this work for additional information.
+import { shallowMount, flushPromises } from '@vue/test-utils'
+import { reactive } from 'vue'
 import SharedFSTab from '@/views/storage/SharedFSTab'
 import History from '@/views/storage/StorageOperationHistory'
 import { getAPI, postAPI } from '@/api'
@@ -306,5 +308,154 @@ describe('injected forward mutation boundary', () => {
     RuntimeUpgrade.methods.startAsync.call(vm, 'rollback', 'rollbackStorageServiceRuntimeUpgrade', {})
     await Promise.resolve()
     expect(postAPI).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('modal operation-state requery', () => {
+  const wrappers = []
+  const Widget = { ...SharedFSTab, mixins: [], watch: {}, created () {}, mounted () {} }
+  const envelope = rows => ({ liststorageserviceoperationsresponse: { count: rows.length, storageserviceoperation: rows } })
+  const params = { id: 'export-a', readonly: true }
+  const mountModal = async () => {
+    const store = reactive({
+      state: { app: { device: 'desktop' }, user: { token: 'session-a' } },
+      getters: { apis: { listStorageServiceInstances: {}, listStorageServiceOperations: {} }, features: {}, userInfo: { id: 'user-a' }, project: { id: 'project-a' } }
+    })
+    const wrapper = shallowMount(Widget, {
+      props: { resource: { id: 'fs-a', name: 'owned-a' } },
+      global: {
+        provide: { parentFetchData: jest.fn() },
+        mocks: {
+          $store: store,
+          $t: key => key,
+          $message: { error: jest.fn() },
+          $getApiParams: () => ({ idempotencykey: {} }),
+          $route: { path: '/sharedfs/fs-a', fullPath: '/sharedfs/fs-a?tab=nfs', query: { tab: 'nfs' } }
+        },
+        stubs: {
+          'a-spin': { template: '<div><slot /></div>' },
+          'a-tabs': true,
+          'a-modal': { props: ['visible', 'okButtonProps'], template: '<section v-if="visible" class="operation-gate-test-modal"><slot /><button class="test-confirm" :disabled="okButtonProps && okButtonProps.disabled">confirm</button></section>' },
+          'a-form': { template: '<div><slot /></div>' },
+          'a-alert': { props: ['message'], template: '<div class="test-alert"><span>{{ message }}</span><slot name="description" /><slot name="action" /></div>' },
+          'a-button': { props: ['disabled', 'loading'], template: '<button :disabled="disabled || loading"><slot name="icon" /><slot /></button>' }
+        }
+      }
+    })
+    wrappers.push(wrapper)
+    await wrapper.setData({
+      actionModal: { visible: true, type: 'gateReadFixture', context: { id: 'export-a' }, error: 'previous public read failure', loading: false },
+      storageService: { ...wrapper.vm.storageService, instance: { id: 'instance-a', name: 'owned-a' }, loaded: true },
+      forms: { ...wrapper.vm.forms, nfsExport: { ...wrapper.vm.forms.nfsExport, readonly: true } }
+    })
+    wrapper.vm.refreshAfterStorageAction = jest.fn()
+    wrapper.vm.refreshStorageOperationHistory = jest.fn()
+    wrapper.vm.$pollJob = jest.fn().mockResolvedValue({ jobstatus: 1 })
+    wrapper.vm.acceptStorageOperationRead(wrapper.vm.beginStorageOperationRead('instance-a'), [], true)
+    await wrapper.vm.$nextTick()
+    return wrapper
+  }
+  const refreshButton = wrapper => {
+    const button = wrapper.find('.operation-gate-test-modal').findAll('button').find(item => item.text() === 'label.refresh')
+    expect(button).toBeDefined()
+    return button
+  }
+  const mutation = wrapper => wrapper.vm.runStorageAction('gateReadFixture', 'updateStorageNfsExport', params, 'own update')
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+    getAPI.mockResolvedValue(envelope([]))
+    postAPI.mockResolvedValue({ updatestoragenfsexportresponse: { jobid: 'job-a' } })
+  })
+  afterEach(() => wrappers.splice(0).forEach(wrapper => { if (!wrapper.vm.storageMutationDisposed) wrapper.unmount() }))
+
+  it('renders a GET-only retry inside the blocked modal and unlocks the same retained failed form', async () => {
+    const wrapper = await mountModal()
+    const modal = wrapper.vm.actionModal; const form = wrapper.vm.forms.nfsExport; const target = modal.context
+    expect(wrapper.get('.test-confirm').element.disabled).toBe(true)
+    await refreshButton(wrapper).trigger('click')
+    await flushPromises()
+    expect(getAPI).toHaveBeenCalledTimes(1)
+    expect(getAPI).toHaveBeenCalledWith('listStorageServiceOperations', { instanceid: 'instance-a' }, { preserveOnFailure: true, timeout: 15000 })
+    expect(postAPI).not.toHaveBeenCalled()
+    expect(wrapper.vm.storageMutationBlocked).toBe(false)
+    expect(wrapper.get('.test-confirm').element.disabled).toBe(false)
+    expect(wrapper.vm.actionModal).toBe(modal)
+    expect(wrapper.vm.actionModal.context).toBe(target)
+    expect(wrapper.vm.forms.nfsExport).toBe(form)
+    expect(form.readonly).toBe(true)
+    expect(modal.visible).toBe(true)
+    expect(modal.error).toBe('previous public read failure')
+  })
+
+  it('preserves an existing uncertain intent and its key across the read-only refresh', async () => {
+    const wrapper = await mountModal()
+    wrapper.vm.acceptStorageOperationRead(wrapper.vm.beginStorageOperationRead('instance-a'), [], false)
+    postAPI.mockRejectedValueOnce(new Error('controlled lost POST response'))
+    expect(await mutation(wrapper)).toBe(false)
+    const key = postAPI.mock.calls[0][1].idempotencykey
+    wrapper.vm.acceptStorageOperationRead(wrapper.vm.beginStorageOperationRead('instance-a'), [], true)
+    await wrapper.vm.$nextTick()
+    getAPI.mockResolvedValue(envelope([row('COMPLETE', 71), row('RUNNING', 72)]))
+    await refreshButton(wrapper).trigger('click'); await flushPromises()
+    expect(postAPI).toHaveBeenCalledTimes(1)
+    expect(wrapper.vm.actionModal.visible).toBe(true)
+    expect(wrapper.vm.forms.nfsExport.readonly).toBe(true)
+    expect(wrapper.vm.storageMutationBlocked).toBe(true)
+    expect(wrapper.vm.storageModalCanResumeIntent).toBe(true)
+    expect(wrapper.get('.test-confirm').element.disabled).toBe(false)
+    expect(await mutation(wrapper)).toBe(true)
+    expect(postAPI.mock.calls[1][1].idempotencykey).toBe(key)
+  })
+
+  it.each(['RUNNING', 'RECOVERY_REQUIRED'])('keeps the form blocked after a fresh authoritative %s snapshot', async state => {
+    const wrapper = await mountModal()
+    getAPI.mockResolvedValue(envelope([row('COMPLETE', 71), row(state, 72)]))
+    await refreshButton(wrapper).trigger('click'); await flushPromises()
+    expect(wrapper.vm.storageMutationBlocked).toBe(true)
+    expect(wrapper.get('.test-confirm').element.disabled).toBe(true)
+    expect(wrapper.vm.actionModal.visible).toBe(true)
+    expect(wrapper.vm.forms.nfsExport.readonly).toBe(true)
+    expect(postAPI).not.toHaveBeenCalled()
+    expect(refreshButton(wrapper).element.disabled).toBe(false)
+  })
+
+  it('keeps the gate closed on another read error without leaking the provider context', async () => {
+    const wrapper = await mountModal()
+    getAPI.mockRejectedValue(new Error('PRIVATE_PROVIDER_CONTEXT'))
+    await refreshButton(wrapper).trigger('click'); await flushPromises()
+    expect(wrapper.vm.storageOperationGate.status).toBe('ERROR')
+    expect(wrapper.get('.test-confirm').element.disabled).toBe(true)
+    expect(wrapper.find('.operation-gate-test-modal').text()).not.toContain('PRIVATE_PROVIDER_CONTEXT')
+    expect(wrapper.vm.actionModal.visible).toBe(true)
+    expect(refreshButton(wrapper).element.disabled).toBe(false)
+    expect(postAPI).not.toHaveBeenCalled()
+  })
+
+  it('serializes the modal read while LOADING without resetting the draft', async () => {
+    const wrapper = await mountModal(); const pending = deferred()
+    getAPI.mockReturnValue(pending.promise)
+    await refreshButton(wrapper).trigger('click')
+    expect(wrapper.vm.storageOperationGate.status).toBe('LOADING')
+    expect(refreshButton(wrapper).element.disabled).toBe(true)
+    expect(await wrapper.vm.refreshStorageModalOperationGate()).toBe(false)
+    expect(getAPI).toHaveBeenCalledTimes(1)
+    pending.resolve(envelope([])); await flushPromises()
+    expect(wrapper.vm.forms.nfsExport.readonly).toBe(true)
+    expect(wrapper.get('.test-confirm').element.disabled).toBe(false)
+  })
+
+  it.each(['resource', 'instance', 'user', 'project'])('ignores a successful old modal read after the %s scope changes', async scope => {
+    const wrapper = await mountModal(); const pending = deferred()
+    getAPI.mockReturnValue(pending.promise)
+    await refreshButton(wrapper).trigger('click')
+    if (scope === 'resource') await wrapper.setProps({ resource: { id: 'fs-b', name: 'owned-b' } })
+    if (scope === 'instance') wrapper.vm.storageService.instance.id = 'instance-b'
+    if (scope === 'user') wrapper.vm.$store.getters.userInfo.id = 'user-b'
+    if (scope === 'project') wrapper.vm.$store.getters.project.id = 'project-b'
+    pending.resolve(envelope([])); await flushPromises()
+    expect(wrapper.vm.storageMutationBlocked).toBe(true)
+    expect(wrapper.get('.test-confirm').element.disabled).toBe(true)
+    expect(postAPI).not.toHaveBeenCalled()
   })
 })
