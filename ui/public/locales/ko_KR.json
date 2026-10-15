@@ -1,4 +1,5 @@
 {
+  "label.storage.operation.state.CANCELLED": "취소됨",
   "message.storage.operation.tcp.connections.only": "TCP 연결 수만 관측한 값입니다. NFS 파일 열림이나 SMB 잠금 해제, 세션 드레인 완료를 검증한 값은 아닙니다.",
   "message.storage.operation.maintenance.plan.required": "이 서비스의 승인된 유지보수 계획을 이용하세요. 검토한 계획, 정확한 서비스 이름, 유지보수 시간대와 서명 및 지원이 확인된 런타임 프로필이 필요합니다.",
   "message.storage.operation.drain.unsupported": "현재 런타임은 세션 드레인을 지원하지 않아 드레인을 요청할 수 없습니다.",

@@ -1,4 +1,5 @@
 {
+  "label.storage.operation.state.CANCELLED": "Cancelled",
   "message.storage.operation.tcp.connections.only": "This count includes TCP connections only. It does not verify NFS open files, SMB locks or completed session draining.",
   "message.storage.operation.maintenance.plan.required": "Use an approved maintenance plan for this instance. A reviewed plan, exact service name, maintenance window and supported signed runtime profile are required.",
   "message.storage.operation.drain.unsupported": "This runtime does not support session draining. A drain request cannot be submitted.",
