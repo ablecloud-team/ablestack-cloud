@@ -24,6 +24,7 @@ import stat
 import tempfile
 import time
 import uuid
+from resource_preflight import ResourcePreflight
 
 
 class ResourceReservation:
@@ -133,6 +134,7 @@ class ResourceReservation:
         finally:os.close(descriptor)
 
     def execute(self,action,request=None):
+        if action=="preflight":return ResourcePreflight(self).execute(request)
         if action=="status":return self.status()
         scope=self.scope(request);root_scope=self.validate_generation(scope,request)
         duration=request.get("leaseDurationSeconds",90)
