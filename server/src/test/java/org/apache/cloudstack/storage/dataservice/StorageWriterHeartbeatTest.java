@@ -31,6 +31,7 @@ public class StorageWriterHeartbeatTest {
         Mockito.when(operation.getId()).thenReturn(12L);Mockito.when(operation.getInstanceId()).thenReturn(7L);
         Mockito.when(operation.getUuid()).thenReturn("writer-uuid");
         StorageServiceOperationDao operations = Mockito.mock(StorageServiceOperationDao.class);
+        Mockito.when(operations.touchHeartbeat(Mockito.anyLong(), Mockito.any(), Mockito.anyLong())).thenReturn(true);
         ScheduledExecutorService executor = Mockito.mock(ScheduledExecutorService.class);
         ScheduledFuture<?> future = Mockito.mock(ScheduledFuture.class);
         ArgumentCaptor<Runnable> runnable = ArgumentCaptor.forClass(Runnable.class);
@@ -60,4 +61,45 @@ public class StorageWriterHeartbeatTest {
             Mockito.verify(operation, Mockito.never()).setState(Mockito.any());
         }
     }
+    @Test public void zeroRowHeartbeatNeverRenewsNativeLeaseOrAuthorizesEffect() {
+        StorageServiceOperationVO operation = Mockito.mock(StorageServiceOperationVO.class);
+        Mockito.when(operation.getId()).thenReturn(12L);Mockito.when(operation.getInstanceId()).thenReturn(7L);
+        Mockito.when(operation.getUuid()).thenReturn("owned-operation");
+        StorageServiceOperationDao operations = Mockito.mock(StorageServiceOperationDao.class);
+        Mockito.when(operations.touchHeartbeat(12L, "owned-operation", 7L)).thenReturn(false);
+        ScheduledExecutorService executor = Mockito.mock(ScheduledExecutorService.class);
+        ScheduledFuture<?> future = Mockito.mock(ScheduledFuture.class);
+        ArgumentCaptor<Runnable> tick = ArgumentCaptor.forClass(Runnable.class);
+        Mockito.doReturn(future).when(executor).scheduleWithFixedDelay(tick.capture(), Mockito.eq(20L), Mockito.eq(20L), Mockito.eq(TimeUnit.SECONDS));
+        java.util.List<RuntimeException> failures = new java.util.ArrayList<>();
+        java.util.concurrent.atomic.AtomicInteger nativeRenewals = new java.util.concurrent.atomic.AtomicInteger();
+        try (StorageWriterHeartbeat heartbeat = new StorageWriterHeartbeat(operation, operations, executor, failures::add, nativeRenewals::incrementAndGet)) {
+            tick.getValue().run();
+            Assert.assertEquals(0, nativeRenewals.get());Assert.assertEquals(1, failures.size());
+            Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class, heartbeat::requireAvailable);
+            Mockito.verify(operations).touchHeartbeat(12L, "owned-operation", 7L);
+            Mockito.verify(operations, Mockito.never()).update(Mockito.anyLong(), Mockito.any());
+        }
+    }
+
+    @Test public void failedHeartbeatScopeMayRecoverOnlyAfterTheExactRowRenewalSucceeds() {
+        StorageServiceOperationVO operation = Mockito.mock(StorageServiceOperationVO.class);
+        Mockito.when(operation.getId()).thenReturn(12L);Mockito.when(operation.getInstanceId()).thenReturn(7L);
+        Mockito.when(operation.getUuid()).thenReturn("owned-operation");
+        StorageServiceOperationDao operations = Mockito.mock(StorageServiceOperationDao.class);
+        Mockito.when(operations.touchHeartbeat(12L, "owned-operation", 7L)).thenReturn(false).thenReturn(true);
+        ScheduledExecutorService executor = Mockito.mock(ScheduledExecutorService.class);
+        ScheduledFuture<?> future = Mockito.mock(ScheduledFuture.class);
+        ArgumentCaptor<Runnable> tick = ArgumentCaptor.forClass(Runnable.class);
+        Mockito.doReturn(future).when(executor).scheduleWithFixedDelay(tick.capture(), Mockito.eq(20L), Mockito.eq(20L), Mockito.eq(TimeUnit.SECONDS));
+        java.util.List<RuntimeException> failures = new java.util.ArrayList<>();
+        java.util.concurrent.atomic.AtomicInteger nativeRenewals = new java.util.concurrent.atomic.AtomicInteger();
+        try (StorageWriterHeartbeat heartbeat = new StorageWriterHeartbeat(operation, operations, executor, failures::add, nativeRenewals::incrementAndGet)) {
+            tick.getValue().run();Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class, heartbeat::requireAvailable);
+            Assert.assertEquals(0, nativeRenewals.get());
+            tick.getValue().run();heartbeat.requireAvailable();
+            Assert.assertEquals(1, nativeRenewals.get());Assert.assertEquals(1, failures.size());
+        }
+    }
+
 }

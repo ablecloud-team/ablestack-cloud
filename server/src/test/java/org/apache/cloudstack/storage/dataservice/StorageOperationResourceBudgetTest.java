@@ -76,4 +76,50 @@ public class StorageOperationResourceBudgetTest {
         Assert.assertThrows(IllegalArgumentException.class, () -> StorageOperationResourceBudget.estimate(
                 StorageOperationResourceBudget.Work.RESTORE, 0, 0, 0, -1, false));
     }
+    @Test public void frozenPlanIncludesIncomingAndUpperBoundWithoutClaimingRenderedActualBytes() {
+        JsonObject source = StorageOperationResourceBudget.plan(StorageOperationResourceBudget.Work.CONFIGURATION,1024,0,0,0,2,false,256);
+        JsonObject proposed = StorageOperationResourceBudget.plan(StorageOperationResourceBudget.Work.CONFIGURATION,1024,4096,0,0,2,false,256);
+        Assert.assertTrue(proposed.getAsJsonObject("requirements").get("minimumMemoryAvailableBytes").getAsLong()
+                > source.getAsJsonObject("requirements").get("minimumMemoryAvailableBytes").getAsLong());
+        Assert.assertEquals(4096,proposed.get("incomingBytes").getAsLong());
+        Assert.assertTrue(proposed.get("renderedUpperBoundBytes").getAsLong()>0);
+        Assert.assertEquals(0,proposed.get("renderedBytes").getAsLong());Assert.assertTrue(proposed.get("renderedPending").getAsBoolean());
+        Assert.assertFalse(proposed.get("logicalDiskCapacityIncluded").getAsBoolean());
+    }
+
+    @Test public void configuredMinimumIsFrozenAndNeverLowersTheWorkEstimate() {
+        JsonObject high = StorageOperationResourceBudget.plan(StorageOperationResourceBudget.Work.CONFIGURATION,0,0,0,0,0,false,16384);
+        Assert.assertEquals(16384*MIB,high.getAsJsonObject("requirements").get("minimumMemoryAvailableBytes").getAsLong());
+        JsonObject format = StorageOperationResourceBudget.plan(StorageOperationResourceBudget.Work.FILESYSTEM_FORMAT,0,0,0,0,0,false,256);
+        Assert.assertTrue(format.getAsJsonObject("requirements").get("minimumMemoryAvailableBytes").getAsLong()>=1024*MIB);
+        JsonObject frozen=high.deepCopy();
+        StorageOperationResourceBudget.plan(StorageOperationResourceBudget.Work.CONFIGURATION,0,0,0,0,0,false,256);
+        StorageOperationResourceBudget.requirePreparedWithin(high,1024,1024,1);
+        Assert.assertEquals(frozen,high);
+    }
+
+    @Test public void preparedTargetCannotExpandItsExistingLeaseOrHideUnknownRenderedSize() {
+        JsonObject frozen=StorageOperationResourceBudget.plan(StorageOperationResourceBudget.Work.CONFIGURATION,1024,512,0,0,2,false,256);
+        JsonObject before=frozen.deepCopy();
+        StorageOperationResourceBudget.requirePreparedWithin(frozen,2048,2048,3);
+        Assert.assertEquals(before,frozen);
+        Assert.assertThrows(IllegalArgumentException.class,()->StorageOperationResourceBudget.requirePreparedWithin(frozen,
+                frozen.get("declarationBytes").getAsLong()+1,0,1));
+        Assert.assertThrows(IllegalArgumentException.class,()->StorageOperationResourceBudget.requirePreparedWithin(frozen,
+                0,frozen.get("renderedUpperBoundBytes").getAsLong()+1,1));
+        Assert.assertThrows(IllegalArgumentException.class,()->StorageOperationResourceBudget.requirePreparedWithin(frozen,0,0,100000));
+    }
+
+    @Test public void malformedFloorAndOverflowCannotReachResourceAcquisition() {
+        for(long floor:new long[]{-1,0,255,1048577,Long.MAX_VALUE})Assert.assertThrows(IllegalArgumentException.class,
+                ()->StorageOperationResourceBudget.plan(StorageOperationResourceBudget.Work.CONFIGURATION,0,0,0,0,0,false,floor));
+        Assert.assertThrows(IllegalArgumentException.class,()->StorageOperationResourceBudget.plan(
+                StorageOperationResourceBudget.Work.CONFIGURATION,Long.MAX_VALUE,1,0,0,1,false,256));
+        JsonObject bad=StorageOperationResourceBudget.plan(StorageOperationResourceBudget.Work.CONFIGURATION,1,1,0,0,0,false,256);
+        bad.addProperty("resourcesCount","NaN");
+        Assert.assertThrows(IllegalArgumentException.class,()->StorageOperationResourceBudget.requirePreparedWithin(bad,0,0,0));
+        bad.addProperty("resourcesCount",new java.math.BigInteger("18446744073709551617"));
+        Assert.assertThrows(IllegalArgumentException.class,()->StorageOperationResourceBudget.requirePreparedWithin(bad,0,0,0));
+    }
+
 }

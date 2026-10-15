@@ -39,8 +39,15 @@ import org.springframework.test.util.ReflectionTestUtils;
 public class StorageOperationControlTest {
     private static class Manager extends StorageServiceManagerImpl {
         StorageServiceInstanceVO instance;
+        boolean finalizationWitnessValid=true;
+        @Override protected void requireOperationFinalizationWitness(StorageServiceInstanceVO value,StorageServiceOperationVO row) {
+            if(!finalizationWitnessValid)throw new com.cloud.utils.exception.CloudRuntimeException("Exact target witness unavailable");
+        }
         @Override protected StorageServiceInstanceVO requireInstance(Long id) { return instance; }
         @Override public String captureConfigurationSnapshot(long id) {return "{\"tables\":[]}";}
+        @Override protected JsonObject operationReadiness(StorageServiceInstanceVO value) {
+            JsonObject result=new JsonObject();result.add("protocols",new com.google.gson.JsonArray());result.add("volumes",new com.google.gson.JsonArray());return result;
+        }
 
     }
     private Manager manager;
@@ -49,9 +56,14 @@ public class StorageOperationControlTest {
     private StorageServiceOperationDao operations;
     private StorageServiceOperationControlDao controls;
     private Object oldEnabled;
+    private Object oldFloor;
+    private Object oldDepot;
     private StorageServiceGuestCommandDispatcher guest;
     @Before public void setup() {
         oldEnabled=ReflectionTestUtils.getField(StorageServiceInstance.StorageServiceOperationControlEnabled,"_value");
+        oldFloor=ReflectionTestUtils.getField(StorageServiceInstance.StorageServiceOperationMinimumMemoryAvailableMb,"_value");
+        oldDepot=ReflectionTestUtils.getField(org.apache.cloudstack.framework.config.ConfigKey.class,"s_depot");
+        ReflectionTestUtils.setField(StorageServiceInstance.StorageServiceOperationMinimumMemoryAvailableMb,"_value",256);
         ReflectionTestUtils.setField(StorageServiceInstance.StorageServiceOperationControlEnabled,"_value",true);
         manager=new Manager();manager.instance=Mockito.mock(StorageServiceInstanceVO.class);Mockito.when(manager.instance.getId()).thenReturn(7L);Mockito.when(manager.instance.getName()).thenReturn("exact-name");
         operation=new StorageServiceOperationVO();ReflectionTestUtils.setField(operation,"id",11L);operation.setInstanceId(7);operation.setState("RUNNING");operation.setPhase("PREFLIGHT");operation.setRevision(8);
@@ -63,7 +75,7 @@ public class StorageOperationControlTest {
 
         com.cloud.user.UserVO user=Mockito.mock(com.cloud.user.UserVO.class);Mockito.when(user.getId()).thenReturn(3L);CallContext.register(user,Mockito.mock(com.cloud.user.AccountVO.class));
     }
-    @After public void cleanup() {CallContext.unregister();ReflectionTestUtils.setField(StorageServiceInstance.StorageServiceOperationControlEnabled,"_value",oldEnabled);}
+    @After public void cleanup() {CallContext.unregister();ReflectionTestUtils.setField(StorageServiceInstance.StorageServiceOperationControlEnabled,"_value",oldEnabled);ReflectionTestUtils.setField(StorageServiceInstance.StorageServiceOperationMinimumMemoryAvailableMb,"_value",oldFloor);ReflectionTestUtils.setField(org.apache.cloudstack.framework.config.ConfigKey.class,"s_depot",oldDepot);}
     private <T extends BaseStorageServiceOperationControlCmd> T request(T cmd) {
         ReflectionTestUtils.setField(cmd,"instanceId",7L);ReflectionTestUtils.setField(cmd,"operationId",11L);ReflectionTestUtils.setField(cmd,"expectedRevision",1L);return cmd;
     }
@@ -151,12 +163,274 @@ public class StorageOperationControlTest {
         Mockito.when(manager.instance.getVmId()).thenReturn(7L);operation.setAction("SHAREDFS_ONLINE_SCALE");control.setLeaseJson(lease().toString());
         JsonObject policy=new JsonObject();policy.add("requirements",StorageOperationResourceBudget.estimate(StorageOperationResourceBudget.Work.SCALE,100,0,0,1,false).request());control.setPolicyJson(policy.toString());
         Mockito.when(operations.findByUuid(operation.getUuid())).thenReturn(operation);
-        Mockito.when(guest.dispatch(Mockito.any())).thenAnswer(call->{StorageServiceGuestCommand command=call.getArgument(0);JsonObject reply=lease();reply.addProperty("success",true);reply.addProperty("reservationSupported",true);if(command.getOperation().equals("operation reservation release"))reply.addProperty("reservationAcquired",false);return new StorageServiceGuestCommandResult(true,"lease",reply.toString());});
+        Mockito.when(guest.dispatch(Mockito.any())).thenAnswer(call->{StorageServiceGuestCommand command=call.getArgument(0);if(command.getOperation().equals("operation preflight"))return new StorageServiceGuestCommandResult(true,"typed",typedReply(manager.operationReadinessRequest(manager.instance,operation,control)).toString());JsonObject reply=lease();reply.addProperty("success",true);reply.addProperty("reservationSupported",true);if(command.getOperation().equals("operation reservation release"))reply.addProperty("reservationAcquired",false);return new StorageServiceGuestCommandResult(true,"lease",reply.toString());});
         manager.beginStorageWriterHeartbeat(operation);
         try(MockedStatic<Transaction> ignored=transaction()) {
             manager.suspendManagedOperationControl(operation.getUuid());manager.renewOperationResourceReservation(operation);Mockito.verify(guest,Mockito.times(1)).dispatch(Mockito.any());
-            manager.resumeManagedOperationControl(operation.getUuid());manager.renewOperationResourceReservation(operation);Mockito.verify(guest,Mockito.times(3)).dispatch(Mockito.any());Assert.assertEquals(operation,manager.managedOperation(operation.getUuid()));
+            manager.resumeManagedOperationControl(operation.getUuid());manager.renewOperationResourceReservation(operation);Mockito.verify(guest,Mockito.times(4)).dispatch(Mockito.any());Assert.assertEquals(operation,manager.managedOperation(operation.getUuid()));
         } finally {manager.endStorageWriterHeartbeat();}
     }
 
+    private JsonObject typedRequest() {
+        Mockito.when(manager.instance.getUuid()).thenReturn("instance");
+        JsonObject policy=StorageOperationResourceBudget.plan(StorageOperationResourceBudget.Work.CONFIGURATION,0,0,0,0,0,false,256);
+        control.setPolicyJson(policy.toString());
+        return manager.operationReadinessRequest(manager.instance,operation,control);
+    }
+    private JsonObject typedReply(JsonObject request) {
+        JsonObject result=new JsonObject();result.addProperty("mode","TYPED_READINESS_V1");
+        result.addProperty("instanceUuid","instance");result.addProperty("success",true);result.addProperty("compatible",true);result.addProperty("readOnly",true);
+        result.add("scope",manager.operationReservationScope(manager.instance,operation));result.add("requirements",request.get("requirements").deepCopy());
+        result.addProperty("bootId","11111111-1111-4111-8111-111111111111");result.addProperty("generatedEpoch",System.currentTimeMillis()/1000.0);
+        JsonObject observed=new JsonObject();observed.addProperty("sessionObservationKind","TCP_CONNECTIONS_ONLY");observed.addProperty("memoryAvailableBytes",4L<<30);observed.addProperty("stagingFreeBytes",4L<<30);observed.addProperty("loadPerCpu",0.1);observed.addProperty("activeSessions",0);
+        observed.add("protocolHealth",new JsonObject());observed.add("backingVolumes",new com.google.gson.JsonArray());result.add("observed",observed);result.add("blockers",new com.google.gson.JsonArray());return result;
+    }
+    private void checkTyped(JsonObject request,JsonObject reply) {
+        manager.requireTypedReadiness(manager.instance,operation,request,new StorageServiceGuestCommandResult(true,"typed public observation",reply.toString()),reply);
+    }
+
+    @Test public void publicControlScopeAndStrictDrainCapabilityDoNotInventGracefulDrain() {
+        Mockito.when(manager.instance.getUuid()).thenReturn("instance");
+        control.setPolicyJson("{\"drainRequired\":true,\"drainSupported\":\"true\"}");
+        JsonObject result=manager.operationControlJson(manager.instance,operation,control);
+        Assert.assertEquals("instance",result.get("instanceUuid").getAsString());Assert.assertFalse(result.get("drainSupported").getAsBoolean());
+        Assert.assertEquals("APPROVED_MAINTENANCE_PLAN_REQUIRED",result.get("maintenanceAlternative").getAsString());
+        control.setPolicyJson("{\"drainRequired\":false,\"drainSupported\":false}");
+        Assert.assertEquals("NONE",manager.operationControlJson(manager.instance,operation,control).get("maintenanceAlternative").getAsString());
+        control.setInstanceId(99L);
+        Assert.assertThrows(InvalidParameterValueException.class,()->manager.operationControlJson(manager.instance,operation,control));
+    }
+
+    @Test public void sourceIncomingAndFloorAreFrozenWithoutAnySecretBodyPersistence() {
+        Mockito.when(manager.instance.getUuid()).thenReturn("instance");
+        Mockito.when(manager.instance.getOperationControlPolicyJson()).thenReturn("{\"schemaVersion\":1,\"instanceUuid\":\"instance\",\"enabled\":true,\"revision\":1}");
+        Mockito.when(controls.findByOperation(11L)).thenReturn(null);Mockito.when(controls.persist(Mockito.any())).thenAnswer(call->call.getArgument(0));
+        org.apache.cloudstack.framework.config.impl.ConfigDepotImpl depot=Mockito.mock(org.apache.cloudstack.framework.config.impl.ConfigDepotImpl.class);
+        Mockito.when(depot.getConfigStringValue(Mockito.eq(StorageServiceInstance.StorageServiceOperationMinimumMemoryAvailableMb.key()),Mockito.eq(org.apache.cloudstack.framework.config.ConfigKey.Scope.Global),Mockito.isNull())).thenReturn("16384");
+        ReflectionTestUtils.setField(org.apache.cloudstack.framework.config.ConfigKey.class,"s_depot",depot);
+        org.apache.cloudstack.api.command.user.storage.dataservice.JoinStorageServiceToAdDomainCmd cmd=new org.apache.cloudstack.api.command.user.storage.dataservice.JoinStorageServiceToAdDomainCmd();
+        ReflectionTestUtils.setField(cmd,"password","SYNTHETIC_NOT_AN_OPERATOR_SECRET");
+        StorageServiceOperationControlVO prepared=manager.startOperationControl(manager.instance,operation,cmd);
+        JsonObject policy=com.google.gson.JsonParser.parseString(prepared.getPolicyJson()).getAsJsonObject();
+        Assert.assertTrue(policy.get("incomingBytes").getAsLong()>0);
+        Assert.assertEquals(16384L<<20,policy.getAsJsonObject("requirements").get("minimumMemoryAvailableBytes").getAsLong());
+        Assert.assertFalse(prepared.getPolicyJson().contains("SYNTHETIC_NOT_AN_OPERATOR_SECRET"));
+        Assert.assertEquals(0,policy.get("renderedBytes").getAsLong());Assert.assertTrue(policy.get("renderedPending").getAsBoolean());
+        Mockito.when(depot.getConfigStringValue(Mockito.eq(StorageServiceInstance.StorageServiceOperationMinimumMemoryAvailableMb.key()),Mockito.eq(org.apache.cloudstack.framework.config.ConfigKey.Scope.Global),Mockito.isNull())).thenReturn("256");
+        Assert.assertEquals(Integer.valueOf(256),StorageServiceInstance.StorageServiceOperationMinimumMemoryAvailableMb.value());
+        Assert.assertEquals(16384L<<20,policy.getAsJsonObject("requirements").get("minimumMemoryAvailableBytes").getAsLong());
+        Mockito.verifyNoInteractions(guest);
+    }
+
+    @Test public void typedReadinessRequiresScopeFreshMetricsAndExactRequest() {
+        JsonObject request=typedRequest(),reply=typedReply(request);
+        try(MockedStatic<Transaction> ignored=transaction()) {checkTyped(request,reply);}
+        JsonObject stored=com.google.gson.JsonParser.parseString(control.getPolicyJson()).getAsJsonObject();
+        Assert.assertEquals("TYPED_READINESS_V1",stored.get("preflightMode").getAsString());
+        Assert.assertEquals(0,stored.getAsJsonObject("observed").get("activeSessions").getAsLong());
+        JsonObject foreign=reply.deepCopy();foreign.getAsJsonObject("scope").addProperty("operationUuid","foreign");
+        Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,()->checkTyped(request,foreign));
+        JsonObject stale=reply.deepCopy();stale.addProperty("generatedEpoch",1);
+        Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,()->checkTyped(request,stale));
+        JsonObject unknown=reply.deepCopy();unknown.getAsJsonObject("observed").addProperty("loadPerCpu",Double.NaN);
+        Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,()->checkTyped(request,unknown));
+        JsonObject legacy=reply.deepCopy();legacy.addProperty("mode","LEGACY_FIXED_FLOORS");
+        Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,()->checkTyped(request,legacy));
+        JsonObject stopped=reply.deepCopy();stopped.getAsJsonObject("observed").getAsJsonObject("protocolHealth").addProperty("NFS","STOPPED_AS_APPROVED");
+        JsonObject nfsRequest=request.deepCopy();nfsRequest.getAsJsonObject("readiness").getAsJsonArray("protocols").add("NFS");
+        try(MockedStatic<Transaction> ignored=transaction()) {Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,()->checkTyped(nfsRequest,stopped));}
+    }
+
+    @Test public void blockedTypedReadinessPersistsOnlyClosedPublicBlockersBeforeRejectingEffects() {
+        JsonObject request=typedRequest(),reply=typedReply(request);reply.addProperty("success",false);reply.addProperty("compatible",false);
+        reply.getAsJsonObject("observed").addProperty("activeSessions",3);
+        reply.getAsJsonArray("blockers").add("ACTIVE_SESSIONS");
+        reply.addProperty("privateBody","SYNTHETIC_PRIVATE_NOT_TO_PERSIST");
+        try(MockedStatic<Transaction> ignored=transaction()) {Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,()->checkTyped(request,reply));}
+        Assert.assertTrue(control.getPolicyJson().contains("ACTIVE_SESSIONS"));
+        Assert.assertFalse(control.getPolicyJson().contains("SYNTHETIC_PRIVATE_NOT_TO_PERSIST"));
+        Mockito.verifyNoInteractions(guest);Mockito.verify(operations,Mockito.never()).update(Mockito.anyLong(),Mockito.any());
+    }
+
+
+    private JsonObject cleanupStatus(boolean active,boolean expired,boolean emptyScope) {
+        JsonObject result=lease();result.addProperty("success",true);result.addProperty("reservationSupported",true);
+        result.addProperty("reservationAcquired",active);result.addProperty("expired",expired);
+        if(emptyScope)result.add("scope",com.google.gson.JsonNull.INSTANCE);return result;
+    }
+    private JsonObject nativeReleaseAck() {
+        JsonObject result=new JsonObject();result.addProperty("success",true);result.addProperty("reservationSupported",true);
+        result.addProperty("reservationAcquired",false);result.add("scope",manager.operationReservationScope(manager.instance,operation));
+        result.addProperty("drainSupported",false);result.addProperty("logicalReservationOnly",true);
+        result.add("blockers",new com.google.gson.JsonArray());com.google.gson.JsonArray features=new com.google.gson.JsonArray();features.add("LOGICAL_RESOURCE_RESERVATION");result.add("supportedFeatures",features);return result;
+    }
+    @Test public void scopedFinalReleaseOccursBeforeCompletionAndSuspendsFurtherRenewals() {
+        Mockito.when(manager.instance.getVmId()).thenReturn(7L);control.setLeaseJson(lease().toString());operation.setResultJson("{\"_response\":\"done\"}");
+        Mockito.when(operations.update(Mockito.anyLong(),Mockito.any())).thenReturn(true);
+        java.util.List<String> calls=new java.util.ArrayList<>();java.util.concurrent.atomic.AtomicBoolean released=new java.util.concurrent.atomic.AtomicBoolean();
+        Mockito.when(guest.dispatch(Mockito.any())).thenAnswer(call->{
+            StorageServiceGuestCommand command=call.getArgument(0);calls.add(command.getOperation());
+            Assert.assertEquals("RUNNING",operation.getState());
+            JsonObject reply;
+            if(command.getOperation().endsWith("release")){released.set(true);reply=nativeReleaseAck();Assert.assertFalse(reply.has("observed"));}
+            else reply=cleanupStatus(!released.get(),false,released.get());
+            return new StorageServiceGuestCommandResult(true,"public",reply.toString());
+        });
+        try(MockedStatic<Transaction> ignored=transaction()) {
+            manager.finalizeOperationResourceReservation(manager.instance,operation);manager.renewOperationResourceReservation(operation);
+        }
+        Assert.assertEquals(List.of("operation reservation status","operation reservation release","operation reservation status"),calls);
+        Assert.assertFalse(com.google.gson.JsonParser.parseString(control.getLeaseJson()).getAsJsonObject().get("reservationAcquired").getAsBoolean());
+        Assert.assertFalse(com.google.gson.JsonParser.parseString(operation.getResultJson()).getAsJsonObject().get("_leaseCleanupPending").getAsBoolean());
+    }
+    @Test public void unknownReleaseIsNotBlindlyResentAndFreshAbsenceCanFinalize() {
+        Mockito.when(manager.instance.getVmId()).thenReturn(7L);control.setLeaseJson(lease().toString());operation.setResultJson("{\"_response\":\"done\"}");
+        Mockito.when(operations.update(Mockito.anyLong(),Mockito.any())).thenReturn(true);
+        java.util.concurrent.atomic.AtomicBoolean lost=new java.util.concurrent.atomic.AtomicBoolean();
+        Mockito.when(guest.dispatch(Mockito.any())).thenAnswer(call->{
+            StorageServiceGuestCommand command=call.getArgument(0);
+            if(command.getOperation().endsWith("release")){lost.set(true);return new StorageServiceGuestCommandResult(false,"unknown",null);}
+            return new StorageServiceGuestCommandResult(true,"public",cleanupStatus(!lost.get(),false,lost.get()).toString());
+        });
+        try(MockedStatic<Transaction> ignored=transaction()) {
+            Assert.assertThrows(RuntimeException.class,()->manager.finalizeOperationResourceReservation(manager.instance,operation));
+            Assert.assertTrue(com.google.gson.JsonParser.parseString(operation.getResultJson()).getAsJsonObject().get("_leaseCleanupPending").getAsBoolean());
+            manager.releaseOperationResourceReservation(manager.instance,operation);
+            operation.setState("RECOVERY_REQUIRED");manager.finalizeOperationResourceReservation(manager.instance,operation);
+        }
+        Mockito.verify(guest,Mockito.times(3)).dispatch(Mockito.any());
+    }
+    @Test public void expiredOwnedLeaseMayCloseButForeignOrMissingWitnessNeverMay() {
+        Mockito.when(manager.instance.getVmId()).thenReturn(7L);control.setLeaseJson(lease().toString());operation.setResultJson("{\"_response\":\"done\"}");
+        Mockito.when(operations.update(Mockito.anyLong(),Mockito.any())).thenReturn(true);
+        JsonObject status=cleanupStatus(false,true,false);
+        Mockito.when(guest.dispatch(Mockito.any())).thenReturn(new StorageServiceGuestCommandResult(true,"public",status.toString()));
+        manager.finalizationWitnessValid=false;
+        Assert.assertThrows(RuntimeException.class,()->manager.finalizeOperationResourceReservation(manager.instance,operation));Mockito.verifyNoInteractions(guest);
+        manager.finalizationWitnessValid=true;status.getAsJsonObject("scope").addProperty("operationUuid","foreign");
+        Mockito.when(guest.dispatch(Mockito.any())).thenReturn(new StorageServiceGuestCommandResult(true,"public",status.toString()));
+        Assert.assertThrows(RuntimeException.class,()->manager.finalizeOperationResourceReservation(manager.instance,operation));
+        status=cleanupStatus(false,true,false);Mockito.when(guest.dispatch(Mockito.any())).thenReturn(new StorageServiceGuestCommandResult(true,"public",status.toString()));
+        try(MockedStatic<Transaction> ignored=transaction()) {manager.finalizeOperationResourceReservation(manager.instance,operation);}
+        Mockito.verify(guest,Mockito.times(2)).dispatch(Mockito.any());
+    }
+    @Test public void cleanupIntentAndReceiptPersistenceFailuresCannotPublishSuccess() {
+        Mockito.when(manager.instance.getVmId()).thenReturn(7L);control.setLeaseJson(lease().toString());operation.setResultJson("{\"_response\":\"done\"}");
+        Mockito.when(operations.update(Mockito.anyLong(),Mockito.any())).thenReturn(false);
+        Assert.assertThrows(RuntimeException.class,()->manager.finalizeOperationResourceReservation(manager.instance,operation));Mockito.verifyNoInteractions(guest);
+        Mockito.when(operations.update(Mockito.anyLong(),Mockito.any())).thenReturn(true);
+        JsonObject absent=cleanupStatus(false,false,true);
+        Mockito.when(guest.dispatch(Mockito.any())).thenReturn(new StorageServiceGuestCommandResult(true,"public",absent.toString()));
+        Mockito.when(controls.update(Mockito.anyLong(),Mockito.any())).thenReturn(false);
+        try(MockedStatic<Transaction> ignored=transaction()) {Assert.assertThrows(RuntimeException.class,()->manager.finalizeOperationResourceReservation(manager.instance,operation));}
+        Assert.assertEquals("RUNNING",operation.getState());
+        Assert.assertTrue(com.google.gson.JsonParser.parseString(operation.getResultJson()).getAsJsonObject().get("_leaseCleanupPending").getAsBoolean());
+    }
+
+    @Test public void readOnlyRecoveryFinalizesCleanupWithoutNativeCommitOrSourceReplay() {
+        Manager recovery=new Manager() {
+            @Override protected JsonObject nativeConfigurationGeneration(StorageServiceInstanceVO value,StorageServiceOperationVO row,String action) {
+                Assert.assertEquals("status",action);return new JsonObject();
+            }
+            @Override protected void requireRollbackNativeWriterIdle(StorageServiceInstanceVO value) { }
+            @Override protected void requireNoPendingVolumeFormatter(StorageServiceInstanceVO value) { }
+            @Override protected void verifyReconciledStorageDesiredState(StorageServiceInstanceVO value) { }
+        };
+        recovery.instance=manager.instance;
+        ReflectionTestUtils.setField(recovery,"storageOperationDao",operations);
+        ReflectionTestUtils.setField(recovery,"storageOperationControlDao",controls);
+        ReflectionTestUtils.setField(recovery,"guestCommandDispatcher",guest);
+        operation.setState("RECOVERY_REQUIRED");operation.setAction("CONFIGURATION_BACKUP_READ_ONLY");
+        operation.setPreviousSnapshotJson("{}");operation.setSnapshotJson("{}");operation.setResultJson("{\"_response\":\"artifact\"}");
+        control.setLeaseJson(lease().toString());Mockito.when(manager.instance.getVmId()).thenReturn(7L);
+        Mockito.when(operations.update(Mockito.anyLong(),Mockito.any())).thenReturn(true);
+        java.util.List<String> calls=new java.util.ArrayList<>();
+        Mockito.when(guest.dispatch(Mockito.any())).thenAnswer(call->{
+            StorageServiceGuestCommand command=call.getArgument(0);calls.add(command.getOperation());
+            String result=command.getOperation().equals("operation verify")?"{\"success\":true,\"status\":\"ok\"}":cleanupStatus(false,false,true).toString();
+            return new StorageServiceGuestCommandResult(true,"public",result);
+        });
+        try(MockedStatic<Transaction> ignored=transaction()) {Assert.assertTrue(recovery.recoverOperationFinalization(manager.instance,operation));}
+        Assert.assertEquals("COMPLETE_NO_CONFIG_CHANGE",operation.getState());
+        Assert.assertEquals(List.of("operation verify","operation reservation status"),calls);
+        Assert.assertEquals(8,operation.getRevision());
+        operation.setState("RECOVERY_REQUIRED");operation.setSnapshotJson(null);operation.setResultJson("{}");
+        control.setLeaseJson(lease().toString());calls.clear();
+        try(MockedStatic<Transaction> ignored=transaction()) {Assert.assertTrue(recovery.recoverOperationFinalization(manager.instance,operation));}
+        Assert.assertEquals("BLOCKED",operation.getState());Assert.assertFalse(operation.getResultJson().contains("_response"));
+        Assert.assertEquals(List.of("operation verify","operation reservation status"),calls);
+        operation.setState("RECOVERY_REQUIRED");operation.setAction("updatestoragenfsexportresponse");
+        operation.setResultJson("{\"_leaseCleanupSource\":true,\"_leaseCleanupTerminal\":\"ROLLED_BACK\",\"_leaseCleanupPending\":true}");
+        control.setLeaseJson(lease().toString());calls.clear();
+        try(MockedStatic<Transaction> ignored=transaction()) {Assert.assertTrue(recovery.recoverOperationFinalization(manager.instance,operation));}
+        Assert.assertEquals("ROLLED_BACK",operation.getState());Assert.assertEquals(List.of("operation verify","operation reservation status"),calls);
+        Mockito.verify(operations,Mockito.never()).persist(Mockito.any());
+    }
+
+    @Test public void committedRenderedTargetUsesDurableProofInsteadOfRenewingAnExpiredLease() {
+        operation.setState("RECOVERY_REQUIRED");operation.setResultJson("{\"_targetResourceBindings\":{},\"_response\":\"done\"}");
+        JsonObject expired=lease();expired.addProperty("leaseExpiresAt",1);control.setLeaseJson(expired.toString());
+        manager.requireCommittedOperationResources(manager.instance,operation);manager.renewOperationResourceReservation(operation);Mockito.verifyNoInteractions(guest);
+        manager.finalizationWitnessValid=false;
+        Assert.assertThrows(RuntimeException.class,()->manager.requireCommittedOperationResources(manager.instance,operation));
+        control.setInstanceId(99);manager.finalizationWitnessValid=true;
+        Assert.assertThrows(RuntimeException.class,()->manager.requireCommittedOperationResources(manager.instance,operation));
+        Mockito.verifyNoInteractions(guest);
+    }
+
+    @Test public void stoppedErrorAndDesiredOnlyBackupsKeepManagementOnlyContract() {
+        Mockito.when(manager.instance.getVmId()).thenReturn(7L);Mockito.when(manager.instance.getUuid()).thenReturn("instance");
+        Mockito.when(manager.instance.getOperationControlPolicyJson()).thenReturn("{\"schemaVersion\":1,\"instanceUuid\":\"instance\",\"enabled\":true,\"revision\":1}");
+        StorageConfigRequest desiredOnly=new StorageConfigRequest() {
+            public org.apache.cloudstack.api.BaseCmd getBaseCmd(){return null;}
+            public String getConfigAction(){return "BACKUP";}
+            public Boolean getIncludeRuntime(){return false;}
+        };
+        Mockito.when(manager.instance.getState()).thenReturn(StorageServiceInstance.State.Running);
+        Assert.assertFalse(manager.managedReadOnlyBackup(manager.instance,desiredOnly));
+        StorageConfigRequest withRuntime=new StorageConfigRequest() {
+            public org.apache.cloudstack.api.BaseCmd getBaseCmd(){return null;}
+            public String getConfigAction(){return "BACKUP";}
+        };
+        for(StorageServiceInstance.State state:List.of(StorageServiceInstance.State.Stopped,StorageServiceInstance.State.Error)) {
+            Mockito.when(manager.instance.getState()).thenReturn(state);Assert.assertFalse(manager.managedReadOnlyBackup(manager.instance,withRuntime));
+        }
+        com.cloud.vm.dao.VMInstanceDao vms=Mockito.mock(com.cloud.vm.dao.VMInstanceDao.class);
+        com.cloud.vm.VMInstanceVO vm=Mockito.mock(com.cloud.vm.VMInstanceVO.class);
+        ReflectionTestUtils.setField(manager,"vmInstanceDao",vms);Mockito.when(vms.findById(7L)).thenReturn(vm);
+        Mockito.when(manager.instance.getState()).thenReturn(StorageServiceInstance.State.Running);
+        Mockito.when(vm.getState()).thenReturn(com.cloud.vm.VirtualMachine.State.Stopped);
+        Assert.assertFalse(manager.managedReadOnlyBackup(manager.instance,withRuntime));
+        Mockito.when(vm.getState()).thenReturn(com.cloud.vm.VirtualMachine.State.Running);
+        Assert.assertTrue(manager.managedReadOnlyBackup(manager.instance,withRuntime));Mockito.verifyNoInteractions(guest);
+    }
+    @Test public void releaseAckWithoutFreshPostStatusMustRemainUnknown() {
+        Mockito.when(manager.instance.getVmId()).thenReturn(7L);control.setLeaseJson(lease().toString());operation.setResultJson("{\"_response\":\"done\"}");
+        Mockito.when(operations.update(Mockito.anyLong(),Mockito.any())).thenReturn(true);
+        JsonObject active=cleanupStatus(true,false,false),ack=nativeReleaseAck();
+        Mockito.when(guest.dispatch(Mockito.any())).thenReturn(new StorageServiceGuestCommandResult(true,"status",active.toString()),
+                new StorageServiceGuestCommandResult(true,"ack",ack.toString()),new StorageServiceGuestCommandResult(false,"unknown",null));
+        try(MockedStatic<Transaction> ignored=transaction()) {Assert.assertThrows(RuntimeException.class,()->manager.finalizeOperationResourceReservation(manager.instance,operation));}
+        Assert.assertTrue(com.google.gson.JsonParser.parseString(operation.getResultJson()).getAsJsonObject().get("_leaseCleanupPending").getAsBoolean());
+        Assert.assertTrue(com.google.gson.JsonParser.parseString(control.getLeaseJson()).getAsJsonObject().get("reservationAcquired").getAsBoolean());
+        Mockito.verify(guest,Mockito.times(3)).dispatch(Mockito.any());
+    }
+
+    @Test public void sourceCleanupUnknownRetainsRecoveryWithoutBlindReleaseAndLeaseRejectionStaysBlocked() {
+        operation.setState("BLOCKED");control.setLeaseJson("{\"reservationAcquired\":false}");manager.finalizationWitnessValid=false;
+        manager.finalizeRestoredSourceResources(manager.instance,operation);Assert.assertEquals("BLOCKED",operation.getState());
+        Mockito.verifyNoInteractions(guest);Mockito.verify(operations,Mockito.never()).update(Mockito.anyLong(),Mockito.any());
+        manager.finalizationWitnessValid=true;Mockito.when(manager.instance.getVmId()).thenReturn(7L);
+        operation.setState("ROLLED_BACK");operation.setResultJson("{\"_response\":\"failed\"}");control.setLeaseJson(lease().toString());
+        Mockito.when(operations.update(Mockito.anyLong(),Mockito.any())).thenReturn(true);
+        JsonObject status=cleanupStatus(true,false,false);
+        Mockito.when(guest.dispatch(Mockito.any())).thenReturn(new StorageServiceGuestCommandResult(true,"status",status.toString()),
+                new StorageServiceGuestCommandResult(false,"unknown",null));
+        try(MockedStatic<Transaction> ignored=transaction()) {Assert.assertThrows(RuntimeException.class,()->manager.finalizeRestoredSourceResources(manager.instance,operation));}
+        Assert.assertEquals("RECOVERY_REQUIRED",operation.getState());
+        JsonObject result=com.google.gson.JsonParser.parseString(operation.getResultJson()).getAsJsonObject();
+        Assert.assertTrue(result.get("_leaseCleanupSource").getAsBoolean());Assert.assertEquals("ROLLED_BACK",result.get("_leaseCleanupTerminal").getAsString());
+        manager.releaseOperationResourceReservation(manager.instance,operation);
+        Mockito.verify(guest,Mockito.times(2)).dispatch(Mockito.any());
+    }
 }
