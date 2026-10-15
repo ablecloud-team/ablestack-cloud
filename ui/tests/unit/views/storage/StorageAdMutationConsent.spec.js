@@ -288,3 +288,70 @@ describe('interactive Create terminal and dispose boundary', () => {
     expect(await pending).toBeNull(); expect(vm.initialAdDisposed).toBe(true); expect(vm.adMutationConsent.resolve).toBeNull()
   })
 })
+
+describe('JOINED writer retry identity after an accepted or uncertain POST', () => {
+  const revisionReceipt = revision => {
+    const value = proof()
+    value.scope.revision = revision
+    return response(value)
+  }
+  const retryContext = () => {
+    const vm = context()
+    vm.$getApiParams = () => ({ ...apiParams(), idempotencykey: {} })
+    return vm
+  }
+  beforeEach(() => {
+    getAPI.mockReset().mockResolvedValue(revisionReceipt(4))
+    postAPI.mockReset().mockResolvedValue({ createstoragesmbshareresponse: { jobid: 'job-a' } })
+  })
+
+  it('reads the same known job without a new approval or POST after the committed revision advances', async () => {
+    const vm = retryContext()
+    vm.$pollJob.mockResolvedValueOnce({ jobstatus: 0, trackingStatus: 'unknown' })
+    expect(await run(vm)).toBe(false)
+    expect(postAPI).toHaveBeenCalledTimes(1)
+    expect(getAPI).toHaveBeenCalledTimes(2)
+    const firstKey = postAPI.mock.calls[0][1].idempotencykey
+    expect(firstKey).toEqual(expect.any(String))
+    getAPI.mockResolvedValue(revisionReceipt(5))
+    expect(await run(vm)).toBe(true)
+    expect(postAPI).toHaveBeenCalledTimes(1)
+    expect(getAPI).toHaveBeenCalledTimes(2)
+    expect(vm.requestAdMutationApproval).toHaveBeenCalledTimes(1)
+    expect(vm.$pollJob.mock.calls[1][0]).toMatchObject({ jobId: 'job-a', retry: true })
+    expect(vm.actionLoading.smbShare).toBe(false)
+  })
+
+  it('retains the user intent key while obtaining fresh AD approval for a POST whose response was lost', async () => {
+    const vm = retryContext()
+    postAPI.mockRejectedValueOnce(new Error('controlled lost POST response'))
+    expect(await run(vm)).toBe(false)
+    const firstKey = postAPI.mock.calls[0][1].idempotencykey
+    expect(firstKey).toEqual(expect.any(String))
+    expect(postAPI.mock.calls[0][1].expectedrevision).toBe(4)
+    getAPI.mockResolvedValue(revisionReceipt(5))
+    expect(await run(vm)).toBe(true)
+    expect(postAPI).toHaveBeenCalledTimes(2)
+    expect(postAPI.mock.calls[1][1]).toMatchObject({ idempotencykey: firstKey, expectedrevision: 5, admaintenancewindow: true, adconfirmation: 'owned-service' })
+    expect(getAPI).toHaveBeenCalledTimes(4)
+    expect(vm.requestAdMutationApproval).toHaveBeenCalledTimes(2)
+    expect(vm.$pollJob).toHaveBeenCalledTimes(1)
+    expect(vm.$notifyError).not.toHaveBeenCalled()
+  })
+  it('keeps an earlier uncertain POST key when fresh AD reapproval is cancelled before another retry', async () => {
+    const vm = retryContext()
+    postAPI.mockRejectedValueOnce(new Error('controlled lost POST response'))
+    expect(await run(vm)).toBe(false)
+    const firstKey = postAPI.mock.calls[0][1].idempotencykey
+    getAPI.mockResolvedValue(revisionReceipt(5))
+    vm.requestAdMutationApproval.mockResolvedValueOnce(null)
+    expect(await run(vm)).toBe(false)
+    expect(postAPI).toHaveBeenCalledTimes(1)
+    getAPI.mockResolvedValue(revisionReceipt(6))
+    expect(await run(vm)).toBe(true)
+    expect(postAPI).toHaveBeenCalledTimes(2)
+    expect(postAPI.mock.calls[1][1]).toMatchObject({ idempotencykey: firstKey, expectedrevision: 6 })
+    expect(vm.requestAdMutationApproval).toHaveBeenCalledTimes(3)
+    expect(getAPI).toHaveBeenCalledTimes(5)
+  })
+})

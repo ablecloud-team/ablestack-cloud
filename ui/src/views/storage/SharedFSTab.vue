@@ -2422,8 +2422,9 @@ const storageMutationIntent = (vm, scope, api, parameters) => {
   const fingerprint = new StorageMutationSha256().update(JSON.stringify(sortedStorageIntent({ scope, api, parameters }))).digest('hex')
   if (!storageMutationIntents.has(vm)) storageMutationIntents.set(vm, new Map())
   const intents = storageMutationIntents.get(vm)
-  if (!intents.has(fingerprint)) intents.set(fingerprint, { key: 'storage-ui-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2), jobId: '' })
-  return { intents, fingerprint, value: intents.get(fingerprint) }
+  const created = !intents.has(fingerprint)
+  if (created) intents.set(fingerprint, { key: 'storage-ui-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2), jobId: '' })
+  return { intents, fingerprint, value: intents.get(fingerprint), created }
 }
 
 const ProtocolHeader = {
@@ -5591,7 +5592,11 @@ export default {
       let intent; let attempted = false; let terminal = false
       this.actionLoading[key] = true
       try {
-        if (joined) {
+        // Retry identity belongs to the original user request. Fresh AD approval
+        // can advance its expected revision without creating another mutation.
+        intent = storageMutationIntent(this, scope, api, parameters)
+        const retry = !!intent?.value.jobId
+        if (joined && !retry) {
           if (!supportsAdMutationApi(api => this.$getApiParams?.(api), api)) throw new Error('AD_MUTATION_API_UNSUPPORTED')
           if (!domain || domain.instanceid !== instance.id || (parameters.instanceid !== undefined && parameters.instanceid !== instance.id)) throw new Error('AD_SERVICE_APPROVAL_REQUIRED')
           const receipt = await readJoinedAdReceipt(instance, domain.domainname)
@@ -5606,9 +5611,8 @@ export default {
           parameters.expectedrevision = fresh.scope.revision
         }
         if (!current()) return false
-        intent = storageMutationIntent(this, scope, api, parameters)
         if (intent) parameters.idempotencykey = intent.value.key
-        let result = {}; const retry = !!intent?.value.jobId
+        let result = {}
         attempted = true
         if (retry) result.jobid = intent.value.jobId
         else {
@@ -5643,7 +5647,7 @@ export default {
         else report(this.$t('message.job.result.unknown'))
         return false
       } finally {
-        if (terminal && intent) intent.intents.delete(intent.fingerprint)
+        if (intent && (terminal || (!attempted && intent.created))) intent.intents.delete(intent.fingerprint)
         // A failed or uncertain writer can still have changed service state. Re-read it
         // before enabling a retry, without letting old work alter another resource.
         if (attempted && current()) {
