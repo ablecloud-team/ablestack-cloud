@@ -1026,4 +1026,182 @@ class StorageSmbSourceCheckpointTest(unittest.TestCase):
                 self.native.replay_auth(changed)
             applied.assert_not_called()
 
+
+    def assert_closed_failure(self,stage,exception):
+        journal=self.native.read(self.native.path(self.request,"journal"))
+        self.assertEqual("RECOVERY_REQUIRED",journal["phase"])
+        self.assertEqual({"failureStage":stage,"exceptionClass":exception},journal["lastFailure"])
+        self.assertEqual(0o600,self.native.path(self.request,"journal").stat().st_mode&0o777)
+        self.assertNotIn("PRIVATE_SENTINEL",json.dumps(journal["lastFailure"]))
+        self.assertEqual(self.raw_before,{name:path.read_bytes()for name,path in self.private.items()})
+        status=self.native.status(self.request)
+        self.assertNotIn("lastFailure",status);self.assertNotIn("exceptionClass",status);self.assertNotIn("failureStage",status)
+
+    def test_resume_source_authority_failure_records_only_closed_stage_and_class(self):
+        plain=self.native.state;calls=[]
+        def state(*args,**kwargs):
+            calls.append(True)
+            if len(calls)==2:raise ValueError("PRIVATE_SENTINEL/source authority")
+            return plain(*args,**kwargs)
+        self.native.state=state
+        with self.assertRaises(ValueError):self.native.export(self.export_request)
+        self.native.state=plain
+        self.assert_closed_failure("RESUME_SOURCE_AUTHORITY","ValueError")
+        self.assertFalse(self.starts)
+
+    def test_resume_stopped_observation_failure_has_precise_private_free_diagnostic(self):
+        plain=self.native.observe
+        def observe(*args,**kwargs):
+            journal=self.native.read(self.native.path(self.request,"journal"))
+            if kwargs.get("stopped") and journal and journal["phase"]=="EXPORTED":
+                raise PermissionError("PRIVATE_SENTINEL/stopped")
+            return plain(*args,**kwargs)
+        self.native.observe=observe
+        with self.assertRaises(PermissionError):self.native.export(self.export_request)
+        self.native.observe=plain
+        self.assert_closed_failure("RESUME_STOPPED_OBSERVE","PermissionError")
+        self.assertFalse(self.starts)
+
+    def test_resume_start_grant_failure_records_timeout_class_without_args(self):
+        import subprocess
+        @contextlib.contextmanager
+        def denied(*args):
+            raise subprocess.TimeoutExpired(["PRIVATE_SENTINEL/command"],10,output=b"PRIVATE_SENTINEL/cipher")
+            yield
+        self.native.start_grant=denied
+        with self.assertRaises(subprocess.TimeoutExpired):self.native.export(self.export_request)
+        self.assert_closed_failure("RESUME_START_GRANT","TimeoutExpired")
+        self.assertFalse(self.starts)
+
+    def test_resume_start_unit_failure_records_stage_and_stop_iteration_class(self):
+        plain=self.handler.run
+        def run(args):
+            if args[:2]==["systemctl","start"]:raise StopIteration("PRIVATE_SENTINEL/start")
+            return plain(args)
+        self.handler.run=run
+        with self.assertRaises(StopIteration):self.native.export(self.export_request)
+        self.handler.run=plain
+        self.assert_closed_failure("RESUME_START_UNIT","StopIteration")
+
+    def test_resume_verify_observation_failure_and_retry_keep_original_closed_failure(self):
+        plain=self.native.observe
+        def observe(*args,**kwargs):
+            journal=self.native.read(self.native.path(self.request,"journal"))
+            if journal and journal["phase"]=="RESUMING":raise ProcessLookupError("PRIVATE_SENTINEL/proc")
+            return plain(*args,**kwargs)
+        self.native.observe=observe
+        with self.assertRaises(ProcessLookupError):self.native.export(self.export_request)
+        self.native.observe=plain
+        self.assert_closed_failure("RESUME_VERIFY_OBSERVE","ProcessLookupError")
+        before=self.native.path(self.request,"cipher").read_bytes()
+        self.assertTrue(self.native.export(self.export_request)["sourceRuntimeVerified"])
+        journal=self.native.read(self.native.path(self.request,"journal"))
+        self.assertEqual("RESUMED",journal["phase"])
+        self.assertEqual("ProcessLookupError",journal["lastFailure"]["exceptionClass"])
+        self.assertEqual(before,self.native.path(self.request,"cipher").read_bytes())
+
+    def test_import_identity_failure_diagnostic_is_closed_and_does_not_expose_custom_class(self):
+        result=self.native.export(self.export_request)
+        class PRIVATE_SENTINEL(Exception):pass
+        self.native.importer=lambda value:(_ for _ in ()).throw(PRIVATE_SENTINEL("PRIVATE_SENTINEL/secret"))
+        with self.assertRaises(PRIVATE_SENTINEL):self.native.import_source(self.imported_request(result))
+        self.assert_closed_failure("IMPORT_IDENTITY_RESTORE","OtherException")
+
+
+class StorageSmbSourceProcExitTest(unittest.TestCase):
+    def setUp(self):
+        import tempfile,types
+        self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup)
+        self.root=Path(self.temp.name);self.proc=self.root/"proc";self.proc.mkdir()
+        self.process=self.proc/"4321";self.process.mkdir();(self.process/"fd").mkdir()
+        (self.process/"comm").write_text("worker\n")
+        (self.process/"cgroup").write_text("0::/system.slice/nmbd.service\n")
+        self.fd=self.process/"fd/5";self.fd.symlink_to(module.IDENTITY_DATABASES["SECRETS"])
+        self.owner=777;self.owner_rows=[{"unit":"nmbd.service","pid":self.owner}]
+        self.handler=types.SimpleNamespace(process_root=self.proc,remaining=lambda *args:10,
+            configuration=self.root/"configuration",identity_holders=lambda:[],
+            database_identity=lambda:{"SECRETS":{"path":module.IDENTITY_DATABASES["SECRETS"],"device":1,"inode":2}},
+            endpoints=lambda:[],run=lambda args:"")
+        self.view={"sessions":{"safeToRebind":True},"identityDatabaseAligned":True,"masters":[],
+            "databases":self.handler.database_identity(),"ownedEndpoints":[],"configurationSha256":"public"}
+        self.handler.inspect=lambda *args,**kwargs:copy.deepcopy(self.view)
+        self.native=module.SmbSourceCheckpoint.__new__(module.SmbSourceCheckpoint)
+        self.native.handler=self.handler;self.native.unit_authority=types.SimpleNamespace(units=lambda **kwargs:copy.deepcopy(self.owner_rows))
+        self.native.reader=lambda *args:(b"public",None)
+        self.handler.socket_rows=lambda raw:[]
+        self.value={"instanceUuid":"i","operationUuid":"o","revision":1,"sourceGeneration":{"revision":1}}
+
+    def observe(self):
+        return module.SmbSourceCheckpoint.observe(self.native,self.value)
+
+    @contextlib.contextmanager
+    def fault(self,where,error):
+        import types
+        plain_read=Path.read_text;plain_iter=Path.iterdir;plain_stat=Path.stat;plain_link=os.readlink
+        selected={"comm":self.process/"comm","cgroup":self.process/"cgroup","fd":self.process/"fd",
+                  "readlink":self.fd,"stat":self.fd}[where]
+        def read(path,*args,**kwargs):
+            if where in ("comm","cgroup") and path==selected:raise error
+            return plain_read(path,*args,**kwargs)
+        def iterate(path,*args,**kwargs):
+            if where=="fd" and path==selected:raise error
+            return plain_iter(path,*args,**kwargs)
+        def link(path,*args,**kwargs):
+            if where=="readlink" and Path(path)==selected:raise error
+            return plain_link(path,*args,**kwargs)
+        def info(path,*args,**kwargs):
+            if path==self.fd:
+                if where=="stat":raise error
+                return types.SimpleNamespace(st_dev=1,st_ino=2)
+            return plain_stat(path,*args,**kwargs)
+        with patch.object(Path,"read_text",read),patch.object(Path,"iterdir",iterate),patch.object(Path,"stat",info),patch.object(os,"readlink",link):
+            yield
+
+    def test_unrelated_exiting_process_esrch_does_not_break_source_observation(self):
+        import errno
+        for where in ("comm","cgroup","fd","readlink","stat"):
+            with self.subTest(where=where),self.fault(where,ProcessLookupError(errno.ESRCH,"private message must not escape")):
+                self.assertEqual("public",self.observe()["configurationSha256"])
+
+    def test_owned_master_exit_is_not_hidden_by_general_scan(self):
+        import errno
+        self.owner_rows[0]["pid"]=int(self.process.name)
+        for where in ("comm","cgroup","fd","readlink","stat"):
+            with self.subTest(where=where),self.fault(where,ProcessLookupError(errno.ESRCH,"owned master exited")):
+                with self.assertRaises(ProcessLookupError):self.observe()
+
+    def test_general_scan_does_not_hide_permission_or_io_errors(self):
+        import errno
+        for code in (errno.EPERM,errno.EACCES,errno.EIO):
+            for where in ("comm","cgroup","fd","readlink","stat"):
+                with self.subTest(code=code,where=where),self.fault(where,OSError(code,"secret")):
+                    with self.assertRaises(OSError):self.observe()
+
+    def test_live_foreign_process_and_private_fd_are_still_rejected(self):
+        with self.fault("comm",ValueError("unexpected fault")):
+            with self.assertRaises(ValueError):self.observe()
+        (self.process/"comm").write_text("smbd\n");(self.process/"cgroup").write_text("0::/foreign.service\n")
+        with self.assertRaisesRegex(ValueError,"unowned identity process"):self.observe()
+        (self.process/"comm").write_text("worker\n")
+        with self.fault("comm",FileNotFoundError()):
+            self.assertEqual("public",self.observe()["configurationSha256"])
+        # A live non-Samba process holding private credentials is also foreign.
+        import types
+        plain=Path.stat
+        def info(path,*args,**kwargs):
+            return types.SimpleNamespace(st_dev=1,st_ino=2) if path==self.fd else plain(path,*args,**kwargs)
+        with patch.object(Path,"stat",info),self.assertRaisesRegex(ValueError,"private FD"):
+            self.observe()
+
+    def test_stopped_global_scan_ignores_only_dead_process_esrch(self):
+        import errno
+        self.owner_rows.clear()
+        for where in ("comm","fd","readlink"):
+            with self.subTest(where=where),self.fault(where,ProcessLookupError(errno.ESRCH,"gone")):
+                self.assertTrue(module.SmbSourceCheckpoint.stopped_observation(self.native)["sessionsVerifiedEmpty"])
+        for code in (errno.EPERM,errno.EIO):
+            with self.subTest(code=code),self.fault("comm",OSError(code,"protected")):
+                with self.assertRaises(OSError):module.SmbSourceCheckpoint.stopped_observation(self.native)
+
+
 if __name__=="__main__":unittest.main()

@@ -28,6 +28,52 @@ LOCAL_SOURCE_KIND="LOCAL_SOURCE_IDENTITY_CHECKPOINT"
 LOCAL_SOURCE_SCOPE={"instanceUuid","operationUuid","revision","localCheckpointUuid"}
 LOCAL_SOURCE_COMMON=LOCAL_SOURCE_SCOPE|{"sourceGeneration","sourceConfigurationSha256","expectedBootId"}
 
+LOCAL_SOURCE_FAILURE_STAGES=frozenset({
+    "EXPORT_SOURCE_AUTHORITY",
+    "EXPORT_RECORD_VALIDATE",
+    "EXPORT_CACHE_OBSERVE",
+    "EXPORT_RETRY_STOP_OBSERVE",
+    "EXPORT_STOP",
+    "EXPORT_STOPPED_OBSERVE",
+    "EXPORT_POSIX_COLLECT",
+    "EXPORT_IDENTITY_COLLECT",
+    "EXPORT_IDENTITY_VALIDATE",
+    "EXPORT_ENCRYPT",
+    "EXPORT_STOPPED_RECHECK",
+    "EXPORT_CHECKPOINT_PUBLISH",
+    "STOP_OBSERVE",
+    "STOP_PIN",
+    "STOP_OWNER_VERIFY",
+    "STOP_INTENT_PUBLISH",
+    "STOP_SIGNAL",
+    "STOP_STABLE_VERIFY",
+    "STOP_TERMINATE",
+    "STOP_UNITS",
+    "STOP_VERIFY",
+    "STOP_COMPLETE_PUBLISH",
+    "RESUME_SOURCE_AUTHORITY",
+    "RESUME_STOPPED_OBSERVE",
+    "RESUME_PRIVATE_VERIFY",
+    "RESUME_PARTIAL_OBSERVE",
+    "RESUME_PARTIAL_AUTHORITY",
+    "RESUME_CONFIG_VERIFY",
+    "RESUME_INTENT_PUBLISH",
+    "RESUME_START_GRANT",
+    "RESUME_START_UNIT",
+    "RESUME_START_GRANT_CLOSE",
+    "RESUME_VERIFY_OBSERVE",
+    "RESUME_VERIFY",
+    "RESUME_COMPLETE_PUBLISH",
+    "IMPORT_SOURCE_AUTHORITY",
+    "IMPORT_CACHE_OBSERVE",
+    "IMPORT_STOP",
+    "IMPORT_STOPPED_OBSERVE",
+    "IMPORT_IDENTITY_RESTORE",
+    "IMPORT_PRIVATE_VERIFY",
+    "IMPORT_CHECKPOINT_PUBLISH",
+    "IMPORT_CONFIG_RESTORE",
+})
+
 class SmbSourceCheckpoint:
     def __init__(self,cli=None,handler=None,command=None,root=None):
         self.handler=handler or SmbIdentity(cli);self.cli=self.handler.cli
@@ -42,6 +88,7 @@ class SmbSourceCheckpoint:
         self.boot=lambda:Path("/proc/sys/kernel/random/boot_id").read_text().strip()
         self.lock=lambda:PendingNfsAuthorization.lock(None,os.getpid())
         self.start_grant=self.pending_start_grant
+        self._failure_stage=None
         self.runtime_root=Path('/opt/ablestack/storage-runtime')
         self.installation_root=Path('/var/lib/ablestack-storage/runtime-updates')
 
@@ -167,6 +214,19 @@ class SmbSourceCheckpoint:
             'loadedScript':{'path':target,'device':meta.st_dev,'inode':meta.st_ino,'sha256':digest,
                 'manifestSha256':hashlib.sha256(manifest_raw).hexdigest(),'endpointBodySha256':hashlib.sha256(body.encode()).hexdigest(),
                 'verifiedInstallation':installed}}
+    def record_failure(self,scope,journal,error):
+        # Journal only a closed internal stage and standard exception class.
+        # Never stringify the exception: messages/args can contain credentials.
+        classes={ValueError:"ValueError",KeyError:"KeyError",TypeError:"TypeError",
+            IndexError:"IndexError",StopIteration:"StopIteration",RuntimeError:"RuntimeError",
+            FileNotFoundError:"FileNotFoundError",ProcessLookupError:"ProcessLookupError",
+            PermissionError:"PermissionError",TimeoutError:"TimeoutError",OSError:"OSError",
+            subprocess.TimeoutExpired:"TimeoutExpired"}
+        stage=getattr(self,"_failure_stage",None)
+        journal["lastFailure"]={"failureStage":stage if stage in LOCAL_SOURCE_FAILURE_STAGES else "UNKNOWN",
+            "exceptionClass":classes.get(type(error),"OtherException")}
+        journal["phase"]="RECOVERY_REQUIRED";self.write(scope,"journal",journal)
+
     def pending_start_grant(self,scope,unit):
         owner=self
         class NativeStatus:
@@ -302,8 +362,8 @@ class SmbSourceCheckpoint:
                     try:
                         target=os.readlink(fd);canonical=target[:-10]if target.endswith(" (deleted)")else target
                         if canonical in IDENTITY_DATABASES.values():raise ValueError("LOCAL stopped source has a private FD")
-                    except FileNotFoundError:continue
-            except FileNotFoundError:continue
+                    except (FileNotFoundError,ProcessLookupError):continue
+            except (FileNotFoundError,ProcessLookupError):continue
         path=self.handler.configuration/"desired-state/smb-share-apply.json"
         endpoints=self.handler.endpoints()if os.path.lexists(path)else []
         ports={row["port"]for row in endpoints}|{139,445}
@@ -364,6 +424,7 @@ class SmbSourceCheckpoint:
             master=next((item for item in masters if item["pid"]==row["pid"]),None)
             row["lockingDatabasesAligned"]=master["lockingDatabasesAligned"]if master else True
         allowed={row["unit"]for row in units}
+        exact_pids={row["pid"]for row in units}|{row["managedLauncher"]["pid"]for row in units if row.get("managedLauncher")}
         holders=self.handler.identity_holders()
         for process in self.handler.process_root.iterdir():
             self.handler.remaining()
@@ -381,7 +442,12 @@ class SmbSourceCheckpoint:
                                 or (opened.st_dev,opened.st_ino)!=(row["device"],row["inode"])):
                             raise ValueError("LOCAL source private FD is foreign/stale")
                     except FileNotFoundError:continue
-            except FileNotFoundError:continue
+                    except ProcessLookupError:
+                        if int(process.name)in exact_pids:raise
+                        continue
+            except (FileNotFoundError,ProcessLookupError):
+                if int(process.name)in exact_pids:raise
+                continue
         sockets=self.handler.socket_rows(self.handler.run(["ss","-H","-ltnp"]))
         wanted={row["port"]for row in view["ownedEndpoints"]}|{139,445};pids={row["pid"]for row in units if row["unit"]!="nmbd.service"}
         if any(row["port"]in wanted and(row["state"]!="LISTEN"or not row["pids"]or not set(row["pids"])<=pids)for row in sockets):
@@ -619,6 +685,7 @@ class SmbSourceCheckpoint:
         return journal
 
     def stop(self,value,journal,rollback=False):
+        self._failure_stage="STOP_OBSERVE"
         scope=journal["scope"]
         retry=not rollback and journal["phase"]in("QUIESCING","RECOVERY_REQUIRED")
         if retry:
@@ -648,8 +715,10 @@ class SmbSourceCheckpoint:
             before=self.observe(value)
             if not rollback and journal["prior"]!=before:raise ValueError("LOCAL source prior ownership changed")
         pinned=before['units']+[row['managedLauncher']for row in before['units']if row.get('managedLauncher')]
+        self._failure_stage="STOP_PIN"
         handles=self.handler.open_master_handles(pinned)
         try:
+            self._failure_stage="STOP_OWNER_VERIFY"
             fresh={row["unit"]:row for row in self.unit_authority.units(require_master=False)}
             for row in before["units"]:
                 if row["unit"]in ("smbd.service","nmbd.service"):
@@ -663,7 +732,9 @@ class SmbSourceCheckpoint:
                         raise ValueError("LOCAL managed master changed after pidfd pin")
                     if self.launcher_authority(row['unit'],row)!=row.get('managedLauncher'):
                         raise ValueError('LOCAL managed launcher changed after pidfd pin')
+            self._failure_stage="STOP_INTENT_PUBLISH"
             journal["phase"]="QUIESCING";self.write(scope,"journal",journal)
+            self._failure_stage="STOP_SIGNAL"
             for row in before["units"]:
                 if row['unit']not in ('smbd.service','nmbd.service')and self.launcher_authority(row['unit'],row)!=row.get('managedLauncher'):
                     raise ValueError('LOCAL managed launcher changed before signalling')
@@ -671,15 +742,20 @@ class SmbSourceCheckpoint:
             # Do not call inspect here: its TCP readiness probe would create a
             # connection after SIGSTOP. Recheck source descriptors and sessions
             # directly while the exact acceptors cannot accept application I/O.
+            self._failure_stage="STOP_STABLE_VERIFY"
             if (self.handler.database_identity()!=before["databases"]
                     or hashlib.sha256(self.reader("/etc/samba/smb.conf")[0]).hexdigest()!=before["configurationSha256"]
                     or self.handler.sessions(before["ownedEndpoints"],before["units"])["safeToRebind"]is not True):
                 raise ValueError("LOCAL source changed after exact PID pin")
+            self._failure_stage="STOP_TERMINATE"
             for row in before["units"]:
                 signal.pidfd_send_signal(handles[row["pid"]],signal.SIGTERM,None,0)
                 signal.pidfd_send_signal(handles[row["pid"]],signal.SIGCONT,None,0)
+            self._failure_stage="STOP_UNITS"
             for unit in sorted({row["unit"]for row in before["units"]}):self.handler.run(["systemctl","stop",unit])
+            self._failure_stage="STOP_VERIFY"
             after=self.observe(value,stopped=True);journal["phase"]="STOPPED";journal["stopped"]=after
+            self._failure_stage="STOP_COMPLETE_PUBLISH"
             self.write(scope,"journal",journal);return after
         except Exception:
             journal["phase"]="RECOVERY_REQUIRED";self.write(scope,"journal",journal);raise
@@ -687,27 +763,41 @@ class SmbSourceCheckpoint:
             for fd in handles.values():os.close(fd)
 
     def resume(self,value,journal,record):
+        self._failure_stage="RESUME_SOURCE_AUTHORITY"
         scope=journal["scope"];self.state(value,recovery=journal.get("imported")is True)
         active=set()
         if journal["phase"] in ("EXPORTED","STOPPED"):
-            self.observe(value,stopped=True);self.match_private(record)
+            self._failure_stage="RESUME_STOPPED_OBSERVE"
+            self.observe(value,stopped=True)
+            self._failure_stage="RESUME_PRIVATE_VERIFY"
+            self.match_private(record)
         elif journal["phase"] in ("RESUMING","RECOVERY_REQUIRED"):
+            self._failure_stage="RESUME_PARTIAL_OBSERVE"
             current=self.observe(value,allow_missing=True,require_empty=False)
+            self._failure_stage="RESUME_PARTIAL_AUTHORITY"
             if not {row["unit"]for row in current["units"]}<={row["unit"]for row in journal["prior"]["units"]}:
                 raise ValueError("LOCAL partial resume has a foreign unit")
             active={row["unit"]for row in current["units"]}
             if active!={row["unit"]for row in journal["prior"]["units"]}and current["sessionsVerifiedEmpty"]is not True:
                 raise ValueError("LOCAL partial source resume requires empty sessions")
         else:raise ValueError("LOCAL source has no resume intent")
+        self._failure_stage="RESUME_CONFIG_VERIFY"
         if hashlib.sha256(self.reader("/etc/samba/smb.conf")[0]).hexdigest()!=record["sourceConfigurationFileSha256"]:
             raise ValueError("LOCAL resume SOURCE configuration changed")
+        self._failure_stage="RESUME_INTENT_PUBLISH"
         journal["phase"]="RESUMING";self.write(scope,"journal",journal)
         for row in journal["prior"]["units"]:
             if row["unit"]in active:continue
-            with self.start_grant(scope,row["unit"]):self.handler.run(["systemctl","start",row["unit"]])
+            self._failure_stage="RESUME_START_GRANT"
+            with self.start_grant(scope,row["unit"]):
+                self._failure_stage="RESUME_START_UNIT"
+                self.handler.run(["systemctl","start",row["unit"]])
+                self._failure_stage="RESUME_START_GRANT_CLOSE"
         deadline=time.monotonic()+self.handler.remaining(30)
         while True:
+            self._failure_stage="RESUME_VERIFY_OBSERVE"
             actual=self.observe(value,allow_missing=True,require_empty=False)
+            self._failure_stage="RESUME_VERIFY"
             if ({row["unit"]for row in actual["units"]}=={row["unit"]for row in journal["prior"]["units"]}
                     and actual["databases"]==record["stoppedDatabases"]
                     and actual["configurationSha256"]==record["sourceConfigurationFileSha256"]
@@ -715,6 +805,7 @@ class SmbSourceCheckpoint:
                          or all(row.get("tcpReady")for row in actual["ownedEndpoints"]))):break
             if time.monotonic()>=deadline:raise ValueError("LOCAL source owned resume did not verify")
             time.sleep(.1)
+        self._failure_stage="RESUME_COMPLETE_PUBLISH"
         journal["phase"]="RESUMED";self.write(scope,"journal",journal);return actual
 
     def match_private(self,record):
@@ -750,6 +841,7 @@ class SmbSourceCheckpoint:
         return record
 
     def export(self,value):
+        self._failure_stage="EXPORT_SOURCE_AUTHORITY"
         scope=self.request(value,"export-local-source");source=self.state(value)
         from cryptography.hazmat.primitives import serialization
         from cryptography.hazmat.primitives.asymmetric import rsa
@@ -774,10 +866,12 @@ class SmbSourceCheckpoint:
         if any(journal[key]!=value[key]for key in ("publicKey","names","nvmeHosts","authReplayDomains")):
             raise ValueError("LOCAL source retry key/collection changed")
         try:
+            self._failure_stage="EXPORT_RECORD_VALIDATE"
             if record is not None:
                 self.validate_record(value,record)
                 if record["publicKey"]!=value["publicKey"]:raise ValueError("LOCAL source cached wrapping key changed")
                 if journal["phase"]=="RESUMED":
+                    self._failure_stage="EXPORT_CACHE_OBSERVE"
                     actual=self.observe(value,require_empty=False)
                     if ({row["unit"]for row in actual["units"]}!={row["unit"]for row in journal["prior"]["units"]}
                             or actual["configurationSha256"]!=record["sourceConfigurationFileSha256"]
@@ -786,8 +880,10 @@ class SmbSourceCheckpoint:
                         raise ValueError("LOCAL source resumed cache ownership changed")
                     return self.result(record,journal)
                 self.resume(value,journal,record);return self.result(record,journal)
+            self._failure_stage="EXPORT_STOP"
             if journal["phase"]not in("STOPPED","EXPORTED"):
                 if journal["phase"]in("QUIESCING","RECOVERY_REQUIRED"):
+                    self._failure_stage="EXPORT_RETRY_STOP_OBSERVE"
                     try:stopped=self.stopped_observation()
                     except ValueError:stopped=None
                     if stopped is not None:
@@ -797,25 +893,32 @@ class SmbSourceCheckpoint:
                         journal["phase"]="STOPPED";journal["stopped"]=stopped;self.write(scope,"journal",journal)
                     else:self.stop(value,journal)
                 else:self.stop(value,journal)
+            self._failure_stage="EXPORT_STOPPED_OBSERVE"
             stopped=self.stopped_observation()
+            self._failure_stage="EXPORT_POSIX_COLLECT"
             records=self.posix_collector(journal["sourceDesiredState"]["posix-directory-policies.json"],value["instanceUuid"])
+            self._failure_stage="EXPORT_IDENTITY_COLLECT"
             payload=self.collector(names,hosts,posix_policies=records)
+            self._failure_stage="EXPORT_IDENTITY_VALIDATE"
             payload["sourceConfigurationSha256"]=value["sourceConfigurationSha256"];self.validator(payload)
             if payload.get("adIdentity")is not None:raise ValueError("LOCAL opaque capture cannot include AD")
             wrapper={"schemaVersion":1,"kind":LOCAL_SOURCE_KIND,"scope":scope,"sourceGeneration":value["sourceGeneration"],
                 "sourceConfigurationSha256":value["sourceConfigurationSha256"],"bootId":value["expectedBootId"],"identity":payload}
+            self._failure_stage="EXPORT_ENCRYPT"
             capsule=self.encryptor(wrapper,value["publicKey"],scope["instanceUuid"]+":"+scope["operationUuid"])
+            self._failure_stage="EXPORT_STOPPED_RECHECK"
             if self.stopped_observation()!=stopped:raise ValueError("LOCAL source changed during opaque collection")
             record={"schemaVersion":1,"kind":LOCAL_SOURCE_KIND,"scope":scope,"common":self.common(value),"publicKey":value["publicKey"],
                 "capsule":capsule,"stoppedDatabases":stopped["databases"],"sourceConfigurationFileSha256":stopped["configurationSha256"],
                 "authReplayDomains":value["authReplayDomains"],
                 "sourceDesiredState":journal["sourceDesiredState"],
                 "privateFingerprints":{path:row["sha256"]for path,row in payload["files"].items()if row.get("absent")is not True}}
+            self._failure_stage="EXPORT_CHECKPOINT_PUBLISH"
             self.match_private(record);self.write(scope,"cipher",record,immutable=True)
             journal["phase"]="EXPORTED";self.write(scope,"journal",journal)
             self.resume(value,journal,record);return self.result(record,journal)
-        except Exception:
-            journal["phase"]="RECOVERY_REQUIRED";self.write(scope,"journal",journal);raise
+        except Exception as error:
+            self.record_failure(scope,journal,error);raise
 
     def decode(self,value,record):
         self.validate_record(value,record)
@@ -940,6 +1043,7 @@ class SmbSourceCheckpoint:
             os.close(directory)
 
     def import_source(self,value):
+        self._failure_stage="IMPORT_SOURCE_AUTHORITY"
         scope=self.request(value,"import-local-source");self.state(value,recovery=True)
         journal=self.frozen(value,self.read(self.path(scope,"journal"))or {})
         record=self.read(self.path(scope,"cipher"))
@@ -950,6 +1054,7 @@ class SmbSourceCheckpoint:
                 raise ValueError("LOCAL refuses to erase an unproven new SAM/database")
         try:
             if journal.get("imported")is True and journal["phase"]=="RESUMED":
+                self._failure_stage="IMPORT_CACHE_OBSERVE"
                 actual=self.observe(value,require_empty=False)
                 if (actual["configurationSha256"]!=record["sourceConfigurationFileSha256"]
                         or actual["databases"]!=journal.get("importedStoppedDatabases")
@@ -957,25 +1062,31 @@ class SmbSourceCheckpoint:
                     raise ValueError("LOCAL imported resume changed")
                 return self.result(record,journal,imported=True)
             if journal.get("imported")is not True:
+                self._failure_stage="IMPORT_STOP"
                 if journal["phase"]!="STOPPED":self.stop(value,journal,rollback=True)
+                self._failure_stage="IMPORT_STOPPED_OBSERVE"
                 self.stopped_observation()
                 file_payload=dict(payload);file_payload.pop("posixPolicies",None);file_payload.pop("sourceConfigurationSha256",None)
+                self._failure_stage="IMPORT_IDENTITY_RESTORE"
                 self.importer(file_payload)
                 selected=select_restore_domains(file_payload,["SMB"])
                 restored={"privateFingerprints":{path:row["sha256"]for path,row in selected["files"].items()if row.get("absent")is not True}}
+                self._failure_stage="IMPORT_PRIVATE_VERIFY"
                 self.match_private(restored)
                 journal["imported"]=True;journal["phase"]="STOPPED"
                 journal["importedStoppedDatabases"]=self.stopped_observation()["databases"]
                 journal["importedFingerprints"]=restored["privateFingerprints"]
                 journal["importedCheckpointSha256"]=service_cipher_digest(record)
+                self._failure_stage="IMPORT_CHECKPOINT_PUBLISH"
                 self.write(scope,"journal",journal)
             if not isinstance(journal.get("importedStoppedDatabases"),dict)or not isinstance(journal.get("importedFingerprints"),dict):
                 raise ValueError("LOCAL restored descriptor authority is absent")
             resume_record={**record,"stoppedDatabases":journal["importedStoppedDatabases"],"privateFingerprints":journal["importedFingerprints"]}
+            self._failure_stage="IMPORT_CONFIG_RESTORE"
             self.restore_source_smb_configuration(value,journal,record)
             self.resume(value,journal,resume_record);return self.result(record,journal,imported=True)
-        except Exception:
-            journal["phase"]="RECOVERY_REQUIRED";self.write(scope,"journal",journal);raise
+        except Exception as error:
+            self.record_failure(scope,journal,error);raise
 
     def status(self,value):
         scope=self.request(value,"local-source-status");actual=self.state(value,source_only=False,terminal=True,recovery=True)
