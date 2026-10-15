@@ -113,7 +113,7 @@ export const pollJobPlugin = {
         }
         safe(() => eventBus.emit('update-job-details', { jobId, resourceId: options.resourceId }))
         const samePage = normalizePath(router.currentRoute.value.path) === originalPage
-        if (samePage && (options.retry || !action || !('isFetchData' in action) || action.isFetchData)) {
+        if (samePage && options.refreshOnComplete !== false && (options.retry || !action || !('isFetchData' in action) || action.isFetchData)) {
           safe(() => eventBus.emit('async-job-complete', action))
         }
       }
