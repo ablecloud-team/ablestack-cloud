@@ -81,6 +81,141 @@ class StorageSmbSourceCheckpointTest(unittest.TestCase):
         return {**self.request,"capsule":result["capsule"],"credentialPrivateKey":self.pem(self.newkey),
             "localSourceCheckpointReference":result["localSourceCheckpointReference"],"deferNvmeReplay":True,"restoreDomains":["SMB"]}
 
+    def configured_generated_smb_source(self):
+        import native_renderers
+        import shutil
+        source={"instanceUuid":self.scope["instanceUuid"],"netbiosName":"FIXTURESOURCE","enabled":True,
+            "listeners":[{"listenIp":"10.10.13.243","port":445}],
+            "shares":[{"uuid":str(uuid.uuid4()),"name":"fixture-share","path":"/export/fixture-share","state":"Ready",
+                "config":{"backingPath":"/srv/ablestack-storage/volumes/"+str(uuid.uuid4())+"/export/fixture-share"},
+                "acls":[{"principalType":"LOCAL_USER","principal":"fixture_user","permission":"READ_WRITE","state":"Ready"}]}]}
+        self.desired["desired-state/smb-share-apply.json"]=source
+        self.gen.replace_desired(self.desired);self.current["configurationSha256"]=self.gen.digest()
+        generation.atomic_json(self.gen.current,self.current)
+        generation.atomic_json(self.gen.root/(self.current["operationUuid"]+".json"),{**self.current,"phase":"VERIFIED","desired":self.desired})
+        generation.atomic_json(self.gen.pending,{**self.scope,"phase":"PREPARED","previous":self.current,"beforeSha256":self.current["configurationSha256"]})
+        self.request.update(sourceGeneration=self.current,sourceConfigurationSha256=self.current["configurationSha256"])
+        self.export_request.update(self.request)
+        config=self.root/"samba"/"smb.conf";config.parent.mkdir(mode=0o700)
+        expected=native_renderers.render_smb_candidate(source,self.native.cli)["smb/smb.conf"].encode()
+        config.write_bytes(expected);config.chmod(0o644)
+        original=self.read
+        def mapped(path,*args):
+            return capsule.regular_file(config,*args) if str(path)=="/etc/samba/smb.conf" else original(path)
+        self.read=mapped;self.native.reader=mapped
+        runtime=self.root/"runtime";release=runtime/"releases"/"fixture";release.mkdir(parents=True)
+        cli=release/"ablestack-storagectl";shutil.copyfile(self.native.cli,cli);cli.chmod(0o755)
+        (runtime/"current").symlink_to(release,target_is_directory=True)
+        self.native.cli=cli;self.native.runtime_root=runtime
+        self.code_authority_checks=[]
+        def signed(path,checksum):
+            self.assertEqual(cli,path);raw=cli.read_bytes();self.assertEqual(hashlib.sha256(raw).hexdigest(),checksum)
+            self.code_authority_checks.append(checksum);return raw
+        self.native.compat_entry=signed
+        self.config_path_patch=patch.object(module,"LOCAL_SOURCE_SMB_CONFIG",config,create=True)
+        self.config_path_patch.start();self.addCleanup(self.config_path_patch.stop)
+        return config,expected
+
+    def test_generated_source_config_is_restored_while_stopped_before_import_resume(self):
+        config,expected=self.configured_generated_smb_source()
+        captured=self.native.export(self.export_request)
+        for path in self.private.values():path.write_bytes(b"SYNTHETIC TARGET MUTATION")
+        config.write_bytes(b"PUBLIC TARGET CONFIG WITH NEW SHARE")
+        observed=self.native.import_source(self.imported_request(captured))
+        self.assertTrue(observed["sourceIdentityRestored"]);self.assertTrue(observed["sourceRuntimeVerified"])
+        self.assertEqual(expected,config.read_bytes());self.assertEqual(0o644,config.stat().st_mode&0o777)
+        self.assertEqual(self.raw_before,{name:path.read_bytes()for name,path in self.private.items()})
+        self.assertEqual(self.current["configurationSha256"],self.gen.digest())
+        self.assertTrue(self.code_authority_checks)
+        journal=self.native.read(self.native.path(self.request,"journal"))
+        self.assertEqual("RESUMED",journal["phase"])
+        self.assertEqual("VERIFIED",journal["sourceConfigurationRestoreStage"])
+        counts=(len(self.signals),len(self.starts),len(self.code_authority_checks))
+        self.assertTrue(self.native.import_source(self.imported_request(captured))["sourceIdentityRestored"])
+        self.assertEqual(counts,(len(self.signals),len(self.starts),len(self.code_authority_checks)))
+
+    def test_generated_source_candidate_hash_mismatch_preserves_target_and_stopped_identity(self):
+        config,expected=self.configured_generated_smb_source()
+        config.write_bytes(expected+b"# PUBLIC UNREPRODUCIBLE SOURCE COMMENT"+bytes([10]))
+        captured=self.native.export(self.export_request);target=b"PUBLIC TARGET CONFIG"
+        config.write_bytes(target)
+        with self.assertRaisesRegex(ValueError,"original hash"):
+            self.native.import_source(self.imported_request(captured))
+        self.assertEqual(target,config.read_bytes());self.assertFalse(self.active_units)
+        journal=self.native.read(self.native.path(self.request,"journal"))
+        self.assertTrue(journal["imported"]);self.assertEqual("RECOVERY_REQUIRED",journal["phase"])
+        self.assertEqual("CANDIDATE_HASH",journal["sourceConfigurationRestoreStage"])
+        self.assertEqual(self.raw_before,{name:path.read_bytes()for name,path in self.private.items()})
+
+    def test_generated_source_testparm_failure_never_publishes_or_starts(self):
+        config,expected=self.configured_generated_smb_source();captured=self.native.export(self.export_request)
+        target=b"PUBLIC TARGET CONFIG";config.write_bytes(target);original=self.handler.run
+        def reject(args):
+            if args[:2]==["testparm","-s"]:raise ValueError("fixture validator unavailable")
+            return original(args)
+        self.handler.run=reject
+        with self.assertRaisesRegex(ValueError,"configuration validation failed"):
+            self.native.import_source(self.imported_request(captured))
+        self.assertEqual(target,config.read_bytes());self.assertFalse(self.active_units)
+        self.assertEqual(["smb.conf"],sorted(p.name for p in config.parent.iterdir()))
+        journal=self.native.read(self.native.path(self.request,"journal"))
+        self.assertEqual("TESTPARM",journal["sourceConfigurationRestoreStage"])
+
+    def test_generated_source_requires_original_signed_renderer_authority(self):
+        config,expected=self.configured_generated_smb_source();captured=self.native.export(self.export_request)
+        target=b"PUBLIC TARGET CONFIG";config.write_bytes(target)
+        self.native.compat_entry=lambda *args:(_ for _ in ()).throw(ValueError("fixture signed code rejected"))
+        with self.assertRaisesRegex(ValueError,"signed code rejected"):
+            self.native.import_source(self.imported_request(captured))
+        self.assertEqual(target,config.read_bytes());self.assertFalse(self.active_units)
+
+    def test_generated_source_rejects_imported_stopped_inode_replacement(self):
+        config,expected=self.configured_generated_smb_source();captured=self.native.export(self.export_request)
+        target=b"PUBLIC TARGET CONFIG";config.write_bytes(target);original=self.native.restore_source_smb_configuration
+        def changed(value,journal,record):
+            path=self.private["PASSDB"];replacement=path.with_suffix(".foreign")
+            replacement.write_bytes(path.read_bytes());replacement.chmod(0o600);os.replace(replacement,path)
+            return original(value,journal,record)
+        self.native.restore_source_smb_configuration=changed
+        with self.assertRaisesRegex(ValueError,"stopped metadata changed"):
+            self.native.import_source(self.imported_request(captured))
+        self.assertEqual(target,config.read_bytes());self.assertFalse(self.active_units)
+
+    def test_generated_source_rejects_imported_private_byte_drift(self):
+        config,expected=self.configured_generated_smb_source();captured=self.native.export(self.export_request)
+        target=b"PUBLIC TARGET CONFIG";config.write_bytes(target);original=self.native.restore_source_smb_configuration
+        def changed(value,journal,record):
+            self.private["PASSDB"].write_bytes(b"SYNTHETIC FOREIGN PRIVATE BYTES")
+            return original(value,journal,record)
+        self.native.restore_source_smb_configuration=changed
+        with self.assertRaisesRegex(ValueError,"opaque source bytes changed"):
+            self.native.import_source(self.imported_request(captured))
+        self.assertEqual(target,config.read_bytes());self.assertFalse(self.active_units)
+
+    def test_generated_source_rejects_live_acceptor_before_configuration_write(self):
+        config,expected=self.configured_generated_smb_source();captured=self.native.export(self.export_request)
+        target=b"PUBLIC TARGET CONFIG";config.write_bytes(target);original=self.native.restore_source_smb_configuration
+        def changed(value,journal,record):
+            self.active_units.add("smbd.service")
+            return original(value,journal,record)
+        self.native.restore_source_smb_configuration=changed
+        with self.assertRaisesRegex(ValueError,"still owns active"):
+            self.native.import_source(self.imported_request(captured))
+        self.assertEqual(target,config.read_bytes());self.assertFalse(self.code_authority_checks)
+
+    def test_generated_source_rejects_foreign_canonical_state_before_render(self):
+        config,expected=self.configured_generated_smb_source();captured=self.native.export(self.export_request)
+        target=b"PUBLIC TARGET CONFIG";config.write_bytes(target);original=self.native.restore_source_smb_configuration
+        def changed(value,journal,record):
+            foreign=copy.deepcopy(self.desired);foreign["desired-state/smb-share-apply.json"]["shares"][0]["name"]="foreign"
+            self.gen.replace_desired(foreign)
+            return original(value,journal,record)
+        self.native.restore_source_smb_configuration=changed
+        with self.assertRaisesRegex(ValueError,"canonical seven changed"):
+            self.native.import_source(self.imported_request(captured))
+        self.assertEqual(target,config.read_bytes());self.assertFalse(self.active_units)
+        self.assertFalse(self.code_authority_checks)
+
     def test_real_crypto_two_namespace_opaque_snapshot_and_no_current_contract_change(self):
         result=self.native.export(self.export_request)
         self.assertTrue(result["sourceSmbResumed"])

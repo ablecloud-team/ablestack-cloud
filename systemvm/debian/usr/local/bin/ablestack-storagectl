@@ -14849,6 +14849,7 @@ class PendingNfsAuthorization:
 """Stopped LOCAL source checkpoints; preserve opaque DBs and prior active SMB units."""
 import hashlib,json,os,re,signal,stat,subprocess,tempfile,time,uuid
 from pathlib import Path
+LOCAL_SOURCE_SMB_CONFIG=Path("/etc/samba/smb.conf")
 LOCAL_SOURCE_KIND="LOCAL_SOURCE_IDENTITY_CHECKPOINT"
 LOCAL_SOURCE_SCOPE={"instanceUuid","operationUuid","revision","localCheckpointUuid"}
 LOCAL_SOURCE_COMMON=LOCAL_SOURCE_SCOPE|{"sourceGeneration","sourceConfigurationSha256","expectedBootId"}
@@ -15654,6 +15655,112 @@ class SmbSourceCheckpoint:
                 or wrapper["bootId"]!=value["expectedBootId"]):raise ValueError("LOCAL authenticated wrapper is foreign")
         self.validator(wrapper["identity"]);return wrapper["identity"]
 
+    def signed_source_smb_candidate(self,payload,journal):
+        """Reuse only the fixed pure SMB renderer from the installed signed ENTRY."""
+        import ast,ipaddress,zlib
+        if (not isinstance(payload,dict)or payload.get("instanceUuid")!=journal["scope"]["instanceUuid"]
+                or (payload.get("identityDomain")or {}).get("joinState")=="JOINED"):
+            raise ValueError("LOCAL SOURCE SMB render scope is invalid")
+        current=self.cli.resolve(strict=True)
+        if current!=(self.runtime_root/"current"/"ablestack-storagectl").resolve(strict=True):
+            raise ValueError("LOCAL SOURCE SMB renderer ENTRY is not installed")
+        raw=self.compat_entry(current,journal["cliSha256"])
+        if hashlib.sha256(raw).hexdigest()!=journal["cliSha256"]:
+            raise ValueError("LOCAL SOURCE SMB renderer code pin changed")
+        opener="<<'PYRENDEREDGENERATION'"+chr(10);closer=chr(10)+"PYRENDEREDGENERATION"+chr(10)
+        text=raw.decode()
+        if text.count(opener)!=1 or text.count(closer)!=1:
+            raise ValueError("LOCAL SOURCE SMB renderer closure is unavailable")
+        body=text.split(opener,1)[1].split(closer,1)[0];tree=ast.parse(body)
+        functions={"ad_authority_read","ad_qualified_name","ad_policy_lines","protected_ad_policy",
+            "semantic_forced_alias","fixed_render_helpers","render_smb_candidate"}
+        constants={"SMB_HELPERS","SEMANTIC_ALIAS_ROW"}
+        selected=[node for node in tree.body if isinstance(node,ast.FunctionDef)and node.name in functions]
+        if len(selected)!=len(functions)or {node.name for node in selected}!=functions:
+            raise ValueError("LOCAL SOURCE SMB renderer definitions differ")
+        namespace={"ast":ast,"hashlib":hashlib,"ipaddress":ipaddress,"json":json,"os":os,
+            "Path":Path,"re":re,"stat":stat,"uuid":uuid,"zlib":zlib}
+        found=set()
+        for node in tree.body:
+            if (isinstance(node,ast.Assign)and len(node.targets)==1 and isinstance(node.targets[0],ast.Name)
+                    and node.targets[0].id in constants):
+                name=node.targets[0].id
+                if name in found:raise ValueError("LOCAL SOURCE SMB renderer constants collide")
+                value=ast.literal_eval(node.value)
+                if not isinstance(value,set)or any(not isinstance(item,str)for item in value):
+                    raise ValueError("LOCAL SOURCE SMB renderer constants differ")
+                namespace[name]=value;found.add(name)
+        if found!=constants:raise ValueError("LOCAL SOURCE SMB renderer constants are absent")
+        exec(compile(ast.Module(body=selected,type_ignores=[]),str(current),"exec"),namespace)
+        files=namespace["render_smb_candidate"](payload,current)
+        candidate=files.get("smb/smb.conf")
+        if not isinstance(candidate,str)or len(candidate.encode())>8*1024*1024:
+            raise ValueError("LOCAL SOURCE SMB renderer candidate is invalid")
+        if self.cli.resolve(strict=True)!=current or hashlib.sha256(self.cli.read_bytes()).hexdigest()!=journal["cliSha256"]:
+            raise ValueError("LOCAL SOURCE SMB renderer changed during generation")
+        return candidate.encode()
+
+    def restore_source_smb_configuration(self,value,journal,record):
+        # The opaque capsule deliberately excludes generated smb.conf. A legacy
+        # writer must restore that exact SOURCE output before exposing its SAM.
+        path=LOCAL_SOURCE_SMB_CONFIG
+        current,info=self.reader(str(path));expected=record["sourceConfigurationFileSha256"]
+        if hashlib.sha256(current).hexdigest()==expected:return
+        scope={key:value[key]for key in LOCAL_SOURCE_SCOPE}
+        source=self.state(value);self.frozen(value,journal);self.validate_record(value,record)
+        if (self.reference(record)!=value["localSourceCheckpointReference"]or journal.get("imported")is not True
+                or journal.get("phase")not in("STOPPED","RESUMING","RECOVERY_REQUIRED")
+                or not isinstance(journal.get("importedStoppedDatabases"),dict)
+                or not isinstance(journal.get("importedFingerprints"),dict)
+                or source.get("configurationDesiredState")!=record["sourceDesiredState"]
+                or journal["sourceDesiredState"]!=record["sourceDesiredState"]):
+            raise ValueError("LOCAL SOURCE SMB configuration restore authority differs")
+        stopped=self.stopped_observation()
+        if stopped["databases"]!=journal["importedStoppedDatabases"]:
+            raise ValueError("LOCAL SOURCE SMB imported stopped metadata changed")
+        self.match_private({"privateFingerprints":journal["importedFingerprints"]})
+        parent=path.parent.lstat();named=path.lstat()
+        if (not stat.S_ISDIR(parent.st_mode)or parent.st_uid!=os.geteuid()or parent.st_mode&0o022
+                or not stat.S_ISREG(named.st_mode)or named.st_uid!=os.geteuid()or named.st_mode&0o022
+                or named.st_nlink!=1 or (named.st_dev,named.st_ino)!=(info.st_dev,info.st_ino)):
+            raise ValueError("LOCAL SOURCE SMB configuration path is not protected")
+        journal["sourceConfigurationRestoreStage"]="RENDER";self.write(scope,"journal",journal)
+        candidate=self.signed_source_smb_candidate(record["sourceDesiredState"]["desired-state/smb-share-apply.json"],journal)
+        journal["sourceConfigurationRestoreStage"]="CANDIDATE_HASH";self.write(scope,"journal",journal)
+        if hashlib.sha256(candidate).hexdigest()!=expected:
+            raise ValueError("LOCAL SOURCE SMB rendered configuration differs from its original hash")
+        directory=os.open(path.parent,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
+        temporary=None;descriptor=None
+        try:
+            opened=os.fstat(directory)
+            if (opened.st_dev,opened.st_ino)!=(parent.st_dev,parent.st_ino):
+                raise ValueError("LOCAL SOURCE SMB configuration directory changed")
+            descriptor,temporary=tempfile.mkstemp(prefix=".local-source-smb-",dir=path.parent)
+            os.fchmod(descriptor,stat.S_IMODE(info.st_mode));os.fchown(descriptor,info.st_uid,info.st_gid)
+            with os.fdopen(descriptor,"wb",closefd=False)as handle:
+                handle.write(candidate);handle.flush();os.fsync(descriptor)
+            journal["sourceConfigurationRestoreStage"]="TESTPARM";self.write(scope,"journal",journal)
+            try:self.handler.run(["testparm","-s",temporary])
+            except Exception:raise ValueError("LOCAL SOURCE SMB rendered configuration validation failed")from None
+            self.state(value)
+            if self.stopped_observation()!=stopped:
+                raise ValueError("LOCAL SOURCE SMB stopped ownership changed before configuration restore")
+            self.match_private({"privateFingerprints":journal["importedFingerprints"]})
+            latest=path.lstat();parent_now=path.parent.lstat()
+            fields=("st_dev","st_ino","st_uid","st_gid","st_mode","st_size","st_mtime_ns","st_ctime_ns")
+            if (any(getattr(latest,key)!=getattr(info,key)for key in fields)
+                    or (parent_now.st_dev,parent_now.st_ino)!=(parent.st_dev,parent.st_ino)):
+                raise ValueError("LOCAL SOURCE SMB configuration changed before publication")
+            journal["sourceConfigurationRestoreStage"]="PUBLISH";self.write(scope,"journal",journal)
+            os.replace(temporary,path);temporary=None;os.fsync(directory)
+            if hashlib.sha256(self.reader(str(path))[0]).hexdigest()!=expected:
+                raise ValueError("LOCAL SOURCE SMB configuration restore did not verify")
+            journal["sourceConfigurationRestoreStage"]="VERIFIED";self.write(scope,"journal",journal)
+        finally:
+            if descriptor is not None:os.close(descriptor)
+            if temporary is not None and os.path.exists(temporary):os.unlink(temporary)
+            os.close(directory)
+
     def import_source(self,value):
         scope=self.request(value,"import-local-source");self.state(value)
         journal=self.frozen(value,self.read(self.path(scope,"journal"))or {})
@@ -15686,6 +15793,7 @@ class SmbSourceCheckpoint:
             if not isinstance(journal.get("importedStoppedDatabases"),dict)or not isinstance(journal.get("importedFingerprints"),dict):
                 raise ValueError("LOCAL restored descriptor authority is absent")
             resume_record={**record,"stoppedDatabases":journal["importedStoppedDatabases"],"privateFingerprints":journal["importedFingerprints"]}
+            self.restore_source_smb_configuration(value,journal,record)
             self.resume(value,journal,resume_record);return self.result(record,journal,imported=True)
         except Exception:
             journal["phase"]="RECOVERY_REQUIRED";self.write(scope,"journal",journal);raise
@@ -26563,6 +26671,7 @@ import uuid
 """Stopped LOCAL source checkpoints; preserve opaque DBs and prior active SMB units."""
 import hashlib,json,os,re,signal,stat,subprocess,tempfile,time,uuid
 from pathlib import Path
+LOCAL_SOURCE_SMB_CONFIG=Path("/etc/samba/smb.conf")
 LOCAL_SOURCE_KIND="LOCAL_SOURCE_IDENTITY_CHECKPOINT"
 LOCAL_SOURCE_SCOPE={"instanceUuid","operationUuid","revision","localCheckpointUuid"}
 LOCAL_SOURCE_COMMON=LOCAL_SOURCE_SCOPE|{"sourceGeneration","sourceConfigurationSha256","expectedBootId"}
@@ -27368,6 +27477,112 @@ class SmbSourceCheckpoint:
                 or wrapper["bootId"]!=value["expectedBootId"]):raise ValueError("LOCAL authenticated wrapper is foreign")
         self.validator(wrapper["identity"]);return wrapper["identity"]
 
+    def signed_source_smb_candidate(self,payload,journal):
+        """Reuse only the fixed pure SMB renderer from the installed signed ENTRY."""
+        import ast,ipaddress,zlib
+        if (not isinstance(payload,dict)or payload.get("instanceUuid")!=journal["scope"]["instanceUuid"]
+                or (payload.get("identityDomain")or {}).get("joinState")=="JOINED"):
+            raise ValueError("LOCAL SOURCE SMB render scope is invalid")
+        current=self.cli.resolve(strict=True)
+        if current!=(self.runtime_root/"current"/"ablestack-storagectl").resolve(strict=True):
+            raise ValueError("LOCAL SOURCE SMB renderer ENTRY is not installed")
+        raw=self.compat_entry(current,journal["cliSha256"])
+        if hashlib.sha256(raw).hexdigest()!=journal["cliSha256"]:
+            raise ValueError("LOCAL SOURCE SMB renderer code pin changed")
+        opener="<<'PYRENDEREDGENERATION'"+chr(10);closer=chr(10)+"PYRENDEREDGENERATION"+chr(10)
+        text=raw.decode()
+        if text.count(opener)!=1 or text.count(closer)!=1:
+            raise ValueError("LOCAL SOURCE SMB renderer closure is unavailable")
+        body=text.split(opener,1)[1].split(closer,1)[0];tree=ast.parse(body)
+        functions={"ad_authority_read","ad_qualified_name","ad_policy_lines","protected_ad_policy",
+            "semantic_forced_alias","fixed_render_helpers","render_smb_candidate"}
+        constants={"SMB_HELPERS","SEMANTIC_ALIAS_ROW"}
+        selected=[node for node in tree.body if isinstance(node,ast.FunctionDef)and node.name in functions]
+        if len(selected)!=len(functions)or {node.name for node in selected}!=functions:
+            raise ValueError("LOCAL SOURCE SMB renderer definitions differ")
+        namespace={"ast":ast,"hashlib":hashlib,"ipaddress":ipaddress,"json":json,"os":os,
+            "Path":Path,"re":re,"stat":stat,"uuid":uuid,"zlib":zlib}
+        found=set()
+        for node in tree.body:
+            if (isinstance(node,ast.Assign)and len(node.targets)==1 and isinstance(node.targets[0],ast.Name)
+                    and node.targets[0].id in constants):
+                name=node.targets[0].id
+                if name in found:raise ValueError("LOCAL SOURCE SMB renderer constants collide")
+                value=ast.literal_eval(node.value)
+                if not isinstance(value,set)or any(not isinstance(item,str)for item in value):
+                    raise ValueError("LOCAL SOURCE SMB renderer constants differ")
+                namespace[name]=value;found.add(name)
+        if found!=constants:raise ValueError("LOCAL SOURCE SMB renderer constants are absent")
+        exec(compile(ast.Module(body=selected,type_ignores=[]),str(current),"exec"),namespace)
+        files=namespace["render_smb_candidate"](payload,current)
+        candidate=files.get("smb/smb.conf")
+        if not isinstance(candidate,str)or len(candidate.encode())>8*1024*1024:
+            raise ValueError("LOCAL SOURCE SMB renderer candidate is invalid")
+        if self.cli.resolve(strict=True)!=current or hashlib.sha256(self.cli.read_bytes()).hexdigest()!=journal["cliSha256"]:
+            raise ValueError("LOCAL SOURCE SMB renderer changed during generation")
+        return candidate.encode()
+
+    def restore_source_smb_configuration(self,value,journal,record):
+        # The opaque capsule deliberately excludes generated smb.conf. A legacy
+        # writer must restore that exact SOURCE output before exposing its SAM.
+        path=LOCAL_SOURCE_SMB_CONFIG
+        current,info=self.reader(str(path));expected=record["sourceConfigurationFileSha256"]
+        if hashlib.sha256(current).hexdigest()==expected:return
+        scope={key:value[key]for key in LOCAL_SOURCE_SCOPE}
+        source=self.state(value);self.frozen(value,journal);self.validate_record(value,record)
+        if (self.reference(record)!=value["localSourceCheckpointReference"]or journal.get("imported")is not True
+                or journal.get("phase")not in("STOPPED","RESUMING","RECOVERY_REQUIRED")
+                or not isinstance(journal.get("importedStoppedDatabases"),dict)
+                or not isinstance(journal.get("importedFingerprints"),dict)
+                or source.get("configurationDesiredState")!=record["sourceDesiredState"]
+                or journal["sourceDesiredState"]!=record["sourceDesiredState"]):
+            raise ValueError("LOCAL SOURCE SMB configuration restore authority differs")
+        stopped=self.stopped_observation()
+        if stopped["databases"]!=journal["importedStoppedDatabases"]:
+            raise ValueError("LOCAL SOURCE SMB imported stopped metadata changed")
+        self.match_private({"privateFingerprints":journal["importedFingerprints"]})
+        parent=path.parent.lstat();named=path.lstat()
+        if (not stat.S_ISDIR(parent.st_mode)or parent.st_uid!=os.geteuid()or parent.st_mode&0o022
+                or not stat.S_ISREG(named.st_mode)or named.st_uid!=os.geteuid()or named.st_mode&0o022
+                or named.st_nlink!=1 or (named.st_dev,named.st_ino)!=(info.st_dev,info.st_ino)):
+            raise ValueError("LOCAL SOURCE SMB configuration path is not protected")
+        journal["sourceConfigurationRestoreStage"]="RENDER";self.write(scope,"journal",journal)
+        candidate=self.signed_source_smb_candidate(record["sourceDesiredState"]["desired-state/smb-share-apply.json"],journal)
+        journal["sourceConfigurationRestoreStage"]="CANDIDATE_HASH";self.write(scope,"journal",journal)
+        if hashlib.sha256(candidate).hexdigest()!=expected:
+            raise ValueError("LOCAL SOURCE SMB rendered configuration differs from its original hash")
+        directory=os.open(path.parent,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
+        temporary=None;descriptor=None
+        try:
+            opened=os.fstat(directory)
+            if (opened.st_dev,opened.st_ino)!=(parent.st_dev,parent.st_ino):
+                raise ValueError("LOCAL SOURCE SMB configuration directory changed")
+            descriptor,temporary=tempfile.mkstemp(prefix=".local-source-smb-",dir=path.parent)
+            os.fchmod(descriptor,stat.S_IMODE(info.st_mode));os.fchown(descriptor,info.st_uid,info.st_gid)
+            with os.fdopen(descriptor,"wb",closefd=False)as handle:
+                handle.write(candidate);handle.flush();os.fsync(descriptor)
+            journal["sourceConfigurationRestoreStage"]="TESTPARM";self.write(scope,"journal",journal)
+            try:self.handler.run(["testparm","-s",temporary])
+            except Exception:raise ValueError("LOCAL SOURCE SMB rendered configuration validation failed")from None
+            self.state(value)
+            if self.stopped_observation()!=stopped:
+                raise ValueError("LOCAL SOURCE SMB stopped ownership changed before configuration restore")
+            self.match_private({"privateFingerprints":journal["importedFingerprints"]})
+            latest=path.lstat();parent_now=path.parent.lstat()
+            fields=("st_dev","st_ino","st_uid","st_gid","st_mode","st_size","st_mtime_ns","st_ctime_ns")
+            if (any(getattr(latest,key)!=getattr(info,key)for key in fields)
+                    or (parent_now.st_dev,parent_now.st_ino)!=(parent.st_dev,parent.st_ino)):
+                raise ValueError("LOCAL SOURCE SMB configuration changed before publication")
+            journal["sourceConfigurationRestoreStage"]="PUBLISH";self.write(scope,"journal",journal)
+            os.replace(temporary,path);temporary=None;os.fsync(directory)
+            if hashlib.sha256(self.reader(str(path))[0]).hexdigest()!=expected:
+                raise ValueError("LOCAL SOURCE SMB configuration restore did not verify")
+            journal["sourceConfigurationRestoreStage"]="VERIFIED";self.write(scope,"journal",journal)
+        finally:
+            if descriptor is not None:os.close(descriptor)
+            if temporary is not None and os.path.exists(temporary):os.unlink(temporary)
+            os.close(directory)
+
     def import_source(self,value):
         scope=self.request(value,"import-local-source");self.state(value)
         journal=self.frozen(value,self.read(self.path(scope,"journal"))or {})
@@ -27400,6 +27615,7 @@ class SmbSourceCheckpoint:
             if not isinstance(journal.get("importedStoppedDatabases"),dict)or not isinstance(journal.get("importedFingerprints"),dict):
                 raise ValueError("LOCAL restored descriptor authority is absent")
             resume_record={**record,"stoppedDatabases":journal["importedStoppedDatabases"],"privateFingerprints":journal["importedFingerprints"]}
+            self.restore_source_smb_configuration(value,journal,record)
             self.resume(value,journal,resume_record);return self.result(record,journal,imported=True)
         except Exception:
             journal["phase"]="RECOVERY_REQUIRED";self.write(scope,"journal",journal);raise
