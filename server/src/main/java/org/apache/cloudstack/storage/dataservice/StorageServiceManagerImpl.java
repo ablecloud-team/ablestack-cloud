@@ -13414,8 +13414,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     protected void requirePreparedResourceBudget(StorageServiceInstanceVO instance, long targetBytes) {
         StorageServiceOperationVO operation=storageWriterOperation.get();
         if(operation==null||!"RUNNING".equals(operation.getState())||!"APPLYING".equals(operation.getPhase()))return;
-        if(operation.getInstanceId()!=instance.getId())throw new CloudRuntimeException("Prepared resource budget belongs to another writer");
         StorageServiceOperationControlVO control=storageOperationControlDao.findByOperation(operation.getId());if(control==null)return;
+        if(operation.getInstanceId()!=instance.getId())throw new CloudRuntimeException("Prepared resource budget belongs to another writer");
         JsonObject document=parseJsonObject(captureConfigurationSnapshot(instance.getId()));int count=0;
         for(JsonElement table:document.getAsJsonArray("tables"))count=Math.addExact(count,table.getAsJsonObject().getAsJsonArray("rows").size());
         long bytes=document.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8).length;
