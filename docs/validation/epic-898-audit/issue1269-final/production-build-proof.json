@@ -1,0 +1,19 @@
+{
+  "sourcePin": "77b222a8d8c531c984ab1e2db274fcb2fc64172a",
+  "exitCode": 0,
+  "seconds": 558.84,
+  "nodeOptions": "--openssl-legacy-provider --max-old-space-size=8192",
+  "sourceConfigSha256": "70a84338b7c06a5979625d74360f2cba0240bbbe2552998895abbd729c2dfd74",
+  "configPreserved": true,
+  "sourceClean": true,
+  "initialNpmLifecycleExitCode": 1,
+  "initialFailure": "postbuild rejected commit SHA as release version",
+  "compileComplete": true,
+  "correctedPostbuildExitCode": 0,
+  "correctedReleaseVersion": "v4.10.0-Europa-20261015",
+  "compiledAssetHashesUnchangedByPostbuild": true,
+  "files": 859,
+  "indexSha256": "7d3266b2ccabdcda2a6bac427dfa795305e00653aa30546d9afa4af2745c7591",
+  "initialRequestedBuildVersion": "77b222a8d8c",
+  "buildVersion": "v4.10.0-Europa-20261015"
+}

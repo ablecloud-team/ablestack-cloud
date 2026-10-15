@@ -1,0 +1,10 @@
+{
+  "root": "/usr/share/cloudstack-management/webapp",
+  "indexSha256": "3dc40c928b5f1a3d52f721c97fa33567348702e1f2a92fdec1c3e46384a9fddd",
+  "configSymlink": "/etc/cloudstack/management/config.json",
+  "configTarget": "/etc/cloudstack/management/config.json",
+  "configSha256": "d3e285317289b4eb4034141b63e4604ffd014d8bc1385aa28a007a4317c397f5",
+  "webInfFiles": 1,
+  "webInfMetadataSha256": "4dee4f4c001a7e29a0671fc3f3efce58d1bdcad344a75e289bb3fab8b11df171",
+  "managementPid": 1430252
+}
