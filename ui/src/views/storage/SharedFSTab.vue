@@ -33,6 +33,10 @@ class="storage-service__alert"
         </a-button>
       </template>
     </a-alert>
+    <a-alert v-if="storageMutationBlocked && storageService.instance" class="storage-service__alert" :type="storageRecoveryGate.blocker?.state === 'RECOVERY_REQUIRED' ? 'error' : 'warning'" show-icon role="status" :message="storageRecoveryGateMessage">
+      <template #description><span v-if="storageRecoveryGate.blocker">{{ storageRecoveryGate.blocker.id }} · {{ storageRecoveryGate.blocker.revision }}</span></template>
+      <template #action><a-space><a-button @click="handleChangeTab('operations')">{{ $t('label.storage.operation.history') }}</a-button><a-button :loading="storageService.refreshing" @click="fetchStorageServiceData"><template #icon><ReloadOutlined /></template>{{ $t('label.refresh') }}</a-button></a-space></template>
+    </a-alert>
     <a-tabs
       :tabPosition="resourceTabPosition"
       class="storage-service-tabs"
@@ -68,7 +72,7 @@ class="storage-service__alert"
 
       <a-tab-pane v-if="hasStorageServiceApi" :tab="$t('label.storage.tab.operations')" key="operations">
         <storage-control-policy v-if="storageService.instance" :instance-id="storageService.instance.id" :instance-name="storageService.instance.name || dataResource.name || ''" @operation-updated="refreshStorageOperationHistory" />
-        <storage-operation-history ref="storageOperationHistory" v-if="storageService.instance && 'listStorageServiceOperations' in $store.getters.apis" :instance-id="storageService.instance.id" :instance-name="storageService.instance.name || dataResource.name || ''" />
+        <storage-operation-history ref="storageOperationHistory" @read-started="storageOperationHistoryStarted" @read-complete="storageOperationHistoryLoaded" v-if="storageService.instance && 'listStorageServiceOperations' in $store.getters.apis" :instance-id="storageService.instance.id" :instance-name="storageService.instance.name || dataResource.name || ''" />
         <storage-volume-preparation v-if="storageService.instance && 'getStorageServiceVolumePreparation' in $store.getters.apis" :instance-id="storageService.instance.id" :volumes="currentBackingVolumes" @operation-updated="refreshStorageOperationHistory" />
       </a-tab-pane>
       <a-tab-pane v-if="hasStorageServiceApi" :tab="$t('label.storage.tab.backup.restore')" key="backup">
@@ -91,18 +95,18 @@ class="storage-service__alert"
                 <template #icon><FullscreenExitOutlined v-if="protocolWideLayout" /><FullscreenOutlined v-else /></template>
                 {{ protocolWideLayout ? $t('label.storage.service.default.view') : $t('label.storage.service.wide.view') }}
               </a-button>
-              <a-button type="primary" @click="openActionModal('enableProtocol', { protocol: 'NFS' })">
+              <a-button type="primary" @click="openActionModal('enableProtocol', { protocol: 'NFS' })" :disabled="storageMutationBlocked">
                 <template #icon><PoweroffOutlined /></template>
                 {{ $t('label.storage.service.enable.protocol') }}
               </a-button>
-              <a-button v-if="$store.getters.apis.updateStorageNfsServiceSettings" @click="openActionModal('nfsServiceSettings')">
+              <a-button v-if="$store.getters.apis.updateStorageNfsServiceSettings" @click="openActionModal('nfsServiceSettings')" :disabled="storageMutationBlocked">
                 <template #icon><SafetyCertificateOutlined /></template>{{ $t('label.storage.service.nfs.settings') }}
               </a-button>
-              <a-button danger @click="openActionModal('deleteEndpoint', { protocol: 'NFS' })">
+              <a-button danger @click="openActionModal('deleteEndpoint', { protocol: 'NFS' })" :disabled="storageMutationBlocked">
                 <template #icon><DeleteOutlined /></template>
                 {{ $t('label.storage.service.delete.endpoint') }}
               </a-button>
-              <a-button @click="openActionModal('nfsExport')">
+              <a-button @click="openActionModal('nfsExport')" :disabled="storageMutationBlocked">
                 <template #icon><PlusOutlined /></template>
                 {{ $t('label.storage.service.create.nfs.export') }}
               </a-button>
@@ -178,7 +182,7 @@ class="storage-service__alert"
                   </template>
                   <template v-else-if="column.key === 'actions'">
                     <div class="storage-table-actions">
-                      <a-button size="small" danger :disabled="!record.canDelete" :title="record.deleteDisabledReason || ''" @click="openDeleteConfirm('protocolListener', record)">
+                      <a-button size="small" danger :disabled="storageMutationBlocked || (!record.canDelete)" :title="record.deleteDisabledReason || ''" @click="openDeleteConfirm('protocolListener', record)">
                         <template #icon><DeleteOutlined /></template>
                         {{ $t('label.delete') }}
                       </a-button>
@@ -227,15 +231,15 @@ class="storage-service__alert"
                   <template v-else-if="column.key === 'actions'">
                     <div class="storage-table-actions">
                       <a-space class="storage-table-actions__space">
-                        <a-button size="small" @click="openActionModal('editNfsExport', record)">
+                        <a-button size="small" @click="openActionModal('editNfsExport', record)" :disabled="storageMutationBlocked">
                           <template #icon><EditOutlined /></template>
                           {{ $t('label.edit') }}
                         </a-button>
-                        <a-button size="small" @click="openActionModal('resizeShare', { id: record.id })">
+                        <a-button size="small" @click="openActionModal('resizeShare', { id: record.id })" :disabled="storageMutationBlocked">
                           <template #icon><ExpandAltOutlined /></template>
                           {{ $t('label.storage.service.resize.file.share') }}
                         </a-button>
-                        <a-button size="small" danger @click="openDeleteModal('nfsExport', record)">
+                        <a-button size="small" danger @click="openDeleteModal('nfsExport', record)" :disabled="storageMutationBlocked">
                           <template #icon><DeleteOutlined /></template>
                           {{ $t('label.delete') }}
                         </a-button>
@@ -256,7 +260,7 @@ class="storage-service__alert"
                   <p>{{ $t('message.storage.service.nfs.acls.table') }}</p>
                 </div>
                 <a-space class="storage-section-actions">
-                  <a-button @click="openActionModal('nfsAcl')">
+                  <a-button @click="openActionModal('nfsAcl')" :disabled="storageMutationBlocked">
                     <template #icon><SafetyCertificateOutlined /></template>
                     {{ $t('label.storage.service.create.nfs.acl') }}
                   </a-button>
@@ -278,11 +282,11 @@ class="storage-service__alert"
                   <template v-else-if="column.key === 'actions'">
                     <div class="storage-table-actions">
                       <a-space v-if="!record.implicit" class="storage-table-actions__space">
-                        <a-button size="small" @click="openActionModal('editNfsAcl', record)">
+                        <a-button size="small" @click="openActionModal('editNfsAcl', record)" :disabled="storageMutationBlocked">
                           <template #icon><EditOutlined /></template>
                           {{ $t('label.edit') }}
                         </a-button>
-                        <a-button size="small" danger @click="openDeleteModal('nfsAcl', record)">
+                        <a-button size="small" danger @click="openDeleteModal('nfsAcl', record)" :disabled="storageMutationBlocked">
                           <template #icon><DeleteOutlined /></template>
                           {{ $t('label.delete') }}
                         </a-button>
@@ -320,11 +324,11 @@ class="storage-service__alert"
                   <template v-else-if="column.key === 'actions'">
                     <div class="storage-table-actions">
                       <a-space class="storage-table-actions__space">
-                        <a-button size="small" :disabled="!record.resizeAllowed" :title="record.resizeDisabledReason || ''" @click="openActionModal('resizeBackingVolume', record)">
+                        <a-button size="small" :disabled="storageMutationBlocked || (!record.resizeAllowed)" :title="record.resizeDisabledReason || ''" @click="openActionModal('resizeBackingVolume', record)">
                           <template #icon><ExpandAltOutlined /></template>
                           {{ $t('label.storage.service.resize.volume') }}
                         </a-button>
-                        <a-button size="small" danger :disabled="!record.detachAllowed" @click="openActionModal('detachBackingVolume', record)">
+                        <a-button size="small" danger :disabled="storageMutationBlocked || (!record.detachAllowed)" @click="openActionModal('detachBackingVolume', record)">
                           <template #icon><DisconnectOutlined /></template>
                           {{ $t('label.storage.service.detach.backing.volume') }}
                         </a-button>
@@ -360,7 +364,7 @@ class="storage-service__alert"
                   </template>
                   <template v-else-if="column.key === 'actions'">
                     <div class="storage-table-actions">
-                      <a-button size="small" danger @click="openActionModal('disconnectSession', record)">
+                      <a-button size="small" danger @click="openActionModal('disconnectSession', record)" :disabled="storageMutationBlocked">
                         <template #icon><DisconnectOutlined /></template>
                         {{ $t('label.storage.service.disconnect.session') }}
                       </a-button>
@@ -394,15 +398,15 @@ v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis"
                 <template #icon><FullscreenExitOutlined v-if="protocolWideLayout" /><FullscreenOutlined v-else /></template>
                 {{ protocolWideLayout ? $t('label.storage.service.default.view') : $t('label.storage.service.wide.view') }}
               </a-button>
-              <a-button type="primary" @click="openActionModal('enableProtocol', { protocol: 'SMB' })">
+              <a-button type="primary" @click="openActionModal('enableProtocol', { protocol: 'SMB' })" :disabled="storageMutationBlocked">
                 <template #icon><PoweroffOutlined /></template>
                 {{ $t('label.storage.service.enable.protocol') }}
               </a-button>
-              <a-button @click="openActionModal('smbShare')">
+              <a-button @click="openActionModal('smbShare')" :disabled="storageMutationBlocked">
                 <template #icon><PlusOutlined /></template>
                 {{ $t('label.storage.service.create.smb.share') }}
               </a-button>
-              <a-button v-if="!isSmbAdConfigured" @click="openActionModal('adJoin')">
+              <a-button v-if="!isSmbAdConfigured" @click="openActionModal('adJoin')" :disabled="storageMutationBlocked">
                 <template #icon><LinkOutlined /></template>
                 {{ $t('label.storage.service.join.ad.domain') }}
               </a-button>
@@ -496,7 +500,7 @@ v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis"
                   </template>
                   <template v-else-if="column.key === 'actions'">
                     <div class="storage-table-actions">
-                      <a-button size="small" danger :disabled="!record.canDelete" :title="record.deleteDisabledReason || ''" @click="openDeleteConfirm('protocolListener', record)">
+                      <a-button size="small" danger :disabled="storageMutationBlocked || (!record.canDelete)" :title="record.deleteDisabledReason || ''" @click="openDeleteConfirm('protocolListener', record)">
                         <template #icon><DeleteOutlined /></template>
                         {{ $t('label.delete') }}
                       </a-button>
@@ -532,15 +536,15 @@ v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis"
                   <template v-else-if="column.key === 'actions'">
                     <div class="storage-table-actions">
                       <a-space class="storage-table-actions__space">
-                        <a-button size="small" @click="openActionModal('editSmbShare', record)">
+                        <a-button size="small" @click="openActionModal('editSmbShare', record)" :disabled="storageMutationBlocked">
                         <template #icon><EditOutlined /></template>
                         {{ $t('label.edit') }}
                       </a-button>
-                      <a-button size="small" @click="openActionModal('resizeShare', { id: record.id })">
+                      <a-button size="small" @click="openActionModal('resizeShare', { id: record.id })" :disabled="storageMutationBlocked">
                         <template #icon><ExpandAltOutlined /></template>
                         {{ $t('label.storage.service.resize.file.share') }}
                       </a-button>
-                      <a-button size="small" danger @click="openDeleteModal('smbShare', record)">
+                      <a-button size="small" danger @click="openDeleteModal('smbShare', record)" :disabled="storageMutationBlocked">
                           <template #icon><DeleteOutlined /></template>
                           {{ $t('label.delete') }}
                         </a-button>
@@ -561,7 +565,7 @@ v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis"
                   <p>{{ $t('message.storage.service.smb.acls.table') }}</p>
                 </div>
                 <a-space class="storage-section-actions">
-                  <a-button @click="openActionModal('smbAcl')">
+                  <a-button @click="openActionModal('smbAcl')" :disabled="storageMutationBlocked">
                     <template #icon><SafetyCertificateOutlined /></template>
                     {{ $t('label.storage.service.create.smb.acl') }}
                   </a-button>
@@ -583,11 +587,11 @@ v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis"
                   <template v-else-if="column.key === 'actions'">
                     <div class="storage-table-actions">
                       <a-space class="storage-table-actions__space">
-                        <a-button size="small" @click="openActionModal('editSmbAcl', record)">
+                        <a-button size="small" @click="openActionModal('editSmbAcl', record)" :disabled="storageMutationBlocked">
                         <template #icon><EditOutlined /></template>
                         {{ $t('label.edit') }}
                       </a-button>
-                      <a-button size="small" danger @click="openDeleteModal('smbAcl', record)">
+                      <a-button size="small" danger @click="openDeleteModal('smbAcl', record)" :disabled="storageMutationBlocked">
                           <template #icon><DeleteOutlined /></template>
                           {{ $t('label.delete') }}
                         </a-button>
@@ -611,7 +615,7 @@ v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis"
                   <p>{{ $t('message.storage.service.smb.identity.table') }}</p>
                 </div>
                 <a-space class="storage-section-actions" wrap>
-                  <a-button v-if="!isSmbAdConfigured" size="small" @click="openActionModal('adJoin')">
+                  <a-button v-if="!isSmbAdConfigured" size="small" @click="openActionModal('adJoin')" :disabled="storageMutationBlocked">
                     <template #icon><LinkOutlined /></template>
                     {{ $t('label.storage.service.join.ad.domain') }}
                   </a-button>
@@ -619,11 +623,11 @@ v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis"
                     <template #icon><SafetyCertificateOutlined /></template>
                     {{ $t('label.storage.service.check.ad.domain.status') }}
                   </a-button>
-                  <a-button v-if="isSmbAdConfigured" size="small" @click="openActionModal('adRejoin')">
+                  <a-button v-if="isSmbAdConfigured" size="small" @click="openActionModal('adRejoin')" :disabled="storageMutationBlocked">
                     <template #icon><ReloadOutlined /></template>
                     {{ $t('label.storage.service.rejoin.ad.domain') }}
                   </a-button>
-                  <a-button v-if="isSmbAdConfigured" size="small" danger @click="openActionModal('adLeave')">
+                  <a-button v-if="isSmbAdConfigured" size="small" danger @click="openActionModal('adLeave')" :disabled="storageMutationBlocked">
                     <template #icon><DisconnectOutlined /></template>
                     {{ $t('label.storage.service.leave.ad.domain') }}
                   </a-button>
@@ -699,7 +703,7 @@ v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis"
                   </template>
                   <template v-else-if="column.key === 'actions'">
                     <div class="storage-table-actions">
-                      <a-button size="small" :disabled="!record.resizeAllowed" :title="record.resizeDisabledReason || ''" @click="openActionModal('resizeBackingVolume', record)">
+                      <a-button size="small" :disabled="storageMutationBlocked || (!record.resizeAllowed)" :title="record.resizeDisabledReason || ''" @click="openActionModal('resizeBackingVolume', record)">
                         <template #icon><ExpandAltOutlined /></template>
                         {{ $t('label.storage.service.resize.volume') }}
                       </a-button>
@@ -734,7 +738,7 @@ v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis"
                   </template>
                   <template v-else-if="column.key === 'actions'">
                     <div class="storage-table-actions">
-                      <a-button size="small" danger @click="openActionModal('disconnectSession', record)">
+                      <a-button size="small" danger @click="openActionModal('disconnectSession', record)" :disabled="storageMutationBlocked">
                         <template #icon><DisconnectOutlined /></template>
                         {{ $t('label.storage.service.disconnect.session') }}
                       </a-button>
@@ -759,15 +763,15 @@ v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis"
                 <template #icon><FullscreenExitOutlined v-if="protocolWideLayout" /><FullscreenOutlined v-else /></template>
                 {{ protocolWideLayout ? $t('label.storage.service.default.view') : $t('label.storage.service.wide.view') }}
               </a-button>
-              <a-button type="primary" @click="openActionModal('enableProtocol', { protocol: 'ISCSI' })">
+              <a-button type="primary" @click="openActionModal('enableProtocol', { protocol: 'ISCSI' })" :disabled="storageMutationBlocked">
                 <template #icon><PoweroffOutlined /></template>
                 {{ $t('label.storage.service.enable.protocol') }}
               </a-button>
-              <a-button @click="openActionModal('iscsiTarget')">
+              <a-button @click="openActionModal('iscsiTarget')" :disabled="storageMutationBlocked">
                 <template #icon><PlusOutlined /></template>
                 {{ $t('label.storage.service.create.iscsi.target') }}
               </a-button>
-              <a-button @click="openActionModal('iscsiAcl')">
+              <a-button @click="openActionModal('iscsiAcl')" :disabled="storageMutationBlocked">
                 <template #icon><SafetyCertificateOutlined /></template>
                 {{ $t('label.storage.service.create.iscsi.acl') }}
               </a-button>
@@ -833,7 +837,7 @@ v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis"
                   </template>
                   <template v-else-if="column.key === 'actions'">
                     <div class="storage-table-actions">
-                      <a-button size="small" danger :disabled="!record.canDelete" :title="record.deleteDisabledReason || ''" @click="openDeleteConfirm('protocolListener', record)">
+                      <a-button size="small" danger :disabled="storageMutationBlocked || (!record.canDelete)" :title="record.deleteDisabledReason || ''" @click="openDeleteConfirm('protocolListener', record)">
                         <template #icon><DeleteOutlined /></template>
                         {{ $t('label.delete') }}
                       </a-button>
@@ -867,11 +871,11 @@ v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis"
                   </template>
                   <template v-else-if="column.key === 'actions'">
                     <div class="storage-table-actions">
-                      <a-button size="small" @click="openActionModal('editIscsiTarget', record)">
+                      <a-button size="small" @click="openActionModal('editIscsiTarget', record)" :disabled="storageMutationBlocked">
                         <template #icon><EditOutlined /></template>
                         {{ $t('label.edit') }}
                       </a-button>
-                      <a-button size="small" danger @click="openDeleteConfirm('iscsiTarget', record)">
+                      <a-button size="small" danger @click="openDeleteConfirm('iscsiTarget', record)" :disabled="storageMutationBlocked">
                         <template #icon><DeleteOutlined /></template>
                         {{ $t('label.delete') }}
                       </a-button>
@@ -891,7 +895,7 @@ v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis"
                   <p>{{ $t('message.storage.service.iscsi.acls.table') }}</p>
                 </div>
                 <a-space class="storage-section-actions">
-                  <a-button @click="openActionModal('iscsiAcl')">
+                  <a-button @click="openActionModal('iscsiAcl')" :disabled="storageMutationBlocked">
                     <template #icon><SafetyCertificateOutlined /></template>
                     {{ $t('label.storage.service.create.iscsi.acl') }}
                   </a-button>
@@ -912,11 +916,11 @@ v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis"
                   </template>
                   <template v-else-if="column.key === 'actions'">
                     <div class="storage-table-actions">
-                      <a-button size="small" @click="openActionModal('editIscsiAcl', record)">
+                      <a-button size="small" @click="openActionModal('editIscsiAcl', record)" :disabled="storageMutationBlocked">
                         <template #icon><EditOutlined /></template>
                         {{ $t('label.edit') }}
                       </a-button>
-                      <a-button size="small" danger @click="openDeleteConfirm('iscsiAcl', record)">
+                      <a-button size="small" danger @click="openDeleteConfirm('iscsiAcl', record)" :disabled="storageMutationBlocked">
                         <template #icon><DeleteOutlined /></template>
                         {{ $t('label.delete') }}
                       </a-button>
@@ -951,7 +955,7 @@ v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis"
                   </template>
                   <template v-else-if="column.key === 'actions'">
                     <div class="storage-table-actions">
-                      <a-button size="small" :disabled="!record.resizeAllowed" :title="record.resizeDisabledReason || ''" @click="openActionModal('resizeBackingVolume', record)">
+                      <a-button size="small" :disabled="storageMutationBlocked || (!record.resizeAllowed)" :title="record.resizeDisabledReason || ''" @click="openActionModal('resizeBackingVolume', record)">
                         <template #icon><ExpandAltOutlined /></template>
                         {{ $t('label.storage.service.resize.volume') }}
                       </a-button>
@@ -999,7 +1003,7 @@ v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis"
                   </template>
                   <template v-else-if="column.key === 'actions'">
                     <div class="storage-table-actions">
-                      <a-button size="small" danger @click="openActionModal('disconnectSession', record)">
+                      <a-button size="small" danger @click="openActionModal('disconnectSession', record)" :disabled="storageMutationBlocked">
                         <template #icon><DisconnectOutlined /></template>
                         {{ $t('label.storage.service.disconnect.session') }}
                       </a-button>
@@ -1024,23 +1028,23 @@ v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis"
                 <template #icon><FullscreenExitOutlined v-if="protocolWideLayout" /><FullscreenOutlined v-else /></template>
                 {{ protocolWideLayout ? $t('label.storage.service.default.view') : $t('label.storage.service.wide.view') }}
               </a-button>
-              <a-button type="primary" @click="openActionModal('enableProtocol', { protocol: 'NVME_OF' })">
+              <a-button type="primary" @click="openActionModal('enableProtocol', { protocol: 'NVME_OF' })" :disabled="storageMutationBlocked">
                 <template #icon><PoweroffOutlined /></template>
                 {{ $t('label.storage.service.enable.protocol') }}
               </a-button>
-              <a-button @click="openActionModal('nvmePrepare')">
+              <a-button @click="openActionModal('nvmePrepare')" :disabled="storageMutationBlocked">
                 <template #icon><ReloadOutlined /></template>
                 {{ $t('label.storage.service.prepare.nvmeof') }}
               </a-button>
-              <a-button @click="openActionModal('nvmeSubsystem')">
+              <a-button @click="openActionModal('nvmeSubsystem')" :disabled="storageMutationBlocked">
                 <template #icon><PlusOutlined /></template>
                 {{ $t('label.storage.service.create.nvme.subsystem') }}
               </a-button>
-              <a-button @click="openActionModal('nvmeNamespace')">
+              <a-button @click="openActionModal('nvmeNamespace')" :disabled="storageMutationBlocked">
                 <template #icon><PlusOutlined /></template>
                 {{ $t('label.storage.service.create.nvme.namespace') }}
               </a-button>
-              <a-button @click="openActionModal('nvmeHostAcl')">
+              <a-button @click="openActionModal('nvmeHostAcl')" :disabled="storageMutationBlocked">
                 <template #icon><SafetyCertificateOutlined /></template>
                 {{ $t('label.storage.service.create.nvme.host.acl') }}
               </a-button>
@@ -1114,7 +1118,7 @@ v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis"
                   </template>
                   <template v-else-if="column.key === 'actions'">
                     <div class="storage-table-actions">
-                      <a-button size="small" danger :disabled="!record.canDelete" :title="record.deleteDisabledReason || ''" @click="openDeleteConfirm('nvmeListener', record)">
+                      <a-button size="small" danger :disabled="storageMutationBlocked || (!record.canDelete)" :title="record.deleteDisabledReason || ''" @click="openDeleteConfirm('nvmeListener', record)">
                         <template #icon><DeleteOutlined /></template>
                         {{ $t('label.delete') }}
                       </a-button>
@@ -1153,11 +1157,11 @@ v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis"
                   <template v-else-if="column.key === 'actions'">
                     <div class="storage-table-actions">
                       <a-space class="storage-table-actions__space">
-                        <a-button size="small" @click="openActionModal('editNvmeSubsystem', record)">
+                        <a-button size="small" @click="openActionModal('editNvmeSubsystem', record)" :disabled="storageMutationBlocked">
                           <template #icon><EditOutlined /></template>
                           {{ $t('label.edit') }}
                         </a-button>
-                        <a-button size="small" danger :disabled="!record.canDelete" :title="record.deleteDisabledReason || ''" @click="openDeleteConfirm('nvmeSubsystem', record)">
+                        <a-button size="small" danger :disabled="storageMutationBlocked || (!record.canDelete)" :title="record.deleteDisabledReason || ''" @click="openDeleteConfirm('nvmeSubsystem', record)">
                           <template #icon><DeleteOutlined /></template>
                           {{ $t('label.delete') }}
                         </a-button>
@@ -1178,7 +1182,7 @@ v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis"
                   <p>{{ $t('message.storage.service.nvme.namespaces.table') }}</p>
                 </div>
                 <a-space class="storage-section-actions">
-                  <a-button @click="openActionModal('nvmeNamespace')">
+                  <a-button @click="openActionModal('nvmeNamespace')" :disabled="storageMutationBlocked">
                     <template #icon><PlusOutlined /></template>
                     {{ $t('label.storage.service.create.nvme.namespace') }}
                   </a-button>
@@ -1203,11 +1207,11 @@ v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis"
                   <template v-else-if="column.key === 'actions'">
                     <div class="storage-table-actions">
                       <a-space class="storage-table-actions__space">
-                        <a-button size="small" @click="openActionModal('editNvmeNamespace', record)">
+                        <a-button size="small" @click="openActionModal('editNvmeNamespace', record)" :disabled="storageMutationBlocked">
                           <template #icon><EditOutlined /></template>
                           {{ $t('label.edit') }}
                         </a-button>
-                        <a-button size="small" danger @click="openDeleteConfirm('nvmeNamespace', record)">
+                        <a-button size="small" danger @click="openDeleteConfirm('nvmeNamespace', record)" :disabled="storageMutationBlocked">
                           <template #icon><DeleteOutlined /></template>
                           {{ $t('label.delete') }}
                         </a-button>
@@ -1244,11 +1248,11 @@ v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis"
                   <template v-else-if="column.key === 'actions'">
                     <div class="storage-table-actions">
                       <a-space class="storage-table-actions__space">
-                        <a-button size="small" :disabled="!record.resizeAllowed" :title="record.resizeDisabledReason || ''" @click="openActionModal('resizeBackingVolume', record)">
+                        <a-button size="small" :disabled="storageMutationBlocked || (!record.resizeAllowed)" :title="record.resizeDisabledReason || ''" @click="openActionModal('resizeBackingVolume', record)">
                           <template #icon><ExpandAltOutlined /></template>
                           {{ $t('label.storage.service.resize.volume') }}
                         </a-button>
-                        <a-button size="small" danger :disabled="!record.detachAllowed" :title="record.detachDisabledReason || ''" @click="openActionModal('detachBackingVolume', record)">
+                        <a-button size="small" danger :disabled="storageMutationBlocked || (!record.detachAllowed)" :title="record.detachDisabledReason || ''" @click="openActionModal('detachBackingVolume', record)">
                           <template #icon><DisconnectOutlined /></template>
                           {{ $t('label.storage.service.detach.backing.volume') }}
                         </a-button>
@@ -1269,7 +1273,7 @@ v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis"
                   <p>{{ $t('message.storage.service.nvme.acls.table') }}</p>
                 </div>
                 <a-space class="storage-section-actions">
-                  <a-button @click="openActionModal('nvmeHostAcl')">
+                  <a-button @click="openActionModal('nvmeHostAcl')" :disabled="storageMutationBlocked">
                     <template #icon><SafetyCertificateOutlined /></template>
                     {{ $t('label.storage.service.create.nvme.host.acl') }}
                   </a-button>
@@ -1294,11 +1298,11 @@ v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis"
                   <template v-else-if="column.key === 'actions'">
                     <span v-if="record.policyRow" class="storage-muted-text">{{ $t('label.storage.service.inherited.policy') }}</span>
                     <a-space v-else class="storage-row-actions">
-                      <a-button size="small" @click="openActionModal('editNvmeHostAcl', record)" :disabled="record.subsystemAllowAnyHost">
+                      <a-button size="small" @click="openActionModal('editNvmeHostAcl', record)" :disabled="storageMutationBlocked || (record.subsystemAllowAnyHost)">
                         <template #icon><EditOutlined /></template>
                         {{ $t('label.edit') }}
                       </a-button>
-                      <a-button size="small" danger @click="openDeleteConfirm('nvmeHostAcl', record)">
+                      <a-button size="small" danger @click="openDeleteConfirm('nvmeHostAcl', record)" :disabled="storageMutationBlocked">
                         <template #icon><DeleteOutlined /></template>
                         {{ $t('label.delete') }}
                       </a-button>
@@ -1336,7 +1340,7 @@ v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis"
                       <a-button
                         size="small"
                         danger
-                        :disabled="!record.canDisconnect"
+                        :disabled="storageMutationBlocked || (!record.canDisconnect)"
                         :title="record.canDisconnect ? $t('label.storage.service.disconnect.session') : record.disconnectDisabledReason"
                         @click="openActionModal('disconnectSession', record)">
                         <template #icon><DisconnectOutlined /></template>
@@ -2329,7 +2333,7 @@ wrapClassName="storage-service-action-modal"
       :centered="true"
       :okText="$t('label.storage.service.nic.identity.repair.apply')"
       :cancelText="$t('label.cancel')"
-      :okButtonProps="{ disabled: !identityRepair.eligible }"
+      :okButtonProps="{ disabled: storageMutationBlocked || !identityRepair.eligible }"
       wrapClassName="storage-service-action-modal"
       @ok="applyStorageIdentityRepair"
       @cancel="closeStorageIdentityRepair">
@@ -2357,6 +2361,7 @@ import { requireAdServiceApproval, readJoinedAdReceipt, supportsAdMaintenanceApi
 import { createScopedStorageReads } from '@/utils/scopedStorageReads'
 
 import { h, resolveComponent } from 'vue'
+import { currentStorageWriter, storageOperationRows } from '@/utils/storageRecoveryGate'
 import { getAPI, postAPI } from '@/api'
 import { mixinDevice } from '@/utils/mixin.js'
 import Status from '@/components/widgets/Status'
@@ -2416,6 +2421,9 @@ const resetStorageMutationScope = vm => {
   vm.actionLoading = {}; vm.storageMutationPending = false
   if (vm.actionModal) { vm.actionModal.visible = false; vm.actionModal.loading = false; vm.actionModal.error = '' }
 }
+const storageIntentCanResume = (vm, intent) => !!intent?.attempted && storageMutationScopeMatches(vm, intent.scope) && intent.modalType === vm.actionModal?.type && intent.modalEpoch === (vm.storageModalEpoch || 0)
+const storageVolumeFormFingerprint = (vm, type) => ['nfsExport', 'smbShare', 'iscsiTarget', 'nvmeNamespace'].includes(type) ? new StorageMutationSha256().update(JSON.stringify(sortedStorageIntent(vm.forms?.[type] || {}))).digest('hex') : ''
+const storagePreparedVolumeForRetry = (vm, type) => [...(storageMutationIntents.get(vm)?.values() || [])].find(intent => storageIntentCanResume(vm, intent) && intent.modalType === type && intent.volumeId && intent.volumeFormFingerprint === storageVolumeFormFingerprint(vm, type))?.volumeId
 const sortedStorageIntent = value => Array.isArray(value) ? value.map(sortedStorageIntent) : value && typeof value === 'object' ? Object.fromEntries(Object.keys(value).sort().map(key => [key, sortedStorageIntent(value[key])])) : value
 const storageMutationIntent = (vm, scope, api, parameters) => {
   if (!vm.$getApiParams?.(api)?.idempotencykey) return null
@@ -2423,7 +2431,7 @@ const storageMutationIntent = (vm, scope, api, parameters) => {
   if (!storageMutationIntents.has(vm)) storageMutationIntents.set(vm, new Map())
   const intents = storageMutationIntents.get(vm)
   const created = !intents.has(fingerprint)
-  if (created) intents.set(fingerprint, { key: 'storage-ui-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2), jobId: '' })
+  if (created) intents.set(fingerprint, { key: 'storage-ui-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2), jobId: '', volumeId: parameters.volumeid, volumeFormFingerprint: storageVolumeFormFingerprint(vm, vm.actionModal?.type), scope, modalType: vm.actionModal?.type, modalEpoch: vm.storageModalEpoch || 0 })
   return { intents, fingerprint, value: intents.get(fingerprint), created }
 }
 
@@ -2667,6 +2675,7 @@ export default {
     }
   },
   emits: ['wide-layout-change'],
+  provide () { return { storageMutationGate: { blocked: () => this.storageMutationBlocked || this.storageMutationPending, message: () => this.storageRecoveryGateMessage } } },
   inject: ['parentFetchData'],
   data () {
     return {
@@ -2711,6 +2720,10 @@ export default {
         backingVolumes: []
       },
       storageRefreshGeneration: 0,
+      storageOperationGate: { status: 'UNKNOWN', rows: [] },
+      storageOperationReadSequence: 0,
+      storageOperationInstanceId: '',
+      storageOperationHistoryRead: null,
       diskOfferings: [],
       diskOfferingLoading: false,
       actionModal: {
@@ -4613,6 +4626,28 @@ export default {
     actionModalOkText () {
       return ['deleteConfirm', 'deleteEndpoint', 'detachBackingVolume', 'adLeave'].includes(this.actionModal.type) ? this.$t('label.ok') : this.$t('label.ok')
     },
+    storageOperationGateEnabled () { return this.hasStorageServiceApi },
+    storageOperationReadSupported () { return 'listStorageServiceOperations' in (this.$store?.getters?.apis || {}) },
+    storageRecoveryGate () {
+      if (this.storageMutationDisposed) return { blocked: true, status: 'UNKNOWN' }
+      if (!this.storageOperationGateEnabled) return { blocked: false }
+      if (!this.storageOperationReadSupported) return { blocked: true, status: 'ERROR' }
+      const gate = this.storageOperationGate
+      const matches = gate?.resourceId === this.resource.id && gate?.instanceId === this.storageService.instance?.id && gate?.security === storageSecurityScope(this)
+      if (!matches || gate.status !== 'READY' || this.storageService.loading) return { blocked: true, status: gate?.status || 'UNKNOWN' }
+      return { ...gate, blocked: !!gate.blocker }
+    },
+    storageMutationBlocked () { return this.storageRecoveryGate.blocked },
+    storageRecoveryGateMessage () {
+      const gate = this.storageRecoveryGate
+      if (gate.blocker?.state === 'RECOVERY_REQUIRED') return this.storageLabel('message.storage.operation.change.recovery.required', '구성 복구가 필요합니다. 작업 탭에서 해당 작업을 복구한 후 설정을 변경하세요.')
+      if (gate.blocker) return this.storageLabel('message.storage.operation.change.running', '설정 변경 작업이 진행 중입니다. 완료 상태를 확인한 후 변경하세요.')
+      if (gate.status === 'ERROR') return this.storageLabel('message.storage.operation.change.read.failed', '현재 작업 상태를 확인하지 못해 설정 변경을 잠시 차단했습니다. 업데이트 후 다시 확인하세요.')
+      return this.storageLabel('message.storage.operation.change.read.loading', '현재 작업 상태를 확인하는 동안 설정 변경을 잠시 기다려 주세요.')
+    },
+    storageModalCanResumeIntent () {
+      return [...(storageMutationIntents.get(this)?.values() || [])].some(intent => storageIntentCanResume(this, intent))
+    },
     storageMutationSecurityScope () { return storageSecurityScope(this) },
     actionModalOkButtonProps () {
       const deleteEndpointBlocked = this.actionModal.type === 'deleteEndpoint' && !this.deleteEndpointConfirmationMatched
@@ -4626,7 +4661,7 @@ export default {
       )
       return {
         danger: ['deleteConfirm', 'deleteEndpoint', 'detachBackingVolume', 'adLeave'].includes(this.actionModal.type),
-        disabled: this.actionModal.loading || this.storageMutationPending || (this.actionModal.type === 'deleteConfirm' && !this.deleteConfirmationMatched) ||
+        disabled: (this.storageMutationBlocked && !this.storageModalCanResumeIntent) || this.actionModal.loading || this.storageMutationPending || (this.actionModal.type === 'deleteConfirm' && !this.deleteConfirmationMatched) ||
           (this.actionModal.type === 'nfsServiceSettings' && !['NAME_DOMAIN', 'NUMERIC'].includes(this.forms.nfsServiceSettings.idmappingmode)) ||
           deleteEndpointBlocked ||
           (this.actionModal.type === 'detachBackingVolume' && !this.forms.detachBackingVolume.confirmation) ||
@@ -4842,7 +4877,39 @@ export default {
       if (this.$refs.storageOperationHistory) this.$refs.storageOperationHistory.refresh()
     },
     refreshStorageOperationHistory (instanceId) {
-      if (instanceId === this.storageService.instance?.id && this.$refs.storageOperationHistory) this.$refs.storageOperationHistory.refresh()
+      if (instanceId !== this.storageService.instance?.id) return
+      if (this.$refs.storageOperationHistory) return this.$refs.storageOperationHistory.refresh()
+      if (this.storageOperationReadSupported) return this.fetchStorageOperationGate(instanceId).catch(() => {})
+    },
+    beginStorageOperationRead (instanceId) {
+      const token = { sequence: ++this.storageOperationReadSequence, resourceId: this.resource.id, instanceId, security: storageSecurityScope(this) }
+      this.storageOperationGate = { ...this.storageOperationGate, ...token, status: 'LOADING' }
+      return token
+    },
+    acceptStorageOperationRead (token, rows, readError) {
+      if (this.storageMutationDisposed || token.sequence !== this.storageOperationReadSequence || token.resourceId !== this.resource.id || token.instanceId !== (this.storageOperationInstanceId || this.storageService.instance?.id) || token.security !== storageSecurityScope(this)) return
+      try {
+        if (readError) throw new Error('STORAGE_OPERATION_STATE_UNVERIFIED')
+        this.storageOperationGate = { ...token, status: 'READY', rows, ...currentStorageWriter(rows, token.instanceId) }
+      } catch (error) { this.storageOperationGate = { ...this.storageOperationGate, ...token, status: 'ERROR' } }
+    },
+    async fetchStorageOperationGate (instanceId) {
+      const token = this.beginStorageOperationRead(instanceId)
+      try {
+        const rows = await storageReadDeadline(this.listApi('listStorageServiceOperations', { instanceid: instanceId }, 'storageserviceoperation'))
+        this.acceptStorageOperationRead(token, rows, false)
+        if (token.sequence === this.storageOperationReadSequence && this.storageOperationGate.status === 'ERROR') throw new Error('STORAGE_OPERATION_STATE_UNVERIFIED')
+        return rows
+      } catch (error) { this.acceptStorageOperationRead(token, [], true); throw error }
+    },
+    storageOperationHistoryStarted ({ instanceId, generation }) {
+      if (instanceId !== this.storageService.instance?.id) return
+      this.storageOperationHistoryRead = { instanceId, generation, token: this.beginStorageOperationRead(instanceId) }
+    },
+    storageOperationHistoryLoaded ({ instanceId, generation, rows, readError }) {
+      const read = this.storageOperationHistoryRead
+      if (!read || read.instanceId !== instanceId || read.generation !== generation) return
+      this.acceptStorageOperationRead(read.token, rows, readError)
     },
     storageLabel (key, fallback) {
       const value = this.$t(key)
@@ -5135,7 +5202,9 @@ export default {
           })
           return
         }
+        this.storageOperationInstanceId = instance.id
         const sections = await readStorageSections({
+          ...(this.storageOperationReadSupported ? { operations: () => this.fetchStorageOperationGate(instance.id) } : {}),
           health: () => this.listApi('listStorageServiceHealth', { instanceid: instance.id }, 'storageserviceruntime'),
           protocols: () => this.listApi('listStorageServiceProtocols', { instanceid: instance.id }, 'storageserviceprotocol'),
           domains: () => this.listApi('listStorageServiceDomainStatus', { instanceid: instance.id }, 'storageidentitydomain'),
@@ -5194,6 +5263,7 @@ export default {
         if (!this.isListRequestCurrent('fetchStorageServiceData', request)) return
         request.failed = true
         this.listRefreshFailed = true
+        if (this.storageOperationGateEnabled) this.storageOperationGate = { ...this.storageOperationGate, status: 'ERROR' }
         this.storageService.readErrors = ['listStorageServiceInstances']
         this.storageService.readErrorKinds = { listStorageServiceInstances: storageReadFailureKind(error) }
         if (initialLoad) this.$notifyError(new Error(this.storageReadFailureCause('listStorageServiceInstances')))
@@ -5391,6 +5461,7 @@ export default {
         return []
       }
       const json = await getAPI(api, params, { preserveOnFailure: true, timeout: 15000 })
+      if (api === 'listStorageServiceOperations') return storageOperationRows(json)
       const response = json[api.toLowerCase() + 'response'] || {}
       const items = response[objectName] || Object.values(response).find(value => Array.isArray(value)) || []
       return Array.isArray(items) ? items : [items]
@@ -5460,6 +5531,7 @@ export default {
       if (!this.identityRepair.loading) this.identityRepair.visible = false
     },
     async applyStorageIdentityRepair () {
+      if (this.storageMutationBlocked) return false
       if (!this.identityRepair.eligible || !this.identityRepair.runtimePrimaryIp) return
       this.identityRepair.loading = true
       try {
@@ -5592,6 +5664,7 @@ export default {
         // can advance its expected revision without creating another mutation.
         intent = storageMutationIntent(this, scope, api, parameters)
         const retry = !!intent?.value.jobId
+        if (this.storageMutationBlocked && !storageIntentCanResume(this, intent?.value)) { report(this.storageRecoveryGateMessage); return false }
         if (joined && !retry) {
           if (!supportsAdMutationApi(api => this.$getApiParams?.(api), api)) throw new Error('AD_MUTATION_API_UNSUPPORTED')
           if (!domain || domain.instanceid !== instance.id || (parameters.instanceid !== undefined && parameters.instanceid !== instance.id)) throw new Error('AD_SERVICE_APPROVAL_REQUIRED')
@@ -5610,6 +5683,7 @@ export default {
         if (intent) parameters.idempotencykey = intent.value.key
         let result = {}
         attempted = true
+        if (intent) intent.value.attempted = true
         if (retry) result.jobid = intent.value.jobId
         else {
           const response = await postAPI(api, parameters, { preserveOnFailure: true, timeout: 15000 })
@@ -7491,6 +7565,7 @@ export default {
         .filter(value => value && !seen.has(value) && seen.add(value))
     },
     openActionModal (type, context = null) {
+      if (this.storageMutationBlocked) { this.$message.error(this.storageRecoveryGateMessage); return false }
       this.storageModalEpoch = (this.storageModalEpoch || 0) + 1
       this.actionModal.error = ''
       this.actionModal.loading = false
@@ -7657,6 +7732,7 @@ export default {
       }
     },
     openDeleteModal (resourceType, record) {
+      if (this.storageMutationBlocked) { this.$message.error(this.storageRecoveryGateMessage); return false }
       this.storageModalEpoch = (this.storageModalEpoch || 0) + 1
       this.actionModal.error = ''
       this.actionModal.loading = false
@@ -7719,6 +7795,7 @@ export default {
     },
     async submitActionModal () {
       if (this.actionModal.loading || this.storageMutationDisposed) return false
+      if (this.storageMutationBlocked && !this.storageModalCanResumeIntent) { this.actionModal.error = this.storageRecoveryGateMessage; return false }
       const modal = this.actionModal; const epoch = this.storageModalEpoch || 0; const type = modal.type; const scope = storageMutationScope(this)
       const sameModal = () => storageMutationScopeMatches(this, scope) && this.actionModal === modal && modal.visible && modal.type === type && (this.storageModalEpoch || 0) === epoch
       const actions = {
@@ -7848,6 +7925,8 @@ export default {
       }, this.$t('label.storage.service.create.nfs.export'))
     },
     async prepareNfsExportVolume () {
+      const retryVolume = storagePreparedVolumeForRetry(this, 'nfsExport')
+      if (retryVolume) return retryVolume
       if (this.forms.nfsExport.volumemode === 'CURRENT') {
         if (!this.forms.nfsExport.volumeid) {
           this.$message.error(this.$t('message.storage.service.current.volume.required'))
@@ -7862,6 +7941,7 @@ export default {
         }
         return this.forms.nfsExport.volumeid
       }
+      if (this.storageMutationBlocked) return false
       if (!this.forms.nfsExport.storageid) {
         this.forms.nfsExport.storageid = this.defaultNewVolumeStorageId()
       }
@@ -8001,6 +8081,8 @@ export default {
       }, this.$t('label.storage.service.delete.endpoint'))
     },
     async prepareSmbShareVolume () {
+      const retryVolume = storagePreparedVolumeForRetry(this, 'smbShare')
+      if (retryVolume) return retryVolume
       if (this.forms.smbShare.volumemode === 'CURRENT') {
         if (!this.forms.smbShare.volumeid) {
           this.$message.error(this.$t('message.storage.service.current.volume.required'))
@@ -8015,6 +8097,7 @@ export default {
         }
         return this.forms.smbShare.volumeid
       }
+      if (this.storageMutationBlocked) return false
       if (!this.forms.smbShare.storageid) {
         this.forms.smbShare.storageid = this.defaultSmbNewVolumeStorageId()
       }
@@ -8126,6 +8209,7 @@ export default {
       return result
     },
     async runAdDomainAction (key, api, form, title, verifyJoined) {
+      if (this.storageMutationBlocked) return false
       const instance = this.storageService.instance
       if (!instance || this.actionLoading[key]) return
       const target = { id: instance.id, name: instance.name }
@@ -8186,6 +8270,8 @@ export default {
       }
     },
     async prepareIscsiTargetVolume () {
+      const retryVolume = storagePreparedVolumeForRetry(this, 'iscsiTarget')
+      if (retryVolume) return retryVolume
       if (this.forms.iscsiTarget.volumemode === 'CURRENT' || this.forms.iscsiTarget.volumemode === 'EXISTING') {
         if (!this.forms.iscsiTarget.volumeid) {
           this.$message.error(this.$t(this.forms.iscsiTarget.volumemode === 'CURRENT' ? 'message.storage.service.current.volume.required' : 'message.storage.service.existing.volume.required'))
@@ -8193,6 +8279,7 @@ export default {
         }
         return this.forms.iscsiTarget.volumeid
       }
+      if (this.storageMutationBlocked) return false
       if (!this.forms.iscsiTarget.storageid) {
         this.forms.iscsiTarget.storageid = this.defaultIscsiNewVolumeStorageId()
       }
@@ -8258,6 +8345,8 @@ export default {
       }, this.$t('label.storage.service.update.iscsi.target'))
     },
     async prepareNvmeNamespaceVolume () {
+      const retryVolume = storagePreparedVolumeForRetry(this, 'nvmeNamespace')
+      if (retryVolume) return retryVolume
       if (this.forms.nvmeNamespace.volumemode === 'CURRENT' || this.forms.nvmeNamespace.volumemode === 'EXISTING') {
         if (!this.forms.nvmeNamespace.volumeid) {
           this.$message.error(this.$t(this.forms.nvmeNamespace.volumemode === 'CURRENT' ? 'message.storage.service.current.volume.required' : 'message.storage.service.existing.volume.required'))
@@ -8265,6 +8354,7 @@ export default {
         }
         return this.forms.nvmeNamespace.volumeid
       }
+      if (this.storageMutationBlocked) return false
       if (!this.forms.nvmeNamespace.storageid) {
         this.forms.nvmeNamespace.storageid = this.defaultNvmeNewVolumeStorageId()
       }

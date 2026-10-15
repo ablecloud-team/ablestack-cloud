@@ -21,7 +21,7 @@
     <a-space wrap>
       <a-button v-if="can('createStorageServiceConfigBackup')" type="primary" :loading="!!busy" @click="openBackupDialog"><template #icon><CloudDownloadOutlined /></template>{{ $t('label.storage.config.create') }}</a-button>
       <a-upload v-if="can('uploadStorageServiceConfigBackup')" :before-upload="importFile" :show-upload-list="false" accept=".zip"><a-button :disabled="!!busy"><template #icon><UploadOutlined /></template>{{ $t('label.storage.config.import') }}</a-button></a-upload>
-      <a-button v-if="can('verifyStorageServiceConfiguration')" :disabled="!!busy" @click="verifyBaseline"><template #icon><ReloadOutlined /></template>{{ $t('label.storage.config.verify.baseline') }}</a-button>
+      <a-button v-if="can('verifyStorageServiceConfiguration')" :disabled="storageMutationDisabled || !!busy" @click="verifyBaseline"><template #icon><ReloadOutlined /></template>{{ $t('label.storage.config.verify.baseline') }}</a-button>
       <a-button v-if="can('planStorageServiceLastKnownGoodRestore')" :disabled="!activePoint || !!busy" @click="openPlan(activePoint, true)"><template #icon><RollbackOutlined /></template>{{ $t('label.storage.config.lkg.restore') }}</a-button>
       <a-button :loading="loading" @click="refresh"><template #icon><ReloadOutlined /></template>{{ $t('label.refresh') }}</a-button>
     </a-space>
@@ -83,6 +83,7 @@
 :width="900"
 :ok-text="planPhase==='REVIEW' ? $t('label.storage.config.apply') : $t('label.storage.config.plan')"
 :confirm-loading="planning"
+:ok-button-props="{ disabled: planPhase==='REVIEW' && storageMutationDisabled }"
 @cancel="closePlan"
       @ok="planPhase==='REVIEW' ? applyPlan() : preparePlan()">
       <a-alert type="info" show-icon :message="$t('message.storage.config.data.excluded')" />
@@ -166,6 +167,7 @@
   </section>
 </template>
 <script>
+import { storageMutationGateMixin, requireStorageMutationAllowed } from '@/utils/storageRecoveryGate'
 import { getAPI, postAPI } from '@/api'
 import SHA from 'sha.js'
 import { supportsStorageFormatting, diskProvisioningLabel } from '@/utils/storageDiskProvisioning'
@@ -174,6 +176,7 @@ import { CloudDownloadOutlined, UploadOutlined, DownloadOutlined, RollbackOutlin
 const Sha256 = SHA.sha256
 
 export default {
+  mixins: [storageMutationGateMixin],
   name: 'StorageServiceConfiguration',
   components: { CloudDownloadOutlined, UploadOutlined, DownloadOutlined, RollbackOutlined, ReloadOutlined },
   emits: ['operation-updated'],
@@ -259,6 +262,7 @@ export default {
     },
     async mutation (api, parameters) {
       const instance = this.instanceId
+      requireStorageMutationAllowed(this, api)
       const value = await postAPI(api, { instanceid: instance, ...parameters })
       if (instance !== this.instanceId) throw new Error(this.$t('message.storage.config.scope.changed'))
       const body = value[api.toLowerCase() + 'response']; const job = body?.jobid

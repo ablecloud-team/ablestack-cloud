@@ -174,9 +174,177 @@ public class LibvirtStorageServiceHostCommandWrapperTest {
     }
 
 
+    private static final String PROTECTED_STARTUP_PYTHON_FIXTURE = String.join("\n",
+            "import ast,contextlib,io,json,os,stat,sys,types",
+            "from unittest import mock",
+            "request=json.load(sys.stdin)",
+            "def definitions(text):",
+            " tree=ast.parse(text);nodes=[n for n in tree.body if isinstance(n,(ast.FunctionDef,ast.Import,ast.ImportFrom,ast.Assign))]",
+            " ns={'__name__':'portable_actual_transport_fixture'}",
+            " exec(compile(ast.Module(body=nodes,type_ignores=[]),'<actual-protected-transport>','exec'),ns)",
+            " return ns",
+            "mode=request['mode'];receiver=definitions(request['receiver']);observer=definitions(request['observer'])",
+            "if mode=='setup-mode':",
+            " original=os.dup2;published=[]",
+            " def publish(source,target,**kwargs):",
+            "  original(source,target,**kwargs)",
+            "  if target in (16,18):",
+            "   assert stat.S_IMODE(os.fstat(target).st_mode)==0o600",
+            "   published.append(target)",
+            " try:",
+            "  with mock.patch.object(os,'geteuid',return_value=0),mock.patch.object(os,'dup2',side_effect=publish):receiver['setup']()",
+            "  assert published==[16,18]",
+            " finally:receiver['close_owned']()",
+            "else:",
+            " nonce='a'*32;args=['/usr/bin/python3','-c','PUBLIC_FIXED_RECEIVER_SCRIPT',nonce]",
+            " state={'fds':False,'uid':0,'start':7,'alive':True,'nonce':nonce,'script':'PUBLIC_FIXED_RECEIVER_SCRIPT','fdMode':0o600,'fdName':'/memfd:ablestack-protected-input (deleted)','exe':'/usr/bin/python3.11','binaryDevice':1,'binaryInode':2}",
+            " if mode=='foreign-uid':state['uid']=1",
+            " if mode=='changed-start':state['start']=8",
+            " if mode=='nonce':state['nonce']='b'*32",
+            " if mode=='argv':state['script']='FOREIGN_SCRIPT'",
+            " if mode=='dead':state['alive']=False",
+            " if mode=='fd-mode':state['fds']=True;state['fdMode']=0o777",
+            " if mode=='fd-name':state['fds']=True;state['fdName']='/memfd:foreign (deleted)'",
+            " if mode in ('permission','io'):state['fds']=True",
+            " def fake_stat(path,*unused,**kwargs):",
+            "  path=str(path)",
+            "  if not state['alive']:raise FileNotFoundError()",
+            "  if path=='/proc/200':return types.SimpleNamespace(st_uid=state['uid'])",
+            "  if path=='/proc/200/exe':return types.SimpleNamespace(st_uid=0,st_mode=stat.S_IFREG|0o755,st_dev=state['binaryDevice'],st_ino=state['binaryInode'])",
+            "  if path in('/proc/200/fd/16','/proc/200/fd/18'):",
+            "   partial=(mode=='missing16-foreign18'and path.endswith('/18'))or(mode=='missing18-foreign16'and path.endswith('/16'))",
+            "   if not state['fds']and not partial:raise FileNotFoundError()",
+            "   if mode=='permission':raise PermissionError()",
+            "   if mode=='io':raise OSError(5,'SYNTHETIC_PRIVATE_ERROR')",
+            "   return types.SimpleNamespace(st_uid=0,st_mode=(stat.S_IFREG if path.endswith('/16')else stat.S_IFIFO)|(0o777 if partial else state['fdMode']),st_ino=33 if path.endswith('/16')else 34)",
+            "  raise AssertionError('Unexpected fixture path')",
+            " def fake_link(path):",
+            "  if path=='/proc/200/exe':return '/bin/sh'if mode=='exe'else state['exe']",
+            "  if path=='/proc/200/fd/16':return state['fdName']",
+            "  return 'pipe:[34]'",
+            " def fake_open(path,*unused,**kwargs):",
+            "  if path=='/proc/200/stat':return io.BytesIO(('200 (python3) '+' '.join(['S']+['0']*18+[str(state['start'])])).encode())",
+            "  if path=='/proc/200/cmdline':return io.BytesIO(('\\0'.join(args[:2]+[state['script'],state['nonce']])+'\\0').encode())",
+            "  raise AssertionError('Unexpected fixture open')",
+            " with mock.patch.object(os,'stat',side_effect=fake_stat),mock.patch.object(os,'readlink',side_effect=fake_link),mock.patch('builtins.open',side_effect=fake_open):",
+            "  if mode in('pinned-exe','pinned-device','pinned-binary','device-zero'):",
+            "   if mode=='device-zero':state['binaryDevice']=0",
+            "   first=observer['observe'](200,args,7);state['fds']=True",
+            "   if mode=='pinned-exe':state['exe']='/usr/bin/python3.12'",
+            "   if mode=='pinned-device':state['binaryDevice']=2",
+            "   if mode=='pinned-binary':state['binaryInode']=3",
+            "   try:",
+            "    second=observer['observe'](200,args,7,nonce,None,None,first['executablePath'],first['binaryDevice'],first['binaryInode'])",
+            "   except ValueError:",
+            "    assert mode!='device-zero'",
+            "   else:",
+            "    assert mode=='device-zero'and second['ready']is True and second['binaryDevice']==0",
+            "  elif mode=='missing':",
+            "   first=observer['observe'](200,args,7);assert first['ready']is False and first['status']=='NOT_READY'",
+            "   state['fds']=True;second=observer['observe'](200,args,7);assert second['ready']is True and second['status']=='READY'",
+            "   assert first['startTicks']==second['startTicks']==7 and first['launchNonce']==second['launchNonce']==nonce",
+            "  else:",
+            "   try:observer['observe'](200,args,7)",
+            "   except (ValueError,FileNotFoundError,PermissionError,OSError):pass",
+            "   else:raise AssertionError('Invalid owner must remain rejected')",
+            "print(json.dumps({'success':True,'mode':mode,'privateValuesExported':False}))");
+
+    private void actualProtectedPython(String mode) throws Exception {
+        com.google.gson.JsonObject request = new com.google.gson.JsonObject();request.addProperty("mode", mode);
+        for (String name : new String[]{"RECEIVER", "OBSERVER"}) {
+            java.lang.reflect.Field field = LibvirtStorageServiceHostCommandWrapper.class.getDeclaredField("PROTECTED_STDIN_" + name);
+            field.setAccessible(true);request.addProperty(name.toLowerCase(java.util.Locale.ROOT), (String) field.get(null));
+        }
+        Process process = new ProcessBuilder("python3", "-c", PROTECTED_STARTUP_PYTHON_FIXTURE).start();
+        try (java.io.OutputStream input = process.getOutputStream()) {
+            input.write(request.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        }
+        if (!process.waitFor(15, java.util.concurrent.TimeUnit.SECONDS)) {
+            process.destroyForcibly();Assert.fail("Protected startup fixture exceeded its bounded deadline");
+        }
+        Assert.assertEquals("Actual transport fixture failed: " + mode, 0, process.exitValue());
+        Assert.assertEquals(0, process.getErrorStream().readAllBytes().length);
+        com.google.gson.JsonObject result = com.google.gson.JsonParser.parseString(new String(process.getInputStream().readAllBytes(),
+                java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();
+        Assert.assertTrue(result.get("success").getAsBoolean());Assert.assertFalse(result.get("privateValuesExported").getAsBoolean());
+    }
+
+    @Test public void actualReceiverPublishesOnlyAlreadyPrivateFixedDescriptors() throws Exception {
+        actualProtectedPython("setup-mode");
+    }
+
+    @Test public void actualObserverReturnsNotReadyOnlyForMissingOwnedDescriptors() throws Exception {
+        actualProtectedPython("missing");
+        for (String mode : new String[]{"foreign-uid", "changed-start", "nonce", "argv", "dead", "fd-mode", "fd-name", "permission", "io", "exe", "missing16-foreign18", "missing18-foreign16", "pinned-exe", "pinned-device", "pinned-binary", "device-zero"})
+            actualProtectedPython(mode);
+    }
+
+    @Test public void delayedOwnedReceiverReobservesBeforeUploadAndCommit() throws Exception {
+        for (String failure : new String[]{"not-ready", "not-ready-zero-device"}) {
+            java.util.List<String> events = new java.util.ArrayList<>();java.io.ByteArrayOutputStream bytes = new java.io.ByteArrayOutputStream();
+            org.libvirt.Domain domain = chunkDomain(events, bytes, failure);
+            StorageServiceHostCommand command = new StorageServiceHostCommand("same-vm", "identity capsule import-local-source",
+                    "X".repeat(40000), 120, Collections.singleton("capsule"));
+            Assert.assertEquals(17, wrapper.executeGuestCommand(domain, command));
+            Assert.assertEquals(40000, bytes.size());Assert.assertEquals(4, events.stream().filter("guest-exec"::equals).count());
+            Assert.assertTrue(events.contains("COMMIT"));
+        }
+    }
+
+
+    @Test public void startupOwnershipViolationsAndObserverFailureNeverRetryOrUpload() throws Exception {
+        for (String failure : new String[]{"not-ready-nonce", "not-ready-pid", "not-ready-extra", "not-ready-bool", "not-ready-duplicate", "not-ready-uppercase", "observer-exit"}) {
+            java.util.List<String> events = new java.util.ArrayList<>();java.io.ByteArrayOutputStream bytes = new java.io.ByteArrayOutputStream();
+            org.libvirt.Domain domain = chunkDomain(events, bytes, failure);
+            StorageServiceHostCommand command = new StorageServiceHostCommand("same-vm", "identity capsule import-local-source",
+                    "X".repeat(40000), 120, Collections.singleton("capsule"));
+            try {wrapper.executeGuestCommand(domain, command);Assert.fail("Invalid readiness must fail");}
+            catch (IllegalStateException expected) {Assert.assertFalse(expected.getMessage().contains("PRIVATE"));}
+            Assert.assertEquals(0, bytes.size());Assert.assertFalse(events.contains("COMMIT"));
+            Assert.assertEquals(2, events.stream().filter("guest-exec"::equals).count());
+        }
+    }
+
+    @Test public void notReadyPinsStartAndAnyPublishedInodeAndCannotExtendDeadline() throws Exception {
+        for (String failure : new String[]{"not-ready-start", "not-ready-inode", "not-ready-disappeared", "not-ready-exe", "not-ready-device", "not-ready-binary"}) {
+            java.util.List<String> events = new java.util.ArrayList<>();java.io.ByteArrayOutputStream bytes = new java.io.ByteArrayOutputStream();
+            org.libvirt.Domain domain = chunkDomain(events, bytes, failure);
+            StorageServiceHostCommand command = new StorageServiceHostCommand("same-vm", "identity capsule import-local-source",
+                    "X".repeat(40000), 120, Collections.singleton("capsule"));
+            try {wrapper.executeGuestCommand(domain, command);Assert.fail("Changed startup identity must fail");}
+            catch (IllegalStateException expected) { }
+            Assert.assertEquals(0, bytes.size());Assert.assertFalse(events.contains("COMMIT"));
+            Assert.assertEquals(3, events.stream().filter("guest-exec"::equals).count());
+        }
+        org.libvirt.Domain expired = org.mockito.Mockito.mock(org.libvirt.Domain.class);
+        try {wrapper.observeProtectedInputReceiver(expired, 17, new com.google.gson.JsonArray(), System.currentTimeMillis() - 1);Assert.fail();}
+        catch (IllegalStateException expected) { }
+        org.mockito.Mockito.verifyNoInteractions(expired);
+    }
+
+    @Test public void observerReadyAfterOriginalDeadlineCannotAuthorizeUpload() throws Exception {
+        org.libvirt.Domain domain = org.mockito.Mockito.mock(org.libvirt.Domain.class);
+        String nonce = "0".repeat(32);
+        org.mockito.Mockito.when(domain.qemuAgentCommand(org.mockito.Mockito.anyString(), org.mockito.Mockito.anyInt(), org.mockito.Mockito.eq(0)))
+                .thenAnswer(call -> {
+                    String action = com.google.gson.JsonParser.parseString(call.getArgument(0)).getAsJsonObject().get("execute").getAsString();
+                    if ("guest-exec".equals(action)) return "{\"return\":{\"pid\":20}}";
+                    Assert.assertEquals("guest-exec-status", action);Thread.sleep(1100);
+                    String owner = "{\"ready\":true,\"status\":\"READY\",\"rootOwned\":true,\"receiverScriptVerified\":true,"
+                            + "\"pid\":17,\"startTicks\":99,\"launchNonce\":\"" + nonce + "\",\"dataInode\":33,\"controlInode\":34}";
+                    return "{\"return\":{\"exited\":true,\"exitcode\":0,\"out-data\":\""
+                            + java.util.Base64.getEncoder().encodeToString(owner.getBytes(java.nio.charset.StandardCharsets.UTF_8)) + "\"}}";
+                });
+        com.google.gson.JsonArray expected = new com.google.gson.JsonArray();expected.add(nonce);
+        try {wrapper.observeProtectedInputReceiver(domain, 17, expected, System.currentTimeMillis() + 1000);Assert.fail("Expired READY must not authorize upload");}
+        catch (IllegalStateException failure) {Assert.assertTrue(failure.getMessage().contains("deadline"));}
+        org.mockito.Mockito.verify(domain, org.mockito.Mockito.times(2))
+                .qemuAgentCommand(org.mockito.Mockito.anyString(), org.mockito.Mockito.anyInt(), org.mockito.Mockito.eq(0));
+    }
+
     private org.libvirt.Domain chunkDomain(java.util.List<String> events, java.io.ByteArrayOutputStream captured, String failure) throws Exception {
         org.libvirt.Domain domain = org.mockito.Mockito.mock(org.libvirt.Domain.class);
-        final int[] observer = {0};
+        final int[] observer = {0};final int[] replies = {0};final String[] nonce = {"0".repeat(32)};
         org.mockito.Mockito.when(domain.qemuAgentCommand(org.mockito.Mockito.anyString(), org.mockito.Mockito.anyInt(), org.mockito.Mockito.eq(0)))
                 .thenAnswer(invocation -> {
                     com.google.gson.JsonObject qga = com.google.gson.JsonParser.parseString(invocation.getArgument(0)).getAsJsonObject();
@@ -193,14 +361,44 @@ public class LibvirtStorageServiceHostCommandWrapperTest {
                     } else if ("guest-exec".equals(method)) {
                         Assert.assertFalse(arguments.toString().contains("PRIVATE_SENTINEL"));
                         Assert.assertFalse(arguments.has("input-data"));
-                        if (observer[0] == 0) Assert.assertTrue(arguments.getAsJsonArray("arg").get(4).getAsInt() <= 300);
+                        if ("not-ready-zero-device".equals(failure) && observer[0] > 1)
+                            Assert.assertEquals("0", arguments.getAsJsonArray("arg").get(9).getAsString());
+                        if (observer[0] == 0) {
+                            Assert.assertTrue(arguments.getAsJsonArray("arg").get(4).getAsInt() <= 300);
+                            if (arguments.getAsJsonArray("arg").size() > 6) nonce[0] = arguments.getAsJsonArray("arg").get(6).getAsString();
+                        }
                         com.google.gson.JsonObject pid = new com.google.gson.JsonObject();pid.addProperty("pid", observer[0]++ == 0 ? 17 : 20);response.add("return", pid);
                     } else if ("guest-exec-status".equals(method)) {
                         com.google.gson.JsonObject owner = new com.google.gson.JsonObject();owner.addProperty("ready", true);owner.addProperty("rootOwned", true);
                         owner.addProperty("receiverScriptVerified", true);owner.addProperty("pid", 17);owner.addProperty("startTicks", 99);
+                        owner.addProperty("executablePath", "/usr/bin/python3.11");owner.addProperty("binaryDevice", "not-ready-zero-device".equals(failure) ? 0 : 1);owner.addProperty("binaryInode", 2);
                         owner.addProperty("dataInode", "ownership".equals(failure) && observer[0] > 2 ? 44 : 33);owner.addProperty("controlInode", 34);
-                        com.google.gson.JsonObject status = new com.google.gson.JsonObject();status.addProperty("exited", true);status.addProperty("exitcode", 0);
-                        status.addProperty("out-data", java.util.Base64.getEncoder().encodeToString(owner.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+                        int ordinal = replies[0]++;
+                        boolean waiting = failure.startsWith("not-ready") && ordinal == 0;
+                        owner.addProperty("ready", !waiting);owner.addProperty("status", waiting ? "NOT_READY" : "READY");owner.addProperty("launchNonce", nonce[0]);
+                        if (waiting) {owner.add("dataInode", com.google.gson.JsonNull.INSTANCE);owner.add("controlInode", com.google.gson.JsonNull.INSTANCE);}
+                        if ("not-ready-nonce".equals(failure)) owner.addProperty("launchNonce", "f".repeat(32));
+                        if ("not-ready-pid".equals(failure)) owner.addProperty("pid", 18);
+                        if ("not-ready-extra".equals(failure)) owner.addProperty("PRIVATE_UNKNOWN_FIELD", "PRIVATE_SENTINEL");
+                        if ("not-ready-start".equals(failure) && ordinal > 0) owner.addProperty("startTicks", 100);
+                        if ("not-ready-inode".equals(failure)) owner.addProperty("dataInode", ordinal == 0 ? 33 : 44);
+                        if ("not-ready-disappeared".equals(failure)) {
+                            owner.addProperty("ready", false);owner.addProperty("status", "NOT_READY");
+                            if (ordinal == 0) owner.addProperty("dataInode", 33);
+                            else {owner.add("dataInode", com.google.gson.JsonNull.INSTANCE);owner.addProperty("controlInode", 34);}
+                        }
+                        if ("not-ready-bool".equals(failure)) owner.addProperty("pid", true);
+                        if ("not-ready-exe".equals(failure) && ordinal > 0) owner.addProperty("executablePath", "/usr/bin/python3.12");
+                        if ("not-ready-device".equals(failure) && ordinal > 0) owner.addProperty("binaryDevice", 2);
+                        if ("not-ready-binary".equals(failure) && ordinal > 0) owner.addProperty("binaryInode", 3);
+                        if ("post-upload-exe".equals(failure) && ordinal > 0) owner.addProperty("executablePath", "/usr/bin/python3.12");
+                        if ("post-upload-device".equals(failure) && ordinal > 0) owner.addProperty("binaryDevice", 2);
+                        if ("post-upload-binary".equals(failure) && ordinal > 0) owner.addProperty("binaryInode", 3);
+                        com.google.gson.JsonObject status = new com.google.gson.JsonObject();status.addProperty("exited", true);status.addProperty("exitcode", "observer-exit".equals(failure) ? 1 : 0);
+                        String output = owner.toString();
+                        if ("not-ready-duplicate".equals(failure)) output = output.replace("{", "{\"pid\":17,");
+                        if ("not-ready-uppercase".equals(failure)) output = output.replace("false", "FALSE");
+                        status.addProperty("out-data", java.util.Base64.getEncoder().encodeToString(output.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
                         response.add("return", status);
                     } else if ("guest-file-open".equals(method)) {
                         response.addProperty("return", arguments.get("path").getAsString().endsWith("/16") ? 1 : 2);
@@ -246,13 +444,16 @@ public class LibvirtStorageServiceHostCommandWrapperTest {
     }
 
     @Test public void receiverOwnershipChangeRejectsBeforeCommitAndDoesNotReplayProducer() throws Exception {
-        java.util.List<String> events = new java.util.ArrayList<>();
-        org.libvirt.Domain domain = chunkDomain(events, new java.io.ByteArrayOutputStream(), "ownership");
-        StorageServiceHostCommand command = new StorageServiceHostCommand("same-vm", "identity capsule import-local-source", "X".repeat(40000), 120, Collections.singleton("capsule"));
-        try {wrapper.executeGuestCommand(domain, command);Assert.fail();}
-        catch (IllegalStateException expected) {Assert.assertTrue(expected.getMessage().contains("identity changed"));}
-        Assert.assertFalse(events.contains("COMMIT"));Assert.assertEquals(3, events.stream().filter("guest-exec"::equals).count());
+        for (String failure : new String[]{"ownership", "post-upload-exe", "post-upload-device", "post-upload-binary"}) {
+            java.util.List<String> events = new java.util.ArrayList<>();
+            org.libvirt.Domain domain = chunkDomain(events, new java.io.ByteArrayOutputStream(), failure);
+            StorageServiceHostCommand command = new StorageServiceHostCommand("same-vm", "identity capsule import-local-source", "X".repeat(40000), 120, Collections.singleton("capsule"));
+            try {wrapper.executeGuestCommand(domain, command);Assert.fail();}
+            catch (IllegalStateException expected) {Assert.assertTrue(expected.getMessage().contains("identity changed"));}
+            Assert.assertFalse(events.contains("COMMIT"));Assert.assertEquals(3, events.stream().filter("guest-exec"::equals).count());
+        }
     }
+
 
     @Test public void afterCommitCloseFailureIsUnknownAndNeverClaimsNoCliOrRetries() throws Exception {
         java.util.List<String> events = new java.util.ArrayList<>();

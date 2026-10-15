@@ -19,7 +19,7 @@
   <section v-if="supported">
     <a-space wrap>
       <a-button :loading="loading" @click="refresh"><template #icon><ReloadOutlined /></template>{{ $t('label.refresh') }}</a-button>
-      <a-button v-if="canConfigure" :disabled="!writable" @click="open">{{ $t('label.storage.control.policy.configure') }}</a-button>
+      <a-button v-if="canConfigure" :disabled="storageMutationDisabled || (!writable)" @click="open">{{ $t('label.storage.control.policy.configure') }}</a-button>
     </a-space>
     <a-alert v-if="error" type="warning" show-icon :message="error" />
     <a-descriptions v-if="policy" bordered size="small" :column="2">
@@ -35,7 +35,7 @@
 :visible="visible"
 :title="$t('label.storage.control.policy.configure')"
 :confirm-loading="saving"
-:ok-button-props="{ disabled: !confirmed || saving }"
+:ok-button-props="{ disabled: storageMutationDisabled || !confirmed || saving }"
 :cancel-button-props="{ disabled: saving }"
 :body-style="{ maxHeight: '65vh', overflowY: 'auto' }"
 @ok="save"
@@ -51,9 +51,11 @@
   </section>
 </template>
 <script>
+import { storageMutationGateMixin, requireStorageMutationAllowed } from '@/utils/storageRecoveryGate'
 import { getAPI, postAPI } from '@/api'
 import { ReloadOutlined } from '@ant-design/icons-vue'
 export default {
+  mixins: [storageMutationGateMixin],
   name: 'StorageControlPolicy',
   components: { ReloadOutlined },
   props: { instanceId: { type: String, required: true }, instanceName: { type: String, required: true } },
@@ -104,6 +106,7 @@ export default {
         const intent = this.requestIntent || { instanceid: instance, enabled: this.desiredEnabled, expectedpolicyrevision: this.policy.policyRevision, confirmation: this.confirmation, idempotencykey: this.requestKey }
         if (intent.instanceid !== instance || intent.confirmation !== this.confirmation || intent.enabled !== this.desiredEnabled) throw new Error(this.$t('message.storage.control.policy.unknown'))
         this.requestIntent = intent
+        requireStorageMutationAllowed(this, 'configureStorageServiceControlPolicy')
         const response = await postAPI('configureStorageServiceControlPolicy', intent, { timeout: 15000 })
         if (generation !== this.generation || instance !== this.instanceId) return
         this.jobId = response.configurestorageservicecontrolpolicyresponse?.jobid || ''
