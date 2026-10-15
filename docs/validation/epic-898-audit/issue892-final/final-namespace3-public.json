@@ -1,0 +1,178 @@
+{
+  "kind": "ISSUE892_NATIVE_NVME_NAMESPACE_FAILURE_MATRIX",
+  "pass": true,
+  "phase": "COMPLETE",
+  "provisioning": "SPARSE",
+  "newVolumesCreated": 0,
+  "formatRepairMountOrDataWriteCalls": 0,
+  "faultsAreActualNativeVerifyKills": true,
+  "originalDatabaseGroupsRestored": 11,
+  "spareVolumePreserved": true,
+  "cases": [
+    {
+      "label": "nvme-namespace-create",
+      "command": "createStorageNvmeOfNamespace",
+      "operationUuid": "80cf8b64-4b59-49e6-8f18-878e727d5548",
+      "actualFailureCount": 1,
+      "outcome": "ROLLED_BACK",
+      "pass": true,
+      "databaseGroupsCompared": 11,
+      "nativeIdentityAndMappingsRestored": true
+    },
+    {
+      "label": "nvme-namespace-update",
+      "command": "updateStorageNvmeOfNamespace",
+      "operationUuid": "8b3004e6-3ffd-4a8b-ba4e-e3577dc90e57",
+      "actualFailureCount": 1,
+      "outcome": "ROLLED_BACK",
+      "pass": true,
+      "databaseGroupsCompared": 11,
+      "nativeIdentityAndMappingsRestored": true
+    },
+    {
+      "label": "nvme-namespace-delete",
+      "command": "deleteStorageNvmeOfNamespace",
+      "operationUuid": "63be0990-9778-418d-bce0-8369e7750a6f",
+      "actualFailureCount": 1,
+      "outcome": "ROLLED_BACK",
+      "pass": true,
+      "databaseGroupsCompared": 11,
+      "nativeIdentityAndMappingsRestored": true
+    }
+  ],
+  "normalJobs": [
+    {
+      "label": "ns-parent-setup",
+      "command": "createStorageNvmeOfSubsystem",
+      "sourceRevision": 122,
+      "jobId": "458423b6-3781-4f91-ab65-752f53b5d536",
+      "jobstatus": 1,
+      "pass": true
+    },
+    {
+      "label": "nvme-namespace-create-retry",
+      "command": "createStorageNvmeOfNamespace",
+      "sourceRevision": 123,
+      "jobId": "c90f56ae-4df3-4b4f-9bc6-27e0a8e06a37",
+      "jobstatus": 1,
+      "pass": true
+    },
+    {
+      "label": "nvme-namespace-update-retry",
+      "command": "updateStorageNvmeOfNamespace",
+      "sourceRevision": 124,
+      "jobId": "08e2cb36-53d7-4b03-996f-48f4e39ac630",
+      "jobstatus": 1,
+      "pass": true
+    },
+    {
+      "label": "nvme-namespace-delete-retry",
+      "command": "deleteStorageNvmeOfNamespace",
+      "sourceRevision": 125,
+      "jobId": "2a9bddab-934e-41cd-bc27-6b59908e5953",
+      "jobstatus": 1,
+      "pass": true
+    },
+    {
+      "label": "ns-parent-cleanup",
+      "command": "deleteStorageNvmeOfSubsystem",
+      "sourceRevision": 126,
+      "jobId": "2adda562-e38d-4637-925c-b04c24f65d7d",
+      "jobstatus": 1,
+      "pass": true
+    }
+  ],
+  "publicIdentityChecks": [
+    {
+      "label": "parent-created",
+      "success": true,
+      "scopeVerified": true,
+      "canonicalBindingVerified": true,
+      "runtimeBindingVerified": true,
+      "bootAndCliVerified": true,
+      "controllerPresent": true,
+      "namespacePresent": false,
+      "controllerIdentitySha256": "5bfa6fe4cfa4af94099c9116ef2123955852ccd9b2575c0acdc9f186966bccfe",
+      "namespaceIdentitySha256": null,
+      "mappingSha256": "ebfc5a0dc413561c1dcee1e741139cc8ac05fcf9a2349e43748a6bb7ff8b85ac"
+    },
+    {
+      "label": "nvme-namespace-create-normal-before",
+      "success": true,
+      "scopeVerified": true,
+      "canonicalBindingVerified": true,
+      "runtimeBindingVerified": true,
+      "bootAndCliVerified": true,
+      "controllerPresent": true,
+      "namespacePresent": false,
+      "controllerIdentitySha256": "5bfa6fe4cfa4af94099c9116ef2123955852ccd9b2575c0acdc9f186966bccfe",
+      "namespaceIdentitySha256": null,
+      "mappingSha256": "ebfc5a0dc413561c1dcee1e741139cc8ac05fcf9a2349e43748a6bb7ff8b85ac"
+    },
+    {
+      "label": "nvme-namespace-create-normal-after",
+      "success": true,
+      "scopeVerified": true,
+      "canonicalBindingVerified": true,
+      "runtimeBindingVerified": true,
+      "bootAndCliVerified": true,
+      "controllerPresent": true,
+      "namespacePresent": true,
+      "controllerIdentitySha256": "5bfa6fe4cfa4af94099c9116ef2123955852ccd9b2575c0acdc9f186966bccfe",
+      "namespaceIdentitySha256": "5b4fb576a8cdb04cf956cdaabbe42d00f835bdd9594edb5c63971cb7349d8b37",
+      "mappingSha256": "2831342893204485fc94c201bcd2bfcbc5b6e93ee253f0c88b1cbe182ee74a7e"
+    },
+    {
+      "label": "nvme-namespace-update-normal-before",
+      "success": true,
+      "scopeVerified": true,
+      "canonicalBindingVerified": true,
+      "runtimeBindingVerified": true,
+      "bootAndCliVerified": true,
+      "controllerPresent": true,
+      "namespacePresent": true,
+      "controllerIdentitySha256": "5bfa6fe4cfa4af94099c9116ef2123955852ccd9b2575c0acdc9f186966bccfe",
+      "namespaceIdentitySha256": "5b4fb576a8cdb04cf956cdaabbe42d00f835bdd9594edb5c63971cb7349d8b37",
+      "mappingSha256": "2831342893204485fc94c201bcd2bfcbc5b6e93ee253f0c88b1cbe182ee74a7e"
+    },
+    {
+      "label": "nvme-namespace-update-normal-after",
+      "success": true,
+      "scopeVerified": true,
+      "canonicalBindingVerified": true,
+      "runtimeBindingVerified": true,
+      "bootAndCliVerified": true,
+      "controllerPresent": true,
+      "namespacePresent": true,
+      "controllerIdentitySha256": "5bfa6fe4cfa4af94099c9116ef2123955852ccd9b2575c0acdc9f186966bccfe",
+      "namespaceIdentitySha256": "5b4fb576a8cdb04cf956cdaabbe42d00f835bdd9594edb5c63971cb7349d8b37",
+      "mappingSha256": "c8cdb932e6c13f5cacb772793c54d15e1b658b260ae3e6e68484b455c857838b"
+    },
+    {
+      "label": "nvme-namespace-delete-normal-before",
+      "success": true,
+      "scopeVerified": true,
+      "canonicalBindingVerified": true,
+      "runtimeBindingVerified": true,
+      "bootAndCliVerified": true,
+      "controllerPresent": true,
+      "namespacePresent": true,
+      "controllerIdentitySha256": "5bfa6fe4cfa4af94099c9116ef2123955852ccd9b2575c0acdc9f186966bccfe",
+      "namespaceIdentitySha256": "5b4fb576a8cdb04cf956cdaabbe42d00f835bdd9594edb5c63971cb7349d8b37",
+      "mappingSha256": "c8cdb932e6c13f5cacb772793c54d15e1b658b260ae3e6e68484b455c857838b"
+    },
+    {
+      "label": "nvme-namespace-delete-normal-after",
+      "success": true,
+      "scopeVerified": true,
+      "canonicalBindingVerified": true,
+      "runtimeBindingVerified": true,
+      "bootAndCliVerified": true,
+      "controllerPresent": true,
+      "namespacePresent": false,
+      "controllerIdentitySha256": "5bfa6fe4cfa4af94099c9116ef2123955852ccd9b2575c0acdc9f186966bccfe",
+      "namespaceIdentitySha256": null,
+      "mappingSha256": "1865685473e013a75e19f6a43b15800d5faf6ff328947ef63a2623ec6fbd56cb"
+    }
+  ]
+}

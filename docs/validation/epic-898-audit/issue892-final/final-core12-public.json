@@ -1,0 +1,22 @@
+{
+  "kind": "ISSUE892_INDEPENDENT_FINAL_CURRENT65C_CORE12_PUBLIC_AUDIT",
+  "pass": true,
+  "evidenceRunId": "0f1cc2b6-634b-477e-a7a9-eb4036a7d4cd",
+  "sourcePin": "65c9cf0296372593e887bc669e948cab4adf32bb",
+  "caseCount": 12,
+  "actualInjectedFaults": 12,
+  "startRevision": 101,
+  "finalCoreCommittedRevision": 114,
+  "coreEndIdleAndInSync": true,
+  "initialAndFinalOriginalDatabase11Exact": true,
+  "initialAndFinalCanonicalConfigurationSha256Exact": true,
+  "originalGlobalNativeMappingConfigurationDiskAndDataPreserved": true,
+  "caseLevelNative13AxesOmitted": 0,
+  "priorPartialOrManualRecoveryCounted": 0,
+  "protocols": [
+    "NFS",
+    "SMB",
+    "ISCSI",
+    "NVMEOF"
+  ]
+}
