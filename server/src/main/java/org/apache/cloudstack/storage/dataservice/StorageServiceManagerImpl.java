@@ -4935,8 +4935,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         if(active!=null){JsonObject snapshot=parseJsonObject(active.getPreviousSnapshotJson());if(snapshot.has("adSamBootstrapAttempted")&&!snapshot.has("adSamBootstrapReceipt"))throw new CloudRuntimeException("Unresolved local SAM initialization requires owned reconciliation before any desired DB rollback");}
                         if(renderedBatch.get()!=null&&renderedBatch.get().receipt!=null&&renderedCoordinator(instance,renderedBatch.get()).recoveryDecision(renderedBatch.get().receipt)==StorageRenderedRecoveryState.Decision.COMMITTED)throw new CloudRuntimeException("Rendered native generation committed; preserve target declaration for forward finalization");
                         if (instance.getVmId() == null) return;
-                        JsonObject observed=rootGuest(instance,"operation writer-idle",new JsonObject(),15);
-                        if(!"WRITER_IDLE".equals(getJsonString(observed,"status")))throw new CloudRuntimeException("Active or terminating native formatter preserves VM/DATA and requires forward recovery; rollback is deferred");
+                        requireRollbackNativeWriterIdle(instance);
+                        // Formatter journals and original identity remain mandatory below.
                         requireNoPendingVolumeFormatter(instance);
                         requireIdentityRollbackSafe(instance, storageWriterOperation.get());
                     }
@@ -7757,7 +7757,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
         final int requestedExportCount = payload.getAsJsonArray("exports").size();
 
-        final StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
+        final StorageServiceGuestCommandResult result = dispatchPlainProtocolApply(instance, new StorageServiceGuestCommand(instance.getVmId(),
                 "nfs export apply", GSON.toJson(payload), StorageServiceInstance.StorageServiceCommandTimeout.value(), Collections.emptySet()));
         if (!result.isSuccess()) {
             throw new CloudRuntimeException("Failed to apply NFS desired state on Storage Service System VM: " + result.getDetails());
@@ -7943,7 +7943,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             payload.add("operationScope", operationReservationScope(instance, writer));
         }
 
-        final StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
+        final StorageServiceGuestCommandResult result = dispatchPlainProtocolApply(instance, new StorageServiceGuestCommand(instance.getVmId(),
                 "smb share apply", GSON.toJson(payload), StorageServiceInstance.StorageServiceCommandTimeout.value(), Collections.singleton("password")));
         if (!result.isSuccess()) {
             throw new CloudRuntimeException("Failed to apply SMB desired state on Storage Service System VM: " + result.getDetails());
@@ -8280,7 +8280,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
 
         final JsonObject payload = buildIscsiDesiredPayload(instance,chapSecrets);
-        final StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
+        final StorageServiceGuestCommandResult result = dispatchPlainProtocolApply(instance, new StorageServiceGuestCommand(instance.getVmId(),
                 "iscsi target apply", GSON.toJson(payload), StorageServiceInstance.StorageServiceCommandTimeout.value(),
                 new HashSet<>(Arrays.asList("chapSecret", "mutualChapSecret"))));
         if (!result.isSuccess()) {
@@ -8325,7 +8325,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
 
         final JsonObject payload = buildNvmeOfDesiredPayload(instance, nvmeSecrets, hostStateOverrides);
 
-        final StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
+        final StorageServiceGuestCommandResult result = dispatchPlainProtocolApply(instance, new StorageServiceGuestCommand(instance.getVmId(),
                 "nvmeof subsystem apply", GSON.toJson(payload), StorageServiceInstance.StorageServiceCommandTimeout.value(),
                 new HashSet<>(Arrays.asList("dhChapKey", "dhChapCtrlKey"))));
         if (!result.isSuccess()) {
@@ -13207,4 +13207,144 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 StorageServiceInstance.StorageServiceRuntimeTrustedKeyDirectory
         };
     }
+
+    protected long rollbackNativeWriterNowNanos() {
+        return System.nanoTime();
+    }
+
+    protected void pauseRollbackNativeWriter(long milliseconds) {
+        try {
+            Thread.sleep(milliseconds);
+        } catch (InterruptedException interrupted) {
+            Thread.currentThread().interrupt();
+            throw new CloudRuntimeException("Native writer rollback wait was interrupted; rollback is deferred");
+        }
+    }
+
+    protected void requireRollbackNativeWriterIdle(StorageServiceInstanceVO instance) {
+        requireRollbackNativeWriterIdle(instance, rollbackNativeWriterNowNanos() + java.util.concurrent.TimeUnit.SECONDS.toNanos(15));
+    }
+
+    private void requireRollbackNativeWriterIdle(StorageServiceInstanceVO instance, long deadline) {
+        final Set<String> fields = Set.of("success", "status", "writerIdle", "writerLockSupported", "bootChildActive", "bootRecoveryRequired");
+        while (true) {
+            if (Thread.currentThread().isInterrupted())
+                throw new CloudRuntimeException("Native writer rollback wait was interrupted; rollback is deferred");
+            long remaining = deadline - rollbackNativeWriterNowNanos();
+            long seconds = java.util.concurrent.TimeUnit.NANOSECONDS.toSeconds(remaining);
+            if (remaining <= 0 || seconds < 1)
+                throw new CloudRuntimeException("Native writer idle observation deadline expired; rollback is deferred without changing VM/DATA");
+            JsonObject observed = rootGuest(instance, "operation writer-idle", new JsonObject(), (int) Math.min(15, seconds));
+            if (Thread.currentThread().isInterrupted())
+                throw new CloudRuntimeException("Native writer rollback wait was interrupted; rollback is deferred");
+            if (rollbackNativeWriterNowNanos() >= deadline)
+                throw new CloudRuntimeException("Native writer idle observation deadline expired; rollback is deferred without changing VM/DATA");
+            if (observed == null || !observed.keySet().equals(fields)
+                    || !Boolean.TRUE.equals(getNativeBoolean(observed, "success"))
+                    || !Boolean.TRUE.equals(getNativeBoolean(observed, "writerLockSupported"))
+                    || getNativeBoolean(observed, "writerIdle") == null
+                    || getNativeBoolean(observed, "bootChildActive") == null
+                    || getNativeBoolean(observed, "bootRecoveryRequired") == null
+                    || !observed.get("status").isJsonPrimitive() || !observed.get("status").getAsJsonPrimitive().isString())
+                throw new CloudRuntimeException("Native writer idle proof is unverified; rollback is deferred without changing VM/DATA");
+            if (Boolean.TRUE.equals(getNativeBoolean(observed, "bootChildActive"))
+                    || Boolean.TRUE.equals(getNativeBoolean(observed, "bootRecoveryRequired")))
+                throw new CloudRuntimeException("Native BOOT child or recovery is active; rollback is deferred without changing VM/DATA");
+            String status = observed.get("status").getAsString();
+            boolean idle = Boolean.TRUE.equals(getNativeBoolean(observed, "writerIdle"));
+            if ("WRITER_IDLE".equals(status) && idle) return;
+            if (!"WRITER_BUSY".equals(status) || idle)
+                throw new CloudRuntimeException("Native writer idle proof is unverified; rollback is deferred without changing VM/DATA");
+            remaining = deadline - rollbackNativeWriterNowNanos();
+            long pause = Math.min(100, java.util.concurrent.TimeUnit.NANOSECONDS.toMillis(remaining));
+            if (pause < 1)
+                throw new CloudRuntimeException("Native writer remained busy after bounded observation; rollback is deferred without changing VM/DATA");
+            pauseRollbackNativeWriter(pause);
+        }
+    }
+
+    protected StorageServiceGuestCommandResult dispatchPlainProtocolApply(StorageServiceInstanceVO instance, StorageServiceGuestCommand command) {
+        final Set<String> plain = Set.of("nfs export apply", "smb share apply", "iscsi target apply", "nvmeof subsystem apply");
+        final StorageServiceOperationVO owner = storageWriterOperation.get();
+        if (!plain.contains(command.getOperation()) || owner == null || instance.getVmId() == null
+                || command.getVmId() != instance.getVmId() || owner.getInstanceId() != instance.getId()
+                || owner.getId() <= 0 || owner.getRevision() <= 0 || StringUtils.isBlank(owner.getUuid())
+                || !(("APPLYING".equals(owner.getPhase()) || "ROLLING_BACK".equals(owner.getPhase())) && "RUNNING".equals(owner.getState())
+                        || "RECOVERING_INTERRUPTED_WRITER".equals(owner.getPhase())
+                                && ("RUNNING".equals(owner.getState()) || "RECOVERY_REQUIRED".equals(owner.getState())))
+                || command.getTimeoutSeconds() <= 0) return guestCommandDispatcher.dispatch(command);
+
+        final long instanceId = instance.getId(), operationId = owner.getId(), revision = owner.getRevision();
+        final String uuid = owner.getUuid(), phase = owner.getPhase(), state = owner.getState();
+        final String previous = owner.getPreviousSnapshotJson();
+        final Set<String> masks = Collections.unmodifiableSet(new HashSet<>(command.getMaskedFields()));
+        final StorageServiceGuestCommand fixed = new StorageServiceGuestCommand(command.getVmId(), command.getOperation(),
+                command.getPayload(), command.getTimeoutSeconds(), masks);
+        final long deadline = rollbackNativeWriterNowNanos() + java.util.concurrent.TimeUnit.SECONDS.toNanos(fixed.getTimeoutSeconds());
+        long busyDeadline = 0;
+        while (true) {
+            requireSamePlainApplyOwner(instance, fixed, owner, instanceId, operationId, uuid, revision, phase, state, previous);
+            long now = rollbackNativeWriterNowNanos();
+            if (busyDeadline != 0 && now >= busyDeadline)
+                throw new CloudRuntimeException("Native writer busy retry deadline expired; configuration requires recovery");
+            long seconds = java.util.concurrent.TimeUnit.NANOSECONDS.toSeconds(deadline - now);
+            if (seconds < 1) throw new CloudRuntimeException("Native protocol apply command deadline expired; configuration requires recovery");
+            int timeout = (int) Math.min(fixed.getTimeoutSeconds(), seconds);
+            StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(fixed.getVmId(),
+                    fixed.getOperation(), fixed.getPayload(), timeout, masks));
+            if (!isClosedNativeWriterBusy(result)) return result;
+            if (busyDeadline == 0) busyDeadline = Math.min(deadline,
+                    rollbackNativeWriterNowNanos() + java.util.concurrent.TimeUnit.SECONDS.toNanos(15));
+            requireSamePlainApplyOwner(instance, fixed, owner, instanceId, operationId, uuid, revision, phase, state, previous);
+            // A BUSY result proves dispatch never reached the handler. An idle observation supplies no source authority.
+            requireRollbackNativeWriterIdle(instance, busyDeadline);
+            if ("ROLLING_BACK".equals(phase) || "RECOVERING_INTERRUPTED_WRITER".equals(phase)) {
+                requireNoPendingVolumeFormatter(instance);
+                requireIdentityRollbackSafe(instance, owner);
+            } else {
+                requireNoOperationCancellation(owner);
+            }
+            requireSamePlainApplyOwner(instance, fixed, owner, instanceId, operationId, uuid, revision, phase, state, previous);
+        }
+    }
+
+    private void requireSamePlainApplyOwner(StorageServiceInstanceVO instance, StorageServiceGuestCommand command,
+            StorageServiceOperationVO owner, long instanceId, long operationId, String uuid, long revision,
+            String phase, String state, String previous) {
+        if (Thread.currentThread().isInterrupted())
+            throw new CloudRuntimeException("Native protocol apply was interrupted; configuration requires recovery");
+        if (storageWriterOperation.get() != owner || instance.getId() != instanceId || instance.getVmId() == null
+                || instance.getVmId() != command.getVmId() || owner.getId() != operationId || owner.getInstanceId() != instanceId
+                || owner.getRevision() != revision || !java.util.Objects.equals(owner.getUuid(), uuid)
+                || !java.util.Objects.equals(owner.getPhase(), phase) || !java.util.Objects.equals(owner.getState(), state)
+                || !java.util.Objects.equals(owner.getPreviousSnapshotJson(), previous))
+            throw new CloudRuntimeException("Native protocol apply writer scope changed; configuration requires recovery");
+    }
+
+    private boolean isClosedNativeWriterBusy(StorageServiceGuestCommandResult result) {
+        if (result == null || result.isSuccess() || result.getResultJson() == null || result.getResultJson().length() > 512) return false;
+        try (JsonReader reader = new JsonReader(new StringReader(result.getResultJson()))) {
+            reader.setLenient(false);
+            if (reader.peek() != JsonToken.BEGIN_OBJECT) return false;
+            reader.beginObject();
+            Set<String> names = new HashSet<>();
+            boolean failed = false, busy = false;
+            while (reader.hasNext()) {
+                String name = reader.nextName();
+                if (!names.add(name)) return false;
+                if ("success".equals(name)) {
+                    if (reader.peek() != JsonToken.BOOLEAN) return false;
+                    failed = !reader.nextBoolean();
+                } else if ("errorCode".equals(name)) {
+                    if (reader.peek() != JsonToken.STRING) return false;
+                    busy = "STORAGE_WRITER_BUSY".equals(reader.nextString());
+                } else return false;
+            }
+            reader.endObject();
+            return names.equals(Set.of("success", "errorCode")) && failed && busy && reader.peek() == JsonToken.END_DOCUMENT;
+        } catch (java.io.IOException | RuntimeException invalid) {
+            return false;
+        }
+    }
+
 }
