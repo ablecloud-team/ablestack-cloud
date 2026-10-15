@@ -72,7 +72,10 @@ export default {
     requirementColumns () { return [{ title: this.$t('label.type'), dataIndex: 'label' }, { title: this.$t('label.storage.operation.required'), dataIndex: 'required' }, { title: this.$t('label.storage.operation.observed'), dataIndex: 'observed' }] },
     requirementRows () {
       const observed = this.control?.observed || {}
-      const loadPerCpu = nonnegative(observed.loadOneMinute) && Number.isSafeInteger(observed.onlineCpuCount) && observed.onlineCpuCount > 0 ? observed.loadOneMinute / observed.onlineCpuCount : undefined
+      const legacyLoadPerCpu = nonnegative(observed.loadOneMinute) && Number.isSafeInteger(observed.onlineCpuCount) && observed.onlineCpuCount > 0 ? observed.loadOneMinute / observed.onlineCpuCount : undefined
+      const loadPerCpu = Object.prototype.hasOwnProperty.call(observed, 'loadPerCpu')
+        ? (nonnegative(observed.loadPerCpu) ? observed.loadPerCpu : undefined)
+        : legacyLoadPerCpu
       return [
         ['memory', 'minimumMemoryAvailableBytes', 'memoryAvailableBytes'],
         ['staging', 'stagingRequiredBytes', 'stagingFreeBytes'],

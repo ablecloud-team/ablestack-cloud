@@ -189,3 +189,29 @@ describe('Typed TCP session observation', () => {
     expect(Widget.computed.requirementRows.call(value).find(row => row.key === 'sessions').label).toBe('label.storage.operation.resource.sessions')
   })
 })
+
+describe('Normalized load readiness observation', () => {
+  beforeEach(() => { getAPI.mockReset(); postAPI.mockReset() })
+  it.each([0, 0.125, 1])('uses the actual normalized loadPerCpu %s from the scoped API response', async loadPerCpu => {
+    const value = vm()
+    getAPI.mockResolvedValue(envelope('getStorageServiceOperationControl', {
+      operationUuid: 'operation',
+      controlRevision: 8,
+      requirements: { maxLoadPerCpu: 1 },
+      observed: { loadPerCpu, loadOneMinute: 4, onlineCpuCount: 8 }
+    }))
+    await Widget.methods.refresh.call(value)
+    expect(getAPI).toHaveBeenCalledWith('getStorageServiceOperationControl', { instanceid: 'service', operationid: 'operation' }, { timeout: 15000, preserveOnFailure: true })
+    expect(Widget.computed.requirementRows.call(value).find(row => row.key === 'load')).toMatchObject({ required: 1, observed: loadPerCpu })
+  })
+  it.each([undefined, null, true, false, '', '0', '1.25', -1, NaN, Infinity, -Infinity])('does not replace invalid normalized load %j with zero or a plausible legacy value', loadPerCpu => {
+    const value = vm({ observed: { loadPerCpu, loadOneMinute: 4, onlineCpuCount: 8 } })
+    expect(Widget.computed.requirementRows.call(value).find(row => row.key === 'load').observed).toBe('—')
+  })
+  it('computes legacy load only when the normalized field is absent', () => {
+    const value = vm({ observed: { loadOneMinute: 4, onlineCpuCount: 8 } })
+    expect(Widget.computed.requirementRows.call(value).find(row => row.key === 'load').observed).toBe(0.5)
+    value.control.observed.onlineCpuCount = 0
+    expect(Widget.computed.requirementRows.call(value).find(row => row.key === 'load').observed).toBe('—')
+  })
+})
