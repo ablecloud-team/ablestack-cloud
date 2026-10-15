@@ -53,7 +53,7 @@ public class StorageRenderedValidationAdmissionTest {
         @Override protected void requireNoPendingVolumeFormatter(StorageServiceInstanceVO value) { }
         @Override protected JsonObject rootGuest(StorageServiceInstanceVO value,String command,JsonObject body,int seconds) {
             guestCalls++;Assert.assertEquals("operation generation render-status",command);afterStatus.run();
-            JsonObject result=new JsonObject();result.addProperty("success",true);result.addProperty("schemaVersion",1);result.addProperty("renderedGenerationSupported",true);
+            JsonObject result=new JsonObject();result.addProperty("success",true);result.addProperty("renderedGenerationSchemaVersion",1);result.addProperty("renderedGenerationSupported",true);
             JsonArray features=new JsonArray();features.add("RENDERED_CONFIG_GENERATION_HANDLER");result.add("supportedFeatures",features);return result;
         }
     }

@@ -38,8 +38,57 @@ public class StorageRenderedValidationProfileTest {
         JsonObject approved=new JsonObject();approved.addProperty("type","DATADISK");approved.addProperty("newDataWithoutBacking",true);approved.addProperty("path","uuid");approved.addProperty("attachedToFixture",true);approved.addProperty("ownerAndZoneVerified",true);JsonObject fresh=approved.deepCopy();fresh.addProperty("newDataWithoutBacking",false);Assert.assertTrue(StorageRenderedValidationProfile.retainedNewData(fresh,approved));
         for(String field:new String[]{"path","attachedToFixture","ownerAndZoneVerified"}){JsonObject changed=fresh.deepCopy();changed.addProperty(field,"different");Assert.assertFalse(StorageRenderedValidationProfile.retainedNewData(changed,approved));}Assert.assertFalse(StorageRenderedValidationProfile.retainedNewData(fresh,null));
     }
-    @Test public void fixedHandlerAttestationDoesNotRequireOrSynthesizeProductionFullFourCapability() {
-        JsonObject observed=new JsonObject();observed.addProperty("success",true);observed.addProperty("schemaVersion",1);observed.addProperty("renderedGenerationSupported",true);observed.addProperty("fullFourProtocolActivationSupported",false);com.google.gson.JsonArray features=new com.google.gson.JsonArray();features.add("RENDERED_CONFIG_GENERATION_HANDLER");observed.add("supportedFeatures",features);StorageRenderedValidationProfile.requireHandler(observed);Assert.assertFalse(observed.get("fullFourProtocolActivationSupported").getAsBoolean());observed.addProperty("renderedGenerationSupported","true");Assert.assertThrows(CloudRuntimeException.class,()->StorageRenderedValidationProfile.requireHandler(observed));observed.addProperty("renderedGenerationSupported",true);observed.remove("supportedFeatures");Assert.assertThrows(CloudRuntimeException.class,()->StorageRenderedValidationProfile.requireHandler(observed));
+    private JsonObject installedHandlerStatus() {
+        JsonObject observed=new JsonObject();
+        observed.addProperty("success",true);
+        observed.addProperty("renderedGenerationSchemaVersion",1);
+        observed.addProperty("renderedGenerationSupported",true);
+        observed.addProperty("fullFourProtocolActivationSupported",false);
+        JsonArray features=new JsonArray();features.add("RENDERED_CONFIG_GENERATION_HANDLER");
+        observed.add("supportedFeatures",features);
+        return observed;
+    }
+
+    @Test public void installedGuestHandlerUsesItsNamespacedSchemaWithoutSynthesizingProductionCapability() {
+        JsonObject observed=installedHandlerStatus();
+        StorageRenderedValidationProfile.requireHandler(observed);
+        Assert.assertFalse(observed.has("schemaVersion"));
+        Assert.assertFalse(observed.get("fullFourProtocolActivationSupported").getAsBoolean());
+    }
+
+    @Test public void handlerProofRejectsMissingStringAndUnsupportedNamespacedVersions() {
+        for (String version:new String[]{"missing","string","future","zero","null","object"}) {
+            JsonObject observed=installedHandlerStatus();
+            if ("missing".equals(version)) observed.remove("renderedGenerationSchemaVersion");
+            else if ("string".equals(version)) observed.addProperty("renderedGenerationSchemaVersion","1");
+            else if ("future".equals(version)) observed.addProperty("renderedGenerationSchemaVersion",2);
+            else if ("zero".equals(version)) observed.addProperty("renderedGenerationSchemaVersion",0);
+            else if ("null".equals(version)) observed.add("renderedGenerationSchemaVersion",com.google.gson.JsonNull.INSTANCE);
+            else observed.add("renderedGenerationSchemaVersion",new JsonObject());
+            Assert.assertThrows(version,CloudRuntimeException.class,()->StorageRenderedValidationProfile.requireHandler(observed));
+        }
+    }
+
+    @Test public void genericSchemaVersionCannotAuthorizeOrOverrideTheInstalledHandlerContract() {
+        JsonObject generic=installedHandlerStatus();
+        generic.remove("renderedGenerationSchemaVersion");generic.addProperty("schemaVersion",1);
+        Assert.assertThrows(CloudRuntimeException.class,()->StorageRenderedValidationProfile.requireHandler(generic));
+        JsonObject conflict=installedHandlerStatus();
+        conflict.addProperty("schemaVersion",1);conflict.addProperty("renderedGenerationSchemaVersion",2);
+        Assert.assertThrows(CloudRuntimeException.class,()->StorageRenderedValidationProfile.requireHandler(conflict));
+    }
+
+    @Test public void handlerProofRequiresLiteralSuccessSupportAndDeclaredFeature() {
+        for (String field:new String[]{"success","renderedGenerationSupported","supportedFeatures"}) {
+            JsonObject missing=installedHandlerStatus();missing.remove(field);
+            Assert.assertThrows(field,CloudRuntimeException.class,()->StorageRenderedValidationProfile.requireHandler(missing));
+            JsonObject invalid=installedHandlerStatus();
+            if ("supportedFeatures".equals(field)) invalid.add(field,new JsonArray());
+            else invalid.addProperty(field,false);
+            Assert.assertThrows(field,CloudRuntimeException.class,()->StorageRenderedValidationProfile.requireHandler(invalid));
+            JsonObject coercible=installedHandlerStatus();coercible.addProperty(field,"true");
+            Assert.assertThrows(field,CloudRuntimeException.class,()->StorageRenderedValidationProfile.requireHandler(coercible));
+        }
     }
     private JsonObject ownedArtifact(JsonObject binding) {
         JsonObject artifact=artifact();

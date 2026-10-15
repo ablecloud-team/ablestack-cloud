@@ -260,4 +260,54 @@ public class DesiredStateChangeTest {
         verify(runtime,never()).applyPrevious();verify(snapshots,never()).restore(anyLong(),anyString());
     }
 
+    @Test public void startupFailureTerminatesTheUnmutatedWriterAndRunsCleanup() {
+        doThrow(new CloudRuntimeException("control initialization failed")).when(runtime).started(any());
+        Assert.assertThrows(CloudRuntimeException.class,()->engine.execute(7L,"update","startup-failure",0L,String.class,
+                ()->{throw new AssertionError("Unexpected mutation");},runtime));
+        Assert.assertEquals("BLOCKED",saved.get().getState());
+        Assert.assertEquals("BLOCKED",saved.get().getPhase());
+        Assert.assertTrue(saved.get().getDiagnostic().startsWith("failurePhase=PREFLIGHT; "));
+        verify(runtime).abortNativeCheckpoint(any());verify(runtime).finished();
+        verify(runtime,never()).preflight();verify(snapshots,never()).capture(anyLong());
+        verify(snapshots,never()).restore(anyLong(),anyString());verify(runtime,never()).applyPrevious();
+    }
+
+    @Test public void applyFailureKeepsItsOriginalPhaseAfterSuccessfulRollback() {
+        Assert.assertThrows(CloudRuntimeException.class,()->engine.execute(7L,"update","phase-apply",0L,String.class,
+                ()->{throw new CloudRuntimeException("apply failed");},runtime));
+        Assert.assertEquals("ROLLED_BACK",saved.get().getPhase());
+        Assert.assertEquals("failurePhase=APPLYING; apply failed",saved.get().getDiagnostic());
+    }
+
+    @Test public void verificationFailureKeepsItsOriginalPhaseAfterSuccessfulRollback() {
+        org.mockito.Mockito.doThrow(new CloudRuntimeException("verify failed")).doNothing().when(runtime).verify();
+        Assert.assertThrows(CloudRuntimeException.class,()->engine.execute(7L,"update","phase-verify",0L,String.class,()->"new",runtime));
+        Assert.assertEquals("ROLLED_BACK",saved.get().getState());
+        Assert.assertEquals("failurePhase=VERIFYING; verify failed",saved.get().getDiagnostic());
+        verify(runtime).applyPrevious();
+    }
+
+    @Test public void rollbackFailureKeepsOriginalApplyPhaseAndBothDiagnostics() {
+        doThrow(new CloudRuntimeException("restore failed")).when(runtime).applyPrevious();
+        Assert.assertThrows(CloudRuntimeException.class,()->engine.execute(7L,"delete","phase-rollback",0L,String.class,
+                ()->{throw new CloudRuntimeException("delete apply failed");},runtime));
+        Assert.assertEquals("RECOVERY_REQUIRED",saved.get().getPhase());
+        Assert.assertEquals("failurePhase=APPLYING; delete apply failed | rollback: restore failed",saved.get().getDiagnostic());
+    }
+
+    @Test public void checkpointCleanupFailureKeepsOriginalPreflightPhase() {
+        doThrow(new CloudRuntimeException("resource unavailable")).when(runtime).preflight();
+        doThrow(new CloudRuntimeException("cleanup unavailable")).when(runtime).abortNativeCheckpoint(any());
+        Assert.assertThrows(CloudRuntimeException.class,()->engine.execute(7L,"update","phase-cleanup",0L,String.class,()->"unsafe",runtime));
+        Assert.assertEquals("RECOVERY_REQUIRED",saved.get().getState());
+        Assert.assertEquals("failurePhase=PREFLIGHT; resource unavailable | checkpoint cleanup: cleanup unavailable",saved.get().getDiagnostic());
+    }
+
+    @Test public void diagnosticPhaseIsAllowlistedAndOriginalMessageRetainsItsExistingBound() {
+        Assert.assertThrows(CloudRuntimeException.class,()->engine.execute(7L,"update","phase-untrusted",0L,String.class,
+                ()->{saved.get().setPhase("SYNTHETIC_PRIVATE_FIELD");throw new CloudRuntimeException("x".repeat(4096));},runtime));
+        Assert.assertEquals("failurePhase=UNKNOWN; "+"x".repeat(2048),saved.get().getDiagnostic());
+        Assert.assertFalse(saved.get().getDiagnostic().contains("SYNTHETIC_PRIVATE_FIELD"));
+    }
+
 }
