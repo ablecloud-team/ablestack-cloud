@@ -16,11 +16,13 @@
 // under the License.
 
 import Widget from '@/views/storage/StorageOperationControl'
+import { shallowMount } from '@vue/test-utils'
+import { reactive } from 'vue'
 import { getAPI, postAPI } from '@/api'
 jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
-const envelope = (api, result) => ({ [api.toLowerCase() + 'response']: { storageserviceruntime: { success: true, resultjson: JSON.stringify(result) } } })
+const envelope = (api, result) => ({ [api.toLowerCase() + 'response']: { storageserviceruntime: { id: 'service', success: true, resultjson: JSON.stringify({ instanceUuid: 'service', state: 'RUNNING', phase: 'PREFLIGHT', controlSupported: true, cancelable: false, cancelRequested: false, drainRequired: false, drainSupported: false, ...result }) } } })
 function vm (control = {}) {
-  const value = { instanceId: 'service', operationId: 'operation', instanceName: 'service-name', generation: 0, loading: false, readError: false, busy: '', confirmation: '', control: { operationUuid: 'operation', controlRevision: 7, desiredRevision: 42, ...control }, can: () => true, unwrap: Widget.methods.unwrap, $emit: jest.fn(), $t: key => key }
+  const value = { ...Widget.data(), instanceId: 'service', operationId: 'operation', instanceName: 'service-name', generation: 0, loading: false, readError: false, busy: '', confirmation: '', control: { instanceUuid: 'service', operationUuid: 'operation', controlRevision: 7, desiredRevision: 42, state: 'RUNNING', phase: 'PREFLIGHT', controlSupported: true, drainSupported: true, cancelable: true, drainState: 'NOT_REQUESTED', cancelRequested: false, ...control }, can: () => true, unwrap: Widget.methods.unwrap, $emit: jest.fn(), $t: key => key }
   for (const key of ['writable', 'canCancel', 'canDrain']) Object.defineProperty(value, key, { get: () => Widget.computed[key].call(value) })
   return value
 }
@@ -84,5 +86,106 @@ describe('Scoped operation cancellation and drain requests', () => {
     expect(Widget.computed.requirementRows.call(value).find(row => row.key === 'load')).toEqual({ key: 'load', label: 'label.storage.operation.resource.load', required: 2, observed: 0.5 })
     delete value.control.observed.onlineCpuCount
     expect(Widget.computed.requirementRows.call(value).find(row => row.key === 'load').observed).toBe('—')
+  })
+})
+
+describe('Operation control live safety and observations', () => {
+  beforeEach(() => { getAPI.mockReset(); postAPI.mockReset() })
+  afterEach(() => { jest.useRealTimers() })
+  it('does not offer drain when native session hold is unavailable', () => {
+    const value = vm({ drainRequired: true, drainSupported: false })
+    value.confirmation = value.instanceName
+    expect(value.canDrain).toBe(false)
+  })
+  it('does not duplicate a drain already requested or observed complete', () => {
+    for (const drainState of ['REQUESTED', 'DRAINING', 'DRAINED']) {
+      const value = vm({ drainRequired: true, drainSupported: true, drainState })
+      value.confirmation = value.instanceName
+      expect(value.canDrain).toBe(false)
+    }
+  })
+  it('does not enable cancellation on an unsupported control response', () => {
+    expect(vm({ controlSupported: false, cancelable: true }).canCancel).toBe(false)
+  })
+  it('rejects a runtime envelope belonging to another instance', () => {
+    const response = envelope('getStorageServiceOperationControl', { operationUuid: 'operation', controlRevision: 8 })
+    response.getstorageserviceoperationcontrolresponse.storageserviceruntime.id = 'other'
+    expect(() => Widget.methods.unwrap.call(vm(), response, 'getStorageServiceOperationControl')).toThrow()
+  })
+  it('does not race an old observation against an in-flight control request', async () => {
+    const value = vm({ cancelable: true }); value.busy = 'cancel'
+    getAPI.mockResolvedValue(envelope('getStorageServiceOperationControl', { operationUuid: 'operation', controlRevision: 7 }))
+    await Widget.methods.refresh.call(value)
+    expect(getAPI).not.toHaveBeenCalled()
+  })
+  it('requires a fresh successful observation after a lost control POST', async () => {
+    const value = vm({ cancelable: true })
+    postAPI.mockRejectedValue(new Error('response lost'))
+    await Widget.methods.request.call(value, 'cancel')
+    await Widget.methods.request.call(value, 'cancel')
+    expect(postAPI).toHaveBeenCalledTimes(1)
+    getAPI.mockResolvedValue(envelope('getStorageServiceOperationControl', { instanceUuid: 'service', operationUuid: 'operation', controlRevision: 8, controlSupported: true, state: 'RUNNING', phase: 'PREFLIGHT', cancelRequested: true, cancelable: true, drainRequired: false, drainSupported: false }))
+    await Widget.methods.refresh.call(value)
+    expect(value.control.cancelRequested).toBe(true)
+    await Widget.methods.request.call(value, 'cancel')
+    expect(postAPI).toHaveBeenCalledTimes(1)
+  })
+  it('refreshes a visible active operation and stops network reads once terminal', async () => {
+    jest.useFakeTimers()
+    Object.defineProperty(document, 'hidden', { configurable: true, value: false })
+    const state = phase => envelope('getStorageServiceOperationControl', { instanceUuid: 'service', operationUuid: 'operation', controlRevision: 8, state: phase, phase, controlSupported: true, cancelRequested: false, cancelable: false, drainRequired: false, drainSupported: false })
+    getAPI.mockResolvedValueOnce(state('RUNNING')).mockResolvedValue(state('COMPLETE'))
+    const wrapper = shallowMount(Widget, { props: { instanceId: 'service', operationId: 'operation' }, global: { mocks: { $store: { getters: { apis: { getStorageServiceOperationControl: {} } } }, $t: key => key } } })
+    wrapper.element.getClientRects = () => [{ width: 100, height: 100 }]
+    for (let i = 0; i < 8; i++) await Promise.resolve()
+    jest.advanceTimersByTime(5000)
+    for (let i = 0; i < 8; i++) await Promise.resolve()
+    expect(getAPI).toHaveBeenCalledTimes(2)
+    jest.advanceTimersByTime(30000)
+    for (let i = 0; i < 8; i++) await Promise.resolve()
+    expect(getAPI).toHaveBeenCalledTimes(2)
+    wrapper.unmount(); jest.useRealTimers()
+  })
+  it('discards an old user observation even if the operation UUID stays the same', async () => {
+    let finish
+    const getters = reactive({ apis: { getStorageServiceOperationControl: {} }, userInfo: { id: 'user-a' }, project: { id: 'p' } })
+    getAPI.mockImplementationOnce(() => new Promise(resolve => { finish = resolve })).mockResolvedValue(envelope('getStorageServiceOperationControl', { instanceUuid: 'service', operationUuid: 'operation', controlRevision: 9, state: 'COMPLETE', phase: 'COMPLETE', controlSupported: true, cancelable: false, cancelRequested: false, drainRequired: false, drainSupported: false }))
+    const wrapper = shallowMount(Widget, { props: { instanceId: 'service', operationId: 'operation' }, global: { mocks: { $store: { getters }, $t: key => key } } })
+    getters.userInfo.id = 'user-b'
+    await wrapper.vm.$nextTick()
+    finish(envelope('getStorageServiceOperationControl', { instanceUuid: 'service', operationUuid: 'operation', controlRevision: 8, state: 'RUNNING', phase: 'PREFLIGHT', controlSupported: true, cancelable: true, cancelRequested: false, drainRequired: false, drainSupported: false }))
+    for (let i = 0; i < 8; i++) await Promise.resolve()
+    expect(wrapper.vm.control?.controlRevision).toBe(9)
+    expect(wrapper.vm.canCancel).toBe(false)
+    wrapper.unmount()
+  })
+})
+
+describe('Session drain safe boundary', () => {
+  beforeEach(() => { postAPI.mockReset() })
+  it.each([false, undefined])('does not drain outside a confirmed cancelable phase (%s)', async cancelable => {
+    const value = vm({ drainRequired: true, drainSupported: true, cancelable })
+    value.confirmation = value.instanceName
+    await Widget.methods.request.call(value, 'drain')
+    expect(value.canDrain).toBe(false)
+    expect(postAPI).not.toHaveBeenCalled()
+  })
+  it.each([undefined, '', 'UNKNOWN', 'FAILED'])('does not infer an unrequested drain from an unknown state (%s)', async drainState => {
+    const value = vm({ drainRequired: true, drainSupported: true, drainState })
+    value.confirmation = value.instanceName
+    await Widget.methods.request.call(value, 'drain')
+    expect(value.canDrain).toBe(false)
+    expect(postAPI).not.toHaveBeenCalled()
+  })
+})
+
+describe('Typed TCP session observation', () => {
+  it('labels only the explicit TCP-only observation as active TCP connections', () => {
+    const value = vm({ observed: { sessionObservationKind: 'TCP_CONNECTIONS_ONLY', activeSessions: 3 } })
+    const row = Widget.computed.requirementRows.call(value).find(row => row.key === 'sessions')
+    expect(row.label).toBe('label.storage.operation.resource.tcp.connections')
+    expect(row.observed).toBe(3)
+    value.control.observed.sessionObservationKind = undefined
+    expect(Widget.computed.requirementRows.call(value).find(row => row.key === 'sessions').label).toBe('label.storage.operation.resource.sessions')
   })
 })

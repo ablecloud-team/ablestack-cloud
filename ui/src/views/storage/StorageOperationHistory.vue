@@ -26,6 +26,8 @@
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'state'"><a-tag :color="color(record.state)">{{ $t('label.storage.operation.state.' + record.state) }}</a-tag></template>
         <template v-else-if="column.key === 'actions'"><a-button v-if="canReconcile && ['RECOVERY_REQUIRED','BLOCKED','ROLLED_BACK'].includes(record.state)" size="small" :loading="saving === record.id" @click="openRecovery(record)">{{ $t('label.storage.operation.reconcile') }}</a-button></template>
+        <template v-else-if="column.key === 'progress'">{{ operationProgress(record.progress) }}</template>
+        <template v-else-if="['created', 'heartbeat', 'completed'].includes(column.key)">{{ operationTime(record[column.dataIndex]) }}</template>
         <template v-else>{{ record[column.dataIndex] }}</template>
       </template>
       <template v-if="canControl" #expandedRowRender="{ record }">
@@ -76,13 +78,17 @@ import { storageOperationRows } from '@/utils/storageRecoveryGate'
 import { SMB_CURRENT_RETAIN_MODE, supportsSmbCurrentRecovery, readSmbCurrentRecoveryReview, smbCurrentRecoveryRuntimeRow, smbCurrentRecoveryParameters, requireSmbCurrentRecoveryResult } from '@/utils/storageSmbCurrentIdentityRecovery'
 import StorageOperationControl from '@/views/storage/StorageOperationControl'
 import { ReloadOutlined } from '@ant-design/icons-vue'
+import { createListRefresh, canRefreshList } from '@/utils/listRefresh'
+
+const securityScope = vm => [vm.$store?.getters?.userInfo?.id || '', vm.$store?.getters?.project?.id || ''].join('|')
 export default {
   name: 'StorageOperationHistory',
   emits: ['read-started', 'read-complete'],
   components: { ReloadOutlined, StorageOperationControl },
   props: { instanceId: { type: String, required: true }, instanceName: { type: String, default: '' } },
-  data: () => ({ rows: [], loading: false, readError: false, generation: 0, reconcileTarget: null, saving: '', error: '', recoveryMode: 'ORIGINAL_OPERATION', currentRecoveryMode: SMB_CURRENT_RETAIN_MODE, currentReview: null, currentReviewLoading: false, currentMaintenanceApproved: false, currentConfirmation: '', currentApprovedParameters: null, recoveryToken: 0, recoveryDisposed: false }),
+  data: () => ({ rows: [], loading: false, readError: false, generation: 0, scopeEpoch: 0, reconcileTarget: null, saving: '', error: '', recoveryMode: 'ORIGINAL_OPERATION', currentRecoveryMode: SMB_CURRENT_RETAIN_MODE, currentReview: null, currentReviewLoading: false, currentMaintenanceApproved: false, currentConfirmation: '', currentApprovedParameters: null, recoveryToken: 0, recoveryDisposed: false }),
   computed: {
+    operationSecurityScope () { return securityScope(this) },
     canControl () { return 'getStorageServiceOperationControl' in this.$store.getters.apis },
     canReconcile () { return 'reconcileStorageServiceOperation' in this.$store.getters.apis },
     canCurrentRecovery () {
@@ -98,18 +104,38 @@ export default {
         { title: this.$t('label.state'), dataIndex: 'state', key: 'state', width: 180 },
         { title: this.$t('label.storage.operation.phase'), dataIndex: 'phase', key: 'phase', width: 180 },
         { title: this.$t('label.storage.operation.progress'), dataIndex: 'progress', key: 'progress', width: 100 },
+        { title: this.$t('label.created'), dataIndex: 'created', key: 'created', width: 180 },
+        { title: this.$t('label.lastheartbeat'), dataIndex: 'heartbeat', key: 'heartbeat', width: 180 },
+        { title: this.$t('label.completed'), dataIndex: 'completed', key: 'completed', width: 180 },
         { title: this.$t('label.storage.operation.diagnostic'), dataIndex: 'diagnostic', key: 'diagnostic', width: 420 },
         { title: this.$t('label.actions'), key: 'actions', width: 180, fixed: 'right', align: 'right' }]
     }
   },
   watch: {
-    instanceId () { this.generation++; this.rows = []; this.cancelRecovery(); this.saving = ''; this.error = ''; this.refresh() },
+    instanceId () { this.invalidateHistory(); this.refresh() },
+    operationSecurityScope () { this.invalidateHistory(); this.refresh() },
+    '$store.state.user.token' (token) { this.invalidateHistory(); if (token) this.refresh() },
     instanceName () { this.resetCurrentRecovery() },
     recoveryMode () { this.resetCurrentRecovery() }
   },
-  mounted () { this.refresh() },
-  beforeUnmount () { this.generation++; this.recoveryDisposed = true; this.cancelRecovery() },
+  mounted () {
+    this.refresh()
+    this.observationRefresh = createListRefresh({
+      interval: 5000,
+      active: () => !this.recoveryDisposed && !this.loading && !this.saving && !this.reconcileTarget && (this.readError || this.rows.some(row => row.state === 'RUNNING')) && canRefreshList(this.$el),
+      refresh: async () => { await this.refresh(); if (this.readError) throw new Error('Operation history observation unavailable') }
+    })
+  },
+  beforeUnmount () { this.scopeEpoch++; this.generation++; this.recoveryDisposed = true; if (this.observationRefresh) this.observationRefresh.stop(); this.cancelRecovery() },
   methods: {
+    operationTime (value) {
+      if (typeof value !== 'string' || !value || !Number.isFinite(Date.parse(value))) return '—'
+      return new Date(value).toLocaleString()
+    },
+    operationProgress (value) { return typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 100 ? value + '%' : '—' },
+    invalidateHistory () {
+      this.scopeEpoch++; this.generation++; this.rows = []; this.loading = false; this.readError = false; this.cancelRecovery(); this.saving = ''; this.error = ''
+    },
     resetCurrentRecovery () {
       this.recoveryToken++; this.currentReview = null; this.currentReviewLoading = false; this.currentMaintenanceApproved = false; this.currentConfirmation = ''; this.currentApprovedParameters = null
     },
@@ -185,37 +211,42 @@ export default {
     },
     color (state) { return state === 'COMPLETE' || state === 'COMPLETE_NO_CONFIG_CHANGE' || state === 'RECONCILED_SUPERSEDED' ? 'green' : (state === 'RECOVERY_REQUIRED' ? 'red' : (state === 'RUNNING' ? 'blue' : 'orange')) },
     async refresh () {
-      const token = ++this.generation; const instance = this.instanceId; this.loading = true
+      if (this.recoveryDisposed || this.loading) return
+      const token = ++this.generation; const instance = this.instanceId; const epoch = this.scopeEpoch || 0; const security = securityScope(this)
+      const current = () => !this.recoveryDisposed && token === this.generation && instance === this.instanceId && epoch === (this.scopeEpoch || 0) && security === securityScope(this)
+      this.loading = true
       if (this.$emit) this.$emit('read-started', { instanceId: instance, generation: token })
       try {
         const result = await getAPI('listStorageServiceOperations', { instanceid: instance }, { preserveOnFailure: true, timeout: 15000 })
-        if (token !== this.generation || instance !== this.instanceId) return
+        if (!current()) return
         this.rows = storageOperationRows(result); this.readError = false
         if (this.$emit) this.$emit('read-complete', { instanceId: instance, generation: token, rows: this.rows, readError: false })
-      } catch (error) { if (token === this.generation && instance === this.instanceId) { this.readError = true; if (this.$emit) this.$emit('read-complete', { instanceId: instance, generation: token, rows: this.rows, readError: true }) } } finally { if (token === this.generation) this.loading = false }
+      } catch (error) { if (current()) { this.readError = true; if (this.$emit) this.$emit('read-complete', { instanceId: instance, generation: token, rows: this.rows, readError: true }) } } finally { if (current()) this.loading = false }
     },
     async reconcile () {
       if (this.recoveryMode === SMB_CURRENT_RETAIN_MODE) return this.retainCurrentIdentity()
       if (!this.canReconcile || !this.reconcileTarget || this.saving) return
-      const instance = this.instanceId; const operation = this.reconcileTarget.id
+      const instance = this.instanceId; const operation = this.reconcileTarget.id; const epoch = this.scopeEpoch || 0; const token = this.recoveryToken || 0; const security = securityScope(this)
+      const current = () => !this.recoveryDisposed && instance === this.instanceId && epoch === (this.scopeEpoch || 0) && token === (this.recoveryToken || 0) && security === securityScope(this)
       this.error = ''; this.saving = operation
       try {
         let result = await postAPI('reconcileStorageServiceOperation', { operationid: operation }); const job = result.reconcilestorageserviceoperationresponse?.jobid
-        if (instance !== this.instanceId) return
+        if (!current()) return
         this.reconcileTarget = null
         if (job) {
           let done = false
           for (let i = 0; i < 120; i++) {
-            if (instance !== this.instanceId) return
+            if (!current()) return
             result = await getAPI('queryAsyncJobResult', { jobid: job }, { preserveOnFailure: true, timeout: 15000 }); const value = result.queryasyncjobresultresponse
+            if (!current()) return
             if (value.jobstatus === 1) { done = true; break }
             if (value.jobstatus === 2) throw new Error(value.jobresult?.errortext || 'Operation failed')
             await new Promise(resolve => setTimeout(resolve, 1000))
           }
           if (!done) throw new Error(this.$t('message.posix.directory.timeout'))
         }
-        if (instance === this.instanceId) await this.refresh()
-      } catch (error) { if (instance === this.instanceId) this.error = error.message } finally { if (this.saving === operation) this.saving = '' }
+        if (current()) await this.refresh()
+      } catch (error) { if (current()) this.error = error.message } finally { if (current() && this.saving === operation) this.saving = '' }
     }
   }
 }
