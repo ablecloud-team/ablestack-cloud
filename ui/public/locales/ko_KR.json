@@ -9596,5 +9596,6 @@
   "message.storage.operation.control.unsupported": "현재 작업은 작업 제어를 지원하지 않습니다.",
   "message.storage.operation.control.result.unknown": "제어 요청 결과를 확인하지 못했습니다. 업데이트로 현재 상태를 확인한 후 다시 요청하세요.",
   "label.storage.operation.resource.tcp.connections": "활성 TCP 연결",
-  "label.storage.operation.observed.at": "마지막 조회"
+  "label.storage.operation.observed.at": "마지막 조회",
+  "label.storage.operation.state.CANCELLED": "취소됨"
 }

@@ -80,3 +80,16 @@ describe('SharedFS runtime locale contract', () => {
     expect(storageKeys('ko_KR')).toEqual(storageKeys('en'))
   })
 })
+
+describe('Managed operation terminal-state locale contract', () => {
+  const states = ['RUNNING', 'COMPLETE', 'COMPLETE_NO_CONFIG_CHANGE', 'BLOCKED', 'CANCELLED', 'ROLLED_BACK', 'RECOVERY_REQUIRED']
+  it.each(Object.keys(localeFiles))('defines every consumed managed operation state in %s', locale => {
+    const missing = states.filter(state => {
+      const key = 'label.storage.operation.state.' + state
+      const value = localeMessages[locale][key]
+      return typeof value !== 'string' || !value.trim() || value === key
+    })
+    expect(missing).toEqual([])
+    expect(localeMessages[locale]['label.storage.operation.state.CANCELLED']).toBe(locale === 'ko_KR' ? '취소됨' : 'Cancelled')
+  })
+})

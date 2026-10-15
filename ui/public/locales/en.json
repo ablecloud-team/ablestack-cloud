@@ -9631,5 +9631,6 @@
   "message.storage.operation.control.unsupported": "Operation control is unavailable for this operation.",
   "message.storage.operation.control.result.unknown": "The control request result is unknown. Refresh its state before submitting another request.",
   "label.storage.operation.resource.tcp.connections": "Active TCP connections",
-  "label.storage.operation.observed.at": "Last observed"
+  "label.storage.operation.observed.at": "Last observed",
+  "label.storage.operation.state.CANCELLED": "Cancelled"
 }
