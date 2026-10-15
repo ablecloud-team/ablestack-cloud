@@ -13519,7 +13519,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             if (collected) {
                 StorageServiceConfiguration configuration = new StorageServiceConfiguration(this,storageConfigArtifactDao,storageOperationDao);
                 if (!parseJsonObject(operation.getResultJson()).has("_readOnlyArtifact")) {
-                    configuration.bindReadOnlyArtifact(operation);
+                    configuration.bindReadOnlyArtifact(operation,snapshot,bindings,status);
                     if (!storageOperationDao.update(operation.getId(),operation)) throw new CloudRuntimeException("Recovered read-only artifact receipt could not be persisted");
                 }
                 configuration.verifyReadOnlyArtifact(operation);
@@ -13553,8 +13553,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             if (!Boolean.TRUE.equals(getNativeBoolean(status,"success")) || !Boolean.TRUE.equals(getNativeBoolean(status,"reservationSupported")) || active==null || expired==null || !status.has("scope"))
                 throw new CloudRuntimeException("Resource cleanup status is unavailable");
             if (!status.get("scope").isJsonNull()) requireOperationReservationScope(instance,operation,status);
-            if (Boolean.TRUE.equals(active)) {
-                if (status.get("scope").isJsonNull() || Boolean.TRUE.equals(expired)) throw new CloudRuntimeException("Resource cleanup scope is inconsistent");
+            if (Boolean.TRUE.equals(active) || Boolean.TRUE.equals(expired) && !status.get("scope").isJsonNull()) {
+                if (status.get("scope").isJsonNull() || Boolean.TRUE.equals(active) && Boolean.TRUE.equals(expired)) throw new CloudRuntimeException("Resource cleanup scope is inconsistent");
                 status = rootGuest(instance,"operation reservation release",operationReservationRequest(instance,operation),15);
                 requireOperationReservationScope(instance,operation,status);
                 if (!Boolean.TRUE.equals(getNativeBoolean(status,"success")) || !Boolean.TRUE.equals(getNativeBoolean(status,"reservationSupported"))
@@ -13568,8 +13568,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         || !Boolean.FALSE.equals(getNativeBoolean(status,"expired")) || !status.get("scope").isJsonNull())
                     throw new CloudRuntimeException("Released resource lease absence was not freshly verified");
             } else {
-                // Empty or exactly owned expired logical leases may be closed only with the durable witness above.
-                if (!status.get("scope").isJsonNull() && !Boolean.TRUE.equals(expired)) throw new CloudRuntimeException("Resource cleanup absence is inconsistent");
+                // An absent lease has no file to release. Owned expired records use the normal release branch above.
+                if (!status.get("scope").isJsonNull() || !Boolean.FALSE.equals(expired)) throw new CloudRuntimeException("Resource cleanup absence is inconsistent");
             }
             requireOperationFinalizationWitness(instance,operation);
             JsonObject released = status.deepCopy();released.addProperty("reservationAcquired",false);
