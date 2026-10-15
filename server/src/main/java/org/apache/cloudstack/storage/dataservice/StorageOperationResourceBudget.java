@@ -62,6 +62,82 @@ public final class StorageOperationResourceBudget {
         return new StorageOperationResourceBudget(memory, staging, 1.0, drain);
     }
 
+
+    /** Count only annotated input values in RAM; no credentials or request bodies leave this method. */
+    public static long incomingParameterBytes(org.apache.cloudstack.api.BaseCmd command) {
+        if (command == null) return 0;
+        long total = 0;
+        com.google.gson.Gson gson = new com.google.gson.Gson();
+        try {
+            for (Class<?> type = command.getClass(); type != null; type = type.getSuperclass()) {
+                for (java.lang.reflect.Field field : type.getDeclaredFields()) {
+                    org.apache.cloudstack.api.Parameter parameter = field.getAnnotation(org.apache.cloudstack.api.Parameter.class);
+                    if (parameter == null || java.util.Set.of("idempotencykey", "expectedrevision").contains(parameter.name().toLowerCase(java.util.Locale.ROOT))) continue;
+                    field.setAccessible(true);Object value = field.get(command);
+                    if (value != null) total = Math.addExact(total, gson.toJson(value).getBytes(java.nio.charset.StandardCharsets.UTF_8).length);
+                    boundedBytes(total);
+                }
+            }
+            return total;
+        } catch (ReflectiveOperationException unavailable) {
+            throw new IllegalArgumentException("Materialized Storage Service request size is unavailable", unavailable);
+        }
+    }
+
+    private static long boundedBytes(long value) {
+        if (value < 0 || value > MAX_INPUT_BYTES) throw new IllegalArgumentException("Materialized Storage Service byte bound exceeded");
+        return value;
+    }
+
+    /** Conservative numeric upper bounds are frozen before the first acquisition, not physical allocations. */
+    public static JsonObject plan(Work work, long sourceBytes, long incomingBytes, long artifactBytes,
+            long expandedArtifactBytes, int sourceResources, boolean drain, long floorMiB) {
+        if (sourceResources < 0 || sourceResources > MAX_RESOURCES || floorMiB < 256 || floorMiB > 1_048_576) {
+            throw new IllegalArgumentException("Invalid Storage Service resource count or memory floor");
+        }
+        boundedBytes(sourceBytes);boundedBytes(incomingBytes);boundedBytes(artifactBytes);boundedBytes(expandedArtifactBytes);
+        long materialized = boundedBytes(Math.addExact(Math.addExact(sourceBytes, incomingBytes), expandedArtifactBytes));
+        long declarationUpper = boundedBytes(Math.addExact(Math.multiplyExact(materialized, 2), 64 * 1024L));
+        long rows = Math.addExact(Math.addExact((long) sourceResources, 32), (expandedArtifactBytes + 1023) / 1024);
+        if (rows > MAX_RESOURCES) throw new IllegalArgumentException("Materialized Storage Service resource bound exceeded");
+        long renderedUpper = boundedBytes(Math.addExact(Math.multiplyExact(declarationUpper, 8),
+                Math.addExact(Math.multiplyExact(rows, 4096), 256 * 1024L)));
+        JsonObject requirements = estimate(work, declarationUpper, artifactBytes, renderedUpper, (int) rows, drain).request();
+        requirements.addProperty("minimumMemoryAvailableBytes", Math.max(requirements.get("minimumMemoryAvailableBytes").getAsLong(), Math.multiplyExact(floorMiB, MIB)));
+        JsonObject result = new JsonObject();
+        result.addProperty("work", work.name());result.addProperty("sourceDeclarationBytes", sourceBytes);
+        result.addProperty("incomingBytes", incomingBytes);result.addProperty("artifactBytes", artifactBytes);result.addProperty("expandedArtifactUpperBoundBytes", expandedArtifactBytes);
+        result.addProperty("declarationBytes", declarationUpper);result.addProperty("sourceResourcesCount", sourceResources);result.addProperty("resourcesCount", rows);
+        result.addProperty("renderedBytes", 0);result.addProperty("renderedPending", true);result.addProperty("renderedUpperBoundBytes", renderedUpper);
+        result.addProperty("minimumMemoryFloorMiB", floorMiB);result.addProperty("logicalDiskCapacityIncluded", false);
+        result.add("requirements", requirements);return result;
+    }
+
+    private static long whole(JsonObject value, String field) {
+        com.google.gson.JsonElement element = value.get(field);
+        if (element == null || !element.isJsonPrimitive() || !element.getAsJsonPrimitive().isNumber()
+                || !element.getAsString().matches("0|[1-9][0-9]*")) throw new IllegalArgumentException("Invalid frozen Storage Service budget number");
+        try { return Long.parseLong(element.getAsString()); }
+        catch (NumberFormatException invalid) { throw new IllegalArgumentException("Frozen Storage Service budget number exceeds range", invalid); }
+    }
+
+    /** Actual target validation cannot expand or mutate the immutable native lease requirements. */
+    public static void requirePreparedWithin(JsonObject frozen, long declarationBytes, long targetBytes, int resources) {
+        boundedBytes(declarationBytes);boundedBytes(targetBytes);
+        if (resources < 0 || resources > whole(frozen, "resourcesCount") || declarationBytes > whole(frozen, "declarationBytes")
+                || targetBytes > whole(frozen, "renderedUpperBoundBytes")) {
+            throw new IllegalArgumentException("Prepared Storage Service target exceeds its frozen resource estimate");
+        }
+        Work work = Work.valueOf(frozen.get("work").getAsString());
+        JsonObject limits = frozen.getAsJsonObject("requirements");
+        JsonObject actual = estimate(work, declarationBytes, whole(frozen, "artifactBytes"),
+                whole(frozen, "renderedUpperBoundBytes"), resources, limits.get("requireSessionDrain").getAsBoolean()).request();
+        if (actual.get("minimumMemoryAvailableBytes").getAsLong() > whole(limits, "minimumMemoryAvailableBytes")
+                || actual.get("stagingRequiredBytes").getAsLong() > whole(limits, "stagingRequiredBytes")) {
+            throw new IllegalArgumentException("Prepared Storage Service target exceeds its frozen resource headroom");
+        }
+    }
+
     public JsonObject request() {
         JsonObject result = new JsonObject();
         result.addProperty("minimumMemoryAvailableBytes", minimumMemoryAvailableBytes);

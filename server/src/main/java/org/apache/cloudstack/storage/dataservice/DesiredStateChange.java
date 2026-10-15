@@ -75,6 +75,14 @@ public final class DesiredStateChange {
     }
     public <T> T execute(long instanceId,String action,String clientKey,Long expectedRevision,String requestFingerprint,
             Class<T> responseClass,Supplier<T> change,Runtime runtime) {
+        return execute(instanceId,action,clientKey,expectedRevision,requestFingerprint,responseClass,change,runtime,false);
+    }
+    public <T> T executeReadOnly(long instanceId, String action, String clientKey, Long expectedRevision, String fingerprint,
+            Class<T> responseClass, Supplier<T> collect, Runtime runtime) {
+        return execute(instanceId,action,clientKey,expectedRevision,fingerprint,responseClass,collect,runtime,true);
+    }
+    private <T> T execute(long instanceId,String action,String clientKey,Long expectedRevision,String requestFingerprint,
+            Class<T> responseClass,Supplier<T> change,Runtime runtime,boolean readOnly) {
         final String token = clientKey == null ? UUID.randomUUID().toString() : clientKey;
         if (!token.matches("[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}")) throw new IllegalArgumentException("Invalid Storage Service idempotency key");
         final String request = action + ":" + token;
@@ -91,7 +99,7 @@ public final class DesiredStateChange {
                         com.google.gson.JsonObject stored=previous.getResultJson()==null || !new com.google.gson.JsonParser().parse(previous.getResultJson()).isJsonObject()?new com.google.gson.JsonObject():new com.google.gson.JsonParser().parse(previous.getResultJson()).getAsJsonObject();
                         if(!stored.has("_requestFingerprint") || !messageDigestEqual(requestFingerprint,stored.get("_requestFingerprint").getAsString())) throw new CloudRuntimeException("Idempotency key belongs to a different request target or parameter intent; use a new key");
                     }
-                    if ("COMPLETE".equals(previous.getState())) {
+                    if ("COMPLETE".equals(previous.getState()) || "COMPLETE_NO_CONFIG_CHANGE".equals(previous.getState())) {
                         com.google.gson.JsonElement response=new com.google.gson.JsonParser().parse(previous.getResultJson());
                         if(response.isJsonObject() && response.getAsJsonObject().has("_response"))response=response.getAsJsonObject().get("_response");
                         return gson.fromJson(response,responseClass);
@@ -123,24 +131,32 @@ public final class DesiredStateChange {
                     runtime.prepareNativeCheckpoint(operation);
                     runtime.checkControl(operation);
                     runtime.beginMutation(operation);
-                    mutated = true;
+                    mutated = !readOnly;
                     phase(operation, "APPLYING", 30);
                     T response = change.get();
                     runtime.checkControl(operation);runtime.stageAndActivate(operation);
                     runtime.checkControl(operation);
                     phase(operation, "VERIFYING", 80);
                     runtime.verify();
-                    runtime.verifyNativeGeneration(operation);
                     operation.setSnapshotJson(snapshots.capture(instanceId));
                     com.google.gson.JsonElement serialized=gson.toJsonTree(response);
-                    if(requestFingerprint!=null){com.google.gson.JsonObject result=new com.google.gson.JsonObject();result.addProperty("_requestFingerprint",requestFingerprint);result.add("_response",serialized);serialized=result;}
+                    if (requestFingerprint!=null || readOnly) {
+                        com.google.gson.JsonElement carried = operation.getResultJson()==null ? null : new com.google.gson.JsonParser().parse(operation.getResultJson());
+                        com.google.gson.JsonObject result = carried!=null && carried.isJsonObject() ? carried.getAsJsonObject().deepCopy() : new com.google.gson.JsonObject();
+                        if (requestFingerprint!=null) result.addProperty("_requestFingerprint",requestFingerprint);
+                        result.add("_response",serialized);serialized=result;
+                    }
                     operation.setResultJson(serialized.toString());
+                    // Persist the verified target and response before the irreversible native commit.
+                    phase(operation, "VERIFYING", 90);
+                    runtime.verifyNativeGeneration(operation);
                     runtime.checkControl(operation);
                     runtime.promoteVerifiedConfiguration(operation);
                     // The verified configuration path commits COMPLETE and its LKG pointer together.
-                    if (!"COMPLETE".equals(operation.getState())) {
-                        operation.setState("COMPLETE"); operation.setCompleted(new Date());
-                        phase(operation, "COMPLETE", 100);
+                    if (!"COMPLETE".equals(operation.getState()) && !"COMPLETE_NO_CONFIG_CHANGE".equals(operation.getState())) {
+                        String terminal = readOnly ? "COMPLETE_NO_CONFIG_CHANGE" : "COMPLETE";
+                        operation.setState(terminal); operation.setCompleted(new Date());
+                        phase(operation, terminal, 100);
                     }
                     return response;
                 } catch (RuntimeException failure) {
@@ -200,7 +216,9 @@ public final class DesiredStateChange {
 
     private void phase(StorageServiceOperationVO operation, String phase, int progress) {
         operation.setPhase(phase); operation.setProgress(progress); operation.setHeartbeat(new Date());
-        operations.update(operation.getId(), operation);
+        if (!operations.update(operation.getId(), operation)) {
+            throw new CloudRuntimeException("Unable to persist Storage Service operation phase: " + phase);
+        }
     }
 
     private String failureDiagnostic(String phase, RuntimeException failure) {

@@ -31,6 +31,7 @@ import com.cloud.utils.exception.CloudRuntimeException;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.cloudstack.context.CallContext;
 import org.apache.cloudstack.api.response.StorageServiceConfigArtifactResponse;
 import org.apache.cloudstack.storage.dataservice.dao.StorageConfigArtifactDao;
@@ -68,6 +69,8 @@ public final class StorageServiceConfiguration {
         }
         if ("APPLY".equals(request.getConfigAction())) return apply(instance, request);
         if ("RESTORE_LKG".equals(request.getConfigAction())) return apply(instance, lastKnownGoodRequest(instance, request));
+        if ("BACKUP".equals(request.getConfigAction()) && manager.managedReadOnlyBackup(instance,request))
+            return manager.executeReadOnlyConfigurationBackup(instance,request,StorageServiceConfigArtifactResponse.class,()->backup(instance,request));
         GlobalLock lock = GlobalLock.getInternLock("StorageServiceWriter-" + instance.getId());
         try {
             if (!lock.lock(120)) throw new CloudRuntimeException("Storage Service writer is busy");
@@ -249,6 +252,35 @@ public final class StorageServiceConfiguration {
         } catch (RuntimeException failure) {
             metadata.addProperty("phase", "EXPORT_FAILED");metadata.addProperty("errorCode", "CONFIG_EXPORT_FAILED");update(row, metadata, "FAILED");throw failure;
         }
+    }
+    void bindReadOnlyArtifact(StorageServiceOperationVO operation) {
+        JsonObject result = new JsonParser().parse(operation.getResultJson()).getAsJsonObject();
+        String uuid = result.getAsJsonObject("_response").get("id").getAsString();
+        StorageConfigArtifactVO artifact = artifacts.findByUuid(uuid);
+        requireReadOnlyArtifact(operation,artifact);
+        JsonObject receipt = new JsonObject();receipt.addProperty("artifactUuid",artifact.getUuid());receipt.addProperty("sha256",artifact.getSha256());
+        receipt.addProperty("sizeBytes",artifact.getSize());receipt.addProperty("state",artifact.getState());receipt.addProperty("desiredRevision",artifact.getDesiredRevision());
+        result.add("_readOnlyArtifact",receipt);operation.setResultJson(result.toString());
+    }
+    void verifyReadOnlyArtifact(StorageServiceOperationVO operation) {
+        JsonObject result = new JsonParser().parse(operation.getResultJson()).getAsJsonObject();
+        JsonObject receipt = result.getAsJsonObject("_readOnlyArtifact");
+        if (receipt==null || !receipt.get("artifactUuid").getAsString().equals(result.getAsJsonObject("_response").get("id").getAsString()))
+            throw new CloudRuntimeException("Read-only backup artifact receipt is unavailable");
+        StorageConfigArtifactVO artifact = artifacts.findByUuid(receipt.get("artifactUuid").getAsString());
+        requireReadOnlyArtifact(operation,artifact);
+        JsonObject saved = result.deepCopy();bindReadOnlyArtifact(operation);
+        if (!receipt.equals(new JsonParser().parse(operation.getResultJson()).getAsJsonObject().get("_readOnlyArtifact")))
+            throw new CloudRuntimeException("Read-only backup artifact changed before cleanup");
+        operation.setResultJson(saved.toString());
+    }
+    private void requireReadOnlyArtifact(StorageServiceOperationVO operation,StorageConfigArtifactVO artifact) {
+        if (artifact==null || artifact.getInstanceId()!=operation.getInstanceId() || !"BACKUP".equals(artifact.getKind())
+                || !Set.of("COMPLETE","PARTIAL").contains(artifact.getState()) || artifact.getDesiredRevision()!=operation.getRevision()-1
+                || artifact.getSha256()==null || !artifact.getSha256().matches("[a-f0-9]{64}")
+                || artifact.getSize()<=0 || artifact.getSize()>StorageConfigArchive.MAX_ARCHIVE_BYTES
+                || !artifact.getSha256().equals(StorageConfigArchive.sha256(store.read(artifact.getUuid(),artifact.getSha256()))))
+            throw new CloudRuntimeException("Read-only backup artifact is not its exact completed SOURCE archive");
     }
     static String runtimeCollectionStatus(boolean requested, JsonObject collectors) {
         if (!requested) return "NOT_REQUESTED";

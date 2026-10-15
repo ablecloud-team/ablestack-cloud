@@ -36,7 +36,9 @@ public final class StorageWriterHeartbeat implements AutoCloseable {
         final String uuid = operation.getUuid();
         future = executor.scheduleWithFixedDelay(() -> {
             try {
-                operations.touchHeartbeat(id, uuid, instanceId);
+                if (!operations.touchHeartbeat(id, uuid, instanceId)) {
+                    throw new com.cloud.utils.exception.CloudRuntimeException("Storage Service writer heartbeat row is unavailable");
+                }
                 renewResourceLease.run();
                 renewalFailure.set(null);
             } catch (RuntimeException failure) {

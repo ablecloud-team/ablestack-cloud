@@ -54,6 +54,7 @@ public class DesiredStateChangeTest {
         runtime = mock(DesiredStateChange.Runtime.class);
         saved = new AtomicReference<>();
         when(operations.listByInstance(7L)).thenReturn(Collections.emptyList());
+        when(operations.update(anyLong(), any())).thenReturn(true);
         when(snapshots.capture(7L)).thenReturn("previous", "current");
         when(operations.persist(any())).thenAnswer(call -> {
             StorageServiceOperationVO operation = call.getArgument(0); saved.set(operation); return operation;
@@ -122,9 +123,32 @@ public class DesiredStateChangeTest {
         order.verify(runtime).preflight();
         order.verify(snapshots).capture(7L);
         order.verify(runtime).verify();
-        order.verify(runtime).verifyNativeGeneration(any());
         order.verify(snapshots).capture(7L);
+        order.verify(runtime).verifyNativeGeneration(any());
         order.verify(runtime).promoteVerifiedConfiguration(org.mockito.ArgumentMatchers.any());
+    }
+
+    @Test public void targetAndResponseMustBeDurableBeforeNativeCommit() {
+        org.mockito.Mockito.doAnswer(call -> {
+            StorageServiceOperationVO row = call.getArgument(0);
+            Assert.assertEquals("current", row.getSnapshotJson());
+            Assert.assertTrue(row.getResultJson().contains("done"));
+            verify(operations, org.mockito.Mockito.atLeastOnce()).update(anyLong(), org.mockito.ArgumentMatchers.argThat(
+                    candidate -> candidate.getSnapshotJson() != null && candidate.getResultJson() != null));
+            return null;
+        }).when(runtime).verifyNativeGeneration(any());
+        Assert.assertEquals("done", engine.execute(7L, "update", "durable-target", 0L, String.class, () -> "done", runtime));
+    }
+
+    @Test public void targetPersistenceFailurePreventsNativeCommit() {
+        when(operations.update(anyLong(), any())).thenAnswer(call -> {
+            StorageServiceOperationVO row = call.getArgument(1);
+            return !(row.getSnapshotJson() != null && "VERIFYING".equals(row.getPhase()));
+        });
+        Assert.assertThrows(CloudRuntimeException.class, () -> engine.execute(7L, "update", "target-persist-failure", 0L,
+                String.class, () -> "done", runtime));
+        verify(runtime, never()).verifyNativeGeneration(any());
+        verify(snapshots).restore(7L, "previous");
     }
 
     @Test public void failedNativeCheckpointNeverMutatesOrRestartsHealthyServices() {
@@ -310,4 +334,107 @@ public class DesiredStateChangeTest {
         Assert.assertFalse(saved.get().getDiagnostic().contains("SYNTHETIC_PRIVATE_FIELD"));
     }
 
+    private void rejectPhasePersistence(String rejected) {
+        when(operations.update(anyLong(), any())).thenAnswer(call ->
+                !rejected.equals(((StorageServiceOperationVO) call.getArgument(1)).getPhase()));
+    }
+
+    @Test public void preparedPhasePersistenceFailurePreventsNativeCheckpointAndEffect() {
+        rejectPhasePersistence("PREPARED");
+        java.util.concurrent.atomic.AtomicInteger effects = new java.util.concurrent.atomic.AtomicInteger();
+        Assert.assertThrows(CloudRuntimeException.class, () -> engine.execute(7L, "update", "prepared-db-failure", 0L,
+                String.class, () -> { effects.incrementAndGet();return "done"; }, runtime));
+        Assert.assertEquals(0, effects.get());Assert.assertEquals("BLOCKED", saved.get().getState());
+        Assert.assertTrue(saved.get().getDiagnostic().contains("failurePhase=PREPARED"));
+        verify(runtime, never()).prepareNativeCheckpoint(any());verify(runtime).abortNativeCheckpoint(any());
+        verify(snapshots, never()).restore(anyLong(), anyString());
+    }
+
+    @Test public void applyingPhasePersistenceFailureRollsBackCheckpointBeforeAnyEffect() {
+        rejectPhasePersistence("APPLYING");
+        java.util.concurrent.atomic.AtomicInteger effects = new java.util.concurrent.atomic.AtomicInteger();
+        Assert.assertThrows(CloudRuntimeException.class, () -> engine.execute(7L, "update", "applying-db-failure", 0L,
+                String.class, () -> { effects.incrementAndGet();return "done"; }, runtime));
+        Assert.assertEquals(0, effects.get());Assert.assertEquals("ROLLED_BACK", saved.get().getState());
+        verify(runtime).prepareNativeCheckpoint(any());verify(snapshots).restore(7L, "previous");
+        verify(runtime).applyPrevious();verify(runtime).rollbackNativeGeneration(any());
+    }
+
+    @Test public void verifyingPhasePersistenceFailureNeverPromotesTheAppliedTarget() {
+        rejectPhasePersistence("VERIFYING");
+        java.util.concurrent.atomic.AtomicInteger effects = new java.util.concurrent.atomic.AtomicInteger();
+        Assert.assertThrows(CloudRuntimeException.class, () -> engine.execute(7L, "update", "verifying-db-failure", 0L,
+                String.class, () -> { effects.incrementAndGet();return "done"; }, runtime));
+        Assert.assertEquals(1, effects.get());Assert.assertEquals("ROLLED_BACK", saved.get().getState());
+        Assert.assertTrue(saved.get().getDiagnostic().contains("failurePhase=VERIFYING"));
+        verify(runtime, never()).promoteVerifiedConfiguration(any());verify(runtime, never()).verifyNativeGeneration(any());
+        verify(snapshots).restore(7L, "previous");verify(runtime).applyPrevious();
+    }
+
+    @Test public void committedNativeReceiptPreventsSourceReplayAfterCompletePersistenceFailure() {
+        rejectPhasePersistence("COMPLETE");
+        java.util.concurrent.atomic.AtomicBoolean committedNative = new java.util.concurrent.atomic.AtomicBoolean();
+        org.mockito.Mockito.doAnswer(call -> { committedNative.set(true);return null; }).when(runtime).verifyNativeGeneration(any());
+        org.mockito.Mockito.doAnswer(call -> {
+            if (committedNative.get()) throw new CloudRuntimeException("Committed native target requires exact forward finalization");
+            return null;
+        }).when(runtime).ensureRollbackSafe();
+        Assert.assertThrows(CloudRuntimeException.class, () -> engine.execute(7L, "update", "native-committed-db-failure", 0L,
+                String.class, () -> "target", runtime));
+        Assert.assertTrue(committedNative.get());Assert.assertEquals("RECOVERY_REQUIRED", saved.get().getState());
+        Assert.assertEquals("current", saved.get().getSnapshotJson());
+        Assert.assertTrue(saved.get().getDiagnostic().contains("failurePhase=COMPLETE"));
+        verify(snapshots, never()).restore(anyLong(), anyString());verify(runtime, never()).applyPrevious();
+        verify(runtime, never()).rollbackNativeGeneration(any());
+    }
+
+    @Test public void unpersistedRolledBackTerminalRemainsRecoveryRequired() {
+        rejectPhasePersistence("ROLLED_BACK");
+        Assert.assertThrows(CloudRuntimeException.class, () -> engine.execute(7L, "update", "rollback-db-failure", 0L,
+                String.class, () -> { throw new CloudRuntimeException("applied target failed"); }, runtime));
+        Assert.assertEquals("RECOVERY_REQUIRED", saved.get().getState());
+        verify(snapshots).restore(7L, "previous");verify(runtime).applyPrevious();
+        Assert.assertTrue(saved.get().getDiagnostic().contains("rollback:"));
+    }
+
+    @Test public void heartbeatOwnershipLossBlocksForwardBoundaryWithoutBlockingSafeRollback() {
+        java.util.concurrent.ScheduledExecutorService executor = mock(java.util.concurrent.ScheduledExecutorService.class);
+        java.util.concurrent.ScheduledFuture<?> future = mock(java.util.concurrent.ScheduledFuture.class);
+        org.mockito.ArgumentCaptor<Runnable> tick = org.mockito.ArgumentCaptor.forClass(Runnable.class);
+        org.mockito.Mockito.doReturn(future).when(executor).scheduleWithFixedDelay(tick.capture(), org.mockito.Mockito.eq(20L),
+                org.mockito.Mockito.eq(20L), org.mockito.Mockito.eq(java.util.concurrent.TimeUnit.SECONDS));
+        StorageServiceOperationVO scope = new StorageServiceOperationVO();scope.setInstanceId(7L);
+        when(operations.touchHeartbeat(anyLong(), anyString(), anyLong())).thenReturn(false);
+        java.util.concurrent.atomic.AtomicInteger nativeRenewals = new java.util.concurrent.atomic.AtomicInteger();
+        try (StorageWriterHeartbeat heartbeat = new StorageWriterHeartbeat(scope, operations, executor, failure -> { }, nativeRenewals::incrementAndGet)) {
+            org.mockito.Mockito.doAnswer(call -> { heartbeat.requireAvailable();return null; }).when(runtime).checkControl(any());
+            Assert.assertThrows(CloudRuntimeException.class, () -> engine.execute(7L, "update", "heartbeat-lost-after-apply", 0L,
+                    String.class, () -> { tick.getValue().run();return "applied"; }, runtime));
+            Assert.assertEquals(0, nativeRenewals.get());Assert.assertEquals("ROLLED_BACK", saved.get().getState());
+            verify(runtime).applyPrevious();verify(snapshots).restore(7L, "previous");
+            verify(runtime, never()).promoteVerifiedConfiguration(any());
+        }
+    }
+
+
+    @Test public void readOnlyBackupReturnsCachedArtifactWithoutConfigurationRevisionOrSourceReplay() {
+        when(snapshots.capture(7L)).thenReturn("previous");
+        Assert.assertEquals("artifact",engine.executeReadOnly(7L,"CONFIGURATION_BACKUP_READ_ONLY","backup-one",0L,null,String.class,()->"artifact",runtime));
+        Assert.assertEquals("COMPLETE_NO_CONFIG_CHANGE",saved.get().getState());
+        when(operations.findByRequest(7L,"CONFIGURATION_BACKUP_READ_ONLY:backup-one")).thenReturn(saved.get());
+        Assert.assertEquals("artifact",engine.executeReadOnly(7L,"CONFIGURATION_BACKUP_READ_ONLY","backup-one",0L,null,String.class,()->{throw new AssertionError("duplicate backup");},runtime));
+        when(operations.listByInstance(7L)).thenReturn(java.util.List.of(saved.get()));
+        Assert.assertEquals("new",engine.execute(7L,"nfs","next-config",0L,String.class,()->"new",runtime));
+        Assert.assertEquals(1,saved.get().getRevision());verify(snapshots,never()).restore(anyLong(),anyString());
+    }
+    @Test public void readOnlyCleanupUnknownBlocksNextWriterAndCannotReplaySource() {
+        when(snapshots.capture(7L)).thenReturn("previous");
+        doThrow(new CloudRuntimeException("release response unknown")).when(runtime).promoteVerifiedConfiguration(any());
+        doThrow(new CloudRuntimeException("explicit cleanup required")).when(runtime).abortNativeCheckpoint(any());
+        Assert.assertThrows(CloudRuntimeException.class,()->engine.executeReadOnly(7L,"CONFIGURATION_BACKUP_READ_ONLY","backup-unknown",0L,null,String.class,()->"artifact",runtime));
+        Assert.assertEquals("RECOVERY_REQUIRED",saved.get().getState());
+        when(operations.listByInstance(7L)).thenReturn(java.util.List.of(saved.get()));
+        Assert.assertThrows(CloudRuntimeException.class,()->engine.execute(7L,"nfs","next-after-backup",0L,String.class,()->"new",runtime));
+        verify(snapshots,never()).restore(anyLong(),anyString());verify(runtime,never()).applyPrevious();
+    }
 }
